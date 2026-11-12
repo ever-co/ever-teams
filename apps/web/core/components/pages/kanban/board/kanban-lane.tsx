@@ -70,7 +70,13 @@ export function KanbanStatusTile({ status, className }: Readonly<{ status: TTask
 			)}
 			style={style}
 		>
-			<TaskPropertyIcon kind="status" name={status.name} color={status.color} icon={status.icon} />
+			<TaskPropertyIcon
+				kind="status"
+				name={status.name}
+				color={status.color}
+				icon={status.icon}
+				iconUrl={status.fullIconUrl}
+			/>
 		</span>
 	);
 }

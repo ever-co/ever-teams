@@ -29,6 +29,9 @@ jest.mock('./chat-markdown', () => ({
 	ChatMarkdown: ({ body }: { body: string }) => <div data-testid="body">{body}</div>
 }));
 jest.mock('./emoji-popover', () => ({ EmojiPopover: () => null }));
+// The task card reads the task and changes it: tested on its own (chat-task-card.test.tsx). Its hooks load the
+// app's task stores, which an app message's test has no use for.
+jest.mock('./chat-task-card', () => ({ ChatTaskCard: () => null }));
 const mockInteract = jest.fn();
 const mockInteraction = jest.fn();
 const mockMessages = jest.fn();

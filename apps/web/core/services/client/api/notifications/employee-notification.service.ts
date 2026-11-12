@@ -1,6 +1,7 @@
 import qs from 'qs';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { IEntityRecordScope } from '@/core/types/interfaces/common/entity-record';
 import {
@@ -11,6 +12,9 @@ import {
 
 /** Gauzy's `PaginationQueryDTO.take` is `@Max(100)`. */
 export const NOTIFICATION_INBOX_PAGE_SIZE = 50;
+
+/** A run has two timer reminders at most; a few more leave room for one filed by hand. */
+const TIMER_REMINDERS_PAGE_SIZE = 5;
 
 const SENDER_RELATIONS = ['sentByEmployee', 'sentByEmployee.user'];
 
@@ -65,6 +69,33 @@ class EmployeeNotificationService extends APIService {
 		});
 
 		return response.data.total;
+	};
+
+	/**
+	 * The reminders the platform filed about a run of the timer (#5022), archived or not, newest first: at most two
+	 * exist per run (one at the threshold, one at twice it).
+	 */
+	getTimerReminders = async (
+		scope: INotificationInboxScope,
+		timeLogId: string,
+		signal?: AbortSignal
+	): Promise<IEmployeeNotification[]> => {
+		const query = qs.stringify({
+			where: {
+				tenantId: scope.tenantId,
+				organizationId: scope.organizationId,
+				receiverEmployeeId: scope.receiverEmployeeId,
+				entity: EBaseEntityEnum.TimeLog,
+				entityId: timeLogId
+			},
+			order: { createdAt: 'DESC', id: 'DESC' },
+			take: TIMER_REMINDERS_PAGE_SIZE
+		});
+		const response = await this.get<PaginationResponse<IEmployeeNotification>>(`/employee-notification?${query}`, {
+			signal
+		});
+
+		return response.data.items ?? [];
 	};
 
 	update = async (id: string, input: IEmployeeNotificationUpdateInput): Promise<IEmployeeNotification> => {

@@ -4,6 +4,7 @@ import { MEET_DOMAIN } from '@/core/constants/config/constants';
 import { JitsiMeeting } from '@jitsi/react-sdk';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useRef, useState, type ComponentProps } from 'react';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { useJitsiExternalApi } from '@/core/hooks/common/use-jitsi-external-api';
 import { useCallbackRef } from '@/core/hooks/common/use-callback-ref';
 import type { MeetingJoinChoices } from '@/core/hooks/meetings/use-media-preview';
@@ -18,6 +19,8 @@ interface MeetPageProps {
 	title?: string | null;
 	/** What the person picked before joining; without it the room starts muted, as it always did. */
 	choices?: MeetingJoinChoices | null;
+	/** The meeting was started to show the screen: sharing starts as soon as the room is joined. */
+	shareScreenOnJoin?: boolean;
 	/** The person left the room, from the bar or from Jitsi's own hang-up button. */
 	onLeft: () => void;
 	onCopyLink: () => void;
@@ -46,6 +49,11 @@ const SERVER_FAILURE_KEYS = {
 
 type JitsiDevices = NonNullable<ComponentProps<typeof JitsiMeeting>['devices']>;
 
+/** The camera's height with HD video on, and off: 720p, else 360p, as the LiveKit rooms capture it. */
+const HD_HEIGHT = 720;
+const SD_HEIGHT = 360;
+const MIN_HEIGHT = 180;
+
 /**
  * Jitsi picks devices by their names; the system's default device has none to give, so its key stays out (the SDK
  * types every key as required, yet passes on only the ones given).
@@ -63,6 +71,7 @@ export default function MeetPage({
 	roomName,
 	title = null,
 	choices,
+	shareScreenOnJoin = false,
 	onLeft,
 	onCopyLink,
 	onReconnect
@@ -73,6 +82,9 @@ export default function MeetPage({
 	const [joinAttempt, setJoinAttempt] = useState(0);
 	const [joinedAt, setJoinedAt] = useState<number | null>(null);
 	const [participantCount, setParticipantCount] = useState<number | null>(null);
+	// Sharing was asked of the room and has not begun: the browser may be asking which screen, or may have refused
+	const [isSharePending, setIsSharePending] = useState(false);
+	const hasAskedToShare = useRef(false);
 	const roomApiRef = useRef<JitsiRoomApi | null>(null);
 	const onLeftRef = useCallbackRef(onLeft);
 	const onReconnectRef = useCallbackRef(onReconnect);
@@ -92,6 +104,21 @@ export default function MeetPage({
 			externalApi.addListener('videoConferenceJoined', () => {
 				setJoinedAt(Date.now());
 				countParticipants();
+				// Jitsi's noise suppression takes its command once in the room, as the person left it in the settings
+				if (choices) {
+					externalApi.executeCommand('setNoiseSuppressionEnabled', {
+						enabled: choices.noiseFilter !== false
+					});
+				}
+				// Once a meeting, not again on coming back after a lost connection
+				if (shareScreenOnJoin && !hasAskedToShare.current) {
+					hasAskedToShare.current = true;
+					setIsSharePending(true);
+					externalApi.executeCommand('toggleShareScreen');
+				}
+			});
+			externalApi.addListener('screenSharingStatusChanged', (status) => {
+				if ((status as { on?: boolean } | undefined)?.on) setIsSharePending(false);
 			});
 			externalApi.addListener('participantJoined', countParticipants);
 			externalApi.addListener('participantLeft', countParticipants);
@@ -100,7 +127,7 @@ export default function MeetPage({
 			externalApi.addListener('videoConferenceLeft', () => onLeftRef.current());
 			externalApi.addListener('connectionFailed', () => setIsDisconnected(true));
 		},
-		[onLeftRef]
+		[onLeftRef, shareScreenOnJoin, choices]
 	);
 
 	// Hanging up ends the call in Jitsi; the page leaves at once rather than wait for the room to answer
@@ -129,6 +156,7 @@ export default function MeetPage({
 		}
 	}, []);
 
+	const videoHeight = choices?.hdVideo === false ? SD_HEIGHT : HD_HEIGHT;
 	const canOpenRoom = Boolean(jwt && roomName);
 	if (!canOpenRoom) {
 		return (
@@ -178,6 +206,18 @@ export default function MeetPage({
 				leave={leave}
 				onCopyLink={onCopyLink}
 			/>
+			{isSharePending && (
+				<div
+					role="status"
+					data-testid="share-screen-pending"
+					className="flex shrink-0 flex-wrap items-center gap-2 hairline-b border-border bg-card px-3 py-2 text-sm sm:px-4"
+				>
+					<span className="min-w-0 flex-1 text-foreground">{t('meetings.SHARE_SCREEN_JITSI_HINT')}</span>
+					<Button type="button" variant="ghost" size="sm" onClick={() => setIsSharePending(false)}>
+						{t('common.CLOSE')}
+					</Button>
+				</div>
+			)}
 			<div className="min-h-0 flex-1">
 				<JitsiMeeting
 					key={joinAttempt}
@@ -186,6 +226,9 @@ export default function MeetPage({
 					configOverwrite={{
 						startWithAudioMuted: !choices?.audioEnabled,
 						startWithVideoMuted: !choices?.videoEnabled,
+						// HD video of the video and audio settings
+						resolution: videoHeight,
+						constraints: { video: { height: { ideal: videoHeight, max: videoHeight, min: MIN_HEIGHT } } },
 						disableModeratorIndicator: false,
 						startScreenSharing: false,
 						enableEmailInStats: false,
