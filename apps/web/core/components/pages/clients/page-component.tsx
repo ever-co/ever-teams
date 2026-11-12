@@ -40,7 +40,7 @@ function ClientsPage() {
 	const t = useTranslations();
 	const activeTeam = useAtomValue(activeTeamState);
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
-	const { clients, activeClients, archivedClients, isLoading, isError, refetch } = useClientsQuery({
+	const { clients, activeClients, archivedClients, isLoaded, isLoading, isError, refetch } = useClientsQuery({
 		includeArchived: true
 	});
 	const {
@@ -76,7 +76,8 @@ function ClientsPage() {
 	const counts = { active: activeClients.length, archived: archivedClients.length };
 	const isSearching = list.search.trim().length > 0;
 	const hasClients = shownClients.length > 0;
-	const showsError = isError && !isLoading;
+	// A failed read again keeps the list already read on screen: only a failed first read has nothing to show
+	const showsError = isError && !isLoading && !isLoaded;
 	const showsEmpty = !isLoading && !showsError && !hasClients;
 	const showsList = !isLoading && !showsError && hasClients;
 
