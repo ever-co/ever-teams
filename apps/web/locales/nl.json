@@ -5066,6 +5066,8 @@
 			"NAME_INVALID": "Voer een naam van 1 tot {max} tekens in.",
 			"NAME_SAVED": "Werkruimte hernoemd naar {name}",
 			"NAME_NOT_SAVED": "De werkruimte is niet hernoemd",
+			"NAME_MAYBE_UNFINISHED": "Het hernoemen is mogelijk niet afgerond",
+			"NAME_SAVE_AGAIN": "Sla dezelfde naam opnieuw op om het af te ronden.",
 			"NAME_SUPER_ADMIN_ONLY": "Alleen een superbeheerder van de werkruimte kan de naam wijzigen.",
 			"FORMATS_SECTION": "Valuta en notaties",
 			"FORMATS_DESCRIPTION": "Gelden overal waar niets specifiekers is ingesteld, zoals een tarief met een eigen valuta.",

@@ -5066,6 +5066,8 @@
 			"NAME_INVALID": "Inserisci un nome da 1 a {max} caratteri.",
 			"NAME_SAVED": "Spazio di lavoro rinominato in {name}",
 			"NAME_NOT_SAVED": "Lo spazio di lavoro non è stato rinominato",
+			"NAME_MAYBE_UNFINISHED": "Il cambio di nome potrebbe non essere terminato",
+			"NAME_SAVE_AGAIN": "Salva di nuovo lo stesso nome per completarlo.",
 			"NAME_SUPER_ADMIN_ONLY": "Solo un super amministratore dello spazio di lavoro può rinominarlo.",
 			"FORMATS_SECTION": "Valuta e formati",
 			"FORMATS_DESCRIPTION": "Valgono ovunque non sia impostato nulla di più specifico, come una tariffa con una valuta propria.",

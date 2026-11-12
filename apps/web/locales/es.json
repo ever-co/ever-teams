@@ -5066,6 +5066,8 @@
 			"NAME_INVALID": "Escribe un nombre de 1 a {max} caracteres.",
 			"NAME_SAVED": "El espacio de trabajo ahora se llama {name}",
 			"NAME_NOT_SAVED": "No se cambió el nombre del espacio de trabajo",
+			"NAME_MAYBE_UNFINISHED": "Puede que el cambio de nombre no haya terminado",
+			"NAME_SAVE_AGAIN": "Guarda el mismo nombre otra vez para terminarlo.",
 			"NAME_SUPER_ADMIN_ONLY": "Solo un superadministrador del espacio de trabajo puede cambiarle el nombre.",
 			"FORMATS_SECTION": "Moneda y formatos",
 			"FORMATS_DESCRIPTION": "Se usan donde no hay nada más concreto definido, como una tarifa con su propia moneda.",

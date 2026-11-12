@@ -5066,6 +5066,8 @@
 			"NAME_INVALID": "Saisissez un nom de 1 à {max} caractères.",
 			"NAME_SAVED": "Espace de travail renommé en {name}",
 			"NAME_NOT_SAVED": "L'espace de travail n'a pas été renommé",
+			"NAME_MAYBE_UNFINISHED": "Le renommage n'est peut-être pas terminé",
+			"NAME_SAVE_AGAIN": "Enregistrez à nouveau le même nom pour le terminer.",
 			"NAME_SUPER_ADMIN_ONLY": "Seul un super administrateur de l'espace de travail peut le renommer.",
 			"FORMATS_SECTION": "Devise et formats",
 			"FORMATS_DESCRIPTION": "Utilisés partout où rien de plus précis n'est défini, par exemple un taux qui a sa propre devise.",

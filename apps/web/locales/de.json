@@ -5066,6 +5066,8 @@
 			"NAME_INVALID": "Geben Sie einen Namen mit 1 bis {max} Zeichen ein.",
 			"NAME_SAVED": "Arbeitsbereich in {name} umbenannt",
 			"NAME_NOT_SAVED": "Der Arbeitsbereich wurde nicht umbenannt",
+			"NAME_MAYBE_UNFINISHED": "Die Umbenennung ist möglicherweise nicht abgeschlossen",
+			"NAME_SAVE_AGAIN": "Speichern Sie denselben Namen erneut, um sie abzuschließen.",
 			"NAME_SUPER_ADMIN_ONLY": "Nur ein Super-Admin des Arbeitsbereichs kann ihn umbenennen.",
 			"FORMATS_SECTION": "Währung und Formate",
 			"FORMATS_DESCRIPTION": "Gelten überall dort, wo nichts Genaueres festgelegt ist, etwa bei einem Satz mit eigener Währung.",
