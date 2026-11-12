@@ -6,9 +6,15 @@ import type { ProjectTaskStatsState } from '@/core/hooks/projects/use-project-ta
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import type { TTaskStatus } from '@/core/types/schemas/task/task-status.schema';
 
+function mockTranslate(key: string, values?: Record<string, unknown>) {
+	if (!values) {
+		return key;
+	}
+	const filled = Object.values(values).join(',');
+	return `${key}(${filled})`;
+}
 jest.mock('next-intl', () => ({
-	useTranslations: () => (key: string, values?: Record<string, unknown>) =>
-		values ? `${key}(${Object.values(values).join(',')})` : key,
+	useTranslations: () => mockTranslate,
 	useLocale: () => 'en'
 }));
 let mockTaskViewsEnabled = false;
