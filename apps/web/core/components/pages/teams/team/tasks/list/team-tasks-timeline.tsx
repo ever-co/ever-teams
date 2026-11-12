@@ -99,6 +99,13 @@ function todayScrollLeftOf(element: HTMLElement, todayDay: number, dayWidth: num
 	return Math.max(0, todayDay * dayWidth - daysWidth / 3);
 }
 
+/** The card is the mouse's: a focus (the drawer giving it back on Escape, a Tab) opens nothing. */
+function isFocusOpening(isOpen: boolean, reason: string) {
+	const isOpening = isOpen;
+	const isByFocus = reason === 'trigger-focus';
+	return isOpening && isByFocus;
+}
+
 /**
  * A view shown as a timeline (its layout): the tasks the view lists, with its filters, scope, search and ordering, one
  * row each, as a bar from the task's start date to its due date on a calendar of days. A task with a due date only is
@@ -718,9 +725,11 @@ function TimelineBar({
 	// A press or a drag hides the card: it would cover the days the bar is dragged over.
 	const isCardShown = canHover && isCardOpen && !isPressed;
 
-	const handleCardOpenChange = (isOpen: boolean) => {
+	const handleCardOpenChange = (isOpen: boolean, eventDetails: { reason: string }) => {
 		const isHeld = isOpen && isCardHeldRef.current;
-		if (isHeld) {
+		const isByFocus = isFocusOpening(isOpen, eventDetails.reason);
+		const isRefused = isHeld || isByFocus;
+		if (isRefused) {
 			return;
 		}
 		setIsCardOpen(isOpen);

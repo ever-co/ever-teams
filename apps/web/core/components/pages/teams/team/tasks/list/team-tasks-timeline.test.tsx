@@ -423,6 +423,19 @@ describe('TeamTasksTimelineView', () => {
 			expect(screen.getByTestId('timeline-card-a')).toBeTruthy();
 		});
 
+		it('opens no card on a focus, the drawer giving the focus back on Escape included', () => {
+			renderTimeline([ranged]);
+			const bar = screen.getByTestId('timeline-bar-a');
+
+			act(() => bar.focus());
+			fireEvent.focus(bar);
+			act(() => {
+				jest.advanceTimersByTime(800);
+			});
+
+			expect(screen.queryByTestId('timeline-card-a')).toBeNull();
+		});
+
 		it('never shows a card where nothing hovers', () => {
 			mockCanHover = false;
 			renderTimeline([ranged]);
