@@ -58,6 +58,7 @@ interface EmployeeOfReport extends EmployeeBillingRate {
 interface ProjectRatesState {
 	rates: TProjectRates | null;
 	isLoading: boolean;
+	isRefreshing: boolean;
 	hasFailed: boolean;
 }
 
@@ -78,6 +79,7 @@ function projectRatesStatesOf(results: ReadonlyArray<UseQueryResult<TProjectRate
 		return {
 			rates: result.data ?? null,
 			isLoading: result.isLoading,
+			isRefreshing: result.isFetching && !result.isLoading,
 			hasFailed: result.isError && !isUnavailable
 		};
 	});
@@ -299,7 +301,11 @@ export function useInvoiceTime({
 	const isLoading = isReadingAny || isReadingRates;
 	const hasReadFailed = haveProjectsFailed || hasTimeFailed;
 	const isError = hasReadFailed || haveRatesFailed;
-	const isUpdating = logsQuery.isFetching && !logsQuery.isLoading;
+	const isRefreshingLogs = logsQuery.isFetching && !logsQuery.isLoading;
+	const isRefreshingEmployees = employeesQuery.isFetching && !employeesQuery.isLoading;
+	const isRefreshingRates = ratesStates.some((state) => state.isRefreshing);
+	// A read again keeps showing its previous answer: the lines, their rates and their names can still change.
+	const isUpdating = isRefreshingLogs || isRefreshingEmployees || isRefreshingRates;
 
 	const refetchProjects = projectsQuery.refetchOrganizationProjects;
 	const refetchLogs = logsQuery.refetch;
