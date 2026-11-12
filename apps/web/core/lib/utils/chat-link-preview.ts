@@ -352,6 +352,8 @@ export function previewLinksOf(
 export interface ChatLinkPreviewCard {
 	/** What the card opens: the link as written. */
 	href: string;
+	/** The link as the platform keys it (no fragment): what its picture is asked for by, shared by links to one page. */
+	url: string;
 	/**
 	 * The host the card opens (`www.` left out). Always shown, and what the card is named by: the page names its site
 	 * as it likes, so its name alone could pass for another site's.
@@ -406,6 +408,7 @@ export function linkPreviewCardOf(
 	const height = preview.imageHeight ?? null;
 	return {
 		href: link.href,
+		url: link.url,
 		host,
 		siteName: siteName && siteName.toLowerCase() !== host.toLowerCase() ? siteName : null,
 		title,

@@ -4,6 +4,7 @@ import { memo, useId, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/core/components/icons';
 import { useChatLinkPreviewPicture } from '@/core/hooks/chat/use-chat-link-preview-picture';
+import { useObjectUrlRef } from '@/core/hooks/common/use-object-url-ref';
 import { useChatLinkPreviews } from '@/core/hooks/chat/use-chat-link-previews';
 import { previewLinksOf, type ChatLinkPreviewCard, type ChatPreviewLink } from '@/core/lib/utils/chat-link-preview';
 
@@ -21,7 +22,8 @@ function ownOrigin(): string | null {
 function LinkPreviewCard({ card }: Readonly<{ card: ChatLinkPreviewCard }>) {
 	const t = useTranslations();
 	const descriptionId = useId();
-	const picture = useChatLinkPreviewPicture(card.href, card.hasPicture);
+	const picture = useChatLinkPreviewPicture(card.url, card.hasPicture);
+	const pictureRef = useObjectUrlRef(picture);
 
 	return (
 		<a
@@ -72,9 +74,10 @@ function LinkPreviewCard({ card }: Readonly<{ card: ChatLinkPreviewCard }>) {
 				)}
 			</span>
 			{picture && (
-				// The platform's own copy of the page's picture (an object URL of its answer), at the card's side.
+				// The platform's own copy of the page's picture (an object URL of its answer, made and released by the
+				// ref), at the card's side.
 				<img
-					src={picture}
+					ref={pictureRef}
 					alt={card.pictureAlt ?? ''}
 					className="h-16 w-24 shrink-0 rounded-md bg-muted object-cover"
 					style={card.pictureRatio ? { aspectRatio: String(card.pictureRatio) } : undefined}

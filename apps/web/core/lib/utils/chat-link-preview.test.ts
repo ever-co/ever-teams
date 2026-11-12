@@ -193,6 +193,7 @@ describe('linkPreviewCardOf', () => {
 		// browser. The card keeps only that there is a picture (the platform serves its own copy), its alt and its shape.
 		expect(card).toEqual({
 			href: 'https://www.a.io/p#x',
+			url: link.url,
 			host: 'a.io',
 			siteName: 'A',
 			title: 'The page',
@@ -208,6 +209,7 @@ describe('linkPreviewCardOf', () => {
 		const card = linkPreviewCardOf(link, answer(link.url, EChatLinkPreviewStatus.Ready, { description: 'D' }));
 		expect(card).toEqual({
 			href: 'https://www.a.io/p#x',
+			url: link.url,
 			host: 'a.io',
 			siteName: null,
 			title: null,
