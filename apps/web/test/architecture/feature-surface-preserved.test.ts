@@ -2010,12 +2010,17 @@ describe('Ever Teams feature surface preservation', () => {
 		// 296 files and 379 verbs with the link preview pictures proxy (GET /api/chat/link-preview/image).
 		// 298 files and 381 verbs with the clicks on app message buttons (POST /api/chat/messages/[id]/interactions,
 		// GET /api/chat/interactions/[id]).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(298);
+		// 300 files and 383 verbs with the members settings proxies: the inactive employees (GET /api/employee/inactive)
+		// and the workspace role of an account (PUT /api/user/[id]/role).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(300);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(381);
+		).toHaveLength(383);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode routes of the members settings: deactivated members and workspace roles (#5092)
+				'apps/web/app/api/employee/inactive/route.ts::GET',
+				'apps/web/app/api/user/[id]/role/route.ts::PUT',
 				// Proxy mode twins of the platform's clicks on app message buttons (incoming webhooks, 2026-11-11)
 				'apps/web/app/api/chat/messages/[id]/interactions/route.ts::POST',
 				'apps/web/app/api/chat/interactions/[id]/route.ts::GET',
