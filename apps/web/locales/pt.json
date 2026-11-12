@@ -4356,10 +4356,7 @@
 			"ICON_SEARCH": "Buscar ícones",
 			"ICON_EMPTY": "Nenhum ícone corresponde a esta busca.",
 			"iconGroups": {
-				"classic": "Ícones clássicos",
-				"statuses": "Ícones de status",
-				"sizes": "Ícones de tamanho",
-				"priorities": "Ícones de prioridade"
+				"classic": "Ícones clássicos"
 			},
 			"iconLibrary": {
 				"progress": "Progresso",
@@ -5735,6 +5732,7 @@
 		"PALETTE_HEADING": "Páginas",
 		"EXPORT_UNSAVED": "Suas últimas alterações ainda não foram salvas, então nada foi exportado. Tente de novo quando a página mostrar Salvo.",
 		"COMMENT_ANCHOR_UNSAVED": "Não foi possível salvar a página, então o comentário não foi publicado. Seu texto foi mantido.",
+		"BLOCK_LINK_UNSAVED": "Não foi possível salvar a página, então o link não foi copiado. Tente de novo quando a conexão voltar ou a página for salva.",
 		"COPY_ERROR": "Não foi possível copiar o link.",
 		"IMPORT": {
 			"BUTTON": "Importar",

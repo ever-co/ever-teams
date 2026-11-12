@@ -4356,10 +4356,7 @@
 			"ICON_SEARCH": "搜索图标",
 			"ICON_EMPTY": "没有符合搜索的图标。",
 			"iconGroups": {
-				"classic": "经典图标",
-				"statuses": "状态图标",
-				"sizes": "规模图标",
-				"priorities": "优先级图标"
+				"classic": "经典图标"
 			},
 			"iconLibrary": {
 				"progress": "进度",
@@ -5735,6 +5732,7 @@
 		"PALETTE_HEADING": "页面",
 		"EXPORT_UNSAVED": "您最近的更改尚未保存，因此未导出任何内容。请在页面显示“已保存”后重试。",
 		"COMMENT_ANCHOR_UNSAVED": "无法保存页面，因此评论未发布。您的文本已保留。",
+		"BLOCK_LINK_UNSAVED": "无法保存页面，因此未复制链接。请在连接恢复或页面保存后重试。",
 		"COPY_ERROR": "无法复制链接。",
 		"IMPORT": {
 			"BUTTON": "导入",

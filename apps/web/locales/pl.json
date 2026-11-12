@@ -4356,10 +4356,7 @@
 			"ICON_SEARCH": "Szukaj ikon",
 			"ICON_EMPTY": "Żadna ikona nie pasuje do wyszukiwania.",
 			"iconGroups": {
-				"classic": "Klasyczne ikony",
-				"statuses": "Ikony statusów",
-				"sizes": "Ikony rozmiarów",
-				"priorities": "Ikony priorytetów"
+				"classic": "Klasyczne ikony"
 			},
 			"iconLibrary": {
 				"progress": "Postęp",
@@ -5735,6 +5732,7 @@
 		"PALETTE_HEADING": "Strony",
 		"EXPORT_UNSAVED": "Twoje ostatnie zmiany nie są jeszcze zapisane, więc nic nie wyeksportowano. Spróbuj ponownie, gdy strona pokaże „Zapisano”.",
 		"COMMENT_ANCHOR_UNSAVED": "Nie udało się zapisać strony, więc komentarz nie został opublikowany. Twój tekst został zachowany.",
+		"BLOCK_LINK_UNSAVED": "Nie udało się zapisać strony, więc link nie został skopiowany. Spróbuj ponownie, gdy połączenie wróci lub strona zostanie zapisana.",
 		"COPY_ERROR": "Nie udało się skopiować linku.",
 		"IMPORT": {
 			"BUTTON": "Importuj",
