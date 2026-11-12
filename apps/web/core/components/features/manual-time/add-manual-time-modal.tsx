@@ -19,6 +19,7 @@ import { FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } f
 import { manualTimeReasons } from '@/core/constants/config/constants';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
 import { useTimeOverlapGuard } from '@/core/hooks/timesheet/use-time-overlap-guard';
+import { useOpenSession } from '@/core/hooks/common/use-open-session';
 import { TimeOverlapCheckError, TimeOverlapConfirmDialog } from './time-overlap-confirm-dialog';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { DatePicker } from '@/core/components/common/date-picker';
@@ -181,6 +182,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const ownEmployeeId = user?.employee?.id ?? '';
 
 	const isSaving = addManualTimeLoading || overlapGuard.isChecking || isCheckingSave;
+	const openSessionOf = useOpenSession(isOpen);
 
 	const startTimeId = useId();
 	const endTimeId = useId();
@@ -216,6 +218,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				save();
 				return;
 			}
+			const session = openSessionOf();
 			setIsCheckingSave(true);
 			let refusal: string | null;
 			try {
@@ -223,13 +226,18 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			} finally {
 				setIsCheckingSave(false);
 			}
+			// Closed while the check ran: the copy is not saved behind the person's back
+			const wasDismissed = session !== openSessionOf();
+			if (wasDismissed) {
+				return;
+			}
 			if (refusal) {
 				setErrorMsg(refusal);
 				return;
 			}
 			save();
 		},
-		[checkBeforeSave, savedEmployeeId]
+		[checkBeforeSave, openSessionOf, savedEmployeeId]
 	);
 
 	const handleSubmit = useCallback(

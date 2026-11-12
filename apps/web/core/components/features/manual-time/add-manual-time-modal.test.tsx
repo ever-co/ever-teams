@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { AddManualTimeModal } from './add-manual-time-modal';
 
 const mockAddManualTime = jest.fn();
@@ -334,6 +334,25 @@ describe('AddManualTimeModal opened on a copied entry', () => {
 
 		await waitFor(() => expect(mockAddManualTime).toHaveBeenCalledTimes(1));
 		expect(mockAddManualTime).toHaveBeenCalledWith(expect.objectContaining({ taskId: 'task-a-2' }));
+	});
+
+	it('saves nothing when the dialog is closed while its copy is being checked', async () => {
+		let answerCheck: (refusal: string | null) => void = () => undefined;
+		const pendingCheck = new Promise<string | null>((resolve) => {
+			answerCheck = resolve;
+		});
+		const checkBeforeSave = jest.fn().mockReturnValue(pendingCheck);
+		const { unmount } = renderCopyDialog({ checkBeforeSave });
+
+		submitDialog();
+		await waitFor(() => expect(checkBeforeSave).toHaveBeenCalledTimes(1));
+		unmount();
+		await act(async () => {
+			answerCheck(null);
+		});
+
+		expect(mockSaveAfterCheck).not.toHaveBeenCalled();
+		expect(mockAddManualTime).not.toHaveBeenCalled();
 	});
 });
 

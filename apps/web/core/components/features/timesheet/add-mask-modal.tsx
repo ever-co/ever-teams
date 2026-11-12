@@ -15,6 +15,7 @@ import {
 } from '@/core/components/common/select';
 import { useCreateTimesheet } from '@/core/hooks/timesheet/use-create-timesheet';
 import { useTimeOverlapGuard } from '@/core/hooks/timesheet/use-time-overlap-guard';
+import { useOpenSession } from '@/core/hooks/common/use-open-session';
 import { periodsOverlapEachOther } from '@/core/lib/utils/time-log-overlap';
 import {
 	TimeOverlapCheckError,
@@ -231,6 +232,7 @@ export function AddTaskModal({ closeModal, isOpen, prefill, checkBeforeSave }: I
 	}));
 	const [saveRefusal, setSaveRefusal] = React.useState('');
 	const [isCheckingSave, setIsCheckingSave] = React.useState(false);
+	const openSessionOf = useOpenSession(isOpen);
 
 	// The task and the employee come from the active team's lists: when that team changes under the open form
 	// (a team switch from another tab), they are cleared instead of being saved with the new team
@@ -394,7 +396,13 @@ export function AddTaskModal({ closeModal, isOpen, prefill, checkBeforeSave }: I
 			}
 			// A copied entry is refused over another entry, before the overlap warning could offer to save it
 			if (checkBeforeSave) {
+				const session = openSessionOf();
 				const refusal = await refusalOf(checkBeforeSave, formState.employeeId, entries);
+				// Closed while the check ran: the copy is not saved behind the person's back
+				const wasDismissed = session !== openSessionOf();
+				if (wasDismissed) {
+					return;
+				}
 				setSaveRefusal(refusal ?? '');
 				if (refusal) {
 					return;

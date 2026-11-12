@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { AddTaskModal } from './add-mask-modal';
 
 const mockCreateTimesheet = jest.fn();
@@ -338,6 +338,26 @@ describe('AddTaskModal opened on a copied entry', () => {
 
 		await waitFor(() => expect(mockCreateTimesheet).toHaveBeenCalledTimes(1));
 		expect(screen.queryByRole('alert')).toBeNull();
+	});
+
+	it('saves nothing when the dialog is closed while its copy is being checked', async () => {
+		let answerCheck: (refusal: string | null) => void = () => undefined;
+		const pendingCheck = new Promise<string | null>((resolve) => {
+			answerCheck = resolve;
+		});
+		const checkBeforeSave = jest.fn().mockReturnValue(pendingCheck);
+		const { unmount } = render(
+			<AddTaskModal isOpen closeModal={closeModal} prefill={copiedEntry} checkBeforeSave={checkBeforeSave} />
+		);
+
+		save();
+		await waitFor(() => expect(checkBeforeSave).toHaveBeenCalledTimes(1));
+		unmount();
+		await act(async () => {
+			answerCheck(null);
+		});
+
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
 	});
 });
 
