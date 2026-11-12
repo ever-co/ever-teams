@@ -26,9 +26,9 @@ const STEP_CONTROL = 'h-8 w-full text-[13px]';
 
 const STEP_SAMPLE = 'truncate text-xs text-muted-foreground';
 
-const FIRST_ROWS_HEAD = 'px-3 py-1.5 font-medium whitespace-nowrap text-muted-foreground first:pl-0';
+const FIRST_ROWS_HEAD = 'px-3 py-1.5 font-medium whitespace-nowrap text-muted-foreground first:ps-0';
 
-const FIRST_ROWS_CELL = 'px-3 py-1.5 text-foreground first:pl-0';
+const FIRST_ROWS_CELL = 'px-3 py-1.5 text-foreground first:ps-0';
 
 const NOT_IN_FILE = 'none';
 
@@ -223,7 +223,7 @@ function DateFormatRow({ step, copy, onChooseDateOrder }: Readonly<DateFormatRow
 						<SelectItem key={order} value={order} className="text-[13px]">
 							{copy.dateOrderLabel(order)}
 							{value && (
-								<span className="ml-2 text-muted-foreground">{copy.dateReadingOf(value, order)}</span>
+								<span className="ms-2 text-muted-foreground">{copy.dateReadingOf(value, order)}</span>
 							)}
 						</SelectItem>
 					))}
@@ -247,7 +247,7 @@ function FirstRows({ step }: Readonly<{ step: TimeImportColumnsStepData }>) {
 				{t('timeImport.mapping.FIRST_ROWS')}
 			</p>
 			<div className="overflow-x-auto">
-				<table aria-labelledby={labelId} className="w-max min-w-full text-left text-xs">
+				<table aria-labelledby={labelId} className="w-max min-w-full text-start text-xs">
 					<thead>
 						<tr className="hairline-b border-border">
 							{columnIndexes.map((columnIndex) => (
@@ -361,7 +361,7 @@ export function TimeImportColumnsStep({
 							{blockerText}
 						</p>
 					)}
-					<div className="ml-auto flex flex-wrap items-center gap-2">
+					<div className="ms-auto flex flex-wrap items-center gap-2">
 						<Button type="button" variant="outline" onClick={onChooseAnother}>
 							{t('timeImport.CHOOSE_ANOTHER')}
 						</Button>
