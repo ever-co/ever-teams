@@ -313,6 +313,46 @@ describe('EditTaskModal task of the entry', () => {
 		expect(payload.projectId).toBe('project-mobile');
 	});
 
+	it('shows the task the entry was saved under when it is opened again before the page has read it as saved', async () => {
+		const view = renderEditDialog(logOf({}));
+		pickTask('task-mobile');
+		await saveEntry();
+
+		view.reopen();
+
+		expect(taskSelect().value).toBe('task-mobile');
+		expect(screen.queryByText('manualTime.TASK_CHANGE.PROJECT_FOLLOWS Mobile app')).toBeNull();
+	});
+
+	it('moves that entry back to its earlier task when the task is picked again in that opening', async () => {
+		const view = renderEditDialog(logOf({}));
+		pickTask('task-mobile');
+		await saveEntry();
+
+		view.reopen();
+		pickTask('task-site');
+		const payload = await saveEntry();
+
+		expect(payload).toMatchObject({ taskId: 'task-site', projectId: 'project-site' });
+	});
+
+	it('still drops a task picked in an opening closed without saving, after a save that moved the entry', async () => {
+		const view = renderEditDialog(logOf({}));
+		pickTask('task-mobile');
+		await saveEntry();
+
+		view.reopen();
+		pickTask('task-loose');
+		view.reopen();
+
+		expect(taskSelect().value).toBe('task-mobile');
+
+		const payload = await saveEntry();
+
+		expect(payload).not.toHaveProperty('taskId');
+		expect(payload.projectId).toBe('project-mobile');
+	});
+
 	it("shows the entry's own task when the team's list does not hold it", () => {
 		renderEditDialog(logOf({}), [taskInMobile]);
 
