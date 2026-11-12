@@ -61,6 +61,28 @@ function conflictsOfPeriod(
 	});
 }
 
+export interface OverlapLookup {
+	/** The member the time is saved for: the lookup reads that member's entries. */
+	employeeId: string;
+	periods: ReadonlyArray<TimePeriod>;
+	/** The entry being edited, which its own interval never removes. */
+	ignoredLogId?: string;
+}
+
+/** What saving the periods would remove, asked to the API. It fails when a lookup does. */
+export async function overlapOfPeriods(queryClient: QueryClient, lookup: OverlapLookup): Promise<OverlapSummary> {
+	const { employeeId, periods, ignoredLogId } = lookup;
+	const lookups = periods.map((period) => conflictsOfPeriod(queryClient, employeeId, period, ignoredLogId));
+	const conflictsPerPeriod = await Promise.all(lookups);
+	const logs = conflictsPerPeriod.flat();
+	// An entry the save would remove but the warning cannot show: an incomplete answer, not an empty one
+	const hasUnreadableEntry = logs.some((log) => log.id !== ignoredLogId && hasUnreadableInterval(log));
+	if (hasUnreadableEntry) {
+		throw new Error('The overlap lookup returned an entry whose time cannot be read');
+	}
+	return overlapSummaryOf({ periods, logs, ignoredLogId, now: new Date() });
+}
+
 /**
  * Stands between a manual time dialog and its save. The API removes, without a word, every other entry of the
  * member that a manual entry overlaps, whole: this asks the API what overlaps first, saves at once when nothing
@@ -123,17 +145,7 @@ export function useTimeOverlapGuard({ isOpen = true }: TimeOverlapGuardOptions =
 			setIsChecking(true);
 			let overlap: OverlapSummary;
 			try {
-				const lookups = periods.map((period) =>
-					conflictsOfPeriod(queryClient, employeeId, period, ignoredLogId)
-				);
-				const conflictsPerPeriod = await Promise.all(lookups);
-				const logs = conflictsPerPeriod.flat();
-				// An entry the save would remove but the warning cannot show: an incomplete answer, not an empty one
-				const hasUnreadableEntry = logs.some((log) => log.id !== ignoredLogId && hasUnreadableInterval(log));
-				if (hasUnreadableEntry) {
-					throw new Error('The overlap lookup returned an entry whose time cannot be read');
-				}
-				overlap = overlapSummaryOf({ periods, logs, ignoredLogId, now: new Date() });
+				overlap = await overlapOfPeriods(queryClient, { employeeId, periods, ignoredLogId });
 			} catch (error) {
 				if (attempt === attemptRef.current) {
 					logErrorInDev('Time overlap check failed', error);
