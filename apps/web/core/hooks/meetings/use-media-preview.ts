@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useCallbackRef } from '@/core/hooks/common/use-callback-ref';
 
 export type MeetingDeviceKind = 'audioinput' | 'videoinput' | 'audiooutput';
 
@@ -92,6 +93,11 @@ function updateChoices(update: (current: MeetingDeviceChoices) => MeetingDeviceC
 	writeStoredChoices(JSON.stringify(update(choicesOf(readStoredChoices()))));
 }
 
+/** A device remembered from last time is gone: the stored choices fall back to the defaults. */
+function forgetStoredDevices() {
+	updateChoices((current) => ({ ...current, audioInputId: '', videoInputId: '' }));
+}
+
 function stopTracks(stream: MediaStream | null) {
 	for (const track of stream?.getTracks() ?? []) {
 		track.stop();
@@ -168,22 +174,49 @@ function canPickSpeaker(): boolean {
 	return typeof HTMLMediaElement !== 'undefined' && 'setSinkId' in HTMLMediaElement.prototype;
 }
 
-/**
- * The camera and microphone preview of the pre-join screen. It opens the chosen devices while the screen shows,
- * lists the devices once the browser names them, and stops every track when the screen goes away, so the room
- * opens the devices on its own and the camera never stays on behind it.
- */
-export function useMediaPreview() {
+/** The choices kept on this device, and the ways to change them. */
+function useStoredMeetingChoices() {
 	const storedChoices = useSyncExternalStore(subscribeToChoices, readStoredChoices, () => null);
 	const choices = useMemo(() => choicesOf(storedChoices), [storedChoices]);
+
+	const toggleAudio = useCallback(
+		() => updateChoices((current) => ({ ...current, audioEnabled: !current.audioEnabled })),
+		[]
+	);
+	const toggleVideo = useCallback(
+		() => updateChoices((current) => ({ ...current, videoEnabled: !current.videoEnabled })),
+		[]
+	);
+	const selectDevice = useCallback(
+		(kind: MeetingDeviceKind, deviceId: string) =>
+			updateChoices((current) => ({ ...current, [DEVICE_FIELD[kind]]: deviceId })),
+		[]
+	);
+
+	return { choices, toggleAudio, toggleVideo, selectDevice };
+}
+
+/** The devices a stream asks for: whether each is on, and which one (empty for the system's default). */
+type MeetingDeviceRequest = Pick<
+	MeetingDeviceChoices,
+	'audioEnabled' | 'videoEnabled' | 'audioInputId' | 'videoInputId'
+>;
+
+/**
+ * The camera and microphone of a request, live: it opens the devices asked for while mounted, lists the devices once
+ * the browser names them, and stops every track when unmounted, so the camera never stays on behind it. A device
+ * asked for that is gone calls `onStaleDevice`, for the request to fall back to the defaults.
+ */
+function useDeviceStream(request: MeetingDeviceRequest, onStaleDevice: () => void) {
 	const [devices, setDevices] = useState<DeviceLists>(NO_DEVICES);
 	const [stream, setStream] = useState<MediaStream | null>(null);
 	const [requestedAccess, setRequestedAccess] = useState<MediaAccess>('pending');
 	const [missingDevices, setMissingDevices] = useState<MissingDevices>(NONE_MISSING);
 	const [attempt, setAttempt] = useState(0);
 	const isSupported = canReachDevices();
+	const onStaleDeviceRef = useCallbackRef(onStaleDevice);
 
-	const { audioEnabled, videoEnabled, audioInputId, videoInputId } = choices;
+	const { audioEnabled, videoEnabled, audioInputId, videoInputId } = request;
 	const isAskingForDevices = audioEnabled || videoEnabled;
 
 	useEffect(() => {
@@ -214,7 +247,7 @@ export function useMediaPreview() {
 				// A device remembered from last time is gone: fall back to the defaults
 				const isStaleDevice = error instanceof Error && error.name === 'OverconstrainedError';
 				if (isStaleDevice) {
-					updateChoices((current) => ({ ...current, audioInputId: '', videoInputId: '' }));
+					onStaleDeviceRef.current();
 					return;
 				}
 				setRequestedAccess(accessOfError(error));
@@ -223,7 +256,7 @@ export function useMediaPreview() {
 			isCurrent = false;
 			stopTracks(opened);
 		};
-	}, [audioEnabled, videoEnabled, audioInputId, videoInputId, isAskingForDevices, attempt]);
+	}, [audioEnabled, videoEnabled, audioInputId, videoInputId, isAskingForDevices, attempt, onStaleDeviceRef]);
 
 	// The browser names its devices only once a stream was allowed; a device plugged in or out updates the lists
 	useEffect(() => {
@@ -249,19 +282,6 @@ export function useMediaPreview() {
 		return () => mediaDevices.removeEventListener?.('devicechange', refresh);
 	}, [requestedAccess]);
 
-	const toggleAudio = useCallback(
-		() => updateChoices((current) => ({ ...current, audioEnabled: !current.audioEnabled })),
-		[]
-	);
-	const toggleVideo = useCallback(
-		() => updateChoices((current) => ({ ...current, videoEnabled: !current.videoEnabled })),
-		[]
-	);
-	const selectDevice = useCallback(
-		(kind: MeetingDeviceKind, deviceId: string) =>
-			updateChoices((current) => ({ ...current, [DEVICE_FIELD[kind]]: deviceId })),
-		[]
-	);
 	const retry = useCallback(() => {
 		setRequestedAccess('pending');
 		setAttempt((count) => count + 1);
@@ -282,17 +302,23 @@ export function useMediaPreview() {
 	}
 
 	return {
-		choices,
 		devices,
 		stream: isAskingForDevices ? stream : null,
 		access,
 		missing: isAskingForDevices ? missingDevices : NONE_MISSING,
 		isSupported,
 		canPickSpeaker: canPickSpeaker(),
-		toggleAudio,
-		toggleVideo,
-		selectDevice,
 		retry,
 		labelOf
 	};
+}
+
+/**
+ * The camera and microphone preview of the pre-join screen: the devices of the choices kept on this device, live while
+ * the screen shows, so the room opens the devices on its own and the camera never stays on behind it.
+ */
+export function useMediaPreview() {
+	const { choices, toggleAudio, toggleVideo, selectDevice } = useStoredMeetingChoices();
+	const media = useDeviceStream(choices, forgetStoredDevices);
+	return { choices, ...media, toggleAudio, toggleVideo, selectDevice };
 }
