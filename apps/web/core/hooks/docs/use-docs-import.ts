@@ -89,16 +89,28 @@ export function useDocsImportRun(onFinished?: (finished: IDocumentImport) => voi
 	const [started, setStarted] = useState<IDocumentImport | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
+	// The workspace the run belongs to. In another one (a switch of organization or of user, not the scope going away a
+	// moment) the run is neither shown nor read, and an upload that answers there is dropped; back in its own, it shows.
+	const scopeKey = scope ? `${scope.tenantId}:${scope.organizationId}:${scope.userId}` : null;
+	const scopeKeyRef = useRef(scopeKey);
+	useEffect(() => {
+		if (scopeKey) scopeKeyRef.current = scopeKey;
+	}, [scopeKey]);
+	const [runScopeKey, setRunScopeKey] = useState<string | null>(null);
+	const elsewhere = runScopeKey !== null && scopeKey !== null && runScopeKey !== scopeKey;
+	const readId = elsewhere ? null : importId;
+
 	const query = useQuery({
-		queryKey: queryKeys.docs.import(scope?.tenantId, importId),
-		queryFn: ({ signal }) => docsImportService.getImport(importId as string, signal),
-		enabled: importId !== null && scope !== null && !isImportFinished(started),
+		queryKey: queryKeys.docs.import(scope?.tenantId, readId),
+		queryFn: ({ signal }) => docsImportService.getImport(readId as string, signal),
+		enabled: readId !== null && scope !== null && !isImportFinished(started),
 		refetchInterval: (current) => (isImportFinished(current.state.data) || isPermanentRefusal(current.state.error) ? false : DOCS_IMPORT_POLL_MS),
 		retry: (failures, error) => !isPermanentRefusal(error) && failures < 1
 	});
-	const current = query.data ?? started;
+	const current = elsewhere ? null : (query.data ?? started);
 	const finished = isImportFinished(current);
-	const shownStep: DocsImportStep = step === 'running' && finished ? 'done' : step;
+	const ownStep: DocsImportStep = step === 'running' && finished ? 'done' : step;
+	const shownStep: DocsImportStep = elsewhere ? 'pick' : ownStep;
 	const trackingError = shownStep === 'running' && query.isError;
 	// Refused for good (gone, or not the reader's): nothing runs here any more, and closing the dialog puts it away.
 	const refused = trackingError && isPermanentRefusal(query.error);
@@ -117,34 +129,38 @@ export function useDocsImportRun(onFinished?: (finished: IDocumentImport) => voi
 		onFinishedRef.current?.(current);
 	}, [current, finished]);
 
-	const scopeKey = scope ? `${scope.tenantId}:${scope.organizationId}:${scope.userId}` : null;
-	const scopeKeyRef = useRef(scopeKey);
-
 	const start = useCallback(
 		async (file: File, target: IDocumentImportTarget) => {
 			const startedIn = scopeKeyRef.current;
+			setRunScopeKey(startedIn);
+			setImportId(null);
+			setStarted(null);
 			setError(null);
 			setUploadPercent(0);
 			setStep('uploading');
 			try {
 				const accepted = await docsImportService.startImport(file, target, setUploadPercent);
-				// The workspace changed meanwhile: the run was put away, and this answer is another workspace's.
-				if (scopeKeyRef.current !== startedIn) return;
+				// The workspace changed meanwhile: this answer is another workspace's, and the run is put away.
+				if (scopeKeyRef.current !== startedIn) {
+					setStep('pick');
+					return;
+				}
 				setStarted(accepted);
 				setImportId(accepted.id);
 				setStep(isImportFinished(accepted) ? 'done' : 'running');
 				// The probe also lists the reader's imports.
 				void queryClient.invalidateQueries({ queryKey: queryKeys.docs.importProbe(scope?.tenantId, scope?.organizationId, scope?.userId) });
 			} catch (error_) {
+				setStep('pick');
 				if (scopeKeyRef.current !== startedIn) return;
 				setError(errorCodeOf(error_) ?? 'DOCS_IMPORT_FAILED');
-				setStep('pick');
 			}
 		},
 		[queryClient, scope]
 	);
 
 	const reset = useCallback(() => {
+		setRunScopeKey(null);
 		setStep('pick');
 		setUploadPercent(0);
 		setImportId(null);
@@ -152,18 +168,10 @@ export function useDocsImportRun(onFinished?: (finished: IDocumentImport) => voi
 		setError(null);
 	}, []);
 
-	// Another workspace (a switch of organization or of user, not the scope going away for a moment): the run is put away.
-	useEffect(() => {
-		if (!scopeKey || scopeKeyRef.current === scopeKey) return;
-		const previous = scopeKeyRef.current;
-		scopeKeyRef.current = scopeKey;
-		if (previous) reset();
-	}, [reset, scopeKey]);
-
 	/** An upload, or an import that is not over yet (and still readable): closing the dialog keeps it. */
 	const inProgress = shownStep === 'uploading' || (shownStep === 'running' && !refused);
 
-	return { step: shownStep, uploadPercent, current, error, trackingError, retryRead, inProgress, start, reset };
+	return { step: shownStep, uploadPercent, current, error: elsewhere ? null : error, trackingError, retryRead, inProgress, start, reset };
 }
 
 /** One import run, as the dialog shows it. */
