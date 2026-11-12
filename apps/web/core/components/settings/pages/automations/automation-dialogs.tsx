@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { type DottedLanguageObjectStringPaths, useFormatter, useTranslations } from 'next-intl';
 import { APP_DIALOG_BODY, APP_DIALOG_FOOTER, AppDialog, AppDialogDescription, AppDialogHeader } from '@/core/components/common/app-dialog';
 import { Badge } from '@/core/components/common/badge';
@@ -168,38 +168,35 @@ export function AutomationTestDialog({
 	const t = useTranslations();
 	const taskId = useId();
 	const [picked, setPicked] = useState<string | null>(null);
-	const [result, setResult] = useState<ITaskAutomationTestResult | null>(null);
-	const [error, setError] = useState<unknown>(null);
+	// Each answer (or failure) keeps the rule and task it was asked for, and shows only while both are still the ones
+	// shown, whenever it arrives; a newer question also makes an older answer stale.
+	const [answer, setAnswer] = useState<{ ruleId: string; taskId: string; result?: ITaskAutomationTestResult; error?: unknown } | null>(
+		null
+	);
 	const [shownRule, setShownRule] = useState(rule);
-	// Each question gets a number; another rule, another task or a newer question makes an older answer stale.
 	const latest = useRef(0);
 	if (rule !== shownRule) {
 		setShownRule(rule);
 		setPicked(null);
-		setResult(null);
-		setError(null);
+		setAnswer(null);
 	}
 	const ruleId = rule?.id ?? null;
-	useEffect(() => {
-		latest.current += 1;
-	}, [ruleId]);
+	const current = answer && answer.ruleId === ruleId && answer.taskId === picked ? answer : null;
+	const result = current?.result ?? null;
+	const error = current && 'error' in current ? current.error : null;
 	const pick = (next: string | null) => {
-		latest.current += 1;
 		setPicked(next);
-		// Another task: the answer for the one before no longer applies.
-		setResult(null);
-		setError(null);
+		setAnswer(null);
 	};
 	const run = async () => {
 		if (!rule || !picked) return;
-		const asked = ++latest.current;
-		setError(null);
-		setResult(null);
+		const asked = { ruleId: rule.id, taskId: picked, number: ++latest.current };
+		setAnswer(null);
 		try {
-			const answer = await onTest(rule.id, picked);
-			if (latest.current === asked) setResult(answer);
+			const value = await onTest(asked.ruleId, asked.taskId);
+			if (latest.current === asked.number) setAnswer({ ruleId: asked.ruleId, taskId: asked.taskId, result: value });
 		} catch (caught) {
-			if (latest.current === asked) setError(caught);
+			if (latest.current === asked.number) setAnswer({ ruleId: asked.ruleId, taskId: asked.taskId, error: caught ?? 'error' });
 		}
 	};
 	const onParent = result?.subjectTaskId && result.subjectTaskId !== result.taskId;
