@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from 'react';
 import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
-import type { DateOrder } from '@/core/lib/utils/time-import-cells';
+import { calendarDayOf, type DateOrder } from '@/core/lib/utils/time-import-cells';
 import {
 	rowStatusOf,
 	type TimeImportProblem,
@@ -14,6 +14,7 @@ import {
 	TIME_IMPORT_HEADERS,
 	TIME_IMPORT_MAX_BYTES,
 	TIME_IMPORT_MAX_ROWS,
+	type TimeImportField,
 	type TimeImportFileProblem,
 	type TimeImportMissingColumn
 } from '@/core/lib/utils/time-import-sheet';
@@ -41,6 +42,32 @@ export const TIME_IMPORT_EXAMPLES = {
 	no: 'no'
 } as const;
 
+const FIELD_LABEL_KEYS: Readonly<Record<TimeImportField, DottedLanguageObjectStringPaths>> = {
+	date: 'timeImport.mapping.fields.DATE',
+	startTime: 'timeImport.mapping.fields.START_TIME',
+	endDate: 'timeImport.mapping.fields.END_DATE',
+	endTime: 'timeImport.mapping.fields.END_TIME',
+	duration: 'timeImport.mapping.fields.DURATION',
+	project: 'timeImport.mapping.fields.PROJECT',
+	task: 'timeImport.mapping.fields.TASK',
+	notes: 'timeImport.mapping.fields.NOTES',
+	billable: 'timeImport.mapping.fields.BILLABLE',
+	memberEmail: 'timeImport.mapping.fields.MEMBER'
+};
+
+const DATE_ORDER_KEYS: Readonly<Record<DateOrder, DottedLanguageObjectStringPaths>> = {
+	yearFirst: 'timeImport.mapping.orders.YEAR_FIRST',
+	dayFirst: 'timeImport.mapping.orders.DAY_FIRST',
+	monthFirst: 'timeImport.mapping.orders.MONTH_FIRST'
+};
+
+interface MixedDates {
+	firstRow: number;
+	firstValue: string;
+	row: number;
+	value: string;
+}
+
 const DATE_UNREADABLE_KEYS: Readonly<Record<DateOrder, DottedLanguageObjectStringPaths>> = {
 	yearFirst: 'timeImport.problems.DATE_UNREADABLE',
 	dayFirst: 'timeImport.mapping.problems.DATE_UNREADABLE_DAY_FIRST',
@@ -63,10 +90,53 @@ export function useTimeImportCopy() {
 		[locale]
 	);
 	const listFormatter = useMemo(() => new Intl.ListFormat(locale, { type: 'conjunction' }), [locale]);
+	const dayFormatter = useMemo(() => new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }), [locale]);
 
 	const rangeOf = useCallback((start: Date, end: Date) => rangeFormatter.formatRange(start, end), [rangeFormatter]);
 
 	const listOf = useCallback((items: ReadonlyArray<string>) => listFormatter.format(items), [listFormatter]);
+
+	const fieldLabel = useCallback((field: TimeImportField): string => t(FIELD_LABEL_KEYS[field]), [t]);
+
+	const dateOrderLabel = useCallback((order: DateOrder): string => t(DATE_ORDER_KEYS[order]), [t]);
+
+	/** The day a date of the file stands for in an order, as the member's language writes it. */
+	const dateReadingOf = useCallback(
+		(value: string, order: DateOrder): string | null => {
+			const day = calendarDayOf(value, order);
+			if (!day) {
+				return null;
+			}
+			const date = new Date(day.year, day.month - 1, day.day);
+			return dayFormatter.format(date);
+		},
+		[dayFormatter]
+	);
+
+	/** A part of an entry the Columns step still needs, in the member's language. */
+	const missingPartOf = useCallback(
+		(column: TimeImportMissingColumn): string => {
+			if (column === 'endOrDuration') {
+				return t('timeImport.fileProblems.END_OR_DURATION', {
+					endTime: fieldLabel('endTime'),
+					duration: fieldLabel('duration')
+				});
+			}
+			return fieldLabel(column);
+		},
+		[fieldLabel, t]
+	);
+
+	const mixedDatesText = useCallback(
+		(mixed: MixedDates): string =>
+			t('timeImport.mapping.MIXED_DATES', {
+				firstRow: mixed.firstRow,
+				firstValue: mixed.firstValue,
+				row: mixed.row,
+				value: mixed.value
+			}),
+		[t]
+	);
 
 	const missingColumnOf = useCallback(
 		(column: TimeImportMissingColumn): string => {
@@ -111,15 +181,10 @@ export function useTimeImportCopy() {
 						limit: TIME_IMPORT_MAX_ROWS
 					});
 				case 'mixedDates':
-					return t('timeImport.mapping.MIXED_DATES', {
-						firstRow: problem.firstRow,
-						firstValue: problem.firstValue,
-						row: problem.row,
-						value: problem.value
-					});
+					return mixedDatesText(problem);
 			}
 		},
-		[listOf, missingColumnOf, t]
+		[listOf, missingColumnOf, mixedDatesText, t]
 	);
 
 	const problemText = useCallback(
@@ -214,8 +279,32 @@ export function useTimeImportCopy() {
 	);
 
 	return useMemo(
-		() => ({ rangeOf, listOf, fileProblemText, problemText, statusLabel, reasonsOf }),
-		[fileProblemText, listOf, problemText, rangeOf, reasonsOf, statusLabel]
+		() => ({
+			rangeOf,
+			listOf,
+			fileProblemText,
+			problemText,
+			statusLabel,
+			reasonsOf,
+			fieldLabel,
+			dateOrderLabel,
+			dateReadingOf,
+			missingPartOf,
+			mixedDatesText
+		}),
+		[
+			dateOrderLabel,
+			dateReadingOf,
+			fieldLabel,
+			fileProblemText,
+			listOf,
+			missingPartOf,
+			mixedDatesText,
+			problemText,
+			rangeOf,
+			reasonsOf,
+			statusLabel
+		]
 	);
 }
 

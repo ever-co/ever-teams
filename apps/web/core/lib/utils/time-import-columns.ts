@@ -331,7 +331,8 @@ export function timeImportSheetOf(
 	return { rows, ignoredHeaders: ignoredHeadersOf(table.headers, mapping), dateOrder };
 }
 
-const CHOSEN_ORDERS: ReadonlyArray<DateOrder> = ['dayFirst', 'monthFirst'];
+/** The formats a member chooses between when every date of a file fits both. */
+export const CHOOSABLE_DATE_ORDERS: ReadonlyArray<DateOrder> = ['dayFirst', 'monthFirst'];
 
 /**
  * The format the rows are read in: the one the file's dates tell, the template's when it writes no date, or the
@@ -347,7 +348,7 @@ export function resolvedDateOrderOf(dates: DateOrderReading, chosen: DateOrder |
 	if (dates.kind === 'mixed') {
 		return null;
 	}
-	const isFittingChoice = chosen !== null && CHOSEN_ORDERS.includes(chosen);
+	const isFittingChoice = chosen !== null && CHOOSABLE_DATE_ORDERS.includes(chosen);
 	if (!isFittingChoice) {
 		return null;
 	}
