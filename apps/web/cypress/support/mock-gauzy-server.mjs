@@ -678,6 +678,12 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body,
 		return appointment;
 	}
 	const appointmentPath = /^\/api\/employee-appointment\/([^/]+)$/.exec(pathname);
+	if (appointmentPath && method === 'PUT') {
+		// Gauzy updates the fields sent, and answers with the appointment
+		const appointment = state.appointments.find((candidate) => candidate.id === appointmentPath[1]);
+		if (appointment) Object.assign(appointment, body);
+		return appointment ?? { affected: 0, raw: [] };
+	}
 	if (appointmentPath && method === 'DELETE') {
 		state.appointments = state.appointments.filter((appointment) => appointment.id !== appointmentPath[1]);
 		return { affected: 1, raw: [] };

@@ -1,4 +1,6 @@
+import { isEmail } from 'class-validator';
 import { meetPathFor } from './collaboration';
+import { mergeEmails } from './invite-emails';
 
 /** The meeting pages, with or without the locale prefix of a non-default language (/fr/meet/jitsi). */
 const MEET_ROOM_PATH = /(?:^|\/)meet\/(jitsi|livekit)\/?$/;
@@ -52,6 +54,31 @@ function withTitle(path: string, title: string | null | undefined): string {
 /** The in-app meeting page for a room, with the title its header shows when one is known. */
 export function meetingPathFor(roomName: string, isJitsi: boolean, title?: string | null): string {
 	return withTitle(meetPathFor(roomName, isJitsi), title);
+}
+
+/** The part of a meeting page's address that asks it to share the screen once the room is joined. */
+const SHARE_SCREEN_PARAM = 'share=screen';
+
+/** The meeting page of a meeting started to show the screen. */
+export function sharingScreenPathOf(path: string): string {
+	return `${path}&${SHARE_SCREEN_PARAM}`;
+}
+
+/** Whether a meeting page's query asks it to share the screen once joined. */
+export function isSharingScreenAsked(search: string): boolean {
+	return search.replace(/^\?/, '').split('&').includes(SHARE_SCREEN_PARAM);
+}
+
+/**
+ * A meeting page's query without the request to share the screen, the rest kept as written: the address is the link
+ * people copy, and it must not ask someone else's browser to share.
+ */
+export function searchWithoutSharing(search: string): string {
+	const kept = search
+		.replace(/^\?/, '')
+		.split('&')
+		.filter((part) => part && part !== SHARE_SCREEN_PARAM);
+	return kept.length > 0 ? `?${kept.join('&')}` : '';
 }
 
 /**
@@ -137,47 +164,48 @@ export function scheduledMeetingStateOf(meeting: ScheduledMeeting, now: Date): S
 	return time >= opensAt ? 'soon' : 'later';
 }
 
-function startOfDay(date: Date): Date {
+/** Midnight of a date's day, local time. */
+export function startOfDay(date: Date): Date {
 	const day = new Date(date);
 	day.setHours(0, 0, 0, 0);
 	return day;
 }
 
-export interface AgendaDay {
-	/** Midnight of the day, local time. */
-	day: Date;
-	meetings: ScheduledMeeting[];
+/** Midnight of the day so many calendar days away: a day that changes the clock is 23 or 25 hours long, not 24. */
+export function dayAfter(day: Date, days: number): Date {
+	const next = startOfDay(day);
+	next.setDate(next.getDate() + days);
+	return next;
+}
+
+/** A calendar marks at most this many days for one meeting, so a mistyped end years away costs nothing. */
+const MARKED_DAYS_PER_MEETING = 31;
+
+/** The days some meeting runs on (their midnight, in milliseconds), for a calendar to mark them. */
+export function meetingDaysOf(meetings: readonly ScheduledMeeting[]): Set<number> {
+	const days = new Set<number>();
+	for (const meeting of meetings) {
+		// A meeting that ends at midnight does not run on the day that starts then
+		const lastMoment = Math.max(meeting.start.getTime(), meeting.end.getTime() - 1);
+		let day = startOfDay(meeting.start);
+		for (let count = 0; count < MARKED_DAYS_PER_MEETING && day.getTime() <= lastMoment; count += 1) {
+			days.add(day.getTime());
+			day = dayAfter(day, 1);
+		}
+	}
+	return days;
 }
 
 /**
- * The agenda from today on, by day: today always (an empty today says so), then each of the next days that holds a
- * meeting. A meeting over before today is dropped; today's ended meetings stay, so the day reads as it went.
+ * The meetings of one day, by start time: every meeting that runs some time that day, so one that began the evening
+ * before and runs on past midnight shows on both days, and the ended ones stay, so the day reads as it went.
  */
-export function agendaOf(meetings: readonly ScheduledMeeting[], now: Date, days = 7): AgendaDay[] {
-	const today = startOfDay(now);
-	// Calendar days, not 24-hour steps: a day that changes the clock (daylight saving) is 23 or 25 hours long
-	const lastDay = new Date(today);
-	lastDay.setDate(lastDay.getDate() + days);
-	const horizon = lastDay.getTime();
-	const byDay = new Map<number, ScheduledMeeting[]>([[today.getTime(), []]]);
-	const sorted = [...meetings].sort((first, second) => first.start.getTime() - second.start.getTime());
-
-	for (const meeting of sorted) {
-		const isPast = meeting.end.getTime() <= today.getTime();
-		const isBeyond = meeting.start.getTime() >= horizon;
-		if (isPast || isBeyond) {
-			continue;
-		}
-		// A meeting that began yesterday and runs on belongs to today
-		const dayKey = Math.max(startOfDay(meeting.start).getTime(), today.getTime());
-		const list = byDay.get(dayKey) ?? [];
-		list.push(meeting);
-		byDay.set(dayKey, list);
-	}
-
-	return [...byDay.entries()]
-		.sort(([first], [second]) => first - second)
-		.map(([dayKey, dayMeetings]) => ({ day: new Date(dayKey), meetings: dayMeetings }));
+export function meetingsOfDay(meetings: readonly ScheduledMeeting[], day: Date): ScheduledMeeting[] {
+	const dayStart = startOfDay(day).getTime();
+	const dayEnd = dayAfter(day, 1).getTime();
+	return meetings
+		.filter((meeting) => meeting.start.getTime() < dayEnd && meeting.end.getTime() > dayStart)
+		.sort((first, second) => first.start.getTime() - second.start.getTime());
 }
 
 /** An employee appointment as Ever Gauzy returns it; only the fields a meeting needs. */
@@ -217,6 +245,8 @@ export interface ScheduleMeetingDraft {
 	durationMinutes: number;
 	/** The full link of the meeting page. */
 	link: string;
+	/** The addresses of the people invited: team members and others. */
+	participantEmails?: string[];
 }
 
 export interface MeetingAppointmentInput {
@@ -226,24 +256,161 @@ export interface MeetingAppointmentInput {
 	startDateTime: string;
 	endDateTime: string;
 	employeeId: string;
+	/** The invitees' addresses, as Gauzy reads them: one string, the addresses separated by a comma and a space. */
+	emails?: string;
 }
 
 /**
- * The appointment Ever Gauzy stores for a scheduled meeting, owned by the person who schedules it. No `emails`:
- * Gauzy sends them a generic "new appointment" message with neither the time nor the link, so inviting goes
- * through the copied invitation and the calendar file instead.
+ * The appointment Ever Gauzy stores for a scheduled meeting, owned by the person who schedules it. The people invited
+ * go in its `emails`, which Gauzy splits on ", " to send each a short "new appointment" message; that message carries
+ * neither the time nor the link, so the confirmation still gives the invitation to copy and the calendar file.
  */
 export function appointmentInputOf(draft: ScheduleMeetingDraft, employeeId: string): MeetingAppointmentInput {
 	const end = new Date(draft.start.getTime() + draft.durationMinutes * MINUTE);
 	const description = draft.description?.trim();
+	const emails = draft.participantEmails ?? [];
 	return {
 		agenda: draft.title.trim(),
 		...(description ? { description } : {}),
 		location: draft.link,
 		startDateTime: draft.start.toISOString(),
 		endDateTime: end.toISOString(),
-		employeeId
+		employeeId,
+		...(emails.length > 0 ? { emails: emails.join(', ') } : {})
 	};
+}
+
+/** A team member one can invite to a meeting. */
+export interface MeetingInvitee {
+	email: string;
+	name: string;
+}
+
+/** The parts of a team member the invitation needs. */
+interface InvitableMember {
+	employee?: {
+		fullName?: string | null;
+		user?: { email?: string | null; name?: string | null } | null;
+	} | null;
+}
+
+/** The team members one can invite, by name: everyone with an address but oneself, each once. */
+export function meetingInviteesOf(members: readonly InvitableMember[], ownEmail?: string | null): MeetingInvitee[] {
+	const own = ownEmail?.trim().toLowerCase();
+	const byEmail = new Map<string, MeetingInvitee>();
+	for (const member of members) {
+		const email = member.employee?.user?.email?.trim().toLowerCase();
+		if (!email || email === own || byEmail.has(email)) {
+			continue;
+		}
+		const name = member.employee?.user?.name?.trim() || member.employee?.fullName?.trim() || email;
+		byEmail.set(email, { email, name });
+	}
+	return [...byEmail.values()].sort((first, second) => first.name.localeCompare(second.name));
+}
+
+/** A participant as a mail client lists them, "Ana Silva <ana@acme.com>": the address between the angle brackets. */
+const NAMED_ADDRESS = /<([^<>]*)>/;
+/** A display name in quotes may hold a comma: it goes before the participants are told apart. */
+const QUOTED_NAME = /"[^"]*"/g;
+
+/**
+ * The addresses typed or pasted into the participants ("Ana <ana@acme.com>, bob@acme.com" gives both), added to
+ * those already there, and every other word, as typed, to say it is no address: none is dropped without a word. The
+ * name of a "Name <address>" entry is no participant of its own.
+ */
+export function participantsWithText(
+	current: readonly string[],
+	text: string
+): { emails: string[]; rejected: string[] } {
+	const found: string[] = [];
+	const rejected: string[] = [];
+	for (const entry of text.replace(QUOTED_NAME, ' ').split(/[,;\n]+/)) {
+		// Split on the bracketed addresses: the odd parts are those addresses, the text before each is its name, and
+		// the text after the last one is words of their own ("Bob <bob@acme.com> bad@" still reports bad@)
+		const parts = entry.split(NAMED_ADDRESS);
+		const addresses = parts.filter((_, index) => index % 2 === 1);
+		// A name says nothing wrong, but an address typed where a name goes is an invitee all the same
+		const addressesInNames = parts
+			.slice(0, -1)
+			.filter((_, index) => index % 2 === 0)
+			.flatMap((name) => name.split(/\s+/).filter((word) => isEmail(word.toLowerCase())));
+		const words = [...addresses, ...addressesInNames, ...(parts.at(-1) ?? '').split(/\s+/)];
+		for (const word of words.map((part) => part.trim()).filter(Boolean)) {
+			const address = word.toLowerCase();
+			if (isEmail(address)) {
+				found.push(address);
+			} else if (!rejected.includes(word)) {
+				rejected.push(word);
+			}
+		}
+	}
+	return { emails: mergeEmails(current, found), rejected };
+}
+
+/** A meeting moved to another time, or renamed. */
+export interface RescheduleMeetingDraft {
+	title: string;
+	start: Date;
+	durationMinutes: number;
+	/** The meeting's link, its title brought up to date; null for a meeting without a link. */
+	link: string | null;
+}
+
+export interface MeetingAppointmentUpdate {
+	agenda: string;
+	startDateTime: string;
+	endDateTime: string;
+	location?: string;
+}
+
+/**
+ * What Gauzy's appointment update (`PUT /employee-appointment/:id`) takes to reschedule a meeting: its title, its time
+ * and its link. Gauzy leaves alone what an update does not carry, so the description and the emails stay as they were.
+ */
+export function appointmentUpdateOf(draft: RescheduleMeetingDraft): MeetingAppointmentUpdate {
+	const end = new Date(draft.start.getTime() + draft.durationMinutes * MINUTE);
+	return {
+		agenda: draft.title.trim(),
+		startDateTime: draft.start.toISOString(),
+		endDateTime: end.toISOString(),
+		...(draft.link ? { location: draft.link } : {})
+	};
+}
+
+// cspell:ignore itle
+/** A query parameter's name as the page reads it, decoded: "%74itle=Old" is a title too. */
+function paramNameOf(param: string): string {
+	const name = param.split('=')[0].replace(/\+/g, ' ');
+	try {
+		return decodeURIComponent(name);
+	} catch {
+		// A stray "%" decodes to nothing: the name as written
+		return name;
+	}
+}
+
+/**
+ * A meeting's link under a new title, its room kept as written: the links Ever Teams makes end with the title. Any
+ * other location (an office, another app's link) is no meeting page and stays as written.
+ */
+export function meetingLinkWithTitle(link: string, title: string): string {
+	if (pathOfMeetingLink(link, true) === undefined) {
+		return link;
+	}
+	// The title belongs to the query: a fragment (#notes) stays at the end
+	const hashAt = link.indexOf('#');
+	const beforeFragment = hashAt === -1 ? link : link.slice(0, hashAt);
+	const fragment = hashAt === -1 ? '' : link.slice(hashAt);
+	// The old title goes wherever it stands; the room and the rest stay as written, encoding included
+	const queryAt = beforeFragment.indexOf('?');
+	const base = queryAt === -1 ? beforeFragment : beforeFragment.slice(0, queryAt);
+	const kept = (queryAt === -1 ? '' : beforeFragment.slice(queryAt + 1))
+		.split('&')
+		.filter((param) => param && paramNameOf(param) !== 'title');
+	const titleParam = withTitle('', title).slice(1);
+	const params = titleParam ? [...kept, titleParam] : kept;
+	return `${base}${params.length > 0 ? `?${params.join('&')}` : ''}${fragment}`;
 }
 
 // iCalendar (RFC 5545) property names

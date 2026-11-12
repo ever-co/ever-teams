@@ -2012,6 +2012,7 @@ describe('Ever Teams feature surface preservation', () => {
 		// (GET /api/timesheet/time-log/conflict, #5089).
 		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(296);
 		// 295 files and 379 verbs with the Board app's session check (/api/board/session, GET and its CORS OPTIONS).
+		// 295 files and 379 verbs with the reschedule of a scheduled meeting (/api/employee-appointment/[id] PUT).
 		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(295);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
@@ -2028,6 +2029,7 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/employee-appointment/route.ts::GET',
 				'apps/web/app/api/employee-appointment/route.ts::POST',
 				'apps/web/app/api/employee-appointment/[id]/route.ts::DELETE',
+				'apps/web/app/api/employee-appointment/[id]/route.ts::PUT',
 				// Proxy mode twins of the platform's Docs live sessions and collaboration routes (2026-11-11)
 				'apps/web/app/api/plugins/docs/live/status/route.ts::GET',
 				'apps/web/app/api/plugins/docs/documents/[id]/live/updates/route.ts::POST',
