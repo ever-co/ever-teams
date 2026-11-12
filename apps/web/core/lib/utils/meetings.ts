@@ -352,8 +352,14 @@ export function appointmentUpdateOf(draft: RescheduleMeetingDraft): MeetingAppoi
 	};
 }
 
-/** A meeting's link under a new title, its room kept as written: the links Ever Teams makes end with the title. */
+/**
+ * A meeting's link under a new title, its room kept as written: the links Ever Teams makes end with the title. Any
+ * other location (an office, another app's link) is no meeting page and stays as written.
+ */
 export function meetingLinkWithTitle(link: string, title: string): string {
+	if (pathOfMeetingLink(link, true) === undefined) {
+		return link;
+	}
 	return withTitle(link.replace(/&title=[^&#]*/, ''), title);
 }
 

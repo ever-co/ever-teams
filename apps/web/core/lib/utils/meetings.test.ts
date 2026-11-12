@@ -266,6 +266,11 @@ describe('scheduled meetings', () => {
 		);
 	});
 
+	it('leaves a location that is no meeting link as written when the meeting is renamed', () => {
+		expect(meetingLinkWithTitle('Office', 'Retro')).toBe('Office');
+		expect(meetingLinkWithTitle('https://zoom.us/j/123?pwd=abc', 'Retro')).toBe('https://zoom.us/j/123?pwd=abc');
+	});
+
 	it('asks a meeting page to share the screen, and takes the request out of its address as written', () => {
 		const path = sharingScreenPathOf('/meet/jitsi?room=room+one/two=');
 
