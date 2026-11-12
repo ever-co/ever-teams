@@ -21,9 +21,18 @@ describe('isHeldTeamTask', () => {
 			expect(isHeldTeamTask(plannedTask, 'task-a', 'team-a', 'task-a')).toBe(true);
 		});
 
+		it("keeps it while the timer runs on it when the member's record or the cookie names another task", () => {
+			expect(isHeldTeamTask(plannedTask, 'task-b', 'team-a', 'task-a')).toBe(true);
+			expect(isHeldTeamTask(plannedTask, 'task-b', 'team-a', 'task-a', 'task-b')).toBe(true);
+		});
+
 		it('does not keep it when the timer runs on another task or does not run', () => {
 			expect(isHeldTeamTask(plannedTask, 'task-a', 'team-a', 'task-b')).toBe(false);
 			expect(isHeldTeamTask(plannedTask, 'task-a', 'team-a', null)).toBe(false);
+		});
+
+		it('still keeps a listed task the timer runs on only as the task looked for', () => {
+			expect(isHeldTeamTask(taskOfTeam('task-a', 'team-a'), 'task-b', 'team-a', 'task-a')).toBe(false);
 		});
 
 		it('does not keep a task of another team because the timer runs on it', () => {
@@ -33,6 +42,7 @@ describe('isHeldTeamTask', () => {
 		it("keeps it while the member's record in the team names it, and not when it names another task", () => {
 			expect(isHeldTeamTask(plannedTask, 'task-a', 'team-a', null, 'task-a')).toBe(true);
 			expect(isHeldTeamTask(plannedTask, 'task-a', 'team-a', null, 'task-b')).toBe(false);
+			expect(isHeldTeamTask(plannedTask, 'task-b', 'team-a', null, 'task-a')).toBe(false);
 			expect(isHeldTeamTask(taskOfTeam('task-a', 'team-b'), 'task-a', 'team-a', null, 'task-a')).toBe(false);
 		});
 	});

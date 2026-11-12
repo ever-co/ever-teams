@@ -266,6 +266,20 @@ describe('useTeamTasksState while the timer runs on a task outside the loaded li
 		expect(store.get(activeTeamTaskState)?.id).toBe('task-planned');
 	});
 
+	it("keeps it while the timer runs on it when the member's record names another task the list leaves out", () => {
+		const store = renderWhileWorkingOn('task-planned');
+		act(() => {
+			store.set(timerStatusState, { running: true, lastLog: { taskId: 'task-planned' } } as never);
+			store.set(memberActiveTaskIdState, 'task-before');
+		});
+
+		act(() => {
+			store.set(teamTasksState, [listedTask('task-of-the-default-project'), listedTask('task-c')]);
+		});
+
+		expect(store.get(activeTeamTaskState)?.id).toBe('task-planned');
+	});
+
 	it('keeps it from the moment the start is sent, before the timer status says it runs', () => {
 		const store = renderWhileWorkingOn('task-planned');
 		act(() => {
