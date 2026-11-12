@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -29,6 +29,8 @@ import type { SheetCellWrites } from './use-sheet-cell-writes';
 const DAYS_IN_A_WEEK = 7;
 
 export interface PendingCopy {
+	/** The member and week the copy was prepared for: it is never confirmed into another sheet. */
+	sheetKey: string;
 	plans: CopyCellPlan[];
 	totalSeconds: number;
 	/** Cells of last week that land on a closed day of this one (future, approved, running). */
@@ -38,6 +40,8 @@ export interface PendingCopy {
 }
 
 export interface CopyPreviousWeekInput {
+	/** The member and week shown; null while no member is. */
+	sheetKey: string | null;
 	period: Period;
 	logsScope: Omit<TimesheetPageLogsScope, 'isEnabled' | 'employeeIds'>;
 	memberId: string | null;
@@ -84,10 +88,21 @@ export function useCopyPreviousWeek(input: CopyPreviousWeekInput) {
 	const queryClient = useQueryClient();
 	const [isReading, setIsReading] = useState(false);
 	const [pendingCopy, setPendingCopy] = useState<PendingCopy | null>(null);
-	const { period, logsScope, memberId, days, rows, dayLockOf, addRows, writes } = input;
+	const { sheetKey, period, logsScope, memberId, days, rows, dayLockOf, addRows, writes } = input;
 	const hasMember = Boolean(memberId);
 	const isAvailable = hasMember && isOneWeek(period);
 
+	const isPendingForAnotherSheet = pendingCopy !== null && pendingCopy.sheetKey !== sheetKey;
+	if (isPendingForAnotherSheet) {
+		setPendingCopy(null);
+	}
+
+	const shownSheetKeyRef = useRef(sheetKey);
+	useEffect(() => {
+		shownSheetKeyRef.current = sheetKey;
+	}, [sheetKey]);
+
+	/** Null when the read failed, or when another member or week is shown by the time it answers. */
 	const readPreviousRows = useCallback(async (): Promise<PreviousWeekRow[] | null> => {
 		if (!memberId) {
 			return null;
@@ -101,6 +116,10 @@ export function useCopyPreviousWeek(input: CopyPreviousWeekInput) {
 				queryFn: request.queryFn,
 				staleTime: request.staleTime
 			});
+			const hasLeftTheSheet = shownSheetKeyRef.current !== sheetKey;
+			if (hasLeftTheSheet) {
+				return null;
+			}
 			const memberLogs = logs.filter((log) => memberIdOfLog(log) === memberId);
 			const previousSheet = weekSheetOf(memberLogs);
 			return previousSheet.rows.map(previousRowOf);
@@ -111,7 +130,7 @@ export function useCopyPreviousWeek(input: CopyPreviousWeekInput) {
 		} finally {
 			setIsReading(false);
 		}
-	}, [logsScope, memberId, period, queryClient, t]);
+	}, [logsScope, memberId, period, queryClient, sheetKey, t]);
 
 	const copyRows = useCallback(async () => {
 		const previousRows = await readPreviousRows();
@@ -130,6 +149,9 @@ export function useCopyPreviousWeek(input: CopyPreviousWeekInput) {
 	}, [addRows, readPreviousRows, rows, t]);
 
 	const prepareRowsAndTime = useCallback(async () => {
+		if (!sheetKey) {
+			return;
+		}
 		const previousRows = await readPreviousRows();
 		if (!previousRows) {
 			return;
@@ -151,8 +173,8 @@ export function useCopyPreviousWeek(input: CopyPreviousWeekInput) {
 			return;
 		}
 		const totalSeconds = totalSecondsOfPlans(plans);
-		setPendingCopy({ plans, totalSeconds, lockedCount, withoutRoomCount: fit.withoutRoomCount });
-	}, [addRows, days, dayLockOf, readPreviousRows, rows, t, writes]);
+		setPendingCopy({ sheetKey, plans, totalSeconds, lockedCount, withoutRoomCount: fit.withoutRoomCount });
+	}, [addRows, days, dayLockOf, readPreviousRows, rows, sheetKey, t, writes]);
 
 	const cancelCopy = useCallback(() => {
 		setPendingCopy(null);
@@ -160,6 +182,10 @@ export function useCopyPreviousWeek(input: CopyPreviousWeekInput) {
 
 	const confirmCopy = useCallback(async () => {
 		if (!pendingCopy) {
+			return;
+		}
+		const isForThisSheet = pendingCopy.sheetKey === sheetKey;
+		if (!isForThisSheet) {
 			return;
 		}
 		const { plans, lockedCount, withoutRoomCount } = pendingCopy;
@@ -173,7 +199,7 @@ export function useCopyPreviousWeek(input: CopyPreviousWeekInput) {
 		if (leftOut > 0) {
 			toast(t('dashboard.timesheets.SHEET.COPY.LEFT_OUT', { count: leftOut }));
 		}
-	}, [pendingCopy, t, writes]);
+	}, [pendingCopy, sheetKey, t, writes]);
 
 	return {
 		isAvailable,

@@ -208,6 +208,7 @@ export function useSheetEditing(page: TimesheetsPageState, sheet: TimesheetSheet
 	);
 
 	const copyWeek = useCopyPreviousWeek({
+		sheetKey,
 		period,
 		logsScope,
 		memberId,
