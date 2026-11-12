@@ -298,9 +298,9 @@ describe('TimeImportResult', () => {
 			expect(screen.getByTestId('figure-notSent').textContent).toContain('1');
 		});
 
-		it('offers the report as a file and another import, and no change of columns any more', () => {
+		it('offers the report as a file and another import', () => {
 			const onDownloadReport = jest.fn();
-			const timeImport = doneImport({ canEditColumns: true });
+			const timeImport = doneImport();
 			render(<Harness timeImport={timeImport} onDownloadReport={onDownloadReport} />);
 
 			fireEvent.click(screen.getByRole('button', { name: 'timeImport.DOWNLOAD_REPORT' }));
@@ -308,6 +308,11 @@ describe('TimeImportResult', () => {
 
 			expect(onDownloadReport).toHaveBeenCalledTimes(1);
 			expect(timeImport.reset).toHaveBeenCalledTimes(1);
+		});
+
+		it('offers no change of columns once the import ran', () => {
+			render(<Harness timeImport={doneImport({ canEditColumns: true })} />);
+
 			expect(screen.queryByRole('button', { name: 'timeImport.mapping.EDIT' })).toBeNull();
 		});
 
