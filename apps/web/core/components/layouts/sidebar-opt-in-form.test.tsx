@@ -1,6 +1,7 @@
 /** @jest-environment jsdom */
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createStore, Provider } from 'jotai';
 import type { ReactNode } from 'react';
 
 import { queryKeys } from '@/core/query/keys';
@@ -49,8 +50,12 @@ describe('The newsletter opt-in card', () => {
 		if (user) {
 			queryClient.setQueryData(queryKeys.users.me, user);
 		}
+		// A page of its own for each test: what one subscribed is not on the next one's page
+		const store = createStore();
 		const wrapper = ({ children }: { children: ReactNode }) => (
-			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+			<Provider store={store}>
+				<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+			</Provider>
 		);
 		render(<SidebarOptInForm />, { wrapper });
 		return queryClient;
@@ -83,17 +88,46 @@ describe('The newsletter opt-in card', () => {
 		expect(card()).not.toBeNull();
 	});
 
-	it('goes away at once after a subscription, and the user keeps it with their other preferences', async () => {
+	describe('after a subscription', () => {
 		const newsletter = { subscribedAt: '2026-11-12T10:00:00.000Z', status: 'subscribed' };
-		fetchMock.mockResolvedValue(answer({ error: '', status: 'subscribed', newsletter }, 201));
-		const queryClient = renderCard({ id: 'user-1', uiPreferences: { keyboard: { bindings: {} } } });
 
-		await subscribeWith('ada@example.com');
+		async function subscribeAs(user: Record<string, unknown>) {
+			fetchMock.mockResolvedValue(answer({ error: '', status: 'subscribed', newsletter }, 201));
+			const queryClient = renderCard(user);
+			await subscribeWith('ada@example.com');
+			return queryClient;
+		}
 
-		await waitFor(() => expect(card()).toBeNull());
-		expect(queryClient.getQueryData(queryKeys.users.me)).toEqual({
-			id: 'user-1',
-			uiPreferences: { keyboard: { bindings: {} }, newsletter }
+		/** A refetch of the signed-in user (window focus, reconnect, an invalidation) answering this user. */
+		const readAgain = (queryClient: QueryClient, user: Record<string, unknown>) =>
+			act(async () => {
+				queryClient.setQueryData(queryKeys.users.me, user);
+				// React Query tells the card on the next task
+				await new Promise((resolve) => setTimeout(resolve, 0));
+			});
+
+		it('goes away at once', async () => {
+			await subscribeAs({ id: 'user-1', uiPreferences: { keyboard: { bindings: {} } } });
+
+			await waitFor(() => expect(card()).toBeNull());
+		});
+
+		it('stays away when a refetch reads the user without it, as when the platform could not keep it', async () => {
+			const queryClient = await subscribeAs({ id: 'user-1', uiPreferences: {} });
+			await waitFor(() => expect(card()).toBeNull());
+
+			await readAgain(queryClient, { id: 'user-1', uiPreferences: {} });
+
+			expect(card()).toBeNull();
+		});
+
+		it('is offered to another user signed in on the same page', async () => {
+			const queryClient = await subscribeAs({ id: 'user-1', uiPreferences: {} });
+			await waitFor(() => expect(card()).toBeNull());
+
+			await readAgain(queryClient, { id: 'user-2', uiPreferences: {} });
+
+			expect(card()).not.toBeNull();
 		});
 	});
 

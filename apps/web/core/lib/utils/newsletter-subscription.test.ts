@@ -1,4 +1,4 @@
-import { hasSubscribedToNewsletter, withNewsletterSubscription } from './newsletter-subscription';
+import { hasSubscribedToNewsletter } from './newsletter-subscription';
 
 describe('the newsletter subscription kept on the user (#5097)', () => {
 	const subscription = { subscribedAt: '2026-11-12T10:00:00.000Z', status: 'subscribed' as const };
@@ -15,23 +15,5 @@ describe('the newsletter subscription kept on the user (#5097)', () => {
 		expect(hasSubscribedToNewsletter({ uiPreferences: { newsletter: { subscribedAt: '' } } })).toBe(false);
 		expect(hasSubscribedToNewsletter({ uiPreferences: { newsletter: { status: 'subscribed' } } })).toBe(false);
 		expect(hasSubscribedToNewsletter({ uiPreferences: { newsletter: null } })).toBe(false);
-	});
-
-	it("adds the subscription to the user's preferences and keeps their other features", () => {
-		const user = { id: 'user-1', uiPreferences: { keyboard: { bindings: { save: 'mod+s' } } } };
-
-		expect(withNewsletterSubscription(user, subscription)).toEqual({
-			id: 'user-1',
-			uiPreferences: { keyboard: { bindings: { save: 'mod+s' } }, newsletter: subscription }
-		});
-		expect(withNewsletterSubscription({ id: 'user-2' }, subscription)).toEqual({
-			id: 'user-2',
-			uiPreferences: { newsletter: subscription }
-		});
-	});
-
-	it('leaves a missing user as it is', () => {
-		expect(withNewsletterSubscription(undefined, subscription)).toBeUndefined();
-		expect(withNewsletterSubscription(null, subscription)).toBeNull();
 	});
 });

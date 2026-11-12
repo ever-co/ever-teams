@@ -18,12 +18,3 @@ export function hasSubscribedToNewsletter(user: unknown): boolean {
 	const newsletter = preferences?.[NEWSLETTER_UI_PREFERENCE] as { subscribedAt?: unknown } | null | undefined;
 	return typeof newsletter?.subscribedAt === 'string' && newsletter.subscribedAt.length > 0;
 }
-
-/** The user with the newsletter subscription in their UI preferences, their other features kept. */
-export function withNewsletterSubscription<T>(user: T, newsletter: NewsletterSubscription): T {
-	if (!user || typeof user !== 'object') {
-		return user;
-	}
-	const preferences = (user as WithUiPreferences).uiPreferences ?? {};
-	return { ...user, uiPreferences: { ...preferences, [NEWSLETTER_UI_PREFERENCE]: newsletter } };
-}

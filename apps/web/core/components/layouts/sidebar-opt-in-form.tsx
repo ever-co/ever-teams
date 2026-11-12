@@ -13,7 +13,6 @@ import { ArrowRight, Mail, Spinner } from '@/core/components/icons';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { toastMoment } from '@/core/components/common/toast-moment';
 import { useNewsletterSubscription } from '@/core/hooks/users/use-newsletter-subscription';
-import type { NewsletterSubscription } from '@/core/lib/utils/newsletter-subscription';
 
 /** A white card on a hairline whose fill leans toward the brand hue at its foot, as the tooltip bubbles do. */
 const OPT_IN_CARD =
@@ -69,10 +68,9 @@ export function SidebarOptInForm() {
 				},
 				method: 'POST'
 			});
-			const { error, status, newsletter } = (await res.json()) as {
+			const { error, status } = (await res.json()) as {
 				error: string;
 				status?: string;
-				newsletter?: NewsletterSubscription;
 				[key: string]: unknown;
 			};
 
@@ -83,9 +81,7 @@ export function SidebarOptInForm() {
 
 			showSubscribed(status, email);
 			// The route kept the subscription on the user: the card goes away, here and on every other device
-			if (newsletter) {
-				remember(newsletter);
-			}
+			remember();
 		} catch (error) {
 			showSubscribeError(error);
 		} finally {
