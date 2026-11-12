@@ -11,7 +11,7 @@ import { Compose } from '@/core/components/icons';
 import { useTimerNotes } from '@/core/hooks/timer/use-timer-notes';
 import { cn } from '@/core/lib/helpers';
 import { TIMER_NOTES_MAX_LENGTH, normalizedTimerNotes } from '@/core/lib/utils/timer/timer-notes';
-import { TIMER_ENTRY_TOGGLE, TIMER_TOOLTIP_DELAY_MS } from './timer-toggle-recipe';
+import { TIMER_ENTRY_TOGGLE, TIMER_ENTRY_TOGGLE_GLYPH, TIMER_TOOLTIP_DELAY_MS } from './timer-toggle-recipe';
 
 const NOTES_FIELD_CLASS_NAME = cn(controlRecipe, 'field-sizing-content max-h-[6lh] min-h-16 resize-none p-3');
 
@@ -80,7 +80,7 @@ export function TimerNotesButton({ className }: Readonly<{ className?: string }>
 								render={
 									<Button
 										type="button"
-										variant="ghost"
+										variant="outline"
 										size="icon-sm"
 										aria-label={triggerLabel}
 										data-filled={hasNotes || undefined}
@@ -90,7 +90,7 @@ export function TimerNotesButton({ className }: Readonly<{ className?: string }>
 							/>
 						}
 					>
-						<Compose aria-hidden="true" />
+						<Compose aria-hidden="true" className={TIMER_ENTRY_TOGGLE_GLYPH} />
 					</TooltipTrigger>
 					<TooltipContent>{triggerLabel}</TooltipContent>
 				</Tooltip>
