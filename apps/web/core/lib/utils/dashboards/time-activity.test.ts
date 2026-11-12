@@ -3,11 +3,15 @@ import { type DailyReportRow, flattenDailyReport } from '@/core/lib/utils/daily-
 import { filterDailyReportByClients } from './report-filters';
 import {
 	NO_CLIENT,
+	type TimeActivityExportRow,
 	breakdownFactsOf,
 	breakdownTreeOf,
+	clientExportLinesOf,
 	clientLabelOf,
 	clientOfProjectLogOf,
 	clientRowsOf,
+	exportGroupsOf,
+	exportRowsInGroupOrderOf,
 	exportRowsOf,
 	reportTotalsOf,
 	weekColumnTotalsOf,
@@ -210,6 +214,102 @@ describe('the Time & Activity breakdown by client', () => {
 		expect(clientLabelOf(NO_CLIENT, labels)).toBe('No client');
 		expect(clientLabelOf({ key: 'acme', name: 'Acme' }, labels)).toBe('Acme');
 		expect(clientLabelOf({ key: 'umbrella', name: null }, labels)).toBe('Client');
+	});
+});
+
+describe('the Time & Activity exports of the client grouping', () => {
+	const clientOf = clientOfProjectLogOf(CLIENT_IDS, CLIENT_NAMES);
+	const exportRows = exportRowsOf(CLIENT_REPORT, null, 'No team', clientOf);
+
+	const exportRow = (fields: Partial<TimeActivityExportRow>): TimeActivityExportRow => ({
+		dateKey: '2026-11-03',
+		employeeId: 'ada',
+		member: 'Ada',
+		project: 'Website',
+		client: null,
+		task: 'Home',
+		status: null,
+		seconds: 0,
+		earnings: null,
+		currency: null,
+		activity: 0,
+		...fields
+	});
+
+	it('gives each row the client of its project, the time without a team included', () => {
+		const clientsOfRows = exportRows.map((row) => [row.project, row.task, row.seconds, row.client?.key]);
+
+		expect(clientsOfRows).toEqual([
+			['Website', null, 600, 'acme'],
+			['Internal', null, 300, 'none'],
+			[null, null, 120, 'none'],
+			['Website', 'home', 1200, 'acme'],
+			['Legacy', null, 900, 'globex'],
+			['No team', 'desktop', 300, 'acme'],
+			['Retired', null, 60, 'initech']
+		]);
+	});
+
+	it('gives no client to the rows of the other groupings', () => {
+		const rows = exportRowsOf(CLIENT_REPORT, null, 'No team');
+
+		expect(rows.every((row) => row.client === null)).toBe(true);
+	});
+
+	it('lists the client groups in the order of the screen, with the same totals', () => {
+		const rows = clientRowsOf(CLIENT_REPORT, clientOf, 'No team');
+		const tree = breakdownTreeOf(breakdownFactsOf(rows), 'client');
+		const onScreen = tree.nodes.map((node) => [node.key, node.seconds]);
+
+		const groups = exportGroupsOf(exportRows, 'client');
+
+		const exported = groups.map((group) => [`client/${group.key}`, group.seconds]);
+		expect(exported).toEqual(onScreen);
+	});
+
+	it('orders two clients with the same time as the screen does', () => {
+		const rows = [
+			exportRow({ client: { key: 'alpha', name: 'Alpha' }, seconds: 600 }),
+			exportRow({ client: { key: 'beta', name: 'Beta' }, seconds: 600 })
+		];
+
+		const groups = exportGroupsOf(rows, 'client');
+
+		expect(groups.map((group) => group.key)).toEqual(['beta', 'alpha']);
+	});
+
+	it('writes the rows client after client, each client keeping the order of its rows', () => {
+		const ordered = exportRowsInGroupOrderOf(exportRows, 'client');
+
+		const clientsOfRows = ordered.map((row) => [row.client?.key, row.project, row.seconds]);
+		expect(clientsOfRows).toEqual([
+			['acme', 'Website', 600],
+			['acme', 'Website', 1200],
+			['acme', 'No team', 300],
+			['globex', 'Legacy', 900],
+			['none', 'Internal', 300],
+			['none', null, 120],
+			['initech', 'Retired', 60]
+		]);
+	});
+
+	it("adds up a client's days into one line per project, member and task, largest project first", () => {
+		const rows = [
+			exportRow({ seconds: 600, activity: 50, earnings: 10, currency: 'USD' }),
+			exportRow({ dateKey: '2026-11-04', seconds: 1200, activity: 100, earnings: 20, currency: 'USD' }),
+			exportRow({ employeeId: 'bob', member: 'Bob', seconds: 300 }),
+			exportRow({ project: 'App', task: 'Login', seconds: 2400, activity: 25, earnings: 40, currency: 'USD' })
+		];
+
+		const lines = clientExportLinesOf(rows);
+
+		const summary = lines.map((line) => [line.project, line.member, line.task, line.seconds, line.activeSeconds]);
+		expect(summary).toEqual([
+			['App', 'Ada', 'Login', 2400, 600],
+			['Website', 'Ada', 'Home', 1800, 1500],
+			['Website', 'Bob', 'Home', 300, 0]
+		]);
+		expect(lines.map((line) => line.earnings)).toEqual([40, 30, null]);
 	});
 });
 

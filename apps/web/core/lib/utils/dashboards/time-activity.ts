@@ -538,6 +538,8 @@ export interface TimeActivityExportRow {
 	employeeId: string;
 	member: string;
 	project: string | null;
+	/** Only in an export of the client grouping. */
+	client: ReportClientRef | null;
 	task: string | null;
 	status: string | null;
 	seconds: number;
@@ -617,6 +619,7 @@ interface ExportRowContext {
 	employeeId: string;
 	member: string;
 	project: string | null;
+	client: ReportClientRef | null;
 	activity: number;
 	memberRate: MemberRate;
 	withoutTeamLabel: string | null;
@@ -633,6 +636,7 @@ function exportRowOf(
 		employeeId: context.employeeId,
 		member: context.member,
 		project: context.project,
+		client: context.client,
 		task,
 		status,
 		seconds,
@@ -676,14 +680,22 @@ function compareExportRows(first: TimeActivityExportRow, second: TimeActivityExp
 	return second.seconds - first.seconds;
 }
 
+function exportClientOf(projectLog: ReportProjectLog, clientOf: ClientOfProjectLog | null) {
+	if (!clientOf) {
+		return null;
+	}
+	return clientOf(projectLog);
+}
+
 /**
  * Export rows built from the raw daily report on the click. `onlyEmployeeId` keeps a member's own rows when the
- * reader does not manage the others.
+ * reader does not manage the others; `clientOf` gives each row the client of its project.
  */
 export function exportRowsOf(
 	report: ReadonlyArray<ITimeLogGroupedDailyReport>,
 	onlyEmployeeId: string | null,
-	withoutTeamLabel: string | null = null
+	withoutTeamLabel: string | null = null,
+	clientOf: ClientOfProjectLog | null = null
 ): TimeActivityExportRow[] {
 	const rows: TimeActivityExportRow[] = [];
 	for (const day of report) {
@@ -691,6 +703,7 @@ export function exportRowsOf(
 		const dateKey = rawDate.slice(0, 10);
 		for (const projectLog of day?.logs ?? []) {
 			const project = projectLog?.project?.name ?? null;
+			const client = exportClientOf(projectLog, clientOf);
 			for (const employeeLog of projectLog?.employeeLogs ?? []) {
 				const employeeId = employeeLog?.employee?.id;
 				if (!employeeId) {
@@ -705,6 +718,7 @@ export function exportRowsOf(
 					employeeId,
 					member: memberNameOf(employeeLog),
 					project,
+					client,
 					activity: finiteOrZero(employeeLog.activity),
 					memberRate: rateOf(employeeLog),
 					withoutTeamLabel
@@ -903,6 +917,9 @@ function exportGroupKeyOf(row: TimeActivityExportRow, grouping: BreakdownGroupin
 	if (grouping === 'task') {
 		return row.task ?? '';
 	}
+	if (grouping === 'client') {
+		return row.client?.key ?? NO_CLIENT_KEY;
+	}
 	return row.project ?? '';
 }
 
@@ -933,9 +950,21 @@ function exportGroupOf(key: string, rows: TimeActivityExportRow[]): ExportGroup 
 	return { key, rows, seconds, activeSeconds, earnings: earningsTotalsOf(rows) };
 }
 
+/** The order of the breakdown's top rows, equal times included, so an export lists the client groups as the screen. */
+function compareAsBreakdownRows(first: ExportGroup, second: ExportGroup) {
+	const bySeconds = second.seconds - first.seconds;
+	if (bySeconds !== 0) {
+		return bySeconds;
+	}
+	return second.key.localeCompare(first.key);
+}
+
 function compareExportGroups(grouping: BreakdownGrouping) {
 	if (grouping === 'date') {
 		return (first: ExportGroup, second: ExportGroup) => second.key.localeCompare(first.key);
+	}
+	if (grouping === 'client') {
+		return compareAsBreakdownRows;
 	}
 	return bySecondsDescending;
 }
@@ -953,6 +982,100 @@ export function exportGroupsOf(rows: ReadonlyArray<TimeActivityExportRow>, group
 		groups.push(exportGroupOf(key, bucket));
 	}
 	return groups.sort(compareExportGroups(grouping));
+}
+
+/** The rows of an export in the order of their groups, each group keeping the order of its rows. */
+export function exportRowsInGroupOrderOf(
+	rows: ReadonlyArray<TimeActivityExportRow>,
+	grouping: BreakdownGrouping
+): TimeActivityExportRow[] {
+	const groups = exportGroupsOf(rows, grouping);
+	return groups.flatMap((group) => group.rows);
+}
+
+/** A client's time on one task of one member on one project over the whole period: a row of the client's PDF. */
+export interface ClientExportLine {
+	key: string;
+	member: string;
+	project: string | null;
+	task: string | null;
+	seconds: number;
+	activeSeconds: number;
+	earnings: number | null;
+	currency: string | null;
+}
+
+function clientLineKeyOf(row: TimeActivityExportRow) {
+	const parts = [row.project ?? '', row.employeeId, row.task ?? ''];
+	return JSON.stringify(parts);
+}
+
+function emptyClientLineOf(row: TimeActivityExportRow, key: string): ClientExportLine {
+	return {
+		key,
+		member: row.member,
+		project: row.project,
+		task: row.task,
+		seconds: 0,
+		activeSeconds: 0,
+		earnings: null,
+		currency: row.currency
+	};
+}
+
+function addedEarnings(total: number | null, earnings: number | null) {
+	if (earnings === null) {
+		return total;
+	}
+	const base = total ?? 0;
+	return base + earnings;
+}
+
+function projectSecondsOf(lines: ReadonlyArray<ClientExportLine>) {
+	const seconds = new Map<string, number>();
+	for (const line of lines) {
+		const project = line.project ?? '';
+		const previous = seconds.get(project) ?? 0;
+		seconds.set(project, previous + line.seconds);
+	}
+	return seconds;
+}
+
+function compareClientLines(projectSeconds: ReadonlyMap<string, number>) {
+	return (first: ClientExportLine, second: ClientExportLine) => {
+		const firstProject = first.project ?? '';
+		const secondProject = second.project ?? '';
+		const firstProjectSeconds = projectSeconds.get(firstProject) ?? 0;
+		const secondProjectSeconds = projectSeconds.get(secondProject) ?? 0;
+		const byProjectTime = secondProjectSeconds - firstProjectSeconds;
+		if (byProjectTime !== 0) {
+			return byProjectTime;
+		}
+		const byProject = firstProject.localeCompare(secondProject);
+		if (byProject !== 0) {
+			return byProject;
+		}
+		return second.seconds - first.seconds;
+	};
+}
+
+/**
+ * A client group of a PDF holds one line per project, member and task, the days added up: its columns name no day,
+ * and a row per day would repeat the same three names. Projects come largest first, as on screen.
+ */
+export function clientExportLinesOf(rows: ReadonlyArray<TimeActivityExportRow>): ClientExportLine[] {
+	const lines = new Map<string, ClientExportLine>();
+	for (const row of rows) {
+		const key = clientLineKeyOf(row);
+		const line = lines.get(key) ?? emptyClientLineOf(row, key);
+		line.seconds += row.seconds;
+		line.activeSeconds += (row.seconds * row.activity) / 100;
+		line.earnings = addedEarnings(line.earnings, row.earnings);
+		lines.set(key, line);
+	}
+	const merged = [...lines.values()];
+	const projectSeconds = projectSecondsOf(merged);
+	return merged.sort(compareClientLines(projectSeconds));
 }
 
 export type BreakdownDimension = 'day' | 'member' | 'project' | 'task' | 'client';
