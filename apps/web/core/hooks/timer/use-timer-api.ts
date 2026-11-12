@@ -196,12 +196,14 @@ function releaseStopGuard(request: Promise<void>) {
 	if (pendingStopTimer === request) pendingStopTimer = null;
 }
 
+type RunGoingOn = { status: ITimerStatus; inDayStatus: boolean };
+
 /**
  * The status of a run that goes on for the employee, read afresh, or null when none does. The day's status of a Gauzy
  * older than its past-midnight fix leaves out a run started before midnight, which the employee's last log, whatever
  * its day, still shows: that log is then put in the day's status, and `inDayStatus` is false.
  */
-async function readRunGoingOn(employeeId: string): Promise<{ status: ITimerStatus; inDayStatus: boolean } | null> {
+async function readRunGoingOn(employeeId: string): Promise<RunGoingOn | null> {
 	const { data: status } = await timerService.getTimerStatus();
 	if (status?.running) return { status, inDayStatus: true };
 	const { data: lastLogs } = await timerService.getLastTimerLog(employeeId);
@@ -539,13 +541,22 @@ export function useTimerApi({
 	 * The tracking flag says a timer runs while this tab's status says stopped, and no run left behind by a closed tab
 	 * was found. This tab's status can be out of date: up to a minute old, or read while a start elsewhere was landing.
 	 * A run a fresh read finds goes on in another tab or device, so the flag is not stuck: the run is kept and shown
-	 * here, and the start is refused. Else the flag is stuck, and a stop clears it on the server (#5121). Resolves to
-	 * true when the start is refused.
+	 * here, and the start is refused. Else the flag is stuck, and a stop clears it on the server (#5121). A failed read
+	 * refuses the start too: Gauzy's start stops any run it finds. Resolves to true when the start is refused.
 	 */
 	const keepRunOrClearStuckFlag = useCallback(
 		async (employeeId: string): Promise<boolean> => {
 			const commandSeq = timerCommandsInFlight === 0 ? timerCommandSeq : null;
-			const runGoingOn = await readRunGoingOn(employeeId);
+			let runGoingOn: RunGoingOn | null;
+			try {
+				runGoingOn = await readRunGoingOn(employeeId);
+			} catch (error) {
+				// Whether a run goes on elsewhere is unknown here, and a start sent anyway would stop it
+				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+				toast.error(t('toasts.timer.START_FAILED'), { id: 'timer-start-failed', description: t(reasonKey) });
+				logErrorInDev('[startTimer] Timer status read failed:', error);
+				return true;
+			}
 			if (!runGoingOn) {
 				await timerService.stopTimer({
 					source: timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS

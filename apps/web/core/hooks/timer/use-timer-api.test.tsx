@@ -30,8 +30,12 @@ interface TimeLog {
 	stoppedAt: string;
 }
 
-/** Gauzy as the start's checks see it: the employee's last time log and tracking flag. */
-const mockGauzy: { lastLog: TimeLog | null; isTrackingTime: boolean } = { lastLog: null, isTrackingTime: false };
+/** Gauzy as the start's checks see it: the employee's last time log and tracking flag, and a failing status read. */
+const mockGauzy: { lastLog: TimeLog | null; isTrackingTime: boolean; statusReadFails: boolean } = {
+	lastLog: null,
+	isTrackingTime: false,
+	statusReadFails: false
+};
 
 const minutesAgo = (minutes: number) => new Date(NOW - minutes * MINUTE).toISOString();
 
@@ -74,6 +78,7 @@ const mockStartTimer = jest.fn(async () => {
 	return { data: { running: true, lastLog: mockGauzy.lastLog } };
 });
 const mockToastWarning = jest.fn();
+const mockToastError = jest.fn();
 const mockTranslate = (key: string) => key;
 const mockUpdateActiveTask = jest.fn(async () => undefined);
 const mockUpdateTask = jest.fn();
@@ -90,12 +95,17 @@ jest.mock('@/core/constants/config/constants', () => {
 jest.mock('next/navigation', () => ({ usePathname: () => '/' }));
 jest.mock('next-intl', () => ({ useTranslations: () => mockTranslate, useLocale: () => 'en' }));
 jest.mock('sonner', () => ({
-	toast: { warning: (...args: unknown[]) => mockToastWarning(...args), error: jest.fn(), info: jest.fn() }
+	toast: {
+		warning: (...args: unknown[]) => mockToastWarning(...args),
+		error: (...args: unknown[]) => mockToastError(...args),
+		info: jest.fn()
+	}
 }));
 jest.mock('@/core/services/client/api/timers', () => ({
 	timerService: {
 		// The day's status of a Gauzy before its past-midnight fix (ever-gauzy 531c63ac6): only the logs started today
 		getTimerStatus: async () => {
+			if (mockGauzy.statusReadFails) throw new Error('Network Error');
 			const lastLog =
 				mockGauzy.lastLog && Date.parse(mockGauzy.lastLog.startedAt) >= TODAY_START ? mockGauzy.lastLog : null;
 			return { data: { running: !!lastLog?.isRunning, lastLog } };
@@ -190,6 +200,7 @@ describe('Start while the tracking flag says a timer runs and this tab says stop
 	beforeEach(() => {
 		mockGauzy.lastLog = null;
 		mockGauzy.isTrackingTime = false;
+		mockGauzy.statusReadFails = false;
 	});
 
 	it('refuses the start and keeps the run another device started since this tab read its status', async () => {
@@ -234,6 +245,31 @@ describe('Start while the tracking flag says a timer runs and this tab says stop
 		// The tab shows that run at once. Its day's status is not read again: it would show the run stopped
 		expect(tab.store.get(timerStatusState)).toMatchObject({ running: true, lastLog: { id: 'log-overnight' } });
 		expect(invalidate).not.toHaveBeenCalledWith({ queryKey: queryKeys.timer.all });
+	});
+
+	it('refuses the start and stops nothing when the fresh status read fails', async () => {
+		// The desktop app started a run 30 seconds ago, and the status read fails: Gauzy's start would stop that run
+		mockGauzy.lastLog = {
+			id: 'log-desktop',
+			source: ETimeLogSource.DESKTOP,
+			isRunning: true,
+			startedAt: minutesAgo(0.5),
+			stoppedAt: minutesAgo(0.5)
+		};
+		mockGauzy.isTrackingTime = true;
+		mockGauzy.statusReadFails = true;
+		const { pressStart } = renderTab();
+
+		const outcome = await pressStart();
+
+		expect(outcome).toBe('blocked');
+		expect(mockStopTimer).not.toHaveBeenCalled();
+		expect(mockStartTimer).not.toHaveBeenCalled();
+		expect(mockGauzy.lastLog).toMatchObject({ id: 'log-desktop', isRunning: true });
+		expect(mockToastError).toHaveBeenCalledWith(
+			'toasts.timer.START_FAILED',
+			expect.objectContaining({ id: 'timer-start-failed' })
+		);
 	});
 
 	it('still clears a stuck flag when nothing runs, then starts', async () => {
