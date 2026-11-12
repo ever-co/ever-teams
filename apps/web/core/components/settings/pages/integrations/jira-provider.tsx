@@ -1094,8 +1094,9 @@ function JiraDetails({
 	const t = useTranslations();
 	const [changingSite, setChangingSite] = useState(false);
 	const connection = jira.connection;
-	// The forms belong to the site they were filled for: another site starts them afresh (its projects and statuses differ).
-	const siteKey = connection?.cloudId ?? 'no-site';
+	// The forms belong to the connection and the site they were filled for: another connection (another team's, even on
+	// the same site) or another site starts them afresh (its projects and statuses differ).
+	const siteKey = `${connection?.id ?? 'no-connection'}:${connection?.cloudId ?? 'no-site'}`;
 	// The site changes only while the connection is known to map nothing (see siteLockedOf): a site form left open
 	// closes once a mapping appears.
 	const siteLocked = siteLockedOf(jira);
@@ -1275,7 +1276,10 @@ function JiraProviderBody({ jira, onDisconnect }: JiraProps & Readonly<{ onDisco
  */
 export function JiraProviderSection({ jira }: JiraProps) {
 	const t = useTranslations();
-	const [confirming, setConfirming] = useState(false);
+	// The connection the disconnect dialog was opened for: the dialog closes when the panel shows another one.
+	const [confirmingFor, setConfirmingFor] = useState<string | null>(null);
+	const connectionId = jira.connection?.id ?? null;
+	const confirming = confirmingFor !== null && confirmingFor === connectionId;
 	if (jira.status === 'hidden') return null;
 	const consequences: DangerConsequence[] = [
 		{ key: 'sync', icon: <StopCircle />, text: t(`${KEYS}.DISCONNECT_STOPS_SYNC` as Key) },
@@ -1283,9 +1287,11 @@ export function JiraProviderSection({ jira }: JiraProps) {
 	];
 
 	const confirmDisconnect = async () => {
+		// Never another connection than the one the dialog was opened for.
+		if (!confirming) return;
 		try {
 			await jira.disconnect();
-			setConfirming(false);
+			setConfirmingFor(null);
 		} catch {
 			// The dialog shows the hook's error.
 		}
@@ -1306,11 +1312,11 @@ export function JiraProviderSection({ jira }: JiraProps) {
 					dismissLabel={t('common.CLOSE')}
 				/>
 			)}
-			<JiraProviderBody jira={jira} onDisconnect={() => setConfirming(true)} />
+			<JiraProviderBody jira={jira} onDisconnect={() => setConfirmingFor(connectionId)} />
 			<ConfirmDestructiveDialog
 				open={confirming}
 				onClose={() => {
-					setConfirming(false);
+					setConfirmingFor(null);
 					jira.clearDisconnectError();
 				}}
 				title={t(`${KEYS}.DISCONNECT_TITLE` as Key)}

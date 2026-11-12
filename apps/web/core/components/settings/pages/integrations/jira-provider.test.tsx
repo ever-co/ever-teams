@@ -412,6 +412,22 @@ describe('JiraProviderSection', () => {
 		expect(screen.getByTestId('jira-disconnect-dialog').textContent).toContain(`${K}.DISCONNECT_TITLE`);
 	});
 
+	it('closes the disconnect dialog when the panel shows another connection: it never disconnects one it was not opened for', () => {
+		const jira = connected();
+		const { rerender } = render(<JiraProviderSection jira={jira} />);
+		fireEvent.click(screen.getByRole('button', { name: `${K}.DISCONNECT` }));
+		expect(screen.getByTestId('jira-disconnect-dialog')).toBeTruthy();
+
+		rerender(
+			<JiraProviderSection
+				jira={{ ...jira, connection: { ...CONNECTION, id: 'int-2' }, integrationId: 'int-2' }}
+			/>
+		);
+
+		expect(screen.queryByTestId('jira-disconnect-dialog')).toBeNull();
+		expect(jira.disconnect).not.toHaveBeenCalled();
+	});
+
 	it('add form: the unmapped projects of the site, the chosen one statuses and issue types, and the map are saved', async () => {
 		const jira = connected();
 		render(<JiraProviderSection jira={jira} />);
