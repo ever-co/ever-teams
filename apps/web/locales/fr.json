@@ -630,8 +630,6 @@
 					"TRACKED_TITLE": "Le temps suivi est conservé",
 					"TRACKED": "{tracked} de cette case vient d'un minuteur. La feuille ne baisse que le temps ajouté à la main : ouvrez les saisies de la case pour retirer du temps suivi.",
 					"SAVE_FAILED": "Temps non enregistré",
-					"STALE_TITLE": "La feuille ne s'est pas actualisée",
-					"STALE": "Votre modification est peut-être déjà enregistrée. Rechargez la page pour voir le temps tel qu'il est.",
 					"REFUSED": "Vous ne pouvez pas ajouter ou modifier du temps pour ce membre.",
 					"LOCK_FUTURE": "Votre organisation n'accepte pas de temps sur les jours après aujourd'hui.",
 					"LOCK_APPROVED": "Cette semaine est approuvée : son temps ne se modifie pas depuis la feuille.",
