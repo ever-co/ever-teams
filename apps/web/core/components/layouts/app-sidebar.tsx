@@ -82,6 +82,7 @@ import { getMyWorkNavigation } from './my-work-navigation';
 import { isInboxEnabled } from '@/core/lib/utils/inbox-enabled';
 import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
 import { CommandPaletteTrigger } from './default-layout/header/command-palette-trigger';
+import { useSidebarPages } from './use-sidebar-pages';
 import { DefaultCreateAction } from '../features/layouts/header/create-default-action';
 import { SettingsNav } from '../settings/kit/settings-nav';
 import { isSettingsPath } from '../settings/kit/settings-entries';
@@ -456,6 +457,13 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const showsSettingsNav = isSettingsPath(stripLocalePrefix(pathname ?? ''));
 	useRememberAppPath(pathname, showsSettingsNav);
 
+	// The command palette's "Go to" lists the pages of this sidebar from the entries above: one list, the same rules.
+	const firstLevelLinks = useMemo(
+		() => [...homeEntries, { title: t('chatView.ASSISTANT'), url: ASSISTANT_PATH }],
+		[homeEntries, t]
+	);
+	const sidebarPages = useSidebarPages(firstLevelLinks, navMain);
+
 	const showAccountMenu = !publicTeam;
 	const showCreateTeamModal = !publicTeam && isOpen && Boolean(user?.isEmailVerified);
 	const appSwitcherPlacement = useAppSwitcherPlacement();
@@ -512,7 +520,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			{/* Command palette - rendered once for the entire app (outside the mobile sheet), so its
 			    shortcuts work on every page; the sidebar's CommandPaletteTrigger opens it. */}
 			<Suspense fallback={null}>
-				<LazySidebarCommandModal publicTeam={publicTeam || false} variant="none" />
+				<LazySidebarCommandModal publicTeam={publicTeam || false} variant="none" pages={sidebarPages} />
 			</Suspense>
 
 			{/* Rendered once for the entire app. */}
