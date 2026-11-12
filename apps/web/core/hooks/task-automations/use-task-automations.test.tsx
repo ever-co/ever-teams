@@ -187,6 +187,29 @@ describe('actions', () => {
 		]);
 	});
 
+	it('keeps a reorder made while a switch was under way', async () => {
+		const { result, queryClient } = setup(() => useTaskAutomationActions());
+		queryClient.setQueryData(rulesKey, [rule('a', 0), rule('b', 1)]);
+		let answerSwitch!: (value: ITaskAutomationRule) => void;
+		mockService.update.mockReturnValue(new Promise((resolve) => (answerSwitch = resolve)));
+		mockService.reorder.mockResolvedValue([rule('b', 0), rule('a', 1)]);
+		let switched: Promise<unknown> = Promise.resolve();
+		await act(async () => {
+			switched = result.current.setEnabled('a', false);
+			await result.current.reorder(['b', 'a']);
+		});
+		// The switch answers late, with the position the rule had when it was read.
+		await act(async () => {
+			answerSwitch(rule('a', 0, { isEnabled: false }));
+			await switched;
+		});
+		const cached = queryClient.getQueryData<ITaskAutomationRule[]>(rulesKey) ?? [];
+		expect(cached.map((one) => [one.id, one.position, one.isEnabled])).toEqual([
+			['b', 0, true],
+			['a', 1, false]
+		]);
+	});
+
 	it('reorders at once and keeps the platform’s answer', async () => {
 		const { result, queryClient } = setup(() => useTaskAutomationActions());
 		queryClient.setQueryData(rulesKey, [rule('a', 0), rule('b', 1)]);

@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
-import { type QueryKey, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { hashKey, type QueryKey, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { taskAutomationsService } from '@/core/services/client/api/task-automations';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
@@ -143,10 +143,21 @@ export function useTaskAutomationActions() {
 		[queryClient]
 	);
 	const invalidate = useCallback(() => queryClient.invalidateQueries({ queryKey: rulesKey }), [queryClient, rulesKey]);
-	/** After a write: read the rules again once no other write is under way (this one still counts itself). */
+	/**
+	 * After a write: read its organization's rules again once no other write of that organization is under way (this
+	 * one still counts itself). Writes of another organization do not hold it back.
+	 */
 	const settle = useCallback(
 		(key: QueryKey) => {
-			if (queryClient.isMutating({ mutationKey: WRITE_KEY }) <= 1) void queryClient.invalidateQueries({ queryKey: key });
+			const hash = hashKey(key);
+			const pending = queryClient.isMutating({
+				mutationKey: WRITE_KEY,
+				predicate: (mutation) => {
+					const write = (mutation.state.variables as { write?: WriteScope } | undefined)?.write;
+					return !!write && hashKey(write.rulesKey) === hash;
+				}
+			});
+			if (pending <= 1) void queryClient.invalidateQueries({ queryKey: key });
 		},
 		[queryClient]
 	);
@@ -184,8 +195,11 @@ export function useTaskAutomationActions() {
 				)
 			);
 		},
+		// The platform's rule, in the place the cache has it: a reorder made while this write was under way keeps its order.
 		onSuccess: (updated, { write }) =>
-			setRules(write.rulesKey, (rules) => rules.map((rule) => (rule.id === updated.id ? updated : rule))),
+			setRules(write.rulesKey, (rules) =>
+				rules.map((rule) => (rule.id === updated.id ? { ...updated, position: rule.position } : rule))
+			),
 		onSettled: (_data, _error, { write }) => settle(write.rulesKey)
 	});
 
