@@ -1450,7 +1450,15 @@
 			"WEEK_STRIP_LABEL": "Días de la semana",
 			"HAS_TIME": "Tiempo registrado",
 			"NO_MEMBER_TITLE": "Tu cuenta no tiene perfil de miembro en este espacio",
-			"NO_MEMBER_MESSAGE": "El tiempo se registra por miembro. Pide a un administrador que te añada a un equipo."
+			"NO_MEMBER_MESSAGE": "El tiempo se registra por miembro. Pide a un administrador que te añada a un equipo.",
+			"DRAG": {
+				"REFUSED_TITLE": "Entrada sin cambios",
+				"CREATE_REFUSED_TITLE": "Aquí no se puede añadir tiempo",
+				"OVERLAP": "Este horario se solapa con otra entrada del miembro. Elige un horario libre o cambia primero la otra entrada.",
+				"FUTURE": "Tu organización no permite tiempo posterior a la hora actual.",
+				"APPROVED": "Este día pertenece a una hoja de horas aprobada, por lo que su tiempo no se puede cambiar.",
+				"SAVE_FAILED": "Cambio no guardado"
+			}
 		},
 		"manualTimeEdits": {
 			"TITLE": "Ediciones manuales de tiempo",
