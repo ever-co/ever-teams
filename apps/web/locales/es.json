@@ -6395,7 +6395,72 @@
 				"DATES": "Emitida el {issueDate}, vence el {dueDate}.",
 				"DRAFT": "Se guarda como borrador y se puede descargar en PDF.",
 				"FAILED": "La factura no se guardó y no se creó nada. Comprueba que su número esté libre y vuelve a intentarlo."
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "Por proyecto",
+				"AVERAGE_RATE": "tarifa media",
+				"AVERAGE_RATE_HINT": "Los miembros de este proyecto tienen tarifas distintas: esta es su media, ponderada por sus horas."
+			},
+			"terms": {
+				"CLIENT": "Condiciones del cliente: {days, plural, =0 {pago al recibirla} one {# día} other {# días}}",
+				"ORGANIZATION": "Condiciones del espacio de trabajo: {days, plural, one {# día} other {# días}}",
+				"STANDARD": "Condiciones por defecto: {days, plural, one {# día} other {# días}}",
+				"NOTE": "Nota para el cliente",
+				"NOTE_HINT": "Se imprime en la factura, debajo de su periodo."
+			},
+			"adjustments": {
+				"DISCOUNT": "Descuento (%)",
+				"TAX": "Impuesto (%)",
+				"SUBTOTAL": "Subtotal",
+				"DISCOUNT_ROW": "Descuento ({percent})",
+				"TAX_ROW": "Impuesto ({percent} de {base})"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "Guardar y enviar",
+				"DRAFT_OR_SEND_NOTE": "Después, guárdala como borrador, o guárdala y envíala a {email}.",
+				"SEND_CONSEQUENCE": "Guardar y enviar también la manda por correo con el PDF adjunto y luego la marca como Enviada.",
+				"SAVED_NOT_SENT": "La factura {number} se guardó como borrador, pero no se envió",
+				"SEND_FROM_LIST": "Vuelve a enviarla desde su menú en la lista."
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "Acciones de la factura {number}",
+			"SEND": "Enviar al cliente",
+			"SEND_AGAIN": "Volver a enviar",
+			"MARK_PAID": "Marcar como pagada",
+			"MARK_UNPAID": "Marcar como no pagada",
+			"VOID": "Anular",
+			"DELETE": "Eliminar",
+			"MARKED_PAID": "La factura {number} está marcada como pagada",
+			"MARKED_UNPAID": "La factura {number} vuelve a Enviada, sin pagar",
+			"CHANGE_FAILED": "La factura {number} no se modificó"
+		},
+		"send": {
+			"TITLE": "¿Enviar la factura {number}?",
+			"ATTACHED": "Se envía por correo electrónico, con la factura adjunta en PDF.",
+			"MARKS_SENT": "Después se marca como Enviada.",
+			"RECIPIENT": "Enviar a",
+			"RECIPIENT_INVALID": "Escribe la dirección de correo a la que va la factura.",
+			"CONFIRM": "Enviar la factura",
+			"SENT": "Factura {number} enviada a {email}",
+			"NOT_MARKED": "Su estado no pudo cambiar a Enviada.",
+			"FAILED": "La factura {number} no se envió. Comprueba la dirección y vuelve a intentarlo."
+		},
+		"void": {
+			"TITLE": "¿Anular la factura {number}?",
+			"STAYS_LISTED": "Sigue en la lista como Anulada y su PDF se puede seguir descargando.",
+			"FINAL": "Una factura anulada ya no se puede enviar ni marcar como pagada.",
+			"CONFIRM": "Anular la factura",
+			"DONE": "La factura {number} está anulada",
+			"FAILED": "La factura no se modificó. Vuelve a intentarlo."
+		},
+		"delete": {
+			"TITLE": "¿Eliminar la factura {number}?",
+			"FOR_GOOD": "El borrador se elimina definitivamente y sale de la lista.",
+			"NUMBER_FREE": "Su número se podrá dar a otra factura.",
+			"CONFIRM": "Eliminar la factura",
+			"DONE": "La factura {number} se eliminó",
+			"FAILED": "La factura no se eliminó. Vuelve a intentarlo."
 		}
 	}
 }

@@ -6395,7 +6395,72 @@
 				"DATES": "Issued {issueDate}, due {dueDate}.",
 				"DRAFT": "It is saved as a draft and can be downloaded as a PDF.",
 				"FAILED": "The invoice was not saved and nothing was created. Check that its number is free, then try again."
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "By project",
+				"AVERAGE_RATE": "average rate",
+				"AVERAGE_RATE_HINT": "The members of this project have different rates: this is their average, weighted by their hours."
+			},
+			"terms": {
+				"CLIENT": "Client's terms: {days, plural, =0 {due on receipt} one {# day} other {# days}}",
+				"ORGANIZATION": "Workspace terms: {days, plural, one {# day} other {# days}}",
+				"STANDARD": "Default terms: {days, plural, one {# day} other {# days}}",
+				"NOTE": "Note to the client",
+				"NOTE_HINT": "Printed on the invoice, under its period."
+			},
+			"adjustments": {
+				"DISCOUNT": "Discount (%)",
+				"TAX": "Tax (%)",
+				"SUBTOTAL": "Subtotal",
+				"DISCOUNT_ROW": "Discount ({percent})",
+				"TAX_ROW": "Tax ({percent} of {base})"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "Save and send",
+				"DRAFT_OR_SEND_NOTE": "Next, save it as a draft, or save it and send it to {email}.",
+				"SEND_CONSEQUENCE": "Save and send also e-mails it with the PDF attached, then marks it Sent.",
+				"SAVED_NOT_SENT": "Invoice {number} was saved as a draft but not sent",
+				"SEND_FROM_LIST": "Send it again from its menu in the list."
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "Actions for invoice {number}",
+			"SEND": "Send to the client",
+			"SEND_AGAIN": "Send again",
+			"MARK_PAID": "Mark as paid",
+			"MARK_UNPAID": "Mark as unpaid",
+			"VOID": "Void",
+			"DELETE": "Delete",
+			"MARKED_PAID": "Invoice {number} is marked paid",
+			"MARKED_UNPAID": "Invoice {number} is back to Sent, unpaid",
+			"CHANGE_FAILED": "Invoice {number} was not changed"
+		},
+		"send": {
+			"TITLE": "Send invoice {number}?",
+			"ATTACHED": "It goes by e-mail, with the invoice attached as a PDF.",
+			"MARKS_SENT": "It is then marked Sent.",
+			"RECIPIENT": "Send to",
+			"RECIPIENT_INVALID": "Enter the e-mail address the invoice goes to.",
+			"CONFIRM": "Send invoice",
+			"SENT": "Invoice {number} sent to {email}",
+			"NOT_MARKED": "Its status could not be changed to Sent.",
+			"FAILED": "Invoice {number} was not sent. Check the address, then try again."
+		},
+		"void": {
+			"TITLE": "Void invoice {number}?",
+			"STAYS_LISTED": "It stays in the list as Void, and its PDF can still be downloaded.",
+			"FINAL": "A void invoice can no longer be sent or marked paid.",
+			"CONFIRM": "Void invoice",
+			"DONE": "Invoice {number} is void",
+			"FAILED": "The invoice was not changed. Try again."
+		},
+		"delete": {
+			"TITLE": "Delete invoice {number}?",
+			"FOR_GOOD": "The draft is deleted for good and leaves the list.",
+			"NUMBER_FREE": "Its number can be given to another invoice.",
+			"CONFIRM": "Delete invoice",
+			"DONE": "Invoice {number} was deleted",
+			"FAILED": "The invoice was not deleted. Try again."
 		}
 	}
 }

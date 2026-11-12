@@ -6395,7 +6395,72 @@
 				"DATES": "{issueDate} 开具，{dueDate} 到期。",
 				"DRAFT": "发票将保存为草稿，并可下载为 PDF。",
 				"FAILED": "发票未保存，也未创建任何内容。请确认编号未被占用，然后重试。"
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "按项目",
+				"AVERAGE_RATE": "平均费率",
+				"AVERAGE_RATE_HINT": "此项目成员的费率各不相同：这是按各自工时加权的平均值。"
+			},
+			"terms": {
+				"CLIENT": "客户条款：{days, plural, =0 {收到即付} other {# 天}}",
+				"ORGANIZATION": "工作区条款：{days, plural, other {# 天}}",
+				"STANDARD": "默认条款：{days, plural, other {# 天}}",
+				"NOTE": "给客户的备注",
+				"NOTE_HINT": "打印在发票上，位于期间下方。"
+			},
+			"adjustments": {
+				"DISCOUNT": "折扣 (%)",
+				"TAX": "税 (%)",
+				"SUBTOTAL": "小计",
+				"DISCOUNT_ROW": "折扣（{percent}）",
+				"TAX_ROW": "税（{base} 的 {percent}）"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "保存并发送",
+				"DRAFT_OR_SEND_NOTE": "下一步可保存为草稿，或保存并发送至 {email}。",
+				"SEND_CONSEQUENCE": "“保存并发送”还会通过电子邮件发送发票并附上 PDF，然后将其标记为已发送。",
+				"SAVED_NOT_SENT": "第 {number} 号发票已保存为草稿，但未发送",
+				"SEND_FROM_LIST": "请从列表中该发票的菜单再次发送。"
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "第 {number} 号发票的操作",
+			"SEND": "发送给客户",
+			"SEND_AGAIN": "再次发送",
+			"MARK_PAID": "标记为已付清",
+			"MARK_UNPAID": "标记为未付",
+			"VOID": "作废",
+			"DELETE": "删除",
+			"MARKED_PAID": "第 {number} 号发票已标记为已付清",
+			"MARKED_UNPAID": "第 {number} 号发票已回到已发送，未付",
+			"CHANGE_FAILED": "第 {number} 号发票未更改"
+		},
+		"send": {
+			"TITLE": "发送第 {number} 号发票？",
+			"ATTACHED": "将通过电子邮件发送，发票以 PDF 附件形式附上。",
+			"MARKS_SENT": "随后标记为已发送。",
+			"RECIPIENT": "发送至",
+			"RECIPIENT_INVALID": "请输入接收发票的电子邮箱地址。",
+			"CONFIRM": "发送发票",
+			"SENT": "第 {number} 号发票已发送至 {email}",
+			"NOT_MARKED": "无法将其状态改为已发送。",
+			"FAILED": "第 {number} 号发票未发送。请检查地址，然后重试。"
+		},
+		"void": {
+			"TITLE": "作废第 {number} 号发票？",
+			"STAYS_LISTED": "它仍留在列表中，状态为已作废，其 PDF 仍可下载。",
+			"FINAL": "已作废的发票不能再发送或标记为已付清。",
+			"CONFIRM": "作废发票",
+			"DONE": "第 {number} 号发票已作废",
+			"FAILED": "发票未更改。请重试。"
+		},
+		"delete": {
+			"TITLE": "删除第 {number} 号发票？",
+			"FOR_GOOD": "草稿将被永久删除，并从列表中移除。",
+			"NUMBER_FREE": "其编号可以给另一张发票使用。",
+			"CONFIRM": "删除发票",
+			"DONE": "第 {number} 号发票已删除",
+			"FAILED": "发票未删除。请重试。"
 		}
 	}
 }

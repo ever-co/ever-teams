@@ -6395,7 +6395,72 @@
 				"DATES": "Emessa il {issueDate}, scade il {dueDate}.",
 				"DRAFT": "Viene salvata come bozza e può essere scaricata in PDF.",
 				"FAILED": "La fattura non è stata salvata e non è stato creato nulla. Controlla che il numero sia libero, poi riprova."
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "Per progetto",
+				"AVERAGE_RATE": "tariffa media",
+				"AVERAGE_RATE_HINT": "I membri di questo progetto hanno tariffe diverse: questa è la loro media, ponderata sulle loro ore."
+			},
+			"terms": {
+				"CLIENT": "Termini del cliente: {days, plural, =0 {pagamento a vista} one {# giorno} other {# giorni}}",
+				"ORGANIZATION": "Termini dello spazio di lavoro: {days, plural, one {# giorno} other {# giorni}}",
+				"STANDARD": "Termini predefiniti: {days, plural, one {# giorno} other {# giorni}}",
+				"NOTE": "Nota per il cliente",
+				"NOTE_HINT": "Stampata sulla fattura, sotto il suo periodo."
+			},
+			"adjustments": {
+				"DISCOUNT": "Sconto (%)",
+				"TAX": "Imposta (%)",
+				"SUBTOTAL": "Subtotale",
+				"DISCOUNT_ROW": "Sconto ({percent})",
+				"TAX_ROW": "Imposta ({percent} di {base})"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "Salva e invia",
+				"DRAFT_OR_SEND_NOTE": "Poi salvala come bozza, oppure salvala e inviala a {email}.",
+				"SEND_CONSEQUENCE": "Salva e invia la manda anche via email con il PDF allegato, poi la segna come Inviata.",
+				"SAVED_NOT_SENT": "La fattura {number} è stata salvata come bozza ma non inviata",
+				"SEND_FROM_LIST": "Inviala di nuovo dal suo menu nell’elenco."
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "Azioni per la fattura {number}",
+			"SEND": "Invia al cliente",
+			"SEND_AGAIN": "Invia di nuovo",
+			"MARK_PAID": "Segna come pagata",
+			"MARK_UNPAID": "Segna come non pagata",
+			"VOID": "Annulla la fattura",
+			"DELETE": "Elimina",
+			"MARKED_PAID": "La fattura {number} è segnata come pagata",
+			"MARKED_UNPAID": "La fattura {number} torna a Inviata, non pagata",
+			"CHANGE_FAILED": "La fattura {number} non è stata modificata"
+		},
+		"send": {
+			"TITLE": "Inviare la fattura {number}?",
+			"ATTACHED": "Parte via email, con la fattura allegata in PDF.",
+			"MARKS_SENT": "Poi viene segnata come Inviata.",
+			"RECIPIENT": "Invia a",
+			"RECIPIENT_INVALID": "Inserisci l’indirizzo email a cui inviare la fattura.",
+			"CONFIRM": "Invia la fattura",
+			"SENT": "Fattura {number} inviata a {email}",
+			"NOT_MARKED": "Non è stato possibile cambiare il suo stato in Inviata.",
+			"FAILED": "La fattura {number} non è stata inviata. Controlla l’indirizzo, poi riprova."
+		},
+		"void": {
+			"TITLE": "Annullare la fattura {number}?",
+			"STAYS_LISTED": "Resta nell’elenco come Annullata e il suo PDF si può ancora scaricare.",
+			"FINAL": "Una fattura annullata non può più essere inviata né segnata come pagata.",
+			"CONFIRM": "Annulla la fattura",
+			"DONE": "La fattura {number} è annullata",
+			"FAILED": "La fattura non è stata modificata. Riprova."
+		},
+		"delete": {
+			"TITLE": "Eliminare la fattura {number}?",
+			"FOR_GOOD": "La bozza viene eliminata definitivamente ed esce dall’elenco.",
+			"NUMBER_FREE": "Il suo numero potrà essere dato a un’altra fattura.",
+			"CONFIRM": "Elimina la fattura",
+			"DONE": "La fattura {number} è stata eliminata",
+			"FAILED": "La fattura non è stata eliminata. Riprova."
 		}
 	}
 }

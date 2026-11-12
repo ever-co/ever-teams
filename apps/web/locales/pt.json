@@ -6395,7 +6395,72 @@
 				"DATES": "Emitida a {issueDate}, vence a {dueDate}.",
 				"DRAFT": "É guardada como rascunho e pode ser descarregada em PDF.",
 				"FAILED": "A fatura não foi guardada e nada foi criado. Verifique se o número está livre e tente novamente."
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "Por projeto",
+				"AVERAGE_RATE": "tarifa média",
+				"AVERAGE_RATE_HINT": "Os membros deste projeto têm tarifas diferentes: esta é a média delas, ponderada pelas horas de cada um."
+			},
+			"terms": {
+				"CLIENT": "Condições do cliente: {days, plural, =0 {pronto pagamento} one {# dia} other {# dias}}",
+				"ORGANIZATION": "Condições do espaço de trabalho: {days, plural, one {# dia} other {# dias}}",
+				"STANDARD": "Condições predefinidas: {days, plural, one {# dia} other {# dias}}",
+				"NOTE": "Nota para o cliente",
+				"NOTE_HINT": "Impressa na fatura, por baixo do período."
+			},
+			"adjustments": {
+				"DISCOUNT": "Desconto (%)",
+				"TAX": "Imposto (%)",
+				"SUBTOTAL": "Subtotal",
+				"DISCOUNT_ROW": "Desconto ({percent})",
+				"TAX_ROW": "Imposto ({percent} de {base})"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "Guardar e enviar",
+				"DRAFT_OR_SEND_NOTE": "A seguir, guarde-a como rascunho, ou guarde-a e envie-a para {email}.",
+				"SEND_CONSEQUENCE": "Guardar e enviar também a envia por e-mail com o PDF em anexo e depois marca-a como Enviada.",
+				"SAVED_NOT_SENT": "A fatura {number} foi guardada como rascunho, mas não foi enviada",
+				"SEND_FROM_LIST": "Envie-a de novo a partir do menu dela na lista."
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "Ações da fatura {number}",
+			"SEND": "Enviar ao cliente",
+			"SEND_AGAIN": "Enviar de novo",
+			"MARK_PAID": "Marcar como paga",
+			"MARK_UNPAID": "Marcar como não paga",
+			"VOID": "Anular",
+			"DELETE": "Eliminar",
+			"MARKED_PAID": "A fatura {number} está marcada como paga",
+			"MARKED_UNPAID": "A fatura {number} voltou a Enviada, por pagar",
+			"CHANGE_FAILED": "A fatura {number} não foi alterada"
+		},
+		"send": {
+			"TITLE": "Enviar a fatura {number}?",
+			"ATTACHED": "Segue por e-mail, com a fatura em anexo em PDF.",
+			"MARKS_SENT": "Depois fica marcada como Enviada.",
+			"RECIPIENT": "Enviar para",
+			"RECIPIENT_INVALID": "Introduza o endereço de e-mail para onde vai a fatura.",
+			"CONFIRM": "Enviar a fatura",
+			"SENT": "Fatura {number} enviada para {email}",
+			"NOT_MARKED": "Não foi possível mudar o estado para Enviada.",
+			"FAILED": "A fatura {number} não foi enviada. Verifique o endereço e tente novamente."
+		},
+		"void": {
+			"TITLE": "Anular a fatura {number}?",
+			"STAYS_LISTED": "Fica na lista como Anulada e o PDF continua a poder ser descarregado.",
+			"FINAL": "Uma fatura anulada já não pode ser enviada nem marcada como paga.",
+			"CONFIRM": "Anular a fatura",
+			"DONE": "A fatura {number} está anulada",
+			"FAILED": "A fatura não foi alterada. Tente novamente."
+		},
+		"delete": {
+			"TITLE": "Eliminar a fatura {number}?",
+			"FOR_GOOD": "O rascunho é eliminado definitivamente e sai da lista.",
+			"NUMBER_FREE": "O número pode ser dado a outra fatura.",
+			"CONFIRM": "Eliminar a fatura",
+			"DONE": "A fatura {number} foi eliminada",
+			"FAILED": "A fatura não foi eliminada. Tente novamente."
 		}
 	}
 }

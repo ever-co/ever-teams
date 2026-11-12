@@ -6395,7 +6395,72 @@
 				"DATES": "Wystawiona {issueDate}, termin płatności {dueDate}.",
 				"DRAFT": "Zostanie zapisana jako wersja robocza i można ją pobrać jako PDF.",
 				"FAILED": "Faktura nie została zapisana i nic nie zostało utworzone. Sprawdź, czy numer jest wolny, i spróbuj ponownie."
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "Według projektu",
+				"AVERAGE_RATE": "stawka średnia",
+				"AVERAGE_RATE_HINT": "Członkowie tego projektu mają różne stawki: to ich średnia ważona godzinami."
+			},
+			"terms": {
+				"CLIENT": "Termin klienta: {days, plural, =0 {płatne przy odbiorze} one {# dzień} few {# dni} many {# dni} other {# dnia}}",
+				"ORGANIZATION": "Termin przestrzeni roboczej: {days, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}",
+				"STANDARD": "Termin domyślny: {days, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}",
+				"NOTE": "Uwaga dla klienta",
+				"NOTE_HINT": "Drukowana na fakturze, pod jej okresem."
+			},
+			"adjustments": {
+				"DISCOUNT": "Rabat (%)",
+				"TAX": "Podatek (%)",
+				"SUBTOTAL": "Suma częściowa",
+				"DISCOUNT_ROW": "Rabat ({percent})",
+				"TAX_ROW": "Podatek ({percent} od {base})"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "Zapisz i wyślij",
+				"DRAFT_OR_SEND_NOTE": "Następnie zapisz ją jako wersję roboczą albo zapisz ją i wyślij na adres {email}.",
+				"SEND_CONSEQUENCE": "„Zapisz i wyślij” dodatkowo wysyła ją e-mailem z załączonym PDF, a potem oznacza jako wysłaną.",
+				"SAVED_NOT_SENT": "Faktura {number} została zapisana jako wersja robocza, ale nie została wysłana",
+				"SEND_FROM_LIST": "Wyślij ją ponownie z jej menu na liście."
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "Działania dla faktury {number}",
+			"SEND": "Wyślij do klienta",
+			"SEND_AGAIN": "Wyślij ponownie",
+			"MARK_PAID": "Oznacz jako opłaconą",
+			"MARK_UNPAID": "Oznacz jako nieopłaconą",
+			"VOID": "Anuluj fakturę",
+			"DELETE": "Usuń",
+			"MARKED_PAID": "Faktura {number} jest oznaczona jako opłacona",
+			"MARKED_UNPAID": "Faktura {number} wróciła do stanu Wysłana, nieopłacona",
+			"CHANGE_FAILED": "Faktura {number} nie została zmieniona"
+		},
+		"send": {
+			"TITLE": "Wysłać fakturę {number}?",
+			"ATTACHED": "Wychodzi e-mailem, z fakturą w załączniku jako PDF.",
+			"MARKS_SENT": "Potem zostaje oznaczona jako wysłana.",
+			"RECIPIENT": "Wyślij do",
+			"RECIPIENT_INVALID": "Wpisz adres e-mail, na który ma trafić faktura.",
+			"CONFIRM": "Wyślij fakturę",
+			"SENT": "Faktura {number} wysłana na adres {email}",
+			"NOT_MARKED": "Nie udało się zmienić jej stanu na Wysłana.",
+			"FAILED": "Faktura {number} nie została wysłana. Sprawdź adres i spróbuj ponownie."
+		},
+		"void": {
+			"TITLE": "Anulować fakturę {number}?",
+			"STAYS_LISTED": "Zostaje na liście jako anulowana, a jej PDF nadal można pobrać.",
+			"FINAL": "Anulowanej faktury nie można już wysłać ani oznaczyć jako opłaconej.",
+			"CONFIRM": "Anuluj fakturę",
+			"DONE": "Faktura {number} jest anulowana",
+			"FAILED": "Faktura nie została zmieniona. Spróbuj ponownie."
+		},
+		"delete": {
+			"TITLE": "Usunąć fakturę {number}?",
+			"FOR_GOOD": "Wersja robocza zostaje usunięta na stałe i znika z listy.",
+			"NUMBER_FREE": "Jej numer można nadać innej fakturze.",
+			"CONFIRM": "Usuń fakturę",
+			"DONE": "Faktura {number} została usunięta",
+			"FAILED": "Faktura nie została usunięta. Spróbuj ponownie."
 		}
 	}
 }

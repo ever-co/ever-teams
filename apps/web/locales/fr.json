@@ -6395,7 +6395,72 @@
 				"DATES": "Émise le {issueDate}, échéance le {dueDate}.",
 				"DRAFT": "Elle est enregistrée en brouillon et peut être téléchargée en PDF.",
 				"FAILED": "La facture n’a pas été enregistrée et rien n’a été créé. Vérifiez que son numéro est libre, puis réessayez."
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "Par projet",
+				"AVERAGE_RATE": "tarif moyen",
+				"AVERAGE_RATE_HINT": "Les membres de ce projet ont des tarifs différents : voici leur moyenne, pondérée par leurs heures."
+			},
+			"terms": {
+				"CLIENT": "Conditions du client : {days, plural, =0 {payable à réception} one {# jour} other {# jours}}",
+				"ORGANIZATION": "Conditions de l’espace de travail : {days, plural, one {# jour} other {# jours}}",
+				"STANDARD": "Conditions par défaut : {days, plural, one {# jour} other {# jours}}",
+				"NOTE": "Note au client",
+				"NOTE_HINT": "Imprimée sur la facture, sous sa période."
+			},
+			"adjustments": {
+				"DISCOUNT": "Remise (%)",
+				"TAX": "Taxe (%)",
+				"SUBTOTAL": "Sous-total",
+				"DISCOUNT_ROW": "Remise ({percent})",
+				"TAX_ROW": "Taxe ({percent} de {base})"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "Enregistrer et envoyer",
+				"DRAFT_OR_SEND_NOTE": "Ensuite, enregistrez-la en brouillon, ou enregistrez-la et envoyez-la à {email}.",
+				"SEND_CONSEQUENCE": "Enregistrer et envoyer l’envoie aussi par e-mail avec le PDF en pièce jointe, puis la marque Envoyée.",
+				"SAVED_NOT_SENT": "La facture {number} est enregistrée en brouillon mais n’a pas été envoyée",
+				"SEND_FROM_LIST": "Renvoyez-la depuis son menu dans la liste."
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "Actions de la facture {number}",
+			"SEND": "Envoyer au client",
+			"SEND_AGAIN": "Renvoyer",
+			"MARK_PAID": "Marquer comme payée",
+			"MARK_UNPAID": "Marquer comme impayée",
+			"VOID": "Annuler la facture",
+			"DELETE": "Supprimer",
+			"MARKED_PAID": "La facture {number} est marquée comme payée",
+			"MARKED_UNPAID": "La facture {number} repasse à Envoyée, impayée",
+			"CHANGE_FAILED": "La facture {number} n’a pas été modifiée"
+		},
+		"send": {
+			"TITLE": "Envoyer la facture {number} ?",
+			"ATTACHED": "Elle part par e-mail, avec la facture en pièce jointe au format PDF.",
+			"MARKS_SENT": "Elle est ensuite marquée Envoyée.",
+			"RECIPIENT": "Envoyer à",
+			"RECIPIENT_INVALID": "Saisissez l’adresse e-mail à laquelle envoyer la facture.",
+			"CONFIRM": "Envoyer la facture",
+			"SENT": "Facture {number} envoyée à {email}",
+			"NOT_MARKED": "Son statut n’a pas pu passer à Envoyée.",
+			"FAILED": "La facture {number} n’a pas été envoyée. Vérifiez l’adresse, puis réessayez."
+		},
+		"void": {
+			"TITLE": "Annuler la facture {number} ?",
+			"STAYS_LISTED": "Elle reste dans la liste comme Annulée, et son PDF peut toujours être téléchargé.",
+			"FINAL": "Une facture annulée ne peut plus être envoyée ni marquée comme payée.",
+			"CONFIRM": "Annuler la facture",
+			"DONE": "La facture {number} est annulée",
+			"FAILED": "La facture n’a pas été modifiée. Réessayez."
+		},
+		"delete": {
+			"TITLE": "Supprimer la facture {number} ?",
+			"FOR_GOOD": "Le brouillon est supprimé définitivement et quitte la liste.",
+			"NUMBER_FREE": "Son numéro pourra être donné à une autre facture.",
+			"CONFIRM": "Supprimer la facture",
+			"DONE": "La facture {number} a été supprimée",
+			"FAILED": "La facture n’a pas été supprimée. Réessayez."
 		}
 	}
 }

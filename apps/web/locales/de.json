@@ -6395,7 +6395,72 @@
 				"DATES": "Ausgestellt am {issueDate}, fällig am {dueDate}.",
 				"DRAFT": "Sie wird als Entwurf gespeichert und kann als PDF heruntergeladen werden.",
 				"FAILED": "Die Rechnung wurde nicht gespeichert, und es wurde nichts angelegt. Prüfen Sie, ob die Nummer frei ist, und versuchen Sie es erneut."
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "Nach Projekt",
+				"AVERAGE_RATE": "Durchschnittssatz",
+				"AVERAGE_RATE_HINT": "Die Mitglieder dieses Projekts haben unterschiedliche Sätze: Dies ist ihr Durchschnitt, gewichtet nach ihren Stunden."
+			},
+			"terms": {
+				"CLIENT": "Zahlungsziel des Kunden: {days, plural, =0 {sofort fällig} one {# Tag} other {# Tage}}",
+				"ORGANIZATION": "Zahlungsziel des Arbeitsbereichs: {days, plural, one {# Tag} other {# Tage}}",
+				"STANDARD": "Standard-Zahlungsziel: {days, plural, one {# Tag} other {# Tage}}",
+				"NOTE": "Hinweis für den Kunden",
+				"NOTE_HINT": "Wird auf der Rechnung unter ihrem Zeitraum gedruckt."
+			},
+			"adjustments": {
+				"DISCOUNT": "Rabatt (%)",
+				"TAX": "Steuer (%)",
+				"SUBTOTAL": "Zwischensumme",
+				"DISCOUNT_ROW": "Rabatt ({percent})",
+				"TAX_ROW": "Steuer ({percent} von {base})"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "Speichern und senden",
+				"DRAFT_OR_SEND_NOTE": "Im nächsten Schritt speichern Sie sie als Entwurf oder speichern sie und senden sie an {email}.",
+				"SEND_CONSEQUENCE": "„Speichern und senden“ schickt sie außerdem per E-Mail mit dem PDF im Anhang und setzt sie dann auf Gesendet.",
+				"SAVED_NOT_SENT": "Rechnung {number} wurde als Entwurf gespeichert, aber nicht gesendet",
+				"SEND_FROM_LIST": "Senden Sie sie über ihr Menü in der Liste erneut."
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "Aktionen für Rechnung {number}",
+			"SEND": "An den Kunden senden",
+			"SEND_AGAIN": "Erneut senden",
+			"MARK_PAID": "Als bezahlt markieren",
+			"MARK_UNPAID": "Als unbezahlt markieren",
+			"VOID": "Stornieren",
+			"DELETE": "Löschen",
+			"MARKED_PAID": "Rechnung {number} ist als bezahlt markiert",
+			"MARKED_UNPAID": "Rechnung {number} steht wieder auf Gesendet, unbezahlt",
+			"CHANGE_FAILED": "Rechnung {number} wurde nicht geändert"
+		},
+		"send": {
+			"TITLE": "Rechnung {number} senden?",
+			"ATTACHED": "Sie geht per E-Mail hinaus, mit der Rechnung als PDF im Anhang.",
+			"MARKS_SENT": "Danach steht sie auf Gesendet.",
+			"RECIPIENT": "Senden an",
+			"RECIPIENT_INVALID": "Geben Sie die E-Mail-Adresse ein, an die die Rechnung geht.",
+			"CONFIRM": "Rechnung senden",
+			"SENT": "Rechnung {number} an {email} gesendet",
+			"NOT_MARKED": "Ihr Status konnte nicht auf Gesendet gesetzt werden.",
+			"FAILED": "Rechnung {number} wurde nicht gesendet. Prüfen Sie die Adresse und versuchen Sie es erneut."
+		},
+		"void": {
+			"TITLE": "Rechnung {number} stornieren?",
+			"STAYS_LISTED": "Sie bleibt als Storniert in der Liste, und ihr PDF lässt sich weiterhin herunterladen.",
+			"FINAL": "Eine stornierte Rechnung kann nicht mehr gesendet oder als bezahlt markiert werden.",
+			"CONFIRM": "Rechnung stornieren",
+			"DONE": "Rechnung {number} ist storniert",
+			"FAILED": "Die Rechnung wurde nicht geändert. Versuchen Sie es erneut."
+		},
+		"delete": {
+			"TITLE": "Rechnung {number} löschen?",
+			"FOR_GOOD": "Der Entwurf wird endgültig gelöscht und verschwindet aus der Liste.",
+			"NUMBER_FREE": "Seine Nummer kann einer anderen Rechnung gegeben werden.",
+			"CONFIRM": "Rechnung löschen",
+			"DONE": "Rechnung {number} wurde gelöscht",
+			"FAILED": "Die Rechnung wurde nicht gelöscht. Versuchen Sie es erneut."
 		}
 	}
 }

@@ -6395,7 +6395,72 @@
 				"DATES": "Uitgereikt op {issueDate}, vervalt op {dueDate}.",
 				"DRAFT": "De factuur wordt als concept opgeslagen en kan als pdf worden gedownload.",
 				"FAILED": "De factuur is niet opgeslagen en er is niets aangemaakt. Controleer of het nummer vrij is en probeer het opnieuw."
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "Per project",
+				"AVERAGE_RATE": "gemiddeld tarief",
+				"AVERAGE_RATE_HINT": "De leden van dit project hebben verschillende tarieven: dit is hun gemiddelde, gewogen naar hun uren."
+			},
+			"terms": {
+				"CLIENT": "Betaaltermijn van de klant: {days, plural, =0 {direct bij ontvangst} one {# dag} other {# dagen}}",
+				"ORGANIZATION": "Betaaltermijn van de werkruimte: {days, plural, one {# dag} other {# dagen}}",
+				"STANDARD": "Standaardbetaaltermijn: {days, plural, one {# dag} other {# dagen}}",
+				"NOTE": "Opmerking voor de klant",
+				"NOTE_HINT": "Wordt op de factuur afgedrukt, onder de periode."
+			},
+			"adjustments": {
+				"DISCOUNT": "Korting (%)",
+				"TAX": "Belasting (%)",
+				"SUBTOTAL": "Subtotaal",
+				"DISCOUNT_ROW": "Korting ({percent})",
+				"TAX_ROW": "Belasting ({percent} van {base})"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "Opslaan en versturen",
+				"DRAFT_OR_SEND_NOTE": "Sla de factuur hierna op als concept, of sla hem op en verstuur hem naar {email}.",
+				"SEND_CONSEQUENCE": "Opslaan en versturen mailt hem ook, met de pdf als bijlage, en zet hem daarna op Verzonden.",
+				"SAVED_NOT_SENT": "Factuur {number} is als concept opgeslagen, maar niet verzonden",
+				"SEND_FROM_LIST": "Verstuur hem opnieuw via zijn menu in de lijst."
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "Acties voor factuur {number}",
+			"SEND": "Naar de klant sturen",
+			"SEND_AGAIN": "Opnieuw versturen",
+			"MARK_PAID": "Markeren als betaald",
+			"MARK_UNPAID": "Markeren als onbetaald",
+			"VOID": "Laten vervallen",
+			"DELETE": "Verwijderen",
+			"MARKED_PAID": "Factuur {number} is gemarkeerd als betaald",
+			"MARKED_UNPAID": "Factuur {number} staat weer op Verzonden, onbetaald",
+			"CHANGE_FAILED": "Factuur {number} is niet gewijzigd"
+		},
+		"send": {
+			"TITLE": "Factuur {number} versturen?",
+			"ATTACHED": "Hij gaat per e-mail, met de factuur als pdf in de bijlage.",
+			"MARKS_SENT": "Daarna staat hij op Verzonden.",
+			"RECIPIENT": "Versturen naar",
+			"RECIPIENT_INVALID": "Vul het e-mailadres in waar de factuur naartoe gaat.",
+			"CONFIRM": "Factuur versturen",
+			"SENT": "Factuur {number} verzonden naar {email}",
+			"NOT_MARKED": "De status kon niet op Verzonden worden gezet.",
+			"FAILED": "Factuur {number} is niet verzonden. Controleer het adres en probeer het opnieuw."
+		},
+		"void": {
+			"TITLE": "Factuur {number} laten vervallen?",
+			"STAYS_LISTED": "Hij blijft in de lijst als Vervallen, en de pdf kan nog steeds worden gedownload.",
+			"FINAL": "Een vervallen factuur kan niet meer worden verzonden of als betaald gemarkeerd.",
+			"CONFIRM": "Factuur laten vervallen",
+			"DONE": "Factuur {number} is vervallen",
+			"FAILED": "De factuur is niet gewijzigd. Probeer het opnieuw."
+		},
+		"delete": {
+			"TITLE": "Factuur {number} verwijderen?",
+			"FOR_GOOD": "Het concept wordt definitief verwijderd en verdwijnt uit de lijst.",
+			"NUMBER_FREE": "Het nummer kan aan een andere factuur worden gegeven.",
+			"CONFIRM": "Factuur verwijderen",
+			"DONE": "Factuur {number} is verwijderd",
+			"FAILED": "De factuur is niet verwijderd. Probeer het opnieuw."
 		}
 	}
 }
