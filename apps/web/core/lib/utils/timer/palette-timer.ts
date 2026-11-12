@@ -60,6 +60,28 @@ export function tasksToStartFor<T extends PaletteStartTask>(
 	return matches.slice(0, limit);
 }
 
+export interface PaletteStopState {
+	isTimerRunning: boolean;
+	/** The timer's Start and Stop are enabled (email verified, a task the timer can run on). */
+	canRunTimer: boolean;
+	/** A start or a stop is in flight, or the first timer status is loading. */
+	isTimerRequestPending: boolean;
+}
+
+/**
+ * Whether the palette offers "Stop timer": only while the timer's own Stop button would act. That button is disabled
+ * when the timer cannot run and while a timer request is in flight, and a stop chosen then would be discarded.
+ */
+export function canStopFromPalette(state: PaletteStopState): boolean {
+	if (!state.isTimerRunning) {
+		return false;
+	}
+	if (state.isTimerRequestPending) {
+		return false;
+	}
+	return state.canRunTimer;
+}
+
 export type PaletteStartAction =
 	| 'ALREADY_RUNNING'
 	| 'EMAIL_NOT_VERIFIED'

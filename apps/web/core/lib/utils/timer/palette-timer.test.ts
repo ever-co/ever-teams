@@ -1,4 +1,11 @@
-import { paletteStartActionOf, paletteStartValueOf, tasksToStartFor, type PaletteStartState } from './palette-timer';
+import {
+	canStopFromPalette,
+	paletteStartActionOf,
+	paletteStartValueOf,
+	tasksToStartFor,
+	type PaletteStartState,
+	type PaletteStopState
+} from './palette-timer';
 
 const TASKS = [
 	{ id: '1', title: 'Fix the login page', taskNumber: 'WEB-12', status: 'in-progress' },
@@ -58,6 +65,23 @@ describe('paletteStartValueOf', () => {
 		expect(value).toContain('web-7');
 		expect(value).toContain('start timer');
 		expect(value).toContain('task-7');
+	});
+});
+
+describe('canStopFromPalette', () => {
+	const running: PaletteStopState = { isTimerRunning: true, canRunTimer: true, isTimerRequestPending: false };
+
+	it('offers a stop while the timer runs and its Stop button is enabled', () => {
+		expect(canStopFromPalette(running)).toBe(true);
+	});
+
+	it('offers none without a running timer, or when the Stop button is disabled', () => {
+		expect(canStopFromPalette({ ...running, isTimerRunning: false })).toBe(false);
+		expect(canStopFromPalette({ ...running, canRunTimer: false })).toBe(false);
+	});
+
+	it('offers none while a start or a stop is in flight: the Stop button is disabled and would discard it', () => {
+		expect(canStopFromPalette({ ...running, isTimerRequestPending: true })).toBe(false);
 	});
 });
 

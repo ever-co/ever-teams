@@ -108,6 +108,7 @@ jest.mock('./palette-chat-results', () => ({
 }));
 jest.mock('./palette-docs-results', () => ({ PaletteDocsResults: () => null }));
 // The timer's side of the palette: what it offers, and what it is asked to do.
+let mockCanStartTimer = true;
 let mockCanStopTimer = false;
 const mockStopTimer = jest.fn();
 const mockStartTimerOn = jest.fn();
@@ -115,6 +116,7 @@ const mockOpenAddTime = jest.fn();
 const TASK_TO_START = { id: 'task-9', title: 'Fix the login page' };
 jest.mock('./palette-timer', () => ({
 	usePaletteTimer: () => ({
+		canStart: mockCanStartTimer,
 		canStop: mockCanStopTimer,
 		stopTimer: mockStopTimer,
 		startTimerOn: mockStartTimerOn,
@@ -289,6 +291,7 @@ describe('SidebarCommandModal timer entries', () => {
 	});
 
 	afterEach(() => {
+		mockCanStartTimer = true;
 		mockCanStopTimer = false;
 	});
 
@@ -324,6 +327,16 @@ describe('SidebarCommandModal timer entries', () => {
 
 		expect(mockSetOpen).toHaveBeenCalledWith(false);
 		expect(mockStartTimerOn).toHaveBeenCalledWith(TASK_TO_START);
+	});
+
+	it('lists no task to start the timer on while the timer cannot take a start', () => {
+		mockCanStartTimer = false;
+		render(<SidebarCommandModal publicTeam={false} variant="none" />);
+
+		fireEvent.change(screen.getByLabelText('search'), { target: { value: 'login' } });
+
+		expect(screen.queryByTestId('timer-start-results')).toBeNull();
+		expect(screen.getByText('commandPalette.commands.addTime')).not.toBeNull();
 	});
 
 	it('offers nothing of the timer to the visitor of a public team', () => {

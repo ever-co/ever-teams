@@ -181,7 +181,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 	const createTaskModal = useModal();
 	const createProjectModal = useModal();
 	const paletteTimer = usePaletteTimer();
-	const { canStop: canStopTimer, stopTimer, startTimerOn, openAddTime } = paletteTimer;
+	const { canStart: canStartTimer, canStop: canStopTimer, stopTimer, startTimerOn, openAddTime } = paletteTimer;
 
 	// Close the palette and execute an action (which may open it again on one of its tabs: the "search" ones)
 	const executeAction = useCallback(
@@ -637,9 +637,9 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 		},
 		[setOpen, startTimerOn]
 	);
-	const offersTimer = !publicTeam;
+	const offersTimerStart = !publicTeam && canStartTimer;
 	const isTimerTabShown = showsResultsIn(activeTab, TIMER_TAB);
-	const showsTimerStartResults = hasSearch && offersTimer && isTimerTabShown;
+	const showsTimerStartResults = hasSearch && offersTimerStart && isTimerTabShown;
 
 	// A sequence typed into the field (`g t`) runs its command, as its keys would outside the palette.
 	const changeSearch = useCallback(

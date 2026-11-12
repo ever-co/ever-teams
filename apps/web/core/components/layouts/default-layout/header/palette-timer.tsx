@@ -19,12 +19,13 @@ import { useTimerActions } from '@/core/hooks/timer';
 import { useTimerPlanStatus } from '@/core/hooks/timer/use-timer-plan-status';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import {
+	canStopFromPalette,
 	paletteNumberLabelOf,
 	paletteStartActionOf,
 	paletteStartValueOf,
 	tasksToStartFor
 } from '@/core/lib/utils/timer/palette-timer';
-import { tasksByTeamState, timerStatusState } from '@/core/stores';
+import { tasksByTeamState, timerStatusFetchingState, timerStatusState } from '@/core/stores';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 type PaletteTimerRequest = { id: number; kind: 'stop' } | { id: number; kind: 'start'; task: TTask };
@@ -44,9 +45,12 @@ export function usePaletteTimer() {
 	const [request, setRequest] = useState<PaletteTimerRequest | null>(null);
 	const addTimeModal = useModal();
 	const { canRunTimer, timerStatus } = useTimerPlanStatus();
+	const isTimerRequestPending = useAtomValue(timerStatusFetchingState);
 	const isTimerRunning = timerStatus?.running === true;
-	// The Stop button is disabled when the timer cannot run: the palette does not offer what the button refuses
-	const canStop = isTimerRunning && canRunTimer;
+	// The timer's buttons are disabled while a timer request is in flight, and the main Start would discard a start
+	// asked then: the palette does not offer what they refuse
+	const canStart = !isTimerRequestPending;
+	const canStop = canStopFromPalette({ isTimerRunning, canRunTimer, isTimerRequestPending });
 
 	const stopTimer = useCallback(() => {
 		setRequest((current) => ({ id: nextRequestIdOf(current), kind: 'stop' }));
@@ -56,7 +60,7 @@ export function usePaletteTimer() {
 		setRequest((current) => ({ id: nextRequestIdOf(current), kind: 'start', task }));
 	}, []);
 
-	return { canStop, stopTimer, startTimerOn, openAddTime: addTimeModal.openModal, request, addTimeModal };
+	return { canStart, canStop, stopTimer, startTimerOn, openAddTime: addTimeModal.openModal, request, addTimeModal };
 }
 
 type PaletteTimer = ReturnType<typeof usePaletteTimer>;
