@@ -190,6 +190,7 @@ function NewInvoiceContent() {
 		{ title, href: NEW_INVOICE_PATH }
 	];
 	const groupingItems: Array<{ value: InvoiceGrouping; label: string }> = [
+		{ value: 'project', label: t('invoices.new.byProject.GROUP_BY_PROJECT') },
 		{ value: 'member', label: t('invoices.new.GROUP_BY_MEMBER') },
 		{ value: 'task', label: t('invoices.new.GROUP_BY_TASK') }
 	];

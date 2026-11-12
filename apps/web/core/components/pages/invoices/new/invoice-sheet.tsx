@@ -48,6 +48,10 @@ const LineRow = memo(function LineRow({ line, description, onDescribe, onRemove 
 	const hoursText = t('invoices.new.HOURS', { hours: formatInvoiceHours(line.hours, locale) });
 	const rateText = t('invoices.new.RATE_PER_HOUR', { rate: formatOwed(line.rate, line.currency, locale) });
 	const removeLabel = t('invoices.new.REMOVE_LINE', { name: line.label });
+	let rateHint = t(RATE_SOURCE_KEYS[line.rateSource]);
+	if (line.isAverageRate) {
+		rateHint = t('invoices.new.byProject.AVERAGE_RATE_HINT');
+	}
 	return (
 		<li className={LINE_GRID}>
 			<input
@@ -59,11 +63,13 @@ const LineRow = memo(function LineRow({ line, description, onDescribe, onRemove 
 				className={cn(QUIET_FIELD, 'col-span-full lg:col-span-1')}
 			/>
 			<span className={cn(FIGURE, 'text-foreground lg:text-right')}>{hoursText}</span>
-			<span
-				className={cn(FIGURE, 'text-muted-foreground lg:text-right')}
-				title={t(RATE_SOURCE_KEYS[line.rateSource])}
-			>
-				{rateText}
+			<span className={cn(FIGURE, 'flex flex-col text-muted-foreground lg:items-end')} title={rateHint}>
+				<span>{rateText}</span>
+				{line.isAverageRate && (
+					<span className="text-[11px] leading-4 font-medium">
+						{t('invoices.new.byProject.AVERAGE_RATE')}
+					</span>
+				)}
 			</span>
 			<span className={cn(FIGURE, 'text-right font-medium text-foreground')}>
 				{formatOwed(line.amount, line.currency, locale)}
@@ -125,6 +131,39 @@ function ProjectLines({
 	);
 }
 
+/** By project, a line is a whole project: the lines are listed without a band per project. */
+function SheetLines({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
+	if (invoice.grouping === 'project') {
+		return (
+			<ul className="flex flex-col gap-3 px-3 lg:gap-1.5">
+				{invoice.keptLines.map((line) => (
+					<LineRow
+						key={line.key}
+						line={line}
+						description={invoice.descriptions.get(line.key)}
+						onDescribe={invoice.describeLine}
+						onRemove={invoice.removeLine}
+					/>
+				))}
+			</ul>
+		);
+	}
+	return (
+		<ul className="flex flex-col gap-5">
+			{invoice.groups.map((group) => (
+				<ProjectLines
+					key={group.projectId}
+					group={group}
+					currency={invoice.currency}
+					descriptions={invoice.descriptions}
+					onDescribe={invoice.describeLine}
+					onRemove={invoice.removeLine}
+				/>
+			))}
+		</ul>
+	);
+}
+
 function RemovedLines({ count, onRestore }: Readonly<{ count: number; onRestore: () => void }>) {
 	const t = useTranslations();
 	return (
@@ -162,20 +201,7 @@ export function InvoiceSheet({ invoice }: Readonly<{ invoice: NewInvoiceState }>
 				<Party label={t('invoices.new.PERIOD')} name={periodText} />
 			</header>
 
-			{hasLines && (
-				<ul className="flex flex-col gap-5">
-					{invoice.groups.map((group) => (
-						<ProjectLines
-							key={group.projectId}
-							group={group}
-							currency={invoice.currency}
-							descriptions={invoice.descriptions}
-							onDescribe={invoice.describeLine}
-							onRemove={invoice.removeLine}
-						/>
-					))}
-				</ul>
-			)}
+			{hasLines && <SheetLines invoice={invoice} />}
 			{!hasLines && <BlockEmptyMessage title={t('invoices.new.NO_LINES_TITLE')} message={emptyMessage} />}
 			{hasRemovedLines && <RemovedLines count={invoice.removedCount} onRestore={invoice.restoreLines} />}
 
