@@ -242,6 +242,23 @@ describe('numberFormatOf with a workspace number format', () => {
 		}
 	});
 
+	it('groups a four-digit amount in every language, the ones that write it ungrouped on their own too', () => {
+		const ungroupedAlone = ['bg', 'es', 'it', 'pl'].map((tag) => new Intl.NumberFormat(tag).format(1234));
+
+		expect(ungroupedAlone).toEqual(['1234', '1234', '1234', '1234']);
+		for (const tag of APP_LANGUAGES) {
+			const written = numberFormatOf(localeOf(tag, null, '1,234.56'), twoDecimals).format(1234.5);
+
+			expect(written).toBe('1,234.50');
+		}
+	});
+
+	it('leaves a number ungrouped when the caller asks for it', () => {
+		const options: Intl.NumberFormatOptions = { ...twoDecimals, useGrouping: false };
+
+		expect(numberFormatOf(localeOf('en', null, '1.234,56'), options).format(1234.5)).toBe('1234,50');
+	});
+
 	it("keeps the currency sign where the reader's language puts it", () => {
 		const options: Intl.NumberFormatOptions = { style: 'currency', currency: 'EUR' };
 		const french = numberFormatOf(localeOf('fr', null, '1,234.56'), options).format(1234.5);
