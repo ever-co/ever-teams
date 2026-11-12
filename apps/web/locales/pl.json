@@ -2748,7 +2748,8 @@
 			"PLACEHOLDER": "Nad czym pracujesz?",
 			"HINT_BEFORE_START": "Opcjonalne. Zapisywane we wpisie przy uruchomieniu timera.",
 			"HINT_RUNNING": "Zmiany wprowadzone podczas działania timera nie są jeszcze zapisywane. Aby zmienić notatki, edytuj wpis w kartach czasu pracy po zatrzymaniu timera."
-		}
+		},
+		"NOT_BILLABLE": "Niefakturowane"
 	},
 	"task": {
 		"TITLE": "Zadanie",

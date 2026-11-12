@@ -2748,7 +2748,8 @@
 			"PLACEHOLDER": "A cosa stai lavorando?",
 			"HINT_BEFORE_START": "Facoltativo. Salvate nella voce all'avvio del timer.",
 			"HINT_RUNNING": "Le modifiche fatte mentre il timer è in corso non vengono ancora salvate. Per cambiare le note, modifica la voce nei fogli presenze dopo aver fermato il timer."
-		}
+		},
+		"NOT_BILLABLE": "Non fatturabile"
 	},
 	"task": {
 		"TITLE": "Compito",
