@@ -799,7 +799,7 @@ function TimelineBar({
 					<span
 						data-handle="start"
 						aria-hidden="true"
-						className="absolute inset-y-0 left-0 z-10 w-1.5 cursor-ew-resize"
+						className="absolute inset-y-0 left-0 w-1.5 cursor-ew-resize"
 					/>
 				) : null}
 				{showsGlyph && (
@@ -823,7 +823,7 @@ function TimelineBar({
 					<span
 						data-handle="end"
 						aria-hidden="true"
-						className="absolute inset-y-0 right-0 z-10 w-1.5 cursor-ew-resize"
+						className="absolute inset-y-0 right-0 w-1.5 cursor-ew-resize"
 					/>
 				) : null}
 			</HoverCardTrigger>
