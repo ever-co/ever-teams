@@ -49,19 +49,21 @@ export function isRenameRefused(error: unknown): boolean {
 
 /**
  * The organization every screen reads, once a save went through. The API answers a save with the organization as it
- * stored it, which also holds what another admin changed since this page read it. An answer that does not read as an
- * organization leaves the page's copy, with what this save changed.
+ * stored it, which also holds what another admin changed since this page read it. It goes over the page's copy with
+ * the change, so a field an answer leaves out keeps its known value; an answer that does not read as an organization
+ * leaves that copy as it is.
  */
 export function organizationAfterSave(
 	pageCopy: TOrganization,
 	changes: Partial<TOrganization>,
 	apiAnswer: unknown
 ): TOrganization {
+	const changedCopy = { ...pageCopy, ...changes };
 	const stored = organizationSchema.safeParse(apiAnswer);
 	if (stored.success) {
-		return stored.data;
+		return { ...changedCopy, ...stored.data };
 	}
-	return { ...pageCopy, ...changes };
+	return changedCopy;
 }
 
 export function workspaceOfTenant(

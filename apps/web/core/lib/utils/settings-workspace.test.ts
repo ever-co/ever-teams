@@ -89,6 +89,22 @@ describe('the organization kept after a save', () => {
 		expect(kept.registrationDate).toEqual(new Date('2026-01-05'));
 	});
 
+	it('keeps what the page knows of a field the answer leaves out', () => {
+		const answerWithoutCurrencyOrDateFormat = {
+			id: pageCopy.id,
+			name: pageCopy.name,
+			isDefault: pageCopy.isDefault,
+			profile_link: pageCopy.profile_link,
+			totalEmployees: pageCopy.totalEmployees,
+			banner: pageCopy.banner
+		};
+
+		const kept = organizationAfterSave(pageCopy, { dateFormat: 'DD/MM/YYYY' }, answerWithoutCurrencyOrDateFormat);
+
+		expect(kept.currency).toBe('USD');
+		expect(kept.dateFormat).toBe('DD/MM/YYYY');
+	});
+
 	it("is the page's copy with the change when the answer does not read as an organization", () => {
 		const change = { dateFormat: 'DD/MM/YYYY' };
 
