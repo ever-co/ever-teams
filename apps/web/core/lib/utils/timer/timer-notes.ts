@@ -108,9 +108,13 @@ export function readTimerNotes(value: unknown): TimerNotesReading {
 	return { isValid: true, description: value };
 }
 
-/** The notes of a saved entry as the reports quote them, or null when it has none. */
+/**
+ * The notes of a saved entry as the reports quote them, or null when it has none. Whole, whatever their length: the
+ * limit of the timer field is not the API's, and an entry saved elsewhere can hold more.
+ */
 export function entryNotesOf(log: Pick<TimerNotesLog, 'description'>): string | null {
-	const notes = normalizedTimerNotes(log.description);
+	const savedNotes = log.description ?? '';
+	const notes = savedNotes.trim();
 	if (notes === '') {
 		return null;
 	}

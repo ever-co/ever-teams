@@ -164,4 +164,10 @@ describe('entryNotesOf', () => {
 		expect(entryNotesOf({ description: null })).toBeNull();
 		expect(entryNotesOf({ description: '   ' })).toBeNull();
 	});
+
+	it('gives saved notes whole, also when they are longer than the timer field takes', () => {
+		const savedElsewhere = 'a'.repeat(TIMER_NOTES_MAX_LENGTH + 500);
+
+		expect(entryNotesOf({ description: savedElsewhere })).toBe(savedElsewhere);
+	});
 });
