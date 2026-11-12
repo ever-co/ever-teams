@@ -27,6 +27,7 @@ export type TableGrouping = 'date' | 'member' | 'project';
 
 export type BreakdownGrouping = Exclude<TimeActivityGrouping, 'week'>;
 
+/** The groupings every reader gets; the client grouping joins them for a reader who may read the clients. */
 export const TIME_ACTIVITY_GROUPINGS: ReadonlyArray<TimeActivityGrouping> = [
 	'date',
 	'member',
@@ -34,6 +35,80 @@ export const TIME_ACTIVITY_GROUPINGS: ReadonlyArray<TimeActivityGrouping> = [
 	'task',
 	'week'
 ];
+
+/** The page link's parameter for its grouping; the date grouping, the default, leaves it out. */
+export const TIME_ACTIVITY_GROUPING_PARAM = 'groupBy';
+
+const DEFAULT_GROUPING: TimeActivityGrouping = 'date';
+
+function isTimeActivityGrouping(value: string): value is TimeActivityGrouping {
+	const isClient = value === 'client';
+	const groupings: ReadonlyArray<string> = TIME_ACTIVITY_GROUPINGS;
+	const isAlwaysOffered = groupings.includes(value);
+	return isClient || isAlwaysOffered;
+}
+
+export function groupingOfParam(value: string | null | undefined): TimeActivityGrouping {
+	if (!value) {
+		return DEFAULT_GROUPING;
+	}
+	if (!isTimeActivityGrouping(value)) {
+		return DEFAULT_GROUPING;
+	}
+	return value;
+}
+
+export function groupingParamOf(grouping: TimeActivityGrouping): string | null {
+	if (grouping === DEFAULT_GROUPING) {
+		return null;
+	}
+	return grouping;
+}
+
+/**
+ * Grouping by client names every client, archived ones included, and only the clients list does: a reader who may
+ * not read it does not get the grouping. `unknown` while the reader's permissions are still being read.
+ */
+export type ClientGroupingAccess = 'granted' | 'refused' | 'unknown';
+
+export function clientGroupingAccessOf(mayReadClients: boolean, arePermissionsPending: boolean): ClientGroupingAccess {
+	if (mayReadClients) {
+		return 'granted';
+	}
+	if (arePermissionsPending) {
+		return 'unknown';
+	}
+	return 'refused';
+}
+
+/** A link on the client grouping opens on the date grouping for a reader who does not get the client grouping. */
+export function effectiveGroupingOf(linked: TimeActivityGrouping, access: ClientGroupingAccess): TimeActivityGrouping {
+	const asksClient = linked === 'client';
+	const isRefused = access === 'refused';
+	const fallsBack = asksClient && isRefused;
+	if (fallsBack) {
+		return DEFAULT_GROUPING;
+	}
+	return linked;
+}
+
+function offersClientGrouping(access: ClientGroupingAccess, linked: TimeActivityGrouping) {
+	if (access === 'granted') {
+		return true;
+	}
+	const isWaiting = access === 'unknown';
+	const asksClient = linked === 'client';
+	return isWaiting && asksClient;
+}
+
+/** The switch offers Client last, so the other groupings keep their places; a link on it shows it while it waits. */
+export function offeredGroupingsOf(access: ClientGroupingAccess, linked: TimeActivityGrouping): TimeActivityGrouping[] {
+	const groupings = [...TIME_ACTIVITY_GROUPINGS];
+	if (offersClientGrouping(access, linked)) {
+		groupings.push('client');
+	}
+	return groupings;
+}
 
 export type TimeActivityColumn = 'project' | 'tracked' | 'earnings' | 'activity';
 

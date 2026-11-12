@@ -9,10 +9,15 @@ import {
 	clientExportLinesOf,
 	clientLabelOf,
 	clientOfProjectLogOf,
+	clientGroupingAccessOf,
 	clientRowsOf,
+	effectiveGroupingOf,
 	exportGroupsOf,
 	exportRowsInGroupOrderOf,
 	exportRowsOf,
+	groupingOfParam,
+	groupingParamOf,
+	offeredGroupingsOf,
 	reportTotalsOf,
 	weekColumnTotalsOf,
 	weekGridRowsOfDailyRows
@@ -310,6 +315,45 @@ describe('the Time & Activity exports of the client grouping', () => {
 			['Website', 'Bob', 'Home', 300, 0]
 		]);
 		expect(lines.map((line) => line.earnings)).toEqual([40, 30, null]);
+	});
+});
+
+describe('the Time & Activity grouping kept in the page link', () => {
+	it('reads the grouping a link names, and the date grouping from a link without one', () => {
+		expect(groupingOfParam('client')).toBe('client');
+		expect(groupingOfParam('week')).toBe('week');
+		expect(groupingOfParam(null)).toBe('date');
+		expect(groupingOfParam('')).toBe('date');
+		expect(groupingOfParam('quarter')).toBe('date');
+	});
+
+	it('writes every grouping but the default one into the link', () => {
+		expect(groupingParamOf('client')).toBe('client');
+		expect(groupingParamOf('task')).toBe('task');
+		expect(groupingParamOf('date')).toBeNull();
+	});
+
+	it('gives the client grouping to who may read the clients, and waits for the permissions to know', () => {
+		expect(clientGroupingAccessOf(true, false)).toBe('granted');
+		expect(clientGroupingAccessOf(true, true)).toBe('granted');
+		expect(clientGroupingAccessOf(false, true)).toBe('unknown');
+		expect(clientGroupingAccessOf(false, false)).toBe('refused');
+	});
+
+	it('opens a link on the client grouping on the date grouping for a reader who does not get it', () => {
+		expect(effectiveGroupingOf('client', 'refused')).toBe('date');
+		expect(effectiveGroupingOf('client', 'unknown')).toBe('client');
+		expect(effectiveGroupingOf('client', 'granted')).toBe('client');
+		expect(effectiveGroupingOf('member', 'refused')).toBe('member');
+	});
+
+	it('offers Client last, to who may read the clients, and while a link on it waits for the permissions', () => {
+		const everyone = ['date', 'member', 'project', 'task', 'week'];
+
+		expect(offeredGroupingsOf('granted', 'date')).toEqual([...everyone, 'client']);
+		expect(offeredGroupingsOf('refused', 'client')).toEqual(everyone);
+		expect(offeredGroupingsOf('unknown', 'date')).toEqual(everyone);
+		expect(offeredGroupingsOf('unknown', 'client')).toEqual([...everyone, 'client']);
 	});
 });
 
