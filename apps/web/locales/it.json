@@ -6191,6 +6191,7 @@
 		"DELETE_FOREVER_TITLE": "Eliminare definitivamente questa attività?",
 		"DELETE_FOREVER_TEXT": "«{title}» verrà rimossa definitivamente. L’operazione non si può annullare.",
 		"DELETED_FOREVER": "«{title}» è stata eliminata definitivamente",
+		"NO_LONGER_IN_TRASH": "«{title}» non è più nel cestino: nel frattempo è stata ripristinata o eliminata. L’elenco è stato aggiornato.",
 		"DELETE_FAILED": "L’attività non è stata eliminata. Riprova.",
 		"DELETED_BY": "Eliminata da {name} · {date}",
 		"DELETED_AT": "Eliminata {date}",

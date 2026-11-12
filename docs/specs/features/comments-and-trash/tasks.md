@@ -25,3 +25,5 @@
 - [ ] **T9**. Unit tests: comment flows, reactions, trash
 - [ ] **T10**. Bot threads answered; manual check against a platform with #11802 (two users reacting, edit marker,
   trash restore / delete forever)
+- [ ] **T11**. Delete forever through `DELETE /tasks/:id/trashed` (ever-gauzy#11851) and its proxy twin: a task
+  restored meanwhile is not deleted (404), the page says so in the 13 locales and reads the list again

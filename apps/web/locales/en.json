@@ -6191,6 +6191,7 @@
 		"DELETE_FOREVER_TITLE": "Delete this task forever?",
 		"DELETE_FOREVER_TEXT": "“{title}” will be removed for good. This cannot be undone.",
 		"DELETED_FOREVER": "“{title}” was deleted for good",
+		"NO_LONGER_IN_TRASH": "“{title}” is no longer in the trash: it was restored or deleted meanwhile. The list was refreshed.",
 		"DELETE_FAILED": "The task was not deleted. Try again.",
 		"DELETED_BY": "Deleted by {name} · {date}",
 		"DELETED_AT": "Deleted {date}",

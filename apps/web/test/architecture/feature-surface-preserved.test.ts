@@ -2026,12 +2026,16 @@ describe('Ever Teams feature surface preservation', () => {
 		// documents/[id]/comments/[commentId]/anchor PUT and DELETE).
 		// 323 files and 414 verbs with the task automations proxies (/api/task-automations GET POST, templates GET,
 		// order PUT, [id] GET PUT DELETE, [id]/test POST, [id]/runs GET).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(323);
+		// 324 files and 415 verbs with the trash's Delete forever, which deletes a task only while it is still in the
+		// trash (/api/tasks/[id]/trashed DELETE).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(324);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(414);
+		).toHaveLength(415);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twin of the platform's Delete forever from the task trash (2026-11-12)
+				'apps/web/app/api/tasks/[id]/trashed/route.ts::DELETE',
 				// Proxy mode twins of the platform's task automations routes (2026-11-11)
 				'apps/web/app/api/task-automations/route.ts::GET',
 				'apps/web/app/api/task-automations/route.ts::POST',

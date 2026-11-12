@@ -6191,6 +6191,7 @@
 		"DELETE_FOREVER_TITLE": "حذف هذه المهمة نهائيًا؟",
 		"DELETE_FOREVER_TEXT": "ستُزال «{title}» نهائيًا. لا يمكن التراجع عن ذلك.",
 		"DELETED_FOREVER": "حُذفت «{title}» نهائيًا",
+		"NO_LONGER_IN_TRASH": "لم تعد «{title}» في المهملات: استُعيدت أو حُذفت في هذه الأثناء. حُدّثت القائمة.",
 		"DELETE_FAILED": "لم تُحذف المهمة. حاول مرة أخرى.",
 		"DELETED_BY": "حذفها {name} · {date}",
 		"DELETED_AT": "حُذفت {date}",

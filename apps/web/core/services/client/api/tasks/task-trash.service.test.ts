@@ -2,7 +2,7 @@ import qs from 'qs';
 import { TASK_TRASH_PAGE_SIZE, taskTrashService } from './task-trash.service';
 import { taskService } from './task.service';
 import { nextTrashOffset, trashStatusOf } from '@/core/hooks/tasks/use-task-trash';
-import { trashedTaskNumberOf, trashedTaskPersonName } from '@/core/lib/utils/task-trash';
+import { trashDeleteFailureOf, trashedTaskNumberOf, trashedTaskPersonName } from '@/core/lib/utils/task-trash';
 import type { ITrashedTask } from '@/core/types/interfaces/task/task-trash';
 
 jest.mock('@/env-config', () => {
@@ -64,17 +64,27 @@ describe('taskTrashService — the trash list, restore and delete forever', () =
 		expect(query).not.toHaveProperty('search');
 	});
 
-	it('restores through the platform’s recover, and deletes for good through the hard delete', async () => {
+	it('restores through the platform’s recover, and deletes for good from the trash only', async () => {
 		const put = jest.spyOn(taskTrashService, 'put').mockResolvedValue({ data: undefined } as never);
 		const remove = jest
 			.spyOn(taskTrashService, 'delete')
 			.mockResolvedValue({ data: { raw: [], affected: 1 } } as never);
 
 		await taskTrashService.restore('t1', scope);
-		await expect(taskTrashService.deleteForever('t1')).resolves.toEqual({ raw: [], affected: 1 });
+		await expect(taskTrashService.deleteForever('t1', scope)).resolves.toEqual({ raw: [], affected: 1 });
 
 		expect(String(put.mock.calls[0][0]).split('?')[0]).toBe('/tasks/t1/recover');
-		expect(remove).toHaveBeenCalledWith('/tasks/t1');
+		// Never the plain `DELETE /tasks/:id`, which also deletes a task someone restored since the trash was read.
+		expect(remove).toHaveBeenCalledTimes(1);
+		expect(String(remove.mock.calls[0][0]).split('?')[0]).toBe('/tasks/t1/trashed');
+		expect(queryOf(remove.mock.calls[0][0])).toEqual(scope);
+	});
+
+	it('hands back the platform’s 404 for a task that is no longer in the trash', async () => {
+		const notInTrash = { response: { status: 404 } };
+		jest.spyOn(taskTrashService, 'delete').mockRejectedValue(notInTrash);
+
+		await expect(taskTrashService.deleteForever('t1', scope)).rejects.toBe(notInTrash);
 	});
 });
 
@@ -190,6 +200,14 @@ describe('the trash list helpers', () => {
 			])
 		).toBeUndefined();
 		expect(nextTrashOffset([])).toBeUndefined();
+	});
+
+	it('reads a 404 to Delete forever as a task no longer in the trash, and any other failure as a refusal', () => {
+		expect(trashDeleteFailureOf({ response: { status: 404 } })).toBe('not-in-trash');
+		expect(trashDeleteFailureOf({ statusCode: 404 })).toBe('not-in-trash');
+		expect(trashDeleteFailureOf({ response: { status: 403 } })).toBe('failed');
+		expect(trashDeleteFailureOf({ status: 500 })).toBe('failed');
+		expect(trashDeleteFailureOf(new Error('network'))).toBe('failed');
 	});
 
 	it('reads the platform’s 404 as a trash it keeps off and 403 as one the reader may not see', () => {
