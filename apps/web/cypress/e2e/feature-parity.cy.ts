@@ -178,6 +178,14 @@ describe('feature parity on the authenticated shell', () => {
 			.should('have.length', 1)
 			.and('contain', 'Sprint review')
 			.and('contain', 'Host: Fixture Manager');
+		// Its menu holds the rest of what one does with a meeting
+		cy.get('button[aria-label="Actions for Sprint review"]').click();
+		cy.get('[role="menu"]')
+			.find('[role="menuitem"]')
+			.then((items) => [...items].map((item) => item.textContent?.trim()))
+			.should('deep.equal', ['Start meeting', 'Copy invitation', 'Copy link', 'Add to calendar', 'Delete']);
+		cy.get('body').type('{esc}');
+		cy.get('[role="menu"]').should('not.exist');
 		// A meeting that has not begun yet is started, one that runs is joined
 		cy.get('[data-testid="scheduled-meeting"]')
 			.contains('button', /^Start$/)
@@ -201,7 +209,8 @@ describe('feature parity on the authenticated shell', () => {
 		showTheProposedDay();
 		cy.get('[data-testid="scheduled-meeting"]', { timeout: 15_000 }).should('have.length', 1);
 
-		cy.get('button[aria-label="Cancel Retro"]').click();
+		cy.get('button[aria-label="Actions for Retro"]').click();
+		cy.contains('[role="menuitem"]', /^Delete$/).click();
 		cy.contains('button', /^Cancel meeting$/).click();
 		cy.wait('@cancel');
 		cy.get('[data-testid="scheduled-meeting"]').should('not.exist');

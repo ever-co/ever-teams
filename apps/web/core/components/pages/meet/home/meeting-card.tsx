@@ -3,8 +3,15 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger
+} from '@/core/components/common/dropdown-menu';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { CalendarPlus, Copy, Trash, VideoCall } from '@/core/components/icons';
+import { CalendarPlus, Copy, Link, MoreHorizontal, Trash, VideoCall } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import {
 	meetingPathOfInput,
@@ -13,7 +20,13 @@ import {
 	type ScheduledMeeting,
 	type ScheduledMeetingState
 } from '@/core/lib/utils/meetings';
-import { copyMeetingText, downloadMeetingIcs, meetingStartedAgoOf, meetingTimesOf } from './meeting-invitation';
+import {
+	copyMeetingInvitation,
+	copyMeetingText,
+	downloadMeetingIcs,
+	meetingStartedAgoOf,
+	meetingTimesOf
+} from './meeting-invitation';
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -49,7 +62,8 @@ interface MeetingCardProps {
 
 /**
  * A meeting of the agenda, as the inspiration draws it: its title, when it runs, who hosts it, how long it has been
- * on once it started, and the way in: Join while it runs, Start before.
+ * on once it started, and the way in: Join while it runs, Start before. Its menu starts or joins it, copies the
+ * invitation or the link, adds it to a calendar, and deletes it once confirmed.
  */
 export function MeetingCard({ meeting, now, isJitsi, hostName, isCancelling, onCancel }: Readonly<MeetingCardProps>) {
 	const t = useTranslations();
@@ -65,6 +79,14 @@ export function MeetingCard({ meeting, now, isJitsi, hostName, isCancelling, onC
 		const isCopied = await copyMeetingText(meeting.link);
 		if (isCopied) toast.success(t('meetings.LINK_COPIED'));
 		else toast.info(t('meetings.COPY_LINK'), { description: meeting.link, duration: 10000 });
+	};
+
+	const copyInvitation = async () => {
+		if (meeting.link) await copyMeetingInvitation({ ...meeting, title, link: meeting.link }, locale, t);
+	};
+
+	const open = () => {
+		if (path) router.push(path);
 	};
 
 	return (
@@ -105,7 +127,7 @@ export function MeetingCard({ meeting, now, isJitsi, hostName, isCancelling, onC
 						type="button"
 						size="sm"
 						variant={isLive ? 'default' : 'secondary'}
-						onClick={() => router.push(path)}
+						onClick={open}
 						aria-label={
 							isLive
 								? t('meetings.JOIN_MEETING_OF', { title })
@@ -117,43 +139,56 @@ export function MeetingCard({ meeting, now, isJitsi, hostName, isCancelling, onC
 					</Button>
 				)}
 				<span className="flex-1" />
-				{meeting.link && (
-					<>
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
 						<Button
 							type="button"
 							variant="ghost"
 							size="icon-sm"
-							aria-label={t('meetings.COPY_LINK_OF', { title })}
-							title={t('meetings.COPY_LINK')}
-							onClick={copyLink}
+							aria-label={t('meetings.MEETING_ACTIONS_OF', { title })}
+							title={t('common.MORE_OPTIONS')}
 						>
-							<Copy className="size-4" />
+							<MoreHorizontal className="size-4" aria-hidden="true" />
 						</Button>
-						<Button
-							type="button"
-							variant="ghost"
-							size="icon-sm"
-							aria-label={t('meetings.ADD_TO_CALENDAR_OF', { title })}
-							title={t('meetings.ADD_TO_CALENDAR')}
-							onClick={() => downloadMeetingIcs({ ...meeting, title, link: meeting.link as string })}
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end">
+						{path && state !== 'ended' && (
+							<DropdownMenuItem onClick={open}>
+								<VideoCall />
+								{isLive ? t('meetings.JOIN_MEETING') : t('meetings.START_MEETING')}
+							</DropdownMenuItem>
+						)}
+						{meeting.link && (
+							<>
+								<DropdownMenuItem onClick={copyInvitation}>
+									<Copy />
+									{t('meetings.COPY_INVITATION')}
+								</DropdownMenuItem>
+								<DropdownMenuItem onClick={copyLink}>
+									<Link />
+									{t('meetings.COPY_LINK')}
+								</DropdownMenuItem>
+								<DropdownMenuItem
+									onClick={() =>
+										downloadMeetingIcs({ ...meeting, title, link: meeting.link as string })
+									}
+								>
+									<CalendarPlus />
+									{t('meetings.ADD_TO_CALENDAR')}
+								</DropdownMenuItem>
+							</>
+						)}
+						<DropdownMenuSeparator />
+						<DropdownMenuItem
+							variant="destructive"
+							disabled={isCancelling}
+							onClick={() => onCancel(meeting)}
 						>
-							<CalendarPlus className="size-4" />
-						</Button>
-					</>
-				)}
-				{state !== 'ended' && (
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon-sm"
-						aria-label={t('meetings.CANCEL_MEETING_OF', { title })}
-						title={t('meetings.CANCEL_MEETING')}
-						disabled={isCancelling}
-						onClick={() => onCancel(meeting)}
-					>
-						<Trash className="size-4" />
-					</Button>
-				)}
+							<Trash />
+							{t('common.DELETE')}
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</div>
 		</li>
 	);

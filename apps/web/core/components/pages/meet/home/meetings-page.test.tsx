@@ -207,7 +207,9 @@ describe('MeetingsPage', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'meetings.JOIN_MEETING_OF:{"title":"Daily standup"}' }));
 		expect(mockPush).toHaveBeenCalledWith(meetPathFor('Ever-Standup-AbCdEfGhIj', true));
 
-		fireEvent.click(screen.getByRole('button', { name: 'meetings.CANCEL_MEETING_OF:{"title":"Daily standup"}' }));
+		// Delete, in the card's menu, cancels the meeting once confirmed
+		fireEvent.click(screen.getByRole('button', { name: 'meetings.MEETING_ACTIONS_OF:{"title":"Daily standup"}' }));
+		fireEvent.click(await screen.findByRole('menuitem', { name: 'common.DELETE' }));
 		const confirm = await screen.findByRole('button', { name: 'meetings.CANCEL_MEETING' });
 		await act(async () => {
 			fireEvent.click(confirm);
@@ -257,6 +259,59 @@ describe('MeetingsPage', () => {
 		} finally {
 			jest.useRealTimers();
 		}
+	});
+
+	it("starts a meeting, copies its invitation and its link from the card's menu", async () => {
+		const writeText = jest.fn().mockResolvedValue(undefined);
+		Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+		const start = new Date(Date.now() + 60 * 60_000);
+		const link = `https://app.ever.team${meetPathFor('Ever-Retro-AbCdEfGhIj', true)}`;
+		mockScheduled.meetings = [
+			{
+				id: 'appointment-4',
+				title: 'Retro',
+				description: null,
+				start,
+				end: new Date(start.getTime() + 1_800_000),
+				link
+			}
+		];
+		render(<MeetingsPage />);
+		// Late in the evening the meeting is tomorrow's
+		if (!screen.queryByText('Retro')) fireEvent.click(screen.getByRole('button', { name: 'meetings.NEXT_DAY' }));
+		const openMenu = async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'meetings.MEETING_ACTIONS_OF:{"title":"Retro"}' }));
+			return screen.findByRole('menu');
+		};
+
+		const menu = await openMenu();
+		expect(
+			within(menu)
+				.getAllByRole('menuitem')
+				.map((item) => item.textContent)
+		).toEqual([
+			'meetings.START_MEETING',
+			'meetings.COPY_INVITATION',
+			'meetings.COPY_LINK',
+			'meetings.ADD_TO_CALENDAR',
+			'common.DELETE'
+		]);
+		await act(async () => {
+			fireEvent.click(within(menu).getByRole('menuitem', { name: 'meetings.COPY_INVITATION' }));
+		});
+		expect(writeText).toHaveBeenLastCalledWith(
+			expect.stringMatching(/^meetings\.INVITATION_TEXT:\{"title":"Retro",/)
+		);
+		expect(writeText.mock.calls[0][0]).toContain(link);
+
+		const copyLink = within(await openMenu()).getByRole('menuitem', { name: 'meetings.COPY_LINK' });
+		await act(async () => {
+			fireEvent.click(copyLink);
+		});
+		expect(writeText).toHaveBeenLastCalledWith(link);
+
+		fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'meetings.START_MEETING' }));
+		expect(mockPush).toHaveBeenCalledWith(meetPathFor('Ever-Retro-AbCdEfGhIj', true));
 	});
 
 	it('shows one day of the agenda at a time: the day after, the day before, and back to today', () => {
