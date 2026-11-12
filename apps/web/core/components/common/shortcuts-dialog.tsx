@@ -126,11 +126,11 @@ function ShortcutRow({
 	return (
 		<div
 			className={cn(
-				'flex flex-wrap items-center justify-between gap-x-3 gap-y-1 py-1.5',
+				'flex flex-wrap items-center justify-between gap-x-3 gap-y-1 py-1',
 				isRecording && 'rounded-md bg-primary/5 px-2'
 			)}
 		>
-			<span className="min-w-0 text-sm text-foreground">{label}</span>
+			<span className="min-w-0 text-[13px] text-foreground">{label}</span>
 			<span className="ml-auto flex items-center gap-2">
 				{isRecording && <RecordedKeys recorded={recorded} isMac={isMac} />}
 				{!isRecording && <LineKeys keys={line.keys} />}
@@ -263,10 +263,10 @@ function ShortcutsSheet() {
 				<DialogTitle>{t('shortcuts.TITLE')}</DialogTitle>
 				<DialogDescription>{description}</DialogDescription>
 			</DialogHeader>
-			<div className="flex flex-col gap-4">
+			<div className="flex flex-col gap-4 md:block md:columns-2 md:gap-8">
 				{sections.map((section) => (
-					<section key={section.group} className="flex flex-col gap-1">
-						<h3 className="text-xs font-medium text-muted-foreground">
+					<section key={section.group} className="flex break-inside-avoid flex-col md:pb-4 md:last:pb-0">
+						<h3 className="pb-1 text-xs font-medium text-muted-foreground">
 							{t(`shortcuts.groups.${section.group}`)}
 						</h3>
 						{section.lines.map((line) => (
@@ -297,7 +297,7 @@ export function ShortcutsDialog() {
 	const [open, setOpen] = useAtom(shortcutsHelpOpenAtom);
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+			<DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg md:max-w-2xl">
 				<ShortcutsSheet />
 			</DialogContent>
 		</Dialog>
