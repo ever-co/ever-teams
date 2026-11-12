@@ -101,6 +101,7 @@ function entryOf(log: ITimeLog, daySeconds: number): CalendarEntry {
 		projectKey: null,
 		projectName: null,
 		projectColor: null,
+		projectKey: null,
 		reason: null
 	};
 }
