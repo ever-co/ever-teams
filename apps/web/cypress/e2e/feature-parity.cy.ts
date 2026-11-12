@@ -183,7 +183,14 @@ describe('feature parity on the authenticated shell', () => {
 		cy.get('[role="menu"]')
 			.find('[role="menuitem"]')
 			.then((items) => [...items].map((item) => item.textContent?.trim()))
-			.should('deep.equal', ['Start meeting', 'Copy invitation', 'Copy link', 'Add to calendar', 'Delete']);
+			.should('deep.equal', [
+				'Start meeting',
+				'Copy invitation',
+				'Copy link',
+				'Add to calendar',
+				'Edit',
+				'Delete'
+			]);
 		cy.get('body').type('{esc}');
 		cy.get('[role="menu"]').should('not.exist');
 		// A meeting that has not begun yet is started, one that runs is joined
@@ -223,6 +230,35 @@ describe('feature parity on the authenticated shell', () => {
 		cy.contains('button', /^Join$/).click();
 		cy.location('pathname', { timeout: 15_000 }).should('match', /\/meet\/jitsi$/);
 		cy.get('[data-testid="meet-join-now"]', { timeout: 20_000 }).should('be.visible');
+	});
+
+	it("renames a scheduled meeting and changes its length from Edit in the card's menu", () => {
+		cy.intercept('PUT', '**/api/employee-appointment/*').as('reschedule');
+		cy.hardVisit('/meet');
+		cy.get('[data-testid="meetings-schedule"]', { timeout: 20_000 }).click();
+		cy.get('#meeting-title').type('Retro');
+		cy.get('#meeting-date').invoke('val').as('proposedDate');
+		cy.contains('button', /^Schedule$/).click();
+		cy.contains('button', /^Done$/).click();
+		showTheProposedDay();
+
+		cy.get('button[aria-label="Actions for Retro"]', { timeout: 15_000 }).click();
+		cy.contains('[role="menuitem"]', /^Edit$/).click();
+		cy.contains('[role="dialog"]', 'Edit meeting').should('be.visible');
+		cy.get('#meeting-title').should('have.value', 'Retro').clear().type('Retro, moved');
+		cy.get('#meeting-description').should('not.exist');
+		cy.get('[aria-label="Duration"]').click();
+		cy.contains('[role="option"]', /^60 min$/).click();
+		cy.contains('button', /^Save changes$/).click();
+		cy.wait('@reschedule')
+			.its('request.body')
+			.should((body) => {
+				expect(body.agenda).to.equal('Retro, moved');
+				expect(body.location).to.match(/&title=Retro%2C%20moved$/);
+				const minutes = (Date.parse(body.endDateTime) - Date.parse(body.startDateTime)) / 60_000;
+				expect(minutes).to.equal(60);
+			});
+		cy.get('[data-testid="scheduled-meeting"]').should('contain', 'Retro, moved');
 	});
 
 	it('shows the agenda one day at a time, with the day before, the day after and back to today', () => {

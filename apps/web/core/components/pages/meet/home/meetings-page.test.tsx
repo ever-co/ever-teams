@@ -3,7 +3,7 @@ import { TextDecoder, TextEncoder } from 'node:util';
 import type { ReactNode } from 'react';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { meetPathFor } from '@/core/lib/utils/collaboration';
-import type { ScheduledMeeting } from '@/core/lib/utils/meetings';
+import { meetingPathFor, type ScheduledMeeting } from '@/core/lib/utils/meetings';
 
 // Room names are base64 of their UTF-8 bytes; jsdom has no TextEncoder of its own
 Object.assign(globalThis, { TextEncoder, TextDecoder });
@@ -11,6 +11,7 @@ Object.assign(globalThis, { TextEncoder, TextDecoder });
 const mockPush = jest.fn();
 const mockScheduleMeeting = jest.fn();
 const mockCancelMeeting = jest.fn();
+const mockRescheduleMeeting = jest.fn();
 let mockScheduled: {
 	meetings: ScheduledMeeting[];
 	canSchedule: boolean;
@@ -69,6 +70,8 @@ jest.mock('@/core/hooks/meetings/use-scheduled-meetings', () => ({
 		refetch: jest.fn(),
 		scheduleMeeting: mockScheduleMeeting,
 		isScheduling: false,
+		rescheduleMeeting: mockRescheduleMeeting,
+		isRescheduling: false,
 		cancelMeeting: mockCancelMeeting,
 		cancellingId: undefined
 	})
@@ -87,6 +90,7 @@ describe('MeetingsPage', () => {
 		mockPush.mockReset();
 		mockScheduleMeeting.mockReset().mockResolvedValue({ id: 'appointment-1' });
 		mockCancelMeeting.mockReset().mockResolvedValue(undefined);
+		mockRescheduleMeeting.mockReset().mockResolvedValue(undefined);
 		mockScheduled = { meetings: [], canSchedule: true };
 		// The notices' orb asks whether motion is reduced; jsdom has no matchMedia
 		window.matchMedia = jest.fn().mockReturnValue({ matches: true }) as unknown as typeof window.matchMedia;
@@ -294,6 +298,7 @@ describe('MeetingsPage', () => {
 			'meetings.COPY_INVITATION',
 			'meetings.COPY_LINK',
 			'meetings.ADD_TO_CALENDAR',
+			'common.EDIT',
 			'common.DELETE'
 		]);
 		await act(async () => {
@@ -312,6 +317,78 @@ describe('MeetingsPage', () => {
 
 		fireEvent.click(within(await openMenu()).getByRole('menuitem', { name: 'meetings.START_MEETING' }));
 		expect(mockPush).toHaveBeenCalledWith(meetPathFor('Ever-Retro-AbCdEfGhIj', true));
+	});
+
+	it("moves a meeting from Edit in its menu, and renames it with its room's link", async () => {
+		jest.useFakeTimers({ advanceTimers: true });
+		try {
+			jest.setSystemTime(new Date(2026, 10, 12, 9, 0));
+			const link = `https://app.ever.team${meetingPathFor('Ever-Retro-AbCdEfGhIj', true, 'Retro')}`;
+			mockScheduled.meetings = [
+				{
+					id: 'appointment-5',
+					title: 'Retro',
+					description: 'Notes',
+					start: new Date(2026, 10, 12, 16, 0),
+					end: new Date(2026, 10, 12, 16, 45),
+					link
+				}
+			];
+			render(<MeetingsPage />);
+			fireEvent.click(screen.getByRole('button', { name: 'meetings.MEETING_ACTIONS_OF:{"title":"Retro"}' }));
+			fireEvent.click(await screen.findByRole('menuitem', { name: 'common.EDIT' }));
+
+			const title = (await screen.findByLabelText('meetings.FIELD_TITLE')) as HTMLInputElement;
+			expect(screen.getByRole('dialog', { name: 'meetings.EDIT_TITLE' })).toBeTruthy();
+			expect(title.value).toBe('Retro');
+			expect((screen.getByLabelText('meetings.FIELD_DATE') as HTMLInputElement).value).toBe('2026-11-12');
+			expect((screen.getByLabelText('meetings.FIELD_TIME') as HTMLInputElement).value).toBe('16:00');
+			// The description stays as it is: Gauzy's update cannot empty it
+			expect(screen.queryByLabelText('meetings.FIELD_DESCRIPTION')).toBeNull();
+			fireEvent.change(title, { target: { value: 'Sprint retro' } });
+			fireEvent.change(screen.getByLabelText('meetings.FIELD_TIME'), { target: { value: '17:30' } });
+			await act(async () => {
+				fireEvent.click(screen.getByRole('button', { name: 'common.SAVE_CHANGES' }));
+			});
+
+			expect(mockRescheduleMeeting).toHaveBeenCalledWith('appointment-5', {
+				title: 'Sprint retro',
+				start: new Date(2026, 10, 12, 17, 30),
+				durationMinutes: 45,
+				link: link.replace('title=Retro', 'title=Sprint%20retro')
+			});
+			await waitFor(() => expect(screen.queryByLabelText('meetings.FIELD_TITLE')).toBeNull());
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
+	it('renames a meeting that already began without asking to move it', async () => {
+		const start = new Date(Date.now() - 5 * 60_000);
+		mockScheduled.meetings = [
+			{
+				id: 'appointment-6',
+				title: 'Standup',
+				description: null,
+				start,
+				end: new Date(Date.now() + 600_000),
+				link: null
+			}
+		];
+		render(<MeetingsPage />);
+		fireEvent.click(screen.getByRole('button', { name: 'meetings.MEETING_ACTIONS_OF:{"title":"Standup"}' }));
+		fireEvent.click(await screen.findByRole('menuitem', { name: 'common.EDIT' }));
+		fireEvent.change(await screen.findByLabelText('meetings.FIELD_TITLE'), { target: { value: 'Daily standup' } });
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'common.SAVE_CHANGES' }));
+		});
+
+		expect(screen.queryByRole('alert')).toBeNull();
+		expect(mockRescheduleMeeting).toHaveBeenCalledWith(
+			'appointment-6',
+			expect.objectContaining({ title: 'Daily standup', link: null })
+		);
+		expect(mockRescheduleMeeting.mock.calls[0][1].start).toBe(start);
 	});
 
 	it('shows one day of the agenda at a time: the day after, the day before, and back to today', () => {

@@ -94,13 +94,15 @@ interface MeetingAgendaProps {
 	hostName: string;
 	cancellingId: string | undefined;
 	onCancelMeeting: (appointmentId: string) => Promise<unknown>;
+	/** Opens the meeting to change its title or its time. */
+	onEditMeeting: (meeting: ScheduledMeeting) => void;
 	/** Opens Schedule on a day of the agenda. */
 	onScheduleOn: (day: Date) => void;
 }
 
 /**
  * One day of the meetings the person scheduled, today first, with the way to the day before, back to today and to
- * the day after, and to schedule a meeting that day; on each meeting: join, copy the link, add to a calendar, cancel.
+ * the day after, and to schedule a meeting that day; on each meeting: join, copy, add to a calendar, edit, cancel.
  */
 export function MeetingAgenda({
 	meetings,
@@ -112,6 +114,7 @@ export function MeetingAgenda({
 	hostName,
 	cancellingId,
 	onCancelMeeting,
+	onEditMeeting,
 	onScheduleOn
 }: Readonly<MeetingAgendaProps>) {
 	const t = useTranslations();
@@ -219,6 +222,7 @@ export function MeetingAgenda({
 									isJitsi={isJitsi}
 									hostName={hostName}
 									isCancelling={cancellingId === meeting.id}
+									onEdit={onEditMeeting}
 									onCancel={setMeetingToCancel}
 								/>
 							))}

@@ -14,7 +14,7 @@ import { useScheduledMeetings } from '@/core/hooks/meetings/use-scheduled-meetin
 import { activeTeamNameState } from '@/core/stores';
 import { cn } from '@/core/lib/helpers';
 import { isJitsiMeeting, meetRoomNameFor } from '@/core/lib/utils/collaboration';
-import { meetingPathFor } from '@/core/lib/utils/meetings';
+import { meetingPathFor, type ScheduledMeeting } from '@/core/lib/utils/meetings';
 import { JoinMeetingDialog } from './join-meeting-dialog';
 import { MeetingAgenda } from './meeting-agenda';
 import { ScheduleMeetingDialog } from './schedule-meeting-dialog';
@@ -97,11 +97,13 @@ export function MeetingsPage() {
 	// Each opening starts a new dialog: the time it proposes is the next slot from now, and the answer of a request
 	// made by a dialog closed before it came back never shows in the next one
 	const [dialogKey, setDialogKey] = useState(0);
-	// The day Schedule proposes, when it opens from a day of the agenda
+	// The day Schedule proposes, when it opens from a day of the agenda, or the meeting it edits
 	const [scheduleDay, setScheduleDay] = useState<Date | undefined>(undefined);
-	const openDialogOf = (dialog: 'join' | 'schedule', day?: Date) => {
+	const [meetingToEdit, setMeetingToEdit] = useState<ScheduledMeeting | null>(null);
+	const openDialogOf = (dialog: 'join' | 'schedule', from: { day?: Date; meeting?: ScheduledMeeting } = {}) => {
 		setDialogKey((key) => key + 1);
-		setScheduleDay(day);
+		setScheduleDay(from.day);
+		setMeetingToEdit(from.meeting ?? null);
 		setOpenDialog(dialog);
 	};
 	const title = t('meetings.TITLE');
@@ -182,7 +184,8 @@ export function MeetingsPage() {
 						hostName={scheduled.hostName}
 						cancellingId={scheduled.cancellingId}
 						onCancelMeeting={scheduled.cancelMeeting}
-						onScheduleOn={(day) => openDialogOf('schedule', day)}
+						onEditMeeting={(meeting) => openDialogOf('schedule', { meeting })}
+						onScheduleOn={(day) => openDialogOf('schedule', { day })}
 					/>
 				)}
 			</div>
@@ -198,9 +201,11 @@ export function MeetingsPage() {
 				open={openDialog === 'schedule'}
 				onClose={() => setOpenDialog(null)}
 				initialDay={scheduleDay}
+				meeting={meetingToEdit}
 				linkFor={(meetingTitle) => `${window.location.origin}${newRoomPath(meetingTitle)}`}
 				onSchedule={scheduled.scheduleMeeting}
-				isScheduling={scheduled.isScheduling}
+				onReschedule={scheduled.rescheduleMeeting}
+				isScheduling={scheduled.isScheduling || scheduled.isRescheduling}
 			/>
 		</PageLayout>
 	);

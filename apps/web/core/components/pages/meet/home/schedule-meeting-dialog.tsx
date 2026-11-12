@@ -9,12 +9,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/core/components/duplicated-components/_button';
 import { CalendarPlus, Copy } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
-import { startOfDay, type ScheduledMeeting, type ScheduleMeetingDraft } from '@/core/lib/utils/meetings';
+import {
+	meetingLinkWithTitle,
+	startOfDay,
+	type RescheduleMeetingDraft,
+	type ScheduledMeeting,
+	type ScheduleMeetingDraft
+} from '@/core/lib/utils/meetings';
 import { copyMeetingInvitation, downloadMeetingIcs, meetingWhenOf } from './meeting-invitation';
 
 const DURATIONS = [15, 30, 45, 60, 90, 120];
 const DEFAULT_DURATION = 30;
 const SLOT_MINUTES = 30;
+const MINUTE = 60_000;
 
 function twoDigits(value: number): string {
 	return String(value).padStart(2, '0');
@@ -39,6 +46,14 @@ function proposedStartOf(day: Date | undefined): Date {
 	return start;
 }
 
+/** The durations offered: the usual ones, and a meeting's own when it lasts another time. */
+function durationsWith(minutes: number): number[] {
+	if (DURATIONS.includes(minutes)) {
+		return DURATIONS;
+	}
+	return [...DURATIONS, minutes].sort((first, second) => first - second);
+}
+
 function dateInputOf(date: Date): string {
 	return `${date.getFullYear()}-${twoDigits(date.getMonth() + 1)}-${twoDigits(date.getDate())}`;
 }
@@ -52,30 +67,39 @@ interface ScheduleMeetingDialogProps {
 	onClose: () => void;
 	/** The day picked in the agenda, when Schedule opens from it. */
 	initialDay?: Date;
+	/** The meeting to edit: its title and its time change, the rest stays. Without it, a new meeting is planned. */
+	meeting?: ScheduledMeeting | null;
 	/** The full link of a new room for this meeting, titled. */
 	linkFor: (title: string) => string;
 	onSchedule: (draft: ScheduleMeetingDraft) => Promise<unknown>;
+	onReschedule: (appointmentId: string, draft: RescheduleMeetingDraft) => Promise<unknown>;
+	/** A schedule or a reschedule is on its way. */
 	isScheduling: boolean;
 }
 
 /**
  * Plans a meeting for later. It is kept in the person's agenda; Ever Teams sends no invitation, so the confirmation
- * gives the invitation to copy and a calendar file to send from one's own calendar.
+ * gives the invitation to copy and a calendar file to send from one's own calendar. Given a meeting, it moves or
+ * renames that meeting instead.
  */
 export function ScheduleMeetingDialog({
 	open,
 	onClose,
 	initialDay,
+	meeting,
 	linkFor,
 	onSchedule,
+	onReschedule,
 	isScheduling
 }: Readonly<ScheduleMeetingDialogProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
-	const [title, setTitle] = useState('');
-	const [date, setDate] = useState(() => dateInputOf(proposedStartOf(initialDay)));
-	const [time, setTime] = useState(() => timeInputOf(proposedStartOf(initialDay)));
-	const [duration, setDuration] = useState(DEFAULT_DURATION);
+	const [title, setTitle] = useState(() => meeting?.title ?? '');
+	const [date, setDate] = useState(() => dateInputOf(meeting?.start ?? proposedStartOf(initialDay)));
+	const [time, setTime] = useState(() => timeInputOf(meeting?.start ?? proposedStartOf(initialDay)));
+	const [duration, setDuration] = useState(() =>
+		meeting ? Math.max(1, Math.round((meeting.end.getTime() - meeting.start.getTime()) / MINUTE)) : DEFAULT_DURATION
+	);
 	const [description, setDescription] = useState('');
 	const [problem, setProblem] = useState<'title' | 'past' | null>(null);
 	const [scheduled, setScheduled] = useState<(ScheduledMeeting & { link: string }) | null>(null);
@@ -93,15 +117,33 @@ export function ScheduleMeetingDialog({
 		onClose();
 	};
 
+	const reschedule = async (edited: ScheduledMeeting, start: Date) => {
+		const newTitle = title.trim();
+		const link = edited.link ? meetingLinkWithTitle(edited.link, newTitle) : null;
+		try {
+			await onReschedule(edited.id, { title: newTitle, start, durationMinutes: duration, link });
+			toast.success(t('meetings.RESCHEDULED'));
+			close();
+		} catch {
+			toast.error(t('meetings.RESCHEDULE_FAILED'));
+		}
+	};
+
 	const schedule = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		const start = new Date(`${date}T${time}`);
 		if (!title.trim()) {
 			setProblem('title');
 			return;
 		}
-		if (Number.isNaN(start.getTime()) || start.getTime() < Date.now()) {
+		// A meeting that already began may keep its start, to the second: only a new start must lie ahead
+		const keptStart = meeting && dateInputOf(meeting.start) === date && timeInputOf(meeting.start) === time;
+		const start = keptStart ? meeting.start : new Date(`${date}T${time}`);
+		if (Number.isNaN(start.getTime()) || (start.getTime() < Date.now() && !keptStart)) {
 			setProblem('past');
+			return;
+		}
+		if (meeting) {
+			await reschedule(meeting, start);
 			return;
 		}
 		const link = linkFor(title.trim());
@@ -129,7 +171,10 @@ export function ScheduleMeetingDialog({
 
 	return (
 		<AppDialog open={open} onClose={close} width="md" keepOpenOnOutsideClick>
-			<AppDialogHeader title={t('meetings.SCHEDULE_TITLE')} onClose={close} />
+			<AppDialogHeader
+				title={meeting ? t('meetings.EDIT_TITLE') : t('meetings.SCHEDULE_TITLE')}
+				onClose={close}
+			/>
 			{scheduled && (
 				<>
 					<div className={`${APP_DIALOG_BODY} flex flex-col gap-3 pb-4`} data-testid="meeting-scheduled">
@@ -217,7 +262,7 @@ export function ScheduleMeetingDialog({
 									<SelectValue>{minutesFormat.format(duration)}</SelectValue>
 								</SelectTrigger>
 								<SelectContent position="popper" sideOffset={4}>
-									{DURATIONS.map((minutes) => (
+									{durationsWith(duration).map((minutes) => (
 										<SelectItem key={minutes} value={String(minutes)}>
 											{minutesFormat.format(minutes)}
 										</SelectItem>
@@ -225,20 +270,22 @@ export function ScheduleMeetingDialog({
 								</SelectContent>
 							</Select>
 						</div>
-						<div className="flex flex-col gap-1.5 sm:col-span-2">
-							<label htmlFor="meeting-description" className="text-sm font-medium text-foreground">
-								{t('meetings.FIELD_DESCRIPTION')}
-							</label>
-							<textarea
-								id="meeting-description"
-								rows={3}
-								value={description}
-								maxLength={2000}
-								placeholder={t('meetings.FIELD_DESCRIPTION_PLACEHOLDER')}
-								onChange={(event) => setDescription(event.target.value)}
-								className={cn(controlRecipe, 'min-h-20 resize-y py-2')}
-							/>
-						</div>
+						{!meeting && (
+							<div className="flex flex-col gap-1.5 sm:col-span-2">
+								<label htmlFor="meeting-description" className="text-sm font-medium text-foreground">
+									{t('meetings.FIELD_DESCRIPTION')}
+								</label>
+								<textarea
+									id="meeting-description"
+									rows={3}
+									value={description}
+									maxLength={2000}
+									placeholder={t('meetings.FIELD_DESCRIPTION_PLACEHOLDER')}
+									onChange={(event) => setDescription(event.target.value)}
+									className={cn(controlRecipe, 'min-h-20 resize-y py-2')}
+								/>
+							</div>
+						)}
 						{problem && (
 							<p role="alert" className="text-xs text-destructive-ink sm:col-span-2">
 								{problem === 'title'
@@ -252,7 +299,7 @@ export function ScheduleMeetingDialog({
 							{t('common.CANCEL')}
 						</Button>
 						<Button type="submit" disabled={isScheduling} aria-busy={isScheduling || undefined}>
-							{t('meetings.SCHEDULE')}
+							{meeting ? t('common.SAVE_CHANGES') : t('meetings.SCHEDULE')}
 						</Button>
 					</div>
 				</form>

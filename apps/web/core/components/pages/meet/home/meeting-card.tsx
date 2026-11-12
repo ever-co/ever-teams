@@ -11,7 +11,7 @@ import {
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { CalendarPlus, Copy, Link, MoreHorizontal, Trash, VideoCall } from '@/core/components/icons';
+import { CalendarPlus, Copy, Edit, Link, MoreHorizontal, Trash, VideoCall } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import {
 	meetingPathOfInput,
@@ -57,15 +57,24 @@ interface MeetingCardProps {
 	/** Who hosts the meeting: the agenda lists the person's own meetings, so the person. */
 	hostName: string;
 	isCancelling: boolean;
+	onEdit: (meeting: ScheduledMeeting) => void;
 	onCancel: (meeting: ScheduledMeeting) => void;
 }
 
 /**
  * A meeting of the agenda, as the inspiration draws it: its title, when it runs, who hosts it, how long it has been
  * on once it started, and the way in: Join while it runs, Start before. Its menu starts or joins it, copies the
- * invitation or the link, adds it to a calendar, and deletes it once confirmed.
+ * invitation or the link, adds it to a calendar, edits it, and deletes it once confirmed.
  */
-export function MeetingCard({ meeting, now, isJitsi, hostName, isCancelling, onCancel }: Readonly<MeetingCardProps>) {
+export function MeetingCard({
+	meeting,
+	now,
+	isJitsi,
+	hostName,
+	isCancelling,
+	onEdit,
+	onCancel
+}: Readonly<MeetingCardProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const router = useRouter();
@@ -178,6 +187,10 @@ export function MeetingCard({ meeting, now, isJitsi, hostName, isCancelling, onC
 								</DropdownMenuItem>
 							</>
 						)}
+						<DropdownMenuItem onClick={() => onEdit(meeting)}>
+							<Edit />
+							{t('common.EDIT')}
+						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							variant="destructive"
