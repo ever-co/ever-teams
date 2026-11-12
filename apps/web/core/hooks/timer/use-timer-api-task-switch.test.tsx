@@ -3,14 +3,20 @@
  * #5119: the timer stopped "because your active task changed" when the app emptied the active task by itself (a task
  * outside the loaded list, a save rolled back): the task-switch effect counted no task as a switch, and as it never
  * recorded the empty value, any later run of the effect stopped the timer again. Only a switch from one task to
- * another stops the timer.
+ * another stops the timer, or the person leaving the active task on purpose (leaving the task, closing it).
  */
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createStore, Provider } from 'jotai';
 import type { PropsWithChildren } from 'react';
 
-import { activeTeamIdState, activeTeamTaskState, organizationTeamsState, timerStatusState } from '@/core/stores';
+import {
+	activeTeamIdState,
+	activeTeamTaskState,
+	leftActiveTaskIdState,
+	organizationTeamsState,
+	timerStatusState
+} from '@/core/stores';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
@@ -134,6 +140,24 @@ describe('useTimerApi when the active task changes while a timer runs', () => {
 				id: 'timer-automatic-stop'
 			})
 		);
+	});
+
+	it('still stops a TEAMS timer when the person leaves the active task or closes it, and says why', async () => {
+		const store = renderTimerOwner(task('task-a'), statusOn('task-a', true));
+
+		await settle(() => {
+			// Leaving the task and closing it mark it as left as they empty the active task
+			store.set(leftActiveTaskIdState, 'task-a');
+			store.set(activeTeamTaskState, null);
+		});
+
+		expect(mockStopTimer).toHaveBeenCalledTimes(1);
+		await waitFor(() =>
+			expect(mockToastInfo).toHaveBeenCalledWith('toasts.timer.STOPPED_TASK_SWITCH', {
+				id: 'timer-automatic-stop'
+			})
+		);
+		expect(store.get(leftActiveTaskIdState)).toBeNull();
 	});
 
 	it('still stops it when another task is picked after the active task was emptied', async () => {
