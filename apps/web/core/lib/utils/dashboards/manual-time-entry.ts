@@ -131,8 +131,8 @@ function isSameTimes(first: ShownTimes, second: ShownTimes) {
 
 /**
  * Where a typed duration stands. Text that is no duration, or a duration typed before a member is picked, leaves the
- * form's times as they were (`shown`). A duration that is read for empties them until an interval is proposed, so
- * the form cannot save the previous times in its place.
+ * form's times as they were (`shown`). Any other duration empties them until an interval is proposed, so the form
+ * cannot save the previous times in its place.
  */
 export type DurationPhase =
 	| { kind: 'idle' }
