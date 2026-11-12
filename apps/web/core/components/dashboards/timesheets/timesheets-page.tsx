@@ -10,12 +10,17 @@ import { BlockEmptyMessage, DashboardErrorNotice } from '@/core/components/dashb
 import { type ExportOption, ExportMenu } from '@/core/components/dashboards/kit/export-menu';
 import { DASHBOARD_STACK, DASHBOARD_SURFACE } from '@/core/components/dashboards/kit/recipes';
 import { Clock, FileSheet, Plus } from '@/core/components/icons';
+import { TimerTaskStartLayer } from '@/core/components/timer/timer-task-start';
 import { useTimesheetDialogs } from '@/core/hooks/dashboards/timesheets/use-timesheet-dialogs';
 import { useTimesheetLogActions } from '@/core/hooks/dashboards/timesheets/use-timesheet-log-actions';
 import { useTimesheetSheet } from '@/core/hooks/dashboards/timesheets/use-timesheet-sheet';
 import { canEditLog, useTimesheetsPage } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
+import { useTimeEntryContinue } from '@/core/hooks/timer/use-time-entry-continue';
+import { useTimerTaskStart } from '@/core/hooks/timer/use-timer-task-start';
+import { useTimeEntryDuplicate } from '@/core/hooks/timesheet/use-time-entry-duplicate';
 import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
+import { ADD_TIME_ENTRY_STEP_MINUTES } from '@/core/lib/utils/time-entry-reuse';
 import {
 	sheetMembersOf,
 	type TimesheetDay,
@@ -25,6 +30,7 @@ import {
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
+import type { TimeEntryReuseHandlers } from './time-entry-reuse';
 import type { TimesheetRowHandlers } from './timesheet-log-row';
 import { TimesheetsMonthView, TimesheetsWeekView } from './timesheets-calendar';
 import { TimesheetsDialogs } from './timesheets-dialogs';
@@ -159,6 +165,23 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 	const { changeStatus, setBillable, deleteLogs, isChangingStatus, isDeleting } = actions;
 	const { openReject, openEdit, openDelete } = dialogs;
 
+	const timerStart = useTimerTaskStart();
+	const { canContinue, continueLog } = useTimeEntryContinue(timerStart.startOn);
+	const duplicate = useTimeEntryDuplicate({ stepMinutes: ADD_TIME_ENTRY_STEP_MINUTES });
+	const openDuplicate = duplicate.open;
+	// Duplicate opens the page's Add time entry dialog, so it is offered to whoever the page offers Add time
+	const reuse = useMemo<TimeEntryReuseHandlers>(
+		() => ({
+			canContinue,
+			continueLog,
+			canDuplicate: () => canAddTime,
+			duplicate: (log) => {
+				void openDuplicate({ log });
+			}
+		}),
+		[canAddTime, canContinue, continueLog, openDuplicate]
+	);
+
 	const handlers = useMemo<TimesheetRowHandlers>(
 		() => ({
 			toggleLog: page.toggleLog,
@@ -178,9 +201,10 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 				void setBillable(log, isBillable);
 			},
 			edit: openEdit,
-			remove: (log) => openDelete([log], 'row')
+			remove: (log) => openDelete([log], 'row'),
+			reuse
 		}),
-		[changeStatus, openDelete, openEdit, openReject, page.toggleLog, setBillable]
+		[changeStatus, openDelete, openEdit, openReject, page.toggleLog, reuse, setBillable]
 	);
 
 	const selectedLogs = page.selectedLogs;
@@ -451,7 +475,9 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 				isDeleting={isDeleting}
 				onRejected={handleRejected}
 				onDeleteConfirmed={handleDeleteConfirmed}
+				duplicate={duplicate}
 			/>
+			<TimerTaskStartLayer request={timerStart.request} />
 		</PageLayout>
 	);
 }

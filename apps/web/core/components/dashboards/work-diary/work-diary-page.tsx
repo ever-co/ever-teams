@@ -21,6 +21,7 @@ import { isTrackingEnabledState } from '@/core/stores/timer/active-timer';
 import { DiaryDayStrip } from './diary-day-strip';
 import { DiaryBody, DiaryHoursSkeleton } from './diary-hours';
 import { DiarySlotSheet } from './diary-slot-sheet';
+import { type DiaryTaskReuse, DiaryTaskReuseLayers, useDiaryTaskReuse } from './diary-task-reuse';
 import { DIARY_COLUMNS, DiaryAppRows, DiaryFigures, DiaryRowsSkeleton, DiaryTaskRows } from './work-diary-parts';
 import { WorkDiaryPageSkeleton } from './work-diary-page-skeleton';
 
@@ -84,8 +85,14 @@ function ScreenshotsBody({
 function DiaryDayView({
 	page,
 	formats,
-	onOpenSlot
-}: Readonly<{ page: WorkDiaryPageState; formats: DayFormats; onOpenSlot: (slot: DiarySlot) => void }>) {
+	onOpenSlot,
+	renderTaskActions
+}: Readonly<{
+	page: WorkDiaryPageState;
+	formats: DayFormats;
+	onOpenSlot: (slot: DiarySlot) => void;
+	renderTaskActions: DiaryTaskReuse['renderTaskActions'];
+}>) {
 	const t = useTranslations();
 	const { diary, shownDay, tasks, taskCount } = page;
 	const dayText = formats.short.format(page.day);
@@ -138,7 +145,7 @@ function DiaryDayView({
 					ariaLabel={t('common.TASKS')}
 				>
 					{page.isLogsLoading && <DiaryRowsSkeleton />}
-					{!page.isLogsLoading && <DiaryTaskRows tasks={tasks} />}
+					{!page.isLogsLoading && <DiaryTaskRows tasks={tasks} renderActions={renderTaskActions} />}
 				</DashboardSection>
 				{plan}
 				<DashboardSection
@@ -170,6 +177,7 @@ function WorkDiaryPageContent() {
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const page = useWorkDiaryPage();
 	const formats = useDayFormats();
+	const taskReuse = useDiaryTaskReuse(page.shownDay.entries);
 	const [openSlot, setOpenSlot] = useState<DiarySlot | null>(null);
 	const [isSheetOpen, setIsSheetOpen] = useState(false);
 
@@ -266,8 +274,16 @@ function WorkDiaryPageContent() {
 						/>
 					</DashboardSection>
 				)}
-				{showsDay && <DiaryDayView page={page} formats={formats} onOpenSlot={openSlotSheet} />}
+				{showsDay && (
+					<DiaryDayView
+						page={page}
+						formats={formats}
+						onOpenSlot={openSlotSheet}
+						renderTaskActions={taskReuse.renderTaskActions}
+					/>
+				)}
 			</div>
+			<DiaryTaskReuseLayers reuse={taskReuse} />
 			<DiarySlotSheet
 				slot={openSlot}
 				day={page.day}

@@ -20,6 +20,7 @@ import {
 } from '@/core/lib/utils/dashboards/timesheets';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { type TimeEntryReuseHandlers, TimeEntryReuseButtons } from './time-entry-reuse';
 import { dayLabelOf } from './timesheet-day-label';
 import { LogChangeChips, ManualReasonLine } from './timesheet-log-changes';
 import { LOG_TYPE_LABEL_KEYS, rejectionReasonOf, type TimesheetRowHandlers } from './timesheet-log-row';
@@ -62,6 +63,13 @@ function canReviewLog(log: ITimeLog, permissions: TimesheetPermissions) {
 	return isPending && permissions.canApprove;
 }
 
+function offersReuse(log: ITimeLog, reuse: TimeEntryReuseHandlers | undefined) {
+	if (!reuse) {
+		return false;
+	}
+	return reuse.canContinue(log) || reuse.canDuplicate(log);
+}
+
 function EntryMeta({ log, formatters }: Readonly<{ log: ITimeLog; formatters: TimesheetFormatters }>) {
 	const t = useTranslations();
 	const timeRange = timeRangeTextOf(log, formatters, t('dashboard.timesheets.RUNNING'));
@@ -96,7 +104,9 @@ function SheetEntry({
 	const status = statusOfLog(log);
 	const showsReview = canReviewLog(log, permissions);
 	const canEdit = canEditLog(log, permissions);
-	const hasActions = showsReview || canEdit;
+	const reuse = handlers.reuse;
+	const showsReuse = offersReuse(log, reuse);
+	const hasActions = showsReview || canEdit || showsReuse;
 	const seconds = logDurationSeconds(log);
 	const duration = formatDurationShort(seconds);
 	const rejectionReason = rejectionReasonOf(log, status);
@@ -148,6 +158,7 @@ function SheetEntry({
 							</Button>
 						</>
 					)}
+					{reuse && <TimeEntryReuseButtons log={log} reuse={reuse} onAct={onAct} />}
 					{canEdit && (
 						<>
 							<Button type="button" variant="ghost" size="sm" onClick={edit}>
