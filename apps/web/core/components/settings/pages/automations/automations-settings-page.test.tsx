@@ -63,7 +63,15 @@ describe('Settings → Automations while automations are off', () => {
 		expect(mockNotFound).not.toHaveBeenCalled();
 	});
 
-	it('says the same when the switch is on but the platform answers that automations are off', () => {
+	it('says the same when the switch is on but the platform does not run automations (its routes answer 404)', () => {
+		mockEnabled = true;
+		mockAvailability.availability = 'unavailable';
+		render(<AutomationsSettingsPage />);
+		expect(screen.getByRole('status').textContent).toContain('settings.automations.UNAVAILABLE_TITLE');
+		expect(mockNotFound).not.toHaveBeenCalled();
+	});
+
+	it('says the same when the availability hook reports the switch off, without the not-found page', () => {
 		mockEnabled = true;
 		mockAvailability.availability = 'off';
 		render(<AutomationsSettingsPage />);
