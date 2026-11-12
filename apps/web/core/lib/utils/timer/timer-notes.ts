@@ -43,6 +43,17 @@ export function timerNotesFor(notes: TimerNotes, runningLog: TimerNotesLog | nul
 	return { text: runningLog.description ?? '', timeLogId: runningLog.id };
 }
 
+/**
+ * The notes once the member changes team or account: a draft was typed for the timer left behind and does not follow
+ * into the next one. The notes of a running entry stay, for the stop that ends it.
+ */
+export function withoutTimerNotesDraft(notes: TimerNotes): TimerNotes {
+	if (notes.timeLogId === null) {
+		return EMPTY_TIMER_NOTES;
+	}
+	return notes;
+}
+
 /** The notes a start sends: a draft only, never the notes of an earlier entry. Nothing when there are none. */
 export function notesToSendAtStart(notes: TimerNotes): string | undefined {
 	if (notes.timeLogId !== null) {

@@ -7,7 +7,8 @@ import {
 	notesToSendAtStop,
 	readTimerNotes,
 	timerNotesFor,
-	wereNotesLostAtStop
+	wereNotesLostAtStop,
+	withoutTimerNotesDraft
 } from './timer-notes';
 
 const RUNNING_LOG = { id: 'log-1', description: 'Review the invoice export' };
@@ -71,6 +72,18 @@ describe('timerNotesFor', () => {
 		const earlier = { text: 'Old notes', timeLogId: 'log-0' };
 
 		expect(timerNotesFor(earlier, { id: 'log-1' })).toEqual({ text: '', timeLogId: 'log-1' });
+	});
+});
+
+describe('withoutTimerNotesDraft', () => {
+	it('drops a draft, so another team or account never starts with it', () => {
+		expect(withoutTimerNotesDraft({ text: 'Call with the client', timeLogId: null })).toBe(EMPTY_TIMER_NOTES);
+	});
+
+	it('keeps the notes of a running entry, which its stop still has to send', () => {
+		const ofRunningEntry = { text: 'Review the invoice export', timeLogId: 'log-1' };
+
+		expect(withoutTimerNotesDraft(ofRunningEntry)).toBe(ofRunningEntry);
 	});
 });
 
