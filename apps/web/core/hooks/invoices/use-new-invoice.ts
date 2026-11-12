@@ -26,6 +26,13 @@ import {
 	type InvoiceGrouping,
 	type InvoiceRequest
 } from '@/core/lib/utils/invoices';
+import {
+	acceptsPercentText,
+	hasAdjustments,
+	invoiceTotalsOf,
+	percentOfText,
+	type InvoiceAdjustments
+} from '@/core/lib/utils/invoice-totals';
 import { newUuid } from '@/core/lib/utils/uuid';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { useCreateInvoice } from './use-invoice-mutations';
@@ -70,6 +77,8 @@ export function useNewInvoice() {
 	const [issueDay, setIssueDay] = useState(() => todayDayKey());
 	const [pickedDueDay, setPickedDueDay] = useState<string | null>(null);
 	const [typedNote, setTypedNote] = useState<string | null>(null);
+	const [discountText, setDiscountText] = useState('');
+	const [taxText, setTaxText] = useState('');
 
 	const client = useMemo(
 		() => clients.find((candidate) => candidate.id === pickedClientId) ?? null,
@@ -104,6 +113,12 @@ export function useNewInvoice() {
 	const groups = useMemo(() => projectGroupsOf(keptLines), [keptLines]);
 	const keptTotal = useMemo(() => invoiceCurrenciesOf(keptLines)[0], [keptLines]);
 	const removedCount = removedLineCountOf(invoiceLines, removedKeys);
+	const subtotal = keptTotal?.amount ?? 0;
+	const adjustments = useMemo<InvoiceAdjustments>(
+		() => ({ discountPercent: percentOfText(discountText), taxPercent: percentOfText(taxText) }),
+		[discountText, taxText]
+	);
+	const totals = useMemo(() => invoiceTotalsOf(subtotal, adjustments), [adjustments, subtotal]);
 
 	const nextNumber = useNextInvoiceNumber(true);
 	const numberText = numberTextOf(typedNumber, nextNumber.nextNumber);
@@ -164,6 +179,18 @@ export function useNewInvoice() {
 		setDescriptions((current) => new Map([...current, [lineKey, description]]));
 	}, []);
 
+	const changeDiscount = useCallback((text: string) => {
+		if (acceptsPercentText(text)) {
+			setDiscountText(text);
+		}
+	}, []);
+
+	const changeTax = useCallback((text: string) => {
+		if (acceptsPercentText(text)) {
+			setTaxText(text);
+		}
+	}, []);
+
 	const timeZone = organization?.timeZone;
 	const invoiceRequest = useCallback((): InvoiceRequest | null => {
 		// The organisation's time zone dates the invoice: before it is read, the days would be the browser's.
@@ -190,9 +217,11 @@ export function useNewInvoice() {
 			timeZone,
 			lines: keptLines,
 			descriptions,
-			note
+			note,
+			adjustments
 		});
 	}, [
+		adjustments,
 		clientId,
 		currency,
 		descriptions,
@@ -249,7 +278,14 @@ export function useNewInvoice() {
 		groups,
 		keptLines,
 		keptHours: keptTotal?.hours ?? 0,
-		total: keptTotal?.amount ?? 0,
+		/** What the invoice asks for: its lines, less the discount, plus the tax. */
+		total: totals.total,
+		totals,
+		discountText,
+		changeDiscount,
+		taxText,
+		changeTax,
+		hasAdjustments: hasAdjustments(adjustments),
 		removedCount,
 		removeLine,
 		restoreLines,

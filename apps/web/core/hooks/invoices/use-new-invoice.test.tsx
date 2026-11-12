@@ -152,6 +152,40 @@ describe('the note to the client', () => {
 	});
 });
 
+describe('the discount and the tax of a new invoice', () => {
+	beforeEach(() => {
+		mockCreateInvoice.mockReset();
+		mockCreateInvoice.mockResolvedValue({ id: 'invoice-1' });
+	});
+
+	it('shows the total after a 10 % discount and a 20 % tax, and saves that same total', async () => {
+		const { result } = renderNewInvoice(tokyoOrganization);
+		act(() => result.current.setDueDay('2099-12-31'));
+		act(() => result.current.changeDiscount('10'));
+		act(() => result.current.changeTax('20'));
+
+		await act(async () => {
+			await result.current.save();
+		});
+
+		expect(result.current.totals).toEqual({ subtotal: 800, discount: 80, discounted: 720, tax: 144, total: 864 });
+		expect(result.current.total).toBe(864);
+		expect(mockCreateInvoice.mock.calls[0][0]).toMatchObject({ discountValue: 10, tax: 20, totalValue: 864 });
+	});
+
+	it('keeps out of the fields what is not a percent from 0 to 100', () => {
+		const { result } = renderNewInvoice(tokyoOrganization);
+
+		act(() => result.current.changeDiscount('ten'));
+		act(() => result.current.changeTax('150'));
+
+		expect(result.current.discountText).toBe('');
+		expect(result.current.taxText).toBe('');
+		expect(result.current.hasAdjustments).toBe(false);
+		expect(result.current.total).toBe(800);
+	});
+});
+
 function listClients(...clients: typeof mockClients) {
 	mockClients.splice(0, mockClients.length, ...clients);
 }
