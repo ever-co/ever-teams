@@ -36,6 +36,8 @@ export function useClientsQuery({ includeArchived = false, enabled = true }: Use
 		clients,
 		activeClients,
 		archivedClients,
+		/** The list has arrived (it may be empty), even if reading it again failed since. */
+		isLoaded: query.data !== undefined,
 		isLoading: query.isLoading,
 		isError: query.isError,
 		refetch: query.refetch

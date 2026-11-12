@@ -1,4 +1,4 @@
-import { EMAIL_REGEX } from '@/core/lib/helpers/regex';
+import { isEmail } from 'class-validator';
 
 export const CLIENT_CONTACT_TYPE = 'CLIENT';
 
@@ -111,6 +111,22 @@ export function projectCountByClient(projects: ProjectOfClient[]) {
 	return counts;
 }
 
+/**
+ * What is known of a list read from the API. Nothing is concluded from a list that did not arrive: a name is told
+ * new, and a number of projects is written, only against a list that was read.
+ */
+export type ListReadState = 'loading' | 'failed' | 'ready';
+
+export function listReadStateOf(isLoaded: boolean, hasFailed: boolean): ListReadState {
+	if (isLoaded) {
+		return 'ready';
+	}
+	if (hasFailed) {
+		return 'failed';
+	}
+	return 'loading';
+}
+
 export function hasClientNamed(clients: ClientLike[], name: string) {
 	const wanted = name.trim().toLocaleLowerCase();
 	if (!wanted) {
@@ -153,7 +169,7 @@ export function validateClientDraft(draft: ClientDraft): ClientDraftErrors {
 	}
 	const email = draft.primaryEmail.trim();
 	const hasEmail = email.length > 0;
-	const isEmailInvalid = hasEmail && !EMAIL_REGEX.test(email);
+	const isEmailInvalid = hasEmail && !isEmail(email);
 	if (isEmailInvalid) {
 		errors.primaryEmail = 'emailInvalid';
 	}

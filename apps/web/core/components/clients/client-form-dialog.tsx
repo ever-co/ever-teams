@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { toast } from 'sonner';
 import { AppDialog, AppDialogHeader, APP_DIALOG_BODY, APP_DIALOG_FOOTER } from '@/core/components/common/app-dialog';
@@ -65,6 +65,15 @@ function ClientForm({ client, onClose }: Readonly<ClientFormProps>) {
 	const [draft, setDraft] = useState<ClientDraft>(() => initialDraftOf(client));
 	const [hasTriedSubmit, setHasTriedSubmit] = useState(false);
 	const [hasSaveFailed, setHasSaveFailed] = useState(false);
+	// A save can end after its form was left: by then the page's dialog may hold another form.
+	const isShownRef = useRef(false);
+
+	useEffect(() => {
+		isShownRef.current = true;
+		return () => {
+			isShownRef.current = false;
+		};
+	}, []);
 
 	const isEdit = Boolean(client);
 	const isSaving = isCreating || isUpdating;
@@ -107,7 +116,9 @@ function ClientForm({ client, onClose }: Readonly<ClientFormProps>) {
 		}
 		try {
 			await save();
-			onClose();
+			if (isShownRef.current) {
+				onClose();
+			}
 		} catch {
 			setHasSaveFailed(true);
 		}

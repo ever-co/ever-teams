@@ -19,9 +19,9 @@ import {
 } from '@/core/components/icons';
 import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
 import {
-	MUTED_VALUE,
 	PeopleCell,
 	ProjectBudgetCell,
+	ProjectClientCell,
 	ProjectDatesCell,
 	ProjectProgressCell,
 	ProjectStatusChip,
@@ -382,14 +382,6 @@ function ProjectSubline({
 	);
 }
 
-function ProjectClientCell({ clientName }: Readonly<{ clientName: string | null }>) {
-	const t = useTranslations();
-	if (!clientName) {
-		return <span className={MUTED_VALUE}>{t('clients.picker.NO_CLIENT')}</span>;
-	}
-	return <span className="truncate text-[13px] text-foreground">{clientName}</span>;
-}
-
 function ProjectRow({
 	project,
 	list,
@@ -414,7 +406,7 @@ function ProjectRow({
 
 	const cells: Record<ProjectColumn, ReactNode> = {
 		status: <ProjectStatusChip statusName={project.status} statuses={statuses} />,
-		client: <ProjectClientCell clientName={clientName} />,
+		client: <ProjectClientCell project={project} clientNames={clientNames} />,
 		progress: <ProjectProgressCell projectId={project.id} taskStats={taskStats} />,
 		managers: <PeopleCell people={managers} max={3} />,
 		members: <PeopleCell people={members} max={3} />,

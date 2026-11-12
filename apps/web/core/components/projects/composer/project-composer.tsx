@@ -140,6 +140,7 @@ export function ProjectComposer({ mode, project, context, onClose }: Readonly<Pr
 	if (composer.hasClientCreateFailed) {
 		clientErrorKey = 'clients.picker.CREATE_FAILED';
 	}
+	const isSaveBlocked = composer.isSubmitting || composer.isCreatingClient;
 
 	let title = t('modals.project.createTitle');
 	let submitLabel = t('pages.projects.list.CREATE_PROJECT');
@@ -253,12 +254,14 @@ export function ProjectComposer({ mode, project, context, onClose }: Readonly<Pr
 					<PropertyRow icon={<Building />} label={t('common.CLIENT')}>
 						<ProjectClientPicker
 							clients={composer.pickableClients}
+							listState={composer.clientListState}
 							selectedClient={composer.selectedClient}
 							canCreate={composer.canCreateClient}
 							isCreating={composer.isCreatingClient}
 							onSelect={composer.setClientId}
 							onClear={() => composer.setClientId(null)}
 							onCreate={(name) => void composer.addClient(name)}
+							onRetry={composer.retryClientList}
 						/>
 						<FieldError message={clientErrorKey} />
 					</PropertyRow>
@@ -397,7 +400,7 @@ export function ProjectComposer({ mode, project, context, onClose }: Readonly<Pr
 				<Button type="button" variant="ghost" size="default" onClick={onClose} disabled={composer.isSubmitting}>
 					{t('common.CANCEL')}
 				</Button>
-				<Button type="submit" size="default" loading={composer.isSubmitting} disabled={composer.isSubmitting}>
+				<Button type="submit" size="default" loading={composer.isSubmitting} disabled={isSaveBlocked}>
 					{submitLabel}
 				</Button>
 			</div>

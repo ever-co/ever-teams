@@ -12,6 +12,7 @@ import {
 	hasClientNamed,
 	holdsAnyPermission,
 	isArchivedClient,
+	listReadStateOf,
 	projectCountByClient,
 	sortClientsByName,
 	validateClientDraft,
@@ -93,6 +94,21 @@ describe('client search and order', () => {
 	});
 });
 
+describe('the read state of a list', () => {
+	it('is loading until the list arrives or fails', () => {
+		expect(listReadStateOf(false, false)).toBe('loading');
+	});
+
+	it('is failed when the list never arrived', () => {
+		expect(listReadStateOf(false, true)).toBe('failed');
+	});
+
+	it('is ready once the list arrived, even when reading it again failed since', () => {
+		expect(listReadStateOf(true, false)).toBe('ready');
+		expect(listReadStateOf(true, true)).toBe('ready');
+	});
+});
+
 describe('project count by client', () => {
 	it('counts the projects of each client and skips the projects without one', () => {
 		const counts = projectCountByClient([
@@ -133,6 +149,14 @@ describe('client draft', () => {
 		expect(hasClientDraftErrors(empty)).toBe(false);
 		expect(invalid).toEqual({ primaryEmail: 'emailInvalid' });
 	});
+
+	it.each(['billing+invoices@example.com', 'billing@example.technology', 'billing@acme.agency'])(
+		'accepts the email %s, as the API does',
+		(primaryEmail) => {
+			const errors = validateClientDraft({ ...emptyClientDraft('Acme'), primaryEmail });
+			expect(errors).toEqual({});
+		}
+	);
 });
 
 describe('client request', () => {
