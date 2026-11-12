@@ -40,6 +40,7 @@ import {
 	totalDurationOf
 } from '@/core/lib/utils/dashboards/timesheets';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import type { SheetEditingSource } from './use-sheet-editing';
 import { useTimesheetPageLogs } from './use-timesheet-page-logs';
 
 /** Members, projects and tasks last as long as the page; clients, billable and labels live in the page link. */
@@ -416,3 +417,35 @@ function isOnlyOwnMember(pickedMembers: string[], ownEmployeeId: string | null) 
 }
 
 export type TimesheetsPageState = ReturnType<typeof useTimesheetsPage>;
+
+/**
+ * Every filter but the member one shows only part of a member's time (status, search, project, task, client, billable
+ * time, label), so the sheet cannot be edited under it.
+ */
+function isNarrowed(page: TimesheetsPageState) {
+	const hasStatus = page.statusFilter !== ALL_STATUSES;
+	const hasSearch = page.search.trim().length > 0;
+	const hasProjects = page.filters.projects.length > 0;
+	const hasTasks = page.filters.tasks.length > 0;
+	const hasClients = page.filters.clients.length > 0;
+	const hasBillable = page.filters.billable.length > 0;
+	const hasLabels = page.filters.labels.length > 0;
+	return hasStatus || hasSearch || hasProjects || hasTasks || hasClients || hasBillable || hasLabels;
+}
+
+export function sheetEditingSourceOf(page: TimesheetsPageState): SheetEditingSource {
+	const { logsQuery, permissions, user } = page;
+	const hasData = Boolean(logsQuery.data);
+	const hasPeriodLogs = hasData && !logsQuery.isPlaceholderData;
+	return {
+		ownEmployeeId: permissions.employeeId,
+		hasOrganizationRole: permissions.hasOrganizationRole,
+		period: page.period,
+		periodLogs: page.allLogs,
+		hasPeriodLogs,
+		isFiltered: isNarrowed(page),
+		tenantId: user?.tenantId,
+		organizationId: user?.employee?.organizationId,
+		userTimeZone: user?.timeZone
+	};
+}

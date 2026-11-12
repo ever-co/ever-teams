@@ -1,10 +1,7 @@
 import { readRuntimeEnv } from '@/env-config';
 
-function isOn(
-	name: 'NEXT_PUBLIC_COMMENT_REACTIONS_ENABLED' | 'NEXT_PUBLIC_TASK_TRASH_ENABLED',
-	buildTime: string | undefined
-) {
-	const value = readRuntimeEnv(name) || buildTime;
+/** A flag's value, read at runtime first (a published image switches it with container env), as `true` only. */
+function isTrue(value: string | undefined) {
 	return String(value ?? '').trim() === 'true';
 }
 
@@ -13,7 +10,9 @@ function isOn(
  * default: no chip, no picker, no request. The platform summary is `GET /reaction/comments` (ever-gauzy #11802).
  */
 export function isCommentReactionsEnabled(): boolean {
-	return isOn('NEXT_PUBLIC_COMMENT_REACTIONS_ENABLED', process.env.NEXT_PUBLIC_COMMENT_REACTIONS_ENABLED);
+	return isTrue(
+		readRuntimeEnv('NEXT_PUBLIC_COMMENT_REACTIONS_ENABLED') || process.env.NEXT_PUBLIC_COMMENT_REACTIONS_ENABLED
+	);
 }
 
 /**
@@ -22,5 +21,5 @@ export function isCommentReactionsEnabled(): boolean {
  * `GAUZY_TASK_TRASH_ENABLED` (it answers 404 otherwise, and the trash page says so).
  */
 export function isTaskTrashEnabled(): boolean {
-	return isOn('NEXT_PUBLIC_TASK_TRASH_ENABLED', process.env.NEXT_PUBLIC_TASK_TRASH_ENABLED);
+	return isTrue(readRuntimeEnv('NEXT_PUBLIC_TASK_TRASH_ENABLED') || process.env.NEXT_PUBLIC_TASK_TRASH_ENABLED);
 }
