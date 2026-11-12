@@ -5,8 +5,10 @@ import { useSpeakerTest } from './use-speaker-test';
 /** An AudioContext that records what the tone does; jsdom has no Web Audio. */
 function installAudioContext() {
 	const contexts: Array<{
+		currentTime: number;
 		close: jest.Mock;
 		oscillator: { start: jest.Mock; stop: jest.Mock; onended?: () => void };
+		gainNode: { gain: { setValueAtTime: jest.Mock; linearRampToValueAtTime: jest.Mock } };
 	}> = [];
 	class FakeAudioContext {
 		currentTime = 0;
@@ -24,8 +26,9 @@ function installAudioContext() {
 		createOscillator() {
 			return this.oscillator;
 		}
+		gainNode = { gain: { setValueAtTime: jest.fn(), linearRampToValueAtTime: jest.fn() }, connect: jest.fn() };
 		createGain() {
-			return { gain: { setValueAtTime: jest.fn(), linearRampToValueAtTime: jest.fn() }, connect: jest.fn() };
+			return this.gainNode;
 		}
 		createMediaStreamDestination() {
 			return { stream: { id: 'tone' } };
@@ -121,5 +124,24 @@ describe('useSpeakerTest', () => {
 		expect(play).toHaveBeenCalledTimes(1);
 		expect(result.current.isPlaying).toBe(true);
 		expect(result.current.hasFailed).toBe(false);
+	});
+
+	it('counts the tone from when the speaker is ready, not from when the test was pressed', async () => {
+		const contexts = installAudioContext();
+		// Picking the speaker and starting the audio take a while: the context runs on meanwhile
+		play.mockImplementationOnce(async () => {
+			contexts[0].currentTime = 2.5;
+		});
+		const { result } = renderHook(() => useSpeakerTest());
+
+		await act(async () => {
+			await result.current.play('speaker-2');
+		});
+
+		const { setValueAtTime, linearRampToValueAtTime } = contexts[0].gainNode.gain;
+		expect(setValueAtTime).toHaveBeenNthCalledWith(1, 0, 2.5);
+		expect(linearRampToValueAtTime).toHaveBeenLastCalledWith(0, 4);
+		expect(contexts[0].oscillator.start).toHaveBeenCalledWith(2.5);
+		expect(contexts[0].oscillator.stop).toHaveBeenCalledWith(4);
 	});
 });

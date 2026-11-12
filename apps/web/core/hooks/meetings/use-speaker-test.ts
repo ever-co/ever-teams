@@ -41,12 +41,7 @@ export function useSpeakerTest() {
 			const gain = context.createGain();
 			const destination = context.createMediaStreamDestination();
 			const audio = new Audio() as SinkableAudio;
-			const startsAt = context.currentTime;
 			oscillator.frequency.value = TONE_HERTZ;
-			gain.gain.setValueAtTime(0, startsAt);
-			gain.gain.linearRampToValueAtTime(TONE_VOLUME, startsAt + FADE_SECONDS);
-			gain.gain.setValueAtTime(TONE_VOLUME, startsAt + TONE_SECONDS - FADE_SECONDS);
-			gain.gain.linearRampToValueAtTime(0, startsAt + TONE_SECONDS);
 			oscillator.connect(gain);
 			gain.connect(destination);
 
@@ -82,7 +77,13 @@ export function useSpeakerTest() {
 			if (hasEnded) {
 				return;
 			}
-			oscillator.start();
+			// Picking the speaker and starting the audio took time: the tone's fades and length count from now
+			const startsAt = context.currentTime;
+			gain.gain.setValueAtTime(0, startsAt);
+			gain.gain.linearRampToValueAtTime(TONE_VOLUME, startsAt + FADE_SECONDS);
+			gain.gain.setValueAtTime(TONE_VOLUME, startsAt + TONE_SECONDS - FADE_SECONDS);
+			gain.gain.linearRampToValueAtTime(0, startsAt + TONE_SECONDS);
+			oscillator.start(startsAt);
 			oscillator.stop(startsAt + TONE_SECONDS);
 			setToneStream(destination.stream);
 		},
