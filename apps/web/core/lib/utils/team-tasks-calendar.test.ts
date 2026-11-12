@@ -1,10 +1,12 @@
 import { getDaysInMonth, isSameDay } from 'date-fns';
 import type { WeekStart } from './dashboard-period';
 import {
+	droppedTaskDatesOf,
 	teamTasksCalendarMonthOf,
 	type TeamTasksCalendarDay,
 	type TeamTasksCalendarMonth
 } from './team-tasks-calendar';
+import { dayNumberOf } from './team-tasks-timeline';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 const NOVEMBER = new Date(2026, 10, 1);
@@ -243,5 +245,46 @@ describe('the busy days of a month', () => {
 
 		expect(month.busyDays).toEqual([]);
 		expect(month.dueInMonthCount).toBe(0);
+	});
+});
+
+describe('a task dropped on a day', () => {
+	const november = (date: number) => dayNumberOf(new Date(2026, 10, date));
+
+	it('falls due that day, as a local midnight', () => {
+		expect(droppedTaskDatesOf({ dueDate: '2026-11-14' }, november(17))).toEqual({
+			dueDate: new Date(2026, 10, 17)
+		});
+		expect(droppedTaskDatesOf({ dueDate: '2026-11-14T00:00:00.000Z' }, november(9))).toEqual({
+			dueDate: new Date(2026, 10, 9)
+		});
+	});
+
+	it('keeps its length: its start moves by as many days as its due date', () => {
+		const tenToFourteen = { startDate: '2026-11-10', dueDate: '2026-11-14' };
+
+		expect(droppedTaskDatesOf(tenToFourteen, november(17))).toEqual({
+			startDate: new Date(2026, 10, 13),
+			dueDate: new Date(2026, 10, 17)
+		});
+		expect(droppedTaskDatesOf(tenToFourteen, november(2))).toEqual({
+			startDate: new Date(2026, 9, 29),
+			dueDate: new Date(2026, 10, 2)
+		});
+	});
+
+	it('gets a due date when it had none, and keeps its start', () => {
+		expect(droppedTaskDatesOf({ dueDate: null }, november(20))).toEqual({ dueDate: new Date(2026, 10, 20) });
+		expect(droppedTaskDatesOf({ startDate: '2026-11-18' }, november(20))).toEqual({
+			dueDate: new Date(2026, 10, 20)
+		});
+		expect(droppedTaskDatesOf({ startDate: '2026-11-18' }, november(18))).toEqual({
+			dueDate: new Date(2026, 10, 18)
+		});
+	});
+
+	it('changes nothing on the day it is due, nor before the start of a task without a due date', () => {
+		expect(droppedTaskDatesOf({ startDate: '2026-11-10', dueDate: '2026-11-14' }, november(14))).toBeNull();
+		expect(droppedTaskDatesOf({ startDate: '2026-11-18' }, november(17))).toBeNull();
 	});
 });

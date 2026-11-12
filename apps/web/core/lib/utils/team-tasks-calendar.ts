@@ -1,6 +1,6 @@
 import { isInAnchorMonth, isWeekendDay, visibleRangeOf } from './calendar-view';
 import { daysOfPeriod, type WeekStart } from './dashboard-period';
-import { dayNumberOf, dayOfStoredDate } from './team-tasks-timeline';
+import { dateOfDayNumber, dayNumberOf, dayOfStoredDate, draggedTaskDatesOf } from './team-tasks-timeline';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 const DAYS_IN_A_WEEK = 7;
@@ -99,4 +99,32 @@ export function teamTasksCalendarMonthOf(
 		undated,
 		dueInMonthCount: taskCountOf(busyDays)
 	};
+}
+
+/** The dates of a task, as stored. */
+interface StoredTaskDates {
+	startDate?: Date | string | null;
+	dueDate?: Date | string | null;
+}
+
+/**
+ * The dates a task gets when it is dropped on a day of the month, written as local midnights (as the due date picker
+ * writes them). A task with a due date moves as a whole: the day becomes its due date and a start date moves by as
+ * many days, so the task keeps its length. A task without one gets the day as its due date and keeps its start date,
+ * unless the day is before that start (the picker refuses such a day too). Null when there is nothing to change.
+ */
+export function droppedTaskDatesOf(task: StoredTaskDates, day: number): { startDate?: Date; dueDate?: Date } | null {
+	const dueDay = dayOfStoredDate(task.dueDate);
+	if (dueDay !== null) {
+		const deltaDays = day - dueDay;
+		return draggedTaskDatesOf(task, 'move', deltaDays);
+	}
+	const startDay = dayOfStoredDate(task.startDate);
+	const hasStart = startDay !== null;
+	const isBeforeStart = hasStart && day < startDay;
+	if (isBeforeStart) {
+		return null;
+	}
+	const dueDate = dateOfDayNumber(day);
+	return { dueDate };
 }
