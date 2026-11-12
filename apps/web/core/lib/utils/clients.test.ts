@@ -157,6 +157,14 @@ describe('client draft', () => {
 			expect(errors).toEqual({});
 		}
 	);
+
+	it.each(['billing@acme', 'bill ing@acme.io', '@acme.io'])(
+		'refuses the email %s, as the API does',
+		(primaryEmail) => {
+			const errors = validateClientDraft({ ...emptyClientDraft('Acme'), primaryEmail });
+			expect(errors).toEqual({ primaryEmail: 'emailInvalid' });
+		}
+	);
 });
 
 describe('client request', () => {
