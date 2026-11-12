@@ -188,8 +188,7 @@ export function useSheetEditing(page: TimesheetsPageState, sheet: TimesheetSheet
 
 	const addTaskRow = useCallback(
 		(task: TTask) => {
-			const projects = organizationProjects ?? [];
-			const project = projects.find((candidate) => candidate.id === task.projectId);
+			const project = organizationProjects.find((candidate) => candidate.id === task.projectId);
 			const identity = rowIdentityOfTask(task, project, teamId);
 			addRows([identity]);
 		},
