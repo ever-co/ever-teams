@@ -3,7 +3,7 @@
 import { useEffect, useSyncExternalStore } from 'react';
 import hotkeys, { HotkeysEvent } from 'hotkeys-js';
 import { isShortcutSequencePending } from '@/core/hooks/keyboard/use-shortcuts';
-import type { HotkeyGroup, HotkeyLine } from '@/core/lib/keyboard/shortcut-sheet';
+import type { HotkeyGroup } from '@/core/lib/keyboard/shortcut-sheet';
 
 /**
  * The declarations bound right now. `hotkeys.unbind(key)` drops every listener of the key, whoever bound it, so a
@@ -95,80 +95,27 @@ export const HostKeys = {
 	CREATE_TASK: 'shift+c,c'
 };
 
-interface HostKeyLine extends HotkeyLine {
-	sequence: { MAC: string[]; OTHER: string[] };
-}
-
-interface HostKeyGroup extends HotkeyGroup {
-	heading: string;
-	keySequence: HostKeyLine[];
-}
-
 /**
  * The hotkeys as the shortcuts sheet lists them: each line names the declaration of `HostKeys` that presses it, so
  * its key caps are read from what is bound, never written twice.
  */
-export const HostKeysMapping: HostKeyGroup[] = [
+export const HostKeysMapping: HotkeyGroup[] = [
 	{
-		heading: 'HELP',
 		group: 'general',
-		keySequence: [
-			{
-				label: 'TO_OPEN_SHORTCUT_LIST',
-				keys: HostKeys.SHORTCUT_LIST,
-				command: 'helpOpen',
-				sequence: {
-					MAC: ['H'],
-					OTHER: ['H']
-				}
-			}
-		]
+		keySequence: [{ label: 'TO_OPEN_SHORTCUT_LIST', keys: HostKeys.SHORTCUT_LIST, command: 'helpOpen' }]
 	},
 	{
-		heading: 'TIMER',
 		group: 'timer',
 		keySequence: [
-			{
-				label: 'START_TIMER',
-				keys: HostKeys.START_TIMER,
-				boundAs: HostKeys.START_STOP_TIMER,
-				sequence: {
-					MAC: ['Ctrl(⌃)', 'Opt(⌥)', ']'],
-					OTHER: ['Ctrl', 'Alt', ']']
-				}
-			},
-			{
-				label: 'STOP_TIMER',
-				keys: HostKeys.STOP_TIMER,
-				boundAs: HostKeys.START_STOP_TIMER,
-				sequence: {
-					MAC: ['Ctrl(⌃)', 'Opt(⌥)', '['],
-					OTHER: ['Ctrl', 'Alt', '[']
-				}
-			}
+			{ label: 'START_TIMER', keys: HostKeys.START_TIMER, boundAs: HostKeys.START_STOP_TIMER },
+			{ label: 'STOP_TIMER', keys: HostKeys.STOP_TIMER, boundAs: HostKeys.START_STOP_TIMER }
 		]
 	},
 	{
-		heading: 'TASK',
 		group: 'tasks',
 		keySequence: [
-			{
-				label: 'ASSIGN_TASK',
-				keys: HostKeys.ASSIGN_TASK,
-				sequence: {
-					MAC: ['A'],
-					OTHER: ['A']
-				}
-			},
-			{
-				label: 'CREATE_TASK',
-				keys: HostKeys.CREATE_TASK,
-				command: 'taskCreate',
-				sequence: {
-					MAC: ['C'],
-					OTHER: ['C']
-				}
-			}
+			{ label: 'ASSIGN_TASK', keys: HostKeys.ASSIGN_TASK },
+			{ label: 'CREATE_TASK', keys: HostKeys.CREATE_TASK, command: 'taskCreate' }
 		]
 	}
 ];
