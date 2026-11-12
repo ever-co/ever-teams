@@ -630,6 +630,7 @@
 					"TRACKED_TITLE": "Erfasste Zeit bleibt",
 					"TRACKED": "{tracked} dieser Zelle wurde mit einem Timer erfasst. Das Blatt verringert nur von Hand hinzugefügte Zeit: Öffnen Sie die Einträge der Zelle, um erfasste Zeit zu entfernen.",
 					"SAVE_FAILED": "Zeit nicht gespeichert",
+					"PARTLY_SAVED_TITLE": "Nur ein Teil der Änderung wurde gespeichert",
 					"REFUSED": "Sie können für dieses Mitglied keine Zeit hinzufügen oder ändern.",
 					"TAKE_BACK_NOT_ALLOWED": "Ihre Rolle oder Organisation erlaubt das Löschen oder Ändern von Zeit nicht, daher kann diese Zelle nicht verringert werden.",
 					"LOCK_FUTURE": "Ihre Organisation erlaubt keine Zeit an Tagen nach heute.",

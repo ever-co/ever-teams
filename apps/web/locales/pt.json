@@ -630,6 +630,7 @@
 					"TRACKED_TITLE": "O tempo rastreado é mantido",
 					"TRACKED": "{tracked} desta célula foi rastreado por um cronômetro. A folha só diminui o tempo adicionado à mão: abra os registros da célula para remover tempo rastreado.",
 					"SAVE_FAILED": "Tempo não salvo",
+					"PARTLY_SAVED_TITLE": "Apenas parte da alteração foi salva",
 					"REFUSED": "Você não pode adicionar nem alterar tempo para este membro.",
 					"TAKE_BACK_NOT_ALLOWED": "Sua função ou organização não permite excluir nem alterar tempo, então esta célula não pode ser reduzida.",
 					"LOCK_FUTURE": "Sua organização não permite tempo em dias depois de hoje.",
