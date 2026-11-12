@@ -23,6 +23,11 @@ export interface TimeOverlapGuardRequest {
 	/** The entry being edited, which its own new interval never removes. */
 	ignoredLogId?: string;
 	save: Save;
+	/**
+	 * For a save that may remove no entry (a copied entry): an overlap the lookup finds is handed here instead of the
+	 * confirmation, and nothing is saved.
+	 */
+	refuseOverlap?: (overlap: OverlapSummary) => void;
 }
 
 export interface TimeOverlapGuardOptions {
@@ -129,7 +134,7 @@ export function useTimeOverlapGuard({ isOpen = true }: TimeOverlapGuardOptions =
 	);
 
 	const saveAfterCheck = useCallback(
-		async ({ employeeId, periods, ignoredLogId, save }: TimeOverlapGuardRequest) => {
+		async ({ employeeId, periods, ignoredLogId, save, refuseOverlap }: TimeOverlapGuardRequest) => {
 			if (isCheckingRef.current) {
 				return;
 			}
@@ -166,6 +171,11 @@ export function useTimeOverlapGuard({ isOpen = true }: TimeOverlapGuardOptions =
 			const removesNothing = overlap.entries.length === 0;
 			if (removesNothing) {
 				await save();
+				return;
+			}
+			// Recorded after the opener's own check: refused, never offered to be saved over
+			if (refuseOverlap) {
+				refuseOverlap(overlap);
 				return;
 			}
 			heldSaveRef.current = save;

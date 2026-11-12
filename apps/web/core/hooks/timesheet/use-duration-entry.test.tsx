@@ -223,6 +223,32 @@ describe('useDurationEntry', () => {
 		expect(mockGetTimeLogs).not.toHaveBeenCalled();
 	});
 
+	// The form would otherwise save the hour it already showed while the field says its text is no duration
+	it('keeps the form from saving its earlier times while the text is no duration, until it is cleared', () => {
+		const handPicked = { startMinutes: 540, endMinutes: 600 };
+		const { result } = renderForm({ times: handPicked });
+
+		expect(result.current.entry.blocksSave).toBe(false);
+
+		typeDuration(result, '90x');
+
+		expect(result.current.entry.blocksSave).toBe(true);
+		expect(result.current.times).toEqual(handPicked);
+
+		typeDuration(result, '');
+
+		expect(result.current.entry.blocksSave).toBe(false);
+	});
+
+	it('lets the form save again once the member picks the times by hand after a refused text', () => {
+		const { result } = renderForm({ times: { startMinutes: 540, endMinutes: 600 } });
+		typeDuration(result, '90x');
+
+		act(() => result.current.setTimes({ startMinutes: 540, endMinutes: 630 }));
+
+		expect(result.current.entry.blocksSave).toBe(false);
+	});
+
 	it('shows the time from the start to the end, and asks for nothing when the field is left as it was', () => {
 		const { result } = renderForm({ times: { startMinutes: 840, endMinutes: 900 } });
 

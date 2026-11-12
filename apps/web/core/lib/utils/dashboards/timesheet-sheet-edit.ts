@@ -374,7 +374,8 @@ export interface ReductionPlan {
 	shorten: { log: ITimeLog; stoppedAt: Date } | null;
 }
 
-function isReducibleLog(log: ITimeLog) {
+/** Time added by hand and stopped: the only entries the web lowers, moves or resizes. */
+export function isReducibleLog(log: ITimeLog) {
 	const isManual = isManualLog(log);
 	const isStopped = !log.isRunning;
 	return isManual && isStopped;

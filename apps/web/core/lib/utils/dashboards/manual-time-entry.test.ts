@@ -6,6 +6,7 @@ import {
 	type AddTimeFacts,
 	addTimeScopeOf,
 	askedSecondsOf,
+	blocksSaveOf,
 	claimedIntervalsOf,
 	type DurationPhase,
 	type FormPeriod,
@@ -218,6 +219,15 @@ describe('phase of a typed duration', () => {
 		expect(askedSecondsOf(noMember)).toBe(NINETY_MINUTES);
 		expect(askedSecondsOf(invalid)).toBeNull();
 		expect(askedSecondsOf(IDLE_PHASE)).toBeNull();
+	});
+
+	it('keeps the form from saving only while the field reports a duration it could not apply', () => {
+		expect(blocksSaveOf(invalid)).toBe(true);
+		expect(blocksSaveOf(noMember)).toBe(true);
+		expect(blocksSaveOf(proposed)).toBe(false);
+		expect(blocksSaveOf(reading)).toBe(false);
+		expect(blocksSaveOf(noRoom)).toBe(false);
+		expect(blocksSaveOf(IDLE_PHASE)).toBe(false);
 	});
 
 	it('reads the refused text, the asked duration, or the time from start to end', () => {

@@ -105,7 +105,7 @@ function optionContentOf(
 	return String(rendered || '');
 }
 
-function isShowableContent(content: React.ReactNode): boolean {
+function canShowContent(content: React.ReactNode): boolean {
 	if (React.isValidElement(content)) {
 		return true;
 	}
@@ -190,7 +190,7 @@ export function CustomSelect({
 
 							const optionContent = optionContentOf(option, optionValue, renderOption);
 
-							if (!isShowableContent(optionContent)) {
+							if (!canShowContent(optionContent)) {
 								if (process.env.NODE_ENV === 'development') {
 									console.warn('🚨 Invalid display text in CustomSelect:', { option, optionContent });
 								}

@@ -1,3 +1,5 @@
+import { numberFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
+
 const SECONDS_PER_MINUTE = 60;
 const SECONDS_PER_HOUR = 3600;
 
@@ -46,12 +48,12 @@ export function percentOf(part: number, whole: number): number {
 }
 
 /** `47%`, or the reader's own form (`47 %` in French, `٪47` in Arabic) when the locale is given. */
-export function formatPercent(value: number, locale?: string): string {
+export function formatPercent(value: number, locale?: FormatLocale): string {
 	const rounded = Math.round(value);
 	if (!locale) {
 		return `${rounded}%`;
 	}
-	return new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 }).format(rounded / 100);
+	return numberFormatOf(locale, { style: 'percent', maximumFractionDigits: 0 }).format(rounded / 100);
 }
 
 const LARGEST_HOUR_STEP = 168;

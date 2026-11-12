@@ -153,6 +153,19 @@ export function emptyProjectDraft(activeTeamId: string | null | undefined, today
 	};
 }
 
+/**
+ * A new project's draft as the form shows and saves it: in the workspace's currency until the person picks one. The
+ * workspace may be read after the form opened, so its currency is not written into the draft the person fills.
+ */
+export function draftInWorkspaceCurrency(draft: ProjectDraft, workspaceCurrency: string | null): ProjectDraft {
+	const hasPickedCurrency = Boolean(draft.currency);
+	const hasNothingToOffer = !workspaceCurrency;
+	if (hasPickedCurrency || hasNothingToOffer) {
+		return draft;
+	}
+	return { ...draft, currency: workspaceCurrency };
+}
+
 function budgetOf(budget: number | null | undefined) {
 	const hasBudget = typeof budget === 'number' && budget > 0;
 	if (!hasBudget) {

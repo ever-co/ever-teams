@@ -64,6 +64,8 @@ export const queryKeys = {
 					organizationId ?? null,
 					organizationTeamId ?? null
 				] as const,
+			inactiveByScope: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+				['users', 'employees', 'inactive-scope', tenantId ?? null, organizationId ?? null] as const,
 			working: (
 				tenantId: string | undefined | null,
 				organizationId: string | undefined | null,

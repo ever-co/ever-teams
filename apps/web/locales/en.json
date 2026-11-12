@@ -726,6 +726,30 @@
 			"WEEK_TITLE": "Timesheet",
 			"WEEK_NO_MANUAL_TIME_PERMISSION": "Your role can't add time by hand, so the sheet is read only. An admin can allow it."
 		},
+		"myWeek": {
+			"TITLE": "My week",
+			"UPDATING": "Loading your time",
+			"SUMMARY_LABEL": "Your tracked time",
+			"TRACKED_THIS_WEEK": "Tracked this week",
+			"TRACKED_LAST_WEEK": "Tracked last week",
+			"TRACKED_THIS_MONTH": "Tracked this month",
+			"LIMIT_LEFT": "{duration} left this week",
+			"LIMIT_UNDER": "{duration} under your weekly limit",
+			"LIMIT_OVER": "{duration} over your weekly limit",
+			"LIMIT_SHARE": "{percent} of your weekly limit",
+			"NO_LIMIT": "No weekly limit is set on your profile.",
+			"LIMIT_BY_WEEK": "Your weekly limit of {limit} is measured week by week.",
+			"DAILY_LIMIT_LINE": "{limit} a day",
+			"DAILY_LIMIT_HINT": "The dashed line is a fifth of your weekly limit",
+			"PROJECTS_TITLE": "Time by project",
+			"RECENT_TITLE": "Recent entries",
+			"RECENT_LATEST": "{shown} latest of {total, plural, one {# entry} other {# entries}}",
+			"EMPTY_THIS_WEEK": "No time tracked this week",
+			"EMPTY_LAST_WEEK": "No time tracked last week",
+			"EMPTY_THIS_MONTH": "No time tracked this month",
+			"EMPTY_HINT": "Start the timer on a task and your time shows up here.",
+			"OPEN_TIMER": "Open the timer"
+		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# member} other {# members}}",
 			"UPDATING": "Updating the figures",
@@ -1482,7 +1506,15 @@
 			"WEEK_STRIP_LABEL": "Days of the week",
 			"HAS_TIME": "Time tracked",
 			"NO_MEMBER_TITLE": "Your account has no member profile in this workspace",
-			"NO_MEMBER_MESSAGE": "Time is tracked per member. Ask an admin to add you to a team."
+			"NO_MEMBER_MESSAGE": "Time is tracked per member. Ask an admin to add you to a team.",
+			"DRAG": {
+				"REFUSED_TITLE": "Entry not changed",
+				"CREATE_REFUSED_TITLE": "Time can't be added here",
+				"OVERLAP": "This time overlaps another entry of the member. Pick a free time, or change the other entry first.",
+				"FUTURE": "Your organization doesn't allow time after the current time.",
+				"APPROVED": "This day belongs to an approved timesheet, so its time can't be changed.",
+				"SAVE_FAILED": "Change not saved"
+			}
 		},
 		"manualTimeEdits": {
 			"TITLE": "Manual time edits",
@@ -1867,6 +1899,14 @@
 				"MEMBER_COUNT": "{count, plural, one {# member} other {# members}}",
 				"ERROR_TITLE": "The project could not be loaded",
 				"ERROR_MESSAGE": "Check your connection, then try again."
+			},
+			"consumption": {
+				"ORDER_BUDGET_USED": "Budget used",
+				"AS_COST": "As a cost",
+				"AS_COST_HINT": "Time on this project is counted as a cost, because its budget type is Cost. It shows in hours when the budget type is Hours.",
+				"SUMMARY_LABEL": "Time and budget",
+				"OPEN_REPORT": "Open budget report",
+				"LOAD_ERROR": "Time spent and budget use could not load"
 			},
 			"modals": {
 				"openProject": "Open project",
@@ -2727,6 +2767,15 @@
 			"PAUSE": "Paused",
 			"IDLE": "Idle",
 			"SUSPENDED": "Suspended"
+		},
+		"notes": {
+			"ADD": "Add timer notes",
+			"EDIT": "Edit timer notes",
+			"LABEL": "Notes",
+			"PLACEHOLDER": "What are you working on?",
+			"HINT_BEFORE_START": "Optional. Saved on the entry when the timer starts.",
+			"HINT_RUNNING": "Changes made while the timer runs are not saved yet. To change the notes, edit the entry in Timesheets after you stop the timer.",
+			"HINT_OTHER_TEAM": "These notes belong to the timer running in another team, so they cannot be changed here."
 		}
 	},
 	"task": {
@@ -3057,6 +3106,22 @@
 	"timeSlot": {
 		"DELETE_MESSAGE": "Are you sure you want to delete this time slot?"
 	},
+	"timeEntryActions": {
+		"CONTINUE": "Continue",
+		"DUPLICATE": "Duplicate",
+		"TASK_ACTIONS": "Actions for {task}",
+		"ALREADY_RUNNING": "The timer is already running on this task",
+		"recent": {
+			"TITLE": "Recent",
+			"START_ON": "Start the timer on {task}",
+			"ERROR": "Your recent tasks could not be loaded.",
+			"RETRY": "Try again"
+		},
+		"duplicate": {
+			"OVERLAPS": "This time runs over an entry already recorded ({range}). Pick a free time or another date.",
+			"CHECK_FAILED": "The day's entries could not be checked, so nothing was saved. Try again."
+		}
+	},
 	"chatConfig": {
 		"DIALOG_TITLE": "AI chat configuration",
 		"DIALOG_DESCRIPTION": "Configure your AI provider and API key to enable the chat assistant.",
@@ -3175,7 +3240,8 @@
 			"navigation": "Navigation",
 			"settings": "Settings",
 			"goTo": "Go to",
-			"chat": "Chat"
+			"chat": "Chat",
+			"timer": "Timer"
 		},
 		"commands": {
 			"inviteUser": "Invite user",
@@ -3197,7 +3263,10 @@
 			"goToTimeAndActivity": "Go to time & activity report",
 			"profile": "Profile",
 			"settings": "Settings",
-			"newMessage": "New message"
+			"newMessage": "New message",
+			"startTimer": "Start timer",
+			"stopTimer": "Stop timer",
+			"addTime": "Add time"
 		},
 		"results": {
 			"recent": "Recent",
@@ -3209,7 +3278,9 @@
 			"projects": "Projects",
 			"pages": "Pages",
 			"untitledPage": "Untitled",
-			"recentlyOpened": "Recently opened"
+			"recentlyOpened": "Recently opened",
+			"startTimerOn": "Start the timer on a task",
+			"startTimerOnTask": "Start timer: {task}"
 		}
 	},
 	"modals": {
@@ -3871,7 +3942,10 @@
 			"STOPPED_TASK_SWITCH": "Timer stopped because your active task changed",
 			"STALE_STOPPED": "Timer stopped at {stoppedAt}",
 			"STALE_STOPPED_HINT": "It kept running after the app closed. Add any later work as manual time.",
-			"TASK_CLOSED_HINT": "Reopen the task to track time on it."
+			"TASK_CLOSED_HINT": "Reopen the task to track time on it.",
+			"NOTES_NOT_SAVED": "The notes changed while the timer ran were not saved",
+			"NOTES_NOT_SAVED_HINT": "The entry kept the notes it started with. Edit the entry in Timesheets to change them.",
+			"ALREADY_RUNNING_ON_TASK": "The timer is already running on this task"
 		},
 		"plans": {
 			"CREATE_FAILED": "The plan was not created",
@@ -4101,7 +4175,8 @@
 		"groups": {
 			"account": "Account",
 			"team": "Team",
-			"taskProperties": "Task properties"
+			"taskProperties": "Task properties",
+			"workspace": "Workspace"
 		},
 		"entries": {
 			"profile": {
@@ -4159,6 +4234,14 @@
 			"versions": {
 				"TITLE": "Versions",
 				"DESCRIPTION": "Releases that tasks can target."
+			},
+			"import": {
+				"TITLE": "Import",
+				"DESCRIPTION": "Time entries from a CSV file."
+			},
+			"workspaceGeneral": {
+				"TITLE": "General",
+				"DESCRIPTION": "The workspace's name, currency, and date and number formats."
 			},
 			"automations": {
 				"TITLE": "Automations",
@@ -4780,7 +4863,37 @@
 			"ACCEPT": "Accept",
 			"REJECT": "Reject",
 			"INVITATIONS_COUNT": "{count, plural, one {# invitation waits for an answer} other {# invitations wait for an answer}}",
-			"REQUESTS_COUNT": "{count, plural, one {# request waits for an answer} other {# requests wait for an answer}}"
+			"REQUESTS_COUNT": "{count, plural, one {# request waits for an answer} other {# requests wait for an answer}}",
+			"FILTER_LABEL": "Members shown",
+			"FILTER_ACTIVE": "Active",
+			"FILTER_INACTIVE": "Inactive",
+			"INACTIVE_LIST": "Inactive members",
+			"INACTIVE_EMPTY": "No member of this team is deactivated.",
+			"INACTIVE_ERROR": "The inactive members could not be loaded.",
+			"DEACTIVATED_ON": "Deactivated on {date}",
+			"RESTORE": "Restore",
+			"RESTORE_MEMBER": "Restore {name}",
+			"RESTORED": "{name} can sign in and track time again",
+			"RESTORE_FAILED": "{name} is still deactivated",
+			"DEACTIVATE": "Deactivate",
+			"DEACTIVATE_TITLE": "Deactivate {name}?",
+			"DEACTIVATE_CONSEQUENCE_ACCESS": "{name} can no longer sign in to this workspace or track time.",
+			"DEACTIVATE_CONSEQUENCE_TEAMS": "They no longer count in any of their teams.",
+			"DEACTIVATE_CONSEQUENCE_HISTORY": "Their time, tasks and comments stay in reports and history under their name.",
+			"DEACTIVATE_CONSEQUENCE_RESTORE": "You can restore them from the Inactive list: they get back their access, teams and roles.",
+			"DEACTIVATED": "{name} was deactivated",
+			"DEACTIVATE_FAILED": "{name} is still active",
+			"ROLE_GROUP_TEAM": "In this team",
+			"ROLE_GROUP_WORKSPACE": "In the workspace",
+			"WORKSPACE_ROLE_SUPER_ADMIN": "Super admin",
+			"WORKSPACE_ROLE_ADMIN": "Admin",
+			"WORKSPACE_ROLE_MANAGER": "Manager",
+			"WORKSPACE_ROLE_EMPLOYEE": "Member",
+			"WORKSPACE_ROLE_DATA_ENTRY": "Data entry",
+			"WORKSPACE_ROLE_VIEWER": "Viewer",
+			"WORKSPACE_ROLE_CANDIDATE": "Candidate",
+			"WORKSPACE_ROLE_INTERVIEWER": "Interviewer",
+			"WORKSPACE_ROLE_NOT_SAVED": "The workspace role of {name} was not changed"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profile",
@@ -4914,6 +5027,37 @@
 			"LOAD_ERROR_TEXT": "Your switches are unchanged. Try again in a moment.",
 			"UNAVAILABLE_TITLE": "Nothing to set in this workspace yet",
 			"UNAVAILABLE_TEXT": "Notifications belong to your member profile in a workspace, and this account has none here. Join or create a team first."
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "Workspace",
+			"NAME_LABEL": "Workspace name",
+			"NAME_DESCRIPTION": "Shown in the workspace switcher and on invitations.",
+			"NAME_INVALID": "Enter a name of 1 to {max} characters.",
+			"NAME_SAVED": "Workspace renamed to {name}",
+			"NAME_NOT_SAVED": "The workspace was not renamed",
+			"NAME_MAYBE_UNFINISHED": "The rename may not have finished",
+			"NAME_SAVE_AGAIN": "Save the same name again to finish it.",
+			"NAME_SUPER_ADMIN_ONLY": "Only a super admin of the workspace can rename it.",
+			"FORMATS_SECTION": "Currency and formats",
+			"FORMATS_DESCRIPTION": "Used wherever nothing more specific is set, such as a rate with its own currency.",
+			"CURRENCY_LABEL": "Default currency",
+			"CURRENCY_DESCRIPTION": "The currency a new rate or budget starts in.",
+			"CURRENCY_SAVED": "Default currency set to {currency}",
+			"CURRENCY_OUTCOME": "New rates and budgets start in this currency.",
+			"CURRENCY_NOT_SAVED": "The currency was not saved",
+			"CURRENCY_NOT_SET": "Not set",
+			"DATE_FORMAT_LABEL": "Date format",
+			"DATE_FORMAT_DESCRIPTION": "How reports and their exports write dates. Automatic follows each member's language.",
+			"DATE_FORMAT_SAVED": "Date format saved",
+			"DATE_FORMAT_NOT_SAVED": "The date format was not saved",
+			"NUMBER_FORMAT_LABEL": "Number format",
+			"NUMBER_FORMAT_DESCRIPTION": "How reports and their exports write amounts. Automatic follows each member's language.",
+			"NUMBER_FORMAT_SAVED": "Number format saved",
+			"NUMBER_FORMAT_NOT_SAVED": "The number format was not saved",
+			"FORMAT_OUTCOME": "Reports and their exports now use it.",
+			"FORMAT_AUTOMATIC": "Automatic",
+			"READ_ONLY_NOTE": "Only workspace admins can change these settings.",
+			"LOAD_FAILED": "The workspace settings could not load."
 		},
 		"automations": {
 			"NEW_RULE": "New rule",
@@ -6239,6 +6383,8 @@
 		"DELETE_FOREVER_TITLE": "Delete this task forever?",
 		"DELETE_FOREVER_TEXT": "“{title}” will be removed for good. This cannot be undone.",
 		"DELETED_FOREVER": "“{title}” was deleted for good",
+		"NO_LONGER_IN_TRASH": "“{title}” is no longer in the trash: it was restored or deleted meanwhile. The list was refreshed.",
+		"STILL_LINKED": "“{title}” stays in the trash: other tasks or key results are still linked to it. Remove those links first.",
 		"DELETE_FAILED": "The task was not deleted. Try again.",
 		"DELETED_BY": "Deleted by {name} · {date}",
 		"DELETED_AT": "Deleted {date}",
@@ -6256,5 +6402,144 @@
 		"OFF_TEXT": "Deleted tasks are removed for good on this workspace.",
 		"NO_TEAM_TITLE": "Choose a team",
 		"NO_TEAM_TEXT": "The trash lists the deleted tasks of the active team."
+	},
+	"timeImport": {
+		"SECTION_TITLE": "Time tracking data",
+		"SECTION_DESCRIPTION": "Each row of the file becomes a time entry in {team}. You review every row first, and nothing is saved before you confirm.",
+		"TEMPLATE_LABEL": "CSV template",
+		"TEMPLATE_DESCRIPTION": "An empty file with the columns the import reads.",
+		"TEMPLATE_DOWNLOAD": "Download template",
+		"DROP_TITLE": "Drop a CSV file here, or choose one",
+		"DROP_ACTIVE": "Drop the file to check it",
+		"DROP_HINT": "{rows, plural, one {CSV only, up to {megabytes} MB and # row per file.} other {CSV only, up to {megabytes} MB and # rows per file.}}",
+		"OWN_TIME_NOTE": "Every row is saved as your own time.",
+		"OTHERS_NOTE": "You can add time for other members of {team}: name each one by email in the {column} column. A row without an email is your own time.",
+		"COLUMNS_TITLE": "Columns",
+		"COLUMNS_DESCRIPTION": "The first line of the file names its columns, in any order. Dates and times are read in your time zone, {timeZone}.",
+		"columns": {
+			"REQUIRED": "Required",
+			"ONE_OF_TWO": "One of the two",
+			"DATE": "The day of the entry, year first: {date}.",
+			"START_TIME": "When it starts, on a 24-hour clock or with AM or PM: {startTime} or {startTimeMeridiem}.",
+			"END_TIME": "When it ends, on the same day: {endTime}.",
+			"DURATION": "How long it lasts, in place of an end time: {duration}, {durationUnits}, or {durationDecimal} for hours as a number.",
+			"PROJECT": "The exact name of a project of this team. Empty for time without a project.",
+			"TASK_ANY": "The exact title of a task of this team. Empty for time without a task.",
+			"TASK_OWN": "The exact title of a task of this team assigned to the member the time is for. Empty for time without a task.",
+			"NOTES": "A note saved with the entry.",
+			"BILLABLE": "{yes} or {no}. Empty means {no}.",
+			"MEMBER_EMAIL": "The email of the member the time is for. Empty means you."
+		},
+		"FILE_PROBLEM_TITLE": "{fileName} cannot be imported",
+		"fileProblems": {
+			"NOT_CSV": "Only CSV files are read. Save the sheet as CSV, then choose that file.",
+			"TOO_LARGE": "The file is larger than {megabytes} MB. Split it into smaller files.",
+			"NOT_TEXT": "The file is not text saved as UTF-8. In your spreadsheet app, save it as CSV UTF-8.",
+			"EMPTY": "The file is empty.",
+			"UNCLOSED_QUOTE": "On row {row}, a cell opens with a double quote that is never closed.",
+			"DUPLICATE_COLUMN": "The column {column} appears twice.",
+			"MISSING_COLUMNS": "{count, plural, one {This column is missing: {columns}.} other {These columns are missing: {columns}.}}",
+			"END_OR_DURATION": "{endTime} or {duration}",
+			"NO_ROWS": "The file has a header line and no row under it.",
+			"TOO_MANY_ROWS": "{limit, plural, one {The file has {count} rows. An import takes # row at most: split the file.} other {The file has {count} rows. An import takes # rows at most: split the file.}}"
+		},
+		"CHECKING_TITLE": "Checking {fileName}",
+		"CHECKING_DESCRIPTION": "{count, plural, one {# row is compared with the time already recorded.} other {# rows are compared with the time already recorded.}}",
+		"CHECK_FAILED_TITLE": "{fileName} could not be checked",
+		"CHECK_FAILED_DESCRIPTION": "The time already recorded could not be read, so no row can be imported yet. Nothing was saved.",
+		"RETRY": "Try again",
+		"CHOOSE_ANOTHER": "Choose another file",
+		"PREVIEW_TITLE": "Preview",
+		"PREVIEW_DESCRIPTION": "{count, plural, one {{fileName}, # row. Nothing is saved until you import.} other {{fileName}, # rows. Nothing is saved until you import.}}",
+		"IGNORED_COLUMNS": "{count, plural, one {This column is not read: {columns}.} other {These columns are not read: {columns}.}}",
+		"PREVIEW_CHANGED_TITLE": "Nothing was saved: the preview changed",
+		"PREVIEW_CHANGED_DESCRIPTION": "The file was checked once more before saving and some rows changed, for example because time was recorded in the meantime. Review the rows, then import again.",
+		"RECHECK_FAILED_TITLE": "Nothing was saved",
+		"RECHECK_FAILED_DESCRIPTION": "The file could not be checked one last time before saving. Try again.",
+		"NOTHING_READY": "No row of this file can be imported. Correct the rows left out, then choose the file again.",
+		"IMPORT_ACTION": "{count, plural, one {Import # entry} other {Import # entries}}",
+		"RECHECKING": "Checking the file once more before saving",
+		"IMPORTING_TITLE": "Importing",
+		"IMPORTING_PROGRESS": "{total, plural, one {{done} of # entry saved} other {{done} of # entries saved}}",
+		"KEEP_OPEN": "Keep this page open until the import ends.",
+		"REPORT_TITLE": "Report",
+		"DONE_TITLE": "{count, plural, one {# entry saved} other {# entries saved}}",
+		"DONE_DESCRIPTION": "Time added: {duration}. The entries are in the timesheets and the reports now.",
+		"STOPPED_TITLE": "The import stopped at row {row}",
+		"STOPPED_SAVED": "{count, plural, =0 {No entry was saved.} one {# entry was saved before it.} other {# entries were saved before it.}}",
+		"STOPPED_NOT_SENT": "{count, plural, one {# row after it was not sent.} other {# rows after it were not sent.}}",
+		"DOWNLOAD_REPORT": "Download report",
+		"IMPORT_ANOTHER": "Import another file",
+		"SHOW_MORE": "{count, plural, one {Show # more row} other {Show # more rows}}",
+		"figures": {
+			"LABEL": "Figures of this file",
+			"READY": "Ready",
+			"LEFT_OUT": "Left out",
+			"SAVED": "Saved",
+			"FAILED": "Failed",
+			"NOT_SENT": "Not sent",
+			"TIME_TO_ADD": "Time to add",
+			"TIME_ADDED": "Time added"
+		},
+		"filter": {
+			"LABEL": "Rows shown",
+			"ALL": "All"
+		},
+		"status": {
+			"READY": "Ready",
+			"LEFT_OUT": "Left out",
+			"SAVED": "Saved",
+			"FAILED": "Failed",
+			"NOT_SENT": "Not sent"
+		},
+		"row": {
+			"NUMBER": "Row {row}",
+			"FOR_MEMBER": "For {name}",
+			"BILLABLE": "Billable",
+			"NOT_SENT_REASON": "The import stopped at row {row}, before this one."
+		},
+		"problems": {
+			"EXTRA_CELLS": "This row has more cells than the header line. A cell that holds a comma or a semicolon goes in double quotes.",
+			"DATE_UNREADABLE": "The date cannot be read. Write it year first, like {date}.",
+			"START_UNREADABLE": "The start time cannot be read. Write it like {startTime} or {startTimeMeridiem}.",
+			"END_MISSING": "This row has no end time and no duration.",
+			"END_UNREADABLE": "The end time cannot be read. Write it like {endTime} or {endTimeMeridiem}.",
+			"DURATION_UNREADABLE": "The duration cannot be read. Write it like {duration}, {durationUnits} or {durationDecimal}.",
+			"END_NOT_AFTER_START": "The end must come after the start. For time that runs past midnight, give a duration in place of the end time.",
+			"CLOCK_SKIPPED": "On this day the clock moves forward for daylight saving time, and the start or end time falls in the skipped hour. Write a time that exists on that day.",
+			"DURATION_MISMATCH": "The end time and the duration give two different lengths. Keep one of the two.",
+			"TOO_LONG": "An entry cannot be longer than 24 hours. A duration written as a plain number is read in hours.",
+			"IN_FUTURE": "This time is not over yet, and this organization does not accept time in the future.",
+			"BILLABLE_UNREADABLE": "The billable cell must be {yes} or {no}.",
+			"MEMBER_UNKNOWN": "No member of this team has this email.",
+			"MEMBER_NOT_ALLOWED": "This row is for another member. You can only import your own time.",
+			"NO_OWN_MEMBER": "This row names no member, and your account has no employee profile to record time for.",
+			"PROJECT_UNKNOWN": "No project of this team has this name.",
+			"PROJECT_AMBIGUOUS": "{count, plural, one {# project of this team has this name.} other {# projects of this team have this name.}}",
+			"PROJECT_REQUIRED": "This organization requires a project on every time entry. Name a project in this row.",
+			"TASK_UNKNOWN": "No task of this team has this title.",
+			"TASK_NOT_ASSIGNED": "This task is not assigned to the member this row is for. Only a team manager can add time to any task of the team.",
+			"TASK_AMBIGUOUS": "{count, plural, one {# task has this title.} other {# tasks have this title. Rename one of them, so the row names a single task.}}",
+			"ALREADY_RECORDED": "This entry is already recorded.",
+			"OVERLAPS_RECORDED": "{count, plural, one {It overlaps an entry already recorded, {range}. Saving it would remove that entry.} other {It overlaps # entries already recorded, the first one {range}. Saving it would remove them.}}",
+			"SAME_AS_ROW": "It repeats row {row} of this file.",
+			"OVERLAPS_ROW": "It overlaps row {row} of this file, which is imported first.",
+			"RECORDED_MEANWHILE": "An entry was recorded over this row while the import was running. Saving the row would remove that entry."
+		},
+		"access": {
+			"MANUAL_TIME_OFF_TITLE": "Manual time is turned off",
+			"MANUAL_TIME_OFF_DESCRIPTION": "{organization} does not let its members add time by hand, so time cannot be imported either.",
+			"NO_PERMISSION_TITLE": "Your role cannot add time by hand",
+			"NO_PERMISSION_DESCRIPTION": "Importing time needs the same permission as adding time by hand. Ask an admin of the organization.",
+			"LOAD_FAILED_TITLE": "The import could not get ready",
+			"LOAD_FAILED_DESCRIPTION": "Your permissions, the time rules of the organization or the tasks of the team could not be loaded."
+		},
+		"entry": {
+			"TITLE": "Import",
+			"DESCRIPTION": "Data from other tools, brought into this team.",
+			"ROW_LABEL": "Time tracking data",
+			"ROW_DESCRIPTION": "Add time entries from a CSV file.",
+			"OPEN": "Import from CSV"
+		}
 	}
 }

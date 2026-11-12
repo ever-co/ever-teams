@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, type ReactNode, useCallback, useMemo } from 'react';
-import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
+import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { DashboardSection } from '@/core/components/dashboards/kit/dashboard-layout';
 import { DayBarsSkeleton } from '@/core/components/dashboards/kit/dashboard-states';
 import { DayBarsChart } from '@/core/components/dashboards/kit/day-bars-chart';
@@ -24,6 +24,8 @@ import {
 	type OwedFigures,
 	type PaymentsChartKey
 } from '@/core/lib/utils/dashboards/payments-due';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import type { FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { MISSING_FIGURE } from './payments-due-cells';
 
 type Translate = ReturnType<typeof useTranslations>;
@@ -43,7 +45,7 @@ function owedLabelOf(currency: string | null, t: Translate) {
 	return t('dashboard.paymentsDue.figures.OWED');
 }
 
-function currencyItemOf(total: OwedCurrencyTotal, locale: string, t: Translate): MetricItem<PaymentsChartKey> {
+function currencyItemOf(total: OwedCurrencyTotal, locale: FormatLocale, t: Translate): MetricItem<PaymentsChartKey> {
 	const value = formatOwed(total.amount, total.currency, locale);
 	return {
 		key: chartKeyOfCurrency(total.currency),
@@ -120,7 +122,7 @@ function noCurrencyItemOf(figures: OwedFigures, t: Translate): MetricItem<Paymen
 function figureItemsOf(
 	figures: OwedFigures,
 	currencies: ReadonlyArray<OwedCurrencyTotal>,
-	locale: string,
+	locale: FormatLocale,
 	t: Translate
 ): MetricItem<PaymentsChartKey>[] {
 	const currencyItems = currencies.map((total) => currencyItemOf(total, locale, t));
@@ -181,7 +183,7 @@ const OwedChart = memo(function OwedChart({
 	title
 }: Readonly<{ chart: PaymentsChart; emptyMessage: string | null; title: string }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const axis = useMemo(() => chartAxisOf(chart), [chart]);
 	const currency = chart.currency;
 	const isAmount = chart.kind === 'amount';
@@ -266,7 +268,7 @@ export function PaymentsDueFigures({
 	isLoading: boolean;
 }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const items = useMemo(() => {
 		if (!figures) {
 			return placeholderItemsOf(t);

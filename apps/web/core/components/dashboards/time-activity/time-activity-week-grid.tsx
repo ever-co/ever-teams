@@ -2,7 +2,7 @@
 
 import { memo, useMemo } from 'react';
 import { getISOWeek } from 'date-fns';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { DashboardSection, ReportHeaderRow, ReportTotalsRow } from '@/core/components/dashboards/kit/dashboard-layout';
 import {
 	BlockEmptyMessage,
@@ -17,6 +17,8 @@ import { cn } from '@/core/lib/helpers';
 import { formatDurationShort, formatHoursLabel } from '@/core/lib/utils/dashboard-figures';
 import { formatPeriod, type Period } from '@/core/lib/utils/dashboard-period';
 import type { WeekGridRow } from '@/core/lib/utils/dashboards/time-activity';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 
 const WEEK_GRID =
 	'grid min-w-[44rem] grid-cols-[minmax(10rem,1.6fr)_repeat(7,minmax(3.75rem,1fr))_5.5rem] items-center gap-x-2 px-4';
@@ -110,9 +112,9 @@ export function TimeActivityWeekGrid({
 	hasTaskFilter: boolean;
 }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const week = useTimeActivityWeek({ period, request, userId });
-	const dayFormat = useMemo(() => new Intl.DateTimeFormat(locale, { weekday: 'short', day: 'numeric' }), [locale]);
+	const dayFormat = useMemo(() => dateFormatOf(locale, { weekday: 'short', day: 'numeric' }), [locale]);
 	const windowText = formatPeriod(week.window, locale);
 	const weekNumber = getISOWeek(week.weekStart);
 	const unnamed = t('timeActivity.UNNAMED_EMPLOYEE');

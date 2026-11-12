@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { DurationEntryInput } from '@/core/hooks/timesheet/use-duration-entry';
 import { AddManualTimeModal } from './add-manual-time-modal';
 
@@ -64,6 +64,7 @@ type MockOverlapRequest = {
 	employeeId: string;
 	periods: Array<{ start: Date; end: Date }>;
 	save: () => void | Promise<void>;
+	refuseOverlap?: (overlap: unknown) => void;
 };
 
 // The overlap lookup finds nothing unless a test holds the save: the guard has its own tests
@@ -128,11 +129,18 @@ jest.mock('@/core/components', () => ({
 jest.mock('@/core/components/common/date-picker', () => ({ DatePicker: () => null }));
 
 // The duration field reads the member's day on its own: the dialog only tells it whose day, and shows its interval
-const mockDurationEntry: { input?: DurationEntryInput } = {};
+const mockDurationEntry: { input?: DurationEntryInput; blocksSave: boolean } = { blocksSave: false };
 jest.mock('@/core/hooks/timesheet/use-duration-entry', () => ({
 	useDurationEntry: (input: DurationEntryInput) => {
 		mockDurationEntry.input = input;
-		return { text: '', phase: { kind: 'idle' }, change: jest.fn(), commit: jest.fn(), retry: jest.fn() };
+		return {
+			text: '',
+			phase: { kind: 'idle' },
+			change: jest.fn(),
+			commit: jest.fn(),
+			retry: jest.fn(),
+			blocksSave: mockDurationEntry.blocksSave
+		};
 	}
 }));
 jest.mock('./duration-field', () => ({ DurationField: () => null }));
@@ -265,6 +273,124 @@ function submitDialog() {
 	clickButton('common.ADD_TIME');
 }
 
+describe('AddManualTimeModal opened on a copied entry', () => {
+	const copiedStart = new Date(2026, 10, 12, 14, 7);
+	const copiedEnd = new Date(2026, 10, 12, 15, 37);
+	const copiedEntry = { taskId: 'task-a-2', description: 'Pairing on the invoices', isBillable: true };
+
+	function renderCopyDialog(extra: Partial<React.ComponentProps<typeof AddManualTimeModal>> = {}) {
+		return render(
+			<AddManualTimeModal
+				isOpen
+				params="AddTime"
+				closeModal={closeModal}
+				initialStart={copiedStart}
+				initialEnd={copiedEnd}
+				prefill={copiedEntry}
+				{...extra}
+			/>
+		);
+	}
+
+	beforeEach(() => {
+		mockAddManualTime.mockReset();
+		mockPickedTeamTasksQuery.data = undefined;
+		mockAtomValues.activeTeamState = teamA;
+		// The active task is another one than the copied entry's
+		mockAtomValues.activeTeamTaskState = taskA;
+		mockAtomValues.organizationTeamsState = [teamA, teamB];
+		mockAtomValues.tasksByTeamState = teamATasks();
+	});
+
+	it("opens on the entry's task, notes, billable status and interval, and saves nothing until asked", () => {
+		renderCopyDialog();
+
+		expect(selectedValue('task')).toBe('task-a-2');
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+
+		submitDialog();
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(
+			expect.objectContaining({
+				taskId: 'task-a-2',
+				description: 'Pairing on the invoices',
+				isBillable: true,
+				startedAt: copiedStart,
+				stoppedAt: copiedEnd
+			})
+		);
+	});
+
+	it('leaves the task to pick, never the active one, when the list no longer offers the copied task', () => {
+		renderCopyDialog({ prefill: { ...copiedEntry, taskId: 'task-gone' } });
+
+		expect(selectedValue('task')).toBe('');
+
+		submitDialog();
+
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+		expect(screen.getByText('manualTime.FILL_IN manualTime.TASK')).toBeTruthy();
+	});
+
+	it('does not save a copy its opener refuses, and says why', async () => {
+		const checkBeforeSave = jest.fn().mockResolvedValue('It runs over an entry of the day');
+		renderCopyDialog({ checkBeforeSave });
+
+		submitDialog();
+
+		expect(await screen.findByText('It runs over an entry of the day')).toBeTruthy();
+		expect(checkBeforeSave).toHaveBeenCalledWith(
+			expect.objectContaining({ periods: [{ start: copiedStart, end: copiedEnd }] })
+		);
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+
+	it('saves a copy its opener lets through', async () => {
+		const checkBeforeSave = jest.fn().mockResolvedValue(null);
+		renderCopyDialog({ checkBeforeSave });
+
+		submitDialog();
+
+		await waitFor(() => expect(mockAddManualTime).toHaveBeenCalledTimes(1));
+		expect(mockAddManualTime).toHaveBeenCalledWith(expect.objectContaining({ taskId: 'task-a-2' }));
+	});
+
+	it('refuses a copy over an entry recorded since its check, never offering to save over it', async () => {
+		const checkBeforeSave = jest.fn().mockResolvedValue(null);
+		const refusalOfOverlap = jest.fn().mockReturnValue('It runs over an entry recorded meanwhile');
+		const lateOverlap = { totalSeconds: 3600, entries: [] };
+		mockSaveAfterCheck.mockImplementationOnce((request: MockOverlapRequest) =>
+			request.refuseOverlap?.(lateOverlap)
+		);
+		renderCopyDialog({ checkBeforeSave, refusalOfOverlap });
+
+		submitDialog();
+
+		expect(await screen.findByText('It runs over an entry recorded meanwhile')).toBeTruthy();
+		expect(refusalOfOverlap).toHaveBeenCalledWith(lateOverlap);
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+
+	it('saves nothing when the dialog is closed while its copy is being checked', async () => {
+		let answerCheck: (refusal: string | null) => void = () => undefined;
+		const pendingCheck = new Promise<string | null>((resolve) => {
+			answerCheck = resolve;
+		});
+		const checkBeforeSave = jest.fn().mockReturnValue(pendingCheck);
+		const { unmount } = renderCopyDialog({ checkBeforeSave });
+
+		submitDialog();
+		await waitFor(() => expect(checkBeforeSave).toHaveBeenCalledTimes(1));
+		unmount();
+		await act(async () => {
+			answerCheck(null);
+		});
+
+		expect(mockSaveAfterCheck).not.toHaveBeenCalled();
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+});
+
 function durationInput(): DurationEntryInput {
 	const input = mockDurationEntry.input;
 	if (!input) {
@@ -279,6 +405,10 @@ function timeInputValues(container: HTMLElement) {
 }
 
 describe('AddManualTimeModal duration', () => {
+	afterEach(() => {
+		mockDurationEntry.blocksSave = false;
+	});
+
 	beforeEach(() => {
 		mockAddManualTime.mockReset();
 		mockPickedTeamTasksQuery.data = undefined;
@@ -331,6 +461,20 @@ describe('AddManualTimeModal duration', () => {
 		expect(timeInputValues(container)).toEqual(['', '']);
 
 		submitDialog();
+
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+
+	// A text such as `90x` leaves the hour the form already showed: that hour must not be saved in its place
+	it('saves nothing while the duration field refuses its text, from the button or from Enter', () => {
+		mockDurationEntry.blocksSave = true;
+		const { container } = renderAddTimeDialog();
+
+		const addButton = screen.getByRole('button', { name: 'common.ADD_TIME' }) as HTMLButtonElement;
+		expect(addButton.disabled).toBe(true);
+
+		const form = container.querySelector('form') as HTMLFormElement;
+		fireEvent.submit(form);
 
 		expect(mockAddManualTime).not.toHaveBeenCalled();
 	});

@@ -1,4 +1,5 @@
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
+import { numberFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 /** One member's time on one project on one day, the finest grain the daily report gives. */
 export interface DailyReportRow {
@@ -127,6 +128,7 @@ interface RowContext {
 	employeeLog: EmployeeLog;
 	employeeId: string;
 	withoutTeamLabel: string | null;
+	workspaceCurrency: string | null;
 }
 
 /** Time without a team is listed apart from the projects, under its own name: its project is not this team's. */
@@ -162,6 +164,7 @@ function withoutTeamFlagOf(part: EmployeeLogPart): Pick<DailyReportRow, 'isWitho
 function rowOf(context: RowContext, part: EmployeeLogPart): DailyReportRow {
 	const employee = context.employeeLog.employee;
 	const activity = numberOrZero(context.employeeLog.activity);
+	const ownCurrency = employee?.billRateCurrency ?? null;
 	return {
 		key: rowKeyOf(context, part),
 		dateKey: context.dateKey,
@@ -169,7 +172,7 @@ function rowOf(context: RowContext, part: EmployeeLogPart): DailyReportRow {
 		employeeName: employeeNameOf(employee),
 		employeeImageUrl: employee?.user?.imageUrl ?? null,
 		billRateValue: employee?.billRateValue ?? null,
-		billRateCurrency: employee?.billRateCurrency ?? null,
+		billRateCurrency: ownCurrency || context.workspaceCurrency,
 		...projectFieldsOf(context, part),
 		seconds: part.seconds,
 		activeSeconds: (part.seconds * activity) / 100,
@@ -180,11 +183,13 @@ function rowOf(context: RowContext, part: EmployeeLogPart): DailyReportRow {
 
 /**
  * One row per member, project and day. A team report that counts the time logged without a team (Gauzy states each
- * task row's team then) gets that time in rows of its own, named `withoutTeamLabel`.
+ * task row's team then) gets that time in rows of its own, named `withoutTeamLabel`. A rate without a currency of its
+ * own is in the workspace's, as Gauzy counts it.
  */
 export function flattenDailyReport(
 	report: ReadonlyArray<ITimeLogGroupedDailyReport>,
-	withoutTeamLabel: string | null = null
+	withoutTeamLabel: string | null = null,
+	workspaceCurrency: string | null = null
 ): DailyReportRow[] {
 	const rows: DailyReportRow[] = [];
 	for (const day of report) {
@@ -195,7 +200,14 @@ export function flattenDailyReport(
 				if (!employeeId) {
 					continue;
 				}
-				const context = { dateKey, project: projectLog?.project, employeeLog, employeeId, withoutTeamLabel };
+				const context: RowContext = {
+					dateKey,
+					project: projectLog?.project,
+					employeeLog,
+					employeeId,
+					withoutTeamLabel,
+					workspaceCurrency
+				};
 				for (const part of partsOf(employeeLog)) {
 					rows.push(rowOf(context, part));
 				}
@@ -336,15 +348,15 @@ export function earningsByCurrencyOf(rows: ReadonlyArray<DailyReportRow>): Curre
 }
 
 /** A rate stored with an unknown currency code would make Intl throw; it is then written as the bare code. */
-export function formatAmount({ currency, amount }: CurrencyAmount, locale: string): string {
+export function formatAmount({ currency, amount }: CurrencyAmount, locale: FormatLocale): string {
 	try {
-		return new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 2 }).format(amount);
+		return numberFormatOf(locale, { style: 'currency', currency, maximumFractionDigits: 2 }).format(amount);
 	} catch {
 		return `${amount.toFixed(2)} ${currency}`;
 	}
 }
 
-export function formatAmounts(amounts: ReadonlyArray<CurrencyAmount>, locale: string): string {
+export function formatAmounts(amounts: ReadonlyArray<CurrencyAmount>, locale: FormatLocale): string {
 	const formatted = amounts.map((amount) => formatAmount(amount, locale));
 	return formatted.join(' · ');
 }

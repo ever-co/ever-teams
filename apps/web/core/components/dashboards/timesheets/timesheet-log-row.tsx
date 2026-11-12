@@ -34,7 +34,8 @@ import {
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
-import { LogChangeChips, ManualReasonLine } from './timesheet-log-changes';
+import { type TimeEntryReuseHandlers, TimeEntryReuseMenuItems } from './time-entry-reuse';
+import { EntryNotesLine, LogChangeChips, ManualReasonLine } from './timesheet-log-changes';
 import { STATUS_LABEL_KEYS, TimesheetStatusChip, TimesheetStatusDot } from './timesheet-status';
 import { DEFERRED_ROW, logGridOf, NARROW_ONLY, WIDE_ONLY } from './timesheets-grid';
 
@@ -46,6 +47,8 @@ export interface TimesheetRowHandlers {
 	setBillable: (log: ITimeLog, isBillable: boolean) => void;
 	edit: (log: ITimeLog) => void;
 	remove: (log: ITimeLog) => void;
+	/** Continue and Duplicate, on the pages that offer them. */
+	reuse?: TimeEntryReuseHandlers;
 }
 
 /** Manual time is said by its Added chip, so the time column names only the other log types. */
@@ -136,6 +139,7 @@ function LogMenu({
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="min-w-48">
+				{handlers.reuse && <TimeEntryReuseMenuItems log={log} reuse={handlers.reuse} isFollowed />}
 				{canEdit && (
 					<DropdownMenuItem onClick={() => handlers.edit(log)}>
 						<Pencil />
@@ -312,6 +316,7 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 					)}
 					<LogChangeChips log={log} formatters={formatters} className={WIDE_ONLY} />
 				</span>
+				<EntryNotesLine log={log} />
 				<ManualReasonLine log={log} />
 				{rejectionReason && (
 					<span className="truncate text-xs text-destructive-ink">

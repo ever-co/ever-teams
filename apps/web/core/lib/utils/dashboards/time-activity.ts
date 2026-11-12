@@ -485,13 +485,15 @@ interface MemberRate {
 	currency: string | null;
 }
 
-function rateOf(employeeLog: EmployeeLog): MemberRate {
+function rateOf(employeeLog: EmployeeLog, workspaceCurrency: string | null): MemberRate {
 	const rate = employeeLog.employee?.billRateValue;
 	const hasRate = typeof rate === 'number' && rate > 0;
 	if (!hasRate) {
 		return { rate: null, currency: null };
 	}
-	return { rate, currency: employeeLog.employee?.billRateCurrency || DEFAULT_CURRENCY };
+	const ownCurrency = employeeLog.employee?.billRateCurrency;
+	const sharedCurrency = workspaceCurrency || DEFAULT_CURRENCY;
+	return { rate, currency: ownCurrency || sharedCurrency };
 }
 
 function earningsFor(seconds: number, rate: number | null) {
@@ -567,12 +569,13 @@ function compareExportRows(first: TimeActivityExportRow, second: TimeActivityExp
 
 /**
  * Export rows built from the raw daily report on the click. `onlyEmployeeId` keeps a member's own rows when the
- * reader does not manage the others.
+ * reader does not manage the others. A rate without a currency of its own is in the workspace's.
  */
 export function exportRowsOf(
 	report: ReadonlyArray<ITimeLogGroupedDailyReport>,
 	onlyEmployeeId: string | null,
-	withoutTeamLabel: string | null = null
+	withoutTeamLabel: string | null = null,
+	workspaceCurrency: string | null = null
 ): TimeActivityExportRow[] {
 	const rows: TimeActivityExportRow[] = [];
 	for (const day of report) {
@@ -595,7 +598,7 @@ export function exportRowsOf(
 					member: memberNameOf(employeeLog),
 					project,
 					activity: finiteOrZero(employeeLog.activity),
-					memberRate: rateOf(employeeLog),
+					memberRate: rateOf(employeeLog, workspaceCurrency),
 					withoutTeamLabel
 				};
 				rows.push(...exportRowsOfEmployeeLog(context, employeeLog));

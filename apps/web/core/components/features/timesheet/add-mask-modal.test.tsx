@@ -59,6 +59,7 @@ type MockOverlapRequest = {
 	employeeId: string;
 	periods: Array<{ start: Date; end: Date }>;
 	save: () => void | Promise<void>;
+	refuseOverlap?: (overlap: unknown) => void;
 };
 
 // The overlap lookup finds nothing unless a test holds the save: the guard has its own tests
@@ -169,6 +170,7 @@ type MockShiftDurationProps = {
 	employeeId: string;
 	readShifts: () => MockShift[];
 	onTimes: (index: number, startTime: string, endTime: string) => void;
+	onSaveBlock: (index: number, blocksSave: boolean) => void;
 };
 const mockShiftDuration: { props?: MockShiftDurationProps } = {};
 jest.mock('./shift-duration-field', () => ({
@@ -292,6 +294,26 @@ describe('AddTaskModal duration of a shift', () => {
 
 		const [firstPeriod] = readRightAfter;
 		expect(firstPeriod).toMatchObject({ startTime: '09:00:00 AM', endTime: '10:30:00 AM' });
+	});
+
+	// A text such as `90x` leaves the period on the hour it already showed: that hour must not be saved in its place
+	it("keeps Save off while a period's duration field refuses its text, and saves once it is put right", () => {
+		renderAddTimeForm();
+		pickTaskAndEmployee('task-a', 'employee-a');
+		fillShiftTimes();
+		const saveButton = screen.getByRole('button', { name: 'common.SAVE' });
+
+		act(() => shiftDuration().onSaveBlock(0, true));
+
+		expect(saveButton).toHaveProperty('disabled', true);
+		save();
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
+
+		act(() => shiftDuration().onSaveBlock(0, false));
+
+		expect(saveButton).toHaveProperty('disabled', false);
+		save();
+		expect(mockCreateTimesheet).toHaveBeenCalledTimes(1);
 	});
 
 	it('empties the shift when the asked duration found no room, so nothing is saved', () => {
@@ -440,6 +462,145 @@ describe('AddTaskModal team of the saved time', () => {
 
 		pickTaskAndEmployee('task-a', 'employee-a');
 		expect(saveButton).toHaveProperty('disabled', false);
+	});
+});
+
+describe('AddTaskModal opened on a copied entry', () => {
+	const copiedEntry = {
+		taskId: 'task-a',
+		projectId: '',
+		employeeId: 'employee-a',
+		isBillable: true,
+		description: 'Pairing on the invoices',
+		start: new Date(2026, 10, 12, 9, 0),
+		end: new Date(2026, 10, 12, 11, 0)
+	};
+
+	beforeEach(() => {
+		mockCreateTimesheet.mockReset();
+		mockCreateTimesheet.mockResolvedValue(undefined);
+		mockAtomValues.activeTeamState = teamA;
+		mockAtomValues.tasksByTeamState = [taskA];
+	});
+
+	it('opens filled with the entry and saves what it shows only when asked', () => {
+		render(<AddTaskModal isOpen closeModal={closeModal} prefill={copiedEntry} />);
+
+		const [taskSelect, employeeSelect] = taskAndEmployeeSelects();
+		const notes = screen.getByLabelText('Insert notes here') as HTMLTextAreaElement;
+		expect(taskSelect.value).toBe('task-a');
+		expect(employeeSelect.value).toBe('employee-a');
+		expect(notes.value).toBe('Pairing on the invoices');
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
+
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({
+				taskId: 'task-a',
+				employeeId: 'employee-a',
+				isBillable: true,
+				description: 'Pairing on the invoices',
+				startedAt: copiedEntry.start,
+				stoppedAt: copiedEntry.end
+			})
+		);
+	});
+
+	// #5131 with #5136: Duplicate opens this dialog, and a viewer who adds their own time only copies for themselves
+	it('saves a copy for the fixed member, whatever member the copied entry names', () => {
+		mockAtomValues.activeTeamState = { ...teamA, members: [...teamA.members, ...teamB.members] };
+		const teammateCopy = { ...copiedEntry, employeeId: 'employee-b' };
+		const ownMember = { employeeId: 'employee-a', name: 'Ada Manager' };
+		render(<AddTaskModal isOpen closeModal={closeModal} prefill={teammateCopy} fixedMember={ownMember} />);
+
+		expect(screen.getByText('Ada Manager')).toBeTruthy();
+
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-a', employeeId: 'employee-a', description: 'Pairing on the invoices' })
+		);
+	});
+
+	it('leaves the task and the employee to pick when the dialog does not offer the copied ones', () => {
+		const unlistedCopy = { ...copiedEntry, taskId: 'task-gone', employeeId: 'employee-gone' };
+		render(<AddTaskModal isOpen closeModal={closeModal} prefill={unlistedCopy} />);
+
+		const [taskSelect, employeeSelect] = taskAndEmployeeSelects();
+		expect(taskSelect.value).toBe('');
+		expect(employeeSelect.value).toBe('');
+		expect(screen.getByRole('button', { name: 'common.SAVE' })).toHaveProperty('disabled', true);
+	});
+
+	it('does not save a copy its opener refuses, and says why', async () => {
+		const checkBeforeSave = jest.fn().mockResolvedValue('It runs over an entry of the day');
+		render(<AddTaskModal isOpen closeModal={closeModal} prefill={copiedEntry} checkBeforeSave={checkBeforeSave} />);
+
+		save();
+
+		const refusal = await screen.findByRole('alert');
+		expect(refusal.textContent).toBe('It runs over an entry of the day');
+		expect(checkBeforeSave).toHaveBeenCalledWith({
+			employeeId: 'employee-a',
+			periods: [{ start: copiedEntry.start, end: copiedEntry.end }]
+		});
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
+	});
+
+	it('saves a copy its opener lets through', async () => {
+		const checkBeforeSave = jest.fn().mockResolvedValue(null);
+		render(<AddTaskModal isOpen closeModal={closeModal} prefill={copiedEntry} checkBeforeSave={checkBeforeSave} />);
+
+		save();
+
+		await waitFor(() => expect(mockCreateTimesheet).toHaveBeenCalledTimes(1));
+		expect(screen.queryByRole('alert')).toBeNull();
+	});
+
+	it('refuses a copy over an entry recorded since its check, never offering to save over it', async () => {
+		const checkBeforeSave = jest.fn().mockResolvedValue(null);
+		const refusalOfOverlap = jest.fn().mockReturnValue('It runs over an entry recorded meanwhile');
+		const lateOverlap = { totalSeconds: 3600, entries: [] };
+		mockSaveAfterCheck.mockImplementationOnce((request: MockOverlapRequest) =>
+			request.refuseOverlap?.(lateOverlap)
+		);
+		render(
+			<AddTaskModal
+				isOpen
+				closeModal={closeModal}
+				prefill={copiedEntry}
+				checkBeforeSave={checkBeforeSave}
+				refusalOfOverlap={refusalOfOverlap}
+			/>
+		);
+
+		save();
+
+		const refusal = await screen.findByRole('alert');
+		expect(refusal.textContent).toBe('It runs over an entry recorded meanwhile');
+		expect(refusalOfOverlap).toHaveBeenCalledWith(lateOverlap);
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
+	});
+
+	it('saves nothing when the dialog is closed while its copy is being checked', async () => {
+		let answerCheck: (refusal: string | null) => void = () => undefined;
+		const pendingCheck = new Promise<string | null>((resolve) => {
+			answerCheck = resolve;
+		});
+		const checkBeforeSave = jest.fn().mockReturnValue(pendingCheck);
+		const { unmount } = render(
+			<AddTaskModal isOpen closeModal={closeModal} prefill={copiedEntry} checkBeforeSave={checkBeforeSave} />
+		);
+
+		save();
+		await waitFor(() => expect(checkBeforeSave).toHaveBeenCalledTimes(1));
+		unmount();
+		await act(async () => {
+			answerCheck(null);
+		});
+
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
 	});
 });
 

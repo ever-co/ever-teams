@@ -5,8 +5,42 @@ import { requestAccessToken, requestCookies } from './request-cookies';
 // The browser client gives up after 60 seconds (api.service.ts): past that, nobody is waiting for the answer.
 const UPSTREAM_TIMEOUT_MS = 60_000;
 
+/** The headers this proxy writes itself: a route cannot let the browser's own copy of one through. */
+const SESSION_HEADERS = new Set([
+	'authorization',
+	'tenant-id',
+	'content-type',
+	'accept',
+	'cookie',
+	'host',
+	'content-length'
+]);
+
 const unsupportedMediaType = () =>
 	NextResponse.json({ statusCode: 415, message: 'Unsupported Media Type' }, { status: 415 });
+
+/**
+ * The request headers a route names, as the browser sent them, under their lower-case names; never one of the session
+ * headers this proxy writes itself.
+ */
+function forwardedHeaders(req: Request, names: readonly string[]): Record<string, string> {
+	const forwarded: Record<string, string> = {};
+	for (const name of names) {
+		const lower = name.toLowerCase();
+		const value = SESSION_HEADERS.has(lower) ? null : req.headers.get(lower);
+		if (value !== null) forwarded[lower] = value;
+	}
+	return forwarded;
+}
+
+/** What a route lets through besides the session, the query string and the JSON body. */
+export interface ForwardToGauzyOptions {
+	/**
+	 * Request headers the route hands on as the browser sent them (lower-case names), for a Gauzy endpoint that reads
+	 * one: the interaction route's `idempotency-key`. Every other header of the request stays here.
+	 */
+	forwardHeaders?: readonly string[];
+}
 
 /**
  * Hands a proxy mode request (the browser calls this app's /api routes) on to the Gauzy endpoint the browser
@@ -19,7 +53,11 @@ const unsupportedMediaType = () =>
  * The route fixes `path`; only the query string and the body come from the request, so a caller cannot point
  * this at another Gauzy endpoint.
  */
-export async function forwardToGauzy(req: Request, path: string): Promise<Response> {
+export async function forwardToGauzy(
+	req: Request,
+	path: string,
+	options: ForwardToGauzyOptions = {}
+): Promise<Response> {
 	const cookies = requestCookies(req);
 	const access_token = requestAccessToken(cookies);
 	if (!access_token) return NextResponse.json({ statusCode: 401, message: 'Unauthorized' }, { status: 401 });
@@ -35,9 +73,13 @@ export async function forwardToGauzy(req: Request, path: string): Promise<Respon
 	const body = hasBody ? (await req.text()) || undefined : undefined;
 	if (body && !mediaType) return unsupportedMediaType();
 
+	// Only the headers the route names, and never one that would replace the session's own.
+	const forwarded = forwardedHeaders(req, options.forwardHeaders ?? []);
+
 	const upstream = await fetch(`${GAUZY_API_SERVER_URL}${path}${new URL(req.url).search}`, {
 		method: req.method,
 		headers: {
+			...forwarded,
 			'Content-Type': 'application/json',
 			Accept: 'application/json',
 			authorization: `Bearer ${access_token}`,
