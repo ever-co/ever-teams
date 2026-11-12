@@ -13,8 +13,16 @@ function searchWordsOf(search: string): string[] {
 	return words.filter((word) => word !== '');
 }
 
+// The number as the entry shows it (#WEB-13): a search typed with or without the # finds it
+function numberTextOf(task: PaletteStartTask): string | null {
+	if (!task.taskNumber) {
+		return null;
+	}
+	return `#${task.taskNumber}`;
+}
+
 function searchTextOf(task: PaletteStartTask, actionLabel: string): string {
-	const parts = [actionLabel, task.taskNumber, task.title];
+	const parts = [actionLabel, numberTextOf(task), task.title];
 	const text = parts.filter(Boolean).join(' ');
 	return text.toLowerCase();
 }
@@ -82,4 +90,23 @@ export function paletteStartActionOf(state: PaletteStartState): PaletteStartActi
 		return 'BLOCKED_BY_PLAN';
 	}
 	return 'TASK_START';
+}
+
+export interface PaletteStopState {
+	isTimerRunning: boolean;
+	/** The timer can run (email verified, an open active task, or a timer of another app running). */
+	canRunTimer: boolean;
+	/** A start or a stop is on its way, or the team is changing. */
+	isTimerStatusFetching: boolean;
+}
+
+/** Whether the palette offers Stop: only while the timer's own Stop button works, which a pending request disables. */
+export function canStopFromPalette(state: PaletteStopState): boolean {
+	if (!state.isTimerRunning) {
+		return false;
+	}
+	if (state.isTimerStatusFetching) {
+		return false;
+	}
+	return state.canRunTimer;
 }
