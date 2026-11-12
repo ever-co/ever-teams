@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -10,58 +10,25 @@ import { AddManualTimeModalSkeleton } from '@/core/components/common/skeleton/ca
 import { TimerPlanDialogs } from '@/core/components/features/daily-plan/timer-plan-dialogs';
 import { Play } from '@/core/components/icons';
 import { LazyAddManualTimeModal } from '@/core/components/optimized-components/calendar';
-import { useModal } from '@/core/hooks/common/use-modal';
 import { useSyncRef } from '@/core/hooks/common/use-sync-ref';
 import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
 import { useTimerActions } from '@/core/hooks/timer';
-import { useTimerPlanStatus } from '@/core/hooks/timer/use-timer-plan-status';
+import { usePaletteTimer } from '@/core/hooks/timer/use-palette-timer';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import {
-	canStopFromPalette,
 	paletteNumberLabelOf,
 	paletteStartActionOf,
 	paletteStartValueOf,
 	tasksToStartFor
 } from '@/core/lib/utils/timer/palette-timer';
-import { tasksByTeamState, timerStatusFetchingState, timerStatusState } from '@/core/stores';
+import { tasksByTeamState } from '@/core/stores';
+import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
-type PaletteTimerRequest = { id: number; kind: 'stop' } | { id: number; kind: 'start'; task: TTask };
-
-function nextRequestIdOf(current: PaletteTimerRequest | null) {
-	if (!current) {
-		return 1;
-	}
-	return current.id + 1;
-}
-
-/**
- * What the command palette does with the timer. A start or a stop asked here is handed to `PaletteTimerLayer`, which
- * runs it through the hooks of the timer's own buttons, so the palette adds no rule of its own.
- */
-export function usePaletteTimer() {
-	const [request, setRequest] = useState<PaletteTimerRequest | null>(null);
-	const addTimeModal = useModal();
-	const { canRunTimer, timerStatus } = useTimerPlanStatus();
-	const isTimerRequestPending = useAtomValue(timerStatusFetchingState);
-	const isTimerRunning = timerStatus?.running === true;
-	// The timer's buttons are disabled while a timer request is in flight, and the main Start would discard a start
-	// asked then: the palette does not offer what they refuse
-	const canStart = !isTimerRequestPending;
-	const canStop = canStopFromPalette({ isTimerRunning, canRunTimer, isTimerRequestPending });
-
-	const stopTimer = useCallback(() => {
-		setRequest((current) => ({ id: nextRequestIdOf(current), kind: 'stop' }));
-	}, []);
-
-	const startTimerOn = useCallback((task: TTask) => {
-		setRequest((current) => ({ id: nextRequestIdOf(current), kind: 'start', task }));
-	}, []);
-
-	return { canStart, canStop, stopTimer, startTimerOn, openAddTime: addTimeModal.openModal, request, addTimeModal };
-}
+// The hook lives with the timer hooks; the palette and its tests keep importing it from here
+export { usePaletteTimer };
 
 type PaletteTimer = ReturnType<typeof usePaletteTimer>;
 
@@ -103,8 +70,8 @@ function useRunOnce(run: () => void) {
 function PaletteTimerStop() {
 	const { startTimer, stopTimer } = useTimerActions();
 	const { startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
-	const timerStatus = useAtomValue(timerStatusState);
-	const isTimerRunning = timerStatus?.running === true;
+	// The run the timer shows: a run of another team is hidden there, and the handler only warns about it
+	const isTimerRunning = useAtomValue(teamTimerStatusState)?.running === true;
 
 	useRunOnce(() => {
 		// The handler starts a stopped timer: a stop asked when none runs any more must do nothing

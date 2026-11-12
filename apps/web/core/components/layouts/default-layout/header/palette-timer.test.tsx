@@ -2,12 +2,17 @@
 
 import React from 'react';
 import { render } from '@testing-library/react';
+import { createStore, Provider } from 'jotai';
 
+import { activeTeamTaskState, teamTasksState } from '@/core/stores/teams/team-tasks';
+import { timerStatusState } from '@/core/stores/timer/timer';
+import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 const mockStartTimer = jest.fn();
 const mockStopTimer = jest.fn();
 const mockStartTimerWithTask = jest.fn(() => Promise.resolve());
+const mockHandlerRuns = jest.fn();
 
 const taskOf = (id: string) => ({ id, title: id, status: 'open' }) as TTask;
 const TASK = taskOf('task-asked');
@@ -60,7 +65,10 @@ jest.mock('@/core/hooks/tasks/use-timer-button', () => ({ useTimerButtonLogic: (
 jest.mock('@/core/hooks/activities/use-start-stop-timer-handler', () => ({
 	useStartStopTimerHandler: ({ startTimer }: { startTimer: () => unknown }) => ({
 		modals: {},
-		startStopTimerHandler: () => startTimer()
+		startStopTimerHandler: () => {
+			mockHandlerRuns();
+			return startTimer();
+		}
 	})
 }));
 
@@ -77,6 +85,30 @@ function renderStartOf(task: TTask) {
 		addTimeModal: { isOpen: false, openModal: jest.fn(), closeModal: jest.fn() }
 	};
 	return render(<PaletteTimerLayer timer={timer} />);
+}
+
+const runningOn = (taskId: string) => ({ running: true, lastLog: { taskId } }) as unknown as ITimerStatus;
+
+/** A stop asked from the palette while the timer status is `timerStatus` and TASK is the team's active task. */
+function renderStopWith(timerStatus: ITimerStatus) {
+	const store = createStore();
+	store.set(timerStatusState, timerStatus);
+	store.set(teamTasksState, [TASK]);
+	store.set(activeTeamTaskState, TASK);
+	const timer = {
+		canStart: true,
+		canStop: true,
+		stopTimer: jest.fn(),
+		startTimerOn: jest.fn(),
+		openAddTime: jest.fn(),
+		request: { id: 1, kind: 'stop' as const },
+		addTimeModal: { isOpen: false, openModal: jest.fn(), closeModal: jest.fn() }
+	};
+	return render(
+		<Provider store={store}>
+			<PaletteTimerLayer timer={timer} />
+		</Provider>
+	);
 }
 
 describe('a timer start asked from the palette', () => {
@@ -108,5 +140,19 @@ describe('a timer start asked from the palette', () => {
 
 		expect(mockStartTimerWithTask).toHaveBeenCalledTimes(1);
 		expect(mockStartTimer).not.toHaveBeenCalled();
+	});
+});
+
+describe('a timer stop asked from the palette', () => {
+	it("runs the timer's Stop for the run the timer shows", () => {
+		renderStopWith(runningOn(TASK.id));
+
+		expect(mockHandlerRuns).toHaveBeenCalledTimes(1);
+	});
+
+	it('does nothing for a run of another team, which the timer hides and its Stop only warns about', () => {
+		renderStopWith(runningOn('task-of-another-team'));
+
+		expect(mockHandlerRuns).not.toHaveBeenCalled();
 	});
 });
