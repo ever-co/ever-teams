@@ -3922,6 +3922,7 @@
 		"MIC_LEVEL": "Mikrofonpegel",
 		"TEST_SPEAKER": "Lautsprecher testen",
 		"SPEAKER_LEVEL": "Lautsprecherpegel",
+		"TEST_MICROPHONE": "Mikrofon testen",
 		"DEVICES_BLOCKED": "Kamera und Mikrofon sind blockiert",
 		"DEVICES_BLOCKED_HINT": "Erlaube sie für diese Website in deinem Browser und versuche es erneut. Du kannst auch ohne sie beitreten.",
 		"DEVICES_BUSY": "Deine Kamera oder dein Mikrofon wird von einer anderen App verwendet.",

@@ -7,6 +7,10 @@ const mockStopTone = jest.fn();
 let mockIsPlaying = false;
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+// The meter's reading, from any stream with a microphone in it; nothing without one
+jest.mock('@/core/hooks/meetings/use-audio-level', () => ({
+	useAudioLevel: (stream: MediaStream | null) => (stream ? 0.6 : 0)
+}));
 jest.mock('@/core/hooks/meetings/use-speaker-test', () => ({
 	useSpeakerTest: () => ({
 		isPlaying: mockIsPlaying,
@@ -140,5 +144,21 @@ describe('VideoAudioDialog', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'meetings.TEST_SPEAKER' }));
 
 		expect(mockStopTone).toHaveBeenCalledTimes(1);
+	});
+
+	it('shows the microphone level live while the microphone is tested', async () => {
+		const media = installDevices();
+		render(<VideoAudioDialog open onClose={jest.fn()} />);
+		await waitFor(() => expect(media.enumerateDevices).toHaveBeenCalledTimes(2));
+		const testButton = await screen.findByRole('button', { name: 'meetings.TEST_MICROPHONE' });
+		const meter = () => screen.getByRole('meter', { name: 'meetings.MIC_LEVEL' });
+		expect(meter().getAttribute('aria-valuenow')).toBe('0');
+
+		fireEvent.click(testButton);
+
+		expect(testButton.getAttribute('aria-pressed')).toBe('true');
+		expect(meter().getAttribute('aria-valuenow')).toBe('60');
+		fireEvent.click(testButton);
+		expect(meter().getAttribute('aria-valuenow')).toBe('0');
 	});
 });

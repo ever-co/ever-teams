@@ -3922,6 +3922,7 @@
 		"MIC_LEVEL": "Microphone level",
 		"TEST_SPEAKER": "Test speaker",
 		"SPEAKER_LEVEL": "Speaker level",
+		"TEST_MICROPHONE": "Test microphone",
 		"DEVICES_BLOCKED": "Camera and microphone are blocked",
 		"DEVICES_BLOCKED_HINT": "Allow them for this site in your browser, then try again. You can also join without them.",
 		"DEVICES_BUSY": "Your camera or microphone is used by another app.",

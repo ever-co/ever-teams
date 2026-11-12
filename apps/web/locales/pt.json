@@ -3922,6 +3922,7 @@
 		"MIC_LEVEL": "Nível do microfone",
 		"TEST_SPEAKER": "Testar alto-falante",
 		"SPEAKER_LEVEL": "Nível do alto-falante",
+		"TEST_MICROPHONE": "Testar microfone",
 		"DEVICES_BLOCKED": "Câmera e microfone bloqueados",
 		"DEVICES_BLOCKED_HINT": "Permita-os para este site no navegador e tente novamente. Você também pode entrar sem eles.",
 		"DEVICES_BUSY": "Sua câmera ou microfone está sendo usado por outro aplicativo.",

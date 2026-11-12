@@ -42,6 +42,10 @@ function VideoAudioSettings({ onClose }: Readonly<{ onClose: () => void }>) {
 	const canPickSpeaker = canChooseDevices && media.canPickSpeaker && media.devices.audiooutput.length > 0;
 	const speakerTest = useSpeakerTest();
 	const speakerLevel = useAudioLevel(speakerTest.toneStream);
+	// The microphone is open with the dialog; its meter listens only while it is tested
+	const [isTestingMicrophone, setIsTestingMicrophone] = useState(false);
+	const hasMicrophone = Boolean(media.stream?.getAudioTracks().length);
+	const microphoneLevel = useAudioLevel(isTestingMicrophone && hasMicrophone ? media.stream : null);
 
 	useEffect(() => {
 		const video = videoRef.current;
@@ -125,7 +129,7 @@ function VideoAudioSettings({ onClose }: Readonly<{ onClose: () => void }>) {
 					</div>
 				</div>
 				{canChooseDevices && (
-					<div className="flex flex-col gap-4">
+					<div className="flex flex-col gap-2">
 						<DeviceField
 							label={t('meetings.MICROPHONE')}
 							icon={<Mic className="size-4" />}
@@ -134,6 +138,19 @@ function VideoAudioSettings({ onClose }: Readonly<{ onClose: () => void }>) {
 							devices={media.devices.audioinput}
 							onChange={select}
 						/>
+						<div className="flex items-center justify-between gap-3">
+							<Button
+								type="button"
+								variant="secondary"
+								aria-pressed={isTestingMicrophone}
+								disabled={!hasMicrophone}
+								onClick={() => setIsTestingMicrophone((isTesting) => !isTesting)}
+							>
+								<Mic className="size-4" aria-hidden="true" />
+								{t('meetings.TEST_MICROPHONE')}
+							</Button>
+							<LevelMeter level={microphoneLevel} label={t('meetings.MIC_LEVEL')} tone="light" />
+						</div>
 					</div>
 				)}
 			</div>
