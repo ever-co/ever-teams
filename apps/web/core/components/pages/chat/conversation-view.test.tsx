@@ -61,6 +61,8 @@ const mockPeople = {
 	list: [mockBo, mockMe]
 };
 const mockScope = { tenantId: 't', organizationId: 'o', userId: ME_USER, employeeId: ME_EMPLOYEE };
+const mockSignalTyping = jest.fn();
+let mockTypists: Array<{ userId: string; employeeId: string | null; conversationId: string; threadRootId: string | null; expiresAt: number }> = [];
 
 jest.mock('next-intl', () => ({
 	useLocale: () => 'en-US',
@@ -81,6 +83,8 @@ jest.mock('@/core/hooks/chat/use-chat-draft', () => ({ useChatDraft: () => mockD
 jest.mock('@/core/hooks/chat/use-chat-messages', () => ({ useChatMessages: () => mockTimeline }));
 jest.mock('@/core/hooks/chat/use-chat-scope', () => ({ useChatScope: () => mockScope, useChatPeople: () => mockPeople }));
 jest.mock('@/core/hooks/chat/use-chat-conversations', () => ({ useChatMembers: () => ({ members: [], isLoading: false }) }));
+jest.mock('@/core/hooks/chat/use-chat-typing', () => ({ useChatTypingSignal: () => mockSignalTyping, useChatTypists: () => mockTypists }));
+jest.mock('./chat-task-card', () => ({ ChatTaskCard: () => null }));
 jest.mock('@/core/hooks/tasks/use-task-drawer', () => ({ useTaskDrawer: () => ({ openTaskDrawer: jest.fn() }) }));
 jest.mock('@/core/stores/teams/team-tasks', () => {
 	const { atom } = jest.requireActual<typeof import('jotai')>('jotai');
@@ -352,7 +356,7 @@ describe('writing', () => {
 			fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter' });
 		});
 		expect(mockDraft.clearDraft).toHaveBeenCalled();
-		expect(mockActions.send).toHaveBeenCalledWith('c1', { body: 'hello there' });
+		expect(mockActions.send).toHaveBeenCalledWith('c1', { body: 'hello there' }, { attachmentNames: '' });
 		mockDraft.draft = '';
 	});
 
@@ -364,14 +368,14 @@ describe('writing', () => {
 		await act(async () => {
 			fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter' });
 		});
-		expect(mockActions.send).toHaveBeenCalledWith('c1', { body: 'the plan', attachmentIds: ['doc-1'] });
+		expect(mockActions.send).toHaveBeenCalledWith('c1', { body: 'the plan', attachmentIds: ['doc-1'] }, { attachmentNames: 'plan.pdf' });
 		expect(mockAttachments.releaseSent).toHaveBeenCalled();
 		mockDraft.draft = '';
 		mockAttachments.items = [];
 		mockAttachments.readyIds = [];
 	});
 
-	it('words a message of files alone with their names', async () => {
+	it('sends a message of files alone with no text, its files named for the message shown meanwhile', async () => {
 		mockAttachments.items = [
 			{ key: 'k1', name: 'plan.pdf', size: 10, mimeType: 'application/pdf', status: 'ready', documentId: 'doc-1' },
 			{ key: 'k2', name: 'shot.png', size: 10, mimeType: 'image/png', status: 'ready', documentId: 'doc-2' }
@@ -381,7 +385,7 @@ describe('writing', () => {
 		await act(async () => {
 			fireEvent.click(screen.getByRole('button', { name: 'teamChat.SEND' }));
 		});
-		expect(mockActions.send).toHaveBeenCalledWith('c1', { body: 'plan.pdf, shot.png', attachmentIds: ['doc-1', 'doc-2'] });
+		expect(mockActions.send).toHaveBeenCalledWith('c1', { body: '', attachmentIds: ['doc-1', 'doc-2'] }, { attachmentNames: 'plan.pdf\nshot.png' });
 		mockAttachments.items = [];
 		mockAttachments.readyIds = [];
 	});
@@ -395,6 +399,25 @@ describe('writing', () => {
 		fireEvent.drop(timeline, { dataTransfer: { types: ['Files'], files: [file] } });
 		expect(mockAttachments.add).toHaveBeenCalledWith([file]);
 		expect(screen.queryByText('entityFiles.DROP_HINT')).toBeNull();
+	});
+
+	it('tells the others while something is typed, never for an empty field', () => {
+		mockSignalTyping.mockClear();
+		render(view(conversation()));
+		const field = screen.getByRole('textbox');
+		fireEvent.change(field, { target: { value: '   ' } });
+		expect(mockSignalTyping).not.toHaveBeenCalled();
+		fireEvent.change(field, { target: { value: 'h' } });
+		expect(mockSignalTyping).toHaveBeenCalledTimes(1);
+	});
+
+	it('says who is typing under the timeline, in a polite live region', () => {
+		mockTypists = [{ userId: BO_USER, employeeId: BO_EMPLOYEE, conversationId: 'c1', threadRootId: null, expiresAt: Date.now() + 6000 }];
+		render(view(conversation()));
+		const line = screen.getByTestId('chat-typing-line');
+		expect(line.getAttribute('aria-live')).toBe('polite');
+		expect(line.textContent).toBe('teamChat.TYPING_ONE:Bo Chen');
+		mockTypists = [];
 	});
 
 	it('offers the files of the conversation in its header', () => {

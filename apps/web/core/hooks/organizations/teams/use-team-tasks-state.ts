@@ -16,7 +16,8 @@ import {
 	tasksByTeamState,
 	teamTasksCompleteState,
 	teamTasksState,
-	timerStatusState
+	timerStatusState,
+	timerTaskIdState
 } from '@/core/stores';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useAtomValue, useSetAtom, useStore } from 'jotai';
@@ -268,7 +269,13 @@ export function useTeamTasksState() {
 				syncActiveTaskIdCookie(memberActiveTask.id);
 				syncActiveUserTaskCookie(activeUserTaskCookieValue(memberActiveTask, authUserRef.current?.id));
 			} else if (memberActiveTaskId && activeTeam?.id && tasksComplete) {
-				const keepsHeldTask = isHeldTeamTask(activeTeamTaskRef.current, memberActiveTaskId, activeTeam.id);
+				const keepsHeldTask = isHeldTeamTask(
+					activeTeamTaskRef.current,
+					memberActiveTaskId,
+					activeTeam.id,
+					store.get(timerTaskIdState),
+					memberActiveTaskId
+				);
 				if (!keepsHeldTask) {
 					setActiveTeamTaskIfChanged(store, null);
 					syncActiveTaskIdCookie('');
@@ -306,8 +313,17 @@ export function useTeamTasksState() {
 				return;
 			}
 			// The task chosen on this device wins while the timer holds it outside the loaded list, or while a later
-			// page may still bring it
-			const keepsChosenTask = isHeldTeamTask(activeTeamTaskRef.current, active_taskid, activeTeam?.id);
+			// page may still bring it. A task read from a daily plan comes without its teams: it is held while the
+			// timer runs on it or is starting on it (the start itself rewrites the list), or once the member's record
+			// in the team names it, which the save of the chosen task brings back before the start (#5119).
+			const timerTaskId = store.get(timerTaskIdState);
+			const keepsChosenTask = isHeldTeamTask(
+				activeTeamTaskRef.current,
+				active_taskid,
+				activeTeam?.id,
+				timerTaskId,
+				memberTaskId
+			);
 			if (active_taskid && (keepsChosenTask || !tasksComplete)) {
 				return;
 			}
@@ -325,7 +341,8 @@ export function useTeamTasksState() {
 			// The member's own task is held only outside the loaded list: a listed one they are not assigned to is dropped
 			const keepsHeldTask =
 				keepsChosenTask ||
-				(!memberTask && isHeldTeamTask(activeTeamTaskRef.current, memberTaskId, activeTeam?.id));
+				(!memberTask &&
+					isHeldTeamTask(activeTeamTaskRef.current, memberTaskId, activeTeam?.id, timerTaskId, memberTaskId));
 			if (tasksComplete && !keepsHeldTask) {
 				setActiveTeamTaskIfChanged(store, null);
 			}

@@ -7,7 +7,7 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { ArrowLeft, AtSign, CheckDouble, ChevronRight, Comment, Inbox } from '@/core/components/icons';
 import { PersonAvatar } from '@/core/components/teams/people-avatars';
 import { cn } from '@/core/lib/helpers';
-import { ChatPerson, conversationTitle, plainBody } from '@/core/lib/utils/chat-format';
+import { ChatPerson, conversationTitle, previewLineOf } from '@/core/lib/utils/chat-format';
 import { badgeCount } from '@/core/lib/utils/chat-list';
 import { fullDateTime, relativeTime } from '@/core/lib/utils/chat-timeline';
 import { IChatConversationWithState, IChatMessage } from '@/core/types/interfaces/common/chat';
@@ -200,7 +200,7 @@ export function ChatThreadsView({
 											)}
 										</span>
 										<span className={cn('line-clamp-2 text-[13px] [overflow-wrap:anywhere]', root.deletedAt ? 'italic text-muted-foreground' : 'text-foreground', root.unreadReplies > 0 && 'font-medium')}>
-											{plainBody(root.body, people, conversationNames) || t('teamChat.DELETED')}
+											{previewLineOf(root, people, conversationNames, { deleted: t('teamChat.DELETED'), file: t('teamChat.ATTACHMENT') })}
 										</span>
 										<span className="flex flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground">
 											<span className="font-medium text-primary">{t('teamChat.REPLIES', { count: root.replyCount })}</span>
