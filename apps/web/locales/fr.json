@@ -5736,8 +5736,8 @@
 		"ABOUT_LINK": "À propos de {appName}"
 	},
 	"timeOverlap": {
-		"TITLE": "Cela supprime {duration} de temps suivi",
-		"DESCRIPTION": "{count, plural, one {Ce temps chevauche # entrée déjà enregistrée.} other {Ce temps chevauche # entrées déjà enregistrées.}} L'enregistrer supprime le temps en commun.",
+		"TITLE": "Cela supprime {duration} de temps enregistré",
+		"DESCRIPTION": "{count, plural, one {Ce temps chevauche # entrée déjà enregistrée. L'enregistrer supprime cette entrée en entier, pas seulement le temps en commun.} other {Ce temps chevauche # entrées déjà enregistrées. L'enregistrer supprime ces entrées en entier, pas seulement le temps en commun.}}",
 		"ENTRY_REMOVED": "{when} · {duration} à supprimer",
 		"RUNNING_SINCE": "En cours depuis {start}",
 		"NO_TASK": "Sans tâche",

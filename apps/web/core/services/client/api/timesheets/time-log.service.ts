@@ -162,8 +162,8 @@ class TimeLogService extends APIService {
 	};
 
 	/**
-	 * The member's entries that overlap an interval. Saving manual time over them makes the API delete the time
-	 * they share with it, so the dialogs ask this before they save.
+	 * The member's entries that overlap an interval. Saving manual time over them makes the API delete those
+	 * entries whole, so the dialogs ask this before they save.
 	 */
 	getTimeLogConflicts = async ({
 		employeeId,

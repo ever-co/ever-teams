@@ -5737,7 +5737,7 @@
 	},
 	"timeOverlap": {
 		"TITLE": "To usunie {duration} zarejestrowanego czasu",
-		"DESCRIPTION": "{count, plural, one {Czas pokrywa się z # zapisanym już wpisem.} few {Czas pokrywa się z # zapisanymi już wpisami.} many {Czas pokrywa się z # zapisanymi już wpisami.} other {Czas pokrywa się z # zapisanego już wpisu.}} Zapisanie usunie wspólny czas.",
+		"DESCRIPTION": "{count, plural, one {Czas pokrywa się z # zapisanym już wpisem. Zapisanie usunie ten wpis w całości, a nie tylko wspólny czas.} few {Czas pokrywa się z # zapisanymi już wpisami. Zapisanie usunie te wpisy w całości, a nie tylko wspólny czas.} many {Czas pokrywa się z # zapisanymi już wpisami. Zapisanie usunie te wpisy w całości, a nie tylko wspólny czas.} other {Czas pokrywa się z # zapisanego już wpisu. Zapisanie usunie te wpisy w całości, a nie tylko wspólny czas.}}",
 		"ENTRY_REMOVED": "{when} · zostanie usunięte {duration}",
 		"RUNNING_SINCE": "Trwa od {start}",
 		"NO_TASK": "Brak zadania",

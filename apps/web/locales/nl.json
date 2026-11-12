@@ -5737,7 +5737,7 @@
 	},
 	"timeOverlap": {
 		"TITLE": "Dit verwijdert {duration} geregistreerde tijd",
-		"DESCRIPTION": "{count, plural, one {De tijd overlapt # al geregistreerde invoer.} other {De tijd overlapt # al geregistreerde invoeren.}} Bij opslaan wordt de gedeelde tijd verwijderd.",
+		"DESCRIPTION": "{count, plural, one {De tijd overlapt # al geregistreerde invoer. Bij opslaan wordt die invoer volledig verwijderd, niet alleen de gedeelde tijd.} other {De tijd overlapt # al geregistreerde invoeren. Bij opslaan worden die invoeren volledig verwijderd, niet alleen de gedeelde tijd.}}",
 		"ENTRY_REMOVED": "{when} · {duration} wordt verwijderd",
 		"RUNNING_SINCE": "Loopt sinds {start}",
 		"NO_TASK": "Geen taak",

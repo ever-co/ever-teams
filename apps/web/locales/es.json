@@ -5737,7 +5737,7 @@
 	},
 	"timeOverlap": {
 		"TITLE": "Esto elimina {duration} de tiempo registrado",
-		"DESCRIPTION": "{count, plural, one {Se solapa con # entrada ya registrada.} other {Se solapa con # entradas ya registradas.}} Al guardar se elimina el tiempo que comparten.",
+		"DESCRIPTION": "{count, plural, one {Se solapa con # entrada ya registrada. Al guardar se elimina esa entrada por completo, no solo el tiempo que comparten.} other {Se solapa con # entradas ya registradas. Al guardar se eliminan esas entradas por completo, no solo el tiempo que comparten.}}",
 		"ENTRY_REMOVED": "{when} · se eliminan {duration}",
 		"RUNNING_SINCE": "En curso desde {start}",
 		"NO_TASK": "Sin tarea",

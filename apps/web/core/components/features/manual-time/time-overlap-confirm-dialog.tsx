@@ -13,8 +13,9 @@ function entryNameOf(entry: OverlappedEntry, fallback: string): string {
 }
 
 /**
- * Asked before a manual time save that overlaps time already recorded: how much would be removed, from which
- * entries. Cancel goes back to the dialog underneath, which keeps its values.
+ * Asked before a manual time save that overlaps time already recorded: which entries would be removed, each
+ * with its whole duration, and how much that makes. Cancel goes back to the dialog underneath, which keeps its
+ * values.
  */
 export function TimeOverlapConfirmDialog({
 	guard,
@@ -49,7 +50,7 @@ export function TimeOverlapConfirmDialog({
 				<span className="text-xs tabular-nums text-muted-foreground">
 					{t('timeOverlap.ENTRY_REMOVED', {
 						when: whenOf(entry),
-						duration: formatOverlapDuration(entry.overlappedSeconds)
+						duration: formatOverlapDuration(entry.removedSeconds)
 					})}
 				</span>
 			</span>

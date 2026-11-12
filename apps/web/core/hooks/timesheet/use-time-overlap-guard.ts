@@ -52,8 +52,8 @@ function conflictsOfPeriod(
 }
 
 /**
- * Stands between a manual time dialog and its save. The API removes, without a word, the time a manual entry
- * overlaps in the member's other entries: this asks the API what overlaps first, saves at once when nothing
+ * Stands between a manual time dialog and its save. The API removes, without a word, every other entry of the
+ * member that a manual entry overlaps, whole: this asks the API what overlaps first, saves at once when nothing
  * does, and otherwise holds the save until the member confirms what would be removed. A lookup that fails
  * saves nothing.
  */

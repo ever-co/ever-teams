@@ -23,7 +23,8 @@ export interface OverlappedEntry {
 	start: Date;
 	end: Date;
 	isRunning: boolean;
-	overlappedSeconds: number;
+	/** The entry's whole duration, from its start to its end: the API removes an overlapped entry whole. */
+	removedSeconds: number;
 	taskTitle: string | null;
 	projectName: string | null;
 }
@@ -39,34 +40,6 @@ export interface OverlapSummaryInput {
 	/** The entry being edited: saving it never removes its own time. */
 	ignoredLogId?: string | null;
 	now: Date;
-}
-
-function isValidPeriod(period: TimePeriod): boolean {
-	const startMs = period.start.getTime();
-	const endMs = period.end.getTime();
-	if (Number.isNaN(startMs) || Number.isNaN(endMs)) {
-		return false;
-	}
-	return endMs > startMs;
-}
-
-/** The periods as disjoint intervals, so time two periods share is counted once. */
-export function mergedPeriodsOf(periods: ReadonlyArray<TimePeriod>): TimePeriod[] {
-	const validPeriods = periods.filter(isValidPeriod);
-	const sortedPeriods = [...validPeriods].sort((first, second) => first.start.getTime() - second.start.getTime());
-	const merged: TimePeriod[] = [];
-	for (const period of sortedPeriods) {
-		const last = merged[merged.length - 1];
-		const startsAfterLast = !last || period.start.getTime() > last.end.getTime();
-		if (startsAfterLast) {
-			merged.push({ start: period.start, end: period.end });
-			continue;
-		}
-		if (period.end.getTime() > last.end.getTime()) {
-			last.end = period.end;
-		}
-	}
-	return merged;
 }
 
 function parsedDateOf(value: string | null | undefined): Date | null {
@@ -93,10 +66,11 @@ function endOfLog(log: OverlapCandidateLog, start: Date, now: Date): Date {
 	return now;
 }
 
-function sharedMsOf(period: TimePeriod, start: Date, end: Date): number {
+/** As in the API's own lookup, an entry that only touches the period, end to start, is not overlapped. */
+function sharesTimeWith(period: TimePeriod, start: Date, end: Date): boolean {
 	const sharedStart = Math.max(period.start.getTime(), start.getTime());
 	const sharedEnd = Math.min(period.end.getTime(), end.getTime());
-	return Math.max(0, sharedEnd - sharedStart);
+	return sharedEnd > sharedStart;
 }
 
 function overlappedEntryOf(log: OverlapCandidateLog, periods: ReadonlyArray<TimePeriod>, now: Date) {
@@ -105,19 +79,17 @@ function overlappedEntryOf(log: OverlapCandidateLog, periods: ReadonlyArray<Time
 		return null;
 	}
 	const end = endOfLog(log, start, now);
-	let overlappedMs = 0;
-	for (const period of periods) {
-		overlappedMs += sharedMsOf(period, start, end);
-	}
-	if (overlappedMs <= 0) {
+	const isOverlapped = periods.some((period) => sharesTimeWith(period, start, end));
+	if (!isOverlapped) {
 		return null;
 	}
+	const wholeDurationMs = end.getTime() - start.getTime();
 	const entry: OverlappedEntry = {
 		id: log.id,
 		start,
 		end,
 		isRunning: log.isRunning === true,
-		overlappedSeconds: Math.round(overlappedMs / MS_PER_SECOND),
+		removedSeconds: Math.round(wholeDurationMs / MS_PER_SECOND),
 		taskTitle: log.task?.title ?? null,
 		projectName: log.project?.name ?? null
 	};
@@ -125,11 +97,12 @@ function overlappedEntryOf(log: OverlapCandidateLog, periods: ReadonlyArray<Time
 }
 
 /**
- * What saving the periods would remove: the API deletes, from every other entry of the member, the time the new
- * interval covers. Each entry is counted once, whichever period lookup returned it.
+ * What saving the periods would remove. The API removes every other entry of the member that a manual interval
+ * overlaps, whole, and not only the time they share: its cleanup deletes all the time slots of an overlapped
+ * entry, then the entry itself. A 1h 54m entry overlapped for 37 minutes is gone entirely. So an overlapped entry
+ * counts for its whole duration, once, whichever period lookup returned it.
  */
 export function overlapSummaryOf({ periods, logs, ignoredLogId, now }: OverlapSummaryInput): OverlapSummary {
-	const mergedPeriods = mergedPeriodsOf(periods);
 	const seenLogIds = new Set<string>();
 	const entries: OverlappedEntry[] = [];
 	for (const log of logs) {
@@ -139,7 +112,7 @@ export function overlapSummaryOf({ periods, logs, ignoredLogId, now }: OverlapSu
 			continue;
 		}
 		seenLogIds.add(log.id);
-		const entry = overlappedEntryOf(log, mergedPeriods, now);
+		const entry = overlappedEntryOf(log, periods, now);
 		if (entry) {
 			entries.push(entry);
 		}
@@ -147,7 +120,7 @@ export function overlapSummaryOf({ periods, logs, ignoredLogId, now }: OverlapSu
 	entries.sort((first, second) => first.start.getTime() - second.start.getTime());
 	let totalSeconds = 0;
 	for (const entry of entries) {
-		totalSeconds += entry.overlappedSeconds;
+		totalSeconds += entry.removedSeconds;
 	}
 	return { totalSeconds, entries };
 }

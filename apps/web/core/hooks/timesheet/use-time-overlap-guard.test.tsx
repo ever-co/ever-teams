@@ -20,10 +20,11 @@ import { useTimeOverlapGuard } from './use-time-overlap-guard';
 const at = (time: string) => new Date(`2026-11-10T${time}:00.000Z`);
 const eveningPeriod = { start: at('18:30'), end: at('19:30') };
 const morningPeriod = { start: at('09:00'), end: at('10:00') };
+// 1h 54m long, of which the evening period overlaps the first 37 minutes
 const trackedLog = {
 	id: 'tracked',
-	startedAt: '2026-11-10T18:42:00.000Z',
-	stoppedAt: '2026-11-10T19:20:00.000Z',
+	startedAt: '2026-11-10T18:53:00.000Z',
+	stoppedAt: '2026-11-10T20:47:00.000Z',
 	isRunning: false
 };
 
@@ -48,7 +49,7 @@ describe('useTimeOverlapGuard', () => {
 		expect(result.current.hasCheckFailed).toBe(false);
 	});
 
-	it('holds the save and says what would be removed when the interval overlaps tracked time', async () => {
+	it('holds the save and counts the whole entry when the interval overlaps a part of it', async () => {
 		mockGetTimeLogConflicts.mockResolvedValue([trackedLog]);
 		const save = jest.fn();
 		const { result } = renderGuard();
@@ -57,8 +58,9 @@ describe('useTimeOverlapGuard', () => {
 
 		expect(save).not.toHaveBeenCalled();
 		expect(result.current.isConfirmOpen).toBe(true);
-		expect(result.current.summary.totalSeconds).toBe(38 * 60);
+		expect(result.current.summary.totalSeconds).toBe(114 * 60);
 		expect(result.current.summary.entries.map((entry) => entry.id)).toEqual(['tracked']);
+		expect(result.current.summary.entries[0].removedSeconds).toBe(114 * 60);
 	});
 
 	it('saves once the member confirms, and only once', async () => {

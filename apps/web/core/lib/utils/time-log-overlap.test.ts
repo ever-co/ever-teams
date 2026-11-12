@@ -1,8 +1,9 @@
-import { formatOverlapDuration, mergedPeriodsOf, overlapSummaryOf, type OverlapCandidateLog } from './time-log-overlap';
+import { formatOverlapDuration, overlapSummaryOf, type OverlapCandidateLog } from './time-log-overlap';
 
 const at = (time: string) => new Date(`2026-11-10T${time}:00.000Z`);
 const period = (start: string, end: string) => ({ start: at(start), end: at(end) });
 const NOW = at('23:00');
+const WHOLE_TRACKED_ENTRY = 38 * 60;
 
 const trackedLog: OverlapCandidateLog = {
 	id: 'tracked',
@@ -17,33 +18,75 @@ describe('overlapSummaryOf', () => {
 	it('counts a tracked entry the new entry covers entirely', () => {
 		const summary = overlapSummaryOf({ periods: [period('18:30', '19:30')], logs: [trackedLog], now: NOW });
 
-		expect(summary.totalSeconds).toBe(38 * 60);
+		expect(summary.totalSeconds).toBe(WHOLE_TRACKED_ENTRY);
 		expect(summary.entries).toHaveLength(1);
 		expect(summary.entries[0]).toMatchObject({
 			id: 'tracked',
-			overlappedSeconds: 38 * 60,
+			start: at('18:42'),
+			end: at('19:20'),
+			removedSeconds: WHOLE_TRACKED_ENTRY,
 			isRunning: false,
 			taskTitle: 'Fix the login page',
 			projectName: 'Website'
 		});
 	});
 
-	it('counts only the shared part of a partial overlap', () => {
-		const summary = overlapSummaryOf({ periods: [period('19:00', '20:00')], logs: [trackedLog], now: NOW });
+	// Measured on the API: any overlap removes the overlapped entry whole, never only the time they share
+	it('a 1h 54m entry overlapped for 37 minutes counts 1h 54m', () => {
+		const longLog: OverlapCandidateLog = {
+			id: 'long',
+			startedAt: '2026-11-10T12:53:00.000Z',
+			stoppedAt: '2026-11-10T14:47:00.000Z'
+		};
+		const summary = overlapSummaryOf({ periods: [period('12:30', '13:30')], logs: [longLog], now: NOW });
 
-		expect(summary.totalSeconds).toBe(20 * 60);
+		expect(summary.entries[0].removedSeconds).toBe(114 * 60);
+		expect(summary.totalSeconds).toBe(114 * 60);
+		expect(formatOverlapDuration(summary.totalSeconds)).toBe('1h 54m');
 	});
 
-	it('counts the covered middle of an entry longer than the new one', () => {
+	it('counts the whole entry when the new one overlaps its start', () => {
+		const summary = overlapSummaryOf({ periods: [period('18:30', '18:50')], logs: [trackedLog], now: NOW });
+
+		expect(summary.totalSeconds).toBe(WHOLE_TRACKED_ENTRY);
+	});
+
+	it('counts the whole entry when the new one overlaps its end', () => {
+		const summary = overlapSummaryOf({ periods: [period('19:00', '20:00')], logs: [trackedLog], now: NOW });
+
+		expect(summary.totalSeconds).toBe(WHOLE_TRACKED_ENTRY);
+	});
+
+	it('counts the whole entry when the new one sits in its middle', () => {
 		const summary = overlapSummaryOf({ periods: [period('18:50', '19:00')], logs: [trackedLog], now: NOW });
 
-		expect(summary.totalSeconds).toBe(10 * 60);
+		expect(summary.totalSeconds).toBe(WHOLE_TRACKED_ENTRY);
 	});
 
 	it('removes nothing from an entry that only touches the new one', () => {
-		const summary = overlapSummaryOf({ periods: [period('19:20', '20:00')], logs: [trackedLog], now: NOW });
+		const endsWhereItStarts = overlapSummaryOf({
+			periods: [period('19:20', '20:00')],
+			logs: [trackedLog],
+			now: NOW
+		});
+		const startsWhereItEnds = overlapSummaryOf({
+			periods: [period('18:00', '18:42')],
+			logs: [trackedLog],
+			now: NOW
+		});
 
-		expect(summary.totalSeconds).toBe(0);
+		expect(endsWhereItStarts.totalSeconds).toBe(0);
+		expect(endsWhereItStarts.entries).toEqual([]);
+		expect(startsWhereItEnds.entries).toEqual([]);
+	});
+
+	it('removes nothing for a reversed or an empty period', () => {
+		const summary = overlapSummaryOf({
+			periods: [period('19:30', '18:30'), period('19:00', '19:00')],
+			logs: [trackedLog],
+			now: NOW
+		});
+
 		expect(summary.entries).toEqual([]);
 	});
 
@@ -61,17 +104,17 @@ describe('overlapSummaryOf', () => {
 		});
 
 		expect(summary.entries.map((entry) => entry.id)).toEqual(['other']);
-		expect(summary.totalSeconds).toBe(20 * 60);
+		expect(summary.totalSeconds).toBe(30 * 60);
 	});
 
-	it('counts a running entry up to now, whatever end the API last stored', () => {
+	it('counts a running entry from its start up to now, whatever end the API last stored', () => {
 		const runningLog: OverlapCandidateLog = {
 			id: 'running',
 			startedAt: '2026-11-10T22:00:00.000Z',
 			stoppedAt: '2026-11-10T22:10:00.000Z',
 			isRunning: true
 		};
-		const summary = overlapSummaryOf({ periods: [period('22:00', '23:30')], logs: [runningLog], now: NOW });
+		const summary = overlapSummaryOf({ periods: [period('22:45', '23:30')], logs: [runningLog], now: NOW });
 
 		expect(summary.totalSeconds).toBe(60 * 60);
 		expect(summary.entries[0].isRunning).toBe(true);
@@ -90,7 +133,7 @@ describe('overlapSummaryOf', () => {
 		expect(summary.totalSeconds).toBe(30 * 60);
 	});
 
-	it('checks every period and counts an entry returned for two periods once', () => {
+	it('checks every period and counts an entry two periods overlap once, whole', () => {
 		const morningLog: OverlapCandidateLog = {
 			id: 'morning',
 			startedAt: '2026-11-10T09:00:00.000Z',
@@ -103,19 +146,9 @@ describe('overlapSummaryOf', () => {
 		});
 
 		expect(summary.entries.map((entry) => entry.id)).toEqual(['morning', 'tracked']);
-		expect(summary.entries[0].overlappedSeconds).toBe(10 * 60);
-		expect(summary.entries[1].overlappedSeconds).toBe(28 * 60);
-		expect(summary.totalSeconds).toBe(38 * 60);
-	});
-
-	it('counts the time two periods share once', () => {
-		const summary = overlapSummaryOf({
-			periods: [period('18:30', '19:10'), period('19:00', '19:30')],
-			logs: [trackedLog],
-			now: NOW
-		});
-
-		expect(summary.totalSeconds).toBe(38 * 60);
+		expect(summary.entries[0].removedSeconds).toBe(30 * 60);
+		expect(summary.entries[1].removedSeconds).toBe(WHOLE_TRACKED_ENTRY);
+		expect(summary.totalSeconds).toBe(30 * 60 + WHOLE_TRACKED_ENTRY);
 	});
 
 	it('skips an entry without a readable start', () => {
@@ -136,19 +169,6 @@ describe('overlapSummaryOf', () => {
 
 		expect(summary.entries[0].taskTitle).toBeNull();
 		expect(summary.entries[0].projectName).toBeNull();
-	});
-});
-
-describe('mergedPeriodsOf', () => {
-	it('drops reversed and empty periods and merges the ones that touch', () => {
-		const merged = mergedPeriodsOf([
-			period('10:00', '11:00'),
-			period('09:00', '10:00'),
-			period('12:00', '12:00'),
-			period('14:00', '13:00')
-		]);
-
-		expect(merged).toEqual([period('09:00', '11:00')]);
 	});
 });
 

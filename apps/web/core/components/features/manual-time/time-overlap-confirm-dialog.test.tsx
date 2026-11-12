@@ -58,13 +58,14 @@ jest.mock('@/core/components/settings/kit/danger', () => ({
 	}
 }));
 
+// An entry of 1h 54m: the API removes it whole, however little of it the new time overlaps
 function entry(id: string, overrides: Partial<OverlappedEntry> = {}): OverlappedEntry {
 	return {
 		id,
-		start: new Date(2026, 10, 10, 18, 42),
-		end: new Date(2026, 10, 10, 19, 20),
+		start: new Date(2026, 10, 10, 12, 53),
+		end: new Date(2026, 10, 10, 14, 47),
 		isRunning: false,
-		overlappedSeconds: 37 * 60,
+		removedSeconds: 114 * 60,
 		taskTitle: `Task ${id}`,
 		projectName: null,
 		...overrides
@@ -74,7 +75,7 @@ function entry(id: string, overrides: Partial<OverlappedEntry> = {}): Overlapped
 function guardWith(entries: OverlappedEntry[], overrides: Partial<TimeOverlapGuard> = {}): TimeOverlapGuard {
 	let totalSeconds = 0;
 	for (const item of entries) {
-		totalSeconds += item.overlappedSeconds;
+		totalSeconds += item.removedSeconds;
 	}
 	return {
 		saveAfterCheck: jest.fn(),
@@ -89,16 +90,16 @@ function guardWith(entries: OverlappedEntry[], overrides: Partial<TimeOverlapGua
 }
 
 describe('TimeOverlapConfirmDialog', () => {
-	it('names the real duration that would be removed and the entry it comes from', () => {
+	it('names the whole duration of the entry that would be removed, and the entry with its own range', () => {
 		render(<TimeOverlapConfirmDialog guard={guardWith([entry('a')])} confirmLabel="Add time anyway" />);
 
-		expect(screen.getByText('timeOverlap.TITLE {"duration":"37m"}')).toBeTruthy();
+		expect(screen.getByText('timeOverlap.TITLE {"duration":"1h 54m"}')).toBeTruthy();
 		expect(screen.getByText('timeOverlap.DESCRIPTION {"count":1}')).toBeTruthy();
 		expect(screen.getByText('Task a')).toBeTruthy();
 		const entryLine = screen.getByText(/timeOverlap\.ENTRY_REMOVED/).textContent ?? '';
-		expect(entryLine).toContain('"duration":"37m"');
-		expect(entryLine).toContain('6:42');
-		expect(entryLine).toContain('7:20');
+		expect(entryLine).toContain('"duration":"1h 54m"');
+		expect(entryLine).toContain('12:53');
+		expect(entryLine).toContain('2:47');
 	});
 
 	it('names an entry by its project, or says it has no task', () => {
@@ -110,7 +111,7 @@ describe('TimeOverlapConfirmDialog', () => {
 
 		expect(screen.getByText('Website')).toBeTruthy();
 		expect(screen.getByText('timeOverlap.NO_TASK')).toBeTruthy();
-		expect(screen.getByText('timeOverlap.TITLE {"duration":"1h 14m"}')).toBeTruthy();
+		expect(screen.getByText('timeOverlap.TITLE {"duration":"3h 48m"}')).toBeTruthy();
 	});
 
 	it('says a running entry is still running instead of giving it an end', () => {
@@ -120,7 +121,7 @@ describe('TimeOverlapConfirmDialog', () => {
 
 		const entryLine = screen.getByText(/timeOverlap\.ENTRY_REMOVED/).textContent ?? '';
 		expect(entryLine).toContain('timeOverlap.RUNNING_SINCE');
-		expect(entryLine).not.toContain('7:20');
+		expect(entryLine).not.toContain('2:47');
 	});
 
 	it('lists five entries and counts the rest', () => {

@@ -5737,7 +5737,7 @@
 	},
 	"timeOverlap": {
 		"TITLE": "Isto remove {duration} de tempo registado",
-		"DESCRIPTION": "{count, plural, one {Sobrepõe-se a # entrada já registada.} other {Sobrepõe-se a # entradas já registadas.}} Ao guardar, o tempo em comum é removido.",
+		"DESCRIPTION": "{count, plural, one {Sobrepõe-se a # entrada já registada. Ao guardar, essa entrada é removida por inteiro, não apenas o tempo em comum.} other {Sobrepõe-se a # entradas já registadas. Ao guardar, essas entradas são removidas por inteiro, não apenas o tempo em comum.}}",
 		"ENTRY_REMOVED": "{when} · {duration} removidos",
 		"RUNNING_SINCE": "Em curso desde {start}",
 		"NO_TASK": "Sem tarefa",

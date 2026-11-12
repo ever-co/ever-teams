@@ -5737,7 +5737,7 @@
 	},
 	"timeOverlap": {
 		"TITLE": "Questo rimuove {duration} di tempo registrato",
-		"DESCRIPTION": "{count, plural, one {Si sovrappone a # voce già registrata.} other {Si sovrappone a # voci già registrate.}} Salvando viene rimosso il tempo in comune.",
+		"DESCRIPTION": "{count, plural, one {Si sovrappone a # voce già registrata. Salvando, quella voce viene rimossa per intero, non solo il tempo in comune.} other {Si sovrappone a # voci già registrate. Salvando, quelle voci vengono rimosse per intero, non solo il tempo in comune.}}",
 		"ENTRY_REMOVED": "{when} · {duration} rimossi",
 		"RUNNING_SINCE": "In corso da {start}",
 		"NO_TASK": "Nessuna attività",

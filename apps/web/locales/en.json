@@ -5736,8 +5736,8 @@
 		"ABOUT_LINK": "About {appName}"
 	},
 	"timeOverlap": {
-		"TITLE": "This removes {duration} of tracked time",
-		"DESCRIPTION": "{count, plural, one {It overlaps # entry already recorded.} other {It overlaps # entries already recorded.}} Saving removes the time they share.",
+		"TITLE": "This removes {duration} of recorded time",
+		"DESCRIPTION": "{count, plural, one {It overlaps # entry already recorded. Saving removes that entry entirely, not only the time they share.} other {It overlaps # entries already recorded. Saving removes those entries entirely, not only the time they share.}}",
 		"ENTRY_REMOVED": "{when} · {duration} removed",
 		"RUNNING_SINCE": "Running since {start}",
 		"NO_TASK": "No task",
