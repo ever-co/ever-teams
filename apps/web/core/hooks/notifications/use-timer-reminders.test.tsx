@@ -286,6 +286,20 @@ describe('useTimerReminders', () => {
 		expect(stopTimer).toHaveBeenCalledTimes(1);
 	});
 
+	it("keeps the Stop of one run's reminder from stopping a run started since", async () => {
+		jest.setSystemTime(STARTED_AT + 9 * HOUR);
+		const { stopTimer, rerender } = await renderReminders();
+		const { action } = lastOptions();
+
+		// The timer was stopped and started again elsewhere: another run, which the reminder is not about
+		rerender({
+			timerStatus: { running: true, lastLog: { id: 'log-2', startedAt: new Date(Date.now()) } as never }
+		});
+		action.onClick();
+
+		expect(stopTimer).not.toHaveBeenCalled();
+	});
+
 	it('keeps the reminder while the status is read again (none, as on a team change)', async () => {
 		jest.setSystemTime(STARTED_AT + 9 * HOUR);
 		const { rerender } = await renderReminders();
