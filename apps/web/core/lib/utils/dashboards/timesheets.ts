@@ -704,6 +704,16 @@ export function memberIdOfLog(log: ITimeLog): string | null {
 	return null;
 }
 
+const NO_MEMBER_LOGS: ITimeLog[] = [];
+
+/** One member's logs among logs that may hold other members' too; none while the member is unknown. */
+export function logsOfMember(logs: ReadonlyArray<ITimeLog>, memberId: string | null): ITimeLog[] {
+	if (!memberId) {
+		return NO_MEMBER_LOGS;
+	}
+	return logs.filter((log) => memberIdOfLog(log) === memberId);
+}
+
 function memberNameOf(log: ITimeLog | undefined) {
 	const fullName = log?.employee?.fullName;
 	if (!fullName) {

@@ -6,6 +6,7 @@ import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
 import { DayPlanBlock, DoneOfPlanned } from '@/core/components/calendar/calendar-day-details';
 import { DatePicker } from '@/core/components/common/date-picker';
+import { SegmentedControl } from '@/core/components/common/segmented-control';
 import { DashboardBreadcrumb } from '@/core/components/dashboards/kit/dashboard-breadcrumb';
 import { DashboardSection, DashboardToolbar } from '@/core/components/dashboards/kit/dashboard-layout';
 import { BlockEmptyMessage, DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
@@ -17,12 +18,14 @@ import { WORK_DIARY_PATH } from '@/core/components/layouts/my-work-navigation';
 import { TrackingSourceEmptyState } from '@/core/components/pages/profile/tracking-source-empty-state';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { useWorkDiaryPage, type WorkDiaryPageState } from '@/core/hooks/dashboards/work-diary/use-work-diary-page';
-import type { DiarySlot } from '@/core/lib/utils/dashboards/work-diary';
+import { formatPeriod } from '@/core/lib/utils/dashboard-period';
+import type { DiarySlot, DiaryView } from '@/core/lib/utils/dashboards/work-diary';
 import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 import { isTrackingEnabledState } from '@/core/stores/timer/active-timer';
 import { DiaryDayStrip } from './diary-day-strip';
 import { DiaryBody, DiaryHoursSkeleton } from './diary-hours';
 import { DiarySlotSheet } from './diary-slot-sheet';
+import { DiaryWeekView } from './diary-week-view';
 import { DIARY_COLUMNS, DiaryAppRows, DiaryFigures, DiaryRowsSkeleton, DiaryTaskRows } from './work-diary-parts';
 import { WorkDiaryPageSkeleton } from './work-diary-page-skeleton';
 
@@ -189,10 +192,29 @@ function WorkDiaryPageContent() {
 		setIsSheetOpen(false);
 		page.showToday();
 	};
+	const changeView = (next: DiaryView) => {
+		setIsSheetOpen(false);
+		page.changeView(next);
+	};
 
 	const title = t('sidebar.WORK_DIARY');
 	const pickDayLabel = t('dashboard.workDiary.PICK_DAY');
-	const showsDay = !page.isMemberUnknown;
+	const isWeekView = page.view === 'week';
+	const isMemberKnown = !page.isMemberUnknown;
+	const showsDay = isMemberKnown && !isWeekView;
+	const showsWeek = isMemberKnown && isWeekView;
+	// In the week view the day's logs only mark the strip: the sheet reports its own failed read
+	const showsDayError = page.isLogsError && !isWeekView;
+	let meta = formats.long.format(page.day);
+	let isBodyLoading = page.isLogsLoading;
+	if (isWeekView) {
+		meta = formatPeriod(page.week, locale);
+		isBodyLoading = page.weekSheet.isLoading;
+	}
+	const viewItems = [
+		{ value: 'day' as const, label: t('dashboard.calendar.VIEWS.DAY') },
+		{ value: 'week' as const, label: t('dashboard.calendar.VIEWS.WEEK') }
+	];
 
 	return (
 		<PageLayout
@@ -208,7 +230,7 @@ function WorkDiaryPageContent() {
 			mainHeaderSlot={
 				<DashboardToolbar
 					title={title}
-					meta={formats.long.format(page.day)}
+					meta={meta}
 					isUpdating={page.isUpdating}
 					updatingLabel={t('dashboard.workDiary.UPDATING')}
 					actions={
@@ -253,13 +275,19 @@ function WorkDiaryPageContent() {
 									</>
 								}
 							/>
+							<SegmentedControl<DiaryView>
+								items={viewItems}
+								value={page.view}
+								onValueChange={changeView}
+								ariaLabel={t('dashboard.timesheets.VIEW_LABEL')}
+							/>
 						</>
 					}
 				/>
 			}
 		>
-			<div className={DASHBOARD_STACK} aria-busy={page.isLogsLoading}>
-				{page.isLogsError && <DashboardErrorNotice onRetry={() => void page.refetchLogs()} />}
+			<div className={DASHBOARD_STACK} aria-busy={isBodyLoading}>
+				{showsDayError && <DashboardErrorNotice onRetry={() => void page.refetchLogs()} />}
 				{page.isMemberUnknown && (
 					<DashboardSection>
 						<BlockEmptyMessage
@@ -269,6 +297,7 @@ function WorkDiaryPageContent() {
 					</DashboardSection>
 				)}
 				{showsDay && <DiaryDayView page={page} formats={formats} onOpenSlot={openSlotSheet} />}
+				{showsWeek && <DiaryWeekView page={page} />}
 			</div>
 			<DiarySlotSheet
 				slot={openSlot}
@@ -285,8 +314,9 @@ function WorkDiaryPageContent() {
 /**
  * `/work-diary`: the signed-in person's own day of work, under My work. The day's figures, the tasks the time went to
  * (each opens), the day's plan against what was done, the apps and sites, and the screenshots hour by hour; the days
- * of its week sit in the toolbar, with Today and a day picker for any earlier day. The team's time, with approvals,
- * stays in Reports › Timesheets, which a manager opens from here.
+ * of its week sit in the toolbar, with Today and a day picker for any earlier day. The Week view shows that week as
+ * the person's own sheet, a row per task and a column per day, which they fill by typing when their role may add
+ * manual time. The team's time, with approvals, stays in Reports › Timesheets, which a manager opens from here.
  */
 export function WorkDiaryPage() {
 	return (

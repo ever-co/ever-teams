@@ -10,11 +10,12 @@ import {
 	tasksByTeamState,
 	teamTasksCompleteState,
 	teamTasksPagesLoadingState,
-	teamTasksState
+	teamTasksState,
+	timerTaskIdState
 } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom, useStore } from 'jotai';
 import { useAuthenticateUser } from '../../auth/use-authenticate-user';
 import { useFirstLoad } from '../../common/use-first-load';
 import { useConditionalUpdateEffect } from '../../common/use-has-mounted';
@@ -82,6 +83,7 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
 	const [activeTeamTask, setActiveTeamTask] = useAtom(activeTeamTaskState);
 	const activeTeamTaskRef = useSyncRef(activeTeamTask);
+	const store = useStore();
 	const reactiveAccessToken = useReactiveAccessTokenCookie();
 
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
@@ -274,7 +276,14 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 			if (memberActiveTask) {
 				setActiveTeamTask(memberActiveTask);
 			} else if (memberActiveTaskId && activeTeam?.id && tasksComplete) {
-				const keepsHeldTask = isHeldTeamTask(activeTeamTaskRef.current, memberActiveTaskId, activeTeam.id);
+				// The same hold as the task state hook: the timer's task, or the one the member's record names
+				const keepsHeldTask = isHeldTeamTask(
+					activeTeamTaskRef.current,
+					memberActiveTaskId,
+					activeTeam.id,
+					store.get(timerTaskIdState),
+					memberActiveTaskId
+				);
 				if (!keepsHeldTask) {
 					// Task ID exists but doesn't belong to this team - clear it
 					setActiveTeamTask(null);
