@@ -24,12 +24,7 @@ import {
 	requiredTrackingFieldsOf
 } from '@/core/lib/helpers/timer-errors';
 import { isTimerTaskOfTeam } from '@/core/lib/utils/task.utils';
-import {
-	notesToSendAtStart,
-	notesToSendAtStop,
-	timerNotesAfterStart,
-	wereNotesLostAtStop
-} from '@/core/lib/utils/timer/timer-notes';
+import { notesToSendAtStart, notesToSendAtStop, timerNotesAfterStart } from '@/core/lib/utils/timer/timer-notes';
 import { startTaskOf } from '@/core/lib/utils/timer/timer-start-task';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
@@ -66,6 +61,7 @@ import { useTaskStatusesQuery } from '../tasks/use-task-statuses-query';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../bootstrap/use-scope-guard';
 import { useStopStaleTeamsTimer } from './use-stale-timer-guard';
+import { useStopNotesWarning } from './use-stop-notes-warning';
 import { useResolveTimerBillable } from './use-timer-billable';
 
 // ==================== TYPES ====================
@@ -271,6 +267,7 @@ export function useTimerApi({
 	const { user, $user, refreshUserData } = useAuthenticateUser();
 	const stopStaleTeamsTimer = useStopStaleTeamsTimer();
 	const resolveTimerBillable = useResolveTimerBillable();
+	const warnWhenStopLostNotes = useStopNotesWarning();
 	const { myDailyPlans, isSuccess: plansResolved } = useMyDailyPlans({
 		enabled: enabled && plansEnabled,
 		...(statusEnabled && scope ? { scope, refetchInterval: plansRefetchInterval } : {})
@@ -881,13 +878,14 @@ export function useTimerApi({
 					setTimerStatus(res.data);
 				releaseStopGuard(request);
 
-				// The API may not apply notes sent with a stop: the member is told instead of finding them gone later
-				if (wereNotesLostAtStop(notesAtStop, runningLog?.id, res.data?.lastLog)) {
-					toast.warning(t('toasts.timer.NOTES_NOT_SAVED'), {
-						id: 'timer-notes-not-saved',
-						description: t('toasts.timer.NOTES_NOT_SAVED_HINT')
-					});
-				}
+				// The API may not apply notes sent with a stop: the member is told instead of finding them gone later.
+				// Not awaited: the check may read the stopped entry again, and the stop does not wait for it.
+				void warnWhenStopLostNotes({
+					sentNotes: notesAtStop,
+					stoppedLogId: runningLog?.id,
+					answeredLog: res.data?.lastLog,
+					employeeId: user?.employee?.id
+				});
 
 				// Clear active task via API when timer stops. Skipped when the timer was already stopped: a team
 				// switch can send two stops, and the one answered 406 may already carry the new team.
@@ -957,7 +955,7 @@ export function useTimerApi({
 		statusEnabled,
 		setTimerStatusFetching,
 		store,
-		t
+		warnWhenStopLostNotes
 	]);
 
 	// ==================== SIDE EFFECTS ====================
