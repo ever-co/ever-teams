@@ -1,11 +1,14 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
+import { dayNumberOf } from '@/core/lib/utils/team-tasks-timeline';
+import { teamTasksState } from '@/core/stores/teams/team-tasks';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { EWeekDays } from '@/core/types/generics/enums/date';
 import type { TOrganization } from '@/core/types/schemas/organization/organization.schema';
+import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: Record<string, unknown>) =>
@@ -14,8 +17,88 @@ jest.mock('next-intl', () => ({
 }));
 // The owner hook asks the server for the organisation; the calendar only reads the atom it fills.
 jest.mock('@/core/hooks/bootstrap/use-feature-data', () => ({ useCurrentOrganizationOwner: jest.fn() }));
+// The month is a grid from `sm`, the list of its busy days on a phone; tasks are dragged with a mouse or a pen only.
 let mockFitsMonthGrid = true;
-jest.mock('@/core/hooks/common/use-media-query', () => ({ useMediaQuery: () => mockFitsMonthGrid }));
+let mockHasFinePointer = true;
+function mockMatchOf(query: string) {
+	const isPointerQuery = query.includes('pointer');
+	if (isPointerQuery) {
+		return mockHasFinePointer;
+	}
+	return mockFitsMonthGrid;
+}
+jest.mock('@/core/hooks/common/use-media-query', () => ({ useMediaQuery: (query: string) => mockMatchOf(query) }));
+const mockMoveToDay = jest.fn();
+jest.mock('@/core/hooks/tasks/use-team-task-updates', () => ({
+	useTeamTaskUpdates: () => ({ moveToDay: mockMoveToDay })
+}));
+
+// Pragmatic drag and drop listens to native drag events, which jsdom does not have. These stand-ins keep what the
+// calendar registers, so a test plays a drag the way the library calls those registrations.
+type DragData = Record<string | symbol, unknown>;
+interface DragSource {
+	element: HTMLElement;
+	data: DragData;
+}
+interface DropTarget {
+	element: HTMLElement;
+	data: DragData;
+}
+interface DragLocation {
+	current: { dropTargets: DropTarget[] };
+}
+interface DraggableRegistration {
+	element: HTMLElement;
+	getInitialData: () => DragData;
+	onDragStart?: () => void;
+	onDrop?: () => void;
+}
+interface DropTargetRegistration {
+	element: HTMLElement;
+	canDrop: (args: { source: DragSource }) => boolean;
+	getData: () => DragData;
+	onDragEnter?: () => void;
+	onDrop?: () => void;
+}
+interface MonitorRegistration {
+	canMonitor?: (args: { source: DragSource }) => boolean;
+	onDragStart?: (args: { source: DragSource; location: DragLocation }) => void;
+	onDrop?: (args: { source: DragSource; location: DragLocation }) => void;
+}
+const mockDraggables: DraggableRegistration[] = [];
+const mockDropTargets: DropTargetRegistration[] = [];
+const mockMonitors: MonitorRegistration[] = [];
+function mockRegister<T>(registrations: T[], registration: T) {
+	registrations.push(registration);
+	return () => {
+		const index = registrations.indexOf(registration);
+		registrations.splice(index, 1);
+	};
+}
+jest.mock(
+	'@atlaskit/pragmatic-drag-and-drop/element/adapter',
+	() => ({
+		draggable: (registration: DraggableRegistration) => mockRegister(mockDraggables, registration),
+		dropTargetForElements: (registration: DropTargetRegistration) => mockRegister(mockDropTargets, registration),
+		monitorForElements: (registration: MonitorRegistration) => mockRegister(mockMonitors, registration)
+	}),
+	{ virtual: true }
+);
+jest.mock(
+	'@atlaskit/pragmatic-drag-and-drop/combine',
+	() => ({
+		combine:
+			(...cleanups: Array<() => void>) =>
+			() =>
+				cleanups.forEach((cleanup) => cleanup())
+	}),
+	{ virtual: true }
+);
+jest.mock(
+	'@atlaskit/pragmatic-drag-and-drop-auto-scroll/element',
+	() => ({ autoScrollForElements: () => () => undefined }),
+	{ virtual: true }
+);
 
 import { TeamTasksCalendarView } from './team-tasks-calendar';
 
@@ -33,6 +116,8 @@ const openTask = (id: string, title: string, dueDate?: string) => ({
 interface CalendarOptions {
 	selected?: string[];
 	startWeekOn?: EWeekDays;
+	/** The tasks of the active team, the ones that change day; none by default. */
+	teamTaskIds?: string[];
 }
 
 function renderCalendar(tasks: Array<Record<string, unknown>>, options: CalendarOptions = {}) {
@@ -54,6 +139,9 @@ function renderCalendar(tasks: Array<Record<string, unknown>>, options: Calendar
 		const organization = { startWeekOn: options.startWeekOn } as unknown as TOrganization;
 		store.set(currentOrganizationState, organization);
 	}
+	const teamTaskIds = options.teamTaskIds ?? [];
+	const teamTasks = tasks.filter((task) => teamTaskIds.includes(String(task.id)));
+	store.set(teamTasksState, teamTasks as unknown as TTask[]);
 	const { unmount } = render(
 		<Provider store={store}>
 			<TeamTasksCalendarView view={view} commands={commands} />
@@ -78,6 +166,75 @@ function openTaskTitlesIn(container: HTMLElement) {
 	return chips.map((chip) => chip.getAttribute('title'));
 }
 
+const NO_DROP_TARGET: DragLocation = { current: { dropTargets: [] } };
+
+function registrationOn<T extends { element: HTMLElement }>(registrations: T[], element: HTMLElement) {
+	const registration = registrations.find((candidate) => candidate.element === element);
+	if (!registration) {
+		throw new Error('Nothing is registered on this element');
+	}
+	return registration;
+}
+
+function watches(monitor: MonitorRegistration, source: DragSource) {
+	if (!monitor.canMonitor) {
+		return true;
+	}
+	return monitor.canMonitor({ source });
+}
+
+/** Starts dragging an element as the library does: its data read, then its own start and the monitors'. */
+function beginDrag(element: HTMLElement) {
+	const draggable = registrationOn(mockDraggables, element);
+	const source: DragSource = { element, data: draggable.getInitialData() };
+	const monitors = mockMonitors.filter((monitor) => watches(monitor, source));
+	act(() => {
+		draggable.onDragStart?.();
+		for (const monitor of monitors) {
+			monitor.onDragStart?.({ source, location: NO_DROP_TARGET });
+		}
+	});
+	return { draggable, source, monitors };
+}
+
+type Drag = ReturnType<typeof beginDrag>;
+
+/** Whether a day takes the dragged task; the task enters a day that does. */
+function enterDay(drag: Drag, day: HTMLElement) {
+	const target = registrationOn(mockDropTargets, day);
+	const accepts = target.canDrop({ source: drag.source });
+	if (accepts) {
+		act(() => target.onDragEnter?.());
+	}
+	return accepts;
+}
+
+/** Drops the dragged task on a day; on no drop target when the day refuses it. */
+function dropOn(drag: Drag, day: HTMLElement) {
+	const target = registrationOn(mockDropTargets, day);
+	const accepts = target.canDrop({ source: drag.source });
+	const dropTargets: DropTarget[] = [];
+	if (accepts) {
+		dropTargets.push({ element: day, data: target.getData() });
+	}
+	const location: DragLocation = { current: { dropTargets } };
+	act(() => {
+		if (accepts) {
+			target.onDrop?.();
+		}
+		for (const monitor of drag.monitors) {
+			monitor.onDrop?.({ source: drag.source, location });
+		}
+		drag.draggable.onDrop?.();
+	});
+}
+
+function isDraggable(element: HTMLElement) {
+	return mockDraggables.some((registration) => registration.element === element);
+}
+
+const november = (date: number) => dayNumberOf(new Date(2026, 10, date));
+
 describe('TeamTasksCalendarView', () => {
 	beforeAll(() => {
 		jest.useFakeTimers();
@@ -86,6 +243,8 @@ describe('TeamTasksCalendarView', () => {
 	afterAll(() => jest.useRealTimers());
 	afterEach(() => {
 		mockFitsMonthGrid = true;
+		mockHasFinePointer = true;
+		mockMoveToDay.mockReset();
 	});
 
 	it('draws the month as the list of its busy days where seven columns do not fit, and never both', () => {
@@ -317,5 +476,166 @@ describe('TeamTasksCalendarView', () => {
 			within(november2).getByRole('button', { name: 'Old bug, open, pages.teamTasks.TIMELINE_OVERDUE' })
 		).toBeTruthy();
 		expect(within(november2).getByRole('button', { name: 'Done long ago, done' })).toBeTruthy();
+	});
+
+	describe('a task dragged to another day', () => {
+		it('moves there when dropped, the day marked while the task is over it and the task dimmed', () => {
+			renderCalendar([openTask('a', 'Ship the release', '2026-11-12')], { teamTaskIds: ['a'] });
+			const grid = monthGrid('November 2026');
+			const chip = within(dayCell(grid, 'Thursday, November 12')).getByRole('button', {
+				name: 'Ship the release, open'
+			});
+			const november17 = dayCell(grid, 'Tuesday, November 17');
+
+			const drag = beginDrag(chip);
+			expect(chip.className).toContain('opacity-40');
+			expect(enterDay(drag, november17)).toBe(true);
+			expect(november17.getAttribute('data-drop-target')).toBe('true');
+			dropOn(drag, november17);
+
+			expect(mockMoveToDay).toHaveBeenCalledTimes(1);
+			expect(mockMoveToDay).toHaveBeenCalledWith('a', november(17));
+			expect(november17.getAttribute('data-drop-target')).toBe('false');
+			expect(chip.className).not.toContain('opacity-40');
+		});
+
+		it('stays where it is when dropped back on the day it is due', () => {
+			renderCalendar([openTask('a', 'Ship the release', '2026-11-12')], { teamTaskIds: ['a'] });
+			const november12 = dayCell(monthGrid('November 2026'), 'Thursday, November 12');
+			const chip = within(november12).getByRole('button', { name: 'Ship the release, open' });
+
+			const drag = beginDrag(chip);
+			expect(enterDay(drag, november12)).toBe(false);
+			dropOn(drag, november12);
+
+			expect(november12.getAttribute('data-drop-target')).toBe('false');
+			expect(mockMoveToDay).not.toHaveBeenCalled();
+		});
+
+		it('says it can be dragged, and only for a task of the active team', () => {
+			renderCalendar(
+				[openTask('a', 'Ship the release', '2026-11-12'), openTask('o', 'Their release', '2026-11-12')],
+				{ teamTaskIds: ['a'] }
+			);
+			const november12 = dayCell(monthGrid('November 2026'), 'Thursday, November 12');
+			const ours = within(november12).getByRole('button', { name: 'Ship the release, open' });
+			const theirs = within(november12).getByRole('button', { name: 'Their release, open' });
+
+			expect(isDraggable(ours)).toBe(true);
+			expect(ours.getAttribute('title')).toBe('Ship the release\npages.teamTasks.CALENDAR_DRAG_HINT');
+			expect(isDraggable(theirs)).toBe(false);
+			expect(theirs.getAttribute('title')).toBe('Their release');
+		});
+
+		it('is never dragged on the phone list of days, nor with a touch screen', () => {
+			mockFitsMonthGrid = false;
+			const { unmount } = renderCalendar([openTask('a', 'Ship the release', '2026-11-12')], {
+				teamTaskIds: ['a']
+			});
+			expect(mockDraggables).toHaveLength(0);
+			expect(mockDropTargets).toHaveLength(0);
+			expect(mockMonitors).toHaveLength(0);
+			unmount();
+
+			mockFitsMonthGrid = true;
+			mockHasFinePointer = false;
+			renderCalendar([openTask('a', 'Ship the release', '2026-11-12')], { teamTaskIds: ['a'] });
+			const chip = screen.getByRole('button', { name: 'Ship the release, open' });
+			expect(isDraggable(chip)).toBe(false);
+			expect(chip.getAttribute('title')).toBe('Ship the release');
+			expect(mockDropTargets).toHaveLength(0);
+		});
+
+		it('gets a due date from the day a task of the panel is dropped on, never a day before it starts', () => {
+			renderCalendar(
+				[openTask('u1', 'Write the notes'), { ...openTask('u2', 'Call the client'), startDate: '2026-11-18' }],
+				{ teamTaskIds: ['u1', 'u2'] }
+			);
+			fireEvent.click(screen.getByRole('button', { name: /^pages\.teamTasks\.CALENDAR_NO_DUE_DATE/ }));
+			const panel = screen.getByRole('complementary', { name: 'pages.teamTasks.CALENDAR_NO_DUE_DATE' });
+			const grid = monthGrid('November 2026');
+			const notes = within(panel).getByRole('button', { name: 'Write the notes' });
+			const client = within(panel).getByRole('button', { name: 'Call the client' });
+
+			expect(within(panel).getByText('pages.teamTasks.CALENDAR_UNDATED_DRAG_HINT')).toBeTruthy();
+			const notesDrag = beginDrag(notes);
+			expect(notes.closest('li')?.className).toContain('opacity-40');
+			dropOn(notesDrag, dayCell(grid, 'Friday, November 20'));
+			expect(mockMoveToDay).toHaveBeenCalledWith('u1', november(20));
+
+			const clientDrag = beginDrag(client);
+			expect(enterDay(clientDrag, dayCell(grid, 'Tuesday, November 17'))).toBe(false);
+			expect(enterDay(clientDrag, dayCell(grid, 'Wednesday, November 18'))).toBe(true);
+			dropOn(clientDrag, dayCell(grid, 'Tuesday, November 17'));
+			expect(mockMoveToDay).toHaveBeenCalledTimes(1);
+		});
+
+		it('leaves the month free under "+N more" while a task is dragged out of it, and closes it on the drop', () => {
+			renderCalendar(
+				[
+					openTask('a', 'First', '2026-11-20'),
+					openTask('b', 'Second', '2026-11-20'),
+					openTask('c', 'Third', '2026-11-20'),
+					openTask('d', 'Fourth', '2026-11-20')
+				],
+				{ teamTaskIds: ['a', 'b', 'c', 'd'] }
+			);
+			const grid = monthGrid('November 2026');
+			fireEvent.click(
+				within(dayCell(grid, 'Friday, November 20')).getByRole('button', {
+					name: 'dashboard.calendar.MORE_ENTRIES(1)'
+				})
+			);
+			const dayList = screen.getByRole('dialog');
+			const fourth = within(dayList).getByRole('button', { name: 'Fourth, open' });
+
+			const drag = beginDrag(fourth);
+			const placement = dayList.closest('[data-slot="popover-positioner"]');
+			expect(dayList.className).toContain('opacity-0');
+			expect(dayList.className).toContain('pointer-events-none');
+			expect(placement?.className).toContain('pointer-events-none');
+			dropOn(drag, dayCell(grid, 'Monday, November 23'));
+
+			expect(mockMoveToDay).toHaveBeenCalledWith('d', november(23));
+			expect(screen.queryByRole('dialog')).toBeNull();
+		});
+
+		it('closes an open "+N more" list when another task of the month is dragged, so the days under it take it', () => {
+			renderCalendar(
+				[
+					openTask('a', 'First', '2026-11-20'),
+					openTask('b', 'Second', '2026-11-20'),
+					openTask('c', 'Third', '2026-11-20'),
+					openTask('d', 'Fourth', '2026-11-20'),
+					openTask('e', 'Elsewhere', '2026-11-12')
+				],
+				{ teamTaskIds: ['a', 'b', 'c', 'd', 'e'] }
+			);
+			const grid = monthGrid('November 2026');
+			fireEvent.click(
+				within(dayCell(grid, 'Friday, November 20')).getByRole('button', {
+					name: 'dashboard.calendar.MORE_ENTRIES(1)'
+				})
+			);
+			expect(screen.getByRole('dialog')).toBeTruthy();
+			const elsewhere = within(dayCell(grid, 'Thursday, November 12')).getByRole('button', {
+				name: 'Elsewhere, open'
+			});
+
+			const drag = beginDrag(elsewhere);
+			expect(screen.queryByRole('dialog')).toBeNull();
+			dropOn(drag, dayCell(grid, 'Monday, November 23'));
+
+			expect(mockMoveToDay).toHaveBeenCalledWith('e', november(23));
+		});
+
+		it('offers no drag in the panel when none of its tasks can move', () => {
+			renderCalendar([openTask('u1', 'Their notes')], { teamTaskIds: [] });
+			fireEvent.click(screen.getByRole('button', { name: /^pages\.teamTasks\.CALENDAR_NO_DUE_DATE/ }));
+			const panel = screen.getByRole('complementary', { name: 'pages.teamTasks.CALENDAR_NO_DUE_DATE' });
+
+			expect(within(panel).getByText('pages.teamTasks.CALENDAR_UNDATED_HINT')).toBeTruthy();
+			expect(isDraggable(within(panel).getByRole('button', { name: 'Their notes' }))).toBe(false);
+		});
 	});
 });

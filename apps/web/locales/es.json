@@ -2605,6 +2605,8 @@
 			"CALENDAR_EMPTY_MONTH": "Ninguna tarea vence en {month}",
 			"CALENDAR_NO_DUE_DATE": "Sin fecha límite",
 			"CALENDAR_UNDATED_HINT": "Estas tareas no están en el calendario. Fija una fecha límite para colocarlas.",
+			"CALENDAR_UNDATED_DRAG_HINT": "Estas tareas no están en el calendario. Arrastra una a un día o fija su fecha límite.",
+			"CALENDAR_DRAG_HINT": "Arrástrala a otro día para cambiar su fecha límite.",
 			"TIMELINE_ZOOM": "Zoom",
 			"TIMELINE_ZOOM_WEEKS": "Semanas",
 			"TIMELINE_ZOOM_MONTHS": "Meses",

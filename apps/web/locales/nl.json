@@ -2605,6 +2605,8 @@
 			"CALENDAR_EMPTY_MONTH": "Geen taak met een deadline in {month}",
 			"CALENDAR_NO_DUE_DATE": "Geen deadline",
 			"CALENDAR_UNDATED_HINT": "Deze taken staan niet in de kalender. Stel een deadline in om ze te plaatsen.",
+			"CALENDAR_UNDATED_DRAG_HINT": "Deze taken staan niet in de kalender. Sleep er een naar een dag, of stel de deadline in.",
+			"CALENDAR_DRAG_HINT": "Sleep naar een andere dag om de deadline te wijzigen.",
 			"TIMELINE_ZOOM": "Zoom",
 			"TIMELINE_ZOOM_WEEKS": "Weken",
 			"TIMELINE_ZOOM_MONTHS": "Maanden",

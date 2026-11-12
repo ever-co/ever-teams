@@ -1,8 +1,8 @@
 'use client';
 
-import { memo, useCallback, useId, useMemo, useState, type MouseEvent } from 'react';
+import { memo, useCallback, useId, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { useAtomValue } from 'jotai';
-import { useLocale, useTranslations } from 'next-intl';
+import { useLocale, useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { startOfMonth } from 'date-fns';
 import {
 	CALENDAR_ACTION,
@@ -20,20 +20,38 @@ import { PersonAvatar, personFromTaskMember } from '@/core/components/teams/peop
 import { useCurrentOrganizationOwner } from '@/core/hooks/bootstrap/use-feature-data';
 import { useMediaQuery } from '@/core/hooks/common/use-media-query';
 import { useToday } from '@/core/hooks/common/use-today';
+import { useTeamTaskUpdates } from '@/core/hooks/tasks/use-team-task-updates';
 import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
 import { cn } from '@/core/lib/helpers';
 import { shiftedAnchorOf, weekStartOf } from '@/core/lib/utils/calendar-view';
 import { teamTasksCalendarMonthOf, type TeamTasksCalendarDay } from '@/core/lib/utils/team-tasks-calendar';
+import { dayOfStoredDate } from '@/core/lib/utils/team-tasks-timeline';
 import { isDoneStatus, statusOfTask, tasksOfGroups } from '@/core/lib/utils/team-tasks-view';
+import { tasksByTeamState } from '@/core/stores/teams/team-tasks';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { TTaskStatus } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import type { TeamTasksListCommands } from './team-tasks-list';
+import {
+	useCalendarDayDrop,
+	useCalendarTaskDrag,
+	useCalendarTaskMoves,
+	useDayListDragOut
+} from './team-tasks-calendar-dnd';
 
 const VISIBLE_TASKS_PER_DAY = 3;
 
 /** Tailwind's `sm`: below it seven columns do not fit, and the month is drawn as the list of its busy days. */
 const MONTH_GRID_QUERY = '(min-width: 40rem)';
+
+/** Only a mouse or a pen drags a task to another day: on a touch screen a drag would fight the scroll. */
+const FINE_POINTER_QUERY = '(pointer: fine)';
+
+/** A day a dragged task can go to, while the task is over it: the board lane's tint, drawn inside the grid's lines. */
+const DROP_DAY = 'bg-primary/[0.05] hairline-ring ring-inset ring-primary/30';
+
+/** A day's "+N more" list while one of its tasks is dragged out: gone from sight, and the pointer goes through it. */
+const DRAGGED_OUT_LIST = 'pointer-events-none opacity-0';
 
 const COUNT_CHIP =
 	'inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-[5px] bg-foreground/[0.06] px-1 text-[11px] font-medium tabular-nums text-muted-foreground';
@@ -68,6 +86,23 @@ interface ChipContext {
 	selectedIds: ReadonlySet<string>;
 	onOpen: (taskId: string) => void;
 	onToggleSelected: (taskId: string) => void;
+	/** Whether tasks are dragged to another day: the month is a grid and the pointer a mouse or a pen. */
+	isDragEnabled: boolean;
+	/** The tasks that can change day: the active team's (a built-in view lists the person's tasks of every team). */
+	movableIds: ReadonlySet<string>;
+}
+
+function canMoveTask(context: ChipContext, taskId: string) {
+	const isMovable = context.movableIds.has(taskId);
+	return context.isDragEnabled && isMovable;
+}
+
+/** The panel says a task can be dragged onto a day only when one of its tasks can be. */
+function undatedHintKeyOf(canDragAny: boolean): DottedLanguageObjectStringPaths {
+	if (canDragAny) {
+		return 'pages.teamTasks.CALENDAR_UNDATED_DRAG_HINT';
+	}
+	return 'pages.teamTasks.CALENDAR_UNDATED_HINT';
 }
 
 function StatusGlyph({ status }: Readonly<{ status: TTaskStatus | undefined }>) {
@@ -87,7 +122,8 @@ function StatusGlyph({ status }: Readonly<{ status: TTaskStatus | undefined }>) 
 
 /**
  * One task on its day: a soft tint and a bar in the colour of its status, the status glyph, the title and the first
- * person it is assigned to. A finished task is struck through, a late one is written in the destructive ink.
+ * person it is assigned to. A finished task is struck through, a late one is written in the destructive ink. A task
+ * that can change day is dragged to another one, and dims while it is moved.
  */
 const TaskChip = memo(function TaskChip({
 	task,
@@ -100,6 +136,10 @@ const TaskChip = memo(function TaskChip({
 	const isOverdue = isPastDay && !isDone;
 	const isSelected = context.selectedIds.has(task.id);
 	const firstMember = task.members?.[0];
+	const canDrag = canMoveTask(context, task.id);
+	const dueDay = dayOfStoredDate(task.dueDate);
+	const startDay = dayOfStoredDate(task.startDate);
+	const { ref, isDragging } = useCalendarTaskDrag<HTMLButtonElement>(task.id, dueDay, startDay, canDrag);
 	const labelParts = [task.title];
 	if (status?.name) {
 		labelParts.push(readableName(status.name));
@@ -108,6 +148,10 @@ const TaskChip = memo(function TaskChip({
 		labelParts.push(t('pages.teamTasks.TIMELINE_OVERDUE'));
 	}
 	const label = labelParts.join(', ');
+	let tooltip = task.title;
+	if (canDrag) {
+		tooltip = `${task.title}\n${t('pages.teamTasks.CALENDAR_DRAG_HINT')}`;
+	}
 
 	const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
 		const togglesSelection = event.metaKey || event.ctrlKey;
@@ -120,13 +164,14 @@ const TaskChip = memo(function TaskChip({
 
 	return (
 		<button
+			ref={ref}
 			type="button"
 			onClick={handleClick}
 			aria-label={label}
-			title={task.title}
+			title={tooltip}
 			data-selected={isSelected}
 			style={entryToneStyle(status?.color ?? null)}
-			className={cn(CHIP, ENTRY_SOLID, CALENDAR_ACTION, isSelected && 'ring-primary')}
+			className={cn(CHIP, ENTRY_SOLID, CALENDAR_ACTION, isSelected && 'ring-primary', isDragging && 'opacity-40')}
 		>
 			<span className={ENTRY_BAR} />
 			<StatusGlyph status={status} />
@@ -186,7 +231,10 @@ function DayNumber({ day, formats }: Readonly<{ day: TeamTasksCalendarDay; forma
 	);
 }
 
-/** "+N more" of a full day: every task of the day in a popover, which closes when one of them opens. */
+/**
+ * "+N more" of a full day: every task of the day in a popover, which closes when one of them opens. A task dragged out
+ * of it leaves the month under it free for the drop, and the popover closes once the task is dropped.
+ */
 function DayOverflow({
 	day,
 	hiddenCount,
@@ -195,6 +243,7 @@ function DayOverflow({
 }: Readonly<{ day: TeamTasksCalendarDay; hiddenCount: number; dayLabel: string; context: ChipContext }>) {
 	const t = useTranslations();
 	const [isOpen, setIsOpen] = useState(false);
+	const { listRef, isDraggingOut } = useDayListDragOut(isOpen, setIsOpen);
 	const { onOpen } = context;
 	const popoverContext = useMemo<ChipContext>(
 		() => ({
@@ -221,9 +270,15 @@ function DayOverflow({
 			>
 				{t('dashboard.calendar.MORE_ENTRIES', { count: hiddenCount })}
 			</PopoverTrigger>
-			<PopoverContent align="start" sideOffset={6} collisionPadding={12} className="w-72 p-2">
+			<PopoverContent
+				align="start"
+				sideOffset={6}
+				collisionPadding={12}
+				className={cn('w-72 p-2', isDraggingOut && DRAGGED_OUT_LIST)}
+				positionerClassName={cn(isDraggingOut && 'pointer-events-none')}
+			>
 				<p className="px-1 pb-2 text-xs font-medium text-muted-foreground">{dayLabel}</p>
-				<div className="max-h-72 overflow-y-auto custom-scrollbar">
+				<div ref={listRef} className="max-h-72 overflow-y-auto custom-scrollbar">
 					<TaskChipList tasks={day.tasks} isPastDay={day.isPast} context={popoverContext} />
 				</div>
 			</PopoverContent>
@@ -236,18 +291,22 @@ const DayCell = memo(function DayCell({
 	formats,
 	context
 }: Readonly<{ day: TeamTasksCalendarDay; formats: CalendarFormats; context: ChipContext }>) {
+	const { ref, isOver } = useCalendarDayDrop(day.dayNumber, context.isDragEnabled);
 	const dayLabel = formats.dayLabel.format(day.date);
 	const shownTasks = day.tasks.slice(0, VISIBLE_TASKS_PER_DAY);
 	const hiddenCount = day.tasks.length - shownTasks.length;
 	const hasHidden = hiddenCount > 0;
 	return (
 		<div
+			ref={ref}
 			role="gridcell"
 			aria-label={dayLabel}
+			data-drop-target={isOver}
 			className={cn(
-				'flex min-h-26 min-w-0 flex-col gap-1 p-1.5',
+				'flex min-h-26 min-w-0 flex-col gap-1 p-1.5 transition-[background-color,box-shadow]',
 				day.isWeekend && WEEKEND_TINT,
-				day.isOutsideMonth && 'bg-foreground/[0.015]'
+				day.isOutsideMonth && 'bg-foreground/[0.015]',
+				isOver && DROP_DAY
 			)}
 		>
 			<DayNumber day={day} formats={formats} />
@@ -327,6 +386,9 @@ const UndatedRow = memo(function UndatedRow({
 	const status = statusOfTask(task, context.statuses);
 	const isDone = isDoneStatus(status);
 	const isSelected = context.selectedIds.has(task.id);
+	const canDrag = canMoveTask(context, task.id);
+	const startDay = dayOfStoredDate(task.startDate);
+	const { ref, isDragging } = useCalendarTaskDrag<HTMLButtonElement>(task.id, null, startDay, canDrag);
 	const setDueDateLabel = t('pages.teamTasks.SET_DUE_DATE');
 	const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
 		const togglesSelection = event.metaKey || event.ctrlKey;
@@ -337,8 +399,14 @@ const UndatedRow = memo(function UndatedRow({
 		context.onOpen(task.id);
 	};
 	return (
-		<li className="flex h-9 items-center gap-1 pr-2 pl-3 [contain-intrinsic-size:auto_36px] [content-visibility:auto]">
+		<li
+			className={cn(
+				'flex h-9 items-center gap-1 pr-2 pl-3 [contain-intrinsic-size:auto_36px] [content-visibility:auto]',
+				isDragging && 'opacity-40'
+			)}
+		>
 			<button
+				ref={ref}
 				type="button"
 				onClick={handleClick}
 				data-selected={isSelected}
@@ -366,7 +434,7 @@ const UndatedRow = memo(function UndatedRow({
 	);
 });
 
-/** The tasks the month cannot place: listed apart, each with the due date picker one click away. */
+/** The tasks the month cannot place: listed apart, each dragged onto a day or given a date with the due date picker. */
 function UndatedPanel({
 	id,
 	tasks,
@@ -379,13 +447,14 @@ function UndatedPanel({
 	onSetDate: (taskId: string, anchor: Element) => void;
 }>) {
 	const t = useTranslations();
+	const canDragAny = tasks.some((task) => canMoveTask(context, task.id));
 	return (
 		<aside
 			id={id}
 			aria-label={t('pages.teamTasks.CALENDAR_NO_DUE_DATE')}
 			className="flex min-h-0 shrink-0 flex-col border-border max-lg:max-h-64 max-lg:hairline-t lg:w-72 lg:hairline-l"
 		>
-			<p className="px-4 pt-3 pb-2 text-xs text-muted-foreground">{t('pages.teamTasks.CALENDAR_UNDATED_HINT')}</p>
+			<p className="px-4 pt-3 pb-2 text-xs text-muted-foreground">{t(undatedHintKeyOf(canDragAny))}</p>
 			<ul className="min-h-0 flex-1 overflow-y-auto pb-2 custom-scrollbar">
 				{tasks.map((task) => (
 					<UndatedRow key={task.id} task={task} context={context} onSetDate={onSetDate} />
@@ -399,7 +468,9 @@ function UndatedPanel({
  * A view shown as a calendar (its layout): the tasks the view lists, with its filters, scope, search and ordering, each
  * on the day it is due, in a month of six whole weeks (the Calendar page's month). The tasks without a due date sit
  * on no day: they are counted in the bar and listed in a panel where the due date picker places them. A task opens
- * in the drawer, as a row does; Cmd or Ctrl with the click selects it for the page's selection bar.
+ * in the drawer, as a row does; Cmd or Ctrl with the click selects it for the page's selection bar. With a mouse or a
+ * pen, a task of the active team is dragged to another day of the grid, from its day or from the panel (a task of
+ * another team, listed by a built-in view, only opens, as on the timeline).
  */
 export function TeamTasksCalendarView({
 	view,
@@ -411,6 +482,10 @@ export function TeamTasksCalendarView({
 	const organization = useAtomValue(currentOrganizationState);
 	const today = useToday();
 	const fitsMonthGrid = useMediaQuery(MONTH_GRID_QUERY);
+	const hasFinePointer = useMediaQuery(FINE_POINTER_QUERY);
+	const teamTasks = useAtomValue(tasksByTeamState);
+	const { moveToDay } = useTeamTaskUpdates();
+	const scrollRef = useRef<HTMLDivElement>(null);
 	const undatedPanelId = useId();
 	const [anchor, setAnchor] = useState(() => startOfMonth(new Date()));
 	const [isUndatedOpen, setIsUndatedOpen] = useState(false);
@@ -425,10 +500,15 @@ export function TeamTasksCalendarView({
 		[tasks, anchor, weekStartsOn, today]
 	);
 
+	// The phone's list of days has no day to drop on: tasks are dragged on the grid only.
+	const isDragEnabled = fitsMonthGrid && hasFinePointer;
+	const movableIds = useMemo(() => new Set(teamTasks.map((task) => task.id)), [teamTasks]);
+	useCalendarTaskMoves(scrollRef, isDragEnabled, moveToDay);
+
 	const toggleChip = useCallback((taskId: string) => toggleSelected(taskId, false), [toggleSelected]);
 	const context = useMemo<ChipContext>(
-		() => ({ statuses, selectedIds, onOpen: openTask, onToggleSelected: toggleChip }),
-		[statuses, selectedIds, openTask, toggleChip]
+		() => ({ statuses, selectedIds, onOpen: openTask, onToggleSelected: toggleChip, isDragEnabled, movableIds }),
+		[statuses, selectedIds, openTask, toggleChip, isDragEnabled, movableIds]
 	);
 	const setDate = useCallback(
 		(taskId: string, anchorElement: Element) => openPicker('dueDate', [taskId], anchorElement),
@@ -482,7 +562,7 @@ export function TeamTasksCalendarView({
 				</div>
 			</div>
 			<div className="flex min-h-0 flex-1 max-lg:flex-col">
-				<div className="min-h-0 min-w-0 flex-1 overflow-auto custom-scrollbar">
+				<div ref={scrollRef} className="min-h-0 min-w-0 flex-1 overflow-auto custom-scrollbar">
 					{fitsMonthGrid && (
 						<MonthGrid weeks={month.weeks} formats={formats} context={context} label={monthTitle} />
 					)}
