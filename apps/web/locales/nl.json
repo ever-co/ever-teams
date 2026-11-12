@@ -2707,7 +2707,7 @@
 			"LABEL": "Notities",
 			"PLACEHOLDER": "Waar werk je aan?",
 			"HINT_BEFORE_START": "Optioneel. Opgeslagen bij de registratie wanneer de timer start.",
-			"HINT_RUNNING": "Wijzigingen worden verzonden wanneer je de timer stopt. Je krijgt een melding als ze niet zijn opgeslagen."
+			"HINT_RUNNING": "Wijzigingen terwijl de timer loopt worden nog niet opgeslagen. Bewerk de registratie in Urenstaten nadat je de timer hebt gestopt om de notities te wijzigen."
 		}
 	},
 	"task": {
