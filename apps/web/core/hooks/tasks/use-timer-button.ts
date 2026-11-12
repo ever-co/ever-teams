@@ -122,6 +122,7 @@ export function useTimerButtonLogic({ task }: { task: TTask }) {
 		hasPlan,
 		activeTeamTask,
 		startTimer,
+		stopTimer,
 		t
 	};
 }

@@ -119,8 +119,12 @@ function PaletteTimerStop() {
 function PaletteTimerStart({ task }: Readonly<{ task: TTask }>) {
 	const t = useTranslations();
 	const { data: user } = useUserQuery();
-	const { activeTaskStatus, disabled, canTrack, startStopTimerHandler, startTimerWithTask, modals } =
-		useTimerButtonLogic({ task });
+	const { activeTaskStatus, disabled, canTrack, startTimer, stopTimer, startTimerWithTask } = useTimerButtonLogic({
+		task
+	});
+	// A start that names no task starts the page's own task on a task page: the task asked for here is named
+	const startTimerOnTask = useCallback(() => startTimer(task), [startTimer, task]);
+	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer: startTimerOnTask, stopTimer });
 
 	useRunOnce(() => {
 		const action = paletteStartActionOf({
