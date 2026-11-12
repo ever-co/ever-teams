@@ -59,6 +59,7 @@ export interface TimeLogTaskChoiceInput {
 	projects: TOrganizationProject[] | undefined;
 	/** The project the dialog holds for the entry: its own, or the one picked by hand. */
 	pickedProjectId: string;
+	isOpen: boolean;
 }
 
 /**
@@ -67,11 +68,21 @@ export interface TimeLogTaskChoiceInput {
  * sends it; a task without one leaves the entry under the project the dialog holds.
  */
 export function useTimeLogTaskChoice(input: TimeLogTaskChoiceInput) {
-	const { log, pickedProjectId } = input;
+	const { log, pickedProjectId, isOpen } = input;
 	const projects = input.projects ?? NO_PROJECTS;
 	const activeTeam = useAtomValue(activeTeamState);
 	const teamTasks = useAtomValue(tasksByTeamState);
 	const [pick, setPick] = useState<TaskPick | null>(null);
+	// The dialog stays mounted once closed. A task picked in an earlier opening is dropped when the next one starts:
+	// left there by a Cancel, it would move the entry as soon as another field is saved
+	const [wasOpen, setWasOpen] = useState(isOpen);
+	const isNewOpening = isOpen && !wasOpen;
+	if (wasOpen !== isOpen) {
+		setWasOpen(isOpen);
+	}
+	if (isNewOpening) {
+		setPick(null);
+	}
 	const pickedTaskId = pickedTaskIdFor(pick, log.id);
 	const pickTask = useCallback((taskId: string) => setPick({ logId: log.id, taskId }), [log.id]);
 

@@ -158,11 +158,13 @@ describe('times of a form', () => {
 	});
 
 	it('counts the time from a start to a later end only', () => {
-		expect(spanSecondsOf(timesOf(540, 630))).toBe(NINETY_MINUTES);
-		expect(spanSecondsOf(timesOf(null, 630))).toBeNull();
-		expect(spanSecondsOf(timesOf(540, null))).toBeNull();
-		expect(spanSecondsOf(timesOf(630, 540))).toBeNull();
-		expect(spanSecondsOf(timesOf(540, 540))).toBeNull();
+		const day = at(0);
+
+		expect(spanSecondsOf(timesOf(540, 630), day)).toBe(NINETY_MINUTES);
+		expect(spanSecondsOf(timesOf(null, 630), day)).toBeNull();
+		expect(spanSecondsOf(timesOf(540, null), day)).toBeNull();
+		expect(spanSecondsOf(timesOf(630, 540), day)).toBeNull();
+		expect(spanSecondsOf(timesOf(540, 540), day)).toBeNull();
 	});
 });
 
@@ -219,12 +221,14 @@ describe('phase of a typed duration', () => {
 	});
 
 	it('reads the refused text, the asked duration, or the time from start to end', () => {
-		expect(restingDurationTextOf(invalid, handPicked)).toBe('soon');
-		expect(restingDurationTextOf(noRoom, noTimes)).toBe('8h 0m');
-		expect(restingDurationTextOf(reading, noTimes)).toBe('1h 30m');
-		expect(restingDurationTextOf(proposed, timesOf(540, 630))).toBe('1h 30m');
-		expect(restingDurationTextOf(IDLE_PHASE, handPicked)).toBe('1h 0m');
-		expect(restingDurationTextOf(IDLE_PHASE, noTimes)).toBe('');
+		const day = at(0);
+
+		expect(restingDurationTextOf(invalid, handPicked, day)).toBe('soon');
+		expect(restingDurationTextOf(noRoom, noTimes, day)).toBe('8h 0m');
+		expect(restingDurationTextOf(reading, noTimes, day)).toBe('1h 30m');
+		expect(restingDurationTextOf(proposed, timesOf(540, 630), day)).toBe('1h 30m');
+		expect(restingDurationTextOf(IDLE_PHASE, handPicked, day)).toBe('1h 0m');
+		expect(restingDurationTextOf(IDLE_PHASE, noTimes, day)).toBe('');
 	});
 });
 

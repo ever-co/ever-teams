@@ -5,7 +5,8 @@ import { Provider, createStore } from 'jotai';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { type PropsWithChildren, useState } from 'react';
 
-import type { ShownTimes } from '@/core/lib/utils/dashboards/manual-time-entry';
+import { useSyncRef } from '@/core/hooks/common/use-sync-ref';
+import { claimedIntervalsOf, type ShownTimes } from '@/core/lib/utils/dashboards/manual-time-entry';
 import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
@@ -69,7 +70,7 @@ function useForm(start: FormStart) {
 	return { entry, times, setDay, setEmployeeId, setTimes };
 }
 
-function renderForm(start: Partial<FormStart> = {}) {
+function formProviders() {
 	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 	const store = createStore();
 	// Time in the future is allowed, so the proposals do not depend on the day the test runs
@@ -79,12 +80,69 @@ function renderForm(start: Partial<FormStart> = {}) {
 			<Provider store={store}>{children}</Provider>
 		</QueryClientProvider>
 	);
+	return { client, wrapper };
+}
+
+function renderForm(start: Partial<FormStart> = {}) {
+	const { client, wrapper } = formProviders();
 	const formStart: FormStart = { employeeId: 'employee-a', times: NO_TIMES, ...start };
 	const view = renderHook(() => useForm(formStart), { wrapper });
 	return { ...view, client };
 }
 
 type RenderedForm = ReturnType<typeof renderForm>['result'];
+
+/**
+ * Two periods of one day in one form, as the time entry dialog holds them. The form knows the times a period just
+ * received before it renders again, and each period reads the other's through it.
+ */
+function usePeriodsForm() {
+	const [periods, setPeriods] = useState<ShownTimes[]>([NO_TIMES, NO_TIMES]);
+	const latestPeriodsRef = useSyncRef(periods);
+
+	const setTimes = (index: number, times: ShownTimes) => {
+		const updated = [...latestPeriodsRef.current];
+		updated[index] = times;
+		latestPeriodsRef.current = updated;
+		setPeriods(updated);
+	};
+	const readClaimed = (index: number) => {
+		const formPeriods = latestPeriodsRef.current.map((times) => ({ day: at(0), times }));
+		return claimedIntervalsOf(formPeriods, index);
+	};
+	return { periods, setTimes, readClaimed };
+}
+
+function usePeriodEntry(form: ReturnType<typeof usePeriodsForm>, index: number) {
+	const times = form.periods[index];
+	return useDurationEntry({
+		employeeId: 'employee-a',
+		day: at(0),
+		startMinutes: times.startMinutes,
+		endMinutes: times.endMinutes,
+		readClaimed: () => form.readClaimed(index),
+		onInterval: (interval) => form.setTimes(index, timesOfInterval(interval))
+	});
+}
+
+function useTwoPeriods() {
+	const form = usePeriodsForm();
+	const first = usePeriodEntry(form, 0);
+	const second = usePeriodEntry(form, 1);
+	return { entries: [first, second], periods: form.periods, setTimes: form.setTimes };
+}
+
+function renderTwoPeriods() {
+	const { wrapper } = formProviders();
+	return renderHook(() => useTwoPeriods(), { wrapper });
+}
+
+type RenderedPeriods = ReturnType<typeof renderTwoPeriods>['result'];
+
+function typePeriodDuration(result: RenderedPeriods, index: number, text: string) {
+	act(() => result.current.entries[index].change(text));
+	act(() => result.current.entries[index].commit());
+}
 
 function typeDuration(result: RenderedForm, text: string) {
 	act(() => result.current.entry.change(text));
@@ -93,6 +151,24 @@ function typeDuration(result: RenderedForm, text: string) {
 
 async function waitForPhase(result: RenderedForm, kind: string) {
 	await waitFor(() => expect(result.current.entry.phase.kind).toBe(kind));
+}
+
+/** A read of the day that the test answers when it chooses, so it can act while the hook still waits for it. */
+function pendingRead() {
+	let answer: (logs: ITimeLog[]) => void = () => undefined;
+	const logs = new Promise<ITimeLog[]>((resolve) => {
+		answer = resolve;
+	});
+	mockGetTimeLogs.mockReturnValueOnce(logs);
+	return { answer };
+}
+
+/** Answers a pending read and lets everything that waited for it run. */
+async function answerRead(read: ReturnType<typeof pendingRead>, logs: ITimeLog[]) {
+	await act(async () => {
+		read.answer(logs);
+		await new Promise((resolve) => setTimeout(resolve, 0));
+	});
 }
 
 describe('useDurationEntry', () => {
@@ -204,6 +280,70 @@ describe('useDurationEntry', () => {
 		await waitForPhase(result, 'proposed');
 
 		expect(result.current.times).toEqual({ startMinutes: 540, endMinutes: 630 });
+	});
+
+	it('leaves the form empty when the duration is cleared while the day is being read', async () => {
+		const read = pendingRead();
+		const { result } = renderForm();
+
+		typeDuration(result, '1:30');
+		typeDuration(result, '');
+		await answerRead(read, []);
+
+		expect(result.current.entry.phase.kind).toBe('idle');
+		expect(result.current.times).toEqual(NO_TIMES);
+	});
+
+	it('keeps the refusal of a text typed while the day is being read', async () => {
+		const read = pendingRead();
+		const { result } = renderForm();
+
+		typeDuration(result, '1:30');
+		typeDuration(result, 'soon');
+		await answerRead(read, []);
+
+		expect(result.current.entry.phase.kind).toBe('invalid');
+		expect(result.current.entry.text).toBe('soon');
+		expect(result.current.times).toEqual(NO_TIMES);
+	});
+
+	it('proposes nothing from the day of a member who was removed while it was being read', async () => {
+		const read = pendingRead();
+		const { result } = renderForm();
+
+		typeDuration(result, '1:30');
+		act(() => result.current.setEmployeeId(null));
+		await answerRead(read, []);
+
+		expect(result.current.entry.phase.kind).toBe('noMember');
+		expect(result.current.times).toEqual(NO_TIMES);
+	});
+
+	it('gives two periods asked before the day is read two intervals that do not overlap', async () => {
+		const read = pendingRead();
+		const { result } = renderTwoPeriods();
+
+		typePeriodDuration(result, 0, '1:30');
+		typePeriodDuration(result, 1, '1:30');
+		await answerRead(read, []);
+
+		// One read answers both: their proposals are placed one after the other, without a render in between
+		expect(mockGetTimeLogs).toHaveBeenCalledTimes(1);
+		expect(result.current.periods).toEqual([
+			{ startMinutes: 540, endMinutes: 630 },
+			{ startMinutes: 630, endMinutes: 720 }
+		]);
+	});
+
+	it('places a proposal around the times another period took while the day was being read', async () => {
+		const read = pendingRead();
+		const { result } = renderTwoPeriods();
+
+		typePeriodDuration(result, 1, '1:30');
+		act(() => result.current.setTimes(0, { startMinutes: 540, endMinutes: 600 }));
+		await answerRead(read, []);
+
+		expect(result.current.periods[1]).toEqual({ startMinutes: 600, endMinutes: 690 });
 	});
 
 	it("proposes nothing when the API answers with the caller's entries instead of the member's", async () => {

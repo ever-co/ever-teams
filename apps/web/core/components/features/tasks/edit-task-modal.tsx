@@ -89,7 +89,8 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 	const taskChoice = useTimeLogTaskChoice({
 		log: timeLogData,
 		projects: organizationProjects,
-		pickedProjectId: timesheetData.projectId
+		pickedProjectId: timesheetData.projectId,
+		isOpen
 	});
 	const memberItemsLists = useMemo(
 		() => ({
@@ -169,9 +170,17 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 				startedAt,
 				stoppedAt
 			};
+			const savedProjectId = updatePayload.projectId ?? '';
+			const hasMovedToTaskProject = savedProjectId !== timesheetData.projectId;
 			const saveUpdate = () =>
 				updateTimeLog(updatePayload)
 					.then(() => {
+						// The dialog stays mounted once closed, and a new task moves the entry to its project while
+						// the project field is left alone: the form takes that project, or the next save of this
+						// entry would send the previous one
+						if (hasMovedToTaskProject) {
+							setTimesheetData((prev) => ({ ...prev, projectId: savedProjectId }));
+						}
 						toast.success(t('toasts.time.LOG_UPDATED'));
 						closeModal();
 					})

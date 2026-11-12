@@ -42,21 +42,28 @@ function periodOfShift(shift: ShiftTimes, minutesOfOption: MinutesOfOption): For
  * dialog's other periods.
  */
 export function ShiftDurationField({
-	shifts,
+	shift,
+	readShifts,
 	index,
 	employeeId,
 	minutesOfOption,
 	onTimes
 }: Readonly<{
-	shifts: ReadonlyArray<ShiftTimes>;
+	shift: ShiftTimes;
+	/** The dialog's periods as they are when called, the times one of them just received included. */
+	readShifts: () => ReadonlyArray<ShiftTimes>;
 	index: number;
 	employeeId: string;
 	minutesOfOption: MinutesOfOption;
 	onTimes: (index: number, startTime: string, endTime: string) => void;
 }>) {
-	const periods = shifts.map((shift) => periodOfShift(shift, minutesOfOption));
-	const period = periods[index];
-	const claimed = claimedIntervalsOf(periods, index);
+	const period = periodOfShift(shift, minutesOfOption);
+
+	const readClaimed = () => {
+		const latestShifts = readShifts();
+		const latestPeriods = latestShifts.map((latestShift) => periodOfShift(latestShift, minutesOfOption));
+		return claimedIntervalsOf(latestPeriods, index);
+	};
 
 	const showInterval = (interval: TimeWindow | null) => {
 		if (!interval) {
@@ -73,7 +80,7 @@ export function ShiftDurationField({
 		day: period.day,
 		startMinutes: period.times.startMinutes,
 		endMinutes: period.times.endMinutes,
-		claimed,
+		readClaimed,
 		onInterval: showInterval
 	});
 
