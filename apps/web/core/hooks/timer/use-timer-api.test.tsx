@@ -79,6 +79,13 @@ const mockUpdateTask = jest.fn();
 const mockSetActiveTask = jest.fn();
 const mockResolveBillable = jest.fn(async () => false);
 
+// The shipped 10-minute threshold, whatever NEXT_PUBLIC_STALE_TIMER_THRESHOLD_MINUTES the env files loaded for Jest set
+jest.mock('@/core/constants/config/constants', () => {
+	const constants = jest.requireActual<typeof import('@/core/constants/config/constants')>(
+		'@/core/constants/config/constants'
+	);
+	return { ...constants, STALE_TIMER_THRESHOLD: { value: constants.STALE_TIMER_THRESHOLD_MS } };
+});
 jest.mock('next/navigation', () => ({ usePathname: () => '/' }));
 jest.mock('next-intl', () => ({ useTranslations: () => mockTranslate, useLocale: () => 'en' }));
 jest.mock('sonner', () => ({
