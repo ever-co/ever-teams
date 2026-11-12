@@ -184,8 +184,7 @@ describe('docsService comment anchors', () => {
 
 		const [url, body] = put.mock.calls[0];
 		expect(url).toBe('/plugins/docs/documents/p1/comments/c%2F1/anchor');
-		const { tenantId: _tenantId, organizationId: _organizationId, ...anchor } = body as Record<string, unknown>;
-		expect(anchor).toEqual({ blockId: 'b1', start: 2, end: 5, quote: 'abc', suffix: 'x' });
+		expect(body).toMatchObject({ blockId: 'b1', start: 2, end: 5, quote: 'abc', suffix: 'x' });
 		expect(Object.keys(body as object).sort()).toEqual(['blockId', 'end', 'organizationId', 'quote', 'start', 'suffix', 'tenantId']);
 	});
 

@@ -9,17 +9,24 @@ import { fromBase64, toBase64 } from './protocol';
  * The same walk as the platform's, so a position is read alike in the editor, the panel and on the platform.
  */
 
-/** Whether a type is the fragment or under it. */
-function isInside(type: Y.AbstractType<unknown>, fragment: Y.XmlFragment): boolean {
-	for (let current: Y.AbstractType<unknown> | null = type; current; current = parentOf(current)) {
+/** A node of the shared fragment the editors bind: the fragment, an element, or a text. */
+type LiveNode = Y.XmlFragment | Y.XmlElement | Y.XmlText;
+
+function isLiveNode(value: unknown): value is LiveNode {
+	return value instanceof Y.XmlFragment || value instanceof Y.XmlElement || value instanceof Y.XmlText;
+}
+
+/** Whether a node is the fragment or under it. */
+function isInside(type: LiveNode, fragment: Y.XmlFragment): boolean {
+	for (let current: LiveNode | null = type; current; current = parentOf(current)) {
 		if (current === fragment) return true;
 	}
 	return false;
 }
 
-function parentOf(type: Y.AbstractType<unknown>): Y.AbstractType<unknown> | null {
-	const parent = (type as unknown as { parent?: Y.AbstractType<unknown> | null }).parent;
-	return parent ?? null;
+function parentOf(type: LiveNode): LiveNode | null {
+	const parent = (type as unknown as { parent?: unknown }).parent;
+	return isLiveNode(parent) ? parent : null;
 }
 
 /** The text length of a node, as the anchors count it: a text's characters, an element's children's. */
@@ -34,7 +41,7 @@ function liveTextLength(type: unknown): number {
 }
 
 /** The block and offset of `(type, index)`: the nearest element with a `blockId` above it, and the text before it there. */
-function pointOf(type: Y.AbstractType<unknown>, index: number): DocsLiveAnchorPoint | null {
+function pointOf(type: LiveNode, index: number): DocsLiveAnchorPoint | null {
 	let offset = 0;
 	if (type instanceof Y.XmlText) {
 		offset = Math.max(0, Math.min(index, type.length));
@@ -44,7 +51,7 @@ function pointOf(type: Y.AbstractType<unknown>, index: number): DocsLiveAnchorPo
 	} else {
 		return null;
 	}
-	let node: Y.AbstractType<unknown> = type;
+	let node: LiveNode = type;
 	for (;;) {
 		if (node instanceof Y.XmlElement) {
 			const blockId = node.getAttribute('blockId');
@@ -75,8 +82,9 @@ export function liveAnchorResolverOf(doc: Y.Doc, field = DOCS_LIVE_FIELD): DocsL
 		} catch {
 			return null;
 		}
-		if (!absolute || !isInside(absolute.type as Y.AbstractType<unknown>, fragment)) return null;
-		return pointOf(absolute.type as Y.AbstractType<unknown>, absolute.index);
+		const type: unknown = absolute?.type;
+		if (!absolute || !isLiveNode(type) || !isInside(type, fragment)) return null;
+		return pointOf(type, absolute.index);
 	};
 }
 

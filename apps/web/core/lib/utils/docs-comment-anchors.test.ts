@@ -98,7 +98,7 @@ describe('resolveCommentAnchor', () => {
 
 describe('approximateMatch', () => {
 	it('finds a near match within a quarter of the quote, and nothing for a short or distant one', () => {
-		expect(approximateMatch('say hello wrld now', 'hello world')).toMatchObject({ start: 4, distance: 1 });
+		expect(approximateMatch('say hello, world now', 'hello world')).toMatchObject({ start: 4, distance: 1 });
 		expect(approximateMatch('abc', 'abd')).toBeNull();
 		expect(approximateMatch('something else entirely', 'hello world')).toBeNull();
 	});
