@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Checkbox } from '@/core/components/common/checkbox';
 import {
 	ArrowUp,
+	Building,
 	Calendar,
 	ChevronRight,
 	Clock,
@@ -20,6 +21,7 @@ import {
 import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
 import {
 	PeopleCell,
+	ProjectClientCell,
 	ProjectDatesCell,
 	ProjectProgressCell,
 	ProjectStatusChip,
@@ -39,6 +41,7 @@ import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { cn } from '@/core/lib/helpers';
 import type { ProjectsListState } from '@/core/hooks/projects/use-projects-list-state';
 import type { ProjectTaskStatsState } from '@/core/hooks/projects/use-project-task-stats';
+import { useClientNames } from '@/core/hooks/clients/use-client-names';
 import {
 	clientNameOf,
 	contributorsOf,
@@ -58,6 +61,7 @@ import { COLUMN_LABEL_KEYS } from './projects-display-menu';
 
 const COLUMN_WIDTHS_REM: Record<ProjectColumn, number> = {
 	status: 8.5,
+	client: 9,
 	progress: 7.5,
 	managers: 5.5,
 	members: 6.5,
@@ -72,6 +76,7 @@ const BUDGET_USE_COLUMN_REM = 12;
 
 const COLUMN_ICONS: Record<ProjectColumn, ReactNode> = {
 	status: <CircleCheck />,
+	client: <Building />,
 	progress: <Analytics />,
 	managers: <UserCheck />,
 	members: <Users />,
@@ -145,6 +150,7 @@ export function ProjectsListView({
 	const visibleColumns = PROJECT_COLUMNS.filter((column) => columns(column));
 	const gridStyle = gridStyleOf(visibleColumns, list.showsConsumption);
 	const isGrouped = list.grouping === 'status';
+	const clientNames = useClientNames();
 	const [collapsedGroups, setCollapsedGroups] = useState<string[]>([]);
 
 	const toggleGroup = (key: string) => {
@@ -183,6 +189,7 @@ export function ProjectsListView({
 											project={project}
 											list={list}
 											columns={visibleColumns}
+											clientNames={clientNames}
 											statuses={statuses}
 											taskStats={taskStats}
 											consumption={consumption}
@@ -363,32 +370,61 @@ function GroupHeader({
 	);
 }
 
-function ProjectSubline({ project }: Readonly<{ project: TOrganizationProject }>) {
+const SUBLINE = 'truncate text-xs text-muted-foreground';
+
+function joinedSubline(parts: string[]) {
+	return parts.join(' · ');
+}
+
+/**
+ * Under the name: the code, the client and the archive day. From `lg` up the client has its own column, so the
+ * line drops it there when that column is shown.
+ */
+function ProjectSubline({
+	project,
+	clientName,
+	hasClientColumn
+}: Readonly<{ project: TOrganizationProject; clientName: string | null; hasClientColumn: boolean }>) {
 	const t = useTranslations();
 	const locale = useLocale();
-	const client = clientNameOf(project);
 	const archivedAt = realDateOf(project.archivedAt);
-	const parts: string[] = [];
+	const leadingParts: string[] = [];
 	if (project.code) {
-		parts.push(project.code);
+		leadingParts.push(project.code);
 	}
-	if (client) {
-		parts.push(client);
-	}
+	const trailingParts: string[] = [];
 	if (project.isArchived && archivedAt) {
-		parts.push(t('pages.projects.list.ARCHIVED_ON', { date: formatProjectDay(archivedAt, locale) }));
+		trailingParts.push(t('pages.projects.list.ARCHIVED_ON', { date: formatProjectDay(archivedAt, locale) }));
+	}
+	const partsWithoutClient = [...leadingParts, ...trailingParts];
+	let parts = partsWithoutClient;
+	if (clientName) {
+		parts = [...leadingParts, clientName, ...trailingParts];
 	}
 	const hasParts = parts.length > 0;
 	if (!hasParts) {
 		return null;
 	}
-	return <span className="truncate text-xs text-muted-foreground">{parts.join(' · ')}</span>;
+	const dropsClientOnWide = hasClientColumn && Boolean(clientName);
+	if (!dropsClientOnWide) {
+		return <span className={SUBLINE}>{joinedSubline(parts)}</span>;
+	}
+	const hasPartsWithoutClient = partsWithoutClient.length > 0;
+	return (
+		<>
+			<span className={cn(SUBLINE, 'lg:hidden')}>{joinedSubline(parts)}</span>
+			{hasPartsWithoutClient && (
+				<span className={cn(SUBLINE, 'max-lg:hidden')}>{joinedSubline(partsWithoutClient)}</span>
+			)}
+		</>
+	);
 }
 
 function ProjectRow({
 	project,
 	list,
 	columns,
+	clientNames,
 	statuses,
 	taskStats,
 	consumption
@@ -396,6 +432,7 @@ function ProjectRow({
 	project: TOrganizationProject;
 	list: ProjectsListState;
 	columns: ProjectColumn[];
+	clientNames: ReadonlyMap<string, string>;
 	statuses: TTaskStatus[];
 	taskStats: ProjectTaskStatsState;
 	consumption: ProjectConsumptionState;
@@ -404,9 +441,12 @@ function ProjectRow({
 	const isSelected = list.selectedIds.includes(project.id);
 	const managers = managersOf(project).map(personFromProjectMember);
 	const members = contributorsOf(project).map(personFromProjectMember);
+	const clientName = clientNameOf(project, clientNames);
+	const hasClientColumn = columns.includes('client');
 
 	const cells: Record<ProjectColumn, ReactNode> = {
 		status: <ProjectStatusChip statusName={project.status} statuses={statuses} />,
+		client: <ProjectClientCell project={project} clientNames={clientNames} />,
 		progress: <ProjectProgressCell projectId={project.id} taskStats={taskStats} />,
 		managers: <PeopleCell people={managers} max={3} />,
 		members: <PeopleCell people={members} max={3} />,
@@ -443,7 +483,7 @@ function ProjectRow({
 						</span>
 						<FavoriteMark entity={EBaseEntityEnum.OrganizationProject} id={project.id} />
 					</span>
-					<ProjectSubline project={project} />
+					<ProjectSubline project={project} clientName={clientName} hasClientColumn={hasClientColumn} />
 				</span>
 			</Link>
 			<span className="flex items-center gap-1.5 px-2 lg:hidden">

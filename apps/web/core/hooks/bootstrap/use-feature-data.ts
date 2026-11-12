@@ -13,7 +13,7 @@ import { useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 
 export function useCurrentOrganizationOwner() {
-	useGetCurrentOrganization({ enabled: true });
+	return useGetCurrentOrganization({ enabled: true });
 }
 
 export function useCurrenciesOwner() {

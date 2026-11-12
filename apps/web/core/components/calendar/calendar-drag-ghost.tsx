@@ -98,7 +98,7 @@ function EntryGhost({
 	const { rangeText, duration } = windowTextsOf(ghost.window, formatters);
 	const isCompact = isCompactRange(ghost.range);
 	const box = ghostBoxOf(ghost.range);
-	const toneStyle = entryToneStyle(entry.projectColor);
+	const toneStyle = entryToneStyle(entry.projectColor, entry.projectKey);
 	const fill = entryFillOf(entry.isManual);
 	return (
 		<div

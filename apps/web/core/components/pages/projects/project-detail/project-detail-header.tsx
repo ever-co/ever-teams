@@ -14,6 +14,7 @@ import { useProjectPermissions } from '@/core/hooks/projects/use-project-permiss
 import { cn } from '@/core/lib/helpers';
 import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
 import { isTaskTrashEnabled } from '@/core/lib/utils/comments-trash-flags';
+import { useClientNames } from '@/core/hooks/clients/use-client-names';
 import { clientNameOf, personFromProjectMember } from '@/core/lib/utils/project-list';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import type { TOrganizationProject } from '@/core/types/schemas';
@@ -91,7 +92,8 @@ export function ProjectDetailHeader({
 	const { openEditModal } = useProjectActionModal();
 	const { canEdit } = useProjectPermissions({ members: project.members });
 	const people = (project.members ?? []).map(personFromProjectMember);
-	const client = clientNameOf(project);
+	const clientNames = useClientNames();
+	const client = clientNameOf(project, clientNames);
 	const isArchived = Boolean(project.isArchived);
 	const showsEdit = canEdit && !isArchived;
 	const eyebrowParts = [project.code, client].filter(Boolean);

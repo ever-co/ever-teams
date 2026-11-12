@@ -11,6 +11,8 @@ import { dataColorChipStyle, isPaintableColor } from '@/core/components/tasks/ta
 import { AvatarStack } from '@/core/components/teams/people-avatars';
 import { cn } from '@/core/lib/helpers';
 import {
+	clientIdOf,
+	clientNameOf,
 	completionPercentOf,
 	findStatusByName,
 	normalizeStatusName,
@@ -152,6 +154,26 @@ export function ProjectProgressCell({
 			<TooltipContent>{hint}</TooltipContent>
 		</Tooltip>
 	);
+}
+
+type ProjectClientFields = Pick<TOrganizationProject, 'organizationContactId' | 'organizationContact'>;
+
+/**
+ * The project's client. A client can be set with no name to show: the API leaves an archived client out of the
+ * project's relation, and the clients' names may not be read. It is then written as set, never as "No client".
+ */
+export function ProjectClientCell({
+	project,
+	clientNames
+}: Readonly<{ project: ProjectClientFields; clientNames: ReadonlyMap<string, string> }>) {
+	const t = useTranslations();
+	const hasClient = clientIdOf(project) !== null;
+	if (!hasClient) {
+		return <span className={MUTED_VALUE}>{t('clients.picker.NO_CLIENT')}</span>;
+	}
+	const knownName = clientNameOf(project, clientNames);
+	const shownName = knownName ?? t('common.CLIENT');
+	return <span className="truncate text-[13px] text-foreground">{shownName}</span>;
 }
 
 export function PeopleCell({

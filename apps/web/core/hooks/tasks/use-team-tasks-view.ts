@@ -31,14 +31,16 @@ import {
 } from '@/core/lib/utils/team-tasks-view';
 import {
 	collapsedKeysFromStorage,
+	hasDefaultDisplayOptions,
 	isDefaultView,
 	scopeFromStorage,
 	viewSettingsFromStorage,
+	withLayout,
 	withToggledProperty
 } from '@/core/lib/utils/team-tasks-view-storage';
 import { sortByManualOrder } from '@/core/lib/utils/task-view-order';
 import type { ITaskViewDefinition } from '@/core/types/interfaces/common/task-views';
-import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
+import { shownTeamTasksLayout } from '@/core/lib/utils/team-tasks-layouts';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
@@ -147,7 +149,9 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 	const [storedScope, setStoredScope] = useLocalStorageState<unknown>(SCOPE_STORAGE_KEY, 'active');
 	const [storedCollapsed, setStoredCollapsed] = useLocalStorageState<unknown>(COLLAPSED_STORAGE_KEY, []);
 	// A saved or built-in view: its state lives here, seeded from the view, never on this device.
-	const [memoryView, setMemoryView] = useState<TeamTasksViewSettings>(() => initial?.settings ?? DEFAULT_TEAM_TASKS_VIEW);
+	const [memoryView, setMemoryView] = useState<TeamTasksViewSettings>(
+		() => initial?.settings ?? DEFAULT_TEAM_TASKS_VIEW
+	);
 	const [memoryScope, setMemoryScope] = useState<TeamTasksScope>(() => initial?.scope ?? 'active');
 	const [search, setSearch] = useState(() => initial?.search ?? '');
 	const [filters, setFilters] = useState<TeamTasksFilters>(() => initial?.filters ?? NO_FILTERS);
@@ -238,7 +242,7 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 	const canReorder = allowsManualOrder && settings.ordering === 'manual';
 	// A board has its lanes for groups, a timeline one row per task: their tasks come in the view's ordering alone,
 	// and a group collapsed in the list hides nothing there, nor from the selection.
-	const isUngrouped = (settings.layout === 'board' || settings.layout === 'timeline') && isTaskViewsEnabled();
+	const isUngrouped = shownTeamTasksLayout(settings) !== 'list';
 	const groupedSettings = useMemo<TeamTasksViewSettings>(
 		() => (isUngrouped ? { ...settings, grouping: 'none' } : settings),
 		[isUngrouped, settings]
@@ -320,23 +324,20 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 		(showsEmptyGroups: boolean) => updateView((current) => ({ ...current, showsEmptyGroups })),
 		[updateView]
 	);
-	/** A list is what a view without a layout is: only a board or a timeline is written down. */
 	const setLayout = useCallback(
-		(layout: TeamTasksLayout) =>
-			updateView((current) => {
-				const next = { ...current };
-				delete next.layout;
-				return layout === 'list' ? next : { ...next, layout };
-			}),
+		(layout: TeamTasksLayout) => updateView((current) => withLayout(current, layout)),
 		[updateView]
 	);
+	// The layout is picked from the page's switch, not from Display: the reset of Display leaves it in place, on the
+	// team's tasks (back to the defaults) as on a saved view (back to its own settings).
 	const resetView = useCallback(() => {
 		if (isDetached) {
-			setMemoryView(initial?.settings ?? DEFAULT_TEAM_TASKS_VIEW);
+			const savedSettings = initial?.settings ?? DEFAULT_TEAM_TASKS_VIEW;
+			setMemoryView((current) => withLayout(savedSettings, current.layout ?? 'list'));
 			return;
 		}
-		setStoredView(DEFAULT_TEAM_TASKS_VIEW);
-	}, [initial?.settings, isDetached, setStoredView]);
+		updateView((current) => withLayout(DEFAULT_TEAM_TASKS_VIEW, current.layout ?? 'list'));
+	}, [initial?.settings, isDetached, updateView]);
 
 	const setFilter = useCallback((field: TeamTasksFilterField, values: string[]) => {
 		setFilters((current) => ({ ...current, [field]: values }));
@@ -417,6 +418,7 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 		refetchStatuses,
 		settings,
 		isDefaultView: isDefaultView(settings),
+		hasDefaultDisplay: hasDefaultDisplayOptions(settings),
 		isDetached,
 		allowsManualOrder,
 		canReorder,

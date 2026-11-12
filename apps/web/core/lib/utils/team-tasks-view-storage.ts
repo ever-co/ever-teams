@@ -11,7 +11,7 @@ import {
 
 const GROUPINGS: TeamTasksGrouping[] = ['status', 'priority', 'assignee', 'project', 'issueType', 'none'];
 
-const LAYOUTS: TeamTasksLayout[] = ['list', 'board', 'timeline'];
+const LAYOUTS: TeamTasksLayout[] = ['list', 'board', 'timeline', 'calendar', 'table'];
 
 const ORDERINGS: TeamTasksOrdering[] = ['priority', 'updated', 'created', 'dueDate', 'number', 'title'];
 
@@ -94,10 +94,23 @@ export function withToggledProperty(settings: TeamTasksViewSettings, property: T
 	return { ...settings, properties };
 }
 
-export function isDefaultView(settings: TeamTasksViewSettings) {
+/**
+ * The settings with a layout picked. A list is what a view without a layout is, so only another layout is written
+ * down, and first, where a stored view reads it back: two definitions are compared key by key, in order.
+ */
+export function withLayout(settings: TeamTasksViewSettings, layout: TeamTasksLayout): TeamTasksViewSettings {
+	const next = { ...settings };
+	delete next.layout;
+	if (layout === 'list') {
+		return next;
+	}
+	return { layout, ...next };
+}
+
+/** Whether what the Display popover holds is the default: everything but the layout, picked from the page's switch. */
+export function hasDefaultDisplayOptions(settings: TeamTasksViewSettings) {
 	const defaults = DEFAULT_TEAM_TASKS_VIEW;
 	const sameShape = [
-		(settings.layout ?? 'list') === 'list',
 		settings.grouping === defaults.grouping,
 		settings.ordering === defaults.ordering,
 		settings.isDescending === defaults.isDescending,
@@ -108,4 +121,9 @@ export function isDefaultView(settings: TeamTasksViewSettings) {
 		(property) => settings.properties[property] === defaults.properties[property]
 	);
 	return sameShape.every(Boolean) && sameProperties;
+}
+
+export function isDefaultView(settings: TeamTasksViewSettings) {
+	const isList = (settings.layout ?? 'list') === 'list';
+	return isList && hasDefaultDisplayOptions(settings);
 }
