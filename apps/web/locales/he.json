@@ -3849,6 +3849,7 @@
 		"FIELD_DATE": "תאריך",
 		"FIELD_TIME": "שעת התחלה",
 		"FIELD_DURATION": "משך",
+		"LOCAL_TIME_HINT": "אצלך: {time}",
 		"FIELD_DESCRIPTION": "תיאור",
 		"FIELD_DESCRIPTION_PLACEHOLDER": "סדר יום, קישורים, מה להכין",
 		"FIELD_PARTICIPANTS": "משתתפים",

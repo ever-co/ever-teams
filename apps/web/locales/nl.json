@@ -3849,6 +3849,7 @@
 		"FIELD_DATE": "Datum",
 		"FIELD_TIME": "Begintijd",
 		"FIELD_DURATION": "Duur",
+		"LOCAL_TIME_HINT": "Bij jou: {time}",
 		"FIELD_DESCRIPTION": "Beschrijving",
 		"FIELD_DESCRIPTION_PLACEHOLDER": "Agenda, links, wat voor te bereiden",
 		"FIELD_PARTICIPANTS": "Deelnemers",

@@ -84,6 +84,11 @@ jest.mock('@/core/hooks/meetings/use-meeting-invitees', () => ({
 	]
 }));
 
+// The person's zone is the one this test runs in, so the times typed are the times of the dates built here
+jest.mock('@/core/hooks/meetings/use-default-meeting-zone', () => ({
+	useDefaultMeetingZone: () => Intl.DateTimeFormat().resolvedOptions().timeZone
+}));
+
 import { MeetingsPage } from './meetings-page';
 
 /** The room name a meeting page path carries. */
@@ -225,6 +230,38 @@ describe('MeetingsPage', () => {
 			'bob@acme.com'
 		]);
 		expect(await screen.findByText('meetings.INVITE_HINT_PARTICIPANTS')).toBeTruthy();
+	});
+
+	it('reads the date and time typed on the clocks of the time zone picked, and says the time where one is', async () => {
+		Element.prototype.scrollIntoView ??= jest.fn();
+		globalThis.ResizeObserver ??= class {
+			observe() {}
+			unobserve() {}
+			disconnect() {}
+		} as unknown as typeof ResizeObserver;
+		const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+		const elsewhere = zone === 'Asia/Tokyo' ? 'America/New_York' : 'Asia/Tokyo';
+		render(<MeetingsPage />);
+		fireEvent.click(screen.getByTestId('meetings-schedule'));
+		fireEvent.change(await screen.findByLabelText('meetings.FIELD_TITLE'), { target: { value: 'Tokyo sync' } });
+		fireEvent.change(screen.getByLabelText('meetings.FIELD_DATE'), { target: { value: '2030-01-15' } });
+		fireEvent.change(screen.getByLabelText('meetings.FIELD_TIME'), { target: { value: '10:00' } });
+		expect(screen.getByTestId('meeting-time-zone').textContent).toContain(zone.replace(/_/g, ' '));
+		expect(screen.queryByTestId('meeting-local-time')).toBeNull();
+
+		fireEvent.click(screen.getByTestId('meeting-time-zone'));
+		fireEvent.change(await screen.findByPlaceholderText('settings.preferences.TIME_ZONE_SEARCH'), {
+			target: { value: elsewhere }
+		});
+		fireEvent.click(await screen.findByRole('option', { name: new RegExp(elsewhere.replace(/_/g, ' ')) }));
+
+		expect(screen.getByTestId('meeting-time-zone').textContent).toContain(elsewhere.replace(/_/g, ' '));
+		expect(screen.getByTestId('meeting-local-time').textContent).toMatch(/^meetings.LOCAL_TIME_HINT:/);
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'meetings.SCHEDULE' }));
+		});
+		const expected = elsewhere === 'Asia/Tokyo' ? '2030-01-15T01:00:00.000Z' : '2030-01-15T15:00:00.000Z';
+		expect(mockScheduleMeeting.mock.calls[0][0].start.toISOString()).toBe(expected);
 	});
 
 	it('refuses a meeting without a title or at a time that has passed', async () => {

@@ -3849,6 +3849,7 @@
 		"FIELD_DATE": "日期",
 		"FIELD_TIME": "开始时间",
 		"FIELD_DURATION": "时长",
+		"LOCAL_TIME_HINT": "你所在地：{time}",
 		"FIELD_DESCRIPTION": "描述",
 		"FIELD_DESCRIPTION_PLACEHOLDER": "议程、链接、需要准备的内容",
 		"FIELD_PARTICIPANTS": "参与者",

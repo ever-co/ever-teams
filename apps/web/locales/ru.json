@@ -3849,6 +3849,7 @@
 		"FIELD_DATE": "Дата",
 		"FIELD_TIME": "Время начала",
 		"FIELD_DURATION": "Длительность",
+		"LOCAL_TIME_HINT": "У вас: {time}",
 		"FIELD_DESCRIPTION": "Описание",
 		"FIELD_DESCRIPTION_PLACEHOLDER": "Повестка, ссылки, что подготовить",
 		"FIELD_PARTICIPANTS": "Участники",

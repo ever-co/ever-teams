@@ -3849,6 +3849,7 @@
 		"FIELD_DATE": "Data",
 		"FIELD_TIME": "Godzina rozpoczęcia",
 		"FIELD_DURATION": "Czas trwania",
+		"LOCAL_TIME_HINT": "U ciebie: {time}",
 		"FIELD_DESCRIPTION": "Opis",
 		"FIELD_DESCRIPTION_PLACEHOLDER": "Agenda, linki, co przygotować",
 		"FIELD_PARTICIPANTS": "Uczestnicy",

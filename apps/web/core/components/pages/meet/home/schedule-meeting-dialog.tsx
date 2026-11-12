@@ -8,45 +8,38 @@ import { Input, controlRecipe } from '@/core/components/common/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { CalendarPlus, Copy } from '@/core/components/icons';
+import { useDefaultMeetingZone } from '@/core/hooks/meetings/use-default-meeting-zone';
 import { useMeetingInvitees } from '@/core/hooks/meetings/use-meeting-invitees';
 import { cn } from '@/core/lib/helpers';
 import {
 	meetingLinkWithTitle,
 	participantsWithText,
-	startOfDay,
 	type RescheduleMeetingDraft,
 	type ScheduledMeeting,
 	type ScheduleMeetingDraft
 } from '@/core/lib/utils/meetings';
+import { detectTimeZone, utcOffsetOf } from '@/core/lib/utils/settings-time-zone';
+import { instantOf, nextSlotIn, wallClockOf, type WallClock } from '@/core/lib/utils/zoned-time';
 import { copyMeetingInvitation, downloadMeetingIcs, meetingWhenOf } from './meeting-invitation';
 import { ParticipantsField } from './participants-field';
+import { TimeZoneField } from './time-zone-field';
 
 const DURATIONS = [15, 30, 45, 60, 90, 120];
 const DEFAULT_DURATION = 30;
-const SLOT_MINUTES = 30;
 const MINUTE = 60_000;
 
 function twoDigits(value: number): string {
 	return String(value).padStart(2, '0');
 }
 
-/** The next half hour: the time a meeting planned now most often starts. */
-function nextSlotOf(now: Date): Date {
-	const slot = new Date(now);
-	slot.setSeconds(0, 0);
-	slot.setMinutes(Math.ceil((slot.getMinutes() + 1) / SLOT_MINUTES) * SLOT_MINUTES);
-	return slot;
-}
-
-/** When a new meeting is proposed: the next half hour, at that time of day on a later day picked in the agenda. */
-function proposedStartOf(day: Date | undefined): Date {
-	const slot = nextSlotOf(new Date());
-	if (!day || startOfDay(day).getTime() <= startOfDay(slot).getTime()) {
-		return slot;
-	}
-	const start = startOfDay(day);
-	start.setHours(slot.getHours(), slot.getMinutes());
-	return start;
+/**
+ * When a new meeting is proposed, on the clocks of its time zone: the next half hour, at that time of day on a later
+ * day picked in the agenda.
+ */
+function proposedClockOf(day: Date | undefined, zone: string): WallClock {
+	const slot = nextSlotIn(zone);
+	const pickedDate = day ? dateInputOf(day) : null;
+	return pickedDate && pickedDate > slot.date ? { date: pickedDate, time: slot.time } : slot;
 }
 
 /** The durations offered: the usual ones, and a meeting's own when it lasts another time. */
@@ -57,12 +50,9 @@ function durationsWith(minutes: number): number[] {
 	return [...DURATIONS, minutes].sort((first, second) => first - second);
 }
 
+/** The calendar day of a date picked in the agenda, as a date input holds it. */
 function dateInputOf(date: Date): string {
 	return `${date.getFullYear()}-${twoDigits(date.getMonth() + 1)}-${twoDigits(date.getDate())}`;
-}
-
-function timeInputOf(date: Date): string {
-	return `${twoDigits(date.getHours())}:${twoDigits(date.getMinutes())}`;
 }
 
 interface ScheduleMeetingDialogProps {
@@ -97,9 +87,15 @@ export function ScheduleMeetingDialog({
 }: Readonly<ScheduleMeetingDialogProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
+	const defaultZone = useDefaultMeetingZone();
+	const [zone, setZone] = useState(defaultZone);
+	// The date and time fields read on the clocks of the zone; changing the zone keeps them as typed
+	const [initialClock] = useState(() =>
+		meeting ? wallClockOf(meeting.start, defaultZone) : proposedClockOf(initialDay, defaultZone)
+	);
 	const [title, setTitle] = useState(() => meeting?.title ?? '');
-	const [date, setDate] = useState(() => dateInputOf(meeting?.start ?? proposedStartOf(initialDay)));
-	const [time, setTime] = useState(() => timeInputOf(meeting?.start ?? proposedStartOf(initialDay)));
+	const [date, setDate] = useState(initialClock.date);
+	const [time, setTime] = useState(initialClock.time);
 	const [duration, setDuration] = useState(() =>
 		meeting ? Math.max(1, Math.round((meeting.end.getTime() - meeting.start.getTime()) / MINUTE)) : DEFAULT_DURATION
 	);
@@ -112,12 +108,18 @@ export function ScheduleMeetingDialog({
 	const [scheduled, setScheduled] = useState<(ScheduledMeeting & { link: string }) | null>(null);
 	const [invitedCount, setInvitedCount] = useState(0);
 	const minutesFormat = new Intl.NumberFormat(locale, { style: 'unit', unit: 'minute', unitDisplay: 'short' });
+	const typedStart = instantOf(date, time, zone);
+	const browserZone = detectTimeZone();
+	// Typed in another zone than the browser's: the time where the person is, to be sure of it
+	const isElsewhere =
+		!Number.isNaN(typedStart.getTime()) && utcOffsetOf(zone, typedStart) !== utcOffsetOf(browserZone, typedStart);
 
 	const close = () => {
-		const slot = nextSlotOf(new Date());
+		const slot = nextSlotIn(defaultZone);
 		setTitle('');
-		setDate(dateInputOf(slot));
-		setTime(timeInputOf(slot));
+		setZone(defaultZone);
+		setDate(slot.date);
+		setTime(slot.time);
 		setDuration(DEFAULT_DURATION);
 		setDescription('');
 		setParticipants([]);
@@ -164,8 +166,9 @@ export function ScheduleMeetingDialog({
 			return;
 		}
 		// A meeting that already began may keep its start, to the second: only a new start must lie ahead
-		const keptStart = meeting && dateInputOf(meeting.start) === date && timeInputOf(meeting.start) === time;
-		const start = keptStart ? meeting.start : new Date(`${date}T${time}`);
+		const meetingClock = meeting ? wallClockOf(meeting.start, zone) : null;
+		const keptStart = meeting && meetingClock?.date === date && meetingClock.time === time;
+		const start = keptStart ? meeting.start : typedStart;
 		if (Number.isNaN(start.getTime()) || (start.getTime() < Date.now() && !keptStart)) {
 			setProblem('past');
 			return;
@@ -263,7 +266,7 @@ export function ScheduleMeetingDialog({
 								id="meeting-date"
 								type="date"
 								value={date}
-								min={dateInputOf(new Date())}
+								min={wallClockOf(new Date(), zone).date}
 								aria-invalid={problem === 'past' || undefined}
 								onChange={(event) => {
 									setDate(event.target.value);
@@ -304,6 +307,27 @@ export function ScheduleMeetingDialog({
 								</SelectContent>
 							</Select>
 						</div>
+						<TimeZoneField
+							zone={zone}
+							at={typedStart}
+							onChange={(picked) => {
+								setZone(picked);
+								setProblem(null);
+							}}
+						/>
+						{isElsewhere && (
+							<p
+								className="-mt-1.5 text-xs text-muted-foreground sm:col-span-2"
+								data-testid="meeting-local-time"
+							>
+								{t('meetings.LOCAL_TIME_HINT', {
+									time: new Intl.DateTimeFormat(locale, {
+										dateStyle: 'medium',
+										timeStyle: 'short'
+									}).format(typedStart)
+								})}
+							</p>
+						)}
 						{!meeting && (
 							<ParticipantsField
 								invitees={invitees}

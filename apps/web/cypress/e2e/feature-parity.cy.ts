@@ -3,10 +3,23 @@
 const dateInputOf = (date: Date) =>
 	[date.getFullYear(), date.getMonth() + 1, date.getDate()].map((part) => String(part).padStart(2, '0')).join('-');
 
+/** When the meeting Schedule proposes starts: the dialog reads its date and time in the fixture user's zone, UTC. */
+function rememberTheProposedStart() {
+	cy.get('#meeting-date')
+		.invoke('val')
+		.then((date) => {
+			cy.get('#meeting-time')
+				.invoke('val')
+				.then((time) => {
+					cy.wrap(new Date(`${date}T${time}:00Z`)).as('proposedStart');
+				});
+		});
+}
+
 /** The agenda shows one day: Schedule proposes the next half hour, which late in the evening is on the next day. */
 function showTheProposedDay() {
-	cy.get<string>('@proposedDate').then((proposedDate) => {
-		if (proposedDate !== dateInputOf(new Date())) {
+	cy.get<Date>('@proposedStart').then((proposedStart) => {
+		if (dateInputOf(proposedStart) !== dateInputOf(new Date())) {
 			cy.get('button[aria-label="Next day"]').click();
 		}
 	});
@@ -158,7 +171,7 @@ describe('feature parity on the authenticated shell', () => {
 		cy.hardVisit('/meet');
 		cy.get('[data-testid="meetings-schedule"]', { timeout: 20_000 }).click();
 		cy.get('#meeting-title').type('Sprint review');
-		cy.get('#meeting-date').invoke('val').as('proposedDate');
+		rememberTheProposedStart();
 		cy.contains('button', /^Schedule$/).click();
 		cy.wait('@schedule')
 			.its('request.body')
@@ -210,7 +223,7 @@ describe('feature parity on the authenticated shell', () => {
 		cy.hardVisit('/meet');
 		cy.get('[data-testid="meetings-schedule"]', { timeout: 20_000 }).click();
 		cy.get('#meeting-title').type('Retro');
-		cy.get('#meeting-date').invoke('val').as('proposedDate');
+		rememberTheProposedStart();
 		cy.contains('button', /^Schedule$/).click();
 		cy.contains('button', /^Done$/).click();
 		showTheProposedDay();
@@ -247,12 +260,29 @@ describe('feature parity on the authenticated shell', () => {
 		cy.get('[data-testid="meeting-scheduled"]').should('contain', 'The people you added get a short email');
 	});
 
+	it('reads the date and time typed on the clocks of the time zone picked', () => {
+		cy.intercept('POST', '**/api/employee-appointment').as('schedule');
+		cy.hardVisit('/meet');
+		cy.get('[data-testid="meetings-schedule"]', { timeout: 20_000 }).click();
+		cy.get('#meeting-title').type('Tokyo sync');
+		// The person's zone comes first: the fixture user's is UTC
+		cy.get('[data-testid="meeting-time-zone"]').should('contain', 'UTC');
+		cy.get('#meeting-date').clear().type('2030-01-15');
+		cy.get('#meeting-time').clear().type('10:00');
+		cy.get('[data-testid="meeting-time-zone"]').click();
+		cy.get('input[placeholder="Search by city or region"]').type('Asia/Tokyo');
+		cy.contains('[role="option"]', 'Asia/Tokyo').click();
+		cy.get('[data-testid="meeting-time-zone"]').should('contain', 'Asia/Tokyo').and('contain', 'UTC +09:00');
+		cy.contains('button', /^Schedule$/).click();
+		cy.wait('@schedule').its('request.body.startDateTime').should('equal', '2030-01-15T01:00:00.000Z');
+	});
+
 	it("renames a scheduled meeting and changes its length from Edit in the card's menu", () => {
 		cy.intercept('PUT', '**/api/employee-appointment/*').as('reschedule');
 		cy.hardVisit('/meet');
 		cy.get('[data-testid="meetings-schedule"]', { timeout: 20_000 }).click();
 		cy.get('#meeting-title').type('Retro');
-		cy.get('#meeting-date').invoke('val').as('proposedDate');
+		rememberTheProposedStart();
 		cy.contains('button', /^Schedule$/).click();
 		cy.contains('button', /^Done$/).click();
 		showTheProposedDay();

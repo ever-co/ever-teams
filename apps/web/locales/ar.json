@@ -3849,6 +3849,7 @@
 		"FIELD_DATE": "التاريخ",
 		"FIELD_TIME": "وقت البدء",
 		"FIELD_DURATION": "المدة",
+		"LOCAL_TIME_HINT": "حيث أنت: {time}",
 		"FIELD_DESCRIPTION": "الوصف",
 		"FIELD_DESCRIPTION_PLACEHOLDER": "جدول الأعمال، الروابط، ما يجب تحضيره",
 		"FIELD_PARTICIPANTS": "المشاركون",
