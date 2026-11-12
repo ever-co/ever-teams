@@ -57,11 +57,10 @@ export function ClientsToolbar({
 				<div className="flex min-w-0 items-baseline gap-2">
 					<h1 className="truncate text-lg font-semibold text-foreground">{t('clients.TITLE')}</h1>
 					{isLoading && <ClientsCountSkeleton />}
-					{!isLoading && (
-						<span className="text-xs tabular-nums text-muted-foreground">
-							{t('clients.COUNT', { count: shownCount })}
-						</span>
-					)}
+					{/* Kept mounted, so a screen reader announces the count when the search or the scope changes it */}
+					<output aria-live="polite" className="text-xs tabular-nums text-muted-foreground">
+						{!isLoading && t('clients.COUNT', { count: shownCount })}
+					</output>
 				</div>
 				<div className="flex flex-wrap items-center gap-2">
 					<SegmentedControl<ClientScope>
