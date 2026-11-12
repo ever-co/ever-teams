@@ -106,6 +106,24 @@ function issueTileClassName(task: { issueType?: string | null } | null | undefin
 	return '!px-[0.375rem] py-[0.375rem] rounded-sm';
 }
 
+/** What stands above the task list: nothing while the person searches, that is types other than the task's title. */
+function aboveTasksOf(
+	renderAboveTasks: Props['renderAboveTasks'],
+	taskName: string,
+	inputTaskTitle: string,
+	closePicker: () => void
+): ReactNode {
+	if (!renderAboveTasks) {
+		return null;
+	}
+	const hasTypedText = taskName.trim() !== '';
+	const isSearching = hasTypedText && taskName !== inputTaskTitle;
+	if (isSearching) {
+		return null;
+	}
+	return renderAboveTasks(closePicker);
+}
+
 /**
  * If task passed then some function should not considered as global state
  *
@@ -457,12 +475,7 @@ export function TaskInput(props: Props) {
 	);
 
 	const closePicker = useCallback(() => setEditMode(false), [setEditMode]);
-	const hasTypedText = taskName.trim() !== '';
-	const isSearching = hasTypedText && taskName !== inputTaskTitle;
-	let aboveTasks: ReactNode = null;
-	if (!isSearching) {
-		aboveTasks = props.renderAboveTasks?.(closePicker);
-	}
+	const aboveTasks = aboveTasksOf(props.renderAboveTasks, taskName, inputTaskTitle, closePicker);
 
 	const taskCard = (
 		<TaskCard
