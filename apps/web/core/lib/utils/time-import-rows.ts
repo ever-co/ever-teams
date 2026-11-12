@@ -71,6 +71,7 @@ export type TimeImportProblem =
 	| { code: 'endDayMismatch' }
 	| { code: 'durationUnreadable' }
 	| { code: 'endNotAfterStart' }
+	| { code: 'clockSkipped' }
 	| { code: 'durationMismatch' }
 	| { code: 'tooLong' }
 	| { code: 'inFuture' }
@@ -146,9 +147,19 @@ function isSameName(first: string, second: string): boolean {
 	return comparableOf(first) === comparableOf(second);
 }
 
-/** In the viewer's time zone, the way the Add time dialog builds an entry from its date and its times. */
-function localDateOf(day: CalendarDay, clock: ClockTime): Date {
-	return new Date(day.year, day.month - 1, day.day, clock.hours, clock.minutes, clock.seconds);
+/**
+ * In the viewer's time zone, the way the Add time dialog builds an entry from its date and its times. Null for a time
+ * the clock skips that day (daylight saving time): JavaScript would move it forward, and the row would be saved with
+ * other times than the file holds.
+ */
+function localDateOf(day: CalendarDay, clock: ClockTime): Date | null {
+	const date = new Date(day.year, day.month - 1, day.day, clock.hours, clock.minutes, clock.seconds);
+	const isSameDay = date.getDate() === day.day;
+	const isSameClock = date.getHours() === clock.hours && date.getMinutes() === clock.minutes;
+	if (!isSameDay || !isSameClock) {
+		return null;
+	}
+	return date;
 }
 
 function secondsBetween(start: Date, end: Date): number {
@@ -246,7 +257,7 @@ function typedPeriodOf(cells: TimeImportCells, order: DateOrder): Reading<TypedP
 	return { value: { start, end, durationSeconds }, problems };
 }
 
-function endOf(typed: TypedPeriod, start: Date): Date {
+function endOf(typed: TypedPeriod, start: Date): Date | null {
 	if (typed.end) {
 		return localDateOf(typed.end.day, typed.end.clock);
 	}
@@ -270,8 +281,18 @@ function periodOf(cells: TimeImportCells, context: TimeImportContext, order: Dat
 		return { value: null, problems: typed.problems };
 	}
 	const start = localDateOf(typed.value.start.day, typed.value.start.clock);
-	const end = endOf(typed.value, start);
+	let end: Date | null = null;
+	if (start) {
+		end = endOf(typed.value, start);
+	}
+	if (!start || !end) {
+		return { value: null, problems: [{ code: 'clockSkipped' }] };
+	}
 	const seconds = secondsBetween(start, end);
+	// A duration too large for any date (999999999999h) leaves an end that is no date at all: no length to compare
+	if (!Number.isFinite(seconds)) {
+		return { value: null, problems: [{ code: 'tooLong' }] };
+	}
 	if (seconds <= 0) {
 		return { value: null, problems: [{ code: 'endNotAfterStart' }] };
 	}

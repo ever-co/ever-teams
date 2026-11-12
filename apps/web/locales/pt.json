@@ -699,6 +699,30 @@
 			"WEEK_TITLE": "Folha de horas",
 			"WEEK_NO_MANUAL_TIME_PERMISSION": "Sua função não permite adicionar tempo manualmente, então a folha é somente leitura. Um administrador pode permitir."
 		},
+		"myWeek": {
+			"TITLE": "Minha semana",
+			"UPDATING": "Carregando o seu tempo",
+			"SUMMARY_LABEL": "Seu tempo registrado",
+			"TRACKED_THIS_WEEK": "Registrado esta semana",
+			"TRACKED_LAST_WEEK": "Registrado na semana passada",
+			"TRACKED_THIS_MONTH": "Registrado este mês",
+			"LIMIT_LEFT": "Restam {duration} esta semana",
+			"LIMIT_UNDER": "{duration} abaixo do seu limite semanal",
+			"LIMIT_OVER": "{duration} acima do seu limite semanal",
+			"LIMIT_SHARE": "{percent} do seu limite semanal",
+			"NO_LIMIT": "Nenhum limite semanal está definido no seu perfil.",
+			"LIMIT_BY_WEEK": "Seu limite semanal de {limit} é medido semana a semana.",
+			"DAILY_LIMIT_LINE": "{limit} por dia",
+			"DAILY_LIMIT_HINT": "A linha tracejada é um quinto do seu limite semanal",
+			"PROJECTS_TITLE": "Tempo por projeto",
+			"RECENT_TITLE": "Registros recentes",
+			"RECENT_LATEST": "Os {shown} mais recentes de {total, plural, one {# registro} other {# registros}}",
+			"EMPTY_THIS_WEEK": "Nenhum tempo registrado esta semana",
+			"EMPTY_LAST_WEEK": "Nenhum tempo registrado na semana passada",
+			"EMPTY_THIS_MONTH": "Nenhum tempo registrado este mês",
+			"EMPTY_HINT": "Inicie o temporizador em uma tarefa e o seu tempo aparece aqui.",
+			"OPEN_TIMER": "Abrir o temporizador"
+		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# membro} other {# membros}}",
 			"UPDATING": "Atualizando os números",
@@ -1455,7 +1479,15 @@
 			"WEEK_STRIP_LABEL": "Dias da semana",
 			"HAS_TIME": "Tempo registrado",
 			"NO_MEMBER_TITLE": "Sua conta não tem perfil de membro neste espaço",
-			"NO_MEMBER_MESSAGE": "O tempo é registrado por membro. Peça a um administrador para adicionar você a uma equipe."
+			"NO_MEMBER_MESSAGE": "O tempo é registrado por membro. Peça a um administrador para adicionar você a uma equipe.",
+			"DRAG": {
+				"REFUSED_TITLE": "Entrada não alterada",
+				"CREATE_REFUSED_TITLE": "Não é possível adicionar tempo aqui",
+				"OVERLAP": "Este horário sobrepõe-se a outra entrada do membro. Escolha um horário livre ou altere primeiro a outra entrada.",
+				"FUTURE": "A sua organização não permite tempo depois da hora atual.",
+				"APPROVED": "Este dia pertence a uma folha de horas aprovada, por isso o seu tempo não pode ser alterado.",
+				"SAVE_FAILED": "Alteração não guardada"
+			}
 		},
 		"manualTimeEdits": {
 			"TITLE": "Edições manuais de tempo",
@@ -1923,6 +1955,14 @@
 				"MEMBER_COUNT": "{count, plural, one {# membro} other {# membros}}",
 				"ERROR_TITLE": "Não foi possível carregar o projeto",
 				"ERROR_MESSAGE": "Verifique sua conexão e tente novamente."
+			},
+			"consumption": {
+				"ORDER_BUDGET_USED": "Orçamento usado",
+				"AS_COST": "Como custo",
+				"AS_COST_HINT": "O tempo deste projeto é contado como custo, porque o tipo de orçamento é Custo. Aparece em horas quando o tipo de orçamento é Horas.",
+				"SUMMARY_LABEL": "Tempo e orçamento",
+				"OPEN_REPORT": "Abrir o relatório de orçamento",
+				"LOAD_ERROR": "Não foi possível carregar o tempo gasto e o uso do orçamento"
 			},
 			"modals": {
 				"openProject": "Abrir projeto",
@@ -2700,6 +2740,15 @@
 			"PAUSE": "Em pausa",
 			"IDLE": "Inativo",
 			"SUSPENDED": "Suspenso"
+		},
+		"notes": {
+			"ADD": "Adicionar notas ao temporizador",
+			"EDIT": "Editar as notas do temporizador",
+			"LABEL": "Notas",
+			"PLACEHOLDER": "Em que você está trabalhando?",
+			"HINT_BEFORE_START": "Opcional. Salvas na entrada quando o temporizador inicia.",
+			"HINT_RUNNING": "As alterações feitas com o temporizador em andamento ainda não são salvas. Para alterar as notas, edite a entrada nas folhas de horas depois de parar o temporizador.",
+			"HINT_OTHER_TEAM": "Estas notas pertencem ao temporizador em andamento em outra equipe, por isso não podem ser alteradas aqui."
 		}
 	},
 	"task": {
@@ -3004,10 +3053,47 @@
 			"TESTED_TIMER": "Temporizador testado"
 		},
 		"FILL_IN": "Preencha: {fields}.",
-		"END_AFTER_START": "A hora de fim tem de ser depois da hora de início."
+		"END_AFTER_START": "A hora de fim tem de ser depois da hora de início.",
+		"OWN_TIME_ONLY": "Você adiciona tempo para si. Um administrador pode adicionar para outra pessoa.",
+		"DURATION": {
+			"LABEL": "Duração",
+			"PLACEHOLDER": "1:30 ou 90m",
+			"HINT": "Digite uma duração e o primeiro horário livre do dia é proposto.",
+			"READING": "Procurando um horário livre neste dia",
+			"PROPOSED": "Proposto das {start} às {end}, o primeiro horário livre do dia. Você pode alterar.",
+			"NO_ROOM": "Não há um período livre de {duration} neste dia. Escolha o início e o fim, ou outro dia.",
+			"NO_MEMBER": "Escolha primeiro o empregado: o tempo livre é lido do dia dele.",
+			"READ_FAILED": "Não foi possível ler os registros deste dia, por isso nenhum horário foi proposto.",
+			"RETRY": "Tentar novamente"
+		},
+		"REQUIRED": {
+			"TEAM": "Sua organização exige uma equipe em cada entrada de tempo. Abra uma das suas equipes e adicione o tempo novamente.",
+			"PROJECT": "Sua organização exige um projeto em cada entrada de tempo. Escolha um projeto ou uma tarefa que tenha um.",
+			"TEAM_AND_PROJECT": "Sua organização exige uma equipe e um projeto em cada entrada de tempo. Abra uma das suas equipes e escolha uma tarefa que tenha projeto."
+		},
+		"TASK_CHANGE": {
+			"PROJECT_FOLLOWS": "Esta entrada passa para o projeto da tarefa: {project}.",
+			"OTHER_TEAM": "Esta entrada pertence a outra equipe. Mude para essa equipe para alterar a tarefa."
+		}
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Tem certeza de que deseja excluir este intervalo de tempo?"
+	},
+	"timeEntryActions": {
+		"CONTINUE": "Continuar",
+		"DUPLICATE": "Duplicar",
+		"TASK_ACTIONS": "Ações de {task}",
+		"ALREADY_RUNNING": "O temporizador já está em execução nesta tarefa",
+		"recent": {
+			"TITLE": "Recentes",
+			"START_ON": "Iniciar o temporizador em {task}",
+			"ERROR": "Não foi possível carregar suas tarefas recentes.",
+			"RETRY": "Tentar novamente"
+		},
+		"duplicate": {
+			"OVERLAPS": "Este horário se sobrepõe a um registro já existente ({range}). Escolha um horário livre ou outra data.",
+			"CHECK_FAILED": "Não foi possível verificar os registros do dia, então nada foi salvo. Tente novamente."
+		}
 	},
 	"chatConfig": {
 		"DIALOG_TITLE": "Configuração do Chat IA",
@@ -3127,7 +3213,8 @@
 			"navigation": "Navegação",
 			"settings": "Configurações",
 			"goTo": "Ir para",
-			"chat": "Chat"
+			"chat": "Chat",
+			"timer": "Temporizador"
 		},
 		"commands": {
 			"inviteUser": "Convidar utilizador",
@@ -3149,7 +3236,10 @@
 			"goToTimeAndActivity": "Ir para o relatório de tempo e atividade",
 			"profile": "Perfil",
 			"settings": "Definições",
-			"newMessage": "Nova mensagem"
+			"newMessage": "Nova mensagem",
+			"startTimer": "Iniciar temporizador",
+			"stopTimer": "Parar temporizador",
+			"addTime": "Adicionar tempo"
 		},
 		"results": {
 			"recent": "Recentes",
@@ -3161,7 +3251,9 @@
 			"projects": "Projetos",
 			"pages": "Páginas",
 			"untitledPage": "Sem título",
-			"recentlyOpened": "Abertos recentemente"
+			"recentlyOpened": "Abertos recentemente",
+			"startTimerOn": "Iniciar o temporizador em uma tarefa",
+			"startTimerOnTask": "Iniciar temporizador: {task}"
 		}
 	},
 	"modals": {
@@ -3823,7 +3915,10 @@
 			"STOPPED_TASK_SWITCH": "Temporizador parado porque sua tarefa ativa mudou",
 			"STALE_STOPPED": "Temporizador parado: {stoppedAt}",
 			"STALE_STOPPED_HINT": "Ele continuou rodando depois que o app foi fechado. Adicione o trabalho posterior como tempo manual.",
-			"TASK_CLOSED_HINT": "Reabra a tarefa para registrar tempo nela."
+			"TASK_CLOSED_HINT": "Reabra a tarefa para registrar tempo nela.",
+			"NOTES_NOT_SAVED": "As notas alteradas enquanto o temporizador corria não foram salvas",
+			"NOTES_NOT_SAVED_HINT": "A entrada manteve as notas do início. Edite a entrada nas folhas de horas para alterá-las.",
+			"ALREADY_RUNNING_ON_TASK": "O temporizador já está em execução nesta tarefa"
 		},
 		"plans": {
 			"CREATE_FAILED": "O plano não foi criado",
@@ -4053,7 +4148,8 @@
 		"groups": {
 			"account": "Conta",
 			"team": "Equipe",
-			"taskProperties": "Propriedades das tarefas"
+			"taskProperties": "Propriedades das tarefas",
+			"workspace": "Espaço de trabalho"
 		},
 		"entries": {
 			"profile": {
@@ -4112,13 +4208,17 @@
 				"TITLE": "Versões",
 				"DESCRIPTION": "As entregas que as tarefas podem visar."
 			},
-			"automations": {
-				"TITLE": "Automações",
-				"DESCRIPTION": "Regras que movimentam as tarefas da organização por você."
-			},
 			"import": {
 				"TITLE": "Importar",
 				"DESCRIPTION": "Entradas de tempo a partir de um arquivo CSV."
+			},
+			"workspaceGeneral": {
+				"TITLE": "Geral",
+				"DESCRIPTION": "O nome do espaço de trabalho, a moeda e os formatos de data e de número."
+			},
+			"automations": {
+				"TITLE": "Automações",
+				"DESCRIPTION": "Regras que movimentam as tarefas da organização por você."
 			}
 		},
 		"index": {
@@ -4422,6 +4522,121 @@
 				"FINISH_ERROR_TITLE": "Não foi possível ligar o Trello",
 				"RETURN_REFUSED_TITLE": "O Trello não devolveu um token",
 				"RETURN_REFUSED": "A autorização foi recusada ou o regresso foi interrompido; nada foi ligado. Ligue de novo quando estiver pronto."
+			},
+			"jira": {
+				"SECTION_TITLE": "Jira",
+				"SECTION_DESCRIPTION": "Traga os itens dos projetos do Jira Cloud como tarefas e mantenha-os sincronizados.",
+				"TITLE": "Jira",
+				"CONNECT_NOTE": "Ligue a sua conta Jira e depois associe os seus projetos aos projetos desta organização.",
+				"CONNECT_UNAVAILABLE": "O Jira não está configurado nesta instalação: a plataforma precisa primeiro da sua aplicação OAuth do Jira.",
+				"CONNECT": "Ligar Jira",
+				"CONNECTING": "A abrir o Jira…",
+				"SUMMARY_CONNECTED": "Ligado como {account}",
+				"SUMMARY_CONNECTED_SITE": "Ligado como {account} a {site}",
+				"SUMMARY_CONNECTED_NO_ACCOUNT": "Ligado",
+				"STATE_CONNECTED": "Ligado",
+				"STATE_ATTENTION": "Requer atenção",
+				"STATE_SITE_REQUIRED": "Escolha um site",
+				"ATTENTION_TOKEN_REFUSED": "O Jira recusou o token da ligação. Desligue e volte a ligar.",
+				"ATTENTION_OTHER": "Esta ligação requer atenção.",
+				"FACT_ACCOUNT": "Conta",
+				"FACT_SITE": "Site",
+				"FACT_CONNECTED": "Ligado em",
+				"FACT_MAPPINGS": "Projetos associados",
+				"FACT_MAPPINGS_VALUE": "{count, plural, =0 {Nenhum ainda} one {# projeto} other {# projetos}}",
+				"FACT_WEBHOOKS": "Webhooks",
+				"WEBHOOKS_ON": "Ativos: o Jira envia as alterações no momento.",
+				"WEBHOOKS_OFF": "Inativos: a plataforma não tem endereço público para o Jira; use as importações.",
+				"SITE_TITLE": "Site do Jira",
+				"SITE_REQUIRED": "Esta conta acede a vários sites do Jira. Escolha o desta ligação: até lá nada é sincronizado.",
+				"SITE_CHANGE_HINT": "Escolha outro site a que a conta acede.",
+				"SITE_CHANGE_BLOCKED": "Remova as associações para mudar de site: cada uma indica um projeto deste site.",
+				"SITE_LABEL": "Site",
+				"SITE_PLACEHOLDER": "Escolha um site",
+				"SITE_SAVE": "Usar este site",
+				"SITE_CHANGE": "Mudar de site",
+				"SITES_LOADING": "A ler os sites…",
+				"NO_SITES": "A conta não acede a nenhum site do Jira.",
+				"WEBHOOK_ACTIVE": "Webhook ativo: o Jira envia as alterações à medida que acontecem (renovado antes de {date}).",
+				"WEBHOOK_FAILED": "Não foi possível registar o webhook: {reason}",
+				"WEBHOOK_MISSING": "Ainda sem webhook: as alterações chegam com as importações agendadas.",
+				"WEBHOOK_REGISTER": "Registar o webhook",
+				"LOADING_DETAILS": "A carregar as associações…",
+				"MAPPED_TO": "As issues tornam-se tarefas de {project}",
+				"LAST_IMPORT": "última importação {date}",
+				"LAST_IMPORT_NEVER": "ainda não importado",
+				"STATUSES_MAPPED": "{count, plural, one {# estado associado} other {# estados associados}}",
+				"ISSUE_TYPES_COUNT": "{count, plural, one {# tipo de item} other {# tipos de item}}",
+				"SYNC_LABEL": "Sincronizar",
+				"IMPORT_CHANGES": "Importar alterações",
+				"IMPORT_ALL": "Importar tudo",
+				"REMOVE_MAPPING": "Remover",
+				"ADD_TITLE": "Associar um projeto do Jira",
+				"ADD_DESCRIPTION": "Escolha um projeto do Jira do site e o projeto cujas tarefas serão os seus itens.",
+				"JIRA_PROJECT_LABEL": "Projeto do Jira",
+				"JIRA_PROJECT_PLACEHOLDER": "Escolher um projeto do Jira",
+				"PROJECT_LABEL": "Projeto",
+				"PROJECT_PLACEHOLDER": "Escolher um projeto",
+				"DIRECTION_LABEL": "Direção",
+				"DIRECTION_inbound": "Jira → tarefas",
+				"DIRECTION_outbound": "Tarefas → Jira",
+				"DIRECTION_both": "Nos dois sentidos",
+				"STATUS_MAP_LABEL": "Estado da tarefa por estado do Jira",
+				"STATUS_MAP_HINT": "Cada categoria de estado torna-se um estado de tarefa. Um estado do Jira também pode ter um estado próprio, que prevalece sobre a sua categoria.",
+				"CATEGORY_new": "Por fazer",
+				"CATEGORY_indeterminate": "Em curso",
+				"CATEGORY_done": "Concluído",
+				"STATUS_OVERRIDES_HINT": "Os estados do projeto:",
+				"STATUS_BY_CATEGORY": "Pela sua categoria",
+				"STATUS_BY_CATEGORY_NAMED": "Pela sua categoria ({category})",
+				"STATUS_MAP_PLACEHOLDER": "Escolher um estado",
+				"STATUS_MAP_UNKNOWN": "{value} (não é um estado)",
+				"STATUS_MAP_INVALID": "Não é um estado do projeto nem da organização: {values}",
+				"STATUS_MAP_EDIT": "Editar estados",
+				"STATUS_MAP_SAVE": "Guardar estados",
+				"STATUSES_LOADING": "A ler os estados…",
+				"STATUSES_ERROR": "Não foi possível ler os estados",
+				"PROJECT_LOADING": "A ler os estados e os tipos de item do projeto…",
+				"NO_STATUSES": "Este projeto do Jira não tem nenhum estado visível para a ligação.",
+				"ISSUE_TYPES_LABEL": "Tipos de item",
+				"ISSUE_TYPES_HINT": "Nenhum marcado: entram todos os tipos de item.",
+				"ISSUE_TYPES_GONE": "Já não resta no projeto nenhum dos tipos de item que esta associação traz.",
+				"ISSUE_TYPES_ALL": "Trazer todos os tipos",
+				"PROJECTS_LOADING": "A ler os projetos…",
+				"NO_PROJECTS": "Todos os projetos deste site estão associados, ou não tem nenhum.",
+				"ADD_MAPPING": "Adicionar associação",
+				"SAVING": "A guardar…",
+				"RUNS_TITLE": "Últimas execuções",
+				"NO_RUNS": "Ainda nenhuma importação.",
+				"RUN_import": "Importação",
+				"RUN_webhook": "Webhook",
+				"RUN_STATUS_running": "Em curso",
+				"RUN_STATUS_done": "Concluído",
+				"RUN_STATUS_failed": "Falhou",
+				"RUN_COUNTS": "{created} criadas · {updated} atualizadas · {skipped} ignoradas · {failed} falhadas",
+				"RUN_REPORT": "{issues} itens lidos · {comments} comentários · {links} ligações",
+				"RUN_INCOMPLETE": "parada antes do fim: a próxima importação continua",
+				"RUN_FAILURES": "não aplicados: {keys}",
+				"RUN_FAILURES_MORE": "{count, plural, one {e mais #} other {e mais #}}",
+				"DISCONNECT_LABEL": "Desligar o Jira",
+				"DISCONNECT_CONSEQUENCE": "Para a sincronização desta organização; as tarefas importadas ficam.",
+				"DISCONNECT": "Desligar",
+				"DISCONNECT_TITLE": "Desligar o Jira?",
+				"DISCONNECT_DESCRIPTION": "A ligação pertence à organização: cada equipa que a usa perde-a.",
+				"DISCONNECT_STOPS_SYNC": "As issues deixam de se tornar tarefas e as tarefas deixam de ir para o Jira.",
+				"DISCONNECT_KEEPS_TASKS": "As tarefas já criadas a partir de issues ficam onde estão.",
+				"DETAILS_ERROR_TITLE": "Não foi possível carregar as associações ou as execuções",
+				"LOAD_ERROR_TITLE": "Não foi possível carregar a integração do Jira",
+				"ACTION_FAILED": "Isso não funcionou",
+				"CALLBACK_ERROR_TITLE": "Não foi possível ligar o Jira",
+				"CALLBACK_not_configured": "A plataforma não tem aplicação OAuth do Jira.",
+				"CALLBACK_denied": "O Jira não autorizou a ligação.",
+				"CALLBACK_invalid_state": "O fluxo de ligação expirou ou já foi usado. Comece de novo.",
+				"CALLBACK_exchange_failed": "O Jira recusou o código de autorização. Comece de novo.",
+				"CALLBACK_site_unreadable": "Não foi possível ler os sites do Jira após a autorização.",
+				"CALLBACK_no_site": "A conta não acede a nenhum site do Jira.",
+				"CALLBACK_site_mismatch": "Esta ligação tem mapeamentos num site do Jira a que a conta já não acede; ficou como estava.",
+				"CALLBACK_not_saved": "Não foi possível guardar a ligação."
 			},
 			"conflicts": {
 				"TITLE": "Conflitos de sincronização",
@@ -4736,7 +4951,37 @@
 			"ACCEPT": "Aceitar",
 			"REJECT": "Recusar",
 			"INVITATIONS_COUNT": "{count, plural, one {# convite espera resposta} other {# convites esperam resposta}}",
-			"REQUESTS_COUNT": "{count, plural, one {# pedido espera resposta} other {# pedidos esperam resposta}}"
+			"REQUESTS_COUNT": "{count, plural, one {# pedido espera resposta} other {# pedidos esperam resposta}}",
+			"FILTER_LABEL": "Membros exibidos",
+			"FILTER_ACTIVE": "Ativos",
+			"FILTER_INACTIVE": "Inativos",
+			"INACTIVE_LIST": "Membros inativos",
+			"INACTIVE_EMPTY": "Nenhum membro desta equipe está desativado.",
+			"INACTIVE_ERROR": "Não foi possível carregar os membros inativos.",
+			"DEACTIVATED_ON": "Acesso desativado em {date}",
+			"RESTORE": "Restaurar",
+			"RESTORE_MEMBER": "Restaurar {name}",
+			"RESTORED": "{name} pode entrar e registrar tempo de novo",
+			"RESTORE_FAILED": "O acesso de {name} continua desativado",
+			"DEACTIVATE": "Desativar",
+			"DEACTIVATE_TITLE": "Desativar {name}?",
+			"DEACTIVATE_CONSEQUENCE_ACCESS": "{name} não pode mais entrar neste espaço de trabalho nem registrar tempo.",
+			"DEACTIVATE_CONSEQUENCE_TEAMS": "Essa pessoa deixa de contar em todas as suas equipes.",
+			"DEACTIVATE_CONSEQUENCE_HISTORY": "O tempo, as tarefas e os comentários dessa pessoa continuam com o nome dela nos relatórios e no histórico.",
+			"DEACTIVATE_CONSEQUENCE_RESTORE": "Você pode restaurá-la pela lista Inativos: ela recupera o acesso, as equipes e as funções.",
+			"DEACTIVATED": "O acesso de {name} está desativado",
+			"DEACTIVATE_FAILED": "O acesso de {name} continua ativo",
+			"ROLE_GROUP_TEAM": "Nesta equipe",
+			"ROLE_GROUP_WORKSPACE": "No espaço de trabalho",
+			"WORKSPACE_ROLE_SUPER_ADMIN": "Superadmin",
+			"WORKSPACE_ROLE_ADMIN": "Admin",
+			"WORKSPACE_ROLE_MANAGER": "Gerente",
+			"WORKSPACE_ROLE_EMPLOYEE": "Membro",
+			"WORKSPACE_ROLE_DATA_ENTRY": "Entrada de dados",
+			"WORKSPACE_ROLE_VIEWER": "Visualizador",
+			"WORKSPACE_ROLE_CANDIDATE": "Candidato",
+			"WORKSPACE_ROLE_INTERVIEWER": "Entrevistador",
+			"WORKSPACE_ROLE_NOT_SAVED": "A função de {name} no espaço de trabalho não foi alterada"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Perfil",
@@ -4870,6 +5115,37 @@
 			"LOAD_ERROR_TEXT": "Suas opções não mudaram. Tente de novo em instantes.",
 			"UNAVAILABLE_TITLE": "Ainda não há nada para configurar neste espaço de trabalho",
 			"UNAVAILABLE_TEXT": "As notificações fazem parte do seu perfil de membro em um espaço de trabalho, e esta conta não tem um aqui. Primeiro entre em uma equipe ou crie uma."
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "Espaço de trabalho",
+			"NAME_LABEL": "Nome do espaço de trabalho",
+			"NAME_DESCRIPTION": "Aparece no seletor de espaços de trabalho e nos convites.",
+			"NAME_INVALID": "Digite um nome de 1 a {max} caracteres.",
+			"NAME_SAVED": "Espaço de trabalho renomeado para {name}",
+			"NAME_NOT_SAVED": "O espaço de trabalho não foi renomeado",
+			"NAME_MAYBE_UNFINISHED": "A renomeação pode não ter terminado",
+			"NAME_SAVE_AGAIN": "Salve o mesmo nome de novo para concluí-la.",
+			"NAME_SUPER_ADMIN_ONLY": "Só um superadministrador do espaço de trabalho pode renomeá-lo.",
+			"FORMATS_SECTION": "Moeda e formatos",
+			"FORMATS_DESCRIPTION": "Valem onde nada mais específico estiver definido, como uma taxa com moeda própria.",
+			"CURRENCY_LABEL": "Moeda padrão",
+			"CURRENCY_DESCRIPTION": "A moeda em que uma nova taxa ou um novo orçamento começa.",
+			"CURRENCY_SAVED": "Moeda padrão definida como {currency}",
+			"CURRENCY_OUTCOME": "Novas taxas e novos orçamentos começam nesta moeda.",
+			"CURRENCY_NOT_SAVED": "A moeda não foi salva",
+			"CURRENCY_NOT_SET": "Não informada",
+			"DATE_FORMAT_LABEL": "Formato de data",
+			"DATE_FORMAT_DESCRIPTION": "Como os relatórios e suas exportações escrevem as datas. Automático segue o idioma de cada membro.",
+			"DATE_FORMAT_SAVED": "Formato de data salvo",
+			"DATE_FORMAT_NOT_SAVED": "O formato de data não foi salvo",
+			"NUMBER_FORMAT_LABEL": "Formato de número",
+			"NUMBER_FORMAT_DESCRIPTION": "Como os relatórios e suas exportações escrevem os valores. Automático segue o idioma de cada membro.",
+			"NUMBER_FORMAT_SAVED": "Formato de número salvo",
+			"NUMBER_FORMAT_NOT_SAVED": "O formato de número não foi salvo",
+			"FORMAT_OUTCOME": "Os relatórios e suas exportações já o usam.",
+			"FORMAT_AUTOMATIC": "Automático",
+			"READ_ONLY_NOTE": "Só os administradores do espaço de trabalho podem mudar estas configurações.",
+			"LOAD_FAILED": "Não foi possível carregar as configurações do espaço de trabalho."
 		},
 		"automations": {
 			"NEW_RULE": "Nova regra",
@@ -6195,6 +6471,8 @@
 		"DELETE_FOREVER_TITLE": "Eliminar esta tarefa definitivamente?",
 		"DELETE_FOREVER_TEXT": "“{title}” será removida definitivamente. Não é possível anular.",
 		"DELETED_FOREVER": "“{title}” foi eliminada definitivamente",
+		"NO_LONGER_IN_TRASH": "“{title}” já não está no lixo: foi restaurada ou eliminada entretanto. A lista foi atualizada.",
+		"STILL_LINKED": "“{title}” continua no lixo: outras tarefas ou resultados-chave ainda estão ligados a ela. Remova primeiro essas ligações.",
 		"DELETE_FAILED": "A tarefa não foi eliminada. Tente novamente.",
 		"DELETED_BY": "Eliminada por {name} · {date}",
 		"DELETED_AT": "Eliminada {date}",
@@ -6316,6 +6594,7 @@
 			"END_UNREADABLE": "Não foi possível ler a hora de fim. Escreva-a como {endTime} ou {endTimeMeridiem}.",
 			"DURATION_UNREADABLE": "Não foi possível ler a duração. Escreva-a como {duration}, {durationUnits} ou {durationDecimal}.",
 			"END_NOT_AFTER_START": "O fim tem de ser depois do início. Para tempo que passa da meia-noite, indique uma duração no lugar da hora de fim.",
+			"CLOCK_SKIPPED": "Nesse dia o relógio é adiantado para o horário de verão, e o horário de início ou de fim cai na hora pulada. Informe um horário que exista nesse dia.",
 			"DURATION_MISMATCH": "A hora de fim e a duração dão dois comprimentos diferentes. Mantenha uma das duas.",
 			"TOO_LONG": "Uma entrada não pode ter mais de 24 horas. Uma duração escrita como um número simples é lida em horas.",
 			"IN_FUTURE": "Este tempo ainda não terminou, e esta organização não aceita tempo no futuro.",

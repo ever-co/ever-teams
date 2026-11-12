@@ -165,7 +165,7 @@ export function useTimeImportCopy() {
 				case 'duplicateColumn':
 					return t('timeImport.fileProblems.DUPLICATE_COLUMN', { column: problem.header });
 				case 'missingColumns': {
-					const columns = problem.columns.map(missingColumnOf);
+					const columns = problem.columns.map((column) => missingColumnOf(column));
 					return t('timeImport.fileProblems.MISSING_COLUMNS', {
 						count: columns.length,
 						columns: listOf(columns)
@@ -208,6 +208,8 @@ export function useTimeImportCopy() {
 					return t('timeImport.problems.DURATION_UNREADABLE', TIME_IMPORT_EXAMPLES);
 				case 'endNotAfterStart':
 					return t('timeImport.problems.END_NOT_AFTER_START');
+				case 'clockSkipped':
+					return t('timeImport.problems.CLOCK_SKIPPED');
 				case 'durationMismatch':
 					return t('timeImport.problems.DURATION_MISMATCH');
 				case 'tooLong':
@@ -261,7 +263,7 @@ export function useTimeImportCopy() {
 		(row: TimeImportRow, run: TimeImportRun | null, refusedRow: number | null): string[] => {
 			const status = rowStatusOf(row, run);
 			if (status === 'leftOut') {
-				return row.problems.map(problemText);
+				return row.problems.map((problem) => problemText(problem));
 			}
 			const outcome = run?.outcomes.get(row.row);
 			if (outcome?.kind === 'failed') {

@@ -699,6 +699,30 @@
 			"WEEK_TITLE": "גיליון שעות",
 			"WEEK_NO_MANUAL_TIME_PERMISSION": "התפקיד שלך לא מאפשר להוסיף זמן ידנית, ולכן הגיליון לקריאה בלבד. מנהל יכול לאפשר זאת."
 		},
+		"myWeek": {
+			"TITLE": "השבוע שלי",
+			"UPDATING": "טוען את הזמן שלך",
+			"SUMMARY_LABEL": "הזמן שנרשם לך",
+			"TRACKED_THIS_WEEK": "נרשם השבוע",
+			"TRACKED_LAST_WEEK": "נרשם בשבוע שעבר",
+			"TRACKED_THIS_MONTH": "נרשם החודש",
+			"LIMIT_LEFT": "נותרו {duration} השבוע",
+			"LIMIT_UNDER": "{duration} מתחת למגבלה השבועית שלך",
+			"LIMIT_OVER": "{duration} מעל המגבלה השבועית שלך",
+			"LIMIT_SHARE": "{percent} מהמגבלה השבועית שלך",
+			"NO_LIMIT": "לא הוגדרה מגבלה שבועית בפרופיל שלך.",
+			"LIMIT_BY_WEEK": "המגבלה השבועית שלך, {limit}, נמדדת שבוע אחר שבוע.",
+			"DAILY_LIMIT_LINE": "{limit} ביום",
+			"DAILY_LIMIT_HINT": "הקו המקווקו הוא חמישית מהמגבלה השבועית שלך",
+			"PROJECTS_TITLE": "זמן לפי פרויקט",
+			"RECENT_TITLE": "רישומים אחרונים",
+			"RECENT_LATEST": "{shown} האחרונים מתוך {total, plural, one {רישום אחד} other {# רישומים}}",
+			"EMPTY_THIS_WEEK": "לא נרשם זמן השבוע",
+			"EMPTY_LAST_WEEK": "לא נרשם זמן בשבוע שעבר",
+			"EMPTY_THIS_MONTH": "לא נרשם זמן החודש",
+			"EMPTY_HINT": "כשמפעילים את הטיימר על משימה, הזמן שלך מופיע כאן.",
+			"OPEN_TIMER": "פתיחת הטיימר"
+		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {חבר אחד} two {שני חברים} other {# חברים}}",
 			"UPDATING": "הנתונים מתעדכנים",
@@ -1455,7 +1479,15 @@
 			"WEEK_STRIP_LABEL": "ימי השבוע",
 			"HAS_TIME": "נרשם זמן",
 			"NO_MEMBER_TITLE": "לחשבון שלך אין פרופיל חבר בסביבת העבודה הזו",
-			"NO_MEMBER_MESSAGE": "הזמן נרשם לפי חבר צוות. בקש/י ממנהל להוסיף אותך לצוות."
+			"NO_MEMBER_MESSAGE": "הזמן נרשם לפי חבר צוות. בקש/י ממנהל להוסיף אותך לצוות.",
+			"DRAG": {
+				"REFUSED_TITLE": "הרשומה לא שונתה",
+				"CREATE_REFUSED_TITLE": "אי אפשר להוסיף זמן כאן",
+				"OVERLAP": "הזמן הזה חופף לרשומה אחרת של החבר. בחרו זמן פנוי או שנו קודם את הרשומה האחרת.",
+				"FUTURE": "הארגון שלך לא מאפשר זמן אחרי השעה הנוכחית.",
+				"APPROVED": "היום הזה שייך לדוח שעות מאושר, ולכן אי אפשר לשנות את הזמן שלו.",
+				"SAVE_FAILED": "השינוי לא נשמר"
+			}
 		},
 		"manualTimeEdits": {
 			"TITLE": "עריכות זמן ידניות",
@@ -1873,6 +1905,14 @@
 				"MEMBER_COUNT": "{count, plural, one {חבר אחד} two {שני חברים} other {# חברים}}",
 				"ERROR_TITLE": "לא ניתן היה לטעון את הפרויקט",
 				"ERROR_MESSAGE": "בדקו את החיבור ונסו שוב."
+			},
+			"consumption": {
+				"ORDER_BUDGET_USED": "ניצול התקציב",
+				"AS_COST": "כעלות",
+				"AS_COST_HINT": "הזמן בפרויקט הזה נספר כעלות, כי סוג התקציב שלו הוא עלות. הוא מוצג בשעות כשסוג התקציב הוא שעות.",
+				"SUMMARY_LABEL": "זמן ותקציב",
+				"OPEN_REPORT": "פתיחת דוח התקציב",
+				"LOAD_ERROR": "לא ניתן היה לטעון את הזמן שנוצל ואת ניצול התקציב"
 			},
 			"modals": {
 				"openProject": "פתיחת הפרויקט",
@@ -2700,6 +2740,15 @@
 			"PAUSE": "מושהה",
 			"IDLE": "לא פעיל",
 			"SUSPENDED": "מושעה"
+		},
+		"notes": {
+			"ADD": "הוספת הערות לטיימר",
+			"EDIT": "עריכת הערות הטיימר",
+			"LABEL": "הערות",
+			"PLACEHOLDER": "על מה אתם עובדים?",
+			"HINT_BEFORE_START": "אופציונלי. נשמרות ברשומה כשהטיימר מתחיל.",
+			"HINT_RUNNING": "שינויים שנעשים בזמן שהטיימר פועל עדיין לא נשמרים. כדי לשנות את ההערות, ערכו את הרשומה בגיליונות הזמן אחרי שעוצרים את הטיימר.",
+			"HINT_OTHER_TEAM": "ההערות האלה שייכות לטיימר שפועל בצוות אחר, ולכן אי אפשר לשנות אותן כאן."
 		}
 	},
 	"task": {
@@ -3004,10 +3053,47 @@
 			"TESTED_TIMER": "טיימר נבדק"
 		},
 		"FILL_IN": "יש למלא: {fields}.",
-		"END_AFTER_START": "שעת הסיום חייבת להיות אחרי שעת ההתחלה."
+		"END_AFTER_START": "שעת הסיום חייבת להיות אחרי שעת ההתחלה.",
+		"OWN_TIME_ONLY": "הזמן נוסף עבורך בלבד. מנהל יכול להוסיף זמן עבור מישהו אחר.",
+		"DURATION": {
+			"LABEL": "משך",
+			"PLACEHOLDER": "1:30 או 90m",
+			"HINT": "יש להקליד משך, והזמן הפנוי הראשון ביום יוצע.",
+			"READING": "מחפש זמן פנוי ביום הזה",
+			"PROPOSED": "הוצע {start} עד {end}, הזמן הפנוי הראשון ביום. אפשר לשנות אותו.",
+			"NO_ROOM": "אין ביום הזה פרק זמן פנוי של {duration}. יש לבחור התחלה וסיום, או יום אחר.",
+			"NO_MEMBER": "יש לבחור קודם עובד: הזמן הפנוי נקרא מהיום שלו.",
+			"READ_FAILED": "לא ניתן היה לקרוא את הרישומים של היום הזה, ולכן לא הוצע זמן.",
+			"RETRY": "נסו שוב"
+		},
+		"REQUIRED": {
+			"TEAM": "הארגון שלך דורש צוות בכל רישום זמן. יש לפתוח אחד מהצוותים שלך ולהוסיף את הזמן שוב.",
+			"PROJECT": "הארגון שלך דורש פרויקט בכל רישום זמן. יש לבחור פרויקט, או משימה שיש לה פרויקט.",
+			"TEAM_AND_PROJECT": "הארגון שלך דורש צוות ופרויקט בכל רישום זמן. יש לפתוח אחד מהצוותים שלך ולבחור משימה שיש לה פרויקט."
+		},
+		"TASK_CHANGE": {
+			"PROJECT_FOLLOWS": "הרישום הזה עובר לפרויקט של המשימה: {project}.",
+			"OTHER_TEAM": "הרישום הזה שייך לצוות אחר. יש לעבור לצוות הזה כדי לשנות את המשימה שלו."
+		}
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "האם אתה בטוח שברצונך למחוק את פרק הזמן הזה?"
+	},
+	"timeEntryActions": {
+		"CONTINUE": "המשך",
+		"DUPLICATE": "שכפול",
+		"TASK_ACTIONS": "פעולות עבור {task}",
+		"ALREADY_RUNNING": "הטיימר כבר פועל על המשימה הזו",
+		"recent": {
+			"TITLE": "אחרונות",
+			"START_ON": "הפעלת הטיימר על {task}",
+			"ERROR": "לא ניתן היה לטעון את המשימות האחרונות שלך.",
+			"RETRY": "נסו שוב"
+		},
+		"duplicate": {
+			"OVERLAPS": "הזמן הזה חופף לרישום שכבר נשמר ({range}). בחרו זמן פנוי או תאריך אחר.",
+			"CHECK_FAILED": "לא ניתן היה לבדוק את רישומי היום, ולכן דבר לא נשמר. נסו שוב."
+		}
 	},
 	"chatConfig": {
 		"DIALOG_TITLE": "הגדרות צ'אט AI",
@@ -3127,7 +3213,8 @@
 			"navigation": "ניווט",
 			"settings": "הגדרות",
 			"goTo": "מעבר אל",
-			"chat": "צ'אט"
+			"chat": "צ'אט",
+			"timer": "טיימר"
 		},
 		"commands": {
 			"inviteUser": "הזמנת משתמש",
@@ -3149,7 +3236,10 @@
 			"goToTimeAndActivity": "מעבר לדוח זמן ופעילות",
 			"profile": "פרופיל",
 			"settings": "הגדרות",
-			"newMessage": "הודעה חדשה"
+			"newMessage": "הודעה חדשה",
+			"startTimer": "הפעלת הטיימר",
+			"stopTimer": "עצירת הטיימר",
+			"addTime": "הוספת זמן"
 		},
 		"results": {
 			"recent": "אחרונות",
@@ -3161,7 +3251,9 @@
 			"projects": "פרויקטים",
 			"pages": "דפים",
 			"untitledPage": "ללא כותרת",
-			"recentlyOpened": "נפתחו לאחרונה"
+			"recentlyOpened": "נפתחו לאחרונה",
+			"startTimerOn": "הפעלת הטיימר על משימה",
+			"startTimerOnTask": "הפעלת הטיימר: {task}"
 		}
 	},
 	"modals": {
@@ -3823,7 +3915,10 @@
 			"STOPPED_TASK_SWITCH": "הטיימר נעצר כי המשימה הפעילה שלך השתנתה",
 			"STALE_STOPPED": "הטיימר נעצר: {stoppedAt}",
 			"STALE_STOPPED_HINT": "הוא המשיך לרוץ אחרי שהאפליקציה נסגרה. הוסף עבודה מאוחרת יותר כזמן ידני.",
-			"TASK_CLOSED_HINT": "פתח מחדש את המשימה כדי לתעד בה זמן."
+			"TASK_CLOSED_HINT": "פתח מחדש את המשימה כדי לתעד בה זמן.",
+			"NOTES_NOT_SAVED": "ההערות ששונו בזמן שהטיימר רץ לא נשמרו",
+			"NOTES_NOT_SAVED_HINT": "הרשומה שמרה על ההערות שאיתן התחילה. ערכו את הרשומה בגיליונות הזמן כדי לשנות אותן.",
+			"ALREADY_RUNNING_ON_TASK": "הטיימר כבר רץ על המשימה הזו"
 		},
 		"plans": {
 			"CREATE_FAILED": "התוכנית לא נוצרה",
@@ -4053,7 +4148,8 @@
 		"groups": {
 			"account": "חשבון",
 			"team": "צוות",
-			"taskProperties": "מאפייני משימות"
+			"taskProperties": "מאפייני משימות",
+			"workspace": "סביבת עבודה"
 		},
 		"entries": {
 			"profile": {
@@ -4112,13 +4208,17 @@
 				"TITLE": "גרסאות",
 				"DESCRIPTION": "השחרורים שמשימות יכולות לכוון אליהם."
 			},
-			"automations": {
-				"TITLE": "אוטומציות",
-				"DESCRIPTION": "כללים שמקדמים את המשימות של הארגון בשבילך."
-			},
 			"import": {
 				"TITLE": "ייבוא",
 				"DESCRIPTION": "רשומות זמן מקובץ CSV."
+			},
+			"workspaceGeneral": {
+				"TITLE": "כללי",
+				"DESCRIPTION": "שם סביבת העבודה, המטבע ותבניות התאריך והמספרים."
+			},
+			"automations": {
+				"TITLE": "אוטומציות",
+				"DESCRIPTION": "כללים שמקדמים את המשימות של הארגון בשבילך."
 			}
 		},
 		"index": {
@@ -4422,6 +4522,121 @@
 				"FINISH_ERROR_TITLE": "לא ניתן היה לחבר את Trello",
 				"RETURN_REFUSED_TITLE": "Trello לא החזיר אסימון",
 				"RETURN_REFUSED": "ההרשאה נדחתה או שהחזרה נקטעה; שום דבר לא חובר. התחברו שוב כשתהיו מוכנים."
+			},
+			"jira": {
+				"SECTION_TITLE": "Jira",
+				"SECTION_DESCRIPTION": "ייבאו את הבעיות של פרויקטי Jira Cloud כמשימות ושמרו עליהן מסונכרנות.",
+				"TITLE": "Jira",
+				"CONNECT_NOTE": "חברו את חשבון Jira ואז מפו את הפרויקטים שלו לפרויקטים של הארגון הזה.",
+				"CONNECT_UNAVAILABLE": "Jira לא מוגדר בהתקנה זו: הפלטפורמה זקוקה קודם ליישום ה-OAuth של Jira.",
+				"CONNECT": "חיבור Jira",
+				"CONNECTING": "פותח את Jira…",
+				"SUMMARY_CONNECTED": "מחובר בתור {account}",
+				"SUMMARY_CONNECTED_SITE": "מחובר כ-{account} אל {site}",
+				"SUMMARY_CONNECTED_NO_ACCOUNT": "מחובר",
+				"STATE_CONNECTED": "מחובר",
+				"STATE_ATTENTION": "דורש תשומת לב",
+				"STATE_SITE_REQUIRED": "בחרו אתר",
+				"ATTENTION_TOKEN_REFUSED": "Jira דחה את האסימון של החיבור. נתקו וחברו מחדש.",
+				"ATTENTION_OTHER": "החיבור הזה דורש תשומת לב.",
+				"FACT_ACCOUNT": "חשבון",
+				"FACT_SITE": "אתר",
+				"FACT_CONNECTED": "חובר בתאריך",
+				"FACT_MAPPINGS": "פרויקטים ממופים",
+				"FACT_MAPPINGS_VALUE": "{count, plural, =0 {עדיין אין} one {פרויקט אחד} two {# פרויקטים} other {# פרויקטים}}",
+				"FACT_WEBHOOKS": "Webhooks",
+				"WEBHOOKS_ON": "פעיל: Jira שולח שינויים מיד.",
+				"WEBHOOKS_OFF": "כבוי: לפלטפורמה אין כתובת ציבורית עבור Jira; השתמשו בייבוא.",
+				"SITE_TITLE": "אתר Jira",
+				"SITE_REQUIRED": "לחשבון הזה יש גישה לכמה אתרי Jira. בחרו את האתר של החיבור הזה: עד אז שום דבר לא מסונכרן.",
+				"SITE_CHANGE_HINT": "בחרו אתר אחר שהחשבון מגיע אליו.",
+				"SITE_CHANGE_BLOCKED": "הסירו את המיפויים כדי להחליף אתר: כל מיפוי מציין פרויקט של האתר הזה.",
+				"SITE_LABEL": "אתר",
+				"SITE_PLACEHOLDER": "בחרו אתר",
+				"SITE_SAVE": "שימוש באתר הזה",
+				"SITE_CHANGE": "החלפת אתר",
+				"SITES_LOADING": "קורא את האתרים…",
+				"NO_SITES": "לחשבון אין גישה לאף אתר Jira.",
+				"WEBHOOK_ACTIVE": "Webhook פעיל: Jira שולח שינויים מיד (מחודש לפני {date}).",
+				"WEBHOOK_FAILED": "לא ניתן היה לרשום את ה-Webhook: {reason}",
+				"WEBHOOK_MISSING": "עדיין אין Webhook: השינויים מגיעים עם הייבואים המתוזמנים.",
+				"WEBHOOK_REGISTER": "רישום ה-Webhook",
+				"LOADING_DETAILS": "טוען את המיפויים…",
+				"MAPPED_TO": "סוגיות הופכות למשימות של {project}",
+				"LAST_IMPORT": "ייבוא אחרון {date}",
+				"LAST_IMPORT_NEVER": "טרם יובא",
+				"STATUSES_MAPPED": "{count, plural, one {סטטוס אחד ממופה} two {# סטטוסים ממופים} other {# סטטוסים ממופים}}",
+				"ISSUE_TYPES_COUNT": "{count, plural, one {סוג בעיה אחד} two {# סוגי בעיות} other {# סוגי בעיות}}",
+				"SYNC_LABEL": "סנכרון",
+				"IMPORT_CHANGES": "ייבוא שינויים",
+				"IMPORT_ALL": "ייבוא הכול",
+				"REMOVE_MAPPING": "הסרה",
+				"ADD_TITLE": "מיפוי פרויקט Jira",
+				"ADD_DESCRIPTION": "בחרו פרויקט Jira מהאתר ואת הפרויקט שהבעיות שלו יהפכו למשימות שלו.",
+				"JIRA_PROJECT_LABEL": "פרויקט Jira",
+				"JIRA_PROJECT_PLACEHOLDER": "בחירת פרויקט Jira",
+				"PROJECT_LABEL": "פרויקט",
+				"PROJECT_PLACEHOLDER": "בחירת פרויקט",
+				"DIRECTION_LABEL": "כיוון",
+				"DIRECTION_inbound": "Jira ← משימות",
+				"DIRECTION_outbound": "משימות ← Jira",
+				"DIRECTION_both": "בשני הכיוונים",
+				"STATUS_MAP_LABEL": "סטטוס משימה לכל סטטוס Jira",
+				"STATUS_MAP_HINT": "כל קטגוריית סטטוס הופכת לסטטוס משימה. אפשר גם לתת לסטטוס Jira סטטוס משלו, שגובר על הקטגוריה שלו.",
+				"CATEGORY_new": "לביצוע",
+				"CATEGORY_indeterminate": "בתהליך",
+				"CATEGORY_done": "בוצע",
+				"STATUS_OVERRIDES_HINT": "הסטטוסים של הפרויקט:",
+				"STATUS_BY_CATEGORY": "לפי הקטגוריה שלו",
+				"STATUS_BY_CATEGORY_NAMED": "לפי הקטגוריה שלו ({category})",
+				"STATUS_MAP_PLACEHOLDER": "בחירת סטטוס",
+				"STATUS_MAP_UNKNOWN": "{value} (לא סטטוס)",
+				"STATUS_MAP_INVALID": "לא סטטוס של הפרויקט או הארגון: {values}",
+				"STATUS_MAP_EDIT": "עריכת סטטוסים",
+				"STATUS_MAP_SAVE": "שמירת סטטוסים",
+				"STATUSES_LOADING": "קורא את הסטטוסים…",
+				"STATUSES_ERROR": "לא ניתן היה לקרוא את הסטטוסים",
+				"PROJECT_LOADING": "קורא את הסטטוסים וסוגי הבעיות של הפרויקט…",
+				"NO_STATUSES": "לפרויקט Jira הזה אין סטטוס שהחיבור יכול לראות.",
+				"ISSUE_TYPES_LABEL": "סוגי בעיות",
+				"ISSUE_TYPES_HINT": "אף אחד לא מסומן: כל סוגי הבעיות מיובאים.",
+				"ISSUE_TYPES_GONE": "לא נשאר בפרויקט אף אחד מסוגי הבעיות שהמיפוי הזה מייבא.",
+				"ISSUE_TYPES_ALL": "ייבוא כל הסוגים",
+				"PROJECTS_LOADING": "קורא את הפרויקטים…",
+				"NO_PROJECTS": "כל הפרויקטים של האתר הזה ממופים, או שאין בו פרויקטים.",
+				"ADD_MAPPING": "הוספת מיפוי",
+				"SAVING": "שומר…",
+				"RUNS_TITLE": "ריצות אחרונות",
+				"NO_RUNS": "עדיין אין ייבוא.",
+				"RUN_import": "ייבוא",
+				"RUN_webhook": "Webhook",
+				"RUN_STATUS_running": "רץ",
+				"RUN_STATUS_done": "הושלם",
+				"RUN_STATUS_failed": "נכשל",
+				"RUN_COUNTS": "{created} נוצרו · {updated} עודכנו · {skipped} דולגו · {failed} נכשלו",
+				"RUN_REPORT": "בעיות שנקראו: {issues} · תגובות: {comments} · קישורים: {links}",
+				"RUN_INCOMPLETE": "נעצר מוקדם: הייבוא הבא ממשיך",
+				"RUN_FAILURES": "לא הוחלו: {keys}",
+				"RUN_FAILURES_MORE": "{count, plural, one {ועוד #} two {ועוד #} other {ועוד #}}",
+				"DISCONNECT_LABEL": "ניתוק Jira",
+				"DISCONNECT_CONSEQUENCE": "עוצר את הסנכרון לארגון הזה; המשימות שיובאו נשארות.",
+				"DISCONNECT": "ניתוק",
+				"DISCONNECT_TITLE": "לנתק את Jira?",
+				"DISCONNECT_DESCRIPTION": "החיבור שייך לארגון: כל צוות שמשתמש בו מאבד אותו.",
+				"DISCONNECT_STOPS_SYNC": "סוגיות מפסיקות להפוך למשימות, ומשימות מפסיקות לעבור ל-Jira.",
+				"DISCONNECT_KEEPS_TASKS": "משימות שכבר נוצרו מסוגיות נשארות במקומן.",
+				"DETAILS_ERROR_TITLE": "לא ניתן היה לטעון את המיפויים או ההרצות",
+				"LOAD_ERROR_TITLE": "לא ניתן היה לטעון את האינטגרציה עם Jira",
+				"ACTION_FAILED": "זה לא עבד",
+				"CALLBACK_ERROR_TITLE": "לא ניתן היה לחבר את Jira",
+				"CALLBACK_not_configured": "לפלטפורמה אין יישום OAuth של Jira.",
+				"CALLBACK_denied": "Jira לא אישר את החיבור.",
+				"CALLBACK_invalid_state": "תהליך החיבור פג או כבר נוצל. התחילו מחדש.",
+				"CALLBACK_exchange_failed": "Jira דחה את קוד ההרשאה. התחילו מחדש.",
+				"CALLBACK_site_unreadable": "לא ניתן היה לקרוא את אתרי Jira אחרי ההרשאה.",
+				"CALLBACK_no_site": "לחשבון אין גישה לאף אתר Jira.",
+				"CALLBACK_site_mismatch": "לחיבור הזה יש מיפויים באתר Jira שהחשבון כבר לא מגיע אליו; הוא נשאר כפי שהיה.",
+				"CALLBACK_not_saved": "לא ניתן היה לשמור את החיבור."
 			},
 			"conflicts": {
 				"TITLE": "התנגשויות סנכרון",
@@ -4736,7 +4951,37 @@
 			"ACCEPT": "קבלה",
 			"REJECT": "דחייה",
 			"INVITATIONS_COUNT": "{count, plural, one {הזמנה אחת ממתינה לתשובה} two {# הזמנות ממתינות לתשובה} other {# הזמנות ממתינות לתשובה}}",
-			"REQUESTS_COUNT": "{count, plural, one {בקשה אחת ממתינה לתשובה} two {# בקשות ממתינות לתשובה} other {# בקשות ממתינות לתשובה}}"
+			"REQUESTS_COUNT": "{count, plural, one {בקשה אחת ממתינה לתשובה} two {# בקשות ממתינות לתשובה} other {# בקשות ממתינות לתשובה}}",
+			"FILTER_LABEL": "החברים המוצגים",
+			"FILTER_ACTIVE": "פעילים",
+			"FILTER_INACTIVE": "לא פעילים",
+			"INACTIVE_LIST": "חברים לא פעילים",
+			"INACTIVE_EMPTY": "אין בצוות הזה חבר מושבת.",
+			"INACTIVE_ERROR": "לא ניתן היה לטעון את החברים הלא פעילים.",
+			"DEACTIVATED_ON": "הגישה הושבתה ב־{date}",
+			"RESTORE": "שחזור",
+			"RESTORE_MEMBER": "שחזור של {name}",
+			"RESTORED": "הגישה של {name} שוחזרה: אפשר שוב להתחבר ולעקוב אחר זמן",
+			"RESTORE_FAILED": "הגישה של {name} עדיין מושבתת",
+			"DEACTIVATE": "השבתה",
+			"DEACTIVATE_TITLE": "להשבית את {name}?",
+			"DEACTIVATE_CONSEQUENCE_ACCESS": "{name} לא יוכל עוד להתחבר לסביבת העבודה הזו או לעקוב אחר זמן.",
+			"DEACTIVATE_CONSEQUENCE_TEAMS": "הוא כבר לא נספר באף אחד מהצוותים שלו.",
+			"DEACTIVATE_CONSEQUENCE_HISTORY": "הזמן, המשימות וההערות שלו נשארים על שמו בדוחות ובהיסטוריה.",
+			"DEACTIVATE_CONSEQUENCE_RESTORE": "אפשר לשחזר אותו מהרשימה „לא פעילים”: הגישה, הצוותים והתפקידים שלו חוזרים.",
+			"DEACTIVATED": "הגישה של {name} הושבתה",
+			"DEACTIVATE_FAILED": "הגישה של {name} עדיין פעילה",
+			"ROLE_GROUP_TEAM": "בצוות הזה",
+			"ROLE_GROUP_WORKSPACE": "בסביבת העבודה",
+			"WORKSPACE_ROLE_SUPER_ADMIN": "מנהל-על",
+			"WORKSPACE_ROLE_ADMIN": "מנהל מערכת",
+			"WORKSPACE_ROLE_MANAGER": "מנהל",
+			"WORKSPACE_ROLE_EMPLOYEE": "חבר צוות",
+			"WORKSPACE_ROLE_DATA_ENTRY": "הזנת נתונים",
+			"WORKSPACE_ROLE_VIEWER": "צופה",
+			"WORKSPACE_ROLE_CANDIDATE": "מועמד",
+			"WORKSPACE_ROLE_INTERVIEWER": "מראיין",
+			"WORKSPACE_ROLE_NOT_SAVED": "התפקיד של {name} בסביבת העבודה לא שונה"
 		},
 		"profile": {
 			"SECTION_PROFILE": "פרופיל",
@@ -4870,6 +5115,37 @@
 			"LOAD_ERROR_TEXT": "ההגדרות שלך לא השתנו. נסו שוב בעוד רגע.",
 			"UNAVAILABLE_TITLE": "עדיין אין מה להגדיר בסביבת העבודה הזו",
 			"UNAVAILABLE_TEXT": "ההתראות שייכות לפרופיל החבר שלך בסביבת עבודה, ולחשבון הזה אין פרופיל כזה כאן. קודם צריך להצטרף לצוות או ליצור צוות."
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "סביבת עבודה",
+			"NAME_LABEL": "שם סביבת העבודה",
+			"NAME_DESCRIPTION": "מוצג בבורר סביבות העבודה ובהזמנות.",
+			"NAME_INVALID": "יש להזין שם באורך 1 עד {max} תווים.",
+			"NAME_SAVED": "שם סביבת העבודה שונה ל-{name}",
+			"NAME_NOT_SAVED": "שם סביבת העבודה לא שונה",
+			"NAME_MAYBE_UNFINISHED": "ייתכן ששינוי השם לא הושלם",
+			"NAME_SAVE_AGAIN": "יש לשמור שוב את אותו השם כדי להשלים אותו.",
+			"NAME_SUPER_ADMIN_ONLY": "רק מנהל-על של סביבת העבודה יכול לשנות את שמה.",
+			"FORMATS_SECTION": "מטבע ותבניות",
+			"FORMATS_DESCRIPTION": "חלים בכל מקום שבו לא הוגדר משהו מדויק יותר, למשל תעריף עם מטבע משלו.",
+			"CURRENCY_LABEL": "מטבע ברירת מחדל",
+			"CURRENCY_DESCRIPTION": "המטבע שבו מתחילים תעריף חדש או תקציב חדש.",
+			"CURRENCY_SAVED": "מטבע ברירת המחדל הוגדר ל-{currency}",
+			"CURRENCY_OUTCOME": "תעריפים ותקציבים חדשים מתחילים במטבע הזה.",
+			"CURRENCY_NOT_SAVED": "המטבע לא נשמר",
+			"CURRENCY_NOT_SET": "לא הוגדר",
+			"DATE_FORMAT_LABEL": "תבנית תאריך",
+			"DATE_FORMAT_DESCRIPTION": "כך הדוחות וקובצי הייצוא שלהם כותבים תאריכים. „אוטומטי” הולך לפי השפה של כל חבר.",
+			"DATE_FORMAT_SAVED": "תבנית התאריך נשמרה",
+			"DATE_FORMAT_NOT_SAVED": "תבנית התאריך לא נשמרה",
+			"NUMBER_FORMAT_LABEL": "תבנית מספרים",
+			"NUMBER_FORMAT_DESCRIPTION": "כך הדוחות וקובצי הייצוא שלהם כותבים סכומים. „אוטומטי” הולך לפי השפה של כל חבר.",
+			"NUMBER_FORMAT_SAVED": "תבנית המספרים נשמרה",
+			"NUMBER_FORMAT_NOT_SAVED": "תבנית המספרים לא נשמרה",
+			"FORMAT_OUTCOME": "הדוחות וקובצי הייצוא שלהם משתמשים בה מעכשיו.",
+			"FORMAT_AUTOMATIC": "אוטומטי",
+			"READ_ONLY_NOTE": "רק מנהלי סביבת העבודה יכולים לשנות את ההגדרות האלה.",
+			"LOAD_FAILED": "לא ניתן היה לטעון את הגדרות סביבת העבודה."
 		},
 		"automations": {
 			"NEW_RULE": "כלל חדש",
@@ -6195,6 +6471,8 @@
 		"DELETE_FOREVER_TITLE": "למחוק את המשימה לצמיתות?",
 		"DELETE_FOREVER_TEXT": "\"{title}\" תוסר לצמיתות. אי אפשר לבטל זאת.",
 		"DELETED_FOREVER": "\"{title}\" נמחקה לצמיתות",
+		"NO_LONGER_IN_TRASH": "\"{title}\" כבר לא בסל המחזור: היא שוחזרה או נמחקה בינתיים. הרשימה עודכנה.",
+		"STILL_LINKED": "\"{title}\" נשארת בסל המחזור: משימות אחרות או תוצאות מפתח עדיין מקושרות אליה. הסירו קודם את הקישורים האלה.",
 		"DELETE_FAILED": "המשימה לא נמחקה. נסו שוב.",
 		"DELETED_BY": "נמחקה על ידי {name} · {date}",
 		"DELETED_AT": "נמחקה {date}",
@@ -6316,6 +6594,7 @@
 			"END_UNREADABLE": "אי אפשר לקרוא את שעת הסיום. כתבו אותה כמו {endTime} או {endTimeMeridiem}.",
 			"DURATION_UNREADABLE": "אי אפשר לקרוא את משך הזמן. כתבו אותו כמו {duration}, {durationUnits} או {durationDecimal}.",
 			"END_NOT_AFTER_START": "הסיום חייב לבוא אחרי ההתחלה. לזמן שנמשך אחרי חצות, ציינו משך זמן במקום שעת סיום.",
+			"CLOCK_SKIPPED": "ביום הזה השעון מוקדם לשעון קיץ, ושעת ההתחלה או הסיום נופלת בשעה שמדלגים עליה. כתבו שעה שקיימת באותו יום.",
 			"DURATION_MISMATCH": "שעת הסיום ומשך הזמן נותנים שני אורכים שונים. השאירו אחד מהשניים.",
 			"TOO_LONG": "רשומה לא יכולה להיות ארוכה מ-24 שעות. משך זמן שנכתב כמספר בלבד נקרא בשעות.",
 			"IN_FUTURE": "הזמן הזה עוד לא עבר, והארגון הזה לא מקבל זמן בעתיד.",

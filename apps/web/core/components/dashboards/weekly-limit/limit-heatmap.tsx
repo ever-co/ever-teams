@@ -44,6 +44,8 @@ import {
 	type LimitTotals
 } from '@/core/lib/utils/dashboards/weekly-limit';
 import type { Period } from '@/core/lib/utils/dashboard-period';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, localeKeyOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { MemberFace, UsedValue, VerdictText } from './limit-cells';
 import {
 	HEAT_CELL_BASE,
@@ -99,13 +101,13 @@ const MISSING_FIGURE = '–';
 
 const formatters = new Map<string, Intl.DateTimeFormat>();
 
-function formatterOf(locale: string, name: string, options: Intl.DateTimeFormatOptions) {
-	const cacheKey = `${locale}:${name}`;
+function formatterOf(locale: FormatLocale, name: string, options: Intl.DateTimeFormatOptions) {
+	const cacheKey = `${localeKeyOf(locale)}:${name}`;
 	const cached = formatters.get(cacheKey);
 	if (cached) {
 		return cached;
 	}
-	const formatter = new Intl.DateTimeFormat(locale, options);
+	const formatter = dateFormatOf(locale, options);
 	formatters.set(cacheKey, formatter);
 	return formatter;
 }
@@ -116,7 +118,7 @@ interface ColumnHeading {
 	label: string;
 }
 
-function dayHeadingOf(column: LimitColumn, locale: string): ColumnHeading {
+function dayHeadingOf(column: LimitColumn, locale: FormatLocale): ColumnHeading {
 	const weekdayFormat = formatterOf(locale, 'weekday', { weekday: 'short' });
 	const dayFormat = formatterOf(locale, 'day', { day: 'numeric' });
 	const weekday = weekdayFormat.format(column.start);
@@ -125,7 +127,7 @@ function dayHeadingOf(column: LimitColumn, locale: string): ColumnHeading {
 	return { top: weekday, bottom: day, label };
 }
 
-function weekHeadingOf(column: LimitColumn, locale: string): ColumnHeading {
+function weekHeadingOf(column: LimitColumn, locale: FormatLocale): ColumnHeading {
 	const dateFormat = formatterOf(locale, 'monthDay', { month: 'short', day: 'numeric' });
 	const weekEnd = periodEndOf(column.start, 'week');
 	const top = dateFormat.format(column.start);
@@ -134,7 +136,7 @@ function weekHeadingOf(column: LimitColumn, locale: string): ColumnHeading {
 	return { top, bottom, label };
 }
 
-function headingOf(column: LimitColumn, duration: LimitDuration, locale: string) {
+function headingOf(column: LimitColumn, duration: LimitDuration, locale: FormatLocale) {
 	if (duration === 'week') {
 		return weekHeadingOf(column, locale);
 	}
@@ -443,7 +445,7 @@ function MonthRow({
 	columns,
 	template,
 	locale
-}: Readonly<{ columns: ReadonlyArray<LimitColumn>; template: CSSProperties; locale: string }>) {
+}: Readonly<{ columns: ReadonlyArray<LimitColumn>; template: CSSProperties; locale: FormatLocale }>) {
 	const segments = useMemo(() => limitMonthSegmentsOf(columns), [columns]);
 	const hasSeveralMonths = segments.length > 1;
 	if (!hasSeveralMonths) {
@@ -755,8 +757,8 @@ function HeatFooter({ membersWithoutTime }: Readonly<{ membersWithoutTime: Reado
 }
 
 function useColumns(period: Period, duration: LimitDuration) {
-	const locale = useLocale();
-	const weekendDays = useMemo(() => weekendDaysOf(locale), [locale]);
+	const locale = useWorkspaceLocale();
+	const weekendDays = useMemo(() => weekendDaysOf(locale.tag), [locale.tag]);
 	const columns = useMemo(() => limitColumnsOf(period, duration, weekendDays), [duration, period, weekendDays]);
 	const headings = useMemo(
 		() => columns.map((column) => headingOf(column, duration, locale)),
@@ -1035,7 +1037,7 @@ export function LimitHeatmapSkeleton({
 	duration = 'day'
 }: Readonly<{ period?: Period; duration?: LimitDuration }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const shownPeriod = useMemo(() => period ?? defaultSkeletonPeriod(), [period]);
 	const columns = useMemo(() => limitColumnsOf(shownPeriod, duration, DEFAULT_WEEKEND_DAYS), [duration, shownPeriod]);
 	const headings = useMemo(

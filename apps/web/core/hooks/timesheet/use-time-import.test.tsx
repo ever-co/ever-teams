@@ -327,6 +327,33 @@ describe('useTimeImport', () => {
 		});
 	});
 
+	it('sends no row once the page is left while the day of that row is read again', async () => {
+		let answerRead: (logs: unknown[]) => void = () => undefined;
+		const { result, unmount } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+		// The two days of the check before saving, then the first row's day, which waits until the page is left
+		mockGetTimeLogConflicts
+			.mockResolvedValueOnce([])
+			.mockResolvedValueOnce([])
+			.mockImplementationOnce(
+				() =>
+					new Promise((resolve) => {
+						answerRead = resolve;
+					})
+			);
+
+		let confirming: Promise<void> = Promise.resolve();
+		act(() => {
+			confirming = result.current.confirm();
+		});
+		await waitFor(() => expect(mockGetTimeLogConflicts).toHaveBeenCalledTimes(5));
+		unmount();
+		answerRead([]);
+		await confirming;
+
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+
 	it('sends no row whose day cannot be read again right before it is saved', async () => {
 		const { result } = renderImport();
 		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));

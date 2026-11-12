@@ -256,9 +256,26 @@ class ChatService extends APIService {
 		return response.data;
 	};
 
-	/** Clicks a button of an app message: the platform calls the app back; its reply, if any, comes back as the message. */
-	interact = async (messageId: string, actionId: string, blockId?: string | null): Promise<IChatInteractionResult> => {
-		const response = await this.post<IChatInteractionResult>(`/chat/messages/${path(messageId)}/interactions`, blockId ? { actionId, blockId } : { actionId }, undefined, false);
+	/**
+	 * Clicks a button of an app message: the platform calls the app back; its reply, if any, comes back as the message.
+	 * `idempotencyKey` (one per click, the same on each retry of it) goes in the `Idempotency-Key` header, in direct mode
+	 * and through the proxy route alike: the platform answers a repeat of it with the first click and calls the app no
+	 * second time. `timeoutMs` bounds this one request (the client's own deadline otherwise). The body is the button only
+	 * (no tenant or organization ids: the route's DTO takes none).
+	 */
+	interact = async (
+		messageId: string,
+		actionId: string,
+		blockId?: string | null,
+		idempotencyKey?: string,
+		timeoutMs?: number
+	): Promise<IChatInteractionResult> => {
+		const response = await this.post<IChatInteractionResult>(
+			`/chat/messages/${path(messageId)}/interactions`,
+			blockId ? { actionId, blockId } : { actionId },
+			{ ...(idempotencyKey ? { headers: { 'Idempotency-Key': idempotencyKey } } : {}), ...(timeoutMs ? { timeout: timeoutMs } : {}) },
+			false
+		);
 		return response.data;
 	};
 

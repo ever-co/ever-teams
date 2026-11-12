@@ -120,20 +120,20 @@ export function TimeImportResult({ timeImport, copy, onDownloadReport }: Readonl
 	const isDone = stage === 'done';
 	const refusedRow = report?.refusal?.row ?? null;
 
-	const statusedRows = useMemo(() => rows.map((row) => ({ row, status: rowStatusOf(row, run) })), [rows, run]);
+	const rowsWithStatus = useMemo(() => rows.map((row) => ({ row, status: rowStatusOf(row, run) })), [rows, run]);
 
 	const filterItems = useMemo(() => {
 		const items: SegmentedControlItem<RowFilter>[] = [
-			{ value: ALL_ROWS, label: t('timeImport.filter.ALL'), count: statusedRows.length }
+			{ value: ALL_ROWS, label: t('timeImport.filter.ALL'), count: rowsWithStatus.length }
 		];
 		for (const status of STATUS_ORDER) {
-			const count = statusedRows.filter((item) => item.status === status).length;
+			const count = rowsWithStatus.filter((item) => item.status === status).length;
 			if (count > 0) {
 				items.push({ value: status, label: t(FIGURE_KEYS[status]), count });
 			}
 		}
 		return items;
-	}, [statusedRows, t]);
+	}, [rowsWithStatus, t]);
 
 	// A status every row has left (a ready row once saved) falls back to the whole list
 	const isFilterStillOffered = filterItems.some((item) => item.value === filter);
@@ -141,7 +141,7 @@ export function TimeImportResult({ timeImport, copy, onDownloadReport }: Readonl
 	if (isFilterStillOffered) {
 		activeFilter = filter;
 	}
-	const filteredRows = statusedRows.filter((item) => activeFilter === ALL_ROWS || item.status === activeFilter);
+	const filteredRows = rowsWithStatus.filter((item) => activeFilter === ALL_ROWS || item.status === activeFilter);
 	const shownRows = filteredRows.slice(0, visibleCount);
 	const hiddenCount = filteredRows.length - shownRows.length;
 	const nextStepCount = Math.min(hiddenCount, ROWS_SHOWN_PER_STEP);
@@ -226,12 +226,9 @@ export function TimeImportResult({ timeImport, copy, onDownloadReport }: Readonl
 				{isPreview && (
 					<div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3">
 						{!hasReadyRows && (
-							<p
-								role="status"
-								className="min-w-0 flex-1 basis-56 text-xs text-pretty text-muted-foreground"
-							>
+							<output className="min-w-0 flex-1 basis-56 text-xs text-pretty text-muted-foreground">
 								{t('timeImport.NOTHING_READY')}
-							</p>
+							</output>
 						)}
 						<div className="ml-auto flex flex-wrap items-center gap-2">
 							<Button type="button" variant="outline" onClick={timeImport.reset}>

@@ -170,6 +170,19 @@ describe('draftRowsOf', () => {
 		expect(draftOf({ endTime: '', duration: '24:00' }).problems).toEqual([]);
 	});
 
+	it('leaves out a duration too large to give any end date, and still compares the rest of the file', () => {
+		const sheetRows = [
+			sheetRowOf({ endTime: '', duration: '999999999999h' }, 2),
+			sheetRowOf({ startTime: '11:00', endTime: '12:00' }, 3)
+		];
+		const rows = draftRowsOf(sheetRows, contextOf());
+
+		expect(rows.map((row) => problemCodesOf(row))).toEqual([['tooLong'], []]);
+		expect(rows[0].entry).toBeNull();
+		// Read twice, as by the preview and by the check before saving, the file agrees with itself
+		expect(haveSameReadyRows(rows, draftRowsOf(sheetRows, contextOf()))).toBe(true);
+	});
+
 	it('leaves out a row that ends after now when the organization refuses future time', () => {
 		const future = { date: '2026-11-05', startTime: '17:30', endTime: '18:30' };
 

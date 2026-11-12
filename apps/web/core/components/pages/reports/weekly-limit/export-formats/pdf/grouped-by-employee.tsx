@@ -31,7 +31,8 @@ export const WeeklyLimitByEmployeePDFDocument = ({
 	headers,
 	displayMode,
 	organizationLimits,
-	title
+	title,
+	locale
 }: IWeeklyLimitReportPDFDocumentProps & {
 	data: TTimeLimitReportByEmployee[];
 }) => {
@@ -84,6 +85,7 @@ export const WeeklyLimitByEmployeePDFDocument = ({
 										};
 									})}
 									headers={headers}
+									locale={locale}
 								/>
 							</View>
 						);
