@@ -121,7 +121,11 @@ export function useNewInvoice() {
 	);
 
 	const draftProblems = invoiceProblemsOf({ numberText, issueDay, dueDay, currency, lineCount: keptLines.length });
-	const waits = invoiceWaitsOf({ isReadingEarlier: earlier.isLoading, isReadingTimeAgain: time.isUpdating });
+	// A save that failed unconfirmed reads the client's invoices again: a retry waits for that answer, which may hold it
+	const waits = invoiceWaitsOf({
+		isReadingEarlier: earlier.isLoading || earlier.isRefreshing,
+		isReadingTimeAgain: time.isUpdating
+	});
 	const problems = draftProblems.concat(waits);
 	const isWaiting = waits.length > 0;
 

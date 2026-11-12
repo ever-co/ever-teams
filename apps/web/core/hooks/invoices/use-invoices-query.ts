@@ -71,6 +71,8 @@ export function useClientInvoices(clientId: string | null) {
 	return {
 		invoices: query.data ?? NO_INVOICES,
 		isLoading: query.isLoading,
+		/** Read again while its last answer is shown, as after a failed save: the new answer can hold that invoice. */
+		isRefreshing: query.isFetching && !query.isLoading,
 		isError: query.isError,
 		refetch: query.refetch
 	};

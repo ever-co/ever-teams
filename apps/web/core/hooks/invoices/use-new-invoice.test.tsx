@@ -10,7 +10,7 @@ import type { TOrganization } from '@/core/types/schemas';
 
 const mockCreateInvoice = jest.fn();
 const mockOrganizationRead = { isError: false, refetch: jest.fn() };
-const mockEarlierRead = { invoices: [], isLoading: false, isError: false, refetch: jest.fn() };
+const mockEarlierRead = { invoices: [], isLoading: false, isRefreshing: false, isError: false, refetch: jest.fn() };
 const mockNextNumber = { nextNumber: 7, isLoading: false, isError: false, refetch: jest.fn() };
 
 const mockLine: InvoiceLine = {
