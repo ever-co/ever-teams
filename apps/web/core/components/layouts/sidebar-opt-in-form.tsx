@@ -12,6 +12,8 @@ import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { ArrowRight, Mail, Spinner } from '@/core/components/icons';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { toastMoment } from '@/core/components/common/toast-moment';
+import { useNewsletterSubscription } from '@/core/hooks/users/use-newsletter-subscription';
+import type { NewsletterSubscription } from '@/core/lib/utils/newsletter-subscription';
 
 /** A white card on a hairline whose fill leans toward the brand hue at its foot, as the tooltip bubbles do. */
 const OPT_IN_CARD =
@@ -23,11 +25,12 @@ const OPT_IN_TILE =
 /**
  * Newsletter opt-in at the foot of the sidebar: a small card with its icon tile, the title and one line of copy,
  * then the e-mail field and the send button on a single row so it never crowds the account menu below it. Hidden
- * while the sidebar is collapsed to its icon rail.
+ * while the sidebar is collapsed to its icon rail, while the user loads, and for good once they subscribed (#5097).
  */
 export function SidebarOptInForm() {
 	const t = useTranslations();
 	const { state } = useSidebar();
+	const { isOffered, remember } = useNewsletterSubscription();
 	const [isLoading, setLoading] = useState(false);
 	const subscribeFormSchema = z
 		.object({
@@ -66,9 +69,10 @@ export function SidebarOptInForm() {
 				},
 				method: 'POST'
 			});
-			const { error, status } = (await res.json()) as {
+			const { error, status, newsletter } = (await res.json()) as {
 				error: string;
 				status?: string;
+				newsletter?: NewsletterSubscription;
 				[key: string]: unknown;
 			};
 
@@ -78,6 +82,10 @@ export function SidebarOptInForm() {
 			}
 
 			showSubscribed(status, email);
+			// The route kept the subscription on the user: the card goes away, here and on every other device
+			if (newsletter) {
+				remember(newsletter);
+			}
 		} catch (error) {
 			showSubscribeError(error);
 		} finally {
@@ -92,7 +100,7 @@ export function SidebarOptInForm() {
 
 	const subscribeLabel = isLoading ? t('common.SUBSCRIBING') : t('common.SUBSCRIBE');
 
-	return state == 'expanded' ? (
+	return state == 'expanded' && isOffered ? (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className={OPT_IN_CARD}>
 				<div className="flex items-start gap-2.5">
