@@ -51,6 +51,9 @@ export function useTimerNotes() {
 
 	// A draft kept beside an entry started elsewhere stays a draft: the next start sends it, this entry's stop does not
 	const isOnRunningEntry = runningLogId !== undefined && notes.timeLogId === runningLogId;
+	// Notes kept for the stop of a run the timer does not show (one of the team left) are that run's: the field shows
+	// them without letting them be edited, or text typed for the team in front of the member would go to that entry
+	const isReadOnly = isOnRunningEntry && !isRunShown;
 
-	return { text: notes.text, setText, isRunning: isOnRunningEntry };
+	return { text: notes.text, setText, isRunning: isOnRunningEntry, isReadOnly };
 }

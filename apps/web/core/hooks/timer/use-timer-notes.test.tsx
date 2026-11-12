@@ -34,6 +34,7 @@ describe('the notes field beside a running timer', () => {
 
 		expect(result.current.text).toBe('Fix the login page');
 		expect(result.current.isRunning).toBe(true);
+		expect(result.current.isReadOnly).toBe(false);
 	});
 
 	it('takes no notes from a run of another team, and keeps what is typed for the next start', () => {
@@ -77,5 +78,13 @@ describe('the notes field beside a running timer', () => {
 		const notes = store.get(timerNotesState);
 		expect(notes).toEqual({ text: 'Fix the login page, then the sign-up form', timeLogId: RUN_LOG.id });
 		expect(notesToSendAtStop(notes, RUN_LOG)).toBe('Fix the login page, then the sign-up form');
+		// The field shows them there without letting the other team's notes be edited, until the run's team opens again
+		expect(result.current.isReadOnly).toBe(true);
+
+		act(() => {
+			store.set(activeTeamIdState, TEAM_OF_RUN);
+		});
+
+		expect(result.current.isReadOnly).toBe(false);
 	});
 });

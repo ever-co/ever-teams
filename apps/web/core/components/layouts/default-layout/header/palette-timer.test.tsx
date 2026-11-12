@@ -25,6 +25,9 @@ const STOPPED = { running: false } as never as ITimerStatus;
 /** A timer running for the team given. The timer shows it only while that team is the active one. */
 const runOf = (teamId: string) =>
 	({ running: true, lastLog: { id: 'log-1', organizationTeamId: teamId } }) as never as ITimerStatus;
+/** A run of the active team on the task given. */
+const runOnTaskOf = (taskId: string) =>
+	({ running: true, lastLog: { id: 'log-1', organizationTeamId: ACTIVE_TEAM, taskId } }) as never as ITimerStatus;
 
 /** The timer status as the API gave it, a run of another team included: what the hooks below hand out. */
 let mockRawTimerStatus: ITimerStatus | null = null;
@@ -152,6 +155,22 @@ describe('a timer start asked from the palette', () => {
 		renderStartOf(TASK, runOf(ACTIVE_TEAM));
 
 		expect(toast.info).toHaveBeenCalledWith('toasts.timer.ALREADY_RUNNING_ON_TASK', expect.anything());
+		expect(mockRunTimerHandler).not.toHaveBeenCalled();
+	});
+
+	it('says so only when the run is on the task asked for', () => {
+		renderStartOf(TASK, runOnTaskOf(TASK.id));
+
+		expect(toast.info).toHaveBeenCalledWith('toasts.timer.ALREADY_RUNNING_ON_TASK', expect.anything());
+		expect(mockStartTimerWithTask).not.toHaveBeenCalled();
+	});
+
+	it('switches to the active task over a run another device started on another task, as its card does', () => {
+		renderStartOf(TASK, runOnTaskOf(OTHER_TASK.id));
+
+		expect(toast.info).not.toHaveBeenCalled();
+		// The card's start stops that run and starts the task asked for; the main Start would only stop it
+		expect(mockStartTimerWithTask).toHaveBeenCalledTimes(1);
 		expect(mockRunTimerHandler).not.toHaveBeenCalled();
 	});
 

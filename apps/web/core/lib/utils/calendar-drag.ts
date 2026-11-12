@@ -79,12 +79,17 @@ function minuteRaisedTo(minute: number, step: number) {
 
 /**
  * The moment a grid minute stands for. The grid counts elapsed minutes from the day's midnight, as it places the
- * entries, so a day made shorter by a clock change ends at its real midnight.
+ * entries, so a day made shorter by a clock change ends at its real midnight. The bottom of the column is that
+ * midnight too on a day made longer by one: the grid draws whatever ends in its last hour at the bottom.
  */
 export function timeAtGridMinute(day: Date, minute: number): Date {
 	const dayStart = startOfDay(day);
 	const nextDayStart = addDays(dayStart, 1);
-	const elapsedMilliseconds = clampedMinuteOf(minute) * MILLISECONDS_PER_MINUTE;
+	const gridMinute = clampedMinuteOf(minute);
+	if (gridMinute >= MINUTES_IN_DAY) {
+		return nextDayStart;
+	}
+	const elapsedMilliseconds = gridMinute * MILLISECONDS_PER_MINUTE;
 	const time = dayStart.getTime() + elapsedMilliseconds;
 	const lastTime = Math.min(time, nextDayStart.getTime());
 	return new Date(lastTime);
@@ -154,6 +159,17 @@ export function windowOfRange(day: Date, range: MinuteRange): TimeWindow {
 	const start = timeAtGridMinute(day, range.startMinute);
 	const end = timeAtGridMinute(day, range.endMinute);
 	return { start, end };
+}
+
+/**
+ * A window kept inside the free time it was drawn in. On a day the clock goes back, free time that ends in the day's
+ * last hour is drawn down to the bottom of the column, which reads as the next midnight: the selection stops where
+ * the free time does.
+ */
+export function windowWithin(window: TimeWindow, freeTime: TimeWindow): TimeWindow {
+	const startTime = Math.max(window.start.getTime(), freeTime.start.getTime());
+	const endTime = Math.min(window.end.getTime(), freeTime.end.getTime());
+	return { start: new Date(startTime), end: new Date(endTime) };
 }
 
 /** The part of a window drawn in one day's column; null when the window is not on that day. */
@@ -230,7 +246,11 @@ export function movedWindowOf(window: TimeWindow, dayShift: number, minuteShift:
 	return { start, end: new Date(endTime) };
 }
 
-/** An entry with one edge dragged to a minute of `day`: the other edge stays, and one step of time always remains. */
+/**
+ * An entry with one edge dragged to a minute of `day`: the other edge stays, and one step of time always remains. An
+ * edge brought back to the step where it is drawn keeps its real moment, as a move that comes back changes nothing:
+ * an edge off the step, or an end drawn at the bottom of a 25-hour day, is not cut short by being touched.
+ */
 export function resizedWindowOf(
 	window: TimeWindow,
 	edge: ResizeEdge,
@@ -239,6 +259,12 @@ export function resizedWindowOf(
 	step: number
 ): TimeWindow {
 	const snappedMinute = snappedMinuteOf(pointerMinute, step);
+	const edgeTime = edge === 'start' ? window.start : window.end;
+	const drawnMinute = minuteOfDay(edgeTime, startOfDay(day));
+	const isAtDrawnStep = snappedMinuteOf(drawnMinute, step) === snappedMinute;
+	if (isAtDrawnStep) {
+		return window;
+	}
 	const candidate = timeAtGridMinute(day, snappedMinute);
 	const stepMilliseconds = step * MILLISECONDS_PER_MINUTE;
 	if (edge === 'start') {

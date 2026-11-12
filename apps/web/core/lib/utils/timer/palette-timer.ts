@@ -102,6 +102,11 @@ export interface PaletteStartState {
 	isActiveTask: boolean;
 	/** The timer shows a run: false while its status is not known, and for a run going on for another team. */
 	isTimerRunning: boolean;
+	/**
+	 * The run the timer shows is on another task than the one asked for: another device started it while this task
+	 * stayed the active one here. The main Start would only stop it.
+	 */
+	isRunOnOtherTask: boolean;
 	/** A card's start does not check it, and the timer's Stop refuses such a member: the start could not be undone. */
 	isEmailVerified: boolean;
 	/** The main Start is disabled (email not verified, task closed). */
@@ -116,14 +121,16 @@ export interface PaletteStartState {
  * A member whose email is not verified starts neither, and a run the timer does not show is never stopped from here.
  */
 export function paletteStartActionOf(state: PaletteStartState): PaletteStartAction {
-	const isRunningOnTask = state.isActiveTask && state.isTimerRunning;
+	const isRunningOnTask = state.isActiveTask && state.isTimerRunning && !state.isRunOnOtherTask;
 	if (isRunningOnTask) {
 		return 'ALREADY_RUNNING';
 	}
 	if (!state.isEmailVerified) {
 		return 'EMAIL_NOT_VERIFIED';
 	}
-	if (state.isActiveTask) {
+	// Over a run of another task the active task switches as a card's start does: the main Start would stop that run
+	const goesThroughMainStart = state.isActiveTask && !state.isRunOnOtherTask;
+	if (goesThroughMainStart) {
 		if (state.isMainStartDisabled) {
 			return 'UNAVAILABLE';
 		}

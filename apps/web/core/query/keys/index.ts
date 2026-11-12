@@ -960,6 +960,32 @@ export const queryKeys = {
 				runId: string | undefined | null
 			) => ['integrations', 'trello', 'conflicts', tenantId ?? null, organizationId ?? null, integrationId ?? null, status ?? null, runId ?? null] as const
 		},
+		jira: {
+			all: ['integrations', 'jira'] as const,
+			status: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+				['integrations', 'jira', 'status', tenantId ?? null, organizationId ?? null] as const,
+			sites: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'jira', 'sites', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			mappings: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'jira', 'mappings', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			/** The projects of the connection's site (keyed by the site: a new site has other projects). */
+			projects: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, cloudId: string | undefined | null) =>
+				['integrations', 'jira', 'projects', tenantId ?? null, organizationId ?? null, integrationId ?? null, cloudId ?? null] as const,
+			/** One project's statuses and issue types, keyed by the site too (two sites may hold a project of the same id). */
+			project: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, cloudId: string | undefined | null, jiraProjectId: string | undefined | null) =>
+				['integrations', 'jira', 'project', tenantId ?? null, organizationId ?? null, integrationId ?? null, cloudId ?? null, jiraProjectId ?? null] as const,
+			runs: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'jira', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			/** Every conflict list of the provider (a resolve or a finished run reads them again). */
+			conflictsAll: ['integrations', 'jira', 'conflicts'] as const,
+			conflicts: (
+				tenantId: string | undefined | null,
+				organizationId: string | undefined | null,
+				integrationId: string | undefined | null,
+				status: string | undefined | null,
+				runId: string | undefined | null
+			) => ['integrations', 'jira', 'conflicts', tenantId ?? null, organizationId ?? null, integrationId ?? null, status ?? null, runId ?? null] as const
+		},
 		types: (tenantId: string | undefined | null) =>
 			['integrations', 'types', ...(tenantId ? [tenantId] : [])] as const,
 		byTenant: (tenantId: string | undefined | null) =>

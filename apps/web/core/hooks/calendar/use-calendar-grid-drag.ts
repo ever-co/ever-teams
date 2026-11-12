@@ -28,7 +28,8 @@ import {
 	resizedWindowOf,
 	selectionRangeOf,
 	timeAtGridMinute,
-	windowOfRange
+	windowOfRange,
+	windowWithin
 } from '@/core/lib/utils/calendar-drag';
 import type { CalendarDay, CalendarEntry } from '@/core/lib/utils/calendar-view';
 import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
@@ -151,7 +152,9 @@ function createPreviewOf(session: DragSession, place: PointerPlace): GridDragPre
 	if (!range) {
 		return session.preview;
 	}
-	const window = windowOfRange(session.day.date, range);
+	const drawnWindow = windowOfRange(session.day.date, range);
+	const freeTime = session.spot?.window;
+	const window = freeTime ? windowWithin(drawnWindow, freeTime) : drawnWindow;
 	return { kind: 'create', dayKey: session.day.key, window };
 }
 

@@ -262,6 +262,12 @@ describe('resizedWindowOf', () => {
 		expect(pastStart).toEqual({ start: at(9), end: at(9, 15) });
 	});
 
+	it('keeps an edge off the step when it is brought back to the step where it is drawn', () => {
+		const offStep = { start: at(9), end: at(10, 37) };
+		const resized = resizedWindowOf(offStep, 'end', TUESDAY, minuteAt(10, 32), STEP);
+		expect(resized).toEqual(offStep);
+	});
+
 	it('stretches the end to midnight at most', () => {
 		const resized = resizedWindowOf(window, 'end', TUESDAY, 1440, STEP);
 		expect(resized).toEqual({ start: at(9), end: at(0, 0, 11) });
