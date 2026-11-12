@@ -4356,6 +4356,18 @@
 			"ICON_CURRENT": "Ikona: {name}. Zmień",
 			"ICON_SEARCH": "Szukaj ikon",
 			"ICON_EMPTY": "Żadna ikona nie pasuje do wyszukiwania.",
+			"ICON_SOURCE": "Źródło ikony",
+			"ICON_TAB_LIBRARY": "Biblioteka",
+			"ICON_TAB_UPLOAD": "Prześlij",
+			"ICON_UPLOAD_CHOOSE": "Wybierz obraz",
+			"ICON_UPLOAD_REPLACE": "Zastąp obraz",
+			"ICON_UPLOAD_HINT": "Upuść tu obraz lub wybierz go: PNG, JPEG, WebP lub GIF, najwyżej {size} MB.",
+			"ICON_UPLOADING": "Przesyłanie obrazu...",
+			"ICON_UPLOADING_PROGRESS": "Przesyłanie obrazu... {progress}%",
+			"ICON_UPLOAD_TYPE_ERROR": "Wybierz obraz PNG, JPEG, WebP lub GIF.",
+			"ICON_UPLOAD_SIZE_ERROR": "Ten obraz ma ponad {size} MB. Wybierz mniejszy.",
+			"ICON_UPLOAD_FAILED": "Obraz nie został przesłany. {reason}",
+			"ICON_UPLOADED_NAME": "przesłany obraz",
 			"iconGroups": {
 				"classic": "Klasyczne ikony"
 			},

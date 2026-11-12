@@ -4356,6 +4356,18 @@
 			"ICON_CURRENT": "图标：{name}。点击更换",
 			"ICON_SEARCH": "搜索图标",
 			"ICON_EMPTY": "没有符合搜索的图标。",
+			"ICON_SOURCE": "图标来源",
+			"ICON_TAB_LIBRARY": "图标库",
+			"ICON_TAB_UPLOAD": "上传",
+			"ICON_UPLOAD_CHOOSE": "选择图片",
+			"ICON_UPLOAD_REPLACE": "替换图片",
+			"ICON_UPLOAD_HINT": "将图片拖到这里或点击选择：PNG、JPEG、WebP 或 GIF，不超过 {size} MB。",
+			"ICON_UPLOADING": "正在上传图片...",
+			"ICON_UPLOADING_PROGRESS": "正在上传图片... {progress}%",
+			"ICON_UPLOAD_TYPE_ERROR": "请选择 PNG、JPEG、WebP 或 GIF 图片。",
+			"ICON_UPLOAD_SIZE_ERROR": "这张图片超过 {size} MB，请选一张更小的。",
+			"ICON_UPLOAD_FAILED": "图片未上传。{reason}",
+			"ICON_UPLOADED_NAME": "上传的图片",
 			"iconGroups": {
 				"classic": "经典图标"
 			},

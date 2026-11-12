@@ -4356,6 +4356,18 @@
 			"ICON_CURRENT": "Pictogram: {name}. Wijzigen",
 			"ICON_SEARCH": "Pictogrammen zoeken",
 			"ICON_EMPTY": "Geen pictogram past bij deze zoekopdracht.",
+			"ICON_SOURCE": "Bron van het pictogram",
+			"ICON_TAB_LIBRARY": "Bibliotheek",
+			"ICON_TAB_UPLOAD": "Uploaden",
+			"ICON_UPLOAD_CHOOSE": "Kies een afbeelding",
+			"ICON_UPLOAD_REPLACE": "Afbeelding vervangen",
+			"ICON_UPLOAD_HINT": "Sleep een afbeelding hierheen of kies er een: PNG, JPEG, WebP of GIF, maximaal {size} MB.",
+			"ICON_UPLOADING": "Afbeelding wordt geüpload...",
+			"ICON_UPLOADING_PROGRESS": "Afbeelding wordt geüpload... {progress}%",
+			"ICON_UPLOAD_TYPE_ERROR": "Kies een PNG-, JPEG-, WebP- of GIF-afbeelding.",
+			"ICON_UPLOAD_SIZE_ERROR": "Deze afbeelding is groter dan {size} MB. Kies een kleinere.",
+			"ICON_UPLOAD_FAILED": "De afbeelding is niet geüpload. {reason}",
+			"ICON_UPLOADED_NAME": "geüploade afbeelding",
 			"iconGroups": {
 				"classic": "Klassieke pictogrammen"
 			},

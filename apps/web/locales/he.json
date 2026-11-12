@@ -4356,6 +4356,18 @@
 			"ICON_CURRENT": "סמל: {name}. החלפה",
 			"ICON_SEARCH": "חיפוש סמלים",
 			"ICON_EMPTY": "אין סמל שמתאים לחיפוש.",
+			"ICON_SOURCE": "מקור הסמל",
+			"ICON_TAB_LIBRARY": "ספרייה",
+			"ICON_TAB_UPLOAD": "העלאה",
+			"ICON_UPLOAD_CHOOSE": "בחירת תמונה",
+			"ICON_UPLOAD_REPLACE": "החלפת התמונה",
+			"ICON_UPLOAD_HINT": "אפשר לגרור תמונה לכאן או לבחור אחת: PNG‏, JPEG‏, WebP או GIF, עד {size} MB.",
+			"ICON_UPLOADING": "התמונה בהעלאה...",
+			"ICON_UPLOADING_PROGRESS": "התמונה בהעלאה... {progress}%",
+			"ICON_UPLOAD_TYPE_ERROR": "יש לבחור תמונה מסוג PNG‏, JPEG‏, WebP או GIF.",
+			"ICON_UPLOAD_SIZE_ERROR": "התמונה גדולה מ־{size} MB. יש לבחור תמונה קטנה יותר.",
+			"ICON_UPLOAD_FAILED": "התמונה לא הועלתה. {reason}",
+			"ICON_UPLOADED_NAME": "תמונה שהועלתה",
 			"iconGroups": {
 				"classic": "סמלים קלאסיים"
 			},
