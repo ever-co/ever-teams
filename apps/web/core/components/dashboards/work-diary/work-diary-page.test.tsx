@@ -66,6 +66,7 @@ function entryOf(id: string, log: ITimeLog, daySeconds: number, projectName: str
 		isRunning: false,
 		isBillable: false,
 		taskTitle: log.task?.title ?? null,
+		projectKey: null,
 		projectName,
 		projectColor: null,
 		reason: null

@@ -27,6 +27,7 @@ function entry(
 		isRunning: false,
 		isBillable: false,
 		taskTitle: taskId ? `Task ${taskId}` : null,
+		projectKey: null,
 		projectName: null,
 		projectColor: null,
 		reason: null,

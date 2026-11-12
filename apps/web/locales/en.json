@@ -1420,6 +1420,7 @@
 				"DAY": "Day"
 			},
 			"MEMBER_SWITCH_LABEL": "Showing the calendar of {name}. Change member",
+			"PROJECTS_LABEL": "Time per project",
 			"YOU": "You",
 			"LEGEND_LABEL": "Legend",
 			"LEGEND": {

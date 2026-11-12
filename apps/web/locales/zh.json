@@ -1420,6 +1420,7 @@
 				"DAY": "日"
 			},
 			"MEMBER_SWITCH_LABEL": "正在查看 {name} 的日历，切换成员",
+			"PROJECTS_LABEL": "各项目用时",
 			"YOU": "你",
 			"LEGEND_LABEL": "图例",
 			"LEGEND": {

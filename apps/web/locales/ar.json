@@ -1355,6 +1355,7 @@
 				"DAY": "يوم"
 			},
 			"MEMBER_SWITCH_LABEL": "تقويم {name}. تغيير العضو",
+			"PROJECTS_LABEL": "الوقت حسب المشروع",
 			"YOU": "أنت",
 			"LEGEND_LABEL": "مفتاح الرموز",
 			"LEGEND": {
