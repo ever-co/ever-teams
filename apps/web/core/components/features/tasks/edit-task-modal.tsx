@@ -172,6 +172,8 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 			};
 			const savedProjectId = updatePayload.projectId ?? '';
 			const hasMovedToTaskProject = savedProjectId !== timesheetData.projectId;
+			const savedTaskId = updatePayload.taskId;
+			const keepSavedTask = taskChoice.keepSavedTask;
 			const saveUpdate = () =>
 				updateTimeLog(updatePayload)
 					.then(() => {
@@ -180,6 +182,9 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 						// entry would send the previous one
 						if (hasMovedToTaskProject) {
 							setTimesheetData((prev) => ({ ...prev, projectId: savedProjectId }));
+						}
+						if (savedTaskId) {
+							keepSavedTask(savedTaskId);
 						}
 						toast.success(t('toasts.time.LOG_UPDATED'));
 						closeModal();
@@ -211,6 +216,7 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 			timesheetData.notes,
 			timesheetData.projectId,
 			taskChoice.changedFields,
+			taskChoice.keepSavedTask,
 			closeModal,
 			updateTimeLog,
 			saveAfterOverlapCheck,
