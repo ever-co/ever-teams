@@ -6283,5 +6283,9 @@
 			"PDF": "PDF-bestand",
 			"LOGS": "Registraties"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "Tijd per klant",
+		"CLIENTS": "{count, plural, one {# klant} other {# klanten}}"
 	}
 }

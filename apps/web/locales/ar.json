@@ -6283,5 +6283,9 @@
 			"PDF": "ملف PDF",
 			"LOGS": "السجلات"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "الوقت حسب العميل",
+		"CLIENTS": "{count, plural, one {عميل واحد} two {عميلان} few {# عملاء} many {# عميلًا} other {# عميل}}"
 	}
 }

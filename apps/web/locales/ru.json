@@ -6283,5 +6283,9 @@
 			"PDF": "Файл PDF",
 			"LOGS": "Записи"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "Время по клиентам",
+		"CLIENTS": "{count, plural, one {# клиент} few {# клиента} many {# клиентов} other {# клиента}}"
 	}
 }

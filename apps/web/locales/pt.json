@@ -6283,5 +6283,9 @@
 			"PDF": "Arquivo PDF",
 			"LOGS": "Registros"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "Tempo por cliente",
+		"CLIENTS": "{count, plural, one {# cliente} other {# clientes}}"
 	}
 }

@@ -6283,5 +6283,9 @@
 			"PDF": "Fichier PDF",
 			"LOGS": "Saisies"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "Temps par client",
+		"CLIENTS": "{count, plural, one {# client} other {# clients}}"
 	}
 }

@@ -6283,5 +6283,9 @@
 			"PDF": "PDF 文件",
 			"LOGS": "记录"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "按客户统计时间",
+		"CLIENTS": "{count, plural, other {# 个客户}}"
 	}
 }

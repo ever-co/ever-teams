@@ -6283,5 +6283,9 @@
 			"PDF": "קובץ PDF",
 			"LOGS": "רישומים"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "זמן לפי לקוח",
+		"CLIENTS": "{count, plural, one {לקוח אחד} two {שני לקוחות} other {# לקוחות}}"
 	}
 }
