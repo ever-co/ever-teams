@@ -2,10 +2,12 @@
 import { meetPathFor } from './collaboration';
 import {
 	appointmentInputOf,
+	appointmentUpdateOf,
 	dayAfter,
 	isRoomTokenStale,
 	meetingDaysOf,
 	meetingIcsOf,
+	meetingLinkWithTitle,
 	meetingPathFor,
 	meetingPathOfInput,
 	meetingsOfDay,
@@ -177,6 +179,32 @@ describe('scheduled meetings', () => {
 			employeeId: 'employee-1'
 		});
 		expect(input).not.toHaveProperty('emails');
+	});
+
+	it('reschedules a meeting with its title, time and link only, so Gauzy keeps the rest', () => {
+		const start = new Date('2026-11-13T09:30:00.000Z');
+		const link = 'https://app.example.com/meet/jitsi?room=abc&title=Sprint%20review';
+
+		expect(appointmentUpdateOf({ title: ' Sprint demo ', start, durationMinutes: 60, link })).toEqual({
+			agenda: 'Sprint demo',
+			startDateTime: '2026-11-13T09:30:00.000Z',
+			endDateTime: '2026-11-13T10:30:00.000Z',
+			location: link
+		});
+		expect(appointmentUpdateOf({ title: 'Call', start, durationMinutes: 15, link: null })).not.toHaveProperty(
+			'location'
+		);
+	});
+
+	it("renames a meeting's link and keeps its room as written", () => {
+		const room = 'room+one/two=';
+
+		expect(
+			meetingLinkWithTitle(`https://app.example.com/meet/jitsi?room=${room}&title=Sprint%20review`, 'Demo & Q&A')
+		).toBe(`https://app.example.com/meet/jitsi?room=${room}&title=Demo%20%26%20Q%26A`);
+		expect(meetingLinkWithTitle(`https://app.example.com/meet/livekit?roomName=${room}`, 'Retro')).toBe(
+			`https://app.example.com/meet/livekit?roomName=${room}&title=Retro`
+		);
 	});
 
 	it('writes a calendar file with the time in UTC, escaped text and folded long lines', () => {

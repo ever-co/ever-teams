@@ -247,6 +247,41 @@ export function appointmentInputOf(draft: ScheduleMeetingDraft, employeeId: stri
 	};
 }
 
+/** A meeting moved to another time, or renamed. */
+export interface RescheduleMeetingDraft {
+	title: string;
+	start: Date;
+	durationMinutes: number;
+	/** The meeting's link, its title brought up to date; null for a meeting without a link. */
+	link: string | null;
+}
+
+export interface MeetingAppointmentUpdate {
+	agenda: string;
+	startDateTime: string;
+	endDateTime: string;
+	location?: string;
+}
+
+/**
+ * What Gauzy's appointment update (`PUT /employee-appointment/:id`) takes to reschedule a meeting: its title, its time
+ * and its link. Gauzy leaves alone what an update does not carry, so the description and the emails stay as they were.
+ */
+export function appointmentUpdateOf(draft: RescheduleMeetingDraft): MeetingAppointmentUpdate {
+	const end = new Date(draft.start.getTime() + draft.durationMinutes * MINUTE);
+	return {
+		agenda: draft.title.trim(),
+		startDateTime: draft.start.toISOString(),
+		endDateTime: end.toISOString(),
+		...(draft.link ? { location: draft.link } : {})
+	};
+}
+
+/** A meeting's link under a new title, its room kept as written: the links Ever Teams makes end with the title. */
+export function meetingLinkWithTitle(link: string, title: string): string {
+	return withTitle(link.replace(/&title=[^&#]*/, ''), title);
+}
+
 // iCalendar (RFC 5545) property names
 // cspell:ignore CALSCALE DTEND DTSTAMP DTSTART PRODID VCALENDAR VEVENT
 function icsDateOf(date: Date): string {
