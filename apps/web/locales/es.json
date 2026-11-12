@@ -6396,7 +6396,8 @@
 				"DATES": "Emitida el {issueDate}, vence el {dueDate}.",
 				"DRAFT": "Se guarda como borrador y se puede descargar en PDF.",
 				"FAILED": "La factura no se guardó y no se creó nada. Comprueba que su número esté libre y vuelve a intentarlo.",
-				"UNCHECKED": "No se pudieron leer las facturas ya guardadas de {client}, así que este periodo no se comparó con ellas."
+				"UNCHECKED": "No se pudieron leer las facturas ya guardadas de {client}, así que este periodo no se comparó con ellas.",
+				"UNCONFIRMED": "No se pudo confirmar el guardado, así que es posible que la factura se haya guardado. Revisa las facturas ya guardadas de {client} antes de volver a guardar."
 			}
 		}
 	}

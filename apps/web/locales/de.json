@@ -6396,7 +6396,8 @@
 				"DATES": "Ausgestellt am {issueDate}, fällig am {dueDate}.",
 				"DRAFT": "Sie wird als Entwurf gespeichert und kann als PDF heruntergeladen werden.",
 				"FAILED": "Die Rechnung wurde nicht gespeichert, und es wurde nichts angelegt. Prüfen Sie, ob die Nummer frei ist, und versuchen Sie es erneut.",
-				"UNCHECKED": "Die bereits gespeicherten Rechnungen für {client} konnten nicht gelesen werden, daher wurde dieser Zeitraum nicht mit ihnen abgeglichen."
+				"UNCHECKED": "Die bereits gespeicherten Rechnungen für {client} konnten nicht gelesen werden, daher wurde dieser Zeitraum nicht mit ihnen abgeglichen.",
+				"UNCONFIRMED": "Das Speichern konnte nicht bestätigt werden, die Rechnung wurde also vielleicht gespeichert. Prüfen Sie die bereits gespeicherten Rechnungen für {client}, bevor Sie erneut speichern."
 			}
 		}
 	}

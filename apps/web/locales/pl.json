@@ -6396,7 +6396,8 @@
 				"DATES": "Wystawiona {issueDate}, termin płatności {dueDate}.",
 				"DRAFT": "Zostanie zapisana jako wersja robocza i można ją pobrać jako PDF.",
 				"FAILED": "Faktura nie została zapisana i nic nie zostało utworzone. Sprawdź, czy numer jest wolny, i spróbuj ponownie.",
-				"UNCHECKED": "Nie udało się odczytać faktur już zapisanych dla {client}, więc tego okresu nie porównano z nimi."
+				"UNCHECKED": "Nie udało się odczytać faktur już zapisanych dla {client}, więc tego okresu nie porównano z nimi.",
+				"UNCONFIRMED": "Nie udało się potwierdzić zapisu, więc faktura mogła zostać zapisana. Przed ponownym zapisaniem sprawdź faktury już zapisane dla {client}."
 			}
 		}
 	}

@@ -6396,7 +6396,8 @@
 				"DATES": "Emessa il {issueDate}, scade il {dueDate}.",
 				"DRAFT": "Viene salvata come bozza e può essere scaricata in PDF.",
 				"FAILED": "La fattura non è stata salvata e non è stato creato nulla. Controlla che il numero sia libero, poi riprova.",
-				"UNCHECKED": "Impossibile leggere le fatture già salvate per {client}, quindi questo periodo non è stato confrontato con esse."
+				"UNCHECKED": "Impossibile leggere le fatture già salvate per {client}, quindi questo periodo non è stato confrontato con esse.",
+				"UNCONFIRMED": "Non è stato possibile confermare il salvataggio, quindi la fattura potrebbe essere stata salvata. Controlla le fatture già salvate per {client} prima di salvare di nuovo."
 			}
 		}
 	}

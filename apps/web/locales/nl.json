@@ -6396,7 +6396,8 @@
 				"DATES": "Uitgereikt op {issueDate}, vervalt op {dueDate}.",
 				"DRAFT": "De factuur wordt als concept opgeslagen en kan als pdf worden gedownload.",
 				"FAILED": "De factuur is niet opgeslagen en er is niets aangemaakt. Controleer of het nummer vrij is en probeer het opnieuw.",
-				"UNCHECKED": "De al opgeslagen facturen van {client} konden niet worden gelezen, dus deze periode is er niet mee vergeleken."
+				"UNCHECKED": "De al opgeslagen facturen van {client} konden niet worden gelezen, dus deze periode is er niet mee vergeleken.",
+				"UNCONFIRMED": "Het opslaan kon niet worden bevestigd, dus de factuur is misschien al opgeslagen. Controleer de al opgeslagen facturen van {client} voordat je opnieuw opslaat."
 			}
 		}
 	}
