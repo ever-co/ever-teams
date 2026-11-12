@@ -40,7 +40,7 @@ interface ButtonLogic {
 	canTrack: boolean;
 	startStopTimerHandler: jest.Mock;
 	startTimerWithTask: jest.Mock;
-	modals: Record<string, never>;
+	modals: Record<string, boolean>;
 }
 
 function buttonLogicOf(overrides: Partial<ButtonLogic> = {}): ButtonLogic {
@@ -122,9 +122,12 @@ describe('TimerTaskStartLayer', () => {
 		expect(store.get(timerStartNotesState)).toBeNull();
 	});
 
-	it('sends the active task through the main Start, the notes waiting for it', async () => {
+	it('sends the active task through the main Start, the notes waiting while its daily plan dialog is open', async () => {
 		const store = createStore();
-		const logic = buttonLogicOf({ activeTaskStatus: { running: false } });
+		const logic = buttonLogicOf({
+			activeTaskStatus: { running: false },
+			modals: { isSuggestDailyPlanModalOpen: true }
+		});
 
 		await renderLayer(requestOf({ carry: { isBillable: false, description: 'Standup' } }), logic, store);
 
@@ -132,6 +135,80 @@ describe('TimerTaskStartLayer', () => {
 		expect(logic.startTimerWithTask).not.toHaveBeenCalled();
 		expect(store.get(timerBillableChoicesState)).toEqual({ 'task-1': false });
 		expect(store.get(timerStartNotesState)).toMatchObject({ taskId: 'task-1', description: 'Standup' });
+	});
+
+	it('takes back the notes the main Start did not take when it opened no dialog', async () => {
+		const store = createStore();
+		const logic = buttonLogicOf({ activeTaskStatus: { running: false } });
+
+		await renderLayer(requestOf(), logic, store);
+
+		expect(logic.startStopTimerHandler).toHaveBeenCalledTimes(1);
+		expect(store.get(timerStartNotesState)).toBeNull();
+	});
+
+	it('takes back the notes once the daily plan dialogs close without a start, and only those', async () => {
+		const store = createStore();
+		const dialogOpen = buttonLogicOf({
+			activeTaskStatus: { running: false },
+			modals: { isEnforceTaskModalOpen: true }
+		});
+		const view = await renderLayer(requestOf(), dialogOpen, store);
+		expect(store.get(timerStartNotesState)).toMatchObject({ description: 'Review the invoices' });
+
+		// The enforce prompt is accepted: it closes as today's plan opens, and the start still waits
+		mockUseTimerButtonLogic.mockReturnValue({ ...dialogOpen, modals: { isTasksEstimationHoursModalOpen: true } });
+		view.rerender(
+			<Provider store={store}>
+				<TimerTaskStartLayer request={requestOf()} />
+			</Provider>
+		);
+		await act(async () => {});
+		expect(store.get(timerStartNotesState)).toMatchObject({ description: 'Review the invoices' });
+
+		// The plan is dismissed without a start
+		mockUseTimerButtonLogic.mockReturnValue({ ...dialogOpen, modals: {} });
+		view.rerender(
+			<Provider store={store}>
+				<TimerTaskStartLayer request={requestOf()} />
+			</Provider>
+		);
+		await act(async () => {});
+		expect(store.get(timerStartNotesState)).toBeNull();
+	});
+
+	it('leaves notes handed by a later continuation alone when its dialog closes', async () => {
+		const store = createStore();
+		const dialogOpen = buttonLogicOf({
+			activeTaskStatus: { running: false },
+			modals: { isEnforceTaskModalOpen: true }
+		});
+		const view = await renderLayer(requestOf(), dialogOpen, store);
+		const laterNotes = { taskId: 'task-1', description: 'Another entry', handedAt: Date.now() };
+		store.set(timerStartNotesState, laterNotes);
+
+		mockUseTimerButtonLogic.mockReturnValue({ ...dialogOpen, modals: {} });
+		view.rerender(
+			<Provider store={store}>
+				<TimerTaskStartLayer request={requestOf()} />
+			</Provider>
+		);
+		await act(async () => {});
+
+		expect(store.get(timerStartNotesState)).toBe(laterNotes);
+	});
+
+	it('takes back the notes when the start goes with its daily plan dialog open', async () => {
+		const store = createStore();
+		const logic = buttonLogicOf({
+			activeTaskStatus: { running: false },
+			modals: { isSuggestDailyPlanModalOpen: true }
+		});
+		const view = await renderLayer(requestOf(), logic, store);
+
+		view.unmount();
+
+		expect(store.get(timerStartNotesState)).toBeNull();
 	});
 
 	it('leaves the billable choice alone for a start that continues no entry', async () => {

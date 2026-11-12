@@ -24,6 +24,7 @@ import {
 	requiredTrackingFieldsOf
 } from '@/core/lib/helpers/timer-errors';
 import { notesToSendAtStart, notesToSendAtStop, timerNotesAfterStart } from '@/core/lib/utils/timer/timer-notes';
+import { notesForStartOf } from '@/core/lib/utils/timer/timer-start-notes';
 import { startTaskOf } from '@/core/lib/utils/timer/timer-start-task';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
@@ -63,7 +64,7 @@ import { useScopeGuard } from '../bootstrap/use-scope-guard';
 import { useStopStaleTeamsTimer } from './use-stale-timer-guard';
 import { useStopNotesWarning } from './use-stop-notes-warning';
 import { useResolveTimerBillable } from './use-timer-billable';
-import { takeTimerStartNotes } from './use-timer-start-notes';
+import { takePendingTimerStartNotes } from './use-timer-start-notes';
 
 // ==================== TYPES ====================
 
@@ -651,6 +652,9 @@ export function useTimerApi({
 
 	const runStartTimer = useCallback(
 		async (explicitTask?: TTask, onRequestLanded?: () => void): Promise<TimerStartOutcome> => {
+			// The notes of a continued entry are taken as the start is asked, before the awaits below: the daily plan
+			// dialog that asks for it closes at once, and its closing gives up notes still waiting (#5131)
+			const pendingNotes = takePendingTimerStartNotes(store);
 			// A new workspace is opening: its answer switches the session, and this timer would keep running in the
 			// workspace left behind, out of sight (#5025)
 			if (warnIfWorkspaceOpening()) {
@@ -714,7 +718,7 @@ export function useTimerApi({
 			if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
 			// The notes of an entry continued from a report go with the start of its task, ahead of a draft typed in the
 			// timer, and become the timer's notes once it runs (#5131 with #5113)
-			const continuedNotes = takeTimerStartNotes(store, taskIdToUse);
+			const continuedNotes = notesForStartOf(pendingNotes, taskIdToUse);
 			const notesToUse = continuedNotes ?? notesToSendAtStart(store.get(timerNotesState));
 			const startRequest = startTimerMutate({
 				taskId: taskIdToUse,

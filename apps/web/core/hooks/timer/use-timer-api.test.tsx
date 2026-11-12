@@ -185,7 +185,7 @@ function renderTab() {
 			await result.current.stopTimer();
 		});
 	};
-	return { pressStart, pressStop, queryClient, store };
+	return { pressStart, pressStop, queryClient, store, result };
 }
 
 /**
@@ -377,6 +377,22 @@ describe("Start with a notes draft and a continued entry's notes", () => {
 		// Tied to the started entry, the draft would have been sent at the stop over the continued notes
 		expect(tab.store.get(timerNotesState)).toEqual({ text: 'Standup notes', timeLogId: 'log-new' });
 		expect(tab.store.get(timerStartNotesState)).toBeNull();
+	});
+
+	it("takes the continued entry's notes as the start is asked, so the plan dialog that asks it cannot drop them", async () => {
+		const tab = renderTab();
+		tab.store.set(timerStartNotesState, { taskId: 'task-1', description: 'Standup notes', handedAt: Date.now() });
+
+		let outcome: unknown;
+		await act(async () => {
+			const started = tab.result.current.startTimer(TASK);
+			// The dialog closes right after asking, before the start's checks have answered
+			expect(tab.store.get(timerStartNotesState)).toBeNull();
+			outcome = await started;
+		});
+
+		expect(outcome).toBe('started');
+		expect(mockStartBodies).toEqual([expect.objectContaining({ description: 'Standup notes' })]);
 	});
 
 	it('sends the draft when no entry was continued, and ties it to the started entry', async () => {

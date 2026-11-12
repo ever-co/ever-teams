@@ -2,6 +2,7 @@
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { TimerPlanDialogs } from '@/core/components/features/daily-plan/timer-plan-dialogs';
@@ -14,7 +15,15 @@ import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { timerTaskStartActionOf } from '@/core/lib/utils/timer/timer-task-start';
 import { timerBillableChoicesState, timerStatusState } from '@/core/stores';
 import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
+import type { TTimerStartNotes } from '@/core/stores/timer/timer-start-notes';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
+
+type TimerPlanModals = ReturnType<typeof useTimerButtonLogic>['modals'];
+
+function isPlanDialogOpenOf(modals: TimerPlanModals) {
+	const { isEnforceTaskModalOpen, isTasksEstimationHoursModalOpen, isSuggestDailyPlanModalOpen } = modals;
+	return Boolean(isEnforceTaskModalOpen || isTasksEstimationHoursModalOpen || isSuggestDailyPlanModalOpen);
+}
 
 /**
  * Runs the timer start it is mounted for, once, through the hooks of the task's own Start button: the same stop of
@@ -30,14 +39,29 @@ function TimerTaskStart({ request }: Readonly<{ request: TimerTaskStartRequest }
 	// The status the timers show, filtered to the active team: a run it leaves out reads as stopped there
 	const shownTimerStatus = useAtomValue(teamTimerStatusState);
 	const setBillableChoices = useSetAtom(timerBillableChoicesState);
-	const { handNotes, dropNotes } = useTimerStartNotes();
+	const { handNotes, dropHandedNotes } = useTimerStartNotes();
+	// The notes handed to the main Start, which may wait for its daily plan dialogs
+	const [mainStartNotes, setMainStartNotes] = useState<TTimerStartNotes | null>(null);
+	const isPlanDialogOpen = isPlanDialogOpenOf(modals);
 
+	// The main Start started at once, taking the notes as it was asked, or opened the daily plan dialogs, whose own
+	// start takes them however long the member took. Once no dialog is open, notes still waiting were given up with the
+	// dialogs, and so are they when this start goes with a dialog open: they never ride on a later start of the task.
+	useEffect(() => {
+		if (!isPlanDialogOpen) {
+			dropHandedNotes(mainStartNotes);
+			return undefined;
+		}
+		return () => dropHandedNotes(mainStartNotes);
+	}, [dropHandedNotes, isPlanDialogOpen, mainStartNotes]);
+
+	/** Hands the continued entry's billable status and notes to the timer; answers the notes handed. */
 	const handCarryToTimer = () => {
 		if (!carry) {
-			return;
+			return null;
 		}
 		setBillableChoices((current) => ({ ...current, [task.id]: carry.isBillable }));
-		handNotes(task.id, carry.description);
+		return handNotes(task.id, carry.description);
 	};
 
 	useRunOnce(() => {
@@ -73,17 +97,20 @@ function TimerTaskStart({ request }: Readonly<{ request: TimerTaskStartRequest }
 			case 'BLOCKED_BY_PLAN':
 				toast.warning(t('timer.PLAN_REQUIRED_TO_START'), { id: 'timer-plan-required' });
 				return;
-			case 'MAIN_START':
-				handCarryToTimer();
+			case 'MAIN_START': {
+				const handed = handCarryToTimer();
 				startStopTimerHandler();
+				setMainStartNotes(handed);
 				return;
-			case 'TASK_START':
-				handCarryToTimer();
+			}
+			case 'TASK_START': {
+				const handed = handCarryToTimer();
 				// The start reports its own failures; this only keeps a rejection from going unhandled
 				startTimerWithTask()
 					.catch((error) => logErrorInDev('[Timer] Start on a task failed:', error))
-					.finally(() => dropNotes(task.id));
+					.finally(() => dropHandedNotes(handed));
 				return;
+			}
 		}
 	});
 
