@@ -29,3 +29,15 @@ export function isChatLinkPreviewsEnabled(): boolean {
 	const runtimeFlag = readRuntimeEnv('NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED') || process.env.NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED;
 	return runtimeFlag === 'true';
 }
+
+/**
+ * Whether a preview card also shows the page's picture (`NEXT_PUBLIC_CHAT_LINK_PREVIEW_IMAGES_ENABLED=true`, read at
+ * runtime, on top of the previews themselves). The picture comes from the platform (`/chat/link-preview/image`, which
+ * fetched it and serves it; on when `GAUZY_CHAT_LINK_PREVIEW_IMAGES_ENABLED=true`), never from the linked site, so the
+ * reader's browser still calls no other site. Off by default: cards stay text only.
+ */
+export function isChatLinkPreviewPicturesEnabled(): boolean {
+	const runtimeFlag =
+		readRuntimeEnv('NEXT_PUBLIC_CHAT_LINK_PREVIEW_IMAGES_ENABLED') || process.env.NEXT_PUBLIC_CHAT_LINK_PREVIEW_IMAGES_ENABLED;
+	return runtimeFlag === 'true' && isChatLinkPreviewsEnabled();
+}
