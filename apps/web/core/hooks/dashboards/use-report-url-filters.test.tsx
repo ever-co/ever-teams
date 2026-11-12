@@ -114,4 +114,51 @@ describe('useReportUrlFilters', () => {
 
 		expect(mockRouter.replace).not.toHaveBeenCalled();
 	});
+
+	it('reads the other values a shared link carries', () => {
+		linkMovesTo('groupBy=client&clients=acme');
+
+		const { result } = renderHook(() => useReportUrlFilters());
+
+		expect(result.current.params.get('groupBy')).toBe('client');
+	});
+
+	it('writes another value beside the filters, and takes it out of the link with null', () => {
+		linkMovesTo('clients=acme');
+		const { result } = renderHook(() => useReportUrlFilters());
+
+		act(() => result.current.setParam('groupBy', 'client'));
+		expect(mockRouter.replace).toHaveBeenLastCalledWith(
+			'/reports/time-and-activity?clients=acme&groupBy=client',
+			NOT_SCROLLING
+		);
+		expect(result.current.params.get('groupBy')).toBe('client');
+
+		act(() => result.current.setParam('groupBy', null));
+		expect(mockRouter.replace).toHaveBeenLastCalledWith('/reports/time-and-activity?clients=acme', NOT_SCROLLING);
+	});
+
+	it('builds a filter pick on a value still on its way to the link, and the other way round', () => {
+		const { result } = renderHook(() => useReportUrlFilters());
+
+		act(() => result.current.setParam('groupBy', 'client'));
+		act(() => result.current.setFilter('clients', ['acme']));
+		act(() => result.current.setParam('groupBy', 'project'));
+
+		expect(mockRouter.replace).toHaveBeenLastCalledWith(
+			'/reports/time-and-activity?groupBy=project&clients=acme',
+			NOT_SCROLLING
+		);
+		expect(result.current.filters.clients).toEqual(['acme']);
+	});
+
+	it('keeps the other values of the link when the filters are cleared', () => {
+		linkMovesTo('groupBy=client&clients=acme');
+		const { result } = renderHook(() => useReportUrlFilters());
+
+		act(() => result.current.clearFilters());
+
+		expect(mockRouter.replace).toHaveBeenCalledWith('/reports/time-and-activity?groupBy=client', NOT_SCROLLING);
+		expect(result.current.params.get('groupBy')).toBe('client');
+	});
 });
