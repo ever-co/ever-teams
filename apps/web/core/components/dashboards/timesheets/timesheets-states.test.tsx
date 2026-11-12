@@ -6,12 +6,12 @@ jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 
 import { TimesheetsSelectionBar } from './timesheets-states';
 
-function renderBar(overrides: { canEdit: boolean; canDelete?: boolean }) {
+function renderBar(overrides: { canEdit: boolean; canDelete?: boolean; canApprove?: boolean }) {
 	const onEdit = jest.fn();
 	render(
 		<TimesheetsSelectionBar
 			count={3}
-			canApprove
+			canApprove={overrides.canApprove ?? true}
 			canEdit={overrides.canEdit}
 			canDelete={overrides.canDelete ?? true}
 			isApproving={false}
@@ -28,6 +28,11 @@ function renderBar(overrides: { canEdit: boolean; canDelete?: boolean }) {
 function actionNames() {
 	const buttons = screen.getAllByRole('button');
 	return buttons.map((button) => button.getAttribute('aria-label') ?? button.textContent);
+}
+
+function dividerCount() {
+	const toolbar = screen.getByRole('toolbar');
+	return toolbar.querySelectorAll(':scope > [aria-hidden="true"]').length;
 }
 
 describe('TimesheetsSelectionBar', () => {
@@ -55,5 +60,18 @@ describe('TimesheetsSelectionBar', () => {
 			'dashboard.timesheets.REJECT',
 			'dashboard.timesheets.CLEAR_SELECTION'
 		]);
+	});
+
+	it('sets Clear selection apart from the actions with a divider', () => {
+		renderBar({ canEdit: true });
+
+		expect(dividerCount()).toBe(2);
+	});
+
+	it('draws one divider only when the viewer may do nothing with the selection', () => {
+		renderBar({ canEdit: false, canDelete: false, canApprove: false });
+
+		expect(actionNames()).toEqual(['dashboard.timesheets.CLEAR_SELECTION']);
+		expect(dividerCount()).toBe(1);
 	});
 });

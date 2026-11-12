@@ -14,6 +14,8 @@ const BAR_ACTION = 'max-sm:px-2';
 
 const BAR_ACTION_LABEL = 'max-sm:sr-only';
 
+const BAR_DIVIDER = 'h-4 w-px shrink-0 bg-border';
+
 const TASK_BAR_WIDTHS = ['w-3/4', 'w-1/2', 'w-2/3', 'w-2/5'];
 
 function taskBarWidthOf(index: number) {
@@ -105,6 +107,7 @@ export function TimesheetsSelectionBar({
 }>) {
 	const t = useTranslations();
 	const label = t('dashboard.timesheets.SELECTED', { count });
+	const hasAction = canApprove || canEdit || canDelete;
 	return (
 		<div className="pointer-events-none sticky bottom-4 z-10 mt-4 flex justify-center">
 			<div
@@ -113,7 +116,7 @@ export function TimesheetsSelectionBar({
 				className="surface-raised pointer-events-auto flex h-11 max-w-full items-center gap-1 overflow-x-auto rounded-full py-1 pr-1.5 pl-4"
 			>
 				<span className="shrink-0 pr-2 text-[13px] font-medium tabular-nums text-foreground">{label}</span>
-				<span className="h-4 w-px shrink-0 bg-border" />
+				<span className={BAR_DIVIDER} aria-hidden="true" />
 				{canApprove && (
 					<>
 						<Button
@@ -155,6 +158,7 @@ export function TimesheetsSelectionBar({
 						<span className={BAR_ACTION_LABEL}>{t('common.DELETE')}</span>
 					</Button>
 				)}
+				{hasAction && <span className={BAR_DIVIDER} aria-hidden="true" />}
 				<Button
 					type="button"
 					variant="ghost"
