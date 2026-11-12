@@ -1,6 +1,8 @@
 import {
 	draggedDatesOf,
 	draggedTaskDatesOf,
+	hasEndHandlesOf,
+	previewDaysOf,
 	TIMELINE_MAX_DAYS,
 	TIMELINE_PADDING_DAYS,
 	dayNumberOf,
@@ -248,5 +250,24 @@ describe('the dates a drag gives a task', () => {
 		});
 		expect(draggedTaskDatesOf({ startDate: null, dueDate: null }, 'move', 1)).toBeNull();
 		expect(draggedTaskDatesOf({ dueDate: '2026-11-20' }, 'start', 1)).toBeNull();
+	});
+});
+
+describe('a bar while it is dragged', () => {
+	const range = { startDay: 10, endDay: 14, isDueOnly: false, isStartOnly: false, hasInvalidRange: false };
+	const dates = { startDay: 110, dueDay: 114 };
+
+	it('shows the dragged dates as offsets, inside the days drawn', () => {
+		expect(previewDaysOf(range, dates, null, 100, 30)).toEqual({ startDay: 10, endDay: 14 });
+		expect(previewDaysOf(range, dates, { drag: 'move', delta: 3 }, 100, 30)).toEqual({ startDay: 13, endDay: 17 });
+		expect(previewDaysOf(range, dates, { drag: 'end', delta: -2 }, 100, 30)).toEqual({ startDay: 10, endDay: 12 });
+		// A long move stays at the calendar's edge.
+		expect(previewDaysOf(range, dates, { drag: 'move', delta: 40 }, 100, 30)).toEqual({ startDay: 29, endDay: 29 });
+	});
+
+	it('gives end handles only to a range of several days', () => {
+		expect(hasEndHandlesOf(range, dates)).toBe(true);
+		expect(hasEndHandlesOf(range, { startDay: 110, dueDay: 110 })).toBe(false);
+		expect(hasEndHandlesOf({ ...range, isDueOnly: true }, { startDay: null, dueDay: 110 })).toBe(false);
 	});
 });

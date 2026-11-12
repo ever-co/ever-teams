@@ -138,11 +138,32 @@ describe('TeamTasksTimelineView', () => {
 		fireEvent.pointerDown(bar, { button: 0, clientX: 100, pointerId: 7 });
 		fireEvent.pointerMove(bar, { clientX: 82, pointerId: 7 });
 		fireEvent.pointerUp(bar, { clientX: 82, pointerId: 7 });
+		expect(mockMoveDates).toHaveBeenCalledTimes(2);
 		expect(mockMoveDates).toHaveBeenLastCalledWith('due', 'move', -1);
 		fireEvent.pointerDown(bar, { button: 0, clientX: 100, pointerId: 8 });
 		fireEvent.pointerMove(bar, { clientX: 118, pointerId: 8 });
 		fireEvent.pointerUp(bar, { clientX: 118, pointerId: 8 });
+		expect(mockMoveDates).toHaveBeenCalledTimes(3);
 		expect(mockMoveDates).toHaveBeenLastCalledWith('due', 'move', 1);
+	});
+
+	it('moves a held bar by the calendar scrolled under it, even without a pointer move', () => {
+		mockMoveDates.mockClear();
+		const { commands } = renderTimeline([
+			{ id: 'due', title: 'Due only', dueDate: '2026-11-20', status: 'open', taskStatusId: 'open' }
+		]);
+		const bar = screen.getByTestId('timeline-bar-due');
+		const calendar = bar.closest('.overflow-auto') as HTMLElement;
+
+		fireEvent.pointerDown(bar, { button: 0, clientX: 100, pointerId: 9 });
+		// Two days of scrolling under the held bar (36 px a day in the weeks zoom).
+		calendar.scrollLeft += 72;
+		fireEvent.scroll(calendar);
+		fireEvent.pointerUp(bar, { clientX: 100, pointerId: 9 });
+		fireEvent.click(bar);
+
+		expect(mockMoveDates).toHaveBeenCalledWith('due', 'move', 2);
+		expect(commands.openTask).not.toHaveBeenCalled();
 	});
 
 	it('shows end handles only on a range of several days, so a one-day range moves as a whole', () => {

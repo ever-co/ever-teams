@@ -302,3 +302,35 @@ export function draggedTaskDatesOf(
 		...(next.dueDay === undefined ? {} : { dueDate: dateOfDayNumber(next.dueDay) })
 	};
 }
+
+/**
+ * Where a bar shows while it is dragged: the days its dates would cover after `preview` (the whole move or one end),
+ * as offsets inside the days drawn (the full dates are what is saved; the preview never leaves the calendar). Without
+ * a preview, or one that changes nothing, where the bar is.
+ */
+export function previewDaysOf(
+	bar: Pick<TeamTasksTimelineBar, 'startDay' | 'endDay' | 'isDueOnly' | 'isStartOnly' | 'hasInvalidRange'>,
+	dates: { startDay: number | null; dueDay: number | null },
+	preview: { drag: TeamTasksTimelineDrag; delta: number } | null,
+	firstDay: number,
+	dayCount: number
+): { startDay: number; endDay: number } {
+	const next = preview ? draggedDatesOf(bar, dates, preview.drag, preview.delta) : null;
+	if (!next) {
+		return { startDay: bar.startDay, endDay: bar.endDay };
+	}
+	const start = (next.startDay ?? dates.startDay ?? next.dueDay ?? dates.dueDay ?? 0) - firstDay;
+	const end = (next.dueDay ?? dates.dueDay ?? next.startDay ?? dates.startDay ?? 0) - firstDay;
+	const last = dayCount - 1;
+	const clamp = (day: number) => Math.min(Math.max(day, 0), last);
+	return { startDay: clamp(start), endDay: clamp(bar.hasInvalidRange ? start : Math.max(start, end)) };
+}
+
+/** Whether a bar's ends drag on their own: a range of several days (a one-day or single-date bar moves as a whole). */
+export function hasEndHandlesOf(
+	bar: Pick<TeamTasksTimelineBar, 'isDueOnly' | 'isStartOnly' | 'hasInvalidRange'>,
+	dates: { startDay: number | null; dueDay: number | null }
+): boolean {
+	const isRange = !bar.isDueOnly && !bar.isStartOnly && !bar.hasInvalidRange;
+	return isRange && dates.startDay !== null && dates.dueDay !== null && dates.dueDay > dates.startDay;
+}

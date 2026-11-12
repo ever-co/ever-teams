@@ -1,6 +1,15 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type RefObject } from 'react';
+import {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	type KeyboardEvent,
+	type PointerEvent,
+	type RefObject
+} from 'react';
 import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
@@ -13,7 +22,8 @@ import {
 	dateOfDayNumber,
 	dayNumberOf,
 	dayOfStoredDate,
-	draggedDatesOf,
+	hasEndHandlesOf,
+	previewDaysOf,
 	ticksOf,
 	timelineOf,
 	type TeamTasksTimelineBar,
@@ -346,6 +356,126 @@ function wholeDaysOf(days: number) {
 	return Math.sign(days) * Math.round(Math.abs(days));
 }
 
+interface TimelineBarDragPress {
+	drag: TeamTasksTimelineDrag;
+	x: number;
+	lastX: number;
+	scrollLeft: number;
+	pointerId: number;
+	moved: boolean;
+}
+
+/**
+ * The pointer side of a bar: a press that moves (the pointer, or the calendar scrolled under it) past the threshold is
+ * a drag, shown as `preview` by whole days and sent once, on release, through `onMove`; a press that does not is a
+ * click. The calendar's scroll counts from the press on, so a held bar moved by a wheel or a trackpad drags too.
+ */
+function useTimelineBarDrag({
+	canEdit,
+	dayWidth,
+	scrollRef,
+	onMove
+}: {
+	canEdit: boolean;
+	dayWidth: number;
+	scrollRef: RefObject<HTMLDivElement | null>;
+	onMove: (drag: TeamTasksTimelineDrag, deltaDays: number) => void;
+}) {
+	const [preview, setPreview] = useState<{ drag: TeamTasksTimelineDrag; delta: number } | null>(null);
+	const [isPressed, setPressed] = useState(false);
+	const pressRef = useRef<TimelineBarDragPress | null>(null);
+	const suppressClickRef = useRef(false);
+
+	/** The movement of a press in pixels: the pointer's, plus the calendar scrolled since the press. */
+	const movementOf = useCallback(
+		(press: TimelineBarDragPress) => {
+			const scrolled = (scrollRef.current?.scrollLeft ?? press.scrollLeft) - press.scrollLeft;
+			return press.lastX - press.x + scrolled;
+		},
+		[scrollRef]
+	);
+	/** Marks a press as a drag once it moved past the threshold, and shows where it would put the bar. */
+	const follow = useCallback(
+		(press: TimelineBarDragPress) => {
+			const movement = movementOf(press);
+			if (!press.moved && Math.abs(movement) < DRAG_THRESHOLD) {
+				return;
+			}
+			press.moved = true;
+			setPreview({ drag: press.drag, delta: wholeDaysOf(movement / dayWidth) });
+		},
+		[movementOf, dayWidth]
+	);
+
+	useEffect(() => {
+		const element = scrollRef.current;
+		if (!element || !isPressed) {
+			return;
+		}
+		const onScroll = () => {
+			if (pressRef.current) follow(pressRef.current);
+		};
+		element.addEventListener('scroll', onScroll);
+		return () => element.removeEventListener('scroll', onScroll);
+	}, [isPressed, scrollRef, follow]);
+
+	const end = () => {
+		pressRef.current = null;
+		setPressed(false);
+		setPreview(null);
+	};
+
+	const onPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
+		if (!canEdit || event.button !== 0) {
+			return;
+		}
+		const handle = (event.target as HTMLElement).dataset['handle'];
+		pressRef.current = {
+			drag: handle === 'start' || handle === 'end' ? handle : 'move',
+			x: event.clientX,
+			lastX: event.clientX,
+			scrollLeft: scrollRef.current?.scrollLeft ?? 0,
+			pointerId: event.pointerId,
+			moved: false
+		};
+		setPressed(true);
+		event.currentTarget.setPointerCapture?.(event.pointerId);
+	};
+	const onPointerMove = (event: PointerEvent<HTMLButtonElement>) => {
+		const press = pressRef.current;
+		if (press?.pointerId !== event.pointerId) {
+			return;
+		}
+		press.lastX = event.clientX;
+		follow(press);
+	};
+	const onPointerUp = (event: PointerEvent<HTMLButtonElement>) => {
+		const press = pressRef.current;
+		if (press?.pointerId !== event.pointerId) {
+			return;
+		}
+		press.lastX = event.clientX;
+		follow(press);
+		const delta = wholeDaysOf(movementOf(press) / dayWidth);
+		event.currentTarget.releasePointerCapture?.(event.pointerId);
+		end();
+		if (!press.moved) {
+			return;
+		}
+		// A drag is not a click: the button's click that follows the release does not open the task.
+		suppressClickRef.current = true;
+		if (delta !== 0) onMove(press.drag, delta);
+	};
+	/** Whether the click that follows was a drag's release (and so opens nothing). */
+	const takeDragClick = () => {
+		const wasDrag = suppressClickRef.current;
+		suppressClickRef.current = false;
+		return wasDrag;
+	};
+
+	return { preview, handlers: { onPointerDown, onPointerMove, onPointerUp, onPointerCancel: end }, takeDragClick };
+}
+
 interface TimelineBarProps {
 	task: TTask;
 	bar: TeamTasksTimelineBar;
@@ -365,7 +495,8 @@ interface TimelineBarProps {
 /**
  * One bar: a button that opens its task; with `canEdit`, dragged to move the task's dates (the body) or one end of a
  * range (the edges), or moved with Alt + arrows (Alt + Shift + arrows: the due date). The bar follows the pointer by
- * whole days while dragged; the dates are saved once, when it is let go.
+ * whole days while dragged; the move is sent once, when it is let go, and the dates are worked out from the latest
+ * task when the update runs (a move that turns out to change nothing then sends nothing).
  */
 function TimelineBar({
 	task,
@@ -380,158 +511,36 @@ function TimelineBar({
 	scrollRef,
 	onMove
 }: Readonly<TimelineBarProps>) {
-	const [preview, setPreview] = useState<{ drag: TeamTasksTimelineDrag; delta: number } | null>(null);
-	const pressRef = useRef<{
-		drag: TeamTasksTimelineDrag;
-		x: number;
-		scrollLeft: number;
-		lastX: number;
-		pointerId: number;
-		moved: boolean;
-	} | null>(null);
-	const suppressClickRef = useRef(false);
+	const { preview, handlers, takeDragClick } = useTimelineBarDrag({ canEdit, dayWidth, scrollRef, onMove });
 	const dates = useMemo(
 		() => ({ startDay: dayOfStoredDate(task.startDate), dueDay: dayOfStoredDate(task.dueDate) }),
 		[task.startDate, task.dueDate]
 	);
-	const hasRange = !bar.isDueOnly && !bar.isStartOnly && !bar.hasInvalidRange;
-
-	// The calendar scrolled under a held bar (a wheel or a trackpad) moves the drag as the pointer would.
-	const isDragging = preview !== null;
-	useEffect(() => {
-		const element = scrollRef.current;
-		if (!element || !isDragging) {
-			return;
-		}
-		const onScroll = () => {
-			const press = pressRef.current;
-			if (press?.moved) {
-				const scrolled = element.scrollLeft - press.scrollLeft;
-				setPreview({ drag: press.drag, delta: wholeDaysOf((press.lastX - press.x + scrolled) / dayWidth) });
-			}
-		};
-		element.addEventListener('scroll', onScroll);
-		return () => element.removeEventListener('scroll', onScroll);
-	}, [isDragging, scrollRef, dayWidth]);
-
-	const save = (drag: TeamTasksTimelineDrag, delta: number) => {
-		// Only a change is sent; the dates themselves are worked out from the latest task when the update runs.
-		if (draggedDatesOf(bar, dates, drag, delta)) {
-			onMove(drag, delta);
-		}
-	};
-
-	/** The whole days the pointer moved over the calendar, counting the calendar scrolled meanwhile. */
-	const deltaOf = (clientX: number) => {
-		const press = pressRef.current;
-		if (!press) {
-			return 0;
-		}
-		const scrolled = (scrollRef.current?.scrollLeft ?? press.scrollLeft) - press.scrollLeft;
-		return wholeDaysOf((clientX - press.x + scrolled) / dayWidth);
-	};
-
-	// Where the bar shows: its dates as dragged so far, else as stored (a clipped end stays at the edge).
-	let startDay = bar.startDay;
-	let endDay = bar.endDay;
-	if (preview) {
-		const next = draggedDatesOf(bar, dates, preview.drag, preview.delta);
-		if (next) {
-			const start = (next.startDay ?? dates.startDay ?? next.dueDay ?? dates.dueDay ?? 0) - firstDay;
-			const end = (next.dueDay ?? dates.dueDay ?? next.startDay ?? dates.startDay ?? 0) - firstDay;
-			// The full dates are what is saved; the preview stays inside the days drawn, as every bar does.
-			const last = dayCount - 1;
-			startDay = Math.min(Math.max(start, 0), last);
-			endDay = Math.min(Math.max(bar.hasInvalidRange ? start : Math.max(start, end), 0), last);
-		}
-	}
+	const { startDay, endDay } = previewDaysOf(bar, dates, preview, firstDay, dayCount);
 	const left = startDay * dayWidth;
 	const width = Math.max(dayWidth, (endDay - startDay + 1) * dayWidth);
 	// The ends drag on a range of several days wide enough to leave its middle to move it; a one-day or narrow bar
 	// moves as a whole.
-	const hasHandles =
-		canEdit &&
-		hasRange &&
-		dates.startDay !== null &&
-		dates.dueDay !== null &&
-		dates.dueDay > dates.startDay &&
-		width >= MIN_HANDLE_BAR_WIDTH;
+	const hasHandles = canEdit && hasEndHandlesOf(bar, dates) && width >= MIN_HANDLE_BAR_WIDTH;
 
-	const handlePointerDown = (event: PointerEvent<HTMLButtonElement>) => {
-		if (!canEdit || event.button !== 0) {
-			return;
-		}
-		const handle = (event.target as HTMLElement).dataset['handle'];
-		const drag: TeamTasksTimelineDrag = handle === 'start' || handle === 'end' ? handle : 'move';
-		pressRef.current = {
-			drag,
-			x: event.clientX,
-			lastX: event.clientX,
-			scrollLeft: scrollRef.current?.scrollLeft ?? 0,
-			pointerId: event.pointerId,
-			moved: false
-		};
-		event.currentTarget.setPointerCapture?.(event.pointerId);
-	};
-	const handlePointerMove = (event: PointerEvent<HTMLButtonElement>) => {
-		const press = pressRef.current;
-		if (!press || press.pointerId !== event.pointerId) {
-			return;
-		}
-		press.lastX = event.clientX;
-		const scrolled = (scrollRef.current?.scrollLeft ?? press.scrollLeft) - press.scrollLeft;
-		if (!press.moved && Math.abs(event.clientX - press.x + scrolled) < DRAG_THRESHOLD) {
-			return;
-		}
-		press.moved = true;
-		setPreview({ drag: press.drag, delta: deltaOf(event.clientX) });
-	};
-	const handlePointerUp = (event: PointerEvent<HTMLButtonElement>) => {
-		const press = pressRef.current;
-		if (!press || press.pointerId !== event.pointerId) {
-			return;
-		}
-		const delta = deltaOf(event.clientX);
-		pressRef.current = null;
-		event.currentTarget.releasePointerCapture?.(event.pointerId);
-		setPreview(null);
-		if (!press.moved) {
-			return;
-		}
-		// A drag is not a click: the button's click that follows the release does not open the task.
-		suppressClickRef.current = true;
-		save(press.drag, delta);
-	};
-	const handlePointerCancel = () => {
-		pressRef.current = null;
-		setPreview(null);
-	};
 	const handleClick = () => {
-		if (suppressClickRef.current) {
-			suppressClickRef.current = false;
-			return;
-		}
-		onOpen();
+		if (!takeDragClick()) onOpen();
 	};
 	const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
 		if (!canEdit || !event.altKey || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) {
 			return;
 		}
 		event.preventDefault();
-		const delta = event.key === 'ArrowLeft' ? -1 : 1;
-		// Alt + Shift: the due date. A task with a due date only moves that date (its one date).
-		const drag: TeamTasksTimelineDrag = event.shiftKey && !bar.isDueOnly ? 'end' : 'move';
-		save(drag, delta);
+		// Alt + Shift: the due date. A task with a due date only moves that date (its one date). The move always goes
+		// to the queue: whether it changes the dates is decided there, on the latest task.
+		onMove(event.shiftKey && !bar.isDueOnly ? 'end' : 'move', event.key === 'ArrowLeft' ? -1 : 1);
 	};
 
 	return (
 		<button
 			type="button"
 			onClick={handleClick}
-			onPointerDown={handlePointerDown}
-			onPointerMove={handlePointerMove}
-			onPointerUp={handlePointerUp}
-			onPointerCancel={handlePointerCancel}
+			{...handlers}
 			onKeyDown={handleKeyDown}
 			aria-label={label}
 			aria-keyshortcuts={
