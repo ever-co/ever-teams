@@ -222,6 +222,19 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 		[latest, refreshNotificationLists]
 	);
 
+	// A toast given out of sight is out of date once a later reminder of its run was given in this browser (another tab
+	// showed it, or the platform sent it): taken away with its system notification, never shown nor marked read
+	const dropOutdatedHeldReminders = useCallback(() => {
+		for (const [id, { runKey, level }] of [...givenOutOfSight.current]) {
+			if (givenTimerReminderLevel(runKey) > level) {
+				givenOutOfSight.current.delete(id);
+				toast.dismiss(id);
+				systemNotifications.current.get(id)?.close();
+				systemNotifications.current.delete(id);
+			}
+		}
+	}, []);
+
 	// A toast given out of sight waits in its tab: once the person brings the tab into sight they see it, and its copy on
 	// the platform is marked read, so that the email or push held for it does not follow
 	useEffect(() => {
@@ -230,6 +243,7 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 			if (document.visibilityState !== 'visible') {
 				return;
 			}
+			dropOutdatedHeldReminders();
 			for (const [id, { runKey, level }] of [...outOfSight]) {
 				outOfSight.delete(id);
 				recordTimerReminder(runKey, level, { shown: true });
@@ -238,7 +252,7 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 		};
 		document.addEventListener('visibilitychange', onVisibilityChange);
 		return () => document.removeEventListener('visibilitychange', onVisibilityChange);
-	}, [markPlatformCopyRead]);
+	}, [dropOutdatedHeldReminders, markPlatformCopyRead]);
 
 	// Until the employee's threshold is read, the default could remind of a timer they gave more time: nothing is read
 	// before the workspace is known, and a read that failed says nothing of it either, unless an earlier one answered
@@ -411,6 +425,8 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 					}
 				}
 			}
+			// A toast this tab holds out of sight may be out of date: a later reminder of the run was given elsewhere
+			dropOutdatedHeldReminders();
 			const shown = Math.max(level, givenTimerReminderLevel(runKey), shownHere.current.get(runKey) ?? 0);
 			const next = nextTimerReminderAt({ key: runKey, startedAt }, hours, shown);
 			if (next !== null) {
@@ -423,7 +439,7 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 			isCancelled = true;
 			clearTimeout(timeout);
 		};
-	}, [isThresholdKnown, latest, markPlatformCopyRead, runKey, startedAt, hours]);
+	}, [isThresholdKnown, latest, markPlatformCopyRead, dropOutdatedHeldReminders, runKey, startedAt, hours]);
 
 	// The running run and the owner's stop, for the "Stop timer" of its reminders in the inbox
 	useEffect(() => {

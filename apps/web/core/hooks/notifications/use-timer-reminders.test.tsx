@@ -585,6 +585,42 @@ describe('useTimerReminders', () => {
 			expect(mockToast.warning).toHaveBeenCalledTimes(1);
 		});
 
+		it('takes away a toast it held out of sight once another tab showed the next reminder, when it comes into sight', async () => {
+			visibility = 'hidden';
+			await renderReminders();
+			await advance(HOUR + TIMER_REMINDER_HIDDEN_YIELD_MS);
+			expect(shownTitles()).toEqual(['notifications.TIMER_REMINDER.LONG_TITLE']);
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false, 'log-1', Date.now() + 20_000)]);
+			mockToast.dismiss.mockReset();
+
+			// Another tab of the browser, in sight, showed the second reminder
+			recordTimerReminder('log-1', 2, { shown: true });
+			// The person comes back to this tab: its first reminder is out of date, neither shown nor marked read
+			visibility = 'visible';
+			await act(async () => {
+				document.dispatchEvent(new Event('visibilitychange'));
+			});
+			await advance(TIMER_REMINDER_MARK_READ_RETRY_MS);
+
+			expect(mockToast.dismiss).toHaveBeenCalledWith(timerReminderIdOf('log-1', 1));
+			expect(mockUpdate).not.toHaveBeenCalled();
+		});
+
+		it('takes away a toast it held out of sight once its check finds the next reminder given in another tab', async () => {
+			visibility = 'hidden';
+			await renderReminders();
+			await advance(HOUR + TIMER_REMINDER_HIDDEN_YIELD_MS);
+			expect(shownTitles()).toEqual(['notifications.TIMER_REMINDER.LONG_TITLE']);
+			mockToast.dismiss.mockReset();
+
+			// Another tab of the browser showed the second reminder; this one checks when it comes due
+			recordTimerReminder('log-1', 2, { shown: true });
+			await advance(8 * HOUR);
+
+			expect(mockToast.dismiss).toHaveBeenCalledWith(timerReminderIdOf('log-1', 1));
+			expect(mockToast.warning).toHaveBeenCalledTimes(1);
+		});
+
 		it('refreshes the bell, its count and the inbox once the copy is marked read', async () => {
 			jest.setSystemTime(STARTED_AT + 8 * HOUR + MINUTE);
 			mockGetTimerReminders.mockResolvedValue([reminder(1, false, 'log-1', STARTED_AT + 8 * HOUR + 30_000)]);
