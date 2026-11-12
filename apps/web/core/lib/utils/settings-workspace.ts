@@ -1,4 +1,5 @@
 import { renameWorkspaceBodySchema } from '@/core/lib/validation/workspace';
+import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import {
 	WORKSPACE_DATE_FORMATS,
 	WORKSPACE_NUMBER_FORMATS,
@@ -31,6 +32,18 @@ export function canRenameWorkspace(roleName: string | null | undefined, permissi
 
 export function isWorkspaceNameValid(name: string): boolean {
 	return renameWorkspaceBodySchema.safeParse({ name }).success;
+}
+
+/**
+ * Whether the API answered a rename with a refusal (a 4xx), which a new try would get again: the half already written
+ * is undone. A failure without an answer, or a server error, may pass on a new try, which finishes the rename.
+ */
+export function isRenameRefused(error: unknown): boolean {
+	const status = errorStatusOf(error);
+	if (status === null) {
+		return false;
+	}
+	return status >= 400 && status < 500;
 }
 
 export function workspaceOfTenant(

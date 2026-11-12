@@ -97,7 +97,9 @@ beforeEach(() => {
 	mockPermissions = ['ALL_ORG_EDIT'];
 	mockPermissionsLoading = false;
 	mockSession = { tenantId: 'tenant-a', accessToken: 'token-a' };
+	mockUpdateOrganization.mockReset();
 	mockUpdateOrganization.mockResolvedValue({});
+	mockRenameTenant.mockReset();
 	mockRenameTenant.mockResolvedValue(undefined);
 });
 
@@ -352,5 +354,80 @@ describe('renaming the workspace', () => {
 			description: 'toasts.REASONS.PERMISSION'
 		});
 		expect(mockToast.success).not.toHaveBeenCalled();
+	});
+});
+
+describe('a rename the tenant does not take', () => {
+	const refusal = Object.assign(new Error('Forbidden resource'), { statusCode: 403 });
+	const renamedOrganization = { ...organization, name: 'Acme Labs' };
+
+	async function failedRename(view: ReturnType<typeof renderSettings>['view'], name: string) {
+		let failure: unknown;
+		await act(async () => {
+			failure = await view.result.current.saveName(name).catch((error) => error);
+		});
+		return failure;
+	}
+
+	it("gives the organization its name back when the tenant's is refused, so no half of the rename stays", async () => {
+		mockRenameTenant.mockRejectedValue(refusal);
+		const { view, client } = renderSettings();
+
+		const failure = await failedRename(view, 'Acme Labs');
+
+		expect(failure).toBe(refusal);
+		expect(mockUpdateOrganization).toHaveBeenCalledTimes(2);
+		expect(mockUpdateOrganization).toHaveBeenNthCalledWith(1, organization, { name: 'Acme Labs' });
+		expect(mockUpdateOrganization).toHaveBeenNthCalledWith(2, renamedOrganization, { name: 'Acme' });
+		expect(client.getQueryData(ORGANIZATION_KEY)).toEqual(organization);
+		expect(mockToast.error).toHaveBeenCalledWith('settings.workspace.NAME_NOT_SAVED', {
+			description: 'toasts.REASONS.PERMISSION'
+		});
+	});
+
+	it('still says why the rename was refused when the name cannot be given back, and a new try finishes it', async () => {
+		mockRenameTenant.mockRejectedValueOnce(refusal);
+		mockUpdateOrganization.mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('Network Error'));
+		const { view, client } = renderSettings();
+
+		const failure = await failedRename(view, 'Acme Labs');
+
+		expect(failure).toBe(refusal);
+		expect(client.getQueryData(ORGANIZATION_KEY)).toEqual(renamedOrganization);
+
+		await act(async () => {
+			await view.result.current.saveName('Acme Labs');
+		});
+
+		expect(mockUpdateOrganization).toHaveBeenCalledTimes(2);
+		expect(mockRenameTenant).toHaveBeenCalledTimes(2);
+		expect(mockToast.success).toHaveBeenCalledWith('settings.workspace.NAME_SAVED', { description: undefined });
+	});
+
+	it('leaves the organization renamed when the tenant rename got no answer: trying again finishes it', async () => {
+		mockRenameTenant.mockRejectedValueOnce(new Error('Network Error'));
+		const { view, client } = renderSettings();
+
+		await failedRename(view, 'Acme Labs');
+
+		expect(mockUpdateOrganization).toHaveBeenCalledTimes(1);
+		expect(client.getQueryData(ORGANIZATION_KEY)).toEqual(renamedOrganization);
+
+		await act(async () => {
+			await view.result.current.saveName('Acme Labs');
+		});
+
+		expect(mockUpdateOrganization).toHaveBeenCalledTimes(1);
+		expect(mockRenameTenant).toHaveBeenCalledTimes(2);
+	});
+
+	it('writes nothing to an organization that already had the name', async () => {
+		mockRenameTenant.mockRejectedValue(refusal);
+		mockWorkspaces = [workspaceOf('tenant-a', 'ada@ever.co')];
+		const { view } = renderSettings();
+
+		await failedRename(view, 'Acme');
+
+		expect(mockUpdateOrganization).not.toHaveBeenCalled();
 	});
 });

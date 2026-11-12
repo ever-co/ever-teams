@@ -14,6 +14,7 @@ import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import {
 	canEditWorkspace,
 	canRenameWorkspace,
+	isRenameRefused,
 	workspaceOfTenant,
 	workspacesAfterRename
 } from '@/core/lib/utils/settings-workspace';
@@ -126,12 +127,23 @@ export function useWorkspaceSettings() {
 	const renameWorkspace = useCallback(
 		async (scope: SaveScope, newName: string) => {
 			const latest = queryClient.getQueryData<TOrganization>(scope.organizationKey) ?? scope.organization;
-			const hasOrganizationThatName = latest.name === newName;
+			const previousName = latest.name;
+			const hasOrganizationThatName = previousName === newName;
 			if (!hasOrganizationThatName) {
 				await saveOrganization(scope, { name: newName });
 			}
-			// The tenant last: the name on this page and in the switcher changes once both are renamed
-			await tenantService.renameTenant(newName, scope);
+			try {
+				// The tenant last: the name on this page and in the switcher changes once both are renamed
+				await tenantService.renameTenant(newName, scope);
+			} catch (error) {
+				const tookTheName = !hasOrganizationThatName;
+				if (tookTheName && isRenameRefused(error)) {
+					// Invitations show the organization's name: a refused rename must not leave it changed alone. If this
+					// write fails too, the organization keeps the new name and the next try renames the tenant alone.
+					await saveOrganization(scope, { name: previousName }).catch(() => undefined);
+				}
+				throw error;
+			}
 			const renamed = (list: TWorkspace[] | undefined) => {
 				if (!list) {
 					return list;

@@ -6,6 +6,7 @@ import {
 	canRenameWorkspace,
 	dateFormatChoiceOf,
 	dateFormatSampleOf,
+	isRenameRefused,
 	isWorkspaceNameValid,
 	numberFormatChoiceOf,
 	numberFormatSampleOf,
@@ -51,6 +52,16 @@ describe('the workspace name', () => {
 		expect(isWorkspaceNameValid('')).toBe(false);
 		expect(isWorkspaceNameValid('   ')).toBe(false);
 		expect(isWorkspaceNameValid('x'.repeat(61))).toBe(false);
+	});
+
+	it('is refused when the API answers no, and only unfinished when it fails or does not answer', () => {
+		expect(isRenameRefused({ statusCode: 403 })).toBe(true);
+		expect(isRenameRefused({ statusCode: 409 })).toBe(true);
+		expect(isRenameRefused({ response: { status: 401 } })).toBe(true);
+		expect(isRenameRefused({ statusCode: 500 })).toBe(false);
+		expect(isRenameRefused({ statusCode: 504 })).toBe(false);
+		expect(isRenameRefused(new Error('Network Error'))).toBe(false);
+		expect(isRenameRefused(undefined)).toBe(false);
 	});
 });
 
