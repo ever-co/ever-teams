@@ -120,6 +120,14 @@ describe('ProjectTasksTab', () => {
 		expect(frame.className).toContain('sm:min-h-120');
 	});
 
+	it('shows the frame of the stored view while the tasks load, not the list of rows', () => {
+		window.localStorage.setItem('project-tasks-layout', JSON.stringify('calendar'));
+		const { container } = renderTab({ isReady: false });
+
+		expect(container.querySelector('.min-h-80')).not.toBeNull();
+		expect(container.querySelectorAll('.h-11')).toHaveLength(0);
+	});
+
 	it('opens on the list when the layout stored on the device is not offered here', () => {
 		window.localStorage.setItem('project-tasks-layout', JSON.stringify('timeline'));
 		renderTab();

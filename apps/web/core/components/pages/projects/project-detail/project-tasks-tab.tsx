@@ -232,6 +232,7 @@ export function ProjectTasksTab({
 	const groups = useMemo(() => groupByStatus(tasks ?? [], (task) => task.status, statuses), [statuses, tasks]);
 	const layouts = projectTasksLayouts();
 	const layout = shownLayoutOf(storedLayout, layouts);
+	const isList = layout === 'list';
 
 	if (!taskStats.hasTeam) {
 		return (
@@ -244,6 +245,10 @@ export function ProjectTasksTab({
 		);
 	}
 	if (!taskStats.isReady) {
+		// The skeleton of the view the tab will open on, so the page does not jump when the tasks arrive.
+		if (!isList) {
+			return <Skeleton className={cn(LAYOUT_FRAME, 'bg-foreground/[0.04]')} />;
+		}
 		return <TasksSkeleton />;
 	}
 	if (!stats) {
@@ -265,8 +270,6 @@ export function ProjectTasksTab({
 			return [...current, key];
 		});
 	};
-
-	const isList = layout === 'list';
 
 	return (
 		<div className="mx-auto flex w-full max-w-6xl flex-col gap-2">
