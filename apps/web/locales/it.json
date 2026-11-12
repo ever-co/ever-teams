@@ -3519,7 +3519,8 @@
 			"MESSAGE": "<b>{name}</b> ti ha inviato un messaggio",
 			"BROADCAST": "<b>{name}</b> ha pubblicato un annuncio",
 			"PAYMENT": "È stato registrato un pagamento per te",
-			"RATE_CHANGE_REQUEST": "<b>{name}</b> ha chiesto un cambio di tariffa"
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> ha chiesto un cambio di tariffa",
+			"TIMER_REMINDER": "Il tuo timer è ancora in funzione"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Assegnazione",
@@ -3529,7 +3530,8 @@
 			"MESSAGE": "Messaggio",
 			"BROADCAST": "Annuncio",
 			"PAYMENT": "Pagamento",
-			"RATE_CHANGE_REQUEST": "Richiesta di cambio tariffa"
+			"RATE_CHANGE_REQUEST": "Richiesta di cambio tariffa",
+			"TIMER_REMINDER": "Promemoria del timer"
 		},
 		"SOMEONE": "Qualcuno",
 		"MARK_READ": "Segna come letta",
@@ -3598,6 +3600,14 @@
 				"DIGEST_TEXT": "Una email al giorno, a quest'ora, con le voci impostate sul riepilogo.",
 				"SAVE_FAILED": "Quella preferenza non è stata salvata. Riprova."
 			},
+			"TIMER": {
+				"TITLE": "Monitoraggio del tempo",
+				"INTRO": "Un promemoria quando un timer è in funzione da molto, e un altro al doppio se continua.",
+				"LABEL": "Promemoria per timer prolungato",
+				"TEXT": "Nell’app mentre è aperta, e sempre nella tua posta in arrivo. Via email e sui tuoi dispositivi come scegli, a meno che tu non abbia già visto il promemoria nell’app.",
+				"OFF": "Disattivato",
+				"AFTER_HOURS": "Dopo {hours, plural, one {# ora} other {# ore}}"
+			},
 			"INTRO": "Scegli cosa arriva nella tua posta. Disattivando un tipo si fermano le nuove notifiche di quel tipo; quelle già ricevute restano.",
 			"LOAD_ERROR": "Non è stato possibile caricare le impostazioni delle notifiche.",
 			"SAVE_FAILED": "L'impostazione non è stata salvata. Riprova.",
@@ -3640,6 +3650,14 @@
 			"VERIFY_ACTION": "Inserisci il codice",
 			"VERIFY_RESEND": "Invia un nuovo codice",
 			"VERIFY_SENDING": "Invio di un nuovo codice"
+		},
+		"TIMER_REMINDER": {
+			"LONG_TITLE": "Il tuo timer è in funzione da {hours, plural, one {# ora} other {# ore}}",
+			"LONG_DESCRIPTION": "Fermalo se hai finito, oppure lascialo in funzione.",
+			"FORGOTTEN_TITLE": "Il tuo timer è ancora in funzione dopo {hours, plural, one {# ora} other {# ore}}",
+			"FORGOTTEN_DESCRIPTION": "L’hai dimenticato? Fermalo, poi correggi il tempo nel tuo foglio ore se serve.",
+			"STOP": "Ferma il timer",
+			"OPEN": "Apri il timer"
 		}
 	},
 	"toasts": {

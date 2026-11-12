@@ -8,9 +8,10 @@ import {
 	INBOX_NOTIFICATION_EXTERNAL_SOURCE
 } from '@/core/types/interfaces/common/inbox-item';
 import { readRuntimeEnv } from '@/env-config';
+import { timerReminderNoticeOf, type TimerReminderNotice } from '@/core/lib/notifications/timer-reminders';
 import { docsInboxHrefOf, isDocsInboxEntry } from './docs-links';
 import { isDocsEnabled } from './docs-enabled';
-import { NotificationEntry, quotedSubjectOf, senderNameFromTitle } from './notification-inbox';
+import { NotificationEntry, quotedSubjectOf, senderNameFromTitle, TIMER_REMINDER_HREF } from './notification-inbox';
 
 /** The families an entry is grouped and filtered by. */
 export type InboxSourceGroup = 'tasks' | 'chat' | 'docs' | 'email' | 'integrations' | 'people' | 'other';
@@ -46,6 +47,8 @@ export interface InboxEntry {
 	chatMessageId: string | null;
 	/** Where opening the entry leads when it is not about a task. */
 	href: string | null;
+	/** A reminder of a timer left running: its level, the hours it names and its run, read in the reader's language. */
+	timerReminder: TimerReminderNotice | null;
 	isUnread: boolean;
 	isArchived: boolean;
 	isDone: boolean;
@@ -142,6 +145,7 @@ export function showsInboxSheet(entry: Pick<InboxEntry, 'taskId' | 'href' | 'cha
 
 function hrefOf(type: EEmployeeNotificationType | null, entry: Pick<InboxEntry, 'entity' | 'entityId'>, metadata: Record<string, unknown> | null = null): string | null {
 	if (type === EEmployeeNotificationType.RateChangeRequest) return RATE_CHANGE_REQUEST_HREF;
+	if (type === EEmployeeNotificationType.TimerReminder) return TIMER_REMINDER_HREF;
 	// Without the chat pages a conversation has nowhere to open: the entry is not a link.
 	if (entry.entity === 'ChatConversation' && entry.entityId && hasChatPages()) return `/chat/${entry.entityId}`;
 	// A page, or a comment on one (its thread), opens in Docs where the deployment has it.
@@ -228,7 +232,11 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 	const recipient = item.recipient;
 	const entity = stringOf(item.entity);
 	const entityId = stringOf(item.entityId);
-	const taskId = stringOf(item.taskId) ?? (entity === EBaseEntityEnum.Task ? entityId : null);
+	const timerReminder = isNotification ? timerReminderNoticeOf({ type, title: rawTitle, entity, entityId }) : null;
+	// A timer reminder is about its run: it opens the timer, not a task its item may name
+	const taskId = timerReminder
+		? null
+		: (stringOf(item.taskId) ?? (entity === EBaseEntityEnum.Task ? entityId : null));
 	// A chat notification carries its channel and its text in the title; a quote inside the text is not a subject.
 	const chatParts = isNotification && entity === 'ChatMessage' ? messagePartsOfTitle(rawTitle) : null;
 	const quoted = isNotification && !chatParts ? quotedSubjectOf(rawTitle) : null;
@@ -250,6 +258,7 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 		taskId,
 		chatMessageId: entity === 'ChatMessage' ? entityId : null,
 		href: null,
+		timerReminder,
 		isUnread: recipient ? recipient.isRead !== true : true,
 		isArchived: !!recipient?.isArchived,
 		isDone: !!(recipient?.doneAt || recipient?.isDone),
@@ -307,6 +316,7 @@ export function fromNotificationEntry(notification: NotificationEntry): InboxEnt
 		taskId: notification.taskId,
 		chatMessageId: null,
 		href: notification.href,
+		timerReminder: notification.timerReminder,
 		isUnread: notification.isUnread,
 		isArchived: false,
 		isDone: false,

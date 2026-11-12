@@ -3519,7 +3519,8 @@
 			"MESSAGE": "<b>{name}</b> wysłał(a) Ci wiadomość",
 			"BROADCAST": "<b>{name}</b> opublikował(a) ogłoszenie",
 			"PAYMENT": "Zarejestrowano dla Ciebie płatność",
-			"RATE_CHANGE_REQUEST": "<b>{name}</b> prosi o zmianę stawki"
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> prosi o zmianę stawki",
+			"TIMER_REMINDER": "Twój licznik czasu wciąż działa"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Przypisanie",
@@ -3529,7 +3530,8 @@
 			"MESSAGE": "Wiadomość",
 			"BROADCAST": "Ogłoszenie",
 			"PAYMENT": "Płatność",
-			"RATE_CHANGE_REQUEST": "Prośba o zmianę stawki"
+			"RATE_CHANGE_REQUEST": "Prośba o zmianę stawki",
+			"TIMER_REMINDER": "Przypomnienie o liczniku czasu"
 		},
 		"SOMEONE": "Ktoś",
 		"MARK_READ": "Oznacz jako przeczytane",
@@ -3598,6 +3600,14 @@
 				"DIGEST_TEXT": "Jeden e-mail dziennie, o tej godzinie, z wpisami ustawionymi na podsumowanie.",
 				"SAVE_FAILED": "To ustawienie nie zostało zapisane. Spróbuj ponownie."
 			},
+			"TIMER": {
+				"TITLE": "Śledzenie czasu",
+				"INTRO": "Przypomnienie, gdy licznik czasu działa długo, i kolejne po dwukrotnie dłuższym czasie, jeśli nadal działa.",
+				"LABEL": "Przypomnienie o długo działającym liczniku",
+				"TEXT": "W aplikacji, gdy jest otwarta, i zawsze w Twojej skrzynce. E-mailem i na Twoich urządzeniach, zgodnie z Twoim wyborem, chyba że przypomnienie zostało już wyświetlone w aplikacji.",
+				"OFF": "Wyłączone",
+				"AFTER_HOURS": "Po {hours, plural, one {# godzinie} other {# godzinach}}"
+			},
 			"INTRO": "Wybierz, co trafia do Twojej skrzynki. Wyłączenie typu zatrzymuje nowe powiadomienia tego typu; te, które już masz, zostają.",
 			"LOAD_ERROR": "Nie udało się wczytać ustawień powiadomień.",
 			"SAVE_FAILED": "To ustawienie nie zostało zapisane. Spróbuj ponownie.",
@@ -3640,6 +3650,14 @@
 			"VERIFY_ACTION": "Wpisz kod",
 			"VERIFY_RESEND": "Wyślij nowy kod",
 			"VERIFY_SENDING": "Wysyłanie nowego kodu"
+		},
+		"TIMER_REMINDER": {
+			"LONG_TITLE": "Twój licznik czasu działa od {hours, plural, one {# godziny} other {# godzin}}",
+			"LONG_DESCRIPTION": "Zatrzymaj go po zakończeniu pracy albo pozwól mu działać dalej.",
+			"FORGOTTEN_TITLE": "Twój licznik czasu wciąż działa po {hours, plural, one {# godzinie} other {# godzinach}}",
+			"FORGOTTEN_DESCRIPTION": "Zapomniany? Zatrzymaj go, a w razie potrzeby popraw czas w karcie czasu pracy.",
+			"STOP": "Zatrzymaj licznik",
+			"OPEN": "Otwórz licznik"
 		}
 	},
 	"toasts": {

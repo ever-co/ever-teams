@@ -3519,7 +3519,8 @@
 			"MESSAGE": "<b>{name}</b> heeft je een bericht gestuurd",
 			"BROADCAST": "<b>{name}</b> heeft een aankondiging geplaatst",
 			"PAYMENT": "Er is een betaling voor je geregistreerd",
-			"RATE_CHANGE_REQUEST": "<b>{name}</b> vroeg om een tariefwijziging"
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> vroeg om een tariefwijziging",
+			"TIMER_REMINDER": "Je timer loopt nog steeds"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Toewijzing",
@@ -3529,7 +3530,8 @@
 			"MESSAGE": "Bericht",
 			"BROADCAST": "Aankondiging",
 			"PAYMENT": "Betaling",
-			"RATE_CHANGE_REQUEST": "Aanvraag tariefwijziging"
+			"RATE_CHANGE_REQUEST": "Aanvraag tariefwijziging",
+			"TIMER_REMINDER": "Timerherinnering"
 		},
 		"SOMEONE": "Iemand",
 		"MARK_READ": "Markeren als gelezen",
@@ -3598,6 +3600,14 @@
 				"DIGEST_TEXT": "Eén e-mail per dag, op dit uur, met de items die op overzicht staan.",
 				"SAVE_FAILED": "Die voorkeur is niet opgeslagen. Probeer het opnieuw."
 			},
+			"TIMER": {
+				"TITLE": "Tijdregistratie",
+				"INTRO": "Een herinnering wanneer een timer lang loopt, en nog een bij het dubbele als hij doorloopt.",
+				"LABEL": "Herinnering bij lang lopende timer",
+				"TEXT": "In de app zolang die open is, en altijd in je inbox. Per e-mail en op je apparaten zoals je kiest, tenzij je de herinnering al in de app hebt gezien.",
+				"OFF": "Uit",
+				"AFTER_HOURS": "Na {hours, plural, one {# uur} other {# uur}}"
+			},
 			"INTRO": "Kies wat er in je inbox binnenkomt. Als je een type uitzet, komen er geen nieuwe meldingen van dat type meer; bestaande blijven staan.",
 			"LOAD_ERROR": "Je meldingsinstellingen konden niet worden geladen.",
 			"SAVE_FAILED": "Die instelling is niet opgeslagen. Probeer het opnieuw.",
@@ -3640,6 +3650,14 @@
 			"VERIFY_ACTION": "Code invoeren",
 			"VERIFY_RESEND": "Nieuwe code sturen",
 			"VERIFY_SENDING": "Nieuwe code wordt verstuurd"
+		},
+		"TIMER_REMINDER": {
+			"LONG_TITLE": "Je timer loopt al {hours, plural, one {# uur} other {# uur}}",
+			"LONG_DESCRIPTION": "Stop hem als je klaar bent, of laat hem doorlopen.",
+			"FORGOTTEN_TITLE": "Je timer loopt na {hours, plural, one {# uur} other {# uur}} nog steeds",
+			"FORGOTTEN_DESCRIPTION": "Vergeten? Stop hem en corrigeer de tijd zo nodig in je urenstaat.",
+			"STOP": "Timer stoppen",
+			"OPEN": "Timer openen"
 		}
 	},
 	"toasts": {

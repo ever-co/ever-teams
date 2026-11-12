@@ -3519,7 +3519,8 @@
 			"MESSAGE": "<b>{name}</b> 给你发了一条消息",
 			"BROADCAST": "<b>{name}</b> 发布了一则公告",
 			"PAYMENT": "已为你登记一笔付款",
-			"RATE_CHANGE_REQUEST": "<b>{name}</b> 申请调整费率"
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> 申请调整费率",
+			"TIMER_REMINDER": "你的计时器仍在运行"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "分配",
@@ -3529,7 +3530,8 @@
 			"MESSAGE": "消息",
 			"BROADCAST": "公告",
 			"PAYMENT": "付款",
-			"RATE_CHANGE_REQUEST": "费率调整申请"
+			"RATE_CHANGE_REQUEST": "费率调整申请",
+			"TIMER_REMINDER": "计时器提醒"
 		},
 		"SOMEONE": "有人",
 		"MARK_READ": "标为已读",
@@ -3598,6 +3600,14 @@
 				"DIGEST_TEXT": "每天在此时间发送一封邮件，包含设为摘要的条目。",
 				"SAVE_FAILED": "该偏好未保存。请重试。"
 			},
+			"TIMER": {
+				"TITLE": "时间跟踪",
+				"INTRO": "当计时器运行较久时提醒你；如果仍在运行，会在两倍时长时再提醒一次。",
+				"LABEL": "长时间运行计时器提醒",
+				"TEXT": "应用打开时在应用内提醒，并且总会进入你的收件箱。会按你的选择通过邮件和你的设备通知，除非你已先在应用中看到该提醒。",
+				"OFF": "关闭",
+				"AFTER_HOURS": "{hours} 小时后"
+			},
 			"INTRO": "选择哪些内容进入你的收件箱。关闭某一类型后，不再收到该类型的新通知；已有的通知会保留。",
 			"LOAD_ERROR": "无法加载你的通知设置。",
 			"SAVE_FAILED": "该设置未保存，请重试。",
@@ -3640,6 +3650,14 @@
 			"VERIFY_ACTION": "输入验证码",
 			"VERIFY_RESEND": "重新发送验证码",
 			"VERIFY_SENDING": "正在发送新的验证码"
+		},
+		"TIMER_REMINDER": {
+			"LONG_TITLE": "你的计时器已运行 {hours} 小时",
+			"LONG_DESCRIPTION": "完成工作后请停止它，或让它继续运行。",
+			"FORGOTTEN_TITLE": "你的计时器在 {hours} 小时后仍在运行",
+			"FORGOTTEN_DESCRIPTION": "是否忘记了？请停止它，并按需在工时表中更正时间。",
+			"STOP": "停止计时器",
+			"OPEN": "打开计时器"
 		}
 	},
 	"toasts": {

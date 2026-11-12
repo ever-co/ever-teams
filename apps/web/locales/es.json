@@ -3519,7 +3519,8 @@
 			"MESSAGE": "<b>{name}</b> te envió un mensaje",
 			"BROADCAST": "<b>{name}</b> publicó un anuncio",
 			"PAYMENT": "Se registró un pago para ti",
-			"RATE_CHANGE_REQUEST": "<b>{name}</b> pidió un cambio de tarifa"
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> pidió un cambio de tarifa",
+			"TIMER_REMINDER": "Tu temporizador sigue en marcha"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Asignación",
@@ -3529,7 +3530,8 @@
 			"MESSAGE": "Mensaje",
 			"BROADCAST": "Anuncio",
 			"PAYMENT": "Pago",
-			"RATE_CHANGE_REQUEST": "Solicitud de cambio de tarifa"
+			"RATE_CHANGE_REQUEST": "Solicitud de cambio de tarifa",
+			"TIMER_REMINDER": "Recordatorio de temporizador"
 		},
 		"SOMEONE": "Alguien",
 		"MARK_READ": "Marcar como leída",
@@ -3598,6 +3600,14 @@
 				"DIGEST_TEXT": "Un correo al día, a esta hora, con las entradas marcadas para el resumen.",
 				"SAVE_FAILED": "Esa preferencia no se guardó. Inténtalo de nuevo."
 			},
+			"TIMER": {
+				"TITLE": "Control de tiempo",
+				"INTRO": "Un recordatorio cuando un temporizador lleva mucho tiempo en marcha, y otro al doble si sigue.",
+				"LABEL": "Recordatorio de temporizador prolongado",
+				"TEXT": "En la aplicación mientras está abierta, y siempre en tu bandeja de entrada. Por correo y en tus dispositivos según elijas, salvo que ya hayas visto el recordatorio en la aplicación.",
+				"OFF": "Desactivado",
+				"AFTER_HOURS": "Después de {hours, plural, one {# hora} other {# horas}}"
+			},
 			"INTRO": "Elige qué llega a tu bandeja. Al desactivar un tipo se detienen las notificaciones nuevas de ese tipo; las que ya tienes se quedan.",
 			"LOAD_ERROR": "No se pudieron cargar tus ajustes de notificaciones.",
 			"SAVE_FAILED": "Ese ajuste no se guardó. Inténtalo de nuevo.",
@@ -3640,6 +3650,14 @@
 			"VERIFY_ACTION": "Introducir el código",
 			"VERIFY_RESEND": "Enviar un código nuevo",
 			"VERIFY_SENDING": "Enviando un código nuevo"
+		},
+		"TIMER_REMINDER": {
+			"LONG_TITLE": "Tu temporizador lleva {hours, plural, one {# hora} other {# horas}} en marcha",
+			"LONG_DESCRIPTION": "Detenlo si has terminado, o déjalo en marcha.",
+			"FORGOTTEN_TITLE": "Tu temporizador sigue en marcha después de {hours, plural, one {# hora} other {# horas}}",
+			"FORGOTTEN_DESCRIPTION": "¿Lo olvidaste? Detenlo y corrige el tiempo en tu hoja de horas si hace falta.",
+			"STOP": "Detener temporizador",
+			"OPEN": "Abrir temporizador"
 		}
 	},
 	"toasts": {
