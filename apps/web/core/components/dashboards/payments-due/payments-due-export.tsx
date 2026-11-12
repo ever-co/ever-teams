@@ -5,7 +5,13 @@ import { useLocale, useTranslations } from 'next-intl';
 import type { ExportOption } from '@/core/components/dashboards/kit/export-menu';
 import { FilePdf, FileSheet } from '@/core/components/icons';
 import type { PaymentsDueShown } from '@/core/hooks/dashboards/payments-due/use-payments-due-report';
-import { type CsvColumn, downloadCsv, downloadPdf, periodFileNameOf } from '@/core/lib/utils/dashboard-export';
+import {
+	type CsvColumn,
+	downloadCsv,
+	downloadPdf,
+	pdfTextOf,
+	periodFileNameOf
+} from '@/core/lib/utils/dashboard-export';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { formatPeriod } from '@/core/lib/utils/dashboard-period';
 import {
@@ -25,16 +31,6 @@ type Translate = ReturnType<typeof useTranslations>;
 const FILE_PREFIX = 'payments-due';
 
 const MISSING_FIGURE = '–';
-
-const PDF_UNSUPPORTED_SPACES = /[\u00A0\u2009\u202F]/g;
-
-/**
- * The PDF's standard Helvetica has no glyph for the thin, narrow and non-breaking spaces locales put in numbers,
- * dates and ranges (French thousands, the space before "€", "10:12 AM", "Nov 1 – 30"): they become plain spaces.
- */
-function pdfTextOf(text: string) {
-	return text.replace(PDF_UNSUPPORTED_SPACES, ' ');
-}
 
 function amountCellOf(row: OwedExportRow) {
 	if (row.amount === null) {
