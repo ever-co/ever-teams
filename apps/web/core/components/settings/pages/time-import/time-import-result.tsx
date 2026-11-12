@@ -6,7 +6,7 @@ import { Notice } from '@/core/components/common/notice';
 import { SegmentedControl, type SegmentedControlItem } from '@/core/components/common/segmented-control';
 import { MetricStrip, type MetricItem, type MetricTone } from '@/core/components/dashboards/kit/metric-strip';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { Download, Spinner } from '@/core/components/icons';
+import { Download, Spinner, Table } from '@/core/components/icons';
 import { SettingsReadOnlyNote, SettingsSection, SettingsSurface } from '@/core/components/settings/kit/settings-page';
 import type { TimeImport } from '@/core/hooks/timesheet/use-time-import';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
@@ -190,12 +190,21 @@ export function TimeImportResult({ timeImport, copy, onDownloadReport }: Readonl
 	const hasReadyRows = summary.readyCount > 0;
 	const showsFilter = isPreview || isDone;
 	const showsIgnoredHeaders = isPreview && ignoredHeaders.length > 0;
+	const offersColumns = isPreview && timeImport.canEditColumns;
 
 	return (
 		<SettingsSection
 			id="time-import"
 			title={title}
 			description={<span className={FILE_NAME_TEXT}>{description}</span>}
+			actions={
+				offersColumns && (
+					<Button type="button" variant="ghost" size="sm" onClick={timeImport.editColumns}>
+						<Table aria-hidden="true" />
+						{t('timeImport.mapping.EDIT')}
+					</Button>
+				)
+			}
 		>
 			{isPreview && timeImport.hasPreviewChanged && (
 				<Notice

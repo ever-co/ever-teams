@@ -51,6 +51,7 @@ jest.mock('@/core/components/icons', () => ({
 	FileCsv: () => null,
 	Lock: () => null,
 	Spinner: () => null,
+	Table: () => null,
 	Upload: () => null
 }));
 jest.mock('@/core/components/common/notice', () => ({

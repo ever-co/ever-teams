@@ -41,7 +41,8 @@ jest.mock('@/core/components/icons', () => ({
 	Alert: () => null,
 	CircleAlert: () => null,
 	Download: () => null,
-	Spinner: () => null
+	Spinner: () => null,
+	Table: () => null
 }));
 jest.mock('@/core/components/common/notice', () => ({
 	Notice: ({ title, description }: { title: React.ReactNode; description?: React.ReactNode }) => (
@@ -243,6 +244,18 @@ describe('TimeImportResult', () => {
 		expect(screen.getByText('timeImport.IGNORED_COLUMNS {"count":2,"columns":"client and tags"}')).toBeTruthy();
 	});
 
+	it('offers to change the columns of a file read through a choice of columns, and of no other', () => {
+		const timeImport = timeImportOf(MIXED_ROWS, { canEditColumns: true });
+		const { unmount } = render(<Harness timeImport={timeImport} />);
+
+		fireEvent.click(screen.getByRole('button', { name: 'timeImport.mapping.EDIT' }));
+		expect(timeImport.editColumns).toHaveBeenCalledTimes(1);
+		unmount();
+
+		render(<Harness timeImport={timeImportOf(MIXED_ROWS)} />);
+		expect(screen.queryByRole('button', { name: 'timeImport.mapping.EDIT' })).toBeNull();
+	});
+
 	it('tells that the preview changed when the last check before saving found something new', () => {
 		render(<Harness timeImport={timeImportOf(MIXED_ROWS, { hasPreviewChanged: true })} />);
 
@@ -285,9 +298,9 @@ describe('TimeImportResult', () => {
 			expect(screen.getByTestId('figure-notSent').textContent).toContain('1');
 		});
 
-		it('offers the report as a file and another import', () => {
+		it('offers the report as a file and another import, and no change of columns any more', () => {
 			const onDownloadReport = jest.fn();
-			const timeImport = doneImport();
+			const timeImport = doneImport({ canEditColumns: true });
 			render(<Harness timeImport={timeImport} onDownloadReport={onDownloadReport} />);
 
 			fireEvent.click(screen.getByRole('button', { name: 'timeImport.DOWNLOAD_REPORT' }));
@@ -295,6 +308,7 @@ describe('TimeImportResult', () => {
 
 			expect(onDownloadReport).toHaveBeenCalledTimes(1);
 			expect(timeImport.reset).toHaveBeenCalledTimes(1);
+			expect(screen.queryByRole('button', { name: 'timeImport.mapping.EDIT' })).toBeNull();
 		});
 
 		it('says how much was saved when every ready row went through', () => {
