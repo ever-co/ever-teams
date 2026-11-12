@@ -1,5 +1,7 @@
 import { QueryClient, type QueryKey } from '@tanstack/react-query';
+import { createStore } from 'jotai';
 import { queryKeys } from '@/core/query/keys';
+import { viewTasksState } from '@/core/stores/tasks/task-views';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { showTaskChangeInBuiltInViews } from './built-in-view-task-cache';
 
@@ -19,9 +21,11 @@ function listedTask(queryClient: QueryClient, key: QueryKey, taskId: string) {
 
 describe('a task change shown in the built-in views', () => {
 	let queryClient: QueryClient;
+	let store: ReturnType<typeof createStore>;
 
 	beforeEach(() => {
 		queryClient = new QueryClient();
+		store = createStore();
 	});
 
 	it('shows the change in every built-in view that lists the task, and leaves every other list as it is', () => {
@@ -30,15 +34,30 @@ describe('a task change shown in the built-in views', () => {
 		queryClient.setQueryData(overdueKey, viewOf(task('a', { status: 'todo' })));
 		queryClient.setQueryData(dueSoonKey, viewOf(task('b')));
 		queryClient.setQueryData(savedViewsKey, { items: [{ id: 'a', name: 'Sprint' }], total: 1 });
+		const openViewTasks = [task('b')];
+		store.set(viewTasksState, openViewTasks);
 		const dueSoonBefore = queryClient.getQueryData(dueSoonKey);
 		const savedViewsBefore = queryClient.getQueryData(savedViewsKey);
 
-		showTaskChangeInBuiltInViews(queryClient, 'a', { status: 'done' } as Partial<TTask>);
+		showTaskChangeInBuiltInViews(queryClient, store, 'a', { status: 'done' } as Partial<TTask>);
 
 		expect(listedTask(queryClient, mineKey, 'a')).toMatchObject({ status: 'done' });
 		expect(listedTask(queryClient, overdueKey, 'a')).toMatchObject({ status: 'done' });
 		expect(queryClient.getQueryData(dueSoonKey)).toBe(dueSoonBefore);
 		expect(queryClient.getQueryData(savedViewsKey)).toBe(savedViewsBefore);
+		expect(store.get(viewTasksState)).toBe(openViewTasks);
+	});
+
+	it("changes the open view's tasks at once too, and puts back there only the fields the change set", () => {
+		const other = task('b');
+		store.set(viewTasksState, [task('a', { status: 'todo', title: 'Draft' }), other]);
+
+		const restore = showTaskChangeInBuiltInViews(queryClient, store, 'a', { status: 'done' } as Partial<TTask>);
+		expect(store.get(viewTasksState)).toEqual([task('a', { status: 'done', title: 'Draft' }), other]);
+		store.set(viewTasksState, [task('a', { status: 'done', title: 'Final' }), other]);
+		restore();
+
+		expect(store.get(viewTasksState)).toEqual([task('a', { status: 'todo', title: 'Final' }), other]);
 	});
 
 	it("keeps what the view's copy of the task holds besides the change, and the other tasks of the view", () => {
@@ -48,7 +67,7 @@ describe('a task change shown in the built-in views', () => {
 			viewOf(task('a', { status: 'todo', project }), task('b', { status: 'todo' }))
 		);
 
-		showTaskChangeInBuiltInViews(queryClient, 'a', { status: 'done', taskStatusId: 's2' } as Partial<TTask>);
+		showTaskChangeInBuiltInViews(queryClient, store, 'a', { status: 'done', taskStatusId: 's2' } as Partial<TTask>);
 
 		expect(queryClient.getQueryData(mineKey)).toEqual(
 			viewOf(task('a', { status: 'done', taskStatusId: 's2', project }), task('b', { status: 'todo' }))
@@ -61,8 +80,8 @@ describe('a task change shown in the built-in views', () => {
 		queryClient.setQueryData(mineKey, viewOf(mineCopy, task('b', { priority: 'low' })));
 		queryClient.setQueryData(overdueKey, viewOf(overdueCopy));
 
-		const restore = showTaskChangeInBuiltInViews(queryClient, 'a', { status: 'done' } as Partial<TTask>);
-		showTaskChangeInBuiltInViews(queryClient, 'b', { priority: 'high' } as Partial<TTask>);
+		const restore = showTaskChangeInBuiltInViews(queryClient, store, 'a', { status: 'done' } as Partial<TTask>);
+		showTaskChangeInBuiltInViews(queryClient, store, 'b', { priority: 'high' } as Partial<TTask>);
 		const readWhileSaving = viewOf(
 			task('a', { status: 'todo', priority: 'low', title: 'Final' }),
 			task('b', { priority: 'high' })
@@ -80,7 +99,7 @@ describe('a task change shown in the built-in views', () => {
 	it('leaves a view read again since, which no longer lists the task, as it is', () => {
 		queryClient.setQueryData(overdueKey, viewOf(task('a', { dueDate: '2026-11-01' }), task('b')));
 
-		const restore = showTaskChangeInBuiltInViews(queryClient, 'a', { dueDate: new Date(2026, 11, 1) });
+		const restore = showTaskChangeInBuiltInViews(queryClient, store, 'a', { dueDate: new Date(2026, 11, 1) });
 		queryClient.setQueryData(overdueKey, viewOf(task('b')));
 		restore();
 
@@ -98,7 +117,7 @@ describe('a task change shown in the built-in views', () => {
 				})
 		});
 
-		showTaskChangeInBuiltInViews(queryClient, 'a', { status: 'done' } as Partial<TTask>);
+		showTaskChangeInBuiltInViews(queryClient, store, 'a', { status: 'done' } as Partial<TTask>);
 		answerRead(viewOf(task('a', { status: 'todo' })));
 		await read.catch(() => undefined);
 

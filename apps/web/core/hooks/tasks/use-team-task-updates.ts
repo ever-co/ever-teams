@@ -97,7 +97,7 @@ export function useTeamTaskUpdates() {
 					if (!update) {
 						return;
 					}
-					const restoreBuiltInViews = showTaskChangeInBuiltInViews(queryClient, taskId, update);
+					const restoreBuiltInViews = showTaskChangeInBuiltInViews(queryClient, store, taskId, update);
 					try {
 						await updateTask({ ...task, ...update }, options);
 						// A view's own list (a built-in view) reads the platform again.
@@ -110,7 +110,7 @@ export function useTeamTaskUpdates() {
 				taskUpdateQueue.task(run);
 			}
 		},
-		[latestTask, queryClient, reportFailure, updateTask]
+		[latestTask, queryClient, reportFailure, store, updateTask]
 	);
 
 	/** Whether a change to these tasks goes to the platform's bulk update. */

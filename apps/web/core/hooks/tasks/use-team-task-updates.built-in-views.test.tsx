@@ -11,12 +11,23 @@ import type { TTask } from '@/core/types/schemas/task/task.schema';
 const mockUpdateTask = jest.fn();
 let mockTeamTasks: TTask[] = [];
 let mockViewTasks: TTask[] = [];
+let mockQueueTail: Promise<unknown> = Promise.resolve();
 
 function mockTasksOf(atom: string) {
 	if (atom === 'team-tasks') {
 		return mockTeamTasks;
 	}
 	return mockViewTasks;
+}
+
+function mockSetTasks(atom: string, tasks: TTask[]) {
+	if (atom === 'view-tasks') {
+		mockViewTasks = tasks;
+	}
+}
+
+function mockRunInTurn(run: () => Promise<void>) {
+	mockQueueTail = mockQueueTail.then(run);
 }
 
 jest.mock('@/core/hooks/task-views/use-bulk-task-update', () => ({
@@ -28,11 +39,11 @@ jest.mock('@/core/hooks/organizations/teams/use-update-task', () => ({
 jest.mock('./use-task-labels-query', () => ({ useTaskLabelsQuery: () => ({ taskLabels: [] }) }));
 jest.mock('@/core/stores', () => ({ tasksByTeamState: 'team-tasks' }));
 jest.mock('@/core/stores/tasks/task-views', () => ({ viewTasksState: 'view-tasks' }));
-jest.mock('jotai', () => ({ useStore: () => ({ get: mockTasksOf }) }));
+jest.mock('jotai', () => ({ useStore: () => ({ get: mockTasksOf, set: mockSetTasks }) }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('sonner', () => ({ toast: { error: jest.fn() } }));
-// The queue runs each change at once: the specs read the view while its save is still out.
-jest.mock('@/core/lib/utils/task.utils', () => ({ taskUpdateQueue: { task: (run: () => unknown) => run() } }));
+// The changes run one after the other, as in the update queue, without its start delay.
+jest.mock('@/core/lib/utils/task.utils', () => ({ taskUpdateQueue: { task: mockRunInTurn } }));
 jest.mock('@/core/lib/utils/error-feedback', () => ({ errorReasonKeyOf: () => 'reason' }));
 
 import { useTeamTaskUpdates } from './use-team-task-updates';
@@ -50,10 +61,18 @@ function renderUpdates(queryClient: QueryClient) {
 	return renderHook(() => useTeamTaskUpdates(), { wrapper });
 }
 
-function listedTask(queryClient: QueryClient, taskId: string) {
+function tasksInView(queryClient: QueryClient) {
 	const view = queryClient.getQueryData<{ items: TTask[] }>(mineKey);
-	const tasks = view?.items ?? [];
+	return view?.items ?? [];
+}
+
+function listedTask(queryClient: QueryClient, taskId: string) {
+	const tasks = tasksInView(queryClient);
 	return tasks.find((item) => item.id === taskId);
+}
+
+function openViewTask(taskId: string) {
+	return mockViewTasks.find((item) => item.id === taskId);
 }
 
 /** A save the spec answers or refuses itself. */
@@ -65,6 +84,13 @@ function pendingSave() {
 		rejectSave = reject;
 	});
 	return { promise, answer: () => resolveSave(), refuse: (error: Error) => rejectSave(error) };
+}
+
+/** Every queued change has run, its save answered. */
+async function queuedChangesSettled() {
+	await act(async () => {
+		await mockQueueTail;
+	});
 }
 
 describe('a change made from Team tasks on a built-in view', () => {
@@ -83,31 +109,33 @@ describe('a change made from Team tasks on a built-in view', () => {
 		queryClient.setQueryData(mineKey, { items: [otherTeamTask, teamTask], total: 2 });
 		mockTeamTasks = [teamTask];
 		mockViewTasks = [otherTeamTask, teamTask];
+		mockQueueTail = Promise.resolve();
 		mockUpdateTask.mockReset();
 	});
 
-	it("shows in the view while the save is still out, on the team's tasks and on another team's", async () => {
-		const save = pendingSave();
-		mockUpdateTask.mockReturnValue(save.promise);
+	it("shows in the view while the save is still out, on another team's task and on the team's own", async () => {
+		const firstSave = pendingSave();
+		mockUpdateTask.mockReturnValueOnce(firstSave.promise).mockReturnValueOnce(pendingSave().promise);
 		const { result } = renderUpdates(queryClient);
 
-		act(() => {
-			result.current.setStatus(['a'], done);
-			result.current.setStatus(['b'], done);
-		});
-
-		expect(mockUpdateTask).toHaveBeenCalledTimes(2);
+		act(() => result.current.setStatus(['a'], done));
+		await waitFor(() => expect(mockUpdateTask).toHaveBeenCalledTimes(1));
 		expect(listedTask(queryClient, 'a')).toMatchObject({ status: 'done', taskStatusId: 's2', priority: 'low' });
+		expect(openViewTask('a')).toMatchObject({ status: 'done', taskStatusId: 's2' });
+
+		await act(async () => firstSave.answer());
+		act(() => result.current.setStatus(['b'], done));
+		await waitFor(() => expect(mockUpdateTask).toHaveBeenCalledTimes(2));
 		expect(listedTask(queryClient, 'b')).toMatchObject({ status: 'done', taskStatusId: 's2' });
-		await act(async () => save.answer());
 		expect(listedTask(queryClient, 'a')).toMatchObject({ status: 'done', taskStatusId: 's2' });
 	});
 
-	it('moves a bar dragged on the timeline to its new days in the view at once', () => {
+	it('moves a bar dragged on the timeline to its new days in the view at once', async () => {
 		mockUpdateTask.mockReturnValue(pendingSave().promise);
 		const { result } = renderUpdates(queryClient);
 
 		act(() => result.current.moveDates('a', 'move', 3));
+		await waitFor(() => expect(mockUpdateTask).toHaveBeenCalledTimes(1));
 
 		const moved = { startDate: new Date(2026, 10, 13), dueDate: new Date(2026, 10, 17) };
 		expect(listedTask(queryClient, 'a')).toMatchObject(moved);
@@ -119,21 +147,45 @@ describe('a change made from Team tasks on a built-in view', () => {
 		const { result } = renderUpdates(queryClient);
 
 		act(() => result.current.setPriority(['a'], 'high'));
+		await waitFor(() => expect(mockUpdateTask).toHaveBeenCalledTimes(1));
 		expect(listedTask(queryClient, 'a')).toMatchObject({ priority: 'high' });
-		await act(async () => save.refuse(new Error('refused')));
+		save.refuse(new Error('refused'));
+		await queuedChangesSettled();
 
-		await waitFor(() => expect(toast.error).toHaveBeenCalledTimes(1));
+		expect(toast.error).toHaveBeenCalledTimes(1);
 		expect(listedTask(queryClient, 'a')).toEqual(otherTeamTask);
 		expect(listedTask(queryClient, 'b')).toEqual(teamTask);
+		expect(openViewTask('a')).toEqual(otherTeamTask);
 	});
 
-	it('leaves the view as it is when nothing changes', () => {
+	it('starts a change queued behind a failed one from the task as it was, without the refused value', async () => {
+		const firstSave = pendingSave();
+		mockUpdateTask.mockReturnValueOnce(firstSave.promise).mockResolvedValueOnce(undefined);
+		const { result } = renderUpdates(queryClient);
+
+		act(() => result.current.setStatus(['a'], done));
+		await waitFor(() => expect(mockUpdateTask).toHaveBeenCalledTimes(1));
+		// The page copies the cached view into the open view's tasks once it renders, as it does between two changes.
+		mockViewTasks = tasksInView(queryClient);
+		act(() => result.current.setPriority(['a'], 'high'));
+		firstSave.refuse(new Error('refused'));
+		await queuedChangesSettled();
+
+		expect(mockUpdateTask).toHaveBeenCalledTimes(2);
+		const queuedChange = expect.objectContaining({ id: 'a', status: 'todo', taskStatusId: 's1', priority: 'high' });
+		expect(mockUpdateTask).toHaveBeenLastCalledWith(queuedChange, undefined);
+	});
+
+	it('leaves the view as it is when nothing changes', async () => {
 		const viewBefore = queryClient.getQueryData(mineKey);
+		const openViewBefore = mockViewTasks;
 		const { result } = renderUpdates(queryClient);
 
 		act(() => result.current.setStatus(['a'], todo));
+		await queuedChangesSettled();
 
 		expect(mockUpdateTask).not.toHaveBeenCalled();
 		expect(queryClient.getQueryData(mineKey)).toBe(viewBefore);
+		expect(mockViewTasks).toBe(openViewBefore);
 	});
 });

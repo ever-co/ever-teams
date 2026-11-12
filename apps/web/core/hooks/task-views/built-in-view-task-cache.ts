@@ -1,10 +1,13 @@
 import type { Query, QueryClient, QueryKey } from '@tanstack/react-query';
+import type { useStore } from 'jotai';
 import { queryKeys } from '@/core/query/keys';
+import { viewTasksState } from '@/core/stores/tasks/task-views';
 import type { ITaskBuiltInViewPage } from '@/core/types/interfaces/common/task-views';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 type BuiltInViewTasks = ITaskBuiltInViewPage<TTask>;
 type TaskField = keyof TTask;
+type JotaiStore = ReturnType<typeof useStore>;
 
 /** A task as one cached built-in view listed it before a change. */
 interface ListedTask {
@@ -98,18 +101,46 @@ function showChangeInCachedViews(queryClient: QueryClient, taskId: string, chang
 }
 
 /**
- * Shows a task's change at once in every cached built-in view that lists it: a built-in view draws the tasks its own
- * query returned, which the optimistic update of the team's task list does not reach. Answers what puts those views
- * back when the save fails: the fields the change set, as each view listed them, and nothing else.
+ * The open view's tasks, which the pickers and the next queued change read: the page copies them from the cached view
+ * only once it renders, which can be after the next queued change has read them.
  */
-export function showTaskChangeInBuiltInViews(queryClient: QueryClient, taskId: string, changes: Partial<TTask>) {
+function showChangeInOpenView(store: JotaiStore, taskId: string, changes: Partial<TTask>) {
+	const tasks = store.get(viewTasksState);
+	const task = taskIn(tasks, taskId);
+	if (!task) {
+		return undefined;
+	}
+	const changedTask = { ...task, ...changes };
+	const changedTasks = withTask(tasks, changedTask);
+	store.set(viewTasksState, changedTasks);
+	return task;
+}
+
+/**
+ * Shows a task's change at once in the copies the built-in views keep of it: every cached view that lists it (the
+ * optimistic update of the team's task list does not reach them), and the open view's tasks. Answers what puts them
+ * back when the save fails: the fields the change set, as each copy held them, and nothing else.
+ */
+export function showTaskChangeInBuiltInViews(
+	queryClient: QueryClient,
+	store: JotaiStore,
+	taskId: string,
+	changes: Partial<TTask>
+) {
 	const changedFields = Object.keys(changes) as TaskField[];
 	const listedTasks = showChangeInCachedViews(queryClient, taskId, changes);
+	const openViewTask = showChangeInOpenView(store, taskId, changes);
 	return () => {
 		for (const listed of listedTasks) {
 			queryClient.setQueryData<BuiltInViewTasks>(listed.queryKey, (data) =>
 				withCachedFieldsRestored(data, listed.task, changedFields)
 			);
 		}
+		if (!openViewTask) {
+			return;
+		}
+		const openViewTasks = store.get(viewTasksState);
+		const restoredTasks = withFieldsRestored(openViewTasks, openViewTask, changedFields);
+		store.set(viewTasksState, restoredTasks);
 	};
 }
