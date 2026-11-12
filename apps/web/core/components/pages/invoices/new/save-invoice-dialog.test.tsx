@@ -8,7 +8,9 @@ type MockConfirmDialogProps = {
 	open: boolean;
 	title: string;
 	consequences: Array<{ key: string; text: React.ReactNode }>;
+	isPending: boolean;
 	onClose: () => void;
+	onConfirm: () => void;
 };
 
 jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn() }) }));
@@ -39,6 +41,9 @@ jest.mock('@/core/components/projects/dialogs/project-confirm-dialog', () => ({
 				<button type="button" onClick={props.onClose}>
 					leave
 				</button>
+				<button type="button" onClick={props.onConfirm} disabled={props.isPending}>
+					confirm
+				</button>
 			</div>
 		);
 	}
@@ -58,6 +63,7 @@ function invoiceOf(fields: Partial<NewInvoiceState>) {
 		issueDay: '2026-11-12',
 		dueDay: '2026-12-11',
 		isSaving: false,
+		isWaiting: false,
 		haveEarlierFailed: false,
 		save: jest.fn(),
 		...fields
@@ -82,6 +88,24 @@ describe('leaving the confirmation of a new invoice', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'leave' }));
 
 		expect(onClose).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe('confirming a new invoice while what it is made of is read again', () => {
+	function confirmButton() {
+		return screen.getByRole<HTMLButtonElement>('button', { name: 'confirm' });
+	}
+
+	it('waits for the read before it can be confirmed', () => {
+		render(<SaveInvoiceDialog open invoice={invoiceOf({ isWaiting: true })} onClose={jest.fn()} />);
+
+		expect(confirmButton().disabled).toBe(true);
+	});
+
+	it('can be confirmed once nothing is read again', () => {
+		render(<SaveInvoiceDialog open invoice={invoiceOf({})} onClose={jest.fn()} />);
+
+		expect(confirmButton().disabled).toBe(false);
 	});
 });
 

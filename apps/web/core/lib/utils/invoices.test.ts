@@ -533,8 +533,11 @@ describe('invoice number and dates', () => {
 	});
 
 	it('names the reads a save waits for', () => {
-		expect(invoiceWaitsOf({ isReadingEarlier: false })).toEqual([]);
-		expect(invoiceWaitsOf({ isReadingEarlier: true })).toEqual(['readingEarlier']);
+		const settled = { isReadingEarlier: false, isReadingTimeAgain: false };
+
+		expect(invoiceWaitsOf(settled)).toEqual([]);
+		expect(invoiceWaitsOf({ ...settled, isReadingEarlier: true })).toEqual(['readingEarlier']);
+		expect(invoiceWaitsOf({ ...settled, isReadingTimeAgain: true })).toEqual(['readingTime']);
 	});
 
 	it('reads the day of an invoice date in the organization’s zone', () => {

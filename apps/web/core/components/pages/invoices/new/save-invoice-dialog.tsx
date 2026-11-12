@@ -91,6 +91,8 @@ export function SaveInvoiceDialog({
 	if (hasFailed) {
 		error = t('invoices.new.confirm.FAILED');
 	}
+	// A read that started after the dialog opened can still change what it states: the save waits for it.
+	const isConfirmBlocked = invoice.isSaving || invoice.isWaiting;
 
 	return (
 		<ProjectConfirmDialog
@@ -100,7 +102,7 @@ export function SaveInvoiceDialog({
 			title={t('invoices.new.confirm.TITLE', { number })}
 			consequences={consequences}
 			confirmLabel={t('invoices.new.SAVE')}
-			isPending={invoice.isSaving}
+			isPending={isConfirmBlocked}
 			error={error}
 			onConfirm={() => void confirm()}
 		/>

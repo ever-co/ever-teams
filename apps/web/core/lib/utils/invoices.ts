@@ -545,7 +545,8 @@ export type InvoiceProblem =
 	| 'dueBeforeIssue'
 	| 'noLines'
 	| 'noCurrency'
-	| 'readingEarlier';
+	| 'readingEarlier'
+	| 'readingTime';
 
 export interface InvoiceDraftFacts {
 	numberText: string;
@@ -584,13 +585,18 @@ export function invoiceProblemsOf(facts: InvoiceDraftFacts): InvoiceProblem[] {
 export interface InvoiceReads {
 	/** The invoices already saved for the client, whose overlap with the period is shown before saving. */
 	isReadingEarlier: boolean;
+	/** The billable time, the members' rates or the client rates, read again while their last answer is shown. */
+	isReadingTimeAgain: boolean;
 }
 
-/** What a save waits for: a read still under way, whose answer can change what the invoice warns about. */
+/** What a save waits for: a read still under way, whose answer can change what the invoice states or warns about. */
 export function invoiceWaitsOf(reads: InvoiceReads): InvoiceProblem[] {
 	const waits: InvoiceProblem[] = [];
 	if (reads.isReadingEarlier) {
 		waits.push('readingEarlier');
+	}
+	if (reads.isReadingTimeAgain) {
+		waits.push('readingTime');
 	}
 	return waits;
 }

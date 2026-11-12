@@ -120,8 +120,9 @@ export function useNewInvoice() {
 	);
 
 	const draftProblems = invoiceProblemsOf({ numberText, issueDay, dueDay, currency, lineCount: keptLines.length });
-	const waits = invoiceWaitsOf({ isReadingEarlier: earlier.isLoading });
+	const waits = invoiceWaitsOf({ isReadingEarlier: earlier.isLoading, isReadingTimeAgain: time.isUpdating });
 	const problems = draftProblems.concat(waits);
+	const isWaiting = waits.length > 0;
 
 	const resetEdits = useCallback(() => {
 		setRemovedKeys(NO_KEYS);
@@ -266,6 +267,7 @@ export function useNewInvoice() {
 		refetchEarlier: earlier.refetch,
 		overlappingInvoices,
 		problems,
+		isWaiting,
 		save,
 		isSaving
 	};

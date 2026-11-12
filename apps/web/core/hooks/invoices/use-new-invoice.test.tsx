@@ -41,16 +41,18 @@ jest.mock('@/core/hooks/clients/use-clients-query', () => ({
 		refetch: jest.fn()
 	})
 }));
+const mockTime = {
+	hasProjects: true,
+	lines: [mockLine],
+	unpriced: [],
+	isLoading: false,
+	isError: false,
+	isUpdating: false,
+	refetch: jest.fn()
+};
+
 jest.mock('./use-invoice-time', () => ({
-	useInvoiceTime: () => ({
-		hasProjects: true,
-		lines: [mockLine],
-		unpriced: [],
-		isLoading: false,
-		isError: false,
-		isUpdating: false,
-		refetch: jest.fn()
-	})
+	useInvoiceTime: () => mockTime
 }));
 jest.mock('./use-invoices-query', () => ({
 	useNextInvoiceNumber: () => ({ nextNumber: 7, isLoading: false, isError: false, refetch: jest.fn() }),
@@ -142,6 +144,33 @@ describe('saving a new invoice and the invoices already saved for its client', (
 		expect(saved).toBeNull();
 		expect(mockCreateInvoice).not.toHaveBeenCalled();
 		expect(result.current.problems).toEqual(['readingEarlier']);
+	});
+});
+
+describe('saving a new invoice while its billable time is read again', () => {
+	beforeEach(() => {
+		mockCreateInvoice.mockReset();
+		mockCreateInvoice.mockResolvedValue({ id: 'invoice-1' });
+	});
+
+	afterEach(() => {
+		mockTime.isUpdating = false;
+	});
+
+	it('waits: the lines on screen can still change', async () => {
+		mockTime.isUpdating = true;
+		const { result } = renderNewInvoice(tokyoOrganization);
+		act(() => result.current.setDueDay('2099-12-31'));
+
+		let saved: unknown = 'not answered';
+		await act(async () => {
+			saved = await result.current.save();
+		});
+
+		expect(saved).toBeNull();
+		expect(mockCreateInvoice).not.toHaveBeenCalled();
+		expect(result.current.problems).toEqual(['readingTime']);
+		expect(result.current.isWaiting).toBe(true);
 	});
 });
 
