@@ -8,15 +8,18 @@ import { Input, controlRecipe } from '@/core/components/common/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { CalendarPlus, Copy } from '@/core/components/icons';
+import { useMeetingInvitees } from '@/core/hooks/meetings/use-meeting-invitees';
 import { cn } from '@/core/lib/helpers';
 import {
 	meetingLinkWithTitle,
+	participantsWithText,
 	startOfDay,
 	type RescheduleMeetingDraft,
 	type ScheduledMeeting,
 	type ScheduleMeetingDraft
 } from '@/core/lib/utils/meetings';
 import { copyMeetingInvitation, downloadMeetingIcs, meetingWhenOf } from './meeting-invitation';
+import { ParticipantsField } from './participants-field';
 
 const DURATIONS = [15, 30, 45, 60, 90, 120];
 const DEFAULT_DURATION = 30;
@@ -101,8 +104,13 @@ export function ScheduleMeetingDialog({
 		meeting ? Math.max(1, Math.round((meeting.end.getTime() - meeting.start.getTime()) / MINUTE)) : DEFAULT_DURATION
 	);
 	const [description, setDescription] = useState('');
+	const invitees = useMeetingInvitees();
+	const [participants, setParticipants] = useState<string[]>([]);
+	const [participantDraft, setParticipantDraft] = useState('');
+	const [isParticipantInvalid, setIsParticipantInvalid] = useState(false);
 	const [problem, setProblem] = useState<'title' | 'past' | null>(null);
 	const [scheduled, setScheduled] = useState<(ScheduledMeeting & { link: string }) | null>(null);
+	const [invitedCount, setInvitedCount] = useState(0);
 	const minutesFormat = new Intl.NumberFormat(locale, { style: 'unit', unit: 'minute', unitDisplay: 'short' });
 
 	const close = () => {
@@ -112,10 +120,30 @@ export function ScheduleMeetingDialog({
 		setTime(timeInputOf(slot));
 		setDuration(DEFAULT_DURATION);
 		setDescription('');
+		setParticipants([]);
+		setParticipantDraft('');
+		setIsParticipantInvalid(false);
 		setProblem(null);
 		setScheduled(null);
 		onClose();
 	};
+
+	/** Adds the addresses typed in the participants; null when part of it is no address, left there to fix. */
+	const commitParticipantDraft = (): string[] | null => {
+		if (!participantDraft.trim()) {
+			return participants;
+		}
+		const { emails, rejected } = participantsWithText(participants, participantDraft);
+		setParticipants(emails);
+		setParticipantDraft(rejected.join(', '));
+		setIsParticipantInvalid(rejected.length > 0);
+		return rejected.length > 0 ? null : emails;
+	};
+
+	const toggleParticipant = (email: string) =>
+		setParticipants((current) =>
+			current.includes(email) ? current.filter((address) => address !== email) : [...current, email]
+		);
 
 	const reschedule = async (edited: ScheduledMeeting, start: Date) => {
 		const newTitle = title.trim();
@@ -146,11 +174,14 @@ export function ScheduleMeetingDialog({
 			await reschedule(meeting, start);
 			return;
 		}
+		const participantEmails = commitParticipantDraft();
+		if (!participantEmails) {
+			return;
+		}
 		const link = linkFor(title.trim());
 		try {
-			const appointment = (await onSchedule({ title, description, start, durationMinutes: duration, link })) as {
-				id?: string;
-			};
+			const draft = { title, description, start, durationMinutes: duration, link, participantEmails };
+			const appointment = (await onSchedule(draft)) as { id?: string };
 			setScheduled({
 				id: appointment?.id ?? link,
 				title: title.trim(),
@@ -159,6 +190,7 @@ export function ScheduleMeetingDialog({
 				end: new Date(start.getTime() + duration * 60_000),
 				link
 			});
+			setInvitedCount(participantEmails.length);
 			toast.success(t('meetings.SCHEDULED'));
 		} catch {
 			toast.error(t('meetings.SCHEDULE_FAILED'));
@@ -182,7 +214,9 @@ export function ScheduleMeetingDialog({
 							<p className="text-base font-medium text-foreground">{scheduled.title}</p>
 							<p className="text-sm text-muted-foreground">{meetingWhenOf(scheduled, locale)}</p>
 						</div>
-						<p className="text-sm text-muted-foreground">{t('meetings.INVITE_HINT')}</p>
+						<p className="text-sm text-muted-foreground">
+							{invitedCount > 0 ? t('meetings.INVITE_HINT_PARTICIPANTS') : t('meetings.INVITE_HINT')}
+						</p>
 						<div className="flex flex-wrap gap-2">
 							<Button type="button" variant="outline" onClick={copyInvitation}>
 								<Copy className="size-4" aria-hidden="true" />
@@ -270,6 +304,21 @@ export function ScheduleMeetingDialog({
 								</SelectContent>
 							</Select>
 						</div>
+						{!meeting && (
+							<ParticipantsField
+								invitees={invitees}
+								emails={participants}
+								draft={participantDraft}
+								onDraftChange={(draft) => {
+									setParticipantDraft(draft);
+									setIsParticipantInvalid(false);
+								}}
+								onCommitDraft={commitParticipantDraft}
+								onToggle={toggleParticipant}
+								onRemove={toggleParticipant}
+								isInvalid={isParticipantInvalid}
+							/>
+						)}
 						{!meeting && (
 							<div className="flex flex-col gap-1.5 sm:col-span-2">
 								<label htmlFor="meeting-description" className="text-sm font-medium text-foreground">

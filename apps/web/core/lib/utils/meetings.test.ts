@@ -7,11 +7,13 @@ import {
 	isRoomTokenStale,
 	meetingDaysOf,
 	meetingIcsOf,
+	meetingInviteesOf,
 	meetingLinkWithTitle,
 	meetingPathFor,
 	meetingPathOfInput,
 	meetingsOfDay,
 	meetingTitleOf,
+	participantsWithText,
 	roomNameOfParam,
 	scheduledMeetingOf,
 	scheduledMeetingStateOf,
@@ -179,6 +181,60 @@ describe('scheduled meetings', () => {
 			employeeId: 'employee-1'
 		});
 		expect(input).not.toHaveProperty('emails');
+	});
+
+	it("sends the participants' addresses as the appointment's emails, which Gauzy splits on a comma and a space", () => {
+		const input = appointmentInputOf(
+			{
+				title: 'Sprint review',
+				start: new Date('2026-11-12T14:00:00.000Z'),
+				durationMinutes: 30,
+				link: 'https://app.example.com/meet/jitsi?room=abc',
+				participantEmails: ['ana@acme.com', 'bob@example.org']
+			},
+			'employee-1'
+		);
+
+		expect(input.emails).toBe('ana@acme.com, bob@example.org');
+		expect(input.emails?.split(', ')).toEqual(['ana@acme.com', 'bob@example.org']);
+	});
+
+	it('offers the team members with an address, by name, once each and without oneself', () => {
+		const member = (email: string | null, name?: string, fullName?: string) => ({
+			employee: { fullName, user: { email, name } }
+		});
+
+		expect(
+			meetingInviteesOf(
+				[
+					member('Zoe@Acme.com', 'Zoe Martin'),
+					member('me@acme.com', 'Me'),
+					member(null, 'No address'),
+					member('ana@acme.com', '', 'Ana Silva'),
+					member('zoe@acme.com', 'Zoe again'),
+					{ employee: null }
+				],
+				'ME@acme.com'
+			)
+		).toEqual([
+			{ email: 'ana@acme.com', name: 'Ana Silva' },
+			{ email: 'zoe@acme.com', name: 'Zoe Martin' }
+		]);
+	});
+
+	it('adds the addresses typed or pasted as participants, once each, and tells what was no address', () => {
+		expect(participantsWithText(['ana@acme.com'], 'Bob <BOB@example.org>, ana@acme.com')).toEqual({
+			emails: ['ana@acme.com', 'bob@example.org'],
+			rejected: []
+		});
+		expect(participantsWithText([], 'bob@example.org, ana@example')).toEqual({
+			emails: ['bob@example.org'],
+			rejected: ['ana@example']
+		});
+		expect(participantsWithText(['bob@example.org'], 'ana')).toEqual({
+			emails: ['bob@example.org'],
+			rejected: ['ana']
+		});
 	});
 
 	it('reschedules a meeting with its title, time and link only, so Gauzy keeps the rest', () => {

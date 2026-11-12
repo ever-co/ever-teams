@@ -165,7 +165,7 @@ describe('feature parity on the authenticated shell', () => {
 			.should((body) => {
 				expect(body.agenda).to.equal('Sprint review');
 				expect(body.location).to.match(/\/meet\/jitsi\?room=.+&title=Sprint%20review$/);
-				// Gauzy's appointment email carries neither the time nor the link: no emails are sent through it
+				// Nobody was invited: Gauzy sends no email
 				expect(body).not.to.have.property('emails');
 			});
 		cy.get('[data-testid="meeting-scheduled"]').should('contain', 'Sprint review');
@@ -230,6 +230,21 @@ describe('feature parity on the authenticated shell', () => {
 		cy.contains('button', /^Join$/).click();
 		cy.location('pathname', { timeout: 15_000 }).should('match', /\/meet\/jitsi$/);
 		cy.get('[data-testid="meet-join-now"]', { timeout: 20_000 }).should('be.visible');
+	});
+
+	it("invites a team member and an address typed when scheduling, as the appointment's emails", () => {
+		cy.intercept('POST', '**/api/employee-appointment').as('schedule');
+		cy.hardVisit('/meet');
+		cy.get('[data-testid="meetings-schedule"]', { timeout: 20_000 }).click();
+		cy.get('#meeting-title').type('Kick-off');
+		cy.get('[data-testid="meeting-team-members"]').click();
+		cy.contains('[role="option"]', 'Fixture Teammate').click();
+		cy.get('input[placeholder="Add an email address"]').click().type('guest@example.org{enter}');
+		cy.get('ul[aria-label="Participants"] li').should('have.length', 2);
+		cy.contains('button', /^Schedule$/).click();
+		// Gauzy splits the addresses on a comma and a space, and sends each a short notice
+		cy.wait('@schedule').its('request.body.emails').should('equal', 'teammate@example.test, guest@example.org');
+		cy.get('[data-testid="meeting-scheduled"]').should('contain', 'The people you added get a short email');
 	});
 
 	it("renames a scheduled meeting and changes its length from Edit in the card's menu", () => {

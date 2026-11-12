@@ -1,4 +1,6 @@
+import { isEmail } from 'class-validator';
 import { meetPathFor } from './collaboration';
+import { extractEmails, mergeEmails } from './invite-emails';
 
 /** The meeting pages, with or without the locale prefix of a non-default language (/fr/meet/jitsi). */
 const MEET_ROOM_PATH = /(?:^|\/)meet\/(jitsi|livekit)\/?$/;
@@ -218,6 +220,8 @@ export interface ScheduleMeetingDraft {
 	durationMinutes: number;
 	/** The full link of the meeting page. */
 	link: string;
+	/** The addresses of the people invited: team members and others. */
+	participantEmails?: string[];
 }
 
 export interface MeetingAppointmentInput {
@@ -227,24 +231,70 @@ export interface MeetingAppointmentInput {
 	startDateTime: string;
 	endDateTime: string;
 	employeeId: string;
+	/** The invitees' addresses, as Gauzy reads them: one string, the addresses separated by a comma and a space. */
+	emails?: string;
 }
 
 /**
- * The appointment Ever Gauzy stores for a scheduled meeting, owned by the person who schedules it. No `emails`:
- * Gauzy sends them a generic "new appointment" message with neither the time nor the link, so inviting goes
- * through the copied invitation and the calendar file instead.
+ * The appointment Ever Gauzy stores for a scheduled meeting, owned by the person who schedules it. The people invited
+ * go in its `emails`, which Gauzy splits on ", " to send each a short "new appointment" message; that message carries
+ * neither the time nor the link, so the confirmation still gives the invitation to copy and the calendar file.
  */
 export function appointmentInputOf(draft: ScheduleMeetingDraft, employeeId: string): MeetingAppointmentInput {
 	const end = new Date(draft.start.getTime() + draft.durationMinutes * MINUTE);
 	const description = draft.description?.trim();
+	const emails = draft.participantEmails ?? [];
 	return {
 		agenda: draft.title.trim(),
 		...(description ? { description } : {}),
 		location: draft.link,
 		startDateTime: draft.start.toISOString(),
 		endDateTime: end.toISOString(),
-		employeeId
+		employeeId,
+		...(emails.length > 0 ? { emails: emails.join(', ') } : {})
 	};
+}
+
+/** A team member one can invite to a meeting. */
+export interface MeetingInvitee {
+	email: string;
+	name: string;
+}
+
+/** The parts of a team member the invitation needs. */
+interface InvitableMember {
+	employee?: {
+		fullName?: string | null;
+		user?: { email?: string | null; name?: string | null } | null;
+	} | null;
+}
+
+/** The team members one can invite, by name: everyone with an address but oneself, each once. */
+export function meetingInviteesOf(members: readonly InvitableMember[], ownEmail?: string | null): MeetingInvitee[] {
+	const own = ownEmail?.trim().toLowerCase();
+	const byEmail = new Map<string, MeetingInvitee>();
+	for (const member of members) {
+		const email = member.employee?.user?.email?.trim().toLowerCase();
+		if (!email || email === own || byEmail.has(email)) {
+			continue;
+		}
+		const name = member.employee?.user?.name?.trim() || member.employee?.fullName?.trim() || email;
+		byEmail.set(email, { email, name });
+	}
+	return [...byEmail.values()].sort((first, second) => first.name.localeCompare(second.name));
+}
+
+/**
+ * The addresses typed or pasted into the participants ("Ana <ana@acme.com>, bob@acme.com" gives both), added to
+ * those already there, and what was not an address, to say so.
+ */
+export function participantsWithText(
+	current: readonly string[],
+	text: string
+): { emails: string[]; rejected: string[] } {
+	const found = extractEmails(text);
+	const valid = found.filter((address) => isEmail(address));
+	return { emails: mergeEmails(current, valid), rejected: found.filter((address) => !isEmail(address)) };
 }
 
 /** A meeting moved to another time, or renamed. */

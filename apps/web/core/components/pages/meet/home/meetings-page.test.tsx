@@ -77,6 +77,13 @@ jest.mock('@/core/hooks/meetings/use-scheduled-meetings', () => ({
 	})
 }));
 
+jest.mock('@/core/hooks/meetings/use-meeting-invitees', () => ({
+	useMeetingInvitees: () => [
+		{ email: 'ana@acme.com', name: 'Ana Silva' },
+		{ email: 'bob@acme.com', name: 'Bob Stone' }
+	]
+}));
+
 import { MeetingsPage } from './meetings-page';
 
 /** The room name a meeting page path carries. */
@@ -174,6 +181,50 @@ describe('MeetingsPage', () => {
 		const scheduled = await screen.findByTestId('meeting-scheduled');
 		expect(within(scheduled).getByRole('button', { name: 'meetings.COPY_INVITATION' })).toBeTruthy();
 		expect(within(scheduled).getByRole('button', { name: 'meetings.ADD_TO_CALENDAR' })).toBeTruthy();
+	});
+
+	it("invites team members picked from a list and addresses typed, as the appointment's emails", async () => {
+		// cmdk measures its list and keeps the picked row in view; jsdom does neither
+		Element.prototype.scrollIntoView ??= jest.fn();
+		globalThis.ResizeObserver ??= class {
+			observe() {}
+			unobserve() {}
+			disconnect() {}
+		} as unknown as typeof ResizeObserver;
+		render(<MeetingsPage />);
+		fireEvent.click(screen.getByTestId('meetings-schedule'));
+		fireEvent.change(await screen.findByLabelText('meetings.FIELD_TITLE'), { target: { value: 'Kick-off' } });
+
+		fireEvent.click(screen.getByTestId('meeting-team-members'));
+		fireEvent.click(await screen.findByRole('option', { name: /Ana Silva/ }));
+		const participants = screen.getByRole('textbox', { name: 'meetings.FIELD_PARTICIPANTS' });
+		fireEvent.change(participants, { target: { value: 'Guest <guest@example.org>' } });
+		fireEvent.keyDown(participants, { key: 'Enter' });
+		fireEvent.change(participants, { target: { value: 'nobody' } });
+		fireEvent.keyDown(participants, { key: 'Enter' });
+
+		expect(screen.getByRole('alert').textContent).toBe('meetings.PARTICIPANTS_INVALID');
+		const chips = within(screen.getByRole('list', { name: 'meetings.FIELD_PARTICIPANTS' }));
+		expect(chips.getAllByRole('listitem').map((chip) => chip.textContent)).toEqual([
+			'Ana Silva',
+			'guest@example.org'
+		]);
+		// What is no address stays to be fixed, and keeps the meeting from being scheduled
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'meetings.SCHEDULE' }));
+		});
+		expect(mockScheduleMeeting).not.toHaveBeenCalled();
+
+		fireEvent.change(participants, { target: { value: 'bob@acme.com' } });
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'meetings.SCHEDULE' }));
+		});
+		expect(mockScheduleMeeting.mock.calls[0][0].participantEmails).toEqual([
+			'ana@acme.com',
+			'guest@example.org',
+			'bob@acme.com'
+		]);
+		expect(await screen.findByText('meetings.INVITE_HINT_PARTICIPANTS')).toBeTruthy();
 	});
 
 	it('refuses a meeting without a title or at a time that has passed', async () => {
