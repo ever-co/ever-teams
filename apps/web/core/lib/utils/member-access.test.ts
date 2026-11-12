@@ -1,5 +1,6 @@
 import qs from 'qs';
 import type { TInactiveEmployee } from '@/core/types/schemas/organization/inactive-employee.schema';
+import { errorReasonOf } from './error-feedback';
 import {
 	assignableWorkspaceRolesOf,
 	canChangeWorkspaceRole,
@@ -9,7 +10,9 @@ import {
 	inactiveEmployeePagesAfterFirst,
 	inactiveEmployeesQueryOf,
 	inactiveMembersOfTeam,
+	isWorkEndApplied,
 	readsWorkspaceRoles,
+	WorkEndNotAppliedError,
 	workspaceRoleNameOf,
 	type WorkspaceRole
 } from './member-access';
@@ -186,6 +189,29 @@ describe('canChangeWorkspaceRole', () => {
 
 		expect(canChangeWorkspaceRole({ ...superAdmin, workspaceRoleName: 'SUPER_ADMIN' })).toBe(true);
 		expect(canChangeWorkspaceRole({ ...superAdmin, workspaceRoleName: null })).toBe(true);
+	});
+});
+
+describe('isWorkEndApplied', () => {
+	const END_OF_WORK = '2026-11-12T10:00:00.000Z';
+
+	it('reads a deactivation as done when Gauzy answers the employee inactive', () => {
+		expect(isWorkEndApplied({ isActive: false }, END_OF_WORK)).toBe(true);
+		expect(isWorkEndApplied({ isActive: true }, END_OF_WORK)).toBe(false);
+	});
+
+	it('reads a restoration as done when Gauzy answers the employee active', () => {
+		expect(isWorkEndApplied({ isActive: true }, null)).toBe(true);
+		expect(isWorkEndApplied({ isActive: false }, null)).toBe(false);
+	});
+
+	it('reads an answer without the flag as nothing changed', () => {
+		expect(isWorkEndApplied({}, null)).toBe(false);
+		expect(isWorkEndApplied({ isActive: null }, END_OF_WORK)).toBe(false);
+	});
+
+	it('reports a change Gauzy did not apply as the server not completing it', () => {
+		expect(errorReasonOf(new WorkEndNotAppliedError())).toBe('server');
 	});
 });
 

@@ -12,11 +12,17 @@ import {
 	TUpdateEmployee
 } from '@/core/types/schemas';
 import {
+	employeeWorkStatusSchema,
 	inactiveEmployeePageSchema,
 	type TInactiveEmployee,
 	type TInactiveEmployeePage
 } from '@/core/types/schemas/organization/inactive-employee.schema';
-import { inactiveEmployeePagesAfterFirst, inactiveEmployeesQueryOf } from '@/core/lib/utils/member-access';
+import {
+	inactiveEmployeePagesAfterFirst,
+	inactiveEmployeesQueryOf,
+	isWorkEndApplied,
+	WorkEndNotAppliedError
+} from '@/core/lib/utils/member-access';
 import { scopedReadConfig, ScopedReadOptions } from '@/core/services/client/api-request-scope';
 
 interface InactiveEmployeesRead {
@@ -139,6 +145,8 @@ class EmployeeService extends APIService {
 	 * Ends a member's work, or brings them back with `null`: Gauzy's "End Work" and "Back to Work", on
 	 * `PUT /employee/:id` (ORG_EMPLOYEES_EDIT). Gauzy turns their access and tracking off or on itself, and keeps
 	 * their team memberships, time, tasks and comments.
+	 *
+	 * @throws WorkEndNotAppliedError when Gauzy accepted the request and left the member as they were.
 	 */
 	setEmployeeWorkEnd = async ({
 		employeeId,
@@ -151,7 +159,12 @@ class EmployeeService extends APIService {
 		tenantId: string;
 		endWork: string | null;
 	}): Promise<void> => {
-		await this.put(`/employee/${encodeURIComponent(employeeId)}`, { organizationId, tenantId, endWork });
+		const endpoint = `/employee/${encodeURIComponent(employeeId)}`;
+		const response = await this.put<unknown>(endpoint, { organizationId, tenantId, endWork });
+		const saved = validateApiResponse(employeeWorkStatusSchema, response.data, 'setEmployeeWorkEnd API response');
+		if (!isWorkEndApplied(saved, endWork)) {
+			throw new WorkEndNotAppliedError();
+		}
 	};
 
 	/**

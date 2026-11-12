@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { employeeService } from '@/core/services/client/api/organizations/teams';
 import { userService } from '@/core/services/client/api/users';
+import { WorkEndNotAppliedError } from '@/core/lib/utils/member-access';
 
 interface MemberWorkEnd {
 	employeeId: string;
@@ -19,11 +20,18 @@ interface MemberWorkEnd {
  */
 export function useMemberWorkEnd() {
 	const queryClient = useQueryClient();
+	const readMembersAgain = async () => {
+		await queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+		await queryClient.invalidateQueries({ queryKey: queryKeys.users.employees.all });
+	};
 	const mutation = useMutation({
 		mutationFn: (workEnd: MemberWorkEnd) => employeeService.setEmployeeWorkEnd(workEnd),
-		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
-			await queryClient.invalidateQueries({ queryKey: queryKeys.users.employees.all });
+		onSuccess: readMembersAgain,
+		onError: async (error) => {
+			// Gauzy answers the same when someone else made the change first: the lists then show who is where
+			if (error instanceof WorkEndNotAppliedError) {
+				await readMembersAgain();
+			}
 		},
 		meta: { handlesOwnError: true }
 	});

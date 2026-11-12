@@ -5,6 +5,7 @@ import { Provider, createStore } from 'jotai';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
 import { activeTeamIdState, organizationTeamsState } from '@/core/stores';
+import { WorkEndNotAppliedError } from '@/core/lib/utils/member-access';
 
 const mockGetInactiveEmployees = jest.fn();
 const mockSetMemberWorkEnd = jest.fn();
@@ -136,6 +137,19 @@ describe('restoring a member', () => {
 		expect(mockToast.success).not.toHaveBeenCalled();
 		expect(mockToast.error).toHaveBeenCalledWith('settings.members.RESTORE_FAILED:Ana Lima', {
 			description: 'toasts.REASONS.PERMISSION:'
+		});
+	});
+
+	it('never says a member is back when the API left them deactivated', async () => {
+		mockSetMemberWorkEnd.mockRejectedValue(new WorkEndNotAppliedError());
+		const view = renderInactiveMembers(true);
+		await waitFor(() => expect(view.result.current.members).toHaveLength(1));
+
+		await act(() => view.result.current.restore(view.result.current.members[0]));
+
+		expect(mockToast.success).not.toHaveBeenCalled();
+		expect(mockToast.error).toHaveBeenCalledWith('settings.members.RESTORE_FAILED:Ana Lima', {
+			description: 'toasts.REASONS.SERVER:'
 		});
 	});
 });

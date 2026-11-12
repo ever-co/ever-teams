@@ -4,6 +4,7 @@ import React, { type ReactNode } from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
+import { WorkEndNotAppliedError } from '@/core/lib/utils/member-access';
 import { useMemberWorkEnd, useWorkspaceRoleAssignment } from './use-member-access';
 
 const mockSetEmployeeWorkEnd = jest.fn();
@@ -64,6 +65,17 @@ describe('useMemberWorkEnd', () => {
 		});
 
 		expect(invalidated).not.toHaveBeenCalled();
+	});
+
+	it('reads the lists again when the API did not apply the change, so they show who is where', async () => {
+		mockSetEmployeeWorkEnd.mockRejectedValue(new WorkEndNotAppliedError());
+		const { result, invalidated } = renderWithClient(() => useMemberWorkEnd());
+
+		await act(async () => {
+			await expect(result.current.setMemberWorkEnd(WORK_END)).rejects.toBeInstanceOf(WorkEndNotAppliedError);
+		});
+
+		expect(invalidatedKeys(invalidated)).toEqual([queryKeys.organizationTeams.all, queryKeys.users.employees.all]);
 	});
 });
 

@@ -34,5 +34,11 @@ export const inactiveEmployeePageSchema = z.object({
 	total: z.number()
 });
 
+/** The employee Gauzy answers when their end of work was written: the flag tells whether the change took. */
+export const employeeWorkStatusSchema = z.object({
+	isActive: z.boolean().nullable().optional()
+});
+
 export type TInactiveEmployee = z.infer<typeof inactiveEmployeeSchema>;
 export type TInactiveEmployeePage = z.infer<typeof inactiveEmployeePageSchema>;
+export type TEmployeeWorkStatus = z.infer<typeof employeeWorkStatusSchema>;

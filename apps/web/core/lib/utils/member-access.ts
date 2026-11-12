@@ -2,7 +2,10 @@ import qs from 'qs';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { isTenantAdminRole } from '@/core/lib/utils/roles';
 import { dateOrNull } from '@/core/lib/utils/settings-team';
-import type { TInactiveEmployee } from '@/core/types/schemas/organization/inactive-employee.schema';
+import type {
+	TEmployeeWorkStatus,
+	TInactiveEmployee
+} from '@/core/types/schemas/organization/inactive-employee.schema';
 
 /** Gauzy's `PUT /employee/:id`, which ends and resumes a member's work, asks for this permission. */
 const EMPLOYEES_EDIT_PERMISSION = 'ORG_EMPLOYEES_EDIT';
@@ -183,6 +186,28 @@ export function canChangeWorkspaceRole({
 		return false;
 	}
 	return workspaceRoleName !== ERoleName.SUPER_ADMIN;
+}
+
+/**
+ * Ending a member's work turns their employee inactive and bringing them back turns it active again: Gauzy answers
+ * the flag it set. An answer without the expected flag means nothing changed, which is what a Gauzy too old to
+ * resume work on a cleared end date answers to a restoration.
+ */
+export function isWorkEndApplied(saved: TEmployeeWorkStatus, endWork: string | null): boolean {
+	const shouldBeActive = endWork === null;
+	return saved.isActive === shouldBeActive;
+}
+
+const WORK_END_NOT_APPLIED_STATUS = 502;
+
+/** Carries a gateway status so the failure reads as the server not completing the change, which is what happened. */
+export class WorkEndNotAppliedError extends Error {
+	readonly status = WORK_END_NOT_APPLIED_STATUS;
+
+	constructor() {
+		super('The API accepted the end of work and left the member as they were');
+		this.name = 'WorkEndNotAppliedError';
+	}
 }
 
 /** Gauzy answers at most this many employees a page (`take` of its pagination query). */

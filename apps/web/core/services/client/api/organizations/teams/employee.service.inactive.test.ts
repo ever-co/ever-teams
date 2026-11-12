@@ -10,6 +10,7 @@ jest.mock('@/core/constants/config/constants', () => ({
 
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { WorkEndNotAppliedError } from '@/core/lib/utils/member-access';
 import { employeeService } from './employee.service';
 
 const publishedApiOrigin = GAUZY_API_BASE_SERVER_URL as { value: string | undefined };
@@ -111,7 +112,8 @@ describe('EmployeeService.setEmployeeWorkEnd', () => {
 	const member = { employeeId: 'employee-1', ...ORGANIZATION };
 
 	it('ends the work of a member with a date, and sends only the keys the employee route declares', async () => {
-		const put = jest.spyOn(employeeService, 'put').mockResolvedValue(answer({ id: 'employee-1' }));
+		const saved = { id: 'employee-1', isActive: false, isArchived: true };
+		const put = jest.spyOn(employeeService, 'put').mockResolvedValue(answer(saved));
 
 		await employeeService.setEmployeeWorkEnd({ ...member, endWork: '2026-11-12T10:00:00.000Z' });
 
@@ -123,7 +125,8 @@ describe('EmployeeService.setEmployeeWorkEnd', () => {
 	});
 
 	it('brings a member back by clearing the date', async () => {
-		const put = jest.spyOn(employeeService, 'put').mockResolvedValue(answer({ id: 'employee-1' }));
+		const saved = { id: 'employee-1', isActive: true, isArchived: false };
+		const put = jest.spyOn(employeeService, 'put').mockResolvedValue(answer(saved));
 
 		await employeeService.setEmployeeWorkEnd({ ...member, endWork: null });
 
@@ -132,6 +135,22 @@ describe('EmployeeService.setEmployeeWorkEnd', () => {
 			tenantId: 'tenant-1',
 			endWork: null
 		});
+	});
+
+	it('refuses to call a restoration done when Gauzy answers the employee as they were', async () => {
+		jest.spyOn(employeeService, 'put').mockResolvedValue(answer({ id: 'employee-1', endWork: null }));
+
+		await expect(employeeService.setEmployeeWorkEnd({ ...member, endWork: null })).rejects.toBeInstanceOf(
+			WorkEndNotAppliedError
+		);
+	});
+
+	it('refuses to call a deactivation done when Gauzy answers the employee still active', async () => {
+		jest.spyOn(employeeService, 'put').mockResolvedValue(answer({ id: 'employee-1', isActive: true }));
+
+		await expect(
+			employeeService.setEmployeeWorkEnd({ ...member, endWork: '2026-11-12T10:00:00.000Z' })
+		).rejects.toBeInstanceOf(WorkEndNotAppliedError);
 	});
 
 	it("passes Gauzy's refusal on", async () => {
