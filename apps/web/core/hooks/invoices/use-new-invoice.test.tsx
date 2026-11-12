@@ -28,9 +28,10 @@ const mockLine: InvoiceLine = {
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('next/navigation', () => ({ useSearchParams: () => new URLSearchParams('client=client-acme') }));
+let mockOrganizationCookie = 'organization-1';
 jest.mock('@/core/lib/helpers/cookies', () => ({
 	getTenantIdCookie: () => 'tenant-1',
-	getOrganizationIdCookie: () => 'organization-1'
+	getOrganizationIdCookie: () => mockOrganizationCookie
 }));
 jest.mock('@/core/hooks/bootstrap/use-feature-data', () => ({
 	useCurrentOrganizationOwner: () => mockOrganizationRead
@@ -120,6 +121,42 @@ describe('saving a new invoice and the organisation it is dated by', () => {
 		const request = mockCreateInvoice.mock.calls[0][0];
 		expect(request.dueDate).toBe('2099-12-31T14:59:59.999Z');
 		expect(result.current.isOrganizationLoading).toBe(false);
+	});
+});
+
+describe('saving a new invoice after another tab switched the workspace', () => {
+	beforeEach(() => {
+		mockCreateInvoice.mockReset();
+		mockCreateInvoice.mockResolvedValue({ id: 'invoice-1' });
+		mockOrganizationRead.isError = false;
+		mockOrganizationCookie = 'organization-1';
+	});
+
+	it('makes the invoice in the organization its client and time were read in', async () => {
+		const { result } = renderNewInvoice(tokyoOrganization);
+		act(() => result.current.setDueDay('2099-12-31'));
+
+		await act(async () => {
+			await result.current.save();
+		});
+
+		expect(mockCreateInvoice.mock.calls[0][0]).toEqual(
+			expect.objectContaining({ organizationId: 'organization-1', tenantId: 'tenant-1' })
+		);
+	});
+
+	it('sends nothing once the workspace in the cookies is another one', async () => {
+		const { result } = renderNewInvoice(tokyoOrganization);
+		act(() => result.current.setDueDay('2099-12-31'));
+		mockOrganizationCookie = 'organization-2';
+
+		let saved: unknown = 'not answered';
+		await act(async () => {
+			saved = await result.current.save();
+		});
+
+		expect(saved).toBeNull();
+		expect(mockCreateInvoice).not.toHaveBeenCalled();
 	});
 });
 
