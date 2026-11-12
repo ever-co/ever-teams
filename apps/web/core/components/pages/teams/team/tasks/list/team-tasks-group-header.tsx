@@ -75,7 +75,14 @@ function useGroupIdentity(group: TeamTasksGroup): GroupIdentity {
 				keepsCase: true
 			};
 		}
-		const glyph = <TaskPropertyIcon kind="status" name={group.status.name} color={group.status.color} />;
+		const glyph = (
+			<TaskPropertyIcon
+				kind="status"
+				name={group.status.name}
+				color={group.status.color}
+				icon={group.status.icon}
+			/>
+		);
 		return { glyph, name: readableName(group.status.name), keepsCase: false };
 	}
 	if (group.grouping === 'priority') {

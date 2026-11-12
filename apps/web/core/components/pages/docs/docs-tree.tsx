@@ -12,7 +12,7 @@ import {
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 import { cn } from '@/core/lib/helpers';
-import { canMoveUnder, flattenTree, nextFocusIndex, pageTitle, type DocTree, type DocTreeNode } from '@/core/lib/utils/docs-tree';
+import { canMoveUnder, dropPositionAt, flattenTree, nextFocusIndex, pageTitle, type DocTree, type DocTreeNode, type DocsDropPosition } from '@/core/lib/utils/docs-tree';
 import { EDocumentVisibility, type IDocumentPage } from '@/core/types/interfaces/common/docs';
 import { DocsPageGlyph } from './docs-page-glyph';
 
@@ -32,6 +32,15 @@ export interface DocsTreeActions {
 	trash: (page: IDocumentPage) => void;
 	/** Drop of a dragged page onto another (nest) or onto the section (root). */
 	drop: (pageId: string, parentId: string | null) => void;
+	/** Drop of a dragged page beside another: before or after it among its siblings. */
+	place?: (pageId: string, targetId: string, position: 'before' | 'after') => void;
+}
+
+/** Where on the row the pointer is, while a page is dragged over it. */
+function dropPositionOf(event: DragEvent<HTMLElement>, canPlace: boolean): DocsDropPosition {
+	if (!canPlace) return 'inside';
+	const box = event.currentTarget.getBoundingClientRect();
+	return dropPositionAt(event.clientY - box.top, box.height);
 }
 
 interface DocsTreeProps {
@@ -55,7 +64,8 @@ export function DocsTree({ tree, activeId, expanded, favoriteIds, onToggle, onSe
 	const t = useTranslations();
 	const rows = useMemo(() => flattenTree(tree.roots, expanded), [expanded, tree.roots]);
 	const [focusIndex, setFocusIndex] = useState(-1);
-	const [dropTarget, setDropTarget] = useState<string | null>(null);
+	const [dropTarget, setDropTarget] = useState<{ id: string; position: DocsDropPosition } | null>(null);
+	const canPlace = Boolean(actions.place);
 	const listRef = useRef<HTMLUListElement>(null);
 
 	// A shorter tree (a collapsed folder, a moved page) moves the roving focus to its last row, and keeps it there when the
@@ -118,11 +128,16 @@ export function DocsTree({ tree, activeId, expanded, favoriteIds, onToggle, onSe
 	);
 
 	const onDrop = useCallback(
-		(event: DragEvent, targetId: string | null) => {
+		(event: DragEvent, targetId: string | null, position: DocsDropPosition = 'inside') => {
 			event.preventDefault();
 			setDropTarget(null);
 			const draggedId = event.dataTransfer.getData(DOCS_DRAG_TYPE);
 			if (!draggedId || draggedId === targetId) return;
+			// Beside a row: among the pages of this section only (a page dragged from another space keeps its space).
+			if (targetId && position !== 'inside') {
+				if (tree.byId.has(draggedId)) actions.place?.(draggedId, targetId, position);
+				return;
+			}
 			if (!canMoveUnder(tree, draggedId, targetId)) return;
 			if ((tree.byId.get(draggedId)?.page.parentId ?? null) === targetId) return;
 			actions.drop(draggedId, targetId);
@@ -156,21 +171,23 @@ export function DocsTree({ tree, activeId, expanded, favoriteIds, onToggle, onSe
 					isActive={row.page.id === activeId}
 					isExpanded={expanded.has(row.page.id)}
 					isFavorite={favoriteIds.has(row.page.id)}
-					isDropTarget={dropTarget === row.page.id}
+					dropPosition={dropTarget?.id === row.page.id ? dropTarget.position : null}
 					tabIndex={index === (focusedRow < 0 ? 0 : focusedRow) ? 0 : -1}
 					onFocus={() => setFocusIndex(index)}
 					onToggle={() => onToggle(row.page.id)}
 					actions={actions}
 					onDragOver={(event) => {
-						if (!canDrop(event, row.page.id)) return;
+						if (!event.dataTransfer.types.includes(DOCS_DRAG_TYPE)) return;
+						const position = dropPositionOf(event, canPlace);
+						if (position === 'inside' && !canDrop(event, row.page.id)) return;
 						event.preventDefault();
 						event.stopPropagation();
-						if (dropTarget !== row.page.id) setDropTarget(row.page.id);
+						if (dropTarget?.id !== row.page.id || dropTarget.position !== position) setDropTarget({ id: row.page.id, position });
 					}}
-					onDragLeave={() => setDropTarget((current) => (current === row.page.id ? null : current))}
+					onDragLeave={() => setDropTarget((current) => (current?.id === row.page.id ? null : current))}
 					onDrop={(event) => {
 						event.stopPropagation();
-						onDrop(event, row.page.id);
+						onDrop(event, row.page.id, dropPositionOf(event, canPlace));
 					}}
 					untitled={t('docs.UNTITLED')}
 				/>
@@ -184,7 +201,8 @@ interface DocsTreeRowProps {
 	isActive: boolean;
 	isExpanded: boolean;
 	isFavorite: boolean;
-	isDropTarget: boolean;
+	/** Where a page dragged over this row would land; null when none is. */
+	dropPosition: DocsDropPosition | null;
 	tabIndex: number;
 	onFocus: () => void;
 	onToggle: () => void;
@@ -195,7 +213,7 @@ interface DocsTreeRowProps {
 	untitled: string;
 }
 
-function DocsTreeRow({ row, isActive, isExpanded, isFavorite, isDropTarget, tabIndex, onFocus, onToggle, actions, onDragOver, onDragLeave, onDrop, untitled }: DocsTreeRowProps) {
+function DocsTreeRow({ row, isActive, isExpanded, isFavorite, dropPosition, tabIndex, onFocus, onToggle, actions, onDragOver, onDragLeave, onDrop, untitled }: DocsTreeRowProps) {
 	const t = useTranslations();
 	const { page } = row;
 	const hasChildren = row.children.length > 0;
@@ -211,7 +229,13 @@ function DocsTreeRow({ row, isActive, isExpanded, isFavorite, isDropTarget, tabI
 			className={cn(
 				'group relative flex h-8 items-center rounded-lg pr-1 transition-colors',
 				isActive ? 'bg-foreground/[0.07] font-medium text-foreground' : 'text-foreground/85 hover:bg-foreground/[0.04]',
-				isDropTarget && 'bg-primary/10 ring-1 ring-primary/50'
+				dropPosition === 'inside' && 'bg-primary/10 ring-1 ring-primary/50',
+				// A line where the page would go, before or after the row, indented to the row's depth.
+				dropPosition !== null &&
+					dropPosition !== 'inside' &&
+					'after:pointer-events-none after:absolute after:inset-x-1 after:h-0.5 after:rounded-full after:bg-primary after:content-[""]',
+				dropPosition === 'before' && 'after:-top-px',
+				dropPosition === 'after' && 'after:-bottom-px'
 			)}
 			style={{ paddingInlineStart: `${2 + row.depth * 14}px` }}
 			draggable

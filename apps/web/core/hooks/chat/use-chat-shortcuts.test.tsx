@@ -50,16 +50,16 @@ describe('useChatShortcuts', () => {
 	});
 
 	it('works from the composer for a chord with Alt, but leaves a plain key to the text', () => {
-		mockOverrides = { chatNext: 'n' };
+		mockOverrides = { chatNext: 'b' };
 		const run = handlers();
 		renderHook(() => useChatShortcuts(run));
 		const field = document.createElement('textarea');
 		document.body.appendChild(field);
-		fireEvent.keyDown(field, { key: 'n', code: 'KeyN' });
+		fireEvent.keyDown(field, { key: 'b', code: 'KeyB' });
 		expect(run.chatNext).not.toHaveBeenCalled();
 		fireEvent.keyDown(field, { key: 'ArrowUp', code: 'ArrowUp', altKey: true });
 		expect(run.chatPrevious).toHaveBeenCalledTimes(1);
-		fireEvent.keyDown(window, { key: 'n', code: 'KeyN' });
+		fireEvent.keyDown(window, { key: 'b', code: 'KeyB' });
 		expect(run.chatNext).toHaveBeenCalledTimes(1);
 	});
 

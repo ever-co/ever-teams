@@ -156,6 +156,14 @@ export function getValidActiveTask(
 }
 
 /**
+ * The id of a member's own task in a team, the one their card and the task bar show for them: the task they picked
+ * (`activeTaskId`), else the one they last tracked time on.
+ */
+export function memberTaskIdOf(member: TOrganizationTeamEmployee | null | undefined): string | null {
+	return member?.activeTaskId || member?.lastWorkedTask?.id || null;
+}
+
+/**
  * Whether `heldTask`, the active task already validated for the team, is still the member's task `taskId` of team
  * `teamId`. The team's task list follows its default project: when the default project changes, a task of another
  * project of the team drops out of the list while staying the member's task, and the one their timer runs on.

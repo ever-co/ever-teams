@@ -1,4 +1,10 @@
-import { canRunTimerForState, canTrackTask, isStaleTeamsTimer } from './timer-policy';
+import {
+	canRunTimerForState,
+	canTrackTask,
+	getTimerAction,
+	isStaleTeamsTimer,
+	type TimerPolicyState
+} from './timer-policy';
 import type { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
@@ -92,5 +98,109 @@ describe('canTrackTask', () => {
 	it("refuses a task left out of today's plan when the team requires one", () => {
 		expect(canTrackTask(true, true, planWith('task-1'), 'task-2')).toBe(false);
 		expect(canTrackTask(true, true, undefined, 'task-2')).toBe(false);
+	});
+});
+
+describe('getTimerAction', () => {
+	/** A stopped timer that can start, on a planned and fully estimated task, nothing seen today yet. */
+	const stateWith = (overrides: Partial<TimerPolicyState> = {}): TimerPolicyState => ({
+		isTimerStatusFetching: false,
+		canRunTimer: true,
+		isTimerRunning: false,
+		requirePlan: false,
+		hasPlan: true,
+		isActiveTaskPlanned: true,
+		areAllTasksEstimated: true,
+		hasWorkedHours: true,
+		estimationTimeDifference: 0,
+		hasSeenSuggestionModalToday: false,
+		hasSeenEstimateHoursModalToday: false,
+		hasSeenPlanEstimateHoursModalToday: false,
+		...overrides
+	});
+
+	it('does nothing while the status loads or when the timer cannot run', () => {
+		expect(getTimerAction(stateWith({ isTimerStatusFetching: true }))).toEqual({ type: 'NOOP' });
+		expect(getTimerAction(stateWith({ canRunTimer: false }))).toEqual({ type: 'NOOP' });
+	});
+
+	it('stops a running timer, whatever the plan rule', () => {
+		expect(getTimerAction(stateWith({ isTimerRunning: true }))).toEqual({ type: 'STOP_TIMER' });
+		expect(getTimerAction(stateWith({ isTimerRunning: true, requirePlan: true, hasPlan: false }))).toEqual({
+			type: 'STOP_TIMER'
+		});
+	});
+
+	describe('when the team does not require a plan', () => {
+		it.each([
+			['without a plan for today', { hasPlan: false, isActiveTaskPlanned: false, areAllTasksEstimated: false }],
+			['with a plan that leaves the task out', { isActiveTaskPlanned: false }],
+			['with the task planned but not estimated', { areAllTasksEstimated: false, hasWorkedHours: false }],
+			['with planned hours far from the estimates', { estimationTimeDifference: 5 }],
+			[
+				'after every plan prompt was seen today',
+				{
+					hasSeenSuggestionModalToday: true,
+					hasSeenEstimateHoursModalToday: true,
+					hasSeenPlanEstimateHoursModalToday: true
+				}
+			]
+		])('starts the timer at once %s', (_case, overrides: Partial<TimerPolicyState>) => {
+			expect(getTimerAction(stateWith(overrides))).toEqual({ type: 'START_TIMER' });
+		});
+	});
+
+	describe('when the team requires a plan', () => {
+		const required = (overrides: Partial<TimerPolicyState> = {}) => stateWith({ requirePlan: true, ...overrides });
+
+		it("blocks a task left out of today's plan", () => {
+			expect(getTimerAction(required({ isActiveTaskPlanned: false }))).toEqual({
+				type: 'SHOW_MODAL',
+				modal: 'ENFORCE_PLAN'
+			});
+		});
+
+		it('asks for a plan when there is none for today', () => {
+			expect(getTimerAction(required({ hasPlan: false, isActiveTaskPlanned: false }))).toEqual({
+				type: 'SHOW_MODAL',
+				modal: 'SUGGEST_DAILY_PLAN'
+			});
+		});
+
+		it("opens today's plan first when the task is planned", () => {
+			expect(getTimerAction(required())).toEqual({ type: 'SHOW_MODAL', modal: 'TASKS_ESTIMATION_HOURS' });
+		});
+
+		it('keeps asking for estimates and hours while the plan lacks them', () => {
+			const seenEverything = {
+				hasSeenSuggestionModalToday: true,
+				hasSeenEstimateHoursModalToday: true,
+				hasSeenPlanEstimateHoursModalToday: true
+			};
+			expect(getTimerAction(required({ ...seenEverything, areAllTasksEstimated: false }))).toEqual({
+				type: 'SHOW_MODAL',
+				modal: 'TASKS_ESTIMATION_HOURS'
+			});
+			expect(getTimerAction(required({ ...seenEverything, hasWorkedHours: false }))).toEqual({
+				type: 'SHOW_MODAL',
+				modal: 'TASKS_ESTIMATION_HOURS'
+			});
+			expect(getTimerAction(required({ ...seenEverything, estimationTimeDifference: 2 }))).toEqual({
+				type: 'SHOW_MODAL',
+				modal: 'TASKS_ESTIMATION_HOURS'
+			});
+		});
+
+		it('starts once the plan was reviewed today and is complete', () => {
+			expect(
+				getTimerAction(
+					required({
+						hasSeenSuggestionModalToday: true,
+						hasSeenEstimateHoursModalToday: true,
+						hasSeenPlanEstimateHoursModalToday: true
+					})
+				)
+			).toEqual({ type: 'START_TIMER' });
+		});
 	});
 });

@@ -18,3 +18,26 @@ export function isChatVirtualListEnabled(): boolean {
 	const runtimeFlag = readRuntimeEnv('NEXT_PUBLIC_CHAT_VIRTUAL_LIST_ENABLED') || process.env.NEXT_PUBLIC_CHAT_VIRTUAL_LIST_ENABLED;
 	return runtimeFlag === 'true';
 }
+
+/**
+ * Whether a message shows a preview card under the links it carries (`NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED=true`,
+ * read at runtime), from what the platform's `/chat/link-preview` answers (it fetches the pages; the browser fetches
+ * none). Off by default: links then stay plain and nothing is asked. A platform without the route (it answers 404
+ * unless `GAUZY_CHAT_LINK_PREVIEWS_ENABLED=true`) shows none either.
+ */
+export function isChatLinkPreviewsEnabled(): boolean {
+	const runtimeFlag = readRuntimeEnv('NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED') || process.env.NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED;
+	return runtimeFlag === 'true';
+}
+
+/**
+ * Whether a preview card also shows the page's picture (`NEXT_PUBLIC_CHAT_LINK_PREVIEW_IMAGES_ENABLED=true`, read at
+ * runtime, on top of the previews themselves). The picture comes from the platform (`/chat/link-preview/image`, which
+ * fetched it and serves it; on when `GAUZY_CHAT_LINK_PREVIEW_IMAGES_ENABLED=true`), never from the linked site, so the
+ * reader's browser still calls no other site. Off by default: cards stay text only.
+ */
+export function isChatLinkPreviewPicturesEnabled(): boolean {
+	const runtimeFlag =
+		readRuntimeEnv('NEXT_PUBLIC_CHAT_LINK_PREVIEW_IMAGES_ENABLED') || process.env.NEXT_PUBLIC_CHAT_LINK_PREVIEW_IMAGES_ENABLED;
+	return runtimeFlag === 'true' && isChatLinkPreviewsEnabled();
+}

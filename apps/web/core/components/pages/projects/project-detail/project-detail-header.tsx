@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { SegmentedControl, type SegmentedControlItem } from '@/core/components/common/segmented-control';
 import { Button, buttonVariants } from '@/core/components/duplicated-components/_button';
 import { Archive, ChevronLeft, ChevronRight, Pencil } from '@/core/components/icons';
+import { FavoriteStarButton } from '@/core/components/favorites/favorite-parts';
 import { ProjectActionsMenu } from '@/core/components/projects/project-actions-menu';
 import { ProjectStatusChip, ProjectTile } from '@/core/components/projects/project-cells';
 import { AvatarStack } from '@/core/components/teams/people-avatars';
@@ -14,6 +15,7 @@ import { cn } from '@/core/lib/helpers';
 import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
 import { isTaskTrashEnabled } from '@/core/lib/utils/comments-trash-flags';
 import { clientNameOf, personFromProjectMember } from '@/core/lib/utils/project-list';
+import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import type { TOrganizationProject } from '@/core/types/schemas';
 import type { TTaskStatus } from '@/core/types/schemas/task/task-status.schema';
 
@@ -138,13 +140,18 @@ export function ProjectDetailHeader({
 							</span>
 						</>
 					)}
+					<FavoriteStarButton
+						entity={EBaseEntityEnum.OrganizationProject}
+						id={project.id}
+						canAdd={!isArchived}
+					/>
 					{showsEdit && (
 						<Button variant="outline" size="default" onClick={() => openEditModal(project.id)}>
 							<Pencil />
 							<span>{t('common.EDIT')}</span>
 						</Button>
 					)}
-					<ProjectActionsMenu project={project} />
+					<ProjectActionsMenu project={project} showsFavorite={false} />
 				</div>
 			</div>
 			<div className="pb-3">

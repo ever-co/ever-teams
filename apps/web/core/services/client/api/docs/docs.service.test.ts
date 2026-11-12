@@ -139,3 +139,19 @@ describe('docsService live and collaboration routes', () => {
 		expect(post.mock.calls[1][1]).toMatchObject({ visibility: 'TEAM', organizationTeamId: 'team-a', applyToSubtree: true });
 	});
 });
+
+describe('docsService.exportSubtreeZip', () => {
+	afterEach(() => jest.restoreAllMocks());
+
+	it('asks the platform for the page and its sub-pages as a zip, read as a file', async () => {
+		const zip = new Blob(['PK'], { type: 'application/zip' });
+		const get = jest.spyOn(docsService, 'get').mockResolvedValue({ data: zip } as never);
+
+		await expect(docsService.exportSubtreeZip('page/1')).resolves.toBe(zip);
+
+		const [url, config] = get.mock.calls[0];
+		expect(String(url).split('?')[0]).toBe('/plugins/docs/documents/page%2F1/export/markdown');
+		expect(qs.parse(String(url).split('?')[1]).subtree).toBe('true');
+		expect(config).toMatchObject({ responseType: 'blob' });
+	});
+});

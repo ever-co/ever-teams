@@ -7,7 +7,8 @@ import {
 	IComment,
 	ICommentCreateInput,
 	ICommentResolveUpdate,
-	ICommentTextUpdate
+	ICommentTextUpdate,
+	ICommentUpdateInput
 } from '@/core/types/interfaces/common/comment';
 import { IEntityRecordScope } from '@/core/types/interfaces/common/entity-record';
 
@@ -61,11 +62,20 @@ class CommentService extends APIService {
 	};
 
 	/**
-	 * Changes a comment's text. The platform lets its author do it (or a caller who acts for every employee), stamps
-	 * `editedAt`, and replaces the comment's mentions with `mentionEmployeeIds` (an empty list removes them all).
+	 * Edits, resolves or reopens a comment. The platform lets its author do it (or a caller who acts for every
+	 * employee); a change of the text is stamped `editedAt` by the platform, and `mentionEmployeeIds` replaces the
+	 * comment's mentions (an empty list removes them all; left out, they stay). The record's scope, when given, is sent
+	 * beside the change.
 	 */
-	update = async (id: string, input: ICommentTextUpdate, scope: IEntityRecordScope): Promise<IComment> => {
-		const response = await this.put<IComment>(`/comment/${id}`, { ...input, ...scope });
+	update = async (
+		id: string,
+		input: ICommentUpdateInput | ICommentTextUpdate,
+		scope?: IEntityRecordScope
+	): Promise<IComment> => {
+		const response = await this.put<IComment>(
+			`/comment/${encodeURIComponent(id)}`,
+			scope ? { ...input, ...scope } : input
+		);
 
 		return response.data;
 	};
@@ -75,19 +85,24 @@ class CommentService extends APIService {
 	 * body names, so the caller's own is sent; a reopen clears it.
 	 */
 	setResolved = async (id: string, input: ICommentResolveUpdate, scope: IEntityRecordScope): Promise<IComment> => {
-		const response = await this.put<IComment>(`/comment/${id}`, { ...input, ...scope });
+		const response = await this.put<IComment>(`/comment/${encodeURIComponent(id)}`, { ...input, ...scope });
 
 		return response.data;
 	};
 
 	/** Withdraws a comment (a soft delete): {@link recover} brings it back. Its author only, as an edit. */
 	softDelete = async (id: string, scope: IEntityRecordScope): Promise<void> => {
-		await this.delete(`/comment/${id}/soft?${qs.stringify(scope)}`);
+		await this.delete(`/comment/${encodeURIComponent(id)}/soft?${qs.stringify(scope)}`);
 	};
 
 	/** Brings a withdrawn comment back (the undo of {@link softDelete}). */
 	recover = async (id: string, scope: IEntityRecordScope): Promise<void> => {
-		await this.put(`/comment/${id}/recover?${qs.stringify(scope)}`);
+		await this.put(`/comment/${encodeURIComponent(id)}/recover?${qs.stringify(scope)}`);
+	};
+
+	/** Removes a comment (its author's to remove). */
+	remove = async (id: string): Promise<void> => {
+		await this.delete<unknown>(`/comment/${encodeURIComponent(id)}`);
 	};
 
 	private readonly getPage = async (

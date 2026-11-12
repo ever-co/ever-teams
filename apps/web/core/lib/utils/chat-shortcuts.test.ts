@@ -46,9 +46,17 @@ describe('chatShortcutOf', () => {
 	it('takes only chords with Alt or Ctrl/⌘, or Escape, in the composer', () => {
 		expect(chatShortcutOf(chord('alt+arrowup'), defaults, true)).toBe('chatPrevious');
 		expect(chatShortcutOf(chord('shift+escape'), defaults, true)).toBe('chatMarkAllRead');
+		// A plain letter no global binding starts with (`n` begins the "new …" sequences: `n t`, `n p`, `n u`).
+		const typed = effectiveBindings(SHORTCUT_COMMANDS, { chatNext: 'b' });
+		expect(chatShortcutOf(chord('b'), typed, false)).toBe('chatNext');
+		expect(chatShortcutOf(chord('b'), typed, true)).toBeNull();
+	});
+
+	it('keeps the default for a plain key that would cut a global sequence short', () => {
+		// `n` alone would fire before `n t` (create a team) could be typed: the override is not taken.
 		const typed = effectiveBindings(SHORTCUT_COMMANDS, { chatNext: 'n' });
-		expect(chatShortcutOf(chord('n'), typed, false)).toBe('chatNext');
-		expect(chatShortcutOf(chord('n'), typed, true)).toBeNull();
+		expect(chatShortcutOf(chord('n'), typed, false)).toBeNull();
+		expect(chatShortcutOf(chord('alt+arrowdown'), typed, false)).toBe('chatNext');
 	});
 
 	it('follows a rebinding, and a command the person turned off', () => {

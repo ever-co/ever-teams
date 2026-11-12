@@ -13,8 +13,10 @@ export interface IComment extends IAuthoredRecord {
 	tenantId?: ID | null;
 	organizationId?: ID | null;
 	createdAt: string;
+	updatedAt?: string | null;
 	/** Stamped by the platform when the text changes (ever-gauzy #11802); absent on a comment never edited. */
 	editedAt?: string | null;
+	/** A thread its author closed; it stays readable. */
 	resolved?: boolean | null;
 	resolvedAt?: string | null;
 	resolvedByEmployeeId?: ID | null;
@@ -42,5 +44,17 @@ export interface ICommentCreateInput extends IEntityRecordScope {
 	entityName?: string;
 	parentId?: ID;
 	/** The employees named with `@` in the text: Gauzy notifies each of them. */
+	mentionEmployeeIds?: ID[];
+}
+
+/**
+ * The keys of Gauzy's `UpdateCommentDTO` the web sends. Every one is its author's to change (Gauzy matches the
+ * comment on the caller's employee), `resolved` included. An omitted `mentionEmployeeIds` keeps the mentions.
+ */
+export interface ICommentUpdateInput {
+	comment?: string;
+	resolved?: boolean;
+	/** Cleared with `null` on a reopen: Gauzy does not derive it. */
+	resolvedAt?: string | null;
 	mentionEmployeeIds?: ID[];
 }

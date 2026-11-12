@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
@@ -15,13 +16,23 @@ import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import type { ETaskBuiltInView, ITaskView } from '@/core/types/interfaces/common/task-views';
 import { TeamTasksPage } from '../list/team-tasks-page';
 import { TeamTasksPageSkeleton } from '../team-tasks-page-skeleton';
+import { ViewsBreadcrumb } from './views-breadcrumb';
 
-function ViewNotice({ title, text, actionLabel, onAction }: Readonly<{ title: string; text: string; actionLabel?: string; onAction?: () => void }>) {
+/** A view that cannot open here says why, under the views' breadcrumb, with the way back to all of them. */
+function ViewNotice({
+	title,
+	text,
+	actionLabel,
+	onAction
+}: Readonly<{ title: string; text: string; actionLabel?: string; onAction?: () => void }>) {
 	const t = useTranslations();
 	return (
-		<PageLayout title={t('taskViews.TITLE')} className="min-h-0 flex-1">
-			<div className="flex h-full items-center justify-center p-4">
+		<PageLayout title={t('taskViews.TITLE')} className="min-h-0 flex-1" breadcrumb={<ViewsBreadcrumb />}>
+			<div className="flex h-full flex-col items-center justify-center gap-3 p-4">
 				<AnimatedEmptyState title={title} message={text} actionLabel={actionLabel} onAction={onAction} />
+				<Link href="/views" className="text-sm font-medium text-primary-ink underline-offset-4 hover:underline">
+					{t('taskViews.BACK_TO_VIEWS')}
+				</Link>
 			</div>
 		</PageLayout>
 	);
@@ -52,7 +63,8 @@ function SavedViewPage({ viewId }: Readonly<{ viewId: string }>) {
 	const query = useTaskViewQuery(viewId);
 	const activeTeam = useAtomValue(activeTeamState);
 	if (query.isLoading) return <TeamTasksPageSkeleton />;
-	if (query.isError || !query.data) return <ViewNotice title={t('taskViews.NOT_FOUND_TITLE')} text={t('taskViews.NOT_FOUND_TEXT')} />;
+	if (query.isError || !query.data)
+		return <ViewNotice title={t('taskViews.NOT_FOUND_TITLE')} text={t('taskViews.NOT_FOUND_TEXT')} />;
 	const view = query.data;
 	// The page lists the active team's tasks: a view saved for another team waits for that team to be active.
 	if (view.organizationTeamId && activeTeam && view.organizationTeamId !== activeTeam.id) {
@@ -63,7 +75,19 @@ function SavedViewPage({ viewId }: Readonly<{ viewId: string }>) {
 
 function BuiltInViewPage({ viewKey }: Readonly<{ viewKey: ETaskBuiltInView }>) {
 	const { tasks, total, isLoading, isError, refetch } = useBuiltInViewTasks(viewKey);
-	return <TeamTasksPage viewContext={{ kind: 'builtIn', key: viewKey, tasks, total, isLoading, isError, refetch: () => void refetch() }} />;
+	return (
+		<TeamTasksPage
+			viewContext={{
+				kind: 'builtIn',
+				key: viewKey,
+				tasks,
+				total,
+				isLoading,
+				isError,
+				refetch: () => void refetch()
+			}}
+		/>
+	);
 }
 
 /** `/views/[viewId]`: a saved view by id, or a built-in one by its key (`mine`, `this-week`, `overdue`, `due-soon`). */
