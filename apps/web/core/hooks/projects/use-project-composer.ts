@@ -101,7 +101,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	const isAdmin = isAdminRole(user?.role?.name);
 	const currentEmployeeId = user?.employee?.id ?? user?.employeeId ?? null;
 
-	const [enteredDraft, setDraft] = useState<ProjectDraft>(() => {
+	const [enteredDraft, setEnteredDraft] = useState<ProjectDraft>(() => {
 		if (mode === 'edit' && project) {
 			return draftFromProject(project, activeTeamId);
 		}
@@ -167,14 +167,14 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	}, [hasTriedSubmit, validationErrors, imageError]);
 
 	const updateDraft = useCallback((patch: Partial<ProjectDraft>) => {
-		setDraft((current) => ({ ...current, ...patch }));
+		setEnteredDraft((current) => ({ ...current, ...patch }));
 		setSubmitError(null);
 	}, []);
 
 	const setName = useCallback((name: string) => updateDraft({ name }), [updateDraft]);
 
 	const appendToName = useCallback((dictated: string) => {
-		setDraft((current) => ({ ...current, name: appendDictatedText(current.name, dictated) }));
+		setEnteredDraft((current) => ({ ...current, name: appendDictatedText(current.name, dictated) }));
 	}, []);
 
 	const setDescription = useCallback((description: string) => updateDraft({ description }), [updateDraft]);
@@ -186,7 +186,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	const setTaskKey = useCallback((taskKey: string) => updateDraft({ taskKey: taskKey.toUpperCase() }), [updateDraft]);
 
 	const setStartDate = useCallback((startDate: Date) => {
-		setDraft((current) => ({
+		setEnteredDraft((current) => ({
 			...current,
 			startDate,
 			endDate: endDateAfterNewStart(startDate, current.endDate)
@@ -238,7 +238,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 
 	const setTeamIds = useCallback(
 		(teamIds: string[]) => {
-			setDraft((current) => ({
+			setEnteredDraft((current) => ({
 				...current,
 				teamIds: teamIdsKeepingLocked(current.teamIds, teamIds, activeTeamId, isAdmin)
 			}));
@@ -248,7 +248,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	);
 
 	const setRoles = useCallback((managerIds: string[] | undefined, memberIds: string[] | undefined) => {
-		setDraft((current) => ({ ...current, ...rolesAfterDictation(current, managerIds, memberIds) }));
+		setEnteredDraft((current) => ({ ...current, ...rolesAfterDictation(current, managerIds, memberIds) }));
 		setSubmitError(null);
 	}, []);
 
@@ -257,7 +257,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	const restoreFields = useCallback((fields: Partial<ProjectDraft>) => updateDraft(fields), [updateDraft]);
 
 	const togglePerson = useCallback((employeeId: string, role: ProjectMemberRole) => {
-		setDraft((current) => {
+		setEnteredDraft((current) => {
 			const hasRole = idsWithRole(current, role).includes(employeeId);
 			if (hasRole) {
 				return { ...current, ...removeFromProject(current, employeeId) };
@@ -268,7 +268,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	}, []);
 
 	const toggleTag = useCallback((tagId: string) => {
-		setDraft((current) => ({ ...current, tagIds: toggleId(current.tagIds, tagId) }));
+		setEnteredDraft((current) => ({ ...current, tagIds: toggleId(current.tagIds, tagId) }));
 	}, []);
 
 	const addTag = useCallback(
@@ -279,7 +279,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 			}
 			const selectCreatedTag = (tag: TTag) => {
 				setCreatedTags((current) => [...current, tag]);
-				setDraft((current) => ({ ...current, tagIds: [...current.tagIds, tag.id] }));
+				setEnteredDraft((current) => ({ ...current, tagIds: [...current.tagIds, tag.id] }));
 			};
 			createTag({ name: tagName, color: randomTagColor() }, { onSuccess: selectCreatedTag });
 		},
