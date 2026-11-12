@@ -630,6 +630,8 @@
 					"TRACKED_TITLE": "Bijgehouden tijd blijft",
 					"TRACKED": "{tracked} van deze cel is met een timer bijgehouden. Het blad verlaagt alleen met de hand toegevoegde tijd: open de registraties van de cel om bijgehouden tijd te verwijderen.",
 					"SAVE_FAILED": "Tijd niet opgeslagen",
+					"STALE_TITLE": "Het blad is niet vernieuwd",
+					"STALE": "Je wijziging is mogelijk al opgeslagen. Laad de pagina opnieuw om de actuele tijd te zien.",
 					"REFUSED": "Je kunt geen tijd toevoegen of wijzigen voor dit lid.",
 					"LOCK_FUTURE": "Je organisatie staat geen tijd toe op dagen na vandaag.",
 					"LOCK_APPROVED": "Deze week is goedgekeurd, dus de tijd kan niet vanuit het blad worden gewijzigd.",

@@ -630,6 +630,8 @@
 					"TRACKED_TITLE": "El tiempo registrado se mantiene",
 					"TRACKED": "{tracked} de esta celda se registró con un temporizador. La hoja solo reduce el tiempo añadido a mano: abre los registros de la celda para quitar tiempo registrado.",
 					"SAVE_FAILED": "Tiempo no guardado",
+					"STALE_TITLE": "La hoja no se actualizó",
+					"STALE": "Es posible que tu cambio ya esté guardado. Recarga la página para ver el tiempo actual.",
 					"REFUSED": "No puedes añadir ni cambiar tiempo para este miembro.",
 					"LOCK_FUTURE": "Tu organización no permite tiempo en días posteriores a hoy.",
 					"LOCK_APPROVED": "Esta semana está aprobada: su tiempo no se cambia desde la hoja.",

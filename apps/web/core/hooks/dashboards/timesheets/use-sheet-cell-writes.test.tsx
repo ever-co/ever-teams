@@ -1,19 +1,26 @@
 /** @jest-environment jsdom */
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, renderHook } from '@testing-library/react';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { rowIdentityOfLog, type SheetDay } from '@/core/lib/utils/dashboards/timesheets';
+import { queryKeys } from '@/core/query/keys';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 const mockCreateTimesheetFrom = jest.fn();
 const mockToastError = jest.fn();
+const mockToastWarning = jest.fn();
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
-jest.mock('sonner', () => ({ toast: { error: (...args: unknown[]) => mockToastError(...args) } }));
+jest.mock('sonner', () => ({
+	toast: {
+		error: (...args: unknown[]) => mockToastError(...args),
+		warning: (...args: unknown[]) => mockToastWarning(...args)
+	}
+}));
 jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
 	timeLogService: {
 		createTimesheetFrom: (...args: unknown[]) => mockCreateTimesheetFrom(...args),
@@ -136,6 +143,34 @@ describe('useSheetCellWrites', () => {
 		expect(mockCreateTimesheetFrom).not.toHaveBeenCalled();
 		expect(mockToastError).toHaveBeenCalledWith('dashboard.timesheets.SHEET.EDIT.SAVE_FAILED', {
 			description: 'dashboard.timesheets.SHEET.EDIT.LOCK_APPROVED'
+		});
+	});
+
+	it('says so when the sheet cannot be read again after a save', async () => {
+		const readSheet = jest.fn<Promise<ITimeLog[]>, []>();
+		readSheet.mockResolvedValueOnce([]);
+		readSheet.mockRejectedValue(new Error('offline'));
+		const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		const wrapper = ({ children }: PropsWithChildren) => (
+			<QueryClientProvider client={client}>{children}</QueryClientProvider>
+		);
+		const { result } = renderHook(
+			() => {
+				useQuery({ queryKey: [...queryKeys.timesheet.all, 'shown-sheet'], queryFn: readSheet });
+				return useSheetCellWrites(scopeOf({}));
+			},
+			{ wrapper }
+		);
+		await waitFor(() => expect(readSheet).toHaveBeenCalledTimes(1));
+
+		let outcome: CellCommitOutcome | undefined;
+		await act(async () => {
+			outcome = await result.current.commitCell(identity, day, HOUR);
+		});
+
+		expect(outcome).toBe('saved');
+		expect(mockToastWarning).toHaveBeenCalledWith('dashboard.timesheets.SHEET.EDIT.STALE_TITLE', {
+			description: 'dashboard.timesheets.SHEET.EDIT.STALE'
 		});
 	});
 

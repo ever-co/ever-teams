@@ -630,6 +630,8 @@
 					"TRACKED_TITLE": "Tracked time stays",
 					"TRACKED": "{tracked} of this cell was tracked by a timer. The sheet only lowers time added by hand: open the cell's entries to remove tracked time.",
 					"SAVE_FAILED": "Time not saved",
+					"STALE_TITLE": "The sheet did not refresh",
+					"STALE": "Your change may already be saved. Reload the page to see the time as it is now.",
 					"REFUSED": "You can't add or change time for this member.",
 					"LOCK_FUTURE": "Your organization doesn't allow time on days after today.",
 					"LOCK_APPROVED": "This week is approved, so its time can't be changed from the sheet.",

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { isCancelledError, useQueryClient } from '@tanstack/react-query';
 import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { requiredTrackingFieldsMessageKeyOf, requiredTrackingFieldsOf } from '@/core/lib/helpers/timer-errors';
@@ -181,10 +181,19 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 		void queryClient.invalidateQueries({ queryKey: queryKeys.activities.all });
 	}, [queryClient]);
 
-	/** Resolves once the sheet shows what is saved; a failed read keeps what was shown. */
+	/** Resolves once the sheet shows what is saved. When that read fails the sheet keeps what it showed, and says so. */
 	const refreshSheet = useCallback(async () => {
-		await queryClient.invalidateQueries({ queryKey: queryKeys.timesheet.all });
-	}, [queryClient]);
+		try {
+			await queryClient.invalidateQueries({ queryKey: queryKeys.timesheet.all }, { throwOnError: true });
+		} catch (error) {
+			if (isCancelledError(error)) {
+				return;
+			}
+			toast.warning(translate('dashboard.timesheets.SHEET.EDIT.STALE_TITLE'), {
+				description: translate('dashboard.timesheets.SHEET.EDIT.STALE')
+			});
+		}
+	}, [queryClient, translate]);
 
 	const createEntries = useCallback(
 		async (identity: SheetRowIdentity, pieces: ReadonlyArray<TimeWindow>) => {
@@ -300,7 +309,7 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 					});
 					return 'refused' as const;
 				} finally {
-					await refreshSheet().catch(() => undefined);
+					await refreshSheet();
 					markSaving(cellKey, false);
 				}
 			});
@@ -365,7 +374,7 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 						description: translate(writeErrorKeyOf(error))
 					});
 				} finally {
-					await refreshSheet().catch(() => undefined);
+					await refreshSheet();
 					refreshOtherViews();
 					setIsCopying(false);
 				}

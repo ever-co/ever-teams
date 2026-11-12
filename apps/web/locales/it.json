@@ -630,6 +630,8 @@
 					"TRACKED_TITLE": "Il tempo tracciato resta",
 					"TRACKED": "{tracked} di questa cella è stato tracciato con un timer. Il foglio riduce solo il tempo aggiunto a mano: apri le registrazioni della cella per togliere tempo tracciato.",
 					"SAVE_FAILED": "Tempo non salvato",
+					"STALE_TITLE": "Il foglio non si è aggiornato",
+					"STALE": "La modifica potrebbe essere già salvata. Ricarica la pagina per vedere il tempo attuale.",
 					"REFUSED": "Non puoi aggiungere o modificare tempo per questo membro.",
 					"LOCK_FUTURE": "La tua organizzazione non consente tempo nei giorni dopo oggi.",
 					"LOCK_APPROVED": "Questa settimana è approvata: il suo tempo non si modifica dal foglio.",
