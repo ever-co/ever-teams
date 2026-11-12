@@ -66,11 +66,40 @@ export function hasProjectBudget(project: Pick<TOrganizationProject, 'budget'>) 
 	return budget > 0;
 }
 
-const BUDGET_FIELDS: ReadonlyArray<keyof TEditProjectRequest> = ['budget', 'budgetType', 'currency'];
+const BUDGET_FIELDS = ['budget', 'budgetType', 'currency'] as const;
 
-/** An edit that sends the budget, its type or its currency changes what the budget report states of the project. */
-export function editsProjectBudget(edit: TEditProjectRequest) {
-	return BUDGET_FIELDS.some((field) => field in edit);
+type BudgetField = (typeof BUDGET_FIELDS)[number];
+
+export type SavedProjectBudget = Partial<Pick<TOrganizationProject, BudgetField>>;
+
+/** Gauzy writes no budget as 0 and no currency as null: a value that is not set reads the same however written. */
+function budgetValueOf(value: unknown): string | null {
+	const isUnset = value === undefined || value === null || value === '' || value === 0;
+	if (isUnset) {
+		return null;
+	}
+	return String(value);
+}
+
+function changesBudgetField(field: BudgetField, edit: TEditProjectRequest, saved: SavedProjectBudget | undefined) {
+	const sent = edit[field];
+	// A key without a value is left out of the request, so the API keeps what it has
+	if (sent === undefined) {
+		return false;
+	}
+	if (!saved) {
+		return true;
+	}
+	return budgetValueOf(sent) !== budgetValueOf(saved[field]);
+}
+
+/**
+ * Whether an edit changes what the budget report states of the project: its budget, its type or its currency. The
+ * project wizard sends the three on every save, so they are compared with the project as it was. When the project
+ * as it was is not known, a sent value counts as a change.
+ */
+export function editsProjectBudget(edit: TEditProjectRequest, saved?: SavedProjectBudget) {
+	return BUDGET_FIELDS.some((field) => changesBudgetField(field, edit, saved));
 }
 
 export function budgetRowsByProjectOf(rows: ReadonlyArray<BudgetRow>): Map<string, BudgetRow> {

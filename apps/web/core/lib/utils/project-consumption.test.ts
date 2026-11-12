@@ -121,13 +121,36 @@ describe('editsProjectBudget', () => {
 		expect(editsProjectBudget({ budget: 120 })).toBe(true);
 		expect(editsProjectBudget({ budgetType: EProjectBudgetType.COST })).toBe(true);
 		expect(editsProjectBudget({ currency: 'EUR' })).toBe(true);
-		expect(editsProjectBudget({ name: 'Website', budget: undefined })).toBe(true);
 	});
 
 	it('is false for an edit of anything else', () => {
 		expect(editsProjectBudget({ description: 'New scope' })).toBe(false);
 		expect(editsProjectBudget({ isArchived: true })).toBe(false);
 		expect(editsProjectBudget({})).toBe(false);
+	});
+
+	it('is false for a key without a value, which the request leaves out', () => {
+		expect(editsProjectBudget({ name: 'Website', budget: undefined })).toBe(false);
+	});
+
+	it("is false when a save sends the project's own budget, type and currency again", () => {
+		const saved = { budget: 80, budgetType: EProjectBudgetType.HOURS, currency: 'USD' };
+		const renamed = { name: 'New name', budget: 80, budgetType: EProjectBudgetType.HOURS, currency: 'USD' };
+
+		expect(editsProjectBudget(renamed, saved)).toBe(false);
+	});
+
+	it("is true when the sent budget, type or currency differs from the project's", () => {
+		const saved = { budget: 80, budgetType: EProjectBudgetType.HOURS, currency: 'USD' };
+
+		expect(editsProjectBudget({ budget: 120 }, saved)).toBe(true);
+		expect(editsProjectBudget({ budgetType: EProjectBudgetType.COST }, saved)).toBe(true);
+		expect(editsProjectBudget({ currency: 'EUR' }, saved)).toBe(true);
+	});
+
+	it('reads no budget the same, written 0 or left out', () => {
+		expect(editsProjectBudget({ budget: 0 }, {})).toBe(false);
+		expect(editsProjectBudget({ budget: 0 }, { budget: 80 })).toBe(true);
 	});
 });
 

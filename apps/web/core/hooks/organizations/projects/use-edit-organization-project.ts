@@ -2,10 +2,11 @@
 
 import { useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { TEditProjectRequest } from '@/core/types/schemas';
+import { TEditProjectRequest, TOrganizationProject } from '@/core/types/schemas';
+import type { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { organizationProjectService } from '@/core/services/client/api/organizations';
 import { queryKeys } from '@/core/query/keys';
-import { editsProjectBudget } from '@/core/lib/utils/project-consumption';
+import { editsProjectBudget, type SavedProjectBudget } from '@/core/lib/utils/project-consumption';
 import { useInvalidateOrganizationProjects } from './use-invalidate-organization-projects';
 
 /**
@@ -18,11 +19,22 @@ import { useInvalidateOrganizationProjects } from './use-invalidate-organization
  * - `editOrganizationProjectSettingLoading` - Boolean indicating settings mutation pending state
  */
 export function useEditOrganizationProject() {
-	const { invalidateOrganizationProjectsData, queryClient, tenantId } = useInvalidateOrganizationProjects();
+	const { invalidateOrganizationProjectsData, queryClient, tenantId, organizationId } =
+		useInvalidateOrganizationProjects();
+
+	/** The project as the list holds it, read before the request: by the time the edit settles the list has moved. */
+	const savedProjectOf = useCallback(
+		(projectId: string) => {
+			const listKey = queryKeys.organizationProjects.byScope(tenantId, organizationId);
+			const list = queryClient.getQueryData<PaginationResponse<TOrganizationProject>>(listKey);
+			return list?.items?.find((project) => project.id === projectId);
+		},
+		[organizationId, queryClient, tenantId]
+	);
 
 	const invalidateAfterEdit = useCallback(
-		(edit: TEditProjectRequest) => {
-			if (editsProjectBudget(edit)) {
+		(edit: TEditProjectRequest, savedProject: SavedProjectBudget | undefined) => {
+			if (editsProjectBudget(edit, savedProject)) {
 				// The budget report states the project's budget, its type and its currency. It is a slow read
 				// (every time log of the organisation), so the edit does not wait for it.
 				void queryClient.invalidateQueries({ queryKey: queryKeys.timesheet.reports.all });
@@ -38,7 +50,8 @@ export function useEditOrganizationProject() {
 	const editOrganizationProjectMutation = useMutation({
 		mutationFn: ({ projectId, data }: { projectId: string; data: TEditProjectRequest }) =>
 			organizationProjectService.editOrganizationProject({ organizationProjectId: projectId, data }),
-		onSettled: (_project, _error, { data }) => invalidateAfterEdit(data)
+		onMutate: ({ projectId }) => ({ savedProject: savedProjectOf(projectId) }),
+		onSettled: (_project, _error, { data }, context) => invalidateAfterEdit(data, context?.savedProject)
 	});
 
 	// Edit project setting mutation

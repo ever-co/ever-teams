@@ -20,8 +20,10 @@ jest.mock('@/core/lib/helpers/index', () => ({
 	getOrganizationIdCookie: () => 'organization-1'
 }));
 
-async function invalidatedKeysAfter(edit: TEditProjectRequest) {
+async function invalidatedKeysAfter(edit: TEditProjectRequest, savedProjects: unknown[] = []) {
 	const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+	const listKey = queryKeys.organizationProjects.byScope('tenant-1', 'organization-1');
+	queryClient.setQueryData(listKey, { items: savedProjects, total: savedProjects.length });
 	const invalidated = jest.spyOn(queryClient, 'invalidateQueries');
 	const wrapper = ({ children }: { children: ReactNode }) => (
 		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
@@ -49,6 +51,18 @@ describe('useEditOrganizationProject', () => {
 			expect(keys).toContainEqual(queryKeys.timesheet.reports.all);
 			expect(keys).toContainEqual(queryKeys.organizationProjects.all);
 		}
+	});
+
+	it("leaves the budget report alone when a save sends the project's own budget again", async () => {
+		const saved = { id: 'project-1', budget: 80, budgetType: EProjectBudgetType.HOURS, currency: 'USD' };
+		const renamed = { name: 'Renamed', budget: 80, budgetType: EProjectBudgetType.HOURS, currency: 'USD' };
+
+		const afterRename = await invalidatedKeysAfter(renamed, [saved]);
+		const afterNewBudget = await invalidatedKeysAfter({ ...renamed, budget: 120 }, [saved]);
+
+		expect(afterRename).toContainEqual(queryKeys.organizationProjects.all);
+		expect(afterRename).not.toContainEqual(queryKeys.timesheet.reports.all);
+		expect(afterNewBudget).toContainEqual(queryKeys.timesheet.reports.all);
 	});
 
 	it('leaves the budget report alone for an edit of anything else, an archive included', async () => {
