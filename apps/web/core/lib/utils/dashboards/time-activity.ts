@@ -10,8 +10,15 @@ import {
 	type DayFigures,
 	earningsByCurrencyOf,
 	earningsOfRow,
+	flattenDailyReport,
 	projectKeyOf
 } from '@/core/lib/utils/daily-report-figures';
+import {
+	type ProjectClientIds,
+	type ReportProjectLog,
+	clientIdOfProjectLog
+} from '@/core/lib/utils/dashboards/report-filters';
+import { NO_CLIENT_FILTER_VALUE } from '@/core/lib/utils/project-list';
 
 export type TimeActivityGrouping = 'date' | 'member' | 'project' | 'task' | 'week';
 
@@ -396,6 +403,77 @@ export function reportTotalsOf(rows: ReadonlyArray<DailyReportRow>): ReportTotal
 		projectCount: line.projects.length,
 		membersWithoutRate: membersWithoutRateOf(rows)
 	};
+}
+
+/** The time without a client: the key of the client filter's "No client", so a group and its filter value match. */
+export const NO_CLIENT_KEY = NO_CLIENT_FILTER_VALUE;
+
+/** A client of the report. `name` is null for the time without a client, and for a client no list names. */
+export interface ReportClientRef {
+	key: string;
+	name: string | null;
+}
+
+export const NO_CLIENT: ReportClientRef = { key: NO_CLIENT_KEY, name: null };
+
+export function hasClient(client: ReportClientRef) {
+	return client.key !== NO_CLIENT_KEY;
+}
+
+/** A row of the daily report, with the client of its project once the page groups by client. */
+export type TimeActivityRow = DailyReportRow & { client?: ReportClientRef };
+
+export type ClientOfProjectLog = (projectLog: ReportProjectLog) => ReportClientRef;
+
+function statedClientNameOf(projectLog: ReportProjectLog, clientId: string) {
+	const statedClient = projectLog?.project?.organizationContact;
+	const isSameClient = statedClient?.id === clientId;
+	if (!isSameClient) {
+		return null;
+	}
+	return statedClient?.name ?? null;
+}
+
+/**
+ * The client of a project's time, by the client filter's rule. The clients list names it, archived clients included;
+ * the report names a client the list does not hold yet.
+ */
+export function clientOfProjectLogOf(
+	clientIds: ProjectClientIds,
+	clientNames: ReadonlyMap<string, string>
+): ClientOfProjectLog {
+	return (projectLog) => {
+		const clientId = clientIdOfProjectLog(projectLog, clientIds);
+		if (!clientId) {
+			return NO_CLIENT;
+		}
+		const listedName = clientNames.get(clientId);
+		const name = listedName ?? statedClientNameOf(projectLog, clientId);
+		return { key: clientId, name };
+	};
+}
+
+/**
+ * The page's rows, in the same order, each with the client of its project. Time logged without a team keeps the
+ * client of the project it was logged on, as the client filter keeps or drops a project's time whole.
+ */
+export function clientRowsOf(
+	report: ReadonlyArray<ITimeLogGroupedDailyReport>,
+	clientOf: ClientOfProjectLog,
+	withoutTeamLabel: string | null
+): TimeActivityRow[] {
+	const rows: TimeActivityRow[] = [];
+	for (const day of report) {
+		for (const projectLog of day?.logs ?? []) {
+			const client = clientOf(projectLog);
+			const dayOfProject = { ...day, logs: [projectLog] };
+			const projectRows = flattenDailyReport([dayOfProject], withoutTeamLabel);
+			for (const row of projectRows) {
+				rows.push({ ...row, client });
+			}
+		}
+	}
+	return rows;
 }
 
 export function lineCountOf(groups: ReadonlyArray<ReportGroup>) {
