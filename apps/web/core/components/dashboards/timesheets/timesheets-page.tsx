@@ -11,6 +11,7 @@ import { type ExportOption, ExportMenu } from '@/core/components/dashboards/kit/
 import { DASHBOARD_STACK, DASHBOARD_SURFACE } from '@/core/components/dashboards/kit/recipes';
 import { Clock, FileSheet, Plus } from '@/core/components/icons';
 import { useAddTimeAccess } from '@/core/hooks/dashboards/timesheets/use-add-time-access';
+import { useBulkEditDialog } from '@/core/hooks/dashboards/timesheets/use-bulk-edit-dialog';
 import { useTimesheetDialogs } from '@/core/hooks/dashboards/timesheets/use-timesheet-dialogs';
 import { useTimesheetLogActions } from '@/core/hooks/dashboards/timesheets/use-timesheet-log-actions';
 import { useSheetEditing } from '@/core/hooks/dashboards/timesheets/use-sheet-editing';
@@ -19,6 +20,7 @@ import { useTimesheetSheet } from '@/core/hooks/dashboards/timesheets/use-timesh
 import { canEditLog, useTimesheetsPage } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
 import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
+import type { BulkEditResult } from '@/core/lib/utils/dashboards/timesheet-bulk-edit';
 import {
 	sheetMembersOf,
 	type TimesheetDay,
@@ -29,6 +31,7 @@ import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { TimesheetRowHandlers } from './timesheet-log-row';
+import { TimesheetsBulkEdit } from './timesheets-bulk-edit';
 import { TimesheetsMonthView, TimesheetsWeekView } from './timesheets-calendar';
 import { TimesheetsDialogs } from './timesheets-dialogs';
 import { downloadTimesheetCsv } from './timesheets-export';
@@ -125,8 +128,9 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 	const t = useTranslations();
 	const page = useTimesheetsPage();
 	const dialogs = useTimesheetDialogs();
+	const bulkEdit = useBulkEditDialog();
 	const actions = useTimesheetLogActions();
-	const { permissions, formatters, clearSelection } = page;
+	const { permissions, formatters, clearSelection, setLogsSelected } = page;
 
 	const members = page.activeTeam?.members ?? NO_MEMBERS;
 	const categories = useTimesheetFilterCategories({ isManage: permissions.isManage, members, logs: page.allLogs });
@@ -189,6 +193,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 	const selectedLogs = page.selectedLogs;
 	const hasSelection = selectedLogs.length > 0;
 	const canDeleteSelection = selectedLogs.every((log) => canEditLog(log, permissions));
+	const canEditSelection = selectedLogs.some((log) => canEditLog(log, permissions));
 	const selectedSeconds = useMemo(() => totalDurationOf(selectedLogs), [selectedLogs]);
 	const isSheetView = page.view === 'sheet';
 	const isScreenshotsView = page.view === 'screenshots';
@@ -238,6 +243,13 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 			clearSelection();
 		}
 	}, [clearSelection, deleteLogs, dialogs.deleteTarget]);
+
+	const handleBulkEdited = useCallback(
+		(result: BulkEditResult) => {
+			setLogsSelected(result.releasedLogIds, false);
+		},
+		[setLogsSelected]
+	);
 
 	const { shownLogs, period } = page;
 	const exportOptions = useMemo<ExportOption[]>(
@@ -449,14 +461,17 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 				<TimesheetsSelectionBar
 					count={selectedLogs.length}
 					canApprove={permissions.canApprove}
+					canEdit={canEditSelection}
 					canDelete={canDeleteSelection}
 					isApproving={isChangingStatus}
 					onApprove={() => void approveSelection()}
 					onReject={() => openReject(selectedLogs, 'bulk')}
+					onEdit={() => bulkEdit.open(selectedLogs)}
 					onDelete={() => openDelete(selectedLogs, 'bulk')}
 					onClear={clearSelection}
 				/>
 			)}
+			<TimesheetsBulkEdit dialog={bulkEdit} permissions={permissions} onFinished={handleBulkEdited} />
 			<TimesheetsDialogs
 				dialogs={dialogs}
 				canAddTime={canAddTime}

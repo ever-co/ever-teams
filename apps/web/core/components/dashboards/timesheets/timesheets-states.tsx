@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
-import { Check, Spinner, Trash, X } from '@/core/components/icons';
+import { Check, Pencil, Spinner, Trash, X } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import { DAY_SUMMARY_SPAN, dayLabelSpanOf, logGridOf, WIDE_ONLY } from './timesheets-grid';
 
@@ -72,25 +72,29 @@ export function TimesheetsListSkeleton({ showsMember }: Readonly<{ showsMember: 
 
 /**
  * The bulk bar of a selection, floating over the bottom of the list like the projects page: the count, approve and
- * reject for those who may, delete when every selected log may be deleted, and clear. On a narrow screen the bar
- * scrolls sideways instead of running off both edges.
+ * reject for those who may, edit when at least one selected log may be edited, delete when every selected log may
+ * be deleted, and clear. On a narrow screen the bar scrolls sideways instead of running off both edges.
  */
 export function TimesheetsSelectionBar({
 	count,
 	canApprove,
+	canEdit,
 	canDelete,
 	isApproving,
 	onApprove,
 	onReject,
+	onEdit,
 	onDelete,
 	onClear
 }: Readonly<{
 	count: number;
 	canApprove: boolean;
+	canEdit: boolean;
 	canDelete: boolean;
 	isApproving: boolean;
 	onApprove: () => void;
 	onReject: () => void;
+	onEdit: () => void;
 	onDelete: () => void;
 	onClear: () => void;
 }>) {
@@ -117,6 +121,12 @@ export function TimesheetsSelectionBar({
 							<span>{t('dashboard.timesheets.REJECT')}</span>
 						</Button>
 					</>
+				)}
+				{canEdit && (
+					<Button type="button" variant="ghost" size="default" onClick={onEdit}>
+						<Pencil />
+						<span>{t('common.EDIT')}</span>
+					</Button>
 				)}
 				{canDelete && (
 					<Button
