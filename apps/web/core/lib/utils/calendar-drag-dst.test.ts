@@ -6,7 +6,7 @@
  */
 
 import { describe, expect, it } from '@jest/globals';
-import { resizedWindowOf, timeAtGridMinute } from './calendar-drag';
+import { rangeOnDay, resizedWindowOf, timeAtGridMinute, windowOfRange, windowWithin } from './calendar-drag';
 
 const STEP = 15;
 
@@ -44,5 +44,21 @@ describe('the Calendar grid on a day the clock goes back', () => {
 		const resized = resizedWindowOf(evening, 'end', FALL_BACK_DAY, 1440, STEP);
 
 		expect(resized).toEqual({ start: evening.start, end: NEXT_MIDNIGHT });
+	});
+});
+
+describe('a new entry drawn on a day the clock goes back', () => {
+	it('stops at the end of the free time it is drawn in, not at the next midnight', () => {
+		// Free from 22:00 to 23:30: drawn down to the bottom of the column, which reads as the next midnight
+		const freeTime = { start: new Date(2026, 10, 1, 22), end: new Date(2026, 10, 1, 23, 30) };
+		const drawnRange = rangeOnDay(freeTime, FALL_BACK_DAY);
+		if (!drawnRange) {
+			throw new Error('The free time is on that day');
+		}
+
+		const drawnWindow = windowOfRange(FALL_BACK_DAY, drawnRange);
+
+		expect(drawnWindow.end).toEqual(NEXT_MIDNIGHT);
+		expect(windowWithin(drawnWindow, freeTime)).toEqual(freeTime);
 	});
 });

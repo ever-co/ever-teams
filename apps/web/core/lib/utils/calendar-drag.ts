@@ -161,6 +161,17 @@ export function windowOfRange(day: Date, range: MinuteRange): TimeWindow {
 	return { start, end };
 }
 
+/**
+ * A window kept inside the free time it was drawn in. On a day the clock goes back, free time that ends in the day's
+ * last hour is drawn down to the bottom of the column, which reads as the next midnight: the selection stops where
+ * the free time does.
+ */
+export function windowWithin(window: TimeWindow, freeTime: TimeWindow): TimeWindow {
+	const startTime = Math.max(window.start.getTime(), freeTime.start.getTime());
+	const endTime = Math.min(window.end.getTime(), freeTime.end.getTime());
+	return { start: new Date(startTime), end: new Date(endTime) };
+}
+
 /** The part of a window drawn in one day's column; null when the window is not on that day. */
 export function rangeOnDay(window: TimeWindow, day: Date): MinuteRange | null {
 	const dayStart = startOfDay(day);
