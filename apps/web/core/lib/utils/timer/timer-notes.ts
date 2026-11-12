@@ -50,7 +50,7 @@ export function timerNotesFor(notes: TimerNotes, runningLog: TimerNotesLog | nul
 	return notes;
 }
 
-export interface TimerStartAnswer {
+interface TimerStartAnswer {
 	running?: boolean;
 	lastLog?: TimerNotesLog | null;
 }
