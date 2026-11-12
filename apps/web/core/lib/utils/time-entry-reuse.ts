@@ -52,8 +52,8 @@ export interface ContinueViewer extends LogOwner {
 
 /**
  * The task a Continue on this entry starts the timer on. Null where Continue is not offered: the viewer cannot track
- * time, the entry is someone else's, it is the one the timer is recording, it has no task, or its task is no longer
- * one of the team's.
+ * time, the entry is someone else's, it is the one the timer is recording, it has no task, its task is no longer
+ * one of the team's, or that task is closed, which the timer refuses to start.
  */
 export function continuableTaskOf(
 	log: ITimeLog,
@@ -74,7 +74,15 @@ export function continuableTaskOf(
 	if (!taskId) {
 		return null;
 	}
-	return reachableTasks.get(taskId) ?? null;
+	const task = reachableTasks.get(taskId);
+	if (!task) {
+		return null;
+	}
+	const isClosed = task.status === ETaskStatusName.CLOSED;
+	if (isClosed) {
+		return null;
+	}
+	return task;
 }
 
 export interface TimerCarry {

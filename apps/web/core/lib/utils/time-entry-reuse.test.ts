@@ -86,6 +86,12 @@ describe('continuableTaskOf', () => {
 		expect(continuableTaskOf(untasked, VIEWER, TEAM_TASKS)).toBeNull();
 		expect(continuableTaskOf(gone, VIEWER, TEAM_TASKS)).toBeNull();
 	});
+
+	it('offers nothing on an entry whose task is closed, which the timer would refuse to start', () => {
+		const onClosedTask = entryOf('log-7', 'task-closed', yesterday(9), yesterday(10));
+
+		expect(continuableTaskOf(onClosedTask, VIEWER, TEAM_TASKS)).toBeNull();
+	});
 });
 
 describe('timerCarryOf', () => {
