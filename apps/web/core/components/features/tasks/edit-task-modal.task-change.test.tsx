@@ -168,11 +168,18 @@ function renderEditDialog(log: ITimeLog, teamTasks: TTask[] = [taskInSite, taskI
 	// The active team is the first of the organization's teams
 	store.set(organizationTeamsState, [teamA]);
 	store.set(teamTasksState, teamTasks);
-	return render(
+	const dialogOf = (isOpen: boolean, entry: ITimeLog) => (
 		<Provider store={store}>
-			<EditTaskModal isOpen closeModal={jest.fn()} timeLogData={log} />
+			<EditTaskModal isOpen={isOpen} closeModal={jest.fn()} timeLogData={entry} />
 		</Provider>
 	);
+	const view = render(dialogOf(true, log));
+	// The page keeps the dialog mounted once closed, and opens it again on the entry as it then holds it
+	const reopen = (entry: ITimeLog = log) => {
+		view.rerender(dialogOf(false, log));
+		view.rerender(dialogOf(true, entry));
+	};
+	return { ...view, reopen };
 }
 
 function taskSelect() {
@@ -256,6 +263,20 @@ describe('EditTaskModal task of the entry', () => {
 
 		pickTask('task-mobile');
 		pickTask('task-site');
+		const payload = await saveEntry();
+
+		expect(payload).not.toHaveProperty('taskId');
+		expect(payload.projectId).toBe('project-site');
+	});
+
+	it('drops a task picked in an opening that was closed without saving', async () => {
+		const view = renderEditDialog(logOf({}));
+
+		pickTask('task-mobile');
+		view.reopen();
+
+		expect(taskSelect().value).toBe('task-site');
+
 		const payload = await saveEntry();
 
 		expect(payload).not.toHaveProperty('taskId');

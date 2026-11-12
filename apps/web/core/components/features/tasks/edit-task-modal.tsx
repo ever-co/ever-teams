@@ -89,7 +89,8 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 	const taskChoice = useTimeLogTaskChoice({
 		log: timeLogData,
 		projects: organizationProjects,
-		pickedProjectId: timesheetData.projectId
+		pickedProjectId: timesheetData.projectId,
+		isOpen
 	});
 	const memberItemsLists = useMemo(
 		() => ({
