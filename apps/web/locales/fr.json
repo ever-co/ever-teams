@@ -685,6 +685,32 @@
 				"NO_APPS": "Aucune app ni aucun site enregistré pendant ces dix minutes.",
 				"OPEN_FULL": "Ouvrir la capture en taille réelle",
 				"SHOT_OF": "Capture {index} sur {count}"
+			},
+			"BULK_EDIT": {
+				"TITLE": "{count, plural, one {Modifier # entrée} other {Modifier # entrées}}",
+				"DESCRIPTION": "Seuls les champs que vous changez sont enregistrés. Chaque entrée garde sa date, ses heures, ses notes et son membre.",
+				"KEEP": "Garder tel quel",
+				"PROJECT_FOLLOWS": "Le temps de cette tâche va dans son projet : {project}.",
+				"PROJECT_FOLLOWS_UNNAMED": "Le temps de cette tâche va dans le projet de la tâche.",
+				"TASKS_OF_PROJECT": "Tâches de {project} et tâches sans projet.",
+				"PROJECTS_LOADING": "Chargement des projets",
+				"PROJECTS_FAILED": "Les projets n'ont pas pu être chargés.",
+				"NOTHING_CHOSEN": "Tous les champs sont sur « Garder tel quel » : rien ne change pour l'instant.",
+				"WILL_UPDATE": "{count, plural, =0 {Aucune entrée ne sera modifiée} one {# entrée sera modifiée} other {# entrées seront modifiées}}",
+				"UPDATE": "{count, plural, =0 {Modifier les entrées} one {Modifier # entrée} other {Modifier # entrées}}",
+				"PROGRESS": "Modification des entrées : {done} sur {total}",
+				"UPDATED": "{count, plural, one {# entrée modifiée} other {# entrées modifiées}}",
+				"UPDATED_PARTLY": "{updated, plural, =0 {Aucune entrée modifiée} one {# entrée modifiée} other {# entrées modifiées}}, {notUpdated, plural, one {# non modifiée} other {# non modifiées}}",
+				"STILL_SELECTED": "Les entrées non modifiées restent sélectionnées.",
+				"REASON": {
+					"NOT_ALLOWED": "{count, plural, one {# entrée n'est pas à vous : seul son membre ou un administrateur peut la modifier.} other {# entrées ne sont pas à vous : seul leur membre ou un administrateur peut les modifier.}}",
+					"RUNNING": "{count, plural, one {# entrée d'un minuteur en cours : arrêtez d'abord le minuteur.} other {# entrées de minuteurs en cours : arrêtez d'abord les minuteurs.}}",
+					"OTHER_TEAM": "{count, plural, one {# entrée d'une autre équipe : passez sur cette équipe pour changer sa tâche.} other {# entrées d'une autre équipe : passez sur cette équipe pour changer leur tâche.}}",
+					"UNCHANGED": "{count, plural, one {# entrée a déjà ces valeurs.} other {# entrées ont déjà ces valeurs.}}",
+					"OVERLAP": "{count, plural, one {# entrée chevauche d'autre temps enregistré : l'enregistrer supprimerait ce temps.} other {# entrées chevauchent d'autre temps enregistré : les enregistrer supprimerait ce temps.}}",
+					"CHECK_FAILED": "{count, plural, one {Le chevauchement de # entrée n'a pas pu être vérifié, elle n'a donc pas été enregistrée.} other {Le chevauchement de # entrées n'a pas pu être vérifié, elles n'ont donc pas été enregistrées.}}",
+					"FAILED": "{count, plural, one {# entrée n'a pas pu être enregistrée.} other {# entrées n'ont pas pu être enregistrées.}}"
+				}
 			}
 		},
 		"workDiary": {

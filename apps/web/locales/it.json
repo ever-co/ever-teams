@@ -685,6 +685,32 @@
 				"NO_APPS": "Nessuna app né sito registrato in questi dieci minuti.",
 				"OPEN_FULL": "Apri lo screenshot a grandezza piena",
 				"SHOT_OF": "Screenshot {index} di {count}"
+			},
+			"BULK_EDIT": {
+				"TITLE": "{count, plural, one {Modifica # voce} other {Modifica # voci}}",
+				"DESCRIPTION": "Vengono salvati solo i campi che cambi. Ogni voce mantiene data, orari, note e membro.",
+				"KEEP": "Lascia com'è",
+				"PROJECT_FOLLOWS": "Il tempo su questa attività va al suo progetto: {project}.",
+				"PROJECT_FOLLOWS_UNNAMED": "Il tempo su questa attività va al progetto dell'attività.",
+				"TASKS_OF_PROJECT": "Attività di {project} e attività senza progetto.",
+				"PROJECTS_LOADING": "Caricamento dei progetti",
+				"PROJECTS_FAILED": "Impossibile caricare i progetti.",
+				"NOTHING_CHOSEN": "Tutti i campi sono su «Lascia com'è», quindi per ora non cambia nulla.",
+				"WILL_UPDATE": "{count, plural, =0 {Nessuna voce verrà aggiornata} one {# voce verrà aggiornata} other {# voci verranno aggiornate}}",
+				"UPDATE": "{count, plural, =0 {Aggiorna le voci} one {Aggiorna # voce} other {Aggiorna # voci}}",
+				"PROGRESS": "Aggiornamento delle voci: {done} di {total}",
+				"UPDATED": "{count, plural, one {# voce aggiornata} other {# voci aggiornate}}",
+				"UPDATED_PARTLY": "{updated, plural, =0 {Nessuna voce aggiornata} one {# voce aggiornata} other {# voci aggiornate}}, {notUpdated, plural, one {# non aggiornata} other {# non aggiornate}}",
+				"STILL_SELECTED": "Le voci non aggiornate restano selezionate.",
+				"REASON": {
+					"NOT_ALLOWED": "{count, plural, one {# voce non è tua: solo il suo membro o un amministratore può modificarla.} other {# voci non sono tue: solo il loro membro o un amministratore può modificarle.}}",
+					"RUNNING": "{count, plural, one {# voce di un timer attivo: ferma prima il timer.} other {# voci di timer attivi: ferma prima i timer.}}",
+					"OTHER_TEAM": "{count, plural, one {# voce di un altro team: passa a quel team per cambiare la sua attività.} other {# voci di un altro team: passa a quel team per cambiare la loro attività.}}",
+					"UNCHANGED": "{count, plural, one {# voce ha già questi valori.} other {# voci hanno già questi valori.}}",
+					"OVERLAP": "{count, plural, one {# voce si sovrappone ad altro tempo registrato: salvarla rimuoverebbe quel tempo.} other {# voci si sovrappongono ad altro tempo registrato: salvarle rimuoverebbe quel tempo.}}",
+					"CHECK_FAILED": "{count, plural, one {Non è stato possibile verificare la sovrapposizione di # voce, quindi non è stata salvata.} other {Non è stato possibile verificare la sovrapposizione di # voci, quindi non sono state salvate.}}",
+					"FAILED": "{count, plural, one {Non è stato possibile salvare # voce.} other {Non è stato possibile salvare # voci.}}"
+				}
 			}
 		},
 		"workDiary": {

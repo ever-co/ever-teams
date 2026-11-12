@@ -685,6 +685,32 @@
 				"NO_APPS": "Geen app of site vastgelegd in deze tien minuten.",
 				"OPEN_FULL": "Screenshot op volledige grootte openen",
 				"SHOT_OF": "Screenshot {index} van {count}"
+			},
+			"BULK_EDIT": {
+				"TITLE": "{count, plural, one {# invoer bewerken} other {# invoeren bewerken}}",
+				"DESCRIPTION": "Alleen de velden die je wijzigt worden opgeslagen. Elke invoer behoudt zijn datum, tijden, notities en lid.",
+				"KEEP": "Laten zoals het is",
+				"PROJECT_FOLLOWS": "Tijd op deze taak gaat naar het project van de taak: {project}.",
+				"PROJECT_FOLLOWS_UNNAMED": "Tijd op deze taak gaat naar het eigen project van de taak.",
+				"TASKS_OF_PROJECT": "Taken van {project} en taken zonder project.",
+				"PROJECTS_LOADING": "Projecten laden",
+				"PROJECTS_FAILED": "De projecten konden niet worden geladen.",
+				"NOTHING_CHOSEN": "Alle velden staan op ‘Laten zoals het is’, dus er verandert nog niets.",
+				"WILL_UPDATE": "{count, plural, =0 {Er wordt geen invoer bijgewerkt} one {# invoer wordt bijgewerkt} other {# invoeren worden bijgewerkt}}",
+				"UPDATE": "{count, plural, =0 {Invoeren bijwerken} one {# invoer bijwerken} other {# invoeren bijwerken}}",
+				"PROGRESS": "Invoeren bijwerken: {done} van {total}",
+				"UPDATED": "{count, plural, one {# invoer bijgewerkt} other {# invoeren bijgewerkt}}",
+				"UPDATED_PARTLY": "{updated, plural, =0 {Geen invoer bijgewerkt} one {# invoer bijgewerkt} other {# invoeren bijgewerkt}}, {notUpdated, plural, one {# niet bijgewerkt} other {# niet bijgewerkt}}",
+				"STILL_SELECTED": "De invoeren die niet zijn bijgewerkt blijven geselecteerd.",
+				"REASON": {
+					"NOT_ALLOWED": "{count, plural, one {# invoer is niet van jou: alleen het lid zelf of een beheerder kan die bewerken.} other {# invoeren zijn niet van jou: alleen het lid zelf of een beheerder kan die bewerken.}}",
+					"RUNNING": "{count, plural, one {# invoer van een lopende timer: stop eerst de timer.} other {# invoeren van lopende timers: stop eerst de timers.}}",
+					"OTHER_TEAM": "{count, plural, one {# invoer van een ander team: schakel naar dat team om de taak te wijzigen.} other {# invoeren van een ander team: schakel naar dat team om de taak te wijzigen.}}",
+					"UNCHANGED": "{count, plural, one {# invoer heeft deze waarden al.} other {# invoeren hebben deze waarden al.}}",
+					"OVERLAP": "{count, plural, one {# invoer overlapt andere geregistreerde tijd: bij opslaan zou die tijd worden verwijderd.} other {# invoeren overlappen andere geregistreerde tijd: bij opslaan zou die tijd worden verwijderd.}}",
+					"CHECK_FAILED": "{count, plural, one {Van # invoer kon de overlap niet worden gecontroleerd, dus die is niet opgeslagen.} other {Van # invoeren kon de overlap niet worden gecontroleerd, dus die zijn niet opgeslagen.}}",
+					"FAILED": "{count, plural, one {# invoer kon niet worden opgeslagen.} other {# invoeren konden niet worden opgeslagen.}}"
+				}
 			}
 		},
 		"workDiary": {

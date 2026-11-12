@@ -685,6 +685,32 @@
 				"NO_APPS": "No app or site recorded in these ten minutes.",
 				"OPEN_FULL": "Open the full-size screenshot",
 				"SHOT_OF": "Screenshot {index} of {count}"
+			},
+			"BULK_EDIT": {
+				"TITLE": "{count, plural, one {Edit # entry} other {Edit # entries}}",
+				"DESCRIPTION": "Only the fields you change are saved. Each entry keeps its own date, times, notes and member.",
+				"KEEP": "Keep as is",
+				"PROJECT_FOLLOWS": "Time on this task goes to its project: {project}.",
+				"PROJECT_FOLLOWS_UNNAMED": "Time on this task goes to the task's own project.",
+				"TASKS_OF_PROJECT": "Tasks of {project} and tasks without a project.",
+				"PROJECTS_LOADING": "Loading projects",
+				"PROJECTS_FAILED": "The projects could not load.",
+				"NOTHING_CHOSEN": "Every field is on Keep as is, so nothing changes yet.",
+				"WILL_UPDATE": "{count, plural, =0 {No entry will be updated} one {# entry will be updated} other {# entries will be updated}}",
+				"UPDATE": "{count, plural, =0 {Update entries} one {Update # entry} other {Update # entries}}",
+				"PROGRESS": "Updating entries: {done} of {total}",
+				"UPDATED": "{count, plural, one {# entry updated} other {# entries updated}}",
+				"UPDATED_PARTLY": "{updated, plural, =0 {No entry updated} one {# entry updated} other {# entries updated}}, {notUpdated, plural, one {# not updated} other {# not updated}}",
+				"STILL_SELECTED": "The entries that were not updated are still selected.",
+				"REASON": {
+					"NOT_ALLOWED": "{count, plural, one {# entry is not yours: only its member or an admin can edit it.} other {# entries are not yours: only their member or an admin can edit them.}}",
+					"RUNNING": "{count, plural, one {# entry of a running timer: stop the timer first.} other {# entries of running timers: stop the timers first.}}",
+					"OTHER_TEAM": "{count, plural, one {# entry of another team: switch to that team to change its task.} other {# entries of another team: switch to that team to change their task.}}",
+					"UNCHANGED": "{count, plural, one {# entry already has these values.} other {# entries already have these values.}}",
+					"OVERLAP": "{count, plural, one {# entry overlaps other recorded time: saving it would remove that time.} other {# entries overlap other recorded time: saving them would remove that time.}}",
+					"CHECK_FAILED": "{count, plural, one {# entry could not be checked for overlapping time, so it was not saved.} other {# entries could not be checked for overlapping time, so they were not saved.}}",
+					"FAILED": "{count, plural, one {# entry could not be saved.} other {# entries could not be saved.}}"
+				}
 			}
 		},
 		"workDiary": {

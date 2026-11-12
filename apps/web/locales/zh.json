@@ -685,6 +685,32 @@
 				"NO_APPS": "这十分钟内没有记录任何应用或网站。",
 				"OPEN_FULL": "打开原尺寸截图",
 				"SHOT_OF": "第 {index} 张截图，共 {count} 张"
+			},
+			"BULK_EDIT": {
+				"TITLE": "{count, plural, other {编辑 # 条记录}}",
+				"DESCRIPTION": "只保存你更改的字段。每条记录保留自己的日期、时间、备注和成员。",
+				"KEEP": "保持不变",
+				"PROJECT_FOLLOWS": "该任务的时间归入任务所属的项目：{project}。",
+				"PROJECT_FOLLOWS_UNNAMED": "该任务的时间归入任务自己的项目。",
+				"TASKS_OF_PROJECT": "{project} 的任务，以及没有项目的任务。",
+				"PROJECTS_LOADING": "正在加载项目",
+				"PROJECTS_FAILED": "无法加载项目。",
+				"NOTHING_CHOSEN": "所有字段都是“保持不变”，所以暂时不会有任何更改。",
+				"WILL_UPDATE": "{count, plural, =0 {不会更新任何记录} other {将更新 # 条记录}}",
+				"UPDATE": "{count, plural, =0 {更新记录} other {更新 # 条记录}}",
+				"PROGRESS": "正在更新记录：{done} / {total}",
+				"UPDATED": "{count, plural, other {已更新 # 条记录}}",
+				"UPDATED_PARTLY": "{updated, plural, =0 {没有记录被更新} other {已更新 # 条记录}}，{notUpdated, plural, other {# 条未更新}}",
+				"STILL_SELECTED": "未更新的记录仍处于选中状态。",
+				"REASON": {
+					"NOT_ALLOWED": "{count, plural, other {# 条记录不属于你：只有记录的成员或管理员可以编辑。}}",
+					"RUNNING": "{count, plural, other {# 条记录的计时器正在运行：请先停止计时器。}}",
+					"OTHER_TEAM": "{count, plural, other {# 条记录属于另一个团队：请切换到该团队再更改任务。}}",
+					"UNCHANGED": "{count, plural, other {# 条记录已经是这些值。}}",
+					"OVERLAP": "{count, plural, other {# 条记录与其他已记录的时间重叠：保存会删除那些时间。}}",
+					"CHECK_FAILED": "{count, plural, other {无法检查 # 条记录是否与其他时间重叠，因此未保存。}}",
+					"FAILED": "{count, plural, other {# 条记录无法保存。}}"
+				}
 			}
 		},
 		"workDiary": {

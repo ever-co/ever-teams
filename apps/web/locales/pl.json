@@ -685,6 +685,32 @@
 				"NO_APPS": "W tych dziesięciu minutach nie zapisano żadnej aplikacji ani strony.",
 				"OPEN_FULL": "Otwórz zrzut w pełnym rozmiarze",
 				"SHOT_OF": "Zrzut {index} z {count}"
+			},
+			"BULK_EDIT": {
+				"TITLE": "{count, plural, one {Edytuj # wpis} few {Edytuj # wpisy} many {Edytuj # wpisów} other {Edytuj # wpisu}}",
+				"DESCRIPTION": "Zapisywane są tylko pola, które zmienisz. Każdy wpis zachowuje swoją datę, godziny, notatki i członka.",
+				"KEEP": "Pozostaw bez zmian",
+				"PROJECT_FOLLOWS": "Czas na tym zadaniu trafia do jego projektu: {project}.",
+				"PROJECT_FOLLOWS_UNNAMED": "Czas na tym zadaniu trafia do projektu zadania.",
+				"TASKS_OF_PROJECT": "Zadania projektu {project} i zadania bez projektu.",
+				"PROJECTS_LOADING": "Wczytywanie projektów",
+				"PROJECTS_FAILED": "Nie udało się wczytać projektów.",
+				"NOTHING_CHOSEN": "Wszystkie pola są ustawione na „Pozostaw bez zmian”, więc na razie nic się nie zmienia.",
+				"WILL_UPDATE": "{count, plural, =0 {Żaden wpis nie zostanie zaktualizowany} one {# wpis zostanie zaktualizowany} few {# wpisy zostaną zaktualizowane} many {# wpisów zostanie zaktualizowanych} other {# wpisu zostanie zaktualizowane}}",
+				"UPDATE": "{count, plural, =0 {Zaktualizuj wpisy} one {Zaktualizuj # wpis} few {Zaktualizuj # wpisy} many {Zaktualizuj # wpisów} other {Zaktualizuj # wpisu}}",
+				"PROGRESS": "Aktualizowanie wpisów: {done} z {total}",
+				"UPDATED": "{count, plural, one {Zaktualizowano # wpis} few {Zaktualizowano # wpisy} many {Zaktualizowano # wpisów} other {Zaktualizowano # wpisu}}",
+				"UPDATED_PARTLY": "{updated, plural, =0 {Nie zaktualizowano żadnego wpisu} one {Zaktualizowano # wpis} few {Zaktualizowano # wpisy} many {Zaktualizowano # wpisów} other {Zaktualizowano # wpisu}}, {notUpdated, plural, one {nie zaktualizowano #} few {nie zaktualizowano #} many {nie zaktualizowano #} other {nie zaktualizowano #}}",
+				"STILL_SELECTED": "Niezaktualizowane wpisy pozostają zaznaczone.",
+				"REASON": {
+					"NOT_ALLOWED": "{count, plural, one {# wpis nie jest Twój: edytować może go tylko jego członek lub administrator.} few {# wpisy nie są Twoje: edytować może je tylko ich członek lub administrator.} many {# wpisów nie jest Twoich: edytować może je tylko ich członek lub administrator.} other {# wpisu nie jest Twoje: edytować może je tylko ich członek lub administrator.}}",
+					"RUNNING": "{count, plural, one {# wpis działającego timera: najpierw zatrzymaj timer.} few {# wpisy działających timerów: najpierw zatrzymaj timery.} many {# wpisów działających timerów: najpierw zatrzymaj timery.} other {# wpisu działających timerów: najpierw zatrzymaj timery.}}",
+					"OTHER_TEAM": "{count, plural, one {# wpis innego zespołu: przełącz się na ten zespół, aby zmienić jego zadanie.} few {# wpisy innego zespołu: przełącz się na ten zespół, aby zmienić ich zadanie.} many {# wpisów innego zespołu: przełącz się na ten zespół, aby zmienić ich zadanie.} other {# wpisu innego zespołu: przełącz się na ten zespół, aby zmienić ich zadanie.}}",
+					"UNCHANGED": "{count, plural, one {# wpis ma już te wartości.} few {# wpisy mają już te wartości.} many {# wpisów ma już te wartości.} other {# wpisu ma już te wartości.}}",
+					"OVERLAP": "{count, plural, one {# wpis pokrywa się z innym zarejestrowanym czasem: zapisanie usunęłoby ten czas.} few {# wpisy pokrywają się z innym zarejestrowanym czasem: zapisanie usunęłoby ten czas.} many {# wpisów pokrywa się z innym zarejestrowanym czasem: zapisanie usunęłoby ten czas.} other {# wpisu pokrywa się z innym zarejestrowanym czasem: zapisanie usunęłoby ten czas.}}",
+					"CHECK_FAILED": "{count, plural, one {Nie udało się sprawdzić, czy # wpis pokrywa się z innym czasem, więc nie został zapisany.} few {Nie udało się sprawdzić, czy # wpisy pokrywają się z innym czasem, więc nie zostały zapisane.} many {Nie udało się sprawdzić, czy # wpisów pokrywa się z innym czasem, więc nie zostały zapisane.} other {Nie udało się sprawdzić, czy # wpisu pokrywa się z innym czasem, więc nie zostały zapisane.}}",
+					"FAILED": "{count, plural, one {Nie udało się zapisać # wpisu.} few {Nie udało się zapisać # wpisów.} many {Nie udało się zapisać # wpisów.} other {Nie udało się zapisać # wpisu.}}"
+				}
 			}
 		},
 		"workDiary": {

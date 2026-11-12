@@ -685,6 +685,32 @@
 				"NO_APPS": "Ninguna app ni sitio registrado en estos diez minutos.",
 				"OPEN_FULL": "Abrir la captura a tamaño completo",
 				"SHOT_OF": "Captura {index} de {count}"
+			},
+			"BULK_EDIT": {
+				"TITLE": "{count, plural, one {Editar # entrada} other {Editar # entradas}}",
+				"DESCRIPTION": "Solo se guardan los campos que cambias. Cada entrada conserva su fecha, sus horas, sus notas y su miembro.",
+				"KEEP": "Dejar como está",
+				"PROJECT_FOLLOWS": "El tiempo de esta tarea va a su proyecto: {project}.",
+				"PROJECT_FOLLOWS_UNNAMED": "El tiempo de esta tarea va al proyecto de la tarea.",
+				"TASKS_OF_PROJECT": "Tareas de {project} y tareas sin proyecto.",
+				"PROJECTS_LOADING": "Cargando proyectos",
+				"PROJECTS_FAILED": "No se pudieron cargar los proyectos.",
+				"NOTHING_CHOSEN": "Todos los campos están en «Dejar como está», así que todavía no cambia nada.",
+				"WILL_UPDATE": "{count, plural, =0 {No se actualizará ninguna entrada} one {Se actualizará # entrada} other {Se actualizarán # entradas}}",
+				"UPDATE": "{count, plural, =0 {Actualizar entradas} one {Actualizar # entrada} other {Actualizar # entradas}}",
+				"PROGRESS": "Actualizando entradas: {done} de {total}",
+				"UPDATED": "{count, plural, one {# entrada actualizada} other {# entradas actualizadas}}",
+				"UPDATED_PARTLY": "{updated, plural, =0 {Ninguna entrada actualizada} one {# entrada actualizada} other {# entradas actualizadas}}, {notUpdated, plural, one {# sin actualizar} other {# sin actualizar}}",
+				"STILL_SELECTED": "Las entradas sin actualizar siguen seleccionadas.",
+				"REASON": {
+					"NOT_ALLOWED": "{count, plural, one {# entrada no es tuya: solo su miembro o un administrador puede editarla.} other {# entradas no son tuyas: solo su miembro o un administrador puede editarlas.}}",
+					"RUNNING": "{count, plural, one {# entrada de un temporizador en marcha: detén primero el temporizador.} other {# entradas de temporizadores en marcha: detén primero los temporizadores.}}",
+					"OTHER_TEAM": "{count, plural, one {# entrada de otro equipo: cambia a ese equipo para cambiar su tarea.} other {# entradas de otro equipo: cambia a ese equipo para cambiar su tarea.}}",
+					"UNCHANGED": "{count, plural, one {# entrada ya tiene estos valores.} other {# entradas ya tienen estos valores.}}",
+					"OVERLAP": "{count, plural, one {# entrada se solapa con otro tiempo registrado: guardarla eliminaría ese tiempo.} other {# entradas se solapan con otro tiempo registrado: guardarlas eliminaría ese tiempo.}}",
+					"CHECK_FAILED": "{count, plural, one {No se pudo comprobar si # entrada se solapa con otro tiempo, así que no se guardó.} other {No se pudo comprobar si # entradas se solapan con otro tiempo, así que no se guardaron.}}",
+					"FAILED": "{count, plural, one {No se pudo guardar # entrada.} other {No se pudieron guardar # entradas.}}"
+				}
 			}
 		},
 		"workDiary": {

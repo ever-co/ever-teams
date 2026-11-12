@@ -685,6 +685,32 @@
 				"NO_APPS": "In diesen zehn Minuten wurde keine App und keine Website erfasst.",
 				"OPEN_FULL": "Screenshot in voller Größe öffnen",
 				"SHOT_OF": "Screenshot {index} von {count}"
+			},
+			"BULK_EDIT": {
+				"TITLE": "{count, plural, one {# Eintrag bearbeiten} other {# Einträge bearbeiten}}",
+				"DESCRIPTION": "Nur die Felder, die Sie ändern, werden gespeichert. Jeder Eintrag behält sein Datum, seine Zeiten, seine Notizen und sein Mitglied.",
+				"KEEP": "Unverändert lassen",
+				"PROJECT_FOLLOWS": "Die Zeit dieser Aufgabe geht in ihr Projekt: {project}.",
+				"PROJECT_FOLLOWS_UNNAMED": "Die Zeit dieser Aufgabe geht in das Projekt der Aufgabe.",
+				"TASKS_OF_PROJECT": "Aufgaben von {project} und Aufgaben ohne Projekt.",
+				"PROJECTS_LOADING": "Projekte werden geladen",
+				"PROJECTS_FAILED": "Die Projekte konnten nicht geladen werden.",
+				"NOTHING_CHOSEN": "Alle Felder stehen auf „Unverändert lassen“, es ändert sich also noch nichts.",
+				"WILL_UPDATE": "{count, plural, =0 {Kein Eintrag wird geändert} one {# Eintrag wird geändert} other {# Einträge werden geändert}}",
+				"UPDATE": "{count, plural, =0 {Einträge ändern} one {# Eintrag ändern} other {# Einträge ändern}}",
+				"PROGRESS": "Einträge werden geändert: {done} von {total}",
+				"UPDATED": "{count, plural, one {# Eintrag geändert} other {# Einträge geändert}}",
+				"UPDATED_PARTLY": "{updated, plural, =0 {Kein Eintrag geändert} one {# Eintrag geändert} other {# Einträge geändert}}, {notUpdated, plural, one {# nicht geändert} other {# nicht geändert}}",
+				"STILL_SELECTED": "Die nicht geänderten Einträge bleiben ausgewählt.",
+				"REASON": {
+					"NOT_ALLOWED": "{count, plural, one {# Eintrag gehört Ihnen nicht: Nur sein Mitglied oder ein Admin kann ihn bearbeiten.} other {# Einträge gehören Ihnen nicht: Nur ihr Mitglied oder ein Admin kann sie bearbeiten.}}",
+					"RUNNING": "{count, plural, one {# Eintrag eines laufenden Timers: Stoppen Sie zuerst den Timer.} other {# Einträge laufender Timer: Stoppen Sie zuerst die Timer.}}",
+					"OTHER_TEAM": "{count, plural, one {# Eintrag eines anderen Teams: Wechseln Sie zu diesem Team, um seine Aufgabe zu ändern.} other {# Einträge eines anderen Teams: Wechseln Sie zu diesem Team, um ihre Aufgabe zu ändern.}}",
+					"UNCHANGED": "{count, plural, one {# Eintrag hat diese Werte bereits.} other {# Einträge haben diese Werte bereits.}}",
+					"OVERLAP": "{count, plural, one {# Eintrag überschneidet sich mit anderer erfasster Zeit: Beim Speichern würde diese Zeit entfernt.} other {# Einträge überschneiden sich mit anderer erfasster Zeit: Beim Speichern würde diese Zeit entfernt.}}",
+					"CHECK_FAILED": "{count, plural, one {Bei # Eintrag konnte die Überschneidung nicht geprüft werden, er wurde daher nicht gespeichert.} other {Bei # Einträgen konnte die Überschneidung nicht geprüft werden, sie wurden daher nicht gespeichert.}}",
+					"FAILED": "{count, plural, one {# Eintrag konnte nicht gespeichert werden.} other {# Einträge konnten nicht gespeichert werden.}}"
+				}
 			}
 		},
 		"workDiary": {
