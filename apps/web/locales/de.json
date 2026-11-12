@@ -1479,7 +1479,15 @@
 			"WEEK_STRIP_LABEL": "Wochentage",
 			"HAS_TIME": "Zeit erfasst",
 			"NO_MEMBER_TITLE": "Dein Konto hat in diesem Arbeitsbereich kein Mitgliedsprofil",
-			"NO_MEMBER_MESSAGE": "Zeit wird pro Mitglied erfasst. Bitte einen Admin, dich einem Team hinzuzufügen."
+			"NO_MEMBER_MESSAGE": "Zeit wird pro Mitglied erfasst. Bitte einen Admin, dich einem Team hinzuzufügen.",
+			"DRAG": {
+				"REFUSED_TITLE": "Eintrag nicht geändert",
+				"CREATE_REFUSED_TITLE": "Hier kann keine Zeit hinzugefügt werden",
+				"OVERLAP": "Diese Zeit überschneidet sich mit einem anderen Eintrag des Mitglieds. Wählen Sie eine freie Zeit oder ändern Sie zuerst den anderen Eintrag.",
+				"FUTURE": "Ihre Organisation erlaubt keine Zeit nach der aktuellen Uhrzeit.",
+				"APPROVED": "Dieser Tag gehört zu einem genehmigten Stundenzettel, daher kann seine Zeit nicht geändert werden.",
+				"SAVE_FAILED": "Änderung nicht gespeichert"
+			}
 		},
 		"manualTimeEdits": {
 			"TITLE": "Manuelle Zeitänderungen",

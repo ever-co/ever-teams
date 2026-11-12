@@ -1479,7 +1479,15 @@
 			"WEEK_STRIP_LABEL": "Dni tygodnia",
 			"HAS_TIME": "Zarejestrowano czas",
 			"NO_MEMBER_TITLE": "Twoje konto nie ma profilu członka w tej przestrzeni",
-			"NO_MEMBER_MESSAGE": "Czas jest rejestrowany dla członków. Poproś administratora o dodanie cię do zespołu."
+			"NO_MEMBER_MESSAGE": "Czas jest rejestrowany dla członków. Poproś administratora o dodanie cię do zespołu.",
+			"DRAG": {
+				"REFUSED_TITLE": "Wpis nie został zmieniony",
+				"CREATE_REFUSED_TITLE": "Nie można tu dodać czasu",
+				"OVERLAP": "Ten czas nakłada się na inny wpis tej osoby. Wybierz wolny czas albo najpierw zmień drugi wpis.",
+				"FUTURE": "Twoja organizacja nie zezwala na czas po bieżącej godzinie.",
+				"APPROVED": "Ten dzień należy do zatwierdzonej karty czasu pracy, więc jego czasu nie można zmienić.",
+				"SAVE_FAILED": "Zmiana nie została zapisana"
+			}
 		},
 		"manualTimeEdits": {
 			"TITLE": "Ręczne zmiany czasu",

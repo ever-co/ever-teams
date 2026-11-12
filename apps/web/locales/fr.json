@@ -1479,7 +1479,15 @@
 			"WEEK_STRIP_LABEL": "Jours de la semaine",
 			"HAS_TIME": "Temps suivi",
 			"NO_MEMBER_TITLE": "Votre compte n'a pas de profil de membre dans cet espace",
-			"NO_MEMBER_MESSAGE": "Le temps est suivi par membre. Demandez à un administrateur de vous ajouter à une équipe."
+			"NO_MEMBER_MESSAGE": "Le temps est suivi par membre. Demandez à un administrateur de vous ajouter à une équipe.",
+			"DRAG": {
+				"REFUSED_TITLE": "Entrée non modifiée",
+				"CREATE_REFUSED_TITLE": "Impossible d'ajouter du temps ici",
+				"OVERLAP": "Ce créneau chevauche une autre entrée du membre. Choisissez un créneau libre, ou modifiez d'abord l'autre entrée.",
+				"FUTURE": "Votre organisation n'autorise pas de temps après l'heure actuelle.",
+				"APPROVED": "Ce jour fait partie d'une feuille de temps approuvée, son temps ne peut donc pas être modifié.",
+				"SAVE_FAILED": "Modification non enregistrée"
+			}
 		},
 		"manualTimeEdits": {
 			"TITLE": "Modifications manuelles du temps",

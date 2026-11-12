@@ -1479,7 +1479,15 @@
 			"WEEK_STRIP_LABEL": "Days of the week",
 			"HAS_TIME": "Time tracked",
 			"NO_MEMBER_TITLE": "Your account has no member profile in this workspace",
-			"NO_MEMBER_MESSAGE": "Time is tracked per member. Ask an admin to add you to a team."
+			"NO_MEMBER_MESSAGE": "Time is tracked per member. Ask an admin to add you to a team.",
+			"DRAG": {
+				"REFUSED_TITLE": "Entry not changed",
+				"CREATE_REFUSED_TITLE": "Time can't be added here",
+				"OVERLAP": "This time overlaps another entry of the member. Pick a free time, or change the other entry first.",
+				"FUTURE": "Your organization doesn't allow time after the current time.",
+				"APPROVED": "This day belongs to an approved timesheet, so its time can't be changed.",
+				"SAVE_FAILED": "Change not saved"
+			}
 		},
 		"manualTimeEdits": {
 			"TITLE": "Manual time edits",

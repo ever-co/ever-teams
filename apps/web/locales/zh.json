@@ -1479,7 +1479,15 @@
 			"WEEK_STRIP_LABEL": "一周的日期",
 			"HAS_TIME": "有记录的时间",
 			"NO_MEMBER_TITLE": "你的账号在此工作区没有成员资料",
-			"NO_MEMBER_MESSAGE": "时间按成员记录。请联系管理员把你加入团队。"
+			"NO_MEMBER_MESSAGE": "时间按成员记录。请联系管理员把你加入团队。",
+			"DRAG": {
+				"REFUSED_TITLE": "条目未更改",
+				"CREATE_REFUSED_TITLE": "无法在此处添加时间",
+				"OVERLAP": "该时间与此成员的另一条目重叠。请选择空闲时间，或先修改另一条目。",
+				"FUTURE": "您的组织不允许添加当前时间之后的时间。",
+				"APPROVED": "这一天属于已批准的工时表，因此无法更改其时间。",
+				"SAVE_FAILED": "更改未保存"
+			}
 		},
 		"manualTimeEdits": {
 			"TITLE": "手动时间编辑",

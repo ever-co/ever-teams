@@ -1479,7 +1479,15 @@
 			"WEEK_STRIP_LABEL": "Dagen van de week",
 			"HAS_TIME": "Tijd geregistreerd",
 			"NO_MEMBER_TITLE": "Je account heeft geen ledenprofiel in deze werkruimte",
-			"NO_MEMBER_MESSAGE": "Tijd wordt per lid geregistreerd. Vraag een beheerder je aan een team toe te voegen."
+			"NO_MEMBER_MESSAGE": "Tijd wordt per lid geregistreerd. Vraag een beheerder je aan een team toe te voegen.",
+			"DRAG": {
+				"REFUSED_TITLE": "Invoer niet gewijzigd",
+				"CREATE_REFUSED_TITLE": "Hier kan geen tijd worden toegevoegd",
+				"OVERLAP": "Deze tijd overlapt een andere invoer van het lid. Kies een vrije tijd of wijzig eerst de andere invoer.",
+				"FUTURE": "Je organisatie staat geen tijd na het huidige tijdstip toe.",
+				"APPROVED": "Deze dag hoort bij een goedgekeurde urenstaat, dus de tijd kan niet worden gewijzigd.",
+				"SAVE_FAILED": "Wijziging niet opgeslagen"
+			}
 		},
 		"manualTimeEdits": {
 			"TITLE": "Handmatige tijdwijzigingen",
