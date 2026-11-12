@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { getReportMemberIds, managesEveryTeam } from '@/core/hooks/activities/use-activity-filters';
@@ -228,16 +228,22 @@ export function useTimeActivityReport() {
 	const hasClientFilter = pickedClients.length > 0;
 	const billableOnly = isBillableOnly(settings.filters.billable);
 	const sumsFiguresFromRows = hasTaskFilter || hasClientFilter || billableOnly;
-	const { clientIds: projectClientIds } = useReportProjectClients({
-		includesArchived: false,
-		isEnabled: hasClientFilter
-	});
+	const projectClients = useReportProjectClients({ includesArchived: false, isEnabled: hasClientFilter });
+	const projectClientIds = projectClients.clientIds;
+	// The daily report names no client beside a project whose client is archived: only the listed projects tell that
+	// time from the time without a client, so a report filtered by client is not shown before they are read
+	const isClientLookupPending = hasClientFilter && projectClients.isPending;
+	const isClientLookupError = hasClientFilter && projectClients.isError;
+	const canTellClients = !isClientLookupPending && !isClientLookupError;
 	const loadedReport = dailyQuery.data ?? EMPTY_REPORT;
-	const report = useMemo(
-		() => filterDailyReportByClients(loadedReport, pickedClients, projectClientIds),
-		[loadedReport, pickedClients, projectClientIds]
-	);
-	const hasDailyReport = dailyQuery.data !== undefined;
+	const report = useMemo(() => {
+		if (!canTellClients) {
+			return EMPTY_REPORT;
+		}
+		return filterDailyReportByClients(loadedReport, pickedClients, projectClientIds);
+	}, [canTellClients, loadedReport, pickedClients, projectClientIds]);
+	const hasDailyData = dailyQuery.data !== undefined;
+	const hasDailyReport = hasDailyData && canTellClients;
 
 	const withoutTeamLabel = t('dashboard.NO_TEAM_GROUP');
 	const rows = useMemo(() => {
@@ -262,11 +268,13 @@ export function useTimeActivityReport() {
 		[countsQuery.data, hasDailyReport, sumsFiguresFromRows, totals]
 	);
 
-	const isDailyPending = dailyQuery.isPending;
+	const isDailyFailure = dailyQuery.isError && !hasDailyData;
+	const isDailyError = isDailyFailure || isClientLookupError;
+	const isWaitingForDaily = dailyQuery.isPending || isClientLookupPending;
+	const isDailyPending = isWaitingForDaily && !isDailyError;
 	const needsCounts = !sumsFiguresFromRows;
 	const isCountsPending = needsCounts && countsQuery.isPending;
 	const isFiguresLoading = isDailyPending || isCountsPending;
-	const isDailyError = dailyQuery.isError && !hasDailyReport;
 	const hasCounts = countsQuery.data !== undefined;
 	const isCountsFailure = countsQuery.isError && !hasCounts;
 	const isCountsError = needsCounts && isCountsFailure;
@@ -274,7 +282,14 @@ export function useTimeActivityReport() {
 	const isCountsUpdating = countsQuery.isFetching && hasCounts;
 	const isUpdating = isDailyUpdating || isCountsUpdating;
 
-	const refetchDaily = dailyQuery.refetch;
+	const { refetch: refetchDailyReport } = dailyQuery;
+	const { refetch: refetchProjectClients } = projectClients;
+	const refetchDaily = useCallback(() => {
+		void refetchDailyReport();
+		if (isClientLookupError) {
+			refetchProjectClients();
+		}
+	}, [isClientLookupError, refetchDailyReport, refetchProjectClients]);
 	// The weekly report has no project in its rows: with a client picked, the week grid is built from these rows
 	const weekDailySource = useMemo<WeekDailySource | null>(() => {
 		if (!hasClientFilter) {
