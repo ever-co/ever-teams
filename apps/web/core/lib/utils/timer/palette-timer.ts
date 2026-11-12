@@ -61,6 +61,7 @@ export function tasksToStartFor<T extends PaletteStartTask>(
 }
 
 export interface PaletteStopState {
+	/** The timer shows a run: false for one going on for another team, which its button does not stop. */
 	isTimerRunning: boolean;
 	/** The timer's Start and Stop are enabled (email verified, a task the timer can run on). */
 	canRunTimer: boolean;
@@ -93,7 +94,7 @@ export type PaletteStartAction =
 export interface PaletteStartState {
 	/** The task is the active team task, whether or not the timer status is known yet. */
 	isActiveTask: boolean;
-	/** The timer status says a timer runs: false while that status is not known. */
+	/** The timer shows a run: false while its status is not known, and for a run going on for another team. */
 	isTimerRunning: boolean;
 	/** A card's start does not check it, and the timer's Stop refuses such a member: the start could not be undone. */
 	isEmailVerified: boolean;

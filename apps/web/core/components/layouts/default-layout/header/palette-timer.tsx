@@ -25,7 +25,8 @@ import {
 	paletteStartValueOf,
 	tasksToStartFor
 } from '@/core/lib/utils/timer/palette-timer';
-import { tasksByTeamState, timerStatusFetchingState, timerStatusState } from '@/core/stores';
+import { tasksByTeamState, timerStatusFetchingState } from '@/core/stores';
+import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 type PaletteTimerRequest = { id: number; kind: 'stop' } | { id: number; kind: 'start'; task: TTask };
@@ -38,15 +39,25 @@ function nextRequestIdOf(current: PaletteTimerRequest | null) {
 }
 
 /**
+ * Whether the timer shows a run. One going on for another team reads as stopped on the timer, whose button then
+ * offers Start and refuses to stop it: the palette reads the same status, so it never offers a stop that button
+ * would not make.
+ */
+function useIsTimerRunShown() {
+	const shownTimerStatus = useAtomValue(teamTimerStatusState);
+	return shownTimerStatus?.running === true;
+}
+
+/**
  * What the command palette does with the timer. A start or a stop asked here is handed to `PaletteTimerLayer`, which
  * runs it through the hooks of the timer's own buttons, so the palette adds no rule of its own.
  */
 export function usePaletteTimer() {
 	const [request, setRequest] = useState<PaletteTimerRequest | null>(null);
 	const addTimeModal = useModal();
-	const { canRunTimer, timerStatus } = useTimerPlanStatus();
+	const { canRunTimer } = useTimerPlanStatus();
 	const isTimerRequestPending = useAtomValue(timerStatusFetchingState);
-	const isTimerRunning = timerStatus?.running === true;
+	const isTimerRunning = useIsTimerRunShown();
 	// The timer's buttons are disabled while a timer request is in flight, and the main Start would discard a start
 	// asked then: the palette does not offer what they refuse
 	const canStart = !isTimerRequestPending;
@@ -103,8 +114,7 @@ function useRunOnce(run: () => void) {
 function PaletteTimerStop() {
 	const { startTimer, stopTimer } = useTimerActions();
 	const { startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
-	const timerStatus = useAtomValue(timerStatusState);
-	const isTimerRunning = timerStatus?.running === true;
+	const isTimerRunning = useIsTimerRunShown();
 
 	useRunOnce(() => {
 		// The handler starts a stopped timer: a stop asked when none runs any more must do nothing
@@ -119,8 +129,10 @@ function PaletteTimerStop() {
 function PaletteTimerStart({ task }: Readonly<{ task: TTask }>) {
 	const t = useTranslations();
 	const { data: user } = useUserQuery();
-	const { activeTaskStatus, activeTeamTask, disabled, canTrack, startTimer, stopTimer, startTimerWithTask } =
-		useTimerButtonLogic({ task });
+	const { activeTeamTask, disabled, canTrack, startTimer, stopTimer, startTimerWithTask } = useTimerButtonLogic({
+		task
+	});
+	const isTimerRunning = useIsTimerRunShown();
 	// A start that names no task starts the page's own task on a task page: the task asked for here is named
 	const startTimerOnTask = useCallback(() => startTimer(task), [startTimer, task]);
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer: startTimerOnTask, stopTimer });
@@ -128,7 +140,7 @@ function PaletteTimerStart({ task }: Readonly<{ task: TTask }>) {
 	useRunOnce(() => {
 		const action = paletteStartActionOf({
 			isActiveTask: activeTeamTask?.id === task.id,
-			isTimerRunning: activeTaskStatus?.running === true,
+			isTimerRunning,
 			isEmailVerified: Boolean(user?.isEmailVerified),
 			isMainStartDisabled: disabled,
 			canTrackTask: canTrack
