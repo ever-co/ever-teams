@@ -8,6 +8,7 @@ import {
 	readTimerNotes,
 	timerNotesAfterStart,
 	timerNotesFor,
+	wereNotesChangedAfterStop,
 	wereNotesLostAtStop,
 	withoutTimerNotesDraft
 } from './timer-notes';
@@ -185,6 +186,25 @@ describe('wereNotesLostAtStop', () => {
 	it('is false when the answer does not show the stopped entry', () => {
 		expect(wereNotesLostAtStop('New notes', 'log-1', null)).toBe(false);
 		expect(wereNotesLostAtStop('New notes', 'log-1', { id: 'log-2', description: 'Else' })).toBe(false);
+	});
+});
+
+describe('wereNotesChangedAfterStop', () => {
+	it('is true for notes typed after a stop that sent none', () => {
+		expect(wereNotesChangedAfterStop(undefined, 'Typed while the stop was in flight')).toBe(true);
+	});
+
+	it('is true for notes changed again after the stop sent them', () => {
+		expect(wereNotesChangedAfterStop('New notes', 'New notes, and more')).toBe(true);
+	});
+
+	it('is false when the notes are still those the stop sent', () => {
+		expect(wereNotesChangedAfterStop('New notes', 'New notes')).toBe(false);
+	});
+
+	it('is false when no stop would send notes any more', () => {
+		expect(wereNotesChangedAfterStop(undefined, undefined)).toBe(false);
+		expect(wereNotesChangedAfterStop('New notes', undefined)).toBe(false);
 	});
 });
 

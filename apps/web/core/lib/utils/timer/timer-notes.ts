@@ -130,6 +130,18 @@ export function wereNotesLostAtStop(
 	return normalizedTimerNotes(answeredLog.description) !== sentNotes;
 }
 
+/**
+ * Whether the notes changed after their stop was sent. `notesAtAnswer` is what a stop would send once the answer is
+ * there, undefined when it would send none: a difference with what was sent travelled with no request, so the
+ * stopped entry never got it.
+ */
+export function wereNotesChangedAfterStop(sentNotes: string | undefined, notesAtAnswer: string | undefined): boolean {
+	if (notesAtAnswer === undefined) {
+		return false;
+	}
+	return notesAtAnswer !== sentNotes;
+}
+
 export type TimerNotesReading = { isValid: true; description?: string } | { isValid: false };
 
 /** The notes of a request body, for the routes that forward a start or a stop: absent, usable or malformed. */

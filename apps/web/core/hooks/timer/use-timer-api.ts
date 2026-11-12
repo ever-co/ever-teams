@@ -882,6 +882,7 @@ export function useTimerApi({
 				// Not awaited: the check may read the stopped entry again, and the stop does not wait for it.
 				void warnWhenStopLostNotes({
 					sentNotes: notesAtStop,
+					notesAtAnswer: notesToSendAtStop(store.get(timerNotesState), runningLog),
 					stoppedLogId: runningLog?.id,
 					answeredLog: res.data?.lastLog,
 					employeeId: user?.employee?.id

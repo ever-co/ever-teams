@@ -107,6 +107,34 @@ describe('useStopNotesWarning', () => {
 		expect(mockWarning).not.toHaveBeenCalled();
 	});
 
+	it('warns when the notes changed after the stop was sent: no request carried that change', async () => {
+		await warnWhenStopLostNotes()({
+			sentNotes: undefined,
+			notesAtAnswer: 'Typed while the stop was in flight',
+			stoppedLogId: STOPPED_LOG_ID,
+			answeredLog: KEPT_EARLIER_NOTES,
+			employeeId: 'employee-1'
+		});
+
+		expect(mockWarning).toHaveBeenCalledWith('toasts.timer.NOTES_NOT_SAVED', {
+			id: 'timer-notes-not-saved',
+			description: 'toasts.timer.NOTES_NOT_SAVED_HINT'
+		});
+		expect(mockGetLastTimerLog).not.toHaveBeenCalled();
+	});
+
+	it('says nothing when the notes did not change after the stop was sent and the entry carries them', async () => {
+		await warnWhenStopLostNotes()({
+			sentNotes: SENT_NOTES,
+			notesAtAnswer: SENT_NOTES,
+			stoppedLogId: STOPPED_LOG_ID,
+			answeredLog: KEPT_SENT_NOTES,
+			employeeId: 'employee-1'
+		});
+
+		expect(mockWarning).not.toHaveBeenCalled();
+	});
+
 	it('says nothing when the stopped entry cannot be read: nothing proves the notes were lost', async () => {
 		mockGetLastTimerLog.mockRejectedValue(new Error('offline'));
 		const stoppedNotes = { sentNotes: SENT_NOTES, stoppedLogId: STOPPED_LOG_ID, answeredLog: null };

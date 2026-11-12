@@ -5,12 +5,14 @@ import { useCallback } from 'react';
 import { toast } from 'sonner';
 
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
-import { wereNotesLostAtStop, type TimerNotesLog } from '@/core/lib/utils/timer/timer-notes';
+import { wereNotesChangedAfterStop, wereNotesLostAtStop, type TimerNotesLog } from '@/core/lib/utils/timer/timer-notes';
 import { timerService } from '@/core/services/client/api/timers';
 
 interface StoppedEntryNotes {
 	/** The notes the stop sent, undefined when it sent none. */
 	sentNotes: string | undefined;
+	/** The notes a stop would send once the answer is there: they differ when the member typed after the stop left. */
+	notesAtAnswer?: string;
 	stoppedLogId: string | undefined;
 	/** The last log of the day's status the stop answered with. */
 	answeredLog: TimerNotesLog | null | undefined;
@@ -43,22 +45,30 @@ async function readStoppedLog({
 	}
 }
 
+/** Whether the stopped entry kept other notes than those its stop sent. Never true for an entry that cannot be read. */
+async function wereSentNotesLost(stoppedNotes: StoppedEntryNotes): Promise<boolean> {
+	const { sentNotes, stoppedLogId } = stoppedNotes;
+	if (sentNotes === undefined) {
+		return false;
+	}
+	const stoppedLog = await readStoppedLog(stoppedNotes);
+	return wereNotesLostAtStop(sentNotes, stoppedLogId, stoppedLog);
+}
+
 /**
- * Tells the member when a stop did not save the notes it sent: the API may not apply notes sent with a stop, and the
- * member would otherwise find them gone later. Nothing is said when the stopped entry cannot be read: only an entry
- * that kept other notes proves the loss.
+ * Tells the member when a stop did not save the notes of its entry, instead of letting them find the notes gone
+ * later: the API may not apply notes sent with a stop, and notes typed after the stop was sent went with no request.
  */
 export function useStopNotesWarning() {
 	const t = useTranslations();
 
 	return useCallback(
 		async (stoppedNotes: StoppedEntryNotes) => {
-			const { sentNotes, stoppedLogId } = stoppedNotes;
-			if (sentNotes === undefined) {
-				return;
+			let wereNotesLost = wereNotesChangedAfterStop(stoppedNotes.sentNotes, stoppedNotes.notesAtAnswer);
+			if (!wereNotesLost) {
+				wereNotesLost = await wereSentNotesLost(stoppedNotes);
 			}
-			const stoppedLog = await readStoppedLog(stoppedNotes);
-			if (!wereNotesLostAtStop(sentNotes, stoppedLogId, stoppedLog)) {
+			if (!wereNotesLost) {
 				return;
 			}
 			toast.warning(t('toasts.timer.NOTES_NOT_SAVED'), {
