@@ -85,34 +85,56 @@ describe('timerNotesFor', () => {
 });
 
 describe('timerNotesAfterStart', () => {
-	const draft = { text: 'Fix the login page', timeLogId: null };
+	const SENT_NOTES = 'Fix the login page';
+	const draft = { text: SENT_NOTES, timeLogId: null };
+	const answerWithNotes = { running: true, lastLog: { id: 'log-1', description: SENT_NOTES } };
+	const answerWithoutNotes = { running: true, lastLog: { id: 'log-1', description: null } };
 
 	it('ties a draft to the entry its own start created', () => {
-		const answer = { running: true, lastLog: { id: 'log-1', description: 'Fix the login page' } };
-
-		expect(timerNotesAfterStart(draft, answer)).toEqual({ text: 'Fix the login page', timeLogId: 'log-1' });
-	});
-
-	it('ties what was typed while the start was in flight too, so the stop sends the difference', () => {
-		const typedOn = { text: 'Fix the login page and its tests', timeLogId: null };
-		const answer = { running: true, lastLog: { id: 'log-1', description: 'Fix the login page' } };
-
-		expect(timerNotesAfterStart(typedOn, answer)).toEqual({
-			text: 'Fix the login page and its tests',
+		expect(timerNotesAfterStart(draft, answerWithNotes, SENT_NOTES)).toEqual({
+			text: 'Fix the login page',
 			timeLogId: 'log-1'
 		});
 	});
 
+	it('ties what was typed while the start was in flight too, so the stop sends the difference', () => {
+		const typedOn = { text: 'Fix the login page and its tests', timeLogId: null };
+		const typedFromNothing = { text: 'Its tests', timeLogId: null };
+
+		expect(timerNotesAfterStart(typedOn, answerWithNotes, SENT_NOTES)).toEqual({
+			text: 'Fix the login page and its tests',
+			timeLogId: 'log-1'
+		});
+		expect(timerNotesAfterStart(typedFromNothing, answerWithoutNotes, undefined)).toEqual({
+			text: 'Its tests',
+			timeLogId: 'log-1'
+		});
+	});
+
+	it('ties empty notes to the entry of a start that sent none, so notes typed next belong to that entry', () => {
+		expect(timerNotesAfterStart(EMPTY_TIMER_NOTES, answerWithoutNotes, undefined)).toEqual({
+			text: '',
+			timeLogId: 'log-1'
+		});
+	});
+
+	it('leaves a draft emptied since the start sent it to the notes the entry was saved with', () => {
+		const emptied = { text: '  ', timeLogId: null };
+
+		expect(timerNotesAfterStart(emptied, answerWithNotes, SENT_NOTES)).toBe(emptied);
+		expect(timerNotesFor(emptied, answerWithNotes.lastLog)).toEqual({ text: SENT_NOTES, timeLogId: 'log-1' });
+	});
+
 	it('leaves the notes alone when the answer shows no running entry', () => {
-		expect(timerNotesAfterStart(draft, null)).toBe(draft);
-		expect(timerNotesAfterStart(draft, { running: true })).toBe(draft);
-		expect(timerNotesAfterStart(draft, { running: false, lastLog: { id: 'log-0' } })).toBe(draft);
+		expect(timerNotesAfterStart(draft, null, SENT_NOTES)).toBe(draft);
+		expect(timerNotesAfterStart(draft, { running: true }, SENT_NOTES)).toBe(draft);
+		expect(timerNotesAfterStart(draft, { running: false, lastLog: { id: 'log-0' } }, SENT_NOTES)).toBe(draft);
 	});
 
 	it('never gives the notes of an earlier entry to the entry that starts', () => {
 		const earlier = { text: 'Old notes', timeLogId: 'log-0' };
 
-		expect(timerNotesAfterStart(earlier, { running: true, lastLog: { id: 'log-1' } })).toBe(earlier);
+		expect(timerNotesAfterStart(earlier, answerWithoutNotes, undefined)).toBe(earlier);
 	});
 });
 

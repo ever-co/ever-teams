@@ -57,14 +57,25 @@ interface TimerStartAnswer {
 
 /**
  * The notes once a start made here is answered: a draft belongs to the entry that start created, with whatever was
- * typed while the start was in flight. Notes that are not a draft are left to `timerNotesFor`.
+ * typed while the start was in flight. Notes that are not a draft are left to `timerNotesFor`, and so is a draft
+ * emptied since the start sent it (by the member, or dropped by a team change): tied empty, it would read as the
+ * notes of the entry removed, and the stop would send that.
  */
-export function timerNotesAfterStart(notes: TimerNotes, answer: TimerStartAnswer | null | undefined): TimerNotes {
+export function timerNotesAfterStart(
+	notes: TimerNotes,
+	answer: TimerStartAnswer | null | undefined,
+	sentNotes: string | undefined
+): TimerNotes {
 	const startedLog = answer?.lastLog;
 	if (!answer?.running || !startedLog) {
 		return notes;
 	}
 	if (notes.timeLogId !== null) {
+		return notes;
+	}
+	const isEmpty = normalizedTimerNotes(notes.text) === '';
+	const wasEmptiedSinceSent = isEmpty && sentNotes !== undefined;
+	if (wasEmptiedSinceSent) {
 		return notes;
 	}
 	return { text: notes.text, timeLogId: startedLog.id };

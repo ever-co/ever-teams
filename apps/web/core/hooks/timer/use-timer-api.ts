@@ -650,7 +650,7 @@ export function useTimerApi({
 					setTimerStatus(res.data);
 				onRequestLanded?.();
 				// Notes typed before this start are the notes of the entry it created, and of no entry found running later
-				store.set(timerNotesState, (notes) => timerNotesAfterStart(notes, res.data));
+				store.set(timerNotesState, (notes) => timerNotesAfterStart(notes, res.data, notesToUse));
 
 				// Save active task via API when timer starts
 				// Skip if we're on /task/ page because setActiveTask already does it
