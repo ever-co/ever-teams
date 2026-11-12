@@ -10,13 +10,17 @@ import { RealtimeMount } from '@/core/components/layouts/app/realtime-mount';
 export default function MainGroupLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	useEmployeePresenceHeartbeat();
 
+	// The timer's owner stays mounted while the offline page shows (#5118). Unmounted, its heartbeat stopped, and once
+	// mounted again on reconnect it ran the closed-tab check again and stopped the run it had kept alive.
 	return (
-		<OfflineWrapper>
+		<>
 			<AppState />
-			<KeyboardShortcutsMount />
-			<RealtimeMount />
-			<LayoutShell>{children}</LayoutShell>
-			<TaskDrawerMount />
-		</OfflineWrapper>
+			<OfflineWrapper>
+				<KeyboardShortcutsMount />
+				<RealtimeMount />
+				<LayoutShell>{children}</LayoutShell>
+				<TaskDrawerMount />
+			</OfflineWrapper>
+		</>
 	);
 }
