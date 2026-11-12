@@ -15,8 +15,9 @@ import { lastTimerLogQuery } from './use-stale-timer-guard';
 
 /**
  * The stop of a run the timer's owner found past midnight (#5022), for its reminders: the day's status says stopped, so
- * the owner's stop would do nothing, and this one stops that run itself. A run started since is not stopped, a failure
- * is said unless the run ended all the same, and the timer's queries are read again after.
+ * the owner's stop would do nothing, and this one stops that run itself. A run started since is not stopped, nor one
+ * that cannot be read first; a failure is said unless the run ended all the same, and the timer's queries are read
+ * again after.
  *
  * @param employeeId The employee whose timer the app owns.
  * @param pastMidnightLog The run found past midnight: its last log, still running.
@@ -29,14 +30,14 @@ export function useStopPastMidnightRun(employeeId: string | null | undefined, pa
 
 	return useCallback(async () => {
 		// The employee's last log read anew, and whether it is still the run the reminder is about
-		const readLastLog = () =>
-			queryClient.fetchQuery({ ...lastTimerLogQuery(employeeId), staleTime: 0 }).catch(() => undefined);
+		const readLastLog = () => queryClient.fetchQuery({ ...lastTimerLogQuery(employeeId), staleTime: 0 });
 		const isThisRun = (log: ITimeLog | null | undefined) => isRunningTeamsLog(log) && log.id === pastMidnightRunId;
 		try {
 			// Gauzy stops whatever runs now: a run started since (on another device, once this one stopped) is not this
-			// reminder's to stop. When that read fails, the stop goes ahead, as the employee asked.
+			// reminder's to stop, and neither is a run that cannot be read. A failed read stops nothing: like a failed
+			// stop, it is said below unless the run ended meanwhile, and the employee can try again.
 			const current = await readLastLog();
-			if (current !== undefined && !isThisRun(current)) {
+			if (!isThisRun(current)) {
 				return;
 			}
 			await timerService.stopTimer({ source: pastMidnightSource });
@@ -45,9 +46,10 @@ export function useStopPastMidnightRun(employeeId: string | null | undefined, pa
 			if (ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(406)) {
 				return;
 			}
-			// The stop may have landed although the answer failed (the status read that follows it): the run's last log
-			// says whether it still runs. A read that fails too leaves the failure standing, as the owner's stop does.
-			const lastLogNow = await readLastLog();
+			// The read before the stop failed, or the stop's answer did although the stop may have landed (the status read
+			// that follows it): the run's last log says whether it still runs. A read that fails too leaves the failure
+			// standing, as the owner's stop does.
+			const lastLogNow = await readLastLog().catch(() => undefined);
 			const stillRuns = lastLogNow === undefined || isThisRun(lastLogNow);
 			if (stillRuns) {
 				toast.error(t('toasts.timer.STOP_FAILED'), {
