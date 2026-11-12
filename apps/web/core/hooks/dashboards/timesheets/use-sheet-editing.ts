@@ -214,6 +214,7 @@ export function useSheetEditing(page: TimesheetsPageState, sheet: TimesheetSheet
 		memberId,
 		days: sheet.days,
 		rows: sheet.sheet.rows,
+		draftRows: storedDraftRows,
 		dayLockOf,
 		addRows,
 		writes

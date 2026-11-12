@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
 import type { Period } from '@/core/lib/utils/dashboard-period';
-import { sheetDaysOf } from '@/core/lib/utils/dashboards/timesheets';
+import { rowIdentityOfLog, sheetDaysOf } from '@/core/lib/utils/dashboards/timesheets';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
@@ -57,6 +57,7 @@ function inputOf(overrides: Partial<CopyPreviousWeekInput>): CopyPreviousWeekInp
 		memberId: 'member-a',
 		days,
 		rows: [],
+		draftRows: [],
 		dayLockOf: () => 'none',
 		addRows: jest.fn(),
 		writes,
@@ -116,5 +117,18 @@ describe('useCopyPreviousWeek', () => {
 
 		expect(result.current.pendingCopy).toBeNull();
 		expect(addRows).not.toHaveBeenCalled();
+	});
+
+	it('adds no row the sheet already holds as an empty row', async () => {
+		mockGetTimeLogs.mockResolvedValue([lastWeekLog]);
+		const addRows = jest.fn();
+		const alreadyAdded = rowIdentityOfLog(lastWeekLog);
+		const { result } = renderCopy(inputOf({ addRows, draftRows: [alreadyAdded] }));
+
+		await act(async () => {
+			await result.current.copyRows();
+		});
+
+		expect(addRows).toHaveBeenCalledWith([]);
 	});
 });

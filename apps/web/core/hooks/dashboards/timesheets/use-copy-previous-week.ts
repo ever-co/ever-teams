@@ -47,6 +47,8 @@ export interface CopyPreviousWeekInput {
 	memberId: string | null;
 	days: ReadonlyArray<SheetDay>;
 	rows: ReadonlyArray<SheetRow>;
+	/** The rows already added by hand to this sheet. */
+	draftRows: ReadonlyArray<SheetRowIdentity>;
 	dayLockOf: (day: SheetDay) => CellLock;
 	addRows: (identities: ReadonlyArray<SheetRowIdentity>) => void;
 	writes: SheetCellWrites;
@@ -88,7 +90,7 @@ export function useCopyPreviousWeek(input: CopyPreviousWeekInput) {
 	const queryClient = useQueryClient();
 	const [isReading, setIsReading] = useState(false);
 	const [pendingCopy, setPendingCopy] = useState<PendingCopy | null>(null);
-	const { sheetKey, period, logsScope, memberId, days, rows, dayLockOf, addRows, writes } = input;
+	const { sheetKey, period, logsScope, memberId, days, rows, draftRows, dayLockOf, addRows, writes } = input;
 	const hasMember = Boolean(memberId);
 	const isAvailable = hasMember && isOneWeek(period);
 
@@ -141,12 +143,15 @@ export function useCopyPreviousWeek(input: CopyPreviousWeekInput) {
 			toast(t('dashboard.timesheets.SHEET.COPY.NOTHING'));
 			return;
 		}
-		const shownKeys = new Set(rows.map((row) => row.key));
+		const knownKeys = new Set(rows.map((row) => row.key));
+		for (const draftRow of draftRows) {
+			knownKeys.add(draftRow.key);
+		}
 		const identities = previousRows.map((row) => row.identity);
-		const newIdentities = identities.filter((identity) => !shownKeys.has(identity.key));
+		const newIdentities = identities.filter((identity) => !knownKeys.has(identity.key));
 		addRows(newIdentities);
 		toast.success(t('dashboard.timesheets.SHEET.COPY.ROWS_ADDED', { count: newIdentities.length }));
-	}, [addRows, readPreviousRows, rows, t]);
+	}, [addRows, draftRows, readPreviousRows, rows, t]);
 
 	const prepareRowsAndTime = useCallback(async () => {
 		if (!sheetKey) {
