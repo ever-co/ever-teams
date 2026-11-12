@@ -35,7 +35,6 @@ import {
 	detailedTaskState,
 	leftActiveTaskIdState,
 	localTimerStatusState,
-
 	timerNotesState,
 	timerStatusFetchingState,
 	timerStatusState,
@@ -171,9 +170,11 @@ function startTaskOf(
 	pathname: string | null,
 	detailedTask: TTask | null,
 	activeTask: TTask | null
-): { pageTask: TTask | null; taskToUse: TTask | null } {
+): { pageTask: TTask | null; pageTaskToActivate: TTask | null; taskToUse: TTask | null } {
 	const pageTask = pathname?.startsWith('/task/') ? detailedTask : null;
-	return { pageTask, taskToUse: explicitTask || pageTask || activeTask };
+	// The page's task becomes the active one only when the start names no task of its own (a palette start does)
+	const pageTaskToActivate = explicitTask ? null : pageTask;
+	return { pageTask, pageTaskToActivate, taskToUse: explicitTask || pageTask || activeTask };
 }
 
 /**
@@ -671,7 +672,7 @@ export function useTimerApi({
 
 			// NOTE_FIX: Use explicit task if provided to avoid race conditions with taskId.current.
 			// On a task page that page's task becomes the active one, so it is also the one to start.
-			const { pageTask, taskToUse } = startTaskOf(
+			const { pageTask, pageTaskToActivate, taskToUse } = startTaskOf(
 				explicitTask,
 				pathname,
 				detailedTask,
@@ -682,7 +683,7 @@ export function useTimerApi({
 
 			// A start asked for a named task (a card, the command palette) keeps that task active: the page's task
 			// becomes active only for a start that names none
-			if (pageTask && !explicitTask) setActiveTask(pageTask);
+			if (pageTaskToActivate) setActiveTask(pageTaskToActivate);
 
 			if (!taskIdToUse) {
 				toast.warning(t('toasts.timer.NO_TASK'), { id: 'timer-no-task' });
