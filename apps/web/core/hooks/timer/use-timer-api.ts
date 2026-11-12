@@ -1,6 +1,6 @@
 'use client';
 
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useStore } from 'jotai';
 import isEqual from 'lodash/isEqual';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { usePathname } from 'next/navigation';
@@ -31,6 +31,7 @@ import {
 	activeTeamState,
 	activeTeamTaskState,
 	detailedTaskState,
+	leftActiveTaskIdState,
 	localTimerStatusState,
 	timerStatusFetchingState,
 	timerStatusState,
@@ -253,6 +254,7 @@ export function useTimerApi({
 	const pathname = usePathname();
 	const queryClient = useQueryClient();
 	const t = useTranslations();
+	const store = useStore();
 
 	// ==================== ATOMS ====================
 
@@ -1099,9 +1101,21 @@ export function useTimerApi({
 		}
 
 		const currentTaskId = activeTeamTask?.id;
-		const canStop = lastActiveTaskId.current !== null && currentTaskId !== lastActiveTaskId.current;
+		// Only a switch from one task to another stops the timer, or the person leaving the active task on purpose
+		// (leaving the task, closing it). An active task the app emptied (a task that left the loaded list, a save
+		// rolled back) is neither, and the last task stays the one to compare with, so a later run of this effect does
+		// not stop the timer either (#5119)
+		const isTaskSwitch =
+			!!currentTaskId && lastActiveTaskId.current !== null && currentTaskId !== lastActiveTaskId.current;
+		const leftTaskId = store.get(leftActiveTaskIdState);
+		const isTaskLeft = !currentTaskId && leftTaskId !== null && leftTaskId === lastActiveTaskId.current;
+		// The owner clears the mark once it has seen that task left, or another task taken
+		const isLeftMarkSeen = leftTaskId !== null && (isTaskLeft || (!!currentTaskId && currentTaskId !== leftTaskId));
+		if (isLeftMarkSeen && firstLoad) {
+			store.set(leftActiveTaskIdState, null);
+		}
 
-		if (canStop && timerStatusRef.current?.running && firstLoad) {
+		if ((isTaskSwitch || isTaskLeft) && timerStatusRef.current?.running && firstLoad) {
 			// If timer is started at some other source keep the timer running...
 			// If timer is started in the browser Stop the timer on Task Change
 			if (timerStatusRef.current.lastLog?.source === ETimeLogSource.TEAMS) {
@@ -1115,7 +1129,7 @@ export function useTimerApi({
 		if (currentTaskId) {
 			lastActiveTaskId.current = currentTaskId;
 		}
-	}, [firstLoad, activeTeamTask?.id, stopTimer, timerStatusRef, isUpdatingActiveTask, t]);
+	}, [firstLoad, activeTeamTask?.id, stopTimer, timerStatusRef, isUpdatingActiveTask, t, store]);
 
 	// ==================== RETURN ====================
 
