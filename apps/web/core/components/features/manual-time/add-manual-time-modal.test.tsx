@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { AddManualTimeModal } from './add-manual-time-modal';
 
 const mockAddManualTime = jest.fn();
@@ -229,6 +229,89 @@ function selectedValue(ariaLabel: string) {
 function submitDialog() {
 	clickButton('common.ADD_TIME');
 }
+
+describe('AddManualTimeModal opened on a copied entry', () => {
+	const copiedStart = new Date(2026, 10, 12, 14, 7);
+	const copiedEnd = new Date(2026, 10, 12, 15, 37);
+	const copiedEntry = { taskId: 'task-a-2', description: 'Pairing on the invoices', isBillable: true };
+
+	function renderCopyDialog(extra: Partial<React.ComponentProps<typeof AddManualTimeModal>> = {}) {
+		return render(
+			<AddManualTimeModal
+				isOpen
+				params="AddTime"
+				closeModal={closeModal}
+				initialStart={copiedStart}
+				initialEnd={copiedEnd}
+				prefill={copiedEntry}
+				{...extra}
+			/>
+		);
+	}
+
+	beforeEach(() => {
+		mockAddManualTime.mockReset();
+		mockPickedTeamTasksQuery.data = undefined;
+		mockAtomValues.activeTeamState = teamA;
+		// The active task is another one than the copied entry's
+		mockAtomValues.activeTeamTaskState = taskA;
+		mockAtomValues.organizationTeamsState = [teamA, teamB];
+		mockAtomValues.tasksByTeamState = teamATasks();
+	});
+
+	it("opens on the entry's task, notes, billable status and interval, and saves nothing until asked", () => {
+		renderCopyDialog();
+
+		expect(selectedValue('task')).toBe('task-a-2');
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+
+		submitDialog();
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(
+			expect.objectContaining({
+				taskId: 'task-a-2',
+				description: 'Pairing on the invoices',
+				isBillable: true,
+				startedAt: copiedStart,
+				stoppedAt: copiedEnd
+			})
+		);
+	});
+
+	it('leaves the task to pick, never the active one, when the list no longer offers the copied task', () => {
+		renderCopyDialog({ prefill: { ...copiedEntry, taskId: 'task-gone' } });
+
+		expect(selectedValue('task')).toBe('');
+
+		submitDialog();
+
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+		expect(screen.getByText('manualTime.FILL_IN manualTime.TASK')).toBeTruthy();
+	});
+
+	it('does not save a copy its opener refuses, and says why', async () => {
+		const checkBeforeSave = jest.fn().mockResolvedValue('It runs over an entry of the day');
+		renderCopyDialog({ checkBeforeSave });
+
+		submitDialog();
+
+		expect(await screen.findByText('It runs over an entry of the day')).toBeTruthy();
+		expect(checkBeforeSave).toHaveBeenCalledWith(
+			expect.objectContaining({ periods: [{ start: copiedStart, end: copiedEnd }] })
+		);
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+
+	it('saves a copy its opener lets through', async () => {
+		const checkBeforeSave = jest.fn().mockResolvedValue(null);
+		renderCopyDialog({ checkBeforeSave });
+
+		submitDialog();
+
+		await waitFor(() => expect(mockAddManualTime).toHaveBeenCalledTimes(1));
+		expect(mockAddManualTime).toHaveBeenCalledWith(expect.objectContaining({ taskId: 'task-a-2' }));
+	});
+});
 
 describe('AddManualTimeModal team of the saved time', () => {
 	beforeEach(() => {

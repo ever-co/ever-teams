@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { AddTaskModal } from './add-mask-modal';
 
 const mockCreateTimesheet = jest.fn();
@@ -236,6 +236,84 @@ describe('AddTaskModal team of the saved time', () => {
 
 		pickTaskAndEmployee('task-a', 'employee-a');
 		expect(saveButton).toHaveProperty('disabled', false);
+	});
+});
+
+describe('AddTaskModal opened on a copied entry', () => {
+	const copiedEntry = {
+		taskId: 'task-a',
+		projectId: '',
+		employeeId: 'employee-a',
+		isBillable: true,
+		description: 'Pairing on the invoices',
+		start: new Date(2026, 10, 12, 9, 0),
+		end: new Date(2026, 10, 12, 11, 0)
+	};
+
+	beforeEach(() => {
+		mockCreateTimesheet.mockReset();
+		mockCreateTimesheet.mockResolvedValue(undefined);
+		mockAtomValues.activeTeamState = teamA;
+		mockAtomValues.tasksByTeamState = [taskA];
+	});
+
+	it('opens filled with the entry and saves what it shows only when asked', () => {
+		render(<AddTaskModal isOpen closeModal={closeModal} prefill={copiedEntry} />);
+
+		const [taskSelect, employeeSelect] = taskAndEmployeeSelects();
+		const notes = screen.getByLabelText('Insert notes here') as HTMLTextAreaElement;
+		expect(taskSelect.value).toBe('task-a');
+		expect(employeeSelect.value).toBe('employee-a');
+		expect(notes.value).toBe('Pairing on the invoices');
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
+
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({
+				taskId: 'task-a',
+				employeeId: 'employee-a',
+				isBillable: true,
+				description: 'Pairing on the invoices',
+				startedAt: copiedEntry.start,
+				stoppedAt: copiedEntry.end
+			})
+		);
+	});
+
+	it('leaves the task and the employee to pick when the dialog does not offer the copied ones', () => {
+		const unlistedCopy = { ...copiedEntry, taskId: 'task-gone', employeeId: 'employee-gone' };
+		render(<AddTaskModal isOpen closeModal={closeModal} prefill={unlistedCopy} />);
+
+		const [taskSelect, employeeSelect] = taskAndEmployeeSelects();
+		expect(taskSelect.value).toBe('');
+		expect(employeeSelect.value).toBe('');
+		expect(screen.getByRole('button', { name: 'common.SAVE' })).toHaveProperty('disabled', true);
+	});
+
+	it('does not save a copy its opener refuses, and says why', async () => {
+		const checkBeforeSave = jest.fn().mockResolvedValue('It runs over an entry of the day');
+		render(<AddTaskModal isOpen closeModal={closeModal} prefill={copiedEntry} checkBeforeSave={checkBeforeSave} />);
+
+		save();
+
+		const refusal = await screen.findByRole('alert');
+		expect(refusal.textContent).toBe('It runs over an entry of the day');
+		expect(checkBeforeSave).toHaveBeenCalledWith({
+			employeeId: 'employee-a',
+			periods: [{ start: copiedEntry.start, end: copiedEntry.end }]
+		});
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
+	});
+
+	it('saves a copy its opener lets through', async () => {
+		const checkBeforeSave = jest.fn().mockResolvedValue(null);
+		render(<AddTaskModal isOpen closeModal={closeModal} prefill={copiedEntry} checkBeforeSave={checkBeforeSave} />);
+
+		save();
+
+		await waitFor(() => expect(mockCreateTimesheet).toHaveBeenCalledTimes(1));
+		expect(screen.queryByRole('alert')).toBeNull();
 	});
 });
 

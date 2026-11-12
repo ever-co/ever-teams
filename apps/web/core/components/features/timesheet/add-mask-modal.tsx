@@ -15,7 +15,14 @@ import {
 } from '@/core/components/common/select';
 import { useCreateTimesheet } from '@/core/hooks/timesheet/use-create-timesheet';
 import { toUTC } from '@/core/lib/helpers/index';
-import { Plus, Spinner } from '@/core/components/icons';
+import {
+	ADD_TIME_ENTRY_STEP_MINUTES,
+	type CheckTimeEntrySave,
+	periodLengthOf,
+	timeChoiceOf,
+	type TimeEntryCopy
+} from '@/core/lib/utils/time-entry-reuse';
+import { CircleAlert, Plus, Spinner } from '@/core/components/icons';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { controlGroupRecipe, controlRecipe } from '@/core/components/common/input';
 import { CustomSelect } from '../../common/multiple-select';
@@ -27,10 +34,16 @@ import { useAtomValue } from 'jotai';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import type { TOrganizationProject } from '@/core/types/schemas/organization/organization-project.schema';
+import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;
 	closeModal: () => void;
+	/** A copied entry the dialog opens filled with; an empty form when not given. */
+	prefill?: TimeEntryCopy;
+	/** Asked before the periods are saved: a returned message refuses the save and is shown in the dialog. */
+	checkBeforeSave?: CheckTimeEntrySave;
 }
 
 interface Shift {
@@ -136,7 +149,60 @@ function projectChoicesFor(
 	return [];
 }
 
-export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
+const NOTES_MAX_LENGTH = 120;
+
+const MILLISECONDS_PER_SECOND = 1000;
+
+interface CopiedForm {
+	notes: string;
+	billableChoice: boolean | null;
+	taskId: string;
+	employeeId: string;
+	projectId: string;
+	shifts: Shift[];
+}
+
+function offeredIdOf(id: string, isOffered: boolean) {
+	if (isOffered) {
+		return id;
+	}
+	return '';
+}
+
+/**
+ * The form of a copied entry, on the interval the copy was placed at. Its task and its employee are taken only when
+ * the dialog's lists offer them: an id the form cannot show would be saved without the person seeing it.
+ */
+function copiedFormOf(
+	copy: TimeEntryCopy | undefined,
+	tasks: TTask[],
+	members: TOrganizationTeamEmployee[] | null | undefined
+): Partial<CopiedForm> {
+	if (!copy) {
+		return {};
+	}
+	const isTaskOffered = tasks.some((task) => task.id === copy.taskId);
+	const teamMembers = members ?? [];
+	const isEmployeeOffered = teamMembers.some((member) => member.employeeId === copy.employeeId);
+	const milliseconds = copy.end.getTime() - copy.start.getTime();
+	const seconds = milliseconds / MILLISECONDS_PER_SECOND;
+	const period: Shift = {
+		startTime: timeChoiceOf(copy.start),
+		endTime: timeChoiceOf(copy.end),
+		totalHours: periodLengthOf(seconds),
+		dateFrom: copy.start
+	};
+	return {
+		notes: copy.description.slice(0, NOTES_MAX_LENGTH),
+		billableChoice: copy.isBillable,
+		taskId: offeredIdOf(copy.taskId, isTaskOffered),
+		employeeId: offeredIdOf(copy.employeeId, isEmployeeOffered),
+		projectId: copy.projectId,
+		shifts: [period]
+	};
+}
+
+export function AddTaskModal({ closeModal, isOpen, prefill, checkBeforeSave }: IAddTaskModalProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { generateTimeOptions } = useTimelogFilterOptions();
 	const { organizationProjects, getOrganizationProjectsLoading } = useOrganizationProjectsQuery();
@@ -144,17 +210,20 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	const activeTeam = useAtomValue(activeTeamState);
 	const { createTimesheet, loadingCreateTimesheet } = useCreateTimesheet();
 
-	const timeOptions = generateTimeOptions(5);
+	const timeOptions = generateTimeOptions(ADD_TIME_ENTRY_STEP_MINUTES);
 	const t = useTranslations();
 
-	const [formState, setFormState] = React.useState({
+	const [formState, setFormState] = React.useState(() => ({
 		notes: '',
 		billableChoice: null as boolean | null,
 		taskId: '',
 		employeeId: '',
 		projectId: '',
-		shifts: [{ startTime: '', endTime: '', totalHours: '00:00h', dateFrom: new Date() }] as Shift[]
-	});
+		shifts: [{ startTime: '', endTime: '', totalHours: '00:00h', dateFrom: new Date() }] as Shift[],
+		...copiedFormOf(prefill, tasks, activeTeam?.members)
+	}));
+	const [saveRefusal, setSaveRefusal] = React.useState('');
+	const [isCheckingSave, setIsCheckingSave] = React.useState(false);
 
 	// The task and the employee come from the active team's lists: when that team changes under the open form
 	// (a team switch from another tab), they are cleared instead of being saved with the new team
@@ -184,7 +253,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	// Its billable default is unknown until the entry's project has loaded
 	const hasUnloadedProject = Boolean(entryProjectId) && !selectedProject;
 	const waitsForProject = hasUnloadedProject && getOrganizationProjectsLoading;
-	const isSaveDisabled = loadingCreateTimesheet || waitsForProject;
+	const isSaveDisabled = loadingCreateTimesheet || waitsForProject || isCheckingSave;
 
 	const pickTask = useCallback(
 		(taskId: string) => {
@@ -261,6 +330,15 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 		[t]
 	);
 
+	const refusalOf = async (check: CheckTimeEntrySave, employeeId: string, periods: { start: Date; end: Date }[]) => {
+		setIsCheckingSave(true);
+		try {
+			return await check({ employeeId, periods });
+		} finally {
+			setIsCheckingSave(false);
+		}
+	};
+
 	const handleAddTimesheet = async (formState: FormState) => {
 		const payload = {
 			isBillable,
@@ -298,6 +376,13 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 				}
 				return { start, end };
 			});
+			if (checkBeforeSave) {
+				const refusal = await refusalOf(checkBeforeSave, formState.employeeId, entries);
+				setSaveRefusal(refusal ?? '');
+				if (refusal) {
+					return;
+				}
+			}
 			await Promise.all(
 				entries.map(({ start, end }) =>
 					createTimesheet({
@@ -436,6 +521,12 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						{formState.notes.length}/{120}
 					</div>
 				</div>
+				{saveRefusal && (
+					<p role="alert" className="flex items-start gap-1.5 text-[13px] text-destructive-ink">
+						<CircleAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+						{saveRefusal}
+					</p>
+				)}
 				<div className="flex gap-x-2 justify-end items-center w-full">
 					<Button variant="outline" size="lg" type="button" onClick={closeModal}>
 						{t('common.CANCEL')}

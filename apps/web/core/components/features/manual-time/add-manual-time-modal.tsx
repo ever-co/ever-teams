@@ -32,6 +32,7 @@ import { activeTeamState, activeTeamTaskState, organizationTeamsState, tasksByTe
 import { queryKeys } from '@/core/query/keys';
 import { taskService } from '@/core/services/client/api/tasks/task.service';
 import { useReactiveAccessTokenCookie } from '@/core/hooks/auth/use-reactive-access-token-cookie';
+import type { CheckTimeEntrySave, TimeEntryCopy, TimeWindow } from '@/core/lib/utils/time-entry-reuse';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
@@ -53,6 +54,10 @@ interface IAddManualTimeModalProps {
 	initialStart?: Date;
 	/** Where the entry ends when the dialog opens; the start when not given. */
 	initialEnd?: Date;
+	/** The task, notes and billable status of a copied entry, which the dialog opens with. */
+	prefill?: Pick<TimeEntryCopy, 'taskId' | 'description' | 'isBillable'>;
+	/** Asked before the entry is saved: a returned message refuses the save and is shown in the dialog. */
+	checkBeforeSave?: CheckTimeEntrySave;
 }
 
 function clockTimeOf(date: Date) {
@@ -98,11 +103,12 @@ function isEmployeeOfTeam(team: TOrganizationTeam | null | undefined, employeeId
 }
 
 export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
-	const { closeModal, isOpen, params, timeSheetStatus, initialStart, initialEnd } = props;
+	const { closeModal, isOpen, params, timeSheetStatus, initialStart, initialEnd, prefill, checkBeforeSave } = props;
 	const t = useTranslations();
 	const locale = useLocale();
-	const [isBillable, setIsBillable] = useState<boolean>(false);
-	const [description, setDescription] = useState<string>('');
+	const [isBillable, setIsBillable] = useState<boolean>(prefill?.isBillable ?? false);
+	const [description, setDescription] = useState<string>(prefill?.description ?? '');
+	const [isCheckingSave, setIsCheckingSave] = useState(false);
 	const [reason, setReason] = useState<string>('');
 	const [errorMsg, setErrorMsg] = useState<string>('');
 	const [endTime, setEndTime] = useState<string>('');
@@ -112,7 +118,9 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const [taskId, setTaskId] = useState<string>('');
 	const [projectId, setProjectId] = useState<string>('');
 	const [employeeId, setEmployeeId] = useState<string>('');
-	const isTaskPickedRef = useRef(false);
+	// A copied entry keeps its own task or none: the active task never stands in for it
+	const copiedTaskId = prefill?.taskId ?? '';
+	const isTaskPickedRef = useRef(copiedTaskId !== '');
 	const isTeamPickedRef = useRef(false);
 	const [timeDifference, setTimeDifference] = useState<string>('');
 
@@ -192,6 +200,33 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		[projectId, employeeId]
 	);
 
+	const ownEmployeeId = user?.employee?.id ?? '';
+	const savedEmployeeId = employeeId || ownEmployeeId;
+	const isSaving = addManualTimeLoading || isCheckingSave;
+
+	/** Saves once the dialog's opener has nothing against the interval (a copied entry may not run over another). */
+	const saveUnlessRefused = useCallback(
+		async (period: TimeWindow, save: () => void) => {
+			if (!checkBeforeSave) {
+				save();
+				return;
+			}
+			setIsCheckingSave(true);
+			let refusal: string | null;
+			try {
+				refusal = await checkBeforeSave({ employeeId: savedEmployeeId, periods: [period] });
+			} finally {
+				setIsCheckingSave(false);
+			}
+			if (refusal) {
+				setErrorMsg(refusal);
+				return;
+			}
+			save();
+		},
+		[checkBeforeSave, savedEmployeeId]
+	);
+
 	const handleSubmit = useCallback(
 		(e: FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
@@ -262,10 +297,11 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			}
 
 			// All validation passed, submit the request
-			addManualTime(requestData);
+			void saveUnlessRefused({ start: startedAt, end: stoppedAt }, () => addManualTime(requestData));
 		},
 		[
 			addManualTime,
+			saveUnlessRefused,
 			date,
 			description,
 			endTime,
@@ -436,6 +472,17 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			setTeam(activeTeam);
 		}
 	}, [activeTeamTask, activeTeam, activeTeamTasks]);
+
+	// A copied entry's task is picked once the list offers it: one the member can no longer pick stays unpicked
+	const isCopiedTaskOffered = useMemo(
+		() => activeTeamTasks.some((task) => task.id === copiedTaskId),
+		[activeTeamTasks, copiedTaskId]
+	);
+	useEffect(() => {
+		if (isCopiedTaskOffered) {
+			setTaskId((current) => current || copiedTaskId);
+		}
+	}, [copiedTaskId, isCopiedTaskOffered]);
 
 	const memberItemsLists = useMemo(() => {
 		return {
@@ -719,8 +766,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							</Button>
 						)}
 						<Button
-							loading={addManualTimeLoading}
-							disabled={addManualTimeLoading}
+							loading={isSaving}
+							disabled={isSaving}
 							type="submit"
 							size="default"
 							className={modalPrimaryActionClass}
