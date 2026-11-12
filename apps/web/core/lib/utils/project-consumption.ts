@@ -72,8 +72,11 @@ type BudgetField = (typeof BUDGET_FIELDS)[number];
 
 export type SavedProjectBudget = Partial<Pick<TOrganizationProject, BudgetField>>;
 
+/** A budget is a number, its type and its currency are text: nothing else is compared. */
+type BudgetFieldValue = string | number | null | undefined;
+
 /** Gauzy writes no budget as 0 and no currency as null: a value that is not set reads the same however written. */
-function budgetValueOf(value: unknown): string | null {
+function budgetValueOf(value: BudgetFieldValue): string | null {
 	const isUnset = value === undefined || value === null || value === '' || value === 0;
 	if (isUnset) {
 		return null;
