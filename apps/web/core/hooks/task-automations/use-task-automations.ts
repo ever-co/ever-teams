@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useAtomValue } from 'jotai';
 import { hashKey, type QueryKey, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
@@ -112,7 +112,7 @@ export function useTaskAutomationRuns(ruleId: string | null) {
 	});
 }
 
-/** The writes of this page, so a write can tell whether others are still under way. */
+/** The key of the page's writes (for the query devtools and any `isMutating` reader). */
 const WRITE_KEY = ['task-automations', 'write'] as const;
 
 /** Where a write applies: the organization it was made in, and that organization's rules in the cache. */
@@ -144,34 +144,40 @@ export function useTaskAutomationActions() {
 	);
 	const invalidate = useCallback(() => queryClient.invalidateQueries({ queryKey: rulesKey }), [queryClient, rulesKey]);
 	/**
-	 * After a write: read its organization's rules again once no other write of that organization is under way (this
-	 * one still counts itself). Writes of another organization do not hold it back.
+	 * The writes of each organization under way, counted here rather than read from the mutation cache (a mutation is
+	 * still pending while its own callbacks run, so two writes settling together would each count the other). When the
+	 * last write of an organization settles, its rules are read again; writes of another organization do not hold it.
 	 */
-	const settle = useCallback(
-		(key: QueryKey) => {
-			const hash = hashKey(key);
-			const pending = queryClient.isMutating({
-				mutationKey: WRITE_KEY,
-				predicate: (mutation) => {
-					const write = (mutation.state.variables as { write?: WriteScope } | undefined)?.write;
-					return !!write && hashKey(write.rulesKey) === hash;
+	const pendingWrites = useRef(new Map<string, number>());
+	const tracked = useCallback(
+		async <T,>(write: WriteScope, run: () => Promise<T>): Promise<T> => {
+			const hash = hashKey(write.rulesKey);
+			const pending = pendingWrites.current;
+			pending.set(hash, (pending.get(hash) ?? 0) + 1);
+			try {
+				return await run();
+			} finally {
+				const left = (pending.get(hash) ?? 1) - 1;
+				if (left > 0) pending.set(hash, left);
+				else {
+					pending.delete(hash);
+					void queryClient.invalidateQueries({ queryKey: write.rulesKey });
 				}
-			});
-			if (pending <= 1) void queryClient.invalidateQueries({ queryKey: key });
+			}
 		},
 		[queryClient]
 	);
+	/** Before a write lands in the cache: a read under way could answer the list from before it, so it is dropped. */
+	const dropReads = useCallback((key: QueryKey) => queryClient.cancelQueries({ queryKey: key }), [queryClient]);
 
 	const createMutation = useMutation({
 		mutationKey: WRITE_KEY,
 		mutationFn: ({ write, input }: { write: WriteScope; input: ITaskAutomationRuleCreateInput }) =>
 			taskAutomationsService.create(write.organizationId, input),
 		onSuccess: async (created, { write }) => {
-			// A read under way could answer the list from before the rule: it is dropped, and the list read again.
-			await queryClient.cancelQueries({ queryKey: write.rulesKey });
+			await dropReads(write.rulesKey);
 			setRules(write.rulesKey, (rules) => [...rules.filter((one) => one.id !== created.id), created]);
-		},
-		onSettled: (_data, _error, { write }) => settle(write.rulesKey)
+		}
 	});
 
 	const updateMutation = useMutation({
@@ -196,11 +202,12 @@ export function useTaskAutomationActions() {
 			);
 		},
 		// The platform's rule, in the place the cache has it: a reorder made while this write was under way keeps its order.
-		onSuccess: (updated, { write }) =>
+		onSuccess: async (updated, { write }) => {
+			await dropReads(write.rulesKey);
 			setRules(write.rulesKey, (rules) =>
 				rules.map((rule) => (rule.id === updated.id ? { ...updated, position: rule.position } : rule))
-			),
-		onSettled: (_data, _error, { write }) => settle(write.rulesKey)
+			);
+		}
 	});
 
 	const reorderMutation = useMutation({
@@ -218,15 +225,19 @@ export function useTaskAutomationActions() {
 			if (order) setRules(write.rulesKey, (rules) => rulesInOrder(rules, order));
 		},
 		// The platform's order, with each rule as the cache has it now (a switch saved meanwhile stays).
-		onSuccess: (ordered, { write }) => setRules(write.rulesKey, (rules) => rulesInOrder(rules, ordered.map((rule) => rule.id))),
-		onSettled: (_data, _error, { write }) => settle(write.rulesKey)
+		onSuccess: async (ordered, { write }) => {
+			await dropReads(write.rulesKey);
+			setRules(write.rulesKey, (rules) => rulesInOrder(rules, ordered.map((rule) => rule.id)));
+		}
 	});
 
 	const removeMutation = useMutation({
 		mutationKey: WRITE_KEY,
 		mutationFn: ({ write, id }: { write: WriteScope; id: string }) => taskAutomationsService.remove(write.organizationId, id),
-		onSuccess: (_result, { write, id }) => setRules(write.rulesKey, (rules) => rules.filter((rule) => rule.id !== id)),
-		onSettled: (_data, _error, { write }) => settle(write.rulesKey)
+		onSuccess: async (_result, { write, id }) => {
+			await dropReads(write.rulesKey);
+			setRules(write.rulesKey, (rules) => rules.filter((rule) => rule.id !== id));
+		}
 	});
 
 	const testMutation = useMutation({
@@ -234,15 +245,22 @@ export function useTaskAutomationActions() {
 			taskAutomationsService.test(write.organizationId, id, taskId)
 	});
 
+	const write = <T,>(run: (scope: WriteScope) => Promise<T>): Promise<T> => {
+		const scope = current();
+		return tracked(scope, () => run(scope));
+	};
+
 	return {
-		create: (input: ITaskAutomationRuleCreateInput) => createMutation.mutateAsync({ write: current(), input }),
+		create: (input: ITaskAutomationRuleCreateInput) => write((scope) => createMutation.mutateAsync({ write: scope, input })),
 		isCreating: createMutation.isPending,
-		update: (id: string, input: ITaskAutomationRuleUpdateInput) => updateMutation.mutateAsync({ write: current(), id, input }),
+		update: (id: string, input: ITaskAutomationRuleUpdateInput) =>
+			write((scope) => updateMutation.mutateAsync({ write: scope, id, input })),
 		isUpdating: updateMutation.isPending,
-		setEnabled: (id: string, isEnabled: boolean) => updateMutation.mutateAsync({ write: current(), id, input: { isEnabled } }),
-		reorder: (ids: string[]) => reorderMutation.mutateAsync({ write: current(), ids }),
+		setEnabled: (id: string, isEnabled: boolean) =>
+			write((scope) => updateMutation.mutateAsync({ write: scope, id, input: { isEnabled } })),
+		reorder: (ids: string[]) => write((scope) => reorderMutation.mutateAsync({ write: scope, ids })),
 		isReordering: reorderMutation.isPending,
-		remove: (id: string) => removeMutation.mutateAsync({ write: current(), id }),
+		remove: (id: string) => write((scope) => removeMutation.mutateAsync({ write: scope, id })),
 		isRemoving: removeMutation.isPending,
 		test: (id: string, taskId: string) => testMutation.mutateAsync({ write: current(), id, taskId }),
 		isTesting: testMutation.isPending,

@@ -210,6 +210,44 @@ describe('actions', () => {
 		]);
 	});
 
+	it('reads the rules again once, when the last of two writes settling together is done', async () => {
+		const { result, queryClient } = setup(() => useTaskAutomationActions());
+		queryClient.setQueryData(rulesKey, [rule('a', 0), rule('b', 1)]);
+		const invalidate = jest.spyOn(queryClient, 'invalidateQueries');
+		const answers: Array<(value: ITaskAutomationRule) => void> = [];
+		mockService.update.mockImplementation(() => new Promise((resolve) => answers.push(resolve)));
+		let both: Promise<unknown> = Promise.resolve();
+		act(() => {
+			both = Promise.all([result.current.setEnabled('a', false), result.current.setEnabled('b', false)]);
+		});
+		await waitFor(() => expect(answers).toHaveLength(2));
+		expect(invalidate).not.toHaveBeenCalled();
+		await act(async () => {
+			answers[0](rule('a', 0, { isEnabled: false }));
+			answers[1](rule('b', 1, { isEnabled: false }));
+			await both;
+		});
+		expect(invalidate.mock.calls.filter(([filters]) => JSON.stringify(filters?.queryKey) === JSON.stringify(rulesKey))).toHaveLength(1);
+	});
+
+	it('drops a read under way before an edit lands, so the old list cannot replace it', async () => {
+		const { result, queryClient } = setup(() => useTaskAutomationActions());
+		queryClient.setQueryData(rulesKey, [rule('a', 0)]);
+		let answerRead!: (rules: ITaskAutomationRule[]) => void;
+		const read = queryClient
+			.fetchQuery({ queryKey: rulesKey, queryFn: () => new Promise<ITaskAutomationRule[]>((resolve) => (answerRead = resolve)) })
+			.catch(() => undefined);
+		mockService.update.mockResolvedValue(rule('a', 0, { name: 'Renamed' }));
+		await act(async () => {
+			await result.current.update('a', { name: 'Renamed' });
+		});
+		await act(async () => {
+			answerRead([rule('a', 0)]);
+			await read;
+		});
+		expect(queryClient.getQueryData<ITaskAutomationRule[]>(rulesKey)?.[0].name).toBe('Renamed');
+	});
+
 	it('reorders at once and keeps the platform’s answer', async () => {
 		const { result, queryClient } = setup(() => useTaskAutomationActions());
 		queryClient.setQueryData(rulesKey, [rule('a', 0), rule('b', 1)]);
