@@ -693,7 +693,9 @@
 			"APPS_EMPTY": "Geen app of site vastgelegd op {day}.",
 			"OPEN_TIMESHEETS": "Openen in urenstaten",
 			"UPDATING": "Werkdagboek laden",
-			"NO_TIME_HINT": "Zodra er tijd wordt geregistreerd, verschijnen hier de taken, screenshots en apps van de dag."
+			"NO_TIME_HINT": "Zodra er tijd wordt geregistreerd, verschijnen hier de taken, screenshots en apps van de dag.",
+			"WEEK_TITLE": "Urenstaat",
+			"WEEK_NO_MANUAL_TIME_PERMISSION": "Je rol mag geen tijd handmatig toevoegen, dus het blad is alleen-lezen. Een beheerder kan dat toestaan."
 		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# lid} other {# leden}}",

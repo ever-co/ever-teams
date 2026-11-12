@@ -1,4 +1,5 @@
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
+import type { DiaryView } from '@/core/lib/utils/dashboards/work-diary';
 
 /** The signed-in person's own Work diary: their day of tracked time, tasks, screenshots and apps. */
 export const WORK_DIARY_PATH = '/work-diary';
@@ -14,12 +15,20 @@ export function getMyWorkNavigation() {
 	};
 }
 
-/** The Work diary open on a day, by its local date; today's needs no date. */
-export function workDiaryPathOf(day: Date, now: Date = new Date()) {
+/** The Work diary open on a day, by its local date, in one of its views; today's day view needs no parameter. */
+export function workDiaryPathOf(day: Date, now: Date = new Date(), view: DiaryView = 'day') {
 	const dayKey = localDayKeyOf(day);
 	const isToday = dayKey === localDayKeyOf(now);
-	if (isToday) {
+	const params = new URLSearchParams();
+	if (!isToday) {
+		params.set('date', dayKey);
+	}
+	if (view === 'week') {
+		params.set('view', view);
+	}
+	const query = params.toString();
+	if (!query) {
 		return WORK_DIARY_PATH;
 	}
-	return `${WORK_DIARY_PATH}?date=${dayKey}`;
+	return `${WORK_DIARY_PATH}?${query}`;
 }

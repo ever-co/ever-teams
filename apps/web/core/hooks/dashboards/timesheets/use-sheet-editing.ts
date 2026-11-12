@@ -6,6 +6,7 @@ import { useAtomValue } from 'jotai';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
+import type { Period } from '@/core/lib/utils/dashboard-period';
 import {
 	approvedDayKeysOf,
 	type CellLock,
@@ -16,8 +17,7 @@ import {
 	sheetLockOf
 } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import {
-	ALL_STATUSES,
-	memberIdOfLog,
+	logsOfMember,
 	type SheetCell,
 	type SheetDay,
 	type SheetRowIdentity,
@@ -33,26 +33,28 @@ import { useSheetCellWrites } from './use-sheet-cell-writes';
 import { useSheetDraftRows } from './use-sheet-draft-rows';
 import { timesheetPageLogsRequestOf } from './use-timesheet-page-logs';
 import type { TimesheetSheetState } from './use-timesheet-sheet';
-import type { TimesheetsPageState } from './use-timesheets-page';
 
 const MANUAL_TIME_PERMISSION = 'ALLOW_MANUAL_TIME';
 
 const NO_LOGS: ITimeLog[] = [];
 
-function logsOfMember(logs: ReadonlyArray<ITimeLog>, memberId: string | null): ITimeLog[] {
-	if (!memberId) {
-		return NO_LOGS;
-	}
-	return logs.filter((log) => memberIdOfLog(log) === memberId);
-}
-
-/** A status, search, project or task filter shows only part of a cell's time, so the sheet cannot be edited under it. */
-function isNarrowed(page: TimesheetsPageState) {
-	const hasStatus = page.statusFilter !== ALL_STATUSES;
-	const hasSearch = page.search.trim().length > 0;
-	const hasProjects = page.filters.projects.length > 0;
-	const hasTasks = page.filters.tasks.length > 0;
-	return hasStatus || hasSearch || hasProjects || hasTasks;
+/** What the sheet's editing reads from the page that shows it: who is looking, the period on screen and its logs. */
+export interface SheetEditingSource {
+	/** The viewer's own employee id: the sheet of that member is the viewer's own. */
+	ownEmployeeId: string | null;
+	/** Organisation roles write on any member's sheet; everyone else on their own only. */
+	hasOrganizationRole: boolean;
+	period: Period;
+	/** The logs of the period as the page read them, every filter aside. */
+	periodLogs: ReadonlyArray<ITimeLog>;
+	/** False until the logs of this very period are read: on the first load, and while another period's stay shown. */
+	hasPeriodLogs: boolean;
+	/** A filter that shows only part of a cell's time: the sheet cannot be edited under it. */
+	isFiltered: boolean;
+	tenantId: string | null | undefined;
+	organizationId: string | null | undefined;
+	/** The zone the page reads its logs in, as `timesheetPageLogsRequestOf` takes it. */
+	userTimeZone: string | null | undefined;
 }
 
 /**
@@ -73,37 +75,36 @@ function isDraftStillEmpty(
 	return !loggedTaskIds.has(identity.taskId);
 }
 
-function sheetKeyOf(memberId: string | null, page: TimesheetsPageState) {
+function sheetKeyOf(memberId: string | null, period: Period) {
 	if (!memberId) {
 		return null;
 	}
-	const fromKey = localDayKeyOf(page.period.from);
-	const toKey = localDayKeyOf(page.period.to);
+	const fromKey = localDayKeyOf(period.from);
+	const toKey = localDayKeyOf(period.to);
 	return `${memberId}:${fromKey}:${toKey}`;
 }
 
-export function useSheetEditing(page: TimesheetsPageState, sheet: TimesheetSheetState) {
+export function useSheetEditing(source: SheetEditingSource, sheet: TimesheetSheetState) {
 	const queryClient = useQueryClient();
 	const organization = useAtomValue(currentOrganizationState);
 	const activeTeam = useAtomValue(activeTeamState);
 	const teamTasks = useAtomValue(tasksByTeamState);
 	const { organizationProjects } = useOrganizationProjectsQuery();
 	const { myPermissions, isLoading: isLoadingPermissions } = useMyRolePermissionsQuery();
-	const { permissions, logsQuery, user, period } = page;
+	const { ownEmployeeId, hasOrganizationRole, period, periodLogs, hasPeriodLogs, isFiltered } = source;
+	const { tenantId, organizationId, userTimeZone } = source;
 
 	const memberId = sheet.member?.id ?? null;
-	const isOwnSheet = Boolean(memberId) && memberId === permissions.employeeId;
+	const isOwnSheet = Boolean(memberId) && memberId === ownEmployeeId;
 	const hasManualTimePermission = myPermissions.includes(MANUAL_TIME_PERMISSION);
-	const mayWriteForMember = isOwnSheet || permissions.hasOrganizationRole;
+	const mayWriteForMember = isOwnSheet || hasOrganizationRole;
 	const canWrite = hasManualTimePermission && mayWriteForMember;
+	const lacksOnlyManualTimePermission = mayWriteForMember && !hasManualTimePermission;
 	const allowsManualTime = organization?.allowManualTime !== false;
 	const allowsFutureDates = organization?.futureDateAllowed === true;
-	const hasData = Boolean(logsQuery.data);
-	const isShowingOtherPeriod = logsQuery.isPlaceholderData;
-	const isLoading = !hasData || isShowingOtherPeriod || isLoadingPermissions;
-	const isFiltered = isNarrowed(page);
+	const isLoading = !hasPeriodLogs || isLoadingPermissions;
 
-	const memberLogs = useMemo(() => logsOfMember(page.allLogs, memberId), [memberId, page.allLogs]);
+	const memberLogs = useMemo(() => logsOfMember(periodLogs, memberId), [memberId, periodLogs]);
 	const approvedDayKeys = useMemo(() => approvedDayKeysOf(memberLogs), [memberLogs]);
 	const todayKey = localDayKeyOf(new Date());
 
@@ -136,12 +137,8 @@ export function useSheetEditing(page: TimesheetsPageState, sheet: TimesheetSheet
 	const readMemberLogs = useCallback(() => memberLogsRef.current, []);
 
 	const logsScope = useMemo(
-		() => ({
-			tenantId: user?.tenantId,
-			organizationId: user?.employee?.organizationId,
-			userTimeZone: user?.timeZone
-		}),
-		[user?.employee?.organizationId, user?.tenantId, user?.timeZone]
+		() => ({ tenantId, organizationId, userTimeZone }),
+		[organizationId, tenantId, userTimeZone]
 	);
 
 	/**
@@ -178,7 +175,7 @@ export function useSheetEditing(page: TimesheetsPageState, sheet: TimesheetSheet
 		readMemberLogs,
 		readSavedMemberLogs
 	});
-	const sheetKey = sheetKeyOf(memberId, page);
+	const sheetKey = sheetKeyOf(memberId, period);
 	const { rows: storedDraftRows, addRows, removeRow } = useSheetDraftRows(sheetKey);
 
 	const shownRowKeys = useMemo(() => {
@@ -229,6 +226,7 @@ export function useSheetEditing(page: TimesheetsPageState, sheet: TimesheetSheet
 
 	return {
 		sheetLock,
+		lacksOnlyManualTimePermission,
 		cellLockFor,
 		writes,
 		draftRows,

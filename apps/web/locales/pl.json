@@ -693,7 +693,9 @@
 			"APPS_EMPTY": "Brak zapisanych aplikacji i stron w dniu {day}.",
 			"OPEN_TIMESHEETS": "Otwórz w kartach czasu pracy",
 			"UPDATING": "Wczytywanie dziennika",
-			"NO_TIME_HINT": "Gdy czas zostanie zarejestrowany, pojawią się tu zadania, zrzuty ekranu i aplikacje z tego dnia."
+			"NO_TIME_HINT": "Gdy czas zostanie zarejestrowany, pojawią się tu zadania, zrzuty ekranu i aplikacje z tego dnia.",
+			"WEEK_TITLE": "Karta czasu pracy",
+			"WEEK_NO_MANUAL_TIME_PERMISSION": "Twoja rola nie pozwala dodawać czasu ręcznie, więc arkusz jest tylko do odczytu. Administrator może na to zezwolić."
 		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# członek} few {# członków} many {# członków} other {# członka}}",
