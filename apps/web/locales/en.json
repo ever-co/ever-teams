@@ -6490,7 +6490,8 @@
 			"ALREADY_RECORDED": "This entry is already recorded.",
 			"OVERLAPS_RECORDED": "{count, plural, one {It overlaps an entry already recorded, {range}. Saving it would remove that entry.} other {It overlaps # entries already recorded, the first one {range}. Saving it would remove them.}}",
 			"SAME_AS_ROW": "It repeats row {row} of this file.",
-			"OVERLAPS_ROW": "It overlaps row {row} of this file, which is imported first."
+			"OVERLAPS_ROW": "It overlaps row {row} of this file, which is imported first.",
+			"RECORDED_MEANWHILE": "An entry was recorded over this row while the import was running. Saving the row would remove that entry."
 		},
 		"access": {
 			"MANUAL_TIME_OFF_TITLE": "Manual time is turned off",

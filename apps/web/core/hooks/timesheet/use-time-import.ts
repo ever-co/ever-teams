@@ -31,6 +31,7 @@ import {
 	type TimeImportFileProblem,
 	type TimeImportSheet
 } from '@/core/lib/utils/time-import-sheet';
+import { hasUnreadableInterval } from '@/core/lib/utils/time-log-overlap';
 import { queryKeys } from '@/core/query/keys';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { type TTimeLogConflict, ZodValidationError } from '@/core/types/schemas';
@@ -41,6 +42,8 @@ const LOOKUPS_AT_ONCE = 4;
 const PROJECT_FIELD = 'projectId';
 
 const PROJECT_REQUIRED_KEY = 'timeImport.problems.PROJECT_REQUIRED';
+
+const RECORDED_MEANWHILE_KEY = 'timeImport.problems.RECORDED_MEANWHILE';
 
 /**
  * `idle`: no file yet, or a file that was refused whole. `checking`: its rows are compared with recorded time.
@@ -88,7 +91,7 @@ async function textOf(file: PickedFile): Promise<string | null> {
 	}
 }
 
-function readLookup(queryClient: QueryClient, lookup: TimeImportLookup): Promise<TTimeLogConflict[]> {
+async function readLookup(queryClient: QueryClient, lookup: TimeImportLookup): Promise<TTimeLogConflict[]> {
 	const queryKey = queryKeys.timesheet.conflicts({
 		tenantId: getTenantIdCookie() || null,
 		organizationId: getOrganizationIdCookie() || null,
@@ -98,7 +101,7 @@ function readLookup(queryClient: QueryClient, lookup: TimeImportLookup): Promise
 		ignoreId: null
 	});
 	// Never answered from the cache: the timer or another tab may have recorded time since the last read
-	return queryClient.fetchQuery({
+	const logs = await queryClient.fetchQuery({
 		queryKey,
 		queryFn: () =>
 			timeLogService.getTimeLogConflicts({
@@ -109,9 +112,15 @@ function readLookup(queryClient: QueryClient, lookup: TimeImportLookup): Promise
 		staleTime: 0,
 		retry: false
 	});
+	// An entry the API would still remove, and that no row can be compared with: an incomplete answer, not a free day
+	const hasUnreadableEntry = logs.some((log) => hasUnreadableInterval(log));
+	if (hasUnreadableEntry) {
+		throw new Error('The time import lookup returned an entry whose time cannot be read');
+	}
+	return logs;
 }
 
-/** Rejects when one read fails: a row is only ever judged on every day it has time on. */
+/** Rejects when one read fails or is incomplete: a row is only ever judged on every day it has time on. */
 async function readRecordedLogs(queryClient: QueryClient, lookups: ReadonlyArray<TimeImportLookup>) {
 	const logsByLookup = new Map<string, TTimeLogConflict[]>();
 	const batches = chunksOf(lookups, LOOKUPS_AT_ONCE);
@@ -149,6 +158,38 @@ async function saveEntry(entry: TimeImportEntry, scope: TimeImportSaveScope): Pr
 	}
 }
 
+type ReadyRow = TimeImportRow & { entry: TimeImportEntry };
+
+/** The row against its day as the API holds it now, judged the way the preview judged it. */
+async function isPlaceStillFree(queryClient: QueryClient, row: ReadyRow): Promise<boolean> {
+	const lookups = timeImportLookupsOf([row]);
+	const logsByLookup = await readRecordedLogs(queryClient, lookups);
+	const [checkedRow] = checkedRowsOf({ rows: [row], logsByLookup, now: new Date() });
+	return isReadyRow(checkedRow);
+}
+
+/**
+ * Saves a row after one more read of its day. The file was checked whole before the first save, and the rows before
+ * this one took time to save: an entry recorded meanwhile would be removed whole by this row, so the row is not sent.
+ */
+async function saveRowIfStillFree(
+	queryClient: QueryClient,
+	row: ReadyRow,
+	scope: TimeImportSaveScope
+): Promise<TimeImportOutcome> {
+	let isPlaceFree: boolean;
+	try {
+		isPlaceFree = await isPlaceStillFree(queryClient, row);
+	} catch (error) {
+		logErrorInDev('Time import check of a row before saving failed', error);
+		return { kind: 'failed', reasonKey: errorReasonKeyOf(error) };
+	}
+	if (!isPlaceFree) {
+		return { kind: 'failed', reasonKey: RECORDED_MEANWHILE_KEY };
+	}
+	return saveEntry(row.entry, scope);
+}
+
 interface TimeImportOptions {
 	contextAt: (now: Date) => TimeImportContext;
 	saveScope: TimeImportSaveScope;
@@ -158,7 +199,8 @@ interface TimeImportOptions {
  * The import of time entries from a CSV file, from the picked file to the report. A file is read and judged in the
  * browser, row by row, and its rows are compared with the time already recorded. Nothing is saved before
  * `confirm`, which checks the file once more (time may have been recorded while the preview was open) and then
- * saves the ready rows one after the other through the manual time call, stopping at the first refusal.
+ * saves the ready rows one after the other through the manual time call, each after one more read of its day,
+ * stopping at the first refusal or at the first row whose time was recorded meanwhile.
  */
 export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 	const queryClient = useQueryClient();
@@ -269,7 +311,7 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 				if (!isReadyRow(row)) {
 					continue;
 				}
-				const outcome = await saveEntry(row.entry, saveScope);
+				const outcome = await saveRowIfStillFree(queryClient, row, saveScope);
 				outcomes.set(row.row, outcome);
 				const savedSoFar = new Map(outcomes);
 				setState((current) => ({ ...current, outcomes: savedSoFar }));
@@ -279,7 +321,7 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 			}
 			return outcomes;
 		},
-		[saveScope]
+		[queryClient, saveScope]
 	);
 
 	const confirm = useCallback(async () => {

@@ -6490,7 +6490,8 @@
 			"ALREADY_RECORDED": "这条条目已经记录过了。",
 			"OVERLAPS_RECORDED": "{count, plural, =1 {它与一条已记录的条目重叠：{range}。保存它会删除该条目。} other {它与 # 条已记录的条目重叠，第一条是 {range}。保存它会删除这些条目。}}",
 			"SAME_AS_ROW": "它与此文件的第 {row} 行重复。",
-			"OVERLAPS_ROW": "它与此文件的第 {row} 行重叠，那一行会先导入。"
+			"OVERLAPS_ROW": "它与此文件的第 {row} 行重叠，那一行会先导入。",
+			"RECORDED_MEANWHILE": "导入期间，这一行的时间上记录了一条条目。保存这一行会删除该条目。"
 		},
 		"access": {
 			"MANUAL_TIME_OFF_TITLE": "手动时间已关闭",

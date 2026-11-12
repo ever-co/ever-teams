@@ -260,6 +260,33 @@ describe('useTimeImport', () => {
 		expect(result.current.summary.readyCount).toBe(3);
 	});
 
+	it.each([
+		['no start', { id: 'broken', startedAt: null, stoppedAt: at(13).toISOString(), isRunning: false }],
+		['a start that is not a date', { id: 'broken', startedAt: 'soon', stoppedAt: at(13).toISOString() }],
+		['no end though it is stopped', { id: 'broken', startedAt: at(11, 30).toISOString(), isRunning: false }]
+	])('previews no row when a recorded entry comes back with %s', async (_label, unreadableLog) => {
+		mockGetTimeLogConflicts.mockResolvedValue([unreadableLog]);
+		const { result } = renderImport();
+
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+
+		expect(result.current.stage).toBe('checking');
+		expect(result.current.hasCheckFailed).toBe(true);
+		expect(result.current.rows).toEqual([]);
+	});
+
+	it('saves nothing when the last check before saving reads an entry whose time cannot be read', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+		mockGetTimeLogConflicts.mockResolvedValue([{ id: 'broken', startedAt: null, isRunning: false }]);
+
+		await act(() => result.current.confirm());
+
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+		expect(result.current.stage).toBe('preview');
+		expect(result.current.hasCheckFailed).toBe(true);
+	});
+
 	it('checks the file once more before saving, and saves nothing when a row is no longer ready', async () => {
 		const { result } = renderImport();
 		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
@@ -271,6 +298,47 @@ describe('useTimeImport', () => {
 		expect(result.current.stage).toBe('preview');
 		expect(result.current.hasPreviewChanged).toBe(true);
 		expect(result.current.summary.readyCount).toBe(2);
+	});
+
+	it('stops at a row whose time was recorded while the rows before it were being saved', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+		mockAddManualTime.mockImplementationOnce(async () => {
+			mockGetTimeLogConflicts.mockResolvedValue([recordedLog('added-meanwhile', at(11, 15), at(11, 45))]);
+			return {};
+		});
+
+		await act(() => result.current.confirm());
+
+		expect(mockAddManualTime).toHaveBeenCalledTimes(1);
+		expect(result.current.stage).toBe('done');
+		expect(result.current.report).toEqual({
+			savedCount: 1,
+			savedSeconds: 3600,
+			leftOutCount: 0,
+			failedCount: 1,
+			notSentCount: 1,
+			refusal: { row: 3, reasonKey: 'timeImport.problems.RECORDED_MEANWHILE' }
+		});
+	});
+
+	it('sends no row whose day cannot be read again right before it is saved', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+		mockAddManualTime.mockImplementationOnce(async () => {
+			mockGetTimeLogConflicts.mockRejectedValue({ statusCode: 503 });
+			return {};
+		});
+
+		await act(() => result.current.confirm());
+
+		expect(mockAddManualTime).toHaveBeenCalledTimes(1);
+		expect(result.current.report).toMatchObject({
+			savedCount: 1,
+			failedCount: 1,
+			notSentCount: 1,
+			refusal: { row: 3, reasonKey: 'toasts.REASONS.SERVER' }
+		});
 	});
 
 	it('saves nothing when the last check before saving fails', async () => {

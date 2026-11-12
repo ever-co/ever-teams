@@ -6490,7 +6490,8 @@
 			"ALREADY_RECORDED": "Deze invoer is al geregistreerd.",
 			"OVERLAPS_RECORDED": "{count, plural, one {Deze rij overlapt een al geregistreerde invoer, {range}. Opslaan zou die invoer verwijderen.} other {Deze rij overlapt # al geregistreerde invoeren, de eerste {range}. Opslaan zou ze verwijderen.}}",
 			"SAME_AS_ROW": "Deze rij herhaalt rij {row} van dit bestand.",
-			"OVERLAPS_ROW": "Deze rij overlapt rij {row} van dit bestand, die eerst wordt geïmporteerd."
+			"OVERLAPS_ROW": "Deze rij overlapt rij {row} van dit bestand, die eerst wordt geïmporteerd.",
+			"RECORDED_MEANWHILE": "Tijdens de import is op de tijd van deze rij een invoer geregistreerd. De rij opslaan zou die invoer verwijderen."
 		},
 		"access": {
 			"MANUAL_TIME_OFF_TITLE": "Handmatige tijd staat uit",
