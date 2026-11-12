@@ -260,6 +260,33 @@ describe('useTimeImport', () => {
 		expect(result.current.summary.readyCount).toBe(3);
 	});
 
+	it.each([
+		['no start', { id: 'broken', startedAt: null, stoppedAt: at(13).toISOString(), isRunning: false }],
+		['a start that is not a date', { id: 'broken', startedAt: 'soon', stoppedAt: at(13).toISOString() }],
+		['no end though it is stopped', { id: 'broken', startedAt: at(11, 30).toISOString(), isRunning: false }]
+	])('previews no row when a recorded entry comes back with %s', async (_label, unreadableLog) => {
+		mockGetTimeLogConflicts.mockResolvedValue([unreadableLog]);
+		const { result } = renderImport();
+
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+
+		expect(result.current.stage).toBe('checking');
+		expect(result.current.hasCheckFailed).toBe(true);
+		expect(result.current.rows).toEqual([]);
+	});
+
+	it('saves nothing when the last check before saving reads an entry whose time cannot be read', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+		mockGetTimeLogConflicts.mockResolvedValue([{ id: 'broken', startedAt: null, isRunning: false }]);
+
+		await act(() => result.current.confirm());
+
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+		expect(result.current.stage).toBe('preview');
+		expect(result.current.hasCheckFailed).toBe(true);
+	});
+
 	it('checks the file once more before saving, and saves nothing when a row is no longer ready', async () => {
 		const { result } = renderImport();
 		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));

@@ -31,6 +31,7 @@ import {
 	type TimeImportFileProblem,
 	type TimeImportSheet
 } from '@/core/lib/utils/time-import-sheet';
+import { hasUnreadableInterval } from '@/core/lib/utils/time-log-overlap';
 import { queryKeys } from '@/core/query/keys';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { type TTimeLogConflict, ZodValidationError } from '@/core/types/schemas';
@@ -88,7 +89,7 @@ async function textOf(file: PickedFile): Promise<string | null> {
 	}
 }
 
-function readLookup(queryClient: QueryClient, lookup: TimeImportLookup): Promise<TTimeLogConflict[]> {
+async function readLookup(queryClient: QueryClient, lookup: TimeImportLookup): Promise<TTimeLogConflict[]> {
 	const queryKey = queryKeys.timesheet.conflicts({
 		tenantId: getTenantIdCookie() || null,
 		organizationId: getOrganizationIdCookie() || null,
@@ -98,7 +99,7 @@ function readLookup(queryClient: QueryClient, lookup: TimeImportLookup): Promise
 		ignoreId: null
 	});
 	// Never answered from the cache: the timer or another tab may have recorded time since the last read
-	return queryClient.fetchQuery({
+	const logs = await queryClient.fetchQuery({
 		queryKey,
 		queryFn: () =>
 			timeLogService.getTimeLogConflicts({
@@ -109,9 +110,15 @@ function readLookup(queryClient: QueryClient, lookup: TimeImportLookup): Promise
 		staleTime: 0,
 		retry: false
 	});
+	// An entry the API would still remove, and that no row can be compared with: an incomplete answer, not a free day
+	const hasUnreadableEntry = logs.some((log) => hasUnreadableInterval(log));
+	if (hasUnreadableEntry) {
+		throw new Error('The time import lookup returned an entry whose time cannot be read');
+	}
+	return logs;
 }
 
-/** Rejects when one read fails: a row is only ever judged on every day it has time on. */
+/** Rejects when one read fails or is incomplete: a row is only ever judged on every day it has time on. */
 async function readRecordedLogs(queryClient: QueryClient, lookups: ReadonlyArray<TimeImportLookup>) {
 	const logsByLookup = new Map<string, TTimeLogConflict[]>();
 	const batches = chunksOf(lookups, LOOKUPS_AT_ONCE);
