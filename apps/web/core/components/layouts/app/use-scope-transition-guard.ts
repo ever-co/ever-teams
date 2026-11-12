@@ -6,6 +6,7 @@ import { useCallback, useRef } from 'react';
 import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-layout-effect';
 
 import { queryKeys } from '@/core/query/keys';
+import { EMPTY_TIMER_NOTES } from '@/core/lib/utils/timer/timer-notes';
 import {
 	activeTaskStatisticsState,
 	activeTeamIdState,
@@ -17,6 +18,7 @@ import {
 	tasksStatisticsState,
 	teamTasksState,
 	timeCounterState,
+	timerNotesState,
 	timerSecondsState,
 	timerStatusFetchingState,
 	timerStatusState
@@ -67,6 +69,7 @@ export function useScopeTransitionGuard(scope: ShellScope, enabled = true) {
 	const setTimeCounter = useSetAtom(timeCounterState);
 	const setTimerSeconds = useSetAtom(timerSecondsState);
 	const setTimerFetching = useSetAtom(timerStatusFetchingState);
+	const setTimerNotes = useSetAtom(timerNotesState);
 	const setTasksFetching = useSetAtom(tasksFetchingState);
 	const setTaskStatistics = useSetAtom(tasksStatisticsState);
 	const setActiveTaskStatistics = useSetAtom(activeTaskStatisticsState);
@@ -127,6 +130,8 @@ export function useScopeTransitionGuard(scope: ShellScope, enabled = true) {
 				setTimeCounter(0);
 				setTimerSeconds(0);
 				setTimerFetching(false);
+				// A note typed for the next start belongs to the member's timer in the team it was typed in
+				setTimerNotes(EMPTY_TIMER_NOTES);
 			}
 			if (statisticsChanged) {
 				setTasksFetching(false);
@@ -153,6 +158,7 @@ export function useScopeTransitionGuard(scope: ShellScope, enabled = true) {
 		setTimeCounter,
 		setTimerSeconds,
 		setTimerFetching,
+		setTimerNotes,
 		setTimerStatus
 	]);
 
