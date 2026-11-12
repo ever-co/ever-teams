@@ -9,6 +9,7 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { RotateLeft, Search, ShieldCheck, Trash } from '@/core/components/icons';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { useTaskTrash, type TaskTrashFilter } from '@/core/hooks/tasks/use-task-trash';
+import { TASK_TRASH_SEARCH_MAX_LENGTH } from '@/core/services/client/api/tasks/task-trash.service';
 import { trashedTaskNumberOf, trashedTaskPersonName } from '@/core/lib/utils/task-trash';
 import type { ITrashedTask } from '@/core/types/interfaces/task/task-trash';
 
@@ -110,6 +111,7 @@ export function TaskTrashList({ teamId, projectId, showsProject = true }: Readon
 					<input
 						type="search"
 						value={search}
+						maxLength={TASK_TRASH_SEARCH_MAX_LENGTH}
 						onChange={(event) => setSearch(event.target.value)}
 						placeholder={t('taskTrash.SEARCH')}
 						aria-label={t('taskTrash.SEARCH')}
