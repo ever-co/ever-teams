@@ -9,6 +9,9 @@ import type { TOrganization } from '@/core/types/schemas';
 
 const mockCreateInvoice = jest.fn();
 const mockOrganizationRead = { isError: false, refetch: jest.fn() };
+const mockClients: Array<{ id: string; name: string; paymentTermsDays?: number | null }> = [
+	{ id: 'client-acme', name: 'Acme' }
+];
 
 const mockLine: InvoiceLine = {
 	key: 'project-site:member-ada',
@@ -35,7 +38,7 @@ jest.mock('@/core/hooks/bootstrap/use-feature-data', () => ({
 }));
 jest.mock('@/core/hooks/clients/use-clients-query', () => ({
 	useActiveClients: () => ({
-		clients: [{ id: 'client-acme', name: 'Acme' }],
+		clients: mockClients,
 		isLoading: false,
 		isError: false,
 		refetch: jest.fn()
@@ -116,5 +119,42 @@ describe('saving a new invoice and the organisation it is dated by', () => {
 		const request = mockCreateInvoice.mock.calls[0][0];
 		expect(request.dueDate).toBe('2099-12-31T14:59:59.999Z');
 		expect(result.current.isOrganizationLoading).toBe(false);
+	});
+});
+
+function listClients(...clients: typeof mockClients) {
+	mockClients.splice(0, mockClients.length, ...clients);
+}
+
+describe('the due date of a new invoice', () => {
+	afterEach(() => listClients({ id: 'client-acme', name: 'Acme' }));
+
+	it('is the issue date plus the 14 days of the client’s payment terms, without typing', () => {
+		listClients({ id: 'client-acme', name: 'Acme', paymentTermsDays: 14 });
+		const { result } = renderNewInvoice({ ...tokyoOrganization, daysUntilDue: 30 });
+
+		act(() => result.current.setIssueDay('2026-11-02'));
+
+		expect(result.current.dueDay).toBe('2026-11-16');
+		expect(result.current.dueTerm).toEqual({ source: 'client', days: 14 });
+		expect(result.current.isDueDayOfTerm).toBe(true);
+	});
+
+	it('follows the terms of the next client chosen, after a day picked by hand', () => {
+		listClients(
+			{ id: 'client-acme', name: 'Acme', paymentTermsDays: 14 },
+			{ id: 'client-globex', name: 'Globex', paymentTermsDays: null }
+		);
+		const { result } = renderNewInvoice({ ...tokyoOrganization, daysUntilDue: 45 });
+		act(() => result.current.setIssueDay('2026-11-02'));
+		act(() => result.current.setDueDay('2026-11-30'));
+
+		expect(result.current.isDueDayOfTerm).toBe(false);
+
+		act(() => result.current.changeClient('client-globex'));
+
+		expect(result.current.dueDay).toBe('2026-12-17');
+		expect(result.current.dueTerm).toEqual({ source: 'organization', days: 45 });
+		expect(result.current.isDueDayOfTerm).toBe(true);
 	});
 });

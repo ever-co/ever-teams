@@ -1,7 +1,6 @@
 import {
 	billableEntriesOf,
 	buildInvoiceRequest,
-	defaultDueDayOf,
 	dueDayAfter,
 	hoursOfLines,
 	invoiceCurrenciesOf,
@@ -679,13 +678,6 @@ describe('invoice number and dates', () => {
 		expect(nextInvoiceNumberOf(0)).toBe(1);
 		expect(nextInvoiceNumberOf(undefined)).toBeNull();
 		expect(nextInvoiceNumberOf('abc')).toBeNull();
-	});
-
-	it('takes the due day from the organization’s setting, and leaves it to the user without one', () => {
-		expect(defaultDueDayOf('2026-11-02', 30)).toBe('2026-12-02');
-		expect(defaultDueDayOf('2026-11-02', null)).toBe('');
-		expect(defaultDueDayOf('2026-11-02', 0)).toBe('');
-		expect(defaultDueDayOf('', 30)).toBe('');
 	});
 
 	it('dues the invoice of a client with 14-day terms 14 days after its issue', () => {

@@ -11,9 +11,10 @@ import { periodOfPreset, type Period } from '@/core/lib/utils/dashboard-period';
 import { currencyKeyOf } from '@/core/lib/utils/dashboards/payments-due';
 import {
 	buildInvoiceRequest,
-	defaultDueDayOf,
+	dueDayAfter,
 	invoiceCurrenciesOf,
 	invoiceCurrencyKeyOf,
+	invoiceDueTermOf,
 	invoicePeriodDaysOf,
 	invoiceProblemsOf,
 	keptLinesOf,
@@ -105,7 +106,10 @@ export function useNewInvoice() {
 
 	const nextNumber = useNextInvoiceNumber(true);
 	const numberText = numberTextOf(typedNumber, nextNumber.nextNumber);
-	const dueDay = pickedDueDay ?? defaultDueDayOf(issueDay, organization?.daysUntilDue);
+	const dueTerm = invoiceDueTermOf(client?.paymentTermsDays, organization?.daysUntilDue);
+	const termDueDay = dueDayAfter(issueDay, dueTerm.days);
+	const dueDay = pickedDueDay ?? termDueDay;
+	const isDueDayOfTerm = dueDay !== '' && dueDay === termDueDay;
 
 	const periodDays = useMemo(() => invoicePeriodDaysOf(period), [period]);
 	const earlier = useClientInvoices(clientId);
@@ -125,6 +129,8 @@ export function useNewInvoice() {
 	const changeClient = useCallback(
 		(nextClientId: string) => {
 			setPickedClientId(nextClientId || null);
+			// The due day follows the terms of the client the invoice is for.
+			setPickedDueDay(null);
 			resetEdits();
 		},
 		[resetEdits]
@@ -254,6 +260,8 @@ export function useNewInvoice() {
 		setIssueDay,
 		dueDay,
 		setDueDay: setPickedDueDay,
+		dueTerm,
+		isDueDayOfTerm,
 		earlierInvoices: earlier.invoices,
 		areEarlierLoading: earlier.isLoading,
 		haveEarlierFailed: earlier.isError,

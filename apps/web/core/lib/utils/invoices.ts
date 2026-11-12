@@ -657,17 +657,6 @@ export function todayDayKey(now = new Date()) {
 	return localDayKeyOf(now);
 }
 
-/** The due day the organization's own setting gives; empty when it has none, so the user picks the day. */
-export function defaultDueDayOf(issueDay: string, daysUntilDue: number | null | undefined): string {
-	const issueDate = dateOfDayKey(issueDay);
-	const days = Number(daysUntilDue);
-	const hasSetting = Number.isInteger(days) && days > 0;
-	if (!issueDate || !hasSetting) {
-		return '';
-	}
-	return localDayKeyOf(addDays(issueDate, days));
-}
-
 export type InvoiceDueTermSource = 'client' | 'organization' | 'standard';
 
 export interface InvoiceDueTerm {
