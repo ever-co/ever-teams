@@ -380,9 +380,17 @@ export function meetingLinkWithTitle(link: string, title: string): string {
 	}
 	// The title belongs to the query: a fragment (#notes) stays at the end
 	const hashAt = link.indexOf('#');
-	const query = hashAt === -1 ? link : link.slice(0, hashAt);
+	const beforeFragment = hashAt === -1 ? link : link.slice(0, hashAt);
 	const fragment = hashAt === -1 ? '' : link.slice(hashAt);
-	return `${withTitle(query.replace(/&title=[^&]*/, ''), title)}${fragment}`;
+	// The old title goes wherever it stands; the room and the rest stay as written, encoding included
+	const queryAt = beforeFragment.indexOf('?');
+	const base = queryAt === -1 ? beforeFragment : beforeFragment.slice(0, queryAt);
+	const kept = (queryAt === -1 ? '' : beforeFragment.slice(queryAt + 1))
+		.split('&')
+		.filter((param) => param && param !== 'title' && !param.startsWith('title='));
+	const titleParam = withTitle('', title).slice(1);
+	const params = titleParam ? [...kept, titleParam] : kept;
+	return `${base}${params.length > 0 ? `?${params.join('&')}` : ''}${fragment}`;
 }
 
 // iCalendar (RFC 5545) property names
