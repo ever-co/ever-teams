@@ -103,7 +103,10 @@ export function dayOfStoredDate(value: Date | string | null | undefined): number
 		return null;
 	}
 	const isUtcMidnight =
-		date.getUTCHours() === 0 && date.getUTCMinutes() === 0 && date.getUTCSeconds() === 0 && date.getUTCMilliseconds() === 0;
+		date.getUTCHours() === 0 &&
+		date.getUTCMinutes() === 0 &&
+		date.getUTCSeconds() === 0 &&
+		date.getUTCMilliseconds() === 0;
 	if (isUtcMidnight) {
 		return Math.round(time / DAY_MS);
 	}
@@ -129,7 +132,15 @@ function datedTaskOf(task: TeamTasksTimelineTask): DatedTask | null {
 	}
 	const own = { taskStart: start, taskDue: due };
 	if (start === null) {
-		return { task, ...own, start: due as number, end: due as number, isDueOnly: true, isStartOnly: false, hasInvalidRange: false };
+		return {
+			task,
+			...own,
+			start: due as number,
+			end: due as number,
+			isDueOnly: true,
+			isStartOnly: false,
+			hasInvalidRange: false
+		};
 	}
 	if (due === null) {
 		return { task, ...own, start, end: start, isDueOnly: false, isStartOnly: true, hasInvalidRange: false };
@@ -260,4 +271,34 @@ export function draggedDatesOf(
 	}
 	const next = Math.max(dueDay + deltaDays, startDay);
 	return next === dueDay ? null : { dueDay: next };
+}
+
+/**
+ * The dates a drag of `deltaDays` gives a task, read from the task's stored dates by the timeline's day rules (a bare
+ * date and midnight UTC are that day) and written as local midnights, as the due-date picker writes them. Null when
+ * the drag changes nothing (no movement, an end of a single date, an end already at the other).
+ */
+export function draggedTaskDatesOf(
+	task: { startDate?: Date | string | null; dueDate?: Date | string | null },
+	drag: TeamTasksTimelineDrag,
+	deltaDays: number
+): { startDate?: Date; dueDate?: Date } | null {
+	const startDay = dayOfStoredDate(task.startDate);
+	const dueDay = dayOfStoredDate(task.dueDate);
+	if (startDay === null && dueDay === null) {
+		return null;
+	}
+	const shape = {
+		isDueOnly: startDay === null,
+		isStartOnly: dueDay === null,
+		hasInvalidRange: startDay !== null && dueDay !== null && dueDay < startDay
+	};
+	const next = draggedDatesOf(shape, { startDay, dueDay }, drag, deltaDays);
+	if (!next) {
+		return null;
+	}
+	return {
+		...(next.startDay === undefined ? {} : { startDate: dateOfDayNumber(next.startDay) }),
+		...(next.dueDay === undefined ? {} : { dueDate: dateOfDayNumber(next.dueDay) })
+	};
 }

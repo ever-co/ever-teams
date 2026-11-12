@@ -15,27 +15,13 @@ import { taskUpdateQueue } from '@/core/lib/utils/task.utils';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import type { TOrganizationTeamEmployee, TTaskStatus } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
+import { draggedTaskDatesOf, type TeamTasksTimelineDrag } from '@/core/lib/utils/team-tasks-timeline';
 
 /** The fields a list of tasks edits in place; the names match the failure toast's own select. */
 export type TeamTaskField = 'status' | 'priority' | 'size' | 'issueType' | 'tags' | 'dueDate' | 'members' | 'project';
 
 type TaskChange = (task: TTask) => Partial<TTask> | null;
 
-/** Whether a date change leaves the stored day as it is (a date not part of the change counts as unchanged). */
-function sameDay(next: Date | null | undefined, current: Date | string | null | undefined, isChanged: boolean) {
-	if (!isChanged) {
-		return true;
-	}
-	if (!next || !current) {
-		return !next && !current;
-	}
-	const stored = new Date(current);
-	return (
-		next.getFullYear() === stored.getFullYear() &&
-		next.getMonth() === stored.getMonth() &&
-		next.getDate() === stored.getDate()
-	);
-}
 
 function isAssigned(task: TTask, member: TOrganizationTeamEmployee) {
 	const employeeId = member.employeeId ?? member.employee?.id;
@@ -230,19 +216,13 @@ export function useTeamTaskUpdates() {
 	);
 
 	/**
-	 * Sets a task's start and due dates together (the timeline's drag): one update, so the task never holds a due date
-	 * before its start in between. `undefined` leaves a date as it is.
+	 * Moves a task's dates by whole days (the timeline's drag): the whole task, or one end of its range. The dates are
+	 * worked out when the queued update runs, from the task as it then is, so quick repeated moves add up instead of
+	 * repeating the first; both dates go in one update, so the task never holds a due date before its start in between.
 	 */
-	const setDates = useCallback(
-		(taskId: string, dates: { startDate?: Date | null; dueDate?: Date | null }) => {
-			applyChange([taskId], 'dueDate', (task) => {
-				const update: Partial<TTask> = {};
-				if (dates.startDate !== undefined) update.startDate = dates.startDate;
-				if (dates.dueDate !== undefined) update.dueDate = dates.dueDate;
-				const unchanged =
-					sameDay(update.startDate, task.startDate, 'startDate' in update) && sameDay(update.dueDate, task.dueDate, 'dueDate' in update);
-				return unchanged ? null : update;
-			});
+	const moveDates = useCallback(
+		(taskId: string, drag: TeamTasksTimelineDrag, deltaDays: number) => {
+			applyChange([taskId], 'dueDate', (task) => draggedTaskDatesOf(task, drag, deltaDays));
 		},
 		[applyChange]
 	);
@@ -310,7 +290,7 @@ export function useTeamTaskUpdates() {
 		setIssueType,
 		toggleLabel,
 		setDueDate,
-		setDates,
+		moveDates,
 		setProject,
 		assignMember,
 		archiveTasks,

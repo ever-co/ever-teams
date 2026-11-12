@@ -3,14 +3,14 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 
-const mockSetDates = jest.fn();
+const mockMoveDates = jest.fn();
 // The active team's tasks: every task of these tests but `other`.
 jest.mock('jotai', () => ({
 	useAtomValue: () => [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }, { id: 'due' }]
 }));
 jest.mock('@/core/stores', () => ({ tasksByTeamState: 'team-tasks' }));
 jest.mock('@/core/hooks/tasks/use-team-task-updates', () => ({
-	useTeamTaskUpdates: () => ({ setDates: mockSetDates })
+	useTeamTaskUpdates: () => ({ moveDates: mockMoveDates })
 }));
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: Record<string, unknown>) =>
@@ -104,7 +104,7 @@ describe('TeamTasksTimelineView', () => {
 	});
 
 	it('moves a task of the team by a day with Alt + arrows, and its due date with Alt + Shift + arrows', () => {
-		mockSetDates.mockClear();
+		mockMoveDates.mockClear();
 		renderTimeline([
 			{
 				id: 'a',
@@ -118,19 +118,16 @@ describe('TeamTasksTimelineView', () => {
 		const bar = screen.getByTestId('timeline-bar-a');
 
 		fireEvent.keyDown(bar, { key: 'ArrowRight', altKey: true });
-		expect(mockSetDates).toHaveBeenLastCalledWith('a', {
-			startDate: new Date(2026, 10, 11),
-			dueDate: new Date(2026, 10, 15)
-		});
+		expect(mockMoveDates).toHaveBeenLastCalledWith('a', 'move', 1);
 		fireEvent.keyDown(bar, { key: 'ArrowLeft', altKey: true, shiftKey: true });
-		expect(mockSetDates).toHaveBeenLastCalledWith('a', { dueDate: new Date(2026, 10, 13) });
+		expect(mockMoveDates).toHaveBeenLastCalledWith('a', 'end', -1);
 		// Without Alt the arrows are the page's.
 		fireEvent.keyDown(bar, { key: 'ArrowRight' });
-		expect(mockSetDates).toHaveBeenCalledTimes(2);
+		expect(mockMoveDates).toHaveBeenCalledTimes(2);
 	});
 
 	it('drags a bar by whole days, and a drag does not open the task', () => {
-		mockSetDates.mockClear();
+		mockMoveDates.mockClear();
 		const { commands } = renderTimeline([
 			{ id: 'due', title: 'Due only', dueDate: '2026-11-20', status: 'open', taskStatusId: 'open' }
 		]);
@@ -142,7 +139,7 @@ describe('TeamTasksTimelineView', () => {
 		fireEvent.pointerUp(bar, { clientX: 180, pointerId: 1 });
 		fireEvent.click(bar);
 
-		expect(mockSetDates).toHaveBeenCalledWith('due', { dueDate: new Date(2026, 10, 22) });
+		expect(mockMoveDates).toHaveBeenCalledWith('due', 'move', 2);
 		expect(commands.openTask).not.toHaveBeenCalled();
 
 		// A press without movement is a click.
@@ -150,11 +147,11 @@ describe('TeamTasksTimelineView', () => {
 		fireEvent.pointerUp(bar, { clientX: 101, pointerId: 2 });
 		fireEvent.click(bar);
 		expect(commands.openTask).toHaveBeenCalledWith('due');
-		expect(mockSetDates).toHaveBeenCalledTimes(1);
+		expect(mockMoveDates).toHaveBeenCalledTimes(1);
 	});
 
 	it('leaves the dates of another team’s task alone: its bar only opens it', () => {
-		mockSetDates.mockClear();
+		mockMoveDates.mockClear();
 		renderTimeline([
 			{
 				id: 'other',
@@ -172,7 +169,7 @@ describe('TeamTasksTimelineView', () => {
 		fireEvent.pointerMove(bar, { clientX: 200, pointerId: 3 });
 		fireEvent.pointerUp(bar, { clientX: 200, pointerId: 3 });
 
-		expect(mockSetDates).not.toHaveBeenCalled();
+		expect(mockMoveDates).not.toHaveBeenCalled();
 		expect(bar.getAttribute('aria-keyshortcuts')).toBeNull();
 	});
 
