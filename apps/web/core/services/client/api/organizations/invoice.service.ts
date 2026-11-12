@@ -27,12 +27,18 @@ interface InvoicesPageOptions {
 	signal?: AbortSignal;
 }
 
+interface InvoicesScope {
+	organizationId: string;
+	tenantId: string;
+}
+
 interface InvoicesQueryOptions {
 	page: number;
 	pageSize: number;
 	clientId?: string;
 	/** The API's own screen hides the invoices it archived unless asked. */
 	hidesArchived: boolean;
+	scope: InvoicesScope;
 }
 
 class InvoiceService extends APIService {
@@ -42,10 +48,14 @@ class InvoiceService extends APIService {
 		}
 	}
 
-	private invoicesQuery({ page, pageSize, clientId, hidesArchived }: InvoicesQueryOptions) {
+	private currentScope(): InvoicesScope {
+		return { organizationId: this.organizationId, tenantId: this.tenantId };
+	}
+
+	private invoicesQuery({ page, pageSize, clientId, hidesArchived, scope }: InvoicesQueryOptions) {
 		const params: Record<string, string> = {
-			'where[organizationId]': this.organizationId,
-			'where[tenantId]': this.tenantId,
+			'where[organizationId]': scope.organizationId,
+			'where[tenantId]': scope.tenantId,
 			// Estimates are invoices on the API side, in the same table and the same number sequence.
 			'where[isEstimate]': 'false',
 			'relations[0]': 'toContact',
@@ -69,13 +79,13 @@ class InvoiceService extends APIService {
 		signal?: AbortSignal
 	): Promise<InvoicesPage> => {
 		const query = this.invoicesQuery(options);
-		const response = await this.get(`/invoices/pagination?${query}`, { signal });
+		const response = await this.get(`/invoices/pagination?${query}`, { signal, tenantId: options.scope.tenantId });
 		return validatePaginationResponse(invoiceSchema, response.data, 'getInvoices API response');
 	};
 
 	getInvoices = async ({ page, signal }: InvoicesPageOptions): Promise<InvoicesPage> => {
 		try {
-			const options = { page, pageSize: INVOICES_PAGE_SIZE, hidesArchived: true };
+			const options = { page, pageSize: INVOICES_PAGE_SIZE, hidesArchived: true, scope: this.currentScope() };
 			return await this.readInvoicesPage(options, signal);
 		} catch (error) {
 			this.logValidationError(error, 'Invoices validation failed:');
@@ -86,9 +96,12 @@ class InvoiceService extends APIService {
 	/** Every invoice saved for a client, archived ones included: each one billed the client. */
 	getClientInvoices = async (clientId: string, signal?: AbortSignal): Promise<TInvoice[]> => {
 		try {
+			// Choosing a team of another organization changes the cookies between two pages: every page keeps the
+			// organization the read started in.
+			const scope = this.currentScope();
 			const invoices: TInvoice[] = [];
 			for (let page = 1; page <= CLIENT_INVOICES_MAX_PAGES; page += 1) {
-				const options = { page, pageSize: CLIENT_INVOICES_PAGE_SIZE, clientId, hidesArchived: false };
+				const options = { page, pageSize: CLIENT_INVOICES_PAGE_SIZE, clientId, hidesArchived: false, scope };
 				const { items, total } = await this.readInvoicesPage(options, signal);
 				invoices.push(...items);
 				const isLastPage = items.length < CLIENT_INVOICES_PAGE_SIZE;
