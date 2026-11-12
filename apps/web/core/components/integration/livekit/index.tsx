@@ -1,19 +1,13 @@
 'use client';
 import React from 'react';
-import {
-	LiveKitRoom,
-	VideoConference,
-	formatChatMessageLinks,
-	LocalUserChoices,
-	useParticipants,
-	useRoomContext
-} from '@livekit/components-react';
+import { LiveKitRoom, LocalUserChoices, useParticipants, useRoomContext } from '@livekit/components-react';
 import { RoomConnectOptions, RoomOptions, VideoPresets } from 'livekit-client';
 import { useTranslations } from 'next-intl';
 import '@livekit/components-styles';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { ScreenShare } from '@/core/components/icons';
-import { NoiseFilterChoiceContext, SettingsMenu } from './settings-livekit';
+import { MeetConference } from './meet-conference';
+import { NoiseFilterChoiceContext } from './settings-livekit';
 import { MeetRoomSkeleton } from '@/core/components/pages/meet/meet-room-skeleton';
 import { MeetRoomBar } from '@/core/components/pages/meet/room/meet-room-bar';
 
@@ -207,10 +201,7 @@ export default function LiveKitPage({
 			{joinedAt !== null && (
 				<div className="min-h-0 flex-1">
 					<NoiseFilterChoiceContext.Provider value={noiseFilter}>
-						<VideoConference
-							chatMessageFormatter={formatChatMessageLinks}
-							SettingsComponent={SettingsMenu}
-						/>
+						<MeetConference />
 					</NoiseFilterChoiceContext.Provider>
 				</div>
 			)}

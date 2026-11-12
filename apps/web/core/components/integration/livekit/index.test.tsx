@@ -12,8 +12,6 @@ jest.mock('@livekit/components-react', () => ({
 		mockRoomProps.push(props);
 		return <div data-testid="livekit-room">{children}</div>;
 	},
-	VideoConference: () => <div data-testid="video-conference" />,
-	formatChatMessageLinks: jest.fn(),
 	useRoomContext: () => ({
 		disconnect: mockDisconnect,
 		localParticipant: { setScreenShareEnabled: mockSetScreenShareEnabled }
@@ -28,6 +26,7 @@ jest.mock('livekit-client', () => ({
 		h360: { resolution: { width: 640, height: 360 } }
 	}
 }));
+jest.mock('./meet-conference', () => ({ MeetConference: () => <div data-testid="video-conference" /> }));
 jest.mock('./settings-livekit', () => ({
 	SettingsMenu: () => null,
 	NoiseFilterChoiceContext: jest.requireActual('react').createContext(true)
