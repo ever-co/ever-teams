@@ -133,6 +133,22 @@ describe('client draft', () => {
 		expect(hasClientDraftErrors(empty)).toBe(false);
 		expect(invalid).toEqual({ primaryEmail: 'emailInvalid' });
 	});
+
+	it('accepts a tagged address and a long domain ending', () => {
+		const addresses = ['alex+invoices@example.com', 'billing@studio.technology', 'ops@acme.consulting'];
+		for (const primaryEmail of addresses) {
+			const errors = validateClientDraft({ ...emptyClientDraft('Acme'), primaryEmail });
+			expect(errors).toEqual({});
+		}
+	});
+
+	it('refuses an address without a domain ending or with a space', () => {
+		const addresses = ['billing@acme', 'bill ing@acme.io', '@acme.io'];
+		for (const primaryEmail of addresses) {
+			const errors = validateClientDraft({ ...emptyClientDraft('Acme'), primaryEmail });
+			expect(errors).toEqual({ primaryEmail: 'emailInvalid' });
+		}
+	});
 });
 
 describe('client request', () => {

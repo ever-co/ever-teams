@@ -1,4 +1,4 @@
-import { EMAIL_REGEX } from '@/core/lib/helpers/regex';
+import { isEmail } from 'class-validator';
 
 export const CLIENT_CONTACT_TYPE = 'CLIENT';
 
@@ -153,7 +153,9 @@ export function validateClientDraft(draft: ClientDraft): ClientDraftErrors {
 	}
 	const email = draft.primaryEmail.trim();
 	const hasEmail = email.length > 0;
-	const isEmailInvalid = hasEmail && !EMAIL_REGEX.test(email);
+	// The usual address check (class-validator's, as the sign-in and invite forms use), which takes `name+tag@` and
+	// long domain endings
+	const isEmailInvalid = hasEmail && !isEmail(email);
 	if (isEmailInvalid) {
 		errors.primaryEmail = 'emailInvalid';
 	}
