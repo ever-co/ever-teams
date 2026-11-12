@@ -453,6 +453,8 @@ export class DocsLiveBinding {
 		if (this.destroyed || this.state === 'fallback') return Promise.resolve(false);
 		const covers = this.localEdits;
 		if (this.confirmedEdits >= covers) return Promise.resolve(true);
+		// Edits the platform already refused as read-only wait for a mode change nothing here can bring about.
+		if (this.readOnly && this.heldWhileReadOnly) return Promise.resolve(false);
 		return new Promise<boolean>((resolve) => {
 			let timer: unknown = null;
 			const waiter = {
@@ -665,6 +667,7 @@ export class DocsLiveBinding {
 
 		this.enterSession(frame, lineage);
 		this.sendMissing(stateVector, update);
+		this.clearRememberedUnsent();
 		this.peers = this.readPeers();
 		this.emit();
 		this.sendAwarenessNow();
@@ -673,7 +676,10 @@ export class DocsLiveBinding {
 	/** The `sync` frame applied: this session is the one edits and cursors go to. */
 	private enterSession(frame: DocsLiveFrame, lineage: string | null): void {
 		this.lineage = lineage;
-		if (lineage !== null) this.memory?.set(this.memoryKey, { doc: this.doc, lineage, owner: this });
+		// Edits not confirmed yet (restored from an earlier visit, typed while the session was down) keep the document
+		// marked unsent until the platform confirms them (`clearRememberedUnsent`): never evicted, warned about on close.
+		const unsent = this.localEdits > this.confirmedEdits;
+		if (lineage !== null) this.memory?.set(this.memoryKey, { doc: this.doc, lineage, unsent, owner: this });
 		if (typeof frame.revision === 'number') this.revision = frame.revision;
 		this.readOnly = Boolean(frame.readOnly);
 		this.readOnlyReason = this.readOnly ? (frame.reason ?? null) : null;
@@ -817,6 +823,7 @@ export class DocsLiveBinding {
 				this.confirmedEdits = Math.max(this.confirmedEdits, covers);
 				this.invalidRefusals = 0;
 				this.settleConfirmWaiters();
+				this.clearRememberedUnsent();
 				if (this.destroyed || this.state === 'fallback' || !this.inSession) return;
 				// Typed while this one went: the next batch goes now (it waited for this one).
 				if (this.pending.length && this.batchTimer === null && !this.sending) {
@@ -1016,6 +1023,17 @@ export class DocsLiveBinding {
 			revision: this.revision,
 			lineage: this.lineage
 		};
+	}
+
+	/**
+	 * Every edit made here is confirmed: the remembered document's unsent mark goes. Only while the entry is this
+	 * binding's; a view that left or stopped live editing keeps its own marker (see `destroy` and `fallback`).
+	 */
+	private clearRememberedUnsent(): void {
+		if (this.destroyed || this.state === 'fallback' || this.localEdits > this.confirmedEdits) return;
+		const entry = this.memory?.get(this.memoryKey);
+		if (!entry?.unsent || entry.doc !== this.doc || entry.owner !== this) return;
+		this.memory?.set(this.memoryKey, { ...entry, unsent: false });
 	}
 
 	/** Answers the waits of `whenConfirmed` that the current counts settle. */

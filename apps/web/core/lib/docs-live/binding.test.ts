@@ -661,6 +661,50 @@ describe('DocsLiveBinding', () => {
 		await expect(waited).resolves.toBe(false);
 	});
 
+	it('answers false at once when asked after the platform refused the edits as read-only', async () => {
+		const transport = new FakeTransport();
+		const binding = bind(transport);
+		await settle();
+		transport.play(syncFrame(serverWith('Start')));
+		transport.updateAnswer = () =>
+			Promise.reject({ statusCode: 403, errorCode: 'DOCS_LIVE_READ_ONLY', details: { reason: 'locked' } });
+		addParagraph(binding.getSnapshot().doc, 'Refused');
+		await jest.advanceTimersByTimeAsync(75);
+		expect(binding.getSnapshot().readOnly).toBe(true);
+
+		let answer: boolean | null = null;
+		void binding.whenConfirmed().then((confirmed) => (answer = confirmed));
+		await jest.advanceTimersByTimeAsync(0);
+		expect(answer).toBe(false);
+	});
+
+	it('keeps a restored document marked unsent until the platform confirms its edits', async () => {
+		const memory = createDocsLiveMemory();
+		const key = `${ME.id}:${PAGE}`;
+		const server = serverWith('Seeded');
+		const kept = new Y.Doc();
+		Y.applyUpdate(kept, Y.encodeStateAsUpdate(server));
+		addParagraph(kept, 'Typed before leaving');
+		memory.set(key, { doc: kept, lineage: `${PAGE}:3`, unsent: true });
+
+		const transport = new FakeTransport();
+		bind(transport, { memory });
+		await settle();
+		// The page is locked now: the edits are held, and the document stays marked (kept, warned about on close).
+		transport.play(syncFrame(server, { readOnly: true, reason: 'locked' }));
+		expect(memory.get(key)?.unsent).toBe(true);
+		expect(memory.hasUnsent()).toBe(true);
+
+		// Writable again: a new session sends them, and the mark goes once they are confirmed.
+		transport.play({ kind: 'mode', readOnly: false, reason: null });
+		await jest.advanceTimersByTimeAsync(0);
+		transport.play(syncFrame(server));
+		await jest.advanceTimersByTimeAsync(0);
+		expect(textOf(serverAfter(server, transport))).toContain('Typed before leaving');
+		expect(memory.get(key)?.unsent).toBe(false);
+		expect(memory.hasUnsent()).toBe(false);
+	});
+
 	it('follows a changed name in the presence it sends, in the same session', async () => {
 		const transport = new FakeTransport();
 		const binding = bind(transport);

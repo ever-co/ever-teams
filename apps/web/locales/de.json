@@ -5720,7 +5720,7 @@
 		"PALETTE_HEADING": "Seiten",
 		"EXPORT_UNSAVED": "Ihre letzten Änderungen sind noch nicht gespeichert, deshalb wurde nichts exportiert. Versuchen Sie es erneut, sobald die Seite „Gespeichert“ zeigt.",
 		"COMMENT_ANCHOR_UNSAVED": "Die Seite konnte nicht gespeichert werden, deshalb wurde der Kommentar nicht gesendet. Ihr Text bleibt erhalten.",
-		"BLOCK_LINK_UNSAVED": "Die Seite konnte nicht gespeichert werden, deshalb wurde der Link nicht kopiert. Versuchen Sie es erneut, sobald die Seite „Gespeichert“ zeigt.",
+		"BLOCK_LINK_UNSAVED": "Die Seite konnte nicht gespeichert werden, deshalb wurde der Link nicht kopiert. Versuchen Sie es erneut, sobald die Verbindung wieder steht oder die Seite gespeichert ist.",
 		"COPY_ERROR": "Der Link konnte nicht kopiert werden."
 	},
 	"whatsNew": {

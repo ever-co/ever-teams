@@ -5720,7 +5720,7 @@
 		"PALETTE_HEADING": "Pagina’s",
 		"EXPORT_UNSAVED": "Je laatste wijzigingen zijn nog niet opgeslagen, dus er is niets geëxporteerd. Probeer het opnieuw zodra de pagina Opgeslagen toont.",
 		"COMMENT_ANCHOR_UNSAVED": "De pagina kon niet worden opgeslagen, dus de opmerking is niet geplaatst. Je tekst blijft bewaard.",
-		"BLOCK_LINK_UNSAVED": "De pagina kon niet worden opgeslagen, dus de link is niet gekopieerd. Probeer het opnieuw zodra de pagina Opgeslagen toont.",
+		"BLOCK_LINK_UNSAVED": "De pagina kon niet worden opgeslagen, dus de link is niet gekopieerd. Probeer het opnieuw zodra de verbinding terug is of de pagina is opgeslagen.",
 		"COPY_ERROR": "De link kon niet worden gekopieerd."
 	},
 	"whatsNew": {
