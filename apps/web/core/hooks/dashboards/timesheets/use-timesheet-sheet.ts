@@ -9,7 +9,8 @@ import {
 	sheetDaysOf,
 	sheetMembersOf,
 	totalDurationOf,
-	weekSheetOf
+	weekSheetOf,
+	withEmptyMembers
 } from '@/core/lib/utils/dashboards/timesheets';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
@@ -31,17 +32,27 @@ function pickedMemberOf(members: ReadonlyArray<SheetMember>, pickedMemberId: str
 	return defaultSheetMemberOf(members);
 }
 
+const NO_MEMBERS: SheetMember[] = [];
+
 /**
- * The week sheet view, derived from the logs the page already shows: the members with time in them, the one whose
- * sheet is open (picked in the rail, otherwise the first with time waiting for approval), the sheet's rows and
- * day columns, the member's logs waiting for approval, and the cell whose entries are open in the popover.
+ * The week sheet view, derived from the logs the page already shows: the members with time in them (plus
+ * `emptyMembers`, offered without time so an empty week can be filled), the one whose sheet is open (picked in the
+ * rail, otherwise the first with time waiting for approval), the sheet's rows and day columns, the member's logs
+ * waiting for approval, and the cell whose entries are open in the popover.
  */
-export function useTimesheetSheet(shownLogs: ReadonlyArray<ITimeLog>, period: Period) {
+export function useTimesheetSheet(
+	shownLogs: ReadonlyArray<ITimeLog>,
+	period: Period,
+	emptyMembers: ReadonlyArray<SheetMember> = NO_MEMBERS
+) {
 	const [pickedMemberId, setPickedMemberId] = useState<string | null>(null);
 	const [openCell, setOpenCell] = useState<SheetCellTarget | null>(null);
 	const [isCellOpen, setIsCellOpen] = useState(false);
 
-	const members = useMemo(() => sheetMembersOf(shownLogs), [shownLogs]);
+	const members = useMemo(() => {
+		const membersWithTime = sheetMembersOf(shownLogs);
+		return withEmptyMembers(membersWithTime, emptyMembers);
+	}, [emptyMembers, shownLogs]);
 	const member = useMemo(() => pickedMemberOf(members, pickedMemberId), [members, pickedMemberId]);
 	const memberLogs = member?.logs ?? NO_LOGS;
 	const days = useMemo(() => sheetDaysOf(period, memberLogs), [memberLogs, period]);
