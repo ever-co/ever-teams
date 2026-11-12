@@ -692,7 +692,9 @@
 			"APPS_EMPTY": "{day} 没有记录任何应用或网站。",
 			"OPEN_TIMESHEETS": "在工时表中打开",
 			"UPDATING": "正在加载工作日志",
-			"NO_TIME_HINT": "记录时间后，当天的任务、截图和应用会显示在这里。"
+			"NO_TIME_HINT": "记录时间后，当天的任务、截图和应用会显示在这里。",
+			"WEEK_TITLE": "工时表",
+			"WEEK_NO_MANUAL_TIME_PERMISSION": "你的角色不能手动添加时间，因此表格为只读。管理员可以开启此权限。"
 		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# 位成员} other {# 位成员}}",

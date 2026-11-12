@@ -692,7 +692,9 @@
 			"APPS_EMPTY": "Nessuna app né sito registrato il {day}.",
 			"OPEN_TIMESHEETS": "Apri nei fogli ore",
 			"UPDATING": "Caricamento del diario",
-			"NO_TIME_HINT": "Quando si registra del tempo, qui compaiono le attività, gli screenshot e le app della giornata."
+			"NO_TIME_HINT": "Quando si registra del tempo, qui compaiono le attività, gli screenshot e le app della giornata.",
+			"WEEK_TITLE": "Foglio ore",
+			"WEEK_NO_MANUAL_TIME_PERMISSION": "Il tuo ruolo non consente di aggiungere tempo a mano, quindi il foglio è in sola lettura. Un amministratore può consentirlo."
 		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# membro} other {# membri}}",

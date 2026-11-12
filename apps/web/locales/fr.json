@@ -692,7 +692,9 @@
 			"APPS_EMPTY": "Aucune app ni aucun site enregistré le {day}.",
 			"OPEN_TIMESHEETS": "Ouvrir dans les feuilles de temps",
 			"UPDATING": "Chargement du journal",
-			"NO_TIME_HINT": "Dès que du temps est suivi, les tâches, captures d’écran et apps de la journée s’affichent ici."
+			"NO_TIME_HINT": "Dès que du temps est suivi, les tâches, captures d’écran et apps de la journée s’affichent ici.",
+			"WEEK_TITLE": "Feuille de temps",
+			"WEEK_NO_MANUAL_TIME_PERMISSION": "Votre rôle ne permet pas d’ajouter du temps à la main : la feuille est en lecture seule. Un administrateur peut l’autoriser."
 		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# membre} other {# membres}}",

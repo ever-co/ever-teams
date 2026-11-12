@@ -692,7 +692,9 @@
 			"APPS_EMPTY": "Am {day} wurde keine App und keine Website erfasst.",
 			"OPEN_TIMESHEETS": "In Stundenzetteln öffnen",
 			"UPDATING": "Arbeitsprotokoll wird geladen",
-			"NO_TIME_HINT": "Sobald Zeit erfasst wird, erscheinen hier die Aufgaben, Screenshots und Apps des Tages."
+			"NO_TIME_HINT": "Sobald Zeit erfasst wird, erscheinen hier die Aufgaben, Screenshots und Apps des Tages.",
+			"WEEK_TITLE": "Stundenzettel",
+			"WEEK_NO_MANUAL_TIME_PERMISSION": "Ihre Rolle darf keine Zeit von Hand hinzufügen, daher ist das Blatt schreibgeschützt. Ein Admin kann das erlauben."
 		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# Mitglied} other {# Mitglieder}}",

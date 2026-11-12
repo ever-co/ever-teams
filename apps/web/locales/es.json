@@ -692,7 +692,9 @@
 			"APPS_EMPTY": "Ninguna app ni sitio registrado el {day}.",
 			"OPEN_TIMESHEETS": "Abrir en Hojas de horas",
 			"UPDATING": "Cargando el diario",
-			"NO_TIME_HINT": "Cuando se registre tiempo, aquí aparecerán las tareas, capturas y apps del día."
+			"NO_TIME_HINT": "Cuando se registre tiempo, aquí aparecerán las tareas, capturas y apps del día.",
+			"WEEK_TITLE": "Hoja de horas",
+			"WEEK_NO_MANUAL_TIME_PERMISSION": "Tu rol no permite añadir tiempo a mano, así que la hoja es de solo lectura. Un administrador puede permitirlo."
 		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# miembro} other {# miembros}}",
