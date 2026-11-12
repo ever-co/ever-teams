@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -23,6 +23,7 @@ import {
 	weekSheetOf
 } from '@/core/lib/utils/dashboards/timesheets';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-layout-effect';
 import { type TimesheetPageLogsScope, timesheetPageLogsRequestOf } from './use-timesheet-page-logs';
 import type { SheetCellWrites } from './use-sheet-cell-writes';
 
@@ -99,8 +100,10 @@ export function useCopyPreviousWeek(input: CopyPreviousWeekInput) {
 		setPendingCopy(null);
 	}
 
+	// Updated as the new sheet is committed, before any read can answer: a passive effect would leave a moment in
+	// which a late read of the sheet just left still passes for the shown one
 	const shownSheetKeyRef = useRef(sheetKey);
-	useEffect(() => {
+	useIsomorphicLayoutEffect(() => {
 		shownSheetKeyRef.current = sheetKey;
 	}, [sheetKey]);
 
@@ -203,6 +206,9 @@ export function useCopyPreviousWeek(input: CopyPreviousWeekInput) {
 		const leftOut = result.skippedCount + lockedCount + withoutRoomCount;
 		if (leftOut > 0) {
 			toast(t('dashboard.timesheets.SHEET.COPY.LEFT_OUT', { count: leftOut }));
+		}
+		if (result.isPartlyCopied) {
+			toast(t('dashboard.timesheets.SHEET.COPY.PARTLY_COPIED'));
 		}
 		if (result.notCopiedCount > 0) {
 			toast(t('dashboard.timesheets.SHEET.COPY.NOT_COPIED', { count: result.notCopiedCount }));

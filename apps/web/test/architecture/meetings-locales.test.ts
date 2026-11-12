@@ -33,7 +33,14 @@ describe('meetings translations', () => {
 	it.each(translatedLocaleFiles)('speaks the language of %s on the meetings home and before joining', (file) => {
 		const { meetings } = readMessages(file);
 
-		for (const key of ['NEW_MEETING', 'SCHEDULE_TITLE', 'READY_TO_JOIN', 'YOU_LEFT', 'DEVICES_BLOCKED']) {
+		for (const key of [
+			'NEW_MEETING',
+			'SCHEDULE_TITLE',
+			'READY_TO_JOIN',
+			'YOU_LEFT',
+			'DEVICES_BLOCKED',
+			'NO_MEETINGS_DAY'
+		]) {
 			expect(meetings[key]).not.toBe(englishMeetings[key]);
 		}
 	});

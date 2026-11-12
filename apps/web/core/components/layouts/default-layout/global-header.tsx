@@ -6,6 +6,8 @@ import MainSidebarTrigger from './main-sidebar-trigger';
 
 export interface GlobalHeaderProps {
 	showTimer?: boolean;
+	/** In the timer's place, why a member whose time tracking is turned off has none. */
+	showTrackingOff?: boolean;
 	publicTeam?: boolean;
 	notFound?: boolean;
 	breadcrumb?: React.ReactNode;
@@ -18,7 +20,7 @@ export interface GlobalHeaderProps {
  * controls at its end, then the page's own toolbar band when it has one.
  */
 const GlobalHeader = forwardRef<HTMLDivElement, GlobalHeaderProps>(function GlobalHeader(
-	{ showTimer, publicTeam, notFound, breadcrumb, mainHeaderSlot, mainHeaderSlotClassName },
+	{ showTimer, showTrackingOff, publicTeam, notFound, breadcrumb, mainHeaderSlot, mainHeaderSlotClassName },
 	ref
 ) {
 	const hasToolbar = Boolean(mainHeaderSlot);
@@ -33,6 +35,7 @@ const GlobalHeader = forwardRef<HTMLDivElement, GlobalHeaderProps>(function Glob
 				<Navbar
 					className="flex shrink-0 items-center"
 					showTimer={showTimer}
+					showTrackingOff={showTrackingOff}
 					publicTeam={publicTeam || false}
 					notFound={notFound || false}
 				/>

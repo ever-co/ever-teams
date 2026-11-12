@@ -105,9 +105,12 @@ export function SavedViewRow({ view, isBusy, onRename, onToggleVisibility, onDel
 						<span className="truncate text-xs text-muted-foreground">{view.description}</span>
 					)}
 				</span>
-				<span className="hidden shrink-0 items-center gap-1 text-xs text-muted-foreground sm:flex">
+				{/* Who sees the view; on a phone its icon alone, the word kept for screen readers. */}
+				<span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
 					<VisibilityIcon className="size-3.5" aria-hidden="true" />
-					{isPersonal ? t('taskViews.PERSONAL') : t('taskViews.SHARED')}
+					<span className="max-sm:sr-only">
+						{isPersonal ? t('taskViews.PERSONAL') : t('taskViews.SHARED')}
+					</span>
 				</span>
 				{updatedAt && (
 					<span className="hidden w-28 shrink-0 text-right text-xs text-muted-foreground tabular-nums md:block">

@@ -8,6 +8,7 @@ import { requiredTrackingFieldsMessageKeyOf, requiredTrackingFieldsOf } from '@/
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import {
+	approvedDayKeysOf,
 	busyWindowsOf,
 	type CopyCellPlan,
 	type CopyFit,
@@ -61,8 +62,13 @@ export interface CopyRunResult {
 	savedCount: number;
 	savedSeconds: number;
 	skippedCount: number;
-	/** The cells a run stopped by an error did not copy: the one that failed and those after it. */
+	/**
+	 * The cells a run stopped by an error did not copy: the one that failed, unless part of its time was saved before
+	 * the error, and those after it.
+	 */
 	notCopiedCount: number;
+	/** A run stopped in the middle of a cell of several entries: the entries saved before the error stay. */
+	isPartlyCopied: boolean;
 	isStopped: boolean;
 }
 
@@ -186,7 +192,7 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 	}, [queryClient]);
 
 	const createEntries = useCallback(
-		async (identity: SheetRowIdentity, pieces: ReadonlyArray<TimeWindow>) => {
+		async (identity: SheetRowIdentity, pieces: ReadonlyArray<TimeWindow>, onEntrySaved?: () => void) => {
 			if (!memberId) {
 				return;
 			}
@@ -203,6 +209,7 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 					logType: ETimeLogType.MANUAL,
 					source: ETimeLogSource.TEAMS
 				});
+				onEntrySaved?.();
 			}
 		},
 		[defaultTeamId, memberId]
@@ -241,6 +248,14 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 			const isUnchanged = shownSeconds === targetSeconds;
 			if (isUnchanged) {
 				return 'unchanged';
+			}
+			// The week may have been approved since the sheet was read: its time is no longer changed from here
+			const isDayApproved = approvedDayKeysOf(memberLogs).has(day.key);
+			if (isDayApproved) {
+				toast.error(translate('dashboard.timesheets.SHEET.EDIT.SAVE_FAILED'), {
+					description: translate('dashboard.timesheets.SHEET.EDIT.LOCK_APPROVED')
+				});
+				return 'refused';
 			}
 			const isRaise = targetSeconds > currentSeconds;
 			if (isRaise) {
@@ -310,8 +325,8 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 
 	/**
 	 * Fills empty cells from last week, one after the other, on the member's logs read from the API when the run
-	 * starts. A cell filled since the copy was prepared is left alone, and the time each plan places counts as taken
-	 * for the next ones of the same day.
+	 * starts. A cell filled, or a day approved, since the copy was prepared is left alone, and the time each plan
+	 * places counts as taken for the next ones of the same day.
 	 */
 	const applyCopyPlan = useCallback(
 		(plans: ReadonlyArray<CopyCellPlan>): Promise<CopyRunResult> => {
@@ -322,12 +337,25 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 					savedSeconds: 0,
 					skippedCount: 0,
 					notCopiedCount: 0,
+					isPartlyCopied: false,
 					isStopped: false
 				};
 				const placedByDay = new Map<string, TimeWindow[]>();
+				// The entries of the cell being copied saved so far: an error after some leaves that cell partly filled
+				const copiedCell = { savedEntries: 0 };
+				const countSavedEntry = () => {
+					copiedCell.savedEntries += 1;
+				};
 				try {
 					const memberLogs = await readSavedMemberLogs();
+					const approvedDayKeys = approvedDayKeysOf(memberLogs);
 					for (const plan of plans) {
+						copiedCell.savedEntries = 0;
+						const isDayApproved = approvedDayKeys.has(plan.day.key);
+						if (isDayApproved) {
+							result.skippedCount += 1;
+							continue;
+						}
 						const cellLogs = logsOfCell(memberLogs, plan.identity.key, plan.day.key);
 						const isCellFilled = cellLogs.length > 0;
 						if (isCellFilled) {
@@ -341,14 +369,16 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 							result.skippedCount += 1;
 							continue;
 						}
-						await createEntries(plan.identity, pieces);
+						await createEntries(plan.identity, pieces, countSavedEntry);
 						placedByDay.set(plan.day.key, [...placedBefore, ...pieces]);
 						result.savedCount += 1;
 						result.savedSeconds += plan.seconds;
 					}
 				} catch (error) {
 					result.isStopped = true;
-					const handledCount = result.savedCount + result.skippedCount;
+					result.isPartlyCopied = copiedCell.savedEntries > 0;
+					const partlyCopiedCount = result.isPartlyCopied ? 1 : 0;
+					const handledCount = result.savedCount + result.skippedCount + partlyCopiedCount;
 					result.notCopiedCount = plans.length - handledCount;
 					toast.error(translate('dashboard.timesheets.SHEET.COPY.STOPPED_TITLE'), {
 						description: translate(writeErrorKeyOf(error))

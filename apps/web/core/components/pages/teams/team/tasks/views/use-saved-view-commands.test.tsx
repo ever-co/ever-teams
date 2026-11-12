@@ -7,6 +7,8 @@ import type { ITaskView, ITaskViewDefinition } from '@/core/types/interfaces/com
 const mockSaveDefinition = jest.fn();
 const mockUpdateView = jest.fn();
 const mockDeleteView = jest.fn();
+const mockMoveTask = jest.fn();
+const mockCreateView = jest.fn();
 const mockPush = jest.fn();
 
 jest.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }));
@@ -23,13 +25,16 @@ jest.mock('@/core/hooks/task-views/use-task-view-actions', () => {
 		TaskViewConflictError,
 		useTaskViewActions: () => ({
 			saveDefinition: mockSaveDefinition,
-			createView: jest.fn(),
+			createView: mockCreateView,
 			updateView: mockUpdateView,
+			moveTask: mockMoveTask,
 			deleteView: mockDeleteView
 		})
 	};
 });
 
+import { toast } from 'sonner';
+import { TaskViewConflictError } from '@/core/hooks/task-views/use-task-view-actions';
 import { useSavedViewCommands } from './use-saved-view-commands';
 
 const MINE = { groupBy: 'status' } as unknown as ITaskViewDefinition;
@@ -156,5 +161,83 @@ describe('useSavedViewCommands, deleting the open view and naming a new one', ()
 		);
 
 		expect(result.current.saveDialog).toBe('create');
+	});
+});
+
+describe('useSavedViewCommands, moving a task in the manual order', () => {
+	const MOVE = { taskId: 'c', targetId: 'a', edge: 'before' as const };
+	const SHOWN = ['a', 'b', 'c'];
+
+	beforeEach(() => {
+		mockSaveDefinition.mockReset().mockResolvedValue(viewAt(9));
+		mockMoveTask.mockReset();
+	});
+
+	it('moves the task in the open view, with the order the list shows', async () => {
+		mockMoveTask.mockResolvedValueOnce({ view: viewAt(2), statedVersion: 1 });
+		const view = render({ savedView: viewAt(1), isDirty: false });
+
+		await act(async () => view.result.current.moveTask(MOVE, SHOWN));
+
+		expect(mockMoveTask).toHaveBeenCalledWith(viewAt(1), MOVE, SHOWN);
+	});
+
+	it('lets a change in progress build on the version the move wrote, as after a rename', async () => {
+		const view = render({ savedView: viewAt(1), isDirty: false });
+		view.rerender({ savedView: viewAt(1), isDirty: true });
+		mockMoveTask.mockResolvedValueOnce({ view: viewAt(2), statedVersion: 1 });
+		await act(async () => view.result.current.moveTask(MOVE, SHOWN));
+		view.rerender({ savedView: viewAt(2), isDirty: true });
+
+		await act(async () => view.result.current.toolbarCommands.save());
+
+		expect(statedVersion()).toBe(2);
+	});
+
+	it('never adopts a version someone else saved when the move was made again on it (after a 409)', async () => {
+		const view = render({ savedView: viewAt(1), isDirty: false });
+		view.rerender({ savedView: viewAt(1), isDirty: true });
+		// Someone saved version 2; the move was refused, made again on version 2, and wrote version 3.
+		mockMoveTask.mockResolvedValueOnce({ view: viewAt(3), statedVersion: 2 });
+		await act(async () => view.result.current.moveTask(MOVE, SHOWN));
+		view.rerender({ savedView: viewAt(3), isDirty: true });
+
+		await act(async () => view.result.current.toolbarCommands.save());
+
+		// The change was made on version 1: its save meets their version as a conflict.
+		expect(statedVersion()).toBe(1);
+	});
+
+	it('says why a move did not land: someone reordered at the same time, or it failed', async () => {
+		const view = render({ savedView: viewAt(1), isDirty: false });
+		mockMoveTask.mockRejectedValueOnce(new TaskViewConflictError(viewAt(2)));
+		await act(async () => view.result.current.moveTask(MOVE, SHOWN));
+		expect(toast.error).toHaveBeenLastCalledWith('taskViews.ORDER_CONFLICT');
+
+		mockMoveTask.mockRejectedValueOnce(new Error('offline'));
+		await act(async () => view.result.current.moveTask(MOVE, SHOWN));
+		expect(toast.error).toHaveBeenLastCalledWith('taskViews.ORDER_FAILED');
+	});
+
+	it('keeps the manual order of the view a new one is saved from', async () => {
+		mockCreateView.mockReset().mockResolvedValueOnce({ id: 'v2', name: 'Copy' });
+		const source = { ...viewAt(4), manualOrder: ['c', 'a'] } as ITaskView;
+		const { result } = renderHook(() =>
+			useSavedViewCommands({
+				savedView: source,
+				isBuiltIn: false,
+				definition: MINE,
+				isDirty: false,
+				applyDefinition: jest.fn(),
+				initialDialog: 'create'
+			})
+		);
+
+		await act(async () => {
+			await result.current.submitDialog('Copy', 'personal' as never);
+		});
+
+		expect(mockCreateView).toHaveBeenCalledWith('Copy', 'personal', MINE, ['c', 'a']);
+		expect(mockPush).toHaveBeenCalledWith('/views/v2');
 	});
 });

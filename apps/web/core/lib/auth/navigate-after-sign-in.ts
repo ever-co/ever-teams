@@ -1,3 +1,5 @@
+import { takeBoardReturn } from './board-return';
+
 /**
  * Opens the app once a sign-in has set the auth cookies, with a full page load.
  *
@@ -8,6 +10,8 @@
  * stale router cache, and starts React Query and the Jotai stores from the signed-in session (the workspace switcher
  * reloads for the same reasons, see `use-workspace-switcher.ts`).
  *
+ * A sign-in the Board app started goes back to the Board instead, on the trusted Board origin only (board-return.ts).
+ *
  * `replace` swaps the sign-in page out of the history (`location.replace`), for the paths that used
  * `router.replace('/')`: Back then leaves the app instead of reopening the sign-in page.
  */
@@ -15,13 +19,23 @@ export function navigateAfterSignIn({ replace = false }: { replace?: boolean } =
 	if (typeof window === 'undefined') {
 		return;
 	}
-	// A page set for this sign-in (the workspace list's "Create a new workspace", #5025), else the home page
+	// A page set for this sign-in (the workspace list's "Create a new workspace", #5025), else the Board a sign-in it
+	// started goes back to (board-return.ts), else the home page. Both are taken, so neither is left for a later sign-in.
 	const path = takePathAfterSignIn();
+	const boardReturn = takeBoardReturn();
 	if (path) {
 		if (replace) {
 			window.location.replace(path);
 		} else {
 			window.location.assign(path);
+		}
+		return;
+	}
+	if (boardReturn) {
+		if (replace) {
+			window.location.replace(boardReturn);
+		} else {
+			window.location.assign(boardReturn);
 		}
 		return;
 	}

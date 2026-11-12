@@ -13,8 +13,9 @@ import { useChatDraft } from '@/core/hooks/chat/use-chat-draft';
 import { useChatFiles } from '@/core/hooks/chat/use-chat-files';
 import { useChatMessages } from '@/core/hooks/chat/use-chat-messages';
 import { useChatPeople, useChatScope } from '@/core/hooks/chat/use-chat-scope';
+import { useChatTypingSignal } from '@/core/hooks/chat/use-chat-typing';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
-import { attachmentFallbackBody, filesOfTransfer, isFileDrag } from '@/core/lib/utils/chat-attachments';
+import { attachmentIdsOf, filesOfTransfer, isFileDrag } from '@/core/lib/utils/chat-attachments';
 import { ChatPerson, conversationTitle } from '@/core/lib/utils/chat-format';
 import { ChatReadPosition, ChatTimelineItem, dayLabel, timelineItems } from '@/core/lib/utils/chat-timeline';
 import { isChatVirtualListEnabled } from '@/core/lib/utils/chat-enabled';
@@ -24,6 +25,7 @@ import { EChatNotifyLevel, IChatConversationWithState, IChatFile, IChatMessage }
 import type { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { ConversationFilesButton, ImageLightbox } from './chat-attachments';
 import { ChatErrorState, ChatMessagesSkeleton } from './chat-states';
+import { ChatTypingLine } from './chat-typing-line';
 import { VirtualTimeline, type VirtualTimelineAnchor, type VirtualTimelineHandle } from './chat-virtual-timeline';
 import { ConversationWelcome, DayDivider, JumpToLatest, NewDivider } from './chat-timeline-parts';
 import { BAR_BUTTON, ConversationHeader } from './conversation-header';
@@ -82,6 +84,7 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 	const { messages, hasBefore, isLoading, isError, isLoadingOlder, loadOlder, retry, newestId, jumpTo } = useChatMessages(conversation.id, true);
 	const { draft, setDraft, clearDraft } = useChatDraft(conversation.id);
 	const attachments = useChatAttachments();
+	const signalTyping = useChatTypingSignal(conversation.id);
 	const files = useChatFiles(conversation.id, messages);
 	// By id: the lightbox shows the newest copy of the record (its signed address is read again with the list).
 	const [pictureId, setPictureId] = useState<string | null>(null);
@@ -256,8 +259,9 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 			attachments.releaseSent();
 			stickToBottom.current = true;
 			readPaused.current = false;
+			// A message of files only goes with no text: the platform keeps the files' names for its previews.
 			await actions
-				.send(conversation.id, { body: body || attachmentFallbackBody(names), attachmentIds: attachmentIds.length ? attachmentIds : undefined })
+				.send(conversation.id, { body, attachmentIds: attachmentIds.length ? attachmentIds : undefined }, { attachmentNames: names.join('\n') })
 				.catch(() => toast.error(t('teamChat.SEND_FAILED')));
 		},
 		[actions, attachments, clearDraft, conversation.id, t]
@@ -304,6 +308,7 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 			},
 			onDelete: (message: IChatMessage) => actions.remove(message).catch(reportFailure),
 			onPin: (message: IChatMessage, pinned: boolean) => actions.pin(message, pinned).catch(reportFailure),
+			onAppReply: (message: IChatMessage, replaced: IChatMessage) => actions.applyAppReply(message, replaced),
 			onUnreadFrom: (message: IChatMessage) => {
 				readPaused.current = true;
 				actions
@@ -348,7 +353,17 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 		if (editing?.id === message.id) {
 			return (
 				<div key={message.id} className="px-4 py-2">
-					<MessageComposer value={editValue} onChange={setEditValue} onSubmit={saveEdit} onCancel={() => setEditing(null)} people={people.list} placeholder={t('teamChat.EDIT')} editing autoFocus />
+					<MessageComposer
+						value={editValue}
+						onChange={setEditValue}
+						onSubmit={saveEdit}
+						onCancel={() => setEditing(null)}
+						people={people.list}
+						placeholder={t('teamChat.EDIT')}
+						editing
+						keepsFiles={attachmentIdsOf(message).length > 0}
+						autoFocus
+					/>
 				</div>
 			);
 		}
@@ -372,6 +387,7 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 				now={message.replyCount > 0 ? now : undefined}
 				taskTitles={taskTitles}
 				files={files.byId}
+				readOnly={archived}
 				{...handlers}
 			/>
 		);
@@ -438,6 +454,8 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 						placeholder={t('teamChat.COMPOSER_PLACEHOLDER', { name: title })}
 						autoFocus={focusComposer}
 						attachments={attachments}
+						onTyping={signalTyping}
+						status={<ChatTypingLine conversationId={conversation.id} />}
 					/>
 				)}
 			</div>

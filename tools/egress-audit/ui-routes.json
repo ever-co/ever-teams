@@ -159,6 +159,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/meet",
+      "file": "apps/web/app/[locale]/(main)/meet/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/meet/jitsi",
       "file": "apps/web/app/[locale]/(main)/meet/jitsi/page.tsx",
       "source": "router"
@@ -334,6 +339,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/work-diary",
+      "file": "apps/web/app/[locale]/(main)/work-diary/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/workspace/new",
       "file": "apps/web/app/[locale]/(main)/workspace/new/page.tsx",
       "source": "router"
@@ -341,11 +351,6 @@
     {
       "path": "/:locale/workspace/welcome",
       "file": "apps/web/app/[locale]/(main)/workspace/welcome/page.tsx",
-      "source": "router"
-    },
-    {
-      "path": "/:locale/work-diary",
-      "file": "apps/web/app/[locale]/(main)/work-diary/page.tsx",
       "source": "router"
     },
     {

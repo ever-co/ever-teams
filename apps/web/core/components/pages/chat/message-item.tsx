@@ -16,12 +16,15 @@ import { cn } from '@/core/lib/helpers';
 import { ChatPerson } from '@/core/lib/utils/chat-format';
 import { clockTime, fullDateTime, relativeTime, shortClockTime } from '@/core/lib/utils/chat-timeline';
 import { ChatOutboxMessage, isOutboxMessage } from '@/core/hooks/chat/use-chat-actions';
-import { attachmentIdsOf, isFallbackBody } from '@/core/lib/utils/chat-attachments';
-import { isChatLinkPreviewsEnabled } from '@/core/lib/utils/chat-enabled';
+import { attachmentIdsOf, attachmentNamesOf, isFallbackBody, isFilesOnlyMessage } from '@/core/lib/utils/chat-attachments';
 import { IChatFile, IChatMessage } from '@/core/types/interfaces/common/chat';
+import { appBlocksOf, bodyRepeatsBlocks, httpsUrlOf } from '@/core/lib/utils/chat-app-blocks';
+import { isChatLinkPreviewsEnabled, isChatWebhooksEnabled } from '@/core/lib/utils/chat-enabled';
+import { ChatAppBlocks } from './chat-app-blocks';
 import { MessageAttachments } from './chat-attachments';
 import { MessageLinkPreviews } from './chat-link-preview';
 import { ChatMarkdown } from './chat-markdown';
+import { ChatTaskCard } from './chat-task-card';
 import { EmojiPopover } from './emoji-popover';
 
 /** The reactions offered on hover (the first few on the message's toolbar); the picker is one click further. */
@@ -64,6 +67,10 @@ export interface MessageItemProps {
 	onOpenImage?: (file: IChatFile) => void;
 	/** A picture that did not load (its signed address expired): the files are read again. */
 	onBrokenImage?: () => void;
+	/** An app's reply to a click on one of its buttons replaced the message (`NEXT_PUBLIC_CHAT_WEBHOOKS_ENABLED`). */
+	onAppReply?: (message: IChatMessage, replaced: IChatMessage) => void;
+	/** The conversation is archived: an app message's buttons show but do not click. */
+	readOnly?: boolean;
 }
 
 const NO_FILES: ReadonlyMap<string, IChatFile> = new Map();
@@ -96,6 +103,8 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 	const t = useTranslations();
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [pickerOpen, setPickerOpen] = useState(false);
+	// An app icon that did not load: the placeholder shows instead (as for a person whose picture failed).
+	const [failedIcon, setFailedIcon] = useState<string | null>(null);
 	const isMine = !!meUserId && String(message.authorUserId ?? '') === String(meUserId);
 	const outbox = isOutboxMessage(message) ? message : null;
 	// The attribution reads in the locale's direction, and the assistant's name is isolated (`<bdi>`), so a Latin
@@ -129,8 +138,17 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 	const files = props.files ?? NO_FILES;
 	const attachmentIds = attachmentIdsOf(message);
 	const attachedFiles = attachmentIds.map((id) => files.get(id)).filter((file): file is IChatFile => !!file);
-	// A message sent with files and no words carries their names as its body: the files say it, the body is not repeated.
-	const bodyIsFileNames = !!attachmentIds.length && attachedFiles.length === attachmentIds.length && isFallbackBody(message.body, attachedFiles);
+	// A message of files only has no text (an older one carries their names as its body): the files say it.
+	const bodyIsFileNames =
+		isFilesOnlyMessage(message) || (!!attachmentIds.length && attachedFiles.length === attachmentIds.length && isFallbackBody(message.body, attachedFiles));
+	// An app message (an incoming webhook's post) shows its App badge, its icon and its blocks where they are on; a body
+	// that only repeats the blocks is not shown twice.
+	const isApp = message.kind === 'app';
+	const appRendering = isApp && isChatWebhooksEnabled();
+	const appBlocks = appRendering ? appBlocksOf(message) : [];
+	const iconUrl = appRendering ? httpsUrlOf(message.appIconUrl) : null;
+	const appIcon = iconUrl && iconUrl !== failedIcon ? iconUrl : null;
+	const bodyIsBlocks = bodyRepeatsBlocks(message.body, appBlocks);
 
 	return (
 		<div
@@ -164,6 +182,8 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 						</time>
 					) : author ? (
 						<PersonAvatar person={{ id: author.employeeId, name: author.name, imageUrl: author.imageUrl }} size="md" className="mt-0.5 size-9 text-xs ring-0" />
+					) : appIcon ? (
+						<img src={appIcon} alt="" referrerPolicy="no-referrer" loading="lazy" className="mt-0.5 size-9 rounded-md object-cover" data-app-icon="" onError={() => setFailedIcon(appIcon)} />
 					) : (
 						<span className="mt-0.5 flex size-9 items-center justify-center rounded-full bg-foreground/[0.06] text-muted-foreground" aria-hidden="true">
 							{message.appName && <Bot className="size-4" />}
@@ -176,6 +196,11 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 					{!continues && (
 						<div className="flex flex-wrap items-baseline gap-x-2">
 							<span className="text-[13px] font-semibold text-foreground">{name}</span>
+							{appRendering && (
+								<span className="rounded bg-foreground/[0.07] px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-muted-foreground" data-app-badge="">
+									{t('teamChat.APP_BADGE')}
+								</span>
+							)}
 							<time dateTime={message.createdAt} title={sentAt} className="text-[11px] text-muted-foreground">
 								{clockTime(createdAt, locale)}
 							</time>
@@ -184,7 +209,7 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 					)}
 					{deleted ? (
 						<p className="text-[13px] italic text-muted-foreground">{t('teamChat.DELETED')}</p>
-					) : bodyIsFileNames ? null : (
+					) : bodyIsFileNames || bodyIsBlocks ? null : (
 						<>
 							{/* An edited message says so right after its last words: its last paragraph runs on into the mark. */}
 							<ChatMarkdown
@@ -201,27 +226,29 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 							)}
 						</>
 					)}
+					{!deleted && appBlocks.length > 0 && <ChatAppBlocks message={message} readOnly={props.readOnly} onReplaced={props.onAppReply} />}
 					{/* The cards of its links, once it is sent (with the flag on; the platform fetched the pages). */}
-					{!deleted && !outbox && !bodyIsFileNames && isChatLinkPreviewsEnabled() && <MessageLinkPreviews body={message.body} />}
+					{!deleted && !outbox && !bodyIsFileNames && !bodyIsBlocks && isChatLinkPreviewsEnabled() && <MessageLinkPreviews body={message.body} />}
 					{attachmentIds.length > 0 && (
 						<div className={cn(outbox?.outbox === 'pending' && 'opacity-60')}>
-							<MessageAttachments attachmentIds={attachmentIds} files={files} onOpenImage={props.onOpenImage ?? IGNORE} onBrokenImage={props.onBrokenImage} />
+							<MessageAttachments
+								attachmentIds={attachmentIds}
+								files={files}
+								names={attachmentNamesOf(message)}
+								onOpenImage={props.onOpenImage ?? IGNORE}
+								onBrokenImage={props.onBrokenImage}
+							/>
 						</div>
 					)}
 					{(message.taskReferences ?? []).map((reference) => (
-						<button
+						<ChatTaskCard
 							key={reference.taskId}
-							type="button"
-							onClick={() => props.onOpenTask(reference.taskId)}
-							className="group/task mt-1.5 flex w-full max-w-md cursor-pointer items-center gap-2.5 rounded-lg bg-card px-2.5 py-2 text-start text-[13px] outline-none hairline-ring ring-border transition-colors hover:bg-foreground/[0.03] focus-visible:ring-[3px] focus-visible:ring-ring/25"
-						>
-							<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary" aria-hidden="true">
-								<Task className="size-3.5" />
-							</span>
-							<span className="min-w-0 flex-1 truncate font-medium text-foreground">{props.taskTitles.get(reference.taskId) ?? t('teamChat.TASK_CARD')}</span>
-							<span className="shrink-0 text-[11px] text-muted-foreground">{t('teamChat.OPEN_TASK')}</span>
-							<ChevronRight className="size-3.5 shrink-0 text-muted-foreground/70 rtl:rotate-180" aria-hidden="true" />
-						</button>
+							messageId={message.id}
+							taskId={reference.taskId}
+							title={props.taskTitles.get(reference.taskId)}
+							canChange={!outbox && !deleted && !props.readOnly}
+							onOpenTask={props.onOpenTask}
+						/>
 					))}
 					{reactions.length > 0 && (
 						<div className="mt-1.5 flex flex-wrap items-center gap-1">

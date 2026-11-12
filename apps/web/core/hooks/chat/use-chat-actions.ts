@@ -96,24 +96,31 @@ export function useChatActions() {
 	 * failed with the same key, so a retry never duplicates.
 	 */
 	const send = useCallback(
-		async (conversationId: string, input: Omit<IChatMessageCreateInput, 'nonce'> & { nonce?: string }, options: { threadRootId?: string | null } = {}) => {
+		async (
+			conversationId: string,
+			input: Omit<IChatMessageCreateInput, 'nonce'> & { nonce?: string },
+			// `attachmentNames`: what a message of files only reads as until the platform answers (the picked files' names).
+			options: { threadRootId?: string | null; attachmentNames?: string | null } = {}
+		) => {
 			const nonce = input.nonce ?? newNonce();
 			const now = new Date().toISOString();
+			const body = input.body ?? '';
 			const pending: ChatOutboxMessage = {
 				id: `pending:${nonce}`,
 				conversationId,
 				authorUserId: scope?.userId ?? null,
 				authorEmployeeId: scope?.employeeId ?? null,
 				kind: EChatMessageKind.Message,
-				body: input.body,
-				mentionEmployeeIds: mentionedEmployeeIds(input.body),
-				mentionsChannel: /<!channel>/.test(input.body),
-				mentionsHere: /<!here>/.test(input.body),
+				body,
+				mentionEmployeeIds: mentionedEmployeeIds(body),
+				mentionsChannel: /<!channel>/.test(body),
+				mentionsHere: /<!here>/.test(body),
 				replyToId: input.replyToId ?? null,
 				threadRootId: input.threadRootId ?? options.threadRootId ?? null,
 				alsoInConversation: !!input.alsoInConversation,
 				replyCount: 0,
 				attachmentIds: input.attachmentIds ?? null,
+				attachmentNames: input.attachmentIds?.length ? (options.attachmentNames ?? null) : null,
 				// A task sent with the message shows as its card at once, and stays with a failed message for the retry.
 				taskReferences: input.taskId ? [{ messageId: `pending:${nonce}`, taskId: input.taskId, kind: EChatTaskReferenceKind.Sent }] : undefined,
 				outboxTaskId: input.taskId ?? null,
@@ -129,7 +136,7 @@ export function useChatActions() {
 				);
 			}
 			try {
-				const answer = await chatService.send(conversationId, { ...input, nonce, mentionEmployeeIds: input.mentionEmployeeIds ?? mentionedEmployeeIds(input.body) });
+				const answer = await chatService.send(conversationId, { ...input, body, nonce, mentionEmployeeIds: input.mentionEmployeeIds ?? mentionedEmployeeIds(body) });
 				const message = answer.message;
 				if (inTimeline) patchMessages(conversationId, (messages) => mergeMessages(messages.filter((m) => m.id !== pending.id), [message]));
 				if (message.threadRootId) {
@@ -157,22 +164,33 @@ export function useChatActions() {
 
 	const retry = useCallback(
 		(conversationId: string, failed: ChatOutboxMessage) =>
-			send(conversationId, {
-				body: failed.body,
-				nonce: failed.nonce ?? undefined,
-				replyToId: failed.replyToId ?? undefined,
-				threadRootId: failed.threadRootId ?? undefined,
-				alsoInConversation: failed.alsoInConversation,
-				attachmentIds: failed.attachmentIds ?? undefined,
-				taskId: failed.outboxTaskId ?? undefined
-			}),
+			send(
+				conversationId,
+				{
+					body: failed.body,
+					nonce: failed.nonce ?? undefined,
+					replyToId: failed.replyToId ?? undefined,
+					threadRootId: failed.threadRootId ?? undefined,
+					alsoInConversation: failed.alsoInConversation,
+					attachmentIds: failed.attachmentIds ?? undefined,
+					taskId: failed.outboxTaskId ?? undefined
+				},
+				{ attachmentNames: failed.attachmentNames }
+			),
 		[send]
 	);
 
+	/**
+	 * Drops a message that was not sent. Its files go too, best effort: the platform discards only a file no message
+	 * carries, so one the send did store after all (an answer lost on the way back) stays with its message.
+	 */
 	const discardFailed = useCallback(
 		(conversationId: string, failed: ChatOutboxMessage) => {
 			patchMessages(conversationId, (messages) => messages.filter((m) => m.id !== failed.id));
 			patchThread(failed.threadRootId, (page) => ({ ...page, messages: page.messages.filter((m) => m.id !== failed.id) }));
+			for (const documentId of new Set((failed.attachmentIds ?? []).map(String))) {
+				chatService.discardAttachment(documentId).catch(() => undefined);
+			}
 		},
 		[patchMessages, patchThread]
 	);
@@ -206,6 +224,23 @@ export function useChatActions() {
 			patchEverywhere(message, () => answer.message);
 		},
 		[patchEverywhere]
+	);
+
+	/**
+	 * An app's reply to a click on one of its buttons replaced the message: it shows as the reply left it, everywhere.
+	 * The copy keeps the order of the request it came from (stamped as it started), and replaces a held copy only when
+	 * it is not older (`mergeMessages`): a reaction, a pin or a deletion applied while it was on its way stays.
+	 */
+	const applyAppReply = useCallback(
+		(message: IChatMessage, replaced: IChatMessage) => {
+			const stamped = (replaced as IChatMessage & { readOrder?: number }).readOrder === undefined ? withMessageOrder([replaced], nextMessageOrder())[0] : replaced;
+			const apply = (m: IChatMessage) => (m.id === message.id ? mergeMessages([m], [stamped])[0] : m);
+			patchMessages(message.conversationId, (messages) => messages.map(apply));
+			for (const root of [message.threadRootId, message.id]) {
+				patchThread(root, (page) => ({ ...page, root: page.root ? apply(page.root) : page.root, messages: page.messages.map(apply) }));
+			}
+		},
+		[patchMessages, patchThread]
 	);
 
 	/** A task from a message: the message shows its card at once, and the task lists read again (the task is new). */
@@ -345,7 +380,7 @@ export function useChatActions() {
 
 	// One object while the callbacks stay the same: the effects that depend on it do not run on every render.
 	return useMemo(
-		() => ({ send, retry, discardFailed, edit, remove, pin, createTask, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave }),
-		[send, retry, discardFailed, edit, remove, pin, createTask, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave]
+		() => ({ send, retry, discardFailed, edit, remove, pin, applyAppReply, createTask, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave }),
+		[send, retry, discardFailed, edit, remove, pin, applyAppReply, createTask, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave]
 	);
 }

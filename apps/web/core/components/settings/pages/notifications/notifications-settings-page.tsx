@@ -14,13 +14,16 @@ import {
 	SettingsSurface
 } from '@/core/components/settings/kit/settings-page';
 import { SettingsSwitch } from '@/core/components/settings/kit/settings-switch';
+import { useInboxDeliveryStatus } from '@/core/hooks/inbox/use-inbox-delivery-status';
 import { isNotificationTypeOn, useNotificationSettings } from '@/core/hooks/notifications/use-notification-settings';
 import {
 	defaultEmailModeOf,
 	digestHourOf,
+	emailDeliveryNoticeOf,
 	ownEmailModeOf,
 	quietHoursOf
 } from '@/core/lib/notifications/notification-preferences';
+import { timerReminderHoursOf } from '@/core/lib/notifications/timer-reminders';
 import { userState } from '@/core/stores/user/user';
 import {
 	EEmployeeNotificationType,
@@ -33,6 +36,7 @@ import { DigestHourRow, EmailDefaultRow, EmailModeChoice, EmailModeSelect, Quiet
 import { BrowserPushSection, SoundSection } from './notification-push-section';
 import { TYPE_COPY } from './notification-type-copy';
 import { NotificationGroupsSkeleton } from './notifications-settings-skeleton';
+import { TimerReminderRow } from './timer-reminder-row';
 
 /** Gauzy keeps one flag per notification type, with no channel. */
 const WORK_TYPES: readonly TEmployeeNotificationSettingKey[] = ['assignment', 'mention', 'comment'];
@@ -114,6 +118,8 @@ export function NotificationsSettingsPage() {
 	const user = useAtomValue(userState);
 	const { setting, isAvailable, isLoading, isError, retry, toggle, savePreferences, isSavingPreferences } = useNotificationSettings();
 	const [pending, setPending] = useState<PendingSwitches>({});
+	// The choices stay editable and are kept: the notice only says why no email arrives for now.
+	const emailNotice = emailDeliveryNoticeOf(useInboxDeliveryStatus());
 	const isUserKnown = Boolean(user);
 	const showsSkeleton = !isUserKnown || isLoading;
 	const showsUnavailable = isUserKnown && !isAvailable;
@@ -151,6 +157,7 @@ export function NotificationsSettingsPage() {
 		onPreferences({ emailByType: { [type]: mode === 'default' ? undefined : mode } });
 	const onQuietHours = (window: INotificationQuietHours | null) => onPreferences({ dnd: window });
 	const preferences = setting?.preferences;
+	const timerReminderHours = timerReminderHoursOf(preferences);
 	const quietHours = quietHoursOf(preferences);
 	const quietHoursKey = quietHours ? `${quietHours.start}-${quietHours.end}` : 'off';
 
@@ -206,10 +213,41 @@ export function NotificationsSettingsPage() {
 						/>
 					</SettingsSection>
 					<SettingsSection
+						id="notification-time-tracking"
+						title={t('notifications.SETTINGS_PAGE.TIMER.TITLE')}
+						description={t('notifications.SETTINGS_PAGE.TIMER.INTRO')}
+					>
+						<SettingsSurface>
+							<TimerReminderRow
+								value={timerReminderHours}
+								disabled={isSavingPreferences}
+								onChange={(hours) => onPreferences({ timerReminderHours: hours })}
+								emailMode={
+									ownEmailModeOf(preferences, EEmployeeNotificationType.TimerReminder) ?? 'default'
+								}
+								onEmailMode={(mode) => onEmailMode(EEmployeeNotificationType.TimerReminder, mode)}
+							/>
+						</SettingsSurface>
+					</SettingsSection>
+					<SettingsSection
 						id="notification-email"
 						title={t('notifications.SETTINGS_PAGE.CHANNELS.EMAIL_TITLE')}
 						description={t('notifications.SETTINGS_PAGE.CHANNELS.EMAIL_INTRO')}
 					>
+						{emailNotice === 'off' && (
+							<Notice
+								tone="warning"
+								title={t('notifications.SETTINGS_PAGE.CHANNELS.EMAIL_OFF_TITLE')}
+								description={t('notifications.SETTINGS_PAGE.CHANNELS.EMAIL_OFF_TEXT')}
+							/>
+						)}
+						{emailNotice === 'unavailable' && (
+							<Notice
+								tone="warning"
+								title={t('notifications.SETTINGS_PAGE.CHANNELS.EMAIL_UNAVAILABLE_TITLE')}
+								description={t('notifications.SETTINGS_PAGE.CHANNELS.EMAIL_UNAVAILABLE_TEXT')}
+							/>
+						)}
 						<EmailDefaultRow
 							value={defaultEmailModeOf(preferences)}
 							disabled={isSavingPreferences}
@@ -218,6 +256,7 @@ export function NotificationsSettingsPage() {
 					</SettingsSection>
 					<BrowserPushSection
 						isKindOn={(key) => isTypeShownOn(setting, key, pending)}
+						isTimerReminderOn={timerReminderHours !== null}
 						preferences={preferences}
 						isSavingPreferences={isSavingPreferences}
 						onPreferences={onPreferences}

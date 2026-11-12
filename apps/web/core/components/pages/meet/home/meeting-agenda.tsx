@@ -1,131 +1,85 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { AlertDialogConfirmation } from '@/core/components/common/alert-dialog-confirmation';
+import { Calendar } from '@/core/components/common/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { CalendarPlus, Copy, Trash } from '@/core/components/icons';
+import { ChevronDown, ChevronLeft, ChevronRight, Plus } from '@/core/components/icons';
 import { DashboardSection } from '@/core/components/dashboards/kit/dashboard-layout';
 import { BlockEmptyMessage, DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { cn } from '@/core/lib/helpers';
-import {
-	agendaOf,
-	meetingPathOfInput,
-	scheduledMeetingStateOf,
-	type AgendaDay,
-	type ScheduledMeeting
-} from '@/core/lib/utils/meetings';
-import { copyMeetingText, downloadMeetingIcs, meetingTimesOf } from './meeting-invitation';
+import { dayAfter, meetingDaysOf, meetingsOfDay, startOfDay, type ScheduledMeeting } from '@/core/lib/utils/meetings';
+import { MeetingCard } from './meeting-card';
 
 const DAY = 24 * 60 * 60 * 1000;
 
-function dayLabelOf(agendaDay: AgendaDay, today: Date, locale: string, t: ReturnType<typeof useTranslations>) {
-	const daysAhead = Math.round((agendaDay.day.getTime() - today.getTime()) / DAY);
-	if (daysAhead === 0) return t('meetings.TODAY');
-	if (daysAhead === 1) return t('meetings.TOMORROW');
-	return new Intl.DateTimeFormat(locale, { weekday: 'long', month: 'long', day: 'numeric' }).format(agendaDay.day);
+/** The days next to today that the agenda names in words. */
+const RELATIVE_DAY_KEYS = new Map([
+	[-1, 'meetings.YESTERDAY'],
+	[0, 'meetings.TODAY'],
+	[1, 'meetings.TOMORROW']
+] as const);
+
+/** "Today, October 30, 2026", or "Saturday, October 31, 2026" for a day further away, in the reader's language. */
+function dayLabelOf(day: Date, today: Date, locale: string, t: ReturnType<typeof useTranslations>): string {
+	// Rounded: a day that changes the clock is 23 or 25 hours long
+	const daysAway = Math.round((day.getTime() - today.getTime()) / DAY);
+	const relativeKey = RELATIVE_DAY_KEYS.get(daysAway as -1 | 0 | 1);
+	if (!relativeKey) {
+		return new Intl.DateTimeFormat(locale, { dateStyle: 'full' }).format(day);
+	}
+	const date = new Intl.DateTimeFormat(locale, { dateStyle: 'long' }).format(day);
+	return t('meetings.DAY_LABEL', { day: t(relativeKey), date });
 }
 
-interface MeetingCardProps {
-	meeting: ScheduledMeeting;
-	now: Date;
-	isJitsi: boolean;
-	isCancelling: boolean;
-	onCancel: (meeting: ScheduledMeeting) => void;
+/** A dot under the days that hold a meeting. */
+const MEETING_DAY_MARK =
+	"after:absolute after:bottom-1 after:left-1/2 after:size-1 after:-translate-x-1/2 after:rounded-full after:bg-primary after:content-[''] aria-selected:after:bg-primary-foreground";
+
+interface AgendaDayPickerProps {
+	day: Date;
+	label: string;
+	meetings: readonly ScheduledMeeting[];
+	onPick: (day: Date) => void;
 }
 
-function MeetingCard({ meeting, now, isJitsi, isCancelling, onCancel }: Readonly<MeetingCardProps>) {
-	const t = useTranslations();
-	const locale = useLocale();
-	const router = useRouter();
-	const state = scheduledMeetingStateOf(meeting, now);
-	const title = meeting.title || t('meetings.UNTITLED');
-	const path = meeting.link ? meetingPathOfInput(meeting.link, isJitsi) : null;
-	const isOpen = state === 'live' || state === 'soon';
+/** The agenda's day, as a button that opens a month to pick another day from. */
+function AgendaDayPicker({ day, label, meetings, onPick }: Readonly<AgendaDayPickerProps>) {
+	const [isOpen, setIsOpen] = useState(false);
+	const meetingDays = useMemo(() => meetingDaysOf(meetings), [meetings]);
+	const hasMeeting = useCallback((date: Date) => meetingDays.has(startOfDay(date).getTime()), [meetingDays]);
 
-	const copyLink = async () => {
-		if (!meeting.link) return;
-		const isCopied = await copyMeetingText(meeting.link);
-		if (isCopied) toast.success(t('meetings.LINK_COPIED'));
-		else toast.info(t('meetings.COPY_LINK'), { description: meeting.link, duration: 10000 });
+	const pick = (picked: Date | undefined) => {
+		// Picking the day shown again unselects it in the calendar: the agenda stays on it
+		if (picked) onPick(startOfDay(picked));
+		setIsOpen(false);
 	};
 
 	return (
-		<li
-			data-testid="scheduled-meeting"
-			className={cn('flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3', state === 'ended' && 'opacity-60')}
-		>
-			<span
-				aria-hidden="true"
-				className={cn('h-10 w-1 shrink-0 rounded-full', state === 'live' ? 'bg-emerald-500' : 'bg-primary/40')}
-			/>
-			<div className="flex min-w-0 flex-1 flex-col gap-0.5">
-				<span className="truncate text-sm font-medium text-foreground">{title}</span>
-				<span className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
-					{state === 'live' && (
-						<span className="font-medium text-emerald-600 dark:text-emerald-400">{t('meetings.LIVE')}</span>
-					)}
-					{state === 'soon' && (
-						<span className="font-medium text-primary-ink">{t('meetings.STARTS_SOON')}</span>
-					)}
-					{state === 'ended' && <span>{t('meetings.ENDED')}</span>}
-					<span className="tabular-nums">{meetingTimesOf(meeting, locale)}</span>
-				</span>
-			</div>
-			<div className="flex items-center gap-1">
-				{meeting.link && (
-					<>
-						<Button
-							type="button"
-							variant="ghost"
-							size="icon-sm"
-							aria-label={t('meetings.COPY_LINK_OF', { title })}
-							title={t('meetings.COPY_LINK')}
-							onClick={copyLink}
-						>
-							<Copy className="size-4" />
-						</Button>
-						<Button
-							type="button"
-							variant="ghost"
-							size="icon-sm"
-							aria-label={t('meetings.ADD_TO_CALENDAR_OF', { title })}
-							title={t('meetings.ADD_TO_CALENDAR')}
-							onClick={() => downloadMeetingIcs({ ...meeting, title, link: meeting.link as string })}
-						>
-							<CalendarPlus className="size-4" />
-						</Button>
-					</>
-				)}
-				{state !== 'ended' && (
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon-sm"
-						aria-label={t('meetings.CANCEL_MEETING_OF', { title })}
-						title={t('meetings.CANCEL_MEETING')}
-						disabled={isCancelling}
-						onClick={() => onCancel(meeting)}
-					>
-						<Trash className="size-4" />
-					</Button>
-				)}
-				{path && state !== 'ended' && (
-					<Button
-						type="button"
-						size="sm"
-						variant={isOpen ? 'default' : 'outline'}
-						onClick={() => router.push(path)}
-						aria-label={t('meetings.JOIN_MEETING_OF', { title })}
-					>
-						{t('meetings.JOIN')}
-					</Button>
-				)}
-			</div>
-		</li>
+		<Popover open={isOpen} onOpenChange={setIsOpen}>
+			<PopoverTrigger
+				data-testid="meetings-agenda-day-picker"
+				className="-mx-1.5 flex min-w-0 cursor-pointer items-center gap-1.5 rounded-md px-1.5 py-0.5 text-left outline-none transition-colors hover:bg-foreground/[0.05] focus-visible:ring-[3px] focus-visible:ring-ring/25"
+			>
+				<span className="truncate">{label}</span>
+				<ChevronDown className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+			</PopoverTrigger>
+			<PopoverContent align="start" className="w-auto p-0">
+				<Calendar
+					mode="single"
+					selected={day}
+					defaultMonth={day}
+					onSelect={pick}
+					initialFocus
+					modifiers={{ hasMeeting }}
+					modifiersClassNames={{ hasMeeting: MEETING_DAY_MARK }}
+				/>
+			</PopoverContent>
+		</Popover>
 	);
 }
 
@@ -136,11 +90,20 @@ interface MeetingAgendaProps {
 	onRetry: () => void;
 	isJitsi: boolean;
 	now: Date;
+	/** Who hosts the meetings listed: the person, whose own meetings these are. */
+	hostName: string;
 	cancellingId: string | undefined;
 	onCancelMeeting: (appointmentId: string) => Promise<unknown>;
+	/** Opens the meeting to change its title or its time. */
+	onEditMeeting: (meeting: ScheduledMeeting) => void;
+	/** Opens Schedule on a day of the agenda. */
+	onScheduleOn: (day: Date) => void;
 }
 
-/** Today and the coming days, as scheduled by the person: join, copy the link, add to a calendar, cancel. */
+/**
+ * One day of the meetings the person scheduled, today first, with the way to the day before, back to today and to
+ * the day after, and to schedule a meeting that day; on each meeting: join, copy, add to a calendar, edit, cancel.
+ */
 export function MeetingAgenda({
 	meetings,
 	isLoading,
@@ -148,15 +111,28 @@ export function MeetingAgenda({
 	onRetry,
 	isJitsi,
 	now,
+	hostName,
 	cancellingId,
-	onCancelMeeting
+	onCancelMeeting,
+	onEditMeeting,
+	onScheduleOn
 }: Readonly<MeetingAgendaProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const [meetingToCancel, setMeetingToCancel] = useState<ScheduledMeeting | null>(null);
-	const today = new Date(now);
-	today.setHours(0, 0, 0, 0);
-	const days = agendaOf(meetings, now);
+	const today = startOfDay(now);
+	const [day, setDay] = useState(today);
+	// A page left open past midnight: the day shown moves on with today when it was today, a day picked stays
+	const [knownToday, setKnownToday] = useState(today);
+	if (knownToday.getTime() !== today.getTime()) {
+		setKnownToday(today);
+		if (day.getTime() === knownToday.getTime()) {
+			setDay(today);
+		}
+	}
+	const isToday = day.getTime() === today.getTime();
+	const isPast = day.getTime() < today.getTime();
+	const dayMeetings = meetingsOfDay(meetings, day);
 
 	const confirmCancel = async () => {
 		if (!meetingToCancel) return;
@@ -172,9 +148,62 @@ export function MeetingAgenda({
 
 	return (
 		<DashboardSection
-			title={t('meetings.AGENDA')}
+			title={
+				<AgendaDayPicker
+					day={day}
+					label={dayLabelOf(day, today, locale, t)}
+					meetings={meetings}
+					onPick={setDay}
+				/>
+			}
 			meta={t('meetings.AGENDA_HINT')}
 			ariaLabel={t('meetings.AGENDA')}
+			actions={
+				<div className="flex items-center gap-0.5">
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+						aria-label={t('meetings.PREVIOUS_DAY')}
+						title={t('meetings.PREVIOUS_DAY')}
+						onClick={() => setDay(dayAfter(day, -1))}
+					>
+						<ChevronLeft className="size-4" />
+					</Button>
+					<Button
+						type="button"
+						variant="ghost"
+						size="sm"
+						aria-current={isToday ? 'date' : undefined}
+						onClick={() => setDay(today)}
+					>
+						{t('meetings.TODAY')}
+					</Button>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+						aria-label={t('meetings.NEXT_DAY')}
+						title={t('meetings.NEXT_DAY')}
+						onClick={() => setDay(dayAfter(day, 1))}
+					>
+						<ChevronRight className="size-4" />
+					</Button>
+					<Button
+						type="button"
+						variant="secondary"
+						size="icon-sm"
+						className="ml-1.5"
+						aria-label={t('meetings.SCHEDULE_ON_DAY')}
+						title={t('meetings.SCHEDULE_ON_DAY')}
+						disabled={isPast}
+						onClick={() => onScheduleOn(day)}
+						data-testid="meetings-schedule-on-day"
+					>
+						<Plus className="size-4" />
+					</Button>
+				</div>
+			}
 		>
 			{isError && <DashboardErrorNotice onRetry={onRetry} />}
 			{!isError && isLoading && (
@@ -184,34 +213,29 @@ export function MeetingAgenda({
 				</div>
 			)}
 			{!isError && !isLoading && (
-				<div className="flex flex-col gap-4 p-4">
-					{days.map((agendaDay) => (
-						<section key={agendaDay.day.getTime()} className="flex flex-col gap-2">
-							<h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-								{dayLabelOf(agendaDay, today, locale, t)}
-							</h3>
-							{agendaDay.meetings.length === 0 && (
-								<BlockEmptyMessage
-									title={t('meetings.NO_MEETINGS_TODAY')}
-									message={t('meetings.NO_MEETINGS_TODAY_HINT')}
+				<div className="flex flex-col gap-2 p-4" data-testid="meetings-agenda-day">
+					{dayMeetings.length === 0 && (
+						<BlockEmptyMessage
+							title={isToday ? t('meetings.NO_MEETINGS_TODAY') : t('meetings.NO_MEETINGS_DAY')}
+							message={t('meetings.NO_MEETINGS_TODAY_HINT')}
+						/>
+					)}
+					{dayMeetings.length > 0 && (
+						<ul className="grid gap-3 sm:grid-cols-2">
+							{dayMeetings.map((meeting) => (
+								<MeetingCard
+									key={meeting.id}
+									meeting={meeting}
+									now={now}
+									isJitsi={isJitsi}
+									hostName={hostName}
+									isCancelling={cancellingId === meeting.id}
+									onEdit={onEditMeeting}
+									onCancel={setMeetingToCancel}
 								/>
-							)}
-							{agendaDay.meetings.length > 0 && (
-								<ul className="divide-y divide-border overflow-hidden rounded-lg hairline-ring ring-border">
-									{agendaDay.meetings.map((meeting) => (
-										<MeetingCard
-											key={meeting.id}
-											meeting={meeting}
-											now={now}
-											isJitsi={isJitsi}
-											isCancelling={cancellingId === meeting.id}
-											onCancel={setMeetingToCancel}
-										/>
-									))}
-								</ul>
-							)}
-						</section>
-					))}
+							))}
+						</ul>
+					)}
 				</div>
 			)}
 			<AlertDialogConfirmation
