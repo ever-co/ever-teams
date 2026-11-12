@@ -103,8 +103,12 @@ function TimeWorked({ taskId, estimateSeconds }: Readonly<{ taskId: string; esti
 		return null;
 	}
 	let amount = durationOf(workedSeconds, formats);
+	let workedWidth = '0%';
 	if (hasEstimate) {
-		amount = `${amount} / ${durationOf(estimateSeconds, formats)}`;
+		const estimate = durationOf(estimateSeconds, formats);
+		amount = `${amount} / ${estimate}`;
+		const workedShare = workedShareOf(workedSeconds, estimateSeconds);
+		workedWidth = `${workedShare}%`;
 	}
 	return (
 		<div className="flex flex-col gap-1.5">
@@ -114,10 +118,7 @@ function TimeWorked({ taskId, estimateSeconds }: Readonly<{ taskId: string; esti
 			</p>
 			{hasEstimate && (
 				<span className="h-1 overflow-hidden rounded-full bg-foreground/[0.06]">
-					<span
-						className="block h-full rounded-full bg-primary"
-						style={{ width: `${workedShareOf(workedSeconds, estimateSeconds)}%` }}
-					/>
+					<span className="block h-full rounded-full bg-primary" style={{ width: workedWidth }} />
 				</span>
 			)}
 		</div>

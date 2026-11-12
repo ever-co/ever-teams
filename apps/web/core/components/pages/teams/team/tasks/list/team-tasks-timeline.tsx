@@ -97,7 +97,9 @@ function scrollCalendarTo(element: HTMLElement, left: number) {
 /** Where the calendar shows today: a third from the left of the days in view. */
 function todayScrollLeftOf(element: HTMLElement, todayDay: number, dayWidth: number) {
 	const daysWidth = element.clientWidth - TITLE_WIDTH;
-	return Math.max(0, todayDay * dayWidth - daysWidth / 3);
+	const todayLeft = todayDay * dayWidth;
+	const thirdOfDays = daysWidth / 3;
+	return Math.max(0, todayLeft - thirdOfDays);
 }
 
 /** The card is the mouse's: a focus (the drawer giving it back on Escape, a Tab) opens nothing. */
@@ -237,6 +239,12 @@ export function TeamTasksTimelineView({
 	const isTodayDrawn = todayDay !== null;
 	// Today scrolls the calendar, which only exists with bars to draw.
 	const canShowToday = hasBars && isTodayDrawn;
+	let todayCenter = 0;
+	if (isTodayDrawn) {
+		const todayLeft = todayDay * dayWidth;
+		const halfDay = dayWidth / 2;
+		todayCenter = todayLeft + halfDay;
+	}
 
 	return (
 		<section
@@ -301,7 +309,7 @@ export function TeamTasksTimelineView({
 								{!isWeekZoom && isTodayDrawn && (
 									<span
 										className="absolute bottom-1.5 size-1.5 -translate-x-1/2 rounded-full bg-primary"
-										style={{ left: todayDay * dayWidth + dayWidth / 2 }}
+										style={{ left: todayCenter }}
 									/>
 								)}
 							</div>
