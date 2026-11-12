@@ -55,17 +55,24 @@ describe('a task change shown in the built-in views', () => {
 		);
 	});
 
-	it('puts the task back as each view listed it, and keeps what changed on another task since', () => {
-		const mineCopy = task('a', { status: 'todo', priority: 'low' });
+	it('puts back the fields the change set as each view listed them, and keeps every change made since', () => {
+		const mineCopy = task('a', { status: 'todo', priority: 'low', title: 'Draft' });
 		const overdueCopy = task('a', { status: 'todo' });
 		queryClient.setQueryData(mineKey, viewOf(mineCopy, task('b', { priority: 'low' })));
 		queryClient.setQueryData(overdueKey, viewOf(overdueCopy));
 
 		const restore = showTaskChangeInBuiltInViews(queryClient, 'a', { status: 'done' } as Partial<TTask>);
 		showTaskChangeInBuiltInViews(queryClient, 'b', { priority: 'high' } as Partial<TTask>);
+		const readWhileSaving = viewOf(
+			task('a', { status: 'todo', priority: 'low', title: 'Final' }),
+			task('b', { priority: 'high' })
+		);
+		queryClient.setQueryData(mineKey, readWhileSaving);
 		restore();
 
-		expect(listedTask(queryClient, mineKey, 'a')).toEqual(mineCopy);
+		expect(listedTask(queryClient, mineKey, 'a')).toEqual(
+			task('a', { status: 'todo', priority: 'low', title: 'Final' })
+		);
 		expect(listedTask(queryClient, overdueKey, 'a')).toEqual(overdueCopy);
 		expect(listedTask(queryClient, mineKey, 'b')).toMatchObject({ priority: 'high' });
 	});
