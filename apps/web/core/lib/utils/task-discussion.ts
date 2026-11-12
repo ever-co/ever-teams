@@ -145,6 +145,20 @@ function changesOf(log: IActivityLog): TaskActivityChange[] {
 	return changes;
 }
 
+function dateOrNull(value: string | null | undefined): Date | null {
+	if (!value) {
+		return null;
+	}
+	const date = new Date(value);
+	return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function resolverNameOf(comment: IComment): string {
+	const employee = comment.resolvedByEmployee;
+	const name = firstFilled([employee?.fullName, employee?.user?.name]);
+	return name ?? '';
+}
+
 export function toTaskCommentItem(comment: IComment): TaskCommentItem {
 	return {
 		id: comment.id,
@@ -152,7 +166,13 @@ export function toTaskCommentItem(comment: IComment): TaskCommentItem {
 		createdAt: new Date(comment.createdAt),
 		parentId: comment.parentId ?? null,
 		authorName: authorNameOf(comment),
-		authorImageUrl: authorImageUrlOf(comment)
+		authorImageUrl: authorImageUrlOf(comment),
+		authorEmployeeId: comment.employeeId ?? null,
+		authorUserId: comment.createdByUserId ?? null,
+		editedAt: dateOrNull(comment.editedAt),
+		resolved: comment.resolved === true,
+		resolvedAt: dateOrNull(comment.resolvedAt),
+		resolvedByName: resolverNameOf(comment)
 	};
 }
 

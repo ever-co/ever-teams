@@ -376,6 +376,14 @@ export const queryKeys = {
 	tasks: {
 		// Standard task keys (preserved for backward compatibility)
 		all: ['tasks'] as const,
+		/** The trash of a team or a project, under `tasks.all`: a task change (a live hint, a delete) refetches it. */
+		trash: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			teamId: string | undefined | null,
+			projectId: string | undefined | null,
+			search: string
+		) => ['tasks', 'trash', tenantId ?? null, organizationId ?? null, teamId ?? null, projectId ?? null, search] as const,
 		detail: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : [])] as const,
 		byEmployee: (employeeId: string | undefined | null, teamId: string | undefined | null) =>
 			['tasks', 'by-employee', ...(employeeId ? [employeeId] : []), ...(teamId ? [teamId] : [])] as const,
@@ -501,7 +509,13 @@ export const queryKeys = {
 			tenantId: string | undefined | null,
 			organizationId: string | undefined | null,
 			taskId: string | undefined | null
-		) => ['task-comments', 'by-task', tenantId ?? null, organizationId ?? null, taskId ?? null] as const
+		) => ['task-comments', 'by-task', tenantId ?? null, organizationId ?? null, taskId ?? null] as const,
+		/** Under the task's comments key: whatever refetches the comments (a live hint, a post) refetches these too. */
+		reactionsByTask: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			taskId: string | undefined | null
+		) => ['task-comments', 'by-task', tenantId ?? null, organizationId ?? null, taskId ?? null, 'reactions'] as const
 	},
 
 	taskMetadata: {

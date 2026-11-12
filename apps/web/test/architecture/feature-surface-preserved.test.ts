@@ -2016,12 +2016,24 @@ describe('Ever Teams feature surface preservation', () => {
 		// 300 files and 385 verbs with the reschedule of a scheduled meeting (/api/employee-appointment/[id] PUT).
 		// 304 files and 390 verbs with the Docs import and PDF export proxies (/api/plugins/docs/imports GET and POST,
 		// imports/[id] GET, documents/[id]/export.pdf GET, exports/pdf GET).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(304);
+		// 311 files and 398 verbs with the comments and trash proxies: /api/comment/[id]/soft (DELETE) and /recover
+		// (PUT), /api/reaction (POST), /api/reaction/comments (GET), /api/tasks/trash (GET), /api/tasks/[id]/soft
+		// (DELETE) and /recover (PUT), and DELETE on /api/tasks/[id] (a task deleted for good from the trash).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(311);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(390);
+		).toHaveLength(398);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of the platform's comment withdrawal, reactions and task trash (2026-11-12)
+				'apps/web/app/api/comment/[id]/soft/route.ts::DELETE',
+				'apps/web/app/api/comment/[id]/recover/route.ts::PUT',
+				'apps/web/app/api/reaction/route.ts::POST',
+				'apps/web/app/api/reaction/comments/route.ts::GET',
+				'apps/web/app/api/tasks/trash/route.ts::GET',
+				'apps/web/app/api/tasks/[id]/soft/route.ts::DELETE',
+				'apps/web/app/api/tasks/[id]/recover/route.ts::PUT',
+				'apps/web/app/api/tasks/[id]/route.ts::DELETE',
 				// Proxy mode twins of the platform's Docs import of exported workspaces and PDF export (2026-11-12)
 				'apps/web/app/api/plugins/docs/imports/route.ts::GET',
 				'apps/web/app/api/plugins/docs/imports/route.ts::POST',

@@ -4,6 +4,7 @@ import { apiErrorStatusOf, unwrapRejection } from '@/core/services/server/fetch'
 import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { NextResponse } from 'next/server';
+import { forwardToGauzy } from '@/core/services/server/forward-to-gauzy';
 
 export async function GET(req: Request, props: INextParams) {
 	const params = await props.params;
@@ -64,4 +65,18 @@ export async function PUT(req: Request, props: INextParams) {
 	);
 
 	return $res(task);
+}
+
+/**
+ * Proxy mode twin of the platform's `DELETE /tasks/{id}`: deletes a task for good (from the trash too), under the
+ * platform's delete grants; its refusal comes back with its own status.
+ */
+export async function DELETE(req: Request, props: INextParams) {
+	const params = await props.params;
+	if (!params.id) {
+		return NextResponse.json({ error: 'Missing task ID' }, { status: 400 });
+	}
+
+	// The id is encoded, so a value such as `../x` stays one path segment and cannot reach another endpoint.
+	return forwardToGauzy(req, `/tasks/${encodeURIComponent(params.id)}`);
 }
