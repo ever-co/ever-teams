@@ -17,7 +17,9 @@ export const clientSchema = z.object({
 	tenantId: z.string().optional().nullable(),
 	createdAt: z.coerce.string().optional().nullable(),
 	updatedAt: z.coerce.string().optional().nullable(),
-	deletedAt: z.coerce.string().optional().nullable()
+	deletedAt: z.coerce.string().optional().nullable(),
+	/** The one commercial field kept: a new invoice of the client is due this many days after its issue. */
+	paymentTermsDays: z.number().int().nullable().optional().catch(null)
 });
 
 export const clientRequestSchema = z.object({
