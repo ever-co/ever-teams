@@ -102,10 +102,7 @@ describe('useDurationEntry', () => {
 	});
 
 	it("proposes the first free stretch of the member's day, read around that day for that member", async () => {
-		mockGetTimeLogs.mockResolvedValue([
-			logOf('morning', 'employee-a', at(9), at(10, 30)),
-			logOf('teammate', 'employee-b', at(10, 30), at(18))
-		]);
+		mockGetTimeLogs.mockResolvedValue([logOf('morning', 'employee-a', at(9), at(10, 30))]);
 		const { result, client } = renderForm();
 
 		typeDuration(result, '1:30');
@@ -207,6 +204,16 @@ describe('useDurationEntry', () => {
 		await waitForPhase(result, 'proposed');
 
 		expect(result.current.times).toEqual({ startMinutes: 540, endMinutes: 630 });
+	});
+
+	it("proposes nothing when the API answers with the caller's entries instead of the member's", async () => {
+		mockGetTimeLogs.mockResolvedValue([logOf('own', 'employee-a', at(9), at(10, 30))]);
+		const { result } = renderForm({ employeeId: 'employee-b' });
+
+		typeDuration(result, '1:30');
+		await waitForPhase(result, 'failed');
+
+		expect(result.current.times).toEqual(NO_TIMES);
 	});
 
 	it('says the day could not be read, and proposes on a new try', async () => {

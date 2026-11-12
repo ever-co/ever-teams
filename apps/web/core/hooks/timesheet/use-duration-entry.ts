@@ -85,7 +85,13 @@ export function useDurationEntry(input: DurationEntryInput): DurationEntry {
 			staleTime: 0,
 			gcTime: request.gcTime
 		});
-		return logs.filter((log) => memberIdOfLog(log) === memberId);
+		// The API answers with the caller's own entries when the caller may not read the member asked for: that
+		// member's day is then unknown, and a proposal made on it could land on their entries
+		const hasOtherMemberLog = logs.some((log) => memberIdOfLog(log) !== memberId);
+		if (hasOtherMemberLog) {
+			throw new Error('The entries read are not those of the member asked for');
+		}
+		return logs;
 	};
 
 	const propose = async (seconds: number) => {
