@@ -3,6 +3,7 @@
 import {
 	useCallback,
 	useEffect,
+	useId,
 	useMemo,
 	useRef,
 	useState,
@@ -125,6 +126,7 @@ export function TeamTasksTimelineView({
 	const [zoom, setZoom] = useState<TeamTasksTimelineZoom>('week');
 	const today = useToday();
 	const canHover = useMediaQuery(HOVER_QUERY);
+	const dragHintId = useId();
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const { moveDates } = useTeamTaskUpdates();
 	const teamTasks = useAtomValue(tasksByTeamState);
@@ -240,6 +242,10 @@ export function TeamTasksTimelineView({
 			className="flex h-full min-h-0 flex-col"
 			data-testid="team-tasks-timeline"
 		>
+			{/* How to move a bar's dates, for screen readers: the hover card shows it to the mouse. */}
+			<p id={dragHintId} className="sr-only">
+				{t('pages.teamTasks.TIMELINE_DRAG_HINT')}
+			</p>
 			<div className="flex min-h-11 flex-wrap items-center justify-between gap-x-4 gap-y-2 hairline-b border-border px-4 py-2">
 				<Button type="button" variant="outline" size="sm" onClick={showToday} disabled={!isTodayDrawn}>
 					{t('common.TODAY')}
@@ -419,6 +425,7 @@ export function TeamTasksTimelineView({
 													datesText={datesText}
 													canEdit={teamTaskIds.has(task.id)}
 													canHover={canHover}
+													dragHintId={dragHintId}
 													onOpen={() => commands.openTask(task.id)}
 													dayCount={timeline.dayCount}
 													scrollRef={scrollRef}
@@ -662,6 +669,8 @@ interface TimelineBarProps {
 	canEdit: boolean;
 	/** Whether the pointer hovers (a mouse): the card shows only then. */
 	canHover: boolean;
+	/** The element that says how to move a bar's dates, read out with the bars that can move. */
+	dragHintId: string;
 	onOpen: () => void;
 	/** The days drawn: a dragged bar stays inside them, as `timelineOf` keeps every bar. */
 	dayCount: number;
@@ -693,6 +702,7 @@ function TimelineBar({
 	datesText,
 	canEdit,
 	canHover,
+	dragHintId,
 	onOpen,
 	dayCount,
 	scrollRef,
@@ -757,6 +767,11 @@ function TimelineBar({
 		onMove(event.shiftKey && !bar.isDueOnly ? 'end' : 'move', event.key === 'ArrowLeft' ? -1 : 1);
 	};
 
+	let describedBy: string | undefined;
+	if (canEdit) {
+		describedBy = dragHintId;
+	}
+
 	return (
 		<HoverCard
 			open={isCardShown}
@@ -774,6 +789,7 @@ function TimelineBar({
 						onPointerLeave={handlePointerLeave}
 						onKeyDown={handleKeyDown}
 						aria-label={label}
+						aria-describedby={describedBy}
 						aria-keyshortcuts={
 							canEdit
 								? 'Alt+ArrowLeft Alt+ArrowRight Alt+Shift+ArrowLeft Alt+Shift+ArrowRight'

@@ -436,6 +436,18 @@ describe('TeamTasksTimelineView', () => {
 			expect(screen.queryByTestId('timeline-card-a')).toBeNull();
 		});
 
+		it('tells a screen reader how to move the dates of a bar that can move, and only of those', () => {
+			renderTimeline([
+				ranged,
+				{ id: 'other', title: 'Elsewhere', dueDate: '2026-11-20', status: 'open', taskStatusId: 'open' }
+			]);
+			const describedBy = screen.getByTestId('timeline-bar-a').getAttribute('aria-describedby');
+
+			expect(describedBy).not.toBeNull();
+			expect(document.getElementById(describedBy ?? '')?.textContent).toBe('pages.teamTasks.TIMELINE_DRAG_HINT');
+			expect(screen.getByTestId('timeline-bar-other').getAttribute('aria-describedby')).toBeNull();
+		});
+
 		it('never shows a card where nothing hovers', () => {
 			mockCanHover = false;
 			renderTimeline([ranged]);
