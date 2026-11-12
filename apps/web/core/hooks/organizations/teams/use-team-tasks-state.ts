@@ -11,10 +11,12 @@ import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import {
 	activeTeamState,
 	activeTeamTaskState,
+	localTimerStatusState,
 	memberActiveTaskIdState,
 	tasksByTeamState,
 	teamTasksCompleteState,
-	teamTasksState
+	teamTasksState,
+	timerStatusState
 } from '@/core/stores';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useAtomValue, useSetAtom, useStore } from 'jotai';
@@ -70,6 +72,13 @@ function setActiveTeamTaskIfChanged(store: JotaiStore, task: TTask | null) {
 		return;
 	}
 	store.set(activeTeamTaskState, task);
+}
+
+// The local status says running from the start request on, the server status once the run began
+function isTimerRunning(store: JotaiStore): boolean {
+	const isStarting = store.get(localTimerStatusState)?.running === true;
+	const isRunning = store.get(timerStatusState)?.running === true;
+	return isStarting || isRunning;
 }
 
 /**
@@ -274,6 +283,17 @@ export function useTeamTasksState() {
 	// Get the active task from cookie and put on global store
 	useConditionalUpdateEffect(
 		() => {
+			// The task cookies are shared by every tab, and another tab may have picked another task. While a timer
+			// runs, a tab that holds an active task keeps it and only takes the list's newer copy of it, so a pick
+			// made in another tab never stops the timer here (#5120). A tab without an active task still takes one.
+			const heldTask = activeTeamTaskRef.current;
+			if (heldTask && isTimerRunning(store)) {
+				const listedCopy = getValidActiveTask(tasks, heldTask.id, activeTeam?.id);
+				if (listedCopy) {
+					setActiveTeamTaskIfChanged(store, listedCopy);
+				}
+				return;
+			}
 			const active_user_task = getActiveUserTaskCookie();
 			const active_taskid =
 				active_user_task?.userId === authUserRef.current?.id

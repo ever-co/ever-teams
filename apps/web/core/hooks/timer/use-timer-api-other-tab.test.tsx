@@ -10,8 +10,16 @@ import { createStore, Provider } from 'jotai';
 import type { PropsWithChildren } from 'react';
 
 import { queryKeys } from '@/core/query/keys';
-import { activeTeamIdState, organizationTeamsState, timerStatusState } from '@/core/stores';
+import {
+	activeTeamIdState,
+	activeTeamTaskState,
+	organizationTeamsState,
+	teamTasksCompleteState,
+	teamTasksState,
+	timerStatusState
+} from '@/core/stores';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { useOrganizationTeamsQuery } from '../organizations/teams/use-organization-teams-query';
 import { useTimerApi } from './use-timer-api';
 
@@ -104,6 +112,15 @@ const team = (id: string, revision = 'r1') => ({
 	projects: []
 });
 const teamList = (teams: ReturnType<typeof team>[]) => ({ data: { items: teams, total: teams.length } });
+
+const task = (id: string) =>
+	({
+		id,
+		title: id,
+		status: 'in-progress',
+		teams: [{ id: 'team-x' }],
+		members: [{ userId: 'user-1' }]
+	}) as never as TTask;
 
 const timerRunningOn = (taskId: string) =>
 	({ running: true, lastLog: { id: `log-${taskId}`, taskId, source: ETimeLogSource.TEAMS } }) as never;
@@ -207,5 +224,59 @@ describe('the team another tab switches to', () => {
 		});
 
 		await waitFor(() => expect(store.get(activeTeamIdState)).toBe('team-y'));
+	});
+});
+
+describe('the task another tab picks', () => {
+	/** This tab works on task A of team X, by default with a timer running on it. */
+	function renderTabWorkingOnTaskA({ timerRuns = true, activeTask = task('task-a') as TTask | null } = {}) {
+		mockBrowserCookies.teamId = 'team-x';
+		mockBrowserCookies.taskId = 'task-a';
+		mockGetOrganizationTeams.mockResolvedValue(teamList([team('team-x')]) as never);
+		const store = createStore();
+		store.set(organizationTeamsState, [team('team-x')] as never);
+		store.set(activeTeamIdState, 'team-x');
+		store.set(teamTasksState, [task('task-a'), task('task-b')]);
+		store.set(teamTasksCompleteState, true);
+		store.set(activeTeamTaskState, activeTask);
+		if (timerRuns) {
+			store.set(timerStatusState, timerRunningOn('task-a'));
+		}
+		return renderTab(store);
+	}
+
+	it('keeps the task this tab runs a timer on when the next task list read arrives', async () => {
+		const { store } = renderTabWorkingOnTaskA();
+
+		// Another tab picks task B; this tab reads its task list again while its timer runs
+		mockBrowserCookies.taskId = 'task-b';
+		await act(async () => {
+			store.set(teamTasksState, [task('task-a'), task('task-b')]);
+		});
+
+		expect(mockStopTimer).not.toHaveBeenCalled();
+		expect(store.get(activeTeamTaskState)?.id).toBe('task-a');
+	});
+
+	it('still follows the task picked in another tab when no timer runs', async () => {
+		const { store } = renderTabWorkingOnTaskA({ timerRuns: false });
+
+		mockBrowserCookies.taskId = 'task-b';
+		await act(async () => {
+			store.set(teamTasksState, [task('task-a'), task('task-b')]);
+		});
+
+		expect(store.get(activeTeamTaskState)?.id).toBe('task-b');
+	});
+
+	it('still takes the task the cookie names when the tab has no active task yet, as after a reload', async () => {
+		const { store } = renderTabWorkingOnTaskA({ activeTask: null });
+
+		await act(async () => {
+			store.set(teamTasksState, [task('task-a'), task('task-b')]);
+		});
+
+		expect(store.get(activeTeamTaskState)?.id).toBe('task-a');
+		expect(mockStopTimer).not.toHaveBeenCalled();
 	});
 });
