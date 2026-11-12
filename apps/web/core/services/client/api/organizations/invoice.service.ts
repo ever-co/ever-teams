@@ -1,6 +1,7 @@
 import qs from 'qs';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import type { InvoiceStatusChange } from '@/core/lib/utils/invoice-actions';
 import type { InvoiceRequest } from '@/core/lib/utils/invoices';
 import { validateApiResponse, validatePaginationResponse, ZodValidationError } from '@/core/types/schemas';
 import {
@@ -25,6 +26,12 @@ export interface InvoicesPage {
 interface InvoicesPageOptions {
 	page: number;
 	signal?: AbortSignal;
+}
+
+export interface InvoiceToEmail {
+	invoiceId: string;
+	invoiceNumber: number | null;
+	email: string;
 }
 
 interface InvoicesQueryOptions {
@@ -132,6 +139,31 @@ class InvoiceService extends APIService {
 			responseType: 'blob'
 		});
 		return response.data;
+	};
+
+	/**
+	 * E-mails the invoice to `email` with its PDF attached, through the organization's own e-mail settings. The API
+	 * answers 202 with no body whatever its mail server did: only a refused request comes back as an error.
+	 */
+	sendInvoiceByEmail = async ({ invoiceId, invoiceNumber, email }: InvoiceToEmail): Promise<void> => {
+		const params = {
+			invoiceNumber,
+			invoiceId,
+			isEstimate: false,
+			organizationId: this.organizationId,
+			tenantId: this.tenantId
+		};
+		await this.put(`/invoices/email/${encodeURIComponent(email)}`, { params });
+	};
+
+	changeInvoiceStatus = async (invoiceId: string, change: InvoiceStatusChange): Promise<void> => {
+		// A copy: the request writes the tenant and the organization into the object it is given.
+		const body = { ...change };
+		await this.put(`/invoices/${encodeURIComponent(invoiceId)}/action`, body);
+	};
+
+	deleteInvoice = async (invoiceId: string): Promise<void> => {
+		await this.delete(`/invoices/${encodeURIComponent(invoiceId)}`);
 	};
 }
 
