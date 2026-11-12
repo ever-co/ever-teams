@@ -101,6 +101,8 @@ interface DocsPageViewProps {
 const LINKED_BLOCK_LIT_MS = 4000;
 /** How long the page is searched for a block a link or a thread points at. */
 const BLOCK_SEARCH_MS = 12_000;
+/** How long a thread's block waits for the editor to highlight the thread's range before the block is shown instead. */
+const RANGE_WAIT_MS = 1500;
 /** How many times, and how far apart, a draft is saved while a save already runs, before an export or a new anchor. */
 const DRAFT_SAVE_ATTEMPTS = 20;
 const DRAFT_SAVE_WAIT_MS = 300;
@@ -434,10 +436,22 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 		if (!scrollTarget) return;
 		// The editor can take a while (a live session's first state): the block is looked for up to this long.
 		const deadline = Date.now() + BLOCK_SEARCH_MS;
+		// A thread's range is highlighted by the editor once its marks arrive, which can be after its block is there: the
+		// block waits a moment for it (the read-only view has no highlights, so its block is enough at once).
+		let rangeWaitUntil: number | null = null;
 		let handle = 0;
 		const find = () => {
-			const range = scrollTarget.threadId ? bodyRef.current?.querySelector<HTMLElement>(`[data-thread-range="${CSS.escape(scrollTarget.threadId)}"]`) : null;
-			const element = range ?? bodyRef.current?.querySelector<HTMLElement>(blockSelectorOf(scrollTarget.blockId));
+			const body = bodyRef.current;
+			const range = scrollTarget.threadId ? body?.querySelector<HTMLElement>(`[data-thread-range="${CSS.escape(scrollTarget.threadId)}"]`) : null;
+			const block = range ? null : body?.querySelector<HTMLElement>(blockSelectorOf(scrollTarget.blockId));
+			if (block && scrollTarget.threadId && block.closest('.ProseMirror')) {
+				rangeWaitUntil ??= Math.min(deadline, Date.now() + RANGE_WAIT_MS);
+				if (Date.now() < rangeWaitUntil) {
+					handle = requestAnimationFrame(find);
+					return;
+				}
+			}
+			const element = range ?? block;
 			if (element) {
 				element.scrollIntoView({ behavior: 'smooth', block: 'center' });
 				// The read-only view has no editor to light the block: its element is lit for a moment.
