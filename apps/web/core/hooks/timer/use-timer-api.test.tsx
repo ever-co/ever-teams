@@ -31,7 +31,12 @@ interface TimeLog {
 }
 
 /** Gauzy as the start's checks see it: the employee's last time log and tracking flag, and a failing status read. */
-const mockGauzy: { lastLog: TimeLog | null; isTrackingTime: boolean; statusReadFails: boolean } = {
+const mockGauzy: {
+	lastLog: TimeLog | null;
+	isTrackingTime: boolean;
+	statusReadFails: boolean;
+	lastLogReadFails?: boolean;
+} = {
 	lastLog: null,
 	isTrackingTime: false,
 	statusReadFails: false
@@ -111,10 +116,10 @@ jest.mock('@/core/services/client/api/timers', () => ({
 			return { data: { running: !!lastLog?.isRunning, lastLog } };
 		},
 		// The employee's last log, whatever its day
-		getLastTimerLog: async () => ({
-			data: [{ lastLog: mockGauzy.lastLog }],
-			headers: { date: new Date(NOW).toUTCString() }
-		}),
+		getLastTimerLog: async () => {
+			if (mockGauzy.lastLogReadFails) throw new Error('Network Error');
+			return { data: [{ lastLog: mockGauzy.lastLog }], headers: { date: new Date(NOW).toUTCString() } };
+		},
 		stopTimer: (body: { source: ETimeLogSource; stoppedAt?: string }) => mockStopTimer(body),
 		startTimer: () => mockStartTimer(),
 		// The heartbeat a stop sends first: its status read plays no part here
@@ -201,6 +206,7 @@ describe('Start while the tracking flag says a timer runs and this tab says stop
 		mockGauzy.lastLog = null;
 		mockGauzy.isTrackingTime = false;
 		mockGauzy.statusReadFails = false;
+		mockGauzy.lastLogReadFails = false;
 	});
 
 	it('refuses the start and keeps the run another device started since this tab read its status', async () => {
@@ -245,6 +251,30 @@ describe('Start while the tracking flag says a timer runs and this tab says stop
 		// The tab shows that run at once. Its day's status is not read again: it would show the run stopped
 		expect(tab.store.get(timerStatusState)).toMatchObject({ running: true, lastLog: { id: 'log-overnight' } });
 		expect(invalidate).not.toHaveBeenCalledWith({ queryKey: queryKeys.timer.all });
+	});
+
+	it('refuses the start and stops nothing when the read of the last log fails', async () => {
+		// The flag says a run goes on and this tab shows none: the check of the last log fails before the status read
+		mockGauzy.lastLog = {
+			id: 'log-desktop',
+			source: ETimeLogSource.DESKTOP,
+			isRunning: true,
+			startedAt: minutesAgo(0.5),
+			stoppedAt: minutesAgo(0.5)
+		};
+		mockGauzy.isTrackingTime = true;
+		mockGauzy.lastLogReadFails = true;
+		const { pressStart } = renderTab();
+
+		const outcome = await pressStart();
+
+		expect(outcome).toBe('blocked');
+		expect(mockStopTimer).not.toHaveBeenCalled();
+		expect(mockStartTimer).not.toHaveBeenCalled();
+		expect(mockToastError).toHaveBeenCalledWith(
+			'toasts.timer.START_FAILED',
+			expect.objectContaining({ id: 'timer-start-failed' })
+		);
 	});
 
 	it('refuses the start and stops nothing when the fresh status read fails', async () => {

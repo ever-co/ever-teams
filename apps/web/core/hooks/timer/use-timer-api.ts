@@ -627,8 +627,15 @@ export function useTimerApi({
 						return false;
 					}
 				} catch (healError) {
-					logErrorInDev('[startTimer] Auto-heal stop failed:', healError);
-					// Still allow start attempt — the server start endpoint may handle it
+					// A read that failed tells nothing about a run on another tab or device, and Gauzy's start stops
+					// every running log of the employee: the start is refused, as a failed status read refuses it
+					logErrorInDev('[startTimer] Auto-heal check failed:', healError);
+					const reasonKey = errorReasonKeyOf(healError) as DottedLanguageObjectStringPaths;
+					toast.error(t('toasts.timer.START_FAILED'), {
+						id: 'timer-start-failed',
+						description: t(reasonKey)
+					});
+					return false;
 				}
 			}
 			return true;
