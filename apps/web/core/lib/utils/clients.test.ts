@@ -3,6 +3,7 @@ import {
 	archivedClientsOf,
 	buildClientRequest,
 	buildClientUpdateRequest,
+	canReadClients,
 	clientAccessOf,
 	clientMatchesSearch,
 	clientNamesOf,
@@ -49,6 +50,12 @@ describe('client permissions', () => {
 		const nothing = { canCreate: false, canEdit: false, canArchive: false };
 		expect(clientAccessOf(['ORG_CONTACT_VIEW', 'ORG_PROJECT_VIEW'])).toEqual(nothing);
 		expect(clientAccessOf([])).toEqual(nothing);
+	});
+
+	it('lets only the holders of the view permission read the clients list, as the API does', () => {
+		expect(canReadClients(['ORG_CONTACT_VIEW'])).toBe(true);
+		expect(canReadClients(['ORG_CONTACT_EDIT', 'ORG_CONTACT_ADD'])).toBe(false);
+		expect(canReadClients([])).toBe(false);
 	});
 });
 
