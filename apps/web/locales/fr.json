@@ -699,6 +699,30 @@
 			"WEEK_TITLE": "Feuille de temps",
 			"WEEK_NO_MANUAL_TIME_PERMISSION": "Votre rôle ne permet pas d’ajouter du temps à la main : la feuille est en lecture seule. Un administrateur peut l’autoriser."
 		},
+		"myWeek": {
+			"TITLE": "Ma semaine",
+			"UPDATING": "Chargement de votre temps",
+			"SUMMARY_LABEL": "Votre temps suivi",
+			"TRACKED_THIS_WEEK": "Suivi cette semaine",
+			"TRACKED_LAST_WEEK": "Suivi la semaine dernière",
+			"TRACKED_THIS_MONTH": "Suivi ce mois-ci",
+			"LIMIT_LEFT": "Il reste {duration} cette semaine",
+			"LIMIT_UNDER": "{duration} sous votre limite hebdomadaire",
+			"LIMIT_OVER": "{duration} au-delà de votre limite hebdomadaire",
+			"LIMIT_SHARE": "{percent} de votre limite hebdomadaire",
+			"NO_LIMIT": "Aucune limite hebdomadaire n’est définie sur votre profil.",
+			"LIMIT_BY_WEEK": "Votre limite hebdomadaire de {limit} se mesure semaine par semaine.",
+			"DAILY_LIMIT_LINE": "{limit} par jour",
+			"DAILY_LIMIT_HINT": "La ligne en pointillés vaut un cinquième de votre limite hebdomadaire",
+			"PROJECTS_TITLE": "Temps par projet",
+			"RECENT_TITLE": "Entrées récentes",
+			"RECENT_LATEST": "Les {shown} dernières sur {total, plural, one {# entrée} other {# entrées}}",
+			"EMPTY_THIS_WEEK": "Aucun temps suivi cette semaine",
+			"EMPTY_LAST_WEEK": "Aucun temps suivi la semaine dernière",
+			"EMPTY_THIS_MONTH": "Aucun temps suivi ce mois-ci",
+			"EMPTY_HINT": "Démarrez le chronomètre sur une tâche et votre temps apparaît ici.",
+			"OPEN_TIMER": "Ouvrir le chronomètre"
+		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# membre} other {# membres}}",
 			"UPDATING": "Mise à jour des chiffres",
@@ -1455,7 +1479,15 @@
 			"WEEK_STRIP_LABEL": "Jours de la semaine",
 			"HAS_TIME": "Temps suivi",
 			"NO_MEMBER_TITLE": "Votre compte n'a pas de profil de membre dans cet espace",
-			"NO_MEMBER_MESSAGE": "Le temps est suivi par membre. Demandez à un administrateur de vous ajouter à une équipe."
+			"NO_MEMBER_MESSAGE": "Le temps est suivi par membre. Demandez à un administrateur de vous ajouter à une équipe.",
+			"DRAG": {
+				"REFUSED_TITLE": "Entrée non modifiée",
+				"CREATE_REFUSED_TITLE": "Impossible d'ajouter du temps ici",
+				"OVERLAP": "Ce créneau chevauche une autre entrée du membre. Choisissez un créneau libre, ou modifiez d'abord l'autre entrée.",
+				"FUTURE": "Votre organisation n'autorise pas de temps après l'heure actuelle.",
+				"APPROVED": "Ce jour fait partie d'une feuille de temps approuvée, son temps ne peut donc pas être modifié.",
+				"SAVE_FAILED": "Modification non enregistrée"
+			}
 		},
 		"manualTimeEdits": {
 			"TITLE": "Modifications manuelles du temps",
@@ -1920,6 +1952,14 @@
 				"MEMBER_COUNT": "{count, plural, one {# membre} other {# membres}}",
 				"ERROR_TITLE": "Le projet n'a pas pu être chargé",
 				"ERROR_MESSAGE": "Vérifiez votre connexion, puis réessayez."
+			},
+			"consumption": {
+				"ORDER_BUDGET_USED": "Budget consommé",
+				"AS_COST": "En coût",
+				"AS_COST_HINT": "Le temps de ce projet est compté en coût, car son type de budget est Coût. Il s'affiche en heures quand le type de budget est Heures.",
+				"SUMMARY_LABEL": "Temps et budget",
+				"OPEN_REPORT": "Ouvrir le rapport de budget",
+				"LOAD_ERROR": "Le temps passé et le budget consommé n'ont pas pu se charger"
 			},
 			"modals": {
 				"openProject": "Ouvrir le projet",
@@ -2700,6 +2740,15 @@
 			"PAUSE": "En pause",
 			"IDLE": "Inactif",
 			"SUSPENDED": "Suspendu"
+		},
+		"notes": {
+			"ADD": "Ajouter des notes au chronomètre",
+			"EDIT": "Modifier les notes du chronomètre",
+			"LABEL": "Notes",
+			"PLACEHOLDER": "Sur quoi travaillez-vous ?",
+			"HINT_BEFORE_START": "Facultatif. Enregistrées sur l'entrée au démarrage du chronomètre.",
+			"HINT_RUNNING": "Les changements faits pendant que le chronomètre tourne ne sont pas encore enregistrés. Pour changer les notes, modifiez l'entrée dans les feuilles de temps après l'arrêt du chronomètre.",
+			"HINT_OTHER_TEAM": "Ces notes appartiennent au chronomètre en cours dans une autre équipe : elles ne peuvent pas être modifiées ici."
 		}
 	},
 	"task": {
@@ -3004,10 +3053,47 @@
 			"TESTED_TIMER": "Test du chronomètre"
 		},
 		"FILL_IN": "À compléter : {fields}.",
-		"END_AFTER_START": "L'heure de fin doit être après l'heure de début."
+		"END_AFTER_START": "L'heure de fin doit être après l'heure de début.",
+		"OWN_TIME_ONLY": "Vous ajoutez du temps pour vous-même. Un administrateur peut en ajouter pour quelqu'un d'autre.",
+		"DURATION": {
+			"LABEL": "Durée",
+			"PLACEHOLDER": "1:30 ou 90m",
+			"HINT": "Tapez une durée et le premier créneau libre de la journée est proposé.",
+			"READING": "Recherche d'un créneau libre ce jour-là",
+			"PROPOSED": "Proposé de {start} à {end}, le premier créneau libre de la journée. Vous pouvez le modifier.",
+			"NO_ROOM": "Aucun créneau libre de {duration} ce jour-là. Choisissez le début et la fin, ou un autre jour.",
+			"NO_MEMBER": "Choisissez d'abord l'employé : le temps libre est lu dans sa journée.",
+			"READ_FAILED": "Les entrées de ce jour n'ont pas pu être lues, donc aucun créneau n'a été proposé.",
+			"RETRY": "Réessayer"
+		},
+		"REQUIRED": {
+			"TEAM": "Votre organisation exige une équipe pour chaque entrée de temps. Ouvrez l'une de vos équipes, puis ajoutez le temps à nouveau.",
+			"PROJECT": "Votre organisation exige un projet pour chaque entrée de temps. Choisissez un projet, ou une tâche qui en a un.",
+			"TEAM_AND_PROJECT": "Votre organisation exige une équipe et un projet pour chaque entrée de temps. Ouvrez l'une de vos équipes et choisissez une tâche qui a un projet."
+		},
+		"TASK_CHANGE": {
+			"PROJECT_FOLLOWS": "Cette entrée passe dans le projet de la tâche : {project}.",
+			"OTHER_TEAM": "Cette entrée appartient à une autre équipe. Passez sur cette équipe pour changer sa tâche."
+		}
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Êtes-vous sûr de vouloir supprimer ce créneau horaire ?"
+	},
+	"timeEntryActions": {
+		"CONTINUE": "Reprendre",
+		"DUPLICATE": "Dupliquer",
+		"TASK_ACTIONS": "Actions pour {task}",
+		"ALREADY_RUNNING": "Le chronomètre tourne déjà sur cette tâche",
+		"recent": {
+			"TITLE": "Récentes",
+			"START_ON": "Démarrer le chronomètre sur {task}",
+			"ERROR": "Vos tâches récentes n'ont pas pu être chargées.",
+			"RETRY": "Réessayer"
+		},
+		"duplicate": {
+			"OVERLAPS": "Cet horaire chevauche une entrée déjà enregistrée ({range}). Choisissez un horaire libre ou une autre date.",
+			"CHECK_FAILED": "Les entrées du jour n'ont pas pu être vérifiées, rien n'a donc été enregistré. Réessayez."
+		}
 	},
 	"chatConfig": {
 		"DIALOG_TITLE": "Configuration du Chat IA",
@@ -3127,7 +3213,8 @@
 			"navigation": "Navigation",
 			"settings": "Paramètres",
 			"goTo": "Aller à",
-			"chat": "Chat"
+			"chat": "Chat",
+			"timer": "Chronomètre"
 		},
 		"commands": {
 			"inviteUser": "Inviter un utilisateur",
@@ -3149,7 +3236,10 @@
 			"goToTimeAndActivity": "Aller au rapport temps et activité",
 			"profile": "Profil",
 			"settings": "Paramètres",
-			"newMessage": "Nouveau message"
+			"newMessage": "Nouveau message",
+			"startTimer": "Démarrer le chronomètre",
+			"stopTimer": "Arrêter le chronomètre",
+			"addTime": "Ajouter du temps"
 		},
 		"results": {
 			"recent": "Récentes",
@@ -3161,7 +3251,9 @@
 			"projects": "Projets",
 			"pages": "Pages",
 			"untitledPage": "Sans titre",
-			"recentlyOpened": "Ouverts récemment"
+			"recentlyOpened": "Ouverts récemment",
+			"startTimerOn": "Démarrer le chronomètre sur une tâche",
+			"startTimerOnTask": "Démarrer le chronomètre : {task}"
 		}
 	},
 	"modals": {
@@ -3823,7 +3915,10 @@
 			"STOPPED_TASK_SWITCH": "Chronomètre arrêté, car votre tâche active a changé",
 			"STALE_STOPPED": "Chronomètre arrêté : {stoppedAt}",
 			"STALE_STOPPED_HINT": "Il a continué de tourner après la fermeture de l'application. Ajoutez le travail fait ensuite en temps manuel.",
-			"TASK_CLOSED_HINT": "Rouvrez la tâche pour y suivre du temps."
+			"TASK_CLOSED_HINT": "Rouvrez la tâche pour y suivre du temps.",
+			"NOTES_NOT_SAVED": "Les notes modifiées pendant que le chronomètre tournait n'ont pas été enregistrées",
+			"NOTES_NOT_SAVED_HINT": "L'entrée a gardé les notes du démarrage. Modifiez l'entrée dans les feuilles de temps pour les changer.",
+			"ALREADY_RUNNING_ON_TASK": "Le chronomètre tourne déjà sur cette tâche"
 		},
 		"plans": {
 			"CREATE_FAILED": "Le plan n'a pas été créé",
@@ -4053,7 +4148,8 @@
 		"groups": {
 			"account": "Compte",
 			"team": "Équipe",
-			"taskProperties": "Propriétés des tâches"
+			"taskProperties": "Propriétés des tâches",
+			"workspace": "Espace de travail"
 		},
 		"entries": {
 			"profile": {
@@ -4111,6 +4207,14 @@
 			"versions": {
 				"TITLE": "Versions",
 				"DESCRIPTION": "Les livraisons que les tâches peuvent viser."
+			},
+			"import": {
+				"TITLE": "Import",
+				"DESCRIPTION": "Des entrées de temps depuis un fichier CSV."
+			},
+			"workspaceGeneral": {
+				"TITLE": "Général",
+				"DESCRIPTION": "Le nom de l'espace de travail, sa devise et ses formats de date et de nombre."
 			},
 			"automations": {
 				"TITLE": "Automatisations",
@@ -4732,7 +4836,37 @@
 			"ACCEPT": "Accepter",
 			"REJECT": "Refuser",
 			"INVITATIONS_COUNT": "{count, plural, one {# invitation attend une réponse} other {# invitations attendent une réponse}}",
-			"REQUESTS_COUNT": "{count, plural, one {# demande attend une réponse} other {# demandes attendent une réponse}}"
+			"REQUESTS_COUNT": "{count, plural, one {# demande attend une réponse} other {# demandes attendent une réponse}}",
+			"FILTER_LABEL": "Membres affichés",
+			"FILTER_ACTIVE": "Actifs",
+			"FILTER_INACTIVE": "Inactifs",
+			"INACTIVE_LIST": "Membres inactifs",
+			"INACTIVE_EMPTY": "Aucun membre de cette équipe n'est désactivé.",
+			"INACTIVE_ERROR": "Les membres inactifs n'ont pas pu être chargés.",
+			"DEACTIVATED_ON": "Accès désactivé le {date}",
+			"RESTORE": "Restaurer",
+			"RESTORE_MEMBER": "Restaurer {name}",
+			"RESTORED": "{name} peut de nouveau se connecter et suivre son temps",
+			"RESTORE_FAILED": "L'accès de {name} est toujours désactivé",
+			"DEACTIVATE": "Désactiver",
+			"DEACTIVATE_TITLE": "Désactiver {name} ?",
+			"DEACTIVATE_CONSEQUENCE_ACCESS": "{name} ne peut plus se connecter à cet espace de travail ni suivre son temps.",
+			"DEACTIVATE_CONSEQUENCE_TEAMS": "Cette personne ne compte plus dans aucune de ses équipes.",
+			"DEACTIVATE_CONSEQUENCE_HISTORY": "Son temps, ses tâches et ses commentaires restent à son nom dans les rapports et l'historique.",
+			"DEACTIVATE_CONSEQUENCE_RESTORE": "Vous pouvez la restaurer depuis la liste Inactifs : elle retrouve son accès, ses équipes et ses rôles.",
+			"DEACTIVATED": "L'accès de {name} est désactivé",
+			"DEACTIVATE_FAILED": "L'accès de {name} est toujours actif",
+			"ROLE_GROUP_TEAM": "Dans cette équipe",
+			"ROLE_GROUP_WORKSPACE": "Dans l'espace de travail",
+			"WORKSPACE_ROLE_SUPER_ADMIN": "Super admin",
+			"WORKSPACE_ROLE_ADMIN": "Admin",
+			"WORKSPACE_ROLE_MANAGER": "Manager",
+			"WORKSPACE_ROLE_EMPLOYEE": "Membre",
+			"WORKSPACE_ROLE_DATA_ENTRY": "Saisie de données",
+			"WORKSPACE_ROLE_VIEWER": "Lecteur",
+			"WORKSPACE_ROLE_CANDIDATE": "Candidat",
+			"WORKSPACE_ROLE_INTERVIEWER": "Recruteur",
+			"WORKSPACE_ROLE_NOT_SAVED": "Le rôle de {name} dans l'espace de travail n'a pas été changé"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profil",
@@ -4866,6 +5000,37 @@
 			"LOAD_ERROR_TEXT": "Vos réglages n'ont pas changé. Réessayez dans un instant.",
 			"UNAVAILABLE_TITLE": "Rien à régler dans cet espace de travail pour l'instant",
 			"UNAVAILABLE_TEXT": "Les notifications dépendent de votre profil de membre dans un espace de travail, et ce compte n'en a pas ici. Rejoignez ou créez d'abord une équipe."
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "Espace de travail",
+			"NAME_LABEL": "Nom de l'espace de travail",
+			"NAME_DESCRIPTION": "Affiché dans le sélecteur d'espaces de travail et sur les invitations.",
+			"NAME_INVALID": "Saisissez un nom de 1 à {max} caractères.",
+			"NAME_SAVED": "Espace de travail renommé en {name}",
+			"NAME_NOT_SAVED": "L'espace de travail n'a pas été renommé",
+			"NAME_MAYBE_UNFINISHED": "Le renommage n'est peut-être pas terminé",
+			"NAME_SAVE_AGAIN": "Enregistrez à nouveau le même nom pour le terminer.",
+			"NAME_SUPER_ADMIN_ONLY": "Seul un super administrateur de l'espace de travail peut le renommer.",
+			"FORMATS_SECTION": "Devise et formats",
+			"FORMATS_DESCRIPTION": "Utilisés partout où rien de plus précis n'est défini, par exemple un taux qui a sa propre devise.",
+			"CURRENCY_LABEL": "Devise par défaut",
+			"CURRENCY_DESCRIPTION": "La devise de départ d'un nouveau taux ou d'un nouveau budget.",
+			"CURRENCY_SAVED": "Devise par défaut : {currency}",
+			"CURRENCY_OUTCOME": "Les nouveaux taux et budgets partent de cette devise.",
+			"CURRENCY_NOT_SAVED": "La devise n'a pas été enregistrée",
+			"CURRENCY_NOT_SET": "Non renseignée",
+			"DATE_FORMAT_LABEL": "Format de date",
+			"DATE_FORMAT_DESCRIPTION": "La façon dont les rapports et leurs exports écrivent les dates. Automatique suit la langue de chaque membre.",
+			"DATE_FORMAT_SAVED": "Format de date enregistré",
+			"DATE_FORMAT_NOT_SAVED": "Le format de date n'a pas été enregistré",
+			"NUMBER_FORMAT_LABEL": "Format des nombres",
+			"NUMBER_FORMAT_DESCRIPTION": "La façon dont les rapports et leurs exports écrivent les montants. Automatique suit la langue de chaque membre.",
+			"NUMBER_FORMAT_SAVED": "Format des nombres enregistré",
+			"NUMBER_FORMAT_NOT_SAVED": "Le format des nombres n'a pas été enregistré",
+			"FORMAT_OUTCOME": "Les rapports et leurs exports l'utilisent désormais.",
+			"FORMAT_AUTOMATIC": "Automatique",
+			"READ_ONLY_NOTE": "Seuls les administrateurs de l'espace de travail peuvent modifier ces réglages.",
+			"LOAD_FAILED": "Les réglages de l'espace de travail n'ont pas pu être chargés."
 		},
 		"automations": {
 			"NEW_RULE": "Nouvelle règle",
@@ -6210,5 +6375,144 @@
 		"OFF_TEXT": "Dans cet espace de travail, les tâches supprimées le sont définitivement.",
 		"NO_TEAM_TITLE": "Choisissez une équipe",
 		"NO_TEAM_TEXT": "La corbeille liste les tâches supprimées de l’équipe active."
+	},
+	"timeImport": {
+		"SECTION_TITLE": "Données de suivi du temps",
+		"SECTION_DESCRIPTION": "Chaque ligne du fichier devient une entrée de temps dans {team}. Vous relisez d'abord toutes les lignes, et rien n'est enregistré avant votre confirmation.",
+		"TEMPLATE_LABEL": "Modèle CSV",
+		"TEMPLATE_DESCRIPTION": "Un fichier vide avec les colonnes que l'import lit.",
+		"TEMPLATE_DOWNLOAD": "Télécharger le modèle",
+		"DROP_TITLE": "Déposez un fichier CSV ici, ou choisissez-en un",
+		"DROP_ACTIVE": "Déposez le fichier pour le vérifier",
+		"DROP_HINT": "{rows, plural, one {CSV uniquement, jusqu'à {megabytes} Mo et # ligne par fichier.} other {CSV uniquement, jusqu'à {megabytes} Mo et # lignes par fichier.}}",
+		"OWN_TIME_NOTE": "Chaque ligne est enregistrée comme votre propre temps.",
+		"OTHERS_NOTE": "Vous pouvez ajouter du temps pour les autres membres de {team} : indiquez l'e-mail de chacun dans la colonne {column}. Une ligne sans e-mail est votre propre temps.",
+		"COLUMNS_TITLE": "Colonnes",
+		"COLUMNS_DESCRIPTION": "La première ligne du fichier nomme ses colonnes, dans n'importe quel ordre. Les dates et les heures sont lues dans votre fuseau horaire, {timeZone}.",
+		"columns": {
+			"REQUIRED": "Obligatoire",
+			"ONE_OF_TWO": "L'une des deux",
+			"DATE": "Le jour de l'entrée, l'année en premier : {date}.",
+			"START_TIME": "L'heure de début, sur 24 heures ou avec AM ou PM : {startTime} ou {startTimeMeridiem}.",
+			"END_TIME": "L'heure de fin, le même jour : {endTime}.",
+			"DURATION": "La durée, à la place d'une heure de fin : {duration}, {durationUnits}, ou {durationDecimal} pour des heures en nombre.",
+			"PROJECT": "Le nom exact d'un projet de cette équipe. Vide pour du temps sans projet.",
+			"TASK_ANY": "Le titre exact d'une tâche de cette équipe. Vide pour du temps sans tâche.",
+			"TASK_OWN": "Le titre exact d'une tâche de cette équipe assignée au membre à qui revient le temps. Vide pour du temps sans tâche.",
+			"NOTES": "Une note enregistrée avec l'entrée.",
+			"BILLABLE": "{yes} ou {no}. Vide signifie {no}.",
+			"MEMBER_EMAIL": "L'e-mail du membre à qui revient le temps. Vide signifie vous."
+		},
+		"FILE_PROBLEM_TITLE": "{fileName} ne peut pas être importé",
+		"fileProblems": {
+			"NOT_CSV": "Seuls les fichiers CSV sont lus. Enregistrez la feuille au format CSV, puis choisissez ce fichier.",
+			"TOO_LARGE": "Le fichier dépasse {megabytes} Mo. Découpez-le en fichiers plus petits.",
+			"NOT_TEXT": "Le fichier n'est pas du texte enregistré en UTF-8. Dans votre tableur, enregistrez-le en CSV UTF-8.",
+			"EMPTY": "Le fichier est vide.",
+			"UNCLOSED_QUOTE": "À la ligne {row}, une cellule s'ouvre par un guillemet double qui n'est jamais refermé.",
+			"DUPLICATE_COLUMN": "La colonne {column} apparaît deux fois.",
+			"MISSING_COLUMNS": "{count, plural, one {Cette colonne manque : {columns}.} other {Ces colonnes manquent : {columns}.}}",
+			"END_OR_DURATION": "{endTime} ou {duration}",
+			"NO_ROWS": "Le fichier a une ligne d'en-tête et aucune ligne en dessous.",
+			"TOO_MANY_ROWS": "{limit, plural, one {Le fichier compte {count} lignes. Un import en prend # au plus : découpez le fichier.} other {Le fichier compte {count} lignes. Un import en prend # au plus : découpez le fichier.}}"
+		},
+		"CHECKING_TITLE": "Vérification de {fileName}",
+		"CHECKING_DESCRIPTION": "{count, plural, one {# ligne est comparée au temps déjà enregistré.} other {# lignes sont comparées au temps déjà enregistré.}}",
+		"CHECK_FAILED_TITLE": "{fileName} n'a pas pu être vérifié",
+		"CHECK_FAILED_DESCRIPTION": "Le temps déjà enregistré n'a pas pu être lu, donc aucune ligne ne peut encore être importée. Rien n'a été enregistré.",
+		"RETRY": "Réessayer",
+		"CHOOSE_ANOTHER": "Choisir un autre fichier",
+		"PREVIEW_TITLE": "Aperçu",
+		"PREVIEW_DESCRIPTION": "{count, plural, one {{fileName}, # ligne. Rien n'est enregistré tant que vous n'importez pas.} other {{fileName}, # lignes. Rien n'est enregistré tant que vous n'importez pas.}}",
+		"IGNORED_COLUMNS": "{count, plural, one {Cette colonne n'est pas lue : {columns}.} other {Ces colonnes ne sont pas lues : {columns}.}}",
+		"PREVIEW_CHANGED_TITLE": "Rien n'a été enregistré : l'aperçu a changé",
+		"PREVIEW_CHANGED_DESCRIPTION": "Le fichier a été vérifié une nouvelle fois avant l'enregistrement et certaines lignes ont changé, par exemple parce que du temps a été enregistré entre-temps. Relisez les lignes, puis importez de nouveau.",
+		"RECHECK_FAILED_TITLE": "Rien n'a été enregistré",
+		"RECHECK_FAILED_DESCRIPTION": "Le fichier n'a pas pu être vérifié une dernière fois avant l'enregistrement. Réessayez.",
+		"NOTHING_READY": "Aucune ligne de ce fichier ne peut être importée. Corrigez les lignes écartées, puis choisissez le fichier de nouveau.",
+		"IMPORT_ACTION": "{count, plural, one {Importer # entrée} other {Importer # entrées}}",
+		"RECHECKING": "Dernière vérification du fichier avant l'enregistrement",
+		"IMPORTING_TITLE": "Import en cours",
+		"IMPORTING_PROGRESS": "{total, plural, one {{done} sur # entrée enregistrée} other {{done} sur # entrées enregistrées}}",
+		"KEEP_OPEN": "Gardez cette page ouverte jusqu'à la fin de l'import.",
+		"REPORT_TITLE": "Rapport",
+		"DONE_TITLE": "{count, plural, one {# entrée enregistrée} other {# entrées enregistrées}}",
+		"DONE_DESCRIPTION": "Temps ajouté : {duration}. Les entrées sont maintenant dans les feuilles de temps et les rapports.",
+		"STOPPED_TITLE": "L'import s'est arrêté à la ligne {row}",
+		"STOPPED_SAVED": "{count, plural, =0 {Aucune entrée n'a été enregistrée.} one {# entrée a été enregistrée avant elle.} other {# entrées ont été enregistrées avant elle.}}",
+		"STOPPED_NOT_SENT": "{count, plural, one {# ligne après elle n'a pas été envoyée.} other {# lignes après elle n'ont pas été envoyées.}}",
+		"DOWNLOAD_REPORT": "Télécharger le rapport",
+		"IMPORT_ANOTHER": "Importer un autre fichier",
+		"SHOW_MORE": "{count, plural, one {Afficher # ligne de plus} other {Afficher # lignes de plus}}",
+		"figures": {
+			"LABEL": "Chiffres de ce fichier",
+			"READY": "Prêtes",
+			"LEFT_OUT": "Écartées",
+			"SAVED": "Enregistrées",
+			"FAILED": "En échec",
+			"NOT_SENT": "Non envoyées",
+			"TIME_TO_ADD": "Temps à ajouter",
+			"TIME_ADDED": "Temps ajouté"
+		},
+		"filter": {
+			"LABEL": "Lignes affichées",
+			"ALL": "Toutes"
+		},
+		"status": {
+			"READY": "Prête",
+			"LEFT_OUT": "Écartée",
+			"SAVED": "Enregistrée",
+			"FAILED": "En échec",
+			"NOT_SENT": "Non envoyée"
+		},
+		"row": {
+			"NUMBER": "Ligne {row}",
+			"FOR_MEMBER": "Pour {name}",
+			"BILLABLE": "Facturable",
+			"NOT_SENT_REASON": "L'import s'est arrêté à la ligne {row}, avant celle-ci."
+		},
+		"problems": {
+			"EXTRA_CELLS": "Cette ligne a plus de cellules que la ligne d'en-tête. Une cellule qui contient une virgule ou un point-virgule se met entre guillemets doubles.",
+			"DATE_UNREADABLE": "La date est illisible. Écrivez-la avec l'année en premier, comme {date}.",
+			"START_UNREADABLE": "L'heure de début est illisible. Écrivez-la comme {startTime} ou {startTimeMeridiem}.",
+			"END_MISSING": "Cette ligne n'a ni heure de fin ni durée.",
+			"END_UNREADABLE": "L'heure de fin est illisible. Écrivez-la comme {endTime} ou {endTimeMeridiem}.",
+			"DURATION_UNREADABLE": "La durée est illisible. Écrivez-la comme {duration}, {durationUnits} ou {durationDecimal}.",
+			"END_NOT_AFTER_START": "La fin doit venir après le début. Pour du temps qui dépasse minuit, donnez une durée à la place de l'heure de fin.",
+			"CLOCK_SKIPPED": "Ce jour-là, l'heure avance pour l'heure d'été, et l'heure de début ou de fin tombe dans l'heure sautée. Indiquez une heure qui existe ce jour-là.",
+			"DURATION_MISMATCH": "L'heure de fin et la durée donnent deux longueurs différentes. Gardez l'une des deux.",
+			"TOO_LONG": "Une entrée ne peut pas dépasser 24 heures. Une durée écrite comme un simple nombre est lue en heures.",
+			"IN_FUTURE": "Ce temps n'est pas encore écoulé, et cette organisation n'accepte pas de temps dans le futur.",
+			"BILLABLE_UNREADABLE": "La cellule facturable doit valoir {yes} ou {no}.",
+			"MEMBER_UNKNOWN": "Aucun membre de cette équipe n'a cet e-mail.",
+			"MEMBER_NOT_ALLOWED": "Cette ligne concerne un autre membre. Vous ne pouvez importer que votre propre temps.",
+			"NO_OWN_MEMBER": "Cette ligne ne nomme aucun membre, et votre compte n'a pas de profil d'employé pour y enregistrer du temps.",
+			"PROJECT_UNKNOWN": "Aucun projet de cette équipe ne porte ce nom.",
+			"PROJECT_AMBIGUOUS": "{count, plural, one {# projet de cette équipe porte ce nom.} other {# projets de cette équipe portent ce nom.}}",
+			"PROJECT_REQUIRED": "Cette organisation exige un projet sur chaque entrée de temps. Nommez un projet dans cette ligne.",
+			"TASK_UNKNOWN": "Aucune tâche de cette équipe ne porte ce titre.",
+			"TASK_NOT_ASSIGNED": "Cette tâche n'est pas assignée au membre de cette ligne. Seul un responsable de l'équipe peut ajouter du temps à n'importe quelle tâche de l'équipe.",
+			"TASK_AMBIGUOUS": "{count, plural, one {# tâche porte ce titre.} other {# tâches portent ce titre. Renommez-en une, pour que la ligne désigne une seule tâche.}}",
+			"ALREADY_RECORDED": "Cette entrée est déjà enregistrée.",
+			"OVERLAPS_RECORDED": "{count, plural, one {Elle chevauche une entrée déjà enregistrée, {range}. L'enregistrer supprimerait cette entrée.} other {Elle chevauche # entrées déjà enregistrées, la première {range}. L'enregistrer les supprimerait.}}",
+			"SAME_AS_ROW": "Elle répète la ligne {row} de ce fichier.",
+			"OVERLAPS_ROW": "Elle chevauche la ligne {row} de ce fichier, importée en premier.",
+			"RECORDED_MEANWHILE": "Une entrée a été enregistrée sur le temps de cette ligne pendant l'import. Enregistrer la ligne supprimerait cette entrée."
+		},
+		"access": {
+			"MANUAL_TIME_OFF_TITLE": "Le temps manuel est désactivé",
+			"MANUAL_TIME_OFF_DESCRIPTION": "{organization} ne laisse pas ses membres ajouter du temps à la main, donc le temps ne peut pas non plus être importé.",
+			"NO_PERMISSION_TITLE": "Votre rôle ne permet pas d'ajouter du temps à la main",
+			"NO_PERMISSION_DESCRIPTION": "Importer du temps demande la même permission qu'ajouter du temps à la main. Demandez à un administrateur de l'organisation.",
+			"LOAD_FAILED_TITLE": "L'import n'a pas pu se préparer",
+			"LOAD_FAILED_DESCRIPTION": "Vos permissions, les règles de temps de l'organisation ou les tâches de l'équipe n'ont pas pu être chargées."
+		},
+		"entry": {
+			"TITLE": "Import",
+			"DESCRIPTION": "Des données venues d'autres outils, ajoutées à cette équipe.",
+			"ROW_LABEL": "Données de suivi du temps",
+			"ROW_DESCRIPTION": "Ajoutez des entrées de temps depuis un fichier CSV.",
+			"OPEN": "Importer depuis un CSV"
+		}
 	}
 }

@@ -4,7 +4,6 @@ import { useCallback, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { endOfDay, startOfDay } from 'date-fns';
-import { useLocale } from 'next-intl';
 import { queryKeys } from '@/core/query/keys';
 import {
 	timeLogReportService,
@@ -47,6 +46,8 @@ import {
 } from '@/core/lib/utils/dashboards/payments-due';
 import type { TOrganizationTeam } from '@/core/types/schemas';
 import type { TOwedReportDay } from '@/core/types/schemas/timer/time-log-reports.schema';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 interface PaymentsDueRequest {
 	range: TimeLogReportRange;
@@ -159,9 +160,9 @@ function axisFormatOptionsOf(dayCount: number): Intl.DateTimeFormatOptions {
 	return { day: 'numeric' };
 }
 
-function chartLabelsOf(locale: string, dayCount: number): ChartDayLabels {
-	const labelFormat = new Intl.DateTimeFormat(locale, { weekday: 'long', month: 'short', day: 'numeric' });
-	const axisFormat = new Intl.DateTimeFormat(locale, axisFormatOptionsOf(dayCount));
+function chartLabelsOf(locale: FormatLocale, dayCount: number): ChartDayLabels {
+	const labelFormat = dateFormatOf(locale, { weekday: 'long', month: 'short', day: 'numeric' });
+	const axisFormat = dateFormatOf(locale, axisFormatOptionsOf(dayCount));
 	return {
 		label: (day) => labelFormat.format(day),
 		axisLabel: (day) => axisFormat.format(day)
@@ -209,7 +210,7 @@ function chartCurrencyOf(key: PaymentsChartKey, currencies: ReadonlyArray<OwedCu
 
 /** Everything shown derives from the data's own request, so a period kept on screen is never drawn as the next. */
 export function usePaymentsDueReport({ unnamedLabel }: Readonly<{ unnamedLabel: string }>) {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const activeTeam = useAtomValue(activeTeamState);
 	const organization = useAtomValue(currentOrganizationState);
 	const organizationId = getOrganizationIdCookie();

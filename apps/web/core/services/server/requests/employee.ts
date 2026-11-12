@@ -2,6 +2,7 @@ import { ICreateEmployee, IEmployee, IUpdateEmployee } from '@/core/types/interf
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { inactiveEmployeesQueryOf } from '@/core/lib/utils/member-access';
 
 export function createEmployeeFromUser(data: ICreateEmployee, bearer_token: string) {
 	return serverFetch<IEmployee>({
@@ -43,6 +44,31 @@ export function getOrganizationEmployees(
 
 	return serverFetch<PaginationResponse<IEmployee>>({
 		path: `/employee/members?${query}`,
+		method: 'GET',
+		bearer_token,
+		tenantId
+	});
+}
+
+/**
+ * A page of the employees whose work ended, from Gauzy's `GET /employee/pagination` (ORG_EMPLOYEES_VIEW): unlike
+ * `/employee/members`, that route still answers them.
+ */
+export function getInactiveEmployeesPageRequest({
+	page,
+	organizationId,
+	bearer_token,
+	tenantId
+}: {
+	page: number;
+	organizationId: string;
+	bearer_token: string;
+	tenantId: string;
+}) {
+	const query = inactiveEmployeesQueryOf({ organizationId, tenantId, page });
+
+	return serverFetch<unknown>({
+		path: `/employee/pagination?${query}`,
 		method: 'GET',
 		bearer_token,
 		tenantId

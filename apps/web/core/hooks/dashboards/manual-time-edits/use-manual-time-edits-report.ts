@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
-import { useLocale } from 'next-intl';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import {
 	type TimeActivityRequest,
@@ -39,6 +38,8 @@ import {
 	trackedSecondsOf
 } from '@/core/lib/utils/dashboards/manual-time-edits';
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { type ChangedLogsRequest, useChangedTimeLogs } from './use-changed-time-logs';
 
 const NO_ENTRIES: ManualTimeEntry[] = [];
@@ -116,9 +117,9 @@ function axisFormatOptionsOf(dayCount: number): Intl.DateTimeFormatOptions {
 	return { day: 'numeric' };
 }
 
-function chartLabelsOf(locale: string, dayCount: number): ChartDayLabels {
-	const labelFormat = new Intl.DateTimeFormat(locale, { weekday: 'long', month: 'short', day: 'numeric' });
-	const axisFormat = new Intl.DateTimeFormat(locale, axisFormatOptionsOf(dayCount));
+function chartLabelsOf(locale: FormatLocale, dayCount: number): ChartDayLabels {
+	const labelFormat = dateFormatOf(locale, { weekday: 'long', month: 'short', day: 'numeric' });
+	const axisFormat = dateFormatOf(locale, axisFormatOptionsOf(dayCount));
 	return {
 		label: (day) => labelFormat.format(day),
 		axisLabel: (day) => axisFormat.format(day)
@@ -182,7 +183,7 @@ function withValuesToggled(current: string[], values: ReadonlyArray<string>, sho
 }
 
 export function useManualTimeEditsReport({ unnamedLabel }: Readonly<{ unnamedLabel: string }>) {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const activeTeam = useAtomValue(activeTeamState);
 	const { data: user } = useUserQuery();
 	const organizationId = getOrganizationIdCookie() ?? '';

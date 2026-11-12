@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { AddTaskModal } from './add-mask-modal';
 
 const mockCreateTimesheet = jest.fn();
@@ -59,6 +59,7 @@ type MockOverlapRequest = {
 	employeeId: string;
 	periods: Array<{ start: Date; end: Date }>;
 	save: () => void | Promise<void>;
+	refuseOverlap?: (overlap: unknown) => void;
 };
 
 // The overlap lookup finds nothing unless a test holds the save: the guard has its own tests
@@ -162,6 +163,23 @@ jest.mock('../../tasks/task-displays', () => ({ TaskNameInfoDisplay: () => null 
 jest.mock('../tasks/edit-task-modal', () => ({ ToggleButton: () => null }));
 jest.mock('../../pages/timesheet/timesheet-filter-date', () => ({ DatePickerFilter: () => null }));
 
+// The duration field reads the member's day on its own: the dialog only gives it the shift and takes its times
+type MockShift = { startTime: string; endTime: string };
+type MockShiftDurationProps = {
+	index: number;
+	employeeId: string;
+	readShifts: () => MockShift[];
+	onTimes: (index: number, startTime: string, endTime: string) => void;
+	onSaveBlock: (index: number, blocksSave: boolean) => void;
+};
+const mockShiftDuration: { props?: MockShiftDurationProps } = {};
+jest.mock('./shift-duration-field', () => ({
+	ShiftDurationField: (props: MockShiftDurationProps) => {
+		mockShiftDuration.props = props;
+		return null;
+	}
+}));
+
 function teamWithMember(teamId: string, employeeId: string) {
 	const employee = { fullName: employeeId, user: { imageUrl: '' } };
 	return { id: teamId, organizationId: 'org-1', members: [{ employeeId, employee }] };
@@ -199,6 +217,170 @@ function save() {
 	const saveButton = screen.getByRole('button', { name: 'common.SAVE' });
 	fireEvent.click(saveButton);
 }
+
+describe('AddTaskModal duration of a shift', () => {
+	function shiftDuration(): MockShiftDurationProps {
+		const props = mockShiftDuration.props;
+		if (!props) {
+			throw new Error('The dialog did not render the duration of its shift');
+		}
+		return props;
+	}
+
+	function shiftTimeValues() {
+		const selects = screen.getAllByLabelText('shift time') as HTMLSelectElement[];
+		return selects.map((select) => select.value);
+	}
+
+	beforeEach(() => {
+		mockCreateTimesheet.mockReset();
+		mockCreateTimesheet.mockResolvedValue(undefined);
+		mockAtomValues.activeTeamState = teamA;
+		mockAtomValues.tasksByTeamState = [taskA];
+	});
+
+	it('reads the day of the employee the time is for', () => {
+		renderAddTimeForm();
+
+		expect(shiftDuration().employeeId).toBe('');
+
+		pickTaskAndEmployee('task-a', 'employee-a');
+
+		expect(shiftDuration().employeeId).toBe('employee-a');
+	});
+
+	it('shows a proposed interval in the shift, even between two steps of the time list, and saves it', () => {
+		renderAddTimeForm();
+		pickTaskAndEmployee('task-a', 'employee-a');
+
+		act(() => shiftDuration().onTimes(0, '09:02:00 AM', '10:32:00 AM'));
+
+		expect(shiftTimeValues()).toEqual(['09:02:00 AM', '10:32:00 AM']);
+
+		save();
+
+		const [entry] = mockCreateTimesheet.mock.calls[0];
+		const savedTimes = [entry.startedAt, entry.stoppedAt].map((date: Date) => [date.getHours(), date.getMinutes()]);
+		expect(savedTimes).toEqual([
+			[9, 2],
+			[10, 32]
+		]);
+	});
+
+	it('keeps the times two periods receive before the dialog renders again', () => {
+		renderAddTimeForm();
+		pickTaskAndEmployee('task-a', 'employee-a');
+		fireEvent.click(screen.getByText('common.ADD_ANOTHER_PERIOD'));
+
+		// A member change asks every period again at once: their times arrive in one go, without a render in between
+		act(() => {
+			shiftDuration().onTimes(0, '09:00:00 AM', '10:30:00 AM');
+			shiftDuration().onTimes(1, '10:30:00 AM', '12:00:00 PM');
+		});
+
+		expect(shiftTimeValues()).toEqual(['09:00:00 AM', '10:30:00 AM', '10:30:00 AM', '12:00:00 PM']);
+	});
+
+	it('lets a period read the times another one received before the dialog renders again', () => {
+		renderAddTimeForm();
+		pickTaskAndEmployee('task-a', 'employee-a');
+		fireEvent.click(screen.getByText('common.ADD_ANOTHER_PERIOD'));
+
+		let readRightAfter: MockShift[] = [];
+		act(() => {
+			shiftDuration().onTimes(0, '09:00:00 AM', '10:30:00 AM');
+			readRightAfter = shiftDuration().readShifts();
+		});
+
+		const [firstPeriod] = readRightAfter;
+		expect(firstPeriod).toMatchObject({ startTime: '09:00:00 AM', endTime: '10:30:00 AM' });
+	});
+
+	// A text such as `90x` leaves the period on the hour it already showed: that hour must not be saved in its place
+	it("keeps Save off while a period's duration field refuses its text, and saves once it is put right", () => {
+		renderAddTimeForm();
+		pickTaskAndEmployee('task-a', 'employee-a');
+		fillShiftTimes();
+		const saveButton = screen.getByRole('button', { name: 'common.SAVE' });
+
+		act(() => shiftDuration().onSaveBlock(0, true));
+
+		expect(saveButton).toHaveProperty('disabled', true);
+		save();
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
+
+		act(() => shiftDuration().onSaveBlock(0, false));
+
+		expect(saveButton).toHaveProperty('disabled', false);
+		save();
+		expect(mockCreateTimesheet).toHaveBeenCalledTimes(1);
+	});
+
+	it('empties the shift when the asked duration found no room, so nothing is saved', () => {
+		jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		renderAddTimeForm();
+		pickTaskAndEmployee('task-a', 'employee-a');
+		fillShiftTimes();
+
+		act(() => shiftDuration().onTimes(0, '', ''));
+		save();
+
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
+	});
+});
+
+describe('AddTaskModal for a member who adds their own time only', () => {
+	const ownMember = { employeeId: 'employee-a', name: 'Ada Manager' };
+
+	function ownTimeForm() {
+		return <AddTaskModal isOpen closeModal={closeModal} fixedMember={ownMember} />;
+	}
+
+	beforeEach(() => {
+		mockCreateTimesheet.mockReset();
+		mockCreateTimesheet.mockResolvedValue(undefined);
+		mockAtomValues.activeTeamState = teamA;
+		mockAtomValues.tasksByTeamState = [taskA];
+	});
+
+	it('names the member as text and saves the time for them without a pick', () => {
+		render(ownTimeForm());
+
+		expect(screen.getByText('Ada Manager')).toBeTruthy();
+		expect(screen.getByText('manualTime.OWN_TIME_ONLY')).toBeTruthy();
+
+		const [taskSelect] = taskAndEmployeeSelects();
+		fireEvent.change(taskSelect, { target: { value: 'task-a' } });
+		fillShiftTimes();
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-a', employeeId: 'employee-a', organizationTeamId: 'team-a' })
+		);
+	});
+
+	it("reads that member's day for a typed duration", () => {
+		render(ownTimeForm());
+
+		expect(mockShiftDuration.props?.employeeId).toBe('employee-a');
+	});
+
+	it('keeps the member when the active team switches under the open form', () => {
+		const { rerender } = render(ownTimeForm());
+		fillShiftTimes();
+		mockAtomValues.activeTeamState = teamB;
+		mockAtomValues.tasksByTeamState = [taskB];
+		rerender(ownTimeForm());
+
+		const [taskSelect] = taskAndEmployeeSelects();
+		fireEvent.change(taskSelect, { target: { value: 'task-b' } });
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-b', employeeId: 'employee-a', organizationTeamId: 'team-b' })
+		);
+	});
+});
 
 describe('AddTaskModal team of the saved time', () => {
 	beforeEach(() => {
@@ -247,6 +429,26 @@ describe('AddTaskModal team of the saved time', () => {
 		);
 	});
 
+	it('starts the next entry empty after a save', async () => {
+		renderAddTimeForm();
+
+		closeModal.mockClear();
+		pickTaskAndEmployee('task-a', 'employee-a');
+		fillShiftTimes();
+		save();
+		await waitFor(() => expect(closeModal).toHaveBeenCalled());
+
+		const [taskSelect, employeeSelect] = taskAndEmployeeSelects();
+		expect(taskSelect.value).toBe('');
+		expect(employeeSelect.value).toBe('');
+
+		// The times went with the saved entry: the same task and employee alone save nothing more
+		pickTaskAndEmployee('task-a', 'employee-a');
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledTimes(1);
+	});
+
 	it('keeps Save disabled until both the task and the employee are picked', () => {
 		renderAddTimeForm();
 		fillShiftTimes();
@@ -260,6 +462,145 @@ describe('AddTaskModal team of the saved time', () => {
 
 		pickTaskAndEmployee('task-a', 'employee-a');
 		expect(saveButton).toHaveProperty('disabled', false);
+	});
+});
+
+describe('AddTaskModal opened on a copied entry', () => {
+	const copiedEntry = {
+		taskId: 'task-a',
+		projectId: '',
+		employeeId: 'employee-a',
+		isBillable: true,
+		description: 'Pairing on the invoices',
+		start: new Date(2026, 10, 12, 9, 0),
+		end: new Date(2026, 10, 12, 11, 0)
+	};
+
+	beforeEach(() => {
+		mockCreateTimesheet.mockReset();
+		mockCreateTimesheet.mockResolvedValue(undefined);
+		mockAtomValues.activeTeamState = teamA;
+		mockAtomValues.tasksByTeamState = [taskA];
+	});
+
+	it('opens filled with the entry and saves what it shows only when asked', () => {
+		render(<AddTaskModal isOpen closeModal={closeModal} prefill={copiedEntry} />);
+
+		const [taskSelect, employeeSelect] = taskAndEmployeeSelects();
+		const notes = screen.getByLabelText('Insert notes here') as HTMLTextAreaElement;
+		expect(taskSelect.value).toBe('task-a');
+		expect(employeeSelect.value).toBe('employee-a');
+		expect(notes.value).toBe('Pairing on the invoices');
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
+
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({
+				taskId: 'task-a',
+				employeeId: 'employee-a',
+				isBillable: true,
+				description: 'Pairing on the invoices',
+				startedAt: copiedEntry.start,
+				stoppedAt: copiedEntry.end
+			})
+		);
+	});
+
+	// #5131 with #5136: Duplicate opens this dialog, and a viewer who adds their own time only copies for themselves
+	it('saves a copy for the fixed member, whatever member the copied entry names', () => {
+		mockAtomValues.activeTeamState = { ...teamA, members: [...teamA.members, ...teamB.members] };
+		const teammateCopy = { ...copiedEntry, employeeId: 'employee-b' };
+		const ownMember = { employeeId: 'employee-a', name: 'Ada Manager' };
+		render(<AddTaskModal isOpen closeModal={closeModal} prefill={teammateCopy} fixedMember={ownMember} />);
+
+		expect(screen.getByText('Ada Manager')).toBeTruthy();
+
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-a', employeeId: 'employee-a', description: 'Pairing on the invoices' })
+		);
+	});
+
+	it('leaves the task and the employee to pick when the dialog does not offer the copied ones', () => {
+		const unlistedCopy = { ...copiedEntry, taskId: 'task-gone', employeeId: 'employee-gone' };
+		render(<AddTaskModal isOpen closeModal={closeModal} prefill={unlistedCopy} />);
+
+		const [taskSelect, employeeSelect] = taskAndEmployeeSelects();
+		expect(taskSelect.value).toBe('');
+		expect(employeeSelect.value).toBe('');
+		expect(screen.getByRole('button', { name: 'common.SAVE' })).toHaveProperty('disabled', true);
+	});
+
+	it('does not save a copy its opener refuses, and says why', async () => {
+		const checkBeforeSave = jest.fn().mockResolvedValue('It runs over an entry of the day');
+		render(<AddTaskModal isOpen closeModal={closeModal} prefill={copiedEntry} checkBeforeSave={checkBeforeSave} />);
+
+		save();
+
+		const refusal = await screen.findByRole('alert');
+		expect(refusal.textContent).toBe('It runs over an entry of the day');
+		expect(checkBeforeSave).toHaveBeenCalledWith({
+			employeeId: 'employee-a',
+			periods: [{ start: copiedEntry.start, end: copiedEntry.end }]
+		});
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
+	});
+
+	it('saves a copy its opener lets through', async () => {
+		const checkBeforeSave = jest.fn().mockResolvedValue(null);
+		render(<AddTaskModal isOpen closeModal={closeModal} prefill={copiedEntry} checkBeforeSave={checkBeforeSave} />);
+
+		save();
+
+		await waitFor(() => expect(mockCreateTimesheet).toHaveBeenCalledTimes(1));
+		expect(screen.queryByRole('alert')).toBeNull();
+	});
+
+	it('refuses a copy over an entry recorded since its check, never offering to save over it', async () => {
+		const checkBeforeSave = jest.fn().mockResolvedValue(null);
+		const refusalOfOverlap = jest.fn().mockReturnValue('It runs over an entry recorded meanwhile');
+		const lateOverlap = { totalSeconds: 3600, entries: [] };
+		mockSaveAfterCheck.mockImplementationOnce((request: MockOverlapRequest) =>
+			request.refuseOverlap?.(lateOverlap)
+		);
+		render(
+			<AddTaskModal
+				isOpen
+				closeModal={closeModal}
+				prefill={copiedEntry}
+				checkBeforeSave={checkBeforeSave}
+				refusalOfOverlap={refusalOfOverlap}
+			/>
+		);
+
+		save();
+
+		const refusal = await screen.findByRole('alert');
+		expect(refusal.textContent).toBe('It runs over an entry recorded meanwhile');
+		expect(refusalOfOverlap).toHaveBeenCalledWith(lateOverlap);
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
+	});
+
+	it('saves nothing when the dialog is closed while its copy is being checked', async () => {
+		let answerCheck: (refusal: string | null) => void = () => undefined;
+		const pendingCheck = new Promise<string | null>((resolve) => {
+			answerCheck = resolve;
+		});
+		const checkBeforeSave = jest.fn().mockReturnValue(pendingCheck);
+		const { unmount } = render(
+			<AddTaskModal isOpen closeModal={closeModal} prefill={copiedEntry} checkBeforeSave={checkBeforeSave} />
+		);
+
+		save();
+		await waitFor(() => expect(checkBeforeSave).toHaveBeenCalledTimes(1));
+		unmount();
+		await act(async () => {
+			answerCheck(null);
+		});
+
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
 	});
 });
 
@@ -365,6 +706,18 @@ describe('AddTaskModal project of the saved time', () => {
 		expect(mockCreateTimesheet).toHaveBeenCalledWith(
 			expect.objectContaining({ taskId: 'task-loose', projectId: 'project-mobile' })
 		);
+	});
+
+	it('sends no project field when neither the task nor the form has a project', () => {
+		renderAddTimeForm();
+
+		pickTaskAndEmployee('task-loose', 'employee-a');
+		fillShiftTimes();
+		save();
+
+		const [entry] = mockCreateTimesheet.mock.calls[0];
+		expect(entry.taskId).toBe('task-loose');
+		expect('projectId' in entry).toBe(false);
 	});
 
 	it('keeps the project picked by hand for a task without one', () => {

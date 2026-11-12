@@ -22,7 +22,17 @@ import {
 } from '@/core/components/icons';
 import { Button, SpinnerLoader } from '@/core/components';
 import { CircleIcon } from 'assets/svg';
-import { JSX, RefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+	JSX,
+	RefObject,
+	PropsWithChildren,
+	type ReactNode,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState
+} from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-items';
@@ -84,6 +94,8 @@ type Props = {
 	cardWithoutShadow?: boolean;
 	assignTaskPopup?: boolean;
 	forParentChildRelationship?: boolean;
+	/** What stands above the task list while nothing is searched (the timer's recent work); `close` closes the picker. */
+	renderAboveTasks?: (close: () => void) => ReactNode;
 } & PropsWithChildren;
 
 function issueTileClassName(task: { issueType?: string | null } | null | undefined) {
@@ -92,6 +104,24 @@ function issueTileClassName(task: { issueType?: string | null } | null | undefin
 		return '!px-[0.3312rem] py-[0.2875rem] rounded-sm';
 	}
 	return '!px-[0.375rem] py-[0.375rem] rounded-sm';
+}
+
+/** What stands above the task list: nothing while the person searches, that is types other than the task's title. */
+function aboveTasksOf(
+	renderAboveTasks: Props['renderAboveTasks'],
+	taskName: string,
+	inputTaskTitle: string,
+	closePicker: () => void
+): ReactNode {
+	if (!renderAboveTasks) {
+		return null;
+	}
+	const hasTypedText = taskName.trim() !== '';
+	const isSearching = hasTypedText && taskName !== inputTaskTitle;
+	if (isSearching) {
+		return null;
+	}
+	return renderAboveTasks(closePicker);
 }
 
 /**
@@ -444,9 +474,13 @@ export function TaskInput(props: Props) {
 		/>
 	);
 
+	const closePicker = useCallback(() => setEditMode(false), [setEditMode]);
+	const aboveTasks = aboveTasksOf(props.renderAboveTasks, taskName, inputTaskTitle, closePicker);
+
 	const taskCard = (
 		<TaskCard
 			datas={datas}
+			aboveTasks={aboveTasks}
 			onItemClick={props.onTaskClick ? onTaskClick : setAuthActiveTask}
 			inputField={viewType === 'one-view' ? inputField : undefined}
 			fullWidth={props.fullWidthCombobox}
@@ -536,9 +570,11 @@ function TaskCard({
 	forParentChildRelationship,
 	updatedTaskList,
 	assignTaskPopup,
-	ignoreElementRef
+	ignoreElementRef,
+	aboveTasks
 }: {
 	datas: Partial<RTuseTaskInput>;
+	aboveTasks?: ReactNode;
 	onItemClick?: (task: TTask) => void;
 	inputField?: JSX.Element;
 	fullWidth?: boolean;
@@ -787,6 +823,8 @@ function TaskCard({
 						</div>
 					</>
 				</div>
+
+				{aboveTasks}
 
 				<ul className={cn('hairline-t border-border overflow-y-auto p-1', taskListHeightOf(assignTaskPopup))}>
 					{forParentChildRelationship && (

@@ -12,7 +12,8 @@ import { createStore, Provider } from 'jotai';
 import type { PropsWithChildren } from 'react';
 
 import { queryKeys } from '@/core/query/keys';
-import { activeTeamIdState, organizationTeamsState, timerStatusState } from '@/core/stores';
+import { activeTeamIdState, organizationTeamsState, timerNotesState, timerStatusState } from '@/core/stores';
+import { timerStartNotesState } from '@/core/stores/timer/timer-start-notes';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { ALREADY_TRACKING_TOAST_ID, useTimerApi } from './use-timer-api';
@@ -82,6 +83,8 @@ const mockStartTimer = jest.fn(async () => {
 	mockGauzy.isTrackingTime = true;
 	return { data: { running: true, lastLog: mockGauzy.lastLog } };
 });
+/** The bodies the starts sent, notes included. */
+const mockStartBodies: unknown[] = [];
 const mockToastWarning = jest.fn();
 const mockToastError = jest.fn();
 const mockTranslate = (key: string) => key;
@@ -121,7 +124,10 @@ jest.mock('@/core/services/client/api/timers', () => ({
 			return { data: [{ lastLog: mockGauzy.lastLog }], headers: { date: new Date(NOW).toUTCString() } };
 		},
 		stopTimer: (body: { source: ETimeLogSource; stoppedAt?: string }) => mockStopTimer(body),
-		startTimer: () => mockStartTimer(),
+		startTimer: (body: unknown) => {
+			mockStartBodies.push(body);
+			return mockStartTimer();
+		},
 		// The heartbeat a stop sends first: its status read plays no part here
 		syncTimer: async () => ({ data: null })
 	}
@@ -179,7 +185,7 @@ function renderTab() {
 			await result.current.stopTimer();
 		});
 	};
-	return { pressStart, pressStop, queryClient, store };
+	return { pressStart, pressStop, queryClient, store, result };
 }
 
 /**
@@ -343,5 +349,60 @@ describe('Start while the tracking flag says a timer runs and this tab says stop
 		});
 		expect(outcome).toBe('started');
 		expect(mockStartTimer).toHaveBeenCalledTimes(1);
+	});
+});
+
+/**
+ * The sweep that merged #5113 (notes typed in the timer) with #5131 (Continue hands the entry's notes to the start of
+ * its task): a start sends one of them, and whatever it sends is what the timer's notes field shows once it runs.
+ */
+describe("Start with a notes draft and a continued entry's notes", () => {
+	beforeEach(() => {
+		mockGauzy.lastLog = null;
+		mockGauzy.isTrackingTime = false;
+		mockGauzy.statusReadFails = false;
+		mockGauzy.lastLogReadFails = false;
+		mockStartBodies.length = 0;
+	});
+
+	it("sends the continued entry's notes, which become the timer's notes in place of the draft", async () => {
+		const tab = renderTab();
+		tab.store.set(timerNotesState, { text: 'Typed before Continue', timeLogId: null });
+		tab.store.set(timerStartNotesState, { taskId: 'task-1', description: 'Standup notes', handedAt: Date.now() });
+
+		const outcome = await tab.pressStart();
+
+		expect(outcome).toBe('started');
+		expect(mockStartBodies).toEqual([expect.objectContaining({ description: 'Standup notes' })]);
+		// Tied to the started entry, the draft would have been sent at the stop over the continued notes
+		expect(tab.store.get(timerNotesState)).toEqual({ text: 'Standup notes', timeLogId: 'log-new' });
+		expect(tab.store.get(timerStartNotesState)).toBeNull();
+	});
+
+	it("takes the continued entry's notes as the start is asked, so the plan dialog that asks it cannot drop them", async () => {
+		const tab = renderTab();
+		tab.store.set(timerStartNotesState, { taskId: 'task-1', description: 'Standup notes', handedAt: Date.now() });
+
+		let outcome: unknown;
+		await act(async () => {
+			const started = tab.result.current.startTimer(TASK);
+			// The dialog closes right after asking, before the start's checks have answered
+			expect(tab.store.get(timerStartNotesState)).toBeNull();
+			outcome = await started;
+		});
+
+		expect(outcome).toBe('started');
+		expect(mockStartBodies).toEqual([expect.objectContaining({ description: 'Standup notes' })]);
+	});
+
+	it('sends the draft when no entry was continued, and ties it to the started entry', async () => {
+		const tab = renderTab();
+		tab.store.set(timerNotesState, { text: 'Typed in the timer', timeLogId: null });
+
+		const outcome = await tab.pressStart();
+
+		expect(outcome).toBe('started');
+		expect(mockStartBodies).toEqual([expect.objectContaining({ description: 'Typed in the timer' })]);
+		expect(tab.store.get(timerNotesState)).toEqual({ text: 'Typed in the timer', timeLogId: 'log-new' });
 	});
 });

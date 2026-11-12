@@ -4,6 +4,9 @@ import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response'
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import type { IUpdateTimerStatusParams } from '@/core/types/interfaces/timer/timer-status';
 import { NextResponse } from 'next/server';
+import { TIMER_NOTES_MAX_LENGTH, readTimerNotes } from '@/core/lib/utils/timer/timer-notes';
+
+const NOTES_REFUSAL = `description must be a string of at most ${TIMER_NOTES_MAX_LENGTH} characters`;
 
 const PLAN_DAY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -17,6 +20,30 @@ function planDayOf(body: object): string | undefined {
 		return undefined;
 	}
 	return planDay;
+}
+
+// Empty notes are not sent, so a start without any reaches Gauzy as it did before a start could carry notes.
+function notesOf(description: unknown): string | undefined {
+	if (typeof description !== 'string') {
+		return undefined;
+	}
+	const notes = description.trim();
+	if (!notes) {
+		return undefined;
+	}
+	return notes;
+}
+
+// Like the project, the notes belong to the task the body names: a start that falls back to the cookie's task sends none
+function startNotesFieldOf(description: string | undefined, hasBodyTaskId: boolean): { description?: string } {
+	if (!hasBodyTaskId) {
+		return {};
+	}
+	const notes = notesOf(description);
+	if (notes === undefined) {
+		return {};
+	}
+	return { description: notes };
 }
 
 export async function POST(req: Request) {
@@ -58,6 +85,11 @@ export async function POST(req: Request) {
 		return NextResponse.json({ error: 'projectId must be a non-empty string' }, { status: 400 });
 	}
 
+	const notesReading = readTimerNotes((body as { description?: unknown }).description);
+	if (!notesReading.isValid) {
+		return NextResponse.json({ error: NOTES_REFUSAL }, { status: 400 });
+	}
+
 	const taskId = hasBodyTaskId ? bodyTaskId : activeTaskIdCookie;
 
 	const startParams: IUpdateTimerStatusParams = {
@@ -69,7 +101,8 @@ export async function POST(req: Request) {
 		tags: [],
 		isBillable,
 		organizationTeamId,
-		planDay: planDayOf(body)
+		planDay: planDayOf(body),
+		...startNotesFieldOf(notesReading.description, hasBodyTaskId)
 	};
 
 	// The project is the one of the task the body names: a start that falls back to the cookie's task sends none
