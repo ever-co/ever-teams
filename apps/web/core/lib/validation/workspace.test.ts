@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-import { createWorkspaceBodySchema, inviteAddressesOf } from './workspace';
+import { createWorkspaceBodySchema, inviteAddressesOf, renameWorkspaceBodySchema } from './workspace';
 
 describe('the invitations typed when a workspace is created (#5025)', () => {
 	it('reads the addresses one per line or separated by commas, semicolons or spaces, once each', () => {
@@ -32,5 +32,20 @@ describe('the body of POST /api/auth/create-workspace', () => {
 		expect(createWorkspaceBodySchema.safeParse({ name: '  ' }).success).toBe(false);
 		expect(createWorkspaceBodySchema.safeParse({ name: 'x'.repeat(61) }).success).toBe(false);
 		expect(createWorkspaceBodySchema.safeParse({ name: 'Studio', invites: ['nope'] }).success).toBe(false);
+	});
+});
+
+describe('the body of PUT /api/tenant (#5087)', () => {
+	it('keeps the trimmed name and nothing else the request carries', () => {
+		const body = { name: ' Studio ', logo: 'https://example.com/logo.png', tenantId: 'another-tenant' };
+
+		expect(renameWorkspaceBodySchema.parse(body)).toEqual({ name: 'Studio' });
+	});
+
+	it('refuses a missing, blank or too long name', () => {
+		expect(renameWorkspaceBodySchema.safeParse({}).success).toBe(false);
+		expect(renameWorkspaceBodySchema.safeParse({ name: '  ' }).success).toBe(false);
+		expect(renameWorkspaceBodySchema.safeParse({ name: 'x'.repeat(61) }).success).toBe(false);
+		expect(renameWorkspaceBodySchema.safeParse({ name: 'x'.repeat(60) }).success).toBe(true);
 	});
 });

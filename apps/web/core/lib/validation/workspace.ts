@@ -22,6 +22,9 @@ export const createWorkspaceBodySchema = z.object({
 
 export type CreateWorkspaceBody = z.infer<typeof createWorkspaceBodySchema>;
 
+/** The body of `PUT /api/tenant`: the workspace's new name. Which workspace is renamed comes from the session. */
+export const renameWorkspaceBodySchema = z.object({ name: nameSchema }).strip();
+
 /**
  * The addresses typed in the invite field, one per line or separated by commas, semicolons or spaces: the valid ones
  * (once each, in lower case) and the ones that are not addresses, to say so.
