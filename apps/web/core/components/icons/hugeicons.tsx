@@ -80,6 +80,7 @@ import {
 	InboxCheckIcon,
 	InformationCircleIcon,
 	InstagramIcon,
+	Invoice01Icon,
 	JusticeScale01Icon,
 	KanbanIcon,
 	Key01Icon,
@@ -497,3 +498,4 @@ export const Integration = /*#__PURE__*/ icon(Plug01Icon, 'Integration');
 export const Version = /*#__PURE__*/ icon(GitBranchIcon, 'Version');
 export const StatusCircle = /*#__PURE__*/ icon(DashedLineCircleIcon, 'StatusCircle');
 export const Preferences = /*#__PURE__*/ icon(PaintBoardIcon, 'Preferences');
+export const Invoice = /*#__PURE__*/ icon(Invoice01Icon, 'Invoice');
