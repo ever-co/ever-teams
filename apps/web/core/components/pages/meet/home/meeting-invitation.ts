@@ -1,3 +1,5 @@
+import type { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { meetingIcsOf, type ScheduledMeeting } from '@/core/lib/utils/meetings';
 
 /** "Thursday, November 12, 2026, 2:00 – 2:45 PM", in the reader's language. */
@@ -51,5 +53,27 @@ export async function copyMeetingText(text: string): Promise<boolean> {
 		return true;
 	} catch {
 		return false;
+	}
+}
+
+/**
+ * Copies the invitation to a meeting: its title, when it runs and its link, in the reader's language. A browser that
+ * refuses the clipboard gets the text in a notice, to copy by hand.
+ */
+export async function copyMeetingInvitation(
+	meeting: Pick<ScheduledMeeting, 'title' | 'start' | 'end'> & { link: string },
+	locale: string,
+	t: ReturnType<typeof useTranslations>
+): Promise<void> {
+	const text = t('meetings.INVITATION_TEXT', {
+		title: meeting.title,
+		when: meetingWhenOf(meeting, locale),
+		link: meeting.link
+	});
+	const isCopied = await copyMeetingText(text);
+	if (isCopied) {
+		toast.success(t('meetings.INVITATION_COPIED'));
+	} else {
+		toast.info(t('meetings.COPY_INVITATION'), { description: text, duration: 10000 });
 	}
 }

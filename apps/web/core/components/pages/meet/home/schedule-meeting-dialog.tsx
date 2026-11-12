@@ -10,7 +10,7 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { CalendarPlus, Copy } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import { startOfDay, type ScheduledMeeting, type ScheduleMeetingDraft } from '@/core/lib/utils/meetings';
-import { copyMeetingText, downloadMeetingIcs, meetingWhenOf } from './meeting-invitation';
+import { copyMeetingInvitation, downloadMeetingIcs, meetingWhenOf } from './meeting-invitation';
 
 const DURATIONS = [15, 30, 45, 60, 90, 120];
 const DEFAULT_DURATION = 30;
@@ -124,18 +124,7 @@ export function ScheduleMeetingDialog({
 	};
 
 	const copyInvitation = async () => {
-		if (!scheduled) return;
-		const text = t('meetings.INVITATION_TEXT', {
-			title: scheduled.title,
-			when: meetingWhenOf(scheduled, locale),
-			link: scheduled.link
-		});
-		const isCopied = await copyMeetingText(text);
-		if (isCopied) {
-			toast.success(t('meetings.INVITATION_COPIED'));
-		} else {
-			toast.info(t('meetings.COPY_INVITATION'), { description: text, duration: 10000 });
-		}
+		if (scheduled) await copyMeetingInvitation(scheduled, locale, t);
 	};
 
 	return (
