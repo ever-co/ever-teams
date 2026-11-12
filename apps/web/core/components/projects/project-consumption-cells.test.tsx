@@ -134,6 +134,14 @@ describe('ProjectBudgetUseCell', () => {
 		expect(container.textContent).toContain('25%');
 	});
 
+	it('keeps the whole amounts readable as a title when the cell cuts them', () => {
+		const { container } = render(<ProjectBudgetUseCell project={COST_QUARTER} consumption={LOADED} />);
+
+		const titled = container.querySelector('[title]');
+		expect(titled?.getAttribute('title')).toBe('$1,000.00 / $4,000.00');
+		expect(titled?.textContent).toBe('$1,000.00 / $4,000.00');
+	});
+
 	it('draws no meter for a project without a budget', () => {
 		const { container } = render(<ProjectBudgetUseCell project={HOURS_FREE} consumption={LOADED} />);
 

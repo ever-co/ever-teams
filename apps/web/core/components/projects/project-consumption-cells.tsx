@@ -14,7 +14,7 @@ import { Alert } from '@/core/components/icons';
 import { MUTED_VALUE, ProjectBudgetCell } from '@/core/components/projects/project-cells';
 import type { ProjectConsumptionState } from '@/core/hooks/projects/use-project-consumption';
 import { cn } from '@/core/lib/helpers';
-import type { BudgetRow } from '@/core/lib/utils/dashboards/project-budget';
+import { amountTextOf, budgetTextOf, type BudgetRow } from '@/core/lib/utils/dashboards/project-budget';
 import {
 	budgetUseOf,
 	CONSUMPTION_SCOPE,
@@ -67,17 +67,30 @@ function shareToneOf(row: BudgetRow) {
 	return limitVerdictTextClassOf(row.verdict);
 }
 
-/** Past the budget a mark joins the share, so the colour is never the only sign of it. */
+function amountsTextOf(row: BudgetRow, locale: string) {
+	const spentText = amountTextOf(row.spent, row, locale);
+	const budgetText = budgetTextOf(row.budget, row, locale);
+	return `${spentText} / ${budgetText}`;
+}
+
+/**
+ * Past the budget a mark joins the share, so the colour is never the only sign of it. The amounts carry their whole
+ * text as a title: a long pair, such as two amounts with a currency code, is cut by the cell.
+ */
 function ProjectBudgetUse({ row }: Readonly<{ row: BudgetRow }>) {
 	const t = useTranslations();
+	const locale = useLocale();
 	const isOver = row.verdict === 'over';
 	const shareText = shareTextOf(row);
 	const shareTone = shareToneOf(row);
 	const verdictKey = verdictKeyOf(row, row.risk, CONSUMPTION_SCOPE);
 	const verdictText = t(verdictKey);
+	const amountsText = amountsTextOf(row, locale);
 	return (
 		<span className="flex min-w-0 flex-1 flex-col gap-1">
-			<SpentOfBudget amounts={row} className="text-xs" />
+			<span title={amountsText} className="flex min-w-0">
+				<SpentOfBudget amounts={row} className="text-xs" />
+			</span>
 			<span className="flex min-w-0 items-center gap-2">
 				<BudgetMeter amounts={row} className="h-2 min-w-10" />
 				<span className={cn('flex shrink-0 items-center gap-1 text-xs font-medium tabular-nums', shareTone)}>

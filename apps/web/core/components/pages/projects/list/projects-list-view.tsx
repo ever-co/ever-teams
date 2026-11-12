@@ -67,7 +67,8 @@ const COLUMN_WIDTHS_REM: Record<ProjectColumn, number> = {
 	budget: 6.5
 };
 
-const BUDGET_USE_COLUMN_REM = 10;
+/** Room for two amounts written with a currency code, as "BGN 612.52 / BGN 2,640.00". */
+const BUDGET_USE_COLUMN_REM = 12;
 
 const COLUMN_ICONS: Record<ProjectColumn, ReactNode> = {
 	status: <CircleCheck />,
