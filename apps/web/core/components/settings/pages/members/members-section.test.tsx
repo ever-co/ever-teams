@@ -177,6 +177,29 @@ describe('the Active and Inactive lists', () => {
 	});
 });
 
+describe('the search field', () => {
+	const rowNamed = (name: string) => ({ ...ANA, id: `row-${name}`, name, email: `${name}@example.com` });
+	const others = ['Bo', 'Cy', 'Dee', 'Eli', 'Fay', 'Gus'].map(rowNamed);
+
+	it('stays while a search is typed, though the list fell under the size that shows it', () => {
+		const rows = [rowNamed('Ana Lima'), rowNamed('Ana Chen'), ...others];
+		mockUseTeamMembersSettings.mockReturnValue(membersSettings({ rows }));
+		const view = renderSection();
+		fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Ana' } });
+
+		mockUseTeamMembersSettings.mockReturnValue(membersSettings({ rows: [rowNamed('Ana Lima'), ...others] }));
+		view.rerender(<MembersSection onInvite={jest.fn()} canInvite />);
+
+		expect(screen.queryByText('Bo')).toBeNull();
+		expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('Ana');
+
+		fireEvent.change(screen.getByRole('searchbox'), { target: { value: '' } });
+
+		expect(screen.getByText('Bo')).toBeTruthy();
+		expect(screen.queryByRole('searchbox')).toBeNull();
+	});
+});
+
 describe('the Deactivate confirmation', () => {
 	it('says what changes, then deactivates the member once confirmed', async () => {
 		const deactivateMember = jest.fn().mockResolvedValue(undefined);
