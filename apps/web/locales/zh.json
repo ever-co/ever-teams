@@ -6364,7 +6364,8 @@
 				"DUE_DATE": "请选择到期日。",
 				"DUE_BEFORE_ISSUE": "到期日早于开具日期。",
 				"NO_LINES": "发票没有明细行。",
-				"NO_CURRENCY": "这些时间没有币种。请设置工作区或项目的币种。"
+				"NO_CURRENCY": "这些时间没有币种。请设置工作区或项目的币种。",
+				"READING_EARLIER": "正在读取该客户已保存的发票。"
 			},
 			"otherCurrencies": {
 				"TITLE": "以其他币种计价",
@@ -6394,7 +6395,9 @@
 				"LINES": "{count, plural, other {# 行}}，{hours} 小时，{total}。",
 				"DATES": "{issueDate} 开具，{dueDate} 到期。",
 				"DRAFT": "发票将保存为草稿，并可下载为 PDF。",
-				"FAILED": "发票未保存，也未创建任何内容。请确认编号未被占用，然后重试。"
+				"FAILED": "发票未保存，也未创建任何内容。请确认编号未被占用，然后重试。",
+				"UNCHECKED": "无法读取已为 {client} 保存的发票，因此本期间未与它们核对。",
+				"UNCONFIRMED": "无法确认是否已保存，因此发票可能已经保存。再次保存前，请先查看已为 {client} 保存的发票。"
 			},
 			"byProject": {
 				"GROUP_BY_PROJECT": "按项目",

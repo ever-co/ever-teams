@@ -26,6 +26,7 @@ jest.mock('@/core/lib/helpers/cookies', () => ({
 
 import {
 	useChangeInvoiceStatus,
+	useCreateInvoice,
 	useDeleteInvoice,
 	useSaveAndSendInvoice,
 	useSendInvoice
@@ -64,11 +65,44 @@ function renderWith<T>(queryClient: QueryClient, hook: () => T) {
 	return renderHook(hook, { wrapper });
 }
 
+function renderCreateInvoice() {
+	const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+	const invalidateQueries = jest.spyOn(queryClient, 'invalidateQueries');
+	const rendered = renderWith(queryClient, () => useCreateInvoice());
+	return { ...rendered, invalidateQueries };
+}
+
 beforeEach(() => {
 	mockCreateInvoice.mockReset();
 	mockSendInvoiceByEmail.mockReset();
 	mockChangeInvoiceStatus.mockReset();
 	mockDeleteInvoice.mockReset();
+});
+
+describe('saving an invoice and the invoices already saved', () => {
+	const request = { id: 'invoice-1', invoiceNumber: 7 } as InvoiceRequest;
+
+	it('reads them again after a failed save: the invoice may have been saved all the same', async () => {
+		mockCreateInvoice.mockRejectedValue(new Error('Network Error'));
+		const { result, invalidateQueries } = renderCreateInvoice();
+
+		await act(async () => {
+			await result.current.createInvoice(request).catch(() => undefined);
+		});
+
+		expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['invoices'] });
+	});
+
+	it('reads them again after a save', async () => {
+		mockCreateInvoice.mockResolvedValue({ id: 'invoice-1' });
+		const { result, invalidateQueries } = renderCreateInvoice();
+
+		await act(async () => {
+			await result.current.createInvoice(request);
+		});
+
+		expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['invoices'] });
+	});
 });
 
 describe('saving a new invoice and sending it', () => {

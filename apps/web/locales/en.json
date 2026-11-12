@@ -6364,7 +6364,8 @@
 				"DUE_DATE": "Pick the due date.",
 				"DUE_BEFORE_ISSUE": "The due date is before the issue date.",
 				"NO_LINES": "The invoice has no line.",
-				"NO_CURRENCY": "This time has no currency. Set the currency of the workspace or of the project."
+				"NO_CURRENCY": "This time has no currency. Set the currency of the workspace or of the project.",
+				"READING_EARLIER": "Reading the invoices already saved for this client."
 			},
 			"otherCurrencies": {
 				"TITLE": "Priced in another currency",
@@ -6394,7 +6395,9 @@
 				"LINES": "{count, plural, one {# line} other {# lines}}, {hours} h, {total}.",
 				"DATES": "Issued {issueDate}, due {dueDate}.",
 				"DRAFT": "It is saved as a draft and can be downloaded as a PDF.",
-				"FAILED": "The invoice was not saved and nothing was created. Check that its number is free, then try again."
+				"FAILED": "The invoice was not saved and nothing was created. Check that its number is free, then try again.",
+				"UNCHECKED": "The invoices already saved for {client} could not be read, so this period was not checked against them.",
+				"UNCONFIRMED": "The save could not be confirmed, so the invoice may have been saved. Check the invoices already saved for {client} before saving again."
 			},
 			"byProject": {
 				"GROUP_BY_PROJECT": "By project",

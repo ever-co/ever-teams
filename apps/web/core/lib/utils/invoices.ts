@@ -14,6 +14,7 @@ import {
 } from '@/core/lib/utils/dashboards/payments-due';
 import { invoiceTotalsOf, NO_ADJUSTMENTS, type InvoiceAdjustments } from '@/core/lib/utils/invoice-totals';
 import { effectiveBillRate, employeeRateValueOf, rateValueOf } from '@/core/lib/utils/rates';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 
 export interface BillableLogLike {
 	projectId?: string | null;
@@ -612,14 +613,25 @@ export function periodsOverlap(first: InvoicePeriodDays, second: InvoicePeriodDa
 
 export interface StatedInvoicePeriod {
 	terms?: string | null;
+	status?: string | null;
 }
 
-/** The saved invoices whose stated period shares a day with the given one. An invoice that states none is left out. */
+function isVoidInvoice(invoice: StatedInvoicePeriod) {
+	return invoiceStatusOf(invoice.status) === 'VOID';
+}
+
+/**
+ * The saved invoices whose stated period shares a day with the given one. An invoice that states none is left out, and
+ * so is a void one: it billed nothing.
+ */
 export function overlappingInvoicesOf<T extends StatedInvoicePeriod>(
 	invoices: ReadonlyArray<T>,
 	days: InvoicePeriodDays
 ): T[] {
 	return invoices.filter((invoice) => {
+		if (isVoidInvoice(invoice)) {
+			return false;
+		}
 		const stated = invoicePeriodOfTerms(invoice.terms);
 		if (!stated) {
 			return false;
@@ -653,8 +665,10 @@ export function nextInvoiceNumberOf(highest: unknown): number | null {
 	return number + 1;
 }
 
-export function todayDayKey(now = new Date()) {
-	return localDayKeyOf(now);
+/** Today in the organization's zone, the one that dates an invoice: the browser can already be on another day. */
+export function todayDayKey(timeZone: string | null | undefined, now = new Date()) {
+	const zonedDay = invoiceDayOf(now.toISOString(), timeZone);
+	return zonedDay ?? localDayKeyOf(now);
 }
 
 export type InvoiceDueTermSource = 'client' | 'organization' | 'standard';
@@ -707,7 +721,15 @@ export function dueDayAfter(issueDay: string, days: number): string {
 	return localDayKeyOf(addDays(issueDate, days));
 }
 
-export type InvoiceProblem = 'number' | 'issueDay' | 'dueDay' | 'dueBeforeIssue' | 'noLines' | 'noCurrency';
+export type InvoiceProblem =
+	| 'number'
+	| 'issueDay'
+	| 'dueDay'
+	| 'dueBeforeIssue'
+	| 'noLines'
+	| 'noCurrency'
+	| 'readingEarlier'
+	| 'readingTime';
 
 export interface InvoiceDraftFacts {
 	numberText: string;
@@ -741,6 +763,50 @@ export function invoiceProblemsOf(facts: InvoiceDraftFacts): InvoiceProblem[] {
 		problems.push('dueBeforeIssue');
 	}
 	return problems;
+}
+
+export type InvoiceSaveFailure = 'refused' | 'unconfirmed';
+
+function isRefusalStatus(status: number) {
+	return status >= 400 && status < 500;
+}
+
+/**
+ * Whether a failed save created nothing. Only the API's own refusal says so: it refuses before anything is written,
+ * and a failed write is answered 400. Without an answer (the network, a timeout, a gateway's 502 or 504), with a
+ * server failure, or with an answer that could not be read, the invoice may have been saved all the same.
+ */
+export function invoiceSaveFailureOf(error: unknown): InvoiceSaveFailure {
+	if (!ApiErrorService.isApiError(error)) {
+		return 'unconfirmed';
+	}
+	const answeredStatus = error.httpResponseStatus;
+	if (answeredStatus === undefined) {
+		return 'unconfirmed';
+	}
+	if (isRefusalStatus(answeredStatus)) {
+		return 'refused';
+	}
+	return 'unconfirmed';
+}
+
+export interface InvoiceReads {
+	/** The invoices already saved for the client, whose overlap with the period is shown before saving. */
+	isReadingEarlier: boolean;
+	/** The billable time, the members' rates or the client rates, read again while their last answer is shown. */
+	isReadingTimeAgain: boolean;
+}
+
+/** What a save waits for: a read still under way, whose answer can change what the invoice states or warns about. */
+export function invoiceWaitsOf(reads: InvoiceReads): InvoiceProblem[] {
+	const waits: InvoiceProblem[] = [];
+	if (reads.isReadingEarlier) {
+		waits.push('readingEarlier');
+	}
+	if (reads.isReadingTimeAgain) {
+		waits.push('readingTime');
+	}
+	return waits;
 }
 
 function dayStartOf(dayKey: string, timeZone: string | null | undefined) {

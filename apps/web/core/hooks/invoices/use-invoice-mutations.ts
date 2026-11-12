@@ -24,6 +24,11 @@ export function useCreateInvoice() {
 	const mutation = useMutation({
 		mutationFn: (request: InvoiceRequest) => invoiceService.createInvoice(request),
 		onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all }),
+		// A failed save may have been saved all the same: the client's invoices and the next number are read again,
+		// without holding back the error until they answer.
+		onError: () => {
+			void queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all });
+		},
 		meta: { handlesOwnError: true }
 	});
 	return { createInvoice: mutation.mutateAsync, isSaving: mutation.isPending };

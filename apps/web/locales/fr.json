@@ -6364,7 +6364,8 @@
 				"DUE_DATE": "Choisissez la date d’échéance.",
 				"DUE_BEFORE_ISSUE": "La date d’échéance précède la date d’émission.",
 				"NO_LINES": "La facture n’a aucune ligne.",
-				"NO_CURRENCY": "Ce temps n’a pas de devise. Définissez la devise de l’espace de travail ou du projet."
+				"NO_CURRENCY": "Ce temps n’a pas de devise. Définissez la devise de l’espace de travail ou du projet.",
+				"READING_EARLIER": "Lecture des factures déjà enregistrées pour ce client."
 			},
 			"otherCurrencies": {
 				"TITLE": "Tarifé dans une autre devise",
@@ -6394,7 +6395,9 @@
 				"LINES": "{count, plural, one {# ligne} other {# lignes}}, {hours} h, {total}.",
 				"DATES": "Émise le {issueDate}, échéance le {dueDate}.",
 				"DRAFT": "Elle est enregistrée en brouillon et peut être téléchargée en PDF.",
-				"FAILED": "La facture n’a pas été enregistrée et rien n’a été créé. Vérifiez que son numéro est libre, puis réessayez."
+				"FAILED": "La facture n’a pas été enregistrée et rien n’a été créé. Vérifiez que son numéro est libre, puis réessayez.",
+				"UNCHECKED": "Les factures déjà enregistrées pour {client} n’ont pas pu être lues : cette période n’a pas été comparée avec elles.",
+				"UNCONFIRMED": "L’enregistrement n’a pas pu être confirmé : la facture a peut-être été enregistrée. Vérifiez les factures déjà enregistrées pour {client} avant d’enregistrer à nouveau."
 			},
 			"byProject": {
 				"GROUP_BY_PROJECT": "Par projet",

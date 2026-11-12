@@ -13,7 +13,9 @@ import {
 	invoiceStatusOf,
 	invoiceStatusToneOf,
 	invoiceTermsOf,
+	invoiceSaveFailureOf,
 	invoiceTimeOf,
+	invoiceWaitsOf,
 	keptLinesOf,
 	lineDescriptionOf,
 	linePriceOf,
@@ -31,6 +33,7 @@ import {
 	type LinePrice
 } from './invoices';
 import { invoiceTotalsOf } from './invoice-totals';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 
 const HOUR = 3600;
 
@@ -661,6 +664,18 @@ describe('the period an invoice states', () => {
 
 		expect(overlapping.map((invoice) => invoice.id)).toEqual(['a']);
 	});
+
+	it('leaves out a void invoice: it billed nothing, so its period cannot be billed twice', () => {
+		const invoices = [
+			{ id: 'sent', terms: invoiceTermsOf(october), status: 'SENT' },
+			{ id: 'void', terms: invoiceTermsOf(october), status: 'VOID' },
+			{ id: 'void-lower-case', terms: invoiceTermsOf(october), status: 'void' }
+		];
+
+		const overlapping = overlappingInvoicesOf(invoices, { fromDay: '2026-10-15', toDay: '2026-10-20' });
+
+		expect(overlapping.map((invoice) => invoice.id)).toEqual(['sent']);
+	});
 });
 
 describe('invoice number and dates', () => {
@@ -716,6 +731,34 @@ describe('invoice number and dates', () => {
 		expect(invoiceProblemsOf({ ...ready, numberText: '' })).toEqual(['number']);
 		expect(invoiceProblemsOf({ ...ready, issueDay: '', dueDay: '' })).toEqual(['issueDay', 'dueDay']);
 		expect(invoiceProblemsOf({ ...ready, dueDay: '2026-11-01' })).toEqual(['dueBeforeIssue']);
+	});
+
+	it('names the reads a save waits for', () => {
+		const settled = { isReadingEarlier: false, isReadingTimeAgain: false };
+
+		expect(invoiceWaitsOf(settled)).toEqual([]);
+		expect(invoiceWaitsOf({ ...settled, isReadingEarlier: true })).toEqual(['readingEarlier']);
+		expect(invoiceWaitsOf({ ...settled, isReadingTimeAgain: true })).toEqual(['readingTime']);
+	});
+
+	it('tells a save the API refused from one whose outcome is unknown', () => {
+		const answered = (status: number) =>
+			ApiErrorService.fromAxiosError({
+				message: `Request failed with status code ${status}`,
+				status,
+				response: { data: {}, headers: {}, status, statusText: 'Error' }
+			});
+		const unanswered = (code: string) => ApiErrorService.fromAxiosError({ code, message: code });
+
+		expect(invoiceSaveFailureOf(answered(400))).toBe('refused');
+		expect(invoiceSaveFailureOf(answered(403))).toBe('refused');
+		expect(invoiceSaveFailureOf(answered(500))).toBe('unconfirmed');
+		expect(invoiceSaveFailureOf(answered(502))).toBe('unconfirmed');
+		expect(invoiceSaveFailureOf(answered(504))).toBe('unconfirmed');
+		// The browser's own timeout is reported as a 408 that no server sent
+		expect(invoiceSaveFailureOf(unanswered('ECONNABORTED'))).toBe('unconfirmed');
+		expect(invoiceSaveFailureOf(unanswered('ERR_NETWORK'))).toBe('unconfirmed');
+		expect(invoiceSaveFailureOf(new Error('createInvoice API response did not match'))).toBe('unconfirmed');
 	});
 
 	it('reads the day of an invoice date in the organization’s zone', () => {

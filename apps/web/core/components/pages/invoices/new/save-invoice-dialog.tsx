@@ -4,7 +4,7 @@ import { useRef, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { Building, Calendar, Clock, FileText, Invoice, Mail } from '@/core/components/icons';
+import { Alert, Building, Calendar, Clock, FileText, Invoice, Mail } from '@/core/components/icons';
 import {
 	ProjectConfirmDialog,
 	type ProjectConsequence
@@ -13,7 +13,13 @@ import type { SaveAndSendOutcome } from '@/core/hooks/invoices/use-invoice-mutat
 import type { NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
 import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
 import { isInvoiceRecipient } from '@/core/lib/utils/invoice-actions';
-import { formatInvoiceHours, invoiceDayTextOf, invoicePeriodTextOf } from '@/core/lib/utils/invoices';
+import {
+	formatInvoiceHours,
+	invoiceDayTextOf,
+	invoicePeriodTextOf,
+	invoiceSaveFailureOf,
+	type InvoiceSaveFailure
+} from '@/core/lib/utils/invoices';
 import { INVOICES_PATH } from '../invoice-access-guard';
 import { InvoiceRecipientField, useSentInvoiceToast } from '../invoice-sending';
 
@@ -31,12 +37,13 @@ export function SaveInvoiceDialog({
 	const locale = useLocale();
 	const router = useRouter();
 	const showSent = useSentInvoiceToast();
-	const [hasFailed, setHasFailed] = useState(false);
+	const [failure, setFailure] = useState<InvoiceSaveFailure | null>(null);
 	const [typedRecipient, setTypedRecipient] = useState<string | null>(null);
 	const [isRecipientRefused, setIsRecipientRefused] = useState(false);
 	const [runningMode, setRunningMode] = useState<SaveMode | null>(null);
 	const isRunningRef = useRef(false);
 	const number = invoice.numberText.trim();
+	const clientName = invoice.client?.name ?? '';
 	const clientEmail = invoice.client?.primaryEmail?.trim() ?? '';
 	const knowsRecipient = clientEmail !== '';
 	const recipient = typedRecipient ?? clientEmail;
@@ -47,7 +54,7 @@ export function SaveInvoiceDialog({
 		if (isBusy) {
 			return;
 		}
-		setHasFailed(false);
+		setFailure(null);
 		setTypedRecipient(null);
 		setIsRecipientRefused(false);
 		onClose();
@@ -69,17 +76,18 @@ export function SaveInvoiceDialog({
 	};
 
 	const saveOnly = async () => {
-		setHasFailed(false);
+		setFailure(null);
 		try {
 			const saved = await invoice.save();
+			// Nothing was sent: the invoice was not ready to be saved.
 			if (!saved) {
-				setHasFailed(true);
+				setFailure('refused');
 				return;
 			}
 			toast.success(t('invoices.new.SAVED', { number }));
 			router.push(INVOICES_PATH);
-		} catch {
-			setHasFailed(true);
+		} catch (error) {
+			setFailure(invoiceSaveFailureOf(error));
 		}
 	};
 
@@ -95,7 +103,7 @@ export function SaveInvoiceDialog({
 	};
 
 	const saveAndSend = async () => {
-		setHasFailed(false);
+		setFailure(null);
 		const email = recipient.trim();
 		const isRecipient = isInvoiceRecipient(email);
 		setIsRecipientRefused(!isRecipient);
@@ -105,13 +113,13 @@ export function SaveInvoiceDialog({
 		try {
 			const result = await invoice.saveAndSend(email);
 			if (!result) {
-				setHasFailed(true);
+				setFailure('refused');
 				return;
 			}
 			showSending(result.outcome, email);
 			router.push(INVOICES_PATH);
-		} catch {
-			setHasFailed(true);
+		} catch (error) {
+			setFailure(invoiceSaveFailureOf(error));
 		}
 	};
 
@@ -125,7 +133,7 @@ export function SaveInvoiceDialog({
 			key: 'client',
 			icon: <Building />,
 			text: t('invoices.new.confirm.CLIENT', {
-				client: invoice.client?.name ?? '',
+				client: clientName,
 				period: invoicePeriodTextOf(invoice.periodDays, locale) ?? ''
 			})
 		},
@@ -148,17 +156,35 @@ export function SaveInvoiceDialog({
 		},
 		{ key: 'draft', icon: <FileText />, text: t('invoices.new.confirm.DRAFT') }
 	];
+	if (knowsRecipient) {
+		consequences.push({ key: 'send', icon: <Mail />, text: t('invoices.new.sending.SEND_CONSEQUENCE') });
+	}
+	// The save goes on without the overlap check, as it goes on despite an overlap: the person is told before saving.
+	if (invoice.haveEarlierFailed) {
+		consequences.push({
+			key: 'unchecked',
+			icon: <Alert />,
+			text: t('invoices.new.confirm.UNCHECKED', { client: clientName }),
+			tone: 'danger'
+		});
+	}
 
 	let error: string | null = null;
-	if (hasFailed) {
+	if (failure === 'refused') {
 		error = t('invoices.new.confirm.FAILED');
 	}
+	if (failure === 'unconfirmed') {
+		error = t('invoices.new.confirm.UNCONFIRMED', { client: clientName });
+	}
+	// A read that started after the dialog opened can still change what it states: the save waits for it.
+	const isWaiting = invoice.isWaiting;
 
 	const title = t('invoices.new.confirm.TITLE', { number });
 	const saveLabel = t('invoices.new.SAVE');
 	const saveOnClick = () => void run('save', saveOnly);
 
 	if (!knowsRecipient) {
+		const isSavePending = isBusy || isWaiting;
 		return (
 			<ProjectConfirmDialog
 				open={open}
@@ -167,18 +193,14 @@ export function SaveInvoiceDialog({
 				title={title}
 				consequences={consequences}
 				confirmLabel={saveLabel}
-				isPending={isBusy}
+				isPending={isSavePending}
 				error={error}
 				onConfirm={saveOnClick}
 			/>
 		);
 	}
 
-	const sendConsequence: ProjectConsequence = {
-		key: 'send',
-		icon: <Mail />,
-		text: t('invoices.new.sending.SEND_CONSEQUENCE')
-	};
+	const isSendPending = runningMode === 'send' || isWaiting;
 	const recipientField: ReactNode = (
 		<InvoiceRecipientField value={recipient} onChange={changeRecipient} isInvalid={isRecipientRefused} />
 	);
@@ -189,10 +211,10 @@ export function SaveInvoiceDialog({
 			onClose={close}
 			icon={<Invoice />}
 			title={title}
-			consequences={[...consequences, sendConsequence]}
+			consequences={consequences}
 			extra={recipientField}
 			confirmLabel={t('invoices.new.sending.SAVE_AND_SEND')}
-			isPending={runningMode === 'send'}
+			isPending={isSendPending}
 			error={error}
 			onConfirm={() => void run('send', saveAndSend)}
 			secondaryAction={{ label: saveLabel, isPending: runningMode === 'save', onClick: saveOnClick }}

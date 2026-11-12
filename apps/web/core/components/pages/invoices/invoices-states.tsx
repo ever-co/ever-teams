@@ -51,6 +51,7 @@ export function InvoicesLedgerSkeleton() {
 						<Skeleton className={cn('h-4 w-14 max-lg:hidden', SKELETON_BAR)} />
 						<Skeleton className={cn('ml-auto h-3 w-16', SKELETON_BAR)} />
 						<span />
+						<Skeleton className={cn('col-span-full ml-10.5 h-2.5 w-40 lg:hidden', SKELETON_BAR)} />
 					</div>
 				))}
 			</div>

@@ -17,6 +17,8 @@ import {
 	invoiceDueTermOf,
 	invoicePeriodDaysOf,
 	invoiceProblemsOf,
+	invoiceSaveFailureOf,
+	invoiceWaitsOf,
 	keptLinesOf,
 	overlappingInvoicesOf,
 	parseInvoiceNumber,
@@ -74,11 +76,15 @@ export function useNewInvoice() {
 	const [descriptions, setDescriptions] = useState<ReadonlyMap<string, string>>(NO_DESCRIPTIONS);
 	const [pickedCurrencyKey, setPickedCurrencyKey] = useState<string | null>(null);
 	const [typedNumber, setTypedNumber] = useState<string | null>(null);
-	const [issueDay, setIssueDay] = useState(() => todayDayKey());
+	const [pickedIssueDay, setPickedIssueDay] = useState<string | null>(null);
 	const [pickedDueDay, setPickedDueDay] = useState<string | null>(null);
 	const [typedNote, setTypedNote] = useState<string | null>(null);
 	const [discountText, setDiscountText] = useState('');
 	const [taxText, setTaxText] = useState('');
+
+	const timeZone = organization?.timeZone;
+	const today = useMemo(() => todayDayKey(timeZone), [timeZone]);
+	const issueDay = pickedIssueDay ?? today;
 
 	const client = useMemo(
 		() => clients.find((candidate) => candidate.id === pickedClientId) ?? null,
@@ -135,7 +141,10 @@ export function useNewInvoice() {
 		[earlier.invoices, periodDays]
 	);
 
-	const problems = invoiceProblemsOf({ numberText, issueDay, dueDay, currency, lineCount: keptLines.length });
+	const draftProblems = invoiceProblemsOf({ numberText, issueDay, dueDay, currency, lineCount: keptLines.length });
+	const waits = invoiceWaitsOf({ isReadingEarlier: earlier.isLoading, isReadingTimeAgain: time.isUpdating });
+	const problems = draftProblems.concat(waits);
+	const isWaiting = waits.length > 0;
 
 	const resetEdits = useCallback(() => {
 		setRemovedKeys(NO_KEYS);
@@ -191,7 +200,6 @@ export function useNewInvoice() {
 		}
 	}, []);
 
-	const timeZone = organization?.timeZone;
 	const invoiceRequest = useCallback((): InvoiceRequest | null => {
 		// The organisation's time zone dates the invoice: before it is read, the days would be the browser's.
 		if (!isOrganizationKnown) {
@@ -239,7 +247,6 @@ export function useNewInvoice() {
 	const { createInvoice, isSaving: isCreating } = useCreateInvoice();
 	const { saveAndSendInvoice, isSavingAndSending } = useSaveAndSendInvoice();
 	const isSaving = isCreating || isSavingAndSending;
-	const refetchNextNumber = nextNumber.refetch;
 	const submit = useCallback(
 		async <T>(run: (request: InvoiceRequest) => Promise<T>): Promise<T | null> => {
 			const request = invoiceRequest();
@@ -249,12 +256,17 @@ export function useNewInvoice() {
 			try {
 				return await run(request);
 			} catch (error) {
-				// The number is the likeliest refusal (another invoice took it): the form shows the highest again.
-				void refetchNextNumber();
+				// The next free number is read again after any failure. A save whose outcome is unknown keeps its own
+				// number: had it gone through, saving again under that number is refused instead of creating a second
+				// invoice.
+				const isUnconfirmed = invoiceSaveFailureOf(error) === 'unconfirmed';
+				if (isUnconfirmed) {
+					setTypedNumber(String(request.invoiceNumber));
+				}
 				throw error;
 			}
 		},
-		[invoiceRequest, refetchNextNumber]
+		[invoiceRequest]
 	);
 
 	const save = useCallback(() => submit(createInvoice), [createInvoice, submit]);
@@ -310,7 +322,7 @@ export function useNewInvoice() {
 		isNumberLoading: nextNumber.isLoading,
 		hasNumberFailed: nextNumber.isError,
 		issueDay,
-		setIssueDay,
+		setIssueDay: setPickedIssueDay,
 		dueDay,
 		setDueDay: setPickedDueDay,
 		dueTerm,
@@ -320,8 +332,10 @@ export function useNewInvoice() {
 		earlierInvoices: earlier.invoices,
 		areEarlierLoading: earlier.isLoading,
 		haveEarlierFailed: earlier.isError,
+		refetchEarlier: earlier.refetch,
 		overlappingInvoices,
 		problems,
+		isWaiting,
 		save,
 		saveAndSend,
 		isSaving

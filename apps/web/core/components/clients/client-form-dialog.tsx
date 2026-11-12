@@ -77,6 +77,8 @@ function ClientForm({ client, onClose }: Readonly<ClientFormProps>) {
 
 	const isEdit = Boolean(client);
 	const isSaving = isCreating || isUpdating;
+	// The form closes on the client as it was sent: a change typed during the save would be lost with it.
+	const isDraftLocked = isSaving;
 	const validationErrors = validateClientDraft(draft);
 	let nameError: ClientDraftError | undefined;
 	let emailError: ClientDraftError | undefined;
@@ -145,6 +147,7 @@ function ClientForm({ client, onClose }: Readonly<ClientFormProps>) {
 							data-initial-focus=""
 							autoComplete="off"
 							value={draft.name}
+							readOnly={isDraftLocked}
 							maxLength={CLIENT_NAME_MAX_LENGTH}
 							placeholder={t('clients.form.NAME_PLACEHOLDER')}
 							aria-invalid={Boolean(nameError) || undefined}
@@ -165,6 +168,7 @@ function ClientForm({ client, onClose }: Readonly<ClientFormProps>) {
 								inputMode="email"
 								autoComplete="off"
 								value={draft.primaryEmail}
+								readOnly={isDraftLocked}
 								placeholder={t('clients.form.EMAIL_PLACEHOLDER')}
 								aria-invalid={Boolean(emailError) || undefined}
 								aria-describedby={emailErrorId}
@@ -183,6 +187,7 @@ function ClientForm({ client, onClose }: Readonly<ClientFormProps>) {
 								inputMode="tel"
 								autoComplete="off"
 								value={draft.primaryPhone}
+								readOnly={isDraftLocked}
 								maxLength={CLIENT_PHONE_MAX_LENGTH}
 								onChange={(event) => updateDraft({ primaryPhone: event.target.value })}
 							/>
@@ -197,6 +202,7 @@ function ClientForm({ client, onClose }: Readonly<ClientFormProps>) {
 							id={notesId}
 							rows={3}
 							value={draft.notes}
+							readOnly={isDraftLocked}
 							maxLength={CLIENT_NOTES_MAX_LENGTH}
 							placeholder={t('clients.form.NOTES_PLACEHOLDER')}
 							onChange={(event) => updateDraft({ notes: event.target.value })}

@@ -4,6 +4,7 @@ import React from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
 import { invoiceTermsOf, type InvoiceLine } from '@/core/lib/utils/invoices';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { TOrganization } from '@/core/types/schemas';
 
@@ -13,6 +14,8 @@ const mockOrganizationRead = { isError: false, refetch: jest.fn() };
 const mockClients: Array<{ id: string; name: string; paymentTermsDays?: number | null }> = [
 	{ id: 'client-acme', name: 'Acme' }
 ];
+const mockEarlierRead = { invoices: [], isLoading: false, isError: false, refetch: jest.fn() };
+const mockNextNumber = { nextNumber: 7, isLoading: false, isError: false, refetch: jest.fn() };
 
 const mockLine: InvoiceLine = {
 	key: 'project-site:member-ada',
@@ -45,20 +48,22 @@ jest.mock('@/core/hooks/clients/use-clients-query', () => ({
 		refetch: jest.fn()
 	})
 }));
+const mockTime = {
+	hasProjects: true,
+	lines: [mockLine],
+	unpriced: [],
+	isLoading: false,
+	isError: false,
+	isUpdating: false,
+	refetch: jest.fn()
+};
+
 jest.mock('./use-invoice-time', () => ({
-	useInvoiceTime: () => ({
-		hasProjects: true,
-		lines: [mockLine],
-		unpriced: [],
-		isLoading: false,
-		isError: false,
-		isUpdating: false,
-		refetch: jest.fn()
-	})
+	useInvoiceTime: () => mockTime
 }));
 jest.mock('./use-invoices-query', () => ({
-	useNextInvoiceNumber: () => ({ nextNumber: 7, isLoading: false, isError: false, refetch: jest.fn() }),
-	useClientInvoices: () => ({ invoices: [], isLoading: false, isError: false })
+	useNextInvoiceNumber: () => mockNextNumber,
+	useClientInvoices: () => mockEarlierRead
 }));
 jest.mock('./use-invoice-mutations', () => ({
 	useCreateInvoice: () => ({ createInvoice: mockCreateInvoice, isSaving: false }),
@@ -256,5 +261,120 @@ describe('the due date of a new invoice', () => {
 		expect(result.current.dueDay).toBe('2026-12-17');
 		expect(result.current.dueTerm).toEqual({ source: 'organization', days: 45 });
 		expect(result.current.isDueDayOfTerm).toBe(true);
+	});
+});
+
+describe('saving a new invoice and the invoices already saved for its client', () => {
+	beforeEach(() => {
+		mockCreateInvoice.mockReset();
+		mockCreateInvoice.mockResolvedValue({ id: 'invoice-1' });
+	});
+
+	afterEach(() => {
+		mockEarlierRead.isLoading = false;
+	});
+
+	it('waits while they are read: an overlap with one of them could not be shown yet', async () => {
+		mockEarlierRead.isLoading = true;
+		const { result } = renderNewInvoice(tokyoOrganization);
+		act(() => result.current.setDueDay('2099-12-31'));
+
+		let saved: unknown = 'not answered';
+		await act(async () => {
+			saved = await result.current.save();
+		});
+
+		expect(saved).toBeNull();
+		expect(mockCreateInvoice).not.toHaveBeenCalled();
+		expect(result.current.problems).toEqual(['readingEarlier']);
+	});
+});
+
+describe('saving a new invoice while its billable time is read again', () => {
+	beforeEach(() => {
+		mockCreateInvoice.mockReset();
+		mockCreateInvoice.mockResolvedValue({ id: 'invoice-1' });
+	});
+
+	afterEach(() => {
+		mockTime.isUpdating = false;
+	});
+
+	it('waits: the lines on screen can still change', async () => {
+		mockTime.isUpdating = true;
+		const { result } = renderNewInvoice(tokyoOrganization);
+		act(() => result.current.setDueDay('2099-12-31'));
+
+		let saved: unknown = 'not answered';
+		await act(async () => {
+			saved = await result.current.save();
+		});
+
+		expect(saved).toBeNull();
+		expect(mockCreateInvoice).not.toHaveBeenCalled();
+		expect(result.current.problems).toEqual(['readingTime']);
+		expect(result.current.isWaiting).toBe(true);
+	});
+});
+
+describe('saving a new invoice again after a save that failed', () => {
+	beforeEach(() => {
+		mockCreateInvoice.mockReset();
+		mockNextNumber.nextNumber = 7;
+	});
+
+	async function renderAfterFailedSave(error: unknown) {
+		mockCreateInvoice.mockRejectedValueOnce(error);
+		const rendered = renderNewInvoice(tokyoOrganization);
+		act(() => rendered.result.current.setDueDay('2099-12-31'));
+		await act(async () => {
+			await rendered.result.current.save().catch(() => undefined);
+		});
+		// The highest number is read again: 7 is taken now if that save went through
+		mockNextNumber.nextNumber = 8;
+		rendered.rerender();
+		return rendered;
+	}
+
+	it('keeps the number of a save whose outcome is unknown: a second try cannot create a second invoice', async () => {
+		const lostAnswer = ApiErrorService.fromAxiosError({ code: 'ERR_NETWORK', message: 'Network Error' });
+
+		const { result } = await renderAfterFailedSave(lostAnswer);
+
+		expect(mockCreateInvoice.mock.calls[0][0].invoiceNumber).toBe(7);
+		expect(result.current.numberText).toBe('7');
+	});
+
+	it('moves on to the next free number after the API refused the save', async () => {
+		const refusal = ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code 400',
+			status: 400,
+			response: { data: {}, headers: {}, status: 400, statusText: 'Bad Request' }
+		});
+
+		const { result } = await renderAfterFailedSave(refusal);
+
+		expect(result.current.numberText).toBe('8');
+	});
+});
+
+describe('the issue date a new invoice starts with', () => {
+	afterEach(() => {
+		jest.useRealTimers();
+	});
+
+	it('is today in the time zone of the organisation, even when the browser is still on the day before', () => {
+		// 10:05 UTC is already the 13th on Kiritimati (UTC+14), and still the 12th or earlier in every other zone
+		jest.useFakeTimers({ now: new Date('2026-11-12T10:05:00.000Z'), doNotFake: ['setTimeout', 'setInterval'] });
+		const kiritimatiOrganization = {
+			...tokyoOrganization,
+			timeZone: 'Pacific/Kiritimati',
+			daysUntilDue: 30
+		} as TOrganization;
+
+		const { result } = renderNewInvoice(kiritimatiOrganization);
+
+		expect(result.current.issueDay).toBe('2026-11-13');
+		expect(result.current.dueDay).toBe('2026-12-13');
 	});
 });

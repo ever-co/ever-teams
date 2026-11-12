@@ -8,15 +8,18 @@ import type { TClient } from '@/core/types/schemas';
 interface Deferred<T> {
 	promise: Promise<T>;
 	resolve: (value: T) => void;
+	reject: (error: Error) => void;
 }
 
 /** An answer of the API the test gives when it chooses to. */
 function deferred<T>(): Deferred<T> {
 	let resolve: (value: T) => void = () => undefined;
-	const promise = new Promise<T>((onResolve) => {
+	let reject: (error: Error) => void = () => undefined;
+	const promise = new Promise<T>((onResolve, onReject) => {
 		resolve = onResolve;
+		reject = onReject;
 	});
-	return { promise, resolve };
+	return { promise, resolve, reject };
 }
 
 type MockDialogProps = { open: boolean; children: React.ReactNode };
@@ -138,5 +141,55 @@ describe('a client save that ends after its form was left', () => {
 
 		await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
 		expect(mockToastSuccess).toHaveBeenCalledWith('clients.toasts.CREATED');
+	});
+});
+
+function clientFields() {
+	return [
+		nameField(),
+		screen.getByLabelText<HTMLInputElement>(/common\.EMAIL/),
+		screen.getByLabelText<HTMLInputElement>(/clients\.form\.PHONE/),
+		screen.getByLabelText<HTMLTextAreaElement>(/common\.NOTES/)
+	];
+}
+
+describe('the fields of a client while it is being saved', () => {
+	beforeEach(() => {
+		mockContactService.createClient.mockReset();
+		mockToastSuccess.mockReset();
+	});
+
+	it('cannot be changed until the API answers: the form closes on what was sent', async () => {
+		const creation = deferred<TClient>();
+		mockContactService.createClient.mockReturnValue(creation.promise);
+		renderPage();
+		typeName('Acme');
+		await saveAndWait();
+
+		const editableFields = clientFields().filter((field) => !field.readOnly);
+		expect(editableFields).toEqual([]);
+
+		await act(async () => {
+			creation.resolve(acme);
+			await creation.promise;
+		});
+		await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+	});
+
+	it('can be changed again when the save failed, to correct them', async () => {
+		const creation = deferred<TClient>();
+		mockContactService.createClient.mockReturnValue(creation.promise);
+		renderPage();
+		typeName('Acme');
+		await saveAndWait();
+
+		await act(async () => {
+			creation.reject(new Error('Network Error'));
+			await creation.promise.catch(() => undefined);
+		});
+		await waitFor(() => expect(screen.getByRole('alert').textContent).toBe('clients.form.SAVE_FAILED'));
+
+		const readOnlyFields = clientFields().filter((field) => field.readOnly);
+		expect(readOnlyFields).toEqual([]);
 	});
 });

@@ -7,6 +7,7 @@ import { Badge } from '@/core/components/common/badge';
 import { DashboardSection } from '@/core/components/dashboards/kit/dashboard-layout';
 import { FoldToggle } from '@/core/components/dashboards/kit/fold-toggle';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
+import { Button } from '@/core/components/duplicated-components/_button';
 import type { NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
 import { cn } from '@/core/lib/helpers';
 import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
@@ -92,9 +93,14 @@ export function EarlierInvoices({ invoice }: Readonly<{ invoice: NewInvoiceState
 			<p className="text-xs text-muted-foreground text-pretty">{t('invoices.new.earlier.NOTE')}</p>
 			{invoice.areEarlierLoading && <EarlierSkeleton />}
 			{invoice.haveEarlierFailed && (
-				<p role="alert" className="text-xs text-destructive-ink">
-					{t('invoices.new.earlier.ERROR')}
-				</p>
+				<div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+					<p role="alert" className="text-xs text-destructive-ink">
+						{t('invoices.new.earlier.ERROR')}
+					</p>
+					<Button type="button" variant="outline" size="sm" onClick={() => void invoice.refetchEarlier()}>
+						{t('pages.unauthorized.TRY_AGAIN')}
+					</Button>
+				</div>
 			)}
 			{showsNone && <p className="text-[13px] text-foreground">{t('invoices.new.earlier.NONE')}</p>}
 			{hasInvoices && (

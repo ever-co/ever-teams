@@ -25,6 +25,7 @@ import {
 	type NamedInvoiceLine,
 	type UnpricedTime
 } from '@/core/lib/utils/invoices';
+import { clientIdOf } from '@/core/lib/utils/project-list';
 import { isRatesReadUnavailable } from '@/core/lib/utils/rates';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { TOrganizationProject } from '@/core/types/schemas';
@@ -58,6 +59,7 @@ interface EmployeeOfReport extends EmployeeBillingRate {
 interface ProjectRatesState {
 	rates: TProjectRates | null;
 	isLoading: boolean;
+	isRefreshing: boolean;
 	hasFailed: boolean;
 }
 
@@ -78,6 +80,7 @@ function projectRatesStatesOf(results: ReadonlyArray<UseQueryResult<TProjectRate
 		return {
 			rates: result.data ?? null,
 			isLoading: result.isLoading,
+			isRefreshing: result.isFetching && !result.isLoading,
 			hasFailed: result.isError && !isUnavailable
 		};
 	});
@@ -184,7 +187,7 @@ export function useInvoiceTime({
 		if (!clientId) {
 			return [];
 		}
-		return organizationProjects.filter((project) => project.organizationContactId === clientId);
+		return organizationProjects.filter((project) => clientIdOf(project) === clientId);
 	}, [clientId, organizationProjects]);
 	const clientProjectsById = useMemo(() => projectsById(clientProjects), [clientProjects]);
 	const projectIds = useMemo(() => sortedIdsOf(clientProjectsById.keys()), [clientProjectsById]);
@@ -299,7 +302,11 @@ export function useInvoiceTime({
 	const isLoading = isReadingAny || isReadingRates;
 	const hasReadFailed = haveProjectsFailed || hasTimeFailed;
 	const isError = hasReadFailed || haveRatesFailed;
-	const isUpdating = logsQuery.isFetching && !logsQuery.isLoading;
+	const isRefreshingLogs = logsQuery.isFetching && !logsQuery.isLoading;
+	const isRefreshingEmployees = employeesQuery.isFetching && !employeesQuery.isLoading;
+	const isRefreshingRates = ratesStates.some((state) => state.isRefreshing);
+	// A read again keeps showing its previous answer: the lines, their rates and their names can still change.
+	const isUpdating = isRefreshingLogs || isRefreshingEmployees || isRefreshingRates;
 
 	const refetchProjects = projectsQuery.refetchOrganizationProjects;
 	const refetchLogs = logsQuery.refetch;

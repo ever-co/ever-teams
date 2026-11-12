@@ -25,7 +25,7 @@ import type { InvoiceAction } from '@/core/lib/utils/invoice-actions';
 import type { TInvoice } from '@/core/types/schemas/organization/invoice.schema';
 import type { InvoiceActionTarget } from './invoice-action-dialogs';
 import { InvoiceActionsMenu } from './invoice-actions-menu';
-import { LEDGER_ROW_GRID, LEDGER_SURFACE } from './invoices-ledger-recipes';
+import { LEDGER_ROW_DETAILS, LEDGER_ROW_GRID, LEDGER_SURFACE } from './invoices-ledger-recipes';
 
 const STATUS_LABEL_KEYS: Record<InvoiceStatus, DottedLanguageObjectStringPaths> = {
 	DRAFT: 'invoices.status.DRAFT',
@@ -145,6 +145,11 @@ const InvoiceRow = memo(function InvoiceRow({
 	}
 	const numberLabel = t('invoices.NUMBER', { number: numberText ?? '' });
 	const downloadLabel = t('invoices.DOWNLOAD_PDF_OF', { number: numberText ?? '' });
+	const periodLabel = periodText ?? t('invoices.NO_PERIOD');
+	let dueLabel = t('invoices.NO_DUE_DATE');
+	if (dueText) {
+		dueLabel = t('invoices.DUE_ON', { date: dueText });
+	}
 
 	return (
 		<li className={cn(LEDGER_ROW_GRID, 'min-h-14 px-3 py-2')}>
@@ -199,6 +204,9 @@ const InvoiceRow = memo(function InvoiceRow({
 						/>
 					</span>
 				)}
+			</span>
+			<span className={cn(LEDGER_ROW_DETAILS, 'text-xs tabular-nums text-muted-foreground')}>
+				{periodLabel} · {dueLabel}
 			</span>
 		</li>
 	);
