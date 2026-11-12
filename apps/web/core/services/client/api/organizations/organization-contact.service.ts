@@ -22,6 +22,8 @@ interface GetClientsOptions {
 	/** Archived clients come with the active ones, told apart by `deletedAt`. */
 	includeArchived?: boolean;
 	signal?: AbortSignal;
+	/** The organization and tenant the caller's cache key holds; the cookies' when left out. */
+	scope?: ClientsScope;
 }
 
 interface ClientsScope {
@@ -55,11 +57,11 @@ class OrganizationContactService extends APIService {
 	/**
 	 * The organization's clients, by name. Active ones only unless `includeArchived` is set.
 	 */
-	getClients = async ({ includeArchived = false, signal }: GetClientsOptions = {}): Promise<TClient[]> => {
+	getClients = async ({ includeArchived = false, signal, scope: keyScope }: GetClientsOptions = {}): Promise<TClient[]> => {
 		try {
 			// Choosing a team of another organization changes the cookies between two pages: every page keeps the
 			// organization the read started in, so one list never mixes the clients of two organizations.
-			const scope: ClientsScope = { organizationId: this.organizationId, tenantId: this.tenantId };
+			const scope: ClientsScope = keyScope ?? { organizationId: this.organizationId, tenantId: this.tenantId };
 			const clients: TClient[] = [];
 			for (let page = 1; page <= CLIENTS_MAX_PAGES; page += 1) {
 				const query = this.clientsPageQuery(page, includeArchived, scope);

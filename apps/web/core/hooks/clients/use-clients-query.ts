@@ -24,7 +24,13 @@ export function useClientsQuery({ includeArchived = false, enabled = true }: Use
 
 	const query = useQuery({
 		queryKey: queryKeys.clients.list(tenantId, organizationId, includeArchived),
-		queryFn: ({ signal }) => organizationContactService.getClients({ includeArchived, signal }),
+		queryFn: ({ signal }) =>
+			organizationContactService.getClients({
+				includeArchived,
+				signal,
+				// The scope the key names, not the cookies read when the query runs: another tab may have switched them
+				scope: tenantId && organizationId ? { organizationId, tenantId } : undefined
+			}),
 		enabled: enabled && hasScope
 	});
 
