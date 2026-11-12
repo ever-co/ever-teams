@@ -143,6 +143,23 @@ afterEach(() => {
 	jest.useRealTimers();
 });
 
+describe('createDocsLiveMemory', () => {
+	it('never evicts a document holding unsent edits, however many pages are opened after it', () => {
+		const memory = createDocsLiveMemory(8);
+		const leftOffline = new Y.Doc();
+		memory.set('left-offline', { doc: leftOffline, lineage: 'l:1', unsent: true });
+		for (let index = 0; index < 8; index += 1) memory.set(`page-${index}`, { doc: new Y.Doc(), lineage: 'l:1' });
+
+		expect(memory.hasUnsent()).toBe(true);
+		expect(memory.get('left-offline')?.doc).toBe(leftOffline);
+		// The limit still holds for the others: the least recently used of them goes.
+		memory.set('page-8', { doc: new Y.Doc(), lineage: 'l:1' });
+		expect(memory.get('page-0')).toBeUndefined();
+		expect(memory.get('page-8')).toBeDefined();
+		expect(memory.get('left-offline')?.unsent).toBe(true);
+	});
+});
+
 describe('DocsLiveBinding', () => {
 	it('binds an empty document and fills it from the sync frame only, never from the stored page', async () => {
 		const transport = new FakeTransport();
@@ -528,6 +545,120 @@ describe('DocsLiveBinding', () => {
 		landFirst();
 		await jest.advanceTimersByTimeAsync(0);
 		expect(memory.get(key)?.unsent).toBe(true);
+	});
+
+	it('keeps the document of edits live editing stopped with until the page view holds them as its draft', async () => {
+		const memory = createDocsLiveMemory();
+		const key = `${ME.id}:${PAGE}`;
+		const transport = new FakeTransport();
+		const binding = bind(transport, { memory });
+		await settle();
+		transport.play(syncFrame(serverWith('Start')));
+		const { doc } = binding.getSnapshot();
+
+		addParagraph(doc, 'Still in the batch window');
+		transport.play({ kind: 'closed', reason: 'shutdown' });
+		expect(binding.getSnapshot()).toMatchObject({ state: 'fallback', unsentEdits: true });
+		// The page is read again before the view takes the edits: their document stays, and the tab warns on close.
+		expect(memory.get(key)).toMatchObject({ doc, unsent: true });
+		expect(memory.hasUnsent()).toBe(true);
+
+		binding.draftAdopted();
+		expect(memory.get(key)).toBeUndefined();
+		expect(memory.hasUnsent()).toBe(false);
+	});
+
+	it('leaves the edits of a view left before it took them as its draft to the next visit', async () => {
+		const memory = createDocsLiveMemory();
+		const server = serverWith('Start');
+		const transport = new FakeTransport();
+		const first = bind(transport, { memory });
+		await settle();
+		transport.play(syncFrame(server));
+		addParagraph(first.getSnapshot().doc, 'Typed before the close');
+		transport.play({ kind: 'closed', reason: 'shutdown' });
+		// The view leaves during the reread (or the page is locked): the draft is never taken.
+		first.destroy();
+		expect(memory.hasUnsent()).toBe(true);
+
+		const again = new FakeTransport();
+		const second = bind(again, { memory });
+		expect(textOf(second.getSnapshot().doc)).toContain('Typed before the close');
+		await settle();
+		again.play(syncFrame(server));
+		expect(textOf(serverAfter(server, again))).toContain('Typed before the close');
+		await expect(second.whenConfirmed()).resolves.toBe(true);
+	});
+
+	it('answers once the platform confirmed the edits made so far, after a reconnect too', async () => {
+		const server = serverWith('Start');
+		const transport = new FakeTransport();
+		const binding = bind(transport);
+		await settle();
+		transport.play(syncFrame(server));
+		const { doc } = binding.getSnapshot();
+		await expect(binding.whenConfirmed()).resolves.toBe(true);
+
+		let answer: boolean | null = null;
+		addParagraph(doc, 'A block given its anchor');
+		void binding.whenConfirmed().then((confirmed) => (answer = confirmed));
+		await jest.advanceTimersByTimeAsync(0);
+		expect(answer).toBeNull();
+		await jest.advanceTimersByTimeAsync(75);
+		expect(answer).toBe(true);
+
+		// The session is down: the edit waits for the next one.
+		transport.current.sink.complete();
+		addParagraph(doc, 'Typed while reconnecting');
+		answer = null;
+		void binding.whenConfirmed().then((confirmed) => (answer = confirmed));
+		await jest.advanceTimersByTimeAsync(1_000);
+		expect(binding.getSnapshot().state).toBe('reconnecting');
+		expect(answer).toBeNull();
+		transport.play(syncFrame(serverAfter(server, transport)));
+		await jest.advanceTimersByTimeAsync(0);
+		expect(answer).toBe(true);
+	});
+
+	it('answers false when the edits are not confirmed: the wait runs out, live editing stops, or the view leaves', async () => {
+		const transport = new FakeTransport();
+		const binding = bind(transport);
+		await settle();
+		transport.play(syncFrame(serverWith('Start')));
+		transport.current.sink.complete();
+		addParagraph(binding.getSnapshot().doc, 'Never sent');
+
+		const outOfTime = binding.whenConfirmed(5_000);
+		await jest.advanceTimersByTimeAsync(5_000);
+		await expect(outOfTime).resolves.toBe(false);
+
+		const stopped = binding.whenConfirmed();
+		transport.play({ kind: 'closed', reason: 'shutdown' });
+		await expect(stopped).resolves.toBe(false);
+		await expect(binding.whenConfirmed()).resolves.toBe(false);
+
+		const other = new FakeTransport();
+		other.updateAnswer = () => new Promise(() => undefined);
+		const left = bind(other);
+		await settle();
+		other.play(syncFrame(serverWith('Start')));
+		addParagraph(left.getSnapshot().doc, 'On its way');
+		const leaving = left.whenConfirmed();
+		left.destroy();
+		await expect(leaving).resolves.toBe(false);
+	});
+
+	it('answers false at once when the platform refuses the edits as read-only', async () => {
+		const transport = new FakeTransport();
+		const binding = bind(transport);
+		await settle();
+		transport.play(syncFrame(serverWith('Start')));
+		transport.updateAnswer = () =>
+			Promise.reject({ statusCode: 403, errorCode: 'DOCS_LIVE_READ_ONLY', details: { reason: 'locked' } });
+		addParagraph(binding.getSnapshot().doc, 'Refused');
+		const waited = binding.whenConfirmed();
+		await jest.advanceTimersByTimeAsync(75);
+		await expect(waited).resolves.toBe(false);
 	});
 
 	it('follows a changed name in the presence it sends, in the same session', async () => {
