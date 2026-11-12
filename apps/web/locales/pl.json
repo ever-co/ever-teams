@@ -2586,6 +2586,7 @@
 		"START_TIMER": "Proszę wybrać lub utworzyć nowe zadanie, aby rozpocząć śledzenie czasu lub utwórz plan",
 		"ALREADY_TRACKING_MESSAGE": "Już śledzisz czas w innej karcie lub urządzeniu.",
 		"TRACKING_DISABLED_MESSAGE": "Śledzenie czasu jest dla Ciebie wyłączone. Administrator organizacji może je włączyć.",
+		"TRACKING_OFF": "Śledzenie wyłączone",
 		"REQUIRED_TEAM_MESSAGE": "Twoja organizacja wymaga zespołu przy każdym timerze. Otwórz jeden ze swoich zespołów i uruchom ponownie.",
 		"REQUIRED_PROJECT_MESSAGE": "Twoja organizacja wymaga projektu przy każdym timerze. Przypisz zadanie do projektu albo nadaj zespołowi domyślny projekt i uruchom ponownie.",
 		"REQUIRED_TEAM_AND_PROJECT_MESSAGE": "Twoja organizacja wymaga zespołu i projektu przy każdym timerze. Otwórz jeden ze swoich zespołów, przypisz zadanie do projektu i uruchom ponownie.",

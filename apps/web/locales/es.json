@@ -2586,6 +2586,7 @@
 		"START_TIMER": "Por favor, selecciona o crea una nueva tarea para comenzar a rastrear el tiempo o crear un plan",
 		"ALREADY_TRACKING_MESSAGE": "Ya estás rastreando el tiempo en otra pestaña o dispositivo.",
 		"TRACKING_DISABLED_MESSAGE": "El seguimiento del tiempo está desactivado para ti. Un administrador de la organización puede activarlo.",
+		"TRACKING_OFF": "Seguimiento desactivado",
 		"REQUIRED_TEAM_MESSAGE": "Tu organización exige un equipo en cada temporizador. Abre uno de tus equipos y vuelve a iniciarlo.",
 		"REQUIRED_PROJECT_MESSAGE": "Tu organización exige un proyecto en cada temporizador. Pon la tarea en un proyecto o da al equipo un proyecto predeterminado y vuelve a iniciarlo.",
 		"REQUIRED_TEAM_AND_PROJECT_MESSAGE": "Tu organización exige un equipo y un proyecto en cada temporizador. Abre uno de tus equipos, pon la tarea en un proyecto y vuelve a iniciarlo.",
