@@ -6191,6 +6191,8 @@
 		"DELETE_FOREVER_TITLE": "¿Eliminar esta tarea para siempre?",
 		"DELETE_FOREVER_TEXT": "«{title}» se eliminará para siempre. No se puede deshacer.",
 		"DELETED_FOREVER": "«{title}» se eliminó para siempre",
+		"NO_LONGER_IN_TRASH": "«{title}» ya no está en la papelera: se restauró o se eliminó mientras tanto. La lista se ha actualizado.",
+		"STILL_LINKED": "«{title}» sigue en la papelera: otras tareas o resultados clave siguen vinculados a ella. Quita primero esos vínculos.",
 		"DELETE_FAILED": "No se eliminó la tarea. Inténtalo de nuevo.",
 		"DELETED_BY": "Eliminada por {name} · {date}",
 		"DELETED_AT": "Eliminada {date}",

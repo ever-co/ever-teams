@@ -16,7 +16,8 @@ export const TASK_TRASH_SEARCH_MAX_LENGTH = 200;
 /**
  * Client for the task trash: the platform's list of soft-deleted tasks (`GET /tasks/trash`, behind
  * `GAUZY_TASK_TRASH_ENABLED`), moving a task there (`DELETE /tasks/:id/soft`), restoring it (`PUT /tasks/:id/recover`)
- * and deleting it for good (`DELETE /tasks/:id`). Each takes the grants a delete takes on the platform.
+ * and deleting it for good while it is still there (`DELETE /tasks/:id/trashed`). Each takes the grants a delete takes
+ * on the platform.
  */
 class TaskTrashService extends APIService {
 	/** Whether the platform keeps a trash, per tenant and organization, once it answered clearly. */
@@ -87,9 +88,15 @@ class TaskTrashService extends APIService {
 		await this.put(`/tasks/${encodeURIComponent(taskId)}/recover?${qs.stringify(scope)}`);
 	};
 
-	/** Deletes a task for good: it cannot be restored afterwards. */
-	deleteForever = async (taskId: string): Promise<DeleteResponse> => {
-		const response = await this.delete<DeleteResponse>(`/tasks/${encodeURIComponent(taskId)}`);
+	/**
+	 * Deletes a task for good, only while it is in the organization's trash: it cannot be restored afterwards. A task
+	 * someone restored (or deleted) since the trash was read is left alone and the platform answers 404, which
+	 * `trashDeleteFailureOf` reads; the plain `DELETE /tasks/:id` would delete a restored, live task.
+	 */
+	deleteForever = async (taskId: string, scope: IEntityRecordScope): Promise<DeleteResponse> => {
+		const response = await this.delete<DeleteResponse>(
+			`/tasks/${encodeURIComponent(taskId)}/trashed?${qs.stringify(scope)}`
+		);
 
 		return response.data;
 	};

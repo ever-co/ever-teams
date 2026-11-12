@@ -6191,6 +6191,8 @@
 		"DELETE_FOREVER_TITLE": "Deze taak definitief verwijderen?",
 		"DELETE_FOREVER_TEXT": "‘{title}’ wordt definitief verwijderd. Dit kan niet ongedaan worden gemaakt.",
 		"DELETED_FOREVER": "‘{title}’ is definitief verwijderd",
+		"NO_LONGER_IN_TRASH": "‘{title}’ staat niet meer in de prullenbak: de taak is intussen teruggezet of verwijderd. De lijst is bijgewerkt.",
+		"STILL_LINKED": "‘{title}’ blijft in de prullenbak: andere taken of kernresultaten zijn er nog aan gekoppeld. Verwijder eerst die koppelingen.",
 		"DELETE_FAILED": "De taak is niet verwijderd. Probeer het opnieuw.",
 		"DELETED_BY": "Verwijderd door {name} · {date}",
 		"DELETED_AT": "Verwijderd {date}",
