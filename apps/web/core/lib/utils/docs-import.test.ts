@@ -1,3 +1,4 @@
+// cspell:ignore plán
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { EDocumentKind } from '@/core/types/interfaces/common/docs';
