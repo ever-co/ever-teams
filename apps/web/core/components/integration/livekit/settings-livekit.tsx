@@ -12,6 +12,9 @@ export interface SettingsMenuProps extends React.HTMLAttributes<HTMLDivElement> 
 
 type SettingsTab = 'media' | 'effects';
 
+/** Whether the room starts with the background noise filter on: the person's choice in the video and audio settings. */
+export const NoiseFilterChoiceContext = React.createContext(true);
+
 const SECTION_TITLE = 'text-xs font-medium uppercase tracking-wide text-muted-foreground';
 
 function DeviceRow({ title, children }: Readonly<{ title: string; children: React.ReactNode }>) {
@@ -30,7 +33,8 @@ export function SettingsMenu({ className, ...props }: Readonly<SettingsMenuProps
 	const layoutContext = useMaybeLayoutContext();
 	const { microphoneTrack } = useLocalParticipant();
 	const [activeTab, setActiveTab] = React.useState<SettingsTab>('media');
-	const [isNoiseFilterEnabled, setIsNoiseFilterEnabled] = React.useState(true);
+	const isNoiseFilterChosen = React.useContext(NoiseFilterChoiceContext);
+	const [isNoiseFilterEnabled, setIsNoiseFilterEnabled] = React.useState(isNoiseFilterChosen);
 	const [isNoiseFilterSupported, setIsNoiseFilterSupported] = React.useState(true);
 	const [isLinkCopied, setIsLinkCopied] = React.useState(false);
 

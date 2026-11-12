@@ -52,3 +52,9 @@
   `NEXT_PUBLIC_CHAT_LINK_PREVIEW_IMAGES_ENABLED` (off by default, needs the
   previews on); the platform's route needs
   `GAUZY_CHAT_LINK_PREVIEW_IMAGES_ENABLED=true`
+- [x] T17 Platform gaps (ever-gauzy #11800): editable task cards (status,
+  priority and assignees in place, through `PATCH /chat/messages/:id/tasks/:taskId`,
+  FR-14), "is typing" under the timeline and under a thread (`typing.signalled`),
+  messages of files only (empty body, `📎 names` in previews), unsent uploads
+  discarded (`DELETE /chat/attachments/:documentId`), `chatService.reorderCategories`
+  (no ordering UI yet), thumbnails sized from the files' `width` / `height` (#5072)

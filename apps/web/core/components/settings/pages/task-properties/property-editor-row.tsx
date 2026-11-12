@@ -94,7 +94,8 @@ export function PropertyEditorRow({
 
 	const changeIcon = (icon: string) => {
 		setIsIconPicked(true);
-		setDraft((current) => ({ ...current, icon }));
+		// The URL Gauzy gave belongs to the stored icon only
+		setDraft((current) => ({ ...current, icon, iconUrl: null }));
 	};
 
 	const changeTemplate = (template: ETaskStatusName | null) => {
@@ -139,7 +140,9 @@ export function PropertyEditorRow({
 			className="flex flex-col gap-3 bg-foreground/[0.025] px-4 py-3"
 		>
 			<div className="flex items-start gap-2">
-				{hasIconPicker(kind) && <PropertyIconPicker kind={kind} value={draft.icon} onChange={changeIcon} />}
+				{hasIconPicker(kind) && (
+					<PropertyIconPicker kind={kind} value={draft.icon} valueUrl={draft.iconUrl} onChange={changeIcon} />
+				)}
 				<div className="flex min-w-0 flex-1 flex-col gap-1">
 					<label htmlFor={nameId} className="sr-only">
 						{t('common.NAME')}
@@ -198,6 +201,7 @@ export function PropertyEditorRow({
 							name={draft.name}
 							color={draft.color}
 							icon={draft.icon}
+							iconUrl={draft.iconUrl}
 							placeholder={namePlaceholder}
 						/>
 					</div>

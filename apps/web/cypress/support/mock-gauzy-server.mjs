@@ -226,9 +226,13 @@ function buildData(fixture, scenario, requestUrl, requestTenantId) {
 		duration: 0,
 		running: scenario.timerRunning === true,
 		lastLog: {
-			source: 'TEAMS',
+			// `scenario.timerLogId`: the run's time log, which the platform's own reminders name (#5022)
+			...(scenario.timerLogId ? { id: scenario.timerLogId } : {}),
+			// `scenario.timerSource`: a timer started elsewhere, the desktop app's (#5022)
+			source: scenario.timerSource ?? 'TEAMS',
 			taskId: ids.task,
-			startedAt: new Date().toISOString()
+			// `scenario.timerStartedAt`: a run started long ago, the same at every read (#5022 reminders)
+			startedAt: scenario.timerStartedAt ?? new Date().toISOString()
 		},
 		lastWorkedTask: task
 	};
@@ -556,6 +560,60 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body,
 	if (pathname === '/api/task-related-issue-types') return data.metadata.relatedIssueTypes;
 	if (pathname === '/api/tags' || pathname === '/api/tags/level') return data.metadata.taskLabels;
 
+	// The employee's notification preferences: one row, kept as saved; `scenario.notificationPreferences` seeds it, and
+	// `scenario.notificationSettingFails` makes Gauzy refuse to read them
+	const seededNotificationSetting = state.scenario.notificationPreferences
+		? {
+				id: 'notification-setting-1',
+				employeeId: ids.employee,
+				preferences: state.scenario.notificationPreferences
+			}
+		: null;
+	if (pathname === '/api/employee-notification-setting' && method === 'GET') {
+		if (state.scenario.notificationSettingFails) {
+			return { [HTTP_STATUS]: 500, statusCode: 500, message: 'Internal server error' };
+		}
+		const setting = state.notificationSetting ?? seededNotificationSetting;
+		return pagination(setting ? [setting] : []);
+	}
+	if (pathname === '/api/employee-notification-setting' && method === 'POST') {
+		state.notificationSetting = { id: 'notification-setting-1', employeeId: ids.employee, ...body };
+		return state.notificationSetting;
+	}
+	if (/^\/api\/employee-notification-setting\/[^/]+$/.test(pathname) && method === 'PUT') {
+		// A partial update, as Gauzy's: over the row the reads answer, the seeded one while none was saved
+		state.notificationSetting = {
+			...(state.notificationSetting ?? seededNotificationSetting),
+			...body,
+			id: pathname.split('/').pop()
+		};
+		return state.notificationSetting;
+	}
+
+	// The employee's notifications, newest first: `scenario.notifications` seeds them (the platform's timer reminders,
+	// #5022), narrowed by the record a read names, as Gauzy narrows them by its `where`
+	if (pathname === '/api/employee-notification' && method === 'GET') {
+		const entityId = requestUrl.searchParams.get('where[entityId]');
+		const notifications = (state.scenario.notifications ?? []).filter(
+			(notification) => !entityId || notification.entityId === entityId
+		);
+		return pagination(notifications);
+	}
+	// A seeded notification marked read or archived by its receiver: the tab that showed a timer reminder marks the
+	// platform's copy read (#5022), and the seeded row takes the change as Gauzy's does
+	const markedNotification = /^\/api\/employee-notification\/([^/]+)$/.exec(pathname);
+	if (markedNotification && method === 'PUT') {
+		const notification = (state.scenario.notifications ?? []).find(
+			(candidate) => candidate.id === markedNotification[1]
+		);
+		if (notification) {
+			for (const field of ['isRead', 'readAt', 'isArchived', 'archivedAt']) {
+				if (body && Object.hasOwn(body, field)) notification[field] = body[field];
+			}
+			return notification;
+		}
+	}
+
 	if (pathname === '/api/timesheet/timer/status') return data.timerStatus;
 	if (pathname === '/api/timesheet/timer/start') {
 		state.mutationProof.startedTimer = true;
@@ -620,6 +678,12 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body,
 		return appointment;
 	}
 	const appointmentPath = /^\/api\/employee-appointment\/([^/]+)$/.exec(pathname);
+	if (appointmentPath && method === 'PUT') {
+		// Gauzy updates the fields sent, and answers with the appointment
+		const appointment = state.appointments.find((candidate) => candidate.id === appointmentPath[1]);
+		if (appointment) Object.assign(appointment, body);
+		return appointment ?? { affected: 0, raw: [] };
+	}
 	if (appointmentPath && method === 'DELETE') {
 		state.appointments = state.appointments.filter((appointment) => appointment.id !== appointmentPath[1]);
 		return { affected: 1, raw: [] };
@@ -783,6 +847,7 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			connectConnected: true
 		},
 		everPlatform: { stateReads: 0, toggles: [] },
+		notificationSetting: null,
 		appointments: [],
 		workspaceCreation: {
 			openings: 0,
@@ -903,7 +968,10 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			scenario: jsonClone(state.scenario),
 			mutationProof: jsonClone(state.mutationProof),
 			everPlatform: jsonClone(state.everPlatform),
-			workspaceCreation: jsonClone(state.workspaceCreation)
+			notificationSetting: jsonClone(state.notificationSetting),
+			workspaceCreation: jsonClone(state.workspaceCreation),
+			// What was asked since the reset: method, path and the status answered
+			requests: state.requests.map(({ method, path, status }) => ({ method, path, status }))
 		}),
 		reset: () => {
 			state.requests = [];
@@ -923,6 +991,7 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 				connectConnected: true
 			};
 			state.everPlatform = { stateReads: 0, toggles: [] };
+			state.notificationSetting = null;
 			state.appointments = [];
 			state.workspaceCreation = {
 				openings: 0,

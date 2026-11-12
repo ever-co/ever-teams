@@ -26,6 +26,7 @@ import { ArrowLeft, Check, CircleAlert, Comment, FileText, History, Lock, MoreHo
 import { useDocsAutosave, useEditorPageContent, type DocsSaveState } from '@/core/hooks/docs/use-docs-autosave';
 import { useDocsFollow, type DocsFollowAction, type DocsSpacesState } from '@/core/hooks/docs/use-docs-collaboration';
 import { useDocsComments } from '@/core/hooks/docs/use-docs-comments';
+import { downloadDocsPdf, useDocsPdfAvailability } from '@/core/hooks/docs/use-docs-import';
 import { useDocsLive } from '@/core/hooks/docs/use-docs-live';
 import { useDocsPage, useDocsPath } from '@/core/hooks/docs/use-docs-page';
 import { useDocsRecent } from '@/core/hooks/docs/use-docs-recent';
@@ -37,7 +38,7 @@ import { anchoredBlocksOf, openThreadBlockIds, openThreadOnBlock, threadOfCommen
 import { docsLinkTargetOf, docsPageUrl } from '@/core/lib/utils/docs-links';
 import { documentToMarkdown, markdownFileName, mentionedEmployeeIds } from '@/core/lib/utils/docs-markdown';
 import { DOCS_OUTLINE_SELECTOR, outlineOf, textStatsOf, type DocsOutlineItem } from '@/core/lib/utils/docs-outline';
-import { copyBlockLinkOnceHeld, type DocsPageEdits } from '@/core/lib/utils/docs-page-edits';
+import { copyBlockLinkOnceHeld, holdForExport, type DocsPageEdits } from '@/core/lib/utils/docs-page-edits';
 import { pageTitle } from '@/core/lib/utils/docs-tree';
 import { docsService } from '@/core/services/client/api/docs';
 import { EDocumentKind, EDocumentVisibility, type IDocumentNode, type IDocumentPage } from '@/core/types/interfaces/common/docs';
@@ -76,6 +77,8 @@ export interface DocsPageViewActions {
 	toggleFavorite: (pageId: string) => Promise<unknown>;
 	isFavorite: (pageId: string) => boolean;
 	newSubPage: (page: IDocumentPage) => void;
+	/** Imports an exported workspace under the page; absent while the import is not offered. */
+	importHere?: (page: IDocumentPage) => void;
 }
 
 interface DocsPageViewProps {
@@ -248,6 +251,9 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	const pageWritable = Boolean(page && !page.isArchived && !page.isLocked);
 	const unsentAtFallback = live.mode === 'fallback' && !live.rereading && Boolean(liveSnapshot?.unsentEdits);
 	const fallenDoc = unsentAtFallback ? (liveSnapshot?.doc ?? null) : null;
+	// Edits remembered from an earlier visit reach the platform only with the session's first sync, and until then the
+	// page's edits read as the autosave's: an export of the saved text would leave them out.
+	const unsentBeforeSync = Boolean(liveSnapshot && !liveSnapshot.synced && liveSnapshot.unsentEdits);
 	const liveBinding = live.binding;
 	useEffect(() => {
 		if (isLiveEditing && liveClockRef.current === null) liveClockRef.current = pageClock;
@@ -588,6 +594,27 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 
 	// ---------------------------------------------------------------- export and link
 
+	// The platform's PDF export (its probe answers 404 while it is off): the page, or the page with its sub-pages.
+	// The platform renders the text as saved: the page's pending edits are saved (or confirmed live) first, or nothing
+	// is exported. Text a fallen-back live session left is not the autosave's yet while the page is read again or the
+	// text is being adopted (or failed to be): nothing is exported then either.
+	const pdfAvailable = useDocsPdfAvailability(true);
+	const [pdfBusy, setPdfBusy] = useState(false);
+	const exportPdf = async (subtree: boolean) => {
+		if (!page || pdfBusy) return;
+		setPdfBusy(true);
+		try {
+			if (!(await holdForExport(pageEdits, live.rereading || awaitingAdoption || unsentBeforeSync))) {
+				toast.error(t('docs.EXPORT_UNSAVED'));
+				return;
+			}
+			const result = await downloadDocsPdf(page.id, { subtree });
+			if (!result.ok) toast.error(t(result.status === 413 ? 'docs.PDF_TOO_MANY_PAGES' : 'docs.PDF_ERROR'));
+		} finally {
+			setPdfBusy(false);
+		}
+	};
+
 	const exportMarkdown = () => {
 		if (!page) return;
 		const json = editorApi?.getJson() ?? page.contentJson ?? null;
@@ -606,15 +633,16 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 		copyText(`${window.location.origin}${window.location.pathname}`);
 	};
 
-	// The page and its sub-pages as a zip of Markdown files, from the platform (the text as saved: a pending draft first).
+	// The page and its sub-pages as a zip of Markdown files, from the platform (the text as saved: pending edits first).
 	const [isExporting, setIsExporting] = useState(false);
 	const exportSubtree = async () => {
 		if (!page || isExporting) return;
 		setIsExporting(true);
 		const toastId = toast.loading(t('docs.EXPORTING'));
 		try {
-			// The zip is of the text as saved: the person's latest text goes first, or nothing is exported.
-			if (!isLiveEditing && !(await saveDraftNow())) {
+			// The zip is of the text as saved: the person's latest edits are saved (or confirmed live, a reconnecting
+			// session's included) first, or nothing is exported.
+			if (!(await holdForExport(pageEdits, live.rereading || awaitingAdoption || unsentBeforeSync))) {
 				toast.error(t('docs.EXPORT_UNSAVED'), { id: toastId });
 				return;
 			}
@@ -838,7 +866,20 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 											{t('docs.EXPORT_WITH_SUB_PAGES')}
 										</DropdownMenuItem>
 									)}
+									{pdfAvailable && (
+										<>
+											<DropdownMenuItem disabled={pdfBusy} onClick={() => void exportPdf(false)}>
+												{t('docs.EXPORT_PDF')}
+											</DropdownMenuItem>
+											{hasChildren && (
+												<DropdownMenuItem disabled={pdfBusy} onClick={() => void exportPdf(true)}>
+													{t('docs.EXPORT_PDF_WITH_SUB_PAGES')}
+												</DropdownMenuItem>
+											)}
+										</>
+									)}
 									<DropdownMenuItem onClick={() => window.print()}>{t('docs.PRINT')}</DropdownMenuItem>
+									{actions.importHere && <DropdownMenuItem onClick={() => actions.importHere?.(page)}>{t('docs.IMPORT.HERE')}</DropdownMenuItem>}
 								</>
 							)}
 							<DropdownMenuSeparator />

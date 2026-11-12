@@ -1,3 +1,4 @@
+import type { AxiosProgressEvent } from 'axios';
 import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
@@ -16,10 +17,22 @@ class ImageAssetsService extends APIService {
 	 *
 	 * @param file - The file to upload
 	 * @param folder - The folder to upload to
+	 * @param onUploadProgress - Told how much of the file was sent, for a progress bar
+	 * @param signal - Cancels the upload
 	 * @returns Promise<TImageAsset> - Validated image asset data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	uploadImageAsset = async ({ file, folder }: { file: File; folder: string }): Promise<TImageAsset> => {
+	uploadImageAsset = async ({
+		file,
+		folder,
+		onUploadProgress,
+		signal
+	}: {
+		file: File;
+		folder: string;
+		onUploadProgress?: (progress: AxiosProgressEvent) => void;
+		signal?: AbortSignal;
+	}): Promise<TImageAsset> => {
 		const bearer_token = getAccessTokenCookie();
 		const formData = new FormData();
 		formData.append('file', file);
@@ -30,7 +43,9 @@ class ImageAssetsService extends APIService {
 			headers: {
 				'tenant-id': this.tenantId,
 				Authorization: `Bearer ${bearer_token}`
-			}
+			},
+			onUploadProgress,
+			signal
 		});
 
 		try {

@@ -23,6 +23,14 @@ jest.mock('@/core/hooks/common/use-image-assets', () => ({
 jest.mock('@/core/hooks/organizations/teams/use-organization-teams-employee', () => ({
 	useOrganizationEmployeeTeams: () => ({ updateOrganizationTeamEmployee: jest.fn() })
 }));
+// The own tracking switch reads the permissions and saves the employee's switch through these (#5015); these tests
+// save none
+jest.mock('@/core/hooks/organizations/employees/use-employee', () => ({
+	useEmployeeUpdate: () => ({ updateEmployeeAsync: jest.fn() })
+}));
+jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
+	useMyRolePermissionsQuery: () => ({ myPermissions: [], isSuccess: true, isLoaded: true })
+}));
 jest.mock('@/core/hooks/organizations/teams/use-team-member', () => ({
 	useIsMemberManager: () => ({ isTeamManager: true, activeManager: null })
 }));
