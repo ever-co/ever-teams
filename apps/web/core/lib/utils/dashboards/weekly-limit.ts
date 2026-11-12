@@ -9,7 +9,13 @@ import {
 } from '@/core/lib/utils/dashboard-figures';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { formatPeriod, type Period } from '@/core/lib/utils/dashboard-period';
-import { dateFormatOf, localeKeyOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
+import {
+	dateFormatOf,
+	hasNumberFormat,
+	localeKeyOf,
+	numberFormatOf,
+	type FormatLocale
+} from '@/core/lib/utils/workspace-formats';
 
 export type LimitDuration = 'day' | 'week';
 
@@ -477,6 +483,25 @@ export function limitShareLabelOf(share: number, verdict: LimitVerdict): string 
 	const roundsUp = rounded > share;
 	const tenth = tenthTowardVerdict(share, roundsUp);
 	return `${tenth.toFixed(1)}%`;
+}
+
+const PDF_SHARE_OPTIONS: Intl.NumberFormatOptions = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+
+/**
+ * The share of the limit in the PDF documents: `12.50%`, as they have always written it, and `12,50%` with the
+ * marks of the number format a workspace chose.
+ */
+export function pdfShareOf(share: number, locale?: FormatLocale): string {
+	const plainShare = `${share.toFixed(2)}%`;
+	if (!locale) {
+		return plainShare;
+	}
+	if (!hasNumberFormat(locale)) {
+		return plainShare;
+	}
+	const format = numberFormatOf(locale, PDF_SHARE_OPTIONS);
+	const amount = format.format(share);
+	return `${amount}%`;
 }
 
 export function clockHoursOf(seconds: number): string {

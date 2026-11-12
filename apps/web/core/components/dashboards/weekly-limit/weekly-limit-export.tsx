@@ -195,7 +195,8 @@ async function pdfDocumentOf({ shown, groups, grouping, title, locale, t }: PdfI
 		},
 		displayMode: 'date' as const,
 		organizationLimits: { date: shown.standardLimit, week: shown.standardLimit },
-		title
+		title,
+		locale
 	};
 	if (grouping === 'member') {
 		const { WeeklyLimitByEmployeePDFDocument } =

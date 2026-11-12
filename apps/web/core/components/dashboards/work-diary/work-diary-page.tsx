@@ -179,6 +179,7 @@ function DiaryDayView({
 function WorkDiaryPageContent() {
 	const t = useTranslations();
 	const locale = useLocale();
+	const workspaceLocale = useWorkspaceLocale();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const page = useWorkDiaryPage();
 	const formats = useDayFormats();
@@ -216,7 +217,7 @@ function WorkDiaryPageContent() {
 	let meta = formats.long.format(page.day);
 	let isBodyLoading = page.isLogsLoading;
 	if (isWeekView) {
-		meta = formatPeriod(page.week, locale);
+		meta = formatPeriod(page.week, workspaceLocale);
 		isBodyLoading = page.weekSheet.isLoading;
 	}
 	const viewItems = [

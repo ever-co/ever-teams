@@ -6,7 +6,8 @@ import { renameTenantRequest } from '@/core/services/server/requests/tenant';
 
 /**
  * Proxy mode twin of Gauzy's `PUT /tenant`, for the workspace's name alone. Gauzy renames the tenant of the session
- * and lets its super admin alone do it: anyone else gets its 403.
+ * and lets its super admin alone do it: anyone else gets its 403. A caller that names another tenant than the
+ * session's gets a 409 and nothing is renamed.
  */
 export async function PUT(req: Request) {
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, new NextResponse());
@@ -17,7 +18,13 @@ export async function PUT(req: Request) {
 	if (!parsedBody.success) {
 		return NextResponse.json({ message: 'A workspace name of 1 to 60 characters is required' }, { status: 400 });
 	}
-	const name = parsedBody.data.name;
+	const { name, tenantId: meantTenantId } = parsedBody.data;
+	// A page still showing one workspace, after another tab moved the session to a second one, would rename the second
+	const namesTenant = Boolean(meantTenantId);
+	const isSessionTenant = meantTenantId === user.tenantId;
+	if (namesTenant && !isSessionTenant) {
+		return NextResponse.json({ message: 'The session is on another workspace.' }, { status: 409 });
+	}
 
 	try {
 		await renameTenantRequest({ name, bearer_token: access_token, tenantId });

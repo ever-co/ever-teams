@@ -1,11 +1,14 @@
 /** @jest-environment jsdom */
 import type { ReactNode } from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
+import { getDefaultStore } from 'jotai';
 import type { WorkDiaryPageState } from '@/core/hooks/dashboards/work-diary/use-work-diary-page';
 import type { CalendarDay, CalendarEntry } from '@/core/lib/utils/calendar-view';
 import type { AppActivity } from '@/core/lib/utils/dashboards/app-activity';
 import { type DiaryDay, type DiarySlot, diaryTaskCountOf, diaryTasksOf } from '@/core/lib/utils/dashboards/work-diary';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import type { TOrganization } from '@/core/types/schemas/organization/organization.schema';
 
 let mockState: WorkDiaryPageState;
 
@@ -358,6 +361,18 @@ describe('WorkDiaryPage', () => {
 		expect(screen.getByRole('list', { name: 'dashboard.timesheets.diary.DAY_STRIP' })).toBeTruthy();
 		fireEvent.click(screen.getByRole('button', { name: 'common.TODAY' }));
 		expect(mockState.showToday).toHaveBeenCalled();
+	});
+
+	it("writes the dates of the week in the workspace's date format, as it writes the day's", () => {
+		const store = getDefaultStore();
+		store.set(currentOrganizationState, { dateFormat: 'DD/MM/YYYY' } as TOrganization);
+		mockState = stateOf({ view: 'week' });
+		const { unmount } = render(<WorkDiaryPage />);
+
+		// The year shows once the test runs in another year than its week
+		expect(screen.getByText(/^09\/11(\/2026)? – 15\/11(\/2026)?$/)).toBeTruthy();
+		unmount();
+		store.set(currentOrganizationState, null);
 	});
 
 	it("leaves a failed read of the day's logs out of the week view, and keeps no week sheet without a member", () => {

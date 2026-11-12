@@ -16,6 +16,7 @@ let mockWorkspaces: unknown[] = [];
 let mockUser: { id: string; role: { name: string } } | undefined;
 let mockPermissions: string[] = [];
 let mockPermissionsLoading = false;
+let mockSession = { tenantId: 'tenant-a', accessToken: 'token-a' };
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('sonner', () => ({ toast: { error: jest.fn(), success: jest.fn() } }));
@@ -29,7 +30,10 @@ jest.mock('@/core/hooks/queries/user-user.query', () => ({ useUserQuery: () => (
 jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
 	useMyRolePermissionsQuery: () => ({ myPermissions: mockPermissions, isLoading: mockPermissionsLoading })
 }));
-jest.mock('@/core/lib/helpers/cookies', () => ({ getTenantIdCookie: () => 'tenant-a' }));
+jest.mock('@/core/lib/helpers/cookies', () => ({
+	getTenantIdCookie: () => mockSession.tenantId,
+	getAccessTokenCookie: () => mockSession.accessToken
+}));
 jest.mock('@/core/services/client/api/organizations', () => ({
 	organizationService: { updateOrganization: (...args: unknown[]) => mockUpdateOrganization(...args) }
 }));
@@ -59,6 +63,7 @@ function workspaceOf(tenantId: string, name: string) {
 
 const ORGANIZATION_KEY = queryKeys.workspaces.currentOrganizationByScope('tenant-a', 'organization-a');
 const WORKSPACES_KEY = queryKeys.workspaces.byUser('user-a');
+const WORKSPACE_A = expect.objectContaining({ tenantId: 'tenant-a', accessToken: 'token-a' });
 
 function renderSettings(currentOrganization: object | null = organization) {
 	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -91,7 +96,10 @@ beforeEach(() => {
 	mockUser = { id: 'user-a', role: { name: 'SUPER_ADMIN' } };
 	mockPermissions = ['ALL_ORG_EDIT'];
 	mockPermissionsLoading = false;
+	mockSession = { tenantId: 'tenant-a', accessToken: 'token-a' };
+	mockUpdateOrganization.mockReset();
 	mockUpdateOrganization.mockResolvedValue({});
+	mockRenameTenant.mockReset();
 	mockRenameTenant.mockResolvedValue(undefined);
 });
 
@@ -202,6 +210,30 @@ describe('saving the currency and the formats', () => {
 		});
 	});
 
+	it('keeps the organization as the API stored it, with what another admin changed since the page read it', async () => {
+		const pageCopy = {
+			id: 'c9bf9e57-1685-4c89-bafb-ff5af830be8a',
+			name: 'Acme',
+			isDefault: true,
+			profile_link: 'acme',
+			totalEmployees: 3,
+			banner: null,
+			currency: 'USD',
+			dateFormat: null,
+			numberFormat: null
+		};
+		const storedByApi = { ...pageCopy, currency: 'EUR', dateFormat: 'DD/MM/YYYY' };
+		mockUpdateOrganization.mockResolvedValue(storedByApi);
+		const { view, client } = renderSettings(pageCopy);
+
+		await act(async () => {
+			await view.result.current.saveDateFormat('DD/MM/YYYY');
+		});
+
+		const organizationKey = queryKeys.workspaces.currentOrganizationByScope('tenant-a', pageCopy.id);
+		expect(client.getQueryData(organizationKey)).toEqual(storedByApi);
+	});
+
 	it('sends one save at a time, the second with what the first saved', async () => {
 		const firstSave = deferred();
 		mockUpdateOrganization.mockImplementationOnce(() => firstSave.promise);
@@ -278,7 +310,7 @@ describe('renaming the workspace', () => {
 
 		expect(calls).toEqual(['organization', 'tenant']);
 		expect(mockUpdateOrganization).toHaveBeenCalledWith(organization, { name: 'Acme Labs' });
-		expect(mockRenameTenant).toHaveBeenCalledWith('Acme Labs');
+		expect(mockRenameTenant).toHaveBeenCalledWith('Acme Labs', WORKSPACE_A);
 		expect(client.getQueryData(WORKSPACES_KEY)).toEqual([
 			workspaceOf('tenant-a', 'Acme Labs'),
 			workspaceOf('tenant-b', 'Studio')
@@ -297,7 +329,25 @@ describe('renaming the workspace', () => {
 		});
 
 		expect(mockUpdateOrganization).not.toHaveBeenCalled();
-		expect(mockRenameTenant).toHaveBeenCalledWith('Acme');
+		expect(mockRenameTenant).toHaveBeenCalledWith('Acme', WORKSPACE_A);
+	});
+
+	it('renames the workspace the page was showing when another tab moves the session during the save', async () => {
+		mockUpdateOrganization.mockImplementation(async () => {
+			mockSession = { tenantId: 'tenant-b', accessToken: 'token-b' };
+			return {};
+		});
+		const { view, client } = renderSettings();
+
+		await act(async () => {
+			await view.result.current.saveName('Acme Labs');
+		});
+
+		expect(mockRenameTenant).toHaveBeenCalledWith('Acme Labs', WORKSPACE_A);
+		expect(client.getQueryData(WORKSPACES_KEY)).toEqual([
+			workspaceOf('tenant-a', 'Acme Labs'),
+			workspaceOf('tenant-b', 'Studio')
+		]);
 	});
 
 	it('reads the signed-in user again, where the forms that create a project or a team take the name', async () => {
@@ -328,5 +378,80 @@ describe('renaming the workspace', () => {
 			description: 'toasts.REASONS.PERMISSION'
 		});
 		expect(mockToast.success).not.toHaveBeenCalled();
+	});
+});
+
+describe('a rename the tenant does not take', () => {
+	const refusal = Object.assign(new Error('Forbidden resource'), { statusCode: 403 });
+	const renamedOrganization = { ...organization, name: 'Acme Labs' };
+
+	async function failedRename(view: ReturnType<typeof renderSettings>['view'], name: string) {
+		let failure: unknown;
+		await act(async () => {
+			failure = await view.result.current.saveName(name).catch((error) => error);
+		});
+		return failure;
+	}
+
+	it("gives the organization its name back when the tenant's is refused, so no half of the rename stays", async () => {
+		mockRenameTenant.mockRejectedValue(refusal);
+		const { view, client } = renderSettings();
+
+		const failure = await failedRename(view, 'Acme Labs');
+
+		expect(failure).toBe(refusal);
+		expect(mockUpdateOrganization).toHaveBeenCalledTimes(2);
+		expect(mockUpdateOrganization).toHaveBeenNthCalledWith(1, organization, { name: 'Acme Labs' });
+		expect(mockUpdateOrganization).toHaveBeenNthCalledWith(2, renamedOrganization, { name: 'Acme' });
+		expect(client.getQueryData(ORGANIZATION_KEY)).toEqual(organization);
+		expect(mockToast.error).toHaveBeenCalledWith('settings.workspace.NAME_NOT_SAVED', {
+			description: 'toasts.REASONS.PERMISSION'
+		});
+	});
+
+	it('still says why the rename was refused when the name cannot be given back, and a new try finishes it', async () => {
+		mockRenameTenant.mockRejectedValueOnce(refusal);
+		mockUpdateOrganization.mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('Network Error'));
+		const { view, client } = renderSettings();
+
+		const failure = await failedRename(view, 'Acme Labs');
+
+		expect(failure).toBe(refusal);
+		expect(client.getQueryData(ORGANIZATION_KEY)).toEqual(renamedOrganization);
+
+		await act(async () => {
+			await view.result.current.saveName('Acme Labs');
+		});
+
+		expect(mockUpdateOrganization).toHaveBeenCalledTimes(2);
+		expect(mockRenameTenant).toHaveBeenCalledTimes(2);
+		expect(mockToast.success).toHaveBeenCalledWith('settings.workspace.NAME_SAVED', { description: undefined });
+	});
+
+	it('leaves the organization renamed when the tenant rename got no answer: trying again finishes it', async () => {
+		mockRenameTenant.mockRejectedValueOnce(new Error('Network Error'));
+		const { view, client } = renderSettings();
+
+		await failedRename(view, 'Acme Labs');
+
+		expect(mockUpdateOrganization).toHaveBeenCalledTimes(1);
+		expect(client.getQueryData(ORGANIZATION_KEY)).toEqual(renamedOrganization);
+
+		await act(async () => {
+			await view.result.current.saveName('Acme Labs');
+		});
+
+		expect(mockUpdateOrganization).toHaveBeenCalledTimes(1);
+		expect(mockRenameTenant).toHaveBeenCalledTimes(2);
+	});
+
+	it('writes nothing to an organization that already had the name', async () => {
+		mockRenameTenant.mockRejectedValue(refusal);
+		mockWorkspaces = [workspaceOf('tenant-a', 'ada@ever.co')];
+		const { view } = renderSettings();
+
+		await failedRename(view, 'Acme');
+
+		expect(mockUpdateOrganization).not.toHaveBeenCalled();
 	});
 });

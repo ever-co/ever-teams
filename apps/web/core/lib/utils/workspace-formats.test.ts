@@ -2,6 +2,8 @@ import {
 	WORKSPACE_DATE_FORMATS,
 	WORKSPACE_NUMBER_FORMATS,
 	dateFormatOf,
+	hasDateFormat,
+	hasNumberFormat,
 	localeTagOf,
 	numberFormatOf,
 	workspaceDateFormatOf,
@@ -48,6 +50,18 @@ describe('the formats an organization stores', () => {
 	it('gives the language tag of a bare language and of a workspace locale', () => {
 		expect(localeTagOf('fr')).toBe('fr');
 		expect(localeTagOf(localeOf('de', 'DD.MM.YYYY'))).toBe('de');
+	});
+
+	it('tells a workspace that chose a date format from a bare language and from one that chose none', () => {
+		expect(hasDateFormat(localeOf('fr', 'DD/MM/YYYY'))).toBe(true);
+		expect(hasDateFormat(localeOf('fr', null, '1,234.56'))).toBe(false);
+		expect(hasDateFormat('fr')).toBe(false);
+	});
+
+	it('tells a workspace that chose a number format from a bare language and from one that chose none', () => {
+		expect(hasNumberFormat(localeOf('fr', null, '1,234.56'))).toBe(true);
+		expect(hasNumberFormat(localeOf('fr', 'DD/MM/YYYY'))).toBe(false);
+		expect(hasNumberFormat('fr')).toBe(false);
 	});
 });
 
@@ -240,6 +254,23 @@ describe('numberFormatOf with a workspace number format', () => {
 
 			expect(written).toBe('1.234.567,89');
 		}
+	});
+
+	it('groups a four-digit amount in every language, the ones that write it ungrouped on their own too', () => {
+		const ungroupedAlone = ['bg', 'es', 'it', 'pl'].map((tag) => new Intl.NumberFormat(tag).format(1234));
+
+		expect(ungroupedAlone).toEqual(['1234', '1234', '1234', '1234']);
+		for (const tag of APP_LANGUAGES) {
+			const written = numberFormatOf(localeOf(tag, null, '1,234.56'), twoDecimals).format(1234.5);
+
+			expect(written).toBe('1,234.50');
+		}
+	});
+
+	it('leaves a number ungrouped when the caller asks for it', () => {
+		const options: Intl.NumberFormatOptions = { ...twoDecimals, useGrouping: false };
+
+		expect(numberFormatOf(localeOf('en', null, '1.234,56'), options).format(1234.5)).toBe('1234,50');
 	});
 
 	it("keeps the currency sign where the reader's language puts it", () => {

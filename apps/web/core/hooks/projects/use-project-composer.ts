@@ -5,6 +5,7 @@ import { useAtomValue } from 'jotai';
 import type { DottedLanguageObjectStringPaths } from 'next-intl';
 import { activeTeamState, organizationTeamsState } from '@/core/stores';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
+import { useGetCurrentOrganization } from '@/core/hooks/auth/use-current-organization';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useTagsQuery } from '@/core/hooks/tags/use-tags-query';
 import { useCreateTag } from '@/core/hooks/tags/use-create-tag';
@@ -17,6 +18,7 @@ import {
 	buildProjectRequest,
 	canDeselectProjectTeam,
 	draftFromProject,
+	draftInWorkspaceCurrency,
 	emptyProjectDraft,
 	endDateAfterNewStart,
 	hasDraftErrors,
@@ -82,6 +84,9 @@ function toggleId(ids: string[], id: string) {
 }
 
 export function useProjectComposer({ mode, project, onDone }: UseProjectComposerOptions) {
+	const isNewProject = mode === 'create';
+	// The form opens from any page, and most of them do not read the organization its currency comes from
+	useGetCurrentOrganization({ enabled: isNewProject });
 	const activeTeam = useAtomValue(activeTeamState);
 	const organizationTeams = useAtomValue(organizationTeamsState);
 	const organization = useAtomValue(currentOrganizationState);
@@ -96,12 +101,19 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	const isAdmin = isAdminRole(user?.role?.name);
 	const currentEmployeeId = user?.employee?.id ?? user?.employeeId ?? null;
 
-	const [draft, setDraft] = useState<ProjectDraft>(() => {
+	const [enteredDraft, setDraft] = useState<ProjectDraft>(() => {
 		if (mode === 'edit' && project) {
 			return draftFromProject(project, activeTeamId);
 		}
-		return emptyProjectDraft(activeTeamId, new Date(), organization?.currency ?? null);
+		return emptyProjectDraft(activeTeamId);
 	});
+	const workspaceCurrency = organization?.currency ?? null;
+	const draft = useMemo(() => {
+		if (!isNewProject) {
+			return enteredDraft;
+		}
+		return draftInWorkspaceCurrency(enteredDraft, workspaceCurrency);
+	}, [enteredDraft, isNewProject, workspaceCurrency]);
 	const [imageFile, setImageFile] = useState<File | null>(null);
 	const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
 	const [imageError, setImageError] = useState<DottedLanguageObjectStringPaths | null>(null);

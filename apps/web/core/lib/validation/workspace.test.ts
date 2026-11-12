@@ -36,10 +36,11 @@ describe('the body of POST /api/auth/create-workspace', () => {
 });
 
 describe('the body of PUT /api/tenant (#5087)', () => {
-	it('keeps the trimmed name and nothing else the request carries', () => {
-		const body = { name: ' Studio ', logo: 'https://example.com/logo.png', tenantId: 'another-tenant' };
+	it('keeps the trimmed name and the tenant it is meant for, and nothing else the request carries', () => {
+		const body = { name: ' Studio ', logo: 'https://example.com/logo.png', tenantId: 'tenant-a' };
 
-		expect(renameWorkspaceBodySchema.parse(body)).toEqual({ name: 'Studio' });
+		expect(renameWorkspaceBodySchema.parse(body)).toEqual({ name: 'Studio', tenantId: 'tenant-a' });
+		expect(renameWorkspaceBodySchema.parse({ name: 'Studio', logo: 'x' })).toEqual({ name: 'Studio' });
 	});
 
 	it('refuses a missing, blank or too long name', () => {

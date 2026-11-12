@@ -67,6 +67,16 @@ function numberFormatChoiceOf(locale: FormatLocale): WorkspaceNumberFormat | nul
 	return locale.numberFormat;
 }
 
+/** Whether the workspace chose a date format: without one, a date that was written as data stays so. */
+export function hasDateFormat(locale: FormatLocale): boolean {
+	return dateFormatChoiceOf(locale) !== null;
+}
+
+/** Whether the workspace chose a number format: without one, a number written with a fixed mark keeps it. */
+export function hasNumberFormat(locale: FormatLocale): boolean {
+	return numberFormatChoiceOf(locale) !== null;
+}
+
 function textOf(parts: ReadonlyArray<{ value: string }>): string {
 	return parts.map((part) => part.value).join('');
 }
@@ -116,8 +126,10 @@ export function numberFormatOf(locale: FormatLocale, options: Intl.NumberFormatO
 		return new Intl.NumberFormat(tag, options);
 	}
 	const separators = NUMBER_SEPARATORS[choice];
+	// Spanish, Italian, Polish and Bulgarian leave a four-digit number ungrouped: no separator would be there to replace
+	const useGrouping = options.useGrouping ?? 'always';
 	// A chosen format reads the same for every member, so it is written in Western digits whatever the language
-	const base = new Intl.NumberFormat(tag, { ...options, numberingSystem: 'latn' });
+	const base = new Intl.NumberFormat(tag, { ...options, useGrouping, numberingSystem: 'latn' });
 	const partsOf = (value?: NumberValue) => {
 		const parts = basePartsOf(base, value);
 		return parts.map((part) => separatedPartOf(part, separators));

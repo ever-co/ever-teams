@@ -1,4 +1,5 @@
 import { renameWorkspaceBodySchema } from '@/core/lib/validation/workspace';
+import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import {
 	WORKSPACE_DATE_FORMATS,
 	WORKSPACE_NUMBER_FORMATS,
@@ -11,6 +12,7 @@ import {
 	type WorkspaceNumberFormat
 } from '@/core/lib/utils/workspace-formats';
 import { ERoleName } from '@/core/types/generics/enums/role';
+import { organizationSchema, type TOrganization } from '@/core/types/schemas/organization/organization.schema';
 import type { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 
 /** Gauzy asks for this permission on every write of an organization: its currency and its formats. */
@@ -31,6 +33,35 @@ export function canRenameWorkspace(roleName: string | null | undefined, permissi
 
 export function isWorkspaceNameValid(name: string): boolean {
 	return renameWorkspaceBodySchema.safeParse({ name }).success;
+}
+
+/**
+ * Whether the API answered a rename with a refusal (a 4xx), which a new try would get again: the half already written
+ * is undone. A failure without an answer, or a server error, may pass on a new try, which finishes the rename.
+ */
+export function isRenameRefused(error: unknown): boolean {
+	const status = errorStatusOf(error);
+	if (status === null) {
+		return false;
+	}
+	return status >= 400 && status < 500;
+}
+
+/**
+ * The organization every screen reads, once a save went through. The API answers a save with the organization as it
+ * stored it, which also holds what another admin changed since this page read it. An answer that does not read as an
+ * organization leaves the page's copy, with what this save changed.
+ */
+export function organizationAfterSave(
+	pageCopy: TOrganization,
+	changes: Partial<TOrganization>,
+	apiAnswer: unknown
+): TOrganization {
+	const stored = organizationSchema.safeParse(apiAnswer);
+	if (stored.success) {
+		return stored.data;
+	}
+	return { ...pageCopy, ...changes };
 }
 
 export function workspaceOfTenant(

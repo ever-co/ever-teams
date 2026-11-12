@@ -6,10 +6,11 @@ import { formatAmount, formatAmounts } from '@/core/lib/utils/daily-report-figur
 import { formatPercent } from '@/core/lib/utils/dashboard-figures';
 import { formatPeriod } from '@/core/lib/utils/dashboard-period';
 import { dayLabelPartsOf } from '@/core/lib/utils/dashboards/actual-expected';
+import { clockDateTimeOf, pdfDateTimeOf, pdfDayOf } from '@/core/lib/utils/dashboards/manual-time-edits';
 import { dayDateOf, formatOwed, formatOwedTick, owedSegmentsOf } from '@/core/lib/utils/dashboards/payments-due';
 import { amountTextOf, budgetTextOf } from '@/core/lib/utils/dashboards/project-budget';
 import { timesheetFormattersOf } from '@/core/lib/utils/dashboards/timesheets';
-import { periodLabelOf } from '@/core/lib/utils/dashboards/weekly-limit';
+import { pdfShareOf, periodLabelOf } from '@/core/lib/utils/dashboards/weekly-limit';
 import type { WorkspaceLocale } from '@/core/lib/utils/workspace-formats';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 
@@ -33,6 +34,12 @@ describe('a report of a workspace that chose no format', () => {
 		expect(formatOwed(1234.5, null, AUTOMATIC)).toBe('1,234.50');
 		expect(dayDateOf(JUNE_3, AUTOMATIC)).toBe(dayDateOf(JUNE_3, 'en'));
 		expect(periodLabelOf(JUNE_3, 'day', AUTOMATIC)).toBe(periodLabelOf(JUNE_3, 'day', 'en'));
+	});
+
+	it('keeps the dates of a Manual time edit PDF line as the files write them', () => {
+		expect(pdfDayOf(JUNE_3, AUTOMATIC)).toBe(`${YEAR}-06-03`);
+		expect(pdfDayOf(JUNE_3, 'en')).toBe(`${YEAR}-06-03`);
+		expect(pdfDateTimeOf(JUNE_9, AUTOMATIC)).toBe(clockDateTimeOf(JUNE_9));
 	});
 });
 
@@ -61,6 +68,12 @@ describe("a report's dates in the workspace's date format", () => {
 		const weekday = new Intl.DateTimeFormat('en', { weekday: 'short' }).format(JUNE_3);
 
 		expect(dayLabelPartsOf(JUNE_3, WORKSPACE)).toEqual({ weekday, date: '03/06' });
+	});
+
+	it('writes the day and the edit moment of a Manual time edit PDF line, with the year and the 24-hour time', () => {
+		expect(pdfDayOf(JUNE_3, WORKSPACE)).toBe(`03/06/${YEAR}`);
+		expect(pdfDateTimeOf(JUNE_9, WORKSPACE)).toBe(`09/06/${YEAR} 18:00`);
+		expect(pdfDateTimeOf(null, WORKSPACE)).toBe('');
 	});
 
 	it('writes the day of a timesheet, and leaves its weekday, month title and clock time alone', () => {
@@ -121,5 +134,13 @@ describe("a report's amounts in the workspace's number format", () => {
 
 	it('leaves a whole percentage as the language writes it', () => {
 		expect(formatPercent(47, WORKSPACE)).toBe(formatPercent(47, 'en'));
+	});
+
+	it('writes the share of a limit in the limit PDFs, and keeps it as it was while no format is chosen', () => {
+		expect(pdfShareOf(12.5, WORKSPACE)).toBe('12,50%');
+		expect(pdfShareOf(2000, WORKSPACE)).toBe('2.000,00%');
+		expect(pdfShareOf(12.5, AUTOMATIC)).toBe('12.50%');
+		expect(pdfShareOf(12.5, 'fr')).toBe('12.50%');
+		expect(pdfShareOf(12.5)).toBe('12.50%');
 	});
 });

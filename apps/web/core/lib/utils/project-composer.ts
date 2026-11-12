@@ -129,12 +129,7 @@ function withActiveTeam(teamIds: string[], activeTeamId: string | null | undefin
 	return [...teamIds, activeTeamId];
 }
 
-/** A new project's budget and rates start in the workspace's currency, which the form shows and saves with it. */
-export function emptyProjectDraft(
-	activeTeamId: string | null | undefined,
-	today = new Date(),
-	workspaceCurrency: string | null = null
-): ProjectDraft {
+export function emptyProjectDraft(activeTeamId: string | null | undefined, today = new Date()): ProjectDraft {
 	const teamIds = withActiveTeam([], activeTeamId);
 	return {
 		name: '',
@@ -153,9 +148,22 @@ export function emptyProjectDraft(
 		tagIds: [],
 		budgetType: EProjectBudgetType.HOURS,
 		budget: null,
-		currency: workspaceCurrency,
+		currency: null,
 		billing: EProjectBilling.FLAT_FEE
 	};
+}
+
+/**
+ * A new project's draft as the form shows and saves it: in the workspace's currency until the person picks one. The
+ * workspace may be read after the form opened, so its currency is not written into the draft the person fills.
+ */
+export function draftInWorkspaceCurrency(draft: ProjectDraft, workspaceCurrency: string | null): ProjectDraft {
+	const hasPickedCurrency = Boolean(draft.currency);
+	const hasNothingToOffer = !workspaceCurrency;
+	if (hasPickedCurrency || hasNothingToOffer) {
+		return draft;
+	}
+	return { ...draft, currency: workspaceCurrency };
 }
 
 function budgetOf(budget: number | null | undefined) {
