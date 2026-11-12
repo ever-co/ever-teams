@@ -1,14 +1,27 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
-import { Archive, ArrowUpRight, Check, Clock, Inbox, Mail, MailOpen, RotateLeft, X } from '@/core/components/icons';
+import {
+	Archive,
+	ArrowUpRight,
+	Check,
+	Clock,
+	Inbox,
+	Mail,
+	MailOpen,
+	RotateLeft,
+	Stop,
+	X
+} from '@/core/components/icons';
 import { Button } from '@/core/components/duplicated-components/_button';
 import type { Person } from '@/core/components/teams/people-avatars';
 import { formatNotificationDate } from '@/core/lib/utils/notification-inbox';
 import { InboxEntry, hasInboxTarget } from '@/core/lib/utils/inbox-entry';
+import { timerReminderTargetState } from '@/core/stores/timer/timer-reminder';
 import { InboxDecisionPanel } from './inbox-decision';
-import { InboxAvatar, useInboxSentence } from './inbox-row';
+import { InboxAvatar, useInboxMessage, useInboxSentence } from './inbox-row';
 import { SnoozeMenu } from './snooze-menu';
 
 const BAR_BUTTON =
@@ -49,7 +62,31 @@ interface InboxDetailProps {
 export function InboxDetail(props: Readonly<InboxDetailProps>) {
 	const t = useTranslations();
 	if (!props.entry) return <InboxDetailEmpty />;
-	return <InboxDetailEntry {...props} entry={props.entry} openLabel={props.entry.taskId ? t('inbox.DETAIL.OPEN_TASK') : t('inbox.DETAIL.OPEN')} />;
+	return <InboxDetailEntry {...props} entry={props.entry} openLabel={openLabelOf(props.entry, t)} />;
+}
+
+function openLabelOf(entry: InboxEntry, t: ReturnType<typeof useTranslations>): string {
+	// A timer reminder opens its timer, even one whose item names a task
+	if (entry.timerReminder) return t('notifications.TIMER_REMINDER.OPEN');
+	if (entry.taskId) return t('inbox.DETAIL.OPEN_TASK');
+	return t('inbox.DETAIL.OPEN');
+}
+
+/**
+ * The "Stop timer" of a timer reminder, while the run it is about still runs. It stops it through the app's timer
+ * owner, as the reminder's toast does (`timerReminderTargetState`).
+ */
+function TimerReminderStop({ entry }: Readonly<{ entry: InboxEntry }>) {
+	const t = useTranslations();
+	const target = useAtomValue(timerReminderTargetState);
+	const timeLogId = entry.timerReminder?.timeLogId;
+	if (!timeLogId || !target || target.runKey !== timeLogId) return null;
+	return (
+		<Button size="sm" variant="outline" onClick={() => void Promise.resolve(target.stop()).catch(() => undefined)}>
+			<Stop className="size-4" />
+			{t('notifications.TIMER_REMINDER.STOP')}
+		</Button>
+	);
 }
 
 function InboxDetailEmpty() {
@@ -97,6 +134,7 @@ function InboxDetailEntry({
 	const t = useTranslations();
 	const locale = useLocale();
 	const sentence = useInboxSentence(entry, person);
+	const message = useInboxMessage(entry);
 	const hasTarget = hasInboxTarget(entry);
 	const title = taskTitle ?? entry.subject ?? (entry.type ? null : entry.rawTitle);
 
@@ -109,6 +147,7 @@ function InboxDetailEntry({
 						{openLabel}
 					</Button>
 				)}
+				{entry.timerReminder && <TimerReminderStop entry={entry} />}
 				<span className="ms-auto flex items-center gap-0.5">
 					<BarAction label={entry.isUnread ? t('notifications.MARK_READ') : t('notifications.MARK_UNREAD')} onClick={() => onToggleRead(entry)}>
 						{entry.isUnread ? <MailOpen /> : <Mail />}
@@ -150,12 +189,14 @@ function InboxDetailEntry({
 
 					{title && <h2 className="text-xl font-semibold tracking-tight text-foreground text-balance">{title}</h2>}
 
-					{entry.message && (
+					{message && (
 						<blockquote className="rounded-xl bg-card px-4 py-3 text-sm leading-relaxed text-foreground hairline-ring ring-border">
-							<p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{entry.message}</p>
+							<p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{message}</p>
 						</blockquote>
 					)}
-					{!entry.message && !title && entry.rawTitle && <p className="text-sm text-muted-foreground">{entry.rawTitle}</p>}
+					{!message && !title && entry.rawTitle && (
+						<p className="text-sm text-muted-foreground">{entry.rawTitle}</p>
+					)}
 
 					{entry.snoozedUntil && (
 						<p className="inline-flex items-center gap-1.5 self-start rounded-full bg-foreground/[0.06] px-2.5 py-1 text-xs text-muted-foreground">

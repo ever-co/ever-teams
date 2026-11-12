@@ -1,0 +1,135 @@
+import {
+	editMentionsToSend,
+	isOwnComment,
+	isTextChanged,
+	mentionedIn,
+	mentionEmployeeIdsOf,
+	mentionsToSend,
+	uniquelyNamed
+} from './comment-ownership';
+
+describe('isOwnComment — the platform’s rule for who may edit, resolve or delete a comment', () => {
+	const reader = { employeeId: 'employee-me', userId: 'user-me' };
+
+	it('is the author employee’s comment', () => {
+		expect(isOwnComment({ authorEmployeeId: 'employee-me', authorUserId: 'user-other' }, reader)).toBe(true);
+		expect(isOwnComment({ authorEmployeeId: 'employee-other', authorUserId: 'user-me' }, reader)).toBe(false);
+	});
+
+	it('is the posting user’s comment when it has no author employee', () => {
+		expect(isOwnComment({ authorEmployeeId: null, authorUserId: 'user-me' }, reader)).toBe(true);
+		expect(isOwnComment({ authorEmployeeId: null, authorUserId: 'user-other' }, reader)).toBe(false);
+	});
+
+	it('is nobody’s when neither side is known', () => {
+		expect(isOwnComment({ authorEmployeeId: null, authorUserId: null }, { employeeId: null, userId: null })).toBe(
+			false
+		);
+		expect(
+			isOwnComment(
+				{ authorEmployeeId: 'employee-me', authorUserId: null },
+				{ employeeId: null, userId: 'user-me' }
+			)
+		).toBe(false);
+	});
+});
+
+describe('mentionedIn — the mentions an edit keeps', () => {
+	const ann = { employeeId: 'ann', name: 'Ann Lee' };
+	const bo = { employeeId: 'bo', name: 'Bo Ray' };
+
+	it('finds the people whose “@Full Name” the text holds', () => {
+		expect(mentionedIn('Ping @Ann Lee about it', [ann, bo])).toEqual([ann]);
+		expect(mentionedIn('No one here', [ann, bo])).toEqual([]);
+		expect(mentionedIn('', [ann])).toEqual([]);
+	});
+
+	it('counts a complete mention only, the longest name first', () => {
+		const annAlone = { employeeId: 'ann-alone', name: 'Ann' };
+
+		expect(mentionedIn('Ping @Ann Lee about it', [annAlone, ann])).toEqual([ann]);
+		expect(mentionedIn('@Ann, and @Ann Lee.', [annAlone, ann])).toEqual([annAlone, ann]);
+		expect(mentionedIn('Ask @Annabel', [annAlone])).toEqual([]);
+		expect(mentionedIn('mail@Ann Lee', [ann])).toEqual([]);
+		expect(mentionedIn('@Ann Lee\nthanks', [ann])).toEqual([ann]);
+	});
+
+	it('names every namesake the text mentions, as the text cannot tell them apart', () => {
+		const otherAnn = { employeeId: 'ann-2', name: 'Ann Lee' };
+
+		expect(mentionedIn('@Ann Lee', [ann, otherAnn, bo])).toEqual([ann, otherAnn]);
+	});
+});
+
+describe('uniquelyNamed — a typed mention names one person only when nobody shares the name', () => {
+	it('keeps the people whose name is theirs alone', () => {
+		const ann = { employeeId: 'ann', name: 'Ann Lee' };
+		const otherAnn = { employeeId: 'ann-2', name: 'Ann Lee' };
+		const bo = { employeeId: 'bo', name: 'Bo Ray' };
+
+		expect(uniquelyNamed([ann, bo, otherAnn])).toEqual([bo]);
+		expect(mentionedIn('Pasted @Bo Ray and @Ann Lee', uniquelyNamed([ann, bo, otherAnn]))).toEqual([bo]);
+		expect(uniquelyNamed([])).toEqual([]);
+	});
+});
+
+describe('mentionEmployeeIdsOf — whom a sent text mentions', () => {
+	const ann = { employeeId: 'ann', name: 'Ann' };
+	const annLee = { employeeId: 'ann-lee', name: 'Ann Lee' };
+	const otherAnnLee = { employeeId: 'ann-lee-2', name: 'Ann Lee' };
+	const bo = { employeeId: 'bo', name: 'Bo Ray' };
+	const team = [ann, annLee, otherAnnLee, bo];
+
+	it('never reads a shared longer name as a shorter unique one', () => {
+		// Two Ann Lees and one Ann: a typed "@Ann Lee" picks nobody, and never Ann.
+		expect(mentionEmployeeIdsOf('Ask @Ann Lee', team, [])).toEqual([]);
+		expect(mentionEmployeeIdsOf('Ask @Ann Lee', team, [otherAnnLee])).toEqual(['ann-lee-2']);
+		expect(mentionEmployeeIdsOf('Ask @Ann about it', team, [])).toEqual(['ann']);
+	});
+
+	it('counts a name typed in full for its only bearer, and the people picked or already mentioned', () => {
+		expect(mentionEmployeeIdsOf('Pasted @Bo Ray', team, [])).toEqual(['bo']);
+		expect(mentionEmployeeIdsOf('@Bo Ray and @Ann Lee', team, [annLee, bo])).toEqual(['ann-lee', 'bo']);
+		// A pick whose name was taken out of the text is not sent.
+		expect(mentionEmployeeIdsOf('Nobody now', team, [bo])).toEqual([]);
+	});
+});
+
+describe('editMentionsToSend — what an edit sends about its mentions', () => {
+	const annLee = { employeeId: 'ann-lee', name: 'Ann Lee' };
+	const otherAnnLee = { employeeId: 'ann-lee-2', name: 'Ann Lee' };
+	const bo = { employeeId: 'bo', name: 'Bo Ray' };
+	const cy = { employeeId: 'cy', name: 'Cy Moe' };
+	const team = [annLee, otherAnnLee, bo, cy];
+
+	it('sends nothing while a name two people share stays in the text, so no namesake is added or dropped', () => {
+		// The comment mentioned one of the two Ann Lees; the edit adds Bo.
+		expect(editMentionsToSend('Ask @Ann Lee', 'Ask @Ann Lee and @Bo Ray', team, ['bo'])).toBeUndefined();
+	});
+
+	it('sends the new list when the shared name leaves the text, or when only unique names change', () => {
+		expect(editMentionsToSend('Ask @Ann Lee', 'Ask @Bo Ray', team, ['bo'])).toEqual(['bo']);
+		expect(editMentionsToSend('Ask @Cy Moe', 'Ask @Cy Moe and @Bo Ray', team, ['cy', 'bo'])).toEqual(['cy', 'bo']);
+		expect(editMentionsToSend('Ask @Cy Moe', 'Ask @Cy Moe again', team, ['cy'])).toBeUndefined();
+	});
+});
+
+describe('mentionsToSend — an edit touches the mentions only when it changes them', () => {
+	it('sends nothing when the text names the same people, whatever their order', () => {
+		expect(mentionsToSend(['ann', 'bo'], ['bo', 'ann'])).toBeUndefined();
+		expect(mentionsToSend([], [])).toBeUndefined();
+	});
+
+	it('sends the new list when a mention is added or removed', () => {
+		expect(mentionsToSend(['ann'], ['ann', 'bo'])).toEqual(['ann', 'bo']);
+		expect(mentionsToSend(['ann', 'bo'], ['bo'])).toEqual(['bo']);
+		expect(mentionsToSend(['ann'], [])).toEqual([]);
+	});
+});
+
+describe('isTextChanged', () => {
+	it('ignores surrounding blanks, so the same text is not sent again', () => {
+		expect(isTextChanged('Hello', ' Hello \n')).toBe(false);
+		expect(isTextChanged('Hello', 'Hello!')).toBe(true);
+	});
+});

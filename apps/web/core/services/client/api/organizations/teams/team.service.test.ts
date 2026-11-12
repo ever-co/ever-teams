@@ -28,6 +28,6 @@ describe('OrganizationTeamService.createOrganizationTeamGauzy', () => {
 
 		const [path, body] = post.mock.calls[0];
 		expect(path).toBe('/organization-team');
-		expect(body).toMatchObject({ projects: [{ id: 'proj-1' }], defaultProjectId: 'proj-1' });
+		expect(body).toMatchObject({ projects: [{ id: 'proj-1' }], defaultProjectId: 'proj-1', withStarterTags: true });
 	});
 });

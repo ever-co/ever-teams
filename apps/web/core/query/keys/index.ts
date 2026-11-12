@@ -376,6 +376,14 @@ export const queryKeys = {
 	tasks: {
 		// Standard task keys (preserved for backward compatibility)
 		all: ['tasks'] as const,
+		/** The trash of a team or a project, under `tasks.all`: a task change (a live hint, a delete) refetches it. */
+		trash: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			teamId: string | undefined | null,
+			projectId: string | undefined | null,
+			search: string
+		) => ['tasks', 'trash', tenantId ?? null, organizationId ?? null, teamId ?? null, projectId ?? null, search] as const,
 		detail: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : [])] as const,
 		byEmployee: (employeeId: string | undefined | null, teamId: string | undefined | null) =>
 			['tasks', 'by-employee', ...(employeeId ? [employeeId] : []), ...(teamId ? [teamId] : [])] as const,
@@ -501,7 +509,13 @@ export const queryKeys = {
 			tenantId: string | undefined | null,
 			organizationId: string | undefined | null,
 			taskId: string | undefined | null
-		) => ['task-comments', 'by-task', tenantId ?? null, organizationId ?? null, taskId ?? null] as const
+		) => ['task-comments', 'by-task', tenantId ?? null, organizationId ?? null, taskId ?? null] as const,
+		/** Under the task's comments key: whatever refetches the comments (a live hint, a post) refetches these too. */
+		reactionsByTask: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			taskId: string | undefined | null
+		) => ['task-comments', 'by-task', tenantId ?? null, organizationId ?? null, taskId ?? null, 'reactions'] as const
 	},
 
 	taskMetadata: {
@@ -761,6 +775,15 @@ export const queryKeys = {
 				...(endDate ? [endDate] : [])
 			] as const,
 		timeLog: (logId: string | null | undefined) => ['timesheet', 'time-log', ...(logId ? [logId] : [])] as const,
+		// Under `timesheet` so a saved or removed entry never leaves a stale overlap answer behind.
+		conflicts: (params: {
+			tenantId: string | null;
+			organizationId: string | null;
+			employeeId: string;
+			startDate: string;
+			endDate: string;
+			ignoreId: string | null;
+		}) => ['timesheet', 'conflicts', params] as const,
 		logs: (
 			tenantId: string | null | undefined,
 			organizationId: string | null | undefined,
@@ -1099,6 +1122,12 @@ export const queryKeys = {
 			['docs', 'spaces', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
 		follow: (tenantId: string | undefined | null, userId: string | undefined | null, pageId: string | undefined | null) =>
 			['docs', 'follow', tenantId ?? null, userId ?? null, pageId ?? null] as const,
+		// Whether the platform imports exported workspaces / exports PDFs (404 while off), and one import's state.
+		importProbe: (tenantId: string | undefined | null, organizationId: string | undefined | null, userId: string | undefined | null) =>
+			['docs', 'import-probe', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		pdfProbe: (tenantId: string | undefined | null) => ['docs', 'pdf-probe', tenantId ?? null] as const,
+		import: (tenantId: string | undefined | null, importId: string | undefined | null) =>
+			['docs', 'import', tenantId ?? null, importId ?? null] as const,
 		/** The platform's comments on the page (entity `Document`), block threads and page comments alike. */
 		comments: (tenantId: string | undefined | null, organizationId: string | undefined | null, pageId: string | undefined | null) =>
 			['docs', 'comments', tenantId ?? null, organizationId ?? null, pageId ?? null] as const

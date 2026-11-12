@@ -396,9 +396,11 @@ interface TaskPropertyIconProps {
 	 * of the glyph, in the property's color; the glyph stays for a classic icon, a missing one, or a file that fails.
 	 */
 	icon?: string | null;
+	/** The property's `fullIconUrl`, where an image the user uploaded loads from when Gauzy does not hold it itself. */
+	iconUrl?: string | null;
 }
 
-export function TaskPropertyIcon({ kind, name, color, className, icon }: Readonly<TaskPropertyIconProps>) {
+export function TaskPropertyIcon({ kind, name, color, className, icon, iconUrl }: Readonly<TaskPropertyIconProps>) {
 	const glyph = <TaskPropertyGlyph kind={kind} name={name} color={color} className={className} />;
 	// A label is shown by its color: label icons are not part of the design (#5024)
 	if (kind === 'label' || !icon || !isCustomIcon(icon)) {
@@ -411,12 +413,17 @@ export function TaskPropertyIcon({ kind, name, color, className, icon }: Readonl
 			className={cn('inline-flex size-4 shrink-0 items-center justify-center', className)}
 			style={glyphColorStyle(color)}
 		>
-			<PropertyIconImage value={icon} className="size-full" fallback={glyph} />
+			<PropertyIconImage value={icon} url={iconUrl} className="size-full" fallback={glyph} />
 		</span>
 	);
 }
 
-function TaskPropertyGlyph({ kind, name, color, className }: Readonly<Omit<TaskPropertyIconProps, 'icon'>>) {
+function TaskPropertyGlyph({
+	kind,
+	name,
+	color,
+	className
+}: Readonly<Omit<TaskPropertyIconProps, 'icon' | 'iconUrl'>>) {
 	const normalizedName = normalizePropertyName(name);
 	const isIssueKind = kind === 'epic' || kind === 'issueType';
 
