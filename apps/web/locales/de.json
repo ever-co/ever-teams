@@ -2519,7 +2519,8 @@
 			"TIMELINE_DUE_ONLY": "nur Fälligkeitsdatum",
 			"TIMELINE_START_ONLY": "nur Startdatum",
 			"TIMELINE_INVALID_RANGE": "fällig vor dem Start",
-			"TIMELINE_OVERDUE": "überfällig"
+			"TIMELINE_OVERDUE": "überfällig",
+			"TIMELINE_DRAG_HINT": "Ziehen, um die Daten zu ändern, oder Alt + Pfeiltasten (Alt + Umschalt + Pfeiltasten: das Fälligkeitsdatum)."
 		},
 		"joinTeam": {
 			"TITLE": "Einem Team beitreten",

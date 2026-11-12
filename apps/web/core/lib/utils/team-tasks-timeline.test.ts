@@ -1,4 +1,8 @@
 import {
+	draggedDatesOf,
+	draggedTaskDatesOf,
+	hasEndHandlesOf,
+	previewDaysOf,
 	TIMELINE_MAX_DAYS,
 	TIMELINE_PADDING_DAYS,
 	dayNumberOf,
@@ -26,7 +30,9 @@ describe('the days of stored dates', () => {
 				const nov20 = dayNumberOf(new Date(2026, 10, 20));
 				expect(`${readerZone} ${dayOfStoredDate('2026-11-20')}`).toBe(`${readerZone} ${nov20}`);
 				expect(`${readerZone} ${dayOfStoredDate('2026-11-20T00:00:00.000Z')}`).toBe(`${readerZone} ${nov20}`);
-				expect(`${readerZone} ${dayOfStoredDate(new Date('2026-11-20T00:00:00Z'))}`).toBe(`${readerZone} ${nov20}`);
+				expect(`${readerZone} ${dayOfStoredDate(new Date('2026-11-20T00:00:00Z'))}`).toBe(
+					`${readerZone} ${nov20}`
+				);
 			}
 		} finally {
 			if (zone === undefined) delete process.env['TZ'];
@@ -75,7 +81,12 @@ describe('the timeline of a view', () => {
 		expect(timeline.todayDay).toBe(today - first);
 		expect(timeline.unscheduledIds).toEqual(['b', 'd']);
 		expect(timeline.bars.map((bar) => bar.taskId)).toEqual(['a', 'c']);
-		expect(timeline.bars[0]).toMatchObject({ startDay: padding, endDay: padding + 4, isDueOnly: false, isOverdue: false });
+		expect(timeline.bars[0]).toMatchObject({
+			startDay: padding,
+			endDay: padding + 4,
+			isDueOnly: false,
+			isOverdue: false
+		});
 		expect(timeline.bars[1]).toMatchObject({ isDueOnly: true });
 		expect(timeline.bars[1].endDay - timeline.bars[1].startDay).toBe(0);
 	});
@@ -126,9 +137,18 @@ describe('the timeline of a view', () => {
 		expect(timeline.dayCount).toBe(TIMELINE_MAX_DAYS);
 		expect(timeline.todayDay).not.toBeNull();
 		const far = timeline.bars.find((bar) => bar.taskId === 'far');
-		expect(far).toMatchObject({ startDay: 0, endDay: TIMELINE_MAX_DAYS - 1, isClippedStart: true, isClippedEnd: true, outside: null });
+		expect(far).toMatchObject({
+			startDay: 0,
+			endDay: TIMELINE_MAX_DAYS - 1,
+			isClippedStart: true,
+			isClippedEnd: true,
+			outside: null
+		});
 		expect(far?.taskStartDay).toBe(dayNumberOf(new Date(2020, 0, 1)));
-		expect(timeline.bars.find((bar) => bar.taskId === 'near')).toMatchObject({ isClippedStart: false, isClippedEnd: false });
+		expect(timeline.bars.find((bar) => bar.taskId === 'near')).toMatchObject({
+			isClippedStart: false,
+			isClippedEnd: false
+		});
 	});
 
 	it('keeps the row of a task wholly outside the capped calendar, marked at that edge', () => {
@@ -147,7 +167,12 @@ describe('the timeline of a view', () => {
 			['later', 'after']
 		]);
 		const old = timeline.bars[1];
-		expect(old).toMatchObject({ startDay: 0, endDay: 0, isOverdue: true, taskDueDay: dayNumberOf(new Date(2020, 0, 1)) });
+		expect(old).toMatchObject({
+			startDay: 0,
+			endDay: 0,
+			isOverdue: true,
+			taskDueDay: dayNumberOf(new Date(2020, 0, 1))
+		});
 		expect(timeline.bars[2]).toMatchObject({ startDay: TIMELINE_MAX_DAYS - 1, endDay: TIMELINE_MAX_DAYS - 1 });
 	});
 });
@@ -163,5 +188,86 @@ describe('the ticks of the header', () => {
 		expect(week.filter((tick) => tick.isMajor).every((tick) => tick.date.getDay() === 1)).toBe(true);
 		const month = ticksOf(timeline, 'month');
 		expect(month.filter((tick) => tick.isMajor).map((tick) => tick.date.getDate())).toEqual([1]);
+	});
+});
+
+describe('the dates a drag gives a bar', () => {
+	const range = { isDueOnly: false, isStartOnly: false, hasInvalidRange: false };
+	const dates = { startDay: 100, dueDay: 104 };
+
+	it('moves both dates of a range, and only the date a single-date task has', () => {
+		expect(draggedDatesOf(range, dates, 'move', 3)).toEqual({ startDay: 103, dueDay: 107 });
+		expect(draggedDatesOf({ ...range, isDueOnly: true }, { startDay: null, dueDay: 50 }, 'move', -2)).toEqual({
+			dueDay: 48
+		});
+		expect(draggedDatesOf({ ...range, isStartOnly: true }, { startDay: 50, dueDay: null }, 'move', 1)).toEqual({
+			startDay: 51
+		});
+	});
+
+	it('drags one end of a range, never past the other', () => {
+		expect(draggedDatesOf(range, dates, 'start', 2)).toEqual({ startDay: 102 });
+		expect(draggedDatesOf(range, dates, 'start', 10)).toEqual({ startDay: 104 });
+		expect(draggedDatesOf(range, dates, 'end', -2)).toEqual({ dueDay: 102 });
+		expect(draggedDatesOf(range, dates, 'end', -10)).toEqual({ dueDay: 100 });
+		expect(draggedDatesOf(range, dates, 'end', 5)).toEqual({ dueDay: 109 });
+	});
+
+	it('changes nothing for no movement, an end of a single date, or an end already at the limit', () => {
+		expect(draggedDatesOf(range, dates, 'move', 0)).toBeNull();
+		expect(draggedDatesOf({ ...range, isDueOnly: true }, { startDay: null, dueDay: 50 }, 'end', 2)).toBeNull();
+		expect(
+			draggedDatesOf({ ...range, hasInvalidRange: true }, { startDay: 60, dueDay: 55 }, 'start', 1)
+		).toBeNull();
+		expect(draggedDatesOf(range, { startDay: 100, dueDay: 100 }, 'start', 3)).toBeNull();
+	});
+});
+
+describe('the dates a drag gives a task', () => {
+	it('reads a midnight-UTC date as its day in any zone, so a move one day earlier is a change', () => {
+		const zone = process.env['TZ'];
+		try {
+			for (const readerZone of ['America/Los_Angeles', 'Asia/Tokyo', 'Europe/Paris', 'UTC']) {
+				process.env['TZ'] = readerZone;
+				const moved = draggedTaskDatesOf({ dueDate: '2026-11-20T00:00:00.000Z' }, 'move', -1);
+				expect(`${readerZone} ${moved?.dueDate?.toDateString()}`).toBe(
+					`${readerZone} ${new Date(2026, 10, 19).toDateString()}`
+				);
+			}
+		} finally {
+			if (zone === undefined) delete process.env['TZ'];
+			else process.env['TZ'] = zone;
+		}
+	});
+
+	it('moves the dates a task has, drags an end of a range, and changes nothing otherwise', () => {
+		expect(draggedTaskDatesOf({ startDate: '2026-11-10', dueDate: '2026-11-14' }, 'move', 2)).toEqual({
+			startDate: new Date(2026, 10, 12),
+			dueDate: new Date(2026, 10, 16)
+		});
+		expect(draggedTaskDatesOf({ startDate: '2026-11-10', dueDate: '2026-11-14' }, 'end', -1)).toEqual({
+			dueDate: new Date(2026, 10, 13)
+		});
+		expect(draggedTaskDatesOf({ startDate: null, dueDate: null }, 'move', 1)).toBeNull();
+		expect(draggedTaskDatesOf({ dueDate: '2026-11-20' }, 'start', 1)).toBeNull();
+	});
+});
+
+describe('a bar while it is dragged', () => {
+	const range = { startDay: 10, endDay: 14, isDueOnly: false, isStartOnly: false, hasInvalidRange: false };
+	const dates = { startDay: 110, dueDay: 114 };
+
+	it('shows the dragged dates as offsets, inside the days drawn', () => {
+		expect(previewDaysOf(range, dates, null, 100, 30)).toEqual({ startDay: 10, endDay: 14 });
+		expect(previewDaysOf(range, dates, { drag: 'move', delta: 3 }, 100, 30)).toEqual({ startDay: 13, endDay: 17 });
+		expect(previewDaysOf(range, dates, { drag: 'end', delta: -2 }, 100, 30)).toEqual({ startDay: 10, endDay: 12 });
+		// A long move stays at the calendar's edge.
+		expect(previewDaysOf(range, dates, { drag: 'move', delta: 40 }, 100, 30)).toEqual({ startDay: 29, endDay: 29 });
+	});
+
+	it('gives end handles only to a range of several days', () => {
+		expect(hasEndHandlesOf(range, dates)).toBe(true);
+		expect(hasEndHandlesOf(range, { startDay: 110, dueDay: 110 })).toBe(false);
+		expect(hasEndHandlesOf({ ...range, isDueOnly: true }, { startDay: null, dueDay: 110 })).toBe(false);
 	});
 });

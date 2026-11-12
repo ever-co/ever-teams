@@ -69,8 +69,12 @@ calendar, so nothing of the view is hidden.
 - **FR-7** Keyboard and screen reader: every bar and title is a button with a full label (title, dates, notes); the zoom
   buttons expose their pressed state.
 - **FR-8** Strings in all 13 locales.
+- **FR-9** A task of the active team changes its dates from its bar: dragging the body moves the dates it has (a due
+  date only moves its due date), dragging an edge of a range moves that end and never past the other; Alt + arrows
+  move the task by a day, Alt + Shift + arrows its due date. One update per drag; a press without movement opens the
+  task. A task of another team (a built-in view lists the person's tasks of every team) only opens.
 
 ## 4. Out of scope (later)
 
-- Dragging a bar to change dates, dependencies between tasks, grouping rows by assignee or project, and the Angular
-  timeline of the platform's web app.
+- Dependencies between tasks, grouping rows by assignee or project, and the Angular timeline of the platform's web
+  app.

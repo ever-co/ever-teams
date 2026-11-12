@@ -2519,7 +2519,8 @@
 			"TIMELINE_DUE_ONLY": "תאריך יעד בלבד",
 			"TIMELINE_START_ONLY": "תאריך התחלה בלבד",
 			"TIMELINE_INVALID_RANGE": "תאריך היעד לפני ההתחלה",
-			"TIMELINE_OVERDUE": "באיחור"
+			"TIMELINE_OVERDUE": "באיחור",
+			"TIMELINE_DRAG_HINT": "גררו כדי לשנות את התאריכים, או Alt + חיצים (Alt + Shift + חיצים: תאריך היעד)."
 		},
 		"joinTeam": {
 			"TITLE": "הצטרפות לצוות",

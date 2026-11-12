@@ -2519,7 +2519,8 @@
 			"TIMELINE_DUE_ONLY": "alleen einddatum",
 			"TIMELINE_START_ONLY": "alleen startdatum",
 			"TIMELINE_INVALID_RANGE": "einddatum vóór de start",
-			"TIMELINE_OVERDUE": "te laat"
+			"TIMELINE_OVERDUE": "te laat",
+			"TIMELINE_DRAG_HINT": "Sleep om de datums te wijzigen, of Alt + pijltjes (Alt + Shift + pijltjes: de einddatum)."
 		},
 		"joinTeam": {
 			"TITLE": "Lid worden van een team",

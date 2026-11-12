@@ -2519,7 +2519,8 @@
 			"TIMELINE_DUE_ONLY": "تاريخ الاستحقاق فقط",
 			"TIMELINE_START_ONLY": "تاريخ البدء فقط",
 			"TIMELINE_INVALID_RANGE": "الاستحقاق قبل البدء",
-			"TIMELINE_OVERDUE": "متأخرة"
+			"TIMELINE_OVERDUE": "متأخرة",
+			"TIMELINE_DRAG_HINT": "اسحب لتغيير التواريخ، أو Alt + الأسهم (Alt + Shift + الأسهم: تاريخ الاستحقاق)."
 		},
 		"joinTeam": {
 			"TITLE": "الانضمام إلى فريق",

@@ -2519,7 +2519,8 @@
 			"TIMELINE_DUE_ONLY": "solo scadenza",
 			"TIMELINE_START_ONLY": "solo data di inizio",
 			"TIMELINE_INVALID_RANGE": "scade prima di iniziare",
-			"TIMELINE_OVERDUE": "in ritardo"
+			"TIMELINE_OVERDUE": "in ritardo",
+			"TIMELINE_DRAG_HINT": "Trascina per cambiare le date, oppure Alt + frecce (Alt + Maiusc + frecce: la scadenza)."
 		},
 		"joinTeam": {
 			"TITLE": "Unisciti a un team",

@@ -2519,7 +2519,8 @@
 			"TIMELINE_DUE_ONLY": "только срок",
 			"TIMELINE_START_ONLY": "только дата начала",
 			"TIMELINE_INVALID_RANGE": "срок раньше начала",
-			"TIMELINE_OVERDUE": "просрочена"
+			"TIMELINE_OVERDUE": "просрочена",
+			"TIMELINE_DRAG_HINT": "Перетащите, чтобы изменить даты, или Alt + стрелки (Alt + Shift + стрелки: срок)."
 		},
 		"joinTeam": {
 			"TITLE": "Присоединиться к команде",

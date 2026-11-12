@@ -1,17 +1,33 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	type KeyboardEvent,
+	type PointerEvent,
+	type RefObject
+} from 'react';
+import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
+import { useTeamTaskUpdates } from '@/core/hooks/tasks/use-team-task-updates';
 import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
+import { tasksByTeamState } from '@/core/stores';
 import { isDoneStatus, statusOfTask, tasksOfGroups } from '@/core/lib/utils/team-tasks-view';
 import {
 	TIMELINE_DAY_WIDTH,
 	dateOfDayNumber,
 	dayNumberOf,
+	dayOfStoredDate,
+	hasEndHandlesOf,
+	previewDaysOf,
 	ticksOf,
 	timelineOf,
 	type TeamTasksTimelineBar,
+	type TeamTasksTimelineDrag,
 	type TeamTasksTimelineZoom
 } from '@/core/lib/utils/team-tasks-timeline';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
@@ -26,7 +42,9 @@ const ZOOMS: TeamTasksTimelineZoom[] = ['week', 'month'];
  * A view shown as a timeline (its layout): the tasks the view lists, with its filters, scope, search and ordering, one
  * row each, as a bar from the task's start date to its due date on a calendar of days. A task with a due date only is
  * one day at its due date; a start date only, one day at its start. The tasks with neither date are listed under the
- * calendar. A bar opens its task, as a row does; the calendar opens on today.
+ * calendar. A bar opens its task, as a row does; the calendar opens on today. A task of the active team changes its
+ * dates from its bar: dragged (the whole bar, or either end of a range) or with Alt + arrows (Alt + Shift + arrows for
+ * the due date); a task of another team (a built-in view lists the person's tasks of every team) only opens.
  */
 export function TeamTasksTimelineView({
 	view,
@@ -37,6 +55,9 @@ export function TeamTasksTimelineView({
 	const [zoom, setZoom] = useState<TeamTasksTimelineZoom>('week');
 	const today = useToday();
 	const scrollRef = useRef<HTMLDivElement>(null);
+	const { moveDates } = useTeamTaskUpdates();
+	const teamTasks = useAtomValue(tasksByTeamState);
+	const teamTaskIds = useMemo(() => new Set(teamTasks.map((task) => task.id)), [teamTasks]);
 	const tasks = useMemo(() => tasksOfGroups(view.groups), [view.groups]);
 	const taskById = useMemo(() => new Map(tasks.map((task) => [task.id, task])), [tasks]);
 	const timeline = useMemo(
@@ -64,6 +85,7 @@ export function TeamTasksTimelineView({
 	);
 	const dayWidth = TIMELINE_DAY_WIDTH[zoom];
 	const calendarWidth = timeline.dayCount * dayWidth;
+	const firstDay = dayNumberOf(timeline.firstDay);
 
 	// The calendar opens on today (a third from the left), and again when the zoom changes.
 	const todayDay = timeline.todayDay;
@@ -206,8 +228,6 @@ export function TeamTasksTimelineView({
 									return null;
 								}
 								const label = barLabel(task, bar);
-								const left = bar.startDay * dayWidth;
-								const width = Math.max(dayWidth, (bar.endDay - bar.startDay + 1) * dayWidth);
 								return (
 									<li
 										key={bar.taskId}
@@ -270,28 +290,19 @@ export function TeamTasksTimelineView({
 													</span>
 												</button>
 											) : (
-												<button
-													type="button"
-													onClick={() => commands.openTask(task.id)}
-													aria-label={label}
-													title={label}
-													data-testid={`timeline-bar-${task.id}`}
-													className={cn(
-														'absolute top-1.5 flex items-center overflow-hidden rounded-md px-1.5 text-left text-xs font-medium outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40',
-														bar.isOverdue
-															? 'bg-destructive/15 text-destructive ring-1 ring-inset ring-destructive/40'
-															: 'bg-primary/15 text-foreground ring-1 ring-inset ring-primary/30',
-														(bar.isDueOnly || bar.isStartOnly || bar.hasInvalidRange) &&
-															'border border-dashed border-current',
-														bar.isClippedStart && 'rounded-l-none',
-														bar.isClippedEnd && 'rounded-r-none'
-													)}
-													style={{ left, width, height: ROW_HEIGHT - 12 }}
-												>
-													{width >= 64 ? (
-														<span className="truncate">{task.title}</span>
-													) : null}
-												</button>
+												<TimelineBar
+													task={task}
+													bar={bar}
+													firstDay={firstDay}
+													dayWidth={dayWidth}
+													label={label}
+													hint={t('pages.teamTasks.TIMELINE_DRAG_HINT')}
+													canEdit={teamTaskIds.has(task.id)}
+													onOpen={() => commands.openTask(task.id)}
+													dayCount={timeline.dayCount}
+													scrollRef={scrollRef}
+													onMove={(drag, delta) => moveDates(task.id, drag, delta)}
+												/>
 											)}
 										</div>
 									</li>
@@ -331,6 +342,266 @@ export function TeamTasksTimelineView({
 				</div>
 			)}
 		</section>
+	);
+}
+
+/** Movement, in pixels, before a press on a bar counts as a drag rather than a click. */
+const DRAG_THRESHOLD = 4;
+
+/** The narrowest bar that shows its end handles (6 px each) and keeps a middle to move it by. */
+const MIN_HANDLE_BAR_WIDTH = 24;
+
+/** Days from a movement in days, half a day rounding away from zero in both directions alike. */
+function wholeDaysOf(days: number) {
+	return Math.sign(days) * Math.round(Math.abs(days));
+}
+
+interface TimelineBarDragPress {
+	drag: TeamTasksTimelineDrag;
+	x: number;
+	lastX: number;
+	scrollLeft: number;
+	pointerId: number;
+	moved: boolean;
+}
+
+/**
+ * The pointer side of a bar: a press that moves (the pointer, or the calendar scrolled under it) past the threshold is
+ * a drag, shown as `preview` by whole days and sent once, on release, through `onMove`; a press that does not is a
+ * click. The calendar's scroll counts from the press on, so a held bar moved by a wheel or a trackpad drags too.
+ */
+function useTimelineBarDrag({
+	canEdit,
+	dayWidth,
+	scrollRef,
+	onMove
+}: {
+	canEdit: boolean;
+	dayWidth: number;
+	scrollRef: RefObject<HTMLDivElement | null>;
+	onMove: (drag: TeamTasksTimelineDrag, deltaDays: number) => void;
+}) {
+	const [preview, setPreview] = useState<{ drag: TeamTasksTimelineDrag; delta: number } | null>(null);
+	const [isPressed, setPressed] = useState(false);
+	const pressRef = useRef<TimelineBarDragPress | null>(null);
+	const suppressClickRef = useRef(false);
+
+	/** The movement of a press in pixels: the pointer's, plus the calendar scrolled since the press. */
+	const movementOf = useCallback(
+		(press: TimelineBarDragPress) => {
+			const scrolled = (scrollRef.current?.scrollLeft ?? press.scrollLeft) - press.scrollLeft;
+			return press.lastX - press.x + scrolled;
+		},
+		[scrollRef]
+	);
+	/** Marks a press as a drag once it moved past the threshold, and shows where it would put the bar. */
+	const follow = useCallback(
+		(press: TimelineBarDragPress) => {
+			const movement = movementOf(press);
+			if (!press.moved && Math.abs(movement) < DRAG_THRESHOLD) {
+				return;
+			}
+			press.moved = true;
+			setPreview({ drag: press.drag, delta: wholeDaysOf(movement / dayWidth) });
+		},
+		[movementOf, dayWidth]
+	);
+
+	useEffect(() => {
+		const element = scrollRef.current;
+		if (!element || !isPressed) {
+			return;
+		}
+		const onScroll = () => {
+			if (pressRef.current) follow(pressRef.current);
+		};
+		element.addEventListener('scroll', onScroll);
+		return () => element.removeEventListener('scroll', onScroll);
+	}, [isPressed, scrollRef, follow]);
+
+	const end = () => {
+		pressRef.current = null;
+		setPressed(false);
+		setPreview(null);
+	};
+
+	const onPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
+		// The pointer that pressed first owns the press: another touch on the bar meanwhile changes nothing.
+		if (pressRef.current) {
+			return;
+		}
+		// A new press: the click of an earlier drag came, or never will (some browsers send none after a touch drag).
+		suppressClickRef.current = false;
+		if (!canEdit || event.button !== 0) {
+			return;
+		}
+		const handle = (event.target as HTMLElement).dataset['handle'];
+		pressRef.current = {
+			drag: handle === 'start' || handle === 'end' ? handle : 'move',
+			x: event.clientX,
+			lastX: event.clientX,
+			scrollLeft: scrollRef.current?.scrollLeft ?? 0,
+			pointerId: event.pointerId,
+			moved: false
+		};
+		setPressed(true);
+		event.currentTarget.setPointerCapture?.(event.pointerId);
+	};
+	const onPointerMove = (event: PointerEvent<HTMLButtonElement>) => {
+		const press = pressRef.current;
+		if (press?.pointerId !== event.pointerId) {
+			return;
+		}
+		press.lastX = event.clientX;
+		follow(press);
+	};
+	const onPointerUp = (event: PointerEvent<HTMLButtonElement>) => {
+		const press = pressRef.current;
+		if (press?.pointerId !== event.pointerId) {
+			return;
+		}
+		press.lastX = event.clientX;
+		follow(press);
+		const delta = wholeDaysOf(movementOf(press) / dayWidth);
+		event.currentTarget.releasePointerCapture?.(event.pointerId);
+		end();
+		if (!press.moved) {
+			return;
+		}
+		// A drag is not a click: the button's click that follows the release does not open the task.
+		suppressClickRef.current = true;
+		if (delta !== 0) onMove(press.drag, delta);
+	};
+	/** Only the pointer that owns the press cancels it. */
+	const onPointerCancel = (event: PointerEvent<HTMLButtonElement>) => {
+		if (pressRef.current?.pointerId === event.pointerId) end();
+	};
+	/** Whether the click that follows was a drag's release (and so opens nothing). */
+	const takeDragClick = () => {
+		const wasDrag = suppressClickRef.current;
+		suppressClickRef.current = false;
+		return wasDrag;
+	};
+	/** A key was pressed on the bar: a click from it is the keyboard's, never a drag's. */
+	const forgetDragClick = () => {
+		suppressClickRef.current = false;
+	};
+
+	return {
+		preview,
+		handlers: { onPointerDown, onPointerMove, onPointerUp, onPointerCancel },
+		takeDragClick,
+		forgetDragClick
+	};
+}
+
+interface TimelineBarProps {
+	task: TTask;
+	bar: TeamTasksTimelineBar;
+	firstDay: number;
+	dayWidth: number;
+	label: string;
+	hint: string;
+	canEdit: boolean;
+	onOpen: () => void;
+	/** The days drawn: a dragged bar stays inside them, as `timelineOf` keeps every bar. */
+	dayCount: number;
+	/** The calendar's scroll area: a drag counts the calendar scrolled under the pointer too. */
+	scrollRef: RefObject<HTMLDivElement | null>;
+	onMove: (drag: TeamTasksTimelineDrag, deltaDays: number) => void;
+}
+
+/**
+ * One bar: a button that opens its task; with `canEdit`, dragged to move the task's dates (the body) or one end of a
+ * range (the edges), or moved with Alt + arrows (Alt + Shift + arrows: the due date). The bar follows the pointer by
+ * whole days while dragged; the move is sent once, when it is let go, and the dates are worked out from the latest
+ * task when the update runs (a move that turns out to change nothing then sends nothing).
+ */
+function TimelineBar({
+	task,
+	bar,
+	firstDay,
+	dayWidth,
+	label,
+	hint,
+	canEdit,
+	onOpen,
+	dayCount,
+	scrollRef,
+	onMove
+}: Readonly<TimelineBarProps>) {
+	const { preview, handlers, takeDragClick, forgetDragClick } = useTimelineBarDrag({
+		canEdit,
+		dayWidth,
+		scrollRef,
+		onMove
+	});
+	const dates = useMemo(
+		() => ({ startDay: dayOfStoredDate(task.startDate), dueDay: dayOfStoredDate(task.dueDate) }),
+		[task.startDate, task.dueDate]
+	);
+	const { startDay, endDay } = previewDaysOf(bar, dates, preview, firstDay, dayCount);
+	const left = startDay * dayWidth;
+	const width = Math.max(dayWidth, (endDay - startDay + 1) * dayWidth);
+	// The ends drag on a range of several days wide enough to leave its middle to move it; a one-day or narrow bar
+	// moves as a whole.
+	const hasHandles = canEdit && hasEndHandlesOf(bar, dates) && width >= MIN_HANDLE_BAR_WIDTH;
+
+	const handleClick = () => {
+		if (!takeDragClick()) onOpen();
+	};
+	const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+		forgetDragClick();
+		if (!canEdit || !event.altKey || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) {
+			return;
+		}
+		event.preventDefault();
+		// Alt + Shift: the due date. A task with a due date only moves that date (its one date). The move always goes
+		// to the queue: whether it changes the dates is decided there, on the latest task.
+		onMove(event.shiftKey && !bar.isDueOnly ? 'end' : 'move', event.key === 'ArrowLeft' ? -1 : 1);
+	};
+
+	return (
+		<button
+			type="button"
+			onClick={handleClick}
+			{...handlers}
+			onKeyDown={handleKeyDown}
+			aria-label={label}
+			aria-keyshortcuts={
+				canEdit ? 'Alt+ArrowLeft Alt+ArrowRight Alt+Shift+ArrowLeft Alt+Shift+ArrowRight' : undefined
+			}
+			title={canEdit ? `${label}\n${hint}` : label}
+			data-testid={`timeline-bar-${task.id}`}
+			className={cn(
+				'absolute top-1.5 flex items-center overflow-hidden rounded-md px-1.5 text-left text-xs font-medium outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40',
+				bar.isOverdue
+					? 'bg-destructive/15 text-destructive ring-1 ring-inset ring-destructive/40'
+					: 'bg-primary/15 text-foreground ring-1 ring-inset ring-primary/30',
+				(bar.isDueOnly || bar.isStartOnly || bar.hasInvalidRange) && 'border border-dashed border-current',
+				bar.isClippedStart && 'rounded-l-none',
+				bar.isClippedEnd && 'rounded-r-none',
+				canEdit && 'cursor-grab touch-none active:cursor-grabbing',
+				preview && 'z-10 shadow-sm'
+			)}
+			style={{ left, width, height: ROW_HEIGHT - 12 }}
+		>
+			{hasHandles && !bar.isClippedStart ? (
+				<span
+					data-handle="start"
+					aria-hidden="true"
+					className="absolute inset-y-0 left-0 w-1.5 cursor-ew-resize"
+				/>
+			) : null}
+			{width >= 64 ? <span className="pointer-events-none truncate">{task.title}</span> : null}
+			{hasHandles && !bar.isClippedEnd ? (
+				<span
+					data-handle="end"
+					aria-hidden="true"
+					className="absolute inset-y-0 right-0 w-1.5 cursor-ew-resize"
+				/>
+			) : null}
+		</button>
 	);
 }
 
