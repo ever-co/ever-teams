@@ -14,11 +14,12 @@ import { useCallback } from 'react';
 import { useUpdateTask, useSetActiveTask } from '@/core/hooks/organizations';
 import { IInviteProps } from '../teams/invite-modal';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
-import { useAtomValue } from 'jotai';
-import { activeTeamTaskState } from '@/core/stores';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { activeTeamTaskState, leftActiveTaskIdState } from '@/core/stores';
 
 const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const markActiveTaskLeft = useSetAtom(leftActiveTaskIdState);
 	const { updateTask, updateLoading } = useUpdateTask();
 	const { setActiveTask } = useSetActiveTask();
 	const t = useTranslations();
@@ -31,9 +32,11 @@ const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 		}
 		closeModal();
 		if (activeTeamTask?.id === task?.id) {
+			// Closing the active task stops a timer running on it, as a switch to another task does
+			markActiveTaskLeft(activeTeamTask?.id ?? null);
 			setActiveTask(null);
 		}
-	}, [closeModal, setActiveTask, task, updateTask, activeTeamTask?.id]);
+	}, [closeModal, setActiveTask, task, updateTask, activeTeamTask?.id, markActiveTaskLeft]);
 
 	const onClose = useCallback(() => {
 		return;

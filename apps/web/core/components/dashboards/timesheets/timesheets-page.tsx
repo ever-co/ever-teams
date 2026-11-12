@@ -16,7 +16,11 @@ import { useTimesheetLogActions } from '@/core/hooks/dashboards/timesheets/use-t
 import { useSheetEditing } from '@/core/hooks/dashboards/timesheets/use-sheet-editing';
 import { useSheetEmptyMembers } from '@/core/hooks/dashboards/timesheets/use-sheet-empty-members';
 import { useTimesheetSheet } from '@/core/hooks/dashboards/timesheets/use-timesheet-sheet';
-import { canEditLog, useTimesheetsPage } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
+import {
+	canEditLog,
+	sheetEditingSourceOf,
+	useTimesheetsPage
+} from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
 import { useTimeEntryContinue } from '@/core/hooks/timer/use-time-entry-continue';
 import { useTimerTaskStart } from '@/core/hooks/timer/use-timer-task-start';
 import { useTimeEntryDuplicate } from '@/core/hooks/timesheet/use-time-entry-duplicate';
@@ -225,7 +229,8 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 		isManage: permissions.isManage
 	});
 	const sheet = useTimesheetSheet(sheetLogs, page.period, emptySheetMembers);
-	const sheetEditing = useSheetEditing(page, sheet);
+	const sheetEditingSource = sheetEditingSourceOf(page);
+	const sheetEditing = useSheetEditing(sheetEditingSource, sheet);
 	const { pendingLogs } = sheet;
 
 	const approveSelection = async () => {

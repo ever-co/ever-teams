@@ -58,9 +58,19 @@ function openEntriesOf(
 	return { row, cell, day, anchor: target.anchor };
 }
 
+/** What a page offers on the entries of a cell: an action it leaves out is not shown. */
+export type SheetEntryHandlers = Partial<
+	Pick<TimesheetRowHandlers, 'approve' | 'reject' | 'edit' | 'remove' | 'reuse'>
+>;
+
 function canReviewLog(log: ITimeLog, permissions: TimesheetPermissions) {
 	const isPending = isPendingLog(log);
 	return isPending && permissions.canApprove;
+}
+
+function offersReviewOf(log: ITimeLog, permissions: TimesheetPermissions, handlers: SheetEntryHandlers) {
+	const hasReviewActions = Boolean(handlers.approve) && Boolean(handlers.reject);
+	return hasReviewActions && canReviewLog(log, permissions);
 }
 
 function offersReuse(log: ITimeLog, reuse: TimeEntryReuseHandlers | undefined) {
@@ -96,36 +106,38 @@ function SheetEntry({
 	log: ITimeLog;
 	formatters: TimesheetFormatters;
 	permissions: TimesheetPermissions;
-	handlers: TimesheetRowHandlers;
+	handlers: SheetEntryHandlers;
 	/** Closes the popover before an action, so a dialog never opens under it. */
 	onAct: () => void;
 }>) {
 	const t = useTranslations();
 	const status = statusOfLog(log);
-	const showsReview = canReviewLog(log, permissions);
+	const showsReview = offersReviewOf(log, permissions, handlers);
 	const canEdit = canEditLog(log, permissions);
+	const showsEdit = canEdit && Boolean(handlers.edit);
+	const showsRemove = canEdit && Boolean(handlers.remove);
 	const reuse = handlers.reuse;
 	const showsReuse = offersReuse(log, reuse);
-	const hasActions = showsReview || canEdit || showsReuse;
+	const hasActions = showsReview || showsEdit || showsRemove || showsReuse;
 	const seconds = logDurationSeconds(log);
 	const duration = formatDurationShort(seconds);
 	const rejectionReason = rejectionReasonOf(log, status);
 
 	const approve = () => {
 		onAct();
-		handlers.approve(log);
+		handlers.approve?.(log);
 	};
 	const reject = () => {
 		onAct();
-		handlers.reject(log);
+		handlers.reject?.(log);
 	};
 	const edit = () => {
 		onAct();
-		handlers.edit(log);
+		handlers.edit?.(log);
 	};
 	const remove = () => {
 		onAct();
-		handlers.remove(log);
+		handlers.remove?.(log);
 	};
 
 	return (
@@ -159,23 +171,23 @@ function SheetEntry({
 						</>
 					)}
 					{reuse && <TimeEntryReuseButtons log={log} reuse={reuse} onAct={onAct} />}
-					{canEdit && (
-						<>
-							<Button type="button" variant="ghost" size="sm" onClick={edit}>
-								<Pencil />
-								<span>{t('common.EDIT')}</span>
-							</Button>
-							<Button
-								type="button"
-								variant="ghost"
-								size="sm"
-								onClick={remove}
-								className="text-destructive-ink hover:bg-destructive/10 hover:text-destructive-ink"
-							>
-								<Trash />
-								<span>{t('common.DELETE')}</span>
-							</Button>
-						</>
+					{showsEdit && (
+						<Button type="button" variant="ghost" size="sm" onClick={edit}>
+							<Pencil />
+							<span>{t('common.EDIT')}</span>
+						</Button>
+					)}
+					{showsRemove && (
+						<Button
+							type="button"
+							variant="ghost"
+							size="sm"
+							onClick={remove}
+							className="text-destructive-ink hover:bg-destructive/10 hover:text-destructive-ink"
+						>
+							<Trash />
+							<span>{t('common.DELETE')}</span>
+						</Button>
 					)}
 				</span>
 			)}
@@ -220,7 +232,7 @@ export function TimesheetsSheetEntries({
 	onClose: () => void;
 	formatters: TimesheetFormatters;
 	permissions: TimesheetPermissions;
-	handlers: TimesheetRowHandlers;
+	handlers: SheetEntryHandlers;
 }>) {
 	const t = useTranslations();
 	const entries = openEntriesOf(openCell, sheet, days);
@@ -239,7 +251,7 @@ export function TimesheetsSheetEntries({
 		const dayLabel = dayLabelOf(entries.day.date, t, formatters);
 		const cellTotal = formatDurationShort(entries.cell.seconds);
 		const logCount = t('dashboard.timesheets.LOG_COUNT', { count: entries.cell.logs.length });
-		const offersReview = entries.cell.logs.some((log) => canReviewLog(log, permissions));
+		const offersReview = entries.cell.logs.some((log) => offersReviewOf(log, permissions, handlers));
 		content = (
 			<>
 				<div className="flex items-start justify-between gap-3 px-3.5 pt-3 pb-1">

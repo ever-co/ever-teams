@@ -77,14 +77,28 @@ export function docsCommentThreads(comments: readonly IComment[]): DocsCommentTh
 	}));
 }
 
+/** Where a thread sits for the reading order: its block now, and where its range starts in it (null without one). */
+export type DocsThreadOrderPlace = (thread: DocsCommentThread) => { blockId: string | null; start: number | null };
+
 /**
- * The threads in reading order: those on a block in the order of the blocks on the page, then the page's own and those
- * whose block is gone, oldest first.
+ * The threads in reading order: those on a block in the order of the blocks on the page (in a block, a range before
+ * the next one and before the block's own), then the page's own and those whose place is gone, oldest first.
+ *
+ * @param placeOf Where each thread is now (its range found again); by default the block its first line names.
  */
-export function sortThreadsByDocument(threads: readonly DocsCommentThread[], blockOrder: readonly string[]): DocsCommentThread[] {
+export function sortThreadsByDocument(threads: readonly DocsCommentThread[], blockOrder: readonly string[], placeOf?: DocsThreadOrderPlace): DocsCommentThread[] {
 	const at = new Map(blockOrder.map((blockId, index) => [blockId, index]));
-	const placeOf = (thread: DocsCommentThread) => (thread.blockId !== null && at.has(thread.blockId) ? (at.get(thread.blockId) as number) : Number.MAX_SAFE_INTEGER);
-	return [...threads].sort((left, right) => placeOf(left) - placeOf(right) || byCreatedAt(left.root, right.root));
+	const keyOf = (thread: DocsCommentThread): [number, number] => {
+		const place = placeOf ? placeOf(thread) : { blockId: thread.blockId, start: null };
+		const block = place.blockId !== null && at.has(place.blockId) ? (at.get(place.blockId) as number) : Number.MAX_SAFE_INTEGER;
+		return [block, place.start ?? Number.MAX_SAFE_INTEGER];
+	};
+	const keys = new Map(threads.map((thread) => [thread.id, keyOf(thread)]));
+	return [...threads].sort((left, right) => {
+		const [leftBlock, leftStart] = keys.get(left.id) as [number, number];
+		const [rightBlock, rightStart] = keys.get(right.id) as [number, number];
+		return leftBlock - rightBlock || leftStart - rightStart || byCreatedAt(left.root, right.root);
+	});
 }
 
 export function threadsOfTab(threads: readonly DocsCommentThread[], tab: DocsCommentTab): DocsCommentThread[] {

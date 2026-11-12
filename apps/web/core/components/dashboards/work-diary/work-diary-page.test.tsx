@@ -55,6 +55,10 @@ jest.mock('./diary-task-reuse', () => ({
 	useDiaryTaskReuse: () => ({ renderTaskActions: mockTaskActions, startRequest: null, duplicate: null }),
 	DiaryTaskReuseLayers: () => null
 }));
+// The week sheet has its own test: here it only has to take the day's place
+jest.mock('./diary-week-view', () => ({
+	DiaryWeekView: () => <section aria-label="week sheet" />
+}));
 
 import { WorkDiaryPage } from './work-diary-page';
 
@@ -149,6 +153,9 @@ function stateOf(overrides: Partial<WorkDiaryPageState> = {}): WorkDiaryPageStat
 		day: DAY,
 		dayKey: '2026-11-10',
 		isToday: false,
+		view: 'day',
+		week: { from: new Date(2026, 10, 9), to: new Date(2026, 10, 15, 23, 59, 59, 999) },
+		weekSheet: { source: null, isLoading: false, isError: false, refetch: jest.fn() },
 		history: { from: new Date(2000, 0, 1), to: new Date(2026, 10, 11) },
 		stripDays: [new Date(2026, 10, 9), DAY, new Date(2026, 10, 11)],
 		trackedKeys: new Set(['2026-11-10']),
@@ -176,6 +183,7 @@ function stateOf(overrides: Partial<WorkDiaryPageState> = {}): WorkDiaryPageStat
 		timesheetsPath: null,
 		pickDay: jest.fn(),
 		showToday: jest.fn(),
+		changeView: jest.fn(),
 		...overrides
 	} as unknown as WorkDiaryPageState;
 }
@@ -324,5 +332,54 @@ describe('WorkDiaryPage', () => {
 
 		expect(screen.getByText('dashboard.calendar.NO_MEMBER_TITLE')).toBeTruthy();
 		expect(screen.queryByRole('region', { name: 'common.TASKS' })).toBeNull();
+	});
+
+	it('offers the Day and Week views beside the day controls, and asks for the one picked', () => {
+		render(<WorkDiaryPage />);
+
+		const views = screen.getByRole('tablist', { name: 'dashboard.timesheets.VIEW_LABEL' });
+		const dayTab = within(views).getByRole('tab', { name: 'dashboard.calendar.VIEWS.DAY' });
+		expect(dayTab.getAttribute('aria-selected')).toBe('true');
+		expect(screen.queryByRole('region', { name: 'week sheet' })).toBeNull();
+
+		fireEvent.click(within(views).getByRole('tab', { name: 'dashboard.calendar.VIEWS.WEEK' }));
+		expect(mockState.changeView).toHaveBeenCalledWith('week');
+	});
+
+	it('shows the week sheet in place of the day, under the dates of its week', () => {
+		mockState = stateOf({ view: 'week' });
+		render(<WorkDiaryPage />);
+
+		expect(screen.getByRole('region', { name: 'week sheet' })).toBeTruthy();
+		expect(screen.queryByRole('region', { name: 'common.TASKS' })).toBeNull();
+		expect(screen.queryByRole('region', { name: 'dashboard.workDiary.FIGURES_LABEL' })).toBeNull();
+		expect(screen.getByText(/Nov 9\D+15/)).toBeTruthy();
+		// The strip still steps week by week and Today still comes back to this week
+		expect(screen.getByRole('list', { name: 'dashboard.timesheets.diary.DAY_STRIP' })).toBeTruthy();
+		fireEvent.click(screen.getByRole('button', { name: 'common.TODAY' }));
+		expect(mockState.showToday).toHaveBeenCalled();
+	});
+
+	it("leaves a failed read of the day's logs out of the week view, and keeps no week sheet without a member", () => {
+		mockState = stateOf({ view: 'week', isLogsError: true });
+		const { unmount } = render(<WorkDiaryPage />);
+		expect(screen.queryByRole('button', { name: 'pages.unauthorized.TRY_AGAIN' })).toBeNull();
+		unmount();
+
+		mockState = stateOf({ view: 'week', isMemberUnknown: true });
+		render(<WorkDiaryPage />);
+		expect(screen.getByText('dashboard.calendar.NO_MEMBER_TITLE')).toBeTruthy();
+		expect(screen.queryByRole('region', { name: 'week sheet' })).toBeNull();
+	});
+
+	it('closes an open slot when the view changes', () => {
+		render(<WorkDiaryPage />);
+		fireEvent.click(screen.getByRole('button', { name: /^dashboard\.timesheets\.diary\.SLOT_LABEL/ }));
+		expect(screen.getByRole('dialog')).toBeTruthy();
+
+		fireEvent.click(screen.getByRole('tab', { name: 'dashboard.calendar.VIEWS.WEEK', hidden: true }));
+
+		expect(mockState.changeView).toHaveBeenCalledWith('week');
+		expect(screen.queryByRole('dialog')).toBeNull();
 	});
 });

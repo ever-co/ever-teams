@@ -12,6 +12,12 @@ export const teamTasksCompleteState = atom<boolean>(false);
 export const teamTasksPagesLoadingState = atom<boolean>(false);
 
 export const activeTeamTaskState = atom<TTask | null>(null);
+/**
+ * The active task the person has just left on purpose, by leaving the task or closing it. The timer's task-switch stop
+ * ends a run on it, as when they switch to another task, while an active task the app empties by itself never stops
+ * a run (#5119). The timer owner clears it once it has seen the change.
+ */
+export const leftActiveTaskIdState = atom<string | null>(null);
 export const activeTeamTaskId = atom<{ id: string }>({
 	id: ''
 });
