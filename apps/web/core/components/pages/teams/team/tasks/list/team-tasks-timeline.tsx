@@ -67,6 +67,7 @@ export function TeamTasksTimelineView({
 	const formats = useMemo(
 		() => ({
 			day: new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' }),
+			dayWithYear: new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric', year: 'numeric' }),
 			month: new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }),
 			dayOfMonth: new Intl.DateTimeFormat(locale, { day: 'numeric' })
 		}),
@@ -86,9 +87,12 @@ export function TeamTasksTimelineView({
 		element.scrollLeft = Math.max(0, todayDay * dayWidth - (element.clientWidth - TITLE_WIDTH) / 3);
 	}, [todayDay, dayWidth]);
 
-	// The task's own dates (never the calendar's edges a long bar is cut at).
+	// The task's own dates (never the calendar's edges a long bar is cut at), with the year when it is not this one.
 	const barLabel = (task: TTask, bar: TeamTasksTimelineBar) => {
-		const day = (value: number) => formats.day.format(dateOfDayNumber(value));
+		const day = (value: number) => {
+			const date = dateOfDayNumber(value);
+			return (date.getFullYear() === today.getFullYear() ? formats.day : formats.dayWithYear).format(date);
+		};
 		const { taskStartDay, taskDueDay } = bar;
 		let dates = '';
 		if (taskStartDay !== null && taskDueDay !== null && taskStartDay !== taskDueDay) {
@@ -228,12 +232,31 @@ export function TeamTasksTimelineView({
 											aria-label={label}
 											title={label}
 										>
+											{bar.outside === 'before' ? (
+												<span
+													aria-hidden="true"
+													className="shrink-0 text-muted-foreground"
+													data-testid={`timeline-title-before-${task.id}`}
+												>
+													‹
+												</span>
+											) : null}
 											{task.number ? (
 												<span className="shrink-0 text-xs tabular-nums text-muted-foreground">
 													#{task.number}
 												</span>
 											) : null}
 											<span className="truncate">{task.title}</span>
+											{/* The edge marker can be far from the days in view: the title says where the dates are too. */}
+											{bar.outside === 'after' ? (
+												<span
+													aria-hidden="true"
+													className="ml-auto shrink-0 text-muted-foreground"
+													data-testid={`timeline-title-after-${task.id}`}
+												>
+													›
+												</span>
+											) : null}
 										</button>
 										<div className="relative" style={{ width: calendarWidth }}>
 											{bar.outside ? (

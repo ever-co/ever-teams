@@ -204,13 +204,15 @@ describe('TeamTasksTimelineView', () => {
 		// Far outside the capped calendar: no bar, a marker that opens the task, its own date in the label.
 		const marker = screen.getByTestId('timeline-outside-old');
 		expect(marker.getAttribute('aria-label')).toBe(
-			'Ancient · Jan 1 · pages.teamTasks.TIMELINE_DUE_ONLY · pages.teamTasks.TIMELINE_OVERDUE'
+			'Ancient · Jan 1, 2019 · pages.teamTasks.TIMELINE_DUE_ONLY · pages.teamTasks.TIMELINE_OVERDUE'
 		);
+		// The title says which way the dates are, the marker being far from the days in view.
+		expect(screen.getByTestId('timeline-title-before-old')).toBeTruthy();
 		fireEvent.click(marker);
 		expect(commands.openTask).toHaveBeenCalledWith('old');
 		// A long task cut at the edges is labelled with its own dates, not the calendar's.
 		expect(screen.getByTestId('timeline-bar-span').getAttribute('aria-label')).toContain(
-			'TIMELINE_RANGE(Jan 1,Jan 1)'
+			'TIMELINE_RANGE(Jan 1, 2020,Jan 1, 2031)'
 		);
 	});
 
