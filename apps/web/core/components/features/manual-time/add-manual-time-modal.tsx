@@ -14,7 +14,6 @@ import { BillableSwitch } from '@/core/components/common/billable-switch';
 import { DialogFieldLabel } from '@/core/components/common/dialog-field-label';
 import { DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
 import { manualTimeRefusalKeyOf, minutesOfClockText } from '@/core/lib/utils/dashboards/manual-time-entry';
-import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import { FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 
 import { manualTimeReasons } from '@/core/constants/config/constants';

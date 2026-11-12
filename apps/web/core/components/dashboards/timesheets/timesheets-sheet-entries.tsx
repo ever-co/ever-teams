@@ -59,7 +59,7 @@ function openEntriesOf(
 }
 
 /** What a page offers on the entries of a cell: an action it leaves out is not shown. */
-export type SheetEntryHandlers = Partial<Pick<TimesheetRowHandlers, 'approve' | 'reject' | 'edit' | 'remove'>>;
+export type SheetEntryHandlers = Partial<Pick<TimesheetRowHandlers, 'approve' | 'reject' | 'edit' | 'remove' | 'reuse'>>;
 
 function canReviewLog(log: ITimeLog, permissions: TimesheetPermissions) {
 	const isPending = isPendingLog(log);
