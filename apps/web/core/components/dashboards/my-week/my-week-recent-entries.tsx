@@ -110,7 +110,7 @@ function tasksByIdOf(tasks: ReadonlyArray<TTask>) {
 }
 
 /** Only a task of the active team's list can be started: the timer runs in that team, on a task it knows whole. */
-function startableTaskOf(entry: MyWeekEntry, tasksById: ReadonlyMap<string, TTask>) {
+function taskToStartOf(entry: MyWeekEntry, tasksById: ReadonlyMap<string, TTask>) {
 	const taskId = taskIdOfEntry(entry);
 	if (!taskId) {
 		return null;
@@ -145,7 +145,7 @@ export function MyWeekRecentEntries({
 					<RecentEntryRow
 						key={entry.id}
 						entry={entry}
-						task={startableTaskOf(entry, tasksById)}
+						task={taskToStartOf(entry, tasksById)}
 						showsStart={canTrackTime}
 						formatters={formatters}
 					/>
