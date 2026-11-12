@@ -451,6 +451,28 @@ export const queryKeys = {
 		) => ['notifications', 'settings', tenantId ?? null, organizationId ?? null, employeeId ?? null] as const
 	},
 
+	// Settings → Automations: the organization's rules, the templates and a rule's run history. The user is part of
+	// every key: what one sign-in read (or was refused) never shows for the next one.
+	taskAutomations: {
+		all: ['task-automations'] as const,
+		templates: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null
+		) => ['task-automations', 'templates', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		rules: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null
+		) => ['task-automations', 'rules', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		runs: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null,
+			ruleId: string | undefined | null
+		) => ['task-automations', 'runs', tenantId ?? null, organizationId ?? null, userId ?? null, ruleId ?? null] as const
+	},
+
 	inbox: {
 		all: ['inbox'] as const,
 		items: (
