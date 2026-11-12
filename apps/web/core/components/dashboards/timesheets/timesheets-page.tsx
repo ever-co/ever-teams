@@ -1,6 +1,7 @@
 'use client';
 
 import { type ReactNode, use, useCallback, useMemo } from 'react';
+import { useStore } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { PageLayout } from '@/core/components/layouts/default-layout/page-layout';
@@ -28,6 +29,7 @@ import { useTimeEntryDuplicate } from '@/core/hooks/timesheet/use-time-entry-dup
 import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { ADD_TIME_ENTRY_STEP_MINUTES, canDuplicateLog } from '@/core/lib/utils/time-entry-reuse';
+import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import {
 	sheetMembersOf,
 	type TimesheetDay,
@@ -176,17 +178,23 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 	const { canContinue, continueLog } = useTimeEntryContinue(timerStart.startOn);
 	const duplicate = useTimeEntryDuplicate({ stepMinutes: ADD_TIME_ENTRY_STEP_MINUTES });
 	const openDuplicate = duplicate.open;
-	// Duplicate opens the page's Add time entry dialog, so it is offered to whoever the page offers Add time
+	const store = useStore();
+	// Duplicate opens the page's Add time entry dialog, so it is offered to whoever the page offers Add time, on an
+	// entry whose task and member that dialog offers (the active team's), read when a menu opens
 	const reuse = useMemo<TimeEntryReuseHandlers>(
 		() => ({
 			canContinue,
 			continueLog,
-			canDuplicate: (log) => canDuplicateLog(log, canAddTime, addTimeMember?.employeeId ?? null),
+			canDuplicate: (log) => {
+				const members = store.get(activeTeamState)?.members ?? [];
+				const targets = { tasks: store.get(tasksByTeamState), members };
+				return canDuplicateLog(log, canAddTime, addTimeMember?.employeeId ?? null, targets);
+			},
 			duplicate: (log) => {
 				void openDuplicate({ log });
 			}
 		}),
-		[addTimeMember, canAddTime, canContinue, continueLog, openDuplicate]
+		[addTimeMember, canAddTime, canContinue, continueLog, openDuplicate, store]
 	);
 
 	const handlers = useMemo<TimesheetRowHandlers>(

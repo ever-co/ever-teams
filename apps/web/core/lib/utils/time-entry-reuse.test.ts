@@ -403,4 +403,29 @@ describe('canDuplicateLog', () => {
 		expect(canDuplicateLog(ownEntry, false, null)).toBe(false);
 		expect(canDuplicateLog(ownEntry, false, 'employee-1')).toBe(false);
 	});
+
+	describe('with what the Add time dialog offers', () => {
+		const teamTargets = { tasks: [{ id: 'task-1' }], members: [{ employeeId: 'employee-1' }] };
+		const ownTask = logOf('log-own-task', { employeeId: 'employee-1', taskId: 'task-1' });
+		const otherTeamTask = logOf('log-other-team', { employeeId: 'employee-1', taskId: 'task-9' });
+		const untasked = logOf('log-untasked', { employeeId: 'employee-1' });
+		const otherTeamMember = logOf('log-other-member', { employeeId: 'employee-9', taskId: 'task-1' });
+
+		it('offers it on an entry whose task and member the dialog can keep', () => {
+			expect(canDuplicateLog(ownTask, true, null, teamTargets)).toBe(true);
+		});
+
+		it('does not offer it on an entry the dialog would open without its task or its member', () => {
+			expect(canDuplicateLog(otherTeamTask, true, null, teamTargets)).toBe(false);
+			expect(canDuplicateLog(untasked, true, null, teamTargets)).toBe(false);
+			expect(canDuplicateLog(otherTeamMember, true, null, teamTargets)).toBe(false);
+		});
+
+		it('needs no member in the list for a viewer who adds their own time only', () => {
+			const withoutMembers = { ...teamTargets, members: [] };
+
+			expect(canDuplicateLog(ownTask, true, 'employee-1', withoutMembers)).toBe(true);
+			expect(canDuplicateLog(otherTeamTask, true, 'employee-1', withoutMembers)).toBe(false);
+		});
+	});
 });

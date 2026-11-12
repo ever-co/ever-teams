@@ -487,17 +487,37 @@ export function periodLengthOf(seconds: number): string {
 	return `${twoDigits(hours)}:${twoDigits(minutes)}h`;
 }
 
+/** What the page's Add time dialog lets a copy keep: the tasks it offers, and the members it adds time for. */
+export interface DuplicateTargets {
+	tasks: ReadonlyArray<Pick<TTask, 'id'>>;
+	members: ReadonlyArray<{ employeeId?: string | null }>;
+}
+
 /**
  * Whether a page offers Duplicate on an entry. The copy opens the page's Add time dialog, so it follows who that dialog
  * adds time for: a viewer who adds their own time only (`ownOnlyEmployeeId`, #5136) duplicates their own entries, never
- * a teammate's.
+ * a teammate's. Given what that dialog offers (`targets`), an entry is copied only when the dialog can keep its task
+ * and its member (an entry of another team, or without a task, would open as an empty form): a fixed member is the
+ * one the copy is saved for, whatever the list.
  */
-export function canDuplicateLog(log: ITimeLog, canAddTime: boolean, ownOnlyEmployeeId: string | null): boolean {
+export function canDuplicateLog(
+	log: ITimeLog,
+	canAddTime: boolean,
+	ownOnlyEmployeeId: string | null,
+	targets?: DuplicateTargets
+): boolean {
 	if (!canAddTime) {
 		return false;
 	}
-	if (!ownOnlyEmployeeId) {
+	const { taskId, employeeId } = copiedFieldsOf(log);
+	const isOwnOnly = Boolean(ownOnlyEmployeeId);
+	if (isOwnOnly && employeeId !== ownOnlyEmployeeId) {
+		return false;
+	}
+	if (!targets) {
 		return true;
 	}
-	return copiedFieldsOf(log).employeeId === ownOnlyEmployeeId;
+	const isTaskOffered = targets.tasks.some((task) => task.id === taskId);
+	const isMemberOffered = isOwnOnly || targets.members.some((member) => member.employeeId === employeeId);
+	return isTaskOffered && isMemberOffered;
 }
