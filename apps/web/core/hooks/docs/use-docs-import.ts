@@ -76,6 +76,9 @@ function isPermanentRefusal(error: unknown): boolean {
  * so reopening shows its progress or its report. `onFinished` is called once per import, when it is over, whether the
  * dialog is open or not. A failed read of the progress is told in `trackingError` (after its retry; a refusal for good
  * stops the polling), and `retryRead` reads it again without uploading the zip again.
+ *
+ * A run belongs to the workspace it started in: a switch of organization (or of user) in the tab puts it away, and an
+ * upload that answers after the switch is dropped. The import itself goes on on the platform, in its own workspace.
  */
 export function useDocsImportRun(onFinished?: (finished: IDocumentImport) => void) {
 	const scope = useDocsScope();
@@ -97,6 +100,8 @@ export function useDocsImportRun(onFinished?: (finished: IDocumentImport) => voi
 	const finished = isImportFinished(current);
 	const shownStep: DocsImportStep = step === 'running' && finished ? 'done' : step;
 	const trackingError = shownStep === 'running' && query.isError;
+	// Refused for good (gone, or not the reader's): nothing runs here any more, and closing the dialog puts it away.
+	const refused = trackingError && isPermanentRefusal(query.error);
 	const { refetch } = query;
 	const retryRead = useCallback(() => void refetch(), [refetch]);
 
@@ -112,19 +117,26 @@ export function useDocsImportRun(onFinished?: (finished: IDocumentImport) => voi
 		onFinishedRef.current?.(current);
 	}, [current, finished]);
 
+	const scopeKey = scope ? `${scope.tenantId}:${scope.organizationId}:${scope.userId}` : null;
+	const scopeKeyRef = useRef(scopeKey);
+
 	const start = useCallback(
 		async (file: File, target: IDocumentImportTarget) => {
+			const startedIn = scopeKeyRef.current;
 			setError(null);
 			setUploadPercent(0);
 			setStep('uploading');
 			try {
 				const accepted = await docsImportService.startImport(file, target, setUploadPercent);
+				// The workspace changed meanwhile: the run was put away, and this answer is another workspace's.
+				if (scopeKeyRef.current !== startedIn) return;
 				setStarted(accepted);
 				setImportId(accepted.id);
 				setStep(isImportFinished(accepted) ? 'done' : 'running');
 				// The probe also lists the reader's imports.
 				void queryClient.invalidateQueries({ queryKey: queryKeys.docs.importProbe(scope?.tenantId, scope?.organizationId, scope?.userId) });
 			} catch (error_) {
+				if (scopeKeyRef.current !== startedIn) return;
 				setError(errorCodeOf(error_) ?? 'DOCS_IMPORT_FAILED');
 				setStep('pick');
 			}
@@ -140,8 +152,16 @@ export function useDocsImportRun(onFinished?: (finished: IDocumentImport) => voi
 		setError(null);
 	}, []);
 
-	/** An upload, or an import that is not over yet: closing the dialog keeps it. */
-	const inProgress = shownStep === 'uploading' || shownStep === 'running';
+	// Another workspace (a switch of organization or of user, not the scope going away for a moment): the run is put away.
+	useEffect(() => {
+		if (!scopeKey || scopeKeyRef.current === scopeKey) return;
+		const previous = scopeKeyRef.current;
+		scopeKeyRef.current = scopeKey;
+		if (previous) reset();
+	}, [reset, scopeKey]);
+
+	/** An upload, or an import that is not over yet (and still readable): closing the dialog keeps it. */
+	const inProgress = shownStep === 'uploading' || (shownStep === 'running' && !refused);
 
 	return { step: shownStep, uploadPercent, current, error, trackingError, retryRead, inProgress, start, reset };
 }

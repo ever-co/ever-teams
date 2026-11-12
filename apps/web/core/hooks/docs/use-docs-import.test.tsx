@@ -12,7 +12,8 @@ jest.mock('@/core/services/client/api/docs', () => ({
 		return mockService;
 	}
 }));
-jest.mock('./use-docs-scope', () => ({ useDocsScope: () => ({ tenantId: 'tenant-1', organizationId: 'org-1', userId: 'user-1', employeeId: null }) }));
+let mockScope = { tenantId: 'tenant-1', organizationId: 'org-1', userId: 'user-1', employeeId: null as string | null };
+jest.mock('./use-docs-scope', () => ({ useDocsScope: () => mockScope }));
 // An answer of the platform with its status, as the client's errors carry it.
 jest.mock('@/core/services/client/api-error.service', () => ({
 	ApiErrorService: { isApiError: (error: unknown) => Boolean((error as { statusCode?: number })?.statusCode) }
@@ -45,7 +46,10 @@ function wrapper() {
 const zip = () => new File(['zip'], 'vault.zip', { type: 'application/zip' });
 
 describe('useDocsImportRun', () => {
-	beforeEach(() => jest.resetAllMocks());
+	beforeEach(() => {
+		jest.resetAllMocks();
+		mockScope = { tenantId: 'tenant-1', organizationId: 'org-1', userId: 'user-1', employeeId: null };
+	});
 
 	it('follows the import to its end and tells the page once, the dialog open or not', async () => {
 		mockService.startImport.mockResolvedValue(importOf('QUEUED'));
@@ -95,6 +99,31 @@ describe('useDocsImportRun', () => {
 		await new Promise((resolve) => setTimeout(resolve, 120));
 		expect(mockService.getImport.mock.calls).toHaveLength(reads);
 		expect(reads).toBe(1);
+		// Nothing runs here any more: closing the dialog puts the run away.
+		expect(result.current.inProgress).toBe(false);
+	});
+
+	it('puts the run away when the organization changes, and drops an upload that answers after', async () => {
+		let answer: (value: IDocumentImport) => void = () => undefined;
+		mockService.startImport.mockImplementation(() => new Promise<IDocumentImport>((resolve) => (answer = resolve)));
+		const { result, rerender } = renderHook(() => useDocsImportRun(), { wrapper: wrapper() });
+
+		let upload: Promise<void> = Promise.resolve();
+		act(() => {
+			upload = result.current.start(zip(), { parentId: 'page-1' });
+		});
+		expect(result.current.step).toBe('uploading');
+
+		mockScope = { ...mockScope, organizationId: 'org-2' };
+		rerender();
+		expect(result.current.step).toBe('pick');
+
+		await act(async () => {
+			answer(importOf('RUNNING', 1));
+			await upload;
+		});
+		expect(result.current).toMatchObject({ step: 'pick', current: null, inProgress: false });
+		expect(mockService.getImport).not.toHaveBeenCalled();
 	});
 
 	it('answers the code of a refused zip and goes back to the picker', async () => {
