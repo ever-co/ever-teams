@@ -5,6 +5,7 @@ import {
 	approximateMatch,
 	commentAnchorInputOf,
 	DOCS_ANCHOR_QUOTE_MAX_LENGTH,
+	editDistanceWithin,
 	resolveCommentAnchor,
 	storedAnchorOf,
 	threadPlaceOf,
@@ -101,6 +102,15 @@ describe('approximateMatch', () => {
 		expect(approximateMatch('say hello, world now', 'hello world')).toMatchObject({ start: 4, distance: 1 });
 		expect(approximateMatch('abc', 'abd')).toBeNull();
 		expect(approximateMatch('something else entirely', 'hello world')).toBeNull();
+	});
+
+	it('checks the whole of a quote longer than the compared part, as the platform does', () => {
+		const quote = 'the river runs past the old mill and the green field '.repeat(8);
+		const edited = `Intro. ${quote.slice(0, 300)}${quote.slice(300).replace('mill', 'mall')}`;
+		expect(approximateMatch(edited, quote)).toMatchObject({ start: 7, end: 7 + quote.length, distance: 1 });
+		expect(approximateMatch(`Intro. ${quote.slice(0, 256)}${'x'.repeat(quote.length - 256)}`, quote)).toBeNull();
+		expect(editDistanceWithin('kitten', 'sitting', 3)).toBe(3);
+		expect(editDistanceWithin('kitten', 'sitting', 2)).toBeNull();
 	});
 });
 
