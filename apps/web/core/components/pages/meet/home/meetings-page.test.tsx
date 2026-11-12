@@ -294,27 +294,34 @@ describe('MeetingsPage', () => {
 		} as unknown as typeof ResizeObserver;
 		const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 		const elsewhere = zone === 'Asia/Tokyo' ? 'America/New_York' : 'Asia/Tokyo';
-		render(<MeetingsPage />);
-		fireEvent.click(screen.getByTestId('meetings-schedule'));
-		fireEvent.change(await screen.findByLabelText('meetings.FIELD_TITLE'), { target: { value: 'Tokyo sync' } });
-		fireEvent.change(screen.getByLabelText('meetings.FIELD_DATE'), { target: { value: '2030-01-15' } });
-		fireEvent.change(screen.getByLabelText('meetings.FIELD_TIME'), { target: { value: '10:00' } });
-		expect(screen.getByTestId('meeting-time-zone').textContent).toContain(zone.replace(/_/g, ' '));
-		expect(screen.queryByTestId('meeting-local-time')).toBeNull();
+		// A clock of its own: the date typed below must stay ahead, whenever this runs
+		jest.useFakeTimers({ advanceTimers: true });
+		try {
+			jest.setSystemTime(new Date('2026-11-12T12:00:00.000Z'));
+			render(<MeetingsPage />);
+			fireEvent.click(screen.getByTestId('meetings-schedule'));
+			fireEvent.change(await screen.findByLabelText('meetings.FIELD_TITLE'), { target: { value: 'Tokyo sync' } });
+			fireEvent.change(screen.getByLabelText('meetings.FIELD_DATE'), { target: { value: '2030-01-15' } });
+			fireEvent.change(screen.getByLabelText('meetings.FIELD_TIME'), { target: { value: '10:00' } });
+			expect(screen.getByTestId('meeting-time-zone').textContent).toContain(zone.replace(/_/g, ' '));
+			expect(screen.queryByTestId('meeting-local-time')).toBeNull();
 
-		fireEvent.click(screen.getByTestId('meeting-time-zone'));
-		fireEvent.change(await screen.findByPlaceholderText('settings.preferences.TIME_ZONE_SEARCH'), {
-			target: { value: elsewhere }
-		});
-		fireEvent.click(await screen.findByRole('option', { name: new RegExp(elsewhere.replace(/_/g, ' ')) }));
+			fireEvent.click(screen.getByTestId('meeting-time-zone'));
+			fireEvent.change(await screen.findByPlaceholderText('settings.preferences.TIME_ZONE_SEARCH'), {
+				target: { value: elsewhere }
+			});
+			fireEvent.click(await screen.findByRole('option', { name: new RegExp(elsewhere.replace(/_/g, ' ')) }));
 
-		expect(screen.getByTestId('meeting-time-zone').textContent).toContain(elsewhere.replace(/_/g, ' '));
-		expect(screen.getByTestId('meeting-local-time').textContent).toMatch(/^meetings.LOCAL_TIME_HINT:/);
-		await act(async () => {
-			fireEvent.click(screen.getByRole('button', { name: 'meetings.SCHEDULE' }));
-		});
-		const expected = elsewhere === 'Asia/Tokyo' ? '2030-01-15T01:00:00.000Z' : '2030-01-15T15:00:00.000Z';
-		expect(mockScheduleMeeting.mock.calls[0][0].start.toISOString()).toBe(expected);
+			expect(screen.getByTestId('meeting-time-zone').textContent).toContain(elsewhere.replace(/_/g, ' '));
+			expect(screen.getByTestId('meeting-local-time').textContent).toMatch(/^meetings.LOCAL_TIME_HINT:/);
+			await act(async () => {
+				fireEvent.click(screen.getByRole('button', { name: 'meetings.SCHEDULE' }));
+			});
+			const expected = elsewhere === 'Asia/Tokyo' ? '2030-01-15T01:00:00.000Z' : '2030-01-15T15:00:00.000Z';
+			expect(mockScheduleMeeting.mock.calls[0][0].start.toISOString()).toBe(expected);
+		} finally {
+			jest.useRealTimers();
+		}
 	});
 
 	it('refuses a time the clocks skip in the time zone picked, and takes one that exists', async () => {
@@ -324,29 +331,36 @@ describe('MeetingsPage', () => {
 			unobserve() {}
 			disconnect() {}
 		} as unknown as typeof ResizeObserver;
-		render(<MeetingsPage />);
-		fireEvent.click(screen.getByTestId('meetings-schedule'));
-		fireEvent.change(await screen.findByLabelText('meetings.FIELD_TITLE'), { target: { value: 'Early sync' } });
-		if (Intl.DateTimeFormat().resolvedOptions().timeZone !== 'America/New_York') {
-			fireEvent.click(screen.getByTestId('meeting-time-zone'));
-			fireEvent.change(await screen.findByPlaceholderText('settings.preferences.TIME_ZONE_SEARCH'), {
-				target: { value: 'America/New_York' }
-			});
-			fireEvent.click(await screen.findByRole('option', { name: /America\/New York/ }));
-		}
-		// New York goes from 2:00 to 3:00 on 14 March 2027: 2:30 never shows
-		fireEvent.change(screen.getByLabelText('meetings.FIELD_DATE'), { target: { value: '2027-03-14' } });
-		fireEvent.change(screen.getByLabelText('meetings.FIELD_TIME'), { target: { value: '02:30' } });
+		// A clock of its own: 14 March 2027 must stay ahead, whenever this runs
+		jest.useFakeTimers({ advanceTimers: true });
+		try {
+			jest.setSystemTime(new Date('2026-11-12T12:00:00.000Z'));
+			render(<MeetingsPage />);
+			fireEvent.click(screen.getByTestId('meetings-schedule'));
+			fireEvent.change(await screen.findByLabelText('meetings.FIELD_TITLE'), { target: { value: 'Early sync' } });
+			if (Intl.DateTimeFormat().resolvedOptions().timeZone !== 'America/New_York') {
+				fireEvent.click(screen.getByTestId('meeting-time-zone'));
+				fireEvent.change(await screen.findByPlaceholderText('settings.preferences.TIME_ZONE_SEARCH'), {
+					target: { value: 'America/New_York' }
+				});
+				fireEvent.click(await screen.findByRole('option', { name: /America\/New York/ }));
+			}
+			// New York goes from 2:00 to 3:00 on 14 March 2027: 2:30 never shows
+			fireEvent.change(screen.getByLabelText('meetings.FIELD_DATE'), { target: { value: '2027-03-14' } });
+			fireEvent.change(screen.getByLabelText('meetings.FIELD_TIME'), { target: { value: '02:30' } });
 
-		fireEvent.click(screen.getByRole('button', { name: 'meetings.SCHEDULE' }));
-
-		expect(screen.getByRole('alert').textContent).toBe('meetings.SCHEDULE_TIME_SKIPPED');
-		expect(mockScheduleMeeting).not.toHaveBeenCalled();
-		fireEvent.change(screen.getByLabelText('meetings.FIELD_TIME'), { target: { value: '03:30' } });
-		await act(async () => {
 			fireEvent.click(screen.getByRole('button', { name: 'meetings.SCHEDULE' }));
-		});
-		expect(mockScheduleMeeting.mock.calls[0][0].start.toISOString()).toBe('2027-03-14T07:30:00.000Z');
+
+			expect(screen.getByRole('alert').textContent).toBe('meetings.SCHEDULE_TIME_SKIPPED');
+			expect(mockScheduleMeeting).not.toHaveBeenCalled();
+			fireEvent.change(screen.getByLabelText('meetings.FIELD_TIME'), { target: { value: '03:30' } });
+			await act(async () => {
+				fireEvent.click(screen.getByRole('button', { name: 'meetings.SCHEDULE' }));
+			});
+			expect(mockScheduleMeeting.mock.calls[0][0].start.toISOString()).toBe('2027-03-14T07:30:00.000Z');
+		} finally {
+			jest.useRealTimers();
+		}
 	});
 
 	it('refuses a meeting without a title or at a time that has passed', async () => {
