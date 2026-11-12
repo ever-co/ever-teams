@@ -17,6 +17,8 @@ import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { ALREADY_TRACKING_TOAST_ID, useTimerApi } from './use-timer-api';
 
 const NOW = Date.parse('2026-11-12T10:00:00.000Z');
+/** The start of the day the timer status reads. */
+const TODAY_START = Date.parse('2026-11-12T00:00:00.000Z');
 const MINUTE = 60_000;
 
 interface TimeLog {
@@ -84,9 +86,13 @@ jest.mock('sonner', () => ({
 }));
 jest.mock('@/core/services/client/api/timers', () => ({
 	timerService: {
-		getTimerStatus: async () => ({
-			data: { running: !!mockGauzy.lastLog?.isRunning, lastLog: mockGauzy.lastLog }
-		}),
+		// The day's status of a Gauzy before its past-midnight fix (ever-gauzy 531c63ac6): only the logs started today
+		getTimerStatus: async () => {
+			const lastLog =
+				mockGauzy.lastLog && Date.parse(mockGauzy.lastLog.startedAt) >= TODAY_START ? mockGauzy.lastLog : null;
+			return { data: { running: !!lastLog?.isRunning, lastLog } };
+		},
+		// The employee's last log, whatever its day
 		getLastTimerLog: async () => ({
 			data: [{ lastLog: mockGauzy.lastLog }],
 			headers: { date: new Date(NOW).toUTCString() }
@@ -176,6 +182,29 @@ describe('Start while the tracking flag says a timer runs and this tab says stop
 		});
 		// This tab's status was out of date: it is read again, so the tab shows that run
 		expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.timer.all });
+	});
+
+	it("refuses the start and keeps a run another device kept going past midnight, which the day's status leaves out", async () => {
+		// The desktop app started a run yesterday at 23:00 and still runs it
+		mockGauzy.lastLog = {
+			id: 'log-overnight',
+			source: ETimeLogSource.DESKTOP,
+			isRunning: true,
+			startedAt: minutesAgo(660),
+			stoppedAt: minutesAgo(1)
+		};
+		mockGauzy.isTrackingTime = true;
+		const { pressStart } = renderTab();
+
+		const outcome = await pressStart();
+
+		expect(mockStopTimer).not.toHaveBeenCalled();
+		expect(mockStartTimer).not.toHaveBeenCalled();
+		expect(mockGauzy.lastLog).toMatchObject({ id: 'log-overnight', isRunning: true });
+		expect(outcome).toBe('blocked');
+		expect(mockToastWarning).toHaveBeenCalledWith('timer.ALREADY_TRACKING_MESSAGE', {
+			id: ALREADY_TRACKING_TOAST_ID
+		});
 	});
 
 	it('still clears a stuck flag when nothing runs, then starts', async () => {

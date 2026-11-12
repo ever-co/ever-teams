@@ -193,6 +193,17 @@ function releaseStopGuard(request: Promise<void>) {
 }
 
 /**
+ * Whether a run goes on for the employee, read afresh. The day's status of a Gauzy older than its past-midnight fix
+ * leaves out a run started before midnight, which the employee's last log, whatever its day, still shows.
+ */
+async function isRunGoingOn(employeeId: string): Promise<boolean> {
+	const { data: status } = await timerService.getTimerStatus();
+	if (status?.running) return true;
+	const { data: lastLogs } = await timerService.getLastTimerLog(employeeId);
+	return lastLogs?.[0]?.lastLog?.isRunning === true;
+}
+
+/**
  * Tell the user about an automatic stop once its request has settled, so a
  * failed stop never reads as "timer stopped" while the server keeps tracking.
  */
@@ -546,8 +557,7 @@ export function useTimerApi({
 						// This tab's status can be out of date: up to a minute old, or read while a start elsewhere was
 						// landing. A run a fresh read finds goes on in another tab or device, so the flag is not stuck and
 						// the run is kept (#5121).
-						const { data: freshStatus } = await timerService.getTimerStatus();
-						if (freshStatus?.running) {
+						if (await isRunGoingOn(userData.employee.id)) {
 							toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
 							// This tab shows that run once its status is read again
 							void queryClient.invalidateQueries({ queryKey: queryKeys.timer.all });
