@@ -16,6 +16,7 @@ import {
 	formatProjectDay,
 	useProjectBudget
 } from '@/core/components/projects/project-cells';
+import { ProjectNotBillableChip } from '@/core/components/projects/project-billable-chip';
 import { FavoriteMark } from '@/core/components/favorites/favorite-parts';
 import { ProjectActionsMenu } from '@/core/components/projects/project-actions-menu';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
@@ -224,6 +225,7 @@ function ProjectCard({
 			<div className="flex flex-wrap items-center gap-2">
 				<ProjectStatusChip statusName={project.status} statuses={statuses} />
 				<ProjectDatesCell startDate={project.startDate} endDate={project.endDate} className="text-xs" />
+				<ProjectNotBillableChip project={project} />
 			</div>
 
 			{hasDescription && <p className="line-clamp-2 text-[13px] text-muted-foreground">{description}</p>}
