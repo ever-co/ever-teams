@@ -126,7 +126,14 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 	const { permissions, formatters, clearSelection } = page;
 
 	const members = page.activeTeam?.members ?? NO_MEMBERS;
-	const categories = useTimesheetFilterCategories({ isManage: permissions.isManage, members, logs: page.allLogs });
+	const categories = useTimesheetFilterCategories({
+		isManage: permissions.isManage,
+		members,
+		logs: page.allLogs,
+		clients: page.clientChoices,
+		canFilterByClient: page.canFilterByClient,
+		hasPickedClient: page.filters.clients.length > 0
+	});
 	const filterControls = useTimesheetFilterControls({
 		filters: page.filters,
 		categories,
@@ -291,7 +298,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 	if (page.showsError) {
 		body = (
 			<div className="p-4">
-				<DashboardErrorNotice onRetry={() => void page.logsQuery.refetch()} />
+				<DashboardErrorNotice onRetry={page.retry} />
 			</div>
 		);
 	} else if (isScreenshotsView) {

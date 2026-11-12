@@ -7,8 +7,15 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
+import { useReportClientChoices, useReportProjectClients } from '@/core/hooks/dashboards/use-report-clients';
+import { useReportUrlFilters } from '@/core/hooks/dashboards/use-report-url-filters';
 import { activeTeamState } from '@/core/stores/teams/organization-team';
 import { formatPeriod, type Period, periodOfPreset } from '@/core/lib/utils/dashboard-period';
+import {
+	isReportUrlFilterField,
+	logMatchesReportFilters,
+	type ReportUrlFilterField
+} from '@/core/lib/utils/dashboards/report-filters';
 import {
 	ALL_STATUSES,
 	distinctMemberCountOf,
@@ -35,11 +42,16 @@ import {
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { useTimesheetPageLogs } from './use-timesheet-page-logs';
 
-export type TimesheetFilterField = 'members' | 'projects' | 'tasks';
+/** Members, projects and tasks last as long as the page; clients, billable and labels live in the page link. */
+type PageFilterField = 'members' | 'projects' | 'tasks';
+
+export type TimesheetFilterField = PageFilterField | ReportUrlFilterField;
 
 export type TimesheetFilterSelection = Record<TimesheetFilterField, string[]>;
 
-const EMPTY_FILTERS: TimesheetFilterSelection = { members: [], projects: [], tasks: [] };
+type PageFilterSelection = Record<PageFilterField, string[]>;
+
+const EMPTY_FILTERS: PageFilterSelection = { members: [], projects: [], tasks: [] };
 
 const NO_LOGS: ITimeLog[] = [];
 
@@ -101,8 +113,9 @@ function withValuesToggled(current: string[], values: string[], shouldSelect: bo
 
 /**
  * Everything the Timesheets page shows, computed once per data change: the period and its logs, the page-level
- * filters (members go to Gauzy, projects, tasks, search and status narrow the loaded logs), the figures of the
- * toolbar and of the status strip, the days of the list, the selection and who may do what.
+ * filters (members go to Gauzy; projects, tasks, clients, billable time, labels, search and status narrow the loaded
+ * logs, which hold every log of the period), the figures of the toolbar and of the status strip, the days of the
+ * list, the selection and who may do what.
  */
 export function useTimesheetsPage() {
 	const locale = useLocale();
@@ -115,7 +128,17 @@ export function useTimesheetsPage() {
 	const [period, setPeriod] = useState<Period>(() => initialPeriodFor(viewOf(storedView)));
 	const [statusFilter, setStatusFilter] = useState<TimesheetStatusFilter>(ALL_STATUSES);
 	const [search, setSearch] = useState('');
-	const [filters, setFilters] = useState<TimesheetFilterSelection>(EMPTY_FILTERS);
+	const [pageFilters, setPageFilters] = useState<PageFilterSelection>(EMPTY_FILTERS);
+	const {
+		filters: linkedFilters,
+		setFilter: setLinkedFilter,
+		removeFilterValue: removeLinkedFilterValue,
+		clearFilters: clearLinkedFilters
+	} = useReportUrlFilters();
+	const filters = useMemo<TimesheetFilterSelection>(
+		() => ({ ...pageFilters, ...linkedFilters }),
+		[linkedFilters, pageFilters]
+	);
 	const [selectedIds, setSelectedIds] = useState<string[]>([]);
 	const [focusedDayKey, setFocusedDayKey] = useState<string | null>(null);
 	const [collapsedDayKeys, setCollapsedDayKeys] = useState<string[]>([]);
@@ -150,9 +173,18 @@ export function useTimesheetsPage() {
 		isEnabled: isTeamKnown && hasScope
 	});
 
+	// A log names its project and nothing about that project's client, so the client filter waits for the projects
+	const hasClientFilter = linkedFilters.clients.length > 0;
+	const projectClients = useReportProjectClients({ includesArchived: true, isEnabled: hasClientFilter });
+	const clientChoices = useReportClientChoices(projectClients.projects);
+	const isClientLookupPending = hasClientFilter && projectClients.isPending;
+	const isClientLookupError = hasClientFilter && projectClients.isError;
+
 	const hasOwnData = Boolean(logsQuery.data) && !logsQuery.isPlaceholderData;
-	const showsError = logsQuery.isError && !hasOwnData;
-	const isInitialLoading = !logsQuery.data && !showsError;
+	const isLogsError = logsQuery.isError && !hasOwnData;
+	const showsError = isLogsError || isClientLookupError;
+	const isWaitingForData = !logsQuery.data || isClientLookupPending;
+	const isInitialLoading = isWaitingForData && !showsError;
 	const hasShownData = Boolean(logsQuery.data);
 	const isUpdating = logsQuery.isFetching && hasShownData;
 
@@ -165,12 +197,18 @@ export function useTimesheetsPage() {
 
 	const normalizedQuery = useMemo(() => normalizedSearchTextOf(search), [search]);
 
-	const narrowedLogs = useMemo(() => {
+	const projectClientIds = projectClients.clientIds;
+	const filteredLogs = useMemo(() => {
 		const byProjectAndTask = allLogs.filter((log) =>
-			logMatchesPickedProjectsAndTasks(log, filters.projects, filters.tasks)
+			logMatchesPickedProjectsAndTasks(log, pageFilters.projects, pageFilters.tasks)
 		);
-		return byProjectAndTask.filter((log) => logMatchesSearch(log, normalizedQuery));
-	}, [allLogs, filters.projects, filters.tasks, normalizedQuery]);
+		return byProjectAndTask.filter((log) => logMatchesReportFilters(log, linkedFilters, projectClientIds));
+	}, [allLogs, linkedFilters, pageFilters.projects, pageFilters.tasks, projectClientIds]);
+
+	const narrowedLogs = useMemo(
+		() => filteredLogs.filter((log) => logMatchesSearch(log, normalizedQuery)),
+		[filteredLogs, normalizedQuery]
+	);
 
 	const statusSummary = useMemo(() => statusSummaryOf(narrowedLogs), [narrowedLogs]);
 
@@ -184,11 +222,12 @@ export function useTimesheetsPage() {
 		return sortedWithinDays(workDays, sort);
 	}, [shownLogs, sort]);
 
+	// The total beside the title follows the filter menu, so it always matches the rows the filters keep
 	const periodFigures = useMemo(() => {
-		const totalSeconds = totalDurationOf(allLogs);
-		const memberCount = distinctMemberCountOf(allLogs);
+		const totalSeconds = totalDurationOf(filteredLogs);
+		const memberCount = distinctMemberCountOf(filteredLogs);
 		return { totalSeconds, memberCount };
-	}, [allLogs]);
+	}, [filteredLogs]);
 
 	const shownIdSet = useMemo(() => {
 		const shownIds = shownLogs.map((log) => log.id);
@@ -220,26 +259,53 @@ export function useTimesheetsPage() {
 		[setStoredView]
 	);
 
-	const setFilter = useCallback((field: TimesheetFilterField, values: string[]) => {
-		setFilters((current) => ({ ...current, [field]: values }));
-	}, []);
+	const setFilter = useCallback(
+		(field: TimesheetFilterField, values: string[]) => {
+			if (isReportUrlFilterField(field)) {
+				setLinkedFilter(field, values);
+				return;
+			}
+			setPageFilters((current) => ({ ...current, [field]: values }));
+		},
+		[setLinkedFilter]
+	);
 
-	const removeFilterValue = useCallback((field: TimesheetFilterField, value: string) => {
-		setFilters((current) => {
-			const remaining = current[field].filter((item) => item !== value);
-			return { ...current, [field]: remaining };
-		});
-	}, []);
+	const removeFilterValue = useCallback(
+		(field: TimesheetFilterField, value: string) => {
+			if (isReportUrlFilterField(field)) {
+				removeLinkedFilterValue(field, value);
+				return;
+			}
+			setPageFilters((current) => {
+				const remaining = current[field].filter((item) => item !== value);
+				return { ...current, [field]: remaining };
+			});
+		},
+		[removeLinkedFilterValue]
+	);
 
 	const clearFilters = useCallback(() => {
-		setFilters(EMPTY_FILTERS);
-	}, []);
+		setPageFilters(EMPTY_FILTERS);
+		clearLinkedFilters();
+	}, [clearLinkedFilters]);
 
 	const clearNarrowing = useCallback(() => {
-		setFilters(EMPTY_FILTERS);
+		setPageFilters(EMPTY_FILTERS);
+		clearLinkedFilters();
 		setSearch('');
 		setStatusFilter(ALL_STATUSES);
-	}, []);
+	}, [clearLinkedFilters]);
+
+	const { refetch: refetchLogs } = logsQuery;
+	const { refetch: refetchProjectClients } = projectClients;
+	const retry = useCallback(() => {
+		if (isLogsError) {
+			void refetchLogs();
+		}
+		if (isClientLookupError) {
+			refetchProjectClients();
+		}
+	}, [isClientLookupError, isLogsError, refetchLogs, refetchProjectClients]);
 
 	const toggleLog = useCallback((logId: string) => {
 		setSelectedIds((current) => {
@@ -311,6 +377,9 @@ export function useTimesheetsPage() {
 		removeFilterValue,
 		clearFilters,
 		clearNarrowing,
+		clientChoices,
+		canFilterByClient: projectClients.canTellClients,
+		retry,
 		logsQuery,
 		allLogs,
 		shownLogs,

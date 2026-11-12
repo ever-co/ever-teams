@@ -31,8 +31,9 @@ function timeZoneNameOf(userTimeZone: string | null | undefined) {
 
 /**
  * The time logs of a period, read with the same request the old timesheet sent (`GET /timesheet/time-log` with its
- * relations), under a key that holds every value of the request. The key lives under `['timesheet']`, so the
- * timesheet mutations refresh it. The previous period stays on screen while the next one loads.
+ * relations) plus the labels of each log's task, which the label filter reads. The key holds every value of the
+ * request and lives under `['timesheet']`, so the timesheet mutations refresh it. The previous period stays on
+ * screen while the next one loads.
  */
 export function useTimesheetPageLogs(period: Period, scope: TimesheetPageLogsScope) {
 	const startDate = localDayKeyOf(period.from);
@@ -54,11 +55,18 @@ export function useTimesheetPageLogs(period: Period, scope: TimesheetPageLogsSco
 				startDate,
 				endDate,
 				timeZone,
-				employeeIds
+				employeeIds,
+				withTaskLabels: true
 			}
 		],
 		queryFn: async (): Promise<ITimeLog[]> => {
-			const logs = await timeLogService.getTimeLogs({ startDate, endDate, timeZone, employeeIds });
+			const logs = await timeLogService.getTimeLogs({
+				startDate,
+				endDate,
+				timeZone,
+				employeeIds,
+				withTaskLabels: true
+			});
 			return logs ?? [];
 		},
 		enabled: isReady && scope.isEnabled,
