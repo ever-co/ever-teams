@@ -415,9 +415,16 @@ export function useTimerApi({
 				hasActiveTask: !!activeTeamTask,
 				isActiveTaskClosed: activeTeamTask?.status === ETaskStatusName.CLOSED,
 				isTimerRunning: !!timerStatus?.running,
+				isRunShown: !!filteredTimerStatus?.running,
 				timerSource: timerStatus?.lastLog?.source
 			}),
-		[user?.isEmailVerified, activeTeamTask, timerStatus?.running, timerStatus?.lastLog?.source]
+		[
+			user?.isEmailVerified,
+			activeTeamTask,
+			timerStatus?.running,
+			filteredTimerStatus?.running,
+			timerStatus?.lastLog?.source
+		]
 	);
 
 	// ==================== CALLBACKS ====================

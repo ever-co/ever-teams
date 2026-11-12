@@ -4,6 +4,7 @@ import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 
 import { activeTeamState, activeTeamTaskState, timerStatusState } from '@/core/stores';
+import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TOrganizationTeam } from '@/core/types/schemas';
@@ -53,6 +54,8 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const timerStatus = useAtomValue(timerStatusState);
+	// What the timers show: the status filtered to the active team
+	const shownTimerStatus = useAtomValue(teamTimerStatusState);
 
 	const { user } = useAuthenticateUser();
 	const { myDailyPlans } = useMyDailyPlans();
@@ -85,9 +88,16 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 				hasActiveTask: !!activeTeamTask,
 				isActiveTaskClosed: activeTeamTask?.status === ETaskStatusName.CLOSED,
 				isTimerRunning: !!timerStatus?.running,
+				isRunShown: !!shownTimerStatus?.running,
 				timerSource: timerStatus?.lastLog?.source
 			}),
-		[user?.isEmailVerified, activeTeamTask, timerStatus?.running, timerStatus?.lastLog?.source]
+		[
+			user?.isEmailVerified,
+			activeTeamTask,
+			timerStatus?.running,
+			shownTimerStatus?.running,
+			timerStatus?.lastLog?.source
+		]
 	);
 
 	// ==================== RETURN ====================

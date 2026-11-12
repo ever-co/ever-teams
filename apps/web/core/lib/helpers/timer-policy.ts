@@ -10,12 +10,17 @@ interface TimerEligibilityState {
 	hasActiveTask: boolean;
 	isActiveTaskClosed: boolean;
 	isTimerRunning: boolean;
+	/** Whether the timer shows the run: the team-filtered status reads it as running */
+	isRunShown: boolean;
 	timerSource: ETimeLogSource | undefined;
 }
 
 export function canRunTimerForState(state: TimerEligibilityState): boolean {
 	if (!state.isEmailVerified) return false;
 	if (state.hasActiveTask && !state.isActiveTaskClosed) return true;
+	// A run the timer shows can be stopped without an active task, which a reload leaves empty when the run's task is
+	// in another project of the team (#5122)
+	if (state.isRunShown) return true;
 	return state.isTimerRunning && state.timerSource !== ETimeLogSource.TEAMS;
 }
 
