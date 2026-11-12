@@ -1,4 +1,11 @@
-import { isOwnComment, isTextChanged, mentionedIn, mentionsToSend, uniquelyNamed } from './comment-ownership';
+import {
+	isOwnComment,
+	isTextChanged,
+	mentionedIn,
+	mentionEmployeeIdsOf,
+	mentionsToSend,
+	uniquelyNamed
+} from './comment-ownership';
 
 describe('isOwnComment — the platform’s rule for who may edit, resolve or delete a comment', () => {
 	const reader = { employeeId: 'employee-me', userId: 'user-me' };
@@ -62,6 +69,28 @@ describe('uniquelyNamed — a typed mention names one person only when nobody sh
 		expect(uniquelyNamed([ann, bo, otherAnn])).toEqual([bo]);
 		expect(mentionedIn('Pasted @Bo Ray and @Ann Lee', uniquelyNamed([ann, bo, otherAnn]))).toEqual([bo]);
 		expect(uniquelyNamed([])).toEqual([]);
+	});
+});
+
+describe('mentionEmployeeIdsOf — whom a sent text mentions', () => {
+	const ann = { employeeId: 'ann', name: 'Ann' };
+	const annLee = { employeeId: 'ann-lee', name: 'Ann Lee' };
+	const otherAnnLee = { employeeId: 'ann-lee-2', name: 'Ann Lee' };
+	const bo = { employeeId: 'bo', name: 'Bo Ray' };
+	const team = [ann, annLee, otherAnnLee, bo];
+
+	it('never reads a shared longer name as a shorter unique one', () => {
+		// Two Ann Lees and one Ann: a typed "@Ann Lee" picks nobody, and never Ann.
+		expect(mentionEmployeeIdsOf('Ask @Ann Lee', team, [])).toEqual([]);
+		expect(mentionEmployeeIdsOf('Ask @Ann Lee', team, [otherAnnLee])).toEqual(['ann-lee-2']);
+		expect(mentionEmployeeIdsOf('Ask @Ann about it', team, [])).toEqual(['ann']);
+	});
+
+	it('counts a name typed in full for its only bearer, and the people picked or already mentioned', () => {
+		expect(mentionEmployeeIdsOf('Pasted @Bo Ray', team, [])).toEqual(['bo']);
+		expect(mentionEmployeeIdsOf('@Bo Ray and @Ann Lee', team, [annLee, bo])).toEqual(['ann-lee', 'bo']);
+		// A pick whose name was taken out of the text is not sent.
+		expect(mentionEmployeeIdsOf('Nobody now', team, [bo])).toEqual([]);
 	});
 });
 

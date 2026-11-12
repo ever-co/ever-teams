@@ -74,6 +74,28 @@ export function uniquelyNamed(candidates: readonly MentionablePerson[]): Mention
 }
 
 /**
+ * The employees a text mentions, as the composer sends them (`mentionEmployeeIds`). Each complete "@Full Name" is
+ * first read against every known name, the longest first, so "@Ann Lee" is Ann Lee's mention even when an "Ann" is
+ * known too. A mentioned name then counts for the people `chosen` for it (picked from the menu, or already mentioned
+ * in the text being edited), or for its only bearer; a name several people share counts only for those chosen.
+ *
+ * @param text - The text sent.
+ * @param candidates - Everyone who can be mentioned.
+ * @param chosen - The people picked from the menu, and those the edited text already mentioned.
+ */
+export function mentionEmployeeIdsOf(
+	text: string,
+	candidates: readonly MentionablePerson[],
+	chosen: readonly MentionablePerson[]
+): string[] {
+	const everyone = [...candidates, ...chosen];
+	const names = new Set(mentionedIn(text, everyone).map((person) => person.name));
+	const eligible = [...chosen, ...uniquelyNamed(candidates)];
+	const ids = eligible.filter((person) => names.has(person.name)).map((person) => person.employeeId);
+	return [...new Set(ids)];
+}
+
+/**
  * The mentions an edit sends: the new list when the text gains or loses a mention, nothing (`undefined`) when the
  * mentions are the ones the text already had. Left out, the platform keeps the comment's mentions exactly as stored,
  * so an edit that only fixes a typo never drops a mention of someone who left the team, nor adds a namesake.
