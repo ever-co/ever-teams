@@ -9,7 +9,7 @@ import { PageLayout } from '@/core/components/layouts/default-layout';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { DASHBOARD_STACK } from '@/core/components/dashboards/kit/recipes';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { CalendarPlus, LogIn, Plus, ScreenShare, VideoCall } from '@/core/components/icons';
+import { CalendarPlus, LogIn, Plus, ScreenShare, Settings, VideoCall } from '@/core/components/icons';
 import { preloadLiveKit } from '@/core/components/optimized-components/meet';
 import { useScheduledMeetings } from '@/core/hooks/meetings/use-scheduled-meetings';
 import { activeTeamNameState } from '@/core/stores';
@@ -19,6 +19,7 @@ import { meetingPathFor, sharingScreenPathOf, type ScheduledMeeting } from '@/co
 import { JoinMeetingDialog } from './join-meeting-dialog';
 import { MeetingAgenda } from './meeting-agenda';
 import { ScheduleMeetingDialog } from './schedule-meeting-dialog';
+import { VideoAudioDialog } from './video-audio-dialog';
 
 /** The agenda and the clock move on with time; half a minute is fine for both, and cheap. */
 const NOW_REFRESH_MS = 30_000;
@@ -95,14 +96,17 @@ export function MeetingsPage() {
 	const isJitsi = useMemo(() => isJitsiMeeting(), []);
 	const teamName = useAtomValue(activeTeamNameState);
 	const scheduled = useScheduledMeetings();
-	const [openDialog, setOpenDialog] = useState<'join' | 'schedule' | null>(null);
+	const [openDialog, setOpenDialog] = useState<'join' | 'schedule' | 'settings' | null>(null);
 	// Each opening starts a new dialog: the time it proposes is the next slot from now, and the answer of a request
 	// made by a dialog closed before it came back never shows in the next one
 	const [dialogKey, setDialogKey] = useState(0);
 	// The day Schedule proposes, when it opens from a day of the agenda, or the meeting it edits
 	const [scheduleDay, setScheduleDay] = useState<Date | undefined>(undefined);
 	const [meetingToEdit, setMeetingToEdit] = useState<ScheduledMeeting | null>(null);
-	const openDialogOf = (dialog: 'join' | 'schedule', from: { day?: Date; meeting?: ScheduledMeeting } = {}) => {
+	const openDialogOf = (
+		dialog: 'join' | 'schedule' | 'settings',
+		from: { day?: Date; meeting?: ScheduledMeeting } = {}
+	) => {
 		setDialogKey((key) => key + 1);
 		setScheduleDay(from.day);
 		setMeetingToEdit(from.meeting ?? null);
@@ -174,18 +178,30 @@ export function MeetingsPage() {
 							testId="meetings-schedule"
 						/>
 					</div>
-					<Button
-						type="button"
-						variant="outline"
-						size="lg"
-						onClick={shareScreen}
-						onPointerEnter={prepareMeeting}
-						onFocus={prepareMeeting}
-						data-testid="meetings-share-screen"
-					>
-						<ScreenShare className="size-4" aria-hidden="true" />
-						{t('meetings.SHARE_SCREEN')}
-					</Button>
+					<div className="flex flex-wrap items-center justify-center gap-2">
+						<Button
+							type="button"
+							variant="outline"
+							size="lg"
+							onClick={shareScreen}
+							onPointerEnter={prepareMeeting}
+							onFocus={prepareMeeting}
+							data-testid="meetings-share-screen"
+						>
+							<ScreenShare className="size-4" aria-hidden="true" />
+							{t('meetings.SHARE_SCREEN')}
+						</Button>
+						<Button
+							type="button"
+							variant="ghost"
+							size="lg"
+							onClick={() => openDialogOf('settings')}
+							data-testid="meetings-settings"
+						>
+							<Settings className="size-4" aria-hidden="true" />
+							{t('meetings.AUDIO_AND_VIDEO')}
+						</Button>
+					</div>
 				</section>
 
 				{scheduled.canSchedule && (
@@ -222,6 +238,7 @@ export function MeetingsPage() {
 				onReschedule={scheduled.rescheduleMeeting}
 				isScheduling={scheduled.isScheduling || scheduled.isRescheduling}
 			/>
+			<VideoAudioDialog open={openDialog === 'settings'} onClose={() => setOpenDialog(null)} />
 		</PageLayout>
 	);
 }

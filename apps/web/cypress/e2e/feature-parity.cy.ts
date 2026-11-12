@@ -319,6 +319,22 @@ describe('feature parity on the authenticated shell', () => {
 			.and('not.contain', 'share=');
 	});
 
+	it('opens the video and audio settings from the meetings home, and keeps them on the device', () => {
+		cy.hardVisit('/meet');
+		cy.get('[data-testid="meetings-settings"]', { timeout: 20_000 }).click();
+		cy.contains('[role="dialog"]', 'Audio and video')
+			.should('be.visible')
+			.find('section[aria-label="Camera preview"]')
+			.should('exist');
+		cy.contains('button', /^Save changes$/).click();
+		cy.get('[role="dialog"]').should('not.exist');
+		// Where the pre-join check reads them
+		cy.window().then((window) => {
+			const saved = JSON.parse(window.localStorage.getItem('ever-teams:meeting-devices') ?? 'null');
+			expect(saved).to.include({ audioInputId: '', videoInputId: '' });
+		});
+	});
+
 	it('shows the agenda one day at a time, with the day before, the day after and back to today', () => {
 		cy.hardVisit('/meet');
 		cy.get('[data-testid="meetings-agenda-day"]', { timeout: 20_000 }).should(

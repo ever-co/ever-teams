@@ -118,6 +118,14 @@ describe('MeetingsPage', () => {
 		expect(roomOfPath(path)).toMatch(/^EverTeam-.{10}$/);
 	});
 
+	it('opens the video and audio settings from the home', async () => {
+		render(<MeetingsPage />);
+
+		fireEvent.click(screen.getByTestId('meetings-settings'));
+
+		expect(await screen.findByRole('dialog', { name: 'meetings.AUDIO_AND_VIDEO' })).toBeTruthy();
+	});
+
 	it('starts a meeting in a new room that shares the screen once joined', () => {
 		render(<MeetingsPage />);
 

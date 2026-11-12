@@ -40,7 +40,12 @@ const DEFAULT_CHOICES: MeetingDeviceChoices = {
 	audioOutputId: ''
 };
 const NO_DEVICES: DeviceLists = { audioinput: [], videoinput: [], audiooutput: [] };
-const DEVICE_FIELD = { audioinput: 'audioInputId', videoinput: 'videoInputId', audiooutput: 'audioOutputId' } as const;
+/** The choice that holds the device of each kind. */
+export const DEVICE_FIELD = {
+	audioinput: 'audioInputId',
+	videoinput: 'videoInputId',
+	audiooutput: 'audioOutputId'
+} as const;
 
 /*
  * The choices live on the device (they are the person's devices), as a small store over `localStorage`: the page
@@ -175,7 +180,7 @@ function canPickSpeaker(): boolean {
 }
 
 /** The choices kept on this device, and the ways to change them. */
-function useStoredMeetingChoices() {
+export function useStoredMeetingChoices() {
 	const storedChoices = useSyncExternalStore(subscribeToChoices, readStoredChoices, () => null);
 	const choices = useMemo(() => choicesOf(storedChoices), [storedChoices]);
 
@@ -193,7 +198,12 @@ function useStoredMeetingChoices() {
 		[]
 	);
 
-	return { choices, toggleAudio, toggleVideo, selectDevice };
+	const saveChoices = useCallback(
+		(saved: Partial<MeetingDeviceChoices>) => updateChoices((current) => ({ ...current, ...saved })),
+		[]
+	);
+
+	return { choices, toggleAudio, toggleVideo, selectDevice, saveChoices };
 }
 
 /** The devices a stream asks for: whether each is on, and which one (empty for the system's default). */
@@ -207,7 +217,7 @@ type MeetingDeviceRequest = Pick<
  * the browser names them, and stops every track when unmounted, so the camera never stays on behind it. A device
  * asked for that is gone calls `onStaleDevice`, for the request to fall back to the defaults.
  */
-function useDeviceStream(request: MeetingDeviceRequest, onStaleDevice: () => void) {
+export function useDeviceStream(request: MeetingDeviceRequest, onStaleDevice: () => void) {
 	const [devices, setDevices] = useState<DeviceLists>(NO_DEVICES);
 	const [stream, setStream] = useState<MediaStream | null>(null);
 	const [requestedAccess, setRequestedAccess] = useState<MediaAccess>('pending');
