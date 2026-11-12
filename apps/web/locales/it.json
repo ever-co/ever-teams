@@ -659,7 +659,8 @@
 					"DONE": "{count, plural, one {{total} aggiunto in # cella} other {{total} aggiunto in # celle}}",
 					"LEFT_OUT": "{count, plural, one {# cella esclusa: giorno chiuso o senza tempo libero.} other {# celle escluse: giorni chiusi o senza tempo libero.}}",
 					"STOPPED_TITLE": "Copia interrotta",
-					"NOT_COPIED": "{count, plural, one {# cella non copiata perché la copia si è interrotta.} other {# celle non copiate perché la copia si è interrotta.}}"
+					"NOT_COPIED": "{count, plural, one {# cella non copiata perché la copia si è interrotta.} other {# celle non copiate perché la copia si è interrotta.}}",
+					"PARTLY_COPIED": "La copia si è interrotta a metà di una cella, quindi quella cella ha solo una parte del tempo della settimana scorsa."
 				}
 			},
 			"diary": {

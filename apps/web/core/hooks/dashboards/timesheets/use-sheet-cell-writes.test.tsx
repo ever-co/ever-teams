@@ -180,6 +180,7 @@ describe('useSheetCellWrites', () => {
 			savedSeconds: 2 * HOUR,
 			skippedCount: 1,
 			notCopiedCount: 0,
+			isPartlyCopied: false,
 			isStopped: false
 		});
 		expect(mockCreateTimesheetFrom).toHaveBeenCalledTimes(1);
@@ -210,6 +211,35 @@ describe('useSheetCellWrites', () => {
 			savedSeconds: HOUR,
 			skippedCount: 0,
 			notCopiedCount: 2,
+			isPartlyCopied: false,
+			isStopped: true
+		});
+	});
+
+	it('tells a cell the copy stopped in after saving part of its time from the cells it did not copy', async () => {
+		// Busy from 10:00 to 11:00: two hours of the first cell go in two entries, 09:00-10:00 and 11:00-12:00
+		const busyAtTen = logOf({ id: 'busy', projectId: 'other', startedAt: at(10), stoppedAt: at(11) });
+		mockCreateTimesheetFrom.mockResolvedValueOnce(undefined);
+		mockCreateTimesheetFrom.mockRejectedValue(new Error('offline'));
+		const secondRow = rowIdentityOfLog(logOf({ projectId: 'project', taskId: 'second-task' }));
+		const { result } = renderWrites(scopeOf({ readSavedMemberLogs: async () => [busyAtTen] }));
+		const plans = [
+			{ identity, day, seconds: 2 * HOUR },
+			{ identity: secondRow, day, seconds: HOUR }
+		];
+
+		let run: CopyRunResult | undefined;
+		await act(async () => {
+			run = await result.current.applyCopyPlan(plans);
+		});
+
+		expect(mockCreateTimesheetFrom).toHaveBeenCalledTimes(2);
+		expect(run).toEqual({
+			savedCount: 0,
+			savedSeconds: 0,
+			skippedCount: 0,
+			notCopiedCount: 1,
+			isPartlyCopied: true,
 			isStopped: true
 		});
 	});

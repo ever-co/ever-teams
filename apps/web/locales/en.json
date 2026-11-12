@@ -659,7 +659,8 @@
 					"DONE": "{count, plural, one {{total} added in # cell} other {{total} added in # cells}}",
 					"LEFT_OUT": "{count, plural, one {# cell was left out: closed day or no free time.} other {# cells were left out: closed days or no free time.}}",
 					"STOPPED_TITLE": "Copy stopped",
-					"NOT_COPIED": "{count, plural, one {# cell was not copied, because the copy stopped.} other {# cells were not copied, because the copy stopped.}}"
+					"NOT_COPIED": "{count, plural, one {# cell was not copied, because the copy stopped.} other {# cells were not copied, because the copy stopped.}}",
+					"PARTLY_COPIED": "The copy stopped partway through one cell, so that cell has only part of last week's time."
 				}
 			},
 			"diary": {

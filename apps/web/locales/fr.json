@@ -659,7 +659,8 @@
 					"DONE": "{count, plural, one {{total} ajouté dans # case} other {{total} ajouté dans # cases}}",
 					"LEFT_OUT": "{count, plural, one {# case laissée de côté : jour fermé ou pas de temps libre.} other {# cases laissées de côté : jours fermés ou pas de temps libre.}}",
 					"STOPPED_TITLE": "Copie interrompue",
-					"NOT_COPIED": "{count, plural, one {# case non copiée, car la copie s'est interrompue.} other {# cases non copiées, car la copie s'est interrompue.}}"
+					"NOT_COPIED": "{count, plural, one {# case non copiée, car la copie s'est interrompue.} other {# cases non copiées, car la copie s'est interrompue.}}",
+					"PARTLY_COPIED": "La copie s'est interrompue au milieu d'une case : cette case n'a qu'une partie du temps de la semaine dernière."
 				}
 			},
 			"diary": {

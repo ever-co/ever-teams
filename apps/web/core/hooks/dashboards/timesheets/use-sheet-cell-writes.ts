@@ -62,8 +62,13 @@ export interface CopyRunResult {
 	savedCount: number;
 	savedSeconds: number;
 	skippedCount: number;
-	/** The cells a run stopped by an error did not copy: the one that failed and those after it. */
+	/**
+	 * The cells a run stopped by an error did not copy: the one that failed, unless part of its time was saved before
+	 * the error, and those after it.
+	 */
 	notCopiedCount: number;
+	/** A run stopped in the middle of a cell of several entries: the entries saved before the error stay. */
+	isPartlyCopied: boolean;
 	isStopped: boolean;
 }
 
@@ -187,7 +192,7 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 	}, [queryClient]);
 
 	const createEntries = useCallback(
-		async (identity: SheetRowIdentity, pieces: ReadonlyArray<TimeWindow>) => {
+		async (identity: SheetRowIdentity, pieces: ReadonlyArray<TimeWindow>, onEntrySaved?: () => void) => {
 			if (!memberId) {
 				return;
 			}
@@ -204,6 +209,7 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 					logType: ETimeLogType.MANUAL,
 					source: ETimeLogSource.TEAMS
 				});
+				onEntrySaved?.();
 			}
 		},
 		[defaultTeamId, memberId]
@@ -331,13 +337,20 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 					savedSeconds: 0,
 					skippedCount: 0,
 					notCopiedCount: 0,
+					isPartlyCopied: false,
 					isStopped: false
 				};
 				const placedByDay = new Map<string, TimeWindow[]>();
+				// The entries of the cell being copied saved so far: an error after some leaves that cell partly filled
+				const copiedCell = { savedEntries: 0 };
+				const countSavedEntry = () => {
+					copiedCell.savedEntries += 1;
+				};
 				try {
 					const memberLogs = await readSavedMemberLogs();
 					const approvedDayKeys = approvedDayKeysOf(memberLogs);
 					for (const plan of plans) {
+						copiedCell.savedEntries = 0;
 						const isDayApproved = approvedDayKeys.has(plan.day.key);
 						if (isDayApproved) {
 							result.skippedCount += 1;
@@ -356,14 +369,16 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 							result.skippedCount += 1;
 							continue;
 						}
-						await createEntries(plan.identity, pieces);
+						await createEntries(plan.identity, pieces, countSavedEntry);
 						placedByDay.set(plan.day.key, [...placedBefore, ...pieces]);
 						result.savedCount += 1;
 						result.savedSeconds += plan.seconds;
 					}
 				} catch (error) {
 					result.isStopped = true;
-					const handledCount = result.savedCount + result.skippedCount;
+					result.isPartlyCopied = copiedCell.savedEntries > 0;
+					const partlyCopiedCount = result.isPartlyCopied ? 1 : 0;
+					const handledCount = result.savedCount + result.skippedCount + partlyCopiedCount;
 					result.notCopiedCount = plans.length - handledCount;
 					toast.error(translate('dashboard.timesheets.SHEET.COPY.STOPPED_TITLE'), {
 						description: translate(writeErrorKeyOf(error))

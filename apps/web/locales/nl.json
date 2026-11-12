@@ -659,7 +659,8 @@
 					"DONE": "{count, plural, one {{total} toegevoegd in # cel} other {{total} toegevoegd in # cellen}}",
 					"LEFT_OUT": "{count, plural, one {# cel overgeslagen: dag gesloten of geen vrije tijd.} other {# cellen overgeslagen: dagen gesloten of geen vrije tijd.}}",
 					"STOPPED_TITLE": "Kopiëren gestopt",
-					"NOT_COPIED": "{count, plural, one {# cel niet gekopieerd omdat het kopiëren is gestopt.} other {# cellen niet gekopieerd omdat het kopiëren is gestopt.}}"
+					"NOT_COPIED": "{count, plural, one {# cel niet gekopieerd omdat het kopiëren is gestopt.} other {# cellen niet gekopieerd omdat het kopiëren is gestopt.}}",
+					"PARTLY_COPIED": "Het kopiëren stopte halverwege een cel, dus die cel heeft maar een deel van de tijd van vorige week."
 				}
 			},
 			"diary": {
