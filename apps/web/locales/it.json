@@ -5644,6 +5644,15 @@
 		"VIEW_IMAGE": "Visualizza {name}",
 		"OPEN_ORIGINAL": "Apri l'originale",
 		"EMOJI_SUGGESTIONS": "Emoji",
+		"APP_BADGE": "App",
+		"APP_PENDING": "Invio all’app…",
+		"APP_DONE": "Inviato all’app",
+		"APP_FAILED": "Impossibile raggiungere l’app",
+		"APP_CALLBACK_FAILED": "L’app non ha risposto. Riprova tra un momento.",
+		"APP_CLICK_FAILED": "Impossibile inviare il clic.",
+		"APP_NO_INTERACTIONS": "Questa app non accetta più clic.",
+		"APP_GONE": "Questo pulsante non è più disponibile.",
+		"APP_NO_ANSWER_YET": "L’app non ha ancora risposto. Puoi fare di nuovo clic.",
 		"LINK_PREVIEW_LABEL": "{title} ({site}, si apre in una nuova scheda)",
 		"LINK_PREVIEW_SITE_LABEL": "{site} (si apre in una nuova scheda)"
 	},
@@ -5853,7 +5862,7 @@
 		"PALETTE_HEADING": "Pagine",
 		"EXPORT_UNSAVED": "Le ultime modifiche non sono ancora salvate, quindi non è stato esportato nulla. Riprova quando la pagina indica Salvato.",
 		"COMMENT_ANCHOR_UNSAVED": "Non è stato possibile salvare la pagina, quindi il commento non è stato pubblicato. Il tuo testo resta.",
-		"BLOCK_LINK_UNSAVED": "Non è stato possibile salvare la pagina, quindi il link non è stato copiato. Riprova quando la pagina indica Salvato.",
+		"BLOCK_LINK_UNSAVED": "Non è stato possibile salvare la pagina, quindi il link non è stato copiato. Riprova quando la connessione torna o la pagina è salvata.",
 		"COPY_ERROR": "Non è stato possibile copiare il link."
 	},
 	"whatsNew": {

@@ -2014,15 +2014,27 @@ describe('Ever Teams feature surface preservation', () => {
 		// 295 files and 379 verbs with the Board app's session check (/api/board/session, GET and its CORS OPTIONS).
 		// 295 files and 379 verbs with the reschedule of a scheduled meeting (/api/employee-appointment/[id] PUT).
 		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(295);
+		// 298 files and 381 verbs with the clicks on app message buttons (POST /api/chat/messages/[id]/interactions,
+		// GET /api/chat/interactions/[id]).
+		// 299 files and 382 verbs with the lookup of the time a manual entry would overlap
+		// (GET /api/timesheet/time-log/conflict, #5089).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(299);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(379);
+		).toHaveLength(382);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twin of the platform's link preview pictures (2026-11-12)
 				'apps/web/app/api/chat/link-preview/image/route.ts::GET',
 				// Proxy mode twin of Gauzy's lookup of the time a manual entry would overlap (#5089)
 				'apps/web/app/api/timesheet/time-log/conflict/route.ts::GET',
+				// Proxy mode twin of Gauzy's lookup of the time a manual entry would overlap (#5089)
+				'apps/web/app/api/timesheet/time-log/conflict/route.ts::GET',
+				// Proxy mode twins of the platform's clicks on app message buttons (incoming webhooks, 2026-11-11)
+				'apps/web/app/api/chat/messages/[id]/interactions/route.ts::POST',
+				'apps/web/app/api/chat/interactions/[id]/route.ts::GET',
+				// Proxy mode twin of the platform's link preview pictures (2026-11-12)
+				'apps/web/app/api/chat/link-preview/image/route.ts::GET',
 				// Proxy mode twin of the platform's Inbox delivery status (2026-11-11)
 				'apps/web/app/api/inbox/delivery/status/route.ts::GET',
 				// Proxy mode twins of Gauzy's employee appointments, the scheduled meetings (#5021)

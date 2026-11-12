@@ -304,6 +304,7 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 			},
 			onDelete: (message: IChatMessage) => actions.remove(message).catch(reportFailure),
 			onPin: (message: IChatMessage, pinned: boolean) => actions.pin(message, pinned).catch(reportFailure),
+			onAppReply: (message: IChatMessage, replaced: IChatMessage) => actions.applyAppReply(message, replaced),
 			onUnreadFrom: (message: IChatMessage) => {
 				readPaused.current = true;
 				actions
@@ -372,6 +373,7 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 				now={message.replyCount > 0 ? now : undefined}
 				taskTitles={taskTitles}
 				files={files.byId}
+				readOnly={archived}
 				{...handlers}
 			/>
 		);
