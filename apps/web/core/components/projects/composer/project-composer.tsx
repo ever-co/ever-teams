@@ -42,6 +42,7 @@ import { cn } from '@/core/lib/helpers';
 import { PROJECT_NAME_MAX_LENGTH, proposedTaskKey } from '@/core/lib/utils/project-composer';
 import type { TOrganizationProject } from '@/core/types/schemas';
 import { FIELD_ERROR, INLINE_FIELD } from './composer-recipes';
+import { ProjectBillableRow } from './project-billable-row';
 import { ProjectBudgetField } from './project-budget-field';
 import { ProjectDateRange } from './project-date-range';
 import {
@@ -312,6 +313,7 @@ export function ProjectComposer({ mode, project, context, onClose }: Readonly<Pr
 							onBillingChange={composer.setBilling}
 						/>
 					</PropertyRow>
+					<ProjectBillableRow billable={draft.billable} onChange={composer.setBillable} />
 					<PropertyRow
 						icon={<Tag />}
 						label={t('pages.projects.categorizationForm.formFields.tags')}
