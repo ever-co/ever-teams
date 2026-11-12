@@ -156,7 +156,8 @@ describe('useLiveTimerStatus total time', () => {
 	});
 
 	it('keeps the receipt of an unchanged status when the shell mounts again', () => {
-		// OfflineWrapper unmounts AppState while offline and mounts it again on reconnect, the store keeps the status
+		// The (main) layout unmounts AppState on a page outside it and mounts it again on the way back, the store keeps the
+		// status
 		const store = createStore();
 		const sessionStartedAt = LOAD_TIME - 630_000;
 		store.set(timerStatusState, { running: true, duration: 630 });

@@ -6,6 +6,22 @@ export function trashHttpStatusOf(error: unknown): number {
 	return Number(failure?.statusCode ?? failure?.status ?? failure?.response?.status);
 }
 
+/**
+ * What a Delete forever came to. `not-in-trash`: someone restored the task, or deleted it, since the trash was read,
+ * so nothing was deleted (the platform deletes a task only while it is in the trash); `still-linked`: other records
+ * (a linked issue, a key result) still point at the task, so the platform keeps it in the trash; `failed`: the
+ * platform refused it otherwise or could not be reached.
+ */
+export type TaskTrashDeleteOutcome = 'deleted' | 'not-in-trash' | 'still-linked' | 'failed';
+
+/** Why a Delete forever failed: 404 says the task is no longer in the trash, 409 that other records point at it. */
+export function trashDeleteFailureOf(error: unknown): Exclude<TaskTrashDeleteOutcome, 'deleted'> {
+	const status = trashHttpStatusOf(error);
+	if (status === 404) return 'not-in-trash';
+	if (status === 409) return 'still-linked';
+	return 'failed';
+}
+
 /** The name the trash shows for a person: their full name, else their user name, else nothing. */
 export function trashedTaskPersonName(person: ITrashedTaskPerson | null | undefined): string {
 	const fullName = [person?.firstName, person?.lastName]
