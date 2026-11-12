@@ -35,6 +35,8 @@ import { timesheetPageLogsRequestOf } from './use-timesheet-page-logs';
 import type { TimesheetSheetState } from './use-timesheet-sheet';
 
 const MANUAL_TIME_PERMISSION = 'ALLOW_MANUAL_TIME';
+const DELETE_TIME_PERMISSION = 'ALLOW_DELETE_TIME';
+const MODIFY_TIME_PERMISSION = 'ALLOW_MODIFY_TIME';
 
 const NO_LOGS: ITimeLog[] = [];
 
@@ -102,6 +104,9 @@ export function useSheetEditing(source: SheetEditingSource, sheet: TimesheetShee
 	const lacksOnlyManualTimePermission = mayWriteForMember && !hasManualTimePermission;
 	const allowsManualTime = organization?.allowManualTime !== false;
 	const allowsFutureDates = organization?.futureDateAllowed === true;
+	// A lower cell deletes or shortens manual entries: the API asks for each right, of the role and the organization
+	const mayDeleteTime = myPermissions.includes(DELETE_TIME_PERMISSION) && organization?.allowDeleteTime !== false;
+	const mayModifyTime = myPermissions.includes(MODIFY_TIME_PERMISSION) && organization?.allowModifyTime !== false;
 	const isLoading = !hasPeriodLogs || isLoadingPermissions;
 
 	const memberLogs = useMemo(() => logsOfMember(periodLogs, memberId), [memberId, periodLogs]);
@@ -172,6 +177,8 @@ export function useSheetEditing(source: SheetEditingSource, sheet: TimesheetShee
 		memberId,
 		defaultTeamId: teamId,
 		allowsFutureDates,
+		mayDeleteTime,
+		mayModifyTime,
 		readMemberLogs,
 		readSavedMemberLogs
 	});

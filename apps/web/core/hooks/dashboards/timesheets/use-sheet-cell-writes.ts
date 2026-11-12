@@ -47,6 +47,10 @@ export interface SheetWriteScope {
 	/** The team new time goes to when its row names none: the team the page is read in. */
 	defaultTeamId: string | null;
 	allowsFutureDates: boolean;
+	/** The role and the organization allow deleting time: a lower cell deletes its latest manual entries. */
+	mayDeleteTime: boolean;
+	/** The role and the organization allow changing time: a lower cell shortens a manual entry. */
+	mayModifyTime: boolean;
 	/** The member's logs of the period as the page last read them, every filter aside. */
 	readMemberLogs: () => ReadonlyArray<ITimeLog>;
 	/**
@@ -57,6 +61,9 @@ export interface SheetWriteScope {
 }
 
 export type CellCommitOutcome = 'saved' | 'unchanged' | 'refused';
+
+/** How a lower cell went: its time taken back, too little manual time in it, or a right the API would refuse. */
+type TakeBackOutcome = 'done' | 'tracked' | 'notAllowed';
 
 export interface CopyRunResult {
 	savedCount: number;
@@ -155,6 +162,7 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 	const [savingCellKeys, setSavingCellKeys] = useState<ReadonlySet<string>>(() => new Set());
 	const [isCopying, setIsCopying] = useState(false);
 	const { memberId, defaultTeamId, allowsFutureDates, readMemberLogs, readSavedMemberLogs } = scope;
+	const { mayDeleteTime, mayModifyTime } = scope;
 
 	const translate = useCallback(
 		(key: string, values?: Record<string, string | number>) => {
@@ -215,11 +223,23 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 		[defaultTeamId, memberId]
 	);
 
+	/**
+	 * Takes time back from the cell's manual entries. The API asks for the right to delete time and the right to
+	 * change it, each under the role and the organization: a plan that needs one the viewer lacks writes nothing,
+	 * so the cell is never left half lowered by a refusal.
+	 */
 	const takeBack = useCallback(
-		async (cellLogs: ReadonlyArray<ITimeLog>, excessSeconds: number) => {
+		async (cellLogs: ReadonlyArray<ITimeLog>, excessSeconds: number): Promise<TakeBackOutcome> => {
 			const plan = reductionOf(cellLogs, excessSeconds);
 			if (!plan) {
-				return false;
+				return 'tracked';
+			}
+			const deletes = plan.deleteIds.length > 0;
+			const shortens = plan.shorten !== null;
+			const isDeleteRefused = deletes && !mayDeleteTime;
+			const isShortenRefused = shortens && !mayModifyTime;
+			if (isDeleteRefused || isShortenRefused) {
+				return 'notAllowed';
 			}
 			const batches = chunksOf(plan.deleteIds, DELETE_BATCH_SIZE);
 			for (const batch of batches) {
@@ -234,9 +254,9 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 					employeeId: memberId ?? undefined
 				});
 			}
-			return true;
+			return 'done';
 		},
-		[memberId]
+		[mayDeleteTime, mayModifyTime, memberId]
 	);
 
 	const writeCell = useCallback(
@@ -274,8 +294,14 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 				return 'saved';
 			}
 			const excessSeconds = currentSeconds - targetSeconds;
-			const isTakenBack = await takeBack(cellLogs, excessSeconds);
-			if (!isTakenBack) {
+			const takeBackOutcome = await takeBack(cellLogs, excessSeconds);
+			if (takeBackOutcome === 'notAllowed') {
+				toast.error(translate('dashboard.timesheets.SHEET.EDIT.SAVE_FAILED'), {
+					description: translate('dashboard.timesheets.SHEET.EDIT.TAKE_BACK_NOT_ALLOWED')
+				});
+				return 'refused';
+			}
+			if (takeBackOutcome === 'tracked') {
 				const reducibleSeconds = reducibleSecondsOf(cellLogs);
 				const trackedSeconds = currentSeconds - reducibleSeconds;
 				const tracked = formatDurationShort(trackedSeconds);

@@ -10,6 +10,8 @@ import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 const mockCreateTimesheetFrom = jest.fn();
+const mockDeleteTaskTimesheetLogs = jest.fn();
+const mockUpdateTimeLog = jest.fn();
 const mockToastError = jest.fn();
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
@@ -17,8 +19,8 @@ jest.mock('sonner', () => ({ toast: { error: (...args: unknown[]) => mockToastEr
 jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
 	timeLogService: {
 		createTimesheetFrom: (...args: unknown[]) => mockCreateTimesheetFrom(...args),
-		deleteTaskTimesheetLogs: jest.fn(),
-		updateTimeLog: jest.fn()
+		deleteTaskTimesheetLogs: (...args: unknown[]) => mockDeleteTaskTimesheetLogs(...args),
+		updateTimeLog: (...args: unknown[]) => mockUpdateTimeLog(...args)
 	}
 }));
 
@@ -30,6 +32,7 @@ import {
 } from './use-sheet-cell-writes';
 
 const HOUR = 3600;
+const MINUTE = 60;
 
 /** A day long past, so "now" never limits where time can go. */
 function at(hours: number, minutes = 0) {
@@ -49,6 +52,27 @@ function logOf(overrides: Partial<ITimeLog>): ITimeLog {
 
 const day: SheetDay = { key: localDayKeyOf(at(0)), date: at(0), isToday: false, isWeekend: false };
 const identity = rowIdentityOfLog(logOf({ projectId: 'project', taskId: 'task' }));
+
+/** Two hours typed in the cell of `identity`: lowering it to 30 minutes deletes the later and shortens the earlier. */
+const typedEarly = logOf({
+	id: 'typed-early',
+	projectId: 'project',
+	taskId: 'task',
+	logType: ETimeLogType.MANUAL,
+	startedAt: at(9),
+	stoppedAt: at(10)
+});
+const typedLate = { ...typedEarly, id: 'typed-late', startedAt: at(11), stoppedAt: at(12) };
+
+async function readTypedCell(): Promise<ReadonlyArray<ITimeLog>> {
+	return [typedEarly, typedLate];
+}
+
+/** Each right alone stops that lowering, which needs both a delete and a shortening. */
+const REFUSED_RIGHTS: Array<{ right: string; rights: Partial<SheetWriteScope> }> = [
+	{ right: 'delete', rights: { mayDeleteTime: false } },
+	{ right: 'change', rights: { mayModifyTime: false } }
+];
 
 /** An entry of another task in the week of `day`, whose timesheet was approved after the sheet was read. */
 const approvedSince = logOf({
@@ -70,6 +94,8 @@ function scopeOf(overrides: Partial<SheetWriteScope>): SheetWriteScope {
 		memberId: 'member',
 		defaultTeamId: 'team',
 		allowsFutureDates: false,
+		mayDeleteTime: true,
+		mayModifyTime: true,
 		readMemberLogs: () => [],
 		readSavedMemberLogs: async () => [],
 		...overrides
@@ -84,10 +110,22 @@ function renderWrites(scope: SheetWriteScope) {
 	return renderHook(() => useSheetCellWrites(scope), { wrapper });
 }
 
+/** Types `seconds` in the cell of `identity` on `day`, and answers how the commit went. */
+async function commitIn(scope: SheetWriteScope, seconds: number) {
+	const { result } = renderWrites(scope);
+	let outcome: CellCommitOutcome | undefined;
+	await act(async () => {
+		outcome = await result.current.commitCell(identity, day, seconds);
+	});
+	return outcome;
+}
+
 describe('useSheetCellWrites', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		mockCreateTimesheetFrom.mockResolvedValue(undefined);
+		mockDeleteTaskTimesheetLogs.mockResolvedValue(undefined);
+		mockUpdateTimeLog.mockResolvedValue(undefined);
 	});
 
 	it('places typed time around an entry saved since the page was read', async () => {
@@ -137,6 +175,27 @@ describe('useSheetCellWrites', () => {
 		expect(mockCreateTimesheetFrom).not.toHaveBeenCalled();
 		expect(mockToastError).toHaveBeenCalledWith('dashboard.timesheets.SHEET.EDIT.SAVE_FAILED', {
 			description: 'dashboard.timesheets.SHEET.EDIT.LOCK_APPROVED'
+		});
+	});
+
+	it('lowers a cell by deleting and shortening its manual entries when the role may do both', async () => {
+		const outcome = await commitIn(scopeOf({ readSavedMemberLogs: readTypedCell }), 30 * MINUTE);
+
+		expect(outcome).toBe('saved');
+		expect(mockDeleteTaskTimesheetLogs).toHaveBeenCalledWith({ logIds: ['typed-late'] });
+		expect(mockUpdateTimeLog).toHaveBeenCalledWith(
+			expect.objectContaining({ timeLogId: 'typed-early', stoppedAt: at(9, 30) })
+		);
+	});
+
+	it.each(REFUSED_RIGHTS)('writes nothing to lower a cell without the right to $right time', async ({ rights }) => {
+		const outcome = await commitIn(scopeOf({ ...rights, readSavedMemberLogs: readTypedCell }), 30 * MINUTE);
+
+		expect(outcome).toBe('refused');
+		expect(mockDeleteTaskTimesheetLogs).not.toHaveBeenCalled();
+		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
+		expect(mockToastError).toHaveBeenCalledWith('dashboard.timesheets.SHEET.EDIT.SAVE_FAILED', {
+			description: 'dashboard.timesheets.SHEET.EDIT.TAKE_BACK_NOT_ALLOWED'
 		});
 	});
 
