@@ -7,10 +7,12 @@ import type { PropsWithChildren } from 'react';
 import {
 	activeTeamIdState,
 	activeTeamTaskState,
+	localTimerStatusState,
 	memberActiveTaskIdState,
 	organizationTeamsState,
 	teamTasksCompleteState,
-	teamTasksState
+	teamTasksState,
+	timerStatusState
 } from '@/core/stores';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
@@ -212,5 +214,63 @@ describe('useTeamTasksState on a device where no task of the team was chosen', (
 		});
 
 		expect(store.get(activeTeamTaskState)).toBeNull();
+	});
+});
+
+describe('useTeamTasksState while the timer runs on a task outside the loaded list (#5119)', () => {
+	// A task read from a daily plan comes without its teams
+	const plannedTask = (id: string) => ({ id, title: 'Planned task' }) as unknown as TTask;
+	const listedTask = (id: string) =>
+		({ id, teams: [{ id: 'team-a' }], members: [{ userId: 'user-a' }] }) as unknown as TTask;
+
+	/** The member works on a planned task of another project than the list's default one, chosen on this device. */
+	function renderWhileWorkingOn(taskId: string) {
+		mockCookieTaskId = taskId;
+		const store = createStore();
+		store.set(organizationTeamsState, [
+			{
+				id: 'team-a',
+				name: 'Team A',
+				members: [{ id: 'member-a', employee: { userId: 'user-a' }, activeTaskId: taskId }]
+			}
+		] as never);
+		store.set(activeTeamIdState, 'team-a');
+		store.set(teamTasksState, [listedTask('task-of-the-default-project')]);
+		store.set(teamTasksCompleteState, true);
+		store.set(activeTeamTaskState, plannedTask(taskId));
+		const wrapper = ({ children }: PropsWithChildren) => <Provider store={store}>{children}</Provider>;
+		renderHook(() => useTeamTasksState(), { wrapper });
+		return store;
+	}
+
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
+	it('keeps the planned task after a list update while the timer runs on it', () => {
+		const store = renderWhileWorkingOn('task-planned');
+		act(() => {
+			store.set(timerStatusState, { running: true, lastLog: { taskId: 'task-planned' } } as never);
+		});
+
+		act(() => {
+			store.set(teamTasksState, [listedTask('task-of-the-default-project'), listedTask('task-c')]);
+		});
+
+		expect(store.get(activeTeamTaskState)?.id).toBe('task-planned');
+	});
+
+	it('keeps it from the moment the start is sent, before the timer status says it runs', () => {
+		const store = renderWhileWorkingOn('task-planned');
+		act(() => {
+			// The start marks the task as in progress, which rewrites the list before Gauzy answers the start
+			store.set(localTimerStatusState, { lastTaskId: 'task-planned', runnedDateTime: 1, running: true });
+		});
+
+		act(() => {
+			store.set(teamTasksState, [listedTask('task-of-the-default-project')]);
+		});
+
+		expect(store.get(activeTeamTaskState)?.id).toBe('task-planned');
 	});
 });
