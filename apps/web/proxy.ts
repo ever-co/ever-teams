@@ -23,6 +23,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
 import { delay } from './core/lib/auth/retry-logic';
 import { sendsSignedInVisitToApp } from './core/lib/auth/signed-in-auth-paths';
+import { BOARD_RETURN_PARAM, boardReturnUrl } from './core/lib/board/board-app';
+
+/** How long a sign-in the Board app started waits for the API to confirm the session it finds here. */
+const BOARD_SESSION_CHECK_TIMEOUT_MS = 5_000;
+
+/** How long that whole confirmation may take, a token refresh included, before the sign-in page opens instead. */
+const BOARD_RETURN_DEADLINE_MS = 8_000;
+
+/** Past that deadline, how long the sign-in page still waits for a token refresh already sent (its answer carries the
+ * pair Gauzy rotated, which the browser must get). */
+const BOARD_REFRESH_GRACE_MS = 15_000;
+
+/** A page path without its locale prefix (`/fr/auth/passcode` is `/auth/passcode`): the routing is `as-needed`. */
+function withoutLocalePrefix(pathname: string): string {
+	const [, first, ...rest] = pathname.split('/');
+	return first && APPLICATION_LANGUAGES_CODE.includes(first) ? `/${rest.join('/')}` : pathname;
+}
 
 /**
  * Attach the authenticated user to the response for SSR consumers — but ONLY as much as a
@@ -189,6 +206,33 @@ export async function proxy(request: NextRequest) {
 		return false;
 	};
 
+	// The token refreshes on their way, each settled once Gauzy's answer is written on `response`. Gauzy rotates the
+	// refresh token: an answer sent before a refresh settles leaves the browser a refresh token Gauzy no longer accepts
+	const tokenRefreshesInFlight = new Set<Promise<unknown>>();
+	// Set once the answer no longer waits for a refresh (see returnSignedInVisitToBoard): none starts after it
+	let tokenRefreshesClosed = false;
+	// Set by the Board's confirmation, which bounds the check that follows a refresh as it bounds its own session check;
+	// the other flows check as before
+	let refreshCheckTimeoutMs: number | undefined;
+
+	// Gauzy's new token pair, written on `response` as soon as it arrives
+	const refreshTokenPair = async (refreshToken: string) => {
+		const refreshRes = await requestTokenRefresh(refreshToken);
+		if (refreshRes?.data?.token) {
+			// Update cookie with new token
+			setAccessTokenCookie(refreshRes.data.token, { res: response, req: request });
+
+			// Update refresh token if a new one is provided (token rotation)
+			if (refreshRes.data.refresh_token) {
+				setRefreshTokenCookie(refreshRes.data.refresh_token, { res: response, req: request });
+				console.log('[Proxy] Refresh token rotated successfully');
+			}
+
+			console.log('[Proxy] Access token cookie updated with new token');
+		}
+		return refreshRes;
+	};
+
 	// Helper function to attempt token refresh and verify
 	const tryRefreshAndVerify = async (): Promise<{
 		success: boolean;
@@ -202,37 +246,42 @@ export async function proxy(request: NextRequest) {
 			return { success: false, error: 'No refresh token', isExpired: true };
 		}
 
+		if (tokenRefreshesClosed) {
+			return { success: false, error: 'The answer was already chosen', isExpired: false, retryable: false };
+		}
+
+		// Once Gauzy rotated the refresh token, the one this request holds is spent: a retry with it would be refused
+		let refreshTokenSpent = false;
 		try {
 			console.log('[Proxy] Attempting token refresh...');
-			const refreshRes = await requestTokenRefresh(refresh_token);
+			const refreshing = refreshTokenPair(refresh_token);
+			tokenRefreshesInFlight.add(refreshing);
+			const refreshRes = await refreshing.finally(() => tokenRefreshesInFlight.delete(refreshing));
 			if (!refreshRes?.data?.token) {
 				console.error('[Proxy] Token refresh failed: No token in response', refreshRes);
 				return { success: false, error: 'No token in refresh response', isExpired: true };
 			}
-
-			// Update cookie with new token
-			setAccessTokenCookie(refreshRes.data.token, { res: response, req: request });
-
-			// Update refresh token if a new one is provided (token rotation)
-			if (refreshRes.data.refresh_token) {
-				setRefreshTokenCookie(refreshRes.data.refresh_token, { res: response, req: request });
-				console.log('[Proxy] Refresh token rotated successfully');
-			}
-
-			console.log('[Proxy] Access token cookie updated with new token');
+			refreshTokenSpent = Boolean(refreshRes.data.refresh_token);
 
 			// Verify the new token works
 			const verifyRes = await currentAuthenticatedUserRequest({
-				bearer_token: refreshRes.data.token
+				bearer_token: refreshRes.data.token,
+				...(refreshCheckTimeoutMs ? { signal: AbortSignal.timeout(refreshCheckTimeoutMs) } : {})
 			});
 
-			if (verifyRes?.response.ok) {
+			// Only an answer with the user confirms the session: headers whose body never arrived confirm nothing
+			if (verifyRes?.response.ok && verifyRes.data) {
 				console.log('[Proxy] Token refresh and verification successful');
 				return { success: true, userData: verifyRes.data };
 			}
 
 			const isExpired = isTokenExpiredError(verifyRes);
-			return { success: false, error: `Token verification failed: ${verifyRes?.response?.status}`, isExpired };
+			return {
+				success: false,
+				error: `Token verification failed: ${verifyRes?.response?.status}`,
+				isExpired,
+				...(refreshTokenSpent ? { retryable: false } : {})
+			};
 		} catch (error: any) {
 			const errorMsg = error?.message || 'Unknown error';
 			const statusCode = error?.statusCode || error?.response?.status || error?.status;
@@ -252,7 +301,8 @@ export async function proxy(request: NextRequest) {
 			return {
 				success: false,
 				error: `Refresh failed: ${errorMsg} (${statusCode || 'no status'})`,
-				isExpired
+				isExpired,
+				...(refreshTokenSpent ? { retryable: false } : {})
 			};
 		}
 	};
@@ -283,7 +333,7 @@ export async function proxy(request: NextRequest) {
 				}
 
 				if (result.retryable === false) {
-					console.log('[Proxy] Refresh token already rotated, not retrying');
+					console.log(`[Proxy] Not retrying the refresh: ${result.error}`);
 					return result;
 				}
 
@@ -310,10 +360,90 @@ export async function proxy(request: NextRequest) {
 		return lastResult || { success: false, error: 'Max retry duration exceeded', isExpired: true };
 	};
 
+	// Whether the API accepts the access token, as the Board's own check of the session will. A check that does not
+	// answer in time counts as no confirmation: the sign-in page opens rather than the visit hanging.
+	const isSessionConfirmed = async (token: string): Promise<boolean> => {
+		const check = await currentAuthenticatedUserRequest({
+			bearer_token: token,
+			signal: AbortSignal.timeout(BOARD_SESSION_CHECK_TIMEOUT_MS)
+		}).catch(() => null);
+		return !!check?.response.ok && !!check.data && (check.data as { statusCode?: number }).statusCode !== 401;
+	};
+
+	/**
+	 * Back to the Board app for a person already signed in here, who opened a sign-in page the Board sent them to.
+	 *
+	 * Only on a session the API confirms, after refreshing an expired access token: the Board checks the session
+	 * itself, so a token that merely looks valid here would bounce the person between the Board and this page.
+	 * Without a confirmed session the sign-in page opens, and the sign-in then ends on the Board
+	 * (core/lib/auth/board-return.ts).
+	 */
+	const confirmSignedInVisitToBoard = async (boardReturn: string): Promise<NextResponse> => {
+		if (access_token && !isTokenExpired(access_token, 60) && (await isSessionConfirmed(access_token))) {
+			return NextResponse.redirect(boardReturn);
+		}
+
+		if (refresh_token) {
+			refreshCheckTimeoutMs = BOARD_SESSION_CHECK_TIMEOUT_MS;
+			const refreshResult = await tryRefreshAndVerifyWithRetry();
+			if (refreshResult.success) {
+				const redirectResponse = NextResponse.redirect(boardReturn);
+				// The refresh wrote the new tokens on `response`: without them the Board would ask with the expired one
+				for (const cookie of response.cookies.getAll()) {
+					redirectResponse.cookies.set(cookie);
+				}
+				return redirectResponse;
+			}
+		}
+
+		console.log('[Proxy] Sign-in from the Board app without a confirmed session, showing the sign-in page');
+		return response;
+	};
+
+	// The whole confirmation, a token refresh included, within a deadline: past it the sign-in page opens and no token
+	// refresh starts. A refresh already sent is waited for a while longer, so the pair Gauzy rotated reaches the
+	// browser with the page
+	const returnSignedInVisitToBoard = (boardReturn: string): Promise<NextResponse> =>
+		new Promise((resolve) => {
+			let grace: ReturnType<typeof setTimeout> | undefined;
+			const deadline = setTimeout(() => {
+				console.log(
+					'[Proxy] Sign-in from the Board app: the session check took too long, showing the sign-in page'
+				);
+				tokenRefreshesClosed = true;
+				grace = setTimeout(() => resolve(response), BOARD_REFRESH_GRACE_MS);
+				void Promise.allSettled(tokenRefreshesInFlight).then(() => {
+					clearTimeout(grace);
+					resolve(response);
+				});
+			}, BOARD_RETURN_DEADLINE_MS);
+			confirmSignedInVisitToBoard(boardReturn).then(
+				(answer) => {
+					clearTimeout(deadline);
+					clearTimeout(grace);
+					resolve(answer);
+				},
+				() => {
+					clearTimeout(deadline);
+					clearTimeout(grace);
+					resolve(response);
+				}
+			);
+		});
+
 	// SECTION 1: Handle authenticated users accessing auth pages
 	// Check if user is trying to access auth pages while already authenticated
 	const sends_signed_in_to_app = sendsSignedInVisitToApp(url.pathname);
 	const has_any_token = access_token || refresh_token;
+
+	// A sign-in the Board app started (`?redirect=<board address>`) goes back to the Board, on its trusted origin only,
+	// whatever the locale prefix the page has (`/fr/auth/passcode`)
+	if (has_any_token && sendsSignedInVisitToApp(withoutLocalePrefix(url.pathname))) {
+		const boardReturn = boardReturnUrl(url.searchParams.get(BOARD_RETURN_PARAM));
+		if (boardReturn) {
+			return returnSignedInVisitToBoard(boardReturn);
+		}
+	}
 
 	if (sends_signed_in_to_app && has_any_token) {
 		// User is authenticated but trying to access auth pages - verify token and redirect

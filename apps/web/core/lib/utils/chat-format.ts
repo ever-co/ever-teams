@@ -1,4 +1,5 @@
 import { CHAT_MENTION_TOKEN_PATTERN, EChatConversationKind, IChatConversationWithState, IChatMessage } from '@/core/types/interfaces/common/chat';
+import { attachmentNamesOf, filesOnlyLine, isFilesOnlyMessage } from './chat-attachments';
 
 /** Someone a mention token or an author id can be resolved to. */
 export interface ChatPerson {
@@ -57,6 +58,22 @@ export function plainBody(body: string, people: ReadonlyMap<string, ChatPerson>,
 		.join('')
 		.replace(/\s+/g, ' ')
 		.trim();
+}
+
+/**
+ * The one line a message reads as where it is previewed (a thread in the list): its text; `📎 report.pdf` for a message
+ * of files only (an empty body is no deleted message: that one has `deletedAt`); the word for a deleted one.
+ */
+export function previewLineOf(
+	message: Pick<IChatMessage, 'body' | 'attachmentIds' | 'attachmentNames' | 'deletedAt'>,
+	people: ReadonlyMap<string, ChatPerson>,
+	conversations: ReadonlyMap<string, string>,
+	words: { deleted: string; file: string }
+): string {
+	if (message.deletedAt) return words.deleted;
+	const text = plainBody(message.body ?? '', people, conversations);
+	if (text) return text;
+	return isFilesOnlyMessage(message) ? filesOnlyLine(attachmentNamesOf(message), words.file) : '';
 }
 
 /** The employees a body mentions, from its tokens. */

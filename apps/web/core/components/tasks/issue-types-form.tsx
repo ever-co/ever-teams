@@ -10,7 +10,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 
-import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
 import { InputField } from '../duplicated-components/_input';
@@ -20,7 +19,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 export const IssueTypesForm = () => {
 	const t = useTranslations();
 	const { data: user } = useUserQuery();
-	const { register, setValue, handleSubmit, reset } = useForm();
+	const { register, setValue, handleSubmit, reset, control } = useForm();
 	const [createNew, setCreateNew] = useState(false);
 	const [edit, setEdit] = useState<IIssueType | null>(null);
 
@@ -28,19 +27,6 @@ export const IssueTypesForm = () => {
 	const { createIssueType, createIssueTypeLoading } = useCreateIssueType();
 	const { editIssueType, editIssueTypeLoading } = useEditIssueType();
 	const { deleteIssueType } = useDeleteIssueType();
-
-	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
-		'open',
-		'in-progress',
-		'ready',
-		'in-review',
-		'blocked',
-		'completed'
-	]);
-	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', ['x-large', 'large', 'medium', 'small', 'tiny']);
-	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
-
-	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
 
 	useEffect(() => {
 		if (!edit) {
@@ -132,15 +118,7 @@ export const IssueTypesForm = () => {
 											{...register('name')}
 										/>
 
-										<IconPopover
-											iconList={iconList}
-											setValue={setValue}
-											active={
-												edit
-													? (iconList.find((icon) => icon.path === edit.icon) as IIcon)
-													: null
-											}
-										/>
+										<IconPopover kind="issueType" control={control} setValue={setValue} />
 
 										<ColorPicker
 											defaultColor={edit ? edit.color : undefined}

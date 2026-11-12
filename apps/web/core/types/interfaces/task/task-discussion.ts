@@ -5,6 +5,14 @@ export interface TaskCommentItem {
 	parentId: string | null;
 	authorName: string;
 	authorImageUrl: string | null;
+	/** Who wrote it: the employee, or (an author-less comment) the user who posted it. */
+	authorEmployeeId: string | null;
+	authorUserId: string | null;
+	/** When the text last changed, stamped by the platform; `null` when it never did. */
+	editedAt: Date | null;
+	resolved: boolean;
+	resolvedAt: Date | null;
+	resolvedByName: string;
 }
 
 export interface TaskActivityChange {

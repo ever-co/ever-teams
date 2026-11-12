@@ -358,5 +358,65 @@
 	{
 		"id": "removed:navigation:apps/web/core/components/pages/chat/chat-page.tsx::router.replace=<dynamic:`/chat/${target.id}`>::#1",
 		"reason": "The chat landing redirect to the conversation to open is still there, now with `?new=message` when the page was asked to start a new message (#5052, T15 review round 1: `router.replace(`/chat/${target.id}${newRequested ? '?new=message' : ''}`)`). The surface keys the template literal, so the extended template reads as a removed one and a new one."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/hooks/daily-plans/use-plan-editor.ts::router.push=<dynamic:getMyWorkNavigation(userId, userName || undefined).workDiary>::#1",
+		"reason": "A past plan's button led to the team Timesheets of its employee (/reports/timesheet/{user}), which only team managers may open (#5019). One's own past plan now opens the Work diary page on the plan's day (router.push(workDiaryPathOf(planDay))); a member's past plan, which a manager sees, still opens that member's timesheets link (router.push(timesheetPathOf(...)))."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/components/layouts/my-work-navigation.test.ts::links Time & Activity and Work Diary to working report routes::#1",
+		"reason": "Work Diary is no longer a report route (#5019): it has its own page, /work-diary, outside Reports. The test is renamed \"links Work Diary to its own page, outside the team reports, and Time & Activity to its report\" and checks the new link; workDiaryPathOf, which opens a given day, has its own test."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/pages/teams/team/tasks/list/team-tasks-page.tsx::href=#::#1",
+		"reason": "The last crumb of a view's page linked to \"#\", nowhere (#5018). A view's page now sits under Views in the breadcrumb (Views > name), and that crumb links the view's own page (/views/{id or key}). The breadcrumb of the plain Team tasks page is unchanged."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/integration/meet/index.tsx::router.push=/::#2",
+		"reason": "Moved, not removed (#5021): the Jitsi room's error screen and its \"Return Home\" button became the shared MeetRoomError (core/components/pages/meet/meet-room-error.tsx), whose \"Back to home\" still calls router.push('/'). The room keeps its other router.push('/'), the one that leaves after the meeting closes."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/integration/meet/index.tsx::router.push=/::#1",
+		"reason": "Leaving a Jitsi meeting no longer jumps to the home page (#5021): the room tells its page, which shows \"You left the meeting\" with Rejoin and Back to meetings (/meet). The way home stays in the room's error notices (meet-room-error.tsx) and in the app's navigation."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/pages/meet/livekit/page-component.tsx::router.push=/::#1",
+		"reason": "Leaving a LiveKit meeting no longer jumps to the home page (#5021): the page shows \"You left the meeting\" with Rejoin and Back to meetings (/meet), as the Jitsi page does. The way home stays in the room's error notices (meet-room-error.tsx) and in the app's navigation."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/features/daily-plan/timer-plan-dialogs.tsx::dismissEnforceTaskSoftModal",
+		"reason": "The soft \"add the task to today's plan?\" prompt opened only on Start in teams that do not require a daily plan, and never started the timer (#5014). Those teams now start the timer at once, so no path opens the prompt and its dialog is gone; the required-plan prompt (enforceTaskCloseModal) stays."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/hooks/activities/use-start-stop-timer-handler.ts::_enforceTaskSoftCloseModal",
+		"reason": "Modal state of the soft \"add the task to today's plan?\" prompt, which no timer policy path opens since teams without the plan requirement start at once (#5014). The ENFORCE_PLAN, SUGGEST_DAILY_PLAN and TASKS_ESTIMATION_HOURS modals of teams that require a plan are unchanged."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/hooks/activities/use-start-stop-timer-handler.ts::enforceTaskSoftCloseModal",
+		"reason": "Close handler of the soft \"add the task to today's plan?\" prompt, which no timer policy path opens since teams without the plan requirement start at once (#5014). The prompts of teams that require a plan are unchanged."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/hooks/activities/use-start-stop-timer-handler.ts::isEnforceTaskSoftModalOpen",
+		"reason": "Open state of the soft \"add the task to today's plan?\" prompt, which no timer policy path opens since teams without the plan requirement start at once (#5014). The prompts of teams that require a plan are unchanged."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/hooks/activities/use-start-stop-timer-handler.ts::openEnforcePlannedTaskSoftModal",
+		"reason": "Opener of the soft \"add the task to today's plan?\" prompt (policy modal ENFORCE_PLAN_SOFT), which the policy no longer returns: teams without the plan requirement start at once (#5014), and teams that require one get the hard ENFORCE_PLAN block as before."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/lib/utils/meetings.test.ts::lays out the agenda by day: today always, its ended meetings kept, then the next days that hold one::#1",
+		"reason": "The meetings agenda shows one day at a time now, with the day before and the day after (#5021): agendaOf, which laid out today and the next seven days, gave way to meetingsOfDay, tested by \"lists the meetings of one day by start time, its ended ones kept and one running past midnight on both days\"."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/lib/utils/meetings-agenda-dst.test.ts::agendaOf across a change of the clock::#1",
+		"reason": "Renamed with the agenda's day view (#5021): the same file now describes \"the agenda across a change of the clock\", as meetingsOfDay replaced agendaOf."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/lib/utils/meetings-agenda-dst.test.ts::keeps the whole seventh day when one of the days lasts 25 hours::#1",
+		"reason": "The agenda shows one day at a time now (#5021), so the 25-hour day is checked on that day itself: \"shows the whole of a day that lasts 25 hours, and steps to the next day at its midnight\" in the same file."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/pages/meet/home/meeting-agenda.tsx::router.push=<dynamic:path>::#1",
+		"reason": "Moved, not removed (#5021): the agenda's meeting card, whose Join opens the meeting's room, moved unchanged to core/components/pages/meet/home/meeting-card.tsx, which keeps the same router.push(path)."
 	}
 ]

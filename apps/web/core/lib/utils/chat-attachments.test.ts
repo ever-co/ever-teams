@@ -3,14 +3,18 @@ import {
 	pictureUrlOf,
 	attachmentFallbackBody,
 	attachmentIdsOf,
+	attachmentNamesOf,
 	filesById,
+	filesOnlyLine,
 	filesOfTransfer,
 	isFallbackBody,
 	isFileDrag,
+	isFilesOnlyMessage,
 	isPictureFile,
 	isShrinkableImage,
 	isUploadingAny,
 	isWebUrl,
+	pictureBoxOf,
 	readyAttachmentIds,
 	shrunkSize,
 	unknownAttachmentIds,
@@ -203,5 +207,40 @@ describe('pictureUrlOf', () => {
 		expect(pictureUrlOf({ fileUrl: null, thumbUrl: both.thumbUrl }, 'full')).toBe(both.thumbUrl);
 		expect(pictureUrlOf({ fileUrl: both.fileUrl, thumbUrl: 'javascript:alert(1)' }, 'thumb')).toBe(both.fileUrl);
 		expect(pictureUrlOf({ fileUrl: 'data:image/png;base64,x', thumbUrl: null }, 'full')).toBeNull();
+	});
+});
+
+describe('a message of files only', () => {
+	const files = { body: '', attachmentIds: ['doc-1', 'doc-2'], attachmentNames: 'plan.pdf\n shot.png \n\n', deletedAt: null };
+
+	it('reads the names the message gives its files, one per line', () => {
+		expect(attachmentNamesOf(files)).toEqual(['plan.pdf', 'shot.png']);
+		expect(attachmentNamesOf({ attachmentNames: null })).toEqual([]);
+	});
+
+	it('is a message with files and no words, never a deleted one', () => {
+		expect(isFilesOnlyMessage(files)).toBe(true);
+		expect(isFilesOnlyMessage({ ...files, body: 'Look' })).toBe(false);
+		expect(isFilesOnlyMessage({ ...files, deletedAt: '2026-11-11T10:00:00.000Z' })).toBe(false);
+		expect(isFilesOnlyMessage({ body: '', attachmentIds: null, attachmentNames: null, deletedAt: null })).toBe(false);
+	});
+
+	it('reads as its files in a preview, or as the word for a file when their names are not known', () => {
+		expect(filesOnlyLine(['plan.pdf', 'shot.png'], 'File')).toBe('📎 plan.pdf, shot.png');
+		expect(filesOnlyLine([], 'File')).toBe('📎 File');
+	});
+});
+
+describe('pictureBoxOf', () => {
+	it('fits a picture into the thumbnail box, its proportions kept', () => {
+		expect(pictureBoxOf({ width: 1600, height: 900 })).toEqual({ width: 320, aspectRatio: '1600 / 900' });
+		expect(pictureBoxOf({ width: 900, height: 1600 })).toEqual({ width: 135, aspectRatio: '900 / 1600' });
+		expect(pictureBoxOf({ width: 200, height: 100 })).toEqual({ width: 200, aspectRatio: '200 / 100' });
+	});
+
+	it('leaves a picture of unknown size to its own load', () => {
+		expect(pictureBoxOf({ width: null, height: 900 })).toBeNull();
+		expect(pictureBoxOf({})).toBeNull();
+		expect(pictureBoxOf({ width: 0, height: 10 })).toBeNull();
 	});
 });

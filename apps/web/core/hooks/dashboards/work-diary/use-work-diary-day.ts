@@ -77,6 +77,9 @@ export function useWorkDiaryDay({
 		diary,
 		activities: apps.activities,
 		isAppsLoading: apps.isLoading,
+		// A failed read of the apps and sites is said as such, with a retry, never as a day with none recorded
+		isAppsError: apps.isError,
+		refetchApps: apps.refetch,
 		isLoading: slotsQuery.isPending && isReady,
 		isError: slotsQuery.isError,
 		refetch: slotsQuery.refetch

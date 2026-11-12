@@ -27,7 +27,9 @@ import {
 	TeamsCell,
 	formatProjectDay
 } from '@/core/components/projects/project-cells';
+import { FavoriteMark } from '@/core/components/favorites/favorite-parts';
 import { ProjectActionsMenu } from '@/core/components/projects/project-actions-menu';
+import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { cn } from '@/core/lib/helpers';
 import type { ProjectsListState } from '@/core/hooks/projects/use-projects-list-state';
 import type { ProjectTaskStatsState } from '@/core/hooks/projects/use-project-task-stats';
@@ -394,8 +396,11 @@ function ProjectRow({
 			>
 				<ProjectTile project={project} size="lg" />
 				<span className="flex min-w-0 flex-col">
-					<span className="truncate text-[13px] font-medium text-foreground transition-colors group-hover/link:text-primary-ink">
-						{project.name}
+					<span className="flex min-w-0 items-center gap-1.5">
+						<span className="truncate text-[13px] font-medium text-foreground transition-colors group-hover/link:text-primary-ink">
+							{project.name}
+						</span>
+						<FavoriteMark entity={EBaseEntityEnum.OrganizationProject} id={project.id} />
 					</span>
 					<ProjectSubline project={project} />
 				</span>

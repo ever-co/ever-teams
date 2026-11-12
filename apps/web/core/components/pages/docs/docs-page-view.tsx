@@ -26,6 +26,7 @@ import { ArrowLeft, Check, CircleAlert, Comment, FileText, History, Lock, MoreHo
 import { useDocsAutosave, useEditorPageContent, type DocsSaveState } from '@/core/hooks/docs/use-docs-autosave';
 import { useDocsFollow, type DocsFollowAction, type DocsSpacesState } from '@/core/hooks/docs/use-docs-collaboration';
 import { useDocsComments } from '@/core/hooks/docs/use-docs-comments';
+import { downloadDocsPdf, useDocsPdfAvailability } from '@/core/hooks/docs/use-docs-import';
 import { useDocsLive } from '@/core/hooks/docs/use-docs-live';
 import { useDocsPage, useDocsPath } from '@/core/hooks/docs/use-docs-page';
 import { useDocsRecent } from '@/core/hooks/docs/use-docs-recent';
@@ -37,6 +38,7 @@ import { anchoredBlocksOf, openThreadBlockIds, openThreadOnBlock, threadOfCommen
 import { docsLinkTargetOf, docsPageUrl } from '@/core/lib/utils/docs-links';
 import { documentToMarkdown, markdownFileName, mentionedEmployeeIds } from '@/core/lib/utils/docs-markdown';
 import { DOCS_OUTLINE_SELECTOR, outlineOf, textStatsOf, type DocsOutlineItem } from '@/core/lib/utils/docs-outline';
+import { copyBlockLinkOnceHeld, type DocsPageEdits } from '@/core/lib/utils/docs-page-edits';
 import { pageTitle } from '@/core/lib/utils/docs-tree';
 import { docsService } from '@/core/services/client/api/docs';
 import { EDocumentKind, EDocumentVisibility, type IDocumentNode, type IDocumentPage } from '@/core/types/interfaces/common/docs';
@@ -75,6 +77,8 @@ export interface DocsPageViewActions {
 	toggleFavorite: (pageId: string) => Promise<unknown>;
 	isFavorite: (pageId: string) => boolean;
 	newSubPage: (page: IDocumentPage) => void;
+	/** Imports an exported workspace under the page; absent while the import is not offered. */
+	importHere?: (page: IDocumentPage) => void;
 }
 
 interface DocsPageViewProps {
@@ -111,6 +115,12 @@ function downloadBlob(blob: Blob, fileName: string) {
 	anchor.click();
 	// The click starts the download; the address is released once it had the time to.
 	setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/** Writes the clipboard; rejects without one (a page served without https) or when the browser refuses. */
+function writeClipboard(text: string): Promise<void> {
+	const clipboard = typeof navigator === 'undefined' ? undefined : navigator.clipboard;
+	return clipboard ? clipboard.writeText(text) : Promise.reject(new Error('No clipboard'));
 }
 
 const NO_SPACES: DocsSpacesState = { available: false, teamSpaces: [] };
@@ -241,6 +251,7 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	const pageWritable = Boolean(page && !page.isArchived && !page.isLocked);
 	const unsentAtFallback = live.mode === 'fallback' && !live.rereading && Boolean(liveSnapshot?.unsentEdits);
 	const fallenDoc = unsentAtFallback ? (liveSnapshot?.doc ?? null) : null;
+	const liveBinding = live.binding;
 	useEffect(() => {
 		if (isLiveEditing && liveClockRef.current === null) liveClockRef.current = pageClock;
 	}, [isLiveEditing, pageClock]);
@@ -256,7 +267,10 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 				if (!current) return;
 				const { json, html } = liveDocumentContent(fallenDoc, DOCS_LIVE_FIELD);
 				const content = json as IDocumentNode;
-				adoptDraft(html, content, mentionedEmployeeIds(content), liveClockRef.current ?? NEVER_SAVED_CLOCK);
+				// The autosave holds the text now: the document the tab kept for it can go. Until then it stays, so a view
+				// left meanwhile (or a page locked or trashed, which skips this) leaves the edits to the next visit.
+				const base = liveClockRef.current ?? NEVER_SAVED_CLOCK;
+				if (adoptDraft(html, content, mentionedEmployeeIds(content), base)) liveBinding?.draftAdopted();
 				setAdoption('done');
 			})
 			.catch(() => {
@@ -270,7 +284,7 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 			current = false;
 			adoptingRef.current = false;
 		};
-	}, [adoptDraft, adoption, adoptionTry, fallenDoc, pageWritable]);
+	}, [adoptDraft, adoption, adoptionTry, fallenDoc, liveBinding, pageWritable]);
 	const awaitingAdoption = Boolean(fallenDoc) && pageWritable && adoption !== 'done';
 	const retryAdoption = () => {
 		setAdoption('waiting');
@@ -407,13 +421,7 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	const copyText = useCallback(
 		(text: string) => {
 			// No clipboard (a page served without https) or a refused one: the person is told, never left with an old copy.
-			const clipboard = typeof navigator === 'undefined' ? undefined : navigator.clipboard;
-			if (!clipboard) {
-				toast.error(t('docs.COPY_ERROR'));
-				return;
-			}
-			clipboard
-				.writeText(text)
+			writeClipboard(text)
 				.then(() => toast(t('docs.LINK_COPIED')))
 				.catch(() => toast.error(t('docs.COPY_ERROR')));
 		},
@@ -437,8 +445,21 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 		return false;
 	}, [flushNow, hasDraft]);
 
-	// A block given its anchor for a comment: live, the edit went with the session; otherwise the page is saved first.
-	const holdAnchor = useCallback(async () => isLiveEditing || saveDraftNow(), [isLiveEditing, saveDraftNow]);
+	// Where the page's edits stand (a block's anchor among them): live, the session confirms them (a reconnecting one
+	// sends them once it is back, and the wait ends at its timeout); otherwise the draft is saved.
+	const pageEdits = useMemo<DocsPageEdits>(
+		() =>
+			isLiveEditing
+				? {
+						pending: () => liveBinding?.hasUnconfirmedEdits() ?? true,
+						hold: () => liveBinding?.whenConfirmed() ?? Promise.resolve(false)
+					}
+				: { pending: hasDraft, hold: saveDraftNow },
+		[hasDraft, isLiveEditing, liveBinding, saveDraftNow]
+	);
+
+	// A comment on a block waits until the platform holds the page's edits: the block's anchor may exist here only.
+	const holdAnchor = useCallback(() => pageEdits.hold(), [pageEdits]);
 
 	const startComment = useCallback(() => {
 		const anchor = editorApi?.anchorSelection() ?? null;
@@ -450,10 +471,16 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	const copyBlockLink = useCallback(() => {
 		const anchor = editorApi?.anchorSelection() ?? null;
 		if (!anchor) return;
-		// A block that just got its anchor is saved at once, so the link leads somewhere for whoever opens it.
-		if (anchor.created) void holdAnchor();
-		copyText(docsPageUrl(window.location.origin, pageId, { block: anchor.blockId }));
-	}, [copyText, editorApi, holdAnchor, pageId]);
+		// The link is copied once the platform holds the block's anchor (given just now, or to a block typed since the last
+		// save), so it leads to the block for whoever opens it; when the save fails nothing is copied, and the person is told.
+		const link = docsPageUrl(window.location.origin, pageId, { block: anchor.blockId });
+		const waiting = pageEdits.pending() ? toast.loading(t('docs.SAVING')) : undefined;
+		void copyBlockLinkOnceHeld(link, pageEdits, writeClipboard).then((result) => {
+			const options = waiting === undefined ? undefined : { id: waiting };
+			if (result === 'copied') toast(t('docs.LINK_COPIED'), options);
+			else toast.error(t(result === 'unsaved' ? 'docs.BLOCK_LINK_UNSAVED' : 'docs.COPY_ERROR'), options);
+		});
+	}, [editorApi, pageEdits, pageId, t]);
 
 	const openThreadOfBlock = useCallback(
 		(blockId: string) => {
@@ -563,6 +590,31 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	);
 
 	// ---------------------------------------------------------------- export and link
+
+	// The platform's PDF export (its probe answers 404 while it is off): the page, or the page with its sub-pages.
+	// The platform renders the text as saved: the page's pending edits are saved (or confirmed live) first, or nothing
+	// is exported. Text a fallen-back live session left is not the autosave's yet while the page is read again or the
+	// text is being adopted (or failed to be): nothing is exported then either.
+	const pdfAvailable = useDocsPdfAvailability(true);
+	const [pdfBusy, setPdfBusy] = useState(false);
+	const exportPdf = async (subtree: boolean) => {
+		if (!page || pdfBusy) return;
+		if (live.rereading || awaitingAdoption) {
+			toast.error(t('docs.EXPORT_UNSAVED'));
+			return;
+		}
+		setPdfBusy(true);
+		try {
+			if (pageEdits.pending() && !(await pageEdits.hold())) {
+				toast.error(t('docs.EXPORT_UNSAVED'));
+				return;
+			}
+			const result = await downloadDocsPdf(page.id, { subtree });
+			if (!result.ok) toast.error(t(result.status === 413 ? 'docs.PDF_TOO_MANY_PAGES' : 'docs.PDF_ERROR'));
+		} finally {
+			setPdfBusy(false);
+		}
+	};
 
 	const exportMarkdown = () => {
 		if (!page) return;
@@ -814,7 +866,20 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 											{t('docs.EXPORT_WITH_SUB_PAGES')}
 										</DropdownMenuItem>
 									)}
+									{pdfAvailable && (
+										<>
+											<DropdownMenuItem disabled={pdfBusy} onClick={() => void exportPdf(false)}>
+												{t('docs.EXPORT_PDF')}
+											</DropdownMenuItem>
+											{hasChildren && (
+												<DropdownMenuItem disabled={pdfBusy} onClick={() => void exportPdf(true)}>
+													{t('docs.EXPORT_PDF_WITH_SUB_PAGES')}
+												</DropdownMenuItem>
+											)}
+										</>
+									)}
 									<DropdownMenuItem onClick={() => window.print()}>{t('docs.PRINT')}</DropdownMenuItem>
+									{actions.importHere && <DropdownMenuItem onClick={() => actions.importHere?.(page)}>{t('docs.IMPORT.HERE')}</DropdownMenuItem>}
 								</>
 							)}
 							<DropdownMenuSeparator />

@@ -134,6 +134,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/favorites",
+      "file": "apps/web/app/[locale]/(main)/favorites/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/inbox",
       "file": "apps/web/app/[locale]/(main)/inbox/page.tsx",
       "source": "router"
@@ -151,6 +156,11 @@
     {
       "path": "/:locale/maintenance",
       "file": "apps/web/app/[locale]/(focus)/maintenance/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/meet",
+      "file": "apps/web/app/[locale]/(main)/meet/page.tsx",
       "source": "router"
     },
     {
@@ -326,6 +336,21 @@
     {
       "path": "/:locale/views/:viewId",
       "file": "apps/web/app/[locale]/(main)/views/[viewId]/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/work-diary",
+      "file": "apps/web/app/[locale]/(main)/work-diary/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/workspace/new",
+      "file": "apps/web/app/[locale]/(main)/workspace/new/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/workspace/welcome",
+      "file": "apps/web/app/[locale]/(main)/workspace/welcome/page.tsx",
       "source": "router"
     },
     {

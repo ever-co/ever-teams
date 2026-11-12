@@ -92,11 +92,58 @@ describe('toInboxEntry', () => {
 			message: null,
 			taskId: 't1',
 			href: null,
+			timerReminder: null,
 			createdAt: new Date('2026-11-07T10:00:00.000Z')
 		});
 		expect(entry.taskId).toBe('t1');
 		expect(entry.sourceGroup).toBe('tasks');
 		expect(entry.kind).toBe(EInboxItemKind.Notification);
+	});
+});
+
+describe('a timer reminder (#5022)', () => {
+	const reminder = item({
+		title: 'Your timer has been running for 8 hours',
+		body: 'Stop it if you are done, or keep it running.',
+		entity: 'TimeLog',
+		entityId: 'log-1',
+		taskId: null,
+		metadata: { notificationType: 'TimerReminder' }
+	});
+
+	it('opens the timer, and carries its level, hours and run', () => {
+		const entry = toInboxEntry(reminder);
+		expect(entry.type).toBe('TimerReminder');
+		expect(entry.href).toBe('/');
+		expect(hasInboxTarget(entry)).toBe(true);
+		expect(entry.taskId).toBeNull();
+		expect(entry.senderName).toBeNull();
+		expect(entry.sourceGroup).toBe('other');
+		expect(entry.timerReminder).toEqual({ level: 1, hours: 8, timeLogId: 'log-1' });
+	});
+
+	it("keeps it where the platform has no inbox extension (the bell's own entry)", () => {
+		const timerReminder = { level: 2 as const, hours: 16, timeLogId: 'log-1' };
+		const entry = fromNotificationEntry({
+			id: 'n1',
+			type: 'TimerReminder' as never,
+			isUnread: true,
+			senderName: null,
+			senderImageUrl: null,
+			subject: null,
+			rawTitle: 'Your timer is still running after 16 hours',
+			message: null,
+			taskId: null,
+			href: '/',
+			timerReminder,
+			createdAt: new Date('2026-11-07T10:00:00.000Z')
+		});
+		expect(entry.timerReminder).toEqual(timerReminder);
+		expect(entry.href).toBe('/');
+	});
+
+	it('is nothing for another kind', () => {
+		expect(toInboxEntry(item()).timerReminder).toBeNull();
 	});
 });
 

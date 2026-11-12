@@ -48,3 +48,44 @@ describe('VisitedItem', () => {
 		expect(screen.getByText(/^Sun, Oct 25 · /)).toBeTruthy();
 	});
 });
+
+describe('VisitedItem of a site recorded under its page title', () => {
+	it("draws the site's icon and links the site from the address the row carries", () => {
+		const row = {
+			title: 'Pull requests · ever-co/ever-teams',
+			date: '2026-11-11',
+			time: '09:00:00',
+			duration: 600,
+			sessions: 2,
+			employeeId: 'employee-1',
+			url: 'https://github.com/ever-co/ever-teams/pulls'
+		};
+
+		const { container } = render(<VisitedItem app={row} totalMilliseconds={600} type="SITE" />);
+
+		// GitHub's mark in its colour, not the generic globe a page title alone would get
+		const mark = container.querySelector('span[aria-hidden="true"] svg');
+		expect(mark?.getAttribute('style') ?? '').toContain('color: rgb(24, 23, 23)');
+		expect(screen.getByRole('link').getAttribute('href')).toBe('https://github.com/ever-co/ever-teams/pulls');
+	});
+});
+
+describe('VisitedItem of a site whose address is in its metadata as JSON text (SQLite)', () => {
+	it("draws the site's icon and links the site from that address", () => {
+		const row = {
+			title: 'Pull requests · ever-co/ever-teams',
+			date: '2026-11-11',
+			time: '09:00:00',
+			duration: 600,
+			sessions: 2,
+			employeeId: 'employee-1',
+			metaData: JSON.stringify({ title: 'Pull requests', url: 'https://github.com/ever-co/ever-teams/pulls' })
+		};
+
+		const { container } = render(<VisitedItem app={row} totalMilliseconds={600} type="SITE" />);
+
+		const mark = container.querySelector('span[aria-hidden="true"] svg');
+		expect(mark?.getAttribute('style') ?? '').toContain('color: rgb(24, 23, 23)');
+		expect(screen.getByRole('link').getAttribute('href')).toBe('https://github.com/ever-co/ever-teams/pulls');
+	});
+});

@@ -1,54 +1,46 @@
 import { useAtomValue } from 'jotai';
+import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { tasksByTeamState } from '@/core/stores/teams/team-tasks';
 import { useCallback, useMemo } from 'react';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useFavoritesQuery } from '../favorites/use-favorites-query';
 import { useCreateFavorite } from '../favorites/use-create-favorite';
 import { useDeleteFavorite } from '../favorites/use-delete-favorite';
+import { useFavoriteToggle } from '../favorites/use-favorite-toggle';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
-import { IFavoriteCreateRequest } from '@/core/types/interfaces/common/favorite';
-import { useUserQuery } from '../queries/user-user.query';
 
 /**
  * A React hook that manages a list of favorite tasks for a team.
  *
  * The `useFavoritesTask` hook returns an object with the following properties:
  *
- * - `employeeFavoritesTasks`: The list of favorite tasks of the current employee.
+ * - `employeeFavoritesTasks`: The active team's tasks the current employee has as favorites.
  * - `toggleFavoriteTask`: A function that toggles the favorite status of a given task.
- * - `isFavoriteTask`: A function that checks if a given task is a favorite.
+ * - `isFavoriteTask`: Whether a task is a favorite, whatever its team.
  * - `addTaskToFavorite`: A function that adds a task to the list of favorites.
  */
 
 export const useFavoriteTasks = () => {
+	const t = useTranslations();
 	const tasks = useAtomValue(tasksByTeamState);
-	const { data: user } = useUserQuery();
 
 	const { currentEmployeeFavorites } = useFavoritesQuery();
-	const { createFavorite, createFavoriteLoading } = useCreateFavorite();
-	const { deleteFavorite, deleteFavoriteLoading } = useDeleteFavorite();
+	const { createFavorite } = useCreateFavorite();
+	const { deleteFavorite } = useDeleteFavorite();
+	// The shared star of the app (#5017): the change shows at once, comes back on a refusal, one request per task
+	const { isFavorite, hasPending, toggleFavorite } = useFavoriteToggle(EBaseEntityEnum.Task);
 
 	const toggleFavoriteTask = useCallback(
 		async (task: TTask) => {
 			if (!task) return;
-
-			const isFavoriteTask = currentEmployeeFavorites.some((el) => {
-				return el.entity === EBaseEntityEnum.Task && el.entityId === task.id;
-			});
-
-			if (isFavoriteTask) {
-				await deleteFavorite(task.id);
-			} else {
-				await createFavorite({
-					entity: EBaseEntityEnum.Task,
-					entityId: task.id,
-					...(user?.employee?.id || user?.employeeId
-						? { employeeId: user?.employee?.id || user?.employeeId }
-						: {})
-				} as IFavoriteCreateRequest);
+			try {
+				await toggleFavorite(task.id);
+			} catch {
+				toast.error(t('task.toastMessages.TASK_FAVORITE_FAILED'));
 			}
 		},
-		[currentEmployeeFavorites, createFavorite, deleteFavorite, user]
+		[t, toggleFavorite]
 	);
 
 	const employeeFavoritesTasks = useMemo(() => {
@@ -59,18 +51,16 @@ export const useFavoriteTasks = () => {
 		return tasks.filter((task) => taskIds.includes(task.id));
 	}, [tasks, currentEmployeeFavorites]);
 
-	const isFavoriteTask = useCallback(
-		(taskId: string) => employeeFavoritesTasks.some((t) => t.id === taskId),
-		[employeeFavoritesTasks]
-	);
+	// From all the favorites: a favorite task of another team showed as not one, and its star then removed it
+	const isFavoriteTask = useCallback((taskId: string) => isFavorite(taskId), [isFavorite]);
 
 	return {
 		employeeFavoritesTasks,
 		addTaskToFavorite: createFavorite,
 		deleteTaskFromFavorites: deleteFavorite,
 		toggleFavoriteTask,
-		addTaskToFavoriteLoading: createFavoriteLoading,
-		deleteTaskFromFavoritesLoading: deleteFavoriteLoading,
+		addTaskToFavoriteLoading: hasPending,
+		deleteTaskFromFavoritesLoading: hasPending,
 		isFavoriteTask
 	};
 };
