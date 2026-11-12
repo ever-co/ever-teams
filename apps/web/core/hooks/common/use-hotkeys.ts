@@ -33,7 +33,7 @@ export const HostKeysMapping = [
 		heading: 'HELP',
 		keySequence: [
 			{
-				label:'TO_OPEN_SHORTCUT_LIST',
+				label: 'TO_OPEN_SHORTCUT_LIST',
 				sequence: {
 					MAC: ['H'],
 					OTHER: ['H']

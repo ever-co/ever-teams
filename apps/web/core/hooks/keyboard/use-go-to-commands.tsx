@@ -11,7 +11,11 @@ import { readRuntimeEnv } from '@/env-config';
 import { useKeyboardPreferences } from './use-keyboard-preferences';
 
 /** The "go to" commands of the registry and where each leads; the ones behind a sibling feature's flag only with it. */
-const GO_TO: Array<{ id: string; path: string; flag?: 'NEXT_PUBLIC_DOCS_ENABLED' | 'NEXT_PUBLIC_CHAT_ENABLED' | 'NEXT_PUBLIC_INBOX_ENABLED' }> = [
+const GO_TO: Array<{
+	id: string;
+	path: string;
+	flag?: 'NEXT_PUBLIC_DOCS_ENABLED' | 'NEXT_PUBLIC_CHAT_ENABLED' | 'NEXT_PUBLIC_INBOX_ENABLED';
+}> = [
 	{ id: 'goTasks', path: '/team/tasks' },
 	{ id: 'goMine', path: '/views/mine' },
 	{ id: 'goThisWeek', path: '/views/this-week' },
@@ -49,7 +53,11 @@ export function useGoToCommands(icon?: React.ReactNode): CommandShortcutConfig[]
 			commands.push({
 				sequence: [],
 				description: t(`shortcuts.commands.${entry.id}` as DottedLanguageObjectStringPaths),
-				shortcutDisplay: binding ? bindingKeyCaps(binding, isMac).map((caps) => caps.join('')).join(' ') : '',
+				shortcutDisplay: binding
+					? bindingKeyCaps(binding, isMac)
+							.map((caps) => caps.join(''))
+							.join(' ')
+					: '',
 				shortcutKeys: binding ? bindingKeyCaps(binding, isMac).flat() : [],
 				keywords: bindingSearchWords(binding),
 				commandId: entry.id,

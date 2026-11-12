@@ -103,7 +103,9 @@ jest.mock('./palette-entity-results', () => ({
 		<div data-testid="recent">{items.map((item) => item.id).join(',')}</div>
 	)
 }));
-jest.mock('./palette-chat-results', () => ({ PaletteChatResults: ({ search }: { search: string }) => <div data-testid="chat-results">{search}</div> }));
+jest.mock('./palette-chat-results', () => ({
+	PaletteChatResults: ({ search }: { search: string }) => <div data-testid="chat-results">{search}</div>
+}));
 jest.mock('./palette-docs-results', () => ({ PaletteDocsResults: () => null }));
 
 import { SidebarCommandModal } from './sidebar-command-modal';

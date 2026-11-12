@@ -47,7 +47,10 @@ function KeyCaps({ binding, isMac }: Readonly<{ binding: ShortcutBinding | null;
 				<span key={`${at}:${caps.join('+')}`} className="flex items-center gap-0.5">
 					{at > 0 && <span className="px-0.5 text-xs text-muted-foreground">{t('shortcuts.THEN')}</span>}
 					{caps.map((cap) => (
-						<kbd key={cap} className="min-w-6 rounded-md bg-foreground/5 px-1.5 py-0.5 text-center font-sans text-xs font-medium text-foreground hairline-ring ring-border">
+						<kbd
+							key={cap}
+							className="min-w-6 rounded-md bg-foreground/5 px-1.5 py-0.5 text-center font-sans text-xs font-medium text-foreground hairline-ring ring-border"
+						>
 							{cap}
 						</kbd>
 					))}
@@ -70,25 +73,53 @@ interface RowProps {
 	onReset: () => void;
 }
 
-function CommandRow({ command, binding, isMac, isRecording, recorded, canRebind, isDefault, onRecord, onReset }: Readonly<RowProps>) {
+function CommandRow({
+	command,
+	binding,
+	isMac,
+	isRecording,
+	recorded,
+	canRebind,
+	isDefault,
+	onRecord,
+	onReset
+}: Readonly<RowProps>) {
 	const t = useTranslations();
 	const label = t(`shortcuts.commands.${command.id}` as DottedLanguageObjectStringPaths);
 	return (
-		<div className={cn('flex items-center justify-between gap-3 py-1.5', isRecording && 'rounded-md bg-primary/5 px-2')}>
+		<div
+			className={cn(
+				'flex items-center justify-between gap-3 py-1.5',
+				isRecording && 'rounded-md bg-primary/5 px-2'
+			)}
+		>
 			<span className="text-sm text-foreground">{label}</span>
 			<span className="flex items-center gap-2">
 				{isRecording ? (
-					<span className="text-xs text-primary">{recorded.length ? <KeyCaps binding={recorded} isMac={isMac} /> : t('shortcuts.PRESS_KEYS')}</span>
+					<span className="text-xs text-primary">
+						{recorded.length ? <KeyCaps binding={recorded} isMac={isMac} /> : t('shortcuts.PRESS_KEYS')}
+					</span>
 				) : (
 					<KeyCaps binding={binding} isMac={isMac} />
 				)}
 				{canRebind && !command.fixed && (
 					<>
-						<Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={onRecord} disabled={isRecording}>
+						<Button
+							variant="ghost"
+							size="sm"
+							className="h-7 px-2 text-xs"
+							onClick={onRecord}
+							disabled={isRecording}
+						>
 							{t('shortcuts.CHANGE')}
 						</Button>
 						{!isDefault && (
-							<Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-muted-foreground" onClick={onReset}>
+							<Button
+								variant="ghost"
+								size="sm"
+								className="h-7 px-2 text-xs text-muted-foreground"
+								onClick={onReset}
+							>
 								{t('shortcuts.RESET')}
 							</Button>
 						)}
@@ -135,7 +166,9 @@ export function ShortcutsDialog() {
 			if (binding) {
 				const conflicts = conflictsOf(commandId, binding, availableShortcutCommands(), bindings);
 				if (conflicts.length) {
-					const names = conflicts.map((item) => t(`shortcuts.commands.${item.id}` as DottedLanguageObjectStringPaths)).join(', ');
+					const names = conflicts
+						.map((item) => t(`shortcuts.commands.${item.id}` as DottedLanguageObjectStringPaths))
+						.join(', ');
 					toast.error(t('shortcuts.CONFLICT', { commands: names }));
 					return;
 				}
@@ -192,7 +225,9 @@ export function ShortcutsDialog() {
 			<DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
 				<DialogHeader>
 					<DialogTitle>{t('shortcuts.TITLE')}</DialogTitle>
-					<DialogDescription>{canRebind ? t('shortcuts.DESCRIPTION_REBIND') : t('shortcuts.DESCRIPTION')}</DialogDescription>
+					<DialogDescription>
+						{canRebind ? t('shortcuts.DESCRIPTION_REBIND') : t('shortcuts.DESCRIPTION')}
+					</DialogDescription>
 				</DialogHeader>
 				<div className="flex flex-col gap-4">
 					{byContext.map(([context, commands]) => (

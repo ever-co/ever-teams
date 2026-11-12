@@ -14,7 +14,9 @@ import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { readRuntimeEnv } from '@/env-config';
 
 /** Whether a sibling feature's page exists on this deployment (its own runtime flag). */
-function isFeatureOn(name: 'NEXT_PUBLIC_DOCS_ENABLED' | 'NEXT_PUBLIC_CHAT_ENABLED' | 'NEXT_PUBLIC_INBOX_ENABLED'): boolean {
+function isFeatureOn(
+	name: 'NEXT_PUBLIC_DOCS_ENABLED' | 'NEXT_PUBLIC_CHAT_ENABLED' | 'NEXT_PUBLIC_INBOX_ENABLED'
+): boolean {
 	return (readRuntimeEnv(name) || process.env[name]) === 'true';
 }
 
@@ -31,14 +33,14 @@ function GlobalShortcuts() {
 		const go = (path: string) => () => router.push(path);
 		const result: Record<string, ShortcutHandler> = {
 			paletteOpen: () => setPaletteOpen((open) => !open),
-			'helpOpen': () => setHelpOpen((open) => !open),
-			'taskCreate': () => setIsCreateOpen(true),
-			'settingsOpen': go('/settings/personal'),
-			'goTasks': go('/team/tasks'),
-			'goMine': go('/views/mine'),
-			'goThisWeek': go('/views/this-week'),
-			'goOverdue': go('/views/overdue'),
-			'goViews': go('/views')
+			helpOpen: () => setHelpOpen((open) => !open),
+			taskCreate: () => setIsCreateOpen(true),
+			settingsOpen: go('/settings/personal'),
+			goTasks: go('/team/tasks'),
+			goMine: go('/views/mine'),
+			goThisWeek: go('/views/this-week'),
+			goOverdue: go('/views/overdue'),
+			goViews: go('/views')
 		};
 		if (isFeatureOn('NEXT_PUBLIC_DOCS_ENABLED')) result['goDocs'] = go('/docs');
 		if (isFeatureOn('NEXT_PUBLIC_CHAT_ENABLED')) result['goChat'] = go('/chat');
@@ -53,7 +55,13 @@ function GlobalShortcuts() {
 			<ShortcutsDialog />
 			{isCreateOpen && (
 				<Modal isOpen={isCreateOpen} closeModal={closeCreate}>
-					<CreateTaskModal onClose={closeCreate} title={t('common.CREATE_TASK')} initEditMode={false} task={null} tasks={[]} />
+					<CreateTaskModal
+						onClose={closeCreate}
+						title={t('common.CREATE_TASK')}
+						initEditMode={false}
+						task={null}
+						tasks={[]}
+					/>
 				</Modal>
 			)}
 		</>

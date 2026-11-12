@@ -443,7 +443,9 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					}
 				]
 			},
-			...(goToCommands.length ? [{ id: 'goTo', heading: t('commandPalette.groups.goTo'), commands: goToCommands }] : []),
+			...(goToCommands.length
+				? [{ id: 'goTo', heading: t('commandPalette.groups.goTo'), commands: goToCommands }]
+				: []),
 			...(chatOn
 				? [
 						{
@@ -665,7 +667,11 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 				>
 					<CommandEmpty>{t('commandPalette.empty')}</CommandEmpty>
 					{registryOn && !hasSearch && activeTab === ALL_GROUPS_TAB && (
-						<PaletteRecentResults items={shownRecentItems} onOpen={openItem} className={paletteGroupClass} />
+						<PaletteRecentResults
+							items={shownRecentItems}
+							onOpen={openItem}
+							className={paletteGroupClass}
+						/>
 					)}
 					{showsTaskResults && (
 						<PaletteTaskResults search={search} onOpenTask={openTask} className={paletteGroupClass} />
@@ -683,7 +689,9 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 						<PaletteChatResults search={search} onDone={closePalette} className={paletteGroupClass} />
 					)}
 					{/* The Docs pages the platform's search finds (title and text), where the registry's Pages group is off. */}
-					{showsTaskResults && !showsPages && <PaletteDocsResults search={search} onOpenPage={openPage} className={paletteGroupClass} />}
+					{showsTaskResults && !showsPages && (
+						<PaletteDocsResults search={search} onOpenPage={openPage} className={paletteGroupClass} />
+					)}
 					{renderCommandGroups()}
 				</CommandList>
 			</CommandDialog>
