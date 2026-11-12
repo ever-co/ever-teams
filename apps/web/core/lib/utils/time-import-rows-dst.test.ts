@@ -6,6 +6,7 @@
  * `TZ` itself: the environment does.
  */
 
+import type { DateOrder } from './time-import-cells';
 import { draftRowsOf, isReadyRow, type TimeImportContext, type TimeImportRow } from './time-import-rows';
 import type { TimeImportCells, TimeImportSheetRow } from './time-import-sheet';
 
@@ -28,7 +29,7 @@ const CONTEXT: TimeImportContext = {
 	tasks: []
 };
 
-function draftOf(cells: Partial<TimeImportCells>): TimeImportRow {
+function draftOf(cells: Partial<TimeImportCells>, order: DateOrder = 'yearFirst'): TimeImportRow {
 	const sheetRow: TimeImportSheetRow = {
 		row: 2,
 		cells: {
@@ -46,7 +47,7 @@ function draftOf(cells: Partial<TimeImportCells>): TimeImportRow {
 		},
 		extraCellCount: 0
 	};
-	return draftRowsOf([sheetRow], CONTEXT)[0];
+	return draftRowsOf([sheetRow], CONTEXT, order)[0];
 }
 
 function problemCodesOf(row: TimeImportRow) {
@@ -89,5 +90,31 @@ describe('a time import row on the day the clock moves forward', () => {
 		expect(isReadyRow(row)).toBe(true);
 		expect(row.entry?.end).toEqual(at(4, 30));
 		expect(row.entry?.seconds).toBe(2 * HOUR);
+	});
+});
+
+describe('a row from another tool on the day the clock moves forward', () => {
+	it('leaves out an end the clock skips, on its own end date or written with its date', () => {
+		const onEndDate = draftOf({ date: '2026-03-07', startTime: '23:00', endDate: '2026-03-08', endTime: '02:30' });
+		const withItsDate = draftOf({ date: '2026-03-07', startTime: '23:00', endTime: '2026-03-08 02:30' });
+
+		expect(problemCodesOf(onEndDate)).toEqual(['clockSkipped']);
+		expect(problemCodesOf(withItsDate)).toEqual(['clockSkipped']);
+	});
+
+	it('leaves out a start the clock skips, written with its date day first or month first', () => {
+		const dayFirst = draftOf({ date: '', startTime: '08/03/2026 02:30', endTime: '04:30' }, 'dayFirst');
+		const monthFirst = draftOf({ date: '', startTime: '03/08/2026 02:30', endTime: '04:30' }, 'monthFirst');
+
+		expect(problemCodesOf(dayFirst)).toEqual(['clockSkipped']);
+		expect(problemCodesOf(monthFirst)).toEqual(['clockSkipped']);
+	});
+
+	it('keeps an entry that ends on its end date after the change, without the skipped hour in its length', () => {
+		const row = draftOf({ date: '2026-03-07', startTime: '23:00', endDate: '2026-03-08', endTime: '03:30' });
+
+		expect(isReadyRow(row)).toBe(true);
+		expect(row.entry?.end).toEqual(at(3, 30));
+		expect(row.entry?.seconds).toBe(3.5 * HOUR);
 	});
 });
