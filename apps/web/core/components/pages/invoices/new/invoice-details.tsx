@@ -8,7 +8,7 @@ import { DashboardSection } from '@/core/components/dashboards/kit/dashboard-lay
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import type { NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
 import { cn } from '@/core/lib/helpers';
-import type { InvoiceProblem } from '@/core/lib/utils/invoices';
+import type { InvoiceDueTermSource, InvoiceProblem } from '@/core/lib/utils/invoices';
 import { FIELD_LABEL } from './new-invoice-recipes';
 
 const PROBLEM_KEYS: Record<InvoiceProblem, DottedLanguageObjectStringPaths> = {
@@ -20,7 +20,29 @@ const PROBLEM_KEYS: Record<InvoiceProblem, DottedLanguageObjectStringPaths> = {
 	noCurrency: 'invoices.new.problems.NO_CURRENCY'
 };
 
+const DUE_TERM_KEYS: Record<InvoiceDueTermSource, DottedLanguageObjectStringPaths> = {
+	client: 'invoices.new.terms.CLIENT',
+	organization: 'invoices.new.terms.ORGANIZATION',
+	standard: 'invoices.new.terms.STANDARD'
+};
+
 const DATE_FIELD = cn(controlRecipe, 'h-9 px-2.5');
+
+const HINT = 'text-xs text-muted-foreground text-pretty';
+
+/** Which term gave the due date; silent once the user picks another day. */
+function DueTermHint({ invoice, id }: Readonly<{ invoice: NewInvoiceState; id: string }>) {
+	const t = useTranslations();
+	if (!invoice.isDueDayOfTerm) {
+		return null;
+	}
+	const { source, days } = invoice.dueTerm;
+	return (
+		<p id={id} className={HINT}>
+			{t(DUE_TERM_KEYS[source], { days })}
+		</p>
+	);
+}
 
 function NumberHint({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 	const t = useTranslations();
@@ -79,6 +101,7 @@ export function InvoiceDetails({
 	const numberId = `${fieldId}-number`;
 	const issueId = `${fieldId}-issue`;
 	const dueId = `${fieldId}-due`;
+	const dueTermId = `${fieldId}-due-term`;
 	const currencyId = `${fieldId}-currency`;
 	const problemsId = `${fieldId}-problems`;
 	const hasProblems = invoice.problems.length > 0;
@@ -88,6 +111,10 @@ export function InvoiceDetails({
 	const isDueMissing = invoice.problems.includes('dueDay');
 	const isDueTooEarly = invoice.problems.includes('dueBeforeIssue');
 	const isDueInvalid = showsProblems && (isDueMissing || isDueTooEarly);
+	let dueDescription: string | undefined;
+	if (invoice.isDueDayOfTerm) {
+		dueDescription = dueTermId;
+	}
 
 	return (
 		<DashboardSection title={t('invoices.new.details.TITLE')} bodyClassName="flex flex-col gap-4 px-4 pb-4">
@@ -130,9 +157,11 @@ export function InvoiceDetails({
 						value={invoice.dueDay}
 						min={invoice.issueDay}
 						aria-invalid={isDueInvalid || undefined}
+						aria-describedby={dueDescription}
 						onChange={(event) => invoice.setDueDay(event.target.value)}
 						className={DATE_FIELD}
 					/>
+					<DueTermHint invoice={invoice} id={dueTermId} />
 				</div>
 			</div>
 			<CurrencyField invoice={invoice} id={currencyId} />
