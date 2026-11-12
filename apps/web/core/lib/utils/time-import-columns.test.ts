@@ -1,6 +1,17 @@
-import { dateOrderReadingOf, timeImportReadingOf } from './time-import-columns';
+import {
+	dateOrderReadingOf,
+	resolvedDateOrderOf,
+	timeImportColumnsStepOf,
+	timeImportReadingOf
+} from './time-import-columns';
 import { draftRowsOf, type TimeImportContext } from './time-import-rows';
-import { TIME_IMPORT_MAX_ROWS, timeImportTableOf, type TimeImportMapping } from './time-import-sheet';
+import {
+	NO_TIME_IMPORT_COLUMNS,
+	TIME_IMPORT_MAX_ROWS,
+	timeImportTableOf,
+	type TimeImportField,
+	type TimeImportMapping
+} from './time-import-sheet';
 
 const HEADER = 'date,start time,end time,duration,project,task,notes,billable';
 
@@ -34,6 +45,14 @@ function problemOf(text: string) {
 		return null;
 	}
 	return reading.problem;
+}
+
+function tableOf(text: string) {
+	const reading = timeImportTableOf(text);
+	if (!reading.table) {
+		throw new Error(`The file was refused: ${reading.problem.code}`);
+	}
+	return reading.table;
 }
 
 describe('timeImportReadingOf', () => {
@@ -243,14 +262,6 @@ describe('dateOrderReadingOf', () => {
 		memberEmail: null
 	};
 
-	function tableOf(text: string) {
-		const reading = timeImportTableOf(text);
-		if (!reading.table) {
-			throw new Error(`The file was refused: ${reading.problem.code}`);
-		}
-		return reading.table;
-	}
-
 	it('tells nothing when the file writes no date', () => {
 		expect(dateOrderReadingOf(tableOf('date,start,end\n,09:00,10:00\n'), MAPPING)).toEqual({ kind: 'none' });
 	});
@@ -270,5 +281,72 @@ describe('dateOrderReadingOf', () => {
 			row: 2,
 			value: '25/10/2026'
 		});
+	});
+});
+
+describe('resolvedDateOrderOf', () => {
+	it('reads the format a file tells, and the template one when it writes no date', () => {
+		const told = { kind: 'told', order: 'monthFirst', row: 2, value: '10/25/2026' } as const;
+
+		expect(resolvedDateOrderOf(told, 'dayFirst')).toBe('monthFirst');
+		expect(resolvedDateOrderOf({ kind: 'none' }, null)).toBe('yearFirst');
+	});
+
+	it('takes the member choice between day first and month first only when the dates fit both', () => {
+		const ambiguous = { kind: 'ambiguous', row: 2, value: '03/11/2026' } as const;
+
+		expect(resolvedDateOrderOf(ambiguous, 'dayFirst')).toBe('dayFirst');
+		expect(resolvedDateOrderOf(ambiguous, 'yearFirst')).toBeNull();
+		expect(resolvedDateOrderOf(ambiguous, null)).toBeNull();
+	});
+
+	it('settles nothing for a file whose dates are written two ways', () => {
+		const mixed = { kind: 'mixed', firstRow: 2, firstValue: '25/10/2026', row: 3, value: '10/25/2026' } as const;
+
+		expect(resolvedDateOrderOf(mixed, 'dayFirst')).toBeNull();
+	});
+});
+
+describe('timeImportColumnsStepOf', () => {
+	const table = tableOf(
+		'Datum,Beginn,Ende,Kunde,Notiz\n03/11/2026,09:00,10:30,Acme,Pairing\n05/11/2026,13:00,14:00,Acme,\n06/11/2026,08:00,09:00,,Review\n07/11/2026,08:00,09:00,,\n'
+	);
+	const chosen: TimeImportMapping = { ...NO_TIME_IMPORT_COLUMNS, date: 0, startTime: 1, endTime: 2, notes: 4 };
+
+	it('says what is missing before the rows can be checked', () => {
+		const step = timeImportColumnsStepOf(table, { mapping: NO_TIME_IMPORT_COLUMNS, dateOrder: null });
+
+		expect(step.missing).toEqual(['date', 'startTime', 'endOrDuration']);
+		expect(step.blocker).toBe('missing');
+		expect(step.leftOutHeaders).toEqual(['Datum', 'Beginn', 'Ende', 'Kunde', 'Notiz']);
+	});
+
+	it('shows the first value of each chosen column, the columns left out and the first rows of the file', () => {
+		const step = timeImportColumnsStepOf(table, { mapping: chosen, dateOrder: 'dayFirst' });
+		const sampleOf = (field: TimeImportField) => step.fields.find((item) => item.field === field)?.sample;
+
+		expect(sampleOf('date')).toBe('03/11/2026');
+		expect(sampleOf('notes')).toBe('Pairing');
+		expect(sampleOf('project')).toBeNull();
+		expect(step.leftOutHeaders).toEqual(['Kunde']);
+		expect(step.firstRows.map((record) => record.row)).toEqual([2, 3, 4]);
+		expect(step.rowCount).toBe(4);
+	});
+
+	it('asks how the dates are written while every date fits both a day first and a month first', () => {
+		expect(timeImportColumnsStepOf(table, { mapping: chosen, dateOrder: null }).blocker).toBe('dateOrder');
+		expect(timeImportColumnsStepOf(table, { mapping: chosen, dateOrder: 'monthFirst' })).toMatchObject({
+			blocker: null,
+			dateOrder: 'monthFirst'
+		});
+	});
+
+	it('cannot go on while the chosen columns hold dates written two ways', () => {
+		const mixed = tableOf('Datum,Beginn,Ende\n25/10/2026,09:00,10:00\n10/25/2026,09:00,10:00\n');
+		const mapping: TimeImportMapping = { ...NO_TIME_IMPORT_COLUMNS, date: 0, startTime: 1, endTime: 2 };
+		const step = timeImportColumnsStepOf(mixed, { mapping, dateOrder: 'dayFirst' });
+
+		expect(step.blocker).toBe('mixedDates');
+		expect(step.dates).toMatchObject({ kind: 'mixed', row: 3, value: '10/25/2026' });
 	});
 });

@@ -6,9 +6,11 @@ import {
 	rowCountProblemOf,
 	timeImportTableOf,
 	type TimeImportCells,
+	type TimeImportColumnsChoice,
 	type TimeImportField,
 	type TimeImportMapping,
 	type TimeImportMissingColumn,
+	type TimeImportRecord,
 	type TimeImportSheet,
 	type TimeImportSheetProblem,
 	type TimeImportSheetRow,
@@ -315,7 +317,11 @@ function ignoredHeadersOf(headers: ReadonlyArray<string>, mapping: TimeImportMap
 	return ignored;
 }
 
-function timeImportSheetOf(table: TimeImportTable, mapping: TimeImportMapping, dateOrder: DateOrder): TimeImportSheet {
+export function timeImportSheetOf(
+	table: TimeImportTable,
+	mapping: TimeImportMapping,
+	dateOrder: DateOrder
+): TimeImportSheet {
 	const headerCount = table.headers.length;
 	const rows: TimeImportSheetRow[] = table.records.map((record) => ({
 		row: record.row,
@@ -323,6 +329,98 @@ function timeImportSheetOf(table: TimeImportTable, mapping: TimeImportMapping, d
 		extraCellCount: extraCellCountOf(record.cells, headerCount)
 	}));
 	return { rows, ignoredHeaders: ignoredHeadersOf(table.headers, mapping), dateOrder };
+}
+
+const CHOSEN_ORDERS: ReadonlyArray<DateOrder> = ['dayFirst', 'monthFirst'];
+
+/**
+ * The format the rows are read in: the one the file's dates tell, the template's when it writes no date, or the
+ * member's choice between day first and month first when every date fits both. Null while nothing settles it.
+ */
+export function resolvedDateOrderOf(dates: DateOrderReading, chosen: DateOrder | null): DateOrder | null {
+	if (dates.kind === 'none') {
+		return 'yearFirst';
+	}
+	if (dates.kind === 'told') {
+		return dates.order;
+	}
+	if (dates.kind === 'mixed') {
+		return null;
+	}
+	const isFittingChoice = chosen !== null && CHOSEN_ORDERS.includes(chosen);
+	if (!isFittingChoice) {
+		return null;
+	}
+	return chosen;
+}
+
+/** The rows of the file shown under the Columns step, so the member sees what each column holds. */
+const FIRST_ROWS_SHOWN = 3;
+
+export type TimeImportColumnsBlocker = 'missing' | 'mixedDates' | 'dateOrder';
+
+export interface TimeImportColumnsStepField {
+	field: TimeImportField;
+	columnIndex: number | null;
+	/** The first value the chosen column holds. */
+	sample: string | null;
+}
+
+export interface TimeImportColumnsStep {
+	headers: ReadonlyArray<string>;
+	fields: TimeImportColumnsStepField[];
+	dates: DateOrderReading;
+	dateOrder: DateOrder | null;
+	missing: TimeImportMissingColumn[];
+	leftOutHeaders: string[];
+	/** The first reason the rows cannot be checked yet, or null when they can. */
+	blocker: TimeImportColumnsBlocker | null;
+	firstRows: ReadonlyArray<TimeImportRecord>;
+	rowCount: number;
+}
+
+function blockerOf(
+	missing: ReadonlyArray<TimeImportMissingColumn>,
+	dates: DateOrderReading,
+	dateOrder: DateOrder | null
+): TimeImportColumnsBlocker | null {
+	if (missing.length > 0) {
+		return 'missing';
+	}
+	if (dates.kind === 'mixed') {
+		return 'mixedDates';
+	}
+	if (dateOrder === null) {
+		return 'dateOrder';
+	}
+	return null;
+}
+
+/** What the Columns step shows for a file and a choice of columns, and whether its rows can be checked. */
+export function timeImportColumnsStepOf(
+	table: TimeImportTable,
+	choice: TimeImportColumnsChoice
+): TimeImportColumnsStep {
+	const { mapping } = choice;
+	const fields = TIME_IMPORT_FIELDS.map((field) => ({
+		field,
+		columnIndex: mapping[field],
+		sample: firstValueOf(table, mapping[field])
+	}));
+	const missing = missingColumnsOf(mapping);
+	const dates = dateOrderReadingOf(table, mapping);
+	const dateOrder = resolvedDateOrderOf(dates, choice.dateOrder);
+	return {
+		headers: table.headers,
+		fields,
+		dates,
+		dateOrder,
+		missing,
+		leftOutHeaders: ignoredHeadersOf(table.headers, mapping),
+		blocker: blockerOf(missing, dates, dateOrder),
+		firstRows: table.records.slice(0, FIRST_ROWS_SHOWN),
+		rowCount: table.records.length
+	};
 }
 
 /** The template's order, year first, until a value of the file tells another one. */
