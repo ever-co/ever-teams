@@ -4,9 +4,9 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { requiredTrackingFieldsMessageKeyOf, requiredTrackingFieldsOf } from '@/core/lib/helpers/timer-errors';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
+import { writeErrorKeyOf } from '@/core/lib/utils/dashboards/time-write-error';
 import {
 	approvedDayKeysOf,
 	busyWindowsOf,
@@ -33,14 +33,12 @@ import {
 	sheetRowKeyOf,
 	workDayOfLog
 } from '@/core/lib/utils/dashboards/timesheets';
-import { errorReasonKeyOf, errorStatusOf } from '@/core/lib/utils/error-feedback';
 import { queryKeys } from '@/core/query/keys';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { ETimeLogSource, ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 const SECONDS_PER_MINUTE = 60;
-const FORBIDDEN_STATUS = 403;
 
 export interface SheetWriteScope {
 	memberId: string | null;
@@ -70,30 +68,6 @@ export interface CopyRunResult {
 	/** A run stopped in the middle of a cell of several entries: the entries saved before the error stay. */
 	isPartlyCopied: boolean;
 	isStopped: boolean;
-}
-
-/** The service wraps some failures in its own error; the API's answer is then its cause. */
-function causeOf(error: unknown): unknown {
-	if (!(error instanceof Error)) {
-		return error;
-	}
-	if (!error.cause) {
-		return error;
-	}
-	return error.cause;
-}
-
-function writeErrorKeyOf(error: unknown): string {
-	const source = causeOf(error);
-	const missingFields = requiredTrackingFieldsOf(source);
-	if (missingFields) {
-		return requiredTrackingFieldsMessageKeyOf(missingFields);
-	}
-	const isForbidden = errorStatusOf(source) === FORBIDDEN_STATUS;
-	if (isForbidden) {
-		return 'dashboard.timesheets.SHEET.EDIT.REFUSED';
-	}
-	return errorReasonKeyOf(source);
 }
 
 function logsOfDay(logs: ReadonlyArray<ITimeLog>, dayKey: string) {
