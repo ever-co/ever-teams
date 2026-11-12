@@ -110,15 +110,18 @@ export function useChatAppInteractions(message: IChatMessage, { readOnly = false
 	 * failure, is the click's.
 	 */
 	const send = useCallback(
-		async (blockId: string | null, button: IChatAppButton, idempotencyKey: string): Promise<IChatInteractionResult> => {
-			for (let attempt = 0; ; attempt += 1) {
+		(blockId: string | null, button: IChatAppButton, idempotencyKey: string): Promise<IChatInteractionResult> => {
+			// Each send waits for the one before it (the next one depends on how that one failed), hence one after another.
+			const attempt = async (sent: number): Promise<IChatInteractionResult> => {
 				try {
 					return await chatService.interact(message.id, button.actionId, blockId, idempotencyKey, APP_INTERACTION_TIMEOUT_MS);
 				} catch (error) {
-					if (!isUnansweredClick(statusOf(error)) || attempt >= APP_INTERACTION_RETRY_DELAYS_MS.length || !alive.current) throw error;
-					await pause(APP_INTERACTION_RETRY_DELAYS_MS[attempt]);
+					if (!isUnansweredClick(statusOf(error)) || sent >= APP_INTERACTION_RETRY_DELAYS_MS.length || !alive.current) throw error;
+					await pause(APP_INTERACTION_RETRY_DELAYS_MS[sent]);
+					return attempt(sent + 1);
 				}
-			}
+			};
+			return attempt(0);
 		},
 		[message, pause]
 	);

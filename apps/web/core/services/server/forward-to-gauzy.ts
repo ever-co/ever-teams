@@ -19,6 +19,20 @@ const SESSION_HEADERS = new Set([
 const unsupportedMediaType = () =>
 	NextResponse.json({ statusCode: 415, message: 'Unsupported Media Type' }, { status: 415 });
 
+/**
+ * The request headers a route names, as the browser sent them, under their lower-case names; never one of the session
+ * headers this proxy writes itself.
+ */
+function forwardedHeaders(req: Request, names: readonly string[]): Record<string, string> {
+	const forwarded: Record<string, string> = {};
+	for (const name of names) {
+		const lower = name.toLowerCase();
+		const value = SESSION_HEADERS.has(lower) ? null : req.headers.get(lower);
+		if (value !== null) forwarded[lower] = value;
+	}
+	return forwarded;
+}
+
 /** What a route lets through besides the session, the query string and the JSON body. */
 export interface ForwardToGauzyOptions {
 	/**
@@ -60,13 +74,7 @@ export async function forwardToGauzy(
 	if (body && !mediaType) return unsupportedMediaType();
 
 	// Only the headers the route names, and never one that would replace the session's own.
-	const forwarded: Record<string, string> = {};
-	for (const name of options.forwardHeaders ?? []) {
-		const lower = name.toLowerCase();
-		if (SESSION_HEADERS.has(lower)) continue;
-		const value = req.headers.get(lower);
-		if (value !== null) forwarded[lower] = value;
-	}
+	const forwarded = forwardedHeaders(req, options.forwardHeaders ?? []);
 
 	const upstream = await fetch(`${GAUZY_API_SERVER_URL}${path}${new URL(req.url).search}`, {
 		method: req.method,
