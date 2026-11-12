@@ -258,7 +258,7 @@ function isSaveFailure(outcome: BulkEditOutcome): outcome is BulkEditOutcome & {
 
 /**
  * What a finished bulk edit reports. An entry that already had the values chosen counts on neither side: nothing
- * was asked of it, and it is as the manager wanted.
+ * was asked of it, and it is as the manager wanted. An entry a run cut short never reached counts as not updated.
  */
 export function bulkEditResultOf(plan: BulkEditPlan, outcomes: ReadonlyArray<BulkEditOutcome>): BulkEditResult {
 	const refused = plan.leftOut.filter((entry) => entry.reason !== 'unchanged');
@@ -268,9 +268,10 @@ export function bulkEditResultOf(plan: BulkEditPlan, outcomes: ReadonlyArray<Bul
 	const failedEntries = failures.map((outcome) => ({ reason: outcome.status, detailKey: outcome.detailKey }));
 	const updatedIds = updated.map((outcome) => outcome.logId);
 	const alreadyAsChosenIds = alreadyAsChosen.map((entry) => entry.log.id);
+	const neverReachedCount = plan.saves.length - outcomes.length;
 	return {
 		updatedCount: updated.length,
-		notUpdatedCount: refused.length + failures.length,
+		notUpdatedCount: refused.length + failures.length + neverReachedCount,
 		reasons: reasonLinesOf([...refused, ...failedEntries]),
 		releasedLogIds: [...updatedIds, ...alreadyAsChosenIds]
 	};

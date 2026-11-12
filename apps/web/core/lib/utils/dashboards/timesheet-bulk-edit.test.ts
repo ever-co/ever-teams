@@ -269,6 +269,15 @@ describe('report of a bulk edit', () => {
 		expect(bulkEditResultOf(plan, outcomes).releasedLogIds).toEqual(['allowed', 'already']);
 	});
 
+	it('counts an entry a run cut short never reached as not updated, and keeps it ticked', () => {
+		const outcomes: BulkEditOutcome[] = [{ logId: 'allowed', status: 'updated' }];
+		const result = bulkEditResultOf(plan, outcomes);
+
+		expect(result.updatedCount).toBe(1);
+		expect(result.notUpdatedCount).toBe(4);
+		expect(result.releasedLogIds).toEqual(['allowed', 'already']);
+	});
+
 	it('gives failed saves one line per cause', () => {
 		const outcomes: BulkEditOutcome[] = [
 			{ logId: 'allowed', status: 'failed', detailKey: 'toasts.REASONS.SERVER' },
