@@ -46,6 +46,7 @@ jest.mock('@/core/components/settings/kit/danger', () => ({
 		confirmDisabled,
 		isPending,
 		error,
+		onClose,
 		onConfirm
 	}: {
 		open: boolean;
@@ -55,6 +56,7 @@ jest.mock('@/core/components/settings/kit/danger', () => ({
 		confirmDisabled?: boolean;
 		isPending: boolean;
 		error?: string | null;
+		onClose: () => void;
 		onConfirm: () => void;
 	}) => {
 		if (!open) {
@@ -62,6 +64,9 @@ jest.mock('@/core/components/settings/kit/danger', () => ({
 		}
 		return (
 			<div role="dialog" aria-label={title}>
+				<button type="button" onClick={onClose}>
+					close
+				</button>
 				<ul>
 					{consequences.map((consequence) => (
 						<li key={consequence.key}>{consequence.text}</li>
@@ -212,6 +217,30 @@ describe('the Deactivate confirmation', () => {
 
 		expect(screen.getByRole('alert').textContent).toBe('toasts.REASONS.PERMISSION');
 		expect(screen.getByRole('dialog')).toBeTruthy();
+	});
+
+	it('stays open when it is asked to close while the deactivation is on its way', async () => {
+		let finish: () => void = () => undefined;
+		const answer = new Promise<void>((resolve) => {
+			finish = resolve;
+		});
+		const deactivateMember = jest.fn().mockReturnValue(answer);
+		mockUseTeamMembersSettings.mockReturnValue(membersSettings({ deactivateMember }));
+		renderSection();
+		fireEvent.click(screen.getByRole('button', { name: 'deactivate Ana Lima' }));
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'settings.members.DEACTIVATE' }));
+		});
+
+		fireEvent.click(screen.getByRole('button', { name: 'close' }));
+
+		expect(screen.getByRole('dialog')).toBeTruthy();
+
+		await act(async () => {
+			finish();
+		});
+
+		expect(screen.queryByRole('dialog')).toBeNull();
 	});
 
 	it('cannot be confirmed once the member can no longer be deactivated', () => {
