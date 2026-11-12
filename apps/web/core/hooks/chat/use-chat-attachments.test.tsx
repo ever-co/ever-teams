@@ -4,6 +4,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 
 const mockUpload = jest.fn();
+const mockDiscard = jest.fn<Promise<{ discarded: boolean }>, [string]>(async () => ({ discarded: true }));
 const mockShrink = jest.fn(async (file: File) => file);
 let mockAvailability = 'available';
 let mockScope = { tenantId: 't1', organizationId: 'org-a', userId: 'u1', employeeId: 'e1' };
@@ -15,7 +16,7 @@ jest.mock('next-intl', () => ({
 jest.mock('sonner', () => ({ toast: Object.assign(jest.fn(), { error: jest.fn(), warning: jest.fn() }) }));
 jest.mock('@/core/hooks/docs/use-docs-availability', () => ({ useDocsAvailability: () => mockAvailability }));
 jest.mock('@/core/services/client/api/chat', () => ({
-	chatService: { uploadAttachments: (files: File[]) => mockUpload(files) }
+	chatService: { uploadAttachments: (files: File[]) => mockUpload(files), discardAttachment: (documentId: string) => mockDiscard(documentId) }
 }));
 jest.mock('@/core/lib/utils/chat-image-shrink', () => ({ shrinkImage: (file: File) => mockShrink(file) }));
 jest.mock('./use-chat-scope', () => ({ useChatScope: () => mockScope }));
@@ -39,6 +40,8 @@ const MB = 1024 * 1024;
 
 beforeEach(() => {
 	mockUpload.mockReset();
+	mockDiscard.mockReset();
+	mockDiscard.mockResolvedValue({ discarded: true });
 	mockShrink.mockReset();
 	mockShrink.mockImplementation(async (file: File) => file);
 	mockAvailability = 'available';
@@ -162,5 +165,55 @@ describe('useChatAttachments, files that stay and photos shrunk first', () => {
 		expect(result.current.items).toEqual([]);
 		expect(mockShrink).toHaveBeenCalledTimes(1);
 		expect(mockToast.warning).toHaveBeenCalledWith('entityFiles.TOO_LARGE', expect.anything());
+	});
+});
+
+describe('useChatAttachments, files uploaded and not sent', () => {
+	it('discards an uploaded file taken out of the message', async () => {
+		mockUpload.mockResolvedValue(accepted('doc-1'));
+		const { result } = renderHook(() => useChatAttachments());
+		act(() => result.current.add([pdf()]));
+		await waitFor(() => expect(result.current.readyIds).toEqual(['doc-1']));
+		act(() => result.current.remove(result.current.items[0].key));
+		expect(mockDiscard).toHaveBeenCalledWith('doc-1');
+		expect(uploadedFileOf('doc-1')).toBeUndefined();
+	});
+
+	it('discards what was uploaded and not sent when the place closes, never what a send took', async () => {
+		mockUpload.mockResolvedValueOnce(accepted('doc-sent')).mockResolvedValueOnce(accepted('doc-left'));
+		const { result, unmount } = renderHook(() => useChatAttachments());
+		act(() => result.current.add([pdf('sent.pdf')]));
+		await waitFor(() => expect(result.current.readyIds).toEqual(['doc-sent']));
+		act(() => result.current.releaseSent());
+		act(() => result.current.add([pdf('left.pdf')]));
+		await waitFor(() => expect(result.current.readyIds).toEqual(['doc-left']));
+		unmount();
+		expect(mockDiscard).toHaveBeenCalledTimes(1);
+		expect(mockDiscard).toHaveBeenCalledWith('doc-left');
+	});
+
+	it('discards a file whose upload ends after it was taken out', async () => {
+		let finish: (value: unknown) => void = () => undefined;
+		mockUpload.mockImplementation(() => new Promise((resolve) => (finish = resolve)));
+		const { result } = renderHook(() => useChatAttachments());
+		act(() => result.current.add([pdf()]));
+		await waitFor(() => expect(mockUpload).toHaveBeenCalled());
+		act(() => result.current.remove(result.current.items[0].key));
+		expect(mockDiscard).not.toHaveBeenCalled();
+		await act(async () => finish(accepted('doc-late')));
+		expect(mockDiscard).toHaveBeenCalledWith('doc-late');
+		expect(uploadedFileOf('doc-late')).toBeUndefined();
+		expect(result.current.items).toEqual([]);
+	});
+
+	it('changes nothing when the platform refuses the discard (an older one has no route)', async () => {
+		mockUpload.mockResolvedValue(accepted('doc-old'));
+		mockDiscard.mockRejectedValue(Object.assign(new Error('Cannot DELETE /api/chat/attachments/doc-old'), { statusCode: 404 }));
+		const { result } = renderHook(() => useChatAttachments());
+		act(() => result.current.add([pdf()]));
+		await waitFor(() => expect(result.current.readyIds).toEqual(['doc-old']));
+		act(() => result.current.remove(result.current.items[0].key));
+		await act(async () => undefined);
+		expect(result.current.items).toEqual([]);
 	});
 });

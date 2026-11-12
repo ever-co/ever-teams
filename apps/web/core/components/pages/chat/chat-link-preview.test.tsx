@@ -13,15 +13,23 @@ jest.mock('next-intl', () => ({
 jest.mock('@/core/hooks/chat/use-chat-link-previews', () => ({
 	useChatLinkPreviews: (links: readonly ChatPreviewLink[]) => mockPreviews(links)
 }));
+const mockPicture = jest.fn<Blob | null, [string, boolean]>(() => null);
+jest.mock('@/core/hooks/chat/use-chat-link-preview-picture', () => ({
+	useChatLinkPreviewPicture: (url: string, hasPicture: boolean) => mockPicture(url, hasPicture)
+}));
 
 import { MessageLinkPreviews } from './chat-link-preview';
 
 const CARD: ChatLinkPreviewCard = {
 	href: 'https://a.io/page#top',
+	url: 'https://a.io/page',
 	host: 'a.io',
 	siteName: 'A site',
 	title: 'The page',
-	description: 'What the page is about'
+	description: 'What the page is about',
+	hasPicture: false,
+	pictureAlt: null,
+	pictureRatio: null
 };
 
 beforeEach(() => mockPreviews.mockReset());
@@ -65,5 +73,28 @@ describe('MessageLinkPreviews', () => {
 		render(<MessageLinkPreviews body="https://a.io/page#top" />);
 		expect(screen.getByRole('link', { name: 'teamChat.LINK_PREVIEW_SITE_LABEL:a.io' })).toBeTruthy();
 		expect(screen.queryByText('The page')).toBeNull();
+	});
+
+	it('shows the platform’s picture beside the text when there is one, with its description as alt', () => {
+		URL.createObjectURL = jest.fn(() => 'blob:picture-1');
+		URL.revokeObjectURL = jest.fn();
+		mockPicture.mockImplementation((_url, hasPicture) => (hasPicture ? new Blob(['png']) : null));
+		mockPreviews.mockReturnValue([{ ...CARD, hasPicture: true, pictureAlt: 'A chart', pictureRatio: 2 }]);
+		const { container } = render(<MessageLinkPreviews body="See https://a.io/page#top" />);
+
+		const picture = container.querySelector('img');
+		expect(picture?.getAttribute('src')).toBe('blob:picture-1');
+		expect(picture?.getAttribute('alt')).toBe('A chart');
+		// Asked by the page's URL, so links to one page (other fragments) share one picture.
+		expect(mockPicture).toHaveBeenCalledWith('https://a.io/page', true);
+		// The card stays one link, named by its title and host.
+		expect(screen.getByRole('link').contains(picture as Node)).toBe(true);
+	});
+
+	it('stays text only without a picture', () => {
+		mockPicture.mockReturnValue(null);
+		mockPreviews.mockReturnValue([CARD]);
+		const { container } = render(<MessageLinkPreviews body="See https://a.io/page#top" />);
+		expect(container.querySelector('img')).toBeNull();
 	});
 });

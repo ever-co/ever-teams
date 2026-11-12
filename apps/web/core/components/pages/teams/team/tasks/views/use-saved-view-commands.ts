@@ -8,6 +8,7 @@ import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-la
 import { TaskViewConflictError, useTaskViewActions } from '@/core/hooks/task-views/use-task-view-actions';
 import { definitionOf } from '@/core/lib/utils/task-views';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
+import type { TaskOrderMove } from '@/core/lib/utils/task-view-order';
 import {
 	ETaskViewVisibility,
 	type ITaskView,
@@ -32,8 +33,9 @@ interface SavedViewCommandsInput {
 }
 
 /**
- * The saved-view commands of the Team tasks page: save, save as, rename, share / make personal, delete, with their
- * toasts and the conflict handling (a stale save offers Reload); the save dialog's state; the `Mod+S` handler.
+ * The saved-view commands of the Team tasks page: save, save as, rename, share / make personal, delete, and a move in
+ * the view's manual order, with their toasts and the conflict handling (a stale save offers Reload); the save
+ * dialog's state; the `Mod+S` handler.
  */
 export function useSavedViewCommands({
 	savedView,
@@ -106,7 +108,8 @@ export function useSavedViewCommands({
 	const create = useCallback(
 		async (name: string, visibility: ETaskViewVisibility): Promise<boolean> => {
 			try {
-				const created = await actions.createView(name, visibility, definition);
+				// Save as keeps the manual order of the view it is made from.
+				const created = await actions.createView(name, visibility, definition, savedView?.manualOrder);
 				toast.success(t('taskViews.CREATED_TOAST', { name: created.name }));
 				router.push(`/views/${created.id}`);
 				return true;
@@ -115,7 +118,27 @@ export function useSavedViewCommands({
 				return false;
 			}
 		},
-		[actions, definition, router, t]
+		[actions, definition, router, savedView?.manualOrder, t]
+	);
+
+	/**
+	 * Moves a task in the open view's manual order. The move is saved at once (it is not part of the changes Save
+	 * keeps), and a change in progress then builds on the version it wrote, as after a rename. A refusal says why;
+	 * the list shows the order the platform holds.
+	 */
+	const moveTask = useCallback(
+		async (move: TaskOrderMove, shownIds: readonly string[]) => {
+			if (!savedView) return;
+			try {
+				const moved = await actions.moveTask(savedView, move, shownIds);
+				if (moved) advanceBase(moved.statedVersion, moved.view);
+			} catch (error) {
+				toast.error(
+					error instanceof TaskViewConflictError ? t('taskViews.ORDER_CONFLICT') : t('taskViews.ORDER_FAILED')
+				);
+			}
+		},
+		[actions, advanceBase, savedView, t]
 	);
 
 	/** Renames the open view; answers whether it worked. */
@@ -206,6 +229,7 @@ export function useSavedViewCommands({
 		isBusy,
 		toolbarCommands,
 		listShortcuts,
+		moveTask,
 		submitDialog,
 		isDeleteConfirmOpen,
 		closeDeleteConfirm: () => setIsDeleteConfirmOpen(false),

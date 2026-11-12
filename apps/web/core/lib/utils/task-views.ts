@@ -5,7 +5,7 @@ import {
 	type TeamTasksScope,
 	type TeamTasksViewSettings
 } from './team-tasks-view';
-import { scopeFromStorage, viewSettingsFromStorage } from './team-tasks-view-storage';
+import { SAVED_VIEW_ORDERINGS, scopeFromStorage, viewSettingsFromStorage } from './team-tasks-view-storage';
 import {
 	ETaskBuiltInView,
 	type ITaskView,
@@ -44,7 +44,7 @@ export function filtersFromStored(value: unknown): TeamTasksFilters {
 export function definitionOf(view: Pick<ITaskView, 'filterOptions' | 'displayOptions' | 'queryParams'>): ITaskViewDefinition {
 	const query = (view.queryParams ?? {}) as Record<string, unknown>;
 	return {
-		settings: viewSettingsFromStorage(view.displayOptions ?? DEFAULT_TEAM_TASKS_VIEW),
+		settings: viewSettingsFromStorage(view.displayOptions ?? DEFAULT_TEAM_TASKS_VIEW, SAVED_VIEW_ORDERINGS),
 		filters: filtersFromStored(view.filterOptions),
 		scope: scopeFromStorage(query['scope']),
 		search: typeof query['search'] === 'string' ? query['search'] : ''

@@ -20,8 +20,9 @@ jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
 	timeLogService: { getTimeLogs: (...args: unknown[]) => mockGetTimeLogs(...args) }
 }));
 
+import { toast } from 'sonner';
 import { type CopyPreviousWeekInput, useCopyPreviousWeek } from './use-copy-previous-week';
-import type { SheetCellWrites } from './use-sheet-cell-writes';
+import type { CopyRunResult, SheetCellWrites } from './use-sheet-cell-writes';
 
 const period: Period = { from: new Date(2024, 0, 8), to: new Date(2024, 0, 14) };
 const days = sheetDaysOf(period, []);
@@ -130,5 +131,29 @@ describe('useCopyPreviousWeek', () => {
 		});
 
 		expect(addRows).toHaveBeenCalledWith([]);
+	});
+
+	it('says which cell a stopped copy only partly filled, apart from the cells it did not copy', async () => {
+		mockGetTimeLogs.mockResolvedValue([lastWeekLog]);
+		const stoppedRun: CopyRunResult = {
+			savedCount: 0,
+			savedSeconds: 0,
+			skippedCount: 0,
+			notCopiedCount: 0,
+			isPartlyCopied: true,
+			isStopped: true
+		};
+		mockApplyCopyPlan.mockResolvedValue(stoppedRun);
+		const { result } = renderCopy(inputOf({}));
+		await act(async () => {
+			await result.current.prepareRowsAndTime();
+		});
+
+		await act(async () => {
+			await result.current.confirmCopy();
+		});
+
+		expect(toast).toHaveBeenCalledWith('dashboard.timesheets.SHEET.COPY.PARTLY_COPIED');
+		expect(toast).not.toHaveBeenCalledWith('dashboard.timesheets.SHEET.COPY.NOT_COPIED', expect.anything());
 	});
 });

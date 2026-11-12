@@ -6,6 +6,7 @@ import type { PropsWithChildren } from 'react';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { rowIdentityOfLog, type SheetDay } from '@/core/lib/utils/dashboards/timesheets';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 const mockCreateTimesheetFrom = jest.fn();
@@ -48,6 +49,21 @@ function logOf(overrides: Partial<ITimeLog>): ITimeLog {
 
 const day: SheetDay = { key: localDayKeyOf(at(0)), date: at(0), isToday: false, isWeekend: false };
 const identity = rowIdentityOfLog(logOf({ projectId: 'project', taskId: 'task' }));
+
+/** An entry of another task in the week of `day`, whose timesheet was approved after the sheet was read. */
+const approvedSince = logOf({
+	id: 'approved',
+	projectId: 'project',
+	taskId: 'approved-task',
+	startedAt: at(14),
+	stoppedAt: at(15),
+	timesheet: {
+		id: 'sheet',
+		status: ETimesheetStatus.APPROVED,
+		startedAt: new Date(2024, 0, 8),
+		stoppedAt: new Date(2024, 0, 14)
+	} as ITimeLog['timesheet']
+});
 
 function scopeOf(overrides: Partial<SheetWriteScope>): SheetWriteScope {
 	return {
@@ -108,6 +124,35 @@ describe('useSheetCellWrites', () => {
 		expect(mockToastError).toHaveBeenCalledWith('dashboard.timesheets.SHEET.EDIT.SAVE_FAILED', expect.anything());
 	});
 
+	it('saves nothing in a day approved since the sheet was read', async () => {
+		const scope = scopeOf({ readSavedMemberLogs: async () => [approvedSince] });
+		const { result } = renderWrites(scope);
+
+		let outcome: CellCommitOutcome | undefined;
+		await act(async () => {
+			outcome = await result.current.commitCell(identity, day, 2 * HOUR);
+		});
+
+		expect(outcome).toBe('refused');
+		expect(mockCreateTimesheetFrom).not.toHaveBeenCalled();
+		expect(mockToastError).toHaveBeenCalledWith('dashboard.timesheets.SHEET.EDIT.SAVE_FAILED', {
+			description: 'dashboard.timesheets.SHEET.EDIT.LOCK_APPROVED'
+		});
+	});
+
+	it('copies nothing into a day approved since the copy was prepared, and counts it as left out', async () => {
+		const scope = scopeOf({ readSavedMemberLogs: async () => [approvedSince] });
+		const { result } = renderWrites(scope);
+
+		let run: CopyRunResult | undefined;
+		await act(async () => {
+			run = await result.current.applyCopyPlan([{ identity, day, seconds: 2 * HOUR }]);
+		});
+
+		expect(mockCreateTimesheetFrom).not.toHaveBeenCalled();
+		expect(run).toMatchObject({ savedCount: 0, skippedCount: 1, notCopiedCount: 0, isStopped: false });
+	});
+
 	it('copies into the cells still empty and leaves alone one filled since the copy was prepared', async () => {
 		const filledSince = logOf({
 			id: 'typed',
@@ -135,6 +180,7 @@ describe('useSheetCellWrites', () => {
 			savedSeconds: 2 * HOUR,
 			skippedCount: 1,
 			notCopiedCount: 0,
+			isPartlyCopied: false,
 			isStopped: false
 		});
 		expect(mockCreateTimesheetFrom).toHaveBeenCalledTimes(1);
@@ -165,6 +211,35 @@ describe('useSheetCellWrites', () => {
 			savedSeconds: HOUR,
 			skippedCount: 0,
 			notCopiedCount: 2,
+			isPartlyCopied: false,
+			isStopped: true
+		});
+	});
+
+	it('tells a cell the copy stopped in after saving part of its time from the cells it did not copy', async () => {
+		// Busy from 10:00 to 11:00: two hours of the first cell go in two entries, 09:00-10:00 and 11:00-12:00
+		const busyAtTen = logOf({ id: 'busy', projectId: 'other', startedAt: at(10), stoppedAt: at(11) });
+		mockCreateTimesheetFrom.mockResolvedValueOnce(undefined);
+		mockCreateTimesheetFrom.mockRejectedValue(new Error('offline'));
+		const secondRow = rowIdentityOfLog(logOf({ projectId: 'project', taskId: 'second-task' }));
+		const { result } = renderWrites(scopeOf({ readSavedMemberLogs: async () => [busyAtTen] }));
+		const plans = [
+			{ identity, day, seconds: 2 * HOUR },
+			{ identity: secondRow, day, seconds: HOUR }
+		];
+
+		let run: CopyRunResult | undefined;
+		await act(async () => {
+			run = await result.current.applyCopyPlan(plans);
+		});
+
+		expect(mockCreateTimesheetFrom).toHaveBeenCalledTimes(2);
+		expect(run).toEqual({
+			savedCount: 0,
+			savedSeconds: 0,
+			skippedCount: 0,
+			notCopiedCount: 1,
+			isPartlyCopied: true,
 			isStopped: true
 		});
 	});

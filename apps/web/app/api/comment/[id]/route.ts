@@ -6,21 +6,29 @@ import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response'
 
 const commentIdSchema = z.guid();
 
-// Only the keys of Gauzy's UpdateCommentDTO the web sends: the author, the record and the resolver are never the
-// body's (Gauzy takes the resolver from the caller). The browser's transport adds the tenant and the organization to
-// every PUT: they are accepted and dropped, the session's own are what Gauzy reads.
+// Only the keys of Gauzy's UpdateCommentDTO the web sends: the author and the record are never the body's. A resolve
+// states a resolver and a reopen clears it (`resolvedByEmployeeId`), which is what makes Gauzy record one: Gauzy writes
+// the caller, whatever employee the body names. The browser's transport adds the tenant and the organization to every
+// PUT: they are accepted and dropped, the session's own are what Gauzy reads.
 const commentUpdateBody = z
 	.object({
 		comment: z.string().trim().min(1).optional(),
 		resolved: z.boolean().optional(),
 		resolvedAt: z.iso.datetime().nullable().optional(),
+		resolvedByEmployeeId: z.guid().nullable().optional(),
 		mentionEmployeeIds: z.array(z.guid()).max(100).optional(),
 		tenantId: z.string().optional(),
 		organizationId: z.string().optional()
 	})
 	.strict()
 	// What goes on is the update alone (an absent key stays out of the JSON).
-	.transform(({ comment, resolved, resolvedAt, mentionEmployeeIds }) => ({ comment, resolved, resolvedAt, mentionEmployeeIds }));
+	.transform(({ comment, resolved, resolvedAt, resolvedByEmployeeId, mentionEmployeeIds }) => ({
+		comment,
+		resolved,
+		resolvedAt,
+		resolvedByEmployeeId,
+		mentionEmployeeIds
+	}));
 
 type RouteContext = { params: Promise<{ id: string }> };
 

@@ -56,8 +56,11 @@ export function validateForm<T extends Ks>(keys: (keyof T)[], data: T) {
 	const errors = {} as { [k in keyof T]: string | undefined };
 
 	keys.forEach((key) => {
+		// Validate the trimmed value: the stored value is trimmed, so a stray leading or trailing space
+		// (copy-paste, autofill) must not make an otherwise valid email, phone or URL fail.
+		const rawValue = data[key];
+		data[key] = typeof rawValue === 'string' ? (rawValue.trim() as any) : rawValue;
 		const value = data[key];
-		data[key] = typeof value === 'string' ? (value.trim() as any) : value;
 		switch (key) {
 			case 'email':
 				if (value && !isEmail(value)) {

@@ -1,4 +1,5 @@
 import { exportToBackend } from '@/core/lib/helpers/export-to-backend';
+import { withEverTeamsOrigin } from '@/core/lib/board/board-app';
 import { queryKeys } from '@/core/query/keys';
 import { ExcalidrawElement } from '@excalidraw/excalidraw/element/types';
 import { AppState, BinaryFiles } from '@excalidraw/excalidraw/types';
@@ -62,6 +63,8 @@ export const useBoard = () => {
 			if (response.url) {
 				const uri = new URL(response.url);
 				uri.searchParams.set('live', 'true');
+				// The board app is told which deployment opened it (this origin), so it signs the person in here
+				withEverTeamsOrigin(uri, window.location.origin);
 				window.open(uri.toString(), '_blank', 'noreferrer');
 			}
 		}

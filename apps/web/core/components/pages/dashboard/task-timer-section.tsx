@@ -4,10 +4,12 @@ import { clsxm } from '@/core/lib/utils';
 import { useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { timerStatusState } from '@/core/stores';
+import { isOwnTrackingOffState } from '@/core/stores/timer/active-timer';
 import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
 import { ChevronDown } from '@/core/components/icons';
 import { TimerSkeleton } from '@/core/components/common/skeleton/timer-skeleton';
 import { AuthUserTaskInputSkeleton } from '@/core/components/common/skeleton/auth-user-task-input-skeleton';
+import { TrackingOffNotice } from '@/core/components/timer/tracking-off-notice';
 
 /** The task block is the page's main surface: a larger radius and a two-step shadow, deeper than the member cards. */
 const TASK_BLOCK_ELEVATION =
@@ -54,13 +56,17 @@ export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEna
 	const teamTimerStatus = useAtomValue(teamTimerStatusState);
 	const isTeamTimerRunning = Boolean(teamTimerStatus?.running);
 	const showsTimer = isTrackingEnabled || isTeamTimerRunning;
+	// Where the timer would be, a member whose tracking is turned off reads why
+	const isOwnTrackingOff = useAtomValue(isOwnTrackingOffState);
+	const showsTrackingOff = !showsTimer && isOwnTrackingOff;
+	const hasPane = showsTimer || showsTrackingOff;
 	return (
 		<EverCard shadow="custom" className={TASK_BLOCK_CLASS_NAME}>
 			<TaskBlockInput
 				className={clsxm(
 					TASK_INPUT_COLUMN_CLASS_NAME,
 					!showInput && TASK_INPUT_FOLDED_CLASS_NAME,
-					!showsTimer && TASK_INPUT_WITHOUT_TIMER_CLASS_NAME
+					!hasPane && TASK_INPUT_WITHOUT_TIMER_CLASS_NAME
 				)}
 			/>
 			<button
@@ -81,9 +87,17 @@ export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEna
 					<TaskBlockTimer className={TASK_BLOCK_TIMER_CLASS_NAME} />
 				</div>
 			)}
+			{showsTrackingOff && (
+				<div className={TIMER_PANE}>
+					<TrackingOffNotice className={TRACKING_OFF_NOTICE_CLASS_NAME} />
+				</div>
+			)}
 		</EverCard>
 	);
 }
+
+/** The reason stands where the timer would, at about its width, so the task input keeps its share of the block. */
+export const TRACKING_OFF_NOTICE_CLASS_NAME = 'max-w-72 py-2 lg:py-0';
 
 /**
  * The timer sits in the light well of the profile page. From lg it becomes the block's right pane: flush with the

@@ -13,6 +13,7 @@ import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view'
 import { laneRangeIds } from '@/core/lib/utils/kanban-board';
 import { tasksByTeamState } from '@/core/stores';
 import { tasksOfGroups } from '@/core/lib/utils/team-tasks-view';
+import { laneMoveOf } from '@/core/lib/utils/task-view-order';
 import type { TTaskStatus } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { KanbanBoard } from '../../../../kanban/board/kanban-board';
@@ -44,15 +45,17 @@ export function TeamTasksBoard({
 }: Readonly<{ view: TeamTasksViewState; commands: TeamTasksListCommands }>) {
 	const t = useTranslations();
 	const tasks = useMemo(() => tasksOfGroups(view.groups), [view.groups]);
+	// A view ordered by hand shows its saved order alone (a lane order made before Manual was picked included)
+	const keepsLaneOrder = commands.moveTask === undefined;
 	const { lanes, statuses, isLoading, isError, refetchTaskStatuses, moveTask, moveLane, setLaneCollapsed } =
-		useKanbanLanes(tasks);
+		useKanbanLanes(tasks, { keepsLaneOrder });
 	const teamTasks = useAtomValue(tasksByTeamState);
 	const teamTaskIds = useMemo(() => new Set(teamTasks.map((task) => task.id)), [teamTasks]);
 	const [editedStatus, setEditedStatus] = useState<TTaskStatus | null>(null);
 	const [anchorId, setAnchorId] = useState<string | null>(null);
 	const { bindings } = useKeyboardPreferences();
 	const { selectedIds, toggleSelected, setManySelected } = view;
-	const { openTask, createTaskInGroup, openPicker } = commands;
+	const { openTask, createTaskInGroup, openPicker, moveTask: moveInSavedOrder } = commands;
 
 	// The lanes are the active team's statuses: a task of another team (a built-in view lists the person's tasks of
 	// every team) changes its status from the task itself, never to a status of this team.
@@ -62,9 +65,26 @@ export function TeamTasksBoard({
 				toast.warning(t('pages.kanban.OTHER_TEAM_MOVE'), { id: 'board-other-team-move' });
 				return;
 			}
-			moveTask(task, toStatus, toIndex);
+			if (!moveInSavedOrder) {
+				moveTask(task, toStatus, toIndex);
+				return;
+			}
+			// A view ordered by hand: the board shows the view's saved order alone (a refused move goes back with it).
+			// Another lane is a status change only, the card keeping its place in that order: a place saved alongside
+			// would stay if the status change failed. Inside its lane the card's place goes to the saved order.
+			// The lane the card is shown in decides, not its `taskStatusId` (older tasks have only a status name)
+			const lane = lanes.find((each) => each.status.id === toStatus.id);
+			const laneIds = lane ? lane.tasks.map(({ id }) => id) : [];
+			if (!laneIds.includes(task.id)) {
+				moveTask(task, toStatus, toIndex, { keepsLaneOrder: false });
+				return;
+			}
+			const savedMove = laneMoveOf(laneIds, task.id, toIndex);
+			if (savedMove) {
+				moveInSavedOrder(savedMove);
+			}
 		},
-		[moveTask, t, teamTaskIds]
+		[lanes, moveInSavedOrder, moveTask, t, teamTaskIds]
 	);
 
 	const actions = useMemo<KanbanBoardActions>(
