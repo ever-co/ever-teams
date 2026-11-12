@@ -1152,6 +1152,9 @@ export const queryKeys = {
 			['docs', 'import', tenantId ?? null, importId ?? null] as const,
 		/** The platform's comments on the page (entity `Document`), block threads and page comments alike. */
 		comments: (tenantId: string | undefined | null, organizationId: string | undefined | null, pageId: string | undefined | null) =>
-			['docs', 'comments', tenantId ?? null, organizationId ?? null, pageId ?? null] as const
+			['docs', 'comments', tenantId ?? null, organizationId ?? null, pageId ?? null] as const,
+		/** The text ranges of the page's comments: under the comments' key, so whatever reads the comments again reads them too. */
+		commentAnchors: (tenantId: string | undefined | null, organizationId: string | undefined | null, pageId: string | undefined | null) =>
+			['docs', 'comments', tenantId ?? null, organizationId ?? null, pageId ?? null, 'anchors'] as const
 	}
 };
