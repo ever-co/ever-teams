@@ -6313,6 +6313,7 @@
 			"CHOOSE_CLIENT_TITLE": "Choose a client",
 			"CHOOSE_CLIENT_MESSAGE": "The billable time tracked on the client's projects in the period is listed here, priced at the client rates.",
 			"TIME_ERROR_TITLE": "The billable time could not be loaded",
+			"ORGANIZATION_ERROR_TITLE": "The workspace could not be loaded",
 			"NO_PROJECTS_TITLE": "{client} has no project",
 			"NO_PROJECTS_MESSAGE": "Give a project this client to bill the time tracked on it.",
 			"OPEN_PROJECTS": "Open Projects",

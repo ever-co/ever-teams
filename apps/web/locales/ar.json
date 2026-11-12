@@ -6313,6 +6313,7 @@
 			"CHOOSE_CLIENT_TITLE": "اختر عميلًا",
 			"CHOOSE_CLIENT_MESSAGE": "يظهر هنا الوقت القابل للفوترة المسجّل على مشاريع العميل خلال الفترة، مسعّرًا بأسعار العميل.",
 			"TIME_ERROR_TITLE": "تعذّر تحميل الوقت القابل للفوترة",
+			"ORGANIZATION_ERROR_TITLE": "تعذّر تحميل مساحة العمل",
 			"NO_PROJECTS_TITLE": "لا مشروع لدى {client}",
 			"NO_PROJECTS_MESSAGE": "حدّد هذا العميل لمشروع كي تفوتر الوقت المسجّل عليه.",
 			"OPEN_PROJECTS": "فتح المشاريع",

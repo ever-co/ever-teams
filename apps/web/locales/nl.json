@@ -6313,6 +6313,7 @@
 			"CHOOSE_CLIENT_TITLE": "Kies een klant",
 			"CHOOSE_CLIENT_MESSAGE": "Hier staat de factureerbare tijd die in de periode op de projecten van de klant is bijgehouden, tegen de klanttarieven.",
 			"TIME_ERROR_TITLE": "De factureerbare tijd kon niet worden geladen",
+			"ORGANIZATION_ERROR_TITLE": "De werkruimte kon niet worden geladen",
 			"NO_PROJECTS_TITLE": "{client} heeft geen project",
 			"NO_PROJECTS_MESSAGE": "Geef een project deze klant om de tijd die erop is bijgehouden te factureren.",
 			"OPEN_PROJECTS": "Projecten openen",

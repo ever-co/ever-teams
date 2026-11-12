@@ -6313,6 +6313,7 @@
 			"CHOOSE_CLIENT_TITLE": "选择客户",
 			"CHOOSE_CLIENT_MESSAGE": "该客户的项目在此期间记录的可计费时间会列在这里，并按客户费率计价。",
 			"TIME_ERROR_TITLE": "无法加载可计费时间",
+			"ORGANIZATION_ERROR_TITLE": "无法加载工作区",
 			"NO_PROJECTS_TITLE": "{client} 没有项目",
 			"NO_PROJECTS_MESSAGE": "请将此客户指定给某个项目，才能为该项目上记录的时间开具发票。",
 			"OPEN_PROJECTS": "打开项目",

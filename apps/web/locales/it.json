@@ -6313,6 +6313,7 @@
 			"CHOOSE_CLIENT_TITLE": "Scegli un cliente",
 			"CHOOSE_CLIENT_MESSAGE": "Qui compare il tempo fatturabile registrato sui progetti del cliente nel periodo, alle tariffe cliente.",
 			"TIME_ERROR_TITLE": "Impossibile caricare il tempo fatturabile",
+			"ORGANIZATION_ERROR_TITLE": "Impossibile caricare lo spazio di lavoro",
 			"NO_PROJECTS_TITLE": "{client} non ha alcun progetto",
 			"NO_PROJECTS_MESSAGE": "Assegna questo cliente a un progetto per fatturare il tempo registrato su di esso.",
 			"OPEN_PROJECTS": "Apri Progetti",

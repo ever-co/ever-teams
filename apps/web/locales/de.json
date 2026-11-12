@@ -6313,6 +6313,7 @@
 			"CHOOSE_CLIENT_TITLE": "Wählen Sie einen Kunden",
 			"CHOOSE_CLIENT_MESSAGE": "Hier erscheint die abrechenbare Zeit, die im Zeitraum auf den Projekten des Kunden erfasst wurde, zu den Kundensätzen.",
 			"TIME_ERROR_TITLE": "Die abrechenbare Zeit konnte nicht geladen werden",
+			"ORGANIZATION_ERROR_TITLE": "Der Arbeitsbereich konnte nicht geladen werden",
 			"NO_PROJECTS_TITLE": "{client} hat kein Projekt",
 			"NO_PROJECTS_MESSAGE": "Ordnen Sie diesem Kunden ein Projekt zu, um die darauf erfasste Zeit abzurechnen.",
 			"OPEN_PROJECTS": "Projekte öffnen",

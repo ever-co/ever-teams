@@ -6313,6 +6313,7 @@
 			"CHOOSE_CLIENT_TITLE": "בחרו לקוח",
 			"CHOOSE_CLIENT_MESSAGE": "כאן יופיע הזמן לחיוב שנרשם בפרויקטים של הלקוח בתקופה, לפי תעריפי הלקוח.",
 			"TIME_ERROR_TITLE": "לא ניתן היה לטעון את הזמן לחיוב",
+			"ORGANIZATION_ERROR_TITLE": "לא ניתן היה לטעון את סביבת העבודה",
 			"NO_PROJECTS_TITLE": "ללקוח {client} אין פרויקט",
 			"NO_PROJECTS_MESSAGE": "שייכו את הלקוח הזה לפרויקט כדי לחייב על הזמן שנרשם בו.",
 			"OPEN_PROJECTS": "פתיחת פרויקטים",

@@ -6313,6 +6313,7 @@
 			"CHOOSE_CLIENT_TITLE": "Escolha um cliente",
 			"CHOOSE_CLIENT_MESSAGE": "O tempo faturável registado nos projetos do cliente durante o período aparece aqui, às tarifas de cliente.",
 			"TIME_ERROR_TITLE": "Não foi possível carregar o tempo faturável",
+			"ORGANIZATION_ERROR_TITLE": "Não foi possível carregar o espaço de trabalho",
 			"NO_PROJECTS_TITLE": "{client} não tem nenhum projeto",
 			"NO_PROJECTS_MESSAGE": "Atribua este cliente a um projeto para faturar o tempo registado nele.",
 			"OPEN_PROJECTS": "Abrir Projetos",

@@ -6313,6 +6313,7 @@
 			"CHOOSE_CLIENT_TITLE": "Wybierz klienta",
 			"CHOOSE_CLIENT_MESSAGE": "Tutaj pojawi się czas rozliczalny zarejestrowany w projektach klienta w wybranym okresie, wyceniony według stawek klienta.",
 			"TIME_ERROR_TITLE": "Nie udało się wczytać czasu rozliczalnego",
+			"ORGANIZATION_ERROR_TITLE": "Nie udało się wczytać przestrzeni roboczej",
 			"NO_PROJECTS_TITLE": "{client} nie ma żadnego projektu",
 			"NO_PROJECTS_MESSAGE": "Przypisz tego klienta do projektu, aby rozliczyć zarejestrowany w nim czas.",
 			"OPEN_PROJECTS": "Otwórz Projekty",
