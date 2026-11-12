@@ -105,6 +105,22 @@ const mockGetOrganizationTeams = jest.mocked(
 	).organizationTeamService.getOrganizationTeams
 );
 
+const mockGetOrganizationTeam = jest.mocked(
+	(
+		jest.requireMock('@/core/services/client/api/organizations/teams') as {
+			organizationTeamService: { getOrganizationTeam: jest.Mock };
+		}
+	).organizationTeamService.getOrganizationTeam
+);
+
+/** Holds every team list read until the function it returns answers them, through the query cache, with `list`. */
+function holdTeamListReads() {
+	let answer: (list: unknown) => void = () => undefined;
+	const held = new Promise((resolve) => (answer = resolve));
+	mockGetOrganizationTeams.mockImplementation(() => held as ReturnType<typeof mockGetOrganizationTeams>);
+	return (list: unknown) => answer(list);
+}
+
 const SCOPE = { tenantId: 'tenant-1', organizationId: 'org-1', userId: 'user-1', accessToken: 'token-1' };
 const LIST_KEY = queryKeys.organizationTeams.listByScope('tenant-1', 'org-1', 'user-1');
 
@@ -255,16 +271,12 @@ describe('the team another tab switches to', () => {
 	it('keeps a team the person picks while a reload after a member change reads the list', async () => {
 		mockBrowserCookies.teamId = 'team-x';
 		mockGetOrganizationTeams.mockResolvedValue(teamList([team('team-x'), team('team-y'), team('team-z')]) as never);
-		const { store, queryClient, view } = renderTab();
+		const { store, view } = renderTab();
 		await waitFor(() => expect(store.get(activeTeamIdState)).toBe('team-x'));
 
 		// Another tab moved to team Z and team X went away; while this tab reloads its teams, the person picks team Y
 		mockBrowserCookies.teamId = 'team-z';
-		let answerList: (list: unknown) => void = () => undefined;
-		const fetchQuery = queryClient.fetchQuery.bind(queryClient);
-		jest.spyOn(queryClient, 'fetchQuery')
-			.mockImplementationOnce(() => new Promise((resolve) => (answerList = resolve)) as never)
-			.mockImplementation(fetchQuery);
+		const answerListReads = holdTeamListReads();
 		let reload: Promise<unknown> = Promise.resolve();
 		await act(async () => {
 			reload = view.result.current.loadTeamsData();
@@ -275,13 +287,42 @@ describe('the team another tab switches to', () => {
 			mockBrowserCookies.teamId = 'team-y';
 		});
 		mockTeamCookieWrites.length = 0;
+		mockGetOrganizationTeam.mockClear();
 		await act(async () => {
-			answerList(teamList([team('team-y', 'r2'), team('team-z', 'r2')]));
+			answerListReads(teamList([team('team-y', 'r2'), team('team-z', 'r2')]));
 			await reload;
 		});
 
+		await waitFor(() => expect(store.get(organizationTeamsState)[0]?.updatedAt).toBe('r2'));
 		expect(store.get(activeTeamIdState)).toBe('team-y');
 		expect(mockTeamCookieWrites).not.toContain('team-z');
+		expect(mockGetOrganizationTeam).toHaveBeenCalledWith('team-y', expect.anything());
+	});
+
+	it('moves off a team picked during that reload when the list no longer holds it, without reading its detail', async () => {
+		mockBrowserCookies.teamId = 'team-x';
+		mockGetOrganizationTeams.mockResolvedValue(teamList([team('team-x'), team('team-w')]) as never);
+		const { store, view } = renderTab();
+		await waitFor(() => expect(store.get(activeTeamIdState)).toBe('team-x'));
+
+		// While this tab reloads its teams, the person picks team W, which the list read then leaves out
+		const answerListReads = holdTeamListReads();
+		let reload: Promise<unknown> = Promise.resolve();
+		await act(async () => {
+			reload = view.result.current.loadTeamsData();
+		});
+		await act(async () => {
+			store.set(activeTeamIdState, 'team-w');
+			mockBrowserCookies.teamId = 'team-w';
+		});
+		mockGetOrganizationTeam.mockClear();
+		await act(async () => {
+			answerListReads(teamList([team('team-x', 'r2'), team('team-y', 'r2')]));
+			await reload;
+		});
+
+		await waitFor(() => expect(store.get(activeTeamIdState)).toBe('team-x'));
+		expect(mockGetOrganizationTeam).not.toHaveBeenCalledWith('team-w', expect.anything());
 	});
 
 	it("starts this tab's timer on its own team, not on the team another tab switched to", async () => {

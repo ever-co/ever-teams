@@ -414,10 +414,15 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 				setIsTeamMemberJustDeleted(true);
 			}
 
-			// A team the person picked while the list was read stands: no fallback below replaces it, as a team change
-			// would stop a timer they may have started on it since
+			// A team the person picked while the list was read stands while the list holds it: no fallback below replaces
+			// it, as a team change would stop a timer they may have started on it since. One the list leaves out goes
+			// through the missing-team fallback, as the team the reload started from would.
 			const currentTeamId = activeTeamIdRef.current;
 			const isPickedMeanwhile = !!currentTeamId && currentTeamId !== teamId;
+			if (isPickedMeanwhile) {
+				teamId = currentTeamId;
+			}
+			const isPickedAndListed = isPickedMeanwhile && latestTeams.some((team) => team.id === currentTeamId);
 
 			// This tab's own team counts only while the list holds it: once it is gone, the stored team decides, as in
 			// the list effect, before the list's first team
@@ -427,9 +432,9 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 
 			if (!latestTeams.length) {
 				teamId = '';
-			} else if (isPickedMeanwhile) {
-				teamId = currentTeamId;
-			} else if (ownTeamIsGone && storedTeam) {
+			} else if (isPickedAndListed) {
+				// Kept as picked, with its detail read below
+			} else if (!isPickedMeanwhile && ownTeamIsGone && storedTeam) {
 				setActiveTeam(storedTeam);
 				teamId = storedTeam.id;
 			} else if (!selectedTeamExists(teamId) && teamId) {
