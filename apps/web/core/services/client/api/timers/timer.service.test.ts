@@ -32,6 +32,7 @@ jest.mock('../../api.service', () => ({
 }));
 
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { timerService } from './timer.service';
 
 const publishedApiOrigin = GAUZY_API_BASE_SERVER_URL as { value: string | undefined };
@@ -73,6 +74,73 @@ describe('TimerService.startTimer', () => {
 			taskId: 'task-1',
 			isBillable: false,
 			planDay: '2026-11-05'
+		});
+	});
+
+	it('sends the notes of the entry to Gauzy in direct mode', async () => {
+		publishedApiOrigin.value = 'https://api.example.test';
+		const post = jest.spyOn(timerService, 'post').mockResolvedValue({ data: {} } as never);
+		jest.spyOn(timerService, 'getTimerStatus').mockResolvedValue({ data: {} } as never);
+
+		await timerService.startTimer({ taskId: 'task-1', isBillable: false, description: 'Fix the login page' });
+
+		expect(post).toHaveBeenCalledWith(
+			'/timesheet/timer/start',
+			expect.objectContaining({ taskId: 'task-1', description: 'Fix the login page' })
+		);
+	});
+
+	it('sends no notes field to Gauzy for a start without notes', async () => {
+		publishedApiOrigin.value = 'https://api.example.test';
+		const post = jest.spyOn(timerService, 'post').mockResolvedValue({ data: {} } as never);
+		jest.spyOn(timerService, 'getTimerStatus').mockResolvedValue({ data: {} } as never);
+
+		await timerService.startTimer({ taskId: 'task-1', isBillable: false });
+
+		const sentBody = post.mock.calls[0][1];
+		expect(sentBody).not.toHaveProperty('description');
+	});
+
+	it('sends the notes of the entry to the start route in proxy mode', async () => {
+		await timerService.startTimer({ taskId: 'task-1', isBillable: false, description: 'Fix the login page' });
+
+		expect(mockFallbackPost).toHaveBeenCalledWith(expect.stringMatching(/^\/timer\/start\?/), {
+			taskId: 'task-1',
+			isBillable: false,
+			description: 'Fix the login page',
+			planDay: '2026-11-05'
+		});
+	});
+});
+
+describe('TimerService.stopTimer', () => {
+	it('sends the notes changed during the run to Gauzy in direct mode', async () => {
+		publishedApiOrigin.value = 'https://api.example.test';
+		const post = jest.spyOn(timerService, 'post').mockResolvedValue({ data: {} } as never);
+		jest.spyOn(timerService, 'getTimerStatus').mockResolvedValue({ data: {} } as never);
+
+		await timerService.stopTimer({ source: ETimeLogSource.TEAMS, description: 'Fix the login page' });
+
+		expect(post).toHaveBeenCalledWith(
+			'/timesheet/timer/stop',
+			expect.objectContaining({ source: ETimeLogSource.TEAMS, description: 'Fix the login page' })
+		);
+	});
+
+	it('sends the notes changed during the run to the stop route in proxy mode', async () => {
+		await timerService.stopTimer({ source: ETimeLogSource.TEAMS, description: '' });
+
+		expect(mockFallbackPost).toHaveBeenCalledWith(expect.stringMatching(/^\/timer\/stop\?/), {
+			source: ETimeLogSource.TEAMS,
+			description: ''
+		});
+	});
+
+	it('sends no notes field for a stop whose notes did not change', async () => {
+		await timerService.stopTimer({ source: ETimeLogSource.TEAMS });
+
+		expect(mockFallbackPost).toHaveBeenCalledWith(expect.stringMatching(/^\/timer\/stop\?/), {
+			source: ETimeLogSource.TEAMS
 		});
 	});
 });

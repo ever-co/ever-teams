@@ -2700,6 +2700,14 @@
 			"PAUSE": "Gepauzeerd",
 			"IDLE": "Inactief",
 			"SUSPENDED": "Geschorst"
+		},
+		"notes": {
+			"ADD": "Timernotities toevoegen",
+			"EDIT": "Timernotities bewerken",
+			"LABEL": "Notities",
+			"PLACEHOLDER": "Waar werk je aan?",
+			"HINT_BEFORE_START": "Optioneel. Opgeslagen bij de registratie wanneer de timer start.",
+			"HINT_RUNNING": "Wijzigingen worden verzonden wanneer je de timer stopt. Je krijgt een melding als ze niet zijn opgeslagen."
 		}
 	},
 	"task": {
@@ -3127,7 +3135,8 @@
 			"navigation": "Navigatie",
 			"settings": "Instellingen",
 			"goTo": "Ga naar",
-			"chat": "Chat"
+			"chat": "Chat",
+			"timer": "Timer"
 		},
 		"commands": {
 			"inviteUser": "Gebruiker uitnodigen",
@@ -3149,7 +3158,10 @@
 			"goToTimeAndActivity": "Naar het rapport tijd en activiteit",
 			"profile": "Profiel",
 			"settings": "Instellingen",
-			"newMessage": "Nieuw bericht"
+			"newMessage": "Nieuw bericht",
+			"startTimer": "Timer starten",
+			"stopTimer": "Timer stoppen",
+			"addTime": "Tijd toevoegen"
 		},
 		"results": {
 			"recent": "Recent",
@@ -3161,7 +3173,9 @@
 			"projects": "Projecten",
 			"pages": "Pagina's",
 			"untitledPage": "Zonder titel",
-			"recentlyOpened": "Onlangs geopend"
+			"recentlyOpened": "Onlangs geopend",
+			"startTimerOn": "De timer starten voor een taak",
+			"startTimerOnTask": "Timer starten: {task}"
 		}
 	},
 	"modals": {
@@ -3823,7 +3837,10 @@
 			"STOPPED_TASK_SWITCH": "Timer gestopt omdat je actieve taak is gewijzigd",
 			"STALE_STOPPED": "Timer gestopt: {stoppedAt}",
 			"STALE_STOPPED_HINT": "Hij bleef lopen nadat de app was gesloten. Voeg later werk toe als handmatige tijd.",
-			"TASK_CLOSED_HINT": "Heropen de taak om er tijd op te registreren."
+			"TASK_CLOSED_HINT": "Heropen de taak om er tijd op te registreren.",
+			"NOTES_NOT_SAVED": "De notities die tijdens de timer zijn gewijzigd, zijn niet opgeslagen",
+			"NOTES_NOT_SAVED_HINT": "De registratie heeft de notities van de start behouden. Bewerk de registratie in Urenstaten om ze te wijzigen.",
+			"ALREADY_RUNNING_ON_TASK": "De timer loopt al voor deze taak"
 		},
 		"plans": {
 			"CREATE_FAILED": "Het plan is niet aangemaakt",

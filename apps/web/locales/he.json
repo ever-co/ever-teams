@@ -2700,6 +2700,14 @@
 			"PAUSE": "מושהה",
 			"IDLE": "לא פעיל",
 			"SUSPENDED": "מושעה"
+		},
+		"notes": {
+			"ADD": "הוספת הערות לטיימר",
+			"EDIT": "עריכת הערות הטיימר",
+			"LABEL": "הערות",
+			"PLACEHOLDER": "על מה אתם עובדים?",
+			"HINT_BEFORE_START": "אופציונלי. נשמרות ברשומה כשהטיימר מתחיל.",
+			"HINT_RUNNING": "השינויים נשלחים כשעוצרים את הטיימר. תקבלו הודעה אם הם לא נשמרו."
 		}
 	},
 	"task": {
@@ -3127,7 +3135,8 @@
 			"navigation": "ניווט",
 			"settings": "הגדרות",
 			"goTo": "מעבר אל",
-			"chat": "צ'אט"
+			"chat": "צ'אט",
+			"timer": "טיימר"
 		},
 		"commands": {
 			"inviteUser": "הזמנת משתמש",
@@ -3149,7 +3158,10 @@
 			"goToTimeAndActivity": "מעבר לדוח זמן ופעילות",
 			"profile": "פרופיל",
 			"settings": "הגדרות",
-			"newMessage": "הודעה חדשה"
+			"newMessage": "הודעה חדשה",
+			"startTimer": "הפעלת הטיימר",
+			"stopTimer": "עצירת הטיימר",
+			"addTime": "הוספת זמן"
 		},
 		"results": {
 			"recent": "אחרונות",
@@ -3161,7 +3173,9 @@
 			"projects": "פרויקטים",
 			"pages": "דפים",
 			"untitledPage": "ללא כותרת",
-			"recentlyOpened": "נפתחו לאחרונה"
+			"recentlyOpened": "נפתחו לאחרונה",
+			"startTimerOn": "הפעלת הטיימר על משימה",
+			"startTimerOnTask": "הפעלת הטיימר: {task}"
 		}
 	},
 	"modals": {
@@ -3823,7 +3837,10 @@
 			"STOPPED_TASK_SWITCH": "הטיימר נעצר כי המשימה הפעילה שלך השתנתה",
 			"STALE_STOPPED": "הטיימר נעצר: {stoppedAt}",
 			"STALE_STOPPED_HINT": "הוא המשיך לרוץ אחרי שהאפליקציה נסגרה. הוסף עבודה מאוחרת יותר כזמן ידני.",
-			"TASK_CLOSED_HINT": "פתח מחדש את המשימה כדי לתעד בה זמן."
+			"TASK_CLOSED_HINT": "פתח מחדש את המשימה כדי לתעד בה זמן.",
+			"NOTES_NOT_SAVED": "ההערות ששונו בזמן שהטיימר רץ לא נשמרו",
+			"NOTES_NOT_SAVED_HINT": "הרשומה שמרה על ההערות שאיתן התחילה. ערכו את הרשומה בגיליונות הזמן כדי לשנות אותן.",
+			"ALREADY_RUNNING_ON_TASK": "הטיימר כבר רץ על המשימה הזו"
 		},
 		"plans": {
 			"CREATE_FAILED": "התוכנית לא נוצרה",
