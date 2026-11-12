@@ -24,7 +24,9 @@ import {
 	dayOfStoredDate,
 	hasEndHandlesOf,
 	previewDaysOf,
+	labelledTicksOf,
 	ticksOf,
+	TIMELINE_HEADER_LABEL_WIDTH,
 	timelineOf,
 	type TeamTasksTimelineBar,
 	type TeamTasksTimelineDrag,
@@ -84,6 +86,10 @@ export function TeamTasksTimelineView({
 		[locale]
 	);
 	const dayWidth = TIMELINE_DAY_WIDTH[zoom];
+	const labelledTicks = useMemo(
+		() => labelledTicksOf(ticks, dayWidth, TIMELINE_HEADER_LABEL_WIDTH[zoom]),
+		[ticks, dayWidth, zoom]
+	);
 	const calendarWidth = timeline.dayCount * dayWidth;
 	const firstDay = dayNumberOf(timeline.firstDay);
 
@@ -171,19 +177,17 @@ export function TeamTasksTimelineView({
 								style={{ width: TITLE_WIDTH }}
 							/>
 							<div className="relative" style={{ width: calendarWidth }} aria-hidden="true">
-								{ticks.map((tick) =>
-									tick.isMajor ? (
-										<span
-											key={tick.day}
-											className="absolute top-1.5 whitespace-nowrap pl-1 text-xs font-medium text-foreground"
-											style={{ left: tick.day * dayWidth }}
-										>
-											{zoom === 'week'
-												? formats.day.format(tick.date)
-												: formats.month.format(tick.date)}
-										</span>
-									) : null
-								)}
+								{labelledTicks.map((tick) => (
+									<span
+										key={tick.day}
+										className="absolute top-1.5 whitespace-nowrap pl-1 text-xs font-medium text-foreground"
+										style={{ left: tick.day * dayWidth }}
+									>
+										{zoom === 'week'
+											? formats.day.format(tick.date)
+											: formats.month.format(tick.date)}
+									</span>
+								))}
 								{zoom === 'week' &&
 									ticks.map((tick) => (
 										<span

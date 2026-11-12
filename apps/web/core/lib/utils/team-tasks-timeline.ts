@@ -231,6 +231,25 @@ export function ticksOf(timeline: TeamTasksTimeline, zoom: TeamTasksTimelineZoom
 	return ticks;
 }
 
+/** Room a header label takes, in pixels, per zoom (`Nov 9`; `November 2026`). */
+export const TIMELINE_HEADER_LABEL_WIDTH: Record<TeamTasksTimelineZoom, number> = { week: 56, month: 120 };
+
+/**
+ * The days the header labels: the major ticks, and the first day drawn when the first major tick is further on than
+ * a label's width (a month calendar within one month holds no first of a month, yet still says which month it is).
+ */
+export function labelledTicksOf(
+	ticks: readonly TeamTasksTimelineTick[],
+	dayWidth: number,
+	labelWidth: number
+): TeamTasksTimelineTick[] {
+	const labelled = ticks.filter((tick) => tick.isMajor);
+	if (ticks.length && (!labelled.length || labelled[0].day * dayWidth >= labelWidth)) {
+		labelled.unshift(ticks[0]);
+	}
+	return labelled;
+}
+
 /** What a drag on a bar does: move the whole bar, or one of its ends. */
 export type TeamTasksTimelineDrag = 'move' | 'start' | 'end';
 
