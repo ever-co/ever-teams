@@ -15,7 +15,6 @@ const ARCHIVED_PROJECTS_QUERY: Record<string, string> = { 'where[isArchived]': '
 
 const NO_PROJECTS: TOrganizationProject[] = [];
 
-/** The clients a report's Client filter offers, from the clients list and from the projects given. */
 export function useReportClientChoices(projects: ReadonlyArray<TOrganizationProject>) {
 	const { clients } = useActiveClients();
 	return useMemo(() => reportClientChoicesOf(clients, projects), [clients, projects]);

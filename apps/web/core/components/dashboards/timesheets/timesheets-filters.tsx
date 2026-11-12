@@ -105,7 +105,6 @@ function taskOptionsOf(logs: ReadonlyArray<ITimeLog>, noTaskLabel: string): Prop
 	return options;
 }
 
-/** "No client" first, as in the projects list, then the clients by name. */
 function clientOptionsOf(clients: ReadonlyArray<ReportClientChoice>, noClientLabel: string): PropertyFilterOption[] {
 	const options: PropertyFilterOption[] = [
 		{ value: NO_CLIENT_FILTER_VALUE, name: noClientLabel, icon: <Building /> }
@@ -220,7 +219,7 @@ interface AppliedFilter {
 	icon: PropertyFilterOption['icon'];
 }
 
-/** `unlistedName` names a value no option holds: a client or a label of a shared link that this period does not list. */
+/** `unlistedName` stands for a value no option holds, such as a label of a shared link that this period lacks. */
 function appliedFiltersOf(
 	filters: TimesheetFilterSelection,
 	categories: ReadonlyArray<PropertyFilterCategory<TimesheetFilterField>>,

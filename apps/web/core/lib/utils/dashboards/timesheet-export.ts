@@ -43,7 +43,7 @@ function startTimeValueOf(log: ITimeLog) {
 	return start.getTime();
 }
 
-export function timesheetExportRowOf(log: ITimeLog): TimesheetExportRow {
+function timesheetExportRowOf(log: ITimeLog): TimesheetExportRow {
 	const start = startOfLog(log);
 	const end = endOfLog(log);
 	return {
@@ -84,7 +84,7 @@ export function timesheetExportDaysOf(logs: ReadonlyArray<ITimeLog>): TimesheetE
 	}));
 }
 
-export interface TimesheetExportTotals {
+interface TimesheetExportTotals {
 	seconds: number;
 	logCount: number;
 	memberCount: number;

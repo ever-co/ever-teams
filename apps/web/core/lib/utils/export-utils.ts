@@ -51,7 +51,6 @@ interface XLSXColumn<Row> {
 }
 
 interface XLSXExportOptions<Row> {
-	/** The rows written in bold, such as a closing total. */
 	isBoldRow?: (row: Row) => boolean;
 }
 

@@ -6,7 +6,7 @@ export interface EntriesPdfFigure {
 	value: string;
 }
 
-export interface EntriesPdfRow {
+interface EntriesPdfRow {
 	key: string;
 	cells: string[];
 }
@@ -22,14 +22,12 @@ export interface EntriesPdfContent {
 	title: string;
 	period: string;
 	generatedOn: string;
-	/** The filters the rows were kept by, printed under the header when there are some. */
 	filters?: { title: string; lines: EntriesPdfFigure[] };
 	summary: EntriesPdfFigure[];
 	columns: string[];
 	/** The width of each column on the landscape page, in the order of `columns`. */
 	columnWidths: string[];
 	groups: EntriesPdfGroup[];
-	/** A closing row under the last group, for a report whose rows add up to one total. */
 	total?: EntriesPdfFigure;
 	footer: string;
 	pageLabel: (page: number, total: number) => string;
@@ -191,11 +189,7 @@ function TotalRow({ total }: Readonly<{ total: EntriesPdfFigure }>) {
 	);
 }
 
-/**
- * A report of entries on a landscape page: header, the filters it was made with, a band of figures, then the
- * entries in titled groups, each with its total, and a closing total. Imported on the click with the renderer;
- * every string arrives translated and formatted.
- */
+/** Imported on the click with the renderer; every string arrives translated and formatted. */
 export function buildEntriesPdf(content: EntriesPdfContent): ReactElement<DocumentProps> {
 	const { columns, columnWidths, total } = content;
 	const filters = printedFiltersOf(content.filters);

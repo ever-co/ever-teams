@@ -71,7 +71,6 @@ function dayColumnOf(t: Translate): TextColumn {
 	return { header: t('dashboard.timesheets.COLUMNS.DATE'), text: (row) => row.dayKey, sheetWidth: 12 };
 }
 
-/** The columns every format writes after the day and before the duration. */
 function entryColumnsOf(t: Translate): TextColumn[] {
 	return [
 		{ header: t('dashboard.timesheets.COLUMNS.START'), text: (row) => row.start, sheetWidth: 8 },
@@ -84,7 +83,6 @@ function entryColumnsOf(t: Translate): TextColumn[] {
 	];
 }
 
-/** A chip of the page as a file prints it: the filter it belongs to and the value it names. */
 interface TimesheetExportFilter {
 	fieldLabel: string;
 	name: string;
@@ -128,7 +126,6 @@ function sheetDurationOf(seconds: number) {
 	return seconds / SECONDS_PER_DAY;
 }
 
-/** The CSV's rows with the duration as a number a spreadsheet can add up, closed by the total of the page. */
 async function runXlsx({ logs, period, t }: ExportInput) {
 	const textColumns = [dayColumnOf(t), ...entryColumnsOf(t)];
 	const rows = timesheetExportRowsOf(logs);
@@ -157,7 +154,6 @@ async function runXlsx({ logs, period, t }: ExportInput) {
 	await exportToXLSX(lines, [...columns, durationColumn], fileName, { isBoldRow: (line) => line.isTotal });
 }
 
-/** The chips of the page gathered per filter ("Projects: Website, Mobile"), then the status and the search. */
 function filterLinesOf({ appliedFilters, statusFilter, search, t }: ExportInput): EntriesPdfFigure[] {
 	const namesByLabel = new Map<string, string[]>();
 	for (const filter of appliedFilters) {
@@ -195,7 +191,6 @@ function pdfGroupOf(
 	};
 }
 
-/** The list of the page on paper: the days as it groups them, each with its total, closed by the page's total. */
 function pdfContentOf(input: ExportInput): EntriesPdfContent {
 	const { logs, period, locale, t } = input;
 	const title = t('dashboard.timesheets.TITLE');
@@ -241,8 +236,8 @@ async function runPdf(input: ExportInput) {
 }
 
 /**
- * The files of the Timesheets page. Each holds exactly the logs on screen, whatever narrowed them (the filter
- * menu, the status cards, the search), and the XLSX and the PDF close on their total. Built on the click only.
+ * Each file holds exactly the logs on screen, whatever narrowed them (the filter menu, the status cards, the
+ * search), and the XLSX and the PDF close on their total. Built on the click only.
  */
 export function useTimesheetExportOptions({
 	logs,

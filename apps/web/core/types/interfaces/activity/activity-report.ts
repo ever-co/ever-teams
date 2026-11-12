@@ -186,7 +186,7 @@ export interface ITimerEmployeeLog {
 }
 
 /** The current client the daily report states beside a project; the API leaves it out once that client is archived. */
-export interface ITimerProjectClient {
+interface ITimerProjectClient {
 	organizationContactId?: string | null;
 	organizationContact?: { id: string; name?: string | null } | null;
 }

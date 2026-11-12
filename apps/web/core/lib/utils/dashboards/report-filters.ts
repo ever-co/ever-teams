@@ -8,7 +8,7 @@ export type ReportUrlFilterField = 'clients' | 'billable' | 'labels';
 
 const REPORT_URL_FILTER_FIELDS: ReadonlyArray<ReportUrlFilterField> = ['clients', 'billable', 'labels'];
 
-export type ReportUrlFilters = Record<ReportUrlFilterField, string[]>;
+type ReportUrlFilters = Record<ReportUrlFilterField, string[]>;
 
 /** The one value of the billable filter: without it a report counts all time. */
 export const BILLABLE_ONLY_VALUE = 'true';
@@ -70,7 +70,7 @@ export function isBillableOnly(values: ReadonlyArray<string>) {
 }
 
 /** Each project's current client by project id, `null` for a project that has none. */
-export type ProjectClientIds = ReadonlyMap<string, string | null>;
+type ProjectClientIds = ReadonlyMap<string, string | null>;
 
 type ProjectWithClient = Pick<TOrganizationProject, 'id' | 'organizationContactId' | 'organizationContact'>;
 
@@ -129,7 +129,7 @@ export function logMatchesBillable(log: ITimeLog, billableOnly: boolean) {
 	return log.isBillable === true;
 }
 
-export interface ReportLabel {
+interface ReportLabel {
 	id: string;
 	name: string;
 	color: string | null;
@@ -148,7 +148,6 @@ function labelsOfLog(log: ITimeLog): ReportLabel[] {
 	return labels;
 }
 
-/** The labels carried by the tasks of some logs, each once, by name. */
 export function labelsOfLogs(logs: ReadonlyArray<ITimeLog>): ReportLabel[] {
 	const byId = new Map<string, ReportLabel>();
 	for (const log of logs) {
