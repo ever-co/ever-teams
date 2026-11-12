@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { AppDialog, APP_DIALOG_FOOTER } from '@/core/components/common/app-dialog';
 import { DialogDescription, DialogTitle } from '@/core/components/common/dialog';
@@ -14,9 +15,17 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { ChevronDown, Copy, Info, Plus, X } from '@/core/components/icons';
 import { TaskPickerMenu } from '@/core/components/tasks/detail/task-picker-menu';
 import type { CopyPreviousWeek } from '@/core/hooks/dashboards/timesheets/use-copy-previous-week';
+import type { SheetEditing } from '@/core/hooks/dashboards/timesheets/use-sheet-editing';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import type { CellLock } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
+import type { WeekSheet } from '@/core/lib/utils/dashboards/timesheets';
+import type { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
+import { TimesheetStatusChip } from './timesheet-status';
+
+const META_SEPARATOR = ' · ';
+
+export const SHEET_HEADER = 'flex min-h-12 flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-2';
 
 const ADD_ROW_TRIGGER =
 	'flex h-8 w-full items-center gap-2 rounded-md px-2 text-[13px] text-muted-foreground outline-none transition-colors hover:bg-foreground/[0.03] hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 aria-expanded:bg-foreground/[0.03] aria-expanded:text-foreground [&_svg]:size-3.5 [&_svg]:shrink-0';
@@ -101,6 +110,63 @@ export function SheetCopyWeekMenu({ copyWeek }: Readonly<{ copyWeek: CopyPreviou
 	);
 }
 
+export function copyWeekOf(editing: SheetEditing | null): CopyPreviousWeek | null {
+	if (!editing) {
+		return null;
+	}
+	const isOpen = editing.sheetLock === 'none';
+	const isOneWeek = editing.copyWeek.isAvailable;
+	if (isOpen && isOneWeek) {
+		return editing.copyWeek;
+	}
+	return null;
+}
+
+function sheetCountsOf(sheet: WeekSheet, t: ReturnType<typeof useTranslations>) {
+	const taskCount = t('dashboard.timesheets.SHEET.TASK_COUNT', { count: sheet.rows.length });
+	const logCount = t('dashboard.timesheets.LOG_COUNT', { count: sheet.logCount });
+	return [taskCount, logCount].join(META_SEPARATOR);
+}
+
+/** `lead` names whose sheet it is, or the block itself on a page that shows one member's only. */
+export function SheetHeader({
+	lead,
+	sheet,
+	status,
+	copyWeek
+}: Readonly<{
+	lead: ReactNode;
+	sheet: WeekSheet;
+	status: ETimesheetStatus | null;
+	copyWeek: CopyPreviousWeek | null;
+}>) {
+	const t = useTranslations();
+	const counts = sheetCountsOf(sheet, t);
+	return (
+		<div className={SHEET_HEADER}>
+			<div className="flex min-w-0 items-center">{lead}</div>
+			<div className="flex min-w-0 items-center gap-2">
+				<span className="truncate text-xs tabular-nums text-muted-foreground">{counts}</span>
+				<TimesheetStatusChip status={status} />
+				{copyWeek && <SheetCopyWeekMenu copyWeek={copyWeek} />}
+			</div>
+		</div>
+	);
+}
+
+export function EmptySheetHint({ editing, fallback }: Readonly<{ editing: SheetEditing | null; fallback: ReactNode }>) {
+	const t = useTranslations();
+	const isOpen = editing?.sheetLock === 'none';
+	if (!isOpen) {
+		return fallback;
+	}
+	return (
+		<p className="px-4 pt-1 pb-4 text-xs text-muted-foreground">
+			{t('dashboard.timesheets.SHEET.EDIT.EMPTY_HINT')}
+		</p>
+	);
+}
+
 export function SheetCopyConfirmDialog({ copyWeek }: Readonly<{ copyWeek: CopyPreviousWeek }>) {
 	const t = useTranslations();
 	const pending = copyWeek.pendingCopy;
@@ -168,19 +234,43 @@ const NOTICE_KEYS: Partial<Record<CellLock, string>> = {
 	manualTimeOff: 'dashboard.timesheets.SHEET.EDIT.NOTICE_MANUAL_TIME_OFF'
 };
 
-export function SheetEditNotice({ lock, onClearFilters }: Readonly<{ lock: CellLock; onClearFilters: () => void }>) {
-	const t = useTranslations();
+function noticeOf(lock: CellLock, t: ReturnType<typeof useTranslations>, permissionMessage: string | undefined) {
+	const isPermissionLock = lock === 'permission';
+	if (isPermissionLock && permissionMessage) {
+		return permissionMessage;
+	}
 	const key = NOTICE_KEYS[lock];
 	if (!key) {
 		return null;
 	}
+	return t(key as DottedLanguageObjectStringPaths);
+}
+
+export function SheetEditNotice({
+	lock,
+	onClearFilters,
+	permissionMessage
+}: Readonly<{
+	lock: CellLock;
+	onClearFilters?: () => void;
+	/**
+	 * What closes the sheet under the permission lock, from a page that shows the viewer's own sheet only: there the
+	 * default "only the member or an admin" would tell the member the opposite of what holds.
+	 */
+	permissionMessage?: string;
+}>) {
+	const t = useTranslations();
+	const message = noticeOf(lock, t, permissionMessage);
+	if (!message) {
+		return null;
+	}
 	const isFiltered = lock === 'filtered';
-	const message = t(key as DottedLanguageObjectStringPaths);
+	const offersClearFilters = isFiltered && Boolean(onClearFilters);
 	return (
 		<p className="flex flex-wrap items-center gap-x-2 gap-y-1 px-4 pb-2 text-xs text-muted-foreground">
 			<Info aria-hidden="true" className="size-3.5 shrink-0" />
 			<span>{message}</span>
-			{isFiltered && (
+			{offersClearFilters && (
 				<Button type="button" variant="link" size="sm" onClick={onClearFilters} className="h-auto px-0 text-xs">
 					{t('common.CLEAR_FILTERS')}
 				</Button>

@@ -11,7 +11,6 @@ import type { TimesheetPermissions } from '@/core/hooks/dashboards/timesheets/us
 import { cn } from '@/core/lib/helpers';
 import type { SheetMember, TimesheetFormatters, WeekSheet } from '@/core/lib/utils/dashboards/timesheets';
 import type { TimesheetRowHandlers } from './timesheet-log-row';
-import { TimesheetStatusChip } from './timesheet-status';
 import {
 	memberNameOrFallback,
 	TimesheetsMemberPicker,
@@ -20,23 +19,22 @@ import {
 } from './timesheets-member-rail';
 import { TimesheetsSheetEntries } from './timesheets-sheet-entries';
 import { type SheetPendingActions, type SheetSelectionActions, TimesheetsSheetFooter } from './timesheets-sheet-footer';
-import { SheetCopyConfirmDialog, SheetCopyWeekMenu, SheetEditNotice } from './timesheets-sheet-tools';
+import {
+	copyWeekOf,
+	EmptySheetHint,
+	SHEET_HEADER,
+	SheetCopyConfirmDialog,
+	SheetEditNotice,
+	SheetHeader
+} from './timesheets-sheet-tools';
 import { TimesheetsWeekSheet, TimesheetsWeekSheetSkeleton } from './timesheets-week-sheet';
 
-const META_SEPARATOR = ' · ';
+export { SHEET_HEADER };
 
 /** The rail and the sheet side by side from `lg`; the rail is as tall as the sheet and scrolls on its own. */
 export const WITH_RAIL = 'lg:grid lg:min-h-96 lg:grid-cols-[15rem_minmax(0,1fr)]';
 
 export const RAIL_CELL = 'relative max-lg:hidden';
-
-export const SHEET_HEADER = 'flex min-h-12 flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-2';
-
-function sheetCountsOf(sheet: WeekSheet, t: ReturnType<typeof useTranslations>) {
-	const taskCount = t('dashboard.timesheets.SHEET.TASK_COUNT', { count: sheet.rows.length });
-	const logCount = t('dashboard.timesheets.LOG_COUNT', { count: sheet.logCount });
-	return [taskCount, logCount].join(META_SEPARATOR);
-}
 
 function SheetMemberHeader({
 	member,
@@ -55,49 +53,17 @@ function SheetMemberHeader({
 }>) {
 	const t = useTranslations();
 	const name = memberNameOrFallback(member, t('dashboard.timesheets.SHEET.UNNAMED_MEMBER'));
-	const counts = sheetCountsOf(sheet, t);
-	return (
-		<div className={SHEET_HEADER}>
-			<div className="flex min-w-0 items-center">
-				{showsPicker && (
-					<span className="flex min-w-0 lg:hidden">
-						<TimesheetsMemberPicker members={members} picked={member} onPick={onPick} />
-					</span>
-				)}
-				<MemberCell name={name} imageUrl={member.imageUrl} className={cn(showsPicker && 'max-lg:hidden')} />
-			</div>
-			<div className="flex min-w-0 items-center gap-2">
-				<span className="truncate text-xs tabular-nums text-muted-foreground">{counts}</span>
-				<TimesheetStatusChip status={member.status} />
-				{copyWeek && <SheetCopyWeekMenu copyWeek={copyWeek} />}
-			</div>
-		</div>
+	const lead = (
+		<>
+			{showsPicker && (
+				<span className="flex min-w-0 lg:hidden">
+					<TimesheetsMemberPicker members={members} picked={member} onPick={onPick} />
+				</span>
+			)}
+			<MemberCell name={name} imageUrl={member.imageUrl} className={cn(showsPicker && 'max-lg:hidden')} />
+		</>
 	);
-}
-
-function copyWeekOf(editing: SheetEditing | null): CopyPreviousWeek | null {
-	if (!editing) {
-		return null;
-	}
-	const isOpen = editing.sheetLock === 'none';
-	const isOneWeek = editing.copyWeek.isAvailable;
-	if (isOpen && isOneWeek) {
-		return editing.copyWeek;
-	}
-	return null;
-}
-
-function EmptySheetHint({ editing, fallback }: Readonly<{ editing: SheetEditing | null; fallback: ReactNode }>) {
-	const t = useTranslations();
-	const isOpen = editing?.sheetLock === 'none';
-	if (!isOpen) {
-		return fallback;
-	}
-	return (
-		<p className="px-4 pt-1 pb-4 text-xs text-muted-foreground">
-			{t('dashboard.timesheets.SHEET.EDIT.EMPTY_HINT')}
-		</p>
-	);
+	return <SheetHeader lead={lead} sheet={sheet} status={member.status} copyWeek={copyWeek} />;
 }
 
 /**
