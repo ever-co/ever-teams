@@ -66,6 +66,13 @@ function SheetMemberHeader({
 	return <SheetHeader lead={lead} sheet={sheet} status={member.status} copyWeek={copyWeek} />;
 }
 
+function permissionMessageOf(editing: SheetEditing | null, t: ReturnType<typeof useTranslations>) {
+	if (!editing?.lacksOnlyManualTimePermission) {
+		return undefined;
+	}
+	return t('dashboard.workDiary.WEEK_NO_MANUAL_TIME_PERMISSION');
+}
+
 /**
  * The Sheet view of the page: the member rail on the left from `lg` (a member menu above the sheet below it), the
  * picked member's week sheet, the closing strip with the approval actions, and the popover of a cell's entries.
@@ -104,6 +111,7 @@ export function TimesheetsSheetView({
 	const showsRail = members.length > 1;
 	const memberName = memberNameOf(member, t('dashboard.timesheets.SHEET.UNNAMED_MEMBER'));
 	const copyWeek = copyWeekOf(editing);
+	const permissionMessage = permissionMessageOf(editing, t);
 	const hasMember = Boolean(member);
 	const hasRows = sheet.rows.length > 0;
 	const draftRowCount = editing?.draftRows.length ?? 0;
@@ -135,7 +143,13 @@ export function TimesheetsSheetView({
 						onPick={state.pickMember}
 					/>
 				)}
-				{member && editing && <SheetEditNotice lock={editing.sheetLock} onClearFilters={onClearFilters} />}
+				{member && editing && (
+					<SheetEditNotice
+						lock={editing.sheetLock}
+						onClearFilters={onClearFilters}
+						permissionMessage={permissionMessage}
+					/>
+				)}
 				<TimesheetsWeekSheet
 					days={days}
 					sheet={sheet}

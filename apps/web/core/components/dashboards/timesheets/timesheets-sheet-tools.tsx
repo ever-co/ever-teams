@@ -254,8 +254,8 @@ export function SheetEditNotice({
 	lock: CellLock;
 	onClearFilters?: () => void;
 	/**
-	 * What closes the sheet under the permission lock, from a page that shows the viewer's own sheet only: there the
-	 * default "only the member or an admin" would tell the member the opposite of what holds.
+	 * What closes the sheet under the permission lock for a viewer who may write this member's time and whose role
+	 * alone refuses manual time: the default "only the member or an admin" would tell them the opposite of what holds.
 	 */
 	permissionMessage?: string;
 }>) {

@@ -99,6 +99,7 @@ export function useSheetEditing(source: SheetEditingSource, sheet: TimesheetShee
 	const hasManualTimePermission = myPermissions.includes(MANUAL_TIME_PERMISSION);
 	const mayWriteForMember = isOwnSheet || hasOrganizationRole;
 	const canWrite = hasManualTimePermission && mayWriteForMember;
+	const lacksOnlyManualTimePermission = mayWriteForMember && !hasManualTimePermission;
 	const allowsManualTime = organization?.allowManualTime !== false;
 	const allowsFutureDates = organization?.futureDateAllowed === true;
 	const isLoading = !hasPeriodLogs || isLoadingPermissions;
@@ -225,6 +226,7 @@ export function useSheetEditing(source: SheetEditingSource, sheet: TimesheetShee
 
 	return {
 		sheetLock,
+		lacksOnlyManualTimePermission,
 		cellLockFor,
 		writes,
 		draftRows,
