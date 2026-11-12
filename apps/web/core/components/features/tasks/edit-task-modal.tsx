@@ -18,9 +18,9 @@ import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { useUpdateTimeLogMutation } from '@/core/hooks/timesheet';
-import { useTimeLogTaskChoice } from '@/core/hooks/timesheet/use-time-log-task-choice';
 import { ITimeLogUpdatePayload } from '@/core/types/interfaces/timesheet/time-log.interface';
 import { useMyRolePermissionsQuery } from '@/core/hooks';
+import { useTimeLogTaskChoice } from '@/core/hooks/timesheet/use-time-log-task-choice';
 
 interface IEditTaskModalProps {
 	isOpen: boolean;
@@ -158,9 +158,9 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 				employeeId: timesheetData.employeeId,
 				description: timesheetData.notes,
 				projectId: timesheetData.projectId,
+				...taskChoice.changedFields,
 				startedAt,
-				stoppedAt,
-				...taskChoice.changedFields
+				stoppedAt
 			};
 			updateTimeLog(updatePayload)
 				.then(() => {

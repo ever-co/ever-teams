@@ -19,7 +19,6 @@ import { FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } f
 
 import { manualTimeReasons } from '@/core/constants/config/constants';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
-import { useDurationEntry } from '@/core/hooks/timesheet/use-duration-entry';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { DatePicker } from '@/core/components/common/date-picker';
 import { DurationField } from './duration-field';
@@ -35,6 +34,7 @@ import { activeTeamState, activeTeamTaskState, organizationTeamsState, tasksByTe
 import { queryKeys } from '@/core/query/keys';
 import { taskService } from '@/core/services/client/api/tasks/task.service';
 import { useReactiveAccessTokenCookie } from '@/core/hooks/auth/use-reactive-access-token-cookie';
+import { useDurationEntry } from '@/core/hooks/timesheet/use-duration-entry';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
@@ -293,9 +293,9 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		setEndTime(clockTimeOf(interval.end));
 	}, []);
 
-	const ownEmployeeId = user?.employee?.id ?? null;
+	const signedInEmployeeId = user?.employee?.id ?? null;
 	const durationEntry = useDurationEntry({
-		employeeId: employeeId || ownEmployeeId,
+		employeeId: employeeId || signedInEmployeeId,
 		day: date,
 		startMinutes: minutesOfClockText(startTime),
 		endMinutes: minutesOfClockText(endTime),
