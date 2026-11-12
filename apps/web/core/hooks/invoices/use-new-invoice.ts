@@ -16,6 +16,7 @@ import {
 	invoiceCurrencyKeyOf,
 	invoicePeriodDaysOf,
 	invoiceProblemsOf,
+	invoiceSaveFailureOf,
 	invoiceWaitsOf,
 	keptLinesOf,
 	overlappingInvoicesOf,
@@ -205,7 +206,6 @@ export function useNewInvoice() {
 	]);
 
 	const { createInvoice, isSaving } = useCreateInvoice();
-	const refetchNextNumber = nextNumber.refetch;
 	const save = useCallback(async () => {
 		const request = invoiceRequest();
 		if (!request) {
@@ -214,11 +214,15 @@ export function useNewInvoice() {
 		try {
 			return await createInvoice(request);
 		} catch (error) {
-			// The number is the likeliest refusal (another invoice took it): the form shows the highest again.
-			void refetchNextNumber();
+			// The next free number is read again after any failure. A save whose outcome is unknown keeps its own number:
+			// had it gone through, saving again under that number is refused instead of creating a second invoice.
+			const isUnconfirmed = invoiceSaveFailureOf(error) === 'unconfirmed';
+			if (isUnconfirmed) {
+				setTypedNumber(String(request.invoiceNumber));
+			}
 			throw error;
 		}
-	}, [createInvoice, invoiceRequest, refetchNextNumber]);
+	}, [createInvoice, invoiceRequest]);
 
 	return {
 		organizationName: organization?.name ?? '',

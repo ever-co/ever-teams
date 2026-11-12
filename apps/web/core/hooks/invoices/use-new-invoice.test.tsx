@@ -4,12 +4,14 @@ import React from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
 import type { InvoiceLine } from '@/core/lib/utils/invoices';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { TOrganization } from '@/core/types/schemas';
 
 const mockCreateInvoice = jest.fn();
 const mockOrganizationRead = { isError: false, refetch: jest.fn() };
 const mockEarlierRead = { invoices: [], isLoading: false, isError: false, refetch: jest.fn() };
+const mockNextNumber = { nextNumber: 7, isLoading: false, isError: false, refetch: jest.fn() };
 
 const mockLine: InvoiceLine = {
 	key: 'project-site:member-ada',
@@ -55,7 +57,7 @@ jest.mock('./use-invoice-time', () => ({
 	useInvoiceTime: () => mockTime
 }));
 jest.mock('./use-invoices-query', () => ({
-	useNextInvoiceNumber: () => ({ nextNumber: 7, isLoading: false, isError: false, refetch: jest.fn() }),
+	useNextInvoiceNumber: () => mockNextNumber,
 	useClientInvoices: () => mockEarlierRead
 }));
 jest.mock('./use-invoice-mutations', () => ({
@@ -171,6 +173,47 @@ describe('saving a new invoice while its billable time is read again', () => {
 		expect(mockCreateInvoice).not.toHaveBeenCalled();
 		expect(result.current.problems).toEqual(['readingTime']);
 		expect(result.current.isWaiting).toBe(true);
+	});
+});
+
+describe('saving a new invoice again after a save that failed', () => {
+	beforeEach(() => {
+		mockCreateInvoice.mockReset();
+		mockNextNumber.nextNumber = 7;
+	});
+
+	async function renderAfterFailedSave(error: unknown) {
+		mockCreateInvoice.mockRejectedValueOnce(error);
+		const rendered = renderNewInvoice(tokyoOrganization);
+		act(() => rendered.result.current.setDueDay('2099-12-31'));
+		await act(async () => {
+			await rendered.result.current.save().catch(() => undefined);
+		});
+		// The highest number is read again: 7 is taken now if that save went through
+		mockNextNumber.nextNumber = 8;
+		rendered.rerender();
+		return rendered;
+	}
+
+	it('keeps the number of a save whose outcome is unknown: a second try cannot create a second invoice', async () => {
+		const lostAnswer = ApiErrorService.fromAxiosError({ code: 'ERR_NETWORK', message: 'Network Error' });
+
+		const { result } = await renderAfterFailedSave(lostAnswer);
+
+		expect(mockCreateInvoice.mock.calls[0][0].invoiceNumber).toBe(7);
+		expect(result.current.numberText).toBe('7');
+	});
+
+	it('moves on to the next free number after the API refused the save', async () => {
+		const refusal = ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code 400',
+			status: 400,
+			response: { data: {}, headers: {}, status: 400, statusText: 'Bad Request' }
+		});
+
+		const { result } = await renderAfterFailedSave(refusal);
+
+		expect(result.current.numberText).toBe('8');
 	});
 });
 
