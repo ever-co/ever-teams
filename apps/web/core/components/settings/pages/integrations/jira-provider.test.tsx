@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import type {
 	JiraIntegrationSettings,
 	JiraLookup,
@@ -340,6 +340,24 @@ describe('JiraProviderSection', () => {
 		render(<JiraProviderSection jira={connected()} />);
 		expect((screen.getByTestId('jira-site-change') as HTMLButtonElement).disabled).toBe(true);
 		expect(screen.getByText(`${K}.SITE_CHANGE_BLOCKED`)).toBeTruthy();
+	});
+
+	it('the site stays locked while the mappings are unknown, and an open site form closes once a mapping appears', () => {
+		render(
+			<JiraProviderSection
+				jira={connected({ mappings: [], canManageMappings: false, detailsError: new Error('down') })}
+			/>
+		);
+		expect((screen.getByTestId('jira-site-change') as HTMLButtonElement).disabled).toBe(true);
+		cleanup();
+
+		const jira = connected({ mappings: [] });
+		const { rerender } = render(<JiraProviderSection jira={jira} />);
+		fireEvent.click(screen.getByTestId('jira-site-change'));
+		expect(screen.getByTestId('jira-site-choice')).toBeTruthy();
+		rerender(<JiraProviderSection jira={{ ...jira, mappings: connected().mappings }} />);
+		expect(screen.queryByTestId('jira-site-choice')).toBeNull();
+		expect((screen.getByTestId('jira-site-change') as HTMLButtonElement).disabled).toBe(true);
 	});
 
 	it('connected without mappings: the site can be changed to another one the token reaches', async () => {

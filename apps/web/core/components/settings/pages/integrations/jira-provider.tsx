@@ -312,16 +312,28 @@ function LookupNote({
  * The site choice of a connection: required while its token reaches several sites and none is chosen (nothing syncs
  * until then), or a change of site asked for by a person.
  */
+/**
+ * Whether the connection's site must stay as it is: a mapping names a Jira project by its id on this site, and another
+ * site may hold another project of that id. Locked while any mapping exists, and while the mappings are unknown (their
+ * read failed).
+ */
+function siteLockedOf(jira: JiraIntegrationSettings): boolean {
+	return !jira.canManageMappings || jira.mappings.length > 0;
+}
+
 function SiteChoiceRow({ jira, required, onDone }: JiraProps & Readonly<{ required: boolean; onDone?: () => void }>) {
 	const t = useTranslations();
 	const selectId = useId();
 	const sites = useJiraSites(jira.integrationId);
 	const [choice, setChoice] = useState(() => jira.connection?.cloudId ?? '');
 	const isSaving = jira.pending.kind === 'site';
+	// A change (not the first choice) waits until the connection is known to map nothing: see siteLockedOf.
+	const locked = !required && siteLockedOf(jira);
 	const canSave =
 		Boolean(choice) &&
 		choice !== jira.connection?.cloudId &&
 		jira.pending.kind === null &&
+		!locked &&
 		!sites.isLoading &&
 		!sites.error;
 
@@ -1082,12 +1094,13 @@ function JiraDetails({
 	const connection = jira.connection;
 	// The forms belong to the site they were filled for: another site starts them afresh (its projects and statuses differ).
 	const siteKey = connection?.cloudId ?? 'no-site';
-	// The site changes only while nothing is mapped (or every mapping was removed): see SITE_CHANGE_BLOCKED.
-	const siteLocked = jira.mappings.length > 0;
+	// The site changes only while the connection is known to map nothing (see siteLockedOf): a site form left open
+	// closes once a mapping appears.
+	const siteLocked = siteLockedOf(jira);
 	if (jira.isLoadingDetails) return <MutedRow>{t(`${KEYS}.LOADING_DETAILS` as Key)}</MutedRow>;
 	return (
 		<>
-			{changingSite ? (
+			{changingSite && !siteLocked ? (
 				<SiteChoiceRow jira={jira} required={false} onDone={() => setChangingSite(false)} />
 			) : (
 				<div className={cn(ROW_DIVIDER, 'flex flex-wrap items-center justify-end gap-3 px-4 py-2')}>
