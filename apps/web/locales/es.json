@@ -2705,7 +2705,7 @@
 			"LABEL": "Notas",
 			"PLACEHOLDER": "¿En qué estás trabajando?",
 			"HINT_BEFORE_START": "Opcional. Se guardan en la entrada al iniciar el temporizador.",
-			"HINT_RUNNING": "Los cambios se envían al detener el temporizador."
+			"HINT_RUNNING": "Los cambios hechos mientras el temporizador está en marcha aún no se guardan. Para cambiar las notas, edita la entrada en las hojas de tiempo después de detener el temporizador."
 		}
 	},
 	"task": {
