@@ -1,6 +1,7 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useMemo } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { Calendar } from '@/core/components/icons';
 import { TaskPropertyIcon, TaskPropertyPlaceholderIcon } from '@/core/components/tasks/task-property-icon';
 import { PersonAvatar, personFromTaskMember, type Person } from '@/core/components/teams/people-avatars';
@@ -26,9 +27,24 @@ function readableName(value: string | null | undefined) {
 	return text.split('-').join(' ');
 }
 
-function durationOf(seconds: number) {
+/** Hours and minutes written with the reader's own short units ("1h 15m", "1 h 15 min"…). */
+interface DurationFormats {
+	hours: Intl.NumberFormat;
+	minutes: Intl.NumberFormat;
+}
+
+function durationFormatsOf(locale: string): DurationFormats {
+	return {
+		hours: new Intl.NumberFormat(locale, { style: 'unit', unit: 'hour', unitDisplay: 'narrow' }),
+		minutes: new Intl.NumberFormat(locale, { style: 'unit', unit: 'minute', unitDisplay: 'narrow' })
+	};
+}
+
+function durationOf(seconds: number, formats: DurationFormats) {
 	const { hours, minutes } = secondsToTime(seconds);
-	return `${hours}h ${minutes}m`;
+	const hoursText = formats.hours.format(hours);
+	const minutesText = formats.minutes.format(minutes);
+	return `${hoursText} ${minutesText}`;
 }
 
 /** How much of the estimate was worked, as a share of the bar (never past its end). */
@@ -78,15 +94,17 @@ export function BarPeople({ people }: Readonly<{ people: Person[] }>) {
 
 function TimeWorked({ taskId, estimateSeconds }: Readonly<{ taskId: string; estimateSeconds: number }>) {
 	const t = useTranslations();
+	const locale = useLocale();
+	const formats = useMemo(() => durationFormatsOf(locale), [locale]);
 	const workedSeconds = useTaskWorkedSeconds(taskId);
 	const hasEstimate = estimateSeconds > 0;
 	const hasWorked = workedSeconds > 0;
 	if (!hasEstimate && !hasWorked) {
 		return null;
 	}
-	let amount = durationOf(workedSeconds);
+	let amount = durationOf(workedSeconds, formats);
 	if (hasEstimate) {
-		amount = `${amount} / ${durationOf(estimateSeconds)}`;
+		amount = `${amount} / ${durationOf(estimateSeconds, formats)}`;
 	}
 	return (
 		<div className="flex flex-col gap-1.5">
