@@ -12,6 +12,8 @@ import { useProjectConsumption } from './use-project-consumption';
 const mockGetProjectBudgetReport = jest.fn();
 const mockOrganizationRead = jest.fn();
 const mockRefetchOrganization = jest.fn();
+const mockRefetchProjects = jest.fn();
+const mockProjectsRead = { isError: false };
 
 const mockProjects = [
 	{ id: 'hours-half', name: 'Website', budgetType: EProjectBudgetType.HOURS, budget: 80 },
@@ -26,8 +28,8 @@ jest.mock('@/core/hooks/organizations/projects/use-organization-projects-query',
 	useOrganizationProjectsQuery: () => ({
 		organizationProjects: mockProjects,
 		getOrganizationProjectsLoading: false,
-		isOrganizationProjectsError: false,
-		refetchOrganizationProjects: () => undefined
+		isOrganizationProjectsError: mockProjectsRead.isError,
+		refetchOrganizationProjects: () => mockRefetchProjects()
 	})
 }));
 jest.mock('@/core/hooks/auth/use-current-organization', () => ({
@@ -69,6 +71,8 @@ function wrapperOf(client: QueryClient) {
 }
 
 beforeEach(() => {
+	mockProjectsRead.isError = false;
+	mockRefetchProjects.mockReset();
 	mockGetProjectBudgetReport.mockResolvedValue(REPORTS);
 	mockOrganizationRead.mockReturnValue({ isError: false, refetch: mockRefetchOrganization });
 });
@@ -94,6 +98,38 @@ describe('useProjectConsumption', () => {
 		expect(result.current.rowOf('hours-half')?.share).toBe(50);
 		expect(result.current.rowOf('budget-idle')?.budget).toBe(20);
 		expect(result.current.rowOf('untouched')).toBeUndefined();
+	});
+
+	it('gives no figure to someone who may no longer see the report, even while its answer is cached', async () => {
+		const client = clientOf();
+		const { result, rerender } = renderHook(
+			({ isEnabled }: { isEnabled: boolean }) => useProjectConsumption({ isEnabled }),
+			{ wrapper: wrapperOf(client), initialProps: { isEnabled: true } }
+		);
+		await waitFor(() => expect(result.current.rowOf('hours-half')?.spent).toBe(40));
+
+		rerender({ isEnabled: false });
+
+		expect(result.current.isAvailable).toBe(false);
+		expect(result.current.rowOf('hours-half')).toBeUndefined();
+		expect(result.current.rowOf('budget-idle')).toBeUndefined();
+	});
+
+	it('fails when the projects could not be read, and a retry reads them again', async () => {
+		mockProjectsRead.isError = true;
+		const client = clientOf();
+		const { result } = renderHook(() => useProjectConsumption({ isEnabled: true }), {
+			wrapper: wrapperOf(client)
+		});
+		await waitFor(() => expect(mockGetProjectBudgetReport).toHaveBeenCalledTimes(1));
+
+		expect(result.current.hasFailed).toBe(true);
+
+		act(() => {
+			result.current.retry();
+		});
+
+		expect(mockRefetchProjects).toHaveBeenCalledTimes(1);
 	});
 
 	it("reads it under the Project Budget report's own key, so the report and a project share one answer", async () => {

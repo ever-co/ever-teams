@@ -44,21 +44,29 @@ export function useProjectConsumption({ isEnabled }: Readonly<{ isEnabled: boole
 		isEnabled
 	});
 
-	const rows = budgets.shown?.rows ?? NO_ROWS;
+	const readRows = budgets.shown?.rows ?? NO_ROWS;
+	// Someone who may no longer open the report gets none of its figures, even while its last answer is cached
+	let rows = NO_ROWS;
+	if (isEnabled) {
+		rows = readRows;
+	}
 	const rowsByProject = useMemo(() => budgetRowsByProjectOf(rows), [rows]);
 	const rowOf = useCallback((projectId: string) => rowsByProject.get(projectId), [rowsByProject]);
 
-	const hasReadFailed = budgets.showsError || organizationRead.isError;
+	// Without the projects the rows miss every budget that has no time yet, and a cost loses its currency
+	const hasReadFailed = budgets.showsError || budgets.showsProjectsError || organizationRead.isError;
 	const hasFailed = isEnabled && hasReadFailed;
 	const isWaiting = budgets.isLoading && !hasReadFailed;
 	const isLoading = isEnabled && isWaiting;
 
 	const refetchBudgets = budgets.refetch;
+	const refetchProjects = budgets.refetchProjects;
 	const refetchOrganization = organizationRead.refetch;
 	const retry = useCallback(() => {
 		refetchBudgets();
+		refetchProjects();
 		void refetchOrganization();
-	}, [refetchBudgets, refetchOrganization]);
+	}, [refetchBudgets, refetchOrganization, refetchProjects]);
 
 	return useMemo(
 		() => ({ isAvailable: isEnabled, isLoading, hasFailed, rowOf, retry }),
