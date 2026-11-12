@@ -201,7 +201,13 @@ function copiedFormOf(
 	};
 }
 
-export function AddTaskModal({ closeModal, isOpen, prefill, checkBeforeSave, fixedMember }: IAddTaskModalProps) {
+export function AddTaskModal({
+	closeModal,
+	isOpen,
+	prefill,
+	checkBeforeSave,
+	fixedMember
+}: Readonly<IAddTaskModalProps>) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { generateTimeOptions } = useTimelogFilterOptions();
 	const { organizationProjects, getOrganizationProjectsLoading } = useOrganizationProjectsQuery();
