@@ -17,14 +17,24 @@ import {
 	type ProjectsView
 } from '@/core/lib/utils/project-list';
 
-const ORDER_FIELDS: ProjectOrderField[] = ['name', 'status', 'startDate', 'endDate', 'createdAt'];
+const ORDER_FIELDS: ProjectOrderField[] = [
+	'name',
+	'status',
+	'startDate',
+	'endDate',
+	'createdAt',
+	'timeSpent',
+	'budgetUsed'
+];
 
 const ORDER_LABEL_KEYS: Record<ProjectOrderField, DottedLanguageObjectStringPaths> = {
 	name: 'pages.projects.list.ORDER_NAME',
 	status: 'common.STATUS',
 	startDate: 'common.START_DATE',
 	endDate: 'common.END_DATE',
-	createdAt: 'pages.projects.list.ORDER_CREATED'
+	createdAt: 'pages.projects.list.ORDER_CREATED',
+	timeSpent: 'common.TIME_SPENT',
+	budgetUsed: 'pages.projects.consumption.ORDER_BUDGET_USED'
 };
 
 export const COLUMN_LABEL_KEYS: Record<ProjectColumn, DottedLanguageObjectStringPaths> = {
@@ -34,6 +44,7 @@ export const COLUMN_LABEL_KEYS: Record<ProjectColumn, DottedLanguageObjectString
 	members: 'common.MEMBERS',
 	teams: 'common.TEAMS',
 	dates: 'pages.projects.list.COLUMN_DATES',
+	timeSpent: 'common.TIME_SPENT',
 	budget: 'pages.projects.list.COLUMN_BUDGET'
 };
 
@@ -53,6 +64,8 @@ export function ProjectsDisplayMenu({ list }: Readonly<{ list: ProjectsListState
 	const isList = list.view === 'LIST';
 	const isDescending = list.ordering.desc;
 	const directionLabel = t(directionLabelKey(isDescending));
+	const offeredOrderFields = ORDER_FIELDS.filter((field) => list.isOrderFieldOffered(field));
+	const offeredColumns = PROJECT_COLUMNS.filter((column) => list.isColumnOffered(column));
 
 	const handleOrderField = (value: string) => {
 		if (!isOrderField(value)) {
@@ -115,7 +128,7 @@ export function ProjectsDisplayMenu({ list }: Readonly<{ list: ProjectsListState
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
-									{ORDER_FIELDS.map((field) => (
+									{offeredOrderFields.map((field) => (
 										<SelectItem key={field} value={field}>
 											{t(ORDER_LABEL_KEYS[field])}
 										</SelectItem>
@@ -131,7 +144,7 @@ export function ProjectsDisplayMenu({ list }: Readonly<{ list: ProjectsListState
 							{t('pages.projects.list.DISPLAY_PROPERTIES')}
 						</p>
 						<div className="flex flex-wrap gap-1.5">
-							{PROJECT_COLUMNS.map((column) => (
+							{offeredColumns.map((column) => (
 								<PropertyToggle
 									key={column}
 									label={t(COLUMN_LABEL_KEYS[column])}

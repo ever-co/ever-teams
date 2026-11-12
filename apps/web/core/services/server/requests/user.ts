@@ -35,6 +35,30 @@ export function deleteUserRequest({
 	});
 }
 
+/**
+ * Gives a workspace role to an account through Gauzy's `PUT /user/:id`, with the role and nothing else in the body.
+ * Gauzy decides: ORG_USERS_EDIT for someone else, SUPER_ADMIN_EDIT for the super admin role, never one's own role.
+ */
+export function assignUserRoleRequest({
+	userId,
+	roleId,
+	bearer_token,
+	tenantId
+}: {
+	userId: string;
+	roleId: string;
+	bearer_token: string;
+	tenantId: string;
+}) {
+	return serverFetch<unknown>({
+		path: `/user/${encodeURIComponent(userId)}`,
+		method: 'PUT',
+		body: { roleId },
+		bearer_token,
+		tenantId
+	});
+}
+
 export function resetUserRequest({ bearer_token, tenantId }: { bearer_token: string | any; tenantId?: string }) {
 	return serverFetch<any>({
 		path: `/user/reset`,

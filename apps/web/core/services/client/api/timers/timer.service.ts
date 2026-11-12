@@ -30,6 +30,14 @@ const projectFieldOf = (projectId?: string | null): { projectId?: string } => {
 	return { projectId };
 };
 
+// A start or a stop without notes sends none, as before notes existed. A stop sends empty notes when they were removed.
+const notesFieldOf = (description?: string): { description?: string } => {
+	if (description === undefined) {
+		return {};
+	}
+	return { description };
+};
+
 class TimerService extends APIService {
 	// Last time-slot sync, tied to the time log (timer run) it was measured for.
 	private lastTimeSlotSync: { at: number; timeLogId?: string } | null = null;
@@ -66,14 +74,17 @@ class TimerService extends APIService {
 	startTimer = async ({
 		taskId,
 		projectId,
-		isBillable
+		isBillable,
+		description
 	}: {
 		taskId: string;
 		projectId?: string | null;
 		isBillable: boolean;
+		description?: string;
 	}) => {
 		const startedAt = Date.now();
 		const projectField = projectFieldOf(projectId);
+		const notesField = notesFieldOf(description);
 		const planDay = getTodayPlanDay();
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
@@ -86,6 +97,7 @@ class TimerService extends APIService {
 				source: ETimeLogSource.TEAMS,
 				tags: [],
 				isBillable,
+				...notesField,
 				organizationTeamId: this.activeTeamId,
 				planDay
 			});
@@ -100,6 +112,7 @@ class TimerService extends APIService {
 				taskId,
 				...projectField,
 				isBillable,
+				...notesField,
 				planDay
 			})
 		);
@@ -113,13 +126,16 @@ class TimerService extends APIService {
 	stopTimer = async ({
 		source,
 		startedAt,
-		stoppedAt
+		stoppedAt,
+		description
 	}: {
 		source: ETimeLogSource;
 		startedAt?: Date | string;
 		stoppedAt?: Date | string;
+		description?: string;
 	}) => {
 		const taskId = getActiveTaskIdCookie();
+		const notesField = notesFieldOf(description);
 		const range = { ...(startedAt ? { startedAt } : {}), ...(stoppedAt ? { stoppedAt } : {}) };
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
@@ -128,6 +144,7 @@ class TimerService extends APIService {
 				logType: 'TRACKED',
 				...(taskId ? { taskId } : {}),
 				...range,
+				...notesField,
 				tenantId: this.tenantId,
 				organizationId: this.organizationId
 			});
@@ -138,7 +155,8 @@ class TimerService extends APIService {
 		const api = await getFallbackAPI();
 		return api.post<ITimerStatus>(`/timer/stop?${getTodayRangeQuery()}`, {
 			source,
-			...range
+			...range,
+			...notesField
 		});
 	};
 

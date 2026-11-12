@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { MetricStrip, type MetricItem, type MetricTone } from '@/core/components/dashboards/kit/metric-strip';
 import { DASHBOARD_SURFACE } from '@/core/components/dashboards/kit/recipes';
 import { limitShareLabelOf } from '@/core/lib/utils/dashboards/weekly-limit';
@@ -13,6 +13,8 @@ import {
 	type BudgetScope,
 	type BudgetTotal
 } from '@/core/lib/utils/dashboards/project-budget';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import type { FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { budgetNotesOf, costBudgetsLabelOf, MISSING_FIGURE } from './budget-cells';
 
 type Translate = ReturnType<typeof useTranslations>;
@@ -24,7 +26,7 @@ function toneWhenAny(count: number, tone: MetricTone): MetricTone {
 	return 'default';
 }
 
-function SpentOfTotal({ total, locale }: Readonly<{ total: BudgetTotal; locale: string }>) {
+function SpentOfTotal({ total, locale }: Readonly<{ total: BudgetTotal; locale: FormatLocale }>) {
 	const spentText = amountTextOf(total.spent, total, locale);
 	const budgetText = budgetTextOf(total.budget, total, locale);
 	return (
@@ -40,7 +42,7 @@ function usedHintOf(total: BudgetTotal, t: Translate) {
 	return t('dashboard.projectBudget.USED_SHARE', { share });
 }
 
-function hoursItemOf(figures: BudgetFigures, locale: string, t: Translate): MetricItem<string> {
+function hoursItemOf(figures: BudgetFigures, locale: FormatLocale, t: Translate): MetricItem<string> {
 	const label = t('dashboard.projectBudget.HOURS_BUDGETS');
 	const total = figures.hoursTotal;
 	if (!total) {
@@ -54,7 +56,7 @@ function hoursItemOf(figures: BudgetFigures, locale: string, t: Translate): Metr
 	};
 }
 
-function costItemsOf(figures: BudgetFigures, locale: string, t: Translate): MetricItem<string>[] {
+function costItemsOf(figures: BudgetFigures, locale: FormatLocale, t: Translate): MetricItem<string>[] {
 	const shownTotals = figures.costTotals.slice(0, MAX_COST_FIGURES);
 	if (shownTotals.length === 0) {
 		return [
@@ -84,7 +86,7 @@ function skeletonItemsOf(t: Translate): MetricItem<string>[] {
 	];
 }
 
-function figureItemsOf(figures: BudgetFigures, locale: string, t: Translate): MetricItem<string>[] {
+function figureItemsOf(figures: BudgetFigures, locale: FormatLocale, t: Translate): MetricItem<string>[] {
 	return [
 		{
 			key: 'over',
@@ -128,7 +130,7 @@ export function ProjectBudgetFigures({
 	isLoading
 }: Readonly<{ figures: BudgetFigures; scope: BudgetScope; isLoading: boolean }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const items = useMemo(() => figureItemsOf(figures, locale, t), [figures, locale, t]);
 	const notes = budgetNotesOf(figures, scope, t);
 	const hasNotes = notes.length > 0;

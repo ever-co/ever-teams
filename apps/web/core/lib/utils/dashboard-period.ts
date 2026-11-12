@@ -16,6 +16,7 @@ import {
 	subDays,
 	subMonths
 } from 'date-fns';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 export interface Period {
 	from: Date;
@@ -118,13 +119,16 @@ export function periodLengthInDays(period: Period) {
 	return differenceInCalendarDays(period.to, period.from) + 1;
 }
 
-/** "Nov 3", "Nov 3 – 9", "Oct 27 – Nov 2", "Dec 29, 2025 – Jan 4, 2026", in the reader's locale. */
-export function formatPeriod(period: Period, locale: string): string {
+/**
+ * "Nov 3", "Nov 3 – 9", "Oct 27 – Nov 2", "Dec 29, 2025 – Jan 4, 2026", in the reader's locale. A workspace date format
+ * writes both ends in full instead: "03/11 – 09/11".
+ */
+export function formatPeriod(period: Period, locale: FormatLocale): string {
 	const sameDay = isSameDay(period.from, period.to);
 	const sameYear = isSameYear(period.from, period.to);
 	const isCurrentYear = isSameYear(period.from, new Date());
 	const showsYear = !sameYear || !isCurrentYear;
-	const dayFormat = new Intl.DateTimeFormat(locale, yearFormatOptions(showsYear));
+	const dayFormat = dateFormatOf(locale, yearFormatOptions(showsYear));
 	if (sameDay) {
 		return dayFormat.format(period.from);
 	}
