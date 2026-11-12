@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useTaskViewsQuery } from '@/core/hooks/task-views/use-task-views-query';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
-import { builtInViewLabelKey } from '@/core/components/pages/teams/team/tasks/views/views-page';
+import { builtInViewLabelKey } from '@/core/lib/utils/task-views-index';
 import { TASK_BUILT_IN_VIEWS } from '@/core/types/interfaces/common/task-views';
 
 /** The saved views the sidebar lists (the first in sidebar order); All views has every one of them. */
@@ -19,12 +19,11 @@ import {
 	LayoutGrid,
 	Archive,
 	Plus,
-	Spinner,
 	Star,
 	Task,
-	X,
 	Layers,
-	MessageSquare
+	MessageSquare,
+	VideoCall
 } from '@/core/components/icons/hugeicons';
 
 import {
@@ -37,7 +36,6 @@ import {
 	SidebarMenuItem,
 	SidebarRail,
 	SidebarTrigger,
-	SidebarMenuSubButton,
 	SidebarFooter
 } from '@/core/components/common/sidebar';
 import Link from 'next/link';
@@ -47,13 +45,11 @@ import { NAV_ROW_ACTIVE_RECIPE, NAV_ROW_RECIPE } from './nav-row-recipe';
 import { cn } from '@/core/lib/helpers';
 import { isValidProjectForDisplay, projectBelongsToTeam } from '@/core/lib/helpers/type-guards';
 import { useModal } from '@/core/hooks';
-import { useDeleteFavorite } from '@/core/hooks/favorites/use-delete-favorite';
 import { useTranslations } from 'next-intl';
 import { SidebarOptInForm } from './sidebar-opt-in-form';
 import { LazyUserNavAvatar } from '@/core/components/optimized-components/dashboard';
 import { UserNavAvatarSkeleton } from '@/core/components/common/skeleton/user-nav-avatar-skeleton';
 import { useMemo } from 'react';
-import { TaskIssueStatus } from '../tasks/task-issue';
 import { WorkspacesSwitcher } from '../common/workspace-switcher';
 import { AppRail, APP_RAIL_SIDEBAR_CLASS } from '../common/app-switcher/app-rail';
 import { SidebarAppSwitcher } from '../common/app-switcher/sidebar-app-switcher';
@@ -64,17 +60,9 @@ import { NavHome } from '../nav-home';
 import { NavMain } from './nav-main';
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
-import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
-import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
-import { useFavoritesQuery } from '@/core/hooks/favorites/use-favorites-query';
-import {
-	activeTeamState,
-	activeTeamTaskState,
-	isTeamManagerState,
-	tasksByTeamState,
-	timerStatusState
-} from '@/core/stores';
+import { useSidebarFavoriteItems } from './sidebar-favorites';
+import { activeTeamState, activeTeamTaskState, isTeamManagerState, timerStatusState } from '@/core/stores';
 import { CreateProjectModal } from '../features/projects/create-project-modal';
 import { useHasBeenOpen } from '@/core/hooks/common/use-has-been-open';
 import {
@@ -110,7 +98,6 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: bool
 // Limit to 5 projects for sidebar display
 const MAX_SIDEBAR_PROJECTS = 5;
 
-
 /**
  * The sidebar sits on the window background (variant `inset`): the pages render in the rounded panel
  * beside it. Its header carries the workspace switcher with the collapse button, then the palette
@@ -133,14 +120,14 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { unread: chatUnread } = useChatStates(isChatEnabled());
 	// The saved views of the team, listed under Views when the feature is on (an empty list otherwise).
 	const { views: savedViews } = useTaskViewsQuery();
-	const { currentEmployeeFavorites } = useFavoritesQuery();
-	const tasks = useAtomValue(tasksByTeamState);
+	// Every kind of favourite, by kind, then the row to the Favorites page (#5017)
+	const favoriteItems = useSidebarFavoriteItems();
 	const { isOpen, closeModal } = useModal();
 	const t = useTranslations();
 	const { organizationProjects } = useSidebarDataOwner(publicTeam);
 	const activeTeam = useAtomValue(activeTeamState);
 	const pathname = usePathname();
-	const myWorkNavigation = getMyWorkNavigation(user?.id, username || undefined);
+	const myWorkNavigation = getMyWorkNavigation();
 
 	// The sidebar lists the projects of the team picked in the header. "All teams" is the
 	// /all-teams page (the header entry links there), not a cleared team: activeTeamState falls
@@ -182,16 +169,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const openCreateProject = createProjectModal.openModal;
 	const canCreateProject = Boolean(user?.isEmailVerified);
 
-	const currentEmployeeFavoritesTasks = useMemo(() => {
-		const taskIds = currentEmployeeFavorites
-			.filter((el) => el.entity === EBaseEntityEnum.Task)
-			.map((el) => el.entityId);
-
-		return tasks.filter((task) => taskIds.includes(task.id));
-	}, [tasks, currentEmployeeFavorites]);
-
 	const encodedUsername = encodeURIComponent(username || '');
-	const hasFavoriteTasks = currentEmployeeFavoritesTasks.length > 0;
 	const userId = user?.id;
 	const activeTeamId = activeTeam?.id;
 
@@ -237,31 +215,23 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			icon: FileText,
 			label: 'docs'
 		};
+		// Meetings: start, join or plan a call, whichever room server (Jitsi or LiveKit) the deployment uses
+		const meetingsEntry = {
+			title: t('meetings.TITLE'),
+			url: '/meet',
+			selectable: true,
+			icon: VideoCall,
+			label: 'meetings'
+		};
 		const entries: Array<typeof homeEntry & { badge?: number }> = [homeEntry];
 		if (isInboxEnabled()) entries.push(inboxEntry);
 		if (isChatEnabled()) entries.push(chatEntry);
 		if (isDocsEnabled() && docsAvailability !== 'unavailable') entries.push(docsEntry);
-		entries.push(calendarEntry);
+		entries.push(calendarEntry, meetingsEntry);
 		return entries;
 	}, [chatUnread, docsAvailability, inboxUnread, t]);
 
 	const navMain = useMemo(() => {
-		const favoriteItems = hasFavoriteTasks
-			? currentEmployeeFavoritesTasks
-					.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()))
-					.map((task) => ({
-						title: task?.title,
-						url: '#',
-						component: <FavoriteTaskItem task={task} />
-					}))
-			: [
-					{
-						title: t('common.NO_FAVORITE_TASK'),
-						url: '#',
-						label: 'no-task'
-					}
-				];
-
 		const trackingLabel = t('sidebar.TRACKING_PROJECT');
 		const projectItems = displayedProjects.map((project) => {
 			const isTracked = project.id === trackedProjectId;
@@ -462,8 +432,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		];
 	}, [
 		t,
-		hasFavoriteTasks,
-		currentEmployeeFavoritesTasks,
+		favoriteItems,
 		displayedProjects,
 		projectsCount,
 		archivedProjectsCount,
@@ -606,44 +575,3 @@ function ariaCurrentFor(isActive: boolean) {
 	}
 	return undefined;
 }
-
-/**
- * Sidebar | Favorite Task item
- */
-const FavoriteTaskItem = ({ task }: { task: TTask }) => {
-	const t = useTranslations();
-	const { deleteFavorite, deleteFavoriteLoading } = useDeleteFavorite();
-
-	return (
-		<SidebarMenuSubButton
-			key={task?.id}
-			className="group/favorite flex h-8 min-h-8 items-center rounded-md text-muted-foreground transition-colors first:mt-0.5 last:mb-0.5 hover:bg-foreground/5 hover:text-foreground"
-			asChild
-		>
-			<span className="flex w-full min-w-0 items-center gap-1">
-				<Link href={`/task/${task?.id}`} className="flex min-w-0 flex-1 items-center gap-2">
-					{task && <TaskIssueStatus showIssueLabels={false} className="shrink-0" task={task} />}
-					<span className="shrink-0 text-xs font-normal tabular-nums text-muted-foreground/70">
-						#{task?.taskNumber}
-					</span>
-					<span className="min-w-0 truncate text-[13px] font-normal">{task?.title}</span>
-				</Link>
-				{deleteFavoriteLoading && <Spinner className="size-3.5 shrink-0 animate-spin" />}
-				{!deleteFavoriteLoading && (
-					<button
-						type="button"
-						aria-label={t('common.REMOVE_FAVORITE_TASK')}
-						onClick={() => deleteFavorite(task.id)}
-						className={FAVORITE_REMOVE_BUTTON}
-					>
-						<X className="size-3.5" />
-					</button>
-				)}
-			</span>
-		</SidebarMenuSubButton>
-	);
-};
-
-/** Shown on the row's hover and on keyboard focus, like the row actions of Linear's sidebar. */
-const FAVORITE_REMOVE_BUTTON =
-	'flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground opacity-0 outline-none transition-[opacity,color,background-color] hover:bg-foreground/5 hover:text-foreground focus-visible:opacity-100 focus-visible:ring-[3px] focus-visible:ring-ring/25 group-hover/favorite:opacity-100';

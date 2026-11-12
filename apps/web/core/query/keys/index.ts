@@ -463,7 +463,10 @@ export const queryKeys = {
 			organizationId: string | undefined | null,
 			userId: string | undefined | null,
 			id: string | undefined | null
-		) => ['inbox', 'item', tenantId ?? null, organizationId ?? null, userId ?? null, id ?? null] as const
+		) => ['inbox', 'item', tenantId ?? null, organizationId ?? null, userId ?? null, id ?? null] as const,
+		// Whether emails and web push can deliver for the organization: the platform's answer, not the caller's.
+		deliveryStatus: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			['inbox', 'delivery-status', tenantId ?? null, organizationId ?? null] as const
 	},
 	chat: {
 		all: ['chat'] as const,
@@ -485,6 +488,12 @@ export const queryKeys = {
 		files: (tenantId: string | undefined | null, conversationId: string | undefined | null) =>
 			['chat', 'files', tenantId ?? null, conversationId ?? null] as const
 	},
+
+	// The preview of a link, one per link and kept for the session. Outside the `chat` prefix on purpose: the live
+	// channel invalidates `['chat']` on every change, and no message event changes what a page says about itself.
+	chatLinkPreview: (tenantId: string | undefined | null, url: string) => ['chat-link-preview', tenantId ?? null, url] as const,
+	chatLinkPreviewPicture: (tenantId: string | undefined | null, url: string) =>
+		['chat-link-preview-picture', tenantId ?? null, url] as const,
 
 	taskComments: {
 		all: ['task-comments'] as const,
@@ -992,6 +1001,13 @@ export const queryKeys = {
 		liveCollaboration: ['live-collaboration'] as const
 	},
 
+	// Meetings the signed-in member scheduled (Ever Gauzy employee appointments)
+	meetings: {
+		all: ['meetings'] as const,
+		scheduled: (employeeId: string | undefined | null) =>
+			['meetings', 'scheduled', ...(employeeId ? [employeeId] : [])] as const
+	},
+
 	timeLogs: {
 		all: ['time-logs'] as const,
 		dailyReport: {
@@ -1088,6 +1104,9 @@ export const queryKeys = {
 			['docs', 'import-probe', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
 		pdfProbe: (tenantId: string | undefined | null) => ['docs', 'pdf-probe', tenantId ?? null] as const,
 		import: (tenantId: string | undefined | null, importId: string | undefined | null) =>
-			['docs', 'import', tenantId ?? null, importId ?? null] as const
+			['docs', 'import', tenantId ?? null, importId ?? null] as const,
+		/** The platform's comments on the page (entity `Document`), block threads and page comments alike. */
+		comments: (tenantId: string | undefined | null, organizationId: string | undefined | null, pageId: string | undefined | null) =>
+			['docs', 'comments', tenantId ?? null, organizationId ?? null, pageId ?? null] as const
 	}
 };

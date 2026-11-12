@@ -68,6 +68,8 @@ export interface ITaskViewCreateInput {
 	filterOptions?: Record<string, unknown>;
 	displayOptions?: Record<string, unknown>;
 	queryParams?: Record<string, unknown>;
+	/** The manual order a new view starts with (Save as keeps the one of the view it was made from). */
+	manualOrder?: string[];
 }
 
 export interface ITaskViewUpdateInput extends Partial<ITaskViewCreateInput> {

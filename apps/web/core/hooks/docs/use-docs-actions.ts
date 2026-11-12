@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { docsService } from '@/core/services/client/api/docs';
 import { entityFilesService } from '@/core/services/client/api/documents/entity-files.service';
-import { buildDocTree, nextIndexUnder, reorderedIds, siblingsOf } from '@/core/lib/utils/docs-tree';
+import { buildDocTree, nextIndexUnder, placementOf, reorderedIds, siblingsOf } from '@/core/lib/utils/docs-tree';
 import {
 	EDocumentKind,
 	EDocumentVisibility,
@@ -150,6 +150,38 @@ export function useDocsActions() {
 		[invalidateTree, queryClient, treeKey, treePages]
 	);
 
+	/**
+	 * A dragged page put before or after another: a reorder among the same siblings, or a move to the other page's
+	 * parent at that place. Shown at once, read again from the platform after. Null when nothing changes.
+	 */
+	const placePage = useCallback(
+		async (pageId: string, targetId: string, position: 'before' | 'after') => {
+			const placement = placementOf(buildDocTree(treePages()), pageId, targetId, position);
+			if (!placement) return null;
+			const indexOf = new Map(placement.orderedIds.map((id, index) => [id, index]));
+			queryClient.setQueryData<IDocumentPage[]>(treeKey, (current) =>
+				current
+					? current.map((item) =>
+							indexOf.has(item.id)
+								? { ...item, index: indexOf.get(item.id) as number, ...(item.id === pageId ? { parentId: placement.parentId } : {}) }
+								: item
+						)
+					: current
+			);
+			try {
+				if (placement.moves) {
+					putPage(await docsService.move(pageId, { parentId: placement.parentId, index: placement.index }));
+				} else {
+					await docsService.reorder(placement.parentId, placement.orderedIds);
+				}
+			} finally {
+				await invalidateTree();
+			}
+			return placement;
+		},
+		[invalidateTree, putPage, queryClient, treeKey, treePages]
+	);
+
 	const duplicatePage = useCallback(
 		async (pageId: string, options: { deep: boolean; name?: string }) => {
 			const page = await docsService.duplicate(pageId, { deep: options.deep, name: options.name });
@@ -253,6 +285,7 @@ export function useDocsActions() {
 		updatePage,
 		movePage,
 		reorderPage,
+		placePage,
 		duplicatePage,
 		trashPage,
 		restorePage,

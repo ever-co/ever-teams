@@ -45,6 +45,15 @@ they are with the flag off.
   its creator only; a team view to everyone in the team, and changed (saved, shared, deleted) by anyone in it who may edit
   tasks — the platform's rule; Save, Share and Delete are shown to those people only. A save states the version read;
   a stale one shows a conflict with a Reload action. Opening a view never touches the device-local view.
+- **Manual order** (T11): only a saved view offers the Manual ordering (the device's view has no order to follow).
+  It lists the tasks its `manualOrder` names, in that order, then the others newest first, as the platform pages
+  them, inside each group and whatever the direction. A move ("this task right before / after that one", by drag
+  within a group or from the row menu) is saved at once with `PUT /task-views/:id/order` and the version the page
+  holds; the shown tasks the order did not name yet join it as shown, hidden ones keep their places, at most 5000. A
+  409 makes the same move once on the order saved meanwhile; a second one, or another failure, says so and the list
+  shows what the platform holds. The move is not part of Save's changes, and a change in progress builds on the
+  version the move wrote only when the move stated the change's base. Save as copies the order. On touch screens the
+  rows do not drag: the row menu (a long press) moves them (T12).
 - **Built-in views** are the platform's answer (no local filtering besides the page's own search and filters).
 - **Bulk**: a change to more than one task goes in one request with the previous values coming back; undo sends
   them back as `items`. One task, or the flag off: one update per task as before.
@@ -87,6 +96,20 @@ they are with the flag off.
   per person, on this device; a stored entry leading outside the app is dropped, a page is not listed while Docs is
   off). A sequence typed into the field, one key per word (`g t`), runs its command as its keys would; the entries are
   also found by their binding (`gt`).
+- **Bulk project and due date, board selection and layout (T10)**: with the flag on, `M` on a focused row (a new
+  rebindable row key) and the Project cell open a project picker ("No project" takes the tasks out of any); `D` and the
+  Due date cell apply to the selection the row is in. A selection of several tasks sends one bulk update (`projectId`,
+  `dueDate` as the picked local day in ISO, `null` to clear) with one undo; one task, or the flag off, one update per
+  task as before. The Kanban page's cards select (⌘/Ctrl-click, their check, the list's `X`, Shift for a range in a
+  lane, Esc clears) and a bottom bar changes them together: status, priority, size, assignee, labels, project, due
+  date, archive. A view (or the Team tasks page) can be shown as a board: the Display menu's Layout (List, Board) is
+  saved with the view (`displayOptions.layout`, kept only for a board, so views saved before stay equal), and the
+  board shows the view's tasks in one lane per status, in the view's ordering alone (no grouping: the grouping and
+  empty-groups rows hide), with the Kanban cards, the page's selection bar acting on them. A focused card takes the
+  rows' keys on both boards (`X`, and `S` `P` `L` `D` `M` for the selection the card is in), yielding while a registry
+  sequence waits for its second key. A selection's due date is limited by its latest start date. The lanes' moves,
+  collapse and order are the Kanban page's (`useKanbanLanes`). The list page's selection bar has Project and Due
+  date too, beside Status, Priority, Size and Assignee (opening the same pickers as the keys `M` and `D`).
 - **Flag off**: no mount, no sidebar section, no routes' content, the selection bar as before.
 
 ## 5. Tests
@@ -94,5 +117,7 @@ they are with the flag off.
 `core/lib/keyboard/shortcuts.test.ts` (parsing, key caps, physical keys, overrides, conflicts, sequences, row keys,
 refusals; T13: the defaults never clash, typed sequences); `team-tasks-list.test.tsx`, `shortcuts-dialog.test.tsx`
 and `use-shortcuts.test.tsx` (T8); `palette-items.test.ts`, `palette-recent.test.ts` and
-`sidebar-command-modal.test.tsx` (T9, T13). The
+`sidebar-command-modal.test.tsx` (T9, T13); `use-team-task-updates.test.tsx` (the bulk payloads),
+`use-board-selection.test.tsx`, `kanban-board.test.ts`, `kanban-task-card.test.tsx`, `team-tasks-view-layout.test.ts`
+and the list's T10 keys (T10). The
 in-cluster web gate runs lint, knip, jest and the build.

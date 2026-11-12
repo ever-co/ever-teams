@@ -1,6 +1,6 @@
 'use client';
 
-import { getHTMLFromFragment, type Editor, type JSONContent } from '@tiptap/core';
+import { getHTMLFromFragment, type Editor, type Extensions, type JSONContent } from '@tiptap/core';
 import { Node as ProseMirrorNode } from '@tiptap/pm/model';
 import type { EditorView } from '@tiptap/pm/view';
 import { EditorContent, useEditor } from '@tiptap/react';
@@ -17,7 +17,7 @@ import {
 	type ReactNode
 } from 'react';
 import { toast } from 'sonner';
-import { Spinner } from '@/core/components/icons';
+import { Spinner, type IconComponent } from '@/core/components/icons';
 import { AnimatedHeight } from '@/core/components/common/animated-height';
 import type { ChatConfig } from '@/core/components/features/chat-panel/components/chat-config-dialog';
 import { useEditorAssist } from '@/core/hooks/ai/use-editor-assist';
@@ -62,6 +62,15 @@ export type RichEditorAi = {
 	title?: string;
 };
 
+/** A host's button in the toolbar over a selection. */
+export type RichEditorBubbleAction = {
+	id: string;
+	icon: IconComponent;
+	label: string;
+	shortcutLabel?: string;
+	onPress: (editor: Editor) => void;
+};
+
 export type RichEditorProps = {
 	/** The stored description, in any format the editors ever wrote; it is shown as HTML. */
 	value: string;
@@ -87,6 +96,10 @@ export type RichEditorProps = {
 	 * new editor (remount it).
 	 */
 	collaboration?: EditorCollaboration | null;
+	/** Extensions a host adds (the Docs pages). Keep the array stable: a new one builds a new editor. */
+	extensions?: Extensions;
+	/** More buttons in the toolbar over a selection, after the marks. */
+	bubbleActions?: readonly RichEditorBubbleAction[];
 	disabled?: boolean;
 	autoFocus?: boolean;
 	onModEnter?: () => void;
@@ -317,6 +330,8 @@ export const RichEditor = forwardRef<RichEditorHandle, RichEditorProps>(function
 		images = true,
 		characterLimit,
 		collaboration = null,
+		extensions: hostExtensions,
+		bubbleActions,
 		disabled = false,
 		autoFocus = false,
 		onModEnter,
@@ -385,9 +400,10 @@ export const RichEditor = forwardRef<RichEditorHandle, RichEditorProps>(function
 				onSuggestionOpenChange: (open) => {
 					suggestionOpen.current = open;
 				},
-				collaboration
+				collaboration,
+				extraExtensions: hostExtensions
 			}),
-		[aiEnabled, characterLimit, collaboration, hasMentions, images, pickImage, resolvedPlaceholder, slashCopy, t]
+		[aiEnabled, characterLimit, collaboration, hasMentions, hostExtensions, images, pickImage, resolvedPlaceholder, slashCopy, t]
 	);
 
 	const handleKeyDown = useCallback((_view: EditorView, event: KeyboardEvent) => {
@@ -744,7 +760,7 @@ export const RichEditor = forwardRef<RichEditorHandle, RichEditorProps>(function
 				)}
 			</div>
 
-			{editor && <BubbleToolbar editor={editor} aiEnabled={aiEnabled} onAskAi={openAi} />}
+			{editor && <BubbleToolbar editor={editor} aiEnabled={aiEnabled} onAskAi={openAi} actions={bubbleActions} />}
 
 			<AnimatedHeight>
 				{aiState && (

@@ -1,3 +1,4 @@
+import type { ActivityKind } from '@/core/lib/utils/activity-icons';
 import { durationPartsOf, percentOf } from '@/core/lib/utils/dashboard-figures';
 
 export type AppsUrlsView = 'date' | 'employee' | 'project' | 'application';
@@ -66,6 +67,10 @@ export interface AppUsageRow {
 	key: string;
 	dateKey: string;
 	title: string;
+	/** `url` for a visited site, `app` for a desktop app, where the report says so (#5023). */
+	kind?: ActivityKind | null;
+	/** A visited address of the site, where the report carries one (#5023). */
+	url?: string | null;
 	employee: UsagePerson;
 	project: UsageProject;
 	seconds: number;
@@ -95,6 +100,18 @@ function textOf(value: unknown): string {
 		return value.trim();
 	}
 	return '';
+}
+
+/** Gauzy's activity type (`APP` or `URL`), when the report carries it. */
+function kindOf(value: unknown): ActivityKind | null {
+	const type = textOf(value).toUpperCase();
+	if (type === 'URL') {
+		return 'url';
+	}
+	if (type === 'APP') {
+		return 'app';
+	}
+	return null;
 }
 
 function textOrNullOf(value: unknown): string | null {
@@ -197,7 +214,9 @@ function usageRowOf(
 	const projectKey = projectKeyOf(project);
 	const key = [rowDateKey, employee.id, projectKey, title].join('|');
 	const seconds = secondsOf(activity.duration);
-	return { key, dateKey: rowDateKey, title, employee, project, seconds };
+	const kind = kindOf(activity.type);
+	const url = textOf(activity.url) || null;
+	return { key, dateKey: rowDateKey, title, kind, url, employee, project, seconds };
 }
 
 function addUsageRow(rowsByKey: Map<string, AppUsageRow>, row: AppUsageRow) {
@@ -206,7 +225,13 @@ function addUsageRow(rowsByKey: Map<string, AppUsageRow>, row: AppUsageRow) {
 		rowsByKey.set(row.key, row);
 		return;
 	}
-	rowsByKey.set(row.key, { ...existing, seconds: existing.seconds + row.seconds });
+	// The kind and address of either row: the first may lack what the second carries
+	rowsByKey.set(row.key, {
+		...existing,
+		kind: existing.kind ?? row.kind ?? null,
+		url: existing.url ?? row.url ?? null,
+		seconds: existing.seconds + row.seconds
+	});
 }
 
 /**
@@ -250,6 +275,10 @@ function distinctCount<T>(rows: ReadonlyArray<AppUsageRow>, valueOf: (row: AppUs
 export interface TitleTotal {
 	key: string;
 	title: string;
+	/** `url` for a visited site, `app` for a desktop app, where the report says so (#5023). */
+	kind?: ActivityKind | null;
+	/** A visited address of the site, where the report carries one (#5023). */
+	url?: string | null;
 	seconds: number;
 }
 
@@ -263,7 +292,9 @@ export function titleTotalsOf(rows: ReadonlyArray<AppUsageRow>): TitleTotal[] {
 	for (const row of rows) {
 		const existing = totals.get(row.title);
 		const seconds = (existing?.seconds ?? 0) + row.seconds;
-		totals.set(row.title, { key: row.title, title: row.title, seconds });
+		const kind = existing?.kind ?? row.kind ?? null;
+		const url = existing?.url ?? row.url ?? null;
+		totals.set(row.title, { key: row.title, title: row.title, kind, url, seconds });
 	}
 	const sorted = [...totals.values()];
 	sorted.sort(bySecondsDescending);
@@ -306,6 +337,10 @@ export interface UsageGroupRow {
 	key: string;
 	dateKey: string;
 	title: string;
+	/** `url` for a visited site, `app` for a desktop app, where the report says so (#5023). */
+	kind?: ActivityKind | null;
+	/** A visited address of the site, where the report carries one (#5023). */
+	url?: string | null;
 	employee: UsagePerson;
 	project: UsageProject;
 	seconds: number;
@@ -698,6 +733,9 @@ export interface MosaicItem {
 	key: string;
 	/** The app or site; empty for the others tile. */
 	title: string;
+	/** The app or site's kind and a visited address, where the report gives them (#5023). */
+	kind?: ActivityKind | null;
+	url?: string | null;
 	/** Every app or site the tile holds: its own title, or the titles merged into the others tile. */
 	titles: string[];
 	seconds: number;
@@ -721,6 +759,8 @@ function titleItemOf(total: TitleTotal, rank: number, totalSeconds: number): Mos
 	return {
 		key: `title:${total.title}`,
 		title: total.title,
+		kind: total.kind ?? null,
+		url: total.url ?? null,
 		titles: [total.title],
 		seconds: total.seconds,
 		share: percentOf(total.seconds, totalSeconds),

@@ -4,8 +4,10 @@ import { useMemo } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { ShareMeter } from '@/core/components/dashboards/kit/meters';
 import { ExternalLink } from '@/core/components/icons';
+import { ActivityIcon } from '@/core/components/activities/activity-icon';
 import { siteAddressOf } from '@/core/components/activities/activity-links';
 import { getDailyPlanDay } from '@/core/lib/helpers/daily-plan-day';
+import { addressOfMetaData } from '@/core/lib/utils/activity-icons';
 import { formatDurationShort, formatPercent, percentOf } from '@/core/lib/utils/dashboard-figures';
 import { TDailyActivity } from '@/core/types/schemas';
 
@@ -91,18 +93,16 @@ function activitySecondsOf(app: TDailyActivity) {
 	return Number(app.duration);
 }
 
-/** Only the page data of a visited site carries a url: metaData can also be a string (SQLite) or an array (agent rows). */
+/**
+ * The address recorded with a row: its own `url` (Gauzy's grouped daily rows carry one), else its metadata's, whether
+ * an object or its JSON as a string (SQLite); an array (agent rows) or anything else holds none.
+ */
 function recordedUrlOf(app: TDailyActivity) {
-	const metaData = app?.metaData;
-	const isObject = typeof metaData === 'object' && metaData !== null;
-	if (!isObject || Array.isArray(metaData)) {
-		return undefined;
+	const ownUrl = (app as { url?: unknown } | undefined)?.url;
+	if (typeof ownUrl === 'string' && ownUrl) {
+		return ownUrl;
 	}
-	const { url } = metaData as { url?: unknown };
-	if (typeof url !== 'string') {
-		return undefined;
-	}
-	return url;
+	return addressOfMetaData(app?.metaData) ?? undefined;
 }
 
 function siteAddressOfActivity(app: TDailyActivity) {
@@ -159,9 +159,17 @@ const VisitedItem = ({
 		<div className="@container">
 			<div className={VISITED_ROW_GRID}>
 				<span className="text-[13px] tabular-nums text-muted-foreground">{shareText}</span>
-				<span className="flex min-w-0 flex-col">
-					<ActivityName app={app} isSite={isSite} />
-					{visitText && <span className="truncate text-xs text-muted-foreground">{visitText}</span>}
+				<span className="flex min-w-0 items-center gap-2.5">
+					<ActivityIcon
+						title={app?.title ?? ''}
+						kind={isSite ? 'url' : 'app'}
+						url={recordedUrlOf(app)}
+						size="md"
+					/>
+					<span className="flex min-w-0 flex-col">
+						<ActivityName app={app} isSite={isSite} />
+						{visitText && <span className="truncate text-xs text-muted-foreground">{visitText}</span>}
+					</span>
 				</span>
 				<ShareMeter share={share} className={VISITED_ROW_METER} />
 				<span className="text-right text-[13px] font-medium tabular-nums text-foreground">{durationText}</span>

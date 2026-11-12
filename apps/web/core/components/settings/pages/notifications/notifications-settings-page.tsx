@@ -14,10 +14,12 @@ import {
 	SettingsSurface
 } from '@/core/components/settings/kit/settings-page';
 import { SettingsSwitch } from '@/core/components/settings/kit/settings-switch';
+import { useInboxDeliveryStatus } from '@/core/hooks/inbox/use-inbox-delivery-status';
 import { isNotificationTypeOn, useNotificationSettings } from '@/core/hooks/notifications/use-notification-settings';
 import {
 	defaultEmailModeOf,
 	digestHourOf,
+	emailDeliveryNoticeOf,
 	ownEmailModeOf,
 	quietHoursOf
 } from '@/core/lib/notifications/notification-preferences';
@@ -114,6 +116,8 @@ export function NotificationsSettingsPage() {
 	const user = useAtomValue(userState);
 	const { setting, isAvailable, isLoading, isError, retry, toggle, savePreferences, isSavingPreferences } = useNotificationSettings();
 	const [pending, setPending] = useState<PendingSwitches>({});
+	// The choices stay editable and are kept: the notice only says why no email arrives for now.
+	const emailNotice = emailDeliveryNoticeOf(useInboxDeliveryStatus());
 	const isUserKnown = Boolean(user);
 	const showsSkeleton = !isUserKnown || isLoading;
 	const showsUnavailable = isUserKnown && !isAvailable;
@@ -210,6 +214,20 @@ export function NotificationsSettingsPage() {
 						title={t('notifications.SETTINGS_PAGE.CHANNELS.EMAIL_TITLE')}
 						description={t('notifications.SETTINGS_PAGE.CHANNELS.EMAIL_INTRO')}
 					>
+						{emailNotice === 'off' && (
+							<Notice
+								tone="warning"
+								title={t('notifications.SETTINGS_PAGE.CHANNELS.EMAIL_OFF_TITLE')}
+								description={t('notifications.SETTINGS_PAGE.CHANNELS.EMAIL_OFF_TEXT')}
+							/>
+						)}
+						{emailNotice === 'unavailable' && (
+							<Notice
+								tone="warning"
+								title={t('notifications.SETTINGS_PAGE.CHANNELS.EMAIL_UNAVAILABLE_TITLE')}
+								description={t('notifications.SETTINGS_PAGE.CHANNELS.EMAIL_UNAVAILABLE_TEXT')}
+							/>
+						)}
 						<EmailDefaultRow
 							value={defaultEmailModeOf(preferences)}
 							disabled={isSavingPreferences}
