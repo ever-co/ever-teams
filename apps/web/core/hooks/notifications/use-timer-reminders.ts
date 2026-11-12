@@ -289,8 +289,8 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 					: 'notifications.TIMER_REMINDER.FORGOTTEN_DESCRIPTION'
 			);
 			const stop = () => {
-				// Stopped meanwhile, here or on another device: nothing to stop
-				if (latest.current.isRunning) {
+				// Stopped meanwhile, here or on another device, or another run started since: nothing of this run to stop
+				if (latest.current.isRunning && latest.current.runKey === runKey) {
 					void Promise.resolve(latest.current.stopTimer()).catch(() => undefined);
 				}
 			};

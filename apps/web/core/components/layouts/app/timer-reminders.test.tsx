@@ -121,13 +121,39 @@ describe('TimerReminders', () => {
 		expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.timer.all });
 	});
 
-	it('stops when the run cannot be read first: the employee asked', async () => {
-		renderReminders({ runsPastMidnight: true });
+	describe('when the run cannot be read before the stop', () => {
+		beforeEach(() => {
+			renderReminders({ runsPastMidnight: true });
+			// Gauzy would stop whatever runs now, maybe a run started since: a run that cannot be checked is not stopped
+			mockGetLastTimerLog.mockRejectedValueOnce(responseError(500));
+		});
 
-		mockGetLastTimerLog.mockRejectedValueOnce(responseError(500));
-		await stop();
+		it('stops nothing, and says the stop failed while the run goes on: the employee can try again', async () => {
+			lastLogRead(YESTERDAYS_LOG);
+			await stop();
 
-		expect(mockStopTimer).toHaveBeenCalledTimes(1);
+			expect(mockStopTimer).not.toHaveBeenCalled();
+			expect(mockToastError).toHaveBeenCalledWith(
+				'toasts.timer.STOP_FAILED',
+				expect.objectContaining({ id: 'timer-stop-failed', description: 'toasts.REASONS.SERVER' })
+			);
+		});
+
+		it('says the stop failed when the run cannot be read again either', async () => {
+			mockGetLastTimerLog.mockRejectedValueOnce(responseError(500));
+			await stop();
+
+			expect(mockStopTimer).not.toHaveBeenCalled();
+			expect(mockToastError).toHaveBeenCalledTimes(1);
+		});
+
+		it('says nothing once the run, read again, has ended', async () => {
+			lastLogRead({ ...YESTERDAYS_LOG, isRunning: false });
+			await stop();
+
+			expect(mockStopTimer).not.toHaveBeenCalled();
+			expect(mockToastError).not.toHaveBeenCalled();
+		});
 	});
 
 	it('says nothing when another tab or device stopped the run first', async () => {
