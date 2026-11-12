@@ -166,13 +166,17 @@ export function useTimesheetsPage() {
 
 	const isTeamKnown = hasOrganizationRole || Boolean(activeTeam);
 	const hasScope = isManage || Boolean(ownEmployeeId);
-	const logsQuery = useTimesheetPageLogs(period, {
-		tenantId: user?.tenantId,
-		organizationId: user?.employee?.organizationId,
-		userTimeZone: user?.timeZone,
-		employeeIds,
-		isEnabled: isTeamKnown && hasScope
-	});
+	const logsQuery = useTimesheetPageLogs(
+		period,
+		{
+			tenantId: user?.tenantId,
+			organizationId: user?.employee?.organizationId,
+			userTimeZone: user?.timeZone,
+			employeeIds,
+			isEnabled: isTeamKnown && hasScope
+		},
+		{ withTaskLabels: true }
+	);
 
 	// A log names its project and nothing about that project's client, so the client filter waits for the projects
 	const hasClientFilter = linkedFilters.clients.length > 0;

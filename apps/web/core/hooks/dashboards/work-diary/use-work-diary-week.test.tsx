@@ -62,8 +62,7 @@ describe('useWorkDiaryWeek', () => {
 			startDate: '2024-01-08',
 			endDate: '2024-01-14',
 			timeZone: 'Europe/Paris',
-			employeeIds: ['member'],
-			withTaskLabels: true
+			employeeIds: ['member']
 		});
 		expect(result.current.source.periodLogs.map((log) => log.id)).toEqual(['own']);
 		expect(result.current.source).toMatchObject({
