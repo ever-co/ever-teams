@@ -173,7 +173,7 @@ function SheetEntry({
 }
 
 function taskTitleOf(row: SheetRow, fallback: string) {
-	const title = row.sample.task?.title;
+	const title = row.identity.taskTitle;
 	if (title) {
 		return title;
 	}

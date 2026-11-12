@@ -11,7 +11,7 @@ jest.mock('@/core/constants/config/constants', () => ({
 	}
 }));
 
-import { getMemberFilterStatus, getMemberPresence } from './team-members.utils';
+import { getMemberFilterStatus, getMemberPresence, serverClockOffset, syncServerClock } from './team-members.utils';
 
 const member = (employee: Record<string, unknown>, timerStatus?: ETimerStatus) =>
 	({ employee, timerStatus }) as unknown as TOrganizationTeamEmployee;
@@ -60,5 +60,18 @@ describe('team presence', () => {
 		mockPresenceEnabled.value = false;
 		const present = { lastSeenAt: new Date().toISOString(), isIdle: false };
 		expect(getMemberFilterStatus(member(present, ETimerStatus.IDLE))).toBe(ETimerStatus.IDLE);
+	});
+});
+
+describe('the server clock', () => {
+	it('is unknown until a server time is read, then how far it is ahead of the browser', () => {
+		// Read first: no other case of this file reads a server time
+		expect(serverClockOffset()).toBeNull();
+		syncServerClock(null);
+		expect(serverClockOffset()).toBeNull();
+
+		syncServerClock(new Date(Date.now() + 90_000).toISOString());
+		expect(serverClockOffset()).toBeGreaterThan(85_000);
+		expect(serverClockOffset()).toBeLessThanOrEqual(90_000);
 	});
 });

@@ -10,6 +10,8 @@ interface PropertyPreviewProps {
 	color: string | null;
 	/** The icon being chosen, so the preview shows a custom one as the property will. */
 	icon?: string | null;
+	/** The `fullIconUrl` of that icon, while it is the stored one. */
+	iconUrl?: string | null;
 	placeholder: string;
 }
 
@@ -20,7 +22,7 @@ function chipStyleOf(color: string | null) {
 	return dataColorChipStyle(color);
 }
 
-export function PropertyPreview({ kind, name, color, icon, placeholder }: Readonly<PropertyPreviewProps>) {
+export function PropertyPreview({ kind, name, color, icon, iconUrl, placeholder }: Readonly<PropertyPreviewProps>) {
 	const typedName = name.trim();
 	const hasName = typedName.length > 0;
 	let shownName = placeholder;
@@ -31,7 +33,7 @@ export function PropertyPreview({ kind, name, color, icon, placeholder }: Readon
 	if (kind === 'issueType') {
 		return (
 			<span className="inline-flex min-w-0 items-center gap-1.5 text-[13px] text-foreground">
-				<TaskPropertyIcon kind="issueType" name={typedName} color={color} icon={icon} />
+				<TaskPropertyIcon kind="issueType" name={typedName} color={color} icon={icon} iconUrl={iconUrl} />
 				<span className={cn('truncate', !hasName && 'text-muted-foreground')}>{shownName}</span>
 			</span>
 		);
@@ -43,7 +45,7 @@ export function PropertyPreview({ kind, name, color, icon, placeholder }: Readon
 			className={cn(PROPERTY_PREVIEW_CHIP, !isPainted && '[--chip:hsl(var(--muted-foreground))]')}
 			style={chipStyleOf(color)}
 		>
-			<TaskPropertyIcon kind={kind} name={typedName} color={color} icon={icon} />
+			<TaskPropertyIcon kind={kind} name={typedName} color={color} icon={icon} iconUrl={iconUrl} />
 			<span className="truncate">{shownName}</span>
 		</span>
 	);

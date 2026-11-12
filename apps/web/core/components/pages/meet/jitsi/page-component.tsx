@@ -112,6 +112,7 @@ function MeetPage() {
 					displayName={user?.name || user?.email || ''}
 					onJoin={join}
 					onBack={flow.backToMeetings}
+					shareScreenOnJoin={flow.shareScreenOnJoin}
 					onCopyLink={flow.copyLink}
 				/>
 			)}
@@ -127,6 +128,7 @@ function MeetPage() {
 					title={flow.title}
 					choices={flow.choices}
 					onLeft={flow.leave}
+					shareScreenOnJoin={flow.shareScreenOnJoin}
 					onCopyLink={flow.copyLink}
 					onReconnect={renewStaleToken}
 				/>

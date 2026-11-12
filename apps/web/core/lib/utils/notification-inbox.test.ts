@@ -42,5 +42,27 @@ describe('toNotificationEntry for a rate change request', () => {
 
 		expect(entry.href).toBeNull();
 		expect(entry.taskId).toBe('task-1');
+		expect(entry.timerReminder).toBeNull();
+	});
+});
+
+describe('toNotificationEntry for a timer reminder', () => {
+	it('opens the timer, and reads the reminder off the title and the run it is about (#5022)', () => {
+		const entry = toNotificationEntry(
+			notification({
+				type: EEmployeeNotificationType.TimerReminder,
+				title: 'Your timer is still running after 16 hours on "Ship it"',
+				message: 'Did you forget it? Stop it, then correct the time in your timesheet if needed.',
+				entity: EBaseEntityEnum.TimeLog,
+				entityId: 'log-1'
+			})
+		);
+
+		expect(entry.type).toBe(EEmployeeNotificationType.TimerReminder);
+		expect(entry.href).toBe('/');
+		expect(entry.taskId).toBeNull();
+		expect(entry.subject).toBe('Ship it');
+		expect(entry.senderName).toBeNull();
+		expect(entry.timerReminder).toEqual({ level: 2, hours: 16, timeLogId: 'log-1' });
 	});
 });

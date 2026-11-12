@@ -75,6 +75,15 @@ describe('createOrganizationTeamRequest', () => {
 		expect(deletes()).toHaveLength(0);
 	});
 
+	it('asks Gauzy for the starter labels of the team', async () => {
+		primeFetch(() => Promise.resolve({ data: { id: 'team-1' } }));
+
+		await createOrganizationTeamRequest({ ...TEAM }, 'token-1');
+
+		const teamCall = mockServerFetch.mock.calls.find(([options]) => options.path === '/organization-team');
+		expect(teamCall?.[0].body.withStarterTags).toBe(true);
+	});
+
 	it('names the project it creates as the team default project', async () => {
 		primeFetch(() => Promise.resolve({ data: { id: 'team-1' } }));
 
