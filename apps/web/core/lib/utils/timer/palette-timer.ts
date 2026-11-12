@@ -20,6 +20,15 @@ function searchTextOf(task: PaletteStartTask, actionLabel: string): string {
 }
 
 /**
+ * What the palette's own filter reads for a start entry: the text the task was picked on, then its id so two
+ * tasks of one title stay two entries. An entry picked here on a word the filter cannot find would not show.
+ */
+export function paletteStartValueOf(task: PaletteStartTask & { id: string }, actionLabel: string): string {
+	const text = searchTextOf(task, actionLabel);
+	return `${text} start-timer:${task.id}`;
+}
+
+/**
  * The tasks the palette offers to start the timer on: the open ones whose action label, number or title holds every
  * word typed. None before the member types.
  */

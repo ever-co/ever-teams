@@ -17,7 +17,7 @@ import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
 import { useTimerActions } from '@/core/hooks/timer';
 import { useTimerPlanStatus } from '@/core/hooks/timer/use-timer-plan-status';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
-import { paletteStartActionOf, tasksToStartFor } from '@/core/lib/utils/timer/palette-timer';
+import { paletteStartActionOf, paletteStartValueOf, tasksToStartFor } from '@/core/lib/utils/timer/palette-timer';
 import { tasksByTeamState, timerStatusState } from '@/core/stores';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
@@ -171,7 +171,13 @@ export function PaletteTimerStartResults({ search, onStartTimer, className }: Re
 	return (
 		<CommandGroup heading={t('commandPalette.results.startTimerOn')} className={className}>
 			{shownTasks.map((task) => (
-				<PaletteTimerStartRow key={task.id} task={task} keywords={keywords} onStartTimer={onStartTimer} />
+				<PaletteTimerStartRow
+					key={task.id}
+					task={task}
+					value={paletteStartValueOf(task, actionLabel)}
+					keywords={keywords}
+					onStartTimer={onStartTimer}
+				/>
 			))}
 		</CommandGroup>
 	);
@@ -179,18 +185,19 @@ export function PaletteTimerStartResults({ search, onStartTimer, className }: Re
 
 interface PaletteTimerStartRowProps {
 	task: TTask;
+	value: string;
 	keywords: string[];
 	onStartTimer: (task: TTask) => void;
 }
 
-function PaletteTimerStartRow({ task, keywords, onStartTimer }: Readonly<PaletteTimerStartRowProps>) {
+function PaletteTimerStartRow({ task, value, keywords, onStartTimer }: Readonly<PaletteTimerStartRowProps>) {
 	const t = useTranslations();
 	const startTimer = useCallback(() => onStartTimer(task), [onStartTimer, task]);
 	const numberLabel = numberLabelOf(task);
 
 	return (
 		<CommandItem
-			value={`start-timer-${task.id}`}
+			value={value}
 			keywords={keywords}
 			onSelect={startTimer}
 			className="min-h-10 gap-3 rounded-lg px-2 text-sm"

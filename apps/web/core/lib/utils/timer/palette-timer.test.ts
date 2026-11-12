@@ -1,4 +1,4 @@
-import { paletteStartActionOf, tasksToStartFor, type PaletteStartState } from './palette-timer';
+import { paletteStartActionOf, paletteStartValueOf, tasksToStartFor, type PaletteStartState } from './palette-timer';
 
 const TASKS = [
 	{ id: '1', title: 'Fix the login page', taskNumber: 'WEB-12', status: 'in-progress' },
@@ -41,6 +41,19 @@ describe('tasksToStartFor', () => {
 
 	it('stops at the limit', () => {
 		expect(idsOf(tasksToStartFor(TASKS, 'start', ACTION_LABEL, 2))).toEqual(['1', '2']);
+	});
+});
+
+describe('paletteStartValueOf', () => {
+	it('holds every word a task can be picked on, so the palette filter keeps the entry', () => {
+		const task = { id: 'task-7', title: 'Fix the Login page', taskNumber: 'WEB-7', status: 'open' };
+
+		const value = paletteStartValueOf(task, ACTION_LABEL);
+
+		expect(value).toContain('fix the login page');
+		expect(value).toContain('web-7');
+		expect(value).toContain('start timer');
+		expect(value).toContain('task-7');
 	});
 });
 
