@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { useUpdateTask } from '@/core/hooks/organizations/teams/use-update-task';
 import { useBulkTaskUpdate } from '@/core/hooks/task-views/use-bulk-task-update';
+import { showTaskChangeInBuiltInViews } from '@/core/hooks/task-views/built-in-view-task-cache';
 import { useTaskLabelsQuery } from './use-task-labels-query';
 import { tasksByTeamState } from '@/core/stores';
 import { viewTasksState } from '@/core/stores/tasks/task-views';
@@ -45,7 +46,8 @@ function withLabelToggled(task: TTask, labelName: string, allLabels: NonNullable
 /**
  * Saves property changes made from a list of tasks, on one task or a selection. Each change reads the task again
  * when its turn comes in the update queue, so several quick changes build on each other instead of on a stale
- * copy; the optimistic cache update of `useUpdateTask` moves the rows at once.
+ * copy; the optimistic cache update of `useUpdateTask` moves the team's rows at once, and the built-in views that list
+ * the task show the change at the same time (put back when the save fails).
  *
  * A change to several tasks goes to the platform's bulk update when that feature is on (one request, one undo);
  * otherwise, and for one task, each task is updated on its own as before.
@@ -95,11 +97,13 @@ export function useTeamTaskUpdates() {
 					if (!update) {
 						return;
 					}
+					const restoreBuiltInViews = showTaskChangeInBuiltInViews(queryClient, taskId, update);
 					try {
 						await updateTask({ ...task, ...update }, options);
 						// A view's own list (a built-in view) reads the platform again.
 						void queryClient.invalidateQueries({ queryKey: queryKeys.taskViews.all });
 					} catch (error) {
+						restoreBuiltInViews();
 						reportFailure(field, error);
 					}
 				};
