@@ -609,6 +609,34 @@ describe('the period an invoice states', () => {
 		expect(invoicePeriodOfTerms(`${invoiceTermsOf(october)}\nNet 30`)).toEqual(october);
 	});
 
+	it('writes the note to the client after the period, which stays first and is still read back', () => {
+		const terms = invoiceTermsOf(october, '  Payment by bank transfer.\nThank you.  ');
+
+		expect(terms).toBe('Billable time from 2026-10-01 to 2026-10-31\n\nPayment by bank transfer.\nThank you.');
+		expect(invoicePeriodOfTerms(terms)).toEqual(october);
+		expect(invoiceTermsOf(october, '   ')).toBe('Billable time from 2026-10-01 to 2026-10-31');
+	});
+
+	it('saves the note in the invoice’s terms', () => {
+		const request = buildInvoiceRequest({
+			id: 'inv-3',
+			organizationId: 'org-1',
+			tenantId: 'tenant-1',
+			clientId: 'c1',
+			invoiceNumber: 15,
+			issueDay: '2026-11-02',
+			dueDay: '2026-12-02',
+			currency: 'USD',
+			period: october,
+			timeZone: 'UTC',
+			lines: [],
+			descriptions: new Map(),
+			note: 'Net 14'
+		});
+
+		expect(request.terms).toBe('Billable time from 2026-10-01 to 2026-10-31\n\nNet 14');
+	});
+
 	it('states no period for terms written elsewhere, or for days that do not exist', () => {
 		expect(invoicePeriodOfTerms('Net 30')).toBeNull();
 		expect(invoicePeriodOfTerms(null)).toBeNull();

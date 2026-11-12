@@ -566,12 +566,20 @@ export function invoicePeriodDaysOf(period: Period): InvoicePeriodDays {
 	return { fromDay: localDayKeyOf(period.from), toDay: localDayKeyOf(period.to) };
 }
 
+const NOTE_SEPARATOR = '\n\n';
+
 /**
  * The API stores no period on an invoice. The period is written as the first line of the invoice's terms, which the
- * PDF prints, in one fixed form so the list can read it back whatever the reader's language.
+ * PDF prints, in one fixed form so the list can read it back whatever the reader's language. A note to the client
+ * follows it, after a blank line.
  */
-export function invoiceTermsOf(days: InvoicePeriodDays) {
-	return `${TERMS_PREFIX} ${days.fromDay} to ${days.toDay}`;
+export function invoiceTermsOf(days: InvoicePeriodDays, note = '') {
+	const periodLine = `${TERMS_PREFIX} ${days.fromDay} to ${days.toDay}`;
+	const trimmedNote = note.trim();
+	if (!trimmedNote) {
+		return periodLine;
+	}
+	return `${periodLine}${NOTE_SEPARATOR}${trimmedNote}`;
 }
 
 function isRealDay(dayKey: string) {
@@ -844,6 +852,7 @@ export interface InvoiceRequestInput {
 	lines: ReadonlyArray<NamedInvoiceLine>;
 	descriptions: ReadonlyMap<string, string>;
 	adjustments?: InvoiceAdjustments;
+	note?: string;
 }
 
 function isAboveZero(percent: number | null) {
@@ -908,7 +917,7 @@ export function buildInvoiceRequest(input: InvoiceRequestInput): InvoiceRequest 
 		taxType: 'PERCENT',
 		tax2: 0,
 		tax2Type: 'PERCENT',
-		terms: invoiceTermsOf(input.period),
+		terms: invoiceTermsOf(input.period, input.note),
 		paid: false,
 		totalValue: totals.total,
 		status: 'DRAFT',
