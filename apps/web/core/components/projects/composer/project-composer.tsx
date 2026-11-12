@@ -258,6 +258,7 @@ export function ProjectComposer({ mode, project, context, onClose }: Readonly<Pr
 							selectedClient={composer.selectedClient}
 							canCreate={composer.canCreateClient}
 							isCreating={composer.isCreatingClient}
+							disabled={composer.isSubmitting}
 							onSelect={composer.setClientId}
 							onClear={() => composer.setClientId(null)}
 							onCreate={(name) => void composer.addClient(name)}

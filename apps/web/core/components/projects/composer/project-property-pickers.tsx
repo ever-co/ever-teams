@@ -358,6 +358,8 @@ interface ProjectClientPickerProps {
 	selectedClient: SelectedProjectClient | null;
 	canCreate: boolean;
 	isCreating: boolean;
+	/** While the project saves: the save sends the client as it was when Save was pressed. */
+	disabled?: boolean;
 	onSelect: (clientId: string) => void;
 	onClear: () => void;
 	onCreate: (name: string) => void;
@@ -379,6 +381,7 @@ export function ProjectClientPicker({
 	selectedClient,
 	canCreate,
 	isCreating,
+	disabled = false,
 	onSelect,
 	onClear,
 	onCreate,
@@ -431,6 +434,7 @@ export function ProjectClientPicker({
 		<>
 			<TaskPropertyMenu
 				options={options}
+				disabled={disabled}
 				isSelected={(value) => value === selectedId}
 				onSelect={onSelect}
 				searchPlaceholder={t('clients.SEARCH_PLACEHOLDER')}
@@ -450,7 +454,7 @@ export function ProjectClientPicker({
 			{selectedClient?.isArchived && (
 				<span className="text-xs text-muted-foreground">{t('clients.SCOPE_ARCHIVED')}</span>
 			)}
-			{selectedClient && (
+			{selectedClient && !disabled && (
 				<RemoveChipButton
 					label={t('pages.projects.modals.removeItem', { name: selectedName })}
 					onRemove={onClear}
