@@ -2980,7 +2980,28 @@
 			"TESTED_TIMER": "Temporizador testado"
 		},
 		"FILL_IN": "Preencha: {fields}.",
-		"END_AFTER_START": "A hora de fim tem de ser depois da hora de início."
+		"END_AFTER_START": "A hora de fim tem de ser depois da hora de início.",
+		"OWN_TIME_ONLY": "Você adiciona tempo para si. Um administrador pode adicionar para outra pessoa.",
+		"DURATION": {
+			"LABEL": "Duração",
+			"PLACEHOLDER": "1:30 ou 90m",
+			"HINT": "Digite uma duração e o primeiro horário livre do dia é proposto.",
+			"READING": "Procurando um horário livre neste dia",
+			"PROPOSED": "Proposto das {start} às {end}, o primeiro horário livre do dia. Você pode alterar.",
+			"NO_ROOM": "Não há um período livre de {duration} neste dia. Escolha o início e o fim, ou outro dia.",
+			"NO_MEMBER": "Escolha primeiro o empregado: o tempo livre é lido do dia dele.",
+			"READ_FAILED": "Não foi possível ler os registros deste dia, por isso nenhum horário foi proposto.",
+			"RETRY": "Tentar novamente"
+		},
+		"REQUIRED": {
+			"TEAM": "Sua organização exige uma equipe em cada entrada de tempo. Abra uma das suas equipes e adicione o tempo novamente.",
+			"PROJECT": "Sua organização exige um projeto em cada entrada de tempo. Escolha um projeto ou uma tarefa que tenha um.",
+			"TEAM_AND_PROJECT": "Sua organização exige uma equipe e um projeto em cada entrada de tempo. Abra uma das suas equipes e escolha uma tarefa que tenha projeto."
+		},
+		"TASK_CHANGE": {
+			"PROJECT_FOLLOWS": "Esta entrada passa para o projeto da tarefa: {project}.",
+			"OTHER_TEAM": "Esta entrada pertence a outra equipe. Mude para essa equipe para alterar a tarefa."
+		}
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Tem certeza de que deseja excluir este intervalo de tempo?"

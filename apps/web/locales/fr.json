@@ -2980,7 +2980,28 @@
 			"TESTED_TIMER": "Test du chronomètre"
 		},
 		"FILL_IN": "À compléter : {fields}.",
-		"END_AFTER_START": "L'heure de fin doit être après l'heure de début."
+		"END_AFTER_START": "L'heure de fin doit être après l'heure de début.",
+		"OWN_TIME_ONLY": "Vous ajoutez du temps pour vous-même. Un administrateur peut en ajouter pour quelqu'un d'autre.",
+		"DURATION": {
+			"LABEL": "Durée",
+			"PLACEHOLDER": "1:30 ou 90m",
+			"HINT": "Tapez une durée et le premier créneau libre de la journée est proposé.",
+			"READING": "Recherche d'un créneau libre ce jour-là",
+			"PROPOSED": "Proposé de {start} à {end}, le premier créneau libre de la journée. Vous pouvez le modifier.",
+			"NO_ROOM": "Aucun créneau libre de {duration} ce jour-là. Choisissez le début et la fin, ou un autre jour.",
+			"NO_MEMBER": "Choisissez d'abord l'employé : le temps libre est lu dans sa journée.",
+			"READ_FAILED": "Les entrées de ce jour n'ont pas pu être lues, donc aucun créneau n'a été proposé.",
+			"RETRY": "Réessayer"
+		},
+		"REQUIRED": {
+			"TEAM": "Votre organisation exige une équipe pour chaque entrée de temps. Ouvrez l'une de vos équipes, puis ajoutez le temps à nouveau.",
+			"PROJECT": "Votre organisation exige un projet pour chaque entrée de temps. Choisissez un projet, ou une tâche qui en a un.",
+			"TEAM_AND_PROJECT": "Votre organisation exige une équipe et un projet pour chaque entrée de temps. Ouvrez l'une de vos équipes et choisissez une tâche qui a un projet."
+		},
+		"TASK_CHANGE": {
+			"PROJECT_FOLLOWS": "Cette entrée passe dans le projet de la tâche : {project}.",
+			"OTHER_TEAM": "Cette entrée appartient à une autre équipe. Passez sur cette équipe pour changer sa tâche."
+		}
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Êtes-vous sûr de vouloir supprimer ce créneau horaire ?"
