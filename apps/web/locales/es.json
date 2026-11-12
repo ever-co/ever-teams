@@ -5933,6 +5933,7 @@
 		"MORE_ENTRIES": "{count, plural, one {Y # entrada más} other {Y # entradas más}}",
 		"CONFIRM_ADD": "Añadir de todos modos",
 		"CONFIRM_SAVE": "Guardar de todos modos",
-		"CHECK_FAILED": "No se pudo comprobar si este tiempo se solapa con tiempo ya registrado, así que no se guardó nada. Inténtalo de nuevo."
+		"CHECK_FAILED": "No se pudo comprobar si este tiempo se solapa con tiempo ya registrado, así que no se guardó nada. Inténtalo de nuevo.",
+		"PERIODS_OVERLAP": "Dos de estos periodos se superponen: cambia uno para que ya no compartan tiempo."
 	}
 }

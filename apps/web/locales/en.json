@@ -5933,6 +5933,7 @@
 		"MORE_ENTRIES": "{count, plural, one {And # more entry} other {And # more entries}}",
 		"CONFIRM_ADD": "Add time anyway",
 		"CONFIRM_SAVE": "Save anyway",
-		"CHECK_FAILED": "We could not check whether this time overlaps time already recorded, so nothing was saved. Try again."
+		"CHECK_FAILED": "We could not check whether this time overlaps time already recorded, so nothing was saved. Try again.",
+		"PERIODS_OVERLAP": "Two of these periods overlap: change one so they no longer share any time."
 	}
 }

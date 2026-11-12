@@ -5933,6 +5933,7 @@
 		"MORE_ENTRIES": "{count, plural, one {Und # weiterer Eintrag} other {Und # weitere Einträge}}",
 		"CONFIRM_ADD": "Zeit trotzdem hinzufügen",
 		"CONFIRM_SAVE": "Trotzdem speichern",
-		"CHECK_FAILED": "Es konnte nicht geprüft werden, ob sich diese Zeit mit bereits erfasster Zeit überschneidet. Es wurde nichts gespeichert. Versuche es erneut."
+		"CHECK_FAILED": "Es konnte nicht geprüft werden, ob sich diese Zeit mit bereits erfasster Zeit überschneidet. Es wurde nichts gespeichert. Versuche es erneut.",
+		"PERIODS_OVERLAP": "Zwei dieser Zeiträume überschneiden sich: Ändern Sie einen, damit sie keine Zeit mehr teilen."
 	}
 }

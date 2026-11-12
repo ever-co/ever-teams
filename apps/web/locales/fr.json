@@ -5933,6 +5933,7 @@
 		"MORE_ENTRIES": "{count, plural, one {Et # autre entrée} other {Et # autres entrées}}",
 		"CONFIRM_ADD": "Ajouter quand même",
 		"CONFIRM_SAVE": "Enregistrer quand même",
-		"CHECK_FAILED": "Impossible de vérifier si ce temps chevauche du temps déjà enregistré, donc rien n'a été enregistré. Réessayez."
+		"CHECK_FAILED": "Impossible de vérifier si ce temps chevauche du temps déjà enregistré, donc rien n'a été enregistré. Réessayez.",
+		"PERIODS_OVERLAP": "Deux de ces périodes se chevauchent : modifiez-en une pour qu'elles ne partagent plus de temps."
 	}
 }

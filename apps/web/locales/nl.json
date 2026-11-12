@@ -5933,6 +5933,7 @@
 		"MORE_ENTRIES": "{count, plural, one {En nog # invoer} other {En nog # invoeren}}",
 		"CONFIRM_ADD": "Toch toevoegen",
 		"CONFIRM_SAVE": "Toch opslaan",
-		"CHECK_FAILED": "Er kon niet worden gecontroleerd of deze tijd overlapt met al geregistreerde tijd, dus er is niets opgeslagen. Probeer het opnieuw."
+		"CHECK_FAILED": "Er kon niet worden gecontroleerd of deze tijd overlapt met al geregistreerde tijd, dus er is niets opgeslagen. Probeer het opnieuw.",
+		"PERIODS_OVERLAP": "Twee van deze perioden overlappen: wijzig er één zodat ze geen tijd meer delen."
 	}
 }

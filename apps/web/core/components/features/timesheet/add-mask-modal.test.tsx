@@ -430,4 +430,21 @@ describe('AddTaskModal overlap with time already recorded', () => {
 			expect.objectContaining({ startedAt: checkedPeriod.start, stoppedAt: checkedPeriod.end })
 		);
 	});
+
+	it('says that two periods overlap each other, and checks or sends nothing', () => {
+		renderAddTimeForm();
+
+		pickTaskAndEmployee('task-a', 'employee-a');
+		fireEvent.click(screen.getByText('common.ADD_ANOTHER_PERIOD'));
+		// Both periods 09:00 to 11:00 on the same day: the later one would make the API remove the earlier one
+		const times = screen.getAllByLabelText('shift time');
+		for (const [index, select] of times.entries()) {
+			fireEvent.change(select, { target: { value: index % 2 === 0 ? '09:00 AM' : '11:00 AM' } });
+		}
+		save();
+
+		expect(screen.getByRole('alert').textContent).toBe('timeOverlap.PERIODS_OVERLAP');
+		expect(mockSaveAfterCheck).not.toHaveBeenCalled();
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
+	});
 });
