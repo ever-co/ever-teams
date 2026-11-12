@@ -14,12 +14,26 @@ export interface IComment extends IAuthoredRecord {
 	organizationId?: ID | null;
 	createdAt: string;
 	updatedAt?: string | null;
+	/** Stamped by the platform when the text changes (ever-gauzy #11802); absent on a comment never edited. */
+	editedAt?: string | null;
 	/** A thread its author closed; it stays readable. */
 	resolved?: boolean | null;
 	resolvedAt?: string | null;
 	resolvedByEmployeeId?: ID | null;
-	/** Set by the platform when the author changed the text. */
-	editedAt?: string | null;
+	resolvedByEmployee?: IAuthoredRecord['employee'];
+}
+
+/** An edit of a comment's text: the mentions it now holds replace the ones it had; left out, they stay as stored. */
+export interface ICommentTextUpdate {
+	comment: string;
+	mentionEmployeeIds?: ID[];
+}
+
+/** A resolve or a reopen of a comment thread: the platform records the caller as the resolver. */
+export interface ICommentResolveUpdate {
+	resolved: boolean;
+	resolvedAt: string | null;
+	resolvedByEmployeeId: ID | null;
 }
 
 /** The keys Gauzy's `CreateCommentDTO` declares and the web sends; the author is never sent. */
