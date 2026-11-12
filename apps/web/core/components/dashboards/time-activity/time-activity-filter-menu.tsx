@@ -6,7 +6,17 @@ import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl
 import { EntityTile } from '@/core/components/common/entity-tile';
 import { SelectedMark } from '@/core/components/common/selected-mark';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { ChevronRight, Filter, Folder, Task, Users, UsersGroup, X } from '@/core/components/icons';
+import {
+	Building,
+	ChevronRight,
+	DollarCircle,
+	Filter,
+	Folder,
+	Task,
+	Users,
+	UsersGroup,
+	X
+} from '@/core/components/icons';
 import { MENU_POPUP_RECIPE, MENU_ROW_RECIPE } from '@/core/components/tasks/task-property-menu';
 import type {
 	TimeActivityFilterOption,
@@ -18,6 +28,7 @@ import {
 	type TimeActivityFilterField,
 	type TimeActivityFilters
 } from '@/core/lib/utils/dashboards/time-activity';
+import { NO_CLIENT_FILTER_VALUE } from '@/core/lib/utils/project-list';
 import { PersonGlyph } from './time-activity-cells';
 
 const POSITIONER = 'z-[1000] outline-hidden';
@@ -33,22 +44,30 @@ const LABEL_KEYS: Record<TimeActivityFilterField, DottedLanguageObjectStringPath
 	teamIds: 'dashboard.timeActivity.filters.TEAMS',
 	employeeIds: 'dashboard.timeActivity.filters.MEMBERS',
 	projectIds: 'dashboard.timeActivity.filters.PROJECTS',
-	taskIds: 'dashboard.timeActivity.filters.TASKS'
+	taskIds: 'dashboard.timeActivity.filters.TASKS',
+	clientIds: 'common.CLIENT',
+	billable: 'dashboard.timesheets.BILLABLE'
 };
 
 const FIELD_ICONS: Record<TimeActivityFilterField, ReactNode> = {
 	teamIds: <UsersGroup />,
 	employeeIds: <Users />,
 	projectIds: <Folder />,
-	taskIds: <Task />
+	taskIds: <Task />,
+	clientIds: <Building />,
+	billable: <DollarCircle />
 };
 
 const SUBMENU_WIDTHS: Record<TimeActivityFilterField, string> = {
 	teamIds: 'w-56',
 	employeeIds: 'w-60',
 	projectIds: 'w-60',
-	taskIds: 'w-80'
+	taskIds: 'w-80',
+	clientIds: 'w-60',
+	billable: 'w-52'
 };
+
+const OPTION_ICON = 'size-4 shrink-0 text-muted-foreground';
 
 function FilterOptionGlyph({
 	field,
@@ -59,6 +78,13 @@ function FilterOptionGlyph({
 	}
 	if (field === 'taskIds') {
 		return null;
+	}
+	if (field === 'billable') {
+		return <DollarCircle aria-hidden="true" className={OPTION_ICON} />;
+	}
+	const isNoClient = field === 'clientIds' && option.value === NO_CLIENT_FILTER_VALUE;
+	if (isNoClient) {
+		return <Building aria-hidden="true" className={OPTION_ICON} />;
 	}
 	return (
 		<EntityTile name={option.name} color={option.color} imageUrl={option.imageUrl} className="size-4 text-[7px]" />
