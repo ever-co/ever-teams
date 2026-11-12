@@ -47,6 +47,8 @@ import { usePaletteRecent } from '@/core/hooks/keyboard/use-palette-recent';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
 import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
+import { openablePageHandlers, paletteListedGroups } from '@/core/lib/utils/palette-go-to';
+import type { SidebarPage } from '@/core/lib/utils/sidebar-pages';
 import type { PaletteItem } from '@/core/lib/utils/palette-items';
 import type { ShortcutHandler } from '@/core/stores/common/shortcuts';
 import { InviteFormModal } from '../../../features/teams/invite-form-modal';
@@ -151,11 +153,13 @@ const ClickableCommandItem: FC<{
  * `variant="sidebar"` renders the original full-width input as its trigger; `variant="none"` renders no
  * trigger: the shell mounts it once that way (app-sidebar.tsx) so its shortcuts work on every page, and
  * the header's CommandPaletteTrigger opens it through `commandPaletteOpenAtom`.
+ * `pages` are the pages the sidebar lists for this person: the rows of "Go to".
  */
-export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' | 'none' }> = ({
-	publicTeam,
-	variant = 'sidebar'
-}) => {
+export const SidebarCommandModal: FC<{
+	publicTeam: boolean;
+	variant?: 'sidebar' | 'none';
+	pages?: readonly SidebarPage[];
+}> = ({ publicTeam, variant = 'sidebar', pages }) => {
 	const [open, setOpen] = useAtom(commandPaletteOpenAtom);
 
 	const t = useTranslations();
@@ -245,14 +249,16 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 		};
 		if (canInvite) handlers['inviteUser'] = actions.inviteUser;
 		if (!publicTeam) handlers['teamCreate'] = actions.createTeam;
-		return handlers;
-	}, [actions, canInvite, openOnTab, publicTeam]);
+		// A "go to" whose page the sidebar does not list for this person (a report for managers) gets no handler.
+		return openablePageHandlers(handlers, pages);
+	}, [actions, canInvite, openOnTab, pages, publicTeam]);
 	const paletteShortcuts = usePaletteShortcuts(paletteHandlers);
 	const { keysOf, searchWordsOf, handlerOfTypedSequence } = paletteShortcuts;
 	const registryOn = paletteShortcuts.isOn;
 
-	// The registry's "go to" commands (saved-views feature): their keys are the registry's, not this palette's.
-	const goToCommands = useGoToCommands(navigationIcon);
+	// The pages the sidebar lists, then the registry's "go to" commands (saved-views feature) no row leads to: their
+	// keys are the registry's, not this palette's.
+	const goToCommands = useGoToCommands(navigationIcon, pages);
 	// The chat's entries (its conversations, the people to write to, "New message") where the chat is on.
 	const chatOn = isChatEnabled();
 
@@ -556,17 +562,21 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 	const showsPeople = registryOn;
 	const showsPages = registryOn && isDocsEnabled();
 
+	// With the sidebar's pages, the hard-coded links of the navigation group are rows of "Go to": that group is not
+	// listed any more (its keys stay), and no page shows for someone the sidebar hides it from.
+	const listedGroups = useMemo(() => paletteListedGroups(shownGroups, pages), [pages, shownGroups]);
+
 	const tabs = useMemo(() => {
 		const result: Array<{ value: string; label: string }> = [
 			{ value: ALL_GROUPS_TAB, label: t('commandPalette.tabs.all') },
-			...commandGroups.map((group) => ({ value: group.id, label: group.heading }))
+			...listedGroups.map((group) => ({ value: group.id, label: group.heading }))
 		];
 		if (showsPeople) result.push({ value: PEOPLE_TAB, label: t('commandPalette.results.people') });
 		if (showsPages) result.push({ value: PAGES_TAB, label: t('commandPalette.results.pages') });
 		return result;
-	}, [commandGroups, showsPages, showsPeople, t]);
+	}, [listedGroups, showsPages, showsPeople, t]);
 
-	const visibleGroups = groupsForTab(shownGroups, activeTab);
+	const visibleGroups = groupsForTab(listedGroups, activeTab);
 	const showsTaskResults = showsTaskResultsIn(activeTab);
 	// Read only while the palette is open: the conversations are not polled on every page.
 	const showsChatResults = chatOn && open && showsChatResultsIn(activeTab);

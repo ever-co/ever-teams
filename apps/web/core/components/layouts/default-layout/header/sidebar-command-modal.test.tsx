@@ -236,6 +236,95 @@ describe('SidebarCommandModal with the shortcut registry', () => {
 	});
 });
 
+/** The pages a plain member's sidebar lists, and the ones a manager's adds. */
+const MEMBER_PAGES = [
+	{ title: 'Home', url: '/' },
+	{ title: 'Kanban', url: '/kanban', section: 'Tasks' },
+	{ title: 'Time & activity', url: '/reports/time-and-activity', section: 'My work' }
+];
+const MANAGER_PAGES = [
+	...MEMBER_PAGES,
+	{ title: 'Timesheets', url: '/reports/timesheet/user-1?name=User', section: 'Reports' },
+	{ title: 'Weekly limit', url: '/reports/weekly-limit', section: 'Reports' }
+];
+
+/** The handlers the palette registered with the registry on its last render, by command. */
+function registeredHandlerIds(): string[] {
+	const handlers = mockRegisterHandlers.mock.calls[mockRegisterHandlers.mock.calls.length - 1][0];
+	return Object.keys(handlers);
+}
+
+describe('SidebarCommandModal with the pages of the sidebar', () => {
+	beforeEach(() => {
+		mockUseKeyboardShortcuts.mockClear();
+		mockRegisterHandlers.mockClear();
+		mockSetOpen.mockClear();
+		mockPush.mockClear();
+	});
+
+	afterEach(() => {
+		mockRegistryOn = false;
+		mockRegistered = new Map();
+	});
+
+	it('lists each page it is handed under "Go to", a page of a group read with the group first', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MANAGER_PAGES} />);
+
+		expect(screen.getByText('Home')).toBeTruthy();
+		expect(screen.getByText('Tasks › Kanban')).toBeTruthy();
+		expect(screen.getByText('Reports › Timesheets')).toBeTruthy();
+	});
+
+	it('opens the page of the row chosen and closes the palette', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MANAGER_PAGES} />);
+
+		fireEvent.click(screen.getByText('Reports › Timesheets'));
+
+		expect(mockSetOpen).toHaveBeenCalledWith(false);
+		expect(mockPush).toHaveBeenCalledWith('/reports/timesheet/user-1?name=User');
+	});
+
+	it('lists no page the sidebar does not hand it: a member sees no report for managers', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MEMBER_PAGES} />);
+
+		expect(screen.queryByText('Reports › Timesheets')).toBeNull();
+		expect(screen.queryByText('commandPalette.commands.goToTimesheets')).toBeNull();
+		expect(screen.queryByText('commandPalette.commands.goToWeeklyLimit')).toBeNull();
+		expect(screen.getByText('My work › Time & activity')).toBeTruthy();
+	});
+
+	it('lists a page once: its hard-coded link gives way to the row, which keeps the keys of the link', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MEMBER_PAGES} />);
+
+		expect(screen.queryByText('commandPalette.commands.goToKanban')).toBeNull();
+		expect(keyCapsOf('Tasks › Kanban')).toEqual(['⌘', 'K']);
+		// The keys of the link are still the palette's: only its row moved.
+		expect(registeredSequences()).toContain('k');
+	});
+
+	it('gives the registry no handler for a "go to" whose page it is not handed', () => {
+		mockRegistryOn = true;
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MEMBER_PAGES} />);
+
+		expect(registeredHandlerIds()).not.toContain('goTimesheets');
+		expect(registeredHandlerIds()).not.toContain('goWeeklyLimit');
+		expect(registeredHandlerIds()).toContain('goTimeActivity');
+		expect(registeredHandlerIds()).toContain('themeToggle');
+	});
+
+	it('gives it the handlers of the reports for a manager, and shows on a row the keys of its command', () => {
+		mockRegistryOn = true;
+		mockRegistered = new Map([['goKanban', jest.fn()]]);
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MANAGER_PAGES} />);
+
+		expect(registeredHandlerIds()).toContain('goTimesheets');
+		expect(registeredHandlerIds()).toContain('goWeeklyLimit');
+		expect(keyCapsOf('Tasks › Kanban')).toEqual(['G', 'K']);
+		// No handler is registered for it in this test: no key that would do nothing.
+		expect(keyCapsOf('Reports › Timesheets')).toEqual([]);
+	});
+});
+
 describe('SidebarCommandModal chat entries', () => {
 	afterEach(() => {
 		mockChatOn = false;
