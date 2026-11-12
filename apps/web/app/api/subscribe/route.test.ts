@@ -101,4 +101,77 @@ describe('POST /api/subscribe', () => {
 		expect(response.status).toBe(400);
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
+
+	/**
+	 * #5097: nothing recorded the subscription, so the opt-in card came back on every page, browser and device. The
+	 * route keeps it on the user, in their UI preferences on the platform, once Mailchimp took the address.
+	 */
+	describe('keeping the subscription on the user (#5097)', () => {
+		const answer = (body: unknown, status: number) => new Response(JSON.stringify(body), { status });
+		/** The route's call to the platform, if it made one. */
+		const platformCall = () =>
+			fetchMock.mock.calls.find(([url]) => String(url).endsWith('/user/ui-preferences')) as
+				| [string, RequestInit & { headers: Record<string, string> }]
+				| undefined;
+
+		beforeEach(() => {
+			mockGuard.mockResolvedValue({
+				user: { id: 'user-1', email: 'Ada@Example.com', isEmailVerified: true },
+				access_token: 'token-1',
+				tenantId: 'tenant-1'
+			});
+			fetchMock.mockImplementation(async () => answer({ id: 'member' }, 200));
+		});
+
+		it('keeps it once Mailchimp took the address, as the signed-in user, and answers it', async () => {
+			const response = await post({ email_address: 'ada@example.com' });
+
+			expect(response.status).toBe(201);
+			const [, init] = platformCall()!;
+			expect(init.method).toBe('PUT');
+			expect(init.headers).toMatchObject({ authorization: 'Bearer token-1', 'tenant-id': 'tenant-1' });
+			const kept = JSON.parse(init.body as string);
+			expect(kept).toEqual({ newsletter: { subscribedAt: expect.any(String), status: 'subscribed' } });
+			expect((await response.json()).newsletter).toEqual(kept.newsletter);
+		});
+
+		it('keeps an address that is not the verified one as pending', async () => {
+			await post({ email_address: 'someone@example.com' });
+
+			expect(JSON.parse(platformCall()![1].body as string).newsletter.status).toBe('pending');
+		});
+
+		it('counts an address Mailchimp already holds as subscribed', async () => {
+			fetchMock.mockResolvedValueOnce(answer({ title: 'Member Exists', detail: 'already a list member' }, 400));
+
+			const response = await post({ email_address: 'ada@example.com' });
+
+			expect(response.status).toBe(201);
+			expect((await response.json()).status).toBe('subscribed');
+			expect(platformCall()).toBeDefined();
+		});
+
+		it('keeps nothing when Mailchimp refuses the address', async () => {
+			fetchMock.mockResolvedValueOnce(answer({ title: 'Invalid Resource', detail: 'looks fake' }, 400));
+
+			const response = await post({ email_address: 'ada@example.com' });
+
+			expect(response.status).toBe(400);
+			expect(platformCall()).toBeUndefined();
+		});
+
+		it('still answers the subscription when the platform cannot keep it, since the address is on the list', async () => {
+			jest.spyOn(console, 'error').mockImplementation(() => undefined);
+			fetchMock.mockImplementation(async (url: string) =>
+				String(url).endsWith('/user/ui-preferences')
+					? answer({ message: 'unavailable' }, 503)
+					: answer({ id: 'member' }, 200)
+			);
+
+			const response = await post({ email_address: 'ada@example.com' });
+
+			expect(response.status).toBe(201);
+			expect((await response.json()).newsletter).toMatchObject({ status: 'subscribed' });
+		});
+	});
 });

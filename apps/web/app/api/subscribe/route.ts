@@ -1,5 +1,7 @@
 import { APP_NAME } from '@/core/constants/config/constants';
+import { NEWSLETTER_UI_PREFERENCE, type NewsletterSubscription } from '@/core/lib/utils/newsletter-subscription';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { setUserUiPreferenceRequest } from '@/core/services/server/requests/user';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -11,6 +13,36 @@ const subscribeSchema = z.object({ email_address: z.email() });
  */
 const subscriberTags = () => [`${APP_NAME}, ${APP_NAME} App`, 'Open', 'Cloud'];
 
+/** Mailchimp's answer to an address it already holds: the person is on the list, which counts as subscribed. */
+const MEMBER_EXISTS = 'Member Exists';
+
+/**
+ * Keeps the subscription on the user (their UI preferences on the platform), so the opt-in card stays away on every
+ * browser and device (#5097). Written here, once Mailchimp took the address, so a client that closes early cannot
+ * skip it. A failure leaves the address on the list, so the answer is still a subscription: it is logged.
+ */
+async function rememberSubscription(
+	status: NewsletterSubscription['status'],
+	bearer_token: string | undefined,
+	tenantId: string | undefined
+): Promise<NewsletterSubscription> {
+	const newsletter: NewsletterSubscription = { subscribedAt: new Date().toISOString(), status };
+	if (!bearer_token) {
+		return newsletter;
+	}
+	try {
+		await setUserUiPreferenceRequest({
+			feature: NEWSLETTER_UI_PREFERENCE,
+			value: newsletter,
+			bearer_token,
+			tenantId
+		});
+	} catch (error) {
+		console.error('The newsletter subscription could not be kept on the user', error);
+	}
+	return newsletter;
+}
+
 /**
  * Adds an address to the newsletter list (the opt-in box at the foot of the sidebar).
  *
@@ -21,7 +53,7 @@ const subscriberTags = () => [`${APP_NAME}, ${APP_NAME} App`, 'Open', 'Cloud'];
  * confirm before anything is sent.
  */
 export const POST = async (req: NextRequest) => {
-	const { user, status } = await authenticatedGuard(req, new NextResponse());
+	const { user, status, access_token, tenantId } = await authenticatedGuard(req, new NextResponse());
 	if (!user) {
 		return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });
 	}
@@ -58,18 +90,24 @@ export const POST = async (req: NextRequest) => {
 			},
 			method: 'POST'
 		});
+		let listStatus: NewsletterSubscription['status'] = isOwnAddress ? 'subscribed' : 'pending';
 		// Swallow any errors from Mailchimp and return a better error message.
 		if (response.status >= 400) {
-			const errorResponse = await response.json();
-			return NextResponse.json(
-				{
-					error: `There was an error subscribing to the newsletter: ${errorResponse.detail}`
-				},
-				{ status: 400 }
-			);
+			const errorResponse = await response.json().catch(() => ({}));
+			const isOnTheListAlready = errorResponse?.title === MEMBER_EXISTS;
+			if (!isOnTheListAlready) {
+				return NextResponse.json(
+					{
+						error: `There was an error subscribing to the newsletter: ${errorResponse?.detail}`
+					},
+					{ status: 400 }
+				);
+			}
+			listStatus = 'subscribed';
 		}
 
-		return NextResponse.json({ error: '', status: mailchimpData.status }, { status: 201 });
+		const newsletter = await rememberSubscription(listStatus, access_token, tenantId);
+		return NextResponse.json({ error: '', status: listStatus, newsletter }, { status: 201 });
 	} catch (error) {
 		return NextResponse.json(
 			{
