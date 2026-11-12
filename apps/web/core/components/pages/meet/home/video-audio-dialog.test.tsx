@@ -2,7 +2,19 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { VideoAudioDialog } from './video-audio-dialog';
 
+const mockPlayTone = jest.fn();
+const mockStopTone = jest.fn();
+let mockIsPlaying = false;
+
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+jest.mock('@/core/hooks/meetings/use-speaker-test', () => ({
+	useSpeakerTest: () => ({
+		isPlaying: mockIsPlaying,
+		toneStream: null,
+		play: mockPlayTone,
+		stop: mockStopTone
+	})
+}));
 
 interface FakeTrack {
 	kind: 'audio' | 'video';
@@ -56,6 +68,9 @@ async function pickMicrophone(name: string) {
 describe('VideoAudioDialog', () => {
 	beforeEach(() => {
 		streams = [];
+		mockIsPlaying = false;
+		mockPlayTone.mockReset();
+		mockStopTone.mockReset();
 		window.localStorage.clear();
 		// The notices' orb asks whether motion is reduced; jsdom has no matchMedia
 		window.matchMedia = jest.fn().mockReturnValue({ matches: true }) as unknown as typeof window.matchMedia;
@@ -104,5 +119,26 @@ describe('VideoAudioDialog', () => {
 			videoInputId: ''
 		});
 		expect(onClose).toHaveBeenCalledTimes(2);
+	});
+
+	it('plays a tone through the speaker to test it, and stops it on a second press', async () => {
+		const media = installDevices();
+		const view = render(<VideoAudioDialog open onClose={jest.fn()} />);
+		// The devices open and get their names first
+		await waitFor(() => expect(media.enumerateDevices).toHaveBeenCalledTimes(2));
+		await act(async () => {
+			await Promise.resolve();
+		});
+
+		fireEvent.click(screen.getByRole('button', { name: 'meetings.TEST_SPEAKER' }));
+		// jsdom picks no output (no setSinkId): the tone plays on the default speaker
+		expect(mockPlayTone).toHaveBeenCalledWith('');
+		expect(screen.getByRole('meter', { name: 'meetings.SPEAKER_LEVEL' })).toBeTruthy();
+
+		mockIsPlaying = true;
+		view.rerender(<VideoAudioDialog open onClose={jest.fn()} />);
+		fireEvent.click(screen.getByRole('button', { name: 'meetings.TEST_SPEAKER' }));
+
+		expect(mockStopTone).toHaveBeenCalledTimes(1);
 	});
 });

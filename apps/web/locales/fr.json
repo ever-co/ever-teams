@@ -3920,6 +3920,8 @@
 		"TURN_MIC_OFF": "Couper le micro",
 		"CAMERA_OFF": "Votre caméra est coupée",
 		"MIC_LEVEL": "Niveau du micro",
+		"TEST_SPEAKER": "Tester le haut-parleur",
+		"SPEAKER_LEVEL": "Niveau du haut-parleur",
 		"DEVICES_BLOCKED": "Caméra et micro bloqués",
 		"DEVICES_BLOCKED_HINT": "Autorisez-les pour ce site dans votre navigateur, puis réessayez. Vous pouvez aussi rejoindre sans eux.",
 		"DEVICES_BUSY": "Votre caméra ou votre micro est utilisé par une autre application.",

@@ -10,7 +10,13 @@ import { cn } from '@/core/lib/helpers';
 
 const DEFAULT_DEVICE = 'default';
 const LEVEL_STEPS = 10;
-export function LevelMeter({ level, label }: Readonly<{ level: number; label: string }>) {
+/** A level from 0 to 1 as ten bars; `light` for a light background (the dark camera preview is the default). */
+export function LevelMeter({
+	level,
+	label,
+	tone = 'dark'
+}: Readonly<{ level: number; label: string; tone?: 'dark' | 'light' }>) {
+	const unlit = tone === 'dark' ? 'bg-white/30' : 'bg-foreground/15';
 	const litSteps = Math.round(level * LEVEL_STEPS);
 	return (
 		<div
@@ -24,7 +30,7 @@ export function LevelMeter({ level, label }: Readonly<{ level: number; label: st
 			{Array.from({ length: LEVEL_STEPS }, (_, step) => (
 				<span
 					key={step}
-					className={cn('w-1 rounded-full transition-colors', step < litSteps ? 'bg-primary' : 'bg-white/30')}
+					className={cn('w-1 rounded-full transition-colors', step < litSteps ? 'bg-primary' : unlit)}
 					style={{ height: `${40 + step * 6}%` }}
 				/>
 			))}

@@ -3920,6 +3920,8 @@
 		"TURN_MIC_OFF": "Microfoon dempen",
 		"CAMERA_OFF": "Je camera staat uit",
 		"MIC_LEVEL": "Microfoonniveau",
+		"TEST_SPEAKER": "Luidspreker testen",
+		"SPEAKER_LEVEL": "Luidsprekerniveau",
 		"DEVICES_BLOCKED": "Camera en microfoon zijn geblokkeerd",
 		"DEVICES_BLOCKED_HINT": "Sta ze toe voor deze site in je browser en probeer het opnieuw. Je kunt ook zonder deelnemen.",
 		"DEVICES_BUSY": "Je camera of microfoon wordt door een andere app gebruikt.",

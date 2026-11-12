@@ -3920,6 +3920,8 @@
 		"TURN_MIC_OFF": "Disattiva il microfono",
 		"CAMERA_OFF": "La tua fotocamera è spenta",
 		"MIC_LEVEL": "Livello del microfono",
+		"TEST_SPEAKER": "Prova altoparlante",
+		"SPEAKER_LEVEL": "Livello dell’altoparlante",
 		"DEVICES_BLOCKED": "Fotocamera e microfono bloccati",
 		"DEVICES_BLOCKED_HINT": "Consentili per questo sito nel browser, poi riprova. Puoi anche partecipare senza.",
 		"DEVICES_BUSY": "La fotocamera o il microfono sono usati da un’altra app.",

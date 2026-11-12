@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { AppDialog, AppDialogHeader, APP_DIALOG_BODY, APP_DIALOG_FOOTER } from '@/core/components/common/app-dialog';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { Camera, Mic, VideoOff, Volume } from '@/core/components/icons';
+import { Camera, Mic, Play, VideoOff, Volume } from '@/core/components/icons';
+import { useAudioLevel } from '@/core/hooks/meetings/use-audio-level';
 import {
 	DEVICE_FIELD,
 	useDeviceStream,
@@ -12,8 +13,9 @@ import {
 	type MeetingDeviceChoices,
 	type MeetingDeviceKind
 } from '@/core/hooks/meetings/use-media-preview';
+import { useSpeakerTest } from '@/core/hooks/meetings/use-speaker-test';
 import { cn } from '@/core/lib/helpers';
-import { DeviceAccessNotices, DeviceField } from '../pre-join/device-fields';
+import { DeviceAccessNotices, DeviceField, LevelMeter } from '../pre-join/device-fields';
 
 type DeviceDraft = Pick<MeetingDeviceChoices, 'audioInputId' | 'videoInputId' | 'audioOutputId'>;
 
@@ -37,6 +39,9 @@ function VideoAudioSettings({ onClose }: Readonly<{ onClose: () => void }>) {
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const hasVideo = Boolean(media.stream?.getVideoTracks().length);
 	const canChooseDevices = media.access === 'granted' || media.access === 'pending';
+	const canPickSpeaker = canChooseDevices && media.canPickSpeaker && media.devices.audiooutput.length > 0;
+	const speakerTest = useSpeakerTest();
+	const speakerLevel = useAudioLevel(speakerTest.toneStream);
 
 	useEffect(() => {
 		const video = videoRef.current;
@@ -47,6 +52,14 @@ function VideoAudioSettings({ onClose }: Readonly<{ onClose: () => void }>) {
 
 	const select = (kind: MeetingDeviceKind, deviceId: string) =>
 		setDraft((current) => ({ ...current, [DEVICE_FIELD[kind]]: deviceId }));
+
+	const testSpeaker = () => {
+		if (speakerTest.isPlaying) {
+			speakerTest.stop();
+			return;
+		}
+		void speakerTest.play(draft.audioOutputId);
+	};
 
 	const save = () => {
 		saveChoices(draft);
@@ -75,25 +88,44 @@ function VideoAudioSettings({ onClose }: Readonly<{ onClose: () => void }>) {
 				</section>
 				<DeviceAccessNotices access={media.access} missing={media.missing} onRetry={media.retry} />
 				{canChooseDevices && (
-					<div className="flex flex-col gap-4">
+					<DeviceField
+						label={t('meetings.CAMERA')}
+						icon={<Camera className="size-4" />}
+						kind="videoinput"
+						value={draft.videoInputId}
+						devices={media.devices.videoinput}
+						onChange={select}
+					/>
+				)}
+				{/* The tone needs no device access: the speaker test is there even when the camera is blocked */}
+				<div className="flex flex-col gap-2">
+					{canPickSpeaker ? (
 						<DeviceField
-							label={t('meetings.CAMERA')}
-							icon={<Camera className="size-4" />}
-							kind="videoinput"
-							value={draft.videoInputId}
-							devices={media.devices.videoinput}
+							label={t('meetings.SPEAKER')}
+							icon={<Volume className="size-4" />}
+							kind="audiooutput"
+							value={draft.audioOutputId}
+							devices={media.devices.audiooutput}
 							onChange={select}
 						/>
-						{media.canPickSpeaker && media.devices.audiooutput.length > 0 && (
-							<DeviceField
-								label={t('meetings.SPEAKER')}
-								icon={<Volume className="size-4" />}
-								kind="audiooutput"
-								value={draft.audioOutputId}
-								devices={media.devices.audiooutput}
-								onChange={select}
-							/>
-						)}
+					) : (
+						<span className="text-xs font-medium text-muted-foreground">{t('meetings.SPEAKER')}</span>
+					)}
+					<div className="flex items-center justify-between gap-3">
+						<Button
+							type="button"
+							variant="secondary"
+							aria-pressed={speakerTest.isPlaying}
+							onClick={testSpeaker}
+						>
+							<Play className="size-4" aria-hidden="true" />
+							{t('meetings.TEST_SPEAKER')}
+						</Button>
+						<LevelMeter level={speakerLevel} label={t('meetings.SPEAKER_LEVEL')} tone="light" />
+					</div>
+				</div>
+				{canChooseDevices && (
+					<div className="flex flex-col gap-4">
 						<DeviceField
 							label={t('meetings.MICROPHONE')}
 							icon={<Mic className="size-4" />}

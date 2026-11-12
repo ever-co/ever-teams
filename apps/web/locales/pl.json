@@ -3920,6 +3920,8 @@
 		"TURN_MIC_OFF": "Wycisz mikrofon",
 		"CAMERA_OFF": "Twoja kamera jest wyłączona",
 		"MIC_LEVEL": "Poziom mikrofonu",
+		"TEST_SPEAKER": "Testuj głośnik",
+		"SPEAKER_LEVEL": "Poziom głośnika",
 		"DEVICES_BLOCKED": "Kamera i mikrofon są zablokowane",
 		"DEVICES_BLOCKED_HINT": "Zezwól na nie dla tej witryny w przeglądarce i spróbuj ponownie. Możesz też dołączyć bez nich.",
 		"DEVICES_BUSY": "Twoja kamera lub mikrofon są używane przez inną aplikację.",
