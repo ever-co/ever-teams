@@ -8,6 +8,7 @@ import { TASK_BUILT_IN_VIEWS } from '@/core/types/interfaces/common/task-views';
 const SIDEBAR_SAVED_VIEWS_MAX = 8;
 import {
 	Bot,
+	Building,
 	Calendar,
 	Chart,
 	Clock,
@@ -408,6 +409,13 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				label: 'projects',
 				action: createProjectAction,
 				items: [...projectItems, ...createProjectItems, allProjectsItem, archivedProjectsItem]
+			},
+			{
+				title: t('clients.TITLE'),
+				url: '/clients',
+				selectable: true,
+				icon: Building,
+				label: 'clients'
 			},
 			{
 				title: t('sidebar.MY_WORKS'),
