@@ -42,7 +42,7 @@ import { offersZipExport } from '@/core/lib/utils/docs-export';
 import { docsLinkTargetOf, docsPageUrl } from '@/core/lib/utils/docs-links';
 import { documentToMarkdown, markdownFileName, mentionedEmployeeIds } from '@/core/lib/utils/docs-markdown';
 import { DOCS_OUTLINE_SELECTOR, outlineOf, textStatsOf, type DocsOutlineItem } from '@/core/lib/utils/docs-outline';
-import { copyBlockLinkOnceHeld, type DocsPageEdits } from '@/core/lib/utils/docs-page-edits';
+import { copyBlockLinkOnceHeld, holdForExport, type DocsPageEdits } from '@/core/lib/utils/docs-page-edits';
 import { pageTitle } from '@/core/lib/utils/docs-tree';
 import { EDocumentKind, EDocumentVisibility, type IDocumentNode, type IDocumentPage } from '@/core/types/interfaces/common/docs';
 import { DocsCommentsPanel, type DocsPendingAnchor } from './docs-comments-panel';
@@ -249,6 +249,9 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	const pageWritable = Boolean(page && !page.isArchived && !page.isLocked);
 	const unsentAtFallback = live.mode === 'fallback' && !live.rereading && Boolean(liveSnapshot?.unsentEdits);
 	const fallenDoc = unsentAtFallback ? (liveSnapshot?.doc ?? null) : null;
+	// Edits remembered from an earlier visit reach the platform only with the session's first sync, and until then the
+	// page's edits read as the autosave's: an export of the saved text would leave them out.
+	const unsentBeforeSync = Boolean(liveSnapshot && !liveSnapshot.synced && liveSnapshot.unsentEdits);
 	const liveBinding = live.binding;
 	useEffect(() => {
 		if (isLiveEditing && liveClockRef.current === null) liveClockRef.current = pageClock;
@@ -519,13 +522,14 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 		[hasDraft, isLiveEditing, liveBinding, saveDraftNow]
 	);
 
-	// What an export of a folder holding this page waits for: the page's edits, and never text a fallen-back live
-	// session left while the page is read again or that text is being adopted (it is not the autosave's yet).
-	const textUnsettled = live.rereading || awaitingAdoption;
+	// What an export of a folder holding this page waits for: the page's edits, and never text they do not cover yet (a
+	// fallen-back live session's while the page is read again or the text is adopted, edits remembered from an earlier
+	// visit before the first sync): `holdForExport`, as the page's own exports.
+	const textUnsettled = live.rereading || awaitingAdoption || unsentBeforeSync;
 	const exportEdits = useMemo<DocsPageEdits>(
 		() => ({
 			pending: () => textUnsettled || pageEdits.pending(),
-			hold: () => (textUnsettled ? Promise.resolve(false) : pageEdits.hold())
+			hold: () => holdForExport(pageEdits, textUnsettled)
 		}),
 		[pageEdits, textUnsettled]
 	);
@@ -685,13 +689,9 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	const [pdfBusy, setPdfBusy] = useState(false);
 	const exportPdf = async (subtree: boolean) => {
 		if (!page || pdfBusy) return;
-		if (live.rereading || awaitingAdoption) {
-			toast.error(t('docs.EXPORT_UNSAVED'));
-			return;
-		}
 		setPdfBusy(true);
 		try {
-			if (pageEdits.pending() && !(await pageEdits.hold())) {
+			if (!(await holdForExport(pageEdits, textUnsettled))) {
 				toast.error(t('docs.EXPORT_UNSAVED'));
 				return;
 			}
@@ -721,20 +721,14 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	};
 
 	// The page and its sub-pages, or the folder and what is in it, as a zip of Markdown files from the platform (the text
-	// as saved: a page's pending draft goes first).
+	// as saved: the page's pending edits are saved, or confirmed live, first; text they do not cover yet stops it).
 	const zipExport = useDocsZipExport();
 	const isExporting = zipExport.isExporting;
 	const exportSubtree = () => {
 		if (!page) return;
-		// As the PDF export: text a fallen-back live session left is not saved yet, so nothing is exported.
-		if (textUnsettled) {
-			toast.error(t('docs.EXPORT_UNSAVED'));
-			return;
-		}
+		// A folder shown here has no text of its own.
 		const isFolderPage = page.kind === EDocumentKind.FOLDER;
-		// The page's edits first, as the PDF export: live, the session confirms them; otherwise the draft is saved.
-		const holdEdits = async () => !pageEdits.pending() || (await pageEdits.hold());
-		void zipExport.run(page, { title, beforeExport: isFolderPage ? undefined : holdEdits });
+		void zipExport.run(page, { title, beforeExport: isFolderPage ? undefined : () => holdForExport(pageEdits, textUnsettled) });
 	};
 
 	const updatedAtLabel = useMemo(() => {

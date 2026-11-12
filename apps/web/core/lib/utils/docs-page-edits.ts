@@ -10,6 +10,21 @@ export interface DocsPageEdits {
 	hold(): Promise<boolean>;
 }
 
+/**
+ * Whether an export of the platform's saved text (the PDF, the zip of Markdown files) may go: once the page's pending
+ * edits are saved, or confirmed live (a reconnecting session's included). Never while the tab holds text `edits` does
+ * not cover yet: the text a stopped live session left before the autosave adopted it (the page read again, the text
+ * being adopted, or its adoption failed), or edits remembered from an earlier visit before the session's first sync.
+ * The export would leave that text out.
+ *
+ * @param edits Where the page's edits stand.
+ * @param uncovered The tab holds unsent text that `edits` does not cover yet.
+ */
+export async function holdForExport(edits: DocsPageEdits, uncovered: boolean): Promise<boolean> {
+	if (uncovered) return false;
+	return !edits.pending() || edits.hold();
+}
+
 /** How a block link's copy ended: copied, not copied because the page's edits were not saved, or refused by the browser. */
 export type DocsBlockLinkCopy = 'copied' | 'unsaved' | 'copy-failed';
 
