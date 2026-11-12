@@ -23,7 +23,6 @@ import {
 	requiredTrackingFieldsMessageKeyOf,
 	requiredTrackingFieldsOf
 } from '@/core/lib/helpers/timer-errors';
-import { isTimerTaskOfTeam } from '@/core/lib/utils/task.utils';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerService } from '@/core/services/client/api/timers';
@@ -33,11 +32,11 @@ import {
 	activeTeamTaskState,
 	detailedTaskState,
 	localTimerStatusState,
-	teamTasksState,
 	timerStatusFetchingState,
 	timerStatusState,
 	workspaceOpeningState
 } from '@/core/stores';
+import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
@@ -78,7 +77,7 @@ export interface UseTimerApiParams {
 }
 
 export interface UseTimerApiReturn {
-	/** Filtered timer status (only shows timer for current team's tasks) */
+	/** Filtered timer status (only shows the current team's timer, see `teamTimerStatusState`) */
 	timerStatus: ITimerStatus | null;
 	/** Whether the timer status is currently being fetched */
 	timerStatusFetching: boolean;
@@ -250,9 +249,10 @@ export function useTimerApi({
 	const { taskStatuses } = useTaskStatusesQuery({ enabled });
 	const detailedTask = useAtomValue(detailedTaskState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
-	const teamTasks = useAtomValue(teamTasksState);
 	const [timerStatusFetching, setTimerStatusFetching] = useAtom(timerStatusFetchingState);
 	const [timerStatus, setTimerStatus] = useAtom(timerStatusState);
+	// What the timers show: the status filtered to the active team, the one every component that displays it reads
+	const filteredTimerStatus = useAtomValue(teamTimerStatusState);
 	const localTimerStatus = useAtomValue(localTimerStatusState);
 
 	// ==================== REFS ====================
@@ -415,9 +415,16 @@ export function useTimerApi({
 				hasActiveTask: !!activeTeamTask,
 				isActiveTaskClosed: activeTeamTask?.status === ETaskStatusName.CLOSED,
 				isTimerRunning: !!timerStatus?.running,
+				isRunShown: !!filteredTimerStatus?.running,
 				timerSource: timerStatus?.lastLog?.source
 			}),
-		[user?.isEmailVerified, activeTeamTask, timerStatus?.running, timerStatus?.lastLog?.source]
+		[
+			user?.isEmailVerified,
+			activeTeamTask,
+			timerStatus?.running,
+			filteredTimerStatus?.running,
+			timerStatus?.lastLog?.source
+		]
 	);
 
 	// ==================== CALLBACKS ====================
@@ -1063,32 +1070,6 @@ export function useTimerApi({
 			lastActiveTaskId.current = currentTaskId;
 		}
 	}, [firstLoad, activeTeamTask?.id, stopTimer, timerStatusRef, isUpdatingActiveTask, t]);
-
-	// ==================== FILTERED TIMER STATUS ====================
-
-	// Filter timerStatus to only show timer for current team's tasks
-	const filteredTimerStatus = useMemo<ITimerStatus | null>(() => {
-		if (!timerStatus) return null;
-
-		// If timer is not running, return as is
-		if (!timerStatus.running) return timerStatus;
-
-		// If timer is running, check if the task belongs to current team
-		const currentTaskId = timerStatus.lastLog?.taskId;
-		if (!currentTaskId) return timerStatus;
-
-		const taskBelongsToCurrentTeam = isTimerTaskOfTeam(currentTaskId, teamTasks, activeTeamTask);
-
-		// If task doesn't belong to current team, return timer as stopped
-		if (!taskBelongsToCurrentTeam) {
-			return {
-				...timerStatus,
-				running: false
-			};
-		}
-
-		return timerStatus;
-	}, [timerStatus, teamTasks, activeTeamTask]);
 
 	// ==================== RETURN ====================
 
