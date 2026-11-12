@@ -4,7 +4,7 @@ import { useMemo, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { EntityTile } from '@/core/components/common/entity-tile';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/core/components/common/tooltip';
-import { Building, Lock, Plus, Tag, X } from '@/core/components/icons';
+import { Building, Lock, Plus, Refresh, Tag, X } from '@/core/components/icons';
 import { MUTED_VALUE, PersonFace, ProjectStatusChip, teamImageOf } from '@/core/components/projects/project-cells';
 import { dataColorDotStyle, isPaintableColor } from '@/core/components/tasks/task-data-color';
 import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
@@ -14,7 +14,7 @@ import {
 	type TaskPropertyMenuOption
 } from '@/core/components/tasks/task-property-menu';
 import { cn } from '@/core/lib/helpers';
-import { hasClientNamed } from '@/core/lib/utils/clients';
+import { hasClientNamed, type ClientListState } from '@/core/lib/utils/clients';
 import {
 	PROJECT_STATUS_LABEL_KEYS,
 	PROJECT_STATUS_VALUES,
@@ -349,15 +349,19 @@ export interface SelectedProjectClient {
 	isArchived: boolean;
 }
 
+const CLIENT_LIST_NOTE = 'flex min-h-8 items-center px-2 py-1.5 text-[13px] leading-5 text-muted-foreground';
+
 interface ProjectClientPickerProps {
 	/** The clients on offer: the active ones. */
 	clients: TClient[];
+	listState: ClientListState;
 	selectedClient: SelectedProjectClient | null;
 	canCreate: boolean;
 	isCreating: boolean;
 	onSelect: (clientId: string) => void;
 	onClear: () => void;
 	onCreate: (name: string) => void;
+	onRetry: () => void;
 }
 
 function clientOptionOf(client: TClient): TaskPropertyMenuOption<string> {
@@ -371,12 +375,14 @@ function clientOptionOf(client: TClient): TaskPropertyMenuOption<string> {
 
 export function ProjectClientPicker({
 	clients,
+	listState,
 	selectedClient,
 	canCreate,
 	isCreating,
 	onSelect,
 	onClear,
-	onCreate
+	onCreate,
+	onRetry
 }: Readonly<ProjectClientPickerProps>) {
 	const t = useTranslations();
 	const options = useMemo(() => clients.map(clientOptionOf), [clients]);
@@ -402,6 +408,25 @@ export function ProjectClientPicker({
 		);
 	};
 
+	const renderFooter = (query: string) => {
+		if (listState === 'loading') {
+			return <p className={CLIENT_LIST_NOTE}>{t('common.LOADING')}</p>;
+		}
+		if (listState === 'failed') {
+			return (
+				<>
+					<p role="alert" className={CLIENT_LIST_NOTE}>
+						{t('clients.ERROR_TITLE')}
+					</p>
+					<TaskPropertyMenuAction icon={<Refresh />} onClick={onRetry}>
+						{t('pages.unauthorized.TRY_AGAIN')}
+					</TaskPropertyMenuAction>
+				</>
+			);
+		}
+		return renderCreateRow(query);
+	};
+
 	return (
 		<>
 			<TaskPropertyMenu
@@ -412,7 +437,7 @@ export function ProjectClientPicker({
 				triggerLabel={triggerLabel}
 				triggerClassName={VALUE_BUTTON}
 				popupClassName="w-60"
-				footer={renderCreateRow}
+				footer={renderFooter}
 			>
 				{selectedClient && (
 					<>

@@ -14,7 +14,7 @@ import { useEditOrganizationProject } from '@/core/hooks/organizations/projects/
 import { useClientAccess } from '@/core/hooks/clients/use-client-access';
 import { useClientMutations } from '@/core/hooks/clients/use-client-mutations';
 import { useClientsQuery } from '@/core/hooks/clients/use-clients-query';
-import { emptyClientDraft, isArchivedClient } from '@/core/lib/utils/clients';
+import { clientListStateOf, emptyClientDraft, isArchivedClient } from '@/core/lib/utils/clients';
 import { clientNameOf } from '@/core/lib/utils/project-list';
 import {
 	assignProjectRole,
@@ -127,8 +127,13 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	const { createImageAssets, loading: isUploadingImage } = useImageAssets();
 	const { createOrganizationProject, createOrganizationProjectLoading } = useCreateOrganizationProject();
 	const { editOrganizationProject, editOrganizationProjectLoading } = useEditOrganizationProject();
-	const { clients: fetchedClients } = useClientsQuery({ includeArchived: true });
-	const { canCreate: canCreateClient } = useClientAccess();
+	const {
+		clients: fetchedClients,
+		isLoaded: isClientListLoaded,
+		isError: hasClientListFailed,
+		refetch: refetchClientList
+	} = useClientsQuery({ includeArchived: true });
+	const { canCreate: mayCreateClients } = useClientAccess();
 	const { createClient, isCreating: isCreatingClient } = useClientMutations();
 
 	const activeTeamId = activeTeam?.id ?? null;
@@ -157,6 +162,10 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	const tags = useMemo(() => withCreatedTags(fetchedTags, createdTags), [fetchedTags, createdTags]);
 
 	const clients = useMemo(() => withCreatedClients(fetchedClients, createdClients), [fetchedClients, createdClients]);
+	const clientListState = clientListStateOf(isClientListLoaded, hasClientListFailed);
+	const isClientListReady = clientListState === 'ready';
+	// Without the list a typed name cannot be told from an existing client: creating it could repeat that client.
+	const canCreateClient = mayCreateClients && isClientListReady;
 	const pickableClients = useMemo(() => clients.filter((client) => !isArchivedClient(client)), [clients]);
 	const selectedClient = useMemo(
 		() => selectedClientOf(draft.clientId, clients, project),
@@ -353,6 +362,10 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 		[createClient, updateDraft]
 	);
 
+	const retryClientList = useCallback(() => {
+		void refetchClientList();
+	}, [refetchClientList]);
+
 	const setBudgetType = useCallback((budgetType: EProjectBudgetType) => updateDraft({ budgetType }), [updateDraft]);
 
 	const setBudget = useCallback((budget: number | null) => updateDraft({ budget }), [updateDraft]);
@@ -446,6 +459,8 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 		createTagLoading,
 		pickableClients,
 		selectedClient,
+		clientListState,
+		retryClientList,
 		canCreateClient,
 		isCreatingClient,
 		hasClientCreateFailed,

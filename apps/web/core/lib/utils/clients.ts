@@ -111,6 +111,19 @@ export function projectCountByClient(projects: ProjectOfClient[]) {
 	return counts;
 }
 
+/** What is known of the client list a picker offers: a name can be told new only against a list that was read. */
+export type ClientListState = 'loading' | 'failed' | 'ready';
+
+export function clientListStateOf(isLoaded: boolean, hasFailed: boolean): ClientListState {
+	if (isLoaded) {
+		return 'ready';
+	}
+	if (hasFailed) {
+		return 'failed';
+	}
+	return 'loading';
+}
+
 export function hasClientNamed(clients: ClientLike[], name: string) {
 	const wanted = name.trim().toLocaleLowerCase();
 	if (!wanted) {

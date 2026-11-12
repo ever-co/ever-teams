@@ -156,3 +156,43 @@ describe('the Client field of the project form while a client is being created',
 		expect(result.current.draft.clientId).toBeNull();
 	});
 });
+
+describe('creating a client from the project form before the client list is known', () => {
+	beforeEach(() => {
+		mockContactService.getClients.mockReset();
+		mockContactService.createClient.mockReset();
+	});
+
+	it('waits for the list: until then a typed name cannot be told from an existing client', async () => {
+		const listing = deferred<TClient[]>();
+		mockContactService.getClients.mockReturnValue(listing.promise);
+		const { result } = renderComposer();
+
+		expect(result.current.clientListState).toBe('loading');
+		expect(result.current.canCreateClient).toBe(false);
+
+		await act(async () => {
+			listing.resolve([acme]);
+			await listing.promise;
+		});
+
+		await waitFor(() => expect(result.current.clientListState).toBe('ready'));
+		expect(result.current.canCreateClient).toBe(true);
+	});
+
+	it('does not offer it when the list could not be read, and reads the list again on demand', async () => {
+		mockContactService.getClients.mockRejectedValueOnce(new Error('Network Error'));
+		const { result } = renderComposer();
+
+		await waitFor(() => expect(result.current.clientListState).toBe('failed'));
+		expect(result.current.canCreateClient).toBe(false);
+
+		mockContactService.getClients.mockResolvedValue([acme]);
+		act(() => result.current.retryClientList());
+
+		await waitFor(() => expect(result.current.clientListState).toBe('ready'));
+		expect(result.current.canCreateClient).toBe(true);
+		const offeredIds = result.current.pickableClients.map((client) => client.id);
+		expect(offeredIds).toEqual(['client-acme']);
+	});
+});

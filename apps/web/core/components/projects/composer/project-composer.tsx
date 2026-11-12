@@ -254,12 +254,14 @@ export function ProjectComposer({ mode, project, context, onClose }: Readonly<Pr
 					<PropertyRow icon={<Building />} label={t('common.CLIENT')}>
 						<ProjectClientPicker
 							clients={composer.pickableClients}
+							listState={composer.clientListState}
 							selectedClient={composer.selectedClient}
 							canCreate={composer.canCreateClient}
 							isCreating={composer.isCreatingClient}
 							onSelect={composer.setClientId}
 							onClear={() => composer.setClientId(null)}
 							onCreate={(name) => void composer.addClient(name)}
+							onRetry={composer.retryClientList}
 						/>
 						<FieldError message={clientErrorKey} />
 					</PropertyRow>
