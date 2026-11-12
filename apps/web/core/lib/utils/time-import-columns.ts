@@ -1,3 +1,4 @@
+import type { DateOrder } from '@/core/lib/utils/time-import-cells';
 import {
 	TIME_IMPORT_COLUMNS,
 	TIME_IMPORT_HEADERS,
@@ -121,14 +122,14 @@ function ignoredHeadersOf(headers: ReadonlyArray<string>, mapping: TimeImportMap
 	return ignored;
 }
 
-function timeImportSheetOf(table: TimeImportTable, mapping: TimeImportMapping): TimeImportSheet {
+function timeImportSheetOf(table: TimeImportTable, mapping: TimeImportMapping, dateOrder: DateOrder): TimeImportSheet {
 	const headerCount = table.headers.length;
 	const rows: TimeImportSheetRow[] = table.records.map((record) => ({
 		row: record.row,
 		cells: cellsOf(record.cells, mapping),
 		extraCellCount: extraCellCountOf(record.cells, headerCount)
 	}));
-	return { rows, ignoredHeaders: ignoredHeadersOf(table.headers, mapping) };
+	return { rows, ignoredHeaders: ignoredHeadersOf(table.headers, mapping), dateOrder };
 }
 
 export type TimeImportReading =
@@ -158,5 +159,5 @@ export function timeImportReadingOf(text: string): TimeImportReading {
 	if (countProblem) {
 		return { kind: 'refused', problem: countProblem };
 	}
-	return { kind: 'sheet', sheet: timeImportSheetOf(table, header.mapping) };
+	return { kind: 'sheet', sheet: timeImportSheetOf(table, header.mapping, 'yearFirst') };
 }

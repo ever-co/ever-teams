@@ -230,7 +230,7 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 	const check = useCallback(
 		async (sheet: TimeImportSheet): Promise<TimeImportRow[]> => {
 			const now = new Date();
-			const drafts = draftRowsOf(sheet.rows, contextAt(now));
+			const drafts = draftRowsOf(sheet.rows, contextAt(now), sheet.dateOrder);
 			const lookups = timeImportLookupsOf(drafts);
 			const logsByLookup = await readRecordedLogs(queryClient, lookups);
 			return checkedRowsOf({ rows: drafts, logsByLookup, now });

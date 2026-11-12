@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from 'react';
 import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
+import type { DateOrder } from '@/core/lib/utils/time-import-cells';
 import {
 	rowStatusOf,
 	type TimeImportProblem,
@@ -27,6 +28,8 @@ export const FILE_NAME_TEXT = '[overflow-wrap:anywhere]';
 /** What a cell looks like, shown next to the rule that reads it. Format samples, the same in every language. */
 export const TIME_IMPORT_EXAMPLES = {
 	date: '2026-11-03',
+	dayFirst: '03/11/2026',
+	monthFirst: '11/03/2026',
 	startTime: '09:30',
 	startTimeMeridiem: '9:30 AM',
 	endTime: '17:45',
@@ -37,6 +40,12 @@ export const TIME_IMPORT_EXAMPLES = {
 	yes: 'yes',
 	no: 'no'
 } as const;
+
+const DATE_UNREADABLE_KEYS: Readonly<Record<DateOrder, DottedLanguageObjectStringPaths>> = {
+	yearFirst: 'timeImport.problems.DATE_UNREADABLE',
+	dayFirst: 'timeImport.mapping.problems.DATE_UNREADABLE_DAY_FIRST',
+	monthFirst: 'timeImport.mapping.problems.DATE_UNREADABLE_MONTH_FIRST'
+};
 
 const STATUS_KEYS: Readonly<Record<TimeImportRowStatus, DottedLanguageObjectStringPaths>> = {
 	ready: 'timeImport.status.READY',
@@ -112,13 +121,19 @@ export function useTimeImportCopy() {
 				case 'extraCells':
 					return t('timeImport.problems.EXTRA_CELLS');
 				case 'dateUnreadable':
-					return t('timeImport.problems.DATE_UNREADABLE', TIME_IMPORT_EXAMPLES);
+					return t(DATE_UNREADABLE_KEYS[problem.order], TIME_IMPORT_EXAMPLES);
 				case 'startUnreadable':
 					return t('timeImport.problems.START_UNREADABLE', TIME_IMPORT_EXAMPLES);
+				case 'startDayMismatch':
+					return t('timeImport.mapping.problems.START_DAY_MISMATCH');
 				case 'endMissing':
 					return t('timeImport.problems.END_MISSING');
 				case 'endUnreadable':
 					return t('timeImport.problems.END_UNREADABLE', TIME_IMPORT_EXAMPLES);
+				case 'endDateUnreadable':
+					return t('timeImport.mapping.problems.END_DATE_UNREADABLE');
+				case 'endDayMismatch':
+					return t('timeImport.mapping.problems.END_DAY_MISMATCH');
 				case 'durationUnreadable':
 					return t('timeImport.problems.DURATION_UNREADABLE', TIME_IMPORT_EXAMPLES);
 				case 'endNotAfterStart':

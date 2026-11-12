@@ -1,4 +1,5 @@
 import { parseCsv } from '@/core/lib/utils/csv-parse';
+import type { DateOrder } from '@/core/lib/utils/time-import-cells';
 
 export const TIME_IMPORT_MAX_BYTES = 1024 * 1024;
 
@@ -79,6 +80,7 @@ export interface TimeImportSheet {
 	rows: TimeImportSheetRow[];
 	/** The headers of the file the import does not read, as typed. */
 	ignoredHeaders: string[];
+	dateOrder: DateOrder;
 }
 
 export interface TimeImportRecord {

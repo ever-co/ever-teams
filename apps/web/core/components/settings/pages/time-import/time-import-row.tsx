@@ -31,11 +31,15 @@ function filledPartsOf(parts: ReadonlyArray<string | null>): string[] {
 	return parts.filter((part): part is string => Boolean(part));
 }
 
-/** The cells as the file has them, for a row whose date or times could not be read. */
+/**
+ * The cells as the file has them, for a row whose date or times could not be read. A column read for two fields,
+ * a date and a time in one cell, is shown once.
+ */
 function typedWhenOf(cells: TimeImportCells): string {
 	const typedEnd = cells.endTime || cells.duration;
-	const parts = filledPartsOf([cells.date, cells.startTime, typedEnd]);
-	return parts.join(PART_SEPARATOR);
+	const parts = filledPartsOf([cells.date, cells.startTime, cells.endDate, typedEnd]);
+	const shownParts = parts.filter((part, index) => part !== parts[index - 1]);
+	return shownParts.join(PART_SEPARATOR);
 }
 
 function typedDetailsOf(cells: TimeImportCells): string {
