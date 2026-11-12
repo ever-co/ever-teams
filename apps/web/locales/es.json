@@ -5509,7 +5509,7 @@
 	},
 	"shortcuts": {
 		"TITLE": "Atajos de teclado",
-		"DESCRIPTION": "Las teclas de cada área. Las letras siguen la tecla física, así que funcionan en cualquier distribución.",
+		"DESCRIPTION": "Las teclas que funcionan en la aplicación, por área.",
 		"DESCRIPTION_REBIND": "Las teclas de cada área. Cambia una grabando teclas nuevas; el cambio te sigue en todos tus dispositivos.",
 		"NONE": "Ninguno",
 		"THEN": "luego",
@@ -5573,10 +5573,20 @@
 			"searchProjects": "Buscar en los proyectos",
 			"searchTeams": "Buscar en los equipos",
 			"themeToggle": "Cambiar entre claro y oscuro",
-			"taskProject": "Cambiar el proyecto"
+			"taskProject": "Cambiar el proyecto",
+			"sidebarToggle": "Mostrar u ocultar la barra lateral",
+			"taskSearchFocus": "Buscar en la lista"
 		},
 		"CHAT_SINGLE_KEY": "Una tecla del chat es una sola tecla, no una secuencia.",
-		"CHAT_TAKEN": "El chat ya usa esa tecla (formato, envío, movimiento o desplazamiento)."
+		"CHAT_TAKEN": "El chat ya usa esa tecla (formato, envío, movimiento o desplazamiento).",
+		"OR": "o",
+		"groups": {
+			"general": "General",
+			"timer": "Temporizador",
+			"tasks": "Tareas",
+			"navigation": "Navegación",
+			"chat": "Chat"
+		}
 	},
 	"realtime": {
 		"RECONNECTING": "Reconectando…"

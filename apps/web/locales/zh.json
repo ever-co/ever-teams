@@ -5509,7 +5509,7 @@
 	},
 	"shortcuts": {
 		"TITLE": "键盘快捷键",
-		"DESCRIPTION": "各区域的按键。字母按物理键位匹配，因此在任何布局下都可用。",
+		"DESCRIPTION": "应用中可用的按键，按区域列出。",
 		"DESCRIPTION_REBIND": "各区域的按键。录入新按键即可更改；更改会在你的所有设备间同步。",
 		"NONE": "无",
 		"THEN": "然后",
@@ -5573,10 +5573,20 @@
 			"searchProjects": "搜索项目",
 			"searchTeams": "搜索团队",
 			"themeToggle": "在浅色与深色之间切换",
-			"taskProject": "更改项目"
+			"taskProject": "更改项目",
+			"sidebarToggle": "显示或隐藏侧边栏",
+			"taskSearchFocus": "在列表中搜索"
 		},
 		"CHAT_SINGLE_KEY": "聊天的快捷键只能是一个按键，不能是按键序列。",
-		"CHAT_TAKEN": "聊天已在使用此按键（格式、发送、移动或滚动）。"
+		"CHAT_TAKEN": "聊天已在使用此按键（格式、发送、移动或滚动）。",
+		"OR": "或",
+		"groups": {
+			"general": "常规",
+			"timer": "计时器",
+			"tasks": "任务",
+			"navigation": "导航",
+			"chat": "聊天"
+		}
 	},
 	"realtime": {
 		"RECONNECTING": "正在重新连接…"

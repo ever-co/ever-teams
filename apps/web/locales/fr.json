@@ -5509,7 +5509,7 @@
 	},
 	"shortcuts": {
 		"TITLE": "Raccourcis clavier",
-		"DESCRIPTION": "Les touches de chaque zone. Les lettres suivent la touche physique, elles fonctionnent donc sur toute disposition.",
+		"DESCRIPTION": "Les touches qui fonctionnent dans l'application, par zone.",
 		"DESCRIPTION_REBIND": "Les touches de chaque zone. Changez-en une en enregistrant de nouvelles touches ; le changement vous suit sur tous vos appareils.",
 		"NONE": "Aucun",
 		"THEN": "puis",
@@ -5573,10 +5573,20 @@
 			"searchProjects": "Rechercher dans les projets",
 			"searchTeams": "Rechercher dans les équipes",
 			"themeToggle": "Basculer entre clair et sombre",
-			"taskProject": "Changer le projet"
+			"taskProject": "Changer le projet",
+			"sidebarToggle": "Afficher ou masquer la barre latérale",
+			"taskSearchFocus": "Rechercher dans la liste"
 		},
 		"CHAT_SINGLE_KEY": "Une touche du chat est une seule touche, pas une séquence.",
-		"CHAT_TAKEN": "Le chat utilise déjà cette touche (mise en forme, envoi, déplacement ou défilement)."
+		"CHAT_TAKEN": "Le chat utilise déjà cette touche (mise en forme, envoi, déplacement ou défilement).",
+		"OR": "ou",
+		"groups": {
+			"general": "Général",
+			"timer": "Chronomètre",
+			"tasks": "Tâches",
+			"navigation": "Navigation",
+			"chat": "Chat"
+		}
 	},
 	"realtime": {
 		"RECONNECTING": "Reconnexion…"

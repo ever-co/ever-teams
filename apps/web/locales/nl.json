@@ -5509,7 +5509,7 @@
 	},
 	"shortcuts": {
 		"TITLE": "Sneltoetsen",
-		"DESCRIPTION": "De toetsen van elk gebied. Letters volgen de fysieke toets, dus ze werken op elke indeling.",
+		"DESCRIPTION": "De toetsen die in de app werken, per gebied.",
 		"DESCRIPTION_REBIND": "De toetsen van elk gebied. Wijzig er een door nieuwe toetsen op te nemen; de wijziging volgt je op al je apparaten.",
 		"NONE": "Geen",
 		"THEN": "dan",
@@ -5573,10 +5573,20 @@
 			"searchProjects": "Projecten doorzoeken",
 			"searchTeams": "Teams doorzoeken",
 			"themeToggle": "Wisselen tussen licht en donker",
-			"taskProject": "Project wijzigen"
+			"taskProject": "Project wijzigen",
+			"sidebarToggle": "Zijbalk tonen of verbergen",
+			"taskSearchFocus": "In de lijst zoeken"
 		},
 		"CHAT_SINGLE_KEY": "Een chattoets is één toets, geen reeks.",
-		"CHAT_TAKEN": "De chat gebruikt die toets al (opmaak, verzenden, verplaatsen of scrollen)."
+		"CHAT_TAKEN": "De chat gebruikt die toets al (opmaak, verzenden, verplaatsen of scrollen).",
+		"OR": "of",
+		"groups": {
+			"general": "Algemeen",
+			"timer": "Timer",
+			"tasks": "Taken",
+			"navigation": "Navigatie",
+			"chat": "Chat"
+		}
 	},
 	"realtime": {
 		"RECONNECTING": "Opnieuw verbinden…"

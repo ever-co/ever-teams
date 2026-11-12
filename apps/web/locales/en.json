@@ -5509,7 +5509,7 @@
 	},
 	"shortcuts": {
 		"TITLE": "Keyboard shortcuts",
-		"DESCRIPTION": "The keys of every area. Letters match the physical key, so they work on any layout.",
+		"DESCRIPTION": "The keys that work in the app, by area.",
 		"DESCRIPTION_REBIND": "The keys of every area. Change one by recording new keys; the change follows you across devices.",
 		"NONE": "None",
 		"THEN": "then",
@@ -5573,10 +5573,20 @@
 			"searchProjects": "Search the projects",
 			"searchTeams": "Search the teams",
 			"themeToggle": "Switch between light and dark",
-			"taskProject": "Change the project"
+			"taskProject": "Change the project",
+			"sidebarToggle": "Show or hide the sidebar",
+			"taskSearchFocus": "Search in the list"
 		},
 		"CHAT_SINGLE_KEY": "A chat key is one key, not a sequence.",
-		"CHAT_TAKEN": "The chat already uses that key (formatting, sending, moving or scrolling)."
+		"CHAT_TAKEN": "The chat already uses that key (formatting, sending, moving or scrolling).",
+		"OR": "or",
+		"groups": {
+			"general": "General",
+			"timer": "Timer",
+			"tasks": "Tasks",
+			"navigation": "Navigation",
+			"chat": "Chat"
+		}
 	},
 	"realtime": {
 		"RECONNECTING": "Reconnecting…"
