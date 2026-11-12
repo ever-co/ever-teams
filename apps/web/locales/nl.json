@@ -2508,7 +2508,19 @@
 			"SEARCH_PROJECT": "Naar een project verplaatsen…",
 			"LAYOUT": "Weergave",
 			"LAYOUT_LIST": "Lijst",
-			"LAYOUT_BOARD": "Bord"
+			"LAYOUT_BOARD": "Bord",
+			"LAYOUT_TIMELINE": "Tijdlijn",
+			"TIMELINE_ZOOM": "Zoom",
+			"TIMELINE_ZOOM_WEEKS": "Weken",
+			"TIMELINE_ZOOM_MONTHS": "Maanden",
+			"TIMELINE_EMPTY": "Geen taken in deze weergave.",
+			"TIMELINE_UNSCHEDULED": "Zonder datums ({count})",
+			"TIMELINE_RANGE": "{start} – {end}",
+			"TIMELINE_DUE_ONLY": "alleen einddatum",
+			"TIMELINE_START_ONLY": "alleen startdatum",
+			"TIMELINE_INVALID_RANGE": "einddatum vóór de start",
+			"TIMELINE_OVERDUE": "te laat",
+			"TIMELINE_DRAG_HINT": "Sleep om de datums te wijzigen, of Alt + pijltjes (Alt + Shift + pijltjes: de einddatum)."
 		},
 		"joinTeam": {
 			"TITLE": "Lid worden van een team",
@@ -5511,6 +5523,15 @@
 		"VIEW_IMAGE": "{name} bekijken",
 		"OPEN_ORIGINAL": "Origineel openen",
 		"EMOJI_SUGGESTIONS": "Emoji",
+		"APP_BADGE": "App",
+		"APP_PENDING": "Bezig met verzenden naar de app…",
+		"APP_DONE": "Naar de app verzonden",
+		"APP_FAILED": "De app is niet bereikbaar",
+		"APP_CALLBACK_FAILED": "De app heeft niet geantwoord. Probeer het zo meteen opnieuw.",
+		"APP_CLICK_FAILED": "De klik kon niet worden verzonden.",
+		"APP_NO_INTERACTIONS": "Deze app neemt geen klikken meer aan.",
+		"APP_GONE": "Deze knop is niet meer beschikbaar.",
+		"APP_NO_ANSWER_YET": "De app heeft nog niet geantwoord. Je kunt opnieuw klikken.",
 		"LINK_PREVIEW_LABEL": "{title} ({site}, opent in een nieuw tabblad)",
 		"LINK_PREVIEW_SITE_LABEL": "{site} (opent in een nieuw tabblad)"
 	},
@@ -5720,6 +5741,7 @@
 		"PALETTE_HEADING": "Pagina’s",
 		"EXPORT_UNSAVED": "Je laatste wijzigingen zijn nog niet opgeslagen, dus er is niets geëxporteerd. Probeer het opnieuw zodra de pagina Opgeslagen toont.",
 		"COMMENT_ANCHOR_UNSAVED": "De pagina kon niet worden opgeslagen, dus de opmerking is niet geplaatst. Je tekst blijft bewaard.",
+		"BLOCK_LINK_UNSAVED": "De pagina kon niet worden opgeslagen, dus de link is niet gekopieerd. Probeer het opnieuw zodra de verbinding terug is of de pagina is opgeslagen.",
 		"COPY_ERROR": "De link kon niet worden gekopieerd."
 	},
 	"whatsNew": {

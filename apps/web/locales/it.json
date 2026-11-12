@@ -2508,7 +2508,19 @@
 			"SEARCH_PROJECT": "Sposta in un progetto…",
 			"LAYOUT": "Layout",
 			"LAYOUT_LIST": "Elenco",
-			"LAYOUT_BOARD": "Bacheca"
+			"LAYOUT_BOARD": "Bacheca",
+			"LAYOUT_TIMELINE": "Cronologia",
+			"TIMELINE_ZOOM": "Zoom",
+			"TIMELINE_ZOOM_WEEKS": "Settimane",
+			"TIMELINE_ZOOM_MONTHS": "Mesi",
+			"TIMELINE_EMPTY": "Nessuna attività in questa vista.",
+			"TIMELINE_UNSCHEDULED": "Senza date ({count})",
+			"TIMELINE_RANGE": "{start} – {end}",
+			"TIMELINE_DUE_ONLY": "solo scadenza",
+			"TIMELINE_START_ONLY": "solo data di inizio",
+			"TIMELINE_INVALID_RANGE": "scade prima di iniziare",
+			"TIMELINE_OVERDUE": "in ritardo",
+			"TIMELINE_DRAG_HINT": "Trascina per cambiare le date, oppure Alt + frecce (Alt + Maiusc + frecce: la scadenza)."
 		},
 		"joinTeam": {
 			"TITLE": "Unisciti a un team",
@@ -5511,6 +5523,15 @@
 		"VIEW_IMAGE": "Visualizza {name}",
 		"OPEN_ORIGINAL": "Apri l'originale",
 		"EMOJI_SUGGESTIONS": "Emoji",
+		"APP_BADGE": "App",
+		"APP_PENDING": "Invio all’app…",
+		"APP_DONE": "Inviato all’app",
+		"APP_FAILED": "Impossibile raggiungere l’app",
+		"APP_CALLBACK_FAILED": "L’app non ha risposto. Riprova tra un momento.",
+		"APP_CLICK_FAILED": "Impossibile inviare il clic.",
+		"APP_NO_INTERACTIONS": "Questa app non accetta più clic.",
+		"APP_GONE": "Questo pulsante non è più disponibile.",
+		"APP_NO_ANSWER_YET": "L’app non ha ancora risposto. Puoi fare di nuovo clic.",
 		"LINK_PREVIEW_LABEL": "{title} ({site}, si apre in una nuova scheda)",
 		"LINK_PREVIEW_SITE_LABEL": "{site} (si apre in una nuova scheda)"
 	},
@@ -5720,6 +5741,7 @@
 		"PALETTE_HEADING": "Pagine",
 		"EXPORT_UNSAVED": "Le ultime modifiche non sono ancora salvate, quindi non è stato esportato nulla. Riprova quando la pagina indica Salvato.",
 		"COMMENT_ANCHOR_UNSAVED": "Non è stato possibile salvare la pagina, quindi il commento non è stato pubblicato. Il tuo testo resta.",
+		"BLOCK_LINK_UNSAVED": "Non è stato possibile salvare la pagina, quindi il link non è stato copiato. Riprova quando la connessione torna o la pagina è salvata.",
 		"COPY_ERROR": "Non è stato possibile copiare il link."
 	},
 	"whatsNew": {

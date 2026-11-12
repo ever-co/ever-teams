@@ -32,6 +32,7 @@ import { GROUP_HEIGHT, ROW_HEIGHT, TEAM_TASK_LIST_MIN_WIDTH, type TeamTasksGrid 
 import { TeamTasksListProvider, type TeamTaskPickerKind, type TeamTasksListActions } from './team-tasks-list-context';
 import { TeamTaskRow } from './team-task-row';
 import { TeamTasksBoard } from './team-tasks-board';
+import { TeamTasksTimelineView } from './team-tasks-timeline';
 import { cellAppliesToSelection, pickerOf } from './team-task-picker-commands';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { TeamTasksGroupHeader } from './team-tasks-group-header';
@@ -177,12 +178,15 @@ interface TeamTasksListProps {
 
 /**
  * The tasks of the page: rows, or with the saved-views feature and a board layout, cards in one lane per status (the
- * Kanban page's board) on the same tasks, selection and commands.
+ * Kanban page's board), or with a timeline layout, bars on a calendar, on the same tasks, selection and commands.
  */
 export function TeamTasksList(props: Readonly<TeamTasksListProps>) {
-	const isBoard = props.view.settings.layout === 'board' && isTaskViewsEnabled();
-	if (isBoard) {
+	const layout = isTaskViewsEnabled() ? props.view.settings.layout : undefined;
+	if (layout === 'board') {
 		return <TeamTasksBoard view={props.view} commands={props.commands} />;
+	}
+	if (layout === 'timeline') {
+		return <TeamTasksTimelineView view={props.view} commands={props.commands} />;
 	}
 	return <TeamTasksRows {...props} />;
 }

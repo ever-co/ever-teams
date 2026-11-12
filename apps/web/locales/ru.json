@@ -2508,7 +2508,19 @@
 			"SEARCH_PROJECT": "Перенести в проект…",
 			"LAYOUT": "Вид",
 			"LAYOUT_LIST": "Список",
-			"LAYOUT_BOARD": "Доска"
+			"LAYOUT_BOARD": "Доска",
+			"LAYOUT_TIMELINE": "Временная шкала",
+			"TIMELINE_ZOOM": "Масштаб",
+			"TIMELINE_ZOOM_WEEKS": "Недели",
+			"TIMELINE_ZOOM_MONTHS": "Месяцы",
+			"TIMELINE_EMPTY": "В этом представлении нет задач.",
+			"TIMELINE_UNSCHEDULED": "Без дат ({count})",
+			"TIMELINE_RANGE": "{start} – {end}",
+			"TIMELINE_DUE_ONLY": "только срок",
+			"TIMELINE_START_ONLY": "только дата начала",
+			"TIMELINE_INVALID_RANGE": "срок раньше начала",
+			"TIMELINE_OVERDUE": "просрочена",
+			"TIMELINE_DRAG_HINT": "Перетащите, чтобы изменить даты, или Alt + стрелки (Alt + Shift + стрелки: срок)."
 		},
 		"joinTeam": {
 			"TITLE": "Присоединиться к команде",
@@ -5511,6 +5523,15 @@
 		"VIEW_IMAGE": "Посмотреть {name}",
 		"OPEN_ORIGINAL": "Открыть оригинал",
 		"EMOJI_SUGGESTIONS": "Эмодзи",
+		"APP_BADGE": "Приложение",
+		"APP_PENDING": "Отправка в приложение…",
+		"APP_DONE": "Отправлено в приложение",
+		"APP_FAILED": "Приложение недоступно",
+		"APP_CALLBACK_FAILED": "Приложение не ответило. Попробуйте ещё раз чуть позже.",
+		"APP_CLICK_FAILED": "Не удалось отправить нажатие.",
+		"APP_NO_INTERACTIONS": "Это приложение больше не принимает нажатия.",
+		"APP_GONE": "Эта кнопка больше недоступна.",
+		"APP_NO_ANSWER_YET": "Приложение ещё не ответило. Можно нажать ещё раз.",
 		"LINK_PREVIEW_LABEL": "{title} ({site}, откроется в новой вкладке)",
 		"LINK_PREVIEW_SITE_LABEL": "{site} (откроется в новой вкладке)"
 	},
@@ -5720,6 +5741,7 @@
 		"PALETTE_HEADING": "Страницы",
 		"EXPORT_UNSAVED": "Последние изменения ещё не сохранены, поэтому ничего не экспортировано. Повторите, когда на странице появится «Сохранено».",
 		"COMMENT_ANCHOR_UNSAVED": "Не удалось сохранить страницу, поэтому комментарий не опубликован. Ваш текст сохранён.",
+		"BLOCK_LINK_UNSAVED": "Не удалось сохранить страницу, поэтому ссылка не скопирована. Повторите, когда соединение восстановится или страница сохранится.",
 		"COPY_ERROR": "Не удалось скопировать ссылку."
 	},
 	"whatsNew": {

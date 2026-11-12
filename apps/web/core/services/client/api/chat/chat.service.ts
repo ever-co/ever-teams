@@ -14,6 +14,8 @@ import type {
 	IChatEvent,
 	IChatFilesQuery,
 	IChatFilesResult,
+	IChatInteraction,
+	IChatInteractionResult,
 	IChatLinkPreview,
 	IChatMemberState,
 	IChatMemberStateInput,
@@ -161,6 +163,16 @@ class ChatService extends APIService {
 	};
 
 	/**
+	 * The picture of a link's preview as the platform serves it (`url` is the link, not the picture), or null when the
+	 * link has none (204). Pictures off on the platform (404) and its pace (429, 503) are errors with their status.
+	 */
+	linkPreviewImage = async (url: string, signal?: AbortSignal): Promise<Blob | null> => {
+		const response = await this.get<Blob>('/chat/link-preview/image', { signal, params: { url }, responseType: 'blob' });
+		if (response.status === 204 || !response.data || response.data.size === 0) return null;
+		return response.data;
+	};
+
+	/**
 	 * Uploads the files of a message to the organization's documents (the platform's own upload path). They are the
 	 * sender's private files, kept out of the knowledge base and of AI classification: the conversation shows them to
 	 * its members through the message. The send then names the documents.
@@ -206,6 +218,18 @@ class ChatService extends APIService {
 	/** A task from a message; the message keeps a `created` reference to it. Needs the task permission as well. */
 	createTask = async (messageId: string, input: IChatCreateTaskInput): Promise<IChatCreateTaskResult> => {
 		const response = await this.post<IChatCreateTaskResult>(`/chat/messages/${path(messageId)}/create-task`, input, undefined, false);
+		return response.data;
+	};
+
+	/** Clicks a button of an app message: the platform calls the app back; its reply, if any, comes back as the message. */
+	interact = async (messageId: string, actionId: string, blockId?: string | null): Promise<IChatInteractionResult> => {
+		const response = await this.post<IChatInteractionResult>(`/chat/messages/${path(messageId)}/interactions`, blockId ? { actionId, blockId } : { actionId }, undefined, false);
+		return response.data;
+	};
+
+	/** The state of one of my clicks (while the app's callback is retried). */
+	interaction = async (interactionId: string, signal?: AbortSignal): Promise<IChatInteraction> => {
+		const response = await this.get<IChatInteraction>(`/chat/interactions/${path(interactionId)}`, { signal });
 		return response.data;
 	};
 

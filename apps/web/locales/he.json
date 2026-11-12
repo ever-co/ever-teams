@@ -2508,7 +2508,19 @@
 			"SEARCH_PROJECT": "העברה לפרויקט…",
 			"LAYOUT": "פריסה",
 			"LAYOUT_LIST": "רשימה",
-			"LAYOUT_BOARD": "לוח"
+			"LAYOUT_BOARD": "לוח",
+			"LAYOUT_TIMELINE": "ציר זמן",
+			"TIMELINE_ZOOM": "זום",
+			"TIMELINE_ZOOM_WEEKS": "שבועות",
+			"TIMELINE_ZOOM_MONTHS": "חודשים",
+			"TIMELINE_EMPTY": "אין משימות בתצוגה זו.",
+			"TIMELINE_UNSCHEDULED": "ללא תאריכים ({count})",
+			"TIMELINE_RANGE": "{start} – {end}",
+			"TIMELINE_DUE_ONLY": "תאריך יעד בלבד",
+			"TIMELINE_START_ONLY": "תאריך התחלה בלבד",
+			"TIMELINE_INVALID_RANGE": "תאריך היעד לפני ההתחלה",
+			"TIMELINE_OVERDUE": "באיחור",
+			"TIMELINE_DRAG_HINT": "גררו כדי לשנות את התאריכים, או Alt + חיצים (Alt + Shift + חיצים: תאריך היעד)."
 		},
 		"joinTeam": {
 			"TITLE": "הצטרפות לצוות",
@@ -5511,6 +5523,15 @@
 		"VIEW_IMAGE": "הצגת {name}",
 		"OPEN_ORIGINAL": "פתיחת המקור",
 		"EMOJI_SUGGESTIONS": "אימוג׳י",
+		"APP_BADGE": "אפליקציה",
+		"APP_PENDING": "שולח לאפליקציה…",
+		"APP_DONE": "נשלח לאפליקציה",
+		"APP_FAILED": "לא ניתן להגיע לאפליקציה",
+		"APP_CALLBACK_FAILED": "האפליקציה לא ענתה. נסו שוב בעוד רגע.",
+		"APP_CLICK_FAILED": "לא ניתן היה לשלוח את הלחיצה.",
+		"APP_NO_INTERACTIONS": "האפליקציה הזו כבר לא מקבלת לחיצות.",
+		"APP_GONE": "הכפתור הזה כבר לא זמין.",
+		"APP_NO_ANSWER_YET": "האפליקציה עדיין לא השיבה. אפשר ללחוץ שוב.",
 		"LINK_PREVIEW_LABEL": "{title} ({site}, נפתח בכרטיסייה חדשה)",
 		"LINK_PREVIEW_SITE_LABEL": "{site} (נפתח בכרטיסייה חדשה)"
 	},
@@ -5720,6 +5741,7 @@
 		"PALETTE_HEADING": "דפים",
 		"EXPORT_UNSAVED": "השינויים האחרונים שלך עדיין לא נשמרו, ולכן לא יוצא דבר. נסו שוב כשהדף יציג \"נשמר\".",
 		"COMMENT_ANCHOR_UNSAVED": "לא ניתן היה לשמור את הדף, ולכן התגובה לא פורסמה. הטקסט שלך נשמר.",
+		"BLOCK_LINK_UNSAVED": "לא ניתן היה לשמור את הדף, ולכן הקישור לא הועתק. נסו שוב כשהחיבור יחזור או כשהדף יישמר.",
 		"COPY_ERROR": "לא ניתן היה להעתיק את הקישור."
 	},
 	"whatsNew": {
