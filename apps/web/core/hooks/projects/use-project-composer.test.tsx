@@ -37,6 +37,25 @@ jest.mock('@/core/hooks/organizations/projects/use-edit-organization-project', (
 	useEditOrganizationProject: () => ({ editOrganizationProject: jest.fn(), editOrganizationProjectLoading: false })
 }));
 
+// The form's Client field (#5082) reads and writes clients; these tests are about the budget's currency
+jest.mock('@/core/hooks/clients/use-client-access', () => ({
+	useClientAccess: () => ({ canCreate: false, canEdit: false, canArchive: false })
+}));
+jest.mock('@/core/hooks/clients/use-clients-query', () => ({
+	useClientsQuery: () => ({
+		clients: [],
+		activeClients: [],
+		archivedClients: [],
+		isLoaded: true,
+		isLoading: false,
+		isError: false,
+		refetch: jest.fn()
+	})
+}));
+jest.mock('@/core/hooks/clients/use-client-mutations', () => ({
+	useClientMutations: () => ({ createClient: jest.fn(), isCreating: false })
+}));
+
 import { useProjectComposer, type ProjectComposerMode } from './use-project-composer';
 
 const team = { id: 'team-a', name: 'Core', members: [] };
