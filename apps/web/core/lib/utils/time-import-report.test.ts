@@ -85,6 +85,22 @@ describe('the report of a time import', () => {
 		});
 	});
 
+	it('writes a separate end date before the end time, so an entry that ends the next day comes back as one', () => {
+		const overnight = lineOf({ startTime: '22:00', endDate: '2026-11-04', endTime: '01:30' });
+		const oneColumn = lineOf({ endDate: '2026-11-04 01:30', endTime: '2026-11-04 01:30' }, 3);
+		const sameDay = lineOf({}, 4);
+		const report = csvOf([overnight, oneColumn, sameDay], timeImportReportCsvColumnsOf(false));
+		const [, overnightLine, oneColumnLine, sameDayLine] = report.split('\r\n');
+
+		expect(overnightLine).toContain(',22:00,2026-11-04 01:30,');
+		expect(oneColumnLine).toContain(',09:00,2026-11-04 01:30,');
+		expect(sameDayLine).toContain(',09:00,10:30,');
+		expect(timeImportReadingOf(report)).toMatchObject({
+			kind: 'sheet',
+			sheet: { rows: [{ cells: { endTime: '2026-11-04 01:30' } }, {}, { cells: { endTime: '10:30' } }] }
+		});
+	});
+
 	it('is named after the local day of the import', () => {
 		expect(timeImportReportFileNameOf(new Date(2026, 10, 12, 23, 30))).toBe('time-import-report-2026-11-12.csv');
 	});
