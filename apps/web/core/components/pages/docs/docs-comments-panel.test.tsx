@@ -2,6 +2,8 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { toast } from 'sonner';
 import type { DocsCommentsState } from '@/core/hooks/docs/use-docs-comments';
+import type { DocsThreadPlace } from '@/core/lib/utils/docs-comment-anchors';
+import type { DocsCommentThread } from '@/core/lib/utils/docs-comments';
 import { DocsCommentsPanel, type DocsPendingAnchor } from './docs-comments-panel';
 
 jest.mock('next-intl', () => ({
@@ -56,12 +58,18 @@ function commentsState(post: jest.Mock): DocsCommentsState {
 	} as unknown as DocsCommentsState;
 }
 
+/** Where a thread is: its block, or the page (no ranges in these tests). */
+function blockPlaceOf(thread: DocsCommentThread): DocsThreadPlace {
+	return { kind: thread.blockId ? 'block' : 'page', blockId: thread.blockId, start: null, end: null, text: null, position: null };
+}
+
 function renderPanel(pendingAnchor: DocsPendingAnchor | null, beforePost: jest.Mock, post: jest.Mock) {
 	return render(
 		<DocsCommentsPanel
 			comments={commentsState(post)}
 			blockOrder={['b-1']}
 			blockText={() => 'Typed since the last save'}
+			placeOf={blockPlaceOf}
 			reader={{ employeeId: 'emp-1', userId: 'user-1' }}
 			activeThreadId={null}
 			activeThreadRequest={0}
@@ -102,7 +110,7 @@ describe('DocsCommentsPanel, a new comment on a block', () => {
 
 		await clickPost();
 
-		expect(post).toHaveBeenCalledWith({ body: 'On this block', blockId: 'b-1', mentionEmployeeIds: [] });
+		expect(post).toHaveBeenCalledWith({ body: 'On this block', blockId: 'b-1', mentionEmployeeIds: [], range: null });
 	});
 
 	it('posts once, however often it is sent while the save is waited for', async () => {
@@ -127,6 +135,17 @@ describe('DocsCommentsPanel, a new comment on a block', () => {
 		expect(button.disabled).toBe(false);
 	});
 
+	it('posts a thread made on selected text with its range', async () => {
+		const beforePost = jest.fn().mockResolvedValue(true);
+		const post = jest.fn().mockResolvedValue({ id: 'c-1' });
+		const range = { blockId: 'b-1', start: 6, end: 11, quote: 'since', prefix: 'Typed ', suffix: ' the last save' };
+		renderPanel({ blockId: 'b-1', quote: 'since', created: false, range }, beforePost, post);
+
+		await clickPost();
+
+		expect(post).toHaveBeenCalledWith({ body: 'On this block', blockId: 'b-1', mentionEmployeeIds: [], range });
+	});
+
 	it('posts a comment on the page without waiting for a save', async () => {
 		const beforePost = jest.fn().mockResolvedValue(false);
 		const post = jest.fn().mockResolvedValue({ id: 'c-1' });
@@ -135,6 +154,6 @@ describe('DocsCommentsPanel, a new comment on a block', () => {
 		await clickPost();
 
 		expect(beforePost).not.toHaveBeenCalled();
-		expect(post).toHaveBeenCalledWith({ body: 'On this block', blockId: null, mentionEmployeeIds: [] });
+		expect(post).toHaveBeenCalledWith({ body: 'On this block', blockId: null, mentionEmployeeIds: [], range: null });
 	});
 });

@@ -93,6 +93,37 @@ describe('the Docs layer of the editor', () => {
 		editor.destroy();
 	});
 
+	it('highlights the text of a thread made on a range, found again after an edit, and its marker opens that thread', () => {
+		jest.useFakeTimers();
+		const onOpenThread = jest.fn();
+		const editor = editorWith(
+			{ type: 'doc', content: [{ type: 'paragraph', attrs: { blockId: A }, content: [{ type: 'text', text: 'The quick brown fox jumps' }] }] },
+			{ onOpenThread }
+		);
+		const anchor = { blockId: A, start: 10, end: 19, quote: 'brown fox', prefix: 'The quick ', suffix: ' jumps' };
+		setCommentMarks(editor.view, { open: new Set(), active: null, ranges: [{ threadId: 'thread-1', anchor }], activeThread: 'thread-1' });
+		const range = () => editor.view.dom.querySelector<HTMLElement>('[data-thread-range="thread-1"]');
+		expect(range()?.textContent).toBe('brown fox');
+		expect(range()?.className).toContain('docs-comment-range-active');
+		// A range without its own tint: the block is not marked as a whole.
+		expect(editor.view.dom.querySelector('.docs-commented-block')).toBeNull();
+		editor.view.dom.querySelector<HTMLButtonElement>('.docs-comment-marker')?.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		expect(onOpenThread).toHaveBeenCalledWith(A, 'thread-1');
+
+		// Typed before the range: the highlight moves with the text, and the range is found again a moment later.
+		editor.commands.insertContentAt(1, 'Oh, ');
+		expect(range()?.textContent).toBe('brown fox');
+		jest.advanceTimersByTime(500);
+		expect(range()?.textContent).toBe('brown fox');
+		// The text is gone: the thread falls back to its block (a tint), and nothing is highlighted.
+		editor.commands.setContent({ type: 'doc', content: [{ type: 'paragraph', attrs: { blockId: A }, content: [{ type: 'text', text: 'Rewritten' }] }] });
+		jest.advanceTimersByTime(500);
+		expect(range()).toBeNull();
+		expect(editor.view.dom.querySelector('.docs-commented-block')?.textContent).toContain('Rewritten');
+		editor.destroy();
+		jest.useRealTimers();
+	});
+
 	it("shows a task link's number and status as a chip that opens the task", () => {
 		const onOpenTask = jest.fn();
 		const editor = editorWith({ type: 'doc', content: [{ type: 'paragraph', content: [link('Fix login', `${ORIGIN}/task/${TASK}`)] }] }, { onOpenTask });

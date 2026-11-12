@@ -155,3 +155,45 @@ describe('docsService.exportSubtreeZip', () => {
 		expect(config).toMatchObject({ responseType: 'blob' });
 	});
 });
+
+describe('docsService comment anchors', () => {
+	afterEach(() => jest.restoreAllMocks());
+
+	it("reads the page's comment ranges with its scope", async () => {
+		const get = jest.spyOn(docsService, 'get').mockResolvedValue({ data: { documentId: 'p1', revision: 3, live: false, items: [] } } as never);
+
+		await expect(docsService.commentAnchors('p1')).resolves.toMatchObject({ revision: 3, items: [] });
+
+		expect(String(get.mock.calls[0][0]).split('?')[0]).toBe('/plugins/docs/documents/p1/comment-anchors');
+	});
+
+	it('sends the anchor fields only (no empty context, live ends together), with the scope the route accepts', async () => {
+		const put = jest.spyOn(docsService, 'put').mockResolvedValue({ data: { commentId: 'c/1' } } as never);
+
+		await docsService.setCommentAnchor('p1', 'c/1', {
+			blockId: 'b1',
+			start: 2,
+			end: 5,
+			quote: 'abc',
+			prefix: '',
+			suffix: 'x',
+			relativeStart: 'AAA=',
+			relativeEnd: null,
+			...({ position: { status: 'exact' }, id: 'a1' } as object)
+		});
+
+		const [url, body] = put.mock.calls[0];
+		expect(url).toBe('/plugins/docs/documents/p1/comments/c%2F1/anchor');
+		const { tenantId: _tenantId, organizationId: _organizationId, ...anchor } = body as Record<string, unknown>;
+		expect(anchor).toEqual({ blockId: 'b1', start: 2, end: 5, quote: 'abc', suffix: 'x' });
+		expect(Object.keys(body as object).sort()).toEqual(['blockId', 'end', 'organizationId', 'quote', 'start', 'suffix', 'tenantId']);
+	});
+
+	it("removes a comment's range", async () => {
+		const remove = jest.spyOn(docsService, 'delete').mockResolvedValue({ data: { removed: true } } as never);
+
+		await expect(docsService.removeCommentAnchor('p1', 'c1')).resolves.toBe(true);
+
+		expect(String(remove.mock.calls[0][0]).split('?')[0]).toBe('/plugins/docs/documents/p1/comments/c1/anchor');
+	});
+});

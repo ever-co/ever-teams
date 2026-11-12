@@ -1,15 +1,12 @@
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model';
 import type { EditorState } from '@tiptap/pm/state';
-import { absolutePositionToRelativePosition, ySyncPluginKey } from '@tiptap/y-tiptap';
-import type { Doc, XmlFragment } from 'yjs';
-import { encodeLiveAnchorPosition, liveAnchorResolverOf } from '@/core/lib/docs-live/anchor-resolver';
 import { commentAnchorInputOf, type DocsAnchorBlock } from '@/core/lib/utils/docs-comment-anchors';
 import type { IDocumentCommentAnchorInput } from '@/core/types/interfaces/common/docs';
 
 /**
  * Comment ranges in the editor's document: a block's text as the anchors count it (text nodes only), an editor
- * position as an offset into it and back, the selection as an anchor, and, in a live session, its ends as relative
- * positions of the shared document.
+ * position as an offset into it and back, and the selection as an anchor. In a live session its ends are relative
+ * positions of the shared document too (`docs-comment-live-range.ts`, which needs the editor's Yjs binding).
  */
 
 /** A block of the editor's document: its anchor, its text, and where it is. */
@@ -121,39 +118,4 @@ export function selectionCommentAnchor(state: EditorState, liveRange?: DocsLiveR
 		positionOfTextOffset(block.node, block.pos, endOffset, 'end')
 	);
 	return commentAnchorInputOf(block.blockId, editorBlockTextOf(block.node), startOffset, endOffset, relative ?? null);
-}
-
-interface SyncState {
-	type?: XmlFragment;
-	binding?: { mapping?: Map<unknown, unknown>; type?: XmlFragment } | null;
-}
-
-/**
- * The live relative positions of a range, when the editor is bound to a shared document (its sync plugin holds the
- * binding and its mapping); null otherwise. The positions are read back at once: ends that do not lead to the same
- * block and offsets (a binding not caught up yet) are not kept.
- */
-export function liveRelativeRangeOf(state: EditorState, doc: Doc | null | undefined): DocsLiveRelativeRange | null {
-	if (!doc) return null;
-	const sync = ySyncPluginKey.getState(state) as SyncState | undefined;
-	const mapping = sync?.binding?.mapping;
-	const fragment = sync?.type ?? sync?.binding?.type;
-	if (!mapping || !fragment || fragment.doc !== doc) return null;
-	const resolve = liveAnchorResolverOf(doc);
-	return (from, to) => {
-		try {
-			const relativeStart = encodeLiveAnchorPosition(absolutePositionToRelativePosition(from, fragment, mapping as never));
-			const relativeEnd = encodeLiveAnchorPosition(absolutePositionToRelativePosition(to, fragment, mapping as never));
-			const startBlock = blockAround(state, from);
-			const endBlock = blockAround(state, to);
-			const readStart = resolve(relativeStart);
-			const readEnd = resolve(relativeEnd);
-			if (!startBlock || !endBlock || !readStart || !readEnd) return null;
-			const sameStart = readStart.blockId === startBlock.blockId && readStart.offset === textOffsetInBlock(startBlock.node, startBlock.pos, from);
-			const sameEnd = readEnd.blockId === endBlock.blockId && readEnd.offset === textOffsetInBlock(endBlock.node, endBlock.pos, to);
-			return sameStart && sameEnd ? { relativeStart, relativeEnd } : null;
-		} catch {
-			return null;
-		}
-	};
 }
