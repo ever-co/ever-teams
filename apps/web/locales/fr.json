@@ -5734,5 +5734,68 @@
 		"ERROR": "Les dernières mises à jour n'ont pas pu être chargées.",
 		"RETRY": "Réessayer",
 		"ABOUT_LINK": "À propos de {appName}"
+	},
+	"clients": {
+		"TITLE": "Clients",
+		"COUNT": "{count, plural, one {# client} other {# clients}}",
+		"NEW_CLIENT": "Nouveau client",
+		"SEARCH_PLACEHOLDER": "Rechercher un client",
+		"SCOPE_LABEL": "Clients à afficher",
+		"SCOPE_ACTIVE": "Actifs",
+		"SCOPE_ARCHIVED": "Archivés",
+		"COLUMN_PROJECTS": "Projets",
+		"PROJECT_COUNT": "{count, plural, =0 {Aucun projet} one {# projet} other {# projets}}",
+		"ARCHIVED_ON": "Archivé le {date}",
+		"ACTIONS_FOR": "Actions pour {name}",
+		"EMPTY_TITLE": "Aucun client pour l'instant",
+		"EMPTY_MESSAGE": "Ajoutez les clients pour lesquels vous travaillez, puis donnez son client à chaque projet.",
+		"EMPTY_MESSAGE_READ_ONLY": "Les clients de cet espace de travail seront listés ici.",
+		"EMPTY_ARCHIVED_TITLE": "Aucun client archivé",
+		"EMPTY_ARCHIVED_MESSAGE": "Un client archivé est listé ici et peut être restauré.",
+		"NO_MATCH_TITLE": "Aucun client ne correspond",
+		"NO_MATCH_MESSAGE": "Modifiez ou effacez la recherche pour voir plus de clients.",
+		"CLEAR_SEARCH": "Effacer la recherche",
+		"ERROR_TITLE": "Les clients n'ont pas pu être chargés",
+		"ERROR_MESSAGE": "Vérifiez votre connexion, puis réessayez.",
+		"form": {
+			"CREATE_TITLE": "Nouveau client",
+			"EDIT_TITLE": "Modifier le client",
+			"NAME_PLACEHOLDER": "Entreprise ou personne",
+			"EMAIL_PLACEHOLDER": "facturation@entreprise.com",
+			"PHONE": "Téléphone",
+			"NOTES_PLACEHOLDER": "Ce que l'équipe doit savoir sur ce client",
+			"OPTIONAL": "facultatif",
+			"NAME_REQUIRED": "Saisissez le nom du client.",
+			"EMAIL_INVALID": "Saisissez une adresse e-mail valide ou laissez le champ vide.",
+			"CREATE": "Créer le client",
+			"SAVE_FAILED": "Le client n'a pas pu être enregistré. Réessayez."
+		},
+		"toasts": {
+			"CREATED": "{name} a été ajouté aux clients",
+			"SAVED": "{name} a été enregistré",
+			"ARCHIVED": "{name} a été archivé",
+			"RESTORED": "{name} a été restauré"
+		},
+		"archive": {
+			"TITLE": "Archiver {name} ?",
+			"KEEPS_PROJECTS": "Ses projets et le temps suivi sur ces projets restent tels quels.",
+			"LEAVES_PICKER": "Il n'est plus proposé comme client d'un projet.",
+			"CAN_RESTORE": "Vous pouvez le restaurer depuis la liste Archivés.",
+			"CONFIRM": "Archiver le client",
+			"FAILED": "Le client n'a pas pu être archivé. Réessayez."
+		},
+		"restore": {
+			"TITLE": "Restaurer {name} ?",
+			"BACK_IN_PICKER": "Il est de nouveau proposé comme client d'un projet.",
+			"CONFIRM": "Restaurer le client",
+			"FAILED": "Le client n'a pas pu être restauré. Réessayez."
+		},
+		"picker": {
+			"ADD": "Ajouter un client",
+			"CHANGE": "Changer de client",
+			"CREATE": "Créer le client « {name} »",
+			"NO_CLIENT": "Aucun client",
+			"CREATE_FAILED": "Le client n'a pas pu être créé. Réessayez."
+		}
 	}
 }

@@ -5734,5 +5734,68 @@
 		"ERROR": "无法加载最新更新。",
 		"RETRY": "重试",
 		"ABOUT_LINK": "关于 {appName}"
+	},
+	"clients": {
+		"TITLE": "客户",
+		"COUNT": "{count, plural, other {# 位客户}}",
+		"NEW_CLIENT": "新建客户",
+		"SEARCH_PLACEHOLDER": "搜索客户",
+		"SCOPE_LABEL": "显示的客户",
+		"SCOPE_ACTIVE": "活跃",
+		"SCOPE_ARCHIVED": "已归档",
+		"COLUMN_PROJECTS": "项目",
+		"PROJECT_COUNT": "{count, plural, =0 {没有项目} other {# 个项目}}",
+		"ARCHIVED_ON": "归档于 {date}",
+		"ACTIONS_FOR": "{name} 的操作",
+		"EMPTY_TITLE": "还没有客户",
+		"EMPTY_MESSAGE": "添加您服务的客户，然后为每个项目指定客户。",
+		"EMPTY_MESSAGE_READ_ONLY": "此工作区的客户会显示在这里。",
+		"EMPTY_ARCHIVED_TITLE": "没有已归档的客户",
+		"EMPTY_ARCHIVED_MESSAGE": "归档的客户会显示在这里，并且可以恢复。",
+		"NO_MATCH_TITLE": "没有匹配的客户",
+		"NO_MATCH_MESSAGE": "修改或清除搜索以查看更多客户。",
+		"CLEAR_SEARCH": "清除搜索",
+		"ERROR_TITLE": "无法加载客户",
+		"ERROR_MESSAGE": "请检查网络连接，然后重试。",
+		"form": {
+			"CREATE_TITLE": "新建客户",
+			"EDIT_TITLE": "编辑客户",
+			"NAME_PLACEHOLDER": "公司或个人",
+			"EMAIL_PLACEHOLDER": "billing@company.com",
+			"PHONE": "电话",
+			"NOTES_PLACEHOLDER": "团队需要了解的客户信息",
+			"OPTIONAL": "可选",
+			"NAME_REQUIRED": "请输入客户名称。",
+			"EMAIL_INVALID": "请输入有效的电子邮件地址，或将此项留空。",
+			"CREATE": "创建客户",
+			"SAVE_FAILED": "无法保存客户，请重试。"
+		},
+		"toasts": {
+			"CREATED": "已将 {name} 添加到客户",
+			"SAVED": "已保存 {name}",
+			"ARCHIVED": "已归档 {name}",
+			"RESTORED": "已恢复 {name}"
+		},
+		"archive": {
+			"TITLE": "归档 {name}？",
+			"KEEPS_PROJECTS": "该客户的项目及其记录的时间保持不变。",
+			"LEAVES_PICKER": "它不再作为项目的客户选项出现。",
+			"CAN_RESTORE": "您可以在“已归档”列表中恢复它。",
+			"CONFIRM": "归档客户",
+			"FAILED": "无法归档客户，请重试。"
+		},
+		"restore": {
+			"TITLE": "恢复 {name}？",
+			"BACK_IN_PICKER": "它会重新作为项目的客户选项出现。",
+			"CONFIRM": "恢复客户",
+			"FAILED": "无法恢复客户，请重试。"
+		},
+		"picker": {
+			"ADD": "添加客户",
+			"CHANGE": "更换客户",
+			"CREATE": "创建客户“{name}”",
+			"NO_CLIENT": "无客户",
+			"CREATE_FAILED": "无法创建客户，请重试。"
+		}
 	}
 }

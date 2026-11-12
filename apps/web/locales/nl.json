@@ -5734,5 +5734,68 @@
 		"ERROR": "De nieuwste updates konden niet worden geladen.",
 		"RETRY": "Opnieuw proberen",
 		"ABOUT_LINK": "Over {appName}"
+	},
+	"clients": {
+		"TITLE": "Klanten",
+		"COUNT": "{count, plural, one {# klant} other {# klanten}}",
+		"NEW_CLIENT": "Nieuwe klant",
+		"SEARCH_PLACEHOLDER": "Klanten zoeken",
+		"SCOPE_LABEL": "Te tonen klanten",
+		"SCOPE_ACTIVE": "Actief",
+		"SCOPE_ARCHIVED": "Gearchiveerd",
+		"COLUMN_PROJECTS": "Projecten",
+		"PROJECT_COUNT": "{count, plural, =0 {Geen projecten} one {# project} other {# projecten}}",
+		"ARCHIVED_ON": "Gearchiveerd op {date}",
+		"ACTIONS_FOR": "Acties voor {name}",
+		"EMPTY_TITLE": "Nog geen klanten",
+		"EMPTY_MESSAGE": "Voeg de klanten toe voor wie je werkt en geef elk project zijn klant.",
+		"EMPTY_MESSAGE_READ_ONLY": "De klanten van deze werkruimte worden hier vermeld.",
+		"EMPTY_ARCHIVED_TITLE": "Geen gearchiveerde klanten",
+		"EMPTY_ARCHIVED_MESSAGE": "Een gearchiveerde klant staat hier en kan worden hersteld.",
+		"NO_MATCH_TITLE": "Geen klanten gevonden",
+		"NO_MATCH_MESSAGE": "Wijzig of wis de zoekopdracht om meer klanten te zien.",
+		"CLEAR_SEARCH": "Zoekopdracht wissen",
+		"ERROR_TITLE": "De klanten konden niet worden geladen",
+		"ERROR_MESSAGE": "Controleer je verbinding en probeer het opnieuw.",
+		"form": {
+			"CREATE_TITLE": "Nieuwe klant",
+			"EDIT_TITLE": "Klant bewerken",
+			"NAME_PLACEHOLDER": "Bedrijf of persoon",
+			"EMAIL_PLACEHOLDER": "facturatie@bedrijf.nl",
+			"PHONE": "Telefoon",
+			"NOTES_PLACEHOLDER": "Wat het team over deze klant moet weten",
+			"OPTIONAL": "optioneel",
+			"NAME_REQUIRED": "Vul de naam van de klant in.",
+			"EMAIL_INVALID": "Vul een geldig e-mailadres in of laat het veld leeg.",
+			"CREATE": "Klant aanmaken",
+			"SAVE_FAILED": "De klant kon niet worden opgeslagen. Probeer het opnieuw."
+		},
+		"toasts": {
+			"CREATED": "{name} is toegevoegd aan de klanten",
+			"SAVED": "{name} is opgeslagen",
+			"ARCHIVED": "{name} is gearchiveerd",
+			"RESTORED": "{name} is hersteld"
+		},
+		"archive": {
+			"TITLE": "{name} archiveren?",
+			"KEEPS_PROJECTS": "De projecten van de klant en de daarop geregistreerde tijd blijven ongewijzigd.",
+			"LEAVES_PICKER": "De klant wordt niet meer aangeboden als klant van een project.",
+			"CAN_RESTORE": "Je kunt de klant herstellen vanuit de lijst Gearchiveerd.",
+			"CONFIRM": "Klant archiveren",
+			"FAILED": "De klant kon niet worden gearchiveerd. Probeer het opnieuw."
+		},
+		"restore": {
+			"TITLE": "{name} herstellen?",
+			"BACK_IN_PICKER": "De klant wordt weer aangeboden als klant van een project.",
+			"CONFIRM": "Klant herstellen",
+			"FAILED": "De klant kon niet worden hersteld. Probeer het opnieuw."
+		},
+		"picker": {
+			"ADD": "Klant toevoegen",
+			"CHANGE": "Klant wijzigen",
+			"CREATE": "Klant ‘{name}’ aanmaken",
+			"NO_CLIENT": "Geen klant",
+			"CREATE_FAILED": "De klant kon niet worden aangemaakt. Probeer het opnieuw."
+		}
 	}
 }

@@ -5734,5 +5734,68 @@
 		"ERROR": "לא ניתן היה לטעון את העדכונים האחרונים.",
 		"RETRY": "ניסיון חוזר",
 		"ABOUT_LINK": "אודות {appName}"
+	},
+	"clients": {
+		"TITLE": "לקוחות",
+		"COUNT": "{count, plural, one {לקוח אחד} two {שני לקוחות} other {# לקוחות}}",
+		"NEW_CLIENT": "לקוח חדש",
+		"SEARCH_PLACEHOLDER": "חיפוש לקוחות",
+		"SCOPE_LABEL": "הלקוחות שמוצגים",
+		"SCOPE_ACTIVE": "פעילים",
+		"SCOPE_ARCHIVED": "בארכיון",
+		"COLUMN_PROJECTS": "פרויקטים",
+		"PROJECT_COUNT": "{count, plural, =0 {אין פרויקטים} one {פרויקט אחד} two {שני פרויקטים} other {# פרויקטים}}",
+		"ARCHIVED_ON": "הועבר לארכיון ב־{date}",
+		"ACTIONS_FOR": "פעולות עבור {name}",
+		"EMPTY_TITLE": "אין עדיין לקוחות",
+		"EMPTY_MESSAGE": "הוסיפו את הלקוחות שאתם עובדים עבורם, ואז שייכו לכל פרויקט את הלקוח שלו.",
+		"EMPTY_MESSAGE_READ_ONLY": "הלקוחות של סביבת העבודה הזו יופיעו כאן.",
+		"EMPTY_ARCHIVED_TITLE": "אין לקוחות בארכיון",
+		"EMPTY_ARCHIVED_MESSAGE": "לקוח שהועבר לארכיון מופיע כאן ואפשר לשחזר אותו.",
+		"NO_MATCH_TITLE": "אין לקוחות תואמים",
+		"NO_MATCH_MESSAGE": "שנו או נקו את החיפוש כדי לראות עוד לקוחות.",
+		"CLEAR_SEARCH": "ניקוי החיפוש",
+		"ERROR_TITLE": "לא ניתן היה לטעון את הלקוחות",
+		"ERROR_MESSAGE": "בדקו את החיבור ונסו שוב.",
+		"form": {
+			"CREATE_TITLE": "לקוח חדש",
+			"EDIT_TITLE": "עריכת לקוח",
+			"NAME_PLACEHOLDER": "חברה או אדם",
+			"EMAIL_PLACEHOLDER": "billing@company.com",
+			"PHONE": "טלפון",
+			"NOTES_PLACEHOLDER": "מה הצוות צריך לדעת על הלקוח הזה",
+			"OPTIONAL": "לא חובה",
+			"NAME_REQUIRED": "הזינו את שם הלקוח.",
+			"EMAIL_INVALID": "הזינו כתובת אימייל תקינה או השאירו את השדה ריק.",
+			"CREATE": "יצירת לקוח",
+			"SAVE_FAILED": "לא ניתן היה לשמור את הלקוח. נסו שוב."
+		},
+		"toasts": {
+			"CREATED": "{name} נוסף ללקוחות",
+			"SAVED": "{name} נשמר",
+			"ARCHIVED": "{name} הועבר לארכיון",
+			"RESTORED": "{name} שוחזר"
+		},
+		"archive": {
+			"TITLE": "להעביר את {name} לארכיון?",
+			"KEEPS_PROJECTS": "הפרויקטים שלו והזמן שנרשם בהם נשארים כמו שהם.",
+			"LEAVES_PICKER": "הוא לא יוצע עוד כלקוח של פרויקט.",
+			"CAN_RESTORE": "אפשר לשחזר אותו מרשימת הארכיון.",
+			"CONFIRM": "העברה לארכיון",
+			"FAILED": "לא ניתן היה להעביר את הלקוח לארכיון. נסו שוב."
+		},
+		"restore": {
+			"TITLE": "לשחזר את {name}?",
+			"BACK_IN_PICKER": "הוא יוצע שוב כלקוח של פרויקט.",
+			"CONFIRM": "שחזור הלקוח",
+			"FAILED": "לא ניתן היה לשחזר את הלקוח. נסו שוב."
+		},
+		"picker": {
+			"ADD": "הוספת לקוח",
+			"CHANGE": "החלפת לקוח",
+			"CREATE": "יצירת הלקוח ״{name}״",
+			"NO_CLIENT": "ללא לקוח",
+			"CREATE_FAILED": "לא ניתן היה ליצור את הלקוח. נסו שוב."
+		}
 	}
 }

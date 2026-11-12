@@ -5734,5 +5734,68 @@
 		"ERROR": "Nie udało się wczytać najnowszych aktualizacji.",
 		"RETRY": "Spróbuj ponownie",
 		"ABOUT_LINK": "O {appName}"
+	},
+	"clients": {
+		"TITLE": "Klienci",
+		"COUNT": "{count, plural, one {# klient} few {# klientów} many {# klientów} other {# klienta}}",
+		"NEW_CLIENT": "Nowy klient",
+		"SEARCH_PLACEHOLDER": "Szukaj klientów",
+		"SCOPE_LABEL": "Wyświetlani klienci",
+		"SCOPE_ACTIVE": "Aktywni",
+		"SCOPE_ARCHIVED": "Zarchiwizowani",
+		"COLUMN_PROJECTS": "Projekty",
+		"PROJECT_COUNT": "{count, plural, =0 {Brak projektów} one {# projekt} few {# projekty} many {# projektów} other {# projektu}}",
+		"ARCHIVED_ON": "Zarchiwizowano {date}",
+		"ACTIONS_FOR": "Działania dla {name}",
+		"EMPTY_TITLE": "Nie ma jeszcze klientów",
+		"EMPTY_MESSAGE": "Dodaj klientów, dla których pracujesz, i przypisz każdemu projektowi jego klienta.",
+		"EMPTY_MESSAGE_READ_ONLY": "Klienci tego obszaru roboczego pojawią się tutaj.",
+		"EMPTY_ARCHIVED_TITLE": "Brak zarchiwizowanych klientów",
+		"EMPTY_ARCHIVED_MESSAGE": "Zarchiwizowany klient pojawia się tutaj i można go przywrócić.",
+		"NO_MATCH_TITLE": "Brak pasujących klientów",
+		"NO_MATCH_MESSAGE": "Zmień lub wyczyść wyszukiwanie, aby zobaczyć więcej klientów.",
+		"CLEAR_SEARCH": "Wyczyść wyszukiwanie",
+		"ERROR_TITLE": "Nie udało się wczytać klientów",
+		"ERROR_MESSAGE": "Sprawdź połączenie i spróbuj ponownie.",
+		"form": {
+			"CREATE_TITLE": "Nowy klient",
+			"EDIT_TITLE": "Edytuj klienta",
+			"NAME_PLACEHOLDER": "Firma lub osoba",
+			"EMAIL_PLACEHOLDER": "faktury@firma.pl",
+			"PHONE": "Telefon",
+			"NOTES_PLACEHOLDER": "Co zespół powinien wiedzieć o tym kliencie",
+			"OPTIONAL": "opcjonalnie",
+			"NAME_REQUIRED": "Wpisz nazwę klienta.",
+			"EMAIL_INVALID": "Wpisz poprawny adres e-mail lub zostaw pole puste.",
+			"CREATE": "Utwórz klienta",
+			"SAVE_FAILED": "Nie udało się zapisać klienta. Spróbuj ponownie."
+		},
+		"toasts": {
+			"CREATED": "Dodano {name} do klientów",
+			"SAVED": "Zapisano {name}",
+			"ARCHIVED": "Zarchiwizowano {name}",
+			"RESTORED": "Przywrócono {name}"
+		},
+		"archive": {
+			"TITLE": "Zarchiwizować {name}?",
+			"KEEPS_PROJECTS": "Projekty klienta i zarejestrowany w nich czas pozostają bez zmian.",
+			"LEAVES_PICKER": "Nie jest już proponowany jako klient projektu.",
+			"CAN_RESTORE": "Możesz go przywrócić z listy Zarchiwizowani.",
+			"CONFIRM": "Zarchiwizuj klienta",
+			"FAILED": "Nie udało się zarchiwizować klienta. Spróbuj ponownie."
+		},
+		"restore": {
+			"TITLE": "Przywrócić {name}?",
+			"BACK_IN_PICKER": "Jest znów proponowany jako klient projektu.",
+			"CONFIRM": "Przywróć klienta",
+			"FAILED": "Nie udało się przywrócić klienta. Spróbuj ponownie."
+		},
+		"picker": {
+			"ADD": "Dodaj klienta",
+			"CHANGE": "Zmień klienta",
+			"CREATE": "Utwórz klienta „{name}”",
+			"NO_CLIENT": "Brak klienta",
+			"CREATE_FAILED": "Nie udało się utworzyć klienta. Spróbuj ponownie."
+		}
 	}
 }
