@@ -5,6 +5,7 @@ import { act, renderHook } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { rowIdentityOfLog, type SheetDay } from '@/core/lib/utils/dashboards/timesheets';
+import { queryKeys } from '@/core/query/keys';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
@@ -33,6 +34,8 @@ import {
 
 const HOUR = 3600;
 const MINUTE = 60;
+
+const PARTLY_SAVED = 'dashboard.timesheets.SHEET.EDIT.PARTLY_SAVED_TITLE';
 
 /** A day long past, so "now" never limits where time can go. */
 function at(hours: number, minutes = 0) {
@@ -197,6 +200,32 @@ describe('useSheetCellWrites', () => {
 		expect(mockToastError).toHaveBeenCalledWith('dashboard.timesheets.SHEET.EDIT.SAVE_FAILED', {
 			description: 'dashboard.timesheets.SHEET.EDIT.TAKE_BACK_NOT_ALLOWED'
 		});
+	});
+
+	it('says only part of a typed cell was saved when a later entry fails, and refreshes the other views', async () => {
+		// Busy from 10:00 to 11:00: two typed hours go in two entries, and the second one fails
+		const busyAtTen = logOf({ id: 'busy', projectId: 'other', startedAt: at(10), stoppedAt: at(11) });
+		mockCreateTimesheetFrom.mockResolvedValueOnce(undefined);
+		mockCreateTimesheetFrom.mockRejectedValue(new Error('offline'));
+		const invalidate = jest.spyOn(QueryClient.prototype, 'invalidateQueries');
+
+		const outcome = await commitIn(scopeOf({ readSavedMemberLogs: async () => [busyAtTen] }), 2 * HOUR);
+
+		expect(outcome).toBe('refused');
+		expect(mockCreateTimesheetFrom).toHaveBeenCalledTimes(2);
+		expect(mockToastError).toHaveBeenCalledWith(PARTLY_SAVED, expect.anything());
+		expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.timeLogs.all });
+		invalidate.mockRestore();
+	});
+
+	it('says only part of a lower cell was saved when its shortening fails after a delete', async () => {
+		mockUpdateTimeLog.mockRejectedValue(new Error('offline'));
+
+		const outcome = await commitIn(scopeOf({ readSavedMemberLogs: readTypedCell }), 30 * MINUTE);
+
+		expect(outcome).toBe('refused');
+		expect(mockDeleteTaskTimesheetLogs).toHaveBeenCalledTimes(1);
+		expect(mockToastError).toHaveBeenCalledWith(PARTLY_SAVED, expect.anything());
 	});
 
 	it('copies nothing into a day approved since the copy was prepared, and counts it as left out', async () => {

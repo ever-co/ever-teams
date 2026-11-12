@@ -630,6 +630,7 @@
 					"TRACKED_TITLE": "El tiempo registrado se mantiene",
 					"TRACKED": "{tracked} de esta celda se registró con un temporizador. La hoja solo reduce el tiempo añadido a mano: abre los registros de la celda para quitar tiempo registrado.",
 					"SAVE_FAILED": "Tiempo no guardado",
+					"PARTLY_SAVED_TITLE": "Solo se guardó parte del cambio",
 					"REFUSED": "No puedes añadir ni cambiar tiempo para este miembro.",
 					"TAKE_BACK_NOT_ALLOWED": "Tu rol o tu organización no permite eliminar ni cambiar tiempo, así que esta celda no se puede reducir.",
 					"LOCK_FUTURE": "Tu organización no permite tiempo en días posteriores a hoy.",

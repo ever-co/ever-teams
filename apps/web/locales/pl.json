@@ -630,6 +630,7 @@
 					"TRACKED_TITLE": "Zmierzony czas zostaje",
 					"TRACKED": "{tracked} w tej komórce zmierzył timer. Arkusz zmniejsza tylko czas dodany ręcznie: otwórz wpisy komórki, aby usunąć zmierzony czas.",
 					"SAVE_FAILED": "Czas nie został zapisany",
+					"PARTLY_SAVED_TITLE": "Zapisano tylko część zmiany",
 					"REFUSED": "Nie możesz dodawać ani zmieniać czasu tego członka.",
 					"TAKE_BACK_NOT_ALLOWED": "Twoja rola lub organizacja nie pozwala usuwać ani zmieniać czasu, więc nie można zmniejszyć tej komórki.",
 					"LOCK_FUTURE": "Twoja organizacja nie pozwala na czas w dniach po dzisiejszym.",
