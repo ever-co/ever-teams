@@ -631,6 +631,7 @@
 					"TRACKED": "{tracked} dieser Zelle wurde mit einem Timer erfasst. Das Blatt verringert nur von Hand hinzugefügte Zeit: Öffnen Sie die Einträge der Zelle, um erfasste Zeit zu entfernen.",
 					"SAVE_FAILED": "Zeit nicht gespeichert",
 					"REFUSED": "Sie können für dieses Mitglied keine Zeit hinzufügen oder ändern.",
+					"TAKE_BACK_NOT_ALLOWED": "Ihre Rolle oder Organisation erlaubt das Löschen oder Ändern von Zeit nicht, daher kann diese Zelle nicht verringert werden.",
 					"LOCK_FUTURE": "Ihre Organisation erlaubt keine Zeit an Tagen nach heute.",
 					"LOCK_APPROVED": "Diese Woche ist genehmigt, ihre Zeit kann im Blatt nicht geändert werden.",
 					"LOCK_RUNNING": "Für diese Aufgabe läuft heute ein Timer.",

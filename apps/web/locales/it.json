@@ -631,6 +631,7 @@
 					"TRACKED": "{tracked} di questa cella è stato tracciato con un timer. Il foglio riduce solo il tempo aggiunto a mano: apri le registrazioni della cella per togliere tempo tracciato.",
 					"SAVE_FAILED": "Tempo non salvato",
 					"REFUSED": "Non puoi aggiungere o modificare tempo per questo membro.",
+					"TAKE_BACK_NOT_ALLOWED": "Il tuo ruolo o la tua organizzazione non consente di eliminare o modificare il tempo, quindi questa cella non può essere ridotta.",
 					"LOCK_FUTURE": "La tua organizzazione non consente tempo nei giorni dopo oggi.",
 					"LOCK_APPROVED": "Questa settimana è approvata: il suo tempo non si modifica dal foglio.",
 					"LOCK_RUNNING": "Oggi c'è un timer attivo su questa attività.",

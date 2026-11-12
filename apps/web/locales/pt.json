@@ -631,6 +631,7 @@
 					"TRACKED": "{tracked} desta célula foi rastreado por um cronômetro. A folha só diminui o tempo adicionado à mão: abra os registros da célula para remover tempo rastreado.",
 					"SAVE_FAILED": "Tempo não salvo",
 					"REFUSED": "Você não pode adicionar nem alterar tempo para este membro.",
+					"TAKE_BACK_NOT_ALLOWED": "Sua função ou organização não permite excluir nem alterar tempo, então esta célula não pode ser reduzida.",
 					"LOCK_FUTURE": "Sua organização não permite tempo em dias depois de hoje.",
 					"LOCK_APPROVED": "Esta semana está aprovada: seu tempo não pode ser alterado pela folha.",
 					"LOCK_RUNNING": "Há um cronômetro rodando nesta tarefa hoje.",
