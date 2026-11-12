@@ -2019,10 +2019,13 @@ describe('Ever Teams feature surface preservation', () => {
 		// 311 files and 398 verbs with the comments and trash proxies: /api/comment/[id]/soft (DELETE) and /recover
 		// (PUT), /api/reaction (POST), /api/reaction/comments (GET), /api/tasks/trash (GET), /api/tasks/[id]/soft
 		// (DELETE) and /recover (PUT), and DELETE on /api/tasks/[id] (a task deleted for good from the trash).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(311);
+		// 315 files and 402 verbs with the chat's typing, task card, unsent upload and category order proxies
+		// (/api/chat/conversations/[id]/typing POST, messages/[id]/tasks/[taskId] PATCH, attachments/[documentId] DELETE,
+		// categories/reorder POST).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(315);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(398);
+		).toHaveLength(402);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of the platform's comment withdrawal, reactions and task trash (2026-11-12)
