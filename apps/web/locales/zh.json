@@ -707,6 +707,7 @@
 				"REASON": {
 					"NOT_ALLOWED": "{count, plural, other {# 条记录不属于你：只有记录的成员或管理员可以编辑。}}",
 					"RUNNING": "{count, plural, other {# 条记录的计时器正在运行：请先停止计时器。}}",
+					"APPROVED": "{count, plural, other {# 条记录已批准：请先更改其状态。}}",
 					"OTHER_TEAM": "{count, plural, other {# 条记录属于另一个团队：请切换到该团队再更改任务。}}",
 					"UNCHANGED": "{count, plural, other {# 条记录已经是这些值。}}",
 					"OVERLAP": "{count, plural, other {# 条记录与其他已记录的时间重叠：保存会删除那些时间。}}",

@@ -707,6 +707,7 @@
 				"REASON": {
 					"NOT_ALLOWED": "{count, plural, one {# invoer is niet van jou: alleen het lid zelf of een beheerder kan die bewerken.} other {# invoeren zijn niet van jou: alleen het lid zelf of een beheerder kan die bewerken.}}",
 					"RUNNING": "{count, plural, one {# invoer van een lopende timer: stop eerst de timer.} other {# invoeren van lopende timers: stop eerst de timers.}}",
+					"APPROVED": "{count, plural, one {# invoer is goedgekeurd: wijzig eerst de status.} other {# invoeren zijn goedgekeurd: wijzig eerst de status.}}",
 					"OTHER_TEAM": "{count, plural, one {# invoer van een ander team: schakel naar dat team om de taak te wijzigen.} other {# invoeren van een ander team: schakel naar dat team om de taak te wijzigen.}}",
 					"UNCHANGED": "{count, plural, one {# invoer heeft deze waarden al.} other {# invoeren hebben deze waarden al.}}",
 					"OVERLAP": "{count, plural, one {# invoer overlapt andere geregistreerde tijd: bij opslaan zou die tijd worden verwijderd.} other {# invoeren overlappen andere geregistreerde tijd: bij opslaan zou die tijd worden verwijderd.}}",

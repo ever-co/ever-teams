@@ -707,6 +707,7 @@
 				"REASON": {
 					"NOT_ALLOWED": "{count, plural, one {# entrada não é sua: apenas o membro dela ou um administrador pode editá-la.} other {# entradas não são suas: apenas o membro delas ou um administrador pode editá-las.}}",
 					"RUNNING": "{count, plural, one {# entrada de um cronômetro em andamento: pare o cronômetro primeiro.} other {# entradas de cronômetros em andamento: pare os cronômetros primeiro.}}",
+					"APPROVED": "{count, plural, one {# entrada está aprovada: altere o status dela primeiro.} other {# entradas estão aprovadas: altere o status delas primeiro.}}",
 					"OTHER_TEAM": "{count, plural, one {# entrada de outra equipe: mude para essa equipe para alterar a tarefa dela.} other {# entradas de outra equipe: mude para essa equipe para alterar a tarefa delas.}}",
 					"UNCHANGED": "{count, plural, one {# entrada já tem estes valores.} other {# entradas já têm estes valores.}}",
 					"OVERLAP": "{count, plural, one {# entrada se sobrepõe a outro tempo registrado: salvá-la removeria esse tempo.} other {# entradas se sobrepõem a outro tempo registrado: salvá-las removeria esse tempo.}}",

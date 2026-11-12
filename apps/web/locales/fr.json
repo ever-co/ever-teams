@@ -707,6 +707,7 @@
 				"REASON": {
 					"NOT_ALLOWED": "{count, plural, one {# entrée n'est pas à vous : seul son membre ou un administrateur peut la modifier.} other {# entrées ne sont pas à vous : seul leur membre ou un administrateur peut les modifier.}}",
 					"RUNNING": "{count, plural, one {# entrée d'un minuteur en cours : arrêtez d'abord le minuteur.} other {# entrées de minuteurs en cours : arrêtez d'abord les minuteurs.}}",
+					"APPROVED": "{count, plural, one {# entrée est approuvée : changez d'abord son statut.} other {# entrées sont approuvées : changez d'abord leur statut.}}",
 					"OTHER_TEAM": "{count, plural, one {# entrée d'une autre équipe : passez sur cette équipe pour changer sa tâche.} other {# entrées d'une autre équipe : passez sur cette équipe pour changer leur tâche.}}",
 					"UNCHANGED": "{count, plural, one {# entrée a déjà ces valeurs.} other {# entrées ont déjà ces valeurs.}}",
 					"OVERLAP": "{count, plural, one {# entrée chevauche d'autre temps enregistré : l'enregistrer supprimerait ce temps.} other {# entrées chevauchent d'autre temps enregistré : les enregistrer supprimerait ce temps.}}",

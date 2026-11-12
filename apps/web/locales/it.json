@@ -707,6 +707,7 @@
 				"REASON": {
 					"NOT_ALLOWED": "{count, plural, one {# voce non è tua: solo il suo membro o un amministratore può modificarla.} other {# voci non sono tue: solo il loro membro o un amministratore può modificarle.}}",
 					"RUNNING": "{count, plural, one {# voce di un timer attivo: ferma prima il timer.} other {# voci di timer attivi: ferma prima i timer.}}",
+					"APPROVED": "{count, plural, one {# voce è approvata: cambia prima il suo stato.} other {# voci sono approvate: cambia prima il loro stato.}}",
 					"OTHER_TEAM": "{count, plural, one {# voce di un altro team: passa a quel team per cambiare la sua attività.} other {# voci di un altro team: passa a quel team per cambiare la loro attività.}}",
 					"UNCHANGED": "{count, plural, one {# voce ha già questi valori.} other {# voci hanno già questi valori.}}",
 					"OVERLAP": "{count, plural, one {# voce si sovrappone ad altro tempo registrato: salvarla rimuoverebbe quel tempo.} other {# voci si sovrappongono ad altro tempo registrato: salvarle rimuoverebbe quel tempo.}}",

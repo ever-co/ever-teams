@@ -707,6 +707,7 @@
 				"REASON": {
 					"NOT_ALLOWED": "{count, plural, one {# entry is not yours: only its member or an admin can edit it.} other {# entries are not yours: only their member or an admin can edit them.}}",
 					"RUNNING": "{count, plural, one {# entry of a running timer: stop the timer first.} other {# entries of running timers: stop the timers first.}}",
+					"APPROVED": "{count, plural, one {# entry is approved: change its status first.} other {# entries are approved: change their status first.}}",
 					"OTHER_TEAM": "{count, plural, one {# entry of another team: switch to that team to change its task.} other {# entries of another team: switch to that team to change their task.}}",
 					"UNCHANGED": "{count, plural, one {# entry already has these values.} other {# entries already have these values.}}",
 					"OVERLAP": "{count, plural, one {# entry overlaps other recorded time: saving it would remove that time.} other {# entries overlap other recorded time: saving them would remove that time.}}",

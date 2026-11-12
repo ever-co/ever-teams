@@ -707,6 +707,7 @@
 				"REASON": {
 					"NOT_ALLOWED": "{count, plural, one {# Eintrag gehört Ihnen nicht: Nur sein Mitglied oder ein Admin kann ihn bearbeiten.} other {# Einträge gehören Ihnen nicht: Nur ihr Mitglied oder ein Admin kann sie bearbeiten.}}",
 					"RUNNING": "{count, plural, one {# Eintrag eines laufenden Timers: Stoppen Sie zuerst den Timer.} other {# Einträge laufender Timer: Stoppen Sie zuerst die Timer.}}",
+					"APPROVED": "{count, plural, one {# Eintrag ist genehmigt: Ändern Sie zuerst seinen Status.} other {# Einträge sind genehmigt: Ändern Sie zuerst ihren Status.}}",
 					"OTHER_TEAM": "{count, plural, one {# Eintrag eines anderen Teams: Wechseln Sie zu diesem Team, um seine Aufgabe zu ändern.} other {# Einträge eines anderen Teams: Wechseln Sie zu diesem Team, um ihre Aufgabe zu ändern.}}",
 					"UNCHANGED": "{count, plural, one {# Eintrag hat diese Werte bereits.} other {# Einträge haben diese Werte bereits.}}",
 					"OVERLAP": "{count, plural, one {# Eintrag überschneidet sich mit anderer erfasster Zeit: Beim Speichern würde diese Zeit entfernt.} other {# Einträge überschneiden sich mit anderer erfasster Zeit: Beim Speichern würde diese Zeit entfernt.}}",

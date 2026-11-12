@@ -707,6 +707,7 @@
 				"REASON": {
 					"NOT_ALLOWED": "{count, plural, one {# entrada no es tuya: solo su miembro o un administrador puede editarla.} other {# entradas no son tuyas: solo su miembro o un administrador puede editarlas.}}",
 					"RUNNING": "{count, plural, one {# entrada de un temporizador en marcha: detén primero el temporizador.} other {# entradas de temporizadores en marcha: detén primero los temporizadores.}}",
+					"APPROVED": "{count, plural, one {# entrada está aprobada: cambia primero su estado.} other {# entradas están aprobadas: cambia primero su estado.}}",
 					"OTHER_TEAM": "{count, plural, one {# entrada de otro equipo: cambia a ese equipo para cambiar su tarea.} other {# entradas de otro equipo: cambia a ese equipo para cambiar su tarea.}}",
 					"UNCHANGED": "{count, plural, one {# entrada ya tiene estos valores.} other {# entradas ya tienen estos valores.}}",
 					"OVERLAP": "{count, plural, one {# entrada se solapa con otro tiempo registrado: guardarla eliminaría ese tiempo.} other {# entradas se solapan con otro tiempo registrado: guardarlas eliminaría ese tiempo.}}",
