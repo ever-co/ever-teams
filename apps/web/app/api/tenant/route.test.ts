@@ -1,7 +1,7 @@
 /**
- * PUT /api/tenant (proxy mode) renames the workspace of the session in Gauzy (#5087). The tenant comes from the
- * session, the body holds the name only, and Gauzy's refusal of anyone but the super admin reaches the client with
- * its own status.
+ * PUT /api/tenant (proxy mode) renames the workspace of the session in Gauzy (#5087). Gauzy renames the tenant of
+ * the session's token: the body holds the name and the tenant the page means, a tenant that is not the session's is
+ * refused, and Gauzy's refusal of anyone but the super admin reaches the client with its own status.
  */
 const mockAuthenticatedGuard = jest.fn();
 const mockRenameTenant = jest.fn();
@@ -17,7 +17,7 @@ import { PUT } from './route';
 
 const SIGNED_IN = {
 	$res: (data: unknown) => Response.json(data),
-	user: { id: 'user-1' },
+	user: { id: 'user-1', tenantId: 'tenant-1' },
 	access_token: 'access-token',
 	tenantId: 'tenant-1',
 	organizationId: 'organization-1'
@@ -46,17 +46,37 @@ beforeEach(() => {
 	mockRenameTenant.mockReset();
 });
 
-it("renames the session's tenant with the trimmed name, whatever else the body says", async () => {
+it("renames the session's tenant with the trimmed name and nothing else the body carries", async () => {
 	mockRenameTenant.mockResolvedValue({ data: { affected: 1 } });
 
 	const response = await putName({
 		name: ' Acme Labs ',
-		tenantId: 'someone-else',
+		tenantId: 'tenant-1',
 		logo: 'https://example.com/x.png'
 	});
 
 	expect(response.status).toBe(200);
 	await expect(response.json()).resolves.toEqual({ name: 'Acme Labs' });
+	expect(mockRenameTenant).toHaveBeenCalledWith({
+		name: 'Acme Labs',
+		bearer_token: 'access-token',
+		tenantId: 'tenant-1'
+	});
+});
+
+it('refuses a rename meant for another workspace than the one the session is on now', async () => {
+	const response = await putName({ name: 'Acme Labs', tenantId: 'tenant-2' });
+
+	expect(response.status).toBe(409);
+	expect(mockRenameTenant).not.toHaveBeenCalled();
+});
+
+it("renames the session's tenant for a caller that names no tenant, as Gauzy's own route does", async () => {
+	mockRenameTenant.mockResolvedValue({ data: { affected: 1 } });
+
+	const response = await putName({ name: 'Acme Labs' });
+
+	expect(response.status).toBe(200);
 	expect(mockRenameTenant).toHaveBeenCalledWith({
 		name: 'Acme Labs',
 		bearer_token: 'access-token',
