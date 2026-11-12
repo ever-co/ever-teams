@@ -1,5 +1,17 @@
 /// <reference types="cypress" />
 
+const dateInputOf = (date: Date) =>
+	[date.getFullYear(), date.getMonth() + 1, date.getDate()].map((part) => String(part).padStart(2, '0')).join('-');
+
+/** The agenda shows one day: Schedule proposes the next half hour, which late in the evening is on the next day. */
+function showTheProposedDay() {
+	cy.get<string>('@proposedDate').then((proposedDate) => {
+		if (proposedDate !== dateInputOf(new Date())) {
+			cy.get('button[aria-label="Next day"]').click();
+		}
+	});
+}
+
 describe('feature parity on the authenticated shell', () => {
 	beforeEach(() => {
 		cy.mockReset();
@@ -146,6 +158,7 @@ describe('feature parity on the authenticated shell', () => {
 		cy.hardVisit('/meet');
 		cy.get('[data-testid="meetings-schedule"]', { timeout: 20_000 }).click();
 		cy.get('#meeting-title').type('Sprint review');
+		cy.get('#meeting-date').invoke('val').as('proposedDate');
 		cy.contains('button', /^Schedule$/).click();
 		cy.wait('@schedule')
 			.its('request.body')
@@ -159,6 +172,7 @@ describe('feature parity on the authenticated shell', () => {
 		cy.contains('button', 'Copy invitation').should('be.visible');
 		cy.contains('button', 'Add to calendar').should('be.visible');
 		cy.contains('button', /^Done$/).click();
+		showTheProposedDay();
 
 		cy.get('[data-testid="scheduled-meeting"]', { timeout: 15_000 })
 			.should('have.length', 1)
@@ -181,8 +195,10 @@ describe('feature parity on the authenticated shell', () => {
 		cy.hardVisit('/meet');
 		cy.get('[data-testid="meetings-schedule"]', { timeout: 20_000 }).click();
 		cy.get('#meeting-title').type('Retro');
+		cy.get('#meeting-date').invoke('val').as('proposedDate');
 		cy.contains('button', /^Schedule$/).click();
 		cy.contains('button', /^Done$/).click();
+		showTheProposedDay();
 		cy.get('[data-testid="scheduled-meeting"]', { timeout: 15_000 }).should('have.length', 1);
 
 		cy.get('button[aria-label="Cancel Retro"]').click();
