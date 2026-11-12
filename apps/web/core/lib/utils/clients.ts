@@ -93,6 +93,14 @@ export function clientsById<T extends ClientLike>(clients: T[]) {
 	return byId;
 }
 
+export function clientNamesOf(clients: ReadonlyArray<ClientLike>) {
+	const names = new Map<string, string>();
+	for (const client of clients) {
+		names.set(client.id, client.name);
+	}
+	return names;
+}
+
 interface ProjectOfClient {
 	organizationContactId?: string | null;
 }

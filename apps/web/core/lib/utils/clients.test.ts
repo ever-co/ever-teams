@@ -5,6 +5,7 @@ import {
 	buildClientUpdateRequest,
 	clientAccessOf,
 	clientMatchesSearch,
+	clientNamesOf,
 	clientsInScope,
 	draftFromClient,
 	emptyClientDraft,
@@ -48,6 +49,17 @@ describe('client permissions', () => {
 		const nothing = { canCreate: false, canEdit: false, canArchive: false };
 		expect(clientAccessOf(['ORG_CONTACT_VIEW', 'ORG_PROJECT_VIEW'])).toEqual(nothing);
 		expect(clientAccessOf([])).toEqual(nothing);
+	});
+});
+
+describe('client names', () => {
+	it('names every client by id, archived ones included', () => {
+		const names = clientNamesOf([acme, zenith]);
+
+		expect([...names.entries()]).toEqual([
+			['c1', 'Acme'],
+			['c2', 'zenith']
+		]);
 	});
 });
 
