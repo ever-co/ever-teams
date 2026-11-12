@@ -21,6 +21,7 @@ import {
 } from '@livekit/components-react';
 import { RoomEvent, Track } from 'livekit-client';
 import { MeetControlBar } from './meet-control-bar';
+import { PeoplePanel } from './people-panel';
 import { SettingsMenu } from './settings-livekit';
 
 /** The same track of the same person: the identity of a tile, as LiveKit's layouts compare them. */
@@ -37,7 +38,7 @@ function isSameTrack(first: TrackReferenceOrPlaceholder | undefined, second: Tra
 
 /**
  * The meeting room's conference, made of LiveKit's parts as its `VideoConference` prefab is: everyone in a grid, a
- * shared screen in focus with the others beside it, the room's own control bar, the chat and the settings.
+ * shared screen in focus with the others beside it, the room's own control bar, the people, the chat and the settings.
  */
 export function MeetConference() {
 	const [widgetState, setWidgetState] = React.useState<WidgetState>({
@@ -45,6 +46,7 @@ export function MeetConference() {
 		unreadMessages: 0,
 		showSettings: false
 	});
+	const [isPeopleOpen, setIsPeopleOpen] = React.useState(false);
 	const lastAutoFocusedScreenShare = React.useRef<TrackReferenceOrPlaceholder | null>(null);
 	const tracks = useTracks(
 		[
@@ -107,12 +109,13 @@ export function MeetConference() {
 							</GridLayout>
 						</div>
 					)}
-					<MeetControlBar />
+					<MeetControlBar isPeopleOpen={isPeopleOpen} onPeopleOpenChange={setIsPeopleOpen} />
 				</div>
 				<Chat
 					style={{ display: widgetState.showChat ? 'grid' : 'none' }}
 					messageFormatter={formatChatMessageLinks}
 				/>
+				{isPeopleOpen && <PeoplePanel onClose={() => setIsPeopleOpen(false)} />}
 				<div
 					className="lk-settings-menu-modal"
 					style={{ display: widgetState.showSettings ? 'block' : 'none' }}

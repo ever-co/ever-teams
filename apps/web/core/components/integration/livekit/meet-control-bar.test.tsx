@@ -42,7 +42,7 @@ describe('MeetControlBar', () => {
 	});
 
 	it("says what a press on one's camera and microphone does, and does it", () => {
-		render(<MeetControlBar />);
+		render(<MeetControlBar isPeopleOpen={false} onPeopleOpenChange={jest.fn()} />);
 
 		fireEvent.click(screen.getByRole('button', { name: 'meetings.STOP_VIDEO' }));
 		expect(mockToggles.camera.toggle).toHaveBeenCalledTimes(1);
@@ -55,7 +55,7 @@ describe('MeetControlBar', () => {
 
 	it('opens the chat with its unread messages, shares the screen, opens the settings and leaves', () => {
 		mockWidgetState.unreadMessages = 2;
-		render(<MeetControlBar />);
+		render(<MeetControlBar isPeopleOpen={false} onPeopleOpenChange={jest.fn()} />);
 
 		const chat = screen.getByRole('button', { name: /^meetings\.CHAT/ });
 		expect(chat.textContent).toContain('meetings.UNREAD_MESSAGES:2');
@@ -75,12 +75,31 @@ describe('MeetControlBar', () => {
 	it('offers only what the room lets the person publish', () => {
 		// Allowed the microphone only (source 2), and no data: no camera, no share, no chat
 		mockPermissions = { canPublish: true, canPublishData: false, canPublishSources: [2] };
-		render(<MeetControlBar />);
+		render(<MeetControlBar isPeopleOpen={false} onPeopleOpenChange={jest.fn()} />);
 
 		expect(screen.queryByRole('button', { name: 'meetings.STOP_VIDEO' })).toBeNull();
 		expect(screen.getByRole('button', { name: 'meetings.UNMUTE' })).toBeTruthy();
 		expect(screen.queryByRole('button', { name: 'meetings.SHARE' })).toBeNull();
 		expect(screen.queryByRole('button', { name: /^meetings\.CHAT/ })).toBeNull();
 		expect(screen.getByRole('button', { name: 'meetings.LEAVE' })).toBeTruthy();
+	});
+
+	it('opens the people in the place of the chat, and the chat in the place of the people', () => {
+		const onPeopleOpenChange = jest.fn();
+		mockWidgetState.showChat = true;
+		const view = render(<MeetControlBar isPeopleOpen={false} onPeopleOpenChange={onPeopleOpenChange} />);
+
+		fireEvent.click(screen.getByRole('button', { name: 'meetings.PEOPLE' }));
+		expect(onPeopleOpenChange).toHaveBeenCalledWith(true);
+		expect(mockDispatch).toHaveBeenCalledWith({ msg: 'toggle_chat' });
+
+		mockDispatch.mockReset();
+		mockWidgetState.showChat = false;
+		view.rerender(<MeetControlBar isPeopleOpen onPeopleOpenChange={onPeopleOpenChange} />);
+		expect(screen.getByRole('button', { name: 'meetings.PEOPLE' }).getAttribute('aria-pressed')).toBe('true');
+		fireEvent.click(screen.getByRole('button', { name: /^meetings\.CHAT/ }));
+
+		expect(onPeopleOpenChange).toHaveBeenLastCalledWith(false);
+		expect(mockDispatch).toHaveBeenCalledWith({ msg: 'toggle_chat' });
 	});
 });

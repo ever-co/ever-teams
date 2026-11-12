@@ -10,7 +10,17 @@ import {
 	useTrackToggle
 } from '@livekit/components-react';
 import { Track } from 'livekit-client';
-import { Camera, MessageCircle, Mic, MicOff, PhoneOff, ScreenShare, Settings, VideoOff } from '@/core/components/icons';
+import {
+	Camera,
+	MessageCircle,
+	Mic,
+	MicOff,
+	PhoneOff,
+	ScreenShare,
+	Settings,
+	Users,
+	VideoOff
+} from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 
 /** The protocol's numbers of the sources a participant may be allowed to publish. */
@@ -72,7 +82,13 @@ function BarButton({
  * The room's controls, laid out as in the inspiration: one's camera and microphone on the left, with words that say
  * what a press does; what the room offers in the middle; the settings and leaving on the right.
  */
-export function MeetControlBar() {
+interface MeetControlBarProps {
+	/** The People panel is open; it and the chat take the same place, one at a time. */
+	isPeopleOpen: boolean;
+	onPeopleOpenChange: (isOpen: boolean) => void;
+}
+
+export function MeetControlBar({ isPeopleOpen, onPeopleOpenChange }: Readonly<MeetControlBarProps>) {
 	const t = useTranslations();
 	const room = useRoomContext();
 	const layoutContext = useMaybeLayoutContext();
@@ -85,6 +101,17 @@ export function MeetControlBar() {
 	});
 	const widget = layoutContext?.widget;
 	const unreadMessages = widget?.state?.unreadMessages ?? 0;
+	const isChatOpen = Boolean(widget?.state?.showChat);
+
+	const togglePeople = () => {
+		if (!isPeopleOpen && isChatOpen) widget?.dispatch?.({ msg: 'toggle_chat' });
+		onPeopleOpenChange(!isPeopleOpen);
+	};
+
+	const toggleChat = () => {
+		if (isPeopleOpen) onPeopleOpenChange(false);
+		widget?.dispatch?.({ msg: 'toggle_chat' });
+	};
 
 	const canPublish = (source: Track.Source.Camera | Track.Source.Microphone | Track.Source.ScreenShare) =>
 		Boolean(
@@ -121,12 +148,19 @@ export function MeetControlBar() {
 				)}
 			</div>
 			<div className="flex items-center gap-1">
+				<BarButton
+					icon={<Users />}
+					label={t('meetings.PEOPLE')}
+					isPressed={isPeopleOpen}
+					onClick={togglePeople}
+					testId="meet-control-people"
+				/>
 				{permissions?.canPublishData && widget && (
 					<BarButton
 						icon={<MessageCircle />}
 						label={t('meetings.CHAT')}
-						isPressed={Boolean(widget.state?.showChat)}
-						onClick={() => widget.dispatch?.({ msg: 'toggle_chat' })}
+						isPressed={isChatOpen}
+						onClick={toggleChat}
 						badge={
 							unreadMessages > 0 && (
 								<span className="absolute right-2 top-1 min-w-4 rounded-full bg-primary px-1 text-[10px] leading-4 text-primary-foreground tabular-nums">

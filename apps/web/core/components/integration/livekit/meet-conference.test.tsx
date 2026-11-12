@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 import type { ReactNode } from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 const mockPinDispatch = jest.fn();
 let mockTracks: Array<Record<string, unknown>> = [];
@@ -30,7 +30,16 @@ jest.mock('@livekit/components-react', () => {
 	};
 });
 jest.mock('./settings-livekit', () => ({ SettingsMenu: () => <div data-testid="settings" /> }));
-jest.mock('./meet-control-bar', () => ({ MeetControlBar: () => <div data-testid="control-bar" /> }));
+jest.mock('./meet-control-bar', () => ({
+	MeetControlBar: ({ onPeopleOpenChange }: { onPeopleOpenChange: (isOpen: boolean) => void }) => (
+		<div data-testid="control-bar">
+			<button type="button" onClick={() => onPeopleOpenChange(true)}>
+				people
+			</button>
+		</div>
+	)
+}));
+jest.mock('./people-panel', () => ({ PeoplePanel: () => <div data-testid="people" /> }));
 
 import { MeetConference } from './meet-conference';
 
@@ -74,5 +83,14 @@ describe('MeetConference', () => {
 		expect(screen.getByTestId('focus')).toBeTruthy();
 		expect(screen.getByTestId('carousel')).toBeTruthy();
 		expect(screen.queryByTestId('grid')).toBeNull();
+	});
+
+	it('opens the people beside the room from the control bar', () => {
+		render(<MeetConference />);
+		expect(screen.queryByTestId('people')).toBeNull();
+
+		fireEvent.click(screen.getByRole('button', { name: 'people' }));
+
+		expect(screen.getByTestId('people')).toBeTruthy();
 	});
 });
