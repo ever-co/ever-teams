@@ -102,6 +102,8 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 	const t = useTranslations();
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [pickerOpen, setPickerOpen] = useState(false);
+	// An app icon that did not load: the placeholder shows instead (as for a person whose picture failed).
+	const [failedIcon, setFailedIcon] = useState<string | null>(null);
 	const isMine = !!meUserId && String(message.authorUserId ?? '') === String(meUserId);
 	const outbox = isOutboxMessage(message) ? message : null;
 	// The attribution reads in the locale's direction, and the assistant's name is isolated (`<bdi>`), so a Latin
@@ -142,7 +144,8 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 	const isApp = message.kind === 'app';
 	const appRendering = isApp && isChatWebhooksEnabled();
 	const appBlocks = appRendering ? appBlocksOf(message) : [];
-	const appIcon = appRendering ? httpsUrlOf(message.appIconUrl) : null;
+	const iconUrl = appRendering ? httpsUrlOf(message.appIconUrl) : null;
+	const appIcon = iconUrl && iconUrl !== failedIcon ? iconUrl : null;
 	const bodyIsBlocks = bodyRepeatsBlocks(message.body, appBlocks);
 
 	return (
@@ -178,7 +181,7 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 					) : author ? (
 						<PersonAvatar person={{ id: author.employeeId, name: author.name, imageUrl: author.imageUrl }} size="md" className="mt-0.5 size-9 text-xs ring-0" />
 					) : appIcon ? (
-						<img src={appIcon} alt="" referrerPolicy="no-referrer" loading="lazy" className="mt-0.5 size-9 rounded-md object-cover" data-app-icon="" />
+						<img src={appIcon} alt="" referrerPolicy="no-referrer" loading="lazy" className="mt-0.5 size-9 rounded-md object-cover" data-app-icon="" onError={() => setFailedIcon(appIcon)} />
 					) : (
 						<span className="mt-0.5 flex size-9 items-center justify-center rounded-full bg-foreground/[0.06] text-muted-foreground" aria-hidden="true">
 							{message.appName && <Bot className="size-4" />}
@@ -223,7 +226,7 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 					)}
 					{!deleted && appBlocks.length > 0 && <ChatAppBlocks message={message} readOnly={props.readOnly} onReplaced={props.onAppReply} />}
 					{/* The cards of its links, once it is sent (with the flag on; the platform fetched the pages). */}
-					{!deleted && !outbox && !bodyIsFileNames && isChatLinkPreviewsEnabled() && <MessageLinkPreviews body={message.body} />}
+					{!deleted && !outbox && !bodyIsFileNames && !bodyIsBlocks && isChatLinkPreviewsEnabled() && <MessageLinkPreviews body={message.body} />}
 					{attachmentIds.length > 0 && (
 						<div className={cn(outbox?.outbox === 'pending' && 'opacity-60')}>
 							<MessageAttachments attachmentIds={attachmentIds} files={files} onOpenImage={props.onOpenImage ?? IGNORE} onBrokenImage={props.onBrokenImage} />

@@ -201,6 +201,48 @@ describe('ChatAppBlocks', () => {
 		}
 	});
 
+	it('asks once more about a delivery without its reply, and reads the reply applied just after', async () => {
+		jest.useFakeTimers();
+		try {
+			const replaced = appMessage({ body: 'Acknowledged by Ana', blocks: [] });
+			mockInteract.mockResolvedValue({ interaction: interaction('retrying'), events: [] });
+			mockInteraction.mockResolvedValueOnce(interaction('delivered')).mockResolvedValueOnce({ ...interaction('delivered'), replyApplied: true });
+			mockMessages.mockResolvedValue({ messages: [replaced], hasBefore: false, hasAfter: false });
+			const onReplaced = jest.fn();
+			render(<ChatAppBlocks message={appMessage()} onReplaced={onReplaced} />);
+			await act(async () => {
+				fireEvent.click(screen.getByText('Acknowledge'));
+			});
+			await act(async () => {
+				await jest.advanceTimersByTimeAsync(APP_INTERACTION_POLL_MS * 2);
+			});
+			expect(mockInteraction).toHaveBeenCalledTimes(2);
+			expect(onReplaced).toHaveBeenCalledWith(expect.objectContaining({ id: 'm1' }), { ...replaced, readOrder: expect.any(Number) });
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
+	it('stops after that one more look when no reply came', async () => {
+		jest.useFakeTimers();
+		try {
+			mockInteract.mockResolvedValue({ interaction: interaction('retrying'), events: [] });
+			mockInteraction.mockResolvedValue(interaction('delivered'));
+			render(<ChatAppBlocks message={appMessage()} />);
+			await act(async () => {
+				fireEvent.click(screen.getByText('Acknowledge'));
+			});
+			await act(async () => {
+				await jest.advanceTimersByTimeAsync(APP_INTERACTION_POLL_MS * 5);
+			});
+			expect(mockInteraction).toHaveBeenCalledTimes(2);
+			expect(mockMessages).not.toHaveBeenCalled();
+			expect(screen.getByLabelText('teamChat.APP_DONE')).toBeTruthy();
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
 	it('frees the button and says so when the callback is still retried after the chat stops asking', async () => {
 		jest.useFakeTimers();
 		try {
@@ -294,6 +336,13 @@ describe('MessageItem with app messages', () => {
 		process.env.NEXT_PUBLIC_CHAT_WEBHOOKS_ENABLED = 'true';
 		render(item(appMessage({ body: blocksText(BLOCKS) })));
 		expect(screen.queryByTestId('body')).toBeNull();
+	});
+
+	it('shows the placeholder instead of an app icon that did not load', () => {
+		process.env.NEXT_PUBLIC_CHAT_WEBHOOKS_ENABLED = 'true';
+		const { container } = render(item(appMessage()));
+		fireEvent.error(container.querySelector('[data-app-icon]') as HTMLImageElement);
+		expect(container.querySelector('[data-app-icon]')).toBeNull();
 	});
 
 	it('disables the buttons of an app message in an archived conversation', () => {

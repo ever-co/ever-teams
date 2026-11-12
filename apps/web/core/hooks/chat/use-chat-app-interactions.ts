@@ -96,9 +96,14 @@ export function useChatAppInteractions(message: IChatMessage, { readOnly = false
 		}
 	}, [message]);
 
-	/** Asks again about a click whose callback is being retried, until it settles or the chat stops asking. */
+	/**
+	 * Asks again about a click whose callback is being retried, until it settles or the chat stops asking. The platform
+	 * writes a retry's delivery just before it applies the app's reply: a delivery without its reply is asked about once
+	 * more.
+	 */
 	const follow = useCallback(
 		async (key: string, blockId: string | null, interactionId: string) => {
+			let lookedAgain = false;
 			for (let round = 0; round < APP_INTERACTION_POLL_MAX; round += 1) {
 				await pause();
 				if (!alive.current) return;
@@ -109,8 +114,14 @@ export function useChatAppInteractions(message: IChatMessage, { readOnly = false
 					if (state === 'pending') continue;
 					if (state === 'failed') setFailure(blockId, 'APP_CALLBACK_FAILED');
 					if (interaction.replyApplied) await readReplaced(interaction);
+					else if (state === 'done' && !lookedAgain && round + 1 < APP_INTERACTION_POLL_MAX) {
+						lookedAgain = true;
+						continue;
+					}
 					return;
 				} catch {
+					// Asked again after the delivery: the click went through; only the reply's read is missed.
+					if (lookedAgain) return;
 					setState(key, 'failed');
 					setFailure(blockId, 'APP_CLICK_FAILED');
 					return;
