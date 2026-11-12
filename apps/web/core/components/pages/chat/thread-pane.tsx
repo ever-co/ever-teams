@@ -4,16 +4,21 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { Bell, BellOff, X } from '@/core/components/icons';
+import { ArrowLeft, Bell, BellOff, X } from '@/core/components/icons';
 import { Button } from '@/core/components/duplicated-components/_button';
+import { cn } from '@/core/lib/helpers';
 import { useChatActions, ChatOutboxMessage } from '@/core/hooks/chat/use-chat-actions';
+import { useChatAttachments } from '@/core/hooks/chat/use-chat-attachments';
 import { useChatDraft } from '@/core/hooks/chat/use-chat-draft';
+import { useChatFiles } from '@/core/hooks/chat/use-chat-files';
 import { useChatThread } from '@/core/hooks/chat/use-chat-messages';
 import { useChatPeople, useChatScope } from '@/core/hooks/chat/use-chat-scope';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
+import { attachmentFallbackBody } from '@/core/lib/utils/chat-attachments';
 import { dayKeyOf, dayLabel, timelineItems } from '@/core/lib/utils/chat-timeline';
 import { tasksByTeamState } from '@/core/stores/teams/team-tasks';
-import { IChatMessage } from '@/core/types/interfaces/common/chat';
+import { IChatFile, IChatMessage } from '@/core/types/interfaces/common/chat';
+import { ImageLightbox } from './chat-attachments';
 import { ChatErrorState, ChatMessagesSkeleton } from './chat-states';
 import { DayDivider, RepliesDivider } from './chat-timeline-parts';
 import { BAR_BUTTON } from './conversation-header';
@@ -53,6 +58,12 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 	const taskTitles = useMemo(() => new Map(tasks.map((task) => [task.id, task.title])), [tasks]);
 	const { root, replies, isLoading, isError, retry } = useChatThread(rootMessageId, true);
 	const { draft, setDraft, clearDraft } = useChatDraft(conversationId, rootMessageId);
+	const attachments = useChatAttachments();
+	const threadMessages = useMemo(() => (root ? [root, ...replies] : replies), [replies, root]);
+	const files = useChatFiles(conversationId, threadMessages);
+	// By id: the lightbox shows the newest copy of the record (its signed address is read again with the list).
+	const [pictureId, setPictureId] = useState<string | null>(null);
+	const picture = pictureId ? (files.byId.get(pictureId) ?? null) : null;
 	const [alsoToConversation, setAlsoToConversation] = useState(false);
 	const [editing, setEditing] = useState<IChatMessage | null>(null);
 	const [editValue, setEditValue] = useState('');
@@ -77,11 +88,22 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 
 	const send = useCallback(
 		async (body: string) => {
+			const attachmentIds = attachments.readyIds;
+			const ready = new Set(attachmentIds);
+			const names = attachments.items.filter((item) => item.documentId && ready.has(item.documentId)).map((item) => item.name);
 			clearDraft();
+			attachments.releaseSent();
 			stickToBottom.current = true;
-			await actions.send(conversationId, { body, threadRootId: rootMessageId, alsoInConversation: alsoToConversation }).catch(() => toast.error(t('teamChat.SEND_FAILED')));
+			await actions
+				.send(conversationId, {
+					body: body || attachmentFallbackBody(names),
+					threadRootId: rootMessageId,
+					alsoInConversation: alsoToConversation,
+					attachmentIds: attachmentIds.length ? attachmentIds : undefined
+				})
+				.catch(() => toast.error(t('teamChat.SEND_FAILED')));
 		},
-		[actions, alsoToConversation, clearDraft, conversationId, rootMessageId, t]
+		[actions, alsoToConversation, attachments, clearDraft, conversationId, rootMessageId, t]
 	);
 
 	// The newest reply stays in view while the reader is at the bottom; a link to a reply scrolls it into view once the
@@ -151,14 +173,16 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 				navigator.clipboard?.writeText(`${window.location.origin}/chat/${conversationId}?thread=${rootMessageId}&m=${message.id}`).then(() => toast(t('teamChat.LINK_COPIED'))).catch(() => undefined);
 			},
 			onOpenTask: (taskId: string) => openTaskDrawer(taskId),
-			onCreateTask: (message: IChatMessage) => setTaskFrom(message)
+			onCreateTask: (message: IChatMessage) => setTaskFrom(message),
+			onOpenImage: (file: IChatFile) => setPictureId(String(file.documentId)),
+			onBrokenImage: files.refresh
 		}),
-		[actions, conversationId, openTaskDrawer, reportFailure, rootMessageId, t]
+		[actions, conversationId, files.refresh, openTaskDrawer, reportFailure, rootMessageId, t]
 	);
 
 	const authorOf = (message: IChatMessage) =>
 		message.authorEmployeeId ? (people.byEmployee.get(String(message.authorEmployeeId)) ?? null) : message.authorUserId ? (people.byUser.get(String(message.authorUserId)) ?? null) : null;
-	const itemProps = { people: people.byEmployee, conversationNames, meEmployeeId: scope?.employeeId ?? null, meUserId: scope?.userId ?? null, locale, inTimeline: false, canManage, taskTitles, ...handlers };
+	const itemProps = { people: people.byEmployee, conversationNames, meEmployeeId: scope?.employeeId ?? null, meUserId: scope?.userId ?? null, locale, inTimeline: false, canManage, taskTitles, files: files.byId, ...handlers };
 	const editComposer = (
 		<div className="px-4 py-2">
 			<MessageComposer value={editValue} onChange={setEditValue} onSubmit={saveEdit} onCancel={() => setEditing(null)} people={people.list} placeholder={t('teamChat.EDIT')} editing autoFocus />
@@ -170,6 +194,10 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 	return (
 		<div className="flex h-full min-h-0 flex-col">
 			<header className="flex h-12 shrink-0 items-center gap-1 border-border px-3 hairline-b">
+				{/* On a phone the thread is a full view over the conversation: the way back stands where a back button does. */}
+				<button type="button" onClick={onClose} className={cn(BAR_BUTTON, 'lg:hidden')} aria-label={t('teamChat.BACK')} title={t('teamChat.BACK')}>
+					<ArrowLeft className="rtl:rotate-180" />
+				</button>
 				<div className="flex min-w-0 flex-1 items-baseline gap-2 px-1">
 					<h2 className="shrink-0 text-sm font-semibold text-foreground">{t('teamChat.THREAD')}</h2>
 					{label && <span className="min-w-0 truncate text-xs text-muted-foreground">{label}</span>}
@@ -180,7 +208,7 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 						{root.following ? t('teamChat.UNFOLLOW') : t('teamChat.FOLLOW')}
 					</Button>
 				)}
-				<button type="button" onClick={onClose} className={BAR_BUTTON} aria-label={t('teamChat.CLOSE')} title={t('teamChat.CLOSE')}>
+				<button type="button" onClick={onClose} className={cn(BAR_BUTTON, 'max-lg:hidden')} aria-label={t('teamChat.CLOSE')} title={t('teamChat.CLOSE')}>
 					<X />
 				</button>
 			</header>
@@ -208,7 +236,7 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 					)}
 				</div>
 			</div>
-			<div className="shrink-0 px-3 pb-3 pt-1">
+			<div className="shrink-0 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-1">
 				<MessageComposer
 					value={draft}
 					onChange={setDraft}
@@ -217,9 +245,11 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 					placeholder={t('teamChat.REPLY_PLACEHOLDER')}
 					alsoToConversation={{ checked: alsoToConversation, onChange: setAlsoToConversation }}
 					autoFocus={focusComposer}
+					attachments={attachments}
 				/>
 			</div>
 			{taskFrom && <CreateTaskFromMessageDialog key={taskFrom.id} message={taskFrom} onClose={() => setTaskFrom(null)} />}
+			<ImageLightbox file={picture} onClose={() => setPictureId(null)} />
 		</div>
 	);
 }

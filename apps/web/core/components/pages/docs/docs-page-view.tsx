@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -14,22 +15,34 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuSeparator,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 import { RichTextView } from '@/core/components/common/rich-editor/rich-text-view';
 import { ADD_ROW_RECIPE } from '@/core/components/common/surface-recipes';
-import { ArrowLeft, Check, CircleAlert, FileText, History, Lock, MoreHorizontal, Plus, Smile, Spinner, Star, Trash } from '@/core/components/icons';
+import { ArrowLeft, Check, CircleAlert, Comment, FileText, History, Lock, MoreHorizontal, Plus, Sidebar, Smile, Spinner, Star, Trash } from '@/core/components/icons';
 import { useDocsAutosave, useEditorPageContent, type DocsSaveState } from '@/core/hooks/docs/use-docs-autosave';
+import { useDocsFollow, type DocsFollowAction, type DocsSpacesState } from '@/core/hooks/docs/use-docs-collaboration';
+import { useDocsComments } from '@/core/hooks/docs/use-docs-comments';
+import { useDocsLive } from '@/core/hooks/docs/use-docs-live';
 import { useDocsPage, useDocsPath } from '@/core/hooks/docs/use-docs-page';
 import { useDocsRecent } from '@/core/hooks/docs/use-docs-recent';
-import { useDocsMentionCandidates } from '@/core/hooks/docs/use-docs-scope';
+import { useDocsMentionCandidates, useDocsScope } from '@/core/hooks/docs/use-docs-scope';
 import type { DocsTreeState } from '@/core/hooks/docs/use-docs-tree';
 import { cn } from '@/core/lib/helpers';
-import { documentToMarkdown, markdownFileName } from '@/core/lib/utils/docs-markdown';
+import { DOCS_LIVE_FIELD } from '@/core/lib/docs-live/config';
+import { anchoredBlocksOf, openThreadBlockIds, openThreadOnBlock, threadOfComment, type DocsCommentThread } from '@/core/lib/utils/docs-comments';
+import { docsLinkTargetOf, docsPageUrl } from '@/core/lib/utils/docs-links';
+import { documentToMarkdown, markdownFileName, mentionedEmployeeIds } from '@/core/lib/utils/docs-markdown';
 import { DOCS_OUTLINE_SELECTOR, outlineOf, textStatsOf, type DocsOutlineItem } from '@/core/lib/utils/docs-outline';
 import { pageTitle } from '@/core/lib/utils/docs-tree';
+import { docsService } from '@/core/services/client/api/docs';
 import { EDocumentKind, EDocumentVisibility, type IDocumentNode, type IDocumentPage } from '@/core/types/interfaces/common/docs';
-import type { DocsEditorApi } from './docs-editor-surface';
+import { DocsCommentsPanel, type DocsPendingAnchor } from './docs-comments-panel';
+import type { DocsEditorApi, DocsEditorComments, DocsEditorLive } from './docs-editor-surface';
+import { DocsLiveStatusLabel, useLiveReadOnlyText } from './docs-live-presence';
 import { DocsPageGlyph } from './docs-page-glyph';
 import { DocsVersionPanel } from './docs-version-panel';
 
@@ -52,6 +65,8 @@ export interface DocsPageViewActions {
 	rename: (pageId: string, name: string) => Promise<unknown>;
 	setIcon: (page: IDocumentPage) => void;
 	setVisibility: (page: IDocumentPage, visibility: EDocumentVisibility) => Promise<unknown>;
+	/** Into another space (on a platform with Docs collaboration). */
+	moveToSpace: (page: IDocumentPage, visibility: EDocumentVisibility, organizationTeamId: string | null) => Promise<unknown>;
 	moveTo: (page: IDocumentPage) => void;
 	duplicate: (page: IDocumentPage, deep: boolean) => Promise<unknown>;
 	trash: (page: IDocumentPage) => Promise<unknown>;
@@ -66,7 +81,42 @@ interface DocsPageViewProps {
 	pageId: string;
 	tree: DocsTreeState;
 	actions: DocsPageViewActions;
+	/** The spaces of the tree; without Docs collaboration on the platform, only the workspace and private. */
+	spaces?: DocsSpacesState;
+	/** On a phone, the tree opens as a drawer over the page. */
+	onOpenTree?: () => void;
 }
+
+/** How long a block a link pointed at stays lit. */
+const LINKED_BLOCK_LIT_MS = 4000;
+/** How long the page is searched for a block a link or a thread points at. */
+const BLOCK_SEARCH_MS = 12_000;
+/** How many times, and how far apart, a draft is saved while a save already runs, before an export or a new anchor. */
+const DRAFT_SAVE_ATTEMPTS = 20;
+const DRAFT_SAVE_WAIT_MS = 300;
+/** The save states that wait for the person: nothing is saved until they act. */
+const SAVE_FAILURES: ReadonlySet<DocsSaveState> = new Set<DocsSaveState>(['conflict', 'locked', 'too-large', 'error']);
+
+/** The selector of a block by its anchor, in the editor and in the read-only view (the platform's spelling too). */
+function blockSelectorOf(blockId: string): string {
+	const id = CSS.escape(blockId);
+	return `[data-block-id="${id}"], [data-blockid="${id}"]`;
+}
+
+function downloadBlob(blob: Blob, fileName: string) {
+	const url = URL.createObjectURL(blob);
+	const anchor = document.createElement('a');
+	anchor.href = url;
+	anchor.download = fileName;
+	anchor.click();
+	// The click starts the download; the address is released once it had the time to.
+	setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+const NO_SPACES: DocsSpacesState = { available: false, teamSpaces: [] };
+
+/** A version older than any page: a draft written against it always meets the platform's text as a conflict. */
+const NEVER_SAVED_CLOCK = '1970-01-01T00:00:00.000Z';
 
 function readFullWidth(): boolean {
 	try {
@@ -77,22 +127,38 @@ function readFullWidth(): boolean {
 }
 
 /** One page: its path, icon, title, the editor with autosave, its outline, its sub-pages, the menu and the version history. */
-export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
+export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpenTree }: DocsPageViewProps) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const { page, isLoading, isError, isNotFound, retry } = useDocsPage(pageId, true);
 	const { path } = useDocsPath(pageId, !!page);
 	const autosave = useDocsAutosave(page);
+	// The page holds content this editor cannot carry: shown read-only, never saved from here.
+	const [unsupported, setUnsupported] = useState(false);
+	// A page (not a folder) outside the trash, unlocked and carried by this editor is edited live when the deployment and
+	// the platform both do; otherwise (and once live editing stops) the autosave edits it. One live session per view:
+	// - it starts only while the autosave holds nothing of this page (a draft kept from an earlier visit, a save on its
+	//   way): that text is settled in the autosave first, never hidden behind a live editor;
+	// - once the page stops qualifying (locked, trashed, content this editor cannot carry) it never starts again here,
+	//   so the autosave editor is never swapped for a live one under the person's hands. The next visit goes live.
+	const qualifiesForLive = Boolean(page && page.kind === EDocumentKind.PAGE && !page.isArchived && !page.isLocked && !unsupported);
+	const autosaveHolds = autosave.restoredHtml !== null || autosave.hasDraft() || (autosave.state !== 'idle' && autosave.state !== 'saved');
+	const [liveStarted, setLiveStarted] = useState(false);
+	const [liveRevoked, setLiveRevoked] = useState(false);
+	if (!liveStarted && !liveRevoked && qualifiesForLive && !autosaveHolds) setLiveStarted(true);
+	if (!liveRevoked && page && (autosaveHolds ? !liveStarted : !qualifiesForLive && liveStarted)) setLiveRevoked(true);
+	const live = useDocsLive(page?.id ?? null, liveStarted && !liveRevoked && qualifiesForLive);
+	// Follows exist where spaces do: both are the platform's Docs collaboration.
+	const follow = useDocsFollow(page?.id ?? null, Boolean(page && !page.isArchived && spaces.available));
 	// A refreshed page (a live event, another person's save) reaches the editor only while nothing typed here is unsaved:
 	// neither its text nor its JSON (an unsupported one would turn the page read-only and drop the draft).
 	const editorContent = useEditorPageContent(page?.id ?? null, page?.contentHtml ?? '', page?.contentJson ?? null, autosave.hasDraft());
 	const mentions = useDocsMentionCandidates();
+	const scope = useDocsScope();
 	const { remember } = useDocsRecent();
 	// Both start over with the page: the parent renders this view with `key={pageId}`.
 	const [showHistory, setShowHistory] = useState(false);
 	const [editorApi, setEditorApi] = useState<DocsEditorApi | null>(null);
-	// The page holds content this editor cannot carry: shown read-only, never saved from here.
-	const [unsupported, setUnsupported] = useState(false);
 	// Read once, on this device: the page's text is not rendered before its data, so the server never shows a width.
 	const [fullWidth, setFullWidth] = useState(readFullWidth);
 	const { discard, change } = autosave;
@@ -135,12 +201,85 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 		[change]
 	);
 
+	// Live, the platform saves the page: a change only moves the outline and the counts.
+	const onLiveEditorChange = useCallback((_html: string, json: IDocumentNode | null) => {
+		if (liveTimerRef.current) clearTimeout(liveTimerRef.current);
+		liveTimerRef.current = setTimeout(() => setLiveJson(json), OUTLINE_DELAY_MS);
+	}, []);
+
 	useEffect(
 		() => () => {
 			if (liveTimerRef.current) clearTimeout(liveTimerRef.current);
 		},
 		[]
 	);
+
+	// The session's document, once its first state arrived: what the live editor binds.
+	const liveSnapshot = live.snapshot;
+	const isLiveEditing = (live.mode === 'live' || live.mode === 'reconnecting') && Boolean(liveSnapshot?.synced);
+	const isLiveConnecting = live.mode === 'connecting' || live.rereading || ((live.mode === 'live' || live.mode === 'reconnecting') && !liveSnapshot?.synced);
+	const liveEditor = useMemo<DocsEditorLive | null>(
+		() =>
+			isLiveEditing && live.binding && liveSnapshot
+				? { binding: live.binding, doc: liveSnapshot.doc, awareness: liveSnapshot.awareness, generation: liveSnapshot.generation, readOnly: liveSnapshot.readOnly }
+				: null,
+		[isLiveEditing, live.binding, liveSnapshot]
+	);
+	const liveReadOnlyText = useLiveReadOnlyText(liveSnapshot?.readOnly ? liveSnapshot.readOnlyReason : null);
+
+	// The page's version when live editing began, never moved after: unsent text kept after live editing stops is written
+	// against it. A later clock (a refresh while the session was down) may stand for text this editor never received, and
+	// a save against it would overwrite that text; against this one, any change since meets the save as a conflict.
+	const liveClockRef = useRef<string | null>(null);
+	const { adoptDraft } = autosave;
+	// Where the adoption of a fallen-back session's text stands: the autosave editor stays closed until it is done, so
+	// nothing typed meanwhile can start another draft before it (which would leave the live text out).
+	const [adoption, setAdoption] = useState<'waiting' | 'done' | 'failed'>('waiting');
+	const [adoptionTry, setAdoptionTry] = useState(0);
+	const adoptingRef = useRef(false);
+	const pageClock = page?.updatedAt ?? null;
+	const pageWritable = Boolean(page && !page.isArchived && !page.isLocked);
+	const unsentAtFallback = live.mode === 'fallback' && !live.rereading && Boolean(liveSnapshot?.unsentEdits);
+	const fallenDoc = unsentAtFallback ? (liveSnapshot?.doc ?? null) : null;
+	useEffect(() => {
+		if (isLiveEditing && liveClockRef.current === null) liveClockRef.current = pageClock;
+	}, [isLiveEditing, pageClock]);
+	// Live editing stopped with edits the platform never confirmed: what the session's document holds becomes the
+	// autosave's draft (read from the document, which also covers edits remembered from an earlier visit that no editor
+	// showed yet). Without the version live editing began on, the oldest one stands in, so the save meets a conflict.
+	useEffect(() => {
+		if (!fallenDoc || !pageWritable || adoption !== 'waiting' || adoptingRef.current) return;
+		adoptingRef.current = true;
+		let current = true;
+		import('@/core/components/common/rich-editor/live-collaboration')
+			.then(({ liveDocumentContent }) => {
+				if (!current) return;
+				const { json, html } = liveDocumentContent(fallenDoc, DOCS_LIVE_FIELD);
+				const content = json as IDocumentNode;
+				adoptDraft(html, content, mentionedEmployeeIds(content), liveClockRef.current ?? NEVER_SAVED_CLOCK);
+				setAdoption('done');
+			})
+			.catch(() => {
+				// The editor's code did not load (offline, a new deployment): the document stays, and Retry tries again.
+				if (current) setAdoption('failed');
+			})
+			.finally(() => {
+				if (current) adoptingRef.current = false;
+			});
+		return () => {
+			current = false;
+			adoptingRef.current = false;
+		};
+	}, [adoptDraft, adoption, adoptionTry, fallenDoc, pageWritable]);
+	const awaitingAdoption = Boolean(fallenDoc) && pageWritable && adoption !== 'done';
+	const retryAdoption = () => {
+		setAdoption('waiting');
+		setAdoptionTry((count) => count + 1);
+	};
+
+	const runFollow = (action: DocsFollowAction) => {
+		follow.run(action).catch(() => toast.error(t('docs.UPDATE_ERROR')));
+	};
 
 	// What the editor holds is the document the outline and the counts read: once it is up (a page stored without
 	// the editor's document, written elsewhere as HTML), and again whenever the text it shows is replaced from outside
@@ -169,6 +308,192 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 		handle = requestAnimationFrame(read);
 		return () => cancelAnimationFrame(handle);
 	}, [editorApi, shownHtml]);
+
+	// ---------------------------------------------------------------- comments and the places links point at
+
+	const isPage = Boolean(page && page.kind === EDocumentKind.PAGE);
+	const comments = useDocsComments(page ? { id: page.id, name: page.name } : null, isPage);
+	const searchParams = useSearchParams();
+	const linkTarget = useMemo(() => docsLinkTargetOf(searchParams?.toString() ?? ''), [searchParams]);
+	const [showComments, setShowComments] = useState(linkTarget.comments || linkTarget.thread !== null);
+	const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
+	const [threadRequest, setThreadRequest] = useState(0);
+	const askThread = useCallback((threadId: string) => {
+		setActiveThreadId(threadId);
+		setThreadRequest((count) => count + 1);
+	}, []);
+	const [pendingAnchor, setPendingAnchor] = useState<DocsPendingAnchor | null>(null);
+	const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
+	// A block to bring into sight; the count lets the same block be asked for again.
+	const [scrollTarget, setScrollTarget] = useState<{ blockId: string; count: number; fromLink: boolean } | null>(null);
+	const anchoredBlocks = useMemo(() => anchoredBlocksOf(documentJson), [documentJson]);
+	const openBlockIds = useMemo(() => openThreadBlockIds(comments.threads), [comments.threads]);
+	const openThreadCount = useMemo(() => comments.threads.filter((thread) => !thread.resolved).length, [comments.threads]);
+
+	const revealBlock = useCallback((blockId: string, fromLink = false) => {
+		setActiveBlockId(blockId);
+		setScrollTarget((current) => ({ blockId, count: (current?.count ?? 0) + 1, fromLink }));
+	}, []);
+
+	const openComments = useCallback(() => {
+		setShowHistory(false);
+		setShowComments(true);
+	}, []);
+
+	// A link to a block (`?block=`) brings it into sight and lights it a moment.
+	const linkedBlock = linkTarget.block;
+	const isPageShown = Boolean(page);
+	useEffect(() => {
+		if (!linkedBlock || !isPageShown) return;
+		revealBlock(linkedBlock, true);
+		const timer = setTimeout(() => setActiveBlockId((current) => (current === linkedBlock ? null : current)), LINKED_BLOCK_LIT_MS);
+		return () => clearTimeout(timer);
+	}, [isPageShown, linkedBlock, revealBlock]);
+
+	// A link to a thread (`?thread=`, an Inbox entry) opens it once the comments are read, with its block in sight.
+	const linkedThread = linkTarget.thread;
+	const handledThreadRef = useRef<string | null>(null);
+	useEffect(() => {
+		if (!linkedThread || !comments.isReady || handledThreadRef.current === linkedThread) return;
+		handledThreadRef.current = linkedThread;
+		const thread = threadOfComment(comments.threads, linkedThread);
+		openComments();
+		if (!thread) {
+			toast(t('docs.THREAD_NOT_FOUND'));
+			return;
+		}
+		askThread(thread.id);
+		if (thread.blockId) revealBlock(thread.blockId, true);
+	}, [askThread, comments.isReady, comments.threads, linkedThread, openComments, revealBlock, t]);
+	useEffect(() => {
+		if (linkTarget.comments) openComments();
+	}, [linkTarget.comments, openComments]);
+
+	// The block asked for, once the editor (or the read-only view) shows it.
+	useEffect(() => {
+		if (!scrollTarget) return;
+		// The editor can take a while (a live session's first state): the block is looked for up to this long.
+		const deadline = Date.now() + BLOCK_SEARCH_MS;
+		let handle = 0;
+		const find = () => {
+			const element = bodyRef.current?.querySelector<HTMLElement>(blockSelectorOf(scrollTarget.blockId));
+			if (element) {
+				element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				// The read-only view has no editor to light the block: its element is lit for a moment.
+				if (!element.closest('.ProseMirror')) {
+					element.classList.add('docs-active-block');
+					setTimeout(() => element.classList.remove('docs-active-block'), LINKED_BLOCK_LIT_MS);
+				}
+				return;
+			}
+			if (Date.now() < deadline) {
+				handle = requestAnimationFrame(find);
+			} else if (scrollTarget.fromLink) {
+				toast(t('docs.BLOCK_NOT_FOUND'));
+			}
+		};
+		handle = requestAnimationFrame(find);
+		return () => cancelAnimationFrame(handle);
+	}, [scrollTarget, t]);
+
+	const selectThread = useCallback(
+		(thread: DocsCommentThread) => {
+			askThread(thread.id);
+			if (thread.blockId) revealBlock(thread.blockId);
+		},
+		[askThread, revealBlock]
+	);
+
+	const copyText = useCallback(
+		(text: string) => {
+			// No clipboard (a page served without https) or a refused one: the person is told, never left with an old copy.
+			const clipboard = typeof navigator === 'undefined' ? undefined : navigator.clipboard;
+			if (!clipboard) {
+				toast.error(t('docs.COPY_ERROR'));
+				return;
+			}
+			clipboard
+				.writeText(text)
+				.then(() => toast(t('docs.LINK_COPIED')))
+				.catch(() => toast.error(t('docs.COPY_ERROR')));
+		},
+		[t]
+	);
+
+	// The draft saved and settled (a save already running is waited for); false when it cannot be (a conflict, a lock, a
+	// draft too large, an error).
+	const saveStateRef = useRef(autosave.state);
+	useEffect(() => {
+		saveStateRef.current = autosave.state;
+	});
+	const { flushNow, hasDraft } = autosave;
+	const saveDraftNow = useCallback(async (): Promise<boolean> => {
+		for (let attempt = 0; attempt < DRAFT_SAVE_ATTEMPTS; attempt += 1) {
+			const saved = await flushNow();
+			if (saved && !hasDraft()) return true;
+			if (SAVE_FAILURES.has(saveStateRef.current)) return false;
+			await new Promise((resolve) => setTimeout(resolve, DRAFT_SAVE_WAIT_MS));
+		}
+		return false;
+	}, [flushNow, hasDraft]);
+
+	// A block given its anchor for a comment: live, the edit went with the session; otherwise the page is saved first.
+	const holdAnchor = useCallback(async () => isLiveEditing || saveDraftNow(), [isLiveEditing, saveDraftNow]);
+
+	const startComment = useCallback(() => {
+		const anchor = editorApi?.anchorSelection() ?? null;
+		setPendingAnchor(anchor);
+		if (anchor) setActiveBlockId(anchor.blockId);
+		openComments();
+	}, [editorApi, openComments]);
+
+	const copyBlockLink = useCallback(() => {
+		const anchor = editorApi?.anchorSelection() ?? null;
+		if (!anchor) return;
+		// A block that just got its anchor is saved at once, so the link leads somewhere for whoever opens it.
+		if (anchor.created) void holdAnchor();
+		copyText(docsPageUrl(window.location.origin, pageId, { block: anchor.blockId }));
+	}, [copyText, editorApi, holdAnchor, pageId]);
+
+	const openThreadOfBlock = useCallback(
+		(blockId: string) => {
+			const thread = openThreadOnBlock(comments.threads, blockId);
+			openComments();
+			setActiveBlockId(blockId);
+			if (thread) askThread(thread.id);
+		},
+		[askThread, comments.threads, openComments]
+	);
+
+	const editorComments = useMemo<DocsEditorComments | null>(
+		() =>
+			isPage
+				? { openBlockIds, activeBlockId, onOpenThread: openThreadOfBlock, onComment: startComment, onCopyBlockLink: copyBlockLink }
+				: null,
+		[activeBlockId, copyBlockLink, isPage, openBlockIds, openThreadOfBlock, startComment]
+	);
+	const reader = useMemo(() => ({ employeeId: scope?.employeeId ?? null, userId: scope?.userId ?? null }), [scope?.employeeId, scope?.userId]);
+	const blockText = useCallback((blockId: string) => anchoredBlocks.text.get(blockId) ?? null, [anchoredBlocks]);
+
+	// The read-only view shows the stored HTML, which lacks the block anchors: a page whose JSON has them is rendered
+	// from it (the editor's HTML code loads for that), so a link to a block finds it there too.
+	const readOnlyNow = Boolean(page && (page.isLocked || page.isArchived || unsupported));
+	const storedHtml = page?.contentHtml ?? '';
+	const storedJson = page?.contentJson ?? null;
+	const [anchoredHtml, setAnchoredHtml] = useState<{ json: IDocumentNode; html: string } | null>(null);
+	useEffect(() => {
+		if (!readOnlyNow || unsupported || !storedJson || anchoredBlocksOf(storedJson).order.length === 0) return;
+		let current = true;
+		import('./docs-editor-html')
+			.then(({ editorHtmlOf }) => {
+				if (current) setAnchoredHtml({ json: storedJson, html: editorHtmlOf(storedHtml, storedJson) });
+			})
+			.catch(() => undefined);
+		return () => {
+			current = false;
+		};
+	}, [readOnlyNow, storedHtml, storedJson, unsupported]);
+	const readOnlyHtml = anchoredHtml && anchoredHtml.json === storedJson && !unsupported ? anchoredHtml.html : storedHtml;
 
 	const jumpToHeading = useCallback((item: DocsOutlineItem) => {
 		const heading = bodyRef.current?.querySelectorAll<HTMLElement>(DOCS_OUTLINE_SELECTOR)[item.index];
@@ -254,11 +579,29 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 	};
 
 	const copyLink = () => {
-		const url = `${window.location.origin}${window.location.pathname}`;
-		navigator.clipboard
-			?.writeText(url)
-			.then(() => toast(t('docs.LINK_COPIED')))
-			.catch(() => undefined);
+		copyText(`${window.location.origin}${window.location.pathname}`);
+	};
+
+	// The page and its sub-pages as a zip of Markdown files, from the platform (the text as saved: a pending draft first).
+	const [isExporting, setIsExporting] = useState(false);
+	const exportSubtree = async () => {
+		if (!page || isExporting) return;
+		setIsExporting(true);
+		const toastId = toast.loading(t('docs.EXPORTING'));
+		try {
+			// The zip is of the text as saved: the person's latest text goes first, or nothing is exported.
+			if (!isLiveEditing && !(await saveDraftNow())) {
+				toast.error(t('docs.EXPORT_UNSAVED'), { id: toastId });
+				return;
+			}
+			const blob = await docsService.exportSubtreeZip(page.id);
+			downloadBlob(blob, markdownFileName(pageTitle({ name: title }, t('docs.UNTITLED'))).replace(/\.md$/, '.zip'));
+			toast.dismiss(toastId);
+		} catch {
+			toast.error(t('docs.EXPORT_ERROR'), { id: toastId });
+		} finally {
+			setIsExporting(false);
+		}
 	};
 
 	const updatedAtLabel = useMemo(() => {
@@ -340,13 +683,20 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 		<div className="flex h-full min-h-0">
 			<div className="flex min-w-0 flex-1 flex-col">
 				<div className="flex h-11 shrink-0 items-center gap-1 px-3 hairline-b border-border print:hidden">
-					<Link href="/docs?tree=1" className={cn(BAR_BUTTON, 'lg:hidden')} aria-label={t('docs.BACK')}>
-						<ArrowLeft className="rtl:rotate-180" />
-					</Link>
+					{onOpenTree ? (
+						<button type="button" onClick={onOpenTree} className={cn(BAR_BUTTON, 'lg:hidden')} aria-label={t('docs.PAGES')} title={t('docs.PAGES')}>
+							<Sidebar className="rtl:-scale-x-100" />
+						</button>
+					) : (
+						<Link href="/docs?tree=1" className={cn(BAR_BUTTON, 'lg:hidden')} aria-label={t('docs.BACK')}>
+							<ArrowLeft className="rtl:rotate-180" />
+						</Link>
+					)}
 					<div className="min-w-0 flex-1 overflow-hidden px-1">
 						<Breadcrumb paths={crumbs} />
 					</div>
-					<SaveStateLabel state={autosave.state} />
+					{live.mode !== 'off' && <DocsLiveStatusLabel mode={live.mode} synced={Boolean(liveSnapshot?.synced)} peers={liveSnapshot?.peers ?? []} fallbackReason={liveSnapshot?.fallbackReason ?? null} />}
+					{!isLiveEditing && <SaveStateLabel state={autosave.state} />}
 					<button
 						type="button"
 						onClick={() => void actions.toggleFavorite(page.id)}
@@ -360,7 +710,30 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 					{!isFolder && (
 						<button
 							type="button"
-							onClick={() => setShowHistory((current) => !current)}
+							onClick={() => {
+								if (showComments) {
+									setShowComments(false);
+									setPendingAnchor(null);
+								} else {
+									openComments();
+								}
+							}}
+							aria-pressed={showComments}
+							aria-label={t('docs.COMMENTS')}
+							title={t('docs.COMMENTS')}
+							className={cn(BAR_BUTTON, 'relative w-auto min-w-7 gap-1 px-1.5', showComments && 'bg-foreground/[0.08] text-foreground')}
+						>
+							<Comment />
+							{openThreadCount > 0 && <span className="text-xs tabular-nums">{openThreadCount}</span>}
+						</button>
+					)}
+					{!isFolder && (
+						<button
+							type="button"
+							onClick={() => {
+								setShowComments(false);
+								setShowHistory((current) => !current);
+							}}
 							aria-pressed={showHistory}
 							aria-label={t('docs.VERSION_HISTORY')}
 							title={t('docs.VERSION_HISTORY')}
@@ -380,18 +753,67 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 							<DropdownMenuCheckboxItem checked={fullWidth} onCheckedChange={(checked) => toggleFullWidth(checked === true)}>
 								{t('docs.FULL_WIDTH')}
 							</DropdownMenuCheckboxItem>
+							{follow.available && (
+								<>
+									<DropdownMenuSeparator />
+									<DropdownMenuItem disabled={follow.isPending} onClick={() => runFollow(follow.following ? 'unfollow' : 'follow')}>
+										{follow.following ? t('docs.UNFOLLOW') : t('docs.FOLLOW')}
+									</DropdownMenuItem>
+									<DropdownMenuItem disabled={follow.isPending} onClick={() => runFollow(follow.muted ? 'unmute' : 'mute')}>
+										{follow.muted ? t('docs.UNMUTE') : t('docs.MUTE')}
+									</DropdownMenuItem>
+								</>
+							)}
 							<DropdownMenuSeparator />
 							<DropdownMenuItem onClick={() => actions.setIcon(page)}>{t('docs.CHANGE_ICON')}</DropdownMenuItem>
 							<DropdownMenuItem onClick={() => actions.moveTo(page)}>{t('docs.MOVE_TO')}</DropdownMenuItem>
 							<DropdownMenuItem onClick={() => void actions.duplicate(page, false)}>{t('docs.DUPLICATE')}</DropdownMenuItem>
 							{hasChildren && <DropdownMenuItem onClick={() => void actions.duplicate(page, true)}>{t('docs.DUPLICATE_WITH_SUB_PAGES')}</DropdownMenuItem>}
-							<DropdownMenuItem onClick={() => void actions.setVisibility(page, isPrivate ? EDocumentVisibility.ORGANIZATION : EDocumentVisibility.PRIVATE)}>
-								{isPrivate ? t('docs.MAKE_WORKSPACE') : t('docs.MAKE_PRIVATE')}
-							</DropdownMenuItem>
+							{spaces.available ? (
+								<DropdownMenuSub>
+									<DropdownMenuSubTrigger>{t('docs.MOVE_TO_SPACE')}</DropdownMenuSubTrigger>
+									<DropdownMenuSubContent className="max-h-80 w-56">
+										<DropdownMenuCheckboxItem
+											checked={page.visibility === EDocumentVisibility.ORGANIZATION}
+											onCheckedChange={() => page.visibility !== EDocumentVisibility.ORGANIZATION && void actions.moveToSpace(page, EDocumentVisibility.ORGANIZATION, null)}
+										>
+											{t('docs.WORKSPACE')}
+										</DropdownMenuCheckboxItem>
+										{spaces.teamSpaces.map((space) => {
+											const teamId = String(space.organizationTeamId);
+											const isHere = page.visibility === EDocumentVisibility.TEAM && page.organizationTeamId === teamId;
+											return (
+												<DropdownMenuCheckboxItem
+													key={teamId}
+													checked={isHere}
+													onCheckedChange={() => !isHere && void actions.moveToSpace(page, EDocumentVisibility.TEAM, teamId)}
+												>
+													{space.name || t('docs.TEAM_SPACE')}
+												</DropdownMenuCheckboxItem>
+											);
+										})}
+										<DropdownMenuCheckboxItem
+											checked={isPrivate}
+											onCheckedChange={() => !isPrivate && void actions.moveToSpace(page, EDocumentVisibility.PRIVATE, null)}
+										>
+											{t('docs.PRIVATE')}
+										</DropdownMenuCheckboxItem>
+									</DropdownMenuSubContent>
+								</DropdownMenuSub>
+							) : (
+								<DropdownMenuItem onClick={() => void actions.setVisibility(page, isPrivate ? EDocumentVisibility.ORGANIZATION : EDocumentVisibility.PRIVATE)}>
+									{isPrivate ? t('docs.MAKE_WORKSPACE') : t('docs.MAKE_PRIVATE')}
+								</DropdownMenuItem>
+							)}
 							{!isFolder && (
 								<>
 									<DropdownMenuSeparator />
 									<DropdownMenuItem onClick={exportMarkdown}>{t('docs.EXPORT_MARKDOWN')}</DropdownMenuItem>
+									{hasChildren && (
+										<DropdownMenuItem disabled={isExporting} onClick={() => void exportSubtree()}>
+											{t('docs.EXPORT_WITH_SUB_PAGES')}
+										</DropdownMenuItem>
+									)}
 									<DropdownMenuItem onClick={() => window.print()}>{t('docs.PRINT')}</DropdownMenuItem>
 								</>
 							)}
@@ -421,6 +843,11 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 							{page.isLocked && !page.isArchived && (
 								<Notice tone="muted" icon={<Lock className="size-4" />}>
 									<span>{t('docs.LOCKED_NOTICE')}</span>
+								</Notice>
+							)}
+							{isLiveEditing && liveReadOnlyText && (
+								<Notice tone="muted" icon={<Lock className="size-4" />}>
+									<span>{liveReadOnlyText}</span>
 								</Notice>
 							)}
 							{autosave.state === 'conflict' && (
@@ -523,13 +950,41 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 							{!isFolder && (
 								<div ref={bodyRef}>
 									{unsupported && <p className="mb-3 rounded-lg bg-foreground/[0.04] px-3 py-2 text-xs text-muted-foreground">{t('docs.UNSUPPORTED_CONTENT')}</p>}
-									{isReadOnly ? (
-										<RichTextView value={page.contentHtml ?? ''} emptyState={<p className="text-sm text-muted-foreground">{t('docs.EMPTY_PAGE')}</p>} />
-									) : (
+									{isReadOnly && (
+										<RichTextView value={readOnlyHtml} emptyState={<p className="text-sm text-muted-foreground">{t('docs.EMPTY_PAGE')}</p>} />
+									)}
+									{!isReadOnly && awaitingAdoption && adoption === 'failed' && (
+										<Notice tone="warning">
+											<span>{t('docs.SAVE_ERROR')}</span>
+											<Button type="button" size="sm" variant="outline" onClick={retryAdoption}>
+												{t('docs.RETRY')}
+											</Button>
+										</Notice>
+									)}
+									{!isReadOnly && (isLiveConnecting || (awaitingAdoption && adoption === 'waiting')) && <BodySkeleton />}
+									{!isReadOnly && !isLiveConnecting && liveEditor && (
 										<DocsEditorSurface
-											key={page.id}
+											// Its own instance: nothing of the live editor carries over to the autosave one, should live editing stop.
+											key={`${page.id}:live`}
+											value=""
+											live={liveEditor}
+											comments={editorComments}
+											onUnsupported={onUnsupported}
+											onChange={onLiveEditorChange}
+											onReady={setEditorApi}
+											mentions={mentions}
+											placeholder={t('docs.EDITOR_PLACEHOLDER')}
+											title={shownTitle}
+										/>
+									)}
+									{!isReadOnly && !isLiveConnecting && !liveEditor && !awaitingAdoption && (
+										<DocsEditorSurface
+											key={`${page.id}:page`}
 											value={autosave.restoredHtml ?? editorContent.html}
 											json={editorContent.json}
+											// A kept draft is not the stored page: only the stored page opens from its JSON.
+											sourceJson={autosave.restoredHtml === null ? editorContent.json : null}
+											comments={editorComments}
 											onUnsupported={onUnsupported}
 											onChange={onEditorChange}
 											onReady={setEditorApi}
@@ -602,6 +1057,33 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 					</div>
 				</div>
 			</div>
+			{showComments && !showHistory && !isFolder && (
+				<div className="absolute inset-0 z-10 bg-background lg:static lg:z-auto lg:w-80 lg:shrink-0 print:hidden">
+					<DocsCommentsPanel
+						comments={comments}
+						blockOrder={anchoredBlocks.order}
+						blockText={blockText}
+						reader={reader}
+						activeThreadId={activeThreadId}
+						activeThreadRequest={threadRequest}
+						onSelectThread={selectThread}
+						beforePost={holdAnchor}
+						pendingAnchor={pendingAnchor}
+						onClearPending={() => {
+							setPendingAnchor(null);
+							setActiveBlockId(null);
+						}}
+						canComment={!page.isArchived}
+						onCopyThreadLink={(thread) => copyText(docsPageUrl(window.location.origin, page.id, { thread: thread.id }))}
+						onClose={() => {
+							setShowComments(false);
+							setPendingAnchor(null);
+							setActiveThreadId(null);
+							setActiveBlockId(null);
+						}}
+					/>
+				</div>
+			)}
 			{showHistory && (
 				<div className="absolute inset-0 z-10 bg-background lg:static lg:z-auto lg:w-80 lg:shrink-0 print:hidden">
 					<DocsVersionPanel

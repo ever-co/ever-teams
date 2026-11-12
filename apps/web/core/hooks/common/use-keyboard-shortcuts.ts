@@ -14,6 +14,12 @@ export interface CommandShortcutConfig {
 	shortcutDisplay: string;
 	action: ShortcutAction;
 	icon?: React.ReactNode;
+	/** The shortcut registry's command the entry runs, while the registry is on (its keys are then the registry's). */
+	commandId?: string;
+	/** The key caps shown for the entry, one per cap (`⌘`, `,`), in place of the characters of `shortcutDisplay`. */
+	shortcutKeys?: string[];
+	/** More words the palette finds the entry by (its binding as text: `g t`, `gt`). */
+	keywords?: string[];
 }
 
 export interface CommandGroupConfig {

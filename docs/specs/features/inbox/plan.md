@@ -55,6 +55,12 @@ push) follow with the platform's delivery preferences.
 
 ## 6. Later
 
-- Delivery preferences (email immediate / digest, push) and DND once the platform exposes them.
-- Decisions (questions / approvals) answered in the detail pane.
-- Mobile: list and open-target first.
+- ~~Delivery preferences (email immediate / digest, push) and DND once the platform exposes them.~~ Done (T10): the
+  notification settings page saves `preferences.emailByType` / `email`, `dnd`, `digestHour` and `pushByType`
+  (the platform reads a kind's own push switch, else `push`, else on once a device is registered), switches
+  browser notifications for this device (`/inbox/push-subscriptions`, worker `public/inbox-push-sw.js`) and lists
+  the person's devices with a remove action. All of it shows only with `NEXT_PUBLIC_INBOX_ENABLED` and a platform
+  that answers the push routes. Still open: email shown disabled where the platform has no mail (the platform
+  exposes no signal for it yet).
+- ~~Decisions (questions / approvals) answered in the detail pane.~~ Done (T9).
+- ~~Mobile: list and open-target first.~~ Done (T11): `opensInboxTarget` / `showsInboxSheet` in `inbox-entry.ts`.

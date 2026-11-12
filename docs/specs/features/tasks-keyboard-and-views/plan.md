@@ -58,10 +58,57 @@ they are with the flag off.
   its default keys by the character typed, as before. A stored override the help would refuse, or one that clashes with another binding in
   force, falls back to its default (clashes settled in registry order, swaps kept), so the bindings in force never
   clash; a sequence under way is dropped when the runnable bindings change.
+- **Palette keys (T13)**: with the flag on, every command palette entry runs a registry command (rebindable, listed in
+  the help) and shows its binding in force, or no key when nobody can run it right now; the palette's own listener
+  gets no keys then. Its old sequences clashed with the registry (`C T` and `C P` start with `C`, which creates a task
+  at once; `S T` with `S`, the status picker of a focused row; `A M` with the coming `A`; the "⌘" ones were a letter
+  then ⌘ plus a letter, often a browser key: `⌘T`, `⌘P`, `⌘H`, `⌘K`), so they got new defaults, chosen so that no
+  default starts with `C`, a row letter (J K X S P L D, M in T10) or a key the list keeps:
+
+  | Entry | Command | Was | Now |
+  | --- | --- | --- | --- |
+  | Create task / Settings / Go to my team's tasks | `taskCreate` / `settingsOpen` / `goTasks` | `C T` / `⌘S` / `⌘TT` | `C` / `Mod+,` / `G T` (as in T5) |
+  | Create new team / project, Invite user | `teamCreate`, `projectCreate`, `inviteUser` | `⌘CT`, `C P`, `I U` | `N T`, `N P`, `N U` ("new") |
+  | Search tasks / projects / teams | `searchTasks`, `searchProjects`, `searchTeams` | `S T`, `⌘SP`, `⌘ST` | `/ T`, `/ P`, `/ M`: the palette opens on that tab |
+  | Go to home / projects / Kanban / my tasks and Profile | `goHome`, `goProjects`, `goKanban`, `goProfile` | `⌘H`, `⌘TP`, `⌘K`, `⌘MT` and `⌘P` | `G H`, `G P`, `G K`, `G U` |
+  | Timesheets / weekly limit / time & activity reports | `goTimesheets`, `goWeeklyLimit`, `goTimeActivity` | `⌘TS`, `⌘WL`, `⌘TA` | `G S`, `G L`, `G A` |
+  | Toggle theme | `themeToggle` | `T H` | `T H` (no clash) |
+  | Assign to me | none | `A M` | none: it has no action yet; it gets a command once it does |
+
+  The palette registers the handlers only it can run (its dialogs, its tabs, the links that need the signed-in
+  person); the layout keeps Create task, Settings and the "go to" views. A digit key pressed with Shift that types
+  punctuation is that character (`/` is Shift+7 on a German layout), so `/ T` works there too. With the flag off the
+  palette keeps its own keys exactly as before.
+- **Palette results (T9)**: with the flag on, a search also lists the people of the active team (to their profile),
+  the projects (archived ones left out, every word of the search in the name) and, with Docs on, the pages (the
+  platform's Docs search, their text included, best match first), each kind with its own tab, at most eight per kind.
+  The conversations, and the people to write to, are the chat's own palette results (chat phase 2,
+  `palette-chat-results.tsx`, with the chat on). The empty field shows the entries last opened from the palette (six,
+  per person, on this device; a stored entry leading outside the app is dropped, a page is not listed while Docs is
+  off). A sequence typed into the field, one key per word (`g t`), runs its command as its keys would; the entries are
+  also found by their binding (`gt`).
+- **Bulk project and due date, board selection and layout (T10)**: with the flag on, `M` on a focused row (a new
+  rebindable row key) and the Project cell open a project picker ("No project" takes the tasks out of any); `D` and the
+  Due date cell apply to the selection the row is in. A selection of several tasks sends one bulk update (`projectId`,
+  `dueDate` as the picked local day in ISO, `null` to clear) with one undo; one task, or the flag off, one update per
+  task as before. The Kanban page's cards select (⌘/Ctrl-click, their check, the list's `X`, Shift for a range in a
+  lane, Esc clears) and a bottom bar changes them together: status, priority, size, assignee, labels, project, due
+  date, archive. A view (or the Team tasks page) can be shown as a board: the Display menu's Layout (List, Board) is
+  saved with the view (`displayOptions.layout`, kept only for a board, so views saved before stay equal), and the
+  board shows the view's tasks in one lane per status, in the view's ordering alone (no grouping: the grouping and
+  empty-groups rows hide), with the Kanban cards, the page's selection bar acting on them. A focused card takes the
+  rows' keys on both boards (`X`, and `S` `P` `L` `D` `M` for the selection the card is in), yielding while a registry
+  sequence waits for its second key. A selection's due date is limited by its latest start date. The lanes' moves,
+  collapse and order are the Kanban page's (`useKanbanLanes`). The list page's selection bar gains Project and Due
+  date once #5041 (which reworks that file) has landed; until then those two are on its keys and cells.
 - **Flag off**: no mount, no sidebar section, no routes' content, the selection bar as before.
 
 ## 5. Tests
 
 `core/lib/keyboard/shortcuts.test.ts` (parsing, key caps, physical keys, overrides, conflicts, sequences, row keys,
-refusals); `team-tasks-list.test.tsx`, `shortcuts-dialog.test.tsx` and `use-shortcuts.test.tsx` (T8). The
+refusals; T13: the defaults never clash, typed sequences); `team-tasks-list.test.tsx`, `shortcuts-dialog.test.tsx`
+and `use-shortcuts.test.tsx` (T8); `palette-items.test.ts`, `palette-recent.test.ts` and
+`sidebar-command-modal.test.tsx` (T9, T13); `use-team-task-updates.test.tsx` (the bulk payloads),
+`use-board-selection.test.tsx`, `kanban-board.test.ts`, `kanban-task-card.test.tsx`, `team-tasks-view-layout.test.ts`
+and the list's T10 keys (T10). The
 in-cluster web gate runs lint, knip, jest and the build.

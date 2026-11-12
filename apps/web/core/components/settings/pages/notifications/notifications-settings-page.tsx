@@ -22,8 +22,6 @@ import {
 	quietHoursOf
 } from '@/core/lib/notifications/notification-preferences';
 import { userState } from '@/core/stores/user/user';
-import { useInboxWebPush } from '@/core/hooks/inbox/use-inbox-web-push';
-import { isInboxEnabled } from '@/core/lib/utils/inbox-enabled';
 import {
 	EEmployeeNotificationType,
 	IEmployeeNotificationSetting,
@@ -32,46 +30,9 @@ import {
 	TEmployeeNotificationSettingKey
 } from '@/core/types/interfaces/common/employee-notification';
 import { DigestHourRow, EmailDefaultRow, EmailModeChoice, EmailModeSelect, QuietHoursRow } from './notification-channel-rows';
+import { BrowserPushSection, SoundSection } from './notification-push-section';
+import { TYPE_COPY } from './notification-type-copy';
 import { NotificationGroupsSkeleton } from './notifications-settings-skeleton';
-
-interface TypeCopy {
-	type: EEmployeeNotificationType;
-	titleKey: `notifications.SETTINGS_PAGE.ROWS.${Uppercase<TEmployeeNotificationSettingKey>}.TITLE`;
-	textKey: `notifications.SETTINGS_PAGE.ROWS.${Uppercase<TEmployeeNotificationSettingKey>}.TEXT`;
-}
-
-const TYPE_COPY = {
-	assignment: {
-		type: EEmployeeNotificationType.Assignment,
-		titleKey: 'notifications.SETTINGS_PAGE.ROWS.ASSIGNMENT.TITLE',
-		textKey: 'notifications.SETTINGS_PAGE.ROWS.ASSIGNMENT.TEXT'
-	},
-	mention: {
-		type: EEmployeeNotificationType.Mention,
-		titleKey: 'notifications.SETTINGS_PAGE.ROWS.MENTION.TITLE',
-		textKey: 'notifications.SETTINGS_PAGE.ROWS.MENTION.TEXT'
-	},
-	comment: {
-		type: EEmployeeNotificationType.Comment,
-		titleKey: 'notifications.SETTINGS_PAGE.ROWS.COMMENT.TITLE',
-		textKey: 'notifications.SETTINGS_PAGE.ROWS.COMMENT.TEXT'
-	},
-	invitation: {
-		type: EEmployeeNotificationType.Invitation,
-		titleKey: 'notifications.SETTINGS_PAGE.ROWS.INVITATION.TITLE',
-		textKey: 'notifications.SETTINGS_PAGE.ROWS.INVITATION.TEXT'
-	},
-	message: {
-		type: EEmployeeNotificationType.Message,
-		titleKey: 'notifications.SETTINGS_PAGE.ROWS.MESSAGE.TITLE',
-		textKey: 'notifications.SETTINGS_PAGE.ROWS.MESSAGE.TEXT'
-	},
-	payment: {
-		type: EEmployeeNotificationType.Payment,
-		titleKey: 'notifications.SETTINGS_PAGE.ROWS.PAYMENT.TITLE',
-		textKey: 'notifications.SETTINGS_PAGE.ROWS.PAYMENT.TEXT'
-	}
-} as const satisfies Record<TEmployeeNotificationSettingKey, TypeCopy>;
 
 /** Gauzy keeps one flag per notification type, with no channel. */
 const WORK_TYPES: readonly TEmployeeNotificationSettingKey[] = ['assignment', 'mention', 'comment'];
@@ -255,7 +216,13 @@ export function NotificationsSettingsPage() {
 							onChange={(mode) => onPreferences({ email: mode })}
 						/>
 					</SettingsSection>
-					<BrowserPushSection />
+					<BrowserPushSection
+						isKindOn={(key) => isTypeShownOn(setting, key, pending)}
+						preferences={preferences}
+						isSavingPreferences={isSavingPreferences}
+						onPreferences={onPreferences}
+					/>
+					<SoundSection />
 					<SettingsSection id="notification-quiet-hours" title={t('notifications.SETTINGS_PAGE.CHANNELS.QUIET_TITLE')}>
 						<SettingsSurface>
 							<QuietHoursRow key={quietHoursKey} window={quietHours} disabled={isSavingPreferences} onChange={onQuietHours} />
@@ -269,51 +236,5 @@ export function NotificationsSettingsPage() {
 				</>
 			)}
 		</SettingsPage>
-	);
-}
-
-/**
- * Browser notifications on this device (web push): shown where the deployment has the Inbox and the platform has
- * web push on; the switch subscribes this browser, or removes it.
- */
-function BrowserPushSection() {
-	const t = useTranslations();
-	const push = useInboxWebPush(isInboxEnabled());
-	if (push.state === 'unavailable' || push.state === 'loading') return null;
-
-	let description = t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_OFF');
-	if (push.state === 'on') description = t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_ON');
-	if (push.state === 'blocked') description = t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_BLOCKED');
-	if (push.state === 'unsupported') description = t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_UNSUPPORTED');
-	const canSwitch = push.state === 'on' || push.state === 'off';
-
-	const onChange = async (isOn: boolean) => {
-		try {
-			if (isOn) await push.enable();
-			else await push.disable();
-		} catch {
-			toast.error(t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_FAILED'));
-		}
-	};
-
-	return (
-		<SettingsSection
-			id="notification-push"
-			title={t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_TITLE')}
-			description={t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_INTRO')}
-		>
-			<SettingsSurface>
-				<SettingsRow label={t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_LABEL')} description={description} htmlFor="notification-push-switch">
-					<SettingsSwitch
-						id="notification-push-switch"
-						checked={push.state === 'on'}
-						onCheckedChange={(isOn) => void onChange(isOn)}
-						ariaLabel={t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_LABEL')}
-						disabled={!canSwitch}
-						pending={push.busy}
-					/>
-				</SettingsRow>
-			</SettingsSurface>
-		</SettingsSection>
 	);
 }

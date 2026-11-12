@@ -21,6 +21,17 @@ const mockActions = {
 	discardFailed: jest.fn()
 };
 const mockThread = { root: null as IChatMessage | null, replies: [] as IChatMessage[], hasAfter: false, isLoading: false, isError: false, retry: jest.fn() };
+const mockAttachments = {
+	items: [] as Array<{ key: string; name: string; size: number; mimeType: string; status: 'uploading' | 'ready' | 'failed'; documentId?: string }>,
+	add: jest.fn(),
+	remove: jest.fn(),
+	retry: jest.fn(),
+	releaseSent: jest.fn(),
+	readyIds: [] as string[],
+	isUploading: false,
+	canAttach: true
+};
+const mockFiles = { files: [], byId: new Map(), hasMore: false, isLoading: false, isError: false, isLoadingMore: false, loadMore: jest.fn(), refresh: jest.fn() };
 const mockDraft = { draft: '', setDraft: jest.fn(), clearDraft: jest.fn() };
 const mockBo = { employeeId: BO_EMPLOYEE, userId: BO_USER, name: 'Bo Chen' };
 const mockPeople = { byEmployee: new Map([[BO_EMPLOYEE, mockBo]]), byUser: new Map([[BO_USER, mockBo]]), list: [mockBo] };
@@ -38,6 +49,8 @@ jest.mock('@/core/hooks/chat/use-chat-actions', () => ({
 	useChatActions: () => mockActions,
 	isOutboxMessage: (message: object) => 'outbox' in message
 }));
+jest.mock('@/core/hooks/chat/use-chat-attachments', () => ({ useChatAttachments: () => mockAttachments, uploadedFileOf: () => undefined }));
+jest.mock('@/core/hooks/chat/use-chat-files', () => ({ useChatFiles: () => mockFiles }));
 jest.mock('@/core/hooks/chat/use-chat-draft', () => ({ useChatDraft: () => mockDraft }));
 jest.mock('@/core/hooks/chat/use-chat-messages', () => ({ useChatThread: () => mockThread }));
 jest.mock('@/core/hooks/chat/use-chat-scope', () => ({ useChatScope: () => mockScope, useChatPeople: () => mockPeople }));

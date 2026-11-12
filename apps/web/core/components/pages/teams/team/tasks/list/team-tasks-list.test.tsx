@@ -39,6 +39,7 @@ jest.mock('./team-task-row', () => ({
 }));
 jest.mock('./team-tasks-group-header', () => ({ TeamTasksGroupHeader: () => null }));
 jest.mock('./team-tasks-column-header', () => ({ TeamTasksColumnHeader: () => null }));
+jest.mock('./team-tasks-board', () => ({ TeamTasksBoard: () => <div data-testid="board" /> }));
 
 import { TeamTasksList, type TeamTasksListCommands } from './team-tasks-list';
 
@@ -59,17 +60,19 @@ beforeAll(() => {
 
 function renderList({
 	canRebind,
-	overrides = null
+	overrides = null,
+	selected = []
 }: {
 	canRebind: boolean;
 	overrides?: Record<string, string> | null;
+	selected?: string[];
 }) {
 	mockPreferences = { bindings: canRebind ? effectiveBindings(SHORTCUT_COMMANDS, overrides) : DEFAULTS, canRebind };
 	const ids = ['t1', 't2', 't3'];
 	const view = {
 		rows: ids.map((id) => ({ kind: 'task', key: id, task: { id } })),
 		orderedIds: ids,
-		selectedIds: new Set<string>(),
+		selectedIds: new Set<string>(selected),
 		settings: { properties: [], ordering: 'status', isDescending: false },
 		statuses: [],
 		lookups: { projectNames: new Map(), memberNames: new Map() },
@@ -134,13 +137,13 @@ describe('TeamTasksList keys', () => {
 	it('runs the rebound keys, no longer the old ones; Shift on a bare binding extends the selection', () => {
 		const { row, focused, view, commands } = renderList({
 			canRebind: true,
-			overrides: { listDown: 'n', taskStatus: 'alt+s' }
+			overrides: { listDown: 'b', taskStatus: 'alt+s' }
 		});
 		fireEvent.keyDown(row('t1'), key('KeyJ', 'j'));
 		expect(focused()).toBeNull();
-		fireEvent.keyDown(row('t1'), key('KeyN', 'n'));
+		fireEvent.keyDown(row('t1'), key('KeyB', 'b'));
 		expect(focused()).toBe('t2');
-		fireEvent.keyDown(row('t2'), key('KeyN', 'N', { shiftKey: true }));
+		fireEvent.keyDown(row('t2'), key('KeyB', 'B', { shiftKey: true }));
 		expect(focused()).toBe('t3');
 		expect(view.setManySelected).toHaveBeenCalledWith(['t2', 't3'], true);
 		// The physical key: K on a Cyrillic layout prints `л`.
@@ -159,7 +162,7 @@ describe('TeamTasksList keys', () => {
 	it('leaves the built-in keys as they are: the arrows, Enter and O, Esc', () => {
 		const { row, focused, view, commands } = renderList({
 			canRebind: true,
-			overrides: { listDown: 'n', listUp: 'u' }
+			overrides: { listDown: 'b', listUp: 'u' }
 		});
 		fireEvent.keyDown(row('t1'), key('ArrowDown', 'ArrowDown'));
 		expect(focused()).toBe('t2');
@@ -185,5 +188,36 @@ describe('TeamTasksList keys', () => {
 		mockSequencePending = false;
 		fireEvent.keyDown(row('t1'), key('KeyO', 'o'));
 		expect(commands.openTask).toHaveBeenCalledWith('t1');
+	});
+});
+
+describe('TeamTasksList project and due date keys (T10)', () => {
+	beforeEach(() => {
+		mockSequencePending = false;
+	});
+
+	it('opens the project picker with M for the selection the focused row is in, with the registry on', () => {
+		const { row, commands } = renderList({ canRebind: true, selected: ['t1', 't2'] });
+		fireEvent.keyDown(row('t1'), key('KeyM', 'm'));
+		expect(commands.openPicker).toHaveBeenCalledWith('project', ['t1', 't2'], row('t1'), 'M');
+		// A row outside the selection: that row alone.
+		fireEvent.keyDown(row('t3'), key('KeyM', 'm'));
+		expect(commands.openPicker).toHaveBeenLastCalledWith('project', ['t3'], row('t3'), 'M');
+	});
+
+	it('gives one due date to the whole selection with the registry on, the focused row alone with it off', () => {
+		const on = renderList({ canRebind: true, selected: ['t1', 't2'] });
+		fireEvent.keyDown(on.row('t2'), key('KeyD', 'd'));
+		expect(on.commands.openPicker).toHaveBeenCalledWith('dueDate', ['t1', 't2'], on.row('t2'), 'D');
+
+		const off = renderList({ canRebind: false, selected: ['t1', 't2'] });
+		fireEvent.keyDown(off.row('t2'), key('KeyD', 'd'));
+		expect(off.commands.openPicker).toHaveBeenCalledWith('dueDate', ['t2'], off.row('t2'), 'D');
+	});
+
+	it('leaves M alone with the registry off: the list keeps the keys it had', () => {
+		const { row, commands } = renderList({ canRebind: false });
+		fireEvent.keyDown(row('t1'), key('KeyM', 'm'));
+		expect(commands.openPicker).not.toHaveBeenCalled();
 	});
 });

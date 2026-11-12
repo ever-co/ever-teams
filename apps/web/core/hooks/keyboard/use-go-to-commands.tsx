@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import type { CommandShortcutConfig } from '@/core/hooks/common/use-keyboard-shortcuts';
 import { useDetectOS } from '@/core/hooks/common/use-detect-os';
-import { bindingKeyCaps, SHORTCUT_COMMANDS } from '@/core/lib/keyboard/shortcuts';
+import { bindingKeyCaps, bindingSearchWords, SHORTCUT_COMMANDS } from '@/core/lib/keyboard/shortcuts';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { readRuntimeEnv } from '@/env-config';
 import { useKeyboardPreferences } from './use-keyboard-preferences';
@@ -50,6 +50,9 @@ export function useGoToCommands(icon?: React.ReactNode): CommandShortcutConfig[]
 				sequence: [],
 				description: t(`shortcuts.commands.${entry.id}` as DottedLanguageObjectStringPaths),
 				shortcutDisplay: binding ? bindingKeyCaps(binding, isMac).map((caps) => caps.join('')).join(' ') : '',
+				shortcutKeys: binding ? bindingKeyCaps(binding, isMac).flat() : [],
+				keywords: bindingSearchWords(binding),
+				commandId: entry.id,
 				action: () => router.push(entry.path),
 				icon
 			});

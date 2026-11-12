@@ -105,6 +105,7 @@
 		"@tanstack/react-table": "^8.21.3",
 		"@tanstack/react-virtual": "^3.13.18",
 		"@tiptap/core": "^3.31.3",
+		"@tiptap/extension-collaboration": "^3.31.3",
 		"@tiptap/extension-image": "^3.31.3",
 		"@tiptap/extension-list": "^3.31.3",
 		"@tiptap/extension-mention": "^3.31.3",
@@ -116,6 +117,7 @@
 		"@tiptap/react": "^3.31.3",
 		"@tiptap/starter-kit": "^3.31.3",
 		"@tiptap/suggestion": "^3.31.3",
+		"@tiptap/y-tiptap": "^3.0.9",
 		"@uidotdev/usehooks": "^2.4.1",
 		"@vercel/analytics": "^1.6.1",
 		"@visx/event": "^4.0.0",
@@ -198,6 +200,8 @@
 		"tailwind-merge": "^3.4.0",
 		"use-stick-to-bottom": "^1.1.6",
 		"write-excel-file": "^4.1.1",
+		"y-protocols": "^1.0.7",
+		"yjs": "^13.6.33",
 		"zod": "^4.3.6"
 	},
 	"devDependencies": {

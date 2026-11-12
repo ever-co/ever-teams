@@ -17,4 +17,5 @@
 - [ ] T13 Gate: `yarn test:web`, typecheck, cspell (in-cluster gate or CI) — fix forward
 - [ ] T14 Manual check against a platform with `GAUZY_REALTIME_ENABLED=true`: a task update reaches a second browser within 1 s; sleep/wake replays; flag off shows nothing
 - [x] T15 Team presence view subscribes to `presence.changed` (replace its interval while connected) — #4990
-- [ ] T16 One-tab claim for sounds / system notifications (with the inbox feature)
+- [x] T16 One-tab claim for sounds / system notifications (with the inbox feature): `tab-claim.ts` (Web Locks +
+  `localStorage`, read-back fallback) and the inbox sound (`useInboxAlerts`, per-browser switch) + specs

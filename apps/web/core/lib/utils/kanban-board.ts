@@ -215,3 +215,20 @@ export function laneIdsAfterDrop(laneTaskIds: string[], taskId: string, index: n
 export function statusIdsAfterDrop(statusIds: string[], statusId: string, index: number) {
 	return laneIdsAfterDrop(statusIds, statusId, index);
 }
+
+/**
+ * The tasks of one lane from one card to another, both included, in the lane's order (a Shift-click range on a board),
+ * or null when the two are not in the same lane.
+ */
+export function laneRangeIds(lanes: readonly KanbanLane[], fromId: string, toId: string): string[] | null {
+	for (const lane of lanes) {
+		const ids = lane.tasks.map((task) => task.id);
+		const from = ids.indexOf(fromId);
+		const to = ids.indexOf(toId);
+		if (from < 0 || to < 0) {
+			continue;
+		}
+		return ids.slice(Math.min(from, to), Math.max(from, to) + 1);
+	}
+	return null;
+}

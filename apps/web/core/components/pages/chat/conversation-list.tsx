@@ -10,6 +10,8 @@ import { Input } from '@/core/components/common/input';
 import { cn } from '@/core/lib/helpers';
 import { ChatPerson, conversationTitle, isUnread } from '@/core/lib/utils/chat-format';
 import { badgeCount, conversationSections, filterConversations } from '@/core/lib/utils/chat-list';
+import { directPartnerOf } from '@/core/lib/utils/chat-navigation';
+import type { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { EChatNotifyLevel, IChatCategory, IChatConversationWithState } from '@/core/types/interfaces/common/chat';
 import { ChatErrorState, ChatListSkeleton } from './chat-states';
 import { ConversationGlyph } from './conversation-glyph';
@@ -18,6 +20,8 @@ export interface ConversationListProps {
 	conversations: readonly IChatConversationWithState[];
 	categories: readonly IChatCategory[];
 	people: ReadonlyMap<string, ChatPerson>;
+	/** The status dot of each person the app knows, by employee id (a direct conversation shows the other person's). */
+	presence?: ReadonlyMap<string, ETimerStatus>;
 	meEmployeeId: string | null;
 	currentId: string | null;
 	view: 'conversation' | 'unreads' | 'threads';
@@ -35,7 +39,7 @@ export interface ConversationListProps {
 }
 
 const ROW =
-	'flex h-8 items-center gap-2 rounded-lg px-2 text-[13px] outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/25';
+	'flex h-8 items-center gap-2 [@media(pointer:coarse)]:h-10 rounded-lg px-2 text-[13px] outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/25';
 const ROW_ACTIVE = 'bg-foreground/[0.07] font-medium text-foreground';
 const ROW_IDLE = 'text-foreground/80 hover:bg-foreground/[0.04] hover:text-foreground';
 const BADGE = 'flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold tabular-nums leading-none';
@@ -47,6 +51,7 @@ function Row({
 	isCurrent,
 	people,
 	meEmployeeId,
+	status,
 	mentionsLabel,
 	onNavigate
 }: Readonly<{
@@ -55,6 +60,7 @@ function Row({
 	isCurrent: boolean;
 	people: ReadonlyMap<string, ChatPerson>;
 	meEmployeeId: string | null;
+	status?: ETimerStatus | null;
 	mentionsLabel: (count: number) => string;
 	onNavigate?: (href: string) => void;
 }>) {
@@ -73,7 +79,7 @@ function Row({
 				aria-current={isCurrent ? 'page' : undefined}
 				className={cn(ROW, isCurrent ? ROW_ACTIVE : ROW_IDLE, loud && 'font-semibold text-foreground', muted && !isCurrent && 'text-muted-foreground/70')}
 			>
-				<ConversationGlyph conversation={conversation} people={people} meEmployeeId={meEmployeeId} className={cn(muted && 'opacity-60')} />
+				<ConversationGlyph conversation={conversation} people={people} meEmployeeId={meEmployeeId} status={status} className={cn(muted && 'opacity-60')} />
 				<span className="min-w-0 flex-1 truncate">{title}</span>
 				{conversation.state?.isFavorite && <Star className="size-3 shrink-0 fill-current text-amber-500" aria-hidden="true" />}
 				{muted && <BellOff className="size-3 shrink-0 text-muted-foreground/70" aria-hidden="true" />}
@@ -234,8 +240,22 @@ export function ConversationList(props: Readonly<ConversationListProps>) {
 	const needsReader = (conversation: IChatConversationWithState) =>
 		isCurrent(conversation) || (conversation.state?.mentionCount ?? 0) > 0 || (isUnread(conversation) && conversation.state?.notifyLevel !== EChatNotifyLevel.Muted);
 	const mentionsLabel = (count: number) => t('teamChat.MENTION_COUNT', { count });
+	const statusOf = (conversation: IChatConversationWithState) => {
+		const partner = directPartnerOf(conversation, meEmployeeId);
+		return partner ? (props.presence?.get(partner) ?? null) : null;
+	};
 	const renderRow = (conversation: IChatConversationWithState) => (
-		<Row key={conversation.id} conversation={conversation} title={titleOf(conversation)} isCurrent={isCurrent(conversation)} people={people} meEmployeeId={meEmployeeId} mentionsLabel={mentionsLabel} onNavigate={props.onNavigate} />
+		<Row
+			key={conversation.id}
+			conversation={conversation}
+			title={titleOf(conversation)}
+			isCurrent={isCurrent(conversation)}
+			people={people}
+			meEmployeeId={meEmployeeId}
+			status={statusOf(conversation)}
+			mentionsLabel={mentionsLabel}
+			onNavigate={props.onNavigate}
+		/>
 	);
 	const isReady = !isLoading && !isError;
 
