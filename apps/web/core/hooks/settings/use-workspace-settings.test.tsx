@@ -300,9 +300,21 @@ describe('renaming the workspace', () => {
 		expect(mockRenameTenant).toHaveBeenCalledWith('Acme');
 	});
 
+	it('reads the signed-in user again, where the forms that create a project or a team take the name', async () => {
+		const { view, client } = renderSettings();
+		const invalidate = jest.spyOn(client, 'invalidateQueries');
+
+		await act(async () => {
+			await view.result.current.saveName('Acme Labs');
+		});
+
+		expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.users.me });
+	});
+
 	it('keeps the name the switcher shows when the tenant rename is refused, says why and throws', async () => {
 		mockRenameTenant.mockRejectedValue(Object.assign(new Error('Forbidden resource'), { statusCode: 403 }));
 		const { view, client } = renderSettings();
+		const invalidate = jest.spyOn(client, 'invalidateQueries');
 
 		let failure: unknown;
 		await act(async () => {
@@ -311,6 +323,7 @@ describe('renaming the workspace', () => {
 
 		expect(failure).toBeInstanceOf(Error);
 		expect(client.getQueryData(WORKSPACES_KEY)).toEqual(mockWorkspaces);
+		expect(invalidate).not.toHaveBeenCalled();
 		expect(mockToast.error).toHaveBeenCalledWith('settings.workspace.NAME_NOT_SAVED', {
 			description: 'toasts.REASONS.PERMISSION'
 		});

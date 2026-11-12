@@ -134,6 +134,8 @@ export function useWorkspaceSettings() {
 			};
 			queryClient.setQueryData<TWorkspace[]>(scope.workspacesKey, renamed);
 			void queryClient.invalidateQueries({ queryKey: scope.workspacesKey });
+			// The forms that create a project or a team take the workspace's name from the signed-in user
+			void queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
 		},
 		[queryClient, saveOrganization]
 	);
