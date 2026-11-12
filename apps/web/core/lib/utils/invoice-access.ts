@@ -33,3 +33,10 @@ export function canViewInvoices(permissions: ReadonlyArray<string>) {
 export function canCreateInvoices(permissions: ReadonlyArray<string>) {
 	return invoiceAccessOf(permissions).canCreate;
 }
+
+/** Sending an invoice, marking it paid or void and deleting a draft read no time: they ask what the API asks. */
+export function canEditInvoices(permissions: ReadonlyArray<string>) {
+	const canView = canViewInvoices(permissions);
+	const writesInvoices = permissions.includes(INVOICES_EDIT_PERMISSION);
+	return canView && writesInvoices;
+}

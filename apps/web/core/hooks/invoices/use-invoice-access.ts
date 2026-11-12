@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
-import { invoiceAccessOf } from '@/core/lib/utils/invoice-access';
+import { canEditInvoices, invoiceAccessOf } from '@/core/lib/utils/invoice-access';
 
 /**
  * What the signed-in user may do with invoices. Nothing is offered until the permissions are read; a read that
@@ -11,6 +11,7 @@ import { invoiceAccessOf } from '@/core/lib/utils/invoice-access';
 export function useInvoiceAccess() {
 	const { myPermissions, isLoaded, isLoading } = useMyRolePermissionsQuery();
 	const access = useMemo(() => invoiceAccessOf(myPermissions), [myPermissions]);
+	const canEdit = useMemo(() => canEditInvoices(myPermissions), [myPermissions]);
 	const hasFailed = !isLoaded && !isLoading;
-	return { canView: access.canView, canCreate: access.canCreate, isLoaded, hasFailed };
+	return { canView: access.canView, canEdit, canCreate: access.canCreate, isLoaded, hasFailed };
 }
