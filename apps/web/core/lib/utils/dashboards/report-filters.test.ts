@@ -4,6 +4,7 @@ import { NO_CLIENT_FILTER_VALUE } from '@/core/lib/utils/project-list';
 import {
 	BILLABLE_ONLY_VALUE,
 	clearReportUrlFilters,
+	clientIdOfProjectLog,
 	clientIdOfTime,
 	filterDailyReportByClients,
 	isBillableOnly,
@@ -218,6 +219,39 @@ describe('the clients a report offers', () => {
 		];
 
 		expect(reportClientChoicesOf([], projects)).toEqual([{ id: 'acme', name: 'Acme' }]);
+	});
+});
+
+describe('the client of a project in a daily report', () => {
+	type ProjectLog = ITimeLogGroupedDailyReport['logs'][number];
+
+	const projectLogOf = (project: Record<string, unknown> | null) =>
+		({ project, employeeLogs: [] }) as unknown as ProjectLog;
+
+	it('is the client the project list holds for a listed project, whatever the report names', () => {
+		const onWebsite = projectLogOf({ id: 'website', organizationContact: { id: 'globex' } });
+		const onInternal = projectLogOf({ id: 'internal', organizationContactId: 'acme' });
+
+		expect(clientIdOfProjectLog(onWebsite, clientIds)).toBe('acme');
+		expect(clientIdOfProjectLog(onInternal, clientIds)).toBeNull();
+	});
+
+	it('is the client the report names for a project the list does not hold, its stored id first', () => {
+		const stored = projectLogOf({
+			id: 'old',
+			organizationContactId: 'acme',
+			organizationContact: { id: 'globex' }
+		});
+		const related = projectLogOf({ id: 'old', organizationContact: { id: 'globex' } });
+		const unnamed = projectLogOf({ id: 'old', organizationContact: null });
+
+		expect(clientIdOfProjectLog(stored, clientIds)).toBe('acme');
+		expect(clientIdOfProjectLog(related, clientIds)).toBe('globex');
+		expect(clientIdOfProjectLog(unnamed, clientIds)).toBeNull();
+	});
+
+	it('is none for time without a project', () => {
+		expect(clientIdOfProjectLog(projectLogOf(null), clientIds)).toBeNull();
 	});
 });
 
