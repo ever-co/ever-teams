@@ -4,6 +4,9 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import {
 	DOCS_LIST_PAGE_SIZE,
 	DOCS_TREE_MAX_PAGES,
+	type IDocumentCommentAnchorInput,
+	type IDocumentCommentAnchorList,
+	type IDocumentCommentAnchorResolved,
 	type IDocumentContentInput,
 	type IDocumentCreateInput,
 	type IDocumentDuplicateInput,
@@ -145,11 +148,46 @@ class DocsService extends APIService {
 		return response.data;
 	};
 
+	// ---------------------------------------------------------------- comment anchors
+
+	/**
+	 * The text-range anchors of the page's comments, each with where the platform finds it in the page as it stores it.
+	 * A platform without ranges answers 404 (its comments are on their blocks).
+	 */
+	commentAnchors = async (id: string, signal?: AbortSignal): Promise<IDocumentCommentAnchorList> => {
+		const response = await this.get<IDocumentCommentAnchorList>(`${BASE}/${path(id)}/comment-anchors?${this.scopedQuery()}`, { signal });
+		return response.data;
+	};
+
+	/** Where a comment (a thread's first, by its author) was made: a range of one block's text. */
+	setCommentAnchor = async (id: string, commentId: string, anchor: IDocumentCommentAnchorInput): Promise<IDocumentCommentAnchorResolved> => {
+		// Exactly the anchor's fields: the platform refuses others.
+		const body = {
+			blockId: anchor.blockId,
+			start: anchor.start,
+			end: anchor.end,
+			quote: anchor.quote,
+			...(anchor.prefix ? { prefix: anchor.prefix } : {}),
+			...(anchor.suffix ? { suffix: anchor.suffix } : {}),
+			...(anchor.relativeStart && anchor.relativeEnd ? { relativeStart: anchor.relativeStart, relativeEnd: anchor.relativeEnd } : {}),
+			...this.scope()
+		};
+		const response = await this.put<IDocumentCommentAnchorResolved>(`${BASE}/${path(id)}/comments/${path(commentId)}/anchor`, body);
+		return response.data;
+	};
+
+	/** Takes a comment's range away (its author only): the comment is on its block again. */
+	removeCommentAnchor = async (id: string, commentId: string): Promise<boolean> => {
+		const response = await this.delete<{ removed: boolean }>(`${BASE}/${path(id)}/comments/${path(commentId)}/anchor?${this.scopedQuery()}`);
+		return response.data?.removed === true;
+	};
+
 	// ---------------------------------------------------------------- export
 
 	/**
-	 * The page and the pages under it the reader may read, as a zip of Markdown files (`index.md` for the page, a
-	 * folder per page with sub-pages, links between them relative, the files they show under `assets/`).
+	 * A page or a folder and the pages under it the reader may read, as a zip of Markdown files (`index.md` for the page
+	 * or the folder's list, a folder per page with sub-pages and per sub-folder, links between them relative, the files
+	 * they show under `assets/`). A platform that exports pages only answers 409 for a folder.
 	 */
 	exportSubtreeZip = async (id: string, signal?: AbortSignal): Promise<Blob> => {
 		const response = await this.get<Blob>(`${BASE}/${path(id)}/export/markdown?${this.scopedQuery({ subtree: true })}`, {

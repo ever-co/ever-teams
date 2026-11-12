@@ -294,6 +294,16 @@ export function diaryDayOfParam(value: string | null | undefined, now: Date): Da
 	return day;
 }
 
+export type DiaryView = 'day' | 'week';
+
+/** The view a Work diary link names in its `view` parameter: the week sheet for `week`, the day for anything else. */
+export function diaryViewOfParam(value: string | null | undefined): DiaryView {
+	if (value === 'week') {
+		return 'week';
+	}
+	return 'day';
+}
+
 /** One task of a Work diary day: its time that day, its project, and one of its logs, for its title and link. */
 export interface DiaryTask {
 	key: string;
