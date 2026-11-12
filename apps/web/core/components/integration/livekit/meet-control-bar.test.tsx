@@ -1,10 +1,11 @@
 /** @jest-environment jsdom */
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 
 type Toggle = { enabled: boolean; pending: boolean; toggle: jest.Mock };
 
 const mockDisconnect = jest.fn();
 const mockDispatch = jest.fn();
+const mockToastError = jest.fn();
 let mockToggles: Record<string, Toggle>;
 let mockWidgetState: { showChat: boolean; showSettings: boolean; unreadMessages: number };
 let mockPermissions: { canPublish: boolean; canPublishData: boolean; canPublishSources: number[] } | undefined;
@@ -13,6 +14,7 @@ jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: { count?: number }) =>
 		values?.count === undefined ? key : `${key}:${values.count}`
 }));
+jest.mock('sonner', () => ({ toast: { error: (...args: unknown[]) => mockToastError(...args) } }));
 jest.mock('livekit-client', () => ({
 	Track: { Source: { Camera: 'camera', Microphone: 'microphone', ScreenShare: 'screen_share' } }
 }));
@@ -32,6 +34,7 @@ describe('MeetControlBar', () => {
 	beforeEach(() => {
 		mockDisconnect.mockReset();
 		mockDispatch.mockReset();
+		mockToastError.mockReset();
 		mockToggles = { camera: toggle(true), microphone: toggle(false), screen_share: toggle(false) };
 		mockWidgetState = { showChat: false, showSettings: false, unreadMessages: 0 };
 		mockPermissions = { canPublish: true, canPublishData: true, canPublishSources: [] };
@@ -114,5 +117,32 @@ describe('MeetControlBar', () => {
 		fireEvent.click(within(reactions).getByRole('button', { name: '🎉' }));
 
 		expect(onReact).toHaveBeenCalledWith('🎉');
+	});
+
+	it('says why a camera or microphone did not start, and nothing when the person closes the screen picker', async () => {
+		const failure = (name: string) => Object.assign(new Error(name), { name });
+		mockToggles.camera.toggle.mockRejectedValueOnce(failure('NotAllowedError'));
+		mockToggles.microphone.toggle.mockRejectedValueOnce(failure('NotFoundError'));
+		mockToggles.screen_share.toggle
+			.mockRejectedValueOnce(failure('NotAllowedError'))
+			.mockRejectedValueOnce(failure('NotReadableError'));
+		render(<MeetControlBar isPeopleOpen={false} onPeopleOpenChange={jest.fn()} onReact={jest.fn()} />);
+
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'meetings.STOP_VIDEO' }));
+			fireEvent.click(screen.getByRole('button', { name: 'meetings.UNMUTE' }));
+		});
+		expect(mockToastError.mock.calls).toEqual([['meetings.DEVICES_BLOCKED'], ['meetings.MICROPHONE_MISSING']]);
+
+		mockToastError.mockReset();
+		// A picker closed: nothing to say
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'meetings.SHARE' }));
+		});
+		expect(mockToastError).not.toHaveBeenCalled();
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'meetings.SHARE' }));
+		});
+		expect(mockToastError).toHaveBeenCalledWith('meetings.SHARE_SCREEN_FAILED');
 	});
 });

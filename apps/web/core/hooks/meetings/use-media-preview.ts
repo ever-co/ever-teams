@@ -115,7 +115,8 @@ function stopTracks(stream: MediaStream | null) {
 	}
 }
 
-function accessOfError(error: unknown): MediaAccess {
+/** Why a camera or microphone did not open: refused, missing, or held by another app. */
+export function accessOfError(error: unknown): MediaAccess {
 	const name = error instanceof Error || error instanceof DOMException ? error.name : '';
 	if (name === 'NotAllowedError' || name === 'SecurityError') {
 		return 'denied';

@@ -3950,6 +3950,7 @@
 		"UNREAD_MESSAGES": "{count, plural, one {# unread message} other {# unread messages}}",
 		"SHARE": "Share",
 		"STOP_SHARING": "Stop sharing",
+		"SHARE_SCREEN_FAILED": "Your screen could not be shared. Try again.",
 		"REACTIONS": "Reactions",
 		"YOU_LEFT": "You left the meeting",
 		"YOU_LEFT_HINT": "The meeting goes on without you. Rejoin it, or go back to your meetings.",

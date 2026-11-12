@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import {
 	StartMediaButton,
 	useLocalParticipantPermissions,
@@ -23,6 +24,7 @@ import {
 	VideoOff
 } from '@/core/components/icons';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
+import { accessOfError } from '@/core/hooks/meetings/use-media-preview';
 import { MEETING_REACTIONS, type MeetingReaction } from '@/core/hooks/meetings/use-meeting-reactions';
 import { cn } from '@/core/lib/helpers';
 
@@ -32,6 +34,14 @@ const SOURCE_NUMBERS = { [Track.Source.Camera]: 1, [Track.Source.Microphone]: 2,
 const BAR_BUTTON =
 	'relative flex min-w-14 cursor-pointer flex-col items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-foreground outline-none transition-colors hover:bg-foreground/[0.06] focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-50 aria-pressed:bg-foreground/[0.08]';
 const ROUND_ICON = 'flex size-10 items-center justify-center rounded-full [&_svg]:size-5';
+
+type ToggledDevice = 'camera' | 'microphone' | 'screen';
+
+/** The browser's answer to a screen picker the person closed: nothing went wrong, so nothing is said. */
+function isCancelledPick(error: unknown): boolean {
+	const name = (error as { name?: unknown } | null | undefined)?.name;
+	return name === 'NotAllowedError' || name === 'AbortError';
+}
 
 function canShareScreens(): boolean {
 	return typeof navigator !== 'undefined' && typeof navigator.mediaDevices?.getDisplayMedia === 'function';
@@ -119,6 +129,30 @@ export function MeetControlBar({ isPeopleOpen, onPeopleOpenChange, onReact }: Re
 		widget?.dispatch?.({ msg: 'toggle_chat' });
 	};
 
+	// LiveKit's toggles throw what the browser refused: a toast says it, as the devices check would
+	const reportFailure = (device: ToggledDevice, error: unknown) => {
+		if (device === 'screen') {
+			if (!isCancelledPick(error)) toast.error(t('meetings.SHARE_SCREEN_FAILED'));
+			return;
+		}
+		const access = accessOfError(error);
+		if (access === 'denied') {
+			toast.error(t('meetings.DEVICES_BLOCKED'));
+		} else if (access === 'missing') {
+			toast.error(device === 'camera' ? t('meetings.CAMERA_MISSING') : t('meetings.MICROPHONE_MISSING'));
+		} else {
+			toast.error(t('meetings.DEVICES_BUSY'));
+		}
+	};
+
+	const toggleDevice = async (toggle: () => Promise<unknown>, device: ToggledDevice) => {
+		try {
+			await toggle();
+		} catch (error) {
+			reportFailure(device, error);
+		}
+	};
+
 	const canPublish = (source: Track.Source.Camera | Track.Source.Microphone | Track.Source.ScreenShare) =>
 		Boolean(
 			permissions?.canPublish &&
@@ -140,7 +174,7 @@ export function MeetControlBar({ isPeopleOpen, onPeopleOpenChange, onReact }: Re
 						label={camera.enabled ? t('meetings.STOP_VIDEO') : t('meetings.START_VIDEO')}
 						isOff={!camera.enabled}
 						disabled={camera.pending}
-						onClick={() => void camera.toggle()}
+						onClick={() => void toggleDevice(camera.toggle, 'camera')}
 					/>
 				)}
 				{canPublish(Track.Source.Microphone) && (
@@ -149,7 +183,7 @@ export function MeetControlBar({ isPeopleOpen, onPeopleOpenChange, onReact }: Re
 						label={microphone.enabled ? t('meetings.MUTE') : t('meetings.UNMUTE')}
 						isOff={!microphone.enabled}
 						disabled={microphone.pending}
-						onClick={() => void microphone.toggle()}
+						onClick={() => void toggleDevice(microphone.toggle, 'microphone')}
 					/>
 				)}
 			</div>
@@ -185,7 +219,7 @@ export function MeetControlBar({ isPeopleOpen, onPeopleOpenChange, onReact }: Re
 						label={screenShare.enabled ? t('meetings.STOP_SHARING') : t('meetings.SHARE')}
 						isPressed={screenShare.enabled}
 						disabled={screenShare.pending}
-						onClick={() => void screenShare.toggle()}
+						onClick={() => void toggleDevice(screenShare.toggle, 'screen')}
 					/>
 				)}
 				{permissions?.canPublishData && (
