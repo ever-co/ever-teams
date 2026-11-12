@@ -97,8 +97,9 @@ function canMoveTask(context: ChipContext, taskId: string) {
 	return context.isDragEnabled && isMovable;
 }
 
-function undatedHintKeyOf(isDragEnabled: boolean): DottedLanguageObjectStringPaths {
-	if (isDragEnabled) {
+/** The panel says a task can be dragged onto a day only when one of its tasks can be. */
+function undatedHintKeyOf(canDragAny: boolean): DottedLanguageObjectStringPaths {
+	if (canDragAny) {
 		return 'pages.teamTasks.CALENDAR_UNDATED_DRAG_HINT';
 	}
 	return 'pages.teamTasks.CALENDAR_UNDATED_HINT';
@@ -446,13 +447,14 @@ function UndatedPanel({
 	onSetDate: (taskId: string, anchor: Element) => void;
 }>) {
 	const t = useTranslations();
+	const canDragAny = tasks.some((task) => canMoveTask(context, task.id));
 	return (
 		<aside
 			id={id}
 			aria-label={t('pages.teamTasks.CALENDAR_NO_DUE_DATE')}
 			className="flex min-h-0 shrink-0 flex-col border-border max-lg:max-h-64 max-lg:hairline-t lg:w-72 lg:hairline-l"
 		>
-			<p className="px-4 pt-3 pb-2 text-xs text-muted-foreground">{t(undatedHintKeyOf(context.isDragEnabled))}</p>
+			<p className="px-4 pt-3 pb-2 text-xs text-muted-foreground">{t(undatedHintKeyOf(canDragAny))}</p>
 			<ul className="min-h-0 flex-1 overflow-y-auto pb-2 custom-scrollbar">
 				{tasks.map((task) => (
 					<UndatedRow key={task.id} task={task} context={context} onSetDate={onSetDate} />

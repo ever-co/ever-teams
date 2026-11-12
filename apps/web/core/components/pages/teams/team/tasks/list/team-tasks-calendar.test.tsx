@@ -628,5 +628,14 @@ describe('TeamTasksCalendarView', () => {
 
 			expect(mockMoveToDay).toHaveBeenCalledWith('e', november(23));
 		});
+
+		it('offers no drag in the panel when none of its tasks can move', () => {
+			renderCalendar([openTask('u1', 'Their notes')], { teamTaskIds: [] });
+			fireEvent.click(screen.getByRole('button', { name: /^pages\.teamTasks\.CALENDAR_NO_DUE_DATE/ }));
+			const panel = screen.getByRole('complementary', { name: 'pages.teamTasks.CALENDAR_NO_DUE_DATE' });
+
+			expect(within(panel).getByText('pages.teamTasks.CALENDAR_UNDATED_HINT')).toBeTruthy();
+			expect(isDraggable(within(panel).getByRole('button', { name: 'Their notes' }))).toBe(false);
+		});
 	});
 });
