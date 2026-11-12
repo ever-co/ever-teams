@@ -24,11 +24,13 @@ import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view'
 import { cn } from '@/core/lib/helpers';
 import { shiftedAnchorOf, weekStartOf } from '@/core/lib/utils/calendar-view';
 import { teamTasksCalendarMonthOf, type TeamTasksCalendarDay } from '@/core/lib/utils/team-tasks-calendar';
+import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { isDoneStatus, statusOfTask, tasksOfGroups } from '@/core/lib/utils/team-tasks-view';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { TTaskStatus } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import type { TeamTasksListCommands } from './team-tasks-list';
+import { cellAppliesToSelection } from './team-task-picker-commands';
 
 const VISIBLE_TASKS_PER_DAY = 3;
 
@@ -55,6 +57,20 @@ function calendarFormatsOf(locale: string): CalendarFormats {
 		dayNumber: new Intl.DateTimeFormat(locale, { day: 'numeric' }),
 		dayLabel: new Intl.DateTimeFormat(locale, { weekday: 'long', month: 'long', day: 'numeric' })
 	};
+}
+
+/**
+ * The tasks a due date picker opened from a task acts on, by the list's rule: the whole selection when the task is
+ * in it and one due date for a selection is offered (it came with the platform's bulk update), the task alone otherwise.
+ */
+function dueDateTargetsOf(taskId: string, selectedIds: ReadonlySet<string>) {
+	const appliesToSelection = cellAppliesToSelection('dueDate', isTaskViewsEnabled());
+	const isInSelection = selectedIds.has(taskId);
+	const usesSelection = appliesToSelection && isInSelection;
+	if (usesSelection) {
+		return [...selectedIds];
+	}
+	return [taskId];
 }
 
 function readableName(value: string | null | undefined) {
@@ -441,8 +457,11 @@ export function TeamTasksCalendarView({
 		[statuses, selectedIds, openTask, toggleChip]
 	);
 	const setDate = useCallback(
-		(taskId: string, anchorElement: Element) => openPicker('dueDate', [taskId], anchorElement),
-		[openPicker]
+		(taskId: string, anchorElement: Element) => {
+			const taskIds = dueDateTargetsOf(taskId, selectedIds);
+			openPicker('dueDate', taskIds, anchorElement);
+		},
+		[openPicker, selectedIds]
 	);
 
 	const showPrevious = () => setAnchor((current) => shiftedAnchorOf('month', current, -1));
