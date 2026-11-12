@@ -1008,7 +1008,12 @@
 		"googledrive",
 		"googlegemini",
 		"sublimetext",
-		"zedindustries"
+		"zedindustries",
+		"Bcontact",
+		"Cnone",
+		"Femployee",
+		"globex",
+		"unbilled"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
