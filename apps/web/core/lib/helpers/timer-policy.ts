@@ -83,6 +83,7 @@ export type TimerAction =
 	| { type: 'NOOP' }
 	| { type: 'STOP_TIMER' }
 	| { type: 'START_TIMER' }
+	| { type: 'WARN_ALREADY_TRACKING' }
 	| { type: 'SHOW_MODAL'; modal: TimerModalType };
 
 /**
@@ -97,6 +98,11 @@ export interface TimerPolicyState {
 	canRunTimer: boolean;
 	/** Whether the timer is currently running */
 	isTimerRunning: boolean;
+	/**
+	 * Whether a timer runs that the timer does not show: one on a task outside the active team's tasks, started on
+	 * another device or in another tab. The timer reads it as stopped and offers Start.
+	 */
+	hasHiddenRun: boolean;
 	/** Whether the team requires a daily plan to track time */
 	requirePlan: boolean;
 	/** Whether a daily plan exists for today (with tasks) */
@@ -129,7 +135,7 @@ export interface TimerPolicyState {
  * WHAT to do, not HOW to do it. The hook layer handles execution.
  *
  * Decision tree (in order of priority):
- * 1. Guard: fetching or can't run → NOOP
+ * 1. Guards: fetching → NOOP, a run the timer does not show → WARN_ALREADY_TRACKING, can't run → NOOP
  * 2. Running → STOP_TIMER
  * 3. Team does not require a plan → START_TIMER
  * 4. Task not in today's plan → ENFORCE_PLAN (hard block)
@@ -139,8 +145,17 @@ export interface TimerPolicyState {
  * 8. Fallback → startOrEstimate check
  */
 export function getTimerAction(state: TimerPolicyState): TimerAction {
-	// 1. Guard: cannot act
-	if (state.isTimerStatusFetching || !state.canRunTimer) {
+	// 1. Guards: the status is loading
+	if (state.isTimerStatusFetching) {
+		return { type: 'NOOP' };
+	}
+	// The timer offers Start over a run it does not show: a stop would end time tracked elsewhere unseen. Checked
+	// before the next guard, so a Start shown disabled over such a run says why as well.
+	if (state.hasHiddenRun) {
+		return { type: 'WARN_ALREADY_TRACKING' };
+	}
+	// Cannot act
+	if (!state.canRunTimer) {
 		return { type: 'NOOP' };
 	}
 
