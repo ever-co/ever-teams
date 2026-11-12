@@ -54,6 +54,8 @@ export function useScheduledMeetings() {
 		isError: query.isError,
 		refetch: query.refetch,
 		canSchedule: Boolean(employeeId),
+		// Gauzy lists a member's own appointments only: the person hosts every meeting of the agenda
+		hostName: user?.name || user?.email || '',
 		scheduleMeeting: scheduleMutation.mutateAsync,
 		isScheduling: scheduleMutation.isPending,
 		cancelMeeting: cancelMutation.mutateAsync,

@@ -63,6 +63,7 @@ jest.mock('@/core/stores', () => {
 jest.mock('@/core/hooks/meetings/use-scheduled-meetings', () => ({
 	useScheduledMeetings: () => ({
 		...mockScheduled,
+		hostName: 'Ruslan Konviser',
 		isLoading: false,
 		isError: false,
 		refetch: jest.fn(),
@@ -213,6 +214,49 @@ describe('MeetingsPage', () => {
 		});
 
 		await waitFor(() => expect(mockCancelMeeting).toHaveBeenCalledWith('appointment-1'));
+	});
+
+	it('draws each meeting with its time, its host and the way in: Join while it runs, Start before', () => {
+		jest.useFakeTimers({ advanceTimers: true });
+		try {
+			jest.setSystemTime(new Date(2026, 10, 12, 10, 0));
+			const link = (room: string) => `https://app.ever.team${meetPathFor(room, true)}`;
+			mockScheduled.meetings = [
+				{
+					id: 'appointment-1',
+					title: 'Daily standup',
+					description: null,
+					start: new Date(2026, 10, 12, 9, 48),
+					end: new Date(2026, 10, 12, 10, 15),
+					link: link('Ever-Standup-AbCdEfGhIj')
+				},
+				{
+					id: 'appointment-2',
+					title: 'Retro',
+					description: null,
+					start: new Date(2026, 10, 12, 16, 30),
+					end: new Date(2026, 10, 12, 17, 0),
+					link: link('Ever-Retro-AbCdEfGhIj')
+				}
+			];
+			render(<MeetingsPage />);
+
+			const [live, later] = screen.getAllByTestId('scheduled-meeting');
+			expect(within(live).getByText('meetings.LIVE')).toBeTruthy();
+			expect(within(live).getByText('meetings.STARTED_AGO:{"ago":"12 minutes ago"}')).toBeTruthy();
+			expect(within(live).getByText('meetings.HOST:{"name":"Ruslan Konviser"}')).toBeTruthy();
+			const join = within(live).getByRole('button', {
+				name: 'meetings.JOIN_MEETING_OF:{"title":"Daily standup"}'
+			});
+			expect(join.textContent).toBe('meetings.JOIN');
+			expect(within(later).getByText('meetings.TODAY')).toBeTruthy();
+			expect(within(later).queryByText(/^meetings\.STARTED_AGO/)).toBeNull();
+
+			fireEvent.click(within(later).getByRole('button', { name: 'meetings.START_MEETING_OF:{"title":"Retro"}' }));
+			expect(mockPush).toHaveBeenCalledWith(meetPathFor('Ever-Retro-AbCdEfGhIj', true));
+		} finally {
+			jest.useRealTimers();
+		}
 	});
 
 	it('shows one day of the agenda at a time: the day after, the day before, and back to today', () => {

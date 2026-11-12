@@ -162,9 +162,11 @@ describe('feature parity on the authenticated shell', () => {
 
 		cy.get('[data-testid="scheduled-meeting"]', { timeout: 15_000 })
 			.should('have.length', 1)
-			.and('contain', 'Sprint review');
+			.and('contain', 'Sprint review')
+			.and('contain', 'Host: Fixture Manager');
+		// A meeting that has not begun yet is started, one that runs is joined
 		cy.get('[data-testid="scheduled-meeting"]')
-			.contains('button', /^Join$/)
+			.contains('button', /^Start$/)
 			.click();
 		cy.location('pathname', { timeout: 15_000 }).should('match', /\/meet\/jitsi$/);
 		cy.contains('h1', 'Sprint review', { timeout: 20_000 }).should('be.visible');

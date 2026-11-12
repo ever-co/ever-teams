@@ -179,6 +179,7 @@ export function MeetingsPage() {
 						onRetry={() => void scheduled.refetch()}
 						isJitsi={isJitsi}
 						now={now}
+						hostName={scheduled.hostName}
 						cancellingId={scheduled.cancellingId}
 						onCancelMeeting={scheduled.cancelMeeting}
 						onScheduleOn={(day) => openDialogOf('schedule', day)}

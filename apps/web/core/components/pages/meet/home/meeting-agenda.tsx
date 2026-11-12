@@ -90,6 +90,8 @@ interface MeetingAgendaProps {
 	onRetry: () => void;
 	isJitsi: boolean;
 	now: Date;
+	/** Who hosts the meetings listed: the person, whose own meetings these are. */
+	hostName: string;
 	cancellingId: string | undefined;
 	onCancelMeeting: (appointmentId: string) => Promise<unknown>;
 	/** Opens Schedule on a day of the agenda. */
@@ -107,6 +109,7 @@ export function MeetingAgenda({
 	onRetry,
 	isJitsi,
 	now,
+	hostName,
 	cancellingId,
 	onCancelMeeting,
 	onScheduleOn
@@ -207,13 +210,14 @@ export function MeetingAgenda({
 						/>
 					)}
 					{dayMeetings.length > 0 && (
-						<ul className="divide-y divide-border overflow-hidden rounded-lg hairline-ring ring-border">
+						<ul className="grid gap-3 sm:grid-cols-2">
 							{dayMeetings.map((meeting) => (
 								<MeetingCard
 									key={meeting.id}
 									meeting={meeting}
 									now={now}
 									isJitsi={isJitsi}
+									hostName={hostName}
 									isCancelling={cancellingId === meeting.id}
 									onCancel={setMeetingToCancel}
 								/>

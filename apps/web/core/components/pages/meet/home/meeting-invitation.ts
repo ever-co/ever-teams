@@ -12,6 +12,19 @@ export function meetingTimesOf(meeting: Pick<ScheduledMeeting, 'start' | 'end'>,
 	return format.formatRange(meeting.start, meeting.end);
 }
 
+/** "12 minutes ago", "2 hours ago", or "now" in its first minute: how long a running meeting has been on. */
+export function meetingStartedAgoOf(meeting: Pick<ScheduledMeeting, 'start'>, now: Date, locale: string): string {
+	const format = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+	const minutes = Math.floor((now.getTime() - meeting.start.getTime()) / 60_000);
+	if (minutes < 1) {
+		return format.format(0, 'second');
+	}
+	if (minutes < 60) {
+		return format.format(-minutes, 'minute');
+	}
+	return format.format(-Math.floor(minutes / 60), 'hour');
+}
+
 /** "Sprint-review.ics": the meeting's title, letters and digits only, for the name of its calendar file. */
 export function meetingIcsFileNameOf(title: string): string {
 	// Every run of other characters is one dash now, so one dash at most comes off each end (no backtracking)
