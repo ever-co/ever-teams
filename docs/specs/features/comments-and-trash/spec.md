@@ -75,7 +75,9 @@ gone for good. This feature lets people:
 - **Given** I may not manage the trash (no delete permission and I do not manage the team), **then** the page says
   only managers can see it, and the sidebar keeps the entry (the platform decides).
 - **Given** the platform answers that the trash is not enabled, **then** the page says the trash is not available on
-  this server, and deletes stay permanent as before.
+  this server. Deletes still go to the platform's soft delete, which every platform version has: the tasks are not
+  lost, but they can be restored only once the platform lists the trash. So `GAUZY_TASK_TRASH_ENABLED=true` is turned
+  on for the platform before this flag (`.env.sample` says so).
 
 ### 2.4 Edge cases & failures
 
