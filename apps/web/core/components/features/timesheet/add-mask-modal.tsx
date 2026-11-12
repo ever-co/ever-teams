@@ -22,10 +22,12 @@ import { CustomSelect } from '../../common/multiple-select';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { ToggleButton } from '../tasks/edit-task-modal';
 import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
+import { ShiftDurationField } from './shift-duration-field';
 import { ETimeLogType, ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { useAtomValue } from 'jotai';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import { timeOptionsWith } from '@/core/lib/utils/dashboards/manual-time-entry';
 import { entryProjectIdOf, findProject, projectChoicesFor } from '@/core/lib/utils/dashboards/time-entry-task';
 import type { TOrganizationProject } from '@/core/types/schemas/organization/organization-project.schema';
 
@@ -348,6 +350,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 					<OptimizedAccordion
 						setShifts={(e) => updateFormState('shifts', e)}
 						shifts={formState.shifts}
+						employeeId={formState.employeeId}
 						t={t}
 						timeOptions={timeOptions}
 					/>
@@ -474,11 +477,13 @@ const ShiftTimingSelect = ({
 const OptimizedAccordion = ({
 	setShifts,
 	shifts,
+	employeeId,
 	timeOptions,
 	t
 }: {
 	shifts: Shift[];
 	setShifts: React.Dispatch<React.SetStateAction<Shift[]>>;
+	employeeId: string;
 	timeOptions: string[];
 	t: TranslationHooks;
 }) => {
@@ -539,6 +544,13 @@ const OptimizedAccordion = ({
 		setShifts(updatedShifts);
 	};
 
+	const handleShiftTimes = (index: number, startTime: string, endTime: string) => {
+		const updatedShifts = [...shifts];
+		const totalHours = calculateTotalHoursHour(startTime, endTime);
+		updatedShifts[index] = { ...updatedShifts[index], startTime, endTime, totalHours };
+		setShifts(updatedShifts);
+	};
+
 	return (
 		<>
 			{shifts.map((element, index) => {
@@ -567,6 +579,9 @@ const OptimizedAccordion = ({
 										index={index}
 										onChange={handleShiftChange}
 										timeOptions={timeOptions}
+										shifts={shifts}
+										employeeId={employeeId}
+										onTimes={handleShiftTimes}
 									/>
 								</div>
 							</AccordionContent>
@@ -592,17 +607,25 @@ const ShiftManagement = ({
 	value,
 	index,
 	timeOptions,
+	shifts,
+	employeeId,
+	onTimes,
 	t
 }: {
 	onChange: (index: number, field: keyof Shift, value: string) => void;
 	value: Shift;
 	index: number;
 	timeOptions: string[];
+	shifts: Shift[];
+	employeeId: string;
+	onTimes: (index: number, startTime: string, endTime: string) => void;
 	t: TranslationHooks;
 }) => {
 	// Times skipped by a daylight saving change on the picked day cannot be saved as picked.
 	const baseDate = value.dateFrom ? new Date(value.dateFrom) : null;
 	const isTimeDisabled = (time: string) => baseDate !== null && createLocalDate(baseDate, time) === null;
+	const pickedTimes = [value.startTime, value.endTime];
+	const shownTimeOptions = timeOptionsWith(timeOptions, pickedTimes, convertToMinutesHour);
 
 	return (
 		<>
@@ -619,7 +642,7 @@ const ShiftManagement = ({
 				<div className="flex gap-2 justify-between items-center mb-1 w-full">
 					<ShiftTimingSelect
 						label="Start"
-						timeOptions={timeOptions}
+						timeOptions={shownTimeOptions}
 						placeholder="00:00:00"
 						className="bg-foreground/5"
 						value={value.startTime}
@@ -628,18 +651,22 @@ const ShiftManagement = ({
 					/>
 					<ShiftTimingSelect
 						label="End"
-						timeOptions={timeOptions}
+						timeOptions={shownTimeOptions}
 						placeholder="00:00:00"
 						className="bg-foreground/5"
 						value={value.endTime}
 						onChange={(value) => onChange(index, 'endTime', value)}
 						isTimeDisabled={isTimeDisabled}
 					/>
-					<button className="flex h-9 shrink-0 items-center rounded-md bg-foreground/5 px-2.5 text-sm font-medium tabular-nums focus:outline-none">
-						{value.totalHours}
-					</button>
 				</div>
 			</div>
+			<ShiftDurationField
+				shifts={shifts}
+				index={index}
+				employeeId={employeeId}
+				minutesOfOption={convertToMinutesHour}
+				onTimes={onTimes}
+			/>
 		</>
 	);
 };

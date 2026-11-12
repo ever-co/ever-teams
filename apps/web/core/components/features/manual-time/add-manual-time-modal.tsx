@@ -8,18 +8,22 @@ import {
 	modalSecondaryActionClass
 } from '@/core/components';
 import { cn } from '@/core/lib/helpers';
-import { Calendar, CircleAlert, Clock } from '@/core/components/icons';
+import { Calendar, CircleAlert } from '@/core/components/icons';
 import { Input, controlGroupRecipe, controlRecipe } from '@/core/components/common/input';
 import { BillableSwitch } from '@/core/components/common/billable-switch';
 import { DialogFieldLabel } from '@/core/components/common/dialog-field-label';
 import { DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { minutesOfClockText } from '@/core/lib/utils/dashboards/manual-time-entry';
+import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import { FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 
 import { manualTimeReasons } from '@/core/constants/config/constants';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
+import { useDurationEntry } from '@/core/hooks/timesheet/use-duration-entry';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { DatePicker } from '@/core/components/common/date-picker';
+import { DurationField } from './duration-field';
 import { getNestedValue, Item, ManageOrMemberComponent } from '../../teams/manage-member-component';
 import { CustomSelect } from '../../common/multiple-select';
 import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/time-slot';
@@ -71,13 +75,6 @@ function dateLabelOf(date: Date | undefined, locale: string, placeholder: string
 	return formatter.format(date);
 }
 
-function durationLabelKeyOf(params: IAddManualTimeModalProps['params']) {
-	if (params === 'AddManuelTime') {
-		return 'timer.TOTAL_HOURS';
-	}
-	return 'manualTime.ADDED_HOURS';
-}
-
 /** Whether the listed task belongs to the team, so time is never saved with a team and a task of another team. */
 function isTaskOfTeam(tasks: TTask[], taskId: string, teamId: string | undefined): boolean {
 	if (!teamId) {
@@ -114,7 +111,6 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const [employeeId, setEmployeeId] = useState<string>('');
 	const isTaskPickedRef = useRef(false);
 	const isTeamPickedRef = useRef(false);
-	const [timeDifference, setTimeDifference] = useState<string>('');
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const activeTeamTaskList = useAtomValue(tasksByTeamState);
@@ -171,7 +167,6 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const endTimeId = useId();
 	const descriptionId = useId();
 	const dateLabel = dateLabelOf(date, locale, t('manualTime.PICK_A_DATE'));
-	const durationLabel = t(durationLabelKeyOf(params));
 	const optionalLabel = t('manualTime.OPTIONAL');
 
 	const initialRangeRef = useRef({ start: initialStart, end: initialEnd });
@@ -209,6 +204,11 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			// Set time for the stopped date
 			stoppedAt.setHours(parseInt(endTime.split(':')[0]));
 			stoppedAt.setMinutes(parseInt(endTime.split(':')[1]));
+
+			// The times are picked to the minute, and a proposed interval ends where the next entry starts: the
+			// seconds of the moment the dialog opened must not carry the entry over it
+			startedAt.setSeconds(0, 0);
+			stoppedAt.setSeconds(0, 0);
 
 			const requestData: Omit<IAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'> & {
 				employeeId?: string;
@@ -284,32 +284,24 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		]
 	);
 
-	const calculateTimeDifference = useCallback(() => {
-		const [startHours, startMinutes] = startTime.split(':').map(Number);
-		const [endHours, endMinutes] = endTime.split(':').map(Number);
+	const showInterval = useCallback((interval: TimeWindow | null) => {
+		if (!interval) {
+			setStartTime('');
+			setEndTime('');
+			return;
+		}
+		setStartTime(clockTimeOf(interval.start));
+		setEndTime(clockTimeOf(interval.end));
+	}, []);
 
-		const startTotalMinutes = startHours * 60 + startMinutes;
-		const endTotalMinutes = endHours * 60 + endMinutes;
-
-		const diffMinutes = endTotalMinutes - startTotalMinutes;
-		if (diffMinutes < 0) return;
-
-		const hours = Math.floor(diffMinutes / 60);
-		const minutes = diffMinutes % 60;
-
-		const timeString = [
-			hours > 0 ? `${String(hours).padStart(2, '0')}h` : '0h',
-			minutes > 0 ? `${String(minutes).padStart(2, '0')}m` : ''
-		]
-			.filter(Boolean)
-			.join(' ');
-
-		setTimeDifference(timeString);
-	}, [endTime, startTime]);
-
-	useEffect(() => {
-		calculateTimeDifference();
-	}, [calculateTimeDifference, endTime, startTime]);
+	const ownEmployeeId = user?.employee?.id ?? null;
+	const durationEntry = useDurationEntry({
+		employeeId: employeeId || ownEmployeeId,
+		day: date,
+		startMinutes: minutesOfClockText(startTime),
+		endMinutes: minutesOfClockText(endTime),
+		onInterval: showInterval
+	});
 
 	// Handle successful manual time addition - only close modal on confirmed success
 	useEffect(() => {
@@ -575,13 +567,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							/>
 						</div>
 					</div>
-					<div className="flex items-center justify-between gap-3 rounded-lg bg-foreground/[0.03] px-3 py-2">
-						<span className="text-xs text-muted-foreground">{durationLabel}</span>
-						<span className="flex items-center gap-1.5 text-[13px] font-medium tabular-nums text-foreground">
-							<Clock className="size-3.5 text-muted-foreground" aria-hidden="true" />
-							{timeDifference}
-						</span>
-					</div>
+					<DurationField entry={durationEntry} />
 				</div>
 				{params === 'AddManuelTime' ? (
 					<>

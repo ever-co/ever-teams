@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { AddTaskModal } from './add-mask-modal';
 
 const mockCreateTimesheet = jest.fn();
@@ -137,6 +137,20 @@ jest.mock('@radix-ui/react-icons', () => ({ PlusIcon: () => null, ReloadIcon: ()
 jest.mock('../../tasks/task-displays', () => ({ TaskNameInfoDisplay: () => null }));
 jest.mock('../tasks/edit-task-modal', () => ({ ToggleButton: () => null }));
 jest.mock('../../pages/timesheet/timesheet-filter-date', () => ({ DatePickerFilter: () => null }));
+
+// The duration field reads the member's day on its own: the dialog only gives it the shift and takes its times
+type MockShiftDurationProps = {
+	index: number;
+	employeeId: string;
+	onTimes: (index: number, startTime: string, endTime: string) => void;
+};
+const mockShiftDuration: { props?: MockShiftDurationProps } = {};
+jest.mock('./shift-duration-field', () => ({
+	ShiftDurationField: (props: MockShiftDurationProps) => {
+		mockShiftDuration.props = props;
+		return null;
+	}
+}));
 
 function teamWithMember(teamId: string, employeeId: string) {
 	const employee = { fullName: employeeId, user: { imageUrl: '' } };
@@ -371,5 +385,67 @@ describe('AddTaskModal project of the saved time', () => {
 		expect(mockCreateTimesheet).toHaveBeenCalledWith(
 			expect.objectContaining({ taskId: 'task-archived', projectId: 'project-archived' })
 		);
+	});
+});
+
+describe('AddTaskModal duration of a shift', () => {
+	function shiftDuration(): MockShiftDurationProps {
+		const props = mockShiftDuration.props;
+		if (!props) {
+			throw new Error('The dialog did not render the duration of its shift');
+		}
+		return props;
+	}
+
+	function shiftTimeValues() {
+		const selects = screen.getAllByLabelText('shift time') as HTMLSelectElement[];
+		return selects.map((select) => select.value);
+	}
+
+	beforeEach(() => {
+		mockCreateTimesheet.mockReset();
+		mockCreateTimesheet.mockResolvedValue(undefined);
+		mockAtomValues.activeTeamState = teamA;
+		mockAtomValues.tasksByTeamState = [taskA];
+	});
+
+	it('reads the day of the employee the time is for', () => {
+		renderAddTimeForm();
+
+		expect(shiftDuration().employeeId).toBe('');
+
+		pickTaskAndEmployee('task-a', 'employee-a');
+
+		expect(shiftDuration().employeeId).toBe('employee-a');
+	});
+
+	it('shows a proposed interval in the shift, even between two steps of the time list, and saves it', () => {
+		renderAddTimeForm();
+		pickTaskAndEmployee('task-a', 'employee-a');
+
+		act(() => shiftDuration().onTimes(0, '09:02:00 AM', '10:32:00 AM'));
+
+		expect(shiftTimeValues()).toEqual(['09:02:00 AM', '10:32:00 AM']);
+
+		save();
+
+		const [entry] = mockCreateTimesheet.mock.calls[0];
+		const savedTimes = [entry.startedAt, entry.stoppedAt].map((date: Date) => [date.getHours(), date.getMinutes()]);
+		expect(savedTimes).toEqual([
+			[9, 2],
+			[10, 32]
+		]);
+	});
+
+	it('empties the shift when the asked duration found no room, so nothing is saved', () => {
+		jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		renderAddTimeForm();
+		pickTaskAndEmployee('task-a', 'employee-a');
+		fillShiftTimes();
+
+		act(() => shiftDuration().onTimes(0, '', ''));
+		save();
+
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
 	});
 });
