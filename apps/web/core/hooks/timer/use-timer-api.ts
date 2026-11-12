@@ -77,7 +77,7 @@ export interface UseTimerApiParams {
 }
 
 export interface UseTimerApiReturn {
-	/** Filtered timer status (only shows timer for current team's tasks) */
+	/** Filtered timer status (only shows the current team's timer, see `teamTimerStatusState`) */
 	timerStatus: ITimerStatus | null;
 	/** Whether the timer status is currently being fetched */
 	timerStatusFetching: boolean;
