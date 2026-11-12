@@ -144,3 +144,22 @@ describe('the start key of the dashboard timer', () => {
 		expect(mockStopTimer).toHaveBeenCalledTimes(1);
 	});
 });
+
+/** The diameter a round control of the timer resolves to, as its size utility. */
+function diameterClassOf(element: HTMLElement) {
+	return Array.from(element.classList).find((name) => name.startsWith('size-'));
+}
+
+const stoppedTimer = { running: false } as unknown as ITimerStatus;
+
+describe('the round controls of a timer', () => {
+	it("gives the home timer's toggles the diameter of its start button", () => {
+		renderTimerWith(<Timer />, stoppedTimer);
+
+		const start = screen.getByRole('button', { name: 'Start timer' });
+		const notes = screen.getByRole('button', { name: 'timer.notes.ADD' });
+
+		expect(diameterClassOf(start)).toBe('size-11');
+		expect(diameterClassOf(notes)).toBe(diameterClassOf(start));
+	});
+});

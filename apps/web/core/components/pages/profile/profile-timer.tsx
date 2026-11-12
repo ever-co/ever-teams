@@ -8,7 +8,7 @@ const LazyProfileTimer = dynamic(
 	() => import('@/core/components/timer/timer').then((mod) => ({ default: mod.Timer })),
 	{
 		ssr: false,
-		loading: () => <TimerSkeleton className={PROFILE_TIMER_CLASS_NAME} />
+		loading: () => <TimerSkeleton className={PROFILE_TIMER_CLASS_NAME} compact={true} />
 	}
 );
 

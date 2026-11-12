@@ -45,10 +45,17 @@ function useHydrated() {
 	return hydrated;
 }
 
-const CLOCK_CLASS_NAME = 'w-[9.5rem] text-3xl font-semibold tabular-nums lg:text-start';
+/**
+ * Below sm the clock steps down to the design system's timer size on the same line height, so the start button and
+ * its two toggles keep their 44px in the phone's pane and the pane keeps its height.
+ */
+const CLOCK_CLASS_NAME =
+	'w-[6.75rem] text-2xl leading-9 font-semibold tabular-nums sm:w-[9.5rem] sm:text-3xl lg:text-start';
 
 /** The profile's figures row sets the timer beside 15px values: a clock at the size of a figure, not a headline. */
 const COMPACT_CLOCK_CLASS_NAME = 'w-[6.5rem] text-xl font-semibold tabular-nums lg:text-start';
+
+const RUNNING_FRACTION_CLASS_NAME = 'text-sm font-normal text-muted-foreground';
 
 function clockClassNameOf(compact: boolean) {
 	if (compact) {
@@ -57,11 +64,27 @@ function clockClassNameOf(compact: boolean) {
 	return CLOCK_CLASS_NAME;
 }
 
+/** The phone's clock has no room for the running fraction of a second. */
+function runningFractionClassNameOf(compact: boolean) {
+	if (compact) {
+		return RUNNING_FRACTION_CLASS_NAME;
+	}
+	return clsxm(RUNNING_FRACTION_CLASS_NAME, 'max-sm:hidden');
+}
+
 function timerButtonClassNameOf(compact: boolean) {
 	if (compact) {
 		return 'size-9';
 	}
 	return 'size-11';
+}
+
+/** The home timer's toggles take its start button's diameter, so its three round controls read as one row. */
+function entryToggleClassNameOf(compact: boolean) {
+	if (compact) {
+		return undefined;
+	}
+	return timerButtonClassNameOf(compact);
 }
 
 export function Timer({ className, showTimerButton = true, compact = false }: IClassName<{ compact?: boolean }>) {
@@ -130,12 +153,20 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 	useHotkeys(HostKeys.START_STOP_TIMER, handleStartSTOPTimer);
 
 	const clockClassName = clockClassNameOf(compact);
+	const runningFractionClassName = runningFractionClassNameOf(compact);
 	const timerButtonClassName = timerButtonClassNameOf(compact);
+	const entryToggleClassName = entryToggleClassNameOf(compact);
 
 	return (
 		<div className={clsxm('flex min-w-[260px] flex-row items-center justify-between gap-4 p-2', className)}>
-			<div className="flex min-w-0 items-center gap-3 lg:gap-4">
-				{showTimerButton && <TimerEntryToggles locked={isBillableLocked} />}
+			<div className="flex min-w-0 items-center gap-2 lg:gap-4">
+				{showTimerButton && (
+					<TimerEntryToggles
+						locked={isBillableLocked}
+						className="gap-2"
+						toggleClassName={entryToggleClassName}
+					/>
+				)}
 				<div className="flex min-w-0 items-start gap-2">
 					<div className="flex min-w-0 flex-col">
 						<Transition
@@ -154,7 +185,7 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 								className={clsxm(clockClassName, isTrackedElsewhere && 'text-muted-foreground')}
 							>
 								{isTimerRunning ? (
-									<RunningClock className="text-sm font-normal text-muted-foreground" />
+									<RunningClock className={runningFractionClassName} />
 								) : (
 									`${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`
 								)}
