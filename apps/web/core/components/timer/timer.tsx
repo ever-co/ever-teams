@@ -11,6 +11,7 @@ import { Text } from '@/core/components/common/typography';
 import { useTranslations } from 'next-intl';
 import { TimerButton } from './timer-button';
 import { TimerBillableSwitch } from './timer-billable-switch';
+import { TimerNotesButton } from './timer-notes-button';
 import { Transition } from '@headlessui/react';
 
 import { ArrowTurnUp, Desktop, Globe, Lifebuoy, Smartphone } from '@/core/components/icons';
@@ -191,6 +192,7 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 			{showTimerButton && (
 				<div className="flex h-fit shrink-0 items-center justify-center">
 					<div className="flex items-center gap-3">
+						<TimerNotesButton />
 						<TimerBillableSwitch locked={isBillableLocked} />
 						<Tooltip
 							label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
@@ -277,6 +279,9 @@ export function MinTimerFrame({ className }: IClassName) {
 					<TimerRunningSourceIcon source={timerStatus?.lastLog?.source || ETimeLogSource.TEAMS} />
 				</Tooltip>
 			)}
+
+			{/* From sm up: on a phone the pill has no room left, and the main timer carries the same notes */}
+			<TimerNotesButton className="hidden size-6 sm:inline-flex" />
 
 			<div className="z-[50] flex">
 				<TimerButton
