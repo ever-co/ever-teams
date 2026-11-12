@@ -168,11 +168,18 @@ function renderEditDialog(log: ITimeLog, teamTasks: TTask[] = [taskInSite, taskI
 	// The active team is the first of the organization's teams
 	store.set(organizationTeamsState, [teamA]);
 	store.set(teamTasksState, teamTasks);
-	return render(
+	const dialogOf = (isOpen: boolean, entry: ITimeLog) => (
 		<Provider store={store}>
-			<EditTaskModal isOpen closeModal={jest.fn()} timeLogData={log} />
+			<EditTaskModal isOpen={isOpen} closeModal={jest.fn()} timeLogData={entry} />
 		</Provider>
 	);
+	const view = render(dialogOf(true, log));
+	// The page keeps the dialog mounted once closed, and opens it again on the entry as it then holds it
+	const reopen = (entry: ITimeLog = log) => {
+		view.rerender(dialogOf(false, log));
+		view.rerender(dialogOf(true, entry));
+	};
+	return { ...view, reopen };
 }
 
 function taskSelect() {
@@ -193,7 +200,7 @@ async function saveEntry() {
 	await act(async () => {
 		fireEvent.click(saveButton);
 	});
-	const [payload] = mockUpdateTimeLog.mock.calls[0];
+	const [payload] = mockUpdateTimeLog.mock.calls.at(-1) ?? [];
 	return payload as Record<string, unknown>;
 }
 
@@ -260,6 +267,50 @@ describe('EditTaskModal task of the entry', () => {
 
 		expect(payload).not.toHaveProperty('taskId');
 		expect(payload.projectId).toBe('project-site');
+	});
+
+	it('drops a task picked in an opening that was closed without saving', async () => {
+		const view = renderEditDialog(logOf({}));
+
+		pickTask('task-mobile');
+		view.reopen();
+
+		expect(taskSelect().value).toBe('task-site');
+
+		const payload = await saveEntry();
+
+		expect(payload).not.toHaveProperty('taskId');
+		expect(payload.projectId).toBe('project-site');
+	});
+
+	it("keeps a moved entry under its new task's project when it is opened and saved again", async () => {
+		const view = renderEditDialog(logOf({}));
+		pickTask('task-mobile');
+		await saveEntry();
+
+		const movedLog = logOf({
+			task: taskInMobile,
+			taskId: 'task-mobile',
+			project: mobileProject as ITimeLog['project'],
+			projectId: 'project-mobile'
+		});
+		view.reopen(movedLog);
+		const payload = await saveEntry();
+
+		expect(payload).not.toHaveProperty('taskId');
+		expect(payload.projectId).toBe('project-mobile');
+	});
+
+	it('keeps that project when the entry is opened again before the page has read it as saved', async () => {
+		const view = renderEditDialog(logOf({}));
+		pickTask('task-mobile');
+		await saveEntry();
+
+		view.reopen();
+		const payload = await saveEntry();
+
+		expect(payload).not.toHaveProperty('taskId');
+		expect(payload.projectId).toBe('project-mobile');
 	});
 
 	it("shows the entry's own task when the team's list does not hold it", () => {

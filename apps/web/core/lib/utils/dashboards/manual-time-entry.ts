@@ -55,9 +55,26 @@ function formLimitOf(bounds: DayBounds, now: Date, allowsFutureDates: boolean): 
 }
 
 /**
+ * Whether a form saves this moment as it is. A form holds a time as an hour and a minute of the day and reads it
+ * back as the first moment of the day with that time. On the day the clock goes back an hour comes twice: a moment
+ * of the second one would be saved an hour earlier.
+ */
+function isSavedAsItself(moment: Date, day: Date) {
+	const minutes = minutesOfDayOf(moment);
+	const readBack = dateAtMinutes(day, minutes);
+	return readBack.getTime() === moment.getTime();
+}
+
+function canFormSave(interval: TimeWindow, day: Date) {
+	const savesStart = isSavedAsItself(interval.start, day);
+	const savesEnd = isSavedAsItself(interval.end, day);
+	return savesStart && savesEnd;
+}
+
+/**
  * The interval a form proposes for a typed duration: one free stretch of the member's day, so the entry overlaps
  * nothing (Gauzy deletes what a manual entry overlaps). A day after today is closed when the organization refuses
- * time in the future.
+ * time in the future. An interval the form would save as another one is not proposed.
  */
 export function intervalProposalOf(request: IntervalRequest): IntervalProposal {
 	const bounds = dayBoundsOf(request.day);
@@ -71,6 +88,9 @@ export function intervalProposalOf(request: IntervalRequest): IntervalProposal {
 	const freeWindows = freeWindowsBetween(busy, bounds, limit);
 	const interval = singlePlacementOf(request.seconds, freeWindows, request.day);
 	if (!interval) {
+		return { status: 'noRoom' };
+	}
+	if (!canFormSave(interval, request.day)) {
 		return { status: 'noRoom' };
 	}
 	return { status: 'ready', interval };
@@ -102,7 +122,12 @@ export interface ShownTimes {
 
 const NO_TIMES: ShownTimes = { startMinutes: null, endMinutes: null };
 
-export function spanSecondsOf(shown: ShownTimes): number | null {
+/**
+ * The time from the start to the end a form shows, as it passes on that day: where the clock changes, a day lasts an
+ * hour more or less than its clock tells, and the entry is saved with the time that really passed. While no day is
+ * picked, only the clock can be counted.
+ */
+export function spanSecondsOf(shown: ShownTimes, day: Date | null): number | null {
 	const { startMinutes, endMinutes } = shown;
 	if (startMinutes === null) {
 		return null;
@@ -110,11 +135,21 @@ export function spanSecondsOf(shown: ShownTimes): number | null {
 	if (endMinutes === null) {
 		return null;
 	}
-	const minutes = endMinutes - startMinutes;
-	if (minutes <= 0) {
+	const clockMinutes = endMinutes - startMinutes;
+	if (clockMinutes <= 0) {
 		return null;
 	}
-	return minutes * SECONDS_PER_MINUTE;
+	if (!day) {
+		return clockMinutes * SECONDS_PER_MINUTE;
+	}
+	const start = dateAtMinutes(day, startMinutes);
+	const end = dateAtMinutes(day, endMinutes);
+	const milliseconds = end.getTime() - start.getTime();
+	if (milliseconds <= 0) {
+		return null;
+	}
+	const passedMinutes = milliseconds / MILLISECONDS_PER_MINUTE;
+	return passedMinutes * SECONDS_PER_MINUTE;
 }
 
 function timesOfInterval(interval: TimeWindow): ShownTimes {
@@ -186,7 +221,7 @@ export function askedSecondsOf(phase: DurationPhase): number | null {
  * What the duration field reads while nothing is being typed: the refused text, the duration still asked for, or
  * the time from the start to the end the form shows.
  */
-export function restingDurationTextOf(phase: DurationPhase, shown: ShownTimes): string {
+export function restingDurationTextOf(phase: DurationPhase, shown: ShownTimes, day: Date | null): string {
 	if (phase.kind === 'invalid') {
 		return phase.text;
 	}
@@ -196,7 +231,7 @@ export function restingDurationTextOf(phase: DurationPhase, shown: ShownTimes): 
 	if (isAskedOnly) {
 		return formatDurationShort(askedSeconds);
 	}
-	const spanSeconds = spanSecondsOf(shown);
+	const spanSeconds = spanSecondsOf(shown, day);
 	if (spanSeconds === null) {
 		return '';
 	}

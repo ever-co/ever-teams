@@ -17,6 +17,7 @@ describe('timer action eligibility', () => {
 				hasActiveTask: false,
 				isActiveTaskClosed: false,
 				isTimerRunning: false,
+				isRunShown: false,
 				timerSource: undefined
 			})
 		).toBe(false);
@@ -27,6 +28,7 @@ describe('timer action eligibility', () => {
 			isEmailVerified: true,
 			hasActiveTask: true,
 			isTimerRunning: false,
+			isRunShown: false,
 			timerSource: ETimeLogSource.TEAMS
 		};
 
@@ -41,9 +43,28 @@ describe('timer action eligibility', () => {
 				hasActiveTask: false,
 				isActiveTaskClosed: false,
 				isTimerRunning: true,
+				isRunShown: false,
 				timerSource: ETimeLogSource.DESKTOP
 			})
 		).toBe(true);
+	});
+
+	describe('with a Teams timer running and no active task', () => {
+		const teamsRunWithoutTask = {
+			isEmailVerified: true,
+			hasActiveTask: false,
+			isActiveTaskClosed: false,
+			isTimerRunning: true,
+			timerSource: ETimeLogSource.TEAMS
+		};
+
+		it("allows stopping it when the timer shows it: a reload leaves no active task on another project's task", () => {
+			expect(canRunTimerForState({ ...teamsRunWithoutTask, isRunShown: true })).toBe(true);
+		});
+
+		it('keeps it out of reach when the timer does not show it (another team)', () => {
+			expect(canRunTimerForState({ ...teamsRunWithoutTask, isRunShown: false })).toBe(false);
+		});
 	});
 });
 
@@ -107,6 +128,7 @@ describe('getTimerAction', () => {
 		isTimerStatusFetching: false,
 		canRunTimer: true,
 		isTimerRunning: false,
+		hasHiddenRun: false,
 		requirePlan: false,
 		hasPlan: true,
 		isActiveTaskPlanned: true,
@@ -128,6 +150,24 @@ describe('getTimerAction', () => {
 		expect(getTimerAction(stateWith({ isTimerRunning: true }))).toEqual({ type: 'STOP_TIMER' });
 		expect(getTimerAction(stateWith({ isTimerRunning: true, requirePlan: true, hasPlan: false }))).toEqual({
 			type: 'STOP_TIMER'
+		});
+	});
+
+	describe('when a timer runs that the timer does not show', () => {
+		const hiddenRun = { isTimerRunning: true, hasHiddenRun: true };
+
+		it('never stops it, and says time is already tracked elsewhere', () => {
+			expect(getTimerAction(stateWith(hiddenRun))).toEqual({ type: 'WARN_ALREADY_TRACKING' });
+		});
+
+		it('says so on a Start shown disabled as well (another tab on another team, no active task here)', () => {
+			expect(getTimerAction(stateWith({ ...hiddenRun, canRunTimer: false }))).toEqual({
+				type: 'WARN_ALREADY_TRACKING'
+			});
+		});
+
+		it('waits for the status being read', () => {
+			expect(getTimerAction(stateWith({ ...hiddenRun, isTimerStatusFetching: true }))).toEqual({ type: 'NOOP' });
 		});
 	});
 

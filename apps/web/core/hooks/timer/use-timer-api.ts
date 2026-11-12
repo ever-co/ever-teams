@@ -1,6 +1,6 @@
 'use client';
 
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useStore } from 'jotai';
 import isEqual from 'lodash/isEqual';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { usePathname } from 'next/navigation';
@@ -23,7 +23,6 @@ import {
 	requiredTrackingFieldsMessageKeyOf,
 	requiredTrackingFieldsOf
 } from '@/core/lib/helpers/timer-errors';
-import { isTimerTaskOfTeam } from '@/core/lib/utils/task.utils';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerService } from '@/core/services/client/api/timers';
@@ -32,12 +31,13 @@ import {
 	activeTeamState,
 	activeTeamTaskState,
 	detailedTaskState,
+	leftActiveTaskIdState,
 	localTimerStatusState,
-	teamTasksState,
 	timerStatusFetchingState,
 	timerStatusState,
 	workspaceOpeningState
 } from '@/core/stores';
+import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
@@ -78,7 +78,7 @@ export interface UseTimerApiParams {
 }
 
 export interface UseTimerApiReturn {
-	/** Filtered timer status (only shows timer for current team's tasks) */
+	/** Filtered timer status (only shows the current team's timer, see `teamTimerStatusState`) */
 	timerStatus: ITimerStatus | null;
 	/** Whether the timer status is currently being fetched */
 	timerStatusFetching: boolean;
@@ -192,6 +192,21 @@ function releaseStopGuard(request: Promise<void>) {
 	if (pendingStopTimer === request) pendingStopTimer = null;
 }
 
+type RunGoingOn = { status: ITimerStatus; inDayStatus: boolean };
+
+/**
+ * The status of a run that goes on for the employee, read afresh, or null when none does. The day's status of a Gauzy
+ * older than its past-midnight fix leaves out a run started before midnight, which the employee's last log, whatever
+ * its day, still shows: that log is then put in the day's status, and `inDayStatus` is false.
+ */
+async function readRunGoingOn(employeeId: string): Promise<RunGoingOn | null> {
+	const { data: status } = await timerService.getTimerStatus();
+	if (status?.running) return { status, inDayStatus: true };
+	const { data: lastLogs } = await timerService.getLastTimerLog(employeeId);
+	const lastLog = lastLogs?.[0]?.lastLog;
+	return lastLog?.isRunning ? { status: { ...status, running: true, lastLog }, inDayStatus: false } : null;
+}
+
 /**
  * Tell the user about an automatic stop once its request has settled, so a
  * failed stop never reads as "timer stopped" while the server keeps tracking.
@@ -241,6 +256,7 @@ export function useTimerApi({
 	const pathname = usePathname();
 	const queryClient = useQueryClient();
 	const t = useTranslations();
+	const store = useStore();
 
 	// ==================== ATOMS ====================
 
@@ -250,9 +266,10 @@ export function useTimerApi({
 	const { taskStatuses } = useTaskStatusesQuery({ enabled });
 	const detailedTask = useAtomValue(detailedTaskState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
-	const teamTasks = useAtomValue(teamTasksState);
 	const [timerStatusFetching, setTimerStatusFetching] = useAtom(timerStatusFetchingState);
 	const [timerStatus, setTimerStatus] = useAtom(timerStatusState);
+	// What the timers show: the status filtered to the active team, the one every component that displays it reads
+	const filteredTimerStatus = useAtomValue(teamTimerStatusState);
 	const localTimerStatus = useAtomValue(localTimerStatusState);
 
 	// ==================== REFS ====================
@@ -415,9 +432,16 @@ export function useTimerApi({
 				hasActiveTask: !!activeTeamTask,
 				isActiveTaskClosed: activeTeamTask?.status === ETaskStatusName.CLOSED,
 				isTimerRunning: !!timerStatus?.running,
+				isRunShown: !!filteredTimerStatus?.running,
 				timerSource: timerStatus?.lastLog?.source
 			}),
-		[user?.isEmailVerified, activeTeamTask, timerStatus?.running, timerStatus?.lastLog?.source]
+		[
+			user?.isEmailVerified,
+			activeTeamTask,
+			timerStatus?.running,
+			filteredTimerStatus?.running,
+			timerStatus?.lastLog?.source
+		]
 	);
 
 	// ==================== CALLBACKS ====================
@@ -505,6 +529,52 @@ export function useTimerApi({
 
 	const startTimerMutate = startTimerMutation.mutateAsync;
 
+	/**
+	 * The tracking flag says a timer runs while this tab's status says stopped, and no run left behind by a closed tab
+	 * was found. This tab's status can be out of date: up to a minute old, or read while a start elsewhere was landing.
+	 * A run a fresh read finds goes on in another tab or device, so the flag is not stuck: the run is kept and shown
+	 * here, and the start is refused. Else the flag is stuck, and a stop clears it on the server (#5121). A failed read
+	 * refuses the start too: Gauzy's start stops any run it finds. Resolves to true when the start is refused.
+	 */
+	const keepRunOrClearStuckFlag = useCallback(
+		async (employeeId: string): Promise<boolean> => {
+			const commandSeq = timerCommandsInFlight === 0 ? timerCommandSeq : null;
+			let runGoingOn: RunGoingOn | null;
+			try {
+				runGoingOn = await readRunGoingOn(employeeId);
+			} catch (error) {
+				// Whether a run goes on elsewhere is unknown here, and a start sent anyway would stop it
+				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+				toast.error(t('toasts.timer.START_FAILED'), { id: 'timer-start-failed', description: t(reasonKey) });
+				logErrorInDev('[startTimer] Timer status read failed:', error);
+				return true;
+			}
+			if (!runGoingOn) {
+				await timerService.stopTimer({
+					source: timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS
+				});
+				return false;
+			}
+			toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
+			// Shown now, so this tab's Stop reaches the run: a default instance never reads its status again. Not after
+			// a command sent meanwhile, which the read may predate.
+			if (
+				commandSeq === timerCommandSeq &&
+				(!statusEnabled || isCurrentScope()) &&
+				!isEqual(timerStatusRef.current, runGoingOn.status)
+			) {
+				setTimerStatus(runGoingOn.status);
+			}
+			// The status queries catch up too, unless the day's status leaves the run out: read again, it would show
+			// the run stopped
+			if (runGoingOn.inDayStatus) {
+				void queryClient.invalidateQueries({ queryKey: queryKeys.timer.all });
+			}
+			return true;
+		},
+		[isCurrentScope, queryClient, setTimerStatus, statusEnabled, t, timerStatusRef]
+	);
+
 	// Check if the user is tracking time in another tab or device
 	const canStartWithoutTrackingConflict = useCallback(async (): Promise<boolean> => {
 		try {
@@ -542,10 +612,9 @@ export function useTimerApi({
 				try {
 					// A TEAMS timer left behind by a closed tab is credited up to its last heartbeat, not now
 					const stoppedStale = await stopStaleTeamsTimer(userData.employee.id);
-					if (!stoppedStale) {
-						await timerService.stopTimer({
-							source: timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS
-						});
+					// Else a run going on in another tab or device is kept, and only a stuck flag is cleared (#5121)
+					if (!stoppedStale && (await keepRunOrClearStuckFlag(userData.employee.id))) {
+						return false;
 					}
 					// Refresh user data to confirm the flag was reset
 					const refreshed = await refreshUserData();
@@ -558,8 +627,15 @@ export function useTimerApi({
 						return false;
 					}
 				} catch (healError) {
-					logErrorInDev('[startTimer] Auto-heal stop failed:', healError);
-					// Still allow start attempt — the server start endpoint may handle it
+					// A read that failed tells nothing about a run on another tab or device, and Gauzy's start stops
+					// every running log of the employee: the start is refused, as a failed status read refuses it
+					logErrorInDev('[startTimer] Auto-heal check failed:', healError);
+					const reasonKey = errorReasonKeyOf(healError) as DottedLanguageObjectStringPaths;
+					toast.error(t('toasts.timer.START_FAILED'), {
+						id: 'timer-start-failed',
+						description: t(reasonKey)
+					});
+					return false;
 				}
 			}
 			return true;
@@ -569,7 +645,7 @@ export function useTimerApi({
 			logErrorInDev('Failed to verify tracking status', error);
 			return false;
 		}
-	}, [activeTeamRef, queryClient, refreshUserData, stopStaleTeamsTimer, t, timerStatusRef]);
+	}, [activeTeamRef, keepRunOrClearStuckFlag, queryClient, refreshUserData, stopStaleTeamsTimer, t, timerStatusRef]);
 
 	/** A new workspace is opening (#5025): says so and tells the start to stop. */
 	const warnIfWorkspaceOpening = useCallback((): boolean => {
@@ -1046,9 +1122,21 @@ export function useTimerApi({
 		}
 
 		const currentTaskId = activeTeamTask?.id;
-		const canStop = lastActiveTaskId.current !== null && currentTaskId !== lastActiveTaskId.current;
+		// Only a switch from one task to another stops the timer, or the person leaving the active task on purpose
+		// (leaving the task, closing it). An active task the app emptied (a task that left the loaded list, a save
+		// rolled back) is neither, and the last task stays the one to compare with, so a later run of this effect does
+		// not stop the timer either (#5119)
+		const isTaskSwitch =
+			!!currentTaskId && lastActiveTaskId.current !== null && currentTaskId !== lastActiveTaskId.current;
+		const leftTaskId = store.get(leftActiveTaskIdState);
+		const isTaskLeft = !currentTaskId && leftTaskId !== null && leftTaskId === lastActiveTaskId.current;
+		// The owner clears the mark once it has seen that task left, or another task taken
+		const isLeftMarkSeen = leftTaskId !== null && (isTaskLeft || (!!currentTaskId && currentTaskId !== leftTaskId));
+		if (isLeftMarkSeen && firstLoad) {
+			store.set(leftActiveTaskIdState, null);
+		}
 
-		if (canStop && timerStatusRef.current?.running && firstLoad) {
+		if ((isTaskSwitch || isTaskLeft) && timerStatusRef.current?.running && firstLoad) {
 			// If timer is started at some other source keep the timer running...
 			// If timer is started in the browser Stop the timer on Task Change
 			if (timerStatusRef.current.lastLog?.source === ETimeLogSource.TEAMS) {
@@ -1062,33 +1150,7 @@ export function useTimerApi({
 		if (currentTaskId) {
 			lastActiveTaskId.current = currentTaskId;
 		}
-	}, [firstLoad, activeTeamTask?.id, stopTimer, timerStatusRef, isUpdatingActiveTask, t]);
-
-	// ==================== FILTERED TIMER STATUS ====================
-
-	// Filter timerStatus to only show timer for current team's tasks
-	const filteredTimerStatus = useMemo<ITimerStatus | null>(() => {
-		if (!timerStatus) return null;
-
-		// If timer is not running, return as is
-		if (!timerStatus.running) return timerStatus;
-
-		// If timer is running, check if the task belongs to current team
-		const currentTaskId = timerStatus.lastLog?.taskId;
-		if (!currentTaskId) return timerStatus;
-
-		const taskBelongsToCurrentTeam = isTimerTaskOfTeam(currentTaskId, teamTasks, activeTeamTask);
-
-		// If task doesn't belong to current team, return timer as stopped
-		if (!taskBelongsToCurrentTeam) {
-			return {
-				...timerStatus,
-				running: false
-			};
-		}
-
-		return timerStatus;
-	}, [timerStatus, teamTasks, activeTeamTask]);
+	}, [firstLoad, activeTeamTask?.id, stopTimer, timerStatusRef, isUpdatingActiveTask, t, store]);
 
 	// ==================== RETURN ====================
 

@@ -32,8 +32,11 @@ export interface DurationEntryInput {
 	day: Date | null;
 	startMinutes: number | null;
 	endMinutes: number | null;
-	/** Intervals the same form already holds elsewhere, kept out of the proposal like saved entries. */
-	claimed?: ReadonlyArray<TimeWindow>;
+	/**
+	 * Intervals the same form holds elsewhere, kept out of the proposal like saved entries. Read when the proposal is
+	 * placed, since another period of the form can take its times between the moment the duration is typed and then.
+	 */
+	readClaimed?: () => ReadonlyArray<TimeWindow>;
 	/** Shows an interval as the form's start and end; null empties them. */
 	onInterval: (interval: TimeWindow | null) => void;
 }
@@ -56,7 +59,7 @@ export interface DurationEntry {
  */
 export function useDurationEntry(input: DurationEntryInput): DurationEntry {
 	const { employeeId, day, startMinutes, endMinutes, onInterval } = input;
-	const claimed = input.claimed ?? NO_CLAIMED;
+	const readClaimedRef = useCallbackRef(input.readClaimed);
 	const queryClient = useQueryClient();
 	const { data: user } = useUserQuery();
 	const organization = useAtomValue(currentOrganizationState);
@@ -69,7 +72,7 @@ export function useDurationEntry(input: DurationEntryInput): DurationEntry {
 	const shown = useMemo<ShownTimes>(() => ({ startMinutes, endMinutes }), [endMinutes, startMinutes]);
 	const shownRef = useSyncRef(shown);
 	const standingPhase = standingPhaseOf(phase, shown);
-	const restingText = restingDurationTextOf(standingPhase, shown);
+	const restingText = restingDurationTextOf(standingPhase, shown, day);
 
 	const readMemberLogs = async (memberId: string, around: Date): Promise<ITimeLog[]> => {
 		const period = { from: subDays(around, 1), to: addDays(around, 1) };
@@ -95,6 +98,9 @@ export function useDurationEntry(input: DurationEntryInput): DurationEntry {
 	};
 
 	const propose = async (seconds: number) => {
+		// Counted before the early returns too: a read still in flight answers the request this one replaces
+		runIdRef.current += 1;
+		const runId = runIdRef.current;
 		if (!day) {
 			setPhase(IDLE_PHASE);
 			return;
@@ -103,8 +109,6 @@ export function useDurationEntry(input: DurationEntryInput): DurationEntry {
 			setPhase({ kind: 'noMember', seconds, shown: shownRef.current });
 			return;
 		}
-		runIdRef.current += 1;
-		const runId = runIdRef.current;
 		const reading: DurationPhase = { kind: 'reading', seconds };
 		onIntervalRef.current(null);
 		setPhase(reading);
@@ -128,6 +132,7 @@ export function useDurationEntry(input: DurationEntryInput): DurationEntry {
 			return;
 		}
 		const now = new Date();
+		const claimed = readClaimedRef.current?.() ?? NO_CLAIMED;
 		const proposal = intervalProposalOf({ seconds, day, memberLogs, claimed, now, allowsFutureDates });
 		if (proposal.status === 'ready') {
 			onIntervalRef.current(proposal.interval);
@@ -178,6 +183,8 @@ export function useDurationEntry(input: DurationEntryInput): DurationEntry {
 			return;
 		}
 		setDraft(null);
+		// The read in flight answers the duration this text replaces: it must not fill the form once it arrives
+		runIdRef.current += 1;
 		const typed = typedDurationOf(draft);
 		if (typed.kind === 'invalid') {
 			setPhase({ kind: 'invalid', text: draft, shown });

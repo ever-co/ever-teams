@@ -17,7 +17,11 @@ import { useTimesheetLogActions } from '@/core/hooks/dashboards/timesheets/use-t
 import { useSheetEditing } from '@/core/hooks/dashboards/timesheets/use-sheet-editing';
 import { useSheetEmptyMembers } from '@/core/hooks/dashboards/timesheets/use-sheet-empty-members';
 import { useTimesheetSheet } from '@/core/hooks/dashboards/timesheets/use-timesheet-sheet';
-import { canEditLog, useTimesheetsPage } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
+import {
+	canEditLog,
+	sheetEditingSourceOf,
+	useTimesheetsPage
+} from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
 import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import type { BulkEditResult } from '@/core/lib/utils/dashboards/timesheet-bulk-edit';
@@ -207,7 +211,8 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 		isManage: permissions.isManage
 	});
 	const sheet = useTimesheetSheet(sheetLogs, page.period, emptySheetMembers);
-	const sheetEditing = useSheetEditing(page, sheet);
+	const sheetEditingSource = sheetEditingSourceOf(page);
+	const sheetEditing = useSheetEditing(sheetEditingSource, sheet);
 	const { pendingLogs } = sheet;
 
 	const approveSelection = async () => {

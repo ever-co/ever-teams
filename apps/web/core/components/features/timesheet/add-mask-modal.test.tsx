@@ -163,9 +163,11 @@ jest.mock('../tasks/edit-task-modal', () => ({ ToggleButton: () => null }));
 jest.mock('../../pages/timesheet/timesheet-filter-date', () => ({ DatePickerFilter: () => null }));
 
 // The duration field reads the member's day on its own: the dialog only gives it the shift and takes its times
+type MockShift = { startTime: string; endTime: string };
 type MockShiftDurationProps = {
 	index: number;
 	employeeId: string;
+	readShifts: () => MockShift[];
 	onTimes: (index: number, startTime: string, endTime: string) => void;
 };
 const mockShiftDuration: { props?: MockShiftDurationProps } = {};
@@ -261,6 +263,35 @@ describe('AddTaskModal duration of a shift', () => {
 			[9, 2],
 			[10, 32]
 		]);
+	});
+
+	it('keeps the times two periods receive before the dialog renders again', () => {
+		renderAddTimeForm();
+		pickTaskAndEmployee('task-a', 'employee-a');
+		fireEvent.click(screen.getByText('common.ADD_ANOTHER_PERIOD'));
+
+		// A member change asks every period again at once: their times arrive in one go, without a render in between
+		act(() => {
+			shiftDuration().onTimes(0, '09:00:00 AM', '10:30:00 AM');
+			shiftDuration().onTimes(1, '10:30:00 AM', '12:00:00 PM');
+		});
+
+		expect(shiftTimeValues()).toEqual(['09:00:00 AM', '10:30:00 AM', '10:30:00 AM', '12:00:00 PM']);
+	});
+
+	it('lets a period read the times another one received before the dialog renders again', () => {
+		renderAddTimeForm();
+		pickTaskAndEmployee('task-a', 'employee-a');
+		fireEvent.click(screen.getByText('common.ADD_ANOTHER_PERIOD'));
+
+		let readRightAfter: MockShift[] = [];
+		act(() => {
+			shiftDuration().onTimes(0, '09:00:00 AM', '10:30:00 AM');
+			readRightAfter = shiftDuration().readShifts();
+		});
+
+		const [firstPeriod] = readRightAfter;
+		expect(firstPeriod).toMatchObject({ startTime: '09:00:00 AM', endTime: '10:30:00 AM' });
 	});
 
 	it('empties the shift when the asked duration found no room, so nothing is saved', () => {
