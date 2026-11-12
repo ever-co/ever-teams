@@ -79,7 +79,7 @@ export function TeamTasksDisplayMenu({ view }: Readonly<{ view: TeamTasksViewSta
 	const t = useTranslations();
 	const { settings } = view;
 	const directionLabel = t(directionLabelKey(settings.isDescending));
-	const isCustomised = !view.isDefaultView;
+	const isCustomised = !view.hasDefaultDisplay;
 	const orderings = view.allowsManualOrder ? SAVED_VIEW_ORDERINGS : ORDERINGS;
 	// A manual order has no direction: it is the order the tasks were put in.
 	const isManual = settings.ordering === 'manual';
