@@ -122,6 +122,17 @@ function projectFieldOf(projectId: string) {
 	return { projectId };
 }
 
+function emptyFormOf(employeeId: string) {
+	return {
+		notes: '',
+		billableChoice: null as boolean | null,
+		taskId: '',
+		employeeId,
+		projectId: '',
+		shifts: [{ startTime: '', endTime: '', totalHours: '00:00h', dateFrom: new Date() }] as Shift[]
+	};
+}
+
 export function AddTaskModal({ closeModal, isOpen, fixedMember }: IAddTaskModalProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { generateTimeOptions } = useTimelogFilterOptions();
@@ -135,14 +146,9 @@ export function AddTaskModal({ closeModal, isOpen, fixedMember }: IAddTaskModalP
 	const t = useTranslations();
 	const fixedEmployeeId = fixedMember?.employeeId ?? '';
 
-	const [formState, setFormState] = React.useState({
-		notes: '',
-		billableChoice: null as boolean | null,
-		taskId: '',
-		employeeId: fixedEmployeeId,
-		projectId: '',
-		shifts: [{ startTime: '', endTime: '', totalHours: '00:00h', dateFrom: new Date() }] as Shift[]
-	});
+	const [formState, setFormState] = React.useState(() => emptyFormOf(fixedEmployeeId));
+	// Raised by a save: the period rows start over too, with the duration typed in them and its proposal
+	const [formVersion, setFormVersion] = React.useState(0);
 
 	// The task and the employee come from the active team's lists: when that team changes under the open form
 	// (a team switch from another tab), they are cleared instead of being saved with the new team
@@ -308,6 +314,9 @@ export function AddTaskModal({ closeModal, isOpen, fixedMember }: IAddTaskModalP
 						)
 					);
 					closeModal();
+					// The dialog stays mounted once opened: the next entry starts empty, not on the times just saved
+					setFormState(emptyFormOf(fixedEmployeeId));
+					setFormVersion((version) => version + 1);
 				} catch (error) {
 					console.error('Failed to create timesheet:', error);
 				}
@@ -395,6 +404,7 @@ export function AddTaskModal({ closeModal, isOpen, fixedMember }: IAddTaskModalP
 				</div>
 				<div>
 					<OptimizedAccordion
+						key={formVersion}
 						setShifts={(e) => updateFormState('shifts', e)}
 						shifts={formState.shifts}
 						employeeId={formState.employeeId}

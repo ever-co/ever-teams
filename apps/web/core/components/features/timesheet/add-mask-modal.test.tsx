@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { AddTaskModal } from './add-mask-modal';
 
 const mockCreateTimesheet = jest.fn();
@@ -374,6 +374,26 @@ describe('AddTaskModal team of the saved time', () => {
 		expect(mockCreateTimesheet).toHaveBeenCalledWith(
 			expect.objectContaining({ organizationTeamId: 'team-b', taskId: 'task-b', employeeId: 'employee-b' })
 		);
+	});
+
+	it('starts the next entry empty after a save', async () => {
+		renderAddTimeForm();
+
+		closeModal.mockClear();
+		pickTaskAndEmployee('task-a', 'employee-a');
+		fillShiftTimes();
+		save();
+		await waitFor(() => expect(closeModal).toHaveBeenCalled());
+
+		const [taskSelect, employeeSelect] = taskAndEmployeeSelects();
+		expect(taskSelect.value).toBe('');
+		expect(employeeSelect.value).toBe('');
+
+		// The times went with the saved entry: the same task and employee alone save nothing more
+		pickTaskAndEmployee('task-a', 'employee-a');
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledTimes(1);
 	});
 
 	it('keeps Save disabled until both the task and the employee are picked', () => {
