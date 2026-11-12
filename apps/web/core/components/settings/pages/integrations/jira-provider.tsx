@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, RefObject, useId, useMemo, useRef, useState } from 'react';
+import { Fragment, ReactNode, RefObject, useId, useMemo, useRef, useState } from 'react';
 import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
 import { AnimatedHeight } from '@/core/components/common/animated-height';
 import { badgeVariants } from '@/core/components/common/badge';
@@ -53,8 +53,7 @@ import {
 	IJiraStatusDefinition,
 	JIRA_DIRECTIONS,
 	JIRA_STATUS_CATEGORIES,
-	TJiraDirection,
-	TJiraStatusCategory
+	TJiraDirection
 } from '@/core/types/interfaces/integrations/jira';
 import { IntegrationConflictsRow } from './integration-conflicts-row';
 import { GithubProviderRowSkeleton, PROVIDER_ROW, PROVIDER_TILE } from './integrations-settings-skeleton';
@@ -82,15 +81,6 @@ function JiraTile() {
 		<span className={cn(PROVIDER_TILE, 'text-[13px] font-semibold')} aria-hidden="true">
 			J
 		</span>
-	);
-}
-
-function FactRow({ label, value }: Readonly<{ label: string; value: string }>) {
-	return (
-		<>
-			<dt className="text-xs leading-5 text-muted-foreground">{label}</dt>
-			<dd className="min-w-0 truncate text-[13px] leading-5 text-foreground">{value}</dd>
-		</>
 	);
 }
 
@@ -184,27 +174,28 @@ function JiraFacts({ jira }: JiraProps) {
 	const connection = jira.connection;
 	if (!connection) return null;
 	const site = [connection.siteName, connection.siteUrl].filter(Boolean).join(' · ');
+	// Label and value of each fact the connection has; one it lacks (no account name, no site yet) is left out.
+	const facts: Array<[string, string]> = [
+		[t(`${KEYS}.FACT_ACCOUNT` as Key), connection.accountName ?? ''],
+		[t(`${KEYS}.FACT_SITE` as Key), site],
+		[t(`${KEYS}.FACT_CONNECTED` as Key), connection.createdAt ? formatDay(connection.createdAt, locale) : ''],
+		[t(`${KEYS}.FACT_MAPPINGS` as Key), t(`${KEYS}.FACT_MAPPINGS_VALUE` as Key, { count: jira.mappings.length })],
+		[
+			t(`${KEYS}.FACT_WEBHOOKS` as Key),
+			jira.webhooks ? t(`${KEYS}.WEBHOOKS_ON` as Key) : t(`${KEYS}.WEBHOOKS_OFF` as Key)
+		]
+	];
 	return (
 		<div className={cn(ROW_DIVIDER, 'px-4 py-3')}>
 			<dl className="grid min-w-0 grid-cols-[minmax(0,7.5rem)_minmax(0,1fr)] gap-x-4 gap-y-1.5">
-				{connection.accountName && (
-					<FactRow label={t(`${KEYS}.FACT_ACCOUNT` as Key)} value={connection.accountName} />
-				)}
-				{site && <FactRow label={t(`${KEYS}.FACT_SITE` as Key)} value={site} />}
-				{connection.createdAt && (
-					<FactRow
-						label={t(`${KEYS}.FACT_CONNECTED` as Key)}
-						value={formatDay(connection.createdAt, locale)}
-					/>
-				)}
-				<FactRow
-					label={t(`${KEYS}.FACT_MAPPINGS` as Key)}
-					value={t(`${KEYS}.FACT_MAPPINGS_VALUE` as Key, { count: jira.mappings.length })}
-				/>
-				<FactRow
-					label={t(`${KEYS}.FACT_WEBHOOKS` as Key)}
-					value={jira.webhooks ? t(`${KEYS}.WEBHOOKS_ON` as Key) : t(`${KEYS}.WEBHOOKS_OFF` as Key)}
-				/>
+				{facts
+					.filter(([, value]) => value)
+					.map(([label, value]) => (
+						<Fragment key={label}>
+							<dt className="text-xs leading-5 text-muted-foreground">{label}</dt>
+							<dd className="min-w-0 truncate text-[13px] leading-5 text-foreground">{value}</dd>
+						</Fragment>
+					))}
 			</dl>
 		</div>
 	);
@@ -440,90 +431,36 @@ function WebhookRow({ jira }: JiraProps) {
 	);
 }
 
-function CategorySelect({
-	category,
+/**
+ * One field of a status map: the task status a status category, or one Jira status, becomes. A Jira status can also
+ * be left to its category (`fallbackLabel` names that choice). A value that is no status of the project or the
+ * organization stays visible and is marked.
+ */
+function StatusChoice({
+	label,
+	testId,
 	value,
 	options,
 	disabled,
-	onChange
+	onChange,
+	fallbackLabel
 }: Readonly<{
-	category: TJiraStatusCategory;
+	label: string;
+	testId: string;
 	value: string;
 	options: readonly { name: string }[];
 	disabled: boolean;
 	onChange: (next: string) => void;
+	fallbackLabel?: string;
 }>) {
 	const t = useTranslations();
 	const id = useId();
-	const match = matchStatusName(value, options);
-	return (
-		<label
-			className="flex flex-col gap-1 text-xs text-muted-foreground"
-			htmlFor={id}
-			data-testid={`jira-category-${category}`}
-		>
-			{t(`${KEYS}.CATEGORY_${category}` as Key)}
-			<Select value={match?.name ?? value} onValueChange={onChange} disabled={disabled}>
-				<SelectTrigger
-					id={id}
-					className={cn(STATUS_SELECT_TRIGGER, !match && 'border-destructive-ink')}
-					aria-invalid={!match || undefined}
-				>
-					<SelectValue placeholder={t(`${KEYS}.STATUS_MAP_PLACEHOLDER` as Key)} />
-				</SelectTrigger>
-				<SelectContent align="start" className={SELECT_CONTENT}>
-					<SelectGroup>
-						{!match && value && (
-							<SelectItem value={value} textValue={value} className="text-[13px] text-destructive-ink">
-								{t(`${KEYS}.STATUS_MAP_UNKNOWN` as Key, { value })}
-							</SelectItem>
-						)}
-						{options.map((option) => (
-							<SelectItem
-								key={option.name}
-								value={option.name}
-								textValue={option.name}
-								className="text-[13px]"
-							>
-								{option.name}
-							</SelectItem>
-						))}
-					</SelectGroup>
-				</SelectContent>
-			</Select>
-		</label>
-	);
-}
-
-function JiraStatusSelect({
-	status,
-	value,
-	options,
-	disabled,
-	onChange
-}: Readonly<{
-	status: IJiraStatusDefinition;
-	value: string;
-	options: readonly { name: string }[];
-	disabled: boolean;
-	onChange: (next: string) => void;
-}>) {
-	const t = useTranslations();
-	const id = useId();
-	const byCategory = value === STATUS_BY_CATEGORY;
+	const byCategory = fallbackLabel !== undefined && value === STATUS_BY_CATEGORY;
 	const match = byCategory ? null : matchStatusName(value, options);
 	const invalid = !byCategory && !match;
-	const category = categoryOfStatus(status);
-	const byCategoryLabel = category
-		? t(`${KEYS}.STATUS_BY_CATEGORY_NAMED` as Key, { category: t(`${KEYS}.CATEGORY_${category}` as Key) })
-		: t(`${KEYS}.STATUS_BY_CATEGORY` as Key);
 	return (
-		<label
-			className="flex flex-col gap-1 text-xs text-muted-foreground"
-			htmlFor={id}
-			data-testid={`jira-status-${status.id}`}
-		>
-			{status.name}
+		<label className="flex flex-col gap-1 text-xs text-muted-foreground" htmlFor={id} data-testid={testId}>
+			{label}
 			<Select
 				value={byCategory ? STATUS_BY_CATEGORY : (match?.name ?? value)}
 				onValueChange={onChange}
@@ -534,13 +471,15 @@ function JiraStatusSelect({
 					className={cn(STATUS_SELECT_TRIGGER, invalid && 'border-destructive-ink')}
 					aria-invalid={invalid || undefined}
 				>
-					<SelectValue />
+					<SelectValue placeholder={t(`${KEYS}.STATUS_MAP_PLACEHOLDER` as Key)} />
 				</SelectTrigger>
 				<SelectContent align="start" className={SELECT_CONTENT}>
 					<SelectGroup>
-						<SelectItem value={STATUS_BY_CATEGORY} textValue={byCategoryLabel} className="text-[13px]">
-							{byCategoryLabel}
-						</SelectItem>
+						{fallbackLabel !== undefined && (
+							<SelectItem value={STATUS_BY_CATEGORY} textValue={fallbackLabel} className="text-[13px]">
+								{fallbackLabel}
+							</SelectItem>
+						)}
 						{invalid && value && (
 							<SelectItem value={value} textValue={value} className="text-[13px] text-destructive-ink">
 								{t(`${KEYS}.STATUS_MAP_UNKNOWN` as Key, { value })}
@@ -588,6 +527,13 @@ function MapEditor({
 	statuses: LinearStatusOptions;
 }>) {
 	const t = useTranslations();
+	// A status left to its category says which one it falls back to.
+	const fallbackLabelOf = (status: IJiraStatusDefinition) => {
+		const category = categoryOfStatus(status);
+		return category
+			? t(`${KEYS}.STATUS_BY_CATEGORY_NAMED` as Key, { category: t(`${KEYS}.CATEGORY_${category}` as Key) })
+			: t(`${KEYS}.STATUS_BY_CATEGORY` as Key);
+	};
 	const projectStatuses = detail.detail?.statuses ?? [];
 	const issueTypes = detail.detail?.issueTypes ?? [];
 	const checking = statuses.isLoading || !!statuses.error;
@@ -627,9 +573,10 @@ function MapEditor({
 					<>
 						<div className="grid gap-2 sm:grid-cols-3">
 							{JIRA_STATUS_CATEGORIES.map((category) => (
-								<CategorySelect
+								<StatusChoice
 									key={category}
-									category={category}
+									label={t(`${KEYS}.CATEGORY_${category}` as Key)}
+									testId={`jira-category-${category}`}
 									value={draft.categories[category]}
 									options={statuses.options}
 									disabled={disabled || statuses.isLoading}
@@ -654,15 +601,17 @@ function MapEditor({
 								</span>
 								<div className="grid gap-2 sm:grid-cols-3">
 									{projectStatuses.map((status) => (
-										<JiraStatusSelect
+										<StatusChoice
 											key={status.id}
-											status={status}
+											label={status.name}
+											testId={`jira-status-${status.id}`}
 											value={draft.fields[status.id] ?? STATUS_BY_CATEGORY}
 											options={statuses.options}
 											disabled={disabled || statuses.isLoading}
 											onChange={(next) =>
 												onChange({ ...draft, fields: { ...draft.fields, [status.id]: next } })
 											}
+											fallbackLabel={fallbackLabelOf(status)}
 										/>
 									))}
 								</div>
