@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { commandKeycapClass } from '@/core/components/common/command';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { Archive, Search, Tag, Task, Users, X } from '@/core/components/icons';
+import { Archive, Calendar, Search, Tag, Task, Users, X } from '@/core/components/icons';
 import { TaskPropertyPlaceholderIcon, type TaskPropertyKind } from '@/core/components/tasks/task-property-icon';
 import type { TeamTasksScope } from '@/core/lib/utils/team-tasks-view';
 import { builtInViewTextKeysOf } from '@/core/lib/utils/task-views-index';
@@ -128,16 +128,22 @@ interface SelectionAction {
 		| 'taskMenus.fields.priority'
 		| 'taskMenus.fields.size'
 		| 'common.ASSIGNEE'
+		| 'taskMenus.fields.project'
+		| 'pages.taskDetails.DUE_DATE'
 		| 'taskViews.LABELS';
 	glyph: TaskPropertyKind | null;
-	icon?: 'users' | 'tag';
+	icon?: 'users' | 'tag' | 'calendar';
 }
 
 const SELECTION_ACTIONS: SelectionAction[] = [
 	{ kind: 'status', labelKey: 'taskMenus.fields.status', glyph: 'status' },
 	{ kind: 'priority', labelKey: 'taskMenus.fields.priority', glyph: 'priority' },
 	{ kind: 'size', labelKey: 'taskMenus.fields.size', glyph: 'size' },
-	{ kind: 'assignees', labelKey: 'common.ASSIGNEE', glyph: null, icon: 'users' }
+	{ kind: 'assignees', labelKey: 'common.ASSIGNEE', glyph: null, icon: 'users' },
+	// Every selected task to one project, or one due date: one bulk request with the platform's bulk update, else one
+	// update per task (the board's selection bar offers the same two).
+	{ kind: 'project', labelKey: 'taskMenus.fields.project', glyph: 'project' },
+	{ kind: 'dueDate', labelKey: 'pages.taskDetails.DUE_DATE', glyph: null, icon: 'calendar' }
 ];
 
 /** Labels on a selection add one label to every task: that needs the platform's bulk update. */
@@ -145,8 +151,9 @@ const LABELS_ACTION: SelectionAction = { kind: 'labels', labelKey: 'taskViews.LA
 
 /**
  * The bulk bar of a selection, floating over the bottom of the list like the projects page: the count, the
- * properties that apply to every selected task (each opens the shared picker against its button), Labels and
- * Archive when the platform's bulk update is on (one request, one undo), and Clear.
+ * properties that apply to every selected task (each opens the shared picker against its button: status, priority,
+ * size, assignee, project and due date), Labels and Archive when the platform's bulk update is on (one request, one
+ * undo), and Clear.
  */
 export function TeamTasksSelectionBar({
 	count,
@@ -184,6 +191,7 @@ export function TeamTasksSelectionBar({
 						{action.glyph && <TaskPropertyPlaceholderIcon kind={action.glyph} />}
 						{action.icon === 'users' && <Users />}
 						{action.icon === 'tag' && <Tag />}
+						{action.icon === 'calendar' && <Calendar />}
 						{t(action.labelKey)}
 					</Button>
 				))}

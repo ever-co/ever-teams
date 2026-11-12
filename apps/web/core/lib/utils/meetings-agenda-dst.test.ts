@@ -1,36 +1,33 @@
 /**
  * @jest-environment <rootDir>/test/environments/jsdom-west-of-utc.ts
  *
- * In a zone with daylight saving, so the agenda test fails if its seven days are counted as 24-hour steps.
+ * In a zone with daylight saving, so the agenda test fails if its days are counted as 24-hour steps.
  * A UTC host (CI) has no clock change, and a test file cannot set `TZ` itself: the environment does.
  */
 
-import { agendaOf, type ScheduledMeeting } from './meetings';
+import { dayAfter, meetingsOfDay, type ScheduledMeeting } from './meetings';
 
 const HOUR = 60 * 60 * 1000;
 
-describe('agendaOf across a change of the clock', () => {
-	it('keeps the whole seventh day when one of the days lasts 25 hours', () => {
-		// New York leaves summer time on 1 November 2026, between today (29 October) and the seventh day
-		const now = new Date('2026-10-29T12:00:00');
-		const today = new Date('2026-10-29T00:00:00');
-		const late: ScheduledMeeting = {
-			id: 'late',
-			title: 'Late call',
-			description: null,
-			start: new Date('2026-11-04T23:30:00'),
-			end: new Date('2026-11-04T23:45:00'),
-			link: null
-		};
+function meeting(id: string, start: string, end: string): ScheduledMeeting {
+	return { id, title: id, description: null, start: new Date(start), end: new Date(end), link: null };
+}
 
-		// The zone does change its offset that week (UTC-4, then UTC-5)...
-		expect(today.getTimezoneOffset()).toBe(4 * 60);
+describe('the agenda across a change of the clock', () => {
+	it('shows the whole of a day that lasts 25 hours, and steps to the next day at its midnight', () => {
+		// New York leaves summer time on 1 November 2026: that day has 25 hours
+		const day = new Date('2026-11-01T00:00:00');
+		const late = meeting('late', '2026-11-01T23:30:00', '2026-11-01T23:45:00');
+		const nextMorning = meeting('next-morning', '2026-11-02T00:15:00', '2026-11-02T00:45:00');
+
+		// The zone does change its offset that day (UTC-4, then UTC-5)...
+		expect(day.getTimezoneOffset()).toBe(4 * 60);
 		expect(late.start.getTimezoneOffset()).toBe(5 * 60);
-		// ...so the meeting lies past seven 24-hour steps from today, where a fixed horizon would stop
-		expect(late.start.getTime()).toBeGreaterThanOrEqual(today.getTime() + 7 * 24 * HOUR);
+		// ...so the late meeting lies past 24 hours from midnight, where a fixed step would end the day
+		expect(late.start.getTime()).toBeGreaterThanOrEqual(day.getTime() + 24 * HOUR);
 
-		const agenda = agendaOf([late], now);
-
-		expect(agenda.flatMap(({ meetings }) => meetings.map(({ id }) => id))).toContain('late');
+		expect(meetingsOfDay([late, nextMorning], day).map(({ id }) => id)).toEqual(['late']);
+		expect(dayAfter(day, 1)).toEqual(new Date('2026-11-02T00:00:00'));
+		expect(meetingsOfDay([late, nextMorning], dayAfter(day, 1)).map(({ id }) => id)).toEqual(['next-morning']);
 	});
 });

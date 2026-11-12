@@ -13,9 +13,18 @@ interface OptimisticSwitchRowProps {
 	description: ReactNode;
 	stored: boolean;
 	save: (enabled: boolean) => Promise<void>;
+	/** Busy, as during a save, while what the save needs is not known yet. */
+	waiting?: boolean;
 }
 
-function OptimisticSwitchRow({ id, label, description, stored, save }: Readonly<OptimisticSwitchRowProps>) {
+function OptimisticSwitchRow({
+	id,
+	label,
+	description,
+	stored,
+	save,
+	waiting = false
+}: Readonly<OptimisticSwitchRowProps>) {
 	const { value, isPending, change } = useOptimisticSetting<boolean>(stored, save);
 	return (
 		<SwitchRow
@@ -23,7 +32,7 @@ function OptimisticSwitchRow({ id, label, description, stored, save }: Readonly<
 			label={label}
 			description={description}
 			checked={value}
-			pending={isPending}
+			pending={isPending || waiting}
 			onCheckedChange={(next) => {
 				void change(next);
 			}}
@@ -43,7 +52,10 @@ interface TeamTrackingSectionProps {
 	team: TOrganizationTeam;
 	canEdit: boolean;
 	ownTracking: boolean;
-	hasOwnMembership: boolean;
+	/** The user has a row in the team and may switch their own tracking there: only an admin may. */
+	canTurnOwnTracking: boolean;
+	/** Their permissions are not known yet: they decide whether the save moves the employee switch too. */
+	isOwnTrackingPending: boolean;
 	setOwnTracking: (enabled: boolean) => Promise<void>;
 	setShareProfileView: (enabled: boolean) => Promise<void>;
 	setRequirePlanToTrack: (enabled: boolean) => Promise<void>;
@@ -53,7 +65,8 @@ export function TeamTrackingSection({
 	team,
 	canEdit,
 	ownTracking,
-	hasOwnMembership,
+	canTurnOwnTracking,
+	isOwnTrackingPending,
 	setOwnTracking,
 	setShareProfileView,
 	setRequirePlanToTrack
@@ -61,7 +74,7 @@ export function TeamTrackingSection({
 	const t = useTranslations();
 	const sharesProfiles = Boolean(team.shareProfileView);
 	const requiresPlan = Boolean(team.requirePlanToTrack);
-	const showsOwnTracking = canEdit && hasOwnMembership;
+	const showsOwnTracking = canEdit && canTurnOwnTracking;
 
 	if (!canEdit) {
 		return (
@@ -94,6 +107,7 @@ export function TeamTrackingSection({
 						description={t('settings.teamGeneral.OWN_TRACKING_DESCRIPTION')}
 						stored={ownTracking}
 						save={setOwnTracking}
+						waiting={isOwnTrackingPending}
 					/>
 				)}
 				<OptimisticSwitchRow

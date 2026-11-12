@@ -149,7 +149,15 @@ export function useSheetEditing(source: SheetEditingSource, sheet: TimesheetShee
 		if (!memberId) {
 			return NO_LOGS;
 		}
-		const request = timesheetPageLogsRequestOf(period, { ...logsScope, employeeIds: [memberId] });
+		// New time is placed on the browser's days: the read covers those days in the browser's zone, whatever zone
+		// the profile names, so a saved entry at either end of the week is never missed (a write over it would make
+		// the API remove it unseen)
+		const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+		const request = timesheetPageLogsRequestOf(period, {
+			...logsScope,
+			userTimeZone: browserTimeZone,
+			employeeIds: [memberId]
+		});
 		const logs = await queryClient.fetchQuery({
 			queryKey: request.queryKey,
 			queryFn: request.queryFn,
@@ -184,8 +192,7 @@ export function useSheetEditing(source: SheetEditingSource, sheet: TimesheetShee
 
 	const addTaskRow = useCallback(
 		(task: TTask) => {
-			const projects = organizationProjects ?? [];
-			const project = projects.find((candidate) => candidate.id === task.projectId);
+			const project = organizationProjects.find((candidate) => candidate.id === task.projectId);
 			const identity = rowIdentityOfTask(task, project, teamId);
 			addRows([identity]);
 		},

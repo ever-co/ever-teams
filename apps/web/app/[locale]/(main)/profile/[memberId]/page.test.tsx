@@ -18,6 +18,7 @@ const mockUseProfileActivity = jest.fn();
 let mockShareProfileView = false;
 let mockIsAuthUser = false;
 let mockTrackingEnabled = false;
+let mockOwnTrackingOff = false;
 let mockManagerRightsUnconfirmed = false;
 let mockManagers: Array<{ employee: { user: { id: string } } }> = [];
 
@@ -88,7 +89,8 @@ jest.mock('@/core/components/common/notice', () => ({
 jest.mock('@/core/stores', () => ({
 	activeTeamManagersState: 'active-team-managers',
 	activeTeamState: 'active-team',
-	isTrackingEnabledState: 'tracking-enabled'
+	isTrackingEnabledState: 'tracking-enabled',
+	isOwnTrackingOffState: 'own-tracking-off'
 }));
 jest.mock('@/core/stores/timer/activity-type', () => ({ activityTypeState: 'activity-type' }));
 jest.mock('jotai', () => ({
@@ -104,6 +106,7 @@ jest.mock('jotai', () => ({
 		}
 		if (atom === 'active-team-managers') return mockManagers;
 		if (atom === 'tracking-enabled') return mockTrackingEnabled;
+		if (atom === 'own-tracking-off') return mockOwnTrackingOff;
 		if (atom === 'full-width') return false;
 		return undefined;
 	},
@@ -217,6 +220,7 @@ describe('profile top bar timer', () => {
 		mockShareProfileView = false;
 		mockIsAuthUser = false;
 		mockTrackingEnabled = true;
+		mockOwnTrackingOff = false;
 		mockManagerRightsUnconfirmed = false;
 		mockManagers = [];
 		mockUseProfileActivity.mockReturnValue({ data: undefined });
@@ -225,6 +229,7 @@ describe('profile top bar timer', () => {
 
 	afterEach(() => {
 		jest.restoreAllMocks();
+		mockOwnTrackingOff = false;
 	});
 
 	it("keeps the viewer's compact timer in the top bar on a teammate's profile", () => {
@@ -245,6 +250,25 @@ describe('profile top bar timer', () => {
 		mockTrackingEnabled = false;
 
 		renderProfile(TEAMMATE_USER_ID);
+
+		expect(headerTimerShown()).toBe('false');
+	});
+
+	it("keeps the top bar slot on a teammate's profile for a viewer whose tracking is off, where the layout says why", () => {
+		mockTrackingEnabled = false;
+		mockOwnTrackingOff = true;
+
+		renderProfile(TEAMMATE_USER_ID);
+
+		expect(headerTimerShown()).toBe('true');
+	});
+
+	it("leaves that reason to the page's own timer slot on the viewer's own profile", () => {
+		mockIsAuthUser = true;
+		mockTrackingEnabled = false;
+		mockOwnTrackingOff = true;
+
+		renderProfile(USER_ID);
 
 		expect(headerTimerShown()).toBe('false');
 	});

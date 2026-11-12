@@ -46,10 +46,10 @@ import MeetPage from './index';
 import type { MeetingJoinChoices } from '@/core/hooks/meetings/use-media-preview';
 
 function fakeRoomApi() {
-	const listeners: Record<string, () => void> = {};
+	const listeners: Record<string, (...args: unknown[]) => void> = {};
 	return {
 		listeners,
-		addListener: jest.fn((event: string, listener: () => void) => {
+		addListener: jest.fn((event: string, listener: (...args: unknown[]) => void) => {
 			listeners[event] = listener;
 		}),
 		executeCommand: jest.fn(),
@@ -58,13 +58,14 @@ function fakeRoomApi() {
 	};
 }
 
-async function renderRoom(choices?: MeetingJoinChoices) {
+async function renderRoom(choices?: MeetingJoinChoices, shareScreenOnJoin = false) {
 	render(
 		<MeetPage
 			jwt="jwt"
 			roomName="team-room_tenant"
 			title="Sprint review"
 			choices={choices}
+			shareScreenOnJoin={shareScreenOnJoin}
 			onLeft={mockLeft}
 			onCopyLink={jest.fn()}
 		/>
@@ -242,6 +243,8 @@ describe('Jitsi meeting room', () => {
 			audioInputId: 'mic-2',
 			videoInputId: '',
 			audioOutputId: '',
+			noiseFilter: true,
+			hdVideo: true,
 			audioInputLabel: 'USB microphone',
 			videoInputLabel: '',
 			audioOutputLabel: '',
@@ -252,10 +255,80 @@ describe('Jitsi meeting room', () => {
 		expect(configOverwrite).toMatchObject({
 			startWithAudioMuted: false,
 			startWithVideoMuted: true,
+			resolution: 720,
 			prejoinConfig: { enabled: false },
 			prejoinPageEnabled: false
 		});
 		expect(devices).toEqual({ audioInput: 'USB microphone' });
 		expect(userInfo.displayName).toBe('Ruslan Konviser');
+	});
+
+	it('shares the screen once joined, when the meeting was started to show it, and says where to share it otherwise', async () => {
+		mockLoadJitsiExternalApi.mockResolvedValue(function JitsiMeetExternalAPI() {
+			return undefined;
+		});
+		await renderRoom(undefined, true);
+		const room = fakeRoomApi();
+		act(() => {
+			mockRoomRenders[0].onApiReady(room);
+		});
+		expect(room.executeCommand).not.toHaveBeenCalledWith('toggleShareScreen');
+
+		act(() => {
+			room.listeners.videoConferenceJoined();
+		});
+		expect(room.executeCommand).toHaveBeenCalledWith('toggleShareScreen');
+		// Until the browser shares, which a refusal never does, the room says how to share by hand
+		expect(screen.getByTestId('share-screen-pending').textContent).toContain('meetings.SHARE_SCREEN_JITSI_HINT');
+
+		act(() => {
+			room.listeners.screenSharingStatusChanged({ on: true });
+		});
+		expect(screen.queryByTestId('share-screen-pending')).toBeNull();
+	});
+
+	it('leaves the screen alone in a meeting not started to show it', async () => {
+		mockLoadJitsiExternalApi.mockResolvedValue(function JitsiMeetExternalAPI() {
+			return undefined;
+		});
+		await renderRoom();
+		const room = fakeRoomApi();
+		act(() => {
+			mockRoomRenders[0].onApiReady(room);
+			room.listeners.videoConferenceJoined();
+		});
+
+		expect(room.executeCommand).not.toHaveBeenCalledWith('toggleShareScreen');
+		expect(screen.queryByTestId('share-screen-pending')).toBeNull();
+	});
+
+	it('opens the room with the video quality and the noise filter of the video and audio settings', async () => {
+		mockLoadJitsiExternalApi.mockResolvedValue(function JitsiMeetExternalAPI() {
+			return undefined;
+		});
+		await renderRoom({
+			audioEnabled: true,
+			videoEnabled: true,
+			audioInputId: '',
+			videoInputId: '',
+			audioOutputId: '',
+			noiseFilter: false,
+			hdVideo: false,
+			audioInputLabel: '',
+			videoInputLabel: '',
+			audioOutputLabel: '',
+			displayName: 'Ruslan Konviser'
+		});
+
+		expect(mockRoomRenders[0].configOverwrite).toMatchObject({
+			resolution: 360,
+			constraints: { video: { height: { ideal: 360, max: 360 } } }
+		});
+		const room = fakeRoomApi();
+		act(() => {
+			mockRoomRenders[0].onApiReady(room);
+			room.listeners.videoConferenceJoined();
+		});
+		expect(room.executeCommand).toHaveBeenCalledWith('setNoiseSuppressionEnabled', { enabled: false });
 	});
 });

@@ -68,8 +68,9 @@ describe('the property changes of a selection (T10: project and due date)', () =
 		await Promise.resolve();
 		expect(mockBulkUpdate).not.toHaveBeenCalled();
 		expect(mockUpdateTask).toHaveBeenCalledTimes(2);
-		expect(mockUpdateTask).toHaveBeenNthCalledWith(1, expect.objectContaining({ id: 't2', projectId: 'p1' }));
-		expect(mockUpdateTask).toHaveBeenNthCalledWith(2, expect.objectContaining({ id: 't3', dueDate: day }));
+		// The tracked time follows the task to its project, as from the task's own project picker.
+		expect(mockUpdateTask).toHaveBeenNthCalledWith(1, expect.objectContaining({ id: 't2', projectId: 'p1' }), { moveTimeLogs: true });
+		expect(mockUpdateTask).toHaveBeenNthCalledWith(2, expect.objectContaining({ id: 't3', dueDate: day }), undefined);
 	});
 
 	it('updates each task on its own without the platform bulk update (the feature off)', () => {
@@ -79,7 +80,7 @@ describe('the property changes of a selection (T10: project and due date)', () =
 		result.current.setDueDate(['t1', 't2'], null);
 		expect(mockBulkUpdate).not.toHaveBeenCalled();
 		expect(mockUpdateTask).toHaveBeenCalledTimes(4);
-		expect(mockUpdateTask).toHaveBeenCalledWith(expect.objectContaining({ id: 't2', projectId: 'p3' }));
-		expect(mockUpdateTask).toHaveBeenCalledWith(expect.objectContaining({ id: 't1', dueDate: null }));
+		expect(mockUpdateTask).toHaveBeenCalledWith(expect.objectContaining({ id: 't2', projectId: 'p3' }), { moveTimeLogs: true });
+		expect(mockUpdateTask).toHaveBeenCalledWith(expect.objectContaining({ id: 't1', dueDate: null }), undefined);
 	});
 });

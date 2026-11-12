@@ -42,7 +42,10 @@ interface DocsCommentsPanelProps {
 	/** Moves each time a thread is asked for (a marker, a link), so asking for the active one again shows its tab. */
 	activeThreadRequest: number;
 	onSelectThread: (thread: DocsCommentThread) => void;
-	/** Before a comment goes on a block that just got its anchor: answers whether the page holds the anchor now. */
+	/**
+	 * Before a comment goes on a block: answers whether the platform holds the page's edits now (the block's anchor among
+	 * them), waiting for a save or the live session's confirmation when some are pending.
+	 */
 	beforePost?: (anchor: DocsPendingAnchor) => Promise<boolean>;
 	pendingAnchor: DocsPendingAnchor | null;
 	onClearPending: () => void;
@@ -114,13 +117,22 @@ export function DocsCommentsPanel({
 	}, [activeThreadId, tab, shown.length]);
 	const fail = () => toast.error(t('docs.COMMENT_ERROR'));
 
+	// A new comment on its way, from the save it waits for to its post: another send meanwhile is refused (the composer's
+	// button is off), so a slow save never posts the same text twice.
+	const sendingRef = useRef(false);
+	const [isSending, setIsSending] = useState(false);
 	const postNew = async (body: string, mentionEmployeeIds: string[]) => {
-		// A thread never names an anchor the page does not hold (a save that failed would leave it on nothing).
-		if (pendingAnchor?.created && beforePost && !(await beforePost(pendingAnchor))) {
-			toast.error(t('docs.COMMENT_ANCHOR_UNSAVED'));
-			return false;
-		}
+		if (sendingRef.current) return false;
+		sendingRef.current = true;
+		setIsSending(true);
 		try {
+			// A thread never names an anchor the page does not hold (a save that failed would leave it on nothing). Any
+			// block's anchor may exist here only: given for this comment, or to a block typed since the page was last saved
+			// (blocks get theirs as they are typed), with the save still waiting, failing or in conflict.
+			if (pendingAnchor && beforePost && !(await beforePost(pendingAnchor))) {
+				toast.error(t('docs.COMMENT_ANCHOR_UNSAVED'));
+				return false;
+			}
 			const created = await comments.post({ body, blockId: pendingAnchor?.blockId ?? null, mentionEmployeeIds });
 			if (!created) return false;
 			onClearPending();
@@ -128,6 +140,9 @@ export function DocsCommentsPanel({
 		} catch {
 			fail();
 			return false;
+		} finally {
+			sendingRef.current = false;
+			setIsSending(false);
 		}
 	};
 
@@ -210,7 +225,7 @@ export function DocsCommentsPanel({
 						autoFocus={pendingAnchor !== null}
 						placeholder={pendingAnchor ? t('docs.COMMENT_ON_SELECTION_PLACEHOLDER') : t('docs.COMMENT_PLACEHOLDER')}
 						onSubmit={(body, mentionEmployeeIds) => postNew(body, mentionEmployeeIds)}
-						isPosting={comments.isPosting}
+						isPosting={comments.isPosting || isSending}
 					/>
 				</div>
 			)}

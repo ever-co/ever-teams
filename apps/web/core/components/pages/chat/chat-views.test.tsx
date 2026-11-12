@@ -122,6 +122,16 @@ describe('the Threads view', () => {
 		expect(within(row).getByTitle('teamChat.UNREAD_REPLIES:2').textContent).toBe('2');
 	});
 
+	it('previews a thread started with files only as its files, and a deleted start as deleted', () => {
+		const files = { ...root, id: 'root-2', body: '', attachmentIds: ['doc-1', 'doc-2'], attachmentNames: 'plan.pdf\nshot.png' };
+		const deleted = { ...root, id: 'root-3', body: '', deletedAt: new Date().toISOString() };
+		render(<ChatThreadsView threads={[files, deleted]} isLoading={false} isError={false} {...shared} />);
+		const [first, second] = screen.getAllByRole('link');
+		expect(within(first).getByText('📎 plan.pdf, shot.png')).toBeTruthy();
+		expect(within(first).queryByText('teamChat.DELETED')).toBeNull();
+		expect(within(second).getByText('teamChat.DELETED')).toBeTruthy();
+	});
+
 	it('says so when no thread is followed, and offers a retry when the list could not load', () => {
 		const { rerender } = render(<ChatThreadsView threads={[]} isLoading={false} isError={false} {...shared} />);
 		expect(screen.getByText('teamChat.NO_THREADS_TITLE')).toBeTruthy();

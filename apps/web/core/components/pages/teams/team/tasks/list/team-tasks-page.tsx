@@ -21,6 +21,7 @@ import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import { viewTasksState } from '@/core/stores/tasks/task-views';
 import { DEFAULT_TASK_VIEW_DEFINITION, definitionOf, isSameDefinition } from '@/core/lib/utils/task-views';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
+import { groupTaskIdsOf, stepMoveOf, type TaskOrderMove, type TaskOrderStep } from '@/core/lib/utils/task-view-order';
 import { EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import {
 	ETaskViewVisibility,
@@ -33,7 +34,12 @@ import { teamTasksGridOf } from './team-tasks-grid';
 import { TeamTasksToolbar } from './team-tasks-toolbar';
 import { TeamTasksList, cellAnchorOf, type TeamTasksListCommands } from './team-tasks-list';
 import { TeamTaskPicker, type TeamTaskPickerTarget } from './team-task-picker';
-import { TeamTaskMenu, type TeamTaskMenuAnchor, type TeamTaskMenuTarget } from './team-task-menu';
+import {
+	TeamTaskMenu,
+	type TeamTaskMenuAnchor,
+	type TeamTaskMenuMoves,
+	type TeamTaskMenuTarget
+} from './team-task-menu';
 import { trackedTaskCountOf, type TeamTaskPickerKind } from './team-tasks-list-context';
 import {
 	TeamTasksEmptyTeam,
@@ -77,6 +83,7 @@ type TaskViewContext =
 type BodyState = 'loading' | 'error' | 'viewEmpty' | 'emptyTeam' | 'noMatch' | 'scopeEmpty' | 'list';
 
 const EMPTY_TASKS: TTask[] = [];
+const EMPTY_ORDER: string[] = [];
 
 function isTypingTarget(target: EventTarget | null) {
 	if (!(target instanceof HTMLElement)) {
@@ -193,7 +200,10 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 	const initial = useMemo(() => initialDefinitionOf(viewContext), [viewContext]);
 	const builtInTasks = viewContext?.kind === 'builtIn' ? viewContext.tasks : undefined;
 	const resetKey = resetKeyOf(viewContext);
-	const view = useTeamTasksView({ initial, resetKey, tasks: builtInTasks });
+	const savedView = viewContext?.kind === 'saved' ? viewContext.view : null;
+	// A saved view offers its manual order (empty until a task is first moved).
+	const manualOrder = savedView ? (savedView.manualOrder ?? EMPTY_ORDER) : undefined;
+	const view = useTeamTasksView({ initial, resetKey, tasks: builtInTasks, manualOrder });
 	// The pickers and the row menu read the tasks they edit from the team's list; a built-in view's tasks are
 	// shared with them here, so an edit on one of them reaches the platform.
 	const setViewTasks = useSetAtom(viewTasksState);
@@ -217,7 +227,6 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 	const [createRequest, setCreateRequest] = useState<CreateRequest>(undefined);
 	const [planTaskId, setPlanTaskId] = useState<string | null>(null);
 
-	const savedView = viewContext?.kind === 'saved' ? viewContext.view : null;
 	const isBuiltIn = viewContext?.kind === 'builtIn';
 	const viewTitle = useViewTitle(viewContext);
 	const isDirty = savedView !== null && !isSameDefinition(view.definition, definitionOf(savedView));
@@ -239,7 +248,8 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 	const firstStatus = view.statuses[0];
 	const employeeId = user?.employee?.id ?? user?.employeeId ?? '';
 	const trackedCount = trackedTaskCountOf(activeTeam?.members, view.taskById);
-	const { orderedIds, clearSelection, setManySelected } = view;
+	const { orderedIds, clearSelection, setManySelected, canReorder, shownOrder, rows } = view;
+	const { moveTask } = savedViewCommands;
 	const selectionCount = view.selectedIds.size;
 	const hasSelection = selectionCount > 0;
 	const hasLayerOpen = isPickerOpen || isMenuOpen;
@@ -256,14 +266,37 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 		() => ({
 			openTask: (taskId: string) => openTaskDrawer(taskId, orderedIds),
 			openPicker,
-			openMenu: (taskId: string, anchor: TeamTaskMenuAnchor) => {
-				setMenuTarget({ taskId, anchor });
+			openMenu: (taskId: string, anchor: TeamTaskMenuAnchor, groupKey?: string | null) => {
+				setMenuTarget({ taskId, anchor, groupKey });
 				setIsMenuOpen(true);
 			},
-			createTaskInGroup: (statusName: string | null) => setCreateRequest(statusName)
+			createTaskInGroup: (statusName: string | null) => setCreateRequest(statusName),
+			moveTask: canReorder ? (move: TaskOrderMove) => void moveTask(move, shownOrder) : undefined
 		}),
-		[openPicker, openTaskDrawer, orderedIds]
+		[canReorder, moveTask, openPicker, openTaskDrawer, orderedIds, shownOrder]
 	);
+
+	// The row menu moves the task inside its group, in a manual order: the way to order on a phone, or by keyboard.
+	const menuTaskId = menuTarget?.taskId ?? null;
+	const menuGroupKey = menuTarget?.groupKey ?? null;
+	const menuMoves = useMemo<TeamTaskMenuMoves | null>(() => {
+		if (!canReorder || !menuTaskId) {
+			return null;
+		}
+		const groupIds = groupTaskIdsOf(rows, menuTaskId, menuGroupKey);
+		const index = groupIds.indexOf(menuTaskId);
+		if (index < 0 || groupIds.length < 2) {
+			return null;
+		}
+		return {
+			canMoveUp: index > 0,
+			canMoveDown: index < groupIds.length - 1,
+			onMove: (step: TaskOrderStep) => {
+				const move = stepMoveOf(groupIds, menuTaskId, step);
+				if (move) void moveTask(move, shownOrder);
+			}
+		};
+	}, [canReorder, menuGroupKey, menuTaskId, moveTask, rows, shownOrder]);
 
 	// The edit asked from the action menu opens once the menu has closed, so the menu's focus return does not
 	// take the focus away from the picker's search field.
@@ -424,6 +457,7 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 				onOpenTask={commands.openTask}
 				onEdit={handleMenuEdit}
 				onPlanSomeDay={setPlanTaskId}
+				moves={menuMoves}
 			/>
 			<SaveViewDialog
 				open={savedViewCommands.saveDialog !== null}

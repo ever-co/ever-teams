@@ -162,7 +162,7 @@ export const PropertyRow = memo(function PropertyRow(props: Readonly<PropertyRow
 					<DragHandle />
 				</span>
 			)}
-			<TaskPropertyIcon kind={kind} name={item.name} color={item.color} icon={item.icon} />
+			<TaskPropertyIcon kind={kind} name={item.name} color={item.color} icon={item.icon} iconUrl={item.iconUrl} />
 			<span className={cn(PROPERTY_ROW_LABEL, isTitleCase && 'capitalize')}>{item.label}</span>
 			{item.isDefault && <span className={PROPERTY_DEFAULT_CHIP}>{t('settings.taskProperties.DEFAULT')}</span>}
 			<div className="ml-auto flex shrink-0 items-center">

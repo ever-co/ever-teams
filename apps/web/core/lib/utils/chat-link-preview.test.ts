@@ -175,7 +175,7 @@ describe('previewLinksOf', () => {
 describe('linkPreviewCardOf', () => {
 	const link = { href: 'https://www.a.io/p#x', url: 'https://www.a.io/p' };
 
-	it('shows a ready preview with a title or a description, its text on one line, and never its picture or icon', () => {
+	it('shows a ready preview with a title or a description, its text on one line, and never the picture or icon address', () => {
 		const card = linkPreviewCardOf(
 			link,
 			answer(link.url, EChatLinkPreviewStatus.Ready, {
@@ -189,24 +189,34 @@ describe('linkPreviewCardOf', () => {
 				icon: 'https://a.io/icon.png'
 			})
 		);
-		// The picture and the icon sit on the linked site's hosts: drawing them would call that site from the reader's browser.
+		// The picture and the icon sit on the linked site's hosts: drawing them would call that site from the reader's
+		// browser. The card keeps only that there is a picture (the platform serves its own copy), its alt and its shape.
 		expect(card).toEqual({
 			href: 'https://www.a.io/p#x',
+			url: link.url,
 			host: 'a.io',
 			siteName: 'A',
 			title: 'The page',
-			description: 'What it is about'
+			description: 'What it is about',
+			hasPicture: true,
+			pictureAlt: 'A picture',
+			pictureRatio: 2
 		});
+		expect(JSON.stringify(card)).not.toContain('cdn.a.io');
 	});
 
 	it('always carries the host the card opens, whatever name the page gives its site', () => {
 		const card = linkPreviewCardOf(link, answer(link.url, EChatLinkPreviewStatus.Ready, { description: 'D' }));
 		expect(card).toEqual({
 			href: 'https://www.a.io/p#x',
+			url: link.url,
 			host: 'a.io',
 			siteName: null,
 			title: null,
-			description: 'D'
+			description: 'D',
+			hasPicture: false,
+			pictureAlt: null,
+			pictureRatio: null
 		});
 		const posing = linkPreviewCardOf(
 			link,

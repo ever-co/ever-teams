@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { usePathname } from 'next/navigation';
 import { Slot } from '@radix-ui/react-slot';
 import { VariantProps, cva } from 'class-variance-authority';
 import { Sidebar as SidebarIcon } from '@/core/components/icons/hugeicons';
@@ -51,6 +52,14 @@ const SidebarProvider = React.forwardRef<
 >(({ defaultOpen = true, open: openProp, onOpenChange: setOpenProp, className, style, children, ...props }, ref) => {
 	const isMobile = useIsMobile();
 	const [openMobile, setOpenMobile] = React.useState(false);
+	// On a phone the sidebar is a sheet over the page: once one of its links (a view, a project) led to another page,
+	// it closes, so the page shows instead of the sheet over it. Settled while rendering the new page, not after it.
+	const pathname = usePathname();
+	const [mobilePathname, setMobilePathname] = React.useState(pathname);
+	if (mobilePathname !== pathname) {
+		setMobilePathname(pathname);
+		setOpenMobile(false);
+	}
 
 	// This is the internal state of the sidebar.
 	// We use openProp and setOpenProp for control from outside the component.

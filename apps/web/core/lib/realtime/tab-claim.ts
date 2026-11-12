@@ -141,6 +141,24 @@ export async function claimForThisTab(key: string, options: TabClaimOptions = {}
 	}
 }
 
+/**
+ * Gives back a claim this tab took and then did not act on (what it was for was called off while it waited), so the
+ * next claim of the key, in this tab or another, can act. A claim another tab holds is left alone.
+ *
+ * @param key The key given to {@link claimForThisTab}.
+ */
+export function releaseTabClaim(key: string, options: Pick<TabClaimOptions, 'environment'> = {}): void {
+	const environment = options.environment ?? browserTabClaimEnvironment();
+	const storage = environment.storage;
+	if (!storage) return;
+	const entry = TAB_CLAIM_PREFIX + key;
+	try {
+		if (readClaim(storage, entry)?.tab === environment.tabId) storage.removeItem(entry);
+	} catch {
+		// A storage that throws: the claim expires on its own.
+	}
+}
+
 let browserTabId: string | null = null;
 
 /** A random id for this tab, unique among the tabs of the browser. */
