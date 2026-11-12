@@ -72,6 +72,11 @@ export function hasDateFormat(locale: FormatLocale): boolean {
 	return dateFormatChoiceOf(locale) !== null;
 }
 
+/** Whether the workspace chose a number format: without one, a number written with a fixed mark keeps it. */
+export function hasNumberFormat(locale: FormatLocale): boolean {
+	return numberFormatChoiceOf(locale) !== null;
+}
+
 function textOf(parts: ReadonlyArray<{ value: string }>): string {
 	return parts.map((part) => part.value).join('');
 }

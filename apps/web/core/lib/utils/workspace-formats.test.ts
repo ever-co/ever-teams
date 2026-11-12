@@ -3,6 +3,7 @@ import {
 	WORKSPACE_NUMBER_FORMATS,
 	dateFormatOf,
 	hasDateFormat,
+	hasNumberFormat,
 	localeTagOf,
 	numberFormatOf,
 	workspaceDateFormatOf,
@@ -55,6 +56,12 @@ describe('the formats an organization stores', () => {
 		expect(hasDateFormat(localeOf('fr', 'DD/MM/YYYY'))).toBe(true);
 		expect(hasDateFormat(localeOf('fr', null, '1,234.56'))).toBe(false);
 		expect(hasDateFormat('fr')).toBe(false);
+	});
+
+	it('tells a workspace that chose a number format from a bare language and from one that chose none', () => {
+		expect(hasNumberFormat(localeOf('fr', null, '1,234.56'))).toBe(true);
+		expect(hasNumberFormat(localeOf('fr', 'DD/MM/YYYY'))).toBe(false);
+		expect(hasNumberFormat('fr')).toBe(false);
 	});
 });
 

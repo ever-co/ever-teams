@@ -4,6 +4,8 @@ import { DottedLanguageObjectStringPaths } from 'next-intl';
 import moment from 'moment';
 import { DEFAULT_WORK_HOURS_PER_DAY } from '@/core/constants/config/constants';
 import { formatIntegerToHour, formatTimeString } from '@/core/lib/helpers/index';
+import { pdfShareOf } from '@/core/lib/utils/dashboards/weekly-limit';
+import type { FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { WeeklyLimitTableDataType } from '@/core/components/pages/reports/weekly-limit/data-table';
 import { TTimeLimitReportList } from '@/core/types/schemas';
 
@@ -33,6 +35,8 @@ export interface IWeeklyLimitReportPDFDocumentProps {
 	displayMode: 'week' | 'date';
 	organizationLimits: { [key: string]: number };
 	title: string;
+	/** The reader's language with the workspace's formats: the share of the limit takes its decimal mark from them. */
+	locale?: FormatLocale;
 }
 
 export const WeeklyLimitPDFDocument = ({
@@ -40,7 +44,8 @@ export const WeeklyLimitPDFDocument = ({
 	headers,
 	displayMode,
 	organizationLimits,
-	title
+	title,
+	locale
 }: IWeeklyLimitReportPDFDocumentProps & {
 	data: TTimeLimitReportList[];
 }) => {
@@ -105,6 +110,7 @@ export const WeeklyLimitPDFDocument = ({
 											};
 										})}
 										headers={headers}
+										locale={locale}
 									/>
 								</View>
 							);
@@ -117,10 +123,12 @@ export const WeeklyLimitPDFDocument = ({
 
 export function Table({
 	data,
-	headers
+	headers,
+	locale
 }: {
 	data: WeeklyLimitTableDataType[];
 	headers: Record<keyof WeeklyLimitTableDataType, DottedLanguageObjectStringPaths>;
+	locale?: FormatLocale;
 }) {
 	const Row = (row: WeeklyLimitTableDataType) => (
 		<View style={styles.row}>
@@ -131,7 +139,7 @@ export function Table({
 			<Text style={[styles.cell, styles.limit]}>
 				{formatTimeString(formatIntegerToHour(Number(row.limit) / 3600))}
 			</Text>
-			<Text style={[styles.cell, styles.percentageUsed]}>{`${Number(row.percentageUsed).toFixed(2)}%`}</Text>
+			<Text style={[styles.cell, styles.percentageUsed]}>{pdfShareOf(Number(row.percentageUsed), locale)}</Text>
 			<Text style={[styles.cell, styles.remaining]}>
 				{Number(row.percentageUsed) > 100 && '-'}
 				{formatTimeString(formatIntegerToHour(Number(row.remaining) / 3600))}

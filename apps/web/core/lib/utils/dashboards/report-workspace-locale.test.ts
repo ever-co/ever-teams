@@ -10,7 +10,7 @@ import { clockDateTimeOf, pdfDateTimeOf, pdfDayOf } from '@/core/lib/utils/dashb
 import { dayDateOf, formatOwed, formatOwedTick, owedSegmentsOf } from '@/core/lib/utils/dashboards/payments-due';
 import { amountTextOf, budgetTextOf } from '@/core/lib/utils/dashboards/project-budget';
 import { timesheetFormattersOf } from '@/core/lib/utils/dashboards/timesheets';
-import { periodLabelOf } from '@/core/lib/utils/dashboards/weekly-limit';
+import { pdfShareOf, periodLabelOf } from '@/core/lib/utils/dashboards/weekly-limit';
 import type { WorkspaceLocale } from '@/core/lib/utils/workspace-formats';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 
@@ -134,5 +134,13 @@ describe("a report's amounts in the workspace's number format", () => {
 
 	it('leaves a whole percentage as the language writes it', () => {
 		expect(formatPercent(47, WORKSPACE)).toBe(formatPercent(47, 'en'));
+	});
+
+	it('writes the share of a limit in the limit PDFs, and keeps it as it was while no format is chosen', () => {
+		expect(pdfShareOf(12.5, WORKSPACE)).toBe('12,50%');
+		expect(pdfShareOf(2000, WORKSPACE)).toBe('2.000,00%');
+		expect(pdfShareOf(12.5, AUTOMATIC)).toBe('12.50%');
+		expect(pdfShareOf(12.5, 'fr')).toBe('12.50%');
+		expect(pdfShareOf(12.5)).toBe('12.50%');
 	});
 });
