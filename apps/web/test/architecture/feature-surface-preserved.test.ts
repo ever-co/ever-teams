@@ -2014,15 +2014,35 @@ describe('Ever Teams feature surface preservation', () => {
 		// (GET /api/timesheet/time-log/conflict, #5089).
 		// 300 files and 384 verbs with the Board app's session check (/api/board/session, GET and its CORS OPTIONS).
 		// 300 files and 385 verbs with the reschedule of a scheduled meeting (/api/employee-appointment/[id] PUT).
-		// 304 files and 389 verbs with the chat's typing, task card, unsent upload and category order proxies
+		// 304 files and 390 verbs with the Docs import and PDF export proxies (/api/plugins/docs/imports GET and POST,
+		// imports/[id] GET, documents/[id]/export.pdf GET, exports/pdf GET).
+		// 311 files and 398 verbs with the comments and trash proxies: /api/comment/[id]/soft (DELETE) and /recover
+		// (PUT), /api/reaction (POST), /api/reaction/comments (GET), /api/tasks/trash (GET), /api/tasks/[id]/soft
+		// (DELETE) and /recover (PUT), and DELETE on /api/tasks/[id] (a task deleted for good from the trash).
+		// 315 files and 402 verbs with the chat's typing, task card, unsent upload and category order proxies
 		// (/api/chat/conversations/[id]/typing POST, messages/[id]/tasks/[taskId] PATCH, attachments/[documentId] DELETE,
 		// categories/reorder POST).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(304);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(315);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(389);
+		).toHaveLength(402);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of the platform's comment withdrawal, reactions and task trash (2026-11-12)
+				'apps/web/app/api/comment/[id]/soft/route.ts::DELETE',
+				'apps/web/app/api/comment/[id]/recover/route.ts::PUT',
+				'apps/web/app/api/reaction/route.ts::POST',
+				'apps/web/app/api/reaction/comments/route.ts::GET',
+				'apps/web/app/api/tasks/trash/route.ts::GET',
+				'apps/web/app/api/tasks/[id]/soft/route.ts::DELETE',
+				'apps/web/app/api/tasks/[id]/recover/route.ts::PUT',
+				'apps/web/app/api/tasks/[id]/route.ts::DELETE',
+				// Proxy mode twins of the platform's Docs import of exported workspaces and PDF export (2026-11-12)
+				'apps/web/app/api/plugins/docs/imports/route.ts::GET',
+				'apps/web/app/api/plugins/docs/imports/route.ts::POST',
+				'apps/web/app/api/plugins/docs/imports/[id]/route.ts::GET',
+				'apps/web/app/api/plugins/docs/documents/[id]/export.pdf/route.ts::GET',
+				'apps/web/app/api/plugins/docs/exports/pdf/route.ts::GET',
 				// Proxy mode twin of the platform's link preview pictures (2026-11-12)
 				'apps/web/app/api/chat/link-preview/image/route.ts::GET',
 				// Proxy mode twin of Gauzy's lookup of the time a manual entry would overlap (#5089)

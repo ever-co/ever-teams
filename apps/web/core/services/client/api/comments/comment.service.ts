@@ -3,13 +3,25 @@ import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
-import { IComment, ICommentCreateInput, ICommentUpdateInput } from '@/core/types/interfaces/common/comment';
+import {
+	IComment,
+	ICommentCreateInput,
+	ICommentResolveUpdate,
+	ICommentTextUpdate,
+	ICommentUpdateInput
+} from '@/core/types/interfaces/common/comment';
 import { IEntityRecordScope } from '@/core/types/interfaces/common/entity-record';
 
 /** Gauzy's `PaginationQueryDTO.take` is `@Max(100)`: asking for more is a 400, not a bigger page. */
 const COMMENTS_PAGE_SIZE = 100;
 
-const COMMENT_AUTHOR_RELATIONS = ['employee', 'employee.user', 'createdByUser'];
+const COMMENT_AUTHOR_RELATIONS = [
+	'employee',
+	'employee.user',
+	'createdByUser',
+	'resolvedByEmployee',
+	'resolvedByEmployee.user'
+];
 
 /**
  * Client for Gauzy's generic comment API (`/comment`), where a comment hangs off any record through
@@ -50,13 +62,42 @@ class CommentService extends APIService {
 	};
 
 	/**
-	 * Edits, resolves or reopens a comment. Gauzy finds the comment on the caller's employee: only its author may
-	 * change it, `resolved` included (anyone else gets a 400).
+	 * Edits, resolves or reopens a comment. The platform lets its author do it (or a caller who acts for every
+	 * employee); a change of the text is stamped `editedAt` by the platform, and `mentionEmployeeIds` replaces the
+	 * comment's mentions (an empty list removes them all; left out, they stay). The record's scope, when given, is sent
+	 * beside the change.
 	 */
-	update = async (id: string, input: ICommentUpdateInput): Promise<IComment> => {
-		const response = await this.put<IComment>(`/comment/${encodeURIComponent(id)}`, input);
+	update = async (
+		id: string,
+		input: ICommentUpdateInput | ICommentTextUpdate,
+		scope?: IEntityRecordScope
+	): Promise<IComment> => {
+		const response = await this.put<IComment>(
+			`/comment/${encodeURIComponent(id)}`,
+			scope ? { ...input, ...scope } : input
+		);
 
 		return response.data;
+	};
+
+	/**
+	 * Resolves or reopens a comment thread. The platform records the caller as the resolver whatever employee the
+	 * body names, so the caller's own is sent; a reopen clears it.
+	 */
+	setResolved = async (id: string, input: ICommentResolveUpdate, scope: IEntityRecordScope): Promise<IComment> => {
+		const response = await this.put<IComment>(`/comment/${encodeURIComponent(id)}`, { ...input, ...scope });
+
+		return response.data;
+	};
+
+	/** Withdraws a comment (a soft delete): {@link recover} brings it back. Its author only, as an edit. */
+	softDelete = async (id: string, scope: IEntityRecordScope): Promise<void> => {
+		await this.delete(`/comment/${encodeURIComponent(id)}/soft?${qs.stringify(scope)}`);
+	};
+
+	/** Brings a withdrawn comment back (the undo of {@link softDelete}). */
+	recover = async (id: string, scope: IEntityRecordScope): Promise<void> => {
+		await this.put(`/comment/${encodeURIComponent(id)}/recover?${qs.stringify(scope)}`);
 	};
 
 	/** Removes a comment (its author's to remove). */
