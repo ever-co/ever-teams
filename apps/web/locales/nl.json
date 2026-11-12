@@ -3949,6 +3949,7 @@
 		"UNREAD_MESSAGES": "{count, plural, one {# ongelezen bericht} other {# ongelezen berichten}}",
 		"SHARE": "Delen",
 		"STOP_SHARING": "Delen stoppen",
+		"REACTIONS": "Reacties",
 		"YOU_LEFT": "Je hebt de vergadering verlaten",
 		"YOU_LEFT_HINT": "De vergadering gaat zonder jou door. Neem opnieuw deel of ga terug naar je vergaderingen.",
 		"REJOIN": "Opnieuw deelnemen",

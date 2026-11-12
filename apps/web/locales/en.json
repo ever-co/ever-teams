@@ -3949,6 +3949,7 @@
 		"UNREAD_MESSAGES": "{count, plural, one {# unread message} other {# unread messages}}",
 		"SHARE": "Share",
 		"STOP_SHARING": "Stop sharing",
+		"REACTIONS": "Reactions",
 		"YOU_LEFT": "You left the meeting",
 		"YOU_LEFT_HINT": "The meeting goes on without you. Rejoin it, or go back to your meetings.",
 		"REJOIN": "Rejoin",

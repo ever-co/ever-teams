@@ -3949,6 +3949,7 @@
 		"UNREAD_MESSAGES": "{count, plural, one {# messaggio non letto} other {# messaggi non letti}}",
 		"SHARE": "Condividi",
 		"STOP_SHARING": "Interrompi condivisione",
+		"REACTIONS": "Reazioni",
 		"YOU_LEFT": "Hai lasciato la riunione",
 		"YOU_LEFT_HINT": "La riunione continua senza di te. Rientra oppure torna alle tue riunioni.",
 		"REJOIN": "Rientra",

@@ -3949,6 +3949,7 @@
 		"UNREAD_MESSAGES": "{count, plural, one {# nieprzeczytana wiadomość} few {# nieprzeczytane wiadomości} many {# nieprzeczytanych wiadomości} other {# nieprzeczytanej wiadomości}}",
 		"SHARE": "Udostępnij",
 		"STOP_SHARING": "Zatrzymaj udostępnianie",
+		"REACTIONS": "Reakcje",
 		"YOU_LEFT": "Opuszczono spotkanie",
 		"YOU_LEFT_HINT": "Spotkanie trwa dalej bez ciebie. Dołącz ponownie lub wróć do swoich spotkań.",
 		"REJOIN": "Dołącz ponownie",

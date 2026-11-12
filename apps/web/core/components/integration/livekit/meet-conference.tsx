@@ -20,7 +20,9 @@ import {
 	type WidgetState
 } from '@livekit/components-react';
 import { RoomEvent, Track } from 'livekit-client';
+import { useMeetingReactions } from '@/core/hooks/meetings/use-meeting-reactions';
 import { MeetControlBar } from './meet-control-bar';
+import { MeetReactions } from './meet-reactions';
 import { PeoplePanel } from './people-panel';
 import { SettingsMenu } from './settings-livekit';
 
@@ -38,7 +40,8 @@ function isSameTrack(first: TrackReferenceOrPlaceholder | undefined, second: Tra
 
 /**
  * The meeting room's conference, made of LiveKit's parts as its `VideoConference` prefab is: everyone in a grid, a
- * shared screen in focus with the others beside it, the room's own control bar, the people, the chat and the settings.
+ * shared screen in focus with the others beside it, the room's own control bar, the people, the chat, the settings, and
+ * the reactions sent to everyone.
  */
 export function MeetConference() {
 	const [widgetState, setWidgetState] = React.useState<WidgetState>({
@@ -47,6 +50,7 @@ export function MeetConference() {
 		showSettings: false
 	});
 	const [isPeopleOpen, setIsPeopleOpen] = React.useState(false);
+	const reactions = useMeetingReactions();
 	const lastAutoFocusedScreenShare = React.useRef<TrackReferenceOrPlaceholder | null>(null);
 	const tracks = useTracks(
 		[
@@ -92,7 +96,8 @@ export function MeetConference() {
 	return (
 		<div className="lk-video-conference">
 			<LayoutContextProvider value={layoutContext} onWidgetChange={setWidgetState}>
-				<div className="lk-video-conference-inner">
+				<div className="lk-video-conference-inner relative">
+					<MeetReactions reactions={reactions.shown} />
 					{focusTrack ? (
 						<div className="lk-focus-layout-wrapper">
 							<FocusLayoutContainer>
@@ -109,7 +114,11 @@ export function MeetConference() {
 							</GridLayout>
 						</div>
 					)}
-					<MeetControlBar isPeopleOpen={isPeopleOpen} onPeopleOpenChange={setIsPeopleOpen} />
+					<MeetControlBar
+						isPeopleOpen={isPeopleOpen}
+						onPeopleOpenChange={setIsPeopleOpen}
+						onReact={(emoji) => void reactions.react(emoji)}
+					/>
 				</div>
 				<Chat
 					style={{ display: widgetState.showChat ? 'grid' : 'none' }}

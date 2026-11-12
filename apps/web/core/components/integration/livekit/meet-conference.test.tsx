@@ -40,6 +40,9 @@ jest.mock('./meet-control-bar', () => ({
 	)
 }));
 jest.mock('./people-panel', () => ({ PeoplePanel: () => <div data-testid="people" /> }));
+jest.mock('@/core/hooks/meetings/use-meeting-reactions', () => ({
+	useMeetingReactions: () => ({ shown: [{ id: 1, emoji: '👏', name: 'Ana Silva' }], react: jest.fn() })
+}));
 
 import { MeetConference } from './meet-conference';
 
@@ -92,5 +95,11 @@ describe('MeetConference', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'people' }));
 
 		expect(screen.getByTestId('people')).toBeTruthy();
+	});
+
+	it('shows the reactions of the last seconds over the room, with who sent them', () => {
+		render(<MeetConference />);
+
+		expect(screen.getByTestId('meet-reactions').textContent).toBe('👏Ana Silva');
 	});
 });

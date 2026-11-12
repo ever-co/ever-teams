@@ -1,5 +1,5 @@
 /** @jest-environment jsdom */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 
 type Toggle = { enabled: boolean; pending: boolean; toggle: jest.Mock };
 
@@ -42,7 +42,7 @@ describe('MeetControlBar', () => {
 	});
 
 	it("says what a press on one's camera and microphone does, and does it", () => {
-		render(<MeetControlBar isPeopleOpen={false} onPeopleOpenChange={jest.fn()} />);
+		render(<MeetControlBar isPeopleOpen={false} onPeopleOpenChange={jest.fn()} onReact={jest.fn()} />);
 
 		fireEvent.click(screen.getByRole('button', { name: 'meetings.STOP_VIDEO' }));
 		expect(mockToggles.camera.toggle).toHaveBeenCalledTimes(1);
@@ -55,7 +55,7 @@ describe('MeetControlBar', () => {
 
 	it('opens the chat with its unread messages, shares the screen, opens the settings and leaves', () => {
 		mockWidgetState.unreadMessages = 2;
-		render(<MeetControlBar isPeopleOpen={false} onPeopleOpenChange={jest.fn()} />);
+		render(<MeetControlBar isPeopleOpen={false} onPeopleOpenChange={jest.fn()} onReact={jest.fn()} />);
 
 		const chat = screen.getByRole('button', { name: /^meetings\.CHAT/ });
 		expect(chat.textContent).toContain('meetings.UNREAD_MESSAGES:2');
@@ -75,7 +75,7 @@ describe('MeetControlBar', () => {
 	it('offers only what the room lets the person publish', () => {
 		// Allowed the microphone only (source 2), and no data: no camera, no share, no chat
 		mockPermissions = { canPublish: true, canPublishData: false, canPublishSources: [2] };
-		render(<MeetControlBar isPeopleOpen={false} onPeopleOpenChange={jest.fn()} />);
+		render(<MeetControlBar isPeopleOpen={false} onPeopleOpenChange={jest.fn()} onReact={jest.fn()} />);
 
 		expect(screen.queryByRole('button', { name: 'meetings.STOP_VIDEO' })).toBeNull();
 		expect(screen.getByRole('button', { name: 'meetings.UNMUTE' })).toBeTruthy();
@@ -87,7 +87,9 @@ describe('MeetControlBar', () => {
 	it('opens the people in the place of the chat, and the chat in the place of the people', () => {
 		const onPeopleOpenChange = jest.fn();
 		mockWidgetState.showChat = true;
-		const view = render(<MeetControlBar isPeopleOpen={false} onPeopleOpenChange={onPeopleOpenChange} />);
+		const view = render(
+			<MeetControlBar isPeopleOpen={false} onPeopleOpenChange={onPeopleOpenChange} onReact={jest.fn()} />
+		);
 
 		fireEvent.click(screen.getByRole('button', { name: 'meetings.PEOPLE' }));
 		expect(onPeopleOpenChange).toHaveBeenCalledWith(true);
@@ -95,11 +97,22 @@ describe('MeetControlBar', () => {
 
 		mockDispatch.mockReset();
 		mockWidgetState.showChat = false;
-		view.rerender(<MeetControlBar isPeopleOpen onPeopleOpenChange={onPeopleOpenChange} />);
+		view.rerender(<MeetControlBar isPeopleOpen onPeopleOpenChange={onPeopleOpenChange} onReact={jest.fn()} />);
 		expect(screen.getByRole('button', { name: 'meetings.PEOPLE' }).getAttribute('aria-pressed')).toBe('true');
 		fireEvent.click(screen.getByRole('button', { name: /^meetings\.CHAT/ }));
 
 		expect(onPeopleOpenChange).toHaveBeenLastCalledWith(false);
 		expect(mockDispatch).toHaveBeenCalledWith({ msg: 'toggle_chat' });
+	});
+
+	it('sends the reaction picked to everyone', async () => {
+		const onReact = jest.fn();
+		render(<MeetControlBar isPeopleOpen={false} onPeopleOpenChange={jest.fn()} onReact={onReact} />);
+
+		fireEvent.click(screen.getByRole('button', { name: 'meetings.REACTIONS' }));
+		const reactions = await screen.findByRole('group', { name: 'meetings.REACTIONS' });
+		fireEvent.click(within(reactions).getByRole('button', { name: '🎉' }));
+
+		expect(onReact).toHaveBeenCalledWith('🎉');
 	});
 });

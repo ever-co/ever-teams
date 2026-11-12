@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import {
 	StartMediaButton,
@@ -18,9 +18,12 @@ import {
 	PhoneOff,
 	ScreenShare,
 	Settings,
+	Smile,
 	Users,
 	VideoOff
 } from '@/core/components/icons';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
+import { MEETING_REACTIONS, type MeetingReaction } from '@/core/hooks/meetings/use-meeting-reactions';
 import { cn } from '@/core/lib/helpers';
 
 /** The protocol's numbers of the sources a participant may be allowed to publish. */
@@ -86,9 +89,11 @@ interface MeetControlBarProps {
 	/** The People panel is open; it and the chat take the same place, one at a time. */
 	isPeopleOpen: boolean;
 	onPeopleOpenChange: (isOpen: boolean) => void;
+	/** Sends a reaction to everyone in the room. */
+	onReact: (emoji: MeetingReaction) => void;
 }
 
-export function MeetControlBar({ isPeopleOpen, onPeopleOpenChange }: Readonly<MeetControlBarProps>) {
+export function MeetControlBar({ isPeopleOpen, onPeopleOpenChange, onReact }: Readonly<MeetControlBarProps>) {
 	const t = useTranslations();
 	const room = useRoomContext();
 	const layoutContext = useMaybeLayoutContext();
@@ -102,6 +107,7 @@ export function MeetControlBar({ isPeopleOpen, onPeopleOpenChange }: Readonly<Me
 	const widget = layoutContext?.widget;
 	const unreadMessages = widget?.state?.unreadMessages ?? 0;
 	const isChatOpen = Boolean(widget?.state?.showChat);
+	const [isReactionsOpen, setIsReactionsOpen] = useState(false);
 
 	const togglePeople = () => {
 		if (!isPeopleOpen && isChatOpen) widget?.dispatch?.({ msg: 'toggle_chat' });
@@ -181,6 +187,30 @@ export function MeetControlBar({ isPeopleOpen, onPeopleOpenChange }: Readonly<Me
 						disabled={screenShare.pending}
 						onClick={() => void screenShare.toggle()}
 					/>
+				)}
+				{permissions?.canPublishData && (
+					<Popover open={isReactionsOpen} onOpenChange={setIsReactionsOpen}>
+						<PopoverTrigger className={BAR_BUTTON} data-testid="meet-control-reactions">
+							<span aria-hidden="true" className={ROUND_ICON}>
+								<Smile />
+							</span>
+							<span>{t('meetings.REACTIONS')}</span>
+						</PopoverTrigger>
+						<PopoverContent side="top" className="w-auto p-1.5">
+							<div role="group" aria-label={t('meetings.REACTIONS')} className="flex gap-1">
+								{MEETING_REACTIONS.map((emoji) => (
+									<button
+										key={emoji}
+										type="button"
+										onClick={() => onReact(emoji)}
+										className="flex size-10 cursor-pointer items-center justify-center rounded-lg text-2xl outline-none transition-colors hover:bg-foreground/[0.06] focus-visible:ring-[3px] focus-visible:ring-ring/25"
+									>
+										{emoji}
+									</button>
+								))}
+							</div>
+						</PopoverContent>
+					</Popover>
 				)}
 			</div>
 			<div className="flex items-center gap-1">

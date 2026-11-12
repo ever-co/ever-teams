@@ -3949,6 +3949,7 @@
 		"UNREAD_MESSAGES": "{count, plural, one {# ungelesene Nachricht} other {# ungelesene Nachrichten}}",
 		"SHARE": "Teilen",
 		"STOP_SHARING": "Teilen beenden",
+		"REACTIONS": "Reaktionen",
 		"YOU_LEFT": "Du hast die Besprechung verlassen",
 		"YOU_LEFT_HINT": "Die Besprechung geht ohne dich weiter. Tritt erneut bei oder geh zurück zu deinen Besprechungen.",
 		"REJOIN": "Erneut beitreten",
