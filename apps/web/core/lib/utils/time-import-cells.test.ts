@@ -184,6 +184,10 @@ describe('durationSecondsOf', () => {
 		expect(durationSecondsOf('90')).toBe(90 * HOUR);
 	});
 
+	it.each(['01:30:00', '1:30', '1.5', '90m'])('reads %s as an hour and a half', (text) => {
+		expect(durationSecondsOf(text)).toBe(HOUR + 30 * MINUTE);
+	});
+
 	it.each([
 		['minutes on one digit', '1:5'],
 		['minutes past 59', '1:75'],
