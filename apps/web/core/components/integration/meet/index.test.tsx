@@ -255,6 +255,7 @@ describe('Jitsi meeting room', () => {
 		expect(configOverwrite).toMatchObject({
 			startWithAudioMuted: false,
 			startWithVideoMuted: true,
+			resolution: 720,
 			prejoinConfig: { enabled: false },
 			prejoinPageEnabled: false
 		});
@@ -299,5 +300,35 @@ describe('Jitsi meeting room', () => {
 
 		expect(room.executeCommand).not.toHaveBeenCalledWith('toggleShareScreen');
 		expect(screen.queryByTestId('share-screen-pending')).toBeNull();
+	});
+
+	it('opens the room with the video quality and the noise filter of the video and audio settings', async () => {
+		mockLoadJitsiExternalApi.mockResolvedValue(function JitsiMeetExternalAPI() {
+			return undefined;
+		});
+		await renderRoom({
+			audioEnabled: true,
+			videoEnabled: true,
+			audioInputId: '',
+			videoInputId: '',
+			audioOutputId: '',
+			noiseFilter: false,
+			hdVideo: false,
+			audioInputLabel: '',
+			videoInputLabel: '',
+			audioOutputLabel: '',
+			displayName: 'Ruslan Konviser'
+		});
+
+		expect(mockRoomRenders[0].configOverwrite).toMatchObject({
+			resolution: 360,
+			constraints: { video: { height: { ideal: 360, max: 360 } } }
+		});
+		const room = fakeRoomApi();
+		act(() => {
+			mockRoomRenders[0].onApiReady(room);
+			room.listeners.videoConferenceJoined();
+		});
+		expect(room.executeCommand).toHaveBeenCalledWith('setNoiseSuppressionEnabled', { enabled: false });
 	});
 });
