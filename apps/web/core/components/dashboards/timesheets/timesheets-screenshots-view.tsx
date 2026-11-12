@@ -1,7 +1,7 @@
 'use client';
 
 import { type ReactNode, useCallback, useMemo, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
 import { MemberCell } from '@/core/components/dashboards/kit/member-cell';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
@@ -18,6 +18,8 @@ import {
 	trackedDayKeysOf
 } from '@/core/lib/utils/dashboards/work-diary';
 import type { SheetMember } from '@/core/lib/utils/dashboards/timesheets';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 import {
 	memberNameOrFallback,
 	TimesheetsMemberPicker,
@@ -122,7 +124,7 @@ export function TimesheetsScreenshotsView({
 	teamId: string | null;
 	emptyContent: ReactNode;
 }>) {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const t = useTranslations();
 	const [pickedMemberId, setPickedMemberId] = useState<string | null>(null);
 	const [pickedDay, setPickedDay] = useState<PickedDay | null>(null);
@@ -139,10 +141,10 @@ export function TimesheetsScreenshotsView({
 	const trackedKeys = trackedDayKeysOf(memberLogs, employeeId);
 	const state = useWorkDiaryDay({ employeeId, isOwn, teamId, day });
 
-	const timeFormat = useMemo(() => new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }), [locale]);
-	const hourFormat = useMemo(() => new Intl.DateTimeFormat(locale, { hour: 'numeric' }), [locale]);
+	const timeFormat = useMemo(() => dateFormatOf(locale, { hour: 'numeric', minute: '2-digit' }), [locale]);
+	const hourFormat = useMemo(() => dateFormatOf(locale, { hour: 'numeric' }), [locale]);
 	const dayFormat = useMemo(
-		() => new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric' }),
+		() => dateFormatOf(locale, { weekday: 'short', month: 'short', day: 'numeric' }),
 		[locale]
 	);
 	const dayText = dayFormat.format(day);

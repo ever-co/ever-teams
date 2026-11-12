@@ -12,7 +12,7 @@ import { Clock, Spinner } from '@/core/components/icons';
 import { controlRecipe } from '@/core/components/common/input';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { CustomSelect } from '../../common/multiple-select';
-import { TaskNameInfoDisplay } from '../../tasks/task-displays';
+import { TimeLogTaskField } from '../timesheet/time-log-task-field';
 import { toast } from 'sonner';
 import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
@@ -24,6 +24,7 @@ import {
 } from '@/core/components/features/manual-time/time-overlap-confirm-dialog';
 import { ITimeLogUpdatePayload } from '@/core/types/interfaces/timesheet/time-log.interface';
 import { useMyRolePermissionsQuery } from '@/core/hooks';
+import { useTimeLogTaskChoice } from '@/core/hooks/timesheet/use-time-log-task-choice';
 
 interface IEditTaskModalProps {
 	isOpen: boolean;
@@ -85,11 +86,17 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 		notes: timeLogData.description || '',
 		employeeId: timeLogData.employeeId || ''
 	});
+	const taskChoice = useTimeLogTaskChoice({
+		log: timeLogData,
+		projects: organizationProjects,
+		pickedProjectId: timesheetData.projectId,
+		isOpen
+	});
 	const memberItemsLists = useMemo(
 		() => ({
-			Project: organizationProjects
+			Project: taskChoice.projectChoices
 		}),
-		[organizationProjects]
+		[taskChoice.projectChoices]
 	);
 	/**
 	 * Updates the project id in the form state when a project is selected or deselected in the dropdown.
@@ -105,9 +112,9 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 	}, []);
 	const selectedValues = useMemo(
 		() => ({
-			Project: timeLogData.project || null
+			Project: taskChoice.shownProject
 		}),
-		[timeLogData.project]
+		[taskChoice.shownProject]
 	);
 	const handleChange = useCallback((field: string, selectedItem: Item | null) => {
 		if (!selectedItem) return;
@@ -159,12 +166,26 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 				employeeId: timesheetData.employeeId,
 				description: timesheetData.notes,
 				projectId: timesheetData.projectId,
+				...taskChoice.changedFields,
 				startedAt,
 				stoppedAt
 			};
+			const savedProjectId = updatePayload.projectId ?? '';
+			const hasMovedToTaskProject = savedProjectId !== timesheetData.projectId;
+			const savedTaskId = updatePayload.taskId;
+			const keepSavedTask = taskChoice.keepSavedTask;
 			const saveUpdate = () =>
 				updateTimeLog(updatePayload)
 					.then(() => {
+						// The dialog stays mounted once closed, and a new task moves the entry to its project while
+						// the project field is left alone: the form takes that project, or the next save of this
+						// entry would send the previous one
+						if (hasMovedToTaskProject) {
+							setTimesheetData((prev) => ({ ...prev, projectId: savedProjectId }));
+						}
+						if (savedTaskId) {
+							keepSavedTask(savedTaskId);
+						}
 						toast.success(t('toasts.time.LOG_UPDATED'));
 						closeModal();
 					})
@@ -194,6 +215,8 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 			timesheetData.employeeId,
 			timesheetData.notes,
 			timesheetData.projectId,
+			taskChoice.changedFields,
+			taskChoice.keepSavedTask,
 			closeModal,
 			updateTimeLog,
 			saveAfterOverlapCheck,
@@ -256,14 +279,7 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 		>
 			<form onSubmit={handleUpdateSubmit} className="flex flex-col w-full">
 				<div className="flex flex-col gap-1 pb-3 mb-4 hairline-b border-border">
-					<TaskNameInfoDisplay
-						task={timeLogData.task}
-						className={clsxm('rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem]')}
-						taskTitleClassName={clsxm('text-sm text-ellipsis overflow-hidden')}
-						showSize={true}
-						dash
-						taskNumberClassName="text-sm"
-					/>
+					<TimeLogTaskField choice={taskChoice} entryTask={timeLogData.task} />
 					<div className="flex gap-x-1 items-center">
 						<span className="text-[13px] text-muted-foreground">{t('modals.timeLog.forMember')}</span>
 						<CustomSelect

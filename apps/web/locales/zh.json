@@ -699,6 +699,30 @@
 			"WEEK_TITLE": "工时表",
 			"WEEK_NO_MANUAL_TIME_PERMISSION": "你的角色不能手动添加时间，因此表格为只读。管理员可以开启此权限。"
 		},
+		"myWeek": {
+			"TITLE": "我的一周",
+			"UPDATING": "正在加载你的时间",
+			"SUMMARY_LABEL": "你记录的时间",
+			"TRACKED_THIS_WEEK": "本周已记录",
+			"TRACKED_LAST_WEEK": "上周已记录",
+			"TRACKED_THIS_MONTH": "本月已记录",
+			"LIMIT_LEFT": "本周还剩 {duration}",
+			"LIMIT_UNDER": "低于每周限额 {duration}",
+			"LIMIT_OVER": "超出每周限额 {duration}",
+			"LIMIT_SHARE": "每周限额的 {percent}",
+			"NO_LIMIT": "你的个人资料中未设置每周限额。",
+			"LIMIT_BY_WEEK": "你的每周限额 {limit} 按周计算。",
+			"DAILY_LIMIT_LINE": "每天 {limit}",
+			"DAILY_LIMIT_HINT": "虚线为每周限额的五分之一",
+			"PROJECTS_TITLE": "按项目统计时间",
+			"RECENT_TITLE": "最近的记录",
+			"RECENT_LATEST": "最近 {shown} 条，共 {total, plural, other {# 条记录}}",
+			"EMPTY_THIS_WEEK": "本周没有记录时间",
+			"EMPTY_LAST_WEEK": "上周没有记录时间",
+			"EMPTY_THIS_MONTH": "本月没有记录时间",
+			"EMPTY_HINT": "在任务上启动计时器，你的时间就会显示在这里。",
+			"OPEN_TIMER": "打开计时器"
+		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# 位成员} other {# 位成员}}",
 			"UPDATING": "正在更新数据",
@@ -1455,7 +1479,15 @@
 			"WEEK_STRIP_LABEL": "一周的日期",
 			"HAS_TIME": "有记录的时间",
 			"NO_MEMBER_TITLE": "你的账号在此工作区没有成员资料",
-			"NO_MEMBER_MESSAGE": "时间按成员记录。请联系管理员把你加入团队。"
+			"NO_MEMBER_MESSAGE": "时间按成员记录。请联系管理员把你加入团队。",
+			"DRAG": {
+				"REFUSED_TITLE": "条目未更改",
+				"CREATE_REFUSED_TITLE": "无法在此处添加时间",
+				"OVERLAP": "该时间与此成员的另一条目重叠。请选择空闲时间，或先修改另一条目。",
+				"FUTURE": "您的组织不允许添加当前时间之后的时间。",
+				"APPROVED": "这一天属于已批准的工时表，因此无法更改其时间。",
+				"SAVE_FAILED": "更改未保存"
+			}
 		},
 		"manualTimeEdits": {
 			"TITLE": "手动时间编辑",
@@ -1859,6 +1891,14 @@
 				"MEMBER_COUNT": "{count, plural, other {# 名成员}}",
 				"ERROR_TITLE": "无法加载项目",
 				"ERROR_MESSAGE": "请检查网络连接后重试。"
+			},
+			"consumption": {
+				"ORDER_BUDGET_USED": "预算使用率",
+				"AS_COST": "按费用计",
+				"AS_COST_HINT": "此项目的时间按费用计算，因为其预算类型为“费用”。预算类型为“工时”时，时间以小时显示。",
+				"SUMMARY_LABEL": "时间与预算",
+				"OPEN_REPORT": "打开预算报告",
+				"LOAD_ERROR": "无法加载使用时间和预算使用情况"
 			},
 			"modals": {
 				"openProject": "打开项目",
@@ -2700,6 +2740,15 @@
 			"PAUSE": "已暂停",
 			"IDLE": "空闲",
 			"SUSPENDED": "已停用"
+		},
+		"notes": {
+			"ADD": "添加计时器备注",
+			"EDIT": "编辑计时器备注",
+			"LABEL": "备注",
+			"PLACEHOLDER": "您正在做什么？",
+			"HINT_BEFORE_START": "可选。计时器启动时保存到记录中。",
+			"HINT_RUNNING": "计时器运行期间所做的更改暂不保存。如需更改备注，请在停止计时器后于工时表中编辑该记录。",
+			"HINT_OTHER_TEAM": "这些备注属于另一个团队中正在运行的计时器，因此无法在此处更改。"
 		}
 	},
 	"task": {
@@ -3004,10 +3053,47 @@
 			"TESTED_TIMER": "計時器測試"
 		},
 		"FILL_IN": "请填写：{fields}。",
-		"END_AFTER_START": "结束时间必须晚于开始时间。"
+		"END_AFTER_START": "结束时间必须晚于开始时间。",
+		"OWN_TIME_ONLY": "你只能为自己添加时间。管理员可以为其他人添加时间。",
+		"DURATION": {
+			"LABEL": "时长",
+			"PLACEHOLDER": "1:30 或 90m",
+			"HINT": "输入时长，系统会建议当天第一个空闲时段。",
+			"READING": "正在查找当天的空闲时间",
+			"PROPOSED": "建议 {start} 至 {end}，这是当天第一个空闲时段。你可以修改。",
+			"NO_ROOM": "这一天没有长达 {duration} 的空闲时段。请选择开始和结束时间，或换一天。",
+			"NO_MEMBER": "请先选择员工：空闲时间取自该员工当天的记录。",
+			"READ_FAILED": "无法读取这一天的记录，因此没有建议时间。",
+			"RETRY": "重试"
+		},
+		"REQUIRED": {
+			"TEAM": "你的组织要求每条时间记录都带有团队。请打开你的一个团队，然后重新添加时间。",
+			"PROJECT": "你的组织要求每条时间记录都带有项目。请选择一个项目，或选择带有项目的任务。",
+			"TEAM_AND_PROJECT": "你的组织要求每条时间记录都带有团队和项目。请打开你的一个团队，并选择带有项目的任务。"
+		},
+		"TASK_CHANGE": {
+			"PROJECT_FOLLOWS": "此记录将转到任务所属的项目：{project}。",
+			"OTHER_TEAM": "此记录属于另一个团队。请切换到该团队再更改任务。"
+		}
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "您确定要删除此时间段吗？"
+	},
+	"timeEntryActions": {
+		"CONTINUE": "继续",
+		"DUPLICATE": "复制",
+		"TASK_ACTIONS": "{task} 的操作",
+		"ALREADY_RUNNING": "计时器已在此任务上运行",
+		"recent": {
+			"TITLE": "最近",
+			"START_ON": "在 {task} 上启动计时器",
+			"ERROR": "无法加载您最近的任务。",
+			"RETRY": "重试"
+		},
+		"duplicate": {
+			"OVERLAPS": "该时间与已记录的条目重叠（{range}）。请选择空闲时间或其他日期。",
+			"CHECK_FAILED": "无法检查当天的条目，因此未保存任何内容。请重试。"
+		}
 	},
 	"chatConfig": {
 		"DIALOG_TITLE": "AI 聊天配置",
@@ -3127,7 +3213,8 @@
 			"navigation": "导航",
 			"settings": "设置",
 			"goTo": "前往",
-			"chat": "聊天"
+			"chat": "聊天",
+			"timer": "计时器"
 		},
 		"commands": {
 			"inviteUser": "邀请用户",
@@ -3149,7 +3236,10 @@
 			"goToTimeAndActivity": "前往时间与活动报告",
 			"profile": "个人资料",
 			"settings": "设置",
-			"newMessage": "新消息"
+			"newMessage": "新消息",
+			"startTimer": "启动计时器",
+			"stopTimer": "停止计时器",
+			"addTime": "添加时间"
 		},
 		"results": {
 			"recent": "最近",
@@ -3161,7 +3251,9 @@
 			"projects": "项目",
 			"pages": "页面",
 			"untitledPage": "无标题",
-			"recentlyOpened": "最近打开"
+			"recentlyOpened": "最近打开",
+			"startTimerOn": "在任务上启动计时器",
+			"startTimerOnTask": "启动计时器：{task}"
 		}
 	},
 	"modals": {
@@ -3823,7 +3915,10 @@
 			"STOPPED_TASK_SWITCH": "您的当前任务已变更，计时器已停止",
 			"STALE_STOPPED": "计时器已停止：{stoppedAt}",
 			"STALE_STOPPED_HINT": "应用关闭后它仍在运行。之后的工作请作为手动时间添加。",
-			"TASK_CLOSED_HINT": "重新打开该任务即可为其记录时间。"
+			"TASK_CLOSED_HINT": "重新打开该任务即可为其记录时间。",
+			"NOTES_NOT_SAVED": "计时器运行期间修改的备注未保存",
+			"NOTES_NOT_SAVED_HINT": "该记录保留了启动时的备注。请在工时表中编辑该记录以进行更改。",
+			"ALREADY_RUNNING_ON_TASK": "计时器已在此任务上运行"
 		},
 		"plans": {
 			"CREATE_FAILED": "计划未创建",
@@ -4053,7 +4148,8 @@
 		"groups": {
 			"account": "账户",
 			"team": "团队",
-			"taskProperties": "任务属性"
+			"taskProperties": "任务属性",
+			"workspace": "工作区"
 		},
 		"entries": {
 			"profile": {
@@ -4111,6 +4207,14 @@
 			"versions": {
 				"TITLE": "版本",
 				"DESCRIPTION": "任务可以对应的发布版本。"
+			},
+			"import": {
+				"TITLE": "导入",
+				"DESCRIPTION": "从 CSV 文件导入时间条目。"
+			},
+			"workspaceGeneral": {
+				"TITLE": "常规",
+				"DESCRIPTION": "工作区的名称、货币以及日期和数字格式。"
 			},
 			"automations": {
 				"TITLE": "自动化",
@@ -4847,7 +4951,37 @@
 			"ACCEPT": "接受",
 			"REJECT": "拒绝",
 			"INVITATIONS_COUNT": "{count, plural, other {# 个邀请等待回复}}",
-			"REQUESTS_COUNT": "{count, plural, other {# 个请求等待回复}}"
+			"REQUESTS_COUNT": "{count, plural, other {# 个请求等待回复}}",
+			"FILTER_LABEL": "显示的成员",
+			"FILTER_ACTIVE": "活跃",
+			"FILTER_INACTIVE": "已停用",
+			"INACTIVE_LIST": "已停用的成员",
+			"INACTIVE_EMPTY": "此团队没有已停用的成员。",
+			"INACTIVE_ERROR": "无法加载已停用的成员。",
+			"DEACTIVATED_ON": "{date} 停用",
+			"RESTORE": "恢复",
+			"RESTORE_MEMBER": "恢复 {name}",
+			"RESTORED": "{name} 可以重新登录并追踪时间",
+			"RESTORE_FAILED": "{name} 仍处于停用状态",
+			"DEACTIVATE": "停用",
+			"DEACTIVATE_TITLE": "停用 {name}？",
+			"DEACTIVATE_CONSEQUENCE_ACCESS": "{name} 将无法再登录此工作区或追踪时间。",
+			"DEACTIVATE_CONSEQUENCE_TEAMS": "其不再计入所属的任何团队。",
+			"DEACTIVATE_CONSEQUENCE_HISTORY": "其时间、任务和评论仍以其姓名保留在报告和历史记录中。",
+			"DEACTIVATE_CONSEQUENCE_RESTORE": "可在“已停用”列表中恢复：其访问权限、团队和角色都会恢复。",
+			"DEACTIVATED": "已停用 {name}",
+			"DEACTIVATE_FAILED": "{name} 仍处于活跃状态",
+			"ROLE_GROUP_TEAM": "在此团队",
+			"ROLE_GROUP_WORKSPACE": "在工作区",
+			"WORKSPACE_ROLE_SUPER_ADMIN": "超级管理员",
+			"WORKSPACE_ROLE_ADMIN": "管理员",
+			"WORKSPACE_ROLE_MANAGER": "经理",
+			"WORKSPACE_ROLE_EMPLOYEE": "成员",
+			"WORKSPACE_ROLE_DATA_ENTRY": "数据录入",
+			"WORKSPACE_ROLE_VIEWER": "查看者",
+			"WORKSPACE_ROLE_CANDIDATE": "候选人",
+			"WORKSPACE_ROLE_INTERVIEWER": "面试官",
+			"WORKSPACE_ROLE_NOT_SAVED": "{name} 的工作区角色未更改"
 		},
 		"profile": {
 			"SECTION_PROFILE": "个人资料",
@@ -4981,6 +5115,37 @@
 			"LOAD_ERROR_TEXT": "你的开关设置没有变化。请稍后再试。",
 			"UNAVAILABLE_TITLE": "此工作区暂时没有可设置的内容",
 			"UNAVAILABLE_TEXT": "通知属于你在工作区中的成员资料，而此账户在这里还没有成员资料。请先加入或创建一个团队。"
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "工作区",
+			"NAME_LABEL": "工作区名称",
+			"NAME_DESCRIPTION": "显示在工作区切换器和邀请中。",
+			"NAME_INVALID": "请输入 1 到 {max} 个字符的名称。",
+			"NAME_SAVED": "工作区已重命名为 {name}",
+			"NAME_NOT_SAVED": "工作区未重命名",
+			"NAME_MAYBE_UNFINISHED": "重命名可能未完成",
+			"NAME_SAVE_AGAIN": "请再次保存相同的名称以完成重命名。",
+			"NAME_SUPER_ADMIN_ONLY": "只有工作区的超级管理员可以重命名。",
+			"FORMATS_SECTION": "货币和格式",
+			"FORMATS_DESCRIPTION": "在没有更具体设置的地方使用，例如带有自身货币的费率。",
+			"CURRENCY_LABEL": "默认货币",
+			"CURRENCY_DESCRIPTION": "新费率或新预算起始使用的货币。",
+			"CURRENCY_SAVED": "默认货币已设为 {currency}",
+			"CURRENCY_OUTCOME": "新的费率和预算将以此货币开始。",
+			"CURRENCY_NOT_SAVED": "货币未保存",
+			"CURRENCY_NOT_SET": "未设置",
+			"DATE_FORMAT_LABEL": "日期格式",
+			"DATE_FORMAT_DESCRIPTION": "报告及其导出文件书写日期的方式。“自动”跟随每位成员的语言。",
+			"DATE_FORMAT_SAVED": "日期格式已保存",
+			"DATE_FORMAT_NOT_SAVED": "日期格式未保存",
+			"NUMBER_FORMAT_LABEL": "数字格式",
+			"NUMBER_FORMAT_DESCRIPTION": "报告及其导出文件书写金额的方式。“自动”跟随每位成员的语言。",
+			"NUMBER_FORMAT_SAVED": "数字格式已保存",
+			"NUMBER_FORMAT_NOT_SAVED": "数字格式未保存",
+			"FORMAT_OUTCOME": "报告及其导出文件现已使用该格式。",
+			"FORMAT_AUTOMATIC": "自动",
+			"READ_ONLY_NOTE": "只有工作区管理员可以更改这些设置。",
+			"LOAD_FAILED": "无法加载工作区设置。"
 		},
 		"automations": {
 			"NEW_RULE": "新建规则",
@@ -6325,5 +6490,144 @@
 		"OFF_TEXT": "在此工作区中，删除的任务会被永久移除。",
 		"NO_TEAM_TITLE": "选择团队",
 		"NO_TEAM_TEXT": "回收站列出当前团队已删除的任务。"
+	},
+	"timeImport": {
+		"SECTION_TITLE": "时间跟踪数据",
+		"SECTION_DESCRIPTION": "文件的每一行都会成为 {team} 中的一条时间条目。你先查看所有行，在你确认之前不会保存任何内容。",
+		"TEMPLATE_LABEL": "CSV 模板",
+		"TEMPLATE_DESCRIPTION": "一个空文件，包含导入会读取的列。",
+		"TEMPLATE_DOWNLOAD": "下载模板",
+		"DROP_TITLE": "将 CSV 文件拖到这里，或选择一个文件",
+		"DROP_ACTIVE": "松开文件即可检查",
+		"DROP_HINT": "{rows, plural, other {仅限 CSV，每个文件最大 {megabytes} MB、最多 # 行。}}",
+		"OWN_TIME_NOTE": "每一行都会保存为你自己的时间。",
+		"OTHERS_NOTE": "你可以为 {team} 的其他成员添加时间：在 {column} 列中填写每位成员的邮箱。没有邮箱的行是你自己的时间。",
+		"COLUMNS_TITLE": "列",
+		"COLUMNS_DESCRIPTION": "文件的第一行是列名，顺序不限。日期和时间按你的时区 {timeZone} 读取。",
+		"columns": {
+			"REQUIRED": "必填",
+			"ONE_OF_TWO": "二选一",
+			"DATE": "条目的日期，年份在前：{date}。",
+			"START_TIME": "开始时间，使用 24 小时制或带 AM、PM：{startTime} 或 {startTimeMeridiem}。",
+			"END_TIME": "结束时间，在同一天：{endTime}。",
+			"DURATION": "时长，用来代替结束时间：{duration}、{durationUnits}，或用数字表示小时的 {durationDecimal}。",
+			"PROJECT": "此团队中某个项目的准确名称。留空表示没有项目的时间。",
+			"TASK_ANY": "此团队中某个任务的准确标题。留空表示没有任务的时间。",
+			"TASK_OWN": "此团队中分配给这段时间所属成员的某个任务的准确标题。留空表示没有任务的时间。",
+			"NOTES": "随条目一起保存的备注。",
+			"BILLABLE": "{yes} 或 {no}。留空表示 {no}。",
+			"MEMBER_EMAIL": "这段时间所属成员的邮箱。留空表示你自己。"
+		},
+		"FILE_PROBLEM_TITLE": "无法导入 {fileName}",
+		"fileProblems": {
+			"NOT_CSV": "只读取 CSV 文件。请将表格另存为 CSV，然后选择该文件。",
+			"TOO_LARGE": "文件超过 {megabytes} MB。请将它拆分成较小的文件。",
+			"NOT_TEXT": "该文件不是以 UTF-8 保存的文本。请在表格应用中将它另存为 CSV UTF-8。",
+			"EMPTY": "文件是空的。",
+			"UNCLOSED_QUOTE": "第 {row} 行有一个单元格以双引号开头，但没有闭合。",
+			"DUPLICATE_COLUMN": "列 {column} 出现了两次。",
+			"MISSING_COLUMNS": "{count, plural, other {缺少这些列：{columns}。}}",
+			"END_OR_DURATION": "{endTime} 或 {duration}",
+			"NO_ROWS": "文件只有标题行，下面没有任何行。",
+			"TOO_MANY_ROWS": "{limit, plural, other {文件有 {count} 行。一次导入最多 # 行：请拆分文件。}}"
+		},
+		"CHECKING_TITLE": "正在检查 {fileName}",
+		"CHECKING_DESCRIPTION": "{count, plural, other {正在将 # 行与已记录的时间进行比对。}}",
+		"CHECK_FAILED_TITLE": "无法检查 {fileName}",
+		"CHECK_FAILED_DESCRIPTION": "无法读取已记录的时间，因此暂时不能导入任何行。未保存任何内容。",
+		"RETRY": "重试",
+		"CHOOSE_ANOTHER": "选择其他文件",
+		"PREVIEW_TITLE": "预览",
+		"PREVIEW_DESCRIPTION": "{count, plural, other {{fileName}，共 # 行。在你导入之前不会保存任何内容。}}",
+		"IGNORED_COLUMNS": "{count, plural, other {不会读取这些列：{columns}。}}",
+		"PREVIEW_CHANGED_TITLE": "未保存任何内容：预览已变化",
+		"PREVIEW_CHANGED_DESCRIPTION": "保存前又检查了一次文件，有些行发生了变化，例如在此期间记录了时间。请查看这些行，然后重新导入。",
+		"RECHECK_FAILED_TITLE": "未保存任何内容",
+		"RECHECK_FAILED_DESCRIPTION": "保存前无法对文件做最后一次检查。请重试。",
+		"NOTHING_READY": "此文件中没有可以导入的行。请修正被排除的行，然后重新选择文件。",
+		"IMPORT_ACTION": "{count, plural, other {导入 # 条条目}}",
+		"RECHECKING": "保存前正在再次检查文件",
+		"IMPORTING_TITLE": "正在导入",
+		"IMPORTING_PROGRESS": "{total, plural, other {已保存 {done} / # 条条目}}",
+		"KEEP_OPEN": "导入结束前请保持此页面打开。",
+		"REPORT_TITLE": "报告",
+		"DONE_TITLE": "{count, plural, other {已保存 # 条条目}}",
+		"DONE_DESCRIPTION": "已添加时间：{duration}。这些条目现已出现在时间表和报告中。",
+		"STOPPED_TITLE": "导入在第 {row} 行停止",
+		"STOPPED_SAVED": "{count, plural, =0 {没有保存任何条目。} other {在此之前已保存 # 条条目。}}",
+		"STOPPED_NOT_SENT": "{count, plural, other {其后的 # 行未发送。}}",
+		"DOWNLOAD_REPORT": "下载报告",
+		"IMPORT_ANOTHER": "导入其他文件",
+		"SHOW_MORE": "{count, plural, other {再显示 # 行}}",
+		"figures": {
+			"LABEL": "此文件的数字",
+			"READY": "就绪",
+			"LEFT_OUT": "已排除",
+			"SAVED": "已保存",
+			"FAILED": "失败",
+			"NOT_SENT": "未发送",
+			"TIME_TO_ADD": "待添加时间",
+			"TIME_ADDED": "已添加时间"
+		},
+		"filter": {
+			"LABEL": "显示的行",
+			"ALL": "全部"
+		},
+		"status": {
+			"READY": "就绪",
+			"LEFT_OUT": "已排除",
+			"SAVED": "已保存",
+			"FAILED": "失败",
+			"NOT_SENT": "未发送"
+		},
+		"row": {
+			"NUMBER": "第 {row} 行",
+			"FOR_MEMBER": "成员：{name}",
+			"BILLABLE": "可计费",
+			"NOT_SENT_REASON": "导入在第 {row} 行停止，未到这一行。"
+		},
+		"problems": {
+			"EXTRA_CELLS": "这一行的单元格比标题行多。包含逗号或分号的单元格要放在双引号中。",
+			"DATE_UNREADABLE": "无法读取日期。请按年份在前的格式填写，例如 {date}。",
+			"START_UNREADABLE": "无法读取开始时间。请写成 {startTime} 或 {startTimeMeridiem} 这样的格式。",
+			"END_MISSING": "这一行既没有结束时间，也没有时长。",
+			"END_UNREADABLE": "无法读取结束时间。请写成 {endTime} 或 {endTimeMeridiem} 这样的格式。",
+			"DURATION_UNREADABLE": "无法读取时长。请写成 {duration}、{durationUnits} 或 {durationDecimal} 这样的格式。",
+			"END_NOT_AFTER_START": "结束时间必须晚于开始时间。对于跨过午夜的时间，请填写时长来代替结束时间。",
+			"CLOCK_SKIPPED": "这一天因夏令时时钟拨快，开始或结束时间落在被跳过的那一小时内。请填写当天存在的时间。",
+			"DURATION_MISMATCH": "结束时间和时长给出的长度不一致。请只保留其中一个。",
+			"TOO_LONG": "一条条目不能超过 24 小时。只写数字的时长按小时读取。",
+			"IN_FUTURE": "这段时间尚未结束，而此组织不接受未来的时间。",
+			"BILLABLE_UNREADABLE": "可计费单元格必须是 {yes} 或 {no}。",
+			"MEMBER_UNKNOWN": "此团队中没有成员使用这个邮箱。",
+			"MEMBER_NOT_ALLOWED": "这一行属于其他成员。你只能导入自己的时间。",
+			"NO_OWN_MEMBER": "这一行没有指明成员，而你的账号没有可用于记录时间的员工档案。",
+			"PROJECT_UNKNOWN": "此团队中没有这个名称的项目。",
+			"PROJECT_AMBIGUOUS": "{count, plural, other {此团队中有 # 个项目使用这个名称。}}",
+			"PROJECT_REQUIRED": "此组织要求每条时间条目都有项目。请在这一行填写项目。",
+			"TASK_UNKNOWN": "此团队中没有这个标题的任务。",
+			"TASK_NOT_ASSIGNED": "这个任务没有分配给这一行的成员。只有团队管理员可以为团队的任意任务添加时间。",
+			"TASK_AMBIGUOUS": "{count, plural, =1 {有 1 个任务使用这个标题。} other {有 # 个任务使用这个标题。请重命名其中一个，让这一行只对应一个任务。}}",
+			"ALREADY_RECORDED": "这条条目已经记录过了。",
+			"OVERLAPS_RECORDED": "{count, plural, =1 {它与一条已记录的条目重叠：{range}。保存它会删除该条目。} other {它与 # 条已记录的条目重叠，第一条是 {range}。保存它会删除这些条目。}}",
+			"SAME_AS_ROW": "它与此文件的第 {row} 行重复。",
+			"OVERLAPS_ROW": "它与此文件的第 {row} 行重叠，那一行会先导入。",
+			"RECORDED_MEANWHILE": "导入期间，这一行的时间上记录了一条条目。保存这一行会删除该条目。"
+		},
+		"access": {
+			"MANUAL_TIME_OFF_TITLE": "手动时间已关闭",
+			"MANUAL_TIME_OFF_DESCRIPTION": "{organization} 不允许成员手动添加时间，因此也无法导入时间。",
+			"NO_PERMISSION_TITLE": "你的角色不能手动添加时间",
+			"NO_PERMISSION_DESCRIPTION": "导入时间需要与手动添加时间相同的权限。请联系组织的管理员。",
+			"LOAD_FAILED_TITLE": "导入未能准备就绪",
+			"LOAD_FAILED_DESCRIPTION": "无法加载你的权限、组织的时间规则或团队的任务。"
+		},
+		"entry": {
+			"TITLE": "导入",
+			"DESCRIPTION": "来自其他工具的数据，导入到此团队。",
+			"ROW_LABEL": "时间跟踪数据",
+			"ROW_DESCRIPTION": "从 CSV 文件添加时间条目。",
+			"OPEN": "从 CSV 导入"
+		}
 	}
 }

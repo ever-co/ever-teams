@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { hueStyle } from '@/core/components/common/value-glyphs';
 import { cn } from '@/core/lib/helpers';
 import {
@@ -11,6 +11,7 @@ import {
 	rateShownOf,
 	type OwedRateSource
 } from '@/core/lib/utils/dashboards/payments-due';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { HiddenRate, NoRateChip, RatePlaceholder } from './payments-due-cells';
 
 const NEUTRAL_CHIP_STYLE = hueStyle('neutral');
@@ -39,7 +40,7 @@ export const OwedAmount = memo(function OwedAmount({
 	className?: string;
 	codeClassName?: string;
 }>) {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const segments = useMemo(() => owedSegmentsOf(amount, currency, locale), [amount, currency, locale]);
 	const hasCode = showsCode && Boolean(currency);
 	return (
@@ -69,7 +70,7 @@ export const RateChip = memo(function RateChip({
 	ratePending?: boolean;
 }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const shown = rateShownOf({ rate, rateSource, ratePending });
 	if (shown === 'loading') {
 		return <RatePlaceholder className="ml-0" />;

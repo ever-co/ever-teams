@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, type ReactNode, useMemo } from 'react';
-import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
+import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { DashboardSection } from '@/core/components/dashboards/kit/dashboard-layout';
 import { DashboardErrorNotice, DayBarsSkeleton } from '@/core/components/dashboards/kit/dashboard-states';
 import { DayBarsChart, type DayBarDatum } from '@/core/components/dashboards/kit/day-bars-chart';
@@ -18,6 +18,8 @@ import {
 } from '@/core/lib/utils/dashboard-figures';
 import { formatAmounts } from '@/core/lib/utils/daily-report-figures';
 import { maxSecondsOf } from '@/core/lib/utils/dashboards/time-activity';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import type { FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 type FigureKey = 'tracked' | 'activity' | 'earnings' | 'members';
 
@@ -107,7 +109,7 @@ function earningsHintOf(figures: TimeActivityFigures, t: Translate) {
 	return t('dashboard.timeActivity.figures.EARNINGS_FROM_RATES');
 }
 
-function earningsValueOf(figures: TimeActivityFigures, locale: string) {
+function earningsValueOf(figures: TimeActivityFigures, locale: FormatLocale) {
 	const amounts = figures.totals.earnings;
 	const hasEarnings = amounts.length > 0;
 	if (!hasEarnings) {
@@ -116,7 +118,7 @@ function earningsValueOf(figures: TimeActivityFigures, locale: string) {
 	return formatAmounts(amounts, locale);
 }
 
-function earningsItemOf(figures: TimeActivityFigures, locale: string, t: Translate): MetricItem<FigureKey> {
+function earningsItemOf(figures: TimeActivityFigures, locale: FormatLocale, t: Translate): MetricItem<FigureKey> {
 	const value = earningsValueOf(figures, locale);
 	return {
 		key: 'earnings',
@@ -232,7 +234,7 @@ export function TimeActivityFiguresBlock({
 	onRetryCounts: () => void;
 }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 
 	const items = useMemo(() => {
 		const list: MetricItem<FigureKey>[] = [trackedItemOf(figures, t), activityItemOf(figures, t)];

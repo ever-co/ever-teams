@@ -1,6 +1,6 @@
 'use client';
 
-import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
+import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { LimitMeter, limitVerdictTextClassOf } from '@/core/components/dashboards/kit/meters';
 import { isPaintableColor } from '@/core/components/tasks/task-data-color';
@@ -22,6 +22,8 @@ import {
 	type BudgetScope,
 	type BudgetTotal
 } from '@/core/lib/utils/dashboards/project-budget';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import type { FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { DESKTOP_CELL, MOBILE_CELL, MOBILE_FULL_WIDTH } from './project-budget-grid';
 
 type Translate = ReturnType<typeof useTranslations>;
@@ -138,7 +140,7 @@ export function ProjectMark({ project, className }: Readonly<{ project: BudgetPr
 }
 
 export function SpentOfBudget({ amounts, className }: Readonly<{ amounts: BudgetAmounts; className?: string }>) {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const spentText = amountTextOf(amounts.spent, amounts, locale);
 	const budgetText = budgetTextOf(amounts.budget, amounts, locale);
 	return (
@@ -205,7 +207,7 @@ function VerdictWord({
 	return <span className={cn('w-24 shrink-0 truncate text-[13px]', tone)}>{t(labelKey)}</span>;
 }
 
-export function remainingLabelOf(amounts: BudgetAmounts, locale: string, t: Translate) {
+export function remainingLabelOf(amounts: BudgetAmounts, locale: FormatLocale, t: Translate) {
 	if (!amounts.hasBudget) {
 		return MISSING_FIGURE;
 	}
@@ -237,7 +239,7 @@ function budgetToneOf(amounts: BudgetAmounts) {
 	return 'text-foreground';
 }
 
-export function budgetLabelOf(amounts: BudgetAmounts, locale: string) {
+export function budgetLabelOf(amounts: BudgetAmounts, locale: FormatLocale) {
 	if (!amounts.hasBudget) {
 		return MISSING_FIGURE;
 	}
@@ -246,21 +248,21 @@ export function budgetLabelOf(amounts: BudgetAmounts, locale: string) {
 
 function RemainingText({ amounts }: Readonly<{ amounts: BudgetAmounts }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const tone = remainingToneOf(amounts);
 	const label = remainingLabelOf(amounts, locale, t);
 	return <span className={cn(FIGURE_TEXT, tone)}>{label}</span>;
 }
 
 function BudgetText({ amounts }: Readonly<{ amounts: BudgetAmounts }>) {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const tone = budgetToneOf(amounts);
 	const label = budgetLabelOf(amounts, locale);
 	return <span className={cn(FIGURE_TEXT, tone)}>{label}</span>;
 }
 
 function SpentText({ amounts }: Readonly<{ amounts: BudgetAmounts }>) {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const label = amountTextOf(amounts.spent, amounts, locale);
 	return <span className={cn(FIGURE_TEXT, 'text-foreground')}>{label}</span>;
 }
