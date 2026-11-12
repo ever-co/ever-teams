@@ -252,6 +252,38 @@ describe('the team another tab switches to', () => {
 		expect(mockTeamCookieWrites).not.toContain('team-y');
 	});
 
+	it('keeps a team the person picks while a reload after a member change reads the list', async () => {
+		mockBrowserCookies.teamId = 'team-x';
+		mockGetOrganizationTeams.mockResolvedValue(teamList([team('team-x'), team('team-y'), team('team-z')]) as never);
+		const { store, queryClient, view } = renderTab();
+		await waitFor(() => expect(store.get(activeTeamIdState)).toBe('team-x'));
+
+		// Another tab moved to team Z and team X went away; while this tab reloads its teams, the person picks team Y
+		mockBrowserCookies.teamId = 'team-z';
+		let answerList: (list: unknown) => void = () => undefined;
+		const fetchQuery = queryClient.fetchQuery.bind(queryClient);
+		jest.spyOn(queryClient, 'fetchQuery')
+			.mockImplementationOnce(() => new Promise((resolve) => (answerList = resolve)) as never)
+			.mockImplementation(fetchQuery);
+		let reload: Promise<unknown> = Promise.resolve();
+		await act(async () => {
+			reload = view.result.current.loadTeamsData();
+		});
+		await act(async () => {
+			// The team switch writes the active team and the cookie
+			store.set(activeTeamIdState, 'team-y');
+			mockBrowserCookies.teamId = 'team-y';
+		});
+		mockTeamCookieWrites.length = 0;
+		await act(async () => {
+			answerList(teamList([team('team-y', 'r2'), team('team-z', 'r2')]));
+			await reload;
+		});
+
+		expect(store.get(activeTeamIdState)).toBe('team-y');
+		expect(mockTeamCookieWrites).not.toContain('team-z');
+	});
+
 	it("starts this tab's timer on its own team, not on the team another tab switched to", async () => {
 		mockBrowserCookies.teamId = 'team-x';
 		mockGetOrganizationTeams.mockResolvedValue(teamList([team('team-x'), team('team-y')]) as never);

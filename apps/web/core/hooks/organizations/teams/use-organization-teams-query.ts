@@ -414,25 +414,30 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 				setIsTeamMemberJustDeleted(true);
 			}
 
+			// A team the person picked while the list was read stands: no fallback below replaces it, as a team change
+			// would stop a timer they may have started on it since
+			const currentTeamId = activeTeamIdRef.current;
+			const isPickedMeanwhile = !!currentTeamId && currentTeamId !== teamId;
+
 			// This tab's own team counts only while the list holds it: once it is gone, the stored team decides, as in
 			// the list effect, before the list's first team
 			const ownTeamIsGone = !!ownTeamId && !latestTeams.some((team) => team.id === ownTeamId);
 			const storedTeam = latestTeams.find((team) => team.id === storedTeamId);
-			if (ownTeamIsGone && storedTeam) {
+			const selectedTeamExists = (id: string) => latestTeams.some((team) => team.id === id);
+
+			if (!latestTeams.length) {
+				teamId = '';
+			} else if (isPickedMeanwhile) {
+				teamId = currentTeamId;
+			} else if (ownTeamIsGone && storedTeam) {
 				setActiveTeam(storedTeam);
 				teamId = storedTeam.id;
-			}
-
-			const selectedTeamExists = latestTeams.find((team: any) => team.id === teamId);
-
-			if (!selectedTeamExists && teamId && latestTeams.length) {
+			} else if (!selectedTeamExists(teamId) && teamId) {
 				setIsTeamMemberJustDeleted(true);
 				setActiveTeam(latestTeams[0]);
 				// NOTE: Update local teamId to match the new active team
 				// This prevents fetching details for the removed team
 				teamId = latestTeams[0].id;
-			} else if (!latestTeams.length) {
-				teamId = '';
 			}
 
 			if (teamId) {
