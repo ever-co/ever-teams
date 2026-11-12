@@ -131,6 +131,8 @@ describe('approximateMatch', () => {
 		const first = `${'a'.repeat(256)}${'x'.repeat(144)}`;
 		const text = `${first} ${'a'.repeat(256)}${'b'.repeat(143)}c`;
 		expect(approximateMatch(text, quote)).toEqual({ start: first.length + 1, end: text.length, distance: 1 });
+		const front = `${'a'.repeat(256)}${'b'.repeat(744)}`;
+		expect(approximateMatch(`${'x'.repeat(65)}${'a'.repeat(191)}${'b'.repeat(744)}`, front)).toMatchObject({ start: 0, end: 1000, distance: 65 });
 	});
 });
 
