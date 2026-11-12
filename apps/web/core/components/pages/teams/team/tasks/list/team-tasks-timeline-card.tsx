@@ -148,7 +148,11 @@ interface TimelineTaskCardProps {
 	/** The task's dates as the bar's label says them, with what is particular about them. */
 	dates: string;
 	isOverdue: boolean;
-	/** Whether the task's dates move from its bar (a task of the active team): the card says how. */
+	/**
+	 * Whether the task is the active team's: its dates move from its bar, and the card says how. Its worked time is known
+	 * too (the team's statistics); for a task of another team, listed by a built-in view, the card shows none rather
+	 * than a false zero.
+	 */
 	canEdit: boolean;
 }
 
@@ -193,7 +197,7 @@ export function TimelineTaskCard({ task, status, dates, isOverdue, canEdit }: Re
 				<Calendar aria-hidden="true" />
 				<span>{dates}</span>
 			</p>
-			<TimeWorked taskId={task.id} estimateSeconds={estimateSeconds} />
+			{canEdit && <TimeWorked taskId={task.id} estimateSeconds={estimateSeconds} />}
 			{hasPeople && <PeopleNames people={people} />}
 			{canEdit && (
 				<p className="hairline-t border-border pt-2 text-[11px] leading-snug text-muted-foreground">

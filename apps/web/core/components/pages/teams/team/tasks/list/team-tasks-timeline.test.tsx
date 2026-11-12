@@ -482,6 +482,16 @@ describe('TeamTasksTimelineView', () => {
 			expect(screen.getByTestId('timeline-bar-other').getAttribute('aria-describedby')).toBeNull();
 		});
 
+		it("shows no worked time for another team's task, whose time the team's figures do not hold", () => {
+			renderTimeline([{ ...ranged, id: 'other', title: 'Elsewhere' }]);
+
+			hover(screen.getByTestId('timeline-bar-other'));
+
+			const card = screen.getByTestId('timeline-card-other');
+			expect(card.textContent).not.toContain('common.WORKED');
+			expect(card.textContent).not.toContain('pages.teamTasks.TIMELINE_DRAG_HINT');
+		});
+
 		it('never shows a card where nothing hovers', () => {
 			mockCanHover = false;
 			renderTimeline([ranged]);
