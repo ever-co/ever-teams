@@ -34,16 +34,24 @@ export function TaskTrashList({ teamId, projectId, showsProject = true }: Readon
 	const trash = useTaskTrash(filter);
 	const { openTaskDrawer } = useTaskDrawer();
 	const [deleting, setDeleting] = useState<ITrashedTask | null>(null);
-	const [busyId, setBusyId] = useState<string | null>(null);
+	// Every task with a restore or a delete still running: one finishing leaves the others' buttons disabled.
+	const [busyIds, setBusyIds] = useState<ReadonlySet<string>>(() => new Set());
+	const setBusy = (taskId: string, isBusy: boolean) =>
+		setBusyIds((current) => {
+			const next = new Set(current);
+			if (isBusy) next.add(taskId);
+			else next.delete(taskId);
+			return next;
+		});
 	const dateFormat = useMemo(
 		() => new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }),
 		[locale]
 	);
 
 	const restore = async (task: ITrashedTask) => {
-		setBusyId(task.id);
+		setBusy(task.id, true);
 		const isRestored = await trash.restore(task);
-		setBusyId(null);
+		setBusy(task.id, false);
 		if (!isRestored) {
 			toast.error(t('taskTrash.RESTORE_FAILED'));
 			return;
@@ -54,10 +62,11 @@ export function TaskTrashList({ teamId, projectId, showsProject = true }: Readon
 	};
 
 	const deleteForever = async (task: ITrashedTask) => {
-		setBusyId(task.id);
+		setBusy(task.id, true);
 		const isDeleted = await trash.deleteForever(task);
-		setBusyId(null);
-		setDeleting(null);
+		setBusy(task.id, false);
+		// Closes this task's confirmation only, not one opened for another task meanwhile.
+		setDeleting((current) => (current?.id === task.id ? null : current));
 		if (!isDeleted) {
 			toast.error(t('taskTrash.DELETE_FAILED'));
 			return;
@@ -134,7 +143,7 @@ export function TaskTrashList({ teamId, projectId, showsProject = true }: Readon
 					{trash.tasks.map((task) => {
 						const deletedBy = trashedTaskPersonName(task.deletedByUser);
 						const deletedAt = dateFormat.format(new Date(task.deletedAt));
-						const isBusy = busyId === task.id;
+						const isBusy = busyIds.has(task.id);
 						return (
 							<li key={task.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2.5">
 								<span className="shrink-0 text-xs font-medium tabular-nums text-muted-foreground">
@@ -198,7 +207,7 @@ export function TaskTrashList({ teamId, projectId, showsProject = true }: Readon
 				description={t('taskTrash.DELETE_FOREVER_TEXT', { title: deleting?.title ?? '' })}
 				confirmText={t('taskTrash.DELETE_FOREVER')}
 				cancelText={t('common.CANCEL')}
-				loading={busyId !== null && busyId === deleting?.id}
+				loading={deleting !== null && busyIds.has(deleting.id)}
 				onConfirm={() => {
 					if (deleting) void deleteForever(deleting);
 				}}
