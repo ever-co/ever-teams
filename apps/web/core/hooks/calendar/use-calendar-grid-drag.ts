@@ -50,6 +50,9 @@ const TOUCH_HOLD_MILLISECONDS = 350;
 /** The click a browser sends after a drag ends on the element it began on is dropped during this time. */
 const CLICK_AFTER_DRAG_MILLISECONDS = 400;
 
+/** How often the grid scrolls one step while a drag is held near its top or bottom edge. */
+const EDGE_SCROLL_TICK_MILLISECONDS = 40;
+
 const PRIMARY_BUTTON = 0;
 
 const ESCAPE_KEY = 'Escape';
@@ -67,6 +70,9 @@ interface DragSession {
 	isTouch: boolean;
 	startX: number;
 	startY: number;
+	/** Where the pointer was last seen: a drag held still near an edge keeps scrolling from there. */
+	pointerX: number;
+	pointerY: number;
 	isActive: boolean;
 	/** Given up with Escape while the button is still down: nothing follows the pointer until its release. */
 	isGivenUp: boolean;
@@ -242,17 +248,21 @@ export function useCalendarGridDrag(options: GridDragOptions) {
 		[placeOf]
 	);
 
+	/** Scrolls one step when the pointer is near the top or the bottom, and tells whether the grid moved. */
 	const scrollNearEdge = useCallback(
-		(clientY: number) => {
+		(clientY: number): boolean => {
 			const container = scrollRef.current;
 			if (!container) {
-				return;
+				return false;
 			}
 			const bounds = container.getBoundingClientRect();
 			const step = edgeScrollStepOf(clientY, bounds.top, bounds.bottom);
-			if (step !== 0) {
-				container.scrollTop += step;
+			if (step === 0) {
+				return false;
 			}
+			const previousScrollTop = container.scrollTop;
+			container.scrollTop += step;
+			return container.scrollTop !== previousScrollTop;
 		},
 		[scrollRef]
 	);
@@ -266,6 +276,8 @@ export function useCalendarGridDrag(options: GridDragOptions) {
 			return;
 		}
 		session.isActive = true;
+		session.pointerX = clientX;
+		session.pointerY = clientY;
 		setActiveKind(session.kind);
 		followPointer(session, clientX, clientY);
 	});
@@ -304,7 +316,8 @@ export function useCalendarGridDrag(options: GridDragOptions) {
 			return;
 		}
 		if (session.isActive) {
-			scrollNearEdge(event.clientY);
+			session.pointerX = event.clientX;
+			session.pointerY = event.clientY;
 			followPointer(session, event.clientX, event.clientY);
 			return;
 		}
@@ -316,6 +329,17 @@ export function useCalendarGridDrag(options: GridDragOptions) {
 		}
 		if (hasMovedPast(session, event, MOUSE_DRAG_THRESHOLD_PX)) {
 			activate(session, event.clientX, event.clientY);
+		}
+	});
+
+	const handleEdgeScrollTick = useEffectEvent(() => {
+		const session = sessionRef.current;
+		if (!session?.isActive) {
+			return;
+		}
+		const hasScrolled = scrollNearEdge(session.pointerY);
+		if (hasScrolled) {
+			followPointer(session, session.pointerX, session.pointerY);
 		}
 	});
 
@@ -401,6 +425,16 @@ export function useCalendarGridDrag(options: GridDragOptions) {
 		};
 	}, [armedId]);
 
+	// A pointer held still near the top or the bottom sends no move: the grid scrolls on a timer for as long as the
+	// drag stays there, and the preview follows what is now under the pointer
+	useEffect(() => {
+		if (activeKind === null) {
+			return;
+		}
+		const timer = window.setInterval(() => handleEdgeScrollTick(), EDGE_SCROLL_TICK_MILLISECONDS);
+		return () => window.clearInterval(timer);
+	}, [activeKind]);
+
 	// Once a held finger drags, the grid must not scroll under it. Only a touchmove listener that is not passive
 	// can refuse that scroll, and some browsers ask for it to be there before the touch begins.
 	useEffect(() => {
@@ -444,6 +478,8 @@ export function useCalendarGridDrag(options: GridDragOptions) {
 				isTouch,
 				startX: event.clientX,
 				startY: event.clientY,
+				pointerX: event.clientX,
+				pointerY: event.clientY,
 				isActive: false,
 				isGivenUp: false,
 				waitsForHold: isTouch && !isResize,
