@@ -2653,6 +2653,14 @@
 			"PAUSE": "En pause",
 			"IDLE": "Inactif",
 			"SUSPENDED": "Suspendu"
+		},
+		"notes": {
+			"ADD": "Ajouter des notes au chronomètre",
+			"EDIT": "Modifier les notes du chronomètre",
+			"LABEL": "Notes",
+			"PLACEHOLDER": "Sur quoi travaillez-vous ?",
+			"HINT_BEFORE_START": "Facultatif. Enregistrées sur l'entrée au démarrage du chronomètre.",
+			"HINT_RUNNING": "Les changements sont envoyés à l'arrêt du chronomètre."
 		}
 	},
 	"task": {
@@ -3080,7 +3088,8 @@
 			"navigation": "Navigation",
 			"settings": "Paramètres",
 			"goTo": "Aller à",
-			"chat": "Chat"
+			"chat": "Chat",
+			"timer": "Chronomètre"
 		},
 		"commands": {
 			"inviteUser": "Inviter un utilisateur",
@@ -3102,7 +3111,10 @@
 			"goToTimeAndActivity": "Aller au rapport temps et activité",
 			"profile": "Profil",
 			"settings": "Paramètres",
-			"newMessage": "Nouveau message"
+			"newMessage": "Nouveau message",
+			"startTimer": "Démarrer le chronomètre",
+			"stopTimer": "Arrêter le chronomètre",
+			"addTime": "Ajouter du temps"
 		},
 		"results": {
 			"recent": "Récentes",
@@ -3114,7 +3126,9 @@
 			"projects": "Projets",
 			"pages": "Pages",
 			"untitledPage": "Sans titre",
-			"recentlyOpened": "Ouverts récemment"
+			"recentlyOpened": "Ouverts récemment",
+			"startTimerOn": "Démarrer le chronomètre sur une tâche",
+			"startTimerOnTask": "Démarrer le chronomètre : {task}"
 		}
 	},
 	"modals": {
@@ -3758,7 +3772,10 @@
 			"STOPPED_TASK_SWITCH": "Chronomètre arrêté, car votre tâche active a changé",
 			"STALE_STOPPED": "Chronomètre arrêté : {stoppedAt}",
 			"STALE_STOPPED_HINT": "Il a continué de tourner après la fermeture de l'application. Ajoutez le travail fait ensuite en temps manuel.",
-			"TASK_CLOSED_HINT": "Rouvrez la tâche pour y suivre du temps."
+			"TASK_CLOSED_HINT": "Rouvrez la tâche pour y suivre du temps.",
+			"NOTES_NOT_SAVED": "Les notes modifiées pendant que le chronomètre tournait n'ont pas été enregistrées",
+			"NOTES_NOT_SAVED_HINT": "L'entrée a gardé les notes du démarrage. Modifiez l'entrée dans les feuilles de temps pour les changer.",
+			"ALREADY_RUNNING_ON_TASK": "Le chronomètre tourne déjà sur cette tâche"
 		},
 		"plans": {
 			"CREATE_FAILED": "Le plan n'a pas été créé",

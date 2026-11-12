@@ -2653,6 +2653,14 @@
 			"PAUSE": "Paused",
 			"IDLE": "Idle",
 			"SUSPENDED": "Suspended"
+		},
+		"notes": {
+			"ADD": "Add timer notes",
+			"EDIT": "Edit timer notes",
+			"LABEL": "Notes",
+			"PLACEHOLDER": "What are you working on?",
+			"HINT_BEFORE_START": "Optional. Saved on the entry when the timer starts.",
+			"HINT_RUNNING": "Changes are sent when you stop the timer."
 		}
 	},
 	"task": {
@@ -3080,7 +3088,8 @@
 			"navigation": "Navigation",
 			"settings": "Settings",
 			"goTo": "Go to",
-			"chat": "Chat"
+			"chat": "Chat",
+			"timer": "Timer"
 		},
 		"commands": {
 			"inviteUser": "Invite user",
@@ -3102,7 +3111,10 @@
 			"goToTimeAndActivity": "Go to time & activity report",
 			"profile": "Profile",
 			"settings": "Settings",
-			"newMessage": "New message"
+			"newMessage": "New message",
+			"startTimer": "Start timer",
+			"stopTimer": "Stop timer",
+			"addTime": "Add time"
 		},
 		"results": {
 			"recent": "Recent",
@@ -3114,7 +3126,9 @@
 			"projects": "Projects",
 			"pages": "Pages",
 			"untitledPage": "Untitled",
-			"recentlyOpened": "Recently opened"
+			"recentlyOpened": "Recently opened",
+			"startTimerOn": "Start the timer on a task",
+			"startTimerOnTask": "Start timer: {task}"
 		}
 	},
 	"modals": {
@@ -3758,7 +3772,10 @@
 			"STOPPED_TASK_SWITCH": "Timer stopped because your active task changed",
 			"STALE_STOPPED": "Timer stopped at {stoppedAt}",
 			"STALE_STOPPED_HINT": "It kept running after the app closed. Add any later work as manual time.",
-			"TASK_CLOSED_HINT": "Reopen the task to track time on it."
+			"TASK_CLOSED_HINT": "Reopen the task to track time on it.",
+			"NOTES_NOT_SAVED": "The notes changed while the timer ran were not saved",
+			"NOTES_NOT_SAVED_HINT": "The entry kept the notes it started with. Edit the entry in Timesheets to change them.",
+			"ALREADY_RUNNING_ON_TASK": "The timer is already running on this task"
 		},
 		"plans": {
 			"CREATE_FAILED": "The plan was not created",
