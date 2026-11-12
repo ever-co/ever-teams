@@ -6479,6 +6479,7 @@
 			"END_UNREADABLE": "De eindtijd is niet leesbaar. Schrijf hem zoals {endTime} of {endTimeMeridiem}.",
 			"DURATION_UNREADABLE": "De duur is niet leesbaar. Schrijf hem zoals {duration}, {durationUnits} of {durationDecimal}.",
 			"END_NOT_AFTER_START": "Het einde moet na het begin komen. Geef voor tijd die over middernacht loopt een duur op in plaats van de eindtijd.",
+			"CLOCK_SKIPPED": "Op deze dag gaat de klok vooruit voor de zomertijd, en de begin- of eindtijd valt in het overgeslagen uur. Vul een tijd in die op die dag bestaat.",
 			"DURATION_MISMATCH": "De eindtijd en de duur geven twee verschillende lengtes. Houd een van de twee.",
 			"TOO_LONG": "Een invoer kan niet langer zijn dan 24 uur. Een duur die als los getal is geschreven, wordt in uren gelezen.",
 			"IN_FUTURE": "Deze tijd is nog niet voorbij, en deze organisatie accepteert geen tijd in de toekomst.",

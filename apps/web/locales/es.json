@@ -6479,6 +6479,7 @@
 			"END_UNREADABLE": "No se puede leer la hora de fin. Escríbela como {endTime} o {endTimeMeridiem}.",
 			"DURATION_UNREADABLE": "No se puede leer la duración. Escríbela como {duration}, {durationUnits} o {durationDecimal}.",
 			"END_NOT_AFTER_START": "El fin debe ser posterior al inicio. Para tiempo que pasa de medianoche, indica una duración en lugar de la hora de fin.",
+			"CLOCK_SKIPPED": "Ese día el reloj se adelanta por el horario de verano, y la hora de inicio o de fin cae en la hora que se salta. Escribe una hora que exista ese día.",
 			"DURATION_MISMATCH": "La hora de fin y la duración dan dos longitudes distintas. Conserva una de las dos.",
 			"TOO_LONG": "Una entrada no puede durar más de 24 horas. Una duración escrita como un número simple se lee en horas.",
 			"IN_FUTURE": "Este tiempo aún no ha terminado, y esta organización no acepta tiempo en el futuro.",

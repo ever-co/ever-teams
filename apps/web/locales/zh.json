@@ -6479,6 +6479,7 @@
 			"END_UNREADABLE": "无法读取结束时间。请写成 {endTime} 或 {endTimeMeridiem} 这样的格式。",
 			"DURATION_UNREADABLE": "无法读取时长。请写成 {duration}、{durationUnits} 或 {durationDecimal} 这样的格式。",
 			"END_NOT_AFTER_START": "结束时间必须晚于开始时间。对于跨过午夜的时间，请填写时长来代替结束时间。",
+			"CLOCK_SKIPPED": "这一天因夏令时时钟拨快，开始或结束时间落在被跳过的那一小时内。请填写当天存在的时间。",
 			"DURATION_MISMATCH": "结束时间和时长给出的长度不一致。请只保留其中一个。",
 			"TOO_LONG": "一条条目不能超过 24 小时。只写数字的时长按小时读取。",
 			"IN_FUTURE": "这段时间尚未结束，而此组织不接受未来的时间。",

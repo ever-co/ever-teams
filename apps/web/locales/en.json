@@ -6479,6 +6479,7 @@
 			"END_UNREADABLE": "The end time cannot be read. Write it like {endTime} or {endTimeMeridiem}.",
 			"DURATION_UNREADABLE": "The duration cannot be read. Write it like {duration}, {durationUnits} or {durationDecimal}.",
 			"END_NOT_AFTER_START": "The end must come after the start. For time that runs past midnight, give a duration in place of the end time.",
+			"CLOCK_SKIPPED": "On this day the clock moves forward for daylight saving time, and the start or end time falls in the skipped hour. Write a time that exists on that day.",
 			"DURATION_MISMATCH": "The end time and the duration give two different lengths. Keep one of the two.",
 			"TOO_LONG": "An entry cannot be longer than 24 hours. A duration written as a plain number is read in hours.",
 			"IN_FUTURE": "This time is not over yet, and this organization does not accept time in the future.",

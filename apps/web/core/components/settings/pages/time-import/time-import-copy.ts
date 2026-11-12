@@ -123,6 +123,8 @@ export function useTimeImportCopy() {
 					return t('timeImport.problems.DURATION_UNREADABLE', TIME_IMPORT_EXAMPLES);
 				case 'endNotAfterStart':
 					return t('timeImport.problems.END_NOT_AFTER_START');
+				case 'clockSkipped':
+					return t('timeImport.problems.CLOCK_SKIPPED');
 				case 'durationMismatch':
 					return t('timeImport.problems.DURATION_MISMATCH');
 				case 'tooLong':

@@ -6479,6 +6479,7 @@
 			"END_UNREADABLE": "Die Endzeit ist nicht lesbar. Schreibe sie wie {endTime} oder {endTimeMeridiem}.",
 			"DURATION_UNREADABLE": "Die Dauer ist nicht lesbar. Schreibe sie wie {duration}, {durationUnits} oder {durationDecimal}.",
 			"END_NOT_AFTER_START": "Das Ende muss nach dem Start liegen. Für Zeit über Mitternacht hinaus gib eine Dauer anstelle der Endzeit an.",
+			"CLOCK_SKIPPED": "An diesem Tag wird die Uhr auf Sommerzeit vorgestellt, und die Start- oder Endzeit fällt in die übersprungene Stunde. Gib eine Uhrzeit an, die es an diesem Tag gibt.",
 			"DURATION_MISMATCH": "Endzeit und Dauer ergeben zwei verschiedene Längen. Behalte eine von beiden.",
 			"TOO_LONG": "Ein Eintrag kann nicht länger als 24 Stunden sein. Eine Dauer als einfache Zahl wird in Stunden gelesen.",
 			"IN_FUTURE": "Diese Zeit ist noch nicht vorbei, und diese Organisation nimmt keine Zeit in der Zukunft an.",

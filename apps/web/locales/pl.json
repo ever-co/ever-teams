@@ -6479,6 +6479,7 @@
 			"END_UNREADABLE": "Nie można odczytać godziny zakończenia. Zapisz ją jak {endTime} albo {endTimeMeridiem}.",
 			"DURATION_UNREADABLE": "Nie można odczytać czasu trwania. Zapisz go jak {duration}, {durationUnits} albo {durationDecimal}.",
 			"END_NOT_AFTER_START": "Koniec musi być późniejszy niż początek. Dla czasu przechodzącego przez północ podaj czas trwania zamiast godziny zakończenia.",
+			"CLOCK_SKIPPED": "Tego dnia zegar przesuwa się do przodu na czas letni, a godzina rozpoczęcia lub zakończenia wypada w pominiętej godzinie. Wpisz godzinę, która istnieje tego dnia.",
 			"DURATION_MISMATCH": "Godzina zakończenia i czas trwania dają dwie różne długości. Zostaw jedno z nich.",
 			"TOO_LONG": "Wpis nie może być dłuższy niż 24 godziny. Czas trwania zapisany samą liczbą jest odczytywany w godzinach.",
 			"IN_FUTURE": "Ten czas jeszcze nie minął, a ta organizacja nie przyjmuje czasu w przyszłości.",

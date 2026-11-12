@@ -6479,6 +6479,7 @@
 			"END_UNREADABLE": "L'ora di fine non è leggibile. Scrivila come {endTime} oppure {endTimeMeridiem}.",
 			"DURATION_UNREADABLE": "La durata non è leggibile. Scrivila come {duration}, {durationUnits} oppure {durationDecimal}.",
 			"END_NOT_AFTER_START": "La fine deve venire dopo l'inizio. Per il tempo che supera la mezzanotte, indica una durata al posto dell'ora di fine.",
+			"CLOCK_SKIPPED": "Quel giorno l'orologio va avanti per l'ora legale, e l'ora di inizio o di fine cade nell'ora saltata. Scrivi un orario che esiste quel giorno.",
 			"DURATION_MISMATCH": "L'ora di fine e la durata danno due lunghezze diverse. Tieni una delle due.",
 			"TOO_LONG": "Una voce non può durare più di 24 ore. Una durata scritta come semplice numero viene letta in ore.",
 			"IN_FUTURE": "Questo tempo non è ancora trascorso, e questa organizzazione non accetta tempo nel futuro.",
