@@ -142,10 +142,9 @@ function commentDecorations(doc: ProseMirrorNode, marks: DocsCommentMarks, optio
 		const hasMarker = isTinted || markerThread.has(blockId);
 		const isActive = marks.active === blockId;
 		if (!hasMarker && !isActive) return;
-		if (isTinted || isActive) {
-			const classes = [isTinted && 'docs-commented-block', isActive && 'docs-active-block'].filter(Boolean).join(' ');
-			decorations.push(Decoration.node(pos, pos + node.nodeSize, { class: classes }));
-		}
+		// A block with a marker holds it in place (`docs-marked-block` positions it), tinted only for a thread without a range.
+		const classes = [isTinted && 'docs-commented-block', hasMarker && !isTinted && 'docs-marked-block', isActive && 'docs-active-block'].filter(Boolean).join(' ');
+		if (classes) decorations.push(Decoration.node(pos, pos + node.nodeSize, { class: classes }));
 		// The button sits at the start of a text block; a block of blocks (a list, a quote) marks its own text blocks. A
 		// block with a thread without a range opens the newest of those (the page view knows them); else its range's.
 		if (hasMarker && node.isTextblock) {

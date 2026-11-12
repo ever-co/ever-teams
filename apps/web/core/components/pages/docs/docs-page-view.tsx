@@ -93,6 +93,8 @@ interface DocsPageViewProps {
 	spaces?: DocsSpacesState;
 	/** On a phone, the tree opens as a drawer over the page. */
 	onOpenTree?: () => void;
+	/** Tells the Docs page where this page's edits stand (null once it closes), so an export of a folder holding it waits for them. */
+	onEdits?: (edits: DocsPageEdits | null) => void;
 }
 
 /** How long a block a link pointed at stays lit. */
@@ -131,7 +133,7 @@ function readFullWidth(): boolean {
 }
 
 /** One page: its path, icon, title, the editor with autosave, its outline, its sub-pages, the menu and the version history. */
-export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpenTree }: DocsPageViewProps) {
+export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpenTree, onEdits }: DocsPageViewProps) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const { page, isLoading, isError, isNotFound, retry } = useDocsPage(pageId, true);
@@ -360,13 +362,15 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 		for (const thread of comments.threads) if (!thread.resolved && thread.blockId && !anchors.has(thread.id)) blocks.add(thread.blockId);
 		return [...blocks];
 	}, [anchors, comments.threads]);
+	// The open threads' ranges, and the range of the thread asked for even when it is resolved (it is lit, not left
+	// unmarked).
 	const commentRanges = useMemo<DocsCommentRange[]>(
 		() =>
 			comments.threads.flatMap((thread) => {
-				const anchor = thread.resolved ? undefined : anchors.get(thread.id);
+				const anchor = !thread.resolved || thread.id === activeThreadId ? anchors.get(thread.id) : undefined;
 				return anchor ? [{ threadId: thread.id, anchor: storedAnchorOf(anchor) }] : [];
 			}),
-		[anchors, comments.threads]
+		[activeThreadId, anchors, comments.threads]
 	);
 
 	const revealBlock = useCallback((blockId: string, fromLink = false) => {
@@ -500,6 +504,11 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 				: { pending: hasDraft, hold: saveDraftNow },
 		[hasDraft, isLiveEditing, liveBinding, saveDraftNow]
 	);
+
+	useEffect(() => {
+		onEdits?.(pageEdits);
+		return () => onEdits?.(null);
+	}, [onEdits, pageEdits]);
 
 	// A comment on a block waits until the platform holds the page's edits: the block's anchor may exist here only.
 	const holdAnchor = useCallback(() => pageEdits.hold(), [pageEdits]);

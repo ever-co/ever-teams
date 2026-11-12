@@ -31,6 +31,16 @@ export function zipExportFailureOf(error: unknown, kind: EDocumentKind | null | 
 	return status === 409 && kind === EDocumentKind.FOLDER ? 'folder-unsupported' : 'failed';
 }
 
+/** Whether the page `pageId` is `ancestorId` or under it, by the tree's parents (a broken or looping chain is not). */
+export function isInside(byId: ReadonlyMap<string, Pick<IDocumentPage, 'parentId'>>, pageId: string, ancestorId: string): boolean {
+	const seen = new Set<string>();
+	for (let id: string | null | undefined = pageId; id && !seen.has(id); id = byId.get(id)?.parentId) {
+		if (id === ancestorId) return true;
+		seen.add(id);
+	}
+	return false;
+}
+
 /** Saves a file the app made (a download the browser starts from memory). */
 export function saveBlob(blob: Blob, fileName: string): void {
 	const url = URL.createObjectURL(blob);

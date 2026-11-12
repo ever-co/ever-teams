@@ -105,8 +105,9 @@ describe('the Docs layer of the editor', () => {
 		const range = () => editor.view.dom.querySelector<HTMLElement>('[data-thread-range="thread-1"]');
 		expect(range()?.textContent).toBe('brown fox');
 		expect(range()?.className).toContain('docs-comment-range-active');
-		// A range without its own tint: the block is not marked as a whole.
+		// A range without its own tint: the block is not marked as a whole, but it holds its marker in place.
 		expect(editor.view.dom.querySelector('.docs-commented-block')).toBeNull();
+		expect(editor.view.dom.querySelector('.docs-marked-block')?.textContent).toContain('brown fox');
 		editor.view.dom.querySelector<HTMLButtonElement>('.docs-comment-marker')?.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
 		expect(onOpenThread).toHaveBeenCalledWith(A, 'thread-1');
 

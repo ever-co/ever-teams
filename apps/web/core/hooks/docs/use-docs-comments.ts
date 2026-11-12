@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { commentService } from '@/core/services/client/api/comments';
@@ -71,31 +71,33 @@ export function useDocsComments(page: { id: string; name?: string | null } | nul
 	const comments = query.data ?? NO_COMMENTS;
 	const threads = useMemo<DocsCommentThread[]>(() => docsCommentThreads(comments), [comments]);
 
-	// A platform that answered 404 once has no ranges: it is not asked again while the page is open.
-	const anchorsOffRef = useRef(false);
+	// A platform that answered 404 once has no ranges: it is not asked again while the page is open. The query only
+	// fetches; the state is derived from its answer (or from a refused write) here.
+	const [rangesOff, setRangesOff] = useState(false);
 	const anchorsQuery = useQuery({
 		queryKey: anchorsKey,
 		queryFn: async ({ signal }): Promise<AnchorsAnswer> => {
-			if (!pageId || anchorsOffRef.current) return { supported: false, items: NO_ANCHORS };
+			if (!pageId) return { supported: false, items: NO_ANCHORS };
 			try {
 				const list = await docsService.commentAnchors(pageId, signal);
 				return { supported: true, items: Array.isArray(list?.items) ? list.items : NO_ANCHORS };
 			} catch (error) {
-				if (isNotFound(error)) {
-					anchorsOffRef.current = true;
-					return { supported: false, items: NO_ANCHORS };
-				}
+				if (isNotFound(error)) return { supported: false, items: NO_ANCHORS };
 				throw error;
 			}
 		},
-		enabled: isEnabled,
+		enabled: isEnabled && !rangesOff,
 		staleTime: 0,
 		retry: false
 	});
+	const answeredUnsupported = anchorsQuery.data?.supported === false;
+	useEffect(() => {
+		if (answeredUnsupported) setRangesOff(true);
+	}, [answeredUnsupported]);
 	// Ranges that could not be read leave the threads on their blocks.
-	const anchorItems = anchorsQuery.data?.items ?? NO_ANCHORS;
+	const anchorItems = rangesOff ? NO_ANCHORS : (anchorsQuery.data?.items ?? NO_ANCHORS);
 	const anchors = useMemo(() => anchorsByComment(anchorItems), [anchorItems]);
-	const anchorsSupported = anchorsQuery.data?.supported ?? false;
+	const anchorsSupported = !rangesOff && (anchorsQuery.data?.supported ?? false);
 
 	// The comments' key holds the ranges' too: both are read again.
 	const refresh = useCallback(() => queryClient.invalidateQueries({ queryKey: key }), [key, queryClient]);
@@ -122,18 +124,18 @@ export function useDocsComments(page: { id: string; name?: string | null } | nul
 	 */
 	const placeRange = useCallback(
 		async (commentId: string, range: IDocumentCommentAnchorInput) => {
-			if (!pageId || anchorsOffRef.current) return;
+			if (!pageId || rangesOff) return;
 			try {
 				await docsService.setCommentAnchor(pageId, commentId, range);
 			} catch (error) {
 				// A 404 that names no comment is a platform without the route.
 				const code = ApiErrorService.isApiError(error) ? error.errorCode : undefined;
-				if (isNotFound(error) && code !== DOCS_COMMENT_NOT_FOUND) anchorsOffRef.current = true;
+				if (isNotFound(error) && code !== DOCS_COMMENT_NOT_FOUND) setRangesOff(true);
 			} finally {
 				void queryClient.invalidateQueries({ queryKey: anchorsKey });
 			}
 		},
-		[anchorsKey, pageId, queryClient]
+		[anchorsKey, pageId, queryClient, rangesOff]
 	);
 
 	const post = useCallback(
@@ -185,7 +187,7 @@ export function useDocsComments(page: { id: string; name?: string | null } | nul
 		/** The platform keeps ranges: a thread made on selected text gets one. */
 		anchorsSupported,
 		/** The ranges were read, or will not be (a link to a thread can bring its text into sight). */
-		anchorsSettled: isEnabled && !anchorsQuery.isPending,
+		anchorsSettled: isEnabled && (rangesOff || !anchorsQuery.isPending),
 		isLoading: isEnabled && query.isPending,
 		/** The comments were read (a thread a link asks for can be looked for). */
 		isReady: isEnabled && query.isSuccess,

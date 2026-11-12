@@ -14,6 +14,8 @@ import { useDocsExpanded, useDocsRecent } from '@/core/hooks/docs/use-docs-recen
 import { useDocsScope } from '@/core/hooks/docs/use-docs-scope';
 import { useDocsTree } from '@/core/hooks/docs/use-docs-tree';
 import { useDocsZipExport } from '@/core/hooks/docs/use-docs-zip-export';
+import { isInside } from '@/core/lib/utils/docs-export';
+import type { DocsPageEdits } from '@/core/lib/utils/docs-page-edits';
 import { cn } from '@/core/lib/helpers';
 import { isDocsEnabled, isDocsImportEnabled } from '@/core/lib/utils/docs-enabled';
 import { errorKeyOf } from '@/core/lib/utils/docs-import';
@@ -56,6 +58,11 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 	const { recentIds, forget } = useDocsRecent();
 	const actions = useDocsActions();
 	const { run: exportZip } = useDocsZipExport();
+	// Where the open page's edits stand: a folder's zip waits for them when the page is inside the folder.
+	const openEditsRef = useRef<DocsPageEdits | null>(null);
+	const setOpenEdits = useCallback((edits: DocsPageEdits | null) => {
+		openEditsRef.current = edits;
+	}, []);
 
 	// Below the large breakpoint the tree and the home do not fit side by side: the tree shows first, and its Home row
 	// swaps it for the home, which has a way back.
@@ -241,8 +248,16 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 			duplicate: (page, deep) => void duplicate(page, deep),
 			setVisibility: (page, visibility) => void setVisibility(page, visibility),
 			trash: (page) => void trash(page),
-			// A folder holds no text of its own: nothing waits to be saved before its zip.
-			exportZip: (page) => void exportZip(page),
+			// A folder holds no text of its own, but the open page may be in it: its edits are saved first, or nothing is
+			// exported (a save failing or in conflict).
+			exportZip: (page) =>
+				void exportZip(page, {
+					beforeExport: async () => {
+						const edits = openEditsRef.current;
+						if (!edits || !pageId || !isInside(tree.byId, pageId, page.id) || !edits.pending()) return true;
+						return edits.hold();
+					}
+				}),
 			drop: (id, parentId) => {
 				void actions
 					.movePage(id, parentId)
@@ -260,7 +275,7 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 					.catch((error: unknown) => fail(error, 'docs.MOVE_ERROR'));
 			}
 		}),
-		[actions, createAndOpen, duplicate, exportZip, fail, reorder, setOpen, setVisibility, toggleFavorite, trash, tree.byId]
+		[actions, createAndOpen, duplicate, exportZip, fail, pageId, reorder, setOpen, setVisibility, toggleFavorite, trash, tree.byId]
 	);
 
 	// The import run is the page's, so closing its dialog keeps it. When an import is over the tree is read again (once
@@ -366,6 +381,7 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 							actions={pageActions}
 							spaces={spaces}
 							onOpenTree={() => setTreeDrawer({ open: true, pageId })}
+							onEdits={setOpenEdits}
 						/>
 					)}
 					{view === 'trash' && (

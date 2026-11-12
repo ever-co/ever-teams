@@ -358,6 +358,7 @@ export function DocsEditorSurface({
 const DOCS_SURFACE_CLASS = [
 	'docs-editor-surface min-h-[50vh] [&_[role=toolbar]]:sticky [&_[role=toolbar]]:top-0 [&_[role=toolbar]]:z-10 [&_[role=toolbar]]:bg-background print:[&_[role=toolbar]]:hidden',
 	'[&_.docs-commented-block]:relative [&_.docs-commented-block]:rounded-sm [&_.docs-commented-block]:bg-amber-500/[0.07] [&_.docs-commented-block]:shadow-[inset_2px_0_0_rgb(245_158_11/0.6)]',
+	'[&_.docs-marked-block]:relative',
 	'[&_.docs-active-block]:rounded-sm [&_.docs-active-block]:bg-amber-500/[0.16] [&_.docs-active-block]:transition-colors',
 	'[&_.docs-comment-range]:cursor-pointer [&_.docs-comment-range]:rounded-[2px] [&_.docs-comment-range]:bg-amber-500/[0.18] [&_.docs-comment-range]:shadow-[inset_0_-2px_0_rgb(245_158_11/0.55)] [&_.docs-comment-range]:transition-colors [&_.docs-comment-range:hover]:bg-amber-500/[0.28]',
 	'[&_.docs-comment-range-active]:bg-amber-500/[0.34] [&_.docs-comment-range-active]:shadow-[inset_0_-2px_0_rgb(217_119_6/0.9)]',
