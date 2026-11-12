@@ -10,7 +10,6 @@ import { Text } from '@/core/components/common/typography';
 import { useTranslations } from 'next-intl';
 import { TimerButton } from './timer-button';
 import { TimerEntryToggles } from './timer-entry-toggles';
-import { TimerNotesButton } from './timer-notes-button';
 import { Transition } from '@headlessui/react';
 
 import { ArrowTurnUp, Desktop, Globe, Lifebuoy, Smartphone } from '@/core/components/icons';
@@ -210,11 +209,16 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 }
 
 /**
- * The compact timer of the top bar: a pill like its neighbours (team switcher, Collaborate), the round button
- * concentric with it (4px all around) so nothing of the button crosses the pill's edge.
+ * The compact timer of the top bar: a pill like its neighbours (team switcher, Collaborate), the round controls at
+ * both ends concentric with it (4px all around) so nothing crosses the pill's edge.
  */
 const MIN_TIMER_FRAME =
-	'inline-flex h-8 items-center gap-2 rounded-full bg-card pl-3 pr-1 hairline-ring ring-border shadow-[0_1px_1px_rgb(0_0_0/0.04)] dark:ring-foreground/15';
+	'inline-flex h-8 items-center gap-2 rounded-full bg-card pl-3 pr-1 hairline-ring ring-border shadow-[0_1px_1px_rgb(0_0_0/0.04)] sm:pl-1 dark:ring-foreground/15';
+
+/** From sm up: on a phone the pill has no room left, and the main timer carries the same toggles. */
+const MIN_TIMER_TOGGLES = 'hidden sm:flex';
+
+const MIN_TIMER_TOGGLE = 'size-6';
 
 export function MinTimerFrame({ className }: IClassName) {
 	const hydrated = useHydrated();
@@ -235,10 +239,17 @@ export function MinTimerFrame({ className }: IClassName) {
 
 	// Display optimistic state if available, otherwise use real state
 	const displayRunning = optimisticRunning ?? timerStatus?.running;
+	const isBillableLocked = Boolean(displayRunning);
 	const todayWorkedLabel = `${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`;
 
 	return (
 		<div data-timer-surface="" className={clsxm(MIN_TIMER_FRAME, className)}>
+			<TimerEntryToggles
+				locked={isBillableLocked}
+				className={MIN_TIMER_TOGGLES}
+				toggleClassName={MIN_TIMER_TOGGLE}
+			/>
+
 			<Transition
 				show={true}
 				appear={true}
@@ -269,9 +280,6 @@ export function MinTimerFrame({ className }: IClassName) {
 					<TimerRunningSourceIcon source={timerStatus?.lastLog?.source || ETimeLogSource.TEAMS} />
 				</Tooltip>
 			)}
-
-			{/* From sm up: on a phone the pill has no room left, and the main timer carries the same notes */}
-			<TimerNotesButton className="hidden size-6 sm:inline-flex" />
 
 			<div className="z-[50] flex">
 				<TimerButton
