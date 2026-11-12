@@ -13,12 +13,13 @@ import { useClientAccess } from '@/core/hooks/clients/use-client-access';
 import { useClientsListState } from '@/core/hooks/clients/use-clients-list-state';
 import { useClientsQuery } from '@/core/hooks/clients/use-clients-query';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
-import { clientMatchesSearch, clientsInScope, projectCountByClient } from '@/core/lib/utils/clients';
+import { isSavedTeamLoading } from '@/core/lib/helpers/saved-team';
+import { clientMatchesSearch, clientsInScope, listReadStateOf, projectCountByClient } from '@/core/lib/utils/clients';
 import { projectsListedForTeam } from '@/core/lib/utils/project-list';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import type { TClient } from '@/core/types/schemas';
 import { ClientsList } from './clients-list';
-import { ClientsEmptyState, ClientsErrorState, ClientsListSkeleton } from './clients-list-states';
+import { ClientsEmptyState, ClientsErrorState, ClientsListSkeleton, ProjectCountsNotice } from './clients-list-states';
 import { ClientsPageSkeleton } from './clients-page-skeleton';
 import { ClientsToolbar } from './clients-toolbar';
 
@@ -42,7 +43,12 @@ function ClientsPage() {
 	const { clients, activeClients, archivedClients, isLoading, isError, refetch } = useClientsQuery({
 		includeArchived: true
 	});
-	const { organizationProjects } = useOrganizationProjectsQuery();
+	const {
+		organizationProjects,
+		isOrganizationProjectsLoaded,
+		isOrganizationProjectsError,
+		refetchOrganizationProjects
+	} = useOrganizationProjectsQuery();
 	const access = useClientAccess();
 	const list = useClientsListState();
 	const [dialog, setDialog] = useState<ClientDialog | null>(null);
@@ -52,6 +58,15 @@ function ClientsPage() {
 		const listedProjects = projectsListedForTeam(organizationProjects, activeTeamId);
 		return projectCountByClient(listedProjects);
 	}, [activeTeamId, organizationProjects]);
+
+	// The counts are the active team's: while the saved team loads they would be every team's, then narrow.
+	const isTeamLoading = isSavedTeamLoading(Boolean(activeTeam));
+	const hasProjects = organizationProjects.length > 0;
+	const haveProjectsArrived = isOrganizationProjectsLoaded || hasProjects;
+	const haveProjectsFailed = isOrganizationProjectsError && !haveProjectsArrived;
+	const areProjectsRead = haveProjectsArrived && !isTeamLoading;
+	const projectCountsState = listReadStateOf(areProjectsRead, haveProjectsFailed);
+	const haveProjectCountsFailed = projectCountsState === 'failed';
 
 	const shownClients = useMemo(() => {
 		const scoped = clientsInScope(clients, list.scope);
@@ -110,10 +125,14 @@ function ClientsPage() {
 					onCreate={openCreate}
 				/>
 			)}
+			{showsList && haveProjectCountsFailed && (
+				<ProjectCountsNotice onRetry={() => void refetchOrganizationProjects()} />
+			)}
 			{showsList && (
 				<ClientsList
 					clients={shownClients}
 					projectCounts={projectCounts}
+					projectCountsState={projectCountsState}
 					access={access}
 					onEdit={(client) => setDialog({ kind: 'edit', client })}
 					onArchive={(client) => setDialog({ kind: 'archive', client })}

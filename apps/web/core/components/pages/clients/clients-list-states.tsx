@@ -2,7 +2,9 @@
 
 import { useTranslations } from 'next-intl';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
+import { Notice } from '@/core/components/common/notice';
 import { Skeleton } from '@/core/components/common/skeleton';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { Archive, Building, Search } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import type { ClientScope } from '@/core/lib/utils/clients';
@@ -120,6 +122,24 @@ export function ClientsErrorState({ onRetry }: Readonly<{ onRetry: () => void }>
 			actionVariant="outline"
 			onAction={onRetry}
 			minHeight="420px"
+		/>
+	);
+}
+
+/** The clients are listed while their projects could not be read: the counts stay unwritten until a read succeeds. */
+export function ProjectCountsNotice({ onRetry }: Readonly<{ onRetry: () => void }>) {
+	const t = useTranslations();
+	return (
+		<Notice
+			tone="error"
+			title={t('pages.projects.list.ERROR_TITLE')}
+			description={t('pages.projects.list.ERROR_MESSAGE')}
+			actions={
+				<Button type="button" variant="outline" size="sm" onClick={onRetry}>
+					{t('pages.unauthorized.TRY_AGAIN')}
+				</Button>
+			}
+			className="mb-3"
 		/>
 	);
 }

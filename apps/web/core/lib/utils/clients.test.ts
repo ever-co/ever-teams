@@ -4,7 +4,6 @@ import {
 	buildClientRequest,
 	buildClientUpdateRequest,
 	clientAccessOf,
-	clientListStateOf,
 	clientMatchesSearch,
 	clientsInScope,
 	draftFromClient,
@@ -13,6 +12,7 @@ import {
 	hasClientNamed,
 	holdsAnyPermission,
 	isArchivedClient,
+	listReadStateOf,
 	projectCountByClient,
 	sortClientsByName,
 	validateClientDraft,
@@ -94,18 +94,18 @@ describe('client search and order', () => {
 	});
 });
 
-describe('client list state', () => {
+describe('the read state of a list', () => {
 	it('is loading until the list arrives or fails', () => {
-		expect(clientListStateOf(false, false)).toBe('loading');
+		expect(listReadStateOf(false, false)).toBe('loading');
 	});
 
 	it('is failed when the list never arrived', () => {
-		expect(clientListStateOf(false, true)).toBe('failed');
+		expect(listReadStateOf(false, true)).toBe('failed');
 	});
 
 	it('is ready once the list arrived, even when reading it again failed since', () => {
-		expect(clientListStateOf(true, false)).toBe('ready');
-		expect(clientListStateOf(true, true)).toBe('ready');
+		expect(listReadStateOf(true, false)).toBe('ready');
+		expect(listReadStateOf(true, true)).toBe('ready');
 	});
 });
 

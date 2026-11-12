@@ -3,11 +3,12 @@
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { EntityTile } from '@/core/components/common/entity-tile';
+import { Skeleton } from '@/core/components/common/skeleton';
 import { Building, Folder, Mail, Phone } from '@/core/components/icons';
 import { ClientActionsMenu } from '@/core/components/clients/client-actions-menu';
 import { MUTED_VALUE, formatProjectDay } from '@/core/components/projects/project-cells';
 import { cn } from '@/core/lib/helpers';
-import type { ClientAccess } from '@/core/lib/utils/clients';
+import type { ClientAccess, ListReadState } from '@/core/lib/utils/clients';
 import type { TClient } from '@/core/types/schemas';
 
 const ROW_GRID =
@@ -20,6 +21,8 @@ const LABEL = 'flex min-w-0 items-center gap-1.5 px-2 [&_svg]:size-3.5';
 interface ClientsListProps {
 	clients: TClient[];
 	projectCounts: ReadonlyMap<string, number>;
+	/** Whether the projects behind the counts were read: no number is written before, nor after a failed read. */
+	projectCountsState: ListReadState;
 	access: ClientAccess;
 	onEdit: (client: TClient) => void;
 	onArchive: (client: TClient) => void;
@@ -87,8 +90,18 @@ function ClientSubline({ client }: Readonly<{ client: TClient }>) {
 	return <span className="truncate text-xs text-muted-foreground lg:hidden">{client.primaryEmail}</span>;
 }
 
-function ProjectCountCell({ client, count }: Readonly<{ client: TClient; count: number }>) {
+function ProjectCountCell({
+	client,
+	count,
+	state
+}: Readonly<{ client: TClient; count: number; state: ListReadState }>) {
 	const t = useTranslations();
+	if (state === 'loading') {
+		return <Skeleton aria-hidden="true" className="mx-2 h-3 w-14 rounded-full bg-foreground/[0.06]" />;
+	}
+	if (state === 'failed') {
+		return <span className={cn(MUTED_VALUE, 'px-2')}>-</span>;
+	}
 	const label = t('clients.PROJECT_COUNT', { count });
 	const hasProjects = count > 0;
 	if (!hasProjects) {
@@ -121,6 +134,7 @@ function ContactValue({ value, href }: Readonly<{ value: string | null | undefin
 function ClientRow({
 	client,
 	projectCount,
+	projectCountsState,
 	access,
 	onEdit,
 	onArchive,
@@ -142,7 +156,7 @@ function ClientRow({
 				<ContactValue value={client.primaryPhone} href={`tel:${client.primaryPhone}`} />
 			</span>
 			<span className="flex min-w-0 items-center">
-				<ProjectCountCell client={client} count={projectCount} />
+				<ProjectCountCell client={client} count={projectCount} state={projectCountsState} />
 			</span>
 			<span className="flex justify-center">
 				<ClientActionsMenu

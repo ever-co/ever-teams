@@ -111,10 +111,13 @@ export function projectCountByClient(projects: ProjectOfClient[]) {
 	return counts;
 }
 
-/** What is known of the client list a picker offers: a name can be told new only against a list that was read. */
-export type ClientListState = 'loading' | 'failed' | 'ready';
+/**
+ * What is known of a list read from the API. Nothing is concluded from a list that did not arrive: a name is told
+ * new, and a number of projects is written, only against a list that was read.
+ */
+export type ListReadState = 'loading' | 'failed' | 'ready';
 
-export function clientListStateOf(isLoaded: boolean, hasFailed: boolean): ClientListState {
+export function listReadStateOf(isLoaded: boolean, hasFailed: boolean): ListReadState {
 	if (isLoaded) {
 		return 'ready';
 	}

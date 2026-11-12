@@ -14,7 +14,7 @@ import { useEditOrganizationProject } from '@/core/hooks/organizations/projects/
 import { useClientAccess } from '@/core/hooks/clients/use-client-access';
 import { useClientMutations } from '@/core/hooks/clients/use-client-mutations';
 import { useClientsQuery } from '@/core/hooks/clients/use-clients-query';
-import { clientListStateOf, emptyClientDraft, isArchivedClient } from '@/core/lib/utils/clients';
+import { emptyClientDraft, isArchivedClient, listReadStateOf } from '@/core/lib/utils/clients';
 import { clientNameOf } from '@/core/lib/utils/project-list';
 import {
 	assignProjectRole,
@@ -162,7 +162,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	const tags = useMemo(() => withCreatedTags(fetchedTags, createdTags), [fetchedTags, createdTags]);
 
 	const clients = useMemo(() => withCreatedClients(fetchedClients, createdClients), [fetchedClients, createdClients]);
-	const clientListState = clientListStateOf(isClientListLoaded, hasClientListFailed);
+	const clientListState = listReadStateOf(isClientListLoaded, hasClientListFailed);
 	const isClientListReady = clientListState === 'ready';
 	// Without the list a typed name cannot be told from an existing client: creating it could repeat that client.
 	const canCreateClient = mayCreateClients && isClientListReady;

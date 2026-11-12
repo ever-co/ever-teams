@@ -14,7 +14,7 @@ import {
 	type TaskPropertyMenuOption
 } from '@/core/components/tasks/task-property-menu';
 import { cn } from '@/core/lib/helpers';
-import { hasClientNamed, type ClientListState } from '@/core/lib/utils/clients';
+import { hasClientNamed, type ListReadState } from '@/core/lib/utils/clients';
 import {
 	PROJECT_STATUS_LABEL_KEYS,
 	PROJECT_STATUS_VALUES,
@@ -354,7 +354,7 @@ const CLIENT_LIST_NOTE = 'flex min-h-8 items-center px-2 py-1.5 text-[13px] lead
 interface ProjectClientPickerProps {
 	/** The clients on offer: the active ones. */
 	clients: TClient[];
-	listState: ClientListState;
+	listState: ListReadState;
 	selectedClient: SelectedProjectClient | null;
 	canCreate: boolean;
 	isCreating: boolean;
