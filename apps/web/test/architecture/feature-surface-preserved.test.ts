@@ -2008,15 +2008,14 @@ describe('Ever Teams feature surface preservation', () => {
 		// 294 files and 377 verbs with the scheduled meetings' proxies (/api/employee-appointment GET, POST and [id] DELETE).
 		// 295 files and 378 verbs with the Inbox delivery status proxy (GET /api/inbox/delivery/status).
 		// 296 files and 379 verbs with the link preview pictures proxy (GET /api/chat/link-preview/image).
-		// 296 files and 379 verbs with the lookup of the time a manual entry would overlap
+		// 297 files and 380 verbs with the lookup of the time a manual entry would overlap
 		// (GET /api/timesheet/time-log/conflict, #5089).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(296);
-		// 295 files and 379 verbs with the Board app's session check (/api/board/session, GET and its CORS OPTIONS).
-		// 295 files and 379 verbs with the reschedule of a scheduled meeting (/api/employee-appointment/[id] PUT).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(295);
+		// 298 files and 382 verbs with the Board app's session check (/api/board/session, GET and its CORS OPTIONS).
+		// 298 files and 383 verbs with the reschedule of a scheduled meeting (/api/employee-appointment/[id] PUT).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(298);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(379);
+		).toHaveLength(383);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twin of the platform's link preview pictures (2026-11-12)
