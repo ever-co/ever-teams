@@ -360,7 +360,11 @@ export function meetingLinkWithTitle(link: string, title: string): string {
 	if (pathOfMeetingLink(link, true) === undefined) {
 		return link;
 	}
-	return withTitle(link.replace(/&title=[^&#]*/, ''), title);
+	// The title belongs to the query: a fragment (#notes) stays at the end
+	const hashAt = link.indexOf('#');
+	const query = hashAt === -1 ? link : link.slice(0, hashAt);
+	const fragment = hashAt === -1 ? '' : link.slice(hashAt);
+	return `${withTitle(query.replace(/&title=[^&]*/, ''), title)}${fragment}`;
 }
 
 // iCalendar (RFC 5545) property names

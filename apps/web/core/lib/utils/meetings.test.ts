@@ -266,6 +266,15 @@ describe('scheduled meetings', () => {
 		);
 	});
 
+	it("keeps a meeting link's fragment after its query when the meeting is renamed", () => {
+		expect(meetingLinkWithTitle('https://app.example.com/meet/jitsi?room=abc&title=Old#notes', 'New')).toBe(
+			'https://app.example.com/meet/jitsi?room=abc&title=New#notes'
+		);
+		expect(meetingLinkWithTitle('https://app.example.com/meet/jitsi?room=abc#notes', 'New')).toBe(
+			'https://app.example.com/meet/jitsi?room=abc&title=New#notes'
+		);
+	});
+
 	it('leaves a location that is no meeting link as written when the meeting is renamed', () => {
 		expect(meetingLinkWithTitle('Office', 'Retro')).toBe('Office');
 		expect(meetingLinkWithTitle('https://zoom.us/j/123?pwd=abc', 'Retro')).toBe('https://zoom.us/j/123?pwd=abc');
