@@ -15,8 +15,8 @@ import type { Period } from '@/core/lib/utils/dashboard-period';
 import {
 	budgetRowsOf,
 	wholeProjectPeriodOf,
-	type BudgetRow,
-	type BudgetScope
+	type BudgetScope,
+	type ProjectBudgetShown
 } from '@/core/lib/utils/dashboards/project-budget';
 import type { TProjectBudgetReport } from '@/core/types/schemas/timer/time-log-reports.schema';
 
@@ -33,13 +33,7 @@ interface ProjectBudgetResult {
 	reports: TProjectBudgetReport[];
 }
 
-export interface ProjectBudgetShown {
-	scope: BudgetScope;
-	period: Period;
-	rows: BudgetRow[];
-}
-
-export interface ProjectBudgetRowsOptions {
+interface ProjectBudgetRowsOptions {
 	scope: BudgetScope;
 	/** The period picked in the `period` scope; the `whole` scope does not read it. */
 	period: Period | null;

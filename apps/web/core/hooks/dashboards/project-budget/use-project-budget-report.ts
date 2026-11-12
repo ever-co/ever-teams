@@ -23,7 +23,7 @@ import {
 } from '@/core/lib/utils/dashboards/project-budget';
 import { useProjectBudgetRows } from './use-project-budget-rows';
 
-export type { ProjectBudgetShown } from './use-project-budget-rows';
+export type { ProjectBudgetShown } from '@/core/lib/utils/dashboards/project-budget';
 
 function uniqueValuesOf<T extends string>(values: ReadonlyArray<T>): T[] {
 	return [...new Set(values)];

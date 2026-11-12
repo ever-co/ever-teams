@@ -65,6 +65,13 @@ export interface BudgetGroup {
 	rows: BudgetRow[];
 }
 
+/** The rows on screen with the scope and period of the request they answer. */
+export interface ProjectBudgetShown {
+	scope: BudgetScope;
+	period: Period;
+	rows: BudgetRow[];
+}
+
 export interface BudgetFigures {
 	overCount: number;
 	nearCount: number;

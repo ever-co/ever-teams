@@ -1,4 +1,3 @@
-import { describe, expect, it } from '@jest/globals';
 import type { TOrganizationProject } from '@/core/types/schemas';
 import {
 	compareWithUnsetLast,

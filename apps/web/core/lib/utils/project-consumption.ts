@@ -11,15 +11,15 @@ import { compareWithUnsetLast, sortProjects, type ProjectOrdering } from '@/core
 /** Projects quote the budget report over a project's whole life, the scope the report itself opens on. */
 export const CONSUMPTION_SCOPE: BudgetScope = 'whole';
 
-export type ProjectTimeSpentKind = 'tracked' | 'none' | 'asCost';
+type ProjectTimeSpentKind = 'tracked' | 'none' | 'asCost';
 
-export interface ProjectTimeSpent {
+interface ProjectTimeSpent {
 	kind: ProjectTimeSpentKind;
 	/** The tracked hours as the report states them; null without time, and when the report states a cost. */
 	hours: number | null;
 }
 
-export type BudgetRowLookup = (projectId: string) => BudgetRow | undefined;
+type BudgetRowLookup = (projectId: string) => BudgetRow | undefined;
 
 const NO_TIME: ProjectTimeSpent = { kind: 'none', hours: null };
 
