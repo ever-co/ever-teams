@@ -5732,6 +5732,7 @@
 		"PALETTE_HEADING": "页面",
 		"EXPORT_UNSAVED": "您最近的更改尚未保存，因此未导出任何内容。请在页面显示“已保存”后重试。",
 		"COMMENT_ANCHOR_UNSAVED": "无法保存页面，因此评论未发布。您的文本已保留。",
+		"BLOCK_LINK_UNSAVED": "无法保存页面，因此未复制链接。请在连接恢复或页面保存后重试。",
 		"COPY_ERROR": "无法复制链接。"
 	},
 	"whatsNew": {

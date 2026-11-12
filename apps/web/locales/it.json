@@ -5732,6 +5732,7 @@
 		"PALETTE_HEADING": "Pagine",
 		"EXPORT_UNSAVED": "Le ultime modifiche non sono ancora salvate, quindi non è stato esportato nulla. Riprova quando la pagina indica Salvato.",
 		"COMMENT_ANCHOR_UNSAVED": "Non è stato possibile salvare la pagina, quindi il commento non è stato pubblicato. Il tuo testo resta.",
+		"BLOCK_LINK_UNSAVED": "Non è stato possibile salvare la pagina, quindi il link non è stato copiato. Riprova quando la connessione torna o la pagina è salvata.",
 		"COPY_ERROR": "Non è stato possibile copiare il link."
 	},
 	"whatsNew": {

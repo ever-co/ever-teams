@@ -5732,6 +5732,7 @@
 		"PALETTE_HEADING": "Pages",
 		"EXPORT_UNSAVED": "Vos dernières modifications ne sont pas encore enregistrées : rien n’a été exporté. Réessayez quand la page indique Enregistré.",
 		"COMMENT_ANCHOR_UNSAVED": "La page n’a pas pu être enregistrée : le commentaire n’a pas été publié. Votre texte est conservé.",
+		"BLOCK_LINK_UNSAVED": "La page n’a pas pu être enregistrée : le lien n’a pas été copié. Réessayez une fois la connexion rétablie ou la page enregistrée.",
 		"COPY_ERROR": "Le lien n’a pas pu être copié."
 	},
 	"whatsNew": {
