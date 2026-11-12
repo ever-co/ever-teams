@@ -207,6 +207,16 @@ export function standingPhaseOf(phase: DurationPhase, shown: ShownTimes): Durati
 	return IDLE_PHASE;
 }
 
+/**
+ * Whether the form must not be saved as it stands: the field reports a duration it could not apply (text that is no
+ * duration, or no member to read the day of) while the form still holds its earlier start and end. Saving would
+ * record those times, not the duration the field shows. Fixing or clearing the text, or picking the times by hand,
+ * lifts it.
+ */
+export function blocksSaveOf(phase: DurationPhase): boolean {
+	return phase.kind === 'invalid' || phase.kind === 'noMember';
+}
+
 export function askedSecondsOf(phase: DurationPhase): number | null {
 	if (phase.kind === 'idle') {
 		return null;

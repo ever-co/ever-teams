@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { DurationField } from '@/core/components/features/manual-time/duration-field';
 import { useDurationEntry } from '@/core/hooks/timesheet/use-duration-entry';
 import { claimedIntervalsOf, type FormPeriod, timeOptionOf } from '@/core/lib/utils/dashboards/manual-time-entry';
@@ -9,6 +10,8 @@ export interface ShiftTimes {
 	dateFrom: Date | string;
 	startTime: string;
 	endTime: string;
+	/** What the dialog last heard from this field about saving: see `onSaveBlock`. */
+	blocksSave?: boolean;
 }
 
 type MinutesOfOption = (option: string) => number;
@@ -47,7 +50,8 @@ export function ShiftDurationField({
 	index,
 	employeeId,
 	minutesOfOption,
-	onTimes
+	onTimes,
+	onSaveBlock
 }: Readonly<{
 	shift: ShiftTimes;
 	/** The dialog's periods as they are when called, the times one of them just received included. */
@@ -56,6 +60,8 @@ export function ShiftDurationField({
 	employeeId: string;
 	minutesOfOption: MinutesOfOption;
 	onTimes: (index: number, startTime: string, endTime: string) => void;
+	/** Tells the dialog whether this period may be saved: not while the field refuses its text over earlier times. */
+	onSaveBlock: (index: number, blocksSave: boolean) => void;
 }>) {
 	const period = periodOfShift(shift, minutesOfOption);
 
@@ -83,6 +89,15 @@ export function ShiftDurationField({
 		readClaimed,
 		onInterval: showInterval
 	});
+
+	// Told whenever the period holds another answer than the field's own, which also puts right a period that took
+	// this panel's place after an earlier period was removed
+	const isMarkedBlocking = shift.blocksSave === true;
+	useEffect(() => {
+		if (isMarkedBlocking !== entry.blocksSave) {
+			onSaveBlock(index, entry.blocksSave);
+		}
+	}, [entry.blocksSave, index, isMarkedBlocking, onSaveBlock]);
 
 	return <DurationField entry={entry} className={PANEL_FIELD} />;
 }

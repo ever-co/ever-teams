@@ -128,11 +128,18 @@ jest.mock('@/core/components', () => ({
 jest.mock('@/core/components/common/date-picker', () => ({ DatePicker: () => null }));
 
 // The duration field reads the member's day on its own: the dialog only tells it whose day, and shows its interval
-const mockDurationEntry: { input?: DurationEntryInput } = {};
+const mockDurationEntry: { input?: DurationEntryInput; blocksSave: boolean } = { blocksSave: false };
 jest.mock('@/core/hooks/timesheet/use-duration-entry', () => ({
 	useDurationEntry: (input: DurationEntryInput) => {
 		mockDurationEntry.input = input;
-		return { text: '', phase: { kind: 'idle' }, change: jest.fn(), commit: jest.fn(), retry: jest.fn() };
+		return {
+			text: '',
+			phase: { kind: 'idle' },
+			change: jest.fn(),
+			commit: jest.fn(),
+			retry: jest.fn(),
+			blocksSave: mockDurationEntry.blocksSave
+		};
 	}
 }));
 jest.mock('./duration-field', () => ({ DurationField: () => null }));
@@ -381,6 +388,10 @@ function timeInputValues(container: HTMLElement) {
 }
 
 describe('AddManualTimeModal duration', () => {
+	afterEach(() => {
+		mockDurationEntry.blocksSave = false;
+	});
+
 	beforeEach(() => {
 		mockAddManualTime.mockReset();
 		mockPickedTeamTasksQuery.data = undefined;
@@ -433,6 +444,20 @@ describe('AddManualTimeModal duration', () => {
 		expect(timeInputValues(container)).toEqual(['', '']);
 
 		submitDialog();
+
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+
+	// A text such as `90x` leaves the hour the form already showed: that hour must not be saved in its place
+	it('saves nothing while the duration field refuses its text, from the button or from Enter', () => {
+		mockDurationEntry.blocksSave = true;
+		const { container } = renderAddTimeDialog();
+
+		const addButton = screen.getByRole('button', { name: 'common.ADD_TIME' }) as HTMLButtonElement;
+		expect(addButton.disabled).toBe(true);
+
+		const form = container.querySelector('form') as HTMLFormElement;
+		fireEvent.submit(form);
 
 		expect(mockAddManualTime).not.toHaveBeenCalled();
 	});

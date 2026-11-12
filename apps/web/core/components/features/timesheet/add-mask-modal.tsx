@@ -65,7 +65,12 @@ interface Shift {
 	endTime: string;
 	totalHours: string;
 	dateFrom: Date | string;
+	/** Set while the period's duration field refuses its text: the times shown are not the duration it reports. */
+	blocksSave?: boolean;
 }
+
+/** The fields a period's own controls write. */
+type ShiftField = Exclude<keyof Shift, 'blocksSave'>;
 
 interface FormState {
 	billableChoice: boolean | null;
@@ -263,7 +268,9 @@ export function AddTaskModal({
 	const hasUnloadedProject = Boolean(entryProjectId) && !selectedProject;
 	const waitsForProject = hasUnloadedProject && getOrganizationProjectsLoading;
 	const isSaving = loadingCreateTimesheet || overlapGuard.isChecking || isCheckingSave;
-	const isSaveDisabled = isSaving || waitsForProject;
+	// A period whose duration field refuses its text still shows its earlier times: those are not saved in its place
+	const hasRefusedDuration = formState.shifts.some((shift) => shift.blocksSave === true);
+	const isSaveDisabled = isSaving || waitsForProject || hasRefusedDuration;
 
 	const pickTask = useCallback(
 		(taskId: string) => {
@@ -681,7 +688,7 @@ const OptimizedAccordion = ({
 		setShifts(updatedShifts);
 	};
 
-	const handleShiftChange = (index: number, field: keyof Shift, value: string) => {
+	const handleShiftChange = (index: number, field: ShiftField, value: string) => {
 		const updatedShifts = [...shifts];
 		updatedShifts[index][field] = value;
 
@@ -733,6 +740,17 @@ const OptimizedAccordion = ({
 
 	const readLatestShifts = () => latestShiftsRef.current;
 
+	const handleSaveBlock = (index: number, blocksSave: boolean) => {
+		const updatedShifts = [...latestShiftsRef.current];
+		const shift = updatedShifts[index];
+		if (!shift) {
+			return;
+		}
+		updatedShifts[index] = { ...shift, blocksSave };
+		latestShiftsRef.current = updatedShifts;
+		setShifts(updatedShifts);
+	};
+
 	return (
 		<>
 			{shifts.map((element, index) => {
@@ -764,6 +782,7 @@ const OptimizedAccordion = ({
 										readShifts={readLatestShifts}
 										employeeId={employeeId}
 										onTimes={handleShiftTimes}
+										onSaveBlock={handleSaveBlock}
 									/>
 								</div>
 							</AccordionContent>
@@ -792,15 +811,17 @@ const ShiftManagement = ({
 	readShifts,
 	employeeId,
 	onTimes,
+	onSaveBlock,
 	t
 }: {
-	onChange: (index: number, field: keyof Shift, value: string) => void;
+	onChange: (index: number, field: ShiftField, value: string) => void;
 	value: Shift;
 	index: number;
 	timeOptions: string[];
 	readShifts: () => Shift[];
 	employeeId: string;
 	onTimes: (index: number, startTime: string, endTime: string) => void;
+	onSaveBlock: (index: number, blocksSave: boolean) => void;
 	t: TranslationHooks;
 }) => {
 	// Times skipped by a daylight saving change on the picked day cannot be saved as picked.
@@ -849,6 +870,7 @@ const ShiftManagement = ({
 				employeeId={employeeId}
 				minutesOfOption={convertToMinutesHour}
 				onTimes={onTimes}
+				onSaveBlock={onSaveBlock}
 			/>
 		</>
 	);

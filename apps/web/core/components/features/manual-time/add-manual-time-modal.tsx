@@ -359,6 +359,16 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		onInterval: showInterval
 	});
 
+	// While the duration field refuses its text the start and the end are still the earlier ones: they are not saved
+	// in place of the duration it reports. Enter in another field submits the form too, hence the check here as well.
+	const submitUnlessDurationRefused = (event: FormEvent<HTMLFormElement>) => {
+		if (durationEntry.blocksSave) {
+			event.preventDefault();
+			return;
+		}
+		handleSubmit(event);
+	};
+
 	// Handle successful manual time addition - only close modal on confirmed success
 	useEffect(() => {
 		if (addManualTimeSuccess && timeLog) {
@@ -577,7 +587,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			breadcrumb={activeTeam?.name}
 			className="max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto"
 		>
-			<form onSubmit={handleSubmit} className="flex w-full flex-col gap-4 text-sm">
+			<form onSubmit={submitUnlessDurationRefused} className="flex w-full flex-col gap-4 text-sm">
 				<div className="flex flex-col gap-2">
 					<div className="grid grid-cols-2 gap-3 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
 						<div className="col-span-2 flex min-w-0 flex-col sm:col-span-1">
@@ -774,7 +784,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 						)}
 						<Button
 							loading={isSaving}
-							disabled={isSaving}
+							disabled={isSaving || durationEntry.blocksSave}
 							type="submit"
 							size="default"
 							className={modalPrimaryActionClass}

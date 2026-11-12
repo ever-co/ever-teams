@@ -26,6 +26,7 @@ function entryOf(overrides: Partial<DurationEntry>): DurationEntry {
 		change: jest.fn(),
 		commit: jest.fn(),
 		retry: jest.fn(),
+		blocksSave: false,
 		...overrides
 	};
 }

@@ -11,6 +11,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import {
 	askedSecondsOf,
+	blocksSaveOf,
 	type DurationPhase,
 	IDLE_PHASE,
 	intervalProposalOf,
@@ -48,6 +49,11 @@ export interface DurationEntry {
 	change: (text: string) => void;
 	commit: () => void;
 	retry: () => void;
+	/**
+	 * The field refuses its text (or has no member to read) while the form still shows its earlier start and end:
+	 * the form's Save stays off, or it would record those times instead of the duration the field reports.
+	 */
+	blocksSave: boolean;
 }
 
 /**
@@ -205,5 +211,7 @@ export function useDurationEntry(input: DurationEntryInput): DurationEntry {
 		shownPhase = IDLE_PHASE;
 	}
 
-	return { text, phase: shownPhase, change, commit, retry: proposeAgain };
+	const blocksSave = blocksSaveOf(standingPhase);
+
+	return { text, phase: shownPhase, change, commit, retry: proposeAgain, blocksSave };
 }

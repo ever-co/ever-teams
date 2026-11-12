@@ -169,6 +169,7 @@ type MockShiftDurationProps = {
 	employeeId: string;
 	readShifts: () => MockShift[];
 	onTimes: (index: number, startTime: string, endTime: string) => void;
+	onSaveBlock: (index: number, blocksSave: boolean) => void;
 };
 const mockShiftDuration: { props?: MockShiftDurationProps } = {};
 jest.mock('./shift-duration-field', () => ({
@@ -292,6 +293,26 @@ describe('AddTaskModal duration of a shift', () => {
 
 		const [firstPeriod] = readRightAfter;
 		expect(firstPeriod).toMatchObject({ startTime: '09:00:00 AM', endTime: '10:30:00 AM' });
+	});
+
+	// A text such as `90x` leaves the period on the hour it already showed: that hour must not be saved in its place
+	it("keeps Save off while a period's duration field refuses its text, and saves once it is put right", () => {
+		renderAddTimeForm();
+		pickTaskAndEmployee('task-a', 'employee-a');
+		fillShiftTimes();
+		const saveButton = screen.getByRole('button', { name: 'common.SAVE' });
+
+		act(() => shiftDuration().onSaveBlock(0, true));
+
+		expect(saveButton).toHaveProperty('disabled', true);
+		save();
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
+
+		act(() => shiftDuration().onSaveBlock(0, false));
+
+		expect(saveButton).toHaveProperty('disabled', false);
+		save();
+		expect(mockCreateTimesheet).toHaveBeenCalledTimes(1);
 	});
 
 	it('empties the shift when the asked duration found no room, so nothing is saved', () => {
