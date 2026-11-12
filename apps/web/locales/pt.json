@@ -6191,6 +6191,8 @@
 		"DELETE_FOREVER_TITLE": "Eliminar esta tarefa definitivamente?",
 		"DELETE_FOREVER_TEXT": "“{title}” será removida definitivamente. Não é possível anular.",
 		"DELETED_FOREVER": "“{title}” foi eliminada definitivamente",
+		"NO_LONGER_IN_TRASH": "“{title}” já não está no lixo: foi restaurada ou eliminada entretanto. A lista foi atualizada.",
+		"STILL_LINKED": "“{title}” continua no lixo: outras tarefas ou resultados-chave ainda estão ligados a ela. Remova primeiro essas ligações.",
 		"DELETE_FAILED": "A tarefa não foi eliminada. Tente novamente.",
 		"DELETED_BY": "Eliminada por {name} · {date}",
 		"DELETED_AT": "Eliminada {date}",
