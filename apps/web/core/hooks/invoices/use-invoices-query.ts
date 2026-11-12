@@ -34,7 +34,13 @@ export function useInvoicesQuery({ enabled }: Readonly<{ enabled: boolean }>) {
 
 	const query = useInfiniteQuery({
 		queryKey: queryKeys.invoices.list(tenantId, organizationId),
-		queryFn: ({ pageParam, signal }) => invoiceService.getInvoices({ page: pageParam, signal }),
+		// The scope the key names, not the cookies read when a page is asked for: another tab may have switched them
+		queryFn: ({ pageParam, signal }) =>
+			invoiceService.getInvoices({
+				page: pageParam,
+				signal,
+				scope: tenantId && organizationId ? { organizationId, tenantId } : undefined
+			}),
 		initialPageParam: 1,
 		getNextPageParam: nextPageOf,
 		enabled: enabled && hasScope
@@ -64,7 +70,12 @@ export function useClientInvoices(clientId: string | null) {
 
 	const query = useQuery({
 		queryKey: queryKeys.invoices.ofClient(tenantId, organizationId, clientId),
-		queryFn: ({ signal }) => invoiceService.getClientInvoices(clientId as string, signal),
+		queryFn: ({ signal }) =>
+			invoiceService.getClientInvoices(
+				clientId as string,
+				signal,
+				tenantId && organizationId ? { organizationId, tenantId } : undefined
+			),
 		enabled: hasScope && Boolean(clientId)
 	});
 

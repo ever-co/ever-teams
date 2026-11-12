@@ -49,3 +49,28 @@ describe('reading the invoices already saved for a client, a page at a time', ()
 		expect(tenantHeaders).toEqual(['tenant-1', 'tenant-1']);
 	});
 });
+
+describe('reading a page of the invoices list', () => {
+	afterEach(() => {
+		jest.restoreAllMocks();
+		mockCookieScope.organizationId = 'organization-1';
+		mockCookieScope.tenantId = 'tenant-1';
+	});
+
+	it('asks the organization its cache key holds, not the one another tab left in the cookies', async () => {
+		mockCookieScope.organizationId = 'organization-2';
+		mockCookieScope.tenantId = 'tenant-2';
+		const get = jest
+			.spyOn(invoiceService, 'get')
+			.mockResolvedValue({ data: { items: invoicesFrom(1, 3), total: 3 } } as never);
+
+		await invoiceService.getInvoices({
+			page: 2,
+			scope: { organizationId: 'organization-1', tenantId: 'tenant-1' }
+		});
+
+		const where = queryOf(get.mock.calls[0][0]).where as Record<string, unknown>;
+		expect([where.organizationId, where.tenantId]).toEqual(['organization-1', 'tenant-1']);
+		expect(get.mock.calls[0][1]?.tenantId).toBe('tenant-1');
+	});
+});
