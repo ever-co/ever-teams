@@ -7,11 +7,13 @@ import { toast } from 'sonner';
 import { TimerPlanDialogs } from '@/core/components/features/daily-plan/timer-plan-dialogs';
 import { useRunOnce } from '@/core/hooks/common/use-run-once';
 import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
+import { ALREADY_TRACKING_TOAST_ID } from '@/core/hooks/timer/use-timer-api';
 import { useTimerStartNotes } from '@/core/hooks/timer/use-timer-start-notes';
 import type { TimerTaskStartRequest } from '@/core/hooks/timer/use-timer-task-start';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { timerTaskStartActionOf } from '@/core/lib/utils/timer/timer-task-start';
 import { timerBillableChoicesState, timerStatusState } from '@/core/stores';
+import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 
 /**
@@ -25,6 +27,8 @@ function TimerTaskStart({ request }: Readonly<{ request: TimerTaskStartRequest }
 	const { activeTaskStatus, disabled, canTrack, startStopTimerHandler, startTimerWithTask, modals } =
 		useTimerButtonLogic({ task });
 	const timerStatus = useAtomValue(timerStatusState);
+	// The status the timers show, filtered to the active team: a run it leaves out reads as stopped there
+	const shownTimerStatus = useAtomValue(teamTimerStatusState);
 	const setBillableChoices = useSetAtom(timerBillableChoicesState);
 	const { handNotes, dropNotes } = useTimerStartNotes();
 
@@ -44,6 +48,7 @@ function TimerTaskStart({ request }: Readonly<{ request: TimerTaskStartRequest }
 			isActiveTask: Boolean(activeTaskStatus),
 			isTimerRunning,
 			isRunningOnTask: isTimerRunning && runningTaskId === task.id,
+			hasHiddenRun: isTimerRunning && shownTimerStatus?.running !== true,
 			isMainStartDisabled: disabled,
 			canTrackTask: canTrack
 		});
@@ -57,6 +62,10 @@ function TimerTaskStart({ request }: Readonly<{ request: TimerTaskStartRequest }
 				return;
 			case 'ALREADY_RUNNING':
 				toast.info(t('timeEntryActions.ALREADY_RUNNING'), { id: 'timer-already-running-on-task' });
+				return;
+			case 'HIDDEN_RUN':
+				// The card's start would stop it first, ending time tracked elsewhere that the member cannot see
+				toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
 				return;
 			case 'UNAVAILABLE':
 				toast.warning(t('timer.START_TIMER'), { id: 'timer-start-unavailable' });

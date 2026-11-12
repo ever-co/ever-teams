@@ -4,7 +4,7 @@ import { act, render, screen } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 
 import type { TimerTaskStartRequest } from '@/core/hooks/timer/use-timer-task-start';
-import { timerBillableChoicesState, timerStatusState } from '@/core/stores';
+import { teamTasksState, timerBillableChoicesState, timerStatusState } from '@/core/stores';
 import { timerStartNotesState } from '@/core/stores/timer/timer-start-notes';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
@@ -59,9 +59,18 @@ function requestOf(overrides: Partial<TimerTaskStartRequest> = {}): TimerTaskSta
 	return { id: 1, task: TASK, carry: CARRY, ...overrides };
 }
 
+/** A run the timers show: its task is one of the active team's. */
 function storeWithTimerOn(taskId: string): JotaiStore {
 	const store = createStore();
 	store.set(timerStatusState, { running: true, lastLog: { id: 'log-running', taskId } } as never);
+	store.set(teamTasksState, [{ id: taskId }] as never);
+	return store;
+}
+
+/** A run the timers do not show: its task is not one of the active team's (another team's, another device's). */
+function storeWithHiddenRunOn(taskId: string): JotaiStore {
+	const store = createStore();
+	store.set(timerStatusState, { running: true, lastLog: { id: 'log-hidden', taskId } } as never);
 	return store;
 }
 
@@ -158,6 +167,26 @@ describe('TimerTaskStartLayer', () => {
 		expect(logic.startTimerWithTask).toHaveBeenCalledTimes(1);
 		expect(logic.startStopTimerHandler).not.toHaveBeenCalled();
 		expect(mockToast.info).not.toHaveBeenCalled();
+	});
+
+	it('stops nothing and starts nothing over a run the timer does not show, active task or not', async () => {
+		const otherTaskLogic = buttonLogicOf();
+		const otherTaskStore = storeWithHiddenRunOn('task-9');
+
+		await renderLayer(requestOf(), otherTaskLogic, otherTaskStore);
+
+		expect(mockToast.warning).toHaveBeenCalledWith('timer.ALREADY_TRACKING_MESSAGE', expect.anything());
+		expect(otherTaskLogic.startTimerWithTask).not.toHaveBeenCalled();
+		expect(otherTaskLogic.startStopTimerHandler).not.toHaveBeenCalled();
+		expect(otherTaskStore.get(timerBillableChoicesState)).toEqual({});
+		expect(otherTaskStore.get(timerStartNotesState)).toBeNull();
+
+		const activeTaskLogic = buttonLogicOf({ activeTaskStatus: { running: true } });
+
+		await renderLayer(requestOf({ id: 2 }), activeTaskLogic, storeWithHiddenRunOn('task-9'));
+
+		expect(activeTaskLogic.startTimerWithTask).not.toHaveBeenCalled();
+		expect(activeTaskLogic.startStopTimerHandler).not.toHaveBeenCalled();
 	});
 
 	it('holds the start back when the daily plan rule does not let the task start', async () => {

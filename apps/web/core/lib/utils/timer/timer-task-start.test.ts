@@ -5,6 +5,7 @@ const OTHER_TASK: TimerTaskStartState = {
 	isActiveTask: false,
 	isTimerRunning: false,
 	isRunningOnTask: false,
+	hasHiddenRun: false,
 	isMainStartDisabled: false,
 	canTrackTask: true
 };
@@ -39,6 +40,13 @@ describe('timerTaskStartActionOf', () => {
 
 	it('does not start the active task while the main Start is disabled', () => {
 		expect(timerTaskStartActionOf({ ...ACTIVE_TASK, isMainStartDisabled: true })).toBe('UNAVAILABLE');
+	});
+
+	it('never stops a run the timer does not show, active task or not', () => {
+		const hiddenRun = { isTimerRunning: true, hasHiddenRun: true };
+
+		expect(timerTaskStartActionOf({ ...OTHER_TASK, ...hiddenRun })).toBe('HIDDEN_RUN');
+		expect(timerTaskStartActionOf({ ...ACTIVE_TASK, ...hiddenRun })).toBe('HIDDEN_RUN');
 	});
 
 	it('never starts a closed task, active or not', () => {
