@@ -9,7 +9,8 @@ import { TimeActivityReportSheetSkeleton } from './time-activity-report-sheet';
 
 const CONTROL_WIDTHS = ['w-42.25', 'w-21'];
 
-const TRAILING_WIDTHS = ['w-79', 'w-20.5'];
+/** The grouping switch with its six choices, kept within the row as the switch itself is on a phone. */
+const TRAILING_WIDTHS = ['w-94 max-w-full', 'w-20.5'];
 
 /** Only managers reach the reports, so the first picture carries their columns. */
 const FIRST_COLUMNS = breakdownColumnsOf('date', [], true);

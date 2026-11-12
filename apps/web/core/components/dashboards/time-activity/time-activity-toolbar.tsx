@@ -8,11 +8,7 @@ import { PeriodPicker } from '@/core/components/dashboards/kit/period-picker';
 import { useTimeActivityFilterOptions } from '@/core/hooks/dashboards/time-activity/use-time-activity-filter-options';
 import type { TimeActivityReport } from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
 import { formatPeriod } from '@/core/lib/utils/dashboard-period';
-import {
-	TIME_ACTIVITY_GROUPINGS,
-	TIME_ACTIVITY_WEEK_START,
-	type TimeActivityGrouping
-} from '@/core/lib/utils/dashboards/time-activity';
+import { TIME_ACTIVITY_WEEK_START, type TimeActivityGrouping } from '@/core/lib/utils/dashboards/time-activity';
 import { TimeActivityControlRow } from './time-activity-control-row';
 import { AppliedTimeActivityFilters, TimeActivityFilterMenu } from './time-activity-filter-menu';
 import { TimeActivityViewMenu } from './time-activity-view-menu';
@@ -47,8 +43,8 @@ export function TimeActivityToolbar({ report }: Readonly<{ report: TimeActivityR
 	const { settings } = report;
 
 	const groupingItems = useMemo<SegmentedControlItem<TimeActivityGrouping>[]>(
-		() => TIME_ACTIVITY_GROUPINGS.map((grouping) => ({ value: grouping, label: t(GROUPING_LABEL_KEYS[grouping]) })),
-		[t]
+		() => settings.groupings.map((grouping) => ({ value: grouping, label: t(GROUPING_LABEL_KEYS[grouping]) })),
+		[settings.groupings, t]
 	);
 
 	return (
