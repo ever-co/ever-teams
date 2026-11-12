@@ -57,6 +57,8 @@ interface Page {
 	waitFor: typeof WaitFor;
 	/** Lets the guard's pending work land, `ms` of fake time later. */
 	settle: (ms?: number) => Promise<void>;
+	/** A sign-out in this page: the cleanups its modules registered, as the sign-out runs them. */
+	signOut: () => void;
 	cleanup: () => void;
 }
 
@@ -72,6 +74,8 @@ function loadPage(): Page {
 	const { QueryClient, QueryClientProvider } =
 		require('@tanstack/react-query') as typeof import('@tanstack/react-query');
 	const { useStaleTimerGuard } = require('./use-stale-timer-guard') as typeof import('./use-stale-timer-guard');
+	const { runSignOutCleanups } =
+		require('@/core/lib/auth/sign-out-cleanups') as typeof import('@/core/lib/auth/sign-out-cleanups');
 	/* eslint-enable @typescript-eslint/no-require-imports */
 	const queryClient = new QueryClient();
 	const wrapper = ({ children }: { children: ReactNode }) =>
@@ -85,6 +89,7 @@ function loadPage(): Page {
 				// The check's answer goes through a few promise steps before the guard's state is set
 				for (let step = 0; step < 20; step += 1) await Promise.resolve();
 			}),
+		signOut: runSignOutCleanups,
 		cleanup
 	};
 	pages.push(page);
@@ -147,6 +152,24 @@ describe('useStaleTimerGuard', () => {
 			'toasts.timer.STALE_STOPPED',
 			expect.objectContaining({ id: 'timer-stale-stopped' })
 		);
+	});
+
+	it('checks again for the next session after a sign-out that leaves the page loaded', async () => {
+		const page = loadPage();
+		mockGetLastTimerLog.mockResolvedValueOnce(lastLogAnswer(1));
+		const owner = page.mountOwner();
+		await page.waitFor(() => expect(owner.result.current).toBe(true));
+		owner.unmount();
+
+		// Signed out where the page stays loaded (a password recovery page), then signed in again as the same employee
+		page.signOut();
+		mockGetLastTimerLog.mockResolvedValueOnce(lastLogAnswer(1));
+		const nextSession = page.mountOwner();
+
+		// A new check, which the heartbeat waits for
+		expect(nextSession.result.current).toBe(false);
+		await page.waitFor(() => expect(nextSession.result.current).toBe(true));
+		expect(mockGetLastTimerLog).toHaveBeenCalledTimes(2);
 	});
 
 	it('waits for the check in flight when the owner mounts again meanwhile, instead of checking twice', async () => {
