@@ -59,8 +59,9 @@ export function ParticipantsField({
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
 		const hasDraft = draft.trim().length > 0;
-		if (!hasDraft && event.key === 'Backspace' && emails.length > 0) {
-			onRemove(emails[emails.length - 1]);
+		const lastEmail = emails.at(-1);
+		if (!hasDraft && event.key === 'Backspace' && lastEmail) {
+			onRemove(lastEmail);
 			return;
 		}
 		if (hasDraft && COMMIT_KEYS.has(event.key)) {
