@@ -21,21 +21,28 @@ function CurrencyRow({
 }: Readonly<{ total: InvoiceCurrencyTotal; onInvoice: (currencyKey: string) => void }>) {
 	const t = useTranslations();
 	const locale = useLocale();
-	const currencyName = total.currency ?? t('invoices.new.NO_CURRENCY');
+	const currency = total.currency;
 	const hoursText = t('invoices.new.HOURS', { hours: formatInvoiceHours(total.hours, locale) });
+	// An invoice states its currency: time that has none cannot make one, so it is never offered as the invoice.
+	let invoiceAction = <span className="text-xs text-muted-foreground">{t('invoices.new.NO_CURRENCY')}</span>;
+	if (currency) {
+		invoiceAction = (
+			<Button type="button" variant="outline" size="sm" onClick={() => onInvoice(total.key)}>
+				{t('invoices.new.otherCurrencies.SWITCH', { currency })}
+			</Button>
+		);
+	}
 	return (
 		<li className={ROW}>
 			<span className="flex min-w-0 flex-col">
 				<span className={ROW_FIGURES}>
-					{hoursText} · {formatOwed(total.amount, total.currency, locale)}
+					{hoursText} · {formatOwed(total.amount, currency, locale)}
 				</span>
 				<span className="text-xs tabular-nums text-muted-foreground">
 					{t('invoices.new.LINE_COUNT', { count: total.lineCount })}
 				</span>
 			</span>
-			<Button type="button" variant="outline" size="sm" onClick={() => onInvoice(total.key)}>
-				{t('invoices.new.otherCurrencies.SWITCH', { currency: currencyName })}
-			</Button>
+			{invoiceAction}
 		</li>
 	);
 }
