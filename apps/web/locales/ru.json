@@ -5819,5 +5819,15 @@
 			"NO_CLIENT": "Без клиента",
 			"CREATE_FAILED": "Не удалось создать клиента. Повторите попытку."
 		}
+	},
+	"timeReports": {
+		"filters": {
+			"BILLABLE_ONLY": "Только оплачиваемое"
+		},
+		"timesheetExport": {
+			"XLSX": "Файл Excel (.xlsx)",
+			"PDF": "Файл PDF",
+			"LOGS": "Записи"
+		}
 	}
 }

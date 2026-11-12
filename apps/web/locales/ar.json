@@ -5819,5 +5819,15 @@
 			"NO_CLIENT": "بلا عميل",
 			"CREATE_FAILED": "تعذّر إنشاء العميل. حاول مرة أخرى."
 		}
+	},
+	"timeReports": {
+		"filters": {
+			"BILLABLE_ONLY": "القابل للفوترة فقط"
+		},
+		"timesheetExport": {
+			"XLSX": "ملف Excel (.xlsx)",
+			"PDF": "ملف PDF",
+			"LOGS": "السجلات"
+		}
 	}
 }

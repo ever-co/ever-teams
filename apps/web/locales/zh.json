@@ -5819,5 +5819,15 @@
 			"NO_CLIENT": "无客户",
 			"CREATE_FAILED": "无法创建客户，请重试。"
 		}
+	},
+	"timeReports": {
+		"filters": {
+			"BILLABLE_ONLY": "仅可计费"
+		},
+		"timesheetExport": {
+			"XLSX": "Excel 文件 (.xlsx)",
+			"PDF": "PDF 文件",
+			"LOGS": "记录"
+		}
 	}
 }

@@ -5819,5 +5819,15 @@
 			"NO_CLIENT": "Aucun client",
 			"CREATE_FAILED": "Le client n'a pas pu être créé. Réessayez."
 		}
+	},
+	"timeReports": {
+		"filters": {
+			"BILLABLE_ONLY": "Facturable uniquement"
+		},
+		"timesheetExport": {
+			"XLSX": "Fichier Excel (.xlsx)",
+			"PDF": "Fichier PDF",
+			"LOGS": "Saisies"
+		}
 	}
 }

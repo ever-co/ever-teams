@@ -5819,5 +5819,15 @@
 			"NO_CLIENT": "Geen klant",
 			"CREATE_FAILED": "De klant kon niet worden aangemaakt. Probeer het opnieuw."
 		}
+	},
+	"timeReports": {
+		"filters": {
+			"BILLABLE_ONLY": "Alleen factureerbaar"
+		},
+		"timesheetExport": {
+			"XLSX": "Excel-bestand (.xlsx)",
+			"PDF": "PDF-bestand",
+			"LOGS": "Registraties"
+		}
 	}
 }

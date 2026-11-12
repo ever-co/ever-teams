@@ -5819,5 +5819,15 @@
 			"NO_CLIENT": "ללא לקוח",
 			"CREATE_FAILED": "לא ניתן היה ליצור את הלקוח. נסו שוב."
 		}
+	},
+	"timeReports": {
+		"filters": {
+			"BILLABLE_ONLY": "לחיוב בלבד"
+		},
+		"timesheetExport": {
+			"XLSX": "קובץ Excel (.xlsx)",
+			"PDF": "קובץ PDF",
+			"LOGS": "רישומים"
+		}
 	}
 }

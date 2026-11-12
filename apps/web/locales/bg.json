@@ -5819,5 +5819,15 @@
 			"NO_CLIENT": "Без клиент",
 			"CREATE_FAILED": "Клиентът не можа да бъде създаден. Опитайте отново."
 		}
+	},
+	"timeReports": {
+		"filters": {
+			"BILLABLE_ONLY": "Само таксуемо"
+		},
+		"timesheetExport": {
+			"XLSX": "Excel файл (.xlsx)",
+			"PDF": "PDF файл",
+			"LOGS": "Записи"
+		}
 	}
 }

@@ -5819,5 +5819,15 @@
 			"NO_CLIENT": "Kein Kunde",
 			"CREATE_FAILED": "Der Kunde konnte nicht erstellt werden. Versuchen Sie es erneut."
 		}
+	},
+	"timeReports": {
+		"filters": {
+			"BILLABLE_ONLY": "Nur abrechenbar"
+		},
+		"timesheetExport": {
+			"XLSX": "Excel-Datei (.xlsx)",
+			"PDF": "PDF-Datei",
+			"LOGS": "Einträge"
+		}
 	}
 }
