@@ -1,6 +1,6 @@
 'use client';
 
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useStore } from 'jotai';
 import isEqual from 'lodash/isEqual';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { usePathname } from 'next/navigation';
@@ -59,6 +59,7 @@ import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../bootstrap/use-scope-guard';
 import { useStopStaleTeamsTimer } from './use-stale-timer-guard';
 import { useResolveTimerBillable } from './use-timer-billable';
+import { takeTimerStartNotes } from './use-timer-start-notes';
 
 // ==================== TYPES ====================
 
@@ -241,6 +242,7 @@ export function useTimerApi({
 	const pathname = usePathname();
 	const queryClient = useQueryClient();
 	const t = useTranslations();
+	const store = useStore();
 
 	// ==================== ATOMS ====================
 
@@ -326,13 +328,15 @@ export function useTimerApi({
 		mutationFn: async ({
 			taskId,
 			projectId,
-			isBillable
+			isBillable,
+			description
 		}: {
 			taskId: string;
 			projectId?: string | null;
 			isBillable: boolean;
+			description?: string;
 		}) => {
-			return await timerService.startTimer({ taskId, projectId, isBillable });
+			return await timerService.startTimer({ taskId, projectId, isBillable, description });
 		},
 		// runStartTimer shows the translated TIMER_START_FAILED toast; this keeps the raw global
 		// "Mutation Error" toast from showing a second one
@@ -641,10 +645,12 @@ export function useTimerApi({
 			});
 
 			if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
+			const notesToUse = takeTimerStartNotes(store, taskIdToUse);
 			const startRequest = startTimerMutate({
 				taskId: taskIdToUse,
 				projectId: projectIdToUse,
-				isBillable: isBillableToUse
+				isBillable: isBillableToUse,
+				description: notesToUse
 			});
 			const promise = trackTimerCommand(startRequest).then(async (res) => {
 				res.data &&
@@ -783,7 +789,8 @@ export function useTimerApi({
 			activeTeamId,
 			isCurrentScope,
 			statusEnabled,
-			warnIfWorkspaceOpening
+			warnIfWorkspaceOpening,
+			store
 		]
 	);
 

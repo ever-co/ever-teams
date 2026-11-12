@@ -19,6 +19,18 @@ function planDayOf(body: object): string | undefined {
 	return planDay;
 }
 
+// Empty notes are not sent, so a start without any reaches Gauzy as it did before a start could carry notes.
+function notesOf(description: unknown): string | undefined {
+	if (typeof description !== 'string') {
+		return undefined;
+	}
+	const notes = description.trim();
+	if (!notes) {
+		return undefined;
+	}
+	return notes;
+}
+
 export async function POST(req: Request) {
 	const res = new NextResponse();
 	const {
@@ -58,6 +70,12 @@ export async function POST(req: Request) {
 		return NextResponse.json({ error: 'projectId must be a non-empty string' }, { status: 400 });
 	}
 
+	const bodyDescription = (body as { description?: unknown }).description;
+	const isDescriptionMalformed = bodyDescription !== undefined && typeof bodyDescription !== 'string';
+	if (isDescriptionMalformed) {
+		return NextResponse.json({ error: 'description must be a string' }, { status: 400 });
+	}
+
 	const taskId = hasBodyTaskId ? bodyTaskId : activeTaskIdCookie;
 
 	const startParams: IUpdateTimerStatusParams = {
@@ -76,6 +94,13 @@ export async function POST(req: Request) {
 	const forwardsProject = hasBodyTaskId && hasBodyProjectId;
 	if (forwardsProject) {
 		startParams.projectId = bodyProjectId;
+	}
+
+	// Like the project, the notes belong to the task the body names
+	const notes = notesOf(bodyDescription);
+	const forwardsNotes = hasBodyTaskId && notes !== undefined;
+	if (forwardsNotes) {
+		startParams.description = notes;
 	}
 
 	try {
