@@ -114,10 +114,15 @@ function NewInvoiceBody({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 		return <InvoiceSheetSkeleton />;
 	}
 	if (invoice.haveClientsFailed) {
-		return <DashboardErrorNotice onRetry={() => void invoice.refetchClients()} />;
+		return <DashboardErrorNotice title={t('clients.ERROR_TITLE')} onRetry={() => void invoice.refetchClients()} />;
 	}
 	if (invoice.hasOrganizationFailed) {
-		return <DashboardErrorNotice onRetry={() => void invoice.refetchOrganization()} />;
+		return (
+			<DashboardErrorNotice
+				title={t('invoices.new.ORGANIZATION_ERROR_TITLE')}
+				onRetry={() => void invoice.refetchOrganization()}
+			/>
+		);
 	}
 	if (!hasClients) {
 		return (
