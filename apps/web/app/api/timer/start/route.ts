@@ -77,17 +77,15 @@ export async function POST(req: Request) {
 		tags: [],
 		isBillable,
 		organizationTeamId,
-		planDay: planDayOf(body)
+		planDay: planDayOf(body),
+		// Absent notes stay out of the request, as an absent plan day does: the JSON body drops an undefined field
+		description: notes.description
 	};
 
 	// The project is the one of the task the body names: a start that falls back to the cookie's task sends none
 	const forwardsProject = hasBodyTaskId && hasBodyProjectId;
 	if (forwardsProject) {
 		startParams.projectId = bodyProjectId;
-	}
-
-	if (notes.description !== undefined) {
-		startParams.description = notes.description;
 	}
 
 	try {
