@@ -3871,6 +3871,7 @@
 		"DAY_LABEL": "{day}，{date}",
 		"PREVIOUS_DAY": "前一天",
 		"NEXT_DAY": "后一天",
+		"SCHEDULE_ON_DAY": "在这一天安排会议",
 		"NO_MEETINGS_TODAY": "今天没有安排会议",
 		"NO_MEETINGS_TODAY_HINT": "你安排的会议会显示在这里，并带有加入按钮。",
 		"NO_MEETINGS_DAY": "这一天没有安排会议",

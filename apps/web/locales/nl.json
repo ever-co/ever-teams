@@ -3871,6 +3871,7 @@
 		"DAY_LABEL": "{day}, {date}",
 		"PREVIOUS_DAY": "Vorige dag",
 		"NEXT_DAY": "Volgende dag",
+		"SCHEDULE_ON_DAY": "Vergadering plannen op deze dag",
 		"NO_MEETINGS_TODAY": "Vandaag geen vergaderingen gepland",
 		"NO_MEETINGS_TODAY_HINT": "Vergaderingen die je plant verschijnen hier, met een knop om deel te nemen.",
 		"NO_MEETINGS_DAY": "Geen vergaderingen gepland op deze dag",

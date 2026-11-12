@@ -3871,6 +3871,7 @@
 		"DAY_LABEL": "{day}, {date}",
 		"PREVIOUS_DAY": "Previous day",
 		"NEXT_DAY": "Next day",
+		"SCHEDULE_ON_DAY": "Schedule a meeting this day",
 		"NO_MEETINGS_TODAY": "No meetings scheduled today",
 		"NO_MEETINGS_TODAY_HINT": "Meetings you schedule show here, with a button to join them.",
 		"NO_MEETINGS_DAY": "No meetings scheduled this day",

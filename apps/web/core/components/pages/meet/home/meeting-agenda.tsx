@@ -8,7 +8,7 @@ import { AlertDialogConfirmation } from '@/core/components/common/alert-dialog-c
 import { Calendar } from '@/core/components/common/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { CalendarPlus, ChevronDown, ChevronLeft, ChevronRight, Copy, Trash } from '@/core/components/icons';
+import { CalendarPlus, ChevronDown, ChevronLeft, ChevronRight, Copy, Plus, Trash } from '@/core/components/icons';
 import { DashboardSection } from '@/core/components/dashboards/kit/dashboard-layout';
 import { BlockEmptyMessage, DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
@@ -201,11 +201,13 @@ interface MeetingAgendaProps {
 	now: Date;
 	cancellingId: string | undefined;
 	onCancelMeeting: (appointmentId: string) => Promise<unknown>;
+	/** Opens Schedule on a day of the agenda. */
+	onScheduleOn: (day: Date) => void;
 }
 
 /**
  * One day of the meetings the person scheduled, today first, with the way to the day before, back to today and to
- * the day after; on each meeting: join, copy the link, add to a calendar, cancel.
+ * the day after, and to schedule a meeting that day; on each meeting: join, copy the link, add to a calendar, cancel.
  */
 export function MeetingAgenda({
 	meetings,
@@ -215,7 +217,8 @@ export function MeetingAgenda({
 	isJitsi,
 	now,
 	cancellingId,
-	onCancelMeeting
+	onCancelMeeting,
+	onScheduleOn
 }: Readonly<MeetingAgendaProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
@@ -223,6 +226,7 @@ export function MeetingAgenda({
 	const today = startOfDay(now);
 	const [day, setDay] = useState(today);
 	const isToday = day.getTime() === today.getTime();
+	const isPast = day.getTime() < today.getTime();
 	const dayMeetings = meetingsOfDay(meetings, day);
 
 	const confirmCancel = async () => {
@@ -279,6 +283,19 @@ export function MeetingAgenda({
 						onClick={() => setDay(dayAfter(day, 1))}
 					>
 						<ChevronRight className="size-4" />
+					</Button>
+					<Button
+						type="button"
+						variant="secondary"
+						size="icon-sm"
+						className="ml-1.5"
+						aria-label={t('meetings.SCHEDULE_ON_DAY')}
+						title={t('meetings.SCHEDULE_ON_DAY')}
+						disabled={isPast}
+						onClick={() => onScheduleOn(day)}
+						data-testid="meetings-schedule-on-day"
+					>
+						<Plus className="size-4" />
 					</Button>
 				</div>
 			}

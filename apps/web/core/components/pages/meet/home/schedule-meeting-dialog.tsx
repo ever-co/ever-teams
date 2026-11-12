@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/core/components/duplicated-components/_button';
 import { CalendarPlus, Copy } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
-import type { ScheduledMeeting, ScheduleMeetingDraft } from '@/core/lib/utils/meetings';
+import { startOfDay, type ScheduledMeeting, type ScheduleMeetingDraft } from '@/core/lib/utils/meetings';
 import { copyMeetingText, downloadMeetingIcs, meetingWhenOf } from './meeting-invitation';
 
 const DURATIONS = [15, 30, 45, 60, 90, 120];
@@ -28,6 +28,17 @@ function nextSlotOf(now: Date): Date {
 	return slot;
 }
 
+/** When a new meeting is proposed: the next half hour, at that time of day on a later day picked in the agenda. */
+function proposedStartOf(day: Date | undefined): Date {
+	const slot = nextSlotOf(new Date());
+	if (!day || startOfDay(day).getTime() <= startOfDay(slot).getTime()) {
+		return slot;
+	}
+	const start = startOfDay(day);
+	start.setHours(slot.getHours(), slot.getMinutes());
+	return start;
+}
+
 function dateInputOf(date: Date): string {
 	return `${date.getFullYear()}-${twoDigits(date.getMonth() + 1)}-${twoDigits(date.getDate())}`;
 }
@@ -39,6 +50,8 @@ function timeInputOf(date: Date): string {
 interface ScheduleMeetingDialogProps {
 	open: boolean;
 	onClose: () => void;
+	/** The day picked in the agenda, when Schedule opens from it. */
+	initialDay?: Date;
 	/** The full link of a new room for this meeting, titled. */
 	linkFor: (title: string) => string;
 	onSchedule: (draft: ScheduleMeetingDraft) => Promise<unknown>;
@@ -52,6 +65,7 @@ interface ScheduleMeetingDialogProps {
 export function ScheduleMeetingDialog({
 	open,
 	onClose,
+	initialDay,
 	linkFor,
 	onSchedule,
 	isScheduling
@@ -59,8 +73,8 @@ export function ScheduleMeetingDialog({
 	const t = useTranslations();
 	const locale = useLocale();
 	const [title, setTitle] = useState('');
-	const [date, setDate] = useState(() => dateInputOf(nextSlotOf(new Date())));
-	const [time, setTime] = useState(() => timeInputOf(nextSlotOf(new Date())));
+	const [date, setDate] = useState(() => dateInputOf(proposedStartOf(initialDay)));
+	const [time, setTime] = useState(() => timeInputOf(proposedStartOf(initialDay)));
 	const [duration, setDuration] = useState(DEFAULT_DURATION);
 	const [description, setDescription] = useState('');
 	const [problem, setProblem] = useState<'title' | 'past' | null>(null);

@@ -274,6 +274,26 @@ describe('MeetingsPage', () => {
 		}
 	});
 
+	it('schedules on the day the agenda shows, and never on a day that has passed', async () => {
+		const now = new Date();
+		const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+		const pad = (value: number) => String(value).padStart(2, '0');
+		render(<MeetingsPage />);
+
+		fireEvent.click(screen.getByRole('button', { name: 'meetings.NEXT_DAY' }));
+		fireEvent.click(screen.getByRole('button', { name: 'meetings.SCHEDULE_ON_DAY' }));
+
+		const date = (await screen.findByLabelText('meetings.FIELD_DATE')) as HTMLInputElement;
+		expect(date.value).toBe(`${tomorrow.getFullYear()}-${pad(tomorrow.getMonth() + 1)}-${pad(tomorrow.getDate())}`);
+		fireEvent.click(screen.getByRole('button', { name: 'common.CANCEL' }));
+
+		fireEvent.click(screen.getByRole('button', { name: 'meetings.TODAY' }));
+		fireEvent.click(screen.getByRole('button', { name: 'meetings.PREVIOUS_DAY' }));
+		expect((screen.getByRole('button', { name: 'meetings.SCHEDULE_ON_DAY' }) as HTMLButtonElement).disabled).toBe(
+			true
+		);
+	});
+
 	it('keeps scheduling for people with an employee record, who own the appointments', () => {
 		mockScheduled.canSchedule = false;
 		render(<MeetingsPage />);

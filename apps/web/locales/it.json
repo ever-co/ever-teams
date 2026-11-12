@@ -3871,6 +3871,7 @@
 		"DAY_LABEL": "{day}, {date}",
 		"PREVIOUS_DAY": "Giorno precedente",
 		"NEXT_DAY": "Giorno successivo",
+		"SCHEDULE_ON_DAY": "Pianifica una riunione in questo giorno",
 		"NO_MEETINGS_TODAY": "Nessuna riunione pianificata oggi",
 		"NO_MEETINGS_TODAY_HINT": "Le riunioni che pianifichi compaiono qui, con un pulsante per partecipare.",
 		"NO_MEETINGS_DAY": "Nessuna riunione pianificata in questo giorno",

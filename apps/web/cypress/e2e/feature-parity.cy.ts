@@ -209,6 +209,16 @@ describe('feature parity on the authenticated shell', () => {
 		cy.get('button[aria-label="Next day"]').click();
 		cy.contains('h2', /^Tomorrow, /).should('be.visible');
 		cy.get('[data-testid="meetings-agenda-day"]').should('contain', 'No meetings scheduled this day');
+		// "+" schedules on the day shown
+		cy.get('[data-testid="meetings-schedule-on-day"]').click();
+		cy.get('#meeting-date').should(($date) => {
+			const tomorrow = new Date();
+			tomorrow.setDate(tomorrow.getDate() + 1);
+			const pad = (value: number) => String(value).padStart(2, '0');
+			const expected = `${tomorrow.getFullYear()}-${pad(tomorrow.getMonth() + 1)}-${pad(tomorrow.getDate())}`;
+			expect($date.val()).to.equal(expected);
+		});
+		cy.contains('button', /^Cancel$/).click();
 
 		cy.get('button[aria-label="Previous day"]').click();
 		cy.contains('h2', /^Today, /).should('be.visible');

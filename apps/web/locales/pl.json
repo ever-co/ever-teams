@@ -3871,6 +3871,7 @@
 		"DAY_LABEL": "{day}, {date}",
 		"PREVIOUS_DAY": "Poprzedni dzień",
 		"NEXT_DAY": "Następny dzień",
+		"SCHEDULE_ON_DAY": "Zaplanuj spotkanie na ten dzień",
 		"NO_MEETINGS_TODAY": "Brak spotkań zaplanowanych na dziś",
 		"NO_MEETINGS_TODAY_HINT": "Zaplanowane spotkania pojawiają się tutaj, z przyciskiem do dołączenia.",
 		"NO_MEETINGS_DAY": "Brak spotkań zaplanowanych na ten dzień",

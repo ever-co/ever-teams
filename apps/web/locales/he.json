@@ -3871,6 +3871,7 @@
 		"DAY_LABEL": "{day}, {date}",
 		"PREVIOUS_DAY": "היום הקודם",
 		"NEXT_DAY": "היום הבא",
+		"SCHEDULE_ON_DAY": "תזמון פגישה ביום זה",
 		"NO_MEETINGS_TODAY": "אין פגישות מתוזמנות היום",
 		"NO_MEETINGS_TODAY_HINT": "פגישות שתתזמנו יופיעו כאן, עם כפתור להצטרפות.",
 		"NO_MEETINGS_DAY": "אין פגישות מתוזמנות ביום זה",

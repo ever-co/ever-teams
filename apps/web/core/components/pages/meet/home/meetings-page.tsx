@@ -97,8 +97,11 @@ export function MeetingsPage() {
 	// Each opening starts a new dialog: the time it proposes is the next slot from now, and the answer of a request
 	// made by a dialog closed before it came back never shows in the next one
 	const [dialogKey, setDialogKey] = useState(0);
-	const openDialogOf = (dialog: 'join' | 'schedule') => {
+	// The day Schedule proposes, when it opens from a day of the agenda
+	const [scheduleDay, setScheduleDay] = useState<Date | undefined>(undefined);
+	const openDialogOf = (dialog: 'join' | 'schedule', day?: Date) => {
 		setDialogKey((key) => key + 1);
+		setScheduleDay(day);
 		setOpenDialog(dialog);
 	};
 	const title = t('meetings.TITLE');
@@ -178,6 +181,7 @@ export function MeetingsPage() {
 						now={now}
 						cancellingId={scheduled.cancellingId}
 						onCancelMeeting={scheduled.cancelMeeting}
+						onScheduleOn={(day) => openDialogOf('schedule', day)}
 					/>
 				)}
 			</div>
@@ -192,6 +196,7 @@ export function MeetingsPage() {
 				key={`schedule-${dialogKey}`}
 				open={openDialog === 'schedule'}
 				onClose={() => setOpenDialog(null)}
+				initialDay={scheduleDay}
 				linkFor={(meetingTitle) => `${window.location.origin}${newRoomPath(meetingTitle)}`}
 				onSchedule={scheduled.scheduleMeeting}
 				isScheduling={scheduled.isScheduling}
