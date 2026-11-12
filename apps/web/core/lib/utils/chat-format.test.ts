@@ -9,6 +9,7 @@ import {
 	mergeMessages,
 	nextMessageOrder,
 	plainBody,
+	previewLineOf,
 	sortConversations,
 	splitMentions,
 	suggestMentions,
@@ -154,5 +155,23 @@ describe('messages', () => {
 		expect(draftKeyOf('c1', 'm1')).toBe('chat-draft:c1:m1');
 		expect(draftKeyOf('c1', null, 'u1')).toBe('chat-draft:u1:c1');
 		expect(draftKeyOf('c1', 'm1', 'u2')).toBe('chat-draft:u2:c1:m1');
+	});
+});
+
+describe('previewLineOf', () => {
+	const words = { deleted: 'Deleted', file: 'File' };
+	const base = { body: '', attachmentIds: null, attachmentNames: null, deletedAt: null };
+
+	it('reads a message as its text, mentions named', () => {
+		expect(previewLineOf({ ...base, body: `Hi <@${ANA}>` }, people, conversations, words)).toBe('Hi @Ana Silva');
+	});
+
+	it('reads a message of files only as its files, never as deleted', () => {
+		expect(previewLineOf({ ...base, attachmentIds: ['doc-1'], attachmentNames: 'plan.pdf' }, people, conversations, words)).toBe('📎 plan.pdf');
+		expect(previewLineOf({ ...base, attachmentIds: ['doc-1'] }, people, conversations, words)).toBe('📎 File');
+	});
+
+	it('reads a deleted message as deleted, whatever it held', () => {
+		expect(previewLineOf({ ...base, deletedAt: '2026-11-11T10:00:00.000Z' }, people, conversations, words)).toBe('Deleted');
 	});
 });

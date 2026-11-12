@@ -55,6 +55,30 @@ jest.mock('@/core/hooks/timesheet/use-create-timesheet', () => ({
 	useCreateTimesheet: () => ({ createTimesheet: mockCreateTimesheet, loadingCreateTimesheet: false })
 }));
 
+type MockOverlapRequest = {
+	employeeId: string;
+	periods: Array<{ start: Date; end: Date }>;
+	save: () => void | Promise<void>;
+};
+
+// The overlap lookup finds nothing unless a test holds the save: the guard has its own tests
+const mockSaveAfterCheck = jest.fn((request: MockOverlapRequest) => request.save());
+jest.mock('@/core/hooks/timesheet/use-time-overlap-guard', () => ({
+	useTimeOverlapGuard: () => ({
+		saveAfterCheck: mockSaveAfterCheck,
+		isChecking: false,
+		hasCheckFailed: false,
+		isConfirmOpen: false,
+		summary: { totalSeconds: 0, entries: [] },
+		confirm: jest.fn(),
+		cancel: jest.fn()
+	})
+}));
+jest.mock('@/core/components/features/manual-time/time-overlap-confirm-dialog', () => ({
+	TimeOverlapCheckError: () => null,
+	TimeOverlapConfirmDialog: () => null
+}));
+
 jest.mock('@/core/lib/helpers/index', () => ({ toUTC: (date: Date) => date }));
 
 jest.mock('@/core/lib/utils', () => ({ clsxm: () => '' }));
@@ -449,5 +473,56 @@ describe('AddTaskModal project of the saved time', () => {
 		expect(mockCreateTimesheet).toHaveBeenCalledWith(
 			expect.objectContaining({ taskId: 'task-archived', projectId: 'project-archived' })
 		);
+	});
+});
+
+describe('AddTaskModal overlap with time already recorded', () => {
+	beforeEach(() => {
+		mockCreateTimesheet.mockReset();
+		mockCreateTimesheet.mockResolvedValue(undefined);
+		mockAtomValues.activeTeamState = teamA;
+		mockAtomValues.tasksByTeamState = [taskA];
+	});
+
+	it('hands the save to the overlap check with the employee and the period, and sends nothing itself', () => {
+		mockSaveAfterCheck.mockImplementationOnce(() => undefined);
+		renderAddTimeForm();
+
+		pickTaskAndEmployee('task-a', 'employee-a');
+		fillShiftTimes();
+		save();
+
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
+		expect(mockSaveAfterCheck).toHaveBeenCalledTimes(1);
+		const [request] = mockSaveAfterCheck.mock.calls[0];
+		expect(request.employeeId).toBe('employee-a');
+		expect(request.periods).toHaveLength(1);
+		const [checkedPeriod] = request.periods;
+		expect(checkedPeriod.start.getHours()).toBe(9);
+		expect(checkedPeriod.end.getHours()).toBe(11);
+
+		// The save the check held sends the period that was checked
+		void request.save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({ startedAt: checkedPeriod.start, stoppedAt: checkedPeriod.end })
+		);
+	});
+
+	it('says that two periods overlap each other, and checks or sends nothing', () => {
+		renderAddTimeForm();
+
+		pickTaskAndEmployee('task-a', 'employee-a');
+		fireEvent.click(screen.getByText('common.ADD_ANOTHER_PERIOD'));
+		// Both periods 09:00 to 11:00 on the same day: the later one would make the API remove the earlier one
+		const times = screen.getAllByLabelText('shift time');
+		for (const [index, select] of times.entries()) {
+			fireEvent.change(select, { target: { value: index % 2 === 0 ? '09:00 AM' : '11:00 AM' } });
+		}
+		save();
+
+		expect(screen.getByRole('alert').textContent).toBe('timeOverlap.PERIODS_OVERLAP');
+		expect(mockSaveAfterCheck).not.toHaveBeenCalled();
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
 	});
 });

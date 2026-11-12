@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useIsMutating, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { withPreferencePatch } from '@/core/lib/notifications/notification-preferences';
 import { employeeNotificationSettingService, INotificationInboxScope } from '@/core/services/client/api/notifications';
@@ -145,7 +145,17 @@ export function useNotificationSettings() {
 		[queryClient, scope, settingsKey]
 	);
 
+	const saveMutationKey = [...settingsKey, 'save'];
+	// The saves of the delivery preferences in flight, from this instance or another one: the settings page saves while
+	// other readers of the threshold (the timer reminders) are mounted elsewhere, and the value shown may yet be refused
+	const preferenceSavesInFlight = useIsMutating({
+		mutationKey: saveMutationKey,
+		predicate: (mutation) =>
+			(mutation.state.variables as NotificationSettingSave | undefined)?.kind === 'preferences'
+	});
+
 	const saveMutation = useMutation({
+		mutationKey: saveMutationKey,
 		mutationFn: (save: NotificationSettingSave) => {
 			const run = () => sendSave(save);
 			const next = queueRef.current.then(run, run);
@@ -199,6 +209,7 @@ export function useNotificationSettings() {
 		pendingKey: pendingKeyOf(inFlight),
 		/** Saves a change of the delivery preferences (email modes, quiet hours, digest hour). */
 		savePreferences,
-		isSavingPreferences: inFlight.some((save) => save.kind === 'preferences')
+		/** Whether a save of the delivery preferences is in flight, wherever it was started. */
+		isSavingPreferences: preferenceSavesInFlight > 0
 	};
 }

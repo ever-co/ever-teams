@@ -49,11 +49,20 @@ export interface MessageComposerProps {
 	autoFocus?: boolean;
 	/** Edit mode: Save and Cancel replace Send, and Escape cancels. */
 	editing?: boolean;
+	/** Edit mode, for a message with files: its text may be emptied (the files stay, and say it). */
+	keepsFiles?: boolean;
+	/**
+	 * Called as the person types something to send (never in edit mode, never for an empty field): the caller tells
+	 * the others, at its own pace.
+	 */
+	onTyping?: () => void;
+	/** A live line under the box, on the start side (who else is typing here). */
+	status?: ReactNode;
 	/** A thread composer offers "also send to the conversation". */
 	alsoToConversation?: { checked: boolean; onChange: (checked: boolean) => void };
 	/**
 	 * The files of the message (picker, paste, drop): with them the composer offers to attach, shows them, and sends
-	 * with files alone once they are uploaded (`onSubmit('')`: the caller words the body). Never in edit mode.
+	 * with files alone once they are uploaded (`onSubmit('')`: a message of files only has no text). Never in edit mode.
 	 */
 	attachments?: ChatAttachments;
 	className?: string;
@@ -100,6 +109,9 @@ export function MessageComposer({
 	disabled,
 	autoFocus,
 	editing,
+	keepsFiles,
+	onTyping,
+	status,
 	alsoToConversation,
 	attachments,
 	className
@@ -220,7 +232,8 @@ export function MessageComposer({
 		[insertEmoji, insertMention, suggestions]
 	);
 
-	const hasFiles = !!attachments && attachments.readyIds.length > 0;
+	// The files the message goes with: uploaded ones, or (an edit) the ones it already carries.
+	const hasFiles = (!!attachments && attachments.readyIds.length > 0) || (!!editing && !!keepsFiles);
 	const isUploading = !!attachments?.isUploading;
 
 	const submit = useCallback(async () => {
@@ -406,6 +419,7 @@ export function MessageComposer({
 					onChange={(event) => {
 						const position = event.target.selectionStart ?? event.target.value.length;
 						onChange(event.target.value);
+						if (onTyping && !editing && event.target.value.trim()) onTyping();
 						setCaret(position);
 						// Typing means the field has the focus, however it got it (a field focused as it mounts tells nobody).
 						setFocused(true);
@@ -509,6 +523,7 @@ export function MessageComposer({
 						{t('teamChat.ALSO_SEND_TO_CONVERSATION')}
 					</label>
 				)}
+				{status}
 				<span className={cn('ms-auto text-end', tooLong ? 'text-destructive' : 'hidden sm:inline')}>{hint}</span>
 			</div>
 		</div>

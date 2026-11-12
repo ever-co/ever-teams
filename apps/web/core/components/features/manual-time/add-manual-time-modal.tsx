@@ -18,6 +18,8 @@ import { FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } f
 
 import { manualTimeReasons } from '@/core/constants/config/constants';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
+import { useTimeOverlapGuard } from '@/core/hooks/timesheet/use-time-overlap-guard';
+import { TimeOverlapCheckError, TimeOverlapConfirmDialog } from './time-overlap-confirm-dialog';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { DatePicker } from '@/core/components/common/date-picker';
 import { getNestedValue, Item, ManageOrMemberComponent } from '../../teams/manage-member-component';
@@ -174,6 +176,11 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		addManualTimeFailure,
 		timeLog
 	} = useManualTime();
+	const overlapGuard = useTimeOverlapGuard({ isOpen });
+	const saveAfterOverlapCheck = overlapGuard.saveAfterCheck;
+	const ownEmployeeId = user?.employee?.id ?? '';
+
+	const isSaving = addManualTimeLoading || overlapGuard.isChecking || isCheckingSave;
 
 	const startTimeId = useId();
 	const endTimeId = useId();
@@ -200,9 +207,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		[projectId, employeeId]
 	);
 
-	const ownEmployeeId = user?.employee?.id ?? '';
 	const savedEmployeeId = employeeId || ownEmployeeId;
-	const isSaving = addManualTimeLoading || isCheckingSave;
 
 	/** Saves once the dialog's opener has nothing against the interval (a copied entry may not run over another). */
 	const saveUnlessRefused = useCallback(
@@ -296,12 +301,21 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				return;
 			}
 
-			// All validation passed, submit the request
-			void saveUnlessRefused({ start: startedAt, end: stoppedAt }, () => addManualTime(requestData));
+			const period = { start: startedAt, end: stoppedAt };
+			// A copied entry is refused over another entry; any other time over recorded time asks first
+			void saveUnlessRefused(period, () =>
+				saveAfterOverlapCheck({
+					employeeId: savedEmployeeId,
+					periods: [period],
+					save: () => addManualTime(requestData)
+				})
+			);
 		},
 		[
 			addManualTime,
 			saveUnlessRefused,
+			saveAfterOverlapCheck,
+			savedEmployeeId,
 			date,
 			description,
 			endTime,
@@ -753,6 +767,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 						{errorMsg}
 					</p>
 				)}
+				<TimeOverlapCheckError guard={overlapGuard} />
 				<div className="flex flex-wrap items-center justify-between gap-3 pt-1">
 					<BillableSwitch
 						isBillable={isBillable}
@@ -777,6 +792,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 					</div>
 				</div>
 			</form>
+			<TimeOverlapConfirmDialog guard={overlapGuard} confirmLabel={t('timeOverlap.CONFIRM_ADD')} />
 		</Modal>
 	);
 }

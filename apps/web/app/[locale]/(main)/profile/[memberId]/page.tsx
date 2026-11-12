@@ -16,6 +16,7 @@ import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { ProfilePageSkeleton } from '@/core/components/common/skeleton/profile-page-skeleton';
 import { ProfileTimer } from '@/core/components/pages/profile/profile-timer';
+import { TrackingOffNotice } from '@/core/components/timer/tracking-off-notice';
 import {
 	LazyAppsTab,
 	LazyScreenshootTab,
@@ -24,7 +25,7 @@ import {
 	LazyVisitedSitesTab,
 	LazyTaskFilter
 } from '@/core/components/optimized-components';
-import { activeTeamManagersState, activeTeamState, isTrackingEnabledState } from '@/core/stores';
+import { activeTeamManagersState, activeTeamState, isOwnTrackingOffState, isTrackingEnabledState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import {
 	normalizeProfileActivityTimeZone,
@@ -75,6 +76,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const { data: user } = useUserQuery();
 
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
+	const isOwnTrackingOff = useAtomValue(isOwnTrackingOffState);
 
 	// Use our new validation hook
 	const profileValidation = useProfileValidation(unwrappedParams.memberId);
@@ -243,11 +245,14 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	// Only a teammate's profile reads member data the API may refuse; one's own profile always shows
 	const showsManagerRightsNotice = managerRightsUnconfirmed && !profileIsAuthUser;
 	const showsTimer = profileIsAuthUser && isTrackingEnabled;
-	// A teammate's profile draws no timer of its own, so the viewer keeps the compact one in the top bar
-	const showsHeaderTimer = !profileIsAuthUser && isTrackingEnabled;
+	// A teammate's profile draws no timer of its own, so the viewer keeps the compact one in the top bar, or the reason
+	// they have none: the layout gives the timer only to a member who can track
+	const showsHeaderTimer = !profileIsAuthUser && (isTrackingEnabled || isOwnTrackingOff);
 	let timerSlot: React.ReactNode = null;
 	if (showsTimer) {
 		timerSlot = <ProfileTimer />;
+	} else if (profileIsAuthUser && isOwnTrackingOff) {
+		timerSlot = <TrackingOffNotice />;
 	}
 	const activityView = {
 		isVisible: isActivityViewVisible,

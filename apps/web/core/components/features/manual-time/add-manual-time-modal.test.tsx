@@ -59,6 +59,30 @@ jest.mock('@/core/hooks/activities/use-manual-time', () => ({
 	})
 }));
 
+type MockOverlapRequest = {
+	employeeId: string;
+	periods: Array<{ start: Date; end: Date }>;
+	save: () => void | Promise<void>;
+};
+
+// The overlap lookup finds nothing unless a test holds the save: the guard has its own tests
+const mockSaveAfterCheck = jest.fn((request: MockOverlapRequest) => request.save());
+jest.mock('@/core/hooks/timesheet/use-time-overlap-guard', () => ({
+	useTimeOverlapGuard: () => ({
+		saveAfterCheck: mockSaveAfterCheck,
+		isChecking: false,
+		hasCheckFailed: false,
+		isConfirmOpen: false,
+		summary: { totalSeconds: 0, entries: [] },
+		confirm: jest.fn(),
+		cancel: jest.fn()
+	})
+}));
+jest.mock('./time-overlap-confirm-dialog', () => ({
+	TimeOverlapCheckError: () => null,
+	TimeOverlapConfirmDialog: () => null
+}));
+
 jest.mock('@/core/hooks/queries/user-user.query', () => ({
 	useUserQuery: () => ({ data: { id: 'user-1' } })
 }));
@@ -460,5 +484,53 @@ describe('AddManualTimeModal team of the saved time', () => {
 		expect(mockAddManualTime).toHaveBeenCalledWith(
 			expect.objectContaining({ organizationTeamId: 'team-b', taskId: 'task-b', employeeId: 'employee-b' })
 		);
+	});
+});
+
+describe('AddManualTimeModal overlap with time already recorded', () => {
+	beforeEach(() => {
+		mockPickedTeamTasksQuery.data = undefined;
+		mockAtomValues.activeTeamState = teamA;
+		mockAtomValues.activeTeamTaskState = taskA;
+		mockAtomValues.organizationTeamsState = [teamA, teamB];
+		mockAtomValues.tasksByTeamState = teamATasks();
+	});
+
+	it('hands the save to the overlap check with the picked employee and the interval, and sends nothing itself', () => {
+		mockSaveAfterCheck.mockImplementationOnce(() => undefined);
+		renderCalendarDialog();
+
+		clickButton('pick employee-a');
+		submitDialog();
+
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+		expect(mockSaveAfterCheck).toHaveBeenCalledTimes(1);
+		const [request] = mockSaveAfterCheck.mock.calls[0];
+		expect(request.employeeId).toBe('employee-a');
+		expect(request.periods).toHaveLength(1);
+		const [checkedPeriod] = request.periods;
+		expect([checkedPeriod.start.getHours(), checkedPeriod.start.getMinutes()]).toEqual([9, 0]);
+		expect([checkedPeriod.end.getHours(), checkedPeriod.end.getMinutes()]).toEqual([11, 0]);
+
+		// The save the check held is the dialog's own, for the interval that was checked
+		request.save();
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(
+			expect.objectContaining({
+				employeeId: 'employee-a',
+				startedAt: checkedPeriod.start,
+				stoppedAt: checkedPeriod.end
+			})
+		);
+	});
+
+	it('does not ask the overlap check for a form that is not valid', () => {
+		renderAddTimeDialog();
+
+		pickInSelect('task', '');
+		submitDialog();
+
+		expect(mockSaveAfterCheck).not.toHaveBeenCalled();
+		expect(mockAddManualTime).not.toHaveBeenCalled();
 	});
 });

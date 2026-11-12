@@ -5,12 +5,15 @@ import { validateApiResponse } from '@/core/types/schemas';
 import { uploadedDocumentsSchema, type TUploadedDocuments } from '@/core/types/schemas/documents/entity-file.schema';
 import type {
 	IChatCategory,
+	IChatCategoryReorderInput,
+	IChatCategoryReorderResult,
 	IChatConversationCreateInput,
 	IChatConversationList,
 	IChatConversationUpdateInput,
 	IChatConversationWithState,
 	IChatCreateTaskInput,
 	IChatCreateTaskResult,
+	IChatDraftDiscardResult,
 	IChatEvent,
 	IChatFilesQuery,
 	IChatFilesResult,
@@ -29,7 +32,11 @@ import type {
 	IChatReadAllResult,
 	IChatSendResult,
 	IChatStates,
-	IChatThreadPage
+	IChatTaskUpdateInput,
+	IChatTaskUpdateResult,
+	IChatThreadPage,
+	IChatTypingInput,
+	IChatTypingResult
 } from '@/core/types/interfaces/common/chat';
 
 /** The newest page a conversation opens with (the platform's default is 50, its maximum 200). */
@@ -136,6 +143,12 @@ class ChatService extends APIService {
 		return response.data;
 	};
 
+	/** The order of every category (first to last), and of the channels within them, saved in one call (`CHAT_MANAGE`). */
+	reorderCategories = async (input: IChatCategoryReorderInput): Promise<IChatCategoryReorderResult> => {
+		const response = await this.post<IChatCategoryReorderResult>('/chat/categories/reorder', { ...input }, undefined, false);
+		return response.data;
+	};
+
 	// ---------------------------------------------------------------- messages
 
 	messages = async (conversationId: string, query: IChatMessagesQuery = {}, signal?: AbortSignal): Promise<IChatMessagePage> => {
@@ -190,6 +203,22 @@ class ChatService extends APIService {
 		return validateApiResponse(uploadedDocumentsSchema, response.data, 'uploadAttachments API response');
 	};
 
+	/**
+	 * Discards a file uploaded for a message and never sent: the platform removes it only while no message carries it
+	 * (a file already sent stays). A platform older than the route answers 404.
+	 */
+	discardAttachment = async (documentId: string): Promise<IChatDraftDiscardResult> => {
+		const response = await this.delete<IChatDraftDiscardResult>(`/chat/attachments/${path(documentId)}`);
+		return response.data;
+	};
+
+	/** "Is typing": the other members hear it for a few seconds (the platform tells one place at most every 2.5 s). */
+	typing = async (conversationId: string, input: IChatTypingInput = {}): Promise<IChatTypingResult> => {
+		const body = input.threadRootId ? { threadRootId: input.threadRootId } : {};
+		const response = await this.post<IChatTypingResult>(`/chat/conversations/${path(conversationId)}/typing`, body, undefined, false);
+		return response.data;
+	};
+
 	pins = async (conversationId: string, signal?: AbortSignal): Promise<IChatMessage[]> => {
 		const response = await this.get<IChatMessage[]>(`/chat/conversations/${path(conversationId)}/pins`, { signal });
 		return response.data;
@@ -218,6 +247,12 @@ class ChatService extends APIService {
 	/** A task from a message; the message keeps a `created` reference to it. Needs the task permission as well. */
 	createTask = async (messageId: string, input: IChatCreateTaskInput): Promise<IChatCreateTaskResult> => {
 		const response = await this.post<IChatCreateTaskResult>(`/chat/messages/${path(messageId)}/create-task`, input, undefined, false);
+		return response.data;
+	};
+
+	/** Changes a task from its card in a message (status, priority, assignees); needs the task edit permission too. */
+	updateTask = async (messageId: string, taskId: string, input: IChatTaskUpdateInput): Promise<IChatTaskUpdateResult> => {
+		const response = await this.patch<IChatTaskUpdateResult>(`/chat/messages/${path(messageId)}/tasks/${path(taskId)}`, { ...input });
 		return response.data;
 	};
 
