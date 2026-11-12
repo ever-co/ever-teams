@@ -13,6 +13,7 @@ import type {
 const REASON_KEYS: Record<BulkEditReason, DottedLanguageObjectStringPaths> = {
 	notAllowed: 'dashboard.timesheets.BULK_EDIT.REASON.NOT_ALLOWED',
 	running: 'dashboard.timesheets.BULK_EDIT.REASON.RUNNING',
+	approved: 'dashboard.timesheets.BULK_EDIT.REASON.APPROVED',
 	otherTeam: 'dashboard.timesheets.BULK_EDIT.REASON.OTHER_TEAM',
 	unchanged: 'dashboard.timesheets.BULK_EDIT.REASON.UNCHANGED',
 	overlap: 'dashboard.timesheets.BULK_EDIT.REASON.OVERLAP',

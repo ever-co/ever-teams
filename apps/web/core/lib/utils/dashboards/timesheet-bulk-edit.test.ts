@@ -1,4 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import {
 	type BulkEditChoice,
@@ -33,6 +34,10 @@ function logOf(overrides: Partial<ITimeLog>): ITimeLog {
 		stoppedAt: new Date('2026-11-10T10:00:00.000Z'),
 		...overrides
 	};
+}
+
+function timesheetOf(status: ETimesheetStatus) {
+	return { id: 'sheet', status } as ITimeLog['timesheet'];
 }
 
 function scopeOf(overrides: Partial<BulkEditScope> = {}): BulkEditScope {
@@ -163,6 +168,15 @@ describe('plan of a bulk edit', () => {
 		expect(leftOutReasonsOf(logs, { ...KEEP, isBillable: true })).toEqual(['running']);
 	});
 
+	it('leaves out an approved entry and saves the others of the selection', () => {
+		const approved = logOf({ id: 'approved', timesheet: timesheetOf(ETimesheetStatus.APPROVED) });
+		const pending = logOf({ id: 'pending', timesheet: timesheetOf(ETimesheetStatus.PENDING) });
+		const plan = bulkEditPlanOf([approved, pending], { ...KEEP, isBillable: true }, scopeOf());
+
+		expect(plan.saves.map((save) => save.log.id)).toEqual(['pending']);
+		expect(plan.leftOut).toEqual([{ log: approved, reason: 'approved' }]);
+	});
+
 	it('leaves out an entry of another team when its task would change', () => {
 		const logs = [logOf({ id: 'other-team', organizationTeamId: 'team-b' })];
 
@@ -226,6 +240,15 @@ describe('report of a bulk edit', () => {
 			{ reason: 'running', count: 1, detailKey: undefined },
 			{ reason: 'unchanged', count: 1, detailKey: undefined }
 		]);
+	});
+
+	it('says why approved entries were left out, after the running ones and before another team', () => {
+		const approved = logOf({ id: 'approved', timesheet: timesheetOf(ETimesheetStatus.APPROVED) });
+		const ofOtherTeam = logOf({ id: 'other-team', organizationTeamId: 'team-b' });
+		const taskPlan = bulkEditPlanOf([ofOtherTeam, approved, running], { ...KEEP, task: taskOfMobile }, scopeOf());
+		const lines = leftOutLinesOf(taskPlan.leftOut);
+
+		expect(lines.map((line) => line.reason)).toEqual(['running', 'approved', 'otherTeam']);
 	});
 
 	it('counts every ticked entry as updated when each one was saved', () => {

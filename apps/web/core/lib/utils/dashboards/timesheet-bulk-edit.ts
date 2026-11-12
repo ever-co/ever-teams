@@ -1,7 +1,8 @@
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { ITimeLogUpdatePayload } from '@/core/types/interfaces/timesheet/time-log.interface';
 import { type EntryTaskChange, entryTaskChangeOf, isEntryOfListedTeam } from './time-entry-task';
-import { endOfLog, startOfLog } from './timesheets';
+import { endOfLog, startOfLog, statusOfLog } from './timesheets';
 
 export interface BulkEditTask {
 	id: string;
@@ -52,7 +53,7 @@ export function taskChoicesUnderProject<Task extends BulkEditTask>(
 	return tasks.filter((task) => isTaskUnderProject(task, projectId));
 }
 
-export type BulkEditLeftOutReason = 'notAllowed' | 'running' | 'otherTeam' | 'unchanged';
+export type BulkEditLeftOutReason = 'notAllowed' | 'running' | 'approved' | 'otherTeam' | 'unchanged';
 
 /** Only what differs from the entry's own values: a field absent here is never sent. */
 export interface BulkEditFields {
@@ -132,6 +133,11 @@ function leftOutReasonOf(
 	if (log.isRunning === true) {
 		return 'running';
 	}
+	// Approved time is read only, as in the week sheet: its status has to change before it is edited in bulk
+	const isApproved = statusOfLog(log) === ETimesheetStatus.APPROVED;
+	if (isApproved) {
+		return 'approved';
+	}
 	const isOfListedTeam = isEntryOfListedTeam(log.organizationTeamId, scope.listedTeamId);
 	if (taskChange && !isOfListedTeam) {
 		return 'otherTeam';
@@ -207,6 +213,7 @@ export interface BulkEditReasonLine {
 const REASON_ORDER: ReadonlyArray<BulkEditReason> = [
 	'notAllowed',
 	'running',
+	'approved',
 	'otherTeam',
 	'unchanged',
 	'overlap',
