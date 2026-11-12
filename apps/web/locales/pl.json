@@ -4531,6 +4531,7 @@
 				"CALLBACK_exchange_failed": "Jira odrzuciła kod autoryzacji. Zacznij od nowa.",
 				"CALLBACK_site_unreadable": "Po autoryzacji nie udało się odczytać witryn Jira.",
 				"CALLBACK_no_site": "Konto nie ma dostępu do żadnej witryny Jira.",
+				"CALLBACK_site_mismatch": "To połączenie ma mapowania w witrynie Jira, do której konto nie ma już dostępu; pozostało bez zmian.",
 				"CALLBACK_not_saved": "Nie udało się zapisać połączenia."
 			},
 			"conflicts": {

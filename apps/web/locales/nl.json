@@ -4531,6 +4531,7 @@
 				"CALLBACK_exchange_failed": "Jira weigerde de autorisatiecode. Begin opnieuw.",
 				"CALLBACK_site_unreadable": "De Jira-sites konden na het autoriseren niet worden gelezen.",
 				"CALLBACK_no_site": "Het account bereikt geen Jira-site.",
+				"CALLBACK_site_mismatch": "Deze koppeling heeft toewijzingen op een Jira-site die het account niet meer bereikt; ze is ongewijzigd gebleven.",
 				"CALLBACK_not_saved": "De verbinding kon niet worden opgeslagen."
 			},
 			"conflicts": {

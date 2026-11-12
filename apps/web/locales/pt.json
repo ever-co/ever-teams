@@ -4531,6 +4531,7 @@
 				"CALLBACK_exchange_failed": "O Jira recusou o código de autorização. Comece de novo.",
 				"CALLBACK_site_unreadable": "Não foi possível ler os sites do Jira após a autorização.",
 				"CALLBACK_no_site": "A conta não acede a nenhum site do Jira.",
+				"CALLBACK_site_mismatch": "Esta ligação tem mapeamentos num site do Jira a que a conta já não acede; ficou como estava.",
 				"CALLBACK_not_saved": "Não foi possível guardar a ligação."
 			},
 			"conflicts": {

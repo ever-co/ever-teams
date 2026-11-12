@@ -4531,6 +4531,7 @@
 				"CALLBACK_exchange_failed": "Jira refused the authorization code. Start again.",
 				"CALLBACK_site_unreadable": "The Jira sites could not be read after authorizing.",
 				"CALLBACK_no_site": "The account reaches no Jira site.",
+				"CALLBACK_site_mismatch": "This connection has mappings on a Jira site the account no longer reaches; it was kept as it was.",
 				"CALLBACK_not_saved": "The connection could not be saved."
 			},
 			"conflicts": {

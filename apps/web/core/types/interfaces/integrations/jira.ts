@@ -168,6 +168,7 @@ export const JIRA_CALLBACK_ERRORS = [
 	'exchange_failed',
 	'site_unreadable',
 	'no_site',
+	'site_mismatch',
 	'not_saved'
 ] as const;
 export type TJiraCallbackError = (typeof JIRA_CALLBACK_ERRORS)[number];

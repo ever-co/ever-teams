@@ -4531,6 +4531,7 @@
 				"CALLBACK_exchange_failed": "Jira hat den Autorisierungscode abgelehnt. Starten Sie erneut.",
 				"CALLBACK_site_unreadable": "Die Jira-Sites konnten nach der Autorisierung nicht gelesen werden.",
 				"CALLBACK_no_site": "Das Konto erreicht keine Jira-Site.",
+				"CALLBACK_site_mismatch": "Diese Verbindung hat Zuordnungen auf einer Jira-Site, die das Konto nicht mehr erreicht; sie blieb unverändert.",
 				"CALLBACK_not_saved": "Die Verbindung konnte nicht gespeichert werden."
 			},
 			"conflicts": {

@@ -4531,6 +4531,7 @@
 				"CALLBACK_exchange_failed": "Jira דחה את קוד ההרשאה. התחילו מחדש.",
 				"CALLBACK_site_unreadable": "לא ניתן היה לקרוא את אתרי Jira אחרי ההרשאה.",
 				"CALLBACK_no_site": "לחשבון אין גישה לאף אתר Jira.",
+				"CALLBACK_site_mismatch": "לחיבור הזה יש מיפויים באתר Jira שהחשבון כבר לא מגיע אליו; הוא נשאר כפי שהיה.",
 				"CALLBACK_not_saved": "לא ניתן היה לשמור את החיבור."
 			},
 			"conflicts": {

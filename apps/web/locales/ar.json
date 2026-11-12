@@ -4531,6 +4531,7 @@
 				"CALLBACK_exchange_failed": "رفض Jira رمز التفويض. ابدأ من جديد.",
 				"CALLBACK_site_unreadable": "تعذّرت قراءة مواقع Jira بعد التفويض.",
 				"CALLBACK_no_site": "لا يصل الحساب إلى أي موقع Jira.",
+				"CALLBACK_site_mismatch": "لهذا الاتصال تعيينات على موقع Jira لم يعد الحساب يصل إليه؛ بقي كما كان.",
 				"CALLBACK_not_saved": "تعذّر حفظ الاتصال."
 			},
 			"conflicts": {

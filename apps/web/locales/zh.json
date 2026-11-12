@@ -4531,6 +4531,7 @@
 				"CALLBACK_exchange_failed": "Jira 拒绝了授权码。请重新开始。",
 				"CALLBACK_site_unreadable": "授权后无法读取 Jira 站点。",
 				"CALLBACK_no_site": "该账户无法访问任何 Jira 站点。",
+				"CALLBACK_site_mismatch": "此连接在该账户已无法访问的 Jira 站点上有映射，因此保持不变。",
 				"CALLBACK_not_saved": "无法保存连接。"
 			},
 			"conflicts": {
