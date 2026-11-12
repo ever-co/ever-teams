@@ -5,12 +5,14 @@ import {
 	assignableWorkspaceRolesOf,
 	canChangeWorkspaceRole,
 	canDeactivateMember,
+	enabledPermissionsOf,
 	holdsInactiveMembersPermission,
 	holdsMemberDeactivationPermission,
 	inactiveEmployeePagesAfterFirst,
 	inactiveEmployeesQueryOf,
 	inactiveMembersOfTeam,
 	isWorkEndApplied,
+	isWorkspaceRoleChangeWithinReach,
 	readsWorkspaceRoles,
 	WorkEndNotAppliedError,
 	workspaceRoleNameOf,
@@ -206,6 +208,71 @@ describe('canChangeWorkspaceRole', () => {
 		expect(canChangeWorkspaceRole({ ...forSuperAdmin, workspaceRoleName: 'SUPER_ADMIN' })).toBe(true);
 		expect(canChangeWorkspaceRole({ ...forSuperAdmin, workspaceRoleName: 'Support' })).toBe(true);
 		expect(canChangeWorkspaceRole({ ...forSuperAdmin, workspaceRoleName: null })).toBe(false);
+	});
+});
+
+describe('enabledPermissionsOf', () => {
+	it('names once each permission that is turned on, and none that is off or without a name', () => {
+		const rows = [
+			{ permission: 'ORG_USERS_EDIT', enabled: true },
+			{ permission: 'ORG_USERS_EDIT', enabled: true },
+			{ permission: 'SUPER_ADMIN_EDIT', enabled: false },
+			{ permission: 'ORG_EMPLOYEES_EDIT', enabled: null },
+			{ permission: 'ORG_EMPLOYEES_VIEW' },
+			{ permission: null, enabled: true },
+			{ enabled: true }
+		];
+
+		expect(enabledPermissionsOf(rows)).toEqual(['ORG_USERS_EDIT']);
+		expect(enabledPermissionsOf([])).toEqual([]);
+	});
+});
+
+describe('isWorkspaceRoleChangeWithinReach', () => {
+	const byAdmin = {
+		viewerUserId: 'user-admin',
+		viewerRoleName: 'ADMIN',
+		permissions: ADMIN_PERMISSIONS,
+		roles: WORKSPACE_ROLES,
+		accountUserId: 'user-ana',
+		accountRoleId: 'role-employee',
+		roleId: 'role-manager'
+	};
+	const bySuperAdmin = { ...byAdmin, viewerRoleName: 'SUPER_ADMIN', permissions: SUPER_ADMIN_PERMISSIONS };
+
+	it('lets an admin give a platform role up to admin to another account that holds one', () => {
+		expect(isWorkspaceRoleChangeWithinReach(byAdmin)).toBe(true);
+		expect(isWorkspaceRoleChangeWithinReach({ ...byAdmin, roleId: 'role-admin' })).toBe(true);
+		expect(isWorkspaceRoleChangeWithinReach({ ...byAdmin, accountRoleId: 'role-admin' })).toBe(true);
+	});
+
+	it('refuses a role the admin is not offered: super admin, a role the workspace created, an unknown one', () => {
+		expect(isWorkspaceRoleChangeWithinReach({ ...byAdmin, roleId: 'role-super-admin' })).toBe(false);
+		expect(isWorkspaceRoleChangeWithinReach({ ...byAdmin, roleId: 'role-support' })).toBe(false);
+		expect(isWorkspaceRoleChangeWithinReach({ ...byAdmin, roleId: 'role-of-another-workspace' })).toBe(false);
+	});
+
+	it('refuses an account out of the admin reach: their own, a super admin, the holder of a created role', () => {
+		expect(isWorkspaceRoleChangeWithinReach({ ...byAdmin, accountUserId: 'user-admin' })).toBe(false);
+		expect(isWorkspaceRoleChangeWithinReach({ ...byAdmin, accountRoleId: 'role-super-admin' })).toBe(false);
+		expect(isWorkspaceRoleChangeWithinReach({ ...byAdmin, accountRoleId: 'role-support' })).toBe(false);
+		expect(isWorkspaceRoleChangeWithinReach({ ...byAdmin, accountRoleId: null })).toBe(false);
+	});
+
+	it('refuses every change to a viewer who is not an admin or who may not edit accounts', () => {
+		const byManager = { ...byAdmin, viewerRoleName: 'MANAGER', permissions: SUPER_ADMIN_PERMISSIONS };
+
+		expect(isWorkspaceRoleChangeWithinReach(byManager)).toBe(false);
+		expect(isWorkspaceRoleChangeWithinReach({ ...byAdmin, permissions: ['ORG_EMPLOYEES_EDIT'] })).toBe(false);
+		expect(isWorkspaceRoleChangeWithinReach({ ...byAdmin, roles: [] })).toBe(false);
+	});
+
+	it('lets a super admin give any role to any account but their own', () => {
+		const onSuperAdmin = { ...bySuperAdmin, accountRoleId: 'role-super-admin' };
+
+		expect(isWorkspaceRoleChangeWithinReach({ ...bySuperAdmin, roleId: 'role-super-admin' })).toBe(true);
+		expect(isWorkspaceRoleChangeWithinReach({ ...onSuperAdmin, roleId: 'role-support' })).toBe(true);
+		expect(isWorkspaceRoleChangeWithinReach({ ...bySuperAdmin, accountUserId: 'user-admin' })).toBe(false);
 	});
 });
 

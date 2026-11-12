@@ -191,6 +191,54 @@ export function canChangeWorkspaceRole({
 	return assignableRoles.some((role) => role.name === workspaceRoleName);
 }
 
+interface RolePermissionRow {
+	permission?: string | null;
+	enabled?: boolean | null;
+}
+
+/** The names of the permissions that are turned on among the rows Gauzy answers for a role. */
+export function enabledPermissionsOf(rows: ReadonlyArray<RolePermissionRow>): string[] {
+	const names = new Set<string>();
+	for (const row of rows) {
+		if (row.enabled && row.permission) {
+			names.add(row.permission);
+		}
+	}
+	return Array.from(names);
+}
+
+/**
+ * One change of workspace role, decided whole: the role is one the viewer may give, and the account is one whose role
+ * the viewer may change. The proxy route decides with it from what Gauzy answers, so a request written by hand gives
+ * no role and reaches no account through that route that the two rules above leave out.
+ */
+export function isWorkspaceRoleChangeWithinReach({
+	viewerUserId,
+	viewerRoleName,
+	permissions,
+	roles,
+	accountUserId,
+	accountRoleId,
+	roleId
+}: Readonly<{
+	viewerUserId: string;
+	viewerRoleName: string | null | undefined;
+	permissions: ReadonlyArray<string>;
+	roles: ReadonlyArray<WorkspaceRole>;
+	accountUserId: string;
+	accountRoleId: string | null | undefined;
+	roleId: string;
+}>): boolean {
+	const assignableRoles = assignableWorkspaceRolesOf({ viewerRoleName, permissions, roles });
+	const isRoleOffered = assignableRoles.some((role) => role.id === roleId);
+	if (!isRoleOffered) {
+		return false;
+	}
+	const isYou = accountUserId === viewerUserId;
+	const workspaceRoleName = workspaceRoleNameOf(roles, accountRoleId);
+	return canChangeWorkspaceRole({ isYou, hasUser: true, workspaceRoleName, assignableRoles });
+}
+
 /**
  * Ending a member's work turns their employee inactive and bringing them back turns it active again: Gauzy answers
  * the flag it set. An answer without the expected flag means nothing changed, which is what a Gauzy too old to
