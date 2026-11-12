@@ -200,7 +200,7 @@ async function saveEntry() {
 	await act(async () => {
 		fireEvent.click(saveButton);
 	});
-	const [payload] = mockUpdateTimeLog.mock.calls[0];
+	const [payload] = mockUpdateTimeLog.mock.calls.at(-1) ?? [];
 	return payload as Record<string, unknown>;
 }
 
@@ -281,6 +281,36 @@ describe('EditTaskModal task of the entry', () => {
 
 		expect(payload).not.toHaveProperty('taskId');
 		expect(payload.projectId).toBe('project-site');
+	});
+
+	it("keeps a moved entry under its new task's project when it is opened and saved again", async () => {
+		const view = renderEditDialog(logOf({}));
+		pickTask('task-mobile');
+		await saveEntry();
+
+		const movedLog = logOf({
+			task: taskInMobile,
+			taskId: 'task-mobile',
+			project: mobileProject as ITimeLog['project'],
+			projectId: 'project-mobile'
+		});
+		view.reopen(movedLog);
+		const payload = await saveEntry();
+
+		expect(payload).not.toHaveProperty('taskId');
+		expect(payload.projectId).toBe('project-mobile');
+	});
+
+	it('keeps that project when the entry is opened again before the page has read it as saved', async () => {
+		const view = renderEditDialog(logOf({}));
+		pickTask('task-mobile');
+		await saveEntry();
+
+		view.reopen();
+		const payload = await saveEntry();
+
+		expect(payload).not.toHaveProperty('taskId');
+		expect(payload.projectId).toBe('project-mobile');
 	});
 
 	it("shows the entry's own task when the team's list does not hold it", () => {
