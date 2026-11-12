@@ -2006,13 +2006,20 @@ describe('Ever Teams feature surface preservation', () => {
 		// 292 files and 374 verbs with the comment proxy (/api/comment/[id], PUT and DELETE) and the Docs Markdown export
 		// (GET /api/plugins/docs/documents/[id]/export/markdown), which develop added without raising these numbers.
 		// 294 files and 377 verbs with the scheduled meetings' proxies (/api/employee-appointment GET, POST and [id] DELETE).
-		// 295 files and 378 verbs with the Inbox delivery status proxy (GET /api/inbox/delivery/status).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(295);
+		// 300 files and 383 verbs with the clients' proxies (/api/organization-contact POST, pagination GET, [id] PUT,
+		// [id]/soft DELETE, [id]/recover PUT; #5082).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(300);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(378);
+		).toHaveLength(383);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of Gauzy's organization contacts of the client type (#5082)
+				'apps/web/app/api/organization-contact/pagination/route.ts::GET',
+				'apps/web/app/api/organization-contact/route.ts::POST',
+				'apps/web/app/api/organization-contact/[id]/route.ts::PUT',
+				'apps/web/app/api/organization-contact/[id]/soft/route.ts::DELETE',
+				'apps/web/app/api/organization-contact/[id]/recover/route.ts::PUT',
 				// Proxy mode twin of the platform's Inbox delivery status (2026-11-11)
 				'apps/web/app/api/inbox/delivery/status/route.ts::GET',
 				// Proxy mode twins of Gauzy's employee appointments, the scheduled meetings (#5021)
