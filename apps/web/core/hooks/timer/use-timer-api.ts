@@ -1046,9 +1046,13 @@ export function useTimerApi({
 		}
 
 		const currentTaskId = activeTeamTask?.id;
-		const canStop = lastActiveTaskId.current !== null && currentTaskId !== lastActiveTaskId.current;
+		// Only a switch from one task to another stops the timer. An active task the app emptied (a task that left the
+		// loaded list, a save rolled back) is no switch, and the last task stays the one to compare with, so a later
+		// run of this effect does not stop the timer either (#5119)
+		const isTaskSwitch =
+			!!currentTaskId && lastActiveTaskId.current !== null && currentTaskId !== lastActiveTaskId.current;
 
-		if (canStop && timerStatusRef.current?.running && firstLoad) {
+		if (isTaskSwitch && timerStatusRef.current?.running && firstLoad) {
 			// If timer is started at some other source keep the timer running...
 			// If timer is started in the browser Stop the timer on Task Change
 			if (timerStatusRef.current.lastLog?.source === ETimeLogSource.TEAMS) {
