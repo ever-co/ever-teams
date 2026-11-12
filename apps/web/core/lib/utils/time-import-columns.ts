@@ -1,12 +1,10 @@
-import type { DateOrder } from '@/core/lib/utils/time-import-cells';
+import { dateOrdersOf, datePartOf, holdsDateAndTime, type DateOrder } from '@/core/lib/utils/time-import-cells';
 import {
-	TIME_IMPORT_COLUMNS,
-	TIME_IMPORT_HEADERS,
+	TIME_IMPORT_FIELDS,
 	TIME_IMPORT_REPORT_HEADERS,
 	rowCountProblemOf,
 	timeImportTableOf,
 	type TimeImportCells,
-	type TimeImportColumn,
 	type TimeImportField,
 	type TimeImportMapping,
 	type TimeImportMissingColumn,
@@ -16,11 +14,96 @@ import {
 	type TimeImportTable
 } from '@/core/lib/utils/time-import-sheet';
 
+/**
+ * The headers each field is read from, in the words of the template and of the usual time exports: a start date
+ * and a start time in two columns, an end date and an end time, a description for the notes, a user or an email
+ * for the member, a duration in hours and minutes or in decimal hours. A column of minutes is never recognised as
+ * a duration, since the import reads a bare number as hours.
+ */
+const FIELD_HEADERS: Readonly<Record<TimeImportField, ReadonlyArray<string>>> = {
+	date: ['date', 'day', 'start date', 'entry date', 'work date', 'date worked'],
+	startTime: [
+		'start time',
+		'start',
+		'from',
+		'started',
+		'started at',
+		'start at',
+		'begin',
+		'time in',
+		'clock in',
+		'start date time',
+		'start datetime'
+	],
+	endDate: ['end date', 'stop date', 'finish date'],
+	endTime: [
+		'end time',
+		'end',
+		'to',
+		'until',
+		'ended',
+		'ended at',
+		'end at',
+		'stop',
+		'stopped at',
+		'stop time',
+		'finish',
+		'finish time',
+		'time out',
+		'clock out',
+		'end date time',
+		'end datetime'
+	],
+	duration: [
+		'duration',
+		'hours',
+		'duration h',
+		'duration hours',
+		'duration decimal',
+		'duration hh mm',
+		'duration hh mm ss',
+		'decimal hours',
+		'hours decimal',
+		'time h',
+		'time decimal',
+		'hours worked',
+		'worked hours',
+		'total hours'
+	],
+	project: ['project', 'project name'],
+	task: ['task', 'task name', 'task title'],
+	notes: ['notes', 'note', 'description', 'comment', 'comments', 'memo', 'details'],
+	billable: ['billable', 'is billable'],
+	memberEmail: [
+		'member email',
+		'email',
+		'e mail',
+		'email address',
+		'user email',
+		'employee email',
+		'user',
+		'member',
+		'employee',
+		'team member'
+	]
+};
+
 const REPORT_ONLY_HEADERS: ReadonlySet<string> = new Set(Object.values(TIME_IMPORT_REPORT_HEADERS));
 
-const COLUMN_BY_HEADER: ReadonlyMap<string, TimeImportColumn> = new Map(
-	TIME_IMPORT_COLUMNS.map((column) => [TIME_IMPORT_HEADERS[column], column])
-);
+function fieldByHeaderOf(): Map<string, TimeImportField> {
+	const fieldByHeader = new Map<string, TimeImportField>();
+	for (const field of TIME_IMPORT_FIELDS) {
+		for (const header of FIELD_HEADERS[field]) {
+			fieldByHeader.set(header, field);
+		}
+	}
+	return fieldByHeader;
+}
+
+const FIELD_BY_HEADER: ReadonlyMap<string, TimeImportField> = fieldByHeaderOf();
+
+/** The fields whose cells can hold a date: the date and the end date, and a start or an end written with its date. */
+const DATE_FIELDS: ReadonlyArray<TimeImportField> = ['date', 'startTime', 'endDate', 'endTime'];
 
 const NO_COLUMNS: TimeImportMapping = {
 	date: null,
@@ -35,31 +118,79 @@ const NO_COLUMNS: TimeImportMapping = {
 	memberEmail: null
 };
 
-function normalizedHeaderOf(header: string): string {
-	const lowered = header.trim().toLowerCase();
-	return lowered.replace(/[\s_-]+/g, ' ');
+/**
+ * A header as plain lower-case words, letter case, spaces, underscores, hyphens and punctuation aside:
+ * `START_TIME`, `startTime` and `Start-Time` read as `start time`, `Duration (h)` as `duration h`.
+ */
+function headerWordsOf(header: string): string {
+	const spaced = header.replace(/(\p{Ll})(\p{Lu})/gu, '$1 $2');
+	const lowered = spaced.normalize('NFC').toLowerCase();
+	const words = lowered.replace(/[^\p{L}\p{N}]+/gu, ' ');
+	return words.trim();
 }
 
 interface HeaderReading {
 	mapping: Record<TimeImportField, number | null>;
+	/** The words of the first header the file repeats for a field it reads, if any. */
 	duplicateHeader: string | null;
 }
 
 function readHeaders(headers: ReadonlyArray<string>): HeaderReading {
 	const reading: HeaderReading = { mapping: { ...NO_COLUMNS }, duplicateHeader: null };
-	headers.forEach((typedHeader, index) => {
-		const column = COLUMN_BY_HEADER.get(normalizedHeaderOf(typedHeader));
-		if (!column) {
+	const wordsByField = new Map<TimeImportField, string>();
+	headers.forEach((header, index) => {
+		const words = headerWordsOf(header);
+		const field = FIELD_BY_HEADER.get(words);
+		if (!field) {
 			return;
 		}
-		const isRepeated = reading.mapping[column] !== null;
-		if (isRepeated) {
-			reading.duplicateHeader ??= TIME_IMPORT_HEADERS[column];
+		const heldBy = wordsByField.get(field);
+		if (heldBy === undefined) {
+			reading.mapping[field] = index;
+			wordsByField.set(field, words);
 			return;
 		}
-		reading.mapping[column] = index;
+		if (heldBy === words) {
+			reading.duplicateHeader ??= words;
+		}
 	});
 	return reading;
+}
+
+function firstValueOf(table: TimeImportTable, columnIndex: number | null): string | null {
+	if (columnIndex === null) {
+		return null;
+	}
+	for (const record of table.records) {
+		const cell = record.cells[columnIndex] ?? '';
+		const value = cell.trim();
+		if (value !== '') {
+			return value;
+		}
+	}
+	return null;
+}
+
+function holdsDatesAndTimes(table: TimeImportTable, columnIndex: number | null): boolean {
+	const value = firstValueOf(table, columnIndex);
+	if (value === null) {
+		return false;
+	}
+	return holdsDateAndTime(value);
+}
+
+/** A start or an end column that holds a date and a time gives the date of its moment too. */
+function withDatesOfMoments(table: TimeImportTable, mapping: TimeImportMapping): TimeImportMapping {
+	const withDates: Record<TimeImportField, number | null> = { ...mapping };
+	const lacksDate = mapping.date === null;
+	if (lacksDate && holdsDatesAndTimes(table, mapping.startTime)) {
+		withDates.date = mapping.startTime;
+	}
+	const lacksEndDate = mapping.endDate === null;
+	if (lacksEndDate && holdsDatesAndTimes(table, mapping.endTime)) {
+		withDates.endDate = mapping.endTime;
+	}
+	return withDates;
 }
 
 function missingColumnsOf(mapping: TimeImportMapping): TimeImportMissingColumn[] {
@@ -75,6 +206,80 @@ function missingColumnsOf(mapping: TimeImportMapping): TimeImportMissingColumn[]
 		missing.push('endOrDuration');
 	}
 	return missing;
+}
+
+/** How the dates of a file are written, as its own values tell. */
+export type DateOrderReading =
+	| { kind: 'none' }
+	| { kind: 'told'; order: DateOrder; row: number; value: string }
+	| { kind: 'ambiguous'; row: number; value: string }
+	| { kind: 'mixed'; firstRow: number; firstValue: string; row: number; value: string };
+
+interface DatedValue {
+	row: number;
+	value: string;
+}
+
+function dateColumnsOf(mapping: TimeImportMapping): number[] {
+	const columns = new Set<number>();
+	for (const field of DATE_FIELDS) {
+		const columnIndex = mapping[field];
+		if (columnIndex !== null) {
+			columns.add(columnIndex);
+		}
+	}
+	return [...columns];
+}
+
+function datedValuesOf(table: TimeImportTable, mapping: TimeImportMapping): DatedValue[] {
+	const columns = dateColumnsOf(mapping);
+	const values: DatedValue[] = [];
+	for (const record of table.records) {
+		for (const columnIndex of columns) {
+			const cell = record.cells[columnIndex] ?? '';
+			const value = datePartOf(cell);
+			if (value !== '') {
+				values.push({ row: record.row, value });
+			}
+		}
+	}
+	return values;
+}
+
+/**
+ * Tells how the dates of a file are written from its values: a year written first, a day above 12 or a second
+ * number above 12 settles it. Dates that fit both a day first and a month first settle nothing, and a file whose
+ * values settle two different orders mixes them, from the first row that contradicts an earlier one.
+ */
+export function dateOrderReadingOf(table: TimeImportTable, mapping: TimeImportMapping): DateOrderReading {
+	let told: (DatedValue & { order: DateOrder }) | null = null;
+	let ambiguous: DatedValue | null = null;
+	for (const dated of datedValuesOf(table, mapping)) {
+		const orders = dateOrdersOf(dated.value);
+		const isAmbiguous = orders.length > 1;
+		if (isAmbiguous) {
+			ambiguous ??= dated;
+			continue;
+		}
+		const [order] = orders;
+		if (!order) {
+			continue;
+		}
+		if (!told) {
+			told = { ...dated, order };
+			continue;
+		}
+		if (told.order !== order) {
+			return { kind: 'mixed', firstRow: told.row, firstValue: told.value, row: dated.row, value: dated.value };
+		}
+	}
+	if (told) {
+		return { kind: 'told', ...told };
+	}
+	if (ambiguous) {
+		return { kind: 'ambiguous', ...ambiguous };
+	}
+	return { kind: 'none' };
 }
 
 function cellAt(record: ReadonlyArray<string>, index: number | null): string {
@@ -106,14 +311,14 @@ function extraCellCountOf(record: ReadonlyArray<string>, headerCount: number): n
 	return extraCells.filter((cell) => cell.trim() !== '').length;
 }
 
-/** The headers of the file no column of the import is read from. The import's own report columns are not named. */
+/** The headers of the file no field is read from. The import's own report columns and blank headers are not named. */
 function ignoredHeadersOf(headers: ReadonlyArray<string>, mapping: TimeImportMapping): string[] {
 	const readIndexes = new Set(Object.values(mapping));
 	const ignored: string[] = [];
 	headers.forEach((header, index) => {
-		const normalized = normalizedHeaderOf(header);
-		const isNamed = normalized !== '';
-		const isReportColumn = REPORT_ONLY_HEADERS.has(normalized);
+		const words = headerWordsOf(header);
+		const isNamed = words !== '';
+		const isReportColumn = REPORT_ONLY_HEADERS.has(words);
 		const isRead = readIndexes.has(index);
 		if (isNamed && !isReportColumn && !isRead) {
 			ignored.push(header);
@@ -132,14 +337,22 @@ function timeImportSheetOf(table: TimeImportTable, mapping: TimeImportMapping, d
 	return { rows, ignoredHeaders: ignoredHeadersOf(table.headers, mapping), dateOrder };
 }
 
+/** The template's order, year first, until a value of the file tells another one. */
+function orderOfReading(reading: DateOrderReading): DateOrder {
+	if (reading.kind === 'told') {
+		return reading.order;
+	}
+	return 'yearFirst';
+}
+
 export type TimeImportReading =
 	| { kind: 'refused'; problem: TimeImportSheetProblem }
 	| { kind: 'sheet'; sheet: TimeImportSheet };
 
 /**
- * Reads the text of a CSV file into the rows of a time import: the header names the columns, in any order, and
- * every other line that is not blank is a row. A file the import cannot use at all is refused whole, with the
- * reason; what each row holds is judged later, row by row.
+ * Reads the text of a CSV file into the rows of a time import: the header names the columns, in any order and in
+ * the words of the template or of the usual time exports, and every other line that is not blank is a row. A file
+ * the import cannot use at all is refused whole, with the reason; what each row holds is judged later, row by row.
  */
 export function timeImportReadingOf(text: string): TimeImportReading {
 	const tableReading = timeImportTableOf(text);
@@ -151,7 +364,8 @@ export function timeImportReadingOf(text: string): TimeImportReading {
 	if (header.duplicateHeader) {
 		return { kind: 'refused', problem: { code: 'duplicateColumn', header: header.duplicateHeader } };
 	}
-	const missingColumns = missingColumnsOf(header.mapping);
+	const mapping = withDatesOfMoments(table, header.mapping);
+	const missingColumns = missingColumnsOf(mapping);
 	if (missingColumns.length > 0) {
 		return { kind: 'refused', problem: { code: 'missingColumns', columns: missingColumns } };
 	}
@@ -159,5 +373,10 @@ export function timeImportReadingOf(text: string): TimeImportReading {
 	if (countProblem) {
 		return { kind: 'refused', problem: countProblem };
 	}
-	return { kind: 'sheet', sheet: timeImportSheetOf(table, header.mapping, 'yearFirst') };
+	const dates = dateOrderReadingOf(table, mapping);
+	if (dates.kind === 'mixed') {
+		const { firstRow, firstValue, row, value } = dates;
+		return { kind: 'refused', problem: { code: 'mixedDates', firstRow, firstValue, row, value } };
+	}
+	return { kind: 'sheet', sheet: timeImportSheetOf(table, mapping, orderOfReading(dates)) };
 }

@@ -110,6 +110,13 @@ export function useTimeImportCopy() {
 						count: problem.count,
 						limit: TIME_IMPORT_MAX_ROWS
 					});
+				case 'mixedDates':
+					return t('timeImport.mapping.MIXED_DATES', {
+						firstRow: problem.firstRow,
+						firstValue: problem.firstValue,
+						row: problem.row,
+						value: problem.value
+					});
 			}
 		},
 		[listOf, missingColumnOf, t]

@@ -47,6 +47,19 @@ export const TIME_IMPORT_REPORT_HEADERS = { row: 'row', status: 'status', reason
  */
 export type TimeImportField = TimeImportColumn | 'endDate';
 
+export const TIME_IMPORT_FIELDS: ReadonlyArray<TimeImportField> = [
+	'date',
+	'startTime',
+	'endDate',
+	'endTime',
+	'duration',
+	'project',
+	'task',
+	'notes',
+	'billable',
+	'memberEmail'
+];
+
 export type TimeImportCells = Readonly<Record<TimeImportField, string>>;
 
 /** For each field, the position of the file's column it is read from, or null when the file has none. */
@@ -68,7 +81,8 @@ export type TimeImportSheetProblem =
 	| { code: 'duplicateColumn'; header: string }
 	| { code: 'missingColumns'; columns: TimeImportMissingColumn[] }
 	| { code: 'noRows' }
-	| { code: 'tooManyRows'; count: number };
+	| { code: 'tooManyRows'; count: number }
+	| { code: 'mixedDates'; firstRow: number; firstValue: string; row: number; value: string };
 
 export type TimeImportFileProblem =
 	| { code: 'notCsv' }
