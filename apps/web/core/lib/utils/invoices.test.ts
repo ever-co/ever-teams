@@ -13,6 +13,7 @@ import {
 	invoiceStatusToneOf,
 	invoiceTermsOf,
 	invoiceTimeOf,
+	invoiceWaitsOf,
 	keptLinesOf,
 	lineDescriptionOf,
 	linePriceOf,
@@ -529,6 +530,11 @@ describe('invoice number and dates', () => {
 		expect(invoiceProblemsOf({ ...ready, numberText: '' })).toEqual(['number']);
 		expect(invoiceProblemsOf({ ...ready, issueDay: '', dueDay: '' })).toEqual(['issueDay', 'dueDay']);
 		expect(invoiceProblemsOf({ ...ready, dueDay: '2026-11-01' })).toEqual(['dueBeforeIssue']);
+	});
+
+	it('names the reads a save waits for', () => {
+		expect(invoiceWaitsOf({ isReadingEarlier: false })).toEqual([]);
+		expect(invoiceWaitsOf({ isReadingEarlier: true })).toEqual(['readingEarlier']);
 	});
 
 	it('reads the day of an invoice date in the organization’s zone', () => {

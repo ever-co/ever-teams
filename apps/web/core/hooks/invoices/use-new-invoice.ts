@@ -16,6 +16,7 @@ import {
 	invoiceCurrencyKeyOf,
 	invoicePeriodDaysOf,
 	invoiceProblemsOf,
+	invoiceWaitsOf,
 	keptLinesOf,
 	overlappingInvoicesOf,
 	parseInvoiceNumber,
@@ -118,7 +119,9 @@ export function useNewInvoice() {
 		[earlier.invoices, periodDays]
 	);
 
-	const problems = invoiceProblemsOf({ numberText, issueDay, dueDay, currency, lineCount: keptLines.length });
+	const draftProblems = invoiceProblemsOf({ numberText, issueDay, dueDay, currency, lineCount: keptLines.length });
+	const waits = invoiceWaitsOf({ isReadingEarlier: earlier.isLoading });
+	const problems = draftProblems.concat(waits);
 
 	const resetEdits = useCallback(() => {
 		setRemovedKeys(NO_KEYS);

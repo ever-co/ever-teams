@@ -9,6 +9,7 @@ import type { TOrganization } from '@/core/types/schemas';
 
 const mockCreateInvoice = jest.fn();
 const mockOrganizationRead = { isError: false, refetch: jest.fn() };
+const mockEarlierRead = { invoices: [], isLoading: false, isError: false, refetch: jest.fn() };
 
 const mockLine: InvoiceLine = {
 	key: 'project-site:member-ada',
@@ -53,7 +54,7 @@ jest.mock('./use-invoice-time', () => ({
 }));
 jest.mock('./use-invoices-query', () => ({
 	useNextInvoiceNumber: () => ({ nextNumber: 7, isLoading: false, isError: false, refetch: jest.fn() }),
-	useClientInvoices: () => ({ invoices: [], isLoading: false, isError: false })
+	useClientInvoices: () => mockEarlierRead
 }));
 jest.mock('./use-invoice-mutations', () => ({
 	useCreateInvoice: () => ({ createInvoice: mockCreateInvoice, isSaving: false })
@@ -115,6 +116,32 @@ describe('saving a new invoice and the organisation it is dated by', () => {
 		const request = mockCreateInvoice.mock.calls[0][0];
 		expect(request.dueDate).toBe('2099-12-31T14:59:59.999Z');
 		expect(result.current.isOrganizationLoading).toBe(false);
+	});
+});
+
+describe('saving a new invoice and the invoices already saved for its client', () => {
+	beforeEach(() => {
+		mockCreateInvoice.mockReset();
+		mockCreateInvoice.mockResolvedValue({ id: 'invoice-1' });
+	});
+
+	afterEach(() => {
+		mockEarlierRead.isLoading = false;
+	});
+
+	it('waits while they are read: an overlap with one of them could not be shown yet', async () => {
+		mockEarlierRead.isLoading = true;
+		const { result } = renderNewInvoice(tokyoOrganization);
+		act(() => result.current.setDueDay('2099-12-31'));
+
+		let saved: unknown = 'not answered';
+		await act(async () => {
+			saved = await result.current.save();
+		});
+
+		expect(saved).toBeNull();
+		expect(mockCreateInvoice).not.toHaveBeenCalled();
+		expect(result.current.problems).toEqual(['readingEarlier']);
 	});
 });
 

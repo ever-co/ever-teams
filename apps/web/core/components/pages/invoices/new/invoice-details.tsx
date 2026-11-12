@@ -17,7 +17,8 @@ const PROBLEM_KEYS: Record<InvoiceProblem, DottedLanguageObjectStringPaths> = {
 	dueDay: 'invoices.new.problems.DUE_DATE',
 	dueBeforeIssue: 'invoices.new.problems.DUE_BEFORE_ISSUE',
 	noLines: 'invoices.new.problems.NO_LINES',
-	noCurrency: 'invoices.new.problems.NO_CURRENCY'
+	noCurrency: 'invoices.new.problems.NO_CURRENCY',
+	readingEarlier: 'invoices.new.problems.READING_EARLIER'
 };
 
 const DATE_FIELD = cn(controlRecipe, 'h-9 px-2.5');

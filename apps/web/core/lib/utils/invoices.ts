@@ -538,7 +538,14 @@ export function defaultDueDayOf(issueDay: string, daysUntilDue: number | null | 
 	return localDayKeyOf(addDays(issueDate, days));
 }
 
-export type InvoiceProblem = 'number' | 'issueDay' | 'dueDay' | 'dueBeforeIssue' | 'noLines' | 'noCurrency';
+export type InvoiceProblem =
+	| 'number'
+	| 'issueDay'
+	| 'dueDay'
+	| 'dueBeforeIssue'
+	| 'noLines'
+	| 'noCurrency'
+	| 'readingEarlier';
 
 export interface InvoiceDraftFacts {
 	numberText: string;
@@ -572,6 +579,20 @@ export function invoiceProblemsOf(facts: InvoiceDraftFacts): InvoiceProblem[] {
 		problems.push('dueBeforeIssue');
 	}
 	return problems;
+}
+
+export interface InvoiceReads {
+	/** The invoices already saved for the client, whose overlap with the period is shown before saving. */
+	isReadingEarlier: boolean;
+}
+
+/** What a save waits for: a read still under way, whose answer can change what the invoice warns about. */
+export function invoiceWaitsOf(reads: InvoiceReads): InvoiceProblem[] {
+	const waits: InvoiceProblem[] = [];
+	if (reads.isReadingEarlier) {
+		waits.push('readingEarlier');
+	}
+	return waits;
 }
 
 function dayStartOf(dayKey: string, timeZone: string | null | undefined) {
