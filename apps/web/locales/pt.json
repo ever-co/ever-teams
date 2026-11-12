@@ -659,7 +659,8 @@
 					"DONE": "{count, plural, one {{total} adicionado em # célula} other {{total} adicionado em # células}}",
 					"LEFT_OUT": "{count, plural, one {# célula ficou de fora: dia fechado ou sem tempo livre.} other {# células ficaram de fora: dias fechados ou sem tempo livre.}}",
 					"STOPPED_TITLE": "Cópia interrompida",
-					"NOT_COPIED": "{count, plural, one {# célula não foi copiada porque a cópia foi interrompida.} other {# células não foram copiadas porque a cópia foi interrompida.}}"
+					"NOT_COPIED": "{count, plural, one {# célula não foi copiada porque a cópia foi interrompida.} other {# células não foram copiadas porque a cópia foi interrompida.}}",
+					"PARTLY_COPIED": "A cópia parou no meio de uma célula, por isso essa célula tem apenas parte do tempo da semana passada."
 				}
 			},
 			"diary": {

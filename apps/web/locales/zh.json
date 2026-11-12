@@ -659,7 +659,8 @@
 					"DONE": "{count, plural, other {已在 # 个单元格中添加 {total}}}",
 					"LEFT_OUT": "{count, plural, other {跳过了 # 个单元格：日期已关闭或没有空闲时间。}}",
 					"STOPPED_TITLE": "复制已停止",
-					"NOT_COPIED": "{count, plural, other {有 # 个单元格未复制，因为复制已停止。}}"
+					"NOT_COPIED": "{count, plural, other {有 # 个单元格未复制，因为复制已停止。}}",
+					"PARTLY_COPIED": "复制在一个单元格中途停止，因此该单元格只有上周的部分时间。"
 				}
 			},
 			"diary": {
