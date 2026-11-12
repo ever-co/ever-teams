@@ -9,6 +9,7 @@ import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 import { useProjectBudgetReport } from './use-project-budget-report';
 
 const mockGetProjectBudgetReport = jest.fn();
+const mockSearchParams = jest.fn();
 
 const mockProjects = [
 	{ id: 'p-1', name: 'Website', budgetType: EProjectBudgetType.HOURS, budget: 80 },
@@ -16,6 +17,9 @@ const mockProjects = [
 	{ id: 'p-3', name: 'Archive' }
 ];
 
+jest.mock('next/navigation', () => ({
+	useSearchParams: () => mockSearchParams()
+}));
 jest.mock('@/core/services/client/api/timesheets/time-log-report.service', () => ({
 	timeLogReportService: { getProjectBudgetReport: (...args: unknown[]) => mockGetProjectBudgetReport(...args) }
 }));
@@ -46,7 +50,8 @@ function reportOf(id: string, name: string, budget: number, spent: number) {
 
 const REPORTS = [reportOf('p-1', 'Website', 80, 40), reportOf('p-2', 'Mobile app', 10, 12.5)];
 
-function renderReport() {
+function renderReport(query: string) {
+	mockSearchParams.mockReturnValue(new URLSearchParams(query));
 	mockGetProjectBudgetReport.mockResolvedValue(REPORTS);
 	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 	const store = createStore();
@@ -65,7 +70,7 @@ function shownIdsOf(rows: ReadonlyArray<{ project: { id: string } }>) {
 
 describe('useProjectBudgetReport', () => {
 	it('shows every project the report or a budget gives a row to, from one read', async () => {
-		const { result } = renderReport();
+		const { result } = renderReport('');
 
 		await waitFor(() => expect(result.current.isLoading).toBe(false));
 
@@ -76,7 +81,7 @@ describe('useProjectBudgetReport', () => {
 	});
 
 	it('narrows the rows to the projects picked in its filter, and shows them all again once cleared', async () => {
-		const { result } = renderReport();
+		const { result } = renderReport('');
 		await waitFor(() => expect(result.current.isLoading).toBe(false));
 
 		act(() => result.current.setFilter('projects', ['p-2']));
@@ -84,5 +89,35 @@ describe('useProjectBudgetReport', () => {
 
 		act(() => result.current.clearFilters());
 		expect(shownIdsOf(result.current.visibleRows)).toEqual(['p-1', 'p-2']);
+	});
+
+	it('opens filtered on the project its address names', async () => {
+		const { result } = renderReport('project=p-2');
+
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		expect(result.current.filters.projects).toEqual(['p-2']);
+		expect(result.current.isFiltered).toBe(true);
+		expect(shownIdsOf(result.current.visibleRows)).toEqual(['p-2']);
+		expect(result.current.figures.overCount).toBe(1);
+	});
+
+	it('shows every project again once that filter is cleared', async () => {
+		const { result } = renderReport('project=p-2');
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		act(() => result.current.clearFilters());
+
+		expect(result.current.isFiltered).toBe(false);
+		expect(shownIdsOf(result.current.visibleRows)).toEqual(['p-1', 'p-2']);
+	});
+
+	it('names every project of the organisation, for the chip of a project without a line', async () => {
+		const { result } = renderReport('project=p-3');
+
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		expect(result.current.visibleRows).toEqual([]);
+		expect(result.current.projectNames).toEqual({ 'p-1': 'Website', 'p-2': 'Mobile app', 'p-3': 'Archive' });
 	});
 });

@@ -1,10 +1,13 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { type Period, periodOfPreset } from '@/core/lib/utils/dashboard-period';
 import {
+	BUDGET_PROJECT_PARAM,
 	BUDGET_WEEK_START,
 	budgetFiguresOf,
+	budgetFiltersOfLink,
 	budgetGroupsOf,
 	budgetLanesOf,
 	budgetTotalsOf,
@@ -12,6 +15,7 @@ import {
 	filteredBudgetRowsOf,
 	hasBudgetFilters,
 	portfolioMetersOf,
+	projectNamesByIdOf,
 	unbudgetedRowsOf,
 	type BudgetFilterField,
 	type BudgetFilters,
@@ -26,12 +30,15 @@ function uniqueValuesOf<T extends string>(values: ReadonlyArray<T>): T[] {
 }
 
 export function useProjectBudgetReport({ unnamedLabel }: Readonly<{ unnamedLabel: string }>) {
+	const searchParams = useSearchParams();
+	const linkedProjectId = searchParams?.get(BUDGET_PROJECT_PARAM);
+
 	const [scope, setScope] = useState<BudgetScope>('whole');
 	const [period, setPeriod] = useState<Period>(() => periodOfPreset('thisMonth', BUDGET_WEEK_START));
-	const [filters, setFilters] = useState<BudgetFilters>(EMPTY_BUDGET_FILTERS);
+	const [filters, setFilters] = useState<BudgetFilters>(() => budgetFiltersOfLink(linkedProjectId));
 
 	const budgets = useProjectBudgetRows({ scope, period, unnamedLabel, followsLiveTime: true, isEnabled: true });
-	const { shown } = budgets;
+	const { shown, organizationProjects } = budgets;
 
 	const allRows = shown?.rows;
 	const visibleRows = useMemo(() => filteredBudgetRowsOf(allRows ?? [], filters), [allRows, filters]);
@@ -42,6 +49,7 @@ export function useProjectBudgetReport({ unnamedLabel }: Readonly<{ unnamedLabel
 	const hasBoardRows = useMemo(() => lanes.some((lane) => lane.rows.length > 0), [lanes]);
 	const unbudgetedRows = useMemo(() => unbudgetedRowsOf(groups), [groups]);
 	const portfolio = useMemo(() => portfolioMetersOf(visibleRows, totals), [totals, visibleRows]);
+	const projectNames = useMemo(() => projectNamesByIdOf(organizationProjects), [organizationProjects]);
 
 	const filterOptions = useMemo(() => {
 		const rows = allRows ?? [];
@@ -84,6 +92,7 @@ export function useProjectBudgetReport({ unnamedLabel }: Readonly<{ unnamedLabel
 		clearFilters,
 		isFiltered,
 		filterOptions,
+		projectNames,
 		shown,
 		visibleRows,
 		groups,

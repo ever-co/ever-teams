@@ -161,11 +161,13 @@ function pickedNamesOf(category: PropertyFilterCategory<BudgetFilterField> | und
 
 /**
  * The filter menu and the chips of what it applies. Filters narrow the loaded projects on the page, so picking one
- * is instant; a project picked in one scope keeps its name on its chip in a scope where it has no row.
+ * is instant; a project picked in one scope keeps its name on its chip in a scope where it has no row, and so does
+ * the project a link to the report names (`projectNames`: every project of the organisation by id).
  */
 export function useBudgetFilterControls({
 	filters,
 	options,
+	projectNames,
 	scope,
 	onChange,
 	onRemove,
@@ -173,6 +175,7 @@ export function useBudgetFilterControls({
 }: Readonly<{
 	filters: BudgetFilters;
 	options: BudgetFilterOptions;
+	projectNames: Readonly<Record<string, string>>;
 	scope: BudgetScope;
 	onChange: (field: BudgetFilterField, values: string[]) => void;
 	onRemove: (field: BudgetFilterField, value: string) => void;
@@ -192,7 +195,8 @@ export function useBudgetFilterControls({
 		[categories, onChange]
 	);
 
-	const applied = appliedFiltersOf(filters, categories, knownNames);
+	const chipNames = useMemo(() => ({ ...projectNames, ...knownNames }), [knownNames, projectNames]);
+	const applied = appliedFiltersOf(filters, categories, chipNames);
 	const hasApplied = applied.length > 0;
 
 	const menu = (
