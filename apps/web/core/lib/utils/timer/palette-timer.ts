@@ -91,8 +91,9 @@ export type PaletteStartAction =
 	| 'TASK_START';
 
 export interface PaletteStartState {
-	/** The task is the active one and the timer status is known: its card shows the main start and stop. */
+	/** The task is the active team task, whether or not the timer status is known yet. */
 	isActiveTask: boolean;
+	/** The timer status says a timer runs: false while that status is not known. */
 	isTimerRunning: boolean;
 	/** A card's start does not check it, and the timer's Stop refuses such a member: the start could not be undone. */
 	isEmailVerified: boolean;

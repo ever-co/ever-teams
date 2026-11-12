@@ -92,6 +92,15 @@ describe('a timer start asked from the palette', () => {
 		expect(mockStartTimerWithTask).not.toHaveBeenCalled();
 	});
 
+	it('sends the active task through the main Start while the timer status is not known yet', () => {
+		mockTimerButton = timerButtonOf({ activeTaskStatus: null });
+
+		renderStartOf(TASK);
+
+		expect(mockStartTimer).toHaveBeenCalledWith(TASK);
+		expect(mockStartTimerWithTask).not.toHaveBeenCalled();
+	});
+
 	it("starts a task that is not the active one through its card's start", () => {
 		mockTimerButton = timerButtonOf({ activeTaskStatus: undefined, activeTeamTask: OTHER_TASK });
 
