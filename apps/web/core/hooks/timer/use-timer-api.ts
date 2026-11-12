@@ -535,6 +535,43 @@ export function useTimerApi({
 
 	const startTimerMutate = startTimerMutation.mutateAsync;
 
+	/**
+	 * The tracking flag says a timer runs while this tab's status says stopped, and no run left behind by a closed tab
+	 * was found. This tab's status can be out of date: up to a minute old, or read while a start elsewhere was landing.
+	 * A run a fresh read finds goes on in another tab or device, so the flag is not stuck: the run is kept and shown
+	 * here, and the start is refused. Else the flag is stuck, and a stop clears it on the server (#5121). Resolves to
+	 * true when the start is refused.
+	 */
+	const keepRunOrClearStuckFlag = useCallback(
+		async (employeeId: string): Promise<boolean> => {
+			const commandSeq = timerCommandsInFlight === 0 ? timerCommandSeq : null;
+			const runGoingOn = await readRunGoingOn(employeeId);
+			if (!runGoingOn) {
+				await timerService.stopTimer({
+					source: timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS
+				});
+				return false;
+			}
+			toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
+			// Shown now, so this tab's Stop reaches the run: a default instance never reads its status again. Not after
+			// a command sent meanwhile, which the read may predate.
+			if (
+				commandSeq === timerCommandSeq &&
+				(!statusEnabled || isCurrentScope()) &&
+				!isEqual(timerStatusRef.current, runGoingOn.status)
+			) {
+				setTimerStatus(runGoingOn.status);
+			}
+			// The status queries catch up too, unless the day's status leaves the run out: read again, it would show
+			// the run stopped
+			if (runGoingOn.inDayStatus) {
+				void queryClient.invalidateQueries({ queryKey: queryKeys.timer.all });
+			}
+			return true;
+		},
+		[isCurrentScope, queryClient, setTimerStatus, statusEnabled, t, timerStatusRef]
+	);
+
 	// Check if the user is tracking time in another tab or device
 	const canStartWithoutTrackingConflict = useCallback(async (): Promise<boolean> => {
 		try {
@@ -572,33 +609,9 @@ export function useTimerApi({
 				try {
 					// A TEAMS timer left behind by a closed tab is credited up to its last heartbeat, not now
 					const stoppedStale = await stopStaleTeamsTimer(userData.employee.id);
-					if (!stoppedStale) {
-						// This tab's status can be out of date: up to a minute old, or read while a start elsewhere was
-						// landing. A run a fresh read finds goes on in another tab or device, so the flag is not stuck and
-						// the run is kept (#5121).
-						const commandSeq = timerCommandsInFlight === 0 ? timerCommandSeq : null;
-						const runGoingOn = await readRunGoingOn(userData.employee.id);
-						if (runGoingOn) {
-							toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
-							// Shown now, so this tab's Stop reaches the run: a default instance never reads its status
-							// again. Not after a command sent meanwhile, which the read may predate.
-							if (
-								commandSeq === timerCommandSeq &&
-								(!statusEnabled || isCurrentScope()) &&
-								!isEqual(timerStatusRef.current, runGoingOn.status)
-							) {
-								setTimerStatus(runGoingOn.status);
-							}
-							// The status queries catch up too, unless the day's status leaves the run out: read again,
-							// it would show the run stopped
-							if (runGoingOn.inDayStatus) {
-								void queryClient.invalidateQueries({ queryKey: queryKeys.timer.all });
-							}
-							return false;
-						}
-						await timerService.stopTimer({
-							source: timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS
-						});
+					// Else a run going on in another tab or device is kept, and only a stuck flag is cleared (#5121)
+					if (!stoppedStale && (await keepRunOrClearStuckFlag(userData.employee.id))) {
+						return false;
 					}
 					// Refresh user data to confirm the flag was reset
 					const refreshed = await refreshUserData();
@@ -622,17 +635,7 @@ export function useTimerApi({
 			logErrorInDev('Failed to verify tracking status', error);
 			return false;
 		}
-	}, [
-		activeTeamRef,
-		isCurrentScope,
-		queryClient,
-		refreshUserData,
-		setTimerStatus,
-		statusEnabled,
-		stopStaleTeamsTimer,
-		t,
-		timerStatusRef
-	]);
+	}, [activeTeamRef, keepRunOrClearStuckFlag, queryClient, refreshUserData, stopStaleTeamsTimer, t, timerStatusRef]);
 
 	/** A new workspace is opening (#5025): says so and tells the start to stop. */
 	const warnIfWorkspaceOpening = useCallback((): boolean => {
