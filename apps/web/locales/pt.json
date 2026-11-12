@@ -5007,6 +5007,8 @@
 			"NAME_INVALID": "Digite um nome de 1 a {max} caracteres.",
 			"NAME_SAVED": "Espaço de trabalho renomeado para {name}",
 			"NAME_NOT_SAVED": "O espaço de trabalho não foi renomeado",
+			"NAME_MAYBE_UNFINISHED": "A renomeação pode não ter terminado",
+			"NAME_SAVE_AGAIN": "Salve o mesmo nome de novo para concluí-la.",
 			"NAME_SUPER_ADMIN_ONLY": "Só um superadministrador do espaço de trabalho pode renomeá-lo.",
 			"FORMATS_SECTION": "Moeda e formatos",
 			"FORMATS_DESCRIPTION": "Valem onde nada mais específico estiver definido, como uma taxa com moeda própria.",

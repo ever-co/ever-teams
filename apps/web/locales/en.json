@@ -5007,6 +5007,8 @@
 			"NAME_INVALID": "Enter a name of 1 to {max} characters.",
 			"NAME_SAVED": "Workspace renamed to {name}",
 			"NAME_NOT_SAVED": "The workspace was not renamed",
+			"NAME_MAYBE_UNFINISHED": "The rename may not have finished",
+			"NAME_SAVE_AGAIN": "Save the same name again to finish it.",
 			"NAME_SUPER_ADMIN_ONLY": "Only a super admin of the workspace can rename it.",
 			"FORMATS_SECTION": "Currency and formats",
 			"FORMATS_DESCRIPTION": "Used wherever nothing more specific is set, such as a rate with its own currency.",

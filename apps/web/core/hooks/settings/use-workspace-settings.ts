@@ -12,8 +12,10 @@ import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permis
 import { getAccessTokenCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import {
+	UnfinishedRenameError,
 	canEditWorkspace,
 	canRenameWorkspace,
+	isRenameMaybeUnfinished,
 	isRenameRefused,
 	organizationAfterSave,
 	workspaceOfTenant,
@@ -45,6 +47,33 @@ interface SaveText {
 	failureKey: DottedLanguageObjectStringPaths;
 	saved: string;
 	outcome?: string;
+}
+
+interface FailureText {
+	titleKey: DottedLanguageObjectStringPaths;
+	descriptionKey: DottedLanguageObjectStringPaths;
+}
+
+/** What a failed save says: a rename that may have stopped halfway says how to finish it rather than why it stopped. */
+function failureTextOf(error: unknown, failureKey: DottedLanguageObjectStringPaths): FailureText {
+	if (error instanceof UnfinishedRenameError) {
+		return {
+			titleKey: 'settings.workspace.NAME_MAYBE_UNFINISHED',
+			descriptionKey: 'settings.workspace.NAME_SAVE_AGAIN'
+		};
+	}
+	const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+	return { titleKey: failureKey, descriptionKey: reasonKey };
+}
+
+/** Whether a write went through. Its failure is not thrown: the caller says what it means. */
+async function wentThrough(write: Promise<unknown>): Promise<boolean> {
+	try {
+		await write;
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 /** The name the switcher shows is the tenant's; the organization's stands in when the list does not hold the tenant. */
@@ -138,10 +167,19 @@ export function useWorkspaceSettings() {
 				await tenantService.renameTenant(newName, scope);
 			} catch (error) {
 				const tookTheName = !hasOrganizationThatName;
-				if (tookTheName && isRenameRefused(error)) {
-					// Invitations show the organization's name: a refused rename must not leave it changed alone. If this
-					// write fails too, the organization keeps the new name and the next try renames the tenant alone.
-					await saveOrganization(scope, { name: previousName }).catch(() => undefined);
+				let mayOrganizationKeepTheName = tookTheName;
+				const shouldGiveNameBack = tookTheName && isRenameRefused(error);
+				if (shouldGiveNameBack) {
+					// Invitations show the organization's name: a refused rename must not leave it changed alone
+					const isNameGivenBack = await wentThrough(saveOrganization(scope, { name: previousName }));
+					mayOrganizationKeepTheName = !isNameGivenBack;
+				}
+				const mayBeUnfinished = isRenameMaybeUnfinished(error, mayOrganizationKeepTheName);
+				if (mayBeUnfinished) {
+					// Either name may hold the new one: both are read again, so the page shows what is stored
+					void queryClient.invalidateQueries({ queryKey: scope.organizationKey });
+					void queryClient.invalidateQueries({ queryKey: scope.workspacesKey });
+					throw new UnfinishedRenameError(error);
 				}
 				throw error;
 			}
@@ -164,8 +202,8 @@ export function useWorkspaceSettings() {
 			try {
 				await inTurn(save);
 			} catch (error) {
-				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
-				toast.error(t(text.failureKey), { description: t(reasonKey) });
+				const failure = failureTextOf(error, text.failureKey);
+				toast.error(t(failure.titleKey), { description: t(failure.descriptionKey) });
 				throw error;
 			}
 			toast.success(text.saved, { description: text.outcome });

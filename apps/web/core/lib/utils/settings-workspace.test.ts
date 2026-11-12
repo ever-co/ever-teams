@@ -6,6 +6,7 @@ import {
 	canRenameWorkspace,
 	dateFormatChoiceOf,
 	dateFormatSampleOf,
+	isRenameMaybeUnfinished,
 	isRenameRefused,
 	isWorkspaceNameValid,
 	numberFormatChoiceOf,
@@ -65,6 +66,18 @@ describe('the workspace name', () => {
 		expect(isRenameRefused(new Error('Network Error'))).toBe(false);
 		expect(isRenameRefused(undefined)).toBe(false);
 	});
+
+	it('may have stopped halfway when the tenant did not answer, or when the organization may keep the new name', () => {
+		const refusal = { statusCode: 403 };
+		const serverError = { statusCode: 502 };
+		const noAnswer = new Error('Network Error');
+
+		expect(isRenameMaybeUnfinished(noAnswer, false)).toBe(true);
+		expect(isRenameMaybeUnfinished(noAnswer, true)).toBe(true);
+		expect(isRenameMaybeUnfinished(serverError, false)).toBe(true);
+		expect(isRenameMaybeUnfinished(refusal, true)).toBe(true);
+		expect(isRenameMaybeUnfinished(refusal, false)).toBe(false);
+	});
 });
 
 describe('the organization kept after a save', () => {
@@ -87,6 +100,22 @@ describe('the organization kept after a save', () => {
 		expect(kept.currency).toBe('EUR');
 		expect(kept.dateFormat).toBe('DD/MM/YYYY');
 		expect(kept.registrationDate).toEqual(new Date('2026-01-05'));
+	});
+
+	it('keeps what the page knows of a field the answer leaves out', () => {
+		const answerWithoutCurrencyOrDateFormat = {
+			id: pageCopy.id,
+			name: pageCopy.name,
+			isDefault: pageCopy.isDefault,
+			profile_link: pageCopy.profile_link,
+			totalEmployees: pageCopy.totalEmployees,
+			banner: pageCopy.banner
+		};
+
+		const kept = organizationAfterSave(pageCopy, { dateFormat: 'DD/MM/YYYY' }, answerWithoutCurrencyOrDateFormat);
+
+		expect(kept.currency).toBe('USD');
+		expect(kept.dateFormat).toBe('DD/MM/YYYY');
 	});
 
 	it("is the page's copy with the change when the answer does not read as an organization", () => {

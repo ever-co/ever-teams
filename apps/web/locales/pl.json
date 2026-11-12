@@ -5007,6 +5007,8 @@
 			"NAME_INVALID": "Wpisz nazwę o długości od 1 do {max} znaków.",
 			"NAME_SAVED": "Obszar roboczy nazywa się teraz {name}",
 			"NAME_NOT_SAVED": "Nazwa obszaru roboczego nie została zmieniona",
+			"NAME_MAYBE_UNFINISHED": "Zmiana nazwy mogła się nie zakończyć",
+			"NAME_SAVE_AGAIN": "Zapisz tę samą nazwę ponownie, aby ją dokończyć.",
 			"NAME_SUPER_ADMIN_ONLY": "Nazwę obszaru roboczego może zmienić tylko jego superadministrator.",
 			"FORMATS_SECTION": "Waluta i formaty",
 			"FORMATS_DESCRIPTION": "Obowiązują wszędzie tam, gdzie nie ustawiono nic bardziej szczegółowego, na przykład stawki z własną walutą.",

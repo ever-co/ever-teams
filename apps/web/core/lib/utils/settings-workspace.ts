@@ -48,20 +48,41 @@ export function isRenameRefused(error: unknown): boolean {
 }
 
 /**
+ * Whether a rename the tenant did not take may have left the workspace under two names: the tenant's answer is unknown
+ * (none, or a server error), or the organization may keep the new name this save gave it.
+ */
+export function isRenameMaybeUnfinished(tenantError: unknown, mayOrganizationKeepTheName: boolean): boolean {
+	if (!isRenameRefused(tenantError)) {
+		return true;
+	}
+	return mayOrganizationKeepTheName;
+}
+
+/** A rename that may have stopped halfway: saving the same name again finishes it. */
+export class UnfinishedRenameError extends Error {
+	constructor(cause: unknown) {
+		super('The workspace rename may not have finished', { cause });
+		this.name = 'UnfinishedRenameError';
+	}
+}
+
+/**
  * The organization every screen reads, once a save went through. The API answers a save with the organization as it
- * stored it, which also holds what another admin changed since this page read it. An answer that does not read as an
- * organization leaves the page's copy, with what this save changed.
+ * stored it, which also holds what another admin changed since this page read it. It goes over the page's copy with
+ * the change, so a field an answer leaves out keeps its known value; an answer that does not read as an organization
+ * leaves that copy as it is.
  */
 export function organizationAfterSave(
 	pageCopy: TOrganization,
 	changes: Partial<TOrganization>,
 	apiAnswer: unknown
 ): TOrganization {
+	const changedCopy = { ...pageCopy, ...changes };
 	const stored = organizationSchema.safeParse(apiAnswer);
 	if (stored.success) {
-		return stored.data;
+		return { ...changedCopy, ...stored.data };
 	}
-	return { ...pageCopy, ...changes };
+	return changedCopy;
 }
 
 export function workspaceOfTenant(
