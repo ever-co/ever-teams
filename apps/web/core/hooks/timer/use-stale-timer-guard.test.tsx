@@ -27,6 +27,13 @@ jest.mock('@/core/services/client/api/timers', () => ({
 }));
 jest.mock('sonner', () => ({ toast: { info: (...args: unknown[]) => mockToastInfo(...args) } }));
 jest.mock('next-intl', () => ({ useTranslations: () => mockTranslate, useLocale: () => 'en' }));
+// The shipped 10-minute threshold, whatever NEXT_PUBLIC_STALE_TIMER_THRESHOLD_MINUTES the env files loaded for Jest set
+jest.mock('@/core/constants/config/constants', () => {
+	const constants = jest.requireActual<typeof import('@/core/constants/config/constants')>(
+		'@/core/constants/config/constants'
+	);
+	return { ...constants, STALE_TIMER_THRESHOLD: { value: constants.STALE_TIMER_THRESHOLD_MS } };
+});
 
 const EMPLOYEE = { id: 'employee-1', isTrackingTime: true };
 const STARTED_AT = '2026-11-12T08:00:00.000Z';
