@@ -1,3 +1,4 @@
+import { isStaleTeamsTimer } from '@/core/lib/helpers/timer-policy';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { type LimitVerdict, limitVerdictOf, percentOf } from '@/core/lib/utils/dashboard-figures';
 import {
@@ -83,16 +84,29 @@ function projectOfLog(log: ITimeLog): MyWeekEntryProject | null {
 	};
 }
 
-/** A running entry counts up to the read that returned it, so it grows with each live read. */
-function runningSecondsOf(start: Date, now: Date) {
-	const elapsedMilliseconds = now.getTime() - start.getTime();
+function runningSecondsOf(start: Date, end: Date) {
+	const elapsedMilliseconds = end.getTime() - start.getTime();
 	const elapsedSeconds = Math.round(elapsedMilliseconds / MILLISECONDS_PER_SECOND);
 	return Math.max(0, elapsedSeconds);
 }
 
+/**
+ * Where a running entry is counted up to. A live one counts up to the read that returned it, so it grows with each
+ * read. One a closed tab left running stops at its last heartbeat, where the app itself stops it: the time after it
+ * was never worked.
+ */
+function runningEndOf(log: ITimeLog, now: Date): Date {
+	const isLeftBehind = isStaleTeamsTimer(log, now.getTime());
+	if (isLeftBehind) {
+		return new Date(log.stoppedAt);
+	}
+	return now;
+}
+
 function secondsOfLog(log: ITimeLog, start: Date, isRunning: boolean, now: Date) {
 	if (isRunning) {
-		return runningSecondsOf(start, now);
+		const end = runningEndOf(log, now);
+		return runningSecondsOf(start, end);
 	}
 	return logDurationSeconds(log);
 }

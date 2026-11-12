@@ -1,6 +1,7 @@
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { totalDurationOf } from '@/core/lib/utils/dashboards/timesheets';
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import {
 	dailyLimitSecondsOf,
@@ -167,6 +168,28 @@ describe('myWeekEntriesOf', () => {
 		const { entries } = weekOf([running]);
 
 		expect(entries[0]?.isRunning).toBe(true);
+		expect(entries[0]?.seconds).toBe(1.5 * HOUR);
+	});
+
+	it('counts a timer a closed tab left running up to its last heartbeat only', () => {
+		const started = new Date(2026, 10, 11, 14, 0);
+		const lastHeartbeat = new Date(2026, 10, 11, 14, 20);
+		const leftBehind = {
+			...log('left', started, lastHeartbeat, { isRunning: true }),
+			source: ETimeLogSource.TEAMS
+		};
+		const { entries, figures } = weekOf([leftBehind]);
+
+		expect(entries[0]?.seconds).toBe(20 * 60);
+		expect(figures.trackedSeconds).toBe(20 * 60);
+	});
+
+	it('counts a timer whose heartbeat is fresh up to the read', () => {
+		const started = new Date(2026, 10, 11, 14, 0);
+		const freshHeartbeat = new Date(NOW.getTime() - 30 * 1000);
+		const live = { ...log('live', started, freshHeartbeat, { isRunning: true }), source: ETimeLogSource.TEAMS };
+		const { entries } = weekOf([live]);
+
 		expect(entries[0]?.seconds).toBe(1.5 * HOUR);
 	});
 });
