@@ -156,6 +156,8 @@ export interface IChatInteractionResult {
 	/** The message as the app's reply left it, when it replied. */
 	message?: IChatMessage;
 	events: IChatEvent[];
+	/** The click's `Idempotency-Key` named an earlier click: this is that click as it is now, and nothing was sent again. */
+	replayed?: boolean;
 }
 
 export interface IChatMessage {

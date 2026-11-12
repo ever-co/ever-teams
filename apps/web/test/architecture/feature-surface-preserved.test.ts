@@ -2026,14 +2026,16 @@ describe('Ever Teams feature surface preservation', () => {
 		// documents/[id]/comments/[commentId]/anchor PUT and DELETE).
 		// 323 files and 414 verbs with the task automations proxies (/api/task-automations GET POST, templates GET,
 		// order PUT, [id] GET PUT DELETE, [id]/test POST, [id]/runs GET).
-		// 337 files and 431 verbs with the Jira integration proxies (/api/integration/jira/**: status GET, install/state
+		// 324 files and 415 verbs with the trash's Delete forever, which deletes a task only while it is still in the
+		// trash (/api/tasks/[id]/trashed DELETE).
+		// 338 files and 432 verbs with the Jira integration proxies (/api/integration/jira/**: status GET, install/state
 		// POST, [id] GET and DELETE, [id]/sites GET, [id]/site PUT, [id]/projects GET, [id]/projects/[projectId] GET,
 		// [id]/mappings GET and POST, [id]/mappings/[mappingId] PUT and DELETE, [id]/mappings/[mappingId]/import POST,
 		// [id]/webhook POST, [id]/runs GET, [id]/conflicts GET, [id]/conflicts/[conflictId]/resolve POST).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(337);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(338);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(431);
+		).toHaveLength(432);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of the platform's Jira Cloud integration routes (2026-11-12)
@@ -2054,6 +2056,8 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/integration/jira/[id]/runs/route.ts::GET',
 				'apps/web/app/api/integration/jira/[id]/conflicts/route.ts::GET',
 				'apps/web/app/api/integration/jira/[id]/conflicts/[conflictId]/resolve/route.ts::POST',
+				// Proxy mode twin of the platform's Delete forever from the task trash (2026-11-12)
+				'apps/web/app/api/tasks/[id]/trashed/route.ts::DELETE',
 				// Proxy mode twins of the platform's task automations routes (2026-11-11)
 				'apps/web/app/api/task-automations/route.ts::GET',
 				'apps/web/app/api/task-automations/route.ts::POST',
