@@ -1834,6 +1834,14 @@
 				"ERROR_TITLE": "Impossibile caricare il progetto",
 				"ERROR_MESSAGE": "Controlla la connessione e riprova."
 			},
+			"consumption": {
+				"ORDER_BUDGET_USED": "Budget usato",
+				"AS_COST": "Come costo",
+				"AS_COST_HINT": "Il tempo di questo progetto è contato come costo, perché il suo tipo di budget è Costo. Appare in ore quando il tipo di budget è Ore.",
+				"SUMMARY_LABEL": "Tempo e budget",
+				"OPEN_REPORT": "Apri il report del budget",
+				"LOAD_ERROR": "Impossibile caricare il tempo trascorso e l'uso del budget"
+			},
 			"modals": {
 				"openProject": "Apri progetto",
 				"created": "{name} è stato creato",

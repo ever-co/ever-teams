@@ -1795,6 +1795,14 @@
 				"ERROR_TITLE": "The project could not be loaded",
 				"ERROR_MESSAGE": "Check your connection, then try again."
 			},
+			"consumption": {
+				"ORDER_BUDGET_USED": "Budget used",
+				"AS_COST": "As a cost",
+				"AS_COST_HINT": "Time on this project is counted as a cost, because its budget type is Cost. It shows in hours when the budget type is Hours.",
+				"SUMMARY_LABEL": "Time and budget",
+				"OPEN_REPORT": "Open budget report",
+				"LOAD_ERROR": "Time spent and budget use could not load"
+			},
 			"modals": {
 				"openProject": "Open project",
 				"created": "{name} was created",

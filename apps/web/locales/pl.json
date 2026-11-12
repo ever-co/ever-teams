@@ -1878,6 +1878,14 @@
 				"ERROR_TITLE": "Nie udało się wczytać projektu",
 				"ERROR_MESSAGE": "Sprawdź połączenie i spróbuj ponownie."
 			},
+			"consumption": {
+				"ORDER_BUDGET_USED": "Wykorzystanie budżetu",
+				"AS_COST": "Jako koszt",
+				"AS_COST_HINT": "Czas tego projektu jest liczony jako koszt, bo rodzaj jego budżetu to Koszt. Pokazuje się w godzinach, gdy rodzaj budżetu to Godziny.",
+				"SUMMARY_LABEL": "Czas i budżet",
+				"OPEN_REPORT": "Otwórz raport budżetu",
+				"LOAD_ERROR": "Nie udało się wczytać spędzonego czasu i wykorzystania budżetu"
+			},
 			"modals": {
 				"openProject": "Otwórz projekt",
 				"created": "Utworzono {name}",

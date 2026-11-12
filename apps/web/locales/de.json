@@ -1878,6 +1878,14 @@
 				"ERROR_TITLE": "Das Projekt konnte nicht geladen werden",
 				"ERROR_MESSAGE": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
 			},
+			"consumption": {
+				"ORDER_BUDGET_USED": "Budgetverbrauch",
+				"AS_COST": "Als Kosten",
+				"AS_COST_HINT": "Die Zeit dieses Projekts wird als Kosten gezählt, weil seine Budgetart Kosten ist. Sie erscheint in Stunden, wenn die Budgetart Stunden ist.",
+				"SUMMARY_LABEL": "Zeit und Budget",
+				"OPEN_REPORT": "Budgetbericht öffnen",
+				"LOAD_ERROR": "Verbrachte Zeit und Budgetverbrauch konnten nicht geladen werden"
+			},
 			"modals": {
 				"openProject": "Projekt öffnen",
 				"created": "{name} wurde erstellt",

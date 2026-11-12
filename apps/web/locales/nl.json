@@ -1875,6 +1875,14 @@
 				"ERROR_TITLE": "Het project kon niet worden geladen",
 				"ERROR_MESSAGE": "Controleer je verbinding en probeer het opnieuw."
 			},
+			"consumption": {
+				"ORDER_BUDGET_USED": "Budget gebruikt",
+				"AS_COST": "Als kosten",
+				"AS_COST_HINT": "De tijd van dit project wordt als kosten geteld, omdat het soort budget Kosten is. De tijd verschijnt in uren wanneer het soort budget Uren is.",
+				"SUMMARY_LABEL": "Tijd en budget",
+				"OPEN_REPORT": "Budgetrapport openen",
+				"LOAD_ERROR": "Bestede tijd en budgetgebruik konden niet worden geladen"
+			},
 			"modals": {
 				"openProject": "Project openen",
 				"created": "{name} is aangemaakt",

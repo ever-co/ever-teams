@@ -1875,6 +1875,14 @@
 				"ERROR_TITLE": "Le projet n'a pas pu être chargé",
 				"ERROR_MESSAGE": "Vérifiez votre connexion, puis réessayez."
 			},
+			"consumption": {
+				"ORDER_BUDGET_USED": "Budget consommé",
+				"AS_COST": "En coût",
+				"AS_COST_HINT": "Le temps de ce projet est compté en coût, car son type de budget est Coût. Il s'affiche en heures quand le type de budget est Heures.",
+				"SUMMARY_LABEL": "Temps et budget",
+				"OPEN_REPORT": "Ouvrir le rapport de budget",
+				"LOAD_ERROR": "Le temps passé et le budget consommé n'ont pas pu se charger"
+			},
 			"modals": {
 				"openProject": "Ouvrir le projet",
 				"created": "{name} a été créé",
