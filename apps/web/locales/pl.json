@@ -6349,6 +6349,48 @@
 			"ROW_LABEL": "Dane śledzenia czasu",
 			"ROW_DESCRIPTION": "Dodaj wpisy czasu z pliku CSV.",
 			"OPEN": "Importuj z CSV"
+		},
+		"mapping": {
+			"DESCRIPTION": "Wybierz kolumnę pliku {fileName}, która zawiera każdą część wpisu. Nic nie jest zapisywane przed importem.",
+			"HEADER_PART": "Część wpisu",
+			"HEADER_COLUMN": "Kolumna pliku",
+			"HEADER_SAMPLE": "Pierwsza wartość",
+			"NOT_IN_FILE": "Brak w tym pliku",
+			"CHOOSE_COLUMN": "Wybierz kolumnę",
+			"DATE_FORMAT": "Format daty",
+			"CHOOSE_DATE_FORMAT": "Wybierz format",
+			"MISSING": "Aby kontynuować, wybierz kolumnę dla: {parts}.",
+			"DATE_FORMAT_MISSING": "Aby kontynuować, wybierz, jak zapisane są daty w tym pliku.",
+			"MIXED_DATES": "Daty w tym pliku są zapisane na dwa sposoby: {firstValue} w wierszu {firstRow}, {value} w wierszu {row}. Zapisz wszystkie daty w ten sam sposób.",
+			"CONTINUE": "{count, plural, one {Sprawdź # wiersz} few {Sprawdź # wiersze} many {Sprawdź # wierszy} other {Sprawdź # wiersza}}",
+			"FIRST_ROWS": "Pierwsze wiersze pliku",
+			"EDIT": "Zmień kolumny",
+			"fields": {
+				"DATE": "Data",
+				"START_TIME": "Godzina rozpoczęcia",
+				"END_DATE": "Data zakończenia",
+				"END_TIME": "Godzina zakończenia",
+				"DURATION": "Czas trwania",
+				"PROJECT": "Projekt",
+				"TASK": "Zadanie",
+				"NOTES": "Notatki",
+				"BILLABLE": "Rozliczalny",
+				"MEMBER": "Członek"
+			},
+			"orders": {
+				"YEAR_FIRST": "Najpierw rok",
+				"DAY_FIRST": "Najpierw dzień",
+				"MONTH_FIRST": "Najpierw miesiąc"
+			},
+			"problems": {
+				"DATE_UNREADABLE_DAY_FIRST": "Nie można odczytać daty. Zapisz ją z dniem na początku, na przykład {dayFirst}.",
+				"DATE_UNREADABLE_MONTH_FIRST": "Nie można odczytać daty. Zapisz ją z miesiącem na początku, na przykład {monthFirst}.",
+				"END_DATE_UNREADABLE": "Nie można odczytać daty zakończenia. Zapisz ją tak samo jak datę.",
+				"START_DAY_MISMATCH": "Data i godzina rozpoczęcia dają dwa różne dni. Zostaw jedno z nich.",
+				"END_DAY_MISMATCH": "Data zakończenia i godzina zakończenia dają dwa różne dni. Zostaw jedno z nich.",
+				"MEMBER_NAME_UNKNOWN": "Żaden członek tego zespołu nie ma tego imienia i nazwiska.",
+				"MEMBER_AMBIGUOUS": "{count, plural, one {# członek tego zespołu ma to imię i nazwisko.} few {# członków tego zespołu ma to imię i nazwisko. Wskaż członka po adresie e-mail.} many {# członków tego zespołu ma to imię i nazwisko. Wskaż członka po adresie e-mail.} other {# członka tego zespołu ma to imię i nazwisko. Wskaż członka po adresie e-mail.}}"
+			}
 		}
 	}
 }

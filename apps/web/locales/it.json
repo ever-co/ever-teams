@@ -6349,6 +6349,48 @@
 			"ROW_LABEL": "Dati di tracciamento del tempo",
 			"ROW_DESCRIPTION": "Aggiungi voci di tempo da un file CSV.",
 			"OPEN": "Importa da CSV"
+		},
+		"mapping": {
+			"DESCRIPTION": "Scegli la colonna di {fileName} che contiene ogni parte di una voce. Nulla viene salvato prima dell'importazione.",
+			"HEADER_PART": "Parte di una voce",
+			"HEADER_COLUMN": "Colonna del file",
+			"HEADER_SAMPLE": "Primo valore",
+			"NOT_IN_FILE": "Non in questo file",
+			"CHOOSE_COLUMN": "Scegli una colonna",
+			"DATE_FORMAT": "Formato della data",
+			"CHOOSE_DATE_FORMAT": "Scegli un formato",
+			"MISSING": "Per continuare, scegli una colonna per {parts}.",
+			"DATE_FORMAT_MISSING": "Per continuare, scegli come sono scritte le date di questo file.",
+			"MIXED_DATES": "Le date di questo file sono scritte in due modi: {firstValue} alla riga {firstRow}, {value} alla riga {row}. Scrivi tutte le date nello stesso modo.",
+			"CONTINUE": "{count, plural, one {Controlla # riga} other {Controlla # righe}}",
+			"FIRST_ROWS": "Prime righe del file",
+			"EDIT": "Cambia colonne",
+			"fields": {
+				"DATE": "Data",
+				"START_TIME": "Ora di inizio",
+				"END_DATE": "Data di fine",
+				"END_TIME": "Ora di fine",
+				"DURATION": "Durata",
+				"PROJECT": "Progetto",
+				"TASK": "Attività",
+				"NOTES": "Note",
+				"BILLABLE": "Fatturabile",
+				"MEMBER": "Membro"
+			},
+			"orders": {
+				"YEAR_FIRST": "Anno per primo",
+				"DAY_FIRST": "Giorno per primo",
+				"MONTH_FIRST": "Mese per primo"
+			},
+			"problems": {
+				"DATE_UNREADABLE_DAY_FIRST": "La data non è leggibile. Scrivila con il giorno per primo, come {dayFirst}.",
+				"DATE_UNREADABLE_MONTH_FIRST": "La data non è leggibile. Scrivila con il mese per primo, come {monthFirst}.",
+				"END_DATE_UNREADABLE": "La data di fine non è leggibile. Scrivila come la data.",
+				"START_DAY_MISMATCH": "La data e l'ora di inizio danno due giorni diversi. Tieni una delle due.",
+				"END_DAY_MISMATCH": "La data di fine e l'ora di fine danno due giorni diversi. Tieni una delle due.",
+				"MEMBER_NAME_UNKNOWN": "Nessun membro di questo team ha questo nome.",
+				"MEMBER_AMBIGUOUS": "{count, plural, one {# membro di questo team ha questo nome.} other {# membri di questo team hanno questo nome. Indica il membro con la sua email.}}"
+			}
 		}
 	}
 }

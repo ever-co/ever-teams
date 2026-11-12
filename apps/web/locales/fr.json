@@ -6349,6 +6349,48 @@
 			"ROW_LABEL": "Données de suivi du temps",
 			"ROW_DESCRIPTION": "Ajoutez des entrées de temps depuis un fichier CSV.",
 			"OPEN": "Importer depuis un CSV"
+		},
+		"mapping": {
+			"DESCRIPTION": "Choisissez la colonne de {fileName} qui contient chaque partie d'une entrée. Rien n'est enregistré avant l'import.",
+			"HEADER_PART": "Partie d'une entrée",
+			"HEADER_COLUMN": "Colonne du fichier",
+			"HEADER_SAMPLE": "Première valeur",
+			"NOT_IN_FILE": "Pas dans ce fichier",
+			"CHOOSE_COLUMN": "Choisir une colonne",
+			"DATE_FORMAT": "Format de date",
+			"CHOOSE_DATE_FORMAT": "Choisir un format",
+			"MISSING": "Pour continuer, choisissez une colonne pour {parts}.",
+			"DATE_FORMAT_MISSING": "Pour continuer, choisissez comment les dates de ce fichier sont écrites.",
+			"MIXED_DATES": "Les dates de ce fichier sont écrites de deux façons : {firstValue} à la ligne {firstRow}, {value} à la ligne {row}. Écrivez toutes les dates de la même façon.",
+			"CONTINUE": "{count, plural, one {Vérifier # ligne} other {Vérifier # lignes}}",
+			"FIRST_ROWS": "Premières lignes du fichier",
+			"EDIT": "Changer les colonnes",
+			"fields": {
+				"DATE": "Date",
+				"START_TIME": "Heure de début",
+				"END_DATE": "Date de fin",
+				"END_TIME": "Heure de fin",
+				"DURATION": "Durée",
+				"PROJECT": "Projet",
+				"TASK": "Tâche",
+				"NOTES": "Notes",
+				"BILLABLE": "Facturable",
+				"MEMBER": "Membre"
+			},
+			"orders": {
+				"YEAR_FIRST": "Année en premier",
+				"DAY_FIRST": "Jour en premier",
+				"MONTH_FIRST": "Mois en premier"
+			},
+			"problems": {
+				"DATE_UNREADABLE_DAY_FIRST": "La date est illisible. Écrivez-la avec le jour en premier, comme {dayFirst}.",
+				"DATE_UNREADABLE_MONTH_FIRST": "La date est illisible. Écrivez-la avec le mois en premier, comme {monthFirst}.",
+				"END_DATE_UNREADABLE": "La date de fin est illisible. Écrivez-la comme la date.",
+				"START_DAY_MISMATCH": "La date et l'heure de début donnent deux jours différents. Gardez l'une des deux.",
+				"END_DAY_MISMATCH": "La date de fin et l'heure de fin donnent deux jours différents. Gardez l'une des deux.",
+				"MEMBER_NAME_UNKNOWN": "Aucun membre de cette équipe ne porte ce nom.",
+				"MEMBER_AMBIGUOUS": "{count, plural, one {# membre de cette équipe porte ce nom.} other {# membres de cette équipe portent ce nom. Indiquez le membre par son e-mail.}}"
+			}
 		}
 	}
 }

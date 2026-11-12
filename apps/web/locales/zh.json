@@ -6349,6 +6349,48 @@
 			"ROW_LABEL": "时间跟踪数据",
 			"ROW_DESCRIPTION": "从 CSV 文件添加时间条目。",
 			"OPEN": "从 CSV 导入"
+		},
+		"mapping": {
+			"DESCRIPTION": "为条目的每个部分选择 {fileName} 中对应的列。导入前不会保存任何内容。",
+			"HEADER_PART": "条目部分",
+			"HEADER_COLUMN": "文件中的列",
+			"HEADER_SAMPLE": "第一个值",
+			"NOT_IN_FILE": "不在此文件中",
+			"CHOOSE_COLUMN": "选择一列",
+			"DATE_FORMAT": "日期格式",
+			"CHOOSE_DATE_FORMAT": "选择格式",
+			"MISSING": "要继续，请为 {parts} 选择一列。",
+			"DATE_FORMAT_MISSING": "要继续，请选择此文件中日期的书写方式。",
+			"MIXED_DATES": "此文件中的日期有两种写法：第 {firstRow} 行为 {firstValue}，第 {row} 行为 {value}。请用同一种方式书写所有日期。",
+			"CONTINUE": "{count, plural, other {检查 # 行}}",
+			"FIRST_ROWS": "文件的前几行",
+			"EDIT": "更改列",
+			"fields": {
+				"DATE": "日期",
+				"START_TIME": "开始时间",
+				"END_DATE": "结束日期",
+				"END_TIME": "结束时间",
+				"DURATION": "时长",
+				"PROJECT": "项目",
+				"TASK": "任务",
+				"NOTES": "备注",
+				"BILLABLE": "可计费",
+				"MEMBER": "成员"
+			},
+			"orders": {
+				"YEAR_FIRST": "年份在前",
+				"DAY_FIRST": "日在前",
+				"MONTH_FIRST": "月份在前"
+			},
+			"problems": {
+				"DATE_UNREADABLE_DAY_FIRST": "无法读取日期。请按日在前的格式填写，例如 {dayFirst}。",
+				"DATE_UNREADABLE_MONTH_FIRST": "无法读取日期。请按月份在前的格式填写，例如 {monthFirst}。",
+				"END_DATE_UNREADABLE": "无法读取结束日期。请按与日期相同的格式填写。",
+				"START_DAY_MISMATCH": "日期和开始时间给出了两个不同的日子。请只保留其中一个。",
+				"END_DAY_MISMATCH": "结束日期和结束时间给出了两个不同的日子。请只保留其中一个。",
+				"MEMBER_NAME_UNKNOWN": "此团队中没有成员使用这个名字。",
+				"MEMBER_AMBIGUOUS": "{count, plural, other {此团队中有 # 名成员使用这个名字。请用邮箱指定成员。}}"
+			}
 		}
 	}
 }

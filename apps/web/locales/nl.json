@@ -6349,6 +6349,48 @@
 			"ROW_LABEL": "Tijdregistratiegegevens",
 			"ROW_DESCRIPTION": "Voeg tijdinvoeren toe vanuit een CSV-bestand.",
 			"OPEN": "Importeren uit CSV"
+		},
+		"mapping": {
+			"DESCRIPTION": "Kies de kolom van {fileName} die elk deel van een invoer bevat. Er wordt niets opgeslagen voordat je importeert.",
+			"HEADER_PART": "Deel van een invoer",
+			"HEADER_COLUMN": "Kolom van het bestand",
+			"HEADER_SAMPLE": "Eerste waarde",
+			"NOT_IN_FILE": "Niet in dit bestand",
+			"CHOOSE_COLUMN": "Kies een kolom",
+			"DATE_FORMAT": "Datumnotatie",
+			"CHOOSE_DATE_FORMAT": "Kies een notatie",
+			"MISSING": "Kies een kolom voor {parts} om verder te gaan.",
+			"DATE_FORMAT_MISSING": "Kies hoe de datums van dit bestand geschreven zijn om verder te gaan.",
+			"MIXED_DATES": "De datums in dit bestand zijn op twee manieren geschreven: {firstValue} op rij {firstRow}, {value} op rij {row}. Schrijf alle datums op dezelfde manier.",
+			"CONTINUE": "{count, plural, one {# rij controleren} other {# rijen controleren}}",
+			"FIRST_ROWS": "Eerste rijen van het bestand",
+			"EDIT": "Kolommen wijzigen",
+			"fields": {
+				"DATE": "Datum",
+				"START_TIME": "Starttijd",
+				"END_DATE": "Einddatum",
+				"END_TIME": "Eindtijd",
+				"DURATION": "Duur",
+				"PROJECT": "Project",
+				"TASK": "Taak",
+				"NOTES": "Notities",
+				"BILLABLE": "Factureerbaar",
+				"MEMBER": "Lid"
+			},
+			"orders": {
+				"YEAR_FIRST": "Jaar eerst",
+				"DAY_FIRST": "Dag eerst",
+				"MONTH_FIRST": "Maand eerst"
+			},
+			"problems": {
+				"DATE_UNREADABLE_DAY_FIRST": "De datum is niet leesbaar. Schrijf hem met de dag eerst, zoals {dayFirst}.",
+				"DATE_UNREADABLE_MONTH_FIRST": "De datum is niet leesbaar. Schrijf hem met de maand eerst, zoals {monthFirst}.",
+				"END_DATE_UNREADABLE": "De einddatum is niet leesbaar. Schrijf hem op dezelfde manier als de datum.",
+				"START_DAY_MISMATCH": "De datum en de starttijd geven twee verschillende dagen. Houd een van de twee.",
+				"END_DAY_MISMATCH": "De einddatum en de eindtijd geven twee verschillende dagen. Houd een van de twee.",
+				"MEMBER_NAME_UNKNOWN": "Geen lid van dit team heeft deze naam.",
+				"MEMBER_AMBIGUOUS": "{count, plural, one {# lid van dit team heeft deze naam.} other {# leden van dit team hebben deze naam. Geef het lid op met het e-mailadres.}}"
+			}
 		}
 	}
 }

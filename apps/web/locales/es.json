@@ -6349,6 +6349,48 @@
 			"ROW_LABEL": "Datos de seguimiento del tiempo",
 			"ROW_DESCRIPTION": "Añade entradas de tiempo desde un archivo CSV.",
 			"OPEN": "Importar desde CSV"
+		},
+		"mapping": {
+			"DESCRIPTION": "Elige la columna de {fileName} que contiene cada parte de una entrada. No se guarda nada antes de importar.",
+			"HEADER_PART": "Parte de una entrada",
+			"HEADER_COLUMN": "Columna del archivo",
+			"HEADER_SAMPLE": "Primer valor",
+			"NOT_IN_FILE": "No está en este archivo",
+			"CHOOSE_COLUMN": "Elegir una columna",
+			"DATE_FORMAT": "Formato de fecha",
+			"CHOOSE_DATE_FORMAT": "Elegir un formato",
+			"MISSING": "Para continuar, elige una columna para {parts}.",
+			"DATE_FORMAT_MISSING": "Para continuar, elige cómo están escritas las fechas de este archivo.",
+			"MIXED_DATES": "Las fechas de este archivo están escritas de dos formas: {firstValue} en la fila {firstRow}, {value} en la fila {row}. Escribe todas las fechas de la misma forma.",
+			"CONTINUE": "{count, plural, one {Comprobar # fila} other {Comprobar # filas}}",
+			"FIRST_ROWS": "Primeras filas del archivo",
+			"EDIT": "Cambiar columnas",
+			"fields": {
+				"DATE": "Fecha",
+				"START_TIME": "Hora de inicio",
+				"END_DATE": "Fecha de fin",
+				"END_TIME": "Hora de fin",
+				"DURATION": "Duración",
+				"PROJECT": "Proyecto",
+				"TASK": "Tarea",
+				"NOTES": "Notas",
+				"BILLABLE": "Facturable",
+				"MEMBER": "Miembro"
+			},
+			"orders": {
+				"YEAR_FIRST": "Año primero",
+				"DAY_FIRST": "Día primero",
+				"MONTH_FIRST": "Mes primero"
+			},
+			"problems": {
+				"DATE_UNREADABLE_DAY_FIRST": "No se puede leer la fecha. Escríbela con el día primero, como {dayFirst}.",
+				"DATE_UNREADABLE_MONTH_FIRST": "No se puede leer la fecha. Escríbela con el mes primero, como {monthFirst}.",
+				"END_DATE_UNREADABLE": "No se puede leer la fecha de fin. Escríbela igual que la fecha.",
+				"START_DAY_MISMATCH": "La fecha y la hora de inicio dan dos días distintos. Conserva una de las dos.",
+				"END_DAY_MISMATCH": "La fecha de fin y la hora de fin dan dos días distintos. Conserva una de las dos.",
+				"MEMBER_NAME_UNKNOWN": "Ningún miembro de este equipo tiene este nombre.",
+				"MEMBER_AMBIGUOUS": "{count, plural, one {# miembro de este equipo tiene este nombre.} other {# miembros de este equipo tienen este nombre. Indica el miembro por su correo.}}"
+			}
 		}
 	}
 }

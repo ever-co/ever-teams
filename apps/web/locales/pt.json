@@ -6349,6 +6349,48 @@
 			"ROW_LABEL": "Dados de registro de tempo",
 			"ROW_DESCRIPTION": "Adicione entradas de tempo a partir de um arquivo CSV.",
 			"OPEN": "Importar de CSV"
+		},
+		"mapping": {
+			"DESCRIPTION": "Escolha a coluna de {fileName} que contém cada parte de uma entrada. Nada é salvo antes da importação.",
+			"HEADER_PART": "Parte de uma entrada",
+			"HEADER_COLUMN": "Coluna do arquivo",
+			"HEADER_SAMPLE": "Primeiro valor",
+			"NOT_IN_FILE": "Não está neste arquivo",
+			"CHOOSE_COLUMN": "Escolher uma coluna",
+			"DATE_FORMAT": "Formato de data",
+			"CHOOSE_DATE_FORMAT": "Escolher um formato",
+			"MISSING": "Para continuar, escolha uma coluna para {parts}.",
+			"DATE_FORMAT_MISSING": "Para continuar, escolha como as datas deste arquivo estão escritas.",
+			"MIXED_DATES": "As datas deste arquivo estão escritas de duas formas: {firstValue} na linha {firstRow}, {value} na linha {row}. Escreva todas as datas da mesma forma.",
+			"CONTINUE": "{count, plural, one {Verificar # linha} other {Verificar # linhas}}",
+			"FIRST_ROWS": "Primeiras linhas do arquivo",
+			"EDIT": "Alterar colunas",
+			"fields": {
+				"DATE": "Data",
+				"START_TIME": "Hora de início",
+				"END_DATE": "Data de fim",
+				"END_TIME": "Hora de fim",
+				"DURATION": "Duração",
+				"PROJECT": "Projeto",
+				"TASK": "Tarefa",
+				"NOTES": "Notas",
+				"BILLABLE": "Faturável",
+				"MEMBER": "Membro"
+			},
+			"orders": {
+				"YEAR_FIRST": "Ano primeiro",
+				"DAY_FIRST": "Dia primeiro",
+				"MONTH_FIRST": "Mês primeiro"
+			},
+			"problems": {
+				"DATE_UNREADABLE_DAY_FIRST": "Não foi possível ler a data. Escreva-a com o dia primeiro, como {dayFirst}.",
+				"DATE_UNREADABLE_MONTH_FIRST": "Não foi possível ler a data. Escreva-a com o mês primeiro, como {monthFirst}.",
+				"END_DATE_UNREADABLE": "Não foi possível ler a data de fim. Escreva-a como a data.",
+				"START_DAY_MISMATCH": "A data e a hora de início dão dois dias diferentes. Mantenha uma das duas.",
+				"END_DAY_MISMATCH": "A data de fim e a hora de fim dão dois dias diferentes. Mantenha uma das duas.",
+				"MEMBER_NAME_UNKNOWN": "Nenhum membro desta equipe tem este nome.",
+				"MEMBER_AMBIGUOUS": "{count, plural, one {# membro desta equipe tem este nome.} other {# membros desta equipe têm este nome. Indique o membro pelo e-mail.}}"
+			}
 		}
 	}
 }

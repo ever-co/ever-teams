@@ -6349,6 +6349,48 @@
 			"ROW_LABEL": "Time tracking data",
 			"ROW_DESCRIPTION": "Add time entries from a CSV file.",
 			"OPEN": "Import from CSV"
+		},
+		"mapping": {
+			"DESCRIPTION": "Choose the column of {fileName} that holds each part of an entry. Nothing is saved before you import.",
+			"HEADER_PART": "Part of an entry",
+			"HEADER_COLUMN": "Column of the file",
+			"HEADER_SAMPLE": "First value",
+			"NOT_IN_FILE": "Not in this file",
+			"CHOOSE_COLUMN": "Choose a column",
+			"DATE_FORMAT": "Date format",
+			"CHOOSE_DATE_FORMAT": "Choose a format",
+			"MISSING": "To go on, choose a column for {parts}.",
+			"DATE_FORMAT_MISSING": "To go on, choose how the dates of this file are written.",
+			"MIXED_DATES": "Dates are written two ways in this file: {firstValue} on row {firstRow}, {value} on row {row}. Write every date the same way.",
+			"CONTINUE": "{count, plural, one {Check # row} other {Check # rows}}",
+			"FIRST_ROWS": "First rows of the file",
+			"EDIT": "Change columns",
+			"fields": {
+				"DATE": "Date",
+				"START_TIME": "Start time",
+				"END_DATE": "End date",
+				"END_TIME": "End time",
+				"DURATION": "Duration",
+				"PROJECT": "Project",
+				"TASK": "Task",
+				"NOTES": "Notes",
+				"BILLABLE": "Billable",
+				"MEMBER": "Member"
+			},
+			"orders": {
+				"YEAR_FIRST": "Year first",
+				"DAY_FIRST": "Day first",
+				"MONTH_FIRST": "Month first"
+			},
+			"problems": {
+				"DATE_UNREADABLE_DAY_FIRST": "The date cannot be read. Write it day first, like {dayFirst}.",
+				"DATE_UNREADABLE_MONTH_FIRST": "The date cannot be read. Write it month first, like {monthFirst}.",
+				"END_DATE_UNREADABLE": "The end date cannot be read. Write it the same way as the date.",
+				"START_DAY_MISMATCH": "The date and the start time give two different days. Keep one of the two.",
+				"END_DAY_MISMATCH": "The end date and the end time give two different days. Keep one of the two.",
+				"MEMBER_NAME_UNKNOWN": "No member of this team has this name.",
+				"MEMBER_AMBIGUOUS": "{count, plural, one {# member of this team has this name.} other {# members of this team have this name. Name the member by email.}}"
+			}
 		}
 	}
 }
