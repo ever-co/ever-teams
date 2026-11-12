@@ -12,11 +12,17 @@ import {
 } from 'react';
 import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
+import { ENTRY_BAR, ENTRY_SOLID, entryToneStyle, WEEKEND_TINT } from '@/core/components/calendar/calendar-recipes';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/core/components/common/hover-card';
+import { SegmentedControl, type SegmentedControlItem } from '@/core/components/common/segmented-control';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { cn } from '@/core/lib/helpers';
+import { useMediaQuery } from '@/core/hooks/common/use-media-query';
 import { useToday } from '@/core/hooks/common/use-today';
 import { useTeamTaskUpdates } from '@/core/hooks/tasks/use-team-task-updates';
 import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
 import { tasksByTeamState } from '@/core/stores';
+import { isWeekendDay } from '@/core/lib/utils/calendar-view';
 import { isDoneStatus, statusOfTask, tasksOfGroups } from '@/core/lib/utils/team-tasks-view';
 import {
 	TIMELINE_DAY_WIDTH,
@@ -33,21 +39,75 @@ import {
 	type TeamTasksTimelineDrag,
 	type TeamTasksTimelineZoom
 } from '@/core/lib/utils/team-tasks-timeline';
+import type { TTaskStatus } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import type { TeamTasksListCommands } from './team-tasks-list';
+import { BarPeople, peopleOfTask, StatusGlyph, TimelineTaskCard } from './team-tasks-timeline-card';
 
 const TITLE_WIDTH = 260;
 const ROW_HEIGHT = 36;
 const HEADER_HEIGHT = 44;
 const ZOOMS: TeamTasksTimelineZoom[] = ['week', 'month'];
 
+/** Only a mouse hovers: on a touch screen a tap opens the task, and the card never shows. */
+const HOVER_QUERY = '(hover: hover)';
+
+/** The pause before a bar's card shows, so the pointer crossing the rows does not flash a card on each. */
+const CARD_OPEN_DELAY = 450;
+const CARD_CLOSE_DELAY = 120;
+
+/** The narrowest bars that still show their status glyph, their title and the faces of their people. */
+const GLYPH_MIN_WIDTH = 40;
+const TITLE_MIN_WIDTH = 64;
+const PEOPLE_MIN_WIDTH = 132;
+
+/** A row's title cell is opaque (bars scroll under it): its hover tint is mixed into the page's background. */
+const ROW_TITLE_HOVER = 'group-hover/row:bg-[color-mix(in_oklab,hsl(var(--foreground))_2.5%,hsl(var(--background)))]';
+
+function zoomLabelKey(zoom: TeamTasksTimelineZoom) {
+	if (zoom === 'week') {
+		return 'pages.teamTasks.TIMELINE_ZOOM_WEEKS';
+	}
+	return 'pages.teamTasks.TIMELINE_ZOOM_MONTHS';
+}
+
+function prefersReducedMotion() {
+	const canQuery = typeof window !== 'undefined' && typeof window.matchMedia === 'function';
+	if (!canQuery) {
+		return false;
+	}
+	return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/** Scrolls the calendar to `left`, smoothly unless the reader asked for less motion. */
+function scrollCalendarTo(element: HTMLElement, left: number) {
+	const canScrollSmoothly = typeof element.scrollTo === 'function';
+	if (!canScrollSmoothly) {
+		element.scrollLeft = left;
+		return;
+	}
+	let behavior: ScrollBehavior = 'smooth';
+	if (prefersReducedMotion()) {
+		behavior = 'auto';
+	}
+	element.scrollTo({ left, behavior });
+}
+
+/** Where the calendar shows today: a third from the left of the days in view. */
+function todayScrollLeftOf(element: HTMLElement, todayDay: number, dayWidth: number) {
+	const daysWidth = element.clientWidth - TITLE_WIDTH;
+	return Math.max(0, todayDay * dayWidth - daysWidth / 3);
+}
+
 /**
  * A view shown as a timeline (its layout): the tasks the view lists, with its filters, scope, search and ordering, one
  * row each, as a bar from the task's start date to its due date on a calendar of days. A task with a due date only is
  * one day at its due date; a start date only, one day at its start. The tasks with neither date are listed under the
- * calendar. A bar opens its task, as a row does; the calendar opens on today. A task of the active team changes its
- * dates from its bar: dragged (the whole bar, or either end of a range) or with Alt + arrows (Alt + Shift + arrows for
- * the due date); a task of another team (a built-in view lists the person's tasks of every team) only opens.
+ * calendar. A bar takes the colour of the task's status and holds the faces of its people; hovering it, a card says
+ * the rest. A bar opens its task, as a row does; the calendar opens on today, and Today brings it back. A task of the
+ * active team changes its dates from its bar: dragged (the whole bar, or either end of a range) or with Alt + arrows
+ * (Alt + Shift + arrows for the due date); a task of another team (a built-in view lists the person's tasks of every
+ * team) only opens.
  */
 export function TeamTasksTimelineView({
 	view,
@@ -57,6 +117,7 @@ export function TeamTasksTimelineView({
 	const locale = useLocale();
 	const [zoom, setZoom] = useState<TeamTasksTimelineZoom>('week');
 	const today = useToday();
+	const canHover = useMediaQuery(HOVER_QUERY);
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const { moveDates } = useTeamTaskUpdates();
 	const teamTasks = useAtomValue(tasksByTeamState);
@@ -86,6 +147,10 @@ export function TeamTasksTimelineView({
 		}),
 		[locale]
 	);
+	const zoomItems = useMemo<SegmentedControlItem<TeamTasksTimelineZoom>[]>(
+		() => ZOOMS.map((each) => ({ value: each, label: t(zoomLabelKey(each)) })),
+		[t]
+	);
 	const dayWidth = TIMELINE_DAY_WIDTH[zoom];
 	const labelledTicks = useMemo(
 		() => labelledTicksOf(ticks, dayWidth, TIMELINE_HEADER_LABEL_WIDTH[zoom]),
@@ -93,6 +158,7 @@ export function TeamTasksTimelineView({
 	);
 	const calendarWidth = timeline.dayCount * dayWidth;
 	const firstDay = dayNumberOf(timeline.firstDay);
+	const isWeekZoom = zoom === 'week';
 
 	// The calendar opens on today (a third from the left), and again when the zoom changes.
 	const todayDay = timeline.todayDay;
@@ -101,80 +167,98 @@ export function TeamTasksTimelineView({
 		if (!element || todayDay === null) {
 			return;
 		}
-		element.scrollLeft = Math.max(0, todayDay * dayWidth - (element.clientWidth - TITLE_WIDTH) / 3);
+		element.scrollLeft = todayScrollLeftOf(element, todayDay, dayWidth);
 	}, [todayDay, dayWidth]);
 
-	// The task's own dates (never the calendar's edges a long bar is cut at), with the year when it is not this one.
-	const barLabel = (task: TTask, bar: TeamTasksTimelineBar) => {
+	const showToday = () => {
+		const element = scrollRef.current;
+		if (!element || todayDay === null) {
+			return;
+		}
+		scrollCalendarTo(element, todayScrollLeftOf(element, todayDay, dayWidth));
+	};
+
+	/** The task's own dates (never the calendar's edges a long bar is cut at), with the year when it is not this one. */
+	const datesOf = (bar: TeamTasksTimelineBar) => {
 		const day = (value: number) => {
 			const date = dateOfDayNumber(value);
-			return (date.getFullYear() === today.getFullYear() ? formats.day : formats.dayWithYear).format(date);
+			const isThisYear = date.getFullYear() === today.getFullYear();
+			if (isThisYear) {
+				return formats.day.format(date);
+			}
+			return formats.dayWithYear.format(date);
 		};
 		const { taskStartDay, taskDueDay } = bar;
-		let dates = '';
-		if (taskStartDay !== null && taskDueDay !== null && taskStartDay !== taskDueDay) {
-			dates = t('pages.teamTasks.TIMELINE_RANGE', { start: day(taskStartDay), end: day(taskDueDay) });
-		} else if (taskDueDay !== null) {
-			dates = day(taskDueDay);
-		} else if (taskStartDay !== null) {
-			dates = day(taskStartDay);
+		const hasStart = taskStartDay !== null;
+		const hasDue = taskDueDay !== null;
+		const spansDays = taskStartDay !== taskDueDay;
+		const isRange = hasStart && hasDue && spansDays;
+		if (isRange) {
+			return t('pages.teamTasks.TIMELINE_RANGE', { start: day(taskStartDay), end: day(taskDueDay) });
 		}
-		const notes = [
-			bar.isDueOnly ? t('pages.teamTasks.TIMELINE_DUE_ONLY') : null,
-			bar.isStartOnly ? t('pages.teamTasks.TIMELINE_START_ONLY') : null,
-			bar.hasInvalidRange ? t('pages.teamTasks.TIMELINE_INVALID_RANGE') : null,
-			bar.isOverdue ? t('pages.teamTasks.TIMELINE_OVERDUE') : null
-		].filter(Boolean);
-		return [task.title, dates, ...notes].join(' · ');
+		if (taskDueDay !== null) {
+			return day(taskDueDay);
+		}
+		if (taskStartDay !== null) {
+			return day(taskStartDay);
+		}
+		return '';
+	};
+	/** What is particular about a bar's dates: one date only, a due date before the start, late. */
+	const notesOf = (bar: TeamTasksTimelineBar) => {
+		const notes: string[] = [];
+		if (bar.isDueOnly) {
+			notes.push(t('pages.teamTasks.TIMELINE_DUE_ONLY'));
+		}
+		if (bar.isStartOnly) {
+			notes.push(t('pages.teamTasks.TIMELINE_START_ONLY'));
+		}
+		if (bar.hasInvalidRange) {
+			notes.push(t('pages.teamTasks.TIMELINE_INVALID_RANGE'));
+		}
+		if (bar.isOverdue) {
+			notes.push(t('pages.teamTasks.TIMELINE_OVERDUE'));
+		}
+		return notes;
 	};
 
 	const hasTasks = timeline.bars.length > 0 || timeline.unscheduledIds.length > 0;
+	const hasBars = timeline.bars.length > 0;
+	const hasUnscheduled = timeline.unscheduledIds.length > 0;
+	const isTodayDrawn = todayDay !== null;
 
 	return (
 		<section
 			aria-label={t('pages.teamTasks.LAYOUT_TIMELINE')}
-			className="flex min-h-0 flex-1 flex-col gap-3"
+			className="flex h-full min-h-0 flex-col"
 			data-testid="team-tasks-timeline"
 		>
-			<div
-				className="flex items-center justify-end gap-1"
-				role="group"
-				aria-label={t('pages.teamTasks.TIMELINE_ZOOM')}
-			>
-				{ZOOMS.map((each) => (
-					<button
-						key={each}
-						type="button"
-						aria-pressed={zoom === each}
-						onClick={() => setZoom(each)}
-						className={cn(
-							'h-7 rounded-md px-2.5 text-xs font-medium outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/25',
-							zoom === each
-								? 'bg-foreground/[0.08] text-foreground'
-								: 'text-muted-foreground hover:bg-foreground/[0.05]'
-						)}
-					>
-						{t(
-							each === 'week'
-								? 'pages.teamTasks.TIMELINE_ZOOM_WEEKS'
-								: 'pages.teamTasks.TIMELINE_ZOOM_MONTHS'
-						)}
-					</button>
-				))}
+			<div className="flex min-h-11 flex-wrap items-center justify-between gap-x-4 gap-y-2 hairline-b border-border px-4 py-2">
+				<Button type="button" variant="outline" size="sm" onClick={showToday} disabled={!isTodayDrawn}>
+					{t('common.TODAY')}
+				</Button>
+				<SegmentedControl
+					items={zoomItems}
+					value={zoom}
+					onValueChange={setZoom}
+					ariaLabel={t('pages.teamTasks.TIMELINE_ZOOM')}
+				/>
 			</div>
 
-			{!hasTasks && <p className="px-1 text-sm text-muted-foreground">{t('pages.teamTasks.TIMELINE_EMPTY')}</p>}
+			{!hasTasks && (
+				<p className="px-4 py-3 text-sm text-muted-foreground">{t('pages.teamTasks.TIMELINE_EMPTY')}</p>
+			)}
 
-			{timeline.bars.length > 0 && (
-				<div ref={scrollRef} className="relative min-h-0 flex-1 overflow-auto rounded-lg border border-border">
+			{hasBars && (
+				<div ref={scrollRef} className="relative min-h-0 flex-1 overflow-auto custom-scrollbar">
 					<div className="relative" style={{ width: TITLE_WIDTH + calendarWidth }}>
-						{/* The header: month or week labels over the days. */}
+						{/* The header: month or week labels over the days, today marked on its day. */}
 						<div
-							className="sticky top-0 z-20 flex border-b border-border bg-background"
+							className="sticky top-0 z-20 flex hairline-b border-border bg-background"
 							style={{ height: HEADER_HEIGHT }}
 						>
 							<div
-								className="sticky left-0 z-30 shrink-0 border-r border-border bg-background"
+								className="sticky left-0 z-30 shrink-0 hairline-r border-border bg-background"
 								style={{ width: TITLE_WIDTH }}
 							/>
 							<div className="relative" style={{ width: calendarWidth }} aria-hidden="true">
@@ -184,40 +268,57 @@ export function TeamTasksTimelineView({
 										className="absolute top-1.5 whitespace-nowrap pl-1 text-xs font-medium text-foreground"
 										style={{ left: tick.day * dayWidth }}
 									>
-										{zoom === 'week'
-											? formats.day.format(tick.date)
-											: formats.month.format(tick.date)}
+										{isWeekZoom && formats.day.format(tick.date)}
+										{!isWeekZoom && formats.month.format(tick.date)}
 									</span>
 								))}
-								{zoom === 'week' &&
+								{isWeekZoom &&
 									ticks.map((tick) => (
-										<span
+										<DayNumber
 											key={`d${tick.day}`}
-											className="absolute bottom-1 text-center text-[10px] tabular-nums text-muted-foreground"
-											style={{ left: tick.day * dayWidth, width: dayWidth }}
-										>
-											{formats.dayOfMonth.format(tick.date)}
-										</span>
+											date={tick.date}
+											label={formats.dayOfMonth.format(tick.date)}
+											left={tick.day * dayWidth}
+											width={dayWidth}
+											isToday={tick.day === todayDay}
+										/>
 									))}
+								{!isWeekZoom && isTodayDrawn && (
+									<span
+										className="absolute bottom-1.5 size-1.5 -translate-x-1/2 rounded-full bg-primary"
+										style={{ left: todayDay * dayWidth + dayWidth / 2 }}
+									/>
+								)}
 							</div>
 						</div>
 
-						{/* Lines of the weeks or months, and today, behind the rows. */}
+						{/* Weekends, lines of the weeks or months, and today, behind the rows. */}
 						<div
 							className="pointer-events-none absolute bottom-0"
 							style={{ left: TITLE_WIDTH, top: HEADER_HEIGHT, width: calendarWidth }}
 							aria-hidden="true"
 						>
+							{isWeekZoom &&
+								ticks
+									.filter((tick) => isWeekendDay(tick.date))
+									.map((tick) => (
+										<span
+											key={`w${tick.day}`}
+											className={cn('absolute inset-y-0', WEEKEND_TINT)}
+											style={{ left: tick.day * dayWidth, width: dayWidth }}
+											data-testid="timeline-weekend"
+										/>
+									))}
 							{ticks
 								.filter((tick) => tick.isMajor)
 								.map((tick) => (
 									<span
 										key={tick.day}
-										className="absolute inset-y-0 w-px bg-border"
+										className="absolute inset-y-0 w-(--hairline) bg-border"
 										style={{ left: tick.day * dayWidth }}
 									/>
 								))}
-							{todayDay !== null && (
+							{isTodayDrawn && (
 								<span
 									className="absolute inset-y-0 w-0.5 bg-primary/70"
 									style={{ left: todayDay * dayWidth + dayWidth / 2 }}
@@ -232,17 +333,23 @@ export function TeamTasksTimelineView({
 								if (!task) {
 									return null;
 								}
-								const label = barLabel(task, bar);
+								const dates = datesOf(bar);
+								const notes = notesOf(bar);
+								const label = [task.title, dates, ...notes].join(' · ');
+								const datesText = [dates, ...notes].join(' · ');
 								return (
 									<li
 										key={bar.taskId}
-										className="flex border-b border-border/60"
+										className="group/row flex hairline-b border-border/60 transition-colors hover:bg-foreground/[0.025]"
 										style={{ height: ROW_HEIGHT }}
 									>
 										<button
 											type="button"
 											onClick={() => commands.openTask(task.id)}
-											className="sticky left-0 z-10 flex shrink-0 items-center gap-2 truncate border-r border-border bg-background px-3 text-left text-sm outline-none hover:bg-foreground/[0.03] focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/25"
+											className={cn(
+												'sticky left-0 z-10 flex shrink-0 items-center gap-2 truncate hairline-r border-border bg-background px-3 text-left text-sm outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/25',
+												ROW_TITLE_HOVER
+											)}
 											style={{ width: TITLE_WIDTH }}
 											aria-label={label}
 											title={label}
@@ -297,12 +404,14 @@ export function TeamTasksTimelineView({
 											) : (
 												<TimelineBar
 													task={task}
+													status={statusOfTask(task, view.statuses)}
 													bar={bar}
 													firstDay={firstDay}
 													dayWidth={dayWidth}
 													label={label}
-													hint={t('pages.teamTasks.TIMELINE_DRAG_HINT')}
+													datesText={datesText}
 													canEdit={teamTaskIds.has(task.id)}
+													canHover={canHover}
 													onOpen={() => commands.openTask(task.id)}
 													dayCount={timeline.dayCount}
 													scrollRef={scrollRef}
@@ -318,8 +427,11 @@ export function TeamTasksTimelineView({
 				</div>
 			)}
 
-			{timeline.unscheduledIds.length > 0 && (
-				<div className="flex flex-col gap-1.5" data-testid="timeline-unscheduled">
+			{hasUnscheduled && (
+				<div
+					className="flex max-h-48 shrink-0 flex-col gap-1.5 overflow-y-auto hairline-t border-border px-3 py-3 custom-scrollbar"
+					data-testid="timeline-unscheduled"
+				>
 					<h3 className="px-1 text-xs font-medium text-muted-foreground">
 						{t('pages.teamTasks.TIMELINE_UNSCHEDULED', { count: timeline.unscheduledIds.length })}
 					</h3>
@@ -347,6 +459,36 @@ export function TeamTasksTimelineView({
 				</div>
 			)}
 		</section>
+	);
+}
+
+/** A day's number in the week zoom's header: today on a primary disc, the weekends quieter. */
+function DayNumber({
+	date,
+	label,
+	left,
+	width,
+	isToday
+}: Readonly<{ date: Date; label: string; left: number; width: number; isToday: boolean }>) {
+	const isWeekend = isWeekendDay(date);
+	return (
+		<span
+			className={cn(
+				'absolute bottom-1 flex justify-center text-[10px] tabular-nums text-muted-foreground',
+				isWeekend && 'text-muted-foreground/60'
+			)}
+			style={{ left, width }}
+		>
+			<span
+				className={cn(
+					isToday &&
+						'flex size-4.5 items-center justify-center rounded-full bg-primary font-semibold text-primary-foreground'
+				)}
+				data-today={isToday}
+			>
+				{label}
+			</span>
+		</span>
 	);
 }
 
@@ -494,6 +636,7 @@ function useTimelineBarDrag({
 
 	return {
 		preview,
+		isPressed,
 		handlers: { onPointerDown, onPointerMove, onPointerUp, onPointerCancel },
 		takeDragClick,
 		forgetDragClick
@@ -502,12 +645,16 @@ function useTimelineBarDrag({
 
 interface TimelineBarProps {
 	task: TTask;
+	status: TTaskStatus | undefined;
 	bar: TeamTasksTimelineBar;
 	firstDay: number;
 	dayWidth: number;
 	label: string;
-	hint: string;
+	/** The task's dates and what is particular about them, for the card. */
+	datesText: string;
 	canEdit: boolean;
+	/** Whether the pointer hovers (a mouse): the card shows only then. */
+	canHover: boolean;
 	onOpen: () => void;
 	/** The days drawn: a dragged bar stays inside them, as `timelineOf` keeps every bar. */
 	dayCount: number;
@@ -516,31 +663,43 @@ interface TimelineBarProps {
 	onMove: (drag: TeamTasksTimelineDrag, deltaDays: number) => void;
 }
 
+/** A bar of one date only, or of a due date before its start: drawn with a dashed outline. */
+function isSingleDateBar(bar: TeamTasksTimelineBar) {
+	return [bar.isDueOnly, bar.isStartOnly, bar.hasInvalidRange].some(Boolean);
+}
+
 /**
- * One bar: a button that opens its task; with `canEdit`, dragged to move the task's dates (the body) or one end of a
- * range (the edges), or moved with Alt + arrows (Alt + Shift + arrows: the due date). The bar follows the pointer by
- * whole days while dragged; the move is sent once, when it is let go, and the dates are worked out from the latest
- * task when the update runs (a move that turns out to change nothing then sends nothing).
+ * One bar: a button that opens its task, in the colour of its status (a soft tint and a stripe, as the calendar's
+ * tasks), with the status glyph, the title and the faces of its people as far as its width allows. Hovering it with a
+ * mouse, a card says the rest. With `canEdit`, dragged to move the task's dates (the body) or one end of a range (the
+ * edges), or moved with Alt + arrows (Alt + Shift + arrows: the due date). The bar follows the pointer by whole days
+ * while dragged; the move is sent once, when it is let go, and the dates are worked out from the latest task when the
+ * update runs (a move that turns out to change nothing then sends nothing).
  */
 function TimelineBar({
 	task,
+	status,
 	bar,
 	firstDay,
 	dayWidth,
 	label,
-	hint,
+	datesText,
 	canEdit,
+	canHover,
 	onOpen,
 	dayCount,
 	scrollRef,
 	onMove
 }: Readonly<TimelineBarProps>) {
-	const { preview, handlers, takeDragClick, forgetDragClick } = useTimelineBarDrag({
+	const { preview, isPressed, handlers, takeDragClick, forgetDragClick } = useTimelineBarDrag({
 		canEdit,
 		dayWidth,
 		scrollRef,
 		onMove
 	});
+	const [isCardOpen, setIsCardOpen] = useState(false);
+	// A press (a click or a drag) keeps the card closed until the pointer leaves the bar: it was no wish to read it.
+	const isCardHeldRef = useRef(false);
 	const dates = useMemo(
 		() => ({ startDay: dayOfStoredDate(task.startDate), dueDay: dayOfStoredDate(task.dueDate) }),
 		[task.startDate, task.dueDate]
@@ -551,8 +710,31 @@ function TimelineBar({
 	// The ends drag on a range of several days wide enough to leave its middle to move it; a one-day or narrow bar
 	// moves as a whole.
 	const hasHandles = canEdit && hasEndHandlesOf(bar, dates) && width >= MIN_HANDLE_BAR_WIDTH;
+	const isDone = isDoneStatus(status);
+	const people = useMemo(() => peopleOfTask(task), [task]);
+	const showsGlyph = width >= GLYPH_MIN_WIDTH;
+	const showsTitle = width >= TITLE_MIN_WIDTH;
+	const showsPeople = width >= PEOPLE_MIN_WIDTH && people.length > 0;
+	// A press or a drag hides the card: it would cover the days the bar is dragged over.
+	const isCardShown = canHover && isCardOpen && !isPressed;
 
+	const handleCardOpenChange = (isOpen: boolean) => {
+		const isHeld = isOpen && isCardHeldRef.current;
+		if (isHeld) {
+			return;
+		}
+		setIsCardOpen(isOpen);
+	};
+	const handlePointerDown = (event: PointerEvent<HTMLButtonElement>) => {
+		isCardHeldRef.current = true;
+		setIsCardOpen(false);
+		handlers.onPointerDown(event);
+	};
+	const handlePointerLeave = () => {
+		isCardHeldRef.current = false;
+	};
 	const handleClick = () => {
+		setIsCardOpen(false);
 		if (!takeDragClick()) onOpen();
 	};
 	const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
@@ -567,45 +749,86 @@ function TimelineBar({
 	};
 
 	return (
-		<button
-			type="button"
-			onClick={handleClick}
-			{...handlers}
-			onKeyDown={handleKeyDown}
-			aria-label={label}
-			aria-keyshortcuts={
-				canEdit ? 'Alt+ArrowLeft Alt+ArrowRight Alt+Shift+ArrowLeft Alt+Shift+ArrowRight' : undefined
-			}
-			title={canEdit ? `${label}\n${hint}` : label}
-			data-testid={`timeline-bar-${task.id}`}
-			className={cn(
-				'absolute top-1.5 flex items-center overflow-hidden rounded-md px-1.5 text-left text-xs font-medium outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40',
-				bar.isOverdue
-					? 'bg-destructive/15 text-destructive ring-1 ring-inset ring-destructive/40'
-					: 'bg-primary/15 text-foreground ring-1 ring-inset ring-primary/30',
-				(bar.isDueOnly || bar.isStartOnly || bar.hasInvalidRange) && 'border border-dashed border-current',
-				bar.isClippedStart && 'rounded-l-none',
-				bar.isClippedEnd && 'rounded-r-none',
-				canEdit && 'cursor-grab touch-none active:cursor-grabbing',
-				preview && 'z-10 shadow-sm'
-			)}
-			style={{ left, width, height: ROW_HEIGHT - 12 }}
+		<HoverCard
+			open={isCardShown}
+			onOpenChange={handleCardOpenChange}
+			openDelay={CARD_OPEN_DELAY}
+			closeDelay={CARD_CLOSE_DELAY}
 		>
-			{hasHandles && !bar.isClippedStart ? (
-				<span
-					data-handle="start"
-					aria-hidden="true"
-					className="absolute inset-y-0 left-0 w-1.5 cursor-ew-resize"
-				/>
-			) : null}
-			{width >= 64 ? <span className="pointer-events-none truncate">{task.title}</span> : null}
-			{hasHandles && !bar.isClippedEnd ? (
-				<span
-					data-handle="end"
-					aria-hidden="true"
-					className="absolute inset-y-0 right-0 w-1.5 cursor-ew-resize"
-				/>
-			) : null}
-		</button>
+			<HoverCardTrigger
+				render={
+					<button
+						type="button"
+						onClick={handleClick}
+						{...handlers}
+						onPointerDown={handlePointerDown}
+						onPointerLeave={handlePointerLeave}
+						onKeyDown={handleKeyDown}
+						aria-label={label}
+						aria-keyshortcuts={
+							canEdit
+								? 'Alt+ArrowLeft Alt+ArrowRight Alt+Shift+ArrowLeft Alt+Shift+ArrowRight'
+								: undefined
+						}
+						data-testid={`timeline-bar-${task.id}`}
+						className={cn(
+							'absolute top-1.5 flex items-center gap-1.5 overflow-hidden rounded-[5px] pr-1 pl-2 text-left text-xs font-medium text-foreground outline-none hairline-ring ring-foreground/5 focus-visible:ring-[3px] focus-visible:ring-ring/40 [&_[data-slot=task-property-icon]]:size-3 [&_[data-slot=task-property-icon]]:shrink-0',
+							ENTRY_SOLID,
+							bar.isOverdue && 'ring-destructive/45',
+							isSingleDateBar(bar) && 'border border-dashed border-foreground/25',
+							bar.isClippedStart && 'rounded-l-none',
+							bar.isClippedEnd && 'rounded-r-none',
+							canEdit && 'cursor-grab touch-none active:cursor-grabbing',
+							preview && 'z-10 shadow-sm'
+						)}
+						style={{ ...entryToneStyle(status?.color ?? null), left, width, height: ROW_HEIGHT - 12 }}
+					/>
+				}
+			>
+				<span className={cn(ENTRY_BAR, 'pointer-events-none')} />
+				{hasHandles && !bar.isClippedStart ? (
+					<span
+						data-handle="start"
+						aria-hidden="true"
+						className="absolute inset-y-0 left-0 z-10 w-1.5 cursor-ew-resize"
+					/>
+				) : null}
+				{showsGlyph && (
+					<span className="pointer-events-none flex shrink-0">
+						<StatusGlyph status={status} />
+					</span>
+				)}
+				{showsTitle && (
+					<span
+						className={cn(
+							'pointer-events-none min-w-0 flex-1 truncate',
+							isDone && 'text-muted-foreground line-through',
+							bar.isOverdue && 'text-destructive-ink'
+						)}
+					>
+						{task.title}
+					</span>
+				)}
+				{showsPeople && <BarPeople people={people} />}
+				{hasHandles && !bar.isClippedEnd ? (
+					<span
+						data-handle="end"
+						aria-hidden="true"
+						className="absolute inset-y-0 right-0 z-10 w-1.5 cursor-ew-resize"
+					/>
+				) : null}
+			</HoverCardTrigger>
+			{isCardShown && (
+				<HoverCardContent side="bottom" align="start" sideOffset={6} collisionPadding={12} className="w-72 p-3">
+					<TimelineTaskCard
+						task={task}
+						status={status}
+						dates={datesText}
+						isOverdue={bar.isOverdue}
+						canEdit={canEdit}
+					/>
+				</HoverCardContent>
+			)}
+		</HoverCard>
 	);
 }

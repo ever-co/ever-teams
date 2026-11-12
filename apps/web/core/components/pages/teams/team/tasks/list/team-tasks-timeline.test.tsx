@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 
 const mockMoveDates = jest.fn();
 // The active team's tasks: every task of these tests but `other`.
@@ -17,6 +17,11 @@ jest.mock('next-intl', () => ({
 		values ? `${key}(${Object.values(values).join(',')})` : key,
 	useLocale: () => 'en'
 }));
+// A mouse hovers by default; a touch screen does not.
+let mockCanHover = true;
+jest.mock('@/core/hooks/common/use-media-query', () => ({ useMediaQuery: () => mockCanHover }));
+// An hour and a quarter worked on every task, read by a bar's card.
+jest.mock('@/core/hooks/tasks/use-task-worked-seconds', () => ({ useTaskWorkedSeconds: () => 4500 }));
 
 import { TeamTasksTimelineView } from './team-tasks-timeline';
 
@@ -34,11 +39,12 @@ if (typeof window.PointerEvent === 'undefined') {
 
 const DONE = { id: 'done', name: 'done', isDone: true };
 const OPEN = { id: 'open', name: 'open', isTodo: true };
+const IN_PROGRESS = { id: 'doing', name: 'in-progress', isInProgress: true, color: '#f97316' };
 
 function renderTimeline(tasks: Array<Record<string, unknown>>) {
 	const view = {
 		groups: [{ key: 'all', tasks }],
-		statuses: [OPEN, DONE]
+		statuses: [OPEN, IN_PROGRESS, DONE]
 	} as unknown as Parameters<typeof TeamTasksTimelineView>[0]['view'];
 	const commands = {
 		openTask: jest.fn(),
@@ -56,6 +62,9 @@ describe('TeamTasksTimelineView', () => {
 		jest.setSystemTime(new Date(2026, 10, 12, 10, 0));
 	});
 	afterAll(() => jest.useRealTimers());
+	afterEach(() => {
+		mockCanHover = true;
+	});
 
 	it('draws a bar per dated task, lists the undated ones apart, and opens a task from either', () => {
 		const { commands } = renderTimeline([
@@ -97,10 +106,11 @@ describe('TeamTasksTimelineView', () => {
 		]);
 
 		expect(screen.getByTestId('timeline-bar-d').getAttribute('aria-label')).not.toContain('TIMELINE_OVERDUE');
-		const months = screen.getByText('pages.teamTasks.TIMELINE_ZOOM_MONTHS');
-		expect(months.getAttribute('aria-pressed')).toBe('false');
+		const zoom = screen.getByRole('tablist', { name: 'pages.teamTasks.TIMELINE_ZOOM' });
+		const months = within(zoom).getByRole('tab', { name: 'pages.teamTasks.TIMELINE_ZOOM_MONTHS' });
+		expect(months.getAttribute('aria-selected')).toBe('false');
 		fireEvent.click(months);
-		expect(months.getAttribute('aria-pressed')).toBe('true');
+		expect(months.getAttribute('aria-selected')).toBe('true');
 	});
 
 	it('moves a task of the team by a day with Alt + arrows, and its due date with Alt + Shift + arrows', () => {
@@ -321,5 +331,130 @@ describe('TeamTasksTimelineView', () => {
 	it('says so when the view has no tasks', () => {
 		renderTimeline([]);
 		expect(screen.getByText('pages.teamTasks.TIMELINE_EMPTY')).toBeTruthy();
+	});
+
+	describe('a bar and its card', () => {
+		const ranged = {
+			id: 'a',
+			title: 'Ship the release',
+			startDate: '2026-11-02',
+			dueDate: '2026-11-14',
+			status: 'in-progress',
+			taskStatusId: 'doing',
+			priority: 'high',
+			estimate: 18000,
+			members: [
+				{ id: 'm1', fullName: 'Ada Lovelace' },
+				{ id: 'm2', fullName: 'Alan Turing' }
+			]
+		};
+
+		/** Hovers a bar the way a mouse does, then waits out the card's delay. */
+		function hover(bar: HTMLElement) {
+			fireEvent.pointerEnter(bar, { pointerType: 'mouse' });
+			fireEvent.mouseEnter(bar);
+			fireEvent.mouseMove(bar);
+			act(() => {
+				jest.advanceTimersByTime(800);
+			});
+		}
+
+		it('takes the colour of its status, and holds the faces of its people', () => {
+			renderTimeline([
+				ranged,
+				{ id: 'b', title: 'Plain', dueDate: '2026-11-20', status: 'open', taskStatusId: 'open' }
+			]);
+			const bar = screen.getByTestId('timeline-bar-a');
+			const plain = screen.getByTestId('timeline-bar-b');
+
+			const tone = bar.style.getPropertyValue('--entry');
+			expect(tone).not.toBe('');
+			expect(tone).not.toBe(plain.style.getPropertyValue('--entry'));
+			expect(bar.textContent).toContain('Ship the release');
+			// Two faces, the initials of the people on the task, at the end of the bar.
+			expect(bar.textContent).toContain('AL');
+			expect(bar.textContent).toContain('AT');
+			// Its label stays what it was: title and dates.
+			expect(bar.getAttribute('aria-label')).toBe(
+				'Ship the release · pages.teamTasks.TIMELINE_RANGE(Nov 2,Nov 14)'
+			);
+		});
+
+		it('shows a card with the status, priority, dates, people and time worked when hovered', () => {
+			renderTimeline([ranged]);
+			const bar = screen.getByTestId('timeline-bar-a');
+			expect(screen.queryByTestId('timeline-card-a')).toBeNull();
+
+			hover(bar);
+
+			const card = screen.getByTestId('timeline-card-a');
+			expect(card.textContent).toContain('in progress');
+			expect(card.textContent).toContain('high');
+			expect(card.textContent).toContain('pages.teamTasks.TIMELINE_RANGE(Nov 2,Nov 14)');
+			expect(within(card).getByTestId('timeline-card-people').textContent).toContain('Ada Lovelace');
+			expect(within(card).getByTestId('timeline-card-people').textContent).toContain('Alan Turing');
+			// 1 h 15 worked of a 5 h estimate.
+			expect(card.textContent).toContain('1h 15m / 5h 0m');
+			expect(card.textContent).toContain('pages.teamTasks.TIMELINE_DRAG_HINT');
+		});
+
+		it('hides its card while it is pressed', () => {
+			renderTimeline([ranged]);
+			const bar = screen.getByTestId('timeline-bar-a');
+			hover(bar);
+			expect(screen.getByTestId('timeline-card-a')).toBeTruthy();
+
+			fireEvent.pointerDown(bar, { button: 0, clientX: 100, pointerId: 4 });
+			expect(screen.queryByTestId('timeline-card-a')).toBeNull();
+			fireEvent.pointerUp(bar, { clientX: 100, pointerId: 4 });
+		});
+
+		it('keeps its card closed after a click or a drag, until the pointer leaves the bar', () => {
+			renderTimeline([ranged]);
+			const bar = screen.getByTestId('timeline-bar-a');
+
+			fireEvent.pointerDown(bar, { button: 0, clientX: 100, pointerId: 5 });
+			fireEvent.pointerUp(bar, { clientX: 100, pointerId: 5 });
+			hover(bar);
+			expect(screen.queryByTestId('timeline-card-a')).toBeNull();
+
+			fireEvent.pointerLeave(bar);
+			hover(bar);
+			expect(screen.getByTestId('timeline-card-a')).toBeTruthy();
+		});
+
+		it('never shows a card where nothing hovers', () => {
+			mockCanHover = false;
+			renderTimeline([ranged]);
+
+			hover(screen.getByTestId('timeline-bar-a'));
+
+			expect(screen.queryByTestId('timeline-card-a')).toBeNull();
+		});
+	});
+
+	it('marks today in the header and the weekends in the weeks zoom only', () => {
+		renderTimeline([{ id: 'a', title: 'Ship', dueDate: '2026-11-20', status: 'open', taskStatusId: 'open' }]);
+		const today = document.querySelector('[data-today="true"]');
+
+		expect(today?.textContent).toBe('12');
+		expect(screen.getAllByTestId('timeline-weekend').length).toBeGreaterThan(0);
+
+		fireEvent.click(screen.getByRole('tab', { name: 'pages.teamTasks.TIMELINE_ZOOM_MONTHS' }));
+		expect(screen.queryAllByTestId('timeline-weekend')).toHaveLength(0);
+		expect(screen.getByTestId('timeline-today')).toBeTruthy();
+	});
+
+	it('brings the calendar back to today', () => {
+		renderTimeline([{ id: 'a', title: 'Ship', dueDate: '2026-11-20', status: 'open', taskStatusId: 'open' }]);
+		const calendar = screen.getByTestId('timeline-bar-a').closest('.overflow-auto') as HTMLElement;
+		const scrollTo = jest.fn();
+		calendar.scrollTo = scrollTo;
+		const openedAt = calendar.scrollLeft;
+		calendar.scrollLeft = 0;
+
+		fireEvent.click(screen.getByRole('button', { name: 'common.TODAY' }));
+
+		expect(scrollTo).toHaveBeenCalledWith({ left: openedAt, behavior: 'smooth' });
 	});
 });
