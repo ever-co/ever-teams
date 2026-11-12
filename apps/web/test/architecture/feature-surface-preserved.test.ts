@@ -2033,12 +2033,19 @@ describe('Ever Teams feature surface preservation', () => {
 		// trash (/api/tasks/[id]/trashed DELETE).
 		// 332 files and 423 verbs: develop's 327 / 418 plus the clients' proxies (/api/organization-contact POST, pagination GET, [id] PUT,
 		// [id]/soft DELETE, [id]/recover PUT; #5082).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(332);
+		// 336 files and 427 verbs: 4 more with the invoices' proxies (/api/invoices POST, pagination GET, highest GET,
+		// download/[id] GET; #5088).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(336);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(423);
+		).toHaveLength(427);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of Gauzy's invoice routes (#5088)
+				'apps/web/app/api/invoices/route.ts::POST',
+				'apps/web/app/api/invoices/pagination/route.ts::GET',
+				'apps/web/app/api/invoices/highest/route.ts::GET',
+				'apps/web/app/api/invoices/download/[id]/route.ts::GET',
 				// Proxy mode twins of Gauzy's organization contacts of the client type (#5082)
 				'apps/web/app/api/organization-contact/pagination/route.ts::GET',
 				'apps/web/app/api/organization-contact/route.ts::POST',

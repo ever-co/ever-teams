@@ -23,11 +23,14 @@ function enabledPermissionsOf(rows: unknown) {
 }
 
 /**
- * The answer a proxy route gives instead of forwarding a write, or null when the session's role holds one of
- * `permissions`. The role's permissions are read from Gauzy with the session's own token, so the route refuses what
- * the page hides, whatever the Gauzy version behind it checks on that write.
+ * The answer a proxy route gives instead of forwarding, or null when `isPermitted` accepts the permissions the
+ * session's role holds. They are read from Gauzy with the session's own token, so the route refuses what the page
+ * hides, whatever the Gauzy version behind it checks on that call.
  */
-export async function refuseWithoutPermission(req: Request, permissions: readonly string[]): Promise<Response | null> {
+export async function refuseUnlessPermitted(
+	req: Request,
+	isPermitted: (held: readonly string[]) => boolean
+): Promise<Response | null> {
 	const permissionsUrl = new URL('/api/role-permissions/me', req.url);
 	const permissionsRequest = new Request(permissionsUrl, {
 		headers: { cookie: req.headers.get('cookie') ?? '' },
@@ -39,8 +42,13 @@ export async function refuseWithoutPermission(req: Request, permissions: readonl
 	}
 	const rows: unknown = await answer.json().catch(() => null);
 	const held = enabledPermissionsOf(rows);
-	if (holdsAnyPermission(held, permissions)) {
+	if (isPermitted(held)) {
 		return null;
 	}
 	return NextResponse.json({ statusCode: 403, message: 'Forbidden resource' }, { status: 403 });
+}
+
+/** Refuses a write unless the session's role holds one of `permissions`. */
+export async function refuseWithoutPermission(req: Request, permissions: readonly string[]): Promise<Response | null> {
+	return refuseUnlessPermitted(req, (held) => holdsAnyPermission(held, permissions));
 }

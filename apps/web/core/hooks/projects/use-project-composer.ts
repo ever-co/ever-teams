@@ -172,6 +172,8 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	const [hasClientCreateFailed, setHasClientCreateFailed] = useState(false);
 	// Counts the choices made in the Client field: a client created meanwhile must not replace a later one.
 	const clientChoiceCount = useRef(0);
+	// The draft waits for a client being created only while that creation is still the last choice in the field.
+	const [isAwaitingCreatedClient, setIsAwaitingCreatedClient] = useState(false);
 
 	const tags = useMemo(() => withCreatedTags(fetchedTags, createdTags), [fetchedTags, createdTags]);
 
@@ -351,6 +353,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	const setClientId = useCallback(
 		(clientId: string | null) => {
 			clientChoiceCount.current += 1;
+			setIsAwaitingCreatedClient(false);
 			setHasClientCreateFailed(false);
 			updateDraft({ clientId });
 		},
@@ -361,16 +364,20 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 		async (name: string) => {
 			clientChoiceCount.current += 1;
 			const choiceAtStart = clientChoiceCount.current;
+			const isStillTheChoice = () => clientChoiceCount.current === choiceAtStart;
+			setIsAwaitingCreatedClient(true);
 			setHasClientCreateFailed(false);
 			try {
 				const client = await createClient(emptyClientDraft(name));
 				setCreatedClients((current) => [...current, client]);
-				const isStillTheChoice = clientChoiceCount.current === choiceAtStart;
-				if (isStillTheChoice) {
+				if (isStillTheChoice()) {
 					updateDraft({ clientId: client.id });
 				}
 			} catch {
 				setHasClientCreateFailed(true);
+			}
+			if (isStillTheChoice()) {
+				setIsAwaitingCreatedClient(false);
 			}
 		},
 		[createClient, updateDraft]
@@ -413,7 +420,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 
 	const submit = useCallback(async () => {
 		// A client being created is not in the draft yet: saving now would leave it out of the project.
-		if (isCreatingClient) {
+		if (isAwaitingCreatedClient) {
 			return;
 		}
 		setHasTriedSubmit(true);
@@ -442,7 +449,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 		}
 		onDone?.(savedProject);
 	}, [
-		isCreatingClient,
+		isAwaitingCreatedClient,
 		validationErrors,
 		uploadImage,
 		draft,
@@ -477,6 +484,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 		retryClientList,
 		canCreateClient,
 		isCreatingClient,
+		isAwaitingCreatedClient,
 		hasClientCreateFailed,
 		setClientId,
 		addClient,

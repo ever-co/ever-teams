@@ -17,6 +17,7 @@ import {
 	Home,
 	FileText,
 	Inbox,
+	Invoice,
 	LayoutGrid,
 	Archive,
 	Plus,
@@ -94,6 +95,7 @@ import { useChatStates } from '@/core/hooks/chat/use-chat-conversations';
 import { useInboxAvailability } from '@/core/hooks/inbox/use-inbox-availability';
 import { useInboxCounts } from '@/core/hooks/inbox/use-inbox-items';
 import { useUnreadNotificationCount } from '@/core/hooks/notifications/use-notification-inbox';
+import { useInvoiceAccess } from '@/core/hooks/invoices/use-invoice-access';
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 
@@ -110,6 +112,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const username = user?.name || user?.firstName || user?.lastName || user?.username;
 
 	const isTeamManager = useAtomValue(isTeamManagerState);
+	// Invoices state client rates: the entry shows only for a role that may read them.
+	const { canView: canViewInvoices } = useInvoiceAccess();
 	// The Docs entry needs the flag and a platform that serves documents (one shared probe per page load).
 	const docsAvailability = useDocsAvailability(isDocsEnabled());
 	// What waits behind the Inbox and Chat rows: the inbox's own unread count where the platform has the inbox (the
@@ -280,6 +284,17 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			trailing: archivedProjectsCount > 0 && <SidebarCount value={archivedProjectsCount} />
 		};
 
+		const invoicesItems = [];
+		if (canViewInvoices) {
+			invoicesItems.push({
+				title: t('invoices.TITLE'),
+				url: '/invoices',
+				selectable: true,
+				icon: Invoice,
+				label: 'invoices'
+			});
+		}
+
 		const reportsEntry = {
 			title: t('sidebar.REPORTS'),
 			label: 'reports',
@@ -422,6 +437,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				icon: Building,
 				label: 'clients'
 			},
+			...invoicesItems,
 			{
 				title: t('sidebar.MY_WORKS'),
 				url: '#',
@@ -464,6 +480,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		myWorkNavigation.workDiary,
 		myWorkNavigation.myWeek,
 		isTeamManager,
+		canViewInvoices,
 		savedViews
 	]);
 

@@ -83,6 +83,7 @@ import {
 	InboxCheckIcon,
 	InformationCircleIcon,
 	InstagramIcon,
+	Invoice01Icon,
 	JusticeScale01Icon,
 	KanbanIcon,
 	Key01Icon,
@@ -503,3 +504,4 @@ export const StatusCircle = /*#__PURE__*/ icon(DashedLineCircleIcon, 'StatusCirc
 export const Preferences = /*#__PURE__*/ icon(PaintBoardIcon, 'Preferences');
 export const FileImport = /*#__PURE__*/ icon(FileImportIcon, 'FileImport');
 export const FileCsv = /*#__PURE__*/ icon(Csv01Icon, 'FileCsv');
+export const Invoice = /*#__PURE__*/ icon(Invoice01Icon, 'Invoice');
