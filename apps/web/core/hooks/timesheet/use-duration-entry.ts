@@ -95,6 +95,9 @@ export function useDurationEntry(input: DurationEntryInput): DurationEntry {
 	};
 
 	const propose = async (seconds: number) => {
+		// Counted before the early returns too: a read still in flight answers the request this one replaces
+		runIdRef.current += 1;
+		const runId = runIdRef.current;
 		if (!day) {
 			setPhase(IDLE_PHASE);
 			return;
@@ -103,8 +106,6 @@ export function useDurationEntry(input: DurationEntryInput): DurationEntry {
 			setPhase({ kind: 'noMember', seconds, shown: shownRef.current });
 			return;
 		}
-		runIdRef.current += 1;
-		const runId = runIdRef.current;
 		const reading: DurationPhase = { kind: 'reading', seconds };
 		onIntervalRef.current(null);
 		setPhase(reading);
@@ -178,6 +179,8 @@ export function useDurationEntry(input: DurationEntryInput): DurationEntry {
 			return;
 		}
 		setDraft(null);
+		// The read in flight answers the duration this text replaces: it must not fill the form once it arrives
+		runIdRef.current += 1;
 		const typed = typedDurationOf(draft);
 		if (typed.kind === 'invalid') {
 			setPhase({ kind: 'invalid', text: draft, shown });

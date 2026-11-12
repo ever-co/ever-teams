@@ -95,6 +95,24 @@ async function waitForPhase(result: RenderedForm, kind: string) {
 	await waitFor(() => expect(result.current.entry.phase.kind).toBe(kind));
 }
 
+/** A read of the day that the test answers when it chooses, so it can act while the hook still waits for it. */
+function pendingRead() {
+	let answer: (logs: ITimeLog[]) => void = () => undefined;
+	const logs = new Promise<ITimeLog[]>((resolve) => {
+		answer = resolve;
+	});
+	mockGetTimeLogs.mockReturnValueOnce(logs);
+	return { answer };
+}
+
+/** Answers a pending read and lets everything that waited for it run. */
+async function answerRead(read: ReturnType<typeof pendingRead>, logs: ITimeLog[]) {
+	await act(async () => {
+		read.answer(logs);
+		await new Promise((resolve) => setTimeout(resolve, 0));
+	});
+}
+
 describe('useDurationEntry', () => {
 	beforeEach(() => {
 		mockGetTimeLogs.mockReset();
@@ -204,6 +222,43 @@ describe('useDurationEntry', () => {
 		await waitForPhase(result, 'proposed');
 
 		expect(result.current.times).toEqual({ startMinutes: 540, endMinutes: 630 });
+	});
+
+	it('leaves the form empty when the duration is cleared while the day is being read', async () => {
+		const read = pendingRead();
+		const { result } = renderForm();
+
+		typeDuration(result, '1:30');
+		typeDuration(result, '');
+		await answerRead(read, []);
+
+		expect(result.current.entry.phase.kind).toBe('idle');
+		expect(result.current.times).toEqual(NO_TIMES);
+	});
+
+	it('keeps the refusal of a text typed while the day is being read', async () => {
+		const read = pendingRead();
+		const { result } = renderForm();
+
+		typeDuration(result, '1:30');
+		typeDuration(result, 'soon');
+		await answerRead(read, []);
+
+		expect(result.current.entry.phase.kind).toBe('invalid');
+		expect(result.current.entry.text).toBe('soon');
+		expect(result.current.times).toEqual(NO_TIMES);
+	});
+
+	it('proposes nothing from the day of a member who was removed while it was being read', async () => {
+		const read = pendingRead();
+		const { result } = renderForm();
+
+		typeDuration(result, '1:30');
+		act(() => result.current.setEmployeeId(null));
+		await answerRead(read, []);
+
+		expect(result.current.entry.phase.kind).toBe('noMember');
+		expect(result.current.times).toEqual(NO_TIMES);
 	});
 
 	it("proposes nothing when the API answers with the caller's entries instead of the member's", async () => {
