@@ -3,7 +3,6 @@ import { TASK_TRASH_PAGE_SIZE, taskTrashService } from './task-trash.service';
 import { taskService } from './task.service';
 import { nextTrashOffset, trashStatusOf } from '@/core/hooks/tasks/use-task-trash';
 import { trashedTaskNumberOf, trashedTaskPersonName } from '@/core/lib/utils/task-trash';
-import * as taskDiscussion from '@/core/lib/utils/task-discussion';
 import type { ITrashedTask } from '@/core/types/interfaces/task/task-trash';
 
 jest.mock('@/env-config', () => {
@@ -13,6 +12,15 @@ jest.mock('@/env-config', () => {
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { readRuntimeEnv } = require('@/env-config') as { readRuntimeEnv: jest.Mock };
+
+// The signed-in organization the availability check reads (cookies in the app).
+jest.mock('@/core/lib/utils/task-discussion', () => {
+	const actual = jest.requireActual('@/core/lib/utils/task-discussion');
+	return { ...actual, taskDiscussionScope: jest.fn(() => null) };
+});
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { taskDiscussionScope } = require('@/core/lib/utils/task-discussion') as { taskDiscussionScope: jest.Mock };
 
 const scope = { tenantId: 'tenant-1', organizationId: 'organization-1' };
 
@@ -114,7 +122,7 @@ describe('taskTrashService.isAvailable — whether a delete may go to the trash'
 	afterEach(() => jest.restoreAllMocks());
 
 	it('reads the trash once per organization: answered (403 too) means kept, 404 or 400 means off', async () => {
-		jest.spyOn(taskDiscussion, 'taskDiscussionScope').mockReturnValue({ ...scope, organizationId: 'org-kept' });
+		taskDiscussionScope.mockReturnValue({ ...scope, organizationId: 'org-kept' });
 		const get = jest.spyOn(taskTrashService, 'get').mockRejectedValueOnce({ response: { status: 403 } });
 
 		await expect(taskTrashService.isAvailable()).resolves.toBe(true);
@@ -122,7 +130,7 @@ describe('taskTrashService.isAvailable — whether a delete may go to the trash'
 		expect(get).toHaveBeenCalledTimes(1);
 		expect(queryOf(get.mock.calls[0][0])).toEqual({ ...scope, organizationId: 'org-kept', take: '1' });
 
-		jest.spyOn(taskDiscussion, 'taskDiscussionScope').mockReturnValue({ ...scope, organizationId: 'org-off' });
+		taskDiscussionScope.mockReturnValue({ ...scope, organizationId: 'org-off' });
 		get.mockRejectedValueOnce({ statusCode: 404 });
 		await expect(taskTrashService.isAvailable()).resolves.toBe(false);
 		await expect(taskTrashService.isAvailable()).resolves.toBe(false);
@@ -130,7 +138,7 @@ describe('taskTrashService.isAvailable — whether a delete may go to the trash'
 	});
 
 	it('does not remember an unclear failure, and has no trash without a signed-in organization', async () => {
-		jest.spyOn(taskDiscussion, 'taskDiscussionScope').mockReturnValue({ ...scope, organizationId: 'org-flaky' });
+		taskDiscussionScope.mockReturnValue({ ...scope, organizationId: 'org-flaky' });
 		const get = jest
 			.spyOn(taskTrashService, 'get')
 			.mockRejectedValueOnce(new Error('network'))
@@ -140,7 +148,7 @@ describe('taskTrashService.isAvailable — whether a delete may go to the trash'
 		await expect(taskTrashService.isAvailable()).resolves.toBe(true);
 		expect(get).toHaveBeenCalledTimes(2);
 
-		jest.spyOn(taskDiscussion, 'taskDiscussionScope').mockReturnValue(null);
+		taskDiscussionScope.mockReturnValue(null);
 		await expect(taskTrashService.isAvailable()).resolves.toBe(false);
 	});
 });

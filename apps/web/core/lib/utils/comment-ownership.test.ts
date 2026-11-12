@@ -43,8 +43,7 @@ describe('mentionedIn — the mentions an edit keeps', () => {
 		expect(mentionedIn('@Ann, and @Ann Lee.', [annAlone, ann])).toEqual([annAlone, ann]);
 		expect(mentionedIn('Ask @Annabel', [annAlone])).toEqual([]);
 		expect(mentionedIn('mail@Ann Lee', [ann])).toEqual([]);
-		expect(mentionedIn('@Ann Lee
-thanks', [ann])).toEqual([ann]);
+		expect(mentionedIn('@Ann Lee\nthanks', [ann])).toEqual([ann]);
 	});
 
 	it('names every namesake the text mentions, as the text cannot tell them apart', () => {
