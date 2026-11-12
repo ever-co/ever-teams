@@ -9,6 +9,11 @@ import { DAY_SUMMARY_SPAN, dayLabelSpanOf, logGridOf, WIDE_ONLY } from './timesh
 
 const SKELETON_DAYS = [4, 3];
 
+/** On a phone the bar's actions keep their icon and their name for screen readers, so the whole bar fits. */
+const BAR_ACTION = 'max-sm:px-2';
+
+const BAR_ACTION_LABEL = 'max-sm:sr-only';
+
 const TASK_BAR_WIDTHS = ['w-3/4', 'w-1/2', 'w-2/3', 'w-2/5'];
 
 function taskBarWidthOf(index: number) {
@@ -73,7 +78,7 @@ export function TimesheetsListSkeleton({ showsMember }: Readonly<{ showsMember: 
 /**
  * The bulk bar of a selection, floating over the bottom of the list like the projects page: the count, approve and
  * reject for those who may, edit when at least one selected log may be edited, delete when every selected log may
- * be deleted, and clear. On a narrow screen the bar scrolls sideways instead of running off both edges.
+ * be deleted, and clear. A bar still wider than the screen scrolls sideways instead of running off both edges.
  */
 export function TimesheetsSelectionBar({
 	count,
@@ -111,21 +116,28 @@ export function TimesheetsSelectionBar({
 				<span className="h-4 w-px shrink-0 bg-border" />
 				{canApprove && (
 					<>
-						<Button type="button" variant="ghost" size="default" onClick={onApprove} disabled={isApproving}>
+						<Button
+							type="button"
+							variant="ghost"
+							size="default"
+							onClick={onApprove}
+							disabled={isApproving}
+							className={BAR_ACTION}
+						>
 							{isApproving && <Spinner className="animate-spin" />}
 							{!isApproving && <Check />}
-							<span>{t('dashboard.timesheets.APPROVE')}</span>
+							<span className={BAR_ACTION_LABEL}>{t('dashboard.timesheets.APPROVE')}</span>
 						</Button>
-						<Button type="button" variant="ghost" size="default" onClick={onReject}>
+						<Button type="button" variant="ghost" size="default" onClick={onReject} className={BAR_ACTION}>
 							<X />
-							<span>{t('dashboard.timesheets.REJECT')}</span>
+							<span className={BAR_ACTION_LABEL}>{t('dashboard.timesheets.REJECT')}</span>
 						</Button>
 					</>
 				)}
 				{canEdit && (
-					<Button type="button" variant="ghost" size="default" onClick={onEdit}>
+					<Button type="button" variant="ghost" size="default" onClick={onEdit} className={BAR_ACTION}>
 						<Pencil />
-						<span>{t('common.EDIT')}</span>
+						<span className={BAR_ACTION_LABEL}>{t('common.EDIT')}</span>
 					</Button>
 				)}
 				{canDelete && (
@@ -134,10 +146,13 @@ export function TimesheetsSelectionBar({
 						variant="ghost"
 						size="default"
 						onClick={onDelete}
-						className="text-destructive-ink hover:bg-destructive/10 hover:text-destructive-ink"
+						className={cn(
+							BAR_ACTION,
+							'text-destructive-ink hover:bg-destructive/10 hover:text-destructive-ink'
+						)}
 					>
 						<Trash />
-						<span>{t('common.DELETE')}</span>
+						<span className={BAR_ACTION_LABEL}>{t('common.DELETE')}</span>
 					</Button>
 				)}
 				<Button
