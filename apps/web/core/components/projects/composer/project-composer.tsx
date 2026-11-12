@@ -15,6 +15,7 @@ import { LazyRichEditor } from '@/core/components/common/rich-editor/lazy-rich-e
 import type { RichEditorStats } from '@/core/components/common/rich-editor/rich-editor';
 import { Button } from '@/core/components/common/button';
 import {
+	Building,
 	Calendar,
 	CircleCheck,
 	FolderOpen,
@@ -45,6 +46,7 @@ import { FIELD_ERROR, INLINE_FIELD } from './composer-recipes';
 import { ProjectBudgetField } from './project-budget-field';
 import { ProjectDateRange } from './project-date-range';
 import {
+	ProjectClientPicker,
 	ProjectPeoplePicker,
 	ProjectStatusPicker,
 	ProjectTagsPicker,
@@ -134,6 +136,10 @@ export function ProjectComposer({ mode, project, context, onClose }: Readonly<Pr
 	const showVoiceError = useVoiceFillErrorToast();
 	const { voice, fieldLabels: voiceFieldLabels, hint: voiceHint } = useProjectVoiceFill(composer, showVoiceError);
 	const submitErrorKey = submitErrorKeyOf(composer.submitError);
+	let clientErrorKey: DottedLanguageObjectStringPaths | undefined;
+	if (composer.hasClientCreateFailed) {
+		clientErrorKey = 'clients.picker.CREATE_FAILED';
+	}
 
 	let title = t('modals.project.createTitle');
 	let submitLabel = t('pages.projects.list.CREATE_PROJECT');
@@ -243,6 +249,18 @@ export function ProjectComposer({ mode, project, context, onClose }: Readonly<Pr
 							statuses={taskStatuses}
 							onChange={composer.setStatus}
 						/>
+					</PropertyRow>
+					<PropertyRow icon={<Building />} label={t('common.CLIENT')}>
+						<ProjectClientPicker
+							clients={composer.pickableClients}
+							selectedClient={composer.selectedClient}
+							canCreate={composer.canCreateClient}
+							isCreating={composer.isCreatingClient}
+							onSelect={composer.setClientId}
+							onClear={() => composer.setClientId(null)}
+							onCreate={(name) => void composer.addClient(name)}
+						/>
+						<FieldError message={clientErrorKey} />
 					</PropertyRow>
 					<PropertyRow
 						icon={<Calendar />}

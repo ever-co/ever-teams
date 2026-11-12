@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { EntityTile } from '@/core/components/common/entity-tile';
-import { Clock, DollarCircle, UserCheck, Users, UsersGroup, Wallet, X } from '@/core/components/icons';
+import { Building, Clock, DollarCircle, UserCheck, Users, UsersGroup, Wallet, X } from '@/core/components/icons';
 import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
 import {
 	PropertyFilterMenu,
@@ -13,17 +13,21 @@ import {
 } from '@/core/components/tasks/property-filter-menu';
 import { PersonFace } from '@/core/components/projects/project-cells';
 import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
+import { useClientsQuery } from '@/core/hooks/clients/use-clients-query';
 import type { ProjectsListState } from '@/core/hooks/projects/use-projects-list-state';
 import { organizationTeamsState } from '@/core/stores';
 import {
+	NO_CLIENT_FILTER_VALUE,
 	PROJECT_FILTER_FIELDS,
+	clientIdOf,
+	clientNameOf,
 	normalizeStatusName,
 	personFromProjectMember,
 	type ProjectFilterField,
 	type ProjectMember
 } from '@/core/lib/utils/project-list';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
-import type { TOrganizationProject } from '@/core/types/schemas';
+import type { TClient, TOrganizationProject } from '@/core/types/schemas';
 
 function peopleOptionsOf(members: ProjectMember[]): PropertyFilterOption[] {
 	const byEmployee = new Map<string, PropertyFilterOption>();
@@ -41,10 +45,44 @@ function peopleOptionsOf(members: ProjectMember[]): PropertyFilterOption[] {
 	return options;
 }
 
+function clientOptionOf(id: string, name: string): PropertyFilterOption {
+	return { value: id, name, icon: <EntityTile name={name} className="size-4 text-[7px]" /> };
+}
+
+/**
+ * "No client" first, then every client by name: the ones the list holds (archived ones included, their projects
+ * still carry them) and the ones only a project names, when the viewer may not read the clients.
+ */
+function clientOptionsOf(clients: TClient[], projects: TOrganizationProject[], noClientLabel: string) {
+	const byId = new Map<string, PropertyFilterOption>();
+	for (const client of clients) {
+		byId.set(client.id, clientOptionOf(client.id, client.name));
+	}
+	for (const project of projects) {
+		const clientId = clientIdOf(project);
+		const name = clientNameOf(project);
+		if (!clientId || !name) {
+			continue;
+		}
+		if (!byId.has(clientId)) {
+			byId.set(clientId, clientOptionOf(clientId, name));
+		}
+	}
+	const options = [...byId.values()];
+	options.sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+	const noClientOption: PropertyFilterOption = {
+		value: NO_CLIENT_FILTER_VALUE,
+		name: noClientLabel,
+		icon: <Building />
+	};
+	return [noClientOption, ...options];
+}
+
 export function useProjectFilterCategories(projects: TOrganizationProject[]) {
 	const t = useTranslations();
 	const teams = useAtomValue(organizationTeamsState);
 	const { taskStatuses } = useTaskStatusesQuery();
+	const { clients } = useClientsQuery({ includeArchived: true });
 
 	return useMemo<PropertyFilterCategory<ProjectFilterField>[]>(() => {
 		const teamOptions: PropertyFilterOption[] = teams.map((team) => ({
@@ -83,14 +121,23 @@ export function useProjectFilterCategories(projects: TOrganizationProject[]) {
 			{ value: EProjectBudgetType.COST, name: t('common.COST_BASED'), icon: <DollarCircle /> }
 		];
 
+		const clientOptions = clientOptionsOf(clients, projects, t('clients.picker.NO_CLIENT'));
+
 		return [
 			{ field: 'teams', icon: <UsersGroup />, label: t('common.TEAMS'), options: teamOptions },
+			{
+				field: 'clients',
+				icon: <Building />,
+				label: t('common.CLIENT'),
+				options: clientOptions,
+				keepsCase: true
+			},
 			{ field: 'status', kind: 'status', label: t('common.STATUS'), options: [...statusByName.values()] },
 			{ field: 'managers', icon: <UserCheck />, label: t('common.MANAGERS'), options: peopleOptionsOf(managers) },
 			{ field: 'members', icon: <Users />, label: t('common.MEMBERS'), options: peopleOptionsOf(contributors) },
 			{ field: 'budgetTypes', icon: <Wallet />, label: t('common.BUDGET_TYPE'), options: budgetOptions }
 		];
-	}, [projects, t, taskStatuses, teams]);
+	}, [clients, projects, t, taskStatuses, teams]);
 }
 
 export function ProjectsFilterMenu({
