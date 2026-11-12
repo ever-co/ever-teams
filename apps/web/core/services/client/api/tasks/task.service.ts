@@ -11,6 +11,7 @@ import {
 } from '@/core/lib/validation/zod-validators';
 import { scopedReadConfig, type ScopedReadOptions } from '../../api-request-scope';
 import { isTaskTrashEnabled } from '@/core/lib/utils/comments-trash-flags';
+import { taskTrashService } from './task-trash.service';
 
 // The flag is no task field, so it joins the body after the task validation. Gauzy keeps a time log on the project it
 // was tracked under unless the update asks for the task's time to follow it.
@@ -178,10 +179,11 @@ class TaskService extends APIService {
 	 */
 	deleteTask = async (taskId: string): Promise<DeleteResponse> => {
 		try {
-			// With the trash on (NEXT_PUBLIC_TASK_TRASH_ENABLED) a delete moves the task there: the platform's soft
-			// delete, which the trash restores or deletes for good.
-			if (isTaskTrashEnabled()) {
-				await this.delete(`/tasks/${taskId}/soft`);
+			// With the trash on (NEXT_PUBLIC_TASK_TRASH_ENABLED) and kept by the platform (GAUZY_TASK_TRASH_ENABLED), a
+			// delete moves the task there: the platform's soft delete, which the trash restores or deletes for good.
+			// Where the platform keeps no trash the delete stays permanent, as before: nobody could restore it.
+			if (isTaskTrashEnabled() && (await taskTrashService.isAvailable())) {
+				await this.delete(`/tasks/${encodeURIComponent(taskId)}/soft`);
 				return { raw: [], affected: 1 };
 			}
 			const response = await this.delete<DeleteResponse>(`/tasks/${taskId}`);

@@ -75,7 +75,9 @@ gone for good. This feature lets people:
 - **Given** I may not manage the trash (no delete permission and I do not manage the team), **then** the page says
   only managers can see it, and the sidebar keeps the entry (the platform decides).
 - **Given** the platform answers that the trash is not enabled, **then** the page says the trash is not available on
-  this server, and deletes stay permanent as before.
+  this server, and deletes stay permanent as before: before moving a task to the trash, the app asks the platform
+  once per organization whether it keeps one (its trash list answering 404, or 400 on a platform without the route,
+  means no), so no task is hidden where nobody could restore it.
 
 ### 2.4 Edge cases & failures
 

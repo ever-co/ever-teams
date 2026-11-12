@@ -6,11 +6,15 @@ import { queryKeys } from '@/core/query/keys';
 import { TASK_TRASH_PAGE_SIZE, taskTrashService } from '@/core/services/client/api/tasks/task-trash.service';
 import { isTaskTrashEnabled } from '@/core/lib/utils/comments-trash-flags';
 import { taskDiscussionScope } from '@/core/lib/utils/task-discussion';
+import { trashHttpStatusOf } from '@/core/lib/utils/task-trash';
 import type { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import type { ITrashedTask } from '@/core/types/interfaces/task/task-trash';
 
-/** What the trash page shows: the list, or why there is none. */
-export type TaskTrashStatus = 'off' | 'loading' | 'ready' | 'unavailable' | 'forbidden' | 'error';
+/**
+ * What the trash page shows: the list, or why there is none. `unscoped`: there is nothing to read yet (no team or
+ * project named, or no signed-in organization), so the list does not wait for a read that cannot start.
+ */
+export type TaskTrashStatus = 'off' | 'unscoped' | 'loading' | 'ready' | 'unavailable' | 'forbidden' | 'error';
 
 export interface TaskTrashFilter {
 	/** The team whose trash is listed (a manager's read needs it), or with a project the project's team. */
@@ -22,11 +26,7 @@ export interface TaskTrashFilter {
 
 /** The status a failed read stands for: the platform's 404 means its trash is off, 403 that the reader may not see it. */
 export function trashStatusOf(error: unknown): TaskTrashStatus {
-	const status = Number(
-		(error as { statusCode?: unknown; status?: unknown; response?: { status?: unknown } } | null)?.statusCode ??
-			(error as { status?: unknown } | null)?.status ??
-			(error as { response?: { status?: unknown } } | null)?.response?.status
-	);
+	const status = trashHttpStatusOf(error);
 	if (status === 404) return 'unavailable';
 	if (status === 403 || status === 401) return 'forbidden';
 	return 'error';
@@ -99,6 +99,7 @@ export function useTaskTrash(filter: TaskTrashFilter) {
 
 	let status: TaskTrashStatus = 'ready';
 	if (!isOn) status = 'off';
+	else if (!isEnabled) status = 'unscoped';
 	else if (query.isError) status = trashStatusOf(query.error);
 	else if (query.isPending) status = 'loading';
 

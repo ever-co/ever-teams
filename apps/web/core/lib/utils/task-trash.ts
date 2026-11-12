@@ -1,5 +1,11 @@
 import type { ITrashedTask, ITrashedTaskPerson } from '@/core/types/interfaces/task/task-trash';
 
+/** The HTTP status of a failed platform call, whatever shape the transport gave the error; `NaN` when it has none. */
+export function trashHttpStatusOf(error: unknown): number {
+	const failure = error as { statusCode?: unknown; status?: unknown; response?: { status?: unknown } } | null;
+	return Number(failure?.statusCode ?? failure?.status ?? failure?.response?.status);
+}
+
 /** The name the trash shows for a person: their full name, else their user name, else nothing. */
 export function trashedTaskPersonName(person: ITrashedTaskPerson | null | undefined): string {
 	const fullName = [person?.firstName, person?.lastName]

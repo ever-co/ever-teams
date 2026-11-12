@@ -27,7 +27,6 @@ import { useMentionCandidates } from '@/core/hooks/tasks/use-mention-candidates'
 import { cn } from '@/core/lib/helpers';
 import { keepKeyInside } from '@/core/lib/utils/keep-key-inside';
 import {
-	collectMentionEmployeeIds,
 	filterMentionCandidates,
 	MENTION_TRIGGER,
 	mentionQueryBefore,
@@ -316,11 +315,10 @@ export function CommentComposer({
 		if (!canSend) {
 			return;
 		}
-		// An edit keeps the mentions its text already holds: the platform replaces the comment's with this list.
-		const mentionEmployeeIds = collectMentionEmployeeIds(trimmedBody, [
-			...picked,
-			...mentionedIn(initialBody, candidates)
-		]);
+		// An edit keeps the mentions its text already holds: the platform replaces the comment's with this list. Only a
+		// complete "@Full Name" counts, so "@Ann Lee" never also notifies an "Ann".
+		const mentioned = mentionedIn(trimmedBody, [...picked, ...mentionedIn(initialBody, candidates)]);
+		const mentionEmployeeIds = [...new Set(mentioned.map((candidate) => candidate.employeeId))];
 		const isSaved = await onSubmit(trimmedBody, mentionEmployeeIds, stagedFiles);
 		if (isSaved) {
 			setBody('');

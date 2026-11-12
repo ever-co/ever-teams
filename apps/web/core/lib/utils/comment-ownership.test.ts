@@ -35,6 +35,23 @@ describe('mentionedIn — the mentions an edit keeps', () => {
 		expect(mentionedIn('No one here', [ann, bo])).toEqual([]);
 		expect(mentionedIn('', [ann])).toEqual([]);
 	});
+
+	it('counts a complete mention only, the longest name first', () => {
+		const annAlone = { employeeId: 'ann-alone', name: 'Ann' };
+
+		expect(mentionedIn('Ping @Ann Lee about it', [annAlone, ann])).toEqual([ann]);
+		expect(mentionedIn('@Ann, and @Ann Lee.', [annAlone, ann])).toEqual([annAlone, ann]);
+		expect(mentionedIn('Ask @Annabel', [annAlone])).toEqual([]);
+		expect(mentionedIn('mail@Ann Lee', [ann])).toEqual([]);
+		expect(mentionedIn('@Ann Lee
+thanks', [ann])).toEqual([ann]);
+	});
+
+	it('names every namesake the text mentions, as the text cannot tell them apart', () => {
+		const otherAnn = { employeeId: 'ann-2', name: 'Ann Lee' };
+
+		expect(mentionedIn('@Ann Lee', [ann, otherAnn, bo])).toEqual([ann, otherAnn]);
+	});
 });
 
 describe('mentionsToSend — an edit touches the mentions only when it changes them', () => {

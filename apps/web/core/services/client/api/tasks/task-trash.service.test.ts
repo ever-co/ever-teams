@@ -3,6 +3,7 @@ import { TASK_TRASH_PAGE_SIZE, taskTrashService } from './task-trash.service';
 import { taskService } from './task.service';
 import { nextTrashOffset, trashStatusOf } from '@/core/hooks/tasks/use-task-trash';
 import { trashedTaskNumberOf, trashedTaskPersonName } from '@/core/lib/utils/task-trash';
+import * as taskDiscussion from '@/core/lib/utils/task-discussion';
 import type { ITrashedTask } from '@/core/types/interfaces/task/task-trash';
 
 jest.mock('@/env-config', () => {
@@ -75,15 +76,28 @@ describe('taskService.deleteTask — the trash flag', () => {
 		readRuntimeEnv.mockReset();
 	});
 
-	it('moves the task to the trash when NEXT_PUBLIC_TASK_TRASH_ENABLED is on', async () => {
+	it('moves the task to the trash when NEXT_PUBLIC_TASK_TRASH_ENABLED is on and the platform keeps one', async () => {
 		readRuntimeEnv.mockImplementation((name: string) =>
 			name === 'NEXT_PUBLIC_TASK_TRASH_ENABLED' ? 'true' : undefined
 		);
+		jest.spyOn(taskTrashService, 'isAvailable').mockResolvedValue(true);
 		const remove = jest.spyOn(taskService, 'delete').mockResolvedValue({ data: {} } as never);
 
 		await expect(taskService.deleteTask('t1')).resolves.toEqual({ raw: [], affected: 1 });
 
 		expect(remove).toHaveBeenCalledWith('/tasks/t1/soft');
+	});
+
+	it('deletes for good when the platform keeps no trash, so no task is hidden beyond restore', async () => {
+		readRuntimeEnv.mockImplementation((name: string) =>
+			name === 'NEXT_PUBLIC_TASK_TRASH_ENABLED' ? 'true' : undefined
+		);
+		jest.spyOn(taskTrashService, 'isAvailable').mockResolvedValue(false);
+		const remove = jest.spyOn(taskService, 'delete').mockResolvedValue({ data: { raw: [], affected: 1 } } as never);
+
+		await taskService.deleteTask('t1');
+
+		expect(remove).toHaveBeenCalledWith('/tasks/t1');
 	});
 
 	it('deletes for good, as before, when the flag is off', async () => {
@@ -93,6 +107,41 @@ describe('taskService.deleteTask — the trash flag', () => {
 		await taskService.deleteTask('t1');
 
 		expect(remove).toHaveBeenCalledWith('/tasks/t1');
+	});
+});
+
+describe('taskTrashService.isAvailable — whether a delete may go to the trash', () => {
+	afterEach(() => jest.restoreAllMocks());
+
+	it('reads the trash once per organization: answered (403 too) means kept, 404 or 400 means off', async () => {
+		jest.spyOn(taskDiscussion, 'taskDiscussionScope').mockReturnValue({ ...scope, organizationId: 'org-kept' });
+		const get = jest.spyOn(taskTrashService, 'get').mockRejectedValueOnce({ response: { status: 403 } });
+
+		await expect(taskTrashService.isAvailable()).resolves.toBe(true);
+		await expect(taskTrashService.isAvailable()).resolves.toBe(true);
+		expect(get).toHaveBeenCalledTimes(1);
+		expect(queryOf(get.mock.calls[0][0])).toEqual({ ...scope, organizationId: 'org-kept', take: '1' });
+
+		jest.spyOn(taskDiscussion, 'taskDiscussionScope').mockReturnValue({ ...scope, organizationId: 'org-off' });
+		get.mockRejectedValueOnce({ statusCode: 404 });
+		await expect(taskTrashService.isAvailable()).resolves.toBe(false);
+		await expect(taskTrashService.isAvailable()).resolves.toBe(false);
+		expect(get).toHaveBeenCalledTimes(2);
+	});
+
+	it('does not remember an unclear failure, and has no trash without a signed-in organization', async () => {
+		jest.spyOn(taskDiscussion, 'taskDiscussionScope').mockReturnValue({ ...scope, organizationId: 'org-flaky' });
+		const get = jest
+			.spyOn(taskTrashService, 'get')
+			.mockRejectedValueOnce(new Error('network'))
+			.mockResolvedValueOnce({ data: { items: [], total: 0 } } as never);
+
+		await expect(taskTrashService.isAvailable()).resolves.toBe(false);
+		await expect(taskTrashService.isAvailable()).resolves.toBe(true);
+		expect(get).toHaveBeenCalledTimes(2);
+
+		jest.spyOn(taskDiscussion, 'taskDiscussionScope').mockReturnValue(null);
+		await expect(taskTrashService.isAvailable()).resolves.toBe(false);
 	});
 });
 

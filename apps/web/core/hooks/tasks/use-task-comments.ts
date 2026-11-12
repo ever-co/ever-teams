@@ -177,10 +177,14 @@ export function useTaskComments(task: CommentedTask | null) {
 		() => queryKeys.taskComments.byTask(scopeTenantId, scopeOrganizationId, taskId),
 		[scopeOrganizationId, scopeTenantId, taskId]
 	);
-	const refreshComments = useCallback(
-		() => queryClient.invalidateQueries({ queryKey: commentsKeyOf() }),
-		[commentsKeyOf, queryClient]
-	);
+	// The reactions sit under the comments' key and are read again too, but a comment action waits for the comments
+	// alone: a slow reaction read never keeps Save or Reopen pending.
+	const refreshComments = useCallback(async () => {
+		void queryClient.invalidateQueries({
+			queryKey: queryKeys.taskComments.reactionsByTask(scopeTenantId, scopeOrganizationId, taskId)
+		});
+		await queryClient.invalidateQueries({ queryKey: commentsKeyOf(), exact: true });
+	}, [commentsKeyOf, queryClient, scopeOrganizationId, scopeTenantId, taskId]);
 
 	/**
 	 * Changes the text of a comment of the caller's own; `false` when the platform refused it. `mentionEmployeeIds`

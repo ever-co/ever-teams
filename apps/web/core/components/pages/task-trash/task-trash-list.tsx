@@ -9,6 +9,7 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { RotateLeft, Search, ShieldCheck, Trash } from '@/core/components/icons';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { useTaskTrash, type TaskTrashFilter } from '@/core/hooks/tasks/use-task-trash';
+import { TASK_TRASH_SEARCH_MAX_LENGTH } from '@/core/services/client/api/tasks/task-trash.service';
 import { trashedTaskNumberOf, trashedTaskPersonName } from '@/core/lib/utils/task-trash';
 import type { ITrashedTask } from '@/core/types/interfaces/task/task-trash';
 
@@ -34,16 +35,25 @@ export function TaskTrashList({ teamId, projectId, showsProject = true }: Readon
 	const trash = useTaskTrash(filter);
 	const { openTaskDrawer } = useTaskDrawer();
 	const [deleting, setDeleting] = useState<ITrashedTask | null>(null);
-	const [busyId, setBusyId] = useState<string | null>(null);
+	// Every task with an action under way: each action clears only its own task, so a restore that ends never
+	// re-enables a delete still running on another task.
+	const [busyIds, setBusyIds] = useState<ReadonlySet<string>>(() => new Set());
+	const markBusy = (taskId: string, isBusy: boolean) =>
+		setBusyIds((current) => {
+			const next = new Set(current);
+			if (isBusy) next.add(taskId);
+			else next.delete(taskId);
+			return next;
+		});
 	const dateFormat = useMemo(
 		() => new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }),
 		[locale]
 	);
 
 	const restore = async (task: ITrashedTask) => {
-		setBusyId(task.id);
+		markBusy(task.id, true);
 		const isRestored = await trash.restore(task);
-		setBusyId(null);
+		markBusy(task.id, false);
 		if (!isRestored) {
 			toast.error(t('taskTrash.RESTORE_FAILED'));
 			return;
@@ -54,10 +64,10 @@ export function TaskTrashList({ teamId, projectId, showsProject = true }: Readon
 	};
 
 	const deleteForever = async (task: ITrashedTask) => {
-		setBusyId(task.id);
+		markBusy(task.id, true);
 		const isDeleted = await trash.deleteForever(task);
-		setBusyId(null);
-		setDeleting(null);
+		markBusy(task.id, false);
+		setDeleting((current) => (current?.id === task.id ? null : current));
 		if (!isDeleted) {
 			toast.error(t('taskTrash.DELETE_FAILED'));
 			return;
@@ -70,6 +80,16 @@ export function TaskTrashList({ teamId, projectId, showsProject = true }: Readon
 			<AnimatedEmptyState
 				title={t('taskTrash.UNAVAILABLE_TITLE')}
 				message={t('taskTrash.UNAVAILABLE_TEXT')}
+				icon={<Trash />}
+				minHeight="320px"
+			/>
+		);
+	}
+	if (trash.status === 'unscoped') {
+		return (
+			<AnimatedEmptyState
+				title={t('taskTrash.NO_TEAM_TITLE')}
+				message={t('taskTrash.NO_TEAM_TEXT')}
 				icon={<Trash />}
 				minHeight="320px"
 			/>
@@ -102,6 +122,7 @@ export function TaskTrashList({ teamId, projectId, showsProject = true }: Readon
 						type="search"
 						value={search}
 						onChange={(event) => setSearch(event.target.value)}
+						maxLength={TASK_TRASH_SEARCH_MAX_LENGTH}
 						placeholder={t('taskTrash.SEARCH')}
 						aria-label={t('taskTrash.SEARCH')}
 						className="h-8 w-full rounded-lg bg-card pl-8 pr-2 text-[13px] outline-none hairline-ring ring-border placeholder:text-muted-foreground/75 focus-visible:ring-foreground/25"
@@ -134,7 +155,7 @@ export function TaskTrashList({ teamId, projectId, showsProject = true }: Readon
 					{trash.tasks.map((task) => {
 						const deletedBy = trashedTaskPersonName(task.deletedByUser);
 						const deletedAt = dateFormat.format(new Date(task.deletedAt));
-						const isBusy = busyId === task.id;
+						const isBusy = busyIds.has(task.id);
 						return (
 							<li key={task.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2.5">
 								<span className="shrink-0 text-xs font-medium tabular-nums text-muted-foreground">
@@ -198,9 +219,9 @@ export function TaskTrashList({ teamId, projectId, showsProject = true }: Readon
 				description={t('taskTrash.DELETE_FOREVER_TEXT', { title: deleting?.title ?? '' })}
 				confirmText={t('taskTrash.DELETE_FOREVER')}
 				cancelText={t('common.CANCEL')}
-				loading={busyId !== null && busyId === deleting?.id}
+				loading={deleting !== null && busyIds.has(deleting.id)}
 				onConfirm={() => {
-					if (deleting) void deleteForever(deleting);
+					if (deleting && !busyIds.has(deleting.id)) void deleteForever(deleting);
 				}}
 				onCancel={() => setDeleting(null)}
 			/>

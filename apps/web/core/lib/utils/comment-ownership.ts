@@ -1,4 +1,4 @@
-import { mentionTextOf, type MentionablePerson } from '@/core/lib/utils/comment-mentions';
+import { MENTION_TRIGGER, mentionTextOf, type MentionablePerson } from '@/core/lib/utils/comment-mentions';
 import type { TaskCommentItem } from '@/core/types/interfaces/task/task-discussion';
 
 /** Who is reading: their employee (when they have one) and their user. */
@@ -22,13 +22,43 @@ export function isOwnComment(
 	return !!comment.authorUserId && !!reader.userId && comment.authorUserId === reader.userId;
 }
 
+/** A character that would carry a name on past its end ("@Ann" in "@Annabel"). */
+const NAME_CHARACTER = /[\p{L}\p{N}_]/u;
+
+const WHITESPACE = /\s/;
+
 /**
- * The people already mentioned in a text being edited: their "@Full Name" is in it. An edit sends the mentions the
- * text holds, which replace the comment's, so a mention kept in the text stays one without being picked again.
+ * The people already mentioned in a text being edited: their complete "@Full Name" is in it. An edit sends the
+ * mentions the text holds, which replace the comment's, so a mention kept in the text stays one without being picked
+ * again.
+ *
+ * A mention starts a word and ends where the name ends, and the longest name wins: "@Ann Lee" is Ann Lee's mention,
+ * never also Ann's, and "@Annabel" is nobody's. Namesakes share their mention, as the text cannot tell them apart.
  */
 export function mentionedIn(text: string, candidates: readonly MentionablePerson[]): MentionablePerson[] {
-	if (!text) return [];
-	return candidates.filter((candidate) => text.includes(mentionTextOf(candidate)));
+	if (!text || candidates.length === 0) return [];
+	const longestFirst = [...candidates].sort((first, second) => second.name.length - first.name.length);
+	const names = new Set<string>();
+	let index = text.indexOf(MENTION_TRIGGER);
+	while (index >= 0) {
+		const startsAWord = index === 0 || WHITESPACE.test(text[index - 1]);
+		const match = startsAWord
+			? longestFirst.find((candidate) => {
+					const mention = mentionTextOf(candidate);
+					return (
+						candidate.name.length > 0 &&
+						text.startsWith(mention, index) &&
+						!NAME_CHARACTER.test(text[index + mention.length] ?? '')
+					);
+				})
+			: undefined;
+		if (match) {
+			names.add(match.name);
+		}
+		const next = match ? index + mentionTextOf(match).length : index + MENTION_TRIGGER.length;
+		index = text.indexOf(MENTION_TRIGGER, next);
+	}
+	return candidates.filter((candidate) => names.has(candidate.name));
 }
 
 /**

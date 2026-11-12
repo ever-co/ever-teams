@@ -56,5 +56,7 @@ export interface ICommentUpdateInput {
 	resolved?: boolean;
 	/** Cleared with `null` on a reopen: Gauzy does not derive it. */
 	resolvedAt?: string | null;
+	/** Stated on a resolve (Gauzy records the caller, whoever is named) and `null` on a reopen; left out, unchanged. */
+	resolvedByEmployeeId?: ID | null;
 	mentionEmployeeIds?: ID[];
 }
