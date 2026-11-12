@@ -316,6 +316,14 @@ describe('scheduled meetings', () => {
 		expect(meetingLinkWithTitle('https://app.example.com/meet/jitsi?room=YWJj&title=Old&lang=fr', 'New')).toBe(
 			'https://app.example.com/meet/jitsi?room=YWJj&lang=fr&title=New'
 		);
+		// The page reads the names decoded: "%74itle" is a title, and a stray "%" is kept as written
+		// cspell:ignore itle
+		expect(meetingLinkWithTitle('https://app.example.com/meet/jitsi?%74itle=Old&room=YWJj', 'New')).toBe(
+			'https://app.example.com/meet/jitsi?room=YWJj&title=New'
+		);
+		expect(meetingLinkWithTitle('https://app.example.com/meet/jitsi?room=YWJj&a%=1', 'New')).toBe(
+			'https://app.example.com/meet/jitsi?room=YWJj&a%=1&title=New'
+		);
 	});
 
 	it('leaves a location that is no meeting link as written when the meeting is renamed', () => {

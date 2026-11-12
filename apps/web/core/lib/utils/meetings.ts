@@ -378,6 +378,18 @@ export function appointmentUpdateOf(draft: RescheduleMeetingDraft): MeetingAppoi
 	};
 }
 
+// cspell:ignore itle
+/** A query parameter's name as the page reads it, decoded: "%74itle=Old" is a title too. */
+function paramNameOf(param: string): string {
+	const name = param.split('=')[0].replace(/\+/g, ' ');
+	try {
+		return decodeURIComponent(name);
+	} catch {
+		// A stray "%" decodes to nothing: the name as written
+		return name;
+	}
+}
+
 /**
  * A meeting's link under a new title, its room kept as written: the links Ever Teams makes end with the title. Any
  * other location (an office, another app's link) is no meeting page and stays as written.
@@ -395,7 +407,7 @@ export function meetingLinkWithTitle(link: string, title: string): string {
 	const base = queryAt === -1 ? beforeFragment : beforeFragment.slice(0, queryAt);
 	const kept = (queryAt === -1 ? '' : beforeFragment.slice(queryAt + 1))
 		.split('&')
-		.filter((param) => param && param !== 'title' && !param.startsWith('title='));
+		.filter((param) => param && paramNameOf(param) !== 'title');
 	const titleParam = withTitle('', title).slice(1);
 	const params = titleParam ? [...kept, titleParam] : kept;
 	return `${base}${params.length > 0 ? `?${params.join('&')}` : ''}${fragment}`;
