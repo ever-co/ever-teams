@@ -6,6 +6,7 @@ import {
 	notesToSendAtStart,
 	notesToSendAtStop,
 	readTimerNotes,
+	runningLogForNotes,
 	timerNotesAfterStart,
 	timerNotesFor,
 	wereNotesChangedAfterStop,
@@ -81,6 +82,33 @@ describe('timerNotesFor', () => {
 		const earlier = { text: 'Old notes', timeLogId: 'log-0' };
 
 		expect(timerNotesFor(earlier, { id: 'log-1' })).toEqual({ text: '', timeLogId: 'log-1' });
+	});
+});
+
+describe('runningLogForNotes', () => {
+	const draft = { text: 'Fix the login page', timeLogId: null };
+
+	it('follows the run the timer shows', () => {
+		expect(runningLogForNotes(draft, RUNNING_LOG, true)).toBe(RUNNING_LOG);
+		expect(runningLogForNotes(EMPTY_TIMER_NOTES, RUNNING_LOG, true)).toBe(RUNNING_LOG);
+	});
+
+	it('follows no run while none goes on', () => {
+		expect(runningLogForNotes(draft, null, false)).toBeNull();
+	});
+
+	it('follows no run the timer does not show, so the field takes none of its notes and gives it none', () => {
+		const earlier = { text: 'Old notes', timeLogId: 'log-0' };
+
+		expect(runningLogForNotes(EMPTY_TIMER_NOTES, RUNNING_LOG, false)).toBeNull();
+		expect(runningLogForNotes(draft, RUNNING_LOG, false)).toBeNull();
+		expect(runningLogForNotes(earlier, RUNNING_LOG, false)).toBeNull();
+	});
+
+	it('still follows a run the timer no longer shows for the notes tied to it, so its stop sends them', () => {
+		const edited = { text: 'Review the invoice export, then the totals', timeLogId: 'log-1' };
+
+		expect(runningLogForNotes(edited, RUNNING_LOG, false)).toBe(RUNNING_LOG);
 	});
 });
 
