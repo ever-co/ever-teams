@@ -6,7 +6,7 @@ import {
 import { teamTasksGridOf, type TeamTasksGrid } from './team-tasks-grid';
 
 const GUTTER_TRACK = '1.75rem';
-const TITLE_TRACK = 'minmax(12rem,1fr)';
+const TITLE_TRACK = 'minmax(11rem,1fr)';
 const MENU_TRACK = '2rem';
 /** The only track of that width: it tells where the time worked sits. */
 const PROGRESS_TRACK = '7.25rem';
@@ -93,7 +93,7 @@ describe('teamTasksGridOf, the template the labels, the bands and the rows share
 			'1.75rem',
 			TITLE_TRACK,
 			'6rem',
-			'9.5rem',
+			'8.75rem',
 			'8.5rem',
 			PROGRESS_TRACK,
 			'6rem',
@@ -133,9 +133,9 @@ describe('teamTasksGridOf, the template the labels, the bands and the rows share
 
 	it('keeps the list at least as wide as its tracks, the priority label included', () => {
 		const grid = teamTasksGridOf(DEFAULT_TEAM_TASKS_VIEW);
-		expect(variableOf(grid, '--team-task-min-width')).toBe('64.25rem');
+		expect(variableOf(grid, '--team-task-min-width')).toBe('62.5rem');
 
 		const withoutPriority = teamTasksGridOf(settingsWith({ priority: false }));
-		expect(variableOf(withoutPriority, '--team-task-min-width')).toBe('58.25rem');
+		expect(variableOf(withoutPriority, '--team-task-min-width')).toBe('56.5rem');
 	});
 });

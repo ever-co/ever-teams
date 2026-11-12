@@ -13,7 +13,7 @@ const MENU_REM = 2;
  * The title and the labels gave room to the priority's label, so the default columns still fit a 1280px window
  * beside the sidebar.
  */
-const TITLE_MIN_REM = 12;
+const TITLE_MIN_REM = 11;
 
 /**
  * Left of the title: the number and the status glyph; right of it: the value columns, in the order the row reads,
@@ -35,7 +35,7 @@ const COLUMN_WIDTH_REM: Record<TeamTaskColumn, number> = {
 	priority: 6,
 	number: 4,
 	status: 1.75,
-	labels: 9.5,
+	labels: 8.75,
 	size: 5.5,
 	project: 8.5,
 	progress: 7.25,
