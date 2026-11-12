@@ -285,7 +285,7 @@ export function ProjectTasksTab({
 					))}
 				</div>
 			)}
-			{!isList && <ProjectTasksLayoutView layout={layout} tasks={stats.tasks} />}
+			{!isList && <ProjectTasksLayoutView layout={layout} tasks={stats.tasks} className={LAYOUT_FRAME} />}
 		</div>
 	);
 }

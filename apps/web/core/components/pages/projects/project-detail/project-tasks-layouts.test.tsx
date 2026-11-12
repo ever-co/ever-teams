@@ -84,6 +84,15 @@ describe('ProjectTasksLayoutView', () => {
 		expect(options.initial.settings.layout).toBe('calendar');
 	});
 
+	it('draws the view in a flex column the size the tab gives it', () => {
+		render(<ProjectTasksLayoutView layout="timeline" tasks={TASKS} className="h-[480px]" />);
+		const frame = screen.getByTestId('project-tasks-timeline');
+
+		expect(frame.className).toContain('flex');
+		expect(frame.className).toContain('flex-col');
+		expect(frame.className).toContain('h-[480px]');
+	});
+
 	it('draws the timeline when it is the layout picked', () => {
 		render(<ProjectTasksLayoutView layout="timeline" tasks={TASKS} />);
 

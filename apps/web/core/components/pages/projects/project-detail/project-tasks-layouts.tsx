@@ -11,6 +11,7 @@ import type { TeamTaskPickerKind } from '@/core/components/pages/teams/team/task
 import { TeamTasksTimelineView } from '@/core/components/pages/teams/team/tasks/list/team-tasks-timeline';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { useTeamTasksView, type TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
+import { cn } from '@/core/lib/helpers';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { projectTasksViewOf, type ProjectTasksLayout } from './project-tasks-view';
 
@@ -21,9 +22,14 @@ function doNothing() {
 /**
  * A project's tasks as the Team tasks calendar or timeline: the same views, fed with the project's tasks and kept in
  * memory, so the device's own Team tasks view stays as it is. A task opens in the drawer and the due date picker
- * opens here. The tab has no selection bar, so a Cmd or Ctrl click on a task selects nothing.
+ * opens here. The tab has no selection bar, so a Cmd or Ctrl click on a task selects nothing. `className` sizes the
+ * frame, a flex column the views fill.
  */
-export function ProjectTasksLayoutView({ layout, tasks }: Readonly<{ layout: ProjectTasksLayout; tasks: TTask[] }>) {
+export function ProjectTasksLayoutView({
+	layout,
+	tasks,
+	className
+}: Readonly<{ layout: ProjectTasksLayout; tasks: TTask[]; className?: string }>) {
 	const initial = useMemo(() => projectTasksViewOf(layout), [layout]);
 	const view = useTeamTasksView({ tasks, initial, resetKey: layout });
 	const { openTaskDrawer } = useTaskDrawer();
@@ -58,7 +64,7 @@ export function ProjectTasksLayoutView({ layout, tasks }: Readonly<{ layout: Pro
 
 	return (
 		<div
-			className="h-[min(78dvh,760px)] min-h-120 overflow-clip rounded-xl bg-card hairline-ring ring-border shadow-sm shadow-black/6.5"
+			className={cn('flex flex-col overflow-clip shadow-sm shadow-black/6.5', className)}
 			data-testid={`project-tasks-${layout}`}
 		>
 			{isCalendar && <TeamTasksCalendarView view={projectView} commands={commands} />}
