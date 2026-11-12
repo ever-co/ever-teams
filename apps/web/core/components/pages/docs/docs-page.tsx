@@ -269,7 +269,7 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 	const importRun = useDocsImportRun(
 		useCallback(
 			(finished: IDocumentImport) => {
-				void retryTree();
+				retryTree();
 				if (importOpenRef.current) return;
 				if (finished.status === 'FAILED') toast.error(t(errorKeyOf(finished.errorCode)));
 				else toast.success(t('docs.IMPORT.SUMMARY', { imported: finished.importedCount, skipped: finished.skippedCount, failed: finished.failedCount }));

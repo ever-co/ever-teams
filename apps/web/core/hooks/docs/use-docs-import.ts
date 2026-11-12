@@ -124,8 +124,8 @@ export function useDocsImportRun(onFinished?: (finished: IDocumentImport) => voi
 				setStep(isImportFinished(accepted) ? 'done' : 'running');
 				// The probe also lists the reader's imports.
 				void queryClient.invalidateQueries({ queryKey: queryKeys.docs.importProbe(scope?.tenantId, scope?.organizationId, scope?.userId) });
-			} catch (caught) {
-				setError(errorCodeOf(caught) ?? 'DOCS_IMPORT_FAILED');
+			} catch (error_) {
+				setError(errorCodeOf(error_) ?? 'DOCS_IMPORT_FAILED');
 				setStep('pick');
 			}
 		},

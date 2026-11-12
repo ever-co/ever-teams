@@ -40,6 +40,11 @@ export async function forwardDownloadToGauzy(req: Request, path: string): Promis
 		return NextResponse.json({ statusCode: status, message }, { status });
 	}
 
+	return new NextResponse(upstream.body, { status: upstream.status, headers: downloadHeadersOf(upstream) });
+}
+
+/** The headers of the platform's answer that the browser gets: those of a download, and a type in every case. */
+function downloadHeadersOf(upstream: Response): Headers {
 	const headers = new Headers();
 	// `fetch` hands over an encoded answer decoded, with the encoded length: that length would cut the file.
 	const decoded = Boolean(upstream.headers.get('content-encoding'));
@@ -49,5 +54,5 @@ export async function forwardDownloadToGauzy(req: Request, path: string): Promis
 		if (value) headers.set(name, value);
 	}
 	if (!headers.has('content-type')) headers.set('content-type', 'application/octet-stream');
-	return new NextResponse(upstream.body, { status: upstream.status, headers });
+	return headers;
 }

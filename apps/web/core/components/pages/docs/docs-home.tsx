@@ -57,7 +57,7 @@ interface DocsHomeProps {
  * What `/docs` shows beside the tree when no page is open: the ways to start a page (empty, private, or from a
  * template), the pages changed last, and the favourites.
  */
-export function DocsHome({ tree, favoriteIds, onNewPage, onImport, onBack }: DocsHomeProps) {
+export function DocsHome({ tree, favoriteIds, onNewPage, onImport, onBack }: Readonly<DocsHomeProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const [now] = useState(() => new Date());

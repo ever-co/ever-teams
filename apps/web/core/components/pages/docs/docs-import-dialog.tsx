@@ -54,7 +54,7 @@ interface DocsImportDialogProps {
  * Mounted only while it is open (its owner renders it then). The run is the page's: a dialog closed while an import
  * runs shows its progress, or its report, when it opens again; otherwise each opening starts afresh.
  */
-export function DocsImportDialog({ open, maxZipBytes, parent, teamSpaces, run, onOpenPage, onClose }: DocsImportDialogProps) {
+export function DocsImportDialog({ open, maxZipBytes, parent, teamSpaces, run, onOpenPage, onClose }: Readonly<DocsImportDialogProps>) {
 	const t = useTranslations();
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [file, setFile] = useState<File | null>(null);

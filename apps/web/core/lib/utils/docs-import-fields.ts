@@ -8,7 +8,7 @@
 export const DOCS_IMPORT_PROXY_MAX_BYTES = 256 * 1024 * 1024;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const VISIBILITIES: readonly string[] = ['ORGANIZATION', 'PRIVATE', 'TEAM'];
+const VISIBILITIES: ReadonlySet<string> = new Set(['ORGANIZATION', 'PRIVATE', 'TEAM']);
 
 /** The allowed fields of the incoming form, as Gauzy should receive them. */
 export function passedImportFieldsOf(incoming: FormData | null | undefined): Array<[string, string]> {
@@ -20,7 +20,7 @@ export function passedImportFieldsOf(incoming: FormData | null | undefined): Arr
 		return passed;
 	}
 	const visibility = incoming?.get('visibility');
-	if (typeof visibility === 'string' && VISIBILITIES.includes(visibility)) passed.push(['visibility', visibility]);
+	if (typeof visibility === 'string' && VISIBILITIES.has(visibility)) passed.push(['visibility', visibility]);
 	const teamId = incoming?.get('organizationTeamId');
 	if (visibility === 'TEAM' && typeof teamId === 'string' && UUID.test(teamId)) passed.push(['organizationTeamId', teamId]);
 	return passed;

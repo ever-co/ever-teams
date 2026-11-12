@@ -93,7 +93,7 @@ describe('useDocsImportRun', () => {
 		const reads = mockService.getImport.mock.calls.length;
 		// No retry and no polling after a refusal for good.
 		await new Promise((resolve) => setTimeout(resolve, 120));
-		expect(mockService.getImport.mock.calls.length).toBe(reads);
+		expect(mockService.getImport.mock.calls).toHaveLength(reads);
 		expect(reads).toBe(1);
 	});
 
