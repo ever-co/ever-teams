@@ -208,6 +208,23 @@ export function useChatActions() {
 		[patchEverywhere]
 	);
 
+	/**
+	 * An app's reply to a click on one of its buttons replaced the message: it shows as the reply left it, everywhere.
+	 * The copy keeps the order of the request it came from (stamped as it started), and replaces a held copy only when
+	 * it is not older (`mergeMessages`): a reaction, a pin or a deletion applied while it was on its way stays.
+	 */
+	const applyAppReply = useCallback(
+		(message: IChatMessage, replaced: IChatMessage) => {
+			const stamped = (replaced as IChatMessage & { readOrder?: number }).readOrder === undefined ? withMessageOrder([replaced], nextMessageOrder())[0] : replaced;
+			const apply = (m: IChatMessage) => (m.id === message.id ? mergeMessages([m], [stamped])[0] : m);
+			patchMessages(message.conversationId, (messages) => messages.map(apply));
+			for (const root of [message.threadRootId, message.id]) {
+				patchThread(root, (page) => ({ ...page, root: page.root ? apply(page.root) : page.root, messages: page.messages.map(apply) }));
+			}
+		},
+		[patchMessages, patchThread]
+	);
+
 	/** A task from a message: the message shows its card at once, and the task lists read again (the task is new). */
 	const createTask = useCallback(
 		async (message: IChatMessage, input: IChatCreateTaskInput) => {
@@ -345,7 +362,7 @@ export function useChatActions() {
 
 	// One object while the callbacks stay the same: the effects that depend on it do not run on every render.
 	return useMemo(
-		() => ({ send, retry, discardFailed, edit, remove, pin, createTask, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave }),
-		[send, retry, discardFailed, edit, remove, pin, createTask, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave]
+		() => ({ send, retry, discardFailed, edit, remove, pin, applyAppReply, createTask, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave }),
+		[send, retry, discardFailed, edit, remove, pin, applyAppReply, createTask, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave]
 	);
 }

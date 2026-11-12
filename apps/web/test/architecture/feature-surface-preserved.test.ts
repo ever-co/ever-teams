@@ -2008,12 +2008,17 @@ describe('Ever Teams feature surface preservation', () => {
 		// 294 files and 377 verbs with the scheduled meetings' proxies (/api/employee-appointment GET, POST and [id] DELETE).
 		// 295 files and 378 verbs with the Inbox delivery status proxy (GET /api/inbox/delivery/status).
 		// 296 files and 379 verbs with the link preview pictures proxy (GET /api/chat/link-preview/image).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(296);
+		// 298 files and 381 verbs with the clicks on app message buttons (POST /api/chat/messages/[id]/interactions,
+		// GET /api/chat/interactions/[id]).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(298);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(379);
+		).toHaveLength(381);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of the platform's clicks on app message buttons (incoming webhooks, 2026-11-11)
+				'apps/web/app/api/chat/messages/[id]/interactions/route.ts::POST',
+				'apps/web/app/api/chat/interactions/[id]/route.ts::GET',
 				// Proxy mode twin of the platform's link preview pictures (2026-11-12)
 				'apps/web/app/api/chat/link-preview/image/route.ts::GET',
 				// Proxy mode twin of the platform's Inbox delivery status (2026-11-11)
