@@ -27,6 +27,7 @@ interface MemberEmployee {
 		lastName?: string | null;
 		email?: string | null;
 		imageUrl?: string | null;
+		roleId?: string | null;
 	} | null;
 }
 
@@ -55,6 +56,15 @@ export function memberUserIdOf(member: TOrganizationTeamEmployee): string | null
 	const userId = employee?.userId ?? employee?.user?.id;
 	if (userId) {
 		return userId;
+	}
+	return null;
+}
+
+/** The role of the member's account in the workspace, which is another thing than their role in the team. */
+export function memberWorkspaceRoleIdOf(member: TOrganizationTeamEmployee): string | null {
+	const roleId = memberEmployeeOf(member)?.user?.roleId;
+	if (roleId) {
+		return roleId;
 	}
 	return null;
 }
