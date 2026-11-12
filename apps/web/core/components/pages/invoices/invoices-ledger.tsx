@@ -21,7 +21,10 @@ import {
 	type InvoiceStatus,
 	type InvoiceStatusTone
 } from '@/core/lib/utils/invoices';
+import type { InvoiceAction } from '@/core/lib/utils/invoice-actions';
 import type { TInvoice } from '@/core/types/schemas/organization/invoice.schema';
+import type { InvoiceActionTarget } from './invoice-action-dialogs';
+import { InvoiceActionsMenu } from './invoice-actions-menu';
 import { LEDGER_ROW_GRID, LEDGER_SURFACE } from './invoices-ledger-recipes';
 
 const STATUS_LABEL_KEYS: Record<InvoiceStatus, DottedLanguageObjectStringPaths> = {
@@ -103,12 +106,17 @@ function clientNameOf(invoice: TInvoice, clientNames: ReadonlyMap<string, string
 	return clientNames.get(clientId) ?? null;
 }
 
+export type InvoiceActionHandler = (target: InvoiceActionTarget, action: InvoiceAction) => void;
+
 interface InvoiceRowProps {
 	invoice: TInvoice;
 	clientNames: ReadonlyMap<string, string>;
 	timeZone: string | null | undefined;
 	isDownloading: boolean;
 	onDownload: (invoice: InvoiceToDownload) => void;
+	canEdit: boolean;
+	isChanging: boolean;
+	onAction: InvoiceActionHandler;
 }
 
 const InvoiceRow = memo(function InvoiceRow({
@@ -116,12 +124,18 @@ const InvoiceRow = memo(function InvoiceRow({
 	clientNames,
 	timeZone,
 	isDownloading,
-	onDownload
+	onDownload,
+	canEdit,
+	isChanging,
+	onAction
 }: InvoiceRowProps) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const clientName = clientNameOf(invoice, clientNames) ?? t('invoices.NO_CLIENT');
 	const numberText = numberTextOf(invoice);
+	const pickAction = (picked: TInvoice, action: InvoiceAction) => {
+		onAction({ invoice: picked, numberText: numberText ?? '', clientName }, action);
+	};
 	const issuedText = invoiceDayTextOf(invoiceDayOf(invoice.invoiceDate, timeZone), locale);
 	const dueText = invoiceDayTextOf(invoiceDayOf(invoice.dueDate, timeZone), locale);
 	const statedPeriod = invoicePeriodOfTerms(invoice.terms);
@@ -161,7 +175,7 @@ const InvoiceRow = memo(function InvoiceRow({
 				</span>
 				<InvoiceTotal invoice={invoice} />
 			</span>
-			<span className="flex justify-center">
+			<span className="flex items-center justify-end gap-0.5">
 				<Button
 					type="button"
 					variant="ghost"
@@ -175,6 +189,16 @@ const InvoiceRow = memo(function InvoiceRow({
 					{isDownloading && <Loader className="animate-spin" />}
 					{!isDownloading && <Download />}
 				</Button>
+				{canEdit && (
+					<span className="flex size-8 items-center justify-center">
+						<InvoiceActionsMenu
+							invoice={invoice}
+							numberText={numberText ?? ''}
+							isChanging={isChanging}
+							onAction={pickAction}
+						/>
+					</span>
+				)}
 			</span>
 		</li>
 	);
@@ -185,7 +209,10 @@ export function InvoicesLedger({
 	clientNames,
 	timeZone,
 	pendingPdfId,
-	onDownload
+	onDownload,
+	canEdit,
+	changingId,
+	onAction
 }: Readonly<{
 	invoices: ReadonlyArray<TInvoice>;
 	/** Every client's name by id, archived ones included. */
@@ -193,6 +220,10 @@ export function InvoicesLedger({
 	timeZone: string | null | undefined;
 	pendingPdfId: string | null;
 	onDownload: (invoice: InvoiceToDownload) => void;
+	/** The viewer may send, settle, void or delete invoices: each row gets its actions menu. */
+	canEdit: boolean;
+	changingId: string | null;
+	onAction: InvoiceActionHandler;
 }>) {
 	const t = useTranslations();
 	const locale = useLocale();
@@ -216,6 +247,9 @@ export function InvoicesLedger({
 									timeZone={timeZone}
 									isDownloading={pendingPdfId === invoice.id}
 									onDownload={onDownload}
+									canEdit={canEdit}
+									isChanging={changingId === invoice.id}
+									onAction={onAction}
 								/>
 							))}
 						</ul>
