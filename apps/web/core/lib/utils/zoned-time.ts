@@ -92,3 +92,18 @@ export function nextSlotIn(zone: string, now: Date = new Date()): WallClock {
 		time: `${twoDigits(Math.floor((slot % minutesOfDay) / 60))}:${twoDigits(slot % 60)}`
 	};
 }
+
+/**
+ * The time proposed for a meeting planned from a day of the browser's calendar (an agenda's day), on the clocks of a
+ * zone: the next half hour, or on a later day, the time of day that next half hour falls at where the browser is. The
+ * zone only changes how it reads: the meeting lies on that day of the browser's calendar, where the agenda lists it.
+ */
+export function slotOnDay(day: Date | undefined, zone: string, now: Date = new Date()): WallClock {
+	const slot = nextSlotIn(zone, now);
+	if (!day) {
+		return slot;
+	}
+	const next = instantOf(slot.date, slot.time, zone);
+	const onDay = new Date(day.getFullYear(), day.getMonth(), day.getDate(), next.getHours(), next.getMinutes());
+	return onDay.getTime() > next.getTime() ? wallClockOf(onDay, zone) : slot;
+}

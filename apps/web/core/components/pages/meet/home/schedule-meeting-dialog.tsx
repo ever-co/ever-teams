@@ -19,7 +19,7 @@ import {
 	type ScheduleMeetingDraft
 } from '@/core/lib/utils/meetings';
 import { detectTimeZone, utcOffsetOf } from '@/core/lib/utils/settings-time-zone';
-import { instantOf, nextSlotIn, wallClockOf, type WallClock } from '@/core/lib/utils/zoned-time';
+import { instantOf, nextSlotIn, slotOnDay, wallClockOf } from '@/core/lib/utils/zoned-time';
 import { copyMeetingInvitation, downloadMeetingIcs, meetingWhenOf } from './meeting-invitation';
 import { ParticipantsField } from './participants-field';
 import { TimeZoneField } from './time-zone-field';
@@ -28,31 +28,12 @@ const DURATIONS = [15, 30, 45, 60, 90, 120];
 const DEFAULT_DURATION = 30;
 const MINUTE = 60_000;
 
-function twoDigits(value: number): string {
-	return String(value).padStart(2, '0');
-}
-
-/**
- * When a new meeting is proposed, on the clocks of its time zone: the next half hour, at that time of day on a later
- * day picked in the agenda.
- */
-function proposedClockOf(day: Date | undefined, zone: string): WallClock {
-	const slot = nextSlotIn(zone);
-	const pickedDate = day ? dateInputOf(day) : null;
-	return pickedDate && pickedDate > slot.date ? { date: pickedDate, time: slot.time } : slot;
-}
-
 /** The durations offered: the usual ones, and a meeting's own when it lasts another time. */
 function durationsWith(minutes: number): number[] {
 	if (DURATIONS.includes(minutes)) {
 		return DURATIONS;
 	}
 	return [...DURATIONS, minutes].sort((first, second) => first - second);
-}
-
-/** The calendar day of a date picked in the agenda, as a date input holds it. */
-function dateInputOf(date: Date): string {
-	return `${date.getFullYear()}-${twoDigits(date.getMonth() + 1)}-${twoDigits(date.getDate())}`;
 }
 
 interface ScheduleMeetingDialogProps {
@@ -91,7 +72,7 @@ export function ScheduleMeetingDialog({
 	const [zone, setZone] = useState(defaultZone);
 	// The date and time fields read on the clocks of the zone; changing the zone keeps them as typed
 	const [initialClock] = useState(() =>
-		meeting ? wallClockOf(meeting.start, defaultZone) : proposedClockOf(initialDay, defaultZone)
+		meeting ? wallClockOf(meeting.start, defaultZone) : slotOnDay(initialDay, defaultZone)
 	);
 	const [title, setTitle] = useState(() => meeting?.title ?? '');
 	const [date, setDate] = useState(initialClock.date);

@@ -350,12 +350,16 @@ describe('feature parity on the authenticated shell', () => {
 		cy.get('[data-testid="meetings-agenda-day"]').should('contain', 'No meetings scheduled this day');
 		// "+" schedules on the day shown
 		cy.get('[data-testid="meetings-schedule-on-day"]').click();
-		cy.get('#meeting-date').should(($date) => {
+		// The fields read in the fixture user's zone, UTC; the agenda's days are the browser's: the start is on its day
+		rememberTheProposedStart();
+		cy.get<Date>('@proposedStart').should((start) => {
 			const tomorrow = new Date();
 			tomorrow.setDate(tomorrow.getDate() + 1);
-			const pad = (value: number) => String(value).padStart(2, '0');
-			const expected = `${tomorrow.getFullYear()}-${pad(tomorrow.getMonth() + 1)}-${pad(tomorrow.getDate())}`;
-			expect($date.val()).to.equal(expected);
+			expect([start.getFullYear(), start.getMonth(), start.getDate()]).to.deep.equal([
+				tomorrow.getFullYear(),
+				tomorrow.getMonth(),
+				tomorrow.getDate()
+			]);
 		});
 		cy.contains('button', /^Cancel$/).click();
 
