@@ -84,6 +84,94 @@ export interface IDocumentPage {
 	createdByUserId?: string | null;
 	createdAt: string;
 	updatedAt: string;
+	/** A search result's snippet (`GET /plugins/docs/documents?q=…`); a platform without snippets sends none. */
+	searchSnippet?: IDocumentSearchSnippet | null;
+}
+
+/** One match of a search term: `[start, end)` UTF-16 offsets into a snippet's text (or into a document's name). */
+export interface IDocumentSearchMatchRange {
+	start: number;
+	end: number;
+}
+
+/**
+ * Which text a snippet was cut from: the page's text, a file's extracted text, the description, or — when only the
+ * name matched — the beginning of the text (`leading`, without matches).
+ */
+export type TDocumentSearchSnippetSource = 'content' | 'extractedText' | 'description' | 'leading';
+
+/** The plain-text snippet of a search result: about 160 characters around the first match, never HTML. */
+export interface IDocumentSearchSnippet {
+	source: TDocumentSearchSnippetSource;
+	/** Whitespace collapsed, cut at word boundaries. */
+	text: string;
+	/** Every match of the term inside `text`, in order. */
+	matches: IDocumentSearchMatchRange[];
+	/** The matches of the term in the document's `name`. */
+	nameMatches: IDocumentSearchMatchRange[];
+	/** Text was cut before the snippet: an ellipsis goes first. */
+	truncatedStart: boolean;
+	/** Text was cut after the snippet: an ellipsis goes last. */
+	truncatedEnd: boolean;
+}
+
+/**
+ * Where a page comment was made: a range of one block's text. A block is a node of the page's JSON with a `blockId`;
+ * its text is the `text` of every text node under it, in order, with nothing between them (a mention or a hard break
+ * adds nothing). `start` / `end` are UTF-16 offsets into that text, `end` excluded.
+ */
+export interface IDocumentCommentAnchorInput {
+	blockId: string;
+	start: number;
+	end: number;
+	/** The text the range covered, exactly `blockText.slice(start, end)`, at most 1000 characters. */
+	quote: string;
+	/** Up to 32 characters of the block's text right before the range. */
+	prefix?: string | null;
+	/** Up to 32 characters of the block's text right after the range. */
+	suffix?: string | null;
+	/** Live sessions only: base64 `Y.RelativePosition` of `start` in the page's shared document (both or neither). */
+	relativeStart?: string | null;
+	relativeEnd?: string | null;
+}
+
+/**
+ * How an anchor was found again in the page as it is now: `exact` (the range still covers the quote), `moved` (the
+ * quote was found elsewhere, or approximately), `block` (only the block is left), `orphaned` (neither is).
+ */
+export type TDocumentCommentAnchorStatus = 'exact' | 'moved' | 'block' | 'orphaned';
+
+/** What found an anchor again. */
+export type TDocumentCommentAnchorMethod = 'offsets' | 'relative' | 'quote' | 'fuzzy' | 'block';
+
+/** Where an anchor is now; `start` / `end` / `text` are null without a range. */
+export interface IDocumentCommentAnchorPosition {
+	status: TDocumentCommentAnchorStatus;
+	method: TDocumentCommentAnchorMethod | null;
+	blockId: string | null;
+	start: number | null;
+	end: number | null;
+	text: string | null;
+}
+
+/** A comment's stored anchor, with where the platform found it in the page as it stores it. */
+export interface IDocumentCommentAnchorResolved extends IDocumentCommentAnchorInput {
+	id?: string;
+	commentId: string;
+	documentId: string;
+	createdAt?: string;
+	updatedAt?: string;
+	position: IDocumentCommentAnchorPosition;
+}
+
+/** `GET /plugins/docs/documents/:id/comment-anchors`. */
+export interface IDocumentCommentAnchorList {
+	documentId: string;
+	/** The page's revision the positions were computed on. */
+	revision: number;
+	/** The positions were computed on the page's live state. */
+	live: boolean;
+	items: IDocumentCommentAnchorResolved[];
 }
 
 export interface IDocumentPageList {
@@ -202,6 +290,8 @@ export interface IDocumentLink {
 /** The platform's error codes the editor reacts to. */
 export const DOCS_CONTENT_CONFLICT = 'DOCS_CONTENT_CONFLICT';
 export const DOCS_LOCKED = 'DOCS_LOCKED';
+/** A zip export asked of a file (only pages and folders export). */
+export const DOCS_NOT_A_PAGE = 'DOCS_NOT_A_PAGE';
 
 /** The platform refuses a list page of more rows than this (400 "take must not be greater than 100"). */
 export const DOCS_LIST_PAGE_SIZE = 100;

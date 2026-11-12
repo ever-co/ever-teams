@@ -128,7 +128,8 @@ function getNextStatusReceipt(
 	previousReceipt: ITimerStatusReceipt,
 	timerStatus: ITimerStatus | null
 ): ITimerStatusReceipt {
-	// A shell mounted again (OfflineWrapper after a reconnect) finds the status it recorded: its read time is unchanged
+	// A shell mounted again (the (main) layout after a page outside it) finds the status it recorded: its read time is
+	// unchanged
 	const isRecordedStatus = previousReceipt.status === timerStatus;
 	if (isRecordedStatus) {
 		return previousReceipt;

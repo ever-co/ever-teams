@@ -10,9 +10,12 @@ import { ProfileSettingsSkeleton } from './pages/profile/profile-settings-skelet
 import { PreferencesSettingsSkeleton } from './pages/preferences/preferences-settings-skeleton';
 import { WorkingHoursSettingsSkeleton } from './pages/working-hours/working-hours-settings-skeleton';
 import { NotificationsSettingsSkeleton } from './pages/notifications/notifications-settings-skeleton';
+import { WorkspaceSettingsSkeleton } from './pages/workspace/workspace-settings-skeleton';
 import { TeamGeneralSettingsSkeleton } from './pages/team-general/team-general-settings-skeleton';
 import { MembersSettingsSkeleton } from './pages/members/members-settings-skeleton';
 import { IntegrationsSettingsSkeleton } from './pages/integrations/integrations-settings-skeleton';
+import { AutomationsSettingsSkeleton } from './pages/automations/automations-settings-skeleton';
+import { TimeImportSettingsSkeleton } from './pages/time-import/time-import-settings-skeleton';
 import { StatusesSettingsSkeleton } from './pages/task-properties/statuses-settings-skeleton';
 import { PrioritiesSettingsSkeleton } from './pages/task-properties/priorities-settings-skeleton';
 import { SizesSettingsSkeleton } from './pages/task-properties/sizes-settings-skeleton';
@@ -32,9 +35,12 @@ const PAGE_SKELETONS: Readonly<Record<SettingsPageId, ComponentType>> = {
 	preferences: PreferencesSettingsSkeleton,
 	workingHours: WorkingHoursSettingsSkeleton,
 	notifications: NotificationsSettingsSkeleton,
+	workspaceGeneral: WorkspaceSettingsSkeleton,
 	teamGeneral: TeamGeneralSettingsSkeleton,
 	members: MembersSettingsSkeleton,
 	integrations: IntegrationsSettingsSkeleton,
+	automations: AutomationsSettingsSkeleton,
+	import: TimeImportSettingsSkeleton,
 	statuses: StatusesSettingsSkeleton,
 	priorities: PrioritiesSettingsSkeleton,
 	sizes: SizesSettingsSkeleton,

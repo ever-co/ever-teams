@@ -12,6 +12,26 @@ export const COMPACT_BLOCK_HEIGHT_PX = 40;
 
 export const MIN_BLOCK_HEIGHT_PX = 18;
 
+/** A block shorter than half an hour has no room for resize edges: it still moves, and its menu edits it. */
+export const RESIZABLE_BLOCK_HEIGHT_PX = 24;
+
+const MINUTES_PER_HOUR = 60;
+
+export function pixelsOfMinutes(minutes: number) {
+	return (minutes / MINUTES_PER_HOUR) * HOUR_HEIGHT_PX;
+}
+
+export function blockHeightOfMinutes(minutes: number) {
+	const naturalHeight = pixelsOfMinutes(minutes);
+	return Math.max(naturalHeight, MIN_BLOCK_HEIGHT_PX);
+}
+
+/** The edge of a manual entry that a drag stretches; wider under a finger. */
+export const RESIZE_EDGE = 'absolute inset-x-0 z-[1] h-1.5 cursor-ns-resize touch-none [@media(pointer:coarse)]:h-2.5';
+
+/** The time a drag is about to add: an outline, since nothing is saved yet. */
+export const SELECTION_GHOST = 'hairline-border border-dashed border-foreground/40 bg-foreground/[0.04]';
+
 export const CALENDAR_ACTION =
 	'outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/25';
 

@@ -1,6 +1,9 @@
 import {
 	Bell,
+	Bot,
+	Building,
 	Clock,
+	FileImport,
 	FlagPriority,
 	Integration,
 	Layers,
@@ -17,16 +20,19 @@ import {
 
 export type SettingsIcon = React.ComponentType<{ className?: string }>;
 
-export type SettingsGroupId = 'account' | 'team' | 'taskProperties';
+export type SettingsGroupId = 'account' | 'workspace' | 'team' | 'taskProperties';
 
 export type SettingsEntryId =
 	| 'profile'
 	| 'preferences'
 	| 'workingHours'
 	| 'notifications'
+	| 'workspaceGeneral'
 	| 'teamGeneral'
 	| 'members'
 	| 'integrations'
+	| 'import'
+	| 'automations'
 	| 'permissions'
 	| 'statuses'
 	| 'priorities'
@@ -47,14 +53,21 @@ export const SETTINGS_ROOT = '/settings';
 
 const PERMISSIONS_PATH = '/permissions';
 
+export const TIME_IMPORT_SETTINGS_PATH = '/settings/team/import';
+
 export const SETTINGS_ENTRIES: ReadonlyArray<SettingsEntry> = [
 	{ id: 'profile', group: 'account', href: '/settings/personal', icon: UserCircle },
 	{ id: 'preferences', group: 'account', href: '/settings/personal/preferences', icon: Preferences },
 	{ id: 'workingHours', group: 'account', href: '/settings/personal/working-hours', icon: Clock },
 	{ id: 'notifications', group: 'account', href: '/settings/personal/notifications', icon: Bell },
+	{ id: 'workspaceGeneral', group: 'workspace', href: '/settings/workspace', icon: Building },
 	{ id: 'teamGeneral', group: 'team', href: '/settings/team', icon: Settings },
 	{ id: 'members', group: 'team', href: '/settings/team/members', icon: Users, managerOnly: true },
 	{ id: 'integrations', group: 'team', href: '/settings/team/integrations', icon: Integration, managerOnly: true },
+	// Open to every member: importing time follows adding manual time, which a member may do for their own time
+	{ id: 'import', group: 'team', href: TIME_IMPORT_SETTINGS_PATH, icon: FileImport },
+	// Behind NEXT_PUBLIC_TASK_AUTOMATIONS_ENABLED and the platform's answer: `useHiddenSettingsEntries` hides it otherwise.
+	{ id: 'automations', group: 'team', href: '/settings/team/automations', icon: Bot, managerOnly: true },
 	// The roles page keeps its own route, so links to it still work; the settings sidebar stays on it.
 	{ id: 'permissions', group: 'team', href: PERMISSIONS_PATH, icon: ShieldUser, managerOnly: true },
 	{ id: 'statuses', group: 'taskProperties', href: '/settings/team/statuses', icon: StatusCircle },
@@ -65,7 +78,7 @@ export const SETTINGS_ENTRIES: ReadonlyArray<SettingsEntry> = [
 	{ id: 'versions', group: 'taskProperties', href: '/settings/team/versions', icon: Version }
 ];
 
-export const SETTINGS_GROUPS: ReadonlyArray<SettingsGroupId> = ['account', 'team', 'taskProperties'];
+export const SETTINGS_GROUPS: ReadonlyArray<SettingsGroupId> = ['account', 'workspace', 'team', 'taskProperties'];
 
 /** Links in emails, bookmarks and the GitHub install callback still carry the hashes of the former long pages. */
 const LEGACY_HASH_TARGETS: Readonly<Record<string, string>> = {
@@ -107,13 +120,20 @@ export function isEntryVisible(entry: SettingsEntry, canManageTeam: boolean): bo
 	return canManageTeam;
 }
 
-export function entriesOfGroup(group: SettingsGroupId, canManageTeam: boolean): SettingsEntry[] {
+/** The entries of a group the person sees; `hidden` names the optional ones this deployment does not offer now. */
+export function entriesOfGroup(
+	group: SettingsGroupId,
+	canManageTeam: boolean,
+	hidden: ReadonlySet<SettingsEntryId> = NO_HIDDEN_ENTRIES
+): SettingsEntry[] {
 	return SETTINGS_ENTRIES.filter((entry) => {
 		const isInGroup = entry.group === group;
-		const isVisible = isEntryVisible(entry, canManageTeam);
+		const isVisible = isEntryVisible(entry, canManageTeam) && !hidden.has(entry.id);
 		return isInGroup && isVisible;
 	});
 }
+
+export const NO_HIDDEN_ENTRIES: ReadonlySet<SettingsEntryId> = new Set<SettingsEntryId>();
 
 export function isSettingsPath(strippedPathname: string): boolean {
 	const isRoot = strippedPathname === SETTINGS_ROOT;

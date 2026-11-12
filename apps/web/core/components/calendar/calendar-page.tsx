@@ -14,6 +14,7 @@ import { TimesheetsDialogs } from '@/core/components/dashboards/timesheets/times
 import { AddManualTimeModalSkeleton } from '@/core/components/common/skeleton/calendar-component-skeletons';
 import { LazyAddManualTimeModal } from '@/core/components/optimized-components/calendar';
 import { useModal } from '@/core/hooks/common/use-modal';
+import { type CalendarEntryMoves, useCalendarEntryMoves } from '@/core/hooks/calendar/use-calendar-entry-moves';
 import { useCalendarPage, type CalendarPageState } from '@/core/hooks/calendar/use-calendar-page';
 import { useTimesheetDialogs } from '@/core/hooks/dashboards/timesheets/use-timesheet-dialogs';
 import { useTimesheetLogActions } from '@/core/hooks/dashboards/timesheets/use-timesheet-log-actions';
@@ -22,12 +23,14 @@ import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { formatPeriod, type Period } from '@/core/lib/utils/dashboard-period';
 import {
 	type AddTimeRange,
+	addTimeRangeBetween,
 	addTimeRangeFrom,
 	type CalendarDay,
 	type CalendarView,
 	countedDaysOf,
 	projectTotalsOf
 } from '@/core/lib/utils/calendar-view';
+import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import { type TimesheetFormatters, timesheetFormattersOf } from '@/core/lib/utils/dashboards/timesheets';
 import { isTrackingEnabledState } from '@/core/stores/timer/active-timer';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
@@ -131,16 +134,20 @@ function CalendarBody({
 	formatters,
 	handlers,
 	panelHandlers,
+	moves,
 	rangeName,
 	onAddTime,
+	onAddTimeRange,
 	onAddTimeNow
 }: Readonly<{
 	page: CalendarPageState;
 	formatters: TimesheetFormatters;
 	handlers: EntryHandlers;
 	panelHandlers: EntryHandlers;
+	moves: CalendarEntryMoves;
 	rangeName: string;
 	onAddTime: (start: Date) => void;
+	onAddTimeRange: (range: TimeWindow) => void;
 	onAddTimeNow: () => void;
 }>) {
 	const t = useTranslations();
@@ -198,7 +205,9 @@ function CalendarBody({
 					handlers={handlers}
 					timeZone={page.timeZone}
 					isLoading={page.isLoading}
+					moves={moves}
 					onAddTime={onAddTime}
+					onAddTimeRange={onAddTimeRange}
 					onOpenDay={page.openDayView}
 				/>
 			)}
@@ -210,7 +219,9 @@ function CalendarBody({
 						handlers={handlers}
 						timeZone={page.timeZone}
 						isLoading={page.isLoading}
+						moves={moves}
 						onAddTime={onAddTime}
+						onAddTimeRange={onAddTimeRange}
 					/>
 					{!page.isLoading && <DayAside day={page.days[0]} />}
 				</div>
@@ -283,6 +294,18 @@ export function CalendarPage() {
 		},
 		[closeDayPanel, openAddTime]
 	);
+
+	const openAddTimeIn = useCallback(
+		(dragged: TimeWindow) => {
+			closeDayPanel();
+			const range = addTimeRangeBetween(dragged.start, dragged.end);
+			setAddTimeRange(range);
+			openAddTime();
+		},
+		[closeDayPanel, openAddTime]
+	);
+
+	const moves = useCalendarEntryMoves(page, handlers.canEdit);
 
 	const handleDeleteConfirmed = useCallback(async () => {
 		await deleteLogs(dialogs.deleteTarget.logIds, true);
@@ -373,8 +396,10 @@ export function CalendarPage() {
 						formatters={formatters}
 						handlers={handlers}
 						panelHandlers={panelHandlers}
+						moves={moves}
 						rangeName={shownRangeName}
 						onAddTime={openAddTimeAt}
+						onAddTimeRange={openAddTimeIn}
 						onAddTimeNow={openAddTimeNow}
 					/>
 				)}

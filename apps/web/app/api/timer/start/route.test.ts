@@ -98,9 +98,23 @@ describe('POST /api/timer/start body sent to Gauzy', () => {
 		expect(sentStartBody(fetchMock)).not.toHaveProperty('projectId');
 	});
 
+	it('forwards the notes of the entry', async () => {
+		await startTimerWith({ taskId: TASK_ID, description: 'Fix the login page' });
+
+		expect(sentStartBody(fetchMock).description).toBe('Fix the login page');
+	});
+
+	it('sends no notes for a body without any, as before notes existed', async () => {
+		await startTimerWith({ taskId: TASK_ID });
+
+		expect(sentStartBody(fetchMock)).not.toHaveProperty('description');
+	});
+
 	it.each([
 		['a billable value that is not a boolean', { taskId: TASK_ID, isBillable: 'yes' }],
-		['an empty project', { taskId: TASK_ID, projectId: '' }]
+		['an empty project', { taskId: TASK_ID, projectId: '' }],
+		['notes that are not text', { taskId: TASK_ID, description: 42 }],
+		['notes longer than an entry takes', { taskId: TASK_ID, description: 'a'.repeat(1001) }]
 	])('refuses %s with a 400, without calling Gauzy', async (_, body) => {
 		const response = await startTimerWith(body);
 

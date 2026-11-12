@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
-import { useLocale } from 'next-intl';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
@@ -33,6 +32,8 @@ import {
 	totalDurationOf
 } from '@/core/lib/utils/dashboards/timesheets';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import type { SheetEditingSource } from './use-sheet-editing';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { useTimesheetPageLogs } from './use-timesheet-page-logs';
 
 export type TimesheetFilterField = 'members' | 'projects' | 'tasks';
@@ -105,7 +106,7 @@ function withValuesToggled(current: string[], values: string[], shouldSelect: bo
  * toolbar and of the status strip, the days of the list, the selection and who may do what.
  */
 export function useTimesheetsPage() {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 	const { isTeamManager } = useIsMemberManager(user);
@@ -347,3 +348,29 @@ function isOnlyOwnMember(pickedMembers: string[], ownEmployeeId: string | null) 
 }
 
 export type TimesheetsPageState = ReturnType<typeof useTimesheetsPage>;
+
+/** A status, search, project or task filter shows only part of a cell's time, so the sheet cannot be edited under it. */
+function isNarrowed(page: TimesheetsPageState) {
+	const hasStatus = page.statusFilter !== ALL_STATUSES;
+	const hasSearch = page.search.trim().length > 0;
+	const hasProjects = page.filters.projects.length > 0;
+	const hasTasks = page.filters.tasks.length > 0;
+	return hasStatus || hasSearch || hasProjects || hasTasks;
+}
+
+export function sheetEditingSourceOf(page: TimesheetsPageState): SheetEditingSource {
+	const { logsQuery, permissions, user } = page;
+	const hasData = Boolean(logsQuery.data);
+	const hasPeriodLogs = hasData && !logsQuery.isPlaceholderData;
+	return {
+		ownEmployeeId: permissions.employeeId,
+		hasOrganizationRole: permissions.hasOrganizationRole,
+		period: page.period,
+		periodLogs: page.allLogs,
+		hasPeriodLogs,
+		isFiltered: isNarrowed(page),
+		tenantId: user?.tenantId,
+		organizationId: user?.employee?.organizationId,
+		userTimeZone: user?.timeZone
+	};
+}

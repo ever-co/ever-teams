@@ -47,6 +47,10 @@ export interface SheetWriteScope {
 	/** The team new time goes to when its row names none: the team the page is read in. */
 	defaultTeamId: string | null;
 	allowsFutureDates: boolean;
+	/** The role and the organization allow deleting time: a lower cell deletes its latest manual entries. */
+	mayDeleteTime: boolean;
+	/** The role and the organization allow changing time: a lower cell shortens a manual entry. */
+	mayModifyTime: boolean;
 	/** The member's logs of the period as the page last read them, every filter aside. */
 	readMemberLogs: () => ReadonlyArray<ITimeLog>;
 	/**
@@ -57,6 +61,9 @@ export interface SheetWriteScope {
 }
 
 export type CellCommitOutcome = 'saved' | 'unchanged' | 'refused';
+
+/** How a lower cell went: its time taken back, too little manual time in it, or a right the API would refuse. */
+type TakeBackOutcome = 'done' | 'tracked' | 'notAllowed';
 
 export interface CopyRunResult {
 	savedCount: number;
@@ -83,7 +90,7 @@ function causeOf(error: unknown): unknown {
 	return error.cause;
 }
 
-function writeErrorKeyOf(error: unknown): string {
+export function writeErrorKeyOf(error: unknown): string {
 	const source = causeOf(error);
 	const missingFields = requiredTrackingFieldsOf(source);
 	if (missingFields) {
@@ -155,6 +162,7 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 	const [savingCellKeys, setSavingCellKeys] = useState<ReadonlySet<string>>(() => new Set());
 	const [isCopying, setIsCopying] = useState(false);
 	const { memberId, defaultTeamId, allowsFutureDates, readMemberLogs, readSavedMemberLogs } = scope;
+	const { mayDeleteTime, mayModifyTime } = scope;
 
 	const translate = useCallback(
 		(key: string, values?: Record<string, string | number>) => {
@@ -215,15 +223,32 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 		[defaultTeamId, memberId]
 	);
 
+	/**
+	 * Takes time back from the cell's manual entries. The API asks for the right to delete time and the right to
+	 * change it, each under the role and the organization: a plan that needs one the viewer lacks writes nothing,
+	 * so the cell is never left half lowered by a refusal.
+	 */
 	const takeBack = useCallback(
-		async (cellLogs: ReadonlyArray<ITimeLog>, excessSeconds: number) => {
+		async (
+			cellLogs: ReadonlyArray<ITimeLog>,
+			excessSeconds: number,
+			onWrite?: () => void
+		): Promise<TakeBackOutcome> => {
 			const plan = reductionOf(cellLogs, excessSeconds);
 			if (!plan) {
-				return false;
+				return 'tracked';
+			}
+			const deletes = plan.deleteIds.length > 0;
+			const shortens = plan.shorten !== null;
+			const isDeleteRefused = deletes && !mayDeleteTime;
+			const isShortenRefused = shortens && !mayModifyTime;
+			if (isDeleteRefused || isShortenRefused) {
+				return 'notAllowed';
 			}
 			const batches = chunksOf(plan.deleteIds, DELETE_BATCH_SIZE);
 			for (const batch of batches) {
 				await timeLogService.deleteTaskTimesheetLogs({ logIds: batch });
+				onWrite?.();
 			}
 			const shorten = plan.shorten;
 			if (shorten) {
@@ -233,14 +258,21 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 					stoppedAt: shorten.stoppedAt,
 					employeeId: memberId ?? undefined
 				});
+				onWrite?.();
 			}
-			return true;
+			return 'done';
 		},
-		[memberId]
+		[mayDeleteTime, mayModifyTime, memberId]
 	);
 
+	/** `onWrite` counts each write that went through, so an error after some of them is told from one before any. */
 	const writeCell = useCallback(
-		async (identity: SheetRowIdentity, day: SheetDay, targetSeconds: number): Promise<CellCommitOutcome> => {
+		async (
+			identity: SheetRowIdentity,
+			day: SheetDay,
+			targetSeconds: number,
+			onWrite: () => void
+		): Promise<CellCommitOutcome> => {
 			const memberLogs = await readSavedMemberLogs();
 			const cellLogs = logsOfCell(memberLogs, identity.key, day.key);
 			const currentSeconds = totalOf(cellLogs);
@@ -270,12 +302,18 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 					});
 					return 'refused';
 				}
-				await createEntries(identity, pieces);
+				await createEntries(identity, pieces, onWrite);
 				return 'saved';
 			}
 			const excessSeconds = currentSeconds - targetSeconds;
-			const isTakenBack = await takeBack(cellLogs, excessSeconds);
-			if (!isTakenBack) {
+			const takeBackOutcome = await takeBack(cellLogs, excessSeconds, onWrite);
+			if (takeBackOutcome === 'notAllowed') {
+				toast.error(translate('dashboard.timesheets.SHEET.EDIT.SAVE_FAILED'), {
+					description: translate('dashboard.timesheets.SHEET.EDIT.TAKE_BACK_NOT_ALLOWED')
+				});
+				return 'refused';
+			}
+			if (takeBackOutcome === 'tracked') {
 				const reducibleSeconds = reducibleSecondsOf(cellLogs);
 				const trackedSeconds = currentSeconds - reducibleSeconds;
 				const tracked = formatDurationShort(trackedSeconds);
@@ -294,16 +332,28 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 			const cellKey = sheetCellKeyOf(identity.key, day.key);
 			markSaving(cellKey, true);
 			return enqueue(async () => {
+				// The writes saved so far: a cell written in several of them is partly changed by an error after some
+				const progress = { writeCount: 0 };
+				const countWrite = () => {
+					progress.writeCount += 1;
+				};
 				try {
-					const outcome = await writeCell(identity, day, targetSeconds);
+					const outcome = await writeCell(identity, day, targetSeconds, countWrite);
 					if (outcome === 'saved') {
 						refreshOtherViews();
 					}
 					return outcome;
 				} catch (error) {
-					toast.error(translate('dashboard.timesheets.SHEET.EDIT.SAVE_FAILED'), {
+					const isPartlySaved = progress.writeCount > 0;
+					let titleKey = 'dashboard.timesheets.SHEET.EDIT.SAVE_FAILED';
+					if (isPartlySaved) {
+						titleKey = 'dashboard.timesheets.SHEET.EDIT.PARTLY_SAVED_TITLE';
+						refreshOtherViews();
+					}
+					toast.error(translate(titleKey), {
 						description: translate(writeErrorKeyOf(error))
 					});
+					// The sheet is read again below: the cell then shows the time saved, part of the change included
 					return 'refused' as const;
 				} finally {
 					await refreshSheet().catch(() => undefined);

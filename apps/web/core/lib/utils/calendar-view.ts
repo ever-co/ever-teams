@@ -65,6 +65,19 @@ export function addTimeRangeFrom(start: Date): AddTimeRange {
 	return { start, end };
 }
 
+/** A range dragged on the grid, for the same dialog: its end stays on the start's day, at 23:59 at the latest. */
+export function addTimeRangeBetween(start: Date, end: Date): AddTimeRange {
+	const lastMinute = startOfDay(addDays(start, 1));
+	const dayEnd = addMinutes(lastMinute, -1);
+	const shownEnd = min([end, dayEnd]);
+	return { start, end: shownEnd };
+}
+
+/** The member's own logs: the ones a new or moved entry of that member must not overlap. */
+export function logsOfEmployee(logs: ReadonlyArray<ITimeLog>, employeeId: string): ITimeLog[] {
+	return logs.filter((log) => employeeIdOfLog(log) === employeeId);
+}
+
 export const MINUTES_IN_DAY = 1440;
 
 /** The hour the week and day grids scroll to when the range holds no entry. */
@@ -610,7 +623,8 @@ export function projectTotalsOf(days: ReadonlyArray<CalendarDay>): CalendarProje
 	return withTime.sort(compareProjectTotals);
 }
 
-function minuteOfDay(date: Date, dayStart: Date) {
+/** Minutes from the top of a day's column, counted in elapsed time, so the grid and its drags agree. */
+export function minuteOfDay(date: Date, dayStart: Date) {
 	const elapsedMilliseconds = date.getTime() - dayStart.getTime();
 	const elapsedMinutes = elapsedMilliseconds / MILLISECONDS_PER_MINUTE;
 	const notBeforeMidnight = Math.max(elapsedMinutes, 0);

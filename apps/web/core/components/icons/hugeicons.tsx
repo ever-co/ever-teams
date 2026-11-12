@@ -1,4 +1,6 @@
 import {
+	Csv01Icon,
+	FileImportIcon,
 	Plug01Icon,
 	GitBranchIcon,
 	DashedLineCircleIcon,
@@ -497,3 +499,5 @@ export const Integration = /*#__PURE__*/ icon(Plug01Icon, 'Integration');
 export const Version = /*#__PURE__*/ icon(GitBranchIcon, 'Version');
 export const StatusCircle = /*#__PURE__*/ icon(DashedLineCircleIcon, 'StatusCircle');
 export const Preferences = /*#__PURE__*/ icon(PaintBoardIcon, 'Preferences');
+export const FileImport = /*#__PURE__*/ icon(FileImportIcon, 'FileImport');
+export const FileCsv = /*#__PURE__*/ icon(Csv01Icon, 'FileCsv');

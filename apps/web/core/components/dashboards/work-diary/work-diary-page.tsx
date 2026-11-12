@@ -6,6 +6,7 @@ import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
 import { DayPlanBlock, DoneOfPlanned } from '@/core/components/calendar/calendar-day-details';
 import { DatePicker } from '@/core/components/common/date-picker';
+import { SegmentedControl } from '@/core/components/common/segmented-control';
 import { DashboardBreadcrumb } from '@/core/components/dashboards/kit/dashboard-breadcrumb';
 import { DashboardSection, DashboardToolbar } from '@/core/components/dashboards/kit/dashboard-layout';
 import { BlockEmptyMessage, DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
@@ -15,12 +16,17 @@ import { Calendar, Clock } from '@/core/components/icons';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { WORK_DIARY_PATH } from '@/core/components/layouts/my-work-navigation';
 import { TrackingSourceEmptyState } from '@/core/components/pages/profile/tracking-source-empty-state';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { useWorkDiaryPage, type WorkDiaryPageState } from '@/core/hooks/dashboards/work-diary/use-work-diary-page';
-import type { DiarySlot } from '@/core/lib/utils/dashboards/work-diary';
+import { formatPeriod } from '@/core/lib/utils/dashboard-period';
+import type { DiarySlot, DiaryView } from '@/core/lib/utils/dashboards/work-diary';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 import { isTrackingEnabledState } from '@/core/stores/timer/active-timer';
 import { DiaryDayStrip } from './diary-day-strip';
 import { DiaryBody, DiaryHoursSkeleton } from './diary-hours';
 import { DiarySlotSheet } from './diary-slot-sheet';
+import { DiaryWeekView } from './diary-week-view';
+import { type DiaryTaskReuse, DiaryTaskReuseLayers, useDiaryTaskReuse } from './diary-task-reuse';
 import { DIARY_COLUMNS, DiaryAppRows, DiaryFigures, DiaryRowsSkeleton, DiaryTaskRows } from './work-diary-parts';
 import { WorkDiaryPageSkeleton } from './work-diary-page-skeleton';
 
@@ -32,13 +38,13 @@ interface DayFormats {
 }
 
 function useDayFormats(): DayFormats {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	return useMemo(
 		() => ({
-			time: new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }),
-			hour: new Intl.DateTimeFormat(locale, { hour: 'numeric' }),
-			short: new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric' }),
-			long: new Intl.DateTimeFormat(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+			time: dateFormatOf(locale, { hour: 'numeric', minute: '2-digit' }),
+			hour: dateFormatOf(locale, { hour: 'numeric' }),
+			short: dateFormatOf(locale, { weekday: 'short', month: 'short', day: 'numeric' }),
+			long: dateFormatOf(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 		}),
 		[locale]
 	);
@@ -84,8 +90,14 @@ function ScreenshotsBody({
 function DiaryDayView({
 	page,
 	formats,
-	onOpenSlot
-}: Readonly<{ page: WorkDiaryPageState; formats: DayFormats; onOpenSlot: (slot: DiarySlot) => void }>) {
+	onOpenSlot,
+	renderTaskActions
+}: Readonly<{
+	page: WorkDiaryPageState;
+	formats: DayFormats;
+	onOpenSlot: (slot: DiarySlot) => void;
+	renderTaskActions: DiaryTaskReuse['renderTaskActions'];
+}>) {
 	const t = useTranslations();
 	const { diary, shownDay, tasks, taskCount } = page;
 	const dayText = formats.short.format(page.day);
@@ -138,7 +150,7 @@ function DiaryDayView({
 					ariaLabel={t('common.TASKS')}
 				>
 					{page.isLogsLoading && <DiaryRowsSkeleton />}
-					{!page.isLogsLoading && <DiaryTaskRows tasks={tasks} />}
+					{!page.isLogsLoading && <DiaryTaskRows tasks={tasks} renderActions={renderTaskActions} />}
 				</DashboardSection>
 				{plan}
 				<DashboardSection
@@ -167,9 +179,11 @@ function DiaryDayView({
 function WorkDiaryPageContent() {
 	const t = useTranslations();
 	const locale = useLocale();
+	const workspaceLocale = useWorkspaceLocale();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const page = useWorkDiaryPage();
 	const formats = useDayFormats();
+	const taskReuse = useDiaryTaskReuse(page.shownDay.entries);
 	const [openSlot, setOpenSlot] = useState<DiarySlot | null>(null);
 	const [isSheetOpen, setIsSheetOpen] = useState(false);
 
@@ -187,10 +201,29 @@ function WorkDiaryPageContent() {
 		setIsSheetOpen(false);
 		page.showToday();
 	};
+	const changeView = (next: DiaryView) => {
+		setIsSheetOpen(false);
+		page.changeView(next);
+	};
 
 	const title = t('sidebar.WORK_DIARY');
 	const pickDayLabel = t('dashboard.workDiary.PICK_DAY');
-	const showsDay = !page.isMemberUnknown;
+	const isWeekView = page.view === 'week';
+	const isMemberKnown = !page.isMemberUnknown;
+	const showsDay = isMemberKnown && !isWeekView;
+	const showsWeek = isMemberKnown && isWeekView;
+	// In the week view the day's logs only mark the strip: the sheet reports its own failed read
+	const showsDayError = page.isLogsError && !isWeekView;
+	let meta = formats.long.format(page.day);
+	let isBodyLoading = page.isLogsLoading;
+	if (isWeekView) {
+		meta = formatPeriod(page.week, workspaceLocale);
+		isBodyLoading = page.weekSheet.isLoading;
+	}
+	const viewItems = [
+		{ value: 'day' as const, label: t('dashboard.calendar.VIEWS.DAY') },
+		{ value: 'week' as const, label: t('dashboard.calendar.VIEWS.WEEK') }
+	];
 
 	return (
 		<PageLayout
@@ -206,7 +239,7 @@ function WorkDiaryPageContent() {
 			mainHeaderSlot={
 				<DashboardToolbar
 					title={title}
-					meta={formats.long.format(page.day)}
+					meta={meta}
 					isUpdating={page.isUpdating}
 					updatingLabel={t('dashboard.workDiary.UPDATING')}
 					actions={
@@ -251,13 +284,19 @@ function WorkDiaryPageContent() {
 									</>
 								}
 							/>
+							<SegmentedControl<DiaryView>
+								items={viewItems}
+								value={page.view}
+								onValueChange={changeView}
+								ariaLabel={t('dashboard.timesheets.VIEW_LABEL')}
+							/>
 						</>
 					}
 				/>
 			}
 		>
-			<div className={DASHBOARD_STACK} aria-busy={page.isLogsLoading}>
-				{page.isLogsError && <DashboardErrorNotice onRetry={() => void page.refetchLogs()} />}
+			<div className={DASHBOARD_STACK} aria-busy={isBodyLoading}>
+				{showsDayError && <DashboardErrorNotice onRetry={() => void page.refetchLogs()} />}
 				{page.isMemberUnknown && (
 					<DashboardSection>
 						<BlockEmptyMessage
@@ -266,8 +305,17 @@ function WorkDiaryPageContent() {
 						/>
 					</DashboardSection>
 				)}
-				{showsDay && <DiaryDayView page={page} formats={formats} onOpenSlot={openSlotSheet} />}
+				{showsDay && (
+					<DiaryDayView
+						page={page}
+						formats={formats}
+						onOpenSlot={openSlotSheet}
+						renderTaskActions={taskReuse.renderTaskActions}
+					/>
+				)}
+				{showsWeek && <DiaryWeekView page={page} />}
 			</div>
+			<DiaryTaskReuseLayers reuse={taskReuse} />
 			<DiarySlotSheet
 				slot={openSlot}
 				day={page.day}
@@ -283,8 +331,9 @@ function WorkDiaryPageContent() {
 /**
  * `/work-diary`: the signed-in person's own day of work, under My work. The day's figures, the tasks the time went to
  * (each opens), the day's plan against what was done, the apps and sites, and the screenshots hour by hour; the days
- * of its week sit in the toolbar, with Today and a day picker for any earlier day. The team's time, with approvals,
- * stays in Reports › Timesheets, which a manager opens from here.
+ * of its week sit in the toolbar, with Today and a day picker for any earlier day. The Week view shows that week as
+ * the person's own sheet, a row per task and a column per day, which they fill by typing when their role may add
+ * manual time. The team's time, with approvals, stays in Reports › Timesheets, which a manager opens from here.
  */
 export function WorkDiaryPage() {
 	return (

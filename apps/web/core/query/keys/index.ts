@@ -64,6 +64,8 @@ export const queryKeys = {
 					organizationId ?? null,
 					organizationTeamId ?? null
 				] as const,
+			inactiveByScope: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+				['users', 'employees', 'inactive-scope', tenantId ?? null, organizationId ?? null] as const,
 			working: (
 				tenantId: string | undefined | null,
 				organizationId: string | undefined | null,
@@ -449,6 +451,28 @@ export const queryKeys = {
 			organizationId: string | undefined | null,
 			employeeId: string | undefined | null
 		) => ['notifications', 'settings', tenantId ?? null, organizationId ?? null, employeeId ?? null] as const
+	},
+
+	// Settings → Automations: the organization's rules, the templates and a rule's run history. The user is part of
+	// every key: what one sign-in read (or was refused) never shows for the next one.
+	taskAutomations: {
+		all: ['task-automations'] as const,
+		templates: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null
+		) => ['task-automations', 'templates', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		rules: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null
+		) => ['task-automations', 'rules', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		runs: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null,
+			ruleId: string | undefined | null
+		) => ['task-automations', 'runs', tenantId ?? null, organizationId ?? null, userId ?? null, ruleId ?? null] as const
 	},
 
 	inbox: {
@@ -936,6 +960,32 @@ export const queryKeys = {
 				runId: string | undefined | null
 			) => ['integrations', 'trello', 'conflicts', tenantId ?? null, organizationId ?? null, integrationId ?? null, status ?? null, runId ?? null] as const
 		},
+		jira: {
+			all: ['integrations', 'jira'] as const,
+			status: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+				['integrations', 'jira', 'status', tenantId ?? null, organizationId ?? null] as const,
+			sites: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'jira', 'sites', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			mappings: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'jira', 'mappings', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			/** The projects of the connection's site (keyed by the site: a new site has other projects). */
+			projects: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, cloudId: string | undefined | null) =>
+				['integrations', 'jira', 'projects', tenantId ?? null, organizationId ?? null, integrationId ?? null, cloudId ?? null] as const,
+			/** One project's statuses and issue types, keyed by the site too (two sites may hold a project of the same id). */
+			project: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, cloudId: string | undefined | null, jiraProjectId: string | undefined | null) =>
+				['integrations', 'jira', 'project', tenantId ?? null, organizationId ?? null, integrationId ?? null, cloudId ?? null, jiraProjectId ?? null] as const,
+			runs: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'jira', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			/** Every conflict list of the provider (a resolve or a finished run reads them again). */
+			conflictsAll: ['integrations', 'jira', 'conflicts'] as const,
+			conflicts: (
+				tenantId: string | undefined | null,
+				organizationId: string | undefined | null,
+				integrationId: string | undefined | null,
+				status: string | undefined | null,
+				runId: string | undefined | null
+			) => ['integrations', 'jira', 'conflicts', tenantId ?? null, organizationId ?? null, integrationId ?? null, status ?? null, runId ?? null] as const
+		},
 		types: (tenantId: string | undefined | null) =>
 			['integrations', 'types', ...(tenantId ? [tenantId] : [])] as const,
 		byTenant: (tenantId: string | undefined | null) =>
@@ -1130,6 +1180,9 @@ export const queryKeys = {
 			['docs', 'import', tenantId ?? null, importId ?? null] as const,
 		/** The platform's comments on the page (entity `Document`), block threads and page comments alike. */
 		comments: (tenantId: string | undefined | null, organizationId: string | undefined | null, pageId: string | undefined | null) =>
-			['docs', 'comments', tenantId ?? null, organizationId ?? null, pageId ?? null] as const
+			['docs', 'comments', tenantId ?? null, organizationId ?? null, pageId ?? null] as const,
+		/** The text ranges of the page's comments: under the comments' key, so whatever reads the comments again reads them too. */
+		commentAnchors: (tenantId: string | undefined | null, organizationId: string | undefined | null, pageId: string | undefined | null) =>
+			['docs', 'comments', tenantId ?? null, organizationId ?? null, pageId ?? null, 'anchors'] as const
 	}
 };

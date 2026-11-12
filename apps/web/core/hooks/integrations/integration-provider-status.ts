@@ -1,6 +1,6 @@
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 
-/** What a task import provider (Linear, Asana, Trello) shows on the integrations page. */
+/** What a task import provider (Linear, Asana, Trello, Jira) shows on the integrations page. */
 export type IntegrationProviderStatus = 'hidden' | 'loading' | 'loadError' | 'notConfigured' | 'notConnected' | 'connected';
 
 /** Whether a read failed with 404: the platform does not offer the provider (its plugin is off). */

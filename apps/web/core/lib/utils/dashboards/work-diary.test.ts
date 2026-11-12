@@ -1,6 +1,6 @@
 import type { CalendarEntry } from '@/core/lib/utils/calendar-view';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
-import { DIARY_HISTORY_START, diaryDayOfParam, diaryTaskCountOf, diaryTasksOf } from './work-diary';
+import { DIARY_HISTORY_START, diaryDayOfParam, diaryTaskCountOf, diaryTasksOf, diaryViewOfParam } from './work-diary';
 
 const NOW = new Date(2026, 10, 11, 15, 30);
 
@@ -57,6 +57,15 @@ describe('diaryDayOfParam', () => {
 	});
 });
 
+describe('diaryViewOfParam', () => {
+	it('opens the week sheet when the link asks for it, and the day otherwise', () => {
+		expect(diaryViewOfParam('week')).toBe('week');
+		expect(diaryViewOfParam('day')).toBe('day');
+		expect(diaryViewOfParam(null)).toBe('day');
+		expect(diaryViewOfParam('month')).toBe('day');
+	});
+});
+
 describe('diaryTasksOf', () => {
 	it('adds up the time of each task over the day, longest first, the time without a task as one more row', () => {
 		const tasks = diaryTasksOf([
@@ -78,6 +87,31 @@ describe('diaryTasksOf', () => {
 
 	it('has no tasks on a day without time', () => {
 		expect(diaryTasksOf([])).toEqual([]);
+	});
+});
+
+describe('diaryTasksOf, the notes of the entries', () => {
+	function withNotes(id: string, taskId: string, description: string | null) {
+		const noted = entry(id, taskId, 600);
+		noted.log = { ...noted.log, description } as unknown as ITimeLog;
+		return noted;
+	}
+
+	it('lists the notes of the entries of a task once each, in the order the entries come', () => {
+		const tasks = diaryTasksOf([
+			withNotes('a', 'task-1', 'Fix the login page'),
+			withNotes('b', 'task-1', null),
+			withNotes('c', 'task-1', ' Review the totals '),
+			withNotes('d', 'task-1', 'Fix the login page')
+		]);
+
+		expect(tasks[0].notes).toEqual(['Fix the login page', 'Review the totals']);
+	});
+
+	it('lists none for a task whose entries have no notes', () => {
+		const tasks = diaryTasksOf([entry('a', 'task-1', 600)]);
+
+		expect(tasks[0].notes).toEqual([]);
 	});
 });
 
