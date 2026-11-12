@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import type { DottedLanguageObjectStringPaths } from 'next-intl';
 import { activeTeamState, organizationTeamsState } from '@/core/stores';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useTagsQuery } from '@/core/hooks/tags/use-tags-query';
 import { useCreateTag } from '@/core/hooks/tags/use-create-tag';
@@ -83,6 +84,7 @@ function toggleId(ids: string[], id: string) {
 export function useProjectComposer({ mode, project, onDone }: UseProjectComposerOptions) {
 	const activeTeam = useAtomValue(activeTeamState);
 	const organizationTeams = useAtomValue(organizationTeamsState);
+	const organization = useAtomValue(currentOrganizationState);
 	const { data: user } = useUserQuery();
 	const { tags: fetchedTags } = useTagsQuery();
 	const { createTag, createTagLoading } = useCreateTag();
@@ -98,7 +100,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 		if (mode === 'edit' && project) {
 			return draftFromProject(project, activeTeamId);
 		}
-		return emptyProjectDraft(activeTeamId);
+		return emptyProjectDraft(activeTeamId, new Date(), organization?.currency ?? null);
 	});
 	const [imageFile, setImageFile] = useState<File | null>(null);
 	const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);

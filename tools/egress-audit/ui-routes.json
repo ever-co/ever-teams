@@ -304,6 +304,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/settings/workspace",
+      "file": "apps/web/app/[locale]/(main)/settings/workspace/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/task/:id",
       "file": "apps/web/app/[locale]/(main)/task/[id]/page.tsx",
       "source": "router"

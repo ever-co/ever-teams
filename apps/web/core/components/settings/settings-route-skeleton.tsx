@@ -10,6 +10,7 @@ import { ProfileSettingsSkeleton } from './pages/profile/profile-settings-skelet
 import { PreferencesSettingsSkeleton } from './pages/preferences/preferences-settings-skeleton';
 import { WorkingHoursSettingsSkeleton } from './pages/working-hours/working-hours-settings-skeleton';
 import { NotificationsSettingsSkeleton } from './pages/notifications/notifications-settings-skeleton';
+import { WorkspaceSettingsSkeleton } from './pages/workspace/workspace-settings-skeleton';
 import { TeamGeneralSettingsSkeleton } from './pages/team-general/team-general-settings-skeleton';
 import { MembersSettingsSkeleton } from './pages/members/members-settings-skeleton';
 import { IntegrationsSettingsSkeleton } from './pages/integrations/integrations-settings-skeleton';
@@ -33,6 +34,7 @@ const PAGE_SKELETONS: Readonly<Record<SettingsPageId, ComponentType>> = {
 	preferences: PreferencesSettingsSkeleton,
 	workingHours: WorkingHoursSettingsSkeleton,
 	notifications: NotificationsSettingsSkeleton,
+	workspaceGeneral: WorkspaceSettingsSkeleton,
 	teamGeneral: TeamGeneralSettingsSkeleton,
 	members: MembersSettingsSkeleton,
 	integrations: IntegrationsSettingsSkeleton,

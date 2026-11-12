@@ -12,6 +12,14 @@ class TenantService extends APIService {
 			}
 		).then(({ data }) => data);
 	};
+
+	/**
+	 * Renames the tenant of the session, the name the workspace switcher shows. Gauzy reads which tenant from the
+	 * session and lets its super admin alone rename it.
+	 */
+	renameTenant = async (name: string): Promise<void> => {
+		await this.put('/tenant', { name }, { tenantId: this.tenantId });
+	};
 }
 
 export const tenantService = new TenantService(GAUZY_API_BASE_SERVER_URL.value);

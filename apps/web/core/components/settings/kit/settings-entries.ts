@@ -1,6 +1,7 @@
 import {
 	Bell,
 	Bot,
+	Building,
 	Clock,
 	FlagPriority,
 	Integration,
@@ -18,13 +19,14 @@ import {
 
 export type SettingsIcon = React.ComponentType<{ className?: string }>;
 
-export type SettingsGroupId = 'account' | 'team' | 'taskProperties';
+export type SettingsGroupId = 'account' | 'workspace' | 'team' | 'taskProperties';
 
 export type SettingsEntryId =
 	| 'profile'
 	| 'preferences'
 	| 'workingHours'
 	| 'notifications'
+	| 'workspaceGeneral'
 	| 'teamGeneral'
 	| 'members'
 	| 'integrations'
@@ -54,6 +56,7 @@ export const SETTINGS_ENTRIES: ReadonlyArray<SettingsEntry> = [
 	{ id: 'preferences', group: 'account', href: '/settings/personal/preferences', icon: Preferences },
 	{ id: 'workingHours', group: 'account', href: '/settings/personal/working-hours', icon: Clock },
 	{ id: 'notifications', group: 'account', href: '/settings/personal/notifications', icon: Bell },
+	{ id: 'workspaceGeneral', group: 'workspace', href: '/settings/workspace', icon: Building },
 	{ id: 'teamGeneral', group: 'team', href: '/settings/team', icon: Settings },
 	{ id: 'members', group: 'team', href: '/settings/team/members', icon: Users, managerOnly: true },
 	{ id: 'integrations', group: 'team', href: '/settings/team/integrations', icon: Integration, managerOnly: true },
@@ -69,7 +72,7 @@ export const SETTINGS_ENTRIES: ReadonlyArray<SettingsEntry> = [
 	{ id: 'versions', group: 'taskProperties', href: '/settings/team/versions', icon: Version }
 ];
 
-export const SETTINGS_GROUPS: ReadonlyArray<SettingsGroupId> = ['account', 'team', 'taskProperties'];
+export const SETTINGS_GROUPS: ReadonlyArray<SettingsGroupId> = ['account', 'workspace', 'team', 'taskProperties'];
 
 /** Links in emails, bookmarks and the GitHub install callback still carry the hashes of the former long pages. */
 const LEGACY_HASH_TARGETS: Readonly<Record<string, string>> = {

@@ -4147,7 +4147,8 @@
 		"groups": {
 			"account": "Cuenta",
 			"team": "Equipo",
-			"taskProperties": "Propiedades de tareas"
+			"taskProperties": "Propiedades de tareas",
+			"workspace": "Espacio de trabajo"
 		},
 		"entries": {
 			"profile": {
@@ -4205,6 +4206,10 @@
 			"versions": {
 				"TITLE": "Versiones",
 				"DESCRIPTION": "Las entregas a las que pueden apuntar las tareas."
+			},
+			"workspaceGeneral": {
+				"TITLE": "General",
+				"DESCRIPTION": "El nombre del espacio de trabajo, su moneda y sus formatos de fecha y de número."
 			},
 			"automations": {
 				"TITLE": "Automatizaciones",
@@ -4990,6 +4995,35 @@
 			"LOAD_ERROR_TEXT": "Tus ajustes no cambiaron. Inténtalo de nuevo en un momento.",
 			"UNAVAILABLE_TITLE": "Aún no hay nada que ajustar en este espacio de trabajo",
 			"UNAVAILABLE_TEXT": "Las notificaciones dependen de tu perfil de miembro en un espacio de trabajo, y esta cuenta no tiene uno aquí. Únete a un equipo o crea uno primero."
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "Espacio de trabajo",
+			"NAME_LABEL": "Nombre del espacio de trabajo",
+			"NAME_DESCRIPTION": "Aparece en el selector de espacios de trabajo y en las invitaciones.",
+			"NAME_INVALID": "Escribe un nombre de 1 a {max} caracteres.",
+			"NAME_SAVED": "El espacio de trabajo ahora se llama {name}",
+			"NAME_NOT_SAVED": "No se cambió el nombre del espacio de trabajo",
+			"NAME_SUPER_ADMIN_ONLY": "Solo un superadministrador del espacio de trabajo puede cambiarle el nombre.",
+			"FORMATS_SECTION": "Moneda y formatos",
+			"FORMATS_DESCRIPTION": "Se usan donde no hay nada más concreto definido, como una tarifa con su propia moneda.",
+			"CURRENCY_LABEL": "Moneda predeterminada",
+			"CURRENCY_DESCRIPTION": "La moneda con la que empieza una tarifa nueva o un presupuesto nuevo.",
+			"CURRENCY_SAVED": "Moneda predeterminada: {currency}",
+			"CURRENCY_OUTCOME": "Las tarifas y los presupuestos nuevos empiezan en esta moneda.",
+			"CURRENCY_NOT_SAVED": "No se guardó la moneda",
+			"CURRENCY_NOT_SET": "Sin indicar",
+			"DATE_FORMAT_LABEL": "Formato de fecha",
+			"DATE_FORMAT_DESCRIPTION": "Cómo escriben las fechas los informes y sus exportaciones. Automático sigue el idioma de cada miembro.",
+			"DATE_FORMAT_SAVED": "Formato de fecha guardado",
+			"DATE_FORMAT_NOT_SAVED": "No se guardó el formato de fecha",
+			"NUMBER_FORMAT_LABEL": "Formato de número",
+			"NUMBER_FORMAT_DESCRIPTION": "Cómo escriben los importes los informes y sus exportaciones. Automático sigue el idioma de cada miembro.",
+			"NUMBER_FORMAT_SAVED": "Formato de número guardado",
+			"NUMBER_FORMAT_NOT_SAVED": "No se guardó el formato de número",
+			"FORMAT_OUTCOME": "Los informes y sus exportaciones ya lo usan.",
+			"FORMAT_AUTOMATIC": "Automático",
+			"READ_ONLY_NOTE": "Solo los administradores del espacio de trabajo pueden cambiar estos ajustes.",
+			"LOAD_FAILED": "No se pudieron cargar los ajustes del espacio de trabajo."
 		},
 		"automations": {
 			"NEW_RULE": "Nueva regla",

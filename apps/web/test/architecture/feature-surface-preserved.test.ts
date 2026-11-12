@@ -2028,10 +2028,11 @@ describe('Ever Teams feature surface preservation', () => {
 		// order PUT, [id] GET PUT DELETE, [id]/test POST, [id]/runs GET).
 		// 325 files and 416 verbs with the members settings proxies: the inactive employees (GET /api/employee/inactive)
 		// and the workspace role of an account (PUT /api/user/[id]/role).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(325);
+		// 326 files and 417 verbs with the workspace rename proxy (PUT /api/tenant, #5087).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(326);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(416);
+		).toHaveLength(417);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of the platform's task automations routes (2026-11-11)
@@ -2051,6 +2052,8 @@ describe('Ever Teams feature surface preservation', () => {
 				// Proxy mode routes of the members settings: deactivated members and workspace roles (#5092)
 				'apps/web/app/api/employee/inactive/route.ts::GET',
 				'apps/web/app/api/user/[id]/role/route.ts::PUT',
+				// Proxy mode twin of Gauzy's PUT /tenant, for the workspace's name (#5087)
+				'apps/web/app/api/tenant/route.ts::PUT',
 				// Proxy mode twins of the platform's comment withdrawal, reactions and task trash (2026-11-12)
 				'apps/web/app/api/comment/[id]/soft/route.ts::DELETE',
 				'apps/web/app/api/comment/[id]/recover/route.ts::PUT',

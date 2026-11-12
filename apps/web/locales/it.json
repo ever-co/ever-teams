@@ -4147,7 +4147,8 @@
 		"groups": {
 			"account": "Account",
 			"team": "Team",
-			"taskProperties": "Proprietà delle attività"
+			"taskProperties": "Proprietà delle attività",
+			"workspace": "Spazio di lavoro"
 		},
 		"entries": {
 			"profile": {
@@ -4205,6 +4206,10 @@
 			"versions": {
 				"TITLE": "Versioni",
 				"DESCRIPTION": "I rilasci a cui le attività possono puntare."
+			},
+			"workspaceGeneral": {
+				"TITLE": "Generale",
+				"DESCRIPTION": "Il nome dello spazio di lavoro, la valuta e i formati di data e numero."
 			},
 			"automations": {
 				"TITLE": "Automazioni",
@@ -4990,6 +4995,35 @@
 			"LOAD_ERROR_TEXT": "Le tue impostazioni restano invariate. Riprova tra poco.",
 			"UNAVAILABLE_TITLE": "Ancora niente da impostare in questo spazio di lavoro",
 			"UNAVAILABLE_TEXT": "Le notifiche fanno parte del tuo profilo di membro in uno spazio di lavoro, e qui questo account non ne ha uno. Prima unisciti a un team o creane uno."
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "Spazio di lavoro",
+			"NAME_LABEL": "Nome dello spazio di lavoro",
+			"NAME_DESCRIPTION": "Compare nel selettore degli spazi di lavoro e negli inviti.",
+			"NAME_INVALID": "Inserisci un nome da 1 a {max} caratteri.",
+			"NAME_SAVED": "Spazio di lavoro rinominato in {name}",
+			"NAME_NOT_SAVED": "Lo spazio di lavoro non è stato rinominato",
+			"NAME_SUPER_ADMIN_ONLY": "Solo un super amministratore dello spazio di lavoro può rinominarlo.",
+			"FORMATS_SECTION": "Valuta e formati",
+			"FORMATS_DESCRIPTION": "Valgono ovunque non sia impostato nulla di più specifico, come una tariffa con una valuta propria.",
+			"CURRENCY_LABEL": "Valuta predefinita",
+			"CURRENCY_DESCRIPTION": "La valuta da cui parte una nuova tariffa o un nuovo budget.",
+			"CURRENCY_SAVED": "Valuta predefinita impostata su {currency}",
+			"CURRENCY_OUTCOME": "Le nuove tariffe e i nuovi budget partono da questa valuta.",
+			"CURRENCY_NOT_SAVED": "La valuta non è stata salvata",
+			"CURRENCY_NOT_SET": "Non indicata",
+			"DATE_FORMAT_LABEL": "Formato della data",
+			"DATE_FORMAT_DESCRIPTION": "Come i report e le loro esportazioni scrivono le date. Automatico segue la lingua di ogni membro.",
+			"DATE_FORMAT_SAVED": "Formato della data salvato",
+			"DATE_FORMAT_NOT_SAVED": "Il formato della data non è stato salvato",
+			"NUMBER_FORMAT_LABEL": "Formato dei numeri",
+			"NUMBER_FORMAT_DESCRIPTION": "Come i report e le loro esportazioni scrivono gli importi. Automatico segue la lingua di ogni membro.",
+			"NUMBER_FORMAT_SAVED": "Formato dei numeri salvato",
+			"NUMBER_FORMAT_NOT_SAVED": "Il formato dei numeri non è stato salvato",
+			"FORMAT_OUTCOME": "I report e le loro esportazioni ora lo usano.",
+			"FORMAT_AUTOMATIC": "Automatico",
+			"READ_ONLY_NOTE": "Solo gli amministratori dello spazio di lavoro possono cambiare queste impostazioni.",
+			"LOAD_FAILED": "Non è stato possibile caricare le impostazioni dello spazio di lavoro."
 		},
 		"automations": {
 			"NEW_RULE": "Nuova regola",

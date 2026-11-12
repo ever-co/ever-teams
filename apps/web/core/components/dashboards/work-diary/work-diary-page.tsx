@@ -16,9 +16,11 @@ import { Calendar, Clock } from '@/core/components/icons';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { WORK_DIARY_PATH } from '@/core/components/layouts/my-work-navigation';
 import { TrackingSourceEmptyState } from '@/core/components/pages/profile/tracking-source-empty-state';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { useWorkDiaryPage, type WorkDiaryPageState } from '@/core/hooks/dashboards/work-diary/use-work-diary-page';
 import { formatPeriod } from '@/core/lib/utils/dashboard-period';
 import type { DiarySlot, DiaryView } from '@/core/lib/utils/dashboards/work-diary';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 import { isTrackingEnabledState } from '@/core/stores/timer/active-timer';
 import { DiaryDayStrip } from './diary-day-strip';
 import { DiaryBody, DiaryHoursSkeleton } from './diary-hours';
@@ -36,13 +38,13 @@ interface DayFormats {
 }
 
 function useDayFormats(): DayFormats {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	return useMemo(
 		() => ({
-			time: new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }),
-			hour: new Intl.DateTimeFormat(locale, { hour: 'numeric' }),
-			short: new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric' }),
-			long: new Intl.DateTimeFormat(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+			time: dateFormatOf(locale, { hour: 'numeric', minute: '2-digit' }),
+			hour: dateFormatOf(locale, { hour: 'numeric' }),
+			short: dateFormatOf(locale, { weekday: 'short', month: 'short', day: 'numeric' }),
+			long: dateFormatOf(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 		}),
 		[locale]
 	);

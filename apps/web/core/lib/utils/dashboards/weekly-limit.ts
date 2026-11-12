@@ -9,6 +9,7 @@ import {
 } from '@/core/lib/utils/dashboard-figures';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { formatPeriod, type Period } from '@/core/lib/utils/dashboard-period';
+import { dateFormatOf, localeKeyOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 export type LimitDuration = 'day' | 'week';
 
@@ -501,8 +502,8 @@ export function leftOf(remaining: number) {
 
 const dayFormatters = new Map<string, Intl.DateTimeFormat>();
 
-function dayFormatterOf(locale: string, showsYear: boolean) {
-	const cacheKey = `${locale}:${showsYear}`;
+function dayFormatterOf(locale: FormatLocale, showsYear: boolean) {
+	const cacheKey = `${localeKeyOf(locale)}:${showsYear}`;
 	const cached = dayFormatters.get(cacheKey);
 	if (cached) {
 		return cached;
@@ -511,12 +512,12 @@ function dayFormatterOf(locale: string, showsYear: boolean) {
 	if (showsYear) {
 		options.year = 'numeric';
 	}
-	const formatter = new Intl.DateTimeFormat(locale, options);
+	const formatter = dateFormatOf(locale, options);
 	dayFormatters.set(cacheKey, formatter);
 	return formatter;
 }
 
-export function periodLabelOf(periodStart: Date, duration: LimitDuration, locale: string): string {
+export function periodLabelOf(periodStart: Date, duration: LimitDuration, locale: FormatLocale): string {
 	if (duration === 'week') {
 		const periodEnd = periodEndOf(periodStart, duration);
 		return formatPeriod({ from: periodStart, to: periodEnd }, locale);

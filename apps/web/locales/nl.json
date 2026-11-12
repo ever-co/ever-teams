@@ -4147,7 +4147,8 @@
 		"groups": {
 			"account": "Account",
 			"team": "Team",
-			"taskProperties": "Taakeigenschappen"
+			"taskProperties": "Taakeigenschappen",
+			"workspace": "Werkruimte"
 		},
 		"entries": {
 			"profile": {
@@ -4205,6 +4206,10 @@
 			"versions": {
 				"TITLE": "Versies",
 				"DESCRIPTION": "Releases waarop taken kunnen mikken."
+			},
+			"workspaceGeneral": {
+				"TITLE": "Algemeen",
+				"DESCRIPTION": "De naam van de werkruimte, de valuta en de datum- en getalnotatie."
 			},
 			"automations": {
 				"TITLE": "Automatiseringen",
@@ -4990,6 +4995,35 @@
 			"LOAD_ERROR_TEXT": "Je schakelaars zijn niet gewijzigd. Probeer het zo opnieuw.",
 			"UNAVAILABLE_TITLE": "Nog niets in te stellen in deze werkruimte",
 			"UNAVAILABLE_TEXT": "Meldingen horen bij je ledenprofiel in een werkruimte, en dit account heeft er hier geen. Word eerst lid van een team of maak er een."
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "Werkruimte",
+			"NAME_LABEL": "Naam van de werkruimte",
+			"NAME_DESCRIPTION": "Staat in de werkruimtekiezer en op uitnodigingen.",
+			"NAME_INVALID": "Voer een naam van 1 tot {max} tekens in.",
+			"NAME_SAVED": "Werkruimte hernoemd naar {name}",
+			"NAME_NOT_SAVED": "De werkruimte is niet hernoemd",
+			"NAME_SUPER_ADMIN_ONLY": "Alleen een superbeheerder van de werkruimte kan de naam wijzigen.",
+			"FORMATS_SECTION": "Valuta en notaties",
+			"FORMATS_DESCRIPTION": "Gelden overal waar niets specifiekers is ingesteld, zoals een tarief met een eigen valuta.",
+			"CURRENCY_LABEL": "Standaardvaluta",
+			"CURRENCY_DESCRIPTION": "De valuta waarmee een nieuw tarief of budget begint.",
+			"CURRENCY_SAVED": "Standaardvaluta ingesteld op {currency}",
+			"CURRENCY_OUTCOME": "Nieuwe tarieven en budgetten beginnen in deze valuta.",
+			"CURRENCY_NOT_SAVED": "De valuta is niet opgeslagen",
+			"CURRENCY_NOT_SET": "Niet ingesteld",
+			"DATE_FORMAT_LABEL": "Datumnotatie",
+			"DATE_FORMAT_DESCRIPTION": "Hoe rapporten en hun exports datums schrijven. Automatisch volgt de taal van elk lid.",
+			"DATE_FORMAT_SAVED": "Datumnotatie opgeslagen",
+			"DATE_FORMAT_NOT_SAVED": "De datumnotatie is niet opgeslagen",
+			"NUMBER_FORMAT_LABEL": "Getalnotatie",
+			"NUMBER_FORMAT_DESCRIPTION": "Hoe rapporten en hun exports bedragen schrijven. Automatisch volgt de taal van elk lid.",
+			"NUMBER_FORMAT_SAVED": "Getalnotatie opgeslagen",
+			"NUMBER_FORMAT_NOT_SAVED": "De getalnotatie is niet opgeslagen",
+			"FORMAT_OUTCOME": "Rapporten en hun exports gebruiken die nu.",
+			"FORMAT_AUTOMATIC": "Automatisch",
+			"READ_ONLY_NOTE": "Alleen beheerders van de werkruimte kunnen deze instellingen wijzigen.",
+			"LOAD_FAILED": "De instellingen van de werkruimte konden niet worden geladen."
 		},
 		"automations": {
 			"NEW_RULE": "Nieuwe regel",

@@ -20,6 +20,7 @@ import {
 	type WeekStart
 } from '@/core/lib/utils/dashboard-period';
 import { endOfDay, startOfDay } from 'date-fns';
+import type { FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 const PRESET_LABEL_KEYS: Record<PeriodPresetKey, DottedLanguageObjectStringPaths> = {
 	today: 'common.TODAY',
@@ -60,30 +61,34 @@ export function PeriodPicker({
 	onChange,
 	presets = DEFAULT_PERIOD_PRESETS,
 	weekStartsOn = 1,
+	locale,
 	className
 }: Readonly<{
 	value: Period;
 	onChange: (period: Period) => void;
 	presets?: ReadonlyArray<PeriodPresetKey>;
 	weekStartsOn?: WeekStart;
+	/** What the dates are written with: the reader's language, unless the page gives its workspace locale. */
+	locale?: FormatLocale;
 	className?: string;
 }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const readerLocale = useLocale();
+	const datesLocale = locale ?? readerLocale;
 	const [isOpen, setIsOpen] = useState(false);
 	const [draft, setDraft] = useState<DateRange | undefined>();
 
 	const activePreset = presetOfPeriod(value, presets, weekStartsOn);
-	const periodText = formatPeriod(value, locale);
+	const periodText = formatPeriod(value, datesLocale);
 	const triggerLabel = triggerLabelOf(activePreset, periodText, t);
 
 	const presetRows = useMemo(
 		() =>
 			presets.map((key) => {
 				const period = periodOfPreset(key, weekStartsOn);
-				return { key, period, label: t(PRESET_LABEL_KEYS[key]), dates: formatPeriod(period, locale) };
+				return { key, period, label: t(PRESET_LABEL_KEYS[key]), dates: formatPeriod(period, datesLocale) };
 			}),
-		[locale, presets, t, weekStartsOn]
+		[datesLocale, presets, t, weekStartsOn]
 	);
 
 	const handleOpenChange = (nextOpen: boolean) => {

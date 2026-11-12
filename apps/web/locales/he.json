@@ -4147,7 +4147,8 @@
 		"groups": {
 			"account": "חשבון",
 			"team": "צוות",
-			"taskProperties": "מאפייני משימות"
+			"taskProperties": "מאפייני משימות",
+			"workspace": "סביבת עבודה"
 		},
 		"entries": {
 			"profile": {
@@ -4205,6 +4206,10 @@
 			"versions": {
 				"TITLE": "גרסאות",
 				"DESCRIPTION": "השחרורים שמשימות יכולות לכוון אליהם."
+			},
+			"workspaceGeneral": {
+				"TITLE": "כללי",
+				"DESCRIPTION": "שם סביבת העבודה, המטבע ותבניות התאריך והמספרים."
 			},
 			"automations": {
 				"TITLE": "אוטומציות",
@@ -4990,6 +4995,35 @@
 			"LOAD_ERROR_TEXT": "ההגדרות שלך לא השתנו. נסו שוב בעוד רגע.",
 			"UNAVAILABLE_TITLE": "עדיין אין מה להגדיר בסביבת העבודה הזו",
 			"UNAVAILABLE_TEXT": "ההתראות שייכות לפרופיל החבר שלך בסביבת עבודה, ולחשבון הזה אין פרופיל כזה כאן. קודם צריך להצטרף לצוות או ליצור צוות."
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "סביבת עבודה",
+			"NAME_LABEL": "שם סביבת העבודה",
+			"NAME_DESCRIPTION": "מוצג בבורר סביבות העבודה ובהזמנות.",
+			"NAME_INVALID": "יש להזין שם באורך 1 עד {max} תווים.",
+			"NAME_SAVED": "שם סביבת העבודה שונה ל-{name}",
+			"NAME_NOT_SAVED": "שם סביבת העבודה לא שונה",
+			"NAME_SUPER_ADMIN_ONLY": "רק מנהל-על של סביבת העבודה יכול לשנות את שמה.",
+			"FORMATS_SECTION": "מטבע ותבניות",
+			"FORMATS_DESCRIPTION": "חלים בכל מקום שבו לא הוגדר משהו מדויק יותר, למשל תעריף עם מטבע משלו.",
+			"CURRENCY_LABEL": "מטבע ברירת מחדל",
+			"CURRENCY_DESCRIPTION": "המטבע שבו מתחילים תעריף חדש או תקציב חדש.",
+			"CURRENCY_SAVED": "מטבע ברירת המחדל הוגדר ל-{currency}",
+			"CURRENCY_OUTCOME": "תעריפים ותקציבים חדשים מתחילים במטבע הזה.",
+			"CURRENCY_NOT_SAVED": "המטבע לא נשמר",
+			"CURRENCY_NOT_SET": "לא הוגדר",
+			"DATE_FORMAT_LABEL": "תבנית תאריך",
+			"DATE_FORMAT_DESCRIPTION": "כך הדוחות וקובצי הייצוא שלהם כותבים תאריכים. „אוטומטי” הולך לפי השפה של כל חבר.",
+			"DATE_FORMAT_SAVED": "תבנית התאריך נשמרה",
+			"DATE_FORMAT_NOT_SAVED": "תבנית התאריך לא נשמרה",
+			"NUMBER_FORMAT_LABEL": "תבנית מספרים",
+			"NUMBER_FORMAT_DESCRIPTION": "כך הדוחות וקובצי הייצוא שלהם כותבים סכומים. „אוטומטי” הולך לפי השפה של כל חבר.",
+			"NUMBER_FORMAT_SAVED": "תבנית המספרים נשמרה",
+			"NUMBER_FORMAT_NOT_SAVED": "תבנית המספרים לא נשמרה",
+			"FORMAT_OUTCOME": "הדוחות וקובצי הייצוא שלהם משתמשים בה מעכשיו.",
+			"FORMAT_AUTOMATIC": "אוטומטי",
+			"READ_ONLY_NOTE": "רק מנהלי סביבת העבודה יכולים לשנות את ההגדרות האלה.",
+			"LOAD_FAILED": "לא ניתן היה לטעון את הגדרות סביבת העבודה."
 		},
 		"automations": {
 			"NEW_RULE": "כלל חדש",
