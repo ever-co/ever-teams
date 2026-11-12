@@ -64,9 +64,13 @@ export function DiaryRowsSkeleton() {
 	);
 }
 
-/** The task (it opens), "now" while its timer runs, and its project on a second line. */
+const NOTES_SEPARATOR = ' · ';
+
+/** The task (it opens), "now" while its timer runs, its project on a second line, then the notes of its entries. */
 function DiaryTaskName({ task }: Readonly<{ task: DiaryTask }>) {
 	const t = useTranslations();
+	const notes = task.notes.join(NOTES_SEPARATOR);
+	const hasNotes = notes !== '';
 	return (
 		<span className="flex min-w-0 flex-col py-0.5">
 			<span className="flex min-w-0 items-baseline gap-1.5">
@@ -78,6 +82,12 @@ function DiaryTaskName({ task }: Readonly<{ task: DiaryTask }>) {
 				)}
 			</span>
 			{task.projectName && <span className="truncate text-xs text-muted-foreground">{task.projectName}</span>}
+			{hasNotes && (
+				<span title={notes} className="truncate text-xs text-muted-foreground">
+					<span className="sr-only">{t('common.NOTES')}: </span>
+					{notes}
+				</span>
+			)}
 		</span>
 	);
 }
