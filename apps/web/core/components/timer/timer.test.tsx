@@ -5,11 +5,13 @@
  * mobile app, the extension, or another tab on another team's task) reads as stopped there, and they offer Start. That
  * Start never stops the run: it says time is already tracked elsewhere (#5117). A run the timer shows still stops.
  */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import type { HotkeysEvent } from 'hotkeys-js';
 import { Provider, createStore } from 'jotai';
 import type { ReactNode } from 'react';
 import { toast } from 'sonner';
 
+import { useHotkeys } from '@/core/hooks/common/use-hotkeys';
 import { ALREADY_TRACKING_TOAST_ID } from '@/core/hooks/timer/use-timer-api';
 import {
 	activeTeamIdState,
@@ -112,5 +114,33 @@ describe.each([
 
 		expect(mockStopTimer).toHaveBeenCalledTimes(1);
 		expect(toast.warning).not.toHaveBeenCalled();
+	});
+});
+
+describe('the start key of the dashboard timer', () => {
+	/** Presses a key of the timer shortcut: hotkeys-js calls the handler the timer registered last. */
+	const pressShortcut = (shortcut: string) => {
+		const [, onShortcut] = jest.mocked(useHotkeys).mock.calls.at(-1)!;
+		act(() => onShortcut(undefined, { shortcut } as HotkeysEvent));
+	};
+
+	it('answers like the Start button: a run the timer does not show is never stopped', () => {
+		renderTimerWith(<Timer />, desktopRunElsewhere);
+
+		pressShortcut('ctrl+alt+]');
+
+		expect(mockStopTimer).not.toHaveBeenCalled();
+		expect(mockStartTimer).not.toHaveBeenCalled();
+		expect(toast.warning).toHaveBeenCalledWith('timer.ALREADY_TRACKING_MESSAGE', { id: ALREADY_TRACKING_TOAST_ID });
+	});
+
+	it('leaves a run the timer shows to the stop key', () => {
+		renderTimerWith(<Timer />, runOnListedTask);
+
+		pressShortcut('ctrl+alt+]');
+		expect(mockStopTimer).not.toHaveBeenCalled();
+
+		pressShortcut('ctrl+alt+[');
+		expect(mockStopTimer).toHaveBeenCalledTimes(1);
 	});
 });
