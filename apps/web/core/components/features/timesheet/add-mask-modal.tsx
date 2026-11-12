@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { TranslationHooks, useTranslations } from 'next-intl';
+import { DottedLanguageObjectStringPaths, TranslationHooks, useTranslations } from 'next-intl';
 import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components/teams/manage-member-component';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
@@ -15,7 +15,7 @@ import {
 } from '@/core/components/common/select';
 import { useCreateTimesheet } from '@/core/hooks/timesheet/use-create-timesheet';
 import { toUTC } from '@/core/lib/helpers/index';
-import { Plus, Spinner } from '@/core/components/icons';
+import { CircleAlert, Plus, Spinner } from '@/core/components/icons';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { controlGroupRecipe, controlRecipe } from '@/core/components/common/input';
 import { CustomSelect } from '../../common/multiple-select';
@@ -27,7 +27,7 @@ import { ETimeLogType, ETimeLogSource } from '@/core/types/generics/enums/timer'
 import { useAtomValue } from 'jotai';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
-import { timeOptionsWith } from '@/core/lib/utils/dashboards/manual-time-entry';
+import { requiredEntryFieldsKeyOf, timeOptionsWith } from '@/core/lib/utils/dashboards/manual-time-entry';
 import { entryProjectIdOf, findProject, projectChoicesFor } from '@/core/lib/utils/dashboards/time-entry-task';
 import type { TOrganizationProject } from '@/core/types/schemas/organization/organization-project.schema';
 
@@ -136,6 +136,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
 	// The required task and employee: Save stays disabled until both are picked
 	const hasTaskAndEmployee = Boolean(formState.taskId) && Boolean(formState.employeeId);
+	const [missingFieldKey, setMissingFieldKey] = React.useState<string | null>(null);
 
 	const updateFormState = useCallback((field: keyof typeof formState, value: any) => {
 		setFormState((prevState) => ({
@@ -241,6 +242,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 			employeeId: formState.employeeId,
 			organizationTeamId: activeTeam?.id
 		};
+		setMissingFieldKey(null);
 		try {
 			// Both are required (the form marks them): one cleared by a team switch must be picked again first
 			if (!formState.taskId || !formState.employeeId) {
@@ -280,6 +282,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 			closeModal();
 		} catch (error) {
 			console.error('Failed to create timesheet:', error);
+			setMissingFieldKey(requiredEntryFieldsKeyOf(error));
 		}
 	};
 
@@ -406,6 +409,12 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						{formState.notes.length}/{120}
 					</div>
 				</div>
+				{missingFieldKey && (
+					<p role="alert" className="flex items-start gap-1.5 text-[13px] text-destructive-ink">
+						<CircleAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+						{t(missingFieldKey as DottedLanguageObjectStringPaths)}
+					</p>
+				)}
 				<div className="flex gap-x-2 justify-end items-center w-full">
 					<Button variant="outline" size="lg" type="button" onClick={closeModal}>
 						{t('common.CANCEL')}

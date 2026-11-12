@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { AddTaskModal } from './add-mask-modal';
 
 const mockCreateTimesheet = jest.fn();
@@ -447,5 +448,41 @@ describe('AddTaskModal duration of a shift', () => {
 		save();
 
 		expect(mockCreateTimesheet).not.toHaveBeenCalled();
+	});
+});
+
+describe('AddTaskModal refusal', () => {
+	beforeEach(() => {
+		mockCreateTimesheet.mockReset();
+		mockAtomValues.activeTeamState = teamA;
+		mockAtomValues.tasksByTeamState = [taskA];
+		jest.spyOn(console, 'error').mockImplementation(() => undefined);
+	});
+
+	function saveFilledForm() {
+		renderAddTimeForm();
+		pickTaskAndEmployee('task-a', 'employee-a');
+		fillShiftTimes();
+		save();
+	}
+
+	it('names the field the organization requires when the API refuses the time for it', async () => {
+		const refusal = new ApiErrorService('Bad request', 400, 'TRACKING_FIELD_REQUIRED', { fields: ['projectId'] });
+		mockCreateTimesheet.mockRejectedValue(refusal);
+
+		saveFilledForm();
+
+		const alert = await screen.findByRole('alert');
+		expect(alert.textContent).toBe('manualTime.REQUIRED.PROJECT');
+		expect(closeModal).not.toHaveBeenCalled();
+	});
+
+	it('adds no line of its own for another failure, which the failure toast reports', async () => {
+		mockCreateTimesheet.mockRejectedValue(new ApiErrorService('Forbidden', 403));
+
+		saveFilledForm();
+		await act(async () => undefined);
+
+		expect(screen.queryByRole('alert')).toBeNull();
 	});
 });

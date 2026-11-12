@@ -13,8 +13,7 @@ import { Input, controlGroupRecipe, controlRecipe } from '@/core/components/comm
 import { BillableSwitch } from '@/core/components/common/billable-switch';
 import { DialogFieldLabel } from '@/core/components/common/dialog-field-label';
 import { DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
-import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
-import { minutesOfClockText } from '@/core/lib/utils/dashboards/manual-time-entry';
+import { manualTimeRefusalKeyOf, minutesOfClockText } from '@/core/lib/utils/dashboards/manual-time-entry';
 import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import { FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 
@@ -319,7 +318,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	useEffect(() => {
 		if (addManualTimeError && addManualTimeFailure) {
 			// The reason in words, never the server's own text
-			const reasonKey = errorReasonKeyOf(addManualTimeFailure) as DottedLanguageObjectStringPaths;
+			const reasonKey = manualTimeRefusalKeyOf(addManualTimeFailure) as DottedLanguageObjectStringPaths;
 			setErrorMsg(t(reasonKey));
 		}
 	}, [addManualTimeError, addManualTimeFailure, t]);

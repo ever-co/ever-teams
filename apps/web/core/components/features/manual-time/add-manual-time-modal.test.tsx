@@ -3,6 +3,7 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { DurationEntryInput } from '@/core/hooks/timesheet/use-duration-entry';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { AddManualTimeModal } from './add-manual-time-modal';
 
 const mockAddManualTime = jest.fn();
@@ -49,13 +50,16 @@ jest.mock('@/core/stores', () => ({
 	tasksByTeamState: 'tasksByTeamState'
 }));
 
+// What the API answered to the last save; nothing until a test sets a failure
+const mockManualTimeFailure: { error?: unknown } = {};
 jest.mock('@/core/hooks/activities/use-manual-time', () => ({
 	useManualTime: () => ({
 		addManualTime: mockAddManualTime,
 		addManualTimeLoading: false,
 		addManualTimeSuccess: false,
-		addManualTimeError: false,
+		addManualTimeError: mockManualTimeFailure.error !== undefined,
 		addManualTimeErrorMessage: undefined,
+		addManualTimeFailure: mockManualTimeFailure.error,
 		timeLog: undefined
 	})
 }));
@@ -459,5 +463,35 @@ describe('AddManualTimeModal duration', () => {
 		submitDialog();
 
 		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+});
+
+describe('AddManualTimeModal refusal', () => {
+	beforeEach(() => {
+		mockAddManualTime.mockReset();
+		mockAtomValues.activeTeamState = teamA;
+		mockAtomValues.activeTeamTaskState = taskA;
+		mockAtomValues.organizationTeamsState = [teamA, teamB];
+		mockAtomValues.tasksByTeamState = teamATasks();
+	});
+
+	afterEach(() => {
+		mockManualTimeFailure.error = undefined;
+	});
+
+	it('names the field the organization requires when the API refuses the time for it', () => {
+		mockManualTimeFailure.error = new ApiErrorService('Bad request', 400, 'TRACKING_FIELD_REQUIRED', {
+			fields: ['projectId']
+		});
+		renderAddTimeDialog();
+
+		expect(screen.getByRole('alert').textContent).toBe('manualTime.REQUIRED.PROJECT');
+	});
+
+	it('gives any other refusal the reason of its status', () => {
+		mockManualTimeFailure.error = new ApiErrorService('Forbidden', 403);
+		renderAddTimeDialog();
+
+		expect(screen.getByRole('alert').textContent).toBe('toasts.REASONS.PERMISSION');
 	});
 });
