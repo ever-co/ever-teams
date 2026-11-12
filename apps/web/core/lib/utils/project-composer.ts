@@ -1,5 +1,6 @@
 import { addDays, differenceInDays, isAfter, isEqual } from 'date-fns';
 import type { DottedLanguageObjectStringPaths } from 'next-intl';
+import { billableFieldOf } from '@/core/lib/utils/project-billable';
 import { isValidUrl } from '@/core/lib/utils/is-valid-url';
 import { personFromProjectMember, realDateOf, type ProjectPerson } from '@/core/lib/utils/project-list';
 import { EProjectBilling, EProjectBudgetType } from '@/core/types/generics/enums/project';
@@ -70,6 +71,8 @@ export interface ProjectDraft {
 	tagIds: string[];
 	budgetType: EProjectBudgetType;
 	budget: number | null;
+	/** Whether time on the project starts as billable; null while nobody chose, and the save then leaves it out. */
+	billable: boolean | null;
 	currency: string | null;
 	billing: EProjectBilling;
 }
@@ -148,6 +151,7 @@ export function emptyProjectDraft(activeTeamId: string | null | undefined, today
 		tagIds: [],
 		budgetType: EProjectBudgetType.HOURS,
 		budget: null,
+		billable: null,
 		currency: null,
 		billing: EProjectBilling.FLAT_FEE
 	};
@@ -180,6 +184,7 @@ export function draftFromProject(project: TOrganizationProject, activeTeamId: st
 		tagIds: idsOf(project.tags),
 		budgetType: project.budgetType ?? EProjectBudgetType.HOURS,
 		budget: budgetOf(project.budget),
+		billable: project.billable ?? null,
 		currency: project.currency ?? null,
 		billing: project.billing ?? EProjectBilling.FLAT_FEE
 	};
@@ -429,6 +434,7 @@ export function buildProjectRequest(draft: ProjectDraft, context: ProjectRequest
 		currency: draft.currency ?? undefined,
 		budgetType: draft.budgetType,
 		billing: draft.billing,
+		...billableFieldOf(draft.billable),
 		teams: selectedTeams,
 		status: status as ETaskStatusName,
 		isActive: base?.isActive ?? true,
