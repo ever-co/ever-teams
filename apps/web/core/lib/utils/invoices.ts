@@ -12,6 +12,7 @@ import {
 	roundedAmountOf,
 	type OwedCurrencyTotal
 } from '@/core/lib/utils/dashboards/payments-due';
+import { invoiceTotalsOf, NO_ADJUSTMENTS, type InvoiceAdjustments } from '@/core/lib/utils/invoice-totals';
 import { effectiveBillRate, employeeRateValueOf, rateValueOf } from '@/core/lib/utils/rates';
 
 export interface BillableLogLike {
@@ -792,9 +793,19 @@ export interface InvoiceRequestInput {
 	timeZone: string | null | undefined;
 	lines: ReadonlyArray<NamedInvoiceLine>;
 	descriptions: ReadonlyMap<string, string>;
+	adjustments?: InvoiceAdjustments;
 }
 
-function itemRequestOf(line: NamedInvoiceLine, input: InvoiceRequestInput): InvoiceItemRequest {
+function isAboveZero(percent: number | null) {
+	const value = percent ?? 0;
+	return value > 0;
+}
+
+function itemRequestOf(
+	line: NamedInvoiceLine,
+	input: InvoiceRequestInput,
+	adjustments: InvoiceAdjustments
+): InvoiceItemRequest {
 	const item: InvoiceItemRequest = {
 		description: lineDescriptionOf(line, input.descriptions),
 		price: line.rate,
@@ -802,8 +813,9 @@ function itemRequestOf(line: NamedInvoiceLine, input: InvoiceRequestInput): Invo
 		totalValue: line.amount,
 		invoiceId: input.id,
 		projectId: line.projectId,
-		applyTax: false,
-		applyDiscount: false,
+		// The invoice's tax and discount apply to every line; the API's own screen totals the lines that say so.
+		applyTax: isAboveZero(adjustments.taxPercent),
+		applyDiscount: isAboveZero(adjustments.discountPercent),
 		organizationId: input.organizationId,
 		tenantId: input.tenantId
 	};
@@ -826,10 +838,13 @@ function totalOfLines(lines: ReadonlyArray<NamedInvoiceLine>) {
 
 /**
  * The invoice and its lines as the API's create route takes them, a draft billed by project hours. Lines priced in
- * another currency than the invoice's are refused: an invoice has one currency and never adds two.
+ * another currency than the invoice's are refused: an invoice has one currency and never adds two. The API's PDF
+ * prints the total as it is stored, so it is stored with the discount and the tax in it.
  */
 export function buildInvoiceRequest(input: InvoiceRequestInput): InvoiceRequest {
 	const lines = input.lines.filter((line) => line.currency === input.currency);
+	const { adjustments = NO_ADJUSTMENTS } = input;
+	const totals = invoiceTotalsOf(totalOfLines(lines), adjustments);
 	return {
 		id: input.id,
 		invoiceNumber: input.invoiceNumber,
@@ -837,15 +852,15 @@ export function buildInvoiceRequest(input: InvoiceRequestInput): InvoiceRequest 
 		dueDate: dayEndOf(input.dueDay, input.timeZone),
 		currency: input.currency,
 		// The API's PDF prints these values as they are: left out, the document reads "null".
-		discountValue: 0,
+		discountValue: adjustments.discountPercent ?? 0,
 		discountType: 'PERCENT',
-		tax: 0,
+		tax: adjustments.taxPercent ?? 0,
 		taxType: 'PERCENT',
 		tax2: 0,
 		tax2Type: 'PERCENT',
 		terms: invoiceTermsOf(input.period),
 		paid: false,
-		totalValue: totalOfLines(lines),
+		totalValue: totals.total,
 		status: 'DRAFT',
 		isEstimate: false,
 		invoiceType: 'BY_PROJECT_HOURS',
@@ -854,7 +869,7 @@ export function buildInvoiceRequest(input: InvoiceRequestInput): InvoiceRequest 
 		fromOrganizationId: input.organizationId,
 		organizationId: input.organizationId,
 		tenantId: input.tenantId,
-		invoiceItems: lines.map((line) => itemRequestOf(line, input))
+		invoiceItems: lines.map((line) => itemRequestOf(line, input, adjustments))
 	};
 }
 

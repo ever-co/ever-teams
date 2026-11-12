@@ -28,6 +28,7 @@ import {
 	type InvoiceLineNames,
 	type LinePrice
 } from './invoices';
+import { invoiceTotalsOf } from './invoice-totals';
 
 const HOUR = 3600;
 
@@ -566,6 +567,34 @@ describe('buildInvoiceRequest', () => {
 				tenantId: 'tenant-1'
 			}
 		]);
+	});
+
+	it('saves a 10 % discount and a 20 % tax on 1,000.00 with the total shown, 1,080.00', () => {
+		const tenHours: BillableEntry[] = [{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 10 * HOUR }];
+		const priced = invoiceTimeOf({ entries: tenHours, grouping: 'member', priceOf: flatPrice(100, 'EUR') });
+		const subtotal = invoiceCurrenciesOf(priced.lines)[0].amount;
+		const adjustments = { discountPercent: 10, taxPercent: 20 };
+
+		const adjusted = buildInvoiceRequest({
+			id: 'inv-2',
+			organizationId: 'org-1',
+			tenantId: 'tenant-1',
+			clientId: 'c1',
+			invoiceNumber: 14,
+			issueDay: '2026-11-02',
+			dueDay: '2026-12-02',
+			currency: 'EUR',
+			period: { fromDay: '2026-10-01', toDay: '2026-10-31' },
+			timeZone: 'Europe/Paris',
+			lines: namedLinesOf(priced.lines, 'member', names),
+			descriptions: new Map(),
+			adjustments
+		});
+
+		expect(adjusted).toMatchObject({ discountValue: 10, discountType: 'PERCENT', tax: 20, taxType: 'PERCENT' });
+		expect(adjusted.totalValue).toBe(1080);
+		expect(adjusted.totalValue).toBe(invoiceTotalsOf(subtotal, adjustments).total);
+		expect(adjusted.invoiceItems[0]).toMatchObject({ totalValue: 1000, applyTax: true, applyDiscount: true });
 	});
 });
 
