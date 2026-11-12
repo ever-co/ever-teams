@@ -69,6 +69,7 @@ export function useNewInvoice() {
 	const [typedNumber, setTypedNumber] = useState<string | null>(null);
 	const [issueDay, setIssueDay] = useState(() => todayDayKey());
 	const [pickedDueDay, setPickedDueDay] = useState<string | null>(null);
+	const [typedNote, setTypedNote] = useState<string | null>(null);
 
 	const client = useMemo(
 		() => clients.find((candidate) => candidate.id === pickedClientId) ?? null,
@@ -110,6 +111,7 @@ export function useNewInvoice() {
 	const termDueDay = dueDayAfter(issueDay, dueTerm.days);
 	const dueDay = pickedDueDay ?? termDueDay;
 	const isDueDayOfTerm = dueDay !== '' && dueDay === termDueDay;
+	const note = typedNote ?? organization?.defaultInvoiceEstimateTerms ?? '';
 
 	const periodDays = useMemo(() => invoicePeriodDaysOf(period), [period]);
 	const earlier = useClientInvoices(clientId);
@@ -187,7 +189,8 @@ export function useNewInvoice() {
 			period: periodDays,
 			timeZone,
 			lines: keptLines,
-			descriptions
+			descriptions,
+			note
 		});
 	}, [
 		clientId,
@@ -197,6 +200,7 @@ export function useNewInvoice() {
 		isOrganizationKnown,
 		issueDay,
 		keptLines,
+		note,
 		numberText,
 		periodDays,
 		problems.length,
@@ -262,6 +266,8 @@ export function useNewInvoice() {
 		setDueDay: setPickedDueDay,
 		dueTerm,
 		isDueDayOfTerm,
+		note,
+		setNote: setTypedNote,
 		earlierInvoices: earlier.invoices,
 		areEarlierLoading: earlier.isLoading,
 		haveEarlierFailed: earlier.isError,

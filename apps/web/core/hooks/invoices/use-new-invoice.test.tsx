@@ -3,7 +3,7 @@
 import React from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
-import type { InvoiceLine } from '@/core/lib/utils/invoices';
+import { invoiceTermsOf, type InvoiceLine } from '@/core/lib/utils/invoices';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { TOrganization } from '@/core/types/schemas';
 
@@ -119,6 +119,36 @@ describe('saving a new invoice and the organisation it is dated by', () => {
 		const request = mockCreateInvoice.mock.calls[0][0];
 		expect(request.dueDate).toBe('2099-12-31T14:59:59.999Z');
 		expect(result.current.isOrganizationLoading).toBe(false);
+	});
+});
+
+describe('the note to the client', () => {
+	beforeEach(() => {
+		mockCreateInvoice.mockReset();
+		mockCreateInvoice.mockResolvedValue({ id: 'invoice-1' });
+	});
+
+	it('starts with the workspace’s default terms and is saved under the period', async () => {
+		const organization = { ...tokyoOrganization, defaultInvoiceEstimateTerms: 'Payment by bank transfer.' };
+		const { result } = renderNewInvoice(organization);
+		act(() => result.current.setDueDay('2099-12-31'));
+
+		await act(async () => {
+			await result.current.save();
+		});
+
+		expect(result.current.note).toBe('Payment by bank transfer.');
+		const request = mockCreateInvoice.mock.calls[0][0];
+		expect(request.terms).toBe(invoiceTermsOf(result.current.periodDays, 'Payment by bank transfer.'));
+	});
+
+	it('keeps what the user writes instead', () => {
+		const organization = { ...tokyoOrganization, defaultInvoiceEstimateTerms: 'Payment by bank transfer.' };
+		const { result } = renderNewInvoice(organization);
+
+		act(() => result.current.setNote(''));
+
+		expect(result.current.note).toBe('');
 	});
 });
 
