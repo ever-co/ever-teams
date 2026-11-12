@@ -122,6 +122,7 @@ export const createProjectRequestSchema = organizationProjectBaseSchema
 		endDate: true,
 		archivedAt: true,
 		billing: true,
+		billable: true,
 		currency: true,
 		teams: true,
 		status: true
