@@ -323,6 +323,11 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			setActiveTeamId('');
 			return;
 		}
+		// The team cookie is shared by every tab, and this runs on each new team list (each read while a timer runs):
+		// a tab keeps its own team while the list holds it, so a switch made in another tab never moves it, nor stops
+		// its timer (#5120). At startup, or once its team is gone, the cookie still picks the team.
+		const keepsOwnTeam = latestTeams.some((team) => team.id === activeTeamIdRef.current);
+		if (keepsOwnTeam) return;
 		let selectedId = getActiveTeamIdCookie();
 		if (!selectedId && typeof window !== 'undefined') {
 			selectedId = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || '';
@@ -381,16 +386,20 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			return;
 		}
 
-		// TEAM SELECTION PRIORITY LOGIC
-		let teamId = getActiveTeamIdCookie();
+		// TEAM SELECTION PRIORITY LOGIC: the cookie, else this browser's last team, else the user's last team
+		let storedTeamId = getActiveTeamIdCookie();
 
-		if (!teamId && typeof window !== 'undefined') {
-			teamId = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || '';
+		if (!storedTeamId && typeof window !== 'undefined') {
+			storedTeamId = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || '';
 		}
 
-		if (!teamId && user?.lastTeamId) {
-			teamId = user.lastTeamId;
+		if (!storedTeamId && user?.lastTeamId) {
+			storedTeamId = user.lastTeamId;
 		}
+
+		// This tab's own team first, as the cookie may name another tab's team (#5120)
+		const ownTeamId = activeTeamIdRef.current;
+		let teamId = ownTeamId || storedTeamId;
 
 		setActiveTeamId(teamId);
 
@@ -407,16 +416,35 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 				setIsTeamMemberJustDeleted(true);
 			}
 
-			const selectedTeamExists = latestTeams.find((team: any) => team.id === teamId);
+			// A team the person picked while the list was read stands while the list holds it: no fallback below replaces
+			// it, as a team change would stop a timer they may have started on it since. One the list leaves out goes
+			// through the missing-team fallback, as the team the reload started from would.
+			const currentTeamId = activeTeamIdRef.current;
+			const isPickedMeanwhile = !!currentTeamId && currentTeamId !== teamId;
+			if (isPickedMeanwhile) {
+				teamId = currentTeamId;
+			}
+			const isPickedAndListed = isPickedMeanwhile && latestTeams.some((team) => team.id === currentTeamId);
 
-			if (!selectedTeamExists && teamId && latestTeams.length) {
+			// This tab's own team counts only while the list holds it: once it is gone, the stored team decides, as in
+			// the list effect, before the list's first team
+			const ownTeamIsGone = !!ownTeamId && !latestTeams.some((team) => team.id === ownTeamId);
+			const storedTeam = latestTeams.find((team) => team.id === storedTeamId);
+			const selectedTeamExists = (id: string) => latestTeams.some((team) => team.id === id);
+
+			if (!latestTeams.length) {
+				teamId = '';
+			} else if (isPickedAndListed) {
+				// Kept as picked, with its detail read below
+			} else if (!isPickedMeanwhile && ownTeamIsGone && storedTeam) {
+				setActiveTeam(storedTeam);
+				teamId = storedTeam.id;
+			} else if (!selectedTeamExists(teamId) && teamId) {
 				setIsTeamMemberJustDeleted(true);
 				setActiveTeam(latestTeams[0]);
 				// NOTE: Update local teamId to match the new active team
 				// This prevents fetching details for the removed team
 				teamId = latestTeams[0].id;
-			} else if (!latestTeams.length) {
-				teamId = '';
 			}
 
 			if (teamId) {
@@ -438,6 +466,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			throw error;
 		}
 	}, [
+		activeTeamIdRef,
 		queryClient,
 		user?.employee?.organizationId,
 		user?.employee?.tenantId,
