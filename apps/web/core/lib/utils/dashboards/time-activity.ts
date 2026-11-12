@@ -683,6 +683,46 @@ export function weekGridRowsOf(
 	return rows.sort((first, second) => collator.compare(first.name, second.name));
 }
 
+function emptyWeekGridRowOf(row: DailyReportRow, dayCount: number): WeekGridRow {
+	const seconds = Array.from({ length: dayCount }, () => 0);
+	return {
+		employeeId: row.employeeId,
+		name: row.employeeName,
+		imageUrl: row.employeeImageUrl,
+		seconds,
+		total: 0
+	};
+}
+
+/**
+ * The week grid from the period's daily rows, for a filter the weekly report cannot apply: one row per member with
+ * time on the days given, as the weekly report lists them.
+ */
+export function weekGridRowsOfDailyRows(
+	rows: ReadonlyArray<DailyReportRow>,
+	dayKeys: ReadonlyArray<string>,
+	locale: string
+): WeekGridRow[] {
+	const indexByDay = new Map<string, number>();
+	dayKeys.forEach((dayKey, index) => {
+		indexByDay.set(dayKey, index);
+	});
+	const byMember = new Map<string, WeekGridRow>();
+	for (const row of rows) {
+		const dayIndex = indexByDay.get(row.dateKey);
+		if (dayIndex === undefined) {
+			continue;
+		}
+		const gridRow = byMember.get(row.employeeId) ?? emptyWeekGridRowOf(row, dayKeys.length);
+		gridRow.seconds[dayIndex] += row.seconds;
+		gridRow.total += row.seconds;
+		byMember.set(row.employeeId, gridRow);
+	}
+	const collator = new Intl.Collator(locale);
+	const gridRows = [...byMember.values()];
+	return gridRows.sort((first, second) => collator.compare(first.name, second.name));
+}
+
 export function weekColumnTotalsOf(rows: ReadonlyArray<WeekGridRow>, dayCount: number) {
 	const totals = Array.from({ length: dayCount }, () => 0);
 	for (const row of rows) {

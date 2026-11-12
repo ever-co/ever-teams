@@ -1,5 +1,6 @@
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
-import { exportRowsOf } from './time-activity';
+import type { DailyReportRow } from '@/core/lib/utils/daily-report-figures';
+import { exportRowsOf, weekColumnTotalsOf, weekGridRowsOfDailyRows } from './time-activity';
 
 const employee = { id: 'employee-a', fullName: 'Ada Lovelace' };
 
@@ -49,5 +50,49 @@ describe('Time & Activity export rows', () => {
 		const rows = exportRowsOf(reportOf([task('home', 600)]), null, 'No team');
 
 		expect(rows[0].project).toBe('Website');
+	});
+});
+
+describe('Time & Activity week grid from the daily rows', () => {
+	const dailyRow = (employeeId: string, name: string, dateKey: string, seconds: number): DailyReportRow => ({
+		key: `${dateKey}:${employeeId}:${seconds}`,
+		dateKey,
+		employeeId,
+		employeeName: name,
+		employeeImageUrl: null,
+		billRateValue: null,
+		billRateCurrency: null,
+		projectId: null,
+		projectName: null,
+		projectImageUrl: null,
+		projectColor: null,
+		seconds,
+		activeSeconds: 0,
+		tasks: []
+	});
+	const week = ['2026-11-02', '2026-11-03', '2026-11-04'];
+	const rows = [
+		dailyRow('grace', 'Grace', '2026-11-03', 600),
+		dailyRow('ada', 'Ada', '2026-11-02', 1200),
+		dailyRow('ada', 'Ada', '2026-11-02', 300),
+		dailyRow('ada', 'Ada', '2026-11-04', 60),
+		dailyRow('ada', 'Ada', '2026-11-09', 9999)
+	];
+
+	it("adds up each member's time per day of the week, members by name", () => {
+		const grid = weekGridRowsOfDailyRows(rows, week, 'en');
+
+		const summary = grid.map((row) => [row.name, row.seconds, row.total]);
+		expect(summary).toEqual([
+			['Ada', [1500, 0, 60], 1560],
+			['Grace', [0, 600, 0], 600]
+		]);
+		expect(weekColumnTotalsOf(grid, week.length)).toEqual([1500, 600, 60]);
+	});
+
+	it('lists nobody whose time falls on other days', () => {
+		const grid = weekGridRowsOfDailyRows(rows, ['2026-11-05'], 'en');
+
+		expect(grid).toEqual([]);
 	});
 });
