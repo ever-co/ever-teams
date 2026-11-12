@@ -148,7 +148,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const { createTimesheet, loadingCreateTimesheet } = useCreateTimesheet();
-	const overlapGuard = useTimeOverlapGuard();
+	const overlapGuard = useTimeOverlapGuard({ isOpen });
 
 	const timeOptions = generateTimeOptions(5);
 	const t = useTranslations();

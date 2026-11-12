@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
@@ -18,6 +18,11 @@ export interface TimeOverlapGuardRequest {
 	/** The entry being edited, which its own new interval never removes. */
 	ignoredLogId?: string;
 	save: Save;
+}
+
+export interface TimeOverlapGuardOptions {
+	/** Whether the dialog is open: closing it drops a lookup still running and a save still waiting to be confirmed. */
+	isOpen?: boolean;
 }
 
 const NO_OVERLAP: OverlapSummary = { totalSeconds: 0, entries: [] };
@@ -55,9 +60,10 @@ function conflictsOfPeriod(
  * Stands between a manual time dialog and its save. The API removes, without a word, every other entry of the
  * member that a manual entry overlaps, whole: this asks the API what overlaps first, saves at once when nothing
  * does, and otherwise holds the save until the member confirms what would be removed. A lookup that fails
- * saves nothing.
+ * saves nothing. A dialog closed or unmounted while its lookup runs saves nothing either, and opens again
+ * without the confirmation.
  */
-export function useTimeOverlapGuard() {
+export function useTimeOverlapGuard({ isOpen = true }: TimeOverlapGuardOptions = {}) {
 	const queryClient = useQueryClient();
 	const [isChecking, setIsChecking] = useState(false);
 	const [hasCheckFailed, setHasCheckFailed] = useState(false);
@@ -66,6 +72,34 @@ export function useTimeOverlapGuard() {
 	const [summary, setSummary] = useState<OverlapSummary>(NO_OVERLAP);
 	const heldSaveRef = useRef<Save | null>(null);
 	const isCheckingRef = useRef(false);
+	// Raised by every lookup, and when the dialog closes or unmounts: the answer to an earlier lookup is dropped
+	const attemptRef = useRef(0);
+
+	// The dialog closed: what it showed of a lookup or a confirmation goes with it
+	const [wasOpen, setWasOpen] = useState(isOpen);
+	if (wasOpen !== isOpen) {
+		setWasOpen(isOpen);
+		if (!isOpen) {
+			setIsChecking(false);
+			setHasCheckFailed(false);
+			setIsConfirmOpen(false);
+		}
+	}
+	useEffect(() => {
+		if (isOpen) {
+			return;
+		}
+		attemptRef.current += 1;
+		heldSaveRef.current = null;
+		isCheckingRef.current = false;
+	}, [isOpen]);
+	useEffect(
+		() => () => {
+			attemptRef.current += 1;
+			heldSaveRef.current = null;
+		},
+		[]
+	);
 
 	const saveAfterCheck = useCallback(
 		async ({ employeeId, periods, ignoredLogId, save }: TimeOverlapGuardRequest) => {
@@ -78,6 +112,8 @@ export function useTimeOverlapGuard() {
 				await save();
 				return;
 			}
+			attemptRef.current += 1;
+			const attempt = attemptRef.current;
 			isCheckingRef.current = true;
 			setIsChecking(true);
 			let overlap: OverlapSummary;
@@ -89,12 +125,21 @@ export function useTimeOverlapGuard() {
 				const logs = conflictsPerPeriod.flat();
 				overlap = overlapSummaryOf({ periods, logs, ignoredLogId, now: new Date() });
 			} catch (error) {
-				logErrorInDev('Time overlap check failed', error);
-				setHasCheckFailed(true);
+				if (attempt === attemptRef.current) {
+					logErrorInDev('Time overlap check failed', error);
+					setHasCheckFailed(true);
+				}
 				return;
 			} finally {
-				isCheckingRef.current = false;
-				setIsChecking(false);
+				// A dialog closed meanwhile already reset these, and may have started a lookup of its own since
+				if (attempt === attemptRef.current) {
+					isCheckingRef.current = false;
+					setIsChecking(false);
+				}
+			}
+			// Closed while the lookup ran: the member dismissed this save, so it is neither sent nor asked about
+			if (attempt !== attemptRef.current) {
+				return;
 			}
 			const removesNothing = overlap.entries.length === 0;
 			if (removesNothing) {

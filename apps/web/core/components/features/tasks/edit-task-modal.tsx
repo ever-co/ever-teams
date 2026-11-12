@@ -37,7 +37,7 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 	const activeTeam = useAtomValue(activeTeamState);
 	const t = useTranslations();
 	const { mutateAsync: updateTimeLog, isPending: isUpdateTimeLogLoading } = useUpdateTimeLogMutation();
-	const overlapGuard = useTimeOverlapGuard();
+	const overlapGuard = useTimeOverlapGuard({ isOpen });
 	const saveAfterOverlapCheck = overlapGuard.saveAfterCheck;
 	const isSaving = isUpdateTimeLogLoading || overlapGuard.isChecking;
 	const initialTimeRange = {

@@ -33,7 +33,19 @@ function renderGuard() {
 	const wrapper = ({ children }: PropsWithChildren) => (
 		<QueryClientProvider client={client}>{children}</QueryClientProvider>
 	);
-	return renderHook(() => useTimeOverlapGuard(), { wrapper });
+	return renderHook((props: { isOpen: boolean }) => useTimeOverlapGuard(props), {
+		wrapper,
+		initialProps: { isOpen: true }
+	});
+}
+
+// A lookup the test answers when it chooses, to close or unmount the dialog while it runs
+function pendingLookup() {
+	let answer: (logs: unknown[]) => void = () => undefined;
+	const promise = new Promise<unknown[]>((resolve) => {
+		answer = resolve;
+	});
+	return { promise, answer: (logs: unknown[]) => answer(logs) };
 }
 
 describe('useTimeOverlapGuard', () => {
@@ -173,6 +185,111 @@ describe('useTimeOverlapGuard', () => {
 		expect(mockGetTimeLogConflicts).toHaveBeenCalledTimes(2);
 		expect(save).toHaveBeenCalledTimes(1);
 		expect(result.current.isConfirmOpen).toBe(true);
+	});
+
+	it('saves nothing when the dialog closes while the lookup runs', async () => {
+		const lookup = pendingLookup();
+		mockGetTimeLogConflicts.mockReturnValue(lookup.promise);
+		const save = jest.fn();
+		const { result, rerender } = renderGuard();
+		let attempt: Promise<void> = Promise.resolve();
+		act(() => {
+			attempt = result.current.saveAfterCheck({ employeeId: 'employee-a', periods: [eveningPeriod], save });
+		});
+		expect(result.current.isChecking).toBe(true);
+
+		rerender({ isOpen: false });
+		await act(async () => {
+			lookup.answer([]);
+			await attempt;
+		});
+
+		expect(save).not.toHaveBeenCalled();
+		expect(result.current.isChecking).toBe(false);
+		expect(result.current.isConfirmOpen).toBe(false);
+	});
+
+	it('asks nothing when the dialog closes while the lookup of an overlap runs', async () => {
+		const lookup = pendingLookup();
+		mockGetTimeLogConflicts.mockReturnValue(lookup.promise);
+		const save = jest.fn();
+		const { result, rerender } = renderGuard();
+		let attempt: Promise<void> = Promise.resolve();
+		act(() => {
+			attempt = result.current.saveAfterCheck({ employeeId: 'employee-a', periods: [eveningPeriod], save });
+		});
+
+		rerender({ isOpen: false });
+		await act(async () => {
+			lookup.answer([trackedLog]);
+			await attempt;
+		});
+		rerender({ isOpen: true });
+		act(() => result.current.confirm());
+
+		expect(result.current.isConfirmOpen).toBe(false);
+		expect(save).not.toHaveBeenCalled();
+	});
+
+	it('drops a confirmation still waiting when the dialog closes, and opens again without it', async () => {
+		mockGetTimeLogConflicts.mockResolvedValue([trackedLog]);
+		const save = jest.fn();
+		const { result, rerender } = renderGuard();
+		await act(() => result.current.saveAfterCheck({ employeeId: 'employee-a', periods: [eveningPeriod], save }));
+		expect(result.current.isConfirmOpen).toBe(true);
+
+		rerender({ isOpen: false });
+		rerender({ isOpen: true });
+		act(() => result.current.confirm());
+
+		expect(result.current.isConfirmOpen).toBe(false);
+		expect(save).not.toHaveBeenCalled();
+	});
+
+	it('saves nothing when the dialog unmounts while the lookup runs', async () => {
+		const lookup = pendingLookup();
+		mockGetTimeLogConflicts.mockReturnValue(lookup.promise);
+		const save = jest.fn();
+		const { result, unmount } = renderGuard();
+		let attempt: Promise<void> = Promise.resolve();
+		act(() => {
+			attempt = result.current.saveAfterCheck({ employeeId: 'employee-a', periods: [eveningPeriod], save });
+		});
+
+		unmount();
+		lookup.answer([]);
+		await attempt;
+
+		expect(save).not.toHaveBeenCalled();
+	});
+
+	it('checks the next save of a reopened dialog, while the lookup of the closed one still runs', async () => {
+		const closedLookup = pendingLookup();
+		mockGetTimeLogConflicts.mockReturnValueOnce(closedLookup.promise);
+		mockGetTimeLogConflicts.mockResolvedValueOnce([]);
+		const dismissedSave = jest.fn();
+		const save = jest.fn();
+		const { result, rerender } = renderGuard();
+		let closedAttempt: Promise<void> = Promise.resolve();
+		act(() => {
+			closedAttempt = result.current.saveAfterCheck({
+				employeeId: 'employee-a',
+				periods: [eveningPeriod],
+				save: dismissedSave
+			});
+		});
+		rerender({ isOpen: false });
+		rerender({ isOpen: true });
+
+		await act(() => result.current.saveAfterCheck({ employeeId: 'employee-a', periods: [morningPeriod], save }));
+		await act(async () => {
+			closedLookup.answer([]);
+			await closedAttempt;
+		});
+
+		expect(save).toHaveBeenCalledTimes(1);
+		expect(dismissedSave).not.toHaveBeenCalled();
+		expect(result.current.isChecking).toBe(false);
 	});
 
 	it('leaves the refusal to the API when no member is known', async () => {

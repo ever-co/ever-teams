@@ -168,7 +168,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		addManualTimeFailure,
 		timeLog
 	} = useManualTime();
-	const overlapGuard = useTimeOverlapGuard();
+	const overlapGuard = useTimeOverlapGuard({ isOpen });
 	const saveAfterOverlapCheck = overlapGuard.saveAfterCheck;
 	const ownEmployeeId = user?.employee?.id ?? '';
 
