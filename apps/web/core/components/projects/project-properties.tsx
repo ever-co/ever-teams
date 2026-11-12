@@ -31,6 +31,7 @@ import {
 } from '@/core/components/projects/project-cells';
 import { AvatarStack } from '@/core/components/teams/people-avatars';
 import { cn } from '@/core/lib/helpers';
+import { isBillableByDefault } from '@/core/lib/utils/project-billable';
 import {
 	clientNameOf,
 	contributorsOf,
@@ -332,9 +333,9 @@ export function ProjectFacts({ project }: Readonly<{ project: TOrganizationProje
 		[EProjectBilling.FLAT_FEE]: t('common.FLAT_FEE'),
 		[EProjectBilling.MILESTONES]: t('common.MILESTONES')
 	});
-	const hasBillable = typeof project.billable === 'boolean';
+	const isBillable = isBillableByDefault(project);
 	let billableLabel = t('common.NO');
-	if (project.billable) {
+	if (isBillable) {
 		billableLabel = t('common.YES');
 	}
 	return (
@@ -358,7 +359,7 @@ export function ProjectFacts({ project }: Readonly<{ project: TOrganizationProje
 						{project.currency}
 					</FactRow>
 				)}
-				{hasBillable && <FactRow label={t('pages.projects.detail.BILLABLE')}>{billableLabel}</FactRow>}
+				<FactRow label={t('pages.projects.billable.LABEL')}>{billableLabel}</FactRow>
 			</div>
 		</section>
 	);
