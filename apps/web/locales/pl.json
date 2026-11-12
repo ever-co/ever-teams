@@ -3922,6 +3922,7 @@
 		"MIC_LEVEL": "Poziom mikrofonu",
 		"TEST_SPEAKER": "Testuj głośnik",
 		"SPEAKER_LEVEL": "Poziom głośnika",
+		"SPEAKER_TEST_FAILED": "Nie udało się odtworzyć dźwięku testowego na tym głośniku.",
 		"TEST_MICROPHONE": "Testuj mikrofon",
 		"DEVICES_BLOCKED": "Kamera i mikrofon są zablokowane",
 		"DEVICES_BLOCKED_HINT": "Zezwól na nie dla tej witryny w przeglądarce i spróbuj ponownie. Możesz też dołączyć bez nich.",

@@ -3922,6 +3922,7 @@
 		"MIC_LEVEL": "麦克风音量",
 		"TEST_SPEAKER": "测试扬声器",
 		"SPEAKER_LEVEL": "扬声器音量",
+		"SPEAKER_TEST_FAILED": "无法在此扬声器上播放测试音。",
 		"TEST_MICROPHONE": "测试麦克风",
 		"DEVICES_BLOCKED": "摄像头和麦克风已被阻止",
 		"DEVICES_BLOCKED_HINT": "请在浏览器中为此网站允许它们，然后重试。你也可以不使用它们加入。",

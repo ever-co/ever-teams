@@ -3922,6 +3922,7 @@
 		"MIC_LEVEL": "Livello del microfono",
 		"TEST_SPEAKER": "Prova altoparlante",
 		"SPEAKER_LEVEL": "Livello dell’altoparlante",
+		"SPEAKER_TEST_FAILED": "Non è stato possibile riprodurre il suono di prova su questo altoparlante.",
 		"TEST_MICROPHONE": "Prova microfono",
 		"DEVICES_BLOCKED": "Fotocamera e microfono bloccati",
 		"DEVICES_BLOCKED_HINT": "Consentili per questo sito nel browser, poi riprova. Puoi anche partecipare senza.",

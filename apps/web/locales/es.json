@@ -3922,6 +3922,7 @@
 		"MIC_LEVEL": "Nivel del micrófono",
 		"TEST_SPEAKER": "Probar altavoz",
 		"SPEAKER_LEVEL": "Nivel del altavoz",
+		"SPEAKER_TEST_FAILED": "El sonido de prueba no se pudo reproducir en este altavoz.",
 		"TEST_MICROPHONE": "Probar micrófono",
 		"DEVICES_BLOCKED": "Cámara y micrófono bloqueados",
 		"DEVICES_BLOCKED_HINT": "Permítelos para este sitio en tu navegador y vuelve a intentarlo. También puedes unirte sin ellos.",

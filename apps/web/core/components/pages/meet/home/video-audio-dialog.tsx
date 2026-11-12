@@ -162,6 +162,11 @@ function VideoAudioSettings({ onClose }: Readonly<{ onClose: () => void }>) {
 						</Button>
 						<LevelMeter level={speakerLevel} label={t('meetings.SPEAKER_LEVEL')} tone="light" />
 					</div>
+					{speakerTest.hasFailed && (
+						<p role="alert" className="text-xs text-destructive-ink">
+							{t('meetings.SPEAKER_TEST_FAILED')}
+						</p>
+					)}
 				</div>
 				{canChooseDevices && (
 					<div className="flex flex-col gap-2">

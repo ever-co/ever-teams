@@ -84,4 +84,42 @@ describe('useSpeakerTest', () => {
 		expect(result.current.isPlaying).toBe(false);
 		expect(contexts[0].close).toHaveBeenCalled();
 	});
+
+	it('plays nothing and says so when the speaker picked refuses the tone, until a test plays again', async () => {
+		const contexts = installAudioContext();
+		setSinkId.mockRejectedValueOnce(
+			Object.assign(new Error('Requested device not found'), { name: 'NotFoundError' })
+		);
+		const { result } = renderHook(() => useSpeakerTest());
+
+		await act(async () => {
+			await result.current.play('speaker-gone');
+		});
+
+		expect(result.current.hasFailed).toBe(true);
+		expect(result.current.isPlaying).toBe(false);
+		expect(result.current.toneStream).toBeNull();
+		expect(contexts[0].oscillator.start).not.toHaveBeenCalled();
+		expect(contexts[0].close).toHaveBeenCalled();
+
+		await act(async () => {
+			await result.current.play('speaker-2');
+		});
+		expect(result.current.hasFailed).toBe(false);
+		expect(result.current.isPlaying).toBe(true);
+	});
+
+	it('plays on the default speaker where the browser cannot pick one', async () => {
+		installAudioContext();
+		Object.assign(HTMLMediaElement.prototype, { setSinkId: undefined });
+		const { result } = renderHook(() => useSpeakerTest());
+
+		await act(async () => {
+			await result.current.play('speaker-2');
+		});
+
+		expect(play).toHaveBeenCalledTimes(1);
+		expect(result.current.isPlaying).toBe(true);
+		expect(result.current.hasFailed).toBe(false);
+	});
 });

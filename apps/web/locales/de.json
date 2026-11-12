@@ -3922,6 +3922,7 @@
 		"MIC_LEVEL": "Mikrofonpegel",
 		"TEST_SPEAKER": "Lautsprecher testen",
 		"SPEAKER_LEVEL": "Lautsprecherpegel",
+		"SPEAKER_TEST_FAILED": "Der Testton konnte auf diesem Lautsprecher nicht abgespielt werden.",
 		"TEST_MICROPHONE": "Mikrofon testen",
 		"DEVICES_BLOCKED": "Kamera und Mikrofon sind blockiert",
 		"DEVICES_BLOCKED_HINT": "Erlaube sie für diese Website in deinem Browser und versuche es erneut. Du kannst auch ohne sie beitreten.",

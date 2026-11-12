@@ -14,10 +14,12 @@ type SinkableAudio = HTMLAudioElement & { setSinkId?: (sinkId: string) => Promis
 
 /**
  * A short tone through the speaker picked, to hear that it is the right one, and the stream it plays, for a level
- * meter. A browser that cannot pick an output plays it on the default one.
+ * meter. A browser that cannot pick an output plays it on the default one; a speaker that refuses it plays nothing,
+ * and `hasFailed` says so.
  */
 export function useSpeakerTest() {
 	const [toneStream, setToneStream] = useState<MediaStream | null>(null);
+	const [hasFailed, setHasFailed] = useState(false);
 	const endToneRef = useRef<(() => void) | null>(null);
 
 	const stop = useCallback(() => {
@@ -29,6 +31,7 @@ export function useSpeakerTest() {
 	const play = useCallback(
 		async (sinkId: string) => {
 			stop();
+			setHasFailed(false);
 			const AudioContextClass = typeof window === 'undefined' ? undefined : window.AudioContext;
 			if (!AudioContextClass) {
 				return;
@@ -67,7 +70,14 @@ export function useSpeakerTest() {
 				}
 				await audio.play();
 			} catch {
-				// A speaker unplugged meanwhile, or sound not allowed yet: the tone plays where it can, or not at all
+				// A speaker unplugged meanwhile, or sound not allowed yet: no tone, rather than one nobody hears
+				const isCurrent = endToneRef.current === endTone;
+				endTone();
+				if (isCurrent) {
+					endToneRef.current = null;
+					setHasFailed(true);
+				}
+				return;
 			}
 			if (hasEnded) {
 				return;
@@ -82,5 +92,5 @@ export function useSpeakerTest() {
 	// Leaving the settings ends the tone
 	useEffect(() => stop, [stop]);
 
-	return { isPlaying: toneStream !== null, toneStream, play, stop };
+	return { isPlaying: toneStream !== null, toneStream, hasFailed, play, stop };
 }

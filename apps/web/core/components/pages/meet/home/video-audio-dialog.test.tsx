@@ -5,6 +5,7 @@ import { VideoAudioDialog } from './video-audio-dialog';
 const mockPlayTone = jest.fn();
 const mockStopTone = jest.fn();
 let mockIsPlaying = false;
+let mockHasFailed = false;
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 // The meter's reading, from any stream with a microphone in it; nothing without one
@@ -15,6 +16,7 @@ jest.mock('@/core/hooks/meetings/use-speaker-test', () => ({
 	useSpeakerTest: () => ({
 		isPlaying: mockIsPlaying,
 		toneStream: null,
+		hasFailed: mockHasFailed,
 		play: mockPlayTone,
 		stop: mockStopTone
 	})
@@ -73,6 +75,7 @@ describe('VideoAudioDialog', () => {
 	beforeEach(() => {
 		streams = [];
 		mockIsPlaying = false;
+		mockHasFailed = false;
 		mockPlayTone.mockReset();
 		mockStopTone.mockReset();
 		window.localStorage.clear();
@@ -179,5 +182,14 @@ describe('VideoAudioDialog', () => {
 			noiseFilter: false,
 			hdVideo: false
 		});
+	});
+
+	it('says when the test sound could not play on the speaker', async () => {
+		const media = installDevices();
+		mockHasFailed = true;
+		render(<VideoAudioDialog open onClose={jest.fn()} />);
+		await waitFor(() => expect(media.enumerateDevices).toHaveBeenCalledTimes(2));
+
+		expect(screen.getByRole('alert').textContent).toBe('meetings.SPEAKER_TEST_FAILED');
 	});
 });
