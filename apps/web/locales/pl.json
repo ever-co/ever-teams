@@ -2508,7 +2508,19 @@
 			"SEARCH_PROJECT": "Przenieś do projektu…",
 			"LAYOUT": "Układ",
 			"LAYOUT_LIST": "Lista",
-			"LAYOUT_BOARD": "Tablica"
+			"LAYOUT_BOARD": "Tablica",
+			"LAYOUT_TIMELINE": "Oś czasu",
+			"TIMELINE_ZOOM": "Powiększenie",
+			"TIMELINE_ZOOM_WEEKS": "Tygodnie",
+			"TIMELINE_ZOOM_MONTHS": "Miesiące",
+			"TIMELINE_EMPTY": "Brak zadań w tym widoku.",
+			"TIMELINE_UNSCHEDULED": "Bez dat ({count})",
+			"TIMELINE_RANGE": "{start} – {end}",
+			"TIMELINE_DUE_ONLY": "tylko termin",
+			"TIMELINE_START_ONLY": "tylko data rozpoczęcia",
+			"TIMELINE_INVALID_RANGE": "termin przed rozpoczęciem",
+			"TIMELINE_OVERDUE": "po terminie",
+			"TIMELINE_DRAG_HINT": "Przeciągnij, aby zmienić daty, lub Alt + strzałki (Alt + Shift + strzałki: termin)."
 		},
 		"joinTeam": {
 			"TITLE": "Dołącz do zespołu",

@@ -2508,7 +2508,19 @@
 			"SEARCH_PROJECT": "Move to a project…",
 			"LAYOUT": "Layout",
 			"LAYOUT_LIST": "List",
-			"LAYOUT_BOARD": "Board"
+			"LAYOUT_BOARD": "Board",
+			"LAYOUT_TIMELINE": "Timeline",
+			"TIMELINE_ZOOM": "Zoom",
+			"TIMELINE_ZOOM_WEEKS": "Weeks",
+			"TIMELINE_ZOOM_MONTHS": "Months",
+			"TIMELINE_EMPTY": "No tasks in this view.",
+			"TIMELINE_UNSCHEDULED": "Without dates ({count})",
+			"TIMELINE_RANGE": "{start} – {end}",
+			"TIMELINE_DUE_ONLY": "due date only",
+			"TIMELINE_START_ONLY": "start date only",
+			"TIMELINE_INVALID_RANGE": "due before it starts",
+			"TIMELINE_OVERDUE": "overdue",
+			"TIMELINE_DRAG_HINT": "Drag to change the dates, or Alt + arrows (Alt + Shift + arrows: the due date)."
 		},
 		"joinTeam": {
 			"TITLE": "Join a team",

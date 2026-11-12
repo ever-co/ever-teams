@@ -2007,17 +2007,20 @@ describe('Ever Teams feature surface preservation', () => {
 		// (GET /api/plugins/docs/documents/[id]/export/markdown), which develop added without raising these numbers.
 		// 294 files and 377 verbs with the scheduled meetings' proxies (/api/employee-appointment GET, POST and [id] DELETE).
 		// 295 files and 378 verbs with the Inbox delivery status proxy (GET /api/inbox/delivery/status).
-		// 297 files and 380 verbs with the clicks on app message buttons (POST /api/chat/messages/[id]/interactions,
+		// 296 files and 379 verbs with the link preview pictures proxy (GET /api/chat/link-preview/image).
+		// 298 files and 381 verbs with the clicks on app message buttons (POST /api/chat/messages/[id]/interactions,
 		// GET /api/chat/interactions/[id]).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(297);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(298);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(380);
+		).toHaveLength(381);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of the platform's clicks on app message buttons (incoming webhooks, 2026-11-11)
 				'apps/web/app/api/chat/messages/[id]/interactions/route.ts::POST',
 				'apps/web/app/api/chat/interactions/[id]/route.ts::GET',
+				// Proxy mode twin of the platform's link preview pictures (2026-11-12)
+				'apps/web/app/api/chat/link-preview/image/route.ts::GET',
 				// Proxy mode twin of the platform's Inbox delivery status (2026-11-11)
 				'apps/web/app/api/inbox/delivery/status/route.ts::GET',
 				// Proxy mode twins of Gauzy's employee appointments, the scheduled meetings (#5021)

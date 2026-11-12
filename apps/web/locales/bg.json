@@ -2508,7 +2508,19 @@
 			"SEARCH_PROJECT": "Премести в проект…",
 			"LAYOUT": "Изглед",
 			"LAYOUT_LIST": "Списък",
-			"LAYOUT_BOARD": "Табло"
+			"LAYOUT_BOARD": "Табло",
+			"LAYOUT_TIMELINE": "Времева линия",
+			"TIMELINE_ZOOM": "Мащаб",
+			"TIMELINE_ZOOM_WEEKS": "Седмици",
+			"TIMELINE_ZOOM_MONTHS": "Месеци",
+			"TIMELINE_EMPTY": "Няма задачи в този изглед.",
+			"TIMELINE_UNSCHEDULED": "Без дати ({count})",
+			"TIMELINE_RANGE": "{start} – {end}",
+			"TIMELINE_DUE_ONLY": "само краен срок",
+			"TIMELINE_START_ONLY": "само начална дата",
+			"TIMELINE_INVALID_RANGE": "краен срок преди началото",
+			"TIMELINE_OVERDUE": "просрочена",
+			"TIMELINE_DRAG_HINT": "Плъзнете, за да промените датите, или Alt + стрелки (Alt + Shift + стрелки: крайният срок)."
 		},
 		"joinTeam": {
 			"TITLE": "Присъединяване към екип",

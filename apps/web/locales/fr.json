@@ -2508,7 +2508,19 @@
 			"SEARCH_PROJECT": "Déplacer vers un projet…",
 			"LAYOUT": "Disposition",
 			"LAYOUT_LIST": "Liste",
-			"LAYOUT_BOARD": "Tableau"
+			"LAYOUT_BOARD": "Tableau",
+			"LAYOUT_TIMELINE": "Chronologie",
+			"TIMELINE_ZOOM": "Zoom",
+			"TIMELINE_ZOOM_WEEKS": "Semaines",
+			"TIMELINE_ZOOM_MONTHS": "Mois",
+			"TIMELINE_EMPTY": "Aucune tâche dans cette vue.",
+			"TIMELINE_UNSCHEDULED": "Sans dates ({count})",
+			"TIMELINE_RANGE": "{start} – {end}",
+			"TIMELINE_DUE_ONLY": "échéance seulement",
+			"TIMELINE_START_ONLY": "début seulement",
+			"TIMELINE_INVALID_RANGE": "échéance avant le début",
+			"TIMELINE_OVERDUE": "en retard",
+			"TIMELINE_DRAG_HINT": "Faites glisser pour changer les dates, ou Alt + flèches (Alt + Maj + flèches : l’échéance)."
 		},
 		"joinTeam": {
 			"TITLE": "Rejoindre une équipe",

@@ -3,12 +3,11 @@ import { isDefaultView, viewSettingsFromStorage } from './team-tasks-view-storag
 import { definitionOf, isSameDefinition, columnsOf, DEFAULT_TASK_VIEW_DEFINITION } from './task-views';
 
 describe('the layout of a view', () => {
-	it('keeps a board, and reads anything else as the list every view has been', () => {
+	it('keeps a board and a timeline, and reads anything else as the list every view has been', () => {
 		expect(viewSettingsFromStorage({ ...DEFAULT_TEAM_TASKS_VIEW, layout: 'board' }).layout).toBe('board');
+		expect(viewSettingsFromStorage({ ...DEFAULT_TEAM_TASKS_VIEW, layout: 'timeline' }).layout).toBe('timeline');
 		expect(viewSettingsFromStorage({ ...DEFAULT_TEAM_TASKS_VIEW, layout: 'list' })).not.toHaveProperty('layout');
-		expect(viewSettingsFromStorage({ ...DEFAULT_TEAM_TASKS_VIEW, layout: 'timeline' })).not.toHaveProperty(
-			'layout'
-		);
+		expect(viewSettingsFromStorage({ ...DEFAULT_TEAM_TASKS_VIEW, layout: 'gantt' })).not.toHaveProperty('layout');
 		expect(viewSettingsFromStorage({ ...DEFAULT_TEAM_TASKS_VIEW })).not.toHaveProperty('layout');
 	});
 

@@ -11,7 +11,7 @@ import {
 
 const GROUPINGS: TeamTasksGrouping[] = ['status', 'priority', 'assignee', 'project', 'issueType', 'none'];
 
-const LAYOUTS: TeamTasksLayout[] = ['list', 'board'];
+const LAYOUTS: TeamTasksLayout[] = ['list', 'board', 'timeline'];
 
 const ORDERINGS: TeamTasksOrdering[] = ['priority', 'updated', 'created', 'dueDate', 'number', 'title'];
 
@@ -65,8 +65,8 @@ export function viewSettingsFromStorage(
 	const defaults = DEFAULT_TEAM_TASKS_VIEW;
 	const layout = pick(stored.layout, LAYOUTS, 'list');
 	return {
-		// Only a board is kept: a list is what a view without a layout has always been, so nothing else changes.
-		...(layout === 'board' ? { layout } : {}),
+		// A board or a timeline is kept: a list is what a view without a layout has always been, so nothing else changes.
+		...(layout !== 'list' ? { layout } : {}),
 		grouping: pick(stored.grouping, GROUPINGS, defaults.grouping),
 		ordering: pick(stored.ordering, orderings, defaults.ordering),
 		isDescending: booleanOr(stored.isDescending, defaults.isDescending),

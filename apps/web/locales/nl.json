@@ -2508,7 +2508,19 @@
 			"SEARCH_PROJECT": "Naar een project verplaatsen…",
 			"LAYOUT": "Weergave",
 			"LAYOUT_LIST": "Lijst",
-			"LAYOUT_BOARD": "Bord"
+			"LAYOUT_BOARD": "Bord",
+			"LAYOUT_TIMELINE": "Tijdlijn",
+			"TIMELINE_ZOOM": "Zoom",
+			"TIMELINE_ZOOM_WEEKS": "Weken",
+			"TIMELINE_ZOOM_MONTHS": "Maanden",
+			"TIMELINE_EMPTY": "Geen taken in deze weergave.",
+			"TIMELINE_UNSCHEDULED": "Zonder datums ({count})",
+			"TIMELINE_RANGE": "{start} – {end}",
+			"TIMELINE_DUE_ONLY": "alleen einddatum",
+			"TIMELINE_START_ONLY": "alleen startdatum",
+			"TIMELINE_INVALID_RANGE": "einddatum vóór de start",
+			"TIMELINE_OVERDUE": "te laat",
+			"TIMELINE_DRAG_HINT": "Sleep om de datums te wijzigen, of Alt + pijltjes (Alt + Shift + pijltjes: de einddatum)."
 		},
 		"joinTeam": {
 			"TITLE": "Lid worden van een team",
