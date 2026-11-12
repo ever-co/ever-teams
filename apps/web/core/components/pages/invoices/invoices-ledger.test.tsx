@@ -16,6 +16,17 @@ jest.mock('next-intl', () => ({
 }));
 jest.mock('@/core/components/icons', () => ({ Download: () => null, Loader: () => null }));
 jest.mock('@/core/components/common/entity-tile', () => ({ EntityTile: () => null }));
+let mockIsCompact = false;
+jest.mock('@/core/hooks/common/use-media-query', () => ({ useMediaQuery: () => mockIsCompact }));
+jest.mock('./invoice-actions-menu', () => ({
+	InvoiceActionsMenu: ({ download }: { download?: unknown }) => {
+		let label = 'menu';
+		if (download) {
+			label = 'menu with the PDF';
+		}
+		return <button type="button">{label}</button>;
+	}
+}));
 
 import { InvoicesLedger } from './invoices-ledger';
 
@@ -79,5 +90,54 @@ describe('a row of the invoices list', () => {
 		expect(period.fromLarge.length).toBeGreaterThan(0);
 		expect(due.belowLarge.length).toBeGreaterThan(0);
 		expect(due.fromLarge.length).toBeGreaterThan(0);
+	});
+});
+
+describe('the buttons of a row of the invoices list', () => {
+	afterEach(() => {
+		mockIsCompact = false;
+	});
+
+	function renderRowIn(status: string) {
+		render(
+			<InvoicesLedger
+				invoices={[{ ...invoice, status }]}
+				clientNames={new Map()}
+				timeZone="UTC"
+				pendingPdfId={null}
+				onDownload={jest.fn()}
+				canEdit
+				changingId={null}
+				onAction={jest.fn()}
+			/>
+		);
+	}
+
+	function buttonNames() {
+		return screen.getAllByRole('button').map((button) => button.getAttribute('aria-label') ?? button.textContent);
+	}
+
+	const downloadName = 'invoices.DOWNLOAD_PDF_OF {"number":"42"}';
+
+	it('keeps one button on a narrow screen: the menu, which holds the PDF', () => {
+		mockIsCompact = true;
+
+		renderRowIn('DRAFT');
+
+		expect(buttonNames()).toEqual(['menu with the PDF']);
+	});
+
+	it('keeps the download alone on a narrow screen for an invoice without actions', () => {
+		mockIsCompact = true;
+
+		renderRowIn('VOID');
+
+		expect(buttonNames()).toEqual([downloadName]);
+	});
+
+	it('shows the download button and the menu side by side on a wide screen', () => {
+		renderRowIn('DRAFT');
+
+		expect(buttonNames()).toEqual([downloadName, 'menu']);
 	});
 });
