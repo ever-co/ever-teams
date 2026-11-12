@@ -17,7 +17,12 @@ import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
 import { useTimerActions } from '@/core/hooks/timer';
 import { useTimerPlanStatus } from '@/core/hooks/timer/use-timer-plan-status';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
-import { paletteStartActionOf, paletteStartValueOf, tasksToStartFor } from '@/core/lib/utils/timer/palette-timer';
+import {
+	paletteNumberLabelOf,
+	paletteStartActionOf,
+	paletteStartValueOf,
+	tasksToStartFor
+} from '@/core/lib/utils/timer/palette-timer';
 import { tasksByTeamState, timerStatusState } from '@/core/stores';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
@@ -142,13 +147,6 @@ function PaletteTimerStart({ task }: Readonly<{ task: TTask }>) {
 	return <TimerPlanDialogs modals={modals} />;
 }
 
-function numberLabelOf(task: TTask) {
-	if (!task.taskNumber) {
-		return '';
-	}
-	return `#${task.taskNumber}`;
-}
-
 interface PaletteTimerStartResultsProps {
 	search: string;
 	onStartTimer: (task: TTask) => void;
@@ -193,7 +191,7 @@ interface PaletteTimerStartRowProps {
 function PaletteTimerStartRow({ task, value, keywords, onStartTimer }: Readonly<PaletteTimerStartRowProps>) {
 	const t = useTranslations();
 	const startTimer = useCallback(() => onStartTimer(task), [onStartTimer, task]);
-	const numberLabel = numberLabelOf(task);
+	const numberLabel = paletteNumberLabelOf(task);
 
 	return (
 		<CommandItem

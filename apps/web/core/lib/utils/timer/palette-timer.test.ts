@@ -27,6 +27,10 @@ describe('tasksToStartFor', () => {
 		expect(idsOf(tasksToStartFor(TASKS, 'web-13', ACTION_LABEL))).toEqual(['2']);
 	});
 
+	it('finds a task by its number typed as its entry shows it', () => {
+		expect(idsOf(tasksToStartFor(TASKS, '#WEB-13', ACTION_LABEL))).toEqual(['2']);
+	});
+
 	it('keeps only the tasks that hold every word typed', () => {
 		expect(idsOf(tasksToStartFor(TASKS, 'fix login', ACTION_LABEL))).toEqual(['1']);
 	});

@@ -13,8 +13,16 @@ function searchWordsOf(search: string): string[] {
 	return words.filter((word) => word !== '');
 }
 
+export function paletteNumberLabelOf(task: PaletteStartTask): string {
+	if (!task.taskNumber) {
+		return '';
+	}
+	return `#${task.taskNumber}`;
+}
+
+// The number is searched as the entry shows it: "#WEB-13" typed back finds the task, and "WEB-13" still does
 function searchTextOf(task: PaletteStartTask, actionLabel: string): string {
-	const parts = [actionLabel, task.taskNumber, task.title];
+	const parts = [actionLabel, paletteNumberLabelOf(task), task.title];
 	const text = parts.filter(Boolean).join(' ');
 	return text.toLowerCase();
 }
