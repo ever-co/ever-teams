@@ -343,6 +343,32 @@ export function placementOf(seconds: number, windows: ReadonlyArray<TimeWindow>,
 	return mergedWindowsOf(pieces);
 }
 
+function runsAcross(window: TimeWindow, instant: Date) {
+	const startsBefore = window.start.getTime() < instant.getTime();
+	const endsAfter = window.end.getTime() > instant.getTime();
+	return startsBefore && endsAfter;
+}
+
+/**
+ * Where `seconds` go when they must stay in one piece, as a form saves one start and one end: the first free stretch
+ * long enough, tried in the order `placementOf` fills a day. The time from 09:00 onward first, then the stretch that
+ * runs across 09:00, then the ones before it, nearest first. Null when no stretch is long enough.
+ */
+export function singlePlacementOf(seconds: number, windows: ReadonlyArray<TimeWindow>, day: Date): TimeWindow | null {
+	const anchor = placementAnchorOf(day);
+	const pass = placementPassOf(windows, anchor);
+	const acrossAnchor = windows.filter((window) => runsAcross(window, anchor));
+	const stretches = [...pass.fromAnchor, ...acrossAnchor, ...pass.beforeAnchor];
+	for (const stretch of stretches) {
+		const pieces = placementOf(seconds, [stretch], day);
+		const piece = pieces?.at(0);
+		if (piece) {
+			return piece;
+		}
+	}
+	return null;
+}
+
 export interface ReductionPlan {
 	deleteIds: string[];
 	shorten: { log: ITimeLog; stoppedAt: Date } | null;

@@ -26,6 +26,7 @@ import { ETimeLogType, ETimeLogSource } from '@/core/types/generics/enums/timer'
 import { useAtomValue } from 'jotai';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import { entryProjectIdOf, findProject, projectChoicesFor } from '@/core/lib/utils/dashboards/time-entry-task';
 import type { TOrganizationProject } from '@/core/types/schemas/organization/organization-project.schema';
 
 export interface IAddTaskModalProps {
@@ -94,46 +95,12 @@ const clearSkippedTimes = (shift: Shift, day: Date) => {
 	if (clearStart || clearEnd) shift.totalHours = '00:00h';
 };
 
-function findProject(projectId: string | null | undefined, projects: TOrganizationProject[]) {
-	if (!projectId) {
-		return undefined;
-	}
-	return projects.find((project) => project.id === projectId);
-}
-
-/** The project of an entry on this task: the task's own project as it is now, or else the one picked by hand. */
-function entryProjectIdOf(task: { projectId?: string | null } | undefined, pickedProjectId: string): string {
-	const taskProjectId = task?.projectId;
-	if (taskProjectId) {
-		return taskProjectId;
-	}
-	return pickedProjectId;
-}
-
 /** The billable value picked by hand, or else the entry's project's own setting. */
 function billableOf(billableChoice: boolean | null, project: TOrganizationProject | null): boolean {
 	if (billableChoice !== null) {
 		return billableChoice;
 	}
 	return project?.billable === true;
-}
-
-/**
- * A task's time goes to the task's own project: when the task has one, it is the only project offered. A task
- * project missing from the list (archived, or not loaded yet) offers none, since another pick would not be saved.
- */
-function projectChoicesFor(
-	taskProjectId: string | null | undefined,
-	taskProject: TOrganizationProject | undefined,
-	projects: TOrganizationProject[]
-) {
-	if (!taskProjectId) {
-		return projects;
-	}
-	if (taskProject) {
-		return [taskProject];
-	}
-	return [];
 }
 
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
