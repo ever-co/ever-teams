@@ -10,6 +10,9 @@ let mockTasks: Array<Record<string, unknown>> = [];
 jest.mock('@/core/hooks/task-views/use-bulk-task-update', () => ({
 	useBulkTaskUpdate: () => ({ bulkUpdate: mockBulkUpdate, isBulkAvailable: mockBulkAvailable })
 }));
+jest.mock('@/core/hooks/task-views/built-in-view-task-cache', () => ({
+	showTaskChangeInBuiltInViews: () => () => undefined
+}));
 jest.mock('@/core/hooks/organizations/teams/use-update-task', () => ({
 	useUpdateTask: () => ({ updateTask: mockUpdateTask })
 }));

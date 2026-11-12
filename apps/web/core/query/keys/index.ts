@@ -368,6 +368,8 @@ export const queryKeys = {
 			userId: string | undefined | null,
 			viewId: string | undefined | null
 		) => ['task-views', 'detail', tenantId ?? null, organizationId ?? null, userId ?? null, viewId ?? null] as const,
+		/** Prefix shared by every builtIn key */
+		builtInAll: ['task-views', 'built-in'] as const,
 		builtIn: (
 			tenantId: string | undefined | null,
 			organizationId: string | undefined | null,
