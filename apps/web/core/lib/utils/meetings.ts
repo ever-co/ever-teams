@@ -310,7 +310,7 @@ export function meetingInviteesOf(members: readonly InvitableMember[], ownEmail?
 }
 
 /** A participant as a mail client lists them, "Ana Silva <ana@acme.com>": the address between the angle brackets. */
-const NAMED_ADDRESS = /<([^<>]*)>/g;
+const NAMED_ADDRESS = /<([^<>]*)>/;
 /** A display name in quotes may hold a comma: it goes before the participants are told apart. */
 const QUOTED_NAME = /"[^"]*"/g;
 
@@ -326,8 +326,11 @@ export function participantsWithText(
 	const found: string[] = [];
 	const rejected: string[] = [];
 	for (const entry of text.replace(QUOTED_NAME, ' ').split(/[,;\n]+/)) {
-		const named = Array.from(entry.matchAll(NAMED_ADDRESS), (match) => match[1]);
-		const words = named.length > 0 ? named : entry.split(/\s+/);
+		// Split on the bracketed addresses: the odd parts are those addresses, the text before each is its name, and
+		// the text after the last one is words of their own ("Bob <bob@acme.com> bad@" still reports bad@)
+		const parts = entry.split(NAMED_ADDRESS);
+		const addresses = parts.filter((_, index) => index % 2 === 1);
+		const words = [...addresses, ...(parts.at(-1) ?? '').split(/\s+/)];
 		for (const word of words.map((part) => part.trim()).filter(Boolean)) {
 			const address = word.toLowerCase();
 			if (isEmail(address)) {

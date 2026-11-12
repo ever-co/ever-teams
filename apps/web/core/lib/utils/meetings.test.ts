@@ -258,6 +258,15 @@ describe('scheduled meetings', () => {
 			emails: ['ana@acme.com', 'bob@acme.com'],
 			rejected: []
 		});
+		// What follows the last bracketed address is no name: it is read, and told when it is no address
+		expect(participantsWithText([], 'Bob <bob@example.org> bad@')).toEqual({
+			emails: ['bob@example.org'],
+			rejected: ['bad@']
+		});
+		expect(participantsWithText([], 'Ana <ana@acme.com> Bob <bob@acme.com> carol@acme.com')).toEqual({
+			emails: ['ana@acme.com', 'bob@acme.com', 'carol@acme.com'],
+			rejected: []
+		});
 	});
 
 	it('reschedules a meeting with its title, time and link only, so Gauzy keeps the rest', () => {
