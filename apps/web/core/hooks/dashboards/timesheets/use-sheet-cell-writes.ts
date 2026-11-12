@@ -8,6 +8,7 @@ import { requiredTrackingFieldsMessageKeyOf, requiredTrackingFieldsOf } from '@/
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import {
+	approvedDayKeysOf,
 	busyWindowsOf,
 	type CopyCellPlan,
 	type CopyFit,
@@ -242,6 +243,14 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 			if (isUnchanged) {
 				return 'unchanged';
 			}
+			const approvedDayKeys = approvedDayKeysOf(memberLogs);
+			const isDayApproved = approvedDayKeys.has(day.key);
+			if (isDayApproved) {
+				toast.error(translate('dashboard.timesheets.SHEET.EDIT.SAVE_FAILED'), {
+					description: translate('dashboard.timesheets.SHEET.EDIT.LOCK_APPROVED')
+				});
+				return 'refused';
+			}
 			const isRaise = targetSeconds > currentSeconds;
 			if (isRaise) {
 				const addedSeconds = addedSecondsOf(targetSeconds, currentSeconds);
@@ -310,8 +319,8 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 
 	/**
 	 * Fills empty cells from last week, one after the other, on the member's logs read from the API when the run
-	 * starts. A cell filled since the copy was prepared is left alone, and the time each plan places counts as taken
-	 * for the next ones of the same day.
+	 * starts. A cell filled, or a day approved, since the copy was prepared is left alone, and the time each plan
+	 * places counts as taken for the next ones of the same day.
 	 */
 	const applyCopyPlan = useCallback(
 		(plans: ReadonlyArray<CopyCellPlan>): Promise<CopyRunResult> => {
@@ -327,10 +336,12 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 				const placedByDay = new Map<string, TimeWindow[]>();
 				try {
 					const memberLogs = await readSavedMemberLogs();
+					const approvedDayKeys = approvedDayKeysOf(memberLogs);
 					for (const plan of plans) {
 						const cellLogs = logsOfCell(memberLogs, plan.identity.key, plan.day.key);
 						const isCellFilled = cellLogs.length > 0;
-						if (isCellFilled) {
+						const isDayApproved = approvedDayKeys.has(plan.day.key);
+						if (isCellFilled || isDayApproved) {
 							result.skippedCount += 1;
 							continue;
 						}
