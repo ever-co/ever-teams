@@ -1,7 +1,7 @@
 'use client';
 
 import { useAtomValue } from 'jotai';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { Chart } from '@/core/components/icons';
 import { DashboardBreadcrumb } from '@/core/components/dashboards/kit/dashboard-breadcrumb';
@@ -14,6 +14,8 @@ import { useProjectBudgetReport } from '@/core/hooks/dashboards/project-budget/u
 import { formatPeriod, type Period } from '@/core/lib/utils/dashboard-period';
 import { BUDGET_WEEK_START, type BudgetScope } from '@/core/lib/utils/dashboards/project-budget';
 import { isTrackingEnabledState } from '@/core/stores';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import type { FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { ProjectBudgetBoard } from './budget-board';
 import { ProjectBudgetPortfolio } from './budget-portfolio';
 import { ProjectBudgetUnbudgeted } from './budget-unbudgeted';
@@ -22,7 +24,7 @@ import { BudgetScopeControl, useBudgetFilterControls } from './project-budget-to
 
 const PAGE_PATH = '/reports/project-budget';
 
-function metaOf(scope: BudgetScope, period: Period, projectsText: string, locale: string) {
+function metaOf(scope: BudgetScope, period: Period, projectsText: string, locale: FormatLocale) {
 	if (scope === 'whole') {
 		return projectsText;
 	}
@@ -32,7 +34,7 @@ function metaOf(scope: BudgetScope, period: Period, projectsText: string, locale
 
 export function ProjectBudgetPage() {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const report = useProjectBudgetReport({ unnamedLabel: t('dashboard.projectBudget.UNNAMED_PROJECT') });
 	const { scope, period, setPeriod, figures, groups, totals, shown } = report;
@@ -86,7 +88,12 @@ export function ProjectBudgetPage() {
 						<>
 							<BudgetScopeControl scope={scope} onScopeChange={report.setScope} />
 							{isPeriodScope && (
-								<PeriodPicker value={period} onChange={setPeriod} weekStartsOn={BUDGET_WEEK_START} />
+								<PeriodPicker
+									value={period}
+									onChange={setPeriod}
+									weekStartsOn={BUDGET_WEEK_START}
+									locale={locale}
+								/>
 							)}
 							{filterMenu}
 						</>

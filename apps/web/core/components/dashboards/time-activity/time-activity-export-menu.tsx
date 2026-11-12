@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
+import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { type ExportOption, ExportMenu } from '@/core/components/dashboards/kit/export-menu';
 import { FilePdf, FileSheet, FileText } from '@/core/components/icons';
 import { APP_NAME } from '@/core/constants/config/constants';
@@ -25,6 +25,8 @@ import {
 } from '@/core/lib/utils/dashboards/time-activity';
 import { exportToXLSX } from '@/core/lib/utils/export-utils';
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import type { PdfFigure, PdfGroup, PdfRow, TimeActivityPdfContent } from './time-activity-report-pdf';
 
 const FILE_PREFIX = 'time-activity-report';
@@ -53,7 +55,7 @@ interface ExportContext {
 	figures: TimeActivityFigures;
 	filters: TimeActivityFilters;
 	filterOptions: TimeActivityFilterOptions;
-	locale: string;
+	locale: FormatLocale;
 	t: Translate;
 }
 
@@ -197,7 +199,7 @@ async function runXlsx(context: ExportContext) {
 	await exportToXLSX(rows, xlsxColumnsOf(context), fileName);
 }
 
-function amountsTextOf(amounts: ReadonlyArray<CurrencyAmount>, locale: string) {
+function amountsTextOf(amounts: ReadonlyArray<CurrencyAmount>, locale: FormatLocale) {
 	const hasAmounts = amounts.length > 0;
 	if (!hasAmounts) {
 		return MISSING_VALUE;
@@ -205,7 +207,7 @@ function amountsTextOf(amounts: ReadonlyArray<CurrencyAmount>, locale: string) {
 	return formatAmounts(amounts, locale);
 }
 
-function rowAmountTextOf(row: TimeActivityExportRow, locale: string) {
+function rowAmountTextOf(row: TimeActivityExportRow, locale: FormatLocale) {
 	const hasAmount = row.earnings !== null;
 	const hasCurrency = row.currency !== null;
 	const isPriced = hasAmount && hasCurrency;
@@ -225,8 +227,8 @@ function percentTextOf(seconds: number, activeSeconds: number) {
 	return `${Math.round(share)}%`;
 }
 
-function printedPeriodOf(period: Period, locale: string) {
-	const format = new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'short', day: 'numeric' });
+function printedPeriodOf(period: Period, locale: FormatLocale) {
+	const format = dateFormatOf(locale, { year: 'numeric', month: 'short', day: 'numeric' });
 	return format.formatRange(period.from, period.to);
 }
 
@@ -292,13 +294,13 @@ interface PdfLayout {
 
 function pdfLayoutOf(context: ExportContext): PdfLayout {
 	const { t, locale } = context;
-	const longDay = new Intl.DateTimeFormat(locale, {
+	const longDay = dateFormatOf(locale, {
 		weekday: 'long',
 		year: 'numeric',
 		month: 'short',
 		day: 'numeric'
 	});
-	const shortDay = new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric' });
+	const shortDay = dateFormatOf(locale, { weekday: 'short', month: 'short', day: 'numeric' });
 	const dayHeader = t('common.DATE');
 	const memberHeader = t('common.MEMBER');
 	const projectHeader = t('dashboard.timeActivity.grouping.PROJECT');
@@ -390,7 +392,7 @@ function pdfContentOf(context: ExportContext): TimeActivityPdfContent {
 	const { t, locale } = context;
 	const layout = pdfLayoutOf(context);
 	const title = t('dashboard.timeActivity.export.DOCUMENT_TITLE');
-	const generatedDate = new Intl.DateTimeFormat(locale, { dateStyle: 'long' }).format(new Date());
+	const generatedDate = dateFormatOf(locale, { dateStyle: 'long' }).format(new Date());
 	return {
 		title,
 		period: printedPeriodOf(context.period, locale),
@@ -435,7 +437,7 @@ export function TimeActivityExportMenu({
 	isDisabled
 }: Readonly<Omit<ExportContext, 'locale' | 't'> & { isDisabled: boolean }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 
 	const options = useMemo<ExportOption[]>(() => {
 		const context: ExportContext = {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import type { ExportOption } from '@/core/components/dashboards/kit/export-menu';
 import { STATUS_LABEL_KEYS } from '@/core/components/dashboards/timesheets/timesheet-status';
 import { FilePdf, FileSheet } from '@/core/components/icons';
@@ -16,6 +16,8 @@ import {
 	type EditsGroup,
 	type ManualTimeEntry
 } from '@/core/lib/utils/dashboards/manual-time-edits';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import type { EditsPdfContent, EditsPdfGroup } from './manual-time-edits-pdf';
 
 type Translate = ReturnType<typeof useTranslations>;
@@ -71,21 +73,21 @@ function cellTextOf(value: string | number | null | undefined) {
 	return String(value);
 }
 
-function pdfGroupTitleOf(group: EditsGroup, locale: string) {
+function pdfGroupTitleOf(group: EditsGroup, locale: FormatLocale) {
 	if (group.member) {
 		return group.member.name;
 	}
 	if (!group.day) {
 		return '';
 	}
-	const format = new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric' });
+	const format = dateFormatOf(locale, { weekday: 'short', month: 'short', day: 'numeric' });
 	return format.format(group.day);
 }
 
 function pdfGroupsOf(
 	groups: ReadonlyArray<EditsGroup>,
 	columns: ReadonlyArray<CsvColumn<ManualTimeEntry>>,
-	locale: string
+	locale: FormatLocale
 ): EditsPdfGroup[] {
 	return groups.map((group) => ({
 		key: group.key,
@@ -103,7 +105,7 @@ interface ExportInput {
 	figures: EditsFigures;
 	period: Period;
 	teamName: string;
-	locale: string;
+	locale: FormatLocale;
 	t: Translate;
 }
 
@@ -123,7 +125,7 @@ function summaryOf(figures: EditsFigures, t: Translate) {
 function pdfContentOf({ groups, figures, period, teamName, locale, t }: ExportInput): EditsPdfContent {
 	const title = t('dashboard.manualTimeEdits.TITLE');
 	const periodText = formatPeriod(period, locale);
-	const generatedFormat = new Intl.DateTimeFormat(locale, { dateStyle: 'long' });
+	const generatedFormat = dateFormatOf(locale, { dateStyle: 'long' });
 	const generatedDate = generatedFormat.format(new Date());
 	const columns = columnsOf(t);
 	return {
@@ -166,7 +168,7 @@ export function useManualTimeEditsExportOptions({
 	teamName: string;
 }>): ExportOption[] {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	return useMemo(() => {
 		const input: ExportInput = { groups, figures, period, teamName, locale, t };
 		return [

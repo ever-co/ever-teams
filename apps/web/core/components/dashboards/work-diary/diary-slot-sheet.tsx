@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import {
 	Sheet,
 	SheetContent,
@@ -22,6 +22,8 @@ import {
 	appSharesOf
 } from '@/core/lib/utils/dashboards/app-activity';
 import type { DiaryShot, DiarySlot } from '@/core/lib/utils/dashboards/work-diary';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 
 const SHEET_SURFACE = cn(floatingSheetSurface, 'w-[min(30rem,calc(100vw-1rem))]');
 
@@ -219,12 +221,9 @@ export function DiarySlotSheet({
 	onClose: () => void;
 }>) {
 	const t = useTranslations();
-	const locale = useLocale();
-	const timeFormat = useMemo(() => new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }), [locale]);
-	const dayFormat = useMemo(
-		() => new Intl.DateTimeFormat(locale, { weekday: 'long', month: 'long', day: 'numeric' }),
-		[locale]
-	);
+	const locale = useWorkspaceLocale();
+	const timeFormat = useMemo(() => dateFormatOf(locale, { hour: 'numeric', minute: '2-digit' }), [locale]);
+	const dayFormat = useMemo(() => dateFormatOf(locale, { weekday: 'long', month: 'long', day: 'numeric' }), [locale]);
 	const handleOpenChange = (nextOpen: boolean) => {
 		if (!nextOpen) {
 			onClose();
