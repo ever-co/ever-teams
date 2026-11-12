@@ -96,6 +96,10 @@ describe('the client some time belongs to', () => {
 		expect(clientIdOfTime('archived-project', clientIds)).toBeNull();
 	});
 
+	it('is none for a listed project without a client, whatever a report read earlier still names', () => {
+		expect(clientIdOfTime('internal', clientIds, 'acme')).toBeNull();
+	});
+
 	it('matches the picked clients, "No client" keeping the time without one', () => {
 		expect(matchesPickedClients('acme', [])).toBe(true);
 		expect(matchesPickedClients('acme', ['acme'])).toBe(true);
@@ -270,5 +274,25 @@ describe('the daily report of the picked clients', () => {
 		filterDailyReportByClients(report, ['acme'], clientIds);
 
 		expect(report[0].logs).toHaveLength(3);
+	});
+
+	it('counts a project whose client was removed under "No client", even in a report read before the removal', () => {
+		const readBeforeRemoval = [
+			{
+				date: '2026-11-03',
+				logs: [
+					{
+						project: { id: 'internal', name: 'Internal', organizationContact: { id: 'acme' } },
+						employeeLogs
+					}
+				]
+			}
+		] as unknown as ITimeLogGroupedDailyReport[];
+
+		const underAcme = filterDailyReportByClients(readBeforeRemoval, ['acme'], clientIds);
+		const underNoClient = filterDailyReportByClients(readBeforeRemoval, [NO_CLIENT_FILTER_VALUE], clientIds);
+
+		expect(projectNamesOf(underAcme)).toEqual([]);
+		expect(projectNamesOf(underNoClient)).toEqual([['2026-11-03', ['Internal']]]);
 	});
 });

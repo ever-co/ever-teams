@@ -84,8 +84,9 @@ export function projectClientIdsOf(projects: ReadonlyArray<ProjectWithClient>): 
 
 /**
  * The client some time belongs to: the current client of its project, whenever the time was logged. The projects
- * the web lists come first, since they keep the id of a client that was archived; `statedClientId` is the client a
- * report names beside a project those lists do not hold. Time without a project, or on a project nothing names a
+ * the web lists come first, since they keep the id of a client that was archived, and a listed project without a
+ * client has none, whatever a report read before the client was removed still names. `statedClientId` is the client
+ * a report names beside a project those lists do not hold. Time without a project, or on a project nothing names a
  * client for, has no client.
  */
 export function clientIdOfTime(
@@ -96,9 +97,9 @@ export function clientIdOfTime(
 	if (!projectId) {
 		return null;
 	}
-	const listedClientId = clientIds.get(projectId);
-	if (listedClientId) {
-		return listedClientId;
+	const isListed = clientIds.has(projectId);
+	if (isListed) {
+		return clientIds.get(projectId) ?? null;
 	}
 	return statedClientId;
 }
