@@ -19,7 +19,8 @@ const MEMBER_EXISTS = 'Member Exists';
 /**
  * Keeps the subscription on the user (their UI preferences on the platform), so the opt-in card stays away on every
  * browser and device (#5097). Written here, once Mailchimp took the address, so a client that closes early cannot
- * skip it. A failure leaves the address on the list, so the answer is still a subscription: it is logged.
+ * skip it. A failure, or a platform that does not answer in time, leaves the address on the list, so the answer is
+ * still a subscription: it is logged.
  */
 async function rememberSubscription(
 	status: NewsletterSubscription['status'],

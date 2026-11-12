@@ -13,6 +13,7 @@ jest.mock('@/core/services/server/guards/authenticated-guard-app', () => ({
 }));
 
 import { APP_NAME } from '@/core/constants/config/constants';
+import { UI_PREFERENCE_WRITE_TIMEOUT_MS } from '@/core/services/server/requests/user';
 import { NextRequest } from 'next/server';
 import { POST } from './route';
 
@@ -184,5 +185,31 @@ describe('POST /api/subscribe', () => {
 			// Nothing changed on the user: the kept session check still holds them as they are
 			expect(mockDropSessionCheck).not.toHaveBeenCalled();
 		});
+
+		it('gives up a platform that does not answer in time, and still answers the subscription', async () => {
+			jest.spyOn(console, 'error').mockImplementation(() => undefined);
+			const deadline = new AbortController();
+			const timeout = jest.spyOn(AbortSignal, 'timeout').mockReturnValue(deadline.signal);
+			fetchMock.mockImplementation((url: string, init?: RequestInit) => {
+				if (!String(url).endsWith('/user/ui-preferences')) {
+					return Promise.resolve(answer({ id: 'member' }, 200));
+				}
+				// The platform never answers: only the deadline ends the wait
+				return new Promise((_resolve, reject) => {
+					init?.signal?.addEventListener('abort', () => reject(init.signal?.reason));
+					deadline.abort(new DOMException('The operation timed out.', 'TimeoutError'));
+				});
+			});
+
+			try {
+				const response = await post({ email_address: 'ada@example.com' });
+
+				expect(timeout).toHaveBeenCalledWith(UI_PREFERENCE_WRITE_TIMEOUT_MS);
+				expect(response.status).toBe(201);
+				expect((await response.json()).newsletter).toMatchObject({ status: 'subscribed' });
+			} finally {
+				timeout.mockRestore();
+			}
+		}, 2_000);
 	});
 });
