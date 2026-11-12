@@ -149,10 +149,37 @@ describe('SidebarCommandModal invite command', () => {
 	});
 });
 
-/** The key caps an entry shows, read next to its description. */
-function keyCapsOf(descriptionKey: string): string[] {
-	const row = screen.getByText(descriptionKey).parentElement as HTMLElement;
+/** The key caps an entry shows, read next to its label. */
+function keyCapsIn(label: HTMLElement): string[] {
+	const row = label.parentElement as HTMLElement;
 	return Array.from(row.querySelectorAll('kbd')).map((cap) => cap.textContent ?? '');
+}
+
+function keyCapsOf(descriptionKey: string): string[] {
+	return keyCapsIn(screen.getByText(descriptionKey));
+}
+
+function readsAsRow(element: Element | null, label: string): boolean {
+	const isLabel = element?.tagName === 'SPAN';
+	const readsLabel = element?.textContent === label;
+	return isLabel && readsLabel;
+}
+
+/** A "Go to" row by what it reads: its group sits in a muted span of its own, before the page's name. */
+function pageRow(label: string): HTMLElement {
+	return screen.getByText((_, element) => readsAsRow(element, label));
+}
+
+function queryPageRow(label: string): HTMLElement | null {
+	return screen.queryByText((_, element) => readsAsRow(element, label));
+}
+
+function pageKeyCapsOf(label: string): string[] {
+	return keyCapsIn(pageRow(label));
+}
+
+function mutedGroupOf(row: HTMLElement): string | null | undefined {
+	return row.querySelector('.text-muted-foreground')?.textContent;
 }
 
 describe('SidebarCommandModal with the shortcut registry', () => {
@@ -277,14 +304,21 @@ describe('SidebarCommandModal with the pages of the sidebar', () => {
 		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MANAGER_PAGES} />);
 
 		expect(screen.getByText('Home')).toBeTruthy();
-		expect(screen.getByText('Tasks › Kanban')).toBeTruthy();
-		expect(screen.getByText('Reports › Timesheets')).toBeTruthy();
+		expect(pageRow('Tasks › Kanban')).toBeTruthy();
+		expect(pageRow('Reports › Timesheets')).toBeTruthy();
+	});
+
+	it('writes the group of a page muted, as the ancestors of a breadcrumb, and a first-level page alone', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MANAGER_PAGES} />);
+
+		expect(mutedGroupOf(pageRow('Reports › Timesheets'))).toBe('Reports › ');
+		expect(mutedGroupOf(pageRow('Home'))).toBeUndefined();
 	});
 
 	it('opens the page of the row chosen and closes the palette', () => {
 		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MANAGER_PAGES} />);
 
-		fireEvent.click(screen.getByText('Reports › Timesheets'));
+		fireEvent.click(pageRow('Reports › Timesheets'));
 
 		expect(mockSetOpen).toHaveBeenCalledWith(false);
 		expect(mockPush).toHaveBeenCalledWith('/reports/timesheet/user-1?name=User');
@@ -293,17 +327,17 @@ describe('SidebarCommandModal with the pages of the sidebar', () => {
 	it('lists no page the sidebar does not hand it: a member sees no report for managers', () => {
 		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MEMBER_PAGES} />);
 
-		expect(screen.queryByText('Reports › Timesheets')).toBeNull();
+		expect(queryPageRow('Reports › Timesheets')).toBeNull();
 		expect(screen.queryByText('commandPalette.commands.goToTimesheets')).toBeNull();
 		expect(screen.queryByText('commandPalette.commands.goToWeeklyLimit')).toBeNull();
-		expect(screen.getByText('My work › Time & activity')).toBeTruthy();
+		expect(pageRow('My work › Time & activity')).toBeTruthy();
 	});
 
 	it('lists a page once: its hard-coded link gives way to the row, which keeps the keys of the link', () => {
 		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MEMBER_PAGES} />);
 
 		expect(screen.queryByText('commandPalette.commands.goToKanban')).toBeNull();
-		expect(keyCapsOf('Tasks › Kanban')).toEqual(['⌘', 'K']);
+		expect(pageKeyCapsOf('Tasks › Kanban')).toEqual(['⌘', 'K']);
 		// The keys of the link are still the palette's: only its row moved.
 		expect(registeredSequences()).toContain('k');
 	});
@@ -325,9 +359,9 @@ describe('SidebarCommandModal with the pages of the sidebar', () => {
 
 		expect(registeredHandlerIds()).toContain('goTimesheets');
 		expect(registeredHandlerIds()).toContain('goWeeklyLimit');
-		expect(keyCapsOf('Tasks › Kanban')).toEqual(['G', 'K']);
+		expect(pageKeyCapsOf('Tasks › Kanban')).toEqual(['G', 'K']);
 		// No handler is registered for it in this test: no key that would do nothing.
-		expect(keyCapsOf('Reports › Timesheets')).toEqual([]);
+		expect(pageKeyCapsOf('Reports › Timesheets')).toEqual([]);
 	});
 });
 

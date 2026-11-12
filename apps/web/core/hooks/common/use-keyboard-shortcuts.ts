@@ -11,6 +11,8 @@ export interface CommandShortcutConfig {
 	sequence: string[];
 	modifiers?: KeyModifier[];
 	description: string;
+	/** The sidebar group a "Go to" page sits under: written muted before the description, as a breadcrumb. */
+	section?: string;
 	shortcutDisplay: string;
 	action: ShortcutAction;
 	icon?: React.ReactNode;

@@ -43,7 +43,7 @@ const PALETTE_GO_TO: readonly GoToCommandPath[] = [
 const GO_TO_COMMAND_PATHS: readonly GoToCommandPath[] = [...REGISTRY_GO_TO, ...PALETTE_GO_TO];
 
 /** How a page under a sidebar group reads in the palette: "Reports › Timesheets". */
-const SECTION_SEPARATOR = ' › ';
+export const SECTION_SEPARATOR = ' › ';
 
 /** The group of hard-coded links the palette had before it read the sidebar, and the group that lists the pages. */
 const NAVIGATION_GROUP_ID = 'navigation';
@@ -70,6 +70,9 @@ export function goToCommandIdOf(url: string): string | undefined {
 
 export interface GoToRow {
 	label: string;
+	title: string;
+	/** Written muted before the title, like the ancestors of a breadcrumb. */
+	section?: string;
 	url: string;
 	/** The registry command that leads to the same page: the row shows its keys. */
 	commandId?: string;
@@ -100,7 +103,7 @@ export function goToRowsOf(pages: readonly SidebarPage[]): GoToRow[] {
 		}
 		listedUrls.add(page.url);
 		listedLabels.add(label);
-		const row: GoToRow = { label, url: page.url };
+		const row: GoToRow = { label, title: page.title, section: page.section, url: page.url };
 		const commandId = goToCommandIdOf(page.url);
 		const isCommandFree = commandId !== undefined && !givenCommands.has(commandId);
 		if (isCommandFree) {

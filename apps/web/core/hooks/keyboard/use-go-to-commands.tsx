@@ -40,7 +40,8 @@ export function useGoToCommands(icon?: React.ReactNode, pages?: readonly Sidebar
 			}
 			commands.push({
 				sequence: [],
-				description: row.label,
+				description: row.title,
+				section: row.section,
 				shortcutDisplay: '',
 				commandId: row.commandId,
 				action: () => router.push(row.url),

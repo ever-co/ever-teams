@@ -52,6 +52,12 @@ describe('goToRowsOf', () => {
 		]);
 	});
 
+	it('keeps the group apart from the name, so the row can write the group muted', () => {
+		const [home, teamTasks] = goToRowsOf(MEMBER_PAGES);
+		expect(home).toMatchObject({ title: 'Home', section: undefined });
+		expect(teamTasks).toMatchObject({ title: "Team's tasks", section: 'Tasks' });
+	});
+
 	it('lists once a page the sidebar links twice, under the group that comes first', () => {
 		const labels = goToRowsOf(MANAGER_PAGES).map((row) => row.label);
 		expect(labels).toContain('My work › Time & activity');
@@ -64,7 +70,7 @@ describe('goToRowsOf', () => {
 			{ title: 'Sprint', url: '/views/v-1', section: 'Views' },
 			{ title: 'Sprint', url: '/views/v-2', section: 'Views' }
 		]);
-		expect(rows).toEqual([{ label: 'Views › Sprint', url: '/views/v-1' }]);
+		expect(rows).toEqual([{ label: 'Views › Sprint', title: 'Sprint', section: 'Views', url: '/views/v-1' }]);
 	});
 
 	it('ties each row to the command that leads to its page, and a command to one row only', () => {

@@ -48,7 +48,7 @@ import { usePaletteRecent } from '@/core/hooks/keyboard/use-palette-recent';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
 import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
-import { openablePageHandlers, paletteListedGroups } from '@/core/lib/utils/palette-go-to';
+import { openablePageHandlers, paletteListedGroups, SECTION_SEPARATOR } from '@/core/lib/utils/palette-go-to';
 import type { SidebarPage } from '@/core/lib/utils/sidebar-pages';
 import type { PaletteItem } from '@/core/lib/utils/palette-items';
 import { shortcutsHelpOpenAtom, type ShortcutHandler } from '@/core/stores/common/shortcuts';
@@ -675,7 +675,15 @@ export const SidebarCommandModal: FC<{
 						}}
 					>
 						<span className={commandIconTileClass}>{command.icon}</span>
-						<span className="min-w-0 flex-1 truncate">{command.description}</span>
+						<span className="min-w-0 flex-1 truncate">
+							{command.section && (
+								<span className="text-muted-foreground">
+									{command.section}
+									{SECTION_SEPARATOR}
+								</span>
+							)}
+							{command.description}
+						</span>
 						<CommandShortcut>
 							{shortcutKeysOf(command).map((key, keyIndex) => (
 								<kbd key={`${command.shortcutDisplay}-${keyIndex}`} className={commandKeycapClass}>
