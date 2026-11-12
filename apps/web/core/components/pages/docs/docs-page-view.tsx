@@ -26,6 +26,7 @@ import { ArrowLeft, Check, CircleAlert, Comment, FileText, History, Lock, MoreHo
 import { useDocsAutosave, useEditorPageContent, type DocsSaveState } from '@/core/hooks/docs/use-docs-autosave';
 import { useDocsFollow, type DocsFollowAction, type DocsSpacesState } from '@/core/hooks/docs/use-docs-collaboration';
 import { useDocsComments } from '@/core/hooks/docs/use-docs-comments';
+import { downloadDocsPdf, useDocsPdfAvailability } from '@/core/hooks/docs/use-docs-import';
 import { useDocsLive } from '@/core/hooks/docs/use-docs-live';
 import { useDocsPage, useDocsPath } from '@/core/hooks/docs/use-docs-page';
 import { useDocsRecent } from '@/core/hooks/docs/use-docs-recent';
@@ -76,6 +77,8 @@ export interface DocsPageViewActions {
 	toggleFavorite: (pageId: string) => Promise<unknown>;
 	isFavorite: (pageId: string) => boolean;
 	newSubPage: (page: IDocumentPage) => void;
+	/** Imports an exported workspace under the page; absent while the import is not offered. */
+	importHere?: (page: IDocumentPage) => void;
 }
 
 interface DocsPageViewProps {
@@ -588,6 +591,31 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 
 	// ---------------------------------------------------------------- export and link
 
+	// The platform's PDF export (its probe answers 404 while it is off): the page, or the page with its sub-pages.
+	// The platform renders the text as saved: the page's pending edits are saved (or confirmed live) first, or nothing
+	// is exported. Text a fallen-back live session left is not the autosave's yet while the page is read again or the
+	// text is being adopted (or failed to be): nothing is exported then either.
+	const pdfAvailable = useDocsPdfAvailability(true);
+	const [pdfBusy, setPdfBusy] = useState(false);
+	const exportPdf = async (subtree: boolean) => {
+		if (!page || pdfBusy) return;
+		if (live.rereading || awaitingAdoption) {
+			toast.error(t('docs.EXPORT_UNSAVED'));
+			return;
+		}
+		setPdfBusy(true);
+		try {
+			if (pageEdits.pending() && !(await pageEdits.hold())) {
+				toast.error(t('docs.EXPORT_UNSAVED'));
+				return;
+			}
+			const result = await downloadDocsPdf(page.id, { subtree });
+			if (!result.ok) toast.error(t(result.status === 413 ? 'docs.PDF_TOO_MANY_PAGES' : 'docs.PDF_ERROR'));
+		} finally {
+			setPdfBusy(false);
+		}
+	};
+
 	const exportMarkdown = () => {
 		if (!page) return;
 		const json = editorApi?.getJson() ?? page.contentJson ?? null;
@@ -838,7 +866,20 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 											{t('docs.EXPORT_WITH_SUB_PAGES')}
 										</DropdownMenuItem>
 									)}
+									{pdfAvailable && (
+										<>
+											<DropdownMenuItem disabled={pdfBusy} onClick={() => void exportPdf(false)}>
+												{t('docs.EXPORT_PDF')}
+											</DropdownMenuItem>
+											{hasChildren && (
+												<DropdownMenuItem disabled={pdfBusy} onClick={() => void exportPdf(true)}>
+													{t('docs.EXPORT_PDF_WITH_SUB_PAGES')}
+												</DropdownMenuItem>
+											)}
+										</>
+									)}
 									<DropdownMenuItem onClick={() => window.print()}>{t('docs.PRINT')}</DropdownMenuItem>
+									{actions.importHere && <DropdownMenuItem onClick={() => actions.importHere?.(page)}>{t('docs.IMPORT.HERE')}</DropdownMenuItem>}
 								</>
 							)}
 							<DropdownMenuSeparator />

@@ -1,5 +1,6 @@
 import capitalize from 'lodash/capitalize';
 import { readRuntimeEnv } from '@/env-config';
+import { boardAppUrl } from '@/core/lib/board/board-app';
 
 export type CollaborationMode = 'meeting' | 'board';
 
@@ -68,17 +69,20 @@ export function meetPathFor(roomName: string, isJitsi: boolean): string {
 
 /**
  * Where the whiteboard opens: the external board app in live mode with the picked people when one is configured,
- * otherwise the in-app board.
+ * otherwise the in-app board. The board app's address names `everTeamsOrigin`, the origin the person is on, so the
+ * board signs them in on this deployment (see core/lib/board/board-app.ts).
  */
 export function boardTargetFor(
 	memberIds: readonly string[],
-	boardAppDomain: string | null | undefined
+	boardAppDomain: string | null | undefined,
+	everTeamsOrigin: string | null | undefined
 ): { href: string; isExternal: boolean } {
 	const hasPeople = memberIds.length > 0;
-	if (!hasPeople || !boardAppDomain) {
+	// A setting that is no http(s) address opens the in-app board instead of throwing on every click
+	const url = hasPeople ? boardAppUrl(boardAppDomain, everTeamsOrigin) : null;
+	if (!url) {
 		return { href: '/board', isExternal: false };
 	}
-	const url = new URL(boardAppDomain);
 	url.searchParams.set('live', 'true');
 	url.searchParams.set('members', btoa(memberIds.join(',')));
 

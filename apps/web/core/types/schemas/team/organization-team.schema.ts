@@ -134,7 +134,8 @@ export const organizationTeamCreateSchema = z.object({
 	managerIds: z.array(z.string()).optional(),
 	public: z.boolean().nullable(),
 	projects: z.array(z.any()).optional(),
-	defaultProjectId: z.string().optional().nullable()
+	defaultProjectId: z.string().optional().nullable(),
+	withStarterTags: z.boolean().optional()
 });
 // Team request params schema
 export const teamRequestParamsSchema = z.object({

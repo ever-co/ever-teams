@@ -147,6 +147,7 @@ import {
 	Tick02Icon,
 	TickDouble02Icon,
 	Timer02Icon,
+	TimerOffIcon,
 	UmbrellaIcon,
 	UnfoldMoreIcon,
 	Upload01Icon,
@@ -190,6 +191,7 @@ import {
 	UserSettings01Icon,
 	RefreshIcon,
 	ComputerIcon,
+	ComputerScreenShareIcon,
 	ArrowTurnUpIcon,
 	LifebuoyIcon,
 	MailValidation01Icon,
@@ -389,6 +391,7 @@ export const Table = /*#__PURE__*/ icon(Table01Icon, 'Table');
 export const GridView = /*#__PURE__*/ icon(GridViewIcon, 'GridView');
 export const Kanban = /*#__PURE__*/ icon(KanbanIcon, 'Kanban');
 export const Timer = /*#__PURE__*/ icon(Timer02Icon, 'Timer');
+export const TimerOff = /*#__PURE__*/ icon(TimerOffIcon, 'TimerOff');
 export const Idle = /*#__PURE__*/ icon(Coffee02Icon, 'Idle');
 export const Task = /*#__PURE__*/ icon(Task01Icon, 'Task');
 export const TaskDone = /*#__PURE__*/ icon(TaskDone01Icon, 'TaskDone');
@@ -439,6 +442,7 @@ export const VideoOff = /*#__PURE__*/ icon(VideoOffIcon, 'VideoOff');
 export const PhoneOff = /*#__PURE__*/ icon(CallEnd01Icon, 'PhoneOff');
 export const Volume = /*#__PURE__*/ icon(VolumeHighIcon, 'Volume');
 export const CalendarPlus = /*#__PURE__*/ icon(CalendarAdd01Icon, 'CalendarPlus');
+export const ScreenShare = /*#__PURE__*/ icon(ComputerScreenShareIcon, 'ScreenShare');
 export const LogIn = /*#__PURE__*/ icon(Login03Icon, 'LogIn');
 /** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Inbox2 = /*#__PURE__*/ icon(InboxIcon, 'Inbox2');

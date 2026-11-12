@@ -2010,12 +2010,24 @@ describe('Ever Teams feature surface preservation', () => {
 		// 296 files and 379 verbs with the link preview pictures proxy (GET /api/chat/link-preview/image).
 		// 298 files and 381 verbs with the clicks on app message buttons (POST /api/chat/messages/[id]/interactions,
 		// GET /api/chat/interactions/[id]).
-		// 303 files and 386 verbs with the clients' proxies (/api/organization-contact POST, pagination GET, [id] PUT,
+		// 299 files and 382 verbs with the lookup of the time a manual entry would overlap
+		// (GET /api/timesheet/time-log/conflict, #5089).
+		// 300 files and 384 verbs with the Board app's session check (/api/board/session, GET and its CORS OPTIONS).
+		// 300 files and 385 verbs with the reschedule of a scheduled meeting (/api/employee-appointment/[id] PUT).
+		// 304 files and 390 verbs with the Docs import and PDF export proxies (/api/plugins/docs/imports GET and POST,
+		// imports/[id] GET, documents/[id]/export.pdf GET, exports/pdf GET).
+		// 311 files and 398 verbs with the comments and trash proxies: /api/comment/[id]/soft (DELETE) and /recover
+		// (PUT), /api/reaction (POST), /api/reaction/comments (GET), /api/tasks/trash (GET), /api/tasks/[id]/soft
+		// (DELETE) and /recover (PUT), and DELETE on /api/tasks/[id] (a task deleted for good from the trash).
+		// 315 files and 402 verbs with the chat's typing, task card, unsent upload and category order proxies
+		// (/api/chat/conversations/[id]/typing POST, messages/[id]/tasks/[taskId] PATCH, attachments/[documentId] DELETE,
+		// categories/reorder POST).
+		// 320 files and 407 verbs with the clients' proxies (/api/organization-contact POST, pagination GET, [id] PUT,
 		// [id]/soft DELETE, [id]/recover PUT; #5082).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(303);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(320);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(386);
+		).toHaveLength(407);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's organization contacts of the client type (#5082)
@@ -2024,17 +2036,35 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/organization-contact/[id]/route.ts::PUT',
 				'apps/web/app/api/organization-contact/[id]/soft/route.ts::DELETE',
 				'apps/web/app/api/organization-contact/[id]/recover/route.ts::PUT',
+				// Proxy mode twins of the platform's comment withdrawal, reactions and task trash (2026-11-12)
+				'apps/web/app/api/comment/[id]/soft/route.ts::DELETE',
+				'apps/web/app/api/comment/[id]/recover/route.ts::PUT',
+				'apps/web/app/api/reaction/route.ts::POST',
+				'apps/web/app/api/reaction/comments/route.ts::GET',
+				'apps/web/app/api/tasks/trash/route.ts::GET',
+				'apps/web/app/api/tasks/[id]/soft/route.ts::DELETE',
+				'apps/web/app/api/tasks/[id]/recover/route.ts::PUT',
+				'apps/web/app/api/tasks/[id]/route.ts::DELETE',
+				// Proxy mode twins of the platform's Docs import of exported workspaces and PDF export (2026-11-12)
+				'apps/web/app/api/plugins/docs/imports/route.ts::GET',
+				'apps/web/app/api/plugins/docs/imports/route.ts::POST',
+				'apps/web/app/api/plugins/docs/imports/[id]/route.ts::GET',
+				'apps/web/app/api/plugins/docs/documents/[id]/export.pdf/route.ts::GET',
+				'apps/web/app/api/plugins/docs/exports/pdf/route.ts::GET',
+				// Proxy mode twin of the platform's link preview pictures (2026-11-12)
+				'apps/web/app/api/chat/link-preview/image/route.ts::GET',
+				// Proxy mode twin of Gauzy's lookup of the time a manual entry would overlap (#5089)
+				'apps/web/app/api/timesheet/time-log/conflict/route.ts::GET',
 				// Proxy mode twins of the platform's clicks on app message buttons (incoming webhooks, 2026-11-11)
 				'apps/web/app/api/chat/messages/[id]/interactions/route.ts::POST',
 				'apps/web/app/api/chat/interactions/[id]/route.ts::GET',
-				// Proxy mode twin of the platform's link preview pictures (2026-11-12)
-				'apps/web/app/api/chat/link-preview/image/route.ts::GET',
 				// Proxy mode twin of the platform's Inbox delivery status (2026-11-11)
 				'apps/web/app/api/inbox/delivery/status/route.ts::GET',
 				// Proxy mode twins of Gauzy's employee appointments, the scheduled meetings (#5021)
 				'apps/web/app/api/employee-appointment/route.ts::GET',
 				'apps/web/app/api/employee-appointment/route.ts::POST',
 				'apps/web/app/api/employee-appointment/[id]/route.ts::DELETE',
+				'apps/web/app/api/employee-appointment/[id]/route.ts::PUT',
 				// Proxy mode twins of the platform's Docs live sessions and collaboration routes (2026-11-11)
 				'apps/web/app/api/plugins/docs/live/status/route.ts::GET',
 				'apps/web/app/api/plugins/docs/documents/[id]/live/updates/route.ts::POST',
@@ -2105,7 +2135,6 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/ever-stats/enabled/route.ts::PUT',
 				'apps/web/app/api/ever-stats/last/route.ts::GET',
 				'apps/web/app/api/ever-stats/status/route.ts::GET',
-				'apps/web/app/api/employee/me/presence/route.ts::PUT',
 				// Public path of the workspace sign-in handler, which lives in a private folder the router skips
 				'apps/web/app/api/auth/signin-workspace/route.ts::POST'
 			])

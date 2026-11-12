@@ -81,6 +81,7 @@ function useGroupIdentity(group: TeamTasksGroup): GroupIdentity {
 				name={group.status.name}
 				color={group.status.color}
 				icon={group.status.icon}
+				iconUrl={group.status.fullIconUrl}
 			/>
 		);
 		return { glyph, name: readableName(group.status.name), keepsCase: false };

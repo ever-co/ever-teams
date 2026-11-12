@@ -39,6 +39,29 @@ export function createEmployeeAppointmentRequest({
 	});
 }
 
+/** Reschedules a meeting: its title, its time and its link (`PUT /employee-appointment/:id`). */
+export function updateEmployeeAppointmentRequest({
+	id,
+	data,
+	bearer_token,
+	tenantId
+}: {
+	id: string;
+	data: Record<string, unknown>;
+	bearer_token: string;
+	tenantId: string;
+}) {
+	return serverFetch<MeetingAppointment>({
+		path: `/employee-appointment/${encodeURIComponent(id)}`,
+		method: 'PUT',
+		body: data,
+		bearer_token,
+		tenantId,
+		// Gauzy's 404 for another member's appointment may come without a body: the route keeps its status
+		keepsStatusOnError: true
+	});
+}
+
 export function deleteEmployeeAppointmentRequest({
 	id,
 	bearer_token,
