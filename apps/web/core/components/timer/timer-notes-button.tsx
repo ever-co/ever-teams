@@ -5,17 +5,17 @@ import { useTranslations } from 'next-intl';
 
 import { controlRecipe } from '@/core/components/common/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/core/components/common/tooltip';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Compose } from '@/core/components/icons';
 import { useTimerNotes } from '@/core/hooks/timer/use-timer-notes';
 import { cn } from '@/core/lib/helpers';
 import { TIMER_NOTES_MAX_LENGTH, normalizedTimerNotes } from '@/core/lib/utils/timer/timer-notes';
+import { TIMER_ENTRY_TOGGLE, TIMER_TOOLTIP_DELAY_MS } from './timer-toggle-recipe';
 
 const NOTES_FIELD_CLASS_NAME = cn(controlRecipe, 'field-sizing-content max-h-[6lh] min-h-16 resize-none p-3');
 
 const NOTES_POPOVER_CLASS_NAME = 'flex w-72 max-w-[calc(100vw-2rem)] flex-col gap-2 p-3';
-
-const HAS_NOTES_MARK_CLASS_NAME = 'absolute right-1 top-1 size-1.5 rounded-full bg-primary';
 
 function triggerLabelKeyOf(hasNotes: boolean) {
 	if (hasNotes) {
@@ -32,8 +32,8 @@ function hintKeyOf(isRunning: boolean) {
 }
 
 /**
- * The notes of the timer's entry, behind one button so the timer keeps its size: optional, typed before a start or
- * while the timer runs. Every timer on screen shares them.
+ * The notes of the timer's entry, behind one toggle so the timer keeps its size: optional, typed before a start or
+ * while the timer runs. Every timer on screen shares them. The toggle takes the picked fill once notes are typed.
  */
 export function TimerNotesButton({ className }: Readonly<{ className?: string }>) {
 	const t = useTranslations();
@@ -53,19 +53,28 @@ export function TimerNotesButton({ className }: Readonly<{ className?: string }>
 
 	return (
 		<Popover>
-			<PopoverTrigger asChild>
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon-sm"
-					aria-label={triggerLabel}
-					title={triggerLabel}
-					className={cn('relative text-muted-foreground', className)}
+			<Tooltip>
+				<TooltipTrigger
+					delay={TIMER_TOOLTIP_DELAY_MS}
+					render={
+						<PopoverTrigger
+							render={
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon-sm"
+									aria-label={triggerLabel}
+									data-filled={hasNotes || undefined}
+									className={cn(TIMER_ENTRY_TOGGLE, className)}
+								/>
+							}
+						/>
+					}
 				>
 					<Compose aria-hidden="true" />
-					{hasNotes && <span aria-hidden="true" className={HAS_NOTES_MARK_CLASS_NAME} />}
-				</Button>
-			</PopoverTrigger>
+				</TooltipTrigger>
+				<TooltipContent>{triggerLabel}</TooltipContent>
+			</Tooltip>
 			<PopoverContent align="end" collisionPadding={16} className={NOTES_POPOVER_CLASS_NAME}>
 				<label htmlFor={fieldId} className="text-xs font-medium text-foreground">
 					{t('timer.notes.LABEL')}
