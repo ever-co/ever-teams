@@ -12,12 +12,13 @@ const mockSoftDelete = jest.fn();
 const mockRecover = jest.fn();
 const mockSetResolved = jest.fn();
 const mockReactions = jest.fn();
+const mockCreate = jest.fn();
 const mockToggle = jest.fn();
 
 jest.mock('@/core/services/client/api/comments', () => ({
 	commentService: {
 		getAll: (...args: unknown[]) => mockGetAll(...args),
-		create: jest.fn(),
+		create: (...args: unknown[]) => mockCreate(...args),
 		update: (...args: unknown[]) => mockUpdate(...args),
 		softDelete: (...args: unknown[]) => mockSoftDelete(...args),
 		recover: (...args: unknown[]) => mockRecover(...args),
@@ -187,6 +188,28 @@ describe('useTaskComments — edit, delete, resolve', () => {
 		});
 
 		expect(isSaved).toBe(true);
+		expect(mockReactions.mock.calls.length).toBeGreaterThan(1);
+	});
+
+	it('does not hold a posted comment until the reactions are read again', async () => {
+		mockCreate.mockResolvedValue({ id: 'c3' });
+		// The first reaction read answers; the one after the post never does.
+		mockReactions.mockResolvedValueOnce([]).mockReturnValue(new Promise(() => undefined));
+		const me = { employeeId: 'emp', name: 'Me', imageUrl: null };
+		const { result } = renderHook(
+			() => ({ thread: useTaskComments(task), reactions: useCommentReactions('task-1', me) }),
+			{ wrapper: wrapper(client()) }
+		);
+		await waitFor(() => expect(result.current.reactions.isAvailable).toBe(true));
+		await waitFor(() => expect(result.current.thread.comments).toHaveLength(2));
+
+		let isPosted = false;
+		await act(async () => {
+			isPosted = await result.current.thread.postComment('A new comment');
+		});
+
+		expect(isPosted).toBe(true);
+		expect(mockCreate).toHaveBeenCalledTimes(1);
 		expect(mockReactions.mock.calls.length).toBeGreaterThan(1);
 	});
 

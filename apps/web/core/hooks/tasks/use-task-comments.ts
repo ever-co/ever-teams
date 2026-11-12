@@ -134,11 +134,14 @@ export function useTaskComments(task: CommentedTask | null) {
 
 	const createComment = useMutation({
 		mutationFn: (input: ICommentCreateInput) => commentService.create(input),
-		// The create response carries no author relation: the list is read again, and the post resolves after it.
-		onSuccess: (_comment, input) =>
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskComments.byTask(input.tenantId, input.organizationId, input.entityId)
-			})
+		// The create response carries no author relation: the list is read again, and the post resolves after it. The
+		// reactions under the same key are read again in the background: a slow reaction read must not hold the post
+		// (its files are attached once this resolves).
+		onSuccess: (_comment, input) => {
+			const key = queryKeys.taskComments.byTask(input.tenantId, input.organizationId, input.entityId);
+			void queryClient.invalidateQueries({ queryKey: key, predicate: (query) => query.queryKey.length > key.length });
+			return queryClient.invalidateQueries({ queryKey: key, exact: true });
+		}
 	});
 	const { mutateAsync } = createComment;
 	const attachCommentFiles = useCommentFileAttacher();
