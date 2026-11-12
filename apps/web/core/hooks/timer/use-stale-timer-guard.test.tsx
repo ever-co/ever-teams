@@ -7,6 +7,7 @@
  */
 import type { ReactNode } from 'react';
 import type { RenderHookResult, waitFor as WaitFor } from '@testing-library/react';
+import { SYNC_TIMER_INTERVAL } from '@/core/constants/config/constants';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 
 // Each page below loads React Testing Library afresh, inside a test, where it cannot register its own cleanup
@@ -54,6 +55,8 @@ interface Page {
 	/** The timer's owner mounting the guard. */
 	mountOwner: () => RenderHookResult<boolean, unknown>;
 	waitFor: typeof WaitFor;
+	/** Lets the guard's pending work land, `ms` of fake time later. */
+	settle: (ms?: number) => Promise<void>;
 	cleanup: () => void;
 }
 
@@ -64,7 +67,7 @@ function loadPage(): Page {
 	jest.resetModules();
 	/* eslint-disable @typescript-eslint/no-require-imports */
 	const { createElement } = require('react') as typeof import('react');
-	const { cleanup, renderHook, waitFor } =
+	const { act, cleanup, renderHook, waitFor } =
 		require('@testing-library/react') as typeof import('@testing-library/react');
 	const { QueryClient, QueryClientProvider } =
 		require('@tanstack/react-query') as typeof import('@tanstack/react-query');
@@ -76,6 +79,12 @@ function loadPage(): Page {
 	const page = {
 		mountOwner: () => renderHook(() => useStaleTimerGuard(EMPLOYEE, true), { wrapper }),
 		waitFor,
+		settle: (ms = 0) =>
+			act(async () => {
+				jest.advanceTimersByTime(ms);
+				// The check's answer goes through a few promise steps before the guard's state is set
+				for (let step = 0; step < 20; step += 1) await Promise.resolve();
+			}),
 		cleanup
 	};
 	pages.push(page);
@@ -92,6 +101,7 @@ describe('useStaleTimerGuard', () => {
 	afterEach(() => {
 		pages.forEach((page) => page.cleanup());
 		pages = [];
+		jest.useRealTimers();
 	});
 
 	it('does not check again when the owner mounts again in the same page: the run it kept alive goes on', async () => {
@@ -157,7 +167,25 @@ describe('useStaleTimerGuard', () => {
 		expect(mockStopTimer).toHaveBeenCalledTimes(1);
 	});
 
-	it('runs a check that failed again, the heartbeat held meanwhile', async () => {
+	it('retries a failed check after the sync interval while the owner stays mounted, the heartbeat held until then', async () => {
+		jest.useFakeTimers();
+		const page = loadPage();
+		mockGetLastTimerLog.mockRejectedValueOnce(new Error('Network Error')).mockResolvedValueOnce(lastLogAnswer(1));
+		const owner = page.mountOwner();
+		await page.settle();
+		expect(mockGetLastTimerLog).toHaveBeenCalledTimes(1);
+
+		// Nothing is read again, and the heartbeat stays held, for the whole interval
+		await page.settle(SYNC_TIMER_INTERVAL - 1);
+		expect(mockGetLastTimerLog).toHaveBeenCalledTimes(1);
+		expect(owner.result.current).toBe(false);
+
+		await page.settle(1);
+		expect(mockGetLastTimerLog).toHaveBeenCalledTimes(2);
+		expect(owner.result.current).toBe(true);
+	});
+
+	it('runs a check that failed again when the owner mounts again, the heartbeat held meanwhile', async () => {
 		const page = loadPage();
 		mockGetLastTimerLog.mockRejectedValueOnce(new Error('Network Error'));
 		const owner = page.mountOwner();
