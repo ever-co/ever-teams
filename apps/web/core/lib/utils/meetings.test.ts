@@ -240,6 +240,26 @@ describe('scheduled meetings', () => {
 		});
 	});
 
+	it('tells every word that is no address next to addresses, but not the name of a "Name <address>"', () => {
+		expect(participantsWithText([], 'bob@example.org, ana')).toEqual({
+			emails: ['bob@example.org'],
+			rejected: ['ana']
+		});
+		expect(participantsWithText([], 'ana@example.org, bad@')).toEqual({
+			emails: ['ana@example.org'],
+			rejected: ['bad@']
+		});
+		expect(participantsWithText([], 'Bob <BOB@example.org>')).toEqual({
+			emails: ['bob@example.org'],
+			rejected: []
+		});
+		// A quoted name may hold a comma
+		expect(participantsWithText([], '"Silva, Ana" <ana@acme.com>; Bob Stone <bob@acme.com>')).toEqual({
+			emails: ['ana@acme.com', 'bob@acme.com'],
+			rejected: []
+		});
+	});
+
 	it('reschedules a meeting with its title, time and link only, so Gauzy keeps the rest', () => {
 		const start = new Date('2026-11-13T09:30:00.000Z');
 		const link = 'https://app.example.com/meet/jitsi?room=abc&title=Sprint%20review';

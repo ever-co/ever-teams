@@ -1,6 +1,6 @@
 import { isEmail } from 'class-validator';
 import { meetPathFor } from './collaboration';
-import { extractEmails, mergeEmails } from './invite-emails';
+import { mergeEmails } from './invite-emails';
 
 /** The meeting pages, with or without the locale prefix of a non-default language (/fr/meet/jitsi). */
 const MEET_ROOM_PATH = /(?:^|\/)meet\/(jitsi|livekit)\/?$/;
@@ -309,17 +309,35 @@ export function meetingInviteesOf(members: readonly InvitableMember[], ownEmail?
 	return [...byEmail.values()].sort((first, second) => first.name.localeCompare(second.name));
 }
 
+/** A participant as a mail client lists them, "Ana Silva <ana@acme.com>": the address between the angle brackets. */
+const NAMED_ADDRESS = /<([^<>]*)>/g;
+/** A display name in quotes may hold a comma: it goes before the participants are told apart. */
+const QUOTED_NAME = /"[^"]*"/g;
+
 /**
  * The addresses typed or pasted into the participants ("Ana <ana@acme.com>, bob@acme.com" gives both), added to
- * those already there, and what was not an address, to say so.
+ * those already there, and every other word, as typed, to say it is no address: none is dropped without a word. The
+ * name of a "Name <address>" entry is no participant of its own.
  */
 export function participantsWithText(
 	current: readonly string[],
 	text: string
 ): { emails: string[]; rejected: string[] } {
-	const found = extractEmails(text);
-	const valid = found.filter((address) => isEmail(address));
-	return { emails: mergeEmails(current, valid), rejected: found.filter((address) => !isEmail(address)) };
+	const found: string[] = [];
+	const rejected: string[] = [];
+	for (const entry of text.replace(QUOTED_NAME, ' ').split(/[,;\n]+/)) {
+		const named = Array.from(entry.matchAll(NAMED_ADDRESS), (match) => match[1]);
+		const words = named.length > 0 ? named : entry.split(/\s+/);
+		for (const word of words.map((part) => part.trim()).filter(Boolean)) {
+			const address = word.toLowerCase();
+			if (isEmail(address)) {
+				found.push(address);
+			} else if (!rejected.includes(word)) {
+				rejected.push(word);
+			}
+		}
+	}
+	return { emails: mergeEmails(current, found), rejected };
 }
 
 /** A meeting moved to another time, or renamed. */
