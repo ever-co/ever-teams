@@ -6328,7 +6328,8 @@
 			"ALREADY_RECORDED": "Questa voce è già registrata.",
 			"OVERLAPS_RECORDED": "{count, plural, one {Si sovrappone a una voce già registrata, {range}. Salvarla rimuoverebbe quella voce.} other {Si sovrappone a # voci già registrate, la prima {range}. Salvarla le rimuoverebbe.}}",
 			"SAME_AS_ROW": "Ripete la riga {row} di questo file.",
-			"OVERLAPS_ROW": "Si sovrappone alla riga {row} di questo file, importata per prima."
+			"OVERLAPS_ROW": "Si sovrappone alla riga {row} di questo file, importata per prima.",
+			"RECORDED_MEANWHILE": "Una voce è stata registrata sul tempo di questa riga durante l'importazione. Salvare la riga rimuoverebbe quella voce."
 		},
 		"access": {
 			"MANUAL_TIME_OFF_TITLE": "Il tempo manuale è disattivato",

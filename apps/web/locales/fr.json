@@ -6328,7 +6328,8 @@
 			"ALREADY_RECORDED": "Cette entrée est déjà enregistrée.",
 			"OVERLAPS_RECORDED": "{count, plural, one {Elle chevauche une entrée déjà enregistrée, {range}. L'enregistrer supprimerait cette entrée.} other {Elle chevauche # entrées déjà enregistrées, la première {range}. L'enregistrer les supprimerait.}}",
 			"SAME_AS_ROW": "Elle répète la ligne {row} de ce fichier.",
-			"OVERLAPS_ROW": "Elle chevauche la ligne {row} de ce fichier, importée en premier."
+			"OVERLAPS_ROW": "Elle chevauche la ligne {row} de ce fichier, importée en premier.",
+			"RECORDED_MEANWHILE": "Une entrée a été enregistrée sur le temps de cette ligne pendant l'import. Enregistrer la ligne supprimerait cette entrée."
 		},
 		"access": {
 			"MANUAL_TIME_OFF_TITLE": "Le temps manuel est désactivé",

@@ -6328,7 +6328,8 @@
 			"ALREADY_RECORDED": "Ten wpis jest już zarejestrowany.",
 			"OVERLAPS_RECORDED": "{count, plural, one {Pokrywa się z już zarejestrowanym wpisem, {range}. Zapisanie go usunęłoby ten wpis.} few {Pokrywa się z # już zarejestrowanymi wpisami, pierwszy {range}. Zapisanie go usunęłoby je.} many {Pokrywa się z # już zarejestrowanymi wpisami, pierwszy {range}. Zapisanie go usunęłoby je.} other {Pokrywa się z # już zarejestrowanego wpisu, pierwszy {range}. Zapisanie go usunęłoby je.}}",
 			"SAME_AS_ROW": "Powtarza wiersz {row} tego pliku.",
-			"OVERLAPS_ROW": "Pokrywa się z wierszem {row} tego pliku, który jest importowany jako pierwszy."
+			"OVERLAPS_ROW": "Pokrywa się z wierszem {row} tego pliku, który jest importowany jako pierwszy.",
+			"RECORDED_MEANWHILE": "Podczas importu zarejestrowano wpis w czasie tego wiersza. Zapisanie wiersza usunęłoby ten wpis."
 		},
 		"access": {
 			"MANUAL_TIME_OFF_TITLE": "Ręczne dodawanie czasu jest wyłączone",

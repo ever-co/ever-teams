@@ -6328,7 +6328,8 @@
 			"ALREADY_RECORDED": "Dieser Eintrag ist bereits erfasst.",
 			"OVERLAPS_RECORDED": "{count, plural, one {Die Zeile überschneidet sich mit einem bereits erfassten Eintrag, {range}. Beim Speichern würde dieser Eintrag entfernt.} other {Die Zeile überschneidet sich mit # bereits erfassten Einträgen, der erste {range}. Beim Speichern würden sie entfernt.}}",
 			"SAME_AS_ROW": "Die Zeile wiederholt Zeile {row} dieser Datei.",
-			"OVERLAPS_ROW": "Die Zeile überschneidet sich mit Zeile {row} dieser Datei, die zuerst importiert wird."
+			"OVERLAPS_ROW": "Die Zeile überschneidet sich mit Zeile {row} dieser Datei, die zuerst importiert wird.",
+			"RECORDED_MEANWHILE": "Während des Imports wurde in der Zeit dieser Zeile ein Eintrag erfasst. Beim Speichern der Zeile würde dieser Eintrag entfernt."
 		},
 		"access": {
 			"MANUAL_TIME_OFF_TITLE": "Manuelle Zeit ist ausgeschaltet",
