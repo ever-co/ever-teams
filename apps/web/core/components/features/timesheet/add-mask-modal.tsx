@@ -621,6 +621,8 @@ const OptimizedAccordion = ({
 		setShifts(updatedShifts);
 	};
 
+	const readLatestShifts = () => latestShiftsRef.current;
+
 	return (
 		<>
 			{shifts.map((element, index) => {
@@ -649,7 +651,7 @@ const OptimizedAccordion = ({
 										index={index}
 										onChange={handleShiftChange}
 										timeOptions={timeOptions}
-										shifts={shifts}
+										readShifts={readLatestShifts}
 										employeeId={employeeId}
 										onTimes={handleShiftTimes}
 									/>
@@ -677,7 +679,7 @@ const ShiftManagement = ({
 	value,
 	index,
 	timeOptions,
-	shifts,
+	readShifts,
 	employeeId,
 	onTimes,
 	t
@@ -686,7 +688,7 @@ const ShiftManagement = ({
 	value: Shift;
 	index: number;
 	timeOptions: string[];
-	shifts: Shift[];
+	readShifts: () => Shift[];
 	employeeId: string;
 	onTimes: (index: number, startTime: string, endTime: string) => void;
 	t: TranslationHooks;
@@ -731,7 +733,8 @@ const ShiftManagement = ({
 				</div>
 			</div>
 			<ShiftDurationField
-				shifts={shifts}
+				shift={value}
+				readShifts={readShifts}
 				index={index}
 				employeeId={employeeId}
 				minutesOfOption={convertToMinutesHour}
