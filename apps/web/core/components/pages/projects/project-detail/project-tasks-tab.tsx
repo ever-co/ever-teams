@@ -26,7 +26,7 @@ import {
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import type { TTaskStatus } from '@/core/types/schemas/task/task-status.schema';
-import type { ProjectTasksLayout } from './project-tasks-layouts';
+import type { ProjectTasksLayout } from './project-tasks-view';
 
 const TASK_ROW_GRID =
 	'grid grid-cols-[1rem_minmax(0,1fr)_auto] items-center gap-3 px-4 md:grid-cols-[1rem_3.5rem_minmax(0,1fr)_1rem_6rem_5.5rem]';

@@ -11,21 +11,11 @@ import type { TeamTaskPickerKind } from '@/core/components/pages/teams/team/task
 import { TeamTasksTimelineView } from '@/core/components/pages/teams/team/tasks/list/team-tasks-timeline';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { useTeamTasksView, type TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
-import { DEFAULT_TEAM_TASKS_VIEW } from '@/core/lib/utils/team-tasks-view';
-import { withLayout } from '@/core/lib/utils/team-tasks-view-storage';
-import type { ITaskViewDefinition } from '@/core/types/interfaces/common/task-views';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
-
-export type ProjectTasksLayout = 'calendar' | 'timeline';
+import { projectTasksViewOf, type ProjectTasksLayout } from './project-tasks-view';
 
 function doNothing() {
 	return undefined;
-}
-
-/** Every task of the project, done ones included, as the tab's list shows them. */
-function initialViewOf(layout: ProjectTasksLayout): ITaskViewDefinition {
-	const settings = withLayout(DEFAULT_TEAM_TASKS_VIEW, layout);
-	return { settings, filters: {}, scope: 'all' };
 }
 
 /**
@@ -34,7 +24,7 @@ function initialViewOf(layout: ProjectTasksLayout): ITaskViewDefinition {
  * opens here. The tab has no selection bar, so a Cmd or Ctrl click on a task selects nothing.
  */
 export function ProjectTasksLayoutView({ layout, tasks }: Readonly<{ layout: ProjectTasksLayout; tasks: TTask[] }>) {
-	const initial = useMemo(() => initialViewOf(layout), [layout]);
+	const initial = useMemo(() => projectTasksViewOf(layout), [layout]);
 	const view = useTeamTasksView({ tasks, initial, resetKey: layout });
 	const { openTaskDrawer } = useTaskDrawer();
 	const [pickerTarget, setPickerTarget] = useState<TeamTaskPickerTarget | null>(null);
