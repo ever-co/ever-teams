@@ -326,14 +326,26 @@ const UndatedRow = memo(function UndatedRow({
 	const t = useTranslations();
 	const status = statusOfTask(task, context.statuses);
 	const isDone = isDoneStatus(status);
+	const isSelected = context.selectedIds.has(task.id);
+	const setDueDateLabel = t('pages.teamTasks.SET_DUE_DATE');
+	const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
+		const togglesSelection = event.metaKey || event.ctrlKey;
+		if (togglesSelection) {
+			context.onToggleSelected(task.id);
+			return;
+		}
+		context.onOpen(task.id);
+	};
 	return (
 		<li className="flex h-9 items-center gap-1 pr-2 pl-3 [contain-intrinsic-size:auto_36px] [content-visibility:auto]">
 			<button
 				type="button"
-				onClick={() => context.onOpen(task.id)}
+				onClick={handleClick}
+				data-selected={isSelected}
 				className={cn(
 					'flex h-7 min-w-0 flex-1 items-center gap-2 rounded-md px-1 text-left text-[13px] text-foreground hover:bg-foreground/5',
-					CALENDAR_ACTION
+					CALENDAR_ACTION,
+					isSelected && 'bg-primary/[0.06] hover:bg-primary/[0.08]'
 				)}
 			>
 				<StatusGlyph status={status} />
@@ -343,8 +355,8 @@ const UndatedRow = memo(function UndatedRow({
 				type="button"
 				variant="ghost"
 				size="icon-sm"
-				aria-label={t('pages.teamTasks.SET_DUE_DATE')}
-				title={t('pages.teamTasks.SET_DUE_DATE')}
+				aria-label={`${task.title}, ${setDueDateLabel}`}
+				title={setDueDateLabel}
 				onClick={(event) => onSetDate(task.id, event.currentTarget)}
 				className="shrink-0 text-muted-foreground"
 			>

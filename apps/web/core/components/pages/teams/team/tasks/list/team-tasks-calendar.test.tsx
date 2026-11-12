@@ -201,7 +201,9 @@ describe('TeamTasksCalendarView', () => {
 		const panel = screen.getByRole('complementary', { name: 'pages.teamTasks.CALENDAR_NO_DUE_DATE' });
 		const rows = within(panel).getAllByRole('listitem');
 		const rowTitles = rows.map((row) => row.textContent);
-		const setDueDate = within(rows[1]).getByRole('button', { name: 'pages.teamTasks.SET_DUE_DATE' });
+		const setDueDate = within(rows[1]).getByRole('button', {
+			name: 'Call the client, pages.teamTasks.SET_DUE_DATE'
+		});
 		expect(noDueDate.getAttribute('aria-expanded')).toBe('true');
 		expect(noDueDate.getAttribute('aria-controls')).toBe(panel.id);
 		expect(rowTitles).toEqual(['Write the notes', 'Call the client']);
@@ -216,6 +218,28 @@ describe('TeamTasksCalendarView', () => {
 
 		fireEvent.click(noDueDate);
 		expect(screen.queryByRole('complementary')).toBeNull();
+	});
+
+	it('selects a task without a due date on a click with Ctrl or Cmd held, and marks it', () => {
+		const { commands, toggleSelected } = renderCalendar(
+			[openTask('u1', 'Write the notes'), openTask('u2', 'Call the client')],
+			{ selected: ['u2'] }
+		);
+		fireEvent.click(screen.getByRole('button', { name: /^pages\.teamTasks\.CALENDAR_NO_DUE_DATE/ }));
+		const notes = screen.getByRole('button', { name: 'Write the notes' });
+		const client = screen.getByRole('button', { name: 'Call the client' });
+
+		expect(notes.getAttribute('data-selected')).toBe('false');
+		expect(client.getAttribute('data-selected')).toBe('true');
+
+		fireEvent.click(notes, { ctrlKey: true });
+		fireEvent.click(client, { metaKey: true });
+
+		expect(toggleSelected.mock.calls).toEqual([
+			['u1', false],
+			['u2', false]
+		]);
+		expect(commands.openTask).not.toHaveBeenCalled();
 	});
 
 	it('offers no panel when every task has a due date', () => {
