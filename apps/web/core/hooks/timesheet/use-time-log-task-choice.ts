@@ -22,6 +22,8 @@ const NO_CHANGE: Partial<EntryTaskChange> = {};
 
 type EntryProject = NonNullable<ITimeLog['project']>;
 
+type EntryTask = NonNullable<ITimeLog['task']>;
+
 /** The project the dialog shows: the listed one, or the entry's own while the list does not hold it. */
 function shownProjectOf(
 	projectId: string,
@@ -54,6 +56,22 @@ function pickedTaskIdFor(pick: TaskPick | null, logId: string): string | null {
 	return pick.taskId;
 }
 
+interface SavedTask {
+	logId: string;
+	task: EntryTask;
+}
+
+/** The task this dialog last saved the entry with: the page's row names the earlier one until it is read again. */
+function savedTaskFor(saved: SavedTask | null, logId: string): EntryTask | undefined {
+	if (!saved) {
+		return undefined;
+	}
+	if (saved.logId !== logId) {
+		return undefined;
+	}
+	return saved.task;
+}
+
 export interface TimeLogTaskChoiceInput {
 	log: ITimeLog;
 	projects: TOrganizationProject[] | undefined;
@@ -73,6 +91,7 @@ export function useTimeLogTaskChoice(input: TimeLogTaskChoiceInput) {
 	const activeTeam = useAtomValue(activeTeamState);
 	const teamTasks = useAtomValue(tasksByTeamState);
 	const [pick, setPick] = useState<TaskPick | null>(null);
+	const [savedTask, setSavedTask] = useState<SavedTask | null>(null);
 	// The dialog stays mounted once closed. A task picked in an earlier opening is dropped when the next one starts:
 	// left there by a Cancel, it would move the entry as soon as another field is saved
 	const [wasOpen, setWasOpen] = useState(isOpen);
@@ -86,10 +105,21 @@ export function useTimeLogTaskChoice(input: TimeLogTaskChoiceInput) {
 	const pickedTaskId = pickedTaskIdFor(pick, log.id);
 	const pickTask = useCallback((taskId: string) => setPick({ logId: log.id, taskId }), [log.id]);
 
-	const entryTask = log.task;
-	const entryTaskId = log.taskId ?? entryTask?.id ?? null;
+	const savedEntryTask = savedTaskFor(savedTask, log.id);
+	const entryTask = savedEntryTask ?? log.task;
+	const rowTaskId = log.taskId ?? log.task?.id ?? null;
+	const entryTaskId = savedEntryTask?.id ?? rowTaskId;
 	const canChangeTask = isEntryOfListedTeam(log.organizationTeamId, activeTeam?.id);
 	const taskChoices = useMemo(() => taskChoicesOfEntry(entryTask, teamTasks), [entryTask, teamTasks]);
+	const keepSavedTask = useCallback(
+		(taskId: string) => {
+			const task = taskChoices.find((choice) => choice.id === taskId);
+			if (task) {
+				setSavedTask({ logId: log.id, task });
+			}
+		},
+		[log.id, taskChoices]
+	);
 	const pickedTask = taskChoices.find((task) => task.id === pickedTaskId);
 	const change = useMemo(
 		() => entryTaskChangeOf(entryTaskId, pickedTask, pickedProjectId),
@@ -119,6 +149,8 @@ export function useTimeLogTaskChoice(input: TimeLogTaskChoiceInput) {
 		pickTask,
 		/** What the update sends on top of the dialog's own fields: nothing while the task is the entry's own. */
 		changedFields: change ?? NO_CHANGE,
+		/** Once a save went through with a new task, the dialog holds it as the entry's own, as it holds the project. */
+		keepSavedTask,
 		projectChoices,
 		shownProject,
 		/** The project the entry moves to with its new task, when the dialog knows its name. */

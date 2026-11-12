@@ -42,6 +42,7 @@ jest.mock('@/core/hooks/timesheet/use-time-log-task-choice', () => ({
 		taskId: '',
 		pickTask: jest.fn(),
 		changedFields: {},
+		keepSavedTask: jest.fn(),
 		projectChoices: [],
 		shownProject: null,
 		followedProjectName: null
