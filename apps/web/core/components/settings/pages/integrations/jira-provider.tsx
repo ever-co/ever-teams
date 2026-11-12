@@ -730,6 +730,8 @@ function MappingRow({ jira, mapping }: JiraProps & Readonly<{ mapping: IJiraMapp
 	);
 	const isPending = jira.pending.mappingId === mapping.id;
 	const anyPending = jira.pending.kind !== null;
+	// The platform imports only a mapping that brings issues in (switched on, not outbound only).
+	const bringsIssuesIn = mapping.syncEnabled && mapping.direction !== 'outbound';
 	const projectName = jira.projects.find((project) => project.id === mapping.projectId)?.name ?? '';
 	const storedCategories = useMemo(
 		() => effectiveCategoryMap(jira.defaultStatusMap, mapping.statusMap),
@@ -842,7 +844,7 @@ function MappingRow({ jira, mapping }: JiraProps & Readonly<{ mapping: IJiraMapp
 					type="button"
 					size="sm"
 					variant="outline"
-					disabled={anyPending}
+					disabled={anyPending || !bringsIssuesIn}
 					aria-busy={(isPending && jira.pending.kind === 'import') || undefined}
 					onClick={() => void jira.importNow(mapping.id, false).catch(() => undefined)}
 				>
@@ -852,7 +854,7 @@ function MappingRow({ jira, mapping }: JiraProps & Readonly<{ mapping: IJiraMapp
 					type="button"
 					size="sm"
 					variant="ghost"
-					disabled={anyPending}
+					disabled={anyPending || !bringsIssuesIn}
 					onClick={() => void jira.importNow(mapping.id, true).catch(() => undefined)}
 				>
 					{t(`${KEYS}.IMPORT_ALL` as Key)}
