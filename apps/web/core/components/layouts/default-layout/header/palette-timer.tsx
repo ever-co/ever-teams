@@ -16,6 +16,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
 import { useTimerActions } from '@/core/hooks/timer';
 import { useIsTimerRunShown, usePaletteTimer } from '@/core/hooks/timer/use-palette-timer';
+import { ALREADY_TRACKING_TOAST_ID } from '@/core/hooks/timer/use-timer-api';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import {
 	paletteNumberLabelOf,
@@ -23,7 +24,7 @@ import {
 	paletteStartValueOf,
 	tasksToStartFor
 } from '@/core/lib/utils/timer/palette-timer';
-import { tasksByTeamState } from '@/core/stores';
+import { tasksByTeamState, timerStatusState } from '@/core/stores';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 export { usePaletteTimer };
@@ -90,9 +91,12 @@ function PaletteTimerStart({ task }: Readonly<{ task: TTask }>) {
 	// A start that names no task starts the page's own task on a task page: the task asked for here is named
 	const startTimerOnTask = useCallback(() => startTimer(task), [startTimer, task]);
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer: startTimerOnTask, stopTimer });
+	// A run of another team is hidden from the timer: the card's start would stop it unseen, the main Start warns
+	const isRunGoingOn = useAtomValue(timerStatusState)?.running === true;
 
 	useRunOnce(() => {
 		const action = paletteStartActionOf({
+			hasHiddenRun: isRunGoingOn && !isTimerRunning,
 			isActiveTask: activeTeamTask?.id === task.id,
 			isTimerRunning,
 			isEmailVerified: Boolean(user?.isEmailVerified),
@@ -101,6 +105,9 @@ function PaletteTimerStart({ task }: Readonly<{ task: TTask }>) {
 		});
 
 		switch (action) {
+			case 'HIDDEN_RUN':
+				toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
+				return;
 			case 'ALREADY_RUNNING':
 				toast.info(t('toasts.timer.ALREADY_RUNNING_ON_TASK'), { id: 'timer-already-running-on-task' });
 				return;

@@ -70,6 +70,7 @@ jest.mock('@/core/hooks/timer/use-timer-plan-status', () => ({
 	useTimerPlanStatus: () => ({ canRunTimer: true, timerStatus: mockRawTimerStatus })
 }));
 jest.mock('@/core/lib/helpers/error-message', () => ({ logErrorInDev: jest.fn() }));
+jest.mock('@/core/hooks/timer/use-timer-api', () => ({ ALREADY_TRACKING_TOAST_ID: 'timer-already-tracking' }));
 jest.mock('@/core/hooks/tasks/use-timer-button', () => ({
 	useTimerButtonLogic: () => ({ ...mockTimerButton, activeTaskStatus: mockRawTimerStatus })
 }));
@@ -160,6 +161,16 @@ describe('a timer start asked from the palette', () => {
 		// The timer's handler answers there that time is already tracked elsewhere
 		expect(mockRunTimerHandler).toHaveBeenCalledTimes(1);
 		expect(toast.info).not.toHaveBeenCalled();
+	});
+
+	it('never stops a run of another team on a start of another task, which the timer hides: it warns, as the main Start does', () => {
+		mockTimerButton = timerButtonOf({ activeTeamTask: OTHER_TASK });
+
+		renderStartOf(TASK, runOf(OTHER_TEAM));
+
+		expect(mockStartTimerWithTask).not.toHaveBeenCalled();
+		expect(mockStartTimer).not.toHaveBeenCalled();
+		expect(toast.warning).toHaveBeenCalledWith('timer.ALREADY_TRACKING_MESSAGE', { id: 'timer-already-tracking' });
 	});
 });
 

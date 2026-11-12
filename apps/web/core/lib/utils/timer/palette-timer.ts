@@ -84,6 +84,7 @@ export function canStopFromPalette(state: PaletteStopState): boolean {
 }
 
 export type PaletteStartAction =
+	| 'HIDDEN_RUN'
 	| 'ALREADY_RUNNING'
 	| 'EMAIL_NOT_VERIFIED'
 	| 'UNAVAILABLE'
@@ -92,6 +93,11 @@ export type PaletteStartAction =
 	| 'TASK_START';
 
 export interface PaletteStartState {
+	/**
+	 * A run goes on that the timer does not show (another team's): the timer's Start only warns about it, and a card's
+	 * start would stop it unseen.
+	 */
+	hasHiddenRun: boolean;
 	/** The task is the active team task, whether or not the timer status is known yet. */
 	isActiveTask: boolean;
 	/** The timer shows a run: false while its status is not known, and for a run going on for another team. */
@@ -107,7 +113,7 @@ export interface PaletteStartState {
 /**
  * What a start asked from the palette does, by the rules of the task's own card: the active task goes through the
  * main Start (and its daily plan dialogs), any other task through its card's start, which the plan rule can refuse.
- * A member whose email is not verified starts neither.
+ * A member whose email is not verified starts neither, and a run the timer does not show is never stopped from here.
  */
 export function paletteStartActionOf(state: PaletteStartState): PaletteStartAction {
 	const isRunningOnTask = state.isActiveTask && state.isTimerRunning;
@@ -122,6 +128,10 @@ export function paletteStartActionOf(state: PaletteStartState): PaletteStartActi
 			return 'UNAVAILABLE';
 		}
 		return 'MAIN_START';
+	}
+	// The main Start warns about such a run itself; a card's start would stop it
+	if (state.hasHiddenRun) {
+		return 'HIDDEN_RUN';
 	}
 	if (!state.canTrackTask) {
 		return 'BLOCKED_BY_PLAN';
