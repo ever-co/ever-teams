@@ -773,9 +773,83 @@ function TimelineBar({
 		onMove(event.shiftKey && !bar.isDueOnly ? 'end' : 'move', event.key === 'ArrowLeft' ? -1 : 1);
 	};
 
+	const statusColor = status?.color ?? null;
+	const tone = entryToneStyle(statusColor);
+	const barHeight = ROW_HEIGHT - 12;
+	const showsStartHandle = hasHandles && !bar.isClippedStart;
+	const showsEndHandle = hasHandles && !bar.isClippedEnd;
+	// What a bar of the active team's task does with the keyboard, and how its dates move, for screen readers.
+	let keyShortcuts: string | undefined;
 	let describedBy: string | undefined;
 	if (canEdit) {
+		keyShortcuts = 'Alt+ArrowLeft Alt+ArrowRight Alt+Shift+ArrowLeft Alt+Shift+ArrowRight';
 		describedBy = dragHintId;
+	}
+	const barProps = {
+		type: 'button' as const,
+		onClick: handleClick,
+		...handlers,
+		onPointerDown: handlePointerDown,
+		onPointerLeave: handlePointerLeave,
+		onKeyDown: handleKeyDown,
+		'aria-label': label,
+		'aria-describedby': describedBy,
+		'aria-keyshortcuts': keyShortcuts,
+		'data-testid': `timeline-bar-${task.id}`,
+		className: cn(
+			'absolute top-1.5 flex items-center gap-1.5 overflow-hidden rounded-[5px] pr-1 pl-2 text-left text-xs font-medium text-foreground outline-none hairline-ring ring-foreground/5 focus-visible:ring-[3px] focus-visible:ring-ring/40 [&_[data-slot=task-property-icon]]:size-3 [&_[data-slot=task-property-icon]]:shrink-0',
+			ENTRY_SOLID,
+			bar.isOverdue && 'ring-destructive/45',
+			isSingleDateBar(bar) && 'border border-dashed border-foreground/25',
+			bar.isClippedStart && 'rounded-l-none',
+			bar.isClippedEnd && 'rounded-r-none',
+			canEdit && 'cursor-grab touch-none active:cursor-grabbing',
+			preview && 'z-10 shadow-sm'
+		),
+		style: { ...tone, left, width, height: barHeight }
+	};
+	// The handles come after the stripe and around the title and faces, which take no pointer: on top without a
+	// stacking order of their own, so the sticky title column still covers them when the calendar is scrolled.
+	const barContent = (
+		<>
+			<span className={cn(ENTRY_BAR, 'pointer-events-none')} />
+			{showsStartHandle && (
+				<span
+					data-handle="start"
+					aria-hidden="true"
+					className="absolute inset-y-0 left-0 w-1.5 cursor-ew-resize"
+				/>
+			)}
+			{showsGlyph && (
+				<span className="pointer-events-none flex shrink-0">
+					<StatusGlyph status={status} />
+				</span>
+			)}
+			{showsTitle && (
+				<span
+					className={cn(
+						'pointer-events-none min-w-0 flex-1 truncate',
+						isDone && 'text-muted-foreground line-through',
+						bar.isOverdue && 'text-destructive-ink'
+					)}
+				>
+					{task.title}
+				</span>
+			)}
+			{showsPeople && <BarPeople people={people} />}
+			{showsEndHandle && (
+				<span
+					data-handle="end"
+					aria-hidden="true"
+					className="absolute inset-y-0 right-0 w-1.5 cursor-ew-resize"
+				/>
+			)}
+		</>
+	);
+
+	// Where nothing hovers (a touch screen) a bar carries no card at all, so it sets up none of its machinery.
+	if (!canHover) {
+		return <button {...barProps}>{barContent}</button>;
 	}
 
 	return (
@@ -785,70 +859,7 @@ function TimelineBar({
 			openDelay={CARD_OPEN_DELAY}
 			closeDelay={CARD_CLOSE_DELAY}
 		>
-			<HoverCardTrigger
-				render={
-					<button
-						type="button"
-						onClick={handleClick}
-						{...handlers}
-						onPointerDown={handlePointerDown}
-						onPointerLeave={handlePointerLeave}
-						onKeyDown={handleKeyDown}
-						aria-label={label}
-						aria-describedby={describedBy}
-						aria-keyshortcuts={
-							canEdit
-								? 'Alt+ArrowLeft Alt+ArrowRight Alt+Shift+ArrowLeft Alt+Shift+ArrowRight'
-								: undefined
-						}
-						data-testid={`timeline-bar-${task.id}`}
-						className={cn(
-							'absolute top-1.5 flex items-center gap-1.5 overflow-hidden rounded-[5px] pr-1 pl-2 text-left text-xs font-medium text-foreground outline-none hairline-ring ring-foreground/5 focus-visible:ring-[3px] focus-visible:ring-ring/40 [&_[data-slot=task-property-icon]]:size-3 [&_[data-slot=task-property-icon]]:shrink-0',
-							ENTRY_SOLID,
-							bar.isOverdue && 'ring-destructive/45',
-							isSingleDateBar(bar) && 'border border-dashed border-foreground/25',
-							bar.isClippedStart && 'rounded-l-none',
-							bar.isClippedEnd && 'rounded-r-none',
-							canEdit && 'cursor-grab touch-none active:cursor-grabbing',
-							preview && 'z-10 shadow-sm'
-						)}
-						style={{ ...entryToneStyle(status?.color ?? null), left, width, height: ROW_HEIGHT - 12 }}
-					/>
-				}
-			>
-				<span className={cn(ENTRY_BAR, 'pointer-events-none')} />
-				{hasHandles && !bar.isClippedStart ? (
-					<span
-						data-handle="start"
-						aria-hidden="true"
-						className="absolute inset-y-0 left-0 w-1.5 cursor-ew-resize"
-					/>
-				) : null}
-				{showsGlyph && (
-					<span className="pointer-events-none flex shrink-0">
-						<StatusGlyph status={status} />
-					</span>
-				)}
-				{showsTitle && (
-					<span
-						className={cn(
-							'pointer-events-none min-w-0 flex-1 truncate',
-							isDone && 'text-muted-foreground line-through',
-							bar.isOverdue && 'text-destructive-ink'
-						)}
-					>
-						{task.title}
-					</span>
-				)}
-				{showsPeople && <BarPeople people={people} />}
-				{hasHandles && !bar.isClippedEnd ? (
-					<span
-						data-handle="end"
-						aria-hidden="true"
-						className="absolute inset-y-0 right-0 w-1.5 cursor-ew-resize"
-					/>
-				) : null}
-			</HoverCardTrigger>
+			<HoverCardTrigger render={<button {...barProps} />}>{barContent}</HoverCardTrigger>
 			{isCardShown && (
 				<HoverCardContent side="bottom" align="start" sideOffset={6} collisionPadding={12} className="w-72 p-3">
 					<TimelineTaskCard
