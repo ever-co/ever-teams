@@ -46,7 +46,6 @@ function DueTermHint({ invoice, id }: Readonly<{ invoice: NewInvoiceState; id: s
 	);
 }
 
-/** What the next step offers: a draft, and the sending too when the client has an e-mail. */
 function SavingNote({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 	const t = useTranslations();
 	const email = invoice.client?.primaryEmail?.trim();

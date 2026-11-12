@@ -13,7 +13,6 @@ interface InvoiceRecipientFieldProps {
 	isInvalid: boolean;
 }
 
-/** The address an invoice is e-mailed to, the client's own to start with. */
 export function InvoiceRecipientField({ value, onChange, isInvalid }: Readonly<InvoiceRecipientFieldProps>) {
 	const t = useTranslations();
 	const id = useId();
@@ -46,7 +45,6 @@ export function InvoiceRecipientField({ value, onChange, isInvalid }: Readonly<I
 	);
 }
 
-/** Says where an invoice went, and when it could not be marked Sent after it went. */
 export function useSentInvoiceToast() {
 	const t = useTranslations();
 	return useCallback(

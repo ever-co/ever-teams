@@ -66,7 +66,6 @@ function ActionRow({ action, label, onSelect }: Readonly<ActionRowProps>) {
 interface InvoiceActionsMenuProps {
 	invoice: TInvoice;
 	numberText: string;
-	/** A change of this invoice is on its way: the menu waits for it. */
 	isChanging: boolean;
 	onAction: (invoice: TInvoice, action: InvoiceAction) => void;
 }

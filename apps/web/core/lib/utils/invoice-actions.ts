@@ -83,7 +83,6 @@ function changedItemOf<T extends Identified>(item: T, invoiceId: string, change:
 	return { ...item, ...change };
 }
 
-/** The pages of the list with one invoice changed in place, so the list shows its new state at once. */
 export function pagesWithInvoiceChanged<T extends Identified>(
 	pages: ReadonlyArray<ListedInvoicesPage<T>>,
 	invoiceId: string,

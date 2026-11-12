@@ -16,7 +16,6 @@ import { invoiceStatusOf } from '@/core/lib/utils/invoices';
 import type { TInvoice } from '@/core/types/schemas/organization/invoice.schema';
 import { InvoiceRecipientField, useSentInvoiceToast } from './invoice-sending';
 
-/** The invoice an action is taken on, named as its row names it. */
 export interface InvoiceActionTarget {
 	invoice: TInvoice;
 	numberText: string;

@@ -220,7 +220,6 @@ export function InvoicesLedger({
 	timeZone: string | null | undefined;
 	pendingPdfId: string | null;
 	onDownload: (invoice: InvoiceToDownload) => void;
-	/** The viewer may send, settle, void or delete invoices: each row gets its actions menu. */
 	canEdit: boolean;
 	changingId: string | null;
 	onAction: InvoiceActionHandler;
