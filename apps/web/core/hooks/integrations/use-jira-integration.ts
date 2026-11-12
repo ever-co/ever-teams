@@ -275,15 +275,17 @@ export function useJiraIntegration(): JiraIntegrationSettings {
 	}, [queryClient]);
 
 	// A run that finished changed the mapping (its last import) and maybe the connection (an attention reason):
-	// both are read again, since the poll refreshes the runs alone. A run this page started is tracked by id, so a
-	// quick one whose finished row is the first seen refreshes them too.
-	const wasRunning = useRef(false);
+	// both are read again, since the poll refreshes the runs alone. Runs are tracked by id: each one seen running that
+	// no longer is (while others still run, too), and a run this page started whose finished row is the first seen.
+	const runningRunIds = useRef(new Set<string>());
 	const acceptedRunIds = useRef(new Set<string>());
 	const runs = runsQuery.data ?? NO_RUNS;
-	const isRunning = runs.some((run) => run.status === 'running');
 	const acceptedFinished = runs.some((run) => acceptedRunIds.current.has(run.id) && run.status !== 'running');
 	useEffect(() => {
-		if ((wasRunning.current && !isRunning) || acceptedFinished) {
+		const running = new Set(runs.filter((run) => run.status === 'running').map((run) => run.id));
+		const someFinished = [...runningRunIds.current].some((id) => !running.has(id));
+		runningRunIds.current = running;
+		if (someFinished || acceptedFinished) {
 			for (const run of runs) if (run.status !== 'running') acceptedRunIds.current.delete(run.id);
 			void queryClient.invalidateQueries({
 				queryKey: queryKeys.integrations.jira.mappings(tenantId, organizationId, integrationId)
@@ -292,8 +294,7 @@ export function useJiraIntegration(): JiraIntegrationSettings {
 				queryKey: queryKeys.integrations.jira.status(tenantId, organizationId)
 			});
 		}
-		wasRunning.current = isRunning;
-	}, [acceptedFinished, integrationId, isRunning, organizationId, queryClient, runs, tenantId]);
+	}, [acceptedFinished, integrationId, organizationId, queryClient, runs, tenantId]);
 
 	useConflictsAfterRuns('jira', runs);
 

@@ -25,6 +25,8 @@ describe('integration-jira-status-map', () => {
 			indeterminate: 'In Progress',
 			done: 'completed'
 		});
+		// A blank entry of the mapping falls back to the platform default, not to the built-in one.
+		expect(effectiveCategoryMap({ new: 'To Do' }, { new: '' }).new).toBe('To Do');
 		expect(effectiveCategoryMap(null, null)).toEqual({
 			new: 'open',
 			indeterminate: 'in-progress',

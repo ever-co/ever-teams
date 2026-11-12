@@ -336,8 +336,14 @@ describe('JiraProviderSection', () => {
 		expect(screen.getByRole('button', { name: `${K}.DISCONNECT` })).toBeTruthy();
 	});
 
-	it('connected: the site can be changed to another one the token reaches', async () => {
-		const jira = connected();
+	it('connected with mappings: the site cannot change (a mapping names a project by its id on this site)', () => {
+		render(<JiraProviderSection jira={connected()} />);
+		expect((screen.getByTestId('jira-site-change') as HTMLButtonElement).disabled).toBe(true);
+		expect(screen.getByText(`${K}.SITE_CHANGE_BLOCKED`)).toBeTruthy();
+	});
+
+	it('connected without mappings: the site can be changed to another one the token reaches', async () => {
+		const jira = connected({ mappings: [] });
 		render(<JiraProviderSection jira={jira} />);
 		fireEvent.click(screen.getByTestId('jira-site-change'));
 		const choice = screen.getByTestId('jira-site-choice');
@@ -467,6 +473,24 @@ describe('JiraProviderSection', () => {
 			issueTypeIds: ['10003']
 		});
 		await waitFor(() => expect(screen.queryByTestId('jira-status-map-save-m1')).toBeNull());
+	});
+
+	it('an issue-type filter whose types all left the project blocks saving until a type is chosen or every type is', async () => {
+		const base = connected().mappings[0];
+		const jira = connected({ mappings: [{ ...base, issueTypeIds: ['99999'] }] });
+		render(<JiraProviderSection jira={jira} />);
+		const row = screen.getByTestId('jira-mapping-m1');
+		fireEvent.click(within(row).getByRole('button', { name: `${K}.STATUS_MAP_EDIT` }));
+		const save = screen.getByTestId('jira-status-map-save-m1') as HTMLButtonElement;
+		expect(save.disabled).toBe(true);
+		const gone = within(row).getByTestId('jira-issue-types-gone');
+		expect(gone.textContent).toContain(`${K}.ISSUE_TYPES_GONE`);
+		fireEvent.click(within(gone).getByRole('button', { name: `${K}.ISSUE_TYPES_ALL` }));
+		expect(within(row).queryByTestId('jira-issue-types-gone')).toBeNull();
+		expect(save.disabled).toBe(false);
+		fireEvent.click(save);
+		await waitFor(() => expect(jira.updateMapping).toHaveBeenCalledTimes(1));
+		expect(jira.updateMapping).toHaveBeenCalledWith('m1', expect.objectContaining({ issueTypeIds: [] }));
 	});
 
 	it('the webhook: a failed registration is named and can be retried; off on the platform, no webhook row', () => {

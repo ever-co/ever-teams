@@ -31,8 +31,11 @@ export function effectiveCategoryMap(
 ): JiraCategoryMap {
 	const map = { ...FALLBACK_CATEGORY_MAP };
 	for (const category of JIRA_STATUS_CATEGORIES) {
-		const value = stored?.[category] ?? defaults?.[category];
-		if (typeof value === 'string' && value.trim()) map[category] = value;
+		// The first value that names something: the mapping's own, else the platform's default (a blank one is skipped).
+		const value = [stored?.[category], defaults?.[category]].find(
+			(candidate) => typeof candidate === 'string' && candidate.trim()
+		);
+		if (value) map[category] = value;
 	}
 	return map;
 }

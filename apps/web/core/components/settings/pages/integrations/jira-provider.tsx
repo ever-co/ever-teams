@@ -651,11 +651,30 @@ function MapEditor({
 					</div>
 				</fieldset>
 			)}
+			{lostIssueTypeFilter(draft, detail) && (
+				<div className="flex flex-wrap items-center gap-2" data-testid="jira-issue-types-gone">
+					<span className="text-xs text-destructive-ink" role="alert">
+						{t(`${KEYS}.ISSUE_TYPES_GONE` as Key)}
+					</span>
+					<Button
+						type="button"
+						size="sm"
+						variant="outline"
+						disabled={disabled}
+						onClick={() => onChange({ ...draft, issueTypeIds: [] })}
+					>
+						{t(`${KEYS}.ISSUE_TYPES_ALL` as Key)}
+					</Button>
+				</div>
+			)}
 		</div>
 	);
 }
 
-/** Whether an editor may be saved: the project's statuses are read, and every chosen status is one (nothing while they are unknown). */
+/**
+ * Whether an editor may be saved: the project's statuses are read, every chosen status is one (nothing while they are
+ * unknown), and an issue-type filter still names a type of the project (saved empty, it would bring every type in).
+ */
 function canSaveDraft(draft: JiraMapDraft, detail: JiraProjectDetailLookup, statuses: LinearStatusOptions): boolean {
 	return (
 		!detail.isLoading &&
@@ -663,8 +682,14 @@ function canSaveDraft(draft: JiraMapDraft, detail: JiraProjectDetailLookup, stat
 		!statuses.isLoading &&
 		!statuses.error &&
 		invalidCategories(draft.categories, statuses.options).length === 0 &&
-		invalidStatusFields(draft.fields, statuses.options).length === 0
+		invalidStatusFields(draft.fields, statuses.options).length === 0 &&
+		!lostIssueTypeFilter(draft, detail)
 	);
+}
+
+/** Whether the draft filters on issue types the project no longer has, and on none it has. */
+function lostIssueTypeFilter(draft: JiraMapDraft, detail: JiraProjectDetailLookup): boolean {
+	return !!detail.detail && draft.issueTypeIds.length > 0 && keptIssueTypeIds(draft, detail).length === 0;
 }
 
 /** The issue types a draft keeps: those the project still has (an empty list brings every type in). */
@@ -1057,18 +1082,26 @@ function JiraDetails({
 	const connection = jira.connection;
 	// The forms belong to the site they were filled for: another site starts them afresh (its projects and statuses differ).
 	const siteKey = connection?.cloudId ?? 'no-site';
+	// The site changes only while nothing is mapped (or every mapping was removed): see SITE_CHANGE_BLOCKED.
+	const siteLocked = jira.mappings.length > 0;
 	if (jira.isLoadingDetails) return <MutedRow>{t(`${KEYS}.LOADING_DETAILS` as Key)}</MutedRow>;
 	return (
 		<>
 			{changingSite ? (
 				<SiteChoiceRow jira={jira} required={false} onDone={() => setChangingSite(false)} />
 			) : (
-				<div className={cn(ROW_DIVIDER, 'flex justify-end px-4 py-2')}>
+				<div className={cn(ROW_DIVIDER, 'flex flex-wrap items-center justify-end gap-3 px-4 py-2')}>
+					{/* A mapping names a project by its id on this site: another site may hold another project of that id. */}
+					{siteLocked && (
+						<span className="min-w-0 flex-1 text-xs text-muted-foreground">
+							{t(`${KEYS}.SITE_CHANGE_BLOCKED` as Key)}
+						</span>
+					)}
 					<Button
 						type="button"
 						size="sm"
 						variant="ghost"
-						disabled={jira.pending.kind !== null}
+						disabled={jira.pending.kind !== null || siteLocked}
 						onClick={() => setChangingSite(true)}
 						data-testid="jira-site-change"
 					>
