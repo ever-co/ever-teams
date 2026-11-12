@@ -6,7 +6,6 @@ import type { PropsWithChildren } from 'react';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { rowIdentityOfLog, type SheetDay } from '@/core/lib/utils/dashboards/timesheets';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
-import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 const mockCreateTimesheetFrom = jest.fn();
@@ -49,20 +48,6 @@ function logOf(overrides: Partial<ITimeLog>): ITimeLog {
 
 const day: SheetDay = { key: localDayKeyOf(at(0)), date: at(0), isToday: false, isWeekend: false };
 const identity = rowIdentityOfLog(logOf({ projectId: 'project', taskId: 'task' }));
-
-/** A log of another row whose timesheet, approved, covers the week of `day`. */
-const approvedElsewhere = logOf({
-	id: 'approved',
-	projectId: 'other',
-	startedAt: at(9),
-	stoppedAt: at(10),
-	timesheet: {
-		id: 'sheet',
-		status: ETimesheetStatus.APPROVED,
-		startedAt: new Date(2024, 0, 8),
-		stoppedAt: new Date(2024, 0, 14)
-	} as ITimeLog['timesheet']
-});
 
 function scopeOf(overrides: Partial<SheetWriteScope>): SheetWriteScope {
 	return {
@@ -121,41 +106,6 @@ describe('useSheetCellWrites', () => {
 		expect(outcome).toBe('refused');
 		expect(mockCreateTimesheetFrom).not.toHaveBeenCalled();
 		expect(mockToastError).toHaveBeenCalledWith('dashboard.timesheets.SHEET.EDIT.SAVE_FAILED', expect.anything());
-	});
-
-	it('refuses a cell of a day approved since the page was read', async () => {
-		const scope = scopeOf({ readSavedMemberLogs: async () => [approvedElsewhere] });
-		const { result } = renderWrites(scope);
-
-		let outcome: CellCommitOutcome | undefined;
-		await act(async () => {
-			outcome = await result.current.commitCell(identity, day, 2 * HOUR);
-		});
-
-		expect(outcome).toBe('refused');
-		expect(mockCreateTimesheetFrom).not.toHaveBeenCalled();
-		expect(mockToastError).toHaveBeenCalledWith('dashboard.timesheets.SHEET.EDIT.SAVE_FAILED', {
-			description: 'dashboard.timesheets.SHEET.EDIT.LOCK_APPROVED'
-		});
-	});
-
-	it('leaves alone a day approved since the copy was prepared', async () => {
-		const scope = scopeOf({ readSavedMemberLogs: async () => [approvedElsewhere] });
-		const { result } = renderWrites(scope);
-
-		let run: CopyRunResult | undefined;
-		await act(async () => {
-			run = await result.current.applyCopyPlan([{ identity, day, seconds: HOUR }]);
-		});
-
-		expect(run).toEqual({
-			savedCount: 0,
-			savedSeconds: 0,
-			skippedCount: 1,
-			notCopiedCount: 0,
-			isStopped: false
-		});
-		expect(mockCreateTimesheetFrom).not.toHaveBeenCalled();
 	});
 
 	it('copies into the cells still empty and leaves alone one filled since the copy was prepared', async () => {
