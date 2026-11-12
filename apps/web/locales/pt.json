@@ -6388,6 +6388,79 @@
 		"NO_TEAM_TITLE": "Escolha uma equipa",
 		"NO_TEAM_TEXT": "O lixo mostra as tarefas eliminadas da equipa ativa."
 	},
+	"clients": {
+		"TITLE": "Clientes",
+		"COUNT": "{count, plural, one {# cliente} other {# clientes}}",
+		"NEW_CLIENT": "Novo cliente",
+		"SEARCH_PLACEHOLDER": "Pesquisar clientes",
+		"SCOPE_LABEL": "Clientes a mostrar",
+		"SCOPE_ACTIVE": "Ativos",
+		"SCOPE_ARCHIVED": "Arquivados",
+		"COLUMN_PROJECTS": "Projetos",
+		"PROJECT_COUNT": "{count, plural, =0 {Sem projetos} one {# projeto} other {# projetos}}",
+		"ARCHIVED_ON": "Arquivado em {date}",
+		"ACTIONS_FOR": "Ações para {name}",
+		"EMPTY_TITLE": "Ainda não há clientes",
+		"EMPTY_MESSAGE": "Adicione os clientes para quem trabalha e atribua a cada projeto o seu cliente.",
+		"EMPTY_MESSAGE_READ_ONLY": "Os clientes deste espaço de trabalho serão listados aqui.",
+		"EMPTY_ARCHIVED_TITLE": "Nenhum cliente arquivado",
+		"EMPTY_ARCHIVED_MESSAGE": "Um cliente arquivado é listado aqui e pode ser restaurado.",
+		"NO_MATCH_TITLE": "Nenhum cliente corresponde",
+		"NO_MATCH_MESSAGE": "Altere ou limpe a pesquisa para ver mais clientes.",
+		"CLEAR_SEARCH": "Limpar pesquisa",
+		"ERROR_TITLE": "Não foi possível carregar os clientes",
+		"ERROR_MESSAGE": "Verifique a sua ligação e tente novamente.",
+		"form": {
+			"CREATE_TITLE": "Novo cliente",
+			"EDIT_TITLE": "Editar cliente",
+			"NAME_PLACEHOLDER": "Empresa ou pessoa",
+			"EMAIL_PLACEHOLDER": "faturacao@empresa.com",
+			"PHONE": "Telefone",
+			"NOTES_PLACEHOLDER": "O que a equipa deve saber sobre este cliente",
+			"OPTIONAL": "opcional",
+			"NAME_REQUIRED": "Introduza o nome do cliente.",
+			"EMAIL_INVALID": "Introduza um endereço de e-mail válido ou deixe o campo vazio.",
+			"CREATE": "Criar cliente",
+			"SAVE_FAILED": "Não foi possível guardar o cliente. Tente novamente."
+		},
+		"toasts": {
+			"CREATED": "{name} foi adicionado aos clientes",
+			"SAVED": "{name} foi guardado",
+			"ARCHIVED": "{name} foi arquivado",
+			"RESTORED": "{name} foi restaurado"
+		},
+		"archive": {
+			"TITLE": "Arquivar {name}?",
+			"KEEPS_PROJECTS": "Os seus projetos e o tempo registado neles ficam como estão.",
+			"LEAVES_PICKER": "Deixa de ser proposto como cliente de um projeto.",
+			"CAN_RESTORE": "Pode restaurá-lo a partir da lista Arquivados.",
+			"CONFIRM": "Arquivar cliente",
+			"FAILED": "Não foi possível arquivar o cliente. Tente novamente."
+		},
+		"restore": {
+			"TITLE": "Restaurar {name}?",
+			"BACK_IN_PICKER": "Volta a ser proposto como cliente de um projeto.",
+			"CONFIRM": "Restaurar cliente",
+			"FAILED": "Não foi possível restaurar o cliente. Tente novamente."
+		},
+		"picker": {
+			"ADD": "Adicionar cliente",
+			"CHANGE": "Alterar cliente",
+			"CREATE": "Criar o cliente “{name}”",
+			"NO_CLIENT": "Sem cliente",
+			"CREATE_FAILED": "Não foi possível criar o cliente. Tente novamente."
+		}
+	},
+	"timeReports": {
+		"filters": {
+			"BILLABLE_ONLY": "Somente faturável"
+		},
+		"timesheetExport": {
+			"XLSX": "Arquivo Excel (.xlsx)",
+			"PDF": "Arquivo PDF",
+			"LOGS": "Registros"
+		}
+	},
 	"timeImport": {
 		"SECTION_TITLE": "Dados de registro de tempo",
 		"SECTION_DESCRIPTION": "Cada linha do arquivo se torna uma entrada de tempo em {team}. Você revisa todas as linhas primeiro, e nada é salvo antes da sua confirmação.",

@@ -6388,6 +6388,79 @@
 		"NO_TEAM_TITLE": "اختر فريقًا",
 		"NO_TEAM_TEXT": "تعرض المهملات المهام المحذوفة للفريق النشط."
 	},
+	"clients": {
+		"TITLE": "العملاء",
+		"COUNT": "{count, plural, zero {لا عملاء} one {عميل واحد} two {عميلان} few {# عملاء} many {# عميلًا} other {# عميل}}",
+		"NEW_CLIENT": "عميل جديد",
+		"SEARCH_PLACEHOLDER": "ابحث عن عميل",
+		"SCOPE_LABEL": "العملاء المعروضون",
+		"SCOPE_ACTIVE": "النشطون",
+		"SCOPE_ARCHIVED": "المؤرشفون",
+		"COLUMN_PROJECTS": "المشاريع",
+		"PROJECT_COUNT": "{count, plural, =0 {لا مشاريع} one {مشروع واحد} two {مشروعان} few {# مشاريع} many {# مشروعًا} other {# مشروع}}",
+		"ARCHIVED_ON": "أُرشف في {date}",
+		"ACTIONS_FOR": "إجراءات {name}",
+		"EMPTY_TITLE": "لا يوجد عملاء بعد",
+		"EMPTY_MESSAGE": "أضف العملاء الذين تعمل لهم، ثم حدّد لكل مشروع عميله.",
+		"EMPTY_MESSAGE_READ_ONLY": "سيظهر عملاء مساحة العمل هذه هنا.",
+		"EMPTY_ARCHIVED_TITLE": "لا يوجد عملاء مؤرشفون",
+		"EMPTY_ARCHIVED_MESSAGE": "العميل الذي تؤرشفه يظهر هنا ويمكن استعادته.",
+		"NO_MATCH_TITLE": "لا يوجد عملاء مطابقون",
+		"NO_MATCH_MESSAGE": "غيّر البحث أو امسحه لعرض عملاء أكثر.",
+		"CLEAR_SEARCH": "مسح البحث",
+		"ERROR_TITLE": "تعذّر تحميل العملاء",
+		"ERROR_MESSAGE": "تحقق من اتصالك ثم حاول مرة أخرى.",
+		"form": {
+			"CREATE_TITLE": "عميل جديد",
+			"EDIT_TITLE": "تعديل العميل",
+			"NAME_PLACEHOLDER": "شركة أو شخص",
+			"EMAIL_PLACEHOLDER": "billing@company.com",
+			"PHONE": "الهاتف",
+			"NOTES_PLACEHOLDER": "ما يجب أن يعرفه الفريق عن هذا العميل",
+			"OPTIONAL": "اختياري",
+			"NAME_REQUIRED": "أدخل اسم العميل.",
+			"EMAIL_INVALID": "أدخل بريدًا إلكترونيًا صالحًا أو اترك الحقل فارغًا.",
+			"CREATE": "إنشاء العميل",
+			"SAVE_FAILED": "تعذّر حفظ العميل. حاول مرة أخرى."
+		},
+		"toasts": {
+			"CREATED": "تمت إضافة {name} إلى العملاء",
+			"SAVED": "تم حفظ {name}",
+			"ARCHIVED": "تمت أرشفة {name}",
+			"RESTORED": "تمت استعادة {name}"
+		},
+		"archive": {
+			"TITLE": "أرشفة {name}؟",
+			"KEEPS_PROJECTS": "تبقى مشاريعه والوقت المسجّل عليها كما هي.",
+			"LEAVES_PICKER": "لن يُعرض بعد الآن كعميل لمشروع.",
+			"CAN_RESTORE": "يمكنك استعادته من قائمة المؤرشفين.",
+			"CONFIRM": "أرشفة العميل",
+			"FAILED": "تعذّرت أرشفة العميل. حاول مرة أخرى."
+		},
+		"restore": {
+			"TITLE": "استعادة {name}؟",
+			"BACK_IN_PICKER": "يُعرض من جديد كعميل لمشروع.",
+			"CONFIRM": "استعادة العميل",
+			"FAILED": "تعذّرت استعادة العميل. حاول مرة أخرى."
+		},
+		"picker": {
+			"ADD": "إضافة عميل",
+			"CHANGE": "تغيير العميل",
+			"CREATE": "إنشاء العميل «{name}»",
+			"NO_CLIENT": "بلا عميل",
+			"CREATE_FAILED": "تعذّر إنشاء العميل. حاول مرة أخرى."
+		}
+	},
+	"timeReports": {
+		"filters": {
+			"BILLABLE_ONLY": "القابل للفوترة فقط"
+		},
+		"timesheetExport": {
+			"XLSX": "ملف Excel (.xlsx)",
+			"PDF": "ملف PDF",
+			"LOGS": "السجلات"
+		}
+	},
 	"timeImport": {
 		"SECTION_TITLE": "بيانات تتبّع الوقت",
 		"SECTION_DESCRIPTION": "كل صف في الملف يصبح إدخال وقت في {team}. تراجع كل الصفوف أولًا، ولا يُحفظ شيء قبل أن تؤكّد.",

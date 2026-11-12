@@ -26,6 +26,8 @@ export interface TimeActivityRequest {
 	taskIds: string[];
 	/** With `teamIds`, the daily report also counts the time the teams' members logged without a team. */
 	includeTimeWithoutTeam?: boolean;
+	/** The daily and weekly reports count billable time only; the counts endpoint has no such filter. */
+	billableOnly?: boolean;
 }
 
 const ACTIVITY_LEVEL = { start: 0, end: 100 };
@@ -61,7 +63,8 @@ async function fetchDailyReport(request: TimeActivityRequest): Promise<ITimeLogG
 		projectIds: request.projectIds,
 		taskIds: request.taskIds,
 		activityLevel: ACTIVITY_LEVEL,
-		includeTimeWithoutTeam: request.includeTimeWithoutTeam
+		includeTimeWithoutTeam: request.includeTimeWithoutTeam,
+		billableOnly: request.billableOnly
 	});
 	const days = response.data;
 	if (!Array.isArray(days)) {
@@ -103,7 +106,7 @@ export function useTimeActivityDailyQuery(request: TimeActivityRequest | null) {
 
 /**
  * Tracked time and average activity of the period as Gauzy computes them (timer logs only). The counts endpoint has
- * no task filter, so `taskIds` stays out of its request and of its key.
+ * no task filter and no billable filter, so `taskIds` and `billableOnly` stay out of its request and of its key.
  */
 export function useTimeActivityCountsQuery(request: TimeActivityRequest | null) {
 	const countsRequest = countsKeyOf(request);

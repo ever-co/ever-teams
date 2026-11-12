@@ -6388,6 +6388,79 @@
 		"NO_TEAM_TITLE": "Team auswählen",
 		"NO_TEAM_TEXT": "Der Papierkorb zeigt die gelöschten Aufgaben des aktiven Teams."
 	},
+	"clients": {
+		"TITLE": "Kunden",
+		"COUNT": "{count, plural, one {# Kunde} other {# Kunden}}",
+		"NEW_CLIENT": "Neuer Kunde",
+		"SEARCH_PLACEHOLDER": "Kunden suchen",
+		"SCOPE_LABEL": "Angezeigte Kunden",
+		"SCOPE_ACTIVE": "Aktiv",
+		"SCOPE_ARCHIVED": "Archiviert",
+		"COLUMN_PROJECTS": "Projekte",
+		"PROJECT_COUNT": "{count, plural, =0 {Keine Projekte} one {# Projekt} other {# Projekte}}",
+		"ARCHIVED_ON": "Archiviert am {date}",
+		"ACTIONS_FOR": "Aktionen für {name}",
+		"EMPTY_TITLE": "Noch keine Kunden",
+		"EMPTY_MESSAGE": "Fügen Sie die Kunden hinzu, für die Sie arbeiten, und ordnen Sie jedem Projekt seinen Kunden zu.",
+		"EMPTY_MESSAGE_READ_ONLY": "Die Kunden dieses Arbeitsbereichs werden hier aufgelistet.",
+		"EMPTY_ARCHIVED_TITLE": "Keine archivierten Kunden",
+		"EMPTY_ARCHIVED_MESSAGE": "Ein archivierter Kunde wird hier aufgelistet und kann wiederhergestellt werden.",
+		"NO_MATCH_TITLE": "Keine passenden Kunden",
+		"NO_MATCH_MESSAGE": "Ändern oder löschen Sie die Suche, um mehr Kunden zu sehen.",
+		"CLEAR_SEARCH": "Suche löschen",
+		"ERROR_TITLE": "Die Kunden konnten nicht geladen werden",
+		"ERROR_MESSAGE": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+		"form": {
+			"CREATE_TITLE": "Neuer Kunde",
+			"EDIT_TITLE": "Kunde bearbeiten",
+			"NAME_PLACEHOLDER": "Unternehmen oder Person",
+			"EMAIL_PLACEHOLDER": "rechnung@unternehmen.de",
+			"PHONE": "Telefon",
+			"NOTES_PLACEHOLDER": "Was das Team über diesen Kunden wissen sollte",
+			"OPTIONAL": "optional",
+			"NAME_REQUIRED": "Geben Sie den Namen des Kunden ein.",
+			"EMAIL_INVALID": "Geben Sie eine gültige E-Mail-Adresse ein oder lassen Sie das Feld leer.",
+			"CREATE": "Kunde erstellen",
+			"SAVE_FAILED": "Der Kunde konnte nicht gespeichert werden. Versuchen Sie es erneut."
+		},
+		"toasts": {
+			"CREATED": "{name} wurde zu den Kunden hinzugefügt",
+			"SAVED": "{name} wurde gespeichert",
+			"ARCHIVED": "{name} wurde archiviert",
+			"RESTORED": "{name} wurde wiederhergestellt"
+		},
+		"archive": {
+			"TITLE": "{name} archivieren?",
+			"KEEPS_PROJECTS": "Die Projekte des Kunden und die darauf erfasste Zeit bleiben unverändert.",
+			"LEAVES_PICKER": "Er wird nicht mehr als Kunde eines Projekts angeboten.",
+			"CAN_RESTORE": "Sie können ihn in der Liste Archiviert wiederherstellen.",
+			"CONFIRM": "Kunde archivieren",
+			"FAILED": "Der Kunde konnte nicht archiviert werden. Versuchen Sie es erneut."
+		},
+		"restore": {
+			"TITLE": "{name} wiederherstellen?",
+			"BACK_IN_PICKER": "Er wird wieder als Kunde eines Projekts angeboten.",
+			"CONFIRM": "Kunde wiederherstellen",
+			"FAILED": "Der Kunde konnte nicht wiederhergestellt werden. Versuchen Sie es erneut."
+		},
+		"picker": {
+			"ADD": "Kunde hinzufügen",
+			"CHANGE": "Kunde ändern",
+			"CREATE": "Kunde „{name}“ erstellen",
+			"NO_CLIENT": "Kein Kunde",
+			"CREATE_FAILED": "Der Kunde konnte nicht erstellt werden. Versuchen Sie es erneut."
+		}
+	},
+	"timeReports": {
+		"filters": {
+			"BILLABLE_ONLY": "Nur abrechenbar"
+		},
+		"timesheetExport": {
+			"XLSX": "Excel-Datei (.xlsx)",
+			"PDF": "PDF-Datei",
+			"LOGS": "Einträge"
+		}
+	},
 	"timeImport": {
 		"SECTION_TITLE": "Zeiterfassungsdaten",
 		"SECTION_DESCRIPTION": "Jede Zeile der Datei wird zu einem Zeiteintrag in {team}. Du prüfst zuerst alle Zeilen, und nichts wird gespeichert, bevor du bestätigst.",

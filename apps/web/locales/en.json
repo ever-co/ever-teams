@@ -6388,6 +6388,79 @@
 		"NO_TEAM_TITLE": "Choose a team",
 		"NO_TEAM_TEXT": "The trash lists the deleted tasks of the active team."
 	},
+	"clients": {
+		"TITLE": "Clients",
+		"COUNT": "{count, plural, one {# client} other {# clients}}",
+		"NEW_CLIENT": "New client",
+		"SEARCH_PLACEHOLDER": "Search clients",
+		"SCOPE_LABEL": "Clients to show",
+		"SCOPE_ACTIVE": "Active",
+		"SCOPE_ARCHIVED": "Archived",
+		"COLUMN_PROJECTS": "Projects",
+		"PROJECT_COUNT": "{count, plural, =0 {No projects} one {# project} other {# projects}}",
+		"ARCHIVED_ON": "Archived {date}",
+		"ACTIONS_FOR": "Actions for {name}",
+		"EMPTY_TITLE": "No clients yet",
+		"EMPTY_MESSAGE": "Add the clients you work for, then give each project its client.",
+		"EMPTY_MESSAGE_READ_ONLY": "The clients of this workspace will be listed here.",
+		"EMPTY_ARCHIVED_TITLE": "No archived clients",
+		"EMPTY_ARCHIVED_MESSAGE": "A client you archive is listed here and can be restored.",
+		"NO_MATCH_TITLE": "No clients match",
+		"NO_MATCH_MESSAGE": "Change or clear the search to see more clients.",
+		"CLEAR_SEARCH": "Clear search",
+		"ERROR_TITLE": "The clients could not be loaded",
+		"ERROR_MESSAGE": "Check your connection, then try again.",
+		"form": {
+			"CREATE_TITLE": "New client",
+			"EDIT_TITLE": "Edit client",
+			"NAME_PLACEHOLDER": "Company or person",
+			"EMAIL_PLACEHOLDER": "billing@company.com",
+			"PHONE": "Phone",
+			"NOTES_PLACEHOLDER": "What the team should know about this client",
+			"OPTIONAL": "optional",
+			"NAME_REQUIRED": "Enter the client's name.",
+			"EMAIL_INVALID": "Enter a valid email address, or leave the field empty.",
+			"CREATE": "Create client",
+			"SAVE_FAILED": "The client could not be saved. Try again."
+		},
+		"toasts": {
+			"CREATED": "{name} was added to the clients",
+			"SAVED": "{name} was saved",
+			"ARCHIVED": "{name} was archived",
+			"RESTORED": "{name} was restored"
+		},
+		"archive": {
+			"TITLE": "Archive {name}?",
+			"KEEPS_PROJECTS": "Its projects and the time tracked on them stay as they are.",
+			"LEAVES_PICKER": "It is no longer offered as the client of a project.",
+			"CAN_RESTORE": "You can restore it from the Archived list.",
+			"CONFIRM": "Archive client",
+			"FAILED": "The client could not be archived. Try again."
+		},
+		"restore": {
+			"TITLE": "Restore {name}?",
+			"BACK_IN_PICKER": "It is offered again as the client of a project.",
+			"CONFIRM": "Restore client",
+			"FAILED": "The client could not be restored. Try again."
+		},
+		"picker": {
+			"ADD": "Add client",
+			"CHANGE": "Change client",
+			"CREATE": "Create client “{name}”",
+			"NO_CLIENT": "No client",
+			"CREATE_FAILED": "The client could not be created. Try again."
+		}
+	},
+	"timeReports": {
+		"filters": {
+			"BILLABLE_ONLY": "Billable only"
+		},
+		"timesheetExport": {
+			"XLSX": "Excel file (.xlsx)",
+			"PDF": "PDF file",
+			"LOGS": "Logs"
+		}
+	},
 	"timeImport": {
 		"SECTION_TITLE": "Time tracking data",
 		"SECTION_DESCRIPTION": "Each row of the file becomes a time entry in {team}. You review every row first, and nothing is saved before you confirm.",

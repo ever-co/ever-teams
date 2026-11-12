@@ -73,6 +73,7 @@ export function TimeActivityPage() {
 						request={report.request}
 						userId={report.user?.id}
 						hasTaskFilter={report.hasTaskFilter}
+						dailySource={report.weekDailySource}
 					/>
 				)}
 				{!isWeekGrid && (

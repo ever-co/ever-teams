@@ -2031,12 +2031,20 @@ describe('Ever Teams feature surface preservation', () => {
 		// 326 files and 417 verbs with the workspace rename proxy (PUT /api/tenant, #5087).
 		// 327 files and 418 verbs with the trash's Delete forever, which deletes a task only while it is still in the
 		// trash (/api/tasks/[id]/trashed DELETE).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(327);
+		// 332 files and 423 verbs: develop's 327 / 418 plus the clients' proxies (/api/organization-contact POST, pagination GET, [id] PUT,
+		// [id]/soft DELETE, [id]/recover PUT; #5082).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(332);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(418);
+		).toHaveLength(423);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of Gauzy's organization contacts of the client type (#5082)
+				'apps/web/app/api/organization-contact/pagination/route.ts::GET',
+				'apps/web/app/api/organization-contact/route.ts::POST',
+				'apps/web/app/api/organization-contact/[id]/route.ts::PUT',
+				'apps/web/app/api/organization-contact/[id]/soft/route.ts::DELETE',
+				'apps/web/app/api/organization-contact/[id]/recover/route.ts::PUT',
 				// Proxy mode twin of the platform's Delete forever from the task trash (2026-11-12)
 				'apps/web/app/api/tasks/[id]/trashed/route.ts::DELETE',
 				// Proxy mode twins of the platform's task automations routes (2026-11-11)
