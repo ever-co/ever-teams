@@ -24,7 +24,10 @@ function triggerLabelKeyOf(hasNotes: boolean) {
 	return 'timer.notes.ADD' as const;
 }
 
-function hintKeyOf(isRunning: boolean) {
+function hintKeyOf(isRunning: boolean, isReadOnly: boolean) {
+	if (isReadOnly) {
+		return 'timer.notes.HINT_OTHER_TEAM' as const;
+	}
 	if (isRunning) {
 		return 'timer.notes.HINT_RUNNING' as const;
 	}
@@ -39,10 +42,10 @@ export function TimerNotesButton({ className }: Readonly<{ className?: string }>
 	const t = useTranslations();
 	const fieldId = useId();
 	const hintId = useId();
-	const { text, setText, isRunning } = useTimerNotes();
+	const { text, setText, isRunning, isReadOnly } = useTimerNotes();
 	const hasNotes = normalizedTimerNotes(text) !== '';
 	const triggerLabel = t(triggerLabelKeyOf(hasNotes));
-	const hint = t(hintKeyOf(isRunning));
+	const hint = t(hintKeyOf(isRunning, isReadOnly));
 
 	const changeText = useCallback(
 		(event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -74,6 +77,7 @@ export function TimerNotesButton({ className }: Readonly<{ className?: string }>
 					id={fieldId}
 					value={text}
 					onChange={changeText}
+					readOnly={isReadOnly}
 					maxLength={TIMER_NOTES_MAX_LENGTH}
 					rows={3}
 					placeholder={t('timer.notes.PLACEHOLDER')}

@@ -2747,7 +2747,8 @@
 			"LABEL": "Notes",
 			"PLACEHOLDER": "What are you working on?",
 			"HINT_BEFORE_START": "Optional. Saved on the entry when the timer starts.",
-			"HINT_RUNNING": "Changes made while the timer runs are not saved yet. To change the notes, edit the entry in Timesheets after you stop the timer."
+			"HINT_RUNNING": "Changes made while the timer runs are not saved yet. To change the notes, edit the entry in Timesheets after you stop the timer.",
+			"HINT_OTHER_TEAM": "These notes belong to the timer running in another team, so they cannot be changed here."
 		}
 	},
 	"task": {

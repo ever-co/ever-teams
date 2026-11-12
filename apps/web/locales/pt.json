@@ -2747,7 +2747,8 @@
 			"LABEL": "Notas",
 			"PLACEHOLDER": "Em que você está trabalhando?",
 			"HINT_BEFORE_START": "Opcional. Salvas na entrada quando o temporizador inicia.",
-			"HINT_RUNNING": "As alterações feitas com o temporizador em andamento ainda não são salvas. Para alterar as notas, edite a entrada nas folhas de horas depois de parar o temporizador."
+			"HINT_RUNNING": "As alterações feitas com o temporizador em andamento ainda não são salvas. Para alterar as notas, edite a entrada nas folhas de horas depois de parar o temporizador.",
+			"HINT_OTHER_TEAM": "Estas notas pertencem ao temporizador em andamento em outra equipe, por isso não podem ser alteradas aqui."
 		}
 	},
 	"task": {
