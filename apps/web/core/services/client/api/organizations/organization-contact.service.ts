@@ -24,6 +24,11 @@ interface GetClientsOptions {
 	signal?: AbortSignal;
 }
 
+interface ClientsScope {
+	organizationId: string;
+	tenantId: string;
+}
+
 class OrganizationContactService extends APIService {
 	private logValidationError(error: unknown, message: string) {
 		if (error instanceof ZodValidationError) {
@@ -31,10 +36,10 @@ class OrganizationContactService extends APIService {
 		}
 	}
 
-	private clientsPageQuery(page: number, includeArchived: boolean) {
+	private clientsPageQuery(page: number, includeArchived: boolean, scope: ClientsScope) {
 		const params: Record<string, string> = {
-			'where[organizationId]': this.organizationId,
-			'where[tenantId]': this.tenantId,
+			'where[organizationId]': scope.organizationId,
+			'where[tenantId]': scope.tenantId,
 			'where[contactType]': CLIENT_CONTACT_TYPE,
 			'order[name]': 'ASC',
 			take: String(CLIENTS_PAGE_SIZE),
@@ -52,10 +57,16 @@ class OrganizationContactService extends APIService {
 	 */
 	getClients = async ({ includeArchived = false, signal }: GetClientsOptions = {}): Promise<TClient[]> => {
 		try {
+			// Choosing a team of another organization changes the cookies between two pages: every page keeps the
+			// organization the read started in, so one list never mixes the clients of two organizations.
+			const scope: ClientsScope = { organizationId: this.organizationId, tenantId: this.tenantId };
 			const clients: TClient[] = [];
 			for (let page = 1; page <= CLIENTS_MAX_PAGES; page += 1) {
-				const query = this.clientsPageQuery(page, includeArchived);
-				const response = await this.get(`/organization-contact/pagination?${query}`, { signal });
+				const query = this.clientsPageQuery(page, includeArchived, scope);
+				const response = await this.get(`/organization-contact/pagination?${query}`, {
+					signal,
+					tenantId: scope.tenantId
+				});
 				const { items, total } = validatePaginationResponse(
 					clientSchema,
 					response.data,
