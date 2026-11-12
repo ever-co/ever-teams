@@ -2508,7 +2508,19 @@
 			"SEARCH_PROJECT": "Move to a project…",
 			"LAYOUT": "Layout",
 			"LAYOUT_LIST": "List",
-			"LAYOUT_BOARD": "Board"
+			"LAYOUT_BOARD": "Board",
+			"LAYOUT_TIMELINE": "Timeline",
+			"TIMELINE_ZOOM": "Zoom",
+			"TIMELINE_ZOOM_WEEKS": "Weeks",
+			"TIMELINE_ZOOM_MONTHS": "Months",
+			"TIMELINE_EMPTY": "No tasks in this view.",
+			"TIMELINE_UNSCHEDULED": "Without dates ({count})",
+			"TIMELINE_RANGE": "{start} – {end}",
+			"TIMELINE_DUE_ONLY": "due date only",
+			"TIMELINE_START_ONLY": "start date only",
+			"TIMELINE_INVALID_RANGE": "due before it starts",
+			"TIMELINE_OVERDUE": "overdue",
+			"TIMELINE_DRAG_HINT": "Drag to change the dates, or Alt + arrows (Alt + Shift + arrows: the due date)."
 		},
 		"joinTeam": {
 			"TITLE": "Join a team",
@@ -5511,6 +5523,15 @@
 		"VIEW_IMAGE": "View {name}",
 		"OPEN_ORIGINAL": "Open the original",
 		"EMOJI_SUGGESTIONS": "Emoji",
+		"APP_BADGE": "App",
+		"APP_PENDING": "Sending to the app…",
+		"APP_DONE": "Sent to the app",
+		"APP_FAILED": "The app could not be reached",
+		"APP_CALLBACK_FAILED": "The app did not answer. Try again in a moment.",
+		"APP_CLICK_FAILED": "The click could not be sent.",
+		"APP_NO_INTERACTIONS": "This app no longer takes clicks.",
+		"APP_GONE": "This button is no longer available.",
+		"APP_NO_ANSWER_YET": "The app has not answered yet. You can click again.",
 		"LINK_PREVIEW_LABEL": "{title} ({site}, opens in a new tab)",
 		"LINK_PREVIEW_SITE_LABEL": "{site} (opens in a new tab)"
 	},
@@ -5720,6 +5741,7 @@
 		"PALETTE_HEADING": "Pages",
 		"EXPORT_UNSAVED": "Your latest changes are not saved yet, so nothing was exported. Try again once the page says Saved.",
 		"COMMENT_ANCHOR_UNSAVED": "The page could not be saved, so the comment was not posted. Your text is kept.",
+		"BLOCK_LINK_UNSAVED": "The page could not be saved, so the link was not copied. Try again once the connection is back or the page is saved.",
 		"COPY_ERROR": "The link could not be copied."
 	},
 	"whatsNew": {

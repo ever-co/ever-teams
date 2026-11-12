@@ -594,17 +594,20 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 	 * draft, shown instead of the page's text and written against `base`, the version it was typed on. Its save then
 	 * meets what the platform holds since as a conflict, and the person decides (Reload drops it, Keep mine saves it);
 	 * nothing is lost silently. A session that already holds a draft keeps it.
+	 *
+	 * @returns Whether the text is the draft now (false without a session, or with a draft already held).
 	 */
 	const adoptDraft = useCallback(
-		(html: string, json: IDocumentNode | null, mentionEmployeeIds: string[], base: string | null) => {
+		(html: string, json: IDocumentNode | null, mentionEmployeeIds: string[], base: string | null): boolean => {
 			const session = current();
-			if (!session || session.draft) return;
+			if (!session || session.draft) return false;
 			session.draft = { html, json, mentionEmployeeIds };
 			if (base) session.base = base;
 			updateView(session, { state: 'dirty', restoredHtml: html });
 			clearSessionTimer(session);
 			session.timer = setTimeout(() => void saveSession(session), DOCS_AUTOSAVE_DELAY_MS);
 			syncUnloadGuard();
+			return true;
 		},
 		[current]
 	);

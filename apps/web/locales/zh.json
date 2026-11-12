@@ -2508,7 +2508,19 @@
 			"SEARCH_PROJECT": "移至项目…",
 			"LAYOUT": "布局",
 			"LAYOUT_LIST": "列表",
-			"LAYOUT_BOARD": "看板"
+			"LAYOUT_BOARD": "看板",
+			"LAYOUT_TIMELINE": "时间线",
+			"TIMELINE_ZOOM": "缩放",
+			"TIMELINE_ZOOM_WEEKS": "周",
+			"TIMELINE_ZOOM_MONTHS": "月",
+			"TIMELINE_EMPTY": "此视图中没有任务。",
+			"TIMELINE_UNSCHEDULED": "无日期（{count}）",
+			"TIMELINE_RANGE": "{start} – {end}",
+			"TIMELINE_DUE_ONLY": "仅截止日期",
+			"TIMELINE_START_ONLY": "仅开始日期",
+			"TIMELINE_INVALID_RANGE": "截止日期早于开始日期",
+			"TIMELINE_OVERDUE": "已逾期",
+			"TIMELINE_DRAG_HINT": "拖动以更改日期，或按 Alt + 方向键（Alt + Shift + 方向键：截止日期）。"
 		},
 		"joinTeam": {
 			"TITLE": "加入团队",
@@ -5511,6 +5523,15 @@
 		"VIEW_IMAGE": "查看 {name}",
 		"OPEN_ORIGINAL": "打开原图",
 		"EMOJI_SUGGESTIONS": "表情符号",
+		"APP_BADGE": "应用",
+		"APP_PENDING": "正在发送给应用…",
+		"APP_DONE": "已发送给应用",
+		"APP_FAILED": "无法连接到该应用",
+		"APP_CALLBACK_FAILED": "应用没有响应，请稍后再试。",
+		"APP_CLICK_FAILED": "无法发送此次点击。",
+		"APP_NO_INTERACTIONS": "该应用不再接受点击。",
+		"APP_GONE": "此按钮已不可用。",
+		"APP_NO_ANSWER_YET": "应用尚未回应。你可以再次点击。",
 		"LINK_PREVIEW_LABEL": "{title}（{site}，在新标签页中打开）",
 		"LINK_PREVIEW_SITE_LABEL": "{site}（在新标签页中打开）"
 	},
@@ -5720,6 +5741,7 @@
 		"PALETTE_HEADING": "页面",
 		"EXPORT_UNSAVED": "您最近的更改尚未保存，因此未导出任何内容。请在页面显示“已保存”后重试。",
 		"COMMENT_ANCHOR_UNSAVED": "无法保存页面，因此评论未发布。您的文本已保留。",
+		"BLOCK_LINK_UNSAVED": "无法保存页面，因此未复制链接。请在连接恢复或页面保存后重试。",
 		"COPY_ERROR": "无法复制链接。"
 	},
 	"whatsNew": {

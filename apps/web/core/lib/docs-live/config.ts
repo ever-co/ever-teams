@@ -19,6 +19,9 @@ export const DOCS_LIVE_AWARENESS_MS = 120;
 /** A session whose first state has not arrived after this long gives way to the autosave. */
 export const DOCS_LIVE_SYNC_TIMEOUT_MS = 10_000;
 
+/** How long a comment or a copied block link waits for the platform to confirm the page's edits (its new anchor). */
+export const DOCS_LIVE_CONFIRM_TIMEOUT_MS = 10_000;
+
 /** Reopening a dropped session: jittered exponential from the first to the second value. */
 export const DOCS_LIVE_BACKOFF_MIN_MS = 1_000;
 export const DOCS_LIVE_BACKOFF_MAX_MS = 30_000;

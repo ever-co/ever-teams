@@ -2007,12 +2007,15 @@ describe('Ever Teams feature surface preservation', () => {
 		// (GET /api/plugins/docs/documents/[id]/export/markdown), which develop added without raising these numbers.
 		// 294 files and 377 verbs with the scheduled meetings' proxies (/api/employee-appointment GET, POST and [id] DELETE).
 		// 295 files and 378 verbs with the Inbox delivery status proxy (GET /api/inbox/delivery/status).
-		// 300 files and 383 verbs with the clients' proxies (/api/organization-contact POST, pagination GET, [id] PUT,
+		// 296 files and 379 verbs with the link preview pictures proxy (GET /api/chat/link-preview/image).
+		// 298 files and 381 verbs with the clicks on app message buttons (POST /api/chat/messages/[id]/interactions,
+		// GET /api/chat/interactions/[id]).
+		// 303 files and 386 verbs with the clients' proxies (/api/organization-contact POST, pagination GET, [id] PUT,
 		// [id]/soft DELETE, [id]/recover PUT; #5082).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(300);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(303);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(383);
+		).toHaveLength(386);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's organization contacts of the client type (#5082)
@@ -2021,6 +2024,11 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/organization-contact/[id]/route.ts::PUT',
 				'apps/web/app/api/organization-contact/[id]/soft/route.ts::DELETE',
 				'apps/web/app/api/organization-contact/[id]/recover/route.ts::PUT',
+				// Proxy mode twins of the platform's clicks on app message buttons (incoming webhooks, 2026-11-11)
+				'apps/web/app/api/chat/messages/[id]/interactions/route.ts::POST',
+				'apps/web/app/api/chat/interactions/[id]/route.ts::GET',
+				// Proxy mode twin of the platform's link preview pictures (2026-11-12)
+				'apps/web/app/api/chat/link-preview/image/route.ts::GET',
 				// Proxy mode twin of the platform's Inbox delivery status (2026-11-11)
 				'apps/web/app/api/inbox/delivery/status/route.ts::GET',
 				// Proxy mode twins of Gauzy's employee appointments, the scheduled meetings (#5021)

@@ -108,8 +108,8 @@ they are with the flag off.
   empty-groups rows hide), with the Kanban cards, the page's selection bar acting on them. A focused card takes the
   rows' keys on both boards (`X`, and `S` `P` `L` `D` `M` for the selection the card is in), yielding while a registry
   sequence waits for its second key. A selection's due date is limited by its latest start date. The lanes' moves,
-  collapse and order are the Kanban page's (`useKanbanLanes`). The list page's selection bar gains Project and Due
-  date once #5041 (which reworks that file) has landed; until then those two are on its keys and cells.
+  collapse and order are the Kanban page's (`useKanbanLanes`). The list page's selection bar has Project and Due
+  date too, beside Status, Priority, Size and Assignee (opening the same pickers as the keys `M` and `D`).
 - **Flag off**: no mount, no sidebar section, no routes' content, the selection bar as before.
 
 ## 5. Tests

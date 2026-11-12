@@ -60,27 +60,30 @@ function stateWithoutKey(error: unknown): InboxWebPushState {
 	return supportsWebPush() ? 'off' : 'unsupported';
 }
 
-/** Where the browser stands once the platform answered its key: what it can do, and whether it is subscribed. */
+/**
+ * Where the browser stands once the platform answered its key: what it can do, and whether it is subscribed and
+ * registered. Reading it never registers the device: the platform's register creates a device it does not hold, so a
+ * call here could bring back one the person removed from another device (even between the list and the call). A device
+ * the platform no longer lists (removed by the person, or dropped after failed pushes) shows off, and only switching on
+ * here, a choice made on this device, registers it again.
+ */
 async function browserPushState(): Promise<InboxWebPushState> {
 	if (!supportsWebPush()) return 'unsupported';
 	if (Notification.permission === 'denied') return 'blocked';
 	const subscription = await currentSubscription().catch(() => null);
 	if (!subscription || Notification.permission !== 'granted') return 'off';
-	// Registered again (the platform drops devices after failed pushes); a failure shows off, and switching on sets
-	// the device up again.
-	return inboxPushService.register(deviceInputOf(subscription)).then(
-		() => 'on' as const,
-		() => 'off' as const
-	);
+	// The list unread, whether the device is still registered is unknown: it shows off, and switching on sets it up.
+	const devices = await inboxPushService.devices().catch(() => null);
+	return devices?.some((device) => device.endpoint === subscription.endpoint) ? 'on' : 'off';
 }
 
 /**
  * Browser notifications for the inbox on this device. `enable` asks the person for permission, registers the
  * worker, subscribes with the platform's VAPID key and registers the device; `disable` removes the device and
- * unsubscribes. A browser that is subscribed is registered again when the hook starts (the platform may have
- * removed the device after failed pushes): it is the same device, refreshed. `devices` lists every device of the
- * person (this one is `thisEndpoint`), and `removeDevice` takes one off — this one included, which also
- * unsubscribes this browser.
+ * unsubscribes. Only `enable` registers: a browser that is subscribed shows on while the platform lists it, and off
+ * once it does not, until the person switches it on here, so a device removed from another browser stays removed.
+ * `devices` lists every device of the person (this one is `thisEndpoint`), and `removeDevice` takes one off — this
+ * one included, which also unsubscribes this browser.
  */
 export function useInboxWebPush(enabled: boolean) {
 	const [state, setState] = useState<InboxWebPushState>('loading');
