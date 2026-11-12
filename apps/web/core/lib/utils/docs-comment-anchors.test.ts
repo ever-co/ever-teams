@@ -97,6 +97,17 @@ describe('resolveCommentAnchor', () => {
 	});
 });
 
+describe('the work budget of the approximate matches', () => {
+	it('falls back to the block once the budget is spent, as the platform does', () => {
+		const anchor = { blockId: 'b1', start: 0, end: 10, quote: 'betta gama' };
+		const page = blocks(['b1', 'alpha beta gamma delta']);
+		const budget = { cells: 10 * page[0].text.length };
+		expect(resolveCommentAnchor(anchor, page, null, budget)).toMatchObject({ status: 'moved', method: 'fuzzy' });
+		expect(resolveCommentAnchor(anchor, page, null, budget)).toMatchObject({ status: 'block' });
+		expect(threadPlaceOf({ blockId: 'b1' }, anchor, page, null, { cells: 0 }).kind).toBe('block-fallback');
+	});
+});
+
 describe('approximateMatch', () => {
 	it('finds a near match within a quarter of the quote, and nothing for a short or distant one', () => {
 		expect(approximateMatch('say hello, world now', 'hello world')).toMatchObject({ start: 4, distance: 1 });

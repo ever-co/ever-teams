@@ -36,7 +36,7 @@ import type { DocsTreeState } from '@/core/hooks/docs/use-docs-tree';
 import { cn } from '@/core/lib/helpers';
 import { liveAnchorResolverOf } from '@/core/lib/docs-live/anchor-resolver';
 import { DOCS_LIVE_FIELD } from '@/core/lib/docs-live/config';
-import { anchorBlocksOf, storedAnchorOf, threadPlaceOf, type DocsThreadPlace } from '@/core/lib/utils/docs-comment-anchors';
+import { anchorBlocksOf, DOCS_ANCHOR_FUZZY_BUDGET, storedAnchorOf, threadPlaceOf, type DocsThreadPlace } from '@/core/lib/utils/docs-comment-anchors';
 import { anchoredBlocksOf, openThreadOnBlock, threadOfComment, type DocsCommentThread } from '@/core/lib/utils/docs-comments';
 import { offersZipExport } from '@/core/lib/utils/docs-export';
 import { docsLinkTargetOf, docsPageUrl } from '@/core/lib/utils/docs-links';
@@ -345,7 +345,9 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	const { anchors } = comments;
 	const threadPlaces = useMemo(() => {
 		const places = new Map<string, DocsThreadPlace>();
-		for (const thread of comments.threads) places.set(thread.id, threadPlaceOf(thread, anchors.get(thread.id), anchorBlocks, liveResolver));
+		// One work budget for the approximate matches of all the threads, as the platform's read of a page's ranges.
+		const budget = { cells: DOCS_ANCHOR_FUZZY_BUDGET };
+		for (const thread of comments.threads) places.set(thread.id, threadPlaceOf(thread, anchors.get(thread.id), anchorBlocks, liveResolver, budget));
 		return places;
 	}, [anchorBlocks, anchors, comments.threads, liveResolver]);
 	const placeOf = useCallback(

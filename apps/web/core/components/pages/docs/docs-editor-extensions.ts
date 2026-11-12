@@ -3,7 +3,7 @@ import type { Node as ProseMirrorNode } from '@tiptap/pm/model';
 import { Plugin, PluginKey, TextSelection, type EditorState } from '@tiptap/pm/state';
 import { Decoration, DecorationSet, type EditorView } from '@tiptap/pm/view';
 import { BLOCK_ID_ATTRIBUTE, isBlockId } from '@/core/components/common/rich-editor/block-id-extension';
-import { resolveCommentAnchor, type DocsLiveAnchorResolver } from '@/core/lib/utils/docs-comment-anchors';
+import { DOCS_ANCHOR_FUZZY_BUDGET, resolveCommentAnchor, type DocsLiveAnchorResolver } from '@/core/lib/utils/docs-comment-anchors';
 import { taskIdOfHref } from '@/core/lib/utils/docs-links';
 import type { IDocumentCommentAnchorInput } from '@/core/types/interfaces/common/docs';
 import { editorBlocksOf, positionOfTextOffset } from './docs-comment-ranges';
@@ -110,8 +110,10 @@ function commentDecorations(doc: ProseMirrorNode, marks: DocsCommentMarks, optio
 		const blocks = editorBlocksOf(doc);
 		const byId = new Map(blocks.map((block) => [block.blockId, block]));
 		const live = options.liveResolver?.() ?? null;
+		// One work budget for the approximate matches of every range, each time the ranges are found again.
+		const budget = { cells: DOCS_ANCHOR_FUZZY_BUDGET };
 		for (const { threadId, anchor } of marks.ranges) {
-			const found = resolveCommentAnchor(anchor, blocks, live);
+			const found = resolveCommentAnchor(anchor, blocks, live, budget);
 			const block = found.blockId ? byId.get(found.blockId) : undefined;
 			if (!block) continue;
 			markerThread.set(block.blockId, threadId);

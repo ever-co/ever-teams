@@ -33,6 +33,11 @@ export const DOCS_ANCHOR_FUZZY_MAX_LENGTH = 256;
 export const DOCS_ANCHOR_FUZZY_MAX_TEXT = 20_000;
 /** At most this share of an approximate match may differ from the quote. */
 export const DOCS_ANCHOR_FUZZY_MAX_ERROR_RATE = 0.25;
+/**
+ * The approximate-match work (cells of the comparison) one read of a page's anchors may spend in all: a page with many
+ * long quotes that are gone from long blocks falls back to the blocks rather than hold the read.
+ */
+export const DOCS_ANCHOR_FUZZY_BUDGET = 20_000_000;
 
 /** A block of a page: its anchor and its text (text nodes only). */
 export interface DocsAnchorBlock {
@@ -220,7 +225,8 @@ export function editDistanceWithin(a: string, b: string, limit: number): number 
 export function resolveCommentAnchor(
 	anchor: IDocumentCommentAnchorInput,
 	blocks: readonly DocsAnchorBlock[],
-	live?: DocsLiveAnchorResolver | null
+	live?: DocsLiveAnchorResolver | null,
+	budget?: { cells: number } | null
 ): IDocumentCommentAnchorPosition {
 	const quote = String(anchor.quote ?? '');
 	const byId = new Map<string, DocsAnchorBlock>();
@@ -260,8 +266,8 @@ export function resolveCommentAnchor(
 			if (!best || score > best.score) best = { block, at, score };
 		}
 		if (best) return position('moved', 'quote', best.block.blockId, best.at, best.at + quote.length, quote);
-		// 4. The quote with small differences, in its block.
-		if (own) {
+		// 4. The quote with small differences, in its block, while the read's work budget lasts.
+		if (own && spendFuzzyWork(budget, quote, own.text)) {
 			const match = approximateMatch(own.text, quote);
 			if (match) return position('moved', 'fuzzy', own.blockId, match.start, match.end, own.text.slice(match.start, match.end));
 		}
@@ -270,6 +276,18 @@ export function resolveCommentAnchor(
 	// 5. The block alone.
 	if (own) return position('block', 'block', own.blockId, null, null, null);
 	return position('orphaned', null, null, null, null, null);
+}
+
+/**
+ * Takes the work of one approximate match out of `budget` (a quote too short for one costs nothing); false when what is
+ * left does not cover it. Without a budget the work is not counted.
+ */
+function spendFuzzyWork(budget: { cells: number } | null | undefined, quote: string, text: string): boolean {
+	if (!budget || quote.length < DOCS_ANCHOR_FUZZY_MIN_LENGTH) return true;
+	const cost = Math.min(quote.length, DOCS_ANCHOR_FUZZY_MAX_LENGTH) * Math.min(text.length, DOCS_ANCHOR_FUZZY_MAX_TEXT);
+	if (cost > budget.cells) return false;
+	budget.cells -= cost;
+	return true;
 }
 
 /** The context stored beside a quote: the block's text right before and after the range. */
@@ -364,11 +382,12 @@ export function threadPlaceOf(
 	thread: { blockId: string | null },
 	anchor: IDocumentCommentAnchorResolved | IDocumentCommentAnchorInput | null | undefined,
 	blocks: readonly DocsAnchorBlock[] | null,
-	live?: DocsLiveAnchorResolver | null
+	live?: DocsLiveAnchorResolver | null,
+	budget?: { cells: number } | null
 ): DocsThreadPlace {
 	if (anchor) {
 		const stored = 'position' in anchor ? anchor.position : null;
-		const found = blocks ? resolveCommentAnchor(anchor, blocks, live) : stored;
+		const found = blocks ? resolveCommentAnchor(anchor, blocks, live, budget) : stored;
 		if (found) {
 			const kind: DocsThreadPlaceKind =
 				found.status === 'orphaned' ? 'orphaned' : found.status === 'block' || found.start === null || found.end === null ? 'block-fallback' : 'range';
