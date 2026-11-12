@@ -1,0 +1,112 @@
+import {
+	AUTOMATIC_FORMAT,
+	DATE_FORMAT_CHOICES,
+	NUMBER_FORMAT_CHOICES,
+	canEditWorkspace,
+	canRenameWorkspace,
+	dateFormatChoiceOf,
+	dateFormatSampleOf,
+	isWorkspaceNameValid,
+	numberFormatChoiceOf,
+	numberFormatSampleOf,
+	workspaceOfTenant,
+	workspacesAfterRename
+} from './settings-workspace';
+import type { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
+
+function workspaceOf(tenantId: string, name: string): TWorkspace {
+	return {
+		user: {
+			id: `user-of-${tenantId}`,
+			email: 'ada@ever.co',
+			name: 'Ada',
+			lastTeamId: null,
+			tenant: { id: tenantId, name, logo: 'https://example.com/logo.png' }
+		},
+		token: `token-of-${tenantId}`,
+		current_teams: []
+	};
+}
+
+describe('who may change the workspace settings', () => {
+	it('lets the holders of the organization edit permission change the currency and the formats', () => {
+		expect(canEditWorkspace(['ALL_ORG_VIEW', 'ALL_ORG_EDIT'])).toBe(true);
+		expect(canEditWorkspace(['ALL_ORG_VIEW', 'ORG_TASK_SETTING'])).toBe(false);
+		expect(canEditWorkspace([])).toBe(false);
+	});
+
+	it('lets only a super admin who may edit the organization rename the workspace', () => {
+		expect(canRenameWorkspace('SUPER_ADMIN', ['ALL_ORG_EDIT'])).toBe(true);
+		expect(canRenameWorkspace('ADMIN', ['ALL_ORG_EDIT'])).toBe(false);
+		expect(canRenameWorkspace('SUPER_ADMIN', [])).toBe(false);
+		expect(canRenameWorkspace('EMPLOYEE', [])).toBe(false);
+		expect(canRenameWorkspace(undefined, ['ALL_ORG_EDIT'])).toBe(false);
+	});
+});
+
+describe('the workspace name', () => {
+	it('takes 1 to 60 characters once trimmed, as the creation does', () => {
+		expect(isWorkspaceNameValid('Studio')).toBe(true);
+		expect(isWorkspaceNameValid(` ${'x'.repeat(60)} `)).toBe(true);
+		expect(isWorkspaceNameValid('')).toBe(false);
+		expect(isWorkspaceNameValid('   ')).toBe(false);
+		expect(isWorkspaceNameValid('x'.repeat(61))).toBe(false);
+	});
+});
+
+describe('the workspace of the session', () => {
+	const workspaces = [workspaceOf('tenant-a', 'Acme'), workspaceOf('tenant-b', 'Studio')];
+
+	it("finds the workspace of the session's tenant, and none without a tenant or a match", () => {
+		expect(workspaceOfTenant(workspaces, 'tenant-b')?.user.tenant.name).toBe('Studio');
+		expect(workspaceOfTenant(workspaces, 'tenant-c')).toBeNull();
+		expect(workspaceOfTenant(workspaces, '')).toBeNull();
+		expect(workspaceOfTenant(workspaces, null)).toBeNull();
+	});
+
+	it('renames that workspace alone, and keeps everything else about it', () => {
+		const renamed = workspacesAfterRename(workspaces, 'tenant-a', 'Acme Labs');
+
+		expect(renamed[0]).toEqual(workspaceOf('tenant-a', 'Acme Labs'));
+		expect(renamed[1]).toBe(workspaces[1]);
+		expect(workspaces[0].user.tenant.name).toBe('Acme');
+	});
+});
+
+describe('the format choices of the settings page', () => {
+	it('offers Automatic first, then every format', () => {
+		expect(DATE_FORMAT_CHOICES).toEqual([
+			AUTOMATIC_FORMAT,
+			'MM/DD/YYYY',
+			'DD/MM/YYYY',
+			'DD-MM-YYYY',
+			'DD.MM.YYYY',
+			'YYYY-MM-DD'
+		]);
+		expect(NUMBER_FORMAT_CHOICES).toEqual([AUTOMATIC_FORMAT, '1,234.56', '1.234,56', '1 234,56', "1'234.56"]);
+	});
+
+	it('shows Automatic for an organization without a format, or with one this app does not write', () => {
+		expect(dateFormatChoiceOf(null)).toBe(AUTOMATIC_FORMAT);
+		expect(dateFormatChoiceOf('LL')).toBe(AUTOMATIC_FORMAT);
+		expect(dateFormatChoiceOf('DD/MM/YYYY')).toBe('DD/MM/YYYY');
+		expect(numberFormatChoiceOf(undefined)).toBe(AUTOMATIC_FORMAT);
+		expect(numberFormatChoiceOf('BGN')).toBe(AUTOMATIC_FORMAT);
+		expect(numberFormatChoiceOf('1 234,56')).toBe('1 234,56');
+	});
+
+	it('shows each date format on a day that cannot be read as a month', () => {
+		expect(dateFormatSampleOf('MM/DD/YYYY', 2026)).toBe('12/31/2026');
+		expect(dateFormatSampleOf('DD/MM/YYYY', 2026)).toBe('31/12/2026');
+		expect(dateFormatSampleOf('DD-MM-YYYY', 2026)).toBe('31-12-2026');
+		expect(dateFormatSampleOf('DD.MM.YYYY', 2026)).toBe('31.12.2026');
+		expect(dateFormatSampleOf('YYYY-MM-DD', 2026)).toBe('2026-12-31');
+	});
+
+	it('shows each number format on an amount with thousands and cents', () => {
+		expect(numberFormatSampleOf('1,234.56')).toBe('1,234.56');
+		expect(numberFormatSampleOf('1.234,56')).toBe('1.234,56');
+		expect(numberFormatSampleOf('1 234,56')).toBe('1\u00A0234,56');
+		expect(numberFormatSampleOf("1'234.56")).toBe('1\u2019234.56');
+	});
+});
