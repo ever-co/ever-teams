@@ -14,7 +14,9 @@ function ProjectTotal({ total }: Readonly<{ total: CalendarProjectTotal }>) {
 	return (
 		<li className="flex min-w-0 items-center gap-1.5 text-xs">
 			<ProjectDot color={total.color} projectKey={total.key} />
-			<span className="max-w-40 truncate text-foreground">{name}</span>
+			<span title={name} className="max-w-40 truncate text-foreground">
+				{name}
+			</span>
 			<span className="shrink-0 tabular-nums text-muted-foreground">{duration}</span>
 		</li>
 	);
