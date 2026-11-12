@@ -55,9 +55,26 @@ function formLimitOf(bounds: DayBounds, now: Date, allowsFutureDates: boolean): 
 }
 
 /**
+ * Whether a form saves this moment as it is. A form holds a time as an hour and a minute of the day and reads it
+ * back as the first moment of the day with that time. On the day the clock goes back an hour comes twice: a moment
+ * of the second one would be saved an hour earlier.
+ */
+function isSavedAsItself(moment: Date, day: Date) {
+	const minutes = minutesOfDayOf(moment);
+	const readBack = dateAtMinutes(day, minutes);
+	return readBack.getTime() === moment.getTime();
+}
+
+function canFormSave(interval: TimeWindow, day: Date) {
+	const savesStart = isSavedAsItself(interval.start, day);
+	const savesEnd = isSavedAsItself(interval.end, day);
+	return savesStart && savesEnd;
+}
+
+/**
  * The interval a form proposes for a typed duration: one free stretch of the member's day, so the entry overlaps
  * nothing (Gauzy deletes what a manual entry overlaps). A day after today is closed when the organization refuses
- * time in the future.
+ * time in the future. An interval the form would save as another one is not proposed.
  */
 export function intervalProposalOf(request: IntervalRequest): IntervalProposal {
 	const bounds = dayBoundsOf(request.day);
@@ -71,6 +88,9 @@ export function intervalProposalOf(request: IntervalRequest): IntervalProposal {
 	const freeWindows = freeWindowsBetween(busy, bounds, limit);
 	const interval = singlePlacementOf(request.seconds, freeWindows, request.day);
 	if (!interval) {
+		return { status: 'noRoom' };
+	}
+	if (!canFormSave(interval, request.day)) {
 		return { status: 'noRoom' };
 	}
 	return { status: 'ready', interval };
