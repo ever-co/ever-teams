@@ -59,6 +59,7 @@ type MockOverlapRequest = {
 	employeeId: string;
 	periods: Array<{ start: Date; end: Date }>;
 	save: () => void | Promise<void>;
+	refuseOverlap?: (overlap: unknown) => void;
 };
 
 // The overlap lookup finds nothing unless a test holds the save: the guard has its own tests
@@ -555,6 +556,31 @@ describe('AddTaskModal opened on a copied entry', () => {
 
 		await waitFor(() => expect(mockCreateTimesheet).toHaveBeenCalledTimes(1));
 		expect(screen.queryByRole('alert')).toBeNull();
+	});
+
+	it('refuses a copy over an entry recorded since its check, never offering to save over it', async () => {
+		const checkBeforeSave = jest.fn().mockResolvedValue(null);
+		const refusalOfOverlap = jest.fn().mockReturnValue('It runs over an entry recorded meanwhile');
+		const lateOverlap = { totalSeconds: 3600, entries: [] };
+		mockSaveAfterCheck.mockImplementationOnce((request: MockOverlapRequest) =>
+			request.refuseOverlap?.(lateOverlap)
+		);
+		render(
+			<AddTaskModal
+				isOpen
+				closeModal={closeModal}
+				prefill={copiedEntry}
+				checkBeforeSave={checkBeforeSave}
+				refusalOfOverlap={refusalOfOverlap}
+			/>
+		);
+
+		save();
+
+		const refusal = await screen.findByRole('alert');
+		expect(refusal.textContent).toBe('It runs over an entry recorded meanwhile');
+		expect(refusalOfOverlap).toHaveBeenCalledWith(lateOverlap);
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
 	});
 
 	it('saves nothing when the dialog is closed while its copy is being checked', async () => {

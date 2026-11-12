@@ -25,6 +25,7 @@ import {
 	unplacedIntervalOf,
 	withRunningLog
 } from '@/core/lib/utils/time-entry-reuse';
+import type { OverlappedEntry, OverlapSummary } from '@/core/lib/utils/time-log-overlap';
 import { timerStatusState } from '@/core/stores';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
@@ -39,6 +40,16 @@ function runningLogOf(status: ITimerStatus | null): ITimeLog | null {
 }
 
 /** When the entry ran, for the refusal. A running entry runs to now, whatever end its last heartbeat wrote. */
+/** When an entry the save's own overlap lookup found ran, for the refusal: a running one runs to now. */
+function overlappedRangeTextOf(entry: OverlappedEntry, formatters: TimesheetFormatters, runningLabel: string) {
+	const startText = formatters.time(entry.start);
+	let endText = runningLabel;
+	if (!entry.isRunning) {
+		endText = formatters.time(entry.end);
+	}
+	return `${startText} – ${endText}`;
+}
+
 function ranTextOf(log: ITimeLog, formatters: TimesheetFormatters, runningLabel: string) {
 	if (!log.isRunning) {
 		return timeRangeTextOf(log, formatters, runningLabel);
@@ -153,7 +164,23 @@ export function useTimeEntryDuplicate({ stepMinutes }: Readonly<{ stepMinutes: n
 		[formatters, readMemberLogs, t]
 	);
 
-	return { draft, isOpen, open, close, checkBeforeSave };
+	/**
+	 * The refusal of a copy that the dialog's overlap lookup, run after `checkBeforeSave`, finds over an entry recorded
+	 * meanwhile: refused like one the check found, never offered to be saved over that entry.
+	 */
+	const refusalOfOverlap = useCallback(
+		(overlap: OverlapSummary) => {
+			const firstEntry = overlap.entries[0];
+			if (!firstEntry) {
+				return t('timeEntryActions.duplicate.CHECK_FAILED');
+			}
+			const range = overlappedRangeTextOf(firstEntry, formatters, t('dashboard.timesheets.RUNNING'));
+			return t('timeEntryActions.duplicate.OVERLAPS', { range });
+		},
+		[formatters, t]
+	);
+
+	return { draft, isOpen, open, close, checkBeforeSave, refusalOfOverlap };
 }
 
 export type TimeEntryDuplicateState = ReturnType<typeof useTimeEntryDuplicate>;

@@ -104,6 +104,7 @@ function DiaryDuplicateDialog({ duplicate }: Readonly<{ duplicate: TimeEntryDupl
 				initialEnd={draft.end}
 				prefill={draft}
 				checkBeforeSave={duplicate.checkBeforeSave}
+				refusalOfOverlap={duplicate.refusalOfOverlap}
 			/>
 		</Suspense>
 	);

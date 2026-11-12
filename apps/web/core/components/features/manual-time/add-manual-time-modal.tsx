@@ -36,7 +36,13 @@ import { activeTeamState, activeTeamTaskState, organizationTeamsState, tasksByTe
 import { queryKeys } from '@/core/query/keys';
 import { taskService } from '@/core/services/client/api/tasks/task.service';
 import { useReactiveAccessTokenCookie } from '@/core/hooks/auth/use-reactive-access-token-cookie';
-import type { CheckTimeEntrySave, TimeEntryCopy, TimeWindow } from '@/core/lib/utils/time-entry-reuse';
+import type {
+	CheckTimeEntrySave,
+	RefuseTimeEntryOverlap,
+	TimeEntryCopy,
+	TimeWindow
+} from '@/core/lib/utils/time-entry-reuse';
+import type { OverlapSummary } from '@/core/lib/utils/time-log-overlap';
 import { useDurationEntry } from '@/core/hooks/timesheet/use-duration-entry';
 
 /**
@@ -63,6 +69,8 @@ interface IAddManualTimeModalProps {
 	prefill?: Pick<TimeEntryCopy, 'taskId' | 'description' | 'isBillable'>;
 	/** Asked before the entry is saved: a returned message refuses the save and is shown in the dialog. */
 	checkBeforeSave?: CheckTimeEntrySave;
+	/** A copy only: an overlap found as the entry is sent is refused with this message, never offered to save. */
+	refusalOfOverlap?: RefuseTimeEntryOverlap;
 }
 
 function clockTimeOf(date: Date) {
@@ -102,6 +110,7 @@ function isEmployeeOfTeam(team: TOrganizationTeam | null | undefined, employeeId
 
 export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const { closeModal, isOpen, params, timeSheetStatus, initialStart, initialEnd, prefill, checkBeforeSave } = props;
+	const refusalOfOverlap = props.refusalOfOverlap;
 	const t = useTranslations();
 	const locale = useLocale();
 	const [isBillable, setIsBillable] = useState<boolean>(prefill?.isBillable ?? false);
@@ -177,6 +186,13 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 
 	const isSaving = addManualTimeLoading || overlapGuard.isChecking || isCheckingSave;
 	const openSessionOf = useOpenSession(isOpen);
+	// A copy over an entry recorded since its check is refused like one the check found
+	const refuseCopiedOverlap = useMemo(() => {
+		if (!refusalOfOverlap) {
+			return undefined;
+		}
+		return (overlap: OverlapSummary) => setErrorMsg(refusalOfOverlap(overlap));
+	}, [refusalOfOverlap]);
 
 	const startTimeId = useId();
 	const endTimeId = useId();
@@ -313,7 +329,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				saveAfterOverlapCheck({
 					employeeId: savedEmployeeId,
 					periods: [period],
-					save: () => addManualTime(requestData)
+					save: () => addManualTime(requestData),
+					refuseOverlap: refuseCopiedOverlap
 				})
 			);
 		},
@@ -321,6 +338,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			addManualTime,
 			saveUnlessRefused,
 			saveAfterOverlapCheck,
+			refuseCopiedOverlap,
 			savedEmployeeId,
 			date,
 			description,

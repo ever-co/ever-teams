@@ -237,6 +237,27 @@ describe('useTimeEntryDuplicate', () => {
 			expect(refusal).toContain('dashboard.timesheets.RUNNING');
 		});
 
+		it('refuses a copy that the save finds over an entry recorded since the check, naming when it ran', () => {
+			const { result } = renderDuplicate();
+			const entryOf = (isRunning: boolean) => ({
+				id: 'recorded-meanwhile',
+				start: today(9, 30),
+				end: today(9, 40),
+				isRunning,
+				removedSeconds: 10 * MINUTE,
+				taskTitle: null,
+				projectName: null
+			});
+
+			const stopped = result.current.refusalOfOverlap({ totalSeconds: 600, entries: [entryOf(false)] });
+			const running = result.current.refusalOfOverlap({ totalSeconds: 600, entries: [entryOf(true)] });
+
+			expect(stopped).toMatch(/^timeEntryActions\.duplicate\.OVERLAPS:/);
+			expect(stopped).not.toContain('dashboard.timesheets.RUNNING');
+			expect(running).toMatch(/^timeEntryActions\.duplicate\.OVERLAPS:/);
+			expect(running).toContain('dashboard.timesheets.RUNNING');
+		});
+
 		it('refuses the save when the day cannot be read', async () => {
 			mockGetTimeLogs.mockRejectedValue(new Error('offline'));
 			const { result } = renderDuplicate();

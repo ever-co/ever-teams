@@ -17,7 +17,7 @@ import { useSyncRef } from '@/core/hooks/common/use-sync-ref';
 import { useCreateTimesheet } from '@/core/hooks/timesheet/use-create-timesheet';
 import { useTimeOverlapGuard } from '@/core/hooks/timesheet/use-time-overlap-guard';
 import { useOpenSession } from '@/core/hooks/common/use-open-session';
-import { periodsOverlapEachOther } from '@/core/lib/utils/time-log-overlap';
+import { type OverlapSummary, periodsOverlapEachOther } from '@/core/lib/utils/time-log-overlap';
 import {
 	TimeOverlapCheckError,
 	TimeOverlapConfirmDialog
@@ -27,6 +27,7 @@ import {
 	ADD_TIME_ENTRY_STEP_MINUTES,
 	type CheckTimeEntrySave,
 	periodLengthOf,
+	type RefuseTimeEntryOverlap,
 	timeChoiceOf,
 	type TimeEntryCopy
 } from '@/core/lib/utils/time-entry-reuse';
@@ -56,6 +57,8 @@ export interface IAddTaskModalProps {
 	prefill?: TimeEntryCopy;
 	/** Asked before the periods are saved: a returned message refuses the save and is shown in the dialog. */
 	checkBeforeSave?: CheckTimeEntrySave;
+	/** A copy only: an overlap found as the periods are sent is refused with this message, never offered to save. */
+	refusalOfOverlap?: RefuseTimeEntryOverlap;
 	/** The only member the dialog adds time for (a team manager adds their own); without it the dialog picks one. */
 	fixedMember?: FixedMember | null;
 }
@@ -211,7 +214,8 @@ export function AddTaskModal({
 	isOpen,
 	prefill,
 	checkBeforeSave,
-	fixedMember
+	fixedMember,
+	refusalOfOverlap
 }: Readonly<IAddTaskModalProps>) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { generateTimeOptions } = useTimelogFilterOptions();
@@ -433,11 +437,17 @@ export function AddTaskModal({
 					console.error('Failed to create timesheet:', error);
 				}
 			};
+			// A copy over an entry recorded since its check is refused like one the check found
+			let refuseCopiedOverlap: ((overlap: OverlapSummary) => void) | undefined;
+			if (refusalOfOverlap) {
+				refuseCopiedOverlap = (overlap) => setSaveRefusal(refusalOfOverlap(overlap));
+			}
 			// Every period is checked before any is sent
 			await overlapGuard.saveAfterCheck({
 				employeeId: formState.employeeId,
 				periods: entries,
-				save: saveEntries
+				save: saveEntries,
+				refuseOverlap: refuseCopiedOverlap
 			});
 		} catch (error) {
 			console.error('Failed to create timesheet:', error);

@@ -90,6 +90,7 @@ function DuplicateDialog({
 			closeModal={duplicate.close}
 			prefill={draft}
 			checkBeforeSave={duplicate.checkBeforeSave}
+			refusalOfOverlap={duplicate.refusalOfOverlap}
 			fixedMember={fixedMember}
 		/>
 	);

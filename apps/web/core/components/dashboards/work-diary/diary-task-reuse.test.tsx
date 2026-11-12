@@ -12,6 +12,7 @@ const mockContinueLog = jest.fn();
 const mockOpenDuplicate = jest.fn();
 const mockCloseDuplicate = jest.fn();
 const mockCheckBeforeSave = jest.fn();
+const mockRefusalOfOverlap = jest.fn();
 const mockAddTimeDialog = jest.fn();
 const mockStartLayer = jest.fn();
 
@@ -60,7 +61,8 @@ jest.mock('@/core/hooks/timesheet/use-time-entry-duplicate', () => ({
 		isOpen: mockIsDuplicateOpen,
 		open: mockOpenDuplicate,
 		close: mockCloseDuplicate,
-		checkBeforeSave: mockCheckBeforeSave
+		checkBeforeSave: mockCheckBeforeSave,
+		refusalOfOverlap: mockRefusalOfOverlap
 	})
 }));
 
@@ -193,6 +195,7 @@ describe('the actions of a task of a Work diary day', () => {
 				initialEnd: end,
 				prefill: mockDuplicateDraft,
 				checkBeforeSave: mockCheckBeforeSave,
+				refusalOfOverlap: mockRefusalOfOverlap,
 				closeModal: mockCloseDuplicate
 			})
 		);

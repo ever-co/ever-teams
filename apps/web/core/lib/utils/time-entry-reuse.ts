@@ -9,6 +9,7 @@ import {
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
+import type { OverlapSummary } from './time-log-overlap';
 
 const MILLISECONDS_PER_SECOND = 1000;
 const SECONDS_PER_MINUTE = 60;
@@ -202,6 +203,12 @@ export interface TimeEntrySaveCheck {
 
 /** Asked by an Add time dialog before it saves: a returned message refuses the save and is shown to the member. */
 export type CheckTimeEntrySave = (check: TimeEntrySaveCheck) => Promise<string | null>;
+
+/**
+ * The refusal an Add time dialog shows for a copied entry whose save, checked again just before it is sent, runs over
+ * an entry recorded since `CheckTimeEntrySave` answered: a copy is never offered to be saved over it.
+ */
+export type RefuseTimeEntryOverlap = (overlap: OverlapSummary) => string;
 
 function stepSecondsOf(stepMinutes: number) {
 	return stepMinutes * SECONDS_PER_MINUTE;
