@@ -127,9 +127,17 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	const { createImageAssets, loading: isUploadingImage } = useImageAssets();
 	const { createOrganizationProject, createOrganizationProjectLoading } = useCreateOrganizationProject();
 	const { editOrganizationProject, editOrganizationProjectLoading } = useEditOrganizationProject();
-	const { clients: fetchedClients } = useClientsQuery({ includeArchived: true });
-	const { canCreate: canCreateClient } = useClientAccess();
+	const {
+		clients: fetchedClients,
+		isLoaded: isClientListLoaded,
+		isError: isClientListError
+	} = useClientsQuery({ includeArchived: true });
+	const { canCreate: mayCreateClient } = useClientAccess();
 	const { createClient, isCreating: isCreatingClient } = useClientMutations();
+	// A name is offered for creation only against the whole list: an empty list that is loading or failed would offer
+	// to create a client that already exists.
+	const canCreateClient = mayCreateClient && isClientListLoaded;
+	const hasClientListFailed = isClientListError && !isClientListLoaded;
 
 	const activeTeamId = activeTeam?.id ?? null;
 	const isAdmin = isAdminRole(user?.role?.name);
@@ -331,18 +339,27 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 		[updateDraft]
 	);
 
+	const clientIdBeforeCreate = draft.clientId;
 	const addClient = useCallback(
 		async (name: string) => {
 			setHasClientCreateFailed(false);
 			try {
 				const client = await createClient(emptyClientDraft(name));
 				setCreatedClients((current) => [...current, client]);
-				updateDraft({ clientId: client.id });
+				// A client picked while this one was being created stays the project's client
+				setDraft((current) => {
+					const isSelectionUnchanged = current.clientId === clientIdBeforeCreate;
+					if (!isSelectionUnchanged) {
+						return current;
+					}
+					return { ...current, clientId: client.id };
+				});
+				setSubmitError(null);
 			} catch {
 				setHasClientCreateFailed(true);
 			}
 		},
-		[createClient, updateDraft]
+		[clientIdBeforeCreate, createClient]
 	);
 
 	const setBudgetType = useCallback((budgetType: EProjectBudgetType) => updateDraft({ budgetType }), [updateDraft]);
@@ -377,6 +394,10 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	);
 
 	const submit = useCallback(async () => {
+		// The client being created is not on the draft yet: the project waits for it, by the button and the shortcut
+		if (isCreatingClient) {
+			return;
+		}
 		setHasTriedSubmit(true);
 		setSubmitError(null);
 		const hasErrors = hasDraftErrors(validationErrors);
@@ -402,10 +423,21 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 			return;
 		}
 		onDone?.(savedProject);
-	}, [validationErrors, uploadImage, draft, project, teams, tags, currentEmployeeId, saveProject, onDone]);
+	}, [
+		isCreatingClient,
+		validationErrors,
+		uploadImage,
+		draft,
+		project,
+		teams,
+		tags,
+		currentEmployeeId,
+		saveProject,
+		onDone
+	]);
 
 	const isSaving = createOrganizationProjectLoading || editOrganizationProjectLoading;
-	const isSubmitting = isSaving || isUploadingImage;
+	const isSubmitting = isSaving || isUploadingImage || isCreatingClient;
 	const tileImageUrl = imagePreviewUrl ?? draft.imageUrl;
 
 	return {
@@ -426,6 +458,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 		canCreateClient,
 		isCreatingClient,
 		hasClientCreateFailed,
+		hasClientListFailed,
 		setClientId,
 		addClient,
 		canDeselectTeam,

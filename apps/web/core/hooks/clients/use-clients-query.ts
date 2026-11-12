@@ -38,6 +38,8 @@ export function useClientsQuery({ includeArchived = false, enabled = true }: Use
 		archivedClients,
 		isLoading: query.isLoading,
 		isError: query.isError,
+		/** The list has arrived (it may be empty); a later refresh that fails keeps it. */
+		isLoaded: query.data !== undefined,
 		refetch: query.refetch
 	};
 }

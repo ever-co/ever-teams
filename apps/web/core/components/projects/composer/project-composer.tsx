@@ -139,6 +139,8 @@ export function ProjectComposer({ mode, project, context, onClose }: Readonly<Pr
 	let clientErrorKey: DottedLanguageObjectStringPaths | undefined;
 	if (composer.hasClientCreateFailed) {
 		clientErrorKey = 'clients.picker.CREATE_FAILED';
+	} else if (composer.hasClientListFailed) {
+		clientErrorKey = 'clients.ERROR_TITLE';
 	}
 
 	let title = t('modals.project.createTitle');
