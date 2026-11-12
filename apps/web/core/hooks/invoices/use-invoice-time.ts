@@ -25,6 +25,7 @@ import {
 	type NamedInvoiceLine,
 	type UnpricedTime
 } from '@/core/lib/utils/invoices';
+import { clientIdOf } from '@/core/lib/utils/project-list';
 import { isRatesReadUnavailable } from '@/core/lib/utils/rates';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { TOrganizationProject } from '@/core/types/schemas';
@@ -186,7 +187,7 @@ export function useInvoiceTime({
 		if (!clientId) {
 			return [];
 		}
-		return organizationProjects.filter((project) => project.organizationContactId === clientId);
+		return organizationProjects.filter((project) => clientIdOf(project) === clientId);
 	}, [clientId, organizationProjects]);
 	const clientProjectsById = useMemo(() => projectsById(clientProjects), [clientProjects]);
 	const projectIds = useMemo(() => sortedIdsOf(clientProjectsById.keys()), [clientProjectsById]);

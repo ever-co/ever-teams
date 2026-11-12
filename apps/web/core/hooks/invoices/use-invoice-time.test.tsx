@@ -24,8 +24,9 @@ function deferred<T>(): Deferred<T> {
 
 const mockReports = { getBillableTimeLogs: jest.fn(), getOwedAmountReport: jest.fn() };
 const mockRates = { getProjectRates: jest.fn() };
+const siteProject = { id: 'project-site', name: 'Site', organizationContactId: 'client-acme', currency: 'USD' };
 const mockProjectsQuery = {
-	organizationProjects: [{ id: 'project-site', name: 'Site', organizationContactId: 'client-acme', currency: 'USD' }],
+	organizationProjects: [siteProject] as Array<Record<string, unknown>>,
 	isOrganizationProjectsLoaded: true,
 	isOrganizationProjectsError: false,
 	refetchOrganizationProjects: jest.fn()
@@ -128,5 +129,28 @@ describe('the billable time of a new invoice while it is read again', () => {
 			await rates.promise;
 		});
 		await waitFor(() => expect(result.current.isUpdating).toBe(false));
+	});
+});
+
+describe('the projects whose time a new invoice bills', () => {
+	beforeEach(() => {
+		mockReports.getBillableTimeLogs.mockResolvedValue([adaTime]);
+		mockReports.getOwedAmountReport.mockResolvedValue(owedReport);
+		mockRates.getProjectRates.mockResolvedValue(siteRates);
+	});
+
+	afterEach(() => {
+		mockProjectsQuery.organizationProjects = [siteProject];
+	});
+
+	it('include a project whose client came only as its relation, as the Clients page counts it', async () => {
+		const relationOnly = { id: 'project-site', name: 'Site', organizationContact: { id: 'client-acme' } };
+		mockProjectsQuery.organizationProjects = [relationOnly];
+
+		const { result } = renderInvoiceTime();
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		expect(result.current.hasProjects).toBe(true);
+		expect(result.current.lines).toHaveLength(1);
 	});
 });
