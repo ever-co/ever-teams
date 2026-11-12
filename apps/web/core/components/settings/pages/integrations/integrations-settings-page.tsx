@@ -13,6 +13,7 @@ import { useGithubIntegrationSettings } from '@/core/hooks/settings/use-github-i
 import { canManageActiveTeamState } from '@/core/stores';
 import { AsanaProviderSection } from './asana-provider';
 import { GithubProviderSection } from './github-provider';
+import { ImportSection } from './import-section';
 import { IntegrationsSettingsSkeleton } from './integrations-settings-skeleton';
 import { LinearProviderSection } from './linear-provider';
 import { TrelloProviderSection } from './trello-provider';
@@ -51,6 +52,7 @@ function IntegrationsSettingsContent() {
 			<LinearProviderSection linear={linear} />
 			<AsanaProviderSection asana={asana} />
 			<TrelloProviderSection trello={trello} />
+			<ImportSection />
 			<EverPlatformSettings isTeamManager={canManageTeam} frame={frameEverPlatform} />
 		</SettingsPage>
 	);
