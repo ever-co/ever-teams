@@ -25,6 +25,7 @@ import {
 } from '@/core/lib/helpers/timer-errors';
 import { isTimerTaskOfTeam } from '@/core/lib/utils/task.utils';
 import { notesToSendAtStart, notesToSendAtStop, wereNotesLostAtStop } from '@/core/lib/utils/timer/timer-notes';
+import { startTaskOf } from '@/core/lib/utils/timer/timer-start-task';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerService } from '@/core/services/client/api/timers';
@@ -158,20 +159,6 @@ function trackTimerCommand<T>(request: Promise<T>): Promise<T> {
 		timerCommandSeq += 1;
 		timerCommandsInFlight -= 1;
 	});
-}
-
-/**
- * The task a start is for: the one asked for, else the task page's own (it becomes the active task), else the active
- * task. `pageTask` is set only on a task page.
- */
-function startTaskOf(
-	explicitTask: TTask | undefined,
-	pathname: string | null,
-	detailedTask: TTask | null,
-	activeTask: TTask | null
-): { pageTask: TTask | null; taskToUse: TTask | null } {
-	const pageTask = pathname?.startsWith('/task/') ? detailedTask : null;
-	return { pageTask, taskToUse: explicitTask || pageTask || activeTask };
 }
 
 /**
