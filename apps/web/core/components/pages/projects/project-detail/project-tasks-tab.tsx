@@ -43,7 +43,11 @@ const LAYOUTS_ON_EVERY_DEPLOYMENT: ProjectTasksTabLayout[] = ['list', 'calendar'
 /** The timeline comes with the saved views, as on Team tasks. */
 const LAYOUTS_WITH_SAVED_VIEWS: ProjectTasksTabLayout[] = ['list', 'calendar', 'timeline'];
 
-const LAYOUT_FRAME = 'h-[min(78dvh,760px)] min-h-120 rounded-xl bg-card hairline-ring ring-border';
+/**
+ * The frame of the calendar and the timeline: most of the screen, its small height (the one without the browser's
+ * bars) so it never jumps on a scroll, and a lower floor on a phone, where it would not fit in landscape.
+ */
+const LAYOUT_FRAME = 'h-[min(78svh,760px)] min-h-80 sm:min-h-120 rounded-xl bg-card hairline-ring ring-border';
 
 /** The calendar and the timeline load when one is first picked, so the project's page keeps its weight. */
 const ProjectTasksLayoutView = dynamic(

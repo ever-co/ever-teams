@@ -18,8 +18,18 @@ jest.mock('@/core/components/tasks/drawer/task-drawer-link', () => ({
 }));
 // The calendar and the timeline are the Team tasks views, tested there: here each says which tasks it was given.
 jest.mock('./project-tasks-layouts', () => ({
-	ProjectTasksLayoutView: ({ layout, tasks }: { layout: string; tasks: Array<{ title: string }> }) => (
-		<div data-testid={`project-tasks-${layout}`}>{tasks.map((task) => task.title).join(', ')}</div>
+	ProjectTasksLayoutView: ({
+		layout,
+		tasks,
+		className
+	}: {
+		layout: string;
+		tasks: Array<{ title: string }>;
+		className?: string;
+	}) => (
+		<div data-testid={`project-tasks-${layout}`} className={className}>
+			{tasks.map((task) => task.title).join(', ')}
+		</div>
 	)
 }));
 // The lazy parts render once loaded, as `next/dynamic` renders them in the browser.
@@ -45,10 +55,10 @@ const TASKS = [
 	{ id: 'b', title: 'Write the notes', status: 'open', taskStatusId: 'open' }
 ] as unknown as TTask[];
 
-function renderTab() {
+function renderTab({ isReady = true }: { isReady?: boolean } = {}) {
 	const taskStats = {
 		hasTeam: true,
-		isReady: true,
+		isReady,
 		teamName: 'Team A',
 		statsOf: () => ({ tasks: TASKS, total: TASKS.length })
 	} as unknown as ProjectTaskStatsState;
@@ -98,6 +108,16 @@ describe('ProjectTasksTab', () => {
 		]);
 		fireEvent.click(within(layoutSwitch()).getByRole('tab', { name: 'pages.teamTasks.LAYOUT_TIMELINE' }));
 		expect(await screen.findByTestId('project-tasks-timeline')).toBeTruthy();
+	});
+
+	it('sizes the calendar to the screen, with a lower floor on a phone', async () => {
+		window.localStorage.setItem('project-tasks-layout', JSON.stringify('calendar'));
+		renderTab();
+
+		const frame = await screen.findByTestId('project-tasks-calendar');
+		expect(frame.className).toContain('h-[min(78svh,760px)]');
+		expect(frame.className).toContain('min-h-80');
+		expect(frame.className).toContain('sm:min-h-120');
 	});
 
 	it('opens on the list when the layout stored on the device is not offered here', () => {
