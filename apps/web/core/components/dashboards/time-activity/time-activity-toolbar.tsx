@@ -21,7 +21,8 @@ const GROUPING_LABEL_KEYS: Record<TimeActivityGrouping, DottedLanguageObjectStri
 	member: 'dashboard.timeActivity.grouping.MEMBER',
 	project: 'dashboard.timeActivity.grouping.PROJECT',
 	task: 'dashboard.timeActivity.grouping.TASK',
-	week: 'dashboard.timeActivity.grouping.WEEK'
+	week: 'dashboard.timeActivity.grouping.WEEK',
+	client: 'common.CLIENT'
 };
 
 function ToolbarMeta({ report }: Readonly<{ report: TimeActivityReport }>) {

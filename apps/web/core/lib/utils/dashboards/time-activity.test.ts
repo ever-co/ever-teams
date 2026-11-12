@@ -1,10 +1,15 @@
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import { type DailyReportRow, flattenDailyReport } from '@/core/lib/utils/daily-report-figures';
+import { filterDailyReportByClients } from './report-filters';
 import {
 	NO_CLIENT,
+	breakdownFactsOf,
+	breakdownTreeOf,
+	clientLabelOf,
 	clientOfProjectLogOf,
 	clientRowsOf,
 	exportRowsOf,
+	reportTotalsOf,
 	weekColumnTotalsOf,
 	weekGridRowsOfDailyRows
 } from './time-activity';
@@ -141,6 +146,70 @@ describe('the client of each row of Time & Activity', () => {
 			['Website', 1200, 'acme'],
 			['No team', 300, 'acme']
 		]);
+	});
+});
+
+describe('the Time & Activity breakdown by client', () => {
+	const clientOf = clientOfProjectLogOf(CLIENT_IDS, CLIENT_NAMES);
+	const rows = clientRowsOf(CLIENT_REPORT, clientOf, 'No team');
+	const tree = breakdownTreeOf(breakdownFactsOf(rows), 'client');
+
+	it('ranks the clients by their time, "No client" holding the time without one', () => {
+		const clients = tree.nodes.map((node) => [node.subject, node.seconds]);
+
+		expect(clients).toEqual([
+			[{ kind: 'client', client: { key: 'acme', name: 'Acme' } }, 2100],
+			[{ kind: 'client', client: { key: 'globex', name: 'Globex' } }, 900],
+			[{ kind: 'client', client: NO_CLIENT }, 420],
+			[{ kind: 'client', client: { key: 'initech', name: 'Initech' } }, 60]
+		]);
+	});
+
+	it('adds the groups up to the total of the page, to the second', () => {
+		let groupSeconds = 0;
+		for (const node of tree.nodes) {
+			groupSeconds += node.seconds;
+		}
+
+		expect(groupSeconds).toBe(reportTotalsOf(rows).seconds);
+		expect(tree.totals.seconds).toBe(3480);
+	});
+
+	it('opens a client on its projects, then each project on its members', () => {
+		const [acme] = tree.nodes;
+
+		const projects = acme.children.map((node) => [node.dimension, node.key, node.seconds]);
+		expect(projects).toEqual([
+			['project', 'client/acme/website', 1800],
+			['project', 'client/acme/no-team', 300]
+		]);
+		const members = acme.children[0].children.map((node) => [node.dimension, node.seconds]);
+		expect(members).toEqual([['member', 1800]]);
+	});
+
+	it('gives each client its share of the period', () => {
+		const shares = tree.nodes.map((node) => Math.round(node.share));
+
+		expect(shares).toEqual([60, 26, 12, 2]);
+	});
+
+	it('shows one group with the filtered total when the client filter holds one client', () => {
+		const filtered = filterDailyReportByClients(CLIENT_REPORT, ['acme'], CLIENT_IDS);
+		const filteredPageSeconds = reportTotalsOf(flattenDailyReport(filtered, 'No team')).seconds;
+		const filteredRows = clientRowsOf(filtered, clientOf, 'No team');
+
+		const filteredTree = breakdownTreeOf(breakdownFactsOf(filteredRows), 'client');
+
+		const groups = filteredTree.nodes.map((node) => [node.key, node.seconds]);
+		expect(groups).toEqual([['client/acme', filteredPageSeconds]]);
+	});
+
+	it('names "No client", a named client, and a client no list names', () => {
+		const labels = { noClient: 'No client', unnamedClient: 'Client' };
+
+		expect(clientLabelOf(NO_CLIENT, labels)).toBe('No client');
+		expect(clientLabelOf({ key: 'acme', name: 'Acme' }, labels)).toBe('Acme');
+		expect(clientLabelOf({ key: 'umbrella', name: null }, labels)).toBe('Client');
 	});
 });
 

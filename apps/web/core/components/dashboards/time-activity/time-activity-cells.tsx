@@ -7,7 +7,13 @@ import { ActivityFigure } from '@/core/components/dashboards/kit/meters';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { activityPercentOf, type CurrencyAmount, formatAmounts } from '@/core/lib/utils/daily-report-figures';
-import type { ReportProjectRef, TableGrouping, TimeActivityColumn } from '@/core/lib/utils/dashboards/time-activity';
+import {
+	type ReportClientRef,
+	type ReportProjectRef,
+	type TableGrouping,
+	type TimeActivityColumn,
+	hasClient
+} from '@/core/lib/utils/dashboards/time-activity';
 
 export type FigureColumn = Exclude<TimeActivityColumn, 'project'>;
 
@@ -92,12 +98,12 @@ export function figureCellClassOf(column: FigureColumn, mobileFigure: FigureColu
 
 export const FIGURE_TEXT = 'text-[13px] tabular-nums';
 
-const NO_PROJECT_GLYPH = 'inline-block size-4 shrink-0 rounded-[28%] border border-dashed border-foreground/25';
+const EMPTY_TILE_GLYPH = 'inline-block size-4 shrink-0 rounded-[28%] border border-dashed border-foreground/25';
 
 export const ProjectGlyph = memo(function ProjectGlyph({ project }: Readonly<{ project: ReportProjectRef }>) {
 	const hasProject = project.name !== null;
 	if (!hasProject) {
-		return <span aria-hidden="true" className={NO_PROJECT_GLYPH} />;
+		return <span aria-hidden="true" className={EMPTY_TILE_GLYPH} />;
 	}
 	return (
 		<EntityTile
@@ -107,6 +113,16 @@ export const ProjectGlyph = memo(function ProjectGlyph({ project }: Readonly<{ p
 			className="size-4 text-[7px]"
 		/>
 	);
+});
+
+export const ClientGlyph = memo(function ClientGlyph({
+	client,
+	name
+}: Readonly<{ client: ReportClientRef; name: string }>) {
+	if (!hasClient(client)) {
+		return <span aria-hidden="true" className={EMPTY_TILE_GLYPH} />;
+	}
+	return <EntityTile name={name} className="size-4 text-[7px]" />;
 });
 
 function lastInitialOf(words: string[]) {

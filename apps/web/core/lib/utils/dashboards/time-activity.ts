@@ -20,7 +20,7 @@ import {
 } from '@/core/lib/utils/dashboards/report-filters';
 import { NO_CLIENT_FILTER_VALUE } from '@/core/lib/utils/project-list';
 
-export type TimeActivityGrouping = 'date' | 'member' | 'project' | 'task' | 'week';
+export type TimeActivityGrouping = 'date' | 'member' | 'project' | 'task' | 'week' | 'client';
 
 /** The groupings of the first table of this page, whose components stay in the folder. */
 export type TableGrouping = 'date' | 'member' | 'project';
@@ -418,6 +418,19 @@ export const NO_CLIENT: ReportClientRef = { key: NO_CLIENT_KEY, name: null };
 
 export function hasClient(client: ReportClientRef) {
 	return client.key !== NO_CLIENT_KEY;
+}
+
+export interface ClientLabels {
+	noClient: string;
+	/** For a client no list names, as the projects list writes it. */
+	unnamedClient: string;
+}
+
+export function clientLabelOf(client: ReportClientRef, labels: ClientLabels) {
+	if (!hasClient(client)) {
+		return labels.noClient;
+	}
+	return client.name ?? labels.unnamedClient;
 }
 
 /** A row of the daily report, with the client of its project once the page groups by client. */
@@ -838,12 +851,15 @@ export function todayKeyOf(now = new Date()) {
 	return localDayKeyOf(now);
 }
 
-/** The first table had no task grouping: tasks sit under their project there. */
+/** The first table had no task or client grouping: tasks sit under their project there, and so do clients. */
 export function tableGroupingOf(grouping: TimeActivityGrouping): TableGrouping {
 	if (grouping === 'week') {
 		return 'date';
 	}
 	if (grouping === 'task') {
+		return 'project';
+	}
+	if (grouping === 'client') {
 		return 'project';
 	}
 	return grouping;
@@ -939,13 +955,14 @@ export function exportGroupsOf(rows: ReadonlyArray<TimeActivityExportRow>, group
 	return groups.sort(compareExportGroups(grouping));
 }
 
-export type BreakdownDimension = 'day' | 'member' | 'project' | 'task';
+export type BreakdownDimension = 'day' | 'member' | 'project' | 'task' | 'client';
 
 export const BREAKDOWN_PATHS: Record<BreakdownGrouping, ReadonlyArray<BreakdownDimension>> = {
 	date: ['day', 'member', 'project'],
 	member: ['member', 'project', 'task'],
 	project: ['project', 'task', 'member'],
-	task: ['task', 'member', 'day']
+	task: ['task', 'member', 'day'],
+	client: ['client', 'project', 'member']
 };
 
 const NO_TASK_KEY = 'no-task';
@@ -957,6 +974,7 @@ export interface BreakdownFact {
 	employeeName: string;
 	employeeImageUrl: string | null;
 	project: ReportProjectRef;
+	client: ReportClientRef;
 	taskKey: string;
 	/** `null` for time logged without a task. */
 	taskTitle: string | null;
@@ -986,7 +1004,7 @@ function rateOfRow(row: DailyReportRow): MemberRate {
  * Gauzy measures activity per member, project and day. A task gets its time's share of it, so every level that
  * gathers whole rows adds up exactly; the task levels themselves never show it (`hasExactActivity`).
  */
-function factOf(row: DailyReportRow, taskKey: string, taskTitle: string | null, seconds: number): BreakdownFact {
+function factOf(row: TimeActivityRow, taskKey: string, taskTitle: string | null, seconds: number): BreakdownFact {
 	const share = shareOfRow(seconds, row);
 	const memberRate = rateOfRow(row);
 	return {
@@ -995,6 +1013,7 @@ function factOf(row: DailyReportRow, taskKey: string, taskTitle: string | null, 
 		employeeName: row.employeeName,
 		employeeImageUrl: row.employeeImageUrl,
 		project: projectRefOf(row, 0),
+		client: row.client ?? NO_CLIENT,
 		taskKey,
 		taskTitle,
 		seconds,
@@ -1013,7 +1032,7 @@ function taskTitleOrNull(title: string) {
 }
 
 /** Time of a row that no task accounts for stays under "No task", so the tasks of a row add up to the row. */
-function factsOfRow(row: DailyReportRow): BreakdownFact[] {
+function factsOfRow(row: TimeActivityRow): BreakdownFact[] {
 	const facts: BreakdownFact[] = [];
 	let taskSeconds = 0;
 	for (const task of row.tasks) {
@@ -1037,7 +1056,7 @@ function factsOfRow(row: DailyReportRow): BreakdownFact[] {
 	return facts;
 }
 
-export function breakdownFactsOf(rows: ReadonlyArray<DailyReportRow>): BreakdownFact[] {
+export function breakdownFactsOf(rows: ReadonlyArray<TimeActivityRow>): BreakdownFact[] {
 	const facts: BreakdownFact[] = [];
 	for (const row of rows) {
 		const rowFacts = factsOfRow(row);
@@ -1050,7 +1069,8 @@ export type BreakdownSubject =
 	| { kind: 'day'; dateKey: string }
 	| { kind: 'member'; employeeId: string; name: string; imageUrl: string | null }
 	| { kind: 'project'; project: ReportProjectRef }
-	| { kind: 'task'; title: string | null };
+	| { kind: 'task'; title: string | null }
+	| { kind: 'client'; client: ReportClientRef };
 
 export interface BreakdownNode {
 	/** The keys from the top row down, so a row keeps its open state while the period changes. */
@@ -1090,6 +1110,9 @@ function bucketKeyOf(fact: BreakdownFact, dimension: BreakdownDimension) {
 	if (dimension === 'project') {
 		return fact.project.key;
 	}
+	if (dimension === 'client') {
+		return fact.client.key;
+	}
 	return fact.taskKey;
 }
 
@@ -1107,6 +1130,9 @@ function subjectOfFact(fact: BreakdownFact, dimension: BreakdownDimension): Brea
 	}
 	if (dimension === 'project') {
 		return { kind: 'project', project: fact.project };
+	}
+	if (dimension === 'client') {
+		return { kind: 'client', client: fact.client };
 	}
 	return { kind: 'task', title: fact.taskTitle };
 }

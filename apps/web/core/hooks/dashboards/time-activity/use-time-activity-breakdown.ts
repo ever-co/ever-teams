@@ -1,16 +1,16 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
-import type { DailyReportRow } from '@/core/lib/utils/daily-report-figures';
 import {
 	type BreakdownGrouping,
 	type BreakdownNode,
+	type TimeActivityRow,
 	breakdownFactsOf,
 	breakdownTreeOf,
 	openableKeysOf
 } from '@/core/lib/utils/dashboards/time-activity';
 
-export function useTimeActivityBreakdown(rows: ReadonlyArray<DailyReportRow>, grouping: BreakdownGrouping) {
+export function useTimeActivityBreakdown(rows: ReadonlyArray<TimeActivityRow>, grouping: BreakdownGrouping) {
 	const facts = useMemo(() => breakdownFactsOf(rows), [rows]);
 	return useMemo(() => breakdownTreeOf(facts, grouping), [facts, grouping]);
 }
