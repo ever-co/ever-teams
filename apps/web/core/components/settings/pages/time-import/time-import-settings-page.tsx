@@ -147,8 +147,14 @@ function TimeImportGate() {
 	const isLoaded = !access.isLoading && !access.hasLoadFailed;
 	const isAllowed = access.refusal === null;
 	const isOpenable = isLoaded && isAllowed;
+	// Read from loaded data only: while the permissions load they are empty, which reads as a refusal too
+	const isRefused = isLoaded && !isAllowed;
 	if (isOpenable && !isOpened) {
 		setOpenedTeamId(teamId);
+	}
+	// A refusal closes the import, and a reload that follows must not bring it back
+	if (isRefused && isOpened) {
+		setOpenedTeamId(null);
 	}
 	const showsFlow = isOpened || isOpenable;
 

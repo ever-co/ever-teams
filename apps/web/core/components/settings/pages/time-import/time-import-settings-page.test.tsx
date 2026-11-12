@@ -225,6 +225,37 @@ describe('TimeImportSettingsPage', () => {
 		expect(screen.getAllByRole('listitem')).toHaveLength(1);
 	});
 
+	it.each([
+		['manualTimeOff', 'timeImport.access.MANUAL_TIME_OFF_TITLE'],
+		['noPermission', 'timeImport.access.NO_PERMISSION_TITLE']
+	] as const)('closes a file on screen once the access is refused (%s)', (refusal, noticeTitle) => {
+		const rows = rowsOf([sheetRowOf(2, {})]);
+		mockTimeImport.mockReturnValue(timeImportOf({ stage: 'preview', fileName: 'october.csv', rows }));
+		const { rerender } = render(<TimeImportSettingsPage />);
+		expect(screen.getByRole('button', { name: 'timeImport.IMPORT_ACTION {"count":1}' })).toBeTruthy();
+
+		mockAccess.mockReturnValue(accessOf({ refusal }));
+		rerender(<TimeImportSettingsPage />);
+
+		expect(screen.getByText(noticeTitle)).toBeTruthy();
+		expect(screen.queryByRole('button', { name: 'timeImport.IMPORT_ACTION {"count":1}' })).toBeNull();
+		expect(screen.queryAllByRole('listitem')).toHaveLength(0);
+	});
+
+	it('does not bring a refused import back while the team data reloads', () => {
+		const rows = rowsOf([sheetRowOf(2, {})]);
+		mockTimeImport.mockReturnValue(timeImportOf({ stage: 'preview', fileName: 'october.csv', rows }));
+		const { rerender } = render(<TimeImportSettingsPage />);
+		mockAccess.mockReturnValue(accessOf({ refusal: 'noPermission' }));
+		rerender(<TimeImportSettingsPage />);
+
+		mockAccess.mockReturnValue(accessOf({ refusal: 'noPermission', isLoading: true }));
+		rerender(<TimeImportSettingsPage />);
+
+		expect(screen.queryAllByRole('listitem')).toHaveLength(0);
+		expect(screen.queryByRole('button', { name: 'timeImport.IMPORT_ACTION {"count":1}' })).toBeNull();
+	});
+
 	it('starts over when the active team changes', () => {
 		const { rerender } = render(<TimeImportSettingsPage />);
 		expect(screen.getByRole('button', { name: 'timeImport.DROP_TITLE' })).toBeTruthy();
