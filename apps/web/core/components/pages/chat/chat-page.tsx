@@ -314,6 +314,7 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 							onClose={closeThread}
 							highlightMessageId={jumpTo}
 							conversationLabel={threadLabel}
+							archived={!!current.conversation?.archivedAt}
 						/>
 					</aside>
 				)}

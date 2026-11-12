@@ -2012,12 +2012,29 @@ describe('Ever Teams feature surface preservation', () => {
 		// (GET /api/timesheet/time-log/conflict, #5089).
 		// 298 files and 382 verbs with the Board app's session check (/api/board/session, GET and its CORS OPTIONS).
 		// 298 files and 383 verbs with the reschedule of a scheduled meeting (/api/employee-appointment/[id] PUT).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(298);
+		// 300 files and 385 verbs with the clicks on app message buttons (POST /api/chat/messages/[id]/interactions,
+		// GET /api/chat/interactions/[id]).
+		// 307 files and 393 verbs with the comment and trash proxies (#5069): POST /api/reaction, GET
+		// /api/reaction/comments, /api/comment/[id]/soft DELETE and recover PUT, GET /api/tasks/trash,
+		// /api/tasks/[id]/soft DELETE and recover PUT, and DELETE /api/tasks/[id].
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(307);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(383);
+		).toHaveLength(393);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of Gauzy's comment withdraw / recover, reactions and task trash routes (#5069)
+				'apps/web/app/api/reaction/route.ts::POST',
+				'apps/web/app/api/reaction/comments/route.ts::GET',
+				'apps/web/app/api/comment/[id]/soft/route.ts::DELETE',
+				'apps/web/app/api/comment/[id]/recover/route.ts::PUT',
+				'apps/web/app/api/tasks/trash/route.ts::GET',
+				'apps/web/app/api/tasks/[id]/soft/route.ts::DELETE',
+				'apps/web/app/api/tasks/[id]/recover/route.ts::PUT',
+				'apps/web/app/api/tasks/[id]/route.ts::DELETE',
+				// Proxy mode twins of the platform's clicks on app message buttons (incoming webhooks, 2026-11-11)
+				'apps/web/app/api/chat/messages/[id]/interactions/route.ts::POST',
+				'apps/web/app/api/chat/interactions/[id]/route.ts::GET',
 				// Proxy mode twin of the platform's link preview pictures (2026-11-12)
 				'apps/web/app/api/chat/link-preview/image/route.ts::GET',
 				// Proxy mode twin of Gauzy's lookup of the time a manual entry would overlap (#5089)
