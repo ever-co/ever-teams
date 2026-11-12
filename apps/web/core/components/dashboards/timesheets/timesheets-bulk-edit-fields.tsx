@@ -2,6 +2,7 @@
 
 import { type ReactNode, useId } from 'react';
 import { useTranslations } from 'next-intl';
+import { AnimatedHeight } from '@/core/components/common/animated-height';
 import { EntityTile } from '@/core/components/common/entity-tile';
 import { modalFieldLabelClass } from '@/core/components/common/modal';
 import { CustomSelect } from '@/core/components/common/multiple-select';
@@ -177,20 +178,24 @@ function TaskField({ task }: Readonly<{ task: BulkEditChoiceState['task'] }>) {
 
 	return (
 		<Field label={label}>
-			<CustomSelect
-				value={selectValueOf(task.pickedId)}
-				onChange={(value: string) => task.pick(pickedIdOf(value))}
-				ariaLabel={label}
-				className="w-full"
-				classNameGroup="max-h-[40vh]"
-				options={[KEEP_OPTION, ...task.choices]}
-				renderOption={renderTaskOption}
-			/>
-			{narrowingProjectName && (
-				<p className={FIELD_NOTE}>
-					{t('dashboard.timesheets.BULK_EDIT.TASKS_OF_PROJECT', { project: narrowingProjectName })}
-				</p>
-			)}
+			<AnimatedHeight>
+				<div className="flex flex-col gap-1">
+					<CustomSelect
+						value={selectValueOf(task.pickedId)}
+						onChange={(value: string) => task.pick(pickedIdOf(value))}
+						ariaLabel={label}
+						className="w-full"
+						classNameGroup="max-h-[40vh]"
+						options={[KEEP_OPTION, ...task.choices]}
+						renderOption={renderTaskOption}
+					/>
+					{narrowingProjectName && (
+						<p className={FIELD_NOTE}>
+							{t('dashboard.timesheets.BULK_EDIT.TASKS_OF_PROJECT', { project: narrowingProjectName })}
+						</p>
+					)}
+				</div>
+			</AnimatedHeight>
 		</Field>
 	);
 }

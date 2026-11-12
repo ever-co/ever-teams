@@ -2,6 +2,7 @@
 
 import type { FormEvent, ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
+import { AnimatedHeight } from '@/core/components/common/animated-height';
 import {
 	Modal,
 	modalFooterClass,
@@ -50,12 +51,14 @@ export function TimesheetsBulkEditDialog({
 	let body: ReactNode = (
 		<form onSubmit={handleSubmit} className="flex w-full flex-col gap-4">
 			<TimesheetsBulkEditFields fields={edit.fields} isDisabled={isRunning} />
-			<TimesheetsBulkEditPreview
-				hasChoice={edit.hasChoice}
-				saveCount={edit.saveCount}
-				leftOutLines={edit.leftOutLines}
-				progress={edit.progress}
-			/>
+			<AnimatedHeight>
+				<TimesheetsBulkEditPreview
+					hasChoice={edit.hasChoice}
+					saveCount={edit.saveCount}
+					leftOutLines={edit.leftOutLines}
+					progress={edit.progress}
+				/>
+			</AnimatedHeight>
 			<div className={modalFooterClass}>
 				<Button
 					type="button"
