@@ -4107,6 +4107,10 @@
 			"versions": {
 				"TITLE": "Versionen",
 				"DESCRIPTION": "Releases, auf die Aufgaben abzielen können."
+			},
+			"import": {
+				"TITLE": "Import",
+				"DESCRIPTION": "Zeiteinträge aus einer CSV-Datei."
 			}
 		},
 		"index": {
@@ -6010,5 +6014,142 @@
 		"OFF_TEXT": "In diesem Arbeitsbereich werden gelöschte Aufgaben endgültig entfernt.",
 		"NO_TEAM_TITLE": "Team auswählen",
 		"NO_TEAM_TEXT": "Der Papierkorb zeigt die gelöschten Aufgaben des aktiven Teams."
+	},
+	"timeImport": {
+		"SECTION_TITLE": "Zeiterfassungsdaten",
+		"SECTION_DESCRIPTION": "Jede Zeile der Datei wird zu einem Zeiteintrag in {team}. Du prüfst zuerst alle Zeilen, und nichts wird gespeichert, bevor du bestätigst.",
+		"TEMPLATE_LABEL": "CSV-Vorlage",
+		"TEMPLATE_DESCRIPTION": "Eine leere Datei mit den Spalten, die der Import liest.",
+		"TEMPLATE_DOWNLOAD": "Vorlage herunterladen",
+		"DROP_TITLE": "CSV-Datei hier ablegen oder eine auswählen",
+		"DROP_ACTIVE": "Datei ablegen, um sie zu prüfen",
+		"DROP_HINT": "{rows, plural, one {Nur CSV, bis {megabytes} MB und # Zeile pro Datei.} other {Nur CSV, bis {megabytes} MB und # Zeilen pro Datei.}}",
+		"OWN_TIME_NOTE": "Jede Zeile wird als deine eigene Zeit gespeichert.",
+		"OTHERS_NOTE": "Du kannst Zeit für andere Mitglieder von {team} hinzufügen: Gib die E-Mail-Adresse jedes Mitglieds in der Spalte {column} an. Eine Zeile ohne E-Mail-Adresse ist deine eigene Zeit.",
+		"COLUMNS_TITLE": "Spalten",
+		"COLUMNS_DESCRIPTION": "Die erste Zeile der Datei benennt ihre Spalten, in beliebiger Reihenfolge. Datum und Uhrzeit werden in deiner Zeitzone gelesen, {timeZone}.",
+		"columns": {
+			"REQUIRED": "Erforderlich",
+			"ONE_OF_TWO": "Eine von beiden",
+			"DATE": "Der Tag des Eintrags, das Jahr zuerst: {date}.",
+			"START_TIME": "Die Startzeit, im 24-Stunden-Format oder mit AM oder PM: {startTime} oder {startTimeMeridiem}.",
+			"END_TIME": "Die Endzeit, am selben Tag: {endTime}.",
+			"DURATION": "Die Dauer, anstelle einer Endzeit: {duration}, {durationUnits} oder {durationDecimal} für Stunden als Zahl.",
+			"PROJECT": "Der genaue Name eines Projekts dieses Teams. Leer für Zeit ohne Projekt.",
+			"TASK_ANY": "Der genaue Titel einer Aufgabe dieses Teams. Leer für Zeit ohne Aufgabe.",
+			"TASK_OWN": "Der genaue Titel einer Aufgabe dieses Teams, die dem Mitglied zugewiesen ist, dem die Zeit gehört. Leer für Zeit ohne Aufgabe.",
+			"NOTES": "Eine Notiz, die mit dem Eintrag gespeichert wird.",
+			"BILLABLE": "{yes} oder {no}. Leer bedeutet {no}.",
+			"MEMBER_EMAIL": "Die E-Mail-Adresse des Mitglieds, dem die Zeit gehört. Leer bedeutet du selbst."
+		},
+		"FILE_PROBLEM_TITLE": "{fileName} kann nicht importiert werden",
+		"fileProblems": {
+			"NOT_CSV": "Es werden nur CSV-Dateien gelesen. Speichere die Tabelle als CSV und wähle dann diese Datei.",
+			"TOO_LARGE": "Die Datei ist größer als {megabytes} MB. Teile sie in kleinere Dateien auf.",
+			"NOT_TEXT": "Die Datei ist kein als UTF-8 gespeicherter Text. Speichere sie in deiner Tabellen-App als CSV UTF-8.",
+			"EMPTY": "Die Datei ist leer.",
+			"UNCLOSED_QUOTE": "In Zeile {row} beginnt eine Zelle mit einem doppelten Anführungszeichen, das nie geschlossen wird.",
+			"DUPLICATE_COLUMN": "Die Spalte {column} kommt zweimal vor.",
+			"MISSING_COLUMNS": "{count, plural, one {Diese Spalte fehlt: {columns}.} other {Diese Spalten fehlen: {columns}.}}",
+			"END_OR_DURATION": "{endTime} oder {duration}",
+			"NO_ROWS": "Die Datei hat eine Kopfzeile und keine Zeile darunter.",
+			"TOO_MANY_ROWS": "{limit, plural, one {Die Datei hat {count} Zeilen. Ein Import nimmt höchstens # Zeile an: Teile die Datei auf.} other {Die Datei hat {count} Zeilen. Ein Import nimmt höchstens # Zeilen an: Teile die Datei auf.}}"
+		},
+		"CHECKING_TITLE": "{fileName} wird geprüft",
+		"CHECKING_DESCRIPTION": "{count, plural, one {# Zeile wird mit der bereits erfassten Zeit verglichen.} other {# Zeilen werden mit der bereits erfassten Zeit verglichen.}}",
+		"CHECK_FAILED_TITLE": "{fileName} konnte nicht geprüft werden",
+		"CHECK_FAILED_DESCRIPTION": "Die bereits erfasste Zeit konnte nicht gelesen werden, daher kann noch keine Zeile importiert werden. Es wurde nichts gespeichert.",
+		"RETRY": "Erneut versuchen",
+		"CHOOSE_ANOTHER": "Andere Datei auswählen",
+		"PREVIEW_TITLE": "Vorschau",
+		"PREVIEW_DESCRIPTION": "{count, plural, one {{fileName}, # Zeile. Nichts wird gespeichert, bis du importierst.} other {{fileName}, # Zeilen. Nichts wird gespeichert, bis du importierst.}}",
+		"IGNORED_COLUMNS": "{count, plural, one {Diese Spalte wird nicht gelesen: {columns}.} other {Diese Spalten werden nicht gelesen: {columns}.}}",
+		"PREVIEW_CHANGED_TITLE": "Nichts wurde gespeichert: Die Vorschau hat sich geändert",
+		"PREVIEW_CHANGED_DESCRIPTION": "Die Datei wurde vor dem Speichern noch einmal geprüft, und einige Zeilen haben sich geändert, zum Beispiel weil inzwischen Zeit erfasst wurde. Sieh dir die Zeilen an und importiere dann erneut.",
+		"RECHECK_FAILED_TITLE": "Nichts wurde gespeichert",
+		"RECHECK_FAILED_DESCRIPTION": "Die Datei konnte vor dem Speichern nicht ein letztes Mal geprüft werden. Versuche es erneut.",
+		"NOTHING_READY": "Keine Zeile dieser Datei kann importiert werden. Korrigiere die ausgelassenen Zeilen und wähle die Datei dann erneut.",
+		"IMPORT_ACTION": "{count, plural, one {# Eintrag importieren} other {# Einträge importieren}}",
+		"RECHECKING": "Die Datei wird vor dem Speichern noch einmal geprüft",
+		"IMPORTING_TITLE": "Import läuft",
+		"IMPORTING_PROGRESS": "{total, plural, one {{done} von # Eintrag gespeichert} other {{done} von # Einträgen gespeichert}}",
+		"KEEP_OPEN": "Lass diese Seite geöffnet, bis der Import beendet ist.",
+		"REPORT_TITLE": "Bericht",
+		"DONE_TITLE": "{count, plural, one {# Eintrag gespeichert} other {# Einträge gespeichert}}",
+		"DONE_DESCRIPTION": "Hinzugefügte Zeit: {duration}. Die Einträge stehen jetzt in den Stundenzetteln und den Berichten.",
+		"STOPPED_TITLE": "Der Import wurde in Zeile {row} angehalten",
+		"STOPPED_SAVED": "{count, plural, =0 {Es wurde kein Eintrag gespeichert.} one {Davor wurde # Eintrag gespeichert.} other {Davor wurden # Einträge gespeichert.}}",
+		"STOPPED_NOT_SENT": "{count, plural, one {# Zeile danach wurde nicht gesendet.} other {# Zeilen danach wurden nicht gesendet.}}",
+		"DOWNLOAD_REPORT": "Bericht herunterladen",
+		"IMPORT_ANOTHER": "Weitere Datei importieren",
+		"SHOW_MORE": "{count, plural, one {# weitere Zeile anzeigen} other {# weitere Zeilen anzeigen}}",
+		"figures": {
+			"LABEL": "Zahlen dieser Datei",
+			"READY": "Bereit",
+			"LEFT_OUT": "Ausgelassen",
+			"SAVED": "Gespeichert",
+			"FAILED": "Fehlgeschlagen",
+			"NOT_SENT": "Nicht gesendet",
+			"TIME_TO_ADD": "Hinzuzufügende Zeit",
+			"TIME_ADDED": "Hinzugefügte Zeit"
+		},
+		"filter": {
+			"LABEL": "Angezeigte Zeilen",
+			"ALL": "Alle"
+		},
+		"status": {
+			"READY": "Bereit",
+			"LEFT_OUT": "Ausgelassen",
+			"SAVED": "Gespeichert",
+			"FAILED": "Fehlgeschlagen",
+			"NOT_SENT": "Nicht gesendet"
+		},
+		"row": {
+			"NUMBER": "Zeile {row}",
+			"FOR_MEMBER": "Für {name}",
+			"BILLABLE": "Abrechenbar",
+			"NOT_SENT_REASON": "Der Import wurde in Zeile {row} angehalten, vor dieser Zeile."
+		},
+		"problems": {
+			"EXTRA_CELLS": "Diese Zeile hat mehr Zellen als die Kopfzeile. Eine Zelle, die ein Komma oder ein Semikolon enthält, gehört in doppelte Anführungszeichen.",
+			"DATE_UNREADABLE": "Das Datum ist nicht lesbar. Schreibe es mit dem Jahr zuerst, wie {date}.",
+			"START_UNREADABLE": "Die Startzeit ist nicht lesbar. Schreibe sie wie {startTime} oder {startTimeMeridiem}.",
+			"END_MISSING": "Diese Zeile hat weder eine Endzeit noch eine Dauer.",
+			"END_UNREADABLE": "Die Endzeit ist nicht lesbar. Schreibe sie wie {endTime} oder {endTimeMeridiem}.",
+			"DURATION_UNREADABLE": "Die Dauer ist nicht lesbar. Schreibe sie wie {duration}, {durationUnits} oder {durationDecimal}.",
+			"END_NOT_AFTER_START": "Das Ende muss nach dem Start liegen. Für Zeit über Mitternacht hinaus gib eine Dauer anstelle der Endzeit an.",
+			"DURATION_MISMATCH": "Endzeit und Dauer ergeben zwei verschiedene Längen. Behalte eine von beiden.",
+			"TOO_LONG": "Ein Eintrag kann nicht länger als 24 Stunden sein. Eine Dauer als einfache Zahl wird in Stunden gelesen.",
+			"IN_FUTURE": "Diese Zeit ist noch nicht vorbei, und diese Organisation nimmt keine Zeit in der Zukunft an.",
+			"BILLABLE_UNREADABLE": "Die Zelle für abrechenbar muss {yes} oder {no} sein.",
+			"MEMBER_UNKNOWN": "Kein Mitglied dieses Teams hat diese E-Mail-Adresse.",
+			"MEMBER_NOT_ALLOWED": "Diese Zeile gehört einem anderen Mitglied. Du kannst nur deine eigene Zeit importieren.",
+			"NO_OWN_MEMBER": "Diese Zeile nennt kein Mitglied, und dein Konto hat kein Mitarbeiterprofil, für das Zeit erfasst werden kann.",
+			"PROJECT_UNKNOWN": "Kein Projekt dieses Teams hat diesen Namen.",
+			"PROJECT_AMBIGUOUS": "{count, plural, one {# Projekt dieses Teams hat diesen Namen.} other {# Projekte dieses Teams haben diesen Namen.}}",
+			"PROJECT_REQUIRED": "Diese Organisation verlangt ein Projekt für jeden Zeiteintrag. Nenne in dieser Zeile ein Projekt.",
+			"TASK_UNKNOWN": "Keine Aufgabe dieses Teams hat diesen Titel.",
+			"TASK_NOT_ASSIGNED": "Diese Aufgabe ist dem Mitglied dieser Zeile nicht zugewiesen. Nur ein Teammanager kann Zeit zu jeder Aufgabe des Teams hinzufügen.",
+			"TASK_AMBIGUOUS": "{count, plural, one {# Aufgabe hat diesen Titel.} other {# Aufgaben haben diesen Titel. Benenne eine um, damit die Zeile eine einzige Aufgabe nennt.}}",
+			"ALREADY_RECORDED": "Dieser Eintrag ist bereits erfasst.",
+			"OVERLAPS_RECORDED": "{count, plural, one {Die Zeile überschneidet sich mit einem bereits erfassten Eintrag, {range}. Beim Speichern würde dieser Eintrag entfernt.} other {Die Zeile überschneidet sich mit # bereits erfassten Einträgen, der erste {range}. Beim Speichern würden sie entfernt.}}",
+			"SAME_AS_ROW": "Die Zeile wiederholt Zeile {row} dieser Datei.",
+			"OVERLAPS_ROW": "Die Zeile überschneidet sich mit Zeile {row} dieser Datei, die zuerst importiert wird."
+		},
+		"access": {
+			"MANUAL_TIME_OFF_TITLE": "Manuelle Zeit ist ausgeschaltet",
+			"MANUAL_TIME_OFF_DESCRIPTION": "{organization} erlaubt den Mitgliedern nicht, Zeit von Hand hinzuzufügen, daher kann auch keine Zeit importiert werden.",
+			"NO_PERMISSION_TITLE": "Deine Rolle kann keine Zeit von Hand hinzufügen",
+			"NO_PERMISSION_DESCRIPTION": "Der Import von Zeit braucht dieselbe Berechtigung wie das Hinzufügen von Zeit von Hand. Frag einen Admin der Organisation.",
+			"LOAD_FAILED_TITLE": "Der Import konnte nicht vorbereitet werden",
+			"LOAD_FAILED_DESCRIPTION": "Deine Berechtigungen, die Zeitregeln der Organisation oder die Aufgaben des Teams konnten nicht geladen werden."
+		},
+		"entry": {
+			"TITLE": "Import",
+			"DESCRIPTION": "Daten aus anderen Tools, in dieses Team übernommen.",
+			"ROW_LABEL": "Zeiterfassungsdaten",
+			"ROW_DESCRIPTION": "Füge Zeiteinträge aus einer CSV-Datei hinzu.",
+			"OPEN": "Aus CSV importieren"
+		}
 	}
 }

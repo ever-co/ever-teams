@@ -4107,6 +4107,10 @@
 			"versions": {
 				"TITLE": "Versões",
 				"DESCRIPTION": "As entregas que as tarefas podem visar."
+			},
+			"import": {
+				"TITLE": "Importar",
+				"DESCRIPTION": "Entradas de tempo a partir de um arquivo CSV."
 			}
 		},
 		"index": {
@@ -6010,5 +6014,142 @@
 		"OFF_TEXT": "Neste espaço de trabalho as tarefas eliminadas são removidas definitivamente.",
 		"NO_TEAM_TITLE": "Escolha uma equipa",
 		"NO_TEAM_TEXT": "O lixo mostra as tarefas eliminadas da equipa ativa."
+	},
+	"timeImport": {
+		"SECTION_TITLE": "Dados de registro de tempo",
+		"SECTION_DESCRIPTION": "Cada linha do arquivo se torna uma entrada de tempo em {team}. Você revisa todas as linhas primeiro, e nada é salvo antes da sua confirmação.",
+		"TEMPLATE_LABEL": "Modelo CSV",
+		"TEMPLATE_DESCRIPTION": "Um arquivo vazio com as colunas que a importação lê.",
+		"TEMPLATE_DOWNLOAD": "Baixar modelo",
+		"DROP_TITLE": "Solte um arquivo CSV aqui, ou escolha um",
+		"DROP_ACTIVE": "Solte o arquivo para verificá-lo",
+		"DROP_HINT": "{rows, plural, one {Somente CSV, até {megabytes} MB e # linha por arquivo.} other {Somente CSV, até {megabytes} MB e # linhas por arquivo.}}",
+		"OWN_TIME_NOTE": "Cada linha é salva como o seu próprio tempo.",
+		"OTHERS_NOTE": "Você pode adicionar tempo para outros membros de {team}: indique o e-mail de cada um na coluna {column}. Uma linha sem e-mail é o seu próprio tempo.",
+		"COLUMNS_TITLE": "Colunas",
+		"COLUMNS_DESCRIPTION": "A primeira linha do arquivo nomeia as colunas, em qualquer ordem. Datas e horas são lidas no seu fuso horário, {timeZone}.",
+		"columns": {
+			"REQUIRED": "Obrigatória",
+			"ONE_OF_TWO": "Uma das duas",
+			"DATE": "O dia da entrada, com o ano primeiro: {date}.",
+			"START_TIME": "A hora de início, em formato de 24 horas ou com AM ou PM: {startTime} ou {startTimeMeridiem}.",
+			"END_TIME": "A hora de fim, no mesmo dia: {endTime}.",
+			"DURATION": "A duração, no lugar de uma hora de fim: {duration}, {durationUnits}, ou {durationDecimal} para horas em número.",
+			"PROJECT": "O nome exato de um projeto desta equipe. Vazia para tempo sem projeto.",
+			"TASK_ANY": "O título exato de uma tarefa desta equipe. Vazia para tempo sem tarefa.",
+			"TASK_OWN": "O título exato de uma tarefa desta equipe atribuída ao membro a quem o tempo pertence. Vazia para tempo sem tarefa.",
+			"NOTES": "Uma nota salva com a entrada.",
+			"BILLABLE": "{yes} ou {no}. Vazia significa {no}.",
+			"MEMBER_EMAIL": "O e-mail do membro a quem o tempo pertence. Vazia significa você."
+		},
+		"FILE_PROBLEM_TITLE": "{fileName} não pode ser importado",
+		"fileProblems": {
+			"NOT_CSV": "Somente arquivos CSV são lidos. Salve a planilha como CSV e escolha esse arquivo.",
+			"TOO_LARGE": "O arquivo tem mais de {megabytes} MB. Divida-o em arquivos menores.",
+			"NOT_TEXT": "O arquivo não é texto salvo em UTF-8. No seu aplicativo de planilhas, salve-o como CSV UTF-8.",
+			"EMPTY": "O arquivo está vazio.",
+			"UNCLOSED_QUOTE": "Na linha {row}, uma célula abre com aspas duplas que nunca são fechadas.",
+			"DUPLICATE_COLUMN": "A coluna {column} aparece duas vezes.",
+			"MISSING_COLUMNS": "{count, plural, one {Falta esta coluna: {columns}.} other {Faltam estas colunas: {columns}.}}",
+			"END_OR_DURATION": "{endTime} ou {duration}",
+			"NO_ROWS": "O arquivo tem uma linha de cabeçalho e nenhuma linha abaixo dela.",
+			"TOO_MANY_ROWS": "{limit, plural, one {O arquivo tem {count} linhas. Uma importação aceita no máximo # linha: divida o arquivo.} other {O arquivo tem {count} linhas. Uma importação aceita no máximo # linhas: divida o arquivo.}}"
+		},
+		"CHECKING_TITLE": "Verificando {fileName}",
+		"CHECKING_DESCRIPTION": "{count, plural, one {# linha é comparada com o tempo já registrado.} other {# linhas são comparadas com o tempo já registrado.}}",
+		"CHECK_FAILED_TITLE": "Não foi possível verificar {fileName}",
+		"CHECK_FAILED_DESCRIPTION": "Não foi possível ler o tempo já registrado, por isso nenhuma linha pode ser importada ainda. Nada foi salvo.",
+		"RETRY": "Tentar de novo",
+		"CHOOSE_ANOTHER": "Escolher outro arquivo",
+		"PREVIEW_TITLE": "Pré-visualização",
+		"PREVIEW_DESCRIPTION": "{count, plural, one {{fileName}, # linha. Nada é salvo até você importar.} other {{fileName}, # linhas. Nada é salvo até você importar.}}",
+		"IGNORED_COLUMNS": "{count, plural, one {Esta coluna não é lida: {columns}.} other {Estas colunas não são lidas: {columns}.}}",
+		"PREVIEW_CHANGED_TITLE": "Nada foi salvo: a pré-visualização mudou",
+		"PREVIEW_CHANGED_DESCRIPTION": "O arquivo foi verificado mais uma vez antes de salvar e algumas linhas mudaram, por exemplo porque foi registrado tempo nesse intervalo. Revise as linhas e importe de novo.",
+		"RECHECK_FAILED_TITLE": "Nada foi salvo",
+		"RECHECK_FAILED_DESCRIPTION": "Não foi possível verificar o arquivo uma última vez antes de salvar. Tente novamente.",
+		"NOTHING_READY": "Nenhuma linha deste arquivo pode ser importada. Corrija as linhas excluídas e escolha o arquivo de novo.",
+		"IMPORT_ACTION": "{count, plural, one {Importar # entrada} other {Importar # entradas}}",
+		"RECHECKING": "Verificando o arquivo mais uma vez antes de salvar",
+		"IMPORTING_TITLE": "Importando",
+		"IMPORTING_PROGRESS": "{total, plural, one {{done} de # entrada salva} other {{done} de # entradas salvas}}",
+		"KEEP_OPEN": "Mantenha esta página aberta até a importação terminar.",
+		"REPORT_TITLE": "Relatório",
+		"DONE_TITLE": "{count, plural, one {# entrada salva} other {# entradas salvas}}",
+		"DONE_DESCRIPTION": "Tempo adicionado: {duration}. As entradas já estão nas folhas de ponto e nos relatórios.",
+		"STOPPED_TITLE": "A importação parou na linha {row}",
+		"STOPPED_SAVED": "{count, plural, =0 {Nenhuma entrada foi salva.} one {# entrada foi salva antes dela.} other {# entradas foram salvas antes dela.}}",
+		"STOPPED_NOT_SENT": "{count, plural, one {# linha depois dela não foi enviada.} other {# linhas depois dela não foram enviadas.}}",
+		"DOWNLOAD_REPORT": "Baixar relatório",
+		"IMPORT_ANOTHER": "Importar outro arquivo",
+		"SHOW_MORE": "{count, plural, one {Mostrar mais # linha} other {Mostrar mais # linhas}}",
+		"figures": {
+			"LABEL": "Números deste arquivo",
+			"READY": "Prontas",
+			"LEFT_OUT": "Excluídas",
+			"SAVED": "Salvas",
+			"FAILED": "Com falha",
+			"NOT_SENT": "Não enviadas",
+			"TIME_TO_ADD": "Tempo a adicionar",
+			"TIME_ADDED": "Tempo adicionado"
+		},
+		"filter": {
+			"LABEL": "Linhas mostradas",
+			"ALL": "Todas"
+		},
+		"status": {
+			"READY": "Pronta",
+			"LEFT_OUT": "Excluída",
+			"SAVED": "Salva",
+			"FAILED": "Com falha",
+			"NOT_SENT": "Não enviada"
+		},
+		"row": {
+			"NUMBER": "Linha {row}",
+			"FOR_MEMBER": "Para {name}",
+			"BILLABLE": "Faturável",
+			"NOT_SENT_REASON": "A importação parou na linha {row}, antes desta."
+		},
+		"problems": {
+			"EXTRA_CELLS": "Esta linha tem mais células do que a linha de cabeçalho. Uma célula que contém vírgula ou ponto e vírgula fica entre aspas duplas.",
+			"DATE_UNREADABLE": "Não foi possível ler a data. Escreva-a com o ano primeiro, como {date}.",
+			"START_UNREADABLE": "Não foi possível ler a hora de início. Escreva-a como {startTime} ou {startTimeMeridiem}.",
+			"END_MISSING": "Esta linha não tem hora de fim nem duração.",
+			"END_UNREADABLE": "Não foi possível ler a hora de fim. Escreva-a como {endTime} ou {endTimeMeridiem}.",
+			"DURATION_UNREADABLE": "Não foi possível ler a duração. Escreva-a como {duration}, {durationUnits} ou {durationDecimal}.",
+			"END_NOT_AFTER_START": "O fim tem de ser depois do início. Para tempo que passa da meia-noite, indique uma duração no lugar da hora de fim.",
+			"DURATION_MISMATCH": "A hora de fim e a duração dão dois comprimentos diferentes. Mantenha uma das duas.",
+			"TOO_LONG": "Uma entrada não pode ter mais de 24 horas. Uma duração escrita como um número simples é lida em horas.",
+			"IN_FUTURE": "Este tempo ainda não terminou, e esta organização não aceita tempo no futuro.",
+			"BILLABLE_UNREADABLE": "A célula faturável deve ser {yes} ou {no}.",
+			"MEMBER_UNKNOWN": "Nenhum membro desta equipe tem este e-mail.",
+			"MEMBER_NOT_ALLOWED": "Esta linha é de outro membro. Você só pode importar o seu próprio tempo.",
+			"NO_OWN_MEMBER": "Esta linha não nomeia nenhum membro, e a sua conta não tem um perfil de funcionário onde registrar tempo.",
+			"PROJECT_UNKNOWN": "Nenhum projeto desta equipe tem este nome.",
+			"PROJECT_AMBIGUOUS": "{count, plural, one {# projeto desta equipe tem este nome.} other {# projetos desta equipe têm este nome.}}",
+			"PROJECT_REQUIRED": "Esta organização exige um projeto em cada entrada de tempo. Indique um projeto nesta linha.",
+			"TASK_UNKNOWN": "Nenhuma tarefa desta equipe tem este título.",
+			"TASK_NOT_ASSIGNED": "Esta tarefa não está atribuída ao membro desta linha. Só um gestor da equipe pode adicionar tempo a qualquer tarefa da equipe.",
+			"TASK_AMBIGUOUS": "{count, plural, one {# tarefa tem este título.} other {# tarefas têm este título. Renomeie uma delas, para que a linha indique uma única tarefa.}}",
+			"ALREADY_RECORDED": "Esta entrada já está registrada.",
+			"OVERLAPS_RECORDED": "{count, plural, one {Sobrepõe-se a uma entrada já registrada, {range}. Salvá-la removeria essa entrada.} other {Sobrepõe-se a # entradas já registradas, a primeira {range}. Salvá-la as removeria.}}",
+			"SAME_AS_ROW": "Repete a linha {row} deste arquivo.",
+			"OVERLAPS_ROW": "Sobrepõe-se à linha {row} deste arquivo, que é importada primeiro."
+		},
+		"access": {
+			"MANUAL_TIME_OFF_TITLE": "O tempo manual está desativado",
+			"MANUAL_TIME_OFF_DESCRIPTION": "{organization} não permite que os membros adicionem tempo manualmente, por isso também não é possível importar tempo.",
+			"NO_PERMISSION_TITLE": "A sua função não pode adicionar tempo manualmente",
+			"NO_PERMISSION_DESCRIPTION": "Importar tempo exige a mesma permissão que adicionar tempo manualmente. Peça a um administrador da organização.",
+			"LOAD_FAILED_TITLE": "Não foi possível preparar a importação",
+			"LOAD_FAILED_DESCRIPTION": "Não foi possível carregar as suas permissões, as regras de tempo da organização ou as tarefas da equipe."
+		},
+		"entry": {
+			"TITLE": "Importar",
+			"DESCRIPTION": "Dados de outras ferramentas, trazidos para esta equipe.",
+			"ROW_LABEL": "Dados de registro de tempo",
+			"ROW_DESCRIPTION": "Adicione entradas de tempo a partir de um arquivo CSV.",
+			"OPEN": "Importar de CSV"
+		}
 	}
 }

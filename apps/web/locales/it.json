@@ -4107,6 +4107,10 @@
 			"versions": {
 				"TITLE": "Versioni",
 				"DESCRIPTION": "I rilasci a cui le attività possono puntare."
+			},
+			"import": {
+				"TITLE": "Importazione",
+				"DESCRIPTION": "Voci di tempo da un file CSV."
 			}
 		},
 		"index": {
@@ -6010,5 +6014,142 @@
 		"OFF_TEXT": "In questo spazio di lavoro le attività eliminate vengono rimosse definitivamente.",
 		"NO_TEAM_TITLE": "Scegli un team",
 		"NO_TEAM_TEXT": "Il cestino elenca le attività eliminate del team attivo."
+	},
+	"timeImport": {
+		"SECTION_TITLE": "Dati di tracciamento del tempo",
+		"SECTION_DESCRIPTION": "Ogni riga del file diventa una voce di tempo in {team}. Prima rivedi tutte le righe, e nulla viene salvato prima della tua conferma.",
+		"TEMPLATE_LABEL": "Modello CSV",
+		"TEMPLATE_DESCRIPTION": "Un file vuoto con le colonne che l'importazione legge.",
+		"TEMPLATE_DOWNLOAD": "Scarica il modello",
+		"DROP_TITLE": "Trascina qui un file CSV, oppure scegline uno",
+		"DROP_ACTIVE": "Rilascia il file per verificarlo",
+		"DROP_HINT": "{rows, plural, one {Solo CSV, fino a {megabytes} MB e # riga per file.} other {Solo CSV, fino a {megabytes} MB e # righe per file.}}",
+		"OWN_TIME_NOTE": "Ogni riga viene salvata come tempo tuo.",
+		"OTHERS_NOTE": "Puoi aggiungere tempo per altri membri di {team}: indica l'email di ciascuno nella colonna {column}. Una riga senza email è tempo tuo.",
+		"COLUMNS_TITLE": "Colonne",
+		"COLUMNS_DESCRIPTION": "La prima riga del file indica le sue colonne, in qualsiasi ordine. Date e orari vengono letti nel tuo fuso orario, {timeZone}.",
+		"columns": {
+			"REQUIRED": "Obbligatoria",
+			"ONE_OF_TWO": "Una delle due",
+			"DATE": "Il giorno della voce, con l'anno per primo: {date}.",
+			"START_TIME": "L'ora di inizio, nel formato a 24 ore o con AM o PM: {startTime} oppure {startTimeMeridiem}.",
+			"END_TIME": "L'ora di fine, nello stesso giorno: {endTime}.",
+			"DURATION": "La durata, al posto di un'ora di fine: {duration}, {durationUnits}, oppure {durationDecimal} per le ore in numero.",
+			"PROJECT": "Il nome esatto di un progetto di questo team. Vuota per tempo senza progetto.",
+			"TASK_ANY": "Il titolo esatto di un compito di questo team. Vuota per tempo senza compito.",
+			"TASK_OWN": "Il titolo esatto di un compito di questo team assegnato al membro a cui appartiene il tempo. Vuota per tempo senza compito.",
+			"NOTES": "Una nota salvata con la voce.",
+			"BILLABLE": "{yes} oppure {no}. Vuota significa {no}.",
+			"MEMBER_EMAIL": "L'email del membro a cui appartiene il tempo. Vuota significa tu."
+		},
+		"FILE_PROBLEM_TITLE": "{fileName} non può essere importato",
+		"fileProblems": {
+			"NOT_CSV": "Vengono letti solo file CSV. Salva il foglio come CSV, poi scegli quel file.",
+			"TOO_LARGE": "Il file supera {megabytes} MB. Dividilo in file più piccoli.",
+			"NOT_TEXT": "Il file non è testo salvato in UTF-8. Nel tuo foglio di calcolo, salvalo come CSV UTF-8.",
+			"EMPTY": "Il file è vuoto.",
+			"UNCLOSED_QUOTE": "Alla riga {row}, una cella si apre con le virgolette doppie e non viene mai chiusa.",
+			"DUPLICATE_COLUMN": "La colonna {column} compare due volte.",
+			"MISSING_COLUMNS": "{count, plural, one {Manca questa colonna: {columns}.} other {Mancano queste colonne: {columns}.}}",
+			"END_OR_DURATION": "{endTime} oppure {duration}",
+			"NO_ROWS": "Il file ha una riga di intestazione e nessuna riga sotto.",
+			"TOO_MANY_ROWS": "{limit, plural, one {Il file ha {count} righe. Un'importazione ne accetta al massimo #: dividi il file.} other {Il file ha {count} righe. Un'importazione ne accetta al massimo #: dividi il file.}}"
+		},
+		"CHECKING_TITLE": "Verifica di {fileName}",
+		"CHECKING_DESCRIPTION": "{count, plural, one {# riga viene confrontata con il tempo già registrato.} other {# righe vengono confrontate con il tempo già registrato.}}",
+		"CHECK_FAILED_TITLE": "Non è stato possibile verificare {fileName}",
+		"CHECK_FAILED_DESCRIPTION": "Non è stato possibile leggere il tempo già registrato, quindi nessuna riga può ancora essere importata. Non è stato salvato nulla.",
+		"RETRY": "Riprova",
+		"CHOOSE_ANOTHER": "Scegli un altro file",
+		"PREVIEW_TITLE": "Anteprima",
+		"PREVIEW_DESCRIPTION": "{count, plural, one {{fileName}, # riga. Nulla viene salvato finché non importi.} other {{fileName}, # righe. Nulla viene salvato finché non importi.}}",
+		"IGNORED_COLUMNS": "{count, plural, one {Questa colonna non viene letta: {columns}.} other {Queste colonne non vengono lette: {columns}.}}",
+		"PREVIEW_CHANGED_TITLE": "Non è stato salvato nulla: l'anteprima è cambiata",
+		"PREVIEW_CHANGED_DESCRIPTION": "Il file è stato verificato ancora una volta prima del salvataggio e alcune righe sono cambiate, per esempio perché nel frattempo è stato registrato del tempo. Rivedi le righe, poi importa di nuovo.",
+		"RECHECK_FAILED_TITLE": "Non è stato salvato nulla",
+		"RECHECK_FAILED_DESCRIPTION": "Non è stato possibile verificare il file un'ultima volta prima del salvataggio. Riprova.",
+		"NOTHING_READY": "Nessuna riga di questo file può essere importata. Correggi le righe escluse, poi scegli di nuovo il file.",
+		"IMPORT_ACTION": "{count, plural, one {Importa # voce} other {Importa # voci}}",
+		"RECHECKING": "Ultima verifica del file prima del salvataggio",
+		"IMPORTING_TITLE": "Importazione in corso",
+		"IMPORTING_PROGRESS": "{total, plural, one {{done} di # voce salvata} other {{done} di # voci salvate}}",
+		"KEEP_OPEN": "Tieni aperta questa pagina fino alla fine dell'importazione.",
+		"REPORT_TITLE": "Rapporto",
+		"DONE_TITLE": "{count, plural, one {# voce salvata} other {# voci salvate}}",
+		"DONE_DESCRIPTION": "Tempo aggiunto: {duration}. Le voci sono ora nei fogli di presenza e nei report.",
+		"STOPPED_TITLE": "L'importazione si è fermata alla riga {row}",
+		"STOPPED_SAVED": "{count, plural, =0 {Nessuna voce è stata salvata.} one {Prima di essa è stata salvata # voce.} other {Prima di essa sono state salvate # voci.}}",
+		"STOPPED_NOT_SENT": "{count, plural, one {# riga successiva non è stata inviata.} other {# righe successive non sono state inviate.}}",
+		"DOWNLOAD_REPORT": "Scarica il rapporto",
+		"IMPORT_ANOTHER": "Importa un altro file",
+		"SHOW_MORE": "{count, plural, one {Mostra # altra riga} other {Mostra altre # righe}}",
+		"figures": {
+			"LABEL": "Cifre di questo file",
+			"READY": "Pronte",
+			"LEFT_OUT": "Escluse",
+			"SAVED": "Salvate",
+			"FAILED": "Non riuscite",
+			"NOT_SENT": "Non inviate",
+			"TIME_TO_ADD": "Tempo da aggiungere",
+			"TIME_ADDED": "Tempo aggiunto"
+		},
+		"filter": {
+			"LABEL": "Righe mostrate",
+			"ALL": "Tutte"
+		},
+		"status": {
+			"READY": "Pronta",
+			"LEFT_OUT": "Esclusa",
+			"SAVED": "Salvata",
+			"FAILED": "Non riuscita",
+			"NOT_SENT": "Non inviata"
+		},
+		"row": {
+			"NUMBER": "Riga {row}",
+			"FOR_MEMBER": "Per {name}",
+			"BILLABLE": "Fatturabile",
+			"NOT_SENT_REASON": "L'importazione si è fermata alla riga {row}, prima di questa."
+		},
+		"problems": {
+			"EXTRA_CELLS": "Questa riga ha più celle della riga di intestazione. Una cella che contiene una virgola o un punto e virgola va tra virgolette doppie.",
+			"DATE_UNREADABLE": "La data non è leggibile. Scrivila con l'anno per primo, come {date}.",
+			"START_UNREADABLE": "L'ora di inizio non è leggibile. Scrivila come {startTime} oppure {startTimeMeridiem}.",
+			"END_MISSING": "Questa riga non ha né un'ora di fine né una durata.",
+			"END_UNREADABLE": "L'ora di fine non è leggibile. Scrivila come {endTime} oppure {endTimeMeridiem}.",
+			"DURATION_UNREADABLE": "La durata non è leggibile. Scrivila come {duration}, {durationUnits} oppure {durationDecimal}.",
+			"END_NOT_AFTER_START": "La fine deve venire dopo l'inizio. Per il tempo che supera la mezzanotte, indica una durata al posto dell'ora di fine.",
+			"DURATION_MISMATCH": "L'ora di fine e la durata danno due lunghezze diverse. Tieni una delle due.",
+			"TOO_LONG": "Una voce non può durare più di 24 ore. Una durata scritta come semplice numero viene letta in ore.",
+			"IN_FUTURE": "Questo tempo non è ancora trascorso, e questa organizzazione non accetta tempo nel futuro.",
+			"BILLABLE_UNREADABLE": "La cella fatturabile deve essere {yes} oppure {no}.",
+			"MEMBER_UNKNOWN": "Nessun membro di questo team ha questa email.",
+			"MEMBER_NOT_ALLOWED": "Questa riga riguarda un altro membro. Puoi importare solo il tuo tempo.",
+			"NO_OWN_MEMBER": "Questa riga non indica alcun membro, e il tuo account non ha un profilo dipendente su cui registrare tempo.",
+			"PROJECT_UNKNOWN": "Nessun progetto di questo team ha questo nome.",
+			"PROJECT_AMBIGUOUS": "{count, plural, one {# progetto di questo team ha questo nome.} other {# progetti di questo team hanno questo nome.}}",
+			"PROJECT_REQUIRED": "Questa organizzazione richiede un progetto per ogni voce di tempo. Indica un progetto in questa riga.",
+			"TASK_UNKNOWN": "Nessun compito di questo team ha questo titolo.",
+			"TASK_NOT_ASSIGNED": "Questo compito non è assegnato al membro di questa riga. Solo un responsabile del team può aggiungere tempo a qualsiasi compito del team.",
+			"TASK_AMBIGUOUS": "{count, plural, one {# compito ha questo titolo.} other {# compiti hanno questo titolo. Rinominane uno, così la riga indica un solo compito.}}",
+			"ALREADY_RECORDED": "Questa voce è già registrata.",
+			"OVERLAPS_RECORDED": "{count, plural, one {Si sovrappone a una voce già registrata, {range}. Salvarla rimuoverebbe quella voce.} other {Si sovrappone a # voci già registrate, la prima {range}. Salvarla le rimuoverebbe.}}",
+			"SAME_AS_ROW": "Ripete la riga {row} di questo file.",
+			"OVERLAPS_ROW": "Si sovrappone alla riga {row} di questo file, importata per prima."
+		},
+		"access": {
+			"MANUAL_TIME_OFF_TITLE": "Il tempo manuale è disattivato",
+			"MANUAL_TIME_OFF_DESCRIPTION": "{organization} non consente ai suoi membri di aggiungere tempo a mano, quindi nemmeno l'importazione di tempo è possibile.",
+			"NO_PERMISSION_TITLE": "Il tuo ruolo non può aggiungere tempo a mano",
+			"NO_PERMISSION_DESCRIPTION": "Importare tempo richiede la stessa autorizzazione dell'aggiunta di tempo a mano. Chiedi a un amministratore dell'organizzazione.",
+			"LOAD_FAILED_TITLE": "Non è stato possibile preparare l'importazione",
+			"LOAD_FAILED_DESCRIPTION": "Non è stato possibile caricare le tue autorizzazioni, le regole sul tempo dell'organizzazione o i compiti del team."
+		},
+		"entry": {
+			"TITLE": "Importazione",
+			"DESCRIPTION": "Dati di altri strumenti, portati in questo team.",
+			"ROW_LABEL": "Dati di tracciamento del tempo",
+			"ROW_DESCRIPTION": "Aggiungi voci di tempo da un file CSV.",
+			"OPEN": "Importa da CSV"
+		}
 	}
 }
