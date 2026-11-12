@@ -49,8 +49,26 @@ jest.mock('next-intl', () => ({ useTranslations: () => translate }));
 
 jest.mock('@/core/hooks', () => ({ useMyRolePermissionsQuery: () => ({ myPermissions: [] }) }));
 
+type MockOverlapRequest = { save: () => void | Promise<void> };
+
+// The overlap lookup finds nothing here, so every save goes through at once: the guard has its own tests
+const mockSaveAfterCheck = jest.fn((request: MockOverlapRequest) => request.save());
+
 jest.mock('@/core/hooks/timesheet', () => ({
-	useUpdateTimeLogMutation: () => ({ mutateAsync: mockUpdateTimeLog, isPending: false })
+	useUpdateTimeLogMutation: () => ({ mutateAsync: mockUpdateTimeLog, isPending: false }),
+	useTimeOverlapGuard: () => ({
+		saveAfterCheck: mockSaveAfterCheck,
+		isChecking: false,
+		hasCheckFailed: false,
+		isConfirmOpen: false,
+		summary: { totalSeconds: 0, entries: [] },
+		confirm: jest.fn(),
+		cancel: jest.fn()
+	})
+}));
+jest.mock('@/core/components/features/manual-time/time-overlap-confirm-dialog', () => ({
+	TimeOverlapCheckError: () => null,
+	TimeOverlapConfirmDialog: () => null
 }));
 
 jest.mock('@/core/hooks/organizations/projects/use-organization-projects-query', () => ({
