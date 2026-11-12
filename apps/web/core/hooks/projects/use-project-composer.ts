@@ -374,7 +374,10 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 					updateDraft({ clientId: client.id });
 				}
 			} catch {
-				setHasClientCreateFailed(true);
+				// A creation replaced by another pick or a clear meanwhile no longer speaks for the field
+				if (isStillTheChoice()) {
+					setHasClientCreateFailed(true);
+				}
 			}
 			if (isStillTheChoice()) {
 				setIsAwaitingCreatedClient(false);
