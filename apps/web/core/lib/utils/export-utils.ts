@@ -50,17 +50,39 @@ interface XLSXColumn<Row> {
 	format?: string;
 }
 
+interface XLSXExportOptions<Row> {
+	/** The rows written in bold, such as a closing total. */
+	isBoldRow?: (row: Row) => boolean;
+}
+
+function neverBold() {
+	return false;
+}
+
+function xlsxCellOf(value: string | number, format: string | undefined, isBold: boolean) {
+	if (isBold) {
+		return { value, format, fontWeight: 'bold' as const };
+	}
+	return { value, format };
+}
+
 /**
  * Writes the rows to an .xlsx file and starts its download.
  * The writer is loaded on demand so it stays out of the page bundle.
  */
-export async function exportToXLSX<Row>(rows: Row[], columns: XLSXColumn<Row>[], fileName: string): Promise<void> {
+export async function exportToXLSX<Row>(
+	rows: Row[],
+	columns: XLSXColumn<Row>[],
+	fileName: string,
+	options: XLSXExportOptions<Row> = {}
+): Promise<void> {
 	const { default: writeXlsxFile } = await import('write-excel-file/browser');
+	const isBoldRow = options.isBoldRow ?? neverBold;
 
 	await writeXlsxFile(rows, {
 		columns: columns.map(({ header, value, width, format }) => ({
 			header: { value: header, fontWeight: 'bold' as const },
-			cell: (row: Row) => ({ value: value(row), format }),
+			cell: (row: Row) => xlsxCellOf(value(row), format, isBoldRow(row)),
 			width
 		}))
 	}).toFile(fileName);
