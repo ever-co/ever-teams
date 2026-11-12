@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { AppDialog, AppDialogHeader, APP_DIALOG_BODY, APP_DIALOG_FOOTER } from '@/core/components/common/app-dialog';
@@ -89,6 +89,14 @@ export function ScheduleMeetingDialog({
 	const [scheduled, setScheduled] = useState<(ScheduledMeeting & { link: string }) | null>(null);
 	const [invitedCount, setInvitedCount] = useState(0);
 	const minutesFormat = new Intl.NumberFormat(locale, { style: 'unit', unit: 'minute', unitDisplay: 'short' });
+	// The page opens a new dialog each time: an answer that comes back after this one went away must not close the next
+	const isMountedRef = useRef(false);
+	useEffect(() => {
+		isMountedRef.current = true;
+		return () => {
+			isMountedRef.current = false;
+		};
+	}, []);
 	const typedStart = instantOf(date, time, zone);
 	const browserZone = detectTimeZone();
 	// Typed in another zone than the browser's: the time where the person is, to be sure of it
@@ -134,7 +142,7 @@ export function ScheduleMeetingDialog({
 		try {
 			await onReschedule(edited.id, { title: newTitle, start, durationMinutes: duration, link });
 			toast.success(t('meetings.RESCHEDULED'));
-			close();
+			if (isMountedRef.current) close();
 		} catch {
 			toast.error(t('meetings.RESCHEDULE_FAILED'));
 		}

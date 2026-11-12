@@ -155,6 +155,41 @@ describe('MeetingsPage', () => {
 		expect(((await screen.findByLabelText('meetings.FIELD_TITLE')) as HTMLInputElement).value).toBe('');
 	});
 
+	it('keeps the next dialog open when an edit answers after its own dialog was closed', async () => {
+		jest.useFakeTimers({ advanceTimers: true });
+		try {
+			jest.setSystemTime(new Date(2026, 10, 12, 9, 0));
+			let answer: (value?: unknown) => void = () => undefined;
+			mockRescheduleMeeting.mockReturnValueOnce(new Promise((resolve) => (answer = resolve)));
+			mockScheduled.meetings = [
+				{
+					id: 'appointment-7',
+					title: 'Retro',
+					description: null,
+					start: new Date(2026, 10, 12, 16, 0),
+					end: new Date(2026, 10, 12, 16, 30),
+					link: null
+				}
+			];
+			render(<MeetingsPage />);
+			fireEvent.click(screen.getByRole('button', { name: 'meetings.MEETING_ACTIONS_OF:{"title":"Retro"}' }));
+			fireEvent.click(await screen.findByRole('menuitem', { name: 'common.EDIT' }));
+			await screen.findByLabelText('meetings.FIELD_TITLE');
+			fireEvent.click(screen.getByRole('button', { name: 'common.SAVE_CHANGES' }));
+			// Closed while the request runs, then Schedule opened
+			fireEvent.click(screen.getByRole('button', { name: 'common.CANCEL' }));
+			fireEvent.click(screen.getByTestId('meetings-schedule'));
+
+			await act(async () => {
+				answer();
+			});
+
+			expect(screen.getByRole('dialog', { name: 'meetings.SCHEDULE_TITLE' })).toBeTruthy();
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
 	it('proposes the next half hour from when Schedule opens, not from when the page opened', async () => {
 		jest.useFakeTimers({ advanceTimers: true });
 		try {
