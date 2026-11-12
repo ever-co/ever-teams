@@ -201,7 +201,13 @@ function MoveToItem({
 			disabled={isCurrent}
 			onClick={() => onMove(task, status, AT_LANE_END)}
 		>
-			<TaskPropertyIcon kind="status" name={status.name} color={status.color} />
+			<TaskPropertyIcon
+				kind="status"
+				name={status.name}
+				color={status.color}
+				icon={status.icon}
+				iconUrl={status.fullIconUrl}
+			/>
 			<span className="min-w-0 flex-1 truncate capitalize">{status.name?.split('-').join(' ')}</span>
 		</DropdownMenuCheckboxItem>
 	);

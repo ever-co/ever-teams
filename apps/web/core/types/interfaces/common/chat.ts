@@ -115,6 +115,49 @@ export interface IChatTaskReference {
 	kind: EChatTaskReferenceKind | string;
 }
 
+/** The blocks an app message (an incoming webhook's post) renders; every text is plain text. */
+export type TChatAppBlockType = 'header' | 'section' | 'divider' | 'context' | 'actions' | 'text';
+
+/** A button of an app message: with `url` it opens that https page, otherwise a click calls the app back. */
+export interface IChatAppButton {
+	actionId: string;
+	text: string;
+	value?: string | null;
+	url?: string | null;
+	style?: 'primary' | 'danger' | null;
+}
+
+export type IChatAppBlock =
+	| { type: 'header'; text: string }
+	| { type: 'section'; text?: string | null; fields?: string[] | null }
+	| { type: 'divider' }
+	| { type: 'context'; elements: string[] }
+	| { type: 'actions'; blockId?: string | null; elements: IChatAppButton[] }
+	| { type: 'text'; text: string };
+
+/** Where the app's callback of a click stands. */
+export type TChatInteractionStatus = 'pending' | 'delivered' | 'retrying' | 'failed';
+
+/** One click on a button of an app message (`POST /chat/messages/:id/interactions`). */
+export interface IChatInteraction {
+	interactionId: ID;
+	messageId: ID;
+	conversationId: ID;
+	actionId: string;
+	status: TChatInteractionStatus;
+	attempts: number;
+	/** Whether the app's reply replaced the message. */
+	replyApplied: boolean;
+	error?: string | null;
+}
+
+export interface IChatInteractionResult {
+	interaction: IChatInteraction;
+	/** The message as the app's reply left it, when it replied. */
+	message?: IChatMessage;
+	events: IChatEvent[];
+}
+
 export interface IChatMessage {
 	id: ID;
 	conversationId: ID;
@@ -145,6 +188,12 @@ export interface IChatMessage {
 	attachmentNames?: string | null;
 	nonce?: string | null;
 	appName?: string | null;
+	/** The incoming webhook that posted an app message (`kind: app`). */
+	webhookId?: ID | null;
+	/** The icon of the app that posted the message (https). */
+	appIconUrl?: string | null;
+	/** The layout of an app message, plain text throughout; `body` is its text fallback. */
+	blocks?: IChatAppBlock[] | null;
 	/** The assistant the author wrote the message with (an AI client posting in their name), when one did. */
 	assistedBy?: string | null;
 	deletedAt?: string | null;

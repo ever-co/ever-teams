@@ -358,7 +358,7 @@ function CollaborateBody({ onClose }: Readonly<{ onClose: () => void }>) {
 	const meetPath = meetPathFor(roomName, isJitsi);
 	const roomLink = `${originOf()}${meetPath}`;
 	const pickedPersonIds = pickedPeople.map((person) => person.id);
-	const board = boardTargetFor(pickedPersonIds, BOARD_APP_DOMAIN.value);
+	const board = boardTargetFor(pickedPersonIds, BOARD_APP_DOMAIN.value, originOf());
 	const hasBoardApp = Boolean(BOARD_APP_DOMAIN.value);
 	const everyone: Person[] = [...meOf(user), ...pickedPeople];
 

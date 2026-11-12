@@ -22,3 +22,4 @@ export * from './favorites';
 export * from './comments';
 export * from './activity-logs';
 export * from './notifications';
+export * from './meetings';

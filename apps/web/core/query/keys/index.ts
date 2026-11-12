@@ -463,7 +463,10 @@ export const queryKeys = {
 			organizationId: string | undefined | null,
 			userId: string | undefined | null,
 			id: string | undefined | null
-		) => ['inbox', 'item', tenantId ?? null, organizationId ?? null, userId ?? null, id ?? null] as const
+		) => ['inbox', 'item', tenantId ?? null, organizationId ?? null, userId ?? null, id ?? null] as const,
+		// Whether emails and web push can deliver for the organization: the platform's answer, not the caller's.
+		deliveryStatus: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			['inbox', 'delivery-status', tenantId ?? null, organizationId ?? null] as const
 	},
 	chat: {
 		all: ['chat'] as const,
@@ -489,6 +492,8 @@ export const queryKeys = {
 	// The preview of a link, one per link and kept for the session. Outside the `chat` prefix on purpose: the live
 	// channel invalidates `['chat']` on every change, and no message event changes what a page says about itself.
 	chatLinkPreview: (tenantId: string | undefined | null, url: string) => ['chat-link-preview', tenantId ?? null, url] as const,
+	chatLinkPreviewPicture: (tenantId: string | undefined | null, url: string) =>
+		['chat-link-preview-picture', tenantId ?? null, url] as const,
 
 	taskComments: {
 		all: ['task-comments'] as const,
@@ -756,6 +761,15 @@ export const queryKeys = {
 				...(endDate ? [endDate] : [])
 			] as const,
 		timeLog: (logId: string | null | undefined) => ['timesheet', 'time-log', ...(logId ? [logId] : [])] as const,
+		// Under `timesheet` so a saved or removed entry never leaves a stale overlap answer behind.
+		conflicts: (params: {
+			tenantId: string | null;
+			organizationId: string | null;
+			employeeId: string;
+			startDate: string;
+			endDate: string;
+			ignoreId: string | null;
+		}) => ['timesheet', 'conflicts', params] as const,
 		logs: (
 			tenantId: string | null | undefined,
 			organizationId: string | null | undefined,
@@ -994,6 +1008,13 @@ export const queryKeys = {
 
 	board: {
 		liveCollaboration: ['live-collaboration'] as const
+	},
+
+	// Meetings the signed-in member scheduled (Ever Gauzy employee appointments)
+	meetings: {
+		all: ['meetings'] as const,
+		scheduled: (employeeId: string | undefined | null) =>
+			['meetings', 'scheduled', ...(employeeId ? [employeeId] : [])] as const
 	},
 
 	timeLogs: {

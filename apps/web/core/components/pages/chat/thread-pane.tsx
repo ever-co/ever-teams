@@ -38,6 +38,8 @@ interface ThreadPaneProps {
 	highlightMessageId?: string | null;
 	/** The conversation the thread belongs to, as its header names it (`#general`, a person); shown beside "Thread". */
 	conversationLabel?: string;
+	/** The conversation is archived: the buttons of app messages show but do not click. */
+	archived?: boolean;
 }
 
 /** Closer to the newest reply than this, the reader is at the bottom and the pane follows new replies. */
@@ -49,7 +51,7 @@ export function ThreadPane(props: Readonly<ThreadPaneProps>) {
 	return <ThreadPaneBody key={props.rootMessageId} {...props} />;
 }
 
-function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canManage, onClose, highlightMessageId = null, conversationLabel }: Readonly<ThreadPaneProps>) {
+function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canManage, onClose, highlightMessageId = null, conversationLabel, archived = false }: Readonly<ThreadPaneProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const scope = useChatScope();
@@ -169,6 +171,7 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 			},
 			onDelete: (message: IChatMessage) => actions.remove(message).catch(reportFailure),
 			onPin: (message: IChatMessage, pinned: boolean) => actions.pin(message, pinned).catch(reportFailure),
+			onAppReply: (message: IChatMessage, replaced: IChatMessage) => actions.applyAppReply(message, replaced),
 			onUnreadFrom: (message: IChatMessage) => actions.unreadFrom(message).catch(reportFailure),
 			onRetry: (message: ChatOutboxMessage) => actions.retry(conversationId, message).catch(() => toast.error(t('teamChat.SEND_FAILED'))),
 			onDiscard: (message: ChatOutboxMessage) => actions.discardFailed(conversationId, message),
@@ -185,7 +188,7 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 
 	const authorOf = (message: IChatMessage) =>
 		message.authorEmployeeId ? (people.byEmployee.get(String(message.authorEmployeeId)) ?? null) : message.authorUserId ? (people.byUser.get(String(message.authorUserId)) ?? null) : null;
-	const itemProps = { people: people.byEmployee, conversationNames, meEmployeeId: scope?.employeeId ?? null, meUserId: scope?.userId ?? null, locale, inTimeline: false, canManage, taskTitles, files: files.byId, ...handlers };
+	const itemProps = { people: people.byEmployee, conversationNames, meEmployeeId: scope?.employeeId ?? null, meUserId: scope?.userId ?? null, locale, inTimeline: false, canManage, taskTitles, files: files.byId, readOnly: archived, ...handlers };
 	const editComposer = (
 		<div className="px-4 py-2">
 			<MessageComposer

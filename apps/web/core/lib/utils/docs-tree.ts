@@ -153,7 +153,7 @@ export function dropPositionAt(offsetY: number, height: number): DocsDropPositio
 }
 
 /** What a drop beside a row asks of the platform: the parent and the siblings in their new order. */
-export interface DocsPlacement {
+interface DocsPlacement {
 	parentId: string | null;
 	/** Every sibling under `parentId`, the dragged page among them. */
 	orderedIds: string[];

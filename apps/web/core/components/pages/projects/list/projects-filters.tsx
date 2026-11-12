@@ -70,7 +70,15 @@ export function useProjectFilterCategories(projects: TOrganizationProject[]) {
 			statusByName.set(label, {
 				value: status.name,
 				name: label,
-				icon: <TaskPropertyIcon kind="status" name={status.name} color={status.color} />
+				icon: (
+					<TaskPropertyIcon
+						kind="status"
+						name={status.name}
+						color={status.color}
+						icon={status.icon}
+						iconUrl={status.fullIconUrl}
+					/>
+				)
 			});
 		}
 

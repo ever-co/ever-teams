@@ -226,9 +226,13 @@ function buildData(fixture, scenario, requestUrl, requestTenantId) {
 		duration: 0,
 		running: scenario.timerRunning === true,
 		lastLog: {
-			source: 'TEAMS',
+			// `scenario.timerLogId`: the run's time log, which the platform's own reminders name (#5022)
+			...(scenario.timerLogId ? { id: scenario.timerLogId } : {}),
+			// `scenario.timerSource`: a timer started elsewhere, the desktop app's (#5022)
+			source: scenario.timerSource ?? 'TEAMS',
 			taskId: ids.task,
-			startedAt: new Date().toISOString()
+			// `scenario.timerStartedAt`: a run started long ago, the same at every read (#5022 reminders)
+			startedAt: scenario.timerStartedAt ?? new Date().toISOString()
 		},
 		lastWorkedTask: task
 	};
@@ -318,8 +322,184 @@ function syntheticToken(userId, organizationId, rotation) {
 	return `${part({ alg: 'none', typ: 'JWT' })}.${part(claims)}.fixture`;
 }
 
+/** Where the paywall of the opening sends an address without the product (#5025). */
+const WORKSPACE_CHECKOUT_URL = 'https://checkout.example.test/?product=ever-teams&email=manager%40example.test';
+
+/** The ids of the workspace the creation flow sets up (#5025). */
+const NEW_WORKSPACE = Object.freeze({
+	signinToken: 'synthetic-new-workspace-signin',
+	userId: '50250000-0000-4000-8000-000000000001',
+	tenantId: '50250000-0000-4000-8000-000000000002',
+	organizationId: '50250000-0000-4000-8000-000000000003',
+	employeeId: '50250000-0000-4000-8000-000000000004',
+	teamId: '50250000-0000-4000-8000-000000000005',
+	memberId: '50250000-0000-4000-8000-000000000006'
+});
+
+/**
+ * Another workspace for the signed-in person (#5025): Gauzy opens the account it is created with, then the sign-up's
+ * steps set it up (workspace sign-in, tenant, organization, employee, team, invitations). What each step was asked is
+ * recorded in `state.workspaceCreation`; `scenario.tenantRegistrationClosed` makes Gauzy refuse the opening, and
+ * `scenario.newWorkspaceRefreshFails` the new workspace's session once it is set up. Once created, the requests of the
+ * new workspace (its `tenant-id`) read its name and its team, as Gauzy answers them.
+ */
+function workspaceCreationResponse(method, pathname, data, state, body, requestTenantId) {
+	const created = state.workspaceCreation;
+	const isNewWorkspace = requestTenantId === NEW_WORKSPACE.tenantId && created.tenant !== null;
+	if (isNewWorkspace && method === 'GET') {
+		// The account the workspace was created with, its employee there (the app reads its scope from it), and the
+		// first team, whose only member is its creator, as its manager
+		const self = data.team.members.find((member) => member.employeeId === data.baseUser.employee.id);
+		const user = { ...self.employee.user, id: NEW_WORKSPACE.userId, tenantId: NEW_WORKSPACE.tenantId };
+		const employee = {
+			...self.employee,
+			id: NEW_WORKSPACE.employeeId,
+			userId: NEW_WORKSPACE.userId,
+			user,
+			tenantId: NEW_WORKSPACE.tenantId,
+			organizationId: NEW_WORKSPACE.organizationId
+		};
+		const member = {
+			...self,
+			id: NEW_WORKSPACE.memberId,
+			employeeId: employee.id,
+			employee,
+			user,
+			isManager: true,
+			activeTaskId: null,
+			activeTask: null,
+			organizationTeamId: NEW_WORKSPACE.teamId,
+			organizationId: NEW_WORKSPACE.organizationId,
+			tenantId: NEW_WORKSPACE.tenantId
+		};
+		const team = {
+			...data.team,
+			id: NEW_WORKSPACE.teamId,
+			name: created.team?.name ?? data.team.name,
+			tenantId: NEW_WORKSPACE.tenantId,
+			organizationId: NEW_WORKSPACE.organizationId,
+			members: [member],
+			managers: [member],
+			projects: [],
+			tasks: []
+		};
+		if (pathname === '/api/user/me') {
+			const tenant = { ...data.baseUser.tenant, id: NEW_WORKSPACE.tenantId, name: created.tenant };
+			return {
+				...data.baseUser,
+				id: NEW_WORKSPACE.userId,
+				tenantId: NEW_WORKSPACE.tenantId,
+				tenant,
+				employeeId: employee.id,
+				employee,
+				defaultOrganizationId: NEW_WORKSPACE.organizationId,
+				lastOrganizationId: NEW_WORKSPACE.organizationId,
+				defaultTeamId: NEW_WORKSPACE.teamId,
+				lastTeamId: NEW_WORKSPACE.teamId
+			};
+		}
+		if (pathname === '/api/organization-team') return pagination([team]);
+		if (pathname === `/api/organization-team/${NEW_WORKSPACE.teamId}`) return team;
+	}
+	// Gauzy lists the workspaces of the address: the new one joins them
+	if (created.tenant !== null && pathname === '/api/auth/workspaces' && method === 'GET') {
+		const [first] = data.workspaces.workspaces;
+		const teamName = created.team?.name ?? created.tenant;
+		const entry = {
+			user: {
+				...first.user,
+				id: NEW_WORKSPACE.userId,
+				lastTeamId: NEW_WORKSPACE.teamId,
+				tenant: { id: NEW_WORKSPACE.tenantId, name: created.tenant }
+			},
+			token: 'synthetic-workspace-token-new',
+			current_teams: [
+				{
+					...first.current_teams[0],
+					team_id: NEW_WORKSPACE.teamId,
+					team_name: teamName,
+					team_member_count: 1,
+					prefix: teamName.slice(0, 3).toUpperCase()
+				}
+			]
+		};
+		const workspaces = [...data.workspaces.workspaces, entry];
+		return { ...data.workspaces, workspaces, total_workspaces: workspaces.length };
+	}
+	if (pathname === '/api/auth/workspaces' && method === 'POST') {
+		created.openings += 1;
+		if (state.scenario.tenantRegistrationClosed) {
+			return {
+				[HTTP_STATUS]: 403,
+				statusCode: 403,
+				message: 'Creating new workspaces is disabled on this server.'
+			};
+		}
+		// `scenario.workspacePaywall`: the sign-up's paywall, and an address without the product
+		if (state.scenario.workspacePaywall) {
+			return {
+				[HTTP_STATUS]: 403,
+				statusCode: 403,
+				message: 'A subscription is required before you can open another workspace.',
+				checkoutUrl: WORKSPACE_CHECKOUT_URL
+			};
+		}
+		return { email: data.baseUser.email, token: NEW_WORKSPACE.signinToken };
+	}
+	// The new workspace's session, a token the app can read (the other refreshes answer a placeholder).
+	// `scenario.newWorkspaceRefreshFails`: Gauzy cannot answer it, once the workspace and its team exist.
+	if (pathname === '/api/auth/refresh-token' && body?.refresh_token === 'synthetic-new-workspace-refresh') {
+		if (state.scenario.newWorkspaceRefreshFails) {
+			return { [HTTP_STATUS]: 500, statusCode: 500, message: 'Internal server error' };
+		}
+		return {
+			token: syntheticToken(NEW_WORKSPACE.userId, NEW_WORKSPACE.organizationId, 'new-workspace-refreshed'),
+			refresh_token: 'synthetic-new-workspace-refresh'
+		};
+	}
+	if (pathname === '/api/auth/signin.workspace' && method === 'POST') {
+		if (body?.token !== NEW_WORKSPACE.signinToken) {
+			return { [HTTP_STATUS]: 401, statusCode: 401, message: 'Unauthorized' };
+		}
+		return {
+			user: {
+				id: NEW_WORKSPACE.userId,
+				email: body.email,
+				tenantId: null,
+				firstName: 'Fixture',
+				lastName: 'Manager'
+			},
+			token: syntheticToken(NEW_WORKSPACE.userId, null, 'new-workspace'),
+			refresh_token: 'synthetic-new-workspace-refresh'
+		};
+	}
+	if (pathname === '/api/tenant' && method === 'POST') {
+		created.tenant = body?.name ?? null;
+		return { id: NEW_WORKSPACE.tenantId, name: body?.name };
+	}
+	if (pathname === '/api/organization' && method === 'POST') {
+		created.organization = body?.name ?? null;
+		return { id: NEW_WORKSPACE.organizationId, name: body?.name, tenantId: body?.tenantId };
+	}
+	if (pathname === '/api/employee' && method === 'POST') {
+		created.employeeUserId = body?.userId ?? null;
+		return { id: NEW_WORKSPACE.employeeId, userId: body?.userId, organizationId: body?.organizationId };
+	}
+	if (pathname === '/api/organization-team' && method === 'POST') {
+		created.team = { name: body?.name ?? null, managerIds: body?.managerIds ?? [] };
+		return { id: NEW_WORKSPACE.teamId, name: body?.name };
+	}
+	if (pathname === '/api/invite/emails' && method === 'POST') {
+		created.invites = { emails: body?.emailIds ?? [], teamIds: body?.teamIds ?? [] };
+		return pagination([]);
+	}
+	return undefined;
+}
+
 function routeResponse(method, pathname, requestUrl, data, fixture, state, body, requestTenantId) {
 	const { ids } = fixture;
+	const creation = workspaceCreationResponse(method, pathname, data, state, body, requestTenantId);
+	if (creation !== undefined) return creation;
 	if (pathname === '/api/user/me') return data.baseUser;
 	if (pathname === '/api/auth/workspaces') return data.workspaces;
 	if (pathname === '/api/auth/refresh-token')
@@ -380,6 +560,60 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body,
 	if (pathname === '/api/task-related-issue-types') return data.metadata.relatedIssueTypes;
 	if (pathname === '/api/tags' || pathname === '/api/tags/level') return data.metadata.taskLabels;
 
+	// The employee's notification preferences: one row, kept as saved; `scenario.notificationPreferences` seeds it, and
+	// `scenario.notificationSettingFails` makes Gauzy refuse to read them
+	const seededNotificationSetting = state.scenario.notificationPreferences
+		? {
+				id: 'notification-setting-1',
+				employeeId: ids.employee,
+				preferences: state.scenario.notificationPreferences
+			}
+		: null;
+	if (pathname === '/api/employee-notification-setting' && method === 'GET') {
+		if (state.scenario.notificationSettingFails) {
+			return { [HTTP_STATUS]: 500, statusCode: 500, message: 'Internal server error' };
+		}
+		const setting = state.notificationSetting ?? seededNotificationSetting;
+		return pagination(setting ? [setting] : []);
+	}
+	if (pathname === '/api/employee-notification-setting' && method === 'POST') {
+		state.notificationSetting = { id: 'notification-setting-1', employeeId: ids.employee, ...body };
+		return state.notificationSetting;
+	}
+	if (/^\/api\/employee-notification-setting\/[^/]+$/.test(pathname) && method === 'PUT') {
+		// A partial update, as Gauzy's: over the row the reads answer, the seeded one while none was saved
+		state.notificationSetting = {
+			...(state.notificationSetting ?? seededNotificationSetting),
+			...body,
+			id: pathname.split('/').pop()
+		};
+		return state.notificationSetting;
+	}
+
+	// The employee's notifications, newest first: `scenario.notifications` seeds them (the platform's timer reminders,
+	// #5022), narrowed by the record a read names, as Gauzy narrows them by its `where`
+	if (pathname === '/api/employee-notification' && method === 'GET') {
+		const entityId = requestUrl.searchParams.get('where[entityId]');
+		const notifications = (state.scenario.notifications ?? []).filter(
+			(notification) => !entityId || notification.entityId === entityId
+		);
+		return pagination(notifications);
+	}
+	// A seeded notification marked read or archived by its receiver: the tab that showed a timer reminder marks the
+	// platform's copy read (#5022), and the seeded row takes the change as Gauzy's does
+	const markedNotification = /^\/api\/employee-notification\/([^/]+)$/.exec(pathname);
+	if (markedNotification && method === 'PUT') {
+		const notification = (state.scenario.notifications ?? []).find(
+			(candidate) => candidate.id === markedNotification[1]
+		);
+		if (notification) {
+			for (const field of ['isRead', 'readAt', 'isArchived', 'archivedAt']) {
+				if (body && Object.hasOwn(body, field)) notification[field] = body[field];
+			}
+			return notification;
+		}
+	}
+
 	if (pathname === '/api/timesheet/timer/status') return data.timerStatus;
 	if (pathname === '/api/timesheet/timer/start') {
 		state.mutationProof.startedTimer = true;
@@ -428,10 +662,32 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body,
 		};
 	}
 	if (pathname === '/api/timesheet/time-log/time-limit') return [];
+	// A member's day (Work diary, Calendar, Timesheets) comes as plain lists: logs, ten-minute slots, apps and sites
+	if (method === 'GET' && pathname === '/api/timesheet/time-log') return [];
+	if (method === 'GET' && pathname === '/api/timesheet/statistics/time-slots') return [];
+	if (method === 'GET' && pathname === '/api/timesheet/activity') return [];
 	if (pathname === '/api/timesheet/statistics/counts') return { today: 0, week: 0, month: 0 };
 	if (pathname.startsWith('/api/timesheet/statistics/tasks')) return { global: {}, today: {} };
 	if (/^\/api\/organization-team-employee\//.test(pathname))
 		return body ?? { affected: 1, generatedMaps: [], raw: [] };
+	// Scheduled meetings (employee appointments): kept for the session, so a meeting scheduled shows in the agenda
+	if (pathname === '/api/employee-appointment' && method === 'GET') return pagination(state.appointments);
+	if (pathname === '/api/employee-appointment' && method === 'POST') {
+		const appointment = { id: `appointment-${state.appointments.length + 1}`, status: null, ...body };
+		state.appointments.push(appointment);
+		return appointment;
+	}
+	const appointmentPath = /^\/api\/employee-appointment\/([^/]+)$/.exec(pathname);
+	if (appointmentPath && method === 'PUT') {
+		// Gauzy updates the fields sent, and answers with the appointment
+		const appointment = state.appointments.find((candidate) => candidate.id === appointmentPath[1]);
+		if (appointment) Object.assign(appointment, body);
+		return appointment ?? { affected: 0, raw: [] };
+	}
+	if (appointmentPath && method === 'DELETE') {
+		state.appointments = state.appointments.filter((appointment) => appointment.id !== appointmentPath[1]);
+		return { affected: 1, raw: [] };
+	}
 	if (pathname === '/api/favorite') return pagination([]);
 	if (pathname === '/api/organization-team-join') return pagination([]);
 
@@ -591,6 +847,16 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			connectConnected: true
 		},
 		everPlatform: { stateReads: 0, toggles: [] },
+		notificationSetting: null,
+		appointments: [],
+		workspaceCreation: {
+			openings: 0,
+			tenant: null,
+			organization: null,
+			employeeUserId: null,
+			team: null,
+			invites: null
+		},
 		mutationProof: {
 			startedTimer: false,
 			updatedTask: false,
@@ -701,7 +967,11 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 		state: () => ({
 			scenario: jsonClone(state.scenario),
 			mutationProof: jsonClone(state.mutationProof),
-			everPlatform: jsonClone(state.everPlatform)
+			everPlatform: jsonClone(state.everPlatform),
+			notificationSetting: jsonClone(state.notificationSetting),
+			workspaceCreation: jsonClone(state.workspaceCreation),
+			// What was asked since the reset: method, path and the status answered
+			requests: state.requests.map(({ method, path, status }) => ({ method, path, status }))
 		}),
 		reset: () => {
 			state.requests = [];
@@ -721,6 +991,16 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 				connectConnected: true
 			};
 			state.everPlatform = { stateReads: 0, toggles: [] };
+			state.notificationSetting = null;
+			state.appointments = [];
+			state.workspaceCreation = {
+				openings: 0,
+				tenant: null,
+				organization: null,
+				employeeUserId: null,
+				team: null,
+				invites: null
+			};
 			state.mutationProof = {
 				startedTimer: false,
 				updatedTask: false,

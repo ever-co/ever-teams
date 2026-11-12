@@ -103,6 +103,17 @@ export function useStaleTimerGuard(
 }
 
 /**
+ * The employee's last time log, whatever its day: the query of the check below. Any other reader of it (the timer
+ * reminders) takes these options with the query off, so it never runs the query with a function of its own.
+ */
+export function lastTimerLogQuery(employeeId: string | null | undefined) {
+	return {
+		queryKey: queryKeys.timer.lastLog(employeeId),
+		queryFn: async () => (await timerService.getLastTimerLog(employeeId!)).data?.[0]?.lastLog ?? null
+	};
+}
+
+/**
  * /timesheet/timer/status only sees logs started on the server's current day, so a timer still running past the
  * server's midnight reads as stopped there, and without its heartbeat the stale check would cut it at that midnight.
  * When the status says stopped although this tab saw the timer run or the employee is tracking time, the last log
@@ -122,8 +133,7 @@ export function useTimerRunningPastMidnight(
 
 	const checkLastLog = enabled && !statusRunning && !!employeeId && (sawRunning || !!employee?.isTrackingTime);
 	const { data: lastLog } = useQuery({
-		queryKey: queryKeys.timer.lastLog(employeeId),
-		queryFn: async () => (await timerService.getLastTimerLog(employeeId!)).data?.[0]?.lastLog ?? null,
+		...lastTimerLogQuery(employeeId),
 		enabled: checkLastLog,
 		staleTime: 0,
 		// A failed read keeps polling: a first read that fails has no data, and stopping there would end the
