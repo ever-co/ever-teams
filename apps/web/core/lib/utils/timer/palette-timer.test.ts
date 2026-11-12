@@ -90,6 +90,7 @@ describe('paletteStartActionOf', () => {
 		hasHiddenRun: false,
 		isActiveTask: false,
 		isTimerRunning: false,
+		isRunOnOtherTask: false,
 		isEmailVerified: true,
 		isMainStartDisabled: false,
 		canTrackTask: true
@@ -126,6 +127,14 @@ describe('paletteStartActionOf', () => {
 
 		expect(paletteStartActionOf(unverifiedOnOther)).toBe('EMAIL_NOT_VERIFIED');
 		expect(paletteStartActionOf(unverifiedOnActive)).toBe('EMAIL_NOT_VERIFIED');
+	});
+
+	it('switches the active task over a run of another task, as its card does, instead of saying it runs', () => {
+		const runOnOtherTask = { ...activeTask, isTimerRunning: true, isRunOnOtherTask: true };
+
+		expect(paletteStartActionOf(runOnOtherTask)).toBe('TASK_START');
+		expect(paletteStartActionOf({ ...runOnOtherTask, canTrackTask: false })).toBe('BLOCKED_BY_PLAN');
+		expect(paletteStartActionOf({ ...runOnOtherTask, isEmailVerified: false })).toBe('EMAIL_NOT_VERIFIED');
 	});
 
 	it('still says the timer already runs on the task asked for to a member whose email is not verified', () => {

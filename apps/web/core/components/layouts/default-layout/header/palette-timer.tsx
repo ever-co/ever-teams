@@ -92,13 +92,18 @@ function PaletteTimerStart({ task }: Readonly<{ task: TTask }>) {
 	const startTimerOnTask = useCallback(() => startTimer(task), [startTimer, task]);
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer: startTimerOnTask, stopTimer });
 	// A run of another team is hidden from the timer: the card's start would stop it unseen, the main Start warns
-	const isRunGoingOn = useAtomValue(timerStatusState)?.running === true;
+	const timerStatus = useAtomValue(timerStatusState);
+	const isRunGoingOn = timerStatus?.running === true;
+	// Another device may have started another task of the team while the task asked for stayed active here
+	const runningTaskId = timerStatus?.lastLog?.taskId;
+	const isRunOnOtherTask = isTimerRunning && Boolean(runningTaskId) && runningTaskId !== task.id;
 
 	useRunOnce(() => {
 		const action = paletteStartActionOf({
 			hasHiddenRun: isRunGoingOn && !isTimerRunning,
 			isActiveTask: activeTeamTask?.id === task.id,
 			isTimerRunning,
+			isRunOnOtherTask,
 			isEmailVerified: Boolean(user?.isEmailVerified),
 			isMainStartDisabled: disabled,
 			canTrackTask: canTrack
