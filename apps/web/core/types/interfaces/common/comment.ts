@@ -1,6 +1,6 @@
 import { EBaseEntityEnum } from '../../generics/enums/entity';
 import { ID } from './base-interfaces';
-import { IAuthoredRecord, IEntityRecordScope } from './entity-record';
+import { IAuthoredRecord, IEntityRecordScope, IRecordAuthorEmployee } from './entity-record';
 
 export interface IComment extends IAuthoredRecord {
 	id: ID;
@@ -18,7 +18,7 @@ export interface IComment extends IAuthoredRecord {
 	resolved?: boolean | null;
 	resolvedAt?: string | null;
 	resolvedByEmployeeId?: ID | null;
-	resolvedByEmployee?: IAuthoredRecord['employee'];
+	resolvedByEmployee?: IRecordAuthorEmployee | null;
 }
 
 /** An edit of a comment's text: the mentions it now holds replace the ones it had; left out, they stay as stored. */
