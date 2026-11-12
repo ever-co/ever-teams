@@ -92,6 +92,16 @@ interface ChipContext {
 	movableIds: ReadonlySet<string>;
 }
 
+/** A click opens the task in the drawer; with Cmd or Ctrl it selects it for the page's selection bar. */
+function openOrSelect(event: MouseEvent<HTMLButtonElement>, context: ChipContext, taskId: string) {
+	const togglesSelection = event.metaKey || event.ctrlKey;
+	if (togglesSelection) {
+		context.onToggleSelected(taskId);
+		return;
+	}
+	context.onOpen(taskId);
+}
+
 function canMoveTask(context: ChipContext, taskId: string) {
 	const isMovable = context.movableIds.has(taskId);
 	return context.isDragEnabled && isMovable;
@@ -153,20 +163,11 @@ const TaskChip = memo(function TaskChip({
 		tooltip = `${task.title}\n${t('pages.teamTasks.CALENDAR_DRAG_HINT')}`;
 	}
 
-	const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
-		const togglesSelection = event.metaKey || event.ctrlKey;
-		if (togglesSelection) {
-			context.onToggleSelected(task.id);
-			return;
-		}
-		context.onOpen(task.id);
-	};
-
 	return (
 		<button
 			ref={ref}
 			type="button"
-			onClick={handleClick}
+			onClick={(event) => openOrSelect(event, context, task.id)}
 			aria-label={label}
 			title={tooltip}
 			data-selected={isSelected}
@@ -390,14 +391,6 @@ const UndatedRow = memo(function UndatedRow({
 	const startDay = dayOfStoredDate(task.startDate);
 	const { ref, isDragging } = useCalendarTaskDrag<HTMLButtonElement>(task.id, null, startDay, canDrag);
 	const setDueDateLabel = t('pages.teamTasks.SET_DUE_DATE');
-	const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
-		const togglesSelection = event.metaKey || event.ctrlKey;
-		if (togglesSelection) {
-			context.onToggleSelected(task.id);
-			return;
-		}
-		context.onOpen(task.id);
-	};
 	return (
 		<li
 			className={cn(
@@ -408,7 +401,7 @@ const UndatedRow = memo(function UndatedRow({
 			<button
 				ref={ref}
 				type="button"
-				onClick={handleClick}
+				onClick={(event) => openOrSelect(event, context, task.id)}
 				data-selected={isSelected}
 				className={cn(
 					'flex h-7 min-w-0 flex-1 items-center gap-2 rounded-md px-1 text-left text-[13px] text-foreground hover:bg-foreground/5',
