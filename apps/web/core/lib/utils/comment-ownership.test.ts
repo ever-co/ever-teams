@@ -35,6 +35,13 @@ describe('mentionedIn — the mentions an edit keeps', () => {
 		expect(mentionedIn('No one here', [ann, bo])).toEqual([]);
 		expect(mentionedIn('', [ann])).toEqual([]);
 	});
+
+	it('names only the longest full name a mention spells, as the comment draws its chips', () => {
+		const annShort = { employeeId: 'ann-short', name: 'Ann' };
+
+		expect(mentionedIn('Ping @Ann Lee about it', [annShort, ann])).toEqual([ann]);
+		expect(mentionedIn('@Ann and @Ann Lee', [annShort, ann])).toEqual([annShort, ann]);
+	});
 });
 
 describe('mentionsToSend — an edit touches the mentions only when it changes them', () => {
