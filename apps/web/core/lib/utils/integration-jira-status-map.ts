@@ -1,5 +1,9 @@
 import { matchStatusName, type LinearStatusOption } from '@/core/lib/utils/integration-linear-state-map';
-import { IJiraStatusDefinition, JIRA_STATUS_CATEGORIES, TJiraStatusCategory } from '@/core/types/interfaces/integrations/jira';
+import {
+	IJiraStatusDefinition,
+	JIRA_STATUS_CATEGORIES,
+	TJiraStatusCategory
+} from '@/core/types/interfaces/integrations/jira';
 
 /** The task status each status category becomes unless the mapping says otherwise (the platform's own defaults). */
 export const FALLBACK_CATEGORY_MAP: Record<TJiraStatusCategory, string> = {
@@ -21,7 +25,10 @@ export function statusKeyOf(statusId: string): string {
 }
 
 /** The category entries a mapping works with: the platform's defaults under the mapping's own entries, blanks skipped. */
-export function effectiveCategoryMap(defaults: Record<string, string> | null | undefined, stored: Record<string, string> | null | undefined): JiraCategoryMap {
+export function effectiveCategoryMap(
+	defaults: Record<string, string> | null | undefined,
+	stored: Record<string, string> | null | undefined
+): JiraCategoryMap {
 	const map = { ...FALLBACK_CATEGORY_MAP };
 	for (const category of JIRA_STATUS_CATEGORIES) {
 		const value = stored?.[category] ?? defaults?.[category];
@@ -32,11 +39,16 @@ export function effectiveCategoryMap(defaults: Record<string, string> | null | u
 
 /** How many Jira statuses the map names on their own (`status:<id>` entries). */
 export function statusOverrideCount(statusMap: Record<string, string> | null | undefined): number {
-	return Object.entries(statusMap ?? {}).filter(([key, value]) => STATUS_KEY.test(key) && typeof value === 'string' && value.trim()).length;
+	return Object.entries(statusMap ?? {}).filter(
+		([key, value]) => STATUS_KEY.test(key) && typeof value === 'string' && value.trim()
+	).length;
 }
 
 /** The form's fields for a project's statuses and a stored map: the stored status, or "by its category" when the map leaves it out. */
-export function statusFieldsOf(statuses: readonly IJiraStatusDefinition[], statusMap: Record<string, string> | null | undefined): Record<string, string> {
+export function statusFieldsOf(
+	statuses: readonly IJiraStatusDefinition[],
+	statusMap: Record<string, string> | null | undefined
+): Record<string, string> {
 	const fields: Record<string, string> = {};
 	for (const status of statuses) {
 		const value = statusMap?.[statusKeyOf(status.id)];
@@ -63,7 +75,10 @@ export function statusMapOf(categories: JiraCategoryMap, fields: Record<string, 
 }
 
 /** The categories whose value names no status: saved, such a value would leave every imported issue of it without a status row. */
-export function invalidCategories(categories: JiraCategoryMap, options: readonly LinearStatusOption[]): TJiraStatusCategory[] {
+export function invalidCategories(
+	categories: JiraCategoryMap,
+	options: readonly LinearStatusOption[]
+): TJiraStatusCategory[] {
 	return JIRA_STATUS_CATEGORIES.filter((category) => !matchStatusName(categories[category], options));
 }
 

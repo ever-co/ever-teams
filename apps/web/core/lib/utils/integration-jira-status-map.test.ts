@@ -18,20 +18,35 @@ const OPTIONS = [{ name: 'open' }, { name: 'In Progress' }, { name: 'completed' 
 
 describe('integration-jira-status-map', () => {
 	it('fills the categories from the platform defaults, then the mapping, skipping blanks', () => {
-		expect(effectiveCategoryMap({ indeterminate: 'doing', done: '' }, { indeterminate: 'In Progress', new: '  ' })).toEqual({
+		expect(
+			effectiveCategoryMap({ indeterminate: 'doing', done: '' }, { indeterminate: 'In Progress', new: '  ' })
+		).toEqual({
 			new: 'open',
 			indeterminate: 'In Progress',
 			done: 'completed'
 		});
-		expect(effectiveCategoryMap(null, null)).toEqual({ new: 'open', indeterminate: 'in-progress', done: 'completed' });
+		expect(effectiveCategoryMap(null, null)).toEqual({
+			new: 'open',
+			indeterminate: 'in-progress',
+			done: 'completed'
+		});
 	});
 
 	it('turns a stored map into one field per project status, and back, leaving "by its category" out', () => {
 		const fields = statusFieldsOf(STATUSES, { done: 'completed', 'status:3': 'in-review', 'status:999': 'open' });
 		expect(fields).toEqual({ '1': STATUS_BY_CATEGORY, '3': 'in-review', '10001': STATUS_BY_CATEGORY });
-		const map = statusMapOf({ new: 'open', indeterminate: ' In Progress ', done: 'completed' }, { ...fields, '10001': ' completed ', bogus: 'open' });
+		const map = statusMapOf(
+			{ new: 'open', indeterminate: ' In Progress ', done: 'completed' },
+			{ ...fields, '10001': ' completed ', bogus: 'open' }
+		);
 		// A status the project no longer has (999) and a key that is no status id are left out.
-		expect(map).toEqual({ new: 'open', indeterminate: 'In Progress', done: 'completed', 'status:3': 'in-review', 'status:10001': 'completed' });
+		expect(map).toEqual({
+			new: 'open',
+			indeterminate: 'In Progress',
+			done: 'completed',
+			'status:3': 'in-review',
+			'status:10001': 'completed'
+		});
 	});
 
 	it('counts the statuses named on their own', () => {
@@ -40,8 +55,13 @@ describe('integration-jira-status-map', () => {
 	});
 
 	it('names the categories and the statuses whose value is no status, case ignored, never one left to its category', () => {
-		expect(invalidCategories({ new: 'OPEN', indeterminate: 'doing', done: '' }, OPTIONS)).toEqual(['indeterminate', 'done']);
-		expect(invalidStatusFields({ '1': STATUS_BY_CATEGORY, '3': 'In-Review', '10001': 'finished' }, OPTIONS)).toEqual(['10001']);
+		expect(invalidCategories({ new: 'OPEN', indeterminate: 'doing', done: '' }, OPTIONS)).toEqual([
+			'indeterminate',
+			'done'
+		]);
+		expect(
+			invalidStatusFields({ '1': STATUS_BY_CATEGORY, '3': 'In-Review', '10001': 'finished' }, OPTIONS)
+		).toEqual(['10001']);
 		expect(invalidStatusFields({ '1': STATUS_BY_CATEGORY }, [])).toEqual([]);
 	});
 

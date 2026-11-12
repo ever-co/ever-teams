@@ -21,7 +21,11 @@ import {
 	JIRA_CALLBACK_ERRORS,
 	TJiraCallbackError
 } from '@/core/types/interfaces/integrations/jira';
-import { integrationProviderStatus, isNotFoundError, type IntegrationProviderStatus } from './integration-provider-status';
+import {
+	integrationProviderStatus,
+	isNotFoundError,
+	type IntegrationProviderStatus
+} from './integration-provider-status';
 import { useConflictsAfterRuns } from './use-integration-conflicts';
 
 /** What the Jira provider shows. */
@@ -118,20 +122,35 @@ export function useJiraSites(integrationId: string | null): JiraLookup<IJiraSite
 		staleTime: 60_000
 	});
 	const retry = useCallback(() => void query.refetch(), [query]);
-	return { items: query.data ?? NO_SITES, isLoading: !!integrationId && query.isPending, error: query.error ?? null, retry };
+	return {
+		items: query.data ?? NO_SITES,
+		isLoading: !!integrationId && query.isPending,
+		error: query.error ?? null,
+		retry
+	};
 }
 
 /** The projects of the connection's site, for the add form (nothing until a site is chosen). */
 export function useJiraProjects(integrationId: string | null, cloudId: string | null): JiraLookup<IJiraProject> {
 	const activeTeam = useAtomValue(activeTeamState);
 	const query = useQuery({
-		queryKey: queryKeys.integrations.jira.projects(activeTeam?.tenantId, activeTeam?.organizationId, integrationId, cloudId),
+		queryKey: queryKeys.integrations.jira.projects(
+			activeTeam?.tenantId,
+			activeTeam?.organizationId,
+			integrationId,
+			cloudId
+		),
 		queryFn: ({ signal }) => jiraIntegrationService.projects(integrationId as string, signal),
 		enabled: !!integrationId && !!cloudId,
 		staleTime: 5 * 60_000
 	});
 	const retry = useCallback(() => void query.refetch(), [query]);
-	return { items: query.data ?? NO_JIRA_PROJECTS, isLoading: !!integrationId && !!cloudId && query.isPending, error: query.error ?? null, retry };
+	return {
+		items: query.data ?? NO_JIRA_PROJECTS,
+		isLoading: !!integrationId && !!cloudId && query.isPending,
+		error: query.error ?? null,
+		retry
+	};
 }
 
 export interface JiraProjectDetailLookup {
@@ -142,16 +161,30 @@ export interface JiraProjectDetailLookup {
 }
 
 /** One Jira project's issue types and statuses, for a status map and an issue type filter. */
-export function useJiraProjectDetail(integrationId: string | null, jiraProjectId: string | null): JiraProjectDetailLookup {
+export function useJiraProjectDetail(
+	integrationId: string | null,
+	jiraProjectId: string | null
+): JiraProjectDetailLookup {
 	const activeTeam = useAtomValue(activeTeamState);
 	const query = useQuery({
-		queryKey: queryKeys.integrations.jira.project(activeTeam?.tenantId, activeTeam?.organizationId, integrationId, jiraProjectId),
-		queryFn: ({ signal }) => jiraIntegrationService.project(integrationId as string, jiraProjectId as string, signal),
+		queryKey: queryKeys.integrations.jira.project(
+			activeTeam?.tenantId,
+			activeTeam?.organizationId,
+			integrationId,
+			jiraProjectId
+		),
+		queryFn: ({ signal }) =>
+			jiraIntegrationService.project(integrationId as string, jiraProjectId as string, signal),
 		enabled: !!integrationId && !!jiraProjectId,
 		staleTime: 5 * 60_000
 	});
 	const retry = useCallback(() => void query.refetch(), [query]);
-	return { detail: query.data ?? null, isLoading: !!integrationId && !!jiraProjectId && query.isPending, error: query.error ?? null, retry };
+	return {
+		detail: query.data ?? null,
+		isLoading: !!integrationId && !!jiraProjectId && query.isPending,
+		error: query.error ?? null,
+		retry
+	};
 }
 
 /**
@@ -217,9 +250,17 @@ export function useJiraIntegration(): JiraIntegrationSettings {
 		staleTime: 5_000,
 		refetchInterval: (query) => (query.state.data?.some((run) => run.status === 'running') ? RUNS_POLL_MS : false)
 	});
-	const { organizationProjects, getOrganizationProjectsLoading, isOrganizationProjectsError, refetchOrganizationProjects } = useOrganizationProjectsQuery({ enabled: !!integrationId });
+	const {
+		organizationProjects,
+		getOrganizationProjectsLoading,
+		isOrganizationProjectsError,
+		refetchOrganizationProjects
+	} = useOrganizationProjectsQuery({ enabled: !!integrationId });
 	const projects = useMemo<JiraIntegrationProject[]>(
-		() => organizationProjects.map((project) => ({ id: project.id, name: project.name ?? '' })).filter((project) => project.id),
+		() =>
+			organizationProjects
+				.map((project) => ({ id: project.id, name: project.name ?? '' }))
+				.filter((project) => project.id),
 		[organizationProjects]
 	);
 
@@ -238,8 +279,12 @@ export function useJiraIntegration(): JiraIntegrationSettings {
 	useEffect(() => {
 		if ((wasRunning.current && !isRunning) || acceptedFinished) {
 			for (const run of runs) if (run.status !== 'running') acceptedRunIds.current.delete(run.id);
-			void queryClient.invalidateQueries({ queryKey: queryKeys.integrations.jira.mappings(tenantId, organizationId, integrationId) });
-			void queryClient.invalidateQueries({ queryKey: queryKeys.integrations.jira.status(tenantId, organizationId) });
+			void queryClient.invalidateQueries({
+				queryKey: queryKeys.integrations.jira.mappings(tenantId, organizationId, integrationId)
+			});
+			void queryClient.invalidateQueries({
+				queryKey: queryKeys.integrations.jira.status(tenantId, organizationId)
+			});
 		}
 		wasRunning.current = isRunning;
 	}, [acceptedFinished, integrationId, isRunning, organizationId, queryClient, runs, tenantId]);
@@ -253,27 +298,31 @@ export function useJiraIntegration(): JiraIntegrationSettings {
 	}, [isOrganizationProjectsError, mappingsQuery, refetchOrganizationProjects, runsQuery]);
 
 	/** One action at a time, its kind shown while it runs, its error kept for the page (a disconnect's apart). */
-	const act = useCallback(async (kind: JiraPending['kind'], mappingId: string | null, work: () => Promise<unknown>) => {
-		const keepError = kind === 'disconnect' ? setDisconnectError : setActionError;
-		setPending({ kind, mappingId });
-		keepError(null);
-		try {
-			await work();
-			invalidate();
-		} catch (error) {
-			keepError(error);
-			throw error;
-		} finally {
-			setPending(NO_PENDING);
-		}
-	}, [invalidate]);
+	const act = useCallback(
+		async (kind: JiraPending['kind'], mappingId: string | null, work: () => Promise<unknown>) => {
+			const keepError = kind === 'disconnect' ? setDisconnectError : setActionError;
+			setPending({ kind, mappingId });
+			keepError(null);
+			try {
+				await work();
+				invalidate();
+			} catch (error) {
+				keepError(error);
+				throw error;
+			} finally {
+				setPending(NO_PENDING);
+			}
+		},
+		[invalidate]
+	);
 
 	/** The connection as an action answered it, in the status read at once (the refresh that follows confirms it). */
 	const keepConnection = useCallback(
 		(next: IJiraConnectionSummary | null | undefined) => {
 			if (!next?.id) return;
-			queryClient.setQueryData<IJiraStatus>(queryKeys.integrations.jira.status(tenantId, organizationId), (current) =>
-				current ? { ...current, connection: next } : current
+			queryClient.setQueryData<IJiraStatus>(
+				queryKeys.integrations.jira.status(tenantId, organizationId),
+				(current) => (current ? { ...current, connection: next } : current)
 			);
 		},
 		[organizationId, queryClient, tenantId]
@@ -306,7 +355,9 @@ export function useJiraIntegration(): JiraIntegrationSettings {
 	const selectSite = useCallback(
 		async (cloudId: string) => {
 			if (!integrationId) return;
-			await act('site', null, async () => keepConnection(await jiraIntegrationService.selectSite(integrationId, cloudId)));
+			await act('site', null, async () =>
+				keepConnection(await jiraIntegrationService.selectSite(integrationId, cloudId))
+			);
 		},
 		[act, integrationId, keepConnection]
 	);
@@ -333,8 +384,9 @@ export function useJiraIntegration(): JiraIntegrationSettings {
 			await act('remove', mappingId, async () => {
 				await jiraIntegrationService.removeMapping(integrationId, mappingId);
 				// Gone from the list at once: the refresh that follows must not leave its buttons live meanwhile.
-				queryClient.setQueryData<IJiraMapping[]>(queryKeys.integrations.jira.mappings(tenantId, organizationId, integrationId), (current) =>
-					current?.filter((mapping) => mapping.id !== mappingId)
+				queryClient.setQueryData<IJiraMapping[]>(
+					queryKeys.integrations.jira.mappings(tenantId, organizationId, integrationId),
+					(current) => current?.filter((mapping) => mapping.id !== mappingId)
 				);
 			});
 		},
@@ -344,7 +396,9 @@ export function useJiraIntegration(): JiraIntegrationSettings {
 	// The platform registers the webhook before it answers, and answers the connection with its webhook as it now is.
 	const registerWebhook = useCallback(async () => {
 		if (!integrationId) return;
-		await act('webhook', null, async () => keepConnection((await jiraIntegrationService.registerWebhook(integrationId)).connection));
+		await act('webhook', null, async () =>
+			keepConnection((await jiraIntegrationService.registerWebhook(integrationId)).connection)
+		);
 	}, [act, integrationId, keepConnection]);
 
 	const importNow = useCallback(
@@ -388,7 +442,8 @@ export function useJiraIntegration(): JiraIntegrationSettings {
 		canManageMappings: !mappingsQuery.isError,
 		runs,
 		isLoadingDetails: !!integrationId && (mappingsQuery.isPending || getOrganizationProjectsLoading),
-		detailsError: mappingsQuery.error ?? runsQuery.error ?? (isOrganizationProjectsError ? PROJECTS_READ_FAILED : null),
+		detailsError:
+			mappingsQuery.error ?? runsQuery.error ?? (isOrganizationProjectsError ? PROJECTS_READ_FAILED : null),
 		isRetryingDetails: mappingsQuery.isFetching || runsQuery.isFetching,
 		retryDetails,
 		actionError,

@@ -2,7 +2,11 @@
 
 import React from 'react';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import type { JiraIntegrationSettings, JiraLookup, JiraProjectDetailLookup } from '@/core/hooks/integrations/use-jira-integration';
+import type {
+	JiraIntegrationSettings,
+	JiraLookup,
+	JiraProjectDetailLookup
+} from '@/core/hooks/integrations/use-jira-integration';
 import type { LinearStatusOptions } from '@/core/hooks/integrations/use-linear-integration';
 import type { IJiraProject, IJiraProjectDetail, IJiraSite } from '@/core/types/interfaces/integrations/jira';
 import { JiraProviderSection } from './jira-provider';
@@ -13,13 +17,15 @@ const mockDetail = jest.fn<JiraProjectDetailLookup, [string | null, string | nul
 const mockStatusOptions = jest.fn<LinearStatusOptions, [string | null]>();
 
 jest.mock('next-intl', () => ({
-	useTranslations: () => (key: string, values?: Record<string, unknown>) => (values ? `${key} ${JSON.stringify(values)}` : key),
+	useTranslations: () => (key: string, values?: Record<string, unknown>) =>
+		values ? `${key} ${JSON.stringify(values)}` : key,
 	useLocale: () => 'en'
 }));
 jest.mock('@/core/hooks/integrations/use-jira-integration', () => ({
 	useJiraSites: (integrationId: string | null) => mockSites(integrationId),
 	useJiraProjects: (integrationId: string | null, cloudId: string | null) => mockProjects(integrationId, cloudId),
-	useJiraProjectDetail: (integrationId: string | null, jiraProjectId: string | null) => mockDetail(integrationId, jiraProjectId)
+	useJiraProjectDetail: (integrationId: string | null, jiraProjectId: string | null) =>
+		mockDetail(integrationId, jiraProjectId)
 }));
 jest.mock('@/core/hooks/integrations/use-linear-integration', () => ({
 	useLinearStatusOptions: (projectId: string | null) => mockStatusOptions(projectId)
@@ -29,8 +35,24 @@ jest.mock('@/core/components/common/animated-height', () => ({
 }));
 // A checkbox that is a plain one: a click turns it on or off, as the real one does.
 jest.mock('@/core/components/common/checkbox', () => ({
-	Checkbox: ({ checked, onCheckedChange, disabled, 'aria-label': label }: { checked?: boolean; onCheckedChange?: (next: boolean) => void; disabled?: boolean; 'aria-label'?: string }) => (
-		<input type="checkbox" aria-label={label} checked={!!checked} disabled={disabled} onChange={(event) => onCheckedChange?.(event.target.checked)} />
+	Checkbox: ({
+		checked,
+		onCheckedChange,
+		disabled,
+		'aria-label': label
+	}: {
+		checked?: boolean;
+		onCheckedChange?: (next: boolean) => void;
+		disabled?: boolean;
+		'aria-label'?: string;
+	}) => (
+		<input
+			type="checkbox"
+			aria-label={label}
+			checked={!!checked}
+			disabled={disabled}
+			onChange={(event) => onCheckedChange?.(event.target.checked)}
+		/>
 	)
 }));
 // A select whose items are buttons: a click picks the value, as the real one does.
@@ -38,7 +60,17 @@ jest.mock('@/core/components/common/select', () => {
 	const ReactModule = jest.requireActual<typeof React>('react');
 	const Picker = ReactModule.createContext<(value: string) => void>(() => undefined);
 	return {
-		Select: ({ children, value, onValueChange, disabled }: { children: React.ReactNode; value?: string; onValueChange?: (next: string) => void; disabled?: boolean }) => (
+		Select: ({
+			children,
+			value,
+			onValueChange,
+			disabled
+		}: {
+			children: React.ReactNode;
+			value?: string;
+			onValueChange?: (next: string) => void;
+			disabled?: boolean;
+		}) => (
 			<Picker.Provider value={onValueChange ?? (() => undefined)}>
 				<div data-testid="select" data-value={value ?? ''} data-disabled={disabled ? 'true' : 'false'}>
 					{children}
@@ -61,8 +93,25 @@ jest.mock('@/core/components/common/select', () => {
 });
 // The conflict list reads its own data (its own tests cover it): here, only what the section hands it.
 jest.mock('./integration-conflicts-row', () => ({
-	IntegrationConflictsRow: ({ provider, providerName, integrationId, runId, onClearRun }: { provider: string; providerName: string; integrationId: string; runId: string | null; onClearRun: () => void }) => (
-		<div data-testid="conflicts-row" data-provider={provider} data-integration={integrationId} data-run={runId ?? ''}>
+	IntegrationConflictsRow: ({
+		provider,
+		providerName,
+		integrationId,
+		runId,
+		onClearRun
+	}: {
+		provider: string;
+		providerName: string;
+		integrationId: string;
+		runId: string | null;
+		onClearRun: () => void;
+	}) => (
+		<div
+			data-testid="conflicts-row"
+			data-provider={provider}
+			data-integration={integrationId}
+			data-run={runId ?? ''}
+		>
 			{providerName}
 			<button type="button" onClick={onClearRun}>
 				clear-run
@@ -86,8 +135,19 @@ jest.mock('@/core/components/settings/kit/danger', () => ({
 }));
 
 const K = 'settings.integrations.jira';
-const STATUSES: LinearStatusOptions = { options: [{ name: 'open' }, { name: 'in-progress' }, { name: 'completed' }], isLoading: false, error: null, retry: jest.fn() };
-const lookup = <T,>(items: T[], overrides: Partial<JiraLookup<T>> = {}): JiraLookup<T> => ({ items, isLoading: false, error: null, retry: jest.fn(), ...overrides });
+const STATUSES: LinearStatusOptions = {
+	options: [{ name: 'open' }, { name: 'in-progress' }, { name: 'completed' }],
+	isLoading: false,
+	error: null,
+	retry: jest.fn()
+};
+const lookup = <T,>(items: T[], overrides: Partial<JiraLookup<T>> = {}): JiraLookup<T> => ({
+	items,
+	isLoading: false,
+	error: null,
+	retry: jest.fn(),
+	...overrides
+});
 const JIRA_PROJECTS: IJiraProject[] = [
 	{ id: '10000', key: 'RM', name: 'Roadmap' },
 	{ id: '10001', key: 'LA', name: 'Launch' }
@@ -107,7 +167,12 @@ const SITES: IJiraSite[] = [
 	{ id: 'cloud-1', name: 'Acme', url: 'https://acme.atlassian.net', selected: false },
 	{ id: 'cloud-2', name: 'Beta', url: 'https://beta.atlassian.net', selected: false }
 ];
-const detailOf = (jiraProjectId: string | null): JiraProjectDetailLookup => ({ detail: jiraProjectId ? DETAIL : null, isLoading: false, error: null, retry: jest.fn() });
+const detailOf = (jiraProjectId: string | null): JiraProjectDetailLookup => ({
+	detail: jiraProjectId ? DETAIL : null,
+	isLoading: false,
+	error: null,
+	retry: jest.fn()
+});
 
 function settings(overrides: Partial<JiraIntegrationSettings> = {}): JiraIntegrationSettings {
 	return {
@@ -201,14 +266,27 @@ function connected(overrides: Partial<JiraIntegrationSettings> = {}): JiraIntegr
 				skippedCount: 0,
 				failedCount: 2,
 				lastError: null,
-				report: { startedFrom: null, stoppedAt: null, complete: true, pages: 1, issuesRead: 6, comments: 4, links: 1, relations: 0, conflicts: 0, failures: [{ key: 'RM-7', error: 'x' }], moreFailures: 1 }
+				report: {
+					startedFrom: null,
+					stoppedAt: null,
+					complete: true,
+					pages: 1,
+					issuesRead: 6,
+					comments: 4,
+					links: 1,
+					relations: 0,
+					conflicts: 0,
+					failures: [{ key: 'RM-7', error: 'x' }],
+					moreFailures: 1
+				}
 			}
 		],
 		...overrides
 	});
 }
 
-const pickIn = (container: HTMLElement, value: string) => fireEvent.click(container.querySelector(`[data-option="${value}"]`) as HTMLElement);
+const pickIn = (container: HTMLElement, value: string) =>
+	fireEvent.click(container.querySelector(`[data-option="${value}"]`) as HTMLElement);
 
 beforeEach(() => {
 	mockSites.mockReset().mockImplementation((integrationId) => lookup(integrationId ? SITES : []));
@@ -242,7 +320,9 @@ describe('JiraProviderSection', () => {
 	});
 
 	it('a connection waiting for its site: only the site choice (and disconnect), and the chosen site is saved', async () => {
-		const jira = connected({ connection: { ...CONNECTION, cloudId: null, siteName: null, siteUrl: null, siteRequired: true } });
+		const jira = connected({
+			connection: { ...CONNECTION, cloudId: null, siteName: null, siteUrl: null, siteRequired: true }
+		});
 		render(<JiraProviderSection jira={jira} />);
 		expect(screen.getByText(`${K}.STATE_SITE_REQUIRED`)).toBeTruthy();
 		expect(screen.queryByTestId('jira-mapping-m1')).toBeNull();
@@ -334,7 +414,11 @@ describe('JiraProviderSection', () => {
 	});
 
 	it('add form: saving waits for the project statuses and issue types', () => {
-		mockDetail.mockImplementation((_integrationId, jiraProjectId) => ({ ...detailOf(jiraProjectId), detail: null, isLoading: !!jiraProjectId }));
+		mockDetail.mockImplementation((_integrationId, jiraProjectId) => ({
+			...detailOf(jiraProjectId),
+			detail: null,
+			isLoading: !!jiraProjectId
+		}));
 		render(<JiraProviderSection jira={connected()} />);
 		const form = screen.getByTestId('jira-add-mapping');
 		pickIn(form, '10001');
@@ -349,7 +433,9 @@ describe('JiraProviderSection', () => {
 		const row = screen.getByTestId('jira-mapping-m1');
 		fireEvent.click(within(row).getByRole('button', { name: `${K}.STATUS_MAP_EDIT` }));
 		expect(mockDetail).toHaveBeenCalledWith('int-1', '10000');
-		expect(within(row).getByTestId('jira-status-3').querySelector('[data-testid="select"]')?.getAttribute('data-value')).toBe('in-progress');
+		expect(
+			within(row).getByTestId('jira-status-3').querySelector('[data-testid="select"]')?.getAttribute('data-value')
+		).toBe('in-progress');
 		pickIn(within(row).getByTestId('jira-category-done'), 'open');
 		fireEvent.click(within(row).getByRole('checkbox', { name: 'Bug' }));
 		const save = screen.getByTestId('jira-status-map-save-m1');
@@ -371,7 +457,11 @@ describe('JiraProviderSection', () => {
 		fireEvent.click(within(row).getByRole('button', { name: `${K}.WEBHOOK_REGISTER` }));
 		expect(jira.registerWebhook).toHaveBeenCalledTimes(1);
 
-		rerender(<JiraProviderSection jira={connected({ connection: { ...CONNECTION, webhookExpiresAt: '2026-12-07T00:00:00.000Z' } })} />);
+		rerender(
+			<JiraProviderSection
+				jira={connected({ connection: { ...CONNECTION, webhookExpiresAt: '2026-12-07T00:00:00.000Z' } })}
+			/>
+		);
 		expect(screen.getByTestId('jira-webhook').textContent).toContain(`${K}.WEBHOOK_ACTIVE`);
 		expect(within(screen.getByTestId('jira-webhook')).queryByRole('button')).toBeNull();
 
@@ -381,7 +471,11 @@ describe('JiraProviderSection', () => {
 	});
 
 	it('a failed mappings read hides the add form (every project would look unmapped) until the retry succeeds', () => {
-		render(<JiraProviderSection jira={connected({ mappings: [], canManageMappings: false, detailsError: new Error('down') })} />);
+		render(
+			<JiraProviderSection
+				jira={connected({ mappings: [], canManageMappings: false, detailsError: new Error('down') })}
+			/>
+		);
 		expect(screen.queryByTestId('jira-add-mapping')).toBeNull();
 		expect(screen.getByText(`${K}.DETAILS_ERROR_TITLE`)).toBeTruthy();
 	});
@@ -396,7 +490,16 @@ describe('JiraProviderSection', () => {
 
 	it("connected: the conflict list of the connection, and each run's conflict count opens that run's conflicts", () => {
 		const base = connected().runs[0];
-		render(<JiraProviderSection jira={connected({ runs: [{ ...base, conflictCount: 2 }, { ...base, id: 'r2', conflictCount: 0 }] })} />);
+		render(
+			<JiraProviderSection
+				jira={connected({
+					runs: [
+						{ ...base, conflictCount: 2 },
+						{ ...base, id: 'r2', conflictCount: 0 }
+					]
+				})}
+			/>
+		);
 		const row = screen.getByTestId('conflicts-row');
 		expect(row.getAttribute('data-provider')).toBe('jira');
 		expect(row.getAttribute('data-integration')).toBe('int-1');

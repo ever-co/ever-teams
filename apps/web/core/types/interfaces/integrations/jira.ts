@@ -161,5 +161,13 @@ export interface IJiraRun {
 export type TJiraWebhookOutcome = 'off' | 'unchanged' | 'registered' | 'refreshed' | 'removed' | 'failed';
 
 /** The errors the platform's callback may send the person back with (`?error=`). */
-export const JIRA_CALLBACK_ERRORS = ['not_configured', 'denied', 'invalid_state', 'exchange_failed', 'site_unreadable', 'no_site', 'not_saved'] as const;
+export const JIRA_CALLBACK_ERRORS = [
+	'not_configured',
+	'denied',
+	'invalid_state',
+	'exchange_failed',
+	'site_unreadable',
+	'no_site',
+	'not_saved'
+] as const;
 export type TJiraCallbackError = (typeof JIRA_CALLBACK_ERRORS)[number];

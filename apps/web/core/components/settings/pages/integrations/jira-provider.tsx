@@ -6,11 +6,23 @@ import { AnimatedHeight } from '@/core/components/common/animated-height';
 import { badgeVariants } from '@/core/components/common/badge';
 import { Checkbox } from '@/core/components/common/checkbox';
 import { Notice } from '@/core/components/common/notice';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue
+} from '@/core/components/common/select';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Alert, ChevronDown, StopCircle, Task } from '@/core/components/icons';
 import { ConfirmDestructiveDialog, DangerRow, type DangerConsequence } from '@/core/components/settings/kit/danger';
-import { SETTINGS_ROW_DESCRIPTION, SETTINGS_ROW_LABEL, SettingsSection, SettingsSurface } from '@/core/components/settings/kit/settings-page';
+import {
+	SETTINGS_ROW_DESCRIPTION,
+	SETTINGS_ROW_LABEL,
+	SettingsSection,
+	SettingsSurface
+} from '@/core/components/settings/kit/settings-page';
 import { SettingsSwitch } from '@/core/components/settings/kit/settings-switch';
 import {
 	type JiraIntegrationSettings,
@@ -101,7 +113,13 @@ function ActionErrorRow({ jira }: JiraProps) {
 	const reasonKey = errorReasonKeyOf(jira.actionError) as Key;
 	return (
 		<div className={ROW_DIVIDER}>
-			<Notice tone="error" title={t(`${KEYS}.ACTION_FAILED` as Key)} description={t(reasonKey)} onDismiss={jira.clearActionError} dismissLabel={t('common.CLOSE')} />
+			<Notice
+				tone="error"
+				title={t(`${KEYS}.ACTION_FAILED` as Key)}
+				description={t(reasonKey)}
+				onDismiss={jira.clearActionError}
+				dismissLabel={t('common.CLOSE')}
+			/>
 		</div>
 	);
 }
@@ -117,7 +135,13 @@ function DetailsErrorRow({ jira }: JiraProps) {
 				title={t(`${KEYS}.DETAILS_ERROR_TITLE` as Key)}
 				description={t(reasonKey)}
 				actions={
-					<Button type="button" variant="outline" size="sm" onClick={jira.retryDetails} disabled={jira.isRetryingDetails}>
+					<Button
+						type="button"
+						variant="outline"
+						size="sm"
+						onClick={jira.retryDetails}
+						disabled={jira.isRetryingDetails}
+					>
 						{t('notifications.RETRY')}
 					</Button>
 				}
@@ -140,7 +164,14 @@ function JiraConnectRow({ jira, canConnect }: JiraProps & Readonly<{ canConnect:
 					{note}
 				</span>
 			</div>
-			<Button type="button" onClick={jira.connect} disabled={!canConnect || isConnecting} aria-describedby={noteId} aria-busy={isConnecting || undefined} className="shrink-0">
+			<Button
+				type="button"
+				onClick={jira.connect}
+				disabled={!canConnect || isConnecting}
+				aria-describedby={noteId}
+				aria-busy={isConnecting || undefined}
+				className="shrink-0"
+			>
 				{isConnecting ? t(`${KEYS}.CONNECTING` as Key) : t(`${KEYS}.CONNECT` as Key)}
 			</Button>
 		</div>
@@ -156,11 +187,24 @@ function JiraFacts({ jira }: JiraProps) {
 	return (
 		<div className={cn(ROW_DIVIDER, 'px-4 py-3')}>
 			<dl className="grid min-w-0 grid-cols-[minmax(0,7.5rem)_minmax(0,1fr)] gap-x-4 gap-y-1.5">
-				{connection.accountName && <FactRow label={t(`${KEYS}.FACT_ACCOUNT` as Key)} value={connection.accountName} />}
+				{connection.accountName && (
+					<FactRow label={t(`${KEYS}.FACT_ACCOUNT` as Key)} value={connection.accountName} />
+				)}
 				{site && <FactRow label={t(`${KEYS}.FACT_SITE` as Key)} value={site} />}
-				{connection.createdAt && <FactRow label={t(`${KEYS}.FACT_CONNECTED` as Key)} value={formatDay(connection.createdAt, locale)} />}
-				<FactRow label={t(`${KEYS}.FACT_MAPPINGS` as Key)} value={t(`${KEYS}.FACT_MAPPINGS_VALUE` as Key, { count: jira.mappings.length })} />
-				<FactRow label={t(`${KEYS}.FACT_WEBHOOKS` as Key)} value={jira.webhooks ? t(`${KEYS}.WEBHOOKS_ON` as Key) : t(`${KEYS}.WEBHOOKS_OFF` as Key)} />
+				{connection.createdAt && (
+					<FactRow
+						label={t(`${KEYS}.FACT_CONNECTED` as Key)}
+						value={formatDay(connection.createdAt, locale)}
+					/>
+				)}
+				<FactRow
+					label={t(`${KEYS}.FACT_MAPPINGS` as Key)}
+					value={t(`${KEYS}.FACT_MAPPINGS_VALUE` as Key, { count: jira.mappings.length })}
+				/>
+				<FactRow
+					label={t(`${KEYS}.FACT_WEBHOOKS` as Key)}
+					value={jira.webhooks ? t(`${KEYS}.WEBHOOKS_ON` as Key) : t(`${KEYS}.WEBHOOKS_OFF` as Key)}
+				/>
 			</dl>
 		</div>
 	);
@@ -185,7 +229,15 @@ function ChoiceSelect({
 	placeholder,
 	id,
 	testId
-}: Readonly<{ value: string; onChange: (next: string) => void; disabled: boolean; options: ReadonlyArray<{ value: string; label: string }>; placeholder: string; id?: string; testId?: string }>) {
+}: Readonly<{
+	value: string;
+	onChange: (next: string) => void;
+	disabled: boolean;
+	options: ReadonlyArray<{ value: string; label: string }>;
+	placeholder: string;
+	id?: string;
+	testId?: string;
+}>) {
 	return (
 		<Select value={value} onValueChange={onChange} disabled={disabled}>
 			<SelectTrigger id={id} className={SELECT_TRIGGER} data-testid={testId}>
@@ -194,7 +246,12 @@ function ChoiceSelect({
 			<SelectContent align="start" className={SELECT_CONTENT}>
 				<SelectGroup>
 					{options.map((option) => (
-						<SelectItem key={option.value} value={option.value} textValue={option.label} className="text-[13px]">
+						<SelectItem
+							key={option.value}
+							value={option.value}
+							textValue={option.label}
+							className="text-[13px]"
+						>
 							{option.label}
 						</SelectItem>
 					))}
@@ -204,7 +261,12 @@ function ChoiceSelect({
 	);
 }
 
-function DirectionSelect({ value, onChange, disabled, id }: Readonly<{ value: TJiraDirection; onChange: (next: TJiraDirection) => void; disabled: boolean; id?: string }>) {
+function DirectionSelect({
+	value,
+	onChange,
+	disabled,
+	id
+}: Readonly<{ value: TJiraDirection; onChange: (next: TJiraDirection) => void; disabled: boolean; id?: string }>) {
 	const t = useTranslations();
 	return (
 		<Select value={value} onValueChange={(next) => onChange(next as TJiraDirection)} disabled={disabled}>
@@ -224,7 +286,21 @@ function DirectionSelect({ value, onChange, disabled, id }: Readonly<{ value: TJ
 	);
 }
 
-function LookupNote({ isLoading, error, retry, isEmpty, empty, loading }: Readonly<{ isLoading: boolean; error: unknown; retry: () => void; isEmpty: boolean; empty: string; loading: string }>) {
+function LookupNote({
+	isLoading,
+	error,
+	retry,
+	isEmpty,
+	empty,
+	loading
+}: Readonly<{
+	isLoading: boolean;
+	error: unknown;
+	retry: () => void;
+	isEmpty: boolean;
+	empty: string;
+	loading: string;
+}>) {
 	const t = useTranslations();
 	if (isLoading) return <span className="text-xs text-muted-foreground">{loading}</span>;
 	if (error) {
@@ -251,7 +327,12 @@ function SiteChoiceRow({ jira, required, onDone }: JiraProps & Readonly<{ requir
 	const sites = useJiraSites(jira.integrationId);
 	const [choice, setChoice] = useState(() => jira.connection?.cloudId ?? '');
 	const isSaving = jira.pending.kind === 'site';
-	const canSave = Boolean(choice) && choice !== jira.connection?.cloudId && jira.pending.kind === null && !sites.isLoading && !sites.error;
+	const canSave =
+		Boolean(choice) &&
+		choice !== jira.connection?.cloudId &&
+		jira.pending.kind === null &&
+		!sites.isLoading &&
+		!sites.error;
 
 	const save = async () => {
 		try {
@@ -265,7 +346,9 @@ function SiteChoiceRow({ jira, required, onDone }: JiraProps & Readonly<{ requir
 	return (
 		<div className={cn(ROW_DIVIDER, 'flex flex-col gap-3 px-4 py-3')} data-testid="jira-site-choice">
 			<span className={SETTINGS_ROW_LABEL}>{t(`${KEYS}.SITE_TITLE` as Key)}</span>
-			<span className={SETTINGS_ROW_DESCRIPTION}>{required ? t(`${KEYS}.SITE_REQUIRED` as Key) : t(`${KEYS}.SITE_CHANGE_HINT` as Key)}</span>
+			<span className={SETTINGS_ROW_DESCRIPTION}>
+				{required ? t(`${KEYS}.SITE_REQUIRED` as Key) : t(`${KEYS}.SITE_CHANGE_HINT` as Key)}
+			</span>
 			<label className="flex flex-col gap-1 text-xs text-muted-foreground" htmlFor={selectId}>
 				{t(`${KEYS}.SITE_LABEL` as Key)}
 				<ChoiceSelect
@@ -273,14 +356,31 @@ function SiteChoiceRow({ jira, required, onDone }: JiraProps & Readonly<{ requir
 					value={choice}
 					onChange={setChoice}
 					disabled={isSaving || sites.isLoading}
-					options={sites.items.map((site) => ({ value: site.id, label: site.url ? `${site.name} · ${site.url}` : site.name }))}
+					options={sites.items.map((site) => ({
+						value: site.id,
+						label: site.url ? `${site.name} · ${site.url}` : site.name
+					}))}
 					placeholder={t(`${KEYS}.SITE_PLACEHOLDER` as Key)}
 					testId="jira-site"
 				/>
-				<LookupNote isLoading={sites.isLoading} error={sites.error} retry={sites.retry} isEmpty={!sites.items.length} empty={t(`${KEYS}.NO_SITES` as Key)} loading={t(`${KEYS}.SITES_LOADING` as Key)} />
+				<LookupNote
+					isLoading={sites.isLoading}
+					error={sites.error}
+					retry={sites.retry}
+					isEmpty={!sites.items.length}
+					empty={t(`${KEYS}.NO_SITES` as Key)}
+					loading={t(`${KEYS}.SITES_LOADING` as Key)}
+				/>
 			</label>
 			<div className="flex flex-wrap gap-2">
-				<Button type="button" size="sm" onClick={() => void save()} disabled={!canSave} aria-busy={isSaving || undefined} data-testid="jira-site-save">
+				<Button
+					type="button"
+					size="sm"
+					onClick={() => void save()}
+					disabled={!canSave}
+					aria-busy={isSaving || undefined}
+					data-testid="jira-site-save"
+				>
 					{isSaving ? t(`${KEYS}.SAVING` as Key) : t(`${KEYS}.SITE_SAVE` as Key)}
 				</Button>
 				{!required && onDone && (
@@ -316,9 +416,23 @@ function WebhookRow({ jira }: JiraProps) {
 	const offerRegister = Boolean(connection.webhookError) || (!connection.webhookExpiresAt && needsOne);
 	return (
 		<div className={cn(ROW_DIVIDER, 'flex flex-wrap items-center gap-3 px-4 py-3')} data-testid="jira-webhook">
-			<p className={cn('min-w-0 flex-1 text-[13px] text-pretty', tone === 'error' ? 'text-destructive-ink' : 'text-muted-foreground')}>{text}</p>
+			<p
+				className={cn(
+					'min-w-0 flex-1 text-[13px] text-pretty',
+					tone === 'error' ? 'text-destructive-ink' : 'text-muted-foreground'
+				)}
+			>
+				{text}
+			</p>
 			{offerRegister && (
-				<Button type="button" size="sm" variant="outline" disabled={jira.pending.kind !== null} aria-busy={isRegistering || undefined} onClick={() => void jira.registerWebhook().catch(() => undefined)}>
+				<Button
+					type="button"
+					size="sm"
+					variant="outline"
+					disabled={jira.pending.kind !== null}
+					aria-busy={isRegistering || undefined}
+					onClick={() => void jira.registerWebhook().catch(() => undefined)}
+				>
 					{t(`${KEYS}.WEBHOOK_REGISTER` as Key)}
 				</Button>
 			)}
@@ -326,15 +440,35 @@ function WebhookRow({ jira }: JiraProps) {
 	);
 }
 
-function CategorySelect({ category, value, options, disabled, onChange }: Readonly<{ category: TJiraStatusCategory; value: string; options: readonly { name: string }[]; disabled: boolean; onChange: (next: string) => void }>) {
+function CategorySelect({
+	category,
+	value,
+	options,
+	disabled,
+	onChange
+}: Readonly<{
+	category: TJiraStatusCategory;
+	value: string;
+	options: readonly { name: string }[];
+	disabled: boolean;
+	onChange: (next: string) => void;
+}>) {
 	const t = useTranslations();
 	const id = useId();
 	const match = matchStatusName(value, options);
 	return (
-		<label className="flex flex-col gap-1 text-xs text-muted-foreground" htmlFor={id} data-testid={`jira-category-${category}`}>
+		<label
+			className="flex flex-col gap-1 text-xs text-muted-foreground"
+			htmlFor={id}
+			data-testid={`jira-category-${category}`}
+		>
 			{t(`${KEYS}.CATEGORY_${category}` as Key)}
 			<Select value={match?.name ?? value} onValueChange={onChange} disabled={disabled}>
-				<SelectTrigger id={id} className={cn(STATUS_SELECT_TRIGGER, !match && 'border-destructive-ink')} aria-invalid={!match || undefined}>
+				<SelectTrigger
+					id={id}
+					className={cn(STATUS_SELECT_TRIGGER, !match && 'border-destructive-ink')}
+					aria-invalid={!match || undefined}
+				>
 					<SelectValue placeholder={t(`${KEYS}.STATUS_MAP_PLACEHOLDER` as Key)} />
 				</SelectTrigger>
 				<SelectContent align="start" className={SELECT_CONTENT}>
@@ -345,7 +479,12 @@ function CategorySelect({ category, value, options, disabled, onChange }: Readon
 							</SelectItem>
 						)}
 						{options.map((option) => (
-							<SelectItem key={option.name} value={option.name} textValue={option.name} className="text-[13px]">
+							<SelectItem
+								key={option.name}
+								value={option.name}
+								textValue={option.name}
+								className="text-[13px]"
+							>
 								{option.name}
 							</SelectItem>
 						))}
@@ -356,19 +495,45 @@ function CategorySelect({ category, value, options, disabled, onChange }: Readon
 	);
 }
 
-function JiraStatusSelect({ status, value, options, disabled, onChange }: Readonly<{ status: IJiraStatusDefinition; value: string; options: readonly { name: string }[]; disabled: boolean; onChange: (next: string) => void }>) {
+function JiraStatusSelect({
+	status,
+	value,
+	options,
+	disabled,
+	onChange
+}: Readonly<{
+	status: IJiraStatusDefinition;
+	value: string;
+	options: readonly { name: string }[];
+	disabled: boolean;
+	onChange: (next: string) => void;
+}>) {
 	const t = useTranslations();
 	const id = useId();
 	const byCategory = value === STATUS_BY_CATEGORY;
 	const match = byCategory ? null : matchStatusName(value, options);
 	const invalid = !byCategory && !match;
 	const category = categoryOfStatus(status);
-	const byCategoryLabel = category ? t(`${KEYS}.STATUS_BY_CATEGORY_NAMED` as Key, { category: t(`${KEYS}.CATEGORY_${category}` as Key) }) : t(`${KEYS}.STATUS_BY_CATEGORY` as Key);
+	const byCategoryLabel = category
+		? t(`${KEYS}.STATUS_BY_CATEGORY_NAMED` as Key, { category: t(`${KEYS}.CATEGORY_${category}` as Key) })
+		: t(`${KEYS}.STATUS_BY_CATEGORY` as Key);
 	return (
-		<label className="flex flex-col gap-1 text-xs text-muted-foreground" htmlFor={id} data-testid={`jira-status-${status.id}`}>
+		<label
+			className="flex flex-col gap-1 text-xs text-muted-foreground"
+			htmlFor={id}
+			data-testid={`jira-status-${status.id}`}
+		>
 			{status.name}
-			<Select value={byCategory ? STATUS_BY_CATEGORY : (match?.name ?? value)} onValueChange={onChange} disabled={disabled}>
-				<SelectTrigger id={id} className={cn(STATUS_SELECT_TRIGGER, invalid && 'border-destructive-ink')} aria-invalid={invalid || undefined}>
+			<Select
+				value={byCategory ? STATUS_BY_CATEGORY : (match?.name ?? value)}
+				onValueChange={onChange}
+				disabled={disabled}
+			>
+				<SelectTrigger
+					id={id}
+					className={cn(STATUS_SELECT_TRIGGER, invalid && 'border-destructive-ink')}
+					aria-invalid={invalid || undefined}
+				>
 					<SelectValue />
 				</SelectTrigger>
 				<SelectContent align="start" className={SELECT_CONTENT}>
@@ -382,7 +547,12 @@ function JiraStatusSelect({ status, value, options, disabled, onChange }: Readon
 							</SelectItem>
 						)}
 						{options.map((option) => (
-							<SelectItem key={option.name} value={option.name} textValue={option.name} className="text-[13px]">
+							<SelectItem
+								key={option.name}
+								value={option.name}
+								textValue={option.name}
+								className="text-[13px]"
+							>
 								{option.name}
 							</SelectItem>
 						))}
@@ -410,14 +580,23 @@ function MapEditor({
 	onChange,
 	disabled,
 	statuses
-}: Readonly<{ detail: JiraProjectDetailLookup; draft: JiraMapDraft; onChange: (next: JiraMapDraft) => void; disabled: boolean; statuses: LinearStatusOptions }>) {
+}: Readonly<{
+	detail: JiraProjectDetailLookup;
+	draft: JiraMapDraft;
+	onChange: (next: JiraMapDraft) => void;
+	disabled: boolean;
+	statuses: LinearStatusOptions;
+}>) {
 	const t = useTranslations();
 	const projectStatuses = detail.detail?.statuses ?? [];
 	const issueTypes = detail.detail?.issueTypes ?? [];
 	const checking = statuses.isLoading || !!statuses.error;
 	const invalidKinds = checking ? [] : invalidCategories(draft.categories, statuses.options);
 	const invalidStatuses = checking ? [] : invalidStatusFields(draft.fields, statuses.options);
-	const invalidValues = [...invalidKinds.map((category) => draft.categories[category] || '—'), ...invalidStatuses.map((statusId) => draft.fields[statusId])];
+	const invalidValues = [
+		...invalidKinds.map((category) => draft.categories[category] || '—'),
+		...invalidStatuses.map((statusId) => draft.fields[statusId])
+	];
 	const toggleIssueType = (issueTypeId: string, checked: boolean) => {
 		const rest = draft.issueTypeIds.filter((id) => id !== issueTypeId);
 		onChange({ ...draft, issueTypeIds: checked ? [...rest, issueTypeId] : rest });
@@ -433,7 +612,13 @@ function MapEditor({
 						title={t(`${KEYS}.STATUSES_ERROR` as Key)}
 						description={t(errorReasonKeyOf(statuses.error) as Key)}
 						actions={
-							<Button type="button" variant="outline" size="sm" onClick={statuses.retry} disabled={statuses.isLoading}>
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								onClick={statuses.retry}
+								disabled={statuses.isLoading}
+							>
 								{t('notifications.RETRY')}
 							</Button>
 						}
@@ -448,7 +633,9 @@ function MapEditor({
 									value={draft.categories[category]}
 									options={statuses.options}
 									disabled={disabled || statuses.isLoading}
-									onChange={(next) => onChange({ ...draft, categories: { ...draft.categories, [category]: next } })}
+									onChange={(next) =>
+										onChange({ ...draft, categories: { ...draft.categories, [category]: next } })
+									}
 								/>
 							))}
 						</div>
@@ -462,7 +649,9 @@ function MapEditor({
 						/>
 						{projectStatuses.length > 0 && (
 							<>
-								<span className="text-xs text-muted-foreground">{t(`${KEYS}.STATUS_OVERRIDES_HINT` as Key)}</span>
+								<span className="text-xs text-muted-foreground">
+									{t(`${KEYS}.STATUS_OVERRIDES_HINT` as Key)}
+								</span>
 								<div className="grid gap-2 sm:grid-cols-3">
 									{projectStatuses.map((status) => (
 										<JiraStatusSelect
@@ -471,7 +660,9 @@ function MapEditor({
 											value={draft.fields[status.id] ?? STATUS_BY_CATEGORY}
 											options={statuses.options}
 											disabled={disabled || statuses.isLoading}
-											onChange={(next) => onChange({ ...draft, fields: { ...draft.fields, [status.id]: next } })}
+											onChange={(next) =>
+												onChange({ ...draft, fields: { ...draft.fields, [status.id]: next } })
+											}
 										/>
 									))}
 								</div>
@@ -479,7 +670,9 @@ function MapEditor({
 						)}
 					</>
 				)}
-				{statuses.isLoading && <span className="text-xs text-muted-foreground">{t(`${KEYS}.STATUSES_LOADING` as Key)}</span>}
+				{statuses.isLoading && (
+					<span className="text-xs text-muted-foreground">{t(`${KEYS}.STATUSES_LOADING` as Key)}</span>
+				)}
 				{invalidValues.length > 0 && (
 					<span className="text-xs text-destructive-ink" role="alert">
 						{t(`${KEYS}.STATUS_MAP_INVALID` as Key, { values: invalidValues.join(', ') })}
@@ -492,7 +685,11 @@ function MapEditor({
 					<span className="text-xs text-muted-foreground">{t(`${KEYS}.ISSUE_TYPES_HINT` as Key)}</span>
 					<div className="flex flex-wrap gap-x-4 gap-y-2">
 						{issueTypes.map((issueType) => (
-							<label key={issueType.id} className="flex items-center gap-2 text-[13px] text-foreground" data-testid={`jira-issue-type-${issueType.id}`}>
+							<label
+								key={issueType.id}
+								className="flex items-center gap-2 text-[13px] text-foreground"
+								data-testid={`jira-issue-type-${issueType.id}`}
+							>
 								<Checkbox
 									checked={draft.issueTypeIds.includes(issueType.id)}
 									disabled={disabled}
@@ -528,7 +725,8 @@ function keptIssueTypeIds(draft: JiraMapDraft, detail: JiraProjectDetailLookup):
 }
 
 function jiraProjectLabel(mapping: Pick<IJiraMapping, 'jiraProjectName' | 'jiraProjectKey' | 'jiraProjectId'>): string {
-	if (mapping.jiraProjectName && mapping.jiraProjectKey) return `${mapping.jiraProjectName} (${mapping.jiraProjectKey})`;
+	if (mapping.jiraProjectName && mapping.jiraProjectKey)
+		return `${mapping.jiraProjectName} (${mapping.jiraProjectKey})`;
 	return mapping.jiraProjectName || mapping.jiraProjectKey || mapping.jiraProjectId;
 }
 
@@ -543,11 +741,16 @@ function MappingRow({ jira, mapping }: JiraProps & Readonly<{ mapping: IJiraMapp
 	const isPending = jira.pending.mappingId === mapping.id;
 	const anyPending = jira.pending.kind !== null;
 	const projectName = jira.projects.find((project) => project.id === mapping.projectId)?.name ?? '';
-	const storedCategories = useMemo(() => effectiveCategoryMap(jira.defaultStatusMap, mapping.statusMap), [jira.defaultStatusMap, mapping.statusMap]);
-	const storedInvalid = statuses.isLoading || statuses.error ? [] : invalidCategories(storedCategories, statuses.options);
+	const storedCategories = useMemo(
+		() => effectiveCategoryMap(jira.defaultStatusMap, mapping.statusMap),
+		[jira.defaultStatusMap, mapping.statusMap]
+	);
+	const storedInvalid =
+		statuses.isLoading || statuses.error ? [] : invalidCategories(storedCategories, statuses.options);
 	const overrides = statusOverrideCount(mapping.statusMap);
 	let lastImport = t(`${KEYS}.LAST_IMPORT_NEVER` as Key);
-	if (mapping.lastImportedAt) lastImport = t(`${KEYS}.LAST_IMPORT` as Key, { date: formatDay(mapping.lastImportedAt, locale) });
+	if (mapping.lastImportedAt)
+		lastImport = t(`${KEYS}.LAST_IMPORT` as Key, { date: formatDay(mapping.lastImportedAt, locale) });
 	// The status fields follow the project's statuses once they are read; the person's choices win over the stored map.
 	const current = useMemo<JiraMapDraft>(
 		() => ({
@@ -568,7 +771,10 @@ function MappingRow({ jira, mapping }: JiraProps & Readonly<{ mapping: IJiraMapp
 	};
 	const saveMap = async () => {
 		try {
-			await jira.updateMapping(mapping.id, { statusMap: statusMapOf(current.categories, current.fields), issueTypeIds: keptIssueTypeIds(current, detail) });
+			await jira.updateMapping(mapping.id, {
+				statusMap: statusMapOf(current.categories, current.fields),
+				issueTypeIds: keptIssueTypeIds(current, detail)
+			});
 			stopEditing();
 		} catch {
 			// The hook keeps the error for the page.
@@ -583,16 +789,24 @@ function MappingRow({ jira, mapping }: JiraProps & Readonly<{ mapping: IJiraMapp
 					<span className={SETTINGS_ROW_DESCRIPTION}>
 						{t(`${KEYS}.MAPPED_TO` as Key, { project: projectName })} · {lastImport}
 						{overrides > 0 && <> · {t(`${KEYS}.STATUSES_MAPPED` as Key, { count: overrides })}</>}
-						{mapping.issueTypeIds?.length > 0 && <> · {t(`${KEYS}.ISSUE_TYPES_COUNT` as Key, { count: mapping.issueTypeIds.length })}</>}
+						{mapping.issueTypeIds?.length > 0 && (
+							<> · {t(`${KEYS}.ISSUE_TYPES_COUNT` as Key, { count: mapping.issueTypeIds.length })}</>
+						)}
 					</span>
 					{mapping.lastError && <span className="text-xs text-destructive-ink">{mapping.lastError}</span>}
 					{!editing && storedInvalid.length > 0 && (
 						<span className="text-xs text-destructive-ink" role="alert">
-							{t(`${KEYS}.STATUS_MAP_INVALID` as Key, { values: storedInvalid.map((category) => storedCategories[category] || '—').join(', ') })}
+							{t(`${KEYS}.STATUS_MAP_INVALID` as Key, {
+								values: storedInvalid.map((category) => storedCategories[category] || '—').join(', ')
+							})}
 						</span>
 					)}
 				</div>
-				<DirectionSelect value={mapping.direction} onChange={(direction) => void jira.updateMapping(mapping.id, { direction }).catch(() => undefined)} disabled={anyPending} />
+				<DirectionSelect
+					value={mapping.direction}
+					onChange={(direction) => void jira.updateMapping(mapping.id, { direction }).catch(() => undefined)}
+					disabled={anyPending}
+				/>
 				<label className="flex items-center gap-2 text-[13px] text-foreground" htmlFor={switchId}>
 					<SettingsSwitch
 						id={switchId}
@@ -600,14 +814,22 @@ function MappingRow({ jira, mapping }: JiraProps & Readonly<{ mapping: IJiraMapp
 						pending={isPending && jira.pending.kind === 'update'}
 						disabled={anyPending}
 						ariaLabel={t(`${KEYS}.SYNC_LABEL` as Key)}
-						onCheckedChange={(syncEnabled) => void jira.updateMapping(mapping.id, { syncEnabled }).catch(() => undefined)}
+						onCheckedChange={(syncEnabled) =>
+							void jira.updateMapping(mapping.id, { syncEnabled }).catch(() => undefined)
+						}
 					/>
 					{t(`${KEYS}.SYNC_LABEL` as Key)}
 				</label>
 			</div>
 			{editing && (
 				<>
-					<MapEditor detail={detail} draft={current} onChange={setDraft} disabled={anyPending} statuses={statuses} />
+					<MapEditor
+						detail={detail}
+						draft={current}
+						onChange={setDraft}
+						disabled={anyPending}
+						statuses={statuses}
+					/>
 					<div className="flex flex-wrap gap-2">
 						<Button
 							type="button"
@@ -626,10 +848,23 @@ function MappingRow({ jira, mapping }: JiraProps & Readonly<{ mapping: IJiraMapp
 				</>
 			)}
 			<div className="flex flex-wrap gap-2">
-				<Button type="button" size="sm" variant="outline" disabled={anyPending} aria-busy={(isPending && jira.pending.kind === 'import') || undefined} onClick={() => void jira.importNow(mapping.id, false).catch(() => undefined)}>
+				<Button
+					type="button"
+					size="sm"
+					variant="outline"
+					disabled={anyPending}
+					aria-busy={(isPending && jira.pending.kind === 'import') || undefined}
+					onClick={() => void jira.importNow(mapping.id, false).catch(() => undefined)}
+				>
 					{t(`${KEYS}.IMPORT_CHANGES` as Key)}
 				</Button>
-				<Button type="button" size="sm" variant="ghost" disabled={anyPending} onClick={() => void jira.importNow(mapping.id, true).catch(() => undefined)}>
+				<Button
+					type="button"
+					size="sm"
+					variant="ghost"
+					disabled={anyPending}
+					onClick={() => void jira.importNow(mapping.id, true).catch(() => undefined)}
+				>
 					{t(`${KEYS}.IMPORT_ALL` as Key)}
 				</Button>
 				{!editing && (
@@ -637,7 +872,14 @@ function MappingRow({ jira, mapping }: JiraProps & Readonly<{ mapping: IJiraMapp
 						{t(`${KEYS}.STATUS_MAP_EDIT` as Key)}
 					</Button>
 				)}
-				<Button type="button" size="sm" variant="ghost" className="text-destructive-ink" disabled={anyPending} onClick={() => void jira.removeMapping(mapping.id).catch(() => undefined)}>
+				<Button
+					type="button"
+					size="sm"
+					variant="ghost"
+					className="text-destructive-ink"
+					disabled={anyPending}
+					onClick={() => void jira.removeMapping(mapping.id).catch(() => undefined)}
+				>
 					{t(`${KEYS}.REMOVE_MAPPING` as Key)}
 				</Button>
 			</div>
@@ -670,7 +912,8 @@ function AddMappingRow({ jira }: JiraProps) {
 		[detail.detail?.statuses, draft, jira.defaultStatusMap]
 	);
 	const isSaving = jira.pending.kind === 'create';
-	const canSave = Boolean(jiraProject && project) && jira.pending.kind === null && canSaveDraft(current, detail, statuses);
+	const canSave =
+		Boolean(jiraProject && project) && jira.pending.kind === null && canSaveDraft(current, detail, statuses);
 
 	const chooseJiraProject = (next: string) => {
 		setJiraProject(next);
@@ -710,7 +953,10 @@ function AddMappingRow({ jira }: JiraProps) {
 						value={jiraProject}
 						onChange={chooseJiraProject}
 						disabled={isSaving || jiraProjects.isLoading}
-						options={unmapped.map((item) => ({ value: item.id, label: item.key ? `${item.name} (${item.key})` : item.name }))}
+						options={unmapped.map((item) => ({
+							value: item.id,
+							label: item.key ? `${item.name} (${item.key})` : item.name
+						}))}
 						placeholder={t(`${KEYS}.JIRA_PROJECT_PLACEHOLDER` as Key)}
 						testId="jira-jira-project"
 					/>
@@ -740,9 +986,24 @@ function AddMappingRow({ jira }: JiraProps) {
 					<DirectionSelect id={directionId} value={direction} onChange={setDirection} disabled={isSaving} />
 				</label>
 			</div>
-			{jiraProject && <MapEditor detail={detail} draft={current} onChange={setDraft} disabled={isSaving} statuses={statuses} />}
+			{jiraProject && (
+				<MapEditor
+					detail={detail}
+					draft={current}
+					onChange={setDraft}
+					disabled={isSaving}
+					statuses={statuses}
+				/>
+			)}
 			<div>
-				<Button type="button" size="sm" onClick={() => void save()} disabled={!canSave} aria-busy={isSaving || undefined} data-testid="jira-add-mapping-save">
+				<Button
+					type="button"
+					size="sm"
+					onClick={() => void save()}
+					disabled={!canSave}
+					aria-busy={isSaving || undefined}
+					data-testid="jira-add-mapping-save"
+				>
 					{isSaving ? t(`${KEYS}.SAVING` as Key) : t(`${KEYS}.ADD_MAPPING` as Key)}
 				</Button>
 			</div>
@@ -760,7 +1021,11 @@ function RunReport({ run }: Readonly<{ run: IJiraRun }>) {
 	const more = failures.length - named.length + (report.moreFailures ?? 0);
 	return (
 		<span className="min-w-0 basis-full text-xs text-muted-foreground" data-testid={`jira-run-report-${run.id}`}>
-			{t(`${KEYS}.RUN_REPORT` as Key, { issues: report.issuesRead, comments: report.comments, links: report.links })}
+			{t(`${KEYS}.RUN_REPORT` as Key, {
+				issues: report.issuesRead,
+				comments: report.comments,
+				links: report.links
+			})}
 			{!report.complete && run.status !== 'running' && <> · {t(`${KEYS}.RUN_INCOMPLETE` as Key)}</>}
 			{named.length > 0 && (
 				<span className="text-destructive-ink">
@@ -777,7 +1042,12 @@ function RunLine({ run, onShowConflicts }: Readonly<{ run: IJiraRun; onShowConfl
 	const t = useTranslations();
 	const locale = useLocale();
 	const when = run.startedAt ? formatDay(run.startedAt, locale) : '';
-	const counts = t(`${KEYS}.RUN_COUNTS` as Key, { created: run.createdCount, updated: run.updatedCount, skipped: run.skippedCount, failed: run.failedCount });
+	const counts = t(`${KEYS}.RUN_COUNTS` as Key, {
+		created: run.createdCount,
+		updated: run.updatedCount,
+		skipped: run.skippedCount,
+		failed: run.failedCount
+	});
 	let badge: 'warning' | 'info' | 'success' = 'success';
 	if (run.status === 'failed') badge = 'warning';
 	else if (run.status === 'running') badge = 'info';
@@ -790,7 +1060,10 @@ function RunLine({ run, onShowConflicts }: Readonly<{ run: IJiraRun; onShowConfl
 			{run.conflictCount ? (
 				<button
 					type="button"
-					className={cn(badgeVariants({ variant: 'warning' }), 'cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring/40')}
+					className={cn(
+						badgeVariants({ variant: 'warning' }),
+						'cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring/40'
+					)}
 					title={t('settings.integrations.conflicts.SHOW_RUN_CONFLICTS')}
 					onClick={() => onShowConflicts(run.id)}
 				>
@@ -798,7 +1071,9 @@ function RunLine({ run, onShowConflicts }: Readonly<{ run: IJiraRun; onShowConfl
 				</button>
 			) : null}
 			<RunReport run={run} />
-			{run.lastError && <span className="min-w-0 basis-full truncate text-xs text-destructive-ink">{run.lastError}</span>}
+			{run.lastError && (
+				<span className="min-w-0 basis-full truncate text-xs text-destructive-ink">{run.lastError}</span>
+			)}
 		</li>
 	);
 }
@@ -819,7 +1094,11 @@ function RunsRow({ jira, onShowConflicts }: JiraProps & Readonly<{ onShowConflic
 }
 
 /** What a connected panel shows once its site is chosen: the site, the webhook, the mappings, the conflicts and the runs. */
-function JiraDetails({ jira, conflictsRef, conflictFilter }: JiraProps & Readonly<{ conflictsRef: RefObject<HTMLDivElement | null>; conflictFilter: RunConflictFilter }>) {
+function JiraDetails({
+	jira,
+	conflictsRef,
+	conflictFilter
+}: JiraProps & Readonly<{ conflictsRef: RefObject<HTMLDivElement | null>; conflictFilter: RunConflictFilter }>) {
 	const t = useTranslations();
 	const [changingSite, setChangingSite] = useState(false);
 	const connection = jira.connection;
@@ -830,7 +1109,14 @@ function JiraDetails({ jira, conflictsRef, conflictFilter }: JiraProps & Readonl
 				<SiteChoiceRow jira={jira} required={false} onDone={() => setChangingSite(false)} />
 			) : (
 				<div className={cn(ROW_DIVIDER, 'flex justify-end px-4 py-2')}>
-					<Button type="button" size="sm" variant="ghost" disabled={jira.pending.kind !== null} onClick={() => setChangingSite(true)} data-testid="jira-site-change">
+					<Button
+						type="button"
+						size="sm"
+						variant="ghost"
+						disabled={jira.pending.kind !== null}
+						onClick={() => setChangingSite(true)}
+						data-testid="jira-site-change"
+					>
 						{t(`${KEYS}.SITE_CHANGE` as Key)}
 					</Button>
 				</div>
@@ -841,8 +1127,19 @@ function JiraDetails({ jira, conflictsRef, conflictFilter }: JiraProps & Readonl
 			))}
 			{jira.canManageMappings && <AddMappingRow jira={jira} />}
 			{connection && (
-				<div ref={conflictsRef} tabIndex={-1} className="outline-none" aria-label={t('settings.integrations.conflicts.TITLE')}>
-					<IntegrationConflictsRow provider="jira" providerName={t(`${KEYS}.TITLE` as Key)} integrationId={connection.id} runId={conflictFilter.runId} onClearRun={conflictFilter.clearRun} />
+				<div
+					ref={conflictsRef}
+					tabIndex={-1}
+					className="outline-none"
+					aria-label={t('settings.integrations.conflicts.TITLE')}
+				>
+					<IntegrationConflictsRow
+						provider="jira"
+						providerName={t(`${KEYS}.TITLE` as Key)}
+						integrationId={connection.id}
+						runId={conflictFilter.runId}
+						onClearRun={conflictFilter.clearRun}
+					/>
 				</div>
 			)}
 			<RunsRow jira={jira} onShowConflicts={conflictFilter.showRun} />
@@ -872,14 +1169,30 @@ function JiraConnected({ jira, onDisconnect }: JiraProps & Readonly<{ onDisconne
 	return (
 		<SettingsSurface>
 			<div>
-				<button type="button" className={HEADER_BUTTON} aria-expanded={isOpen} aria-controls={panelId} onClick={() => setIsOpen((open) => !open)}>
+				<button
+					type="button"
+					className={HEADER_BUTTON}
+					aria-expanded={isOpen}
+					aria-controls={panelId}
+					onClick={() => setIsOpen((open) => !open)}
+				>
 					<JiraTile />
 					<span className="flex min-w-0 flex-1 flex-col gap-0.5">
 						<span className={SETTINGS_ROW_LABEL}>{t(`${KEYS}.TITLE` as Key)}</span>
 						<span className={cn(SETTINGS_ROW_DESCRIPTION, 'truncate')}>{summary}</span>
 					</span>
-					<span className={badgeVariants({ variant: needsAttention || siteRequired ? 'warning' : 'success' })}>{stateLabel}</span>
-					<ChevronDown aria-hidden="true" className={cn('size-4 shrink-0 text-muted-foreground transition-transform duration-200', isOpen && 'rotate-180')} />
+					<span
+						className={badgeVariants({ variant: needsAttention || siteRequired ? 'warning' : 'success' })}
+					>
+						{stateLabel}
+					</span>
+					<ChevronDown
+						aria-hidden="true"
+						className={cn(
+							'size-4 shrink-0 text-muted-foreground transition-transform duration-200',
+							isOpen && 'rotate-180'
+						)}
+					/>
 				</button>
 				<div id={panelId}>
 					<AnimatedHeight>
@@ -889,7 +1202,15 @@ function JiraConnected({ jira, onDisconnect }: JiraProps & Readonly<{ onDisconne
 								<JiraFacts jira={jira} />
 								<ActionErrorRow jira={jira} />
 								<DetailsErrorRow jira={jira} />
-								{siteRequired ? <SiteChoiceRow jira={jira} required /> : <JiraDetails jira={jira} conflictsRef={conflictsRef} conflictFilter={conflictFilter} />}
+								{siteRequired ? (
+									<SiteChoiceRow jira={jira} required />
+								) : (
+									<JiraDetails
+										jira={jira}
+										conflictsRef={conflictsRef}
+										conflictFilter={conflictFilter}
+									/>
+								)}
 								<div className={ROW_DIVIDER}>
 									<DangerRow
 										label={t(`${KEYS}.DISCONNECT_LABEL` as Key)}
@@ -968,7 +1289,11 @@ export function JiraProviderSection({ jira }: JiraProps) {
 	};
 
 	return (
-		<SettingsSection id="jira" title={t(`${KEYS}.SECTION_TITLE` as Key)} description={t(`${KEYS}.SECTION_DESCRIPTION` as Key)}>
+		<SettingsSection
+			id="jira"
+			title={t(`${KEYS}.SECTION_TITLE` as Key)}
+			description={t(`${KEYS}.SECTION_DESCRIPTION` as Key)}
+		>
 			{jira.callbackError && (
 				<Notice
 					tone="error"

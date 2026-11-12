@@ -6,5 +6,8 @@ import { readRuntimeEnv } from '@/env-config';
  * Cloud sync is not loaded (`JIRA_ENABLED` off there), the page hides the provider.
  */
 export function isJiraIntegrationEnabled(): boolean {
-	return (readRuntimeEnv('NEXT_PUBLIC_INTEGRATION_JIRA_ENABLED') || process.env.NEXT_PUBLIC_INTEGRATION_JIRA_ENABLED) === 'true';
+	return (
+		(readRuntimeEnv('NEXT_PUBLIC_INTEGRATION_JIRA_ENABLED') || process.env.NEXT_PUBLIC_INTEGRATION_JIRA_ENABLED) ===
+		'true'
+	);
 }
