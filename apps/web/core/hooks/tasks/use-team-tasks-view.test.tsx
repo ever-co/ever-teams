@@ -35,6 +35,7 @@ jest.mock('@/core/hooks/organizations/projects/use-organization-projects-query',
 jest.mock('@/core/lib/utils/task-views-enabled', () => ({ isTaskViewsEnabled: () => false }));
 
 import { useTeamTasksView } from './use-team-tasks-view';
+import { DEFAULT_TEAM_TASKS_VIEW } from '@/core/lib/utils/team-tasks-view';
 
 function taskIdsOf(rows: ReturnType<typeof useTeamTasksView>['rows']) {
 	const ids: string[] = [];
@@ -94,5 +95,20 @@ describe('the rows of a view shown as a table', () => {
 		act(() => result.current.resetView());
 		expect(result.current.hasDefaultDisplay).toBe(true);
 		expect(result.current.settings.layout).toBe('table');
+	});
+
+	it("brings a saved view's own Display options back, and leaves the layout picked in the toolbar", () => {
+		const initial = {
+			settings: { ...DEFAULT_TEAM_TASKS_VIEW, layout: 'board' as const, grouping: 'priority' as const },
+			filters: {},
+			scope: 'active' as const
+		};
+		const { result } = renderHook(() => useTeamTasksView({ initial, resetKey: 'saved-view' }));
+		act(() => result.current.setLayout('calendar'));
+		act(() => result.current.setGrouping('assignee'));
+
+		act(() => result.current.resetView());
+		expect(result.current.settings.grouping).toBe('priority');
+		expect(result.current.settings.layout).toBe('calendar');
 	});
 });

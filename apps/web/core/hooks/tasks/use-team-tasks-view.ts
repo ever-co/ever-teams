@@ -328,12 +328,14 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 		(layout: TeamTasksLayout) => updateView((current) => withLayout(current, layout)),
 		[updateView]
 	);
+	// The layout is picked from the page's switch, not from Display: the reset of Display leaves it in place, on the
+	// team's tasks (back to the defaults) as on a saved view (back to its own settings).
 	const resetView = useCallback(() => {
 		if (isDetached) {
-			setMemoryView(initial?.settings ?? DEFAULT_TEAM_TASKS_VIEW);
+			const savedSettings = initial?.settings ?? DEFAULT_TEAM_TASKS_VIEW;
+			setMemoryView((current) => withLayout(savedSettings, current.layout ?? 'list'));
 			return;
 		}
-		// The layout is picked from the page's switch, not from Display: the reset of Display leaves it in place.
 		updateView((current) => withLayout(DEFAULT_TEAM_TASKS_VIEW, current.layout ?? 'list'));
 	}, [initial?.settings, isDetached, updateView]);
 
