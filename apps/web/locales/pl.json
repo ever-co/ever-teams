@@ -2698,6 +2698,14 @@
 			"PAUSE": "Wstrzymany",
 			"IDLE": "Bezczynny",
 			"SUSPENDED": "Zawieszony"
+		},
+		"notes": {
+			"ADD": "Dodaj notatki do timera",
+			"EDIT": "Edytuj notatki timera",
+			"LABEL": "Notatki",
+			"PLACEHOLDER": "Nad czym pracujesz?",
+			"HINT_BEFORE_START": "Opcjonalne. Zapisywane we wpisie przy uruchomieniu timera.",
+			"HINT_RUNNING": "Zmiany są wysyłane po zatrzymaniu timera."
 		}
 	},
 	"task": {
@@ -3125,7 +3133,8 @@
 			"navigation": "Nawigacja",
 			"settings": "Ustawienia",
 			"goTo": "Przejdź do",
-			"chat": "Czat"
+			"chat": "Czat",
+			"timer": "Timer"
 		},
 		"commands": {
 			"inviteUser": "Zaproś użytkownika",
@@ -3147,7 +3156,10 @@
 			"goToTimeAndActivity": "Przejdź do raportu czasu i aktywności",
 			"profile": "Profil",
 			"settings": "Ustawienia",
-			"newMessage": "Nowa wiadomość"
+			"newMessage": "Nowa wiadomość",
+			"startTimer": "Uruchom timer",
+			"stopTimer": "Zatrzymaj timer",
+			"addTime": "Dodaj czas"
 		},
 		"results": {
 			"recent": "Ostatnie",
@@ -3159,7 +3171,9 @@
 			"projects": "Projekty",
 			"pages": "Strony",
 			"untitledPage": "Bez tytułu",
-			"recentlyOpened": "Ostatnio otwierane"
+			"recentlyOpened": "Ostatnio otwierane",
+			"startTimerOn": "Uruchom timer dla zadania",
+			"startTimerOnTask": "Uruchom timer: {task}"
 		}
 	},
 	"modals": {
@@ -3821,7 +3835,10 @@
 			"STOPPED_TASK_SWITCH": "Timer zatrzymany, bo zmieniło się aktywne zadanie",
 			"STALE_STOPPED": "Timer zatrzymany: {stoppedAt}",
 			"STALE_STOPPED_HINT": "Działał dalej po zamknięciu aplikacji. Późniejszą pracę dodaj jako czas ręczny.",
-			"TASK_CLOSED_HINT": "Otwórz zadanie ponownie, aby rejestrować na nim czas."
+			"TASK_CLOSED_HINT": "Otwórz zadanie ponownie, aby rejestrować na nim czas.",
+			"NOTES_NOT_SAVED": "Notatki zmienione w trakcie działania timera nie zostały zapisane",
+			"NOTES_NOT_SAVED_HINT": "Wpis zachował notatki z uruchomienia. Edytuj wpis w kartach czasu pracy, aby je zmienić.",
+			"ALREADY_RUNNING_ON_TASK": "Timer już działa dla tego zadania"
 		},
 		"plans": {
 			"CREATE_FAILED": "Nie utworzono planu",

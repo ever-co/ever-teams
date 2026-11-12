@@ -2698,6 +2698,14 @@
 			"PAUSE": "已暂停",
 			"IDLE": "空闲",
 			"SUSPENDED": "已停用"
+		},
+		"notes": {
+			"ADD": "添加计时器备注",
+			"EDIT": "编辑计时器备注",
+			"LABEL": "备注",
+			"PLACEHOLDER": "您正在做什么？",
+			"HINT_BEFORE_START": "可选。计时器启动时保存到记录中。",
+			"HINT_RUNNING": "停止计时器时会发送更改。"
 		}
 	},
 	"task": {
@@ -3125,7 +3133,8 @@
 			"navigation": "导航",
 			"settings": "设置",
 			"goTo": "前往",
-			"chat": "聊天"
+			"chat": "聊天",
+			"timer": "计时器"
 		},
 		"commands": {
 			"inviteUser": "邀请用户",
@@ -3147,7 +3156,10 @@
 			"goToTimeAndActivity": "前往时间与活动报告",
 			"profile": "个人资料",
 			"settings": "设置",
-			"newMessage": "新消息"
+			"newMessage": "新消息",
+			"startTimer": "启动计时器",
+			"stopTimer": "停止计时器",
+			"addTime": "添加时间"
 		},
 		"results": {
 			"recent": "最近",
@@ -3159,7 +3171,9 @@
 			"projects": "项目",
 			"pages": "页面",
 			"untitledPage": "无标题",
-			"recentlyOpened": "最近打开"
+			"recentlyOpened": "最近打开",
+			"startTimerOn": "在任务上启动计时器",
+			"startTimerOnTask": "启动计时器：{task}"
 		}
 	},
 	"modals": {
@@ -3821,7 +3835,10 @@
 			"STOPPED_TASK_SWITCH": "您的当前任务已变更，计时器已停止",
 			"STALE_STOPPED": "计时器已停止：{stoppedAt}",
 			"STALE_STOPPED_HINT": "应用关闭后它仍在运行。之后的工作请作为手动时间添加。",
-			"TASK_CLOSED_HINT": "重新打开该任务即可为其记录时间。"
+			"TASK_CLOSED_HINT": "重新打开该任务即可为其记录时间。",
+			"NOTES_NOT_SAVED": "计时器运行期间修改的备注未保存",
+			"NOTES_NOT_SAVED_HINT": "该记录保留了启动时的备注。请在工时表中编辑该记录以进行更改。",
+			"ALREADY_RUNNING_ON_TASK": "计时器已在此任务上运行"
 		},
 		"plans": {
 			"CREATE_FAILED": "计划未创建",

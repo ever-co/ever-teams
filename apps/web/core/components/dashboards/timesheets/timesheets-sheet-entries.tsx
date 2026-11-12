@@ -21,7 +21,7 @@ import {
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { dayLabelOf } from './timesheet-day-label';
-import { LogChangeChips, ManualReasonLine } from './timesheet-log-changes';
+import { EntryNotesLine, LogChangeChips, ManualReasonLine } from './timesheet-log-changes';
 import { LOG_TYPE_LABEL_KEYS, rejectionReasonOf, type TimesheetRowHandlers } from './timesheet-log-row';
 import { TimesheetStatusChip } from './timesheet-status';
 
@@ -138,6 +138,7 @@ function SheetEntry({
 				<TimesheetStatusChip status={status} className="h-5 px-1.5" />
 				<LogChangeChips log={log} formatters={formatters} />
 			</span>
+			<EntryNotesLine log={log} />
 			<ManualReasonLine log={log} />
 			{rejectionReason && (
 				<span className="truncate text-xs text-destructive-ink">

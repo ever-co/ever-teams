@@ -11,6 +11,7 @@ import {
 	workDayOfLog
 } from '@/core/lib/utils/dashboards/timesheets';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { entryNotesOf } from '@/core/lib/utils/timer/timer-notes';
 import { STATUS_LABEL_KEYS } from './timesheet-status';
 
 type Translate = ReturnType<typeof useTranslations>;
@@ -63,9 +64,13 @@ function billableLabelOf(log: ITimeLog, t: Translate) {
 	return t('pages.timesheet.BILLABLE.NO');
 }
 
+function notesTextOf(log: ITimeLog) {
+	return entryNotesOf(log) ?? '';
+}
+
 /**
  * The logs on screen as a CSV file, one row per log in the order they started: local day, start and end in 24-hour
- * time, member, project, task, status, billable and the duration as `h:mm`. Built on the click only.
+ * time, member, project, task, status, billable, the duration as `h:mm` and the notes. Built on the click only.
  */
 export function downloadTimesheetCsv(logs: ReadonlyArray<ITimeLog>, period: Period, t: Translate) {
 	const rows = [...logs].sort((first, second) => startTimeValueOf(first) - startTimeValueOf(second));
@@ -78,7 +83,8 @@ export function downloadTimesheetCsv(logs: ReadonlyArray<ITimeLog>, period: Peri
 		{ header: t('dashboard.timesheets.COLUMNS.TASK'), valueOf: (log) => log.task?.title ?? '' },
 		{ header: t('dashboard.timesheets.COLUMNS.STATUS'), valueOf: (log) => statusLabelOf(log, t) },
 		{ header: t('dashboard.timesheets.COLUMNS.BILLABLE'), valueOf: (log) => billableLabelOf(log, t) },
-		{ header: t('dashboard.timesheets.COLUMNS.DURATION'), valueOf: durationTextOf }
+		{ header: t('dashboard.timesheets.COLUMNS.DURATION'), valueOf: durationTextOf },
+		{ header: t('common.NOTES'), valueOf: notesTextOf }
 	];
 	const fileName = periodFileNameOf(FILE_PREFIX, period.from, period.to, 'csv');
 	downloadCsv(rows, columns, fileName);

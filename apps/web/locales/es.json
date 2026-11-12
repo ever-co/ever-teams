@@ -2698,6 +2698,14 @@
 			"PAUSE": "En pausa",
 			"IDLE": "Inactivo",
 			"SUSPENDED": "Suspendido"
+		},
+		"notes": {
+			"ADD": "Añadir notas al temporizador",
+			"EDIT": "Editar las notas del temporizador",
+			"LABEL": "Notas",
+			"PLACEHOLDER": "¿En qué estás trabajando?",
+			"HINT_BEFORE_START": "Opcional. Se guardan en la entrada al iniciar el temporizador.",
+			"HINT_RUNNING": "Los cambios se envían al detener el temporizador."
 		}
 	},
 	"task": {
@@ -3125,7 +3133,8 @@
 			"navigation": "Navegación",
 			"settings": "Ajustes",
 			"goTo": "Ir a",
-			"chat": "Chat"
+			"chat": "Chat",
+			"timer": "Temporizador"
 		},
 		"commands": {
 			"inviteUser": "Invitar usuario",
@@ -3147,7 +3156,10 @@
 			"goToTimeAndActivity": "Ir al informe de tiempo y actividad",
 			"profile": "Perfil",
 			"settings": "Configuración",
-			"newMessage": "Nuevo mensaje"
+			"newMessage": "Nuevo mensaje",
+			"startTimer": "Iniciar temporizador",
+			"stopTimer": "Detener temporizador",
+			"addTime": "Añadir tiempo"
 		},
 		"results": {
 			"recent": "Recientes",
@@ -3159,7 +3171,9 @@
 			"projects": "Proyectos",
 			"pages": "Páginas",
 			"untitledPage": "Sin título",
-			"recentlyOpened": "Abiertos recientemente"
+			"recentlyOpened": "Abiertos recientemente",
+			"startTimerOn": "Iniciar el temporizador en una tarea",
+			"startTimerOnTask": "Iniciar temporizador: {task}"
 		}
 	},
 	"modals": {
@@ -3821,7 +3835,10 @@
 			"STOPPED_TASK_SWITCH": "Temporizador detenido porque cambió tu tarea activa",
 			"STALE_STOPPED": "Temporizador detenido: {stoppedAt}",
 			"STALE_STOPPED_HINT": "Siguió en marcha después de cerrar la aplicación. Añade el trabajo posterior como tiempo manual.",
-			"TASK_CLOSED_HINT": "Vuelve a abrir la tarea para registrar tiempo en ella."
+			"TASK_CLOSED_HINT": "Vuelve a abrir la tarea para registrar tiempo en ella.",
+			"NOTES_NOT_SAVED": "Las notas cambiadas mientras corría el temporizador no se guardaron",
+			"NOTES_NOT_SAVED_HINT": "La entrada conservó las notas del inicio. Edita la entrada en las hojas de tiempo para cambiarlas.",
+			"ALREADY_RUNNING_ON_TASK": "El temporizador ya está en marcha en esta tarea"
 		},
 		"plans": {
 			"CREATE_FAILED": "El plan no se creó",

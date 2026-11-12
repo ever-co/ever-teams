@@ -34,7 +34,7 @@ import {
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
-import { LogChangeChips, ManualReasonLine } from './timesheet-log-changes';
+import { EntryNotesLine, LogChangeChips, ManualReasonLine } from './timesheet-log-changes';
 import { STATUS_LABEL_KEYS, TimesheetStatusChip, TimesheetStatusDot } from './timesheet-status';
 import { DEFERRED_ROW, logGridOf, NARROW_ONLY, WIDE_ONLY } from './timesheets-grid';
 
@@ -312,6 +312,7 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 					)}
 					<LogChangeChips log={log} formatters={formatters} className={WIDE_ONLY} />
 				</span>
+				<EntryNotesLine log={log} />
 				<ManualReasonLine log={log} />
 				{rejectionReason && (
 					<span className="truncate text-xs text-destructive-ink">

@@ -23,6 +23,8 @@ import {
 	requiredTrackingFieldsMessageKeyOf,
 	requiredTrackingFieldsOf
 } from '@/core/lib/helpers/timer-errors';
+
+import { notesToSendAtStart, notesToSendAtStop, wereNotesLostAtStop } from '@/core/lib/utils/timer/timer-notes';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerService } from '@/core/services/client/api/timers';
@@ -33,6 +35,8 @@ import {
 	detailedTaskState,
 	leftActiveTaskIdState,
 	localTimerStatusState,
+
+	timerNotesState,
 	timerStatusFetchingState,
 	timerStatusState,
 	workspaceOpeningState
@@ -254,6 +258,8 @@ export function useTimerApi({
 	const pathname = usePathname();
 	const queryClient = useQueryClient();
 	const t = useTranslations();
+
+	// The notes are read when a start or a stop runs: no timer instance re-renders while they are typed
 	const store = useStore();
 
 	// ==================== ATOMS ====================
@@ -341,13 +347,15 @@ export function useTimerApi({
 		mutationFn: async ({
 			taskId,
 			projectId,
-			isBillable
+			isBillable,
+			description
 		}: {
 			taskId: string;
 			projectId?: string | null;
 			isBillable: boolean;
+			description?: string;
 		}) => {
-			return await timerService.startTimer({ taskId, projectId, isBillable });
+			return await timerService.startTimer({ taskId, projectId, isBillable, description });
 		},
 		// runStartTimer shows the translated TIMER_START_FAILED toast; this keeps the raw global
 		// "Mutation Error" toast from showing a second one
@@ -361,9 +369,9 @@ export function useTimerApi({
 	});
 
 	const stopTimerMutation = useMutation({
-		mutationFn: async (source: ETimeLogSource) => {
+		mutationFn: async ({ source, description }: { source: ETimeLogSource; description?: string }) => {
 			try {
-				return await timerService.stopTimer({ source });
+				return await timerService.stopTimer({ source, description });
 			} catch (error) {
 				// 406 means Gauzy has no running timer left: a previous attempt whose response was lost,
 				// or another device, already stopped it. Report the real status instead of a failure.
@@ -696,10 +704,12 @@ export function useTimerApi({
 			});
 
 			if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
+			const notesToUse = notesToSendAtStart(store.get(timerNotesState));
 			const startRequest = startTimerMutate({
 				taskId: taskIdToUse,
 				projectId: projectIdToUse,
-				isBillable: isBillableToUse
+				isBillable: isBillableToUse,
+				description: notesToUse
 			});
 			const promise = trackTimerCommand(startRequest).then(async (res) => {
 				res.data &&
@@ -838,7 +848,8 @@ export function useTimerApi({
 			activeTeamId,
 			isCurrentScope,
 			statusEnabled,
-			warnIfWorkspaceOpening
+			warnIfWorkspaceOpening,
+			store
 		]
 	);
 
@@ -906,9 +917,11 @@ export function useTimerApi({
 		syncTimer();
 
 		if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
+		const runningLog = timerStatusRef.current?.lastLog;
+		const notesAtStop = notesToSendAtStop(store.get(timerNotesState), runningLog);
 		// Tracked after the sync above, so that sync's status read can never put a running timer back
 		const request: Promise<void> = trackTimerCommand(
-			stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
+			stopTimerMutate({ source: runningLog?.source || ETimeLogSource.TEAMS, description: notesAtStop })
 		)
 			.catch((error) => {
 				// The last known server status still says running: undo the optimistic stop so the clock agrees
@@ -930,6 +943,14 @@ export function useTimerApi({
 					!isEqual(timerStatus, res.data) &&
 					setTimerStatus(res.data);
 				releaseStopGuard(request);
+
+				// The API may not apply notes sent with a stop: the member is told instead of finding them gone later
+				if (wereNotesLostAtStop(notesAtStop, runningLog?.id, res.data?.lastLog)) {
+					toast.warning(t('toasts.timer.NOTES_NOT_SAVED'), {
+						id: 'timer-notes-not-saved',
+						description: t('toasts.timer.NOTES_NOT_SAVED_HINT')
+					});
+				}
 
 				// Clear active task via API when timer stops. Skipped when the timer was already stopped: a team
 				// switch can send two stops, and the one answered 406 may already carry the new team.
@@ -997,7 +1018,9 @@ export function useTimerApi({
 		syncTimer,
 		isCurrentScope,
 		statusEnabled,
-		setTimerStatusFetching
+		setTimerStatusFetching,
+		store,
+		t
 	]);
 
 	// ==================== SIDE EFFECTS ====================

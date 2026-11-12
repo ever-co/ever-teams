@@ -2698,6 +2698,14 @@
 			"PAUSE": "In pausa",
 			"IDLE": "Inattivo",
 			"SUSPENDED": "Sospeso"
+		},
+		"notes": {
+			"ADD": "Aggiungi note al timer",
+			"EDIT": "Modifica le note del timer",
+			"LABEL": "Note",
+			"PLACEHOLDER": "A cosa stai lavorando?",
+			"HINT_BEFORE_START": "Facoltativo. Salvate nella voce all'avvio del timer.",
+			"HINT_RUNNING": "Le modifiche vengono inviate quando fermi il timer."
 		}
 	},
 	"task": {
@@ -3125,7 +3133,8 @@
 			"navigation": "Navigazione",
 			"settings": "Impostazioni",
 			"goTo": "Vai a",
-			"chat": "Chat"
+			"chat": "Chat",
+			"timer": "Timer"
 		},
 		"commands": {
 			"inviteUser": "Invita utente",
@@ -3147,7 +3156,10 @@
 			"goToTimeAndActivity": "Vai al report tempo e attività",
 			"profile": "Profilo",
 			"settings": "Impostazioni",
-			"newMessage": "Nuovo messaggio"
+			"newMessage": "Nuovo messaggio",
+			"startTimer": "Avvia timer",
+			"stopTimer": "Ferma timer",
+			"addTime": "Aggiungi tempo"
 		},
 		"results": {
 			"recent": "Recenti",
@@ -3159,7 +3171,9 @@
 			"projects": "Progetti",
 			"pages": "Pagine",
 			"untitledPage": "Senza titolo",
-			"recentlyOpened": "Aperti di recente"
+			"recentlyOpened": "Aperti di recente",
+			"startTimerOn": "Avvia il timer su un'attività",
+			"startTimerOnTask": "Avvia timer: {task}"
 		}
 	},
 	"modals": {
@@ -3821,7 +3835,10 @@
 			"STOPPED_TASK_SWITCH": "Timer fermato perché la tua attività attiva è cambiata",
 			"STALE_STOPPED": "Timer fermato: {stoppedAt}",
 			"STALE_STOPPED_HINT": "È rimasto in esecuzione dopo la chiusura dell'app. Aggiungi il lavoro successivo come tempo manuale.",
-			"TASK_CLOSED_HINT": "Riapri l'attività per registrarvi del tempo."
+			"TASK_CLOSED_HINT": "Riapri l'attività per registrarvi del tempo.",
+			"NOTES_NOT_SAVED": "Le note modificate mentre il timer era attivo non sono state salvate",
+			"NOTES_NOT_SAVED_HINT": "La voce ha mantenuto le note dell'avvio. Modifica la voce nei fogli presenze per cambiarle.",
+			"ALREADY_RUNNING_ON_TASK": "Il timer è già attivo su questa attività"
 		},
 		"plans": {
 			"CREATE_FAILED": "Il piano non è stato creato",

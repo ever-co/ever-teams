@@ -39,7 +39,7 @@ import CreateTaskModal from '../../../features/tasks/create-task-modal';
 
 import { createPortal } from 'react-dom';
 import { useTheme } from 'next-themes';
-import { ArrowUpRight, Compose } from '@/core/components/icons/hugeicons';
+import { ArrowUpRight, Clock, Compose, Stop } from '@/core/components/icons/hugeicons';
 import { useKeyboardShortcuts, CommandShortcutConfig } from '@/core/hooks/common/use-keyboard-shortcuts';
 import { useGoToCommands } from '@/core/hooks/keyboard/use-go-to-commands';
 import { PALETTE_COMMAND_IDS, usePaletteShortcuts } from '@/core/hooks/keyboard/use-palette-shortcuts';
@@ -55,6 +55,8 @@ import { CreateTeamModal } from '@/core/components/features/teams/create-team-mo
 import { PaletteDocsResults } from './palette-docs-results';
 import { PaletteTaskResults } from './palette-task-results';
 import { PaletteChatResults } from './palette-chat-results';
+import { PaletteTimerLayer, PaletteTimerStartResults, usePaletteTimer } from './palette-timer';
+import type { TTask } from '@/core/types/schemas/task/task.schema';
 import {
 	PalettePageResults,
 	PalettePeopleResults,
@@ -76,6 +78,7 @@ const TASKS_TAB = 'tasks';
 const CHAT_TAB = 'chat';
 const TEAMS_TAB = 'teams';
 const PROJECTS_TAB = 'projects';
+const TIMER_TAB = 'timer';
 /** The tabs of the results the palette finds besides tasks and the chat (the saved-views feature; Docs for pages). */
 const PEOPLE_TAB = 'people';
 const PAGES_TAB = 'pages';
@@ -177,6 +180,8 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 	const inviteModal = useModal();
 	const createTaskModal = useModal();
 	const createProjectModal = useModal();
+	const paletteTimer = usePaletteTimer();
+	const { canStop: canStopTimer, stopTimer, startTimerOn, openAddTime } = paletteTimer;
 
 	// Close the palette and execute an action (which may open it again on one of its tabs: the "search" ones)
 	const executeAction = useCallback(
@@ -256,6 +261,31 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 	// The chat's entries (its conversations, the people to write to, "New message") where the chat is on.
 	const chatOn = isChatEnabled();
 
+	// Stop is offered only while the timer's own Stop button would work. A public team's visitor has no timer.
+	const timerGroups: CommandGroupConfig[] = useMemo(() => {
+		if (publicTeam) {
+			return [];
+		}
+		const commands: CommandShortcutConfig[] = [];
+		if (canStopTimer) {
+			commands.push({
+				sequence: [],
+				description: t('commandPalette.commands.stopTimer'),
+				shortcutDisplay: '',
+				action: stopTimer,
+				icon: <Stop aria-hidden="true" />
+			});
+		}
+		commands.push({
+			sequence: [],
+			description: t('commandPalette.commands.addTime'),
+			shortcutDisplay: '',
+			action: openAddTime,
+			icon: <Clock aria-hidden="true" />
+		});
+		return [{ id: TIMER_TAB, heading: t('commandPalette.groups.timer'), commands }];
+	}, [canStopTimer, openAddTime, publicTeam, stopTimer, t]);
+
 	// Centralized configuration of commands and shortcuts
 	const commandGroups: CommandGroupConfig[] = useMemo(
 		() => [
@@ -317,6 +347,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					}
 				]
 			},
+			...timerGroups,
 			{
 				id: 'teams',
 				heading: t('commandPalette.groups.teams'),
@@ -443,7 +474,9 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					}
 				]
 			},
-			...(goToCommands.length ? [{ id: 'goTo', heading: t('commandPalette.groups.goTo'), commands: goToCommands }] : []),
+			...(goToCommands.length
+				? [{ id: 'goTo', heading: t('commandPalette.groups.goTo'), commands: goToCommands }]
+				: []),
 			...(chatOn
 				? [
 						{
@@ -486,7 +519,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 				]
 			}
 		],
-		[actions, canInvite, chatOn, goToCommands, t]
+		[actions, canInvite, chatOn, goToCommands, t, timerGroups]
 	);
 
 	// With the registry on, every entry shows its command's binding in force (none when nobody can run it now) and is
@@ -516,7 +549,8 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 		}
 		const shortcuts: CommandShortcutConfig[] = [];
 		commandGroups.forEach((group) => {
-			if (group.id === CHAT_TAB) return; // no keys of its own
+			const hasNoKeys = group.id === CHAT_TAB || group.id === TIMER_TAB;
+			if (hasNoKeys) return;
 			group.commands.forEach((command) => shortcuts.push(command));
 		});
 		return shortcuts;
@@ -596,6 +630,17 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 		[registryOn, remember, router, setOpen]
 	);
 
+	const startTimerOnTask = useCallback(
+		(task: TTask) => {
+			setOpen(false);
+			startTimerOn(task);
+		},
+		[setOpen, startTimerOn]
+	);
+	const offersTimer = !publicTeam;
+	const isTimerTabShown = showsResultsIn(activeTab, TIMER_TAB);
+	const showsTimerStartResults = hasSearch && offersTimer && isTimerTabShown;
+
 	// A sequence typed into the field (`g t`) runs its command, as its keys would outside the palette.
 	const changeSearch = useCallback(
 		(value: string) => {
@@ -665,10 +710,21 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 				>
 					<CommandEmpty>{t('commandPalette.empty')}</CommandEmpty>
 					{registryOn && !hasSearch && activeTab === ALL_GROUPS_TAB && (
-						<PaletteRecentResults items={shownRecentItems} onOpen={openItem} className={paletteGroupClass} />
+						<PaletteRecentResults
+							items={shownRecentItems}
+							onOpen={openItem}
+							className={paletteGroupClass}
+						/>
 					)}
 					{showsTaskResults && (
 						<PaletteTaskResults search={search} onOpenTask={openTask} className={paletteGroupClass} />
+					)}
+					{showsTimerStartResults && (
+						<PaletteTimerStartResults
+							search={search}
+							onStartTimer={startTimerOnTask}
+							className={paletteGroupClass}
+						/>
 					)}
 					{hasSearch && showsPeople && showsResultsIn(activeTab, PEOPLE_TAB) && (
 						<PalettePeopleResults search={search} onOpen={openItem} className={paletteGroupClass} />
@@ -683,7 +739,9 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 						<PaletteChatResults search={search} onDone={closePalette} className={paletteGroupClass} />
 					)}
 					{/* The Docs pages the platform's search finds (title and text), where the registry's Pages group is off. */}
-					{showsTaskResults && !showsPages && <PaletteDocsResults search={search} onOpenPage={openPage} className={paletteGroupClass} />}
+					{showsTaskResults && !showsPages && (
+						<PaletteDocsResults search={search} onOpenPage={openPage} className={paletteGroupClass} />
+					)}
 					{renderCommandGroups()}
 				</CommandList>
 			</CommandDialog>
@@ -706,6 +764,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 
 			<InviteFormModal open={inviteModal.isOpen && !!user?.isEmailVerified} closeModal={inviteModal.closeModal} />
 			<CreateProjectModal open={createProjectModal.isOpen} closeModal={createProjectModal.closeModal} />
+			{!publicTeam && <PaletteTimerLayer timer={paletteTimer} />}
 		</>
 	);
 };

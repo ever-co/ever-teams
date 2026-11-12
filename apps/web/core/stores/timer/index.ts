@@ -6,3 +6,4 @@ export * from './time-slot';
 export * from './timer';
 export * from './timer-billable';
 export * from './timer-reminder';
+export * from './timer-notes';

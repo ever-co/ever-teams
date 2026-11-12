@@ -4,6 +4,9 @@ import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response'
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import type { IUpdateTimerStatusParams } from '@/core/types/interfaces/timer/timer-status';
 import { NextResponse } from 'next/server';
+import { TIMER_NOTES_MAX_LENGTH, readTimerNotes } from '@/core/lib/utils/timer/timer-notes';
+
+const NOTES_REFUSAL = `description must be a string of at most ${TIMER_NOTES_MAX_LENGTH} characters`;
 
 const PLAN_DAY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -58,6 +61,11 @@ export async function POST(req: Request) {
 		return NextResponse.json({ error: 'projectId must be a non-empty string' }, { status: 400 });
 	}
 
+	const notes = readTimerNotes((body as { description?: unknown }).description);
+	if (!notes.isValid) {
+		return NextResponse.json({ error: NOTES_REFUSAL }, { status: 400 });
+	}
+
 	const taskId = hasBodyTaskId ? bodyTaskId : activeTaskIdCookie;
 
 	const startParams: IUpdateTimerStatusParams = {
@@ -76,6 +84,10 @@ export async function POST(req: Request) {
 	const forwardsProject = hasBodyTaskId && hasBodyProjectId;
 	if (forwardsProject) {
 		startParams.projectId = bodyProjectId;
+	}
+
+	if (notes.description !== undefined) {
+		startParams.description = notes.description;
 	}
 
 	try {

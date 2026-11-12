@@ -2698,6 +2698,14 @@
 			"PAUSE": "Em pausa",
 			"IDLE": "Inativo",
 			"SUSPENDED": "Suspenso"
+		},
+		"notes": {
+			"ADD": "Adicionar notas ao temporizador",
+			"EDIT": "Editar as notas do temporizador",
+			"LABEL": "Notas",
+			"PLACEHOLDER": "Em que você está trabalhando?",
+			"HINT_BEFORE_START": "Opcional. Salvas na entrada quando o temporizador inicia.",
+			"HINT_RUNNING": "As alterações são enviadas quando você para o temporizador."
 		}
 	},
 	"task": {
@@ -3125,7 +3133,8 @@
 			"navigation": "Navegação",
 			"settings": "Configurações",
 			"goTo": "Ir para",
-			"chat": "Chat"
+			"chat": "Chat",
+			"timer": "Temporizador"
 		},
 		"commands": {
 			"inviteUser": "Convidar utilizador",
@@ -3147,7 +3156,10 @@
 			"goToTimeAndActivity": "Ir para o relatório de tempo e atividade",
 			"profile": "Perfil",
 			"settings": "Definições",
-			"newMessage": "Nova mensagem"
+			"newMessage": "Nova mensagem",
+			"startTimer": "Iniciar temporizador",
+			"stopTimer": "Parar temporizador",
+			"addTime": "Adicionar tempo"
 		},
 		"results": {
 			"recent": "Recentes",
@@ -3159,7 +3171,9 @@
 			"projects": "Projetos",
 			"pages": "Páginas",
 			"untitledPage": "Sem título",
-			"recentlyOpened": "Abertos recentemente"
+			"recentlyOpened": "Abertos recentemente",
+			"startTimerOn": "Iniciar o temporizador em uma tarefa",
+			"startTimerOnTask": "Iniciar temporizador: {task}"
 		}
 	},
 	"modals": {
@@ -3821,7 +3835,10 @@
 			"STOPPED_TASK_SWITCH": "Temporizador parado porque sua tarefa ativa mudou",
 			"STALE_STOPPED": "Temporizador parado: {stoppedAt}",
 			"STALE_STOPPED_HINT": "Ele continuou rodando depois que o app foi fechado. Adicione o trabalho posterior como tempo manual.",
-			"TASK_CLOSED_HINT": "Reabra a tarefa para registrar tempo nela."
+			"TASK_CLOSED_HINT": "Reabra a tarefa para registrar tempo nela.",
+			"NOTES_NOT_SAVED": "As notas alteradas enquanto o temporizador corria não foram salvas",
+			"NOTES_NOT_SAVED_HINT": "A entrada manteve as notas do início. Edite a entrada nas folhas de horas para alterá-las.",
+			"ALREADY_RUNNING_ON_TASK": "O temporizador já está em execução nesta tarefa"
 		},
 		"plans": {
 			"CREATE_FAILED": "O plano não foi criado",
