@@ -609,7 +609,9 @@ export function useTimerApi({
 			const taskIdToUse = taskToUse?.id;
 			const projectIdToUse = timerStartProjectId(taskToUse, activeTeamRef.current);
 
-			if (pageTask) setActiveTask(pageTask);
+			// A start asked for a named task (a card, the command palette) keeps that task active: the page's task
+			// becomes active only for a start that names none
+			if (pageTask && !explicitTask) setActiveTask(pageTask);
 
 			if (!taskIdToUse) {
 				toast.warning(t('toasts.timer.NO_TASK'), { id: 'timer-no-task' });
