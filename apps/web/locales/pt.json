@@ -1920,6 +1920,11 @@
 				"ERROR_TITLE": "Não foi possível carregar o projeto",
 				"ERROR_MESSAGE": "Verifique sua conexão e tente novamente."
 			},
+			"billable": {
+				"LABEL": "Faturável por padrão",
+				"HELP": "O tempo registrado ou adicionado neste projeto começa como faturável. Cada registro ainda pode ser alterado, e os registros já salvos mantêm o seu valor.",
+				"NOT_BILLABLE": "Não faturável"
+			},
 			"modals": {
 				"openProject": "Abrir projeto",
 				"created": "{name} foi criado",

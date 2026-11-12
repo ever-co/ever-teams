@@ -1920,6 +1920,11 @@
 				"ERROR_TITLE": "Das Projekt konnte nicht geladen werden",
 				"ERROR_MESSAGE": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
 			},
+			"billable": {
+				"LABEL": "Standardmäßig abrechenbar",
+				"HELP": "Erfasste oder hinzugefügte Zeit in diesem Projekt ist zunächst abrechenbar. Jeder Eintrag lässt sich weiterhin ändern, und bereits gespeicherte Einträge behalten ihren Wert.",
+				"NOT_BILLABLE": "Nicht abrechenbar"
+			},
 			"modals": {
 				"openProject": "Projekt öffnen",
 				"created": "{name} wurde erstellt",

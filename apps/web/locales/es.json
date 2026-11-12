@@ -1988,6 +1988,11 @@
 				"ERROR_TITLE": "No se pudo cargar el proyecto",
 				"ERROR_MESSAGE": "Revisa tu conexión y vuelve a intentarlo."
 			},
+			"billable": {
+				"LABEL": "Facturable de forma predeterminada",
+				"HELP": "El tiempo registrado o agregado en este proyecto empieza como facturable. Cada registro se puede cambiar después, y los registros ya guardados conservan su valor.",
+				"NOT_BILLABLE": "No facturable"
+			},
 			"modals": {
 				"openProject": "Abrir proyecto",
 				"created": "Se creó {name}",

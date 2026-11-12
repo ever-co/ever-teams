@@ -1920,6 +1920,11 @@
 				"ERROR_TITLE": "Nie udało się wczytać projektu",
 				"ERROR_MESSAGE": "Sprawdź połączenie i spróbuj ponownie."
 			},
+			"billable": {
+				"LABEL": "Domyślnie do rozliczenia",
+				"HELP": "Czas śledzony lub dodany w tym projekcie jest na początku do rozliczenia. Każdy wpis można jeszcze zmienić, a zapisane już wpisy zachowują swoją wartość.",
+				"NOT_BILLABLE": "Nie do rozliczenia"
+			},
 			"modals": {
 				"openProject": "Otwórz projekt",
 				"created": "Utworzono {name}",

@@ -1837,6 +1837,11 @@
 				"ERROR_TITLE": "The project could not be loaded",
 				"ERROR_MESSAGE": "Check your connection, then try again."
 			},
+			"billable": {
+				"LABEL": "Billable by default",
+				"HELP": "Time tracked or added on this project starts as billable. Each entry can still be changed, and entries already saved keep their value.",
+				"NOT_BILLABLE": "Not billable"
+			},
 			"modals": {
 				"openProject": "Open project",
 				"created": "{name} was created",
