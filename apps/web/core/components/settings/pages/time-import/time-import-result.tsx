@@ -217,12 +217,9 @@ export function TimeImportResult({ timeImport, copy, onDownloadReport }: Readonl
 				{isPreview && (
 					<div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3">
 						{!hasReadyRows && (
-							<p
-								role="status"
-								className="min-w-0 flex-1 basis-56 text-xs text-pretty text-muted-foreground"
-							>
+							<output className="min-w-0 flex-1 basis-56 text-xs text-pretty text-muted-foreground">
 								{t('timeImport.NOTHING_READY')}
-							</p>
+							</output>
 						)}
 						<div className="ml-auto flex flex-wrap items-center gap-2">
 							<Button type="button" variant="outline" onClick={timeImport.reset}>
