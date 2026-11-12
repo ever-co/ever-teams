@@ -34,6 +34,23 @@ describe('zoned time', () => {
 		expect(nextSlotIn('UTC', new Date('2026-11-12T10:30:00.000Z'))).toEqual({ date: '2026-11-12', time: '11:00' });
 	});
 
+	it('never proposes a time the clocks skip, nor the passed first showing of a time they repeat', () => {
+		// New York skips from 2:00 to 3:00 on 8 March 2026: at 1:45 the next half hour that exists is 3:00
+		const beforeTheGap = new Date('2026-03-08T06:45:00.000Z');
+		expect(nextSlotIn('America/New_York', beforeTheGap)).toEqual({ date: '2026-03-08', time: '03:00' });
+		// It goes back from 2:00 to 1:00 on 1 November: at the second 1:15, "1:30" names the first one, already past
+		const inTheRepeat = new Date('2026-11-01T06:15:00.000Z');
+		expect(nextSlotIn('America/New_York', inTheRepeat)).toEqual({ date: '2026-11-01', time: '02:00' });
+
+		// What shows is what is saved, and it lies ahead
+		for (const now of [beforeTheGap, inTheRepeat]) {
+			const slot = nextSlotIn('America/New_York', now);
+			const start = instantOf(slot.date, slot.time, 'America/New_York');
+			expect(wallClockOf(start, 'America/New_York')).toEqual(slot);
+			expect(start.getTime()).toBeGreaterThan(now.getTime());
+		}
+	});
+
 	// Kiritimati is 14 hours ahead of UTC and Pago Pago 11 behind: wherever this runs, one of them is a day away
 	const FAR_ZONES = ['Pacific/Kiritimati', 'Pacific/Pago_Pago', 'Asia/Kathmandu', 'UTC'];
 	const calendarDayOf = (date: Date) => [date.getFullYear(), date.getMonth(), date.getDate()];

@@ -12,6 +12,9 @@ export interface WallClock {
 const MINUTE = 60_000;
 const DAY = 24 * 60 * MINUTE;
 const SLOT_MINUTES = 30;
+const MINUTES_OF_DAY = 24 * 60;
+/** A clock change moves the clocks an hour or two: a day of half hours ahead always finds a time they show. */
+const SLOTS_AHEAD = MINUTES_OF_DAY / SLOT_MINUTES;
 
 const formatters = new Map<string, Intl.DateTimeFormat>();
 
@@ -81,16 +84,43 @@ function dateAfter(date: string, days: number): string {
 	return `${next.getUTCFullYear()}-${twoDigits(next.getUTCMonth() + 1)}-${twoDigits(next.getUTCDate())}`;
 }
 
+/** A date and time so many minutes later on the clocks, the day carried over. */
+function clockAfter(clock: WallClock, minutes: number): WallClock {
+	const [hour, minute] = clock.time.split(':').map(Number);
+	const total = hour * 60 + minute + minutes;
+	const days = Math.floor(total / MINUTES_OF_DAY);
+	const ofDay = total - days * MINUTES_OF_DAY;
+	return {
+		date: days === 0 ? clock.date : dateAfter(clock.date, days),
+		time: `${twoDigits(Math.floor(ofDay / 60))}:${twoDigits(ofDay % 60)}`
+	};
+}
+
+/**
+ * The first of the half hours from `slot` on that lies past `after` and reads back as itself: what the form shows is
+ * what is saved. A time the clocks skip reads as one past the gap, and the second showing of a time they repeat reads
+ * as the first: both give way to the next half hour.
+ */
+function firstShownSlot(slot: WallClock, zone: string, after: Date): WallClock {
+	let candidate = slot;
+	for (let step = 0; step < SLOTS_AHEAD; step += 1) {
+		const instant = instantOf(candidate.date, candidate.time, zone);
+		const shown = wallClockOf(instant, zone);
+		if (instant.getTime() > after.getTime() && shown.date === candidate.date && shown.time === candidate.time) {
+			return candidate;
+		}
+		candidate = clockAfter(candidate, SLOT_MINUTES);
+	}
+	return candidate;
+}
+
 /** The next half hour on the clocks of a zone: the time a meeting planned now most often starts. */
 export function nextSlotIn(zone: string, now: Date = new Date()): WallClock {
 	const clock = wallClockOf(now, zone);
 	const [hour, minute] = clock.time.split(':').map(Number);
-	const slot = Math.ceil((hour * 60 + minute + 1) / SLOT_MINUTES) * SLOT_MINUTES;
-	const minutesOfDay = 24 * 60;
-	return {
-		date: slot >= minutesOfDay ? dateAfter(clock.date, 1) : clock.date,
-		time: `${twoDigits(Math.floor((slot % minutesOfDay) / 60))}:${twoDigits(slot % 60)}`
-	};
+	const minutes = hour * 60 + minute;
+	const toNextSlot = Math.ceil((minutes + 1) / SLOT_MINUTES) * SLOT_MINUTES - minutes;
+	return firstShownSlot(clockAfter(clock, toNextSlot), zone, now);
 }
 
 /**
@@ -105,5 +135,8 @@ export function slotOnDay(day: Date | undefined, zone: string, now: Date = new D
 	}
 	const next = instantOf(slot.date, slot.time, zone);
 	const onDay = new Date(day.getFullYear(), day.getMonth(), day.getDate(), next.getHours(), next.getMinutes());
-	return onDay.getTime() > next.getTime() ? wallClockOf(onDay, zone) : slot;
+	if (onDay.getTime() <= next.getTime()) {
+		return slot;
+	}
+	return firstShownSlot(wallClockOf(onDay, zone), zone, new Date(onDay.getTime() - MINUTE));
 }
