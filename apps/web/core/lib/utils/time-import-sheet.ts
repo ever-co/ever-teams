@@ -40,10 +40,16 @@ export const TIME_IMPORT_HEADERS: Readonly<Record<TimeImportColumn, string>> = {
 /** The columns the import's own report adds, so a corrected report can be imported as it is. */
 export const TIME_IMPORT_REPORT_HEADERS = { row: 'row', status: 'status', reason: 'reason' } as const;
 
-export type TimeImportCells = Readonly<Record<TimeImportColumn, string>>;
+/**
+ * What the import reads from a row: the columns of the template, and the day an entry ends, which a file from
+ * another tool may give in a column of its own.
+ */
+export type TimeImportField = TimeImportColumn | 'endDate';
 
-/** For each column the import reads, the position of the file's column it is read from, or null when there is none. */
-export type TimeImportMapping = Readonly<Record<TimeImportColumn, number | null>>;
+export type TimeImportCells = Readonly<Record<TimeImportField, string>>;
+
+/** For each field, the position of the file's column it is read from, or null when the file has none. */
+export type TimeImportMapping = Readonly<Record<TimeImportField, number | null>>;
 
 export interface TimeImportSheetRow {
 	/** The row's position in the file, as a spreadsheet numbers it: the header is row 1. */

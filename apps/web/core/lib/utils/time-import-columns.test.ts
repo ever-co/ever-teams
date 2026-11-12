@@ -29,6 +29,7 @@ describe('timeImportReadingOf', () => {
 				cells: {
 					date: '2026-11-03',
 					startTime: '09:00',
+					endDate: '',
 					endTime: '10:30',
 					duration: '',
 					project: 'Website',

@@ -6,6 +6,7 @@ import {
 	timeImportTableOf,
 	type TimeImportCells,
 	type TimeImportColumn,
+	type TimeImportField,
 	type TimeImportMapping,
 	type TimeImportMissingColumn,
 	type TimeImportSheet,
@@ -23,6 +24,7 @@ const COLUMN_BY_HEADER: ReadonlyMap<string, TimeImportColumn> = new Map(
 const NO_COLUMNS: TimeImportMapping = {
 	date: null,
 	startTime: null,
+	endDate: null,
 	endTime: null,
 	duration: null,
 	project: null,
@@ -38,7 +40,7 @@ function normalizedHeaderOf(header: string): string {
 }
 
 interface HeaderReading {
-	mapping: Record<TimeImportColumn, number | null>;
+	mapping: Record<TimeImportField, number | null>;
 	duplicateHeader: string | null;
 }
 
@@ -83,10 +85,11 @@ function cellAt(record: ReadonlyArray<string>, index: number | null): string {
 }
 
 function cellsOf(record: ReadonlyArray<string>, mapping: TimeImportMapping): TimeImportCells {
-	const cellOf = (column: TimeImportColumn) => cellAt(record, mapping[column]);
+	const cellOf = (field: TimeImportField) => cellAt(record, mapping[field]);
 	return {
 		date: cellOf('date'),
 		startTime: cellOf('startTime'),
+		endDate: cellOf('endDate'),
 		endTime: cellOf('endTime'),
 		duration: cellOf('duration'),
 		project: cellOf('project'),

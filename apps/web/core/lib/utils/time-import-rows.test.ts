@@ -64,6 +64,7 @@ function sheetRowOf(cells: Partial<TimeImportCells>, row = 2): TimeImportSheetRo
 		cells: {
 			date: '2026-11-03',
 			startTime: '09:00',
+			endDate: '',
 			endTime: '10:30',
 			duration: '',
 			project: '',
