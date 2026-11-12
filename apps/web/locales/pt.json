@@ -693,7 +693,9 @@
 			"APPS_EMPTY": "Nenhuma app nem site registado em {day}.",
 			"OPEN_TIMESHEETS": "Abrir nas folhas de horas",
 			"UPDATING": "A carregar o diário",
-			"NO_TIME_HINT": "Quando houver tempo registado, as tarefas, capturas de ecrã e apps do dia aparecem aqui."
+			"NO_TIME_HINT": "Quando houver tempo registado, as tarefas, capturas de ecrã e apps do dia aparecem aqui.",
+			"WEEK_TITLE": "Folha de horas",
+			"WEEK_NO_MANUAL_TIME_PERMISSION": "Sua função não permite adicionar tempo manualmente, então a folha é somente leitura. Um administrador pode permitir."
 		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# membro} other {# membros}}",

@@ -693,7 +693,9 @@
 			"APPS_EMPTY": "No app or site recorded on {day}.",
 			"OPEN_TIMESHEETS": "Open in Timesheets",
 			"UPDATING": "Loading the diary",
-			"NO_TIME_HINT": "Once time is tracked, the day's tasks, screenshots and apps show here."
+			"NO_TIME_HINT": "Once time is tracked, the day's tasks, screenshots and apps show here.",
+			"WEEK_TITLE": "Timesheet",
+			"WEEK_NO_MANUAL_TIME_PERMISSION": "Your role can't add time by hand, so the sheet is read only. An admin can allow it."
 		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# member} other {# members}}",
