@@ -33,6 +33,8 @@ export function useChatAppInteractions(message: IChatMessage, { readOnly = false
 	const [failures, setFailures] = useState<Record<string, TAppClickFailure>>({});
 	const alive = useRef(true);
 	const timers = useRef(new Set<ReturnType<typeof setTimeout>>());
+	/** The latest click of each button (its interaction id): only it may write the button's state. */
+	const latestClicks = useRef(new Map<string, string>());
 	// The latest callback, so a poll that started before a re-render hands the reply to the current one.
 	const replaced = useRef(onReplaced);
 	useEffect(() => {
@@ -99,33 +101,45 @@ export function useChatAppInteractions(message: IChatMessage, { readOnly = false
 	/**
 	 * Asks again about a click whose callback is being retried, until it settles or the chat stops asking. The platform
 	 * writes a retry's delivery just before it applies the app's reply: a delivery without its reply is asked about once
-	 * more.
+	 * more, and the button stays pending (so disabled) until that ask answers. Only the button's latest click writes its
+	 * state: an answer about an older one is dropped.
 	 */
 	const follow = useCallback(
 		async (key: string, blockId: string | null, interactionId: string) => {
-			let lookedAgain = false;
+			const isLatest = () => latestClicks.current.get(key) === interactionId;
+			let deliveredSeen = false;
 			for (let round = 0; round < APP_INTERACTION_POLL_MAX; round += 1) {
 				await pause();
-				if (!alive.current) return;
+				if (!alive.current || !isLatest()) return;
 				try {
 					const interaction = await chatService.interaction(interactionId);
+					if (!isLatest()) return;
 					const state = appButtonStateOf(interaction.status);
-					setState(key, state);
 					if (state === 'pending') continue;
-					if (state === 'failed') setFailure(blockId, 'APP_CALLBACK_FAILED');
-					if (interaction.replyApplied) await readReplaced(interaction);
-					else if (state === 'done' && !lookedAgain && round + 1 < APP_INTERACTION_POLL_MAX) {
-						lookedAgain = true;
+					if (state === 'done' && !interaction.replyApplied && !deliveredSeen && round + 1 < APP_INTERACTION_POLL_MAX) {
+						deliveredSeen = true;
 						continue;
 					}
+					setState(key, state);
+					if (state === 'failed') setFailure(blockId, 'APP_CALLBACK_FAILED');
+					if (interaction.replyApplied) await readReplaced(interaction);
 					return;
 				} catch {
+					if (!isLatest()) return;
 					// Asked again after the delivery: the click went through; only the reply's read is missed.
-					if (lookedAgain) return;
+					if (deliveredSeen) {
+						setState(key, 'done');
+						return;
+					}
 					setState(key, 'failed');
 					setFailure(blockId, 'APP_CLICK_FAILED');
 					return;
 				}
+			}
+			if (!isLatest()) return;
+			if (deliveredSeen) {
+				setState(key, 'done');
+				return;
 			}
 			setState(key, null);
 			setFailure(blockId, 'APP_NO_ANSWER_YET');
@@ -143,6 +157,7 @@ export function useChatAppInteractions(message: IChatMessage, { readOnly = false
 				// The reply that comes back is the message as of this request: stamped as it started (see `readReplaced`).
 				const order = nextMessageOrder();
 				const result = await chatService.interact(message.id, button.actionId, blockId);
+				latestClicks.current.set(key, result.interaction.interactionId);
 				if (result.message) replaced.current?.(message, withMessageOrder([result.message], order)[0]);
 				const state = appButtonStateOf(result.interaction.status);
 				setState(key, state);

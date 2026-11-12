@@ -223,6 +223,35 @@ describe('ChatAppBlocks', () => {
 		}
 	});
 
+	it('keeps the button pending, and so disabled, while it asks once more after a delivery', async () => {
+		jest.useFakeTimers();
+		try {
+			let answerSecond: (value: unknown) => void = () => undefined;
+			mockInteract.mockResolvedValue({ interaction: interaction('retrying'), events: [] });
+			mockInteraction.mockResolvedValueOnce(interaction('delivered')).mockImplementationOnce(() => new Promise((resolve) => (answerSecond = resolve)));
+			render(<ChatAppBlocks message={appMessage()} />);
+			await act(async () => {
+				fireEvent.click(screen.getByText('Acknowledge'));
+			});
+			await act(async () => {
+				await jest.advanceTimersByTimeAsync(APP_INTERACTION_POLL_MS * 2);
+			});
+			const button = screen.getByText('Acknowledge').closest('button') as HTMLButtonElement;
+			expect(button.disabled).toBe(true);
+			await act(async () => {
+				fireEvent.click(button);
+			});
+			expect(mockInteract).toHaveBeenCalledTimes(1);
+			await act(async () => {
+				answerSecond(interaction('delivered'));
+			});
+			expect(button.disabled).toBe(false);
+			expect(screen.getByLabelText('teamChat.APP_DONE')).toBeTruthy();
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
 	it('stops after that one more look when no reply came', async () => {
 		jest.useFakeTimers();
 		try {
