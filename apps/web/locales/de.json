@@ -3948,7 +3948,9 @@
 		"EFFECTS": "Effekte",
 		"NOISE_FILTER": "Hintergrundgeräuschfilter",
 		"NOISE_FILTER_HINT": "Entfernt die Geräusche um dich herum aus dem, was andere hören.",
-		"NOISE_FILTER_UNSUPPORTED": "Dieser Browser unterstützt den Geräuschfilter nicht."
+		"NOISE_FILTER_UNSUPPORTED": "Dieser Browser unterstützt den Geräuschfilter nicht.",
+		"HD_VIDEO": "HD-Video",
+		"HD_VIDEO_HINT": "Sendet deine Kamera in hoher Auflösung. Ausgeschaltet braucht es weniger Bandbreite."
 	},
 	"settings": {
 		"nav": {

@@ -14,10 +14,43 @@ import {
 	type MeetingDeviceKind
 } from '@/core/hooks/meetings/use-media-preview';
 import { useSpeakerTest } from '@/core/hooks/meetings/use-speaker-test';
+import { SettingsSwitch } from '@/core/components/settings/kit/settings-switch';
 import { cn } from '@/core/lib/helpers';
 import { DeviceAccessNotices, DeviceField, LevelMeter } from '../pre-join/device-fields';
 
-type DeviceDraft = Pick<MeetingDeviceChoices, 'audioInputId' | 'videoInputId' | 'audioOutputId'>;
+type DeviceDraft = Pick<
+	MeetingDeviceChoices,
+	'audioInputId' | 'videoInputId' | 'audioOutputId' | 'noiseFilter' | 'hdVideo'
+>;
+
+function SwitchRow({
+	title,
+	hint,
+	checked,
+	onCheckedChange,
+	testId
+}: Readonly<{
+	title: string;
+	hint: string;
+	checked: boolean;
+	onCheckedChange: (checked: boolean) => void;
+	testId: string;
+}>) {
+	return (
+		<div className="flex items-start justify-between gap-4">
+			<div className="flex min-w-0 flex-col gap-0.5">
+				<span className="text-sm font-medium text-foreground">{title}</span>
+				<span className="text-xs text-muted-foreground">{hint}</span>
+			</div>
+			<SettingsSwitch
+				checked={checked}
+				onCheckedChange={onCheckedChange}
+				ariaLabel={title}
+				data-testid={testId}
+			/>
+		</div>
+	);
+}
 
 /**
  * The settings' body, mounted while the dialog is open: the camera and the microphone are on only then. It works on a
@@ -29,7 +62,9 @@ function VideoAudioSettings({ onClose }: Readonly<{ onClose: () => void }>) {
 	const [draft, setDraft] = useState<DeviceDraft>(() => ({
 		audioInputId: choices.audioInputId,
 		videoInputId: choices.videoInputId,
-		audioOutputId: choices.audioOutputId
+		audioOutputId: choices.audioOutputId,
+		noiseFilter: choices.noiseFilter,
+		hdVideo: choices.hdVideo
 	}));
 	// Both devices open here, whatever the person joins with: the settings are about which ones
 	const media = useDeviceStream(
@@ -153,6 +188,22 @@ function VideoAudioSettings({ onClose }: Readonly<{ onClose: () => void }>) {
 						</div>
 					</div>
 				)}
+				<div className="flex flex-col gap-4 hairline-t border-border pt-4">
+					<SwitchRow
+						title={t('meetings.NOISE_FILTER')}
+						hint={t('meetings.NOISE_FILTER_HINT')}
+						checked={draft.noiseFilter}
+						onCheckedChange={(noiseFilter) => setDraft((current) => ({ ...current, noiseFilter }))}
+						testId="meeting-noise-filter"
+					/>
+					<SwitchRow
+						title={t('meetings.HD_VIDEO')}
+						hint={t('meetings.HD_VIDEO_HINT')}
+						checked={draft.hdVideo}
+						onCheckedChange={(hdVideo) => setDraft((current) => ({ ...current, hdVideo }))}
+						testId="meeting-hd-video"
+					/>
+				</div>
 			</div>
 			<div className={cn(APP_DIALOG_FOOTER, 'justify-end')}>
 				<Button type="button" variant="ghost" onClick={onClose}>

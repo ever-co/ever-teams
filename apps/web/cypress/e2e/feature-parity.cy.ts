@@ -326,12 +326,14 @@ describe('feature parity on the authenticated shell', () => {
 			.should('be.visible')
 			.find('section[aria-label="Camera preview"]')
 			.should('exist');
+		cy.get('[data-testid="meeting-noise-filter"]').should('have.attr', 'aria-checked', 'true');
+		cy.get('[data-testid="meeting-hd-video"]').should('have.attr', 'aria-checked', 'true').click();
 		cy.contains('button', /^Save changes$/).click();
 		cy.get('[role="dialog"]').should('not.exist');
 		// Where the pre-join check reads them
 		cy.window().then((window) => {
 			const saved = JSON.parse(window.localStorage.getItem('ever-teams:meeting-devices') ?? 'null');
-			expect(saved).to.include({ audioInputId: '', videoInputId: '' });
+			expect(saved).to.include({ audioInputId: '', videoInputId: '', noiseFilter: true, hdVideo: false });
 		});
 	});
 

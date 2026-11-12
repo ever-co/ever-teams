@@ -3948,7 +3948,9 @@
 		"EFFECTS": "Effecten",
 		"NOISE_FILTER": "Achtergrondgeluidsfilter",
 		"NOISE_FILTER_HINT": "Haalt het geluid om je heen weg uit wat anderen horen.",
-		"NOISE_FILTER_UNSUPPORTED": "Deze browser ondersteunt het geluidsfilter niet."
+		"NOISE_FILTER_UNSUPPORTED": "Deze browser ondersteunt het geluidsfilter niet.",
+		"HD_VIDEO": "HD-video",
+		"HD_VIDEO_HINT": "Verstuurt je camera in hoge resolutie. Uitgeschakeld gebruikt het minder bandbreedte."
 	},
 	"settings": {
 		"nav": {

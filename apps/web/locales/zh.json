@@ -3948,7 +3948,9 @@
 		"EFFECTS": "效果",
 		"NOISE_FILTER": "背景噪音过滤",
 		"NOISE_FILTER_HINT": "从他人听到的声音中去除你周围的噪音。",
-		"NOISE_FILTER_UNSUPPORTED": "此浏览器不支持噪音过滤。"
+		"NOISE_FILTER_UNSUPPORTED": "此浏览器不支持噪音过滤。",
+		"HD_VIDEO": "高清视频",
+		"HD_VIDEO_HINT": "以高清画质发送你的摄像头画面。关闭后占用更少带宽。"
 	},
 	"settings": {
 		"nav": {

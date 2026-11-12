@@ -3948,7 +3948,9 @@
 		"EFFECTS": "Effets",
 		"NOISE_FILTER": "Filtre de bruit de fond",
 		"NOISE_FILTER_HINT": "Retire le bruit autour de vous de ce que les autres entendent.",
-		"NOISE_FILTER_UNSUPPORTED": "Ce navigateur ne prend pas en charge le filtre de bruit."
+		"NOISE_FILTER_UNSUPPORTED": "Ce navigateur ne prend pas en charge le filtre de bruit.",
+		"HD_VIDEO": "Vidéo HD",
+		"HD_VIDEO_HINT": "Envoie votre caméra en haute définition. Désactivé, il consomme moins de bande passante."
 	},
 	"settings": {
 		"nav": {

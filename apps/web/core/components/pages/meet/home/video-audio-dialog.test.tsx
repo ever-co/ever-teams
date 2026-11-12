@@ -161,4 +161,23 @@ describe('VideoAudioDialog', () => {
 		fireEvent.click(testButton);
 		expect(meter().getAttribute('aria-valuenow')).toBe('0');
 	});
+
+	it('keeps the background noise filter and HD video, on at first, with the devices', async () => {
+		const media = installDevices();
+		render(<VideoAudioDialog open onClose={jest.fn()} />);
+		await waitFor(() => expect(media.enumerateDevices).toHaveBeenCalledTimes(2));
+		const noiseFilter = screen.getByRole('switch', { name: 'meetings.NOISE_FILTER' });
+		const hdVideo = screen.getByRole('switch', { name: 'meetings.HD_VIDEO' });
+		expect(noiseFilter.getAttribute('aria-checked')).toBe('true');
+		expect(hdVideo.getAttribute('aria-checked')).toBe('true');
+
+		fireEvent.click(noiseFilter);
+		fireEvent.click(hdVideo);
+		fireEvent.click(screen.getByRole('button', { name: 'common.SAVE_CHANGES' }));
+
+		expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? '{}')).toMatchObject({
+			noiseFilter: false,
+			hdVideo: false
+		});
+	});
 });

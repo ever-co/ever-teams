@@ -243,6 +243,8 @@ describe('Jitsi meeting room', () => {
 			audioInputId: 'mic-2',
 			videoInputId: '',
 			audioOutputId: '',
+			noiseFilter: true,
+			hdVideo: true,
 			audioInputLabel: 'USB microphone',
 			videoInputLabel: '',
 			audioOutputLabel: '',

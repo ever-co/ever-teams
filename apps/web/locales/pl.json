@@ -3948,7 +3948,9 @@
 		"EFFECTS": "Efekty",
 		"NOISE_FILTER": "Filtr szumów tła",
 		"NOISE_FILTER_HINT": "Usuwa hałas wokół ciebie z tego, co słyszą inni.",
-		"NOISE_FILTER_UNSUPPORTED": "Ta przeglądarka nie obsługuje filtra szumów."
+		"NOISE_FILTER_UNSUPPORTED": "Ta przeglądarka nie obsługuje filtra szumów.",
+		"HD_VIDEO": "Wideo HD",
+		"HD_VIDEO_HINT": "Wysyła obraz z kamery w wysokiej rozdzielczości. Wyłączone zużywa mniej transferu."
 	},
 	"settings": {
 		"nav": {

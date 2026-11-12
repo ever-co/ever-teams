@@ -3948,7 +3948,9 @@
 		"EFFECTS": "אפקטים",
 		"NOISE_FILTER": "מסנן רעשי רקע",
 		"NOISE_FILTER_HINT": "מסיר את הרעש שסביבכם ממה שאחרים שומעים.",
-		"NOISE_FILTER_UNSUPPORTED": "הדפדפן הזה לא תומך במסנן הרעשים."
+		"NOISE_FILTER_UNSUPPORTED": "הדפדפן הזה לא תומך במסנן הרעשים.",
+		"HD_VIDEO": "וידאו HD",
+		"HD_VIDEO_HINT": "שולח את המצלמה שלכם באיכות גבוהה. כשהוא כבוי, הוא צורך פחות רוחב פס."
 	},
 	"settings": {
 		"nav": {

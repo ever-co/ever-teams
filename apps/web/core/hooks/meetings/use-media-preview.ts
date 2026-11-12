@@ -18,6 +18,10 @@ export interface MeetingDeviceChoices {
 	audioInputId: string;
 	videoInputId: string;
 	audioOutputId: string;
+	/** Background noise taken out of what the others hear. */
+	noiseFilter: boolean;
+	/** The camera sent in high definition (720p), else in standard definition (360p). */
+	hdVideo: boolean;
 }
 
 /** What the room opens with: the person's devices and switches, and the name others see. */
@@ -37,7 +41,9 @@ const DEFAULT_CHOICES: MeetingDeviceChoices = {
 	videoEnabled: true,
 	audioInputId: '',
 	videoInputId: '',
-	audioOutputId: ''
+	audioOutputId: '',
+	noiseFilter: true,
+	hdVideo: true
 };
 const NO_DEVICES: DeviceLists = { audioinput: [], videoinput: [], audiooutput: [] };
 /** The choice that holds the device of each kind. */

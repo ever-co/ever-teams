@@ -3948,7 +3948,9 @@
 		"EFFECTS": "Effects",
 		"NOISE_FILTER": "Background noise filter",
 		"NOISE_FILTER_HINT": "Takes the noise around you out of what others hear.",
-		"NOISE_FILTER_UNSUPPORTED": "This browser does not support the noise filter."
+		"NOISE_FILTER_UNSUPPORTED": "This browser does not support the noise filter.",
+		"HD_VIDEO": "HD video",
+		"HD_VIDEO_HINT": "Sends your camera in high definition. Off, it uses less bandwidth."
 	},
 	"settings": {
 		"nav": {

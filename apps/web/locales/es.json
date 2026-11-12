@@ -3948,7 +3948,9 @@
 		"EFFECTS": "Efectos",
 		"NOISE_FILTER": "Filtro de ruido de fondo",
 		"NOISE_FILTER_HINT": "Quita el ruido a tu alrededor de lo que oyen los demás.",
-		"NOISE_FILTER_UNSUPPORTED": "Este navegador no admite el filtro de ruido."
+		"NOISE_FILTER_UNSUPPORTED": "Este navegador no admite el filtro de ruido.",
+		"HD_VIDEO": "Vídeo HD",
+		"HD_VIDEO_HINT": "Envía tu cámara en alta definición. Desactivado, usa menos ancho de banda."
 	},
 	"settings": {
 		"nav": {
