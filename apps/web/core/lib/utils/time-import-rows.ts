@@ -220,6 +220,10 @@ function periodOf(cells: TimeImportCells, context: TimeImportContext): Reading<T
 	const start = localDateOf(typed.value.day, typed.value.startClock);
 	const end = endOf(typed.value, start);
 	const seconds = secondsBetween(start, end);
+	// A duration too large for any date (999999999999h) leaves an end that is no date at all: no length to compare
+	if (!Number.isFinite(seconds)) {
+		return { value: null, problems: [{ code: 'tooLong' }] };
+	}
 	if (seconds <= 0) {
 		return { value: null, problems: [{ code: 'endNotAfterStart' }] };
 	}
