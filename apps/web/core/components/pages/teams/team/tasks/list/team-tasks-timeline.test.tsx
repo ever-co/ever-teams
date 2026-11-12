@@ -166,6 +166,48 @@ describe('TeamTasksTimelineView', () => {
 		expect(commands.openTask).not.toHaveBeenCalled();
 	});
 
+	it('keeps the first pointer as the owner of a press: a second touch on the bar changes nothing', () => {
+		mockMoveDates.mockClear();
+		renderTimeline([{ id: 'due', title: 'Due only', dueDate: '2026-11-20', status: 'open', taskStatusId: 'open' }]);
+		const bar = screen.getByTestId('timeline-bar-due');
+
+		fireEvent.pointerDown(bar, { button: 0, clientX: 100, pointerId: 1 });
+		fireEvent.pointerDown(bar, { button: 0, clientX: 300, pointerId: 2 });
+		fireEvent.pointerCancel(bar, { pointerId: 2 });
+		fireEvent.pointerMove(bar, { clientX: 172, pointerId: 1 });
+		fireEvent.pointerUp(bar, { clientX: 400, pointerId: 2 });
+		expect(mockMoveDates).not.toHaveBeenCalled();
+		// Weeks zoom, 36 px a day: the first pointer's 72 px are two days.
+		fireEvent.pointerUp(bar, { clientX: 172, pointerId: 1 });
+		expect(mockMoveDates).toHaveBeenCalledTimes(1);
+		expect(mockMoveDates).toHaveBeenLastCalledWith('due', 'move', 2);
+	});
+
+	it('opens the task on the next tap or key even when a drag was followed by no click', () => {
+		mockMoveDates.mockClear();
+		const { commands } = renderTimeline([
+			{ id: 'due', title: 'Due only', dueDate: '2026-11-20', status: 'open', taskStatusId: 'open' }
+		]);
+		const bar = screen.getByTestId('timeline-bar-due');
+		const dragWithoutClick = (pointerId: number) => {
+			fireEvent.pointerDown(bar, { button: 0, clientX: 100, pointerId });
+			fireEvent.pointerMove(bar, { clientX: 136, pointerId });
+			fireEvent.pointerUp(bar, { clientX: 136, pointerId });
+		};
+
+		dragWithoutClick(1);
+		fireEvent.pointerDown(bar, { button: 0, clientX: 100, pointerId: 2 });
+		fireEvent.pointerUp(bar, { clientX: 100, pointerId: 2 });
+		fireEvent.click(bar);
+		expect(commands.openTask).toHaveBeenCalledTimes(1);
+
+		dragWithoutClick(3);
+		fireEvent.keyDown(bar, { key: 'Enter' });
+		fireEvent.click(bar);
+		expect(commands.openTask).toHaveBeenCalledTimes(2);
+		expect(mockMoveDates).toHaveBeenCalledTimes(2);
+	});
+
 	it('shows end handles only on a range of several days, so a one-day range moves as a whole', () => {
 		renderTimeline([
 			{

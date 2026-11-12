@@ -426,6 +426,12 @@ function useTimelineBarDrag({
 	};
 
 	const onPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
+		// The pointer that pressed first owns the press: another touch on the bar meanwhile changes nothing.
+		if (pressRef.current) {
+			return;
+		}
+		// A new press: the click of an earlier drag came, or never will (some browsers send none after a touch drag).
+		suppressClickRef.current = false;
 		if (!canEdit || event.button !== 0) {
 			return;
 		}
@@ -466,14 +472,27 @@ function useTimelineBarDrag({
 		suppressClickRef.current = true;
 		if (delta !== 0) onMove(press.drag, delta);
 	};
+	/** Only the pointer that owns the press cancels it. */
+	const onPointerCancel = (event: PointerEvent<HTMLButtonElement>) => {
+		if (pressRef.current?.pointerId === event.pointerId) end();
+	};
 	/** Whether the click that follows was a drag's release (and so opens nothing). */
 	const takeDragClick = () => {
 		const wasDrag = suppressClickRef.current;
 		suppressClickRef.current = false;
 		return wasDrag;
 	};
+	/** A key was pressed on the bar: a click from it is the keyboard's, never a drag's. */
+	const forgetDragClick = () => {
+		suppressClickRef.current = false;
+	};
 
-	return { preview, handlers: { onPointerDown, onPointerMove, onPointerUp, onPointerCancel: end }, takeDragClick };
+	return {
+		preview,
+		handlers: { onPointerDown, onPointerMove, onPointerUp, onPointerCancel },
+		takeDragClick,
+		forgetDragClick
+	};
 }
 
 interface TimelineBarProps {
@@ -511,7 +530,12 @@ function TimelineBar({
 	scrollRef,
 	onMove
 }: Readonly<TimelineBarProps>) {
-	const { preview, handlers, takeDragClick } = useTimelineBarDrag({ canEdit, dayWidth, scrollRef, onMove });
+	const { preview, handlers, takeDragClick, forgetDragClick } = useTimelineBarDrag({
+		canEdit,
+		dayWidth,
+		scrollRef,
+		onMove
+	});
 	const dates = useMemo(
 		() => ({ startDay: dayOfStoredDate(task.startDate), dueDay: dayOfStoredDate(task.dueDate) }),
 		[task.startDate, task.dueDate]
@@ -527,6 +551,7 @@ function TimelineBar({
 		if (!takeDragClick()) onOpen();
 	};
 	const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+		forgetDragClick();
 		if (!canEdit || !event.altKey || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) {
 			return;
 		}
