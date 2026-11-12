@@ -29,21 +29,24 @@ function teamIdsOf(isOwn: boolean, teamId: string | null) {
 
 /**
  * One member's day in the work diary: the ten-minute slots with their screenshots and activity, and the app and site
- * entries recorded in them. Under the time-slot key family, so deleting a slot elsewhere refreshes it.
+ * entries recorded in them. Under the time-slot key family, so deleting a slot elsewhere refreshes it. Nothing is
+ * read while `isEnabled` is false: the day is not on screen.
  */
 export function useWorkDiaryDay({
 	employeeId,
 	isOwn,
 	teamId,
-	day
-}: Readonly<{ employeeId: string | null; isOwn: boolean; teamId: string | null; day: Date }>) {
+	day,
+	isEnabled = true
+}: Readonly<{ employeeId: string | null; isOwn: boolean; teamId: string | null; day: Date; isEnabled?: boolean }>) {
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
 	const dayKey = localDayKeyOf(day);
 	const teamIds = useMemo(() => teamIdsOf(isOwn, teamId), [isOwn, teamId]);
 	const hasScope = Boolean(tenantId) && Boolean(organizationId);
 	const hasMember = Boolean(employeeId);
-	const isReady = hasScope && hasMember;
+	const canRead = hasScope && hasMember;
+	const isReady = canRead && isEnabled;
 	const isLive = isLiveDayRange(dayKey, dayKey);
 	const slotsQuery = useQuery({
 		queryKey: [
@@ -72,7 +75,7 @@ export function useWorkDiaryDay({
 	});
 	const slots = slotsQuery.data ?? NO_SLOTS;
 	const diary = useMemo(() => diaryDayOf(slots, day), [day, slots]);
-	const apps = useMemberDayActivities({ employeeId, day, isEnabled: true });
+	const apps = useMemberDayActivities({ employeeId, day, isEnabled });
 	return {
 		diary,
 		activities: apps.activities,

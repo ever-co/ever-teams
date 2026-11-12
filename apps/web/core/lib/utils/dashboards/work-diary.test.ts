@@ -1,6 +1,6 @@
 import type { CalendarEntry } from '@/core/lib/utils/calendar-view';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
-import { DIARY_HISTORY_START, diaryDayOfParam, diaryTaskCountOf, diaryTasksOf } from './work-diary';
+import { DIARY_HISTORY_START, diaryDayOfParam, diaryTaskCountOf, diaryTasksOf, diaryViewOfParam } from './work-diary';
 
 const NOW = new Date(2026, 10, 11, 15, 30);
 
@@ -53,6 +53,15 @@ describe('diaryDayOfParam', () => {
 
 	it('goes no further back than the diary does', () => {
 		expect(diaryDayOfParam('1999-12-31', NOW)).toEqual(DIARY_HISTORY_START);
+	});
+});
+
+describe('diaryViewOfParam', () => {
+	it('opens the week sheet when the link asks for it, and the day otherwise', () => {
+		expect(diaryViewOfParam('week')).toBe('week');
+		expect(diaryViewOfParam('day')).toBe('day');
+		expect(diaryViewOfParam(null)).toBe('day');
+		expect(diaryViewOfParam('month')).toBe('day');
 	});
 });
 
