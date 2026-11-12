@@ -326,13 +326,15 @@ export function useTimerApi({
 		mutationFn: async ({
 			taskId,
 			projectId,
+			organizationTeamId,
 			isBillable
 		}: {
 			taskId: string;
 			projectId?: string | null;
+			organizationTeamId?: string;
 			isBillable: boolean;
 		}) => {
-			return await timerService.startTimer({ taskId, projectId, isBillable });
+			return await timerService.startTimer({ taskId, projectId, organizationTeamId, isBillable });
 		},
 		// runStartTimer shows the translated TIMER_START_FAILED toast; this keeps the raw global
 		// "Mutation Error" toast from showing a second one
@@ -644,6 +646,8 @@ export function useTimerApi({
 			const startRequest = startTimerMutate({
 				taskId: taskIdToUse,
 				projectId: projectIdToUse,
+				// This tab's team: the team cookie is shared by every tab and may name another tab's team (#5120)
+				organizationTeamId: teamIdAtStart,
 				isBillable: isBillableToUse
 			});
 			const promise = trackTimerCommand(startRequest).then(async (res) => {

@@ -66,10 +66,13 @@ class TimerService extends APIService {
 	startTimer = async ({
 		taskId,
 		projectId,
+		organizationTeamId,
 		isBillable
 	}: {
 		taskId: string;
 		projectId?: string | null;
+		// The starting tab's own team: the team cookie is shared by every tab and may name another tab's team (#5120)
+		organizationTeamId?: string | null;
 		isBillable: boolean;
 	}) => {
 		const startedAt = Date.now();
@@ -86,7 +89,7 @@ class TimerService extends APIService {
 				source: ETimeLogSource.TEAMS,
 				tags: [],
 				isBillable,
-				organizationTeamId: this.activeTeamId,
+				organizationTeamId: organizationTeamId || this.activeTeamId,
 				planDay
 			});
 
@@ -99,6 +102,8 @@ class TimerService extends APIService {
 			await api.post<ITimerStatus>(`/timer/start?${getTodayRangeQuery()}`, {
 				taskId,
 				...projectField,
+				// Without it, the route takes the team cookie
+				...(organizationTeamId ? { organizationTeamId } : {}),
 				isBillable,
 				planDay
 			})

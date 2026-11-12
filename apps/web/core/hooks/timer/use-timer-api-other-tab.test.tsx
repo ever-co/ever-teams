@@ -34,6 +34,7 @@ const mockUser = {
 	employee: { id: 'employee-1', userId: 'user-1', organizationId: 'org-1', tenantId: 'tenant-1' }
 };
 const mockStopTimer = jest.fn(async () => ({ data: { running: false } }));
+const mockStartTimer = jest.fn();
 const mockTranslate = (key: string) => key;
 const mockPlans = { myDailyPlans: { items: [] }, isSuccess: true };
 const mockTaskStatuses = { taskStatuses: [] };
@@ -67,7 +68,8 @@ jest.mock('@/core/services/client/api/timers', () => ({
 	timerService: {
 		getTimerStatus: async () => ({ data: { running: false } }),
 		syncTimer: async () => ({ data: null }),
-		stopTimer: () => mockStopTimer()
+		stopTimer: () => mockStopTimer(),
+		startTimer: (start: unknown) => mockStartTimer(start)
 	}
 }));
 jest.mock('@/core/services/client/api/organizations/teams', () => ({
@@ -142,8 +144,8 @@ function renderTab(store = createStore()) {
 	const view = renderHook(
 		() => {
 			const teams = useOrganizationTeamsQuery({ scope: SCOPE });
-			useTimerApi({ updateLocalTimerStatus: mockUpdateLocalTimerStatus, firstLoad: true });
-			return teams;
+			const timer = useTimerApi({ updateLocalTimerStatus: mockUpdateLocalTimerStatus, firstLoad: true });
+			return { ...teams, startTimer: timer.startTimer };
 		},
 		{ wrapper }
 	);
@@ -225,6 +227,22 @@ describe('the team another tab switches to', () => {
 		});
 
 		await waitFor(() => expect(store.get(activeTeamIdState)).toBe('team-y'));
+	});
+
+	it("starts this tab's timer on its own team, not on the team another tab switched to", async () => {
+		mockBrowserCookies.teamId = 'team-x';
+		mockGetOrganizationTeams.mockResolvedValue(teamList([team('team-x'), team('team-y')]) as never);
+		mockStartTimer.mockResolvedValue({ data: timerRunningOn('task-a') });
+		const { store, view } = renderTab();
+		await waitFor(() => expect(store.get(activeTeamIdState)).toBe('team-x'));
+
+		// Another tab switches to team Y; this tab then starts its timer on a task of team X
+		mockBrowserCookies.teamId = 'team-y';
+		await act(async () => {
+			await view.result.current.startTimer(task('task-a'));
+		});
+
+		expect(mockStartTimer).toHaveBeenCalledWith(expect.objectContaining({ organizationTeamId: 'team-x' }));
 	});
 });
 
