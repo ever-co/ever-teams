@@ -309,7 +309,7 @@ export function useCalendarGridDrag(options: GridDragOptions) {
 
 	const handlePointerMove = useEffectEvent((event: PointerEvent) => {
 		const session = sessionRef.current;
-		if (!session || event.pointerId !== session.pointerId) {
+		if (session?.pointerId !== event.pointerId) {
 			return;
 		}
 		if (session.isGivenUp) {
@@ -345,7 +345,7 @@ export function useCalendarGridDrag(options: GridDragOptions) {
 
 	const handlePointerUp = useEffectEvent((event: PointerEvent) => {
 		const session = sessionRef.current;
-		if (!session || event.pointerId !== session.pointerId) {
+		if (session?.pointerId !== event.pointerId) {
 			return;
 		}
 		if (session.isGivenUp) {
@@ -360,7 +360,7 @@ export function useCalendarGridDrag(options: GridDragOptions) {
 
 	const handlePointerCancel = useEffectEvent((event: PointerEvent) => {
 		const session = sessionRef.current;
-		if (session && event.pointerId === session.pointerId) {
+		if (session?.pointerId === event.pointerId) {
 			endSession();
 		}
 	});
