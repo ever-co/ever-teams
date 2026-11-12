@@ -31,7 +31,8 @@ export function useChatLinkPreviewPicture(url: string, hasPicture: boolean): Blo
 	const isShown = isChatLinkPreviewPicturesEnabled() && hasPicture;
 	const { data, error } = useQuery({
 		queryKey: queryKeys.chatLinkPreviewPicture(scope?.tenantId, url),
-		queryFn: ({ signal }) => chatService.linkPreviewImage(url, signal),
+		// A retry runs a while after it was decided: by then another card may have learned that pictures are off.
+		queryFn: async ({ signal }) => (offFor.get(client) ? null : chatService.linkPreviewImage(url, signal)),
 		enabled: isShown && scope !== null && !offFor.get(client),
 		staleTime: Infinity,
 		gcTime: PICTURE_GC_MS,

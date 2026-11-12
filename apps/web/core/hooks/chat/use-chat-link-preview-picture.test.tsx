@@ -79,6 +79,30 @@ describe('useChatLinkPreviewPicture', () => {
 		expect(mockAsk).toHaveBeenCalledTimes(1);
 	});
 
+	it('drops a waiting retry once another card learned that pictures are off (404)', async () => {
+		jest.useFakeTimers();
+		try {
+			mockAsk.mockImplementation((url) => Promise.reject(failure(url === 'https://b.io/' ? 404 : 503)));
+			const client = newClient();
+			const busy = renderHook(() => useChatLinkPreviewPicture('https://a.io/page', true), {
+				wrapper: wrapper(client)
+			});
+			await act(() => jest.advanceTimersByTimeAsync(0));
+			expect(mockAsk).toHaveBeenCalledTimes(1);
+
+			renderHook(() => useChatLinkPreviewPicture('https://b.io/', true), { wrapper: wrapper(client) });
+			await act(() => jest.advanceTimersByTimeAsync(0));
+			expect(mockAsk).toHaveBeenCalledTimes(2);
+
+			// The first card's retry comes due: the platform is not asked again.
+			await act(() => jest.advanceTimersByTimeAsync(15_000));
+			expect(mockAsk).toHaveBeenCalledTimes(2);
+			expect(busy.result.current).toBeNull();
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
 	it('asks a busy platform (503) twice more, a while apart, then leaves the card text only', async () => {
 		jest.useFakeTimers();
 		try {
