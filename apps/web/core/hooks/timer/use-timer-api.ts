@@ -728,11 +728,13 @@ export function useTimerApi({
 					!isEqual(timerStatus, res.data) &&
 					setTimerStatus(res.data);
 				onRequestLanded?.();
-				// Notes typed before this start are the notes of the entry it created, and of no entry found running later
+				// Notes typed before this start are the notes of the entry it created, and of no entry found running
+				// later. Not after a team change meanwhile (any statusEnabled): a draft typed since is the new team's.
+				const isStartTeamActive = activeTeamRef.current?.id === teamIdAtStart;
 				store.set(timerNotesState, (notes) => {
 					// Continued notes replace a draft: tied to the entry, the draft would overwrite them at the stop
 					const notesSent = continuedNotes === undefined ? notes : { text: continuedNotes, timeLogId: null };
-					const notesAfterStart = timerNotesAfterStart(notesSent, res.data, notesToUse);
+					const notesAfterStart = timerNotesAfterStart(notesSent, res.data, notesToUse, isStartTeamActive);
 					return notesAfterStart === notesSent ? notes : notesAfterStart;
 				});
 
