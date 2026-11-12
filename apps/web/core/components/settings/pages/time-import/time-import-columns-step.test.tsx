@@ -205,6 +205,12 @@ describe('TimeImportColumnsStep', () => {
 		expect(checkButton().disabled).toBe(true);
 	});
 
+	it('names no date format before a column with dates is chosen', () => {
+		renderStep({ mapping: NO_TIME_IMPORT_COLUMNS, dateOrder: null });
+
+		expect(screen.getByText('timeImport.mapping.DATE_FORMAT').nextElementSibling?.textContent).toBe('–');
+	});
+
 	it('checks the rows once the date, the start, the end and the date format are settled', () => {
 		const handlers = renderStep({ mapping: CHOSEN, dateOrder: 'dayFirst' });
 

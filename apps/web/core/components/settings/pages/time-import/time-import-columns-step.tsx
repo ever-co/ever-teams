@@ -183,7 +183,8 @@ function DateFormatRow({ step, copy, onChooseDateOrder }: Readonly<DateFormatRow
 		sample = `${value}${PART_SEPARATOR}${reading}`;
 	}
 	let orderLabel = NO_VALUE;
-	if (dateOrder) {
+	const hasDates = dates.kind !== 'none';
+	if (dateOrder && hasDates) {
 		orderLabel = copy.dateOrderLabel(dateOrder);
 	}
 
