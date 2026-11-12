@@ -2703,7 +2703,7 @@
 			"LABEL": "Notas",
 			"PLACEHOLDER": "Em que você está trabalhando?",
 			"HINT_BEFORE_START": "Opcional. Salvas na entrada quando o temporizador inicia.",
-			"HINT_RUNNING": "As alterações são enviadas quando você para o temporizador."
+			"HINT_RUNNING": "As alterações são enviadas quando você para o temporizador. Um aviso aparece se elas não forem salvas."
 		}
 	},
 	"task": {

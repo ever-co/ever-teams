@@ -2703,7 +2703,7 @@
 			"LABEL": "Notes",
 			"PLACEHOLDER": "What are you working on?",
 			"HINT_BEFORE_START": "Optional. Saved on the entry when the timer starts.",
-			"HINT_RUNNING": "Changes are sent when you stop the timer."
+			"HINT_RUNNING": "Changes are sent when you stop the timer. You are told if they are not saved."
 		}
 	},
 	"task": {

@@ -2703,7 +2703,7 @@
 			"LABEL": "Notas",
 			"PLACEHOLDER": "¿En qué estás trabajando?",
 			"HINT_BEFORE_START": "Opcional. Se guardan en la entrada al iniciar el temporizador.",
-			"HINT_RUNNING": "Los cambios se envían al detener el temporizador."
+			"HINT_RUNNING": "Los cambios se envían al detener el temporizador. Se te avisa si no se guardan."
 		}
 	},
 	"task": {

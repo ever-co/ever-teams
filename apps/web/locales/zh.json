@@ -2703,7 +2703,7 @@
 			"LABEL": "备注",
 			"PLACEHOLDER": "您正在做什么？",
 			"HINT_BEFORE_START": "可选。计时器启动时保存到记录中。",
-			"HINT_RUNNING": "停止计时器时会发送更改。"
+			"HINT_RUNNING": "停止计时器时会发送更改。如果未保存，系统会提示您。"
 		}
 	},
 	"task": {

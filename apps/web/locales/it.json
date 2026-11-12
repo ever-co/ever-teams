@@ -2703,7 +2703,7 @@
 			"LABEL": "Note",
 			"PLACEHOLDER": "A cosa stai lavorando?",
 			"HINT_BEFORE_START": "Facoltativo. Salvate nella voce all'avvio del timer.",
-			"HINT_RUNNING": "Le modifiche vengono inviate quando fermi il timer."
+			"HINT_RUNNING": "Le modifiche vengono inviate quando fermi il timer. Ricevi un avviso se non vengono salvate."
 		}
 	},
 	"task": {

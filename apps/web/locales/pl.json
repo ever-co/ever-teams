@@ -2703,7 +2703,7 @@
 			"LABEL": "Notatki",
 			"PLACEHOLDER": "Nad czym pracujesz?",
 			"HINT_BEFORE_START": "Opcjonalne. Zapisywane we wpisie przy uruchomieniu timera.",
-			"HINT_RUNNING": "Zmiany są wysyłane po zatrzymaniu timera."
+			"HINT_RUNNING": "Zmiany są wysyłane po zatrzymaniu timera. Dostaniesz informację, jeśli nie zostaną zapisane."
 		}
 	},
 	"task": {

@@ -2703,7 +2703,7 @@
 			"LABEL": "Notes",
 			"PLACEHOLDER": "Sur quoi travaillez-vous ?",
 			"HINT_BEFORE_START": "Facultatif. Enregistrées sur l'entrée au démarrage du chronomètre.",
-			"HINT_RUNNING": "Les changements sont envoyés à l'arrêt du chronomètre."
+			"HINT_RUNNING": "Les changements sont envoyés à l'arrêt du chronomètre. Un message vous prévient s'ils ne sont pas enregistrés."
 		}
 	},
 	"task": {
