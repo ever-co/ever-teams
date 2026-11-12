@@ -236,15 +236,71 @@ describe('timeImportReadingOf for a file from another tool', () => {
 		expect(sheet.ignoredHeaders).toEqual(['Client', 'Tags', 'Amount', 'Rate']);
 	});
 
-	it('reads a field from the first of two headers that name it, and refuses one header written twice', () => {
-		const twoNames = sheetOf('Date,Day,Start,End\n2026-11-03,2026-11-04,09:00,10:00\n');
+	it('asks the member when two headers name the same part, and refuses one header written twice', () => {
+		const twoNames = timeImportReadingOf('Date,Day,Start,End\n2026-11-03,2026-11-04,09:00,10:00\n');
 
-		expect(twoNames.rows[0].cells.date).toBe('2026-11-03');
-		expect(twoNames.ignoredHeaders).toEqual(['Day']);
+		expect(twoNames).toMatchObject({ kind: 'columns', choice: { mapping: { date: 0, startTime: 2, endTime: 3 } } });
 		expect(problemOf('Start date,Start time,End time,Start Date\n2026-11-03,09:00,10:00,x\n')).toEqual({
 			code: 'duplicateColumn',
 			header: 'start date'
 		});
+	});
+});
+
+describe('timeImportReadingOf, the Columns step', () => {
+	const UNKNOWN = 'Datum,Beginn,Ende,Kunde\n03/11/2026,09:00,10:30,Acme\n05/11/2026,13:00,14:00,Acme\n';
+
+	it('stops on the Columns step for a file whose headers it does not know, with nothing chosen', () => {
+		const reading = timeImportReadingOf(UNKNOWN);
+
+		expect(reading).toMatchObject({
+			kind: 'columns',
+			choice: { mapping: NO_TIME_IMPORT_COLUMNS, dateOrder: null }
+		});
+	});
+
+	it('stops on the Columns step when every date fits two formats, with the columns it recognised', () => {
+		const reading = timeImportReadingOf('Date,Start,End\n03/11/2026,09:00,10:30\n');
+
+		expect(reading).toMatchObject({ kind: 'columns', choice: { mapping: { date: 0, startTime: 1, endTime: 2 } } });
+	});
+
+	it('stops on the step rather than refusing when a column it does not know could give what is missing', () => {
+		expect(timeImportReadingOf('Date,Start,Fin\n2026-11-03,09:00,10:30\n').kind).toBe('columns');
+		expect(problemOf('Date,Start,Client\n2026-11-03,09:00,Acme\n')).toEqual({
+			code: 'missingColumns',
+			columns: ['endOrDuration']
+		});
+	});
+
+	it('reads a file through the choice kept for its headers, without the step', () => {
+		const kept = {
+			mapping: { ...NO_TIME_IMPORT_COLUMNS, date: 0, startTime: 1, endTime: 2 },
+			dateOrder: 'dayFirst' as const
+		};
+		const reading = timeImportReadingOf(UNKNOWN, () => kept);
+
+		expect(reading).toMatchObject({
+			kind: 'sheet',
+			readsAsTemplate: false,
+			sheet: { dateOrder: 'dayFirst', ignoredHeaders: ['Kunde'] }
+		});
+	});
+
+	it('shows the kept choice again when it does not settle the file, as a format never chosen', () => {
+		const kept = { mapping: { ...NO_TIME_IMPORT_COLUMNS, date: 0, startTime: 1, endTime: 2 }, dateOrder: null };
+
+		expect(timeImportReadingOf(UNKNOWN, () => kept)).toMatchObject({ kind: 'columns', choice: kept });
+	});
+
+	it('tells the template, read with its own headers and dates year first, from any other file', () => {
+		const template = timeImportReadingOf(`${HEADER}\n2026-11-03,09:00,10:30,,,,,\n`);
+		const exported = timeImportReadingOf('Start date,Start time,End time\n2026-11-03,09:00,10:30\n');
+		const dayFirst = timeImportReadingOf('date,start time,end time\n25/10/2026,09:00,10:30\n');
+
+		expect(template).toMatchObject({ kind: 'sheet', readsAsTemplate: true });
+		expect(exported).toMatchObject({ kind: 'sheet', readsAsTemplate: false });
+		expect(dayFirst).toMatchObject({ kind: 'sheet', readsAsTemplate: false });
 	});
 });
 

@@ -2,6 +2,7 @@ import { dateOrdersOf, datePartOf, holdsDateAndTime, type DateOrder } from '@/co
 import {
 	NO_TIME_IMPORT_COLUMNS,
 	TIME_IMPORT_FIELDS,
+	TIME_IMPORT_HEADERS,
 	TIME_IMPORT_REPORT_HEADERS,
 	rowCountProblemOf,
 	timeImportTableOf,
@@ -91,7 +92,53 @@ const FIELD_HEADERS: Readonly<Record<TimeImportField, ReadonlyArray<string>>> = 
 	]
 };
 
+/** Columns of time exports the import does not use: they are left out without asking. */
+const UNUSED_HEADERS: ReadonlySet<string> = new Set([
+	'client',
+	'client name',
+	'customer',
+	'tags',
+	'tag',
+	'labels',
+	'label',
+	'amount',
+	'rate',
+	'hourly rate',
+	'billable rate',
+	'billable amount',
+	'cost',
+	'cost rate',
+	'cost amount',
+	'currency',
+	'invoice',
+	'invoiced',
+	'approved',
+	'approval',
+	'locked',
+	'group',
+	'user group',
+	'department',
+	'team',
+	'id',
+	'entry id',
+	'created',
+	'created at',
+	'updated',
+	'updated at',
+	'type',
+	'category',
+	'location',
+	'break',
+	'breaks',
+	'week',
+	'month',
+	'year',
+	'weekday'
+]);
+
 const REPORT_ONLY_HEADERS: ReadonlySet<string> = new Set(Object.values(TIME_IMPORT_REPORT_HEADERS));
+
+const TEMPLATE_HEADERS: ReadonlySet<string> = new Set(Object.values(TIME_IMPORT_HEADERS));
 
 function fieldByHeaderOf(): Map<string, TimeImportField> {
 	const fieldByHeader = new Map<string, TimeImportField>();
@@ -119,30 +166,54 @@ function headerWordsOf(header: string): string {
 	return words.trim();
 }
 
+function isLeftOutWithoutAsking(words: string): boolean {
+	const isBlank = words === '';
+	const isReportColumn = REPORT_ONLY_HEADERS.has(words);
+	const isUnused = UNUSED_HEADERS.has(words);
+	return isBlank || isReportColumn || isUnused;
+}
+
 interface HeaderReading {
 	mapping: Record<TimeImportField, number | null>;
 	/** The words of the first header the file repeats for a field it reads, if any. */
 	duplicateHeader: string | null;
+	/** Headers the import cannot place by itself: unknown words, or a second header for a field already read. */
+	unknownHeaders: string[];
+	/** Whether every field is read from the template's own header. */
+	readsAsTemplate: boolean;
 }
 
 function readHeaders(headers: ReadonlyArray<string>): HeaderReading {
-	const reading: HeaderReading = { mapping: { ...NO_TIME_IMPORT_COLUMNS }, duplicateHeader: null };
+	const reading: HeaderReading = {
+		mapping: { ...NO_TIME_IMPORT_COLUMNS },
+		duplicateHeader: null,
+		unknownHeaders: [],
+		readsAsTemplate: true
+	};
 	const wordsByField = new Map<TimeImportField, string>();
 	headers.forEach((header, index) => {
 		const words = headerWordsOf(header);
 		const field = FIELD_BY_HEADER.get(words);
 		if (!field) {
+			if (!isLeftOutWithoutAsking(words)) {
+				reading.unknownHeaders.push(header);
+			}
 			return;
 		}
 		const heldBy = wordsByField.get(field);
 		if (heldBy === undefined) {
 			reading.mapping[field] = index;
 			wordsByField.set(field, words);
+			if (!TEMPLATE_HEADERS.has(words)) {
+				reading.readsAsTemplate = false;
+			}
 			return;
 		}
 		if (heldBy === words) {
 			reading.duplicateHeader ??= words;
+			return;
 		}
+		reading.unknownHeaders.push(header);
 	});
 	return reading;
 }
@@ -424,24 +495,42 @@ export function timeImportColumnsStepOf(
 	};
 }
 
-/** The template's order, year first, until a value of the file tells another one. */
-function orderOfReading(reading: DateOrderReading): DateOrder {
-	if (reading.kind === 'told') {
-		return reading.order;
-	}
-	return 'yearFirst';
-}
-
 export type TimeImportReading =
 	| { kind: 'refused'; problem: TimeImportSheetProblem }
-	| { kind: 'sheet'; sheet: TimeImportSheet };
+	/** The member chooses the columns, or the date format, before any row is checked. */
+	| { kind: 'columns'; table: TimeImportTable; choice: TimeImportColumnsChoice }
+	| {
+			kind: 'sheet';
+			table: TimeImportTable;
+			choice: TimeImportColumnsChoice;
+			sheet: TimeImportSheet;
+			/** Read as the template reads: its own headers, dates year first, nothing chosen by hand. */
+			readsAsTemplate: boolean;
+	  };
+
+/** The choice this browser keeps for a file of these headers, if any. */
+type StoredChoiceOf = (headers: ReadonlyArray<string>) => TimeImportColumnsChoice | null;
+
+const NO_STORED_CHOICE: StoredChoiceOf = () => null;
+
+function usesDatesOfMoments(read: TimeImportMapping, suggested: TimeImportMapping): boolean {
+	const hasDateFromStart = read.date !== suggested.date;
+	const hasEndDateFromEnd = read.endDate !== suggested.endDate;
+	return hasDateFromStart || hasEndDateFromEnd;
+}
 
 /**
  * Reads the text of a CSV file into the rows of a time import: the header names the columns, in any order and in
  * the words of the template or of the usual time exports, and every other line that is not blank is a row. A file
- * the import cannot use at all is refused whole, with the reason; what each row holds is judged later, row by row.
+ * the import can read by itself goes straight to its rows. A file with headers it does not know, or whose dates fit
+ * two formats, stops on the Columns step, filled with what the import recognised or with the choice kept for the
+ * same headers. A file the import cannot use at all is refused whole, with the reason: among them a file whose
+ * headers are all known and still miss a part of an entry, since no column of it could give that part.
  */
-export function timeImportReadingOf(text: string): TimeImportReading {
+export function timeImportReadingOf(
+	text: string,
+	storedChoiceOf: StoredChoiceOf = NO_STORED_CHOICE
+): TimeImportReading {
 	const tableReading = timeImportTableOf(text);
 	if (!tableReading.table) {
 		return { kind: 'refused', problem: tableReading.problem };
@@ -451,19 +540,40 @@ export function timeImportReadingOf(text: string): TimeImportReading {
 	if (header.duplicateHeader) {
 		return { kind: 'refused', problem: { code: 'duplicateColumn', header: header.duplicateHeader } };
 	}
-	const mapping = withDatesOfMoments(table, header.mapping);
+	const stored = storedChoiceOf(table.headers);
+	const suggested = withDatesOfMoments(table, header.mapping);
+	const mapping = stored?.mapping ?? suggested;
 	const missingColumns = missingColumnsOf(mapping);
-	if (missingColumns.length > 0) {
+	const isMissing = missingColumns.length > 0;
+	const hasStoredChoice = stored !== null;
+	const hasUnknownHeaders = header.unknownHeaders.length > 0;
+	const asksAboutHeaders = hasUnknownHeaders && !hasStoredChoice;
+	const canChooseColumns = asksAboutHeaders || hasStoredChoice;
+	if (isMissing && !canChooseColumns) {
 		return { kind: 'refused', problem: { code: 'missingColumns', columns: missingColumns } };
 	}
 	const countProblem = rowCountProblemOf(table);
 	if (countProblem) {
 		return { kind: 'refused', problem: countProblem };
 	}
+	const choice: TimeImportColumnsChoice = { mapping, dateOrder: stored?.dateOrder ?? null };
 	const dates = dateOrderReadingOf(table, mapping);
+	const dateOrder = resolvedDateOrderOf(dates, choice.dateOrder);
+	const asksDateOrder = dates.kind === 'ambiguous' && dateOrder === null;
+	const needsChoice = isMissing || asksAboutHeaders || asksDateOrder;
+	if (needsChoice) {
+		return { kind: 'columns', table, choice };
+	}
 	if (dates.kind === 'mixed') {
 		const { firstRow, firstValue, row, value } = dates;
 		return { kind: 'refused', problem: { code: 'mixedDates', firstRow, firstValue, row, value } };
 	}
-	return { kind: 'sheet', sheet: timeImportSheetOf(table, mapping, orderOfReading(dates)) };
+	if (!dateOrder) {
+		return { kind: 'columns', table, choice };
+	}
+	const isTemplateOrder = dateOrder === 'yearFirst';
+	const isReadByItself = !usesDatesOfMoments(header.mapping, suggested) && !hasStoredChoice;
+	const readsAsTemplate = header.readsAsTemplate && isReadByItself && isTemplateOrder;
+	const sheet = timeImportSheetOf(table, mapping, dateOrder);
+	return { kind: 'sheet', table, choice, sheet, readsAsTemplate };
 }

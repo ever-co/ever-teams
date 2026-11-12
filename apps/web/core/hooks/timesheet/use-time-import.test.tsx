@@ -56,9 +56,13 @@ function contextAt(now: Date): TimeImportContext {
 
 const saveScope = { tenantId: 'tenant-a', organizationId: 'organization-a', organizationTeamId: 'team-a' };
 
-function csvFile(lines: string[], name = 'march.csv') {
-	const bytes = new TextEncoder().encode([HEADER, ...lines].join('\n'));
+function textFile(text: string, name = 'march.csv') {
+	const bytes = new TextEncoder().encode(text);
 	return { name, size: bytes.byteLength, arrayBuffer: async () => bytes.buffer as ArrayBuffer };
+}
+
+function csvFile(lines: string[], name = 'march.csv') {
+	return textFile([HEADER, ...lines].join('\n'), name);
 }
 
 function recordedLog(id: string, start: Date, end: Date) {
@@ -82,6 +86,7 @@ const THREE_ROWS = [
 beforeEach(() => {
 	mockGetTimeLogConflicts.mockResolvedValue([]);
 	mockAddManualTime.mockResolvedValue({});
+	window.localStorage.clear();
 });
 
 describe('useTimeImport', () => {
@@ -362,5 +367,122 @@ describe('useTimeImport', () => {
 		expect(result.current.stage).toBe('idle');
 		expect(result.current.rows).toEqual([]);
 		expect(result.current.fileName).toBe('');
+	});
+});
+
+describe('useTimeImport for a file from another tool', () => {
+	const EXPORT = 'Datum,Beginn,Ende,Notiz\n05/03/2024,09:00,10:00,Pairing\n06/03/2024,09:00,09:30,\n';
+
+	type Rendered = ReturnType<typeof renderImport>['result'];
+
+	function chooseExportColumns(result: Rendered) {
+		act(() => {
+			result.current.chooseColumn('date', 0);
+			result.current.chooseColumn('startTime', 1);
+			result.current.chooseColumn('endTime', 2);
+			result.current.chooseColumn('notes', 3);
+		});
+		act(() => result.current.chooseDateOrder('dayFirst'));
+	}
+
+	it('stops on the Columns step, then checks the rows once the columns and the date format are chosen', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(textFile(EXPORT)));
+
+		expect(result.current.stage).toBe('columns');
+		expect(result.current.columnsStep?.blocker).toBe('missing');
+		expect(mockGetTimeLogConflicts).not.toHaveBeenCalled();
+
+		act(() => {
+			result.current.chooseColumn('date', 0);
+			result.current.chooseColumn('startTime', 1);
+			result.current.chooseColumn('endTime', 2);
+		});
+		expect(result.current.columnsStep?.blocker).toBe('dateOrder');
+
+		chooseExportColumns(result);
+		await act(() => result.current.confirmColumns());
+
+		expect(result.current.stage).toBe('preview');
+		expect(result.current.canEditColumns).toBe(true);
+		expect(result.current.summary).toMatchObject({ rowCount: 2, readyCount: 2 });
+		expect(result.current.rows[0].entry).toMatchObject({ start: at(9), end: at(10), notes: 'Pairing' });
+		expect(result.current.rows[1].row).toBe(3);
+	});
+
+	it('keeps the columns chosen for the next file of the same headers on this browser', async () => {
+		const first = renderImport();
+		await act(() => first.result.current.chooseFile(textFile(EXPORT)));
+		chooseExportColumns(first.result);
+		await act(() => first.result.current.confirmColumns());
+
+		const second = renderImport();
+		await act(() => second.result.current.chooseFile(textFile(EXPORT, 'april.csv')));
+
+		expect(second.result.current.stage).toBe('preview');
+		expect(second.result.current.summary.readyCount).toBe(2);
+	});
+
+	it('still imports when the browser refuses its storage, and asks again next time', async () => {
+		const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		const getItem = jest.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+			throw new Error('SecurityError');
+		});
+		const setItem = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+			throw new Error('QuotaExceededError');
+		});
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(textFile(EXPORT)));
+		chooseExportColumns(result);
+		await act(() => result.current.confirmColumns());
+
+		expect(result.current.stage).toBe('preview');
+		await act(() => result.current.chooseFile(textFile(EXPORT, 'april.csv')));
+		expect(result.current.stage).toBe('columns');
+
+		getItem.mockRestore();
+		setItem.mockRestore();
+		consoleError.mockRestore();
+	});
+
+	it('reads a file with the usual headers of a time export straight to its preview, and back to its columns', async () => {
+		const { result } = renderImport();
+		await act(() =>
+			result.current.chooseFile(textFile('Start date,Start time,End time\n2024-03-05,09:00,10:00\n'))
+		);
+
+		expect(result.current.stage).toBe('preview');
+		expect(result.current.canEditColumns).toBe(true);
+		act(() => result.current.editColumns());
+
+		expect(result.current.stage).toBe('columns');
+		expect(result.current.rows).toEqual([]);
+		expect(result.current.columnsStep?.fields.find((item) => item.field === 'date')?.columnIndex).toBe(0);
+	});
+
+	it('reads the template straight to its preview, with no columns to change', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+
+		expect(result.current.canEditColumns).toBe(false);
+		act(() => result.current.editColumns());
+
+		expect(result.current.stage).toBe('preview');
+	});
+
+	it('refuses a file whose dates are written two ways, with the row that shows it', async () => {
+		const { result } = renderImport();
+		await act(() =>
+			result.current.chooseFile(textFile('Date,Start,End\n25/02/2024,09:00,10:00\n02/25/2024,09:00,10:00\n'))
+		);
+
+		expect(result.current.stage).toBe('idle');
+		expect(result.current.fileProblem).toEqual({
+			code: 'mixedDates',
+			firstRow: 2,
+			firstValue: '25/02/2024',
+			row: 3,
+			value: '02/25/2024'
+		});
 	});
 });
