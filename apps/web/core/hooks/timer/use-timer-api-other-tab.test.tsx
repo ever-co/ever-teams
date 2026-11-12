@@ -13,6 +13,7 @@ import { queryKeys } from '@/core/query/keys';
 import {
 	activeTeamIdState,
 	activeTeamTaskState,
+	localTimerStatusState,
 	organizationTeamsState,
 	teamTasksCompleteState,
 	teamTasksState,
@@ -255,6 +256,21 @@ describe('the task another tab picks', () => {
 		});
 
 		expect(mockStopTimer).not.toHaveBeenCalled();
+		expect(store.get(activeTeamTaskState)?.id).toBe('task-a');
+	});
+
+	it('keeps the task this tab is starting a timer on, before the server says the timer runs', async () => {
+		const { store } = renderTabWorkingOnTaskA({ timerRuns: false });
+		await act(async () => {
+			// The start request is out: only this tab's local status says the timer runs
+			store.set(localTimerStatusState, { lastTaskId: 'task-a', runnedDateTime: 1, running: true });
+		});
+
+		mockBrowserCookies.taskId = 'task-b';
+		await act(async () => {
+			store.set(teamTasksState, [task('task-a'), task('task-b')]);
+		});
+
 		expect(store.get(activeTeamTaskState)?.id).toBe('task-a');
 	});
 
