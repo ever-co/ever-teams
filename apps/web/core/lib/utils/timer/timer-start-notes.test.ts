@@ -1,3 +1,4 @@
+import { TIMER_NOTES_MAX_LENGTH } from './timer-notes';
 import { notesForStartOf, startNotesOf } from './timer-start-notes';
 
 const HANDED_AT = Date.UTC(2026, 10, 12, 9, 0, 0);
@@ -9,6 +10,14 @@ describe('startNotesOf', () => {
 			description: 'Review the invoices',
 			handedAt: HANDED_AT
 		});
+	});
+
+	it('hands the notes of a long entry cut to the length a start takes, as the timer sends its own', () => {
+		const savedNotes = `  ${'a'.repeat(TIMER_NOTES_MAX_LENGTH + 500)}  `;
+
+		const handed = startNotesOf('task-1', savedNotes, HANDED_AT);
+
+		expect(handed?.description).toBe('a'.repeat(TIMER_NOTES_MAX_LENGTH));
 	});
 
 	it('hands nothing for an entry without notes', () => {

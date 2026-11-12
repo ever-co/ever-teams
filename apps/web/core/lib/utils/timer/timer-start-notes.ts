@@ -1,11 +1,18 @@
 import type { TTimerStartNotes } from '@/core/stores/timer/timer-start-notes';
 
+import { normalizedTimerNotes } from './timer-notes';
+
+/**
+ * The notes a continued entry hands to its start, as the timer's own notes field would send them: trimmed and cut to
+ * the length a start takes. A saved entry can hold more, and the start route refuses longer notes, after the card's
+ * start already stopped the running timer.
+ */
 export function startNotesOf(
 	taskId: string,
 	description: string | null | undefined,
 	now: number
 ): TTimerStartNotes | null {
-	const notes = description?.trim();
+	const notes = normalizedTimerNotes(description);
 	if (!notes) {
 		return null;
 	}
