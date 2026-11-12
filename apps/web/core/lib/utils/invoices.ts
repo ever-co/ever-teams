@@ -167,12 +167,13 @@ export function linePriceOf({
 	return { rate, source, currency: currencyOf(clientCurrency, organizationCurrency) };
 }
 
-export type InvoiceGrouping = 'member' | 'task';
+export type InvoiceGrouping = 'project' | 'member' | 'task';
 
 export interface InvoiceLine {
 	key: string;
 	projectId: string;
-	employeeId: string;
+	/** Null on a line that gathers the time of every member of the project. */
+	employeeId: string | null;
 	/** Null on a line that gathers a member's time on the project, whatever the task. */
 	taskId: string | null;
 	seconds: number;
@@ -183,6 +184,8 @@ export interface InvoiceLine {
 	/** Hours times rate, to the cent: the arithmetic a reader checks on the invoice. */
 	amount: number;
 	rateSource: InvoiceRateSource;
+	/** The members of the project are billed different rates: the line states their average, weighted by time. */
+	isAverageRate: boolean;
 }
 
 export interface UnpricedTime {
@@ -234,6 +237,115 @@ function addUnpriced(byMember: Map<string, UnpricedTime>, entry: BillableEntry) 
 	byMember.set(key, current);
 }
 
+type LinePriceOf = (projectId: string, employeeId: string) => LinePrice;
+
+const SECONDS_PER_HOUR = 3600;
+
+const RATE_SOURCE_ORDER: ReadonlyArray<InvoiceRateSource> = ['member', 'project', 'employee'];
+
+/** The time of one project priced in one currency, at each member's own rate. */
+interface ProjectWorth {
+	key: string;
+	projectId: string;
+	currency: string | null;
+	seconds: number;
+	/** What the time is worth before any rounding: each member's hours times their rate. */
+	worth: number;
+	rates: Set<number>;
+	secondsBySource: Map<InvoiceRateSource, number>;
+}
+
+function projectWorthKeyOf(projectId: string, currency: string | null) {
+	return [projectId, currencyKeyOf(currency)].join('|');
+}
+
+interface KnownPrice {
+	rate: number;
+	source: InvoiceRateSource;
+	currency: string | null;
+}
+
+function addProjectWorth(byProject: Map<string, ProjectWorth>, entry: BillableEntry, price: KnownPrice) {
+	const key = projectWorthKeyOf(entry.projectId, price.currency);
+	const current = byProject.get(key) ?? {
+		key,
+		projectId: entry.projectId,
+		currency: price.currency,
+		seconds: 0,
+		worth: 0,
+		rates: new Set<number>(),
+		secondsBySource: new Map<InvoiceRateSource, number>()
+	};
+	current.seconds += entry.seconds;
+	current.worth += (entry.seconds / SECONDS_PER_HOUR) * price.rate;
+	current.rates.add(price.rate);
+	const sourceSeconds = current.secondsBySource.get(price.source) ?? 0;
+	current.secondsBySource.set(price.source, sourceSeconds + entry.seconds);
+	byProject.set(key, current);
+}
+
+/** The source pricing the most time; a tie goes to the more specific rate. */
+function mainRateSourceOf(secondsBySource: ReadonlyMap<InvoiceRateSource, number>): InvoiceRateSource {
+	let mainSource: InvoiceRateSource = 'employee';
+	let mainSeconds = -1;
+	for (const source of RATE_SOURCE_ORDER) {
+		const seconds = secondsBySource.get(source) ?? -1;
+		if (seconds > mainSeconds) {
+			mainSource = source;
+			mainSeconds = seconds;
+		}
+	}
+	return mainSource;
+}
+
+/**
+ * One line for a project: its hours, the amount they are worth divided by those hours as the rate, to the cent, and
+ * hours times that rate as the amount, so the arithmetic on the document holds.
+ */
+function projectLineOf(project: ProjectWorth): InvoiceLine | null {
+	const hours = decimalHoursOf(project.seconds);
+	if (hours <= 0) {
+		return null;
+	}
+	const exactHours = project.seconds / SECONDS_PER_HOUR;
+	const rate = roundedAmountOf(project.worth / exactHours);
+	return {
+		key: project.key,
+		projectId: project.projectId,
+		employeeId: null,
+		taskId: null,
+		seconds: project.seconds,
+		hours,
+		rate,
+		currency: project.currency,
+		amount: roundedAmountOf(hours * rate),
+		rateSource: mainRateSourceOf(project.secondsBySource),
+		isAverageRate: project.rates.size > 1
+	};
+}
+
+/** Each member's time is priced at their own rate first, then gathered per project and currency. */
+function projectTimeOf(entries: ReadonlyArray<BillableEntry>, priceOf: LinePriceOf): InvoiceTime {
+	const byProject = new Map<string, ProjectWorth>();
+	const unpricedByMember = new Map<string, UnpricedTime>();
+	for (const entry of groupedEntriesOf(entries, 'member')) {
+		const { rate, source, currency } = priceOf(entry.projectId, entry.employeeId);
+		if (rate === null || source === null) {
+			addUnpriced(unpricedByMember, entry);
+			continue;
+		}
+		addProjectWorth(byProject, entry, { rate, source, currency });
+	}
+	const lines: InvoiceLine[] = [];
+	for (const project of byProject.values()) {
+		const line = projectLineOf(project);
+		if (line) {
+			lines.push(line);
+		}
+	}
+	return { lines, unpriced: [...unpricedByMember.values()] };
+}
+
 /**
  * The lines an invoice can hold and the time it cannot price. Time too short to make a hundredth of an hour states no
  * quantity, so it makes no line.
@@ -245,8 +357,11 @@ export function invoiceTimeOf({
 }: Readonly<{
 	entries: ReadonlyArray<BillableEntry>;
 	grouping: InvoiceGrouping;
-	priceOf: (projectId: string, employeeId: string) => LinePrice;
+	priceOf: LinePriceOf;
 }>): InvoiceTime {
+	if (grouping === 'project') {
+		return projectTimeOf(entries, priceOf);
+	}
 	const lines: InvoiceLine[] = [];
 	const unpricedByMember = new Map<string, UnpricedTime>();
 	for (const entry of groupedEntriesOf(entries, grouping)) {
@@ -269,7 +384,8 @@ export function invoiceTimeOf({
 			rate,
 			currency,
 			amount: roundedAmountOf(hours * rate),
-			rateSource: source
+			rateSource: source,
+			isAverageRate: false
 		});
 	}
 	return { lines, unpriced: [...unpricedByMember.values()] };
@@ -336,6 +452,7 @@ export interface InvoiceLineNames {
 
 export interface NamedInvoiceLine extends InvoiceLine {
 	projectName: string;
+	/** Empty on a line that gathers every member of the project. */
 	memberName: string;
 	/** The description the line starts with, until the user writes another. */
 	label: string;
@@ -349,11 +466,27 @@ function taskLabelOf(line: InvoiceLine, memberName: string, names: InvoiceLineNa
 	return `${taskTitle} · ${memberName}`;
 }
 
-function labelOf(line: InvoiceLine, memberName: string, grouping: InvoiceGrouping, names: InvoiceLineNames) {
-	if (grouping === 'task') {
-		return taskLabelOf(line, memberName, names);
+function memberNameOf(line: InvoiceLine, names: InvoiceLineNames) {
+	if (!line.employeeId) {
+		return '';
 	}
-	return memberName;
+	return names.memberNames.get(line.employeeId) ?? names.unnamedMember;
+}
+
+interface LineNaming {
+	projectName: string;
+	memberName: string;
+	grouping: InvoiceGrouping;
+}
+
+function labelOf(line: InvoiceLine, naming: LineNaming, names: InvoiceLineNames) {
+	if (naming.grouping === 'project') {
+		return naming.projectName;
+	}
+	if (naming.grouping === 'task') {
+		return taskLabelOf(line, naming.memberName, names);
+	}
+	return naming.memberName;
 }
 
 function compareNamedLines(first: NamedInvoiceLine, second: NamedInvoiceLine) {
@@ -375,8 +508,9 @@ export function namedLinesOf(
 ): NamedInvoiceLine[] {
 	const named = lines.map((line) => {
 		const projectName = names.projectNames.get(line.projectId) ?? names.unnamedProject;
-		const memberName = names.memberNames.get(line.employeeId) ?? names.unnamedMember;
-		return { ...line, projectName, memberName, label: labelOf(line, memberName, grouping, names) };
+		const memberName = memberNameOf(line, names);
+		const label = labelOf(line, { projectName, memberName, grouping }, names);
+		return { ...line, projectName, memberName, label };
 	});
 	named.sort(compareNamedLines);
 	return named;
@@ -609,7 +743,7 @@ export interface InvoiceItemRequest {
 	totalValue: number;
 	invoiceId: string;
 	projectId: string;
-	employeeId: string;
+	employeeId?: string;
 	taskId?: string;
 	applyTax: boolean;
 	applyDiscount: boolean;
@@ -668,12 +802,14 @@ function itemRequestOf(line: NamedInvoiceLine, input: InvoiceRequestInput): Invo
 		totalValue: line.amount,
 		invoiceId: input.id,
 		projectId: line.projectId,
-		employeeId: line.employeeId,
 		applyTax: false,
 		applyDiscount: false,
 		organizationId: input.organizationId,
 		tenantId: input.tenantId
 	};
+	if (line.employeeId) {
+		item.employeeId = line.employeeId;
+	}
 	if (line.taskId) {
 		item.taskId = line.taskId;
 	}

@@ -378,7 +378,8 @@ function compareCurrencyTotals(first: OwedCurrencyTotal, second: OwedCurrencyTot
 }
 
 export interface CurrencyFigure {
-	employeeId: string;
+	/** Null on a figure that gathers several members: it adds to no member count. */
+	employeeId: string | null;
 	seconds: number;
 	currency: string | null;
 	amount: number | null;
@@ -401,7 +402,9 @@ export function currencyTotalsOf(lines: ReadonlyArray<CurrencyFigure>): OwedCurr
 		};
 		current.amount += line.amount;
 		current.seconds += line.seconds;
-		current.members.add(line.employeeId);
+		if (line.employeeId) {
+			current.members.add(line.employeeId);
+		}
 		byCurrency.set(key, current);
 	}
 	const totals = Array.from(byCurrency.values(), currencyTotalOf);

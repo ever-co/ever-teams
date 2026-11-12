@@ -20,7 +20,8 @@ const mockLine: InvoiceLine = {
 	rate: 80,
 	currency: 'USD',
 	amount: 800,
-	rateSource: 'member'
+	rateSource: 'member',
+	isAverageRate: false
 };
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));

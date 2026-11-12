@@ -246,6 +246,126 @@ describe('invoiceTimeOf', () => {
 	});
 });
 
+describe('lines by project', () => {
+	function priceByMember(rates: Record<string, number>, currency = 'USD') {
+		return (_projectId: string, employeeId: string): LinePrice => {
+			const rate = rates[employeeId] ?? null;
+			if (rate === null) {
+				return { rate: null, currency: null, source: null };
+			}
+			return { rate, currency, source: 'member' };
+		};
+	}
+
+	it('gives 10 h at 80 and 6 h at 40 one line of 16 h at 65.00, an average rate, for 1,040.00', () => {
+		const entries: BillableEntry[] = [
+			{ projectId: 'p1', employeeId: 'ana', taskId: 't1', seconds: 6 * HOUR },
+			{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 4 * HOUR },
+			{ projectId: 'p1', employeeId: 'bo', taskId: null, seconds: 6 * HOUR }
+		];
+
+		const { lines } = invoiceTimeOf({ entries, grouping: 'project', priceOf: priceByMember({ ana: 80, bo: 40 }) });
+
+		expect(lines).toHaveLength(1);
+		expect(lines[0]).toMatchObject({
+			projectId: 'p1',
+			employeeId: null,
+			taskId: null,
+			hours: 16,
+			rate: 65,
+			amount: 1040,
+			isAverageRate: true
+		});
+	});
+
+	it('rounds the average rate to the cent and bills the hours at that rate', () => {
+		const entries: BillableEntry[] = [
+			{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 10 * HOUR },
+			{ projectId: 'p1', employeeId: 'bo', taskId: null, seconds: 5 * HOUR }
+		];
+
+		const [line] = invoiceTimeOf({
+			entries,
+			grouping: 'project',
+			priceOf: priceByMember({ ana: 80, bo: 45 })
+		}).lines;
+
+		expect(line).toMatchObject({ hours: 15, rate: 68.33, amount: 1024.95 });
+	});
+
+	it('states the members’ own rate, not an average, when they are all billed the same', () => {
+		const entries: BillableEntry[] = [
+			{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 1200 },
+			{ projectId: 'p1', employeeId: 'bo', taskId: null, seconds: 1200 }
+		];
+
+		const [line] = invoiceTimeOf({
+			entries,
+			grouping: 'project',
+			priceOf: priceByMember({ ana: 90, bo: 90 })
+		}).lines;
+
+		expect(line).toMatchObject({ hours: 0.67, rate: 90, amount: 60.3, isAverageRate: false, rateSource: 'member' });
+	});
+
+	it('puts the time of one project priced in two currencies on two lines', () => {
+		const entries: BillableEntry[] = [
+			{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 2 * HOUR },
+			{ projectId: 'p1', employeeId: 'bo', taskId: null, seconds: 3 * HOUR }
+		];
+		function priceInTwoCurrencies(_projectId: string, employeeId: string): LinePrice {
+			if (employeeId === 'ana') {
+				return { rate: 100, currency: 'USD', source: 'member' };
+			}
+			return { rate: 50, currency: 'EUR', source: 'employee' };
+		}
+
+		const { lines } = invoiceTimeOf({ entries, grouping: 'project', priceOf: priceInTwoCurrencies });
+
+		expect(lines.map((line) => [line.currency, line.hours, line.amount, line.isAverageRate])).toEqual([
+			['USD', 2, 200, false],
+			['EUR', 3, 150, false]
+		]);
+	});
+
+	it('lists the time without a rate apart, per member, and leaves it out of the project’s line', () => {
+		const entries: BillableEntry[] = [
+			{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 2 * HOUR },
+			{ projectId: 'p1', employeeId: 'bo', taskId: null, seconds: HOUR }
+		];
+
+		const time = invoiceTimeOf({ entries, grouping: 'project', priceOf: priceByMember({ ana: 80 }) });
+
+		expect(time.lines.map((line) => [line.hours, line.amount])).toEqual([[2, 160]]);
+		expect(time.unpriced).toEqual([{ key: 'p1|bo', projectId: 'p1', employeeId: 'bo', seconds: HOUR }]);
+	});
+
+	it('names a project line after its project, and saves it without a member', () => {
+		const entries: BillableEntry[] = [{ projectId: 'p2', employeeId: 'ana', taskId: null, seconds: HOUR }];
+		const { lines } = invoiceTimeOf({ entries, grouping: 'project', priceOf: priceByMember({ ana: 80 }) });
+		const named = namedLinesOf(lines, 'project', names);
+
+		const request = buildInvoiceRequest({
+			id: 'inv-1',
+			organizationId: 'org-1',
+			tenantId: 'tenant-1',
+			clientId: 'c1',
+			invoiceNumber: 7,
+			issueDay: '2026-11-02',
+			dueDay: '2026-12-02',
+			currency: 'USD',
+			period: { fromDay: '2026-10-01', toDay: '2026-10-31' },
+			timeZone: 'UTC',
+			lines: named,
+			descriptions: new Map()
+		});
+
+		expect(named.map((line) => [line.label, line.memberName])).toEqual([['App', '']]);
+		expect(request.invoiceItems[0]).toMatchObject({ description: 'App', projectId: 'p2', quantity: 1, price: 80 });
+		expect(request.invoiceItems[0]).not.toHaveProperty('employeeId');
+	});
+});
+
 describe('invoice currencies', () => {
 	const mixed: BillableEntry[] = [
 		{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 2 * HOUR },
