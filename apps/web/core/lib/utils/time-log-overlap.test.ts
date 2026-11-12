@@ -1,4 +1,9 @@
-import { formatOverlapDuration, overlapSummaryOf, type OverlapCandidateLog } from './time-log-overlap';
+import {
+	formatOverlapDuration,
+	hasUnreadableInterval,
+	overlapSummaryOf,
+	type OverlapCandidateLog
+} from './time-log-overlap';
 
 const at = (time: string) => new Date(`2026-11-10T${time}:00.000Z`);
 const period = (start: string, end: string) => ({ start: at(start), end: at(end) });
@@ -169,6 +174,29 @@ describe('overlapSummaryOf', () => {
 
 		expect(summary.entries[0].taskTitle).toBeNull();
 		expect(summary.entries[0].projectName).toBeNull();
+	});
+});
+
+describe('hasUnreadableInterval', () => {
+	it('reads a stopped entry with a start and an end, and a running entry with a start alone', () => {
+		const runningLog: OverlapCandidateLog = {
+			id: 'running',
+			startedAt: '2026-11-10T22:30:00.000Z',
+			isRunning: true
+		};
+
+		expect(hasUnreadableInterval(trackedLog)).toBe(false);
+		expect(hasUnreadableInterval(runningLog)).toBe(false);
+	});
+
+	it('cannot read an entry without a start, or with a start that is not a date', () => {
+		expect(hasUnreadableInterval({ id: 'a', startedAt: null, stoppedAt: '2026-11-10T19:00:00.000Z' })).toBe(true);
+		expect(hasUnreadableInterval({ id: 'b', startedAt: 'soon', stoppedAt: '2026-11-10T19:00:00.000Z' })).toBe(true);
+	});
+
+	it('cannot read a stopped entry without an end', () => {
+		expect(hasUnreadableInterval({ id: 'c', startedAt: '2026-11-10T18:42:00.000Z', stoppedAt: null })).toBe(true);
+		expect(hasUnreadableInterval({ id: 'd', startedAt: '2026-11-10T18:42:00.000Z', isRunning: false })).toBe(true);
 	});
 });
 

@@ -66,6 +66,21 @@ function endOfLog(log: OverlapCandidateLog, start: Date, now: Date): Date {
 	return now;
 }
 
+/**
+ * Whether the lookup returned an entry whose time cannot be read: no start, or stopped without an end. The API
+ * still removes such an entry, but the warning could neither place nor count it, so the check must not pass it by.
+ */
+export function hasUnreadableInterval(log: OverlapCandidateLog): boolean {
+	if (!parsedDateOf(log.startedAt)) {
+		return true;
+	}
+	const isRunning = log.isRunning === true;
+	if (isRunning) {
+		return false;
+	}
+	return !parsedDateOf(log.stoppedAt);
+}
+
 /** As in the API's own lookup, an entry that only touches the period, end to start, is not overlapped. */
 function sharesTimeWith(period: TimePeriod, start: Date, end: Date): boolean {
 	const sharedStart = Math.max(period.start.getTime(), start.getTime());
