@@ -20,7 +20,8 @@ export type LimitReportEmployee = TTimeLimitReportList['employees'][number]['emp
 export const LIMIT_WEEK_START = 1;
 
 const SECONDS_PER_HOUR = 3600;
-const WORK_DAYS_PER_WEEK = 5;
+/** A day is measured against a fifth of the week: Gauzy's rule for a weekly limit, and the standard week's five days. */
+export const WORK_DAYS_PER_WEEK = 5;
 const DAYS_PER_WEEK = 7;
 const FULL_SHARE = 100;
 
