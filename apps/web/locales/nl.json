@@ -4207,6 +4207,10 @@
 				"TITLE": "Versies",
 				"DESCRIPTION": "Releases waarop taken kunnen mikken."
 			},
+			"import": {
+				"TITLE": "Importeren",
+				"DESCRIPTION": "Tijdinvoeren uit een CSV-bestand."
+			},
 			"workspaceGeneral": {
 				"TITLE": "Algemeen",
 				"DESCRIPTION": "De naam van de werkruimte, de valuta en de datum- en getalnotatie."
@@ -6366,5 +6370,142 @@
 		"OFF_TEXT": "In deze werkruimte worden verwijderde taken definitief verwijderd.",
 		"NO_TEAM_TITLE": "Kies een team",
 		"NO_TEAM_TEXT": "De prullenbak toont de verwijderde taken van het actieve team."
+	},
+	"timeImport": {
+		"SECTION_TITLE": "Tijdregistratiegegevens",
+		"SECTION_DESCRIPTION": "Elke rij van het bestand wordt een tijdinvoer in {team}. Je bekijkt eerst alle rijen, en er wordt niets opgeslagen voordat je bevestigt.",
+		"TEMPLATE_LABEL": "CSV-sjabloon",
+		"TEMPLATE_DESCRIPTION": "Een leeg bestand met de kolommen die de import leest.",
+		"TEMPLATE_DOWNLOAD": "Sjabloon downloaden",
+		"DROP_TITLE": "Sleep een CSV-bestand hierheen, of kies er een",
+		"DROP_ACTIVE": "Laat het bestand los om het te controleren",
+		"DROP_HINT": "{rows, plural, one {Alleen CSV, tot {megabytes} MB en # rij per bestand.} other {Alleen CSV, tot {megabytes} MB en # rijen per bestand.}}",
+		"OWN_TIME_NOTE": "Elke rij wordt opgeslagen als je eigen tijd.",
+		"OTHERS_NOTE": "Je kunt tijd toevoegen voor andere leden van {team}: vermeld het e-mailadres van elk lid in de kolom {column}. Een rij zonder e-mailadres is je eigen tijd.",
+		"COLUMNS_TITLE": "Kolommen",
+		"COLUMNS_DESCRIPTION": "De eerste regel van het bestand benoemt de kolommen, in willekeurige volgorde. Datums en tijden worden gelezen in je tijdzone, {timeZone}.",
+		"columns": {
+			"REQUIRED": "Verplicht",
+			"ONE_OF_TWO": "Een van de twee",
+			"DATE": "De dag van de invoer, met het jaar eerst: {date}.",
+			"START_TIME": "De begintijd, in 24-uursnotatie of met AM of PM: {startTime} of {startTimeMeridiem}.",
+			"END_TIME": "De eindtijd, op dezelfde dag: {endTime}.",
+			"DURATION": "De duur, in plaats van een eindtijd: {duration}, {durationUnits}, of {durationDecimal} voor uren als getal.",
+			"PROJECT": "De exacte naam van een project van dit team. Leeg voor tijd zonder project.",
+			"TASK_ANY": "De exacte titel van een taak van dit team. Leeg voor tijd zonder taak.",
+			"TASK_OWN": "De exacte titel van een taak van dit team die is toegewezen aan het lid voor wie de tijd is. Leeg voor tijd zonder taak.",
+			"NOTES": "Een notitie die bij de invoer wordt opgeslagen.",
+			"BILLABLE": "{yes} of {no}. Leeg betekent {no}.",
+			"MEMBER_EMAIL": "Het e-mailadres van het lid voor wie de tijd is. Leeg betekent jijzelf."
+		},
+		"FILE_PROBLEM_TITLE": "{fileName} kan niet worden geïmporteerd",
+		"fileProblems": {
+			"NOT_CSV": "Alleen CSV-bestanden worden gelezen. Sla het blad op als CSV en kies dan dat bestand.",
+			"TOO_LARGE": "Het bestand is groter dan {megabytes} MB. Splits het in kleinere bestanden.",
+			"NOT_TEXT": "Het bestand is geen tekst die als UTF-8 is opgeslagen. Sla het in je spreadsheetapp op als CSV UTF-8.",
+			"EMPTY": "Het bestand is leeg.",
+			"UNCLOSED_QUOTE": "In rij {row} begint een cel met een dubbel aanhalingsteken dat nooit wordt gesloten.",
+			"DUPLICATE_COLUMN": "De kolom {column} komt twee keer voor.",
+			"MISSING_COLUMNS": "{count, plural, one {Deze kolom ontbreekt: {columns}.} other {Deze kolommen ontbreken: {columns}.}}",
+			"END_OR_DURATION": "{endTime} of {duration}",
+			"NO_ROWS": "Het bestand heeft een kopregel en geen rij eronder.",
+			"TOO_MANY_ROWS": "{limit, plural, one {Het bestand heeft {count} rijen. Een import neemt hoogstens # rij: splits het bestand.} other {Het bestand heeft {count} rijen. Een import neemt hoogstens # rijen: splits het bestand.}}"
+		},
+		"CHECKING_TITLE": "{fileName} wordt gecontroleerd",
+		"CHECKING_DESCRIPTION": "{count, plural, one {# rij wordt vergeleken met de al geregistreerde tijd.} other {# rijen worden vergeleken met de al geregistreerde tijd.}}",
+		"CHECK_FAILED_TITLE": "{fileName} kon niet worden gecontroleerd",
+		"CHECK_FAILED_DESCRIPTION": "De al geregistreerde tijd kon niet worden gelezen, dus er kan nog geen rij worden geïmporteerd. Er is niets opgeslagen.",
+		"RETRY": "Opnieuw proberen",
+		"CHOOSE_ANOTHER": "Ander bestand kiezen",
+		"PREVIEW_TITLE": "Voorbeeld",
+		"PREVIEW_DESCRIPTION": "{count, plural, one {{fileName}, # rij. Er wordt niets opgeslagen totdat je importeert.} other {{fileName}, # rijen. Er wordt niets opgeslagen totdat je importeert.}}",
+		"IGNORED_COLUMNS": "{count, plural, one {Deze kolom wordt niet gelezen: {columns}.} other {Deze kolommen worden niet gelezen: {columns}.}}",
+		"PREVIEW_CHANGED_TITLE": "Er is niets opgeslagen: het voorbeeld is veranderd",
+		"PREVIEW_CHANGED_DESCRIPTION": "Het bestand is vóór het opslaan nog één keer gecontroleerd en sommige rijen zijn veranderd, bijvoorbeeld omdat er intussen tijd is geregistreerd. Bekijk de rijen en importeer daarna opnieuw.",
+		"RECHECK_FAILED_TITLE": "Er is niets opgeslagen",
+		"RECHECK_FAILED_DESCRIPTION": "Het bestand kon vóór het opslaan niet nog één keer worden gecontroleerd. Probeer het opnieuw.",
+		"NOTHING_READY": "Geen enkele rij van dit bestand kan worden geïmporteerd. Corrigeer de weggelaten rijen en kies het bestand daarna opnieuw.",
+		"IMPORT_ACTION": "{count, plural, one {# invoer importeren} other {# invoeren importeren}}",
+		"RECHECKING": "Het bestand wordt nog één keer gecontroleerd vóór het opslaan",
+		"IMPORTING_TITLE": "Bezig met importeren",
+		"IMPORTING_PROGRESS": "{total, plural, one {{done} van # invoer opgeslagen} other {{done} van # invoeren opgeslagen}}",
+		"KEEP_OPEN": "Houd deze pagina open tot de import klaar is.",
+		"REPORT_TITLE": "Rapport",
+		"DONE_TITLE": "{count, plural, one {# invoer opgeslagen} other {# invoeren opgeslagen}}",
+		"DONE_DESCRIPTION": "Toegevoegde tijd: {duration}. De invoeren staan nu in de urenstaten en de rapporten.",
+		"STOPPED_TITLE": "De import is gestopt bij rij {row}",
+		"STOPPED_SAVED": "{count, plural, =0 {Er is geen invoer opgeslagen.} one {Daarvoor is # invoer opgeslagen.} other {Daarvoor zijn # invoeren opgeslagen.}}",
+		"STOPPED_NOT_SENT": "{count, plural, one {# rij daarna is niet verzonden.} other {# rijen daarna zijn niet verzonden.}}",
+		"DOWNLOAD_REPORT": "Rapport downloaden",
+		"IMPORT_ANOTHER": "Nog een bestand importeren",
+		"SHOW_MORE": "{count, plural, one {Nog # rij tonen} other {Nog # rijen tonen}}",
+		"figures": {
+			"LABEL": "Cijfers van dit bestand",
+			"READY": "Gereed",
+			"LEFT_OUT": "Weggelaten",
+			"SAVED": "Opgeslagen",
+			"FAILED": "Mislukt",
+			"NOT_SENT": "Niet verzonden",
+			"TIME_TO_ADD": "Toe te voegen tijd",
+			"TIME_ADDED": "Toegevoegde tijd"
+		},
+		"filter": {
+			"LABEL": "Getoonde rijen",
+			"ALL": "Alle"
+		},
+		"status": {
+			"READY": "Gereed",
+			"LEFT_OUT": "Weggelaten",
+			"SAVED": "Opgeslagen",
+			"FAILED": "Mislukt",
+			"NOT_SENT": "Niet verzonden"
+		},
+		"row": {
+			"NUMBER": "Rij {row}",
+			"FOR_MEMBER": "Voor {name}",
+			"BILLABLE": "Factureerbaar",
+			"NOT_SENT_REASON": "De import is gestopt bij rij {row}, vóór deze rij."
+		},
+		"problems": {
+			"EXTRA_CELLS": "Deze rij heeft meer cellen dan de kopregel. Een cel met een komma of een puntkomma hoort tussen dubbele aanhalingstekens.",
+			"DATE_UNREADABLE": "De datum is niet leesbaar. Schrijf hem met het jaar eerst, zoals {date}.",
+			"START_UNREADABLE": "De begintijd is niet leesbaar. Schrijf hem zoals {startTime} of {startTimeMeridiem}.",
+			"END_MISSING": "Deze rij heeft geen eindtijd en geen duur.",
+			"END_UNREADABLE": "De eindtijd is niet leesbaar. Schrijf hem zoals {endTime} of {endTimeMeridiem}.",
+			"DURATION_UNREADABLE": "De duur is niet leesbaar. Schrijf hem zoals {duration}, {durationUnits} of {durationDecimal}.",
+			"END_NOT_AFTER_START": "Het einde moet na het begin komen. Geef voor tijd die over middernacht loopt een duur op in plaats van de eindtijd.",
+			"DURATION_MISMATCH": "De eindtijd en de duur geven twee verschillende lengtes. Houd een van de twee.",
+			"TOO_LONG": "Een invoer kan niet langer zijn dan 24 uur. Een duur die als los getal is geschreven, wordt in uren gelezen.",
+			"IN_FUTURE": "Deze tijd is nog niet voorbij, en deze organisatie accepteert geen tijd in de toekomst.",
+			"BILLABLE_UNREADABLE": "De cel voor factureerbaar moet {yes} of {no} zijn.",
+			"MEMBER_UNKNOWN": "Geen lid van dit team heeft dit e-mailadres.",
+			"MEMBER_NOT_ALLOWED": "Deze rij is voor een ander lid. Je kunt alleen je eigen tijd importeren.",
+			"NO_OWN_MEMBER": "Deze rij noemt geen lid, en je account heeft geen werknemersprofiel om tijd op te registreren.",
+			"PROJECT_UNKNOWN": "Geen project van dit team heeft deze naam.",
+			"PROJECT_AMBIGUOUS": "{count, plural, one {# project van dit team heeft deze naam.} other {# projecten van dit team hebben deze naam.}}",
+			"PROJECT_REQUIRED": "Deze organisatie vereist een project bij elke tijdinvoer. Noem een project in deze rij.",
+			"TASK_UNKNOWN": "Geen taak van dit team heeft deze titel.",
+			"TASK_NOT_ASSIGNED": "Deze taak is niet toegewezen aan het lid van deze rij. Alleen een teammanager kan tijd toevoegen aan elke taak van het team.",
+			"TASK_AMBIGUOUS": "{count, plural, one {# taak heeft deze titel.} other {# taken hebben deze titel. Hernoem er een, zodat de rij één taak aanwijst.}}",
+			"ALREADY_RECORDED": "Deze invoer is al geregistreerd.",
+			"OVERLAPS_RECORDED": "{count, plural, one {Deze rij overlapt een al geregistreerde invoer, {range}. Opslaan zou die invoer verwijderen.} other {Deze rij overlapt # al geregistreerde invoeren, de eerste {range}. Opslaan zou ze verwijderen.}}",
+			"SAME_AS_ROW": "Deze rij herhaalt rij {row} van dit bestand.",
+			"OVERLAPS_ROW": "Deze rij overlapt rij {row} van dit bestand, die eerst wordt geïmporteerd."
+		},
+		"access": {
+			"MANUAL_TIME_OFF_TITLE": "Handmatige tijd staat uit",
+			"MANUAL_TIME_OFF_DESCRIPTION": "{organization} laat leden geen tijd met de hand toevoegen, dus tijd importeren kan ook niet.",
+			"NO_PERMISSION_TITLE": "Je rol kan geen tijd met de hand toevoegen",
+			"NO_PERMISSION_DESCRIPTION": "Tijd importeren vraagt dezelfde machtiging als tijd met de hand toevoegen. Vraag het een beheerder van de organisatie.",
+			"LOAD_FAILED_TITLE": "De import kon niet worden voorbereid",
+			"LOAD_FAILED_DESCRIPTION": "Je machtigingen, de tijdregels van de organisatie of de taken van het team konden niet worden geladen."
+		},
+		"entry": {
+			"TITLE": "Importeren",
+			"DESCRIPTION": "Gegevens uit andere tools, naar dit team gebracht.",
+			"ROW_LABEL": "Tijdregistratiegegevens",
+			"ROW_DESCRIPTION": "Voeg tijdinvoeren toe vanuit een CSV-bestand.",
+			"OPEN": "Importeren uit CSV"
+		}
 	}
 }

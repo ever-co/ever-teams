@@ -4207,6 +4207,10 @@
 				"TITLE": "Versions",
 				"DESCRIPTION": "Releases that tasks can target."
 			},
+			"import": {
+				"TITLE": "Import",
+				"DESCRIPTION": "Time entries from a CSV file."
+			},
 			"workspaceGeneral": {
 				"TITLE": "General",
 				"DESCRIPTION": "The workspace's name, currency, and date and number formats."
@@ -6366,5 +6370,142 @@
 		"OFF_TEXT": "Deleted tasks are removed for good on this workspace.",
 		"NO_TEAM_TITLE": "Choose a team",
 		"NO_TEAM_TEXT": "The trash lists the deleted tasks of the active team."
+	},
+	"timeImport": {
+		"SECTION_TITLE": "Time tracking data",
+		"SECTION_DESCRIPTION": "Each row of the file becomes a time entry in {team}. You review every row first, and nothing is saved before you confirm.",
+		"TEMPLATE_LABEL": "CSV template",
+		"TEMPLATE_DESCRIPTION": "An empty file with the columns the import reads.",
+		"TEMPLATE_DOWNLOAD": "Download template",
+		"DROP_TITLE": "Drop a CSV file here, or choose one",
+		"DROP_ACTIVE": "Drop the file to check it",
+		"DROP_HINT": "{rows, plural, one {CSV only, up to {megabytes} MB and # row per file.} other {CSV only, up to {megabytes} MB and # rows per file.}}",
+		"OWN_TIME_NOTE": "Every row is saved as your own time.",
+		"OTHERS_NOTE": "You can add time for other members of {team}: name each one by email in the {column} column. A row without an email is your own time.",
+		"COLUMNS_TITLE": "Columns",
+		"COLUMNS_DESCRIPTION": "The first line of the file names its columns, in any order. Dates and times are read in your time zone, {timeZone}.",
+		"columns": {
+			"REQUIRED": "Required",
+			"ONE_OF_TWO": "One of the two",
+			"DATE": "The day of the entry, year first: {date}.",
+			"START_TIME": "When it starts, on a 24-hour clock or with AM or PM: {startTime} or {startTimeMeridiem}.",
+			"END_TIME": "When it ends, on the same day: {endTime}.",
+			"DURATION": "How long it lasts, in place of an end time: {duration}, {durationUnits}, or {durationDecimal} for hours as a number.",
+			"PROJECT": "The exact name of a project of this team. Empty for time without a project.",
+			"TASK_ANY": "The exact title of a task of this team. Empty for time without a task.",
+			"TASK_OWN": "The exact title of a task of this team assigned to the member the time is for. Empty for time without a task.",
+			"NOTES": "A note saved with the entry.",
+			"BILLABLE": "{yes} or {no}. Empty means {no}.",
+			"MEMBER_EMAIL": "The email of the member the time is for. Empty means you."
+		},
+		"FILE_PROBLEM_TITLE": "{fileName} cannot be imported",
+		"fileProblems": {
+			"NOT_CSV": "Only CSV files are read. Save the sheet as CSV, then choose that file.",
+			"TOO_LARGE": "The file is larger than {megabytes} MB. Split it into smaller files.",
+			"NOT_TEXT": "The file is not text saved as UTF-8. In your spreadsheet app, save it as CSV UTF-8.",
+			"EMPTY": "The file is empty.",
+			"UNCLOSED_QUOTE": "On row {row}, a cell opens with a double quote that is never closed.",
+			"DUPLICATE_COLUMN": "The column {column} appears twice.",
+			"MISSING_COLUMNS": "{count, plural, one {This column is missing: {columns}.} other {These columns are missing: {columns}.}}",
+			"END_OR_DURATION": "{endTime} or {duration}",
+			"NO_ROWS": "The file has a header line and no row under it.",
+			"TOO_MANY_ROWS": "{limit, plural, one {The file has {count} rows. An import takes # row at most: split the file.} other {The file has {count} rows. An import takes # rows at most: split the file.}}"
+		},
+		"CHECKING_TITLE": "Checking {fileName}",
+		"CHECKING_DESCRIPTION": "{count, plural, one {# row is compared with the time already recorded.} other {# rows are compared with the time already recorded.}}",
+		"CHECK_FAILED_TITLE": "{fileName} could not be checked",
+		"CHECK_FAILED_DESCRIPTION": "The time already recorded could not be read, so no row can be imported yet. Nothing was saved.",
+		"RETRY": "Try again",
+		"CHOOSE_ANOTHER": "Choose another file",
+		"PREVIEW_TITLE": "Preview",
+		"PREVIEW_DESCRIPTION": "{count, plural, one {{fileName}, # row. Nothing is saved until you import.} other {{fileName}, # rows. Nothing is saved until you import.}}",
+		"IGNORED_COLUMNS": "{count, plural, one {This column is not read: {columns}.} other {These columns are not read: {columns}.}}",
+		"PREVIEW_CHANGED_TITLE": "Nothing was saved: the preview changed",
+		"PREVIEW_CHANGED_DESCRIPTION": "The file was checked once more before saving and some rows changed, for example because time was recorded in the meantime. Review the rows, then import again.",
+		"RECHECK_FAILED_TITLE": "Nothing was saved",
+		"RECHECK_FAILED_DESCRIPTION": "The file could not be checked one last time before saving. Try again.",
+		"NOTHING_READY": "No row of this file can be imported. Correct the rows left out, then choose the file again.",
+		"IMPORT_ACTION": "{count, plural, one {Import # entry} other {Import # entries}}",
+		"RECHECKING": "Checking the file once more before saving",
+		"IMPORTING_TITLE": "Importing",
+		"IMPORTING_PROGRESS": "{total, plural, one {{done} of # entry saved} other {{done} of # entries saved}}",
+		"KEEP_OPEN": "Keep this page open until the import ends.",
+		"REPORT_TITLE": "Report",
+		"DONE_TITLE": "{count, plural, one {# entry saved} other {# entries saved}}",
+		"DONE_DESCRIPTION": "Time added: {duration}. The entries are in the timesheets and the reports now.",
+		"STOPPED_TITLE": "The import stopped at row {row}",
+		"STOPPED_SAVED": "{count, plural, =0 {No entry was saved.} one {# entry was saved before it.} other {# entries were saved before it.}}",
+		"STOPPED_NOT_SENT": "{count, plural, one {# row after it was not sent.} other {# rows after it were not sent.}}",
+		"DOWNLOAD_REPORT": "Download report",
+		"IMPORT_ANOTHER": "Import another file",
+		"SHOW_MORE": "{count, plural, one {Show # more row} other {Show # more rows}}",
+		"figures": {
+			"LABEL": "Figures of this file",
+			"READY": "Ready",
+			"LEFT_OUT": "Left out",
+			"SAVED": "Saved",
+			"FAILED": "Failed",
+			"NOT_SENT": "Not sent",
+			"TIME_TO_ADD": "Time to add",
+			"TIME_ADDED": "Time added"
+		},
+		"filter": {
+			"LABEL": "Rows shown",
+			"ALL": "All"
+		},
+		"status": {
+			"READY": "Ready",
+			"LEFT_OUT": "Left out",
+			"SAVED": "Saved",
+			"FAILED": "Failed",
+			"NOT_SENT": "Not sent"
+		},
+		"row": {
+			"NUMBER": "Row {row}",
+			"FOR_MEMBER": "For {name}",
+			"BILLABLE": "Billable",
+			"NOT_SENT_REASON": "The import stopped at row {row}, before this one."
+		},
+		"problems": {
+			"EXTRA_CELLS": "This row has more cells than the header line. A cell that holds a comma or a semicolon goes in double quotes.",
+			"DATE_UNREADABLE": "The date cannot be read. Write it year first, like {date}.",
+			"START_UNREADABLE": "The start time cannot be read. Write it like {startTime} or {startTimeMeridiem}.",
+			"END_MISSING": "This row has no end time and no duration.",
+			"END_UNREADABLE": "The end time cannot be read. Write it like {endTime} or {endTimeMeridiem}.",
+			"DURATION_UNREADABLE": "The duration cannot be read. Write it like {duration}, {durationUnits} or {durationDecimal}.",
+			"END_NOT_AFTER_START": "The end must come after the start. For time that runs past midnight, give a duration in place of the end time.",
+			"DURATION_MISMATCH": "The end time and the duration give two different lengths. Keep one of the two.",
+			"TOO_LONG": "An entry cannot be longer than 24 hours. A duration written as a plain number is read in hours.",
+			"IN_FUTURE": "This time is not over yet, and this organization does not accept time in the future.",
+			"BILLABLE_UNREADABLE": "The billable cell must be {yes} or {no}.",
+			"MEMBER_UNKNOWN": "No member of this team has this email.",
+			"MEMBER_NOT_ALLOWED": "This row is for another member. You can only import your own time.",
+			"NO_OWN_MEMBER": "This row names no member, and your account has no employee profile to record time for.",
+			"PROJECT_UNKNOWN": "No project of this team has this name.",
+			"PROJECT_AMBIGUOUS": "{count, plural, one {# project of this team has this name.} other {# projects of this team have this name.}}",
+			"PROJECT_REQUIRED": "This organization requires a project on every time entry. Name a project in this row.",
+			"TASK_UNKNOWN": "No task of this team has this title.",
+			"TASK_NOT_ASSIGNED": "This task is not assigned to the member this row is for. Only a team manager can add time to any task of the team.",
+			"TASK_AMBIGUOUS": "{count, plural, one {# task has this title.} other {# tasks have this title. Rename one of them, so the row names a single task.}}",
+			"ALREADY_RECORDED": "This entry is already recorded.",
+			"OVERLAPS_RECORDED": "{count, plural, one {It overlaps an entry already recorded, {range}. Saving it would remove that entry.} other {It overlaps # entries already recorded, the first one {range}. Saving it would remove them.}}",
+			"SAME_AS_ROW": "It repeats row {row} of this file.",
+			"OVERLAPS_ROW": "It overlaps row {row} of this file, which is imported first."
+		},
+		"access": {
+			"MANUAL_TIME_OFF_TITLE": "Manual time is turned off",
+			"MANUAL_TIME_OFF_DESCRIPTION": "{organization} does not let its members add time by hand, so time cannot be imported either.",
+			"NO_PERMISSION_TITLE": "Your role cannot add time by hand",
+			"NO_PERMISSION_DESCRIPTION": "Importing time needs the same permission as adding time by hand. Ask an admin of the organization.",
+			"LOAD_FAILED_TITLE": "The import could not get ready",
+			"LOAD_FAILED_DESCRIPTION": "Your permissions, the time rules of the organization or the tasks of the team could not be loaded."
+		},
+		"entry": {
+			"TITLE": "Import",
+			"DESCRIPTION": "Data from other tools, brought into this team.",
+			"ROW_LABEL": "Time tracking data",
+			"ROW_DESCRIPTION": "Add time entries from a CSV file.",
+			"OPEN": "Import from CSV"
+		}
 	}
 }

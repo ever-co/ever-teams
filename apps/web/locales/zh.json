@@ -4207,6 +4207,10 @@
 				"TITLE": "版本",
 				"DESCRIPTION": "任务可以对应的发布版本。"
 			},
+			"import": {
+				"TITLE": "导入",
+				"DESCRIPTION": "从 CSV 文件导入时间条目。"
+			},
 			"workspaceGeneral": {
 				"TITLE": "常规",
 				"DESCRIPTION": "工作区的名称、货币以及日期和数字格式。"
@@ -6366,5 +6370,142 @@
 		"OFF_TEXT": "在此工作区中，删除的任务会被永久移除。",
 		"NO_TEAM_TITLE": "选择团队",
 		"NO_TEAM_TEXT": "回收站列出当前团队已删除的任务。"
+	},
+	"timeImport": {
+		"SECTION_TITLE": "时间跟踪数据",
+		"SECTION_DESCRIPTION": "文件的每一行都会成为 {team} 中的一条时间条目。你先查看所有行，在你确认之前不会保存任何内容。",
+		"TEMPLATE_LABEL": "CSV 模板",
+		"TEMPLATE_DESCRIPTION": "一个空文件，包含导入会读取的列。",
+		"TEMPLATE_DOWNLOAD": "下载模板",
+		"DROP_TITLE": "将 CSV 文件拖到这里，或选择一个文件",
+		"DROP_ACTIVE": "松开文件即可检查",
+		"DROP_HINT": "{rows, plural, other {仅限 CSV，每个文件最大 {megabytes} MB、最多 # 行。}}",
+		"OWN_TIME_NOTE": "每一行都会保存为你自己的时间。",
+		"OTHERS_NOTE": "你可以为 {team} 的其他成员添加时间：在 {column} 列中填写每位成员的邮箱。没有邮箱的行是你自己的时间。",
+		"COLUMNS_TITLE": "列",
+		"COLUMNS_DESCRIPTION": "文件的第一行是列名，顺序不限。日期和时间按你的时区 {timeZone} 读取。",
+		"columns": {
+			"REQUIRED": "必填",
+			"ONE_OF_TWO": "二选一",
+			"DATE": "条目的日期，年份在前：{date}。",
+			"START_TIME": "开始时间，使用 24 小时制或带 AM、PM：{startTime} 或 {startTimeMeridiem}。",
+			"END_TIME": "结束时间，在同一天：{endTime}。",
+			"DURATION": "时长，用来代替结束时间：{duration}、{durationUnits}，或用数字表示小时的 {durationDecimal}。",
+			"PROJECT": "此团队中某个项目的准确名称。留空表示没有项目的时间。",
+			"TASK_ANY": "此团队中某个任务的准确标题。留空表示没有任务的时间。",
+			"TASK_OWN": "此团队中分配给这段时间所属成员的某个任务的准确标题。留空表示没有任务的时间。",
+			"NOTES": "随条目一起保存的备注。",
+			"BILLABLE": "{yes} 或 {no}。留空表示 {no}。",
+			"MEMBER_EMAIL": "这段时间所属成员的邮箱。留空表示你自己。"
+		},
+		"FILE_PROBLEM_TITLE": "无法导入 {fileName}",
+		"fileProblems": {
+			"NOT_CSV": "只读取 CSV 文件。请将表格另存为 CSV，然后选择该文件。",
+			"TOO_LARGE": "文件超过 {megabytes} MB。请将它拆分成较小的文件。",
+			"NOT_TEXT": "该文件不是以 UTF-8 保存的文本。请在表格应用中将它另存为 CSV UTF-8。",
+			"EMPTY": "文件是空的。",
+			"UNCLOSED_QUOTE": "第 {row} 行有一个单元格以双引号开头，但没有闭合。",
+			"DUPLICATE_COLUMN": "列 {column} 出现了两次。",
+			"MISSING_COLUMNS": "{count, plural, other {缺少这些列：{columns}。}}",
+			"END_OR_DURATION": "{endTime} 或 {duration}",
+			"NO_ROWS": "文件只有标题行，下面没有任何行。",
+			"TOO_MANY_ROWS": "{limit, plural, other {文件有 {count} 行。一次导入最多 # 行：请拆分文件。}}"
+		},
+		"CHECKING_TITLE": "正在检查 {fileName}",
+		"CHECKING_DESCRIPTION": "{count, plural, other {正在将 # 行与已记录的时间进行比对。}}",
+		"CHECK_FAILED_TITLE": "无法检查 {fileName}",
+		"CHECK_FAILED_DESCRIPTION": "无法读取已记录的时间，因此暂时不能导入任何行。未保存任何内容。",
+		"RETRY": "重试",
+		"CHOOSE_ANOTHER": "选择其他文件",
+		"PREVIEW_TITLE": "预览",
+		"PREVIEW_DESCRIPTION": "{count, plural, other {{fileName}，共 # 行。在你导入之前不会保存任何内容。}}",
+		"IGNORED_COLUMNS": "{count, plural, other {不会读取这些列：{columns}。}}",
+		"PREVIEW_CHANGED_TITLE": "未保存任何内容：预览已变化",
+		"PREVIEW_CHANGED_DESCRIPTION": "保存前又检查了一次文件，有些行发生了变化，例如在此期间记录了时间。请查看这些行，然后重新导入。",
+		"RECHECK_FAILED_TITLE": "未保存任何内容",
+		"RECHECK_FAILED_DESCRIPTION": "保存前无法对文件做最后一次检查。请重试。",
+		"NOTHING_READY": "此文件中没有可以导入的行。请修正被排除的行，然后重新选择文件。",
+		"IMPORT_ACTION": "{count, plural, other {导入 # 条条目}}",
+		"RECHECKING": "保存前正在再次检查文件",
+		"IMPORTING_TITLE": "正在导入",
+		"IMPORTING_PROGRESS": "{total, plural, other {已保存 {done} / # 条条目}}",
+		"KEEP_OPEN": "导入结束前请保持此页面打开。",
+		"REPORT_TITLE": "报告",
+		"DONE_TITLE": "{count, plural, other {已保存 # 条条目}}",
+		"DONE_DESCRIPTION": "已添加时间：{duration}。这些条目现已出现在时间表和报告中。",
+		"STOPPED_TITLE": "导入在第 {row} 行停止",
+		"STOPPED_SAVED": "{count, plural, =0 {没有保存任何条目。} other {在此之前已保存 # 条条目。}}",
+		"STOPPED_NOT_SENT": "{count, plural, other {其后的 # 行未发送。}}",
+		"DOWNLOAD_REPORT": "下载报告",
+		"IMPORT_ANOTHER": "导入其他文件",
+		"SHOW_MORE": "{count, plural, other {再显示 # 行}}",
+		"figures": {
+			"LABEL": "此文件的数字",
+			"READY": "就绪",
+			"LEFT_OUT": "已排除",
+			"SAVED": "已保存",
+			"FAILED": "失败",
+			"NOT_SENT": "未发送",
+			"TIME_TO_ADD": "待添加时间",
+			"TIME_ADDED": "已添加时间"
+		},
+		"filter": {
+			"LABEL": "显示的行",
+			"ALL": "全部"
+		},
+		"status": {
+			"READY": "就绪",
+			"LEFT_OUT": "已排除",
+			"SAVED": "已保存",
+			"FAILED": "失败",
+			"NOT_SENT": "未发送"
+		},
+		"row": {
+			"NUMBER": "第 {row} 行",
+			"FOR_MEMBER": "成员：{name}",
+			"BILLABLE": "可计费",
+			"NOT_SENT_REASON": "导入在第 {row} 行停止，未到这一行。"
+		},
+		"problems": {
+			"EXTRA_CELLS": "这一行的单元格比标题行多。包含逗号或分号的单元格要放在双引号中。",
+			"DATE_UNREADABLE": "无法读取日期。请按年份在前的格式填写，例如 {date}。",
+			"START_UNREADABLE": "无法读取开始时间。请写成 {startTime} 或 {startTimeMeridiem} 这样的格式。",
+			"END_MISSING": "这一行既没有结束时间，也没有时长。",
+			"END_UNREADABLE": "无法读取结束时间。请写成 {endTime} 或 {endTimeMeridiem} 这样的格式。",
+			"DURATION_UNREADABLE": "无法读取时长。请写成 {duration}、{durationUnits} 或 {durationDecimal} 这样的格式。",
+			"END_NOT_AFTER_START": "结束时间必须晚于开始时间。对于跨过午夜的时间，请填写时长来代替结束时间。",
+			"DURATION_MISMATCH": "结束时间和时长给出的长度不一致。请只保留其中一个。",
+			"TOO_LONG": "一条条目不能超过 24 小时。只写数字的时长按小时读取。",
+			"IN_FUTURE": "这段时间尚未结束，而此组织不接受未来的时间。",
+			"BILLABLE_UNREADABLE": "可计费单元格必须是 {yes} 或 {no}。",
+			"MEMBER_UNKNOWN": "此团队中没有成员使用这个邮箱。",
+			"MEMBER_NOT_ALLOWED": "这一行属于其他成员。你只能导入自己的时间。",
+			"NO_OWN_MEMBER": "这一行没有指明成员，而你的账号没有可用于记录时间的员工档案。",
+			"PROJECT_UNKNOWN": "此团队中没有这个名称的项目。",
+			"PROJECT_AMBIGUOUS": "{count, plural, other {此团队中有 # 个项目使用这个名称。}}",
+			"PROJECT_REQUIRED": "此组织要求每条时间条目都有项目。请在这一行填写项目。",
+			"TASK_UNKNOWN": "此团队中没有这个标题的任务。",
+			"TASK_NOT_ASSIGNED": "这个任务没有分配给这一行的成员。只有团队管理员可以为团队的任意任务添加时间。",
+			"TASK_AMBIGUOUS": "{count, plural, =1 {有 1 个任务使用这个标题。} other {有 # 个任务使用这个标题。请重命名其中一个，让这一行只对应一个任务。}}",
+			"ALREADY_RECORDED": "这条条目已经记录过了。",
+			"OVERLAPS_RECORDED": "{count, plural, =1 {它与一条已记录的条目重叠：{range}。保存它会删除该条目。} other {它与 # 条已记录的条目重叠，第一条是 {range}。保存它会删除这些条目。}}",
+			"SAME_AS_ROW": "它与此文件的第 {row} 行重复。",
+			"OVERLAPS_ROW": "它与此文件的第 {row} 行重叠，那一行会先导入。"
+		},
+		"access": {
+			"MANUAL_TIME_OFF_TITLE": "手动时间已关闭",
+			"MANUAL_TIME_OFF_DESCRIPTION": "{organization} 不允许成员手动添加时间，因此也无法导入时间。",
+			"NO_PERMISSION_TITLE": "你的角色不能手动添加时间",
+			"NO_PERMISSION_DESCRIPTION": "导入时间需要与手动添加时间相同的权限。请联系组织的管理员。",
+			"LOAD_FAILED_TITLE": "导入未能准备就绪",
+			"LOAD_FAILED_DESCRIPTION": "无法加载你的权限、组织的时间规则或团队的任务。"
+		},
+		"entry": {
+			"TITLE": "导入",
+			"DESCRIPTION": "来自其他工具的数据，导入到此团队。",
+			"ROW_LABEL": "时间跟踪数据",
+			"ROW_DESCRIPTION": "从 CSV 文件添加时间条目。",
+			"OPEN": "从 CSV 导入"
+		}
 	}
 }

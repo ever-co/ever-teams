@@ -3,6 +3,7 @@ import {
 	Bot,
 	Building,
 	Clock,
+	FileImport,
 	FlagPriority,
 	Integration,
 	Layers,
@@ -30,6 +31,7 @@ export type SettingsEntryId =
 	| 'teamGeneral'
 	| 'members'
 	| 'integrations'
+	| 'import'
 	| 'automations'
 	| 'permissions'
 	| 'statuses'
@@ -51,6 +53,8 @@ export const SETTINGS_ROOT = '/settings';
 
 const PERMISSIONS_PATH = '/permissions';
 
+export const TIME_IMPORT_SETTINGS_PATH = '/settings/team/import';
+
 export const SETTINGS_ENTRIES: ReadonlyArray<SettingsEntry> = [
 	{ id: 'profile', group: 'account', href: '/settings/personal', icon: UserCircle },
 	{ id: 'preferences', group: 'account', href: '/settings/personal/preferences', icon: Preferences },
@@ -60,6 +64,8 @@ export const SETTINGS_ENTRIES: ReadonlyArray<SettingsEntry> = [
 	{ id: 'teamGeneral', group: 'team', href: '/settings/team', icon: Settings },
 	{ id: 'members', group: 'team', href: '/settings/team/members', icon: Users, managerOnly: true },
 	{ id: 'integrations', group: 'team', href: '/settings/team/integrations', icon: Integration, managerOnly: true },
+	// Open to every member: importing time follows adding manual time, which a member may do for their own time
+	{ id: 'import', group: 'team', href: TIME_IMPORT_SETTINGS_PATH, icon: FileImport },
 	// Behind NEXT_PUBLIC_TASK_AUTOMATIONS_ENABLED and the platform's answer: `useHiddenSettingsEntries` hides it otherwise.
 	{ id: 'automations', group: 'team', href: '/settings/team/automations', icon: Bot, managerOnly: true },
 	// The roles page keeps its own route, so links to it still work; the settings sidebar stays on it.
