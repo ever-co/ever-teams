@@ -34,6 +34,18 @@ function notesOf(description: unknown): string | undefined {
 	return notes;
 }
 
+// Like the project, the notes belong to the task the body names: a start that falls back to the cookie's task sends none
+function startNotesFieldOf(description: string | undefined, hasBodyTaskId: boolean): { description?: string } {
+	if (!hasBodyTaskId) {
+		return {};
+	}
+	const notes = notesOf(description);
+	if (notes === undefined) {
+		return {};
+	}
+	return { description: notes };
+}
+
 export async function POST(req: Request) {
 	const res = new NextResponse();
 	const {
@@ -89,20 +101,14 @@ export async function POST(req: Request) {
 		tags: [],
 		isBillable,
 		organizationTeamId,
-		planDay: planDayOf(body)
+		planDay: planDayOf(body),
+		...startNotesFieldOf(notesReading.description, hasBodyTaskId)
 	};
 
 	// The project is the one of the task the body names: a start that falls back to the cookie's task sends none
 	const forwardsProject = hasBodyTaskId && hasBodyProjectId;
 	if (forwardsProject) {
 		startParams.projectId = bodyProjectId;
-	}
-
-	// Like the project, the notes belong to the task the body names: a start that falls back to the cookie's task sends none
-	const notes = notesOf(notesReading.description);
-	const forwardsNotes = hasBodyTaskId && notes !== undefined;
-	if (forwardsNotes) {
-		startParams.description = notes;
 	}
 
 	try {
