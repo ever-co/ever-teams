@@ -26,11 +26,12 @@ const RATE_SOURCE_KEYS: Record<InvoiceRateSource, DottedLanguageObjectStringPath
 
 const FIGURE = 'whitespace-nowrap text-[13px] tabular-nums';
 
-function Party({ label, name }: Readonly<{ label: string; name: string }>) {
+function Party({ label, name, detail }: Readonly<{ label: string; name: string; detail?: string | null }>) {
 	return (
 		<div className="flex min-w-0 flex-col gap-0.5">
 			<span className="text-xs text-muted-foreground">{label}</span>
 			<span className="truncate text-sm font-medium text-foreground">{name}</span>
+			{detail && <span className="truncate text-xs text-muted-foreground">{detail}</span>}
 		</div>
 	);
 }
@@ -197,7 +198,11 @@ export function InvoiceSheet({ invoice }: Readonly<{ invoice: NewInvoiceState }>
 		>
 			<header className="grid grid-cols-1 gap-4 sm:grid-cols-3">
 				<Party label={t('invoices.new.FROM')} name={invoice.organizationName} />
-				<Party label={t('invoices.new.BILL_TO')} name={invoice.client?.name ?? ''} />
+				<Party
+					label={t('invoices.new.BILL_TO')}
+					name={invoice.client?.name ?? ''}
+					detail={invoice.client?.primaryEmail}
+				/>
 				<Party label={t('invoices.new.PERIOD')} name={periodText} />
 			</header>
 
