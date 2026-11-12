@@ -65,6 +65,19 @@ export type TimeImportCells = Readonly<Record<TimeImportField, string>>;
 /** For each field, the position of the file's column it is read from, or null when the file has none. */
 export type TimeImportMapping = Readonly<Record<TimeImportField, number | null>>;
 
+export const NO_TIME_IMPORT_COLUMNS: TimeImportMapping = {
+	date: null,
+	startTime: null,
+	endDate: null,
+	endTime: null,
+	duration: null,
+	project: null,
+	task: null,
+	notes: null,
+	billable: null,
+	memberEmail: null
+};
+
 export interface TimeImportSheetRow {
 	/** The row's position in the file, as a spreadsheet numbers it: the header is row 1. */
 	row: number;

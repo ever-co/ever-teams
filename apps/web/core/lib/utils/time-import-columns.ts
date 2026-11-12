@@ -1,5 +1,6 @@
 import { dateOrdersOf, datePartOf, holdsDateAndTime, type DateOrder } from '@/core/lib/utils/time-import-cells';
 import {
+	NO_TIME_IMPORT_COLUMNS,
 	TIME_IMPORT_FIELDS,
 	TIME_IMPORT_REPORT_HEADERS,
 	rowCountProblemOf,
@@ -105,19 +106,6 @@ const FIELD_BY_HEADER: ReadonlyMap<string, TimeImportField> = fieldByHeaderOf();
 /** The fields whose cells can hold a date: the date and the end date, and a start or an end written with its date. */
 const DATE_FIELDS: ReadonlyArray<TimeImportField> = ['date', 'startTime', 'endDate', 'endTime'];
 
-const NO_COLUMNS: TimeImportMapping = {
-	date: null,
-	startTime: null,
-	endDate: null,
-	endTime: null,
-	duration: null,
-	project: null,
-	task: null,
-	notes: null,
-	billable: null,
-	memberEmail: null
-};
-
 /**
  * A header as plain lower-case words, letter case, spaces, underscores, hyphens and punctuation aside:
  * `START_TIME`, `startTime` and `Start-Time` read as `start time`, `Duration (h)` as `duration h`.
@@ -136,7 +124,7 @@ interface HeaderReading {
 }
 
 function readHeaders(headers: ReadonlyArray<string>): HeaderReading {
-	const reading: HeaderReading = { mapping: { ...NO_COLUMNS }, duplicateHeader: null };
+	const reading: HeaderReading = { mapping: { ...NO_TIME_IMPORT_COLUMNS }, duplicateHeader: null };
 	const wordsByField = new Map<TimeImportField, string>();
 	headers.forEach((header, index) => {
 		const words = headerWordsOf(header);
