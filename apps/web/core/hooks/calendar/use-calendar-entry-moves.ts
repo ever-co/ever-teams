@@ -159,6 +159,9 @@ export function useCalendarEntryMoves(page: CalendarPageState, canEditLog: (log:
 			} catch (error) {
 				const reasonKey = writeErrorKeyOf(error) as DottedLanguageObjectStringPaths;
 				toast.error(t('dashboard.calendar.DRAG.SAVE_FAILED'), { description: t(reasonKey) });
+				// A failed request may still have reached the API (a timeout after the update was applied): the days are
+				// read again, so the grid shows where the entry really is, not where the last read left it
+				await queryClient.invalidateQueries({ queryKey: queryKeys.timesheet.all });
 			} finally {
 				isSavingRef.current = false;
 				showEntryAsSaved(log.id);

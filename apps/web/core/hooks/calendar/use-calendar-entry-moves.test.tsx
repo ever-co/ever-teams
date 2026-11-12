@@ -5,6 +5,7 @@ import { act, renderHook } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
 import type { CalendarEntry } from '@/core/lib/utils/calendar-view';
 import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
+import { queryKeys } from '@/core/query/keys';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
@@ -81,7 +82,8 @@ function renderMoves(page: CalendarPageState) {
 	const wrapper = ({ children }: PropsWithChildren) => (
 		<QueryClientProvider client={client}>{children}</QueryClientProvider>
 	);
-	return renderHook(() => useCalendarEntryMoves(page, () => true), { wrapper });
+	const view = renderHook(() => useCalendarEntryMoves(page, () => true), { wrapper });
+	return { ...view, client };
 }
 
 describe('useCalendarEntryMoves', () => {
@@ -136,6 +138,20 @@ describe('useCalendarEntryMoves', () => {
 
 		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
 		expect(mockToastError).toHaveBeenCalledWith('dashboard.calendar.DRAG.SAVE_FAILED', expect.anything());
+		expect(showEntryAsSaved).toHaveBeenCalledWith('moved');
+	});
+
+	it('reads the days again when the update fails, so the grid shows where the entry really is', async () => {
+		mockUpdateTimeLog.mockRejectedValue(new Error('timeout'));
+		const { result, client } = renderMoves(pageOf({}));
+		const invalidateQueries = jest.spyOn(client, 'invalidateQueries');
+
+		await act(async () => {
+			result.current.moveEntry(movedEntry, elevenToNoon);
+		});
+
+		expect(mockToastError).toHaveBeenCalledWith('dashboard.calendar.DRAG.SAVE_FAILED', expect.anything());
+		expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.timesheet.all });
 		expect(showEntryAsSaved).toHaveBeenCalledWith('moved');
 	});
 
