@@ -543,6 +543,16 @@ export function useTimerApi({
 					// A TEAMS timer left behind by a closed tab is credited up to its last heartbeat, not now
 					const stoppedStale = await stopStaleTeamsTimer(userData.employee.id);
 					if (!stoppedStale) {
+						// This tab's status can be out of date: up to a minute old, or read while a start elsewhere was
+						// landing. A run a fresh read finds goes on in another tab or device, so the flag is not stuck and
+						// the run is kept (#5121).
+						const { data: freshStatus } = await timerService.getTimerStatus();
+						if (freshStatus?.running) {
+							toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
+							// This tab shows that run once its status is read again
+							void queryClient.invalidateQueries({ queryKey: queryKeys.timer.all });
+							return false;
+						}
 						await timerService.stopTimer({
 							source: timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS
 						});
