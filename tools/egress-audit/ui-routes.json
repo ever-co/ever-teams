@@ -264,6 +264,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/settings/team/automations",
+      "file": "apps/web/app/[locale]/(main)/settings/team/automations/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/settings/team/integrations",
       "file": "apps/web/app/[locale]/(main)/settings/team/integrations/page.tsx",
       "source": "router"
@@ -326,6 +331,11 @@
     {
       "path": "/:locale/team/tasks",
       "file": "apps/web/app/[locale]/(main)/(teams)/team/tasks/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/team/tasks/trash",
+      "file": "apps/web/app/[locale]/(main)/(teams)/team/tasks/trash/page.tsx",
       "source": "router"
     },
     {
