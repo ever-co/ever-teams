@@ -423,6 +423,22 @@ describe('TeamTasksTimelineView', () => {
 			expect(screen.getByTestId('timeline-card-a')).toBeTruthy();
 		});
 
+		it('keeps its card closed after a drag too, until the pointer leaves the bar', () => {
+			renderTimeline([ranged]);
+			const bar = screen.getByTestId('timeline-bar-a');
+
+			fireEvent.pointerDown(bar, { button: 0, clientX: 100, pointerId: 6 });
+			fireEvent.pointerMove(bar, { clientX: 180, pointerId: 6 });
+			fireEvent.pointerUp(bar, { clientX: 180, pointerId: 6 });
+			fireEvent.click(bar);
+			hover(bar);
+			expect(screen.queryByTestId('timeline-card-a')).toBeNull();
+
+			fireEvent.pointerLeave(bar);
+			hover(bar);
+			expect(screen.getByTestId('timeline-card-a')).toBeTruthy();
+		});
+
 		it('opens no card on a focus, the drawer giving the focus back on Escape included', () => {
 			renderTimeline([ranged]);
 			const bar = screen.getByTestId('timeline-bar-a');
