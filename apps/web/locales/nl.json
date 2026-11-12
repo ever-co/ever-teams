@@ -5605,6 +5605,7 @@
 		"TASK_STATUS": "Status",
 		"TASK_PRIORITY": "Prioriteit",
 		"TASK_NO_PRIORITY": "Geen prioriteit",
+		"TASK_NO_STATUS": "Geen status",
 		"TASK_ASSIGNEES": "Toegewezen aan",
 		"TASK_UNASSIGNED": "Niet toegewezen",
 		"TASK_UPDATE_FAILED": "De taak is niet gewijzigd. Probeer het opnieuw.",

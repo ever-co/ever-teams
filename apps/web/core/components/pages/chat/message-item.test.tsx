@@ -200,6 +200,11 @@ describe('a task and an unsent message', () => {
 		expect(onOpenTask).toHaveBeenCalledWith('task-1');
 	});
 
+	it('never offers to change a task in a read-only conversation (archived)', () => {
+		renderItem({ message: message({ taskReferences: [{ messageId: 'm1', taskId: 'task-1', kind: 'sent' }] }), readOnly: true });
+		expect(screen.getByRole('button', { name: /Ship the page/ }).getAttribute('data-can-change')).toBe('false');
+	});
+
 	it('never offers to change the task of a message still on its way', () => {
 		const pending: ChatOutboxMessage = { ...message({ id: 'pending:n3', authorUserId: ME_USER, taskReferences: [{ messageId: 'pending:n3', taskId: 'task-1', kind: 'sent' }] }), outbox: 'pending' };
 		renderItem({ message: pending });

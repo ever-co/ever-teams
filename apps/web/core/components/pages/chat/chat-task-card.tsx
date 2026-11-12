@@ -230,7 +230,7 @@ function ChatTaskCardComponent({ messageId, taskId, title, canChange, onOpenTask
 	);
 
 	const editable = canChange && !missing && !!task && TASK_EDIT_PERMISSIONS.some((permission) => myPermissions.includes(permission));
-	const status = propertyView(statusItems, shown?.status, { value: task?.status, id: task?.taskStatusId }, '');
+	const status = propertyView(statusItems, shown?.status, { value: task?.status, id: task?.taskStatusId }, t('teamChat.TASK_NO_STATUS'));
 	const priority = propertyView(priorityItems, shown?.priority, { value: task?.priority, id: task?.taskPriorityId }, t('teamChat.TASK_NO_PRIORITY'));
 	const assignees = assigneesOf(task, shown?.assigneeIds, people.byEmployee);
 
@@ -266,7 +266,8 @@ function ChatTaskCardComponent({ messageId, taskId, title, canChange, onOpenTask
 			</button>
 			{task && (
 				<div className="flex flex-wrap items-center gap-1 ps-8.5" data-testid="chat-task-card-fields">
-					{status.value && (
+					{/* A task without a status shows none, unless the reader may give it one. */}
+					{(status.value || (editable && inTeamList)) && (
 						<PropertyField kind="status" view={status} items={statusItems} editable={editable && inTeamList} label={t('teamChat.TASK_STATUS')} options={statusOptions} onPick={pickStatus} />
 					)}
 					<PropertyField kind="priority" view={priority} items={priorityItems} editable={editable && inTeamList} label={t('teamChat.TASK_PRIORITY')} options={priorityOptions} onPick={pickPriority} />

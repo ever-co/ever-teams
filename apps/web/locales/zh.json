@@ -5605,6 +5605,7 @@
 		"TASK_STATUS": "状态",
 		"TASK_PRIORITY": "优先级",
 		"TASK_NO_PRIORITY": "无优先级",
+		"TASK_NO_STATUS": "无状态",
 		"TASK_ASSIGNEES": "负责人",
 		"TASK_UNASSIGNED": "未分配",
 		"TASK_UPDATE_FAILED": "任务未更改。请重试。",

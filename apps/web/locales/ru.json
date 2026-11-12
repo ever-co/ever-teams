@@ -5605,6 +5605,7 @@
 		"TASK_STATUS": "Статус",
 		"TASK_PRIORITY": "Приоритет",
 		"TASK_NO_PRIORITY": "Без приоритета",
+		"TASK_NO_STATUS": "Без статуса",
 		"TASK_ASSIGNEES": "Исполнители",
 		"TASK_UNASSIGNED": "Не назначена",
 		"TASK_UPDATE_FAILED": "Задача не изменена. Попробуйте ещё раз.",

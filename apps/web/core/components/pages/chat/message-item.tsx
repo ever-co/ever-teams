@@ -246,7 +246,7 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 							messageId={message.id}
 							taskId={reference.taskId}
 							title={props.taskTitles.get(reference.taskId)}
-							canChange={!outbox && !deleted}
+							canChange={!outbox && !deleted && !props.readOnly}
 							onOpenTask={props.onOpenTask}
 						/>
 					))}

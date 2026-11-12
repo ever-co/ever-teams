@@ -5605,6 +5605,7 @@
 		"TASK_STATUS": "סטטוס",
 		"TASK_PRIORITY": "עדיפות",
 		"TASK_NO_PRIORITY": "ללא עדיפות",
+		"TASK_NO_STATUS": "ללא סטטוס",
 		"TASK_ASSIGNEES": "אחראים",
 		"TASK_UNASSIGNED": "לא הוקצתה",
 		"TASK_UPDATE_FAILED": "המשימה לא שונתה. נסו שוב.",

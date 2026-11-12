@@ -64,7 +64,9 @@ jest.mock('@/core/stores/teams/team-tasks', () => {
 				priority: 'high',
 				taskPriorityId: 'pr-high',
 				members: [{ id: 'employee-ana', fullName: 'Ana Silva', user: { name: 'Ana Silva', imageUrl: null } }]
-			}
+			},
+			// A task of the team with no status yet.
+			{ id: 'task-2', title: 'Sort the backlog', status: null, taskStatusId: null, priority: null, taskPriorityId: null, members: [] }
 		])
 	};
 });
@@ -205,6 +207,19 @@ describe('a task card', () => {
 		});
 		expect(mockToast.error).toHaveBeenCalledWith('Changing a task needs ORG_TASK_EDIT.');
 		expect(screen.getByRole('group', { name: 'teamChat.TASK_STATUS: open' })).toBeTruthy();
+	});
+
+	it('offers a status to a task that has none, to a reader who may give it one, and shows none otherwise', async () => {
+		const { unmount } = renderCard({ taskId: 'task-2' });
+		const status = screen.getByRole('group', { name: 'teamChat.TASK_STATUS: teamChat.TASK_NO_STATUS' });
+		await act(async () => {
+			fireEvent.click(within(status).getByRole('button', { name: 'in progress' }));
+		});
+		expect(mockUpdateTask).toHaveBeenCalledWith('m1', 'task-2', { status: 'in-progress', taskStatusId: 'st-progress' });
+		unmount();
+		mockPermissions = [];
+		renderCard({ taskId: 'task-2' });
+		expect(screen.queryByTitle('teamChat.TASK_STATUS')).toBeNull();
 	});
 
 	it('stays read-only for a reader who may not edit tasks, and for a message not sent yet', () => {

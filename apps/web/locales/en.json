@@ -5605,6 +5605,7 @@
 		"TASK_STATUS": "Status",
 		"TASK_PRIORITY": "Priority",
 		"TASK_NO_PRIORITY": "No priority",
+		"TASK_NO_STATUS": "No status",
 		"TASK_ASSIGNEES": "Assignees",
 		"TASK_UNASSIGNED": "Unassigned",
 		"TASK_UPDATE_FAILED": "The task was not changed. Try again.",

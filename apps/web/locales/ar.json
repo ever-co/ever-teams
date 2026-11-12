@@ -5605,6 +5605,7 @@
 		"TASK_STATUS": "الحالة",
 		"TASK_PRIORITY": "الأولوية",
 		"TASK_NO_PRIORITY": "بلا أولوية",
+		"TASK_NO_STATUS": "بلا حالة",
 		"TASK_ASSIGNEES": "المكلّفون",
 		"TASK_UNASSIGNED": "غير مُسنَدة",
 		"TASK_UPDATE_FAILED": "لم تتغير المهمة. حاول مرة أخرى.",
