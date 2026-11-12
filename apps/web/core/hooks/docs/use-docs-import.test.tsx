@@ -126,6 +126,36 @@ describe('useDocsImportRun', () => {
 		expect(mockService.getImport).not.toHaveBeenCalled();
 	});
 
+	it('lets an older upload that answers late change nothing of a newer run', async () => {
+		const answers: Array<(value: IDocumentImport) => void> = [];
+		mockService.startImport.mockImplementation(() => new Promise<IDocumentImport>((resolve) => answers.push(resolve)));
+		mockService.getImport.mockResolvedValue({ ...importOf('RUNNING', 2), id: 'import-b' });
+		const { result, rerender } = renderHook(() => useDocsImportRun(), { wrapper: wrapper() });
+
+		let first: Promise<void> = Promise.resolve();
+		act(() => {
+			first = result.current.start(zip(), { parentId: 'page-1' });
+		});
+		mockScope = { ...mockScope, organizationId: 'org-2' };
+		rerender();
+		let second: Promise<void> = Promise.resolve();
+		act(() => {
+			second = result.current.start(zip(), { parentId: 'page-2' });
+		});
+		await act(async () => {
+			answers[1]({ ...importOf('RUNNING', 1), id: 'import-b' });
+			await second;
+		});
+		expect(result.current.step).toBe('running');
+
+		await act(async () => {
+			answers[0]({ ...importOf('RUNNING', 1), id: 'import-a' });
+			await first;
+		});
+		expect(result.current.step).toBe('running');
+		expect(result.current.current?.id).toBe('import-b');
+	});
+
 	it('answers the code of a refused zip and goes back to the picker', async () => {
 		mockService.startImport.mockRejectedValue(Object.assign(refusal(400), { errorCode: 'DOCS_IMPORT_SYMLINK' }));
 		const { result } = renderHook(() => useDocsImportRun(), { wrapper: wrapper() });

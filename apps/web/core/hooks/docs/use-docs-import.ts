@@ -129,8 +129,12 @@ export function useDocsImportRun(onFinished?: (finished: IDocumentImport) => voi
 		onFinishedRef.current?.(current);
 	}, [current, finished]);
 
+	// Each start (and each reset) is a new run: an upload that answers for an older one changes nothing.
+	const runTokenRef = useRef(0);
+
 	const start = useCallback(
 		async (file: File, target: IDocumentImportTarget) => {
+			const token = ++runTokenRef.current;
 			const startedIn = scopeKeyRef.current;
 			setRunScopeKey(startedIn);
 			setImportId(null);
@@ -139,7 +143,11 @@ export function useDocsImportRun(onFinished?: (finished: IDocumentImport) => voi
 			setUploadPercent(0);
 			setStep('uploading');
 			try {
-				const accepted = await docsImportService.startImport(file, target, setUploadPercent);
+				const accepted = await docsImportService.startImport(file, target, (percent) => {
+					if (runTokenRef.current === token) setUploadPercent(percent);
+				});
+				// A newer run (or a reset) took over meanwhile: this answer is not shown.
+				if (runTokenRef.current !== token) return;
 				// The workspace changed meanwhile: this answer is another workspace's, and the run is put away.
 				if (scopeKeyRef.current !== startedIn) {
 					setStep('pick');
@@ -151,6 +159,7 @@ export function useDocsImportRun(onFinished?: (finished: IDocumentImport) => voi
 				// The probe also lists the reader's imports.
 				void queryClient.invalidateQueries({ queryKey: queryKeys.docs.importProbe(scope?.tenantId, scope?.organizationId, scope?.userId) });
 			} catch (error_) {
+				if (runTokenRef.current !== token) return;
 				setStep('pick');
 				if (scopeKeyRef.current !== startedIn) return;
 				setError(errorCodeOf(error_) ?? 'DOCS_IMPORT_FAILED');
@@ -160,6 +169,7 @@ export function useDocsImportRun(onFinished?: (finished: IDocumentImport) => voi
 	);
 
 	const reset = useCallback(() => {
+		runTokenRef.current += 1;
 		setRunScopeKey(null);
 		setStep('pick');
 		setUploadPercent(0);

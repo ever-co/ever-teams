@@ -5762,7 +5762,7 @@
 			"MORE": "en nog {count}",
 			"NOT_IMPORTED": "Niet geïmporteerd",
 			"TRUNCATED": "Het verslag toont alleen de eerste items; de aantallen hierboven zijn volledig.",
-			"TRACKING_ERROR": "De voortgang van de import kon niet worden gelezen. De import gaat door en de pagina’s verschijnen in de boom zodra hij klaar is.",
+			"TRACKING_ERROR": "De voortgang van de import kon niet worden gelezen, dus de uitkomst is hier niet bekend. Probeer het opnieuw om hem opnieuw te lezen.",
 			"PHASE": {
 				"QUEUED": "Wachten op de start…",
 				"PLANNING": "De zip wordt gelezen…",

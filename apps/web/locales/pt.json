@@ -5762,7 +5762,7 @@
 			"MORE": "e mais {count}",
 			"NOT_IMPORTED": "Não importados",
 			"TRUNCATED": "O relatório lista apenas os primeiros itens; os totais acima estão completos.",
-			"TRACKING_ERROR": "Não foi possível ler o progresso da importação. A importação continua e as suas páginas aparecem na árvore quando terminar.",
+			"TRACKING_ERROR": "Não foi possível ler o progresso da importação, por isso o resultado não é conhecido aqui. Tente novamente para o voltar a ler.",
 			"PHASE": {
 				"QUEUED": "Aguardando o início…",
 				"PLANNING": "Lendo o zip…",

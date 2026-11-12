@@ -5762,7 +5762,7 @@
 			"MORE": "et {count} de plus",
 			"NOT_IMPORTED": "Non importés",
 			"TRUNCATED": "Le rapport ne liste que les premiers éléments ; les nombres ci-dessus sont complets.",
-			"TRACKING_ERROR": "La progression de l’import n’a pas pu être lue. L’import continue, et ses pages apparaissent dans l’arborescence une fois terminé.",
+			"TRACKING_ERROR": "La progression de l’import n’a pas pu être lue : son résultat n’est pas connu ici. Réessayez pour la relire.",
 			"PHASE": {
 				"QUEUED": "En attente du démarrage…",
 				"PLANNING": "Lecture du zip…",

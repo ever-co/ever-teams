@@ -5762,7 +5762,7 @@
 			"MORE": "and {count} more",
 			"NOT_IMPORTED": "Not imported",
 			"TRUNCATED": "The report lists the first items only; the counts above are complete.",
-			"TRACKING_ERROR": "The import's progress could not be read. The import goes on, and its pages appear in the tree once it is done.",
+			"TRACKING_ERROR": "The import's progress could not be read, so its outcome is not known here. Retry to read it again.",
 			"PHASE": {
 				"QUEUED": "Waiting to start…",
 				"PLANNING": "Reading the zip…",
