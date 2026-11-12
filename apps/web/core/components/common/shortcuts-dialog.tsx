@@ -40,6 +40,24 @@ const REFUSAL_MESSAGES = {
 
 const KEYS_HINT = 'text-xs text-muted-foreground';
 
+/**
+ * Two columns from the md width, which the dialog widens for. Lines that carry a Change button keep the one column
+ * they had: a column half as wide pushes their keys and button onto a second line.
+ */
+const SHEET_LAYOUTS = {
+	columns: 'flex flex-col gap-4 md:block md:columns-2 md:gap-8 md:[&>section]:pb-4 md:[&>section:last-child]:pb-0',
+	oneColumn: 'flex flex-col gap-4'
+} as const;
+
+type SheetLayout = keyof typeof SHEET_LAYOUTS;
+
+function sheetLayoutOf(canRebind: boolean): SheetLayout {
+	if (canRebind) {
+		return 'oneColumn';
+	}
+	return 'columns';
+}
+
 function chordKeyOf(caps: readonly string[]): string {
 	return caps.join('+');
 }
@@ -256,6 +274,7 @@ function ShortcutsSheet() {
 	if (canRebind) {
 		description = t('shortcuts.DESCRIPTION_REBIND');
 	}
+	const layout = sheetLayoutOf(canRebind);
 
 	return (
 		<>
@@ -263,9 +282,9 @@ function ShortcutsSheet() {
 				<DialogTitle>{t('shortcuts.TITLE')}</DialogTitle>
 				<DialogDescription>{description}</DialogDescription>
 			</DialogHeader>
-			<div className="flex flex-col gap-4 md:block md:columns-2 md:gap-8">
+			<div data-layout={layout} className={SHEET_LAYOUTS[layout]}>
 				{sections.map((section) => (
-					<section key={section.group} className="flex break-inside-avoid flex-col md:pb-4 md:last:pb-0">
+					<section key={section.group} className="flex break-inside-avoid flex-col">
 						<h3 className="pb-1 text-xs font-medium text-muted-foreground">
 							{t(`shortcuts.groups.${section.group}`)}
 						</h3>
@@ -297,7 +316,7 @@ export function ShortcutsDialog() {
 	const [open, setOpen] = useAtom(shortcutsHelpOpenAtom);
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg md:max-w-2xl">
+			<DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg md:has-[[data-layout=columns]]:max-w-2xl">
 				<ShortcutsSheet />
 			</DialogContent>
 		</Dialog>

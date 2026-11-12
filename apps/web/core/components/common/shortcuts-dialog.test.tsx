@@ -251,6 +251,11 @@ function groupsListed(): string[] {
 	return screen.getAllByRole('heading', { level: 3 }).map((heading) => heading.textContent ?? '');
 }
 
+function layoutOfSheet(): string | null | undefined {
+	const [firstGroup] = screen.getAllByRole('heading', { level: 3 });
+	return firstGroup.closest('[data-layout]')?.getAttribute('data-layout');
+}
+
 describe('ShortcutsDialog, one sheet for every key', () => {
 	afterEach(() => {
 		mockRegistryOn = true;
@@ -296,6 +301,17 @@ describe('ShortcutsDialog, one sheet for every key', () => {
 		expect(changeButtonOf('sidebarToggle')).toBeNull();
 		const timerRow = screen.getByText('hotkeys.START_TIMER').parentElement as HTMLElement;
 		expect(timerRow.querySelector('button')).toBeNull();
+	});
+
+	it('sets the groups in columns when nothing can be changed, and in one column when the lines carry Change', () => {
+		mockRegistryOn = false;
+		const first = render(<ShortcutsDialog />);
+		expect(layoutOfSheet()).toBe('columns');
+		first.unmount();
+
+		mockRegistryOn = true;
+		render(<ShortcutsDialog />);
+		expect(layoutOfSheet()).toBe('oneColumn');
 	});
 
 	it('with the registry off, lists what the app answers by itself, with nothing to change', () => {
