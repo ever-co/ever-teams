@@ -56,6 +56,7 @@ export function TeamTasksTimelineView({
 	const formats = useMemo(
 		() => ({
 			day: new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' }),
+			dayWithYear: new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric', year: 'numeric' }),
 			month: new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }),
 			dayOfMonth: new Intl.DateTimeFormat(locale, { day: 'numeric' })
 		}),
@@ -74,9 +75,12 @@ export function TeamTasksTimelineView({
 		element.scrollLeft = Math.max(0, todayDay * dayWidth - (element.clientWidth - TITLE_WIDTH) / 3);
 	}, [todayDay, dayWidth]);
 
-	// The task's own dates (never the calendar's edges a long bar is cut at).
+	// The task's own dates (never the calendar's edges a long bar is cut at), with the year when it is not this one.
 	const barLabel = (task: TTask, bar: TeamTasksTimelineBar) => {
-		const day = (value: number) => formats.day.format(dateOfDayNumber(value));
+		const day = (value: number) => {
+			const date = dateOfDayNumber(value);
+			return (date.getFullYear() === today.getFullYear() ? formats.day : formats.dayWithYear).format(date);
+		};
 		const { taskStartDay, taskDueDay } = bar;
 		let dates = '';
 		if (taskStartDay !== null && taskDueDay !== null && taskStartDay !== taskDueDay) {
@@ -98,8 +102,16 @@ export function TeamTasksTimelineView({
 	const hasTasks = timeline.bars.length > 0 || timeline.unscheduledIds.length > 0;
 
 	return (
-		<section aria-label={t('pages.teamTasks.LAYOUT_TIMELINE')} className="flex min-h-0 flex-1 flex-col gap-3" data-testid="team-tasks-timeline">
-			<div className="flex items-center justify-end gap-1" role="group" aria-label={t('pages.teamTasks.TIMELINE_ZOOM')}>
+		<section
+			aria-label={t('pages.teamTasks.LAYOUT_TIMELINE')}
+			className="flex min-h-0 flex-1 flex-col gap-3"
+			data-testid="team-tasks-timeline"
+		>
+			<div
+				className="flex items-center justify-end gap-1"
+				role="group"
+				aria-label={t('pages.teamTasks.TIMELINE_ZOOM')}
+			>
 				{ZOOMS.map((each) => (
 					<button
 						key={each}
@@ -108,10 +120,16 @@ export function TeamTasksTimelineView({
 						onClick={() => setZoom(each)}
 						className={cn(
 							'h-7 rounded-md px-2.5 text-xs font-medium outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/25',
-							zoom === each ? 'bg-foreground/[0.08] text-foreground' : 'text-muted-foreground hover:bg-foreground/[0.05]'
+							zoom === each
+								? 'bg-foreground/[0.08] text-foreground'
+								: 'text-muted-foreground hover:bg-foreground/[0.05]'
 						)}
 					>
-						{t(each === 'week' ? 'pages.teamTasks.TIMELINE_ZOOM_WEEKS' : 'pages.teamTasks.TIMELINE_ZOOM_MONTHS')}
+						{t(
+							each === 'week'
+								? 'pages.teamTasks.TIMELINE_ZOOM_WEEKS'
+								: 'pages.teamTasks.TIMELINE_ZOOM_MONTHS'
+						)}
 					</button>
 				))}
 			</div>
@@ -122,8 +140,14 @@ export function TeamTasksTimelineView({
 				<div ref={scrollRef} className="relative min-h-0 flex-1 overflow-auto rounded-lg border border-border">
 					<div className="relative" style={{ width: TITLE_WIDTH + calendarWidth }}>
 						{/* The header: month or week labels over the days. */}
-						<div className="sticky top-0 z-20 flex border-b border-border bg-background" style={{ height: HEADER_HEIGHT }}>
-							<div className="sticky left-0 z-30 shrink-0 border-r border-border bg-background" style={{ width: TITLE_WIDTH }} />
+						<div
+							className="sticky top-0 z-20 flex border-b border-border bg-background"
+							style={{ height: HEADER_HEIGHT }}
+						>
+							<div
+								className="sticky left-0 z-30 shrink-0 border-r border-border bg-background"
+								style={{ width: TITLE_WIDTH }}
+							/>
 							<div className="relative" style={{ width: calendarWidth }} aria-hidden="true">
 								{ticks.map((tick) =>
 									tick.isMajor ? (
@@ -132,7 +156,9 @@ export function TeamTasksTimelineView({
 											className="absolute top-1.5 whitespace-nowrap pl-1 text-xs font-medium text-foreground"
 											style={{ left: tick.day * dayWidth }}
 										>
-											{zoom === 'week' ? formats.day.format(tick.date) : formats.month.format(tick.date)}
+											{zoom === 'week'
+												? formats.day.format(tick.date)
+												: formats.month.format(tick.date)}
 										</span>
 									) : null
 								)}
@@ -150,11 +176,19 @@ export function TeamTasksTimelineView({
 						</div>
 
 						{/* Lines of the weeks or months, and today, behind the rows. */}
-						<div className="pointer-events-none absolute bottom-0" style={{ left: TITLE_WIDTH, top: HEADER_HEIGHT, width: calendarWidth }} aria-hidden="true">
+						<div
+							className="pointer-events-none absolute bottom-0"
+							style={{ left: TITLE_WIDTH, top: HEADER_HEIGHT, width: calendarWidth }}
+							aria-hidden="true"
+						>
 							{ticks
 								.filter((tick) => tick.isMajor)
 								.map((tick) => (
-									<span key={tick.day} className="absolute inset-y-0 w-px bg-border" style={{ left: tick.day * dayWidth }} />
+									<span
+										key={tick.day}
+										className="absolute inset-y-0 w-px bg-border"
+										style={{ left: tick.day * dayWidth }}
+									/>
 								))}
 							{todayDay !== null && (
 								<span
@@ -175,7 +209,11 @@ export function TeamTasksTimelineView({
 								const left = bar.startDay * dayWidth;
 								const width = Math.max(dayWidth, (bar.endDay - bar.startDay + 1) * dayWidth);
 								return (
-									<li key={bar.taskId} className="flex border-b border-border/60" style={{ height: ROW_HEIGHT }}>
+									<li
+										key={bar.taskId}
+										className="flex border-b border-border/60"
+										style={{ height: ROW_HEIGHT }}
+									>
 										<button
 											type="button"
 											onClick={() => commands.openTask(task.id)}
@@ -184,10 +222,31 @@ export function TeamTasksTimelineView({
 											aria-label={label}
 											title={label}
 										>
+											{bar.outside === 'before' ? (
+												<span
+													aria-hidden="true"
+													className="shrink-0 text-muted-foreground"
+													data-testid={`timeline-title-before-${task.id}`}
+												>
+													‹
+												</span>
+											) : null}
 											{task.number ? (
-												<span className="shrink-0 text-xs tabular-nums text-muted-foreground">#{task.number}</span>
+												<span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+													#{task.number}
+												</span>
 											) : null}
 											<span className="truncate">{task.title}</span>
+											{/* The edge marker can be far from the days in view: the title says where the dates are too. */}
+											{bar.outside === 'after' ? (
+												<span
+													aria-hidden="true"
+													className="ml-auto shrink-0 text-muted-foreground"
+													data-testid={`timeline-title-after-${task.id}`}
+												>
+													›
+												</span>
+											) : null}
 										</button>
 										<div className="relative" style={{ width: calendarWidth }}>
 											{bar.outside ? (
@@ -201,30 +260,38 @@ export function TeamTasksTimelineView({
 														'absolute top-1.5 flex items-center rounded-md px-1.5 text-xs font-medium text-muted-foreground outline-none hover:bg-foreground/[0.05] focus-visible:ring-[3px] focus-visible:ring-ring/40',
 														bar.isOverdue && 'text-destructive'
 													)}
-													style={{ ...(bar.outside === 'before' ? { left: 0 } : { right: 0 }), height: ROW_HEIGHT - 12 }}
+													style={{
+														...(bar.outside === 'before' ? { left: 0 } : { right: 0 }),
+														height: ROW_HEIGHT - 12
+													}}
 												>
-													<span aria-hidden="true">{bar.outside === 'before' ? '‹' : '›'}</span>
+													<span aria-hidden="true">
+														{bar.outside === 'before' ? '‹' : '›'}
+													</span>
 												</button>
 											) : (
-											<button
-												type="button"
-												onClick={() => commands.openTask(task.id)}
-												aria-label={label}
-												title={label}
-												data-testid={`timeline-bar-${task.id}`}
-												className={cn(
-													'absolute top-1.5 flex items-center overflow-hidden rounded-md px-1.5 text-left text-xs font-medium outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40',
-													bar.isOverdue
-														? 'bg-destructive/15 text-destructive ring-1 ring-inset ring-destructive/40'
-														: 'bg-primary/15 text-foreground ring-1 ring-inset ring-primary/30',
-													(bar.isDueOnly || bar.isStartOnly || bar.hasInvalidRange) && 'border border-dashed border-current',
-													bar.isClippedStart && 'rounded-l-none',
-													bar.isClippedEnd && 'rounded-r-none'
-												)}
-												style={{ left, width, height: ROW_HEIGHT - 12 }}
-											>
-												{width >= 64 ? <span className="truncate">{task.title}</span> : null}
-											</button>
+												<button
+													type="button"
+													onClick={() => commands.openTask(task.id)}
+													aria-label={label}
+													title={label}
+													data-testid={`timeline-bar-${task.id}`}
+													className={cn(
+														'absolute top-1.5 flex items-center overflow-hidden rounded-md px-1.5 text-left text-xs font-medium outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40',
+														bar.isOverdue
+															? 'bg-destructive/15 text-destructive ring-1 ring-inset ring-destructive/40'
+															: 'bg-primary/15 text-foreground ring-1 ring-inset ring-primary/30',
+														(bar.isDueOnly || bar.isStartOnly || bar.hasInvalidRange) &&
+															'border border-dashed border-current',
+														bar.isClippedStart && 'rounded-l-none',
+														bar.isClippedEnd && 'rounded-r-none'
+													)}
+													style={{ left, width, height: ROW_HEIGHT - 12 }}
+												>
+													{width >= 64 ? (
+														<span className="truncate">{task.title}</span>
+													) : null}
+												</button>
 											)}
 										</div>
 									</li>
@@ -250,7 +317,11 @@ export function TeamTasksTimelineView({
 										onClick={() => commands.openTask(id)}
 										className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm outline-none hover:bg-foreground/[0.04] focus-visible:ring-[3px] focus-visible:ring-ring/25"
 									>
-										{task.number ? <span className="shrink-0 text-xs tabular-nums text-muted-foreground">#{task.number}</span> : null}
+										{task.number ? (
+											<span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+												#{task.number}
+											</span>
+										) : null}
 										<span className="truncate">{task.title}</span>
 									</button>
 								</li>
@@ -280,10 +351,13 @@ function useToday() {
 		const schedule = () => {
 			const now = new Date();
 			const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-			timer = setTimeout(() => {
-				refresh();
-				schedule();
-			}, nextMidnight.getTime() - now.getTime() + 1000);
+			timer = setTimeout(
+				() => {
+					refresh();
+					schedule();
+				},
+				nextMidnight.getTime() - now.getTime() + 1000
+			);
 		};
 		const onVisible = () => {
 			if (document.visibilityState === 'visible') refresh();
