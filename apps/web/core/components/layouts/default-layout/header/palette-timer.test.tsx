@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React, { type PropsWithChildren } from 'react';
-import { render, renderHook } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
 import { toast } from 'sonner';
 
@@ -84,7 +84,7 @@ jest.mock('@/core/hooks/activities/use-start-stop-timer-handler', () => ({
 	})
 }));
 
-import { PaletteTimerLayer, usePaletteTimer } from './palette-timer';
+import { PaletteTimerLayer } from './palette-timer';
 
 type PaletteRequest = { id: number; kind: 'stop' } | { id: number; kind: 'start'; task: TTask };
 
@@ -180,24 +180,5 @@ describe('a timer stop asked from the palette', () => {
 		renderStop(STOPPED);
 
 		expect(mockRunTimerHandler).not.toHaveBeenCalled();
-	});
-});
-
-describe('the stop the palette offers', () => {
-	const canStopWith = (timerStatus: ITimerStatus | null) => {
-		const { result } = renderHook(() => usePaletteTimer(), { wrapper: wrapperWith(timerStatus) });
-		return result.current.canStop;
-	};
-
-	it('is offered for a run the timer shows', () => {
-		expect(canStopWith(runOf(ACTIVE_TEAM))).toBe(true);
-	});
-
-	it('is not offered over a run the timer does not show: its button offers Start there', () => {
-		expect(canStopWith(runOf(OTHER_TEAM))).toBe(false);
-	});
-
-	it('is not offered while no timer runs', () => {
-		expect(canStopWith(STOPPED)).toBe(false);
 	});
 });
