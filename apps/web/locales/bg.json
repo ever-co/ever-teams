@@ -4971,7 +4971,8 @@
 				"ACTION_PRIORITY_REQUIRED": "Изберете приоритет.",
 				"ACTION_MEMBERS_REQUIRED": "Изберете поне един човек.",
 				"ACTION_LABELS_REQUIRED": "Изберете поне един етикет.",
-				"MESSAGE_TOO_LONG": "Съобщението е твърде дълго."
+				"MESSAGE_TOO_LONG": "Съобщението е твърде дълго.",
+				"TOO_MANY_VALUES": "Изберете най-много 50."
 			},
 			"triggers": {
 				"STATUS_CHANGED": "Статусът се променя",

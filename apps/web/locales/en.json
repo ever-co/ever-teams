@@ -4971,7 +4971,8 @@
 				"ACTION_PRIORITY_REQUIRED": "Choose a priority.",
 				"ACTION_MEMBERS_REQUIRED": "Choose at least one person.",
 				"ACTION_LABELS_REQUIRED": "Choose at least one label.",
-				"MESSAGE_TOO_LONG": "The message is too long."
+				"MESSAGE_TOO_LONG": "The message is too long.",
+				"TOO_MANY_VALUES": "Choose at most 50."
 			},
 			"triggers": {
 				"STATUS_CHANGED": "The status changes",

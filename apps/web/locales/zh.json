@@ -4971,7 +4971,8 @@
 				"ACTION_PRIORITY_REQUIRED": "请选择优先级。",
 				"ACTION_MEMBERS_REQUIRED": "请至少选择一个人。",
 				"ACTION_LABELS_REQUIRED": "请至少选择一个标签。",
-				"MESSAGE_TOO_LONG": "消息太长。"
+				"MESSAGE_TOO_LONG": "消息太长。",
+				"TOO_MANY_VALUES": "最多选择 50 项。"
 			},
 			"triggers": {
 				"STATUS_CHANGED": "状态发生变化",

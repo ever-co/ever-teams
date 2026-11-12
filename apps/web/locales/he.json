@@ -4971,7 +4971,8 @@
 				"ACTION_PRIORITY_REQUIRED": "בחרו עדיפות.",
 				"ACTION_MEMBERS_REQUIRED": "בחרו לפחות אדם אחד.",
 				"ACTION_LABELS_REQUIRED": "בחרו לפחות תווית אחת.",
-				"MESSAGE_TOO_LONG": "ההודעה ארוכה מדי."
+				"MESSAGE_TOO_LONG": "ההודעה ארוכה מדי.",
+				"TOO_MANY_VALUES": "בחרו 50 לכל היותר."
 			},
 			"triggers": {
 				"STATUS_CHANGED": "הסטטוס משתנה",

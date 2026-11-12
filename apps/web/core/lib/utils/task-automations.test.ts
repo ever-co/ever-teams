@@ -23,6 +23,7 @@ import {
 	sortTaskAutomationRules,
 	TASK_AUTOMATION_ACTIONS,
 	TASK_AUTOMATION_CONDITIONS,
+	TRIGGER_ITEM_KEY,
 	validateTaskAutomationForm
 } from './task-automations';
 
@@ -157,6 +158,28 @@ describe('task automations form', () => {
 		const fine = emptyTaskAutomationForm();
 		fine.name = 'A rule';
 		expect(validateTaskAutomationForm(fine)).toEqual([]);
+	});
+
+	it('starts a blank rule off', () => {
+		expect(emptyTaskAutomationForm().isEnabled).toBe(false);
+	});
+
+	it('holds every list to the platform’s 50 values, beside the list it is about', () => {
+		const many = Array.from({ length: 51 }, (_, index) => `value-${index}`);
+		const form = emptyTaskAutomationForm();
+		form.name = 'Many';
+		form.toStatuses = many;
+		form.conditions = [{ ...conditionDraftOf({ type: ETaskAutomationCondition.HAS_LABEL }), values: many }];
+		form.actions = [{ ...actionDraftOf({ type: ETaskAutomationAction.ADD_LABELS }), tagIds: many }];
+		expect(validateTaskAutomationForm(form)).toEqual([
+			{ code: 'TOO_MANY_VALUES', itemKey: TRIGGER_ITEM_KEY },
+			{ code: 'TOO_MANY_VALUES', itemKey: form.conditions[0].key },
+			{ code: 'TOO_MANY_VALUES', itemKey: form.actions[0].key }
+		]);
+		form.toStatuses = many.slice(0, 50);
+		form.conditions[0].values = many.slice(0, 50);
+		form.actions[0].tagIds = many.slice(0, 50);
+		expect(validateTaskAutomationForm(form)).toEqual([]);
 	});
 
 	it('orders the rules, moves one up or down, and reorders them optimistically', () => {

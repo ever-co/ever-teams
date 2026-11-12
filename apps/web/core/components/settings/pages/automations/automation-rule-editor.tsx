@@ -24,6 +24,7 @@ import {
 	type TaskAutomationConditionDraft,
 	type TaskAutomationForm,
 	type TaskAutomationFormError,
+	TRIGGER_ITEM_KEY,
 	validateTaskAutomationForm
 } from '@/core/lib/utils/task-automations';
 import {
@@ -46,11 +47,20 @@ function TypeSelect<T extends string>({
 	value,
 	values,
 	labelOf,
-	onChange
-}: Readonly<{ id?: string; value: T; values: readonly T[]; labelOf: (value: T) => string; onChange: (value: T) => void }>) {
+	onChange,
+	ariaLabel
+}: Readonly<{
+	id?: string;
+	value: T;
+	values: readonly T[];
+	labelOf: (value: T) => string;
+	onChange: (value: T) => void;
+	/** The control's name when no `<label>` points at it. */
+	ariaLabel?: string;
+}>) {
 	return (
 		<Select value={value} onValueChange={(next) => next && onChange(next as T)}>
-			<SelectTrigger id={id} className={SELECT_TRIGGER}>
+			<SelectTrigger id={id} className={SELECT_TRIGGER} aria-label={ariaLabel}>
 				<SelectValue />
 			</SelectTrigger>
 			<SelectContent align="start" className={SELECT_CONTENT}>
@@ -177,6 +187,7 @@ function ActionEditor({
 			{input === 'status' && (
 				<div className="flex flex-col gap-2 sm:flex-row sm:items-center">
 					<TypeSelect
+						ariaLabel={label}
 						value={draft.statusMode}
 						values={['category', 'status'] as const}
 						labelOf={(mode) => t(mode === 'category' ? 'settings.automations.STATUS_MODE_CATEGORY' : 'settings.automations.STATUS_MODE_STATUS')}
@@ -184,6 +195,7 @@ function ActionEditor({
 					/>
 					{draft.statusMode === 'category' ? (
 						<TypeSelect
+							ariaLabel={`${label}: ${t('settings.automations.STATUS_MODE_CATEGORY')}`}
 							value={draft.category}
 							values={TASK_AUTOMATION_CATEGORIES}
 							labelOf={(category) => t(`settings.automations.categories.${category}` as Key)}
@@ -191,6 +203,7 @@ function ActionEditor({
 						/>
 					) : (
 						<OptionSelect
+							ariaLabel={`${label}: ${t('settings.automations.CHOOSE_STATUS')}`}
 							options={lookups.statuses}
 							value={draft.status || null}
 							onChange={(status) => onChange({ ...draft, status: status ?? '' })}
@@ -201,6 +214,7 @@ function ActionEditor({
 			)}
 			{input === 'priority' && (
 				<OptionSelect
+					ariaLabel={`${label}: ${t('settings.automations.CHOOSE_PRIORITY')}`}
 					options={lookups.priorities}
 					value={draft.priority || null}
 					onChange={(priority) => onChange({ ...draft, priority: priority ?? '' })}
@@ -403,6 +417,7 @@ export function AutomationRuleEditor({
 									label={t('settings.automations.FROM_STATUSES')}
 								/>
 								<p className="text-xs text-muted-foreground">{t('settings.automations.ANY_STATUS')}</p>
+								<ErrorLine errors={shownErrors} itemKey={TRIGGER_ITEM_KEY} />
 							</div>
 						)}
 					</Block>

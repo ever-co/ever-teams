@@ -183,7 +183,8 @@ export function emptyTaskAutomationForm(): TaskAutomationForm {
 		description: '',
 		projectId: null,
 		organizationTeamId: null,
-		isEnabled: true,
+		// A blank rule starts off: it is switched on once it says what it should do.
+		isEnabled: false,
 		templateKey: null,
 		trigger: ETaskAutomationTrigger.STATUS_CHANGED,
 		toStatuses: [],
@@ -293,13 +294,17 @@ export type TaskAutomationFormErrorCode =
 	| 'ACTION_PRIORITY_REQUIRED'
 	| 'ACTION_MEMBERS_REQUIRED'
 	| 'ACTION_LABELS_REQUIRED'
-	| 'MESSAGE_TOO_LONG';
+	| 'MESSAGE_TOO_LONG'
+	| 'TOO_MANY_VALUES';
 
 export interface TaskAutomationFormError {
 	code: TaskAutomationFormErrorCode;
-	/** The key of the condition or action it is about. */
+	/** The key of the condition or action it is about (`TRIGGER_ITEM_KEY` for the trigger's status lists). */
 	itemKey?: string;
 }
+
+/** The `itemKey` of an error about the trigger's status lists. */
+export const TRIGGER_ITEM_KEY = 'trigger';
 
 /** The platform's own checks, made before the request so the editor can point at the field. */
 export function validateTaskAutomationForm(form: TaskAutomationForm): TaskAutomationFormError[] {
@@ -311,7 +316,12 @@ export function validateTaskAutomationForm(form: TaskAutomationForm): TaskAutoma
 	if (!form.actions.length) errors.push({ code: 'ACTION_REQUIRED' });
 	if (form.conditions.length > TASK_AUTOMATION_LIMITS.conditionsPerRule) errors.push({ code: 'TOO_MANY_CONDITIONS' });
 	if (form.actions.length > TASK_AUTOMATION_LIMITS.actionsPerRule) errors.push({ code: 'TOO_MANY_ACTIONS' });
+	const tooMany = (values: readonly string[]) => unique(values).length > TASK_AUTOMATION_LIMITS.valuesPerList;
+	if (form.trigger === ETaskAutomationTrigger.STATUS_CHANGED && (tooMany(form.toStatuses) || tooMany(form.fromStatuses))) {
+		errors.push({ code: 'TOO_MANY_VALUES', itemKey: TRIGGER_ITEM_KEY });
+	}
 	for (const condition of form.conditions) {
+		if (tooMany(condition.values)) errors.push({ code: 'TOO_MANY_VALUES', itemKey: condition.key });
 		const input = conditionInputOf(condition.type);
 		if (input === 'text' && !condition.text.trim()) errors.push({ code: 'CONDITION_TEXT_REQUIRED', itemKey: condition.key });
 		const needsValues = input !== 'text' && input !== 'none';
@@ -321,6 +331,9 @@ export function validateTaskAutomationForm(form: TaskAutomationForm): TaskAutoma
 	}
 	for (const action of form.actions) {
 		const input = actionInputOf(action.type);
+		if ((input === 'members' && tooMany(action.employeeIds)) || (input === 'labels' && tooMany(action.tagIds))) {
+			errors.push({ code: 'TOO_MANY_VALUES', itemKey: action.key });
+		}
 		if (input === 'status' && action.statusMode === 'status' && !action.status.trim()) {
 			errors.push({ code: 'ACTION_STATUS_REQUIRED', itemKey: action.key });
 		}

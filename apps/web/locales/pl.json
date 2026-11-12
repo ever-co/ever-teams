@@ -4971,7 +4971,8 @@
 				"ACTION_PRIORITY_REQUIRED": "Wybierz priorytet.",
 				"ACTION_MEMBERS_REQUIRED": "Wybierz co najmniej jedną osobę.",
 				"ACTION_LABELS_REQUIRED": "Wybierz co najmniej jedną etykietę.",
-				"MESSAGE_TOO_LONG": "Wiadomość jest za długa."
+				"MESSAGE_TOO_LONG": "Wiadomość jest za długa.",
+				"TOO_MANY_VALUES": "Wybierz najwyżej 50."
 			},
 			"triggers": {
 				"STATUS_CHANGED": "Status się zmienia",

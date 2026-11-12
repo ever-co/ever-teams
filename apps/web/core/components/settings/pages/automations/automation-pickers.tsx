@@ -178,7 +178,8 @@ export function OptionSelect({
 	onChange,
 	placeholder,
 	noneLabel,
-	disabled
+	disabled,
+	ariaLabel
 }: Readonly<{
 	id?: string;
 	options: AutomationOption[];
@@ -187,6 +188,8 @@ export function OptionSelect({
 	placeholder: string;
 	noneLabel?: string;
 	disabled?: boolean;
+	/** The control's name when no `<label>` points at it. */
+	ariaLabel?: string;
 }>) {
 	const NONE = '__none__';
 	const hasValue = !!value && options.some((option) => option.id === value);
@@ -194,7 +197,7 @@ export function OptionSelect({
 	const current = value || (noneLabel ? NONE : '');
 	return (
 		<Select value={current} onValueChange={(next) => onChange(!next || next === NONE ? null : next)} disabled={disabled}>
-			<SelectTrigger id={id} className={SELECT_TRIGGER}>
+			<SelectTrigger id={id} className={SELECT_TRIGGER} aria-label={ariaLabel}>
 				<SelectValue placeholder={placeholder} />
 			</SelectTrigger>
 			<SelectContent align="start" className={SELECT_CONTENT}>

@@ -141,6 +141,52 @@ describe('actions', () => {
 		expect(queryClient.getQueryData<ITaskAutomationRule[]>(rulesKey)?.[0].isEnabled).toBe(true);
 	});
 
+	it('puts back only the switch that failed: one saved meanwhile keeps its result', async () => {
+		const { result, queryClient } = setup(() => useTaskAutomationActions());
+		queryClient.setQueryData(rulesKey, [rule('a', 0), rule('b', 1)]);
+		let refuseA!: (error: unknown) => void;
+		mockService.update.mockImplementation((_organizationId: string, id: string) =>
+			id === 'a' ? new Promise((_resolve, reject) => (refuseA = reject)) : Promise.resolve(rule('b', 1, { isEnabled: false }))
+		);
+		let settledA: Promise<unknown> = Promise.resolve();
+		await act(async () => {
+			settledA = result.current.setEnabled('a', false).catch(() => undefined);
+			await result.current.setEnabled('b', false);
+		});
+		await act(async () => {
+			refuseA(httpError(500));
+			await settledA;
+		});
+		const cached = queryClient.getQueryData<ITaskAutomationRule[]>(rulesKey) ?? [];
+		expect(cached.map((one) => [one.id, one.isEnabled])).toEqual([
+			['a', true],
+			['b', false]
+		]);
+	});
+
+	it('puts a refused order back, keeping what other writes made of each rule', async () => {
+		const { result, queryClient } = setup(() => useTaskAutomationActions());
+		queryClient.setQueryData(rulesKey, [rule('a', 0), rule('b', 1)]);
+		let refuse!: (error: unknown) => void;
+		mockService.reorder.mockReturnValue(new Promise((_resolve, reject) => (refuse = reject)));
+		let settled: Promise<unknown> = Promise.resolve();
+		act(() => {
+			settled = result.current.reorder(['b', 'a']).catch(() => undefined);
+		});
+		await waitFor(() => expect(queryClient.getQueryData<ITaskAutomationRule[]>(rulesKey)?.map((one) => one.id)).toEqual(['b', 'a']));
+		// A switch saved while the order was under way.
+		queryClient.setQueryData<ITaskAutomationRule[]>(rulesKey, (rules) => rules?.map((one) => (one.id === 'b' ? { ...one, isEnabled: false } : one)));
+		await act(async () => {
+			refuse(httpError(500));
+			await settled;
+		});
+		const cached = queryClient.getQueryData<ITaskAutomationRule[]>(rulesKey) ?? [];
+		expect(cached.map((one) => [one.id, one.isEnabled])).toEqual([
+			['a', true],
+			['b', false]
+		]);
+	});
+
 	it('reorders at once and keeps the platform’s answer', async () => {
 		const { result, queryClient } = setup(() => useTaskAutomationActions());
 		queryClient.setQueryData(rulesKey, [rule('a', 0), rule('b', 1)]);

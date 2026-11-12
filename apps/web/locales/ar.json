@@ -4971,7 +4971,8 @@
 				"ACTION_PRIORITY_REQUIRED": "اختر أولوية.",
 				"ACTION_MEMBERS_REQUIRED": "اختر شخصًا واحدًا على الأقل.",
 				"ACTION_LABELS_REQUIRED": "اختر وسمًا واحدًا على الأقل.",
-				"MESSAGE_TOO_LONG": "الرسالة طويلة جدًا."
+				"MESSAGE_TOO_LONG": "الرسالة طويلة جدًا.",
+				"TOO_MANY_VALUES": "اختر 50 على الأكثر."
 			},
 			"triggers": {
 				"STATUS_CHANGED": "تتغيّر الحالة",

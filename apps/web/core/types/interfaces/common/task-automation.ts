@@ -200,5 +200,7 @@ export const TASK_AUTOMATION_LIMITS = Object.freeze({
 	nameLength: 120,
 	descriptionLength: 2000,
 	messageLength: 1000,
-	runsShown: 50
+	runsShown: 50,
+	/** The most values one list may hold (a trigger's statuses, a condition's values, an action's people or labels). */
+	valuesPerList: 50
 });

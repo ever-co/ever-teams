@@ -4971,7 +4971,8 @@
 				"ACTION_PRIORITY_REQUIRED": "Выберите приоритет.",
 				"ACTION_MEMBERS_REQUIRED": "Выберите хотя бы одного человека.",
 				"ACTION_LABELS_REQUIRED": "Выберите хотя бы одну метку.",
-				"MESSAGE_TOO_LONG": "Сообщение слишком длинное."
+				"MESSAGE_TOO_LONG": "Сообщение слишком длинное.",
+				"TOO_MANY_VALUES": "Выберите не более 50."
 			},
 			"triggers": {
 				"STATUS_CHANGED": "Статус меняется",

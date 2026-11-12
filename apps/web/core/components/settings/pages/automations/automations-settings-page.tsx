@@ -138,14 +138,16 @@ function AutomationsManager({ templates }: Readonly<{ templates: ITaskAutomation
 
 	const save = async (form: TaskAutomationForm) => {
 		const input = ruleInputFromForm(form);
-		if (editor?.mode === 'edit' && editor.ruleId) {
-			await actions.update(editor.ruleId, input);
+		const started = editor;
+		if (started?.mode === 'edit' && started.ruleId) {
+			await actions.update(started.ruleId, input);
 			toast.success(t('settings.automations.SAVED'));
 		} else {
 			await actions.create(form.templateKey ? { ...input, templateKey: form.templateKey } : input);
 			toast.success(t('settings.automations.CREATED'));
 		}
-		setEditor(null);
+		// Only the editor that saved closes: one opened meanwhile (after a cancel) keeps its unsaved changes.
+		setEditor((now) => (now === started ? null : now));
 	};
 
 	const move = (rule: ITaskAutomationRule, delta: -1 | 1) => {

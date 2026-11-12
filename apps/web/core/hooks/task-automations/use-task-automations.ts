@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { type QueryKey, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { taskAutomationsService } from '@/core/services/client/api/task-automations';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
@@ -112,80 +112,125 @@ export function useTaskAutomationRuns(ruleId: string | null) {
 	});
 }
 
+/** The writes of this page, so a write can tell whether others are still under way. */
+const WRITE_KEY = ['task-automations', 'write'] as const;
+
+/** Where a write applies: the organization it was made in, and that organization's rules in the cache. */
+interface WriteScope {
+	organizationId: string;
+	rulesKey: QueryKey;
+}
+
 /**
  * The writes of the page: create, edit, switch on/off and reorder (both shown at once and rolled back when the
  * platform refuses), delete, and the dry run (which writes nothing). Each answers the platform's rule, or throws.
+ *
+ * Each write keeps the organization and the rules' cache key it started in (`WriteScope`): one that finishes after a
+ * switch of organization lands in the list it was made for, never in the new one. A refused switch puts back that
+ * rule's switch alone, and a refused reorder that order alone, so a write that succeeded meanwhile keeps its result;
+ * once the last write under way settles, the rules are read again.
  */
 export function useTaskAutomationActions() {
 	const scope = useTaskAutomationsScope();
 	const queryClient = useQueryClient();
 	const rulesKey = queryKeys.taskAutomations.rules(scope?.tenantId, scope?.organizationId, scope?.userId);
 	const organizationId = scope?.organizationId ?? '';
+	const current = (): WriteScope => ({ organizationId, rulesKey });
 
 	const setRules = useCallback(
-		(update: (rules: ITaskAutomationRule[]) => ITaskAutomationRule[]) =>
-			queryClient.setQueryData<ITaskAutomationRule[]>(rulesKey, (current) => update(current ?? [])),
-		[queryClient, rulesKey]
+		(key: QueryKey, update: (rules: ITaskAutomationRule[]) => ITaskAutomationRule[]) =>
+			queryClient.setQueryData<ITaskAutomationRule[]>(key, (cached) => (cached ? update(cached) : cached)),
+		[queryClient]
 	);
 	const invalidate = useCallback(() => queryClient.invalidateQueries({ queryKey: rulesKey }), [queryClient, rulesKey]);
+	/** After a write: read the rules again once no other write is under way (this one still counts itself). */
+	const settle = useCallback(
+		(key: QueryKey) => {
+			if (queryClient.isMutating({ mutationKey: WRITE_KEY }) <= 1) void queryClient.invalidateQueries({ queryKey: key });
+		},
+		[queryClient]
+	);
 
 	const createMutation = useMutation({
-		mutationFn: (input: ITaskAutomationRuleCreateInput) => taskAutomationsService.create(organizationId, input),
-		onSuccess: (created) => setRules((rules) => [...rules.filter((one) => one.id !== created.id), created])
+		mutationKey: WRITE_KEY,
+		mutationFn: ({ write, input }: { write: WriteScope; input: ITaskAutomationRuleCreateInput }) =>
+			taskAutomationsService.create(write.organizationId, input),
+		onSuccess: async (created, { write }) => {
+			// A read under way could answer the list from before the rule: it is dropped, and the list read again.
+			await queryClient.cancelQueries({ queryKey: write.rulesKey });
+			setRules(write.rulesKey, (rules) => [...rules.filter((one) => one.id !== created.id), created]);
+		},
+		onSettled: (_data, _error, { write }) => settle(write.rulesKey)
 	});
 
 	const updateMutation = useMutation({
-		mutationFn: ({ id, input }: { id: string; input: ITaskAutomationRuleUpdateInput }) =>
-			taskAutomationsService.update(organizationId, id, input),
-		onMutate: async ({ id, input }) => {
+		mutationKey: WRITE_KEY,
+		mutationFn: ({ write, id, input }: { write: WriteScope; id: string; input: ITaskAutomationRuleUpdateInput }) =>
+			taskAutomationsService.update(write.organizationId, id, input),
+		onMutate: async ({ write, id, input }) => {
 			// Only the switch is shown before the answer: the rest of an edit waits for what the platform kept.
 			if (input.isEnabled === undefined || Object.keys(input).length !== 1) return undefined;
-			await queryClient.cancelQueries({ queryKey: rulesKey });
-			const previous = queryClient.getQueryData<ITaskAutomationRule[]>(rulesKey);
-			setRules((rules) => rules.map((rule) => (rule.id === id ? { ...rule, isEnabled: !!input.isEnabled } : rule)));
-			return { previous };
+			await queryClient.cancelQueries({ queryKey: write.rulesKey });
+			const before = queryClient.getQueryData<ITaskAutomationRule[]>(write.rulesKey)?.find((rule) => rule.id === id);
+			setRules(write.rulesKey, (rules) => rules.map((rule) => (rule.id === id ? { ...rule, isEnabled: !!input.isEnabled } : rule)));
+			return { wasEnabled: before?.isEnabled };
 		},
-		onError: (_error, _variables, context) => {
-			if (context?.previous) queryClient.setQueryData(rulesKey, context.previous);
+		onError: (_error, { write, id, input }, context) => {
+			if (context?.wasEnabled === undefined) return;
+			// Only this rule's switch goes back, and only while it still shows what this write set.
+			setRules(write.rulesKey, (rules) =>
+				rules.map((rule) =>
+					rule.id === id && rule.isEnabled === !!input.isEnabled ? { ...rule, isEnabled: !!context.wasEnabled } : rule
+				)
+			);
 		},
-		onSuccess: (updated) => setRules((rules) => rules.map((rule) => (rule.id === updated.id ? updated : rule)))
+		onSuccess: (updated, { write }) =>
+			setRules(write.rulesKey, (rules) => rules.map((rule) => (rule.id === updated.id ? updated : rule))),
+		onSettled: (_data, _error, { write }) => settle(write.rulesKey)
 	});
 
 	const reorderMutation = useMutation({
-		mutationFn: (ids: string[]) => taskAutomationsService.reorder(organizationId, ids),
-		onMutate: async (ids) => {
-			await queryClient.cancelQueries({ queryKey: rulesKey });
-			const previous = queryClient.getQueryData<ITaskAutomationRule[]>(rulesKey);
-			setRules((rules) => rulesInOrder(rules, ids));
-			return { previous };
+		mutationKey: WRITE_KEY,
+		mutationFn: ({ write, ids }: { write: WriteScope; ids: string[] }) => taskAutomationsService.reorder(write.organizationId, ids),
+		onMutate: async ({ write, ids }) => {
+			await queryClient.cancelQueries({ queryKey: write.rulesKey });
+			const order = queryClient.getQueryData<ITaskAutomationRule[]>(write.rulesKey)?.map((rule) => rule.id);
+			setRules(write.rulesKey, (rules) => rulesInOrder(rules, ids));
+			return { order };
 		},
-		onError: (_error, _ids, context) => {
-			if (context?.previous) queryClient.setQueryData(rulesKey, context.previous);
+		onError: (_error, { write }, context) => {
+			// The order goes back; each rule keeps what other writes made of it meanwhile.
+			const order = context?.order;
+			if (order) setRules(write.rulesKey, (rules) => rulesInOrder(rules, order));
 		},
-		onSuccess: (rules) => queryClient.setQueryData(rulesKey, rules)
+		// The platform's order, with each rule as the cache has it now (a switch saved meanwhile stays).
+		onSuccess: (ordered, { write }) => setRules(write.rulesKey, (rules) => rulesInOrder(rules, ordered.map((rule) => rule.id))),
+		onSettled: (_data, _error, { write }) => settle(write.rulesKey)
 	});
 
 	const removeMutation = useMutation({
-		mutationFn: (id: string) => taskAutomationsService.remove(organizationId, id),
-		onSuccess: (_result, id) => setRules((rules) => rules.filter((rule) => rule.id !== id))
+		mutationKey: WRITE_KEY,
+		mutationFn: ({ write, id }: { write: WriteScope; id: string }) => taskAutomationsService.remove(write.organizationId, id),
+		onSuccess: (_result, { write, id }) => setRules(write.rulesKey, (rules) => rules.filter((rule) => rule.id !== id)),
+		onSettled: (_data, _error, { write }) => settle(write.rulesKey)
 	});
 
 	const testMutation = useMutation({
-		mutationFn: ({ id, taskId }: { id: string; taskId: string }): Promise<ITaskAutomationTestResult> =>
-			taskAutomationsService.test(organizationId, id, taskId)
+		mutationFn: ({ write, id, taskId }: { write: WriteScope; id: string; taskId: string }): Promise<ITaskAutomationTestResult> =>
+			taskAutomationsService.test(write.organizationId, id, taskId)
 	});
 
 	return {
-		create: createMutation.mutateAsync,
+		create: (input: ITaskAutomationRuleCreateInput) => createMutation.mutateAsync({ write: current(), input }),
 		isCreating: createMutation.isPending,
-		update: (id: string, input: ITaskAutomationRuleUpdateInput) => updateMutation.mutateAsync({ id, input }),
+		update: (id: string, input: ITaskAutomationRuleUpdateInput) => updateMutation.mutateAsync({ write: current(), id, input }),
 		isUpdating: updateMutation.isPending,
-		setEnabled: (id: string, isEnabled: boolean) => updateMutation.mutateAsync({ id, input: { isEnabled } }),
-		reorder: reorderMutation.mutateAsync,
+		setEnabled: (id: string, isEnabled: boolean) => updateMutation.mutateAsync({ write: current(), id, input: { isEnabled } }),
+		reorder: (ids: string[]) => reorderMutation.mutateAsync({ write: current(), ids }),
 		isReordering: reorderMutation.isPending,
-		remove: removeMutation.mutateAsync,
+		remove: (id: string) => removeMutation.mutateAsync({ write: current(), id }),
 		isRemoving: removeMutation.isPending,
-		test: (id: string, taskId: string) => testMutation.mutateAsync({ id, taskId }),
+		test: (id: string, taskId: string) => testMutation.mutateAsync({ write: current(), id, taskId }),
 		isTesting: testMutation.isPending,
 		invalidate
 	};

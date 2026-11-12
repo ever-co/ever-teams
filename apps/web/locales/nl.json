@@ -4971,7 +4971,8 @@
 				"ACTION_PRIORITY_REQUIRED": "Kies een prioriteit.",
 				"ACTION_MEMBERS_REQUIRED": "Kies minstens één persoon.",
 				"ACTION_LABELS_REQUIRED": "Kies minstens één label.",
-				"MESSAGE_TOO_LONG": "Het bericht is te lang."
+				"MESSAGE_TOO_LONG": "Het bericht is te lang.",
+				"TOO_MANY_VALUES": "Kies er maximaal 50."
 			},
 			"triggers": {
 				"STATUS_CHANGED": "De status verandert",

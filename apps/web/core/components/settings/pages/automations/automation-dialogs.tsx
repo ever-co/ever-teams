@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { type DottedLanguageObjectStringPaths, useFormatter, useTranslations } from 'next-intl';
 import { APP_DIALOG_BODY, APP_DIALOG_FOOTER, AppDialog, AppDialogDescription, AppDialogHeader } from '@/core/components/common/app-dialog';
 import { Badge } from '@/core/components/common/badge';
@@ -123,6 +123,11 @@ function ChangeLine({ change, lookups }: Readonly<{ change: ITaskAutomationChang
 	);
 }
 
+/** A line of an action that found nothing to do (the value was already set): history leaves it out. */
+function isUnchangedLine(change: ITaskAutomationChange): boolean {
+	return !change.failed && change.note === 'Already set.';
+}
+
 function ConditionLines({ conditions }: Readonly<{ conditions: ITaskAutomationConditionResult[] }>) {
 	const t = useTranslations();
 	if (!conditions.length) return <p className="text-xs text-muted-foreground">{t('settings.automations.NO_CONDITIONS')}</p>;
@@ -166,20 +171,35 @@ export function AutomationTestDialog({
 	const [result, setResult] = useState<ITaskAutomationTestResult | null>(null);
 	const [error, setError] = useState<unknown>(null);
 	const [shownRule, setShownRule] = useState(rule);
+	// Each question gets a number; another rule, another task or a newer question makes an older answer stale.
+	const latest = useRef(0);
 	if (rule !== shownRule) {
 		setShownRule(rule);
 		setPicked(null);
 		setResult(null);
 		setError(null);
 	}
+	const ruleId = rule?.id ?? null;
+	useEffect(() => {
+		latest.current += 1;
+	}, [ruleId]);
+	const pick = (next: string | null) => {
+		latest.current += 1;
+		setPicked(next);
+		// Another task: the answer for the one before no longer applies.
+		setResult(null);
+		setError(null);
+	};
 	const run = async () => {
 		if (!rule || !picked) return;
+		const asked = ++latest.current;
 		setError(null);
+		setResult(null);
 		try {
-			setResult(await onTest(rule.id, picked));
+			const answer = await onTest(rule.id, picked);
+			if (latest.current === asked) setResult(answer);
 		} catch (caught) {
-			setResult(null);
-			setError(caught);
+			if (latest.current === asked) setError(caught);
 		}
 	};
 	const onParent = result?.subjectTaskId && result.subjectTaskId !== result.taskId;
@@ -195,7 +215,7 @@ export function AutomationTestDialog({
 						<label htmlFor={taskId} className="text-xs font-medium text-muted-foreground">
 							{t('settings.automations.TEST_TASK')}
 						</label>
-						<OptionSelect id={taskId} options={lookups.tasks} value={picked} onChange={setPicked} placeholder={t('settings.automations.TEST_TASK')} />
+						<OptionSelect id={taskId} options={lookups.tasks} value={picked} onChange={pick} placeholder={t('settings.automations.TEST_TASK')} />
 					</div>
 				)}
 				{error !== null && (
@@ -279,7 +299,7 @@ export function AutomationRunsDialog({
 									{[when, run.depth > 0 ? t('settings.automations.HISTORY_DEPTH') : null].filter(Boolean).join(' · ')}
 								</span>
 								{(run.details?.changes ?? [])
-									.filter((change) => !change.note || change.failed)
+									.filter((change) => !isUnchangedLine(change))
 									.map((change, index) => (
 										<ul key={`${run.id}-${index}`}>
 											<ChangeLine change={change} lookups={lookups} />

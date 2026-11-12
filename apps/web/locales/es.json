@@ -4971,7 +4971,8 @@
 				"ACTION_PRIORITY_REQUIRED": "Elija una prioridad.",
 				"ACTION_MEMBERS_REQUIRED": "Elija al menos una persona.",
 				"ACTION_LABELS_REQUIRED": "Elija al menos una etiqueta.",
-				"MESSAGE_TOO_LONG": "El mensaje es demasiado largo."
+				"MESSAGE_TOO_LONG": "El mensaje es demasiado largo.",
+				"TOO_MANY_VALUES": "Elige 50 como máximo."
 			},
 			"triggers": {
 				"STATUS_CHANGED": "El estado cambia",
