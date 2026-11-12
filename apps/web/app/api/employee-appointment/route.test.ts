@@ -132,6 +132,23 @@ describe('/api/employee-appointment', () => {
 		expect(await response.json()).toEqual(notFound);
 	});
 
+	it('answers an empty-bodied 404 from Gauzy to a reschedule with that status', async () => {
+		// The empty body is no JSON: serverFetch says so on the console
+		const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		fetchMock.mockResolvedValue(new Response(null, { status: 404, statusText: 'Not Found' }));
+
+		const response = await PUT(
+			new Request('https://app.ever.team/api/employee-appointment/appointment-1', {
+				method: 'PUT',
+				body: '{"agenda":"x"}'
+			}),
+			{ params: Promise.resolve({ id: 'appointment-1' }) }
+		);
+
+		expect(response.status).toBe(404);
+		consoleError.mockRestore();
+	});
+
 	it('cancels one appointment by its id', async () => {
 		fetchMock.mockResolvedValue(Response.json({ raw: [], affected: 1 }, { status: 200 }));
 

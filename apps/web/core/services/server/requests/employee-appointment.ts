@@ -56,7 +56,9 @@ export function updateEmployeeAppointmentRequest({
 		method: 'PUT',
 		body: data,
 		bearer_token,
-		tenantId
+		tenantId,
+		// Gauzy's 404 for another member's appointment may come without a body: the route keeps its status
+		keepsStatusOnError: true
 	});
 }
 
