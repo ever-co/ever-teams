@@ -108,8 +108,13 @@ function PaletteTimerStop() {
 
 function PaletteTimerStart({ task }: Readonly<{ task: TTask }>) {
 	const t = useTranslations();
-	const { activeTaskStatus, disabled, canTrack, startStopTimerHandler, startTimerWithTask, modals } =
-		useTimerButtonLogic({ task });
+	const { activeTaskStatus, disabled, canTrack, startTimer, stopTimer, startTimerWithTask } = useTimerButtonLogic({
+		task
+	});
+	// The main Start of the task asked for, with its daily plan checks: a start that names no task would start the
+	// page's own task on a task page, not the one chosen here
+	const startChosenTask = useCallback(() => startTimer(task), [startTimer, task]);
+	const { startStopTimerHandler, modals } = useStartStopTimerHandler({ startTimer: startChosenTask, stopTimer });
 
 	useRunOnce(() => {
 		const action = paletteStartActionOf({
