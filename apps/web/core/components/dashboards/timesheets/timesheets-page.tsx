@@ -27,8 +27,7 @@ import { useTimerTaskStart } from '@/core/hooks/timer/use-timer-task-start';
 import { useTimeEntryDuplicate } from '@/core/hooks/timesheet/use-time-entry-duplicate';
 import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
-import { ADD_TIME_ENTRY_STEP_MINUTES, copiedFieldsOf } from '@/core/lib/utils/time-entry-reuse';
-import type { FixedMember } from '@/core/lib/utils/dashboards/manual-time-entry';
+import { ADD_TIME_ENTRY_STEP_MINUTES, canDuplicateLog } from '@/core/lib/utils/time-entry-reuse';
 import {
 	sheetMembersOf,
 	type TimesheetDay,
@@ -57,20 +56,6 @@ const NO_MEMBERS: TOrganizationTeamEmployee[] = [];
 const NO_LOGS: ITimeLog[] = [];
 
 const META_SEPARATOR = ' · ';
-
-/**
- * Duplicate opens the page's Add time dialog, so it follows who that dialog adds time for: a viewer who adds their
- * own time only (#5136) duplicates their own entries, never a teammate's.
- */
-function canDuplicateLog(log: ITimeLog, canAddTime: boolean, addTimeMember: FixedMember | null) {
-	if (!canAddTime) {
-		return false;
-	}
-	if (!addTimeMember) {
-		return true;
-	}
-	return copiedFieldsOf(log).employeeId === addTimeMember.employeeId;
-}
 
 function isTrackingEnabledFor(team: TOrganizationTeam | null | undefined, userId: string | null) {
 	if (!userId) {
@@ -196,7 +181,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 		() => ({
 			canContinue,
 			continueLog,
-			canDuplicate: (log) => canDuplicateLog(log, canAddTime, addTimeMember),
+			canDuplicate: (log) => canDuplicateLog(log, canAddTime, addTimeMember?.employeeId ?? null),
 			duplicate: (log) => {
 				void openDuplicate({ log });
 			}

@@ -479,3 +479,18 @@ export function periodLengthOf(seconds: number): string {
 	const minutes = totalMinutes % MINUTES_PER_HOUR;
 	return `${twoDigits(hours)}:${twoDigits(minutes)}h`;
 }
+
+/**
+ * Whether a page offers Duplicate on an entry. The copy opens the page's Add time dialog, so it follows who that dialog
+ * adds time for: a viewer who adds their own time only (`ownOnlyEmployeeId`, #5136) duplicates their own entries, never
+ * a teammate's.
+ */
+export function canDuplicateLog(log: ITimeLog, canAddTime: boolean, ownOnlyEmployeeId: string | null): boolean {
+	if (!canAddTime) {
+		return false;
+	}
+	if (!ownOnlyEmployeeId) {
+		return true;
+	}
+	return copiedFieldsOf(log).employeeId === ownOnlyEmployeeId;
+}

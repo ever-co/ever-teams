@@ -485,6 +485,22 @@ describe('AddTaskModal opened on a copied entry', () => {
 		);
 	});
 
+	// #5131 with #5136: Duplicate opens this dialog, and a viewer who adds their own time only copies for themselves
+	it('saves a copy for the fixed member, whatever member the copied entry names', () => {
+		mockAtomValues.activeTeamState = { ...teamA, members: [...teamA.members, ...teamB.members] };
+		const teammateCopy = { ...copiedEntry, employeeId: 'employee-b' };
+		const ownMember = { employeeId: 'employee-a', name: 'Ada Manager' };
+		render(<AddTaskModal isOpen closeModal={closeModal} prefill={teammateCopy} fixedMember={ownMember} />);
+
+		expect(screen.getByText('Ada Manager')).toBeTruthy();
+
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-a', employeeId: 'employee-a', description: 'Pairing on the invoices' })
+		);
+	});
+
 	it('leaves the task and the employee to pick when the dialog does not offer the copied ones', () => {
 		const unlistedCopy = { ...copiedEntry, taskId: 'task-gone', employeeId: 'employee-gone' };
 		render(<AddTaskModal isOpen closeModal={closeModal} prefill={unlistedCopy} />);

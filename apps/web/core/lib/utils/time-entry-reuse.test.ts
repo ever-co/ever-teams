@@ -1,6 +1,7 @@
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import {
+	canDuplicateLog,
 	type ContinueViewer,
 	continuableTaskOf,
 	copiedFieldsOf,
@@ -381,5 +382,25 @@ describe('the time and length texts of the Add time entry dialog', () => {
 		expect(periodLengthOf(90 * MINUTE)).toBe('01:30h');
 		expect(periodLengthOf(5 * MINUTE)).toBe('00:05h');
 		expect(periodLengthOf(10 * HOUR)).toBe('10:00h');
+	});
+});
+
+describe('canDuplicateLog', () => {
+	const ownEntry = logOf('log-own', { employeeId: 'employee-1' });
+	const teammateEntry = logOf('log-teammate', { employeeId: 'employee-2', employee: { id: 'employee-2' } });
+
+	it('offers Duplicate on every entry to a viewer who adds time for anyone', () => {
+		expect(canDuplicateLog(ownEntry, true, null)).toBe(true);
+		expect(canDuplicateLog(teammateEntry, true, null)).toBe(true);
+	});
+
+	it("offers it on the viewer's own entries only when they add their own time only", () => {
+		expect(canDuplicateLog(ownEntry, true, 'employee-1')).toBe(true);
+		expect(canDuplicateLog(teammateEntry, true, 'employee-1')).toBe(false);
+	});
+
+	it('offers it on no entry when the viewer may not add time', () => {
+		expect(canDuplicateLog(ownEntry, false, null)).toBe(false);
+		expect(canDuplicateLog(ownEntry, false, 'employee-1')).toBe(false);
 	});
 });
