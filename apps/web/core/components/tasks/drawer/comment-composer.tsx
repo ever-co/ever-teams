@@ -419,7 +419,8 @@ export function CommentComposer({
 		const isCancel = event.key === 'Escape' && Boolean(onCancel);
 		if (isCancel) {
 			keepKeyInside(event);
-			onCancel?.();
+			// A send under way cannot be called back: the field stays until it ends.
+			if (!isPosting) onCancel?.();
 		}
 	};
 
@@ -533,7 +534,7 @@ export function CommentComposer({
 				</div>
 				<div className="ml-auto flex shrink-0 items-center gap-2">
 					{onCancel && (
-						<Button type="button" variant="ghost" size="sm" onClick={onCancel}>
+						<Button type="button" variant="ghost" size="sm" disabled={isPosting} onClick={onCancel}>
 							{t('common.CANCEL')}
 						</Button>
 					)}
