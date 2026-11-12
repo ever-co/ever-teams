@@ -17,11 +17,14 @@ export interface ClockTime {
 	seconds: number;
 }
 
-/**
- * Year first only: `03/11/2026` reads as two different days depending on who wrote it, and a guess would put the
- * time on the wrong day without anyone noticing.
- */
-const DATE_PATTERN = /^(\d{4})([-/])(\d{1,2})\2(\d{1,2})$/;
+/** How the dates of a file are written: the template writes the year first. */
+export type DateOrder = 'yearFirst' | 'dayFirst' | 'monthFirst';
+
+export const DATE_ORDERS: ReadonlyArray<DateOrder> = ['yearFirst', 'dayFirst', 'monthFirst'];
+
+const YEAR_FIRST_PATTERN = /^(\d{4})([-/])(\d{1,2})\2(\d{1,2})$/;
+
+const YEAR_LAST_PATTERN = /^(\d{1,2})([-/.])(\d{1,2})\2(\d{4})$/;
 
 const CLOCK_PATTERN = /^(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\s*([ap])\.?m\.?)?$/i;
 
@@ -50,16 +53,52 @@ function existsInCalendar({ year, month, day }: CalendarDay): boolean {
 	return isSameYear && isSameMonth && isSameDay;
 }
 
-export function calendarDayOf(text: string): CalendarDay | null {
-	const match = DATE_PATTERN.exec(text.trim());
-	if (!match) {
-		return null;
-	}
-	const calendarDay: CalendarDay = { year: Number(match[1]), month: Number(match[3]), day: Number(match[4]) };
+function dayInCalendarOf(calendarDay: CalendarDay): CalendarDay | null {
 	if (!existsInCalendar(calendarDay)) {
 		return null;
 	}
 	return calendarDay;
+}
+
+function yearFirstDayOf(text: string): CalendarDay | null {
+	const match = YEAR_FIRST_PATTERN.exec(text);
+	if (!match) {
+		return null;
+	}
+	return dayInCalendarOf({ year: Number(match[1]), month: Number(match[3]), day: Number(match[4]) });
+}
+
+function yearLastDayOf(text: string, isDayFirst: boolean): CalendarDay | null {
+	const match = YEAR_LAST_PATTERN.exec(text);
+	if (!match) {
+		return null;
+	}
+	const first = Number(match[1]);
+	const second = Number(match[3]);
+	const year = Number(match[4]);
+	if (isDayFirst) {
+		return dayInCalendarOf({ year, month: second, day: first });
+	}
+	return dayInCalendarOf({ year, month: first, day: second });
+}
+
+/**
+ * A day written in the order of its file. The order is told by the file or chosen by the member, never guessed:
+ * `03/11/2026` is 3 November read day first and 11 March read month first, and a guess would put the time on the
+ * wrong day without anyone noticing.
+ */
+export function calendarDayOf(text: string, order: DateOrder = 'yearFirst'): CalendarDay | null {
+	const typed = text.trim();
+	if (order === 'yearFirst') {
+		return yearFirstDayOf(typed);
+	}
+	const isDayFirst = order === 'dayFirst';
+	return yearLastDayOf(typed, isDayFirst);
+}
+
+/** The orders a date reads as a real day in: one when the date settles it (a year first, a day above 12), else two. */
+export function dateOrdersOf(text: string): DateOrder[] {
+	return DATE_ORDERS.filter((order) => calendarDayOf(text, order) !== null);
 }
 
 /** The hour of a 12-hour clock on the 24-hour one: 12 AM is 0, 12 PM stays 12. */

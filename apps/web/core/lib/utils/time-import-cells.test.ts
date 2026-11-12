@@ -1,7 +1,46 @@
-import { calendarDayOf, clockTimeOf, durationSecondsOf, yesNoOf } from './time-import-cells';
+import { calendarDayOf, clockTimeOf, dateOrdersOf, durationSecondsOf, yesNoOf } from './time-import-cells';
 
 const HOUR = 3600;
 const MINUTE = 60;
+
+describe('calendarDayOf in the order of a file', () => {
+	it('reads 03/11/2026 as 3 November day first and as 11 March month first', () => {
+		expect(calendarDayOf('03/11/2026', 'dayFirst')).toEqual({ year: 2026, month: 11, day: 3 });
+		expect(calendarDayOf('03/11/2026', 'monthFirst')).toEqual({ year: 2026, month: 3, day: 11 });
+	});
+
+	it.each([
+		['3/11/2026', { year: 2026, month: 11, day: 3 }],
+		['03-11-2026', { year: 2026, month: 11, day: 3 }],
+		['03.11.2026', { year: 2026, month: 11, day: 3 }],
+		[' 29/02/2024 ', { year: 2024, month: 2, day: 29 }]
+	])('reads %s day first', (text, expected) => {
+		expect(calendarDayOf(text, 'dayFirst')).toEqual(expected);
+	});
+
+	it.each([
+		['a day that does not exist', '31/02/2026', 'dayFirst'],
+		['a month above 12', '13/11/2026', 'monthFirst'],
+		['a year first date', '2026-11-03', 'dayFirst'],
+		['a year on two digits', '03/11/26', 'dayFirst'],
+		['two different separators', '03/11-2026', 'monthFirst']
+	] as const)('refuses %s', (_name, text, order) => {
+		expect(calendarDayOf(text, order)).toBeNull();
+	});
+});
+
+describe('dateOrdersOf', () => {
+	it.each([
+		['a year first', '2026-11-03', ['yearFirst']],
+		['a day above 12', '13/11/2026', ['dayFirst']],
+		['a second number above 12', '11/13/2026', ['monthFirst']],
+		['numbers that both fit a month', '03/11/2026', ['dayFirst', 'monthFirst']],
+		['a day that exists in no order', '31/02/2026', []],
+		['a time', '09:30', []]
+	])('reads %s in the orders that make it a real day', (_name, text, expected) => {
+		expect(dateOrdersOf(text)).toEqual(expected);
+	});
+});
 
 describe('calendarDayOf', () => {
 	it.each([
