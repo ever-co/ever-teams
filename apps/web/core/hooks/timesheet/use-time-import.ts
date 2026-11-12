@@ -8,6 +8,7 @@ import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { requiredTrackingFieldsOf } from '@/core/lib/helpers/timer-errors';
 import { chunksOf } from '@/core/lib/utils/dashboards/timesheets';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { timeImportReadingOf } from '@/core/lib/utils/time-import-columns';
 import {
 	checkedRowsOf,
 	draftRowsOf,
@@ -27,7 +28,6 @@ import {
 } from '@/core/lib/utils/time-import-rows';
 import {
 	timeImportFileRefusalOf,
-	timeImportSheetOf,
 	type TimeImportFileProblem,
 	type TimeImportSheet
 } from '@/core/lib/utils/time-import-sheet';
@@ -279,8 +279,8 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 				setState({ ...IDLE, fileName, fileProblem: { code: 'notText' } });
 				return;
 			}
-			const reading = timeImportSheetOf(text);
-			if (!reading.sheet) {
+			const reading = timeImportReadingOf(text);
+			if (reading.kind === 'refused') {
 				setState({ ...IDLE, fileName, fileProblem: reading.problem });
 				return;
 			}

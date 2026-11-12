@@ -1,11 +1,12 @@
 import { csvOf } from './dashboard-export';
+import { timeImportReadingOf } from './time-import-columns';
 import {
 	timeImportReportCsvColumnsOf,
 	timeImportReportFileNameOf,
 	timeImportTemplateCsvColumnsOf,
 	type TimeImportReportLine
 } from './time-import-report';
-import { timeImportSheetOf, type TimeImportCells } from './time-import-sheet';
+import type { TimeImportCells } from './time-import-sheet';
 
 function lineOf(cells: Partial<TimeImportCells>, row = 2): TimeImportReportLine {
 	return {
@@ -43,7 +44,7 @@ describe('the template of a time import', () => {
 	it('is a file the import reads, and refuses only for having no row', () => {
 		const template = csvOf([], timeImportTemplateCsvColumnsOf(true));
 
-		expect(timeImportSheetOf(template).problem).toEqual({ code: 'noRows' });
+		expect(timeImportReadingOf(template)).toEqual({ kind: 'refused', problem: { code: 'noRows' } });
 	});
 });
 
@@ -72,10 +73,15 @@ describe('the report of a time import', () => {
 			[lineOf({}, 2), lineOf({ startTime: '11:00', endTime: '12:00' }, 3)],
 			timeImportReportCsvColumnsOf(true)
 		);
-		const { sheet } = timeImportSheetOf(report);
+		const reading = timeImportReadingOf(report);
 
-		expect(sheet?.ignoredHeaders).toEqual([]);
-		expect(sheet?.rows.map((row) => row.cells.startTime)).toEqual(['09:00', '11:00']);
+		expect(reading).toMatchObject({
+			kind: 'sheet',
+			sheet: {
+				ignoredHeaders: [],
+				rows: [{ cells: { startTime: '09:00' } }, { cells: { startTime: '11:00' } }]
+			}
+		});
 	});
 
 	it('is named after the local day of the import', () => {
