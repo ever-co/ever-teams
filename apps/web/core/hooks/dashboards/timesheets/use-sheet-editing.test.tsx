@@ -5,10 +5,14 @@ import { renderHook } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
 import type { PropsWithChildren } from 'react';
 import type { Period } from '@/core/lib/utils/dashboard-period';
+import { rowIdentityOfTask } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import { emptySheetMemberOf } from '@/core/lib/utils/dashboards/timesheets';
 import type { TOrganization } from '@/core/types/schemas/organization/organization.schema';
+import type { TOrganizationProject } from '@/core/types/schemas/organization/organization-project.schema';
+import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 const mockPermissions = jest.fn();
+const mockProjects = jest.fn();
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('sonner', () => {
@@ -17,7 +21,7 @@ jest.mock('sonner', () => {
 });
 jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({ timeLogService: {} }));
 jest.mock('@/core/hooks/organizations/projects/use-organization-projects-query', () => ({
-	useOrganizationProjectsQuery: () => ({ organizationProjects: [] })
+	useOrganizationProjectsQuery: () => ({ organizationProjects: mockProjects() })
 }));
 jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
 	useMyRolePermissionsQuery: () => mockPermissions()
@@ -28,6 +32,8 @@ import { type SheetEditingSource, useSheetEditing } from './use-sheet-editing';
 import { useTimesheetSheet } from './use-timesheet-sheet';
 
 const period: Period = { from: new Date(2024, 0, 8), to: new Date(2024, 0, 14) };
+
+const NO_PROJECTS: TOrganizationProject[] = [];
 
 const VIEWER = emptySheetMemberOf('viewer', 'Viewer', null);
 const TEAMMATE = emptySheetMemberOf('teammate', 'Teammate', null);
@@ -57,7 +63,7 @@ interface Scenario {
 	organization: TOrganization | null;
 }
 
-function renderSheetLock(scenario: Scenario) {
+function renderEditing(scenario: Scenario) {
 	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 	const store = createStore();
 	store.set(currentOrganizationState, scenario.organization);
@@ -74,13 +80,18 @@ function renderSheetLock(scenario: Scenario) {
 		},
 		{ wrapper }
 	);
-	return result.current.sheetLock;
+	return result.current;
+}
+
+function renderSheetLock(scenario: Scenario) {
+	return renderEditing(scenario).sheetLock;
 }
 
 describe('useSheetEditing', () => {
 	beforeEach(() => {
 		window.localStorage.clear();
 		mockPermissions.mockReturnValue({ myPermissions: ['ALLOW_MANUAL_TIME'], isLoading: false });
+		mockProjects.mockReturnValue(NO_PROJECTS);
 	});
 
 	it("opens the viewer's own sheet when their role may add manual time", () => {
@@ -132,5 +143,21 @@ describe('useSheetEditing', () => {
 		expect(withoutLogs).toBe('loading');
 		expect(filtered).toBe('filtered');
 		expect(withoutPermissions).toBe('loading');
+	});
+
+	it("names a row added before the projects were read, and bills it, as its project says once they are", () => {
+		const task = { id: 'task', projectId: 'project', title: 'Landing page' } as TTask;
+		const addedEarly = rowIdentityOfTask(task, undefined, 'team');
+		const drafts = { 'viewer:2024-01-08:2024-01-14': [addedEarly] };
+		window.localStorage.setItem('timesheets-sheet-draft-rows', JSON.stringify(drafts));
+		const project = { id: 'project', name: 'Website', billable: true } as TOrganizationProject;
+		mockProjects.mockReturnValue([project]);
+
+		const editing = renderEditing({ source: sourceOf({}), member: VIEWER, organization: organizationOf({}) });
+
+		expect(addedEarly).toMatchObject({ projectName: null, isBillable: false });
+		expect(editing.draftRows).toEqual([
+			expect.objectContaining({ key: addedEarly.key, projectName: 'Website', isBillable: true })
+		]);
 	});
 });

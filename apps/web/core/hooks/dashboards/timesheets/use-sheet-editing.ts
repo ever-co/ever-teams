@@ -27,6 +27,7 @@ import { activeTeamState } from '@/core/stores/teams/organization-team';
 import { tasksByTeamState } from '@/core/stores/teams/team-tasks';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import type { TOrganizationProject } from '@/core/types/schemas/organization/organization-project.schema';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { useCopyPreviousWeek } from './use-copy-previous-week';
 import { useSheetCellWrites } from './use-sheet-cell-writes';
@@ -75,6 +76,29 @@ function isDraftStillEmpty(
 		return true;
 	}
 	return !loggedTaskIds.has(identity.taskId);
+}
+
+/**
+ * A row added before the organization's projects were read has its project's id but neither its name nor whether its
+ * time is billable: both are taken from the project once it is read, so the time typed in the row is billed as the
+ * project says.
+ */
+function withProjectOf(identity: SheetRowIdentity, projects: ReadonlyArray<TOrganizationProject>): SheetRowIdentity {
+	const hasProjectData = identity.projectName !== null;
+	if (!identity.projectId || hasProjectData) {
+		return identity;
+	}
+	const project = projects.find((candidate) => candidate.id === identity.projectId);
+	if (!project) {
+		return identity;
+	}
+	return {
+		...identity,
+		projectName: project.name,
+		projectColor: project.color ?? null,
+		projectImageUrl: project.imageUrl ?? null,
+		isBillable: project.billable === true
+	};
 }
 
 function sheetKeyOf(memberId: string | null, period: Period) {
@@ -193,10 +217,10 @@ export function useSheetEditing(source: SheetEditingSource, sheet: TimesheetShee
 		const taskIds = sheet.sheet.rows.map((row) => row.identity.taskId);
 		return new Set(taskIds);
 	}, [sheet.sheet.rows]);
-	const draftRows = useMemo(
-		() => storedDraftRows.filter((identity) => isDraftStillEmpty(identity, shownRowKeys, loggedTaskIds)),
-		[loggedTaskIds, shownRowKeys, storedDraftRows]
-	);
+	const draftRows = useMemo(() => {
+		const emptyRows = storedDraftRows.filter((identity) => isDraftStillEmpty(identity, shownRowKeys, loggedTaskIds));
+		return emptyRows.map((identity) => withProjectOf(identity, organizationProjects));
+	}, [loggedTaskIds, organizationProjects, shownRowKeys, storedDraftRows]);
 
 	const addTaskRow = useCallback(
 		(task: TTask) => {
