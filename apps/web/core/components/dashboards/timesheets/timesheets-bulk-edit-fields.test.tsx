@@ -1,11 +1,9 @@
 /** @jest-environment jsdom */
 
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import type { BulkEditChoiceState } from '@/core/hooks/dashboards/timesheets/use-bulk-edit-choice';
 import type { TOrganizationProject } from '@/core/types/schemas/organization/organization-project.schema';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
-
-type MockToggleProps = { isActive: boolean; onClick: () => void; label: string };
 
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: Record<string, unknown>) => {
@@ -14,13 +12,6 @@ jest.mock('next-intl', () => ({
 		}
 		return `${key} ${JSON.stringify(values)}`;
 	}
-}));
-jest.mock('@/core/components/features/tasks/edit-task-modal', () => ({
-	ToggleButton: ({ isActive, onClick, label }: MockToggleProps) => (
-		<button type="button" aria-pressed={isActive} onClick={onClick}>
-			{label}
-		</button>
-	)
 }));
 jest.mock('@/core/components/features/timesheet/time-log-task-field', () => ({
 	TaskLine: ({ task }: { task: { title: string } }) => <span>{task.title}</span>
@@ -107,14 +98,26 @@ describe('TimesheetsBulkEditFields', () => {
 
 	it('marks the billable choice that is picked, and Keep as is while none is', () => {
 		const { rerender } = render(<TimesheetsBulkEditFields fields={fieldsOf({})} isDisabled={false} />);
-		const pressedOf = (name: string) => screen.getByRole('button', { name }).getAttribute('aria-pressed');
+		const selectedOf = (name: string) => screen.getByRole('tab', { name }).getAttribute('aria-selected');
 
-		expect(pressedOf(KEEP)).toBe('true');
-		expect(pressedOf('pages.timesheet.BILLABLE.YES')).toBe('false');
+		expect(screen.getByRole('tablist', { name: 'dashboard.timesheets.BILLABLE' })).toBeTruthy();
+		expect(selectedOf(KEEP)).toBe('true');
+		expect(selectedOf('pages.timesheet.BILLABLE.YES')).toBe('false');
 
 		rerender(<TimesheetsBulkEditFields fields={fieldsOf({ billable: { value: false } })} isDisabled={false} />);
 
-		expect(pressedOf(KEEP)).toBe('false');
-		expect(pressedOf('pages.timesheet.BILLABLE.NO')).toBe('true');
+		expect(selectedOf(KEEP)).toBe('false');
+		expect(selectedOf('pages.timesheet.BILLABLE.NO')).toBe('true');
+	});
+
+	it('picks Yes, No or Keep as is from the one billable control', () => {
+		const pick = jest.fn();
+		render(<TimesheetsBulkEditFields fields={fieldsOf({ billable: { pick } })} isDisabled={false} />);
+
+		fireEvent.click(screen.getByRole('tab', { name: 'pages.timesheet.BILLABLE.YES' }));
+		fireEvent.click(screen.getByRole('tab', { name: 'pages.timesheet.BILLABLE.NO' }));
+		fireEvent.click(screen.getByRole('tab', { name: KEEP }));
+
+		expect(pick.mock.calls).toEqual([[true], [false], [null]]);
 	});
 });

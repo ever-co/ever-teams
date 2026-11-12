@@ -5,8 +5,8 @@ import { useTranslations } from 'next-intl';
 import { EntityTile } from '@/core/components/common/entity-tile';
 import { modalFieldLabelClass } from '@/core/components/common/modal';
 import { CustomSelect } from '@/core/components/common/multiple-select';
+import { SegmentedControl, type SegmentedControlItem } from '@/core/components/common/segmented-control';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { ToggleButton } from '@/core/components/features/tasks/edit-task-modal';
 import { TaskLine } from '@/core/components/features/timesheet/time-log-task-field';
 import { Minus, Spinner } from '@/core/components/icons';
 import type { BulkEditChoiceState } from '@/core/hooks/dashboards/timesheets/use-bulk-edit-choice';
@@ -25,6 +25,28 @@ const FIELD_NOTE = 'text-xs text-muted-foreground';
 
 /** A sentence standing where a control would be keeps the control's height, so the fields below do not move. */
 const FIELD_STATE = 'flex min-h-9 items-center gap-2 text-[13px] text-muted-foreground';
+
+/** The segments share the row, so the control lines up with the pickers above it. */
+const BILLABLE_SEGMENTS = 'flex w-full [&>[data-segment]]:flex-1';
+
+type BillableOption = 'keep' | 'yes' | 'no';
+
+function billableOptionOf(value: boolean | null): BillableOption {
+	if (value === null) {
+		return 'keep';
+	}
+	if (value) {
+		return 'yes';
+	}
+	return 'no';
+}
+
+function billableValueOf(option: BillableOption): boolean | null {
+	if (option === 'keep') {
+		return null;
+	}
+	return option === 'yes';
+}
 
 function isKeepOption(option: { id: string }): option is KeepOption {
 	return option.id === KEEP_VALUE;
@@ -173,51 +195,40 @@ function TaskField({ task }: Readonly<{ task: BulkEditChoiceState['task'] }>) {
 	);
 }
 
-function KeepToggle({ isActive, onClick }: Readonly<{ isActive: boolean; onClick: () => void }>) {
-	return (
-		<button
-			type="button"
-			onClick={onClick}
-			aria-pressed={isActive}
-			className={cn(
-				'flex items-center rounded-md p-2 text-sm outline-none transition-colors hover:bg-foreground/5 focus-visible:ring-[3px] focus-visible:ring-ring/25',
-				isActive && 'bg-foreground/5'
-			)}
-		>
-			<KeepLine />
-		</button>
-	);
-}
-
 function BillableField({
 	billable,
 	isDisabled
 }: Readonly<{ billable: BulkEditChoiceState['billable']; isDisabled: boolean }>) {
 	const t = useTranslations();
-	const value = billable.value;
+	const label = t('dashboard.timesheets.BILLABLE');
+	const picked = billableOptionOf(billable.value);
+	const items: ReadonlyArray<SegmentedControlItem<BillableOption>> = [
+		{ value: 'keep', label: t('dashboard.timesheets.BULK_EDIT.KEEP'), icon: <Minus aria-hidden="true" /> },
+		{ value: 'yes', label: t('pages.timesheet.BILLABLE.YES') },
+		{ value: 'no', label: t('pages.timesheet.BILLABLE.NO') }
+	];
+
+	const pickOption = (option: BillableOption) => {
+		const value = billableValueOf(option);
+		billable.pick(value);
+	};
 
 	return (
-		<Field label={t('dashboard.timesheets.BILLABLE')}>
-			<div className={cn('flex flex-wrap items-center gap-x-3 gap-y-1', isDisabled && 'opacity-50')}>
-				<KeepToggle isActive={value === null} onClick={() => billable.pick(null)} />
-				<ToggleButton
-					isActive={value === true}
-					onClick={() => billable.pick(true)}
-					label={t('pages.timesheet.BILLABLE.YES')}
-				/>
-				<ToggleButton
-					isActive={value === false}
-					onClick={() => billable.pick(false)}
-					label={t('pages.timesheet.BILLABLE.NO')}
-				/>
-			</div>
+		<Field label={label}>
+			<SegmentedControl
+				items={items}
+				value={picked}
+				onValueChange={pickOption}
+				ariaLabel={label}
+				className={cn(BILLABLE_SEGMENTS, isDisabled && 'opacity-50')}
+			/>
 		</Field>
 	);
 }
 
 /**
- * The three fields of a bulk edit, each resting on "Keep as is". The pickers are the ones of the single Edit
- * dialog: the task and member select for Project and Task, the Yes and No toggles for Billable.
+ * The three fields of a bulk edit, each resting on "Keep as is": the select of the single Edit dialog for Project
+ * and Task, the app's segmented control for Billable.
  */
 export function TimesheetsBulkEditFields({
 	fields,

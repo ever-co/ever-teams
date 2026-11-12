@@ -26,8 +26,6 @@ type MockSelectProps = {
 
 type MockModalProps = { title?: string; description?: string; showCloseIcon?: boolean; children?: ReactNode };
 
-type MockToggleProps = { isActive: boolean; onClick: () => void; label: string };
-
 jest.mock('jotai', () => ({ useAtomValue: (atom: string) => mockAtomValues[atom] }));
 jest.mock('@/core/stores/teams/organization-team', () => ({ activeTeamState: 'activeTeamState' }));
 jest.mock('@/core/stores/teams/team-tasks', () => ({ tasksByTeamState: 'tasksByTeamState' }));
@@ -97,13 +95,6 @@ jest.mock('@/core/components/common/multiple-select', () => ({
 				</option>
 			))}
 		</select>
-	)
-}));
-jest.mock('@/core/components/features/tasks/edit-task-modal', () => ({
-	ToggleButton: ({ isActive, onClick, label }: MockToggleProps) => (
-		<button type="button" aria-pressed={isActive} onClick={onClick}>
-			{label}
-		</button>
 	)
 }));
 jest.mock('@/core/components/features/timesheet/time-log-task-field', () => ({ TaskLine: () => null }));
@@ -195,7 +186,7 @@ describe('TimesheetsBulkEditDialog', () => {
 		expect(screen.getByRole('dialog', { name: 'dashboard.timesheets.BULK_EDIT.TITLE {"count":3}' })).toBeTruthy();
 		expect(screen.getByRole<HTMLSelectElement>('combobox', { name: PROJECT }).value).toBe('keep-as-is');
 		expect(screen.getByRole<HTMLSelectElement>('combobox', { name: TASK }).value).toBe('keep-as-is');
-		expect(screen.getByRole('button', { name: KEEP }).getAttribute('aria-pressed')).toBe('true');
+		expect(screen.getByRole('tab', { name: KEEP }).getAttribute('aria-selected')).toBe('true');
 		expect(screen.getByText('dashboard.timesheets.BULK_EDIT.NOTHING_CHOSEN')).toBeTruthy();
 		expect(updateButton().disabled).toBe(true);
 	});
@@ -211,7 +202,7 @@ describe('TimesheetsBulkEditDialog', () => {
 	it('says how many entries it will update and how many already have the value', () => {
 		renderDialog([logOf('a'), logOf('b'), logOf('already', { isBillable: true })]);
 
-		fireEvent.click(screen.getByRole('button', { name: YES }));
+		fireEvent.click(screen.getByRole('tab', { name: YES }));
 
 		expect(screen.getByText('dashboard.timesheets.BULK_EDIT.WILL_UPDATE {"count":2}')).toBeTruthy();
 		expect(screen.getByText('dashboard.timesheets.BULK_EDIT.REASON.UNCHANGED {"count":1}')).toBeTruthy();
@@ -222,8 +213,8 @@ describe('TimesheetsBulkEditDialog', () => {
 	it('goes back to Keep as is when the resting toggle is pressed again', () => {
 		renderDialog([logOf('a')]);
 
-		fireEvent.click(screen.getByRole('button', { name: YES }));
-		fireEvent.click(screen.getByRole('button', { name: KEEP }));
+		fireEvent.click(screen.getByRole('tab', { name: YES }));
+		fireEvent.click(screen.getByRole('tab', { name: KEEP }));
 
 		expect(screen.getByText('dashboard.timesheets.BULK_EDIT.NOTHING_CHOSEN')).toBeTruthy();
 		expect(updateButton().disabled).toBe(true);
@@ -254,7 +245,7 @@ describe('TimesheetsBulkEditDialog', () => {
 		mockUpdateTimeLog.mockReturnValueOnce(firstSave.promise);
 		const { closeModal, onFinished } = renderDialog([logOf('a'), logOf('b')]);
 
-		fireEvent.click(screen.getByRole('button', { name: YES }));
+		fireEvent.click(screen.getByRole('tab', { name: YES }));
 		fireEvent.click(updateButton());
 
 		await waitFor(() => expect(mockUpdateTimeLog).toHaveBeenCalledTimes(1));
@@ -278,7 +269,7 @@ describe('TimesheetsBulkEditDialog', () => {
 		mockUpdateTimeLog.mockRejectedValueOnce(new Error('Failed to update time-log', { cause: { status: 500 } }));
 		const { closeModal } = renderDialog([logOf('a'), logOf('b')]);
 
-		fireEvent.click(screen.getByRole('button', { name: YES }));
+		fireEvent.click(screen.getByRole('tab', { name: YES }));
 		fireEvent.click(updateButton());
 
 		const headline = 'dashboard.timesheets.BULK_EDIT.UPDATED_PARTLY {"updated":1,"notUpdated":1}';
