@@ -5,7 +5,6 @@ import {
 	CarouselLayout,
 	Chat,
 	ConnectionStateToast,
-	ControlBar,
 	FocusLayout,
 	FocusLayoutContainer,
 	GridLayout,
@@ -21,6 +20,7 @@ import {
 	type WidgetState
 } from '@livekit/components-react';
 import { RoomEvent, Track } from 'livekit-client';
+import { MeetControlBar } from './meet-control-bar';
 import { SettingsMenu } from './settings-livekit';
 
 /** The same track of the same person: the identity of a tile, as LiveKit's layouts compare them. */
@@ -37,7 +37,7 @@ function isSameTrack(first: TrackReferenceOrPlaceholder | undefined, second: Tra
 
 /**
  * The meeting room's conference, made of LiveKit's parts as its `VideoConference` prefab is: everyone in a grid, a
- * shared screen in focus with the others beside it, the controls, the chat and the settings.
+ * shared screen in focus with the others beside it, the room's own control bar, the chat and the settings.
  */
 export function MeetConference() {
 	const [widgetState, setWidgetState] = React.useState<WidgetState>({
@@ -107,7 +107,7 @@ export function MeetConference() {
 							</GridLayout>
 						</div>
 					)}
-					<ControlBar controls={{ chat: true, settings: true }} />
+					<MeetControlBar />
 				</div>
 				<Chat
 					style={{ display: widgetState.showChat ? 'grid' : 'none' }}

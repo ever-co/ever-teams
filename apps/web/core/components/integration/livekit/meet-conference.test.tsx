@@ -16,7 +16,6 @@ jest.mock('@livekit/components-react', () => {
 		CarouselLayout: ({ children }: { children?: ReactNode }) => <div data-testid="carousel">{children}</div>,
 		Chat: ({ style }: { style: { display: string } }) => <div data-testid="chat" style={style} />,
 		ConnectionStateToast: () => null,
-		ControlBar: () => <div data-testid="control-bar" />,
 		FocusLayout: () => <div data-testid="focus" />,
 		FocusLayoutContainer: Pass,
 		GridLayout: ({ children }: { children?: ReactNode }) => <div data-testid="grid">{children}</div>,
@@ -31,6 +30,7 @@ jest.mock('@livekit/components-react', () => {
 	};
 });
 jest.mock('./settings-livekit', () => ({ SettingsMenu: () => <div data-testid="settings" /> }));
+jest.mock('./meet-control-bar', () => ({ MeetControlBar: () => <div data-testid="control-bar" /> }));
 
 import { MeetConference } from './meet-conference';
 
