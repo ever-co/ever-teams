@@ -2007,10 +2007,11 @@ describe('Ever Teams feature surface preservation', () => {
 		// (GET /api/plugins/docs/documents/[id]/export/markdown), which develop added without raising these numbers.
 		// 294 files and 377 verbs with the scheduled meetings' proxies (/api/employee-appointment GET, POST and [id] DELETE).
 		// 295 files and 378 verbs with the Inbox delivery status proxy (GET /api/inbox/delivery/status).
+		// 295 files and 379 verbs with the reschedule of a scheduled meeting (/api/employee-appointment/[id] PUT).
 		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(295);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(378);
+		).toHaveLength(379);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twin of the platform's Inbox delivery status (2026-11-11)
@@ -2019,6 +2020,7 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/employee-appointment/route.ts::GET',
 				'apps/web/app/api/employee-appointment/route.ts::POST',
 				'apps/web/app/api/employee-appointment/[id]/route.ts::DELETE',
+				'apps/web/app/api/employee-appointment/[id]/route.ts::PUT',
 				// Proxy mode twins of the platform's Docs live sessions and collaboration routes (2026-11-11)
 				'apps/web/app/api/plugins/docs/live/status/route.ts::GET',
 				'apps/web/app/api/plugins/docs/documents/[id]/live/updates/route.ts::POST',

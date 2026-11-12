@@ -1,6 +1,7 @@
 /**
  * /api/employee-appointment is the proxy-mode twin of Gauzy's employee appointment routes, which hold the scheduled
- * meetings (#5021): without NEXT_PUBLIC_GAUZY_API_SERVER_URL the browser lists, schedules and cancels meetings here.
+ * meetings (#5021): without NEXT_PUBLIC_GAUZY_API_SERVER_URL the browser lists, schedules, reschedules and cancels
+ * meetings here.
  */
 const mockAuthenticatedGuard = jest.fn();
 
@@ -9,7 +10,7 @@ jest.mock('@/core/services/server/guards/authenticated-guard-app', () => ({
 }));
 
 import { GET, POST } from './route';
-import { DELETE } from './[id]/route';
+import { DELETE, PUT } from './[id]/route';
 
 const originalFetch = global.fetch;
 let fetchMock: jest.Mock;
@@ -90,6 +91,45 @@ describe('/api/employee-appointment', () => {
 
 		expect(response.status).toBe(403);
 		expect(await response.json()).toEqual(forbidden);
+	});
+
+	it('reschedules one appointment by its id, with the body as the client sent it', async () => {
+		fetchMock.mockResolvedValue(Response.json(appointment, { status: 202 }));
+		const body = {
+			agenda: 'Weekly sync',
+			startDateTime: '2026-11-13T10:00:00.000Z',
+			endDateTime: '2026-11-13T10:30:00.000Z'
+		};
+
+		const response = await PUT(
+			new Request('https://app.ever.team/api/employee-appointment/appointment-1', {
+				method: 'PUT',
+				body: JSON.stringify(body)
+			}),
+			{ params: Promise.resolve({ id: 'appointment-1' }) }
+		);
+
+		expect(await response.json()).toEqual(appointment);
+		const [upstreamUrl, init] = fetchMock.mock.calls[0];
+		expect(new URL(String(upstreamUrl)).pathname).toMatch(/\/employee-appointment\/appointment-1$/);
+		expect(init.method).toBe('PUT');
+		expect(JSON.parse(String(init.body))).toEqual(body);
+	});
+
+	it("refuses a reschedule that is not an object, and answers Gauzy's refusal of one with its status", async () => {
+		const putTo = (body: string) =>
+			PUT(new Request('https://app.ever.team/api/employee-appointment/appointment-1', { method: 'PUT', body }), {
+				params: Promise.resolve({ id: 'appointment-1' })
+			});
+		expect((await putTo('[1]')).status).toBe(400);
+		expect(fetchMock).not.toHaveBeenCalled();
+
+		const notFound = { statusCode: 404, message: 'Not Found' };
+		fetchMock.mockResolvedValue(Response.json(notFound, { status: 404 }));
+		const response = await putTo('{"agenda":"x"}');
+
+		expect(response.status).toBe(404);
+		expect(await response.json()).toEqual(notFound);
 	});
 
 	it('cancels one appointment by its id', async () => {
