@@ -21,15 +21,16 @@ export const teamTimerStatusState = atom<ITimerStatus | null>((get) => {
 	if (!timerStatus.running) {
 		return timerStatus;
 	}
+	// The team the log names decides first, with or without a task
+	const runTeamId = timerStatus.lastLog?.organizationTeamId;
+	if (runTeamId) {
+		return runTeamId === get(activeTeamIdState) ? timerStatus : { ...timerStatus, running: false };
+	}
 	const currentTaskId = timerStatus.lastLog?.taskId;
 	if (!currentTaskId) {
 		return timerStatus;
 	}
-	const runTeamId = timerStatus.lastLog?.organizationTeamId;
-	const isActiveTeamRun = runTeamId
-		? runTeamId === get(activeTeamIdState)
-		: isTimerTaskOfTeam(currentTaskId, get(teamTasksState), get(activeTeamTaskState));
-	if (isActiveTeamRun) {
+	if (isTimerTaskOfTeam(currentTaskId, get(teamTasksState), get(activeTeamTaskState))) {
 		return timerStatus;
 	}
 	return { ...timerStatus, running: false };

@@ -51,5 +51,23 @@ describe('teamTimerStatusState', () => {
 
 			expect(store.get(teamTimerStatusState)?.running).toBe(false);
 		});
+
+		it("reads another team's run as stopped when its log names no task, and keeps the active team's", () => {
+			const store = createStore();
+			store.set(activeTeamIdState, 'team-a');
+			store.set(timerStatusState, {
+				running: true,
+				lastLog: { organizationTeamId: 'team-b' }
+			} as unknown as ITimerStatus);
+
+			expect(store.get(teamTimerStatusState)?.running).toBe(false);
+
+			store.set(timerStatusState, {
+				running: true,
+				lastLog: { organizationTeamId: 'team-a' }
+			} as unknown as ITimerStatus);
+
+			expect(store.get(teamTimerStatusState)?.running).toBe(true);
+		});
 	});
 });
