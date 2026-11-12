@@ -1448,6 +1448,7 @@
 				"DAY": "Dag"
 			},
 			"MEMBER_SWITCH_LABEL": "Agenda van {name}. Ander lid kiezen",
+			"PROJECTS_LABEL": "Tijd per project",
 			"YOU": "Jij",
 			"LEGEND_LABEL": "Legenda",
 			"LEGEND": {

@@ -1448,6 +1448,7 @@
 				"DAY": "День"
 			},
 			"MEMBER_SWITCH_LABEL": "Календарь участника {name}. Сменить участника",
+			"PROJECTS_LABEL": "Время по проектам",
 			"YOU": "Вы",
 			"LEGEND_LABEL": "Легенда",
 			"LEGEND": {
