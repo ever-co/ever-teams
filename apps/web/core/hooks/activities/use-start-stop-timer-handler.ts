@@ -1,4 +1,6 @@
 import { useCallback, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { useModal } from '../common/use-modal';
 import {
 	DAILY_PLAN_SUGGESTION_MODAL_DATE,
@@ -7,8 +9,10 @@ import {
 } from '@/core/constants/config/constants';
 import { estimatedTotalTime } from '@/core/hooks/daily-plans/daily-plan-totals';
 import { useTimerPlanStatus } from '../timer/use-timer-plan-status';
+import { ALREADY_TRACKING_TOAST_ID } from '../timer/use-timer-api';
 import { useAtomValue } from 'jotai';
 import { timerStatusFetchingState } from '@/core/stores';
+import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
 import { getTimerAction, hasSeenModalToday, type TimerPolicyState } from '@/core/lib/helpers/timer-policy';
 import type { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 
@@ -70,8 +74,11 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 		openModal: openSuggestDailyPlanModal
 	} = useModal();
 
+	const t = useTranslations();
 	const timerStatusFetching = useAtomValue(timerStatusFetchingState);
 	const { hasPlan, canRunTimer, activeTeam, activeTeamTask, timerStatus } = useTimerPlanStatus();
+	// The status the timers show, filtered to the active team: a run it leaves out reads as stopped there
+	const shownTimerStatus = useAtomValue(teamTimerStatusState);
 	const actionDisabled = timerStatusFetching || !canRunTimer;
 
 	const requirePlan = useMemo(() => !!activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
@@ -88,11 +95,13 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 
 	const startStopTimerHandler = useCallback(() => {
 		const currentDate = new Date().toISOString().split('T')[0];
+		const isTimerRunning = !!timerStatus?.running;
 
 		const policyState: TimerPolicyState = {
 			isTimerStatusFetching: timerStatusFetching,
 			canRunTimer,
-			isTimerRunning: !!timerStatus?.running,
+			isTimerRunning,
+			hasHiddenRun: isTimerRunning && !shownTimerStatus?.running,
 			requirePlan,
 			...getPlanPolicyInputs(hasPlan, activeTeamTask?.id),
 			hasSeenSuggestionModalToday: hasSeenModalToday(DAILY_PLAN_SUGGESTION_MODAL_DATE, currentDate),
@@ -112,6 +121,9 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 				// startTimer reports its own failure, this only keeps the rejection from going unhandled
 				Promise.resolve(startTimer()).catch(() => undefined);
 				return;
+			case 'WARN_ALREADY_TRACKING':
+				toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
+				return;
 			case 'SHOW_MODAL':
 				modalDispatch[action.modal]();
 				return;
@@ -122,8 +134,10 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 		hasPlan,
 		modalDispatch,
 		requirePlan,
+		shownTimerStatus?.running,
 		startTimer,
 		stopTimer,
+		t,
 		timerStatus?.running,
 		timerStatusFetching
 	]);
