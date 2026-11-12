@@ -129,8 +129,8 @@ export function useTimeOverlapGuard({ isOpen = true }: TimeOverlapGuardOptions =
 				const conflictsPerPeriod = await Promise.all(lookups);
 				const logs = conflictsPerPeriod.flat();
 				// An entry the save would remove but the warning cannot show: an incomplete answer, not an empty one
-				const hasUnshownEntry = logs.some((log) => log.id !== ignoredLogId && hasUnreadableInterval(log));
-				if (hasUnshownEntry) {
+				const hasUnreadableEntry = logs.some((log) => log.id !== ignoredLogId && hasUnreadableInterval(log));
+				if (hasUnreadableEntry) {
 					throw new Error('The overlap lookup returned an entry whose time cannot be read');
 				}
 				overlap = overlapSummaryOf({ periods, logs, ignoredLogId, now: new Date() });
