@@ -41,6 +41,8 @@ export const TIME_IMPORT_HEADERS: Readonly<Record<TimeImportColumn, string>> = {
 /** The columns the import's own report adds, so a corrected report can be imported as it is. */
 export const TIME_IMPORT_REPORT_HEADERS = { row: 'row', status: 'status', reason: 'reason' } as const;
 
+export const REPORT_ONLY_HEADERS: ReadonlySet<string> = new Set(Object.values(TIME_IMPORT_REPORT_HEADERS));
+
 /**
  * What the import reads from a row: the columns of the template, and the day an entry ends, which a file from
  * another tool may give in a column of its own.
@@ -192,4 +194,89 @@ export function rowCountProblemOf(table: TimeImportTable): TimeImportSheetProble
 		return { code: 'tooManyRows', count };
 	}
 	return null;
+}
+
+/**
+ * A header as plain lower-case words, letter case, spaces, underscores, hyphens and punctuation aside:
+ * `START_TIME`, `startTime` and `Start-Time` read as `start time`, `Duration (h)` as `duration h`.
+ */
+export function headerWordsOf(header: string): string {
+	const spaced = header.replace(/(\p{Ll})(\p{Lu})/gu, '$1 $2');
+	const lowered = spaced.normalize('NFC').toLowerCase();
+	const words = lowered.replace(/[^\p{L}\p{N}]+/gu, ' ');
+	return words.trim();
+}
+
+export function missingColumnsOf(mapping: TimeImportMapping): TimeImportMissingColumn[] {
+	const missing: TimeImportMissingColumn[] = [];
+	if (mapping.date === null) {
+		missing.push('date');
+	}
+	if (mapping.startTime === null) {
+		missing.push('startTime');
+	}
+	const hasEndColumn = mapping.endTime !== null || mapping.duration !== null;
+	if (!hasEndColumn) {
+		missing.push('endOrDuration');
+	}
+	return missing;
+}
+
+function cellAt(record: ReadonlyArray<string>, index: number | null): string {
+	if (index === null) {
+		return '';
+	}
+	const cell = record[index] ?? '';
+	return cell.trim();
+}
+
+function cellsOf(record: ReadonlyArray<string>, mapping: TimeImportMapping): TimeImportCells {
+	const cellOf = (field: TimeImportField) => cellAt(record, mapping[field]);
+	return {
+		date: cellOf('date'),
+		startTime: cellOf('startTime'),
+		endDate: cellOf('endDate'),
+		endTime: cellOf('endTime'),
+		duration: cellOf('duration'),
+		project: cellOf('project'),
+		task: cellOf('task'),
+		notes: cellOf('notes'),
+		billable: cellOf('billable'),
+		memberEmail: cellOf('memberEmail')
+	};
+}
+
+function extraCellCountOf(record: ReadonlyArray<string>, headerCount: number): number {
+	const extraCells = record.slice(headerCount);
+	return extraCells.filter((cell) => cell.trim() !== '').length;
+}
+
+/** The headers of the file no field is read from. The import's own report columns and blank headers are not named. */
+export function ignoredHeadersOf(headers: ReadonlyArray<string>, mapping: TimeImportMapping): string[] {
+	const readIndexes = new Set(Object.values(mapping));
+	const ignored: string[] = [];
+	headers.forEach((header, index) => {
+		const words = headerWordsOf(header);
+		const isNamed = words !== '';
+		const isReportColumn = REPORT_ONLY_HEADERS.has(words);
+		const isRead = readIndexes.has(index);
+		if (isNamed && !isReportColumn && !isRead) {
+			ignored.push(header);
+		}
+	});
+	return ignored;
+}
+
+export function timeImportSheetOf(
+	table: TimeImportTable,
+	mapping: TimeImportMapping,
+	dateOrder: DateOrder
+): TimeImportSheet {
+	const headerCount = table.headers.length;
+	const rows: TimeImportSheetRow[] = table.records.map((record) => ({
+		row: record.row,
+		cells: cellsOf(record.cells, mapping),
+		extraCellCount: extraCellCountOf(record.cells, headerCount)
+	}));
+	return { rows, ignoredHeaders: ignoredHeadersOf(table.headers, mapping), dateOrder };
 }

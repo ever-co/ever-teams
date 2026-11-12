@@ -13,7 +13,6 @@ import type { DateOrder } from '@/core/lib/utils/time-import-cells';
 import {
 	timeImportColumnsStepOf,
 	timeImportReadingOf,
-	timeImportSheetOf,
 	type TimeImportColumnsStep
 } from '@/core/lib/utils/time-import-columns';
 import {
@@ -40,6 +39,7 @@ import {
 } from '@/core/lib/utils/time-import-rows';
 import {
 	timeImportFileRefusalOf,
+	timeImportSheetOf,
 	type TimeImportColumnsChoice,
 	type TimeImportField,
 	type TimeImportFileProblem,
