@@ -97,7 +97,7 @@ describe('useTaskTrash — Delete forever', () => {
 		});
 
 		expect(outcome).toBe('still-linked');
-		expect(mockList.mock.calls.length).toBe(reads);
+		expect(mockList.mock.calls).toHaveLength(reads);
 	});
 
 	it('answers failed for any other refusal, and leaves the list as it was', async () => {
@@ -111,7 +111,7 @@ describe('useTaskTrash — Delete forever', () => {
 		});
 
 		expect(outcome).toBe('failed');
-		expect(mockList.mock.calls.length).toBe(reads);
+		expect(mockList.mock.calls).toHaveLength(reads);
 		expect(result.current.tasks.map((task) => task.id)).toEqual(['t1', 't2']);
 	});
 });
