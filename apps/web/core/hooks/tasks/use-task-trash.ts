@@ -103,10 +103,12 @@ export function useTaskTrash(filter: TaskTrashFilter) {
 	else if (query.isError) status = trashStatusOf(query.error);
 	else if (query.isPending) status = 'loading';
 
-	const refreshTaskLists = useCallback(
-		() => queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all }),
-		[queryClient]
-	);
+	// The task lists and the saved and built-in views (My Tasks, Overdue…) sit under different keys: a restored or
+	// deleted task leaves or joins both.
+	const refreshTaskLists = useCallback(async () => {
+		void queryClient.invalidateQueries({ queryKey: queryKeys.taskViews.all });
+		await queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
+	}, [queryClient]);
 
 	/** Brings a task back; `false` when the platform refused it. */
 	const restore = useCallback(

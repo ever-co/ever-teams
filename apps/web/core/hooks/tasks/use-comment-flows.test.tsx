@@ -261,6 +261,53 @@ describe('useCommentReactions — the toggle shows at once and is put back on a 
 		);
 	});
 
+	it('takes back only the refused toggle, keeping another one sent meanwhile', async () => {
+		const party = { ...thumbs, emoji: '🎉', count: 1, reactedByMe: true, reactors: [{ employeeId: 'emp', name: 'Me' }] };
+		let truth: unknown[] = [thumbs];
+		// Reads answer what the platform holds, a moment later, so the chips show the toggles alone meanwhile.
+		mockReactions.mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve(truth), 300)));
+		let refuse: (error: Error) => void = () => undefined;
+		let accept: () => void = () => undefined;
+		mockToggle
+			.mockImplementationOnce(() => new Promise<void>((_resolve, reject) => (refuse = reject)))
+			.mockImplementationOnce(() => new Promise<void>((resolve) => (accept = resolve)));
+		const { result } = renderHook(() => useCommentReactions('task-1', me), { wrapper: wrapper(client()) });
+		await waitFor(() => expect(result.current.isAvailable).toBe(true));
+
+		let first: Promise<boolean> = Promise.resolve(true);
+		let second: Promise<boolean> = Promise.resolve(false);
+		act(() => {
+			first = result.current.toggle('c1', '👍');
+			second = result.current.toggle('c1', '🎉');
+		});
+		await waitFor(() => expect(result.current.byComment.get('c1')).toHaveLength(2));
+		await waitFor(() => expect(mockToggle).toHaveBeenCalledTimes(2));
+
+		await act(async () => {
+			refuse(new Error('503'));
+		});
+
+		// The thumbs are back as they were; the party popper sent meanwhile stays (before the next read answers).
+		await waitFor(
+			() =>
+				expect(
+					result.current.byComment.get('c1')?.map((chip) => [chip.emoji, chip.count, chip.reactedByMe])
+				).toEqual([
+					['👍', 1, false],
+					['🎉', 1, true]
+				]),
+			{ interval: 10, timeout: 250 }
+		);
+
+		truth = [thumbs, party];
+		await act(async () => {
+			accept();
+			expect(await first).toBe(false);
+			expect(await second).toBe(true);
+		});
+		await waitFor(() => expect(result.current.byComment.get('c1')).toHaveLength(2));
+	});
+
 	it('stays hidden when the platform has no summary to give', async () => {
 		mockReactions.mockRejectedValue(Object.assign(new Error('Not Found'), { statusCode: 404 }));
 		const { result } = renderHook(() => useCommentReactions('task-1', me), { wrapper: wrapper(client()) });

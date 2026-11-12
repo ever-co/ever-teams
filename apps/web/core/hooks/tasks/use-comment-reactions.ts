@@ -61,16 +61,19 @@ export function useCommentReactions(taskId: string | null, me: IReactionReactor 
 		},
 		onMutate: async ({ commentId, emoji }: ToggleVariables) => {
 			await queryClient.cancelQueries({ queryKey });
-			const previous = queryClient.getQueryData<IReactionSummary[]>(queryKey);
 			if (me) {
 				queryClient.setQueryData<IReactionSummary[]>(queryKey, (current) =>
 					toggledReactions(current ?? NO_SUMMARIES, commentId, emoji, me)
 				);
 			}
-			return { previous };
 		},
-		onError: (_error, _variables, context) => {
-			queryClient.setQueryData(queryKey, context?.previous);
+		// Only the failed toggle's change is taken back: putting the whole list from before it back would also undo
+		// another toggle sent meanwhile. The read that follows (onSettled) shows what the platform holds.
+		onError: (_error, { commentId, emoji }: ToggleVariables) => {
+			if (!me) return;
+			queryClient.setQueryData<IReactionSummary[]>(queryKey, (current) =>
+				toggledReactions(current ?? NO_SUMMARIES, commentId, emoji, me)
+			);
 		},
 		onSettled: () => queryClient.invalidateQueries({ queryKey })
 	});
