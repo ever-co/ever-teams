@@ -5878,6 +5878,7 @@
 		"MORE_ENTRIES": "{count, plural, other {以及另外 # 条}}",
 		"CONFIRM_ADD": "仍然添加",
 		"CONFIRM_SAVE": "仍然保存",
-		"CHECK_FAILED": "无法检查该时间是否与已记录的时间重叠，因此未保存任何内容。请重试。"
+		"CHECK_FAILED": "无法检查该时间是否与已记录的时间重叠，因此未保存任何内容。请重试。",
+		"PERIODS_OVERLAP": "其中两个时间段重叠：请修改其中一个，使它们不再共享时间。"
 	}
 }

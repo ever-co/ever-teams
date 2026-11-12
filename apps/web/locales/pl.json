@@ -5878,6 +5878,7 @@
 		"MORE_ENTRIES": "{count, plural, one {I jeszcze # wpis} few {I jeszcze # wpisy} many {I jeszcze # wpisów} other {I jeszcze # wpisu}}",
 		"CONFIRM_ADD": "Dodaj mimo to",
 		"CONFIRM_SAVE": "Zapisz mimo to",
-		"CHECK_FAILED": "Nie udało się sprawdzić, czy ten czas pokrywa się z już zarejestrowanym czasem, więc nic nie zostało zapisane. Spróbuj ponownie."
+		"CHECK_FAILED": "Nie udało się sprawdzić, czy ten czas pokrywa się z już zarejestrowanym czasem, więc nic nie zostało zapisane. Spróbuj ponownie.",
+		"PERIODS_OVERLAP": "Dwa z tych okresów nakładają się: zmień jeden, aby nie miały wspólnego czasu."
 	}
 }

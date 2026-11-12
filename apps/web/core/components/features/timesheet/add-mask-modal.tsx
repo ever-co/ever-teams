@@ -167,6 +167,8 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	// (a team switch from another tab), they are cleared instead of being saved with the new team
 	const activeTeamId = activeTeam?.id;
 	const [formTeamId, setFormTeamId] = React.useState(activeTeamId);
+	// Two periods of the entry overlap: said under the periods, since the API would remove the earlier one
+	const [hasOverlappingPeriods, setHasOverlappingPeriods] = React.useState(false);
 	if (formTeamId !== activeTeamId) {
 		setFormTeamId(activeTeamId);
 		setFormState((prevState) => ({ ...prevState, taskId: '', employeeId: '' }));
@@ -307,8 +309,10 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 				return { start, end };
 			});
 			// Sent together, the later of two overlapping periods would make the API remove the earlier one
-			if (periodsOverlapEachOther(entries)) {
-				throw new Error('Periods overlap each other.');
+			const overlap = periodsOverlapEachOther(entries);
+			setHasOverlappingPeriods(overlap);
+			if (overlap) {
+				return;
 			}
 			const saveEntries = async () => {
 				try {
@@ -460,6 +464,11 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						{formState.notes.length}/{120}
 					</div>
 				</div>
+				{hasOverlappingPeriods && (
+					<p role="alert" className="text-xs text-destructive-ink">
+						{t('timeOverlap.PERIODS_OVERLAP')}
+					</p>
+				)}
 				<TimeOverlapCheckError guard={overlapGuard} />
 				<div className="flex gap-x-2 justify-end items-center w-full">
 					<Button variant="outline" size="lg" type="button" onClick={closeModal}>

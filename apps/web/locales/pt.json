@@ -5878,6 +5878,7 @@
 		"MORE_ENTRIES": "{count, plural, one {E mais # entrada} other {E mais # entradas}}",
 		"CONFIRM_ADD": "Adicionar mesmo assim",
 		"CONFIRM_SAVE": "Guardar mesmo assim",
-		"CHECK_FAILED": "Não foi possível verificar se este tempo se sobrepõe a tempo já registado, por isso nada foi guardado. Tente novamente."
+		"CHECK_FAILED": "Não foi possível verificar se este tempo se sobrepõe a tempo já registado, por isso nada foi guardado. Tente novamente.",
+		"PERIODS_OVERLAP": "Dois destes períodos se sobrepõem: altere um para que não partilhem mais tempo."
 	}
 }
