@@ -169,6 +169,27 @@ describe('useTaskComments — edit, delete, resolve', () => {
 		expect(mockUpdate).toHaveBeenCalledWith('c1', { comment: 'Typo fixed' }, scope);
 	});
 
+	it('does not hold a saved edit until the reactions are read again', async () => {
+		mockUpdate.mockResolvedValue({ id: 'c1' });
+		// The first reaction read answers; the one after the edit never does.
+		mockReactions.mockResolvedValueOnce([]).mockReturnValue(new Promise(() => undefined));
+		const me = { employeeId: 'emp', name: 'Me', imageUrl: null };
+		const { result } = renderHook(
+			() => ({ thread: useTaskComments(task), reactions: useCommentReactions('task-1', me) }),
+			{ wrapper: wrapper(client()) }
+		);
+		await waitFor(() => expect(result.current.reactions.isAvailable).toBe(true));
+		await waitFor(() => expect(result.current.thread.comments).toHaveLength(2));
+
+		let isSaved = false;
+		await act(async () => {
+			isSaved = await result.current.thread.editComment('c1', 'New text');
+		});
+
+		expect(isSaved).toBe(true);
+		expect(mockReactions.mock.calls.length).toBeGreaterThan(1);
+	});
+
 	it('puts a comment back when the platform refuses its delete', async () => {
 		mockSoftDelete.mockRejectedValue(new Error('404'));
 		const { result } = renderHook(() => useTaskComments(task), { wrapper: wrapper(client()) });
