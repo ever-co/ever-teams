@@ -2022,17 +2022,35 @@ describe('Ever Teams feature surface preservation', () => {
 		// 315 files and 402 verbs with the chat's typing, task card, unsent upload and category order proxies
 		// (/api/chat/conversations/[id]/typing POST, messages/[id]/tasks/[taskId] PATCH, attachments/[documentId] DELETE,
 		// categories/reorder POST).
-		// 317 files and 404 verbs with the members settings proxies: the inactive employees (GET /api/employee/inactive)
+		// 317 files and 405 verbs with the Docs comment range proxies (/api/plugins/docs/documents/[id]/comment-anchors GET,
+		// documents/[id]/comments/[commentId]/anchor PUT and DELETE).
+		// 323 files and 414 verbs with the task automations proxies (/api/task-automations GET POST, templates GET,
+		// order PUT, [id] GET PUT DELETE, [id]/test POST, [id]/runs GET).
+		// 325 files and 416 verbs with the members settings proxies: the inactive employees (GET /api/employee/inactive)
 		// and the workspace role of an account (PUT /api/user/[id]/role).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(317);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(325);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(404);
+		).toHaveLength(416);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode routes of the members settings: deactivated members and workspace roles (#5092)
 				'apps/web/app/api/employee/inactive/route.ts::GET',
 				'apps/web/app/api/user/[id]/role/route.ts::PUT',
+				// Proxy mode twins of the platform's task automations routes (2026-11-11)
+				'apps/web/app/api/task-automations/route.ts::GET',
+				'apps/web/app/api/task-automations/route.ts::POST',
+				'apps/web/app/api/task-automations/templates/route.ts::GET',
+				'apps/web/app/api/task-automations/order/route.ts::PUT',
+				'apps/web/app/api/task-automations/[id]/route.ts::GET',
+				'apps/web/app/api/task-automations/[id]/route.ts::PUT',
+				'apps/web/app/api/task-automations/[id]/route.ts::DELETE',
+				'apps/web/app/api/task-automations/[id]/test/route.ts::POST',
+				'apps/web/app/api/task-automations/[id]/runs/route.ts::GET',
+				// Proxy mode twins of the platform's Docs comment ranges (2026-11-12)
+				'apps/web/app/api/plugins/docs/documents/[id]/comment-anchors/route.ts::GET',
+				'apps/web/app/api/plugins/docs/documents/[id]/comments/[commentId]/anchor/route.ts::PUT',
+				'apps/web/app/api/plugins/docs/documents/[id]/comments/[commentId]/anchor/route.ts::DELETE',
 				// Proxy mode twins of the platform's comment withdrawal, reactions and task trash (2026-11-12)
 				'apps/web/app/api/comment/[id]/soft/route.ts::DELETE',
 				'apps/web/app/api/comment/[id]/recover/route.ts::PUT',

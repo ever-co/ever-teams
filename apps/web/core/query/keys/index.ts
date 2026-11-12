@@ -453,6 +453,28 @@ export const queryKeys = {
 		) => ['notifications', 'settings', tenantId ?? null, organizationId ?? null, employeeId ?? null] as const
 	},
 
+	// Settings → Automations: the organization's rules, the templates and a rule's run history. The user is part of
+	// every key: what one sign-in read (or was refused) never shows for the next one.
+	taskAutomations: {
+		all: ['task-automations'] as const,
+		templates: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null
+		) => ['task-automations', 'templates', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		rules: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null
+		) => ['task-automations', 'rules', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		runs: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null,
+			ruleId: string | undefined | null
+		) => ['task-automations', 'runs', tenantId ?? null, organizationId ?? null, userId ?? null, ruleId ?? null] as const
+	},
+
 	inbox: {
 		all: ['inbox'] as const,
 		items: (
@@ -1132,6 +1154,9 @@ export const queryKeys = {
 			['docs', 'import', tenantId ?? null, importId ?? null] as const,
 		/** The platform's comments on the page (entity `Document`), block threads and page comments alike. */
 		comments: (tenantId: string | undefined | null, organizationId: string | undefined | null, pageId: string | undefined | null) =>
-			['docs', 'comments', tenantId ?? null, organizationId ?? null, pageId ?? null] as const
+			['docs', 'comments', tenantId ?? null, organizationId ?? null, pageId ?? null] as const,
+		/** The text ranges of the page's comments: under the comments' key, so whatever reads the comments again reads them too. */
+		commentAnchors: (tenantId: string | undefined | null, organizationId: string | undefined | null, pageId: string | undefined | null) =>
+			['docs', 'comments', tenantId ?? null, organizationId ?? null, pageId ?? null, 'anchors'] as const
 	}
 };
