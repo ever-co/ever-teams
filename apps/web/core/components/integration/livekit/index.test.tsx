@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 
 const mockDisconnect = jest.fn();
 const mockSetScreenShareEnabled = jest.fn();
+let mockLocalPermissions: { canPublishSources: number[] } | undefined;
 const mockRoomProps: Array<Record<string, unknown>> = [];
 const mockBarProps: Array<{ leave: () => void; participantCount: number | null; joinedAt: number | null }> = [];
 
@@ -14,7 +15,7 @@ jest.mock('@livekit/components-react', () => ({
 	},
 	useRoomContext: () => ({
 		disconnect: mockDisconnect,
-		localParticipant: { setScreenShareEnabled: mockSetScreenShareEnabled }
+		localParticipant: { setScreenShareEnabled: mockSetScreenShareEnabled, permissions: mockLocalPermissions }
 	}),
 	useParticipants: () => [{}, {}]
 }));
@@ -52,6 +53,7 @@ describe('LiveKitPage', () => {
 	beforeEach(() => {
 		mockDisconnect.mockReset();
 		mockSetScreenShareEnabled.mockReset().mockResolvedValue(undefined);
+		mockLocalPermissions = undefined;
 		mockRoomProps.length = 0;
 		mockBarProps.length = 0;
 	});
@@ -145,6 +147,25 @@ describe('LiveKitPage', () => {
 		expect(mockSetScreenShareEnabled).toHaveBeenCalledTimes(1);
 		expect(mockSetScreenShareEnabled).toHaveBeenCalledWith(true, expect.objectContaining({ audio: true }));
 		expect(screen.queryByTestId('share-screen-refused')).toBeNull();
+	});
+
+	it('shares the screen without its sound where the room does not let the person publish it', async () => {
+		// The camera, the microphone and the screen (sources 1 to 3), not the screen's sound (4)
+		mockLocalPermissions = { canPublishSources: [1, 2, 3] };
+		render(
+			<LiveKitPage
+				userChoices={{ audioEnabled: true, videoEnabled: true } as never}
+				token="room-token"
+				liveKitUrl="wss://livekit.example.test"
+				shareScreenOnJoin
+			/>
+		);
+
+		await act(async () => {
+			(lastRoomProps().onConnected as () => void)();
+		});
+
+		expect(mockSetScreenShareEnabled).toHaveBeenCalledWith(true, expect.objectContaining({ audio: false }));
 	});
 
 	it('offers the click a browser wants when it refuses to share the screen without one', async () => {

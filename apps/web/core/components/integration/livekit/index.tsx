@@ -38,6 +38,9 @@ type LiveKitPageProps = {
 const ROOM_THEME =
 	'[--lk-accent-bg:var(--primary)] [--lk-accent-fg:var(--primary-foreground)] [--lk-danger:var(--destructive)] [--lk-font-family:inherit] [--lk-border-radius:0.5rem]';
 
+/** The protocol's number of the screen's sound among the sources a participant may be allowed to publish. */
+const SCREEN_SHARE_AUDIO_SOURCE = 4;
+
 /** The room bar inside the LiveKit room, where the room and its participants are at hand. */
 function LiveKitRoomBar({
 	title,
@@ -72,8 +75,11 @@ function ShareScreenOnJoin() {
 	const hasAsked = React.useRef(false);
 
 	const share = React.useCallback(async () => {
+		// The screen's sound only where the room lets one publish it: a refused sound would fail the whole share
+		const sources = room.localParticipant.permissions?.canPublishSources ?? [];
+		const audio = sources.length === 0 || sources.includes(SCREEN_SHARE_AUDIO_SOURCE);
 		try {
-			await room.localParticipant.setScreenShareEnabled(true, { audio: true, selfBrowserSurface: 'include' });
+			await room.localParticipant.setScreenShareEnabled(true, { audio, selfBrowserSurface: 'include' });
 			setIsRefused(false);
 		} catch {
 			setIsRefused(true);

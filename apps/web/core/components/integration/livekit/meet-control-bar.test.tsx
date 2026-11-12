@@ -9,6 +9,7 @@ const mockToastError = jest.fn();
 let mockToggles: Record<string, Toggle>;
 let mockWidgetState: { showChat: boolean; showSettings: boolean; unreadMessages: number };
 let mockPermissions: { canPublish: boolean; canPublishData: boolean; canPublishSources: number[] } | undefined;
+const mockToggleOptions: Record<string, { captureOptions?: { audio?: boolean } }> = {};
 
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: { count?: number }) =>
@@ -16,14 +17,24 @@ jest.mock('next-intl', () => ({
 }));
 jest.mock('sonner', () => ({ toast: { error: (...args: unknown[]) => mockToastError(...args) } }));
 jest.mock('livekit-client', () => ({
-	Track: { Source: { Camera: 'camera', Microphone: 'microphone', ScreenShare: 'screen_share' } }
+	Track: {
+		Source: {
+			Camera: 'camera',
+			Microphone: 'microphone',
+			ScreenShare: 'screen_share',
+			ScreenShareAudio: 'screen_share_audio'
+		}
+	}
 }));
 jest.mock('@livekit/components-react', () => ({
 	StartMediaButton: () => null,
 	useLocalParticipantPermissions: () => mockPermissions,
 	useMaybeLayoutContext: () => ({ widget: { state: mockWidgetState, dispatch: mockDispatch } }),
 	useRoomContext: () => ({ disconnect: mockDisconnect }),
-	useTrackToggle: ({ source }: { source: string }) => mockToggles[source]
+	useTrackToggle: (options: { source: string; captureOptions?: { audio?: boolean } }) => {
+		mockToggleOptions[options.source] = options;
+		return mockToggles[options.source];
+	}
 }));
 
 import { MeetControlBar } from './meet-control-bar';
@@ -85,6 +96,24 @@ describe('MeetControlBar', () => {
 		expect(screen.queryByRole('button', { name: 'meetings.SHARE' })).toBeNull();
 		expect(screen.queryByRole('button', { name: /^meetings\.CHAT/ })).toBeNull();
 		expect(screen.getByRole('button', { name: 'meetings.LEAVE' })).toBeTruthy();
+	});
+
+	it("asks for the screen's sound only where the room lets the person publish it", () => {
+		// Every source when the room names none, the screen's sound (source 4) when it is named
+		for (const [sources, audio] of [
+			[[], true],
+			[[1, 2, 3, 4], true],
+			[[1, 2, 3], false]
+		] as const) {
+			mockPermissions = { canPublish: true, canPublishData: true, canPublishSources: [...sources] };
+			const { unmount } = render(
+				<MeetControlBar isPeopleOpen={false} onPeopleOpenChange={jest.fn()} onReact={jest.fn()} />
+			);
+
+			expect(screen.getByRole('button', { name: 'meetings.SHARE' })).toBeTruthy();
+			expect(mockToggleOptions.screen_share.captureOptions?.audio).toBe(audio);
+			unmount();
+		}
 	});
 
 	it('opens the people in the place of the chat, and the chat in the place of the people', () => {

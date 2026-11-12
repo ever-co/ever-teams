@@ -29,7 +29,12 @@ import { MEETING_REACTIONS, type MeetingReaction } from '@/core/hooks/meetings/u
 import { cn } from '@/core/lib/helpers';
 
 /** The protocol's numbers of the sources a participant may be allowed to publish. */
-const SOURCE_NUMBERS = { [Track.Source.Camera]: 1, [Track.Source.Microphone]: 2, [Track.Source.ScreenShare]: 3 };
+const SOURCE_NUMBERS = {
+	[Track.Source.Camera]: 1,
+	[Track.Source.Microphone]: 2,
+	[Track.Source.ScreenShare]: 3,
+	[Track.Source.ScreenShareAudio]: 4
+};
 
 const BAR_BUTTON =
 	'relative flex min-w-14 cursor-pointer flex-col items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-foreground outline-none transition-colors hover:bg-foreground/[0.06] focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-50 aria-pressed:bg-foreground/[0.08]';
@@ -108,11 +113,18 @@ export function MeetControlBar({ isPeopleOpen, onPeopleOpenChange, onReact }: Re
 	const room = useRoomContext();
 	const layoutContext = useMaybeLayoutContext();
 	const permissions = useLocalParticipantPermissions();
+	const canPublish = (source: keyof typeof SOURCE_NUMBERS) =>
+		Boolean(
+			permissions?.canPublish &&
+			(permissions.canPublishSources.length === 0 ||
+				permissions.canPublishSources.includes(SOURCE_NUMBERS[source]))
+		);
 	const camera = useTrackToggle({ source: Track.Source.Camera });
 	const microphone = useTrackToggle({ source: Track.Source.Microphone });
+	// The screen's sound only where the room lets one publish it: a refused sound would fail the whole share
 	const screenShare = useTrackToggle({
 		source: Track.Source.ScreenShare,
-		captureOptions: { audio: true, selfBrowserSurface: 'include' }
+		captureOptions: { audio: canPublish(Track.Source.ScreenShareAudio), selfBrowserSurface: 'include' }
 	});
 	const widget = layoutContext?.widget;
 	const unreadMessages = widget?.state?.unreadMessages ?? 0;
@@ -152,13 +164,6 @@ export function MeetControlBar({ isPeopleOpen, onPeopleOpenChange, onReact }: Re
 			reportFailure(device, error);
 		}
 	};
-
-	const canPublish = (source: Track.Source.Camera | Track.Source.Microphone | Track.Source.ScreenShare) =>
-		Boolean(
-			permissions?.canPublish &&
-			(permissions.canPublishSources.length === 0 ||
-				permissions.canPublishSources.includes(SOURCE_NUMBERS[source]))
-		);
 
 	return (
 		<div
