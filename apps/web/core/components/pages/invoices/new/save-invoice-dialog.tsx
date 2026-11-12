@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { Building, Calendar, Clock, FileText, Invoice } from '@/core/components/icons';
+import { Alert, Building, Calendar, Clock, FileText, Invoice } from '@/core/components/icons';
 import {
 	ProjectConfirmDialog,
 	type ProjectConsequence
@@ -77,6 +77,15 @@ export function SaveInvoiceDialog({
 		},
 		{ key: 'draft', icon: <FileText />, text: t('invoices.new.confirm.DRAFT') }
 	];
+	// The save goes on without the overlap check, as it goes on despite an overlap: the person is told before saving.
+	if (invoice.haveEarlierFailed) {
+		consequences.push({
+			key: 'unchecked',
+			icon: <Alert />,
+			text: t('invoices.new.confirm.UNCHECKED', { client: invoice.client?.name ?? '' }),
+			tone: 'danger'
+		});
+	}
 
 	let error: string | null = null;
 	if (hasFailed) {

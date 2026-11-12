@@ -7,6 +7,7 @@ import type { NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
 type MockConfirmDialogProps = {
 	open: boolean;
 	title: string;
+	consequences: Array<{ key: string; text: React.ReactNode }>;
 	onClose: () => void;
 };
 
@@ -14,6 +15,7 @@ jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn() }) }))
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, useLocale: () => 'en' }));
 jest.mock('sonner', () => ({ toast: { success: jest.fn() } }));
 jest.mock('@/core/components/icons', () => ({
+	Alert: () => null,
 	Building: () => null,
 	Calendar: () => null,
 	Clock: () => null,
@@ -29,6 +31,11 @@ jest.mock('@/core/components/projects/dialogs/project-confirm-dialog', () => ({
 		}
 		return (
 			<div role="dialog" aria-label={props.title}>
+				<ul>
+					{props.consequences.map((consequence) => (
+						<li key={consequence.key}>{consequence.text}</li>
+					))}
+				</ul>
 				<button type="button" onClick={props.onClose}>
 					leave
 				</button>
@@ -39,7 +46,7 @@ jest.mock('@/core/components/projects/dialogs/project-confirm-dialog', () => ({
 
 import { SaveInvoiceDialog } from './save-invoice-dialog';
 
-function invoiceOf(isSaving: boolean) {
+function invoiceOf(fields: Partial<NewInvoiceState>) {
 	const invoice: Partial<NewInvoiceState> = {
 		numberText: '42',
 		client: { id: 'client-acme', name: 'Acme' },
@@ -50,8 +57,10 @@ function invoiceOf(isSaving: boolean) {
 		currency: 'USD',
 		issueDay: '2026-11-12',
 		dueDay: '2026-12-11',
-		isSaving,
-		save: jest.fn()
+		isSaving: false,
+		haveEarlierFailed: false,
+		save: jest.fn(),
+		...fields
 	};
 	return invoice as NewInvoiceState;
 }
@@ -59,7 +68,7 @@ function invoiceOf(isSaving: boolean) {
 describe('leaving the confirmation of a new invoice', () => {
 	it('keeps the dialog while the invoice is being saved', () => {
 		const onClose = jest.fn();
-		render(<SaveInvoiceDialog open invoice={invoiceOf(true)} onClose={onClose} />);
+		render(<SaveInvoiceDialog open invoice={invoiceOf({ isSaving: true })} onClose={onClose} />);
 
 		fireEvent.click(screen.getByRole('button', { name: 'leave' }));
 
@@ -68,10 +77,24 @@ describe('leaving the confirmation of a new invoice', () => {
 
 	it('closes the dialog when nothing is being saved', () => {
 		const onClose = jest.fn();
-		render(<SaveInvoiceDialog open invoice={invoiceOf(false)} onClose={onClose} />);
+		render(<SaveInvoiceDialog open invoice={invoiceOf({ isSaving: false })} onClose={onClose} />);
 
 		fireEvent.click(screen.getByRole('button', { name: 'leave' }));
 
 		expect(onClose).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe('the confirmation of a new invoice and the invoices already saved for its client', () => {
+	it('says the period was not checked against them when they could not be read', () => {
+		render(<SaveInvoiceDialog open invoice={invoiceOf({ haveEarlierFailed: true })} onClose={jest.fn()} />);
+
+		expect(screen.getByText('invoices.new.confirm.UNCHECKED')).toBeTruthy();
+	});
+
+	it('says nothing of it once they were read', () => {
+		render(<SaveInvoiceDialog open invoice={invoiceOf({})} onClose={jest.fn()} />);
+
+		expect(screen.queryByText('invoices.new.confirm.UNCHECKED')).toBeNull();
 	});
 });

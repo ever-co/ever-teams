@@ -263,6 +263,7 @@ export function useNewInvoice() {
 		earlierInvoices: earlier.invoices,
 		areEarlierLoading: earlier.isLoading,
 		haveEarlierFailed: earlier.isError,
+		refetchEarlier: earlier.refetch,
 		overlappingInvoices,
 		problems,
 		save,
