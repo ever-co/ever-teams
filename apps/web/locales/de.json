@@ -5734,5 +5734,16 @@
 		"ERROR": "Die neuesten Updates konnten nicht geladen werden.",
 		"RETRY": "Erneut versuchen",
 		"ABOUT_LINK": "Über {appName}"
+	},
+	"timeOverlap": {
+		"TITLE": "Dadurch werden {duration} erfasste Zeit entfernt",
+		"DESCRIPTION": "{count, plural, one {Die Zeit überschneidet sich mit # bereits erfassten Eintrag.} other {Die Zeit überschneidet sich mit # bereits erfassten Einträgen.}} Beim Speichern wird die gemeinsame Zeit entfernt.",
+		"ENTRY_REMOVED": "{when} · {duration} werden entfernt",
+		"RUNNING_SINCE": "Läuft seit {start}",
+		"NO_TASK": "Keine Aufgabe",
+		"MORE_ENTRIES": "{count, plural, one {Und # weiterer Eintrag} other {Und # weitere Einträge}}",
+		"CONFIRM_ADD": "Zeit trotzdem hinzufügen",
+		"CONFIRM_SAVE": "Trotzdem speichern",
+		"CHECK_FAILED": "Es konnte nicht geprüft werden, ob sich diese Zeit mit bereits erfasster Zeit überschneidet. Es wurde nichts gespeichert. Versuche es erneut."
 	}
 }

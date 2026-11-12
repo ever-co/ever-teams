@@ -5734,5 +5734,16 @@
 		"ERROR": "Não foi possível carregar as últimas atualizações.",
 		"RETRY": "Tentar novamente",
 		"ABOUT_LINK": "Sobre o {appName}"
+	},
+	"timeOverlap": {
+		"TITLE": "Isto remove {duration} de tempo registado",
+		"DESCRIPTION": "{count, plural, one {Sobrepõe-se a # entrada já registada.} other {Sobrepõe-se a # entradas já registadas.}} Ao guardar, o tempo em comum é removido.",
+		"ENTRY_REMOVED": "{when} · {duration} removidos",
+		"RUNNING_SINCE": "Em curso desde {start}",
+		"NO_TASK": "Sem tarefa",
+		"MORE_ENTRIES": "{count, plural, one {E mais # entrada} other {E mais # entradas}}",
+		"CONFIRM_ADD": "Adicionar mesmo assim",
+		"CONFIRM_SAVE": "Guardar mesmo assim",
+		"CHECK_FAILED": "Não foi possível verificar se este tempo se sobrepõe a tempo já registado, por isso nada foi guardado. Tente novamente."
 	}
 }

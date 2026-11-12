@@ -5734,5 +5734,16 @@
 		"ERROR": "De nieuwste updates konden niet worden geladen.",
 		"RETRY": "Opnieuw proberen",
 		"ABOUT_LINK": "Over {appName}"
+	},
+	"timeOverlap": {
+		"TITLE": "Dit verwijdert {duration} geregistreerde tijd",
+		"DESCRIPTION": "{count, plural, one {De tijd overlapt # al geregistreerde invoer.} other {De tijd overlapt # al geregistreerde invoeren.}} Bij opslaan wordt de gedeelde tijd verwijderd.",
+		"ENTRY_REMOVED": "{when} · {duration} wordt verwijderd",
+		"RUNNING_SINCE": "Loopt sinds {start}",
+		"NO_TASK": "Geen taak",
+		"MORE_ENTRIES": "{count, plural, one {En nog # invoer} other {En nog # invoeren}}",
+		"CONFIRM_ADD": "Toch toevoegen",
+		"CONFIRM_SAVE": "Toch opslaan",
+		"CHECK_FAILED": "Er kon niet worden gecontroleerd of deze tijd overlapt met al geregistreerde tijd, dus er is niets opgeslagen. Probeer het opnieuw."
 	}
 }
