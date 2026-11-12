@@ -11,6 +11,11 @@ describe('the layout of a view', () => {
 		expect(viewSettingsFromStorage({ ...DEFAULT_TEAM_TASKS_VIEW })).not.toHaveProperty('layout');
 	});
 
+	it('keeps a calendar and a table as well', () => {
+		expect(viewSettingsFromStorage({ ...DEFAULT_TEAM_TASKS_VIEW, layout: 'calendar' }).layout).toBe('calendar');
+		expect(viewSettingsFromStorage({ ...DEFAULT_TEAM_TASKS_VIEW, layout: 'table' }).layout).toBe('table');
+	});
+
 	it('leaves views saved before the board exactly as they were', () => {
 		const stored = {
 			displayOptions: { ...DEFAULT_TEAM_TASKS_VIEW },

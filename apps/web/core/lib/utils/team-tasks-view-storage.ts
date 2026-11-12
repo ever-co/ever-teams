@@ -11,7 +11,7 @@ import {
 
 const GROUPINGS: TeamTasksGrouping[] = ['status', 'priority', 'assignee', 'project', 'issueType', 'none'];
 
-const LAYOUTS: TeamTasksLayout[] = ['list', 'board', 'timeline'];
+const LAYOUTS: TeamTasksLayout[] = ['list', 'board', 'timeline', 'calendar', 'table'];
 
 const ORDERINGS: TeamTasksOrdering[] = ['priority', 'updated', 'created', 'dueDate', 'number', 'title'];
 

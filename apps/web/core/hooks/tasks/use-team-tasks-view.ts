@@ -38,7 +38,7 @@ import {
 } from '@/core/lib/utils/team-tasks-view-storage';
 import { sortByManualOrder } from '@/core/lib/utils/task-view-order';
 import type { ITaskViewDefinition } from '@/core/types/interfaces/common/task-views';
-import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
+import { shownTeamTasksLayout } from '@/core/lib/utils/team-tasks-layouts';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
@@ -238,7 +238,7 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 	const canReorder = allowsManualOrder && settings.ordering === 'manual';
 	// A board has its lanes for groups, a timeline one row per task: their tasks come in the view's ordering alone,
 	// and a group collapsed in the list hides nothing there, nor from the selection.
-	const isUngrouped = (settings.layout === 'board' || settings.layout === 'timeline') && isTaskViewsEnabled();
+	const isUngrouped = shownTeamTasksLayout(settings) !== 'list';
 	const groupedSettings = useMemo<TeamTasksViewSettings>(
 		() => (isUngrouped ? { ...settings, grouping: 'none' } : settings),
 		[isUngrouped, settings]
