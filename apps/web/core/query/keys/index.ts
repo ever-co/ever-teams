@@ -729,6 +729,20 @@ export const queryKeys = {
 		) => ['clients', 'list', tenantId ?? null, organizationId ?? null, includeArchived] as const
 	},
 
+	// Keys related to invoices
+	invoices: {
+		all: ['invoices'] as const,
+		list: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			['invoices', 'list', tenantId ?? null, organizationId ?? null] as const,
+		ofClient: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			clientId: string | undefined | null
+		) => ['invoices', 'client', tenantId ?? null, organizationId ?? null, clientId ?? null] as const,
+		highestNumber: (tenantId: string | undefined | null) =>
+			['invoices', 'highest-number', tenantId ?? null] as const
+	},
+
 	// Keys related to organization projects
 	organizationProjects: {
 		all: ['organization-projects'] as const,
@@ -785,6 +799,8 @@ export const queryKeys = {
 			all: ['timesheet', 'reports'] as const,
 			changedLogs: (params: Record<string, unknown>) => ['timesheet', 'reports', 'changed-logs', params] as const,
 			owedAmounts: (params: Record<string, unknown>) => ['timesheet', 'reports', 'owed-amounts', params] as const,
+			billableLogs: (params: Record<string, unknown>) =>
+				['timesheet', 'reports', 'billable-logs', params] as const,
 			projectBudgets: (params: Record<string, unknown>) =>
 				['timesheet', 'reports', 'project-budgets', params] as const
 		},
