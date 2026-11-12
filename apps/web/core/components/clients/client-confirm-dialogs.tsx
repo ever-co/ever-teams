@@ -17,6 +17,16 @@ interface ClientConfirmDialogProps {
 	onClose: () => void;
 }
 
+/** A dialog left while its request runs would let the answer close whichever dialog is open by then. */
+function leaveUnlessPending(isPending: boolean, close: () => void) {
+	return () => {
+		if (isPending) {
+			return;
+		}
+		close();
+	};
+}
+
 export function ArchiveClientDialog({ open, client, onClose }: Readonly<ClientConfirmDialogProps>) {
 	const t = useTranslations();
 	const { archiveClient, isArchiving } = useClientMutations();
@@ -56,7 +66,7 @@ export function ArchiveClientDialog({ open, client, onClose }: Readonly<ClientCo
 	return (
 		<ProjectConfirmDialog
 			open={open}
-			onClose={close}
+			onClose={leaveUnlessPending(isArchiving, close)}
 			icon={<Archive />}
 			title={t('clients.archive.TITLE', { name })}
 			consequences={consequences}
@@ -105,7 +115,7 @@ export function RestoreClientDialog({ open, client, onClose }: Readonly<ClientCo
 	return (
 		<ProjectConfirmDialog
 			open={open}
-			onClose={close}
+			onClose={leaveUnlessPending(isRestoring, close)}
 			icon={<RotateLeft />}
 			title={t('clients.restore.TITLE', { name })}
 			consequences={consequences}
