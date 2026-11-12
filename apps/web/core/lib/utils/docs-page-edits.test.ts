@@ -1,4 +1,4 @@
-import { copyBlockLinkOnceHeld, type DocsPageEdits } from './docs-page-edits';
+import { copyBlockLinkOnceHeld, holdForExport, type DocsPageEdits } from './docs-page-edits';
 
 const LINK = 'https://app.example/docs/page-1?block=b-1';
 
@@ -42,5 +42,32 @@ describe('copyBlockLinkOnceHeld', () => {
 		const write = jest.fn(() => Promise.reject(new Error('denied')));
 
 		await expect(copyBlockLinkOnceHeld(LINK, editsOf(false, true), write)).resolves.toBe('copy-failed');
+	});
+});
+
+describe('holdForExport', () => {
+	it('waits for edits still unconfirmed, a reconnecting live session included, and refuses the export when they are not', async () => {
+		const edits = editsOf(true, false);
+
+		await expect(holdForExport(edits, false)).resolves.toBe(false);
+		expect(edits.hold).toHaveBeenCalledTimes(1);
+	});
+
+	it('lets the export go once the pending edits are held', async () => {
+		await expect(holdForExport(editsOf(true, true), false)).resolves.toBe(true);
+	});
+
+	it('lets the export go at once with nothing pending', async () => {
+		const edits = editsOf(false, false);
+
+		await expect(holdForExport(edits, false)).resolves.toBe(true);
+		expect(edits.hold).not.toHaveBeenCalled();
+	});
+
+	it('refuses the export while the text of a stopped live session is not the autosave draft yet', async () => {
+		const edits = editsOf(false, true);
+
+		await expect(holdForExport(edits, true)).resolves.toBe(false);
+		expect(edits.hold).not.toHaveBeenCalled();
 	});
 });
