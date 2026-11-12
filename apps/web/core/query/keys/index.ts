@@ -681,6 +681,16 @@ export const queryKeys = {
 		detail: (projectId: string | undefined | null) => ['projects', ...(projectId ? [projectId] : [])] as const
 	},
 
+	// Keys related to clients (organization contacts of the client type)
+	clients: {
+		all: ['clients'] as const,
+		list: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			includeArchived: boolean
+		) => ['clients', 'list', tenantId ?? null, organizationId ?? null, includeArchived] as const
+	},
+
 	// Keys related to organization projects
 	organizationProjects: {
 		all: ['organization-projects'] as const,
