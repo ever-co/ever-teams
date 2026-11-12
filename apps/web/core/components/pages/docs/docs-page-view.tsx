@@ -38,7 +38,7 @@ import { anchoredBlocksOf, openThreadBlockIds, openThreadOnBlock, threadOfCommen
 import { docsLinkTargetOf, docsPageUrl } from '@/core/lib/utils/docs-links';
 import { documentToMarkdown, markdownFileName, mentionedEmployeeIds } from '@/core/lib/utils/docs-markdown';
 import { DOCS_OUTLINE_SELECTOR, outlineOf, textStatsOf, type DocsOutlineItem } from '@/core/lib/utils/docs-outline';
-import { copyBlockLinkOnceHeld, type DocsPageEdits } from '@/core/lib/utils/docs-page-edits';
+import { copyBlockLinkOnceHeld, holdForExport, type DocsPageEdits } from '@/core/lib/utils/docs-page-edits';
 import { pageTitle } from '@/core/lib/utils/docs-tree';
 import { docsService } from '@/core/services/client/api/docs';
 import { EDocumentKind, EDocumentVisibility, type IDocumentNode, type IDocumentPage } from '@/core/types/interfaces/common/docs';
@@ -251,6 +251,9 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	const pageWritable = Boolean(page && !page.isArchived && !page.isLocked);
 	const unsentAtFallback = live.mode === 'fallback' && !live.rereading && Boolean(liveSnapshot?.unsentEdits);
 	const fallenDoc = unsentAtFallback ? (liveSnapshot?.doc ?? null) : null;
+	// Edits remembered from an earlier visit reach the platform only with the session's first sync, and until then the
+	// page's edits read as the autosave's: an export of the saved text would leave them out.
+	const unsentBeforeSync = Boolean(liveSnapshot && !liveSnapshot.synced && liveSnapshot.unsentEdits);
 	const liveBinding = live.binding;
 	useEffect(() => {
 		if (isLiveEditing && liveClockRef.current === null) liveClockRef.current = pageClock;
@@ -599,13 +602,9 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	const [pdfBusy, setPdfBusy] = useState(false);
 	const exportPdf = async (subtree: boolean) => {
 		if (!page || pdfBusy) return;
-		if (live.rereading || awaitingAdoption) {
-			toast.error(t('docs.EXPORT_UNSAVED'));
-			return;
-		}
 		setPdfBusy(true);
 		try {
-			if (pageEdits.pending() && !(await pageEdits.hold())) {
+			if (!(await holdForExport(pageEdits, live.rereading || awaitingAdoption || unsentBeforeSync))) {
 				toast.error(t('docs.EXPORT_UNSAVED'));
 				return;
 			}
@@ -634,15 +633,16 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 		copyText(`${window.location.origin}${window.location.pathname}`);
 	};
 
-	// The page and its sub-pages as a zip of Markdown files, from the platform (the text as saved: a pending draft first).
+	// The page and its sub-pages as a zip of Markdown files, from the platform (the text as saved: pending edits first).
 	const [isExporting, setIsExporting] = useState(false);
 	const exportSubtree = async () => {
 		if (!page || isExporting) return;
 		setIsExporting(true);
 		const toastId = toast.loading(t('docs.EXPORTING'));
 		try {
-			// The zip is of the text as saved: the person's latest text goes first, or nothing is exported.
-			if (!isLiveEditing && !(await saveDraftNow())) {
+			// The zip is of the text as saved: the person's latest edits are saved (or confirmed live, a reconnecting
+			// session's included) first, or nothing is exported.
+			if (!(await holdForExport(pageEdits, live.rereading || awaitingAdoption || unsentBeforeSync))) {
 				toast.error(t('docs.EXPORT_UNSAVED'), { id: toastId });
 				return;
 			}
