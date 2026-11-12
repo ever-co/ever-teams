@@ -150,7 +150,7 @@ describe('client draft', () => {
 		expect(invalid).toEqual({ primaryEmail: 'emailInvalid' });
 	});
 
-	it.each(['alex+invoices@example.com', 'alex@example.technology', 'billing@acme.agency'])(
+	it.each(['billing+invoices@example.com', 'billing@example.technology', 'billing@acme.agency'])(
 		'accepts the email %s, as the API does',
 		(primaryEmail) => {
 			const errors = validateClientDraft({ ...emptyClientDraft('Acme'), primaryEmail });

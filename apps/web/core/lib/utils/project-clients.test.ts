@@ -106,19 +106,19 @@ describe('the number of projects of a client, which links to the Projects list',
 	const otherTeam = { id: 't2', name: 'Design' };
 	const inActiveTeam = acmeProjectOf('in-active-team', { teams: [coreTeam] });
 	const inOtherTeam = acmeProjectOf('in-other-team', { teams: [otherTeam] });
-	const teamless = acmeProjectOf('teamless', {});
+	const withoutTeam = acmeProjectOf('without-team', {});
 	const archived = acmeProjectOf('archived', { teams: [coreTeam], isArchived: true });
-	const acmeProjects = [inActiveTeam, inOtherTeam, teamless, archived];
+	const acmeProjects = [inActiveTeam, inOtherTeam, withoutTeam, archived];
 
-	it('counts the projects that list shows for the active team: its own and the teamless ones, none archived', () => {
+	it('counts the projects that list shows for the active team: its own and those without a team, none archived', () => {
 		const listed = projectsListedForTeam(acmeProjects, 't1');
-		expect(listed.map((project) => project.id)).toEqual(['in-active-team', 'teamless']);
+		expect(listed.map((project) => project.id)).toEqual(['in-active-team', 'without-team']);
 		expect(projectCountByClient(listed).get('c1')).toBe(2);
 	});
 
 	it('counts the projects of every team when no team is active', () => {
 		const listed = projectsListedForTeam(acmeProjects, null);
-		expect(listed.map((project) => project.id)).toEqual(['in-active-team', 'in-other-team', 'teamless']);
+		expect(listed.map((project) => project.id)).toEqual(['in-active-team', 'in-other-team', 'without-team']);
 		expect(projectCountByClient(listed).get('c1')).toBe(3);
 	});
 

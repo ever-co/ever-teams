@@ -24,7 +24,7 @@ function deferred<T>(): Deferred<T> {
 }
 
 const acme: TClient = { id: 'client-acme', name: 'Acme' };
-const globex: TClient = { id: 'client-globex', name: 'Globex' };
+const zenith: TClient = { id: 'client-zenith', name: 'Zenith' };
 
 const mockContactService = { getClients: jest.fn(), createClient: jest.fn() };
 const mockCreateProject = jest.fn();
@@ -114,44 +114,44 @@ describe('the Client field of the project form while a client is being created',
 		const creation = deferred<TClient>();
 		mockContactService.createClient.mockReturnValue(creation.promise);
 		const { result } = renderComposer();
-		await startCreatingClient(result, 'Globex');
+		await startCreatingClient(result, 'Zenith');
 
 		await act(() => result.current.submit());
 
 		expect(mockCreateProject).not.toHaveBeenCalled();
 
-		await answerCreation(result, creation, globex);
-		expect(result.current.draft.clientId).toBe('client-globex');
+		await answerCreation(result, creation, zenith);
+		expect(result.current.draft.clientId).toBe('client-zenith');
 
 		await act(() => result.current.submit());
 
 		expect(mockCreateProject).toHaveBeenCalledTimes(1);
 		const [request] = mockCreateProject.mock.calls[0] as [Record<string, unknown>];
-		expect(request).toMatchObject({ name: 'Website', organizationContactId: 'client-globex' });
+		expect(request).toMatchObject({ name: 'Website', organizationContactId: 'client-zenith' });
 	});
 
 	it('keeps the client picked while another one was being created, and still offers the created one', async () => {
 		const creation = deferred<TClient>();
 		mockContactService.createClient.mockReturnValue(creation.promise);
 		const { result } = renderComposer();
-		await startCreatingClient(result, 'Globex');
+		await startCreatingClient(result, 'Zenith');
 
 		act(() => result.current.setClientId('client-acme'));
-		await answerCreation(result, creation, globex);
+		await answerCreation(result, creation, zenith);
 
 		expect(result.current.draft.clientId).toBe('client-acme');
 		const offeredIds = result.current.pickableClients.map((client) => client.id);
-		expect(offeredIds).toContain('client-globex');
+		expect(offeredIds).toContain('client-zenith');
 	});
 
 	it('keeps the field cleared while a client was being created', async () => {
 		const creation = deferred<TClient>();
 		mockContactService.createClient.mockReturnValue(creation.promise);
 		const { result } = renderComposer();
-		await startCreatingClient(result, 'Globex');
+		await startCreatingClient(result, 'Zenith');
 
 		act(() => result.current.setClientId(null));
-		await answerCreation(result, creation, globex);
+		await answerCreation(result, creation, zenith);
 
 		expect(result.current.draft.clientId).toBeNull();
 	});

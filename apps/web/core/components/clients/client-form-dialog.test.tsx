@@ -113,7 +113,7 @@ describe('a client save that ends after its form was left', () => {
 
 		fireEvent.click(screen.getByRole('button', { name: 'leave' }));
 		fireEvent.click(screen.getByRole('button', { name: 'open the form' }));
-		typeName('Globex');
+		typeName('Zenith');
 
 		await act(async () => {
 			creation.resolve(acme);
@@ -121,7 +121,7 @@ describe('a client save that ends after its form was left', () => {
 		});
 		await waitFor(() => expect(mockToastSuccess).toHaveBeenCalledWith('clients.toasts.CREATED'));
 
-		expect(nameField().value).toBe('Globex');
+		expect(nameField().value).toBe('Zenith');
 	});
 
 	it('closes its own form when the person waited for it', async () => {

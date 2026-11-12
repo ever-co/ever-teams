@@ -191,7 +191,7 @@ export function isProjectVisibleInTeam(project: TOrganizationProject, activeTeam
 
 /**
  * The projects the Projects page lists for the active team before any search or filter: the team's own and the
- * teamless ones, archived ones left out. A count that links to that list counts these, so both always agree.
+ * ones without a team, archived ones left out. A count that links to that list counts these, so both always agree.
  */
 export function projectsListedForTeam(projects: TOrganizationProject[], activeTeamId: string | null | undefined) {
 	return projects.filter((project) => {
