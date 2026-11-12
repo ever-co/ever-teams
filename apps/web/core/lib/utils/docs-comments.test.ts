@@ -69,6 +69,19 @@ describe('threads', () => {
 		expect(sortThreadsByDocument(threads, [BLOCK_A]).map((thread) => thread.id)).toEqual(['c4', 'c3', 'c1', 'c5']);
 	});
 
+	it("orders the threads of one block by where their ranges start, a range before the block's own", () => {
+		const first = comment('r1', withBlockAnchor(BLOCK_A, 'On the end'), { createdAt: '2026-11-10T09:00:00.000Z' });
+		const second = comment('r22', withBlockAnchor(BLOCK_A, 'On the start'), { createdAt: '2026-11-10T09:01:00.000Z' });
+		const whole = comment('r333', withBlockAnchor(BLOCK_A, 'On the block'), { createdAt: '2026-11-10T08:00:00.000Z' });
+		const threads = docsCommentThreads([first, second, whole]);
+		const starts: Record<string, number> = { r1: 20, r22: 3 };
+		const placeOf = (thread: { id: string; blockId: string | null }) => ({ blockId: thread.blockId, start: starts[thread.id] ?? null });
+		expect(sortThreadsByDocument(threads, [BLOCK_A], placeOf).map((thread) => thread.id)).toEqual(['r22', 'r1', 'r333']);
+		// A range found in another block goes with that block.
+		const moved = (thread: { id: string; blockId: string | null }) => ({ blockId: thread.id === 'r1' ? BLOCK_B : thread.blockId, start: starts[thread.id] ?? null });
+		expect(sortThreadsByDocument(threads, [BLOCK_B, BLOCK_A], moved).map((thread) => thread.id)).toEqual(['r1', 'r22', 'r333']);
+	});
+
 	it('splits open and resolved, and marks only the blocks with an open thread', () => {
 		const threads = docsCommentThreads([root, reply, pageComment, resolved]);
 		expect(threadsOfTab(threads, 'open').map((thread) => thread.id)).toEqual(['c3', 'c1']);
