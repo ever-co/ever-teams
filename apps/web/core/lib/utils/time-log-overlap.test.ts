@@ -2,6 +2,7 @@ import {
 	formatOverlapDuration,
 	hasUnreadableInterval,
 	overlapSummaryOf,
+	periodsOverlapEachOther,
 	type OverlapCandidateLog
 } from './time-log-overlap';
 
@@ -197,6 +198,27 @@ describe('hasUnreadableInterval', () => {
 	it('cannot read a stopped entry without an end', () => {
 		expect(hasUnreadableInterval({ id: 'c', startedAt: '2026-11-10T18:42:00.000Z', stoppedAt: null })).toBe(true);
 		expect(hasUnreadableInterval({ id: 'd', startedAt: '2026-11-10T18:42:00.000Z', isRunning: false })).toBe(true);
+	});
+});
+
+describe('periodsOverlapEachOther', () => {
+	it('finds two periods that share time, in any order', () => {
+		expect(periodsOverlapEachOther([period('09:00', '10:00'), period('09:30', '11:00')])).toBe(true);
+		expect(
+			periodsOverlapEachOther([period('14:00', '15:00'), period('09:00', '10:00'), period('09:15', '09:45')])
+		).toBe(true);
+	});
+
+	it('passes periods apart or only touching, and a single period', () => {
+		expect(periodsOverlapEachOther([period('09:00', '10:00'), period('10:00', '11:00')])).toBe(false);
+		expect(periodsOverlapEachOther([period('14:00', '15:00'), period('09:00', '10:00')])).toBe(false);
+		expect(periodsOverlapEachOther([period('09:00', '10:00')])).toBe(false);
+	});
+
+	it('passes the same hours on two different days', () => {
+		const nextDay = { start: new Date('2026-11-11T09:00:00.000Z'), end: new Date('2026-11-11T10:00:00.000Z') };
+
+		expect(periodsOverlapEachOther([period('09:00', '10:00'), nextDay])).toBe(false);
 	});
 });
 
