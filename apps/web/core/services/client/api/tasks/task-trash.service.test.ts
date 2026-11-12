@@ -96,6 +96,19 @@ describe('taskService.deleteTask — the trash flag', () => {
 		expect(remove).toHaveBeenCalledWith('/tasks/t1/soft');
 	});
 
+	it('deletes nothing when the platform gives no clear answer about its trash', async () => {
+		readRuntimeEnv.mockImplementation((name: string) =>
+			name === 'NEXT_PUBLIC_TASK_TRASH_ENABLED' ? 'true' : undefined
+		);
+		const failure = { response: { status: 503 } };
+		jest.spyOn(taskTrashService, 'isAvailable').mockRejectedValue(failure);
+		const remove = jest.spyOn(taskService, 'delete').mockResolvedValue({ data: { raw: [], affected: 1 } } as never);
+
+		await expect(taskService.deleteTask('t1')).rejects.toBe(failure);
+
+		expect(remove).not.toHaveBeenCalled();
+	});
+
 	it('deletes for good when the platform keeps no trash, so no task is hidden beyond restore', async () => {
 		readRuntimeEnv.mockImplementation((name: string) =>
 			name === 'NEXT_PUBLIC_TASK_TRASH_ENABLED' ? 'true' : undefined
@@ -137,16 +150,23 @@ describe('taskTrashService.isAvailable — whether a delete may go to the trash'
 		expect(get).toHaveBeenCalledTimes(2);
 	});
 
-	it('does not remember an unclear failure, and has no trash without a signed-in organization', async () => {
+	it('throws on an unclear failure without remembering it, and has no trash without a signed-in organization', async () => {
 		taskDiscussionScope.mockReturnValue({ ...scope, organizationId: 'org-flaky' });
+		const network = new Error('network');
 		const get = jest
 			.spyOn(taskTrashService, 'get')
-			.mockRejectedValueOnce(new Error('network'))
+			.mockRejectedValueOnce(network)
+			.mockRejectedValueOnce({ statusCode: 500 })
 			.mockResolvedValueOnce({ data: { items: [], total: 0 } } as never);
 
-		await expect(taskTrashService.isAvailable()).resolves.toBe(false);
+		await expect(taskTrashService.isAvailable()).rejects.toBe(network);
+		await expect(taskTrashService.isAvailable()).rejects.toEqual({ statusCode: 500 });
 		await expect(taskTrashService.isAvailable()).resolves.toBe(true);
-		expect(get).toHaveBeenCalledTimes(2);
+		expect(get).toHaveBeenCalledTimes(3);
+
+		taskDiscussionScope.mockReturnValue({ ...scope, organizationId: 'org-old-platform' });
+		get.mockRejectedValueOnce({ statusCode: 400 });
+		await expect(taskTrashService.isAvailable()).resolves.toBe(false);
 
 		taskDiscussionScope.mockReturnValue(null);
 		await expect(taskTrashService.isAvailable()).resolves.toBe(false);

@@ -62,6 +62,18 @@ export function mentionedIn(text: string, candidates: readonly MentionablePerson
 }
 
 /**
+ * The people whose name no one else shares: a complete "@Full Name" typed without picking it from the menu names one
+ * of them unambiguously, so it counts as a mention. A namesake is mentioned only when picked (the pick carries who).
+ */
+export function uniquelyNamed(candidates: readonly MentionablePerson[]): MentionablePerson[] {
+	const counts = new Map<string, number>();
+	for (const candidate of candidates) {
+		counts.set(candidate.name, (counts.get(candidate.name) ?? 0) + 1);
+	}
+	return candidates.filter((candidate) => counts.get(candidate.name) === 1);
+}
+
+/**
  * The mentions an edit sends: the new list when the text gains or loses a mention, nothing (`undefined`) when the
  * mentions are the ones the text already had. Left out, the platform keeps the comment's mentions exactly as stored,
  * so an edit that only fixes a typo never drops a mention of someone who left the team, nor adds a namesake.

@@ -181,7 +181,8 @@ class TaskService extends APIService {
 		try {
 			// With the trash on (NEXT_PUBLIC_TASK_TRASH_ENABLED) and kept by the platform (GAUZY_TASK_TRASH_ENABLED), a
 			// delete moves the task there: the platform's soft delete, which the trash restores or deletes for good.
-			// Where the platform keeps no trash the delete stays permanent, as before: nobody could restore it.
+			// Where the platform keeps no trash the delete stays permanent, as before: nobody could restore it. When
+			// the platform gives no clear answer, the check throws and nothing is deleted.
 			if (isTaskTrashEnabled() && (await taskTrashService.isAvailable())) {
 				await this.delete(`/tasks/${encodeURIComponent(taskId)}/soft`);
 				return { raw: [], affected: 1 };

@@ -1,4 +1,4 @@
-import { isOwnComment, isTextChanged, mentionedIn, mentionsToSend } from './comment-ownership';
+import { isOwnComment, isTextChanged, mentionedIn, mentionsToSend, uniquelyNamed } from './comment-ownership';
 
 describe('isOwnComment — the platform’s rule for who may edit, resolve or delete a comment', () => {
 	const reader = { employeeId: 'employee-me', userId: 'user-me' };
@@ -50,6 +50,18 @@ describe('mentionedIn — the mentions an edit keeps', () => {
 		const otherAnn = { employeeId: 'ann-2', name: 'Ann Lee' };
 
 		expect(mentionedIn('@Ann Lee', [ann, otherAnn, bo])).toEqual([ann, otherAnn]);
+	});
+});
+
+describe('uniquelyNamed — a typed mention names one person only when nobody shares the name', () => {
+	it('keeps the people whose name is theirs alone', () => {
+		const ann = { employeeId: 'ann', name: 'Ann Lee' };
+		const otherAnn = { employeeId: 'ann-2', name: 'Ann Lee' };
+		const bo = { employeeId: 'bo', name: 'Bo Ray' };
+
+		expect(uniquelyNamed([ann, bo, otherAnn])).toEqual([bo]);
+		expect(mentionedIn('Pasted @Bo Ray and @Ann Lee', uniquelyNamed([ann, bo, otherAnn]))).toEqual([bo]);
+		expect(uniquelyNamed([])).toEqual([]);
 	});
 });
 

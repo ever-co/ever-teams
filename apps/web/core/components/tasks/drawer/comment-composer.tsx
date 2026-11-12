@@ -37,7 +37,7 @@ import {
 	type MentionSegment
 } from '@/core/lib/utils/comment-mentions';
 import { useFocusRefOnMount } from '@/core/hooks/common/use-focus-on-mount';
-import { mentionedIn } from '@/core/lib/utils/comment-ownership';
+import { mentionedIn, uniquelyNamed } from '@/core/lib/utils/comment-ownership';
 
 const TOOL_BUTTON =
 	'flex size-7 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 data-[popup-open]:bg-foreground/5';
@@ -316,8 +316,13 @@ export function CommentComposer({
 			return;
 		}
 		// An edit keeps the mentions its text already holds: the platform replaces the comment's with this list. Only a
-		// complete "@Full Name" counts, so "@Ann Lee" never also notifies an "Ann".
-		const mentioned = mentionedIn(trimmedBody, [...picked, ...mentionedIn(initialBody, candidates)]);
+		// complete "@Full Name" counts, so "@Ann Lee" never also notifies an "Ann". A name typed (or pasted) in full
+		// without picking it counts too when it is one person's; a namesake counts only when picked.
+		const mentioned = mentionedIn(trimmedBody, [
+			...picked,
+			...mentionedIn(initialBody, candidates),
+			...uniquelyNamed(candidates)
+		]);
 		const mentionEmployeeIds = [...new Set(mentioned.map((candidate) => candidate.employeeId))];
 		const isSaved = await onSubmit(trimmedBody, mentionEmployeeIds, stagedFiles);
 		if (isSaved) {

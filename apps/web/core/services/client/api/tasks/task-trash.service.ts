@@ -26,8 +26,10 @@ class TaskTrashService extends APIService {
 	 * Whether the platform keeps a trash for the signed-in organization (`GAUZY_TASK_TRASH_ENABLED`), so a delete may
 	 * move a task there: its list answers (a 403 too, which only says the reader may not see it). A 404 says the trash
 	 * is off, and a platform without the route answers 400: then a delete stays permanent, as the spec promises,
-	 * instead of hiding a task nobody could restore. Asked once per organization; an unclear failure (a network
-	 * error, a 5xx) is not remembered and reads as no trash.
+	 * instead of hiding a task nobody could restore. Asked once per organization.
+	 *
+	 * @throws the probe's own failure when the platform gave no clear answer (a network error, a timeout, a 5xx): it
+	 * is not remembered, and the delete that asked stops there, so a passing glitch never deletes a task for good.
 	 */
 	isAvailable = async (): Promise<boolean> => {
 		const scope = taskDiscussionScope();
@@ -40,8 +42,9 @@ class TaskTrashService extends APIService {
 			(error: unknown) => {
 				const status = trashHttpStatusOf(error);
 				if (status === 403) return true;
-				if (status !== 404 && status !== 400) this.availability.delete(key);
-				return false;
+				if (status === 404 || status === 400) return false;
+				this.availability.delete(key);
+				throw error;
 			}
 		);
 		this.availability.set(key, answer);
