@@ -46,6 +46,17 @@ function DueTermHint({ invoice, id }: Readonly<{ invoice: NewInvoiceState; id: s
 	);
 }
 
+/** What the next step offers: a draft, and the sending too when the client has an e-mail. */
+function SavingNote({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
+	const t = useTranslations();
+	const email = invoice.client?.primaryEmail?.trim();
+	let note = t('invoices.new.details.DRAFT_NOTE');
+	if (email) {
+		note = t('invoices.new.sending.DRAFT_OR_SEND_NOTE', { email });
+	}
+	return <p className="text-xs text-muted-foreground text-pretty">{note}</p>;
+}
+
 interface PercentFieldProps {
 	id: string;
 	label: string;
@@ -233,7 +244,7 @@ export function InvoiceDetails({
 			</div>
 			<CurrencyField invoice={invoice} id={currencyId} />
 			<NoteField invoice={invoice} id={noteId} />
-			<p className="text-xs text-muted-foreground text-pretty">{t('invoices.new.details.DRAFT_NOTE')}</p>
+			<SavingNote invoice={invoice} />
 			<Button
 				type="button"
 				size="default"
