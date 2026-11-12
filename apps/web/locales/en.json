@@ -3861,6 +3861,7 @@
 		"PARTICIPANTS_INVALID": "Type an email address, or pick a team member.",
 		"SCHEDULE_TITLE_MISSING": "Give the meeting a title.",
 		"SCHEDULE_PAST": "Pick a time that has not passed.",
+		"SCHEDULE_TIME_SKIPPED": "This time does not exist in this time zone: the clocks change then. Pick another time.",
 		"SCHEDULED": "Meeting scheduled",
 		"SCHEDULE_FAILED": "The meeting could not be scheduled. Try again.",
 		"EDIT_TITLE": "Edit meeting",

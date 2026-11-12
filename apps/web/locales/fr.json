@@ -3861,6 +3861,7 @@
 		"PARTICIPANTS_INVALID": "Saisissez une adresse e-mail ou choisissez un membre de l’équipe.",
 		"SCHEDULE_TITLE_MISSING": "Donnez un titre à la réunion.",
 		"SCHEDULE_PAST": "Choisissez une heure qui n’est pas passée.",
+		"SCHEDULE_TIME_SKIPPED": "Cette heure n’existe pas dans ce fuseau horaire : les horloges changent à ce moment-là. Choisissez une autre heure.",
 		"SCHEDULED": "Réunion planifiée",
 		"SCHEDULE_FAILED": "La réunion n’a pas pu être planifiée. Réessayez.",
 		"EDIT_TITLE": "Modifier la réunion",

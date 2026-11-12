@@ -28,6 +28,13 @@ const DURATIONS = [15, 30, 45, 60, 90, 120];
 const DEFAULT_DURATION = 30;
 const MINUTE = 60_000;
 
+/** What the form says is wrong, by problem. */
+const PROBLEM_KEYS = {
+	title: 'meetings.SCHEDULE_TITLE_MISSING',
+	past: 'meetings.SCHEDULE_PAST',
+	skipped: 'meetings.SCHEDULE_TIME_SKIPPED'
+} as const;
+
 /** The durations offered: the usual ones, and a meeting's own when it lasts another time. */
 function durationsWith(minutes: number): number[] {
 	if (DURATIONS.includes(minutes)) {
@@ -85,7 +92,7 @@ export function ScheduleMeetingDialog({
 	const [participants, setParticipants] = useState<string[]>([]);
 	const [participantDraft, setParticipantDraft] = useState('');
 	const [isParticipantInvalid, setIsParticipantInvalid] = useState(false);
-	const [problem, setProblem] = useState<'title' | 'past' | null>(null);
+	const [problem, setProblem] = useState<keyof typeof PROBLEM_KEYS | null>(null);
 	const [scheduled, setScheduled] = useState<(ScheduledMeeting & { link: string }) | null>(null);
 	const [invitedCount, setInvitedCount] = useState(0);
 	const minutesFormat = new Intl.NumberFormat(locale, { style: 'unit', unit: 'minute', unitDisplay: 'short' });
@@ -160,6 +167,12 @@ export function ScheduleMeetingDialog({
 		const start = keptStart ? meeting.start : typedStart;
 		if (Number.isNaN(start.getTime()) || (start.getTime() < Date.now() && !keptStart)) {
 			setProblem('past');
+			return;
+		}
+		// A time the clocks skip when they go forward would be saved as another one: the person picks it
+		const startClock = wallClockOf(start, zone);
+		if (!keptStart && (startClock.date !== date || startClock.time !== time.slice(0, 5))) {
+			setProblem('skipped');
 			return;
 		}
 		if (meeting) {
@@ -256,7 +269,7 @@ export function ScheduleMeetingDialog({
 								type="date"
 								value={date}
 								min={wallClockOf(new Date(), zone).date}
-								aria-invalid={problem === 'past' || undefined}
+								aria-invalid={problem === 'past' || problem === 'skipped' || undefined}
 								onChange={(event) => {
 									setDate(event.target.value);
 									setProblem(null);
@@ -271,7 +284,7 @@ export function ScheduleMeetingDialog({
 								id="meeting-time"
 								type="time"
 								value={time}
-								aria-invalid={problem === 'past' || undefined}
+								aria-invalid={problem === 'past' || problem === 'skipped' || undefined}
 								onChange={(event) => {
 									setTime(event.target.value);
 									setProblem(null);
@@ -350,9 +363,7 @@ export function ScheduleMeetingDialog({
 						)}
 						{problem && (
 							<p role="alert" className="text-xs text-destructive-ink sm:col-span-2">
-								{problem === 'title'
-									? t('meetings.SCHEDULE_TITLE_MISSING')
-									: t('meetings.SCHEDULE_PAST')}
+								{t(PROBLEM_KEYS[problem])}
 							</p>
 						)}
 					</div>

@@ -3861,6 +3861,7 @@
 		"PARTICIPANTS_INVALID": "Gib eine E-Mail-Adresse ein oder wähle ein Teammitglied.",
 		"SCHEDULE_TITLE_MISSING": "Gib der Besprechung einen Titel.",
 		"SCHEDULE_PAST": "Wähle eine Uhrzeit, die noch nicht vorbei ist.",
+		"SCHEDULE_TIME_SKIPPED": "Diese Uhrzeit gibt es in dieser Zeitzone nicht: Dann wird die Uhr umgestellt. Wähle eine andere Uhrzeit.",
 		"SCHEDULED": "Besprechung geplant",
 		"SCHEDULE_FAILED": "Die Besprechung konnte nicht geplant werden. Versuche es erneut.",
 		"EDIT_TITLE": "Besprechung bearbeiten",

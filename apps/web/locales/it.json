@@ -3861,6 +3861,7 @@
 		"PARTICIPANTS_INVALID": "Scrivi un indirizzo email o scegli un membro del team.",
 		"SCHEDULE_TITLE_MISSING": "Dai un titolo alla riunione.",
 		"SCHEDULE_PAST": "Scegli un orario non ancora passato.",
+		"SCHEDULE_TIME_SKIPPED": "Questo orario non esiste in questo fuso orario: in quel momento cambia l’ora. Scegli un altro orario.",
 		"SCHEDULED": "Riunione pianificata",
 		"SCHEDULE_FAILED": "Non è stato possibile pianificare la riunione. Riprova.",
 		"EDIT_TITLE": "Modifica riunione",

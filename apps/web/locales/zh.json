@@ -3861,6 +3861,7 @@
 		"PARTICIPANTS_INVALID": "请输入电子邮件地址，或选择一位团队成员。",
 		"SCHEDULE_TITLE_MISSING": "请为会议填写标题。",
 		"SCHEDULE_PAST": "请选择一个尚未过去的时间。",
+		"SCHEDULE_TIME_SKIPPED": "该时区不存在这个时间：那时时钟会调整。请选择其他时间。",
 		"SCHEDULED": "会议已安排",
 		"SCHEDULE_FAILED": "无法安排会议，请重试。",
 		"EDIT_TITLE": "编辑会议",

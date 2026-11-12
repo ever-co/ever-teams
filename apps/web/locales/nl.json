@@ -3861,6 +3861,7 @@
 		"PARTICIPANTS_INVALID": "Typ een e-mailadres of kies een teamlid.",
 		"SCHEDULE_TITLE_MISSING": "Geef de vergadering een titel.",
 		"SCHEDULE_PAST": "Kies een tijd die nog niet voorbij is.",
+		"SCHEDULE_TIME_SKIPPED": "Dit tijdstip bestaat niet in deze tijdzone: dan wordt de klok verzet. Kies een ander tijdstip.",
 		"SCHEDULED": "Vergadering gepland",
 		"SCHEDULE_FAILED": "De vergadering kon niet worden gepland. Probeer het opnieuw.",
 		"EDIT_TITLE": "Vergadering bewerken",

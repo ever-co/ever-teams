@@ -3861,6 +3861,7 @@
 		"PARTICIPANTS_INVALID": "Wpisz adres e-mail lub wybierz członka zespołu.",
 		"SCHEDULE_TITLE_MISSING": "Nadaj spotkaniu tytuł.",
 		"SCHEDULE_PAST": "Wybierz godzinę, która jeszcze nie minęła.",
+		"SCHEDULE_TIME_SKIPPED": "Ta godzina nie istnieje w tej strefie czasowej: wtedy zmienia się czas. Wybierz inną godzinę.",
 		"SCHEDULED": "Spotkanie zaplanowane",
 		"SCHEDULE_FAILED": "Nie udało się zaplanować spotkania. Spróbuj ponownie.",
 		"EDIT_TITLE": "Edytuj spotkanie",

@@ -317,6 +317,38 @@ describe('MeetingsPage', () => {
 		expect(mockScheduleMeeting.mock.calls[0][0].start.toISOString()).toBe(expected);
 	});
 
+	it('refuses a time the clocks skip in the time zone picked, and takes one that exists', async () => {
+		Element.prototype.scrollIntoView ??= jest.fn();
+		globalThis.ResizeObserver ??= class {
+			observe() {}
+			unobserve() {}
+			disconnect() {}
+		} as unknown as typeof ResizeObserver;
+		render(<MeetingsPage />);
+		fireEvent.click(screen.getByTestId('meetings-schedule'));
+		fireEvent.change(await screen.findByLabelText('meetings.FIELD_TITLE'), { target: { value: 'Early sync' } });
+		if (Intl.DateTimeFormat().resolvedOptions().timeZone !== 'America/New_York') {
+			fireEvent.click(screen.getByTestId('meeting-time-zone'));
+			fireEvent.change(await screen.findByPlaceholderText('settings.preferences.TIME_ZONE_SEARCH'), {
+				target: { value: 'America/New_York' }
+			});
+			fireEvent.click(await screen.findByRole('option', { name: /America\/New York/ }));
+		}
+		// New York goes from 2:00 to 3:00 on 14 March 2027: 2:30 never shows
+		fireEvent.change(screen.getByLabelText('meetings.FIELD_DATE'), { target: { value: '2027-03-14' } });
+		fireEvent.change(screen.getByLabelText('meetings.FIELD_TIME'), { target: { value: '02:30' } });
+
+		fireEvent.click(screen.getByRole('button', { name: 'meetings.SCHEDULE' }));
+
+		expect(screen.getByRole('alert').textContent).toBe('meetings.SCHEDULE_TIME_SKIPPED');
+		expect(mockScheduleMeeting).not.toHaveBeenCalled();
+		fireEvent.change(screen.getByLabelText('meetings.FIELD_TIME'), { target: { value: '03:30' } });
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'meetings.SCHEDULE' }));
+		});
+		expect(mockScheduleMeeting.mock.calls[0][0].start.toISOString()).toBe('2027-03-14T07:30:00.000Z');
+	});
+
 	it('refuses a meeting without a title or at a time that has passed', async () => {
 		render(<MeetingsPage />);
 		fireEvent.click(screen.getByTestId('meetings-schedule'));
