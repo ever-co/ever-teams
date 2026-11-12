@@ -31,6 +31,7 @@ import { FavoriteMark } from '@/core/components/favorites/favorite-parts';
 import { ProjectActionsMenu } from '@/core/components/projects/project-actions-menu';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { cn } from '@/core/lib/helpers';
+import { isBillableByDefault } from '@/core/lib/utils/project-billable';
 import type { ProjectsListState } from '@/core/hooks/projects/use-projects-list-state';
 import type { ProjectTaskStatsState } from '@/core/hooks/projects/use-project-task-stats';
 import {
@@ -336,6 +337,10 @@ function ProjectSubline({ project }: Readonly<{ project: TOrganizationProject }>
 	}
 	if (client) {
 		parts.push(client);
+	}
+	const isBillable = isBillableByDefault(project);
+	if (!isBillable) {
+		parts.push(t('pages.projects.billable.NOT_BILLABLE'));
 	}
 	if (project.isArchived && archivedAt) {
 		parts.push(t('pages.projects.list.ARCHIVED_ON', { date: formatProjectDay(archivedAt, locale) }));
