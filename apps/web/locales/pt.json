@@ -1924,6 +1924,14 @@
 				"ERROR_TITLE": "Não foi possível carregar o projeto",
 				"ERROR_MESSAGE": "Verifique sua conexão e tente novamente."
 			},
+			"consumption": {
+				"ORDER_BUDGET_USED": "Orçamento usado",
+				"AS_COST": "Como custo",
+				"AS_COST_HINT": "O tempo deste projeto é contado como custo, porque o tipo de orçamento é Custo. Aparece em horas quando o tipo de orçamento é Horas.",
+				"SUMMARY_LABEL": "Tempo e orçamento",
+				"OPEN_REPORT": "Abrir o relatório de orçamento",
+				"LOAD_ERROR": "Não foi possível carregar o tempo gasto e o uso do orçamento"
+			},
 			"modals": {
 				"openProject": "Abrir projeto",
 				"created": "{name} foi criado",

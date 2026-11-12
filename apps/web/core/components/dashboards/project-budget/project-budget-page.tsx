@@ -47,6 +47,7 @@ export function ProjectBudgetPage() {
 	const { menu: filterMenu, chips: filterChips } = useBudgetFilterControls({
 		filters: report.filters,
 		options: report.filterOptions,
+		projectNames: report.projectNames,
 		scope: shownScope,
 		onChange: report.setFilter,
 		onRemove: report.removeFilter,

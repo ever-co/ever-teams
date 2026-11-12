@@ -1992,6 +1992,14 @@
 				"ERROR_TITLE": "No se pudo cargar el proyecto",
 				"ERROR_MESSAGE": "Revisa tu conexión y vuelve a intentarlo."
 			},
+			"consumption": {
+				"ORDER_BUDGET_USED": "Presupuesto usado",
+				"AS_COST": "Como coste",
+				"AS_COST_HINT": "El tiempo de este proyecto se cuenta como coste, porque su tipo de presupuesto es Coste. Se muestra en horas cuando el tipo de presupuesto es Horas.",
+				"SUMMARY_LABEL": "Tiempo y presupuesto",
+				"OPEN_REPORT": "Abrir el informe de presupuesto",
+				"LOAD_ERROR": "No se pudieron cargar el tiempo empleado y el uso del presupuesto"
+			},
 			"modals": {
 				"openProject": "Abrir proyecto",
 				"created": "Se creó {name}",

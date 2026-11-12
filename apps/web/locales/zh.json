@@ -1860,6 +1860,14 @@
 				"ERROR_TITLE": "无法加载项目",
 				"ERROR_MESSAGE": "请检查网络连接后重试。"
 			},
+			"consumption": {
+				"ORDER_BUDGET_USED": "预算使用率",
+				"AS_COST": "按费用计",
+				"AS_COST_HINT": "此项目的时间按费用计算，因为其预算类型为“费用”。预算类型为“工时”时，时间以小时显示。",
+				"SUMMARY_LABEL": "时间与预算",
+				"OPEN_REPORT": "打开预算报告",
+				"LOAD_ERROR": "无法加载使用时间和预算使用情况"
+			},
 			"modals": {
 				"openProject": "打开项目",
 				"created": "已创建 {name}",
