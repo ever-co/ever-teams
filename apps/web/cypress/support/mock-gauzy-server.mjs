@@ -559,18 +559,18 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body,
 
 	// The employee's notification preferences: one row, kept as saved; `scenario.notificationPreferences` seeds it, and
 	// `scenario.notificationSettingFails` makes Gauzy refuse to read them
+	const seededNotificationSetting = state.scenario.notificationPreferences
+		? {
+				id: 'notification-setting-1',
+				employeeId: ids.employee,
+				preferences: state.scenario.notificationPreferences
+			}
+		: null;
 	if (pathname === '/api/employee-notification-setting' && method === 'GET') {
 		if (state.scenario.notificationSettingFails) {
 			return { [HTTP_STATUS]: 500, statusCode: 500, message: 'Internal server error' };
 		}
-		const seeded = state.scenario.notificationPreferences
-			? {
-					id: 'notification-setting-1',
-					employeeId: ids.employee,
-					preferences: state.scenario.notificationPreferences
-				}
-			: null;
-		const setting = state.notificationSetting ?? seeded;
+		const setting = state.notificationSetting ?? seededNotificationSetting;
 		return pagination(setting ? [setting] : []);
 	}
 	if (pathname === '/api/employee-notification-setting' && method === 'POST') {
@@ -578,7 +578,12 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body,
 		return state.notificationSetting;
 	}
 	if (/^\/api\/employee-notification-setting\/[^/]+$/.test(pathname) && method === 'PUT') {
-		state.notificationSetting = { ...(state.notificationSetting ?? {}), ...body, id: pathname.split('/').pop() };
+		// A partial update, as Gauzy's: over the row the reads answer, the seeded one while none was saved
+		state.notificationSetting = {
+			...(state.notificationSetting ?? seededNotificationSetting),
+			...body,
+			id: pathname.split('/').pop()
+		};
 		return state.notificationSetting;
 	}
 

@@ -93,4 +93,20 @@ describe('long-running timer reminders', () => {
 			.its('notificationSetting.preferences.timerReminderHours')
 			.should('equal', 4);
 	});
+
+	it('keeps the threshold when another notification setting is saved', () => {
+		// A row the employee already has: a switch saves itself alone, as Gauzy updates the row in part
+		cy.mockScenario({ notificationPreferences: { timerReminderHours: 10 } });
+		cy.hardVisit('/settings/personal/notifications');
+
+		cy.contains('button', 'After 10 hours', { timeout: 30_000 }).should('be.visible');
+		cy.get('#notification-setting-comment').click();
+
+		// Once the switch was saved (the row updated)
+		const settingPath = '/api/employee-notification-setting/notification-setting-1';
+		mockStateWhen((state) => state.requests.some((request) => request.path === settingPath))
+			.its('notificationSetting.preferences.timerReminderHours')
+			.should('equal', 10);
+		cy.contains('button', 'After 10 hours').should('be.visible');
+	});
 });
