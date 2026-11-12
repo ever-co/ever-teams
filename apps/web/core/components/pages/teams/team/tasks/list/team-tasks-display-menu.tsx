@@ -20,11 +20,12 @@ import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view'
 
 const GROUPINGS: TeamTasksGrouping[] = ['status', 'priority', 'assignee', 'project', 'issueType', 'none'];
 
-const LAYOUTS: TeamTasksLayout[] = ['list', 'board'];
+const LAYOUTS: TeamTasksLayout[] = ['list', 'board', 'timeline'];
 
 const LAYOUT_LABEL_KEYS: Record<TeamTasksLayout, DottedLanguageObjectStringPaths> = {
 	list: 'pages.teamTasks.LAYOUT_LIST',
-	board: 'pages.teamTasks.LAYOUT_BOARD'
+	board: 'pages.teamTasks.LAYOUT_BOARD',
+	timeline: 'pages.teamTasks.LAYOUT_TIMELINE'
 };
 
 const ORDERINGS: TeamTasksOrdering[] = ['priority', 'updated', 'created', 'dueDate', 'number', 'title'];
@@ -95,7 +96,8 @@ export function TeamTasksDisplayMenu({ view }: Readonly<{ view: TeamTasksViewSta
 	// A manual order has no direction: it is the order the tasks were put in.
 	const isManual = settings.ordering === 'manual';
 	// A board has its lanes for groups: the grouping and the empty groups are the list's.
-	const isBoard = isTaskViewsEnabled() && settings.layout === 'board';
+	// A board has lanes for groups and a timeline one row per task: neither offers the list's grouping.
+	const isBoard = isTaskViewsEnabled() && (settings.layout === 'board' || settings.layout === 'timeline');
 
 	const handleGrouping = (value: string | null) => {
 		if (!value) {

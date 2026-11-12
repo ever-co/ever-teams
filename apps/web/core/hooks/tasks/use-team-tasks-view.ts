@@ -236,12 +236,12 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 	const allowsManualOrder = manualOrder !== undefined;
 	// A task moves in a manual order only, and only on the saved view that keeps it.
 	const canReorder = allowsManualOrder && settings.ordering === 'manual';
-	// A board has its lanes for groups: its tasks come in the view's ordering alone, and a group collapsed in the list
-	// hides nothing there, nor from the selection.
-	const isBoard = settings.layout === 'board' && isTaskViewsEnabled();
+	// A board has its lanes for groups, a timeline one row per task: their tasks come in the view's ordering alone,
+	// and a group collapsed in the list hides nothing there, nor from the selection.
+	const isUngrouped = (settings.layout === 'board' || settings.layout === 'timeline') && isTaskViewsEnabled();
 	const groupedSettings = useMemo<TeamTasksViewSettings>(
-		() => (isBoard ? { ...settings, grouping: 'none' } : settings),
-		[isBoard, settings]
+		() => (isUngrouped ? { ...settings, grouping: 'none' } : settings),
+		[isUngrouped, settings]
 	);
 	const groups = useMemo(
 		() => buildTeamTasksGroups(listedTasks, groupedSettings, lookups, priorityValues, manualOrder),
@@ -254,8 +254,8 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 	);
 	const showsGroupHeaders = groupedSettings.grouping !== 'none';
 	const rows = useMemo(
-		() => flattenTeamTasksGroups(groups, isBoard ? NOTHING_COLLAPSED : collapsedKeys, showsGroupHeaders),
-		[groups, collapsedKeys, isBoard, showsGroupHeaders]
+		() => flattenTeamTasksGroups(groups, isUngrouped ? NOTHING_COLLAPSED : collapsedKeys, showsGroupHeaders),
+		[groups, collapsedKeys, isUngrouped, showsGroupHeaders]
 	);
 	const orderedIds = useMemo(() => orderedTaskIdsOf(rows), [rows]);
 
@@ -320,13 +320,13 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 		(showsEmptyGroups: boolean) => updateView((current) => ({ ...current, showsEmptyGroups })),
 		[updateView]
 	);
-	/** A list is what a view without a layout is: only a board is written down. */
+	/** A list is what a view without a layout is: only a board or a timeline is written down. */
 	const setLayout = useCallback(
 		(layout: TeamTasksLayout) =>
 			updateView((current) => {
 				const next = { ...current };
 				delete next.layout;
-				return layout === 'board' ? { ...next, layout } : next;
+				return layout === 'list' ? next : { ...next, layout };
 			}),
 		[updateView]
 	);

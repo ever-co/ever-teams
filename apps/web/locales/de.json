@@ -2508,7 +2508,18 @@
 			"SEARCH_PROJECT": "In ein Projekt verschieben…",
 			"LAYOUT": "Layout",
 			"LAYOUT_LIST": "Liste",
-			"LAYOUT_BOARD": "Board"
+			"LAYOUT_BOARD": "Board",
+			"LAYOUT_TIMELINE": "Zeitleiste",
+			"TIMELINE_ZOOM": "Zoom",
+			"TIMELINE_ZOOM_WEEKS": "Wochen",
+			"TIMELINE_ZOOM_MONTHS": "Monate",
+			"TIMELINE_EMPTY": "Keine Aufgaben in dieser Ansicht.",
+			"TIMELINE_UNSCHEDULED": "Ohne Datum ({count})",
+			"TIMELINE_RANGE": "{start} – {end}",
+			"TIMELINE_DUE_ONLY": "nur Fälligkeitsdatum",
+			"TIMELINE_START_ONLY": "nur Startdatum",
+			"TIMELINE_INVALID_RANGE": "fällig vor dem Start",
+			"TIMELINE_OVERDUE": "überfällig"
 		},
 		"joinTeam": {
 			"TITLE": "Einem Team beitreten",

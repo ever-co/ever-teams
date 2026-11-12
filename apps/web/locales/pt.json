@@ -2508,7 +2508,18 @@
 			"SEARCH_PROJECT": "Mover para um projeto…",
 			"LAYOUT": "Esquema",
 			"LAYOUT_LIST": "Lista",
-			"LAYOUT_BOARD": "Quadro"
+			"LAYOUT_BOARD": "Quadro",
+			"LAYOUT_TIMELINE": "Cronograma",
+			"TIMELINE_ZOOM": "Zoom",
+			"TIMELINE_ZOOM_WEEKS": "Semanas",
+			"TIMELINE_ZOOM_MONTHS": "Meses",
+			"TIMELINE_EMPTY": "Não há tarefas nesta vista.",
+			"TIMELINE_UNSCHEDULED": "Sem datas ({count})",
+			"TIMELINE_RANGE": "{start} – {end}",
+			"TIMELINE_DUE_ONLY": "só data de entrega",
+			"TIMELINE_START_ONLY": "só data de início",
+			"TIMELINE_INVALID_RANGE": "entrega antes do início",
+			"TIMELINE_OVERDUE": "atrasada"
 		},
 		"joinTeam": {
 			"TITLE": "Entrar em uma equipe",

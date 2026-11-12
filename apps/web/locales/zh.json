@@ -2508,7 +2508,18 @@
 			"SEARCH_PROJECT": "移至项目…",
 			"LAYOUT": "布局",
 			"LAYOUT_LIST": "列表",
-			"LAYOUT_BOARD": "看板"
+			"LAYOUT_BOARD": "看板",
+			"LAYOUT_TIMELINE": "时间线",
+			"TIMELINE_ZOOM": "缩放",
+			"TIMELINE_ZOOM_WEEKS": "周",
+			"TIMELINE_ZOOM_MONTHS": "月",
+			"TIMELINE_EMPTY": "此视图中没有任务。",
+			"TIMELINE_UNSCHEDULED": "无日期（{count}）",
+			"TIMELINE_RANGE": "{start} – {end}",
+			"TIMELINE_DUE_ONLY": "仅截止日期",
+			"TIMELINE_START_ONLY": "仅开始日期",
+			"TIMELINE_INVALID_RANGE": "截止日期早于开始日期",
+			"TIMELINE_OVERDUE": "已逾期"
 		},
 		"joinTeam": {
 			"TITLE": "加入团队",
