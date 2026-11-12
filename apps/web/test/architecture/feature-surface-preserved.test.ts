@@ -2008,13 +2008,15 @@ describe('Ever Teams feature surface preservation', () => {
 		// 294 files and 377 verbs with the scheduled meetings' proxies (/api/employee-appointment GET, POST and [id] DELETE).
 		// 295 files and 378 verbs with the Inbox delivery status proxy (GET /api/inbox/delivery/status).
 		// 296 files and 379 verbs with the link preview pictures proxy (GET /api/chat/link-preview/image).
-		// 303 files and 387 verbs with the comments and trash proxies: /api/comment/[id]/soft (DELETE) and /recover
+		// 298 files and 381 verbs with the clicks on app message buttons (POST /api/chat/messages/[id]/interactions,
+		// GET /api/chat/interactions/[id]).
+		// 305 files and 389 verbs with the comments and trash proxies: /api/comment/[id]/soft (DELETE) and /recover
 		// (PUT), /api/reaction (POST), /api/reaction/comments (GET), /api/tasks/trash (GET), /api/tasks/[id]/soft
 		// (DELETE) and /recover (PUT), and DELETE on /api/tasks/[id] (a task deleted for good from the trash).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(303);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(305);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(387);
+		).toHaveLength(389);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of the platform's comment withdrawal, reactions and task trash (2026-11-12)
@@ -2026,6 +2028,9 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/tasks/[id]/soft/route.ts::DELETE',
 				'apps/web/app/api/tasks/[id]/recover/route.ts::PUT',
 				'apps/web/app/api/tasks/[id]/route.ts::DELETE',
+				// Proxy mode twins of the platform's clicks on app message buttons (incoming webhooks, 2026-11-11)
+				'apps/web/app/api/chat/messages/[id]/interactions/route.ts::POST',
+				'apps/web/app/api/chat/interactions/[id]/route.ts::GET',
 				// Proxy mode twin of the platform's link preview pictures (2026-11-12)
 				'apps/web/app/api/chat/link-preview/image/route.ts::GET',
 				// Proxy mode twin of the platform's Inbox delivery status (2026-11-11)
