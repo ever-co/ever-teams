@@ -103,9 +103,12 @@ describe('TaskTrashList — Delete forever', () => {
 		await act(async () => {
 			fireEvent.click(screen.getByTestId('confirm-delete'));
 		});
-		expect(screen.getByTestId('confirm-delete')).toBeDisabled();
-		expect(screen.getAllByRole('button', { name: 'taskTrash.RESTORE' })[0]).toBeDisabled();
-		expect(screen.getAllByRole('button', { name: 'taskTrash.DELETE_FOREVER' })[0]).toBeDisabled();
+		const isDisabled = (element: HTMLElement) => (element as HTMLButtonElement).disabled;
+		expect(isDisabled(screen.getByTestId('confirm-delete'))).toBe(true);
+		expect(isDisabled(screen.getAllByRole('button', { name: 'taskTrash.RESTORE' })[0])).toBe(true);
+		expect(isDisabled(screen.getAllByRole('button', { name: 'taskTrash.DELETE_FOREVER' })[0])).toBe(true);
+		// The other task's buttons stay usable.
+		expect(isDisabled(screen.getAllByRole('button', { name: 'taskTrash.RESTORE' })[1])).toBe(false);
 		fireEvent.click(screen.getByTestId('confirm-delete'));
 		expect(mockDeleteForever).toHaveBeenCalledTimes(1);
 
