@@ -5,6 +5,7 @@ import type { TProjectBudgetReport } from '@/core/types/schemas/timer/time-log-r
 import { durationPartsOf, type LimitVerdict, limitVerdictOf, percentOf } from '@/core/lib/utils/dashboard-figures';
 import { formatAmount } from '@/core/lib/utils/daily-report-figures';
 import type { Period } from '@/core/lib/utils/dashboard-period';
+import { numberFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 export type BudgetScope = 'whole' | 'period';
 
@@ -113,20 +114,20 @@ export function meterUnitsOf(value: number, amounts: Pick<BudgetAmounts, 'budget
 	return Math.round(value * CENTS_PER_UNIT);
 }
 
-export function formatBudgetMoney(amount: number, currency: string | null, locale: string): string {
+export function formatBudgetMoney(amount: number, currency: string | null, locale: FormatLocale): string {
 	if (currency) {
 		return formatAmount({ currency, amount }, locale);
 	}
-	const formatter = new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+	const formatter = numberFormatOf(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 	return formatter.format(amount);
 }
 
 type AmountUnit = Pick<BudgetAmounts, 'budgetType' | 'currency'>;
 
 /** Budgets can run into thousands of hours: the hour count takes the reader's digit grouping ("6,021,000h"). */
-function groupedHoursOf(seconds: number, locale: string, keepsMinutes: boolean) {
+function groupedHoursOf(seconds: number, locale: FormatLocale, keepsMinutes: boolean) {
 	const { hours, minutes } = durationPartsOf(seconds);
-	const groupedHours = new Intl.NumberFormat(locale).format(hours);
+	const groupedHours = numberFormatOf(locale).format(hours);
 	const showsMinutes = keepsMinutes || minutes > 0;
 	if (!showsMinutes) {
 		return `${groupedHours}h`;
@@ -134,7 +135,7 @@ function groupedHoursOf(seconds: number, locale: string, keepsMinutes: boolean) 
 	return `${groupedHours}h ${minutes}m`;
 }
 
-export function budgetTextOf(value: number, unit: AmountUnit, locale: string): string {
+export function budgetTextOf(value: number, unit: AmountUnit, locale: FormatLocale): string {
 	if (isHoursBudget(unit)) {
 		const seconds = secondsOfHours(value);
 		return groupedHoursOf(seconds, locale, false);
@@ -142,7 +143,7 @@ export function budgetTextOf(value: number, unit: AmountUnit, locale: string): s
 	return formatBudgetMoney(value, unit.currency, locale);
 }
 
-export function amountTextOf(value: number, unit: AmountUnit, locale: string): string {
+export function amountTextOf(value: number, unit: AmountUnit, locale: FormatLocale): string {
 	if (isHoursBudget(unit)) {
 		const seconds = secondsOfHours(value);
 		return groupedHoursOf(seconds, locale, true);

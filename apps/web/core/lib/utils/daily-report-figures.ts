@@ -1,4 +1,5 @@
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
+import { numberFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 /** One member's time on one project on one day, the finest grain the daily report gives. */
 export interface DailyReportRow {
@@ -336,15 +337,15 @@ export function earningsByCurrencyOf(rows: ReadonlyArray<DailyReportRow>): Curre
 }
 
 /** A rate stored with an unknown currency code would make Intl throw; it is then written as the bare code. */
-export function formatAmount({ currency, amount }: CurrencyAmount, locale: string): string {
+export function formatAmount({ currency, amount }: CurrencyAmount, locale: FormatLocale): string {
 	try {
-		return new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 2 }).format(amount);
+		return numberFormatOf(locale, { style: 'currency', currency, maximumFractionDigits: 2 }).format(amount);
 	} catch {
 		return `${amount.toFixed(2)} ${currency}`;
 	}
 }
 
-export function formatAmounts(amounts: ReadonlyArray<CurrencyAmount>, locale: string): string {
+export function formatAmounts(amounts: ReadonlyArray<CurrencyAmount>, locale: FormatLocale): string {
 	const formatted = amounts.map((amount) => formatAmount(amount, locale));
 	return formatted.join(' · ');
 }
