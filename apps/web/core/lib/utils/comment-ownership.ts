@@ -1,4 +1,4 @@
-import { mentionTextOf, type MentionablePerson } from '@/core/lib/utils/comment-mentions';
+import { mentionTextOf, splitMentions, type MentionablePerson } from '@/core/lib/utils/comment-mentions';
 import type { TaskCommentItem } from '@/core/types/interfaces/task/task-discussion';
 
 /** Who is reading: their employee (when they have one) and their user. */
@@ -25,10 +25,14 @@ export function isOwnComment(
 /**
  * The people already mentioned in a text being edited: their "@Full Name" is in it. An edit sends the mentions the
  * text holds, which replace the comment's, so a mention kept in the text stays one without being picked again.
+ * The text is read the way the comment draws its chips, the longest name first: "@Ann Lee" names Ann Lee, not also
+ * an "Ann" of the team.
  */
 export function mentionedIn(text: string, candidates: readonly MentionablePerson[]): MentionablePerson[] {
 	if (!text) return [];
-	return candidates.filter((candidate) => text.includes(mentionTextOf(candidate)));
+	const segments = splitMentions(text, candidates.map((candidate) => candidate.name));
+	const mentions = new Set(segments.filter((segment) => segment.isMention).map((segment) => segment.text));
+	return candidates.filter((candidate) => mentions.has(mentionTextOf(candidate)));
 }
 
 /**
