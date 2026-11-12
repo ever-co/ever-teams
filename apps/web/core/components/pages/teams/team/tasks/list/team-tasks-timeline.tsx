@@ -235,6 +235,8 @@ export function TeamTasksTimelineView({
 	const hasBars = timeline.bars.length > 0;
 	const hasUnscheduled = timeline.unscheduledIds.length > 0;
 	const isTodayDrawn = todayDay !== null;
+	// Today scrolls the calendar, which only exists with bars to draw.
+	const canShowToday = hasBars && isTodayDrawn;
 
 	return (
 		<section
@@ -247,7 +249,7 @@ export function TeamTasksTimelineView({
 				{t('pages.teamTasks.TIMELINE_DRAG_HINT')}
 			</p>
 			<div className="flex min-h-11 flex-wrap items-center justify-between gap-x-4 gap-y-2 hairline-b border-border px-4 py-2">
-				<Button type="button" variant="outline" size="sm" onClick={showToday} disabled={!isTodayDrawn}>
+				<Button type="button" variant="outline" size="sm" onClick={showToday} disabled={!canShowToday}>
 					{t('common.TODAY')}
 				</Button>
 				<SegmentedControl
@@ -443,7 +445,11 @@ export function TeamTasksTimelineView({
 
 			{hasUnscheduled && (
 				<div
-					className="flex max-h-48 shrink-0 flex-col gap-1.5 overflow-y-auto hairline-t border-border px-3 py-3 custom-scrollbar"
+					className={cn(
+						'flex shrink-0 flex-col gap-1.5 overflow-y-auto px-3 py-3 custom-scrollbar',
+						hasBars && 'max-h-48 hairline-t border-border',
+						!hasBars && 'min-h-0 flex-1'
+					)}
 					data-testid="timeline-unscheduled"
 				>
 					<h3 className="px-1 text-xs font-medium text-muted-foreground">

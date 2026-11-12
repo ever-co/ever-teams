@@ -470,6 +470,18 @@ describe('TeamTasksTimelineView', () => {
 		expect(screen.getByTestId('timeline-today')).toBeTruthy();
 	});
 
+	it('gives the whole panel to the tasks without dates when no task has one, and offers no Today', () => {
+		renderTimeline([
+			{ id: 'b', title: 'Write the notes', status: 'open', taskStatusId: 'open' },
+			{ id: 'e', title: 'Call the client', status: 'open', taskStatusId: 'open' }
+		]);
+		const unscheduled = screen.getByTestId('timeline-unscheduled');
+
+		expect(unscheduled.className).toContain('flex-1');
+		expect(unscheduled.className).not.toContain('max-h-48');
+		expect(screen.getByRole('button', { name: 'common.TODAY' }).hasAttribute('disabled')).toBe(true);
+	});
+
 	it('brings the calendar back to today', () => {
 		renderTimeline([{ id: 'a', title: 'Ship', dueDate: '2026-11-20', status: 'open', taskStatusId: 'open' }]);
 		const calendar = screen.getByTestId('timeline-bar-a').closest('.overflow-auto') as HTMLElement;
