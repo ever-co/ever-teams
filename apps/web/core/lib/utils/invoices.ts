@@ -469,14 +469,25 @@ export function periodsOverlap(first: InvoicePeriodDays, second: InvoicePeriodDa
 
 export interface StatedInvoicePeriod {
 	terms?: string | null;
+	status?: string | null;
 }
 
-/** The saved invoices whose stated period shares a day with the given one. An invoice that states none is left out. */
+function isVoidInvoice(invoice: StatedInvoicePeriod) {
+	return invoiceStatusOf(invoice.status) === 'VOID';
+}
+
+/**
+ * The saved invoices whose stated period shares a day with the given one. An invoice that states none is left out, and
+ * so is a void one: it billed nothing.
+ */
 export function overlappingInvoicesOf<T extends StatedInvoicePeriod>(
 	invoices: ReadonlyArray<T>,
 	days: InvoicePeriodDays
 ): T[] {
 	return invoices.filter((invoice) => {
+		if (isVoidInvoice(invoice)) {
+			return false;
+		}
 		const stated = invoicePeriodOfTerms(invoice.terms);
 		if (!stated) {
 			return false;

@@ -482,6 +482,18 @@ describe('the period an invoice states', () => {
 
 		expect(overlapping.map((invoice) => invoice.id)).toEqual(['a']);
 	});
+
+	it('leaves out a void invoice: it billed nothing, so its period cannot be billed twice', () => {
+		const invoices = [
+			{ id: 'sent', terms: invoiceTermsOf(october), status: 'SENT' },
+			{ id: 'void', terms: invoiceTermsOf(october), status: 'VOID' },
+			{ id: 'void-lower-case', terms: invoiceTermsOf(october), status: 'void' }
+		];
+
+		const overlapping = overlappingInvoicesOf(invoices, { fromDay: '2026-10-15', toDay: '2026-10-20' });
+
+		expect(overlapping.map((invoice) => invoice.id)).toEqual(['sent']);
+	});
 });
 
 describe('invoice number and dates', () => {
