@@ -3940,7 +3940,8 @@
 		"groups": {
 			"account": "Konto",
 			"team": "Team",
-			"taskProperties": "Aufgabeneigenschaften"
+			"taskProperties": "Aufgabeneigenschaften",
+			"workspace": "Arbeitsbereich"
 		},
 		"entries": {
 			"profile": {
@@ -3998,6 +3999,10 @@
 			"versions": {
 				"TITLE": "Versionen",
 				"DESCRIPTION": "Releases, auf die Aufgaben abzielen können."
+			},
+			"workspaceGeneral": {
+				"TITLE": "Allgemein",
+				"DESCRIPTION": "Name, Währung sowie Datums- und Zahlenformat des Arbeitsbereichs."
 			}
 		},
 		"index": {
@@ -4737,6 +4742,35 @@
 			"LOAD_ERROR_TEXT": "Deine Einstellungen sind unverändert. Versuche es gleich noch einmal.",
 			"UNAVAILABLE_TITLE": "In diesem Arbeitsbereich gibt es noch nichts einzustellen",
 			"UNAVAILABLE_TEXT": "Benachrichtigungen gehören zu deinem Mitgliedsprofil in einem Arbeitsbereich, und dieses Konto hat hier keins. Tritt zuerst einem Team bei oder erstelle eins."
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "Arbeitsbereich",
+			"NAME_LABEL": "Name des Arbeitsbereichs",
+			"NAME_DESCRIPTION": "Erscheint im Arbeitsbereich-Umschalter und auf Einladungen.",
+			"NAME_INVALID": "Geben Sie einen Namen mit 1 bis {max} Zeichen ein.",
+			"NAME_SAVED": "Arbeitsbereich in {name} umbenannt",
+			"NAME_NOT_SAVED": "Der Arbeitsbereich wurde nicht umbenannt",
+			"NAME_SUPER_ADMIN_ONLY": "Nur ein Super-Admin des Arbeitsbereichs kann ihn umbenennen.",
+			"FORMATS_SECTION": "Währung und Formate",
+			"FORMATS_DESCRIPTION": "Gelten überall dort, wo nichts Genaueres festgelegt ist, etwa bei einem Satz mit eigener Währung.",
+			"CURRENCY_LABEL": "Standardwährung",
+			"CURRENCY_DESCRIPTION": "Die Währung, mit der ein neuer Satz oder ein neues Budget beginnt.",
+			"CURRENCY_SAVED": "Standardwährung auf {currency} gesetzt",
+			"CURRENCY_OUTCOME": "Neue Sätze und Budgets beginnen in dieser Währung.",
+			"CURRENCY_NOT_SAVED": "Die Währung wurde nicht gespeichert",
+			"CURRENCY_NOT_SET": "Nicht angegeben",
+			"DATE_FORMAT_LABEL": "Datumsformat",
+			"DATE_FORMAT_DESCRIPTION": "Wie Berichte und ihre Exporte Datumsangaben schreiben. Automatisch folgt der Sprache jedes Mitglieds.",
+			"DATE_FORMAT_SAVED": "Datumsformat gespeichert",
+			"DATE_FORMAT_NOT_SAVED": "Das Datumsformat wurde nicht gespeichert",
+			"NUMBER_FORMAT_LABEL": "Zahlenformat",
+			"NUMBER_FORMAT_DESCRIPTION": "Wie Berichte und ihre Exporte Beträge schreiben. Automatisch folgt der Sprache jedes Mitglieds.",
+			"NUMBER_FORMAT_SAVED": "Zahlenformat gespeichert",
+			"NUMBER_FORMAT_NOT_SAVED": "Das Zahlenformat wurde nicht gespeichert",
+			"FORMAT_OUTCOME": "Berichte und ihre Exporte verwenden es jetzt.",
+			"FORMAT_AUTOMATIC": "Automatisch",
+			"READ_ONLY_NOTE": "Nur Administratoren des Arbeitsbereichs können diese Einstellungen ändern.",
+			"LOAD_FAILED": "Die Einstellungen des Arbeitsbereichs konnten nicht geladen werden."
 		}
 	},
 	"taskDetail": {

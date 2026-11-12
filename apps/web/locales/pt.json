@@ -3940,7 +3940,8 @@
 		"groups": {
 			"account": "Conta",
 			"team": "Equipe",
-			"taskProperties": "Propriedades das tarefas"
+			"taskProperties": "Propriedades das tarefas",
+			"workspace": "Espaço de trabalho"
 		},
 		"entries": {
 			"profile": {
@@ -3998,6 +3999,10 @@
 			"versions": {
 				"TITLE": "Versões",
 				"DESCRIPTION": "As entregas que as tarefas podem visar."
+			},
+			"workspaceGeneral": {
+				"TITLE": "Geral",
+				"DESCRIPTION": "O nome do espaço de trabalho, a moeda e os formatos de data e de número."
 			}
 		},
 		"index": {
@@ -4737,6 +4742,35 @@
 			"LOAD_ERROR_TEXT": "Suas opções não mudaram. Tente de novo em instantes.",
 			"UNAVAILABLE_TITLE": "Ainda não há nada para configurar neste espaço de trabalho",
 			"UNAVAILABLE_TEXT": "As notificações fazem parte do seu perfil de membro em um espaço de trabalho, e esta conta não tem um aqui. Primeiro entre em uma equipe ou crie uma."
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "Espaço de trabalho",
+			"NAME_LABEL": "Nome do espaço de trabalho",
+			"NAME_DESCRIPTION": "Aparece no seletor de espaços de trabalho e nos convites.",
+			"NAME_INVALID": "Digite um nome de 1 a {max} caracteres.",
+			"NAME_SAVED": "Espaço de trabalho renomeado para {name}",
+			"NAME_NOT_SAVED": "O espaço de trabalho não foi renomeado",
+			"NAME_SUPER_ADMIN_ONLY": "Só um superadministrador do espaço de trabalho pode renomeá-lo.",
+			"FORMATS_SECTION": "Moeda e formatos",
+			"FORMATS_DESCRIPTION": "Valem onde nada mais específico estiver definido, como uma taxa com moeda própria.",
+			"CURRENCY_LABEL": "Moeda padrão",
+			"CURRENCY_DESCRIPTION": "A moeda em que uma nova taxa ou um novo orçamento começa.",
+			"CURRENCY_SAVED": "Moeda padrão definida como {currency}",
+			"CURRENCY_OUTCOME": "Novas taxas e novos orçamentos começam nesta moeda.",
+			"CURRENCY_NOT_SAVED": "A moeda não foi salva",
+			"CURRENCY_NOT_SET": "Não informada",
+			"DATE_FORMAT_LABEL": "Formato de data",
+			"DATE_FORMAT_DESCRIPTION": "Como os relatórios e suas exportações escrevem as datas. Automático segue o idioma de cada membro.",
+			"DATE_FORMAT_SAVED": "Formato de data salvo",
+			"DATE_FORMAT_NOT_SAVED": "O formato de data não foi salvo",
+			"NUMBER_FORMAT_LABEL": "Formato de número",
+			"NUMBER_FORMAT_DESCRIPTION": "Como os relatórios e suas exportações escrevem os valores. Automático segue o idioma de cada membro.",
+			"NUMBER_FORMAT_SAVED": "Formato de número salvo",
+			"NUMBER_FORMAT_NOT_SAVED": "O formato de número não foi salvo",
+			"FORMAT_OUTCOME": "Os relatórios e suas exportações já o usam.",
+			"FORMAT_AUTOMATIC": "Automático",
+			"READ_ONLY_NOTE": "Só os administradores do espaço de trabalho podem mudar estas configurações.",
+			"LOAD_FAILED": "Não foi possível carregar as configurações do espaço de trabalho."
 		}
 	},
 	"taskDetail": {

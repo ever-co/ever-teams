@@ -3940,7 +3940,8 @@
 		"groups": {
 			"account": "Compte",
 			"team": "Équipe",
-			"taskProperties": "Propriétés des tâches"
+			"taskProperties": "Propriétés des tâches",
+			"workspace": "Espace de travail"
 		},
 		"entries": {
 			"profile": {
@@ -3998,6 +3999,10 @@
 			"versions": {
 				"TITLE": "Versions",
 				"DESCRIPTION": "Les livraisons que les tâches peuvent viser."
+			},
+			"workspaceGeneral": {
+				"TITLE": "Général",
+				"DESCRIPTION": "Le nom de l'espace de travail, sa devise et ses formats de date et de nombre."
 			}
 		},
 		"index": {
@@ -4737,6 +4742,35 @@
 			"LOAD_ERROR_TEXT": "Vos réglages n'ont pas changé. Réessayez dans un instant.",
 			"UNAVAILABLE_TITLE": "Rien à régler dans cet espace de travail pour l'instant",
 			"UNAVAILABLE_TEXT": "Les notifications dépendent de votre profil de membre dans un espace de travail, et ce compte n'en a pas ici. Rejoignez ou créez d'abord une équipe."
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "Espace de travail",
+			"NAME_LABEL": "Nom de l'espace de travail",
+			"NAME_DESCRIPTION": "Affiché dans le sélecteur d'espaces de travail et sur les invitations.",
+			"NAME_INVALID": "Saisissez un nom de 1 à {max} caractères.",
+			"NAME_SAVED": "Espace de travail renommé en {name}",
+			"NAME_NOT_SAVED": "L'espace de travail n'a pas été renommé",
+			"NAME_SUPER_ADMIN_ONLY": "Seul un super administrateur de l'espace de travail peut le renommer.",
+			"FORMATS_SECTION": "Devise et formats",
+			"FORMATS_DESCRIPTION": "Utilisés partout où rien de plus précis n'est défini, par exemple un taux qui a sa propre devise.",
+			"CURRENCY_LABEL": "Devise par défaut",
+			"CURRENCY_DESCRIPTION": "La devise de départ d'un nouveau taux ou d'un nouveau budget.",
+			"CURRENCY_SAVED": "Devise par défaut : {currency}",
+			"CURRENCY_OUTCOME": "Les nouveaux taux et budgets partent de cette devise.",
+			"CURRENCY_NOT_SAVED": "La devise n'a pas été enregistrée",
+			"CURRENCY_NOT_SET": "Non renseignée",
+			"DATE_FORMAT_LABEL": "Format de date",
+			"DATE_FORMAT_DESCRIPTION": "La façon dont les rapports et leurs exports écrivent les dates. Automatique suit la langue de chaque membre.",
+			"DATE_FORMAT_SAVED": "Format de date enregistré",
+			"DATE_FORMAT_NOT_SAVED": "Le format de date n'a pas été enregistré",
+			"NUMBER_FORMAT_LABEL": "Format des nombres",
+			"NUMBER_FORMAT_DESCRIPTION": "La façon dont les rapports et leurs exports écrivent les montants. Automatique suit la langue de chaque membre.",
+			"NUMBER_FORMAT_SAVED": "Format des nombres enregistré",
+			"NUMBER_FORMAT_NOT_SAVED": "Le format des nombres n'a pas été enregistré",
+			"FORMAT_OUTCOME": "Les rapports et leurs exports l'utilisent désormais.",
+			"FORMAT_AUTOMATIC": "Automatique",
+			"READ_ONLY_NOTE": "Seuls les administrateurs de l'espace de travail peuvent modifier ces réglages.",
+			"LOAD_FAILED": "Les réglages de l'espace de travail n'ont pas pu être chargés."
 		}
 	},
 	"taskDetail": {

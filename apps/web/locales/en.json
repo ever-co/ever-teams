@@ -3940,7 +3940,8 @@
 		"groups": {
 			"account": "Account",
 			"team": "Team",
-			"taskProperties": "Task properties"
+			"taskProperties": "Task properties",
+			"workspace": "Workspace"
 		},
 		"entries": {
 			"profile": {
@@ -3998,6 +3999,10 @@
 			"versions": {
 				"TITLE": "Versions",
 				"DESCRIPTION": "Releases that tasks can target."
+			},
+			"workspaceGeneral": {
+				"TITLE": "General",
+				"DESCRIPTION": "The workspace's name, currency, and date and number formats."
 			}
 		},
 		"index": {
@@ -4737,6 +4742,35 @@
 			"LOAD_ERROR_TEXT": "Your switches are unchanged. Try again in a moment.",
 			"UNAVAILABLE_TITLE": "Nothing to set in this workspace yet",
 			"UNAVAILABLE_TEXT": "Notifications belong to your member profile in a workspace, and this account has none here. Join or create a team first."
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "Workspace",
+			"NAME_LABEL": "Workspace name",
+			"NAME_DESCRIPTION": "Shown in the workspace switcher and on invitations.",
+			"NAME_INVALID": "Enter a name of 1 to {max} characters.",
+			"NAME_SAVED": "Workspace renamed to {name}",
+			"NAME_NOT_SAVED": "The workspace was not renamed",
+			"NAME_SUPER_ADMIN_ONLY": "Only a super admin of the workspace can rename it.",
+			"FORMATS_SECTION": "Currency and formats",
+			"FORMATS_DESCRIPTION": "Used wherever nothing more specific is set, such as a rate with its own currency.",
+			"CURRENCY_LABEL": "Default currency",
+			"CURRENCY_DESCRIPTION": "The currency a new rate or budget starts in.",
+			"CURRENCY_SAVED": "Default currency set to {currency}",
+			"CURRENCY_OUTCOME": "New rates and budgets start in this currency.",
+			"CURRENCY_NOT_SAVED": "The currency was not saved",
+			"CURRENCY_NOT_SET": "Not set",
+			"DATE_FORMAT_LABEL": "Date format",
+			"DATE_FORMAT_DESCRIPTION": "How reports and their exports write dates. Automatic follows each member's language.",
+			"DATE_FORMAT_SAVED": "Date format saved",
+			"DATE_FORMAT_NOT_SAVED": "The date format was not saved",
+			"NUMBER_FORMAT_LABEL": "Number format",
+			"NUMBER_FORMAT_DESCRIPTION": "How reports and their exports write amounts. Automatic follows each member's language.",
+			"NUMBER_FORMAT_SAVED": "Number format saved",
+			"NUMBER_FORMAT_NOT_SAVED": "The number format was not saved",
+			"FORMAT_OUTCOME": "Reports and their exports now use it.",
+			"FORMAT_AUTOMATIC": "Automatic",
+			"READ_ONLY_NOTE": "Only workspace admins can change these settings.",
+			"LOAD_FAILED": "The workspace settings could not load."
 		}
 	},
 	"taskDetail": {

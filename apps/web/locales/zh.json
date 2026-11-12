@@ -3940,7 +3940,8 @@
 		"groups": {
 			"account": "账户",
 			"team": "团队",
-			"taskProperties": "任务属性"
+			"taskProperties": "任务属性",
+			"workspace": "工作区"
 		},
 		"entries": {
 			"profile": {
@@ -3998,6 +3999,10 @@
 			"versions": {
 				"TITLE": "版本",
 				"DESCRIPTION": "任务可以对应的发布版本。"
+			},
+			"workspaceGeneral": {
+				"TITLE": "常规",
+				"DESCRIPTION": "工作区的名称、货币以及日期和数字格式。"
 			}
 		},
 		"index": {
@@ -4737,6 +4742,35 @@
 			"LOAD_ERROR_TEXT": "你的开关设置没有变化。请稍后再试。",
 			"UNAVAILABLE_TITLE": "此工作区暂时没有可设置的内容",
 			"UNAVAILABLE_TEXT": "通知属于你在工作区中的成员资料，而此账户在这里还没有成员资料。请先加入或创建一个团队。"
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "工作区",
+			"NAME_LABEL": "工作区名称",
+			"NAME_DESCRIPTION": "显示在工作区切换器和邀请中。",
+			"NAME_INVALID": "请输入 1 到 {max} 个字符的名称。",
+			"NAME_SAVED": "工作区已重命名为 {name}",
+			"NAME_NOT_SAVED": "工作区未重命名",
+			"NAME_SUPER_ADMIN_ONLY": "只有工作区的超级管理员可以重命名。",
+			"FORMATS_SECTION": "货币和格式",
+			"FORMATS_DESCRIPTION": "在没有更具体设置的地方使用，例如带有自身货币的费率。",
+			"CURRENCY_LABEL": "默认货币",
+			"CURRENCY_DESCRIPTION": "新费率或新预算起始使用的货币。",
+			"CURRENCY_SAVED": "默认货币已设为 {currency}",
+			"CURRENCY_OUTCOME": "新的费率和预算将以此货币开始。",
+			"CURRENCY_NOT_SAVED": "货币未保存",
+			"CURRENCY_NOT_SET": "未设置",
+			"DATE_FORMAT_LABEL": "日期格式",
+			"DATE_FORMAT_DESCRIPTION": "报告及其导出文件书写日期的方式。“自动”跟随每位成员的语言。",
+			"DATE_FORMAT_SAVED": "日期格式已保存",
+			"DATE_FORMAT_NOT_SAVED": "日期格式未保存",
+			"NUMBER_FORMAT_LABEL": "数字格式",
+			"NUMBER_FORMAT_DESCRIPTION": "报告及其导出文件书写金额的方式。“自动”跟随每位成员的语言。",
+			"NUMBER_FORMAT_SAVED": "数字格式已保存",
+			"NUMBER_FORMAT_NOT_SAVED": "数字格式未保存",
+			"FORMAT_OUTCOME": "报告及其导出文件现已使用该格式。",
+			"FORMAT_AUTOMATIC": "自动",
+			"READ_ONLY_NOTE": "只有工作区管理员可以更改这些设置。",
+			"LOAD_FAILED": "无法加载工作区设置。"
 		}
 	},
 	"taskDetail": {

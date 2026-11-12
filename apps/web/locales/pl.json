@@ -3940,7 +3940,8 @@
 		"groups": {
 			"account": "Konto",
 			"team": "Zespół",
-			"taskProperties": "Właściwości zadań"
+			"taskProperties": "Właściwości zadań",
+			"workspace": "Obszar roboczy"
 		},
 		"entries": {
 			"profile": {
@@ -3998,6 +3999,10 @@
 			"versions": {
 				"TITLE": "Wersje",
 				"DESCRIPTION": "Wydania, do których mogą być przypisane zadania."
+			},
+			"workspaceGeneral": {
+				"TITLE": "Ogólne",
+				"DESCRIPTION": "Nazwa obszaru roboczego, waluta oraz formaty dat i liczb."
 			}
 		},
 		"index": {
@@ -4737,6 +4742,35 @@
 			"LOAD_ERROR_TEXT": "Twoje przełączniki się nie zmieniły. Spróbuj ponownie za chwilę.",
 			"UNAVAILABLE_TITLE": "W tym obszarze roboczym nie ma jeszcze czego ustawiać",
 			"UNAVAILABLE_TEXT": "Powiadomienia należą do twojego profilu członka w obszarze roboczym, a to konto nie ma tu takiego profilu. Najpierw dołącz do zespołu lub utwórz nowy."
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "Obszar roboczy",
+			"NAME_LABEL": "Nazwa obszaru roboczego",
+			"NAME_DESCRIPTION": "Widoczna w przełączniku obszarów roboczych i na zaproszeniach.",
+			"NAME_INVALID": "Wpisz nazwę o długości od 1 do {max} znaków.",
+			"NAME_SAVED": "Obszar roboczy nazywa się teraz {name}",
+			"NAME_NOT_SAVED": "Nazwa obszaru roboczego nie została zmieniona",
+			"NAME_SUPER_ADMIN_ONLY": "Nazwę obszaru roboczego może zmienić tylko jego superadministrator.",
+			"FORMATS_SECTION": "Waluta i formaty",
+			"FORMATS_DESCRIPTION": "Obowiązują wszędzie tam, gdzie nie ustawiono nic bardziej szczegółowego, na przykład stawki z własną walutą.",
+			"CURRENCY_LABEL": "Waluta domyślna",
+			"CURRENCY_DESCRIPTION": "Waluta, od której zaczyna nowa stawka lub nowy budżet.",
+			"CURRENCY_SAVED": "Waluta domyślna: {currency}",
+			"CURRENCY_OUTCOME": "Nowe stawki i budżety zaczynają w tej walucie.",
+			"CURRENCY_NOT_SAVED": "Waluta nie została zapisana",
+			"CURRENCY_NOT_SET": "Nie ustawiono",
+			"DATE_FORMAT_LABEL": "Format daty",
+			"DATE_FORMAT_DESCRIPTION": "Jak raporty i ich eksporty zapisują daty. Automatyczny stosuje język każdego członka.",
+			"DATE_FORMAT_SAVED": "Format daty zapisany",
+			"DATE_FORMAT_NOT_SAVED": "Format daty nie został zapisany",
+			"NUMBER_FORMAT_LABEL": "Format liczb",
+			"NUMBER_FORMAT_DESCRIPTION": "Jak raporty i ich eksporty zapisują kwoty. Automatyczny stosuje język każdego członka.",
+			"NUMBER_FORMAT_SAVED": "Format liczb zapisany",
+			"NUMBER_FORMAT_NOT_SAVED": "Format liczb nie został zapisany",
+			"FORMAT_OUTCOME": "Raporty i ich eksporty już go używają.",
+			"FORMAT_AUTOMATIC": "Automatyczny",
+			"READ_ONLY_NOTE": "Tylko administratorzy obszaru roboczego mogą zmieniać te ustawienia.",
+			"LOAD_FAILED": "Nie udało się wczytać ustawień obszaru roboczego."
 		}
 	},
 	"taskDetail": {

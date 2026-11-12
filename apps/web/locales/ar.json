@@ -3940,7 +3940,8 @@
 		"groups": {
 			"account": "الحساب",
 			"team": "الفريق",
-			"taskProperties": "خصائص المهام"
+			"taskProperties": "خصائص المهام",
+			"workspace": "مساحة العمل"
 		},
 		"entries": {
 			"profile": {
@@ -3998,6 +3999,10 @@
 			"versions": {
 				"TITLE": "الإصدارات",
 				"DESCRIPTION": "الإصدارات التي يمكن أن تستهدفها المهام."
+			},
+			"workspaceGeneral": {
+				"TITLE": "عام",
+				"DESCRIPTION": "اسم مساحة العمل وعملتها وتنسيقات التاريخ والأرقام."
 			}
 		},
 		"index": {
@@ -4737,6 +4742,35 @@
 			"LOAD_ERROR_TEXT": "لم تتغيّر إعداداتك. حاول مرة أخرى بعد لحظات.",
 			"UNAVAILABLE_TITLE": "لا شيء لضبطه في مساحة العمل هذه بعد",
 			"UNAVAILABLE_TEXT": "ترتبط الإشعارات بملفك كعضو في مساحة عمل، وليس لهذا الحساب ملف هنا. انضم إلى فريق أو أنشئ فريقًا أولًا."
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "مساحة العمل",
+			"NAME_LABEL": "اسم مساحة العمل",
+			"NAME_DESCRIPTION": "يظهر في مبدّل مساحات العمل وفي الدعوات.",
+			"NAME_INVALID": "أدخل اسمًا من 1 إلى {max} حرفًا.",
+			"NAME_SAVED": "تغيّر اسم مساحة العمل إلى {name}",
+			"NAME_NOT_SAVED": "لم يتغيّر اسم مساحة العمل",
+			"NAME_SUPER_ADMIN_ONLY": "لا يغيّر اسم مساحة العمل إلا مسؤول أعلى فيها.",
+			"FORMATS_SECTION": "العملة والتنسيقات",
+			"FORMATS_DESCRIPTION": "تُستخدم حيثما لم يُحدَّد ما هو أدق، مثل أجر له عملته الخاصة.",
+			"CURRENCY_LABEL": "العملة الافتراضية",
+			"CURRENCY_DESCRIPTION": "العملة التي يبدأ بها أي أجر جديد أو ميزانية جديدة.",
+			"CURRENCY_SAVED": "العملة الافتراضية الآن {currency}",
+			"CURRENCY_OUTCOME": "تبدأ الأجور والميزانيات الجديدة بهذه العملة.",
+			"CURRENCY_NOT_SAVED": "لم تُحفظ العملة",
+			"CURRENCY_NOT_SET": "غير محددة",
+			"DATE_FORMAT_LABEL": "تنسيق التاريخ",
+			"DATE_FORMAT_DESCRIPTION": "طريقة كتابة التواريخ في التقارير وملفات تصديرها. «تلقائي» يتبع لغة كل عضو.",
+			"DATE_FORMAT_SAVED": "حُفظ تنسيق التاريخ",
+			"DATE_FORMAT_NOT_SAVED": "لم يُحفظ تنسيق التاريخ",
+			"NUMBER_FORMAT_LABEL": "تنسيق الأرقام",
+			"NUMBER_FORMAT_DESCRIPTION": "طريقة كتابة المبالغ في التقارير وملفات تصديرها. «تلقائي» يتبع لغة كل عضو.",
+			"NUMBER_FORMAT_SAVED": "حُفظ تنسيق الأرقام",
+			"NUMBER_FORMAT_NOT_SAVED": "لم يُحفظ تنسيق الأرقام",
+			"FORMAT_OUTCOME": "تستخدمه التقارير وملفات تصديرها من الآن.",
+			"FORMAT_AUTOMATIC": "تلقائي",
+			"READ_ONLY_NOTE": "لا يغيّر هذه الإعدادات إلا مسؤولو مساحة العمل.",
+			"LOAD_FAILED": "تعذّر تحميل إعدادات مساحة العمل."
 		}
 	},
 	"taskDetail": {
