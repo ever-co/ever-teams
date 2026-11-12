@@ -122,6 +122,14 @@ export function MeetingAgenda({
 	const [meetingToCancel, setMeetingToCancel] = useState<ScheduledMeeting | null>(null);
 	const today = startOfDay(now);
 	const [day, setDay] = useState(today);
+	// A page left open past midnight: the day shown moves on with today when it was today, a day picked stays
+	const [knownToday, setKnownToday] = useState(today);
+	if (knownToday.getTime() !== today.getTime()) {
+		setKnownToday(today);
+		if (day.getTime() === knownToday.getTime()) {
+			setDay(today);
+		}
+	}
 	const isToday = day.getTime() === today.getTime();
 	const isPast = day.getTime() < today.getTime();
 	const dayMeetings = meetingsOfDay(meetings, day);

@@ -563,6 +563,32 @@ describe('MeetingsPage', () => {
 		expect(screen.queryByText('Planning')).toBeNull();
 	});
 
+	it('moves on to the new day at midnight when it showed today, and keeps a day the person picked', () => {
+		jest.useFakeTimers({ advanceTimers: true });
+		try {
+			jest.setSystemTime(new Date(2026, 10, 12, 23, 59, 30));
+			const view = render(<MeetingsPage />);
+			expect(screen.getByRole('heading', { name: /meetings\.TODAY.*November 12, 2026/ })).toBeTruthy();
+
+			// The page reads the clock every half minute
+			act(() => {
+				jest.advanceTimersByTime(60_000);
+			});
+			expect(screen.getByRole('heading', { name: /meetings\.TODAY.*November 13, 2026/ })).toBeTruthy();
+			view.unmount();
+
+			jest.setSystemTime(new Date(2026, 10, 13, 23, 59, 30));
+			render(<MeetingsPage />);
+			fireEvent.click(screen.getByRole('button', { name: 'meetings.PREVIOUS_DAY' }));
+			act(() => {
+				jest.advanceTimersByTime(60_000);
+			});
+			expect(screen.getByRole('heading', { name: 'Thursday, November 12, 2026' })).toBeTruthy();
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
 	it('jumps to any day picked in the month that opens from the agenda header', async () => {
 		jest.useFakeTimers({ advanceTimers: true });
 		try {
