@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import {
 	type EntryTaskChange,
@@ -38,6 +38,22 @@ function shownProjectOf(
 	return null;
 }
 
+interface TaskPick {
+	logId: string;
+	taskId: string;
+}
+
+/** The task picked for this entry: a pick made on another entry, in a dialog that stays mounted, does not count. */
+function pickedTaskIdFor(pick: TaskPick | null, logId: string): string | null {
+	if (!pick) {
+		return null;
+	}
+	if (pick.logId !== logId) {
+		return null;
+	}
+	return pick.taskId;
+}
+
 export interface TimeLogTaskChoiceInput {
 	log: ITimeLog;
 	projects: TOrganizationProject[] | undefined;
@@ -55,7 +71,9 @@ export function useTimeLogTaskChoice(input: TimeLogTaskChoiceInput) {
 	const projects = input.projects ?? NO_PROJECTS;
 	const activeTeam = useAtomValue(activeTeamState);
 	const teamTasks = useAtomValue(tasksByTeamState);
-	const [pickedTaskId, setPickedTaskId] = useState<string | null>(null);
+	const [pick, setPick] = useState<TaskPick | null>(null);
+	const pickedTaskId = pickedTaskIdFor(pick, log.id);
+	const pickTask = useCallback((taskId: string) => setPick({ logId: log.id, taskId }), [log.id]);
 
 	const entryTask = log.task;
 	const entryTaskId = log.taskId ?? entryTask?.id ?? null;
@@ -87,7 +105,7 @@ export function useTimeLogTaskChoice(input: TimeLogTaskChoiceInput) {
 		canChangeTask,
 		taskChoices,
 		taskId: shownTaskId ?? '',
-		pickTask: setPickedTaskId,
+		pickTask,
 		/** What the update sends on top of the dialog's own fields: nothing while the task is the entry's own. */
 		changedFields: change ?? NO_CHANGE,
 		projectChoices,
