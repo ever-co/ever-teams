@@ -214,11 +214,13 @@ export interface ITimeLogReportDailyRequest {
 	};
 	/** With `teamIds`, also counts the time the teams' members logged without a team. */
 	includeTimeWithoutTeam?: boolean;
+	/** Counts billable time only; without it the report counts every log. */
+	billableOnly?: boolean;
 }
 
 export interface ITimeLogReportWeeklyRequest extends Pick<
 	ITimeLogReportDailyRequest,
-	'timeZone' | 'projectIds' | 'employeeIds' | 'teamIds'
+	'timeZone' | 'projectIds' | 'employeeIds' | 'teamIds' | 'billableOnly'
 > {
 	startDate: string;
 	endDate: string;
