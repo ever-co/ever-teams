@@ -2008,12 +2008,20 @@ describe('Ever Teams feature surface preservation', () => {
 		// 294 files and 377 verbs with the scheduled meetings' proxies (/api/employee-appointment GET, POST and [id] DELETE).
 		// 295 files and 378 verbs with the Inbox delivery status proxy (GET /api/inbox/delivery/status).
 		// 296 files and 379 verbs with the link preview pictures proxy (GET /api/chat/link-preview/image).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(296);
+		// 300 files and 384 verbs with the Docs import and PDF export proxies (/api/plugins/docs/imports GET and POST,
+		// imports/[id] GET, documents/[id]/export.pdf GET, exports/pdf GET).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(300);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(379);
+		).toHaveLength(384);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of the platform's Docs import of exported workspaces and PDF export (2026-11-12)
+				'apps/web/app/api/plugins/docs/imports/route.ts::GET',
+				'apps/web/app/api/plugins/docs/imports/route.ts::POST',
+				'apps/web/app/api/plugins/docs/imports/[id]/route.ts::GET',
+				'apps/web/app/api/plugins/docs/documents/[id]/export.pdf/route.ts::GET',
+				'apps/web/app/api/plugins/docs/exports/pdf/route.ts::GET',
 				// Proxy mode twin of the platform's link preview pictures (2026-11-12)
 				'apps/web/app/api/chat/link-preview/image/route.ts::GET',
 				// Proxy mode twin of the platform's Inbox delivery status (2026-11-11)
