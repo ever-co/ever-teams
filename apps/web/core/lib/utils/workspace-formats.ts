@@ -67,6 +67,11 @@ function numberFormatChoiceOf(locale: FormatLocale): WorkspaceNumberFormat | nul
 	return locale.numberFormat;
 }
 
+/** Whether the workspace chose a date format: without one, a date that was written as data stays so. */
+export function hasDateFormat(locale: FormatLocale): boolean {
+	return dateFormatChoiceOf(locale) !== null;
+}
+
 function textOf(parts: ReadonlyArray<{ value: string }>): string {
 	return parts.map((part) => part.value).join('');
 }

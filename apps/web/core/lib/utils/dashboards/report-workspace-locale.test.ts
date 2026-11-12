@@ -6,6 +6,7 @@ import { formatAmount, formatAmounts } from '@/core/lib/utils/daily-report-figur
 import { formatPercent } from '@/core/lib/utils/dashboard-figures';
 import { formatPeriod } from '@/core/lib/utils/dashboard-period';
 import { dayLabelPartsOf } from '@/core/lib/utils/dashboards/actual-expected';
+import { clockDateTimeOf, pdfDateTimeOf, pdfDayOf } from '@/core/lib/utils/dashboards/manual-time-edits';
 import { dayDateOf, formatOwed, formatOwedTick, owedSegmentsOf } from '@/core/lib/utils/dashboards/payments-due';
 import { amountTextOf, budgetTextOf } from '@/core/lib/utils/dashboards/project-budget';
 import { timesheetFormattersOf } from '@/core/lib/utils/dashboards/timesheets';
@@ -34,6 +35,12 @@ describe('a report of a workspace that chose no format', () => {
 		expect(dayDateOf(JUNE_3, AUTOMATIC)).toBe(dayDateOf(JUNE_3, 'en'));
 		expect(periodLabelOf(JUNE_3, 'day', AUTOMATIC)).toBe(periodLabelOf(JUNE_3, 'day', 'en'));
 	});
+
+	it('keeps the dates of a Manual time edit PDF line as the files write them', () => {
+		expect(pdfDayOf(JUNE_3, AUTOMATIC)).toBe(`${YEAR}-06-03`);
+		expect(pdfDayOf(JUNE_3, 'en')).toBe(`${YEAR}-06-03`);
+		expect(pdfDateTimeOf(JUNE_9, AUTOMATIC)).toBe(clockDateTimeOf(JUNE_9));
+	});
 });
 
 describe("a report's dates in the workspace's date format", () => {
@@ -61,6 +68,12 @@ describe("a report's dates in the workspace's date format", () => {
 		const weekday = new Intl.DateTimeFormat('en', { weekday: 'short' }).format(JUNE_3);
 
 		expect(dayLabelPartsOf(JUNE_3, WORKSPACE)).toEqual({ weekday, date: '03/06' });
+	});
+
+	it('writes the day and the edit moment of a Manual time edit PDF line, with the year and the 24-hour time', () => {
+		expect(pdfDayOf(JUNE_3, WORKSPACE)).toBe(`03/06/${YEAR}`);
+		expect(pdfDateTimeOf(JUNE_9, WORKSPACE)).toBe(`09/06/${YEAR} 18:00`);
+		expect(pdfDateTimeOf(null, WORKSPACE)).toBe('');
 	});
 
 	it('writes the day of a timesheet, and leaves its weekday, month title and clock time alone', () => {
