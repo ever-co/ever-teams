@@ -3,7 +3,7 @@
 import { useStore } from 'jotai';
 import { useCallback } from 'react';
 
-import { notesForStartOf, startNotesOf } from '@/core/lib/utils/timer/timer-start-notes';
+import { startNotesOf } from '@/core/lib/utils/timer/timer-start-notes';
 import { type TTimerStartNotes, timerStartNotesState } from '@/core/stores/timer/timer-start-notes';
 
 type JotaiStore = ReturnType<typeof useStore>;
@@ -19,12 +19,6 @@ export function takePendingTimerStartNotes(store: JotaiStore): TTimerStartNotes 
 	}
 	store.set(timerStartNotesState, null);
 	return pending;
-}
-
-/** The notes a start of `taskId` sends, taken out of the store: whatever was waiting there is gone after any start. */
-export function takeTimerStartNotes(store: JotaiStore, taskId: string): string | undefined {
-	const pending = takePendingTimerStartNotes(store);
-	return notesForStartOf(pending, taskId);
 }
 
 export function useTimerStartNotes() {
