@@ -145,12 +145,14 @@ export function useChatAppInteractions(message: IChatMessage, { readOnly = false
 	 * Asks again about a click whose callback is being retried, until it settles or the chat stops asking. The platform
 	 * writes a retry's delivery just before it applies the app's reply: a delivery without its reply is asked about once
 	 * more, and the button stays pending (so disabled) until that ask answers. Only the button's latest click writes its
-	 * state: an answer about an older one is dropped.
+	 * state: an answer about an older one is dropped. `delivered`: the click's own answer already said it was delivered
+	 * (a repeat answered before its reply landed): only the one more ask is left, and the button ends done whatever it
+	 * answers.
 	 */
 	const follow = useCallback(
-		async (key: string, blockId: string | null, interactionId: string) => {
+		async (key: string, blockId: string | null, interactionId: string, delivered = false) => {
 			const isLatest = () => latestClicks.current.get(key) === interactionId;
-			let deliveredSeen = false;
+			let deliveredSeen = delivered;
 			for (let round = 0; round < APP_INTERACTION_POLL_MAX; round += 1) {
 				await pause();
 				if (!alive.current || !isLatest()) return;
@@ -218,7 +220,7 @@ export function useChatAppInteractions(message: IChatMessage, { readOnly = false
 				const replyMayFollow = !!result.replayed && state === 'done' && !result.interaction.replyApplied;
 				setState(key, replyMayFollow ? 'pending' : state);
 				if (state === 'failed') setFailure(blockId, 'APP_CALLBACK_FAILED');
-				if (state === 'pending' || replyMayFollow) void follow(key, blockId, result.interaction.interactionId);
+				if (state === 'pending' || replyMayFollow) void follow(key, blockId, result.interaction.interactionId, replyMayFollow);
 			} catch (error) {
 				// A refusal settles the click (the next one is a new click); a click with no answer, or a server error (the
 				// app may have been called), keeps its key for the button's next click.

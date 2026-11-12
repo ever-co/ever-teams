@@ -527,6 +527,42 @@ describe('ChatAppBlocks', () => {
 			}
 		});
 
+		it('keeps a delivery the repeat already reported when the one more ask fails or finds the click gone', async () => {
+			jest.useFakeTimers();
+			try {
+				mockInteract.mockResolvedValue({ interaction: interaction('delivered'), events: [], replayed: true });
+				mockInteraction.mockRejectedValue(ApiErrorService.fromAxiosError({ message: 'Not Found', status: 404, response: { status: 404, data: { message: 'Not Found' } } }));
+				render(<ChatAppBlocks message={appMessage()} />);
+				await click();
+				await act(async () => {
+					await jest.advanceTimersByTimeAsync(APP_INTERACTION_POLL_MS);
+				});
+				expect(mockInteraction).toHaveBeenCalledTimes(1);
+				expect(screen.getByLabelText('teamChat.APP_DONE')).toBeTruthy();
+				expect(screen.queryByRole('alert')).toBeNull();
+			} finally {
+				jest.useRealTimers();
+			}
+		});
+
+		it('asks only once more after a repeat reported the delivery, and ends done without a reply', async () => {
+			jest.useFakeTimers();
+			try {
+				mockInteract.mockResolvedValue({ interaction: interaction('delivered'), events: [], replayed: true });
+				mockInteraction.mockResolvedValue(interaction('delivered'));
+				render(<ChatAppBlocks message={appMessage()} />);
+				await click();
+				await act(async () => {
+					await jest.advanceTimersByTimeAsync(APP_INTERACTION_POLL_MS * 3);
+				});
+				expect(mockInteraction).toHaveBeenCalledTimes(1);
+				expect(mockMessages).not.toHaveBeenCalled();
+				expect(screen.getByLabelText('teamChat.APP_DONE')).toBeTruthy();
+			} finally {
+				jest.useRealTimers();
+			}
+		});
+
 		it('does not ask again about a first answer delivered without a reply (the app sent none)', async () => {
 			jest.useFakeTimers();
 			try {
