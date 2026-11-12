@@ -26,6 +26,9 @@ const YEAR_FIRST_PATTERN = /^(\d{4})([-/])(\d{1,2})\2(\d{1,2})$/;
 
 const YEAR_LAST_PATTERN = /^(\d{1,2})([-/.])(\d{1,2})\2(\d{4})$/;
 
+/** A date, then a `T` or spaces, then a time; a comma may follow the date. */
+const DATE_AND_TIME_PATTERN = /^(\S+?),?(?:T|\s+)(\S.*)$/;
+
 const CLOCK_PATTERN = /^(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\s*([ap])\.?m\.?)?$/i;
 
 const CLOCK_DURATION_PATTERN = /^(\d{1,3}):(\d{2})(?::(\d{2}))?$/;
@@ -141,6 +144,79 @@ export function clockTimeOf(text: string): ClockTime | null {
 		return null;
 	}
 	return { hours: typedHours, minutes, seconds };
+}
+
+export interface CellMoment {
+	/** Null for a time written alone: its day is in another cell. */
+	day: CalendarDay | null;
+	clock: ClockTime;
+}
+
+interface DateAndTimeText {
+	date: string;
+	time: string;
+}
+
+function dateAndTimeTextOf(text: string): DateAndTimeText | null {
+	const match = DATE_AND_TIME_PATTERN.exec(text);
+	if (!match) {
+		return null;
+	}
+	return { date: match[1], time: match[2] };
+}
+
+/**
+ * A time alone, or a date and a time in one cell: `09:30`, `2026-11-03 09:30`, `03/11/2026 9:30 AM`,
+ * `2026-11-03T09:30:00`. The date is read in the order of the file.
+ */
+export function cellMomentOf(text: string, order: DateOrder = 'yearFirst'): CellMoment | null {
+	const typed = text.trim();
+	const clock = clockTimeOf(typed);
+	if (clock) {
+		return { day: null, clock };
+	}
+	const parts = dateAndTimeTextOf(typed);
+	if (!parts) {
+		return null;
+	}
+	const day = calendarDayOf(parts.date, order);
+	const partClock = clockTimeOf(parts.time);
+	if (!day || !partClock) {
+		return null;
+	}
+	return { day, clock: partClock };
+}
+
+/** A date alone, or the date of a cell that holds a date and a time. */
+export function cellDayOf(text: string, order: DateOrder = 'yearFirst'): CalendarDay | null {
+	const day = calendarDayOf(text, order);
+	if (day) {
+		return day;
+	}
+	const moment = cellMomentOf(text, order);
+	return moment?.day ?? null;
+}
+
+/** The text of the date a cell holds before its time, or the whole cell when it holds no time. */
+export function datePartOf(text: string): string {
+	const typed = text.trim();
+	const parts = dateAndTimeTextOf(typed);
+	const hasTime = parts !== null && clockTimeOf(parts.time) !== null;
+	if (hasTime) {
+		return parts.date;
+	}
+	return typed;
+}
+
+/** Whether a cell holds a date and a time, whichever order its date is written in. */
+export function holdsDateAndTime(text: string): boolean {
+	const parts = dateAndTimeTextOf(text.trim());
+	if (!parts) {
+		return false;
+	}
+	const hasTime = clockTimeOf(parts.time) !== null;
+	const hasDate = dateOrdersOf(parts.date).length > 0;
+	return hasTime && hasDate;
 }
 
 function clockDurationOf(text: string): number | null {

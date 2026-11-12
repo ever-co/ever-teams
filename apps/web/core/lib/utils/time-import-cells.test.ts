@@ -1,7 +1,71 @@
-import { calendarDayOf, clockTimeOf, dateOrdersOf, durationSecondsOf, yesNoOf } from './time-import-cells';
+import {
+	calendarDayOf,
+	cellDayOf,
+	cellMomentOf,
+	clockTimeOf,
+	dateOrdersOf,
+	datePartOf,
+	durationSecondsOf,
+	holdsDateAndTime,
+	yesNoOf
+} from './time-import-cells';
 
 const HOUR = 3600;
 const MINUTE = 60;
+
+const NOV_3 = { year: 2026, month: 11, day: 3 };
+
+describe('cellMomentOf', () => {
+	it('reads a time alone, without a day of its own', () => {
+		expect(cellMomentOf('9:30 AM')).toEqual({ day: null, clock: { hours: 9, minutes: 30, seconds: 0 } });
+	});
+
+	it.each([
+		['2026-11-03 09:30', 'yearFirst'],
+		['2026-11-03T09:30:00', 'yearFirst'],
+		['03/11/2026 9:30 AM', 'dayFirst'],
+		['11/03/2026, 9:30 AM', 'monthFirst']
+	] as const)('reads %s as a date and a time', (text, order) => {
+		expect(cellMomentOf(text, order)).toEqual({ day: NOV_3, clock: { hours: 9, minutes: 30, seconds: 0 } });
+	});
+
+	it.each([
+		['a date without a time', '2026-11-03', 'yearFirst'],
+		['a date with words', '2026-11-03 noon', 'yearFirst'],
+		['a date the order cannot read', '13/11/2026 09:00', 'monthFirst'],
+		['a time zone after the time', '2026-11-03T09:30:00Z', 'yearFirst']
+	] as const)('refuses %s', (_name, text, order) => {
+		expect(cellMomentOf(text, order)).toBeNull();
+	});
+});
+
+describe('cellDayOf', () => {
+	it('reads a date alone, or the date of a cell that also holds a time', () => {
+		expect(cellDayOf('2026-11-03')).toEqual(NOV_3);
+		expect(cellDayOf('03/11/2026 17:45', 'dayFirst')).toEqual(NOV_3);
+		expect(cellDayOf('17:45')).toBeNull();
+	});
+});
+
+describe('datePartOf', () => {
+	it('keeps the date of a cell that also holds a time, and the cell itself otherwise', () => {
+		expect(datePartOf(' 03/11/2026 9:30 AM ')).toBe('03/11/2026');
+		expect(datePartOf('03/11/2026')).toBe('03/11/2026');
+		expect(datePartOf('9:30 AM')).toBe('9:30 AM');
+	});
+});
+
+describe('holdsDateAndTime', () => {
+	it.each([
+		['2026-11-03 09:30', true],
+		['13/11/2026 9:30 PM', true],
+		['09:30', false],
+		['2026-11-03', false],
+		['Fix login 09:30', false]
+	])('tells whether %s holds a date and a time', (text, expected) => {
+		expect(holdsDateAndTime(text)).toBe(expected);
+	});
+});
 
 describe('calendarDayOf in the order of a file', () => {
 	it('reads 03/11/2026 as 3 November day first and as 11 March month first', () => {
