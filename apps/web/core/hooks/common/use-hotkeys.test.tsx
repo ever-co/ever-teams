@@ -45,6 +45,30 @@ describe('the legacy hotkeys', () => {
 	});
 });
 
+describe('a legacy hotkey switched off', () => {
+	it('binds nothing, so the press reaches the shortcut registry untouched', async () => {
+		const createTask = jest.fn();
+		const reader = renderHook(() => useBoundHotkeys());
+		const binder = renderHook(() => useHotkeys(HostKeys.CREATE_TASK, createTask, false));
+		await settle();
+
+		const event = new KeyboardEvent('keydown', {
+			key: 'c',
+			code: 'KeyC',
+			keyCode: 67,
+			bubbles: true,
+			cancelable: true
+		});
+		document.body.dispatchEvent(event);
+
+		expect(createTask).not.toHaveBeenCalled();
+		expect(event.defaultPrevented).toBe(false);
+		expect(reader.result.current.has(HostKeys.CREATE_TASK)).toBe(false);
+		binder.unmount();
+		await settle();
+	});
+});
+
 describe('the bound hotkeys', () => {
 	it('name a declaration while a component has it bound, and no longer once it leaves the page', async () => {
 		const assign = jest.fn();

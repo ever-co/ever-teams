@@ -61,8 +61,19 @@ export function useBoundHotkeys(): ReadonlySet<string> {
 	return useSyncExternalStore(subscribeToBoundHotkeys, readBoundHotkeys, readNoBoundHotkeys);
 }
 
-export const useHotkeys = (key: string, callback: (e?: KeyboardEvent, h?: HotkeysEvent) => void) => {
+/**
+ * A bound hotkey takes its key, even with a callback that does nothing; `enabled` false binds nothing, so the press
+ * reaches the shortcut registry.
+ */
+export const useHotkeys = (
+	key: string,
+	callback: (e?: KeyboardEvent, h?: HotkeysEvent) => void,
+	enabled: boolean = true
+) => {
 	useEffect(() => {
+		if (!enabled) {
+			return;
+		}
 		hotkeys(key, (event, handler) => {
 			// The second key of a shortcut registry sequence (`G`, then `H` or `A`) is the registry's, not this one's.
 			if (isShortcutSequencePending()) {
@@ -79,7 +90,7 @@ export const useHotkeys = (key: string, callback: (e?: KeyboardEvent, h?: Hotkey
 			boundHotkeys.delete(key);
 			schedulePublish();
 		};
-	}, [key, callback]);
+	}, [enabled, key, callback]);
 };
 
 const START_TIMER_KEYS = 'ctrl+option+],ctrl+alt+]';

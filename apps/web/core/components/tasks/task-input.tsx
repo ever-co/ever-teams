@@ -52,9 +52,6 @@ import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 
-/** The legacy `c` hotkey does nothing while the shortcut registry owns the key. */
-const ignoreHotkey = () => undefined;
-
 type Props = {
 	task?: Nullable<TTask>;
 	tasks?: TTask[];
@@ -353,7 +350,8 @@ export function TaskInput(props: Props) {
 
 	// With the shortcut registry on, `c` is its `taskCreate` (the create-task dialog, everywhere); the input keeps
 	// the key otherwise.
-	useHotkeys(HostKeys.CREATE_TASK, isTaskViewsEnabled() ? ignoreHotkey : handleCommandKeySequence);
+	const keepsCreateKey = !isTaskViewsEnabled();
+	useHotkeys(HostKeys.CREATE_TASK, handleCommandKeySequence, keepsCreateKey);
 
 	useEffect(() => {
 		if (props.autoFocus && targetEl.current) {
