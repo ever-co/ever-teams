@@ -28,6 +28,14 @@ export function ArchiveClientDialog({ open, client, onClose }: Readonly<ClientCo
 		onClose();
 	};
 
+	// The answer closes the dialog; until it comes the dialog stays, so it cannot close another client's dialog
+	const dismiss = () => {
+		if (isArchiving) {
+			return;
+		}
+		close();
+	};
+
 	const confirm = async () => {
 		if (!client) {
 			return;
@@ -56,7 +64,7 @@ export function ArchiveClientDialog({ open, client, onClose }: Readonly<ClientCo
 	return (
 		<ProjectConfirmDialog
 			open={open}
-			onClose={close}
+			onClose={dismiss}
 			icon={<Archive />}
 			title={t('clients.archive.TITLE', { name })}
 			consequences={consequences}
@@ -77,6 +85,14 @@ export function RestoreClientDialog({ open, client, onClose }: Readonly<ClientCo
 	const close = () => {
 		setHasFailed(false);
 		onClose();
+	};
+
+	// The answer closes the dialog; until it comes the dialog stays, so it cannot close another client's dialog
+	const dismiss = () => {
+		if (isRestoring) {
+			return;
+		}
+		close();
 	};
 
 	const confirm = async () => {
@@ -105,7 +121,7 @@ export function RestoreClientDialog({ open, client, onClose }: Readonly<ClientCo
 	return (
 		<ProjectConfirmDialog
 			open={open}
-			onClose={close}
+			onClose={dismiss}
 			icon={<RotateLeft />}
 			title={t('clients.restore.TITLE', { name })}
 			consequences={consequences}
