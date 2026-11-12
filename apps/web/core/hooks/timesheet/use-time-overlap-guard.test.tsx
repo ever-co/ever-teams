@@ -114,6 +114,24 @@ describe('useTimeOverlapGuard', () => {
 		expect(result.current.isChecking).toBe(false);
 	});
 
+	it('saves nothing and reports the failure when an entry it would remove has no readable time', async () => {
+		const withoutStart = { id: 'without-start', startedAt: null, stoppedAt: '2026-11-10T19:00:00.000Z' };
+		const stoppedWithoutEnd = { id: 'without-end', startedAt: '2026-11-10T18:45:00.000Z', isRunning: false };
+		for (const unreadableLog of [withoutStart, stoppedWithoutEnd]) {
+			mockGetTimeLogConflicts.mockResolvedValueOnce([unreadableLog]);
+			const save = jest.fn();
+			const { result } = renderGuard();
+
+			await act(() =>
+				result.current.saveAfterCheck({ employeeId: 'employee-a', periods: [eveningPeriod], save })
+			);
+
+			expect(save).not.toHaveBeenCalled();
+			expect(result.current.hasCheckFailed).toBe(true);
+			expect(result.current.isConfirmOpen).toBe(false);
+		}
+	});
+
 	it('clears a previous failure on the next attempt', async () => {
 		mockGetTimeLogConflicts.mockRejectedValueOnce(new Error('The API is unreachable'));
 		mockGetTimeLogConflicts.mockResolvedValue([]);

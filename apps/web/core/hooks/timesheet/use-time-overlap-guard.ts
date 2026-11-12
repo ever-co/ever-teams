@@ -6,7 +6,12 @@ import { queryKeys } from '@/core/query/keys';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
-import { overlapSummaryOf, type OverlapSummary, type TimePeriod } from '@/core/lib/utils/time-log-overlap';
+import {
+	hasUnreadableInterval,
+	overlapSummaryOf,
+	type OverlapSummary,
+	type TimePeriod
+} from '@/core/lib/utils/time-log-overlap';
 import type { TTimeLogConflict } from '@/core/types/schemas';
 
 type Save = () => void | Promise<void>;
@@ -123,6 +128,11 @@ export function useTimeOverlapGuard({ isOpen = true }: TimeOverlapGuardOptions =
 				);
 				const conflictsPerPeriod = await Promise.all(lookups);
 				const logs = conflictsPerPeriod.flat();
+				// An entry the save would remove but the warning cannot show: an incomplete answer, not an empty one
+				const hasUnshownEntry = logs.some((log) => log.id !== ignoredLogId && hasUnreadableInterval(log));
+				if (hasUnshownEntry) {
+					throw new Error('The overlap lookup returned an entry whose time cannot be read');
+				}
 				overlap = overlapSummaryOf({ periods, logs, ignoredLogId, now: new Date() });
 			} catch (error) {
 				if (attempt === attemptRef.current) {
