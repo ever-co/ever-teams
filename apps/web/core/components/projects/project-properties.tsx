@@ -50,13 +50,17 @@ export const PROJECT_SECTION_LABEL = 'text-xs font-medium text-muted-foreground'
 export function PropertyRow({
 	icon,
 	label,
+	hint,
 	className,
 	children
-}: Readonly<{ icon: ReactNode; label: string; className?: string; children: ReactNode }>) {
+}: Readonly<{ icon: ReactNode; label: string; hint?: ReactNode; className?: string; children: ReactNode }>) {
+	const hasHint = Boolean(hint);
 	return (
 		<div
 			className={cn(
-				'grid min-h-9 grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-3 sm:grid-cols-[9rem_minmax(0,1fr)]',
+				'grid min-h-9 grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-x-3 sm:grid-cols-[9rem_minmax(0,1fr)]',
+				// Keeps the first line level with the rows that have no hint
+				hasHint && 'pt-1',
 				className
 			)}
 		>
@@ -65,6 +69,7 @@ export function PropertyRow({
 				{label}
 			</span>
 			<div className="flex min-w-0 flex-wrap items-center gap-1.5 py-1">{children}</div>
+			{hasHint && <div className="col-start-2 pb-2">{hint}</div>}
 		</div>
 	);
 }
