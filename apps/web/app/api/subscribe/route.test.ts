@@ -5,9 +5,11 @@
  * the app's.
  */
 const mockGuard = jest.fn();
+const mockDropSessionCheck = jest.fn();
 
 jest.mock('@/core/services/server/guards/authenticated-guard-app', () => ({
-	authenticatedGuard: (...args: unknown[]) => mockGuard(...args)
+	authenticatedGuard: (...args: unknown[]) => mockGuard(...args),
+	sessionChecks: { drop: (...args: unknown[]) => mockDropSessionCheck(...args) }
 }));
 
 import { APP_NAME } from '@/core/constants/config/constants';
@@ -121,6 +123,7 @@ describe('POST /api/subscribe', () => {
 				tenantId: 'tenant-1'
 			});
 			fetchMock.mockImplementation(async () => answer({ id: 'member' }, 200));
+			mockDropSessionCheck.mockClear();
 		});
 
 		it('keeps it once Mailchimp took the address, as the signed-in user, and answers it', async () => {
@@ -133,6 +136,12 @@ describe('POST /api/subscribe', () => {
 			const kept = JSON.parse(init.body as string);
 			expect(kept).toEqual({ newsletter: { subscribedAt: expect.any(String), status: 'subscribed' } });
 			expect((await response.json()).newsletter).toEqual(kept.newsletter);
+		});
+
+		it('forgets the session check this server keeps for the token, so a reload reads the user with it', async () => {
+			await post({ email_address: 'ada@example.com' });
+
+			expect(mockDropSessionCheck).toHaveBeenCalledWith('token-1');
 		});
 
 		it('keeps an address that is not the verified one as pending', async () => {
@@ -172,6 +181,8 @@ describe('POST /api/subscribe', () => {
 
 			expect(response.status).toBe(201);
 			expect((await response.json()).newsletter).toMatchObject({ status: 'subscribed' });
+			// Nothing changed on the user: the kept session check still holds them as they are
+			expect(mockDropSessionCheck).not.toHaveBeenCalled();
 		});
 	});
 });

@@ -1,6 +1,6 @@
 import { APP_NAME } from '@/core/constants/config/constants';
 import { NEWSLETTER_UI_PREFERENCE, type NewsletterSubscription } from '@/core/lib/utils/newsletter-subscription';
-import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { authenticatedGuard, sessionChecks } from '@/core/services/server/guards/authenticated-guard-app';
 import { setUserUiPreferenceRequest } from '@/core/services/server/requests/user';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -37,6 +37,9 @@ async function rememberSubscription(
 			bearer_token,
 			tenantId
 		});
+		// The session check this server keeps for a few seconds holds the user as they were: a reload within them
+		// would read the user without the subscription and keep it for the user query's whole staleness
+		sessionChecks.drop(bearer_token);
 	} catch (error) {
 		console.error('The newsletter subscription could not be kept on the user', error);
 	}
