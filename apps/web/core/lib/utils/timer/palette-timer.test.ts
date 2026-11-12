@@ -1,4 +1,10 @@
-import { paletteStartActionOf, paletteStartValueOf, tasksToStartFor, type PaletteStartState } from './palette-timer';
+import {
+	canStopFromPalette,
+	paletteStartActionOf,
+	paletteStartValueOf,
+	tasksToStartFor,
+	type PaletteStartState
+} from './palette-timer';
 
 const TASKS = [
 	{ id: '1', title: 'Fix the login page', taskNumber: 'WEB-12', status: 'in-progress' },
@@ -25,6 +31,10 @@ describe('tasksToStartFor', () => {
 
 	it('finds a task by its number', () => {
 		expect(idsOf(tasksToStartFor(TASKS, 'web-13', ACTION_LABEL))).toEqual(['2']);
+	});
+
+	it('finds a task by its number as the entry shows it, with the #', () => {
+		expect(idsOf(tasksToStartFor(TASKS, '#WEB-13', ACTION_LABEL))).toEqual(['2']);
 	});
 
 	it('keeps only the tasks that hold every word typed', () => {
@@ -88,5 +98,25 @@ describe('paletteStartActionOf', () => {
 
 	it('does nothing the disabled main Start would not do', () => {
 		expect(paletteStartActionOf({ ...activeTask, isMainStartDisabled: true })).toBe('UNAVAILABLE');
+	});
+});
+
+describe('canStopFromPalette', () => {
+	const running = { isTimerRunning: true, canRunTimer: true, isTimerStatusFetching: false };
+
+	it('offers Stop while the timer runs and can be stopped', () => {
+		expect(canStopFromPalette(running)).toBe(true);
+	});
+
+	it('offers no Stop when no timer runs', () => {
+		expect(canStopFromPalette({ ...running, isTimerRunning: false })).toBe(false);
+	});
+
+	it('offers no Stop the disabled Stop button would refuse', () => {
+		expect(canStopFromPalette({ ...running, canRunTimer: false })).toBe(false);
+	});
+
+	it('offers no Stop while a start or a stop is on its way, as the Stop button does', () => {
+		expect(canStopFromPalette({ ...running, isTimerStatusFetching: true })).toBe(false);
 	});
 });
