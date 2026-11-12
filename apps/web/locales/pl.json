@@ -3052,7 +3052,28 @@
 			"TESTED_TIMER": "Testowany stoper"
 		},
 		"FILL_IN": "Uzupełnij: {fields}.",
-		"END_AFTER_START": "Godzina zakończenia musi być późniejsza niż godzina rozpoczęcia."
+		"END_AFTER_START": "Godzina zakończenia musi być późniejsza niż godzina rozpoczęcia.",
+		"OWN_TIME_ONLY": "Dodajesz czas dla siebie. Administrator może dodać czas komuś innemu.",
+		"DURATION": {
+			"LABEL": "Czas trwania",
+			"PLACEHOLDER": "1:30 lub 90m",
+			"HINT": "Wpisz czas trwania, a zostanie zaproponowany pierwszy wolny przedział dnia.",
+			"READING": "Szukanie wolnego czasu w tym dniu",
+			"PROPOSED": "Propozycja: od {start} do {end}, pierwszy wolny przedział dnia. Możesz go zmienić.",
+			"NO_ROOM": "Tego dnia nie ma wolnego przedziału o długości {duration}. Wybierz początek i koniec albo inny dzień.",
+			"NO_MEMBER": "Najpierw wybierz pracownika: wolny czas jest odczytywany z jego dnia.",
+			"READ_FAILED": "Nie udało się odczytać wpisów z tego dnia, więc nie zaproponowano czasu.",
+			"RETRY": "Spróbuj ponownie"
+		},
+		"REQUIRED": {
+			"TEAM": "Twoja organizacja wymaga zespołu przy każdym wpisie czasu. Otwórz jeden ze swoich zespołów i dodaj czas ponownie.",
+			"PROJECT": "Twoja organizacja wymaga projektu przy każdym wpisie czasu. Wybierz projekt albo zadanie, które go ma.",
+			"TEAM_AND_PROJECT": "Twoja organizacja wymaga zespołu i projektu przy każdym wpisie czasu. Otwórz jeden ze swoich zespołów i wybierz zadanie z projektem."
+		},
+		"TASK_CHANGE": {
+			"PROJECT_FOLLOWS": "Ten wpis przechodzi do projektu zadania: {project}.",
+			"OTHER_TEAM": "Ten wpis należy do innego zespołu. Przełącz się na ten zespół, aby zmienić jego zadanie."
+		}
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Czy na pewno chcesz usunąć ten przedział czasowy?"

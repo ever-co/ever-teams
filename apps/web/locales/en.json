@@ -3052,7 +3052,28 @@
 			"TESTED_TIMER": "Tested timer"
 		},
 		"FILL_IN": "Fill in: {fields}.",
-		"END_AFTER_START": "The end time must come after the start time."
+		"END_AFTER_START": "The end time must come after the start time.",
+		"OWN_TIME_ONLY": "You add time for yourself. An admin can add time for someone else.",
+		"DURATION": {
+			"LABEL": "Duration",
+			"PLACEHOLDER": "1:30 or 90m",
+			"HINT": "Type a duration and the first free time of the day is proposed.",
+			"READING": "Looking for free time on this day",
+			"PROPOSED": "Proposed {start} to {end}, the first free time of the day. You can change it.",
+			"NO_ROOM": "No free stretch of {duration} on this day. Pick the start and the end, or another day.",
+			"NO_MEMBER": "Pick the employee first: the free time is read from their day.",
+			"READ_FAILED": "This day's entries couldn't be read, so no time was proposed.",
+			"RETRY": "Try again"
+		},
+		"REQUIRED": {
+			"TEAM": "Your organization requires a team on every time entry. Open one of your teams, then add the time again.",
+			"PROJECT": "Your organization requires a project on every time entry. Pick a project, or a task that has one.",
+			"TEAM_AND_PROJECT": "Your organization requires a team and a project on every time entry. Open one of your teams and pick a task that has a project."
+		},
+		"TASK_CHANGE": {
+			"PROJECT_FOLLOWS": "This entry moves to the task's project: {project}.",
+			"OTHER_TEAM": "This entry belongs to another team. Switch to that team to change its task."
+		}
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Are you sure you want to delete this time slot?"

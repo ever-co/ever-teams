@@ -3052,7 +3052,28 @@
 			"TESTED_TIMER": "Timer testato"
 		},
 		"FILL_IN": "Da compilare: {fields}.",
-		"END_AFTER_START": "L'ora di fine deve essere successiva all'ora di inizio."
+		"END_AFTER_START": "L'ora di fine deve essere successiva all'ora di inizio.",
+		"OWN_TIME_ONLY": "Aggiungi tempo per te. Un amministratore può aggiungerlo per qualcun altro.",
+		"DURATION": {
+			"LABEL": "Durata",
+			"PLACEHOLDER": "1:30 o 90m",
+			"HINT": "Scrivi una durata e viene proposto il primo intervallo libero della giornata.",
+			"READING": "Ricerca di un intervallo libero in questo giorno",
+			"PROPOSED": "Proposto dalle {start} alle {end}, il primo intervallo libero della giornata. Puoi modificarlo.",
+			"NO_ROOM": "Nessun intervallo libero di {duration} in questo giorno. Scegli l'inizio e la fine, oppure un altro giorno.",
+			"NO_MEMBER": "Scegli prima il dipendente: il tempo libero viene letto dalla sua giornata.",
+			"READ_FAILED": "Non è stato possibile leggere le registrazioni di questo giorno, quindi non è stato proposto alcun orario.",
+			"RETRY": "Riprova"
+		},
+		"REQUIRED": {
+			"TEAM": "La tua organizzazione richiede un team per ogni voce di tempo. Apri uno dei tuoi team, poi aggiungi di nuovo il tempo.",
+			"PROJECT": "La tua organizzazione richiede un progetto per ogni voce di tempo. Scegli un progetto o un'attività che ne ha uno.",
+			"TEAM_AND_PROJECT": "La tua organizzazione richiede un team e un progetto per ogni voce di tempo. Apri uno dei tuoi team e scegli un'attività che ha un progetto."
+		},
+		"TASK_CHANGE": {
+			"PROJECT_FOLLOWS": "Questa voce passa al progetto dell'attività: {project}.",
+			"OTHER_TEAM": "Questa voce appartiene a un altro team. Passa a quel team per cambiare la sua attività."
+		}
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Sei sicuro di voler eliminare questa fascia oraria?"

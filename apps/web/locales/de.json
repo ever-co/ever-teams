@@ -3052,7 +3052,28 @@
 			"TESTED_TIMER": "Timer getestet"
 		},
 		"FILL_IN": "Bitte ausfüllen: {fields}.",
-		"END_AFTER_START": "Die Endzeit muss nach der Startzeit liegen."
+		"END_AFTER_START": "Die Endzeit muss nach der Startzeit liegen.",
+		"OWN_TIME_ONLY": "Sie fügen Zeit für sich selbst hinzu. Ein Admin kann Zeit für andere hinzufügen.",
+		"DURATION": {
+			"LABEL": "Dauer",
+			"PLACEHOLDER": "1:30 oder 90m",
+			"HINT": "Geben Sie eine Dauer ein, dann wird die erste freie Zeit des Tages vorgeschlagen.",
+			"READING": "Freie Zeit an diesem Tag wird gesucht",
+			"PROPOSED": "Vorschlag: {start} bis {end}, die erste freie Zeit des Tages. Sie können sie ändern.",
+			"NO_ROOM": "An diesem Tag gibt es keinen freien Zeitraum von {duration}. Wählen Sie Start und Ende oder einen anderen Tag.",
+			"NO_MEMBER": "Wählen Sie zuerst den Mitarbeiter: Die freie Zeit wird aus seinem Tag gelesen.",
+			"READ_FAILED": "Die Einträge dieses Tages konnten nicht gelesen werden, daher wurde keine Zeit vorgeschlagen.",
+			"RETRY": "Erneut versuchen"
+		},
+		"REQUIRED": {
+			"TEAM": "Ihre Organisation verlangt für jeden Zeiteintrag ein Team. Öffnen Sie eines Ihrer Teams und fügen Sie die Zeit erneut hinzu.",
+			"PROJECT": "Ihre Organisation verlangt für jeden Zeiteintrag ein Projekt. Wählen Sie ein Projekt oder eine Aufgabe, die eines hat.",
+			"TEAM_AND_PROJECT": "Ihre Organisation verlangt für jeden Zeiteintrag ein Team und ein Projekt. Öffnen Sie eines Ihrer Teams und wählen Sie eine Aufgabe mit Projekt."
+		},
+		"TASK_CHANGE": {
+			"PROJECT_FOLLOWS": "Dieser Eintrag wechselt in das Projekt der Aufgabe: {project}.",
+			"OTHER_TEAM": "Dieser Eintrag gehört zu einem anderen Team. Wechseln Sie zu diesem Team, um seine Aufgabe zu ändern."
+		}
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Möchten Sie diesen Zeitraum wirklich löschen?"

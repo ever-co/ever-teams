@@ -36,10 +36,14 @@ import { CustomSelect } from '../../common/multiple-select';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { ToggleButton } from '../tasks/edit-task-modal';
 import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
+import { FixedMemberField } from './fixed-member-field';
+import { ShiftDurationField } from './shift-duration-field';
 import { ETimeLogType, ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { useAtomValue } from 'jotai';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import { type FixedMember, timeOptionsWith } from '@/core/lib/utils/dashboards/manual-time-entry';
+import { entryProjectIdOf, findProject, projectChoicesFor } from '@/core/lib/utils/dashboards/time-entry-task';
 import type { TOrganizationProject } from '@/core/types/schemas/organization/organization-project.schema';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
@@ -51,6 +55,8 @@ export interface IAddTaskModalProps {
 	prefill?: TimeEntryCopy;
 	/** Asked before the periods are saved: a returned message refuses the save and is shown in the dialog. */
 	checkBeforeSave?: CheckTimeEntrySave;
+	/** The only member the dialog adds time for (a team manager adds their own); without it the dialog picks one. */
+	fixedMember?: FixedMember | null;
 }
 
 interface Shift {
@@ -114,22 +120,6 @@ const clearSkippedTimes = (shift: Shift, day: Date) => {
 	if (clearStart || clearEnd) shift.totalHours = '00:00h';
 };
 
-function findProject(projectId: string | null | undefined, projects: TOrganizationProject[]) {
-	if (!projectId) {
-		return undefined;
-	}
-	return projects.find((project) => project.id === projectId);
-}
-
-/** The project of an entry on this task: the task's own project as it is now, or else the one picked by hand. */
-function entryProjectIdOf(task: { projectId?: string | null } | undefined, pickedProjectId: string): string {
-	const taskProjectId = task?.projectId;
-	if (taskProjectId) {
-		return taskProjectId;
-	}
-	return pickedProjectId;
-}
-
 /** The billable value picked by hand, or else the entry's project's own setting. */
 function billableOf(billableChoice: boolean | null, project: TOrganizationProject | null): boolean {
 	if (billableChoice !== null) {
@@ -138,22 +128,23 @@ function billableOf(billableChoice: boolean | null, project: TOrganizationProjec
 	return project?.billable === true;
 }
 
-/**
- * A task's time goes to the task's own project: when the task has one, it is the only project offered. A task
- * project missing from the list (archived, or not loaded yet) offers none, since another pick would not be saved.
- */
-function projectChoicesFor(
-	taskProjectId: string | null | undefined,
-	taskProject: TOrganizationProject | undefined,
-	projects: TOrganizationProject[]
-) {
-	if (!taskProjectId) {
-		return projects;
+/** An entry without a project sends no project field: the API refuses an empty id as a wrong format. */
+function projectFieldOf(projectId: string) {
+	if (!projectId) {
+		return {};
 	}
-	if (taskProject) {
-		return [taskProject];
-	}
-	return [];
+	return { projectId };
+}
+
+function emptyFormOf(employeeId: string) {
+	return {
+		notes: '',
+		billableChoice: null as boolean | null,
+		taskId: '',
+		employeeId,
+		projectId: '',
+		shifts: [{ startTime: '', endTime: '', totalHours: '00:00h', dateFrom: new Date() }] as Shift[]
+	};
 }
 
 const NOTES_MAX_LENGTH = 120;
@@ -209,7 +200,7 @@ function copiedFormOf(
 	};
 }
 
-export function AddTaskModal({ closeModal, isOpen, prefill, checkBeforeSave }: IAddTaskModalProps) {
+export function AddTaskModal({ closeModal, isOpen, prefill, checkBeforeSave, fixedMember }: IAddTaskModalProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { generateTimeOptions } = useTimelogFilterOptions();
 	const { organizationProjects, getOrganizationProjectsLoading } = useOrganizationProjectsQuery();
@@ -220,16 +211,16 @@ export function AddTaskModal({ closeModal, isOpen, prefill, checkBeforeSave }: I
 
 	const timeOptions = generateTimeOptions(ADD_TIME_ENTRY_STEP_MINUTES);
 	const t = useTranslations();
+	const fixedEmployeeId = fixedMember?.employeeId ?? '';
 
-	const [formState, setFormState] = React.useState(() => ({
-		notes: '',
-		billableChoice: null as boolean | null,
-		taskId: '',
-		employeeId: '',
-		projectId: '',
-		shifts: [{ startTime: '', endTime: '', totalHours: '00:00h', dateFrom: new Date() }] as Shift[],
-		...copiedFormOf(prefill, tasks, activeTeam?.members)
-	}));
+	const [formState, setFormState] = React.useState(() => {
+		const copiedForm = copiedFormOf(prefill, tasks, activeTeam?.members);
+		// A fixed member is the only one the dialog adds time for, a copy of another member's entry included
+		const fixedEmployee = fixedEmployeeId ? { employeeId: fixedEmployeeId } : {};
+		return { ...emptyFormOf(fixedEmployeeId), ...copiedForm, ...fixedEmployee };
+	});
+	// Raised by a save: the period rows start over too, with the duration typed in them and its proposal
+	const [formVersion, setFormVersion] = React.useState(0);
 	const [saveRefusal, setSaveRefusal] = React.useState('');
 	const [isCheckingSave, setIsCheckingSave] = React.useState(false);
 	const openSessionOf = useOpenSession(isOpen);
@@ -242,7 +233,7 @@ export function AddTaskModal({ closeModal, isOpen, prefill, checkBeforeSave }: I
 	const [hasOverlappingPeriods, setHasOverlappingPeriods] = React.useState(false);
 	if (formTeamId !== activeTeamId) {
 		setFormTeamId(activeTeamId);
-		setFormState((prevState) => ({ ...prevState, taskId: '', employeeId: '' }));
+		setFormState((prevState) => ({ ...prevState, taskId: '', employeeId: fixedEmployeeId }));
 	}
 
 	// The required task and employee: Save stays disabled until both are picked
@@ -355,7 +346,7 @@ export function AddTaskModal({ closeModal, isOpen, prefill, checkBeforeSave }: I
 		const payload = {
 			isBillable,
 			description: formState.notes,
-			projectId: entryProjectId,
+			...projectFieldOf(entryProjectId),
 			logType: ETimeLogType.MANUAL as any,
 			source: ETimeLogSource.TEAMS as any,
 			taskId: formState.taskId,
@@ -421,6 +412,9 @@ export function AddTaskModal({ closeModal, isOpen, prefill, checkBeforeSave }: I
 						)
 					);
 					closeModal();
+					// The dialog stays mounted once opened: the next entry starts empty, not on the times just saved
+					setFormState(emptyFormOf(fixedEmployeeId));
+					setFormVersion((version) => version + 1);
 				} catch (error) {
 					console.error('Failed to create timesheet:', error);
 				}
@@ -472,7 +466,14 @@ export function AddTaskModal({ closeModal, isOpen, prefill, checkBeforeSave }: I
 						)}
 					/>
 				</div>
-				<div className="block">
+				{fixedMember && (
+					<FixedMemberField
+						label={t('manualTime.EMPLOYEE')}
+						name={fixedMember.name}
+						hint={t('manualTime.OWN_TIME_ONLY')}
+					/>
+				)}
+				<div className={clsxm('block', fixedMember && 'hidden')}>
 					<label className="block mb-1.5 text-sm font-medium leading-none text-foreground">
 						{t('manualTime.EMPLOYEE')}
 						<span className="ml-1 text-destructive-ink">*</span>:
@@ -501,8 +502,10 @@ export function AddTaskModal({ closeModal, isOpen, prefill, checkBeforeSave }: I
 				</div>
 				<div>
 					<OptimizedAccordion
+						key={formVersion}
 						setShifts={(e) => updateFormState('shifts', e)}
 						shifts={formState.shifts}
+						employeeId={formState.employeeId}
 						t={t}
 						timeOptions={timeOptions}
 					/>
@@ -642,11 +645,13 @@ const ShiftTimingSelect = ({
 const OptimizedAccordion = ({
 	setShifts,
 	shifts,
+	employeeId,
 	timeOptions,
 	t
 }: {
 	shifts: Shift[];
 	setShifts: React.Dispatch<React.SetStateAction<Shift[]>>;
+	employeeId: string;
 	timeOptions: string[];
 	t: TranslationHooks;
 }) => {
@@ -707,6 +712,13 @@ const OptimizedAccordion = ({
 		setShifts(updatedShifts);
 	};
 
+	const handleShiftTimes = (index: number, startTime: string, endTime: string) => {
+		const updatedShifts = [...shifts];
+		const totalHours = calculateTotalHoursHour(startTime, endTime);
+		updatedShifts[index] = { ...updatedShifts[index], startTime, endTime, totalHours };
+		setShifts(updatedShifts);
+	};
+
 	return (
 		<>
 			{shifts.map((element, index) => {
@@ -735,6 +747,9 @@ const OptimizedAccordion = ({
 										index={index}
 										onChange={handleShiftChange}
 										timeOptions={timeOptions}
+										shifts={shifts}
+										employeeId={employeeId}
+										onTimes={handleShiftTimes}
 									/>
 								</div>
 							</AccordionContent>
@@ -760,17 +775,25 @@ const ShiftManagement = ({
 	value,
 	index,
 	timeOptions,
+	shifts,
+	employeeId,
+	onTimes,
 	t
 }: {
 	onChange: (index: number, field: keyof Shift, value: string) => void;
 	value: Shift;
 	index: number;
 	timeOptions: string[];
+	shifts: Shift[];
+	employeeId: string;
+	onTimes: (index: number, startTime: string, endTime: string) => void;
 	t: TranslationHooks;
 }) => {
 	// Times skipped by a daylight saving change on the picked day cannot be saved as picked.
 	const baseDate = value.dateFrom ? new Date(value.dateFrom) : null;
 	const isTimeDisabled = (time: string) => baseDate !== null && createLocalDate(baseDate, time) === null;
+	const pickedTimes = [value.startTime, value.endTime];
+	const shownTimeOptions = timeOptionsWith(timeOptions, pickedTimes, convertToMinutesHour);
 
 	return (
 		<>
@@ -787,7 +810,7 @@ const ShiftManagement = ({
 				<div className="flex gap-2 justify-between items-center mb-1 w-full">
 					<ShiftTimingSelect
 						label="Start"
-						timeOptions={timeOptions}
+						timeOptions={shownTimeOptions}
 						placeholder="00:00:00"
 						className="bg-foreground/5"
 						value={value.startTime}
@@ -796,18 +819,22 @@ const ShiftManagement = ({
 					/>
 					<ShiftTimingSelect
 						label="End"
-						timeOptions={timeOptions}
+						timeOptions={shownTimeOptions}
 						placeholder="00:00:00"
 						className="bg-foreground/5"
 						value={value.endTime}
 						onChange={(value) => onChange(index, 'endTime', value)}
 						isTimeDisabled={isTimeDisabled}
 					/>
-					<button className="flex h-9 shrink-0 items-center rounded-md bg-foreground/5 px-2.5 text-sm font-medium tabular-nums focus:outline-none">
-						{value.totalHours}
-					</button>
 				</div>
 			</div>
+			<ShiftDurationField
+				shifts={shifts}
+				index={index}
+				employeeId={employeeId}
+				minutesOfOption={convertToMinutesHour}
+				onTimes={onTimes}
+			/>
 		</>
 	);
 };

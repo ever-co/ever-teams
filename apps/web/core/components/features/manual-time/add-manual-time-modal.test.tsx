@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type { DurationEntryInput } from '@/core/hooks/timesheet/use-duration-entry';
 import { AddManualTimeModal } from './add-manual-time-modal';
 
 const mockAddManualTime = jest.fn();
@@ -125,6 +126,16 @@ jest.mock('@/core/components', () => ({
 }));
 
 jest.mock('@/core/components/common/date-picker', () => ({ DatePicker: () => null }));
+
+// The duration field reads the member's day on its own: the dialog only tells it whose day, and shows its interval
+const mockDurationEntry: { input?: DurationEntryInput } = {};
+jest.mock('@/core/hooks/timesheet/use-duration-entry', () => ({
+	useDurationEntry: (input: DurationEntryInput) => {
+		mockDurationEntry.input = input;
+		return { text: '', phase: { kind: 'idle' }, change: jest.fn(), commit: jest.fn(), retry: jest.fn() };
+	}
+}));
+jest.mock('./duration-field', () => ({ DurationField: () => null }));
 
 // The Calendar dialog picks its employee and its task through ManageOrMemberComponent: one button per listed item
 function mockPickButtons(field: string, items: MockItem[], handleChange: MockManageOrMemberProps['handleChange']) {
@@ -352,6 +363,77 @@ describe('AddManualTimeModal opened on a copied entry', () => {
 		});
 
 		expect(mockSaveAfterCheck).not.toHaveBeenCalled();
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+});
+
+function durationInput(): DurationEntryInput {
+	const input = mockDurationEntry.input;
+	if (!input) {
+		throw new Error('The dialog did not ask for a duration entry');
+	}
+	return input;
+}
+
+function timeInputValues(container: HTMLElement) {
+	const timeInputs = container.querySelectorAll<HTMLInputElement>('input[type="time"]');
+	return Array.from(timeInputs).map((input) => input.value);
+}
+
+describe('AddManualTimeModal duration', () => {
+	beforeEach(() => {
+		mockAddManualTime.mockReset();
+		mockPickedTeamTasksQuery.data = undefined;
+		mockAtomValues.activeTeamState = teamA;
+		mockAtomValues.activeTeamTaskState = taskA;
+		mockAtomValues.organizationTeamsState = [teamA, teamB];
+		mockAtomValues.tasksByTeamState = teamATasks();
+	});
+
+	it('gives the duration field the times it shows and the employee picked in the Calendar dialog', () => {
+		renderCalendarDialog();
+
+		expect(durationInput().employeeId).toBeNull();
+		expect(durationInput().startMinutes).toBe(540);
+		expect(durationInput().endMinutes).toBe(660);
+
+		clickButton('pick employee-a');
+
+		expect(durationInput().employeeId).toBe('employee-a');
+	});
+
+	it('shows a proposed interval as the start and the end, and saves it to the minute', () => {
+		const { container } = renderAddTimeDialog();
+		const interval = { start: new Date(2026, 10, 10, 10, 30), end: new Date(2026, 10, 10, 12, 0) };
+
+		act(() => durationInput().onInterval(interval));
+
+		expect(timeInputValues(container)).toEqual(['10:30', '12:00']);
+
+		submitDialog();
+
+		const [request] = mockAddManualTime.mock.calls[0];
+		const savedTimes = [request.startedAt, request.stoppedAt].map((date: Date) => [
+			date.getHours(),
+			date.getMinutes(),
+			date.getSeconds(),
+			date.getMilliseconds()
+		]);
+		expect(savedTimes).toEqual([
+			[10, 30, 0, 0],
+			[12, 0, 0, 0]
+		]);
+	});
+
+	it('empties the start and the end when the asked duration found no room, so nothing is saved', () => {
+		const { container } = renderAddTimeDialog();
+
+		act(() => durationInput().onInterval(null));
+
+		expect(timeInputValues(container)).toEqual(['', '']);
+
+		submitDialog();
+
 		expect(mockAddManualTime).not.toHaveBeenCalled();
 	});
 });

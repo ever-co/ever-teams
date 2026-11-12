@@ -3052,7 +3052,28 @@
 			"TESTED_TIMER": "Timer getest"
 		},
 		"FILL_IN": "Vul in: {fields}.",
-		"END_AFTER_START": "De eindtijd moet na de begintijd liggen."
+		"END_AFTER_START": "De eindtijd moet na de begintijd liggen.",
+		"OWN_TIME_ONLY": "Je voegt tijd toe voor jezelf. Een beheerder kan tijd toevoegen voor iemand anders.",
+		"DURATION": {
+			"LABEL": "Duur",
+			"PLACEHOLDER": "1:30 of 90m",
+			"HINT": "Typ een duur en de eerste vrije tijd van de dag wordt voorgesteld.",
+			"READING": "Vrije tijd op deze dag zoeken",
+			"PROPOSED": "Voorgesteld: {start} tot {end}, de eerste vrije tijd van de dag. Je kunt dit wijzigen.",
+			"NO_ROOM": "Geen vrij blok van {duration} op deze dag. Kies het begin en het einde, of een andere dag.",
+			"NO_MEMBER": "Kies eerst de werknemer: de vrije tijd wordt uit de dag van die werknemer gelezen.",
+			"READ_FAILED": "De registraties van deze dag konden niet worden gelezen, dus er is geen tijd voorgesteld.",
+			"RETRY": "Opnieuw proberen"
+		},
+		"REQUIRED": {
+			"TEAM": "Je organisatie vereist een team bij elke tijdinvoer. Open een van je teams en voeg de tijd opnieuw toe.",
+			"PROJECT": "Je organisatie vereist een project bij elke tijdinvoer. Kies een project, of een taak die er een heeft.",
+			"TEAM_AND_PROJECT": "Je organisatie vereist een team en een project bij elke tijdinvoer. Open een van je teams en kies een taak met een project."
+		},
+		"TASK_CHANGE": {
+			"PROJECT_FOLLOWS": "Deze invoer gaat naar het project van de taak: {project}.",
+			"OTHER_TEAM": "Deze invoer hoort bij een ander team. Schakel naar dat team om de taak te wijzigen."
+		}
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Weet u zeker dat u dit tijdslot wilt verwijderen?"

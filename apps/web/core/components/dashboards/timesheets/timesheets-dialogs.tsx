@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useHasBeenOpen } from '@/core/hooks/common/use-has-been-open';
 import type { TimesheetDialogsState } from '@/core/hooks/dashboards/timesheets/use-timesheet-dialogs';
 import type { TimeEntryDuplicateState } from '@/core/hooks/timesheet/use-time-entry-duplicate';
+import type { FixedMember } from '@/core/lib/utils/dashboards/manual-time-entry';
 
 const LazyAddTaskModal = dynamic(
 	() => import('@/core/components/features/timesheet/add-mask-modal').then((module) => module.AddTaskModal),
@@ -70,9 +71,13 @@ export function TimesheetsDeleteDialog({
 
 /**
  * A copied entry opens the Add time entry dialog on its own instance, keyed by the copy: the form of the page's
- * Add time keeps what was typed in it, and a second copy never opens on the fields of the first.
+ * Add time keeps what was typed in it, and a second copy never opens on the fields of the first. A viewer who adds
+ * their own time only gets their own copy: the dialog offers them no other member (#5136).
  */
-function DuplicateDialog({ duplicate }: Readonly<{ duplicate: TimeEntryDuplicateState }>) {
+function DuplicateDialog({
+	duplicate,
+	fixedMember
+}: Readonly<{ duplicate: TimeEntryDuplicateState; fixedMember: FixedMember | null }>) {
 	const hasOpened = useHasBeenOpen(duplicate.isOpen);
 	const draft = duplicate.draft;
 	if (!hasOpened || !draft) {
@@ -85,9 +90,12 @@ function DuplicateDialog({ duplicate }: Readonly<{ duplicate: TimeEntryDuplicate
 			closeModal={duplicate.close}
 			prefill={draft}
 			checkBeforeSave={duplicate.checkBeforeSave}
+			fixedMember={fixedMember}
 		/>
 	);
 }
+
+const ANY_MEMBER_KEY = 'any-member';
 
 /**
  * The existing timesheet dialogs, each mounted once for the whole page and loaded on its first opening, so the
@@ -96,6 +104,7 @@ function DuplicateDialog({ duplicate }: Readonly<{ duplicate: TimeEntryDuplicate
 export function TimesheetsDialogs({
 	dialogs,
 	canAddTime,
+	addTimeMember = null,
 	isDeleting,
 	onRejected,
 	onDeleteConfirmed,
@@ -103,6 +112,7 @@ export function TimesheetsDialogs({
 }: Readonly<{
 	dialogs: TimesheetDialogsState;
 	canAddTime: boolean;
+	addTimeMember?: FixedMember | null;
 	isDeleting: boolean;
 	onRejected: () => void;
 	onDeleteConfirmed: () => Promise<void>;
@@ -112,6 +122,8 @@ export function TimesheetsDialogs({
 	const hasOpenedEdit = useHasBeenOpen(dialogs.isEditOpen);
 	const hasOpenedReject = useHasBeenOpen(dialogs.isRejectOpen);
 	const showsAddTime = canAddTime && hasOpenedAddTime;
+	// The form starts over when the member it is fixed to changes
+	const addTimeFormKey = addTimeMember?.employeeId ?? ANY_MEMBER_KEY;
 	const editedLog = dialogs.editedLog;
 	let editDialog: ReactNode = null;
 	if (hasOpenedEdit && editedLog) {
@@ -127,8 +139,15 @@ export function TimesheetsDialogs({
 
 	return (
 		<>
-			{showsAddTime && <LazyAddTaskModal isOpen={dialogs.isAddTimeOpen} closeModal={dialogs.closeAddTime} />}
-			{duplicate && <DuplicateDialog duplicate={duplicate} />}
+			{showsAddTime && (
+				<LazyAddTaskModal
+					key={addTimeFormKey}
+					isOpen={dialogs.isAddTimeOpen}
+					closeModal={dialogs.closeAddTime}
+					fixedMember={addTimeMember}
+				/>
+			)}
+			{duplicate && <DuplicateDialog duplicate={duplicate} fixedMember={addTimeMember} />}
 			{editDialog}
 			{hasOpenedReject && (
 				<LazyRejectSelectedModal

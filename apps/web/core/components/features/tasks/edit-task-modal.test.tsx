@@ -34,6 +34,19 @@ jest.mock('@/core/components/features/manual-time/time-overlap-confirm-dialog', 
 	TimeOverlapCheckError: () => null,
 	TimeOverlapConfirmDialog: () => null
 }));
+// The entry keeps its task here: changing it has its own tests (edit-task-modal.task-change.test.tsx)
+jest.mock('@/core/hooks/timesheet/use-time-log-task-choice', () => ({
+	useTimeLogTaskChoice: () => ({
+		canChangeTask: false,
+		taskChoices: [],
+		taskId: '',
+		pickTask: jest.fn(),
+		changedFields: {},
+		projectChoices: [],
+		shownProject: null,
+		followedProjectName: null
+	})
+}));
 jest.mock('@/core/hooks', () => ({ useMyRolePermissionsQuery: () => ({ myPermissions: [] }) }));
 jest.mock('@/core/hooks/organizations/projects/use-organization-projects-query', () => ({
 	useOrganizationProjectsQuery: () => ({ organizationProjects: [] })
