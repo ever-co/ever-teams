@@ -72,7 +72,8 @@ export function TimesheetsListSkeleton({ showsMember }: Readonly<{ showsMember: 
 
 /**
  * The bulk bar of a selection, floating over the bottom of the list like the projects page: the count, approve and
- * reject for those who may, delete when every selected log may be deleted, and clear.
+ * reject for those who may, delete when every selected log may be deleted, and clear. On a narrow screen the bar
+ * scrolls sideways instead of running off both edges.
  */
 export function TimesheetsSelectionBar({
 	count,
@@ -100,10 +101,10 @@ export function TimesheetsSelectionBar({
 			<div
 				role="toolbar"
 				aria-label={label}
-				className="surface-raised pointer-events-auto flex h-11 items-center gap-1 rounded-full py-1 pr-1.5 pl-4"
+				className="surface-raised pointer-events-auto flex h-11 max-w-full items-center gap-1 overflow-x-auto rounded-full py-1 pr-1.5 pl-4"
 			>
-				<span className="pr-2 text-[13px] font-medium tabular-nums text-foreground">{label}</span>
-				<span className="h-4 w-px bg-border" />
+				<span className="shrink-0 pr-2 text-[13px] font-medium tabular-nums text-foreground">{label}</span>
+				<span className="h-4 w-px shrink-0 bg-border" />
 				{canApprove && (
 					<>
 						<Button type="button" variant="ghost" size="default" onClick={onApprove} disabled={isApproving}>
