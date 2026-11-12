@@ -6364,7 +6364,8 @@
 				"DUE_DATE": "Wybierz termin płatności.",
 				"DUE_BEFORE_ISSUE": "Termin płatności jest wcześniejszy niż data wystawienia.",
 				"NO_LINES": "Faktura nie ma żadnej pozycji.",
-				"NO_CURRENCY": "Ten czas nie ma waluty. Ustaw walutę obszaru roboczego lub projektu."
+				"NO_CURRENCY": "Ten czas nie ma waluty. Ustaw walutę obszaru roboczego lub projektu.",
+				"READING_EARLIER": "Odczytywanie faktur już zapisanych dla tego klienta."
 			},
 			"otherCurrencies": {
 				"TITLE": "Wycenione w innej walucie",
@@ -6394,7 +6395,8 @@
 				"LINES": "{count, plural, one {# pozycja} few {# pozycje} many {# pozycji} other {# pozycji}}, {hours} godz., {total}.",
 				"DATES": "Wystawiona {issueDate}, termin płatności {dueDate}.",
 				"DRAFT": "Zostanie zapisana jako wersja robocza i można ją pobrać jako PDF.",
-				"FAILED": "Faktura nie została zapisana i nic nie zostało utworzone. Sprawdź, czy numer jest wolny, i spróbuj ponownie."
+				"FAILED": "Faktura nie została zapisana i nic nie zostało utworzone. Sprawdź, czy numer jest wolny, i spróbuj ponownie.",
+				"UNCHECKED": "Nie udało się odczytać faktur już zapisanych dla {client}, więc tego okresu nie porównano z nimi."
 			}
 		}
 	}

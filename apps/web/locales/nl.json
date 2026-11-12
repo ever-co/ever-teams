@@ -6364,7 +6364,8 @@
 				"DUE_DATE": "Kies de vervaldatum.",
 				"DUE_BEFORE_ISSUE": "De vervaldatum ligt voor de factuurdatum.",
 				"NO_LINES": "De factuur heeft geen regel.",
-				"NO_CURRENCY": "Deze tijd heeft geen valuta. Stel de valuta van de werkruimte of van het project in."
+				"NO_CURRENCY": "Deze tijd heeft geen valuta. Stel de valuta van de werkruimte of van het project in.",
+				"READING_EARLIER": "De al opgeslagen facturen van deze klant worden gelezen."
 			},
 			"otherCurrencies": {
 				"TITLE": "Geprijsd in een andere valuta",
@@ -6394,7 +6395,8 @@
 				"LINES": "{count, plural, one {# regel} other {# regels}}, {hours} u, {total}.",
 				"DATES": "Uitgereikt op {issueDate}, vervalt op {dueDate}.",
 				"DRAFT": "De factuur wordt als concept opgeslagen en kan als pdf worden gedownload.",
-				"FAILED": "De factuur is niet opgeslagen en er is niets aangemaakt. Controleer of het nummer vrij is en probeer het opnieuw."
+				"FAILED": "De factuur is niet opgeslagen en er is niets aangemaakt. Controleer of het nummer vrij is en probeer het opnieuw.",
+				"UNCHECKED": "De al opgeslagen facturen van {client} konden niet worden gelezen, dus deze periode is er niet mee vergeleken."
 			}
 		}
 	}

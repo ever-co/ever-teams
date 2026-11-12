@@ -6364,7 +6364,8 @@
 				"DUE_DATE": "Wählen Sie das Fälligkeitsdatum.",
 				"DUE_BEFORE_ISSUE": "Das Fälligkeitsdatum liegt vor dem Rechnungsdatum.",
 				"NO_LINES": "Die Rechnung hat keine Position.",
-				"NO_CURRENCY": "Diese Zeit hat keine Währung. Legen Sie die Währung des Arbeitsbereichs oder des Projekts fest."
+				"NO_CURRENCY": "Diese Zeit hat keine Währung. Legen Sie die Währung des Arbeitsbereichs oder des Projekts fest.",
+				"READING_EARLIER": "Die bereits gespeicherten Rechnungen dieses Kunden werden gelesen."
 			},
 			"otherCurrencies": {
 				"TITLE": "In einer anderen Währung bepreist",
@@ -6394,7 +6395,8 @@
 				"LINES": "{count, plural, one {# Position} other {# Positionen}}, {hours} Std., {total}.",
 				"DATES": "Ausgestellt am {issueDate}, fällig am {dueDate}.",
 				"DRAFT": "Sie wird als Entwurf gespeichert und kann als PDF heruntergeladen werden.",
-				"FAILED": "Die Rechnung wurde nicht gespeichert, und es wurde nichts angelegt. Prüfen Sie, ob die Nummer frei ist, und versuchen Sie es erneut."
+				"FAILED": "Die Rechnung wurde nicht gespeichert, und es wurde nichts angelegt. Prüfen Sie, ob die Nummer frei ist, und versuchen Sie es erneut.",
+				"UNCHECKED": "Die bereits gespeicherten Rechnungen für {client} konnten nicht gelesen werden, daher wurde dieser Zeitraum nicht mit ihnen abgeglichen."
 			}
 		}
 	}

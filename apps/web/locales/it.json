@@ -6364,7 +6364,8 @@
 				"DUE_DATE": "Scegli la data di scadenza.",
 				"DUE_BEFORE_ISSUE": "La data di scadenza precede la data di emissione.",
 				"NO_LINES": "La fattura non ha alcuna riga.",
-				"NO_CURRENCY": "Questo tempo non ha valuta. Imposta la valuta dello spazio di lavoro o del progetto."
+				"NO_CURRENCY": "Questo tempo non ha valuta. Imposta la valuta dello spazio di lavoro o del progetto.",
+				"READING_EARLIER": "Lettura delle fatture già salvate per questo cliente."
 			},
 			"otherCurrencies": {
 				"TITLE": "Con tariffa in un’altra valuta",
@@ -6394,7 +6395,8 @@
 				"LINES": "{count, plural, one {# riga} other {# righe}}, {hours} h, {total}.",
 				"DATES": "Emessa il {issueDate}, scade il {dueDate}.",
 				"DRAFT": "Viene salvata come bozza e può essere scaricata in PDF.",
-				"FAILED": "La fattura non è stata salvata e non è stato creato nulla. Controlla che il numero sia libero, poi riprova."
+				"FAILED": "La fattura non è stata salvata e non è stato creato nulla. Controlla che il numero sia libero, poi riprova.",
+				"UNCHECKED": "Impossibile leggere le fatture già salvate per {client}, quindi questo periodo non è stato confrontato con esse."
 			}
 		}
 	}

@@ -6364,7 +6364,8 @@
 				"DUE_DATE": "Escolha a data de vencimento.",
 				"DUE_BEFORE_ISSUE": "A data de vencimento é anterior à data de emissão.",
 				"NO_LINES": "A fatura não tem nenhuma linha.",
-				"NO_CURRENCY": "Este tempo não tem moeda. Defina a moeda do espaço de trabalho ou do projeto."
+				"NO_CURRENCY": "Este tempo não tem moeda. Defina a moeda do espaço de trabalho ou do projeto.",
+				"READING_EARLIER": "A ler as faturas já guardadas deste cliente."
 			},
 			"otherCurrencies": {
 				"TITLE": "Com tarifa noutra moeda",
@@ -6394,7 +6395,8 @@
 				"LINES": "{count, plural, one {# linha} other {# linhas}}, {hours} h, {total}.",
 				"DATES": "Emitida a {issueDate}, vence a {dueDate}.",
 				"DRAFT": "É guardada como rascunho e pode ser descarregada em PDF.",
-				"FAILED": "A fatura não foi guardada e nada foi criado. Verifique se o número está livre e tente novamente."
+				"FAILED": "A fatura não foi guardada e nada foi criado. Verifique se o número está livre e tente novamente.",
+				"UNCHECKED": "Não foi possível ler as faturas já guardadas de {client}, por isso este período não foi comparado com elas."
 			}
 		}
 	}
