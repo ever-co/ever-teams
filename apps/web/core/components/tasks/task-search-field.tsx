@@ -9,6 +9,9 @@ import { cn } from '@/core/lib/helpers';
 
 const SEARCH_DEBOUNCE_MS = 200;
 
+/** The key that jumps into the search from anywhere outside a field; the shortcuts sheet lists it. */
+export const TASK_SEARCH_FOCUS_KEY = '/';
+
 function isTypingTarget(target: EventTarget | null) {
 	if (!(target instanceof HTMLElement)) {
 		return false;
@@ -56,9 +59,9 @@ export function TaskSearchField({
 			return;
 		}
 		const handleKeyDown = (event: globalThis.KeyboardEvent) => {
-			const isSlash = event.key === '/';
+			const isFocusKey = event.key === TASK_SEARCH_FOCUS_KEY;
 			const hasModifier = [event.metaKey, event.ctrlKey, event.altKey].some(Boolean);
-			if (!isSlash || hasModifier) {
+			if (!isFocusKey || hasModifier) {
 				return;
 			}
 			if (isTypingTarget(event.target)) {
@@ -100,7 +103,7 @@ export function TaskSearchField({
 			/>
 			{showsKeycap && (
 				<kbd className={commandKeycapClass} aria-hidden="true">
-					/
+					{TASK_SEARCH_FOCUS_KEY}
 				</kbd>
 			)}
 			{hasDraft && (
