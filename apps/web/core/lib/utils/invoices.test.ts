@@ -2,10 +2,12 @@ import {
 	billableEntriesOf,
 	buildInvoiceRequest,
 	defaultDueDayOf,
+	dueDayAfter,
 	hoursOfLines,
 	invoiceCurrenciesOf,
 	invoiceCurrencyKeyOf,
 	invoiceDayOf,
+	invoiceDueTermOf,
 	invoiceMonthGroupsOf,
 	invoicePeriodOfTerms,
 	invoiceProblemsOf,
@@ -23,6 +25,7 @@ import {
 	periodsOverlap,
 	projectGroupsOf,
 	removedLineCountOf,
+	STANDARD_DUE_DAYS,
 	type BillableEntry,
 	type BillableLogLike,
 	type InvoiceLineNames,
@@ -655,6 +658,33 @@ describe('invoice number and dates', () => {
 		expect(defaultDueDayOf('2026-11-02', null)).toBe('');
 		expect(defaultDueDayOf('2026-11-02', 0)).toBe('');
 		expect(defaultDueDayOf('', 30)).toBe('');
+	});
+
+	it('dues the invoice of a client with 14-day terms 14 days after its issue', () => {
+		const term = invoiceDueTermOf(14, 30);
+
+		expect(term).toEqual({ source: 'client', days: 14 });
+		expect(dueDayAfter('2026-11-02', term.days)).toBe('2026-11-16');
+	});
+
+	it('reads a client’s terms of zero days as due on receipt', () => {
+		const term = invoiceDueTermOf(0, 30);
+
+		expect(term).toEqual({ source: 'client', days: 0 });
+		expect(dueDayAfter('2026-11-02', term.days)).toBe('2026-11-02');
+	});
+
+	it('falls back on the organization’s setting, then on thirty days', () => {
+		expect(invoiceDueTermOf(null, 45)).toEqual({ source: 'organization', days: 45 });
+		expect(invoiceDueTermOf(-3, 10)).toEqual({ source: 'organization', days: 10 });
+		expect(invoiceDueTermOf(undefined, 0)).toEqual({ source: 'standard', days: STANDARD_DUE_DAYS });
+		expect(invoiceDueTermOf(14.5, null)).toEqual({ source: 'standard', days: 30 });
+	});
+
+	it('counts the due day across months and years, and none from an issue day that is not a day', () => {
+		expect(dueDayAfter('2026-12-15', 30)).toBe('2027-01-14');
+		expect(dueDayAfter('', 14)).toBe('');
+		expect(dueDayAfter('2026-02-30', 14)).toBe('');
 	});
 
 	it('names what keeps an invoice from being saved', () => {

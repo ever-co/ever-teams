@@ -660,6 +660,56 @@ export function defaultDueDayOf(issueDay: string, daysUntilDue: number | null | 
 	return localDayKeyOf(addDays(issueDate, days));
 }
 
+export type InvoiceDueTermSource = 'client' | 'organization' | 'standard';
+
+export interface InvoiceDueTerm {
+	source: InvoiceDueTermSource;
+	days: number;
+}
+
+/** The term of an invoice whose client and organization state none. */
+export const STANDARD_DUE_DAYS = 30;
+
+function termDaysOf(value: number | null | undefined, minimum: number): number | null {
+	if (typeof value !== 'number') {
+		return null;
+	}
+	const isWhole = Number.isInteger(value);
+	const isLongEnough = value >= minimum;
+	if (!isWhole || !isLongEnough) {
+		return null;
+	}
+	return value;
+}
+
+/**
+ * How many days after its issue an invoice is due: the client's own payment terms, where zero is due on receipt,
+ * else the organization's setting, where zero is no setting as on the API's own screen, else thirty days.
+ */
+export function invoiceDueTermOf(
+	clientTermDays: number | null | undefined,
+	organizationDaysUntilDue: number | null | undefined
+): InvoiceDueTerm {
+	const clientDays = termDaysOf(clientTermDays, 0);
+	if (clientDays !== null) {
+		return { source: 'client', days: clientDays };
+	}
+	const organizationDays = termDaysOf(organizationDaysUntilDue, 1);
+	if (organizationDays !== null) {
+		return { source: 'organization', days: organizationDays };
+	}
+	return { source: 'standard', days: STANDARD_DUE_DAYS };
+}
+
+/** The day `days` after the issue day; empty while the issue day is not a real day. */
+export function dueDayAfter(issueDay: string, days: number): string {
+	const issueDate = dateOfDayKey(issueDay);
+	if (!issueDate || !isRealDay(issueDay)) {
+		return '';
+	}
+	return localDayKeyOf(addDays(issueDate, days));
+}
+
 export type InvoiceProblem = 'number' | 'issueDay' | 'dueDay' | 'dueBeforeIssue' | 'noLines' | 'noCurrency';
 
 export interface InvoiceDraftFacts {
