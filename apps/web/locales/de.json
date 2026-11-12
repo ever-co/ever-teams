@@ -6192,6 +6192,7 @@
 		"DELETE_FOREVER_TEXT": "„{title}“ wird endgültig entfernt. Das kann nicht rückgängig gemacht werden.",
 		"DELETED_FOREVER": "„{title}“ wurde endgültig gelöscht",
 		"NO_LONGER_IN_TRASH": "„{title}“ ist nicht mehr im Papierkorb: Sie wurde inzwischen wiederhergestellt oder gelöscht. Die Liste wurde aktualisiert.",
+		"STILL_LINKED": "„{title}“ bleibt im Papierkorb: Andere Aufgaben oder Schlüsselergebnisse sind noch damit verknüpft. Entfernen Sie zuerst diese Verknüpfungen.",
 		"DELETE_FAILED": "Die Aufgabe wurde nicht gelöscht. Versuchen Sie es erneut.",
 		"DELETED_BY": "Gelöscht von {name} · {date}",
 		"DELETED_AT": "Gelöscht {date}",

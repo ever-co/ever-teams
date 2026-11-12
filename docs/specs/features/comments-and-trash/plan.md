@@ -13,7 +13,7 @@
 | Edit / resolve | `PUT /comment/:id` | `{ comment, mentionEmployeeIds }` or `{ resolved, resolvedAt, resolvedByEmployeeId }`; author only (or `CHANGE_SELECTED_EMPLOYEE`); `editedAt` stamped by the server |
 | Delete / undo | `DELETE /comment/:id/soft`, `PUT /comment/:id/recover` | same ownership rule |
 | Reactions | `GET /reaction/comments?entity=Task&entityId=…`, `POST /reaction` | the summary covers the comments the caller can list; `POST` toggles |
-| Trash | `GET /tasks/trash`, `PUT /tasks/:id/recover`, `DELETE /tasks/:id/soft`, `DELETE /tasks/:id/trashed` (Delete forever: only while the task is in the trash, 404 otherwise; ever-gauzy#11851) | the list answers 404 unless `GAUZY_TASK_TRASH_ENABLED=true` |
+| Trash | `GET /tasks/trash`, `PUT /tasks/:id/recover`, `DELETE /tasks/:id/soft`, `DELETE /tasks/:id/trashed` (Delete forever: only while the task is in the trash, 404 otherwise, 409 while a linked issue or key result points at it; ever-gauzy#11851) | the list answers 404 unless `GAUZY_TASK_TRASH_ENABLED=true` |
 
 The client calls the platform directly (`GAUZY_API_BASE_SERVER_URL`, as `commentService` already does); no Next route
 is added.

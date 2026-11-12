@@ -86,6 +86,20 @@ describe('useTaskTrash — Delete forever', () => {
 		await waitFor(() => expect(result.current.tasks.map((task) => task.id)).toEqual(['t2']));
 	});
 
+	it('answers still-linked when other records still point at the task, and leaves the list as it was', async () => {
+		const { result } = await renderTrash();
+		const reads = mockList.mock.calls.length;
+		mockDeleteForever.mockRejectedValue({ response: { status: 409 } });
+
+		let outcome: string | undefined;
+		await act(async () => {
+			outcome = await result.current.deleteForever(trashed('t1'));
+		});
+
+		expect(outcome).toBe('still-linked');
+		expect(mockList.mock.calls.length).toBe(reads);
+	});
+
 	it('answers failed for any other refusal, and leaves the list as it was', async () => {
 		const { result } = await renderTrash();
 		const reads = mockList.mock.calls.length;

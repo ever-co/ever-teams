@@ -75,6 +75,8 @@ gone for good. This feature lets people:
 - **Given** someone else restored the task (or deleted it) after my trash was read, **when** I confirm Delete forever,
   **then** nothing is deleted: the platform deletes a task only while it is in the trash, the app says the task is no
   longer in the trash, and the list is read again.
+- **Given** other tasks or key results are still linked to a task in the trash, **when** I confirm Delete forever,
+  **then** the task stays in the trash and the app says those links must be removed first (the platform's 409).
 - **Given** I may not manage the trash (no delete permission and I do not manage the team), **then** the page says
   only managers can see it, and the sidebar keeps the entry (the platform decides).
 - **Given** the platform answers that the trash is not enabled, **then** the page says the trash is not available on

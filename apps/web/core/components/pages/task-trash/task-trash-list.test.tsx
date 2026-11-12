@@ -85,6 +85,16 @@ describe('TaskTrashList — Delete forever', () => {
 		expect(screen.queryByTestId('confirm-delete')).toBeNull();
 	});
 
+	it('says the task stays in the trash while other records are still linked to it', async () => {
+		mockDeleteForever.mockResolvedValue('still-linked');
+
+		await deleteFirstTask();
+
+		expect(toastMock.error).toHaveBeenCalledWith('taskTrash.STILL_LINKED {"title":"Task t1"}');
+		expect(toastMock.warning).not.toHaveBeenCalled();
+		expect(toastMock).not.toHaveBeenCalled();
+	});
+
 	it('says the delete failed when the platform refused it', async () => {
 		mockDeleteForever.mockResolvedValue('failed');
 

@@ -6192,6 +6192,7 @@
 		"DELETE_FOREVER_TEXT": "“{title}”将被永久删除，且无法撤销。",
 		"DELETED_FOREVER": "“{title}”已永久删除",
 		"NO_LONGER_IN_TRASH": "“{title}”已不在回收站中：它已被恢复或删除。列表已刷新。",
+		"STILL_LINKED": "“{title}”仍在回收站中：仍有其他任务或关键结果与它关联。请先移除这些关联。",
 		"DELETE_FAILED": "任务未删除，请重试。",
 		"DELETED_BY": "由 {name} 删除 · {date}",
 		"DELETED_AT": "删除于 {date}",

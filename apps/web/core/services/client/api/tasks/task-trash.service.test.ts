@@ -202,9 +202,10 @@ describe('the trash list helpers', () => {
 		expect(nextTrashOffset([])).toBeUndefined();
 	});
 
-	it('reads a 404 to Delete forever as a task no longer in the trash, and any other failure as a refusal', () => {
+	it('reads a 404 to Delete forever as a task no longer in the trash, a 409 as a linked one, the rest as a refusal', () => {
 		expect(trashDeleteFailureOf({ response: { status: 404 } })).toBe('not-in-trash');
 		expect(trashDeleteFailureOf({ statusCode: 404 })).toBe('not-in-trash');
+		expect(trashDeleteFailureOf({ response: { status: 409 } })).toBe('still-linked');
 		expect(trashDeleteFailureOf({ response: { status: 403 } })).toBe('failed');
 		expect(trashDeleteFailureOf({ status: 500 })).toBe('failed');
 		expect(trashDeleteFailureOf(new Error('network'))).toBe('failed');

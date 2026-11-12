@@ -73,6 +73,10 @@ export function TaskTrashList({ teamId, projectId, showsProject = true }: Readon
 			toast.warning(t('taskTrash.NO_LONGER_IN_TRASH', { title: task.title }));
 			return;
 		}
+		if (outcome === 'still-linked') {
+			toast.error(t('taskTrash.STILL_LINKED', { title: task.title }));
+			return;
+		}
 		if (outcome === 'failed') {
 			toast.error(t('taskTrash.DELETE_FAILED'));
 			return;

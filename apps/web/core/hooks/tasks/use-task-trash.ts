@@ -128,7 +128,8 @@ export function useTaskTrash(filter: TaskTrashFilter) {
 
 	/**
 	 * Deletes a task for good, only while it is still in the trash. `not-in-trash`: someone restored or deleted it since
-	 * the list was read, so nothing was deleted, and the lists are read again; `failed`: the platform refused it.
+	 * the list was read, so nothing was deleted, and the lists are read again; `still-linked`: other records still point
+	 * at it, so it stays; `failed`: the platform refused it otherwise.
 	 */
 	const deleteForever = useCallback(
 		async (task: ITrashedTask): Promise<TaskTrashDeleteOutcome> => {
