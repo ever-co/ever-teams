@@ -167,6 +167,25 @@ function renderTab() {
 	return { pressStart, pressStop, queryClient, store };
 }
 
+/**
+ * Presses Start in the tab and checks it is refused with the "already tracking" warning while the run `logId` goes on
+ * untouched. Answers the spy on the tab's query invalidations, set before the press.
+ */
+async function expectStartRefusedKeeping(tab: ReturnType<typeof renderTab>, logId: string) {
+	const invalidate = jest.spyOn(tab.queryClient, 'invalidateQueries');
+
+	const outcome = await tab.pressStart();
+
+	expect(mockStopTimer).not.toHaveBeenCalled();
+	expect(mockStartTimer).not.toHaveBeenCalled();
+	expect(mockGauzy.lastLog).toMatchObject({ id: logId, isRunning: true });
+	expect(outcome).toBe('blocked');
+	expect(mockToastWarning).toHaveBeenCalledWith('timer.ALREADY_TRACKING_MESSAGE', {
+		id: ALREADY_TRACKING_TOAST_ID
+	});
+	return invalidate;
+}
+
 describe('Start while the tracking flag says a timer runs and this tab says stopped', () => {
 	beforeEach(() => {
 		mockGauzy.lastLog = null;
@@ -183,24 +202,16 @@ describe('Start while the tracking flag says a timer runs and this tab says stop
 			stoppedAt: minutesAgo(0.5)
 		};
 		mockGauzy.isTrackingTime = true;
-		const { pressStart, pressStop, queryClient, store } = renderTab();
-		const invalidate = jest.spyOn(queryClient, 'invalidateQueries');
+		const tab = renderTab();
 
-		const outcome = await pressStart();
+		const invalidate = await expectStartRefusedKeeping(tab, 'log-desktop');
 
-		expect(mockStopTimer).not.toHaveBeenCalled();
-		expect(mockStartTimer).not.toHaveBeenCalled();
-		expect(mockGauzy.lastLog).toMatchObject({ id: 'log-desktop', isRunning: true });
-		expect(outcome).toBe('blocked');
-		expect(mockToastWarning).toHaveBeenCalledWith('timer.ALREADY_TRACKING_MESSAGE', {
-			id: ALREADY_TRACKING_TOAST_ID
-		});
 		// This tab's status was out of date: the tab shows that run at once, and its status queries read it again
-		expect(store.get(timerStatusState)).toMatchObject({ running: true, lastLog: { id: 'log-desktop' } });
+		expect(tab.store.get(timerStatusState)).toMatchObject({ running: true, lastLog: { id: 'log-desktop' } });
 		expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.timer.all });
 
 		// Stop in this tab then stops that run
-		await pressStop();
+		await tab.pressStop();
 
 		expect(mockStopTimer).toHaveBeenCalledWith({ source: ETimeLogSource.DESKTOP });
 		expect(mockGauzy.lastLog).toMatchObject({ id: 'log-desktop', isRunning: false });
@@ -216,20 +227,12 @@ describe('Start while the tracking flag says a timer runs and this tab says stop
 			stoppedAt: minutesAgo(1)
 		};
 		mockGauzy.isTrackingTime = true;
-		const { pressStart, queryClient, store } = renderTab();
-		const invalidate = jest.spyOn(queryClient, 'invalidateQueries');
+		const tab = renderTab();
 
-		const outcome = await pressStart();
+		const invalidate = await expectStartRefusedKeeping(tab, 'log-overnight');
 
-		expect(mockStopTimer).not.toHaveBeenCalled();
-		expect(mockStartTimer).not.toHaveBeenCalled();
-		expect(mockGauzy.lastLog).toMatchObject({ id: 'log-overnight', isRunning: true });
-		expect(outcome).toBe('blocked');
-		expect(mockToastWarning).toHaveBeenCalledWith('timer.ALREADY_TRACKING_MESSAGE', {
-			id: ALREADY_TRACKING_TOAST_ID
-		});
 		// The tab shows that run at once. Its day's status is not read again: it would show the run stopped
-		expect(store.get(timerStatusState)).toMatchObject({ running: true, lastLog: { id: 'log-overnight' } });
+		expect(tab.store.get(timerStatusState)).toMatchObject({ running: true, lastLog: { id: 'log-overnight' } });
 		expect(invalidate).not.toHaveBeenCalledWith({ queryKey: queryKeys.timer.all });
 	});
 
