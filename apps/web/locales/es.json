@@ -3938,6 +3938,7 @@
 		"REJOIN": "Volver a unirse",
 		"SHARE_SCREEN": "Compartir pantalla",
 		"SHARE_SCREEN_REFUSED": "Tu navegador no empezó a compartir tu pantalla. Necesita un clic para hacerlo.",
+		"SHARE_SCREEN_JITSI_HINT": "Elige en la ventana del navegador la pantalla que quieres compartir. Si no se abrió ninguna, usa el botón de compartir de la barra de la reunión.",
 		"SETTINGS": "Configuración",
 		"AUDIO_AND_VIDEO": "Audio y video",
 		"EFFECTS": "Efectos",

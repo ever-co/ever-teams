@@ -3938,6 +3938,7 @@
 		"REJOIN": "Dołącz ponownie",
 		"SHARE_SCREEN": "Udostępnij ekran",
 		"SHARE_SCREEN_REFUSED": "Przeglądarka nie zaczęła udostępniać ekranu. Potrzebuje do tego kliknięcia.",
+		"SHARE_SCREEN_JITSI_HINT": "Wybierz ekran do udostępnienia w oknie przeglądarki. Jeśli żadne się nie otworzyło, użyj przycisku udostępniania na pasku spotkania.",
 		"SETTINGS": "Ustawienia",
 		"AUDIO_AND_VIDEO": "Dźwięk i obraz",
 		"EFFECTS": "Efekty",

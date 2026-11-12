@@ -3938,6 +3938,7 @@
 		"REJOIN": "Opnieuw deelnemen",
 		"SHARE_SCREEN": "Scherm delen",
 		"SHARE_SCREEN_REFUSED": "Je browser is niet begonnen met het delen van je scherm. Daarvoor is een klik nodig.",
+		"SHARE_SCREEN_JITSI_HINT": "Kies in het venster van je browser het scherm om te delen. Als er geen opende, gebruik dan de deelknop in de werkbalk van de vergadering.",
 		"SETTINGS": "Instellingen",
 		"AUDIO_AND_VIDEO": "Audio en video",
 		"EFFECTS": "Effecten",
