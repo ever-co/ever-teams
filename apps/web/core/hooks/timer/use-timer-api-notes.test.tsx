@@ -30,8 +30,8 @@ interface StartAnswer {
 /** The start request stays in flight until the test answers it. */
 let answerStart: (answer: StartAnswer) => void = () => undefined;
 
-const mockStartTimer = jest.fn(
-	(_body: { description?: string }) =>
+const mockStartTimer = jest.fn<Promise<StartAnswer>, [{ description?: string }]>(
+	() =>
 		new Promise<StartAnswer>((resolve) => {
 			answerStart = resolve;
 		})
