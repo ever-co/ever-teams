@@ -46,13 +46,19 @@ function logsOfMember(logs: ReadonlyArray<ITimeLog>, memberId: string | null): I
 	return logs.filter((log) => memberIdOfLog(log) === memberId);
 }
 
-/** A status, search, project or task filter shows only part of a cell's time, so the sheet cannot be edited under it. */
+/**
+ * Every filter but the member one shows only part of a member's time (status, search, project, task, client, billable
+ * time, label), so the sheet cannot be edited under it.
+ */
 function isNarrowed(page: TimesheetsPageState) {
 	const hasStatus = page.statusFilter !== ALL_STATUSES;
 	const hasSearch = page.search.trim().length > 0;
 	const hasProjects = page.filters.projects.length > 0;
 	const hasTasks = page.filters.tasks.length > 0;
-	return hasStatus || hasSearch || hasProjects || hasTasks;
+	const hasClients = page.filters.clients.length > 0;
+	const hasBillable = page.filters.billable.length > 0;
+	const hasLabels = page.filters.labels.length > 0;
+	return hasStatus || hasSearch || hasProjects || hasTasks || hasClients || hasBillable || hasLabels;
 }
 
 /**
