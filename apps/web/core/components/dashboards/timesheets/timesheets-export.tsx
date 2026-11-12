@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import type {
 	EntriesPdfContent,
 	EntriesPdfFigure,
@@ -28,6 +28,8 @@ import {
 } from '@/core/lib/utils/dashboards/timesheet-export';
 import { ALL_STATUSES, hoursMinutesOf, type TimesheetStatusFilter } from '@/core/lib/utils/dashboards/timesheets';
 import { exportToXLSX } from '@/core/lib/utils/export-utils';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { STATUS_LABEL_KEYS } from './timesheet-status';
 
@@ -96,7 +98,7 @@ interface ExportInput {
 	appliedFilters: ReadonlyArray<TimesheetExportFilter>;
 	statusFilter: TimesheetStatusFilter;
 	search: string;
-	locale: string;
+	locale: FormatLocale;
 	t: Translate;
 }
 
@@ -208,13 +210,13 @@ function pdfContentOf(input: ExportInput): EntriesPdfContent {
 	const headers = columns.map((column) => column.header);
 	const totals = timesheetExportTotalsOf(logs);
 	const totalText = formatDurationShort(totals.seconds);
-	const dayFormat = new Intl.DateTimeFormat(locale, {
+	const dayFormat = dateFormatOf(locale, {
 		weekday: 'long',
 		year: 'numeric',
 		month: 'short',
 		day: 'numeric'
 	});
-	const generatedFormat = new Intl.DateTimeFormat(locale, { dateStyle: 'long' });
+	const generatedFormat = dateFormatOf(locale, { dateStyle: 'long' });
 	const generatedDate = generatedFormat.format(new Date());
 	const days = timesheetExportDaysOf(logs);
 	return {
@@ -257,7 +259,7 @@ export function useTimesheetExportOptions({
 	search
 }: Readonly<Omit<ExportInput, 'locale' | 't'>>): ExportOption[] {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	return useMemo(() => {
 		const input: ExportInput = { logs, period, appliedFilters, statusFilter, search, locale, t };
 		return [
