@@ -16,6 +16,7 @@ import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import type { TOrganizationTeamEmployee, TTaskStatus } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { draggedTaskDatesOf, type TeamTasksTimelineDrag } from '@/core/lib/utils/team-tasks-timeline';
+import { droppedTaskDatesOf } from '@/core/lib/utils/team-tasks-calendar';
 
 /** The fields a list of tasks edits in place; the names match the failure toast's own select. */
 export type TeamTaskField = 'status' | 'priority' | 'size' | 'issueType' | 'tags' | 'dueDate' | 'members' | 'project';
@@ -227,6 +228,17 @@ export function useTeamTaskUpdates() {
 		[applyChange]
 	);
 
+	/**
+	 * Moves a task to a day of the calendar (its drag), `day` as a day number: the day becomes its due date and a start
+	 * date moves by as many days. Worked out when the queued update runs, from the task as it then is, as `moveDates`.
+	 */
+	const moveToDay = useCallback(
+		(taskId: string, day: number) => {
+			applyChange([taskId], 'dueDate', (task) => droppedTaskDatesOf(task, day));
+		},
+		[applyChange]
+	);
+
 	/** Moves the tasks to a project (`null`: out of any project); a selection in one request with the feature on. */
 	const setProject = useCallback(
 		(taskIds: string[], projectId: string | null) => {
@@ -298,6 +310,7 @@ export function useTeamTaskUpdates() {
 		toggleLabel,
 		setDueDate,
 		moveDates,
+		moveToDay,
 		setProject,
 		assignMember,
 		archiveTasks,

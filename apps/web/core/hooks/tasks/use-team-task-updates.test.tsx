@@ -30,6 +30,7 @@ jest.mock('@/core/lib/utils/task.utils', () => ({ taskUpdateQueue: { task: (run:
 jest.mock('@/core/lib/utils/error-feedback', () => ({ errorReasonKeyOf: () => 'reason' }));
 
 import { useTeamTaskUpdates } from './use-team-task-updates';
+import { dayNumberOf } from '@/core/lib/utils/team-tasks-timeline';
 
 const task = (id: string, extra: Record<string, unknown> = {}) => ({ id, title: id, ...extra });
 
@@ -82,5 +83,39 @@ describe('the property changes of a selection (T10: project and due date)', () =
 		expect(mockUpdateTask).toHaveBeenCalledTimes(4);
 		expect(mockUpdateTask).toHaveBeenCalledWith(expect.objectContaining({ id: 't2', projectId: 'p3' }), { moveTimeLogs: true });
 		expect(mockUpdateTask).toHaveBeenCalledWith(expect.objectContaining({ id: 't1', dueDate: null }), undefined);
+	});
+});
+
+describe('a task moved to a day of the calendar', () => {
+	const november = (date: number) => dayNumberOf(new Date(2026, 10, date));
+
+	beforeEach(() => {
+		mockBulkUpdate.mockReset();
+		mockUpdateTask.mockReset().mockResolvedValue(undefined);
+		mockTasks = [task('ranged', { startDate: '2026-11-10', dueDate: '2026-11-14' }), task('undated')];
+	});
+
+	it('falls due that day with its start moved as much, in one update of its own', () => {
+		const { result } = renderHook(() => useTeamTaskUpdates());
+		result.current.moveToDay('ranged', november(17));
+		result.current.moveToDay('undated', november(20));
+
+		expect(mockBulkUpdate).not.toHaveBeenCalled();
+		expect(mockUpdateTask).toHaveBeenCalledTimes(2);
+		const movedRange = expect.objectContaining({
+			id: 'ranged',
+			startDate: new Date(2026, 10, 13),
+			dueDate: new Date(2026, 10, 17)
+		});
+		expect(mockUpdateTask).toHaveBeenNthCalledWith(1, movedRange, undefined);
+		const datedNow = expect.objectContaining({ id: 'undated', dueDate: new Date(2026, 10, 20) });
+		expect(mockUpdateTask).toHaveBeenNthCalledWith(2, datedNow, undefined);
+	});
+
+	it('sends nothing when the task is already due that day', () => {
+		const { result } = renderHook(() => useTeamTaskUpdates());
+		result.current.moveToDay('ranged', november(14));
+
+		expect(mockUpdateTask).not.toHaveBeenCalled();
 	});
 });
