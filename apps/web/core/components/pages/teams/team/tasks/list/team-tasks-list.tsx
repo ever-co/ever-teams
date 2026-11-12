@@ -207,9 +207,12 @@ export function TeamTasksList(props: Readonly<TeamTasksListProps>) {
 	return <TeamTasksRows {...props} />;
 }
 
-/** The table layout draws its columns: a hairline on the left edge of every cell and of every column label. */
+/**
+ * The table layout draws its columns from `lg`, where a row is the shared grid: every cell and every column label
+ * fills the row's height and carries a hairline on its left edge.
+ */
 const TABLE_CELL_LINES =
-	'[&_[role=gridcell]]:hairline-l [&_[role=gridcell]]:border-border [&_[role=columnheader]]:hairline-l [&_[role=columnheader]]:border-border';
+	'lg:[&_[role=gridcell]]:self-stretch lg:[&_[role=gridcell]]:items-center lg:[&_[role=gridcell]]:content-center lg:[&_[role=gridcell]]:hairline-l lg:[&_[role=gridcell]]:border-border lg:[&_[role=columnheader]]:self-stretch lg:[&_[role=columnheader]]:items-center lg:[&_[role=columnheader]]:hairline-l lg:[&_[role=columnheader]]:border-border';
 
 function TeamTasksRows({
 	view,
