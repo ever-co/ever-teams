@@ -148,7 +148,7 @@ describe('ChatAppBlocks', () => {
 			fireEvent.click(screen.getByText('Acknowledge'));
 		});
 		expect(mockInteract).toHaveBeenCalledWith('m1', 'ack', 'alert-7');
-		expect(onReplaced).toHaveBeenCalledWith(expect.objectContaining({ id: 'm1' }), replaced);
+		expect(onReplaced).toHaveBeenCalledWith(expect.objectContaining({ id: 'm1' }), { ...replaced, readOrder: expect.any(Number) });
 		expect(screen.getByLabelText('teamChat.APP_DONE')).toBeTruthy();
 	});
 
@@ -194,7 +194,7 @@ describe('ChatAppBlocks', () => {
 				await jest.advanceTimersByTimeAsync(APP_INTERACTION_POLL_MS);
 			});
 			expect(mockMessages).toHaveBeenCalledWith('c1', { around: 'm1', limit: 1 });
-			expect(onReplaced).toHaveBeenCalledWith(expect.objectContaining({ id: 'm1' }), replaced);
+			expect(onReplaced).toHaveBeenCalledWith(expect.objectContaining({ id: 'm1' }), { ...replaced, readOrder: expect.any(Number) });
 			expect(screen.getByLabelText('teamChat.APP_DONE')).toBeTruthy();
 		} finally {
 			jest.useRealTimers();

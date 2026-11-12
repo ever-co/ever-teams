@@ -10,6 +10,7 @@ import {
 	TAppButtonState,
 	TAppClickFailure
 } from '@/core/lib/utils/chat-app-blocks';
+import { nextMessageOrder, withMessageOrder } from '@/core/lib/utils/chat-format';
 import { chatService } from '@/core/services/client/api/chat/chat.service';
 import type { IChatAppButton, IChatInteraction, IChatMessage } from '@/core/types/interfaces/common/chat';
 
@@ -80,12 +81,16 @@ export function useChatAppInteractions(message: IChatMessage, { readOnly = false
 		[]
 	);
 
-	/** The message as a retried callback's reply left it: the timeline window around it, which always holds it. */
+	/**
+	 * The message as a retried callback's reply left it: the timeline window around it, which always holds it. The copy
+	 * is stamped with the order the read started at, so a change applied meanwhile (a reaction, a deletion) wins.
+	 */
 	const readReplaced = useCallback(async (interaction: IChatInteraction) => {
 		try {
+			const order = nextMessageOrder();
 			const page = await chatService.messages(interaction.conversationId, { around: interaction.messageId, limit: 1 });
 			const current = page.messages.find((item) => String(item.id) === String(interaction.messageId));
-			if (current && alive.current) replaced.current?.(message, current);
+			if (current && alive.current) replaced.current?.(message, withMessageOrder([current], order)[0]);
 		} catch {
 			// The button already says the click was delivered; realtime or the next read shows the reply.
 		}
@@ -124,8 +129,10 @@ export function useChatAppInteractions(message: IChatMessage, { readOnly = false
 			setState(key, 'pending');
 			setFailure(blockId, null);
 			try {
+				// The reply that comes back is the message as of this request: stamped as it started (see `readReplaced`).
+				const order = nextMessageOrder();
 				const result = await chatService.interact(message.id, button.actionId, blockId);
-				if (result.message) replaced.current?.(message, result.message);
+				if (result.message) replaced.current?.(message, withMessageOrder([result.message], order)[0]);
 				const state = appButtonStateOf(result.interaction.status);
 				setState(key, state);
 				if (state === 'failed') setFailure(blockId, 'APP_CALLBACK_FAILED');

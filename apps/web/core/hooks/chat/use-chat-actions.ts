@@ -208,12 +208,21 @@ export function useChatActions() {
 		[patchEverywhere]
 	);
 
-	/** An app's reply to a click on one of its buttons replaced the message: it shows as the reply left it, everywhere. */
+	/**
+	 * An app's reply to a click on one of its buttons replaced the message: it shows as the reply left it, everywhere.
+	 * The copy keeps the order of the request it came from (stamped as it started), and replaces a held copy only when
+	 * it is not older (`mergeMessages`): a reaction, a pin or a deletion applied while it was on its way stays.
+	 */
 	const applyAppReply = useCallback(
 		(message: IChatMessage, replaced: IChatMessage) => {
-			patchEverywhere(message, () => replaced);
+			const stamped = (replaced as IChatMessage & { readOrder?: number }).readOrder === undefined ? withMessageOrder([replaced], nextMessageOrder())[0] : replaced;
+			const apply = (m: IChatMessage) => (m.id === message.id ? mergeMessages([m], [stamped])[0] : m);
+			patchMessages(message.conversationId, (messages) => messages.map(apply));
+			for (const root of [message.threadRootId, message.id]) {
+				patchThread(root, (page) => ({ ...page, root: page.root ? apply(page.root) : page.root, messages: page.messages.map(apply) }));
+			}
 		},
-		[patchEverywhere]
+		[patchMessages, patchThread]
 	);
 
 	/** A task from a message: the message shows its card at once, and the task lists read again (the task is new). */
