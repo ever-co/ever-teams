@@ -8,6 +8,9 @@ import { ITaskTrashQuery, ITrashedTask } from '@/core/types/interfaces/task/task
 /** The platform serves at most this many trashed tasks a page (`TaskTrashQueryDTO`). */
 export const TASK_TRASH_PAGE_SIZE = 50;
 
+/** The longest search the platform accepts (`TaskTrashQueryDTO.search` is `@MaxLength(200)`; longer is a 400). */
+export const TASK_TRASH_SEARCH_MAX_LENGTH = 200;
+
 /**
  * Client for the task trash: the platform's list of soft-deleted tasks (`GET /tasks/trash`, behind
  * `GAUZY_TASK_TRASH_ENABLED`), moving a task there (`DELETE /tasks/:id/soft`), restoring it (`PUT /tasks/:id/recover`)
@@ -20,7 +23,7 @@ class TaskTrashService extends APIService {
 		scope: IEntityRecordScope,
 		signal?: AbortSignal
 	): Promise<PaginationResponse<ITrashedTask>> => {
-		const search = query.search?.trim();
+		const search = query.search?.trim().slice(0, TASK_TRASH_SEARCH_MAX_LENGTH);
 		const params = qs.stringify(
 			{
 				tenantId: scope.tenantId,

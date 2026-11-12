@@ -1,5 +1,5 @@
 import qs from 'qs';
-import { TASK_TRASH_PAGE_SIZE, taskTrashService } from './task-trash.service';
+import { TASK_TRASH_PAGE_SIZE, TASK_TRASH_SEARCH_MAX_LENGTH, taskTrashService } from './task-trash.service';
 import { taskService } from './task.service';
 import { nextTrashOffset, trashStatusOf } from '@/core/hooks/tasks/use-task-trash';
 import { trashedTaskNumberOf, trashedTaskPersonName } from '@/core/lib/utils/task-trash';
@@ -53,6 +53,14 @@ describe('taskTrashService — the trash list, restore and delete forever', () =
 		expect(query).toMatchObject({ projectId: 'project-1', skip: '0' });
 		expect(query).not.toHaveProperty('organizationTeamId');
 		expect(query).not.toHaveProperty('search');
+	});
+
+	it('sends no more of a search than the platform accepts', async () => {
+		const get = jest.spyOn(taskTrashService, 'get').mockResolvedValue({ data: { items: [], total: 0 } } as never);
+
+		await taskTrashService.list({ organizationTeamId: 'team-1', search: `  ${'a'.repeat(250)}` }, scope);
+
+		expect(queryOf(get.mock.calls[0][0]).search).toBe('a'.repeat(TASK_TRASH_SEARCH_MAX_LENGTH));
 	});
 
 	it('restores through the platform’s recover, and deletes for good through the hard delete', async () => {
