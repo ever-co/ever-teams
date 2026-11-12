@@ -5762,6 +5762,7 @@
 			"MORE": "还有 {count} 个",
 			"NOT_IMPORTED": "未导入",
 			"TRUNCATED": "报告只列出前面的条目；上面的数字是完整的。",
+			"TRACKING_ERROR": "无法读取导入进度。导入仍在继续，完成后其页面会出现在目录树中。",
 			"PHASE": {
 				"QUEUED": "等待开始…",
 				"PLANNING": "正在读取 zip…",

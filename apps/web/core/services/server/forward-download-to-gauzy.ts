@@ -41,7 +41,10 @@ export async function forwardDownloadToGauzy(req: Request, path: string): Promis
 	}
 
 	const headers = new Headers();
+	// `fetch` hands over an encoded answer decoded, with the encoded length: that length would cut the file.
+	const decoded = Boolean(upstream.headers.get('content-encoding'));
 	for (const name of PASSED_HEADERS) {
+		if (decoded && name === 'content-length') continue;
 		const value = upstream.headers.get(name);
 		if (value) headers.set(name, value);
 	}

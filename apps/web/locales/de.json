@@ -5762,6 +5762,7 @@
 			"MORE": "und {count} weitere",
 			"NOT_IMPORTED": "Nicht importiert",
 			"TRUNCATED": "Der Bericht listet nur die ersten Einträge; die Zahlen oben sind vollständig.",
+			"TRACKING_ERROR": "Der Fortschritt des Imports konnte nicht gelesen werden. Der Import läuft weiter; seine Seiten erscheinen im Baum, sobald er fertig ist.",
 			"PHASE": {
 				"QUEUED": "Warten auf den Start…",
 				"PLANNING": "ZIP-Datei wird gelesen…",

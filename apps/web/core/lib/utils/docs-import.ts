@@ -13,6 +13,15 @@ export const DOCS_IMPORT_POLL_MS = 1500;
 /** How many items of each list the report shows. */
 export const DOCS_IMPORT_REPORT_ROWS = 50;
 
+/**
+ * How long the upload of an import zip may take (the client's default is 60 s): the platform's default limit, 100 MiB,
+ * sent at about 0.5 Mbit/s.
+ */
+export const DOCS_IMPORT_UPLOAD_TIMEOUT_MS = 30 * 60_000;
+
+/** How long a PDF download may take: longer than the 120 s the proxy gives the platform to render a large subtree. */
+export const DOCS_PDF_DOWNLOAD_TIMEOUT_MS = 150_000;
+
 const REASON_KEYS: Readonly<Record<string, DottedLanguageObjectStringPaths>> = {
 	ENCRYPTED: 'docs.IMPORT.REASON.ENCRYPTED',
 	TOO_LARGE: 'docs.IMPORT.REASON.TOO_LARGE',

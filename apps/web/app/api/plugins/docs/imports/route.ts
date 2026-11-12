@@ -4,6 +4,7 @@ import { DOCS_IMPORT_PROXY_MAX_BYTES, passedImportFieldsOf } from '@/core/lib/ut
 import { forwardToGauzy } from '@/core/services/server/forward-to-gauzy';
 import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 import { startDocsImportRequest } from '@/core/services/server/requests/docs-import';
 
 /** Proxy mode twin of the platform's `GET /plugins/docs/imports` (the reader's last imports; 404 while import is off). */
@@ -14,9 +15,13 @@ export async function GET(req: Request) {
 /**
  * Proxy mode twin of `POST /plugins/docs/imports`: one zip (`file`) with the target fields of `passedImportFieldsOf`;
  * the tenant and the organization are the session's, and every other part of the form is dropped. The platform checks
- * the archive, the target and the reader's rights.
+ * the archive, the target and the reader's rights. A form can be posted from another site with the session's cookies,
+ * so the request must come from this app's own pages (`refuseForeignOrigin`) before anything is read.
  */
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
+
 	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, new NextResponse());
 
 	if (!user) return $res('Unauthorized');

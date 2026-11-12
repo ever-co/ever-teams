@@ -15,10 +15,12 @@ import { useDocsScope } from '@/core/hooks/docs/use-docs-scope';
 import { useDocsTree } from '@/core/hooks/docs/use-docs-tree';
 import { cn } from '@/core/lib/helpers';
 import { isDocsEnabled, isDocsImportEnabled } from '@/core/lib/utils/docs-enabled';
-import { useDocsImportAvailability } from '@/core/hooks/docs/use-docs-import';
+import { errorKeyOf } from '@/core/lib/utils/docs-import';
+import { useDocsImportAvailability, useDocsImportRun } from '@/core/hooks/docs/use-docs-import';
 import { lastVisited, localStorageOrNull } from '@/core/lib/utils/docs-recent';
 import { ancestorIdsOf, pageTitle } from '@/core/lib/utils/docs-tree';
 import { EDocumentVisibility, type IDocumentPage } from '@/core/types/interfaces/common/docs';
+import type { IDocumentImport } from '@/core/types/interfaces/common/docs-import';
 import { DocsHome, type DocsNewPageRequest } from './docs-home';
 import { DocsIconDialog } from './docs-icon-dialog';
 import { DocsImportDialog } from './docs-import-dialog';
@@ -257,8 +259,29 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 		[actions, createAndOpen, duplicate, fail, reorder, setOpen, setVisibility, toggleFavorite, trash, tree.byId]
 	);
 
-	// An import created pages: the tree is read again.
-	const onImported = useCallback(() => void tree.retry(), [tree]);
+	// The import run is the page's, so closing its dialog keeps it. When an import is over the tree is read again (once
+	// per import); one that ends while its dialog is closed says so.
+	const { retry: retryTree } = tree;
+	const importOpenRef = useRef(false);
+	useEffect(() => {
+		importOpenRef.current = importInto !== null;
+	}, [importInto]);
+	const importRun = useDocsImportRun(
+		useCallback(
+			(finished: IDocumentImport) => {
+				void retryTree();
+				if (importOpenRef.current) return;
+				if (finished.status === 'FAILED') toast.error(t(errorKeyOf(finished.errorCode)));
+				else toast.success(t('docs.IMPORT.SUMMARY', { imported: finished.importedCount, skipped: finished.skippedCount, failed: finished.failedCount }));
+			},
+			[retryTree, t]
+		)
+	);
+	const closeImport = useCallback(() => {
+		// An upload or an import still running stays, for the dialog's next opening; a finished one is put away.
+		if (!importRun.inProgress) importRun.reset();
+		setImportInto(null);
+	}, [importRun]);
 
 	const pageActions = useMemo<DocsPageViewActions>(
 		() => ({
@@ -372,12 +395,12 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 					maxZipBytes={importing.maxZipBytes}
 					parent={importInto?.parent ?? null}
 					teamSpaces={spaces.available ? spaces.teamSpaces : []}
-					onImported={onImported}
+					run={importRun}
 					onOpenPage={(id) => {
-						setImportInto(null);
+						closeImport();
 						router.push(`/docs/${encodeURIComponent(id)}`);
 					}}
-					onClose={() => setImportInto(null)}
+					onClose={closeImport}
 				/>
 			)}
 

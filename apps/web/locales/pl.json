@@ -5762,6 +5762,7 @@
 			"MORE": "i jeszcze {count}",
 			"NOT_IMPORTED": "Nie zaimportowano",
 			"TRUNCATED": "Raport pokazuje tylko pierwsze pozycje; liczby powyżej są pełne.",
+			"TRACKING_ERROR": "Nie udało się odczytać postępu importu. Import trwa dalej, a jego strony pojawią się w drzewie po zakończeniu.",
 			"PHASE": {
 				"QUEUED": "Oczekiwanie na start…",
 				"PLANNING": "Odczytywanie pliku zip…",

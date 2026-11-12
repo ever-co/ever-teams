@@ -593,11 +593,16 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 
 	// The platform's PDF export (its probe answers 404 while it is off): the page, or the page with its sub-pages.
 	// The platform renders the text as saved: the page's pending edits are saved (or confirmed live) first, or nothing
-	// is exported.
+	// is exported. Text a fallen-back live session left is not the autosave's yet while the page is read again or the
+	// text is being adopted (or failed to be): nothing is exported then either.
 	const pdfAvailable = useDocsPdfAvailability(true);
 	const [pdfBusy, setPdfBusy] = useState(false);
 	const exportPdf = async (subtree: boolean) => {
 		if (!page || pdfBusy) return;
+		if (live.rereading || awaitingAdoption) {
+			toast.error(t('docs.EXPORT_UNSAVED'));
+			return;
+		}
 		setPdfBusy(true);
 		try {
 			if (pageEdits.pending() && !(await pageEdits.hold())) {

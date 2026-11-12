@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
+import { useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/core/components/common/dialog';
 import { RadioMark } from '@/core/components/common/radio-mark';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { FileZip, Spinner } from '@/core/components/icons';
-import { useDocsImportRun } from '@/core/hooks/docs/use-docs-import';
+import type { DocsImportRun } from '@/core/hooks/docs/use-docs-import';
 import {
 	DOCS_IMPORT_REPORT_ROWS,
 	errorKeyOf,
@@ -19,6 +19,9 @@ import {
 } from '@/core/lib/utils/docs-import';
 import { EDocumentVisibility, type IDocumentSpace } from '@/core/types/interfaces/common/docs';
 import type { IDocumentImportTarget } from '@/core/types/interfaces/common/docs-import';
+
+/** The items not imported that the report lists; the others are counted under it. */
+const NOT_IMPORTED_ROWS = DOCS_IMPORT_REPORT_ROWS * 2;
 
 /** Where the import may land. */
 interface DocsImportChoice {
@@ -35,10 +38,10 @@ interface DocsImportDialogProps {
 	parent: { id: string; name: string } | null;
 	/** The reader's team spaces, on a platform with Docs collaboration. */
 	teamSpaces: IDocumentSpace[];
+	/** The import run, which the page owns (`useDocsImportRun`): it outlives the dialog. */
+	run: DocsImportRun;
 	/** Opens an imported page (and closes the dialog). */
 	onOpenPage: (pageId: string) => void;
-	/** An import ended: the tree is read again. */
-	onImported: () => void;
 	onClose: () => void;
 }
 
@@ -48,11 +51,11 @@ interface DocsImportDialogProps {
  * the private pages), start, follow the progress, then read the report: the imported pages to open, and what was not
  * imported, with the reason. The import goes on on the platform when the dialog closes.
  *
- * Mounted only while it is open (its owner renders it then), so each opening starts afresh.
+ * Mounted only while it is open (its owner renders it then). The run is the page's: a dialog closed while an import
+ * runs shows its progress, or its report, when it opens again; otherwise each opening starts afresh.
  */
-export function DocsImportDialog({ open, maxZipBytes, parent, teamSpaces, onOpenPage, onImported, onClose }: DocsImportDialogProps) {
+export function DocsImportDialog({ open, maxZipBytes, parent, teamSpaces, run, onOpenPage, onClose }: DocsImportDialogProps) {
 	const t = useTranslations();
-	const run = useDocsImportRun();
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [file, setFile] = useState<File | null>(null);
 	const [fileError, setFileError] = useState<string | null>(null);
@@ -72,11 +75,6 @@ export function DocsImportDialog({ open, maxZipBytes, parent, teamSpaces, onOpen
 	);
 	// The page's owner mounts the dialog when it opens, so every opening starts from a fresh state.
 	const [choiceKey, setChoiceKey] = useState<string>(parent ? 'parent' : 'workspace');
-
-	const finished = run.step === 'done';
-	useEffect(() => {
-		if (finished) onImported();
-	}, [finished, onImported]);
 
 	const limit = maxZipBytes ? formatLimit(maxZipBytes) : '';
 	const groups = importReportGroups(run.current);
@@ -159,6 +157,14 @@ export function DocsImportDialog({ open, maxZipBytes, parent, teamSpaces, onOpen
 								{t('docs.IMPORT.PROGRESS', { done: run.current?.processedItems ?? 0, total: run.current?.totalItems ?? 0 })}
 							</span>
 						)}
+						{run.trackingError && (
+							<div role="alert" className="flex items-center justify-between gap-3 text-xs text-destructive">
+								<span>{t('docs.IMPORT.TRACKING_ERROR')}</span>
+								<Button type="button" variant="outline" size="sm" onClick={run.retryRead}>
+									{t('docs.RETRY')}
+								</Button>
+							</div>
+						)}
 						<span className="text-xs text-muted-foreground">{t('docs.IMPORT.BACKGROUND_HINT')}</span>
 					</div>
 				)}
@@ -202,13 +208,16 @@ export function DocsImportDialog({ open, maxZipBytes, parent, teamSpaces, onOpen
 									<section className="flex flex-col gap-1">
 										<h3 className="text-sm font-medium">{t('docs.IMPORT.NOT_IMPORTED')}</h3>
 										<ul className="max-h-48 overflow-y-auto rounded-md border border-border p-1">
-											{groups.notImported.slice(0, DOCS_IMPORT_REPORT_ROWS * 2).map((item) => (
+											{groups.notImported.slice(0, NOT_IMPORTED_ROWS).map((item) => (
 												<li key={item.path} className="flex items-center justify-between gap-3 px-2 py-1 text-sm">
 													<span className="min-w-0 truncate">{item.path}</span>
 													<span className="shrink-0 text-xs text-muted-foreground">{t(reasonKeyOf(item.reason))}</span>
 												</li>
 											))}
 										</ul>
+										{groups.notImported.length > NOT_IMPORTED_ROWS && (
+											<span className="text-xs text-muted-foreground">{t('docs.IMPORT.MORE', { count: groups.notImported.length - NOT_IMPORTED_ROWS })}</span>
+										)}
 									</section>
 								)}
 								{run.current.report?.truncated && <p className="text-xs text-muted-foreground">{t('docs.IMPORT.TRUNCATED')}</p>}

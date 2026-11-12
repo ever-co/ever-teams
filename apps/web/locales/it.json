@@ -5762,6 +5762,7 @@
 			"MORE": "e altri {count}",
 			"NOT_IMPORTED": "Non importati",
 			"TRUNCATED": "Il rapporto elenca solo i primi elementi; i totali qui sopra sono completi.",
+			"TRACKING_ERROR": "Non è stato possibile leggere l’avanzamento dell’importazione. L’importazione prosegue e le sue pagine compaiono nell’albero al termine.",
 			"PHASE": {
 				"QUEUED": "In attesa di iniziare…",
 				"PLANNING": "Lettura dello zip…",

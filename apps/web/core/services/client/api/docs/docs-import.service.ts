@@ -2,6 +2,7 @@ import qs from 'qs';
 import type { AxiosProgressEvent } from 'axios';
 import { APIService } from '@/core/services/client/api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { DOCS_IMPORT_UPLOAD_TIMEOUT_MS, DOCS_PDF_DOWNLOAD_TIMEOUT_MS } from '@/core/lib/utils/docs-import';
 import type {
 	IDocumentImport,
 	IDocumentImportList,
@@ -63,6 +64,8 @@ class DocsImportService extends APIService {
 		}
 		if (this.organizationId) form.append('organizationId', this.organizationId);
 		const response = await this.post<IDocumentImport>('/plugins/docs/imports', form, {
+			// A large zip on a slow connection takes far longer than the client's 60 s default.
+			timeout: DOCS_IMPORT_UPLOAD_TIMEOUT_MS,
 			onUploadProgress: (event: AxiosProgressEvent) => {
 				if (onProgress && event.total) onProgress(Math.round((event.loaded / event.total) * 100));
 			}
@@ -82,7 +85,11 @@ class DocsImportService extends APIService {
 			...(options.subtree ? { subtree: 'true' } : {}),
 			...(options.subtree && options.zip ? { format: 'zip' } : {})
 		});
-		const response = await this.get<Blob>(`/plugins/docs/documents/${path(id)}/export.pdf?${query}`, { responseType: 'blob' });
+		// A large subtree takes the platform a while to render (the proxy gives it 120 s).
+		const response = await this.get<Blob>(`/plugins/docs/documents/${path(id)}/export.pdf?${query}`, {
+			responseType: 'blob',
+			timeout: DOCS_PDF_DOWNLOAD_TIMEOUT_MS
+		});
 		const header = response.headers?.['content-disposition'];
 		return { blob: response.data, disposition: typeof header === 'string' ? header : null };
 	};

@@ -1,4 +1,5 @@
 import qs from 'qs';
+import { DOCS_IMPORT_UPLOAD_TIMEOUT_MS, DOCS_PDF_DOWNLOAD_TIMEOUT_MS } from '@/core/lib/utils/docs-import';
 import { EDocumentVisibility } from '@/core/types/interfaces/common/docs';
 import { docsImportService } from './docs-import.service';
 
@@ -34,6 +35,8 @@ describe('docsImportService', () => {
 		expect(form.get('organizationTeamId')).toBe('team-1');
 		expect(form.has('parentId')).toBe(false);
 		expect(progress).toEqual([50]);
+		// A large zip on a slow connection outlasts the client's 60 s default.
+		expect(post.mock.calls[0][2]).toMatchObject({ timeout: DOCS_IMPORT_UPLOAD_TIMEOUT_MS });
 	});
 
 	it('starts an import under a page without a space', async () => {
@@ -58,7 +61,7 @@ describe('docsImportService', () => {
 		expect(String(url)).toMatch(/^\/plugins\/docs\/documents\/page-1\/export\.pdf\?/);
 		expect(queryOf(url)).toMatchObject({ subtree: 'true' });
 		expect(queryOf(url).format).toBeUndefined();
-		expect(config).toMatchObject({ responseType: 'blob' });
+		expect(config).toMatchObject({ responseType: 'blob', timeout: DOCS_PDF_DOWNLOAD_TIMEOUT_MS });
 	});
 
 	it('asks for a zip of PDFs only with the subtree', async () => {

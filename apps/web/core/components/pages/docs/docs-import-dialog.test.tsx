@@ -10,12 +10,13 @@ type MockRun = {
 	uploadPercent: number;
 	current: IDocumentImport | null;
 	error: string | null;
+	trackingError: boolean;
+	retryRead: jest.Mock;
+	inProgress: boolean;
 	start: jest.Mock;
 	reset: jest.Mock;
 };
 let mockRun: MockRun;
-
-jest.mock('@/core/hooks/docs/use-docs-import', () => ({ useDocsImportRun: () => mockRun }));
 // The key, then its values: what the dialog asked for is what the suite reads.
 const mockT = (key: string, values?: Record<string, unknown>) => (values ? `${key} ${JSON.stringify(values)}` : key);
 jest.mock('next-intl', () => ({ useTranslations: () => mockT }));
@@ -49,13 +50,14 @@ const running = (processed: number, extra: Partial<IDocumentImport> = {}): IDocu
 });
 
 function renderDialog(props: Partial<React.ComponentProps<typeof DocsImportDialog>> = {}) {
-	const handlers = { onOpenPage: jest.fn(), onImported: jest.fn(), onClose: jest.fn() };
+	const handlers = { onOpenPage: jest.fn(), onClose: jest.fn() };
 	render(
 		<DocsImportDialog
 			open
 			maxZipBytes={1000}
 			parent={null}
 			teamSpaces={[{ kind: 'team', organizationTeamId: 'team-1', name: 'API', documentCount: 0 }]}
+			run={mockRun as never}
 			{...handlers}
 			{...props}
 		/>
@@ -70,7 +72,17 @@ function pick(name: string, size = 10, type = 'application/zip') {
 
 describe('DocsImportDialog', () => {
 	beforeEach(() => {
-		mockRun = { step: 'pick', uploadPercent: 0, current: null, error: null, start: jest.fn(), reset: jest.fn() };
+		mockRun = {
+			step: 'pick',
+			uploadPercent: 0,
+			current: null,
+			error: null,
+			trackingError: false,
+			retryRead: jest.fn(),
+			inProgress: false,
+			start: jest.fn(),
+			reset: jest.fn()
+		};
 	});
 
 	it('offers the open page, the workspace, the team spaces and private; the open page first', () => {
@@ -111,7 +123,23 @@ describe('DocsImportDialog', () => {
 		expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('40');
 	});
 
-	it('reports the imported pages to open and what was not imported, and tells the page an import ended', () => {
+	it('says when the progress cannot be read, and reads it again on demand', () => {
+		mockRun = { ...mockRun, step: 'running', inProgress: true, trackingError: true, current: running(4) };
+		renderDialog();
+		expect(screen.getByRole('alert').textContent).toContain('docs.IMPORT.TRACKING_ERROR');
+		fireEvent.click(screen.getByText('docs.RETRY'));
+		expect(mockRun.retryRead).toHaveBeenCalled();
+	});
+
+	it('counts the items not imported past the rows it lists', () => {
+		const items = Array.from({ length: 103 }, (_, index) => ({ path: `V/file-${index}.exe`, kind: EDocumentKind.FILE, status: 'SKIPPED' as const, reason: 'UNSUPPORTED_TYPE' }));
+		mockRun = { ...mockRun, step: 'done', current: running(10, { status: 'COMPLETED', phase: 'DONE', skippedCount: 103, report: { items } }) };
+		renderDialog();
+		expect(screen.getAllByText('docs.IMPORT.REASON.UNSUPPORTED_TYPE')).toHaveLength(100);
+		expect(screen.getByText('docs.IMPORT.MORE {"count":3}')).toBeTruthy();
+	});
+
+	it('reports the imported pages to open and what was not imported', () => {
 		mockRun = {
 			...mockRun,
 			step: 'done',
@@ -129,7 +157,6 @@ describe('DocsImportDialog', () => {
 			})
 		};
 		const handlers = renderDialog();
-		expect(handlers.onImported).toHaveBeenCalled();
 		expect(screen.getByText('V/tool.exe')).toBeTruthy();
 		expect(screen.getByText('docs.IMPORT.REASON.UNSUPPORTED_TYPE')).toBeTruthy();
 		fireEvent.click(screen.getByText('Home'));

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { docsImportService, type IDocsPdfOptions } from '@/core/services/client/api/docs';
@@ -63,11 +63,21 @@ export function useDocsPdfAvailability(enabled: boolean): boolean {
 
 export type DocsImportStep = 'pick' | 'uploading' | 'running' | 'done';
 
+/** Whether a read of an import was refused for good (it is gone, or not the reader's any more): its polling stops. */
+function isPermanentRefusal(error: unknown): boolean {
+	return ApiErrorService.isApiError(error) && (error.statusCode === 401 || error.statusCode === 403 || error.statusCode === 404);
+}
+
 /**
  * One import, from the upload to the report: `start` uploads the zip (progress in `uploadPercent`), then the import is
  * read every {@link DOCS_IMPORT_POLL_MS} until it is over. A refused zip answers its platform code in `error`.
+ *
+ * The run belongs to the page, not to the dialog that shows it: closing the dialog while the import runs keeps the run,
+ * so reopening shows its progress or its report. `onFinished` is called once per import, when it is over, whether the
+ * dialog is open or not. A failed read of the progress is told in `trackingError` (after its retry; a refusal for good
+ * stops the polling), and `retryRead` reads it again without uploading the zip again.
  */
-export function useDocsImportRun() {
+export function useDocsImportRun(onFinished?: (finished: IDocumentImport) => void) {
 	const scope = useDocsScope();
 	const queryClient = useQueryClient();
 	const [step, setStep] = useState<DocsImportStep>('pick');
@@ -80,12 +90,27 @@ export function useDocsImportRun() {
 		queryKey: queryKeys.docs.import(scope?.tenantId, importId),
 		queryFn: ({ signal }) => docsImportService.getImport(importId as string, signal),
 		enabled: importId !== null && scope !== null && !isImportFinished(started),
-		refetchInterval: (current) => (isImportFinished(current.state.data) ? false : DOCS_IMPORT_POLL_MS),
-		retry: 1
+		refetchInterval: (current) => (isImportFinished(current.state.data) || isPermanentRefusal(current.state.error) ? false : DOCS_IMPORT_POLL_MS),
+		retry: (failures, error) => !isPermanentRefusal(error) && failures < 1
 	});
 	const current = query.data ?? started;
 	const finished = isImportFinished(current);
 	const shownStep: DocsImportStep = step === 'running' && finished ? 'done' : step;
+	const trackingError = shownStep === 'running' && query.isError;
+	const { refetch } = query;
+	const retryRead = useCallback(() => void refetch(), [refetch]);
+
+	// Once per import, whoever shows it (or nobody: the dialog may be closed).
+	const onFinishedRef = useRef(onFinished);
+	useEffect(() => {
+		onFinishedRef.current = onFinished;
+	});
+	const notifiedRef = useRef<string | null>(null);
+	useEffect(() => {
+		if (!finished || !current?.id || notifiedRef.current === current.id) return;
+		notifiedRef.current = current.id;
+		onFinishedRef.current?.(current);
+	}, [current, finished]);
 
 	const start = useCallback(
 		async (file: File, target: IDocumentImportTarget) => {
@@ -115,8 +140,14 @@ export function useDocsImportRun() {
 		setError(null);
 	}, []);
 
-	return { step: shownStep, uploadPercent, current, error, start, reset };
+	/** An upload, or an import that is not over yet: closing the dialog keeps it. */
+	const inProgress = shownStep === 'uploading' || shownStep === 'running';
+
+	return { step: shownStep, uploadPercent, current, error, trackingError, retryRead, inProgress, start, reset };
 }
+
+/** One import run, as the dialog shows it. */
+export type DocsImportRun = ReturnType<typeof useDocsImportRun>;
 
 /** Saves a blob under a name (an object URL and a transient link). */
 export function saveBlob(blob: Blob, name: string): void {
