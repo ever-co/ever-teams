@@ -378,6 +378,20 @@ describe("the platform's own reminders", () => {
 				Date.parse('2026-03-29T05:00:00Z')
 			);
 		});
+
+		it('at the jump when the clocks go forward over their end, and at its first time when they show it twice', () => {
+			const paris = { start: '22:00', end: '02:30', timeZone: 'Europe/Paris' };
+			// 02:30 never shows in Paris on 29 March 2026: the clock goes from 01:59 to 03:00, at 01:00 UTC
+			const jump = Date.parse('2026-03-29T01:00:00Z');
+			expect(quietHoursEndAfter(Date.parse('2026-03-28T22:10:00Z'), paris)).toBe(jump);
+			expect(quietHoursEndAfter(Date.parse('2026-03-29T00:50:00Z'), paris)).toBe(jump);
+			expect(isWithinQuietHours(new Date(jump - 60_000), paris)).toBe(true);
+			expect(isWithinQuietHours(new Date(jump), paris)).toBe(false);
+			// On 25 October it shows twice, at 00:30 and 01:30 UTC: they end the first time
+			expect(quietHoursEndAfter(Date.parse('2026-10-24T21:10:00Z'), paris)).toBe(
+				Date.parse('2026-10-25T00:30:00Z')
+			);
+		});
 	});
 
 	/**

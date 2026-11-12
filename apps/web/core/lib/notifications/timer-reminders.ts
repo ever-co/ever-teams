@@ -309,7 +309,8 @@ export interface TimerReminderDeliveryContext {
 /**
  * When the quiet hours that `at` falls in end: the first instant after it at which their clock (the window's time zone,
  * else the browser's) shows their end. The minutes counted on the clock are an hour off across a daylight-saving
- * change, so the guess is corrected by what the clock shows there.
+ * change, so the guess is corrected by what the clock shows there. A clock that goes forward over the end never shows
+ * it: the quiet hours then end at that jump, the first minute the clock is past their end.
  */
 export function quietHoursEndAfter(at: number, window: INotificationQuietHours): number {
 	const clockAt = (instant: number) => {
@@ -321,16 +322,30 @@ export function quietHoursEndAfter(at: number, window: INotificationQuietHours):
 	};
 	const end = minutesOf(window.end);
 	const day = 24 * 60;
+	// How far the clock is from the end at an instant, in [-12 h, 12 h): more than 0 while it shows a time before it
+	const offAt = (instant: number) => ((end - clockAt(instant) + day + day / 2) % day) - day / 2;
 	let instant = at - (at % 60_000) + ((end - clockAt(at) + day) % day) * 60_000;
 	for (let pass = 0; pass < 2; pass += 1) {
-		// How far the clock is from the end there, in (-12 h, 12 h]
-		const off = ((end - clockAt(instant) + day + day / 2) % day) - day / 2;
+		const off = offAt(instant);
 		if (off === 0) {
-			break;
+			return instant;
 		}
 		instant += off * 60_000;
 	}
-	return instant;
+	// The end was not found: the clock jumps over it, from a time before it to one past it. Between the two instants the
+	// correction went back and forth on, the first minute past the end.
+	const off = offAt(instant);
+	let before = off > 0 ? instant : instant + off * 60_000;
+	let past = off > 0 ? instant + off * 60_000 : instant;
+	while (past - before > 60_000) {
+		const middle = before + Math.floor((past - before) / 120_000) * 60_000;
+		if (offAt(middle) > 0) {
+			before = middle;
+		} else {
+			past = middle;
+		}
+	}
+	return past;
 }
 
 /**
