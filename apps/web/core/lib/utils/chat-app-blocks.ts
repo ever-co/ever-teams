@@ -75,6 +75,35 @@ export const APP_INTERACTION_POLL_MS = 3000;
 export const APP_INTERACTION_POLL_MAX = 20;
 
 /**
+ * When the chat sends a click again whose request got no answer (the network dropped it, a gateway timed out, the
+ * platform was briefly busy): twice, after 1 s and 3 s, with the click's own idempotency key, so the platform takes a
+ * click it already had as that click and calls the app no second time.
+ */
+export const APP_INTERACTION_RETRY_DELAYS_MS: readonly number[] = [1000, 3000];
+
+/**
+ * How long one send of a click may take before the chat counts it as unanswered and sends it again (same key): the
+ * platform answers within the app's 5 s callback deadline plus its own work, so a request still open after 15 s hangs.
+ */
+export const APP_INTERACTION_TIMEOUT_MS = 15_000;
+
+/**
+ * Whether a failed click got no answer that settles it: none at all (no status: the request or its answer was lost),
+ * or a timeout, gateway or busy answer. The platform may still have taken such a click, so it is sent again with its key.
+ */
+export function isUnansweredClick(status: number | null | undefined): boolean {
+	return !status || status === 408 || status === 429 || status === 502 || status === 503 || status === 504;
+}
+
+/**
+ * Whether a failed click keeps its key for the button's next click: one that got no answer, or a server error (the
+ * platform may have called the app before it failed). A refusal (4xx) settles the click: the next one is a new click.
+ */
+export function keepsClickKey(status: number | null | undefined): boolean {
+	return isUnansweredClick(status) || (status ?? 0) >= 500;
+}
+
+/**
  * Why the last click of an actions block did not go through, as the `teamChat` translation key it shows: the app no
  * longer takes clicks, the button is gone, the click was not sent, every callback failed, or the chat stopped asking
  * while the callback was still retried.
