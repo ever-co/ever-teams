@@ -13,8 +13,12 @@ import {
 	TIME_ACTIVITY_WEEK_START,
 	type TimeActivityGrouping
 } from '@/core/lib/utils/dashboards/time-activity';
+import { TimeActivityControlRow } from './time-activity-control-row';
 import { AppliedTimeActivityFilters, TimeActivityFilterMenu } from './time-activity-filter-menu';
 import { TimeActivityViewMenu } from './time-activity-view-menu';
+
+/** A phone too narrow for every grouping scrolls the switch inside its line; the halo of a focused option stays. */
+const SWITCH_SCROLLER = '-m-1 min-w-0 max-w-full overflow-x-auto p-1 no-scrollbar';
 
 const GROUPING_LABEL_KEYS: Record<TimeActivityGrouping, DottedLanguageObjectStringPaths> = {
 	date: 'dashboard.timeActivity.grouping.DATE',
@@ -55,36 +59,42 @@ export function TimeActivityToolbar({ report }: Readonly<{ report: TimeActivityR
 			isUpdating={report.isUpdating}
 			updatingLabel={t('dashboard.timeActivity.UPDATING')}
 			controls={
-				<>
-					<PeriodPicker
-						value={report.period}
-						onChange={report.setPeriod}
-						weekStartsOn={TIME_ACTIVITY_WEEK_START}
-					/>
-					<TimeActivityFilterMenu
-						options={filterOptions}
-						filters={settings.filters}
-						activeFilterCount={settings.activeFilterCount}
-						onChange={settings.setFilterValues}
-						onClear={settings.clearFilters}
-					/>
-				</>
-			}
-			trailingControls={
-				<>
-					<SegmentedControl<TimeActivityGrouping>
-						items={groupingItems}
-						value={settings.grouping}
-						onValueChange={settings.setGrouping}
-						ariaLabel={t('dashboard.timeActivity.grouping.LABEL')}
-					/>
-					<TimeActivityViewMenu
-						grouping={settings.grouping}
-						isManager={report.isManager}
-						hiddenColumns={settings.hiddenColumns}
-						onToggleColumn={settings.toggleColumn}
-					/>
-				</>
+				<TimeActivityControlRow
+					leading={
+						<>
+							<PeriodPicker
+								value={report.period}
+								onChange={report.setPeriod}
+								weekStartsOn={TIME_ACTIVITY_WEEK_START}
+							/>
+							<TimeActivityFilterMenu
+								options={filterOptions}
+								filters={settings.filters}
+								activeFilterCount={settings.activeFilterCount}
+								onChange={settings.setFilterValues}
+								onClear={settings.clearFilters}
+							/>
+						</>
+					}
+					trailing={
+						<>
+							<div className={SWITCH_SCROLLER}>
+								<SegmentedControl<TimeActivityGrouping>
+									items={groupingItems}
+									value={settings.grouping}
+									onValueChange={settings.setGrouping}
+									ariaLabel={t('dashboard.timeActivity.grouping.LABEL')}
+								/>
+							</div>
+							<TimeActivityViewMenu
+								grouping={settings.grouping}
+								isManager={report.isManager}
+								hiddenColumns={settings.hiddenColumns}
+								onToggleColumn={settings.toggleColumn}
+							/>
+						</>
+					}
+				/>
 			}
 			belowControls={
 				<AppliedTimeActivityFilters
