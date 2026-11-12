@@ -57,7 +57,9 @@ class OrganizationContactService extends APIService {
 	/**
 	 * The organization's clients, by name. Active ones only unless `includeArchived` is set.
 	 */
-	getClients = async ({ includeArchived = false, signal, scope: keyScope }: GetClientsOptions = {}): Promise<TClient[]> => {
+	getClients = async ({ includeArchived = false, signal, scope: keyScope }: GetClientsOptions = {}): Promise<
+		TClient[]
+	> => {
 		try {
 			// Choosing a team of another organization changes the cookies between two pages: every page keeps the
 			// organization the read started in, so one list never mixes the clients of two organizations.

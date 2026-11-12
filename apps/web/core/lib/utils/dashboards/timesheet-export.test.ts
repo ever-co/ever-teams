@@ -56,7 +56,9 @@ describe('the rows of a Timesheets export', () => {
 	});
 
 	it('writes the notes of a log, trimmed, as the CSV of the Timesheets page did before the XLSX and PDF exports', () => {
-		const [row] = timesheetExportRowsOf([logOf('noted', new Date(2026, 10, 2, 9, 0), 30, { description: '  Fix the login page ' })]);
+		const [row] = timesheetExportRowsOf([
+			logOf('noted', new Date(2026, 10, 2, 9, 0), 30, { description: '  Fix the login page ' })
+		]);
 
 		expect(row.notes).toBe('Fix the login page');
 	});

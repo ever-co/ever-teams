@@ -1092,7 +1092,10 @@ function collectRealHeadSurface(): Surface {
 		'process.stdout.write(JSON.stringify(result.surface));'
 	].join('\n');
 	const result = checkedSpawn(
-		spawnSync(process.execPath, ['--input-type=module', '--eval', expression], { encoding: 'utf8', maxBuffer: SURFACE_MAX_BUFFER })
+		spawnSync(process.execPath, ['--input-type=module', '--eval', expression], {
+			encoding: 'utf8',
+			maxBuffer: SURFACE_MAX_BUFFER
+		})
 	);
 	if (result.status !== 0) throw new Error(result.stderr);
 	realHeadSurface = JSON.parse(result.stdout) as Surface;

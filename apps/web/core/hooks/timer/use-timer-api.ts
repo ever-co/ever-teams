@@ -744,7 +744,8 @@ export function useTimerApi({
 				if (isStillTeamOfStart) {
 					store.set(timerNotesState, (notes) => {
 						// Continued notes replace a draft: tied to the entry, the draft would overwrite them at the stop
-						const notesSent = continuedNotes === undefined ? notes : { text: continuedNotes, timeLogId: null };
+						const notesSent =
+							continuedNotes === undefined ? notes : { text: continuedNotes, timeLogId: null };
 						const notesAfterStart = timerNotesAfterStart(notesSent, res.data, notesToUse);
 						return notesAfterStart === notesSent ? notes : notesAfterStart;
 					});

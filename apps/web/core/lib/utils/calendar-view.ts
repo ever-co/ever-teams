@@ -623,7 +623,6 @@ export function projectTotalsOf(days: ReadonlyArray<CalendarDay>): CalendarProje
 	return withTime.sort(compareProjectTotals);
 }
 
-
 /** Minutes from the top of a day's column, counted in elapsed time, so the grid and its drags agree. */
 export function minuteOfDay(date: Date, dayStart: Date) {
 	const elapsedMilliseconds = date.getTime() - dayStart.getTime();
