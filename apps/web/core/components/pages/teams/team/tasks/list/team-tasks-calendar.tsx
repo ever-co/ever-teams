@@ -26,6 +26,7 @@ import { cn } from '@/core/lib/helpers';
 import { shiftedAnchorOf, weekStartOf } from '@/core/lib/utils/calendar-view';
 import { teamTasksCalendarMonthOf, type TeamTasksCalendarDay } from '@/core/lib/utils/team-tasks-calendar';
 import { dayOfStoredDate } from '@/core/lib/utils/team-tasks-timeline';
+import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { isDoneStatus, statusOfTask, tasksOfGroups } from '@/core/lib/utils/team-tasks-view';
 import { tasksByTeamState } from '@/core/stores/teams/team-tasks';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
@@ -38,6 +39,7 @@ import {
 	useCalendarTaskMoves,
 	useDayListDragOut
 } from './team-tasks-calendar-dnd';
+import { cellAppliesToSelection } from './team-task-picker-commands';
 
 const VISIBLE_TASKS_PER_DAY = 3;
 
@@ -73,6 +75,20 @@ function calendarFormatsOf(locale: string): CalendarFormats {
 		dayNumber: new Intl.DateTimeFormat(locale, { day: 'numeric' }),
 		dayLabel: new Intl.DateTimeFormat(locale, { weekday: 'long', month: 'long', day: 'numeric' })
 	};
+}
+
+/**
+ * The tasks a due date picker opened from a task acts on, by the list's rule: the whole selection when the task is
+ * in it and one due date for a selection is offered (it came with the platform's bulk update), the task alone otherwise.
+ */
+function dueDateTargetsOf(taskId: string, selectedIds: ReadonlySet<string>) {
+	const appliesToSelection = cellAppliesToSelection('dueDate', isTaskViewsEnabled());
+	const isInSelection = selectedIds.has(taskId);
+	const usesSelection = appliesToSelection && isInSelection;
+	if (usesSelection) {
+		return [...selectedIds];
+	}
+	return [taskId];
 }
 
 function readableName(value: string | null | undefined) {
@@ -156,6 +172,10 @@ const TaskChip = memo(function TaskChip({
 	}
 	if (isOverdue) {
 		labelParts.push(t('pages.teamTasks.TIMELINE_OVERDUE'));
+	}
+	// A selection is a click's second meaning, not a toggle (a click opens the task): its name says it, not aria-pressed.
+	if (isSelected) {
+		labelParts.push(t('common.SELECTED'));
 	}
 	const label = labelParts.join(', ');
 	let tooltip = task.title;
@@ -391,6 +411,11 @@ const UndatedRow = memo(function UndatedRow({
 	const startDay = dayOfStoredDate(task.startDate);
 	const { ref, isDragging } = useCalendarTaskDrag<HTMLButtonElement>(task.id, null, startDay, canDrag);
 	const setDueDateLabel = t('pages.teamTasks.SET_DUE_DATE');
+	// A selected task says so in its name; otherwise the name is its title, read from the button.
+	let selectedLabel: string | undefined;
+	if (isSelected) {
+		selectedLabel = `${task.title}, ${t('common.SELECTED')}`;
+	}
 	return (
 		<li
 			className={cn(
@@ -402,6 +427,7 @@ const UndatedRow = memo(function UndatedRow({
 				ref={ref}
 				type="button"
 				onClick={(event) => openOrSelect(event, context, task.id)}
+				aria-label={selectedLabel}
 				data-selected={isSelected}
 				className={cn(
 					'flex h-7 min-w-0 flex-1 items-center gap-2 rounded-md px-1 text-left text-[13px] text-foreground hover:bg-foreground/5',
@@ -504,8 +530,11 @@ export function TeamTasksCalendarView({
 		[statuses, selectedIds, openTask, toggleChip, isDragEnabled, movableIds]
 	);
 	const setDate = useCallback(
-		(taskId: string, anchorElement: Element) => openPicker('dueDate', [taskId], anchorElement),
-		[openPicker]
+		(taskId: string, anchorElement: Element) => {
+			const taskIds = dueDateTargetsOf(taskId, selectedIds);
+			openPicker('dueDate', taskIds, anchorElement);
+		},
+		[openPicker, selectedIds]
 	);
 
 	const showPrevious = () => setAnchor((current) => shiftedAnchorOf('month', current, -1));

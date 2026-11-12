@@ -99,6 +99,9 @@ jest.mock(
 	() => ({ autoScrollForElements: () => () => undefined }),
 	{ virtual: true }
 );
+// The platform's bulk update, which brings one due date for a whole selection.
+let mockTaskViewsEnabled = false;
+jest.mock('@/core/lib/utils/task-views-enabled', () => ({ isTaskViewsEnabled: () => mockTaskViewsEnabled }));
 
 import { TeamTasksCalendarView } from './team-tasks-calendar';
 
@@ -245,6 +248,7 @@ describe('TeamTasksCalendarView', () => {
 		mockFitsMonthGrid = true;
 		mockHasFinePointer = true;
 		mockMoveToDay.mockReset();
+		mockTaskViewsEnabled = false;
 	});
 
 	it('draws the month as the list of its busy days where seven columns do not fit, and never both', () => {
@@ -282,7 +286,8 @@ describe('TeamTasksCalendarView', () => {
 		);
 		const today = dayCell(monthGrid('November 2026'), 'Thursday, November 12');
 		const chip = within(today).getByRole('button', { name: 'Ship the release, open' });
-		const selectedChip = within(today).getByRole('button', { name: 'Write the notes, open' });
+		// A selected task says so in its name.
+		const selectedChip = within(today).getByRole('button', { name: 'Write the notes, open, common.SELECTED' });
 
 		fireEvent.click(chip, { ctrlKey: true });
 		expect(toggleSelected).toHaveBeenLastCalledWith('a', false);
@@ -386,7 +391,7 @@ describe('TeamTasksCalendarView', () => {
 		);
 		fireEvent.click(screen.getByRole('button', { name: /^pages\.teamTasks\.CALENDAR_NO_DUE_DATE/ }));
 		const notes = screen.getByRole('button', { name: 'Write the notes' });
-		const client = screen.getByRole('button', { name: 'Call the client' });
+		const client = screen.getByRole('button', { name: 'Call the client, common.SELECTED' });
 
 		expect(notes.getAttribute('data-selected')).toBe('false');
 		expect(client.getAttribute('data-selected')).toBe('true');
@@ -399,6 +404,33 @@ describe('TeamTasksCalendarView', () => {
 			['u2', false]
 		]);
 		expect(commands.openTask).not.toHaveBeenCalled();
+	});
+
+	it("sets one due date for the whole selection from a selected task's button, where the list does", () => {
+		const tasks = [
+			openTask('u1', 'Write the notes'),
+			openTask('u2', 'Call the client'),
+			openTask('u3', 'Plan the year')
+		];
+		mockTaskViewsEnabled = true;
+		const { commands, unmount } = renderCalendar(tasks, { selected: ['u1', 'u2'] });
+		fireEvent.click(screen.getByRole('button', { name: /^pages\.teamTasks\.CALENDAR_NO_DUE_DATE/ }));
+		const clientDate = screen.getByRole('button', { name: 'Call the client, pages.teamTasks.SET_DUE_DATE' });
+		const yearDate = screen.getByRole('button', { name: 'Plan the year, pages.teamTasks.SET_DUE_DATE' });
+
+		fireEvent.click(clientDate);
+		expect(commands.openPicker).toHaveBeenLastCalledWith('dueDate', ['u1', 'u2'], clientDate);
+		// A task outside the selection gets its own date.
+		fireEvent.click(yearDate);
+		expect(commands.openPicker).toHaveBeenLastCalledWith('dueDate', ['u3'], yearDate);
+		unmount();
+
+		mockTaskViewsEnabled = false;
+		const withoutBulk = renderCalendar(tasks, { selected: ['u1', 'u2'] });
+		fireEvent.click(screen.getByRole('button', { name: /^pages\.teamTasks\.CALENDAR_NO_DUE_DATE/ }));
+		const clientAlone = screen.getByRole('button', { name: 'Call the client, pages.teamTasks.SET_DUE_DATE' });
+		fireEvent.click(clientAlone);
+		expect(withoutBulk.commands.openPicker).toHaveBeenLastCalledWith('dueDate', ['u2'], clientAlone);
 	});
 
 	it('offers no panel when every task has a due date', () => {
