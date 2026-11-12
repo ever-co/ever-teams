@@ -153,7 +153,15 @@ export function useSheetEditing(page: TimesheetsPageState, sheet: TimesheetSheet
 		if (!memberId) {
 			return NO_LOGS;
 		}
-		const request = timesheetPageLogsRequestOf(period, { ...logsScope, employeeIds: [memberId] });
+		// New time is placed on the browser's days: the read covers those days in the browser's zone, whatever zone
+		// the profile names, so a saved entry at either end of the week is never missed (a write over it would make
+		// the API remove it unseen)
+		const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+		const request = timesheetPageLogsRequestOf(period, {
+			...logsScope,
+			userTimeZone: browserTimeZone,
+			employeeIds: [memberId]
+		});
 		const logs = await queryClient.fetchQuery({
 			queryKey: request.queryKey,
 			queryFn: request.queryFn,
