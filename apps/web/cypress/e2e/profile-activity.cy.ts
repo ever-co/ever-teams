@@ -96,8 +96,10 @@ describe('employee-scoped profile activity', () => {
 		cy.fixture('bootstrap').then((fixture) => {
 			cy.mockScenario({ manager: true });
 			cy.hardVisit(`/profile/${fixture.ids.teammateUser}`);
+			// `hardVisit` waits for the shell, not the profile read: let the first page send its read before the second
+			// visit replaces it, then wait for the second.
+			waitForProfileReads(1);
 			cy.hardVisit(`/profile/${fixture.ids.deniedUser}`);
-			// One read per profile visited: wait for both rather than a fixed 250 ms.
 			waitForProfileReads(2);
 			cy.mockRequests().then((requests) => {
 				const employees = profileReads(requests).map((request) =>
