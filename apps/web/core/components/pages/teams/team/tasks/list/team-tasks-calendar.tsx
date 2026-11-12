@@ -18,6 +18,7 @@ import { Calendar } from '@/core/components/icons';
 import { TaskPropertyIcon, TaskPropertyPlaceholderIcon } from '@/core/components/tasks/task-property-icon';
 import { PersonAvatar, personFromTaskMember } from '@/core/components/teams/people-avatars';
 import { useCurrentOrganizationOwner } from '@/core/hooks/bootstrap/use-feature-data';
+import { useMediaQuery } from '@/core/hooks/common/use-media-query';
 import { useToday } from '@/core/hooks/common/use-today';
 import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
 import { cn } from '@/core/lib/helpers';
@@ -30,6 +31,9 @@ import type { TTask } from '@/core/types/schemas/task/task.schema';
 import type { TeamTasksListCommands } from './team-tasks-list';
 
 const VISIBLE_TASKS_PER_DAY = 3;
+
+/** Tailwind's `sm`: below it seven columns do not fit, and the month is drawn as the list of its busy days. */
+const MONTH_GRID_QUERY = '(min-width: 40rem)';
 
 const COUNT_CHIP =
 	'inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-[5px] bg-foreground/[0.06] px-1 text-[11px] font-medium tabular-nums text-muted-foreground';
@@ -266,7 +270,7 @@ function MonthGrid({
 }>) {
 	const firstWeek = weeks[0] ?? [];
 	return (
-		<div role="grid" aria-label={label} className="flex min-h-full flex-col max-sm:hidden">
+		<div role="grid" aria-label={label} className="flex min-h-full flex-col">
 			<div role="row" className="grid grid-cols-7 hairline-b hairline-divide-x divide-border border-border">
 				{firstWeek.map((day) => (
 					<div
@@ -295,14 +299,13 @@ function MonthGrid({
 	);
 }
 
-/** Phones: seven columns do not fit, so the month is the list of its days that have a task due. */
 function BusyDaysList({
 	days,
 	formats,
 	context
 }: Readonly<{ days: TeamTasksCalendarDay[]; formats: CalendarFormats; context: ChipContext }>) {
 	return (
-		<ul className="flex flex-col hairline-divide-y divide-border sm:hidden">
+		<ul className="flex flex-col hairline-divide-y divide-border">
 			{days.map((day) => (
 				<li key={day.dayNumber} className="flex flex-col gap-2 p-3">
 					<h3 className={cn('text-xs font-medium text-muted-foreground', day.isToday && 'text-primary-ink')}>
@@ -395,6 +398,7 @@ export function TeamTasksCalendarView({
 	useCurrentOrganizationOwner();
 	const organization = useAtomValue(currentOrganizationState);
 	const today = useToday();
+	const fitsMonthGrid = useMediaQuery(MONTH_GRID_QUERY);
 	const undatedPanelId = useId();
 	const [anchor, setAnchor] = useState(() => startOfMonth(new Date()));
 	const [isUndatedOpen, setIsUndatedOpen] = useState(false);
@@ -467,8 +471,10 @@ export function TeamTasksCalendarView({
 			</div>
 			<div className="flex min-h-0 flex-1 max-lg:flex-col">
 				<div className="min-h-0 min-w-0 flex-1 overflow-auto custom-scrollbar">
-					<MonthGrid weeks={month.weeks} formats={formats} context={context} label={monthTitle} />
-					<BusyDaysList days={month.busyDays} formats={formats} context={context} />
+					{fitsMonthGrid && (
+						<MonthGrid weeks={month.weeks} formats={formats} context={context} label={monthTitle} />
+					)}
+					{!fitsMonthGrid && <BusyDaysList days={month.busyDays} formats={formats} context={context} />}
 				</div>
 				{showsUndatedPanel && (
 					<UndatedPanel id={undatedPanelId} tasks={month.undated} context={context} onSetDate={setDate} />

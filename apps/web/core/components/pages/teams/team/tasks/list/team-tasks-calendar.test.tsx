@@ -14,6 +14,8 @@ jest.mock('next-intl', () => ({
 }));
 // The owner hook asks the server for the organisation; the calendar only reads the atom it fills.
 jest.mock('@/core/hooks/bootstrap/use-feature-data', () => ({ useCurrentOrganizationOwner: jest.fn() }));
+let mockFitsMonthGrid = true;
+jest.mock('@/core/hooks/common/use-media-query', () => ({ useMediaQuery: () => mockFitsMonthGrid }));
 
 import { TeamTasksCalendarView } from './team-tasks-calendar';
 
@@ -60,7 +62,7 @@ function renderCalendar(tasks: Array<Record<string, unknown>>, options: Calendar
 	return { commands, toggleSelected, unmount };
 }
 
-// The month is drawn twice, as a grid from `sm` and as a list of its busy days on a phone: the tests read the grid.
+// The month is a grid from `sm` and the list of its busy days on a phone; `mockFitsMonthGrid` picks which one is drawn.
 const monthGrid = (name: string) => screen.getByRole('grid', { name });
 const dayCell = (grid: HTMLElement, name: string) => within(grid).getByRole('gridcell', { name });
 const monthTitle = () => screen.getByRole('heading', { level: 2 }).textContent;
@@ -82,6 +84,24 @@ describe('TeamTasksCalendarView', () => {
 		jest.setSystemTime(new Date(2026, 10, 12, 10, 0));
 	});
 	afterAll(() => jest.useRealTimers());
+	afterEach(() => {
+		mockFitsMonthGrid = true;
+	});
+
+	it('draws the month as the list of its busy days where seven columns do not fit, and never both', () => {
+		mockFitsMonthGrid = false;
+		const { commands } = renderCalendar([
+			openTask('a', 'Ship the release', '2026-11-12'),
+			openTask('b', 'Write the notes', '2026-11-20')
+		]);
+
+		expect(screen.queryByRole('grid')).toBeNull();
+		const days = screen.getAllByRole('heading', { level: 3 }).map((heading) => heading.textContent);
+		expect(days).toEqual(['Thursday, November 12', 'Friday, November 20']);
+
+		fireEvent.click(screen.getByRole('button', { name: 'Write the notes, open' }));
+		expect(commands.openTask).toHaveBeenCalledWith('b');
+	});
 
 	it('shows a task on the day it is due, and opens it on a click', () => {
 		const { commands, toggleSelected } = renderCalendar([openTask('a', 'Ship the release', '2026-11-12')]);
