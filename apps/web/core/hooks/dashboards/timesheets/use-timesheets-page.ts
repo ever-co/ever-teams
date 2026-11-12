@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
-import { useLocale } from 'next-intl';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
@@ -34,6 +33,7 @@ import {
 } from '@/core/lib/utils/dashboards/timesheets';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { SheetEditingSource } from './use-sheet-editing';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { useTimesheetPageLogs } from './use-timesheet-page-logs';
 
 export type TimesheetFilterField = 'members' | 'projects' | 'tasks';
@@ -106,7 +106,7 @@ function withValuesToggled(current: string[], values: string[], shouldSelect: bo
  * toolbar and of the status strip, the days of the list, the selection and who may do what.
  */
 export function useTimesheetsPage() {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 	const { isTeamManager } = useIsMemberManager(user);

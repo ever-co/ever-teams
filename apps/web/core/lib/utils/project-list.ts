@@ -12,7 +12,7 @@ export type ProjectsView = 'LIST' | 'GRID';
 
 export type ProjectGrouping = 'none' | 'status';
 
-export type ProjectOrderField = 'name' | 'status' | 'startDate' | 'endDate' | 'createdAt';
+export type ProjectOrderField = 'name' | 'status' | 'startDate' | 'endDate' | 'createdAt' | 'timeSpent' | 'budgetUsed';
 
 /** Stored under `PROJECTS_TABLE_VIEW_LAST_SORTING` in the shape the previous table used (`[{ id, desc }]`). */
 export interface ProjectOrdering {
@@ -20,7 +20,7 @@ export interface ProjectOrdering {
 	desc: boolean;
 }
 
-export type ProjectColumn = 'status' | 'progress' | 'managers' | 'members' | 'teams' | 'dates' | 'budget';
+export type ProjectColumn = 'status' | 'progress' | 'managers' | 'members' | 'teams' | 'dates' | 'timeSpent' | 'budget';
 
 export const PROJECT_COLUMNS: ProjectColumn[] = [
 	'status',
@@ -29,6 +29,7 @@ export const PROJECT_COLUMNS: ProjectColumn[] = [
 	'members',
 	'teams',
 	'dates',
+	'timeSpent',
 	'budget'
 ];
 
@@ -41,6 +42,25 @@ export type ProjectFilters = Record<ProjectFilterField, string[]>;
 export const DATE_FROM_PARAM = 'dateFrom';
 export const DATE_TO_PARAM = 'dateTo';
 export const ARCHIVED_PARAM = 'archived';
+
+/**
+ * The time spent column and these two orderings read the Project Budget report, so the list offers them only to the
+ * people who can open that report.
+ */
+const CONSUMPTION_COLUMNS: ReadonlySet<ProjectColumn> = new Set<ProjectColumn>(['timeSpent']);
+
+const CONSUMPTION_ORDER_FIELDS: ReadonlySet<ProjectOrderField> = new Set<ProjectOrderField>([
+	'timeSpent',
+	'budgetUsed'
+]);
+
+export function isConsumptionColumn(column: ProjectColumn) {
+	return CONSUMPTION_COLUMNS.has(column);
+}
+
+export function isConsumptionOrderField(field: ProjectOrderField) {
+	return CONSUMPTION_ORDER_FIELDS.has(field);
+}
 
 export type ProjectMember = NonNullable<TOrganizationProject['members']>[number];
 
@@ -322,10 +342,14 @@ function timeOf(date: StoredDate) {
 	return real.getTime();
 }
 
-/** Unset dates sort last whatever the direction, so the projects that carry the value lead. */
 function compareDates(a: StoredDate, b: StoredDate, desc: boolean) {
 	const left = timeOf(a);
 	const right = timeOf(b);
+	return compareWithUnsetLast(left, right, desc);
+}
+
+/** Unset values sort last whatever the direction, so the projects that carry the value lead. */
+export function compareWithUnsetLast(left: number | null, right: number | null, desc: boolean) {
 	if (left === null && right === null) {
 		return 0;
 	}

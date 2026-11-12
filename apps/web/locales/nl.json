@@ -699,6 +699,30 @@
 			"WEEK_TITLE": "Urenstaat",
 			"WEEK_NO_MANUAL_TIME_PERMISSION": "Je rol mag geen tijd handmatig toevoegen, dus het blad is alleen-lezen. Een beheerder kan dat toestaan."
 		},
+		"myWeek": {
+			"TITLE": "Mijn week",
+			"UPDATING": "Je tijd wordt geladen",
+			"SUMMARY_LABEL": "Je geregistreerde tijd",
+			"TRACKED_THIS_WEEK": "Deze week geregistreerd",
+			"TRACKED_LAST_WEEK": "Vorige week geregistreerd",
+			"TRACKED_THIS_MONTH": "Deze maand geregistreerd",
+			"LIMIT_LEFT": "Nog {duration} deze week",
+			"LIMIT_UNDER": "{duration} onder je weeklimiet",
+			"LIMIT_OVER": "{duration} boven je weeklimiet",
+			"LIMIT_SHARE": "{percent} van je weeklimiet",
+			"NO_LIMIT": "In je profiel is geen weeklimiet ingesteld.",
+			"LIMIT_BY_WEEK": "Je weeklimiet van {limit} wordt week voor week gemeten.",
+			"DAILY_LIMIT_LINE": "{limit} per dag",
+			"DAILY_LIMIT_HINT": "De stippellijn is een vijfde van je weeklimiet",
+			"PROJECTS_TITLE": "Tijd per project",
+			"RECENT_TITLE": "Recente registraties",
+			"RECENT_LATEST": "De laatste {shown} van {total, plural, one {# registratie} other {# registraties}}",
+			"EMPTY_THIS_WEEK": "Deze week geen tijd geregistreerd",
+			"EMPTY_LAST_WEEK": "Vorige week geen tijd geregistreerd",
+			"EMPTY_THIS_MONTH": "Deze maand geen tijd geregistreerd",
+			"EMPTY_HINT": "Start de timer op een taak en je tijd verschijnt hier.",
+			"OPEN_TIMER": "Timer openen"
+		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# lid} other {# leden}}",
 			"UPDATING": "Cijfers worden bijgewerkt",
@@ -1455,7 +1479,15 @@
 			"WEEK_STRIP_LABEL": "Dagen van de week",
 			"HAS_TIME": "Tijd geregistreerd",
 			"NO_MEMBER_TITLE": "Je account heeft geen ledenprofiel in deze werkruimte",
-			"NO_MEMBER_MESSAGE": "Tijd wordt per lid geregistreerd. Vraag een beheerder je aan een team toe te voegen."
+			"NO_MEMBER_MESSAGE": "Tijd wordt per lid geregistreerd. Vraag een beheerder je aan een team toe te voegen.",
+			"DRAG": {
+				"REFUSED_TITLE": "Invoer niet gewijzigd",
+				"CREATE_REFUSED_TITLE": "Hier kan geen tijd worden toegevoegd",
+				"OVERLAP": "Deze tijd overlapt een andere invoer van het lid. Kies een vrije tijd of wijzig eerst de andere invoer.",
+				"FUTURE": "Je organisatie staat geen tijd na het huidige tijdstip toe.",
+				"APPROVED": "Deze dag hoort bij een goedgekeurde urenstaat, dus de tijd kan niet worden gewijzigd.",
+				"SAVE_FAILED": "Wijziging niet opgeslagen"
+			}
 		},
 		"manualTimeEdits": {
 			"TITLE": "Handmatige tijdwijzigingen",
@@ -1920,6 +1952,14 @@
 				"MEMBER_COUNT": "{count, plural, one {# lid} other {# leden}}",
 				"ERROR_TITLE": "Het project kon niet worden geladen",
 				"ERROR_MESSAGE": "Controleer je verbinding en probeer het opnieuw."
+			},
+			"consumption": {
+				"ORDER_BUDGET_USED": "Budget gebruikt",
+				"AS_COST": "Als kosten",
+				"AS_COST_HINT": "De tijd van dit project wordt als kosten geteld, omdat het soort budget Kosten is. De tijd verschijnt in uren wanneer het soort budget Uren is.",
+				"SUMMARY_LABEL": "Tijd en budget",
+				"OPEN_REPORT": "Budgetrapport openen",
+				"LOAD_ERROR": "Bestede tijd en budgetgebruik konden niet worden geladen"
 			},
 			"modals": {
 				"openProject": "Project openen",
@@ -2700,6 +2740,15 @@
 			"PAUSE": "Gepauzeerd",
 			"IDLE": "Inactief",
 			"SUSPENDED": "Geschorst"
+		},
+		"notes": {
+			"ADD": "Timernotities toevoegen",
+			"EDIT": "Timernotities bewerken",
+			"LABEL": "Notities",
+			"PLACEHOLDER": "Waar werk je aan?",
+			"HINT_BEFORE_START": "Optioneel. Opgeslagen bij de registratie wanneer de timer start.",
+			"HINT_RUNNING": "Wijzigingen terwijl de timer loopt worden nog niet opgeslagen. Bewerk de registratie in Urenstaten nadat je de timer hebt gestopt om de notities te wijzigen.",
+			"HINT_OTHER_TEAM": "Deze notities horen bij de timer die in een ander team loopt en kunnen hier niet worden gewijzigd."
 		}
 	},
 	"task": {
@@ -3004,10 +3053,47 @@
 			"TESTED_TIMER": "Timer getest"
 		},
 		"FILL_IN": "Vul in: {fields}.",
-		"END_AFTER_START": "De eindtijd moet na de begintijd liggen."
+		"END_AFTER_START": "De eindtijd moet na de begintijd liggen.",
+		"OWN_TIME_ONLY": "Je voegt tijd toe voor jezelf. Een beheerder kan tijd toevoegen voor iemand anders.",
+		"DURATION": {
+			"LABEL": "Duur",
+			"PLACEHOLDER": "1:30 of 90m",
+			"HINT": "Typ een duur en de eerste vrije tijd van de dag wordt voorgesteld.",
+			"READING": "Vrije tijd op deze dag zoeken",
+			"PROPOSED": "Voorgesteld: {start} tot {end}, de eerste vrije tijd van de dag. Je kunt dit wijzigen.",
+			"NO_ROOM": "Geen vrij blok van {duration} op deze dag. Kies het begin en het einde, of een andere dag.",
+			"NO_MEMBER": "Kies eerst de werknemer: de vrije tijd wordt uit de dag van die werknemer gelezen.",
+			"READ_FAILED": "De registraties van deze dag konden niet worden gelezen, dus er is geen tijd voorgesteld.",
+			"RETRY": "Opnieuw proberen"
+		},
+		"REQUIRED": {
+			"TEAM": "Je organisatie vereist een team bij elke tijdinvoer. Open een van je teams en voeg de tijd opnieuw toe.",
+			"PROJECT": "Je organisatie vereist een project bij elke tijdinvoer. Kies een project, of een taak die er een heeft.",
+			"TEAM_AND_PROJECT": "Je organisatie vereist een team en een project bij elke tijdinvoer. Open een van je teams en kies een taak met een project."
+		},
+		"TASK_CHANGE": {
+			"PROJECT_FOLLOWS": "Deze invoer gaat naar het project van de taak: {project}.",
+			"OTHER_TEAM": "Deze invoer hoort bij een ander team. Schakel naar dat team om de taak te wijzigen."
+		}
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Weet u zeker dat u dit tijdslot wilt verwijderen?"
+	},
+	"timeEntryActions": {
+		"CONTINUE": "Verdergaan",
+		"DUPLICATE": "Dupliceren",
+		"TASK_ACTIONS": "Acties voor {task}",
+		"ALREADY_RUNNING": "De timer loopt al voor deze taak",
+		"recent": {
+			"TITLE": "Recent",
+			"START_ON": "Timer starten voor {task}",
+			"ERROR": "Je recente taken konden niet worden geladen.",
+			"RETRY": "Opnieuw proberen"
+		},
+		"duplicate": {
+			"OVERLAPS": "Deze tijd overlapt een al geregistreerde invoer ({range}). Kies een vrije tijd of een andere datum.",
+			"CHECK_FAILED": "De invoer van de dag kon niet worden gecontroleerd, dus er is niets opgeslagen. Probeer het opnieuw."
+		}
 	},
 	"chatConfig": {
 		"DIALOG_TITLE": "AI Chat configuratie",
@@ -3127,7 +3213,8 @@
 			"navigation": "Navigatie",
 			"settings": "Instellingen",
 			"goTo": "Ga naar",
-			"chat": "Chat"
+			"chat": "Chat",
+			"timer": "Timer"
 		},
 		"commands": {
 			"inviteUser": "Gebruiker uitnodigen",
@@ -3149,7 +3236,10 @@
 			"goToTimeAndActivity": "Naar het rapport tijd en activiteit",
 			"profile": "Profiel",
 			"settings": "Instellingen",
-			"newMessage": "Nieuw bericht"
+			"newMessage": "Nieuw bericht",
+			"startTimer": "Timer starten",
+			"stopTimer": "Timer stoppen",
+			"addTime": "Tijd toevoegen"
 		},
 		"results": {
 			"recent": "Recent",
@@ -3161,7 +3251,9 @@
 			"projects": "Projecten",
 			"pages": "Pagina's",
 			"untitledPage": "Zonder titel",
-			"recentlyOpened": "Onlangs geopend"
+			"recentlyOpened": "Onlangs geopend",
+			"startTimerOn": "De timer starten voor een taak",
+			"startTimerOnTask": "Timer starten: {task}"
 		}
 	},
 	"modals": {
@@ -3823,7 +3915,10 @@
 			"STOPPED_TASK_SWITCH": "Timer gestopt omdat je actieve taak is gewijzigd",
 			"STALE_STOPPED": "Timer gestopt: {stoppedAt}",
 			"STALE_STOPPED_HINT": "Hij bleef lopen nadat de app was gesloten. Voeg later werk toe als handmatige tijd.",
-			"TASK_CLOSED_HINT": "Heropen de taak om er tijd op te registreren."
+			"TASK_CLOSED_HINT": "Heropen de taak om er tijd op te registreren.",
+			"NOTES_NOT_SAVED": "De notities die tijdens de timer zijn gewijzigd, zijn niet opgeslagen",
+			"NOTES_NOT_SAVED_HINT": "De registratie heeft de notities van de start behouden. Bewerk de registratie in Urenstaten om ze te wijzigen.",
+			"ALREADY_RUNNING_ON_TASK": "De timer loopt al voor deze taak"
 		},
 		"plans": {
 			"CREATE_FAILED": "Het plan is niet aangemaakt",
@@ -4053,7 +4148,8 @@
 		"groups": {
 			"account": "Account",
 			"team": "Team",
-			"taskProperties": "Taakeigenschappen"
+			"taskProperties": "Taakeigenschappen",
+			"workspace": "Werkruimte"
 		},
 		"entries": {
 			"profile": {
@@ -4111,6 +4207,14 @@
 			"versions": {
 				"TITLE": "Versies",
 				"DESCRIPTION": "Releases waarop taken kunnen mikken."
+			},
+			"import": {
+				"TITLE": "Importeren",
+				"DESCRIPTION": "Tijdinvoeren uit een CSV-bestand."
+			},
+			"workspaceGeneral": {
+				"TITLE": "Algemeen",
+				"DESCRIPTION": "De naam van de werkruimte, de valuta en de datum- en getalnotatie."
 			},
 			"automations": {
 				"TITLE": "Automatiseringen",
@@ -4418,6 +4522,121 @@
 				"FINISH_ERROR_TITLE": "Trello kon niet worden verbonden",
 				"RETURN_REFUSED_TITLE": "Trello gaf geen token terug",
 				"RETURN_REFUSED": "De autorisatie is geweigerd of de terugkeer is afgebroken; er is niets verbonden. Verbind opnieuw wanneer u klaar bent."
+			},
+			"jira": {
+				"SECTION_TITLE": "Jira",
+				"SECTION_DESCRIPTION": "Haal de issues van Jira Cloud-projecten binnen als taken en houd ze gesynchroniseerd.",
+				"TITLE": "Jira",
+				"CONNECT_NOTE": "Verbind uw Jira-account en koppel daarna zijn projecten aan de projecten van deze organisatie.",
+				"CONNECT_UNAVAILABLE": "Jira is niet ingesteld op deze installatie: het platform heeft eerst zijn Jira-OAuth-applicatie nodig.",
+				"CONNECT": "Jira verbinden",
+				"CONNECTING": "Jira wordt geopend…",
+				"SUMMARY_CONNECTED": "Verbonden als {account}",
+				"SUMMARY_CONNECTED_SITE": "Verbonden als {account} met {site}",
+				"SUMMARY_CONNECTED_NO_ACCOUNT": "Verbonden",
+				"STATE_CONNECTED": "Verbonden",
+				"STATE_ATTENTION": "Vraagt aandacht",
+				"STATE_SITE_REQUIRED": "Kies een site",
+				"ATTENTION_TOKEN_REFUSED": "Jira weigerde het token van de verbinding. Verbreek de verbinding en verbind opnieuw.",
+				"ATTENTION_OTHER": "Deze verbinding vraagt aandacht.",
+				"FACT_ACCOUNT": "Account",
+				"FACT_SITE": "Site",
+				"FACT_CONNECTED": "Verbonden op",
+				"FACT_MAPPINGS": "Gekoppelde projecten",
+				"FACT_MAPPINGS_VALUE": "{count, plural, =0 {Nog geen} one {# project} other {# projecten}}",
+				"FACT_WEBHOOKS": "Webhooks",
+				"WEBHOOKS_ON": "Aan: Jira stuurt wijzigingen meteen door.",
+				"WEBHOOKS_OFF": "Uit: het platform heeft geen openbaar adres voor Jira; gebruik de imports.",
+				"SITE_TITLE": "Jira-site",
+				"SITE_REQUIRED": "Dit account bereikt meerdere Jira-sites. Kies de site van deze verbinding: tot dan wordt niets gesynchroniseerd.",
+				"SITE_CHANGE_HINT": "Kies een andere site die het account bereikt.",
+				"SITE_CHANGE_BLOCKED": "Verwijder de koppelingen om van site te wisselen: elke koppeling noemt een project van deze site.",
+				"SITE_LABEL": "Site",
+				"SITE_PLACEHOLDER": "Kies een site",
+				"SITE_SAVE": "Deze site gebruiken",
+				"SITE_CHANGE": "Andere site",
+				"SITES_LOADING": "Sites lezen…",
+				"NO_SITES": "Het account bereikt geen Jira-site.",
+				"WEBHOOK_ACTIVE": "Webhook aan: Jira stuurt wijzigingen meteen (vernieuwd vóór {date}).",
+				"WEBHOOK_FAILED": "De webhook kon niet worden geregistreerd: {reason}",
+				"WEBHOOK_MISSING": "Nog geen webhook: wijzigingen komen met de geplande imports.",
+				"WEBHOOK_REGISTER": "Webhook registreren",
+				"LOADING_DETAILS": "Koppelingen laden…",
+				"MAPPED_TO": "Issues worden taken van {project}",
+				"LAST_IMPORT": "laatste import {date}",
+				"LAST_IMPORT_NEVER": "nog niet geïmporteerd",
+				"STATUSES_MAPPED": "{count, plural, one {# status gekoppeld} other {# statussen gekoppeld}}",
+				"ISSUE_TYPES_COUNT": "{count, plural, one {# issuetype} other {# issuetypen}}",
+				"SYNC_LABEL": "Sync",
+				"IMPORT_CHANGES": "Wijzigingen importeren",
+				"IMPORT_ALL": "Alles importeren",
+				"REMOVE_MAPPING": "Verwijderen",
+				"ADD_TITLE": "Een Jira-project koppelen",
+				"ADD_DESCRIPTION": "Kies een Jira-project van de site en het project waarvan de issues taken worden.",
+				"JIRA_PROJECT_LABEL": "Jira-project",
+				"JIRA_PROJECT_PLACEHOLDER": "Kies een Jira-project",
+				"PROJECT_LABEL": "Project",
+				"PROJECT_PLACEHOLDER": "Kies een project",
+				"DIRECTION_LABEL": "Richting",
+				"DIRECTION_inbound": "Jira → taken",
+				"DIRECTION_outbound": "Taken → Jira",
+				"DIRECTION_both": "Beide richtingen",
+				"STATUS_MAP_LABEL": "Taakstatus per Jira-status",
+				"STATUS_MAP_HINT": "Elke statuscategorie wordt een taakstatus. Een Jira-status kan ook een eigen status krijgen, die voorgaat op zijn categorie.",
+				"CATEGORY_new": "Te doen",
+				"CATEGORY_indeterminate": "Bezig",
+				"CATEGORY_done": "Klaar",
+				"STATUS_OVERRIDES_HINT": "De statussen van het project:",
+				"STATUS_BY_CATEGORY": "Volgens de categorie",
+				"STATUS_BY_CATEGORY_NAMED": "Volgens de categorie ({category})",
+				"STATUS_MAP_PLACEHOLDER": "Kies een status",
+				"STATUS_MAP_UNKNOWN": "{value} (geen status)",
+				"STATUS_MAP_INVALID": "Geen status van het project of de organisatie: {values}",
+				"STATUS_MAP_EDIT": "Statussen bewerken",
+				"STATUS_MAP_SAVE": "Statussen opslaan",
+				"STATUSES_LOADING": "Statussen worden gelezen…",
+				"STATUSES_ERROR": "De statussen konden niet worden gelezen",
+				"PROJECT_LOADING": "Statussen en issuetypen van het project lezen…",
+				"NO_STATUSES": "Dit Jira-project heeft geen status die de verbinding kan zien.",
+				"ISSUE_TYPES_LABEL": "Issuetypen",
+				"ISSUE_TYPES_HINT": "Geen aangevinkt: elk issuetype komt binnen.",
+				"ISSUE_TYPES_GONE": "Geen van de issuetypen die deze koppeling binnenhaalt, bestaat nog in het project.",
+				"ISSUE_TYPES_ALL": "Elk type binnenhalen",
+				"PROJECTS_LOADING": "Projecten worden gelezen…",
+				"NO_PROJECTS": "Elk project van deze site is gekoppeld, of de site heeft er geen.",
+				"ADD_MAPPING": "Koppeling toevoegen",
+				"SAVING": "Opslaan…",
+				"RUNS_TITLE": "Laatste runs",
+				"NO_RUNS": "Nog geen import.",
+				"RUN_import": "Import",
+				"RUN_webhook": "Webhook",
+				"RUN_STATUS_running": "Bezig",
+				"RUN_STATUS_done": "Klaar",
+				"RUN_STATUS_failed": "Mislukt",
+				"RUN_COUNTS": "{created} aangemaakt · {updated} bijgewerkt · {skipped} overgeslagen · {failed} mislukt",
+				"RUN_REPORT": "{issues} issues gelezen · {comments} opmerkingen · {links} koppelingen",
+				"RUN_INCOMPLETE": "vroegtijdig gestopt: de volgende import gaat verder",
+				"RUN_FAILURES": "niet toegepast: {keys}",
+				"RUN_FAILURES_MORE": "{count, plural, one {en nog #} other {en nog #}}",
+				"DISCONNECT_LABEL": "Jira loskoppelen",
+				"DISCONNECT_CONSEQUENCE": "Stopt de synchronisatie voor deze organisatie; de geïmporteerde taken blijven.",
+				"DISCONNECT": "Loskoppelen",
+				"DISCONNECT_TITLE": "Jira loskoppelen?",
+				"DISCONNECT_DESCRIPTION": "De verbinding is van de organisatie: elk team dat haar gebruikt, verliest haar.",
+				"DISCONNECT_STOPS_SYNC": "Issues worden geen taken meer, en taken gaan niet meer naar Jira.",
+				"DISCONNECT_KEEPS_TASKS": "Taken die al uit issues zijn gemaakt blijven waar ze zijn.",
+				"DETAILS_ERROR_TITLE": "De koppelingen of uitvoeringen konden niet worden geladen",
+				"LOAD_ERROR_TITLE": "De Jira-integratie kon niet worden geladen",
+				"ACTION_FAILED": "Dat is niet gelukt",
+				"CALLBACK_ERROR_TITLE": "Jira kon niet worden verbonden",
+				"CALLBACK_not_configured": "Het platform heeft geen Jira-OAuth-applicatie.",
+				"CALLBACK_denied": "Jira heeft de verbinding niet toegestaan.",
+				"CALLBACK_invalid_state": "De verbindingsstap is verlopen of al gebruikt. Begin opnieuw.",
+				"CALLBACK_exchange_failed": "Jira weigerde de autorisatiecode. Begin opnieuw.",
+				"CALLBACK_site_unreadable": "De Jira-sites konden na het autoriseren niet worden gelezen.",
+				"CALLBACK_no_site": "Het account bereikt geen Jira-site.",
+				"CALLBACK_site_mismatch": "Deze koppeling heeft toewijzingen op een Jira-site die het account niet meer bereikt; ze is ongewijzigd gebleven.",
+				"CALLBACK_not_saved": "De verbinding kon niet worden opgeslagen."
 			},
 			"conflicts": {
 				"TITLE": "Synchronisatieconflicten",
@@ -4732,7 +4951,37 @@
 			"ACCEPT": "Accepteren",
 			"REJECT": "Afwijzen",
 			"INVITATIONS_COUNT": "{count, plural, one {# uitnodiging wacht op antwoord} other {# uitnodigingen wachten op antwoord}}",
-			"REQUESTS_COUNT": "{count, plural, one {# verzoek wacht op antwoord} other {# verzoeken wachten op antwoord}}"
+			"REQUESTS_COUNT": "{count, plural, one {# verzoek wacht op antwoord} other {# verzoeken wachten op antwoord}}",
+			"FILTER_LABEL": "Getoonde leden",
+			"FILTER_ACTIVE": "Actief",
+			"FILTER_INACTIVE": "Inactief",
+			"INACTIVE_LIST": "Inactieve leden",
+			"INACTIVE_EMPTY": "Geen enkel lid van dit team is gedeactiveerd.",
+			"INACTIVE_ERROR": "De inactieve leden konden niet worden geladen.",
+			"DEACTIVATED_ON": "Gedeactiveerd op {date}",
+			"RESTORE": "Herstellen",
+			"RESTORE_MEMBER": "{name} herstellen",
+			"RESTORED": "{name} kan weer inloggen en tijd registreren",
+			"RESTORE_FAILED": "{name} is nog steeds gedeactiveerd",
+			"DEACTIVATE": "Deactiveren",
+			"DEACTIVATE_TITLE": "{name} deactiveren?",
+			"DEACTIVATE_CONSEQUENCE_ACCESS": "{name} kan niet meer inloggen bij deze werkruimte en geen tijd meer registreren.",
+			"DEACTIVATE_CONSEQUENCE_TEAMS": "Deze persoon telt in geen van de eigen teams meer mee.",
+			"DEACTIVATE_CONSEQUENCE_HISTORY": "Tijd, taken en opmerkingen van deze persoon blijven op naam staan in rapporten en geschiedenis.",
+			"DEACTIVATE_CONSEQUENCE_RESTORE": "Je kunt deze persoon herstellen via de lijst Inactief: toegang, teams en rollen komen dan terug.",
+			"DEACTIVATED": "{name} is gedeactiveerd",
+			"DEACTIVATE_FAILED": "{name} is nog steeds actief",
+			"ROLE_GROUP_TEAM": "In dit team",
+			"ROLE_GROUP_WORKSPACE": "In de werkruimte",
+			"WORKSPACE_ROLE_SUPER_ADMIN": "Superadmin",
+			"WORKSPACE_ROLE_ADMIN": "Admin",
+			"WORKSPACE_ROLE_MANAGER": "Manager",
+			"WORKSPACE_ROLE_EMPLOYEE": "Lid",
+			"WORKSPACE_ROLE_DATA_ENTRY": "Gegevensinvoer",
+			"WORKSPACE_ROLE_VIEWER": "Kijker",
+			"WORKSPACE_ROLE_CANDIDATE": "Kandidaat",
+			"WORKSPACE_ROLE_INTERVIEWER": "Interviewer",
+			"WORKSPACE_ROLE_NOT_SAVED": "De rol van {name} in de werkruimte is niet gewijzigd"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profiel",
@@ -4866,6 +5115,37 @@
 			"LOAD_ERROR_TEXT": "Je schakelaars zijn niet gewijzigd. Probeer het zo opnieuw.",
 			"UNAVAILABLE_TITLE": "Nog niets in te stellen in deze werkruimte",
 			"UNAVAILABLE_TEXT": "Meldingen horen bij je ledenprofiel in een werkruimte, en dit account heeft er hier geen. Word eerst lid van een team of maak er een."
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "Werkruimte",
+			"NAME_LABEL": "Naam van de werkruimte",
+			"NAME_DESCRIPTION": "Staat in de werkruimtekiezer en op uitnodigingen.",
+			"NAME_INVALID": "Voer een naam van 1 tot {max} tekens in.",
+			"NAME_SAVED": "Werkruimte hernoemd naar {name}",
+			"NAME_NOT_SAVED": "De werkruimte is niet hernoemd",
+			"NAME_MAYBE_UNFINISHED": "Het hernoemen is mogelijk niet afgerond",
+			"NAME_SAVE_AGAIN": "Sla dezelfde naam opnieuw op om het af te ronden.",
+			"NAME_SUPER_ADMIN_ONLY": "Alleen een superbeheerder van de werkruimte kan de naam wijzigen.",
+			"FORMATS_SECTION": "Valuta en notaties",
+			"FORMATS_DESCRIPTION": "Gelden overal waar niets specifiekers is ingesteld, zoals een tarief met een eigen valuta.",
+			"CURRENCY_LABEL": "Standaardvaluta",
+			"CURRENCY_DESCRIPTION": "De valuta waarmee een nieuw tarief of budget begint.",
+			"CURRENCY_SAVED": "Standaardvaluta ingesteld op {currency}",
+			"CURRENCY_OUTCOME": "Nieuwe tarieven en budgetten beginnen in deze valuta.",
+			"CURRENCY_NOT_SAVED": "De valuta is niet opgeslagen",
+			"CURRENCY_NOT_SET": "Niet ingesteld",
+			"DATE_FORMAT_LABEL": "Datumnotatie",
+			"DATE_FORMAT_DESCRIPTION": "Hoe rapporten en hun exports datums schrijven. Automatisch volgt de taal van elk lid.",
+			"DATE_FORMAT_SAVED": "Datumnotatie opgeslagen",
+			"DATE_FORMAT_NOT_SAVED": "De datumnotatie is niet opgeslagen",
+			"NUMBER_FORMAT_LABEL": "Getalnotatie",
+			"NUMBER_FORMAT_DESCRIPTION": "Hoe rapporten en hun exports bedragen schrijven. Automatisch volgt de taal van elk lid.",
+			"NUMBER_FORMAT_SAVED": "Getalnotatie opgeslagen",
+			"NUMBER_FORMAT_NOT_SAVED": "De getalnotatie is niet opgeslagen",
+			"FORMAT_OUTCOME": "Rapporten en hun exports gebruiken die nu.",
+			"FORMAT_AUTOMATIC": "Automatisch",
+			"READ_ONLY_NOTE": "Alleen beheerders van de werkruimte kunnen deze instellingen wijzigen.",
+			"LOAD_FAILED": "De instellingen van de werkruimte konden niet worden geladen."
 		},
 		"automations": {
 			"NEW_RULE": "Nieuwe regel",
@@ -6220,5 +6500,144 @@
 		"OFF_TEXT": "In deze werkruimte worden verwijderde taken definitief verwijderd.",
 		"NO_TEAM_TITLE": "Kies een team",
 		"NO_TEAM_TEXT": "De prullenbak toont de verwijderde taken van het actieve team."
+	},
+	"timeImport": {
+		"SECTION_TITLE": "Tijdregistratiegegevens",
+		"SECTION_DESCRIPTION": "Elke rij van het bestand wordt een tijdinvoer in {team}. Je bekijkt eerst alle rijen, en er wordt niets opgeslagen voordat je bevestigt.",
+		"TEMPLATE_LABEL": "CSV-sjabloon",
+		"TEMPLATE_DESCRIPTION": "Een leeg bestand met de kolommen die de import leest.",
+		"TEMPLATE_DOWNLOAD": "Sjabloon downloaden",
+		"DROP_TITLE": "Sleep een CSV-bestand hierheen, of kies er een",
+		"DROP_ACTIVE": "Laat het bestand los om het te controleren",
+		"DROP_HINT": "{rows, plural, one {Alleen CSV, tot {megabytes} MB en # rij per bestand.} other {Alleen CSV, tot {megabytes} MB en # rijen per bestand.}}",
+		"OWN_TIME_NOTE": "Elke rij wordt opgeslagen als je eigen tijd.",
+		"OTHERS_NOTE": "Je kunt tijd toevoegen voor andere leden van {team}: vermeld het e-mailadres van elk lid in de kolom {column}. Een rij zonder e-mailadres is je eigen tijd.",
+		"COLUMNS_TITLE": "Kolommen",
+		"COLUMNS_DESCRIPTION": "De eerste regel van het bestand benoemt de kolommen, in willekeurige volgorde. Datums en tijden worden gelezen in je tijdzone, {timeZone}.",
+		"columns": {
+			"REQUIRED": "Verplicht",
+			"ONE_OF_TWO": "Een van de twee",
+			"DATE": "De dag van de invoer, met het jaar eerst: {date}.",
+			"START_TIME": "De begintijd, in 24-uursnotatie of met AM of PM: {startTime} of {startTimeMeridiem}.",
+			"END_TIME": "De eindtijd, op dezelfde dag: {endTime}.",
+			"DURATION": "De duur, in plaats van een eindtijd: {duration}, {durationUnits}, of {durationDecimal} voor uren als getal.",
+			"PROJECT": "De exacte naam van een project van dit team. Leeg voor tijd zonder project.",
+			"TASK_ANY": "De exacte titel van een taak van dit team. Leeg voor tijd zonder taak.",
+			"TASK_OWN": "De exacte titel van een taak van dit team die is toegewezen aan het lid voor wie de tijd is. Leeg voor tijd zonder taak.",
+			"NOTES": "Een notitie die bij de invoer wordt opgeslagen.",
+			"BILLABLE": "{yes} of {no}. Leeg betekent {no}.",
+			"MEMBER_EMAIL": "Het e-mailadres van het lid voor wie de tijd is. Leeg betekent jijzelf."
+		},
+		"FILE_PROBLEM_TITLE": "{fileName} kan niet worden geïmporteerd",
+		"fileProblems": {
+			"NOT_CSV": "Alleen CSV-bestanden worden gelezen. Sla het blad op als CSV en kies dan dat bestand.",
+			"TOO_LARGE": "Het bestand is groter dan {megabytes} MB. Splits het in kleinere bestanden.",
+			"NOT_TEXT": "Het bestand is geen tekst die als UTF-8 is opgeslagen. Sla het in je spreadsheetapp op als CSV UTF-8.",
+			"EMPTY": "Het bestand is leeg.",
+			"UNCLOSED_QUOTE": "In rij {row} begint een cel met een dubbel aanhalingsteken dat nooit wordt gesloten.",
+			"DUPLICATE_COLUMN": "De kolom {column} komt twee keer voor.",
+			"MISSING_COLUMNS": "{count, plural, one {Deze kolom ontbreekt: {columns}.} other {Deze kolommen ontbreken: {columns}.}}",
+			"END_OR_DURATION": "{endTime} of {duration}",
+			"NO_ROWS": "Het bestand heeft een kopregel en geen rij eronder.",
+			"TOO_MANY_ROWS": "{limit, plural, one {Het bestand heeft {count} rijen. Een import neemt hoogstens # rij: splits het bestand.} other {Het bestand heeft {count} rijen. Een import neemt hoogstens # rijen: splits het bestand.}}"
+		},
+		"CHECKING_TITLE": "{fileName} wordt gecontroleerd",
+		"CHECKING_DESCRIPTION": "{count, plural, one {# rij wordt vergeleken met de al geregistreerde tijd.} other {# rijen worden vergeleken met de al geregistreerde tijd.}}",
+		"CHECK_FAILED_TITLE": "{fileName} kon niet worden gecontroleerd",
+		"CHECK_FAILED_DESCRIPTION": "De al geregistreerde tijd kon niet worden gelezen, dus er kan nog geen rij worden geïmporteerd. Er is niets opgeslagen.",
+		"RETRY": "Opnieuw proberen",
+		"CHOOSE_ANOTHER": "Ander bestand kiezen",
+		"PREVIEW_TITLE": "Voorbeeld",
+		"PREVIEW_DESCRIPTION": "{count, plural, one {{fileName}, # rij. Er wordt niets opgeslagen totdat je importeert.} other {{fileName}, # rijen. Er wordt niets opgeslagen totdat je importeert.}}",
+		"IGNORED_COLUMNS": "{count, plural, one {Deze kolom wordt niet gelezen: {columns}.} other {Deze kolommen worden niet gelezen: {columns}.}}",
+		"PREVIEW_CHANGED_TITLE": "Er is niets opgeslagen: het voorbeeld is veranderd",
+		"PREVIEW_CHANGED_DESCRIPTION": "Het bestand is vóór het opslaan nog één keer gecontroleerd en sommige rijen zijn veranderd, bijvoorbeeld omdat er intussen tijd is geregistreerd. Bekijk de rijen en importeer daarna opnieuw.",
+		"RECHECK_FAILED_TITLE": "Er is niets opgeslagen",
+		"RECHECK_FAILED_DESCRIPTION": "Het bestand kon vóór het opslaan niet nog één keer worden gecontroleerd. Probeer het opnieuw.",
+		"NOTHING_READY": "Geen enkele rij van dit bestand kan worden geïmporteerd. Corrigeer de weggelaten rijen en kies het bestand daarna opnieuw.",
+		"IMPORT_ACTION": "{count, plural, one {# invoer importeren} other {# invoeren importeren}}",
+		"RECHECKING": "Het bestand wordt nog één keer gecontroleerd vóór het opslaan",
+		"IMPORTING_TITLE": "Bezig met importeren",
+		"IMPORTING_PROGRESS": "{total, plural, one {{done} van # invoer opgeslagen} other {{done} van # invoeren opgeslagen}}",
+		"KEEP_OPEN": "Houd deze pagina open tot de import klaar is.",
+		"REPORT_TITLE": "Rapport",
+		"DONE_TITLE": "{count, plural, one {# invoer opgeslagen} other {# invoeren opgeslagen}}",
+		"DONE_DESCRIPTION": "Toegevoegde tijd: {duration}. De invoeren staan nu in de urenstaten en de rapporten.",
+		"STOPPED_TITLE": "De import is gestopt bij rij {row}",
+		"STOPPED_SAVED": "{count, plural, =0 {Er is geen invoer opgeslagen.} one {Daarvoor is # invoer opgeslagen.} other {Daarvoor zijn # invoeren opgeslagen.}}",
+		"STOPPED_NOT_SENT": "{count, plural, one {# rij daarna is niet verzonden.} other {# rijen daarna zijn niet verzonden.}}",
+		"DOWNLOAD_REPORT": "Rapport downloaden",
+		"IMPORT_ANOTHER": "Nog een bestand importeren",
+		"SHOW_MORE": "{count, plural, one {Nog # rij tonen} other {Nog # rijen tonen}}",
+		"figures": {
+			"LABEL": "Cijfers van dit bestand",
+			"READY": "Gereed",
+			"LEFT_OUT": "Weggelaten",
+			"SAVED": "Opgeslagen",
+			"FAILED": "Mislukt",
+			"NOT_SENT": "Niet verzonden",
+			"TIME_TO_ADD": "Toe te voegen tijd",
+			"TIME_ADDED": "Toegevoegde tijd"
+		},
+		"filter": {
+			"LABEL": "Getoonde rijen",
+			"ALL": "Alle"
+		},
+		"status": {
+			"READY": "Gereed",
+			"LEFT_OUT": "Weggelaten",
+			"SAVED": "Opgeslagen",
+			"FAILED": "Mislukt",
+			"NOT_SENT": "Niet verzonden"
+		},
+		"row": {
+			"NUMBER": "Rij {row}",
+			"FOR_MEMBER": "Voor {name}",
+			"BILLABLE": "Factureerbaar",
+			"NOT_SENT_REASON": "De import is gestopt bij rij {row}, vóór deze rij."
+		},
+		"problems": {
+			"EXTRA_CELLS": "Deze rij heeft meer cellen dan de kopregel. Een cel met een komma of een puntkomma hoort tussen dubbele aanhalingstekens.",
+			"DATE_UNREADABLE": "De datum is niet leesbaar. Schrijf hem met het jaar eerst, zoals {date}.",
+			"START_UNREADABLE": "De begintijd is niet leesbaar. Schrijf hem zoals {startTime} of {startTimeMeridiem}.",
+			"END_MISSING": "Deze rij heeft geen eindtijd en geen duur.",
+			"END_UNREADABLE": "De eindtijd is niet leesbaar. Schrijf hem zoals {endTime} of {endTimeMeridiem}.",
+			"DURATION_UNREADABLE": "De duur is niet leesbaar. Schrijf hem zoals {duration}, {durationUnits} of {durationDecimal}.",
+			"END_NOT_AFTER_START": "Het einde moet na het begin komen. Geef voor tijd die over middernacht loopt een duur op in plaats van de eindtijd.",
+			"CLOCK_SKIPPED": "Op deze dag gaat de klok vooruit voor de zomertijd, en de begin- of eindtijd valt in het overgeslagen uur. Vul een tijd in die op die dag bestaat.",
+			"DURATION_MISMATCH": "De eindtijd en de duur geven twee verschillende lengtes. Houd een van de twee.",
+			"TOO_LONG": "Een invoer kan niet langer zijn dan 24 uur. Een duur die als los getal is geschreven, wordt in uren gelezen.",
+			"IN_FUTURE": "Deze tijd is nog niet voorbij, en deze organisatie accepteert geen tijd in de toekomst.",
+			"BILLABLE_UNREADABLE": "De cel voor factureerbaar moet {yes} of {no} zijn.",
+			"MEMBER_UNKNOWN": "Geen lid van dit team heeft dit e-mailadres.",
+			"MEMBER_NOT_ALLOWED": "Deze rij is voor een ander lid. Je kunt alleen je eigen tijd importeren.",
+			"NO_OWN_MEMBER": "Deze rij noemt geen lid, en je account heeft geen werknemersprofiel om tijd op te registreren.",
+			"PROJECT_UNKNOWN": "Geen project van dit team heeft deze naam.",
+			"PROJECT_AMBIGUOUS": "{count, plural, one {# project van dit team heeft deze naam.} other {# projecten van dit team hebben deze naam.}}",
+			"PROJECT_REQUIRED": "Deze organisatie vereist een project bij elke tijdinvoer. Noem een project in deze rij.",
+			"TASK_UNKNOWN": "Geen taak van dit team heeft deze titel.",
+			"TASK_NOT_ASSIGNED": "Deze taak is niet toegewezen aan het lid van deze rij. Alleen een teammanager kan tijd toevoegen aan elke taak van het team.",
+			"TASK_AMBIGUOUS": "{count, plural, one {# taak heeft deze titel.} other {# taken hebben deze titel. Hernoem er een, zodat de rij één taak aanwijst.}}",
+			"ALREADY_RECORDED": "Deze invoer is al geregistreerd.",
+			"OVERLAPS_RECORDED": "{count, plural, one {Deze rij overlapt een al geregistreerde invoer, {range}. Opslaan zou die invoer verwijderen.} other {Deze rij overlapt # al geregistreerde invoeren, de eerste {range}. Opslaan zou ze verwijderen.}}",
+			"SAME_AS_ROW": "Deze rij herhaalt rij {row} van dit bestand.",
+			"OVERLAPS_ROW": "Deze rij overlapt rij {row} van dit bestand, die eerst wordt geïmporteerd.",
+			"RECORDED_MEANWHILE": "Tijdens de import is op de tijd van deze rij een invoer geregistreerd. De rij opslaan zou die invoer verwijderen."
+		},
+		"access": {
+			"MANUAL_TIME_OFF_TITLE": "Handmatige tijd staat uit",
+			"MANUAL_TIME_OFF_DESCRIPTION": "{organization} laat leden geen tijd met de hand toevoegen, dus tijd importeren kan ook niet.",
+			"NO_PERMISSION_TITLE": "Je rol kan geen tijd met de hand toevoegen",
+			"NO_PERMISSION_DESCRIPTION": "Tijd importeren vraagt dezelfde machtiging als tijd met de hand toevoegen. Vraag het een beheerder van de organisatie.",
+			"LOAD_FAILED_TITLE": "De import kon niet worden voorbereid",
+			"LOAD_FAILED_DESCRIPTION": "Je machtigingen, de tijdregels van de organisatie of de taken van het team konden niet worden geladen."
+		},
+		"entry": {
+			"TITLE": "Importeren",
+			"DESCRIPTION": "Gegevens uit andere tools, naar dit team gebracht.",
+			"ROW_LABEL": "Tijdregistratiegegevens",
+			"ROW_DESCRIPTION": "Voeg tijdinvoeren toe vanuit een CSV-bestand.",
+			"OPEN": "Importeren uit CSV"
+		}
 	}
 }

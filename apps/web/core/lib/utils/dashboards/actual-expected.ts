@@ -6,6 +6,7 @@ import { durationPartsOf, formatHoursLabel, percentOf } from '@/core/lib/utils/d
 import { daysOfPeriod, type Period, type WeekStart } from '@/core/lib/utils/dashboard-period';
 import type { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import type { TTimeLogReportWeekly } from '@/core/types/schemas/timer/time-log.schema';
+import { dateFormatOf, localeKeyOf, localeTagOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 export type PlanGrouping = 'member' | 'day';
 
@@ -539,8 +540,8 @@ function weekdayFormatterOf(locale: string) {
 	return formatter;
 }
 
-function dateFormatterOf(locale: string, showsYear: boolean) {
-	const cacheKey = `${locale}:${showsYear}`;
+function dateFormatterOf(locale: FormatLocale, showsYear: boolean) {
+	const cacheKey = `${localeKeyOf(locale)}:${showsYear}`;
 	const cached = dateFormatters.get(cacheKey);
 	if (cached) {
 		return cached;
@@ -549,14 +550,14 @@ function dateFormatterOf(locale: string, showsYear: boolean) {
 	if (showsYear) {
 		options.year = 'numeric';
 	}
-	const formatter = new Intl.DateTimeFormat(locale, options);
+	const formatter = dateFormatOf(locale, options);
 	dateFormatters.set(cacheKey, formatter);
 	return formatter;
 }
 
-export function dayLabelPartsOf(day: Date, locale: string) {
+export function dayLabelPartsOf(day: Date, locale: FormatLocale) {
 	const showsYear = !isSameYear(day, new Date());
-	const weekday = weekdayFormatterOf(locale).format(day);
+	const weekday = weekdayFormatterOf(localeTagOf(locale)).format(day);
 	const date = dateFormatterOf(locale, showsYear).format(day);
 	return { weekday, date };
 }

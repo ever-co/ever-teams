@@ -10,6 +10,7 @@ import { CurrencySelect } from '@/core/components/rates/currency-select';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { SETTINGS_SKELETON_BAR } from '@/core/components/settings/kit/settings-page';
 import { useEmployeePayRate } from '@/core/hooks/organizations/rates/use-rates';
+import { useGetCurrentOrganization } from '@/core/hooks/auth/use-current-organization';
 import { cn } from '@/core/lib/helpers';
 import {
 	changedEmployeeRatesOf,
@@ -80,10 +81,15 @@ export function MemberRateEditor({
 	const payCurrencyId = useId();
 	const errorId = useId();
 	const [rateText, setRateText] = useState(() => rateInputTextOf(row.rate.value));
+	// The form opens on pages that do not read the organization, whose currency a rate without its own starts in
+	useGetCurrentOrganization({ enabled: true });
 	const organization = useAtomValue(currentOrganizationState);
-	const [initialCurrency] = useState(() => shownCurrencyOf(row.rate.currency, organization?.currency));
+	const [openedCurrency] = useState(() => row.rate.currency);
+	// The organization may be read after the form opened: until a currency is picked, the one shown follows it
+	const initialCurrency = shownCurrencyOf(openedCurrency, organization?.currency);
 	const [initialRates] = useState(() => ({ value: row.rate.value, weeklyLimit: row.rate.weeklyLimit }));
-	const [currency, setCurrency] = useState(initialCurrency);
+	const [currencyChoice, setCurrencyChoice] = useState<string | null>(null);
+	const currency = currencyChoice ?? initialCurrency;
 	const [limitText, setLimitText] = useState(() => rateInputTextOf(row.rate.weeklyLimit));
 	const [error, setError] = useState<string | null>(null);
 	const [isSaving, setIsSaving] = useState(false);
@@ -198,7 +204,12 @@ export function MemberRateEditor({
 						<label htmlFor={currencyId} className={FIELD_LABEL}>
 							{t('rates.CURRENCY')}
 						</label>
-						<CurrencySelect id={currencyId} value={currency} onChange={setCurrency} disabled={isSaving} />
+						<CurrencySelect
+							id={currencyId}
+							value={currency}
+							onChange={setCurrencyChoice}
+							disabled={isSaving}
+						/>
 					</div>
 					<div className="col-span-2 flex min-w-0 flex-col gap-1 sm:col-span-1">
 						<label htmlFor={limitId} className={FIELD_LABEL}>

@@ -634,6 +634,30 @@
 			"WEEK_TITLE": "الجدول الزمني",
 			"WEEK_NO_MANUAL_TIME_PERMISSION": "دورك لا يسمح بإضافة الوقت يدويًا، لذا الجدول للقراءة فقط. يمكن لمسؤول أن يسمح بذلك."
 		},
+		"myWeek": {
+			"TITLE": "أسبوعي",
+			"UPDATING": "جارٍ تحميل وقتك",
+			"SUMMARY_LABEL": "وقتك المسجل",
+			"TRACKED_THIS_WEEK": "المسجل هذا الأسبوع",
+			"TRACKED_LAST_WEEK": "المسجل الأسبوع الماضي",
+			"TRACKED_THIS_MONTH": "المسجل هذا الشهر",
+			"LIMIT_LEFT": "بقي {duration} هذا الأسبوع",
+			"LIMIT_UNDER": "{duration} دون حدك الأسبوعي",
+			"LIMIT_OVER": "{duration} فوق حدك الأسبوعي",
+			"LIMIT_SHARE": "{percent} من حدك الأسبوعي",
+			"NO_LIMIT": "لا يوجد حد أسبوعي محدد في ملفك الشخصي.",
+			"LIMIT_BY_WEEK": "يُقاس حدك الأسبوعي البالغ {limit} أسبوعًا بأسبوع.",
+			"DAILY_LIMIT_LINE": "{limit} في اليوم",
+			"DAILY_LIMIT_HINT": "الخط المتقطع هو خُمس حدك الأسبوعي",
+			"PROJECTS_TITLE": "الوقت حسب المشروع",
+			"RECENT_TITLE": "أحدث الإدخالات",
+			"RECENT_LATEST": "أحدث {shown} من {total, plural, zero {# إدخالات} one {إدخال واحد} two {إدخالين} few {# إدخالات} many {# إدخالًا} other {# إدخال}}",
+			"EMPTY_THIS_WEEK": "لا وقت مسجل هذا الأسبوع",
+			"EMPTY_LAST_WEEK": "لا وقت مسجل الأسبوع الماضي",
+			"EMPTY_THIS_MONTH": "لا وقت مسجل هذا الشهر",
+			"EMPTY_HINT": "شغّل المؤقت على مهمة وسيظهر وقتك هنا.",
+			"OPEN_TIMER": "فتح المؤقت"
+		},
 		"team": {
 			"META_MEMBERS": "{count, plural, zero {لا أعضاء} one {عضو واحد} two {عضوان} few {# أعضاء} many {# عضوًا} other {# عضو}}",
 			"UPDATING": "جارٍ تحديث الأرقام",
@@ -1390,7 +1414,15 @@
 			"WEEK_STRIP_LABEL": "أيام الأسبوع",
 			"HAS_TIME": "يوجد وقت مسجّل",
 			"NO_MEMBER_TITLE": "ليس لحسابك ملف عضو في مساحة العمل هذه",
-			"NO_MEMBER_MESSAGE": "يُسجَّل الوقت لكل عضو. اطلب من مسؤول إضافتك إلى فريق."
+			"NO_MEMBER_MESSAGE": "يُسجَّل الوقت لكل عضو. اطلب من مسؤول إضافتك إلى فريق.",
+			"DRAG": {
+				"REFUSED_TITLE": "لم يتم تغيير الإدخال",
+				"CREATE_REFUSED_TITLE": "لا يمكن إضافة وقت هنا",
+				"OVERLAP": "هذا الوقت يتداخل مع إدخال آخر للعضو. اختر وقتًا متاحًا أو غيّر الإدخال الآخر أولًا.",
+				"FUTURE": "مؤسستك لا تسمح بوقت بعد الوقت الحالي.",
+				"APPROVED": "هذا اليوم ضمن جدول زمني معتمد، لذا لا يمكن تغيير وقته.",
+				"SAVE_FAILED": "لم يتم حفظ التغيير"
+			}
 		},
 		"manualTimeEdits": {
 			"TITLE": "تعديلات الوقت اليدوية",
@@ -1873,6 +1905,14 @@
 				"MEMBER_COUNT": "{count, plural, zero {لا أعضاء} one {عضو واحد} two {عضوان} few {# أعضاء} many {# عضوًا} other {# عضو}}",
 				"ERROR_TITLE": "تعذر تحميل المشروع",
 				"ERROR_MESSAGE": "تحقق من اتصالك ثم حاول مرة أخرى."
+			},
+			"consumption": {
+				"ORDER_BUDGET_USED": "الميزانية المستخدمة",
+				"AS_COST": "كتكلفة",
+				"AS_COST_HINT": "يُحتسب وقت هذا المشروع كتكلفة، لأن نوع ميزانيته «تكلفة». ويظهر بالساعات عندما يكون نوع الميزانية «ساعات».",
+				"SUMMARY_LABEL": "الوقت والميزانية",
+				"OPEN_REPORT": "فتح تقرير الميزانية",
+				"LOAD_ERROR": "تعذّر تحميل الوقت المستغرق واستخدام الميزانية"
 			},
 			"modals": {
 				"openProject": "فتح المشروع",
@@ -2700,6 +2740,15 @@
 			"PAUSE": "متوقف مؤقتًا",
 			"IDLE": "خامل",
 			"SUSPENDED": "معلّق"
+		},
+		"notes": {
+			"ADD": "إضافة ملاحظات إلى المؤقت",
+			"EDIT": "تعديل ملاحظات المؤقت",
+			"LABEL": "ملاحظات",
+			"PLACEHOLDER": "على ماذا تعمل؟",
+			"HINT_BEFORE_START": "اختياري. تُحفظ في الإدخال عند بدء المؤقت.",
+			"HINT_RUNNING": "لا تُحفظ بعدُ التغييرات التي تُجرى أثناء تشغيل المؤقت. لتغيير الملاحظات، عدّل الإدخال في جداول الدوام بعد إيقاف المؤقت.",
+			"HINT_OTHER_TEAM": "تخص هذه الملاحظات المؤقت الذي يعمل في فريق آخر، لذا لا يمكن تغييرها هنا."
 		}
 	},
 	"task": {
@@ -3004,10 +3053,47 @@
 			"TESTED_TIMER": "اختبار المؤقت"
 		},
 		"FILL_IN": "أكمل: {fields}.",
-		"END_AFTER_START": "يجب أن يكون وقت الانتهاء بعد وقت البدء."
+		"END_AFTER_START": "يجب أن يكون وقت الانتهاء بعد وقت البدء.",
+		"OWN_TIME_ONLY": "تضيف الوقت لنفسك. يمكن لمسؤول أن يضيفه لشخص آخر.",
+		"DURATION": {
+			"LABEL": "المدة",
+			"PLACEHOLDER": "1:30 أو 90m",
+			"HINT": "اكتب مدة وسيُقترح أول وقت متاح في اليوم.",
+			"READING": "جارٍ البحث عن وقت متاح في هذا اليوم",
+			"PROPOSED": "المقترح من {start} إلى {end}، أول وقت متاح في اليوم. يمكنك تغييره.",
+			"NO_ROOM": "لا توجد فترة متاحة مدتها {duration} في هذا اليوم. اختر وقت البدء ووقت الانتهاء، أو يومًا آخر.",
+			"NO_MEMBER": "اختر الموظف أولًا: يُقرأ الوقت المتاح من يومه.",
+			"READ_FAILED": "تعذّرت قراءة سجلات هذا اليوم، لذلك لم يُقترح أي وقت.",
+			"RETRY": "حاول مرة أخرى"
+		},
+		"REQUIRED": {
+			"TEAM": "تشترط مؤسستك فريقًا لكل إدخال وقت. افتح أحد فرقك ثم أضف الوقت من جديد.",
+			"PROJECT": "تشترط مؤسستك مشروعًا لكل إدخال وقت. اختر مشروعًا أو مهمة لها مشروع.",
+			"TEAM_AND_PROJECT": "تشترط مؤسستك فريقًا ومشروعًا لكل إدخال وقت. افتح أحد فرقك واختر مهمة لها مشروع."
+		},
+		"TASK_CHANGE": {
+			"PROJECT_FOLLOWS": "ينتقل هذا الإدخال إلى مشروع المهمة: {project}.",
+			"OTHER_TEAM": "هذا الإدخال تابع لفريق آخر. انتقل إلى ذلك الفريق لتغيير مهمته."
+		}
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "هل أنت متأكد أنك تريد حذف فترة الوقت هذه؟"
+	},
+	"timeEntryActions": {
+		"CONTINUE": "متابعة",
+		"DUPLICATE": "تكرار",
+		"TASK_ACTIONS": "إجراءات {task}",
+		"ALREADY_RUNNING": "المؤقت يعمل بالفعل على هذه المهمة",
+		"recent": {
+			"TITLE": "الأخيرة",
+			"START_ON": "تشغيل المؤقت على {task}",
+			"ERROR": "تعذر تحميل مهامك الأخيرة.",
+			"RETRY": "حاول مرة أخرى"
+		},
+		"duplicate": {
+			"OVERLAPS": "هذا الوقت يتداخل مع إدخال مسجّل مسبقًا ({range}). اختر وقتًا خاليًا أو تاريخًا آخر.",
+			"CHECK_FAILED": "تعذر التحقق من إدخالات اليوم، لذلك لم يُحفظ شيء. حاول مرة أخرى."
+		}
 	},
 	"chatConfig": {
 		"DIALOG_TITLE": "إعدادات محادثة الذكاء الاصطناعي",
@@ -3127,7 +3213,8 @@
 			"navigation": "التنقل",
 			"settings": "الإعدادات",
 			"goTo": "الانتقال إلى",
-			"chat": "الدردشة"
+			"chat": "الدردشة",
+			"timer": "المؤقت"
 		},
 		"commands": {
 			"inviteUser": "دعوة مستخدم",
@@ -3149,7 +3236,10 @@
 			"goToTimeAndActivity": "الانتقال إلى تقرير الوقت والنشاط",
 			"profile": "الملف الشخصي",
 			"settings": "الإعدادات",
-			"newMessage": "رسالة جديدة"
+			"newMessage": "رسالة جديدة",
+			"startTimer": "بدء المؤقت",
+			"stopTimer": "إيقاف المؤقت",
+			"addTime": "إضافة وقت"
 		},
 		"results": {
 			"recent": "الأخيرة",
@@ -3161,7 +3251,9 @@
 			"projects": "المشاريع",
 			"pages": "الصفحات",
 			"untitledPage": "بلا عنوان",
-			"recentlyOpened": "المفتوحة مؤخرًا"
+			"recentlyOpened": "المفتوحة مؤخرًا",
+			"startTimerOn": "بدء المؤقت على مهمة",
+			"startTimerOnTask": "بدء المؤقت: {task}"
 		}
 	},
 	"modals": {
@@ -3823,7 +3915,10 @@
 			"STOPPED_TASK_SWITCH": "توقف المؤقت لأن مهمتك النشطة تغيّرت",
 			"STALE_STOPPED": "توقف المؤقت: {stoppedAt}",
 			"STALE_STOPPED_HINT": "استمر في العمل بعد إغلاق التطبيق. أضف العمل اللاحق كوقت يدوي.",
-			"TASK_CLOSED_HINT": "أعد فتح المهمة لتسجيل الوقت عليها."
+			"TASK_CLOSED_HINT": "أعد فتح المهمة لتسجيل الوقت عليها.",
+			"NOTES_NOT_SAVED": "لم تُحفظ الملاحظات التي تم تغييرها أثناء تشغيل المؤقت",
+			"NOTES_NOT_SAVED_HINT": "احتفظ الإدخال بالملاحظات التي بدأ بها. عدّل الإدخال في جداول الدوام لتغييرها.",
+			"ALREADY_RUNNING_ON_TASK": "المؤقت يعمل بالفعل على هذه المهمة"
 		},
 		"plans": {
 			"CREATE_FAILED": "لم يتم إنشاء الخطة",
@@ -4053,7 +4148,8 @@
 		"groups": {
 			"account": "الحساب",
 			"team": "الفريق",
-			"taskProperties": "خصائص المهام"
+			"taskProperties": "خصائص المهام",
+			"workspace": "مساحة العمل"
 		},
 		"entries": {
 			"profile": {
@@ -4111,6 +4207,14 @@
 			"versions": {
 				"TITLE": "الإصدارات",
 				"DESCRIPTION": "الإصدارات التي يمكن أن تستهدفها المهام."
+			},
+			"import": {
+				"TITLE": "الاستيراد",
+				"DESCRIPTION": "إدخالات وقت من ملف CSV."
+			},
+			"workspaceGeneral": {
+				"TITLE": "عام",
+				"DESCRIPTION": "اسم مساحة العمل وعملتها وتنسيقات التاريخ والأرقام."
 			},
 			"automations": {
 				"TITLE": "الأتمتة",
@@ -4418,6 +4522,121 @@
 				"FINISH_ERROR_TITLE": "تعذّر ربط Trello",
 				"RETURN_REFUSED_TITLE": "لم يُعد Trello أي رمز",
 				"RETURN_REFUSED": "تم رفض التفويض أو انقطعت العودة؛ لم يتم ربط أي شيء. اربط مجددًا عندما تكون مستعدًا."
+			},
+			"jira": {
+				"SECTION_TITLE": "Jira",
+				"SECTION_DESCRIPTION": "استورد مشكلات مشاريع Jira Cloud كمهام وأبقها متزامنة.",
+				"TITLE": "Jira",
+				"CONNECT_NOTE": "اربط حساب Jira، ثم اربط مشاريعه بمشاريع هذه المؤسسة.",
+				"CONNECT_UNAVAILABLE": "Jira غير مُعدّ في هذا التثبيت: تحتاج المنصة أولًا إلى تطبيق OAuth الخاص بـ Jira.",
+				"CONNECT": "ربط Jira",
+				"CONNECTING": "جارٍ فتح Jira…",
+				"SUMMARY_CONNECTED": "متصل بصفة {account}",
+				"SUMMARY_CONNECTED_SITE": "متصل باسم {account} بالموقع {site}",
+				"SUMMARY_CONNECTED_NO_ACCOUNT": "متصل",
+				"STATE_CONNECTED": "متصل",
+				"STATE_ATTENTION": "يحتاج إلى انتباه",
+				"STATE_SITE_REQUIRED": "اختر موقعًا",
+				"ATTENTION_TOKEN_REFUSED": "رفض Jira رمز الاتصال. افصل ثم أعد الربط.",
+				"ATTENTION_OTHER": "يحتاج هذا الاتصال إلى انتباه.",
+				"FACT_ACCOUNT": "الحساب",
+				"FACT_SITE": "الموقع",
+				"FACT_CONNECTED": "تاريخ الربط",
+				"FACT_MAPPINGS": "المشاريع المربوطة",
+				"FACT_MAPPINGS_VALUE": "{count, plural, =0 {لا شيء بعد} one {مشروع واحد} two {مشروعان} few {# مشاريع} other {# مشروعًا}}",
+				"FACT_WEBHOOKS": "الويب هوك",
+				"WEBHOOKS_ON": "مفعّل: يرسل Jira التغييرات فور حدوثها.",
+				"WEBHOOKS_OFF": "معطّل: لا عنوان عامًا للمنصة يصل إليه Jira؛ استخدم الاستيراد.",
+				"SITE_TITLE": "موقع Jira",
+				"SITE_REQUIRED": "يصل هذا الحساب إلى عدة مواقع Jira. اختر موقع هذا الاتصال: لن تتم أي مزامنة قبل ذلك.",
+				"SITE_CHANGE_HINT": "اختر موقعًا آخر يصل إليه الحساب.",
+				"SITE_CHANGE_BLOCKED": "احذف الربط لتغيير الموقع: كل ربط يشير إلى مشروع في هذا الموقع.",
+				"SITE_LABEL": "الموقع",
+				"SITE_PLACEHOLDER": "اختر موقعًا",
+				"SITE_SAVE": "استخدام هذا الموقع",
+				"SITE_CHANGE": "تغيير الموقع",
+				"SITES_LOADING": "جارٍ قراءة المواقع…",
+				"NO_SITES": "لا يصل الحساب إلى أي موقع Jira.",
+				"WEBHOOK_ACTIVE": "الويب هوك مفعّل: يرسل Jira التغييرات فور حدوثها (يُجدَّد قبل {date}).",
+				"WEBHOOK_FAILED": "تعذّر تسجيل الويب هوك: {reason}",
+				"WEBHOOK_MISSING": "لا يوجد ويب هوك بعد: تصل التغييرات مع عمليات الاستيراد المجدولة.",
+				"WEBHOOK_REGISTER": "تسجيل الويب هوك",
+				"LOADING_DETAILS": "جارٍ تحميل الربط…",
+				"MAPPED_TO": "تصبح المشكلات مهامًا في {project}",
+				"LAST_IMPORT": "آخر استيراد {date}",
+				"LAST_IMPORT_NEVER": "لم يُستورد بعد",
+				"STATUSES_MAPPED": "{count, plural, one {حالة واحدة مربوطة} two {حالتان مربوطتان} few {# حالات مربوطة} other {# حالة مربوطة}}",
+				"ISSUE_TYPES_COUNT": "{count, plural, one {نوع مشكلة واحد} two {نوعا مشكلات} few {# أنواع مشكلات} other {# نوع مشكلة}}",
+				"SYNC_LABEL": "مزامنة",
+				"IMPORT_CHANGES": "استيراد التغييرات",
+				"IMPORT_ALL": "استيراد الكل",
+				"REMOVE_MAPPING": "إزالة",
+				"ADD_TITLE": "ربط مشروع Jira",
+				"ADD_DESCRIPTION": "اختر مشروع Jira من الموقع والمشروع الذي تصبح مشكلاته مهامًا فيه.",
+				"JIRA_PROJECT_LABEL": "مشروع Jira",
+				"JIRA_PROJECT_PLACEHOLDER": "اختر مشروع Jira",
+				"PROJECT_LABEL": "المشروع",
+				"PROJECT_PLACEHOLDER": "اختر مشروعًا",
+				"DIRECTION_LABEL": "الاتجاه",
+				"DIRECTION_inbound": "Jira ← المهام",
+				"DIRECTION_outbound": "المهام ← Jira",
+				"DIRECTION_both": "في الاتجاهين",
+				"STATUS_MAP_LABEL": "حالة المهمة لكل حالة في Jira",
+				"STATUS_MAP_HINT": "تصبح كل فئة حالة حالةَ مهمة. ويمكن أيضًا إعطاء حالة Jira حالة خاصة بها تتقدّم على فئتها.",
+				"CATEGORY_new": "للتنفيذ",
+				"CATEGORY_indeterminate": "قيد التنفيذ",
+				"CATEGORY_done": "منجز",
+				"STATUS_OVERRIDES_HINT": "حالات المشروع:",
+				"STATUS_BY_CATEGORY": "حسب فئتها",
+				"STATUS_BY_CATEGORY_NAMED": "حسب فئتها ({category})",
+				"STATUS_MAP_PLACEHOLDER": "اختر حالة",
+				"STATUS_MAP_UNKNOWN": "{value} (ليست حالة)",
+				"STATUS_MAP_INVALID": "ليست حالة للمشروع أو المؤسسة: {values}",
+				"STATUS_MAP_EDIT": "تعديل الحالات",
+				"STATUS_MAP_SAVE": "حفظ الحالات",
+				"STATUSES_LOADING": "جارٍ قراءة الحالات…",
+				"STATUSES_ERROR": "تعذّرت قراءة الحالات",
+				"PROJECT_LOADING": "جارٍ قراءة حالات المشروع وأنواع مشكلاته…",
+				"NO_STATUSES": "لا توجد في مشروع Jira هذا حالة يراها الاتصال.",
+				"ISSUE_TYPES_LABEL": "أنواع المشكلات",
+				"ISSUE_TYPES_HINT": "لا شيء محدد: تُستورد كل أنواع المشكلات.",
+				"ISSUE_TYPES_GONE": "لم يعد في المشروع أي نوع من أنواع المشكلات التي يستوردها هذا الربط.",
+				"ISSUE_TYPES_ALL": "استيراد كل الأنواع",
+				"PROJECTS_LOADING": "جارٍ قراءة المشاريع…",
+				"NO_PROJECTS": "كل مشاريع هذا الموقع مربوطة، أو ليس فيه أي مشروع.",
+				"ADD_MAPPING": "إضافة ربط",
+				"SAVING": "جارٍ الحفظ…",
+				"RUNS_TITLE": "آخر عمليات التشغيل",
+				"NO_RUNS": "لا استيراد بعد.",
+				"RUN_import": "استيراد",
+				"RUN_webhook": "ويب هوك",
+				"RUN_STATUS_running": "قيد التشغيل",
+				"RUN_STATUS_done": "تم",
+				"RUN_STATUS_failed": "فشل",
+				"RUN_COUNTS": "{created} أُنشئت · {updated} حُدّثت · {skipped} تُخطّيت · {failed} فشلت",
+				"RUN_REPORT": "المشكلات المقروءة: {issues} · التعليقات: {comments} · الروابط: {links}",
+				"RUN_INCOMPLETE": "توقف مبكرًا: يكمل الاستيراد التالي",
+				"RUN_FAILURES": "لم تُطبَّق: {keys}",
+				"RUN_FAILURES_MORE": "{count, plural, one {و# أخرى} two {و# أخريان} few {و# أخرى} other {و# أخرى}}",
+				"DISCONNECT_LABEL": "فصل Jira",
+				"DISCONNECT_CONSEQUENCE": "يوقف المزامنة لهذه المؤسسة؛ تبقى المهام المستوردة.",
+				"DISCONNECT": "فصل",
+				"DISCONNECT_TITLE": "فصل Jira؟",
+				"DISCONNECT_DESCRIPTION": "الاتصال ملك للمؤسسة: يفقده كل فريق يستخدمه.",
+				"DISCONNECT_STOPS_SYNC": "تتوقف المشكلات عن أن تصبح مهامًا، وتتوقف المهام عن الذهاب إلى Jira.",
+				"DISCONNECT_KEEPS_TASKS": "تبقى المهام المنشأة من المشكلات حيث هي.",
+				"DETAILS_ERROR_TITLE": "تعذّر تحميل الربط أو عمليات التشغيل",
+				"LOAD_ERROR_TITLE": "تعذّر تحميل تكامل Jira",
+				"ACTION_FAILED": "لم ينجح ذلك",
+				"CALLBACK_ERROR_TITLE": "تعذّر ربط Jira",
+				"CALLBACK_not_configured": "لا تملك المنصة تطبيق OAuth لـ Jira.",
+				"CALLBACK_denied": "لم يأذن Jira بالاتصال.",
+				"CALLBACK_invalid_state": "انتهت صلاحية مسار الربط أو استُخدم من قبل. ابدأ من جديد.",
+				"CALLBACK_exchange_failed": "رفض Jira رمز التفويض. ابدأ من جديد.",
+				"CALLBACK_site_unreadable": "تعذّرت قراءة مواقع Jira بعد التفويض.",
+				"CALLBACK_no_site": "لا يصل الحساب إلى أي موقع Jira.",
+				"CALLBACK_site_mismatch": "لهذا الاتصال تعيينات على موقع Jira لم يعد الحساب يصل إليه؛ بقي كما كان.",
+				"CALLBACK_not_saved": "تعذّر حفظ الاتصال."
 			},
 			"conflicts": {
 				"TITLE": "تعارضات المزامنة",
@@ -4732,7 +4951,37 @@
 			"ACCEPT": "قبول",
 			"REJECT": "رفض",
 			"INVITATIONS_COUNT": "{count, plural, zero {لا دعوات تنتظر ردًا} one {دعوة واحدة تنتظر ردًا} two {دعوتان تنتظران ردًا} few {# دعوات تنتظر ردًا} many {# دعوة تنتظر ردًا} other {# دعوة تنتظر ردًا}}",
-			"REQUESTS_COUNT": "{count, plural, zero {لا طلبات تنتظر ردًا} one {طلب واحد ينتظر ردًا} two {طلبان ينتظران ردًا} few {# طلبات تنتظر ردًا} many {# طلبًا ينتظر ردًا} other {# طلب ينتظر ردًا}}"
+			"REQUESTS_COUNT": "{count, plural, zero {لا طلبات تنتظر ردًا} one {طلب واحد ينتظر ردًا} two {طلبان ينتظران ردًا} few {# طلبات تنتظر ردًا} many {# طلبًا ينتظر ردًا} other {# طلب ينتظر ردًا}}",
+			"FILTER_LABEL": "الأعضاء المعروضون",
+			"FILTER_ACTIVE": "النشطون",
+			"FILTER_INACTIVE": "غير النشطين",
+			"INACTIVE_LIST": "الأعضاء غير النشطين",
+			"INACTIVE_EMPTY": "لا يوجد عضو معطَّل في هذا الفريق.",
+			"INACTIVE_ERROR": "تعذّر تحميل الأعضاء غير النشطين.",
+			"DEACTIVATED_ON": "عُطّل الوصول في {date}",
+			"RESTORE": "استعادة",
+			"RESTORE_MEMBER": "استعادة {name}",
+			"RESTORED": "استُعيد وصول {name}، ويمكن تسجيل الدخول وتتبع الوقت من جديد",
+			"RESTORE_FAILED": "ما زال وصول {name} معطّلًا",
+			"DEACTIVATE": "تعطيل",
+			"DEACTIVATE_TITLE": "تعطيل {name}؟",
+			"DEACTIVATE_CONSEQUENCE_ACCESS": "لن يستطيع {name} تسجيل الدخول إلى مساحة العمل هذه ولا تتبع الوقت.",
+			"DEACTIVATE_CONSEQUENCE_TEAMS": "لن يُحتسب هذا الشخص في أي من فرقه.",
+			"DEACTIVATE_CONSEQUENCE_HISTORY": "يبقى وقته ومهامه وتعليقاته باسمه في التقارير والسجل.",
+			"DEACTIVATE_CONSEQUENCE_RESTORE": "يمكنك استعادته من قائمة «غير النشطين»: يستعيد وصوله وفرقه وأدواره.",
+			"DEACTIVATED": "عُطّل وصول {name}",
+			"DEACTIVATE_FAILED": "ما زال وصول {name} نشطًا",
+			"ROLE_GROUP_TEAM": "في هذا الفريق",
+			"ROLE_GROUP_WORKSPACE": "في مساحة العمل",
+			"WORKSPACE_ROLE_SUPER_ADMIN": "مسؤول أعلى",
+			"WORKSPACE_ROLE_ADMIN": "مسؤول",
+			"WORKSPACE_ROLE_MANAGER": "مدير",
+			"WORKSPACE_ROLE_EMPLOYEE": "عضو",
+			"WORKSPACE_ROLE_DATA_ENTRY": "إدخال البيانات",
+			"WORKSPACE_ROLE_VIEWER": "مشاهد",
+			"WORKSPACE_ROLE_CANDIDATE": "مرشح",
+			"WORKSPACE_ROLE_INTERVIEWER": "محاور",
+			"WORKSPACE_ROLE_NOT_SAVED": "لم يتغير دور {name} في مساحة العمل"
 		},
 		"profile": {
 			"SECTION_PROFILE": "الملف الشخصي",
@@ -4866,6 +5115,37 @@
 			"LOAD_ERROR_TEXT": "لم تتغيّر إعداداتك. حاول مرة أخرى بعد لحظات.",
 			"UNAVAILABLE_TITLE": "لا شيء لضبطه في مساحة العمل هذه بعد",
 			"UNAVAILABLE_TEXT": "ترتبط الإشعارات بملفك كعضو في مساحة عمل، وليس لهذا الحساب ملف هنا. انضم إلى فريق أو أنشئ فريقًا أولًا."
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "مساحة العمل",
+			"NAME_LABEL": "اسم مساحة العمل",
+			"NAME_DESCRIPTION": "يظهر في مبدّل مساحات العمل وفي الدعوات.",
+			"NAME_INVALID": "أدخل اسمًا من 1 إلى {max} حرفًا.",
+			"NAME_SAVED": "تغيّر اسم مساحة العمل إلى {name}",
+			"NAME_NOT_SAVED": "لم يتغيّر اسم مساحة العمل",
+			"NAME_MAYBE_UNFINISHED": "ربما لم تكتمل إعادة التسمية",
+			"NAME_SAVE_AGAIN": "احفظ الاسم نفسه مرة أخرى لإكمالها.",
+			"NAME_SUPER_ADMIN_ONLY": "لا يغيّر اسم مساحة العمل إلا مسؤول أعلى فيها.",
+			"FORMATS_SECTION": "العملة والتنسيقات",
+			"FORMATS_DESCRIPTION": "تُستخدم حيثما لم يُحدَّد ما هو أدق، مثل أجر له عملته الخاصة.",
+			"CURRENCY_LABEL": "العملة الافتراضية",
+			"CURRENCY_DESCRIPTION": "العملة التي يبدأ بها أي أجر جديد أو ميزانية جديدة.",
+			"CURRENCY_SAVED": "العملة الافتراضية الآن {currency}",
+			"CURRENCY_OUTCOME": "تبدأ الأجور والميزانيات الجديدة بهذه العملة.",
+			"CURRENCY_NOT_SAVED": "لم تُحفظ العملة",
+			"CURRENCY_NOT_SET": "غير محددة",
+			"DATE_FORMAT_LABEL": "تنسيق التاريخ",
+			"DATE_FORMAT_DESCRIPTION": "طريقة كتابة التواريخ في التقارير وملفات تصديرها. «تلقائي» يتبع لغة كل عضو.",
+			"DATE_FORMAT_SAVED": "حُفظ تنسيق التاريخ",
+			"DATE_FORMAT_NOT_SAVED": "لم يُحفظ تنسيق التاريخ",
+			"NUMBER_FORMAT_LABEL": "تنسيق الأرقام",
+			"NUMBER_FORMAT_DESCRIPTION": "طريقة كتابة المبالغ في التقارير وملفات تصديرها. «تلقائي» يتبع لغة كل عضو.",
+			"NUMBER_FORMAT_SAVED": "حُفظ تنسيق الأرقام",
+			"NUMBER_FORMAT_NOT_SAVED": "لم يُحفظ تنسيق الأرقام",
+			"FORMAT_OUTCOME": "تستخدمه التقارير وملفات تصديرها من الآن.",
+			"FORMAT_AUTOMATIC": "تلقائي",
+			"READ_ONLY_NOTE": "لا يغيّر هذه الإعدادات إلا مسؤولو مساحة العمل.",
+			"LOAD_FAILED": "تعذّر تحميل إعدادات مساحة العمل."
 		},
 		"automations": {
 			"NEW_RULE": "قاعدة جديدة",
@@ -6220,5 +6500,144 @@
 		"OFF_TEXT": "تُحذف المهام نهائيًا في مساحة العمل هذه.",
 		"NO_TEAM_TITLE": "اختر فريقًا",
 		"NO_TEAM_TEXT": "تعرض المهملات المهام المحذوفة للفريق النشط."
+	},
+	"timeImport": {
+		"SECTION_TITLE": "بيانات تتبّع الوقت",
+		"SECTION_DESCRIPTION": "كل صف في الملف يصبح إدخال وقت في {team}. تراجع كل الصفوف أولًا، ولا يُحفظ شيء قبل أن تؤكّد.",
+		"TEMPLATE_LABEL": "قالب CSV",
+		"TEMPLATE_DESCRIPTION": "ملف فارغ يحتوي على الأعمدة التي يقرؤها الاستيراد.",
+		"TEMPLATE_DOWNLOAD": "تنزيل القالب",
+		"DROP_TITLE": "أفلت ملف CSV هنا، أو اختر ملفًا",
+		"DROP_ACTIVE": "أفلت الملف للتحقق منه",
+		"DROP_HINT": "{rows, plural, zero {CSV فقط، حتى {megabytes} ميغابايت.} one {CSV فقط، حتى {megabytes} ميغابايت وصف واحد لكل ملف.} two {CSV فقط، حتى {megabytes} ميغابايت وصفّان لكل ملف.} few {CSV فقط، حتى {megabytes} ميغابايت و# صفوف لكل ملف.} many {CSV فقط، حتى {megabytes} ميغابايت و# صفًا لكل ملف.} other {CSV فقط، حتى {megabytes} ميغابايت و# صف لكل ملف.}}",
+		"OWN_TIME_NOTE": "يُحفظ كل صف على أنه وقتك أنت.",
+		"OTHERS_NOTE": "يمكنك إضافة وقت لأعضاء آخرين في {team}: اكتب بريد كل عضو في العمود {column}. الصف الذي بلا بريد هو وقتك أنت.",
+		"COLUMNS_TITLE": "الأعمدة",
+		"COLUMNS_DESCRIPTION": "السطر الأول في الملف يسمّي أعمدته، بأي ترتيب. تُقرأ التواريخ والأوقات بمنطقتك الزمنية، {timeZone}.",
+		"columns": {
+			"REQUIRED": "مطلوب",
+			"ONE_OF_TWO": "أحد الاثنين",
+			"DATE": "يوم الإدخال، والسنة أولًا: {date}.",
+			"START_TIME": "وقت البدء، بنظام 24 ساعة أو مع AM أو PM: {startTime} أو {startTimeMeridiem}.",
+			"END_TIME": "وقت الانتهاء، في اليوم نفسه: {endTime}.",
+			"DURATION": "المدة، بدلًا من وقت الانتهاء: {duration} أو {durationUnits}، أو {durationDecimal} للساعات كرقم.",
+			"PROJECT": "الاسم الدقيق لمشروع في هذا الفريق. فارغ لوقت بلا مشروع.",
+			"TASK_ANY": "العنوان الدقيق لمهمة في هذا الفريق. فارغ لوقت بلا مهمة.",
+			"TASK_OWN": "العنوان الدقيق لمهمة في هذا الفريق مسندة إلى العضو الذي يعود إليه الوقت. فارغ لوقت بلا مهمة.",
+			"NOTES": "ملاحظة تُحفظ مع الإدخال.",
+			"BILLABLE": "{yes} أو {no}. الفارغ يعني {no}.",
+			"MEMBER_EMAIL": "بريد العضو الذي يعود إليه الوقت. الفارغ يعني أنت."
+		},
+		"FILE_PROBLEM_TITLE": "لا يمكن استيراد {fileName}",
+		"fileProblems": {
+			"NOT_CSV": "تُقرأ ملفات CSV فقط. احفظ الجدول بصيغة CSV ثم اختر ذلك الملف.",
+			"TOO_LARGE": "الملف أكبر من {megabytes} ميغابايت. قسّمه إلى ملفات أصغر.",
+			"NOT_TEXT": "الملف ليس نصًا محفوظًا بترميز UTF-8. في تطبيق الجداول، احفظه بصيغة CSV UTF-8.",
+			"EMPTY": "الملف فارغ.",
+			"UNCLOSED_QUOTE": "في الصف {row}، خلية تبدأ بعلامة اقتباس مزدوجة لا تُغلق أبدًا.",
+			"DUPLICATE_COLUMN": "العمود {column} يظهر مرتين.",
+			"MISSING_COLUMNS": "{count, plural, zero {لا أعمدة ناقصة.} one {هذا العمود ناقص: {columns}.} two {هذان العمودان ناقصان: {columns}.} few {هذه الأعمدة ناقصة: {columns}.} many {هذه الأعمدة ناقصة: {columns}.} other {هذه الأعمدة ناقصة: {columns}.}}",
+			"END_OR_DURATION": "{endTime} أو {duration}",
+			"NO_ROWS": "في الملف سطر عناوين ولا صف تحته.",
+			"TOO_MANY_ROWS": "{limit, plural, zero {عدد صفوف الملف {count}، وهذا أكثر مما يقبله الاستيراد: قسّم الملف.} one {عدد صفوف الملف {count}. يقبل الاستيراد صفًا واحدًا على الأكثر: قسّم الملف.} two {عدد صفوف الملف {count}. يقبل الاستيراد صفّين على الأكثر: قسّم الملف.} few {عدد صفوف الملف {count}. يقبل الاستيراد # صفوف على الأكثر: قسّم الملف.} many {عدد صفوف الملف {count}. يقبل الاستيراد # صفًا على الأكثر: قسّم الملف.} other {عدد صفوف الملف {count}. يقبل الاستيراد # صف على الأكثر: قسّم الملف.}}"
+		},
+		"CHECKING_TITLE": "جارٍ التحقق من {fileName}",
+		"CHECKING_DESCRIPTION": "{count, plural, zero {لا صفوف للمقارنة.} one {يُقارَن صف واحد بالوقت المسجَّل مسبقًا.} two {يُقارَن صفّان بالوقت المسجَّل مسبقًا.} few {تُقارَن # صفوف بالوقت المسجَّل مسبقًا.} many {يُقارَن # صفًا بالوقت المسجَّل مسبقًا.} other {يُقارَن # صف بالوقت المسجَّل مسبقًا.}}",
+		"CHECK_FAILED_TITLE": "تعذّر التحقق من {fileName}",
+		"CHECK_FAILED_DESCRIPTION": "تعذّرت قراءة الوقت المسجَّل مسبقًا، لذلك لا يمكن استيراد أي صف بعد. لم يُحفظ شيء.",
+		"RETRY": "إعادة المحاولة",
+		"CHOOSE_ANOTHER": "اختيار ملف آخر",
+		"PREVIEW_TITLE": "معاينة",
+		"PREVIEW_DESCRIPTION": "{count, plural, zero {{fileName}، بلا صفوف. لا يُحفظ شيء حتى تستورد.} one {{fileName}، صف واحد. لا يُحفظ شيء حتى تستورد.} two {{fileName}، صفّان. لا يُحفظ شيء حتى تستورد.} few {{fileName}، # صفوف. لا يُحفظ شيء حتى تستورد.} many {{fileName}، # صفًا. لا يُحفظ شيء حتى تستورد.} other {{fileName}، # صف. لا يُحفظ شيء حتى تستورد.}}",
+		"IGNORED_COLUMNS": "{count, plural, zero {كل الأعمدة مقروءة.} one {هذا العمود لا يُقرأ: {columns}.} two {هذان العمودان لا يُقرآن: {columns}.} few {هذه الأعمدة لا تُقرأ: {columns}.} many {هذه الأعمدة لا تُقرأ: {columns}.} other {هذه الأعمدة لا تُقرأ: {columns}.}}",
+		"PREVIEW_CHANGED_TITLE": "لم يُحفظ شيء: تغيّرت المعاينة",
+		"PREVIEW_CHANGED_DESCRIPTION": "جرى التحقق من الملف مرة أخرى قبل الحفظ وتغيّرت بعض الصفوف، مثلًا لأن وقتًا سُجِّل في هذه الأثناء. راجع الصفوف ثم استورد من جديد.",
+		"RECHECK_FAILED_TITLE": "لم يُحفظ شيء",
+		"RECHECK_FAILED_DESCRIPTION": "تعذّر التحقق من الملف مرة أخيرة قبل الحفظ. حاول مرة أخرى.",
+		"NOTHING_READY": "لا يمكن استيراد أي صف من هذا الملف. صحّح الصفوف المستبعدة ثم اختر الملف من جديد.",
+		"IMPORT_ACTION": "{count, plural, zero {لا إدخالات للاستيراد} one {استيراد إدخال واحد} two {استيراد إدخالين} few {استيراد # إدخالات} many {استيراد # إدخالًا} other {استيراد # إدخال}}",
+		"RECHECKING": "جارٍ التحقق من الملف مرة أخرى قبل الحفظ",
+		"IMPORTING_TITLE": "جارٍ الاستيراد",
+		"IMPORTING_PROGRESS": "{total, plural, zero {حُفظ {done}} one {حُفظ {done} من إدخال واحد} two {حُفظ {done} من إدخالين} few {حُفظ {done} من # إدخالات} many {حُفظ {done} من # إدخالًا} other {حُفظ {done} من # إدخال}}",
+		"KEEP_OPEN": "أبقِ هذه الصفحة مفتوحة حتى ينتهي الاستيراد.",
+		"REPORT_TITLE": "التقرير",
+		"DONE_TITLE": "{count, plural, zero {لم يُحفظ أي إدخال} one {حُفظ إدخال واحد} two {حُفظ إدخالان} few {حُفظت # إدخالات} many {حُفظ # إدخالًا} other {حُفظ # إدخال}}",
+		"DONE_DESCRIPTION": "الوقت المضاف: {duration}. الإدخالات موجودة الآن في جداول الوقت والتقارير.",
+		"STOPPED_TITLE": "توقف الاستيراد عند الصف {row}",
+		"STOPPED_SAVED": "{count, plural, zero {لم يُحفظ أي إدخال.} one {حُفظ قبله إدخال واحد.} two {حُفظ قبله إدخالان.} few {حُفظت قبله # إدخالات.} many {حُفظ قبله # إدخالًا.} other {حُفظ قبله # إدخال.}}",
+		"STOPPED_NOT_SENT": "{count, plural, zero {لا صفوف بعده.} one {صف واحد بعده لم يُرسل.} two {صفّان بعده لم يُرسلا.} few {# صفوف بعده لم تُرسل.} many {# صفًا بعده لم يُرسل.} other {# صف بعده لم يُرسل.}}",
+		"DOWNLOAD_REPORT": "تنزيل التقرير",
+		"IMPORT_ANOTHER": "استيراد ملف آخر",
+		"SHOW_MORE": "{count, plural, zero {لا صفوف أخرى} one {إظهار صف واحد آخر} two {إظهار صفّين آخرين} few {إظهار # صفوف أخرى} many {إظهار # صفًا آخر} other {إظهار # صف آخر}}",
+		"figures": {
+			"LABEL": "أرقام هذا الملف",
+			"READY": "جاهزة",
+			"LEFT_OUT": "مستبعدة",
+			"SAVED": "محفوظة",
+			"FAILED": "فاشلة",
+			"NOT_SENT": "غير مرسلة",
+			"TIME_TO_ADD": "الوقت المراد إضافته",
+			"TIME_ADDED": "الوقت المضاف"
+		},
+		"filter": {
+			"LABEL": "الصفوف المعروضة",
+			"ALL": "الكل"
+		},
+		"status": {
+			"READY": "جاهز",
+			"LEFT_OUT": "مستبعد",
+			"SAVED": "محفوظ",
+			"FAILED": "فشل",
+			"NOT_SENT": "غير مرسل"
+		},
+		"row": {
+			"NUMBER": "الصف {row}",
+			"FOR_MEMBER": "للعضو {name}",
+			"BILLABLE": "قابل للفوترة",
+			"NOT_SENT_REASON": "توقف الاستيراد عند الصف {row}، قبل هذا الصف."
+		},
+		"problems": {
+			"EXTRA_CELLS": "في هذا الصف خلايا أكثر من سطر العناوين. الخلية التي تحتوي على فاصلة أو فاصلة منقوطة توضع بين علامتي اقتباس مزدوجتين.",
+			"DATE_UNREADABLE": "تعذّرت قراءة التاريخ. اكتبه والسنة أولًا، مثل {date}.",
+			"START_UNREADABLE": "تعذّرت قراءة وقت البدء. اكتبه مثل {startTime} أو {startTimeMeridiem}.",
+			"END_MISSING": "ليس في هذا الصف وقت انتهاء ولا مدة.",
+			"END_UNREADABLE": "تعذّرت قراءة وقت الانتهاء. اكتبه مثل {endTime} أو {endTimeMeridiem}.",
+			"DURATION_UNREADABLE": "تعذّرت قراءة المدة. اكتبها مثل {duration} أو {durationUnits} أو {durationDecimal}.",
+			"END_NOT_AFTER_START": "يجب أن يأتي الانتهاء بعد البدء. للوقت الذي يتجاوز منتصف الليل، اكتب مدة بدلًا من وقت الانتهاء.",
+			"CLOCK_SKIPPED": "في هذا اليوم تتقدّم الساعة بسبب التوقيت الصيفي، ويقع وقت البدء أو الانتهاء في الساعة التي يتم تخطّيها. اكتب وقتًا موجودًا في ذلك اليوم.",
+			"DURATION_MISMATCH": "وقت الانتهاء والمدة يعطيان طولين مختلفين. أبقِ واحدًا منهما.",
+			"TOO_LONG": "لا يمكن أن يزيد الإدخال على 24 ساعة. المدة المكتوبة كرقم فقط تُقرأ بالساعات.",
+			"IN_FUTURE": "هذا الوقت لم ينقضِ بعد، وهذه المؤسسة لا تقبل وقتًا في المستقبل.",
+			"BILLABLE_UNREADABLE": "خلية الفوترة يجب أن تكون {yes} أو {no}.",
+			"MEMBER_UNKNOWN": "لا عضو في هذا الفريق يملك هذا البريد.",
+			"MEMBER_NOT_ALLOWED": "هذا الصف يخص عضوًا آخر. يمكنك استيراد وقتك أنت فقط.",
+			"NO_OWN_MEMBER": "هذا الصف لا يسمّي عضوًا، وحسابك ليس له ملف موظف يُسجَّل عليه الوقت.",
+			"PROJECT_UNKNOWN": "لا مشروع في هذا الفريق يحمل هذا الاسم.",
+			"PROJECT_AMBIGUOUS": "{count, plural, zero {لا مشروع يحمل هذا الاسم.} one {مشروع واحد في هذا الفريق يحمل هذا الاسم.} two {مشروعان في هذا الفريق يحملان هذا الاسم.} few {# مشاريع في هذا الفريق تحمل هذا الاسم.} many {# مشروعًا في هذا الفريق يحمل هذا الاسم.} other {# مشروع في هذا الفريق يحمل هذا الاسم.}}",
+			"PROJECT_REQUIRED": "هذه المؤسسة تشترط مشروعًا في كل إدخال وقت. اكتب مشروعًا في هذا الصف.",
+			"TASK_UNKNOWN": "لا مهمة في هذا الفريق تحمل هذا العنوان.",
+			"TASK_NOT_ASSIGNED": "هذه المهمة غير مسندة إلى عضو هذا الصف. مدير الفريق وحده يستطيع إضافة وقت إلى أي مهمة في الفريق.",
+			"TASK_AMBIGUOUS": "{count, plural, zero {لا مهمة تحمل هذا العنوان.} one {مهمة واحدة تحمل هذا العنوان.} two {مهمتان تحملان هذا العنوان. أعد تسمية إحداهما ليشير الصف إلى مهمة واحدة.} few {# مهام تحمل هذا العنوان. أعد تسمية إحداها ليشير الصف إلى مهمة واحدة.} many {# مهمة تحمل هذا العنوان. أعد تسمية إحداها ليشير الصف إلى مهمة واحدة.} other {# مهمة تحمل هذا العنوان. أعد تسمية إحداها ليشير الصف إلى مهمة واحدة.}}",
+			"ALREADY_RECORDED": "هذا الإدخال مسجَّل مسبقًا.",
+			"OVERLAPS_RECORDED": "{count, plural, zero {لا يتداخل مع أي إدخال مسجَّل.} one {يتداخل مع إدخال مسجَّل مسبقًا، {range}. حفظه سيحذف ذلك الإدخال.} two {يتداخل مع إدخالين مسجَّلين مسبقًا، أولهما {range}. حفظه سيحذفهما.} few {يتداخل مع # إدخالات مسجَّلة مسبقًا، أولها {range}. حفظه سيحذفها.} many {يتداخل مع # إدخالًا مسجَّلًا مسبقًا، أولها {range}. حفظه سيحذفها.} other {يتداخل مع # إدخال مسجَّل مسبقًا، أولها {range}. حفظه سيحذفها.}}",
+			"SAME_AS_ROW": "يكرّر الصف {row} من هذا الملف.",
+			"OVERLAPS_ROW": "يتداخل مع الصف {row} من هذا الملف، الذي يُستورد أولًا.",
+			"RECORDED_MEANWHILE": "سُجِّل إدخال في وقت هذا الصف أثناء الاستيراد. حفظ الصف سيحذف ذلك الإدخال."
+		},
+		"access": {
+			"MANUAL_TIME_OFF_TITLE": "الوقت اليدوي متوقف",
+			"MANUAL_TIME_OFF_DESCRIPTION": "{organization} لا تسمح لأعضائها بإضافة الوقت يدويًا، لذلك لا يمكن استيراد الوقت أيضًا.",
+			"NO_PERMISSION_TITLE": "دورك لا يستطيع إضافة الوقت يدويًا",
+			"NO_PERMISSION_DESCRIPTION": "استيراد الوقت يحتاج إلى الإذن نفسه الذي تحتاجه إضافة الوقت يدويًا. اطلبه من أحد مسؤولي المؤسسة.",
+			"LOAD_FAILED_TITLE": "تعذّر تجهيز الاستيراد",
+			"LOAD_FAILED_DESCRIPTION": "تعذّر تحميل أذوناتك أو قواعد الوقت في المؤسسة أو مهام الفريق."
+		},
+		"entry": {
+			"TITLE": "الاستيراد",
+			"DESCRIPTION": "بيانات من أدوات أخرى، تُجلب إلى هذا الفريق.",
+			"ROW_LABEL": "بيانات تتبّع الوقت",
+			"ROW_DESCRIPTION": "أضف إدخالات وقت من ملف CSV.",
+			"OPEN": "استيراد من CSV"
+		}
 	}
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { type ReactNode, useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { BlockEmptyMessage, DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
 import { DASHBOARD_SURFACE, SECTION_TITLE } from '@/core/components/dashboards/kit/recipes';
 import { TimesheetsDeleteDialog } from '@/core/components/dashboards/timesheets/timesheets-dialogs';
@@ -21,6 +21,7 @@ import {
 	TimesheetsWeekSheet,
 	TimesheetsWeekSheetSkeleton
 } from '@/core/components/dashboards/timesheets/timesheets-week-sheet';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import type { SheetEditingSource } from '@/core/hooks/dashboards/timesheets/use-sheet-editing';
 import type { WorkDiaryPageState } from '@/core/hooks/dashboards/work-diary/use-work-diary-page';
 import { useWorkDiaryWeekSheet } from '@/core/hooks/dashboards/work-diary/use-work-diary-week-sheet';
@@ -127,7 +128,7 @@ function DiaryWeekSheet({
  */
 export function DiaryWeekView({ page }: Readonly<{ page: WorkDiaryPageState }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const { weekSheet } = page;
 	const title = t('dashboard.workDiary.WEEK_TITLE');
 

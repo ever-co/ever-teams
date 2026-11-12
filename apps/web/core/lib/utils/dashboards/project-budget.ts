@@ -5,6 +5,7 @@ import type { TProjectBudgetReport } from '@/core/types/schemas/timer/time-log-r
 import { durationPartsOf, type LimitVerdict, limitVerdictOf, percentOf } from '@/core/lib/utils/dashboard-figures';
 import { formatAmount } from '@/core/lib/utils/daily-report-figures';
 import type { Period } from '@/core/lib/utils/dashboard-period';
+import { numberFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 export type BudgetScope = 'whole' | 'period';
 
@@ -65,6 +66,13 @@ export interface BudgetGroup {
 	rows: BudgetRow[];
 }
 
+/** The rows on screen with the scope and period of the request they answer. */
+export interface ProjectBudgetShown {
+	scope: BudgetScope;
+	period: Period;
+	rows: BudgetRow[];
+}
+
 export interface BudgetFigures {
 	overCount: number;
 	nearCount: number;
@@ -80,6 +88,25 @@ export type BudgetFilterField = 'projects' | 'budgetTypes' | 'statuses';
 export type BudgetFilters = Record<BudgetFilterField, string[]>;
 
 export const EMPTY_BUDGET_FILTERS: BudgetFilters = { projects: [], budgetTypes: [], statuses: [] };
+
+/** A link to the report names one project with `?project=<id>`: the report then opens filtered on it. */
+export const BUDGET_PROJECT_PARAM = 'project';
+
+const PROJECT_BUDGET_PATH = '/reports/project-budget';
+
+export function projectBudgetPathOf(projectId: string) {
+	const params = new URLSearchParams({ [BUDGET_PROJECT_PARAM]: projectId });
+	const query = params.toString();
+	return `${PROJECT_BUDGET_PATH}?${query}`;
+}
+
+export function budgetFiltersOfLink(linkedProjectId: string | null | undefined): BudgetFilters {
+	const projectId = linkedProjectId?.trim();
+	if (!projectId) {
+		return EMPTY_BUDGET_FILTERS;
+	}
+	return { ...EMPTY_BUDGET_FILTERS, projects: [projectId] };
+}
 
 /** A budget covers the project's whole life, and Gauzy needs a start: no Ever Teams time log is older than this. */
 export function wholeProjectPeriodOf(todayKey: string): Period {
@@ -113,20 +140,20 @@ export function meterUnitsOf(value: number, amounts: Pick<BudgetAmounts, 'budget
 	return Math.round(value * CENTS_PER_UNIT);
 }
 
-export function formatBudgetMoney(amount: number, currency: string | null, locale: string): string {
+export function formatBudgetMoney(amount: number, currency: string | null, locale: FormatLocale): string {
 	if (currency) {
 		return formatAmount({ currency, amount }, locale);
 	}
-	const formatter = new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+	const formatter = numberFormatOf(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 	return formatter.format(amount);
 }
 
 type AmountUnit = Pick<BudgetAmounts, 'budgetType' | 'currency'>;
 
 /** Budgets can run into thousands of hours: the hour count takes the reader's digit grouping ("6,021,000h"). */
-function groupedHoursOf(seconds: number, locale: string, keepsMinutes: boolean) {
+function groupedHoursOf(seconds: number, locale: FormatLocale, keepsMinutes: boolean) {
 	const { hours, minutes } = durationPartsOf(seconds);
-	const groupedHours = new Intl.NumberFormat(locale).format(hours);
+	const groupedHours = numberFormatOf(locale).format(hours);
 	const showsMinutes = keepsMinutes || minutes > 0;
 	if (!showsMinutes) {
 		return `${groupedHours}h`;
@@ -134,7 +161,7 @@ function groupedHoursOf(seconds: number, locale: string, keepsMinutes: boolean) 
 	return `${groupedHours}h ${minutes}m`;
 }
 
-export function budgetTextOf(value: number, unit: AmountUnit, locale: string): string {
+export function budgetTextOf(value: number, unit: AmountUnit, locale: FormatLocale): string {
 	if (isHoursBudget(unit)) {
 		const seconds = secondsOfHours(value);
 		return groupedHoursOf(seconds, locale, false);
@@ -142,7 +169,7 @@ export function budgetTextOf(value: number, unit: AmountUnit, locale: string): s
 	return formatBudgetMoney(value, unit.currency, locale);
 }
 
-export function amountTextOf(value: number, unit: AmountUnit, locale: string): string {
+export function amountTextOf(value: number, unit: AmountUnit, locale: FormatLocale): string {
 	if (isHoursBudget(unit)) {
 		const seconds = secondsOfHours(value);
 		return groupedHoursOf(seconds, locale, true);
@@ -331,6 +358,18 @@ function listedProjectsByIdOf(projects: ReadonlyArray<TOrganizationProject>) {
 		byId.set(project.id, project);
 	}
 	return byId;
+}
+
+/** A filter chip names its project from the organisation list when the scope on screen has no row for it. */
+export function projectNamesByIdOf(projects: ReadonlyArray<TOrganizationProject>): Record<string, string> {
+	const namesById: Record<string, string> = {};
+	for (const project of projects) {
+		const name = firstTextOf([project.name]);
+		if (name) {
+			namesById[project.id] = name;
+		}
+	}
+	return namesById;
 }
 
 function hasListedBudget(project: TOrganizationProject) {

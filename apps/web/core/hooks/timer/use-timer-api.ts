@@ -23,6 +23,9 @@ import {
 	requiredTrackingFieldsMessageKeyOf,
 	requiredTrackingFieldsOf
 } from '@/core/lib/helpers/timer-errors';
+import { notesToSendAtStart, notesToSendAtStop, timerNotesAfterStart } from '@/core/lib/utils/timer/timer-notes';
+import { notesForStartOf } from '@/core/lib/utils/timer/timer-start-notes';
+import { startTaskOf } from '@/core/lib/utils/timer/timer-start-task';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerService } from '@/core/services/client/api/timers';
@@ -33,6 +36,7 @@ import {
 	detailedTaskState,
 	leftActiveTaskIdState,
 	localTimerStatusState,
+	timerNotesState,
 	timerStatusFetchingState,
 	timerStatusState,
 	workspaceOpeningState
@@ -58,7 +62,9 @@ import { useTaskStatusesQuery } from '../tasks/use-task-statuses-query';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../bootstrap/use-scope-guard';
 import { useStopStaleTeamsTimer } from './use-stale-timer-guard';
+import { useStopNotesWarning } from './use-stop-notes-warning';
 import { useResolveTimerBillable } from './use-timer-billable';
+import { takePendingTimerStartNotes } from './use-timer-start-notes';
 
 // ==================== TYPES ====================
 
@@ -159,20 +165,6 @@ function trackTimerCommand<T>(request: Promise<T>): Promise<T> {
 }
 
 /**
- * The task a start is for: the one asked for, else the task page's own (it becomes the active task), else the active
- * task. `pageTask` is set only on a task page.
- */
-function startTaskOf(
-	explicitTask: TTask | undefined,
-	pathname: string | null,
-	detailedTask: TTask | null,
-	activeTask: TTask | null
-): { pageTask: TTask | null; taskToUse: TTask | null } {
-	const pageTask = pathname?.startsWith('/task/') ? detailedTask : null;
-	return { pageTask, taskToUse: explicitTask || pageTask || activeTask };
-}
-
-/**
  * The timer start in flight, from the click through its request, or null (#5025). Creating a workspace waits for it:
  * the creation signs the browser in to the new workspace, and a start landing afterwards would leave a timer running
  * in the workspace left behind, out of sight.
@@ -256,6 +248,7 @@ export function useTimerApi({
 	const pathname = usePathname();
 	const queryClient = useQueryClient();
 	const t = useTranslations();
+	// The notes are read when a start or a stop runs: no timer instance re-renders while they are typed
 	const store = useStore();
 
 	// ==================== ATOMS ====================
@@ -292,6 +285,7 @@ export function useTimerApi({
 	const { user, $user, refreshUserData } = useAuthenticateUser();
 	const stopStaleTeamsTimer = useStopStaleTeamsTimer();
 	const resolveTimerBillable = useResolveTimerBillable();
+	const warnWhenStopLostNotes = useStopNotesWarning();
 	const { myDailyPlans, isSuccess: plansResolved } = useMyDailyPlans({
 		enabled: enabled && plansEnabled,
 		...(statusEnabled && scope ? { scope, refetchInterval: plansRefetchInterval } : {})
@@ -343,13 +337,15 @@ export function useTimerApi({
 		mutationFn: async ({
 			taskId,
 			projectId,
-			isBillable
+			isBillable,
+			description
 		}: {
 			taskId: string;
 			projectId?: string | null;
 			isBillable: boolean;
+			description?: string;
 		}) => {
-			return await timerService.startTimer({ taskId, projectId, isBillable });
+			return await timerService.startTimer({ taskId, projectId, isBillable, description });
 		},
 		// runStartTimer shows the translated TIMER_START_FAILED toast; this keeps the raw global
 		// "Mutation Error" toast from showing a second one
@@ -363,9 +359,9 @@ export function useTimerApi({
 	});
 
 	const stopTimerMutation = useMutation({
-		mutationFn: async (source: ETimeLogSource) => {
+		mutationFn: async ({ source, description }: { source: ETimeLogSource; description?: string }) => {
 			try {
-				return await timerService.stopTimer({ source });
+				return await timerService.stopTimer({ source, description });
 			} catch (error) {
 				// 406 means Gauzy has no running timer left: a previous attempt whose response was lost,
 				// or another device, already stopped it. Report the real status instead of a failure.
@@ -656,6 +652,9 @@ export function useTimerApi({
 
 	const runStartTimer = useCallback(
 		async (explicitTask?: TTask, onRequestLanded?: () => void): Promise<TimerStartOutcome> => {
+			// The notes of a continued entry are taken as the start is asked, before the awaits below: the daily plan
+			// dialog that asks for it closes at once, and its closing gives up notes still waiting (#5131)
+			const pendingNotes = takePendingTimerStartNotes(store);
 			// A new workspace is opening: its answer switches the session, and this timer would keep running in the
 			// workspace left behind, out of sight (#5025)
 			if (warnIfWorkspaceOpening()) {
@@ -717,10 +716,15 @@ export function useTimerApi({
 			});
 
 			if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
+			// The notes of an entry continued from a report go with the start of its task, ahead of a draft typed in the
+			// timer, and become the timer's notes once it runs (#5131 with #5113)
+			const continuedNotes = notesForStartOf(pendingNotes, taskIdToUse);
+			const notesToUse = continuedNotes ?? notesToSendAtStart(store.get(timerNotesState));
 			const startRequest = startTimerMutate({
 				taskId: taskIdToUse,
 				projectId: projectIdToUse,
-				isBillable: isBillableToUse
+				isBillable: isBillableToUse,
+				description: notesToUse
 			});
 			const promise = trackTimerCommand(startRequest).then(async (res) => {
 				res.data &&
@@ -728,6 +732,19 @@ export function useTimerApi({
 					!isEqual(timerStatus, res.data) &&
 					setTimerStatus(res.data);
 				onRequestLanded?.();
+				// Notes typed before this start are the notes of the entry it created, and of no entry found running later.
+				// Not once the member changed team meanwhile: the draft this start sent was dropped then, and the notes
+				// typed since are for the next team's start. The team is read from the store, as the card that asked for
+				// this start may be gone with the team left behind.
+				const isStillTeamOfStart = store.get(activeTeamState)?.id === teamIdAtStart;
+				if (isStillTeamOfStart) {
+					store.set(timerNotesState, (notes) => {
+						// Continued notes replace a draft: tied to the entry, the draft would overwrite them at the stop
+						const notesSent = continuedNotes === undefined ? notes : { text: continuedNotes, timeLogId: null };
+						const notesAfterStart = timerNotesAfterStart(notesSent, res.data, notesToUse);
+						return notesAfterStart === notesSent ? notes : notesAfterStart;
+					});
+				}
 
 				// Save active task via API when timer starts
 				// Skip if we're on /task/ page because setActiveTask already does it
@@ -859,7 +876,8 @@ export function useTimerApi({
 			activeTeamId,
 			isCurrentScope,
 			statusEnabled,
-			warnIfWorkspaceOpening
+			warnIfWorkspaceOpening,
+			store
 		]
 	);
 
@@ -927,9 +945,11 @@ export function useTimerApi({
 		syncTimer();
 
 		if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
+		const runningLog = timerStatusRef.current?.lastLog;
+		const notesAtStop = notesToSendAtStop(store.get(timerNotesState), runningLog);
 		// Tracked after the sync above, so that sync's status read can never put a running timer back
 		const request: Promise<void> = trackTimerCommand(
-			stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
+			stopTimerMutate({ source: runningLog?.source || ETimeLogSource.TEAMS, description: notesAtStop })
 		)
 			.catch((error) => {
 				// The last known server status still says running: undo the optimistic stop so the clock agrees
@@ -951,6 +971,16 @@ export function useTimerApi({
 					!isEqual(timerStatus, res.data) &&
 					setTimerStatus(res.data);
 				releaseStopGuard(request);
+
+				// The API may not apply notes sent with a stop: the member is told instead of finding them gone later.
+				// Not awaited: the check may read the stopped entry again, and the stop does not wait for it.
+				void warnWhenStopLostNotes({
+					sentNotes: notesAtStop,
+					notesAtAnswer: notesToSendAtStop(store.get(timerNotesState), runningLog),
+					stoppedLogId: runningLog?.id,
+					answeredLog: res.data?.lastLog,
+					employeeId: user?.employee?.id
+				});
 
 				// Clear active task via API when timer stops. Skipped when the timer was already stopped: a team
 				// switch can send two stops, and the one answered 406 may already carry the new team.
@@ -1018,7 +1048,9 @@ export function useTimerApi({
 		syncTimer,
 		isCurrentScope,
 		statusEnabled,
-		setTimerStatusFetching
+		setTimerStatusFetching,
+		store,
+		warnWhenStopLostNotes
 	]);
 
 	// ==================== SIDE EFFECTS ====================
