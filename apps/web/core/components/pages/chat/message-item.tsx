@@ -19,9 +19,10 @@ import { ChatOutboxMessage, isOutboxMessage } from '@/core/hooks/chat/use-chat-a
 import { attachmentIdsOf, isFallbackBody } from '@/core/lib/utils/chat-attachments';
 import { IChatFile, IChatMessage } from '@/core/types/interfaces/common/chat';
 import { appBlocksOf, bodyRepeatsBlocks, httpsUrlOf } from '@/core/lib/utils/chat-app-blocks';
-import { isChatWebhooksEnabled } from '@/core/lib/utils/chat-enabled';
+import { isChatLinkPreviewsEnabled, isChatWebhooksEnabled } from '@/core/lib/utils/chat-enabled';
 import { ChatAppBlocks } from './chat-app-blocks';
 import { MessageAttachments } from './chat-attachments';
+import { MessageLinkPreviews } from './chat-link-preview';
 import { ChatMarkdown } from './chat-markdown';
 import { EmojiPopover } from './emoji-popover';
 
@@ -219,6 +220,8 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 						</>
 					)}
 					{!deleted && appBlocks.length > 0 && <ChatAppBlocks message={message} onReplaced={props.onAppReply} />}
+					{/* The cards of its links, once it is sent (with the flag on; the platform fetched the pages). */}
+					{!deleted && !outbox && !bodyIsFileNames && isChatLinkPreviewsEnabled() && <MessageLinkPreviews body={message.body} />}
 					{attachmentIds.length > 0 && (
 						<div className={cn(outbox?.outbox === 'pending' && 'opacity-60')}>
 							<MessageAttachments attachmentIds={attachmentIds} files={files} onOpenImage={props.onOpenImage ?? IGNORE} onBrokenImage={props.onBrokenImage} />

@@ -19,7 +19,9 @@ export function useFavoritesQuery() {
 	const {
 		data: favoritesData,
 		isLoading,
-		isSuccess
+		isSuccess,
+		isError,
+		refetch
 	} = useQuery({
 		queryKey: queryKeys.favorites.byEmployee(employeeId),
 		queryFn: () => favoriteService.getFavoritesByEmployee({ employeeId }),
@@ -37,7 +39,9 @@ export function useFavoritesQuery() {
 	return {
 		currentEmployeeFavorites,
 		isLoading,
-		isSuccess
+		isSuccess,
+		/** The list could not be read (after its retries): it is not an empty one. */
+		isError,
+		refetch
 	};
 }
-

@@ -5,7 +5,9 @@ import { PropsWithChildren, ReactNode, useEffect, useRef, useState } from 'react
 import { useElementHeight } from '@/core/hooks/common';
 import { useActiveTimer } from '@/core/hooks/common/use-active-timer';
 import { usePathname } from 'next/navigation';
+import { useAtomValue } from 'jotai';
 import { APP_NAME } from '@/core/constants/config/constants';
+import { isTrackingEnabledState } from '@/core/stores/timer/active-timer';
 import { pathCarriesItsOwnTimer } from './timer-paths';
 import GlobalHeader from './global-header';
 import { DemoBanner } from './demo-banner';
@@ -59,6 +61,7 @@ export function PageLayout({
 }: PageLayoutProps) {
 	const [shouldRenderTimer, setShouldRenderTimer] = useState(false);
 	const { activeTimer, setActiveTimer } = useActiveTimer();
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const path = usePathname();
 
 	const headerRef = useRef<HTMLDivElement>(null);
@@ -92,7 +95,8 @@ export function PageLayout({
 	}, [path, headerHeight, mainHeaderSlot]);
 
 	const timerActive = shouldRenderTimer && activeTimer;
-	const headerShowsTimer = timerActive || Boolean(showTimer);
+	// The automatic header timer follows the pages' own rule: none for a member who cannot track
+	const headerShowsTimer = (timerActive || Boolean(showTimer)) && isTrackingEnabled;
 
 	return (
 		<div className="flex h-full min-h-0 w-full flex-col overflow-clip" data-pane-surface={fill ? 'true' : undefined}>

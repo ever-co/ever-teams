@@ -16,7 +16,9 @@ import {
 	formatProjectDay,
 	useProjectBudget
 } from '@/core/components/projects/project-cells';
+import { FavoriteMark } from '@/core/components/favorites/favorite-parts';
 import { ProjectActionsMenu } from '@/core/components/projects/project-actions-menu';
+import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { cn } from '@/core/lib/helpers';
 import type { ProjectsListState } from '@/core/hooks/projects/use-projects-list-state';
 import type { ProjectTaskStatsState } from '@/core/hooks/projects/use-project-task-stats';
@@ -198,12 +200,15 @@ function ProjectCard({
 				<ProjectTile project={project} size="xl" />
 				<div className="flex min-w-0 flex-1 flex-col">
 					{eyebrow && <span className="truncate text-xs text-muted-foreground">{eyebrow}</span>}
-					<Link
-						href={`/projects/${project.id}`}
-						className="truncate rounded-sm text-sm font-semibold text-foreground outline-none transition-colors after:absolute after:inset-0 after:rounded-xl hover:text-primary-ink focus-visible:ring-[3px] focus-visible:ring-ring/25"
-					>
-						{project.name}
-					</Link>
+					<span className="flex min-w-0 items-center gap-1.5">
+						<Link
+							href={`/projects/${project.id}`}
+							className="truncate rounded-sm text-sm font-semibold text-foreground outline-none transition-colors after:absolute after:inset-0 after:rounded-xl hover:text-primary-ink focus-visible:ring-[3px] focus-visible:ring-ring/25"
+						>
+							{project.name}
+						</Link>
+						<FavoriteMark entity={EBaseEntityEnum.OrganizationProject} id={project.id} />
+					</span>
 				</div>
 				<div className="relative z-[1] flex items-center gap-1">
 					<Checkbox

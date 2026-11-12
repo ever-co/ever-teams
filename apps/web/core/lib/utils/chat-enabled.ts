@@ -20,6 +20,17 @@ export function isChatVirtualListEnabled(): boolean {
 }
 
 /**
+ * Whether a message shows a preview card under the links it carries (`NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED=true`,
+ * read at runtime), from what the platform's `/chat/link-preview` answers (it fetches the pages; the browser fetches
+ * none). Off by default: links then stay plain and nothing is asked. A platform without the route (it answers 404
+ * unless `GAUZY_CHAT_LINK_PREVIEWS_ENABLED=true`) shows none either.
+ */
+export function isChatLinkPreviewsEnabled(): boolean {
+	const runtimeFlag = readRuntimeEnv('NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED') || process.env.NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED;
+	return runtimeFlag === 'true';
+}
+
+/**
  * Whether app messages (posted by the platform's incoming webhooks) show their blocks and buttons
  * (`NEXT_PUBLIC_CHAT_WEBHOOKS_ENABLED=true`, read at runtime). Off by default: an app message then shows its text
  * only, as before. A button calls the platform, which answers 404 where its webhooks are off.
