@@ -215,6 +215,37 @@ describe('MeetingsPage', () => {
 		await waitFor(() => expect(mockCancelMeeting).toHaveBeenCalledWith('appointment-1'));
 	});
 
+	it('shows one day of the agenda at a time: the day after, the day before, and back to today', () => {
+		const now = new Date();
+		const tomorrowAtTen = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 10, 0);
+		mockScheduled.meetings = [
+			{
+				id: 'appointment-2',
+				title: 'Planning',
+				description: null,
+				start: tomorrowAtTen,
+				end: new Date(tomorrowAtTen.getTime() + 30 * 60_000),
+				link: `https://app.ever.team${meetPathFor('Ever-Planning-AbCdEfGhIj', true)}`
+			}
+		];
+		render(<MeetingsPage />);
+		expect(screen.queryByText('Planning')).toBeNull();
+		expect(screen.getByText('meetings.NO_MEETINGS_TODAY')).toBeTruthy();
+
+		fireEvent.click(screen.getByRole('button', { name: 'meetings.NEXT_DAY' }));
+		expect(screen.getByRole('heading', { name: /^meetings\.DAY_LABEL:.*meetings\.TOMORROW/ })).toBeTruthy();
+		expect(screen.getByText('Planning')).toBeTruthy();
+
+		fireEvent.click(screen.getByRole('button', { name: 'meetings.NEXT_DAY' }));
+		expect(screen.getByText('meetings.NO_MEETINGS_DAY')).toBeTruthy();
+
+		fireEvent.click(screen.getByRole('button', { name: 'meetings.TODAY' }));
+		expect(screen.getByRole('heading', { name: /^meetings\.DAY_LABEL:.*meetings\.TODAY/ })).toBeTruthy();
+		fireEvent.click(screen.getByRole('button', { name: 'meetings.PREVIOUS_DAY' }));
+		expect(screen.getByRole('heading', { name: /^meetings\.DAY_LABEL:.*meetings\.YESTERDAY/ })).toBeTruthy();
+		expect(screen.queryByText('Planning')).toBeNull();
+	});
+
 	it('keeps scheduling for people with an employee record, who own the appointments', () => {
 		mockScheduled.canSchedule = false;
 		render(<MeetingsPage />);

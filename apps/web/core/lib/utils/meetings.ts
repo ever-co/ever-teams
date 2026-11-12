@@ -137,47 +137,30 @@ export function scheduledMeetingStateOf(meeting: ScheduledMeeting, now: Date): S
 	return time >= opensAt ? 'soon' : 'later';
 }
 
-function startOfDay(date: Date): Date {
+/** Midnight of a date's day, local time. */
+export function startOfDay(date: Date): Date {
 	const day = new Date(date);
 	day.setHours(0, 0, 0, 0);
 	return day;
 }
 
-export interface AgendaDay {
-	/** Midnight of the day, local time. */
-	day: Date;
-	meetings: ScheduledMeeting[];
+/** Midnight of the day so many calendar days away: a day that changes the clock is 23 or 25 hours long, not 24. */
+export function dayAfter(day: Date, days: number): Date {
+	const next = startOfDay(day);
+	next.setDate(next.getDate() + days);
+	return next;
 }
 
 /**
- * The agenda from today on, by day: today always (an empty today says so), then each of the next days that holds a
- * meeting. A meeting over before today is dropped; today's ended meetings stay, so the day reads as it went.
+ * The meetings of one day, by start time: every meeting that runs some time that day, so one that began the evening
+ * before and runs on past midnight shows on both days, and the ended ones stay, so the day reads as it went.
  */
-export function agendaOf(meetings: readonly ScheduledMeeting[], now: Date, days = 7): AgendaDay[] {
-	const today = startOfDay(now);
-	// Calendar days, not 24-hour steps: a day that changes the clock (daylight saving) is 23 or 25 hours long
-	const lastDay = new Date(today);
-	lastDay.setDate(lastDay.getDate() + days);
-	const horizon = lastDay.getTime();
-	const byDay = new Map<number, ScheduledMeeting[]>([[today.getTime(), []]]);
-	const sorted = [...meetings].sort((first, second) => first.start.getTime() - second.start.getTime());
-
-	for (const meeting of sorted) {
-		const isPast = meeting.end.getTime() <= today.getTime();
-		const isBeyond = meeting.start.getTime() >= horizon;
-		if (isPast || isBeyond) {
-			continue;
-		}
-		// A meeting that began yesterday and runs on belongs to today
-		const dayKey = Math.max(startOfDay(meeting.start).getTime(), today.getTime());
-		const list = byDay.get(dayKey) ?? [];
-		list.push(meeting);
-		byDay.set(dayKey, list);
-	}
-
-	return [...byDay.entries()]
-		.sort(([first], [second]) => first - second)
-		.map(([dayKey, dayMeetings]) => ({ day: new Date(dayKey), meetings: dayMeetings }));
+export function meetingsOfDay(meetings: readonly ScheduledMeeting[], day: Date): ScheduledMeeting[] {
+	const dayStart = startOfDay(day).getTime();
+	const dayEnd = dayAfter(day, 1).getTime();
+	return meetings
+		.filter((meeting) => meeting.start.getTime() < dayEnd && meeting.end.getTime() > dayStart)
+		.sort((first, second) => first.start.getTime() - second.start.getTime());
 }
 
 /** An employee appointment as Ever Gauzy returns it; only the fields a meeting needs. */

@@ -197,4 +197,24 @@ describe('feature parity on the authenticated shell', () => {
 		cy.location('pathname', { timeout: 15_000 }).should('match', /\/meet\/jitsi$/);
 		cy.get('[data-testid="meet-join-now"]', { timeout: 20_000 }).should('be.visible');
 	});
+
+	it('shows the agenda one day at a time, with the day before, the day after and back to today', () => {
+		cy.hardVisit('/meet');
+		cy.get('[data-testid="meetings-agenda-day"]', { timeout: 20_000 }).should(
+			'contain',
+			'No meetings scheduled today'
+		);
+		cy.contains('h2', /^Today, /).should('be.visible');
+
+		cy.get('button[aria-label="Next day"]').click();
+		cy.contains('h2', /^Tomorrow, /).should('be.visible');
+		cy.get('[data-testid="meetings-agenda-day"]').should('contain', 'No meetings scheduled this day');
+
+		cy.get('button[aria-label="Previous day"]').click();
+		cy.contains('h2', /^Today, /).should('be.visible');
+		cy.get('button[aria-label="Previous day"]').click();
+		cy.contains('h2', /^Yesterday, /).should('be.visible');
+		cy.contains('button', /^Today$/).click();
+		cy.contains('h2', /^Today, /).should('be.visible');
+	});
 });

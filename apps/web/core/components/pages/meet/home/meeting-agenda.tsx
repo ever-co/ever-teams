@@ -6,27 +6,40 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { AlertDialogConfirmation } from '@/core/components/common/alert-dialog-confirmation';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { CalendarPlus, Copy, Trash } from '@/core/components/icons';
+import { CalendarPlus, ChevronLeft, ChevronRight, Copy, Trash } from '@/core/components/icons';
 import { DashboardSection } from '@/core/components/dashboards/kit/dashboard-layout';
 import { BlockEmptyMessage, DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { cn } from '@/core/lib/helpers';
 import {
-	agendaOf,
+	dayAfter,
 	meetingPathOfInput,
+	meetingsOfDay,
 	scheduledMeetingStateOf,
-	type AgendaDay,
+	startOfDay,
 	type ScheduledMeeting
 } from '@/core/lib/utils/meetings';
 import { copyMeetingText, downloadMeetingIcs, meetingTimesOf } from './meeting-invitation';
 
 const DAY = 24 * 60 * 60 * 1000;
 
-function dayLabelOf(agendaDay: AgendaDay, today: Date, locale: string, t: ReturnType<typeof useTranslations>) {
-	const daysAhead = Math.round((agendaDay.day.getTime() - today.getTime()) / DAY);
-	if (daysAhead === 0) return t('meetings.TODAY');
-	if (daysAhead === 1) return t('meetings.TOMORROW');
-	return new Intl.DateTimeFormat(locale, { weekday: 'long', month: 'long', day: 'numeric' }).format(agendaDay.day);
+/** The days next to today that the agenda names in words. */
+const RELATIVE_DAY_KEYS = new Map([
+	[-1, 'meetings.YESTERDAY'],
+	[0, 'meetings.TODAY'],
+	[1, 'meetings.TOMORROW']
+] as const);
+
+/** "Today, October 30, 2026", or "Saturday, October 31, 2026" for a day further away, in the reader's language. */
+function dayLabelOf(day: Date, today: Date, locale: string, t: ReturnType<typeof useTranslations>): string {
+	// Rounded: a day that changes the clock is 23 or 25 hours long
+	const daysAway = Math.round((day.getTime() - today.getTime()) / DAY);
+	const relativeKey = RELATIVE_DAY_KEYS.get(daysAway as -1 | 0 | 1);
+	if (!relativeKey) {
+		return new Intl.DateTimeFormat(locale, { dateStyle: 'full' }).format(day);
+	}
+	const date = new Intl.DateTimeFormat(locale, { dateStyle: 'long' }).format(day);
+	return t('meetings.DAY_LABEL', { day: t(relativeKey), date });
 }
 
 interface MeetingCardProps {
@@ -140,7 +153,10 @@ interface MeetingAgendaProps {
 	onCancelMeeting: (appointmentId: string) => Promise<unknown>;
 }
 
-/** Today and the coming days, as scheduled by the person: join, copy the link, add to a calendar, cancel. */
+/**
+ * One day of the meetings the person scheduled, today first, with the way to the day before, back to today and to
+ * the day after; on each meeting: join, copy the link, add to a calendar, cancel.
+ */
 export function MeetingAgenda({
 	meetings,
 	isLoading,
@@ -154,9 +170,10 @@ export function MeetingAgenda({
 	const t = useTranslations();
 	const locale = useLocale();
 	const [meetingToCancel, setMeetingToCancel] = useState<ScheduledMeeting | null>(null);
-	const today = new Date(now);
-	today.setHours(0, 0, 0, 0);
-	const days = agendaOf(meetings, now);
+	const today = startOfDay(now);
+	const [day, setDay] = useState(today);
+	const isToday = day.getTime() === today.getTime();
+	const dayMeetings = meetingsOfDay(meetings, day);
 
 	const confirmCancel = async () => {
 		if (!meetingToCancel) return;
@@ -172,9 +189,42 @@ export function MeetingAgenda({
 
 	return (
 		<DashboardSection
-			title={t('meetings.AGENDA')}
+			title={dayLabelOf(day, today, locale, t)}
 			meta={t('meetings.AGENDA_HINT')}
 			ariaLabel={t('meetings.AGENDA')}
+			actions={
+				<div className="flex items-center gap-0.5">
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+						aria-label={t('meetings.PREVIOUS_DAY')}
+						title={t('meetings.PREVIOUS_DAY')}
+						onClick={() => setDay(dayAfter(day, -1))}
+					>
+						<ChevronLeft className="size-4" />
+					</Button>
+					<Button
+						type="button"
+						variant="ghost"
+						size="sm"
+						aria-current={isToday ? 'date' : undefined}
+						onClick={() => setDay(today)}
+					>
+						{t('meetings.TODAY')}
+					</Button>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+						aria-label={t('meetings.NEXT_DAY')}
+						title={t('meetings.NEXT_DAY')}
+						onClick={() => setDay(dayAfter(day, 1))}
+					>
+						<ChevronRight className="size-4" />
+					</Button>
+				</div>
+			}
 		>
 			{isError && <DashboardErrorNotice onRetry={onRetry} />}
 			{!isError && isLoading && (
@@ -184,34 +234,27 @@ export function MeetingAgenda({
 				</div>
 			)}
 			{!isError && !isLoading && (
-				<div className="flex flex-col gap-4 p-4">
-					{days.map((agendaDay) => (
-						<section key={agendaDay.day.getTime()} className="flex flex-col gap-2">
-							<h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-								{dayLabelOf(agendaDay, today, locale, t)}
-							</h3>
-							{agendaDay.meetings.length === 0 && (
-								<BlockEmptyMessage
-									title={t('meetings.NO_MEETINGS_TODAY')}
-									message={t('meetings.NO_MEETINGS_TODAY_HINT')}
+				<div className="flex flex-col gap-2 p-4" data-testid="meetings-agenda-day">
+					{dayMeetings.length === 0 && (
+						<BlockEmptyMessage
+							title={isToday ? t('meetings.NO_MEETINGS_TODAY') : t('meetings.NO_MEETINGS_DAY')}
+							message={t('meetings.NO_MEETINGS_TODAY_HINT')}
+						/>
+					)}
+					{dayMeetings.length > 0 && (
+						<ul className="divide-y divide-border overflow-hidden rounded-lg hairline-ring ring-border">
+							{dayMeetings.map((meeting) => (
+								<MeetingCard
+									key={meeting.id}
+									meeting={meeting}
+									now={now}
+									isJitsi={isJitsi}
+									isCancelling={cancellingId === meeting.id}
+									onCancel={setMeetingToCancel}
 								/>
-							)}
-							{agendaDay.meetings.length > 0 && (
-								<ul className="divide-y divide-border overflow-hidden rounded-lg hairline-ring ring-border">
-									{agendaDay.meetings.map((meeting) => (
-										<MeetingCard
-											key={meeting.id}
-											meeting={meeting}
-											now={now}
-											isJitsi={isJitsi}
-											isCancelling={cancellingId === meeting.id}
-											onCancel={setMeetingToCancel}
-										/>
-									))}
-								</ul>
-							)}
-						</section>
-					))}
+							))}
+						</ul>
+					)}
 				</div>
 			)}
 			<AlertDialogConfirmation

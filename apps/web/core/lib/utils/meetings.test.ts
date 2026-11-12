@@ -1,16 +1,18 @@
 // cspell:ignore DTEND DTSTART VCALENDAR XATTENDEE Équipe
 import { meetPathFor } from './collaboration';
 import {
-	agendaOf,
 	appointmentInputOf,
+	dayAfter,
 	isRoomTokenStale,
 	meetingIcsOf,
 	meetingPathFor,
 	meetingPathOfInput,
+	meetingsOfDay,
 	meetingTitleOf,
 	roomNameOfParam,
 	scheduledMeetingOf,
 	scheduledMeetingStateOf,
+	startOfDay,
 	type ScheduledMeeting
 } from './meetings';
 
@@ -91,24 +93,24 @@ describe('scheduled meetings', () => {
 
 	// Across a change of the clock: meetings-agenda-dst.test.ts, in an environment with daylight saving
 
-	it('lays out the agenda by day: today always, its ended meetings kept, then the next days that hold one', () => {
-		const agenda = agendaOf(
-			[
-				meeting('next-week', '2026-11-19T09:00:00', '2026-11-19T10:00:00'),
-				meeting('tomorrow', '2026-11-12T09:00:00', '2026-11-12T09:30:00'),
-				meeting('this-morning', '2026-11-11T08:00:00', '2026-11-11T08:30:00'),
-				meeting('yesterday', '2026-11-10T09:00:00', '2026-11-10T10:00:00'),
-				meeting('overnight', '2026-11-10T23:00:00', '2026-11-11T01:00:00'),
-				meeting('later-today', '2026-11-11T15:00:00', '2026-11-11T16:00:00')
-			],
-			now
-		);
+	it('lists the meetings of one day by start time, its ended ones kept and one running past midnight on both days', () => {
+		const meetings = [
+			meeting('next-week', '2026-11-19T09:00:00', '2026-11-19T10:00:00'),
+			meeting('tomorrow', '2026-11-12T09:00:00', '2026-11-12T09:30:00'),
+			meeting('this-morning', '2026-11-11T08:00:00', '2026-11-11T08:30:00'),
+			meeting('yesterday', '2026-11-10T09:00:00', '2026-11-10T10:00:00'),
+			meeting('overnight', '2026-11-10T23:00:00', '2026-11-11T01:00:00'),
+			meeting('later-today', '2026-11-11T15:00:00', '2026-11-11T16:00:00'),
+			meeting('until-midnight', '2026-11-11T23:00:00', '2026-11-12T00:00:00')
+		];
+		const idsOf = (day: Date) => meetingsOfDay(meetings, day).map(({ id }) => id);
 
-		expect(agenda.map(({ day, meetings }) => [day.getDate(), meetings.map(({ id }) => id)])).toEqual([
-			[11, ['overnight', 'this-morning', 'later-today']],
-			[12, ['tomorrow']]
-		]);
-		expect(agendaOf([], now)).toEqual([{ day: new Date('2026-11-11T00:00:00'), meetings: [] }]);
+		expect(idsOf(now)).toEqual(['overnight', 'this-morning', 'later-today', 'until-midnight']);
+		expect(idsOf(dayAfter(now, -1))).toEqual(['yesterday', 'overnight']);
+		expect(idsOf(dayAfter(now, 1))).toEqual(['tomorrow']);
+		expect(idsOf(dayAfter(now, 2))).toEqual([]);
+		expect(dayAfter(now, 8)).toEqual(new Date('2026-11-19T00:00:00'));
+		expect(startOfDay(now)).toEqual(new Date('2026-11-11T00:00:00'));
 	});
 
 	it('reads a meeting from an appointment, and skips a cancelled one or one without times', () => {
