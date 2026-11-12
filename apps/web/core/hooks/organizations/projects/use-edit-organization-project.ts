@@ -4,6 +4,8 @@ import { useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { TEditProjectRequest } from '@/core/types/schemas';
 import { organizationProjectService } from '@/core/services/client/api/organizations';
+import { queryKeys } from '@/core/query/keys';
+import { editsProjectBudget } from '@/core/lib/utils/project-consumption';
 import { useInvalidateOrganizationProjects } from './use-invalidate-organization-projects';
 
 /**
@@ -16,7 +18,19 @@ import { useInvalidateOrganizationProjects } from './use-invalidate-organization
  * - `editOrganizationProjectSettingLoading` - Boolean indicating settings mutation pending state
  */
 export function useEditOrganizationProject() {
-	const { invalidateOrganizationProjectsData, tenantId } = useInvalidateOrganizationProjects();
+	const { invalidateOrganizationProjectsData, queryClient, tenantId } = useInvalidateOrganizationProjects();
+
+	const invalidateAfterEdit = useCallback(
+		(edit: TEditProjectRequest) => {
+			if (editsProjectBudget(edit)) {
+				// The budget report states the project's budget, its type and its currency. It is a slow read
+				// (every time log of the organisation), so the edit does not wait for it.
+				void queryClient.invalidateQueries({ queryKey: queryKeys.timesheet.reports.all });
+			}
+			return invalidateOrganizationProjectsData();
+		},
+		[invalidateOrganizationProjectsData, queryClient]
+	);
 
 	// Edit project mutation
 	// Uses onSettled (not onSuccess) to always invalidate cache even on timeout.
@@ -24,7 +38,7 @@ export function useEditOrganizationProject() {
 	const editOrganizationProjectMutation = useMutation({
 		mutationFn: ({ projectId, data }: { projectId: string; data: TEditProjectRequest }) =>
 			organizationProjectService.editOrganizationProject({ organizationProjectId: projectId, data }),
-		onSettled: invalidateOrganizationProjectsData
+		onSettled: (_project, _error, { data }) => invalidateAfterEdit(data)
 	});
 
 	// Edit project setting mutation
@@ -75,4 +89,3 @@ export function useEditOrganizationProject() {
 		editOrganizationProjectSettingLoading: editOrganizationProjectSettingMutation.isPending
 	};
 }
-
