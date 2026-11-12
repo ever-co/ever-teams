@@ -207,6 +207,7 @@ export function useNewInvoice() {
 		clientId,
 		currency,
 		descriptions,
+		draftScope,
 		dueDay,
 		isOrganizationKnown,
 		issueDay,
