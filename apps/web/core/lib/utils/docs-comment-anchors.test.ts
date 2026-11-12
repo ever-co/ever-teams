@@ -4,8 +4,8 @@ import {
 	anchorsByComment,
 	approximateMatch,
 	commentAnchorInputOf,
+	closestRunFrom,
 	DOCS_ANCHOR_QUOTE_MAX_LENGTH,
-	editDistanceWithin,
 	resolveCommentAnchor,
 	storedAnchorOf,
 	threadPlaceOf,
@@ -120,8 +120,17 @@ describe('approximateMatch', () => {
 		const edited = `Intro. ${quote.slice(0, 300)}${quote.slice(300).replace('mill', 'mall')}`;
 		expect(approximateMatch(edited, quote)).toMatchObject({ start: 7, end: 7 + quote.length, distance: 1 });
 		expect(approximateMatch(`Intro. ${quote.slice(0, 256)}${'x'.repeat(quote.length - 256)}`, quote)).toBeNull();
-		expect(editDistanceWithin('kitten', 'sitting', 3)).toBe(3);
-		expect(editDistanceWithin('kitten', 'sitting', 2)).toBeNull();
+		expect(closestRunFrom('xx kitten', 3, 'sitting', 3)).toEqual({ length: 6, distance: 3 });
+		expect(closestRunFrom('xx kitten', 3, 'sitting', 2)).toBeNull();
+	});
+
+	it('lets tail insertions move the end, and tries the next start when the first is not the quote', () => {
+		const inserted = `${'a'.repeat(256)}${'b'.repeat(72)}${'c'.repeat(72)}`;
+		expect(approximateMatch(`${'a'.repeat(256)}${'x'.repeat(100)}${'b'.repeat(72)}${'c'.repeat(72)}`, inserted)).toEqual({ start: 0, end: 500, distance: 100 });
+		const quote = `${'a'.repeat(256)}${'b'.repeat(144)}`;
+		const first = `${'a'.repeat(256)}${'x'.repeat(144)}`;
+		const text = `${first} ${'a'.repeat(256)}${'b'.repeat(143)}c`;
+		expect(approximateMatch(text, quote)).toEqual({ start: first.length + 1, end: text.length, distance: 1 });
 	});
 });
 
