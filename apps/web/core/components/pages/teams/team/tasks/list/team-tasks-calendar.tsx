@@ -489,7 +489,8 @@ function UndatedPanel({
  * on no day: they are counted in the bar and listed in a panel where the due date picker places them. A task opens
  * in the drawer, as a row does; Cmd or Ctrl with the click selects it for the page's selection bar. With a mouse or a
  * pen, a task of the active team is dragged to another day of the grid, from its day or from the panel (a task of
- * another team, listed by a built-in view, only opens, as on the timeline).
+ * another team, listed by a built-in view, is not dragged, as on the timeline; its due date still changes from the
+ * picker, as from the list).
  */
 export function TeamTasksCalendarView({
 	view,
