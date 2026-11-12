@@ -430,5 +430,9 @@
 	{
 		"id": "removed:testNames:apps/web/core/lib/utils/team-tasks-view-layout.test.ts::keeps a board, and reads anything else as the list every view has been::#1",
 		"reason": "Saved views have a timeline layout as well as the board (#5098). The test is \"keeps a board and a timeline, and reads anything else as the list every view has been\" in the same file."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/hooks/organizations/teams/use-organization-teams-query.test.tsx::shows a member's new rate once the team is read again, though the team itself did not change::#1",
+		"reason": "Kept, not removed (#5092): the case is now the first row of an it.each, \"shows %s once the team is read again, though the team itself did not change\", in the same file, which also checks a member's new workspace role. The rate case runs unchanged."
 	}
 ]
