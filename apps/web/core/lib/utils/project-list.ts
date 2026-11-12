@@ -2,7 +2,7 @@ import type { DateRange } from 'react-day-picker';
 import type { TOrganizationProject } from '@/core/types/schemas';
 import type { TTaskStatus } from '@/core/types/schemas/task/task-status.schema';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
-import { projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
+import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
 import { replaceHtmlTags } from './html-tags';
 
 export type ProjectScope = 'active' | 'archived';
@@ -187,6 +187,18 @@ export function isProjectVisibleInTeam(project: TOrganizationProject, activeTeam
 		return true;
 	}
 	return projectHasNoTeams(project);
+}
+
+/**
+ * The projects the Projects page lists for the active team before any search or filter: the team's own and the
+ * teamless ones, archived ones left out. A count that links to that list counts these, so both always agree.
+ */
+export function projectsListedForTeam(projects: TOrganizationProject[], activeTeamId: string | null | undefined) {
+	return projects.filter((project) => {
+		const isVisibleInTeam = isProjectVisibleInTeam(project, activeTeamId);
+		const isListedAsActive = isValidProjectForDisplay(project, false);
+		return isVisibleInTeam && isListedAsActive;
+	});
 }
 
 function endOfDay(date: Date) {

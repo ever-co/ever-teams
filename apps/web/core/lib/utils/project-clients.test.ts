@@ -1,4 +1,5 @@
 import type { TOrganizationProject } from '@/core/types/schemas';
+import { projectCountByClient } from './clients';
 import { buildProjectRequest, draftFromProject, emptyProjectDraft } from './project-composer';
 import {
 	NO_CLIENT_FILTER_VALUE,
@@ -8,6 +9,7 @@ import {
 	clientNameOf,
 	countActiveFilterValues,
 	projectMatchesFilters,
+	projectsListedForTeam,
 	readProjectFilters,
 	type ProjectFilters
 } from './project-list';
@@ -75,6 +77,54 @@ describe('the client filter of the projects list', () => {
 		expect(projectMatchesFilters(withoutClient, noClient, [])).toBe(true);
 		expect(projectMatchesFilters(withAcme, noClient, [])).toBe(false);
 		expect(projectMatchesFilters(withAcme, filtersOf([NO_CLIENT_FILTER_VALUE, 'c1']), [])).toBe(true);
+	});
+});
+
+describe('the number of projects of a client, which links to the Projects list', () => {
+	// What tells a project from a team in the lists: without these fields the Projects page lists nothing
+	const projectOnlyFields = {
+		status: 'open',
+		billing: null,
+		billingFlat: false,
+		budget: null,
+		currency: null,
+		budgetType: null,
+		projectUrl: null
+	};
+
+	function acmeProjectOf(id: string, fields: Partial<TOrganizationProject>): TOrganizationProject {
+		return projectOf({
+			...projectOnlyFields,
+			id,
+			organizationContactId: 'c1',
+			teams: [],
+			...fields
+		} as Partial<TOrganizationProject>);
+	}
+
+	const coreTeam = { id: 't1', name: 'Core' };
+	const otherTeam = { id: 't2', name: 'Design' };
+	const inActiveTeam = acmeProjectOf('in-active-team', { teams: [coreTeam] });
+	const inOtherTeam = acmeProjectOf('in-other-team', { teams: [otherTeam] });
+	const teamless = acmeProjectOf('teamless', {});
+	const archived = acmeProjectOf('archived', { teams: [coreTeam], isArchived: true });
+	const acmeProjects = [inActiveTeam, inOtherTeam, teamless, archived];
+
+	it('counts the projects that list shows for the active team: its own and the teamless ones, none archived', () => {
+		const listed = projectsListedForTeam(acmeProjects, 't1');
+		expect(listed.map((project) => project.id)).toEqual(['in-active-team', 'teamless']);
+		expect(projectCountByClient(listed).get('c1')).toBe(2);
+	});
+
+	it('counts the projects of every team when no team is active', () => {
+		const listed = projectsListedForTeam(acmeProjects, null);
+		expect(listed.map((project) => project.id)).toEqual(['in-active-team', 'in-other-team', 'teamless']);
+		expect(projectCountByClient(listed).get('c1')).toBe(3);
+	});
+
+	it('shows no project for a client whose projects all belong to other teams', () => {
+		const listed = projectsListedForTeam([inOtherTeam], 't1');
+		expect(projectCountByClient(listed).has('c1')).toBe(false);
 	});
 });
 

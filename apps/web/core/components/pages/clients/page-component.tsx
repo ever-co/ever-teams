@@ -14,6 +14,7 @@ import { useClientsListState } from '@/core/hooks/clients/use-clients-list-state
 import { useClientsQuery } from '@/core/hooks/clients/use-clients-query';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { clientMatchesSearch, clientsInScope, projectCountByClient } from '@/core/lib/utils/clients';
+import { projectsListedForTeam } from '@/core/lib/utils/project-list';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import type { TClient } from '@/core/types/schemas';
 import { ClientsList } from './clients-list';
@@ -46,7 +47,11 @@ function ClientsPage() {
 	const list = useClientsListState();
 	const [dialog, setDialog] = useState<ClientDialog | null>(null);
 
-	const projectCounts = useMemo(() => projectCountByClient(organizationProjects), [organizationProjects]);
+	const activeTeamId = activeTeam?.id;
+	const projectCounts = useMemo(() => {
+		const listedProjects = projectsListedForTeam(organizationProjects, activeTeamId);
+		return projectCountByClient(listedProjects);
+	}, [activeTeamId, organizationProjects]);
 
 	const shownClients = useMemo(() => {
 		const scoped = clientsInScope(clients, list.scope);
