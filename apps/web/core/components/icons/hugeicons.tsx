@@ -57,8 +57,8 @@ import {
 	CubeIcon,
 	DashboardSquare01Icon,
 	Delete02Icon,
-	Dollar02Icon,
 	DollarCircleIcon,
+	DollarSignIcon,
 	DragDropVerticalIcon,
 	Facebook01Icon,
 	FavouriteIcon,
@@ -269,7 +269,7 @@ export const Clock = /*#__PURE__*/ icon(Clock01Icon, 'Clock');
 export const Bank = /*#__PURE__*/ icon(BankIcon, 'Bank');
 /** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const CreditCard = /*#__PURE__*/ icon(CreditCardIcon, 'CreditCard');
-export const Dollar = /*#__PURE__*/ icon(Dollar02Icon, 'Dollar');
+export const Dollar = /*#__PURE__*/ icon(DollarSignIcon, 'Dollar');
 export const DollarCircle = /*#__PURE__*/ icon(DollarCircleIcon, 'DollarCircle');
 /** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Gift = /*#__PURE__*/ icon(GiftIcon, 'Gift');
