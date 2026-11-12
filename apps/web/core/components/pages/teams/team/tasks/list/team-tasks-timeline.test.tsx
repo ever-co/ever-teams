@@ -126,6 +126,48 @@ describe('TeamTasksTimelineView', () => {
 		expect(mockMoveDates).toHaveBeenCalledTimes(2);
 	});
 
+	it('moves a due-only task with Alt + Shift + arrows too, and rounds half days alike both ways', () => {
+		mockMoveDates.mockClear();
+		renderTimeline([{ id: 'due', title: 'Due only', dueDate: '2026-11-20', status: 'open', taskStatusId: 'open' }]);
+		const bar = screen.getByTestId('timeline-bar-due');
+
+		fireEvent.keyDown(bar, { key: 'ArrowLeft', altKey: true, shiftKey: true });
+		expect(mockMoveDates).toHaveBeenLastCalledWith('due', 'move', -1);
+
+		// Weeks zoom, 36 px a day: 18 px is half a day, one day either way.
+		fireEvent.pointerDown(bar, { button: 0, clientX: 100, pointerId: 7 });
+		fireEvent.pointerMove(bar, { clientX: 82, pointerId: 7 });
+		fireEvent.pointerUp(bar, { clientX: 82, pointerId: 7 });
+		expect(mockMoveDates).toHaveBeenLastCalledWith('due', 'move', -1);
+		fireEvent.pointerDown(bar, { button: 0, clientX: 100, pointerId: 8 });
+		fireEvent.pointerMove(bar, { clientX: 118, pointerId: 8 });
+		fireEvent.pointerUp(bar, { clientX: 118, pointerId: 8 });
+		expect(mockMoveDates).toHaveBeenLastCalledWith('due', 'move', 1);
+	});
+
+	it('shows end handles only on a range of several days, so a one-day range moves as a whole', () => {
+		renderTimeline([
+			{
+				id: 'a',
+				title: 'Range',
+				startDate: '2026-11-10',
+				dueDate: '2026-11-14',
+				status: 'open',
+				taskStatusId: 'open'
+			},
+			{
+				id: 'b',
+				title: 'One day',
+				startDate: '2026-11-11',
+				dueDate: '2026-11-11',
+				status: 'open',
+				taskStatusId: 'open'
+			}
+		]);
+		expect(screen.getByTestId('timeline-bar-a').querySelectorAll('[data-handle]')).toHaveLength(2);
+		expect(screen.getByTestId('timeline-bar-b').querySelectorAll('[data-handle]')).toHaveLength(0);
+	});
+
 	it('drags a bar by whole days, and a drag does not open the task', () => {
 		mockMoveDates.mockClear();
 		const { commands } = renderTimeline([

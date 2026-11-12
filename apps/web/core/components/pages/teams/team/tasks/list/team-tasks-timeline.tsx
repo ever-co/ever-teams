@@ -338,6 +338,14 @@ export function TeamTasksTimelineView({
 /** Movement, in pixels, before a press on a bar counts as a drag rather than a click. */
 const DRAG_THRESHOLD = 4;
 
+/** The narrowest bar that shows its end handles (6 px each) and keeps a middle to move it by. */
+const MIN_HANDLE_BAR_WIDTH = 24;
+
+/** Days from a movement in days, half a day rounding away from zero in both directions alike. */
+function wholeDaysOf(days: number) {
+	return Math.sign(days) * Math.round(Math.abs(days));
+}
+
 interface TimelineBarProps {
 	task: TTask;
 	bar: TeamTasksTimelineBar;
@@ -399,7 +407,7 @@ function TimelineBar({
 			const press = pressRef.current;
 			if (press?.moved) {
 				const scrolled = element.scrollLeft - press.scrollLeft;
-				setPreview({ drag: press.drag, delta: Math.round((press.lastX - press.x + scrolled) / dayWidth) });
+				setPreview({ drag: press.drag, delta: wholeDaysOf((press.lastX - press.x + scrolled) / dayWidth) });
 			}
 		};
 		element.addEventListener('scroll', onScroll);
@@ -420,7 +428,7 @@ function TimelineBar({
 			return 0;
 		}
 		const scrolled = (scrollRef.current?.scrollLeft ?? press.scrollLeft) - press.scrollLeft;
-		return Math.round((clientX - press.x + scrolled) / dayWidth);
+		return wholeDaysOf((clientX - press.x + scrolled) / dayWidth);
 	};
 
 	// Where the bar shows: its dates as dragged so far, else as stored (a clipped end stays at the edge).
@@ -439,6 +447,15 @@ function TimelineBar({
 	}
 	const left = startDay * dayWidth;
 	const width = Math.max(dayWidth, (endDay - startDay + 1) * dayWidth);
+	// The ends drag on a range of several days wide enough to leave its middle to move it; a one-day or narrow bar
+	// moves as a whole.
+	const hasHandles =
+		canEdit &&
+		hasRange &&
+		dates.startDay !== null &&
+		dates.dueDay !== null &&
+		dates.dueDay > dates.startDay &&
+		width >= MIN_HANDLE_BAR_WIDTH;
 
 	const handlePointerDown = (event: PointerEvent<HTMLButtonElement>) => {
 		if (!canEdit || event.button !== 0) {
@@ -502,7 +519,9 @@ function TimelineBar({
 		}
 		event.preventDefault();
 		const delta = event.key === 'ArrowLeft' ? -1 : 1;
-		save(event.shiftKey ? 'end' : 'move', delta);
+		// Alt + Shift: the due date. A task with a due date only moves that date (its one date).
+		const drag: TeamTasksTimelineDrag = event.shiftKey && !bar.isDueOnly ? 'end' : 'move';
+		save(drag, delta);
 	};
 
 	return (
@@ -533,7 +552,7 @@ function TimelineBar({
 			)}
 			style={{ left, width, height: ROW_HEIGHT - 12 }}
 		>
-			{canEdit && hasRange && !bar.isClippedStart ? (
+			{hasHandles && !bar.isClippedStart ? (
 				<span
 					data-handle="start"
 					aria-hidden="true"
@@ -541,7 +560,7 @@ function TimelineBar({
 				/>
 			) : null}
 			{width >= 64 ? <span className="pointer-events-none truncate">{task.title}</span> : null}
-			{canEdit && hasRange && !bar.isClippedEnd ? (
+			{hasHandles && !bar.isClippedEnd ? (
 				<span
 					data-handle="end"
 					aria-hidden="true"
