@@ -519,10 +519,20 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 		[hasDraft, isLiveEditing, liveBinding, saveDraftNow]
 	);
 
+	// What an export of a folder holding this page waits for: the page's edits, and never text a fallen-back live
+	// session left while the page is read again or that text is being adopted (it is not the autosave's yet).
+	const textUnsettled = live.rereading || awaitingAdoption;
+	const exportEdits = useMemo<DocsPageEdits>(
+		() => ({
+			pending: () => textUnsettled || pageEdits.pending(),
+			hold: () => (textUnsettled ? Promise.resolve(false) : pageEdits.hold())
+		}),
+		[pageEdits, textUnsettled]
+	);
 	useEffect(() => {
-		onEdits?.(pageEdits);
+		onEdits?.(exportEdits);
 		return () => onEdits?.(null);
-	}, [onEdits, pageEdits]);
+	}, [exportEdits, onEdits]);
 
 	// A comment on a block waits until the platform holds the page's edits: the block's anchor may exist here only.
 	const holdAnchor = useCallback(() => pageEdits.hold(), [pageEdits]);
@@ -716,6 +726,11 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	const isExporting = zipExport.isExporting;
 	const exportSubtree = () => {
 		if (!page) return;
+		// As the PDF export: text a fallen-back live session left is not saved yet, so nothing is exported.
+		if (textUnsettled) {
+			toast.error(t('docs.EXPORT_UNSAVED'));
+			return;
+		}
 		const isFolderPage = page.kind === EDocumentKind.FOLDER;
 		void zipExport.run(page, { title, beforeExport: isFolderPage || isLiveEditing ? undefined : saveDraftNow });
 	};
