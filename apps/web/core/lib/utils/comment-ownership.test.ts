@@ -1,4 +1,5 @@
 import {
+	editMentionsToSend,
 	isOwnComment,
 	isTextChanged,
 	mentionedIn,
@@ -91,6 +92,25 @@ describe('mentionEmployeeIdsOf — whom a sent text mentions', () => {
 		expect(mentionEmployeeIdsOf('@Bo Ray and @Ann Lee', team, [annLee, bo])).toEqual(['ann-lee', 'bo']);
 		// A pick whose name was taken out of the text is not sent.
 		expect(mentionEmployeeIdsOf('Nobody now', team, [bo])).toEqual([]);
+	});
+});
+
+describe('editMentionsToSend — what an edit sends about its mentions', () => {
+	const annLee = { employeeId: 'ann-lee', name: 'Ann Lee' };
+	const otherAnnLee = { employeeId: 'ann-lee-2', name: 'Ann Lee' };
+	const bo = { employeeId: 'bo', name: 'Bo Ray' };
+	const cy = { employeeId: 'cy', name: 'Cy Moe' };
+	const team = [annLee, otherAnnLee, bo, cy];
+
+	it('sends nothing while a name two people share stays in the text, so no namesake is added or dropped', () => {
+		// The comment mentioned one of the two Ann Lees; the edit adds Bo.
+		expect(editMentionsToSend('Ask @Ann Lee', 'Ask @Ann Lee and @Bo Ray', team, ['bo'])).toBeUndefined();
+	});
+
+	it('sends the new list when the shared name leaves the text, or when only unique names change', () => {
+		expect(editMentionsToSend('Ask @Ann Lee', 'Ask @Bo Ray', team, ['bo'])).toEqual(['bo']);
+		expect(editMentionsToSend('Ask @Cy Moe', 'Ask @Cy Moe and @Bo Ray', team, ['cy', 'bo'])).toEqual(['cy', 'bo']);
+		expect(editMentionsToSend('Ask @Cy Moe', 'Ask @Cy Moe again', team, ['cy'])).toBeUndefined();
 	});
 });
 

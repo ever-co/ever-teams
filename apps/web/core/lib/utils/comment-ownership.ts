@@ -96,6 +96,33 @@ export function mentionEmployeeIdsOf(
 }
 
 /**
+ * The mentions an edit of `original` into `edited` sends, as {@link mentionsToSend} decides, with one more rule: the
+ * comment list does not carry a comment's stored mentions, so a name several people share cannot tell which of them
+ * the original text mentioned. While such a name stays in the edited text, nothing is sent and the platform keeps
+ * the stored mentions as they are (a mention added in that same edit is then not notified); no namesake is ever
+ * added, and the one stored is never dropped.
+ *
+ * @param original - The comment's text before the edit.
+ * @param edited - The text sent.
+ * @param candidates - Everyone who can be mentioned.
+ * @param after - The employees the composer sends for `edited` ({@link mentionEmployeeIdsOf}).
+ */
+export function editMentionsToSend(
+	original: string,
+	edited: string,
+	candidates: readonly MentionablePerson[],
+	after: readonly string[]
+): string[] | undefined {
+	const unique = new Set(uniquelyNamed(candidates).map((candidate) => candidate.name));
+	const shared = new Set(candidates.map((candidate) => candidate.name).filter((name) => !unique.has(name)));
+	const namesIn = (text: string) => new Set(mentionedIn(text, candidates).map((person) => person.name));
+	const editedNames = namesIn(edited);
+	const keepsAnAmbiguousMention = [...namesIn(original)].some((name) => shared.has(name) && editedNames.has(name));
+	if (keepsAnAmbiguousMention) return undefined;
+	return mentionsToSend(mentionEmployeeIdsOf(original, candidates, []), after);
+}
+
+/**
  * The mentions an edit sends: the new list when the text gains or loses a mention, nothing (`undefined`) when the
  * mentions are the ones the text already had. Left out, the platform keeps the comment's mentions exactly as stored,
  * so an edit that only fixes a typo never drops a mention of someone who left the team, nor adds a namesake.

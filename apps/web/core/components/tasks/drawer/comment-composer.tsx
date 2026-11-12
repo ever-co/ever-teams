@@ -37,7 +37,7 @@ import {
 	type MentionSegment
 } from '@/core/lib/utils/comment-mentions';
 import { useFocusRefOnMount } from '@/core/hooks/common/use-focus-on-mount';
-import { mentionedIn, mentionEmployeeIdsOf } from '@/core/lib/utils/comment-ownership';
+import { mentionEmployeeIdsOf } from '@/core/lib/utils/comment-ownership';
 
 const TOOL_BUTTON =
 	'flex size-7 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 data-[popup-open]:bg-foreground/5';
@@ -315,13 +315,10 @@ export function CommentComposer({
 		if (!canSend) {
 			return;
 		}
-		// An edit keeps the mentions its text already holds: the platform replaces the comment's with this list. Only a
-		// complete "@Full Name" counts, read against every known name, so "@Ann Lee" never notifies an "Ann". A name
-		// typed (or pasted) in full without picking it counts when it is one person's; a namesake only when picked.
-		const mentionEmployeeIds = mentionEmployeeIdsOf(trimmedBody, candidates, [
-			...picked,
-			...mentionedIn(initialBody, candidates)
-		]);
+		// Only a complete "@Full Name" counts, read against every known name, so "@Ann Lee" never notifies an "Ann". A
+		// name in the text counts for its only bearer; a name several people share only for the one picked here. An
+		// edit decides from this what to send (editMentionsToSend), so a namesake is never guessed.
+		const mentionEmployeeIds = mentionEmployeeIdsOf(trimmedBody, candidates, picked);
 		const isSaved = await onSubmit(trimmedBody, mentionEmployeeIds, stagedFiles);
 		if (isSaved) {
 			setBody('');

@@ -14,7 +14,7 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/core/components/common/tooltip';
 import { CircleCheck, MoreHorizontal, Pencil, RotateLeft, Trash } from '@/core/components/icons';
-import { isOwnComment, isTextChanged, mentionedIn, mentionsToSend } from '@/core/lib/utils/comment-ownership';
+import { editMentionsToSend, isOwnComment, isTextChanged } from '@/core/lib/utils/comment-ownership';
 import { useMentionCandidates } from '@/core/hooks/tasks/use-mention-candidates';
 import { useTaskComments } from '@/core/hooks/tasks/use-task-comments';
 import { splitMentions, type MentionSegment } from '@/core/lib/utils/comment-mentions';
@@ -169,9 +169,10 @@ function CommentEditor({ comment, actions }: Readonly<{ comment: TaskCommentItem
 			return true;
 		}
 		setIsSaving(true);
-		// The mentions go only when the edit adds or removes one: otherwise the platform keeps them as stored.
-		const before = mentionedIn(comment.body, candidates).map((candidate) => candidate.employeeId);
-		const isSaved = await actions.editComment(comment.id, body, mentionsToSend(before, mentionEmployeeIds));
+		// The mentions go only when the edit adds or removes one, and never while a name several people share stays
+		// in the text: otherwise the platform keeps them as stored.
+		const mentions = editMentionsToSend(comment.body, body, candidates, mentionEmployeeIds);
+		const isSaved = await actions.editComment(comment.id, body, mentions);
 		setIsSaving(false);
 		if (!isSaved) {
 			toast.error(t('taskComments.SAVE_FAILED'));
