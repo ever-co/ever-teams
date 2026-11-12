@@ -13,8 +13,10 @@ export interface PropertyListItem {
 	/** Gauzy stores some names with dashes. */
 	label: string;
 	color: string | null;
-	/** The stored icon path, `ever-icons/<group>/<name>.svg`, or a full URL. */
+	/** The stored icon, see `property-icon-value.ts`. */
 	icon: string | null;
+	/** Gauzy's `fullIconUrl`: where an uploaded icon held outside Gauzy loads from. */
+	iconUrl: string | null;
 	isDefault: boolean;
 	isSystem: boolean;
 	order: number | null;
@@ -27,6 +29,8 @@ export interface PropertyDraft {
 	name: string;
 	color: string | null;
 	icon: string | null;
+	/** The `fullIconUrl` of the stored icon, while the draft keeps that icon. */
+	iconUrl?: string | null;
 	template: ETaskStatusName | null;
 }
 
@@ -41,6 +45,7 @@ export interface PropertySource {
 	name?: string | null;
 	color?: string | null;
 	icon?: string | null;
+	fullIconUrl?: string | null;
 	isDefault?: boolean | null;
 	isSystem?: boolean | null;
 	organizationTeamId?: string | null;
@@ -141,6 +146,7 @@ export function propertyItemOf(source: OrderedPropertySource, groupId: StatusGro
 		label: propertyLabelOf(name),
 		color: source.color ?? null,
 		icon: source.icon ?? null,
+		iconUrl: source.fullIconUrl ?? null,
 		isDefault: Boolean(source.isDefault),
 		isSystem: Boolean(source.isSystem),
 		order: numberOrNull(source.order),
@@ -408,7 +414,7 @@ export function statusEditBodyOf(item: PropertyListItem, draft: PropertyDraft): 
 }
 
 export function draftOfItem(item: PropertyListItem): PropertyDraft {
-	return { name: item.label, color: item.color, icon: item.icon, template: null };
+	return { name: item.label, color: item.color, icon: item.icon, iconUrl: item.iconUrl, template: null };
 }
 
 export function idsAfterMove(ids: ReadonlyArray<string>, id: string, toIndex: number): string[] {

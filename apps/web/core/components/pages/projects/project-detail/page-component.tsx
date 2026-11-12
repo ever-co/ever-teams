@@ -24,15 +24,25 @@ import { ProjectTasksTab } from './project-tasks-tab';
 import { ProjectPeopleTab } from './project-people-tab';
 import { ProjectDocsTab } from './project-docs-tab';
 import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
+import { isTaskTrashEnabled } from '@/core/lib/utils/comments-trash-flags';
+import { TaskTrashList } from '@/core/components/pages/task-trash/task-trash-list';
 import { ProjectDetailBodySkeleton, ProjectDetailToolbarSkeleton } from './project-detail-skeleton';
 
 const TAB_PARAM = 'tab';
 
-const DETAIL_TABS: ReadonlySet<ProjectDetailTab> = new Set<ProjectDetailTab>(['overview', 'tasks', 'people', 'docs']);
+const DETAIL_TABS: ReadonlySet<ProjectDetailTab> = new Set<ProjectDetailTab>([
+	'overview',
+	'tasks',
+	'people',
+	'docs',
+	'trash'
+]);
 
 function tabOf(value: string | null): ProjectDetailTab {
 	// The Docs tab exists only where Docs is on: a `?tab=docs` link elsewhere opens the overview.
 	if (value === 'docs' && !isDocsEnabled()) return 'overview';
+	// The same for the Trash tab, which exists only where the trash is on.
+	if (value === 'trash' && !isTaskTrashEnabled()) return 'overview';
 	const isKnown = DETAIL_TABS.has(value as ProjectDetailTab);
 	if (isKnown) {
 		return value as ProjectDetailTab;
@@ -199,6 +209,11 @@ export default function ProjectDetailPageComponent() {
 			)}
 			{project && tab === 'people' && <ProjectPeopleTab project={project} />}
 			{project && tab === 'docs' && isDocsEnabled() && <ProjectDocsTab project={project} />}
+			{project && tab === 'trash' && isTaskTrashEnabled() && (
+				<div className="py-4">
+					<TaskTrashList teamId={activeTeam?.id ?? null} projectId={project.id} showsProject={false} />
+				</div>
+			)}
 		</PageLayout>
 	);
 }

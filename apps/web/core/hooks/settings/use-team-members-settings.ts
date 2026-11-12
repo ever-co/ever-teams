@@ -2,14 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
-import { activeTeamManagersState, activeTeamState, isTeamManagerMember, organizationTeamsState } from '@/core/stores';
-import { queryKeys } from '@/core/query/keys';
-import { ERoleName } from '@/core/types/generics/enums/role';
+import { activeTeamState, isTeamManagerMember, organizationTeamsState } from '@/core/stores';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
-import { isTenantAdminRole } from '@/core/lib/utils/roles';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import {
 	employeeIdOf,
@@ -37,21 +33,19 @@ import {
 	type WorkspaceRole
 } from '@/core/lib/utils/member-access';
 import { useSettings } from '@/core/hooks/users/use-settings';
-import { useEmployeeUpdate } from '@/core/hooks/organizations/employees/use-employee';
 import { useDeleteTask } from '@/core/hooks/organizations/teams/use-delete-task';
 import { useEditOrganizationTeam } from '@/core/hooks/organizations/teams/use-edit-organization-team';
 import { useGetActiveTeam } from '@/core/hooks/organizations/teams/use-get-active-team';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { useOrganizationEmployeeTeams } from '@/core/hooks/organizations/teams/use-organization-teams-employee';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
 import { useMemberWorkEnd, useWorkspaceRoleAssignment } from '@/core/hooks/settings/use-member-access';
+import { useMemberTrackingSwitch } from '@/core/hooks/settings/use-member-tracking-switch';
 import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
 import { useEmployeeRatesMutation } from '@/core/hooks/organizations/rates/use-rates';
 import { canEditMemberRates, employeeRateValueOf } from '@/core/lib/utils/rates';
 import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rates.schema';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
-import type { TUpdateEmployee } from '@/core/types/schemas/organization/employee.schema';
 
 export interface MemberRate {
 	value: number | null;
@@ -124,9 +118,9 @@ function isTrackingEnabledOf(member: TOrganizationTeamEmployee): boolean {
 }
 
 // A team manager switches the member's tracking in this team; the employee's own switch is an organization admin's
-function isTrackingLockedFor(member: TOrganizationTeamEmployee, canEditEmployees: boolean): boolean {
+function isTrackingLockedFor(member: TOrganizationTeamEmployee, writesEmployeeTracking: boolean): boolean {
 	const isEmployeeTrackingOff = memberEmployeeOf(member)?.isTrackingEnabled === false;
-	return isEmployeeTrackingOff && !canEditEmployees;
+	return isEmployeeTrackingOff && !writesEmployeeTracking;
 }
 
 function memberRateOf(member: TOrganizationTeamEmployee): MemberRate {
@@ -177,19 +171,16 @@ function memberAccessOf(member: TOrganizationTeamEmployee, context: MemberAccess
 
 export function useTeamMembersSettings() {
 	const t = useTranslations();
-	const queryClient = useQueryClient();
 	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
-	const managers = useAtomValue(activeTeamManagersState);
 	const setTeams = useSetAtom(organizationTeamsState);
 	const getActiveTeam = useGetActiveTeam();
 	const { editOrganizationTeam } = useEditOrganizationTeam({ toastOnError: false });
 	const { deleteEmployeeFromTasks } = useDeleteTask();
 	const { updateAvatar } = useSettings();
-	const { updateEmployeeAsync } = useEmployeeUpdate();
-	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
-	const { myPermissions, isSuccess: arePermissionsLoaded } = useMyRolePermissionsQuery();
-	const canEditEmployees = myPermissions.includes('ORG_EMPLOYEES_EDIT');
+	const { myPermissions } = useMyRolePermissionsQuery();
+	const { arePermissionsLoaded, mayTurnTracking, writesEmployeeTracking, saveMemberTracking } =
+		useMemberTrackingSwitch();
 	const { saveEmployeeRates } = useEmployeeRatesMutation();
 	const { setMemberWorkEnd } = useMemberWorkEnd();
 	const { assignWorkspaceRole } = useWorkspaceRoleAssignment();
@@ -205,9 +196,6 @@ export function useTeamMembersSettings() {
 	const members = useMemo(() => activeTeam?.members ?? [], [activeTeam?.members]);
 	const userId = user?.id;
 	const viewerRoleName = user?.role?.name;
-	const isListedManager = managers.some((manager) => memberUserIdOf(manager) === userId);
-	const isOrganizationAdmin = isTenantAdminRole(viewerRoleName);
-	const setsMemberTracking = isListedManager || isOrganizationAdmin;
 
 	const assignableRoles = useMemo(
 		() => assignableWorkspaceRolesOf({ viewerRoleName, permissions: myPermissions, roles: workspaceRoles }),
@@ -260,7 +248,6 @@ export function useTeamMembersSettings() {
 			const isYou = memberUserId === userId;
 			const employeeId = employeeIdOf(member);
 			const hasEmployee = Boolean(employeeId);
-			const isManagerRole = member.role?.name === ERoleName.MANAGER;
 			const role = roleOverrides[rowId] ?? roleOf(member);
 			const isTrackingEnabled = trackingOverrides[rowId] ?? isTrackingEnabledOf(member);
 			// Before the permissions load an admin would look like a team manager and save the team switch alone
@@ -281,9 +268,10 @@ export function useTeamMembersSettings() {
 				canChangeRole: hasEmployee && !isYou,
 				canRemove: hasEmployee && !isYou,
 				canEditName: Boolean(memberUserId),
-				showsTracking: setsMemberTracking && !isManagerRole && hasEmployee,
+				// Only a higher rank switches a member's tracking, an admin also an admin's (see useMemberTrackingSwitch)
+				showsTracking: hasEmployee && mayTurnTracking(member),
 				isTrackingEnabled,
-				isTrackingLocked: isTrackingLockedFor(member, canEditEmployees),
+				isTrackingLocked: isTrackingLockedFor(member, writesEmployeeTracking(member)),
 				isRolePending: pendingRoles.has(rowId),
 				isTrackingPending: isSavingTracking || waitsForPermissions,
 				rate: memberRateOf(member),
@@ -300,18 +288,18 @@ export function useTeamMembersSettings() {
 	}, [
 		accessContext,
 		arePermissionsLoaded,
-		canEditEmployees,
+		mayTurnTracking,
 		myPermissions,
 		members,
 		pendingRoles,
 		pendingTracking,
 		pendingWorkspaceRoles,
 		roleOverrides,
-		setsMemberTracking,
 		trackingOverrides,
 		userId,
 		workspaceRoleOverrides,
-		workspaceRoles
+		workspaceRoles,
+		writesEmployeeTracking
 	]);
 
 	const showFailure = useCallback(
@@ -408,34 +396,8 @@ export function useTeamMembersSettings() {
 			setTrackingOverrides((current) => ({ ...current, [rowId]: enabled }));
 			setPendingTracking((current) => new Set(current).add(rowId));
 			try {
-				const { team, member, employeeId } = findMember(rowId);
-				const saveTeamTracking = (isTrackingEnabled: boolean) =>
-					updateOrganizationTeamEmployee(rowId, {
-						organizationId: team.organizationId,
-						organizationTeamId: team.id,
-						isTrackingEnabled
-					});
-				const previousTeamTracking = Boolean(member.isTrackingEnabled);
-				await saveTeamTracking(enabled);
-				if (canEditEmployees) {
-					const employee = member.employee;
-					const data: TUpdateEmployee = {
-						isTrackingEnabled: enabled,
-						id: employeeId,
-						organizationId: employee?.organizationId,
-						isActive: employee?.isActive,
-						tenantId: employee?.tenantId
-					};
-					try {
-						await updateEmployeeAsync({ id: employeeId, data });
-					} catch (error) {
-						// An admin moves both switches: the team one goes back when the employee one could not follow
-						await saveTeamTracking(previousTeamTracking).catch(() => undefined);
-						throw error;
-					}
-				}
-				// The row reads the employee through the team: without this it keeps the old value
-				await queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+				const { team, member } = findMember(rowId);
+				await saveMemberTracking(team, member, enabled);
 			} catch {
 				setTrackingOverrides((current) => withoutKey(current, rowId));
 			} finally {
@@ -446,7 +408,7 @@ export function useTeamMembersSettings() {
 				});
 			}
 		},
-		[canEditEmployees, findMember, queryClient, updateEmployeeAsync, updateOrganizationTeamEmployee]
+		[findMember, saveMemberTracking]
 	);
 
 	const saveMemberRates = useCallback(

@@ -9,6 +9,9 @@ import {
 	TAddManualTimeRequest,
 	timeLogSchema,
 	TTimeLog,
+	timeLogConflictSchema,
+	TTimeLogConflict,
+	TTimeLogConflictRequest,
 	timeLogReportDailySchema,
 	TTimeLogReportDaily,
 	TGetTimerLogsDailyReportRequest,
@@ -150,6 +153,53 @@ class TimeLogService extends APIService {
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error('Add manual time validation failed:', {
+					message: error.message,
+					issues: error.issues
+				});
+			}
+			throw error;
+		}
+	};
+
+	/**
+	 * The member's entries that overlap an interval. Saving manual time over them makes the API delete those
+	 * entries whole, so the dialogs ask this before they save.
+	 */
+	getTimeLogConflicts = async ({
+		employeeId,
+		startDate,
+		endDate,
+		ignoreId
+	}: TTimeLogConflictRequest): Promise<TTimeLogConflict[]> => {
+		if (!this.organizationId || !this.tenantId) {
+			throw new Error('Required parameters missing: organizationId and tenantId are required');
+		}
+
+		const params: Record<string, string | string[]> = {
+			organizationId: this.organizationId,
+			employeeId,
+			startDate: startDate.toISOString(),
+			endDate: endDate.toISOString(),
+			relations: ['task', 'project']
+		};
+		if (ignoreId) {
+			params.ignoreId = [ignoreId];
+		}
+		const query = qs.stringify(params);
+
+		try {
+			const response = await this.get<TTimeLogConflict[]>(`/timesheet/time-log/conflict?${query}`, {
+				tenantId: this.tenantId
+			});
+
+			return validateApiResponse(
+				timeLogConflictSchema.array(),
+				response.data,
+				'getTimeLogConflicts API response'
+			);
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error('Time log conflicts validation failed:', {
 					message: error.message,
 					issues: error.issues
 				});

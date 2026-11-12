@@ -38,6 +38,9 @@ jest.mock('@/core/components/common/skeleton/modal-skeleton', () => ({ ModalSkel
 jest.mock('@/core/components/common/skeleton/user-nav-avatar-skeleton', () => ({ UserNavAvatarSkeleton: () => null }));
 jest.mock('@/core/components/common/skeleton/teams-dropdown-skeleton', () => ({ TeamsDropDownSkeleton: () => null }));
 jest.mock('@/core/components/common/skeleton/collaborate-skeleton', () => ({ CollaborateSkeleton: () => null }));
+jest.mock('@/core/components/timer/tracking-off-notice', () => ({
+	TrackingOffPill: () => <div data-testid="tracking-off" />
+}));
 
 describe('Navbar timer on a profile page', () => {
 	it('draws the compact timer when the page asks for it', () => {
@@ -50,5 +53,27 @@ describe('Navbar timer on a profile page', () => {
 		render(<Navbar showTimer={false} />);
 
 		expect(screen.queryByTestId('top-bar-timer')).toBeNull();
+	});
+});
+
+describe('Navbar, for a member whose tracking is off', () => {
+	it('draws the reason in the timer slot', () => {
+		render(<Navbar showTimer={false} showTrackingOff />);
+
+		expect(screen.getByTestId('tracking-off')).toBeTruthy();
+		expect(screen.queryByTestId('top-bar-timer')).toBeNull();
+	});
+
+	it('draws the timer, not the reason, whenever there is a timer to show', () => {
+		render(<Navbar showTimer showTrackingOff />);
+
+		expect(screen.getByTestId('top-bar-timer')).toBeTruthy();
+		expect(screen.queryByTestId('tracking-off')).toBeNull();
+	});
+
+	it('draws no reason by default', () => {
+		render(<Navbar showTimer={false} />);
+
+		expect(screen.queryByTestId('tracking-off')).toBeNull();
 	});
 });

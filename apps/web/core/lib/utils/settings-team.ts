@@ -28,6 +28,7 @@ interface MemberEmployee {
 		email?: string | null;
 		imageUrl?: string | null;
 		roleId?: string | null;
+		role?: { name?: string | null } | null;
 	} | null;
 }
 
@@ -67,6 +68,11 @@ export function memberWorkspaceRoleIdOf(member: TOrganizationTeamEmployee): stri
 		return roleId;
 	}
 	return null;
+}
+
+/** The member's tenant role (SUPER_ADMIN, ADMIN, MANAGER, EMPLOYEE...), read with the team's `members.employee.user.role`. */
+export function memberRoleNameOf(member: TOrganizationTeamEmployee): string | null {
+	return memberEmployeeOf(member)?.user?.role?.name ?? null;
 }
 
 function joinedName(firstName: string | null | undefined, lastName: string | null | undefined): string {

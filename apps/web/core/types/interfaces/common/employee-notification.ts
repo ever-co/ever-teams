@@ -11,7 +11,9 @@ export enum EEmployeeNotificationType {
 	Comment = 'Comment',
 	Message = 'Message',
 	Broadcast = 'Broadcast',
-	RateChangeRequest = 'RateChangeRequest'
+	RateChangeRequest = 'RateChangeRequest',
+	/** A timer left running, at the employee's threshold, then at twice it (#5022): about the run's time log. */
+	TimerReminder = 'TimerReminder'
 }
 
 export interface IEmployeeNotification {
@@ -84,6 +86,11 @@ export interface INotificationPreferences {
 	dnd?: INotificationQuietHours | null;
 	/** The hour (0-23, in the quiet hours' time zone, else the user's) the daily digest goes out; 8 when unset. */
 	digestHour?: number;
+	/**
+	 * After how many hours a running timer is worth a reminder (#5022); 8 when unset, `null` (or 0) for no reminder.
+	 * A second one follows at twice that.
+	 */
+	timerReminderHours?: number | null;
 }
 
 export type TEmployeeNotificationSettingKey =
