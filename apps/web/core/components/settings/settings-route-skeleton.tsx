@@ -13,6 +13,7 @@ import { NotificationsSettingsSkeleton } from './pages/notifications/notificatio
 import { TeamGeneralSettingsSkeleton } from './pages/team-general/team-general-settings-skeleton';
 import { MembersSettingsSkeleton } from './pages/members/members-settings-skeleton';
 import { IntegrationsSettingsSkeleton } from './pages/integrations/integrations-settings-skeleton';
+import { TimeImportSettingsSkeleton } from './pages/time-import/time-import-settings-skeleton';
 import { StatusesSettingsSkeleton } from './pages/task-properties/statuses-settings-skeleton';
 import { PrioritiesSettingsSkeleton } from './pages/task-properties/priorities-settings-skeleton';
 import { SizesSettingsSkeleton } from './pages/task-properties/sizes-settings-skeleton';
@@ -35,6 +36,7 @@ const PAGE_SKELETONS: Readonly<Record<SettingsPageId, ComponentType>> = {
 	teamGeneral: TeamGeneralSettingsSkeleton,
 	members: MembersSettingsSkeleton,
 	integrations: IntegrationsSettingsSkeleton,
+	import: TimeImportSettingsSkeleton,
 	statuses: StatusesSettingsSkeleton,
 	priorities: PrioritiesSettingsSkeleton,
 	sizes: SizesSettingsSkeleton,
