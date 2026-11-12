@@ -55,7 +55,9 @@ const missingListeners = new Set<() => void>();
 
 function subscribeToMissing(listener: () => void): () => void {
 	missingListeners.add(listener);
-	return () => void missingListeners.delete(listener);
+	return () => {
+		missingListeners.delete(listener);
+	};
 }
 
 function setCardChangesMissing(missing: boolean): void {
@@ -268,7 +270,7 @@ function AssigneesField({
 	onToggle
 }: Readonly<{ assignees: readonly Person[]; people: readonly ChatPerson[]; editable: boolean; onToggle: (employeeId: string) => void }>) {
 	const t = useTranslations();
-	const ids = assignees.map((person) => person.id);
+	const ids = new Set(assignees.map((person) => person.id));
 	const names = assignees
 		.map((person) => person.name)
 		.filter(Boolean)
@@ -304,7 +306,7 @@ function AssigneesField({
 	return (
 		<TaskPropertyMenu
 			options={options}
-			isSelected={(value) => ids.includes(value)}
+			isSelected={(value) => ids.has(value)}
 			onSelect={onToggle}
 			multiple
 			searchPlaceholder={t('taskDetail.properties.SEARCH_PEOPLE')}
