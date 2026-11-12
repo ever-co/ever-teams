@@ -13,6 +13,7 @@ import {
 	type OwedCurrencyTotal
 } from '@/core/lib/utils/dashboards/payments-due';
 import { effectiveBillRate, employeeRateValueOf, rateValueOf } from '@/core/lib/utils/rates';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 
 export interface BillableLogLike {
 	projectId?: string | null;
@@ -580,6 +581,31 @@ export function invoiceProblemsOf(facts: InvoiceDraftFacts): InvoiceProblem[] {
 		problems.push('dueBeforeIssue');
 	}
 	return problems;
+}
+
+export type InvoiceSaveFailure = 'refused' | 'unconfirmed';
+
+function isRefusalStatus(status: number) {
+	return status >= 400 && status < 500;
+}
+
+/**
+ * Whether a failed save created nothing. Only the API's own refusal says so: it refuses before anything is written,
+ * and a failed write is answered 400. Without an answer (the network, a timeout, a gateway's 502 or 504), with a
+ * server failure, or with an answer that could not be read, the invoice may have been saved all the same.
+ */
+export function invoiceSaveFailureOf(error: unknown): InvoiceSaveFailure {
+	if (!ApiErrorService.isApiError(error)) {
+		return 'unconfirmed';
+	}
+	const answeredStatus = error.httpResponseStatus;
+	if (answeredStatus === undefined) {
+		return 'unconfirmed';
+	}
+	if (isRefusalStatus(answeredStatus)) {
+		return 'refused';
+	}
+	return 'unconfirmed';
 }
 
 export interface InvoiceReads {

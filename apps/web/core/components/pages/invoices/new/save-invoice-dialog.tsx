@@ -11,7 +11,13 @@ import {
 } from '@/core/components/projects/dialogs/project-confirm-dialog';
 import type { NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
 import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
-import { formatInvoiceHours, invoiceDayTextOf, invoicePeriodTextOf } from '@/core/lib/utils/invoices';
+import {
+	formatInvoiceHours,
+	invoiceDayTextOf,
+	invoicePeriodTextOf,
+	invoiceSaveFailureOf,
+	type InvoiceSaveFailure
+} from '@/core/lib/utils/invoices';
 import { INVOICES_PATH } from '../invoice-access-guard';
 
 export function SaveInvoiceDialog({
@@ -22,30 +28,32 @@ export function SaveInvoiceDialog({
 	const t = useTranslations();
 	const locale = useLocale();
 	const router = useRouter();
-	const [hasFailed, setHasFailed] = useState(false);
+	const [failure, setFailure] = useState<InvoiceSaveFailure | null>(null);
 	const number = invoice.numberText.trim();
+	const clientName = invoice.client?.name ?? '';
 
 	/** Left while the save runs, the dialog would let its answer send the user away from what they edit by then. */
 	const close = () => {
 		if (invoice.isSaving) {
 			return;
 		}
-		setHasFailed(false);
+		setFailure(null);
 		onClose();
 	};
 
 	const confirm = async () => {
-		setHasFailed(false);
+		setFailure(null);
 		try {
 			const saved = await invoice.save();
+			// Nothing was sent: the invoice was not ready to be saved.
 			if (!saved) {
-				setHasFailed(true);
+				setFailure('refused');
 				return;
 			}
 			toast.success(t('invoices.new.SAVED', { number }));
 			router.push(INVOICES_PATH);
-		} catch {
-			setHasFailed(true);
+		} catch (error) {
+			setFailure(invoiceSaveFailureOf(error));
 		}
 	};
 
@@ -88,8 +96,11 @@ export function SaveInvoiceDialog({
 	}
 
 	let error: string | null = null;
-	if (hasFailed) {
+	if (failure === 'refused') {
 		error = t('invoices.new.confirm.FAILED');
+	}
+	if (failure === 'unconfirmed') {
+		error = t('invoices.new.confirm.UNCONFIRMED', { client: clientName });
 	}
 	// A read that started after the dialog opened can still change what it states: the save waits for it.
 	const isConfirmBlocked = invoice.isSaving || invoice.isWaiting;

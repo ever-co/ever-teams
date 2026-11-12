@@ -12,6 +12,7 @@ import {
 	invoiceStatusOf,
 	invoiceStatusToneOf,
 	invoiceTermsOf,
+	invoiceSaveFailureOf,
 	invoiceTimeOf,
 	invoiceWaitsOf,
 	keptLinesOf,
@@ -29,6 +30,7 @@ import {
 	type InvoiceLineNames,
 	type LinePrice
 } from './invoices';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 
 const HOUR = 3600;
 
@@ -538,6 +540,26 @@ describe('invoice number and dates', () => {
 		expect(invoiceWaitsOf(settled)).toEqual([]);
 		expect(invoiceWaitsOf({ ...settled, isReadingEarlier: true })).toEqual(['readingEarlier']);
 		expect(invoiceWaitsOf({ ...settled, isReadingTimeAgain: true })).toEqual(['readingTime']);
+	});
+
+	it('tells a save the API refused from one whose outcome is unknown', () => {
+		const answered = (status: number) =>
+			ApiErrorService.fromAxiosError({
+				message: `Request failed with status code ${status}`,
+				status,
+				response: { data: {}, headers: {}, status, statusText: 'Error' }
+			});
+		const unanswered = (code: string) => ApiErrorService.fromAxiosError({ code, message: code });
+
+		expect(invoiceSaveFailureOf(answered(400))).toBe('refused');
+		expect(invoiceSaveFailureOf(answered(403))).toBe('refused');
+		expect(invoiceSaveFailureOf(answered(500))).toBe('unconfirmed');
+		expect(invoiceSaveFailureOf(answered(502))).toBe('unconfirmed');
+		expect(invoiceSaveFailureOf(answered(504))).toBe('unconfirmed');
+		// The browser's own timeout is reported as a 408 that no server sent
+		expect(invoiceSaveFailureOf(unanswered('ECONNABORTED'))).toBe('unconfirmed');
+		expect(invoiceSaveFailureOf(unanswered('ERR_NETWORK'))).toBe('unconfirmed');
+		expect(invoiceSaveFailureOf(new Error('createInvoice API response did not match'))).toBe('unconfirmed');
 	});
 
 	it('reads the day of an invoice date in the organization’s zone', () => {

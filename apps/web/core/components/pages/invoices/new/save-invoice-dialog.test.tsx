@@ -1,14 +1,16 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 
 type MockConfirmDialogProps = {
 	open: boolean;
 	title: string;
 	consequences: Array<{ key: string; text: React.ReactNode }>;
 	isPending: boolean;
+	error: string | null;
 	onClose: () => void;
 	onConfirm: () => void;
 };
@@ -44,6 +46,7 @@ jest.mock('@/core/components/projects/dialogs/project-confirm-dialog', () => ({
 				<button type="button" onClick={props.onConfirm} disabled={props.isPending}>
 					confirm
 				</button>
+				{props.error && <p role="alert">{props.error}</p>}
 			</div>
 		);
 	}
@@ -106,6 +109,36 @@ describe('confirming a new invoice while what it is made of is read again', () =
 		render(<SaveInvoiceDialog open invoice={invoiceOf({})} onClose={jest.fn()} />);
 
 		expect(confirmButton().disabled).toBe(false);
+	});
+});
+
+describe('a save of a new invoice that failed', () => {
+	async function confirmFailingWith(error: unknown) {
+		const save = jest.fn().mockRejectedValue(error);
+		render(<SaveInvoiceDialog open invoice={invoiceOf({ save })} onClose={jest.fn()} />);
+		fireEvent.click(screen.getByRole('button', { name: 'confirm' }));
+		await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
+		return screen.findByRole('alert');
+	}
+
+	it('says the invoice may exist when no answer confirmed the save', async () => {
+		const lostAnswer = ApiErrorService.fromAxiosError({ code: 'ERR_NETWORK', message: 'Network Error' });
+
+		const message = await confirmFailingWith(lostAnswer);
+
+		expect(message.textContent).toBe('invoices.new.confirm.UNCONFIRMED');
+	});
+
+	it('says nothing was created when the API refused the save', async () => {
+		const refusal = ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code 400',
+			status: 400,
+			response: { data: {}, headers: {}, status: 400, statusText: 'Bad Request' }
+		});
+
+		const message = await confirmFailingWith(refusal);
+
+		expect(message.textContent).toBe('invoices.new.confirm.FAILED');
 	});
 });
 
