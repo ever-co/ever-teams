@@ -38,38 +38,38 @@ function LinkPreviewCard({ card }: Readonly<{ card: ChatLinkPreviewCard }>) {
 			data-link-preview={card.href}
 		>
 			<span className="flex min-w-0 flex-1 flex-col gap-0.5">
-			<span className="flex min-w-0 items-center gap-1.5 text-[11px] leading-4 text-muted-foreground">
-				<Link className="size-3 shrink-0" aria-hidden="true" />
-				{/* The page's own name for its site, then always the host the card opens. */}
-				{card.siteName && (
-					<>
-						<span className="min-w-0 shrink-[3] truncate font-medium text-foreground/80" dir="auto">
-							{card.siteName}
-						</span>
-						<span aria-hidden="true">·</span>
-					</>
+				<span className="flex min-w-0 items-center gap-1.5 text-[11px] leading-4 text-muted-foreground">
+					<Link className="size-3 shrink-0" aria-hidden="true" />
+					{/* The page's own name for its site, then always the host the card opens. */}
+					{card.siteName && (
+						<>
+							<span className="min-w-0 shrink-[3] truncate font-medium text-foreground/80" dir="auto">
+								{card.siteName}
+							</span>
+							<span aria-hidden="true">·</span>
+						</>
+					)}
+					<span className="min-w-0 [overflow-wrap:anywhere]" dir="ltr">
+						{card.host}
+					</span>
+				</span>
+				{card.title && (
+					<span
+						className="line-clamp-2 text-[13px] font-medium leading-snug text-primary underline-offset-2 [overflow-wrap:anywhere] group-hover/preview:underline"
+						dir="auto"
+					>
+						{card.title}
+					</span>
 				)}
-				<span className="min-w-0 [overflow-wrap:anywhere]" dir="ltr">
-					{card.host}
-				</span>
-			</span>
-			{card.title && (
-				<span
-					className="line-clamp-2 text-[13px] font-medium leading-snug text-primary underline-offset-2 [overflow-wrap:anywhere] group-hover/preview:underline"
-					dir="auto"
-				>
-					{card.title}
-				</span>
-			)}
-			{card.description && (
-				<span
-					id={descriptionId}
-					className="line-clamp-2 text-xs leading-snug text-muted-foreground [overflow-wrap:anywhere]"
-					dir="auto"
-				>
-					{card.description}
-				</span>
-			)}
+				{card.description && (
+					<span
+						id={descriptionId}
+						className="line-clamp-2 text-xs leading-snug text-muted-foreground [overflow-wrap:anywhere]"
+						dir="auto"
+					>
+						{card.description}
+					</span>
+				)}
 			</span>
 			{picture && (
 				// The platform's own copy of the page's picture (an object URL of its answer), at the card's side.

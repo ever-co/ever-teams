@@ -83,7 +83,9 @@ describe('useChatLinkPreviewPicture', () => {
 	it('stops asking for every link of the page once the platform says pictures are off (404)', async () => {
 		mockAsk.mockRejectedValue(failure(404));
 		const client = newClient();
-		const first = renderHook(() => useChatLinkPreviewPicture('https://a.io/page', true), { wrapper: wrapper(client) });
+		const first = renderHook(() => useChatLinkPreviewPicture('https://a.io/page', true), {
+			wrapper: wrapper(client)
+		});
 		await waitFor(() => expect(mockAsk).toHaveBeenCalledTimes(1));
 		expect(first.result.current).toBeNull();
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { chatService } from '@/core/services/client/api/chat/chat.service';
@@ -58,15 +58,12 @@ export function useChatLinkPreviewPicture(url: string, hasPicture: boolean): str
 	});
 
 	// One object URL per picture shown, released when the card goes or the picture changes.
-	const [objectUrl, setObjectUrl] = useState<string | null>(null);
-	useEffect(() => {
-		if (!data || !enabled) {
-			setObjectUrl(null);
-			return;
-		}
-		const next = URL.createObjectURL(data);
-		setObjectUrl(next);
-		return () => URL.revokeObjectURL(next);
-	}, [data, enabled]);
+	const objectUrl = useMemo(() => (data && enabled ? URL.createObjectURL(data) : null), [data, enabled]);
+	useEffect(
+		() => () => {
+			if (objectUrl) URL.revokeObjectURL(objectUrl);
+		},
+		[objectUrl]
+	);
 	return objectUrl;
 }
