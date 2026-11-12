@@ -8,6 +8,7 @@ jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('@/core/components/icons', () => ({
 	CircleCheck: () => null,
 	CircleX: () => null,
+	Download: () => null,
 	Loader: () => null,
 	MoreHorizontal: () => null,
 	Send: () => null,
@@ -65,6 +66,28 @@ describe('the actions menu of an invoice', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'invoices.actions.MARK_UNPAID' }));
 
 		expect(onAction).toHaveBeenCalledWith(invoice, 'markUnpaid');
+	});
+
+	it('offers the PDF first when the row has no room for its own download button', () => {
+		const onDownload = jest.fn();
+		render(
+			<InvoiceActionsMenu
+				invoice={invoiceIn('SENT')}
+				numberText="42"
+				isChanging={false}
+				onAction={jest.fn()}
+				download={{ isPending: false, onSelect: onDownload }}
+			/>
+		);
+
+		expect(rowLabels()).toEqual([
+			'invoices.actions.DOWNLOAD',
+			'invoices.actions.SEND_AGAIN',
+			'invoices.actions.MARK_PAID',
+			'invoices.actions.VOID'
+		]);
+		fireEvent.click(screen.getByRole('button', { name: 'invoices.actions.DOWNLOAD' }));
+		expect(onDownload).toHaveBeenCalledTimes(1);
 	});
 
 	it('renders nothing for a void invoice', () => {

@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { Menu, MenuButton, MenuItem, MenuItems, MenuSeparator } from '@headlessui/react';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
-import { CircleCheck, CircleX, Loader, MoreHorizontal, Send, Trash, Undo } from '@/core/components/icons';
+import { CircleCheck, CircleX, Download, Loader, MoreHorizontal, Send, Trash, Undo } from '@/core/components/icons';
 import { buttonVariants } from '@/core/components/duplicated-components/_button';
 import {
 	MENU_ANCHOR,
@@ -63,23 +63,52 @@ function ActionRow({ action, label, onSelect }: Readonly<ActionRowProps>) {
 	);
 }
 
+function DownloadRow({ onSelect }: Readonly<{ onSelect: () => void }>) {
+	const t = useTranslations();
+	return (
+		<MenuItem>
+			<button type="button" onClick={onSelect} className={MENU_ROW}>
+				<Download />
+				<span>{t('invoices.actions.DOWNLOAD')}</span>
+			</button>
+		</MenuItem>
+	);
+}
+
+export interface InvoiceMenuDownload {
+	isPending: boolean;
+	onSelect: () => void;
+}
+
 interface InvoiceActionsMenuProps {
 	invoice: TInvoice;
 	numberText: string;
 	isChanging: boolean;
 	onAction: (invoice: TInvoice, action: InvoiceAction) => void;
+	/** The PDF, first in the menu where the row has no room for its own download button. */
+	download?: InvoiceMenuDownload;
 }
 
 /** What can be done with one invoice in its status; nothing is rendered when there is nothing. */
-export function InvoiceActionsMenu({ invoice, numberText, isChanging, onAction }: Readonly<InvoiceActionsMenuProps>) {
+export function InvoiceActionsMenu({
+	invoice,
+	numberText,
+	isChanging,
+	onAction,
+	download
+}: Readonly<InvoiceActionsMenuProps>) {
 	const t = useTranslations();
 	const status = invoiceStatusOf(invoice.status);
 	const actions = invoiceActionsOf(status);
 	const leadingActions = actions.filter((action) => !ENDING_ACTIONS.has(action));
 	const endingActions = actions.filter((action) => ENDING_ACTIONS.has(action));
-	const hasLeading = leadingActions.length > 0;
+	const hasDownload = download !== undefined;
+	const hasLeadingAction = leadingActions.length > 0;
+	const hasLeading = hasLeadingAction || hasDownload;
 	const hasEnding = endingActions.length > 0;
 	const showsSeparator = hasLeading && hasEnding;
+	const isDownloading = download?.isPending ?? false;
+	const isBusy = isChanging || isDownloading;
 	if (actions.length === 0) {
 		return null;
 	}
@@ -95,13 +124,14 @@ export function InvoiceActionsMenu({ invoice, numberText, isChanging, onAction }
 		<Menu as="div" className="relative inline-flex shrink-0">
 			<MenuButton
 				aria-label={t('invoices.actions.MENU_LABEL', { number: numberText })}
-				disabled={isChanging}
+				disabled={isBusy}
 				className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'text-muted-foreground')}
 			>
-				{isChanging && <Loader className="animate-spin" />}
-				{!isChanging && <MoreHorizontal />}
+				{isBusy && <Loader className="animate-spin" />}
+				{!isBusy && <MoreHorizontal />}
 			</MenuButton>
 			<MenuItems anchor={MENU_ANCHOR} transition className={cn(MENU_SURFACE, MENU_ANCHORED_PANEL)}>
+				{download && <DownloadRow onSelect={download.onSelect} />}
 				{leadingActions.map(rowOf)}
 				{showsSeparator && <MenuSeparator className={MENU_SEPARATOR} />}
 				{endingActions.map(rowOf)}
