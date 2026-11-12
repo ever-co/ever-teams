@@ -17,6 +17,7 @@ describe('timer action eligibility', () => {
 				hasActiveTask: false,
 				isActiveTaskClosed: false,
 				isTimerRunning: false,
+				isRunShown: false,
 				timerSource: undefined
 			})
 		).toBe(false);
@@ -27,6 +28,7 @@ describe('timer action eligibility', () => {
 			isEmailVerified: true,
 			hasActiveTask: true,
 			isTimerRunning: false,
+			isRunShown: false,
 			timerSource: ETimeLogSource.TEAMS
 		};
 
@@ -41,9 +43,28 @@ describe('timer action eligibility', () => {
 				hasActiveTask: false,
 				isActiveTaskClosed: false,
 				isTimerRunning: true,
+				isRunShown: false,
 				timerSource: ETimeLogSource.DESKTOP
 			})
 		).toBe(true);
+	});
+
+	describe('with a Teams timer running and no active task', () => {
+		const teamsRunWithoutTask = {
+			isEmailVerified: true,
+			hasActiveTask: false,
+			isActiveTaskClosed: false,
+			isTimerRunning: true,
+			timerSource: ETimeLogSource.TEAMS
+		};
+
+		it("allows stopping it when the timer shows it: a reload leaves no active task on another project's task", () => {
+			expect(canRunTimerForState({ ...teamsRunWithoutTask, isRunShown: true })).toBe(true);
+		});
+
+		it('keeps it out of reach when the timer does not show it (another team)', () => {
+			expect(canRunTimerForState({ ...teamsRunWithoutTask, isRunShown: false })).toBe(false);
+		});
 	});
 });
 
