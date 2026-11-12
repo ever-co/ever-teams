@@ -13,6 +13,7 @@ import {
 	tasksStatisticsState,
 	teamTasksState,
 	timeCounterState,
+	timerNotesState,
 	timerSecondsState,
 	timerStatusState
 } from '@/core/stores';
@@ -198,5 +199,36 @@ describe('useScopeTransitionGuard', () => {
 		expect(store.get(localTimerStatusState)).toBeNull();
 		expect(store.get(timeCounterState)).toBe(0);
 		expect(store.get(timerSecondsState)).toBe(0);
+	});
+
+	it('keeps the timer notes across a project change and drops them when the team changes', () => {
+		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		const store = createStore();
+		const wrapper = ({ children }: PropsWithChildren) => (
+			<QueryClientProvider client={queryClient}>
+				<Provider store={store}>{children}</Provider>
+			</QueryClientProvider>
+		);
+		const scope: ShellScope = {
+			tenantId: 'tenant-1',
+			organizationId: 'org-1',
+			teamId: 'team-1',
+			projectId: 'project-1',
+			userId: 'user-1',
+			employeeId: 'employee-1',
+			taskId: 'task-1'
+		};
+		const { rerender } = renderHook(
+			({ current }: { current: ShellScope }) => useScopeTransitionGuard(current, true),
+			{ wrapper, initialProps: { current: scope } }
+		);
+		const draft = { text: 'Review the invoice export', timeLogId: null };
+
+		store.set(timerNotesState, draft);
+		rerender({ current: { ...scope, projectId: 'project-2' } });
+		expect(store.get(timerNotesState)).toEqual(draft);
+
+		rerender({ current: { ...scope, projectId: 'project-2', teamId: 'team-2' } });
+		expect(store.get(timerNotesState)).toEqual({ text: '', timeLogId: null });
 	});
 });
