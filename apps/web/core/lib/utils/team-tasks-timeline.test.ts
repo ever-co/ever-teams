@@ -1,0 +1,303 @@
+import {
+	draggedDatesOf,
+	draggedTaskDatesOf,
+	hasEndHandlesOf,
+	previewDaysOf,
+	TIMELINE_MAX_DAYS,
+	TIMELINE_PADDING_DAYS,
+	dayNumberOf,
+	dayOfStoredDate,
+	labelledTicksOf,
+	TIMELINE_DAY_WIDTH,
+	TIMELINE_HEADER_LABEL_WIDTH,
+	ticksOf,
+	timelineOf,
+	type TeamTasksTimelineTask
+} from './team-tasks-timeline';
+
+const TODAY = new Date(2026, 10, 12, 15, 30); // 12 Nov 2026, afternoon, local
+const task = (id: string, overrides: Partial<TeamTasksTimelineTask> = {}): TeamTasksTimelineTask => ({
+	id,
+	startDate: null,
+	dueDate: null,
+	isDone: false,
+	...overrides
+});
+
+describe('the days of stored dates', () => {
+	it('reads a bare date and midnight UTC as that day, in any zone of the reader', () => {
+		const zone = process.env['TZ'];
+		try {
+			for (const readerZone of ['America/Los_Angeles', 'Asia/Tokyo', 'Europe/Paris', 'UTC']) {
+				process.env['TZ'] = readerZone;
+				const nov20 = dayNumberOf(new Date(2026, 10, 20));
+				expect(`${readerZone} ${dayOfStoredDate('2026-11-20')}`).toBe(`${readerZone} ${nov20}`);
+				expect(`${readerZone} ${dayOfStoredDate('2026-11-20T00:00:00.000Z')}`).toBe(`${readerZone} ${nov20}`);
+				expect(`${readerZone} ${dayOfStoredDate(new Date('2026-11-20T00:00:00Z'))}`).toBe(
+					`${readerZone} ${nov20}`
+				);
+			}
+		} finally {
+			if (zone === undefined) delete process.env['TZ'];
+			else process.env['TZ'] = zone;
+		}
+	});
+
+	it('reads any other moment as the reader’s day of that moment, and nothing as no day', () => {
+		expect(dayOfStoredDate(new Date(2026, 10, 20, 9, 0))).toBe(dayNumberOf(new Date(2026, 10, 20)));
+		expect(dayOfStoredDate(null)).toBeNull();
+		expect(dayOfStoredDate(undefined)).toBeNull();
+		expect(dayOfStoredDate('')).toBeNull();
+		expect(dayOfStoredDate('not a date')).toBeNull();
+	});
+
+	it('counts whole days across a daylight-saving change', () => {
+		const zone = process.env['TZ'];
+		try {
+			process.env['TZ'] = 'Europe/Paris';
+			// 25 Oct 2026 is 25 hours long in Paris.
+			expect(dayNumberOf(new Date(2026, 9, 26)) - dayNumberOf(new Date(2026, 9, 25))).toBe(1);
+		} finally {
+			if (zone === undefined) delete process.env['TZ'];
+			else process.env['TZ'] = zone;
+		}
+	});
+});
+
+describe('the timeline of a view', () => {
+	const today = dayNumberOf(TODAY);
+
+	it('draws a task from its start to its due date, and sets the undated ones apart in their order', () => {
+		const timeline = timelineOf(
+			[
+				task('a', { startDate: '2026-11-10', dueDate: '2026-11-14' }),
+				task('b'),
+				task('c', { dueDate: '2026-11-20' }),
+				task('d')
+			],
+			{ today: TODAY, zoom: 'week' }
+		);
+		const first = dayNumberOf(timeline.firstDay);
+		const padding = TIMELINE_PADDING_DAYS.week;
+		expect(first).toBe(dayNumberOf(new Date(2026, 10, 10)) - padding);
+		expect(timeline.dayCount).toBe(dayNumberOf(new Date(2026, 10, 20)) + padding - first + 1);
+		expect(timeline.todayDay).toBe(today - first);
+		expect(timeline.unscheduledIds).toEqual(['b', 'd']);
+		expect(timeline.bars.map((bar) => bar.taskId)).toEqual(['a', 'c']);
+		expect(timeline.bars[0]).toMatchObject({
+			startDay: padding,
+			endDay: padding + 4,
+			isDueOnly: false,
+			isOverdue: false
+		});
+		expect(timeline.bars[1]).toMatchObject({ isDueOnly: true });
+		expect(timeline.bars[1].endDay - timeline.bars[1].startDay).toBe(0);
+	});
+
+	it('marks an open task due before today as overdue, never a done one, nor one with a start date only', () => {
+		const timeline = timelineOf(
+			[
+				task('late', { dueDate: '2026-11-01' }),
+				task('done', { dueDate: '2026-11-01', isDone: true }),
+				task('started', { startDate: '2026-11-01' }),
+				task('today', { dueDate: '2026-11-12' })
+			],
+			{ today: TODAY, zoom: 'week' }
+		);
+		expect(timeline.bars.map((bar) => [bar.taskId, bar.isOverdue])).toEqual([
+			['late', true],
+			['done', false],
+			['started', false],
+			['today', false]
+		]);
+		expect(timeline.bars[2]).toMatchObject({ isStartOnly: true });
+	});
+
+	it('draws a due date before the start as one day at the start, and says so; overdue by its own due date', () => {
+		const [bar] = timelineOf([task('x', { startDate: '2026-11-15', dueDate: '2026-11-10' })], {
+			today: TODAY,
+			zoom: 'week'
+		}).bars;
+		expect(bar).toMatchObject({ hasInvalidRange: true, isOverdue: true });
+		expect(bar.endDay).toBe(bar.startDay);
+		expect(bar.taskDueDay).toBe(dayNumberOf(new Date(2026, 10, 10)));
+		expect(bar.taskStartDay).toBe(dayNumberOf(new Date(2026, 10, 15)));
+	});
+
+	it('shows today alone, padded, when no task has a date', () => {
+		const timeline = timelineOf([task('a')], { today: TODAY, zoom: 'month' });
+		const padding = TIMELINE_PADDING_DAYS.month;
+		expect(timeline.dayCount).toBe(2 * padding + 1);
+		expect(timeline.todayDay).toBe(padding);
+		expect(timeline.bars).toEqual([]);
+	});
+
+	it('caps the calendar around today and clips the bars past it, keeping their own dates', () => {
+		const timeline = timelineOf(
+			[task('far', { startDate: '2020-01-01', dueDate: '2032-01-01' }), task('near', { dueDate: '2026-11-13' })],
+			{ today: TODAY, zoom: 'month' }
+		);
+		expect(timeline.dayCount).toBe(TIMELINE_MAX_DAYS);
+		expect(timeline.todayDay).not.toBeNull();
+		const far = timeline.bars.find((bar) => bar.taskId === 'far');
+		expect(far).toMatchObject({
+			startDay: 0,
+			endDay: TIMELINE_MAX_DAYS - 1,
+			isClippedStart: true,
+			isClippedEnd: true,
+			outside: null
+		});
+		expect(far?.taskStartDay).toBe(dayNumberOf(new Date(2020, 0, 1)));
+		expect(timeline.bars.find((bar) => bar.taskId === 'near')).toMatchObject({
+			isClippedStart: false,
+			isClippedEnd: false
+		});
+	});
+
+	it('keeps the row of a task wholly outside the capped calendar, marked at that edge', () => {
+		const timeline = timelineOf(
+			[
+				task('long', { startDate: '2026-01-01', dueDate: '2029-12-31' }),
+				task('old', { dueDate: '2020-01-01' }),
+				task('later', { startDate: '2031-06-01' })
+			],
+			{ today: TODAY, zoom: 'month' }
+		);
+		expect(timeline.dayCount).toBe(TIMELINE_MAX_DAYS);
+		expect(timeline.bars.map((bar) => [bar.taskId, bar.outside])).toEqual([
+			['long', null],
+			['old', 'before'],
+			['later', 'after']
+		]);
+		const old = timeline.bars[1];
+		expect(old).toMatchObject({
+			startDay: 0,
+			endDay: 0,
+			isOverdue: true,
+			taskDueDay: dayNumberOf(new Date(2020, 0, 1))
+		});
+		expect(timeline.bars[2]).toMatchObject({ startDay: TIMELINE_MAX_DAYS - 1, endDay: TIMELINE_MAX_DAYS - 1 });
+	});
+});
+
+describe('the ticks of the header', () => {
+	it('labels Mondays in the week zoom and the first of the month in the month zoom', () => {
+		const timeline = timelineOf([task('a', { startDate: '2026-10-28', dueDate: '2026-11-05' })], {
+			today: TODAY,
+			zoom: 'week'
+		});
+		const week = ticksOf(timeline, 'week');
+		expect(week).toHaveLength(timeline.dayCount);
+		expect(week.filter((tick) => tick.isMajor).every((tick) => tick.date.getDay() === 1)).toBe(true);
+		const month = ticksOf(timeline, 'month');
+		expect(month.filter((tick) => tick.isMajor).map((tick) => tick.date.getDate())).toEqual([1]);
+	});
+});
+
+describe('the labels of the header', () => {
+	it('labels the first day of a month calendar that holds no first of a month', () => {
+		// 3 to 21 Nov: no first of a month.
+		const timeline = timelineOf([task('a', { startDate: '2026-11-10', dueDate: '2026-11-14' })], {
+			today: TODAY,
+			zoom: 'month'
+		});
+		const ticks = ticksOf(timeline, 'month');
+		expect(ticks.some((tick) => tick.isMajor)).toBe(false);
+		const labelled = labelledTicksOf(ticks, TIMELINE_DAY_WIDTH.month, TIMELINE_HEADER_LABEL_WIDTH.month);
+		expect(labelled.map((tick) => tick.day)).toEqual([0]);
+	});
+
+	it('labels the first day only when the first labelled day leaves room for it', () => {
+		const ticks = Array.from({ length: 30 }, (_, day) => ({
+			day,
+			date: new Date(2026, 10, 1 + day),
+			isMajor: day === 2
+		}));
+		// Two days of 36 px are 72 px: room for a label of 56 px before the Monday.
+		expect(labelledTicksOf(ticks, 36, 56).map((tick) => tick.day)).toEqual([0, 2]);
+		// Two days of 10 px: no room; the Monday's label is enough.
+		expect(labelledTicksOf(ticks, 10, 56).map((tick) => tick.day)).toEqual([2]);
+		expect(labelledTicksOf([], 36, 56)).toEqual([]);
+	});
+});
+
+describe('the dates a drag gives a bar', () => {
+	const range = { isDueOnly: false, isStartOnly: false, hasInvalidRange: false };
+	const dates = { startDay: 100, dueDay: 104 };
+
+	it('moves both dates of a range, and only the date a single-date task has', () => {
+		expect(draggedDatesOf(range, dates, 'move', 3)).toEqual({ startDay: 103, dueDay: 107 });
+		expect(draggedDatesOf({ ...range, isDueOnly: true }, { startDay: null, dueDay: 50 }, 'move', -2)).toEqual({
+			dueDay: 48
+		});
+		expect(draggedDatesOf({ ...range, isStartOnly: true }, { startDay: 50, dueDay: null }, 'move', 1)).toEqual({
+			startDay: 51
+		});
+	});
+
+	it('drags one end of a range, never past the other', () => {
+		expect(draggedDatesOf(range, dates, 'start', 2)).toEqual({ startDay: 102 });
+		expect(draggedDatesOf(range, dates, 'start', 10)).toEqual({ startDay: 104 });
+		expect(draggedDatesOf(range, dates, 'end', -2)).toEqual({ dueDay: 102 });
+		expect(draggedDatesOf(range, dates, 'end', -10)).toEqual({ dueDay: 100 });
+		expect(draggedDatesOf(range, dates, 'end', 5)).toEqual({ dueDay: 109 });
+	});
+
+	it('changes nothing for no movement, an end of a single date, or an end already at the limit', () => {
+		expect(draggedDatesOf(range, dates, 'move', 0)).toBeNull();
+		expect(draggedDatesOf({ ...range, isDueOnly: true }, { startDay: null, dueDay: 50 }, 'end', 2)).toBeNull();
+		expect(
+			draggedDatesOf({ ...range, hasInvalidRange: true }, { startDay: 60, dueDay: 55 }, 'start', 1)
+		).toBeNull();
+		expect(draggedDatesOf(range, { startDay: 100, dueDay: 100 }, 'start', 3)).toBeNull();
+	});
+});
+
+describe('the dates a drag gives a task', () => {
+	it('reads a midnight-UTC date as its day in any zone, so a move one day earlier is a change', () => {
+		const zone = process.env['TZ'];
+		try {
+			for (const readerZone of ['America/Los_Angeles', 'Asia/Tokyo', 'Europe/Paris', 'UTC']) {
+				process.env['TZ'] = readerZone;
+				const moved = draggedTaskDatesOf({ dueDate: '2026-11-20T00:00:00.000Z' }, 'move', -1);
+				expect(`${readerZone} ${moved?.dueDate?.toDateString()}`).toBe(
+					`${readerZone} ${new Date(2026, 10, 19).toDateString()}`
+				);
+			}
+		} finally {
+			if (zone === undefined) delete process.env['TZ'];
+			else process.env['TZ'] = zone;
+		}
+	});
+
+	it('moves the dates a task has, drags an end of a range, and changes nothing otherwise', () => {
+		expect(draggedTaskDatesOf({ startDate: '2026-11-10', dueDate: '2026-11-14' }, 'move', 2)).toEqual({
+			startDate: new Date(2026, 10, 12),
+			dueDate: new Date(2026, 10, 16)
+		});
+		expect(draggedTaskDatesOf({ startDate: '2026-11-10', dueDate: '2026-11-14' }, 'end', -1)).toEqual({
+			dueDate: new Date(2026, 10, 13)
+		});
+		expect(draggedTaskDatesOf({ startDate: null, dueDate: null }, 'move', 1)).toBeNull();
+		expect(draggedTaskDatesOf({ dueDate: '2026-11-20' }, 'start', 1)).toBeNull();
+	});
+});
+
+describe('a bar while it is dragged', () => {
+	const range = { startDay: 10, endDay: 14, isDueOnly: false, isStartOnly: false, hasInvalidRange: false };
+	const dates = { startDay: 110, dueDay: 114 };
+
+	it('shows the dragged dates as offsets, inside the days drawn', () => {
+		expect(previewDaysOf(range, dates, null, 100, 30)).toEqual({ startDay: 10, endDay: 14 });
+		expect(previewDaysOf(range, dates, { drag: 'move', delta: 3 }, 100, 30)).toEqual({ startDay: 13, endDay: 17 });
+		expect(previewDaysOf(range, dates, { drag: 'end', delta: -2 }, 100, 30)).toEqual({ startDay: 10, endDay: 12 });
+		// A long move stays at the calendar's edge.
+		expect(previewDaysOf(range, dates, { drag: 'move', delta: 40 }, 100, 30)).toEqual({ startDay: 29, endDay: 29 });
+	});
+
+	it('gives end handles only to a range of several days', () => {
+		expect(hasEndHandlesOf(range, dates)).toBe(true);
+		expect(hasEndHandlesOf(range, { startDay: 110, dueDay: 110 })).toBe(false);
+		expect(hasEndHandlesOf({ ...range, isDueOnly: true }, { startDay: null, dueDay: 110 })).toBe(false);
+	});
+});

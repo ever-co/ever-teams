@@ -166,16 +166,6 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 		}
 	}, [enabled, isCurrentScope, queryClient, scope, scopedReady]);
 
-	/** Whether the personal plans were already read in this scope, so a caller can use them without waiting */
-	const hasCachedMyDailyPlans = useCallback(
-		() =>
-			!!scope &&
-			queryClient.getQueryData(
-				queryKeys.dailyPlans.myPlansByScope(scope.tenantId, scope.organizationId, scope.teamId, scope.userId)
-			) !== undefined,
-		[queryClient, scope]
-	);
-
 	return {
 		// Raw data
 		myDailyPlans: getMyDailyPlansQuery.data || { items: [], total: 0 },
@@ -194,7 +184,6 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 		loadMyDailyPlans,
 		firstLoadMyDailyPlans,
 		ensureMyDailyPlans,
-		hasCachedMyDailyPlans,
 
 		// Loading states
 		isLoading: getMyDailyPlansQuery.isLoading,

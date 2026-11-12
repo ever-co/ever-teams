@@ -15,11 +15,13 @@ import { taskUpdateQueue } from '@/core/lib/utils/task.utils';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import type { TOrganizationTeamEmployee, TTaskStatus } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
+import { draggedTaskDatesOf, type TeamTasksTimelineDrag } from '@/core/lib/utils/team-tasks-timeline';
 
 /** The fields a list of tasks edits in place; the names match the failure toast's own select. */
 export type TeamTaskField = 'status' | 'priority' | 'size' | 'issueType' | 'tags' | 'dueDate' | 'members' | 'project';
 
 type TaskChange = (task: TTask) => Partial<TTask> | null;
+
 
 function isAssigned(task: TTask, member: TOrganizationTeamEmployee) {
 	const employeeId = member.employeeId ?? member.employee?.id;
@@ -82,7 +84,7 @@ export function useTeamTaskUpdates() {
 	);
 
 	const applyChange = useCallback(
-		(taskIds: string[], field: TeamTaskField, change: TaskChange) => {
+		(taskIds: string[], field: TeamTaskField, change: TaskChange, options?: { moveTimeLogs?: boolean }) => {
 			for (const taskId of taskIds) {
 				const run = async () => {
 					const task = latestTask(taskId);
@@ -94,7 +96,7 @@ export function useTeamTaskUpdates() {
 						return;
 					}
 					try {
-						await updateTask({ ...task, ...update });
+						await updateTask({ ...task, ...update }, options);
 						// A view's own list (a built-in view) reads the platform again.
 						void queryClient.invalidateQueries({ queryKey: queryKeys.taskViews.all });
 					} catch (error) {
@@ -213,6 +215,18 @@ export function useTeamTaskUpdates() {
 		[applyChange, bulkUpdate, t, usesBulk]
 	);
 
+	/**
+	 * Moves a task's dates by whole days (the timeline's drag): the whole task, or one end of its range. The dates are
+	 * worked out when the queued update runs, from the task as it then is, so quick repeated moves add up instead of
+	 * repeating the first; both dates go in one update, so the task never holds a due date before its start in between.
+	 */
+	const moveDates = useCallback(
+		(taskId: string, drag: TeamTasksTimelineDrag, deltaDays: number) => {
+			applyChange([taskId], 'dueDate', (task) => draggedTaskDatesOf(task, drag, deltaDays));
+		},
+		[applyChange]
+	);
+
 	/** Moves the tasks to a project (`null`: out of any project); a selection in one request with the feature on. */
 	const setProject = useCallback(
 		(taskIds: string[], projectId: string | null) => {
@@ -221,12 +235,19 @@ export function useTeamTaskUpdates() {
 				void bulkUpdate(taskIds, { projectId }, message).catch(() => undefined);
 				return;
 			}
-			applyChange(taskIds, 'project', (task) => {
-				if ((task.projectId ?? null) === projectId) {
-					return null;
-				}
-				return { projectId };
-			});
+			// The task's tracked time moves with it, as when the project is set from the task itself (`ProjectDropDown`):
+			// the same change must not give different timesheets depending on where it was made.
+			applyChange(
+				taskIds,
+				'project',
+				(task) => {
+					if ((task.projectId ?? null) === projectId) {
+						return null;
+					}
+					return { projectId };
+				},
+				{ moveTimeLogs: true }
+			);
 		},
 		[applyChange, bulkUpdate, t, usesBulk]
 	);
@@ -276,6 +297,7 @@ export function useTeamTaskUpdates() {
 		setIssueType,
 		toggleLabel,
 		setDueDate,
+		moveDates,
 		setProject,
 		assignMember,
 		archiveTasks,

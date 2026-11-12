@@ -3,6 +3,8 @@ import { Square4OutlineIcon } from 'assets/svg';
 import { Cube, Tag, UsersGroup } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import { EIssueType } from '@/core/types/generics/enums/task';
+import { isCustomIcon } from '@/core/lib/utils/property-icon-value';
+import { PropertyIconImage } from '@/core/components/settings/pages/task-properties/property-icon-image';
 import { dataColorGemStyle, dataColorHue, isPaintableColor } from './task-data-color';
 
 export type TaskPropertyKind =
@@ -389,9 +391,39 @@ interface TaskPropertyIconProps {
 	name?: string | null;
 	color?: string | null;
 	className?: string;
+	/**
+	 * The property's stored icon. A custom one, from the icon library or a file of the user's own, is drawn in place
+	 * of the glyph, in the property's color; the glyph stays for a classic icon, a missing one, or a file that fails.
+	 */
+	icon?: string | null;
+	/** The property's `fullIconUrl`, where an image the user uploaded loads from when Gauzy does not hold it itself. */
+	iconUrl?: string | null;
 }
 
-export function TaskPropertyIcon({ kind, name, color, className }: Readonly<TaskPropertyIconProps>) {
+export function TaskPropertyIcon({ kind, name, color, className, icon, iconUrl }: Readonly<TaskPropertyIconProps>) {
+	const glyph = <TaskPropertyGlyph kind={kind} name={name} color={color} className={className} />;
+	// A label is shown by its color: label icons are not part of the design (#5024)
+	if (kind === 'label' || !icon || !isCustomIcon(icon)) {
+		return glyph;
+	}
+	return (
+		<span
+			data-slot="task-property-icon"
+			aria-hidden="true"
+			className={cn('inline-flex size-4 shrink-0 items-center justify-center', className)}
+			style={glyphColorStyle(color)}
+		>
+			<PropertyIconImage value={icon} url={iconUrl} className="size-full" fallback={glyph} />
+		</span>
+	);
+}
+
+function TaskPropertyGlyph({
+	kind,
+	name,
+	color,
+	className
+}: Readonly<Omit<TaskPropertyIconProps, 'icon' | 'iconUrl'>>) {
 	const normalizedName = normalizePropertyName(name);
 	const isIssueKind = kind === 'epic' || kind === 'issueType';
 

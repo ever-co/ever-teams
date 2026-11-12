@@ -18,7 +18,7 @@ const NO_ANCHORS: IDocumentCommentAnchorResolved[] = [];
 /** The platform's answer for a comment that is not one of the page's (the route exists). */
 const DOCS_COMMENT_NOT_FOUND = 'DOCS_COMMENT_NOT_FOUND';
 
-export interface DocsCommentPost {
+interface DocsCommentPost {
 	body: string;
 	/** The block the thread is on; null for a comment on the page. A reply takes its thread's. */
 	blockId: string | null;

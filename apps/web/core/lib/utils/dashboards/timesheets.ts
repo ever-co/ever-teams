@@ -766,13 +766,42 @@ function isPendingMember(member: SheetMember) {
 	return member.status === ETimesheetStatus.PENDING;
 }
 
-/** The member a sheet opens on: the first one with time waiting for approval, otherwise the first by name. */
+function hasLogs(member: SheetMember) {
+	return member.logs.length > 0;
+}
+
+/**
+ * The member a sheet opens on: the first one with time waiting for approval, otherwise the first by name with time,
+ * otherwise the first one offered without time (the viewer's own empty week).
+ */
 export function defaultSheetMemberOf(members: ReadonlyArray<SheetMember>): SheetMember | null {
 	const firstPending = members.find(isPendingMember);
 	if (firstPending) {
 		return firstPending;
 	}
+	const firstWithTime = members.find(hasLogs);
+	if (firstWithTime) {
+		return firstWithTime;
+	}
 	return members[0] ?? null;
+}
+
+export function withEmptyMembers(
+	members: ReadonlyArray<SheetMember>,
+	emptyMembers: ReadonlyArray<SheetMember>
+): SheetMember[] {
+	const knownIds = new Set(members.map((member) => member.id));
+	const missing = emptyMembers.filter((member) => !knownIds.has(member.id));
+	if (missing.length === 0) {
+		return [...members];
+	}
+	const merged = [...members, ...missing];
+	merged.sort(byMemberName);
+	return merged;
+}
+
+export function emptySheetMemberOf(id: string, name: string, imageUrl: string | null): SheetMember {
+	return { id, name: name.trim(), imageUrl, totalSeconds: 0, logs: [], status: null };
 }
 
 export interface SheetDay {
@@ -830,10 +859,29 @@ export interface SheetCell {
 	seconds: number;
 }
 
+/**
+ * What a sheet row stands for and how it reads, without its logs: a row added by hand or copied from another week
+ * has no log yet. Plain values only, so it can be kept on the device.
+ */
+export interface SheetRowIdentity {
+	key: string;
+	projectId: string | null;
+	taskId: string | null;
+	organizationTeamId: string | null;
+	projectName: string | null;
+	projectColor: string | null;
+	projectImageUrl: string | null;
+	taskTitle: string | null;
+	taskNumber: string | null;
+	issueType: string | null;
+	isBillable: boolean;
+}
+
 export interface SheetRow {
 	key: string;
 	/** The first log of the row, which carries the task and the project every log of the row shares. */
 	sample: ITimeLog;
+	identity: SheetRowIdentity;
 	logs: ITimeLog[];
 	cells: ReadonlyMap<string, SheetCell>;
 	totalSeconds: number;
@@ -847,10 +895,71 @@ export interface WeekSheet {
 	logCount: number;
 }
 
-function sheetRowKeyOf(log: ITimeLog) {
+export function sheetRowKeyOf(log: ITimeLog) {
 	const projectValue = projectValueOf(log);
 	const taskValue = taskValueOf(log);
 	return `${projectValue}:${taskValue}`;
+}
+
+export function sheetRowKeyFor(projectId: string | null, taskId: string | null) {
+	const projectValue = projectId ?? NO_PROJECT_VALUE;
+	const taskValue = taskId ?? NO_TASK_VALUE;
+	return `${projectValue}:${taskValue}`;
+}
+
+function textOrNull(value: string | number | null | undefined): string | null {
+	if (value === null || value === undefined || value === '') {
+		return null;
+	}
+	return String(value);
+}
+
+function rowTaskNumberOf(log: ITimeLog): string | null {
+	const taskNumber = textOrNull(log.task?.taskNumber);
+	if (taskNumber) {
+		return taskNumber;
+	}
+	const number = textOrNull(log.task?.number);
+	if (number) {
+		return `#${number}`;
+	}
+	return null;
+}
+
+function idOrNull(value: string): string | null {
+	const isPlaceholder = value === NO_PROJECT_VALUE || value === NO_TASK_VALUE;
+	if (isPlaceholder) {
+		return null;
+	}
+	return value;
+}
+
+export function rowIdentityOfLog(log: ITimeLog): SheetRowIdentity {
+	const project = log.project;
+	return {
+		key: sheetRowKeyOf(log),
+		projectId: idOrNull(projectValueOf(log)),
+		taskId: idOrNull(taskValueOf(log)),
+		organizationTeamId: log.organizationTeamId ?? null,
+		projectName: textOrNull(project?.name),
+		projectColor: textOrNull(project?.color),
+		projectImageUrl: textOrNull(project?.imageUrl),
+		taskTitle: textOrNull(log.task?.title),
+		taskNumber: rowTaskNumberOf(log),
+		issueType: textOrNull(log.task?.issueType),
+		isBillable: log.isBillable === true
+	};
+}
+
+function latestLogOf(logs: ReadonlyArray<ITimeLog>): ITimeLog | undefined {
+	let latest: ITimeLog | undefined;
+	for (const log of logs) {
+		const isLater = !latest || startTimeOf(log) > startTimeOf(latest);
+		if (isLater) {
+			latest = log;
+		}
+	}
+	return latest;
 }
 
 function cellsOf(logs: ReadonlyArray<ITimeLog>): Map<string, SheetCell> {
@@ -884,12 +993,12 @@ function cellsTotalOf(cells: ReadonlyMap<string, SheetCell>) {
 	return total;
 }
 
-function rowProjectNameOf(row: SheetRow) {
-	return row.sample.project?.name ?? '';
+function rowProjectNameOf(row: Pick<SheetRow, 'identity'>) {
+	return row.identity.projectName ?? '';
 }
 
-function rowTaskTitleOf(row: SheetRow) {
-	return row.sample.task?.title ?? '';
+function rowTaskTitleOf(row: Pick<SheetRow, 'identity'>) {
+	return row.identity.taskTitle ?? '';
 }
 
 /** Sorting order of two rows of which only one has a value: the one that has it comes first. */
@@ -901,7 +1010,7 @@ function presentFirst(isFirstPresent: boolean) {
 }
 
 /** Rows read like a timesheet: grouped by project, then by task, logs without a project or a task last. */
-function bySheetRow(first: SheetRow, second: SheetRow) {
+export function bySheetRow(first: Pick<SheetRow, 'identity'>, second: Pick<SheetRow, 'identity'>) {
 	const firstProject = rowProjectNameOf(first);
 	const secondProject = rowProjectNameOf(second);
 	const firstHasProject = firstProject.length > 0;
@@ -942,9 +1051,11 @@ export function weekSheetOf(logs: ReadonlyArray<ITimeLog>): WeekSheet {
 			continue;
 		}
 		const cells = cellsOf(rowLogs);
+		const identitySource = latestLogOf(rowLogs) ?? sample;
 		rows.push({
 			key,
 			sample,
+			identity: rowIdentityOfLog(identitySource),
 			logs: rowLogs,
 			cells,
 			totalSeconds: cellsTotalOf(cells),

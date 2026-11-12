@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { BoardReturnCapture } from '@/core/components/auth/board-return-capture';
 
 // The auth screens (passcode, password, signup, password recovery, invites, workspace pick, errors)
 // are entry points into the app, not content. Without this they were served as indexable duplicates
@@ -14,6 +15,13 @@ export const metadata: Metadata = {
 	}
 };
 
+// A sign-in the Board app started (`?redirect=<board address>`) ends back on the Board, whichever auth page the
+// person finishes on: the address is kept when the first of them opens.
 export default function AuthLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-	return children;
+	return (
+		<>
+			<BoardReturnCapture />
+			{children}
+		</>
+	);
 }

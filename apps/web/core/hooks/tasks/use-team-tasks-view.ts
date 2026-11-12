@@ -36,6 +36,7 @@ import {
 	viewSettingsFromStorage,
 	withToggledProperty
 } from '@/core/lib/utils/team-tasks-view-storage';
+import { sortByManualOrder } from '@/core/lib/utils/task-view-order';
 import type { ITaskViewDefinition } from '@/core/types/interfaces/common/task-views';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
@@ -48,6 +49,7 @@ const SCOPE_STORAGE_KEY = 'team-tasks-scope';
 const COLLAPSED_STORAGE_KEY = 'team-tasks-collapsed-groups';
 
 const NO_FILTERS: TeamTasksFilters = {};
+const NO_IDS: string[] = [];
 
 /** How the page is opened: on the team's tasks with the device's view, or on a saved / built-in view. */
 interface TeamTasksViewOptions {
@@ -57,6 +59,11 @@ interface TeamTasksViewOptions {
 	resetKey?: string;
 	/** The tasks to list instead of the team's (a built-in view's, computed by the platform). */
 	tasks?: TTask[];
+	/**
+	 * A saved view's manual order (its `manualOrder`, empty when it has none): the manual ordering is offered, and
+	 * the list follows this order when it is chosen. Absent on the team's tasks and on a built-in view.
+	 */
+	manualOrder?: readonly string[];
 }
 
 function memberEntriesOf(members: TOrganizationTeamEmployee[] | null | undefined) {
@@ -225,21 +232,30 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 		return withoutListedSubTasks(scopedTasks);
 	}, [scopedTasks, settings.showsSubTasks]);
 
-	// A board has its lanes for groups: its tasks come in the view's ordering alone, and a group collapsed in the list
-	// hides nothing there, nor from the selection.
-	const isBoard = settings.layout === 'board' && isTaskViewsEnabled();
+	const manualOrder = options.manualOrder;
+	const allowsManualOrder = manualOrder !== undefined;
+	// A task moves in a manual order only, and only on the saved view that keeps it.
+	const canReorder = allowsManualOrder && settings.ordering === 'manual';
+	// A board has its lanes for groups, a timeline one row per task: their tasks come in the view's ordering alone,
+	// and a group collapsed in the list hides nothing there, nor from the selection.
+	const isUngrouped = (settings.layout === 'board' || settings.layout === 'timeline') && isTaskViewsEnabled();
 	const groupedSettings = useMemo<TeamTasksViewSettings>(
-		() => (isBoard ? { ...settings, grouping: 'none' } : settings),
-		[isBoard, settings]
+		() => (isUngrouped ? { ...settings, grouping: 'none' } : settings),
+		[isUngrouped, settings]
 	);
 	const groups = useMemo(
-		() => buildTeamTasksGroups(listedTasks, groupedSettings, lookups, priorityValues),
-		[listedTasks, groupedSettings, lookups, priorityValues]
+		() => buildTeamTasksGroups(listedTasks, groupedSettings, lookups, priorityValues, manualOrder),
+		[listedTasks, groupedSettings, lookups, priorityValues, manualOrder]
+	);
+	/** The listed tasks in the view's manual order, groups aside: what a move is made against. */
+	const shownOrder = useMemo(
+		() => (canReorder ? sortByManualOrder(listedTasks, manualOrder).map((task) => task.id) : NO_IDS),
+		[canReorder, listedTasks, manualOrder]
 	);
 	const showsGroupHeaders = groupedSettings.grouping !== 'none';
 	const rows = useMemo(
-		() => flattenTeamTasksGroups(groups, isBoard ? NOTHING_COLLAPSED : collapsedKeys, showsGroupHeaders),
-		[groups, collapsedKeys, isBoard, showsGroupHeaders]
+		() => flattenTeamTasksGroups(groups, isUngrouped ? NOTHING_COLLAPSED : collapsedKeys, showsGroupHeaders),
+		[groups, collapsedKeys, isUngrouped, showsGroupHeaders]
 	);
 	const orderedIds = useMemo(() => orderedTaskIdsOf(rows), [rows]);
 
@@ -304,13 +320,13 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 		(showsEmptyGroups: boolean) => updateView((current) => ({ ...current, showsEmptyGroups })),
 		[updateView]
 	);
-	/** A list is what a view without a layout is: only a board is written down. */
+	/** A list is what a view without a layout is: only a board or a timeline is written down. */
 	const setLayout = useCallback(
 		(layout: TeamTasksLayout) =>
 			updateView((current) => {
 				const next = { ...current };
 				delete next.layout;
-				return layout === 'board' ? { ...next, layout } : next;
+				return layout === 'list' ? next : { ...next, layout };
 			}),
 		[updateView]
 	);
@@ -402,6 +418,9 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 		settings,
 		isDefaultView: isDefaultView(settings),
 		isDetached,
+		allowsManualOrder,
+		canReorder,
+		shownOrder,
 		definition,
 		applyDefinition,
 		scope,

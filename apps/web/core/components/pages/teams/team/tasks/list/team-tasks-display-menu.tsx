@@ -14,16 +14,18 @@ import {
 	type TeamTasksLayout,
 	type TeamTasksOrdering
 } from '@/core/lib/utils/team-tasks-view';
+import { SAVED_VIEW_ORDERINGS } from '@/core/lib/utils/team-tasks-view-storage';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
 
 const GROUPINGS: TeamTasksGrouping[] = ['status', 'priority', 'assignee', 'project', 'issueType', 'none'];
 
-const LAYOUTS: TeamTasksLayout[] = ['list', 'board'];
+const LAYOUTS: TeamTasksLayout[] = ['list', 'board', 'timeline'];
 
 const LAYOUT_LABEL_KEYS: Record<TeamTasksLayout, DottedLanguageObjectStringPaths> = {
 	list: 'pages.teamTasks.LAYOUT_LIST',
-	board: 'pages.teamTasks.LAYOUT_BOARD'
+	board: 'pages.teamTasks.LAYOUT_BOARD',
+	timeline: 'pages.teamTasks.LAYOUT_TIMELINE'
 };
 
 const ORDERINGS: TeamTasksOrdering[] = ['priority', 'updated', 'created', 'dueDate', 'number', 'title'];
@@ -43,7 +45,8 @@ const ORDERING_LABEL_KEYS: Record<TeamTasksOrdering, DottedLanguageObjectStringP
 	created: 'pages.taskDetails.CREATED',
 	dueDate: 'pages.taskDetails.DUE_DATE',
 	number: 'pages.teamTasks.COLUMN_NUMBER',
-	title: 'common.TITLE'
+	title: 'common.TITLE',
+	manual: 'pages.teamTasks.ORDER_MANUAL'
 };
 
 const PROPERTY_LABEL_KEYS: Record<TeamTaskProperty, DottedLanguageObjectStringPaths> = {
@@ -72,8 +75,8 @@ function isGrouping(value: string): value is TeamTasksGrouping {
 	return GROUPINGS.includes(value as TeamTasksGrouping);
 }
 
-function isOrdering(value: string): value is TeamTasksOrdering {
-	return ORDERINGS.includes(value as TeamTasksOrdering);
+function isOrdering(value: string, orderings: readonly TeamTasksOrdering[]): value is TeamTasksOrdering {
+	return orderings.includes(value as TeamTasksOrdering);
 }
 
 function isLayout(value: string): value is TeamTasksLayout {
@@ -89,8 +92,12 @@ export function TeamTasksDisplayMenu({ view }: Readonly<{ view: TeamTasksViewSta
 	const { settings } = view;
 	const directionLabel = t(directionLabelKey(settings.isDescending));
 	const isCustomised = !view.isDefaultView;
+	const orderings = view.allowsManualOrder ? SAVED_VIEW_ORDERINGS : ORDERINGS;
+	// A manual order has no direction: it is the order the tasks were put in.
+	const isManual = settings.ordering === 'manual';
 	// A board has its lanes for groups: the grouping and the empty groups are the list's.
-	const isBoard = isTaskViewsEnabled() && settings.layout === 'board';
+	// A board has lanes for groups and a timeline one row per task: neither offers the list's grouping.
+	const isBoard = isTaskViewsEnabled() && (settings.layout === 'board' || settings.layout === 'timeline');
 
 	const handleGrouping = (value: string | null) => {
 		if (!value) {
@@ -111,7 +118,7 @@ export function TeamTasksDisplayMenu({ view }: Readonly<{ view: TeamTasksViewSta
 		if (!value) {
 			return;
 		}
-		if (!isOrdering(value)) {
+		if (!isOrdering(value, orderings)) {
 			return;
 		}
 		view.setOrdering(value);
@@ -174,24 +181,26 @@ export function TeamTasksDisplayMenu({ view }: Readonly<{ view: TeamTasksViewSta
 					)}
 					<DisplayRow label={t('pages.teamTasks.ORDERING')}>
 						<div className="flex items-center gap-1">
-							<Button
-								variant="ghost"
-								size="icon-sm"
-								onClick={view.toggleDirection}
-								aria-label={directionLabel}
-								title={directionLabel}
-								className="text-muted-foreground"
-							>
-								<ArrowUp
-									className={cn('transition-transform', settings.isDescending && 'rotate-180')}
-								/>
-							</Button>
+							{!isManual && (
+								<Button
+									variant="ghost"
+									size="icon-sm"
+									onClick={view.toggleDirection}
+									aria-label={directionLabel}
+									title={directionLabel}
+									className="text-muted-foreground"
+								>
+									<ArrowUp
+										className={cn('transition-transform', settings.isDescending && 'rotate-180')}
+									/>
+								</Button>
+							)}
 							<Select value={settings.ordering} onValueChange={handleOrdering}>
 								<SelectTrigger className="h-7 w-32 text-[13px]">
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
-									{ORDERINGS.map((ordering) => (
+									{orderings.map((ordering) => (
 										<SelectItem key={ordering} value={ordering}>
 											{t(ORDERING_LABEL_KEYS[ordering])}
 										</SelectItem>
@@ -200,6 +209,11 @@ export function TeamTasksDisplayMenu({ view }: Readonly<{ view: TeamTasksViewSta
 							</Select>
 						</div>
 					</DisplayRow>
+					{isManual && (
+						<p className="px-3 pt-0.5 pb-1.5 text-xs text-muted-foreground">
+							{t('pages.teamTasks.ORDER_MANUAL_HINT')}
+						</p>
+					)}
 				</div>
 				<div className="hairline-t border-border py-1.5">
 					<DisplaySwitchRow
