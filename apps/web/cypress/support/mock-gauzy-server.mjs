@@ -608,7 +608,7 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body,
 		);
 		if (notification) {
 			for (const field of ['isRead', 'readAt', 'isArchived', 'archivedAt']) {
-				if (body && Object.prototype.hasOwnProperty.call(body, field)) notification[field] = body[field];
+				if (body && Object.hasOwn(body, field)) notification[field] = body[field];
 			}
 			return notification;
 		}
