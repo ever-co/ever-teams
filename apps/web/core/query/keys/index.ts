@@ -761,6 +761,15 @@ export const queryKeys = {
 				...(endDate ? [endDate] : [])
 			] as const,
 		timeLog: (logId: string | null | undefined) => ['timesheet', 'time-log', ...(logId ? [logId] : [])] as const,
+		// Under `timesheet` so a saved or removed entry never leaves a stale overlap answer behind.
+		conflicts: (params: {
+			tenantId: string | null;
+			organizationId: string | null;
+			employeeId: string;
+			startDate: string;
+			endDate: string;
+			ignoreId: string | null;
+		}) => ['timesheet', 'conflicts', params] as const,
 		logs: (
 			tenantId: string | null | undefined,
 			organizationId: string | null | undefined,

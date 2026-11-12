@@ -53,6 +53,8 @@ export interface IOrganizationTeamCreate {
 	image?: TImageAsset | null;
 	projects?: IOrganizationProject[];
 	defaultProjectId?: string | null;
+	/** Asks Gauzy for the team's starter labels, which it files on request only (ever-co/ever-gauzy#11782). */
+	withStarterTags?: boolean;
 }
 export type IOrganizationTeamUpdate = IOrganizationTeamCreate & { id: string };
 

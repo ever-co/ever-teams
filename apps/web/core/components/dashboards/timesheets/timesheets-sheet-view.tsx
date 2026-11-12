@@ -4,6 +4,8 @@ import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { MemberCell } from '@/core/components/dashboards/kit/member-cell';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
+import type { CopyPreviousWeek } from '@/core/hooks/dashboards/timesheets/use-copy-previous-week';
+import type { SheetEditing } from '@/core/hooks/dashboards/timesheets/use-sheet-editing';
 import type { TimesheetSheetState } from '@/core/hooks/dashboards/timesheets/use-timesheet-sheet';
 import type { TimesheetPermissions } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
 import { cn } from '@/core/lib/helpers';
@@ -18,6 +20,7 @@ import {
 } from './timesheets-member-rail';
 import { TimesheetsSheetEntries } from './timesheets-sheet-entries';
 import { type SheetPendingActions, type SheetSelectionActions, TimesheetsSheetFooter } from './timesheets-sheet-footer';
+import { SheetCopyConfirmDialog, SheetCopyWeekMenu, SheetEditNotice } from './timesheets-sheet-tools';
 import { TimesheetsWeekSheet, TimesheetsWeekSheetSkeleton } from './timesheets-week-sheet';
 
 const META_SEPARATOR = ' · ';
@@ -40,12 +43,14 @@ function SheetMemberHeader({
 	members,
 	sheet,
 	showsPicker,
+	copyWeek,
 	onPick
 }: Readonly<{
 	member: SheetMember;
 	members: ReadonlyArray<SheetMember>;
 	sheet: WeekSheet;
 	showsPicker: boolean;
+	copyWeek: CopyPreviousWeek | null;
 	onPick: (memberId: string) => void;
 }>) {
 	const t = useTranslations();
@@ -64,8 +69,34 @@ function SheetMemberHeader({
 			<div className="flex min-w-0 items-center gap-2">
 				<span className="truncate text-xs tabular-nums text-muted-foreground">{counts}</span>
 				<TimesheetStatusChip status={member.status} />
+				{copyWeek && <SheetCopyWeekMenu copyWeek={copyWeek} />}
 			</div>
 		</div>
+	);
+}
+
+function copyWeekOf(editing: SheetEditing | null): CopyPreviousWeek | null {
+	if (!editing) {
+		return null;
+	}
+	const isOpen = editing.sheetLock === 'none';
+	const isOneWeek = editing.copyWeek.isAvailable;
+	if (isOpen && isOneWeek) {
+		return editing.copyWeek;
+	}
+	return null;
+}
+
+function EmptySheetHint({ editing, fallback }: Readonly<{ editing: SheetEditing | null; fallback: ReactNode }>) {
+	const t = useTranslations();
+	const isOpen = editing?.sheetLock === 'none';
+	if (!isOpen) {
+		return fallback;
+	}
+	return (
+		<p className="px-4 pt-1 pb-4 text-xs text-muted-foreground">
+			{t('dashboard.timesheets.SHEET.EDIT.EMPTY_HINT')}
+		</p>
 	);
 }
 
@@ -85,7 +116,9 @@ export function TimesheetsSheetView({
 	selection,
 	pending,
 	isApproving,
-	emptyContent
+	emptyContent,
+	editing = null,
+	onClearFilters
 }: Readonly<{
 	state: TimesheetSheetState;
 	formatters: TimesheetFormatters;
@@ -97,11 +130,20 @@ export function TimesheetsSheetView({
 	pending: Omit<SheetPendingActions, 'memberName'>;
 	isApproving: boolean;
 	emptyContent: ReactNode;
+	editing?: SheetEditing | null;
+	onClearFilters: () => void;
 }>) {
 	const t = useTranslations();
 	const { members, member, days, sheet } = state;
 	const showsRail = members.length > 1;
 	const memberName = memberNameOf(member, t('dashboard.timesheets.SHEET.UNNAMED_MEMBER'));
+	const copyWeek = copyWeekOf(editing);
+	const hasMember = Boolean(member);
+	const hasRows = sheet.rows.length > 0;
+	const draftRowCount = editing?.draftRows.length ?? 0;
+	const hasDraftRows = draftRowCount > 0;
+	const isWithoutRows = !hasRows && !hasDraftRows;
+	const isEmptyMemberSheet = hasMember && isWithoutRows;
 
 	return (
 		<div className={cn(showsRail && WITH_RAIL)}>
@@ -123,9 +165,11 @@ export function TimesheetsSheetView({
 						members={members}
 						sheet={sheet}
 						showsPicker={showsRail}
+						copyWeek={copyWeek}
 						onPick={state.pickMember}
 					/>
 				)}
+				{member && editing && <SheetEditNotice lock={editing.sheetLock} onClearFilters={onClearFilters} />}
 				<TimesheetsWeekSheet
 					days={days}
 					sheet={sheet}
@@ -134,10 +178,12 @@ export function TimesheetsSheetView({
 					selectedIdSet={selectedIdSet}
 					openCell={state.openCell}
 					isCellOpen={state.isCellOpen}
+					editing={editing}
 					onSelectLogs={onSelectLogs}
 					onOpenCell={state.openCellEntries}
 				/>
 				{!member && emptyContent}
+				{isEmptyMemberSheet && <EmptySheetHint editing={editing} fallback={emptyContent} />}
 				{member && (
 					<TimesheetsSheetFooter
 						selection={selection}
@@ -157,6 +203,7 @@ export function TimesheetsSheetView({
 				permissions={permissions}
 				handlers={handlers}
 			/>
+			{editing && <SheetCopyConfirmDialog copyWeek={editing.copyWeek} />}
 		</div>
 	);
 }

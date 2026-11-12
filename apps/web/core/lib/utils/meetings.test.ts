@@ -1,16 +1,26 @@
 // cspell:ignore DTEND DTSTART VCALENDAR XATTENDEE Équipe
 import { meetPathFor } from './collaboration';
 import {
-	agendaOf,
 	appointmentInputOf,
+	appointmentUpdateOf,
+	dayAfter,
 	isRoomTokenStale,
+	meetingDaysOf,
 	meetingIcsOf,
+	meetingInviteesOf,
+	meetingLinkWithTitle,
 	meetingPathFor,
 	meetingPathOfInput,
+	meetingsOfDay,
+	isSharingScreenAsked,
 	meetingTitleOf,
+	participantsWithText,
 	roomNameOfParam,
 	scheduledMeetingOf,
 	scheduledMeetingStateOf,
+	searchWithoutSharing,
+	sharingScreenPathOf,
+	startOfDay,
 	type ScheduledMeeting
 } from './meetings';
 
@@ -91,24 +101,39 @@ describe('scheduled meetings', () => {
 
 	// Across a change of the clock: meetings-agenda-dst.test.ts, in an environment with daylight saving
 
-	it('lays out the agenda by day: today always, its ended meetings kept, then the next days that hold one', () => {
-		const agenda = agendaOf(
-			[
-				meeting('next-week', '2026-11-19T09:00:00', '2026-11-19T10:00:00'),
-				meeting('tomorrow', '2026-11-12T09:00:00', '2026-11-12T09:30:00'),
-				meeting('this-morning', '2026-11-11T08:00:00', '2026-11-11T08:30:00'),
-				meeting('yesterday', '2026-11-10T09:00:00', '2026-11-10T10:00:00'),
-				meeting('overnight', '2026-11-10T23:00:00', '2026-11-11T01:00:00'),
-				meeting('later-today', '2026-11-11T15:00:00', '2026-11-11T16:00:00')
-			],
-			now
-		);
+	it('lists the meetings of one day by start time, its ended ones kept and one running past midnight on both days', () => {
+		const meetings = [
+			meeting('next-week', '2026-11-19T09:00:00', '2026-11-19T10:00:00'),
+			meeting('tomorrow', '2026-11-12T09:00:00', '2026-11-12T09:30:00'),
+			meeting('this-morning', '2026-11-11T08:00:00', '2026-11-11T08:30:00'),
+			meeting('yesterday', '2026-11-10T09:00:00', '2026-11-10T10:00:00'),
+			meeting('overnight', '2026-11-10T23:00:00', '2026-11-11T01:00:00'),
+			meeting('later-today', '2026-11-11T15:00:00', '2026-11-11T16:00:00'),
+			meeting('until-midnight', '2026-11-11T23:00:00', '2026-11-12T00:00:00')
+		];
+		const idsOf = (day: Date) => meetingsOfDay(meetings, day).map(({ id }) => id);
 
-		expect(agenda.map(({ day, meetings }) => [day.getDate(), meetings.map(({ id }) => id)])).toEqual([
-			[11, ['overnight', 'this-morning', 'later-today']],
-			[12, ['tomorrow']]
-		]);
-		expect(agendaOf([], now)).toEqual([{ day: new Date('2026-11-11T00:00:00'), meetings: [] }]);
+		expect(idsOf(now)).toEqual(['overnight', 'this-morning', 'later-today', 'until-midnight']);
+		expect(idsOf(dayAfter(now, -1))).toEqual(['yesterday', 'overnight']);
+		expect(idsOf(dayAfter(now, 1))).toEqual(['tomorrow']);
+		expect(idsOf(dayAfter(now, 2))).toEqual([]);
+		expect(dayAfter(now, 8)).toEqual(new Date('2026-11-19T00:00:00'));
+		expect(startOfDay(now)).toEqual(new Date('2026-11-11T00:00:00'));
+	});
+
+	it('marks the days a meeting runs on, not the one its midnight end opens, and a month at most', () => {
+		const daysOf = (meetings: ScheduledMeeting[]) =>
+			[...meetingDaysOf(meetings)].map((day) => new Date(day).toISOString().slice(0, 10)).sort();
+		const localDay = (date: string) => new Date(`${date}T00:00:00`).toISOString().slice(0, 10);
+
+		expect(
+			daysOf([
+				meeting('overnight', '2026-11-10T23:00:00', '2026-11-11T01:00:00'),
+				meeting('until-midnight', '2026-11-12T23:00:00', '2026-11-13T00:00:00'),
+				meeting('same-day', '2026-11-10T09:00:00', '2026-11-10T10:00:00')
+			])
+		).toEqual([localDay('2026-11-10'), localDay('2026-11-11'), localDay('2026-11-12')]);
+		expect(meetingDaysOf([meeting('typo', '2026-11-10T09:00:00', '2036-11-10T10:00:00')]).size).toBe(31);
 	});
 
 	it('reads a meeting from an appointment, and skips a cancelled one or one without times', () => {
@@ -159,6 +184,163 @@ describe('scheduled meetings', () => {
 			employeeId: 'employee-1'
 		});
 		expect(input).not.toHaveProperty('emails');
+	});
+
+	it("sends the participants' addresses as the appointment's emails, which Gauzy splits on a comma and a space", () => {
+		const input = appointmentInputOf(
+			{
+				title: 'Sprint review',
+				start: new Date('2026-11-12T14:00:00.000Z'),
+				durationMinutes: 30,
+				link: 'https://app.example.com/meet/jitsi?room=abc',
+				participantEmails: ['ana@acme.com', 'bob@example.org']
+			},
+			'employee-1'
+		);
+
+		expect(input.emails).toBe('ana@acme.com, bob@example.org');
+		expect(input.emails?.split(', ')).toEqual(['ana@acme.com', 'bob@example.org']);
+	});
+
+	it('offers the team members with an address, by name, once each and without oneself', () => {
+		const member = (email: string | null, name?: string, fullName?: string) => ({
+			employee: { fullName, user: { email, name } }
+		});
+
+		expect(
+			meetingInviteesOf(
+				[
+					member('Zoe@Acme.com', 'Zoe Martin'),
+					member('me@acme.com', 'Me'),
+					member(null, 'No address'),
+					member('ana@acme.com', '', 'Ana Silva'),
+					member('zoe@acme.com', 'Zoe again'),
+					{ employee: null }
+				],
+				'ME@acme.com'
+			)
+		).toEqual([
+			{ email: 'ana@acme.com', name: 'Ana Silva' },
+			{ email: 'zoe@acme.com', name: 'Zoe Martin' }
+		]);
+	});
+
+	it('adds the addresses typed or pasted as participants, once each, and tells what was no address', () => {
+		expect(participantsWithText(['ana@acme.com'], 'Bob <BOB@example.org>, ana@acme.com')).toEqual({
+			emails: ['ana@acme.com', 'bob@example.org'],
+			rejected: []
+		});
+		expect(participantsWithText([], 'bob@example.org, ana@example')).toEqual({
+			emails: ['bob@example.org'],
+			rejected: ['ana@example']
+		});
+		expect(participantsWithText(['bob@example.org'], 'ana')).toEqual({
+			emails: ['bob@example.org'],
+			rejected: ['ana']
+		});
+	});
+
+	it('tells every word that is no address next to addresses, but not the name of a "Name <address>"', () => {
+		expect(participantsWithText([], 'bob@example.org, ana')).toEqual({
+			emails: ['bob@example.org'],
+			rejected: ['ana']
+		});
+		expect(participantsWithText([], 'ana@example.org, bad@')).toEqual({
+			emails: ['ana@example.org'],
+			rejected: ['bad@']
+		});
+		expect(participantsWithText([], 'Bob <BOB@example.org>')).toEqual({
+			emails: ['bob@example.org'],
+			rejected: []
+		});
+		// A quoted name may hold a comma
+		expect(participantsWithText([], '"Silva, Ana" <ana@acme.com>; Bob Stone <bob@acme.com>')).toEqual({
+			emails: ['ana@acme.com', 'bob@acme.com'],
+			rejected: []
+		});
+		// What follows the last bracketed address is no name: it is read, and told when it is no address
+		expect(participantsWithText([], 'Bob <bob@example.org> bad@')).toEqual({
+			emails: ['bob@example.org'],
+			rejected: ['bad@']
+		});
+		expect(participantsWithText([], 'Ana <ana@acme.com> Bob <bob@acme.com> carol@acme.com')).toEqual({
+			emails: ['ana@acme.com', 'bob@acme.com', 'carol@acme.com'],
+			rejected: []
+		});
+		// An address where a name goes, between two bracketed addresses, is an invitee too
+		expect(participantsWithText([], 'Bob <bob@acme.com> carol@acme.com Ana <ana@acme.com>')).toEqual({
+			emails: ['bob@acme.com', 'ana@acme.com', 'carol@acme.com'],
+			rejected: []
+		});
+	});
+
+	it('reschedules a meeting with its title, time and link only, so Gauzy keeps the rest', () => {
+		const start = new Date('2026-11-13T09:30:00.000Z');
+		const link = 'https://app.example.com/meet/jitsi?room=abc&title=Sprint%20review';
+
+		expect(appointmentUpdateOf({ title: ' Sprint demo ', start, durationMinutes: 60, link })).toEqual({
+			agenda: 'Sprint demo',
+			startDateTime: '2026-11-13T09:30:00.000Z',
+			endDateTime: '2026-11-13T10:30:00.000Z',
+			location: link
+		});
+		expect(appointmentUpdateOf({ title: 'Call', start, durationMinutes: 15, link: null })).not.toHaveProperty(
+			'location'
+		);
+	});
+
+	it("renames a meeting's link and keeps its room as written", () => {
+		const room = 'room+one/two=';
+
+		expect(
+			meetingLinkWithTitle(`https://app.example.com/meet/jitsi?room=${room}&title=Sprint%20review`, 'Demo & Q&A')
+		).toBe(`https://app.example.com/meet/jitsi?room=${room}&title=Demo%20%26%20Q%26A`);
+		expect(meetingLinkWithTitle(`https://app.example.com/meet/livekit?roomName=${room}`, 'Retro')).toBe(
+			`https://app.example.com/meet/livekit?roomName=${room}&title=Retro`
+		);
+	});
+
+	it("keeps a meeting link's fragment after its query when the meeting is renamed", () => {
+		expect(meetingLinkWithTitle('https://app.example.com/meet/jitsi?room=abc&title=Old#notes', 'New')).toBe(
+			'https://app.example.com/meet/jitsi?room=abc&title=New#notes'
+		);
+		expect(meetingLinkWithTitle('https://app.example.com/meet/jitsi?room=abc#notes', 'New')).toBe(
+			'https://app.example.com/meet/jitsi?room=abc&title=New#notes'
+		);
+	});
+
+	it("replaces a meeting link's title wherever it stands in the query", () => {
+		expect(meetingLinkWithTitle('https://app.example.com/meet/jitsi?title=Old&room=YWJj', 'New')).toBe(
+			'https://app.example.com/meet/jitsi?room=YWJj&title=New'
+		);
+		expect(meetingLinkWithTitle('https://app.example.com/meet/jitsi?room=YWJj&title=Old&lang=fr', 'New')).toBe(
+			'https://app.example.com/meet/jitsi?room=YWJj&lang=fr&title=New'
+		);
+		// The page reads the names decoded: "%74itle" is a title, and a stray "%" is kept as written
+		// cspell:ignore itle
+		expect(meetingLinkWithTitle('https://app.example.com/meet/jitsi?%74itle=Old&room=YWJj', 'New')).toBe(
+			'https://app.example.com/meet/jitsi?room=YWJj&title=New'
+		);
+		expect(meetingLinkWithTitle('https://app.example.com/meet/jitsi?room=YWJj&a%=1', 'New')).toBe(
+			'https://app.example.com/meet/jitsi?room=YWJj&a%=1&title=New'
+		);
+	});
+
+	it('leaves a location that is no meeting link as written when the meeting is renamed', () => {
+		expect(meetingLinkWithTitle('Office', 'Retro')).toBe('Office');
+		expect(meetingLinkWithTitle('https://zoom.us/j/123?pwd=abc', 'Retro')).toBe('https://zoom.us/j/123?pwd=abc');
+	});
+
+	it('asks a meeting page to share the screen, and takes the request out of its address as written', () => {
+		const path = sharingScreenPathOf('/meet/jitsi?room=room+one/two=');
+
+		expect(path).toBe('/meet/jitsi?room=room+one/two=&share=screen');
+		expect(isSharingScreenAsked(path.split('?')[1])).toBe(true);
+		expect(isSharingScreenAsked('?room=abc&share=screens')).toBe(false);
+		expect(searchWithoutSharing('?room=room+one/two=&share=screen&title=Demo%20day')).toBe(
+			'?room=room+one/two=&title=Demo%20day'
+		);
+		expect(searchWithoutSharing('?share=screen')).toBe('');
 	});
 
 	it('writes a calendar file with the time in UTC, escaped text and folded long lines', () => {

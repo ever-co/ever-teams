@@ -1,11 +1,19 @@
 import {
 	classicIconGlyphOf,
+	gauzyDiskIconKeyOf,
 	isClassicIcon,
 	isCustomIcon,
 	isIconUrl,
+	isUploadedIcon,
 	libraryIconKeyOf,
-	libraryIconValue
+	libraryIconValue,
+	uploadedIconOf,
+	uploadedIconValue
 } from './property-icon-value';
+
+const ASSET_ID = '5b0f3a52-7c1e-4d6a-9a43-0f1d2e3c4b5a';
+const TENANT_ID = 'e1c2a3b4-5d6e-4f70-8a9b-0c1d2e3f4a5b';
+const KEY = `uploads/task_property_icons/${TENANT_ID}/image-assets-1731340000-a1b2.png`;
 
 describe('property icon values', () => {
 	it('stores a library icon under its key and reads the key back', () => {
@@ -50,8 +58,42 @@ describe('property icon values', () => {
 		expect(isIconUrl('ever-icons/task-statuses/open.svg')).toBe(false);
 	});
 
+	it('names an uploaded image by its image asset, as the app sends it', () => {
+		expect(uploadedIconValue(ASSET_ID)).toBe(`image-asset:${ASSET_ID}`);
+		expect(uploadedIconOf(`image-asset:${ASSET_ID}`)).toEqual({
+			assetId: ASSET_ID,
+			storageProvider: null,
+			key: null
+		});
+	});
+
+	it('reads the provider and the key Gauzy completes an uploaded image with', () => {
+		expect(uploadedIconOf(` image-asset:${ASSET_ID}:S3:${KEY} `)).toEqual({
+			assetId: ASSET_ID,
+			storageProvider: 'S3',
+			key: KEY
+		});
+		expect(uploadedIconOf(`image-asset:${ASSET_ID}:CLOUDINARY:icons/a:b.png`)?.key).toBe('icons/a:b.png');
+	});
+
+	it('reads no uploaded image from other values', () => {
+		expect(uploadedIconOf('hugeicons:done')).toBeNull();
+		expect(uploadedIconOf('image-asset:')).toBeNull();
+		expect(uploadedIconOf(null)).toBeNull();
+		expect(isUploadedIcon('uploads/icons/rocket.png')).toBe(false);
+		expect(isUploadedIcon(`image-asset:${ASSET_ID}`)).toBe(true);
+	});
+
+	it('gives the key of an uploaded image only when Gauzy keeps the file on its own disk', () => {
+		expect(gauzyDiskIconKeyOf(`image-asset:${ASSET_ID}:LOCAL:${KEY}`)).toBe(KEY);
+		expect(gauzyDiskIconKeyOf(`image-asset:${ASSET_ID}:S3:${KEY}`)).toBeNull();
+		expect(gauzyDiskIconKeyOf(`image-asset:${ASSET_ID}`)).toBeNull();
+		expect(gauzyDiskIconKeyOf(KEY)).toBeNull();
+	});
+
 	it('counts library icons and files of the user own as custom, never a classic icon or nothing', () => {
 		expect(isCustomIcon('hugeicons:bug')).toBe(true);
+		expect(isCustomIcon(`image-asset:${ASSET_ID}`)).toBe(true);
 		expect(isCustomIcon('uploads/icons/rocket.png')).toBe(true);
 		expect(isCustomIcon('https://cdn.example.com/icon.png')).toBe(true);
 		expect(isCustomIcon('ever-icons/task-priorities/high.svg')).toBe(false);

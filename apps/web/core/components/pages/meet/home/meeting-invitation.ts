@@ -1,3 +1,5 @@
+import type { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { meetingIcsOf, type ScheduledMeeting } from '@/core/lib/utils/meetings';
 
 /** "Thursday, November 12, 2026, 2:00 – 2:45 PM", in the reader's language. */
@@ -10,6 +12,19 @@ export function meetingWhenOf(meeting: Pick<ScheduledMeeting, 'start' | 'end'>, 
 export function meetingTimesOf(meeting: Pick<ScheduledMeeting, 'start' | 'end'>, locale: string): string {
 	const format = new Intl.DateTimeFormat(locale, { timeStyle: 'short' });
 	return format.formatRange(meeting.start, meeting.end);
+}
+
+/** "12 minutes ago", "2 hours ago", or "now" in its first minute: how long a running meeting has been on. */
+export function meetingStartedAgoOf(meeting: Pick<ScheduledMeeting, 'start'>, now: Date, locale: string): string {
+	const format = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+	const minutes = Math.floor((now.getTime() - meeting.start.getTime()) / 60_000);
+	if (minutes < 1) {
+		return format.format(0, 'second');
+	}
+	if (minutes < 60) {
+		return format.format(-minutes, 'minute');
+	}
+	return format.format(-Math.floor(minutes / 60), 'hour');
 }
 
 /** "Sprint-review.ics": the meeting's title, letters and digits only, for the name of its calendar file. */
@@ -38,5 +53,27 @@ export async function copyMeetingText(text: string): Promise<boolean> {
 		return true;
 	} catch {
 		return false;
+	}
+}
+
+/**
+ * Copies the invitation to a meeting: its title, when it runs and its link, in the reader's language. A browser that
+ * refuses the clipboard gets the text in a notice, to copy by hand.
+ */
+export async function copyMeetingInvitation(
+	meeting: Pick<ScheduledMeeting, 'title' | 'start' | 'end'> & { link: string },
+	locale: string,
+	t: ReturnType<typeof useTranslations>
+): Promise<void> {
+	const text = t('meetings.INVITATION_TEXT', {
+		title: meeting.title,
+		when: meetingWhenOf(meeting, locale),
+		link: meeting.link
+	});
+	const isCopied = await copyMeetingText(text);
+	if (isCopied) {
+		toast.success(t('meetings.INVITATION_COPIED'));
+	} else {
+		toast.info(t('meetings.COPY_INVITATION'), { description: text, duration: 10000 });
 	}
 }
