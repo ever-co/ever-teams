@@ -67,7 +67,7 @@ jest.mock('@/core/hooks/common/use-hotkeys', () => ({
 }));
 jest.mock('@/core/hooks/common/use-detect-os', () => ({ useDetectOS: () => ({ os: 'Windows' }) }));
 jest.mock('@/core/components/features/daily-plan/timer-plan-dialogs', () => ({ TimerPlanDialogs: () => null }));
-jest.mock('./timer-billable-switch', () => ({ TimerBillableSwitch: () => null }));
+jest.mock('./timer-billable-toggle', () => ({ TimerBillableToggle: () => null }));
 jest.mock('../duplicated-components/_progress-bar', () => ({ ProgressBar: () => null }));
 jest.mock('../duplicated-components/tooltip', () => ({ Tooltip: ({ children }: TChildrenProps) => <>{children}</> }));
 

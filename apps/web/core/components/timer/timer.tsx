@@ -9,7 +9,7 @@ import { clsxm } from '@/core/lib/utils/clsxm';
 import { Text } from '@/core/components/common/typography';
 import { useTranslations } from 'next-intl';
 import { TimerButton } from './timer-button';
-import { TimerBillableSwitch } from './timer-billable-switch';
+import { TimerBillableToggle } from './timer-billable-toggle';
 import { TimerNotesButton } from './timer-notes-button';
 import { Transition } from '@headlessui/react';
 
@@ -184,7 +184,7 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 				<div className="flex h-fit shrink-0 items-center justify-center">
 					<div className="flex items-center gap-3">
 						<TimerNotesButton />
-						<TimerBillableSwitch locked={isBillableLocked} />
+						<TimerBillableToggle locked={isBillableLocked} />
 						<Tooltip
 							label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
 							placement="top-start"
