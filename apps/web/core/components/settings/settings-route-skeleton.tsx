@@ -14,6 +14,7 @@ import { TeamGeneralSettingsSkeleton } from './pages/team-general/team-general-s
 import { MembersSettingsSkeleton } from './pages/members/members-settings-skeleton';
 import { IntegrationsSettingsSkeleton } from './pages/integrations/integrations-settings-skeleton';
 import { TimeImportSettingsSkeleton } from './pages/time-import/time-import-settings-skeleton';
+import { AutomationsSettingsSkeleton } from './pages/automations/automations-settings-skeleton';
 import { StatusesSettingsSkeleton } from './pages/task-properties/statuses-settings-skeleton';
 import { PrioritiesSettingsSkeleton } from './pages/task-properties/priorities-settings-skeleton';
 import { SizesSettingsSkeleton } from './pages/task-properties/sizes-settings-skeleton';
@@ -37,6 +38,7 @@ const PAGE_SKELETONS: Readonly<Record<SettingsPageId, ComponentType>> = {
 	members: MembersSettingsSkeleton,
 	integrations: IntegrationsSettingsSkeleton,
 	import: TimeImportSettingsSkeleton,
+	automations: AutomationsSettingsSkeleton,
 	statuses: StatusesSettingsSkeleton,
 	priorities: PrioritiesSettingsSkeleton,
 	sizes: SizesSettingsSkeleton,

@@ -11,7 +11,14 @@ describe('the Import page in the settings navigation', () => {
 	});
 
 	it('follows Integrations for a manager', () => {
-		expect(teamEntryIds(true)).toEqual(['teamGeneral', 'members', 'integrations', 'import', 'permissions']);
+		expect(teamEntryIds(true)).toEqual([
+			'teamGeneral',
+			'members',
+			'integrations',
+			'import',
+			'automations',
+			'permissions'
+		]);
 	});
 
 	it('is the active entry on its own address, not the team page above it', () => {
