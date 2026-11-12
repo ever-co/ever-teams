@@ -379,6 +379,39 @@ function sameTimeOfDayOf(sourceStart: Date, dayStart: Date, seconds: number, ste
 	return { start, end };
 }
 
+/**
+ * Whether the Add time dialog, which keeps a time as an hour and a minute of its day and reads it back as the first
+ * moment with that time, saves this moment as it is. On the day the clock goes back an hour comes twice: a moment of
+ * its second run would be saved an hour earlier, and the copy an hour shorter.
+ */
+function isKeptByDialog(moment: Date, dayStart: Date) {
+	const clockTime = { hours: moment.getHours(), minutes: moment.getMinutes(), seconds: 0, milliseconds: 0 };
+	const readBack = set(dayStart, clockTime);
+	return readBack.getTime() === moment.getTime();
+}
+
+function isKeptCopy(copy: TimeWindow) {
+	const dayStart = startOfDay(copy.start);
+	return isKeptByDialog(copy.start, dayStart) && isKeptByDialog(copy.end, dayStart);
+}
+
+/** The latest copy that fits in a free stretch and that the dialog saves as it is, one step earlier at a time. */
+function latestKeptCopyIn(window: TimeWindow, seconds: number, stepMinutes: number): TimeWindow | null {
+	const start = raisedToStep(window.start, stepMinutes);
+	const stepSeconds = stepSecondsOf(stepMinutes);
+	let copyEnd = flooredToStep(window.end, stepMinutes);
+	let copyStart = secondsBefore(copyEnd, seconds);
+	while (copyStart.getTime() >= start.getTime()) {
+		const copy = { start: copyStart, end: copyEnd };
+		if (isKeptCopy(copy)) {
+			return copy;
+		}
+		copyEnd = secondsBefore(copyEnd, stepSeconds);
+		copyStart = secondsBefore(copyEnd, seconds);
+	}
+	return null;
+}
+
 function latestFreeIntervalOf(
 	free: ReadonlyArray<TimeWindow>,
 	seconds: number,
@@ -386,14 +419,9 @@ function latestFreeIntervalOf(
 ): TimeWindow | null {
 	const latestFirst = [...free].reverse();
 	for (const window of latestFirst) {
-		const start = raisedToStep(window.start, stepMinutes);
-		const end = flooredToStep(window.end, stepMinutes);
-		const freeMilliseconds = end.getTime() - start.getTime();
-		const freeSeconds = freeMilliseconds / MILLISECONDS_PER_SECOND;
-		const holdsCopy = freeSeconds >= seconds;
-		if (holdsCopy) {
-			const copyStart = secondsBefore(end, seconds);
-			return { start: copyStart, end };
+		const copy = latestKeptCopyIn(window, seconds, stepMinutes);
+		if (copy) {
+			return copy;
 		}
 	}
 	return null;
@@ -426,7 +454,7 @@ export function duplicateIntervalOf(placement: DuplicatePlacement): TimeWindow |
 		const endsByNow = sameTime.end.getTime() <= latestEnd.getTime();
 		const runsOverEntry = busy.some((window) => windowsOverlap(sameTime, window));
 		const isFree = !runsOverEntry;
-		if (endsByNow && isFree) {
+		if (endsByNow && isFree && isKeptCopy(sameTime)) {
 			return sameTime;
 		}
 	}
