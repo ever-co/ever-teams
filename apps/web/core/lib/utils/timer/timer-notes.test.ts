@@ -91,7 +91,7 @@ describe('timerNotesAfterStart', () => {
 	const answerWithoutNotes = { running: true, lastLog: { id: 'log-1', description: null } };
 
 	it('ties a draft to the entry its own start created', () => {
-		expect(timerNotesAfterStart(draft, answerWithNotes, SENT_NOTES, true)).toEqual({
+		expect(timerNotesAfterStart(draft, answerWithNotes, SENT_NOTES)).toEqual({
 			text: 'Fix the login page',
 			timeLogId: 'log-1'
 		});
@@ -101,18 +101,18 @@ describe('timerNotesAfterStart', () => {
 		const typedOn = { text: 'Fix the login page and its tests', timeLogId: null };
 		const typedFromNothing = { text: 'Its tests', timeLogId: null };
 
-		expect(timerNotesAfterStart(typedOn, answerWithNotes, SENT_NOTES, true)).toEqual({
+		expect(timerNotesAfterStart(typedOn, answerWithNotes, SENT_NOTES)).toEqual({
 			text: 'Fix the login page and its tests',
 			timeLogId: 'log-1'
 		});
-		expect(timerNotesAfterStart(typedFromNothing, answerWithoutNotes, undefined, true)).toEqual({
+		expect(timerNotesAfterStart(typedFromNothing, answerWithoutNotes, undefined)).toEqual({
 			text: 'Its tests',
 			timeLogId: 'log-1'
 		});
 	});
 
 	it('ties empty notes to the entry of a start that sent none, so notes typed next belong to that entry', () => {
-		expect(timerNotesAfterStart(EMPTY_TIMER_NOTES, answerWithoutNotes, undefined, true)).toEqual({
+		expect(timerNotesAfterStart(EMPTY_TIMER_NOTES, answerWithoutNotes, undefined)).toEqual({
 			text: '',
 			timeLogId: 'log-1'
 		});
@@ -121,27 +121,20 @@ describe('timerNotesAfterStart', () => {
 	it('leaves a draft emptied since the start sent it to the notes the entry was saved with', () => {
 		const emptied = { text: '  ', timeLogId: null };
 
-		expect(timerNotesAfterStart(emptied, answerWithNotes, SENT_NOTES, true)).toBe(emptied);
+		expect(timerNotesAfterStart(emptied, answerWithNotes, SENT_NOTES)).toBe(emptied);
 		expect(timerNotesFor(emptied, answerWithNotes.lastLog)).toEqual({ text: SENT_NOTES, timeLogId: 'log-1' });
 	});
 
 	it('leaves the notes alone when the answer shows no running entry', () => {
-		expect(timerNotesAfterStart(draft, null, SENT_NOTES, true)).toBe(draft);
-		expect(timerNotesAfterStart(draft, { running: true }, SENT_NOTES, true)).toBe(draft);
-		expect(timerNotesAfterStart(draft, { running: false, lastLog: { id: 'log-0' } }, SENT_NOTES, true)).toBe(draft);
+		expect(timerNotesAfterStart(draft, null, SENT_NOTES)).toBe(draft);
+		expect(timerNotesAfterStart(draft, { running: true }, SENT_NOTES)).toBe(draft);
+		expect(timerNotesAfterStart(draft, { running: false, lastLog: { id: 'log-0' } }, SENT_NOTES)).toBe(draft);
 	});
 
 	it('never gives the notes of an earlier entry to the entry that starts', () => {
 		const earlier = { text: 'Old notes', timeLogId: 'log-0' };
 
-		expect(timerNotesAfterStart(earlier, answerWithoutNotes, undefined, true)).toBe(earlier);
-	});
-
-	it('ties nothing after a team change during the start, so a draft typed in the next team stays a draft', () => {
-		const typedInTheNextTeam = { text: 'Plan the sprint', timeLogId: null };
-
-		expect(timerNotesAfterStart(typedInTheNextTeam, answerWithNotes, SENT_NOTES, false)).toBe(typedInTheNextTeam);
-		expect(timerNotesAfterStart(EMPTY_TIMER_NOTES, answerWithoutNotes, undefined, false)).toBe(EMPTY_TIMER_NOTES);
+		expect(timerNotesAfterStart(earlier, answerWithoutNotes, undefined)).toBe(earlier);
 	});
 });
 

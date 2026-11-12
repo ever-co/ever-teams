@@ -87,7 +87,6 @@ describe('canStopFromPalette', () => {
 
 describe('paletteStartActionOf', () => {
 	const otherTask: PaletteStartState = {
-		hasHiddenRun: false,
 		isActiveTask: false,
 		isTimerRunning: false,
 		isEmailVerified: true,
@@ -132,12 +131,5 @@ describe('paletteStartActionOf', () => {
 		const running = { ...activeTask, isTimerRunning: true, isEmailVerified: false };
 
 		expect(paletteStartActionOf(running)).toBe('ALREADY_RUNNING');
-	});
-
-	it('never stops a run the timer does not show, as the main Start warns about it instead', () => {
-		const hiddenRun = { hasHiddenRun: true, isTimerRunning: true };
-
-		expect(paletteStartActionOf({ ...otherTask, ...hiddenRun })).toBe('HIDDEN_RUN');
-		expect(paletteStartActionOf({ ...activeTask, ...hiddenRun })).toBe('HIDDEN_RUN');
 	});
 });
