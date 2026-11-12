@@ -308,7 +308,8 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 
 	/**
 	 * Fills empty cells from last week, one after the other, on the member's logs read from the API when the run
-	 * starts. The time each plan places counts as taken for the next ones of the same day.
+	 * starts. A cell filled since the copy was prepared is left alone, and the time each plan places counts as taken
+	 * for the next ones of the same day.
 	 */
 	const applyCopyPlan = useCallback(
 		(plans: ReadonlyArray<CopyCellPlan>): Promise<CopyRunResult> => {
@@ -319,6 +320,12 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 				try {
 					const memberLogs = await readSavedMemberLogs();
 					for (const plan of plans) {
+						const cellLogs = logsOfCell(memberLogs, plan.identity.key, plan.day.key);
+						const isCellFilled = cellLogs.length > 0;
+						if (isCellFilled) {
+							result.skippedCount += 1;
+							continue;
+						}
 						const placedBefore = placedByDay.get(plan.day.key) ?? [];
 						const freeWindows = freeWindowsOfDay(memberLogs, plan.day, placedBefore, allowsFutureDates);
 						const pieces = placementOf(plan.seconds, freeWindows, plan.day.date);

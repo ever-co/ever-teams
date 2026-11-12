@@ -21,7 +21,12 @@ jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
 	}
 }));
 
-import { type CellCommitOutcome, type SheetWriteScope, useSheetCellWrites } from './use-sheet-cell-writes';
+import {
+	type CellCommitOutcome,
+	type CopyRunResult,
+	type SheetWriteScope,
+	useSheetCellWrites
+} from './use-sheet-cell-writes';
 
 const HOUR = 3600;
 
@@ -101,5 +106,34 @@ describe('useSheetCellWrites', () => {
 		expect(outcome).toBe('refused');
 		expect(mockCreateTimesheetFrom).not.toHaveBeenCalled();
 		expect(mockToastError).toHaveBeenCalledWith('dashboard.timesheets.SHEET.EDIT.SAVE_FAILED', expect.anything());
+	});
+
+	it('copies into the cells still empty and leaves alone one filled since the copy was prepared', async () => {
+		const filledSince = logOf({
+			id: 'typed',
+			projectId: 'project',
+			taskId: 'task',
+			logType: ETimeLogType.MANUAL,
+			startedAt: at(9),
+			stoppedAt: at(10)
+		});
+		const emptyRow = rowIdentityOfLog(logOf({ projectId: 'project', taskId: 'other-task' }));
+		const scope = scopeOf({ readSavedMemberLogs: async () => [filledSince] });
+		const { result } = renderWrites(scope);
+		const plans = [
+			{ identity, day, seconds: 2 * HOUR },
+			{ identity: emptyRow, day, seconds: 2 * HOUR }
+		];
+
+		let run: CopyRunResult | undefined;
+		await act(async () => {
+			run = await result.current.applyCopyPlan(plans);
+		});
+
+		expect(run).toEqual({ savedCount: 1, savedSeconds: 2 * HOUR, skippedCount: 1, isStopped: false });
+		expect(mockCreateTimesheetFrom).toHaveBeenCalledTimes(1);
+		expect(mockCreateTimesheetFrom).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'other-task', startedAt: at(10), stoppedAt: at(12) })
+		);
 	});
 });
