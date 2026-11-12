@@ -58,7 +58,7 @@ export function ClientsToolbar({
 					<h1 className="truncate text-lg font-semibold text-foreground">{t('clients.TITLE')}</h1>
 					{isLoading && <ClientsCountSkeleton />}
 					{!isLoading && (
-						<span className="text-xs tabular-nums text-muted-foreground">
+						<span aria-live="polite" className="text-xs tabular-nums text-muted-foreground">
 							{t('clients.COUNT', { count: shownCount })}
 						</span>
 					)}
