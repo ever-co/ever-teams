@@ -26,6 +26,8 @@ import { useTimerApi } from './use-timer-api';
 
 /** The cookies every tab of the browser reads and writes. */
 const mockBrowserCookies = { teamId: '', taskId: '' };
+/** Each team this tab wrote into the team cookie, in order. */
+const mockTeamCookieWrites: string[] = [];
 
 const mockUser = {
 	id: 'user-1',
@@ -51,6 +53,7 @@ jest.mock('@/core/lib/helpers/cookies', () => ({
 	getAccessTokenCookie: () => 'token-1',
 	getActiveTeamIdCookie: () => mockBrowserCookies.teamId,
 	setActiveTeamIdCookie: (teamId: string) => {
+		mockTeamCookieWrites.push(teamId);
 		mockBrowserCookies.teamId = teamId;
 	},
 	setOrganizationIdCookie: jest.fn(),
@@ -157,6 +160,7 @@ beforeEach(() => {
 	jest.spyOn(Date, 'now').mockImplementation(() => realNow.call(Date) + clockOffset);
 	mockBrowserCookies.teamId = '';
 	mockBrowserCookies.taskId = '';
+	mockTeamCookieWrites.length = 0;
 });
 
 afterEach(() => {
@@ -227,6 +231,25 @@ describe('the team another tab switches to', () => {
 		});
 
 		await waitFor(() => expect(store.get(activeTeamIdState)).toBe('team-y'));
+	});
+
+	it("still follows the cookie when a reload after a member change finds this tab's own team gone", async () => {
+		mockBrowserCookies.teamId = 'team-x';
+		mockGetOrganizationTeams.mockResolvedValue(teamList([team('team-x'), team('team-y'), team('team-z')]) as never);
+		const { store, view } = renderTab();
+		await waitFor(() => expect(store.get(activeTeamIdState)).toBe('team-x'));
+
+		// Another tab moved to team Z, then team X went away: this tab reloads its teams after the member change
+		mockBrowserCookies.teamId = 'team-z';
+		mockGetOrganizationTeams.mockResolvedValue(teamList([team('team-y', 'r2'), team('team-z', 'r2')]) as never);
+		await act(async () => {
+			await view.result.current.loadTeamsData();
+		});
+		await waitFor(() => expect(store.get(organizationTeamsState)[0]?.updatedAt).toBe('r2'));
+
+		// The team a list read picks too: the first team of the list never reaches the cookie the other tabs read
+		expect(store.get(activeTeamIdState)).toBe('team-z');
+		expect(mockTeamCookieWrites).not.toContain('team-y');
 	});
 
 	it("starts this tab's timer on its own team, not on the team another tab switched to", async () => {

@@ -384,16 +384,20 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			return;
 		}
 
-		// TEAM SELECTION PRIORITY LOGIC: this tab's own team first, as the cookie may name another tab's team (#5120)
-		let teamId = activeTeamIdRef.current || getActiveTeamIdCookie();
+		// TEAM SELECTION PRIORITY LOGIC: the cookie, else this browser's last team, else the user's last team
+		let storedTeamId = getActiveTeamIdCookie();
 
-		if (!teamId && typeof window !== 'undefined') {
-			teamId = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || '';
+		if (!storedTeamId && typeof window !== 'undefined') {
+			storedTeamId = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || '';
 		}
 
-		if (!teamId && user?.lastTeamId) {
-			teamId = user.lastTeamId;
+		if (!storedTeamId && user?.lastTeamId) {
+			storedTeamId = user.lastTeamId;
 		}
+
+		// This tab's own team first, as the cookie may name another tab's team (#5120)
+		const ownTeamId = activeTeamIdRef.current;
+		let teamId = ownTeamId || storedTeamId;
 
 		setActiveTeamId(teamId);
 
@@ -408,6 +412,15 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			if (latestTeams.length === 0) {
 				setIsTeamMember(false);
 				setIsTeamMemberJustDeleted(true);
+			}
+
+			// This tab's own team counts only while the list holds it: once it is gone, the stored team decides, as in
+			// the list effect, before the list's first team
+			const ownTeamIsGone = !!ownTeamId && !latestTeams.some((team) => team.id === ownTeamId);
+			const storedTeam = latestTeams.find((team) => team.id === storedTeamId);
+			if (ownTeamIsGone && storedTeam) {
+				setActiveTeam(storedTeam);
+				teamId = storedTeam.id;
 			}
 
 			const selectedTeamExists = latestTeams.find((team: any) => team.id === teamId);
