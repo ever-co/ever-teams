@@ -2006,6 +2006,7 @@ describe('Ever Teams feature surface preservation', () => {
 		// 292 files and 374 verbs with the comment proxy (/api/comment/[id], PUT and DELETE) and the Docs Markdown export
 		// (GET /api/plugins/docs/documents/[id]/export/markdown), which develop added without raising these numbers.
 		// 294 files and 377 verbs with the scheduled meetings' proxies (/api/employee-appointment GET, POST and [id] DELETE).
+		// 295 files and 378 verbs with the Inbox delivery status proxy (GET /api/inbox/delivery/status).
 		// 300 files and 383 verbs with the clients' proxies (/api/organization-contact POST, pagination GET, [id] PUT,
 		// [id]/soft DELETE, [id]/recover PUT; #5082).
 		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(300);
