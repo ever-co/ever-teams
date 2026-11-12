@@ -21,4 +21,12 @@ describe('workDiaryPathOf', () => {
 		expect(workDiaryPathOf(new Date(2026, 10, 9, 23, 50), now)).toBe('/work-diary?date=2026-11-09');
 		expect(workDiaryPathOf(new Date(2026, 10, 11, 8, 0), now)).toBe('/work-diary');
 	});
+
+	it('names the week view in the link, with the day when it is not today', () => {
+		expect(workDiaryPathOf(new Date(2026, 10, 11, 8, 0), now, 'week')).toBe('/work-diary?view=week');
+		expect(workDiaryPathOf(new Date(2026, 10, 9, 23, 50), now, 'week')).toBe(
+			'/work-diary?date=2026-11-09&view=week'
+		);
+		expect(workDiaryPathOf(new Date(2026, 10, 9, 23, 50), now, 'day')).toBe('/work-diary?date=2026-11-09');
+	});
 });

@@ -167,20 +167,31 @@ export function memberTaskIdOf(member: TOrganizationTeamEmployee | null | undefi
  * Whether `heldTask`, the active task already validated for the team, is still the member's task `taskId` of team
  * `teamId`. The team's task list follows its default project: when the default project changes, a task of another
  * project of the team drops out of the list while staying the member's task, and the one their timer runs on.
+ *
+ * A task read from a daily plan comes without its teams, so it cannot be validated. It is held all the same while the
+ * timer runs on it (`timerTaskId`), whichever task `taskId` names, or while the member's record in the team names it
+ * as theirs (`memberTaskId`): the save of a chosen task brings that record back before its timer starts (#5119). A
+ * task known to belong to other teams only is never held, and a listed task only as the task `taskId` names.
  */
 export function isHeldTeamTask(
 	heldTask: TTask | null | undefined,
 	taskId: string | null | undefined,
-	teamId: string | null | undefined
+	teamId: string | null | undefined,
+	timerTaskId?: string | null,
+	memberTaskId?: string | null
 ): boolean {
 	if (!heldTask) {
 		return false;
 	}
 	const isSameTask = heldTask.id === taskId;
-	if (!isSameTask) {
-		return false;
+	const hasKnownTeams = !!heldTask.teams?.length;
+	if (hasKnownTeams) {
+		return isSameTask && isTaskInTeam(heldTask, teamId);
 	}
-	return isTaskInTeam(heldTask, teamId);
+	// The task the timer runs on stays active while the member's record or the cookie names another task meanwhile
+	const isTimerTask = heldTask.id === timerTaskId;
+	const isMemberTask = isSameTask && heldTask.id === memberTaskId;
+	return isTimerTask || isMemberTask;
 }
 
 /**

@@ -2026,14 +2026,16 @@ describe('Ever Teams feature surface preservation', () => {
 		// documents/[id]/comments/[commentId]/anchor PUT and DELETE).
 		// 323 files and 414 verbs with the task automations proxies (/api/task-automations GET POST, templates GET,
 		// order PUT, [id] GET PUT DELETE, [id]/test POST, [id]/runs GET).
-		// 328 files and 419 verbs with the clients' proxies (/api/organization-contact POST, pagination GET, [id] PUT,
+		// 324 files and 415 verbs with the trash's Delete forever, which deletes a task only while it is still in the
+		// trash (/api/tasks/[id]/trashed DELETE).
+		// 329 files and 420 verbs with the clients' proxies (/api/organization-contact POST, pagination GET, [id] PUT,
 		// [id]/soft DELETE, [id]/recover PUT; #5082).
-		// 332 files and 423 verbs with the invoices' proxies (/api/invoices POST, pagination GET, highest GET,
+		// 333 files and 424 verbs with the invoices' proxies (/api/invoices POST, pagination GET, highest GET,
 		// download/[id] GET; #5088).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(332);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(333);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(423);
+		).toHaveLength(424);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's invoice routes (#5088)
@@ -2047,6 +2049,8 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/organization-contact/[id]/route.ts::PUT',
 				'apps/web/app/api/organization-contact/[id]/soft/route.ts::DELETE',
 				'apps/web/app/api/organization-contact/[id]/recover/route.ts::PUT',
+				// Proxy mode twin of the platform's Delete forever from the task trash (2026-11-12)
+				'apps/web/app/api/tasks/[id]/trashed/route.ts::DELETE',
 				// Proxy mode twins of the platform's task automations routes (2026-11-11)
 				'apps/web/app/api/task-automations/route.ts::GET',
 				'apps/web/app/api/task-automations/route.ts::POST',
