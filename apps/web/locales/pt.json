@@ -630,7 +630,9 @@
 					"TRACKED_TITLE": "O tempo rastreado é mantido",
 					"TRACKED": "{tracked} desta célula foi rastreado por um cronômetro. A folha só diminui o tempo adicionado à mão: abra os registros da célula para remover tempo rastreado.",
 					"SAVE_FAILED": "Tempo não salvo",
+					"PARTLY_SAVED_TITLE": "Apenas parte da alteração foi salva",
 					"REFUSED": "Você não pode adicionar nem alterar tempo para este membro.",
+					"TAKE_BACK_NOT_ALLOWED": "Sua função ou organização não permite excluir nem alterar tempo, então esta célula não pode ser reduzida.",
 					"LOCK_FUTURE": "Sua organização não permite tempo em dias depois de hoje.",
 					"LOCK_APPROVED": "Esta semana está aprovada: seu tempo não pode ser alterado pela folha.",
 					"LOCK_RUNNING": "Há um cronômetro rodando nesta tarefa hoje.",
@@ -693,7 +695,9 @@
 			"APPS_EMPTY": "Nenhuma app nem site registado em {day}.",
 			"OPEN_TIMESHEETS": "Abrir nas folhas de horas",
 			"UPDATING": "A carregar o diário",
-			"NO_TIME_HINT": "Quando houver tempo registado, as tarefas, capturas de ecrã e apps do dia aparecem aqui."
+			"NO_TIME_HINT": "Quando houver tempo registado, as tarefas, capturas de ecrã e apps do dia aparecem aqui.",
+			"WEEK_TITLE": "Folha de horas",
+			"WEEK_NO_MANUAL_TIME_PERMISSION": "Sua função não permite adicionar tempo manualmente, então a folha é somente leitura. Um administrador pode permitir."
 		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# membro} other {# membros}}",
@@ -6197,6 +6201,8 @@
 		"DELETE_FOREVER_TITLE": "Eliminar esta tarefa definitivamente?",
 		"DELETE_FOREVER_TEXT": "“{title}” será removida definitivamente. Não é possível anular.",
 		"DELETED_FOREVER": "“{title}” foi eliminada definitivamente",
+		"NO_LONGER_IN_TRASH": "“{title}” já não está no lixo: foi restaurada ou eliminada entretanto. A lista foi atualizada.",
+		"STILL_LINKED": "“{title}” continua no lixo: outras tarefas ou resultados-chave ainda estão ligados a ela. Remova primeiro essas ligações.",
 		"DELETE_FAILED": "A tarefa não foi eliminada. Tente novamente.",
 		"DELETED_BY": "Eliminada por {name} · {date}",
 		"DELETED_AT": "Eliminada {date}",

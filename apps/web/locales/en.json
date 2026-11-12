@@ -630,7 +630,9 @@
 					"TRACKED_TITLE": "Tracked time stays",
 					"TRACKED": "{tracked} of this cell was tracked by a timer. The sheet only lowers time added by hand: open the cell's entries to remove tracked time.",
 					"SAVE_FAILED": "Time not saved",
+					"PARTLY_SAVED_TITLE": "Only part of the change was saved",
 					"REFUSED": "You can't add or change time for this member.",
+					"TAKE_BACK_NOT_ALLOWED": "Your role or organization doesn't allow deleting or changing time, so this cell can't be lowered.",
 					"LOCK_FUTURE": "Your organization doesn't allow time on days after today.",
 					"LOCK_APPROVED": "This week is approved, so its time can't be changed from the sheet.",
 					"LOCK_RUNNING": "A timer is running on this task today.",
@@ -693,7 +695,9 @@
 			"APPS_EMPTY": "No app or site recorded on {day}.",
 			"OPEN_TIMESHEETS": "Open in Timesheets",
 			"UPDATING": "Loading the diary",
-			"NO_TIME_HINT": "Once time is tracked, the day's tasks, screenshots and apps show here."
+			"NO_TIME_HINT": "Once time is tracked, the day's tasks, screenshots and apps show here.",
+			"WEEK_TITLE": "Timesheet",
+			"WEEK_NO_MANUAL_TIME_PERMISSION": "Your role can't add time by hand, so the sheet is read only. An admin can allow it."
 		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# member} other {# members}}",
@@ -6197,6 +6201,8 @@
 		"DELETE_FOREVER_TITLE": "Delete this task forever?",
 		"DELETE_FOREVER_TEXT": "“{title}” will be removed for good. This cannot be undone.",
 		"DELETED_FOREVER": "“{title}” was deleted for good",
+		"NO_LONGER_IN_TRASH": "“{title}” is no longer in the trash: it was restored or deleted meanwhile. The list was refreshed.",
+		"STILL_LINKED": "“{title}” stays in the trash: other tasks or key results are still linked to it. Remove those links first.",
 		"DELETE_FAILED": "The task was not deleted. Try again.",
 		"DELETED_BY": "Deleted by {name} · {date}",
 		"DELETED_AT": "Deleted {date}",

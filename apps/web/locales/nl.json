@@ -630,7 +630,9 @@
 					"TRACKED_TITLE": "Bijgehouden tijd blijft",
 					"TRACKED": "{tracked} van deze cel is met een timer bijgehouden. Het blad verlaagt alleen met de hand toegevoegde tijd: open de registraties van de cel om bijgehouden tijd te verwijderen.",
 					"SAVE_FAILED": "Tijd niet opgeslagen",
+					"PARTLY_SAVED_TITLE": "Maar een deel van de wijziging is opgeslagen",
 					"REFUSED": "Je kunt geen tijd toevoegen of wijzigen voor dit lid.",
+					"TAKE_BACK_NOT_ALLOWED": "Je rol of organisatie staat het verwijderen of wijzigen van tijd niet toe, dus deze cel kan niet worden verlaagd.",
 					"LOCK_FUTURE": "Je organisatie staat geen tijd toe op dagen na vandaag.",
 					"LOCK_APPROVED": "Deze week is goedgekeurd, dus de tijd kan niet vanuit het blad worden gewijzigd.",
 					"LOCK_RUNNING": "Er loopt vandaag een timer op deze taak.",
@@ -693,7 +695,9 @@
 			"APPS_EMPTY": "Geen app of site vastgelegd op {day}.",
 			"OPEN_TIMESHEETS": "Openen in urenstaten",
 			"UPDATING": "Werkdagboek laden",
-			"NO_TIME_HINT": "Zodra er tijd wordt geregistreerd, verschijnen hier de taken, screenshots en apps van de dag."
+			"NO_TIME_HINT": "Zodra er tijd wordt geregistreerd, verschijnen hier de taken, screenshots en apps van de dag.",
+			"WEEK_TITLE": "Urenstaat",
+			"WEEK_NO_MANUAL_TIME_PERMISSION": "Je rol mag geen tijd handmatig toevoegen, dus het blad is alleen-lezen. Een beheerder kan dat toestaan."
 		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# lid} other {# leden}}",
@@ -6197,6 +6201,8 @@
 		"DELETE_FOREVER_TITLE": "Deze taak definitief verwijderen?",
 		"DELETE_FOREVER_TEXT": "‘{title}’ wordt definitief verwijderd. Dit kan niet ongedaan worden gemaakt.",
 		"DELETED_FOREVER": "‘{title}’ is definitief verwijderd",
+		"NO_LONGER_IN_TRASH": "‘{title}’ staat niet meer in de prullenbak: de taak is intussen teruggezet of verwijderd. De lijst is bijgewerkt.",
+		"STILL_LINKED": "‘{title}’ blijft in de prullenbak: andere taken of kernresultaten zijn er nog aan gekoppeld. Verwijder eerst die koppelingen.",
 		"DELETE_FAILED": "De taak is niet verwijderd. Probeer het opnieuw.",
 		"DELETED_BY": "Verwijderd door {name} · {date}",
 		"DELETED_AT": "Verwijderd {date}",

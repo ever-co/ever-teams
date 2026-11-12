@@ -630,7 +630,9 @@
 					"TRACKED_TITLE": "El tiempo registrado se mantiene",
 					"TRACKED": "{tracked} de esta celda se registró con un temporizador. La hoja solo reduce el tiempo añadido a mano: abre los registros de la celda para quitar tiempo registrado.",
 					"SAVE_FAILED": "Tiempo no guardado",
+					"PARTLY_SAVED_TITLE": "Solo se guardó parte del cambio",
 					"REFUSED": "No puedes añadir ni cambiar tiempo para este miembro.",
+					"TAKE_BACK_NOT_ALLOWED": "Tu rol o tu organización no permite eliminar ni cambiar tiempo, así que esta celda no se puede reducir.",
 					"LOCK_FUTURE": "Tu organización no permite tiempo en días posteriores a hoy.",
 					"LOCK_APPROVED": "Esta semana está aprobada: su tiempo no se cambia desde la hoja.",
 					"LOCK_RUNNING": "Hay un temporizador en marcha en esta tarea hoy.",
@@ -693,7 +695,9 @@
 			"APPS_EMPTY": "Ninguna app ni sitio registrado el {day}.",
 			"OPEN_TIMESHEETS": "Abrir en Hojas de horas",
 			"UPDATING": "Cargando el diario",
-			"NO_TIME_HINT": "Cuando se registre tiempo, aquí aparecerán las tareas, capturas y apps del día."
+			"NO_TIME_HINT": "Cuando se registre tiempo, aquí aparecerán las tareas, capturas y apps del día.",
+			"WEEK_TITLE": "Hoja de horas",
+			"WEEK_NO_MANUAL_TIME_PERMISSION": "Tu rol no permite añadir tiempo a mano, así que la hoja es de solo lectura. Un administrador puede permitirlo."
 		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# miembro} other {# miembros}}",
@@ -6197,6 +6201,8 @@
 		"DELETE_FOREVER_TITLE": "¿Eliminar esta tarea para siempre?",
 		"DELETE_FOREVER_TEXT": "«{title}» se eliminará para siempre. No se puede deshacer.",
 		"DELETED_FOREVER": "«{title}» se eliminó para siempre",
+		"NO_LONGER_IN_TRASH": "«{title}» ya no está en la papelera: se restauró o se eliminó mientras tanto. La lista se ha actualizado.",
+		"STILL_LINKED": "«{title}» sigue en la papelera: otras tareas o resultados clave siguen vinculados a ella. Quita primero esos vínculos.",
 		"DELETE_FAILED": "No se eliminó la tarea. Inténtalo de nuevo.",
 		"DELETED_BY": "Eliminada por {name} · {date}",
 		"DELETED_AT": "Eliminada {date}",

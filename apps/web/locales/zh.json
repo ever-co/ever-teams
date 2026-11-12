@@ -630,7 +630,9 @@
 					"TRACKED_TITLE": "计时记录的时间会保留",
 					"TRACKED": "此单元格中有 {tracked} 由计时器记录。表格只能减少手动添加的时间：请打开该单元格的记录来删除计时时间。",
 					"SAVE_FAILED": "时间未保存",
+					"PARTLY_SAVED_TITLE": "只保存了部分更改",
 					"REFUSED": "你不能为该成员添加或修改时间。",
+					"TAKE_BACK_NOT_ALLOWED": "你的角色或组织不允许删除或修改时间，因此无法减少该单元格的时间。",
 					"LOCK_FUTURE": "你的组织不允许在今天之后的日期记录时间。",
 					"LOCK_APPROVED": "本周已审批，不能在表格中修改其时间。",
 					"LOCK_RUNNING": "今天这项任务有计时器正在运行。",
@@ -693,7 +695,9 @@
 			"APPS_EMPTY": "{day} 没有记录任何应用或网站。",
 			"OPEN_TIMESHEETS": "在工时表中打开",
 			"UPDATING": "正在加载工作日志",
-			"NO_TIME_HINT": "记录时间后，当天的任务、截图和应用会显示在这里。"
+			"NO_TIME_HINT": "记录时间后，当天的任务、截图和应用会显示在这里。",
+			"WEEK_TITLE": "工时表",
+			"WEEK_NO_MANUAL_TIME_PERMISSION": "你的角色不能手动添加时间，因此表格为只读。管理员可以开启此权限。"
 		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# 位成员} other {# 位成员}}",
@@ -6197,6 +6201,8 @@
 		"DELETE_FOREVER_TITLE": "要永久删除此任务吗？",
 		"DELETE_FOREVER_TEXT": "“{title}”将被永久删除，且无法撤销。",
 		"DELETED_FOREVER": "“{title}”已永久删除",
+		"NO_LONGER_IN_TRASH": "“{title}”已不在回收站中：它已被恢复或删除。列表已刷新。",
+		"STILL_LINKED": "“{title}”仍在回收站中：仍有其他任务或关键结果与它关联。请先移除这些关联。",
 		"DELETE_FAILED": "任务未删除，请重试。",
 		"DELETED_BY": "由 {name} 删除 · {date}",
 		"DELETED_AT": "删除于 {date}",

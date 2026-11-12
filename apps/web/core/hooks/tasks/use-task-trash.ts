@@ -6,7 +6,7 @@ import { queryKeys } from '@/core/query/keys';
 import { TASK_TRASH_PAGE_SIZE, taskTrashService } from '@/core/services/client/api/tasks/task-trash.service';
 import { isTaskTrashEnabled } from '@/core/lib/utils/comments-trash-flags';
 import { taskDiscussionScope } from '@/core/lib/utils/task-discussion';
-import { trashHttpStatusOf } from '@/core/lib/utils/task-trash';
+import { trashDeleteFailureOf, trashHttpStatusOf, type TaskTrashDeleteOutcome } from '@/core/lib/utils/task-trash';
 import type { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import type { ITrashedTask } from '@/core/types/interfaces/task/task-trash';
 
@@ -126,16 +126,24 @@ export function useTaskTrash(filter: TaskTrashFilter) {
 		[refreshTaskLists]
 	);
 
-	/** Deletes a task for good; `false` when the platform refused it. */
+	/**
+	 * Deletes a task for good, only while it is still in the trash. `not-in-trash`: someone restored or deleted it since
+	 * the list was read, so nothing was deleted, and the lists are read again; `still-linked`: other records still point
+	 * at it, so it stays; `failed`: the platform refused it otherwise.
+	 */
 	const deleteForever = useCallback(
-		async (task: ITrashedTask): Promise<boolean> => {
+		async (task: ITrashedTask): Promise<TaskTrashDeleteOutcome> => {
+			const writeScope = taskDiscussionScope();
+			if (!writeScope) return 'failed';
 			try {
-				await taskTrashService.deleteForever(task.id);
-			} catch {
-				return false;
+				await taskTrashService.deleteForever(task.id, writeScope);
+			} catch (error) {
+				const failure = trashDeleteFailureOf(error);
+				if (failure === 'not-in-trash') await refreshTaskLists();
+				return failure;
 			}
 			await refreshTaskLists();
-			return true;
+			return 'deleted';
 		},
 		[refreshTaskLists]
 	);

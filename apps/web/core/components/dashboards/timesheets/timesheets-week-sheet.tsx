@@ -64,6 +64,8 @@ const NO_LOGS: ITimeLog[] = [];
 
 const NO_SAVING_CELLS: ReadonlySet<string> = new Set();
 
+const NO_SELECTED_IDS: ReadonlySet<string> = new Set();
+
 export type DayLabels = ReadonlyMap<string, string>;
 
 function weekendClassOf(day: SheetDay) {
@@ -253,7 +255,7 @@ const SheetRowView = memo(function SheetRowView({
 	openDayKey: string | null;
 	editing: SheetEditing | null;
 	savingCellKeys: ReadonlySet<string>;
-	onSelectLogs: (logIds: string[], shouldSelect: boolean) => void;
+	onSelectLogs?: (logIds: string[], shouldSelect: boolean) => void;
 	onOpenCell: (target: SheetCellTarget) => void;
 	onCommit: (identity: SheetRowIdentity, day: SheetDay, seconds: number) => Promise<CellCommitOutcome>;
 	onRemoveDraft: (rowKey: string) => void;
@@ -264,15 +266,18 @@ const SheetRowView = memo(function SheetRowView({
 	const selection = logsSelectionOf(line.logs, selectedIdSet);
 	const logIds = line.logs.map((log) => log.id);
 	const total = formatDurationShort(line.totalSeconds);
+	const isSelectable = Boolean(onSelectLogs);
+	const showsCheckbox = isSelectable && !line.isDraft;
+	const keepsCheckboxPlace = isSelectable && line.isDraft;
 	return (
 		<div role="row" style={gridStyle} className={cn(SHEET_ROW, 'min-h-13')}>
 			<span role="rowheader" className={cn(PINNED_CELL, 'flex min-w-0 items-center gap-3 py-2 pr-2 pl-4')}>
-				{line.isDraft && <span aria-hidden="true" className="size-4 shrink-0" />}
-				{!line.isDraft && (
+				{keepsCheckboxPlace && <span aria-hidden="true" className="size-4 shrink-0" />}
+				{showsCheckbox && (
 					<Checkbox
 						checked={selection.isChecked}
 						indeterminate={selection.isPartial}
-						onCheckedChange={(checked) => onSelectLogs(logIds, checked)}
+						onCheckedChange={(checked) => onSelectLogs?.(logIds, checked)}
 						aria-label={t('dashboard.timesheets.SHEET.SELECT_ROW', { task: taskName })}
 					/>
 				)}
@@ -378,14 +383,15 @@ function ignoreRemoval() {
  * weekday, the day's total under it, today in ink, weekends shaded), the time in each cell, the row's total and
  * the status of its logs at its end, and the period total in a 3D pill on the closing row. With editing, a cell
  * takes time by typing, rows added by hand follow the others and "Add row" closes the list; a cell's entries open
- * from it. The task column stays pinned while a long period scrolls sideways.
+ * from it. The task column stays pinned while a long period scrolls sideways. The checkboxes that select a row's or
+ * the sheet's logs show only where `onSelectLogs` is given: a page that does nothing with a selection leaves it out.
  */
 export function TimesheetsWeekSheet({
 	days,
 	sheet,
 	memberName,
 	formatters,
-	selectedIdSet,
+	selectedIdSet = NO_SELECTED_IDS,
 	openCell,
 	isCellOpen,
 	editing = null,
@@ -396,11 +402,11 @@ export function TimesheetsWeekSheet({
 	sheet: WeekSheet;
 	memberName: string;
 	formatters: TimesheetFormatters;
-	selectedIdSet: ReadonlySet<string>;
+	selectedIdSet?: ReadonlySet<string>;
 	openCell: SheetCellTarget | null;
 	isCellOpen: boolean;
 	editing?: SheetEditing | null;
-	onSelectLogs: (logIds: string[], shouldSelect: boolean) => void;
+	onSelectLogs?: (logIds: string[], shouldSelect: boolean) => void;
 	onOpenCell: (target: SheetCellTarget) => void;
 }>) {
 	const t = useTranslations();
@@ -417,6 +423,8 @@ export function TimesheetsWeekSheet({
 	const selection = logsSelectionOf(sheetLogs, selectedIdSet);
 	const hasRows = sheet.rows.length > 0;
 	const hasLines = lines.length > 0;
+	const isSelectable = Boolean(onSelectLogs);
+	const showsSheetCheckbox = isSelectable && hasRows;
 	let shownOpenCell: SheetCellTarget | null = null;
 	if (isCellOpen) {
 		shownOpenCell = openCell;
@@ -441,11 +449,11 @@ export function TimesheetsWeekSheet({
 					className={cn(SHEET_ROW, 'min-h-15 hairline-b border-border text-xs text-muted-foreground')}
 				>
 					<span role="columnheader" className={cn(PINNED_CELL, 'flex items-center gap-3 pr-2 pl-4')}>
-						{hasRows && (
+						{showsSheetCheckbox && (
 							<Checkbox
 								checked={selection.isChecked}
 								indeterminate={selection.isPartial}
-								onCheckedChange={(checked) => onSelectLogs(sheetLogIds, checked)}
+								onCheckedChange={(checked) => onSelectLogs?.(sheetLogIds, checked)}
 								aria-label={t('dashboard.timesheets.SHEET.SELECT_SHEET', { name: memberName })}
 							/>
 						)}
