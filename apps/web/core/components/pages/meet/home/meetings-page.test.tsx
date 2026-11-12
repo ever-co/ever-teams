@@ -246,6 +246,34 @@ describe('MeetingsPage', () => {
 		expect(screen.queryByText('Planning')).toBeNull();
 	});
 
+	it('jumps to any day picked in the month that opens from the agenda header', async () => {
+		jest.useFakeTimers({ advanceTimers: true });
+		try {
+			jest.setSystemTime(new Date(2026, 10, 12, 9, 0));
+			mockScheduled.meetings = [
+				{
+					id: 'appointment-3',
+					title: 'Quarterly review',
+					description: null,
+					start: new Date(2026, 10, 20, 10, 0),
+					end: new Date(2026, 10, 20, 11, 0),
+					link: `https://app.ever.team${meetPathFor('Ever-Quarterly-AbCdEfGhIj', true)}`
+				}
+			];
+			render(<MeetingsPage />);
+			expect(screen.queryByText('Quarterly review')).toBeNull();
+
+			fireEvent.click(screen.getByTestId('meetings-agenda-day-picker'));
+			fireEvent.click(await screen.findByRole('gridcell', { name: '20' }));
+
+			expect(screen.getByText('Quarterly review')).toBeTruthy();
+			expect(screen.getByRole('heading', { name: 'Friday, November 20, 2026' })).toBeTruthy();
+			await waitFor(() => expect(screen.queryByRole('gridcell', { name: '20' })).toBeNull());
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
 	it('keeps scheduling for people with an employee record, who own the appointments', () => {
 		mockScheduled.canSchedule = false;
 		render(<MeetingsPage />);

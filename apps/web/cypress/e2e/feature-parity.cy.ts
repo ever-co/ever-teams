@@ -216,5 +216,11 @@ describe('feature parity on the authenticated shell', () => {
 		cy.contains('h2', /^Yesterday, /).should('be.visible');
 		cy.contains('button', /^Today$/).click();
 		cy.contains('h2', /^Today, /).should('be.visible');
+
+		// Any day from the month under the header: the 15th is never one of the neighbouring months' days in the grid
+		cy.get('[data-testid="meetings-agenda-day-picker"]').click();
+		cy.contains('[role="gridcell"]', /^15$/).click();
+		cy.get('[data-testid="meetings-agenda-day-picker"]').should('contain', ' 15, ');
+		cy.get('[role="gridcell"]').should('not.exist');
 	});
 });

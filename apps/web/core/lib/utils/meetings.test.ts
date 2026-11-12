@@ -4,6 +4,7 @@ import {
 	appointmentInputOf,
 	dayAfter,
 	isRoomTokenStale,
+	meetingDaysOf,
 	meetingIcsOf,
 	meetingPathFor,
 	meetingPathOfInput,
@@ -111,6 +112,21 @@ describe('scheduled meetings', () => {
 		expect(idsOf(dayAfter(now, 2))).toEqual([]);
 		expect(dayAfter(now, 8)).toEqual(new Date('2026-11-19T00:00:00'));
 		expect(startOfDay(now)).toEqual(new Date('2026-11-11T00:00:00'));
+	});
+
+	it('marks the days a meeting runs on, not the one its midnight end opens, and a month at most', () => {
+		const daysOf = (meetings: ScheduledMeeting[]) =>
+			[...meetingDaysOf(meetings)].map((day) => new Date(day).toISOString().slice(0, 10)).sort();
+		const localDay = (date: string) => new Date(`${date}T00:00:00`).toISOString().slice(0, 10);
+
+		expect(
+			daysOf([
+				meeting('overnight', '2026-11-10T23:00:00', '2026-11-11T01:00:00'),
+				meeting('until-midnight', '2026-11-12T23:00:00', '2026-11-13T00:00:00'),
+				meeting('same-day', '2026-11-10T09:00:00', '2026-11-10T10:00:00')
+			])
+		).toEqual([localDay('2026-11-10'), localDay('2026-11-11'), localDay('2026-11-12')]);
+		expect(meetingDaysOf([meeting('typo', '2026-11-10T09:00:00', '2036-11-10T10:00:00')]).size).toBe(31);
 	});
 
 	it('reads a meeting from an appointment, and skips a cancelled one or one without times', () => {

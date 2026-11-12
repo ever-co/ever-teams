@@ -151,6 +151,24 @@ export function dayAfter(day: Date, days: number): Date {
 	return next;
 }
 
+/** A calendar marks at most this many days for one meeting, so a mistyped end years away costs nothing. */
+const MARKED_DAYS_PER_MEETING = 31;
+
+/** The days some meeting runs on (their midnight, in milliseconds), for a calendar to mark them. */
+export function meetingDaysOf(meetings: readonly ScheduledMeeting[]): Set<number> {
+	const days = new Set<number>();
+	for (const meeting of meetings) {
+		// A meeting that ends at midnight does not run on the day that starts then
+		const lastMoment = Math.max(meeting.start.getTime(), meeting.end.getTime() - 1);
+		let day = startOfDay(meeting.start);
+		for (let count = 0; count < MARKED_DAYS_PER_MEETING && day.getTime() <= lastMoment; count += 1) {
+			days.add(day.getTime());
+			day = dayAfter(day, 1);
+		}
+	}
+	return days;
+}
+
 /**
  * The meetings of one day, by start time: every meeting that runs some time that day, so one that began the evening
  * before and runs on past midnight shows on both days, and the ended ones stay, so the day reads as it went.

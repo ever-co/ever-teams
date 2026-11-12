@@ -1,18 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { AlertDialogConfirmation } from '@/core/components/common/alert-dialog-confirmation';
+import { Calendar } from '@/core/components/common/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { CalendarPlus, ChevronLeft, ChevronRight, Copy, Trash } from '@/core/components/icons';
+import { CalendarPlus, ChevronDown, ChevronLeft, ChevronRight, Copy, Trash } from '@/core/components/icons';
 import { DashboardSection } from '@/core/components/dashboards/kit/dashboard-layout';
 import { BlockEmptyMessage, DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { cn } from '@/core/lib/helpers';
 import {
 	dayAfter,
+	meetingDaysOf,
 	meetingPathOfInput,
 	meetingsOfDay,
 	scheduledMeetingStateOf,
@@ -40,6 +43,53 @@ function dayLabelOf(day: Date, today: Date, locale: string, t: ReturnType<typeof
 	}
 	const date = new Intl.DateTimeFormat(locale, { dateStyle: 'long' }).format(day);
 	return t('meetings.DAY_LABEL', { day: t(relativeKey), date });
+}
+
+/** A dot under the days that hold a meeting. */
+const MEETING_DAY_MARK =
+	"after:absolute after:bottom-1 after:left-1/2 after:size-1 after:-translate-x-1/2 after:rounded-full after:bg-primary after:content-[''] aria-selected:after:bg-primary-foreground";
+
+interface AgendaDayPickerProps {
+	day: Date;
+	label: string;
+	meetings: readonly ScheduledMeeting[];
+	onPick: (day: Date) => void;
+}
+
+/** The agenda's day, as a button that opens a month to pick another day from. */
+function AgendaDayPicker({ day, label, meetings, onPick }: Readonly<AgendaDayPickerProps>) {
+	const [isOpen, setIsOpen] = useState(false);
+	const meetingDays = useMemo(() => meetingDaysOf(meetings), [meetings]);
+	const hasMeeting = useCallback((date: Date) => meetingDays.has(startOfDay(date).getTime()), [meetingDays]);
+
+	const pick = (picked: Date | undefined) => {
+		// Picking the day shown again unselects it in the calendar: the agenda stays on it
+		if (picked) onPick(startOfDay(picked));
+		setIsOpen(false);
+	};
+
+	return (
+		<Popover open={isOpen} onOpenChange={setIsOpen}>
+			<PopoverTrigger
+				data-testid="meetings-agenda-day-picker"
+				className="-mx-1.5 flex min-w-0 cursor-pointer items-center gap-1.5 rounded-md px-1.5 py-0.5 text-left outline-none transition-colors hover:bg-foreground/[0.05] focus-visible:ring-[3px] focus-visible:ring-ring/25"
+			>
+				<span className="truncate">{label}</span>
+				<ChevronDown className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+			</PopoverTrigger>
+			<PopoverContent align="start" className="w-auto p-0">
+				<Calendar
+					mode="single"
+					selected={day}
+					defaultMonth={day}
+					onSelect={pick}
+					initialFocus
+					modifiers={{ hasMeeting }}
+					modifiersClassNames={{ hasMeeting: MEETING_DAY_MARK }}
+				/>
+			</PopoverContent>
+		</Popover>
+	);
 }
 
 interface MeetingCardProps {
@@ -189,7 +239,14 @@ export function MeetingAgenda({
 
 	return (
 		<DashboardSection
-			title={dayLabelOf(day, today, locale, t)}
+			title={
+				<AgendaDayPicker
+					day={day}
+					label={dayLabelOf(day, today, locale, t)}
+					meetings={meetings}
+					onPick={setDay}
+				/>
+			}
 			meta={t('meetings.AGENDA_HINT')}
 			ariaLabel={t('meetings.AGENDA')}
 			actions={
