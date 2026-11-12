@@ -12,6 +12,8 @@ import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
  * It is mounted by the (main) layout only, so authentication pages never show the Offline component.
  * When the user is offline, the Offline component is rendered with the showTimer prop set to
  * whether the timer is running or not.
+ * The children are unmounted while offline: what must keep running through an outage, the timer's
+ * owner (AppState) and its heartbeat, is mounted beside the wrapper, not in it (#5118).
  *
  * @example
  * <OfflineWrapper>
