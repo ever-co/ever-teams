@@ -102,7 +102,8 @@ jest.mock('@/core/components/teams/people-avatars', () => ({
 
 import { toast } from 'sonner';
 import { realtimeBus } from '@/core/lib/realtime/bus';
-import { ChatTaskCard, resetChatTaskCards } from './chat-task-card';
+import { resetChatTaskCards } from '@/core/hooks/chat/use-chat-task-card';
+import { ChatTaskCard } from './chat-task-card';
 
 const mockToast = toast as unknown as { error: jest.Mock };
 
