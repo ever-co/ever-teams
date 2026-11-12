@@ -129,7 +129,12 @@ function withActiveTeam(teamIds: string[], activeTeamId: string | null | undefin
 	return [...teamIds, activeTeamId];
 }
 
-export function emptyProjectDraft(activeTeamId: string | null | undefined, today = new Date()): ProjectDraft {
+/** A new project's budget and rates start in the workspace's currency, which the form shows and saves with it. */
+export function emptyProjectDraft(
+	activeTeamId: string | null | undefined,
+	today = new Date(),
+	workspaceCurrency: string | null = null
+): ProjectDraft {
 	const teamIds = withActiveTeam([], activeTeamId);
 	return {
 		name: '',
@@ -148,7 +153,7 @@ export function emptyProjectDraft(activeTeamId: string | null | undefined, today
 		tagIds: [],
 		budgetType: EProjectBudgetType.HOURS,
 		budget: null,
-		currency: null,
+		currency: workspaceCurrency,
 		billing: EProjectBilling.FLAT_FEE
 	};
 }
