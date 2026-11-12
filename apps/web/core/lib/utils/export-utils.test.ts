@@ -53,6 +53,18 @@ describe('exportToXLSX', () => {
 		expect(hoursColumn.cell(lines[1])).toEqual({ value: 2, format: '0.00' });
 	});
 
+	it.each([undefined, null, ''])(
+		'writes an empty cell for the missing value %p, without the number format the writer would refuse',
+		async (missing) => {
+			const amountColumn = { header: 'Amount', value: () => missing, format: '#,##0.00' };
+
+			await exportToXLSX(lines, [amountColumn], 'report.xlsx');
+
+			const [writtenColumn] = writtenColumnsOf();
+			expect(writtenColumn.cell(lines[0])).toBeNull();
+		}
+	);
+
 	it('writes in bold the rows the caller names, such as a closing total', async () => {
 		await exportToXLSX(lines, columns, 'report.xlsx', { isBoldRow: (line) => line.isTotal });
 

@@ -42,9 +42,11 @@ export function generateExportFilename(
 	return `${baseName}-${dateRange}.${getFileExtension(format)}`;
 }
 
+type XLSXValue = string | number | null | undefined;
+
 interface XLSXColumn<Row> {
 	header: string;
-	value: (row: Row) => string | number;
+	value: (row: Row) => XLSXValue;
 	width?: number;
 	/** Excel number format for numeric cells, e.g. '0%' */
 	format?: string;
@@ -58,7 +60,16 @@ function neverBold() {
 	return false;
 }
 
-function xlsxCellOf(value: string | number, format: string | undefined, isBold: boolean) {
+/**
+ * A cell without a value is written empty: the writer cannot type an empty text either, and refuses a number
+ * format on a cell it cannot type.
+ */
+function xlsxCellOf(value: XLSXValue, format: string | undefined, isBold: boolean) {
+	const hasNoValue = value === null || value === undefined;
+	const isEmptyText = value === '';
+	if (hasNoValue || isEmptyText) {
+		return null;
+	}
 	if (isBold) {
 		return { value, format, fontWeight: 'bold' as const };
 	}
