@@ -8,7 +8,7 @@ import {
 	ignoredHeadersOf,
 	missingColumnsOf,
 	rowCountProblemOf,
-	timeImportSheetOf,
+	timeImportSheetOfTable,
 	timeImportTableOf,
 	type TimeImportColumnsChoice,
 	type TimeImportField,
@@ -480,6 +480,6 @@ export function timeImportReadingOf(
 	const isTemplateOrder = dateOrder === 'yearFirst';
 	const isReadByItself = !usesDatesOfMoments(header.mapping, suggested) && !hasStoredChoice;
 	const readsAsTemplate = header.readsAsTemplate && isReadByItself && isTemplateOrder;
-	const sheet = timeImportSheetOf(table, mapping, dateOrder);
+	const sheet = timeImportSheetOfTable(table, mapping, dateOrder);
 	return { kind: 'sheet', table, choice, sheet, readsAsTemplate };
 }

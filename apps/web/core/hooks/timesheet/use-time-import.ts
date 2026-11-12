@@ -39,7 +39,7 @@ import {
 } from '@/core/lib/utils/time-import-rows';
 import {
 	timeImportFileRefusalOf,
-	timeImportSheetOf,
+	timeImportSheetOfTable,
 	type TimeImportColumnsChoice,
 	type TimeImportField,
 	type TimeImportFileProblem,
@@ -393,7 +393,7 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 			return;
 		}
 		keepColumnsChoice(table.headers, columns);
-		const sheet = timeImportSheetOf(table, columns.mapping, step.dateOrder);
+		const sheet = timeImportSheetOfTable(table, columns.mapping, step.dateOrder);
 		await checkSheet({ fileName, sheet, table, columns, canEditColumns: true });
 	}, [checkSheet, state]);
 

@@ -43,6 +43,10 @@ export const TIME_IMPORT_REPORT_HEADERS = { row: 'row', status: 'status', reason
 
 export const REPORT_ONLY_HEADERS: ReadonlySet<string> = new Set(Object.values(TIME_IMPORT_REPORT_HEADERS));
 
+const COLUMN_BY_HEADER: ReadonlyMap<string, TimeImportColumn> = new Map(
+	TIME_IMPORT_COLUMNS.map((column) => [TIME_IMPORT_HEADERS[column], column])
+);
+
 /**
  * What the import reads from a row: the columns of the template, and the day an entry ends, which a file from
  * another tool may give in a column of its own.
@@ -134,6 +138,10 @@ export interface TimeImportTable {
 type TimeImportTableResult =
 	| { table: TimeImportTable; problem: null }
 	| { table: null; problem: TimeImportSheetProblem };
+
+type TimeImportSheetResult =
+	| { sheet: TimeImportSheet; problem: null }
+	| { sheet: null; problem: TimeImportSheetProblem };
 
 /** Refuses a file before it is read: only `.csv`, and no larger than the limit stated on screen. */
 export function timeImportFileRefusalOf(fileName: string, byteSize: number): TimeImportFileProblem | null {
@@ -267,7 +275,7 @@ export function ignoredHeadersOf(headers: ReadonlyArray<string>, mapping: TimeIm
 	return ignored;
 }
 
-export function timeImportSheetOf(
+export function timeImportSheetOfTable(
 	table: TimeImportTable,
 	mapping: TimeImportMapping,
 	dateOrder: DateOrder
@@ -279,4 +287,54 @@ export function timeImportSheetOf(
 		extraCellCount: extraCellCountOf(record.cells, headerCount)
 	}));
 	return { rows, ignoredHeaders: ignoredHeadersOf(table.headers, mapping), dateOrder };
+}
+
+interface TemplateColumnsReading {
+	mapping: Record<TimeImportField, number | null>;
+	duplicateHeader: string | null;
+}
+
+function templateColumnsOf(headers: ReadonlyArray<string>): TemplateColumnsReading {
+	const reading: TemplateColumnsReading = { mapping: { ...NO_TIME_IMPORT_COLUMNS }, duplicateHeader: null };
+	headers.forEach((header, index) => {
+		const words = headerWordsOf(header);
+		const column = COLUMN_BY_HEADER.get(words);
+		if (!column) {
+			return;
+		}
+		const isRepeated = reading.mapping[column] !== null;
+		if (isRepeated) {
+			reading.duplicateHeader ??= TIME_IMPORT_HEADERS[column];
+			return;
+		}
+		reading.mapping[column] = index;
+	});
+	return reading;
+}
+
+/**
+ * Reads the text of a CSV file the way the template is read: the template's own headers name the columns, in any
+ * order, every other column is left out, and dates are written year first. A file the import cannot use at all is
+ * refused whole, with the reason; what each row holds is judged later, row by row.
+ */
+export function timeImportSheetOf(text: string): TimeImportSheetResult {
+	const tableReading = timeImportTableOf(text);
+	if (!tableReading.table) {
+		return { sheet: null, problem: tableReading.problem };
+	}
+	const { table } = tableReading;
+	const columns = templateColumnsOf(table.headers);
+	if (columns.duplicateHeader) {
+		return { sheet: null, problem: { code: 'duplicateColumn', header: columns.duplicateHeader } };
+	}
+	const missingColumns = missingColumnsOf(columns.mapping);
+	if (missingColumns.length > 0) {
+		return { sheet: null, problem: { code: 'missingColumns', columns: missingColumns } };
+	}
+	const countProblem = rowCountProblemOf(table);
+	if (countProblem) {
+		return { sheet: null, problem: countProblem };
+	}
+	const sheet = timeImportSheetOfTable(table, columns.mapping, 'yearFirst');
+	return { sheet, problem: null };
 }
