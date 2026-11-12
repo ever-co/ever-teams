@@ -377,6 +377,10 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	);
 
 	const submit = useCallback(async () => {
+		// A client being created is not in the draft yet: saving now would leave it out of the project.
+		if (isCreatingClient) {
+			return;
+		}
 		setHasTriedSubmit(true);
 		setSubmitError(null);
 		const hasErrors = hasDraftErrors(validationErrors);
@@ -402,7 +406,18 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 			return;
 		}
 		onDone?.(savedProject);
-	}, [validationErrors, uploadImage, draft, project, teams, tags, currentEmployeeId, saveProject, onDone]);
+	}, [
+		isCreatingClient,
+		validationErrors,
+		uploadImage,
+		draft,
+		project,
+		teams,
+		tags,
+		currentEmployeeId,
+		saveProject,
+		onDone
+	]);
 
 	const isSaving = createOrganizationProjectLoading || editOrganizationProjectLoading;
 	const isSubmitting = isSaving || isUploadingImage;
