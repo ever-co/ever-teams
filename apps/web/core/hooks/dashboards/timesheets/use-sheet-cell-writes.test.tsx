@@ -1,0 +1,105 @@
+/** @jest-environment jsdom */
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { act, renderHook } from '@testing-library/react';
+import type { PropsWithChildren } from 'react';
+import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
+import { rowIdentityOfLog, type SheetDay } from '@/core/lib/utils/dashboards/timesheets';
+import { ETimeLogType } from '@/core/types/generics/enums/timer';
+import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+
+const mockCreateTimesheetFrom = jest.fn();
+const mockToastError = jest.fn();
+
+jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+jest.mock('sonner', () => ({ toast: { error: (...args: unknown[]) => mockToastError(...args) } }));
+jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
+	timeLogService: {
+		createTimesheetFrom: (...args: unknown[]) => mockCreateTimesheetFrom(...args),
+		deleteTaskTimesheetLogs: jest.fn(),
+		updateTimeLog: jest.fn()
+	}
+}));
+
+import { type CellCommitOutcome, type SheetWriteScope, useSheetCellWrites } from './use-sheet-cell-writes';
+
+const HOUR = 3600;
+
+/** A day long past, so "now" never limits where time can go. */
+function at(hours: number, minutes = 0) {
+	return new Date(2024, 0, 8, hours, minutes);
+}
+
+function logOf(overrides: Partial<ITimeLog>): ITimeLog {
+	return {
+		id: 'log',
+		duration: 0,
+		version: '1',
+		logType: ETimeLogType.TRACKED,
+		employeeId: 'member',
+		...overrides
+	};
+}
+
+const day: SheetDay = { key: localDayKeyOf(at(0)), date: at(0), isToday: false, isWeekend: false };
+const identity = rowIdentityOfLog(logOf({ projectId: 'project', taskId: 'task' }));
+
+function scopeOf(overrides: Partial<SheetWriteScope>): SheetWriteScope {
+	return {
+		memberId: 'member',
+		defaultTeamId: 'team',
+		allowsFutureDates: false,
+		readMemberLogs: () => [],
+		readSavedMemberLogs: async () => [],
+		...overrides
+	};
+}
+
+function renderWrites(scope: SheetWriteScope) {
+	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	const wrapper = ({ children }: PropsWithChildren) => (
+		<QueryClientProvider client={client}>{children}</QueryClientProvider>
+	);
+	return renderHook(() => useSheetCellWrites(scope), { wrapper });
+}
+
+describe('useSheetCellWrites', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+		mockCreateTimesheetFrom.mockResolvedValue(undefined);
+	});
+
+	it('places typed time around an entry saved since the page was read', async () => {
+		const savedElsewhere = logOf({ id: 'tracked', projectId: 'other', startedAt: at(9), stoppedAt: at(10) });
+		const scope = scopeOf({ readSavedMemberLogs: async () => [savedElsewhere] });
+		const { result } = renderWrites(scope);
+
+		let outcome: CellCommitOutcome | undefined;
+		await act(async () => {
+			outcome = await result.current.commitCell(identity, day, 2 * HOUR);
+		});
+
+		expect(outcome).toBe('saved');
+		expect(mockCreateTimesheetFrom).toHaveBeenCalledTimes(1);
+		expect(mockCreateTimesheetFrom).toHaveBeenCalledWith(
+			expect.objectContaining({ startedAt: at(10), stoppedAt: at(12), employeeId: 'member' })
+		);
+	});
+
+	it('saves nothing when the read before the write fails', async () => {
+		const failingRead = async (): Promise<ReadonlyArray<ITimeLog>> => {
+			throw new Error('offline');
+		};
+		const scope = scopeOf({ readSavedMemberLogs: failingRead });
+		const { result } = renderWrites(scope);
+
+		let outcome: CellCommitOutcome | undefined;
+		await act(async () => {
+			outcome = await result.current.commitCell(identity, day, 2 * HOUR);
+		});
+
+		expect(outcome).toBe('refused');
+		expect(mockCreateTimesheetFrom).not.toHaveBeenCalled();
+		expect(mockToastError).toHaveBeenCalledWith('dashboard.timesheets.SHEET.EDIT.SAVE_FAILED', expect.anything());
+	});
+});

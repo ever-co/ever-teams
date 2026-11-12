@@ -131,7 +131,7 @@ function EditableCell({
 	const seconds = cell?.seconds ?? 0;
 	const savedText = savedTextOf(seconds);
 	const [draft, setDraft] = useState(savedText);
-	const [lastSavedText, setLastSavedText] = useState(savedText);
+	const [lastSavedText, setLastSavedText] = useState<string | null>(savedText);
 	const [isEditing, setIsEditing] = useState(false);
 	const skipsCommitRef = useRef(false);
 
@@ -161,8 +161,9 @@ function EditableCell({
 			return;
 		}
 		const outcome = await onCommit(identity, day, typedSeconds);
-		if (outcome !== 'saved') {
-			setDraft(savedText);
+		if (outcome === 'refused') {
+			// The sheet was read again meanwhile: the next render puts back what is saved by then, not what was here.
+			setLastSavedText(null);
 		}
 	};
 

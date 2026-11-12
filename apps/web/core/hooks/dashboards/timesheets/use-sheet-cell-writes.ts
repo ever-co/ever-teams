@@ -46,10 +46,13 @@ export interface SheetWriteScope {
 	/** The team new time goes to when its row names none: the team the page is read in. */
 	defaultTeamId: string | null;
 	allowsFutureDates: boolean;
-	/** The member's logs of the period as last read, every filter aside. */
+	/** The member's logs of the period as the page last read them, every filter aside. */
 	readMemberLogs: () => ReadonlyArray<ITimeLog>;
-	/** Reads the period again and answers the member's logs, so the next write plans on what is saved. */
-	refreshMemberLogs: () => Promise<ReadonlyArray<ITimeLog>>;
+	/**
+	 * Reads the member's logs of the period from the API, whatever the page shows by then, and fails when the read
+	 * does: a write is only ever planned on what is saved.
+	 */
+	readSavedMemberLogs: () => Promise<ReadonlyArray<ITimeLog>>;
 }
 
 export type CellCommitOutcome = 'saved' | 'unchanged' | 'refused';
@@ -133,8 +136,9 @@ function freeWindowsOfDay(
 /**
  * The writes of the editable week sheet. A typed duration becomes manual time placed in the member's free time of
  * the day (Gauzy deletes whatever a manual entry overlaps, so nothing is ever placed over another entry), and a
- * lower one takes time back from manual entries only. Writes run one at a time, each planned on the logs read
- * after the one before, so two cells of one day never claim the same free minutes.
+ * lower one takes time back from manual entries only. Writes run one at a time, each planned on the member's logs
+ * read from the API just before it, so neither another cell nor time saved elsewhere since the page was read is
+ * ever written over.
  */
 export function useSheetCellWrites(scope: SheetWriteScope) {
 	const t = useTranslations();
@@ -142,7 +146,7 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 	const queueRef = useRef<Promise<unknown>>(Promise.resolve());
 	const [savingCellKeys, setSavingCellKeys] = useState<ReadonlySet<string>>(() => new Set());
 	const [isCopying, setIsCopying] = useState(false);
-	const { memberId, defaultTeamId, allowsFutureDates, readMemberLogs, refreshMemberLogs } = scope;
+	const { memberId, defaultTeamId, allowsFutureDates, readMemberLogs, readSavedMemberLogs } = scope;
 
 	const translate = useCallback(
 		(key: string, values?: Record<string, string | number>) => {
@@ -172,6 +176,11 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 	const refreshOtherViews = useCallback(() => {
 		void queryClient.invalidateQueries({ queryKey: queryKeys.timeLogs.all });
 		void queryClient.invalidateQueries({ queryKey: queryKeys.activities.all });
+	}, [queryClient]);
+
+	/** Resolves once the sheet shows what is saved; a failed read keeps what was shown. */
+	const refreshSheet = useCallback(async () => {
+		await queryClient.invalidateQueries({ queryKey: queryKeys.timesheet.all });
 	}, [queryClient]);
 
 	const createEntries = useCallback(
@@ -223,7 +232,7 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 
 	const writeCell = useCallback(
 		async (identity: SheetRowIdentity, day: SheetDay, targetSeconds: number): Promise<CellCommitOutcome> => {
-			const memberLogs = readMemberLogs();
+			const memberLogs = await readSavedMemberLogs();
 			const cellLogs = logsOfCell(memberLogs, identity.key, day.key);
 			const currentSeconds = totalOf(cellLogs);
 			const shownSeconds = wholeMinutesOf(currentSeconds);
@@ -260,7 +269,7 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 			}
 			return 'saved';
 		},
-		[allowsFutureDates, createEntries, readMemberLogs, takeBack, translate]
+		[allowsFutureDates, createEntries, readSavedMemberLogs, takeBack, translate]
 	);
 
 	const commitCell = useCallback(
@@ -271,7 +280,6 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 				try {
 					const outcome = await writeCell(identity, day, targetSeconds);
 					if (outcome === 'saved') {
-						await refreshMemberLogs();
 						refreshOtherViews();
 					}
 					return outcome;
@@ -279,20 +287,16 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 					toast.error(translate('dashboard.timesheets.SHEET.EDIT.SAVE_FAILED'), {
 						description: translate(writeErrorKeyOf(error))
 					});
-					await refreshMemberLogs().catch(() => undefined);
 					return 'refused' as const;
 				} finally {
+					await refreshSheet().catch(() => undefined);
 					markSaving(cellKey, false);
 				}
 			});
 		},
-		[enqueue, markSaving, refreshMemberLogs, refreshOtherViews, translate, writeCell]
+		[enqueue, markSaving, refreshOtherViews, refreshSheet, translate, writeCell]
 	);
 
-	/**
-	 * Fills empty cells from last week, one after the other. The time each one places counts as taken for the next
-	 * ones of the same day, so the whole run needs one read of the logs before and one after.
-	 */
 	const fitCopyPlans = useCallback(
 		(plans: ReadonlyArray<CopyCellPlan>): CopyFit => {
 			const memberLogs = readMemberLogs();
@@ -302,6 +306,10 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 		[allowsFutureDates, readMemberLogs]
 	);
 
+	/**
+	 * Fills empty cells from last week, one after the other, on the member's logs read from the API when the run
+	 * starts. The time each plan places counts as taken for the next ones of the same day.
+	 */
 	const applyCopyPlan = useCallback(
 		(plans: ReadonlyArray<CopyCellPlan>): Promise<CopyRunResult> => {
 			setIsCopying(true);
@@ -309,7 +317,7 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 				const result: CopyRunResult = { savedCount: 0, savedSeconds: 0, skippedCount: 0, isStopped: false };
 				const placedByDay = new Map<string, TimeWindow[]>();
 				try {
-					const memberLogs = await refreshMemberLogs();
+					const memberLogs = await readSavedMemberLogs();
 					for (const plan of plans) {
 						const placedBefore = placedByDay.get(plan.day.key) ?? [];
 						const freeWindows = freeWindowsOfDay(memberLogs, plan.day, placedBefore, allowsFutureDates);
@@ -329,14 +337,14 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 						description: translate(writeErrorKeyOf(error))
 					});
 				} finally {
-					await refreshMemberLogs().catch(() => undefined);
+					await refreshSheet().catch(() => undefined);
 					refreshOtherViews();
 					setIsCopying(false);
 				}
 				return result;
 			});
 		},
-		[allowsFutureDates, createEntries, enqueue, refreshMemberLogs, refreshOtherViews, translate]
+		[allowsFutureDates, createEntries, enqueue, readSavedMemberLogs, refreshOtherViews, refreshSheet, translate]
 	);
 
 	return useMemo(

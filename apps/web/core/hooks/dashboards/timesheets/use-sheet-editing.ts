@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
@@ -30,6 +31,7 @@ import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { useCopyPreviousWeek } from './use-copy-previous-week';
 import { useSheetCellWrites } from './use-sheet-cell-writes';
 import { useSheetDraftRows } from './use-sheet-draft-rows';
+import { timesheetPageLogsRequestOf } from './use-timesheet-page-logs';
 import type { TimesheetSheetState } from './use-timesheet-sheet';
 import type { TimesheetsPageState } from './use-timesheets-page';
 
@@ -81,12 +83,13 @@ function sheetKeyOf(memberId: string | null, page: TimesheetsPageState) {
 }
 
 export function useSheetEditing(page: TimesheetsPageState, sheet: TimesheetSheetState) {
+	const queryClient = useQueryClient();
 	const organization = useAtomValue(currentOrganizationState);
 	const activeTeam = useAtomValue(activeTeamState);
 	const teamTasks = useAtomValue(tasksByTeamState);
 	const { organizationProjects } = useOrganizationProjectsQuery();
 	const { myPermissions, isLoading: isLoadingPermissions } = useMyRolePermissionsQuery();
-	const { permissions, logsQuery, user } = page;
+	const { permissions, logsQuery, user, period } = page;
 
 	const memberId = sheet.member?.id ?? null;
 	const isOwnSheet = Boolean(memberId) && memberId === permissions.employeeId;
@@ -131,14 +134,33 @@ export function useSheetEditing(page: TimesheetsPageState, sheet: TimesheetSheet
 	}, [memberLogs]);
 
 	const readMemberLogs = useCallback(() => memberLogsRef.current, []);
-	const { refetch } = logsQuery;
-	const refreshMemberLogs = useCallback(async () => {
-		const result = await refetch();
-		const logs = result.data ?? NO_LOGS;
-		const fresh = logsOfMember(logs, memberId);
-		memberLogsRef.current = fresh;
-		return fresh;
-	}, [memberId, refetch]);
+
+	const logsScope = useMemo(
+		() => ({
+			tenantId: user?.tenantId,
+			organizationId: user?.employee?.organizationId,
+			userTimeZone: user?.timeZone
+		}),
+		[user?.employee?.organizationId, user?.tenantId, user?.timeZone]
+	);
+
+	/**
+	 * Asks the API for this member's logs of this period, under its own request: a write queued here still reads
+	 * its own member and week after the page moved to another one, and a failed read rejects instead of answering
+	 * what was shown before.
+	 */
+	const readSavedMemberLogs = useCallback(async (): Promise<ReadonlyArray<ITimeLog>> => {
+		if (!memberId) {
+			return NO_LOGS;
+		}
+		const request = timesheetPageLogsRequestOf(period, { ...logsScope, employeeIds: [memberId] });
+		const logs = await queryClient.fetchQuery({
+			queryKey: request.queryKey,
+			queryFn: request.queryFn,
+			staleTime: 0
+		});
+		return logsOfMember(logs, memberId);
+	}, [logsScope, memberId, period, queryClient]);
 
 	const teamId = activeTeam?.id ?? null;
 	const writes = useSheetCellWrites({
@@ -146,7 +168,7 @@ export function useSheetEditing(page: TimesheetsPageState, sheet: TimesheetSheet
 		defaultTeamId: teamId,
 		allowsFutureDates,
 		readMemberLogs,
-		refreshMemberLogs
+		readSavedMemberLogs
 	});
 	const sheetKey = sheetKeyOf(memberId, page);
 	const { rows: storedDraftRows, addRows, removeRow } = useSheetDraftRows(sheetKey);
@@ -185,17 +207,8 @@ export function useSheetEditing(page: TimesheetsPageState, sheet: TimesheetSheet
 		[draftRows, loggedTaskIds]
 	);
 
-	const logsScope = useMemo(
-		() => ({
-			tenantId: user?.tenantId,
-			organizationId: user?.employee?.organizationId,
-			userTimeZone: user?.timeZone
-		}),
-		[user?.employee?.organizationId, user?.tenantId, user?.timeZone]
-	);
-
 	const copyWeek = useCopyPreviousWeek({
-		period: page.period,
+		period,
 		logsScope,
 		memberId,
 		days: sheet.days,
