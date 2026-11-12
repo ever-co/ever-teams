@@ -7,6 +7,7 @@ import { EverPlatformSettings } from '@/core/components/optimized-components/set
 import { SettingsPage, SettingsSection } from '@/core/components/settings/kit/settings-page';
 import { TeamSettingsGate } from '@/core/components/settings/kit/team-settings-gate';
 import { useAsanaIntegration } from '@/core/hooks/integrations/use-asana-integration';
+import { useJiraIntegration } from '@/core/hooks/integrations/use-jira-integration';
 import { useLinearIntegration } from '@/core/hooks/integrations/use-linear-integration';
 import { useTrelloIntegration } from '@/core/hooks/integrations/use-trello-integration';
 import { useGithubIntegrationSettings } from '@/core/hooks/settings/use-github-integration-settings';
@@ -14,6 +15,7 @@ import { canManageActiveTeamState } from '@/core/stores';
 import { AsanaProviderSection } from './asana-provider';
 import { GithubProviderSection } from './github-provider';
 import { IntegrationsSettingsSkeleton } from './integrations-settings-skeleton';
+import { JiraProviderSection } from './jira-provider';
 import { LinearProviderSection } from './linear-provider';
 import { TrelloProviderSection } from './trello-provider';
 
@@ -41,6 +43,7 @@ function IntegrationsSettingsContent() {
 	const linear = useLinearIntegration();
 	const asana = useAsanaIntegration();
 	const trello = useTrelloIntegration();
+	const jira = useJiraIntegration();
 
 	return (
 		<SettingsPage
@@ -51,6 +54,7 @@ function IntegrationsSettingsContent() {
 			<LinearProviderSection linear={linear} />
 			<AsanaProviderSection asana={asana} />
 			<TrelloProviderSection trello={trello} />
+			<JiraProviderSection jira={jira} />
 			<EverPlatformSettings isTeamManager={canManageTeam} frame={frameEverPlatform} />
 		</SettingsPage>
 	);
