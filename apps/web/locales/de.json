@@ -6436,7 +6436,8 @@
 			"DELETE": "Löschen",
 			"MARKED_PAID": "Rechnung {number} ist als bezahlt markiert",
 			"MARKED_UNPAID": "Rechnung {number} steht wieder auf Gesendet, unbezahlt",
-			"CHANGE_FAILED": "Rechnung {number} wurde nicht geändert"
+			"CHANGE_FAILED": "Rechnung {number} wurde nicht geändert",
+			"DOWNLOAD": "Als PDF herunterladen"
 		},
 		"send": {
 			"TITLE": "Rechnung {number} senden?",

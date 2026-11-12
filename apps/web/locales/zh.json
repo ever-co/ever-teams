@@ -6436,7 +6436,8 @@
 			"DELETE": "删除",
 			"MARKED_PAID": "第 {number} 号发票已标记为已付清",
 			"MARKED_UNPAID": "第 {number} 号发票已回到已发送，未付",
-			"CHANGE_FAILED": "第 {number} 号发票未更改"
+			"CHANGE_FAILED": "第 {number} 号发票未更改",
+			"DOWNLOAD": "下载 PDF"
 		},
 		"send": {
 			"TITLE": "发送第 {number} 号发票？",

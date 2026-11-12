@@ -6436,7 +6436,8 @@
 			"DELETE": "حذف",
 			"MARKED_PAID": "حُددت الفاتورة {number} كمدفوعة",
 			"MARKED_UNPAID": "عادت الفاتورة {number} إلى حالة مُرسلة، غير مدفوعة",
-			"CHANGE_FAILED": "لم تتغير الفاتورة {number}"
+			"CHANGE_FAILED": "لم تتغير الفاتورة {number}",
+			"DOWNLOAD": "تنزيل PDF"
 		},
 		"send": {
 			"TITLE": "إرسال الفاتورة {number}؟",

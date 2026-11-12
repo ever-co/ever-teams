@@ -6436,7 +6436,8 @@
 			"DELETE": "Usuń",
 			"MARKED_PAID": "Faktura {number} jest oznaczona jako opłacona",
 			"MARKED_UNPAID": "Faktura {number} wróciła do stanu Wysłana, nieopłacona",
-			"CHANGE_FAILED": "Faktura {number} nie została zmieniona"
+			"CHANGE_FAILED": "Faktura {number} nie została zmieniona",
+			"DOWNLOAD": "Pobierz jako PDF"
 		},
 		"send": {
 			"TITLE": "Wysłać fakturę {number}?",

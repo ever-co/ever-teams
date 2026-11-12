@@ -6436,7 +6436,8 @@
 			"DELETE": "Verwijderen",
 			"MARKED_PAID": "Factuur {number} is gemarkeerd als betaald",
 			"MARKED_UNPAID": "Factuur {number} staat weer op Verzonden, onbetaald",
-			"CHANGE_FAILED": "Factuur {number} is niet gewijzigd"
+			"CHANGE_FAILED": "Factuur {number} is niet gewijzigd",
+			"DOWNLOAD": "Als pdf downloaden"
 		},
 		"send": {
 			"TITLE": "Factuur {number} versturen?",

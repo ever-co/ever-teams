@@ -6436,7 +6436,8 @@
 			"DELETE": "Supprimer",
 			"MARKED_PAID": "La facture {number} est marquée comme payée",
 			"MARKED_UNPAID": "La facture {number} repasse à Envoyée, impayée",
-			"CHANGE_FAILED": "La facture {number} n’a pas été modifiée"
+			"CHANGE_FAILED": "La facture {number} n’a pas été modifiée",
+			"DOWNLOAD": "Télécharger en PDF"
 		},
 		"send": {
 			"TITLE": "Envoyer la facture {number} ?",

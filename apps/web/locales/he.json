@@ -6436,7 +6436,8 @@
 			"DELETE": "מחיקה",
 			"MARKED_PAID": "חשבונית {number} סומנה כשולמה",
 			"MARKED_UNPAID": "חשבונית {number} חזרה למצב נשלחה, לא שולמה",
-			"CHANGE_FAILED": "חשבונית {number} לא שונתה"
+			"CHANGE_FAILED": "חשבונית {number} לא שונתה",
+			"DOWNLOAD": "הורדה כקובץ PDF"
 		},
 		"send": {
 			"TITLE": "לשלוח את חשבונית {number}?",

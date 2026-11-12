@@ -6436,7 +6436,8 @@
 			"DELETE": "Удалить",
 			"MARKED_PAID": "Счёт {number} отмечен как оплаченный",
 			"MARKED_UNPAID": "Счёт {number} снова в статусе «Отправлен», не оплачен",
-			"CHANGE_FAILED": "Счёт {number} не изменён"
+			"CHANGE_FAILED": "Счёт {number} не изменён",
+			"DOWNLOAD": "Скачать в PDF"
 		},
 		"send": {
 			"TITLE": "Отправить счёт {number}?",

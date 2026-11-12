@@ -6436,7 +6436,8 @@
 			"DELETE": "Delete",
 			"MARKED_PAID": "Invoice {number} is marked paid",
 			"MARKED_UNPAID": "Invoice {number} is back to Sent, unpaid",
-			"CHANGE_FAILED": "Invoice {number} was not changed"
+			"CHANGE_FAILED": "Invoice {number} was not changed",
+			"DOWNLOAD": "Download PDF"
 		},
 		"send": {
 			"TITLE": "Send invoice {number}?",

@@ -6436,7 +6436,8 @@
 			"DELETE": "Изтриване",
 			"MARKED_PAID": "Фактура {number} е отбелязана като платена",
 			"MARKED_UNPAID": "Фактура {number} отново е Изпратена, неплатена",
-			"CHANGE_FAILED": "Фактура {number} не е променена"
+			"CHANGE_FAILED": "Фактура {number} не е променена",
+			"DOWNLOAD": "Изтегляне като PDF"
 		},
 		"send": {
 			"TITLE": "Изпращане на фактура {number}?",
