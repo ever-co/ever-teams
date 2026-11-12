@@ -256,6 +256,7 @@ export function TimeActivityBandExport({ report }: Readonly<{ report: TimeActivi
 			report={report.report}
 			period={report.period}
 			grouping={report.breakdownGrouping}
+			clientOf={report.clientOfProjectLog}
 			isManager={report.isManager}
 			ownEmployeeId={report.ownEmployeeId}
 			figures={report.figures}
