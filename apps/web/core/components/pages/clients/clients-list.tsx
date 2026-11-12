@@ -19,11 +19,19 @@ const LABEL = 'flex min-w-0 items-center gap-1.5 px-2 [&_svg]:size-3.5';
 
 interface ClientsListProps {
 	clients: TClient[];
-	projectCounts: ReadonlyMap<string, number>;
+	/** `null` while the projects are not read: each count is then unknown. */
+	projectCounts: ReadonlyMap<string, number> | null;
 	access: ClientAccess;
 	onEdit: (client: TClient) => void;
 	onArchive: (client: TClient) => void;
 	onRestore: (client: TClient) => void;
+}
+
+function projectCountOf(projectCounts: ReadonlyMap<string, number> | null, clientId: string) {
+	if (!projectCounts) {
+		return null;
+	}
+	return projectCounts.get(clientId) ?? 0;
 }
 
 export function ClientsList({ clients, projectCounts, ...rowProps }: Readonly<ClientsListProps>) {
@@ -35,7 +43,7 @@ export function ClientsList({ clients, projectCounts, ...rowProps }: Readonly<Cl
 					<ClientRow
 						key={client.id}
 						client={client}
-						projectCount={projectCounts.get(client.id) ?? 0}
+						projectCount={projectCountOf(projectCounts, client.id)}
 						{...rowProps}
 					/>
 				))}
@@ -87,18 +95,27 @@ function ClientSubline({ client }: Readonly<{ client: TClient }>) {
 	return <span className="truncate text-xs text-muted-foreground lg:hidden">{client.primaryEmail}</span>;
 }
 
-function ProjectCountCell({ client, count }: Readonly<{ client: TClient; count: number }>) {
+const PROJECT_LINK =
+	'truncate rounded-md px-2 py-1 text-[13px] tabular-nums text-foreground outline-none transition-colors hover:text-primary-ink focus-visible:ring-[3px] focus-visible:ring-ring/25';
+
+function ProjectCountCell({ client, count }: Readonly<{ client: TClient; count: number | null }>) {
 	const t = useTranslations();
+	const href = `/projects?clients=${encodeURIComponent(client.id)}`;
+	// The projects are not read (yet): no count is shown as zero, and the link to the client's projects stays
+	if (count === null) {
+		return (
+			<Link href={href} className={PROJECT_LINK}>
+				{t('clients.COLUMN_PROJECTS')}
+			</Link>
+		);
+	}
 	const label = t('clients.PROJECT_COUNT', { count });
 	const hasProjects = count > 0;
 	if (!hasProjects) {
 		return <span className={cn(MUTED_VALUE, 'px-2 tabular-nums')}>{label}</span>;
 	}
 	return (
-		<Link
-			href={`/projects?clients=${encodeURIComponent(client.id)}`}
-			className="truncate rounded-md px-2 py-1 text-[13px] tabular-nums text-foreground outline-none transition-colors hover:text-primary-ink focus-visible:ring-[3px] focus-visible:ring-ring/25"
-		>
+		<Link href={href} className={PROJECT_LINK}>
 			{label}
 		</Link>
 	);
@@ -125,7 +142,7 @@ function ClientRow({
 	onEdit,
 	onArchive,
 	onRestore
-}: Readonly<Omit<ClientsListProps, 'clients' | 'projectCounts'> & { client: TClient; projectCount: number }>) {
+}: Readonly<Omit<ClientsListProps, 'clients' | 'projectCounts'> & { client: TClient; projectCount: number | null }>) {
 	return (
 		<li className={cn(ROW_GRID, 'min-h-13 pl-1 transition-colors hover:bg-foreground/[0.02]')}>
 			<span className="flex min-w-0 items-center gap-2.5 px-2 py-2">

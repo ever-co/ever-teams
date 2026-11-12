@@ -13,7 +13,9 @@ import { useClientAccess } from '@/core/hooks/clients/use-client-access';
 import { useClientsListState } from '@/core/hooks/clients/use-clients-list-state';
 import { useClientsQuery } from '@/core/hooks/clients/use-clients-query';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import { isValidProjectForDisplay } from '@/core/lib/helpers/type-guards';
 import { clientMatchesSearch, clientsInScope, projectCountByClient } from '@/core/lib/utils/clients';
+import { isProjectVisibleInTeam } from '@/core/lib/utils/project-list';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import type { TClient } from '@/core/types/schemas';
 import { ClientsList } from './clients-list';
@@ -41,12 +43,24 @@ function ClientsPage() {
 	const { clients, activeClients, archivedClients, isLoading, isError, refetch } = useClientsQuery({
 		includeArchived: true
 	});
-	const { organizationProjects } = useOrganizationProjectsQuery();
+	const { organizationProjects, isOrganizationProjectsLoaded } = useOrganizationProjectsQuery();
 	const access = useClientAccess();
 	const list = useClientsListState();
 	const [dialog, setDialog] = useState<ClientDialog | null>(null);
 
-	const projectCounts = useMemo(() => projectCountByClient(organizationProjects), [organizationProjects]);
+	// A count is the list its link opens: the active projects the Projects page shows for the active team. Until the
+	// projects are read, or when they cannot be, the counts are unknown rather than zero.
+	const activeTeamId = activeTeam?.id;
+	const hasProjectList = isOrganizationProjectsLoaded || organizationProjects.length > 0;
+	const projectCounts = useMemo(() => {
+		if (!hasProjectList) {
+			return null;
+		}
+		const shownProjects = organizationProjects.filter(
+			(project) => isProjectVisibleInTeam(project, activeTeamId) && isValidProjectForDisplay(project, false)
+		);
+		return projectCountByClient(shownProjects);
+	}, [activeTeamId, hasProjectList, organizationProjects]);
 
 	const shownClients = useMemo(() => {
 		const scoped = clientsInScope(clients, list.scope);
