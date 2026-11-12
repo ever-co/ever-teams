@@ -3,7 +3,7 @@ import { setAuthCookies } from '@/core/lib/helpers/index';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { DEFAULT_APP_PATH } from '@/core/constants/config/constants';
 import { navigateAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
 import { readSocialSession, socialRefreshToken } from '@/core/lib/auth/social-session';
@@ -20,11 +20,14 @@ export default function Welcome() {
 	const t = useTranslations();
 	// A social sign-up whose account waits for its e-mail confirmation (auth.ts jwt callback): no session to open
 	const verifyEmail = session?.authCookie?.verifyEmail === true ? (session.authCookie.email as string) : null;
+	// A sign-up that opened its session ends once: navigateAfterSignIn takes the Board address, so a second run (the
+	// effect again on a session refetch, or twice in development's strict mode) would replace the Board with the app
+	const hasNavigatedRef = useRef(false);
 
 	useEffect(() => {
 		// The session arrives after the first render (no initial session): wait for it, or a sign-up that waits for its
 		// e-mail confirmation would be sent on before its notice shows
-		if (status === 'loading' || verifyEmail !== null) return;
+		if (status === 'loading' || verifyEmail !== null || hasNavigatedRef.current) return;
 		// Whether the social session was opened here (its cookies set)
 		const loadOAuthSession = (): boolean => {
 			if (session) {
@@ -51,6 +54,7 @@ export default function Welcome() {
 		// A sign-up that opened its session ends as every sign-in does: on the page set for it, the Board that started
 		// it (board-return.ts), else the app
 		if (loadOAuthSession()) {
+			hasNavigatedRef.current = true;
 			navigateAfterSignIn({ replace: true });
 			return;
 		}
