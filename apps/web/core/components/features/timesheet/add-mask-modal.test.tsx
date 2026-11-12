@@ -263,6 +263,20 @@ describe('AddTaskModal duration of a shift', () => {
 		]);
 	});
 
+	it('keeps the times two periods receive before the dialog renders again', () => {
+		renderAddTimeForm();
+		pickTaskAndEmployee('task-a', 'employee-a');
+		fireEvent.click(screen.getByText('common.ADD_ANOTHER_PERIOD'));
+
+		// A member change asks every period again at once: their times arrive in one go, without a render in between
+		act(() => {
+			shiftDuration().onTimes(0, '09:00:00 AM', '10:30:00 AM');
+			shiftDuration().onTimes(1, '10:30:00 AM', '12:00:00 PM');
+		});
+
+		expect(shiftTimeValues()).toEqual(['09:00:00 AM', '10:30:00 AM', '10:30:00 AM', '12:00:00 PM']);
+	});
+
 	it('empties the shift when the asked duration found no room, so nothing is saved', () => {
 		jest.spyOn(console, 'error').mockImplementation(() => undefined);
 		renderAddTimeForm();

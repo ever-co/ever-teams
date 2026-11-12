@@ -13,6 +13,7 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@/core/components/common/select';
+import { useSyncRef } from '@/core/hooks/common/use-sync-ref';
 import { useCreateTimesheet } from '@/core/hooks/timesheet/use-create-timesheet';
 import { useTimeOverlapGuard } from '@/core/hooks/timesheet/use-time-overlap-guard';
 import { periodsOverlapEachOther } from '@/core/lib/utils/time-log-overlap';
@@ -608,10 +609,15 @@ const OptimizedAccordion = ({
 		setShifts(updatedShifts);
 	};
 
+	// The times of several periods can arrive before the dialog renders again (a member change asks every period
+	// again at once): each one is written on the periods as the previous one left them, not as last rendered
+	const latestShiftsRef = useSyncRef(shifts);
+
 	const handleShiftTimes = (index: number, startTime: string, endTime: string) => {
-		const updatedShifts = [...shifts];
+		const updatedShifts = [...latestShiftsRef.current];
 		const totalHours = calculateTotalHoursHour(startTime, endTime);
 		updatedShifts[index] = { ...updatedShifts[index], startTime, endTime, totalHours };
+		latestShiftsRef.current = updatedShifts;
 		setShifts(updatedShifts);
 	};
 
