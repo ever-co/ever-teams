@@ -252,6 +252,30 @@ describe('ChatAppBlocks', () => {
 		}
 	});
 
+	it('asks again after a failed ask instead of calling the click failed', async () => {
+		jest.useFakeTimers();
+		try {
+			mockInteract.mockResolvedValue({ interaction: interaction('retrying'), events: [] });
+			mockInteraction.mockRejectedValueOnce({ response: { status: 503 } }).mockResolvedValue(interaction('delivered'));
+			render(<ChatAppBlocks message={appMessage()} />);
+			await act(async () => {
+				fireEvent.click(screen.getByText('Acknowledge'));
+			});
+			await act(async () => {
+				await jest.advanceTimersByTimeAsync(APP_INTERACTION_POLL_MS);
+			});
+			const button = screen.getByText('Acknowledge').closest('button') as HTMLButtonElement;
+			expect(button.disabled).toBe(true);
+			expect(screen.queryByRole('alert')).toBeNull();
+			await act(async () => {
+				await jest.advanceTimersByTimeAsync(APP_INTERACTION_POLL_MS * 2);
+			});
+			expect(screen.getByLabelText('teamChat.APP_DONE')).toBeTruthy();
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
 	it('stops after that one more look when no reply came', async () => {
 		jest.useFakeTimers();
 		try {

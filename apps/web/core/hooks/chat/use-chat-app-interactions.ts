@@ -14,6 +14,11 @@ import { nextMessageOrder, withMessageOrder } from '@/core/lib/utils/chat-format
 import { chatService } from '@/core/services/client/api/chat/chat.service';
 import type { IChatAppButton, IChatInteraction, IChatMessage } from '@/core/types/interfaces/common/chat';
 
+/** The HTTP status of a failed platform call, when it had one. */
+function statusOf(error: unknown): number | undefined {
+	return (error as { response?: { status?: number }; status?: number })?.response?.status ?? (error as { status?: number })?.status;
+}
+
 export interface UseChatAppInteractionsOptions {
 	/** An archived conversation, or a reader who may not write: no click is sent. */
 	readOnly?: boolean;
@@ -124,15 +129,18 @@ export function useChatAppInteractions(message: IChatMessage, { readOnly = false
 					if (state === 'failed') setFailure(blockId, 'APP_CALLBACK_FAILED');
 					if (interaction.replyApplied) await readReplaced(interaction);
 					return;
-				} catch {
+				} catch (error) {
 					if (!isLatest()) return;
+					// A failed ask is asked again at the next round (the click may still be delivered): only a 404 (the
+					// click or the webhooks are gone) ends the asking.
+					if (statusOf(error) !== 404) continue;
 					// Asked again after the delivery: the click went through; only the reply's read is missed.
 					if (deliveredSeen) {
 						setState(key, 'done');
 						return;
 					}
 					setState(key, 'failed');
-					setFailure(blockId, 'APP_CLICK_FAILED');
+					setFailure(blockId, 'APP_GONE');
 					return;
 				}
 			}
@@ -164,9 +172,8 @@ export function useChatAppInteractions(message: IChatMessage, { readOnly = false
 				if (state === 'failed') setFailure(blockId, 'APP_CALLBACK_FAILED');
 				if (state === 'pending') void follow(key, blockId, result.interaction.interactionId);
 			} catch (error) {
-				const status = (error as { response?: { status?: number }; status?: number })?.response?.status ?? (error as { status?: number })?.status;
 				setState(key, 'failed');
-				setFailure(blockId, appClickFailureOf(status));
+				setFailure(blockId, appClickFailureOf(statusOf(error)));
 			}
 		},
 		[follow, message, readOnly, setFailure, setState, states]
