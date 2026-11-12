@@ -2660,7 +2660,7 @@
 			"LABEL": "Notizen",
 			"PLACEHOLDER": "Woran arbeiten Sie?",
 			"HINT_BEFORE_START": "Optional. Wird beim Start des Timers im Eintrag gespeichert.",
-			"HINT_RUNNING": "Änderungen werden beim Stoppen des Timers gesendet."
+			"HINT_RUNNING": "Änderungen bei laufendem Timer werden noch nicht gespeichert. Um die Notizen zu ändern, bearbeiten Sie den Eintrag nach dem Stoppen des Timers in den Stundenzetteln."
 		}
 	},
 	"task": {

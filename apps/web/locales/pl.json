@@ -2660,7 +2660,7 @@
 			"LABEL": "Notatki",
 			"PLACEHOLDER": "Nad czym pracujesz?",
 			"HINT_BEFORE_START": "Opcjonalne. Zapisywane we wpisie przy uruchomieniu timera.",
-			"HINT_RUNNING": "Zmiany są wysyłane po zatrzymaniu timera."
+			"HINT_RUNNING": "Zmiany wprowadzone podczas działania timera nie są jeszcze zapisywane. Aby zmienić notatki, edytuj wpis w kartach czasu pracy po zatrzymaniu timera."
 		}
 	},
 	"task": {

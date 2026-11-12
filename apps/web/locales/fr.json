@@ -2660,7 +2660,7 @@
 			"LABEL": "Notes",
 			"PLACEHOLDER": "Sur quoi travaillez-vous ?",
 			"HINT_BEFORE_START": "Facultatif. Enregistrées sur l'entrée au démarrage du chronomètre.",
-			"HINT_RUNNING": "Les changements sont envoyés à l'arrêt du chronomètre."
+			"HINT_RUNNING": "Les changements faits pendant que le chronomètre tourne ne sont pas encore enregistrés. Pour changer les notes, modifiez l'entrée dans les feuilles de temps après l'arrêt du chronomètre."
 		}
 	},
 	"task": {
