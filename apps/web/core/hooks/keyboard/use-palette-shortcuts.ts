@@ -37,7 +37,8 @@ export const PALETTE_COMMAND_IDS = {
 	goToWeeklyLimit: 'goWeeklyLimit',
 	goToTimeAndActivity: 'goTimeActivity',
 	profile: 'goProfile',
-	settings: 'settingsOpen'
+	settings: 'settingsOpen',
+	keyboardShortcuts: 'helpOpen'
 } as const;
 
 const NO_HANDLERS: Record<string, ShortcutHandler> = {};

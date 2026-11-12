@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { FC, useCallback, useMemo, useState } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { commandPaletteOpenAtom } from '@/core/stores/common/command-palette';
 import { useRouter } from 'next/navigation';
 
@@ -23,6 +23,7 @@ import {
 	AddTeamIcon,
 	AddUserIcon,
 	DashboardIcon,
+	Keyboard,
 	MoonIcon,
 	ProfileIcon,
 	SettingsIcon,
@@ -50,7 +51,7 @@ import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
 import { openablePageHandlers, paletteListedGroups } from '@/core/lib/utils/palette-go-to';
 import type { SidebarPage } from '@/core/lib/utils/sidebar-pages';
 import type { PaletteItem } from '@/core/lib/utils/palette-items';
-import type { ShortcutHandler } from '@/core/stores/common/shortcuts';
+import { shortcutsHelpOpenAtom, type ShortcutHandler } from '@/core/stores/common/shortcuts';
 import { InviteFormModal } from '../../../features/teams/invite-form-modal';
 import { CreateProjectModal } from '../../../features/projects/create-project-modal';
 import { CreateTeamModal } from '@/core/components/features/teams/create-team-modal';
@@ -109,6 +110,10 @@ function shortcutKeysOf(command: Pick<CommandShortcutConfig, 'shortcutDisplay' |
 	return command.shortcutKeys ?? Array.from(command.shortcutDisplay);
 }
 
+function hasKeySequence(command: Pick<CommandShortcutConfig, 'sequence'>) {
+	return command.sequence.length > 0;
+}
+
 const navigationIcon = <ArrowUpRight aria-hidden="true" />;
 
 const ClickableCommandItem: FC<{
@@ -161,6 +166,7 @@ export const SidebarCommandModal: FC<{
 	pages?: readonly SidebarPage[];
 }> = ({ publicTeam, variant = 'sidebar', pages }) => {
 	const [open, setOpen] = useAtom(commandPaletteOpenAtom);
+	const setShortcutsSheetOpen = useSetAtom(shortcutsHelpOpenAtom);
 
 	const t = useTranslations();
 	const [activeTab, setActiveTab] = useState(ALL_GROUPS_TAB);
@@ -214,9 +220,20 @@ export const SidebarCommandModal: FC<{
 			inviteUser: () => inviteModal.openModal(),
 			toggleTheme: () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark'),
 			// The chat page opens its "New message" dialog for `?new=message`.
-			newChatMessage: () => router.push('/chat?new=message')
+			newChatMessage: () => router.push('/chat?new=message'),
+			openShortcutsSheet: () => setShortcutsSheetOpen(true)
 		}),
-		[router, profileLink, createTaskModal, teamModal, createProjectModal, inviteModal, setTheme, resolvedTheme]
+		[
+			router,
+			profileLink,
+			createTaskModal,
+			teamModal,
+			createProjectModal,
+			inviteModal,
+			setTheme,
+			resolvedTheme,
+			setShortcutsSheetOpen
+		]
 	);
 
 	// The palette opened on one tab, its field empty (the registry's "search" commands).
@@ -490,6 +507,14 @@ export const SidebarCommandModal: FC<{
 						shortcutDisplay: '⌘S',
 						action: actions.navigateToSettings,
 						icon: <SettingsIcon />
+					},
+					{
+						sequence: [],
+						commandId: PALETTE_COMMAND_IDS.keyboardShortcuts,
+						description: t('shortcuts.TITLE'),
+						shortcutDisplay: '?',
+						action: actions.openShortcutsSheet,
+						icon: <Keyboard />
 					}
 				]
 			}
@@ -532,7 +557,12 @@ export const SidebarCommandModal: FC<{
 
 	// Use our global keyboard shortcut hook (the registry opens the palette itself while it is on)
 	const registryOwnsPalette = isTaskViewsEnabled();
-	useKeyboardShortcuts(allShortcuts, registryOwnsPalette ? undefined : setOpen);
+	const keyedShortcuts = useMemo(() => allShortcuts.filter(hasKeySequence), [allShortcuts]);
+	let openPaletteByKeys: typeof setOpen | undefined;
+	if (!registryOwnsPalette) {
+		openPaletteByKeys = setOpen;
+	}
+	useKeyboardShortcuts(keyedShortcuts, openPaletteByKeys);
 
 	// Keyboard shortcut in current component only for Ctrl+K
 	React.useEffect(() => {

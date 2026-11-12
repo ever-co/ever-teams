@@ -9,6 +9,7 @@ let mockRegistered = new Map<string, () => void>();
 const mockUseKeyboardShortcuts = jest.fn();
 const mockRegisterHandlers = jest.fn();
 const mockSetOpen = jest.fn();
+const mockSetShortcutsSheetOpen = jest.fn();
 
 jest.mock('@/core/hooks/invitations/use-can-invite-to-active-team', () => ({
 	useCanInviteToActiveTeam: () => mockCanInvite
@@ -27,7 +28,10 @@ jest.mock('@/core/hooks/keyboard/use-keyboard-preferences', () => {
 jest.mock('@/core/hooks/keyboard/use-shortcuts', () => ({
 	useShortcutHandlers: (handlers: Record<string, () => void>) => mockRegisterHandlers(handlers)
 }));
-jest.mock('@/core/stores/common/shortcuts', () => ({ shortcutHandlersAtom: Symbol('shortcut-handlers') }));
+jest.mock('@/core/stores/common/shortcuts', () => ({
+	shortcutHandlersAtom: Symbol('shortcut-handlers'),
+	shortcutsHelpOpenAtom: Symbol('shortcuts-help')
+}));
 jest.mock('@/core/lib/utils/task-views-enabled', () => ({ isTaskViewsEnabled: () => mockRegistryOn }));
 const mockRecent = [
 	{ kind: 'task', id: 'task-1', title: 'A task', href: '/task/task-1' },
@@ -45,7 +49,8 @@ jest.mock('../../../../hooks', () => ({
 }));
 jest.mock('jotai', () => ({
 	useAtom: () => [true, mockSetOpen],
-	useAtomValue: () => mockRegistered
+	useAtomValue: () => mockRegistered,
+	useSetAtom: () => mockSetShortcutsSheetOpen
 }));
 jest.mock('@/core/stores/common/command-palette', () => ({ commandPaletteOpenAtom: Symbol('command-palette') }));
 const mockPush = jest.fn();
@@ -81,6 +86,7 @@ jest.mock('../../../icons', () => {
 		AddTeamIcon: Icon,
 		AddUserIcon: Icon,
 		DashboardIcon: Icon,
+		Keyboard: Icon,
 		MoonIcon: Icon,
 		ProfileIcon: Icon,
 		SettingsIcon: Icon,
@@ -322,6 +328,47 @@ describe('SidebarCommandModal with the pages of the sidebar', () => {
 		expect(keyCapsOf('Tasks › Kanban')).toEqual(['G', 'K']);
 		// No handler is registered for it in this test: no key that would do nothing.
 		expect(keyCapsOf('Reports › Timesheets')).toEqual([]);
+	});
+});
+
+describe('SidebarCommandModal keyboard shortcuts entry', () => {
+	beforeEach(() => {
+		mockUseKeyboardShortcuts.mockClear();
+		mockSetOpen.mockClear();
+		mockSetShortcutsSheetOpen.mockClear();
+	});
+
+	afterEach(() => {
+		mockRegistryOn = false;
+		mockRegistered = new Map();
+	});
+
+	it('opens the shortcuts sheet from the Settings group and closes the palette, showing the help key', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" />);
+
+		expect(keyCapsOf('shortcuts.TITLE')).toEqual(['?']);
+		fireEvent.click(screen.getByText('shortcuts.TITLE'));
+
+		expect(mockSetOpen).toHaveBeenCalledWith(false);
+		expect(mockSetShortcutsSheetOpen).toHaveBeenCalledWith(true);
+	});
+
+	it('shows the binding in force of the help with the registry, and still opens the sheet', () => {
+		mockRegistryOn = true;
+		mockRegistered = new Map([['helpOpen', jest.fn()]]);
+		render(<SidebarCommandModal publicTeam={false} variant="none" />);
+
+		expect(keyCapsOf('shortcuts.TITLE')).toEqual(['?']);
+		fireEvent.click(screen.getByText('shortcuts.TITLE'));
+
+		expect(mockSetShortcutsSheetOpen).toHaveBeenCalledWith(true);
+	});
+
+	it('hands its own key listener only the entries that have keys: no page row, no key-less entry', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MEMBER_PAGES} />);
+
+		expect(registeredSequences()).not.toContain('');
+		expect(registeredSequences()).toContain('k');
 	});
 });
 
