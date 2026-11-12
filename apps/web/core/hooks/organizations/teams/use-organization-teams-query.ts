@@ -321,6 +321,11 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			setActiveTeamId('');
 			return;
 		}
+		// The team cookie is shared by every tab, and this runs on each new team list (each read while a timer runs):
+		// a tab keeps its own team while the list holds it, so a switch made in another tab never moves it, nor stops
+		// its timer (#5120). At startup, or once its team is gone, the cookie still picks the team.
+		const keepsOwnTeam = latestTeams.some((team) => team.id === activeTeamIdRef.current);
+		if (keepsOwnTeam) return;
 		let selectedId = getActiveTeamIdCookie();
 		if (!selectedId && typeof window !== 'undefined') {
 			selectedId = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || '';
@@ -379,8 +384,8 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			return;
 		}
 
-		// TEAM SELECTION PRIORITY LOGIC
-		let teamId = getActiveTeamIdCookie();
+		// TEAM SELECTION PRIORITY LOGIC: this tab's own team first, as the cookie may name another tab's team (#5120)
+		let teamId = activeTeamIdRef.current || getActiveTeamIdCookie();
 
 		if (!teamId && typeof window !== 'undefined') {
 			teamId = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || '';
@@ -436,6 +441,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			throw error;
 		}
 	}, [
+		activeTeamIdRef,
 		queryClient,
 		user?.employee?.organizationId,
 		user?.employee?.tenantId,
