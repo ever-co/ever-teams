@@ -15,7 +15,6 @@ import {
 	manualTimeRefusalKeyOf,
 	minutesOfClockText,
 	minutesOfDayOf,
-	requiredEntryFieldsKeyOf,
 	restingDurationTextOf,
 	type ShownTimes,
 	spanSecondsOf,
@@ -309,11 +308,5 @@ describe('manualTimeRefusalKeyOf', () => {
 		expect(manualTimeRefusalKeyOf(requiredFieldRefusal([]))).toBe('toasts.REASONS.INVALID');
 		expect(manualTimeRefusalKeyOf(new ApiErrorService('Forbidden', 403))).toBe('toasts.REASONS.PERMISSION');
 		expect(manualTimeRefusalKeyOf(new Error('Network down'))).toBe('toasts.REASONS.UNKNOWN');
-	});
-
-	it('names a required field only when the refusal is about one', () => {
-		expect(requiredEntryFieldsKeyOf(requiredFieldRefusal(['projectId']))).toBe('manualTime.REQUIRED.PROJECT');
-		expect(requiredEntryFieldsKeyOf(new ApiErrorService('Forbidden', 403))).toBeNull();
-		expect(requiredEntryFieldsKeyOf(new Error('Incomplete shift data.'))).toBeNull();
 	});
 });

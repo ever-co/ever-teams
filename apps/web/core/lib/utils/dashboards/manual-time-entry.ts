@@ -347,14 +347,13 @@ function requiredFieldsKeyOf(fields: ReadonlyArray<string>): string | null {
 	return null;
 }
 
-/** The sentence that names the field the organization requires and a refused time entry misses. */
-export function requiredEntryFieldsKeyOf(error: unknown): string | null {
-	const missingFields = requiredTrackingFieldsOf(error) ?? [];
-	return requiredFieldsKeyOf(missingFields);
-}
-
+/**
+ * The sentence that says why manual time was not saved: the field the organization requires and the entry misses,
+ * or else the reason every failed request gets.
+ */
 export function manualTimeRefusalKeyOf(error: unknown): string {
-	const requiredKey = requiredEntryFieldsKeyOf(error);
+	const missingFields = requiredTrackingFieldsOf(error) ?? [];
+	const requiredKey = requiredFieldsKeyOf(missingFields);
 	if (requiredKey) {
 		return requiredKey;
 	}
