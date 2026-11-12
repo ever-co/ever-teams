@@ -377,12 +377,19 @@ describe('JiraProviderSection', () => {
 	it('offers no import for a mapping that brings no issues in (switched off, or outbound only)', () => {
 		const jira = connected();
 		const [first] = jira.mappings;
-		jira.mappings = [{ ...first, id: 'm-off', syncEnabled: false }, { ...first, id: 'm-out', jiraProjectId: '20001', direction: 'outbound' }];
+		jira.mappings = [
+			{ ...first, id: 'm-off', syncEnabled: false },
+			{ ...first, id: 'm-out', jiraProjectId: '20001', direction: 'outbound' }
+		];
 		render(<JiraProviderSection jira={jira} />);
 		for (const id of ['m-off', 'm-out']) {
 			const row = screen.getByTestId(`jira-mapping-${id}`);
-			expect((within(row).getByRole('button', { name: `${K}.IMPORT_CHANGES` }) as HTMLButtonElement).disabled).toBe(true);
-			expect((within(row).getByRole('button', { name: `${K}.IMPORT_ALL` }) as HTMLButtonElement).disabled).toBe(true);
+			expect(
+				(within(row).getByRole('button', { name: `${K}.IMPORT_CHANGES` }) as HTMLButtonElement).disabled
+			).toBe(true);
+			expect((within(row).getByRole('button', { name: `${K}.IMPORT_ALL` }) as HTMLButtonElement).disabled).toBe(
+				true
+			);
 		}
 	});
 
