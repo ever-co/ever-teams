@@ -14,7 +14,6 @@ import {
 import { queryKeys } from '@/core/query/keys';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 
-/** How far the run going on, or the last one, went. */
 export interface BulkEditProgress {
 	/** The entries gone through so far, saved or not. */
 	done: number;
