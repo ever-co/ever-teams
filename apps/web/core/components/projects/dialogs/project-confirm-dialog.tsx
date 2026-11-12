@@ -126,6 +126,12 @@ function ConsequenceList({ consequences }: Readonly<{ consequences: ProjectConse
 	);
 }
 
+export interface ProjectConfirmSecondaryAction {
+	label: string;
+	isPending: boolean;
+	onClick: () => void;
+}
+
 interface ProjectConfirmDialogProps {
 	open: boolean;
 	onClose: () => void;
@@ -140,6 +146,8 @@ interface ProjectConfirmDialogProps {
 	isPending: boolean;
 	error?: string | null;
 	onConfirm: () => void;
+	/** A second way to confirm, as an outline button before the main one. */
+	secondaryAction?: ProjectConfirmSecondaryAction;
 }
 
 export function ProjectConfirmDialog({
@@ -155,10 +163,13 @@ export function ProjectConfirmDialog({
 	confirmLabel,
 	isPending,
 	error,
-	onConfirm
+	onConfirm,
+	secondaryAction
 }: Readonly<ProjectConfirmDialogProps>) {
 	const t = useTranslations();
 	const hasConsequences = consequences.length > 0;
+	const isSecondaryPending = secondaryAction?.isPending ?? false;
+	const isBusy = isPending || isSecondaryPending;
 	let confirmVariant: 'primary' | 'danger' = 'primary';
 	if (tone === 'danger') {
 		confirmVariant = 'danger';
@@ -212,19 +223,31 @@ export function ProjectConfirmDialog({
 					variant="ghost"
 					size="default"
 					onClick={onClose}
-					disabled={isPending}
+					disabled={isBusy}
 					data-initial-focus=""
 					className={cn(!error && 'ml-auto')}
 				>
 					{t('common.CANCEL')}
 				</Button>
+				{secondaryAction && (
+					<Button
+						type="button"
+						variant="outline"
+						size="default"
+						onClick={secondaryAction.onClick}
+						loading={isSecondaryPending}
+						disabled={isBusy}
+					>
+						{secondaryAction.label}
+					</Button>
+				)}
 				<Button
 					type="button"
 					variant={confirmVariant}
 					size="default"
 					onClick={onConfirm}
 					loading={isPending}
-					disabled={isPending}
+					disabled={isBusy}
 				>
 					{confirmLabel}
 				</Button>
