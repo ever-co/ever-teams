@@ -8,7 +8,7 @@ import { ArrowLeft, Camera, Copy, Mic, MicOff, VideoOff, Volume } from '@/core/c
 import { useAudioLevel } from '@/core/hooks/meetings/use-audio-level';
 import { useMediaPreview, type MeetingJoinChoices } from '@/core/hooks/meetings/use-media-preview';
 import { cn } from '@/core/lib/helpers';
-import { DeviceField, LevelMeter } from './device-fields';
+import { DeviceAccessNotices, DeviceField, LevelMeter } from './device-fields';
 
 const TOGGLE =
 	'flex size-11 cursor-pointer items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-white/40';
@@ -152,43 +152,7 @@ export function MeetPreJoin({
 					</div>
 
 					{shareScreenOnJoin && <Notice tone="info" title={t('meetings.SHARE_SCREEN_ON_JOIN')} />}
-					{access === 'denied' && (
-						<Notice
-							tone="warning"
-							title={t('meetings.DEVICES_BLOCKED')}
-							description={t('meetings.DEVICES_BLOCKED_HINT')}
-							actions={
-								<Button type="button" variant="outline" size="sm" onClick={preview.retry}>
-									{t('collaborate.TRY_AGAIN')}
-								</Button>
-							}
-						/>
-					)}
-					{access === 'busy' && (
-						<Notice
-							tone="warning"
-							title={t('meetings.DEVICES_BUSY')}
-							actions={
-								<Button type="button" variant="outline" size="sm" onClick={preview.retry}>
-									{t('collaborate.TRY_AGAIN')}
-								</Button>
-							}
-						/>
-					)}
-					{access === 'missing' && <Notice tone="info" title={t('meetings.DEVICES_MISSING')} />}
-					{preview.missing.video && !preview.missing.audio && (
-						<Notice tone="info" title={t('meetings.CAMERA_MISSING')} />
-					)}
-					{preview.missing.audio && !preview.missing.video && (
-						<Notice tone="info" title={t('meetings.MICROPHONE_MISSING')} />
-					)}
-					{access === 'unavailable' && (
-						<Notice
-							tone="info"
-							title={t('meetings.DEVICES_UNAVAILABLE')}
-							description={t('meetings.DEVICES_UNAVAILABLE_HINT')}
-						/>
-					)}
+					<DeviceAccessNotices access={access} missing={preview.missing} onRetry={preview.retry} />
 
 					{canChooseDevices && (
 						<div className="grid gap-3">

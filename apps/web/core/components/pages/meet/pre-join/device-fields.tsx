@@ -2,8 +2,10 @@
 
 import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
+import { Notice } from '@/core/components/common/notice';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
-import type { MeetingDeviceKind } from '@/core/hooks/meetings/use-media-preview';
+import { Button } from '@/core/components/duplicated-components/_button';
+import type { MediaAccess, MeetingDeviceKind } from '@/core/hooks/meetings/use-media-preview';
 import { cn } from '@/core/lib/helpers';
 
 const DEFAULT_DEVICE = 'default';
@@ -71,5 +73,54 @@ export function DeviceField({
 				</SelectContent>
 			</Select>
 		</div>
+	);
+}
+
+interface DeviceAccessNoticesProps {
+	access: MediaAccess;
+	/** A device asked for that the computer does not have, while the other one works. */
+	missing: { audio: boolean; video: boolean };
+	onRetry: () => void;
+}
+
+/** What stands between the person and their devices: blocked, held by another app, missing, or out of reach. */
+export function DeviceAccessNotices({ access, missing, onRetry }: Readonly<DeviceAccessNoticesProps>) {
+	const t = useTranslations();
+	return (
+		<>
+			{access === 'denied' && (
+				<Notice
+					tone="warning"
+					title={t('meetings.DEVICES_BLOCKED')}
+					description={t('meetings.DEVICES_BLOCKED_HINT')}
+					actions={
+						<Button type="button" variant="outline" size="sm" onClick={onRetry}>
+							{t('collaborate.TRY_AGAIN')}
+						</Button>
+					}
+				/>
+			)}
+			{access === 'busy' && (
+				<Notice
+					tone="warning"
+					title={t('meetings.DEVICES_BUSY')}
+					actions={
+						<Button type="button" variant="outline" size="sm" onClick={onRetry}>
+							{t('collaborate.TRY_AGAIN')}
+						</Button>
+					}
+				/>
+			)}
+			{access === 'missing' && <Notice tone="info" title={t('meetings.DEVICES_MISSING')} />}
+			{missing.video && !missing.audio && <Notice tone="info" title={t('meetings.CAMERA_MISSING')} />}
+			{missing.audio && !missing.video && <Notice tone="info" title={t('meetings.MICROPHONE_MISSING')} />}
+			{access === 'unavailable' && (
+				<Notice
+					tone="info"
+					title={t('meetings.DEVICES_UNAVAILABLE')}
+					description={t('meetings.DEVICES_UNAVAILABLE_HINT')}
+				/>
+			)}
+		</>
 	);
 }
