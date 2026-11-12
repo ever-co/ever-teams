@@ -28,6 +28,8 @@ const DUE_TERM_KEYS: Record<InvoiceDueTermSource, DottedLanguageObjectStringPath
 
 const DATE_FIELD = cn(controlRecipe, 'h-9 px-2.5');
 
+const NOTE_FIELD = cn(controlRecipe, 'field-sizing-content max-h-[6lh] min-h-16 resize-none px-2.5 py-2');
+
 const HINT = 'text-xs text-muted-foreground text-pretty';
 
 /** Which term gave the due date; silent once the user picks another day. */
@@ -41,6 +43,29 @@ function DueTermHint({ invoice, id }: Readonly<{ invoice: NewInvoiceState; id: s
 		<p id={id} className={HINT}>
 			{t(DUE_TERM_KEYS[source], { days })}
 		</p>
+	);
+}
+
+function NoteField({ invoice, id }: Readonly<{ invoice: NewInvoiceState; id: string }>) {
+	const t = useTranslations();
+	const hintId = `${id}-hint`;
+	return (
+		<div className="flex flex-col gap-1.5">
+			<label htmlFor={id} className={FIELD_LABEL}>
+				{t('invoices.new.terms.NOTE')}
+			</label>
+			<textarea
+				id={id}
+				rows={2}
+				value={invoice.note}
+				aria-describedby={hintId}
+				onChange={(event) => invoice.setNote(event.target.value)}
+				className={NOTE_FIELD}
+			/>
+			<p id={hintId} className={HINT}>
+				{t('invoices.new.terms.NOTE_HINT')}
+			</p>
+		</div>
 	);
 }
 
@@ -103,6 +128,7 @@ export function InvoiceDetails({
 	const dueId = `${fieldId}-due`;
 	const dueTermId = `${fieldId}-due-term`;
 	const currencyId = `${fieldId}-currency`;
+	const noteId = `${fieldId}-note`;
 	const problemsId = `${fieldId}-problems`;
 	const hasProblems = invoice.problems.length > 0;
 	const listsProblems = showsProblems && hasProblems;
@@ -165,6 +191,7 @@ export function InvoiceDetails({
 				</div>
 			</div>
 			<CurrencyField invoice={invoice} id={currencyId} />
+			<NoteField invoice={invoice} id={noteId} />
 			<p className="text-xs text-muted-foreground text-pretty">{t('invoices.new.details.DRAFT_NOTE')}</p>
 			<Button
 				type="button"
