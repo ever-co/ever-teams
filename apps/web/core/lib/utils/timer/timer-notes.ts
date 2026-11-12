@@ -108,9 +108,12 @@ export function readTimerNotes(value: unknown): TimerNotesReading {
 	return { isValid: true, description: value };
 }
 
-/** The notes of a saved entry as the reports quote them, or null when it has none. */
+/**
+ * The notes of a saved entry as the reports quote them, or null when it has none. In full: the timer's length limit is
+ * for what is typed at the timer, and an entry added by hand can carry more.
+ */
 export function entryNotesOf(log: Pick<TimerNotesLog, 'description'>): string | null {
-	const notes = normalizedTimerNotes(log.description);
+	const notes = (log.description ?? '').trim();
 	if (notes === '') {
 		return null;
 	}
