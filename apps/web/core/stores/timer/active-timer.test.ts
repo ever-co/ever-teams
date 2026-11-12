@@ -1,6 +1,7 @@
 import { createStore } from 'jotai';
 import {
 	activeTeamIdState,
+	isOwnTrackingOffState,
 	isTrackingEnabledState,
 	organizationTeamsState,
 	timerStatusState,
@@ -73,5 +74,49 @@ describe('isTrackingEnabledState', () => {
 		store.set(timerStatusState, { running: false } as never);
 
 		expect(store.get(isTrackingEnabledState)).toBe(false);
+	});
+});
+
+describe('isOwnTrackingOffState', () => {
+	it('says why the timer is gone when either switch of the member is off', () => {
+		expect(storeWith([member('user-a', { employee: false })]).get(isOwnTrackingOffState)).toBe(true);
+		expect(storeWith([member('user-a', { team: false })]).get(isOwnTrackingOffState)).toBe(true);
+	});
+
+	it('says nothing to a member who can track', () => {
+		expect(storeWith([member('user-a'), member('user-b', { team: false })]).get(isOwnTrackingOffState)).toBe(false);
+	});
+
+	it('says nothing while the team or the user loads, nor in a team the user is not a member of', () => {
+		expect(storeWith(undefined).get(isOwnTrackingOffState)).toBe(false);
+		expect(storeWith([member('user-a', { team: false })], null).get(isOwnTrackingOffState)).toBe(false);
+		expect(storeWith([member('user-b', { team: false })]).get(isOwnTrackingOffState)).toBe(false);
+	});
+
+	it('says nothing while a timer runs: the timer stays so it can be stopped', () => {
+		const store = storeWith([member('user-a', { employee: false })]);
+		store.set(timerStatusState, { running: true } as never);
+
+		expect(store.get(isOwnTrackingOffState)).toBe(false);
+		expect(store.get(isTrackingEnabledState)).toBe(true);
+
+		store.set(timerStatusState, { running: false } as never);
+
+		expect(store.get(isOwnTrackingOffState)).toBe(true);
+	});
+
+	it('is never on together with the timer', () => {
+		const cases = [
+			[member('user-a')],
+			[member('user-a', { team: false })],
+			[member('user-a', { employee: false })],
+			[member('user-b')],
+			undefined
+		];
+		for (const members of cases) {
+			const store = storeWith(members);
+			const showsBoth = store.get(isOwnTrackingOffState) && store.get(isTrackingEnabledState);
+			expect(showsBoth).toBe(false);
+		}
 	});
 });

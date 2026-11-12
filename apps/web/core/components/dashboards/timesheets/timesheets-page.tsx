@@ -12,6 +12,8 @@ import { DASHBOARD_STACK, DASHBOARD_SURFACE } from '@/core/components/dashboards
 import { Clock, FileSheet, Plus } from '@/core/components/icons';
 import { useTimesheetDialogs } from '@/core/hooks/dashboards/timesheets/use-timesheet-dialogs';
 import { useTimesheetLogActions } from '@/core/hooks/dashboards/timesheets/use-timesheet-log-actions';
+import { useSheetEditing } from '@/core/hooks/dashboards/timesheets/use-sheet-editing';
+import { useSheetEmptyMembers } from '@/core/hooks/dashboards/timesheets/use-sheet-empty-members';
 import { useTimesheetSheet } from '@/core/hooks/dashboards/timesheets/use-timesheet-sheet';
 import { canEditLog, useTimesheetsPage } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
 import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
@@ -192,7 +194,14 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 	const isSelectableView = !isSheetView && !isScreenshotsView;
 	const showsSelectionBar = hasSelection && isSelectableView;
 	const sheetLogs = sheetLogsOf(page.view, page.shownLogs);
-	const sheet = useTimesheetSheet(sheetLogs, page.period);
+	const emptySheetMembers = useSheetEmptyMembers({
+		user: page.user,
+		activeTeam: page.activeTeam,
+		pickedMemberIds: page.filters.members,
+		isManage: permissions.isManage
+	});
+	const sheet = useTimesheetSheet(sheetLogs, page.period, emptySheetMembers);
+	const sheetEditing = useSheetEditing(page, sheet);
 	const { pendingLogs } = sheet;
 
 	const approveSelection = async () => {
@@ -331,6 +340,8 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 				}}
 				isApproving={isChangingStatus}
 				emptyContent={emptyMessage}
+				editing={sheetEditing}
+				onClearFilters={page.clearNarrowing}
 			/>
 		);
 	} else if (page.view === 'week') {
