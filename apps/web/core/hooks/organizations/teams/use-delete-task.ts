@@ -3,9 +3,9 @@
 import { setActiveTaskIdCookie } from '@/core/lib/helpers/index';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { taskService } from '@/core/services/client/api';
-import { activeTeamTaskState } from '@/core/stores';
+import { activeTeamTaskState, leftActiveTaskIdState } from '@/core/stores';
 import { useCallback } from 'react';
-import { useSetAtom } from 'jotai';
+import { useSetAtom, useStore } from 'jotai';
 import { useMutation } from '@tanstack/react-query';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
@@ -28,6 +28,7 @@ import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
  * - `unassignAuthActiveTask` - Function to unassign current user's active task
  */
 export function useDeleteTask() {
+	const store = useStore();
 	const setActiveTeamTask = useSetAtom(activeTeamTaskState);
 
 	const { invalidateTeamTasksData } = useInvalidateTeamTasks();
@@ -80,9 +81,11 @@ export function useDeleteTask() {
 	);
 
 	const unassignAuthActiveTask = useCallback(() => {
+		// The person leaves their active task: a timer running on it stops, as on a switch to another task
+		store.set(leftActiveTaskIdState, store.get(activeTeamTaskState)?.id ?? null);
 		setActiveTaskIdCookie('');
 		setActiveTeamTask(null);
-	}, [setActiveTeamTask]);
+	}, [setActiveTeamTask, store]);
 
 	return {
 		deleteTask,
