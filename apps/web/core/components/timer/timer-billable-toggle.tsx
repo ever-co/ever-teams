@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/core/components/common/tooltip';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { DollarCircle } from '@/core/components/icons';
+import { Dollar } from '@/core/components/icons';
 import { useTimerBillable } from '@/core/hooks/timer/use-timer-billable';
 import { cn } from '@/core/lib/helpers';
 import { TIMER_ENTRY_TOGGLE, TIMER_TOOLTIP_DELAY_MS } from './timer-toggle-recipe';
@@ -40,7 +40,7 @@ export function TimerBillableToggle({ locked = false, className }: Readonly<{ lo
 					onClick={toggle}
 					className={cn(TIMER_ENTRY_TOGGLE, className)}
 				>
-					<DollarCircle aria-hidden="true" />
+					<Dollar aria-hidden="true" />
 				</Button>
 			</TooltipTrigger>
 			<TooltipContent>{t(stateLabelKeyOf(isBillable))}</TooltipContent>
