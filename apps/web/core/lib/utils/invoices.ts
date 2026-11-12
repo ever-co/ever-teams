@@ -521,8 +521,10 @@ export function nextInvoiceNumberOf(highest: unknown): number | null {
 	return number + 1;
 }
 
-export function todayDayKey(now = new Date()) {
-	return localDayKeyOf(now);
+/** Today in the organization's zone, the one that dates an invoice: the browser can already be on another day. */
+export function todayDayKey(timeZone: string | null | undefined, now = new Date()) {
+	const zonedDay = invoiceDayOf(now.toISOString(), timeZone);
+	return zonedDay ?? localDayKeyOf(now);
 }
 
 /** The due day the organization's own setting gives; empty when it has none, so the user picks the day. */

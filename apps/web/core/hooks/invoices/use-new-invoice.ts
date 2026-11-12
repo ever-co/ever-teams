@@ -66,8 +66,12 @@ export function useNewInvoice() {
 	const [descriptions, setDescriptions] = useState<ReadonlyMap<string, string>>(NO_DESCRIPTIONS);
 	const [pickedCurrencyKey, setPickedCurrencyKey] = useState<string | null>(null);
 	const [typedNumber, setTypedNumber] = useState<string | null>(null);
-	const [issueDay, setIssueDay] = useState(() => todayDayKey());
+	const [pickedIssueDay, setPickedIssueDay] = useState<string | null>(null);
 	const [pickedDueDay, setPickedDueDay] = useState<string | null>(null);
+
+	const timeZone = organization?.timeZone;
+	const today = useMemo(() => todayDayKey(timeZone), [timeZone]);
+	const issueDay = pickedIssueDay ?? today;
 
 	const client = useMemo(
 		() => clients.find((candidate) => candidate.id === pickedClientId) ?? null,
@@ -156,7 +160,6 @@ export function useNewInvoice() {
 		setDescriptions((current) => new Map([...current, [lineKey, description]]));
 	}, []);
 
-	const timeZone = organization?.timeZone;
 	const invoiceRequest = useCallback((): InvoiceRequest | null => {
 		// The organisation's time zone dates the invoice: before it is read, the days would be the browser's.
 		if (!isOrganizationKnown) {
@@ -251,7 +254,7 @@ export function useNewInvoice() {
 		isNumberLoading: nextNumber.isLoading,
 		hasNumberFailed: nextNumber.isError,
 		issueDay,
-		setIssueDay,
+		setIssueDay: setPickedIssueDay,
 		dueDay,
 		setDueDay: setPickedDueDay,
 		earlierInvoices: earlier.invoices,

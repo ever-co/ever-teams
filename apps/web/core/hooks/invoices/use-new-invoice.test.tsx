@@ -117,3 +117,24 @@ describe('saving a new invoice and the organisation it is dated by', () => {
 		expect(result.current.isOrganizationLoading).toBe(false);
 	});
 });
+
+describe('the issue date a new invoice starts with', () => {
+	afterEach(() => {
+		jest.useRealTimers();
+	});
+
+	it('is today in the time zone of the organisation, even when the browser is still on the day before', () => {
+		// 10:05 UTC is already the 13th on Kiritimati (UTC+14), and still the 12th or earlier in every other zone
+		jest.useFakeTimers({ now: new Date('2026-11-12T10:05:00.000Z'), doNotFake: ['setTimeout', 'setInterval'] });
+		const kiritimatiOrganization = {
+			...tokyoOrganization,
+			timeZone: 'Pacific/Kiritimati',
+			daysUntilDue: 30
+		} as TOrganization;
+
+		const { result } = renderNewInvoice(kiritimatiOrganization);
+
+		expect(result.current.issueDay).toBe('2026-11-13');
+		expect(result.current.dueDay).toBe('2026-12-13');
+	});
+});
