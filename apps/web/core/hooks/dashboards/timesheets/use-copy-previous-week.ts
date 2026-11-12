@@ -204,6 +204,9 @@ export function useCopyPreviousWeek(input: CopyPreviousWeekInput) {
 		if (leftOut > 0) {
 			toast(t('dashboard.timesheets.SHEET.COPY.LEFT_OUT', { count: leftOut }));
 		}
+		if (result.notCopiedCount > 0) {
+			toast(t('dashboard.timesheets.SHEET.COPY.NOT_COPIED', { count: result.notCopiedCount }));
+		}
 	}, [pendingCopy, sheetKey, t, writes]);
 
 	return {

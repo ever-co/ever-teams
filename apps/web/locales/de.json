@@ -658,7 +658,8 @@
 					"CONFIRM_ACTION": "{total} hinzufügen",
 					"DONE": "{count, plural, one {{total} in # Zelle hinzugefügt} other {{total} in # Zellen hinzugefügt}}",
 					"LEFT_OUT": "{count, plural, one {# Zelle ausgelassen: Tag geschlossen oder keine freie Zeit.} other {# Zellen ausgelassen: Tage geschlossen oder keine freie Zeit.}}",
-					"STOPPED_TITLE": "Kopieren abgebrochen"
+					"STOPPED_TITLE": "Kopieren abgebrochen",
+					"NOT_COPIED": "{count, plural, one {# Zelle nicht kopiert, weil das Kopieren abgebrochen wurde.} other {# Zellen nicht kopiert, weil das Kopieren abgebrochen wurde.}}"
 				}
 			},
 			"diary": {

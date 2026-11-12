@@ -130,10 +130,42 @@ describe('useSheetCellWrites', () => {
 			run = await result.current.applyCopyPlan(plans);
 		});
 
-		expect(run).toEqual({ savedCount: 1, savedSeconds: 2 * HOUR, skippedCount: 1, isStopped: false });
+		expect(run).toEqual({
+			savedCount: 1,
+			savedSeconds: 2 * HOUR,
+			skippedCount: 1,
+			notCopiedCount: 0,
+			isStopped: false
+		});
 		expect(mockCreateTimesheetFrom).toHaveBeenCalledTimes(1);
 		expect(mockCreateTimesheetFrom).toHaveBeenCalledWith(
 			expect.objectContaining({ taskId: 'other-task', startedAt: at(10), stoppedAt: at(12) })
 		);
+	});
+
+	it('counts the cells a copy stopped by an error did not copy', async () => {
+		mockCreateTimesheetFrom.mockResolvedValueOnce(undefined);
+		mockCreateTimesheetFrom.mockRejectedValue(new Error('offline'));
+		const secondRow = rowIdentityOfLog(logOf({ projectId: 'project', taskId: 'second-task' }));
+		const thirdRow = rowIdentityOfLog(logOf({ projectId: 'project', taskId: 'third-task' }));
+		const { result } = renderWrites(scopeOf({}));
+		const plans = [
+			{ identity, day, seconds: HOUR },
+			{ identity: secondRow, day, seconds: HOUR },
+			{ identity: thirdRow, day, seconds: HOUR }
+		];
+
+		let run: CopyRunResult | undefined;
+		await act(async () => {
+			run = await result.current.applyCopyPlan(plans);
+		});
+
+		expect(run).toEqual({
+			savedCount: 1,
+			savedSeconds: HOUR,
+			skippedCount: 0,
+			notCopiedCount: 2,
+			isStopped: true
+		});
 	});
 });

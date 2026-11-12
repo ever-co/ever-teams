@@ -61,6 +61,8 @@ export interface CopyRunResult {
 	savedCount: number;
 	savedSeconds: number;
 	skippedCount: number;
+	/** The cells a run stopped by an error did not copy: the one that failed and those after it. */
+	notCopiedCount: number;
 	isStopped: boolean;
 }
 
@@ -315,7 +317,13 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 		(plans: ReadonlyArray<CopyCellPlan>): Promise<CopyRunResult> => {
 			setIsCopying(true);
 			return enqueue(async () => {
-				const result: CopyRunResult = { savedCount: 0, savedSeconds: 0, skippedCount: 0, isStopped: false };
+				const result: CopyRunResult = {
+					savedCount: 0,
+					savedSeconds: 0,
+					skippedCount: 0,
+					notCopiedCount: 0,
+					isStopped: false
+				};
 				const placedByDay = new Map<string, TimeWindow[]>();
 				try {
 					const memberLogs = await readSavedMemberLogs();
@@ -340,6 +348,8 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 					}
 				} catch (error) {
 					result.isStopped = true;
+					const handledCount = result.savedCount + result.skippedCount;
+					result.notCopiedCount = plans.length - handledCount;
 					toast.error(translate('dashboard.timesheets.SHEET.COPY.STOPPED_TITLE'), {
 						description: translate(writeErrorKeyOf(error))
 					});

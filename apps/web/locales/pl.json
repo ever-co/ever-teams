@@ -658,7 +658,8 @@
 					"CONFIRM_ACTION": "Dodaj {total}",
 					"DONE": "{count, plural, one {Dodano {total} w # komórce} few {Dodano {total} w # komórkach} many {Dodano {total} w # komórkach} other {Dodano {total} w # komórki}}",
 					"LEFT_OUT": "{count, plural, one {Pominięto # komórkę: dzień zamknięty lub brak wolnego czasu.} few {Pominięto # komórki: dni zamknięte lub brak wolnego czasu.} many {Pominięto # komórek: dni zamknięte lub brak wolnego czasu.} other {Pominięto # komórki: dni zamknięte lub brak wolnego czasu.}}",
-					"STOPPED_TITLE": "Kopiowanie przerwane"
+					"STOPPED_TITLE": "Kopiowanie przerwane",
+					"NOT_COPIED": "{count, plural, one {Nie skopiowano # komórki, ponieważ kopiowanie zostało przerwane.} few {Nie skopiowano # komórek, ponieważ kopiowanie zostało przerwane.} many {Nie skopiowano # komórek, ponieważ kopiowanie zostało przerwane.} other {Nie skopiowano # komórki, ponieważ kopiowanie zostało przerwane.}}"
 				}
 			},
 			"diary": {

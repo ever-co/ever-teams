@@ -658,7 +658,8 @@
 					"CONFIRM_ACTION": "Añadir {total}",
 					"DONE": "{count, plural, one {{total} añadido en # celda} other {{total} añadido en # celdas}}",
 					"LEFT_OUT": "{count, plural, one {# celda quedó fuera: día cerrado o sin tiempo libre.} other {# celdas quedaron fuera: días cerrados o sin tiempo libre.}}",
-					"STOPPED_TITLE": "Copia detenida"
+					"STOPPED_TITLE": "Copia detenida",
+					"NOT_COPIED": "{count, plural, one {# celda no se copió porque la copia se detuvo.} other {# celdas no se copiaron porque la copia se detuvo.}}"
 				}
 			},
 			"diary": {
