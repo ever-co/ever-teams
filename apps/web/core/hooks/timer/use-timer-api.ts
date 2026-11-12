@@ -728,13 +728,19 @@ export function useTimerApi({
 					!isEqual(timerStatus, res.data) &&
 					setTimerStatus(res.data);
 				onRequestLanded?.();
-				// Notes typed before this start are the notes of the entry it created, and of no entry found running later
-				store.set(timerNotesState, (notes) => {
-					// Continued notes replace a draft: tied to the entry, the draft would overwrite them at the stop
-					const notesSent = continuedNotes === undefined ? notes : { text: continuedNotes, timeLogId: null };
-					const notesAfterStart = timerNotesAfterStart(notesSent, res.data, notesToUse);
-					return notesAfterStart === notesSent ? notes : notesAfterStart;
-				});
+				// Notes typed before this start are the notes of the entry it created, and of no entry found running later.
+				// Not once the member changed team meanwhile: the draft this start sent was dropped then, and the notes
+				// typed since are for the next team's start. The team is read from the store, as the card that asked for
+				// this start may be gone with the team left behind.
+				const isStillTeamOfStart = store.get(activeTeamState)?.id === teamIdAtStart;
+				if (isStillTeamOfStart) {
+					store.set(timerNotesState, (notes) => {
+						// Continued notes replace a draft: tied to the entry, the draft would overwrite them at the stop
+						const notesSent = continuedNotes === undefined ? notes : { text: continuedNotes, timeLogId: null };
+						const notesAfterStart = timerNotesAfterStart(notesSent, res.data, notesToUse);
+						return notesAfterStart === notesSent ? notes : notesAfterStart;
+					});
+				}
 
 				// Save active task via API when timer starts
 				// Skip if we're on /task/ page because setActiveTask already does it

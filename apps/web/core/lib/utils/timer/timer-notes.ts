@@ -50,6 +50,28 @@ export function timerNotesFor(notes: TimerNotes, runningLog: TimerNotesLog | nul
 	return notes;
 }
 
+/**
+ * The running entry the notes follow: the one the timer shows. A run it does not show, as one going on for another
+ * team, brings no notes into the field and is given none typed there. Notes already tied to it stay with it, for the
+ * stop that ends it.
+ */
+export function runningLogForNotes(
+	notes: TimerNotes,
+	runningLog: TimerNotesLog | null,
+	isRunShown: boolean
+): TimerNotesLog | null {
+	if (!runningLog) {
+		return null;
+	}
+	if (isRunShown) {
+		return runningLog;
+	}
+	if (notes.timeLogId === runningLog.id) {
+		return runningLog;
+	}
+	return null;
+}
+
 interface TimerStartAnswer {
 	running?: boolean;
 	lastLog?: TimerNotesLog | null;
