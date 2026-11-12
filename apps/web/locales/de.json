@@ -5519,6 +5519,7 @@
 		"APP_CLICK_FAILED": "Der Klick konnte nicht gesendet werden.",
 		"APP_NO_INTERACTIONS": "Diese App nimmt keine Klicks mehr an.",
 		"APP_GONE": "Diese Schaltfläche ist nicht mehr verfügbar.",
+		"APP_NO_ANSWER_YET": "Die App hat noch nicht geantwortet. Sie können erneut klicken.",
 		"LINK_PREVIEW_LABEL": "{title} ({site}, öffnet sich in einem neuen Tab)",
 		"LINK_PREVIEW_SITE_LABEL": "{site} (öffnet sich in einem neuen Tab)"
 	},

@@ -5519,6 +5519,7 @@
 		"APP_CLICK_FAILED": "No se pudo enviar el clic.",
 		"APP_NO_INTERACTIONS": "Esta app ya no acepta clics.",
 		"APP_GONE": "Este botón ya no está disponible.",
+		"APP_NO_ANSWER_YET": "La app aún no ha respondido. Puedes volver a hacer clic.",
 		"LINK_PREVIEW_LABEL": "{title} ({site}, se abre en una pestaña nueva)",
 		"LINK_PREVIEW_SITE_LABEL": "{site} (se abre en una pestaña nueva)"
 	},

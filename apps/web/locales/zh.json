@@ -5519,6 +5519,7 @@
 		"APP_CLICK_FAILED": "无法发送此次点击。",
 		"APP_NO_INTERACTIONS": "该应用不再接受点击。",
 		"APP_GONE": "此按钮已不可用。",
+		"APP_NO_ANSWER_YET": "应用尚未回应。你可以再次点击。",
 		"LINK_PREVIEW_LABEL": "{title}（{site}，在新标签页中打开）",
 		"LINK_PREVIEW_SITE_LABEL": "{site}（在新标签页中打开）"
 	},

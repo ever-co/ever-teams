@@ -5519,6 +5519,7 @@
 		"APP_CLICK_FAILED": "تعذّر إرسال النقرة.",
 		"APP_NO_INTERACTIONS": "لم يعد هذا التطبيق يستقبل النقرات.",
 		"APP_GONE": "لم يعد هذا الزر متاحًا.",
+		"APP_NO_ANSWER_YET": "لم يردّ التطبيق بعد. يمكنك النقر مرة أخرى.",
 		"LINK_PREVIEW_LABEL": "{title} ({site}، يُفتح في علامة تبويب جديدة)",
 		"LINK_PREVIEW_SITE_LABEL": "{site} (يُفتح في علامة تبويب جديدة)"
 	},

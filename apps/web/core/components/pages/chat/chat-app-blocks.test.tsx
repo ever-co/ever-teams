@@ -3,8 +3,20 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ChatPerson } from '@/core/lib/utils/chat-format';
-import { appBlocksOf, appButtonKey, appButtonStateOf, appClickFailureOf, blocksText, bodyRepeatsBlocks, buttonLinkOf, httpsUrlOf } from '@/core/lib/utils/chat-app-blocks';
-import { IChatAppBlock, IChatMessage } from '@/core/types/interfaces/common/chat';
+import {
+	APP_INTERACTION_POLL_MAX,
+	APP_INTERACTION_POLL_MS,
+	appBlocksOf,
+	appButtonKey,
+	appButtonStateOf,
+	appClickFailureOf,
+	blocksBody,
+	blocksText,
+	bodyRepeatsBlocks,
+	buttonLinkOf,
+	httpsUrlOf
+} from '@/core/lib/utils/chat-app-blocks';
+import { CHAT_MESSAGE_MAX_LENGTH, IChatAppBlock, IChatMessage } from '@/core/types/interfaces/common/chat';
 import { ChatAppBlocks } from './chat-app-blocks';
 import { MessageItem } from './message-item';
 
@@ -18,8 +30,13 @@ jest.mock('./chat-markdown', () => ({
 jest.mock('./emoji-popover', () => ({ EmojiPopover: () => null }));
 const mockInteract = jest.fn();
 const mockInteraction = jest.fn();
+const mockMessages = jest.fn();
 jest.mock('@/core/services/client/api/chat/chat.service', () => ({
-	chatService: { interact: (...args: unknown[]) => mockInteract(...args), interaction: (...args: unknown[]) => mockInteraction(...args) }
+	chatService: {
+		interact: (...args: unknown[]) => mockInteract(...args),
+		interaction: (...args: unknown[]) => mockInteraction(...args),
+		messages: (...args: unknown[]) => mockMessages(...args)
+	}
 }));
 
 const BLOCKS: IChatAppBlock[] = [
@@ -72,6 +89,20 @@ describe('chat app blocks (helpers)', () => {
 		expect(bodyRepeatsBlocks('x', [])).toBe(false);
 	});
 
+	it('knows a long blocks-only body the platform cut to the message length, with its ellipsis', () => {
+		const long: IChatAppBlock[] = [
+			{ type: 'header', text: 'Nightly report' },
+			{ type: 'section', text: 'x '.repeat(1500).trim() },
+			{ type: 'section', text: 'y '.repeat(1500).trim() }
+		];
+		const text = blocksText(long);
+		expect(text.length).toBeGreaterThan(CHAT_MESSAGE_MAX_LENGTH);
+		const body = `${text.slice(0, CHAT_MESSAGE_MAX_LENGTH - 1).trimEnd()}…`;
+		expect(blocksBody(long)).toBe(body);
+		expect(bodyRepeatsBlocks(body, long)).toBe(true);
+		expect(bodyRepeatsBlocks(text, long)).toBe(false);
+	});
+
 	it('opens https links only, and maps the platform answers', () => {
 		expect(buttonLinkOf({ url: 'https://monitor.example.com/7' })).toBe('https://monitor.example.com/7');
 		expect(buttonLinkOf({ url: 'http://monitor.example.com/7' })).toBeNull();
@@ -91,6 +122,7 @@ describe('ChatAppBlocks', () => {
 	beforeEach(() => {
 		mockInteract.mockReset();
 		mockInteraction.mockReset();
+		mockMessages.mockReset();
 	});
 
 	it('renders the title, fields side by side, divider, context and buttons as plain text', () => {
@@ -146,6 +178,61 @@ describe('ChatAppBlocks', () => {
 		}
 	});
 
+	it('reads the message again when a retried callback was answered with a reply, and hands it up', async () => {
+		jest.useFakeTimers();
+		try {
+			const replaced = appMessage({ body: 'Acknowledged by Ana', blocks: [] });
+			mockInteract.mockResolvedValue({ interaction: interaction('retrying'), events: [] });
+			mockInteraction.mockResolvedValueOnce({ ...interaction('delivered'), replyApplied: true });
+			mockMessages.mockResolvedValue({ messages: [appMessage({ id: 'm0' }), replaced], hasBefore: true, hasAfter: false });
+			const onReplaced = jest.fn();
+			render(<ChatAppBlocks message={appMessage()} onReplaced={onReplaced} />);
+			await act(async () => {
+				fireEvent.click(screen.getByText('Acknowledge'));
+			});
+			await act(async () => {
+				await jest.advanceTimersByTimeAsync(APP_INTERACTION_POLL_MS);
+			});
+			expect(mockMessages).toHaveBeenCalledWith('c1', { around: 'm1', limit: 1 });
+			expect(onReplaced).toHaveBeenCalledWith(expect.objectContaining({ id: 'm1' }), replaced);
+			expect(screen.getByLabelText('teamChat.APP_DONE')).toBeTruthy();
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
+	it('frees the button and says so when the callback is still retried after the chat stops asking', async () => {
+		jest.useFakeTimers();
+		try {
+			mockInteract.mockResolvedValue({ interaction: interaction('retrying'), events: [] });
+			mockInteraction.mockResolvedValue(interaction('retrying'));
+			render(<ChatAppBlocks message={appMessage()} />);
+			await act(async () => {
+				fireEvent.click(screen.getByText('Acknowledge'));
+			});
+			await act(async () => {
+				await jest.advanceTimersByTimeAsync(APP_INTERACTION_POLL_MS * APP_INTERACTION_POLL_MAX);
+			});
+			const button = screen.getByText('Acknowledge').closest('button') as HTMLButtonElement;
+			expect(mockInteraction).toHaveBeenCalledTimes(APP_INTERACTION_POLL_MAX);
+			expect(button.disabled).toBe(false);
+			expect(screen.getByRole('alert').textContent).toBe('teamChat.APP_NO_ANSWER_YET');
+			expect(mockMessages).not.toHaveBeenCalled();
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
+	it('sends no click from a read-only (archived) message', async () => {
+		render(<ChatAppBlocks message={appMessage()} readOnly />);
+		const button = screen.getByText('Acknowledge').closest('button') as HTMLButtonElement;
+		expect(button.disabled).toBe(true);
+		await act(async () => {
+			fireEvent.click(button);
+		});
+		expect(mockInteract).not.toHaveBeenCalled();
+	});
+
 	it('says why a click was refused', async () => {
 		mockInteract.mockRejectedValue({ response: { status: 409 } });
 		render(<ChatAppBlocks message={appMessage()} />);
@@ -170,8 +257,9 @@ describe('MessageItem with app messages', () => {
 		onCopyLink: jest.fn(),
 		onOpenTask: jest.fn()
 	};
-	const item = (message: IChatMessage) => (
+	const item = (message: IChatMessage, readOnly?: boolean) => (
 		<MessageItem
+			readOnly={readOnly}
 			message={message}
 			author={null}
 			people={new Map([[ANA.employeeId, ANA]])}
@@ -206,6 +294,12 @@ describe('MessageItem with app messages', () => {
 		process.env.NEXT_PUBLIC_CHAT_WEBHOOKS_ENABLED = 'true';
 		render(item(appMessage({ body: blocksText(BLOCKS) })));
 		expect(screen.queryByTestId('body')).toBeNull();
+	});
+
+	it('disables the buttons of an app message in an archived conversation', () => {
+		process.env.NEXT_PUBLIC_CHAT_WEBHOOKS_ENABLED = 'true';
+		render(item(appMessage(), true));
+		expect((screen.getByText('Acknowledge').closest('button') as HTMLButtonElement).disabled).toBe(true);
 	});
 
 	it('shows the text only, as before, with the flag off', () => {

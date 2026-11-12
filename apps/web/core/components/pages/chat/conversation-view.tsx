@@ -373,6 +373,7 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 				now={message.replyCount > 0 ? now : undefined}
 				taskTitles={taskTitles}
 				files={files.byId}
+				readOnly={archived}
 				{...handlers}
 			/>
 		);

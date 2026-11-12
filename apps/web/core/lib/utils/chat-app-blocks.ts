@@ -1,3 +1,4 @@
+import { CHAT_MESSAGE_MAX_LENGTH } from '@/core/types/interfaces/common/chat';
 import type { IChatAppBlock, IChatAppButton, IChatMessage, TChatInteractionStatus } from '@/core/types/interfaces/common/chat';
 
 /**
@@ -26,9 +27,16 @@ export function blocksText(blocks: readonly IChatAppBlock[]): string {
 	return lines.join('\n').trim();
 }
 
+/** The body the platform derives from the blocks' text: cut to the message length with an ellipsis, as it does. */
+export function blocksBody(blocks: readonly IChatAppBlock[]): string {
+	const text = blocksText(blocks);
+	if (text.length <= CHAT_MESSAGE_MAX_LENGTH) return text;
+	return `${text.slice(0, CHAT_MESSAGE_MAX_LENGTH - 1).trimEnd()}…`;
+}
+
 /** Whether an app message's body only repeats its blocks (then the blocks show alone, not the same words twice). */
 export function bodyRepeatsBlocks(body: string | null | undefined, blocks: readonly IChatAppBlock[]): boolean {
-	return blocks.length > 0 && (body ?? '').trim() === blocksText(blocks);
+	return blocks.length > 0 && (body ?? '').trim() === blocksBody(blocks);
 }
 
 /** An https address, or null: what a link button opens and an app icon shows (the platform refuses anything else). */
@@ -65,6 +73,13 @@ export function appButtonStateOf(status: TChatInteractionStatus | string | null 
 /** How often, and how many times, the chat asks again about a click whose callback is being retried (60 s: the platform retries for about 47 s). */
 export const APP_INTERACTION_POLL_MS = 3000;
 export const APP_INTERACTION_POLL_MAX = 20;
+
+/**
+ * Why the last click of an actions block did not go through, as the `teamChat` translation key it shows: the app no
+ * longer takes clicks, the button is gone, the click was not sent, every callback failed, or the chat stopped asking
+ * while the callback was still retried.
+ */
+export type TAppClickFailure = 'APP_NO_INTERACTIONS' | 'APP_GONE' | 'APP_CLICK_FAILED' | 'APP_CALLBACK_FAILED' | 'APP_NO_ANSWER_YET';
 
 /** Why a click failed, as the translation key the message shows (by the platform's answer). */
 export function appClickFailureOf(status: number | null | undefined): 'APP_NO_INTERACTIONS' | 'APP_GONE' | 'APP_CLICK_FAILED' {

@@ -68,6 +68,8 @@ export interface MessageItemProps {
 	onBrokenImage?: () => void;
 	/** An app's reply to a click on one of its buttons replaced the message (`NEXT_PUBLIC_CHAT_WEBHOOKS_ENABLED`). */
 	onAppReply?: (message: IChatMessage, replaced: IChatMessage) => void;
+	/** The conversation is archived: an app message's buttons show but do not click. */
+	readOnly?: boolean;
 }
 
 const NO_FILES: ReadonlyMap<string, IChatFile> = new Map();
@@ -219,7 +221,7 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 							)}
 						</>
 					)}
-					{!deleted && appBlocks.length > 0 && <ChatAppBlocks message={message} onReplaced={props.onAppReply} />}
+					{!deleted && appBlocks.length > 0 && <ChatAppBlocks message={message} readOnly={props.readOnly} onReplaced={props.onAppReply} />}
 					{/* The cards of its links, once it is sent (with the flag on; the platform fetched the pages). */}
 					{!deleted && !outbox && !bodyIsFileNames && isChatLinkPreviewsEnabled() && <MessageLinkPreviews body={message.body} />}
 					{attachmentIds.length > 0 && (

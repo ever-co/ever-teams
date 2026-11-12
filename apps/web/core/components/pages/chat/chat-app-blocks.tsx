@@ -1,20 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ArrowUpRight, Check, CircleAlert, Loader } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
-import {
-	APP_INTERACTION_POLL_MAX,
-	APP_INTERACTION_POLL_MS,
-	appBlocksOf,
-	appButtonKey,
-	appButtonStateOf,
-	appClickFailureOf,
-	buttonLinkOf,
-	TAppButtonState
-} from '@/core/lib/utils/chat-app-blocks';
-import { chatService } from '@/core/services/client/api/chat/chat.service';
+import { useChatAppInteractions } from '@/core/hooks/chat/use-chat-app-interactions';
+import { appBlocksOf, buttonLinkOf, TAppClickFailure } from '@/core/lib/utils/chat-app-blocks';
 import type { IChatAppBlock, IChatAppButton, IChatMessage } from '@/core/types/interfaces/common/chat';
 
 export interface ChatAppBlocksProps {
@@ -34,6 +24,15 @@ function buttonTone(button: IChatAppButton): string {
 	return 'bg-foreground/[0.03] text-foreground ring-border hover:bg-foreground/[0.07]';
 }
 
+/** The message of each reason a click did not go through (static keys, so the translation checks find them). */
+const FAILURE_KEYS = {
+	APP_NO_INTERACTIONS: 'teamChat.APP_NO_INTERACTIONS',
+	APP_GONE: 'teamChat.APP_GONE',
+	APP_CLICK_FAILED: 'teamChat.APP_CLICK_FAILED',
+	APP_CALLBACK_FAILED: 'teamChat.APP_CALLBACK_FAILED',
+	APP_NO_ANSWER_YET: 'teamChat.APP_NO_ANSWER_YET'
+} as const satisfies Record<TAppClickFailure, string>;
+
 function blockIdOf(block: IChatAppBlock): string | null {
 	return block.type === 'actions' ? (block.blockId ?? null) : null;
 }
@@ -41,95 +40,13 @@ function blockIdOf(block: IChatAppBlock): string | null {
 /**
  * The layout of an app message (an incoming webhook's post): a title, paragraphs, fields side by side, dividers,
  * small context text and buttons — all plain text (React text nodes, never HTML). A link button opens its https page;
- * any other button calls the platform, which posts a signed callback to the app; the button shows pending until the
- * callback is delivered (asking again while it is retried) or failed, and the app's reply replaces the message.
+ * any other button calls the platform, which posts a signed callback to the app. The clicks, their states and the
+ * app's replies are `useChatAppInteractions`'; this component only lays the blocks out and wires the buttons.
  */
 export function ChatAppBlocks({ message, readOnly = false, onReplaced }: Readonly<ChatAppBlocksProps>) {
 	const t = useTranslations();
 	const blocks = appBlocksOf(message);
-	const [states, setStates] = useState<Record<string, TAppButtonState>>({});
-	const [failures, setFailures] = useState<Record<string, string>>({});
-	const alive = useRef(true);
-	const timers = useRef(new Set<ReturnType<typeof setTimeout>>());
-
-	useEffect(() => {
-		alive.current = true;
-		const pending = timers.current;
-		return () => {
-			alive.current = false;
-			for (const timer of pending) clearTimeout(timer);
-			pending.clear();
-		};
-	}, []);
-
-	const setState = useCallback((key: string, state: TAppButtonState) => {
-		if (alive.current) setStates((current) => ({ ...current, [key]: state }));
-	}, []);
-	const setFailure = useCallback((blockId: string | null, failure: string | null) => {
-		if (!alive.current) return;
-		setFailures((current) => {
-			const next = { ...current };
-			if (failure) next[blockId ?? ''] = failure;
-			else delete next[blockId ?? ''];
-			return next;
-		});
-	}, []);
-
-	/** Waits one poll interval (a timer the unmount clears). */
-	const pause = useCallback(
-		() =>
-			new Promise<void>((resolve) => {
-				const timer = setTimeout(() => {
-					timers.current.delete(timer);
-					resolve();
-				}, APP_INTERACTION_POLL_MS);
-				timers.current.add(timer);
-			}),
-		[]
-	);
-
-	/** Asks again about a click whose callback is being retried, until it settles or the chat stops asking. */
-	const follow = useCallback(
-		async (key: string, blockId: string | null, interactionId: string) => {
-			for (let round = 0; round < APP_INTERACTION_POLL_MAX; round += 1) {
-				await pause();
-				if (!alive.current) return;
-				try {
-					const interaction = await chatService.interaction(interactionId);
-					const state = appButtonStateOf(interaction.status);
-					setState(key, state);
-					if (state === 'failed') setFailure(blockId, 'APP_CALLBACK_FAILED');
-					if (state !== 'pending') return;
-				} catch {
-					setState(key, 'failed');
-					return;
-				}
-			}
-		},
-		[pause, setFailure, setState]
-	);
-
-	const click = useCallback(
-		async (blockId: string | null, button: IChatAppButton) => {
-			const key = appButtonKey(blockId, button.actionId);
-			if (readOnly || states[key] === 'pending') return;
-			setState(key, 'pending');
-			setFailure(blockId, null);
-			try {
-				const result = await chatService.interact(message.id, button.actionId, blockId);
-				if (result.message) onReplaced?.(message, result.message);
-				const state = appButtonStateOf(result.interaction.status);
-				setState(key, state);
-				if (state === 'failed') setFailure(blockId, 'APP_CALLBACK_FAILED');
-				if (state === 'pending') void follow(key, blockId, result.interaction.interactionId);
-			} catch (error) {
-				const status = (error as { response?: { status?: number }; status?: number })?.response?.status ?? (error as { status?: number })?.status;
-				setState(key, 'failed');
-				setFailure(blockId, appClickFailureOf(status));
-			}
-		},
-		[follow, message, onReplaced, readOnly, setFailure, setState, states]
-	);
+	const { click, stateOf, failureOf } = useChatAppInteractions(message, { readOnly, onReplaced });
 
 	if (!blocks.length) return null;
 
@@ -174,7 +91,7 @@ export function ChatAppBlocks({ message, readOnly = false, onReplaced }: Readonl
 						);
 					case 'actions': {
 						const blockId = blockIdOf(block);
-						const failure = failures[blockId ?? ''];
+						const failure = failureOf(blockId);
 						return (
 							<div key={index} className="flex flex-col gap-1">
 								<div className="flex flex-wrap gap-1.5" role="group">
@@ -188,7 +105,7 @@ export function ChatAppBlocks({ message, readOnly = false, onReplaced }: Readonl
 												</a>
 											);
 										}
-										const state = states[appButtonKey(blockId, button.actionId)];
+										const state = stateOf(blockId, button.actionId);
 										return (
 											<button
 												key={button.actionId}
@@ -209,13 +126,7 @@ export function ChatAppBlocks({ message, readOnly = false, onReplaced }: Readonl
 								</div>
 								{failure && (
 									<p role="alert" className="text-[11px] text-destructive">
-										{failure === 'APP_NO_INTERACTIONS'
-											? t('teamChat.APP_NO_INTERACTIONS')
-											: failure === 'APP_GONE'
-												? t('teamChat.APP_GONE')
-												: failure === 'APP_CALLBACK_FAILED'
-													? t('teamChat.APP_CALLBACK_FAILED')
-													: t('teamChat.APP_CLICK_FAILED')}
+										{t(FAILURE_KEYS[failure])}
 									</p>
 								)}
 							</div>

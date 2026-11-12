@@ -5519,6 +5519,7 @@
 		"APP_CLICK_FAILED": "לא ניתן היה לשלוח את הלחיצה.",
 		"APP_NO_INTERACTIONS": "האפליקציה הזו כבר לא מקבלת לחיצות.",
 		"APP_GONE": "הכפתור הזה כבר לא זמין.",
+		"APP_NO_ANSWER_YET": "האפליקציה עדיין לא השיבה. אפשר ללחוץ שוב.",
 		"LINK_PREVIEW_LABEL": "{title} ({site}, נפתח בכרטיסייה חדשה)",
 		"LINK_PREVIEW_SITE_LABEL": "{site} (נפתח בכרטיסייה חדשה)"
 	},
