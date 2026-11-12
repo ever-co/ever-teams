@@ -80,8 +80,6 @@ class CommentService extends APIService {
 	/** Removes a comment (its author's to remove). */
 	remove = async (id: string): Promise<void> => {
 		await this.delete<unknown>(`/comment/${encodeURIComponent(id)}`);
-
-		return;
 	};
 
 	/**

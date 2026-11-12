@@ -15,12 +15,19 @@ const commentUpdateBody = z
 		resolved: z.boolean().optional(),
 		resolvedAt: z.iso.datetime().nullable().optional(),
 		mentionEmployeeIds: z.array(z.guid()).max(100).optional(),
+		// Sent with a resolve (#5069) and dropped: Gauzy records the caller as the resolver whatever the body names.
+		resolvedByEmployeeId: z.guid().nullable().optional(),
 		tenantId: z.string().optional(),
 		organizationId: z.string().optional()
 	})
 	.strict()
 	// What goes on is the update alone (an absent key stays out of the JSON).
-	.transform(({ comment, resolved, resolvedAt, mentionEmployeeIds }) => ({ comment, resolved, resolvedAt, mentionEmployeeIds }));
+	.transform(({ comment, resolved, resolvedAt, mentionEmployeeIds }) => ({
+		comment,
+		resolved,
+		resolvedAt,
+		mentionEmployeeIds
+	}));
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -38,11 +45,19 @@ export async function PUT(req: Request, { params }: RouteContext) {
 	const requestBody: unknown = await req.json().catch(() => null);
 	const parsed = commentUpdateBody.safeParse(requestBody);
 	if (!parsed.success) {
-		return NextResponse.json({ error: 'A comment update takes a text, a resolved state or mentions' }, { status: 400 });
+		return NextResponse.json(
+			{ error: 'A comment update takes a text, a resolved state or mentions' },
+			{ status: 400 }
+		);
 	}
 
 	try {
-		const response = await updateCommentRequest({ id: parsedId.data, data: parsed.data, bearer_token: access_token, tenantId });
+		const response = await updateCommentRequest({
+			id: parsedId.data,
+			data: parsed.data,
+			bearer_token: access_token,
+			tenantId
+		});
 
 		return $res(response.data);
 	} catch (error) {

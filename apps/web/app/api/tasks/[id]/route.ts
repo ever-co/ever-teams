@@ -4,6 +4,7 @@ import { apiErrorStatusOf, unwrapRejection } from '@/core/services/server/fetch'
 import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { NextResponse } from 'next/server';
+import { forwardToGauzy } from '@/core/services/server/forward-to-gauzy';
 
 export async function GET(req: Request, props: INextParams) {
 	const params = await props.params;
@@ -64,4 +65,14 @@ export async function PUT(req: Request, props: INextParams) {
 	);
 
 	return $res(task);
+}
+
+/**
+ * Proxy mode twin of Gauzy's `DELETE /tasks/:id`: a task deleted for good (a delete with the trash off, or the trash's
+ * "delete forever", #5069).
+ */
+export async function DELETE(req: Request, props: INextParams) {
+	const { id } = await props.params;
+	// Encoded, so a value such as `../x` stays one path segment and cannot reach another endpoint.
+	return forwardToGauzy(req, `/tasks/${encodeURIComponent(id)}`);
 }
