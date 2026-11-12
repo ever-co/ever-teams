@@ -1,5 +1,6 @@
 import type { Query, QueryClient, QueryKey } from '@tanstack/react-query';
 import type { useStore } from 'jotai';
+import isEqual from 'lodash/isEqual';
 import { queryKeys } from '@/core/query/keys';
 import { viewTasksState } from '@/core/stores/tasks/task-views';
 import type { ITaskBuiltInViewPage } from '@/core/types/interfaces/common/task-views';
@@ -55,28 +56,34 @@ function fieldsOf(task: TTask, fields: readonly TaskField[]) {
 }
 
 /**
- * The tasks with the changed fields of the task as they were. The other fields keep what a read brought in since (a
- * colleague's change), and a list that no longer holds the task stays as it is.
+ * Whether the field still holds what the change wrote. Compared by value: the query cache stores a copy of the arrays
+ * it is given (structural sharing), and a read since may have brought a colleague's value.
  */
-function withFieldsRestored(tasks: TTask[], previousTask: TTask, fields: readonly TaskField[]) {
+function holdsWrittenValue(task: TTask, changes: Partial<TTask>, field: TaskField) {
+	return isEqual(task[field], changes[field]);
+}
+
+/**
+ * The tasks with the fields the change set put back as they were, where they still hold what the change wrote. A value
+ * a read brought in since (a colleague's change) stays, and so does a list that no longer holds the task.
+ */
+function withFieldsRestored(tasks: TTask[], previousTask: TTask, changes: Partial<TTask>) {
 	const currentTask = taskIn(tasks, previousTask.id);
 	if (!currentTask) {
 		return tasks;
 	}
-	const previousFields = fieldsOf(previousTask, fields);
+	const changedFields = Object.keys(changes) as TaskField[];
+	const fieldsToRestore = changedFields.filter((field) => holdsWrittenValue(currentTask, changes, field));
+	const previousFields = fieldsOf(previousTask, fieldsToRestore);
 	const restoredTask = { ...currentTask, ...previousFields };
 	return withTask(tasks, restoredTask);
 }
 
-function withCachedFieldsRestored(
-	data: BuiltInViewTasks | undefined,
-	previousTask: TTask,
-	fields: readonly TaskField[]
-) {
+function withCachedFieldsRestored(data: BuiltInViewTasks | undefined, previousTask: TTask, changes: Partial<TTask>) {
 	if (!data) {
 		return data;
 	}
-	const items = withFieldsRestored(data.items, previousTask, fields);
+	const items = withFieldsRestored(data.items, previousTask, changes);
 	return { ...data, items };
 }
 
@@ -119,7 +126,7 @@ function showChangeInOpenView(store: JotaiStore, taskId: string, changes: Partia
 /**
  * Shows a task's change at once in the copies the built-in views keep of it: every cached view that lists it (the
  * optimistic update of the team's task list does not reach them), and the open view's tasks. Answers what puts them
- * back when the save fails: the fields the change set, as each copy held them, and nothing else.
+ * back when the save fails: the fields the change set, as each copy held them, where they still hold the change.
  */
 export function showTaskChangeInBuiltInViews(
 	queryClient: QueryClient,
@@ -127,20 +134,19 @@ export function showTaskChangeInBuiltInViews(
 	taskId: string,
 	changes: Partial<TTask>
 ) {
-	const changedFields = Object.keys(changes) as TaskField[];
 	const listedTasks = showChangeInCachedViews(queryClient, taskId, changes);
 	const openViewTask = showChangeInOpenView(store, taskId, changes);
 	return () => {
 		for (const listed of listedTasks) {
 			queryClient.setQueryData<BuiltInViewTasks>(listed.queryKey, (data) =>
-				withCachedFieldsRestored(data, listed.task, changedFields)
+				withCachedFieldsRestored(data, listed.task, changes)
 			);
 		}
 		if (!openViewTask) {
 			return;
 		}
 		const openViewTasks = store.get(viewTasksState);
-		const restoredTasks = withFieldsRestored(openViewTasks, openViewTask, changedFields);
+		const restoredTasks = withFieldsRestored(openViewTasks, openViewTask, changes);
 		store.set(viewTasksState, restoredTasks);
 	};
 }

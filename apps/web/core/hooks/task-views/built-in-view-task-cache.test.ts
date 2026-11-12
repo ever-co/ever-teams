@@ -96,6 +96,27 @@ describe('a task change shown in the built-in views', () => {
 		expect(listedTask(queryClient, mineKey, 'b')).toMatchObject({ priority: 'high' });
 	});
 
+	it("puts back the labels the change set, and leaves a colleague's value read since on the same field", () => {
+		const design = { id: 'l1', name: 'design' };
+		const urgent = { id: 'l2', name: 'urgent' };
+		queryClient.setQueryData(mineKey, viewOf(task('a', { status: 'todo', tags: [design] })));
+
+		const restoreLabels = showTaskChangeInBuiltInViews(queryClient, store, 'a', {
+			tags: [design, urgent]
+		} as Partial<TTask>);
+		expect(listedTask(queryClient, mineKey, 'a')).toMatchObject({ tags: [design, urgent] });
+		restoreLabels();
+		expect(listedTask(queryClient, mineKey, 'a')).toEqual(task('a', { status: 'todo', tags: [design] }));
+
+		const restoreStatus = showTaskChangeInBuiltInViews(queryClient, store, 'a', {
+			status: 'done'
+		} as Partial<TTask>);
+		queryClient.setQueryData(mineKey, viewOf(task('a', { status: 'in-review', tags: [design] })));
+		restoreStatus();
+
+		expect(listedTask(queryClient, mineKey, 'a')).toEqual(task('a', { status: 'in-review', tags: [design] }));
+	});
+
 	it('leaves a view read again since, which no longer lists the task, as it is', () => {
 		queryClient.setQueryData(overdueKey, viewOf(task('a', { dueDate: '2026-11-01' }), task('b')));
 
