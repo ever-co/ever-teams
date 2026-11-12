@@ -21,7 +21,8 @@ import { stripLocalePrefix } from '@/core/lib/utils/navigation-path';
 import { activeTeamState, canManageActiveTeamState } from '@/core/stores';
 import { lastAppPathState } from '@/core/stores/common/setting';
 import { TOrganizationTeam } from '@/core/types/schemas';
-import { activeSettingsEntry, entriesOfGroup, SettingsEntry, SettingsGroupId } from './settings-entries';
+import { useHiddenSettingsEntries } from '@/core/hooks/settings/use-hidden-settings-entries';
+import { activeSettingsEntry, entriesOfGroup, SettingsEntry, SettingsEntryId, SettingsGroupId } from './settings-entries';
 
 function teamImageOf(team: TOrganizationTeam | null | undefined) {
 	const thumbUrl = team?.image?.thumbUrl;
@@ -86,10 +87,11 @@ function TeamGroupLabel() {
 function SettingsNavGroup({
 	group,
 	currentHref,
-	canManageTeam
-}: Readonly<{ group: SettingsGroupId; currentHref: string | null; canManageTeam: boolean }>) {
+	canManageTeam,
+	hidden
+}: Readonly<{ group: SettingsGroupId; currentHref: string | null; canManageTeam: boolean; hidden: ReadonlySet<SettingsEntryId> }>) {
 	const t = useTranslations();
-	const entries = entriesOfGroup(group, canManageTeam);
+	const entries = entriesOfGroup(group, canManageTeam, hidden);
 	const isTeamGroup = group === 'team';
 
 	return (
@@ -115,6 +117,7 @@ export const SettingsNav = memo(function SettingsNav() {
 	const currentEntry = activeSettingsEntry(stripLocalePrefix(pathname ?? ''));
 	const currentHref = currentEntry?.href ?? null;
 	const backLabel = t('settings.nav.BACK_TO_APP');
+	const hidden = useHiddenSettingsEntries(canManageTeam);
 
 	return (
 		<nav aria-label={t('common.SETTINGS')} className="flex flex-col">
@@ -134,10 +137,10 @@ export const SettingsNav = memo(function SettingsNav() {
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarGroup>
-			<SettingsNavGroup group="account" currentHref={currentHref} canManageTeam={canManageTeam} />
-			<SettingsNavGroup group="workspace" currentHref={currentHref} canManageTeam={canManageTeam} />
-			<SettingsNavGroup group="team" currentHref={currentHref} canManageTeam={canManageTeam} />
-			<SettingsNavGroup group="taskProperties" currentHref={currentHref} canManageTeam={canManageTeam} />
+			<SettingsNavGroup group="account" currentHref={currentHref} canManageTeam={canManageTeam} hidden={hidden} />
+			<SettingsNavGroup group="workspace" currentHref={currentHref} canManageTeam={canManageTeam} hidden={hidden} />
+			<SettingsNavGroup group="team" currentHref={currentHref} canManageTeam={canManageTeam} hidden={hidden} />
+			<SettingsNavGroup group="taskProperties" currentHref={currentHref} canManageTeam={canManageTeam} hidden={hidden} />
 		</nav>
 	);
 });

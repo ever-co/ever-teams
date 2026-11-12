@@ -2022,15 +2022,33 @@ describe('Ever Teams feature surface preservation', () => {
 		// 315 files and 402 verbs with the chat's typing, task card, unsent upload and category order proxies
 		// (/api/chat/conversations/[id]/typing POST, messages/[id]/tasks/[taskId] PATCH, attachments/[documentId] DELETE,
 		// categories/reorder POST).
-		// 316 files and 403 verbs with the workspace rename proxy (PUT /api/tenant, #5087).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(316);
+		// 317 files and 405 verbs with the Docs comment range proxies (/api/plugins/docs/documents/[id]/comment-anchors GET,
+		// documents/[id]/comments/[commentId]/anchor PUT and DELETE).
+		// 323 files and 414 verbs with the task automations proxies (/api/task-automations GET POST, templates GET,
+		// order PUT, [id] GET PUT DELETE, [id]/test POST, [id]/runs GET).
+		// 324 files and 415 verbs with the workspace rename proxy (PUT /api/tenant, #5087).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(324);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(403);
+		).toHaveLength(415);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twin of Gauzy's PUT /tenant, for the workspace's name (#5087)
 				'apps/web/app/api/tenant/route.ts::PUT',
+				// Proxy mode twins of the platform's task automations routes (2026-11-11)
+				'apps/web/app/api/task-automations/route.ts::GET',
+				'apps/web/app/api/task-automations/route.ts::POST',
+				'apps/web/app/api/task-automations/templates/route.ts::GET',
+				'apps/web/app/api/task-automations/order/route.ts::PUT',
+				'apps/web/app/api/task-automations/[id]/route.ts::GET',
+				'apps/web/app/api/task-automations/[id]/route.ts::PUT',
+				'apps/web/app/api/task-automations/[id]/route.ts::DELETE',
+				'apps/web/app/api/task-automations/[id]/test/route.ts::POST',
+				'apps/web/app/api/task-automations/[id]/runs/route.ts::GET',
+				// Proxy mode twins of the platform's Docs comment ranges (2026-11-12)
+				'apps/web/app/api/plugins/docs/documents/[id]/comment-anchors/route.ts::GET',
+				'apps/web/app/api/plugins/docs/documents/[id]/comments/[commentId]/anchor/route.ts::PUT',
+				'apps/web/app/api/plugins/docs/documents/[id]/comments/[commentId]/anchor/route.ts::DELETE',
 				// Proxy mode twins of the platform's comment withdrawal, reactions and task trash (2026-11-12)
 				'apps/web/app/api/comment/[id]/soft/route.ts::DELETE',
 				'apps/web/app/api/comment/[id]/recover/route.ts::PUT',
