@@ -62,6 +62,9 @@ const GLYPH_MIN_WIDTH = 40;
 const TITLE_MIN_WIDTH = 64;
 const PEOPLE_MIN_WIDTH = 132;
 
+/** A finished task's title, as the calendar and the list write it. */
+const DONE_TITLE = 'text-muted-foreground line-through';
+
 /** A row's title cell is opaque (bars scroll under it): its hover tint is mixed into the page's background. */
 const ROW_TITLE_HOVER = 'group-hover/row:bg-[color-mix(in_oklab,hsl(var(--foreground))_2.5%,hsl(var(--background)))]';
 
@@ -356,6 +359,8 @@ export function TeamTasksTimelineView({
 								if (!task) {
 									return null;
 								}
+								const status = statusOfTask(task, view.statuses);
+								const isDone = isDoneStatus(status);
 								const dates = datesOf(bar);
 								const notes = notesOf(bar);
 								const label = [task.title, dates, ...notes].join(' · ');
@@ -391,7 +396,7 @@ export function TeamTasksTimelineView({
 													#{task.number}
 												</span>
 											) : null}
-											<span className="truncate">{task.title}</span>
+											<span className={cn('truncate', isDone && DONE_TITLE)}>{task.title}</span>
 											{/* The edge marker can be far from the days in view: the title says where the dates are too. */}
 											{bar.outside === 'after' ? (
 												<span
@@ -427,7 +432,7 @@ export function TeamTasksTimelineView({
 											) : (
 												<TimelineBar
 													task={task}
-													status={statusOfTask(task, view.statuses)}
+													status={status}
 													bar={bar}
 													firstDay={firstDay}
 													dayWidth={dayWidth}
@@ -466,7 +471,12 @@ export function TeamTasksTimelineView({
 					<ul className="flex flex-col">
 						{timeline.unscheduledIds.map((id) => {
 							const task = taskById.get(id);
-							return task ? (
+							if (!task) {
+								return null;
+							}
+							const status = statusOfTask(task, view.statuses);
+							const isDone = isDoneStatus(status);
+							return (
 								<li key={id}>
 									<button
 										type="button"
@@ -478,10 +488,10 @@ export function TeamTasksTimelineView({
 												#{task.number}
 											</span>
 										) : null}
-										<span className="truncate">{task.title}</span>
+										<span className={cn('truncate', isDone && DONE_TITLE)}>{task.title}</span>
 									</button>
 								</li>
-							) : null;
+							);
 						})}
 					</ul>
 				</div>

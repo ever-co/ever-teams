@@ -328,6 +328,24 @@ describe('TeamTasksTimelineView', () => {
 		);
 	});
 
+	it('strikes a done task through in the title column and in the list of tasks without dates', () => {
+		renderTimeline([
+			{ id: 'd', title: 'Done long ago', dueDate: '2026-11-01', status: 'done', taskStatusId: 'done' },
+			{ id: 'u', title: 'Done without dates', status: 'done', taskStatusId: 'done' },
+			{ id: 'a', title: 'Still open', dueDate: '2026-11-20', status: 'open', taskStatusId: 'open' }
+		]);
+		// The title column's button comes first in its row, before the bar that bears the same name.
+		const [doneRow] = screen.getAllByRole('button', { name: /^Done long ago/ });
+		const [openRow] = screen.getAllByRole('button', { name: /^Still open · / });
+		const doneTitle = doneRow.querySelector('.truncate');
+		const openTitle = openRow.querySelector('.truncate');
+		const doneUndated = within(screen.getByTestId('timeline-unscheduled')).getByText('Done without dates');
+
+		expect(doneTitle?.className).toContain('line-through');
+		expect(openTitle?.className).not.toContain('line-through');
+		expect(doneUndated.className).toContain('line-through');
+	});
+
 	it('says so when the view has no tasks', () => {
 		renderTimeline([]);
 		expect(screen.getByText('pages.teamTasks.TIMELINE_EMPTY')).toBeTruthy();
@@ -462,6 +480,16 @@ describe('TeamTasksTimelineView', () => {
 			expect(describedBy).not.toBeNull();
 			expect(document.getElementById(describedBy ?? '')?.textContent).toBe('pages.teamTasks.TIMELINE_DRAG_HINT');
 			expect(screen.getByTestId('timeline-bar-other').getAttribute('aria-describedby')).toBeNull();
+		});
+
+		it("shows no worked time for another team's task, whose time the team's figures do not hold", () => {
+			renderTimeline([{ ...ranged, id: 'other', title: 'Elsewhere' }]);
+
+			hover(screen.getByTestId('timeline-bar-other'));
+
+			const card = screen.getByTestId('timeline-card-other');
+			expect(card.textContent).not.toContain('common.WORKED');
+			expect(card.textContent).not.toContain('pages.teamTasks.TIMELINE_DRAG_HINT');
 		});
 
 		it('never shows a card where nothing hovers', () => {
