@@ -2011,6 +2011,8 @@ describe('Ever Teams feature surface preservation', () => {
 		// 296 files and 379 verbs with the lookup of the time a manual entry would overlap
 		// (GET /api/timesheet/time-log/conflict, #5089).
 		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(296);
+		// 295 files and 379 verbs with the Board app's session check (/api/board/session, GET and its CORS OPTIONS).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(295);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
 		).toHaveLength(379);
