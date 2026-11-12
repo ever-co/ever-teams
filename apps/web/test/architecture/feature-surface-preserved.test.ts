@@ -2031,12 +2031,34 @@ describe('Ever Teams feature surface preservation', () => {
 		// 326 files and 417 verbs with the workspace rename proxy (PUT /api/tenant, #5087).
 		// 327 files and 418 verbs with the trash's Delete forever, which deletes a task only while it is still in the
 		// trash (/api/tasks/[id]/trashed DELETE).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(327);
+		// 341 files and 435 verbs with the Jira integration proxies (/api/integration/jira/**: status GET, install/state
+		// POST, [id] GET and DELETE, [id]/sites GET, [id]/site PUT, [id]/projects GET, [id]/projects/[projectId] GET,
+		// [id]/mappings GET and POST, [id]/mappings/[mappingId] PUT and DELETE, [id]/mappings/[mappingId]/import POST,
+		// [id]/webhook POST, [id]/runs GET, [id]/conflicts GET, [id]/conflicts/[conflictId]/resolve POST).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(341);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(418);
+		).toHaveLength(435);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of the platform's Jira Cloud integration routes (2026-11-12)
+				'apps/web/app/api/integration/jira/status/route.ts::GET',
+				'apps/web/app/api/integration/jira/install/state/route.ts::POST',
+				'apps/web/app/api/integration/jira/[id]/route.ts::GET',
+				'apps/web/app/api/integration/jira/[id]/route.ts::DELETE',
+				'apps/web/app/api/integration/jira/[id]/sites/route.ts::GET',
+				'apps/web/app/api/integration/jira/[id]/site/route.ts::PUT',
+				'apps/web/app/api/integration/jira/[id]/projects/route.ts::GET',
+				'apps/web/app/api/integration/jira/[id]/projects/[projectId]/route.ts::GET',
+				'apps/web/app/api/integration/jira/[id]/mappings/route.ts::GET',
+				'apps/web/app/api/integration/jira/[id]/mappings/route.ts::POST',
+				'apps/web/app/api/integration/jira/[id]/mappings/[mappingId]/route.ts::PUT',
+				'apps/web/app/api/integration/jira/[id]/mappings/[mappingId]/route.ts::DELETE',
+				'apps/web/app/api/integration/jira/[id]/mappings/[mappingId]/import/route.ts::POST',
+				'apps/web/app/api/integration/jira/[id]/webhook/route.ts::POST',
+				'apps/web/app/api/integration/jira/[id]/runs/route.ts::GET',
+				'apps/web/app/api/integration/jira/[id]/conflicts/route.ts::GET',
+				'apps/web/app/api/integration/jira/[id]/conflicts/[conflictId]/resolve/route.ts::POST',
 				// Proxy mode twin of the platform's Delete forever from the task trash (2026-11-12)
 				'apps/web/app/api/tasks/[id]/trashed/route.ts::DELETE',
 				// Proxy mode twins of the platform's task automations routes (2026-11-11)
