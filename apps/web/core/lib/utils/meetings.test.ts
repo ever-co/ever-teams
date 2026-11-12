@@ -267,6 +267,11 @@ describe('scheduled meetings', () => {
 			emails: ['ana@acme.com', 'bob@acme.com', 'carol@acme.com'],
 			rejected: []
 		});
+		// An address where a name goes, between two bracketed addresses, is an invitee too
+		expect(participantsWithText([], 'Bob <bob@acme.com> carol@acme.com Ana <ana@acme.com>')).toEqual({
+			emails: ['bob@acme.com', 'ana@acme.com', 'carol@acme.com'],
+			rejected: []
+		});
 	});
 
 	it('reschedules a meeting with its title, time and link only, so Gauzy keeps the rest', () => {

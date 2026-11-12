@@ -330,7 +330,12 @@ export function participantsWithText(
 		// the text after the last one is words of their own ("Bob <bob@acme.com> bad@" still reports bad@)
 		const parts = entry.split(NAMED_ADDRESS);
 		const addresses = parts.filter((_, index) => index % 2 === 1);
-		const words = [...addresses, ...(parts.at(-1) ?? '').split(/\s+/)];
+		// A name says nothing wrong, but an address typed where a name goes is an invitee all the same
+		const addressesInNames = parts
+			.slice(0, -1)
+			.filter((_, index) => index % 2 === 0)
+			.flatMap((name) => name.split(/\s+/).filter((word) => isEmail(word.toLowerCase())));
+		const words = [...addresses, ...addressesInNames, ...(parts.at(-1) ?? '').split(/\s+/)];
 		for (const word of words.map((part) => part.trim()).filter(Boolean)) {
 			const address = word.toLowerCase();
 			if (isEmail(address)) {
