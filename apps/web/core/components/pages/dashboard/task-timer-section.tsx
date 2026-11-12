@@ -83,7 +83,7 @@ export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEna
 			{/* shrink-0: the timer keeps its natural width; the task-input column (min-w-0) is what gives way,
 			    so the play button stays inside the viewport at 1280/1366px with the sidebar open. */}
 			{showsTimer && (
-				<div className={clsxm(TIMER_PANE, isTimerRunning && TIMER_PANE_RUNNING)}>
+				<div data-timer-surface="" className={clsxm(TIMER_PANE, isTimerRunning && TIMER_PANE_RUNNING)}>
 					<TaskBlockTimer className={TASK_BLOCK_TIMER_CLASS_NAME} />
 				</div>
 			)}

@@ -1,6 +1,6 @@
 'use client';
 
-import { type ChangeEvent, useCallback, useId } from 'react';
+import { type ChangeEvent, useCallback, useId, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { controlRecipe } from '@/core/components/common/input';
@@ -15,7 +15,22 @@ import { TIMER_ENTRY_TOGGLE, TIMER_TOOLTIP_DELAY_MS } from './timer-toggle-recip
 
 const NOTES_FIELD_CLASS_NAME = cn(controlRecipe, 'field-sizing-content max-h-[6lh] min-h-16 resize-none p-3');
 
-const NOTES_POPOVER_CLASS_NAME = 'flex w-72 max-w-[calc(100vw-2rem)] flex-col gap-2 p-3';
+const NOTES_POPOVER_CLASS_NAME = 'flex w-[max(18rem,var(--anchor-width))] max-w-[calc(100vw-2rem)] flex-col gap-2 p-3';
+
+/** Set on the surface each timer sits in: the home block's timer pane, the profile's timer card, the top bar pill. */
+const TIMER_SURFACE_SELECTOR = '[data-timer-surface]';
+
+/** The layer hangs under the whole timer surface, so it never opens over the task beside the timer. */
+function notesAnchorOf(wrapper: HTMLElement | null): Element | null {
+	if (!wrapper) {
+		return null;
+	}
+	const surface = wrapper.closest(TIMER_SURFACE_SELECTOR);
+	if (surface) {
+		return surface;
+	}
+	return wrapper.firstElementChild;
+}
 
 function triggerLabelKeyOf(hasNotes: boolean) {
 	if (hasNotes) {
@@ -43,6 +58,9 @@ export function TimerNotesButton({ className }: Readonly<{ className?: string }>
 	const hasNotes = normalizedTimerNotes(text) !== '';
 	const triggerLabel = t(triggerLabelKeyOf(hasNotes));
 	const hint = t(hintKeyOf(isRunning));
+	const wrapperRef = useRef<HTMLSpanElement>(null);
+
+	const notesAnchor = useCallback(() => notesAnchorOf(wrapperRef.current), []);
 
 	const changeText = useCallback(
 		(event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -53,29 +71,37 @@ export function TimerNotesButton({ className }: Readonly<{ className?: string }>
 
 	return (
 		<Popover>
-			<Tooltip>
-				<TooltipTrigger
-					delay={TIMER_TOOLTIP_DELAY_MS}
-					render={
-						<PopoverTrigger
-							render={
-								<Button
-									type="button"
-									variant="ghost"
-									size="icon-sm"
-									aria-label={triggerLabel}
-									data-filled={hasNotes || undefined}
-									className={cn(TIMER_ENTRY_TOGGLE, className)}
-								/>
-							}
-						/>
-					}
-				>
-					<Compose aria-hidden="true" />
-				</TooltipTrigger>
-				<TooltipContent>{triggerLabel}</TooltipContent>
-			</Tooltip>
-			<PopoverContent align="end" collisionPadding={16} className={NOTES_POPOVER_CLASS_NAME}>
+			<span ref={wrapperRef} className="contents">
+				<Tooltip>
+					<TooltipTrigger
+						delay={TIMER_TOOLTIP_DELAY_MS}
+						render={
+							<PopoverTrigger
+								render={
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon-sm"
+										aria-label={triggerLabel}
+										data-filled={hasNotes || undefined}
+										className={cn(TIMER_ENTRY_TOGGLE, className)}
+									/>
+								}
+							/>
+						}
+					>
+						<Compose aria-hidden="true" />
+					</TooltipTrigger>
+					<TooltipContent>{triggerLabel}</TooltipContent>
+				</Tooltip>
+			</span>
+			<PopoverContent
+				anchor={notesAnchor}
+				align="end"
+				sideOffset={8}
+				collisionPadding={16}
+				className={NOTES_POPOVER_CLASS_NAME}
+			>
 				<label htmlFor={fieldId} className="text-xs font-medium text-foreground">
 					{t('timer.notes.LABEL')}
 				</label>

@@ -238,7 +238,7 @@ export function MinTimerFrame({ className }: IClassName) {
 	const todayWorkedLabel = `${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`;
 
 	return (
-		<div className={clsxm(MIN_TIMER_FRAME, className)}>
+		<div data-timer-surface="" className={clsxm(MIN_TIMER_FRAME, className)}>
 			<Transition
 				show={true}
 				appear={true}
