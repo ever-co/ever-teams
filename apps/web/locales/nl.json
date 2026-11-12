@@ -2962,6 +2962,22 @@
 	"timeSlot": {
 		"DELETE_MESSAGE": "Weet u zeker dat u dit tijdslot wilt verwijderen?"
 	},
+	"timeEntryActions": {
+		"CONTINUE": "Verdergaan",
+		"DUPLICATE": "Dupliceren",
+		"TASK_ACTIONS": "Acties voor {task}",
+		"ALREADY_RUNNING": "De timer loopt al voor deze taak",
+		"recent": {
+			"TITLE": "Recent",
+			"START_ON": "Timer starten voor {task}",
+			"ERROR": "Je recente taken konden niet worden geladen.",
+			"RETRY": "Opnieuw proberen"
+		},
+		"duplicate": {
+			"OVERLAPS": "Deze tijd overlapt een al geregistreerde invoer ({range}). Kies een vrije tijd of een andere datum.",
+			"CHECK_FAILED": "De invoer van de dag kon niet worden gecontroleerd, dus er is niets opgeslagen. Probeer het opnieuw."
+		}
+	},
 	"chatConfig": {
 		"DIALOG_TITLE": "AI Chat configuratie",
 		"DIALOG_DESCRIPTION": "Configureer uw AI-provider en API-sleutel om de chatassistent te activeren.",

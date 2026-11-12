@@ -2962,6 +2962,22 @@
 	"timeSlot": {
 		"DELETE_MESSAGE": "Czy na pewno chcesz usunąć ten przedział czasowy?"
 	},
+	"timeEntryActions": {
+		"CONTINUE": "Kontynuuj",
+		"DUPLICATE": "Duplikuj",
+		"TASK_ACTIONS": "Akcje dla {task}",
+		"ALREADY_RUNNING": "Timer już działa dla tego zadania",
+		"recent": {
+			"TITLE": "Ostatnie",
+			"START_ON": "Uruchom timer dla {task}",
+			"ERROR": "Nie udało się wczytać Twoich ostatnich zadań.",
+			"RETRY": "Spróbuj ponownie"
+		},
+		"duplicate": {
+			"OVERLAPS": "Ten czas nakłada się na zapisany już wpis ({range}). Wybierz wolny czas lub inną datę.",
+			"CHECK_FAILED": "Nie udało się sprawdzić wpisów z tego dnia, więc nic nie zostało zapisane. Spróbuj ponownie."
+		}
+	},
 	"chatConfig": {
 		"DIALOG_TITLE": "Konfiguracja czatu AI",
 		"DIALOG_DESCRIPTION": "Skonfiguruj dostawcę AI i klucz API, aby włączyć asystenta czatu.",

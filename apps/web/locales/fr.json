@@ -2962,6 +2962,22 @@
 	"timeSlot": {
 		"DELETE_MESSAGE": "Êtes-vous sûr de vouloir supprimer ce créneau horaire ?"
 	},
+	"timeEntryActions": {
+		"CONTINUE": "Reprendre",
+		"DUPLICATE": "Dupliquer",
+		"TASK_ACTIONS": "Actions pour {task}",
+		"ALREADY_RUNNING": "Le chronomètre tourne déjà sur cette tâche",
+		"recent": {
+			"TITLE": "Récentes",
+			"START_ON": "Démarrer le chronomètre sur {task}",
+			"ERROR": "Vos tâches récentes n'ont pas pu être chargées.",
+			"RETRY": "Réessayer"
+		},
+		"duplicate": {
+			"OVERLAPS": "Cet horaire chevauche une entrée déjà enregistrée ({range}). Choisissez un horaire libre ou une autre date.",
+			"CHECK_FAILED": "Les entrées du jour n'ont pas pu être vérifiées, rien n'a donc été enregistré. Réessayez."
+		}
+	},
 	"chatConfig": {
 		"DIALOG_TITLE": "Configuration du Chat IA",
 		"DIALOG_DESCRIPTION": "Configurez votre fournisseur IA et votre clé API pour activer l'assistant.",

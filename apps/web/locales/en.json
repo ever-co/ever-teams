@@ -2962,6 +2962,22 @@
 	"timeSlot": {
 		"DELETE_MESSAGE": "Are you sure you want to delete this time slot?"
 	},
+	"timeEntryActions": {
+		"CONTINUE": "Continue",
+		"DUPLICATE": "Duplicate",
+		"TASK_ACTIONS": "Actions for {task}",
+		"ALREADY_RUNNING": "The timer is already running on this task",
+		"recent": {
+			"TITLE": "Recent",
+			"START_ON": "Start the timer on {task}",
+			"ERROR": "Your recent tasks could not be loaded.",
+			"RETRY": "Try again"
+		},
+		"duplicate": {
+			"OVERLAPS": "This time runs over an entry already recorded ({range}). Pick a free time or another date.",
+			"CHECK_FAILED": "The day's entries could not be checked, so nothing was saved. Try again."
+		}
+	},
 	"chatConfig": {
 		"DIALOG_TITLE": "AI chat configuration",
 		"DIALOG_DESCRIPTION": "Configure your AI provider and API key to enable the chat assistant.",

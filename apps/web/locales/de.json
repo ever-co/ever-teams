@@ -2962,6 +2962,22 @@
 	"timeSlot": {
 		"DELETE_MESSAGE": "Möchten Sie diesen Zeitraum wirklich löschen?"
 	},
+	"timeEntryActions": {
+		"CONTINUE": "Fortsetzen",
+		"DUPLICATE": "Duplizieren",
+		"TASK_ACTIONS": "Aktionen für {task}",
+		"ALREADY_RUNNING": "Der Timer läuft bereits für diese Aufgabe",
+		"recent": {
+			"TITLE": "Zuletzt",
+			"START_ON": "Timer für {task} starten",
+			"ERROR": "Ihre letzten Aufgaben konnten nicht geladen werden.",
+			"RETRY": "Erneut versuchen"
+		},
+		"duplicate": {
+			"OVERLAPS": "Diese Zeit überschneidet sich mit einem bereits erfassten Eintrag ({range}). Wählen Sie eine freie Zeit oder ein anderes Datum.",
+			"CHECK_FAILED": "Die Einträge des Tages konnten nicht geprüft werden, daher wurde nichts gespeichert. Versuchen Sie es erneut."
+		}
+	},
 	"chatConfig": {
 		"DIALOG_TITLE": "AI-Chat-Konfiguration",
 		"DIALOG_DESCRIPTION": "Konfigurieren Sie Ihren KI-Anbieter und API-Schlüssel, um den Chat-Assistenten zu aktivieren.",
