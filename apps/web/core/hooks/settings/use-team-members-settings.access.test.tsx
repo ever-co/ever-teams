@@ -52,7 +52,8 @@ const ROLES = [
 	{ id: 'role-super-admin', name: 'SUPER_ADMIN' },
 	{ id: 'role-admin', name: 'ADMIN' },
 	{ id: 'role-employee', name: 'EMPLOYEE' },
-	{ id: 'role-viewer', name: 'VIEWER' }
+	{ id: 'role-viewer', name: 'VIEWER' },
+	{ id: 'role-support', name: 'Support desk' }
 ];
 
 const ADMIN_PERMISSIONS = ['ORG_EMPLOYEES_VIEW', 'ORG_EMPLOYEES_EDIT', 'ORG_USERS_EDIT'];
@@ -79,7 +80,8 @@ const TEAM = {
 		member('admin', 'role-admin'),
 		member('ana', 'role-employee'),
 		member('bo', 'role-admin'),
-		member('cy', 'role-super-admin')
+		member('cy', 'role-super-admin'),
+		member('dee', 'role-support')
 	]
 };
 
@@ -121,15 +123,22 @@ describe('what an admin may do to the access of a member', () => {
 		expect(rowOf('cy').canDeactivate).toBe(false);
 	});
 
-	it('offers every workspace role but super admin, on anyone but themself and a super admin', () => {
-		const { view, rowOf } = renderMembers();
+	it('offers the platform roles up to admin, never super admin nor a role the workspace created', () => {
+		const { view } = renderMembers();
 
 		expect(view.result.current.assignableRoles.map((role) => role.name)).toEqual(['ADMIN', 'EMPLOYEE', 'VIEWER']);
+	});
+
+	it('changes the role of anyone but themself, a super admin and the holder of a role they cannot give', () => {
+		const { rowOf } = renderMembers();
+
 		expect(rowOf('ana').canChangeWorkspaceRole).toBe(true);
 		expect(rowOf('bo').canChangeWorkspaceRole).toBe(true);
 		expect(rowOf('admin').canChangeWorkspaceRole).toBe(false);
 		expect(rowOf('cy').canChangeWorkspaceRole).toBe(false);
+		expect(rowOf('dee').canChangeWorkspaceRole).toBe(false);
 		expect(rowOf('bo').workspaceRoleName).toBe('ADMIN');
+		expect(rowOf('dee').workspaceRoleName).toBe('Support desk');
 	});
 
 	it('offers nothing while the workspace roles are not read: an unknown role may be an admin', () => {
@@ -263,12 +272,14 @@ describe('changing the workspace role of a member', () => {
 		});
 	});
 
-	it('never sends a role the viewer is not offered, nor a change on a super admin', async () => {
+	it('never sends a role the viewer is not offered, nor a change on a member out of their reach', async () => {
 		const { view } = renderMembers();
 
 		await act(async () => {
 			await view.result.current.changeWorkspaceRole('row-ana', 'role-super-admin');
+			await view.result.current.changeWorkspaceRole('row-ana', 'role-support');
 			await view.result.current.changeWorkspaceRole('row-cy', 'role-employee');
+			await view.result.current.changeWorkspaceRole('row-dee', 'role-employee');
 			await view.result.current.changeWorkspaceRole('row-admin', 'role-employee');
 		});
 

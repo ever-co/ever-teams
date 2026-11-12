@@ -91,7 +91,8 @@ export function canDeactivateMember({
 	return !isTenantAdminRole(workspaceRoleName);
 }
 
-const WORKSPACE_ROLE_ORDER: ReadonlyArray<string> = [
+/** The roles every Gauzy workspace has, the highest first. Gauzy lets no other role take one of these names. */
+const PLATFORM_ROLE_ORDER: ReadonlyArray<string> = [
 	ERoleName.SUPER_ADMIN,
 	ERoleName.ADMIN,
 	ERoleName.MANAGER,
@@ -103,10 +104,10 @@ const WORKSPACE_ROLE_ORDER: ReadonlyArray<string> = [
 ];
 
 function workspaceRoleRankOf(role: WorkspaceRole): number {
-	const rank = WORKSPACE_ROLE_ORDER.indexOf(role.name);
-	const isNamedByTheWorkspace = rank === -1;
-	if (isNamedByTheWorkspace) {
-		return WORKSPACE_ROLE_ORDER.length;
+	const rank = PLATFORM_ROLE_ORDER.indexOf(role.name);
+	const isCreatedByTheWorkspace = rank === -1;
+	if (isCreatedByTheWorkspace) {
+		return PLATFORM_ROLE_ORDER.length;
 	}
 	return rank;
 }
@@ -119,19 +120,30 @@ function compareWorkspaceRoles(left: WorkspaceRole, right: WorkspaceRole): numbe
 	return left.name.localeCompare(right.name);
 }
 
-function isRoleWithinReach(role: WorkspaceRole, givesSuperAdmin: boolean): boolean {
-	if (role.name === ERoleName.SUPER_ADMIN) {
-		return givesSuperAdmin;
+/** A super admin whom Gauzy lets edit super admins: no role of the workspace is above theirs. */
+function holdsTheTopRole(viewerRoleName: string | null | undefined, permissions: ReadonlyArray<string>): boolean {
+	const isSuperAdmin = viewerRoleName === ERoleName.SUPER_ADMIN;
+	const editsSuperAdmins = permissions.includes(SUPER_ADMIN_EDIT_PERMISSION);
+	return isSuperAdmin && editsSuperAdmins;
+}
+
+function isRoleWithinReach(role: WorkspaceRole, isTopViewer: boolean): boolean {
+	if (isTopViewer) {
+		return true;
 	}
-	return true;
+	const isPlatformRole = PLATFORM_ROLE_ORDER.includes(role.name);
+	const isSuperAdminRole = role.name === ERoleName.SUPER_ADMIN;
+	return isPlatformRole && !isSuperAdminRole;
 }
 
 /**
  * The workspace roles the viewer may give to someone else, in the order of the role menu.
  *
- * Gauzy's `PUT /user/:id` keeps one line only: the super admin role needs SUPER_ADMIN_EDIT. Any other role is
- * accepted from every holder of ORG_USERS_EDIT. That equals "never a role higher than one's own" for a super admin
- * and for an admin, so the list is offered to those two roles and to nobody else.
+ * Gauzy's `PUT /user/:id` keeps one line only: the super admin role needs SUPER_ADMIN_EDIT. It ranks no other role
+ * and accepts any of them from every holder of ORG_USERS_EDIT. So the list holds what the names of the roles rank,
+ * never a role higher than the viewer's own: a super admin gives every role; an admin gives the platform roles
+ * below super admin, and none the workspace created itself, whose rights may exceed an admin's; nobody else gives
+ * any.
  */
 export function assignableWorkspaceRolesOf({
 	viewerRoleName,
@@ -148,44 +160,35 @@ export function assignableWorkspaceRolesOf({
 	if (!assignsRoles) {
 		return [];
 	}
-	const givesSuperAdmin = permissions.includes(SUPER_ADMIN_EDIT_PERMISSION);
-	const withinReach = roles.filter((role) => isRoleWithinReach(role, givesSuperAdmin));
+	const isTopViewer = holdsTheTopRole(viewerRoleName, permissions);
+	const withinReach = roles.filter((role) => isRoleWithinReach(role, isTopViewer));
 	return withinReach.sort(compareWorkspaceRoles);
 }
 
 /**
- * Whether the workspace role of a member can be changed by the viewer. Gauzy refuses a change of one's own role and,
- * without SUPER_ADMIN_EDIT, any edit of a super admin: a member whose role cannot be read may be one.
+ * Whether the workspace role of a member can be changed by the viewer: never one's own, which Gauzy refuses, and
+ * only from a role the viewer may give. A super admin, a role the workspace created or a role that cannot be read
+ * is out of an admin's reach, so an admin never takes away a role they could not give back.
  */
 export function canChangeWorkspaceRole({
-	permissions,
 	isYou,
 	hasUser,
 	workspaceRoleName,
 	assignableRoles
 }: Readonly<{
-	permissions: ReadonlyArray<string>;
 	isYou: boolean;
 	hasUser: boolean;
 	workspaceRoleName: string | null;
 	assignableRoles: ReadonlyArray<WorkspaceRole>;
 }>): boolean {
-	const hasRolesToGive = assignableRoles.length > 0;
 	const isOtherAccount = hasUser && !isYou;
-	if (!hasRolesToGive) {
-		return false;
-	}
 	if (!isOtherAccount) {
 		return false;
-	}
-	const editsSuperAdmins = permissions.includes(SUPER_ADMIN_EDIT_PERMISSION);
-	if (editsSuperAdmins) {
-		return true;
 	}
 	if (!workspaceRoleName) {
 		return false;
 	}
-	return workspaceRoleName !== ERoleName.SUPER_ADMIN;
+	return assignableRoles.some((role) => role.name === workspaceRoleName);
 }
 
 /**

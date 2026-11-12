@@ -93,17 +93,28 @@ describe('canDeactivateMember', () => {
 });
 
 describe('assignableWorkspaceRolesOf', () => {
-	it('gives an admin every role of the workspace except super admin, system roles first', () => {
+	it('gives an admin the platform roles up to admin, the highest first', () => {
 		const roles = assignableWorkspaceRolesOf({
 			viewerRoleName: 'ADMIN',
 			permissions: ADMIN_PERMISSIONS,
 			roles: WORKSPACE_ROLES
 		});
 
-		expect(roles).toEqual([ADMIN, MANAGER, EMPLOYEE, VIEWER, ACCOUNTING, SUPPORT]);
+		expect(roles).toEqual([ADMIN, MANAGER, EMPLOYEE, VIEWER]);
 	});
 
-	it('gives a super admin every role, super admin included', () => {
+	it('never gives an admin a role the workspace created, whose rights may exceed theirs', () => {
+		const roles = assignableWorkspaceRolesOf({
+			viewerRoleName: 'ADMIN',
+			permissions: ADMIN_PERMISSIONS,
+			roles: WORKSPACE_ROLES
+		});
+
+		expect(roles).not.toContain(ACCOUNTING);
+		expect(roles).not.toContain(SUPPORT);
+	});
+
+	it('gives a super admin every role, super admin and the roles of the workspace included', () => {
 		const roles = assignableWorkspaceRolesOf({
 			viewerRoleName: 'SUPER_ADMIN',
 			permissions: SUPER_ADMIN_PERMISSIONS,
@@ -113,14 +124,24 @@ describe('assignableWorkspaceRolesOf', () => {
 		expect(roles).toEqual([SUPER_ADMIN, ADMIN, MANAGER, EMPLOYEE, VIEWER, ACCOUNTING, SUPPORT]);
 	});
 
-	it('leaves super admin out for whoever does not hold SUPER_ADMIN_EDIT, a super admin too', () => {
+	it('never gives super admin to an admin, even one whose role was given SUPER_ADMIN_EDIT', () => {
+		const roles = assignableWorkspaceRolesOf({
+			viewerRoleName: 'ADMIN',
+			permissions: SUPER_ADMIN_PERMISSIONS,
+			roles: WORKSPACE_ROLES
+		});
+
+		expect(roles).toEqual([ADMIN, MANAGER, EMPLOYEE, VIEWER]);
+	});
+
+	it('treats a super admin without SUPER_ADMIN_EDIT as an admin, since the API would refuse the rest', () => {
 		const roles = assignableWorkspaceRolesOf({
 			viewerRoleName: 'SUPER_ADMIN',
 			permissions: ADMIN_PERMISSIONS,
 			roles: WORKSPACE_ROLES
 		});
 
-		expect(roles).not.toContain(SUPER_ADMIN);
+		expect(roles).toEqual([ADMIN, MANAGER, EMPLOYEE, VIEWER]);
 	});
 
 	it('offers nothing to an admin whose role lost ORG_USERS_EDIT', () => {
@@ -155,19 +176,12 @@ describe('assignableWorkspaceRolesOf', () => {
 });
 
 describe('canChangeWorkspaceRole', () => {
-	const assignableRoles = [ADMIN, MANAGER, EMPLOYEE];
-	const member = {
-		permissions: ADMIN_PERMISSIONS,
-		isYou: false,
-		hasUser: true,
-		workspaceRoleName: 'EMPLOYEE',
-		assignableRoles
-	};
+	const adminReach = [ADMIN, MANAGER, EMPLOYEE, VIEWER];
+	const member = { isYou: false, hasUser: true, workspaceRoleName: 'EMPLOYEE', assignableRoles: adminReach };
 
 	it('lets an admin change the role of another member, another admin included', () => {
 		expect(canChangeWorkspaceRole(member)).toBe(true);
 		expect(canChangeWorkspaceRole({ ...member, workspaceRoleName: 'ADMIN' })).toBe(true);
-		expect(canChangeWorkspaceRole({ ...member, workspaceRoleName: 'Support' })).toBe(true);
 	});
 
 	it('never offers a change of one own role, which the API refuses', () => {
@@ -179,16 +193,19 @@ describe('canChangeWorkspaceRole', () => {
 		expect(canChangeWorkspaceRole({ ...member, hasUser: false })).toBe(false);
 	});
 
-	it('keeps an admin away from a super admin, and from a member whose role cannot be read', () => {
+	it('keeps an admin away from a role they could not give back', () => {
 		expect(canChangeWorkspaceRole({ ...member, workspaceRoleName: 'SUPER_ADMIN' })).toBe(false);
+		expect(canChangeWorkspaceRole({ ...member, workspaceRoleName: 'Support' })).toBe(false);
 		expect(canChangeWorkspaceRole({ ...member, workspaceRoleName: null })).toBe(false);
 	});
 
-	it('lets a holder of SUPER_ADMIN_EDIT change any other account', () => {
-		const superAdmin = { ...member, permissions: SUPER_ADMIN_PERMISSIONS };
+	it('lets a super admin change any other account whose role is read', () => {
+		const superAdminReach = [SUPER_ADMIN, ...adminReach, ACCOUNTING, SUPPORT];
+		const forSuperAdmin = { ...member, assignableRoles: superAdminReach };
 
-		expect(canChangeWorkspaceRole({ ...superAdmin, workspaceRoleName: 'SUPER_ADMIN' })).toBe(true);
-		expect(canChangeWorkspaceRole({ ...superAdmin, workspaceRoleName: null })).toBe(true);
+		expect(canChangeWorkspaceRole({ ...forSuperAdmin, workspaceRoleName: 'SUPER_ADMIN' })).toBe(true);
+		expect(canChangeWorkspaceRole({ ...forSuperAdmin, workspaceRoleName: 'Support' })).toBe(true);
+		expect(canChangeWorkspaceRole({ ...forSuperAdmin, workspaceRoleName: null })).toBe(false);
 	});
 });
 

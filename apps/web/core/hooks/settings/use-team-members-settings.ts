@@ -167,7 +167,6 @@ function memberAccessOf(member: TOrganizationTeamEmployee, context: MemberAccess
 			workspaceRoleName
 		}),
 		canChangeWorkspaceRole: canChangeWorkspaceRole({
-			permissions: context.permissions,
 			isYou,
 			hasUser: Boolean(memberUserId),
 			workspaceRoleName,
