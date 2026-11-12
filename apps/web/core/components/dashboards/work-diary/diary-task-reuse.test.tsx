@@ -2,9 +2,11 @@
 
 import type { ReactNode } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { Provider, createStore } from 'jotai';
 
 import type { CalendarEntry } from '@/core/lib/utils/calendar-view';
 import { type DiaryTask, diaryTasksOf } from '@/core/lib/utils/dashboards/work-diary';
+import { activeTeamIdState, organizationTeamsState, teamTasksState } from '@/core/stores';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 const mockCanContinue = jest.fn();
@@ -17,11 +19,16 @@ const mockAddTimeDialog = jest.fn();
 const mockStartLayer = jest.fn();
 
 let mockDuplicateDraft: Record<string, unknown> | null = null;
+let mockIsTeamManager = false;
 let mockIsDuplicateOpen = false;
 
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: Record<string, unknown>) =>
 		values ? `${key}:${JSON.stringify(values)}` : key
+}));
+jest.mock('@/core/hooks/queries/user-user.query', () => ({ useUserQuery: () => ({ data: { id: 'user-1' } }) }));
+jest.mock('@/core/hooks/organizations/teams/use-team-member', () => ({
+	useIsMemberManager: () => ({ isTeamManager: mockIsTeamManager })
 }));
 jest.mock('@/core/components/common/dropdown-menu', () => ({
 	DropdownMenu: ({ children }: { children: ReactNode }) => <>{children}</>,
@@ -111,7 +118,25 @@ function taskOf(key: string): DiaryTask {
 	return task;
 }
 
-function Harness({ task }: Readonly<{ task: DiaryTask }>) {
+/** The task as the Work diary's Add time dialog lists it: one of the active team's, assigned to the member. */
+const LISTED_TASK = {
+	id: 'task-1',
+	title: 'Title of task-1',
+	teams: [{ id: 'team-1' }],
+	members: [{ userId: 'user-1' }]
+};
+
+function storeListing(tasks: unknown[]) {
+	const store = createStore();
+	store.set(organizationTeamsState, [{ id: 'team-1', members: [] }] as never);
+	store.set(activeTeamIdState, 'team-1');
+	store.set(teamTasksState, tasks as never);
+	return store;
+}
+
+let testStore = storeListing([LISTED_TASK]);
+
+function HarnessBody({ task }: Readonly<{ task: DiaryTask }>) {
 	const reuse = useDiaryTaskReuse(ENTRIES);
 	return (
 		<>
@@ -121,7 +146,17 @@ function Harness({ task }: Readonly<{ task: DiaryTask }>) {
 	);
 }
 
+function Harness({ task }: Readonly<{ task: DiaryTask }>) {
+	return (
+		<Provider store={testStore}>
+			<HarnessBody task={task} />
+		</Provider>
+	);
+}
+
 beforeEach(() => {
+	testStore = storeListing([LISTED_TASK]);
+	mockIsTeamManager = false;
 	mockCanContinue.mockReturnValue(true);
 	mockDuplicateDraft = null;
 	mockIsDuplicateOpen = false;
@@ -162,6 +197,31 @@ describe('the actions of a task of a Work diary day', () => {
 
 		expect(screen.queryByRole('menuitem', { name: 'timeEntryActions.CONTINUE' })).toBeNull();
 		expect(screen.getByRole('menuitem', { name: 'timeEntryActions.DUPLICATE' })).toBeTruthy();
+	});
+
+	it('leaves Duplicate out on a task the Add time dialog no longer lists for the member, and keeps Continue', () => {
+		const unassigned = { ...LISTED_TASK, members: [] };
+		testStore = storeListing([unassigned]);
+		render(<Harness task={taskOf('task-1')} />);
+
+		expect(screen.queryByRole('menuitem', { name: 'timeEntryActions.DUPLICATE' })).toBeNull();
+		expect(screen.getByRole('menuitem', { name: 'timeEntryActions.CONTINUE' })).toBeTruthy();
+	});
+
+	it('keeps Duplicate on a task of the team that is not assigned to a manager, whose dialog lists every task', () => {
+		mockIsTeamManager = true;
+		testStore = storeListing([{ ...LISTED_TASK, members: [] }]);
+		render(<Harness task={taskOf('task-1')} />);
+
+		expect(screen.getByRole('menuitem', { name: 'timeEntryActions.DUPLICATE' })).toBeTruthy();
+	});
+
+	it('gives no menu when the task can neither be continued nor copied', () => {
+		mockCanContinue.mockReturnValue(false);
+		testStore = storeListing([]);
+		render(<Harness task={taskOf('task-1')} />);
+
+		expect(screen.queryByRole('button', { name: /timeEntryActions\.TASK_ACTIONS/ })).toBeNull();
 	});
 
 	it("copies the latest entry with the time the row shows, the task's whole time of the day", () => {

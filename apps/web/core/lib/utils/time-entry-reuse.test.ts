@@ -3,6 +3,7 @@ import type { TTask } from '@/core/types/schemas/task/task.schema';
 import {
 	canDuplicateLog,
 	type ContinueViewer,
+	isTaskOfferedToAddTime,
 	continuableTaskOf,
 	copiedFieldsOf,
 	copySecondsOf,
@@ -388,6 +389,29 @@ describe('the time and length texts of the Add time entry dialog', () => {
 		expect(periodLengthOf(90 * MINUTE)).toBe('01:30h');
 		expect(periodLengthOf(5 * MINUTE)).toBe('00:05h');
 		expect(periodLengthOf(10 * HOUR)).toBe('10:00h');
+	});
+});
+
+describe('isTaskOfferedToAddTime', () => {
+	const viewer = { teamId: 'team-1', userId: 'user-1', isTeamManager: false };
+	const assigned = taskOf('task-1', { teams: [{ id: 'team-1' }], members: [{ userId: 'user-1' }] } as never);
+	const unassigned = taskOf('task-2', { teams: [{ id: 'team-1' }], members: [{ userId: 'user-2' }] } as never);
+	const otherTeam = taskOf('task-3', { teams: [{ id: 'team-2' }], members: [{ userId: 'user-1' }] } as never);
+	const tasks = [assigned, unassigned, otherTeam];
+
+	it("offers a task of the active team assigned to the member, as the dialog's task list does", () => {
+		expect(isTaskOfferedToAddTime('task-1', tasks, viewer)).toBe(true);
+	});
+
+	it('does not offer a task of another team, or one the list does not hold', () => {
+		expect(isTaskOfferedToAddTime('task-3', tasks, viewer)).toBe(false);
+		expect(isTaskOfferedToAddTime('task-gone', tasks, viewer)).toBe(false);
+		expect(isTaskOfferedToAddTime('', tasks, viewer)).toBe(false);
+	});
+
+	it('offers a task assigned to someone else to a manager of the team only', () => {
+		expect(isTaskOfferedToAddTime('task-2', tasks, viewer)).toBe(false);
+		expect(isTaskOfferedToAddTime('task-2', tasks, { ...viewer, isTeamManager: true })).toBe(true);
 	});
 });
 

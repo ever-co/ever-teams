@@ -1,6 +1,7 @@
 'use client';
 
 import { type ReactNode, Suspense, useCallback } from 'react';
+import { useStore } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/core/components/common/dropdown-menu';
 import { AddManualTimeModalSkeleton } from '@/core/components/common/skeleton/calendar-component-skeletons';
@@ -12,17 +13,21 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { MoreHorizontal } from '@/core/components/icons';
 import { LazyAddManualTimeModal } from '@/core/components/optimized-components/calendar';
 import { TimerTaskStartLayer } from '@/core/components/timer/timer-task-start';
+import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useTimeEntryContinue } from '@/core/hooks/timer/use-time-entry-continue';
 import { useTimerTaskStart } from '@/core/hooks/timer/use-timer-task-start';
 import { type TimeEntryDuplicateState, useTimeEntryDuplicate } from '@/core/hooks/timesheet/use-time-entry-duplicate';
 import type { CalendarEntry } from '@/core/lib/utils/calendar-view';
 import type { DiaryTask } from '@/core/lib/utils/dashboards/work-diary';
-import { ADD_TIME_STEP_MINUTES, latestLogOfTask } from '@/core/lib/utils/time-entry-reuse';
+import {
+	ADD_TIME_STEP_MINUTES,
+	copiedFieldsOf,
+	isTaskOfferedToAddTime,
+	latestLogOfTask
+} from '@/core/lib/utils/time-entry-reuse';
+import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
-
-function isAlwaysOffered() {
-	return true;
-}
 
 function DiaryTaskMenu({
 	title,
@@ -61,6 +66,19 @@ export function useDiaryTaskReuse(entries: ReadonlyArray<CalendarEntry>) {
 	const { canContinue, continueLog } = useTimeEntryContinue(timerStart.startOn);
 	const duplicate = useTimeEntryDuplicate({ stepMinutes: ADD_TIME_STEP_MINUTES });
 	const openDuplicate = duplicate.open;
+	const store = useStore();
+	const { data: user } = useUserQuery();
+	const { isTeamManager } = useIsMemberManager(user);
+	const userId = user?.id;
+
+	// Offered on a task the Add time dialog still lists, so the copy keeps its task: read when the menu shows
+	const canDuplicate = useCallback(
+		(log: ITimeLog) => {
+			const viewer = { teamId: store.get(activeTeamState)?.id, userId, isTeamManager };
+			return isTaskOfferedToAddTime(copiedFieldsOf(log).taskId, store.get(tasksByTeamState), viewer);
+		},
+		[isTeamManager, store, userId]
+	);
 
 	const renderTaskActions = useCallback(
 		(task: DiaryTask): ReactNode => {
@@ -73,14 +91,18 @@ export function useDiaryTaskReuse(entries: ReadonlyArray<CalendarEntry>) {
 			const reuse: TimeEntryReuseHandlers = {
 				canContinue,
 				continueLog,
-				canDuplicate: isAlwaysOffered,
+				canDuplicate,
 				duplicate: (copied) => {
 					void openDuplicate({ log: copied, seconds: task.seconds });
 				}
 			};
+			const offersAny = canContinue(log) || canDuplicate(log);
+			if (!offersAny) {
+				return null;
+			}
 			return <DiaryTaskMenu title={title} log={log} reuse={reuse} />;
 		},
-		[canContinue, continueLog, entries, openDuplicate, t]
+		[canContinue, canDuplicate, continueLog, entries, openDuplicate, t]
 	);
 
 	return { renderTaskActions, startRequest: timerStart.request, duplicate };

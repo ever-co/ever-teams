@@ -495,6 +495,43 @@ export function periodLengthOf(seconds: number): string {
 	return `${twoDigits(hours)}:${twoDigits(minutes)}h`;
 }
 
+export interface AddTimeTaskViewer {
+	teamId: string | undefined;
+	userId: string | undefined;
+	isTeamManager: boolean;
+}
+
+function isTaskMember(task: TTask, userId: string | undefined) {
+	if (!userId) {
+		return false;
+	}
+	const members = task.members ?? [];
+	return members.some((member) => member?.userId === userId);
+}
+
+/**
+ * Whether the Add time dialog of the Work diary offers a task, by the rule of its own task list: a task of the active
+ * team and, for a member who does not manage that team, one assigned to them. A copy of an entry on a task it does
+ * not offer would open without its task.
+ */
+export function isTaskOfferedToAddTime(
+	taskId: string,
+	tasks: ReadonlyArray<TTask>,
+	viewer: AddTimeTaskViewer
+): boolean {
+	const task = tasks.find((item) => item.id === taskId);
+	const isListable = Boolean(task?.title) && Array.isArray(task?.teams);
+	if (!task || !isListable) {
+		return false;
+	}
+	const teams = task.teams ?? [];
+	const isOfTeam = Boolean(viewer.teamId) && teams.some((team) => team?.id === viewer.teamId);
+	if (!isOfTeam) {
+		return false;
+	}
+	return viewer.isTeamManager || isTaskMember(task, viewer.userId);
+}
+
 /** What the page's Add time dialog lets a copy keep: the tasks it offers, and the members it adds time for. */
 export interface DuplicateTargets {
 	tasks: ReadonlyArray<Pick<TTask, 'id'>>;
