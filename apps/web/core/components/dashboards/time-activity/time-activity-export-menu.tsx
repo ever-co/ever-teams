@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useAtomValue } from 'jotai';
 import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { type ExportOption, ExportMenu } from '@/core/components/dashboards/kit/export-menu';
 import { FilePdf, FileSheet, FileText } from '@/core/components/icons';
@@ -27,6 +28,7 @@ import { exportToXLSX } from '@/core/lib/utils/export-utils';
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { PdfFigure, PdfGroup, PdfRow, TimeActivityPdfContent } from './time-activity-report-pdf';
 
 const FILE_PREFIX = 'time-activity-report';
@@ -56,6 +58,7 @@ interface ExportContext {
 	filters: TimeActivityFilters;
 	filterOptions: TimeActivityFilterOptions;
 	locale: FormatLocale;
+	workspaceCurrency: string | null;
 	t: Translate;
 }
 
@@ -77,7 +80,7 @@ function onlyEmployeeIdOf(context: ExportContext) {
 function namedRowsOf(context: ExportContext): NamedRow[] {
 	const { t } = context;
 	const withoutTeamLabel = t('dashboard.NO_TEAM_GROUP');
-	const rows = exportRowsOf(context.report, onlyEmployeeIdOf(context), withoutTeamLabel);
+	const rows = exportRowsOf(context.report, onlyEmployeeIdOf(context), withoutTeamLabel, context.workspaceCurrency);
 	const unnamed = t('timeActivity.UNNAMED_EMPLOYEE');
 	const noProject = t('common.NO_PROJECT');
 	const noTask = t('dashboard.timeActivity.export.NO_TASK');
@@ -435,9 +438,10 @@ export function TimeActivityExportMenu({
 	filters,
 	filterOptions,
 	isDisabled
-}: Readonly<Omit<ExportContext, 'locale' | 't'> & { isDisabled: boolean }>) {
+}: Readonly<Omit<ExportContext, 'locale' | 'workspaceCurrency' | 't'> & { isDisabled: boolean }>) {
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
+	const workspaceCurrency = useAtomValue(currentOrganizationState)?.currency ?? null;
 
 	const options = useMemo<ExportOption[]>(() => {
 		const context: ExportContext = {
@@ -450,6 +454,7 @@ export function TimeActivityExportMenu({
 			filters,
 			filterOptions,
 			locale,
+			workspaceCurrency,
 			t
 		};
 		return [
@@ -472,7 +477,19 @@ export function TimeActivityExportMenu({
 				run: () => runCsv(context)
 			}
 		];
-	}, [figures, filterOptions, filters, grouping, isManager, locale, ownEmployeeId, period, report, t]);
+	}, [
+		figures,
+		filterOptions,
+		filters,
+		grouping,
+		isManager,
+		locale,
+		ownEmployeeId,
+		period,
+		report,
+		t,
+		workspaceCurrency
+	]);
 
 	return <ExportMenu options={options} isDisabled={isDisabled} />;
 }

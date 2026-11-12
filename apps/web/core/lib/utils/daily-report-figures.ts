@@ -128,6 +128,7 @@ interface RowContext {
 	employeeLog: EmployeeLog;
 	employeeId: string;
 	withoutTeamLabel: string | null;
+	workspaceCurrency: string | null;
 }
 
 /** Time without a team is listed apart from the projects, under its own name: its project is not this team's. */
@@ -163,6 +164,7 @@ function withoutTeamFlagOf(part: EmployeeLogPart): Pick<DailyReportRow, 'isWitho
 function rowOf(context: RowContext, part: EmployeeLogPart): DailyReportRow {
 	const employee = context.employeeLog.employee;
 	const activity = numberOrZero(context.employeeLog.activity);
+	const ownCurrency = employee?.billRateCurrency ?? null;
 	return {
 		key: rowKeyOf(context, part),
 		dateKey: context.dateKey,
@@ -170,7 +172,7 @@ function rowOf(context: RowContext, part: EmployeeLogPart): DailyReportRow {
 		employeeName: employeeNameOf(employee),
 		employeeImageUrl: employee?.user?.imageUrl ?? null,
 		billRateValue: employee?.billRateValue ?? null,
-		billRateCurrency: employee?.billRateCurrency ?? null,
+		billRateCurrency: ownCurrency || context.workspaceCurrency,
 		...projectFieldsOf(context, part),
 		seconds: part.seconds,
 		activeSeconds: (part.seconds * activity) / 100,
@@ -181,11 +183,13 @@ function rowOf(context: RowContext, part: EmployeeLogPart): DailyReportRow {
 
 /**
  * One row per member, project and day. A team report that counts the time logged without a team (Gauzy states each
- * task row's team then) gets that time in rows of its own, named `withoutTeamLabel`.
+ * task row's team then) gets that time in rows of its own, named `withoutTeamLabel`. A rate without a currency of its
+ * own is in the workspace's, as Gauzy counts it.
  */
 export function flattenDailyReport(
 	report: ReadonlyArray<ITimeLogGroupedDailyReport>,
-	withoutTeamLabel: string | null = null
+	withoutTeamLabel: string | null = null,
+	workspaceCurrency: string | null = null
 ): DailyReportRow[] {
 	const rows: DailyReportRow[] = [];
 	for (const day of report) {
@@ -196,7 +200,14 @@ export function flattenDailyReport(
 				if (!employeeId) {
 					continue;
 				}
-				const context = { dateKey, project: projectLog?.project, employeeLog, employeeId, withoutTeamLabel };
+				const context: RowContext = {
+					dateKey,
+					project: projectLog?.project,
+					employeeLog,
+					employeeId,
+					withoutTeamLabel,
+					workspaceCurrency
+				};
 				for (const part of partsOf(employeeLog)) {
 					rows.push(rowOf(context, part));
 				}

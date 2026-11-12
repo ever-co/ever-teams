@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { getReportMemberIds, managesEveryTeam } from '@/core/hooks/activities/use-activity-filters';
@@ -31,6 +32,7 @@ import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activit
 import type { ITimesheetCountsStatistics } from '@/core/types/interfaces/timesheet/timesheet';
 import type { TOrganizationTeam, TUser } from '@/core/types/schemas';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import {
 	type TimeActivityRequest,
@@ -225,10 +227,11 @@ export function useTimeActivityReport() {
 	const hasDailyReport = dailyQuery.data !== undefined;
 
 	const withoutTeamLabel = t('dashboard.NO_TEAM_GROUP');
+	const workspaceCurrency = useAtomValue(currentOrganizationState)?.currency ?? null;
 	const rows = useMemo(() => {
-		const allRows = flattenDailyReport(report, withoutTeamLabel);
+		const allRows = flattenDailyReport(report, withoutTeamLabel, workspaceCurrency);
 		return visibleRowsOf(allRows, isManager, ownEmployeeId);
-	}, [isManager, ownEmployeeId, report, withoutTeamLabel]);
+	}, [isManager, ownEmployeeId, report, withoutTeamLabel, workspaceCurrency]);
 
 	const totals = useMemo(() => reportTotalsOf(rows), [rows]);
 
