@@ -3,6 +3,7 @@
 import { memo, useId, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/core/components/icons';
+import { useChatLinkPreviewPicture } from '@/core/hooks/chat/use-chat-link-preview-picture';
 import { useChatLinkPreviews } from '@/core/hooks/chat/use-chat-link-previews';
 import { previewLinksOf, type ChatLinkPreviewCard, type ChatPreviewLink } from '@/core/lib/utils/chat-link-preview';
 
@@ -12,13 +13,15 @@ function ownOrigin(): string | null {
 }
 
 /**
- * One link's card: the site's name and its host, the page's title and two lines of its description. Text only: the
- * page's picture and icon live on the linked site's hosts, and drawing them would make the reader's browser call that
- * site. The card is one link, named by the title and the host; every text is the platform's plain text.
+ * One link's card: the site's name and its host, the page's title and two lines of its description, and, with the
+ * pictures on, the page's picture as the platform serves it. Never the picture or icon from the linked site's hosts:
+ * drawing those would make the reader's browser call that site. The card is one link, named by the title and the host;
+ * every text is the platform's plain text.
  */
 function LinkPreviewCard({ card }: Readonly<{ card: ChatLinkPreviewCard }>) {
 	const t = useTranslations();
 	const descriptionId = useId();
+	const picture = useChatLinkPreviewPicture(card.href, card.hasPicture);
 
 	return (
 		<a
@@ -31,9 +34,10 @@ function LinkPreviewCard({ card }: Readonly<{ card: ChatLinkPreviewCard }>) {
 					: t('teamChat.LINK_PREVIEW_SITE_LABEL', { site: card.host })
 			}
 			aria-describedby={card.description ? descriptionId : undefined}
-			className="group/preview flex w-full max-w-md flex-col gap-0.5 rounded-lg bg-card px-2.5 py-2 text-start outline-none hairline-ring ring-border transition-colors hover:bg-foreground/[0.03] focus-visible:ring-[3px] focus-visible:ring-ring/25"
+			className="group/preview flex w-full max-w-md items-start gap-2.5 rounded-lg bg-card px-2.5 py-2 text-start outline-none hairline-ring ring-border transition-colors hover:bg-foreground/[0.03] focus-visible:ring-[3px] focus-visible:ring-ring/25"
 			data-link-preview={card.href}
 		>
+			<span className="flex min-w-0 flex-1 flex-col gap-0.5">
 			<span className="flex min-w-0 items-center gap-1.5 text-[11px] leading-4 text-muted-foreground">
 				<Link className="size-3 shrink-0" aria-hidden="true" />
 				{/* The page's own name for its site, then always the host the card opens. */}
@@ -65,6 +69,17 @@ function LinkPreviewCard({ card }: Readonly<{ card: ChatLinkPreviewCard }>) {
 				>
 					{card.description}
 				</span>
+			)}
+			</span>
+			{picture && (
+				// The platform's own copy of the page's picture (an object URL of its answer), at the card's side.
+				<img
+					src={picture}
+					alt={card.pictureAlt ?? ''}
+					className="h-16 w-24 shrink-0 rounded-md bg-muted object-cover"
+					style={card.pictureRatio ? { aspectRatio: String(card.pictureRatio) } : undefined}
+					data-link-preview-picture={card.href}
+				/>
 			)}
 		</a>
 	);

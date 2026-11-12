@@ -361,6 +361,15 @@ export interface ChatLinkPreviewCard {
 	siteName: string | null;
 	title: string | null;
 	description: string | null;
+	/**
+	 * The page names a picture, which the platform serves (`/chat/link-preview/image`): only then is it asked for. The
+	 * picture's own address is never kept: the browser must not call the linked site.
+	 */
+	hasPicture: boolean;
+	/** The picture's description, for its `alt` (empty when the page gives none: the card names the link already). */
+	pictureAlt: string | null;
+	/** Width over height, when the page states both, so the thumbnail keeps its place before the picture comes. */
+	pictureRatio: number | null;
 }
 
 /** A text the platform answered, on one line, or null when there is none. */
@@ -393,12 +402,17 @@ export function linkPreviewCardOf(
 	if (!title && !description) return null;
 	const host = hostOf(link.href);
 	const siteName = plainText(preview.siteName);
+	const width = preview.imageWidth ?? null;
+	const height = preview.imageHeight ?? null;
 	return {
 		href: link.href,
 		host,
 		siteName: siteName && siteName.toLowerCase() !== host.toLowerCase() ? siteName : null,
 		title,
-		description
+		description,
+		hasPicture: Boolean(preview.image),
+		pictureAlt: plainText(preview.imageAlt),
+		pictureRatio: width && height && width > 0 && height > 0 ? width / height : null
 	};
 }
 

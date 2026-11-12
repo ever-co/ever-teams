@@ -161,6 +161,16 @@ class ChatService extends APIService {
 	};
 
 	/**
+	 * The picture of a link's preview as the platform serves it (`url` is the link, not the picture), or null when the
+	 * link has none (204). Pictures off on the platform (404) and its pace (429, 503) are errors with their status.
+	 */
+	linkPreviewImage = async (url: string, signal?: AbortSignal): Promise<Blob | null> => {
+		const response = await this.get<Blob>('/chat/link-preview/image', { signal, params: { url }, responseType: 'blob' });
+		if (response.status === 204 || !response.data || response.data.size === 0) return null;
+		return response.data;
+	};
+
+	/**
 	 * Uploads the files of a message to the organization's documents (the platform's own upload path). They are the
 	 * sender's private files, kept out of the knowledge base and of AI classification: the conversation shows them to
 	 * its members through the message. The send then names the documents.
