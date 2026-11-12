@@ -16,7 +16,6 @@ import {
 import type { TimeImportField, TimeImportRecord } from '@/core/lib/utils/time-import-sheet';
 import { FILE_NAME_TEXT, type TimeImportCopy } from './time-import-copy';
 
-/** One grid for the column labels and every row, once the three columns fit side by side. */
 const STEP_ROW =
 	'flex flex-col gap-1.5 px-4 py-2.5 sm:grid sm:grid-cols-[10rem_minmax(0,14rem)_minmax(0,1fr)] sm:items-center sm:gap-x-4';
 
@@ -56,7 +55,6 @@ interface ColumnOption {
 	label: string;
 }
 
-/** The file's columns a field can be read from: those with a header, by their position in the file. */
 function columnOptionsOf(headers: ReadonlyArray<string>): ColumnOption[] {
 	const options: ColumnOption[] = [];
 	headers.forEach((header, index) => {
@@ -89,7 +87,6 @@ function cellTextOf(record: TimeImportRecord, columnIndex: number): string {
 	return cell.trim();
 }
 
-/** The date a file writes first, the one that tells its format or asks for it. */
 function dateValueOf(dates: DateOrderReading): string | null {
 	if (dates.kind === 'none') {
 		return null;
@@ -169,7 +166,6 @@ interface DateFormatRowProps {
 	onChooseDateOrder: (order: DateOrder) => void;
 }
 
-/** The format the dates are read in: asked when every date of the file fits two, else shown as the file tells it. */
 function DateFormatRow({ step, copy, onChooseDateOrder }: Readonly<DateFormatRowProps>) {
 	const t = useTranslations();
 	const selectId = useId();
@@ -286,12 +282,6 @@ interface TimeImportColumnsStepProps {
 	onChooseAnother: () => void;
 }
 
-/**
- * The Columns step of a file the import cannot read by itself: for each part of an entry, the file's column it is
- * read from and the first value that column holds, the format of the dates when the file does not tell it, and the
- * first rows of the file under it. The rows are checked once the date, the start and the end or the duration are
- * chosen.
- */
 export function TimeImportColumnsStep({
 	fileName,
 	step,

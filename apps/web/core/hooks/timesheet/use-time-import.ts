@@ -69,7 +69,6 @@ type TimeImportStage = 'idle' | 'columns' | 'checking' | 'preview' | 'rechecking
 
 export type PickedFile = Pick<File, 'name' | 'size' | 'arrayBuffer'>;
 
-/** A file read, and the columns its rows are read through. */
 interface StagedFile {
 	fileName: string;
 	sheet: TimeImportSheet;
@@ -379,7 +378,6 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 		});
 	}, []);
 
-	/** Checks the rows through the chosen columns, kept on this browser for the next file of the same headers. */
 	const confirmColumns = useCallback(async () => {
 		const { stage, fileName, table, columns } = state;
 		if (stage !== 'columns' || !table || !columns) {
@@ -394,7 +392,6 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 		await checkSheet({ fileName, sheet, table, columns, canEditColumns: true });
 	}, [checkSheet, state]);
 
-	/** From the preview of a file read through a choice of columns, back to that choice. */
 	const editColumns = useCallback(() => {
 		const { stage, fileName, table, columns, canEditColumns } = state;
 		const isPreview = stage === 'preview';
@@ -500,9 +497,7 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 		ignoredHeaders: state.sheet?.ignoredHeaders ?? NO_HEADERS,
 		/** The rows the file holds, known as soon as it is read and before any of them has a verdict. */
 		fileRowCount: state.sheet?.rows.length ?? 0,
-		/** What the Columns step shows, while the member chooses the columns of a file. */
 		columnsStep,
-		/** Whether the preview offers to change the columns its rows were read through. */
 		canEditColumns: state.canEditColumns,
 		rows,
 		summary,

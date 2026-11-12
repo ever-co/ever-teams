@@ -122,7 +122,6 @@ export interface TimeImportRecord {
 	cells: ReadonlyArray<string>;
 }
 
-/** A file read into its header and its lines, before anything says which column holds what. */
 export interface TimeImportTable {
 	/** Trimmed, in the order of the file. */
 	headers: ReadonlyArray<string>;

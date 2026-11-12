@@ -17,7 +17,6 @@ export interface ClockTime {
 	seconds: number;
 }
 
-/** How the dates of a file are written: the template writes the year first. */
 export type DateOrder = 'yearFirst' | 'dayFirst' | 'monthFirst';
 
 export const DATE_ORDERS: ReadonlyArray<DateOrder> = ['yearFirst', 'dayFirst', 'monthFirst'];
@@ -187,7 +186,6 @@ export function cellMomentOf(text: string, order: DateOrder = 'yearFirst'): Cell
 	return { day, clock: partClock };
 }
 
-/** A date alone, or the date of a cell that holds a date and a time. */
 export function cellDayOf(text: string, order: DateOrder = 'yearFirst'): CalendarDay | null {
 	const day = calendarDayOf(text, order);
 	if (day) {
@@ -197,7 +195,6 @@ export function cellDayOf(text: string, order: DateOrder = 'yearFirst'): Calenda
 	return moment?.day ?? null;
 }
 
-/** The text of the date a cell holds before its time, or the whole cell when it holds no time. */
 export function datePartOf(text: string): string {
 	const typed = text.trim();
 	const parts = dateAndTimeTextOf(typed);

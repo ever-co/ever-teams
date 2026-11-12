@@ -311,7 +311,6 @@ function isEmailLike(text: string): boolean {
 	return text.includes('@');
 }
 
-/** The viewer's name as the team lists it, for a file that names members by name. */
 function viewerNameOf(context: TimeImportContext): string {
 	const viewer = context.members.find((member) => member.employeeId === context.viewerEmployeeId);
 	return viewer?.name ?? '';

@@ -179,7 +179,6 @@ interface HeaderReading {
 	duplicateHeader: string | null;
 	/** Headers the import cannot place by itself: unknown words, or a second header for a field already read. */
 	unknownHeaders: string[];
-	/** Whether every field is read from the template's own header. */
 	readsAsTemplate: boolean;
 }
 
@@ -269,7 +268,6 @@ function missingColumnsOf(mapping: TimeImportMapping): TimeImportMissingColumn[]
 	return missing;
 }
 
-/** How the dates of a file are written, as its own values tell. */
 export type DateOrderReading =
 	| { kind: 'none' }
 	| { kind: 'told'; order: DateOrder; row: number; value: string }
@@ -402,7 +400,6 @@ export function timeImportSheetOf(
 	return { rows, ignoredHeaders: ignoredHeadersOf(table.headers, mapping), dateOrder };
 }
 
-/** The formats a member chooses between when every date of a file fits both. */
 export const CHOOSABLE_DATE_ORDERS: ReadonlyArray<DateOrder> = ['dayFirst', 'monthFirst'];
 
 /**
@@ -426,7 +423,6 @@ export function resolvedDateOrderOf(dates: DateOrderReading, chosen: DateOrder |
 	return chosen;
 }
 
-/** The rows of the file shown under the Columns step, so the member sees what each column holds. */
 const FIRST_ROWS_SHOWN = 3;
 
 export type TimeImportColumnsBlocker = 'missing' | 'mixedDates' | 'dateOrder';
@@ -434,7 +430,6 @@ export type TimeImportColumnsBlocker = 'missing' | 'mixedDates' | 'dateOrder';
 export interface TimeImportColumnsStepField {
 	field: TimeImportField;
 	columnIndex: number | null;
-	/** The first value the chosen column holds. */
 	sample: string | null;
 }
 
@@ -445,7 +440,6 @@ export interface TimeImportColumnsStep {
 	dateOrder: DateOrder | null;
 	missing: TimeImportMissingColumn[];
 	leftOutHeaders: string[];
-	/** The first reason the rows cannot be checked yet, or null when they can. */
 	blocker: TimeImportColumnsBlocker | null;
 	firstRows: ReadonlyArray<TimeImportRecord>;
 	rowCount: number;
@@ -468,7 +462,6 @@ function blockerOf(
 	return null;
 }
 
-/** What the Columns step shows for a file and a choice of columns, and whether its rows can be checked. */
 export function timeImportColumnsStepOf(
 	table: TimeImportTable,
 	choice: TimeImportColumnsChoice
@@ -497,7 +490,6 @@ export function timeImportColumnsStepOf(
 
 export type TimeImportReading =
 	| { kind: 'refused'; problem: TimeImportSheetProblem }
-	/** The member chooses the columns, or the date format, before any row is checked. */
 	| { kind: 'columns'; table: TimeImportTable; choice: TimeImportColumnsChoice }
 	| {
 			kind: 'sheet';
@@ -508,7 +500,6 @@ export type TimeImportReading =
 			readsAsTemplate: boolean;
 	  };
 
-/** The choice this browser keeps for a file of these headers, if any. */
 type StoredChoiceOf = (headers: ReadonlyArray<string>) => TimeImportColumnsChoice | null;
 
 const NO_STORED_CHOICE: StoredChoiceOf = () => null;

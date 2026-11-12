@@ -90,7 +90,6 @@ function storedChoicesOf(stored: unknown): StoredColumnsChoice[] {
 	return choices;
 }
 
-/** The choice this browser keeps for a file of these headers, or null when it keeps none. */
 export function storedColumnsChoiceOf(stored: unknown, headers: ReadonlyArray<string>): TimeImportColumnsChoice | null {
 	const key = headersKeyOf(headers);
 	const choice = storedChoicesOf(stored).find((candidate) => isSameHeaders(candidate.headers, key));
@@ -100,7 +99,6 @@ export function storedColumnsChoiceOf(stored: unknown, headers: ReadonlyArray<st
 	return { mapping: choice.mapping, dateOrder: choice.dateOrder };
 }
 
-/** What the browser keeps once a choice is made for these headers: that choice first, then the others. */
 export function withColumnsChoiceKept(
 	stored: unknown,
 	headers: ReadonlyArray<string>,

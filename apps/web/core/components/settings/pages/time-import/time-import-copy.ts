@@ -100,7 +100,6 @@ export function useTimeImportCopy() {
 
 	const dateOrderLabel = useCallback((order: DateOrder): string => t(DATE_ORDER_KEYS[order]), [t]);
 
-	/** The day a date of the file stands for in an order, as the member's language writes it. */
 	const dateReadingOf = useCallback(
 		(value: string, order: DateOrder): string | null => {
 			const day = calendarDayOf(value, order);
@@ -113,7 +112,6 @@ export function useTimeImportCopy() {
 		[dayFormatter]
 	);
 
-	/** A part of an entry the Columns step still needs, in the member's language. */
 	const missingPartOf = useCallback(
 		(column: TimeImportMissingColumn): string => {
 			if (column === 'endOrDuration') {
