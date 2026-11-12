@@ -293,6 +293,7 @@ export function useNewInvoice() {
 		/** What the invoice asks for: its lines, less the discount, plus the tax. */
 		total: totals.total,
 		totals,
+		adjustments,
 		discountText,
 		changeDiscount,
 		taxText,

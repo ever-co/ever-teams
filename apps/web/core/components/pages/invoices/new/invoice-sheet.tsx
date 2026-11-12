@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, type ReactNode } from 'react';
 import { useLocale, useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { BlockEmptyMessage } from '@/core/components/dashboards/kit/dashboard-states';
 import { DASHBOARD_SURFACE } from '@/core/components/dashboards/kit/recipes';
@@ -9,6 +9,7 @@ import { Folder, Undo, X } from '@/core/components/icons';
 import type { NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
 import { cn } from '@/core/lib/helpers';
 import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
+import { formatPercent } from '@/core/lib/utils/invoice-totals';
 import {
 	formatInvoiceHours,
 	invoicePeriodTextOf,
@@ -178,6 +179,53 @@ function RemovedLines({ count, onRestore }: Readonly<{ count: number; onRestore:
 	);
 }
 
+/** A discount is written as what it takes off; none written as zero, never as "-0.00". */
+function takenOffOf(amount: number) {
+	if (amount > 0) {
+		return -amount;
+	}
+	return 0;
+}
+
+function AdjustmentRow({ label, value }: Readonly<{ label: string; value: string }>) {
+	return (
+		<>
+			<dt className="text-muted-foreground">{label}</dt>
+			<dd className="text-right text-foreground">{value}</dd>
+		</>
+	);
+}
+
+/** Subtotal, discount and tax, the tax with what it is taken of, so the reader can follow the total. */
+function AdjustedSubtotal({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
+	const t = useTranslations();
+	const locale = useLocale();
+	const { totals, adjustments, currency } = invoice;
+	const { discountPercent, taxPercent } = adjustments;
+	const amountText = (amount: number) => formatOwed(amount, currency, locale);
+	const discountTakenOff = takenOffOf(totals.discount);
+	let discountRow: ReactNode = null;
+	if (discountPercent !== null) {
+		const percent = formatPercent(discountPercent, locale);
+		const label = t('invoices.new.adjustments.DISCOUNT_ROW', { percent });
+		discountRow = <AdjustmentRow label={label} value={amountText(discountTakenOff)} />;
+	}
+	let taxRow: ReactNode = null;
+	if (taxPercent !== null) {
+		const percent = formatPercent(taxPercent, locale);
+		const base = amountText(totals.discounted);
+		const label = t('invoices.new.adjustments.TAX_ROW', { percent, base });
+		taxRow = <AdjustmentRow label={label} value={amountText(totals.tax)} />;
+	}
+	return (
+		<dl className="grid grid-cols-[auto_auto] gap-x-6 gap-y-1 text-[13px] tabular-nums">
+			<AdjustmentRow label={t('invoices.new.adjustments.SUBTOTAL')} value={amountText(totals.subtotal)} />
+			{discountRow}
+			{taxRow}
+		</dl>
+	);
+}
+
 /** The API's PDF prints these lines as they are written here: description, hours, rate and amount. */
 export function InvoiceSheet({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 	const t = useTranslations();
@@ -215,11 +263,14 @@ export function InvoiceSheet({ invoice }: Readonly<{ invoice: NewInvoiceState }>
 					<p className="text-xs tabular-nums text-muted-foreground">
 						{t('invoices.new.LINES_AND_HOURS', { count: invoice.keptLines.length, hours: totalHours })}
 					</p>
-					<div className="ml-auto flex flex-col items-end gap-0.5">
-						<span className="text-xs text-muted-foreground">{t('invoices.new.TOTAL')}</span>
-						<span className="text-2xl font-semibold tabular-nums text-foreground">
-							{formatOwed(invoice.total, invoice.currency, locale)}
-						</span>
+					<div className="ml-auto flex flex-col items-end gap-3">
+						{invoice.hasAdjustments && <AdjustedSubtotal invoice={invoice} />}
+						<div className="flex flex-col items-end gap-0.5">
+							<span className="text-xs text-muted-foreground">{t('invoices.new.TOTAL')}</span>
+							<span className="text-2xl font-semibold tabular-nums text-foreground">
+								{formatOwed(invoice.total, invoice.currency, locale)}
+							</span>
+						</div>
 					</div>
 				</footer>
 			)}

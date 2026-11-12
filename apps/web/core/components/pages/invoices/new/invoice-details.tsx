@@ -46,6 +46,31 @@ function DueTermHint({ invoice, id }: Readonly<{ invoice: NewInvoiceState; id: s
 	);
 }
 
+interface PercentFieldProps {
+	id: string;
+	label: string;
+	value: string;
+	onChange: (text: string) => void;
+}
+
+function PercentField({ id, label, value, onChange }: Readonly<PercentFieldProps>) {
+	return (
+		<div className="flex min-w-0 flex-col gap-1.5">
+			<label htmlFor={id} className={FIELD_LABEL}>
+				{label}
+			</label>
+			<Input
+				id={id}
+				inputMode="decimal"
+				autoComplete="off"
+				value={value}
+				onChange={(event) => onChange(event.target.value)}
+				className="tabular-nums"
+			/>
+		</div>
+	);
+}
+
 function NoteField({ invoice, id }: Readonly<{ invoice: NewInvoiceState; id: string }>) {
 	const t = useTranslations();
 	const hintId = `${id}-hint`;
@@ -127,6 +152,8 @@ export function InvoiceDetails({
 	const issueId = `${fieldId}-issue`;
 	const dueId = `${fieldId}-due`;
 	const dueTermId = `${fieldId}-due-term`;
+	const discountId = `${fieldId}-discount`;
+	const taxId = `${fieldId}-tax`;
 	const currencyId = `${fieldId}-currency`;
 	const noteId = `${fieldId}-note`;
 	const problemsId = `${fieldId}-problems`;
@@ -189,6 +216,20 @@ export function InvoiceDetails({
 					/>
 					<DueTermHint invoice={invoice} id={dueTermId} />
 				</div>
+			</div>
+			<div className="grid grid-cols-2 gap-3">
+				<PercentField
+					id={discountId}
+					label={t('invoices.new.adjustments.DISCOUNT')}
+					value={invoice.discountText}
+					onChange={invoice.changeDiscount}
+				/>
+				<PercentField
+					id={taxId}
+					label={t('invoices.new.adjustments.TAX')}
+					value={invoice.taxText}
+					onChange={invoice.changeTax}
+				/>
 			</div>
 			<CurrencyField invoice={invoice} id={currencyId} />
 			<NoteField invoice={invoice} id={noteId} />
