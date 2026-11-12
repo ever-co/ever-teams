@@ -5,7 +5,10 @@ export function MinTimerSkeleton({ className }: Readonly<{ className?: string }>
 	return (
 		<span
 			aria-hidden="true"
-			className={clsxm('block h-8 w-[136px] shrink-0 animate-pulse rounded-full bg-foreground/[0.05]', className)}
+			className={clsxm(
+				'block h-8 w-[136px] shrink-0 animate-pulse rounded-full bg-foreground/[0.05] sm:w-[188px]',
+				className
+			)}
 		/>
 	);
 }

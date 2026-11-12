@@ -3,9 +3,9 @@ import { clsxm } from '@/core/lib/utils';
 const BAR = 'animate-pulse bg-foreground/[0.06]';
 
 /**
- * The timer while its chunk or its data loads, box for box with `Timer`: the digits line, the progress track under
- * it, the empty slot of the tracking-source icon and the 44px button. Give it the className the `Timer` receives, so
- * both resolve to the same width and padding.
+ * The timer while its chunk or its data loads, box for box with `Timer`: the notes and billable toggles, the digits
+ * line, the progress track under it, the empty slot of the tracking-source icon and the 44px button. Give it the
+ * className the `Timer` receives, so both resolve to the same width and padding.
  */
 export const TimerSkeleton = ({ className }: { className?: string }) => {
 	return (
@@ -13,7 +13,11 @@ export const TimerSkeleton = ({ className }: { className?: string }) => {
 			aria-hidden="true"
 			className={clsxm('flex min-w-65 flex-row items-center justify-between gap-4 p-2', className)}
 		>
-			<div className="flex min-w-0 items-center gap-2">
+			<div className="flex min-w-0 items-center gap-3 lg:gap-4">
+				<div className="flex shrink-0 items-center gap-1">
+					<span className={clsxm(BAR, 'size-7 rounded-full')} />
+					<span className={clsxm(BAR, 'size-7 rounded-full')} />
+				</div>
 				<div className="flex min-w-0 items-start gap-2">
 					<div className="flex min-w-0 flex-col">
 						<div className="flex h-9 w-38 items-center">
