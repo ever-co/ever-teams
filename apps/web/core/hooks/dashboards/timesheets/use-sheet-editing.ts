@@ -17,7 +17,7 @@ import {
 	sheetLockOf
 } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import {
-	memberIdOfLog,
+	logsOfMember,
 	type SheetCell,
 	type SheetDay,
 	type SheetRowIdentity,
@@ -55,13 +55,6 @@ export interface SheetEditingSource {
 	organizationId: string | null | undefined;
 	/** The zone the page reads its logs in, as `timesheetPageLogsRequestOf` takes it. */
 	userTimeZone: string | null | undefined;
-}
-
-function logsOfMember(logs: ReadonlyArray<ITimeLog>, memberId: string | null): ITimeLog[] {
-	if (!memberId) {
-		return NO_LOGS;
-	}
-	return logs.filter((log) => memberIdOfLog(log) === memberId);
 }
 
 /**
