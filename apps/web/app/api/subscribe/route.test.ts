@@ -5,12 +5,15 @@
  * the app's.
  */
 const mockGuard = jest.fn();
+const mockDropSessionCheck = jest.fn();
 
 jest.mock('@/core/services/server/guards/authenticated-guard-app', () => ({
-	authenticatedGuard: (...args: unknown[]) => mockGuard(...args)
+	authenticatedGuard: (...args: unknown[]) => mockGuard(...args),
+	sessionChecks: { drop: (...args: unknown[]) => mockDropSessionCheck(...args) }
 }));
 
 import { APP_NAME } from '@/core/constants/config/constants';
+import { UI_PREFERENCE_WRITE_TIMEOUT_MS } from '@/core/services/server/requests/user';
 import { NextRequest } from 'next/server';
 import { POST } from './route';
 
@@ -100,5 +103,113 @@ describe('POST /api/subscribe', () => {
 
 		expect(response.status).toBe(400);
 		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	/**
+	 * #5097: nothing recorded the subscription, so the opt-in card came back on every page, browser and device. The
+	 * route keeps it on the user, in their UI preferences on the platform, once Mailchimp took the address.
+	 */
+	describe('keeping the subscription on the user (#5097)', () => {
+		const answer = (body: unknown, status: number) => new Response(JSON.stringify(body), { status });
+		/** The route's call to the platform, if it made one. */
+		const platformCall = () =>
+			fetchMock.mock.calls.find(([url]) => String(url).endsWith('/user/ui-preferences')) as
+				| [string, RequestInit & { headers: Record<string, string> }]
+				| undefined;
+
+		beforeEach(() => {
+			mockGuard.mockResolvedValue({
+				user: { id: 'user-1', email: 'Ada@Example.com', isEmailVerified: true },
+				access_token: 'token-1',
+				tenantId: 'tenant-1'
+			});
+			fetchMock.mockImplementation(async () => answer({ id: 'member' }, 200));
+			mockDropSessionCheck.mockClear();
+		});
+
+		it('keeps it once Mailchimp took the address, as the signed-in user, and answers it', async () => {
+			const response = await post({ email_address: 'ada@example.com' });
+
+			expect(response.status).toBe(201);
+			const [, init] = platformCall()!;
+			expect(init.method).toBe('PUT');
+			expect(init.headers).toMatchObject({ authorization: 'Bearer token-1', 'tenant-id': 'tenant-1' });
+			const kept = JSON.parse(init.body as string);
+			expect(kept).toEqual({ newsletter: { subscribedAt: expect.any(String), status: 'subscribed' } });
+			expect((await response.json()).newsletter).toEqual(kept.newsletter);
+		});
+
+		it('forgets the session check this server keeps for the token, so a reload reads the user with it', async () => {
+			await post({ email_address: 'ada@example.com' });
+
+			expect(mockDropSessionCheck).toHaveBeenCalledWith('token-1');
+		});
+
+		it('keeps an address that is not the verified one as pending', async () => {
+			await post({ email_address: 'someone@example.com' });
+
+			expect(JSON.parse(platformCall()![1].body as string).newsletter.status).toBe('pending');
+		});
+
+		it('counts an address Mailchimp already holds as subscribed', async () => {
+			fetchMock.mockResolvedValueOnce(answer({ title: 'Member Exists', detail: 'already a list member' }, 400));
+
+			const response = await post({ email_address: 'ada@example.com' });
+
+			expect(response.status).toBe(201);
+			expect((await response.json()).status).toBe('subscribed');
+			expect(platformCall()).toBeDefined();
+		});
+
+		it('keeps nothing when Mailchimp refuses the address', async () => {
+			fetchMock.mockResolvedValueOnce(answer({ title: 'Invalid Resource', detail: 'looks fake' }, 400));
+
+			const response = await post({ email_address: 'ada@example.com' });
+
+			expect(response.status).toBe(400);
+			expect(platformCall()).toBeUndefined();
+		});
+
+		it('still answers the subscription when the platform cannot keep it, since the address is on the list', async () => {
+			jest.spyOn(console, 'error').mockImplementation(() => undefined);
+			fetchMock.mockImplementation(async (url: string) =>
+				String(url).endsWith('/user/ui-preferences')
+					? answer({ message: 'unavailable' }, 503)
+					: answer({ id: 'member' }, 200)
+			);
+
+			const response = await post({ email_address: 'ada@example.com' });
+
+			expect(response.status).toBe(201);
+			expect((await response.json()).newsletter).toMatchObject({ status: 'subscribed' });
+			// Nothing changed on the user: the kept session check still holds them as they are
+			expect(mockDropSessionCheck).not.toHaveBeenCalled();
+		});
+
+		it('gives up a platform that does not answer in time, and still answers the subscription', async () => {
+			jest.spyOn(console, 'error').mockImplementation(() => undefined);
+			const deadline = new AbortController();
+			const timeout = jest.spyOn(AbortSignal, 'timeout').mockReturnValue(deadline.signal);
+			fetchMock.mockImplementation((url: string, init?: RequestInit) => {
+				if (!String(url).endsWith('/user/ui-preferences')) {
+					return Promise.resolve(answer({ id: 'member' }, 200));
+				}
+				// The platform never answers: only the deadline ends the wait
+				return new Promise((_resolve, reject) => {
+					init?.signal?.addEventListener('abort', () => reject(init.signal?.reason));
+					deadline.abort(new DOMException('The operation timed out.', 'TimeoutError'));
+				});
+			});
+
+			try {
+				const response = await post({ email_address: 'ada@example.com' });
+
+				expect(timeout).toHaveBeenCalledWith(UI_PREFERENCE_WRITE_TIMEOUT_MS);
+				expect(response.status).toBe(201);
+				expect((await response.json()).newsletter).toMatchObject({ status: 'subscribed' });
+			} finally {
+				timeout.mockRestore();
+			}
+		}, 2_000);
 	});
 });
