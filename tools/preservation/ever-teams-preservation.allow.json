@@ -414,5 +414,9 @@
 	{
 		"id": "removed:testNames:apps/web/core/lib/utils/meetings-agenda-dst.test.ts::keeps the whole seventh day when one of the days lasts 25 hours::#1",
 		"reason": "The agenda shows one day at a time now (#5021), so the 25-hour day is checked on that day itself: \"shows the whole of a day that lasts 25 hours, and steps to the next day at its midnight\" in the same file."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/pages/meet/home/meeting-agenda.tsx::router.push=<dynamic:path>::#1",
+		"reason": "Moved, not removed (#5021): the agenda's meeting card, whose Join opens the meeting's room, moved unchanged to core/components/pages/meet/home/meeting-card.tsx, which keeps the same router.push(path)."
 	}
 ]
