@@ -10,6 +10,7 @@ import { BlockEmptyMessage, DashboardErrorNotice } from '@/core/components/dashb
 import { type ExportOption, ExportMenu } from '@/core/components/dashboards/kit/export-menu';
 import { DASHBOARD_STACK, DASHBOARD_SURFACE } from '@/core/components/dashboards/kit/recipes';
 import { Clock, FileSheet, Plus } from '@/core/components/icons';
+import { useAddTimeAccess } from '@/core/hooks/dashboards/timesheets/use-add-time-access';
 import { useTimesheetDialogs } from '@/core/hooks/dashboards/timesheets/use-timesheet-dialogs';
 import { useTimesheetLogActions } from '@/core/hooks/dashboards/timesheets/use-timesheet-log-actions';
 import { useSheetEditing } from '@/core/hooks/dashboards/timesheets/use-sheet-editing';
@@ -141,7 +142,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 	const title = t('dashboard.timesheets.TITLE');
 	const showsMember = permissions.isManage && !page.showsOwnDiaryOnly;
 	const isTrackingEnabled = isTrackingEnabledFor(page.activeTeam, permissions.userId);
-	const canAddTime = permissions.hasOrganizationRole;
+	const { canAddTime, fixedMember: addTimeMember } = useAddTimeAccess(permissions, page.user);
 	const dayByKey = useMemo(() => dayLookupOf(page.days), [page.days]);
 	const diaryLogs = diaryLogsOf(page.view, page.allLogs);
 	const diaryMembers = useMemo(() => sheetMembersOf(diaryLogs), [diaryLogs]);
@@ -459,6 +460,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 			<TimesheetsDialogs
 				dialogs={dialogs}
 				canAddTime={canAddTime}
+				addTimeMember={addTimeMember}
 				isDeleting={isDeleting}
 				onRejected={handleRejected}
 				onDeleteConfirmed={handleDeleteConfirmed}

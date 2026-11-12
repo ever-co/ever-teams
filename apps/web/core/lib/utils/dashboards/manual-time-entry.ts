@@ -294,6 +294,12 @@ export function timeOptionsWith(
 
 export type AddTimeScope = 'none' | 'own' | 'anyone';
 
+/** The only member an Add time form records time for. */
+export interface FixedMember {
+	employeeId: string;
+	name: string;
+}
+
 export interface AddTimeFacts {
 	hasOrganizationRole: boolean;
 	hasManualTimePermission: boolean;

@@ -486,3 +486,56 @@ describe('AddTaskModal refusal', () => {
 		expect(screen.queryByRole('alert')).toBeNull();
 	});
 });
+
+describe('AddTaskModal for a member who adds their own time only', () => {
+	const ownMember = { employeeId: 'employee-a', name: 'Ada Manager' };
+
+	function ownTimeForm() {
+		return <AddTaskModal isOpen closeModal={closeModal} fixedMember={ownMember} />;
+	}
+
+	beforeEach(() => {
+		mockCreateTimesheet.mockReset();
+		mockCreateTimesheet.mockResolvedValue(undefined);
+		mockAtomValues.activeTeamState = teamA;
+		mockAtomValues.tasksByTeamState = [taskA];
+	});
+
+	it('names the member as text and saves the time for them without a pick', () => {
+		render(ownTimeForm());
+
+		expect(screen.getByText('Ada Manager')).toBeTruthy();
+		expect(screen.getByText('manualTime.OWN_TIME_ONLY')).toBeTruthy();
+
+		const [taskSelect] = taskAndEmployeeSelects();
+		fireEvent.change(taskSelect, { target: { value: 'task-a' } });
+		fillShiftTimes();
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-a', employeeId: 'employee-a', organizationTeamId: 'team-a' })
+		);
+	});
+
+	it("reads that member's day for a typed duration", () => {
+		render(ownTimeForm());
+
+		expect(mockShiftDuration.props?.employeeId).toBe('employee-a');
+	});
+
+	it('keeps the member when the active team switches under the open form', () => {
+		const { rerender } = render(ownTimeForm());
+		fillShiftTimes();
+		mockAtomValues.activeTeamState = teamB;
+		mockAtomValues.tasksByTeamState = [taskB];
+		rerender(ownTimeForm());
+
+		const [taskSelect] = taskAndEmployeeSelects();
+		fireEvent.change(taskSelect, { target: { value: 'task-b' } });
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-b', employeeId: 'employee-a', organizationTeamId: 'team-b' })
+		);
+	});
+});

@@ -22,18 +22,25 @@ import { CustomSelect } from '../../common/multiple-select';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { ToggleButton } from '../tasks/edit-task-modal';
 import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
+import { FixedMemberField } from './fixed-member-field';
 import { ShiftDurationField } from './shift-duration-field';
 import { ETimeLogType, ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { useAtomValue } from 'jotai';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
-import { requiredEntryFieldsKeyOf, timeOptionsWith } from '@/core/lib/utils/dashboards/manual-time-entry';
+import {
+	type FixedMember,
+	requiredEntryFieldsKeyOf,
+	timeOptionsWith
+} from '@/core/lib/utils/dashboards/manual-time-entry';
 import { entryProjectIdOf, findProject, projectChoicesFor } from '@/core/lib/utils/dashboards/time-entry-task';
 import type { TOrganizationProject } from '@/core/types/schemas/organization/organization-project.schema';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;
 	closeModal: () => void;
+	/** The only member the dialog adds time for (a team manager adds their own); without it the dialog picks one. */
+	fixedMember?: FixedMember | null;
 }
 
 interface Shift {
@@ -105,7 +112,7 @@ function billableOf(billableChoice: boolean | null, project: TOrganizationProjec
 	return project?.billable === true;
 }
 
-export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
+export function AddTaskModal({ closeModal, isOpen, fixedMember }: IAddTaskModalProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { generateTimeOptions } = useTimelogFilterOptions();
 	const { organizationProjects, getOrganizationProjectsLoading } = useOrganizationProjectsQuery();
@@ -115,12 +122,13 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
 	const timeOptions = generateTimeOptions(5);
 	const t = useTranslations();
+	const fixedEmployeeId = fixedMember?.employeeId ?? '';
 
 	const [formState, setFormState] = React.useState({
 		notes: '',
 		billableChoice: null as boolean | null,
 		taskId: '',
-		employeeId: '',
+		employeeId: fixedEmployeeId,
 		projectId: '',
 		shifts: [{ startTime: '', endTime: '', totalHours: '00:00h', dateFrom: new Date() }] as Shift[]
 	});
@@ -131,7 +139,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	const [formTeamId, setFormTeamId] = React.useState(activeTeamId);
 	if (formTeamId !== activeTeamId) {
 		setFormTeamId(activeTeamId);
-		setFormState((prevState) => ({ ...prevState, taskId: '', employeeId: '' }));
+		setFormState((prevState) => ({ ...prevState, taskId: '', employeeId: fixedEmployeeId }));
 	}
 
 	// The required task and employee: Save stays disabled until both are picked
@@ -322,7 +330,14 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						)}
 					/>
 				</div>
-				<div className="block">
+				{fixedMember && (
+					<FixedMemberField
+						label={t('manualTime.EMPLOYEE')}
+						name={fixedMember.name}
+						hint={t('manualTime.OWN_TIME_ONLY')}
+					/>
+				)}
+				<div className={clsxm('block', fixedMember && 'hidden')}>
 					<label className="block mb-1.5 text-sm font-medium leading-none text-foreground">
 						{t('manualTime.EMPLOYEE')}
 						<span className="ml-1 text-destructive-ink">*</span>:
