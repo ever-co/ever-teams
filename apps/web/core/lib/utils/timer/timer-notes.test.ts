@@ -159,6 +159,12 @@ describe('entryNotesOf', () => {
 		expect(entryNotesOf({ description: ' Fix the login page ' })).toBe('Fix the login page');
 	});
 
+	it("quotes an entry's notes in full, also beyond the timer's own limit", () => {
+		const longNotes = 'a'.repeat(TIMER_NOTES_MAX_LENGTH + 20);
+
+		expect(entryNotesOf({ description: longNotes })).toBe(longNotes);
+	});
+
 	it('gives nothing for an entry without notes', () => {
 		expect(entryNotesOf({})).toBeNull();
 		expect(entryNotesOf({ description: null })).toBeNull();
