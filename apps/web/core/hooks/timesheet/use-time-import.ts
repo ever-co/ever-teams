@@ -171,18 +171,23 @@ async function isPlaceStillFree(queryClient: QueryClient, row: ReadyRow): Promis
 /**
  * Saves a row after one more read of its day. The file was checked whole before the first save, and the rows before
  * this one took time to save: an entry recorded meanwhile would be removed whole by this row, so the row is not sent.
+ * Null when the run ended (the page was left) while that read was waiting: the row stays unsent, with no outcome.
  */
 async function saveRowIfStillFree(
 	queryClient: QueryClient,
 	row: ReadyRow,
-	scope: TimeImportSaveScope
-): Promise<TimeImportOutcome> {
+	scope: TimeImportSaveScope,
+	isRunGoing: () => boolean
+): Promise<TimeImportOutcome | null> {
 	let isPlaceFree: boolean;
 	try {
 		isPlaceFree = await isPlaceStillFree(queryClient, row);
 	} catch (error) {
 		logErrorInDev('Time import check of a row before saving failed', error);
 		return { kind: 'failed', reasonKey: errorReasonKeyOf(error) };
+	}
+	if (!isRunGoing()) {
+		return null;
 	}
 	if (!isPlaceFree) {
 		return { kind: 'failed', reasonKey: RECORDED_MEANWHILE_KEY };
@@ -303,15 +308,20 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 	const saveRows = useCallback(
 		async (run: number, rows: ReadonlyArray<TimeImportRow>) => {
 			const outcomes = new Map<number, TimeImportOutcome>();
+			const isRunGoing = () => runRef.current === run;
 			for (const row of rows) {
 				// The page was left: the rows not sent yet stay unsent
-				if (runRef.current !== run) {
+				if (!isRunGoing()) {
 					break;
 				}
 				if (!isReadyRow(row)) {
 					continue;
 				}
-				const outcome = await saveRowIfStillFree(queryClient, row, saveScope);
+				const outcome = await saveRowIfStillFree(queryClient, row, saveScope, isRunGoing);
+				// Left while the row's day was read again: the write is never sent
+				if (!outcome) {
+					break;
+				}
 				outcomes.set(row.row, outcome);
 				const savedSoFar = new Map(outcomes);
 				setState((current) => ({ ...current, outcomes: savedSoFar }));
