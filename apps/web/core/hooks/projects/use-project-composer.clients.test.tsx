@@ -129,4 +129,30 @@ describe('the Client field of the project form while a client is being created',
 		const [request] = mockCreateProject.mock.calls[0] as [Record<string, unknown>];
 		expect(request).toMatchObject({ name: 'Website', organizationContactId: 'client-globex' });
 	});
+
+	it('keeps the client picked while another one was being created, and still offers the created one', async () => {
+		const creation = deferred<TClient>();
+		mockContactService.createClient.mockReturnValue(creation.promise);
+		const { result } = renderComposer();
+		await startCreatingClient(result, 'Globex');
+
+		act(() => result.current.setClientId('client-acme'));
+		await answerCreation(result, creation, globex);
+
+		expect(result.current.draft.clientId).toBe('client-acme');
+		const offeredIds = result.current.pickableClients.map((client) => client.id);
+		expect(offeredIds).toContain('client-globex');
+	});
+
+	it('keeps the field cleared while a client was being created', async () => {
+		const creation = deferred<TClient>();
+		mockContactService.createClient.mockReturnValue(creation.promise);
+		const { result } = renderComposer();
+		await startCreatingClient(result, 'Globex');
+
+		act(() => result.current.setClientId(null));
+		await answerCreation(result, creation, globex);
+
+		expect(result.current.draft.clientId).toBeNull();
+	});
 });

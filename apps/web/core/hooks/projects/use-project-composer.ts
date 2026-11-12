@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import type { DottedLanguageObjectStringPaths } from 'next-intl';
 import { activeTeamState, organizationTeamsState } from '@/core/stores';
@@ -151,6 +151,8 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 
 	const [createdClients, setCreatedClients] = useState<TClient[]>([]);
 	const [hasClientCreateFailed, setHasClientCreateFailed] = useState(false);
+	// Counts the choices made in the Client field: a client created meanwhile must not replace a later one.
+	const clientChoiceCount = useRef(0);
 
 	const tags = useMemo(() => withCreatedTags(fetchedTags, createdTags), [fetchedTags, createdTags]);
 
@@ -325,6 +327,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 
 	const setClientId = useCallback(
 		(clientId: string | null) => {
+			clientChoiceCount.current += 1;
 			setHasClientCreateFailed(false);
 			updateDraft({ clientId });
 		},
@@ -333,11 +336,16 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 
 	const addClient = useCallback(
 		async (name: string) => {
+			clientChoiceCount.current += 1;
+			const choiceAtStart = clientChoiceCount.current;
 			setHasClientCreateFailed(false);
 			try {
 				const client = await createClient(emptyClientDraft(name));
 				setCreatedClients((current) => [...current, client]);
-				updateDraft({ clientId: client.id });
+				const isStillTheChoice = clientChoiceCount.current === choiceAtStart;
+				if (isStillTheChoice) {
+					updateDraft({ clientId: client.id });
+				}
 			} catch {
 				setHasClientCreateFailed(true);
 			}
