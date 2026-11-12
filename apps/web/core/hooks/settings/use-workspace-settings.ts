@@ -9,7 +9,7 @@ import { useGetCurrentOrganization } from '@/core/hooks/auth/use-current-organiz
 import { useWorkspaces } from '@/core/hooks/auth/use-workspaces';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
-import { getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { getAccessTokenCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import {
 	canEditWorkspace,
@@ -27,9 +27,13 @@ import type { TWorkspace } from '@/core/types/schemas/team/organization-team.sch
 
 type WorkspaceChanges = Pick<TOrganizationChanges, 'name' | 'currency' | 'dateFormat' | 'numberFormat'>;
 
-/** The workspace a save belongs to, read when the save is asked: another tab may switch workspace before it runs. */
+/**
+ * The workspace a save belongs to, read when the save is asked: another tab may switch workspace before it runs. Its
+ * token goes with the one write the API aims by the token alone, the tenant's name.
+ */
 interface SaveScope {
 	tenantId: string;
+	accessToken: string | null;
 	organization: TOrganization;
 	organizationKey: QueryKey;
 	workspacesKey: QueryKey;
@@ -87,8 +91,10 @@ export function useWorkspaceSettings() {
 			throw new Error('No current organization');
 		}
 		const tenantId = getTenantIdCookie();
+		const accessToken = getAccessTokenCookie();
 		return {
 			tenantId,
+			accessToken,
 			organization,
 			organizationKey: queryKeys.workspaces.currentOrganizationByScope(tenantId, organization.id),
 			workspacesKey: queryKeys.workspaces.byUser(userId)
@@ -125,7 +131,7 @@ export function useWorkspaceSettings() {
 				await saveOrganization(scope, { name: newName });
 			}
 			// The tenant last: the name on this page and in the switcher changes once both are renamed
-			await tenantService.renameTenant(newName);
+			await tenantService.renameTenant(newName, scope);
 			const renamed = (list: TWorkspace[] | undefined) => {
 				if (!list) {
 					return list;
