@@ -6,6 +6,7 @@ import {
 	canRenameWorkspace,
 	dateFormatChoiceOf,
 	dateFormatSampleOf,
+	isRenameMaybeUnfinished,
 	isRenameRefused,
 	isWorkspaceNameValid,
 	numberFormatChoiceOf,
@@ -64,6 +65,18 @@ describe('the workspace name', () => {
 		expect(isRenameRefused({ statusCode: 504 })).toBe(false);
 		expect(isRenameRefused(new Error('Network Error'))).toBe(false);
 		expect(isRenameRefused(undefined)).toBe(false);
+	});
+
+	it('may have stopped halfway when the tenant did not answer, or when the organization may keep the new name', () => {
+		const refusal = { statusCode: 403 };
+		const serverError = { statusCode: 502 };
+		const noAnswer = new Error('Network Error');
+
+		expect(isRenameMaybeUnfinished(noAnswer, false)).toBe(true);
+		expect(isRenameMaybeUnfinished(noAnswer, true)).toBe(true);
+		expect(isRenameMaybeUnfinished(serverError, false)).toBe(true);
+		expect(isRenameMaybeUnfinished(refusal, true)).toBe(true);
+		expect(isRenameMaybeUnfinished(refusal, false)).toBe(false);
 	});
 });
 

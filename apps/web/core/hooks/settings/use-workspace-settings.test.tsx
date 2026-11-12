@@ -41,6 +41,7 @@ jest.mock('@/core/services/client/api/tenants/tenant.service', () => ({
 	tenantService: { renameTenant: (...args: unknown[]) => mockRenameTenant(...args) }
 }));
 
+import { UnfinishedRenameError } from '@/core/lib/utils/settings-workspace';
 import { useWorkspaceSettings } from './use-workspace-settings';
 
 const mockToast = (jest.requireMock('sonner') as { toast: { error: jest.Mock; success: jest.Mock } }).toast;
@@ -409,14 +410,21 @@ describe('a rename the tenant does not take', () => {
 		});
 	});
 
-	it('still says why the rename was refused when the name cannot be given back, and a new try finishes it', async () => {
+	it('says the rename may not have finished when the name cannot be given back, and a new try finishes it', async () => {
 		mockRenameTenant.mockRejectedValueOnce(refusal);
 		mockUpdateOrganization.mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('Network Error'));
 		const { view, client } = renderSettings();
+		const invalidate = jest.spyOn(client, 'invalidateQueries');
 
 		const failure = await failedRename(view, 'Acme Labs');
 
-		expect(failure).toBe(refusal);
+		expect(mockToast.error).toHaveBeenCalledWith('settings.workspace.NAME_MAYBE_UNFINISHED', {
+			description: 'settings.workspace.NAME_SAVE_AGAIN'
+		});
+		expect(invalidate).toHaveBeenCalledWith({ queryKey: ORGANIZATION_KEY });
+		expect(invalidate).toHaveBeenCalledWith({ queryKey: WORKSPACES_KEY });
+		expect(failure).toBeInstanceOf(UnfinishedRenameError);
+		expect((failure as Error).cause).toBe(refusal);
 		expect(client.getQueryData(ORGANIZATION_KEY)).toEqual(renamedOrganization);
 
 		await act(async () => {
@@ -443,6 +451,21 @@ describe('a rename the tenant does not take', () => {
 
 		expect(mockUpdateOrganization).toHaveBeenCalledTimes(1);
 		expect(mockRenameTenant).toHaveBeenCalledTimes(2);
+	});
+
+	it('says the rename may not have finished when the tenant rename got no answer, and reads both names again', async () => {
+		mockRenameTenant.mockRejectedValueOnce(new Error('Network Error'));
+		const { view, client } = renderSettings();
+		const invalidate = jest.spyOn(client, 'invalidateQueries');
+
+		await failedRename(view, 'Acme Labs');
+
+		expect(mockToast.error).toHaveBeenCalledWith('settings.workspace.NAME_MAYBE_UNFINISHED', {
+			description: 'settings.workspace.NAME_SAVE_AGAIN'
+		});
+		expect(invalidate).toHaveBeenCalledWith({ queryKey: ORGANIZATION_KEY });
+		expect(invalidate).toHaveBeenCalledWith({ queryKey: WORKSPACES_KEY });
+		expect(mockToast.success).not.toHaveBeenCalled();
 	});
 
 	it('writes nothing to an organization that already had the name', async () => {
