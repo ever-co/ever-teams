@@ -13,6 +13,7 @@ import {
 import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
+import { useToday } from '@/core/hooks/common/use-today';
 import { useTeamTaskUpdates } from '@/core/hooks/tasks/use-team-task-updates';
 import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
 import { tasksByTeamState } from '@/core/stores';
@@ -607,42 +608,4 @@ function TimelineBar({
 			) : null}
 		</button>
 	);
-}
-
-/**
- * Today, kept current: it moves at local midnight and when the tab comes back after the day changed (a timer of a
- * sleeping tab can run late), so the today line and the overdue marks never stay on yesterday.
- */
-function useToday() {
-	const [today, setToday] = useState(() => new Date());
-	useEffect(() => {
-		let timer: ReturnType<typeof setTimeout> | undefined;
-		const refresh = () => {
-			setToday((current) => {
-				const now = new Date();
-				return dayNumberOf(now) === dayNumberOf(current) ? current : now;
-			});
-		};
-		const schedule = () => {
-			const now = new Date();
-			const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-			timer = setTimeout(
-				() => {
-					refresh();
-					schedule();
-				},
-				nextMidnight.getTime() - now.getTime() + 1000
-			);
-		};
-		const onVisible = () => {
-			if (document.visibilityState === 'visible') refresh();
-		};
-		schedule();
-		document.addEventListener('visibilitychange', onVisible);
-		return () => {
-			if (timer) clearTimeout(timer);
-			document.removeEventListener('visibilitychange', onVisible);
-		};
-	}, []);
-	return today;
 }
