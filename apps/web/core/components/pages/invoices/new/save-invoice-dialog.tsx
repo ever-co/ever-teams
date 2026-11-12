@@ -25,7 +25,11 @@ export function SaveInvoiceDialog({
 	const [hasFailed, setHasFailed] = useState(false);
 	const number = invoice.numberText.trim();
 
+	/** Left while the save runs, the dialog would let its answer send the user away from what they edit by then. */
 	const close = () => {
+		if (invoice.isSaving) {
+			return;
+		}
 		setHasFailed(false);
 		onClose();
 	};
