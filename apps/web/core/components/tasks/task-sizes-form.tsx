@@ -163,7 +163,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 									/>
 
 									<div className={PICKER}>
-										<IconPopover kind="size" control={control} setValue={setValue} />
+										<IconPopover kind="size" control={control} setValue={setValue} stored={edit} />
 									</div>
 
 									<div className={PICKER}>

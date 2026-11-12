@@ -103,6 +103,7 @@ jest.mock('@/core/hooks/timer/use-stale-timer-guard', () => ({
 	useStaleTimerGuard: () => true,
 	useTimerRunningPastMidnight: (_employee: unknown, statusRunning: boolean) => statusRunning
 }));
+jest.mock('./timer-reminders', () => ({ TimerReminders: () => null }));
 jest.mock('./use-scope-transition-guard', () => ({
 	useScopeTransitionGuard: (scope: unknown, enabled: boolean) => calls.guard(scope, enabled),
 	getShellCriticalQueryKeys: (scope: any) => [

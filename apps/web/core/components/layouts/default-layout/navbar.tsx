@@ -27,6 +27,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { NotificationBell } from '@/core/components/notifications/inbox/notification-bell';
 import { WhatsNewButton } from '@/core/components/whats-new/whats-new-button';
 import { HeaderAppSwitcher } from '@/core/components/common/app-switcher/header-app-switcher';
+import { TrackingOffPill } from '@/core/components/timer/tracking-off-notice';
 
 const TEAM_DROPDOWN_HIDDEN_PATHS = new Set(['/task/[id]', '/profile/[memberId]']);
 
@@ -60,10 +61,13 @@ const teamsSettledAtom = atom((get) => {
 export function Navbar({
 	className,
 	showTimer,
+	showTrackingOff,
 	publicTeam,
 	notFound
 }: IClassName & {
 	showTimer?: boolean;
+	/** In the timer's place, why a member whose time tracking is turned off has none. */
+	showTrackingOff?: boolean;
 	publicTeam?: boolean;
 	notFound?: boolean;
 }) {
@@ -112,6 +116,7 @@ export function Navbar({
 					<LazyMinTimerFrame />
 				</Suspense>
 			)}
+			{!showTimer && showTrackingOff && <TrackingOffPill />}
 			{keepsTimerSlot && <MinTimerSkeleton />}
 
 			{/* Phones only: the sidebar is a sheet there, so the palette keeps a trigger in the bar. */}

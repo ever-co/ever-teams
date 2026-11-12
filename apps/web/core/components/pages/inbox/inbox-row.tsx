@@ -6,6 +6,10 @@ import { Archive, Check, Clock, FileText, Integration, Mail, MailOpen, MessageCi
 import { Checkbox } from '@/core/components/common/checkbox';
 import { cn } from '@/core/lib/helpers';
 import { NotificationTypeBadge } from '@/core/components/notifications/notification-type-badge';
+import {
+	timerReminderDescriptionOf,
+	timerReminderSentenceOf
+} from '@/core/components/notifications/timer-reminder-copy';
 import { PersonAvatar, type Person } from '@/core/components/teams/people-avatars';
 import { formatNotificationAge, formatNotificationDate } from '@/core/lib/utils/notification-inbox';
 import { InboxEntry, InboxSourceGroup } from '@/core/lib/utils/inbox-entry';
@@ -21,7 +25,8 @@ const INBOX_EVENT_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectSt
 	[EEmployeeNotificationType.Message]: 'notifications.EVENTS.MESSAGE',
 	[EEmployeeNotificationType.Broadcast]: 'notifications.EVENTS.BROADCAST',
 	[EEmployeeNotificationType.Payment]: 'notifications.EVENTS.PAYMENT',
-	[EEmployeeNotificationType.RateChangeRequest]: 'notifications.EVENTS.RATE_CHANGE_REQUEST'
+	[EEmployeeNotificationType.RateChangeRequest]: 'notifications.EVENTS.RATE_CHANGE_REQUEST',
+	[EEmployeeNotificationType.TimerReminder]: 'notifications.EVENTS.TIMER_REMINDER'
 };
 
 /** The glyph of an entry that has no sender to show: what it came from. */
@@ -45,9 +50,16 @@ function SenderName({ children }: Readonly<{ children: ReactNode }>) {
 /** The event sentence in the reader's language, or the platform's own title when the kind is not a known one. */
 export function useInboxSentence(entry: InboxEntry, person: Person | null): ReactNode {
 	const t = useTranslations();
+	if (entry.timerReminder) return timerReminderSentenceOf(t, entry.timerReminder);
 	if (!entry.type) return entry.rawTitle;
 	const name = person?.name || entry.senderName || t('notifications.SOMEONE');
 	return t.rich(INBOX_EVENT_KEYS[entry.type], { name, b: (chunks) => <SenderName>{chunks}</SenderName> });
+}
+
+/** The entry's text; a timer reminder's in the reader's language (the platform's is English, as is its title). */
+export function useInboxMessage(entry: InboxEntry): string | null {
+	const t = useTranslations();
+	return entry.timerReminder ? timerReminderDescriptionOf(t, entry.timerReminder) : entry.message;
 }
 
 /** Who an entry is from: the team member, or just the name the platform gave (drawn as initials). */
@@ -110,6 +122,7 @@ function InboxRowComponent({
 }: Readonly<InboxRowProps>) {
 	const t = useTranslations();
 	const sentence = useInboxSentence(entry, person);
+	const message = useInboxMessage(entry);
 	const subject = taskTitle ?? entry.subject ?? (entry.type ? null : entry.rawTitle);
 	const age = formatNotificationAge(entry.createdAt, locale, now);
 	const rowAttributes = { [INBOX_ROW_ATTRIBUTE]: entry.id };
@@ -160,7 +173,9 @@ function InboxRowComponent({
 					</time>
 				</span>
 				{subject && <span className={cn('truncate text-[13px] text-foreground', entry.isUnread ? 'font-medium' : 'font-normal')}>{subject}</span>}
-				{entry.message && <span className="line-clamp-2 text-[13px] leading-snug text-muted-foreground">{entry.message}</span>}
+				{message && (
+					<span className="line-clamp-2 text-[13px] leading-snug text-muted-foreground">{message}</span>
+				)}
 				{(entry.snoozedUntil || entry.awaitsDecision || entry.isDone) && (
 					<span className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
 						{entry.awaitsDecision && <span className="rounded-full bg-primary/10 px-2 py-px font-medium text-primary">{t('inbox.DECISION.TITLE')}</span>}

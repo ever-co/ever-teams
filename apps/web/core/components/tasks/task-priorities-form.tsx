@@ -161,7 +161,12 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 									/>
 
 									<div className={PICKER}>
-										<IconPopover kind="priority" control={control} setValue={setValue} />
+										<IconPopover
+											kind="priority"
+											control={control}
+											setValue={setValue}
+											stored={edit}
+										/>
 									</div>
 
 									<div className={PICKER}>

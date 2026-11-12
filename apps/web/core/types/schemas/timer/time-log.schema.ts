@@ -44,6 +44,23 @@ export const timeLogSchema = z
 		})
 	);
 
+// A time log the conflict lookup returns (GET /timesheet/time-log/conflict): only what the overlap warning reads
+export const timeLogConflictSchema = z.object({
+	id: z.string(),
+	startedAt: z.string().nullable().optional(),
+	stoppedAt: z.string().nullable().optional(),
+	isRunning: z.coerce.boolean().nullable().optional(),
+	task: z.object({ title: z.string().nullable().optional() }).nullable().optional(),
+	project: z.object({ name: z.string().nullable().optional() }).nullable().optional()
+});
+
+export const timeLogConflictRequestSchema = z.object({
+	employeeId: z.string().min(1, 'Employee ID is required'),
+	startDate: z.date(),
+	endDate: z.date(),
+	ignoreId: z.string().optional()
+});
+
 // Add manual time request schema
 export const addManualTimeRequestSchema = z.object({
 	employeeId: z.string().min(1, 'Employee ID is required'),
@@ -148,6 +165,8 @@ export const timeLogReportWeeklySchema = z.object({
 
 // Inferred TypeScript types from Zod schemas
 export type TAddManualTimeRequest = z.infer<typeof addManualTimeRequestSchema>;
+export type TTimeLogConflict = z.infer<typeof timeLogConflictSchema>;
+export type TTimeLogConflictRequest = z.infer<typeof timeLogConflictRequestSchema>;
 export type TTimeLog = z.infer<typeof timeLogSchema>;
 export type TTimeLogReportDaily = z.infer<typeof timeLogReportDailySchema>;
 export type TTimeLogReportWeekly = z.infer<typeof timeLogReportWeeklySchema>;

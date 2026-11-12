@@ -271,6 +271,36 @@ describe('editing', () => {
 		await press('Escape', { shiftKey: true });
 		expect(onCancel).not.toHaveBeenCalled();
 	});
+
+	it('saves a message that keeps its files with no text, and no other message', async () => {
+		const onSubmit = jest.fn();
+		const { unmount } = render(<Harness initial="" editing onSubmit={onSubmit} />);
+		expect((button(/^teamChat\.SAVE$/) as HTMLButtonElement).disabled).toBe(true);
+		unmount();
+		render(<Harness initial="" editing keepsFiles onSubmit={onSubmit} />);
+		expect((button(/^teamChat\.SAVE$/) as HTMLButtonElement).disabled).toBe(false);
+		await press('Enter');
+		expect(onSubmit).toHaveBeenCalledWith('');
+	});
+
+	it('tells nobody of the typing of an edit', () => {
+		const onTyping = jest.fn();
+		render(<Harness initial="text" editing onTyping={onTyping} />);
+		fireEvent.change(field(), { target: { value: 'text again' } });
+		expect(onTyping).not.toHaveBeenCalled();
+	});
+});
+
+describe('typing', () => {
+	it('tells the caller as something to send is typed, and shows its live line under the box', () => {
+		const onTyping = jest.fn();
+		render(<Harness onTyping={onTyping} status={<span data-testid="status">Ana is typing</span>} />);
+		fireEvent.change(field(), { target: { value: ' ' } });
+		expect(onTyping).not.toHaveBeenCalled();
+		fireEvent.change(field(), { target: { value: 'Hi' } });
+		expect(onTyping).toHaveBeenCalledTimes(1);
+		expect(screen.getByTestId('status').textContent).toBe('Ana is typing');
+	});
 });
 
 describe('a thread composer', () => {
