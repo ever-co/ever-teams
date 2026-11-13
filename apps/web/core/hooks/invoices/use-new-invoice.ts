@@ -382,6 +382,17 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 	}, []);
 
 	const refetchTime = time.refetch;
+	// A refused save leaves the time to read again once its dialog closes: read while the dialog is open, the answer
+	// could replace it, and its refusal with it
+	const [isTimeReadDeferred, setIsTimeReadDeferred] = useState(false);
+	const deferTimeRead = useCallback(() => setIsTimeReadDeferred(true), []);
+	const readDeferredTime = useCallback(() => {
+		if (!isTimeReadDeferred) {
+			return;
+		}
+		setIsTimeReadDeferred(false);
+		refetchTime();
+	}, [isTimeReadDeferred, refetchTime]);
 	// What was written on a saved line stays on the rebuilt line with the same project, member and task.
 	const takeTimeAgain = useCallback(() => {
 		if (linesSource === 'time') {
@@ -527,6 +538,9 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 		linesSource,
 		takeTimeAgain,
 		backToSavedLines,
+		deferTimeRead,
+		/** Reads the time a refused save left to read again; the screen calls it when the save dialog closes. */
+		readDeferredTime,
 		invoiceRequest
 	};
 }
@@ -550,8 +564,7 @@ function newInvoiceStartOf(replaced: SavedInvoice | null): InvoiceDraftStart {
 export function useNewInvoice(replaced: SavedInvoice | null = null) {
 	const start = useMemo(() => newInvoiceStartOf(replaced), [replaced]);
 	const draft = useInvoiceDraft(start);
-	const { invoiceRequest, setNumberText } = draft;
-	const refetchTime = draft.time.refetch;
+	const { invoiceRequest, setNumberText, deferTimeRead } = draft;
 	const { createInvoice, isSaving: isCreating } = useCreateInvoice();
 	const { saveAndSendInvoice, isSavingAndSending } = useSaveAndSendInvoice();
 	const isSaving = isCreating || isSavingAndSending;
@@ -571,14 +584,14 @@ export function useNewInvoice(replaced: SavedInvoice | null = null) {
 				if (failure === 'unconfirmed') {
 					setNumberText(String(request.invoiceNumber));
 				}
-				// Another invoice billed part of this time meanwhile: the lines are built again from what is left
+				// Another invoice billed part of this time meanwhile: the lines left are built once the dialog closes
 				if (failure === 'timeBilled') {
-					refetchTime();
+					deferTimeRead();
 				}
 				throw error;
 			}
 		},
-		[invoiceRequest, refetchTime, setNumberText]
+		[deferTimeRead, invoiceRequest, setNumberText]
 	);
 
 	const save = useCallback(() => submit(createInvoice), [createInvoice, submit]);

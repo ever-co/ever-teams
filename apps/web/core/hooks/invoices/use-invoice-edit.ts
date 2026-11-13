@@ -48,18 +48,18 @@ export function useInvoiceEdit(saved: SavedInvoice) {
 	const { saveInvoiceEdit, isSavingEdit } = useSaveInvoiceEdit();
 	const billedTimeByLine = draft.time.billedTimeByLine;
 	const recordsBilledTime = draft.recordsBilledTime;
-	const refetchTime = draft.time.refetch;
+	const deferTimeRead = draft.deferTimeRead;
 
-	// Another invoice billed part of this time meanwhile: the lines are built again from what is left
+	// Another invoice billed part of this time meanwhile: the lines left are built once the dialog closes
 	const saveEdit = useCallback(
 		async (toSave: InvoiceEditToSave) => {
 			const savedEdit = await saveInvoiceEdit(toSave);
 			if (savedEdit.outcome.status === 'timeBilled') {
-				refetchTime();
+				deferTimeRead();
 			}
 			return savedEdit;
 		},
-		[refetchTime, saveInvoiceEdit]
+		[deferTimeRead, saveInvoiceEdit]
 	);
 
 	const editOf = useCallback((): InvoiceEdit | null => {

@@ -70,6 +70,11 @@ export function PreparedInvoice({
 	const [showsProblems, setShowsProblems] = useState(false);
 	const [isConfirming, setIsConfirming] = useState(false);
 
+	const closeSaveDialog = () => {
+		setIsConfirming(false);
+		invoice.readDeferredTime();
+	};
+
 	const askToSave = () => {
 		setShowsProblems(true);
 		const isReady = invoice.problems.length === 0;
@@ -91,7 +96,7 @@ export function PreparedInvoice({
 				<InvoiceDetails invoice={invoice} showsProblems={showsProblems} onSave={askToSave} />
 				<EarlierInvoices invoice={invoice} />
 			</div>
-			{renderSaveDialog({ open: isConfirming, onClose: () => setIsConfirming(false) })}
+			{renderSaveDialog({ open: isConfirming, onClose: closeSaveDialog })}
 		</div>
 	);
 }

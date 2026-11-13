@@ -346,7 +346,7 @@ describe('the time an edited invoice bills', () => {
 		expect(billedTimeOf(edit.previous.lines)).toEqual(billed);
 	});
 
-	it('is read again when the save is refused because part of it was billed elsewhere meanwhile', async () => {
+	it('is read again once the dialog is closed when part of it was billed elsewhere meanwhile', async () => {
 		mockSaveInvoiceEdit.mockResolvedValue({ outcome: { status: 'timeBilled' }, sending: null });
 		mockTime.refetch.mockClear();
 		const { result } = renderEdit(savedOf(sentInvoice()));
@@ -356,6 +356,8 @@ describe('the time an edited invoice bills', () => {
 			await result.current.save();
 		});
 
+		expect(mockTime.refetch).not.toHaveBeenCalled();
+		act(() => result.current.readDeferredTime());
 		expect(mockTime.refetch).toHaveBeenCalledTimes(1);
 	});
 });

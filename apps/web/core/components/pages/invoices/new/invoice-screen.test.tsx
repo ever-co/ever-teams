@@ -39,7 +39,7 @@ jest.mock('./invoice-left-out', () => ({ OtherCurrencies: () => null, UnpricedTi
 jest.mock('./invoice-sheet', () => ({ InvoiceSheet: () => <p>saved lines</p> }));
 jest.mock('./new-invoice-states', () => ({ InvoiceSheetSkeleton: () => <p>loading lines</p> }));
 
-import { OverlapNotice, RevisedInvoiceBody } from './invoice-screen';
+import { OverlapNotice, PreparedInvoice, RevisedInvoiceBody } from './invoice-screen';
 import type { InvoiceScreenState } from '@/core/hooks/invoices/use-new-invoice';
 
 function invoiceWith(overlapNotice: OverlapNoticeState) {
@@ -135,5 +135,27 @@ describe('a saved invoice opened on its screen', () => {
 		renderBody({});
 
 		expect(screen.getByText('saved lines')).toBeTruthy();
+	});
+});
+
+describe('the save dialog of an invoice screen', () => {
+	it('reads the time a refused save left to read again once the dialog is closed', () => {
+		const readDeferredTime = jest.fn();
+		const invoice = { overlapNotice: { kind: 'none' }, problems: [], time: { unpriced: [] }, readDeferredTime };
+		render(
+			<PreparedInvoice
+				invoice={invoice as unknown as InvoiceScreenState}
+				renderSaveDialog={(dialog) => (
+					<button type="button" onClick={dialog.onClose}>
+						close the dialog
+					</button>
+				)}
+			/>
+		);
+
+		expect(readDeferredTime).not.toHaveBeenCalled();
+		screen.getByRole('button', { name: 'close the dialog' }).click();
+
+		expect(readDeferredTime).toHaveBeenCalledTimes(1);
 	});
 });

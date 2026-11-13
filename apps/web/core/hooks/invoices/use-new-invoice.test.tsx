@@ -484,14 +484,27 @@ describe('the time logs a new invoice bills', () => {
 		expect(mockCreateInvoice.mock.calls[0][0].invoiceItems[0]).not.toHaveProperty('timeLogIds');
 	});
 
-	it('are read again when another invoice billed part of them meanwhile', async () => {
+	it('are read again once the dialog is closed when another invoice billed part of them meanwhile', async () => {
 		mockTime.recordsBilledTime = true;
 		mockCreateInvoice.mockReset();
 		mockCreateInvoice.mockRejectedValue(billedElsewhere);
 
-		await saveInvoice();
+		const { result } = await saveInvoice();
 
+		expect(mockTime.refetch).not.toHaveBeenCalled();
+		act(() => result.current.readDeferredTime());
 		expect(mockTime.refetch).toHaveBeenCalledTimes(1);
+		act(() => result.current.readDeferredTime());
+		expect(mockTime.refetch).toHaveBeenCalledTimes(1);
+	});
+
+	it('are not read again when the dialog closes after a save that went through', async () => {
+		mockTime.recordsBilledTime = true;
+
+		const { result } = await saveInvoice();
+		act(() => result.current.readDeferredTime());
+
+		expect(mockTime.refetch).not.toHaveBeenCalled();
 	});
 });
 
