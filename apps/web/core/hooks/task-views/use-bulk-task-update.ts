@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { queryKeys } from '@/core/query/keys';
 import { taskViewsService } from '@/core/services/client/api/task-views/task-views.service';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
+import { bulkChangesForPlatform, bulkItemsForPlatform, statusCannotBeRestored } from '@/core/lib/utils/task-bulk-changes';
 import {
 	TASK_BULK_UPDATE_MAX,
 	type ITaskBulkChanges,
@@ -64,28 +65,38 @@ export function useBulkTaskUpdate() {
 
 	const run = useCallback(
 		async (input: { taskIds?: string[]; changes?: ITaskBulkChanges; items?: ITaskBulkUpdateItem[] }): Promise<ITaskBulkUpdateOutcome> => {
-			const outcome = await taskViewsService.bulkUpdate(input);
+			// A status name the platform does not take would refuse the whole request: the id beside it is enough. Undo
+			// items come already filtered (`bulkItemsForPlatform`), so the tasks left out can be counted.
+			const outcome = await taskViewsService.bulkUpdate(input.changes ? { ...input, changes: bulkChangesForPlatform(input.changes) } : input);
 			refresh();
 			return outcome;
 		},
 		[refresh]
 	);
 
-	/** Sends the previous values back, batch by batch, and says how many tasks were put back. */
+	/**
+	 * Sends the previous values back, batch by batch, and says how many tasks were put back. A task whose previous
+	 * values the platform cannot take (a status name alone, not one of its own) is not sent and counts as not put back.
+	 */
 	const undo = useCallback(
 		async (items: ITaskBulkUpdateItem[]) => {
-			const settled = await Promise.allSettled(batchesOf(items).map((batch) => run({ items: batch })));
+			const sendable = bulkItemsForPlatform(items);
+			// A task whose previous status is a name alone (no id) gets its other values back, not its status.
+			const statusLost = new Set(items.filter(statusCannotBeRestored).map((item) => item.taskId));
+			const settled = await Promise.allSettled(batchesOf(sendable).map((batch) => run({ items: batch })));
 			const { outcomes, failed } = settledOutcomes(settled);
 			const outcome = mergeOutcomes(outcomes);
 			if (failed > 0 && outcomes.length === 0) {
 				toast.error(t('taskViews.UNDO_FAILED'));
 				return;
 			}
-			if (failed > 0 || outcome.refused > 0) {
-				toast.warning(t('taskViews.UNDONE_PARTLY', { applied: outcome.applied, refused: outcome.refused + items.length - outcome.applied - outcome.refused }));
+			// Put back means put back whole: the tasks left out, refused, or without their status count as not put back.
+			const restored = outcome.applied - outcome.results.filter((result) => result.ok && statusLost.has(result.taskId)).length;
+			if (failed > 0 || restored < items.length) {
+				toast.warning(t('taskViews.UNDONE_PARTLY', { applied: restored, refused: items.length - restored }));
 				return;
 			}
-			toast.success(t('taskViews.UNDONE', { count: outcome.applied }));
+			toast.success(t('taskViews.UNDONE', { count: restored }));
 		},
 		[run, t]
 	);

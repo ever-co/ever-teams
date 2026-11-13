@@ -122,3 +122,27 @@ describe('a task moved to a day of the calendar', () => {
 		expect(mockUpdateTask).not.toHaveBeenCalled();
 	});
 });
+
+describe('a status change to a selection, in one bulk request', () => {
+	beforeEach(() => {
+		mockBulkUpdate.mockReset().mockResolvedValue({ applied: 2, refused: 0, results: [], unappliedIds: [] });
+		mockUpdateTask.mockReset().mockResolvedValue(undefined);
+		mockBulkAvailable = true;
+		mockTasks = [task('t1'), task('t2')];
+	});
+
+	it('names one of the platform’s statuses by its value, and any other status by its id alone', () => {
+		const { result } = renderHook(() => useTeamTaskUpdates());
+		result.current.setStatus(['t1', 't2'], { id: 's-done', name: 'done', value: 'done' } as never);
+		expect(mockBulkUpdate).toHaveBeenLastCalledWith(['t1', 't2'], { taskStatusId: 's-done', status: 'done' }, expect.any(String));
+		// A status renamed in the team keeps the platform's value.
+		result.current.setStatus(['t1', 't2'], { id: 's-review', name: 'Ready to ship', value: 'ready-for-review' } as never);
+		expect(mockBulkUpdate).toHaveBeenLastCalledWith(['t1', 't2'], { taskStatusId: 's-review', status: 'ready-for-review' }, expect.any(String));
+		// A status the platform does not name (the team's own, or one only this app knows): the route would refuse the name.
+		result.current.setStatus(['t1', 't2'], { id: 's-qa', name: 'QA', value: 'qa' } as never);
+		expect(mockBulkUpdate).toHaveBeenLastCalledWith(['t1', 't2'], { taskStatusId: 's-qa' }, expect.any(String));
+		result.current.setStatus(['t1', 't2'], { id: 's-todo', name: 'todo', value: 'todo' } as never);
+		expect(mockBulkUpdate).toHaveBeenLastCalledWith(['t1', 't2'], { taskStatusId: 's-todo' }, expect.any(String));
+		expect(mockUpdateTask).not.toHaveBeenCalled();
+	});
+});
