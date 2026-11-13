@@ -28,6 +28,13 @@ export interface TimeLogReportRange {
 
 export type ChangedTimeLogKind = 'added' | 'edited';
 
+export interface BillableTimeReadOptions {
+	/** Leaves out the time a live invoice bills. An API that does not record billed time ignores it. */
+	notInvoiced: boolean;
+	/** The organization and tenant the caller's cache key holds, whatever the cookies say when the read starts. */
+	scope: { organizationId: string; tenantId: string };
+}
+
 function listOrUndefined(values: ReadonlyArray<string> | undefined) {
 	const hasValues = Boolean(values) && (values?.length ?? 0) > 0;
 	if (!hasValues) {
@@ -48,6 +55,13 @@ class TimeLogReportService extends APIService {
 			projectIds: listOrUndefined(range.projectIds),
 			teamIds: listOrUndefined(range.teamIds)
 		};
+	}
+
+	private invoicedFilterOf(notInvoiced: boolean) {
+		if (!notInvoiced) {
+			return {};
+		}
+		return { notInvoiced: true };
 	}
 
 	private changeFilterOf(kind: ChangedTimeLogKind) {
@@ -78,11 +92,19 @@ class TimeLogReportService extends APIService {
 	 */
 	getBillableTimeLogs = async (
 		range: TimeLogReportRange,
-		relations: ReadonlyArray<string>
+		relations: ReadonlyArray<string>,
+		{ notInvoiced, scope }: BillableTimeReadOptions
 	): Promise<TBillableTimeLog[]> => {
-		const params = { ...this.rangeParamsOf(range), billableOnly: true, relations: [...relations] };
+		const params = {
+			...this.rangeParamsOf(range),
+			tenantId: scope.tenantId,
+			organizationId: scope.organizationId,
+			billableOnly: true,
+			...this.invoicedFilterOf(notInvoiced),
+			relations: [...relations]
+		};
 		const query = qs.stringify(params);
-		const response = await this.get<unknown>(`/timesheet/time-log?${query}`, { tenantId: this.tenantId });
+		const response = await this.get<unknown>(`/timesheet/time-log?${query}`, { tenantId: scope.tenantId });
 		return validateApiResponse(billableTimeLogSchema.array(), response.data ?? [], 'getBillableTimeLogs response');
 	};
 

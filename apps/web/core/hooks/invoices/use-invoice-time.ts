@@ -223,7 +223,11 @@ export function useInvoiceTime({
 
 	const logsQuery = useQuery({
 		queryKey: queryKeys.timesheet.reports.billableLogs({ ...rangeKey, namesTasks }),
-		queryFn: () => timeLogReportService.getBillableTimeLogs(range, relations),
+		queryFn: () =>
+			timeLogReportService.getBillableTimeLogs(range, relations, {
+				notInvoiced: false,
+				scope: { tenantId, organizationId }
+			}),
 		enabled: readsTime
 	});
 	const employeesQuery = useQuery({

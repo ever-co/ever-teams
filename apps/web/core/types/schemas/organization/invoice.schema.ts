@@ -44,7 +44,12 @@ export const billableTimeLogSchema = z.object({
 	duration: z.coerce.number().nullable().optional().catch(null),
 	startedAt: z.string().nullable().optional(),
 	stoppedAt: z.string().nullable().optional(),
-	task: billableTaskSchema.nullable().optional()
+	task: billableTaskSchema.nullable().optional(),
+	/**
+	 * The invoice line that bills the log, null when none does. An API that records billed time states it on every
+	 * log; an older one leaves the key out.
+	 */
+	invoiceItemId: z.string().nullable().optional()
 });
 
 const savedLineProjectSchema = z.object({
