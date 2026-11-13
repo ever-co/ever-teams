@@ -207,21 +207,26 @@ describe('scoped organization-team ownership', () => {
 		expect(JSON.stringify(store.get(organizationTeamsState))).not.toContain('member-user-a');
 	});
 
-	it("shows a member's new rate once the team is read again, though the team itself did not change", async () => {
+	it.each([
+		["a member's new rate", { billRateValue: 40 }, { billRateValue: 55 }],
+		[
+			"a member's new workspace role",
+			{ user: { id: 'user-ana', roleId: 'role-employee' } },
+			{ user: { id: 'user-ana', roleId: 'role-admin' } }
+		]
+	])('shows %s once the team is read again, though the team itself did not change', async (_label, before, after) => {
 		const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 		const store = createStore();
-		const teamWithRate = (billRateValue: number) => ({
+		const teamWithEmployee = (employee: Record<string, unknown>) => ({
 			id: 'team-a',
 			name: 'Team A',
 			organizationId: 'organization-a',
 			tenantId: 'tenant-a',
 			updatedAt: '2026-11-05T08:00:00.000Z',
-			members: [
-				{ id: 'member-ana', employeeId: 'employee-ana', employee: { id: 'employee-ana', billRateValue } }
-			],
+			members: [{ id: 'member-ana', employeeId: 'employee-ana', employee: { id: 'employee-ana', ...employee } }],
 			projects: []
 		});
-		mockGetOrganizationTeams.mockResolvedValue({ data: { items: [teamWithRate(40)], total: 1 } });
+		mockGetOrganizationTeams.mockResolvedValue({ data: { items: [teamWithEmployee(before)], total: 1 } });
 		const wrapper = ({ children }: PropsWithChildren) => (
 			<QueryClientProvider client={client}>
 				<Provider store={store}>{children}</Provider>
@@ -234,17 +239,17 @@ describe('scoped organization-team ownership', () => {
 			accessToken: 'token-a'
 		};
 		const view = renderHook(() => useOrganizationTeamsQuery({ scope }), { wrapper });
-		const rateOfAna = () => view.result.current.teams[0]?.members?.[0]?.employee?.billRateValue;
+		const employeeOfAna = () => view.result.current.teams[0]?.members?.[0]?.employee;
 
-		await waitFor(() => expect(rateOfAna()).toBe(40));
+		await waitFor(() => expect(employeeOfAna()).toMatchObject(before));
 
 		await act(async () => {
 			client.setQueryData(queryKeys.organizationTeams.listByScope('tenant-a', 'organization-a', 'user-a'), {
-				data: { items: [teamWithRate(55)], total: 1 }
+				data: { items: [teamWithEmployee(after)], total: 1 }
 			});
 		});
 
-		await waitFor(() => expect(rateOfAna()).toBe(55));
+		await waitFor(() => expect(employeeOfAna()).toMatchObject(after));
 	});
 });
 

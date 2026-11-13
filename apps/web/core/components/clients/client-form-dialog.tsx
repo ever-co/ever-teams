@@ -149,6 +149,7 @@ function ClientForm({ client, onClose }: Readonly<ClientFormProps>) {
 							value={draft.name}
 							readOnly={isDraftLocked}
 							maxLength={CLIENT_NAME_MAX_LENGTH}
+							aria-required="true"
 							placeholder={t('clients.form.NAME_PLACEHOLDER')}
 							aria-invalid={Boolean(nameError) || undefined}
 							aria-describedby={nameErrorId}

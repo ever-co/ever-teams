@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useState, type ReactNode } from 'react';
 import { isSameYear } from 'date-fns';
-import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
+import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/core/components/common/tooltip';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { InformationCircle } from '@/core/components/icons';
@@ -27,6 +27,8 @@ import {
 	type LimitGrouping,
 	type LimitTotals
 } from '@/core/lib/utils/dashboards/weekly-limit';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { LimitShare, RemainingValue, UsedValue, VerdictCounts, VerdictText } from './limit-cells';
 import {
 	DESKTOP_CELL,
@@ -97,7 +99,7 @@ function PeriodLabel({
 	className
 }: Readonly<{ periodStart: Date; duration: LimitDuration; className?: string }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const label = periodLabelOf(periodStart, duration, locale);
 	const isCurrent = isCurrentPeriod(periodStart, duration);
 	return (
@@ -469,7 +471,7 @@ export function WeeklyLimitEmpty({
 	onPreviousPeriod
 }: Readonly<{ period: Period; isFiltered: boolean; onClearFilters: () => void; onPreviousPeriod: () => void }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const title = emptyTitleOf(period, locale, t);
 	if (isFiltered) {
 		return (
@@ -507,8 +509,8 @@ function emptyDayFormatOf(period: Period): Intl.DateTimeFormatOptions {
 	return { month: 'short', day: 'numeric' };
 }
 
-function emptyTitleOf(period: Period, locale: string, t: ReturnType<typeof useTranslations>) {
-	const formatter = new Intl.DateTimeFormat(locale, emptyDayFormatOf(period));
+function emptyTitleOf(period: Period, locale: FormatLocale, t: ReturnType<typeof useTranslations>) {
+	const formatter = dateFormatOf(locale, emptyDayFormatOf(period));
 	const from = formatter.format(period.from);
 	const to = formatter.format(period.to);
 	const isOneDay = from === to;

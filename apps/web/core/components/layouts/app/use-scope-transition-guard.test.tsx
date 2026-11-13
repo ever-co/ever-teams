@@ -13,9 +13,11 @@ import {
 	tasksStatisticsState,
 	teamTasksState,
 	timeCounterState,
+	timerNotesState,
 	timerSecondsState,
 	timerStatusState
 } from '@/core/stores';
+import { EMPTY_TIMER_NOTES } from '@/core/lib/utils/timer/timer-notes';
 import { queryKeys } from '@/core/query/keys';
 import { useScopeTransitionGuard, type ShellScope } from './use-scope-transition-guard';
 
@@ -198,5 +200,45 @@ describe('useScopeTransitionGuard', () => {
 		expect(store.get(localTimerStatusState)).toBeNull();
 		expect(store.get(timeCounterState)).toBe(0);
 		expect(store.get(timerSecondsState)).toBe(0);
+	});
+
+	it('leaves a timer notes draft behind on a team or member change, never the notes of a running entry', () => {
+		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		const store = createStore();
+		const wrapper = ({ children }: PropsWithChildren) => (
+			<QueryClientProvider client={queryClient}>
+				<Provider store={store}>{children}</Provider>
+			</QueryClientProvider>
+		);
+		const scope: ShellScope = {
+			tenantId: 'tenant-1',
+			organizationId: 'org-1',
+			teamId: 'team-1',
+			projectId: 'project-1',
+			userId: 'user-1',
+			employeeId: 'employee-1',
+			taskId: 'task-1'
+		};
+		const draft = { text: 'Call with the client of team 1', timeLogId: null };
+		const runningEntryNotes = { text: 'Review the invoice export', timeLogId: 'log-1' };
+		const { rerender } = renderHook(
+			({ current }: { current: ShellScope }) => useScopeTransitionGuard(current, true),
+			{ wrapper, initialProps: { current: scope } }
+		);
+
+		store.set(timerNotesState, draft);
+		rerender({ current: { ...scope, taskId: 'task-2' } });
+		expect(store.get(timerNotesState)).toEqual(draft);
+
+		rerender({ current: { ...scope, taskId: 'task-2', teamId: 'team-2' } });
+		expect(store.get(timerNotesState)).toEqual(EMPTY_TIMER_NOTES);
+
+		store.set(timerNotesState, draft);
+		rerender({ current: { ...scope, taskId: 'task-2', teamId: 'team-2', userId: 'user-2' } });
+		expect(store.get(timerNotesState)).toEqual(EMPTY_TIMER_NOTES);
+
+		store.set(timerNotesState, runningEntryNotes);
+		rerender({ current: { ...scope, taskId: 'task-2', teamId: 'team-3', userId: 'user-2' } });
+		expect(store.get(timerNotesState)).toEqual(runningEntryNotes);
 	});
 });

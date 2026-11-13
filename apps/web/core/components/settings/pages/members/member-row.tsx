@@ -6,16 +6,21 @@ import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
+	DropdownMenuGroup,
 	DropdownMenuItem,
+	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 import { SelectedMark } from '@/core/components/common/selected-mark';
 import { Input } from '@/core/components/common/input';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { ChevronDown, MoreHorizontal, Pencil, Spinner, UserRemove, Wallet } from '@/core/components/icons';
+import { ChevronDown, MoreHorizontal, Pencil, Spinner, UserBlock, UserRemove, Wallet } from '@/core/components/icons';
+import { ERoleName } from '@/core/types/generics/enums/role';
+import { isTenantAdminRole } from '@/core/lib/utils/roles';
 import { PROFILE_NAME_MAX_LENGTH } from '@/core/lib/utils/settings-profile';
 import type { TeamRole } from '@/core/lib/utils/settings-team';
+import type { WorkspaceRole } from '@/core/lib/utils/member-access';
 import type { MemberRowModel } from '@/core/hooks/settings/use-team-members-settings';
 import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rates.schema';
 import { MemberRateEditor, MemberRateText } from './member-rate-editor';
@@ -33,24 +38,110 @@ const ROLE_HINT_KEYS: Record<TeamRole, DottedLanguageObjectStringPaths> = {
 	member: 'settings.members.ROLE_MEMBER_HINT'
 };
 
+const WORKSPACE_ROLE_LABEL_KEYS: Partial<Record<string, DottedLanguageObjectStringPaths>> = {
+	[ERoleName.SUPER_ADMIN]: 'settings.members.WORKSPACE_ROLE_SUPER_ADMIN',
+	[ERoleName.ADMIN]: 'settings.members.WORKSPACE_ROLE_ADMIN',
+	[ERoleName.MANAGER]: 'settings.members.WORKSPACE_ROLE_MANAGER',
+	[ERoleName.EMPLOYEE]: 'settings.members.WORKSPACE_ROLE_EMPLOYEE',
+	[ERoleName.DATA_ENTRY]: 'settings.members.WORKSPACE_ROLE_DATA_ENTRY',
+	[ERoleName.VIEWER]: 'settings.members.WORKSPACE_ROLE_VIEWER',
+	[ERoleName.CANDIDATE]: 'settings.members.WORKSPACE_ROLE_CANDIDATE',
+	[ERoleName.INTERVIEWER]: 'settings.members.WORKSPACE_ROLE_INTERVIEWER'
+};
+
+type Translate = ReturnType<typeof useTranslations>;
+
+/** A role the workspace created itself has no translation: it is shown as it was named. */
+function workspaceRoleLabelOf(roleName: string, t: Translate): string {
+	const labelKey = WORKSPACE_ROLE_LABEL_KEYS[roleName];
+	if (!labelKey) {
+		return roleName;
+	}
+	return t(labelKey);
+}
+
 export interface MemberRowActions {
 	onChangeRole: (rowId: string, role: TeamRole) => void;
+	onChangeWorkspaceRole: (rowId: string, roleId: string) => void;
 	onToggleTracking: (rowId: string, enabled: boolean) => void;
 	onRequestRemove: (row: MemberRowModel) => void;
+	onRequestDeactivate: (row: MemberRowModel) => void;
 	onRename: (rowId: string, firstName: string, lastName: string) => Promise<void>;
 	onSaveRates: (rowId: string, rates: IEmployeeRatesInput) => Promise<void>;
 }
 
-function RoleControl({
+function TeamRoleItems({
 	row,
 	onChangeRole
 }: Readonly<{ row: MemberRowModel; onChangeRole: MemberRowActions['onChangeRole'] }>) {
 	const t = useTranslations();
-	const roleLabel = t(ROLE_LABEL_KEYS[row.role]);
+	return ROLES.map((role) => (
+		<DropdownMenuItem
+			key={role}
+			onSelect={() => {
+				if (role !== row.role) {
+					onChangeRole(row.id, role);
+				}
+			}}
+			className="items-start gap-3 py-2"
+		>
+			<span className="flex min-w-0 flex-1 flex-col gap-0.5">
+				<span className="text-[13px] text-foreground">{t(ROLE_LABEL_KEYS[role])}</span>
+				<span className="text-xs text-pretty text-muted-foreground">{t(ROLE_HINT_KEYS[role])}</span>
+			</span>
+			{role === row.role && <SelectedMark className="mt-0.5" />}
+		</DropdownMenuItem>
+	));
+}
 
-	if (!row.canChangeRole) {
+function WorkspaceRoleItems({
+	row,
+	assignableRoles,
+	onChangeWorkspaceRole
+}: Readonly<{
+	row: MemberRowModel;
+	assignableRoles: ReadonlyArray<WorkspaceRole>;
+	onChangeWorkspaceRole: MemberRowActions['onChangeWorkspaceRole'];
+}>) {
+	const t = useTranslations();
+	return assignableRoles.map((role) => (
+		<DropdownMenuItem
+			key={role.id}
+			onSelect={() => {
+				if (role.id !== row.workspaceRoleId) {
+					onChangeWorkspaceRole(row.id, role.id);
+				}
+			}}
+		>
+			<span className="min-w-0 flex-1 truncate">{workspaceRoleLabelOf(role.name, t)}</span>
+			{role.id === row.workspaceRoleId && <SelectedMark />}
+		</DropdownMenuItem>
+	));
+}
+
+function RoleControl({
+	row,
+	assignableRoles,
+	onChangeRole,
+	onChangeWorkspaceRole
+}: Readonly<{
+	row: MemberRowModel;
+	assignableRoles: ReadonlyArray<WorkspaceRole>;
+	onChangeRole: MemberRowActions['onChangeRole'];
+	onChangeWorkspaceRole: MemberRowActions['onChangeWorkspaceRole'];
+}>) {
+	const t = useTranslations();
+	const roleLabel = t(ROLE_LABEL_KEYS[row.role]);
+	const changesSomeRole = row.canChangeRole || row.canChangeWorkspaceRole;
+
+	if (!changesSomeRole) {
 		return <span className="shrink-0 px-2.5 text-[13px] text-muted-foreground">{roleLabel}</span>;
 	}
+
+	const showsBothGroups = row.canChangeRole && row.canChangeWorkspaceRole;
+	const isPending = row.isRolePending || row.isWorkspaceRolePending;
+	const teamGroupLabel = t('settings.members.ROLE_GROUP_TEAM');
+	const workspaceGroupLabel = t('settings.members.ROLE_GROUP_WORKSPACE');
 
 	return (
 		<DropdownMenu>
@@ -59,40 +150,48 @@ function RoleControl({
 					type="button"
 					variant="ghost"
 					size="sm"
-					disabled={row.isRolePending}
+					disabled={isPending}
 					aria-label={t('settings.members.ROLE_OF', { name: row.name, role: roleLabel })}
 					className="shrink-0 text-[13px] font-normal text-muted-foreground"
 				>
-					{row.isRolePending && <Spinner className="size-3.5 animate-spin" />}
+					{isPending && <Spinner className="size-3.5 animate-spin" />}
 					{roleLabel}
 					<ChevronDown aria-hidden="true" className="size-3.5" />
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-72">
-				{ROLES.map((role) => (
-					<DropdownMenuItem
-						key={role}
-						onSelect={() => {
-							if (role !== row.role) {
-								onChangeRole(row.id, role);
-							}
-						}}
-						className="items-start gap-3 py-2"
-					>
-						<span className="flex min-w-0 flex-1 flex-col gap-0.5">
-							<span className="text-[13px] text-foreground">{t(ROLE_LABEL_KEYS[role])}</span>
-							<span className="text-xs text-pretty text-muted-foreground">{t(ROLE_HINT_KEYS[role])}</span>
-						</span>
-						{role === row.role && <SelectedMark className="mt-0.5" />}
-					</DropdownMenuItem>
-				))}
+				{row.canChangeRole && (
+					<DropdownMenuGroup aria-label={teamGroupLabel}>
+						{showsBothGroups && <DropdownMenuLabel aria-hidden="true">{teamGroupLabel}</DropdownMenuLabel>}
+						<TeamRoleItems row={row} onChangeRole={onChangeRole} />
+					</DropdownMenuGroup>
+				)}
+				{showsBothGroups && <DropdownMenuSeparator />}
+				{row.canChangeWorkspaceRole && (
+					<DropdownMenuGroup aria-label={workspaceGroupLabel}>
+						<DropdownMenuLabel aria-hidden="true">{workspaceGroupLabel}</DropdownMenuLabel>
+						<WorkspaceRoleItems
+							row={row}
+							assignableRoles={assignableRoles}
+							onChangeWorkspaceRole={onChangeWorkspaceRole}
+						/>
+					</DropdownMenuGroup>
+				)}
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);
 }
 
+function hasEditActions(row: MemberRowModel): boolean {
+	return row.canEditName || row.canEditRate || row.showsTracking;
+}
+
+function hasExitActions(row: MemberRowModel): boolean {
+	return row.canDeactivate || row.canRemove;
+}
+
 function hasMenuActions(row: MemberRowModel): boolean {
-	return row.canEditName || row.canEditRate || row.showsTracking || row.canRemove;
+	return hasEditActions(row) || hasExitActions(row);
 }
 
 function RowMenu({
@@ -100,13 +199,15 @@ function RowMenu({
 	onEditName,
 	onEditRate,
 	onToggleTracking,
-	onRequestRemove
+	onRequestRemove,
+	onRequestDeactivate
 }: Readonly<{
 	row: MemberRowModel;
 	onEditName: () => void;
 	onEditRate: () => void;
 	onToggleTracking: MemberRowActions['onToggleTracking'];
 	onRequestRemove: MemberRowActions['onRequestRemove'];
+	onRequestDeactivate: MemberRowActions['onRequestDeactivate'];
 }>) {
 	const t = useTranslations();
 	if (!hasMenuActions(row)) {
@@ -155,14 +256,18 @@ function RowMenu({
 						</span>
 					</DropdownMenuCheckboxItem>
 				)}
+				{hasExitActions(row) && <DropdownMenuSeparator />}
+				{row.canDeactivate && (
+					<DropdownMenuItem onSelect={() => onRequestDeactivate(row)}>
+						<UserBlock />
+						{t('settings.members.DEACTIVATE')}
+					</DropdownMenuItem>
+				)}
 				{row.canRemove && (
-					<>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem variant="destructive" onSelect={() => onRequestRemove(row)}>
-							<UserRemove />
-							{t('settings.members.REMOVE')}
-						</DropdownMenuItem>
-					</>
+					<DropdownMenuItem variant="destructive" onSelect={() => onRequestRemove(row)}>
+						<UserRemove />
+						{t('settings.members.REMOVE')}
+					</DropdownMenuItem>
 				)}
 			</DropdownMenuContent>
 		</DropdownMenu>
@@ -283,11 +388,32 @@ function MemberNameEditor({
 
 type Formatter = (date: Date) => string;
 
+/**
+ * Only the admins are marked on the row: any other workspace role reads in the role menu, under its own heading,
+ * where a workspace "Manager" cannot be taken for the manager of the team.
+ */
+function WorkspaceAdminChip({ roleName }: Readonly<{ roleName: string | null }>) {
+	const t = useTranslations();
+	if (!roleName) {
+		return null;
+	}
+	if (!isTenantAdminRole(roleName)) {
+		return null;
+	}
+	return <PersonChip hue="warning">{workspaceRoleLabelOf(roleName, t)}</PersonChip>;
+}
+
 export function MemberRow({
 	row,
+	assignableRoles,
 	formatJoined,
 	actions
-}: Readonly<{ row: MemberRowModel; formatJoined: Formatter; actions: MemberRowActions }>) {
+}: Readonly<{
+	row: MemberRowModel;
+	assignableRoles: ReadonlyArray<WorkspaceRole>;
+	formatJoined: Formatter;
+	actions: MemberRowActions;
+}>) {
 	const t = useTranslations();
 	const [editing, setEditing] = useState<'name' | 'rate' | null>(null);
 	const stopEditing = () => setEditing(null);
@@ -299,25 +425,36 @@ export function MemberRow({
 		return <MemberRateEditor row={row} onCancel={stopEditing} onSaveRates={actions.onSaveRates} />;
 	}
 
-	const youChip = row.isYou && <PersonChip hue="neutral">{t('settings.members.YOU')}</PersonChip>;
+	const chips = (
+		<>
+			{row.isYou && <PersonChip hue="neutral">{t('settings.members.YOU')}</PersonChip>}
+			<WorkspaceAdminChip roleName={row.workspaceRoleName} />
+		</>
+	);
 
 	return (
 		<li className={PERSON_ROW}>
 			<MemberAvatar name={row.name} imageUrl={row.imageUrl} />
-			<PersonLines name={row.name} detail={row.email} adornment={youChip} />
+			<PersonLines name={row.name} detail={row.email} adornment={chips} />
 			{row.joinedAt && (
 				<span className="hidden shrink-0 text-xs text-muted-foreground tabular-nums md:block">
 					{formatJoined(row.joinedAt)}
 				</span>
 			)}
 			<MemberRateText rate={row.rate} />
-			<RoleControl row={row} onChangeRole={actions.onChangeRole} />
+			<RoleControl
+				row={row}
+				assignableRoles={assignableRoles}
+				onChangeRole={actions.onChangeRole}
+				onChangeWorkspaceRole={actions.onChangeWorkspaceRole}
+			/>
 			<RowMenu
 				row={row}
 				onEditName={() => setEditing('name')}
 				onEditRate={() => setEditing('rate')}
 				onToggleTracking={actions.onToggleTracking}
 				onRequestRemove={actions.onRequestRemove}
+				onRequestDeactivate={actions.onRequestDeactivate}
 			/>
 		</li>
 	);

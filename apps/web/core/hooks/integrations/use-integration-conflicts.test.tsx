@@ -16,6 +16,9 @@ jest.mock('@/core/services/client/api/integrations/asana.service', () => ({
 jest.mock('@/core/services/client/api/integrations/trello.service', () => ({
 	trelloIntegrationService: { conflicts: jest.fn(), resolveConflict: jest.fn() }
 }));
+jest.mock('@/core/services/client/api/integrations/jira.service', () => ({
+	jiraIntegrationService: { conflicts: jest.fn(), resolveConflict: jest.fn() }
+}));
 
 import { asanaIntegrationService } from '@/core/services/client/api/integrations/asana.service';
 import { linearIntegrationService } from '@/core/services/client/api/integrations/linear.service';

@@ -39,6 +39,8 @@ jest.mock('@/core/lib/helpers/cookies', () => ({
 	getTenantIdCookie: () => 'tenant-1',
 	getOrganizationIdCookie: () => 'organization-1'
 }));
+// The form reads the organization for a new project's currency (#5143); these tests are about its Client field
+jest.mock('@/core/hooks/auth/use-current-organization', () => ({ useGetCurrentOrganization: () => undefined }));
 jest.mock('@/core/stores', () => {
 	const { atom } = jest.requireActual('jotai') as typeof import('jotai');
 	return {

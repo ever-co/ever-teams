@@ -418,5 +418,21 @@
 	{
 		"id": "removed:navigation:apps/web/core/components/pages/meet/home/meeting-agenda.tsx::router.push=<dynamic:path>::#1",
 		"reason": "Moved, not removed (#5021): the agenda's meeting card, whose Join opens the meeting's room, moved unchanged to core/components/pages/meet/home/meeting-card.tsx, which keeps the same router.push(path)."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/components/pages/chat/conversation-view.test.tsx::words a message of files alone with their names::#1",
+		"reason": "Renamed with its expectation by chat FR gaps (#5072): a files-only message is now sent with no text, and the conversation shows its files named while it is sent. The same scenario is \"sends a message of files alone with no text, its files named for the message shown meanwhile\" in the same file."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/lib/utils/chat-link-preview.test.ts::shows a ready preview with a title or a description, its text on one line, and never its picture or icon::#1",
+		"reason": "Link previews may show the platform's picture now (#5107, behind NEXT_PUBLIC_CHAT_LINK_PREVIEW_IMAGES_ENABLED), always from the image route, never from the preview's own address. The test is \"shows a ready preview with a title or a description, its text on one line, and never the picture or icon address\" in the same file."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/lib/utils/team-tasks-view-layout.test.ts::keeps a board, and reads anything else as the list every view has been::#1",
+		"reason": "Saved views have a timeline layout as well as the board (#5098). The test is \"keeps a board and a timeline, and reads anything else as the list every view has been\" in the same file."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/hooks/organizations/teams/use-organization-teams-query.test.tsx::shows a member's new rate once the team is read again, though the team itself did not change::#1",
+		"reason": "Kept, not removed (#5092): the case is now the first row of an it.each, \"shows %s once the team is read again, though the team itself did not change\", in the same file, which also checks a member's new workspace role. The rate case runs unchanged."
 	}
 ]

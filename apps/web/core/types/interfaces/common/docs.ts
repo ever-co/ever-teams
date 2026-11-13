@@ -89,7 +89,7 @@ export interface IDocumentPage {
 }
 
 /** One match of a search term: `[start, end)` UTF-16 offsets into a snippet's text (or into a document's name). */
-export interface IDocumentSearchMatchRange {
+interface IDocumentSearchMatchRange {
 	start: number;
 	end: number;
 }
@@ -98,7 +98,7 @@ export interface IDocumentSearchMatchRange {
  * Which text a snippet was cut from: the page's text, a file's extracted text, the description, or — when only the
  * name matched — the beginning of the text (`leading`, without matches).
  */
-export type TDocumentSearchSnippetSource = 'content' | 'extractedText' | 'description' | 'leading';
+type TDocumentSearchSnippetSource = 'content' | 'extractedText' | 'description' | 'leading';
 
 /** The plain-text snippet of a search result: about 160 characters around the first match, never HTML. */
 export interface IDocumentSearchSnippet {
@@ -290,7 +290,10 @@ export interface IDocumentLink {
 /** The platform's error codes the editor reacts to. */
 export const DOCS_CONTENT_CONFLICT = 'DOCS_CONTENT_CONFLICT';
 export const DOCS_LOCKED = 'DOCS_LOCKED';
-/** A zip export asked of a file (only pages and folders export). */
+/**
+ * A zip export asked of a file (only pages and folders export).
+ * @public Listed with the other Docs error codes; nothing in the app compares against it yet.
+ */
 export const DOCS_NOT_A_PAGE = 'DOCS_NOT_A_PAGE';
 
 /** The platform refuses a list page of more rows than this (400 "take must not be greater than 100"). */

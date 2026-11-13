@@ -2452,11 +2452,6 @@
       "count": 1
     }
   },
-  "core/hooks/organizations/teams/use-organization-teams-query.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
   "core/hooks/organizations/teams/use-public-organization-teams.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 3

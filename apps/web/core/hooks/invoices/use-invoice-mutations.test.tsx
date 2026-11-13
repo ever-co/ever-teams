@@ -26,9 +26,10 @@ jest.mock('@/core/services/client/api/organizations/invoice.service', () => ({
 		replaceInvoiceLines: (...args: unknown[]) => mockReplaceInvoiceLines(...args)
 	}
 }));
+const mockCookieScope = { organizationId: 'organization-1', tenantId: 'tenant-1' };
 jest.mock('@/core/lib/helpers/cookies', () => ({
-	getTenantIdCookie: () => 'tenant-1',
-	getOrganizationIdCookie: () => 'organization-1'
+	getTenantIdCookie: () => mockCookieScope.tenantId,
+	getOrganizationIdCookie: () => mockCookieScope.organizationId
 }));
 
 import {
@@ -44,7 +45,15 @@ import type { InvoiceRequest } from '@/core/lib/utils/invoices';
 
 const LIST_KEY = queryKeys.invoices.list('tenant-1', 'organization-1');
 
-const draftToSend = { invoiceId: 'inv-1', invoiceNumber: 42, email: 'billing@acme.test', marksSent: true };
+const LIST_SCOPE = { organizationId: 'organization-1', tenantId: 'tenant-1' };
+
+const draftToSend = {
+	invoiceId: 'inv-1',
+	invoiceNumber: 42,
+	email: 'billing@acme.test',
+	marksSent: true,
+	scope: LIST_SCOPE
+};
 
 interface ListedPage {
 	items: Array<{ id: string; status: string }>;
@@ -89,6 +98,8 @@ beforeEach(() => {
 	mockGetInvoice.mockReset();
 	mockUpdateInvoice.mockReset();
 	mockReplaceInvoiceLines.mockReset();
+	mockCookieScope.organizationId = 'organization-1';
+	mockCookieScope.tenantId = 'tenant-1';
 });
 
 describe('saving an invoice and the invoices already saved', () => {
@@ -118,7 +129,12 @@ describe('saving an invoice and the invoices already saved', () => {
 });
 
 describe('saving a new invoice and sending it', () => {
-	const request = { id: 'inv-9', invoiceNumber: 9 } as InvoiceRequest;
+	const request = {
+		id: 'inv-9',
+		invoiceNumber: 9,
+		organizationId: 'organization-1',
+		tenantId: 'tenant-1'
+	} as InvoiceRequest;
 
 	it('saves it, e-mails it, then marks it Sent', async () => {
 		mockCreateInvoice.mockResolvedValue({ id: 'inv-9', invoiceNumber: 9 });
@@ -133,7 +149,24 @@ describe('saving a new invoice and sending it', () => {
 
 		expect(saved).toEqual({ invoice: { id: 'inv-9', invoiceNumber: 9 }, outcome: 'sent' });
 		expect(mockSendInvoiceByEmail.mock.calls[0][0]).toMatchObject({ invoiceId: 'inv-9', invoiceNumber: 9 });
-		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-9', { status: 'SENT' });
+		expect(mockSendInvoiceByEmail.mock.calls[0][1]).toEqual(LIST_SCOPE);
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-9', { status: 'SENT' }, LIST_SCOPE);
+	});
+
+	it('leaves the saved draft unsent when another tab switched the workspace during the save', async () => {
+		mockCreateInvoice.mockImplementation(async () => {
+			mockCookieScope.organizationId = 'organization-2';
+			return { id: 'inv-9', invoiceNumber: 9 };
+		});
+		const { result } = renderWith(new QueryClient(), () => useSaveAndSendInvoice());
+
+		let saved: unknown = null;
+		await act(async () => {
+			saved = await result.current.saveAndSendInvoice({ request, email: 'billing@acme.test' });
+		});
+
+		expect(saved).toEqual({ invoice: { id: 'inv-9', invoiceNumber: 9 }, outcome: 'notSent' });
+		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
 	});
 
 	it('leaves a saved draft and says so when the sending is refused', async () => {
@@ -181,7 +214,8 @@ describe('sending an invoice to its client', () => {
 			invoiceId: 'inv-1',
 			email: 'billing@acme.test'
 		});
-		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', { status: 'SENT' });
+		expect(mockSendInvoiceByEmail.mock.calls[0][1]).toEqual(LIST_SCOPE);
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', { status: 'SENT' }, LIST_SCOPE);
 		expect(listedStatusOf(queryClient)).toBe('SENT');
 	});
 
@@ -235,10 +269,10 @@ describe('settling and deleting an invoice', () => {
 		const { result } = renderWith(queryClient, () => useChangeInvoiceStatus());
 
 		await act(async () => {
-			await result.current.changeStatus({ invoiceId: 'inv-1', change: paidChangeOf(1080) });
+			await result.current.changeStatus({ invoiceId: 'inv-1', change: paidChangeOf(1080), scope: LIST_SCOPE });
 		});
 
-		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', paidChangeOf(1080));
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', paidChangeOf(1080), LIST_SCOPE);
 		expect(listedStatusOf(queryClient)).toBe('FULLY_PAID');
 	});
 
@@ -248,10 +282,10 @@ describe('settling and deleting an invoice', () => {
 		const { result } = renderWith(queryClient, () => useDeleteInvoice());
 
 		await act(async () => {
-			await result.current.deleteInvoice('inv-1');
+			await result.current.deleteInvoice({ invoiceId: 'inv-1', scope: LIST_SCOPE });
 		});
 
-		expect(mockDeleteInvoice).toHaveBeenCalledWith('inv-1');
+		expect(mockDeleteInvoice).toHaveBeenCalledWith('inv-1', LIST_SCOPE);
 		expect(listedPagesOf(queryClient)).toEqual([{ items: [], total: 0 }]);
 	});
 });
@@ -274,7 +308,13 @@ describe('saving an edit to an invoice', () => {
 		revision: { update: { ...fields, totalValue: 960 }, lines: [editedLine] },
 		previous: { update: { ...fields, totalValue: 800 }, lines: [previousLine] }
 	} as unknown as InvoiceEdit;
-	const sending = { invoiceId: 'inv-42', invoiceNumber: 42, email: 'billing@acme.test', marksSent: false };
+	const sending = {
+		invoiceId: 'inv-42',
+		invoiceNumber: 42,
+		email: 'billing@acme.test',
+		marksSent: false,
+		scope: LIST_SCOPE
+	};
 
 	function invoiceRead(status: string, lines: unknown[] = [{ id: 'item-1', ...previousLine }]) {
 		return { id: 'inv-42', status, invoiceItems: lines };
@@ -457,7 +497,7 @@ describe('saving an edit to an invoice', () => {
 		const saved = await saveWith(result, sending);
 
 		expect(saved).toEqual({ outcome: { status: 'saved' }, sending: 'sent' });
-		expect(mockSendInvoiceByEmail).toHaveBeenCalledWith(sending);
+		expect(mockSendInvoiceByEmail).toHaveBeenCalledWith(sending, LIST_SCOPE);
 		expect(mockChangeInvoiceStatus).not.toHaveBeenCalled();
 	});
 
@@ -469,5 +509,54 @@ describe('saving an edit to an invoice', () => {
 		await saveWith(result, sending);
 
 		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
+	});
+});
+
+const SWITCHED_WORKSPACES = [
+	['organization', { organizationId: 'organization-2', tenantId: 'tenant-1' }],
+	['tenant', { organizationId: 'organization-1', tenantId: 'tenant-2' }]
+] as const;
+
+describe.each(SWITCHED_WORKSPACES)('an invoice of the list after another tab switched the %s', (_switched, cookies) => {
+	beforeEach(() => {
+		mockCookieScope.organizationId = cookies.organizationId;
+		mockCookieScope.tenantId = cookies.tenantId;
+	});
+
+	it('is not e-mailed, and stays a draft', async () => {
+		const queryClient = clientWithDraftListed();
+		const { result } = renderWith(queryClient, () => useSendInvoice());
+
+		await act(async () => {
+			await expect(result.current.sendInvoice(draftToSend)).rejects.toThrow();
+		});
+
+		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
+		expect(listedStatusOf(queryClient)).toBe('DRAFT');
+	});
+
+	it('is not marked paid', async () => {
+		const queryClient = clientWithDraftListed();
+		const { result } = renderWith(queryClient, () => useChangeInvoiceStatus());
+		const toPaid = { invoiceId: 'inv-1', change: paidChangeOf(1080), scope: LIST_SCOPE };
+
+		await act(async () => {
+			await expect(result.current.changeStatus(toPaid)).rejects.toThrow();
+		});
+
+		expect(mockChangeInvoiceStatus).not.toHaveBeenCalled();
+		expect(listedStatusOf(queryClient)).toBe('DRAFT');
+	});
+
+	it('is not deleted', async () => {
+		const queryClient = clientWithDraftListed();
+		const { result } = renderWith(queryClient, () => useDeleteInvoice());
+
+		await act(async () => {
+			await expect(result.current.deleteInvoice({ invoiceId: 'inv-1', scope: LIST_SCOPE })).rejects.toThrow();
+		});
+
+		expect(mockDeleteInvoice).not.toHaveBeenCalled();
+		expect(listedPagesOf(queryClient)[0]?.items).toHaveLength(1);
 	});
 });

@@ -95,6 +95,37 @@ describe('ViewsPage', () => {
 		]);
 	});
 
+	it('names the layout each saved view opens in, the list for a view saved without one', () => {
+		const boardView: ITaskView = { ...VIEWS[0], displayOptions: { layout: 'board' } };
+		const calendarView: ITaskView = {
+			id: 'v3',
+			name: 'Due dates',
+			visibility: ETaskViewVisibility.SHARED,
+			displayOptions: { layout: 'calendar' }
+		};
+		const unknownLayoutView: ITaskView = {
+			id: 'v4',
+			name: 'From a newer version',
+			visibility: ETaskViewVisibility.SHARED,
+			displayOptions: { layout: 'gantt' }
+		};
+		mockQuery = { views: [boardView, VIEWS[1], calendarView, unknownLayoutView], isLoading: false, isError: false };
+		render(<ViewsPage />);
+
+		const layoutNameOf = (viewName: string) => {
+			const row = screen.getByText(viewName).closest<HTMLElement>('[data-testid="saved-view"]');
+			if (!row) {
+				throw new Error(`${viewName} is not in a saved view row`);
+			}
+			return within(row).getByTestId('saved-view-layout').textContent;
+		};
+
+		expect(layoutNameOf('Bugs this sprint')).toBe('common.KANBAN');
+		expect(layoutNameOf('Design review')).toBe('pages.teamTasks.LAYOUT_LIST');
+		expect(layoutNameOf('Due dates')).toBe('common.CALENDAR');
+		expect(layoutNameOf('From a newer version')).toBe('pages.teamTasks.LAYOUT_LIST');
+	});
+
 	it('searches and filters the saved views, and says when none matches', () => {
 		render(<ViewsPage />);
 

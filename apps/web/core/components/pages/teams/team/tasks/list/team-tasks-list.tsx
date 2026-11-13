@@ -11,6 +11,7 @@ import {
 	type MouseEvent,
 	type RefObject
 } from 'react';
+import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { defaultRangeExtractor, useVirtualizer, type Range } from '@tanstack/react-virtual';
 import { cn } from '@/core/lib/helpers';
@@ -34,11 +35,12 @@ import { TeamTaskRow } from './team-task-row';
 import { TeamTasksBoard } from './team-tasks-board';
 import { TeamTasksTimelineView } from './team-tasks-timeline';
 import { cellAppliesToSelection, pickerOf } from './team-task-picker-commands';
-import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
+import { shownTeamTasksLayout } from '@/core/lib/utils/team-tasks-layouts';
 import { TeamTasksGroupHeader } from './team-tasks-group-header';
 import { TeamTasksColumnHeader } from './team-tasks-column-header';
 import type { TeamTaskMenuAnchor } from './team-task-menu';
 import { useTeamTaskListReorder } from './team-task-row-dnd';
+import { TeamTasksCalendarSkeleton } from './team-tasks-calendar-skeleton';
 
 const OVERSCAN = 10;
 
@@ -176,22 +178,49 @@ interface TeamTasksListProps {
 	scrollRef: RefObject<HTMLDivElement | null>;
 }
 
+/** The calendar's code loads when the layout is first picked, so the list's page keeps its weight. */
+const TeamTasksCalendarView = dynamic(
+	() => import('./team-tasks-calendar').then((mod) => ({ default: mod.TeamTasksCalendarView })),
+	{ ssr: false, loading: () => <TeamTasksCalendarSkeleton /> }
+);
+
 /**
  * The tasks of the page: rows, or with the saved-views feature and a board layout, cards in one lane per status (the
- * Kanban page's board), or with a timeline layout, bars on a calendar, on the same tasks, selection and commands.
+ * Kanban page's board), or with a timeline layout, bars on a calendar, or with a calendar layout, a month with each
+ * task on its due date, or with a table layout, the same rows without groups and with their columns drawn, on the
+ * same tasks, selection and commands.
  */
 export function TeamTasksList(props: Readonly<TeamTasksListProps>) {
-	const layout = isTaskViewsEnabled() ? props.view.settings.layout : undefined;
+	const layout = shownTeamTasksLayout(props.view.settings);
 	if (layout === 'board') {
 		return <TeamTasksBoard view={props.view} commands={props.commands} />;
 	}
 	if (layout === 'timeline') {
 		return <TeamTasksTimelineView view={props.view} commands={props.commands} />;
 	}
+	if (layout === 'calendar') {
+		return <TeamTasksCalendarView view={props.view} commands={props.commands} />;
+	}
+	if (layout === 'table') {
+		return <TeamTasksRows {...props} hasCellLines={true} />;
+	}
 	return <TeamTasksRows {...props} />;
 }
 
-function TeamTasksRows({ view, grid, commands, scrollRef }: Readonly<TeamTasksListProps>) {
+/**
+ * The table layout draws its columns from `lg`, where a row is the shared grid: every cell and every column label
+ * fills the row's height and carries a hairline on its left edge.
+ */
+const TABLE_CELL_LINES =
+	'lg:[&_[role=gridcell]]:self-stretch lg:[&_[role=gridcell]]:items-center lg:[&_[role=gridcell]]:content-center lg:[&_[role=gridcell]]:hairline-l lg:[&_[role=gridcell]]:border-border lg:[&_[role=columnheader]]:self-stretch lg:[&_[role=columnheader]]:items-center lg:[&_[role=columnheader]]:hairline-l lg:[&_[role=columnheader]]:border-border';
+
+function TeamTasksRows({
+	view,
+	grid,
+	commands,
+	scrollRef,
+	hasCellLines = false
+}: Readonly<TeamTasksListProps & { hasCellLines?: boolean }>) {
 	const t = useTranslations();
 	const { rows, orderedIds, selectedIds } = view;
 	const [focusedTaskId, setFocusedTaskId] = useState<string | null>(null);
@@ -450,7 +479,10 @@ function TeamTasksRows({ view, grid, commands, scrollRef }: Readonly<TeamTasksLi
 				aria-multiselectable={true}
 				onKeyDown={handleKeyDown}
 				onContextMenu={handleContextMenu}
-				className="relative h-full overflow-auto overscroll-contain custom-scrollbar"
+				className={cn(
+					'relative h-full overflow-auto overscroll-contain custom-scrollbar',
+					hasCellLines && TABLE_CELL_LINES
+				)}
 			>
 				<div ref={contentRef} style={grid.style} className={cn('min-w-full', TEAM_TASK_LIST_MIN_WIDTH)}>
 					<TeamTasksColumnHeader

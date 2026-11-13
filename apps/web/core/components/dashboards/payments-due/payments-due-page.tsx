@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 import { useAtomValue } from 'jotai';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { Wallet } from '@/core/components/icons';
 import { DashboardBreadcrumb } from '@/core/components/dashboards/kit/dashboard-breadcrumb';
@@ -16,6 +16,7 @@ import { usePaymentsDueReport } from '@/core/hooks/dashboards/payments-due/use-p
 import { formatPeriod, shiftPeriod } from '@/core/lib/utils/dashboard-period';
 import { type OwedDayGroup, type OwedMemberGroup, PAYMENTS_WEEK_START } from '@/core/lib/utils/dashboards/payments-due';
 import { isTrackingEnabledState } from '@/core/stores';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { PaymentsDueBalanceTiles } from './payments-due-balance-tiles';
 import { usePaymentsDueExportOptions } from './payments-due-export';
 import { PaymentsDueStatements } from './payments-due-statements';
@@ -31,7 +32,7 @@ const EMPTY_DAY_GROUPS: OwedDayGroup[] = [];
 
 export function PaymentsDuePage() {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const report = usePaymentsDueReport({ unnamedLabel: t('timeActivity.UNNAMED_EMPLOYEE') });
 	const { period, setPeriod, shown } = report;
@@ -76,7 +77,12 @@ export function PaymentsDuePage() {
 					actions={<ExportMenu options={exportOptions} isDisabled={isExportDisabled} />}
 					controls={
 						<>
-							<PeriodPicker value={period} onChange={setPeriod} weekStartsOn={PAYMENTS_WEEK_START} />
+							<PeriodPicker
+								value={period}
+								onChange={setPeriod}
+								weekStartsOn={PAYMENTS_WEEK_START}
+								locale={locale}
+							/>
 							<MemberFilterMenu
 								members={report.members}
 								selectedIds={report.appliedEmployeeIds}

@@ -218,6 +218,14 @@ describe('DiaryWeekView', () => {
 		expect(screen.queryByText('dashboard.timesheets.SHEET.EDIT.EMPTY_HINT')).toBeNull();
 	});
 
+	it("names an empty week in the workspace's date format", () => {
+		mockPermissions.mockReturnValue({ myPermissions: [], isLoading: false });
+		renderWeek({ logs: [], organization: { dateFormat: 'DD/MM/YYYY' } });
+
+		const emptyWeek = 'dashboard.calendar.EMPTY_PERIOD:{"period":"08/01/2024 – 14/01/2024"}';
+		expect(screen.getByText(emptyWeek)).toBeTruthy();
+	});
+
 	it('says nothing of an empty week until the permissions tell whether it can be filled', () => {
 		mockPermissions.mockReturnValue({ myPermissions: [], isLoading: true });
 		renderWeek({ logs: [] });

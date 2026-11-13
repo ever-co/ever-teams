@@ -2,7 +2,7 @@
 
 import { memo, useMemo } from 'react';
 import { getISOWeek } from 'date-fns';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { DashboardSection, ReportHeaderRow, ReportTotalsRow } from '@/core/components/dashboards/kit/dashboard-layout';
 import {
 	BlockEmptyMessage,
@@ -12,11 +12,17 @@ import {
 import { MemberCell } from '@/core/components/dashboards/kit/member-cell';
 import { ChevronLeft, ChevronRight } from '@/core/components/icons';
 import type { TimeActivityRequest } from '@/core/hooks/dashboards/time-activity/use-time-activity-queries';
-import { type WeekDayColumn, useTimeActivityWeek } from '@/core/hooks/dashboards/time-activity/use-time-activity-week';
+import {
+	type WeekDailySource,
+	type WeekDayColumn,
+	useTimeActivityWeek
+} from '@/core/hooks/dashboards/time-activity/use-time-activity-week';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort, formatHoursLabel } from '@/core/lib/utils/dashboard-figures';
 import { formatPeriod, type Period } from '@/core/lib/utils/dashboard-period';
 import type { WeekGridRow } from '@/core/lib/utils/dashboards/time-activity';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 
 const WEEK_GRID =
 	'grid min-w-[44rem] grid-cols-[minmax(10rem,1.6fr)_repeat(7,minmax(3.75rem,1fr))_5.5rem] items-center gap-x-2 px-4';
@@ -97,22 +103,29 @@ function DayHeader({
 	);
 }
 
-/** Days outside the period stay as empty columns, so every week of a long period keeps the same shape. */
+/**
+ * Days outside the period stay as empty columns, so every week of a long period keeps the same shape. With a
+ * `dailySource` the grid shows the page's own filtered rows, which honour the task filter too.
+ */
 export function TimeActivityWeekGrid({
 	period,
 	request,
 	userId,
-	hasTaskFilter
+	hasTaskFilter,
+	dailySource
 }: Readonly<{
 	period: Period;
 	request: TimeActivityRequest | null;
 	userId: string | undefined;
 	hasTaskFilter: boolean;
+	dailySource: WeekDailySource | null;
 }>) {
 	const t = useTranslations();
-	const locale = useLocale();
-	const week = useTimeActivityWeek({ period, request, userId });
-	const dayFormat = useMemo(() => new Intl.DateTimeFormat(locale, { weekday: 'short', day: 'numeric' }), [locale]);
+	const locale = useWorkspaceLocale();
+	const week = useTimeActivityWeek({ period, request, userId, dailySource });
+	const readsWeeklyReport = dailySource === null;
+	const showsTaskFilterNote = hasTaskFilter && readsWeeklyReport;
+	const dayFormat = useMemo(() => dateFormatOf(locale, { weekday: 'short', day: 'numeric' }), [locale]);
 	const windowText = formatPeriod(week.window, locale);
 	const weekNumber = getISOWeek(week.weekStart);
 	const unnamed = t('timeActivity.UNNAMED_EMPLOYEE');
@@ -127,7 +140,7 @@ export function TimeActivityWeekGrid({
 		<DashboardSection
 			title={t('dashboard.timeActivity.week.TITLE')}
 			ariaLabel={t('dashboard.timeActivity.week.TITLE')}
-			meta={hasTaskFilter && t('dashboard.timeActivity.week.TASK_FILTER_NOTE')}
+			meta={showsTaskFilterNote && t('dashboard.timeActivity.week.TASK_FILTER_NOTE')}
 			actions={
 				<div
 					className="flex items-center gap-1"

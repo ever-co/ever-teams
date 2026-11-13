@@ -185,8 +185,14 @@ export interface ITimerEmployeeLog {
 	activity: number;
 }
 
+/** The current client the daily report states beside a project; the API leaves it out once that client is archived. */
+interface ITimerProjectClient {
+	organizationContactId?: string | null;
+	organizationContact?: { id: string; name?: string | null } | null;
+}
+
 export interface ITimerProjectLog {
-	project: IOrganizationProject;
+	project: IOrganizationProject & ITimerProjectClient;
 	employeeLogs: ITimerEmployeeLog[];
 }
 
@@ -208,11 +214,13 @@ export interface ITimeLogReportDailyRequest {
 	};
 	/** With `teamIds`, also counts the time the teams' members logged without a team. */
 	includeTimeWithoutTeam?: boolean;
+	/** Counts billable time only; without it the report counts every log. */
+	billableOnly?: boolean;
 }
 
 export interface ITimeLogReportWeeklyRequest extends Pick<
 	ITimeLogReportDailyRequest,
-	'timeZone' | 'projectIds' | 'employeeIds' | 'teamIds'
+	'timeZone' | 'projectIds' | 'employeeIds' | 'teamIds' | 'billableOnly'
 > {
 	startDate: string;
 	endDate: string;

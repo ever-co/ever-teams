@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
-import { useLocale } from 'next-intl';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import {
 	type SheetEditing,
 	type SheetEditingSource,
@@ -48,7 +48,7 @@ function isOpenCellEditable(sheet: TimesheetSheetState, cellLockFor: SheetEditin
  * cell whose timer runs stay as they are.
  */
 export function useWorkDiaryWeekSheet(source: SheetEditingSource) {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const queryClient = useQueryClient();
 	const { data: user } = useUserQuery();
 	const organization = useAtomValue(currentOrganizationState);

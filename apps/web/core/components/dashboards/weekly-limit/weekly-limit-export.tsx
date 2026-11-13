@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
+import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import type { ExportOption } from '@/core/components/dashboards/kit/export-menu';
 import { FilePdf, FileSheet } from '@/core/components/icons';
 import type { WeeklyLimitShown } from '@/core/hooks/dashboards/weekly-limit/use-weekly-limit-report';
@@ -25,6 +25,8 @@ import {
 	type LimitGrouping
 } from '@/core/lib/utils/dashboards/weekly-limit';
 import type { TTimeLimitReportByEmployee, TTimeLimitReportList } from '@/core/types/schemas';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import type { FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { VERDICT_LABEL_KEYS } from './limit-cells';
 
 type Translate = ReturnType<typeof useTranslations>;
@@ -119,7 +121,7 @@ function pdfEmployeeOf(entry: LimitEntry, name: string) {
 function pdfReportsByPeriodOf(
 	groups: ReadonlyArray<LimitGroup>,
 	duration: LimitDuration,
-	locale: string
+	locale: FormatLocale
 ): TTimeLimitReportList[] {
 	const reports: TTimeLimitReportList[] = [];
 	for (const group of groups) {
@@ -142,7 +144,7 @@ function pdfReportsByPeriodOf(
 function pdfReportsByMemberOf(
 	groups: ReadonlyArray<LimitGroup>,
 	duration: LimitDuration,
-	locale: string
+	locale: FormatLocale
 ): TTimeLimitReportByEmployee[] {
 	const reports: TTimeLimitReportByEmployee[] = [];
 	for (const group of groups) {
@@ -178,7 +180,7 @@ interface PdfInput {
 	groups: ReadonlyArray<LimitGroup>;
 	grouping: LimitGrouping;
 	title: string;
-	locale: string;
+	locale: FormatLocale;
 	t: Translate;
 }
 
@@ -193,7 +195,8 @@ async function pdfDocumentOf({ shown, groups, grouping, title, locale, t }: PdfI
 		},
 		displayMode: 'date' as const,
 		organizationLimits: { date: shown.standardLimit, week: shown.standardLimit },
-		title
+		title,
+		locale
 	};
 	if (grouping === 'member') {
 		const { WeeklyLimitByEmployeePDFDocument } =
@@ -221,7 +224,7 @@ export function useWeeklyLimitExportOptions({
 	teamName: string;
 }>): ExportOption[] {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 
 	return useMemo(() => {
 		if (!shown) {
@@ -258,7 +261,7 @@ function exportFileOf({
 	shown: WeeklyLimitShown;
 	reportTitle: string;
 	teamName: string;
-	locale: string;
+	locale: FormatLocale;
 	t: Translate;
 }>): ExportFile {
 	const prefix = FILE_PREFIXES[shown.duration];
@@ -314,7 +317,7 @@ export function useWeeklyLimitMatrixExportOptions({
 	teamName: string;
 }>): ExportOption[] {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 
 	return useMemo(() => {
 		if (!shown) {

@@ -16,6 +16,8 @@ import {
 	DATE_TO_PARAM,
 	PROJECT_FILTER_FIELDS,
 	countActiveFilterValues,
+	isConsumptionColumn,
+	isConsumptionOrderField,
 	readProjectDateRange,
 	readProjectFilters,
 	urlWithParams,
@@ -33,15 +35,23 @@ const ORDER_FIELDS: ReadonlySet<ProjectOrderField> = new Set<ProjectOrderField>(
 	'status',
 	'startDate',
 	'endDate',
-	'createdAt'
+	'createdAt',
+	'timeSpent',
+	'budgetUsed'
 ]);
 
 const DEFAULT_ORDERING: ProjectOrdering = { id: 'name', desc: false };
 
 const DEFAULT_SORTING_STATE: ProjectOrdering[] = [DEFAULT_ORDERING];
 
-/** The previous table named the name column `project`; any other unknown column falls back to the name. */
-function orderingFromStorage(stored: ProjectOrdering[] | null | undefined): ProjectOrdering {
+/**
+ * The previous table named the name column `project`; any other unknown column falls back to the name, and so does an
+ * ordering this person is not offered (one stored on the device by someone who was).
+ */
+function orderingFromStorage(
+	stored: ProjectOrdering[] | null | undefined,
+	isOffered: (field: ProjectOrderField) => boolean
+): ProjectOrdering {
 	const isStoredList = Array.isArray(stored);
 	if (!isStoredList) {
 		return DEFAULT_ORDERING;
@@ -51,7 +61,8 @@ function orderingFromStorage(stored: ProjectOrdering[] | null | undefined): Proj
 		return DEFAULT_ORDERING;
 	}
 	const isKnownField = ORDER_FIELDS.has(first.id);
-	if (!isKnownField) {
+	const isUsableField = isKnownField && isOffered(first.id);
+	if (!isUsableField) {
 		return { id: 'name', desc: Boolean(first.desc) };
 	}
 	return { id: first.id, desc: Boolean(first.desc) };
@@ -91,7 +102,7 @@ function toggled(values: string[], value: string) {
 }
 
 /** Scope, filters and dates stay in the URL: the sidebar's Archive entry and shared links rely on them. */
-export function useProjectsListState() {
+export function useProjectsListState({ showsConsumption }: Readonly<{ showsConsumption: boolean }>) {
 	const params = useSearchParams();
 	const router = useRouter();
 	const pathname = usePathname();
@@ -114,7 +125,27 @@ export function useProjectsListState() {
 	const [selectionState, setSelectionState] = useState<KeyedSelection>({ urlKey, ids: [] });
 	const selectedIds = selectionFor(selectionState, urlKey);
 
-	const ordering = orderingFromStorage(storedSorting);
+	const isOrderFieldOffered = useCallback(
+		(field: ProjectOrderField) => {
+			if (showsConsumption) {
+				return true;
+			}
+			return !isConsumptionOrderField(field);
+		},
+		[showsConsumption]
+	);
+
+	const isColumnOffered = useCallback(
+		(column: ProjectColumn) => {
+			if (showsConsumption) {
+				return true;
+			}
+			return !isConsumptionColumn(column);
+		},
+		[showsConsumption]
+	);
+
+	const ordering = orderingFromStorage(storedSorting, isOrderFieldOffered);
 
 	const replaceParams = useCallback(
 		(change: (next: URLSearchParams) => void) => {
@@ -200,7 +231,15 @@ export function useProjectsListState() {
 		[setHiddenColumns]
 	);
 
-	const isColumnVisible = useCallback((column: ProjectColumn) => !hiddenColumns.includes(column), [hiddenColumns]);
+	const isColumnVisible = useCallback(
+		(column: ProjectColumn) => {
+			if (!isColumnOffered(column)) {
+				return false;
+			}
+			return !hiddenColumns.includes(column);
+		},
+		[hiddenColumns, isColumnOffered]
+	);
 
 	const toggleSelected = useCallback(
 		(projectId: string) => {
@@ -246,6 +285,9 @@ export function useProjectsListState() {
 		hiddenColumns,
 		toggleColumn,
 		isColumnVisible,
+		isColumnOffered,
+		isOrderFieldOffered,
+		showsConsumption,
 		selectedIds,
 		toggleSelected,
 		setSelection,

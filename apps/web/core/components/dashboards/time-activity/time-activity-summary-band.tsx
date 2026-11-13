@@ -1,7 +1,7 @@
 'use client';
 
 import { type ReactNode, memo, useMemo } from 'react';
-import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
+import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { ActivityMeter } from '@/core/components/dashboards/kit/meters';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { useTimeActivityFilterOptions } from '@/core/hooks/dashboards/time-activity/use-time-activity-filter-options';
@@ -18,6 +18,8 @@ import {
 } from '@/core/lib/utils/dashboard-figures';
 import { formatAmounts } from '@/core/lib/utils/daily-report-figures';
 import { recordedActivityOf } from '@/core/lib/utils/dashboards/time-activity';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import type { FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { TimeActivityExportMenu } from './time-activity-export-menu';
 
 const MISSING_VALUE = '–';
@@ -101,7 +103,7 @@ function missingActivityReasonOf(figures: TimeActivityFigures, t: Translate) {
 	return t('dashboard.timeActivity.sheet.NO_ACTIVITY');
 }
 
-function activityFigureOf(figures: TimeActivityFigures, locale: string, t: Translate): BandFigure {
+function activityFigureOf(figures: TimeActivityFigures, locale: FormatLocale, t: Translate): BandFigure {
 	const label = t('dashboard.timeActivity.columns.ACTIVITY');
 	const percent = recordedActivityOf(figures.activityPercent, figures.trackedSeconds);
 	if (percent === null) {
@@ -140,7 +142,7 @@ function earningsHintOf(figures: TimeActivityFigures, t: Translate) {
 	return t('dashboard.timeActivity.figures.EARNINGS_FROM_RATES');
 }
 
-function earningsFigureOf(figures: TimeActivityFigures, locale: string, t: Translate): BandFigure {
+function earningsFigureOf(figures: TimeActivityFigures, locale: FormatLocale, t: Translate): BandFigure {
 	const label = t('dashboard.timeActivity.columns.EARNINGS');
 	const hint = earningsHintOf(figures, t);
 	const amounts = figures.totals.earnings;
@@ -162,7 +164,7 @@ function membersFigureOf(figures: TimeActivityFigures, t: Translate): BandFigure
 	};
 }
 
-function bandFiguresOf(figures: TimeActivityFigures, isManager: boolean, locale: string, t: Translate) {
+function bandFiguresOf(figures: TimeActivityFigures, isManager: boolean, locale: FormatLocale, t: Translate) {
 	const total = totalFigureOf(figures, t);
 	const activity = activityFigureOf(figures, locale, t);
 	const list: BandFigure[] = [total, activity];
@@ -234,7 +236,7 @@ export function TimeActivitySummaryBand({
 	actions
 }: Readonly<{ figures: TimeActivityFigures; isManager: boolean; isLoading: boolean; actions: ReactNode }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const items = useMemo(() => bandFiguresOf(figures, isManager, locale, t), [figures, isManager, locale, t]);
 	return <BandFrame figures={items} isLoading={isLoading} actions={actions} />;
 }

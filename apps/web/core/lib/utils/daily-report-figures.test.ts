@@ -1,5 +1,5 @@
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
-import { flattenDailyReport, groupRowsBy, projectKeyOf } from './daily-report-figures';
+import { earningsByCurrencyOf, flattenDailyReport, groupRowsBy, projectKeyOf } from './daily-report-figures';
 
 const employee = { id: 'employee-a', fullName: 'Ada Lovelace', user: { imageUrl: null } };
 const project = { id: 'project-a', name: 'Website', imageUrl: null, color: '#336699' };
@@ -20,13 +20,25 @@ const task = (title: string, duration: number, team?: string | null) => ({
 	...teamFieldOf(team)
 });
 
-const reportOf = (tasks: ReturnType<typeof task>[], sum: number, logProject: object | null = project) =>
+const reportOf = (
+	tasks: ReturnType<typeof task>[],
+	sum: number,
+	logProject: object | null = project,
+	logEmployee: object = employee
+) =>
 	[
 		{
 			date: '2026-11-05',
-			logs: [{ project: logProject, employeeLogs: [{ employee, sum, activity: 50, tasks }] }]
+			logs: [{ project: logProject, employeeLogs: [{ employee: logEmployee, sum, activity: 50, tasks }] }]
 		}
 	] as unknown as ITimeLogGroupedDailyReport[];
+
+const QUARTER_HOUR = 900;
+
+const ratedReportOf = (billRateCurrency: string | null) => {
+	const ratedEmployee = { ...employee, billRateValue: 40, billRateCurrency };
+	return reportOf([task('home', QUARTER_HOUR)], QUARTER_HOUR, project, ratedEmployee);
+};
 
 describe('flattenDailyReport', () => {
 	it('keeps one row per member, project and day when the report states no team', () => {
@@ -94,5 +106,27 @@ describe('the "No team" group', () => {
 
 		expect(groups).toHaveLength(1);
 		expect(groups[0]).toEqual(expect.objectContaining({ key: 'no-team', seconds: 1800 }));
+	});
+});
+
+describe('a billing rate without a currency of its own (#5087)', () => {
+	it("is counted in the workspace's currency, as Gauzy counts it", () => {
+		const rows = flattenDailyReport(ratedReportOf(null), null, 'EUR');
+
+		expect(rows[0].billRateCurrency).toBe('EUR');
+		expect(earningsByCurrencyOf(rows)).toEqual([{ currency: 'EUR', amount: 10 }]);
+	});
+
+	it('leaves a rate that has its own currency in it', () => {
+		const rows = flattenDailyReport(ratedReportOf('GBP'), null, 'EUR');
+
+		expect(earningsByCurrencyOf(rows)).toEqual([{ currency: 'GBP', amount: 10 }]);
+	});
+
+	it('is counted as before while the workspace currency is not known', () => {
+		const rows = flattenDailyReport(ratedReportOf(null));
+
+		expect(rows[0].billRateCurrency).toBeNull();
+		expect(earningsByCurrencyOf(rows)).toEqual([{ currency: 'USD', amount: 10 }]);
 	});
 });

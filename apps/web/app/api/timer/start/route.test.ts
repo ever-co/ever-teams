@@ -15,6 +15,7 @@ import { POST } from './route';
 
 const TASK_ID = '11111111-1111-4111-8111-111111111111';
 const PROJECT_ID = '22222222-2222-4222-8222-222222222222';
+const TEAM_ID = '33333333-3333-4333-8333-333333333333';
 const originalFetch = global.fetch;
 
 function startTimerWith(body: unknown) {
@@ -98,9 +99,31 @@ describe('POST /api/timer/start body sent to Gauzy', () => {
 		expect(sentStartBody(fetchMock)).not.toHaveProperty('projectId');
 	});
 
+	it('forwards the notes of the entry', async () => {
+		await startTimerWith({ taskId: TASK_ID, description: 'Fix the login page' });
+
+		expect(sentStartBody(fetchMock).description).toBe('Fix the login page');
+	});
+
+	it('sends no notes for a body without any, as before notes existed', async () => {
+		await startTimerWith({ taskId: TASK_ID });
+
+		expect(sentStartBody(fetchMock)).not.toHaveProperty('description');
+	});
+
+	it('starts on the team the body names, not the one another tab left in the team cookie (#5120)', async () => {
+		await startTimerWith({ taskId: TASK_ID, organizationTeamId: TEAM_ID });
+
+		expect(sentStartBody(fetchMock).organizationTeamId).toBe(TEAM_ID);
+	});
+
 	it.each([
 		['a billable value that is not a boolean', { taskId: TASK_ID, isBillable: 'yes' }],
-		['an empty project', { taskId: TASK_ID, projectId: '' }]
+		['an empty project', { taskId: TASK_ID, projectId: '' }],
+		['notes that are not text', { taskId: TASK_ID, description: 42 }],
+		['notes longer than an entry takes', { taskId: TASK_ID, description: 'a'.repeat(1001) }],
+		['an empty team', { taskId: TASK_ID, organizationTeamId: '' }],
+		['a team that is not a string', { taskId: TASK_ID, organizationTeamId: 42 }]
 	])('refuses %s with a 400, without calling Gauzy', async (_, body) => {
 		const response = await startTimerWith(body);
 

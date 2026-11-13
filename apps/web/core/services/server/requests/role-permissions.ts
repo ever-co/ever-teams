@@ -35,6 +35,16 @@ export function getRolePermissionsRequest({
 	});
 }
 
+/** The permissions of the signed-in account's own role: Gauzy's `GET /role-permissions/me` is open to every account. */
+export function getMyRolePermissionsRequest({ bearer_token, tenantId }: { bearer_token: string; tenantId: string }) {
+	return serverFetch<IRolePermission[]>({
+		path: '/role-permissions/me',
+		method: 'GET',
+		bearer_token,
+		tenantId
+	});
+}
+
 export function updateRolePermissionRequest({
 	bearer_token,
 	tenantId,

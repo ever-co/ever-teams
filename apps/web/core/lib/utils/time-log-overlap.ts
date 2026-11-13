@@ -82,7 +82,7 @@ export function hasUnreadableInterval(log: OverlapCandidateLog): boolean {
 }
 
 /** As in the API's own lookup, an entry that only touches the period, end to start, is not overlapped. */
-function sharesTimeWith(period: TimePeriod, start: Date, end: Date): boolean {
+export function sharesTimeWith(period: TimePeriod, start: Date, end: Date): boolean {
 	const sharedStart = Math.max(period.start.getTime(), start.getTime());
 	const sharedEnd = Math.min(period.end.getTime(), end.getTime());
 	return sharedEnd > sharedStart;

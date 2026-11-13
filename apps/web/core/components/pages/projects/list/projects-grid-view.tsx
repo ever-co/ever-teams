@@ -18,6 +18,9 @@ import {
 } from '@/core/components/projects/project-cells';
 import { FavoriteMark } from '@/core/components/favorites/favorite-parts';
 import { ProjectActionsMenu } from '@/core/components/projects/project-actions-menu';
+import { ProjectBudgetUseCell } from '@/core/components/projects/project-consumption-cells';
+import type { ProjectConsumptionState } from '@/core/hooks/projects/use-project-consumption';
+import { hasProjectBudget, timeSpentOf, timeSpentTextOf } from '@/core/lib/utils/project-consumption';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { cn } from '@/core/lib/helpers';
 import type { ProjectsListState } from '@/core/hooks/projects/use-projects-list-state';
@@ -44,12 +47,14 @@ export function ProjectsGridView({
 	list,
 	groups,
 	statuses,
-	taskStats
+	taskStats,
+	consumption
 }: Readonly<{
 	list: ProjectsListState;
 	groups: ProjectStatusGroup[];
 	statuses: TTaskStatus[];
 	taskStats: ProjectTaskStatsState;
+	consumption: ProjectConsumptionState;
 }>) {
 	const t = useTranslations();
 	const isGrouped = list.grouping === 'status';
@@ -76,6 +81,7 @@ export function ProjectsGridView({
 								clientNames={clientNames}
 								statuses={statuses}
 								taskStats={taskStats}
+								consumption={consumption}
 							/>
 						))}
 					</div>
@@ -161,6 +167,51 @@ function BudgetFact({ project }: Readonly<{ project: TOrganizationProject }>) {
 	);
 }
 
+function BudgetUseFact({
+	project,
+	consumption
+}: Readonly<{ project: TOrganizationProject; consumption: ProjectConsumptionState }>) {
+	const t = useTranslations();
+	return (
+		<div className="flex w-full min-w-0 flex-col gap-1">
+			<span className="text-xs text-muted-foreground">{t('pages.projects.list.COLUMN_BUDGET')}</span>
+			<ProjectBudgetUseCell project={project} consumption={consumption} />
+		</div>
+	);
+}
+
+function TimeSpentFact({
+	projectId,
+	consumption
+}: Readonly<{ projectId: string; consumption: ProjectConsumptionState }>) {
+	const t = useTranslations();
+	const locale = useLocale();
+	const row = consumption.rowOf(projectId);
+	const timeSpent = timeSpentOf(row);
+	if (timeSpent.hours === null) {
+		return null;
+	}
+	const timeText = timeSpentTextOf(timeSpent.hours, locale);
+	return <CardFact label={t('common.TIME_SPENT')}>{timeText}</CardFact>;
+}
+
+/**
+ * The amounts of an hours budget already tell the time spent, so a card writes the time apart only for a project
+ * without a budget.
+ */
+function ConsumptionFacts({
+	project,
+	consumption
+}: Readonly<{ project: TOrganizationProject; consumption: ProjectConsumptionState }>) {
+	if (!consumption.isAvailable) {
+		return <BudgetFact project={project} />;
+	}
+	if (hasProjectBudget(project)) {
+		return <BudgetUseFact project={project} consumption={consumption} />;
+	}
+	return <TimeSpentFact projectId={project.id} consumption={consumption} />;
+}
+
 function ArchivedFact({ project }: Readonly<{ project: TOrganizationProject }>) {
 	const t = useTranslations();
 	const locale = useLocale();
@@ -176,13 +227,15 @@ function ProjectCard({
 	list,
 	clientNames,
 	statuses,
-	taskStats
+	taskStats,
+	consumption
 }: Readonly<{
 	project: TOrganizationProject;
 	list: ProjectsListState;
 	clientNames: ReadonlyMap<string, string>;
 	statuses: TTaskStatus[];
 	taskStats: ProjectTaskStatsState;
+	consumption: ProjectConsumptionState;
 }>) {
 	const t = useTranslations();
 	const isSelected = list.selectedIds.includes(project.id);
@@ -248,7 +301,7 @@ function ProjectCard({
 					<span className="text-xs text-muted-foreground">{t('common.TEAMS')}</span>
 					<TeamsCell teams={project.teams ?? []} max={1} />
 				</div>
-				<BudgetFact project={project} />
+				<ConsumptionFacts project={project} consumption={consumption} />
 				<ArchivedFact project={project} />
 			</footer>
 		</article>

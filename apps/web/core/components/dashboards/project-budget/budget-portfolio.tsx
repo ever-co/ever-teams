@@ -1,7 +1,7 @@
 'use client';
 
 import { type CSSProperties, memo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { limitVerdictTextClassOf } from '@/core/components/dashboards/kit/meters';
 import { DASHBOARD_SURFACE, SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { cn } from '@/core/lib/helpers';
@@ -15,6 +15,7 @@ import {
 	type PortfolioMeter,
 	type PortfolioSegment
 } from '@/core/lib/utils/dashboards/project-budget';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { budgetNotesOf, costBudgetsLabelOf, MISSING_FIGURE, remainingLabelOf, shareTextOf } from './budget-cells';
 import { projectToneOf } from './budget-project-tone';
 
@@ -73,7 +74,7 @@ function PortfolioBar({ meter }: Readonly<{ meter: PortfolioMeter }>) {
 
 function PortfolioLegend({ meter }: Readonly<{ meter: PortfolioMeter }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const hasLegend = meter.legend.length > 0;
 	const hasOthers = meter.otherCount > 0;
 	if (!hasLegend) {
@@ -106,7 +107,7 @@ function PortfolioLegend({ meter }: Readonly<{ meter: PortfolioMeter }>) {
 
 const PortfolioMeterRow = memo(function PortfolioMeterRow({ meter }: Readonly<{ meter: PortfolioMeter }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const total = meter.total;
 	const label = portfolioLabelOf(total, t);
 	const countText = t('dashboard.projectBudget.PROJECTS_COUNT', { count: total.projectCount });

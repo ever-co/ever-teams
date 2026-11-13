@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { EntityTile } from '@/core/components/common/entity-tile';
-import { Folder, Task, Users, X } from '@/core/components/icons';
+import { Building, DollarCircle, Folder, Tag, Task, Users, X } from '@/core/components/icons';
 import {
 	PropertyFilterMenu,
 	type PropertyFilterCategory,
@@ -16,7 +16,9 @@ import {
 	type TimesheetFilterSelection
 } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
 import { imgTitle } from '@/core/lib/helpers/index';
+import { BILLABLE_ONLY_VALUE, labelsOfLogs, type ReportClientChoice } from '@/core/lib/utils/dashboards/report-filters';
 import { NO_PROJECT_VALUE, NO_TASK_VALUE, projectValueOf, taskValueOf } from '@/core/lib/utils/dashboards/timesheets';
+import { NO_CLIENT_FILTER_VALUE } from '@/core/lib/utils/project-list';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
@@ -103,21 +105,50 @@ function taskOptionsOf(logs: ReadonlyArray<ITimeLog>, noTaskLabel: string): Prop
 	return options;
 }
 
+function clientOptionsOf(clients: ReadonlyArray<ReportClientChoice>, noClientLabel: string): PropertyFilterOption[] {
+	const options: PropertyFilterOption[] = [
+		{ value: NO_CLIENT_FILTER_VALUE, name: noClientLabel, icon: <Building /> }
+	];
+	for (const client of clients) {
+		const icon = <EntityTile name={client.name} className="size-4 text-[7px]" />;
+		options.push({ value: client.id, name: client.name, icon });
+	}
+	return options;
+}
+
+function labelOptionsOf(logs: ReadonlyArray<ITimeLog>): PropertyFilterOption[] {
+	const labels = labelsOfLogs(logs);
+	return labels.map((label) => ({
+		value: label.id,
+		name: label.name,
+		icon: <TaskPropertyIcon kind="label" name={label.name} color={label.color} />
+	}));
+}
+
 /**
  * The filter menu's properties. Members (for those who may see others) come from the active team and are sent to
- * Gauzy; projects and tasks are the ones worked in the period and narrow the loaded logs, so picking one is
- * instant and the menu never lists a value with nothing behind it.
+ * Gauzy; projects, tasks and labels are the ones worked in the period and narrow the loaded logs, so picking one is
+ * instant and the menu never lists a value with nothing behind it. Clients are the active ones, and "No client".
+ * The Client property is left out when the projects cannot be read, since nothing would tell a log's client; it
+ * stays while a client is picked, so its chip can still be removed.
  */
 export function useTimesheetFilterCategories({
 	isManage,
 	members,
-	logs
+	logs,
+	clients,
+	canFilterByClient,
+	hasPickedClient
 }: Readonly<{
 	isManage: boolean;
 	members: ReadonlyArray<TOrganizationTeamEmployee>;
 	logs: ReadonlyArray<ITimeLog>;
+	clients: ReadonlyArray<ReportClientChoice>;
+	canFilterByClient: boolean;
+	hasPickedClient: boolean;
 }>) {
 	const t = useTranslations();
+	const showsClients = canFilterByClient || hasPickedClient;
 	return useMemo<PropertyFilterCategory<TimesheetFilterField>[]>(() => {
 		const categories: PropertyFilterCategory<TimesheetFilterField>[] = [];
 		if (isManage) {
@@ -145,8 +176,39 @@ export function useTimesheetFilterCategories({
 				options: taskOptionsOf(logs, t('dashboard.timesheets.NO_TASK'))
 			}
 		);
+		if (showsClients) {
+			categories.push({
+				field: 'clients',
+				keepsCase: true,
+				icon: <Building />,
+				label: t('clients.TITLE'),
+				options: clientOptionsOf(clients, t('common.NO_CLIENT'))
+			});
+		}
+		categories.push(
+			{
+				field: 'billable',
+				keepsCase: true,
+				icon: <DollarCircle />,
+				label: t('dashboard.timesheets.BILLABLE'),
+				options: [
+					{
+						value: BILLABLE_ONLY_VALUE,
+						name: t('timeReports.filters.BILLABLE_ONLY'),
+						icon: <DollarCircle />
+					}
+				]
+			},
+			{
+				field: 'labels',
+				keepsCase: true,
+				icon: <Tag />,
+				label: t('common.LABELS'),
+				options: labelOptionsOf(logs)
+			}
+		);
 		return categories;
-	}, [isManage, logs, members, t]);
+	}, [clients, isManage, logs, members, showsClients, t]);
 }
 
 interface AppliedFilter {
@@ -157,16 +219,18 @@ interface AppliedFilter {
 	icon: PropertyFilterOption['icon'];
 }
 
+/** `unlistedName` stands for a value no option holds, such as a label of a shared link that this period lacks. */
 function appliedFiltersOf(
 	filters: TimesheetFilterSelection,
 	categories: ReadonlyArray<PropertyFilterCategory<TimesheetFilterField>>,
-	knownNames: Readonly<Record<string, string>>
+	knownNames: Readonly<Record<string, string>>,
+	unlistedName: string
 ): AppliedFilter[] {
 	const applied: AppliedFilter[] = [];
 	for (const category of categories) {
 		for (const value of filters[category.field]) {
 			const option = category.options.find((candidate) => candidate.value === value);
-			const name = option?.name ?? knownNames[value] ?? value;
+			const name = option?.name ?? knownNames[value] ?? unlistedName;
 			applied.push({ field: category.field, value, fieldLabel: category.label, name, icon: option?.icon });
 		}
 	}
@@ -209,7 +273,11 @@ export function useTimesheetFilterControls({
 		[categories, onChange]
 	);
 
-	const applied = appliedFiltersOf(filters, categories, knownNames);
+	const unlistedName = t('dashboard.timeActivity.filters.UNLISTED');
+	const applied = useMemo(
+		() => appliedFiltersOf(filters, categories, knownNames, unlistedName),
+		[categories, filters, knownNames, unlistedName]
+	);
 	const hasApplied = applied.length > 0;
 
 	const menu = (
@@ -253,5 +321,5 @@ export function useTimesheetFilterControls({
 		</div>
 	);
 
-	return { menu, chips };
+	return { menu, chips, applied };
 }

@@ -228,7 +228,8 @@ describe('an invoice opened to be edited', () => {
 			invoiceId: 'invoice-42',
 			invoiceNumber: 42,
 			email: 'billing@acme.test',
-			marksSent: false
+			marksSent: false,
+			scope: { organizationId: 'organization-1', tenantId: 'tenant-1' }
 		});
 		expect(draftCall.marksSent).toBe(true);
 	});

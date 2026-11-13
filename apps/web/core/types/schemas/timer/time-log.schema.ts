@@ -44,12 +44,14 @@ export const timeLogSchema = z
 		})
 	);
 
-// A time log the conflict lookup returns (GET /timesheet/time-log/conflict): only what the overlap warning reads
+// A time log the conflict lookup returns (GET /timesheet/time-log/conflict): only what the overlap warning and the
+// time import read
 export const timeLogConflictSchema = z.object({
 	id: z.string(),
 	startedAt: z.string().nullable().optional(),
 	stoppedAt: z.string().nullable().optional(),
 	isRunning: z.coerce.boolean().nullable().optional(),
+	taskId: z.string().nullable().optional(),
 	task: z.object({ title: z.string().nullable().optional() }).nullable().optional(),
 	project: z.object({ name: z.string().nullable().optional() }).nullable().optional()
 });

@@ -75,6 +75,24 @@ describe('useTimeOverlapGuard', () => {
 		expect(result.current.summary.entries[0].removedSeconds).toBe(114 * 60);
 	});
 
+	it('refuses an overlap instead of asking, for a save that may remove no entry', async () => {
+		mockGetTimeLogConflicts.mockResolvedValue([trackedLog]);
+		const save = jest.fn();
+		const refuseOverlap = jest.fn();
+		const { result } = renderGuard();
+
+		await act(() =>
+			result.current.saveAfterCheck({ employeeId: 'employee-a', periods: [eveningPeriod], save, refuseOverlap })
+		);
+		act(() => result.current.confirm());
+
+		expect(refuseOverlap).toHaveBeenCalledWith(
+			expect.objectContaining({ entries: [expect.objectContaining({ id: 'tracked' })] })
+		);
+		expect(save).not.toHaveBeenCalled();
+		expect(result.current.isConfirmOpen).toBe(false);
+	});
+
 	it('saves once the member confirms, and only once', async () => {
 		mockGetTimeLogConflicts.mockResolvedValue([trackedLog]);
 		const save = jest.fn();

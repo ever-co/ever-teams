@@ -4,6 +4,7 @@ import { FC } from 'react';
 import { useTranslations } from 'next-intl';
 import { PageSkeletonFrame, ToolbarBandSkeleton } from '@/core/components/layouts/page-skeleton';
 import { cn } from '@/core/lib/helpers';
+import { availableTeamTasksLayouts } from '@/core/lib/utils/team-tasks-layouts';
 
 const BAR = 'animate-pulse rounded-full bg-foreground/[0.06]';
 
@@ -13,13 +14,35 @@ const ROWS_PER_GROUP = 6;
 /** Titles of varying length, so the skeleton reads as a list of tasks and not as a grid of equal bars. */
 const TITLE_WIDTHS = ['w-[62%]', 'w-[48%]', 'w-[70%]', 'w-[38%]', 'w-[56%]', 'w-[44%]'];
 
-/** The toolbar band of the page: title, meta and New task; then the scope switch, search, Filter and Display. */
+const NEW_TASK_WIDTH = 'w-24';
+
+/** The view switch with the list, the calendar and the table: glyphs alone, glyphs and names from `xl`. */
+const LAYOUT_SWITCH_WIDTH = 'w-32 xl:w-64';
+
+/** The same switch with the board and the timeline of the saved-views feature. */
+const LAYOUT_SWITCH_WIDTH_WITH_SAVED_VIEWS = 'w-52 xl:w-112';
+
+const LAYOUTS_WITHOUT_SAVED_VIEWS = 3;
+
+function layoutSwitchWidth() {
+	const layoutCount = availableTeamTasksLayouts().length;
+	if (layoutCount > LAYOUTS_WITHOUT_SAVED_VIEWS) {
+		return LAYOUT_SWITCH_WIDTH_WITH_SAVED_VIEWS;
+	}
+	return LAYOUT_SWITCH_WIDTH;
+}
+
+/**
+ * The toolbar band of the page: title, meta, the view switch and New task; then the scope switch, search, Filter and
+ * Display.
+ */
 export function TeamTasksToolbarSkeleton() {
 	const t = useTranslations();
+	const actionWidths = [layoutSwitchWidth(), NEW_TASK_WIDTH];
 	return (
 		<ToolbarBandSkeleton
 			title={t('sidebar.TEAMTASKS')}
-			actionWidths={['w-24']}
+			actionWidths={actionWidths}
 			controlWidths={['w-56']}
 			trailingWidths={['w-56', 'w-20', 'w-24']}
 		/>
@@ -29,7 +52,6 @@ export function TeamTasksToolbarSkeleton() {
 function RowSkeleton({ titleWidth }: Readonly<{ titleWidth: string }>) {
 	return (
 		<div className="flex h-10 items-center gap-3 hairline-b border-border px-3 lg:pl-9">
-			<span className={cn(BAR, 'size-4 shrink-0 max-lg:hidden')} />
 			<span className={cn(BAR, 'h-2.5 w-9 shrink-0 max-lg:hidden')} />
 			<span className={cn(BAR, 'size-4 shrink-0')} />
 			<span className="flex min-w-0 flex-1 items-center gap-2">

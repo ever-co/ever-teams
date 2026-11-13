@@ -10,7 +10,7 @@ import type { IDocumentCommentAnchorInput } from '@/core/types/interfaces/common
  */
 
 /** A block of the editor's document: its anchor, its text, and where it is. */
-export interface DocsEditorBlock extends DocsAnchorBlock {
+interface DocsEditorBlock extends DocsAnchorBlock {
 	pos: number;
 	node: ProseMirrorNode;
 }
@@ -21,7 +21,7 @@ function blockIdOf(node: ProseMirrorNode): string | null {
 }
 
 /** The text of a node as the anchors count it: its text nodes, nothing between them. */
-export function editorBlockTextOf(node: ProseMirrorNode): string {
+function editorBlockTextOf(node: ProseMirrorNode): string {
 	let text = '';
 	node.descendants((child) => {
 		if (child.isText) text += child.text ?? '';

@@ -13,6 +13,8 @@ export interface UseActivityWeeklyReportQueryOptions {
 	startDate: Date;
 	/** Last instant of the range, in local time */
 	endDate: Date;
+	/** Counts billable time only */
+	billableOnly?: boolean;
 	/** Whether the query should be enabled */
 	enabled?: boolean;
 }
@@ -24,6 +26,7 @@ export function useActivityWeeklyReportQuery({
 	mergedProps,
 	startDate,
 	endDate,
+	billableOnly = false,
 	enabled = true
 }: UseActivityWeeklyReportQueryOptions) {
 	const params: ITimeLogReportWeeklyRequest = {
@@ -32,7 +35,8 @@ export function useActivityWeeklyReportQuery({
 		timeZone: getDefaultTimezone(),
 		employeeIds: mergedProps?.employeeIds ?? [],
 		projectIds: mergedProps?.projectIds ?? [],
-		teamIds: mergedProps?.teamIds ?? []
+		teamIds: mergedProps?.teamIds ?? [],
+		billableOnly
 	};
 
 	const query = useQuery({

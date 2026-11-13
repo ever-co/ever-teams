@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, useCallback, useMemo, useState } from 'react';
-import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
+import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { ChevronRight } from '@/core/components/icons';
 import {
@@ -29,6 +29,8 @@ import {
 	lineCountOf,
 	todayKeyOf
 } from '@/core/lib/utils/dashboards/time-activity';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import {
 	ActivityText,
 	DurationText,
@@ -63,7 +65,7 @@ const INNER_LABEL_KEYS: Record<TableGrouping, DottedLanguageObjectStringPaths> =
 };
 
 interface TableText {
-	locale: string;
+	locale: FormatLocale;
 	todayKey: string;
 	today: string;
 	unnamed: string;
@@ -300,7 +302,7 @@ function cellCountOf(columns: TableColumns) {
 
 function useTableText(grouping: TableGrouping): TableText {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	return useMemo(() => {
 		const groupSummary = (group: ReportGroupData) => {
 			if (grouping === 'member') {
@@ -325,8 +327,8 @@ function useTableText(grouping: TableGrouping): TableText {
 			moreProjects: (count: number) => t('dashboard.timeActivity.table.MORE_PROJECTS', { count }),
 			groupSummary,
 			lineMeta,
-			longDay: new Intl.DateTimeFormat(locale, { weekday: 'long', month: 'short', day: 'numeric' }),
-			shortDay: new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric' })
+			longDay: dateFormatOf(locale, { weekday: 'long', month: 'short', day: 'numeric' }),
+			shortDay: dateFormatOf(locale, { weekday: 'short', month: 'short', day: 'numeric' })
 		};
 	}, [grouping, locale, t]);
 }
@@ -338,7 +340,7 @@ function TableEmpty({
 	onPreviousPeriod
 }: Readonly<{ period: Period; hasFilters: boolean; onClearFilters: () => void; onPreviousPeriod: () => void }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const periodText = formatPeriod(period, locale);
 	if (hasFilters) {
 		return (

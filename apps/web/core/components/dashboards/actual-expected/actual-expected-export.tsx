@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
+import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import type { ExportOption } from '@/core/components/dashboards/kit/export-menu';
 import { FilePdf, FileSheet } from '@/core/components/icons';
 import type { ActualExpectedShown } from '@/core/hooks/dashboards/actual-expected/use-actual-expected-report';
@@ -19,6 +19,8 @@ import {
 	type PlanGrouping,
 	type PlanTotals
 } from '@/core/lib/utils/dashboards/actual-expected';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import type { PlanPdfContent, PlanPdfFigure, PlanPdfGroup, PlanPdfLine } from './actual-expected-report-pdf';
 import { SOURCE_LABEL_KEYS } from './plan-cells';
 
@@ -159,7 +161,7 @@ function totalsLineOf(key: string, first: string, totals: PlanTotals, t: Transla
 	};
 }
 
-function dayTextOf(day: Date, locale: string) {
+function dayTextOf(day: Date, locale: FormatLocale) {
 	const { weekday, date } = dayLabelPartsOf(day, locale);
 	return `${weekday} ${date}`;
 }
@@ -175,14 +177,14 @@ function noteOf(memberDay: MemberDay, t: Translate) {
 	return t('dashboard.actualExpected.TASK_ESTIMATES_LINE', { duration: formatHoursLabel(taskEstimates) });
 }
 
-function rowFirstOf(memberDay: MemberDay, grouping: PlanGrouping, locale: string) {
+function rowFirstOf(memberDay: MemberDay, grouping: PlanGrouping, locale: FormatLocale) {
 	if (grouping === 'member') {
 		return dayTextOf(memberDay.day, locale);
 	}
 	return memberDay.name;
 }
 
-function rowLineOf(memberDay: MemberDay, grouping: PlanGrouping, locale: string, t: Translate): PlanPdfLine {
+function rowLineOf(memberDay: MemberDay, grouping: PlanGrouping, locale: FormatLocale, t: Translate): PlanPdfLine {
 	const missingLabel = t(SOURCE_LABEL_KEYS[memberDay.source]);
 	return {
 		key: memberDay.key,
@@ -195,7 +197,7 @@ function rowLineOf(memberDay: MemberDay, grouping: PlanGrouping, locale: string,
 	};
 }
 
-function groupTitleOf(group: PlanGroup, locale: string) {
+function groupTitleOf(group: PlanGroup, locale: FormatLocale) {
 	const member = group.member;
 	if (member) {
 		return member.name;
@@ -210,7 +212,7 @@ function groupTitleOf(group: PlanGroup, locale: string) {
 function pdfGroupsOf(
 	groups: ReadonlyArray<PlanGroup>,
 	grouping: PlanGrouping,
-	locale: string,
+	locale: FormatLocale,
 	t: Translate
 ): PlanPdfGroup[] {
 	return groups.map((group) => ({
@@ -254,12 +256,12 @@ interface PdfInput {
 	grouping: PlanGrouping;
 	title: string;
 	periodText: string;
-	locale: string;
+	locale: FormatLocale;
 	t: Translate;
 }
 
 function pdfContentOf({ shown, groups, grouping, title, periodText, locale, t }: PdfInput): PlanPdfContent {
-	const generatedFormat = new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' });
+	const generatedFormat = dateFormatOf(locale, { dateStyle: 'medium', timeStyle: 'short' });
 	const generatedDate = generatedFormat.format(new Date());
 	const totals = shown.figures.totals;
 	const totalLabel = t('common.TOTAL');
@@ -303,7 +305,7 @@ export function useActualExpectedExportOptions({
 	teamName: string;
 }>): ExportOption[] {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 
 	return useMemo(() => {
 		if (!shown) {

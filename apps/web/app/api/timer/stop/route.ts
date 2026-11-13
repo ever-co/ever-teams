@@ -2,6 +2,9 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTimerStatusRequest, readTodayRange, stopTimerRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
+import { TIMER_NOTES_MAX_LENGTH, readTimerNotes } from '@/core/lib/utils/timer/timer-notes';
+
+const NOTES_REFUSAL = `description must be a string of at most ${TIMER_NOTES_MAX_LENGTH} characters`;
 
 function toIsoDate(value: unknown): string | null {
 	if (typeof value !== 'string') return null;
@@ -14,7 +17,12 @@ export async function POST(req: Request) {
 	const { $res, user, tenantId, access_token, organizationId, taskId } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');
 
-	const body = (await req.json()) as unknown as { source: any; startedAt?: unknown; stoppedAt?: unknown };
+	const body = (await req.json()) as unknown as {
+		source: any;
+		startedAt?: unknown;
+		stoppedAt?: unknown;
+		description?: unknown;
+	};
 	const { source } = body;
 	const startedAt = toIsoDate(body.startedAt);
 	const stoppedAt = toIsoDate(body.stoppedAt);
@@ -25,6 +33,15 @@ export async function POST(req: Request) {
 	// credit time not worked. One minute of slack covers clock skew.
 	if (stoppedAt && Date.parse(stoppedAt) > Date.now() + 60_000) {
 		return NextResponse.json({ message: 'stoppedAt cannot be in the future' }, { status: 400 });
+	}
+
+	const notes = readTimerNotes(body.description);
+	if (!notes.isValid) {
+		return NextResponse.json({ message: NOTES_REFUSAL }, { status: 400 });
+	}
+	const notesField: { description?: string } = {};
+	if (notes.description !== undefined) {
+		notesField.description = notes.description;
 	}
 
 	try {
@@ -42,7 +59,8 @@ export async function POST(req: Request) {
 						}
 					: {}),
 				...(startedAt ? { startedAt } : {}),
-				...(stoppedAt ? { stoppedAt } : {})
+				...(stoppedAt ? { stoppedAt } : {}),
+				...notesField
 			},
 			access_token
 		);

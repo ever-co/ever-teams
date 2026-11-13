@@ -16,7 +16,8 @@ import {
 	placementOf,
 	reductionOf,
 	type SheetEditRules,
-	sheetCellKeyOf
+	sheetCellKeyOf,
+	singlePlacementOf
 } from './timesheet-sheet-edit';
 import { rowIdentityOfLog, type SheetDay } from './timesheets';
 
@@ -131,6 +132,53 @@ describe('free windows and placement', () => {
 		const free = freeWindowsBetween(busyWindowsOf(logs, bounds), bounds, bounds.end);
 
 		expect(free[0]).toEqual({ start: at(2), end: bounds.end });
+	});
+});
+
+describe('singlePlacementOf', () => {
+	const bounds = dayBoundsOf(at(0));
+
+	function freeOf(logs: ITimeLog[], limit: Date = bounds.end) {
+		return freeWindowsBetween(busyWindowsOf(logs, bounds), bounds, limit);
+	}
+
+	it('starts at 09:00 on a free day', () => {
+		const interval = singlePlacementOf(90 * MINUTE, freeOf([]), at(0));
+
+		expect(interval).toEqual({ start: at(9), end: at(10, 30) });
+	});
+
+	it('skips a free stretch that is too short instead of splitting the time', () => {
+		const logs = [logOf({ id: 'standup', startedAt: at(9, 45), stoppedAt: at(10) })];
+		const free = freeOf(logs);
+
+		expect(placementOf(90 * MINUTE, free, at(0))).toHaveLength(2);
+		expect(singlePlacementOf(90 * MINUTE, free, at(0))).toEqual({ start: at(10), end: at(11, 30) });
+	});
+
+	it('takes the stretch across 09:00 before the ones that end earlier', () => {
+		const logs = [logOf({ id: 'early', startedAt: at(6), stoppedAt: at(7) })];
+		const now = at(10);
+		const free = freeOf(logs, placementLimitOf(bounds, now, false));
+
+		expect(singlePlacementOf(90 * MINUTE, free, at(0))).toEqual({ start: at(8, 30), end: at(10) });
+	});
+
+	it('ends at 09:00 when the rest of the day is taken', () => {
+		const logs = [logOf({ id: 'long', startedAt: at(9), stoppedAt: bounds.end })];
+
+		expect(singlePlacementOf(90 * MINUTE, freeOf(logs), at(0))).toEqual({ start: at(7, 30), end: at(9) });
+	});
+
+	it('finds nothing when the free time is enough only in several pieces', () => {
+		const logs = [
+			logOf({ id: 'a', startedAt: at(0), stoppedAt: at(9) }),
+			logOf({ id: 'b', startedAt: at(10), stoppedAt: at(23) })
+		];
+		const free = freeOf(logs);
+
+		expect(freeSecondsOf(free)).toBe(2 * HOUR);
+		expect(singlePlacementOf(90 * MINUTE, free, at(0))).toBeNull();
 	});
 });
 

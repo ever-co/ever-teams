@@ -62,4 +62,18 @@ describe('GET /api/timesheet/time-log/report/daily', () => {
 
 		expect(upstreamQuery()).not.toHaveProperty('includeTimeWithoutTeam');
 	});
+
+	it('asks Gauzy for billable time only when the report does', async () => {
+		const query = new URLSearchParams({ ...baseParams, billableOnly: 'true' });
+
+		await GET(dailyRequest(query));
+
+		expect(upstreamQuery()).toEqual(expect.objectContaining({ billableOnly: 'true' }));
+	});
+
+	it('keeps counting every log for a report that does not ask for billable time only', async () => {
+		await GET(dailyRequest(new URLSearchParams({ ...baseParams, billableOnly: 'false' })));
+
+		expect(upstreamQuery()).not.toHaveProperty('billableOnly');
+	});
 });

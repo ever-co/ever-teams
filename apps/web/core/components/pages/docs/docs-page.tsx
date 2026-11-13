@@ -13,6 +13,7 @@ import { useDocsFavorites } from '@/core/hooks/docs/use-docs-favorites';
 import { useDocsExpanded, useDocsRecent } from '@/core/hooks/docs/use-docs-recent';
 import { useDocsScope } from '@/core/hooks/docs/use-docs-scope';
 import { useDocsTree } from '@/core/hooks/docs/use-docs-tree';
+import { pagesWithUnsentLiveEdits } from '@/core/hooks/docs/use-docs-live';
 import { useDocsZipExport } from '@/core/hooks/docs/use-docs-zip-export';
 import { isInside } from '@/core/lib/utils/docs-export';
 import type { DocsPageEdits } from '@/core/lib/utils/docs-page-edits';
@@ -254,8 +255,12 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 				void exportZip(page, {
 					beforeExport: async () => {
 						const edits = openEditsRef.current;
-						if (!edits || !pageId || !isInside(tree.byId, pageId, page.id) || !edits.pending()) return true;
-						return edits.hold();
+						const isOpenPageInside = pageId !== null && isInside(tree.byId, pageId, page.id);
+						if (edits && isOpenPageInside && edits.pending() && !(await edits.hold())) return false;
+						// Live edits the platform never confirmed exist only in this tab: a page left while its session was down,
+						// or the open page when its save path cannot send them (a page locked since). The live memory clears a
+						// page once its edits are confirmed, so a page still marked there keeps the folder from being exported.
+						return !pagesWithUnsentLiveEdits().some((id) => isInside(tree.byId, id, page.id));
 					}
 				}),
 			drop: (id, parentId) => {

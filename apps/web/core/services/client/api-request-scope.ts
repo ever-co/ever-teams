@@ -25,3 +25,11 @@ export function scopedReadConfig({ scope, signal }: ScopedReadOptions): APIConfi
 		headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined
 	};
 }
+
+/**
+ * The same pairing for a write the API aims by its token alone: it reaches the workspace it was asked for, whatever
+ * workspace the session moved to while it waited.
+ */
+export function scopedWriteConfig(scope: ApiRequestScope): APIConfig {
+	return scopedReadConfig({ scope });
+}

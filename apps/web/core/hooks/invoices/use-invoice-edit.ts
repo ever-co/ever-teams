@@ -73,9 +73,11 @@ export function useInvoiceEdit(saved: SavedInvoice) {
 			if (!edit) {
 				return null;
 			}
-			const invoiceNumber = edit.revision.update.invoiceNumber;
+			const { invoiceNumber, organizationId, tenantId } = edit.revision.update;
 			const marksSent = isDraftInvoice(saved.status);
-			const sending = { invoiceId: saved.id, invoiceNumber, email, marksSent };
+			// Sent from the workspace the edit is saved in: a switch in another tab meanwhile sends nothing
+			const scope = { organizationId, tenantId };
+			const sending = { invoiceId: saved.id, invoiceNumber, email, marksSent, scope };
 			return saveInvoiceEdit({ edit, sending });
 		},
 		[editOf, saveInvoiceEdit, saved]

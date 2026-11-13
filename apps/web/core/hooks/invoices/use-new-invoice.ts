@@ -197,6 +197,9 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 	const isOrganizationKnown = organization !== null;
 	const hasOrganizationFailed = !isOrganizationKnown && organizationRead.isError;
 	const isOrganizationLoading = !isOrganizationKnown && !organizationRead.isError;
+	// The workspace the client, its time and its rates are read in when the form opens: the invoice is made there, and
+	// a save after another tab switched the workspace is refused instead of mixing the two
+	const [draftScope] = useState(() => ({ organizationId: getOrganizationIdCookie(), tenantId: getTenantIdCookie() }));
 	const clientsQuery = useActiveClients();
 	const clients = clientsQuery.clients;
 
@@ -286,7 +289,11 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 	);
 
 	const draftProblems = invoiceProblemsOf({ numberText, issueDay, dueDay, currency, lineCount: keptLines.length });
-	const waits = invoiceWaitsOf({ isReadingEarlier: earlier.isLoading, isReadingTimeAgain: time.isUpdating });
+	// A save that failed unconfirmed reads the client's invoices again: a retry waits for that answer, which may hold it
+	const waits = invoiceWaitsOf({
+		isReadingEarlier: earlier.isLoading || earlier.isRefreshing,
+		isReadingTimeAgain: time.isUpdating
+	});
 	const problems = draftProblems.concat(waits);
 	const isWaiting = waits.length > 0;
 
@@ -368,10 +375,15 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 		if (!clientId || !currency) {
 			return null;
 		}
+		const isSameWorkspace =
+			getOrganizationIdCookie() === draftScope.organizationId && getTenantIdCookie() === draftScope.tenantId;
+		if (!isSameWorkspace) {
+			return null;
+		}
 		return buildInvoiceRequest({
 			id: newUuid(),
-			organizationId: getOrganizationIdCookie(),
-			tenantId: getTenantIdCookie(),
+			organizationId: draftScope.organizationId,
+			tenantId: draftScope.tenantId,
 			clientId,
 			invoiceNumber,
 			issueDay,
@@ -389,6 +401,7 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 		clientId,
 		currency,
 		descriptions,
+		draftScope,
 		dueDay,
 		isOrganizationKnown,
 		issueDay,

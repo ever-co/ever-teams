@@ -153,6 +153,20 @@ export class SessionCheckMemo<T> {
 		this.entries.clear();
 	}
 
+	/**
+	 * Forgets the answer kept for one token, so the next route checks it again: for a route that has just changed
+	 * what the check answers (the user's own row), whose next read must not be the user as they were. A check still
+	 * in flight keeps answering the callers already waiting for it.
+	 *
+	 * @param token The access token.
+	 */
+	drop(token: string): void {
+		if (!token) {
+			return;
+		}
+		this.entries.delete(createHash('sha256').update(token).digest('base64url'));
+	}
+
 	/** How many tokens are remembered. */
 	get size(): number {
 		return this.entries.size;

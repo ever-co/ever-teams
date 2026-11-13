@@ -1,4 +1,4 @@
-import { scopedReadConfig } from './api-request-scope';
+import { scopedReadConfig, scopedWriteConfig } from './api-request-scope';
 
 describe('scopedReadConfig token rotation', () => {
 	it('keeps a captured tenant paired with the token captured in the same render', () => {
@@ -21,5 +21,15 @@ describe('scopedReadConfig token rotation', () => {
 		});
 
 		expect(config.headers).toBeUndefined();
+	});
+});
+
+describe('scopedWriteConfig', () => {
+	it('sends a write with the tenant and the token of the workspace it was asked for', () => {
+		const config = scopedWriteConfig({ tenantId: 'tenant-a', accessToken: 'token-a' });
+
+		expect(config.tenantId).toBe('tenant-a');
+		expect(config.pinnedAuthorization).toBe(true);
+		expect(config.headers).toEqual({ Authorization: 'Bearer token-a' });
 	});
 });

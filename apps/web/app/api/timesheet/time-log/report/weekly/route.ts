@@ -36,6 +36,8 @@ export async function GET(req: Request) {
 			.filter(([key]) => key.startsWith(`${name}[`))
 			.map(([, value]) => value);
 
+	const billableOnly = searchParams.get('billableOnly') === 'true';
+
 	try {
 		const { data } = await getTimeLogReportWeeklyRequest(
 			{
@@ -46,7 +48,8 @@ export async function GET(req: Request) {
 				timeZone: searchParams.get('timeZone') || undefined,
 				projectIds: listParam('projectIds'),
 				employeeIds: listParam('employeeIds'),
-				teamIds: listParam('teamIds')
+				teamIds: listParam('teamIds'),
+				billableOnly
 			},
 			access_token
 		);

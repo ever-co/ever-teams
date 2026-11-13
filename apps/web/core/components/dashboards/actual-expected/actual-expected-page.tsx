@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 import { useAtomValue } from 'jotai';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { Chart } from '@/core/components/icons';
 import { DashboardBreadcrumb } from '@/core/components/dashboards/kit/dashboard-breadcrumb';
@@ -15,6 +15,7 @@ import { useActualExpectedReport } from '@/core/hooks/dashboards/actual-expected
 import { formatPeriod, shiftPeriod } from '@/core/lib/utils/dashboard-period';
 import { PLAN_WEEK_START, type VarianceDay } from '@/core/lib/utils/dashboards/actual-expected';
 import { isTrackingEnabledState } from '@/core/stores';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { useActualExpectedExportOptions } from './actual-expected-export';
 import { ActualExpectedEmpty } from './actual-expected-table';
 import { AppliedPlanMemberFilters, PlanGroupingControl, PlanMemberFilterMenu } from './actual-expected-toolbar';
@@ -27,7 +28,7 @@ const EMPTY_VARIANCE_DAYS: VarianceDay[] = [];
 
 export function ActualExpectedPage() {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const report = useActualExpectedReport({ unnamedLabel: t('timeActivity.UNNAMED_EMPLOYEE') });
 	const { period, setPeriod, shown } = report;
@@ -79,7 +80,12 @@ export function ActualExpectedPage() {
 					actions={<ExportMenu options={exportOptions} isDisabled={isExportDisabled} />}
 					controls={
 						<>
-							<PeriodPicker value={period} onChange={setPeriod} weekStartsOn={PLAN_WEEK_START} />
+							<PeriodPicker
+								value={period}
+								onChange={setPeriod}
+								weekStartsOn={PLAN_WEEK_START}
+								locale={locale}
+							/>
 							<PlanMemberFilterMenu
 								members={report.members}
 								selectedIds={report.appliedEmployeeIds}

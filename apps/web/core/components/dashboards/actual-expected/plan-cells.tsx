@@ -1,7 +1,7 @@
 'use client';
 
 import type { CSSProperties, ReactNode } from 'react';
-import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
+import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort, formatHoursLabel } from '@/core/lib/utils/dashboard-figures';
@@ -15,6 +15,7 @@ import {
 	type PlanTotals,
 	type RelativeDay
 } from '@/core/lib/utils/dashboards/actual-expected';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 
 const MISSING_FIGURE = '–';
 
@@ -239,7 +240,7 @@ function boldLead(chunks: ReactNode) {
 /** "Today" and "Yesterday" take the weekday's place for the two latest days. */
 export function DayLabel({ day, dayKey, className }: Readonly<{ day: Date; dayKey: string; className?: string }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const { weekday, date } = dayLabelPartsOf(day, locale);
 	const relative = relativeDayOf(dayKey);
 	const leadWord = leadWordOf(relative, weekday, t);

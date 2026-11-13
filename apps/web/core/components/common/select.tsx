@@ -147,6 +147,19 @@ interface SelectValueProps extends Omit<SelectPrimitive.Value.Props, 'children' 
 	placeholder?: React.ReactNode;
 }
 
+/**
+ * The placeholder is an element, never a bare string. A value set from outside reaches the value node one commit
+ * after the selected item portaled its label into it, and React clears the whole text of a node whose only child
+ * stops being a string: the label would go with the placeholder.
+ */
+function placeholderNodeOf(placeholder: React.ReactNode) {
+	const hasNoPlaceholder = placeholder === null || placeholder === undefined;
+	if (hasNoPlaceholder) {
+		return null;
+	}
+	return <span data-slot="select-placeholder">{placeholder}</span>;
+}
+
 const SelectValue = React.forwardRef<HTMLSpanElement, SelectValueProps>(
 	({ className, children, placeholder, ...props }, ref) => {
 		const { setValueNode, setValueNodeHasChildren } = useSelectContext();
@@ -161,7 +174,7 @@ const SelectValue = React.forwardRef<HTMLSpanElement, SelectValueProps>(
 		const renderValue = (value: SelectValueType) => {
 			const isEmpty = value === null || value === '';
 			if (isEmpty) {
-				return placeholder;
+				return placeholderNodeOf(placeholder);
 			}
 			if (hasChildren) {
 				return children;

@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useLocale } from 'next-intl';
 import { useActivityWeeklyReportQuery } from '@/core/hooks/activities/queries/use-activity-weekly-report-query';
 import type { UseReportActivityProps } from '@/core/hooks/activities/use-activity-filters';
+import type { DailyReportRow } from '@/core/lib/utils/daily-report-figures';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import type { Period } from '@/core/lib/utils/dashboard-period';
 import {
@@ -13,11 +14,23 @@ import {
 	weekColumnTotalsOf,
 	weekDaysOf,
 	weekGridRowsOf,
+	weekGridRowsOfDailyRows,
 	weekStartsOfPeriod,
 	weekWindowOf
 } from '@/core/lib/utils/dashboards/time-activity';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { TimeActivityRequest } from './use-time-activity-queries';
+
+/**
+ * The period's daily rows and their state, given when a filter is on that the weekly report cannot apply: the grid
+ * is then built from these rows, which hold exactly the filtered time.
+ */
+export interface WeekDailySource {
+	rows: ReadonlyArray<DailyReportRow>;
+	isLoading: boolean;
+	isError: boolean;
+	refetch: () => void;
+}
 
 /** The weekly hook reads only the scope, member, team and project ids of these props; the rest mirrors the page. */
 function weeklyPropsOf(
@@ -78,8 +91,14 @@ function dayColumnsOf(weekStart: Date, window: Period, todayKey: string): WeekDa
 export function useTimeActivityWeek({
 	period,
 	request,
-	userId
-}: Readonly<{ period: Period; request: TimeActivityRequest | null; userId: string | undefined }>) {
+	userId,
+	dailySource
+}: Readonly<{
+	period: Period;
+	request: TimeActivityRequest | null;
+	userId: string | undefined;
+	dailySource: WeekDailySource | null;
+}>) {
 	const locale = useLocale();
 	const weekStarts = useMemo(() => weekStartsOfPeriod(period, TIME_ACTIVITY_WEEK_START), [period]);
 	const [weekIndex, setWeekIndex] = useState(() => initialWeekIndexOf(weekStarts));
@@ -90,18 +109,30 @@ export function useTimeActivityWeek({
 	const window = useMemo(() => weekWindowOf(weekStart, period, TIME_ACTIVITY_WEEK_START), [period, weekStart]);
 	const columns = useMemo(() => dayColumnsOf(weekStart, window, todayKeyOf()), [weekStart, window]);
 	const mergedProps = useMemo(() => weeklyPropsOf(request, userId), [request, userId]);
+	const readsWeeklyReport = mergedProps !== null && dailySource === null;
 
-	const { weeklyReport, isLoading, isError, refetch } = useActivityWeeklyReportQuery({
+	const weekly = useActivityWeeklyReportQuery({
 		mergedProps,
 		startDate: window.from,
 		endDate: window.to,
-		enabled: mergedProps !== null
+		billableOnly: request?.billableOnly === true,
+		enabled: readsWeeklyReport
 	});
+	const weeklyReport = weekly.weeklyReport;
 
-	const rows = useMemo(() => {
-		const dayKeys = columns.map((column) => column.key);
-		return weekGridRowsOf(weeklyReport, dayKeys, locale);
-	}, [columns, locale, weeklyReport]);
+	const dayKeys = useMemo(() => columns.map((column) => column.key), [columns]);
+	const dailyRows = dailySource?.rows ?? null;
+	const rowsOfDailyRows = useMemo(() => {
+		if (!dailyRows) {
+			return null;
+		}
+		return weekGridRowsOfDailyRows(dailyRows, dayKeys, locale);
+	}, [dailyRows, dayKeys, locale]);
+	const rowsOfWeeklyReport = useMemo(
+		() => weekGridRowsOf(weeklyReport, dayKeys, locale),
+		[dayKeys, locale, weeklyReport]
+	);
+	const rows = rowsOfDailyRows ?? rowsOfWeeklyReport;
 
 	const columnTotals = useMemo(() => weekColumnTotalsOf(rows, columns.length), [columns.length, rows]);
 
@@ -119,6 +150,8 @@ export function useTimeActivityWeek({
 	const goPrevious = useCallback(() => setWeekIndex((index) => Math.max(index - 1, 0)), []);
 	const goNext = useCallback(() => setWeekIndex((index) => Math.min(index + 1, lastIndex)), [lastIndex]);
 
+	const source = dailySource ?? weekly;
+
 	return {
 		weekStart,
 		window,
@@ -126,9 +159,9 @@ export function useTimeActivityWeek({
 		rows,
 		columnTotals,
 		grandTotal,
-		isLoading,
-		isError,
-		refetch,
+		isLoading: source.isLoading,
+		isError: source.isError,
+		refetch: source.refetch,
 		canGoPrevious,
 		canGoNext,
 		goPrevious,

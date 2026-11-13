@@ -72,6 +72,16 @@ export async function downloadPdf(
 	downloadBlob(blob, fileName);
 }
 
+const PDF_UNSUPPORTED_SPACES = /[\u00A0\u2009\u202F]/g;
+
+/**
+ * The PDF's standard Helvetica has no glyph for the thin, narrow and non-breaking spaces locales put in numbers,
+ * dates and ranges (French thousands, the space before "€", "10:12 AM", "Nov 1 – 30"): they become plain spaces.
+ */
+export function pdfTextOf(text: string) {
+	return text.replace(PDF_UNSUPPORTED_SPACES, ' ');
+}
+
 /** `team-report-2026-10-27-2026-11-02.csv`, from local calendar days so the name matches the period shown. */
 export function periodFileNameOf(prefix: string, from: Date, to: Date, extension: 'csv' | 'pdf' | 'xlsx') {
 	return `${prefix}-${localDayKeyOf(from)}-${localDayKeyOf(to)}.${extension}`;

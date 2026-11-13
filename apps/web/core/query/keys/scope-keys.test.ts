@@ -64,6 +64,13 @@ describe('scoped query keys', () => {
 			'org-1',
 			null
 		]);
+		expect(queryKeys.users.employees.inactiveByScope('tenant-1', 'org-1')).toEqual([
+			'users',
+			'employees',
+			'inactive-scope',
+			'tenant-1',
+			'org-1'
+		]);
 		expect(queryKeys.users.invitations.myByUser('tenant-1', 'user-1')).toEqual([
 			'users',
 			'invitations',

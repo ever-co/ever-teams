@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, type ReactNode, useCallback, useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { AnimatedHeight } from '@/core/components/common/animated-height';
 import { FoldToggle } from '@/core/components/dashboards/kit/fold-toggle';
 import { MemberCell } from '@/core/components/dashboards/kit/member-cell';
@@ -13,6 +13,8 @@ import type {
 	OwedLine,
 	OwedMemberGroup
 } from '@/core/lib/utils/dashboards/payments-due';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 import { OwedAmount, RateChip } from './payments-due-amount';
 import {
 	DayName,
@@ -308,16 +310,13 @@ export const DayStatementCard = memo(function DayStatementCard({
 	onToggle
 }: Readonly<{ group: OwedDayGroup; isExpanded: boolean; onToggle: StatementToggle }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const handleToggle = useCallback(() => onToggle(group.key, isExpanded), [group.key, isExpanded, onToggle]);
 	const moreLabel = useCallback(
 		(count: number) => t('dashboard.paymentsDue.statements.SHOW_MORE_MEMBERS', { count }),
 		[t]
 	);
-	const dayFormat = useMemo(
-		() => new Intl.DateTimeFormat(locale, { weekday: 'long', month: 'long', day: 'numeric' }),
-		[locale]
-	);
+	const dayFormat = useMemo(() => dateFormatOf(locale, { weekday: 'long', month: 'long', day: 'numeric' }), [locale]);
 	const dayText = dayFormat.format(group.day);
 	const membersLabel = t('dashboard.paymentsDue.MEMBERS_COUNT', { count: group.lines.length });
 	return (

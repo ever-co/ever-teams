@@ -26,11 +26,6 @@ export interface InvoicesPage {
 	total: number;
 }
 
-interface InvoicesPageOptions {
-	page: number;
-	signal?: AbortSignal;
-}
-
 /** What the editor reads with an invoice: its lines, the name of each line's project, and its client. */
 const SAVED_INVOICE_RELATIONS: ReadonlyArray<string> = ['invoiceItems', 'invoiceItems.project', 'toContact'];
 
@@ -45,9 +40,16 @@ export interface InvoiceToEmail {
 	email: string;
 }
 
-interface InvoicesScope {
+export interface InvoicesScope {
 	organizationId: string;
 	tenantId: string;
+}
+
+interface InvoicesPageOptions {
+	page: number;
+	signal?: AbortSignal;
+	/** The organization and tenant the caller's cache key holds; the cookies' when left out. */
+	scope?: InvoicesScope;
 }
 
 interface InvoicesQueryOptions {
@@ -101,9 +103,10 @@ class InvoiceService extends APIService {
 		return validatePaginationResponse(invoiceSchema, response.data, 'getInvoices API response');
 	};
 
-	getInvoices = async ({ page, signal }: InvoicesPageOptions): Promise<InvoicesPage> => {
+	getInvoices = async ({ page, signal, scope }: InvoicesPageOptions): Promise<InvoicesPage> => {
 		try {
-			const options = { page, pageSize: INVOICES_PAGE_SIZE, hidesArchived: true, scope: this.currentScope() };
+			const pageScope = scope ?? this.currentScope();
+			const options = { page, pageSize: INVOICES_PAGE_SIZE, hidesArchived: true, scope: pageScope };
 			return await this.readInvoicesPage(options, signal);
 		} catch (error) {
 			this.logValidationError(error, 'Invoices validation failed:');
@@ -112,11 +115,15 @@ class InvoiceService extends APIService {
 	};
 
 	/** Every invoice saved for a client, archived ones included: each one billed the client. */
-	getClientInvoices = async (clientId: string, signal?: AbortSignal): Promise<TInvoice[]> => {
+	getClientInvoices = async (
+		clientId: string,
+		signal?: AbortSignal,
+		keyScope?: InvoicesScope
+	): Promise<TInvoice[]> => {
 		try {
 			// Choosing a team of another organization changes the cookies between two pages: every page keeps the
-			// organization the read started in.
-			const scope = this.currentScope();
+			// organization the read started in, the one the caller's cache key holds when it names one.
+			const scope = keyScope ?? this.currentScope();
 			const invoices: TInvoice[] = [];
 			for (let page = 1; page <= CLIENT_INVOICES_MAX_PAGES; page += 1) {
 				const options = { page, pageSize: CLIENT_INVOICES_PAGE_SIZE, clientId, hidesArchived: false, scope };
@@ -169,25 +176,36 @@ class InvoiceService extends APIService {
 	 * E-mails the invoice to `email` with its PDF attached, through the organization's own e-mail settings. The API
 	 * answers 202 with no body whatever its mail server did: only a refused request comes back as an error.
 	 */
-	sendInvoiceByEmail = async ({ invoiceId, invoiceNumber, email }: InvoiceToEmail): Promise<void> => {
+	sendInvoiceByEmail = async (
+		{ invoiceId, invoiceNumber, email }: InvoiceToEmail,
+		scope?: InvoicesScope
+	): Promise<void> => {
+		// The API signs the e-mail with the organization named here: the caller's, the cookies' when left out
+		const emailScope = scope ?? this.currentScope();
 		const params = {
 			invoiceNumber,
 			invoiceId,
 			isEstimate: false,
-			organizationId: this.organizationId,
-			tenantId: this.tenantId
+			organizationId: emailScope.organizationId,
+			tenantId: emailScope.tenantId
 		};
-		await this.put(`/invoices/email/${encodeURIComponent(email)}`, { params });
+		await this.put(`/invoices/email/${encodeURIComponent(email)}`, { params }, { tenantId: emailScope.tenantId });
 	};
 
-	changeInvoiceStatus = async (invoiceId: string, change: InvoiceStatusChange): Promise<void> => {
+	changeInvoiceStatus = async (
+		invoiceId: string,
+		change: InvoiceStatusChange,
+		scope?: InvoicesScope
+	): Promise<void> => {
 		// A copy: the request writes the tenant and the organization into the object it is given.
 		const body = { ...change };
-		await this.put(`/invoices/${encodeURIComponent(invoiceId)}/action`, body);
+		const statusScope = scope ?? this.currentScope();
+		await this.put(`/invoices/${encodeURIComponent(invoiceId)}/action`, body, { tenantId: statusScope.tenantId });
 	};
 
-	deleteInvoice = async (invoiceId: string): Promise<void> => {
-		await this.delete(`/invoices/${encodeURIComponent(invoiceId)}`);
+	deleteInvoice = async (invoiceId: string, scope?: InvoicesScope): Promise<void> => {
+		const deletionScope = scope ?? this.currentScope();
+		await this.delete(`/invoices/${encodeURIComponent(invoiceId)}`, { tenantId: deletionScope.tenantId });
 	};
 
 	/** One invoice with its lines, their projects and its client, read in the tenant the caller's cache key holds. */

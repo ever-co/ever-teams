@@ -1,11 +1,13 @@
 'use client';
 
 import { memo, useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { DASHBOARD_SURFACE, SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { formatOwed, type OwedColumn, type OwedFigures, type OwedTile } from '@/core/lib/utils/dashboards/payments-due';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 import { OwedAmount } from './payments-due-amount';
 import { MISSING_FIGURE } from './payments-due-cells';
 
@@ -80,9 +82,9 @@ const OwedColumnBar = memo(function OwedColumnBar({
 
 function OwedColumns({ tile }: Readonly<{ tile: OwedTile }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const dayFormat = useMemo(
-		() => new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric' }),
+		() => dateFormatOf(locale, { weekday: 'short', month: 'short', day: 'numeric' }),
 		[locale]
 	);
 	const showsColumns = tile.columns.length > 1;

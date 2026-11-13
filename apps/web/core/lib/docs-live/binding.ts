@@ -120,6 +120,8 @@ export interface DocsLiveMemory {
 	clear(): void;
 	/** Whether any remembered document holds edits the platform never confirmed. */
 	hasUnsent(): boolean;
+	/** The keys of the remembered documents holding edits the platform never confirmed (the recency order is kept). */
+	unsentKeys(): string[];
 }
 
 /** What the binding reads of a refusal: its HTTP status and the platform's code. */
@@ -218,6 +220,11 @@ export function createDocsLiveMemory(limit = DOCS_LIVE_REMEMBERED_PAGES): DocsLi
 		hasUnsent() {
 			for (const entry of entries.values()) if (entry.unsent) return true;
 			return false;
+		},
+		unsentKeys() {
+			const keys: string[] = [];
+			for (const [key, entry] of entries) if (entry.unsent) keys.push(key);
+			return keys;
 		}
 	};
 }

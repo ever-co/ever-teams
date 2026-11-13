@@ -17,11 +17,15 @@ export interface EntryHandlers {
 	onDelete: (log: ITimeLog) => void;
 }
 
-export function ProjectDot({ color, className }: Readonly<{ color: string | null; className?: string }>) {
+export function ProjectDot({
+	color,
+	projectKey,
+	className
+}: Readonly<{ color: string | null; projectKey: string | null; className?: string }>) {
 	return (
 		<span
 			aria-hidden="true"
-			style={entryToneStyle(color)}
+			style={entryToneStyle(color, projectKey)}
 			className={cn('size-2 shrink-0 rounded-full bg-(--entry)', className)}
 		/>
 	);
@@ -68,7 +72,7 @@ export function ProjectLine({ entry }: Readonly<{ entry: CalendarEntry }>) {
 	}
 	return (
 		<span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
-			<ProjectDot color={entry.projectColor} />
+			<ProjectDot color={entry.projectColor} projectKey={entry.projectKey} />
 			<span className="truncate">{entry.projectName}</span>
 		</span>
 	);
@@ -147,7 +151,7 @@ export const EntryListRow = memo(function EntryListRow({
 			<div className="flex min-w-0 items-start gap-3">
 				<span
 					aria-hidden="true"
-					style={entryToneStyle(entry.projectColor)}
+					style={entryToneStyle(entry.projectColor, entry.projectKey)}
 					className={cn('relative mt-0.5 h-9 w-2 shrink-0 overflow-hidden rounded-[3px]', fill)}
 				>
 					<span className={ENTRY_BAR} />

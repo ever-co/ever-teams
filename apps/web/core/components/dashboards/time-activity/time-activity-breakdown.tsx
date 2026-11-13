@@ -2,7 +2,7 @@
 
 import { type CSSProperties, memo, useCallback, useMemo } from 'react';
 import { subDays } from 'date-fns';
-import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
+import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { AnimatedHeight } from '@/core/components/common/animated-height';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/core/components/common/tooltip';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -31,6 +31,8 @@ import {
 	offersProjectsColumn,
 	todayKeyOf
 } from '@/core/lib/utils/dashboards/time-activity';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import {
 	DurationText,
 	EarningsText,
@@ -168,7 +170,7 @@ const HORIZONTAL_GUIDE = 'absolute top-1/2 h-(--hairline) bg-border';
 const EMPTY_LINEAGE: ReadonlyArray<boolean> = [];
 
 interface BreakdownText {
-	locale: string;
+	locale: FormatLocale;
 	todayKey: string;
 	yesterdayKey: string;
 	today: string;
@@ -211,7 +213,7 @@ function countLabelOf(dimension: BreakdownDimension, count: number, t: Translate
 
 function useBreakdownText(): BreakdownText {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	return useMemo(() => {
 		const now = new Date();
 		const yesterday = subDays(now, 1);
@@ -221,8 +223,8 @@ function useBreakdownText(): BreakdownText {
 			yesterdayKey: todayKeyOf(yesterday),
 			today: t('common.TODAY'),
 			yesterday: t('common.YESTERDAY'),
-			dayFormat: new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric' }),
-			monthDay: new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' }),
+			dayFormat: dateFormatOf(locale, { weekday: 'short', month: 'short', day: 'numeric' }),
+			monthDay: dateFormatOf(locale, { month: 'short', day: 'numeric' }),
 			unnamed: t('timeActivity.UNNAMED_EMPLOYEE'),
 			noProject: t('common.NO_PROJECT'),
 			noTask: t('dashboard.timeActivity.export.NO_TASK'),
@@ -743,7 +745,7 @@ function BreakdownEmpty({
 	onPreviousPeriod
 }: Readonly<{ period: Period; hasFilters: boolean; onClearFilters: () => void; onPreviousPeriod: () => void }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const periodText = formatPeriod(period, locale);
 	if (hasFilters) {
 		return (

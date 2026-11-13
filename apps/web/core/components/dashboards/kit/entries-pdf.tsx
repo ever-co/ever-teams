@@ -1,30 +1,34 @@
 import type { ReactElement } from 'react';
 import { Document, type DocumentProps, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 
-export interface EditsPdfFigure {
+export interface EntriesPdfFigure {
 	label: string;
 	value: string;
 }
 
-export interface EditsPdfRow {
+interface EntriesPdfRow {
 	key: string;
 	cells: string[];
 }
 
-export interface EditsPdfGroup {
+export interface EntriesPdfGroup {
 	key: string;
 	title: string;
 	total: string;
-	rows: EditsPdfRow[];
+	rows: EntriesPdfRow[];
 }
 
-export interface EditsPdfContent {
+export interface EntriesPdfContent {
 	title: string;
 	period: string;
 	generatedOn: string;
-	summary: EditsPdfFigure[];
+	filters?: { title: string; lines: EntriesPdfFigure[] };
+	summary: EntriesPdfFigure[];
 	columns: string[];
-	groups: EditsPdfGroup[];
+	/** The width of each column on the landscape page, in the order of `columns`. */
+	columnWidths: string[];
+	groups: EntriesPdfGroup[];
+	total?: EntriesPdfFigure;
 	footer: string;
 	pageLabel: (page: number, total: number) => string;
 }
@@ -35,11 +39,7 @@ const MUTED = '#66666e';
 const HAIRLINE = '#e2e2e5';
 const BAND = '#f4f4f5';
 
-/**
- * Date, member, project, task, start, end, duration, added, edited at, billable, status, reason: the widths of the
- * export columns on a landscape page, in that order.
- */
-const COLUMN_WIDTHS = ['7%', '10%', '10%', '15%', '5%', '5%', '6%', '5%', '9%', '5%', '7%', '16%'];
+const FALLBACK_COLUMN_WIDTH = '5%';
 
 const styles = StyleSheet.create({
 	page: {
@@ -53,6 +53,15 @@ const styles = StyleSheet.create({
 	header: { marginBottom: 12 },
 	title: { fontSize: 15, fontFamily: 'Helvetica-Bold', marginBottom: 4 },
 	meta: { fontSize: 8, color: MUTED, marginBottom: 2 },
+	filters: {
+		marginBottom: 12,
+		paddingVertical: 6,
+		borderTopWidth: 0.5,
+		borderBottomWidth: 0.5,
+		borderColor: HAIRLINE
+	},
+	filtersTitle: { fontSize: 7, color: MUTED, marginBottom: 3 },
+	filterLine: { marginBottom: 2 },
 	summary: { flexDirection: 'row', marginBottom: 12, borderWidth: 0.5, borderColor: HAIRLINE, borderRadius: 6 },
 	summaryCell: { flex: 1, paddingVertical: 7, paddingHorizontal: 9, borderLeftWidth: 0.5, borderColor: HAIRLINE },
 	summaryFirstCell: { flex: 1, paddingVertical: 7, paddingHorizontal: 9 },
@@ -71,6 +80,7 @@ const styles = StyleSheet.create({
 		borderColor: HAIRLINE
 	},
 	cell: { paddingRight: 4 },
+	totalRow: { flexDirection: 'row', marginTop: 8, paddingVertical: 5, paddingHorizontal: 3 },
 	footer: {
 		position: 'absolute',
 		bottom: 18,
@@ -83,10 +93,6 @@ const styles = StyleSheet.create({
 	}
 });
 
-function widthOf(index: number) {
-	return COLUMN_WIDTHS[index] ?? '5%';
-}
-
 function summaryCellStyleOf(index: number) {
 	if (index === 0) {
 		return styles.summaryFirstCell;
@@ -94,7 +100,7 @@ function summaryCellStyleOf(index: number) {
 	return styles.summaryCell;
 }
 
-function SummaryBand({ summary }: Readonly<{ summary: EditsPdfFigure[] }>) {
+function SummaryBand({ summary }: Readonly<{ summary: EntriesPdfFigure[] }>) {
 	return (
 		<View style={styles.summary}>
 			{summary.map((figure, index) => (
@@ -107,11 +113,35 @@ function SummaryBand({ summary }: Readonly<{ summary: EditsPdfFigure[] }>) {
 	);
 }
 
-function TableHeader({ columns }: Readonly<{ columns: string[] }>) {
+function printedFiltersOf(filters: EntriesPdfContent['filters']) {
+	if (!filters || filters.lines.length === 0) {
+		return null;
+	}
+	return filters;
+}
+
+function FiltersBlock({ title, lines }: Readonly<{ title: string; lines: EntriesPdfFigure[] }>) {
+	return (
+		<View style={styles.filters}>
+			<Text style={styles.filtersTitle}>{title}</Text>
+			{lines.map((line) => (
+				<Text key={line.label} style={styles.filterLine}>
+					{`${line.label}: ${line.value}`}
+				</Text>
+			))}
+		</View>
+	);
+}
+
+function widthOf(columnWidths: string[], index: number) {
+	return columnWidths[index] ?? FALLBACK_COLUMN_WIDTH;
+}
+
+function TableHeader({ columns, columnWidths }: Readonly<{ columns: string[]; columnWidths: string[] }>) {
 	return (
 		<View style={styles.tableHeader} fixed>
 			{columns.map((column, index) => (
-				<Text key={column} style={[styles.headerCell, { width: widthOf(index) }]}>
+				<Text key={column} style={[styles.headerCell, { width: widthOf(columnWidths, index) }]}>
 					{column}
 				</Text>
 			))}
@@ -119,14 +149,18 @@ function TableHeader({ columns }: Readonly<{ columns: string[] }>) {
 	);
 }
 
-function cellsOf(row: EditsPdfRow, columns: string[]) {
+function cellsOf(row: EntriesPdfRow, columns: string[], columnWidths: string[]) {
 	return row.cells.map((text, index) => {
 		const column = columns[index] ?? `column-${index}`;
-		return { column, text, width: widthOf(index) };
+		return { column, text, width: widthOf(columnWidths, index) };
 	});
 }
 
-function GroupBlock({ group, columns }: Readonly<{ group: EditsPdfGroup; columns: string[] }>) {
+function GroupBlock({
+	group,
+	columns,
+	columnWidths
+}: Readonly<{ group: EntriesPdfGroup; columns: string[]; columnWidths: string[] }>) {
 	return (
 		<View>
 			<View style={styles.groupRow} wrap={false}>
@@ -135,7 +169,7 @@ function GroupBlock({ group, columns }: Readonly<{ group: EditsPdfGroup; columns
 			</View>
 			{group.rows.map((row) => (
 				<View key={row.key} style={styles.row} wrap={false}>
-					{cellsOf(row, columns).map((cell) => (
+					{cellsOf(row, columns, columnWidths).map((cell) => (
 						<Text key={cell.column} style={[styles.cell, { width: cell.width }]}>
 							{cell.text}
 						</Text>
@@ -146,7 +180,19 @@ function GroupBlock({ group, columns }: Readonly<{ group: EditsPdfGroup; columns
 	);
 }
 
-export function buildManualTimeEditsPdf(content: EditsPdfContent): ReactElement<DocumentProps> {
+function TotalRow({ total }: Readonly<{ total: EntriesPdfFigure }>) {
+	return (
+		<View style={styles.totalRow} wrap={false}>
+			<Text style={styles.groupTitle}>{total.label}</Text>
+			<Text style={styles.groupTotal}>{total.value}</Text>
+		</View>
+	);
+}
+
+/** Imported on the click with the renderer; every string arrives translated and formatted. */
+export function buildEntriesPdf(content: EntriesPdfContent): ReactElement<DocumentProps> {
+	const { columns, columnWidths, total } = content;
+	const filters = printedFiltersOf(content.filters);
 	return (
 		<Document title={content.title}>
 			<Page size="A4" orientation="landscape" style={styles.page}>
@@ -155,11 +201,13 @@ export function buildManualTimeEditsPdf(content: EditsPdfContent): ReactElement<
 					<Text style={styles.meta}>{content.period}</Text>
 					<Text style={styles.meta}>{content.generatedOn}</Text>
 				</View>
+				{filters && <FiltersBlock title={filters.title} lines={filters.lines} />}
 				<SummaryBand summary={content.summary} />
-				<TableHeader columns={content.columns} />
+				<TableHeader columns={columns} columnWidths={columnWidths} />
 				{content.groups.map((group) => (
-					<GroupBlock key={group.key} group={group} columns={content.columns} />
+					<GroupBlock key={group.key} group={group} columns={columns} columnWidths={columnWidths} />
 				))}
+				{total && <TotalRow total={total} />}
 				<View style={styles.footer} fixed>
 					<Text>{content.footer}</Text>
 					<Text render={({ pageNumber, totalPages }) => content.pageLabel(pageNumber, totalPages)} />

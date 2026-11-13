@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, type ReactNode } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
@@ -13,6 +13,7 @@ import {
 	type OwedRateNote,
 	type OwedRateSource
 } from '@/core/lib/utils/dashboards/payments-due';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 
 export const MISSING_FIGURE = '–';
 
@@ -81,7 +82,7 @@ export const RateValue = memo(function RateValue({
 	className?: string;
 }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const shown = rateShownOf({ rate, rateSource, ratePending });
 	if (shown === 'loading') {
 		return <RatePlaceholder className={className} />;
@@ -110,7 +111,7 @@ export const OwedValue = memo(function OwedValue({
 	isStrong = false,
 	className
 }: Readonly<{ amount: number | null; currency: string | null; isStrong?: boolean; className?: string }>) {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	if (amount === null) {
 		return <span className={cn(FIGURE_TEXT, 'text-muted-foreground', className)}>{MISSING_FIGURE}</span>;
 	}
@@ -128,7 +129,7 @@ export function OwedFormula({
 	className
 }: Readonly<{ seconds: number; rate: number | null; currency: string | null; className?: string }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const duration = formatDurationShort(seconds);
 	if (rate === null) {
 		return <span className={cn('truncate text-xs tabular-nums text-muted-foreground', className)}>{duration}</span>;
@@ -147,7 +148,7 @@ function boldDayName(chunks: ReactNode) {
 
 export function DayName({ day, className }: Readonly<{ day: Date; className?: string }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const name = dayNameOf(day, locale, { today: t('common.TODAY'), yesterday: t('common.YESTERDAY') });
 	const date = dayDateOf(day, locale);
 	const label = t.rich('dashboard.paymentsDue.DAY_LABEL', {

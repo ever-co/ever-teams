@@ -7,6 +7,7 @@ import { SegmentedControl } from '@/core/components/common/segmented-control';
 import { DashboardToolbar } from '@/core/components/dashboards/kit/dashboard-layout';
 import { PeriodPicker } from '@/core/components/dashboards/kit/period-picker';
 import { Search, X } from '@/core/components/icons';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { cn } from '@/core/lib/helpers';
 import type { Period, PeriodPresetKey } from '@/core/lib/utils/dashboard-period';
 import { TIMESHEET_WEEK_START, type TimesheetView } from '@/core/lib/utils/dashboards/timesheets';
@@ -106,6 +107,7 @@ export function TimesheetsToolbar({
 	actions: ReactNode;
 }>) {
 	const t = useTranslations();
+	const locale = useWorkspaceLocale();
 	const viewItems = [
 		{ value: 'sheet' as const, label: t('dashboard.timesheets.VIEWS.SHEET') },
 		{ value: 'list' as const, label: t('dashboard.timesheets.VIEWS.LIST') },
@@ -129,6 +131,7 @@ export function TimesheetsToolbar({
 						onChange={onPeriodChange}
 						presets={TIMESHEET_PRESETS}
 						weekStartsOn={TIMESHEET_WEEK_START}
+						locale={locale}
 					/>
 					{filterMenu}
 					<TimesheetsSearchField value={search} onChange={onSearchChange} />

@@ -67,6 +67,8 @@ import {
 	VoidInvoiceDialog
 } from './invoice-action-dialogs';
 
+const LIST_SCOPE = { organizationId: 'organization-1', tenantId: 'tenant-1' };
+
 function targetIn(status: string, primaryEmail: string | null = 'billing@acme.test'): InvoiceActionTarget {
 	const invoice = {
 		id: 'inv-42',
@@ -98,7 +100,7 @@ describe('sending an invoice from the list', () => {
 	it('e-mails a draft to its client’s address, marks it Sent and says where it went', async () => {
 		mockSendInvoice.mockResolvedValue('sent');
 		const onClose = jest.fn();
-		render(<SendInvoiceDialog open target={targetIn('DRAFT')} onClose={onClose} />);
+		render(<SendInvoiceDialog open scope={LIST_SCOPE} target={targetIn('DRAFT')} onClose={onClose} />);
 
 		await confirm('invoices.send.CONFIRM');
 
@@ -106,7 +108,8 @@ describe('sending an invoice from the list', () => {
 			invoiceId: 'inv-42',
 			invoiceNumber: 42,
 			email: 'billing@acme.test',
-			marksSent: true
+			marksSent: true,
+			scope: LIST_SCOPE
 		});
 		expect(mockToast.success).toHaveBeenCalledWith('invoices.send.SENT');
 		expect(onClose).toHaveBeenCalledTimes(1);
@@ -114,7 +117,7 @@ describe('sending an invoice from the list', () => {
 
 	it('keeps the status of an invoice sent again', async () => {
 		mockSendInvoice.mockResolvedValue('sent');
-		render(<SendInvoiceDialog open target={targetIn('VIEWED')} onClose={jest.fn()} />);
+		render(<SendInvoiceDialog open scope={LIST_SCOPE} target={targetIn('VIEWED')} onClose={jest.fn()} />);
 
 		await confirm('invoices.send.CONFIRM');
 
@@ -124,7 +127,7 @@ describe('sending an invoice from the list', () => {
 	it('says so in the dialog when the sending is refused, and stays open', async () => {
 		mockSendInvoice.mockRejectedValue(new Error('Forbidden'));
 		const onClose = jest.fn();
-		render(<SendInvoiceDialog open target={targetIn('DRAFT')} onClose={onClose} />);
+		render(<SendInvoiceDialog open scope={LIST_SCOPE} target={targetIn('DRAFT')} onClose={onClose} />);
 
 		await confirm('invoices.send.CONFIRM');
 
@@ -134,7 +137,7 @@ describe('sending an invoice from the list', () => {
 	});
 
 	it('asks for an address when the client has none, and sends nothing until one is typed', async () => {
-		render(<SendInvoiceDialog open target={targetIn('DRAFT', null)} onClose={jest.fn()} />);
+		render(<SendInvoiceDialog open scope={LIST_SCOPE} target={targetIn('DRAFT', null)} onClose={jest.fn()} />);
 
 		await confirm('invoices.send.CONFIRM');
 
@@ -147,11 +150,15 @@ describe('voiding and deleting an invoice from the list', () => {
 	it('voids the invoice in the API once confirmed and says so', async () => {
 		mockChangeStatus.mockResolvedValue(undefined);
 		const onClose = jest.fn();
-		render(<VoidInvoiceDialog open target={targetIn('SENT')} onClose={onClose} />);
+		render(<VoidInvoiceDialog open scope={LIST_SCOPE} target={targetIn('SENT')} onClose={onClose} />);
 
 		await confirm('invoices.void.CONFIRM');
 
-		expect(mockChangeStatus).toHaveBeenCalledWith({ invoiceId: 'inv-42', change: { status: 'VOID' } });
+		expect(mockChangeStatus).toHaveBeenCalledWith({
+			invoiceId: 'inv-42',
+			change: { status: 'VOID' },
+			scope: LIST_SCOPE
+		});
 		expect(mockToast.success).toHaveBeenCalledWith('invoices.void.DONE');
 		expect(onClose).toHaveBeenCalledTimes(1);
 	});
@@ -159,11 +166,11 @@ describe('voiding and deleting an invoice from the list', () => {
 	it('deletes the draft in the API once confirmed and says so', async () => {
 		mockDeleteInvoice.mockResolvedValue(undefined);
 		const onClose = jest.fn();
-		render(<DeleteInvoiceDialog open target={targetIn('DRAFT')} onClose={onClose} />);
+		render(<DeleteInvoiceDialog open scope={LIST_SCOPE} target={targetIn('DRAFT')} onClose={onClose} />);
 
 		await confirm('invoices.delete.CONFIRM');
 
-		expect(mockDeleteInvoice).toHaveBeenCalledWith('inv-42');
+		expect(mockDeleteInvoice).toHaveBeenCalledWith({ invoiceId: 'inv-42', scope: LIST_SCOPE });
 		expect(mockToast.success).toHaveBeenCalledWith('invoices.delete.DONE');
 		expect(onClose).toHaveBeenCalledTimes(1);
 	});
@@ -171,7 +178,7 @@ describe('voiding and deleting an invoice from the list', () => {
 	it('keeps the dialog open with the reason when the API refuses the deletion', async () => {
 		mockDeleteInvoice.mockRejectedValue(new Error('Not Found'));
 		const onClose = jest.fn();
-		render(<DeleteInvoiceDialog open target={targetIn('DRAFT')} onClose={onClose} />);
+		render(<DeleteInvoiceDialog open scope={LIST_SCOPE} target={targetIn('DRAFT')} onClose={onClose} />);
 
 		await confirm('invoices.delete.CONFIRM');
 
@@ -186,11 +193,15 @@ describe('voiding a paid invoice to replace it', () => {
 		const onClose = jest.fn();
 		const onVoided = jest.fn();
 		const target = targetIn('FULLY_PAID');
-		render(<VoidAndReplaceDialog open target={target} onClose={onClose} onVoided={onVoided} />);
+		render(<VoidAndReplaceDialog open scope={LIST_SCOPE} target={target} onClose={onClose} onVoided={onVoided} />);
 
 		await confirm('invoices.replace.CONFIRM');
 
-		expect(mockChangeStatus).toHaveBeenCalledWith({ invoiceId: 'inv-42', change: { status: 'VOID' } });
+		expect(mockChangeStatus).toHaveBeenCalledWith({
+			invoiceId: 'inv-42',
+			change: { status: 'VOID' },
+			scope: LIST_SCOPE
+		});
 		expect(mockToast.success).toHaveBeenCalledWith('invoices.void.DONE');
 		expect(onClose).toHaveBeenCalledTimes(1);
 		expect(onVoided).toHaveBeenCalledWith(target);
@@ -200,7 +211,8 @@ describe('voiding a paid invoice to replace it', () => {
 		mockChangeStatus.mockRejectedValue(new Error('Forbidden'));
 		const onClose = jest.fn();
 		const onVoided = jest.fn();
-		render(<VoidAndReplaceDialog open target={targetIn('PARTIALLY_PAID')} onClose={onClose} onVoided={onVoided} />);
+		const target = targetIn('PARTIALLY_PAID');
+		render(<VoidAndReplaceDialog open scope={LIST_SCOPE} target={target} onClose={onClose} onVoided={onVoided} />);
 
 		await confirm('invoices.replace.CONFIRM');
 

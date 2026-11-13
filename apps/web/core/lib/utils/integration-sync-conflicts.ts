@@ -2,7 +2,7 @@ import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import type { IIntegrationConflictQuery } from '@/core/types/interfaces/integrations/integration-sync-conflict';
 
 /**
- * Helpers of the integrations' sync conflict list (Linear, Asana, Trello): the list's query string, how a stored value
+ * Helpers of the integrations' sync conflict list (Linear, Asana, Trello, Jira): the list's query string, how a stored value
  * is shown, and what a refused resolve means.
  */
 

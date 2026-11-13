@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react';
 import { useAtomValue } from 'jotai';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { Chart } from '@/core/components/icons';
 import { DashboardBreadcrumb } from '@/core/components/dashboards/kit/dashboard-breadcrumb';
@@ -15,6 +15,7 @@ import { useWeeklyLimitReport } from '@/core/hooks/dashboards/weekly-limit/use-w
 import { formatPeriod, shiftPeriod } from '@/core/lib/utils/dashboard-period';
 import { LIMIT_WEEK_START, type LimitDuration, type LimitMember } from '@/core/lib/utils/dashboards/weekly-limit';
 import { isTrackingEnabledState } from '@/core/stores';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { LimitAttentionList, LimitAttentionSkeleton } from './limit-attention';
 import { LimitHeatmap, LimitHeatmapSkeleton } from './limit-heatmap';
 import { useWeeklyLimitMatrixExportOptions } from './weekly-limit-export';
@@ -41,7 +42,7 @@ function toggledKeyOf(current: string | null, key: string) {
 
 export function WeeklyLimitPage() {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const report = useWeeklyLimitReport({ unnamedLabel: t('timeActivity.UNNAMED_EMPLOYEE') });
 	const { period, setPeriod, shown } = report;
@@ -102,7 +103,12 @@ export function WeeklyLimitPage() {
 					actions={<ExportMenu options={exportOptions} isDisabled={isExportDisabled} />}
 					controls={
 						<>
-							<PeriodPicker value={period} onChange={setPeriod} weekStartsOn={LIMIT_WEEK_START} />
+							<PeriodPicker
+								value={period}
+								onChange={setPeriod}
+								weekStartsOn={LIMIT_WEEK_START}
+								locale={locale}
+							/>
 							<MemberFilterMenu
 								members={report.members}
 								selectedIds={report.appliedEmployeeIds}

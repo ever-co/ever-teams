@@ -34,7 +34,7 @@ function teamMemberOf(teamMember: TOrganizationTeamEmployee): SheetMember | null
 	return emptySheetMemberOf(employeeId, name, imageUrl);
 }
 
-function viewerOf(user: TUser | null | undefined): SheetMember | null {
+export function viewerOf(user: TUser | null | undefined): SheetMember | null {
 	const employeeId = user?.employee?.id;
 	if (!employeeId) {
 		return null;

@@ -16,14 +16,17 @@ import { Calendar, Clock } from '@/core/components/icons';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { WORK_DIARY_PATH } from '@/core/components/layouts/my-work-navigation';
 import { TrackingSourceEmptyState } from '@/core/components/pages/profile/tracking-source-empty-state';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { useWorkDiaryPage, type WorkDiaryPageState } from '@/core/hooks/dashboards/work-diary/use-work-diary-page';
 import { formatPeriod } from '@/core/lib/utils/dashboard-period';
 import type { DiarySlot, DiaryView } from '@/core/lib/utils/dashboards/work-diary';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 import { isTrackingEnabledState } from '@/core/stores/timer/active-timer';
 import { DiaryDayStrip } from './diary-day-strip';
 import { DiaryBody, DiaryHoursSkeleton } from './diary-hours';
 import { DiarySlotSheet } from './diary-slot-sheet';
 import { DiaryWeekView } from './diary-week-view';
+import { type DiaryTaskReuse, DiaryTaskReuseLayers, useDiaryTaskReuse } from './diary-task-reuse';
 import { DIARY_COLUMNS, DiaryAppRows, DiaryFigures, DiaryRowsSkeleton, DiaryTaskRows } from './work-diary-parts';
 import { WorkDiaryPageSkeleton } from './work-diary-page-skeleton';
 
@@ -35,13 +38,13 @@ interface DayFormats {
 }
 
 function useDayFormats(): DayFormats {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	return useMemo(
 		() => ({
-			time: new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }),
-			hour: new Intl.DateTimeFormat(locale, { hour: 'numeric' }),
-			short: new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric' }),
-			long: new Intl.DateTimeFormat(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+			time: dateFormatOf(locale, { hour: 'numeric', minute: '2-digit' }),
+			hour: dateFormatOf(locale, { hour: 'numeric' }),
+			short: dateFormatOf(locale, { weekday: 'short', month: 'short', day: 'numeric' }),
+			long: dateFormatOf(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 		}),
 		[locale]
 	);
@@ -87,8 +90,14 @@ function ScreenshotsBody({
 function DiaryDayView({
 	page,
 	formats,
-	onOpenSlot
-}: Readonly<{ page: WorkDiaryPageState; formats: DayFormats; onOpenSlot: (slot: DiarySlot) => void }>) {
+	onOpenSlot,
+	renderTaskActions
+}: Readonly<{
+	page: WorkDiaryPageState;
+	formats: DayFormats;
+	onOpenSlot: (slot: DiarySlot) => void;
+	renderTaskActions: DiaryTaskReuse['renderTaskActions'];
+}>) {
 	const t = useTranslations();
 	const { diary, shownDay, tasks, taskCount } = page;
 	const dayText = formats.short.format(page.day);
@@ -141,7 +150,7 @@ function DiaryDayView({
 					ariaLabel={t('common.TASKS')}
 				>
 					{page.isLogsLoading && <DiaryRowsSkeleton />}
-					{!page.isLogsLoading && <DiaryTaskRows tasks={tasks} />}
+					{!page.isLogsLoading && <DiaryTaskRows tasks={tasks} renderActions={renderTaskActions} />}
 				</DashboardSection>
 				{plan}
 				<DashboardSection
@@ -170,9 +179,11 @@ function DiaryDayView({
 function WorkDiaryPageContent() {
 	const t = useTranslations();
 	const locale = useLocale();
+	const workspaceLocale = useWorkspaceLocale();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const page = useWorkDiaryPage();
 	const formats = useDayFormats();
+	const taskReuse = useDiaryTaskReuse(page.shownDay.entries);
 	const [openSlot, setOpenSlot] = useState<DiarySlot | null>(null);
 	const [isSheetOpen, setIsSheetOpen] = useState(false);
 
@@ -206,7 +217,7 @@ function WorkDiaryPageContent() {
 	let meta = formats.long.format(page.day);
 	let isBodyLoading = page.isLogsLoading;
 	if (isWeekView) {
-		meta = formatPeriod(page.week, locale);
+		meta = formatPeriod(page.week, workspaceLocale);
 		isBodyLoading = page.weekSheet.isLoading;
 	}
 	const viewItems = [
@@ -294,9 +305,17 @@ function WorkDiaryPageContent() {
 						/>
 					</DashboardSection>
 				)}
-				{showsDay && <DiaryDayView page={page} formats={formats} onOpenSlot={openSlotSheet} />}
+				{showsDay && (
+					<DiaryDayView
+						page={page}
+						formats={formats}
+						onOpenSlot={openSlotSheet}
+						renderTaskActions={taskReuse.renderTaskActions}
+					/>
+				)}
 				{showsWeek && <DiaryWeekView page={page} />}
 			</div>
+			<DiaryTaskReuseLayers reuse={taskReuse} />
 			<DiarySlotSheet
 				slot={openSlot}
 				day={page.day}

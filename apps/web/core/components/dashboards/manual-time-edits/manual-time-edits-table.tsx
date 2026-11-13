@@ -2,7 +2,7 @@
 
 import { memo, type ReactNode, useCallback, useState } from 'react';
 import { isSameYear } from 'date-fns';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { Checkbox } from '@/core/components/common/checkbox';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -27,6 +27,8 @@ import type {
 	EditsMember,
 	ManualTimeEntry
 } from '@/core/lib/utils/dashboards/manual-time-edits';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { DayName, type EditRowHandlers, type EditsFormatters, ManualTimeEditRow } from './manual-time-edit-row';
 import {
 	EDITS_GRID,
@@ -435,8 +437,8 @@ function emptyDayFormatOf(period: Period): Intl.DateTimeFormatOptions {
 	return { month: 'short', day: 'numeric' };
 }
 
-function emptyTitleOf(period: Period, locale: string, t: Translate) {
-	const formatter = new Intl.DateTimeFormat(locale, emptyDayFormatOf(period));
+function emptyTitleOf(period: Period, locale: FormatLocale, t: Translate) {
+	const formatter = dateFormatOf(locale, emptyDayFormatOf(period));
 	const from = formatter.format(period.from);
 	const to = formatter.format(period.to);
 	const isOneDay = from === to;
@@ -460,7 +462,7 @@ export function ManualTimeEditsEmpty({
 	onPreviousPeriod: () => void;
 }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	if (isFiltered) {
 		return (
 			<BlockEmptyMessage

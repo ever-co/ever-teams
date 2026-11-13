@@ -42,6 +42,19 @@ describe('GET /api/organization/:id', () => {
 		expect(response.status).toBe(200);
 	});
 
+	it("answers a member who may not edit the organization with Gauzy's own refusal (#5087)", async () => {
+		const refusal = { statusCode: 403, message: 'Forbidden resource', error: 'Forbidden' };
+		const fetchMock = gauzyAnswers(Response.json(refusal, { status: 403 }));
+		const changes = { name: 'Acme', currency: 'EUR', dateFormat: 'DD/MM/YYYY' };
+
+		const request = signedInRequest('https://app.ever.team/api/organization/org-1', 'PUT', changes);
+		const response = await PUT(request, idParams('org-1'));
+
+		expect(sentToGauzy(fetchMock).body).toEqual(changes);
+		expect(response.status).toBe(403);
+		await expect(response.json()).resolves.toEqual(refusal);
+	});
+
 	it('keeps an id that tries to leave the organization path in one segment', async () => {
 		const fetchMock = gauzyAnswers(Response.json({}, { status: 404 }));
 

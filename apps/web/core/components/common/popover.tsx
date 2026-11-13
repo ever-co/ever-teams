@@ -86,12 +86,16 @@ type PopoverPositionProps = Pick<
 	'align' | 'alignOffset' | 'side' | 'sideOffset' | 'collisionPadding' | 'anchor' | 'sticky'
 >;
 
-interface PopoverContentProps extends PopoverPrimitive.Popup.Props, PopoverPositionProps {}
+interface PopoverContentProps extends PopoverPrimitive.Popup.Props, PopoverPositionProps {
+	/** Classes of the box that places the popover, for the whole of it (such as letting the pointer through). */
+	positionerClassName?: string;
+}
 
 const PopoverContent = React.forwardRef<HTMLDivElement, PopoverContentProps>(
 	(
 		{
 			className,
+			positionerClassName,
 			align = 'center',
 			alignOffset,
 			side = 'bottom',
@@ -106,7 +110,7 @@ const PopoverContent = React.forwardRef<HTMLDivElement, PopoverContentProps>(
 		<PopoverPrimitive.Portal>
 			<PopoverPrimitive.Positioner
 				data-slot="popover-positioner"
-				className="z-[1000] outline-hidden"
+				className={cn('z-[1000] outline-hidden', positionerClassName)}
 				align={align}
 				alignOffset={alignOffset}
 				side={side}

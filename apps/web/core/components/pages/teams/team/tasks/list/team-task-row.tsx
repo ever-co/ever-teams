@@ -48,6 +48,12 @@ const ON_ROW_HOVER =
 const LABEL_CHIP =
 	'chip-3d inline-flex h-5 min-w-0 max-w-24 shrink items-center gap-1 rounded-[5px] px-1.5 text-[11px] font-medium [&_[data-slot=task-property-icon]]:size-3';
 
+/** The priority as a relief label in its own colour, with its glyph and its name. */
+const PRIORITY_CHIP =
+	'chip-3d inline-flex h-5 min-w-0 max-w-full items-center gap-1 rounded-[5px] px-1.5 text-[11px] font-medium capitalize [&_[data-slot=task-property-icon]]:size-3';
+
+const UNPAINTED_CHIP = '[--chip:hsl(var(--muted-foreground))]';
+
 const MUTED_CHIP =
 	'inline-flex h-5 shrink-0 items-center rounded-[5px] bg-foreground/5 px-1.5 text-[11px] font-medium tabular-nums text-muted-foreground';
 
@@ -137,10 +143,22 @@ function PriorityCell({ task }: Readonly<{ task: TTask }>) {
 	const { priorityItems } = useTeamTasksList();
 	const priority = task.priority as string | null | undefined;
 	const item = itemOf(priorityItems, priority);
-	const label = `${t('taskMenus.fields.priority')}: ${readableName(priority)}`;
+	const name = readableName(priority);
+	const label = `${t('taskMenus.fields.priority')}: ${name}`;
+	const color = item?.bgColor;
+	const isPainted = isPaintableColor(color);
+	let chipStyle;
+	if (isPainted) {
+		chipStyle = dataColorChipStyle(color);
+	}
 	return (
-		<PickerCell kind="priority" taskId={task.id} label={label} className={GLYPH_BUTTON}>
-			{priority && <TaskPropertyIcon kind="priority" name={priority} color={item?.bgColor} />}
+		<PickerCell kind="priority" taskId={task.id} label={label} className={CELL_BUTTON}>
+			{priority && (
+				<span style={chipStyle} className={cn(PRIORITY_CHIP, !isPainted && UNPAINTED_CHIP)}>
+					<TaskPropertyIcon kind="priority" name={priority} color={color} />
+					<span className="truncate">{name}</span>
+				</span>
+			)}
 			{!priority && <Placeholder kind="priority" />}
 		</PickerCell>
 	);
@@ -452,6 +470,9 @@ function AssigneesCell({ task, hidesOnWide }: Readonly<{ task: TTask; hidesOnWid
 }
 
 function TrailingCell({ column, task, isDone }: Readonly<{ column: TeamTaskColumn; task: TTask; isDone: boolean }>) {
+	if (column === 'priority') {
+		return <PriorityCell task={task} />;
+	}
 	if (column === 'labels') {
 		return <LabelsCell task={task} />;
 	}
@@ -571,13 +592,6 @@ export const TeamTaskRow = memo(function TeamTaskRow({
 				/>
 			</span>
 			{grid.leading.map((column) => {
-				if (column === 'priority') {
-					return (
-						<span key={column} role="gridcell" className={cn(TEAM_TASK_WIDE_CELL, 'flex justify-center')}>
-							<PriorityCell task={task} />
-						</span>
-					);
-				}
 				if (column === 'number') {
 					return (
 						<span

@@ -1,13 +1,15 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { ChevronLeft, ChevronRight } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import type { Period } from '@/core/lib/utils/dashboard-period';
 import { hasLongStripOf, shiftedDiaryWeekOf } from '@/core/lib/utils/dashboards/work-diary';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 
 const STRIP_SKELETON_DAYS = 7;
 const STRIP_SKELETON_DAY_KEYS = Array.from({ length: STRIP_SKELETON_DAYS }, (_, index) => `day-${index}`);
@@ -30,11 +32,11 @@ export function DiaryDayStrip({
 	onPick: (day: Date) => void;
 }>) {
 	const t = useTranslations();
-	const locale = useLocale();
-	const weekdayFormat = useMemo(() => new Intl.DateTimeFormat(locale, { weekday: 'short' }), [locale]);
-	const dateFormat = useMemo(() => new Intl.DateTimeFormat(locale, { day: 'numeric' }), [locale]);
+	const locale = useWorkspaceLocale();
+	const weekdayFormat = useMemo(() => dateFormatOf(locale, { weekday: 'short' }), [locale]);
+	const dateFormat = useMemo(() => dateFormatOf(locale, { day: 'numeric' }), [locale]);
 	const longFormat = useMemo(
-		() => new Intl.DateTimeFormat(locale, { weekday: 'long', month: 'long', day: 'numeric' }),
+		() => dateFormatOf(locale, { weekday: 'long', month: 'long', day: 'numeric' }),
 		[locale]
 	);
 	const pickedKey = localDayKeyOf(day);

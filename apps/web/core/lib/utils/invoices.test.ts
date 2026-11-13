@@ -17,6 +17,7 @@ import {
 	invoiceTimeOf,
 	invoiceWaitsOf,
 	keptLinesOf,
+	lineAmountOf,
 	lineDescriptionOf,
 	linePriceOf,
 	namedLinesOf,
@@ -297,6 +298,26 @@ describe('lines by project', () => {
 		}).lines;
 
 		expect(line).toMatchObject({ hours: 15, rate: 68.33, amount: 1024.95 });
+	});
+
+	it('rounds a half-cent average rate up and bills the hours at it (an hour at 10.00 and one at 10.01)', () => {
+		const entries: BillableEntry[] = [
+			{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: HOUR },
+			{ projectId: 'p1', employeeId: 'bo', taskId: null, seconds: HOUR }
+		];
+		const priceOf = priceByMember({ ana: 10, bo: 10.01 });
+
+		const [line] = invoiceTimeOf({ entries, grouping: 'project', priceOf }).lines;
+
+		expect(line).toMatchObject({ hours: 2, rate: 10.01, amount: 20.02, isAverageRate: true });
+	});
+
+	it('rounds a project line’s amount half a cent up, as a member’s line does (1.15 h at 12.50 is 14.38)', () => {
+		const entries: BillableEntry[] = [{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 4140 }];
+
+		const [line] = invoiceTimeOf({ entries, grouping: 'project', priceOf: priceByMember({ ana: 12.5 }) }).lines;
+
+		expect(line).toMatchObject({ hours: 1.15, rate: 12.5, amount: 14.38 });
 	});
 
 	it('states the members’ own rate, not an average, when they are all billed the same', () => {
@@ -798,5 +819,13 @@ describe('invoice list', () => {
 			['2026-11', ['a', 'b', 'c']],
 			['', ['d']]
 		]);
+	});
+});
+
+describe('the amount of an invoice line', () => {
+	it('rounds half a cent up, whatever the binary error of hours times rate', () => {
+		expect(lineAmountOf(1.15, 12.5)).toBe(14.38);
+		expect(lineAmountOf(2, 45)).toBe(90);
+		expect(lineAmountOf(0.01, 0.5)).toBe(0.01);
 	});
 });

@@ -90,7 +90,7 @@ function causeOf(error: unknown): unknown {
 	return error.cause;
 }
 
-function writeErrorKeyOf(error: unknown): string {
+export function writeErrorKeyOf(error: unknown): string {
 	const source = causeOf(error);
 	const missingFields = requiredTrackingFieldsOf(source);
 	if (missingFields) {

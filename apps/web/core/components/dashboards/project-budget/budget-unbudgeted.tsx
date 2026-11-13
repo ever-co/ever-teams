@@ -2,13 +2,14 @@
 
 import { memo, useCallback, useState } from 'react';
 import Link from 'next/link';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { AnimatedHeight } from '@/core/components/common/animated-height';
 import { EntityTile } from '@/core/components/common/entity-tile';
 import { GroupToggle } from '@/core/components/dashboards/kit/dashboard-layout';
 import { DASHBOARD_SURFACE, SECTION_HEADER, SECTION_META } from '@/core/components/dashboards/kit/recipes';
 import { cn } from '@/core/lib/helpers';
 import { amountTextOf, type BudgetRow } from '@/core/lib/utils/dashboards/project-budget';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { RiskDot, typeTextOf } from './budget-cells';
 
 type Translate = ReturnType<typeof useTranslations>;
@@ -37,7 +38,7 @@ function rowMetaOf(row: BudgetRow, t: Translate) {
 
 const UnbudgetedRow = memo(function UnbudgetedRow({ row }: Readonly<{ row: BudgetRow }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const project = row.project;
 	const spentText = amountTextOf(row.spent, row, locale);
 	return (

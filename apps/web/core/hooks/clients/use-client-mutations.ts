@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { organizationContactService } from '@/core/services/client/api/organizations';
 import { queryKeys } from '@/core/query/keys';
@@ -16,9 +16,32 @@ function requestScope() {
 	return { organizationId: getOrganizationIdCookie(), tenantId: getTenantIdCookie() };
 }
 
+/** A save refused because another tab switched the workspace after the form opened. */
+export class ClientWorkspaceChangedError extends Error {
+	constructor() {
+		super('The workspace changed in another tab since this client form opened.');
+		this.name = 'ClientWorkspaceChangedError';
+	}
+}
+
+type ClientScope = ReturnType<typeof requestScope>;
+
+/** The workspace the form opened in, as long as it is still the active one; a save is refused after a switch. */
+function unchangedScopeOf(openedScope: ClientScope): ClientScope {
+	const current = requestScope();
+	const isSameWorkspace =
+		current.organizationId === openedScope.organizationId && current.tenantId === openedScope.tenantId;
+	if (!isSameWorkspace) {
+		throw new ClientWorkspaceChangedError();
+	}
+	return openedScope;
+}
+
 /** Create, edit, archive and restore a client; every list of clients is read again afterwards. */
 export function useClientMutations() {
 	const queryClient = useQueryClient();
+	// The workspace the form's client list and fields were read in: a client is saved there or not at all
+	const [openedScope] = useState(requestScope);
 
 	const invalidateClients = useCallback(
 		() => queryClient.invalidateQueries({ queryKey: queryKeys.clients.all }),
@@ -33,7 +56,7 @@ export function useClientMutations() {
 
 	const createMutation = useMutation({
 		mutationFn: (draft: ClientDraft) =>
-			organizationContactService.createClient(buildClientRequest(draft, requestScope())),
+			organizationContactService.createClient(buildClientRequest(draft, unchangedScopeOf(openedScope))),
 		onSuccess: invalidateClients
 	});
 
@@ -41,7 +64,7 @@ export function useClientMutations() {
 		mutationFn: ({ client, draft }: { client: ClientLike; draft: ClientDraft }) =>
 			organizationContactService.updateClient({
 				clientId: client.id,
-				data: buildClientUpdateRequest(draft, requestScope(), client)
+				data: buildClientUpdateRequest(draft, unchangedScopeOf(openedScope), client)
 			}),
 		onSuccess: invalidateClientsAndProjects
 	});

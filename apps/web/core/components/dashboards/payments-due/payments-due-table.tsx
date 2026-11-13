@@ -2,7 +2,7 @@
 
 import { memo, type ReactNode, useCallback, useState } from 'react';
 import { isSameYear } from 'date-fns';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
 import {
 	DashboardSection,
@@ -25,6 +25,8 @@ import {
 	type OwedMemberGroup,
 	type PaymentsGrouping
 } from '@/core/lib/utils/dashboards/payments-due';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import {
 	DayName,
 	MISSING_FIGURE,
@@ -145,13 +147,13 @@ const DayMemberRow = memo(function DayMemberRow({ line }: Readonly<{ line: OwedL
 	);
 });
 
-function subtotalsTextOf(subtotals: ReadonlyArray<OwedCurrencyTotal>, locale: string) {
+function subtotalsTextOf(subtotals: ReadonlyArray<OwedCurrencyTotal>, locale: FormatLocale) {
 	const parts = subtotals.map((subtotal) => formatOwed(subtotal.amount, subtotal.currency, locale));
 	return parts.join(' · ');
 }
 
 function DaySubtotals({ subtotals }: Readonly<{ subtotals: ReadonlyArray<OwedCurrencyTotal> }>) {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const hasSubtotals = subtotals.length > 0;
 	if (!hasSubtotals) {
 		return <span className="truncate text-right text-[13px] text-muted-foreground">{MISSING_FIGURE}</span>;
@@ -465,8 +467,8 @@ function emptyDayFormatOf(period: Period): Intl.DateTimeFormatOptions {
 	return { month: 'short', day: 'numeric' };
 }
 
-function emptyTitleOf(period: Period, locale: string, t: Translate) {
-	const formatter = new Intl.DateTimeFormat(locale, emptyDayFormatOf(period));
+function emptyTitleOf(period: Period, locale: FormatLocale, t: Translate) {
+	const formatter = dateFormatOf(locale, emptyDayFormatOf(period));
 	const from = formatter.format(period.from);
 	const to = formatter.format(period.to);
 	const isOneDay = from === to;
@@ -483,7 +485,7 @@ export function PaymentsDueEmpty({
 	onPreviousPeriod
 }: Readonly<{ period: Period; isFiltered: boolean; onClearFilters: () => void; onPreviousPeriod: () => void }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	if (isFiltered) {
 		return (
 			<BlockEmptyMessage

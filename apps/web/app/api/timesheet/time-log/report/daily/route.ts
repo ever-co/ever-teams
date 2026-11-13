@@ -52,6 +52,10 @@ export async function GET(req: NextRequest) {
 			params.includeTimeWithoutTeam = true;
 		}
 
+		if (searchParams.get('billableOnly') === 'true') {
+			params.billableOnly = true;
+		}
+
 		const activityLevelStart = searchParams.get('activityLevel[start]');
 		const activityLevelEnd = searchParams.get('activityLevel[end]');
 

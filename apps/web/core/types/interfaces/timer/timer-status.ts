@@ -36,6 +36,7 @@ export type IUpdateTimerStatusParams = {
 	tags: any[];
 	organizationTeamId?: string;
 	isBillable?: boolean;
+	description?: string;
 	planDay?: string;
 };
 export type IToggleTimerStatusParams = IGetTimerStatusParams & {

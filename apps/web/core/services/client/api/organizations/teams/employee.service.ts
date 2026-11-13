@@ -11,7 +11,25 @@ import {
 	TOrganizationTeamEmployee,
 	TUpdateEmployee
 } from '@/core/types/schemas';
+import {
+	employeeWorkStatusSchema,
+	inactiveEmployeePageSchema,
+	type TInactiveEmployee,
+	type TInactiveEmployeePage
+} from '@/core/types/schemas/organization/inactive-employee.schema';
+import {
+	inactiveEmployeePagesAfterFirst,
+	inactiveEmployeesQueryOf,
+	isWorkEndApplied,
+	WorkEndNotAppliedError
+} from '@/core/lib/utils/member-access';
 import { scopedReadConfig, ScopedReadOptions } from '@/core/services/client/api-request-scope';
+
+interface InactiveEmployeesRead {
+	organizationId: string;
+	tenantId: string;
+	signal?: AbortSignal;
+}
 
 class EmployeeService extends APIService {
 	/**
@@ -94,6 +112,58 @@ class EmployeeService extends APIService {
 				);
 			}
 			throw error;
+		}
+	};
+
+	/**
+	 * A page of the employees of the organization whose work ended. Gauzy's `GET /employee/pagination` needs
+	 * ORG_EMPLOYEES_VIEW; the proxy answers the same page for the caller's own organization.
+	 */
+	getInactiveEmployeesPage = async (page: number, read: InactiveEmployeesRead): Promise<TInactiveEmployeePage> => {
+		const { organizationId, tenantId, signal } = read;
+		let endpoint = `/employee/inactive?${qs.stringify({ page })}`;
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			endpoint = `/employee/pagination?${inactiveEmployeesQueryOf({ organizationId, tenantId, page })}`;
+		}
+
+		const response = await this.get<TInactiveEmployeePage>(endpoint, { tenantId, signal });
+
+		return validateApiResponse(inactiveEmployeePageSchema, response.data, 'getInactiveEmployeesPage API response');
+	};
+
+	/** Every employee of the organization whose work ended: the first page gives the total, the others follow it. */
+	getInactiveEmployees = async (read: InactiveEmployeesRead): Promise<TInactiveEmployee[]> => {
+		const firstPage = await this.getInactiveEmployeesPage(1, read);
+		const laterPageNumbers = inactiveEmployeePagesAfterFirst(firstPage.total);
+		const laterPages = await Promise.all(laterPageNumbers.map((page) => this.getInactiveEmployeesPage(page, read)));
+		const pages = [firstPage, ...laterPages];
+
+		return pages.flatMap((page) => page.items);
+	};
+
+	/**
+	 * Ends a member's work, or brings them back with `null`: Gauzy's "End Work" and "Back to Work", on
+	 * `PUT /employee/:id` (ORG_EMPLOYEES_EDIT). Gauzy turns their access and tracking off or on itself, and keeps
+	 * their team memberships, time, tasks and comments.
+	 *
+	 * @throws WorkEndNotAppliedError when Gauzy accepted the request and left the member as they were.
+	 */
+	setEmployeeWorkEnd = async ({
+		employeeId,
+		organizationId,
+		tenantId,
+		endWork
+	}: {
+		employeeId: string;
+		organizationId: string;
+		tenantId: string;
+		endWork: string | null;
+	}): Promise<void> => {
+		const endpoint = `/employee/${encodeURIComponent(employeeId)}`;
+		const response = await this.put<unknown>(endpoint, { organizationId, tenantId, endWork });
+		const saved = validateApiResponse(employeeWorkStatusSchema, response.data, 'setEmployeeWorkEnd API response');
+		if (!isWorkEndApplied(saved, endWork)) {
+			throw new WorkEndNotAppliedError();
 		}
 	};
 

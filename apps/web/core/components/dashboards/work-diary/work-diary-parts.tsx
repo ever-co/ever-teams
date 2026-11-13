@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { type ReactNode, useMemo } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useReachText } from '@/core/components/calendar/calendar-month-view';
 import { type MetricItem, MetricStrip } from '@/core/components/dashboards/kit/metric-strip';
@@ -64,9 +64,13 @@ export function DiaryRowsSkeleton() {
 	);
 }
 
-/** The task (it opens), "now" while its timer runs, and its project on a second line. */
+const NOTES_SEPARATOR = ' · ';
+
+/** The task (it opens), "now" while its timer runs, its project on a second line, then the notes of its entries. */
 function DiaryTaskName({ task }: Readonly<{ task: DiaryTask }>) {
 	const t = useTranslations();
+	const notes = task.notes.join(NOTES_SEPARATOR);
+	const hasNotes = notes !== '';
 	return (
 		<span className="flex min-w-0 flex-col py-0.5">
 			<span className="flex min-w-0 items-baseline gap-1.5">
@@ -78,6 +82,12 @@ function DiaryTaskName({ task }: Readonly<{ task: DiaryTask }>) {
 				)}
 			</span>
 			{task.projectName && <span className="truncate text-xs text-muted-foreground">{task.projectName}</span>}
+			{hasNotes && (
+				<span title={notes} className="truncate text-xs text-muted-foreground">
+					<span className="sr-only">{t('common.NOTES')}: </span>
+					{notes}
+				</span>
+			)}
 		</span>
 	);
 }
@@ -93,9 +103,13 @@ function noOtherRow() {
 
 /**
  * Where the day's time went, task by task: its share of the day, the task (it opens), its project, its time. Every
- * task is listed, however short: a day holds few enough of them, and each one opens.
+ * task is listed, however short: a day holds few enough of them, and each one opens. `renderActions` puts a task's
+ * own actions at the end of its name.
  */
-export function DiaryTaskRows({ tasks }: Readonly<{ tasks: ReadonlyArray<DiaryTask> }>) {
+export function DiaryTaskRows({
+	tasks,
+	renderActions
+}: Readonly<{ tasks: ReadonlyArray<DiaryTask>; renderActions?: (task: DiaryTask) => ReactNode }>) {
 	const rows = useMemo(
 		() =>
 			shareRowsOf(
@@ -106,10 +120,21 @@ export function DiaryTaskRows({ tasks }: Readonly<{ tasks: ReadonlyArray<DiaryTa
 			),
 		[tasks]
 	);
+	let renderName = renderTaskName;
+	if (renderActions) {
+		renderName = (task: DiaryTask) => (
+			<>
+				<span className="min-w-0 flex-1">
+					<DiaryTaskName task={task} />
+				</span>
+				{renderActions(task)}
+			</>
+		);
+	}
 	return (
 		<ShareRows
 			rows={rows}
-			renderName={renderTaskName}
+			renderName={renderName}
 			formatValue={formatDurationShort}
 			otherLabel={noOtherRow}
 			className="py-1.5"

@@ -5,6 +5,12 @@ import { organizationSchema, validateApiResponse, ZodValidationError, type TOrga
 import { scopedReadConfig, ScopedReadOptions } from '../../api-request-scope';
 import { withNewOrganizationTrackingRequirements } from '@/core/constants/config/organization-creation';
 
+/** What a save changes. A format saved as null leaves every reader with their own language's way again. */
+export type TOrganizationChanges = Partial<Omit<IOrganization, 'dateFormat' | 'numberFormat'>> & {
+	dateFormat?: string | null;
+	numberFormat?: string | null;
+};
+
 class OrganizationService extends APIService {
 	createOrganization = async (data: IOrganizationCreate, bearer_token: string) => {
 		const body = withNewOrganizationTrackingRequirements(data);
@@ -18,7 +24,7 @@ class OrganizationService extends APIService {
 	// another admin's rename or currency change. Without that read, the page's copy is sent as before.
 	updateOrganization = async (
 		organization: Pick<TOrganization, 'id' | 'name' | 'currency'>,
-		changes: Partial<IOrganization>
+		changes: TOrganizationChanges
 	) => {
 		const current = await this.getOrganizationById(organization.id).catch(() => null);
 		const name = current?.name ?? organization.name;

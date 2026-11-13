@@ -2,7 +2,11 @@
 
 import { useMemo } from 'react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { invoiceService, type InvoicesPage } from '@/core/services/client/api/organizations/invoice.service';
+import {
+	invoiceService,
+	type InvoicesPage,
+	type InvoicesScope
+} from '@/core/services/client/api/organizations/invoice.service';
 import { queryKeys } from '@/core/query/keys';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { nextInvoiceNumberOf } from '@/core/lib/utils/invoices';
@@ -32,10 +36,22 @@ export function useInvoicesQuery({ enabled }: Readonly<{ enabled: boolean }>) {
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
 	const hasScope = Boolean(tenantId) && Boolean(organizationId);
+	const scope = useMemo<InvoicesScope | null>(() => {
+		if (!hasScope) {
+			return null;
+		}
+		return { organizationId, tenantId };
+	}, [hasScope, organizationId, tenantId]);
 
 	const query = useInfiniteQuery({
 		queryKey: queryKeys.invoices.list(tenantId, organizationId),
-		queryFn: ({ pageParam, signal }) => invoiceService.getInvoices({ page: pageParam, signal }),
+		// The scope the key names, not the cookies read when a page is asked for: another tab may have switched them
+		queryFn: ({ pageParam, signal }) =>
+			invoiceService.getInvoices({
+				page: pageParam,
+				signal,
+				scope: tenantId && organizationId ? { organizationId, tenantId } : undefined
+			}),
 		initialPageParam: 1,
 		getNextPageParam: nextPageOf,
 		enabled: enabled && hasScope
@@ -47,6 +63,8 @@ export function useInvoicesQuery({ enabled }: Readonly<{ enabled: boolean }>) {
 
 	return {
 		invoices,
+		/** The workspace the list was read in: an action on one of its invoices is made there, or refused. */
+		scope,
 		/** As the API counts them; null until it answered. */
 		total: lastPage?.total ?? null,
 		isLoading: query.isLoading,
@@ -65,13 +83,20 @@ export function useClientInvoices(clientId: string | null) {
 
 	const query = useQuery({
 		queryKey: queryKeys.invoices.ofClient(tenantId, organizationId, clientId),
-		queryFn: ({ signal }) => invoiceService.getClientInvoices(clientId as string, signal),
+		queryFn: ({ signal }) =>
+			invoiceService.getClientInvoices(
+				clientId as string,
+				signal,
+				tenantId && organizationId ? { organizationId, tenantId } : undefined
+			),
 		enabled: hasScope && Boolean(clientId)
 	});
 
 	return {
 		invoices: query.data ?? NO_INVOICES,
 		isLoading: query.isLoading,
+		/** Read again while its last answer is shown, as after a failed save: the new answer can hold that invoice. */
+		isRefreshing: query.isFetching && !query.isLoading,
 		isError: query.isError,
 		refetch: query.refetch
 	};

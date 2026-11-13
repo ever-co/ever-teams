@@ -11,6 +11,7 @@ import {
 import type { CalendarEntry } from '@/core/lib/utils/calendar-view';
 import { clampedDayOfPeriod, type Period } from '@/core/lib/utils/dashboard-period';
 import type { TTimeSlotsData } from '@/core/types/schemas/timer/time-slot.schema';
+import { entryNotesOf } from '@/core/lib/utils/timer/timer-notes';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { startOfLog, TIMESHEET_WEEK_START } from './timesheets';
@@ -313,6 +314,27 @@ export interface DiaryTask {
 	isRunning: boolean;
 	/** The time tracked without a task: listed with the tasks, but not one of them. */
 	isUntasked: boolean;
+	/** The notes of the task's entries that day, each once, in the order the entries come. */
+	notes: string[];
+}
+
+function notesListOf(log: ITimeLog): string[] {
+	const notes = entryNotesOf(log);
+	if (!notes) {
+		return [];
+	}
+	return [notes];
+}
+
+function addEntryNotes(task: DiaryTask, log: ITimeLog) {
+	const notes = entryNotesOf(log);
+	if (!notes) {
+		return;
+	}
+	if (task.notes.includes(notes)) {
+		return;
+	}
+	task.notes.push(notes);
 }
 
 const NO_TASK_KEY = 'no-task';
@@ -332,11 +354,13 @@ export function diaryTasksOf(entries: ReadonlyArray<CalendarEntry>): DiaryTask[]
 				projectName: entry.projectName,
 				projectColor: entry.projectColor,
 				isRunning: entry.isRunning,
-				isUntasked: taskId === null
+				isUntasked: taskId === null,
+				notes: notesListOf(entry.log)
 			});
 			continue;
 		}
 		existing.seconds += entry.daySeconds;
+		addEntryNotes(existing, entry.log);
 		existing.isRunning = existing.isRunning || entry.isRunning;
 		// The row names and links its task through this log: a later log of the task that carries its title wins
 		const hasTitle = Boolean(existing.log.task?.title);

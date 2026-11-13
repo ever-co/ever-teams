@@ -26,6 +26,15 @@ import { useDocsScope } from './use-docs-scope';
 const memory = createDocsLiveMemory();
 onSignOut(() => memory.clear());
 
+/**
+ * The pages left in this tab with live edits the platform never confirmed (their session was down when they were
+ * left): those edits exist only here until the page is opened again, so an export of them would miss them.
+ */
+export function pagesWithUnsentLiveEdits(): string[] {
+	// Keys are `<user id>:<page id>` (see `memoryKey` below); a sign-out clears the memory
+	return memory.unsentKeys().map((key) => key.slice(key.indexOf(':') + 1));
+}
+
 /** The sessions of the page views open in this tab. */
 const openBindings = new Set<DocsLiveBinding>();
 let unloadGuard: ((event: BeforeUnloadEvent) => void) | null = null;

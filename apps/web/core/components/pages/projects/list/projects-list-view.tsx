@@ -9,6 +9,7 @@ import {
 	Building,
 	Calendar,
 	ChevronRight,
+	Clock,
 	Folder,
 	Analytics,
 	UserCheck,
@@ -20,7 +21,6 @@ import {
 import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
 import {
 	PeopleCell,
-	ProjectBudgetCell,
 	ProjectClientCell,
 	ProjectDatesCell,
 	ProjectProgressCell,
@@ -31,6 +31,12 @@ import {
 } from '@/core/components/projects/project-cells';
 import { FavoriteMark } from '@/core/components/favorites/favorite-parts';
 import { ProjectActionsMenu } from '@/core/components/projects/project-actions-menu';
+import {
+	ProjectBudgetRiskMark,
+	ProjectBudgetUseCell,
+	ProjectTimeSpentCell
+} from '@/core/components/projects/project-consumption-cells';
+import type { ProjectConsumptionState } from '@/core/hooks/projects/use-project-consumption';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { cn } from '@/core/lib/helpers';
 import type { ProjectsListState } from '@/core/hooks/projects/use-projects-list-state';
@@ -43,6 +49,7 @@ import {
 	statusLabelOf,
 	personFromProjectMember,
 	realDateOf,
+	isConsumptionOrderField,
 	PROJECT_COLUMNS,
 	type ProjectColumn,
 	type ProjectOrderField,
@@ -60,8 +67,12 @@ const COLUMN_WIDTHS_REM: Record<ProjectColumn, number> = {
 	members: 6.5,
 	teams: 9,
 	dates: 12,
+	timeSpent: 7.5,
 	budget: 6.5
 };
+
+/** Room for two amounts written with a currency code, as "BGN 612.52 / BGN 2,640.00". */
+const BUDGET_USE_COLUMN_REM = 12;
 
 const COLUMN_ICONS: Record<ProjectColumn, ReactNode> = {
 	status: <CircleCheck />,
@@ -71,12 +82,15 @@ const COLUMN_ICONS: Record<ProjectColumn, ReactNode> = {
 	members: <Users />,
 	teams: <UsersGroup />,
 	dates: <Calendar />,
+	timeSpent: <Clock />,
 	budget: <Wallet />
 };
 
 const COLUMN_ORDER_FIELD: Partial<Record<ProjectColumn, ProjectOrderField>> = {
 	status: 'status',
-	dates: 'startDate'
+	dates: 'startDate',
+	timeSpent: 'timeSpent',
+	budget: 'budgetUsed'
 };
 
 const SELECT_COLUMN_REM = 2;
@@ -87,13 +101,21 @@ function remOf(value: number) {
 	return `${value}rem`;
 }
 
+function columnWidthOf(column: ProjectColumn, showsConsumption: boolean) {
+	const isBudgetUse = column === 'budget' && showsConsumption;
+	if (isBudgetUse) {
+		return BUDGET_USE_COLUMN_REM;
+	}
+	return COLUMN_WIDTHS_REM[column];
+}
+
 /** Below the sum of its columns the list scrolls sideways instead of squeezing the cells. */
-function gridStyleOf(columns: ProjectColumn[]): CSSProperties {
+function gridStyleOf(columns: ProjectColumn[], showsConsumption: boolean): CSSProperties {
 	const projectTrack = `minmax(${remOf(PROJECT_COLUMN_MIN_REM)},1fr)`;
 	const tracks = [remOf(SELECT_COLUMN_REM), projectTrack];
 	let minWidth = SELECT_COLUMN_REM + PROJECT_COLUMN_MIN_REM + ACTIONS_COLUMN_REM;
 	for (const column of columns) {
-		const width = COLUMN_WIDTHS_REM[column];
+		const width = columnWidthOf(column, showsConsumption);
 		tracks.push(remOf(width));
 		minWidth += width;
 	}
@@ -113,6 +135,7 @@ export interface ProjectsListViewProps {
 	statuses: TTaskStatus[];
 	taskStats: ProjectTaskStatsState;
 	visibleProjectIds: string[];
+	consumption: ProjectConsumptionState;
 }
 
 export function ProjectsListView({
@@ -120,11 +143,12 @@ export function ProjectsListView({
 	groups,
 	statuses,
 	taskStats,
-	visibleProjectIds
+	visibleProjectIds,
+	consumption
 }: Readonly<ProjectsListViewProps>) {
 	const columns = list.isColumnVisible;
 	const visibleColumns = PROJECT_COLUMNS.filter((column) => columns(column));
-	const gridStyle = gridStyleOf(visibleColumns);
+	const gridStyle = gridStyleOf(visibleColumns, list.showsConsumption);
 	const isGrouped = list.grouping === 'status';
 	const clientNames = useClientNames();
 	const [collapsedGroups, setCollapsedGroups] = useState<string[]>([]);
@@ -168,6 +192,7 @@ export function ProjectsListView({
 											clientNames={clientNames}
 											statuses={statuses}
 											taskStats={taskStats}
+											consumption={consumption}
 										/>
 									))}
 								</div>
@@ -234,9 +259,20 @@ function ColumnLabels({
 	);
 }
 
+function orderFieldOfColumn(list: ProjectsListState, column: ProjectColumn) {
+	const field = COLUMN_ORDER_FIELD[column];
+	if (!field) {
+		return undefined;
+	}
+	if (!list.isOrderFieldOffered(field)) {
+		return undefined;
+	}
+	return field;
+}
+
 function ColumnLabel({ list, column }: Readonly<{ list: ProjectsListState; column: ProjectColumn }>) {
 	const t = useTranslations();
-	const field = COLUMN_ORDER_FIELD[column];
+	const field = orderFieldOfColumn(list, column);
 	const label = t(COLUMN_LABEL_KEYS[column]);
 	if (field) {
 		return (
@@ -266,7 +302,9 @@ function SortableLabel({
 			list.setOrdering({ id: field, desc: !list.ordering.desc });
 			return;
 		}
-		list.setOrdering({ id: field, desc: false });
+		// Time spent and budget used are read from the top: the most spent and the most used come first.
+		const startsDescending = isConsumptionOrderField(field);
+		list.setOrdering({ id: field, desc: startsDescending });
 	};
 	return (
 		<button
@@ -388,7 +426,8 @@ function ProjectRow({
 	columns,
 	clientNames,
 	statuses,
-	taskStats
+	taskStats,
+	consumption
 }: Readonly<{
 	project: TOrganizationProject;
 	list: ProjectsListState;
@@ -396,6 +435,7 @@ function ProjectRow({
 	clientNames: ReadonlyMap<string, string>;
 	statuses: TTaskStatus[];
 	taskStats: ProjectTaskStatsState;
+	consumption: ProjectConsumptionState;
 }>) {
 	const t = useTranslations();
 	const isSelected = list.selectedIds.includes(project.id);
@@ -412,7 +452,8 @@ function ProjectRow({
 		members: <PeopleCell people={members} max={3} />,
 		teams: <TeamsCell teams={project.teams ?? []} max={1} />,
 		dates: <ProjectDatesCell startDate={project.startDate} endDate={project.endDate} />,
-		budget: <ProjectBudgetCell project={project} />
+		timeSpent: <ProjectTimeSpentCell projectId={project.id} consumption={consumption} />,
+		budget: <ProjectBudgetUseCell project={project} consumption={consumption} />
 	};
 
 	return (
@@ -445,7 +486,10 @@ function ProjectRow({
 					<ProjectSubline project={project} clientName={clientName} hasClientColumn={hasClientColumn} />
 				</span>
 			</Link>
-			<span className="px-2 lg:hidden">{cells.status}</span>
+			<span className="flex items-center gap-1.5 px-2 lg:hidden">
+				<ProjectBudgetRiskMark projectId={project.id} consumption={consumption} />
+				{cells.status}
+			</span>
 			{columns.map((column) => (
 				<span key={column} className={CELL}>
 					{cells[column]}

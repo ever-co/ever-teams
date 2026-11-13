@@ -138,6 +138,7 @@ export const SettingsNav = memo(function SettingsNav() {
 				</SidebarMenu>
 			</SidebarGroup>
 			<SettingsNavGroup group="account" currentHref={currentHref} canManageTeam={canManageTeam} hidden={hidden} />
+			<SettingsNavGroup group="workspace" currentHref={currentHref} canManageTeam={canManageTeam} hidden={hidden} />
 			<SettingsNavGroup group="team" currentHref={currentHref} canManageTeam={canManageTeam} hidden={hidden} />
 			<SettingsNavGroup group="taskProperties" currentHref={currentHref} canManageTeam={canManageTeam} hidden={hidden} />
 		</nav>

@@ -6,7 +6,7 @@ import { createStore, Provider } from 'jotai';
 import type { PropsWithChildren } from 'react';
 import type { SheetEditingSource } from '@/core/hooks/dashboards/timesheets/use-sheet-editing';
 import type { Period } from '@/core/lib/utils/dashboard-period';
-import { sheetRowKeyOf } from '@/core/lib/utils/dashboards/timesheets';
+import { sheetRowKeyOf, timesheetFormattersOf } from '@/core/lib/utils/dashboards/timesheets';
 import { queryKeys } from '@/core/query/keys';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
@@ -183,5 +183,16 @@ describe('useWorkDiaryWeekSheet', () => {
 
 		expect(mockDeleteLogs).toHaveBeenCalledWith(['log-1'], true);
 		expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.timer.timeSlots.all });
+	});
+
+	it("writes the days of the sheet in the workspace's date format, as the sheet of Timesheets does", () => {
+		const day = new Date(2024, 0, 9);
+		const withFormat = renderWeekSheet([PENDING_LOG], { dateFormat: 'DD/MM/YYYY' });
+		expect(withFormat.result.current.formatters.dayDate(day)).toBe('09/01/2024');
+		withFormat.unmount();
+
+		const withoutFormat = renderWeekSheet([PENDING_LOG]);
+		const readerFormatters = timesheetFormattersOf('en');
+		expect(withoutFormat.result.current.formatters.dayDate(day)).toBe(readerFormatters.dayDate(day));
 	});
 });

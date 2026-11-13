@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useState } from 'react';
 import Link from 'next/link';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { EntityTile } from '@/core/components/common/entity-tile';
 import { limitVerdictTextClassOf } from '@/core/components/dashboards/kit/meters';
 import { DASHBOARD_SURFACE, SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
@@ -19,6 +19,7 @@ import {
 	type BudgetRow,
 	type BudgetScope
 } from '@/core/lib/utils/dashboards/project-budget';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { BudgetPillMeter, BudgetPillMeterSkeleton } from './budget-pill-meter';
 import { remainingLabelOf, riskLabelKeyOf, RiskDot, shareTextOf, typeTextOf } from './budget-cells';
 import { FilteredEmptyMessage, NoBudgetMessage } from './project-budget-table';
@@ -74,7 +75,7 @@ function BudgetTypeChip({ row }: Readonly<{ row: BudgetRow }>) {
 }
 
 function UsedFigure({ row }: Readonly<{ row: BudgetRow }>) {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const spentText = amountTextOf(row.spent, row, locale);
 	const budgetText = budgetTextOf(row.budget, row, locale);
 	return (
@@ -102,7 +103,7 @@ function remainingToneOf(row: BudgetRow) {
 
 function ShareLine({ row }: Readonly<{ row: BudgetRow }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const share = shareTextOf(row);
 	const usedText = t('dashboard.projectBudget.USED_SHARE', { share });
 	const remainingText = remainingLabelOf(row, locale, t);

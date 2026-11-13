@@ -24,12 +24,15 @@ import {
 	countedDaysOf,
 	DEFAULT_CALENDAR_VIEW,
 	defaultSelectedDayOf,
+	logsOfEmployee,
 	plansByDayOf,
 	shiftedAnchorOf,
 	trackedTotalOf,
 	visibleRangeOf,
 	weekStartOf
 } from '@/core/lib/utils/calendar-view';
+import { logsWithMovedWindows } from '@/core/lib/utils/calendar-drag';
+import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import type { TDailyPlan } from '@/core/types/schemas';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { type CalendarLogsRequest, useCalendarLogs } from './use-calendar-logs';
@@ -39,6 +42,8 @@ const VIEW_STORAGE_KEY = 'calendar-view';
 const NO_PLANS: TDailyPlan[] = [];
 
 const NO_LOGS: ITimeLog[] = [];
+
+const NO_MOVED_WINDOWS: ReadonlyMap<string, TimeWindow> = new Map();
 
 const CALENDAR_VIEWS: ReadonlyArray<CalendarView> = ['month', 'week', 'day'];
 
@@ -155,6 +160,7 @@ export function useCalendarPage() {
 	const [pickedEmployeeId, setPickedEmployeeId] = useState<string | null>(null);
 	const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null);
 	const [panelDayKey, setPanelDayKey] = useState<string | null>(null);
+	const [movedWindows, setMovedWindows] = useState<ReadonlyMap<string, TimeWindow>>(NO_MOVED_WINDOWS);
 
 	const view = viewOf(storedView);
 	const weekStartsOn = weekStartOf(organization?.startWeekOn);
@@ -210,11 +216,16 @@ export function useCalendarPage() {
 	const resultLogs = result?.logs;
 	const teamPlans = plansOrNone(allTeamDailyPlans.items);
 
+	const memberLogs = useMemo(() => {
+		const logs = resultLogs ?? NO_LOGS;
+		const ownLogs = logsOfEmployee(logs, shownEmployeeId);
+		return logsWithMovedWindows(ownLogs, movedWindows);
+	}, [movedWindows, resultLogs, shownEmployeeId]);
+
 	const entries = useMemo(() => {
 		const readTime = readTimeOf(dataUpdatedAt);
-		const logs = resultLogs ?? NO_LOGS;
-		return calendarEntriesOf(logs, shownRange, shownEmployeeId, readTime);
-	}, [dataUpdatedAt, resultLogs, shownEmployeeId, shownRange]);
+		return calendarEntriesOf(memberLogs, shownRange, shownEmployeeId, readTime);
+	}, [dataUpdatedAt, memberLogs, shownEmployeeId, shownRange]);
 
 	const plansByDay = useMemo(
 		() => plansByDayOf(teamPlans, shownEmployeeId, shownRange),
@@ -298,6 +309,22 @@ export function useCalendarPage() {
 		setPanelDayKey(null);
 	}, []);
 
+	const showEntryAt = useCallback((logId: string, window: TimeWindow) => {
+		setMovedWindows((current) => {
+			const next = new Map(current);
+			next.set(logId, window);
+			return next;
+		});
+	}, []);
+
+	const showEntryAsSaved = useCallback((logId: string) => {
+		setMovedWindows((current) => {
+			const next = new Map(current);
+			next.delete(logId);
+			return next;
+		});
+	}, []);
+
 	const refetchQuery = logsQuery.refetch;
 	const refetch = useCallback(() => {
 		void refetchQuery();
@@ -327,6 +354,11 @@ export function useCalendarPage() {
 		shownView,
 		shownAnchor,
 		shownRange,
+		isShowingPreviousChoice: isPlaceholder,
+		memberLogs,
+		movedWindows,
+		showEntryAt,
+		showEntryAsSaved,
 		days,
 		trackedSeconds,
 		selectedDay,
