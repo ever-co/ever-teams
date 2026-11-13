@@ -53,11 +53,11 @@ export function useInvoiceEdit(saved: SavedInvoice) {
 	// Another invoice billed part of this time meanwhile: the lines are built again from what is left
 	const saveEdit = useCallback(
 		async (toSave: InvoiceEditToSave) => {
-			const saved = await saveInvoiceEdit(toSave);
-			if (saved.outcome.status === 'timeBilled') {
+			const savedEdit = await saveInvoiceEdit(toSave);
+			if (savedEdit.outcome.status === 'timeBilled') {
 				refetchTime();
 			}
-			return saved;
+			return savedEdit;
 		},
 		[refetchTime, saveInvoiceEdit]
 	);
