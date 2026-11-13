@@ -687,6 +687,33 @@
 				"NO_APPS": "Geen app of site vastgelegd in deze tien minuten.",
 				"OPEN_FULL": "Screenshot op volledige grootte openen",
 				"SHOT_OF": "Screenshot {index} van {count}"
+			},
+			"BULK_EDIT": {
+				"TITLE": "{count, plural, one {# invoer bewerken} other {# invoeren bewerken}}",
+				"DESCRIPTION": "Alleen de velden die je wijzigt worden opgeslagen. Elke invoer behoudt zijn datum, tijden, notities en lid.",
+				"KEEP": "Laten zoals het is",
+				"PROJECT_FOLLOWS": "Tijd op deze taak gaat naar het project van de taak: {project}.",
+				"PROJECT_FOLLOWS_UNNAMED": "Tijd op deze taak gaat naar het eigen project van de taak.",
+				"TASKS_OF_PROJECT": "Taken van {project} en taken zonder project.",
+				"PROJECTS_LOADING": "Projecten laden",
+				"PROJECTS_FAILED": "De projecten konden niet worden geladen.",
+				"NOTHING_CHOSEN": "Alle velden staan op ‘Laten zoals het is’, dus er verandert nog niets.",
+				"WILL_UPDATE": "{count, plural, =0 {Er wordt geen invoer bijgewerkt} one {# invoer wordt bijgewerkt} other {# invoeren worden bijgewerkt}}",
+				"UPDATE": "{count, plural, =0 {Invoeren bijwerken} one {# invoer bijwerken} other {# invoeren bijwerken}}",
+				"PROGRESS": "Invoeren bijwerken: {done} van {total}",
+				"UPDATED": "{count, plural, one {# invoer bijgewerkt} other {# invoeren bijgewerkt}}",
+				"UPDATED_PARTLY": "{updated, plural, =0 {Geen invoer bijgewerkt} one {# invoer bijgewerkt} other {# invoeren bijgewerkt}}, {notUpdated, plural, one {# niet bijgewerkt} other {# niet bijgewerkt}}",
+				"STILL_SELECTED": "De invoeren die niet zijn bijgewerkt blijven geselecteerd.",
+				"REASON": {
+					"NOT_ALLOWED": "{count, plural, one {# invoer is niet van jou: alleen het lid zelf of een beheerder kan die bewerken.} other {# invoeren zijn niet van jou: alleen het lid zelf of een beheerder kan die bewerken.}}",
+					"RUNNING": "{count, plural, one {# invoer van een lopende timer: stop eerst de timer.} other {# invoeren van lopende timers: stop eerst de timers.}}",
+					"APPROVED": "{count, plural, one {# invoer is goedgekeurd: wijzig eerst de status.} other {# invoeren zijn goedgekeurd: wijzig eerst de status.}}",
+					"OTHER_TEAM": "{count, plural, one {# invoer van een ander team: schakel naar dat team om de taak te wijzigen.} other {# invoeren van een ander team: schakel naar dat team om de taak te wijzigen.}}",
+					"UNCHANGED": "{count, plural, one {# invoer heeft deze waarden al.} other {# invoeren hebben deze waarden al.}}",
+					"OVERLAP": "{count, plural, one {# invoer overlapt andere geregistreerde tijd: bij opslaan zou die tijd worden verwijderd.} other {# invoeren overlappen andere geregistreerde tijd: bij opslaan zou die tijd worden verwijderd.}}",
+					"CHECK_FAILED": "{count, plural, one {Van # invoer kon de overlap niet worden gecontroleerd, dus die is niet opgeslagen.} other {Van # invoeren kon de overlap niet worden gecontroleerd, dus die zijn niet opgeslagen.}}",
+					"FAILED": "{count, plural, one {# invoer kon niet worden opgeslagen.} other {# invoeren konden niet worden opgeslagen.}}"
+				}
 			}
 		},
 		"workDiary": {
@@ -1861,6 +1888,10 @@
 			"restoreModal": {
 				"title": "Project herstellen",
 				"description": "Weet u zeker dat u {projectName} wilt herstellen?"
+			},
+			"billable": {
+				"LABEL": "Standaard factureerbaar",
+				"HELP": "Geldt voor nieuwe registraties; oude blijven gelijk."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {
@@ -6805,6 +6836,71 @@
 			"CONFIRM": "Factuur verwijderen",
 			"DONE": "Factuur {number} is verwijderd",
 			"FAILED": "De factuur is niet verwijderd. Probeer het opnieuw."
+		},
+		"edit": {
+			"TITLE": "Factuur {number} bewerken",
+			"LOADING_TITLE": "Factuur bewerken",
+			"SAVE": "Wijzigingen opslaan",
+			"TAKE_TIME_AGAIN": "Tijd opnieuw overnemen",
+			"TIME_LINES": "Regels opnieuw opgebouwd uit de tijd zoals die nu is.",
+			"BACK_TO_SAVED": "Terug naar de opgeslagen regels",
+			"RATE_SOURCE_SAVED": "Het tarief dat op de factuur is opgeslagen",
+			"DRAFT_NOTE": "Hij blijft een concept. Er wordt niets naar de klant gestuurd.",
+			"SENT_NOTE": "{client} heeft de eerdere versie tot hij opnieuw wordt verstuurd.",
+			"UNCHANGED": "Er is nog niets veranderd.",
+			"TIME_ERROR_MESSAGE": "Probeer het opnieuw of ga terug naar de opgeslagen regels.",
+			"LOAD_ERROR_TITLE": "De factuur kon niet worden geladen",
+			"NOT_FOUND_TITLE": "Deze factuur bestaat niet meer",
+			"NOT_FOUND_MESSAGE": "Hij is misschien verwijderd. De lijst toont de facturen die er nog zijn.",
+			"BACK_TO_LIST": "Facturen openen",
+			"LOCKED_TITLE": "Factuur {number} kan niet worden bewerkt",
+			"LOCKED_PAID": "Er is al iets op betaald. Laat hem vervallen en vervang hem via zijn menu in de lijst.",
+			"LOCKED_VOID": "Hij is vervallen, en een vervallen factuur verandert niet meer.",
+			"NOT_FROM_TIME_TITLE": "Factuur {number} kan hier niet worden geopend",
+			"NOT_FROM_TIME_MESSAGE": "Hij is niet gemaakt uit de factureerbare tijd van een klant. Wijzig hem waar hij is gemaakt.",
+			"OTHER_WORKSPACE_TITLE": "Factuur {number} staat in een andere werkruimte",
+			"OTHER_WORKSPACE_MESSAGE": "Kies zijn werkruimte en open hem daarna opnieuw vanuit de lijst met facturen.",
+			"SAVED_NOT_SENT": "Factuur {number} is opgeslagen, maar niet verzonden",
+			"confirm": {
+				"TITLE": "Wijzigingen aan factuur {number} opslaan?",
+				"LINES_ADDED": "{count, plural, one {# regel toegevoegd} other {# regels toegevoegd}}.",
+				"LINES_REMOVED": "{count, plural, one {# regel verwijderd} other {# regels verwijderd}}.",
+				"LINES_CHANGED": "{count, plural, one {# regel met andere uren of een ander tarief} other {# regels met andere uren of een ander tarief}}.",
+				"DESCRIPTIONS": "{count, plural, one {# omschrijving herschreven} other {# omschrijvingen herschreven}}.",
+				"TOTAL": "Totaal {total}, in plaats van {before}.",
+				"ISSUE_DATE": "Uitgereikt op {date}, in plaats van {before}.",
+				"DUE_DATE": "Vervalt op {date}, in plaats van {before}.",
+				"NUMBER": "Nummer {number}, in plaats van {before}.",
+				"DISCOUNT": "Korting {percent}, in plaats van {before}.",
+				"TAX": "Belasting {percent}, in plaats van {before}.",
+				"CURRENCY": "Gefactureerd in {currency}, in plaats van {before}.",
+				"NOTE": "De opmerking voor de klant wordt herschreven.",
+				"EARLIER_VERSION": "{client} heeft de eerdere versie.",
+				"STAYS_DRAFT": "Hij blijft een concept.",
+				"SEND_AGAIN": "Opslaan en opnieuw versturen mailt deze versie ook naar de klant, met de pdf als bijlage.",
+				"SAVE_AND_SEND_AGAIN": "Opslaan en opnieuw versturen",
+				"NOT_SAVED": "De wijzigingen zijn niet opgeslagen en de factuur is gebleven zoals hij was. Controleer of het nummer vrij is en probeer het opnieuw.",
+				"PUT_BACK": "De wijzigingen konden niet worden opgeslagen, dus de factuur is teruggezet zoals hij was. Probeer het opnieuw.",
+				"NOT_PUT_BACK": "De wijzigingen konden niet worden opgeslagen, en de factuur kon niet worden teruggezet zoals hij was. Open hem opnieuw en controleer de regels en het totaal voordat je hem verstuurt.",
+				"NOT_PUT_BACK_LINES": "De wijzigingen konden niet worden opgeslagen, en de factuur kon niet worden teruggezet zoals hij was: hij heeft nu {count, plural, =0 {geen regels} one {# regel} other {# regels}}. Controleer hem voordat je hem verstuurt.",
+				"LOCKED_NOW": "Sinds hij werd geopend, is factuur {number} betaald of vervallen: er is niets opgeslagen en hij kan niet meer worden bewerkt.",
+				"NOT_CHECKED": "De factuur kon voor het opslaan niet opnieuw worden gelezen, dus er is niets opgeslagen. Probeer het opnieuw.",
+				"NOT_REACHED": "De verbinding is mislukt: de wijzigingen zijn niet opgeslagen en de factuur is gebleven zoals hij was. Controleer je verbinding en probeer het opnieuw.",
+				"CHANGED": "Sinds hij werd geopend, is factuur {number} gewijzigd: er is niets opgeslagen. Open hem opnieuw vanuit de factuurlijst om van de huidige versie uit te gaan."
+			}
+		},
+		"replace": {
+			"ACTION": "Laten vervallen en vervangen",
+			"TITLE": "Factuur {number} laten vervallen en vervangen?",
+			"VOIDS": "Hij blijft in de lijst als Vervallen, met wat er op is betaald.",
+			"OPENS": "Er opent een nieuwe factuur voor {client}, met dezelfde periode en regels, om aan te passen en onder een nieuw nummer op te slaan.",
+			"STAYS_VOID": "Wordt die nieuwe factuur nooit opgeslagen, dan blijft factuur {number} vervallen.",
+			"CONFIRM": "Laten vervallen en vervangen",
+			"NOTICE_TITLE": "Vervanging van factuur {number}",
+			"NOTICE_MESSAGE": "Dezelfde klant, periode en regels. Pas ze aan en sla hem daarna op onder een nieuw nummer.",
+			"NOT_REBUILDABLE": "Factuur {number} is niet vervallen: hij kan hier niet opnieuw uit factureerbare tijd worden gemaakt. Laat hem vervallen en vervang hem waar hij is gemaakt.",
+			"NOT_VOID_TITLE": "Factuur {number} is niet vervallen",
+			"NOT_VOID_MESSAGE": "Hier wordt alleen een vervallen factuur vervangen. Open hem vanuit de factuurlijst om hem te bewerken, of om hem te laten vervallen en te vervangen."
 		}
 	},
 	"timeReports": {
@@ -6955,5 +7051,11 @@
 			"ROW_DESCRIPTION": "Voeg tijdinvoeren toe vanuit een CSV-bestand.",
 			"OPEN": "Importeren uit CSV"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "Tijd per klant",
+		"CLIENTS": "{count, plural, one {# klant} other {# klanten}}",
+		"NAMES_ERROR_TITLE": "De klantenlijst kon niet worden geladen",
+		"NAMES_ERROR_MESSAGE": "Gearchiveerde klanten staan tot dan zonder hun naam."
 	}
 }

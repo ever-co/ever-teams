@@ -6,23 +6,24 @@ import { BlockEmptyMessage } from '@/core/components/dashboards/kit/dashboard-st
 import { DASHBOARD_SURFACE } from '@/core/components/dashboards/kit/recipes';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Folder, Undo, X } from '@/core/components/icons';
-import type { NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
+import type { InvoiceDraftState } from '@/core/hooks/invoices/use-new-invoice';
 import { cn } from '@/core/lib/helpers';
 import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
 import { formatPercent } from '@/core/lib/utils/invoice-totals';
 import {
 	formatInvoiceHours,
 	invoicePeriodTextOf,
+	type InvoiceLineRateSource,
 	type InvoiceProjectGroup,
-	type InvoiceRateSource,
 	type NamedInvoiceLine
 } from '@/core/lib/utils/invoices';
 import { LINE_GRID, QUIET_FIELD } from './new-invoice-recipes';
 
-const RATE_SOURCE_KEYS: Record<InvoiceRateSource, DottedLanguageObjectStringPaths> = {
+const RATE_SOURCE_KEYS: Record<InvoiceLineRateSource, DottedLanguageObjectStringPaths> = {
 	member: 'invoices.new.RATE_SOURCE_MEMBER',
 	project: 'invoices.new.RATE_SOURCE_PROJECT',
-	employee: 'invoices.new.RATE_SOURCE_EMPLOYEE'
+	employee: 'invoices.new.RATE_SOURCE_EMPLOYEE',
+	saved: 'invoices.edit.RATE_SOURCE_SAVED'
 };
 
 const FIGURE = 'whitespace-nowrap text-[13px] tabular-nums';
@@ -134,7 +135,7 @@ function ProjectLines({
 }
 
 /** By project, a line is a whole project: the lines are listed without a band per project. */
-function SheetLines({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
+function SheetLines({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
 	if (invoice.grouping === 'project') {
 		return (
 			<ul className="flex flex-col gap-3 px-3 lg:gap-1.5">
@@ -179,6 +180,20 @@ function RemovedLines({ count, onRestore }: Readonly<{ count: number; onRestore:
 	);
 }
 
+/** An invoice read back shows the lines it was saved with until its time is taken again; the way back stays here. */
+function LinesFromTime({ onBack }: Readonly<{ onBack: () => void }>) {
+	const t = useTranslations();
+	return (
+		<p className="flex flex-wrap items-center gap-x-2 gap-y-1 px-3 text-xs text-muted-foreground">
+			<span>{t('invoices.edit.TIME_LINES')}</span>
+			<Button type="button" variant="ghost" size="sm" onClick={onBack} className="-my-1 text-foreground">
+				<Undo />
+				{t('invoices.edit.BACK_TO_SAVED')}
+			</Button>
+		</p>
+	);
+}
+
 /** A discount is written as what it takes off; none written as zero, never as "-0.00". */
 function takenOffOf(amount: number) {
 	if (amount > 0) {
@@ -197,7 +212,7 @@ function AdjustmentRow({ label, value }: Readonly<{ label: string; value: string
 }
 
 /** Subtotal, discount and tax, the tax with what it is taken of, so the reader can follow the total. */
-function AdjustedSubtotal({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
+function AdjustedSubtotal({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const { totals, adjustments, currency } = invoice;
@@ -227,11 +242,13 @@ function AdjustedSubtotal({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 }
 
 /** The API's PDF prints these lines as they are written here: description, hours, rate and amount. */
-export function InvoiceSheet({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
+export function InvoiceSheet({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const hasLines = invoice.groups.length > 0;
 	const hasRemovedLines = invoice.removedCount > 0;
+	const isSavedInvoice = invoice.savedInvoice !== null;
+	const showsTimeLines = isSavedInvoice && invoice.linesSource === 'time';
 	const periodText = invoicePeriodTextOf(invoice.periodDays, locale) ?? '';
 	const totalHours = formatInvoiceHours(invoice.keptHours, locale);
 	let emptyMessage = t('invoices.new.NO_PRICED_LINES');
@@ -256,6 +273,7 @@ export function InvoiceSheet({ invoice }: Readonly<{ invoice: NewInvoiceState }>
 
 			{hasLines && <SheetLines invoice={invoice} />}
 			{!hasLines && <BlockEmptyMessage title={t('invoices.new.NO_LINES_TITLE')} message={emptyMessage} />}
+			{showsTimeLines && <LinesFromTime onBack={invoice.backToSavedLines} />}
 			{hasRemovedLines && <RemovedLines count={invoice.removedCount} onRestore={invoice.restoreLines} />}
 
 			{hasLines && (

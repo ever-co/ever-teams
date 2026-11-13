@@ -5,6 +5,7 @@ import {
 	ISigninWorkspaceInput
 } from '@/core/types/interfaces/auth/auth';
 import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
+import { appEmailBranding } from '@/core/lib/helpers/app-email-branding';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 import { EProvider } from '@/core/types/generics/enums/social-accounts';
@@ -44,11 +45,16 @@ export function sendAuthCodeRequest(email: string, callbackUrl: string) {
 	});
 }
 
-export function signInEmailRequest(email: string, callbackUrl: string) {
+/**
+ * Asks Gauzy to e-mail a sign-in code, as this app: its branding, and `callbackUrl`, the link to its sign-in page.
+ * Gauzy adds `?email=&code=` to the link, and uses it only on an origin its deployment lists (its own page otherwise).
+ * Without a `callbackUrl` (no public origin is configured for this app) no page is named and Gauzy links to its own.
+ */
+export function signInEmailRequest(email: string, callbackUrl?: string) {
 	return serverFetch<{ status: number; message: string | 'ok' }>({
 		path: '/auth/signin.email',
 		method: 'POST',
-		body: { email, appMagicSignUrl: callbackUrl, appName: APP_NAME }
+		body: { email, ...appEmailBranding(), ...(callbackUrl ? { appMagicSignUrl: callbackUrl } : {}) }
 	});
 }
 
@@ -206,11 +212,17 @@ export const resentVerifyUserLinkRequest = (data: {
 	});
 };
 
-export const requestPasswordRequest = (email: string) => {
+/**
+ * Asks Gauzy to e-mail a password reset link that opens this app: `resetPasswordUrl` is its own page, to which
+ * Gauzy adds `?token=`. Gauzy uses it only on an origin its deployment lists (its own page otherwise), and a Gauzy
+ * that does not know the field yet leaves it out. Without a `resetPasswordUrl` (no public origin is configured for
+ * this app) no page is named and Gauzy links to its own.
+ */
+export const requestPasswordRequest = (email: string, resetPasswordUrl?: string) => {
 	return serverFetch<boolean>({
 		path: '/auth/request-password',
 		method: 'POST',
-		body: { email }
+		body: { email, ...(resetPasswordUrl ? { appResetPasswordUrl: resetPasswordUrl } : {}) }
 	});
 };
 

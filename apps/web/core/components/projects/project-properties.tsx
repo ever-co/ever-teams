@@ -32,6 +32,7 @@ import {
 import { AvatarStack } from '@/core/components/teams/people-avatars';
 import { useClientNames } from '@/core/hooks/clients/use-client-names';
 import { cn } from '@/core/lib/helpers';
+import { isBillableByDefault } from '@/core/lib/utils/project-billable';
 import {
 	clientNameOf,
 	contributorsOf,
@@ -51,13 +52,17 @@ export const PROJECT_SECTION_LABEL = 'text-xs font-medium text-muted-foreground'
 export function PropertyRow({
 	icon,
 	label,
+	hint,
 	className,
 	children
-}: Readonly<{ icon: ReactNode; label: string; className?: string; children: ReactNode }>) {
+}: Readonly<{ icon: ReactNode; label: string; hint?: ReactNode; className?: string; children: ReactNode }>) {
+	const hasHint = Boolean(hint);
 	return (
 		<div
 			className={cn(
-				'grid min-h-9 grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-3 sm:grid-cols-[9rem_minmax(0,1fr)]',
+				'grid min-h-9 grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-x-3 sm:grid-cols-[9rem_minmax(0,1fr)]',
+				// Keeps the first line level with the rows that have no hint
+				hasHint && 'pt-1',
 				className
 			)}
 		>
@@ -66,6 +71,7 @@ export function PropertyRow({
 				{label}
 			</span>
 			<div className="flex min-w-0 flex-wrap items-center gap-1.5 py-1">{children}</div>
+			{hasHint && <div className="col-start-2 pb-2">{hint}</div>}
 		</div>
 	);
 }
@@ -329,9 +335,9 @@ export function ProjectFacts({ project }: Readonly<{ project: TOrganizationProje
 		[EProjectBilling.FLAT_FEE]: t('common.FLAT_FEE'),
 		[EProjectBilling.MILESTONES]: t('common.MILESTONES')
 	});
-	const hasBillable = typeof project.billable === 'boolean';
+	const isBillable = isBillableByDefault(project);
 	let billableLabel = t('common.NO');
-	if (project.billable) {
+	if (isBillable) {
 		billableLabel = t('common.YES');
 	}
 	return (
@@ -355,7 +361,7 @@ export function ProjectFacts({ project }: Readonly<{ project: TOrganizationProje
 						{project.currency}
 					</FactRow>
 				)}
-				{hasBillable && <FactRow label={t('pages.projects.detail.BILLABLE')}>{billableLabel}</FactRow>}
+				<FactRow label={t('pages.projects.billable.LABEL')}>{billableLabel}</FactRow>
 			</div>
 		</section>
 	);

@@ -687,6 +687,33 @@
 				"NO_APPS": "In diesen zehn Minuten wurde keine App und keine Website erfasst.",
 				"OPEN_FULL": "Screenshot in voller Größe öffnen",
 				"SHOT_OF": "Screenshot {index} von {count}"
+			},
+			"BULK_EDIT": {
+				"TITLE": "{count, plural, one {# Eintrag bearbeiten} other {# Einträge bearbeiten}}",
+				"DESCRIPTION": "Nur die Felder, die Sie ändern, werden gespeichert. Jeder Eintrag behält sein Datum, seine Zeiten, seine Notizen und sein Mitglied.",
+				"KEEP": "Unverändert lassen",
+				"PROJECT_FOLLOWS": "Die Zeit dieser Aufgabe geht in ihr Projekt: {project}.",
+				"PROJECT_FOLLOWS_UNNAMED": "Die Zeit dieser Aufgabe geht in das Projekt der Aufgabe.",
+				"TASKS_OF_PROJECT": "Aufgaben von {project} und Aufgaben ohne Projekt.",
+				"PROJECTS_LOADING": "Projekte werden geladen",
+				"PROJECTS_FAILED": "Die Projekte konnten nicht geladen werden.",
+				"NOTHING_CHOSEN": "Alle Felder stehen auf „Unverändert lassen“, es ändert sich also noch nichts.",
+				"WILL_UPDATE": "{count, plural, =0 {Kein Eintrag wird geändert} one {# Eintrag wird geändert} other {# Einträge werden geändert}}",
+				"UPDATE": "{count, plural, =0 {Einträge ändern} one {# Eintrag ändern} other {# Einträge ändern}}",
+				"PROGRESS": "Einträge werden geändert: {done} von {total}",
+				"UPDATED": "{count, plural, one {# Eintrag geändert} other {# Einträge geändert}}",
+				"UPDATED_PARTLY": "{updated, plural, =0 {Kein Eintrag geändert} one {# Eintrag geändert} other {# Einträge geändert}}, {notUpdated, plural, one {# nicht geändert} other {# nicht geändert}}",
+				"STILL_SELECTED": "Die nicht geänderten Einträge bleiben ausgewählt.",
+				"REASON": {
+					"NOT_ALLOWED": "{count, plural, one {# Eintrag gehört Ihnen nicht: Nur sein Mitglied oder ein Admin kann ihn bearbeiten.} other {# Einträge gehören Ihnen nicht: Nur ihr Mitglied oder ein Admin kann sie bearbeiten.}}",
+					"RUNNING": "{count, plural, one {# Eintrag eines laufenden Timers: Stoppen Sie zuerst den Timer.} other {# Einträge laufender Timer: Stoppen Sie zuerst die Timer.}}",
+					"APPROVED": "{count, plural, one {# Eintrag ist genehmigt: Ändern Sie zuerst seinen Status.} other {# Einträge sind genehmigt: Ändern Sie zuerst ihren Status.}}",
+					"OTHER_TEAM": "{count, plural, one {# Eintrag eines anderen Teams: Wechseln Sie zu diesem Team, um seine Aufgabe zu ändern.} other {# Einträge eines anderen Teams: Wechseln Sie zu diesem Team, um ihre Aufgabe zu ändern.}}",
+					"UNCHANGED": "{count, plural, one {# Eintrag hat diese Werte bereits.} other {# Einträge haben diese Werte bereits.}}",
+					"OVERLAP": "{count, plural, one {# Eintrag überschneidet sich mit anderer erfasster Zeit: Beim Speichern würde diese Zeit entfernt.} other {# Einträge überschneiden sich mit anderer erfasster Zeit: Beim Speichern würde diese Zeit entfernt.}}",
+					"CHECK_FAILED": "{count, plural, one {Bei # Eintrag konnte die Überschneidung nicht geprüft werden, er wurde daher nicht gespeichert.} other {Bei # Einträgen konnte die Überschneidung nicht geprüft werden, sie wurden daher nicht gespeichert.}}",
+					"FAILED": "{count, plural, one {# Eintrag konnte nicht gespeichert werden.} other {# Einträge konnten nicht gespeichert werden.}}"
+				}
 			}
 		},
 		"workDiary": {
@@ -1864,6 +1891,10 @@
 			"restoreModal": {
 				"title": "Projekt wiederherstellen",
 				"description": "Sind Sie sicher, dass Sie {projectName} wiederherstellen möchten?"
+			},
+			"billable": {
+				"LABEL": "Standardmäßig abrechenbar",
+				"HELP": "Gilt für neue Einträge; gespeicherte bleiben gleich."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {
@@ -6805,6 +6836,71 @@
 			"CONFIRM": "Rechnung löschen",
 			"DONE": "Rechnung {number} wurde gelöscht",
 			"FAILED": "Die Rechnung wurde nicht gelöscht. Versuchen Sie es erneut."
+		},
+		"edit": {
+			"TITLE": "Rechnung {number} bearbeiten",
+			"LOADING_TITLE": "Rechnung bearbeiten",
+			"SAVE": "Änderungen speichern",
+			"TAKE_TIME_AGAIN": "Zeit neu übernehmen",
+			"TIME_LINES": "Positionen neu aus der Zeit, wie sie jetzt ist.",
+			"BACK_TO_SAVED": "Zurück zu den gespeicherten Positionen",
+			"RATE_SOURCE_SAVED": "Der auf der Rechnung gespeicherte Satz",
+			"DRAFT_NOTE": "Sie bleibt ein Entwurf. An den Kunden wird nichts gesendet.",
+			"SENT_NOTE": "{client} hat die frühere Fassung, bis sie erneut gesendet wird.",
+			"UNCHANGED": "Noch hat sich nichts geändert.",
+			"TIME_ERROR_MESSAGE": "Versuchen Sie es erneut oder kehren Sie zu den gespeicherten Positionen zurück.",
+			"LOAD_ERROR_TITLE": "Die Rechnung konnte nicht geladen werden",
+			"NOT_FOUND_TITLE": "Diese Rechnung gibt es nicht mehr",
+			"NOT_FOUND_MESSAGE": "Sie wurde vielleicht gelöscht. Die Liste zeigt die verbleibenden Rechnungen.",
+			"BACK_TO_LIST": "Rechnungen öffnen",
+			"LOCKED_TITLE": "Rechnung {number} kann nicht bearbeitet werden",
+			"LOCKED_PAID": "Auf sie wurde bereits etwas gezahlt. Stornieren und ersetzen Sie sie über ihr Menü in der Liste.",
+			"LOCKED_VOID": "Sie ist storniert, und eine stornierte Rechnung ändert sich nicht mehr.",
+			"NOT_FROM_TIME_TITLE": "Rechnung {number} lässt sich hier nicht öffnen",
+			"NOT_FROM_TIME_MESSAGE": "Sie wurde nicht aus der abrechenbaren Zeit eines Kunden erstellt. Ändern Sie sie dort, wo sie erstellt wurde.",
+			"OTHER_WORKSPACE_TITLE": "Rechnung {number} liegt in einem anderen Arbeitsbereich",
+			"OTHER_WORKSPACE_MESSAGE": "Wählen Sie ihren Arbeitsbereich und öffnen Sie sie dann erneut aus der Rechnungsliste.",
+			"SAVED_NOT_SENT": "Rechnung {number} wurde gespeichert, aber nicht gesendet",
+			"confirm": {
+				"TITLE": "Änderungen an Rechnung {number} speichern?",
+				"LINES_ADDED": "{count, plural, one {# Position hinzugefügt} other {# Positionen hinzugefügt}}.",
+				"LINES_REMOVED": "{count, plural, one {# Position entfernt} other {# Positionen entfernt}}.",
+				"LINES_CHANGED": "{count, plural, one {# Position mit anderen Stunden oder anderem Satz} other {# Positionen mit anderen Stunden oder anderem Satz}}.",
+				"DESCRIPTIONS": "{count, plural, one {# Beschreibung neu geschrieben} other {# Beschreibungen neu geschrieben}}.",
+				"TOTAL": "Gesamt {total} statt {before}.",
+				"ISSUE_DATE": "Ausgestellt am {date} statt am {before}.",
+				"DUE_DATE": "Fällig am {date} statt am {before}.",
+				"NUMBER": "Nummer {number} statt {before}.",
+				"DISCOUNT": "Rabatt {percent} statt {before}.",
+				"TAX": "Steuer {percent} statt {before}.",
+				"CURRENCY": "In {currency} statt in {before} abgerechnet.",
+				"NOTE": "Der Hinweis für den Kunden wird neu geschrieben.",
+				"EARLIER_VERSION": "{client} hat die frühere Fassung.",
+				"STAYS_DRAFT": "Sie bleibt ein Entwurf.",
+				"SEND_AGAIN": "Speichern und erneut senden schickt diese Fassung dem Kunden auch per E-Mail, mit dem PDF im Anhang.",
+				"SAVE_AND_SEND_AGAIN": "Speichern und erneut senden",
+				"NOT_SAVED": "Die Änderungen wurden nicht gespeichert, die Rechnung ist unverändert. Prüfen Sie, ob ihre Nummer frei ist, und versuchen Sie es erneut.",
+				"PUT_BACK": "Die Änderungen konnten nicht gespeichert werden, deshalb wurde die Rechnung auf ihren früheren Stand zurückgesetzt. Versuchen Sie es erneut.",
+				"NOT_PUT_BACK": "Die Änderungen konnten nicht gespeichert werden, und die Rechnung ließ sich nicht auf ihren früheren Stand zurücksetzen. Öffnen Sie sie erneut und prüfen Sie Positionen und Gesamtbetrag, bevor Sie sie senden.",
+				"NOT_PUT_BACK_LINES": "Die Änderungen konnten nicht gespeichert werden, und die Rechnung ließ sich nicht auf ihren früheren Stand zurücksetzen: Sie hat jetzt {count, plural, =0 {keine Position} one {# Position} other {# Positionen}}. Prüfen Sie sie, bevor Sie sie senden.",
+				"LOCKED_NOW": "Seit dem Öffnen wurde Rechnung {number} bezahlt oder storniert: Es wurde nichts gespeichert, und sie lässt sich nicht mehr bearbeiten.",
+				"NOT_CHECKED": "Die Rechnung konnte vor dem Speichern nicht erneut gelesen werden, deshalb wurde nichts gespeichert. Versuchen Sie es erneut.",
+				"NOT_REACHED": "Die Verbindung ist fehlgeschlagen: Die Änderungen wurden nicht gespeichert, die Rechnung ist unverändert. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+				"CHANGED": "Seit dem Öffnen wurde Rechnung {number} geändert: Es wurde nichts gespeichert. Öffnen Sie sie erneut aus der Rechnungsliste, um von ihrer aktuellen Fassung auszugehen."
+			}
+		},
+		"replace": {
+			"ACTION": "Stornieren und ersetzen",
+			"TITLE": "Rechnung {number} stornieren und ersetzen?",
+			"VOIDS": "Sie bleibt als Storniert in der Liste, mit dem, was auf sie gezahlt wurde.",
+			"OPENS": "Eine neue Rechnung für {client} öffnet sich, mit demselben Zeitraum und denselben Positionen, zum Anpassen und Speichern unter einer neuen Nummer.",
+			"STAYS_VOID": "Wird diese neue Rechnung nie gespeichert, bleibt Rechnung {number} trotzdem storniert.",
+			"CONFIRM": "Stornieren und ersetzen",
+			"NOTICE_TITLE": "Ersatz für Rechnung {number}",
+			"NOTICE_MESSAGE": "Derselbe Kunde, derselbe Zeitraum, dieselben Positionen. Passen Sie sie an und speichern Sie sie unter einer neuen Nummer.",
+			"NOT_REBUILDABLE": "Rechnung {number} wurde nicht storniert: Sie lässt sich hier nicht aus abrechenbarer Zeit neu erstellen. Stornieren und ersetzen Sie sie dort, wo sie erstellt wurde.",
+			"NOT_VOID_TITLE": "Rechnung {number} ist nicht storniert",
+			"NOT_VOID_MESSAGE": "Hier wird nur eine stornierte Rechnung ersetzt. Öffnen Sie sie aus der Rechnungsliste, um sie zu bearbeiten oder um sie zu stornieren und zu ersetzen."
 		}
 	},
 	"timeReports": {
@@ -6955,5 +7051,11 @@
 			"ROW_DESCRIPTION": "Füge Zeiteinträge aus einer CSV-Datei hinzu.",
 			"OPEN": "Aus CSV importieren"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "Zeit nach Kunde",
+		"CLIENTS": "{count, plural, one {# Kunde} other {# Kunden}}",
+		"NAMES_ERROR_TITLE": "Die Kundenliste konnte nicht geladen werden",
+		"NAMES_ERROR_MESSAGE": "Archivierte Kunden erscheinen bis dahin ohne ihren Namen."
 	}
 }

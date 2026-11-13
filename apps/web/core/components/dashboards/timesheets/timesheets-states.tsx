@@ -3,11 +3,18 @@
 import { useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
-import { Check, Spinner, Trash, X } from '@/core/components/icons';
+import { Check, Pencil, Spinner, Trash, X } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import { DAY_SUMMARY_SPAN, dayLabelSpanOf, logGridOf, WIDE_ONLY } from './timesheets-grid';
 
 const SKELETON_DAYS = [4, 3];
+
+/** On a phone the bar's actions keep their icon and their name for screen readers, so the whole bar fits. */
+const BAR_ACTION = 'max-sm:px-2';
+
+const BAR_ACTION_LABEL = 'max-sm:sr-only';
+
+const BAR_DIVIDER = 'h-4 w-px shrink-0 bg-border';
 
 const TASK_BAR_WIDTHS = ['w-3/4', 'w-1/2', 'w-2/3', 'w-2/5'];
 
@@ -72,50 +79,69 @@ export function TimesheetsListSkeleton({ showsMember }: Readonly<{ showsMember: 
 
 /**
  * The bulk bar of a selection, floating over the bottom of the list like the projects page: the count, approve and
- * reject for those who may, delete when every selected log may be deleted, and clear.
+ * reject for those who may, edit when at least one selected log may be edited, delete when every selected log may
+ * be deleted, and clear. A bar still wider than the screen scrolls sideways instead of running off both edges.
  */
 export function TimesheetsSelectionBar({
 	count,
 	canApprove,
+	canEdit,
 	canDelete,
 	isApproving,
 	onApprove,
 	onReject,
+	onEdit,
 	onDelete,
 	onClear
 }: Readonly<{
 	count: number;
 	canApprove: boolean;
+	canEdit: boolean;
 	canDelete: boolean;
 	isApproving: boolean;
 	onApprove: () => void;
 	onReject: () => void;
+	onEdit: () => void;
 	onDelete: () => void;
 	onClear: () => void;
 }>) {
 	const t = useTranslations();
 	const label = t('dashboard.timesheets.SELECTED', { count });
+	const hasAction = canApprove || canEdit || canDelete;
 	return (
 		<div className="pointer-events-none sticky bottom-4 z-10 mt-4 flex justify-center">
 			<div
 				role="toolbar"
 				aria-label={label}
-				className="surface-raised pointer-events-auto flex h-11 items-center gap-1 rounded-full py-1 pr-1.5 pl-4"
+				className="surface-raised pointer-events-auto flex h-11 max-w-full items-center gap-1 overflow-x-auto rounded-full py-1 pr-1.5 pl-4"
 			>
-				<span className="pr-2 text-[13px] font-medium tabular-nums text-foreground">{label}</span>
-				<span className="h-4 w-px bg-border" />
+				<span className="shrink-0 pr-2 text-[13px] font-medium tabular-nums text-foreground">{label}</span>
+				<span className={BAR_DIVIDER} aria-hidden="true" />
 				{canApprove && (
 					<>
-						<Button type="button" variant="ghost" size="default" onClick={onApprove} disabled={isApproving}>
+						<Button
+							type="button"
+							variant="ghost"
+							size="default"
+							onClick={onApprove}
+							disabled={isApproving}
+							className={BAR_ACTION}
+						>
 							{isApproving && <Spinner className="animate-spin" />}
 							{!isApproving && <Check />}
-							<span>{t('dashboard.timesheets.APPROVE')}</span>
+							<span className={BAR_ACTION_LABEL}>{t('dashboard.timesheets.APPROVE')}</span>
 						</Button>
-						<Button type="button" variant="ghost" size="default" onClick={onReject}>
+						<Button type="button" variant="ghost" size="default" onClick={onReject} className={BAR_ACTION}>
 							<X />
-							<span>{t('dashboard.timesheets.REJECT')}</span>
+							<span className={BAR_ACTION_LABEL}>{t('dashboard.timesheets.REJECT')}</span>
 						</Button>
 					</>
+				)}
+				{canEdit && (
+					<Button type="button" variant="ghost" size="default" onClick={onEdit} className={BAR_ACTION}>
+						<Pencil />
+						<span className={BAR_ACTION_LABEL}>{t('common.EDIT')}</span>
+					</Button>
 				)}
 				{canDelete && (
 					<Button
@@ -123,12 +149,16 @@ export function TimesheetsSelectionBar({
 						variant="ghost"
 						size="default"
 						onClick={onDelete}
-						className="text-destructive-ink hover:bg-destructive/10 hover:text-destructive-ink"
+						className={cn(
+							BAR_ACTION,
+							'text-destructive-ink hover:bg-destructive/10 hover:text-destructive-ink'
+						)}
 					>
 						<Trash />
-						<span>{t('common.DELETE')}</span>
+						<span className={BAR_ACTION_LABEL}>{t('common.DELETE')}</span>
 					</Button>
 				)}
+				{hasAction && <span className={BAR_DIVIDER} aria-hidden="true" />}
 				<Button
 					type="button"
 					variant="ghost"

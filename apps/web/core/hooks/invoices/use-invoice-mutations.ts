@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from 'react';
 import {
+	hashKey,
 	useMutation,
 	useMutationState,
 	useQueryClient,
@@ -13,21 +14,37 @@ import {
 	invoiceService,
 	type InvoicesPage,
 	type InvoicesScope,
-	type InvoiceToEmail
+	type InvoiceToEmail,
+	type InvoiceWriteScope
 } from '@/core/services/client/api/organizations/invoice.service';
 import { queryKeys } from '@/core/query/keys';
-import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { downloadBlob } from '@/core/lib/utils/dashboard-export';
 import {
+	invoiceRevisionsOf,
 	isDraftInvoice,
 	pagesWithInvoiceChanged,
 	pagesWithoutInvoice,
 	SENT_CHANGE,
+	VOID_CHANGE,
 	type InvoiceStatusChange,
 	type ListedInvoicesPage
 } from '@/core/lib/utils/invoice-actions';
-import { invoiceStatusOf, type InvoiceRequest, type InvoiceStatus } from '@/core/lib/utils/invoices';
-import type { TInvoice } from '@/core/types/schemas/organization/invoice.schema';
+import {
+	didNotReachApi,
+	haveSameFields,
+	haveSameLines,
+	isRebuildableInvoice,
+	type InvoiceRevision
+} from '@/core/lib/utils/invoice-edit';
+import {
+	invoiceSaveFailureOf,
+	invoiceStatusOf,
+	type InvoiceRequest,
+	type InvoiceStatus
+} from '@/core/lib/utils/invoices';
+import type { TInvoice, TSavedInvoice } from '@/core/types/schemas/organization/invoice.schema';
 
 export function useCreateInvoice() {
 	const queryClient = useQueryClient();
@@ -72,6 +89,13 @@ type ReadWorkspace = InvoicesScope | null;
 
 const WORKSPACE_SWITCHED = 'Another workspace was chosen since the invoice was read';
 
+/** Whether the cookies still name the workspace an invoice was read in: another tab may have switched them since. */
+function isChosenWorkspace(scope: InvoicesScope) {
+	const isSameOrganization = getOrganizationIdCookie() === scope.organizationId;
+	const isSameTenant = getTenantIdCookie() === scope.tenantId;
+	return isSameOrganization && isSameTenant;
+}
+
 /**
  * Where an action on an invoice is made: the workspace the invoice was read in, while the cookies still name it.
  * Another tab may have switched them since; the action is then refused before any request, as a save is.
@@ -80,10 +104,7 @@ function workspaceToActIn(scope: ReadWorkspace): InvoicesScope {
 	if (!scope) {
 		throw new Error(WORKSPACE_SWITCHED);
 	}
-	const isSameOrganization = getOrganizationIdCookie() === scope.organizationId;
-	const isSameTenant = getTenantIdCookie() === scope.tenantId;
-	const isSameWorkspace = isSameOrganization && isSameTenant;
-	if (!isSameWorkspace) {
+	if (!isChosenWorkspace(scope)) {
 		throw new Error(WORKSPACE_SWITCHED);
 	}
 	return scope;
@@ -219,6 +240,299 @@ export function useSaveAndSendInvoice() {
 	return { saveAndSendInvoice: mutation.mutateAsync, isSavingAndSending: mutation.isPending };
 }
 
+/** An edit to save: what it writes, and the invoice as it was read, to write back if the edit fails half way. */
+export interface InvoiceEdit {
+	invoiceId: string;
+	/** The invoice's workspace: every request of the save goes there, the ones that put it back included. */
+	scope: InvoiceWriteScope;
+	revision: InvoiceRevision;
+	previous: InvoiceRevision;
+}
+
+export type InvoiceEditOutcome =
+	| { status: 'saved' }
+	/** The API refused the edit before writing anything. */
+	| { status: 'notSaved' }
+	/** Its first write never reached the API, and the invoice read back is as it was. */
+	| { status: 'notReached' }
+	/** Something was paid on it, or it was voided, since it was opened: nothing was written. */
+	| { status: 'locked' }
+	/** Its fields or its lines were saved from elsewhere since it was opened: nothing was written. */
+	| { status: 'changed' }
+	/** It could not be read before the edit was written: nothing was written. */
+	| { status: 'notChecked' }
+	/** Written in part, then written back as it was. */
+	| { status: 'putBack' }
+	/** Written in part and not written back: the invoice holds `lineCount` lines, null when it could not be read. */
+	| { status: 'notPutBack'; lineCount: number | null };
+
+async function readInvoiceBack(edit: InvoiceEdit): Promise<TSavedInvoice | null> {
+	const { tenantId, accessToken } = edit.scope;
+	try {
+		return await invoiceService.getInvoice(edit.invoiceId, { tenantId, accessToken });
+	} catch {
+		return null;
+	}
+}
+
+function lineCountOf(invoice: TSavedInvoice | null): number | null {
+	if (!invoice) {
+		return null;
+	}
+	return invoice.invoiceItems?.length ?? 0;
+}
+
+const TENANT_SWITCHED = 'Another tenant was chosen during the save';
+
+/** Written in part, and not read back: the tenant it belongs to is no longer the one chosen. */
+const NOT_PUT_BACK_UNREAD: InvoiceEditOutcome = { status: 'notPutBack', lineCount: null };
+
+function isEditTenantChosen(edit: InvoiceEdit) {
+	return getTenantIdCookie() === edit.scope.tenantId;
+}
+
+function callsApiDirectly() {
+	return Boolean(GAUZY_API_BASE_SERVER_URL.value);
+}
+
+/**
+ * The edit with the token of the session it begins in, when the browser calls the API itself: each of its requests
+ * then reaches the invoice's tenant, whatever another tab chooses before the save ends. In proxy mode the route takes
+ * the token from the cookies, so there is none to keep.
+ */
+function editPinnedToSession(edit: InvoiceEdit): InvoiceEdit {
+	const isDirect = callsApiDirectly();
+	const isSessionOfItsTenant = isEditTenantChosen(edit);
+	const keepsToken = isDirect && isSessionOfItsTenant;
+	if (!keepsToken) {
+		return edit;
+	}
+	const scope = { ...edit.scope, accessToken: getAccessTokenCookie() };
+	return { ...edit, scope };
+}
+
+/** Whether a request of the edit still reaches its tenant: by the token it began with, or while the cookies name it. */
+function reachesItsTenant(edit: InvoiceEdit) {
+	const carriesItsToken = Boolean(edit.scope.accessToken);
+	return carriesItsToken || isEditTenantChosen(edit);
+}
+
+/**
+ * Where a write of the edit goes once it has begun. In direct mode it carries the token the save began with. In proxy
+ * mode a request goes to the tenant the cookies name, whatever the edit pins, so nothing more is written once another
+ * tab chose another tenant. Another organization of the same tenant leaves the request where it belongs.
+ */
+function scopeToWriteIn(edit: InvoiceEdit): InvoiceWriteScope {
+	if (!reachesItsTenant(edit)) {
+		throw new Error(TENANT_SWITCHED);
+	}
+	return edit.scope;
+}
+
+async function notPutBackOf(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
+	if (!reachesItsTenant(edit)) {
+		return NOT_PUT_BACK_UNREAD;
+	}
+	const now = await readInvoiceBack(edit);
+	return { status: 'notPutBack', lineCount: lineCountOf(now) };
+}
+
+/**
+ * Writes the invoice back as it was read: its lines first, and only when they changed, since the API deletes the
+ * lines before it saves the new ones and a failure between the two leaves none.
+ */
+async function putInvoiceBack(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
+	if (!reachesItsTenant(edit)) {
+		return NOT_PUT_BACK_UNREAD;
+	}
+	const current = await readInvoiceBack(edit);
+	const currentLines = current?.invoiceItems ?? [];
+	const keepsItsLines = current !== null && haveSameLines(currentLines, edit.previous.lines);
+	const keepsItsFields = current !== null && haveSameFields(current, edit.previous.update);
+	// Nothing reached the invoice, as when the network failed before the first write: there is nothing to put back.
+	if (keepsItsLines && keepsItsFields) {
+		return { status: 'notSaved' };
+	}
+	try {
+		if (!keepsItsLines) {
+			const linesScope = scopeToWriteIn(edit);
+			await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.previous.lines, linesScope);
+		}
+		const fieldsScope = scopeToWriteIn(edit);
+		await invoiceService.updateInvoice(edit.invoiceId, edit.previous.update, fieldsScope);
+		return { status: 'putBack' };
+	} catch {
+		return notPutBackOf(edit);
+	}
+}
+
+/** The status the invoice holds now, while it still lets an edit through. */
+function editableStatusOf(invoice: TSavedInvoice): InvoiceStatus | null {
+	const status = invoiceStatusOf(invoice.status);
+	if (!status) {
+		return null;
+	}
+	const isEditable = invoiceRevisionsOf(status).includes('edit');
+	if (!isEditable) {
+		return null;
+	}
+	return status;
+}
+
+/** Whether the invoice read before the save still states what the editor opened, its fields and its lines. */
+function isAsOpened(current: TSavedInvoice, edit: InvoiceEdit) {
+	const currentLines = current.invoiceItems ?? [];
+	const hasSameLines = haveSameLines(currentLines, edit.previous.lines);
+	const hasSameFields = haveSameFields(current, edit.previous.update);
+	return hasSameLines && hasSameFields;
+}
+
+/** The edit written under the status the invoice holds now: a status reached since it was opened stays. */
+function editUnderStatus(edit: InvoiceEdit, status: InvoiceStatus): InvoiceEdit {
+	const update = { ...edit.revision.update, status };
+	const previousUpdate = { ...edit.previous.update, status };
+	return {
+		...edit,
+		revision: { ...edit.revision, update },
+		previous: { ...edit.previous, update: previousUpdate }
+	};
+}
+
+/** The first write failed: refused, it changed nothing; otherwise the invoice is read back and put back if needed. */
+async function outcomeOfFailedFields(edit: InvoiceEdit, error: unknown): Promise<InvoiceEditOutcome> {
+	const isRefused = invoiceSaveFailureOf(error) === 'refused';
+	if (isRefused) {
+		return { status: 'notSaved' };
+	}
+	const outcome = await putInvoiceBack(edit);
+	const isUntouched = outcome.status === 'notSaved';
+	const wasNotReached = didNotReachApi(error);
+	const isConnectionFailure = isUntouched && wasNotReached;
+	if (isConnectionFailure) {
+		return { status: 'notReached' };
+	}
+	return outcome;
+}
+
+/**
+ * Saves an edit in the two writes the API offers: the invoice's own fields, then its lines. A refusal of the first
+ * changes nothing; any other failure writes the invoice back as it was read.
+ */
+async function writeInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
+	try {
+		await invoiceService.updateInvoice(edit.invoiceId, edit.revision.update, edit.scope);
+	} catch (error) {
+		return outcomeOfFailedFields(edit, error);
+	}
+	// Lines the edit leaves as they were are not written again: the API deletes an invoice's lines before it saves the
+	// new ones, and a failure between the two would cost lines nobody changed.
+	const keepsItsLines = haveSameLines(edit.revision.lines, edit.previous.lines);
+	if (keepsItsLines) {
+		return { status: 'saved' };
+	}
+	try {
+		const linesScope = scopeToWriteIn(edit);
+		await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.revision.lines, linesScope);
+	} catch {
+		return putInvoiceBack(edit);
+	}
+	return { status: 'saved' };
+}
+
+/** Why an edit is not written, or the status the invoice holds when it is. */
+type InvoiceEditCheck = { refusal: InvoiceEditOutcome; status: null } | { refusal: null; status: InvoiceStatus };
+
+function refusedEdit(refusal: InvoiceEditOutcome): InvoiceEditCheck {
+	return { refusal, status: null };
+}
+
+/**
+ * Reads the invoice first: a payment, a void or a change saved from elsewhere since it was opened is never written
+ * over, and what a failure puts back is what was read. Nothing is written once another tab switched the workspace
+ * before the first write; past it, see `scopeToWriteIn`.
+ */
+async function checkInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditCheck> {
+	if (!isChosenWorkspace(edit.scope)) {
+		return refusedEdit({ status: 'notSaved' });
+	}
+	const current = await readInvoiceBack(edit);
+	if (!current) {
+		return refusedEdit({ status: 'notChecked' });
+	}
+	const status = editableStatusOf(current);
+	if (!status) {
+		return refusedEdit({ status: 'locked' });
+	}
+	if (!isAsOpened(current, edit)) {
+		return refusedEdit({ status: 'changed' });
+	}
+	const isStillChosen = isChosenWorkspace(edit.scope);
+	if (!isStillChosen) {
+		return refusedEdit({ status: 'notSaved' });
+	}
+	return { refusal: null, status };
+}
+
+/** Where an edited invoice goes once saved: whether it becomes Sent is decided by the status the save finds. */
+export type InvoiceEditSending = Omit<InvoiceToSend, 'marksSent'>;
+
+export interface InvoiceEditToSave {
+	edit: InvoiceEdit;
+	/** Where the invoice goes once saved; null saves it only. */
+	sending: InvoiceEditSending | null;
+}
+
+export interface SavedInvoiceEdit {
+	outcome: InvoiceEditOutcome;
+	/** What the sending did, when the edit was saved and was to be sent. */
+	sending: SaveAndSendOutcome | null;
+}
+
+/** A refused sending leaves the edit saved: it is reported, never thrown. */
+async function saveAndSendInvoiceEdit({ edit, sending }: InvoiceEditToSave): Promise<SavedInvoiceEdit> {
+	const pinnedEdit = editPinnedToSession(edit);
+	const check = await checkInvoiceEdit(pinnedEdit);
+	if (check.status === null) {
+		return { outcome: check.refusal, sending: null };
+	}
+	const outcome = await writeInvoiceEdit(editUnderStatus(pinnedEdit, check.status));
+	const isSaved = outcome.status === 'saved';
+	if (!isSaved || !sending) {
+		return { outcome, sending: null };
+	}
+	// Only a draft becomes Sent: one sent from elsewhere since the editor opened keeps the status it reached
+	const marksSent = isDraftInvoice(check.status);
+	const sendingOutcome = await sendSavedInvoice({ ...sending, marksSent });
+	return { outcome, sending: sendingOutcome };
+}
+
+/**
+ * Reads the invoices again after an edit. A refusal because the invoice was paid or voided since it was opened leaves
+ * the editor's own read alone: its answer would replace the editor, and the refusal with it, before it is read.
+ */
+function readInvoicesAfterEdit(queryClient: QueryClient, edit: InvoiceEdit, saved: SavedInvoiceEdit | undefined) {
+	const isLocked = saved?.outcome.status === 'locked';
+	if (!isLocked) {
+		return queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all });
+	}
+	const editorRead = queryKeys.invoices.detail(edit.scope.tenantId, edit.scope.organizationId, edit.invoiceId);
+	const editorReadHash = hashKey(editorRead);
+	return queryClient.invalidateQueries({
+		queryKey: queryKeys.invoices.all,
+		predicate: (query) => query.queryHash !== editorReadHash
+	});
+}
+
+export function useSaveInvoiceEdit() {
+	const queryClient = useQueryClient();
+	const mutation = useMutation({
+		mutationFn: saveAndSendInvoiceEdit,
+		onSettled: (saved, _error, { edit }) => readInvoicesAfterEdit(queryClient, edit, saved),
+		meta: { handlesOwnError: true }
+	});
+	return { saveInvoiceEdit: mutation.mutateAsync, isSavingEdit: mutation.isPending };
+}
+
 export interface InvoiceStatusChangeRequest {
 	invoiceId: string;
 	change: InvoiceStatusChange;
@@ -254,6 +568,48 @@ export function useChangeInvoiceStatus() {
 	});
 	const changingIds = useMemo<ReadonlySet<string>>(() => new Set(pendingIds), [pendingIds]);
 	return { changeStatus: mutation.mutateAsync, isChanging: mutation.isPending, changingIds };
+}
+
+/** `notRebuildable`: the invoice screen could not start from it, so it was left as it was. */
+export type VoidToReplaceOutcome = 'voided' | 'notRebuildable';
+
+interface InvoiceToReplace {
+	invoiceId: string;
+	scope: ReadWorkspace;
+}
+
+/**
+ * Voids a paid invoice only once its replacement can start from it. The list does not hold its lines, so it is read
+ * whole first: one the invoice screen cannot rebuild is left as it was.
+ */
+async function voidToReplace({ invoiceId, scope }: InvoiceToReplace): Promise<VoidToReplaceOutcome> {
+	const readScope = workspaceToActIn(scope);
+	const invoice = await invoiceService.getInvoice(invoiceId, { tenantId: readScope.tenantId });
+	if (!isRebuildableInvoice(invoice)) {
+		return 'notRebuildable';
+	}
+	// Another tab may have switched the workspace while the invoice was read
+	const voidScope = workspaceToActIn(scope);
+	await invoiceService.changeInvoiceStatus(invoiceId, VOID_CHANGE, voidScope);
+	return 'voided';
+}
+
+/** Void and replace: its row stays busy until it answers, as for any status change of the list. */
+export function useVoidToReplace() {
+	const queryClient = useQueryClient();
+	const mutation = useMutation({
+		mutationKey: STATUS_CHANGE_KEY,
+		mutationFn: voidToReplace,
+		onSuccess: (outcome, { invoiceId, scope }) => {
+			const isVoided = outcome === 'voided';
+			if (isVoided) {
+				showListedStatus(queryClient, scope, invoiceId, 'VOID');
+			}
+		},
+		onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all }),
+		meta: { handlesOwnError: true }
+	});
+	return { voidToReplace: mutation.mutateAsync, isVoiding: mutation.isPending };
 }
 
 interface InvoiceToDelete {
