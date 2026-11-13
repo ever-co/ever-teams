@@ -35,6 +35,8 @@ const NO_VALUE = '–';
 
 const PART_SEPARATOR = ' · ';
 
+const READING_SEPARATOR = ', ';
+
 type Requirement = 'required' | 'oneOfTwo' | 'optional';
 
 const REQUIREMENTS: Readonly<Record<TimeImportField, Requirement>> = {
@@ -221,7 +223,10 @@ function DateFormatRow({ step, copy, onChooseDateOrder }: Readonly<DateFormatRow
 						<SelectItem key={order} value={order} className="text-[13px]">
 							{copy.dateOrderLabel(order)}
 							{value && (
-								<span className="ms-2 text-muted-foreground">{copy.dateReadingOf(value, order)}</span>
+								<span className="ms-2 text-muted-foreground">
+									<span className="sr-only">{READING_SEPARATOR}</span>
+									{copy.dateReadingOf(value, order)}
+								</span>
 							)}
 						</SelectItem>
 					))}

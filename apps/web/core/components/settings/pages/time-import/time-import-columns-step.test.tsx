@@ -236,6 +236,16 @@ describe('TimeImportColumnsStep', () => {
 		expect(firstRows.querySelector('b')).toBeNull();
 	});
 
+	it('reads each date format apart from the day it gives, to assistive technology', () => {
+		renderStep({ mapping: CHOSEN, dateOrder: null });
+		const formats = within(selectOf(/^timeImport\.mapping\.DATE_FORMAT/)).getAllByRole('option');
+
+		expect(formats.map((option) => option.textContent)).toEqual([
+			'timeImport.mapping.orders.DAY_FIRST, November 3, 2026',
+			'timeImport.mapping.orders.MONTH_FIRST, March 11, 2026'
+		]);
+	});
+
 	it('names the month of the day a date format reads, in every language', () => {
 		const november = new Date(2026, 10, 3);
 		for (const locale of ['en', 'de', 'bg', 'ar']) {
