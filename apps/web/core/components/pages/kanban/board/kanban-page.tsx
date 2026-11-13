@@ -33,12 +33,16 @@ import { KanbanToolbar } from './kanban-toolbar';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { useBoardSelection } from '@/core/hooks/tasks/use-board-selection';
 import { useTeamTaskUpdates } from '@/core/hooks/tasks/use-team-task-updates';
+import { useAnsweredKeys } from '@/core/hooks/keyboard/use-answered-keys';
 import { useKeyboardPreferences } from '@/core/hooks/keyboard/use-keyboard-preferences';
 import { isDialogOpen, isTypingTarget } from '@/core/lib/keyboard/shortcuts';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { TaskSelectionBar } from '@/core/components/tasks/task-selection-bar';
 import { TeamTaskPicker, type TeamTaskPickerTarget } from '../../teams/team/tasks/list/team-task-picker';
 import type { TeamTaskPickerKind } from '../../teams/team/tasks/list/team-tasks-list-context';
+
+/** The key the board's Esc answers while it has a selection, as the shortcuts sheet names it. */
+const SELECTION_CLEAR_KEY_IDS: readonly string[] = ['listClear'];
 
 /** The ids of the lane holding the task, for the drawer's previous and next arrows. */
 function laneTaskIdsOf(lanes: KanbanLaneModel[], taskId: string) {
@@ -213,6 +217,8 @@ export function KanbanPage() {
 	}, [archiveTasks, clearSelection, restoreLater, selectedIds]);
 
 	// Esc clears the selection, unless a picker, a menu or a field has the key.
+	const clearsSelectionByKey = selectionCount > 0 && !isPickerOpen;
+	useAnsweredKeys(SELECTION_CLEAR_KEY_IDS, clearsSelectionByKey);
 	useEffect(() => {
 		if (!selectionCount || isPickerOpen) {
 			return;
