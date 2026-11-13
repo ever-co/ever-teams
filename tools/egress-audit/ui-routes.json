@@ -159,6 +159,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/invoices/:id/edit",
+      "file": "apps/web/app/[locale]/(main)/invoices/[id]/edit/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/invoices/new",
       "file": "apps/web/app/[locale]/(main)/invoices/new/page.tsx",
       "source": "router"

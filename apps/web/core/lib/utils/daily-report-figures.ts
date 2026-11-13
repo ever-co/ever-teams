@@ -71,7 +71,7 @@ function taskTitleOf(task: ITimeLogGroupedDailyReport['logs'][number]['employeeL
 	return task?.description?.trim() ?? '';
 }
 
-function taskKeyOf(task: ITimeLogGroupedDailyReport['logs'][number]['employeeLogs'][number]['tasks'][number]) {
+export function taskKeyOf(task: ITimeLogGroupedDailyReport['logs'][number]['employeeLogs'][number]['tasks'][number]) {
 	const taskId = task?.task?.id;
 	if (taskId) {
 		return taskId;
@@ -288,7 +288,7 @@ export function groupRowsBy(
 	return [...groups.values()].sort((first, second) => second.seconds - first.seconds);
 }
 
-export function projectKeyOf(row: DailyReportRow) {
+export function projectKeyOf(row: Pick<DailyReportRow, 'projectId' | 'isWithoutTeam'>) {
 	if (row.isWithoutTeam) {
 		return NO_TEAM_KEY;
 	}

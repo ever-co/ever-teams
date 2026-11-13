@@ -16,6 +16,7 @@ import {
 	formatProjectDay,
 	useProjectBudget
 } from '@/core/components/projects/project-cells';
+import { ProjectBillableMark } from '@/core/components/projects/project-billable-mark';
 import { FavoriteMark } from '@/core/components/favorites/favorite-parts';
 import { ProjectActionsMenu } from '@/core/components/projects/project-actions-menu';
 import { ProjectBudgetUseCell } from '@/core/components/projects/project-consumption-cells';
@@ -282,6 +283,7 @@ function ProjectCard({
 			<div className="flex flex-wrap items-center gap-2">
 				<ProjectStatusChip statusName={project.status} statuses={statuses} />
 				<ProjectDatesCell startDate={project.startDate} endDate={project.endDate} className="text-xs" />
+				<ProjectBillableMark project={project} className="relative z-[1]" />
 			</div>
 
 			{hasDescription && <p className="line-clamp-2 text-[13px] text-muted-foreground">{description}</p>}

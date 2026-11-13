@@ -1013,7 +1013,8 @@
 		"Cnone",
 		"Femployee",
 		"globex",
-		"unbilled"
+		"unbilled",
+		"initech"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

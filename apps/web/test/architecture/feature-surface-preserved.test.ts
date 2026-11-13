@@ -2058,15 +2058,15 @@ describe('Ever Teams feature surface preservation', () => {
 		).toHaveLength(455);
 		expect(routes).toEqual(
 			expect.arrayContaining([
-				// Proxy mode twins of Gauzy's routes that update one invoice and replace its lines (#5159)
-				'apps/web/app/api/invoices/[id]/route.ts::PUT',
-				'apps/web/app/api/invoice-item/bulk/[invoiceId]/route.ts::POST',
 				// Proxy mode twins of the platform's incoming webhook management of a channel (ever-gauzy #11799)
 				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::GET',
 				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::POST',
 				'apps/web/app/api/chat/webhooks/[id]/route.ts::PATCH',
 				'apps/web/app/api/chat/webhooks/[id]/route.ts::DELETE',
 				'apps/web/app/api/chat/webhooks/[id]/secret/route.ts::POST',
+				// Proxy mode twins of Gauzy's routes that update one invoice and replace its lines (#5159)
+				'apps/web/app/api/invoices/[id]/route.ts::PUT',
+				'apps/web/app/api/invoice-item/bulk/[invoiceId]/route.ts::POST',
 				// Proxy mode twins of Gauzy's routes that e-mail, read, settle and delete an invoice (#5158)
 				'apps/web/app/api/invoices/email/[email]/route.ts::PUT',
 				'apps/web/app/api/invoices/[id]/action/route.ts::PUT',

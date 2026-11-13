@@ -6,9 +6,12 @@ import {
 	APP_SIGNATURE,
 	GAUZY_API_BASE_SERVER_URL,
 	INVITE_CALLBACK_PATH,
+	RESET_PASSWORD_CALLBACK_PATH,
+	SIGN_IN_CALLBACK_PATH,
 	VERIFY_EMAIL_CALLBACK_PATH,
 	VERIFY_EMAIL_CALLBACK_URL
 } from '@/core/constants/config/constants';
+import { appEmailBranding } from '@/core/lib/helpers/app-email-branding';
 import { EProvider } from '@/core/types/generics/enums/social-accounts';
 import { signinService } from './signin.service';
 import { userService } from '../users';
@@ -22,6 +25,15 @@ import { ISuccessResponse } from '@/core/types/interfaces/common/data-response';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { TUser } from '@/core/types/schemas';
 import { logInDev } from '@/core/lib/helpers/error-message';
+
+/**
+ * What the browser sends Gauzy for a sign-in code (`POST /auth/signin.email`, direct mode): the address, this app's
+ * e-mail branding and the link to its sign-in page, so the e-mail is this app's and its link opens this app. Gauzy
+ * adds `?email=&code=` to the link, and uses it only on an origin its deployment lists (its own page otherwise).
+ */
+function signInCodeRequestBody(email: string) {
+	return { email, ...appEmailBranding(), appMagicSignUrl: `${location.origin}${SIGN_IN_CALLBACK_PATH}` };
+}
 
 class AuthService extends APIService {
 	/**
@@ -136,9 +148,7 @@ class AuthService extends APIService {
 
 	sendAuthCode = async (email: string) => {
 		if (GAUZY_API_BASE_SERVER_URL.value) {
-			return this.post<{ status: number; message: string }>('/auth/signin.email', {
-				email
-			});
+			return this.post<{ status: number; message: string }>('/auth/signin.email', signInCodeRequestBody(email));
 		}
 
 		// Fallback for non-Gauzy
@@ -173,18 +183,11 @@ class AuthService extends APIService {
 
 	signInEmail = async (email: string) => {
 		if (GAUZY_API_BASE_SERVER_URL.value) {
-			return this.post<{ status: number; message: string }>('/auth/signin.email', {
-				email
-			});
+			return this.post<{ status: number; message: string }>('/auth/signin.email', signInCodeRequestBody(email));
 		}
 
-		// Keep web behavior for non-Gauzy
-		const callbackUrl = `${location.origin}${INVITE_CALLBACK_PATH}`;
-		return this.post<{ status: number; message: string }>(`/auth/signin-email`, {
-			email,
-			appMagicSignUrl: callbackUrl,
-			appName: APP_NAME
-		});
+		// Proxy mode: this app's route adds the branding and the link itself, from its own configuration
+		return this.post<{ status: number; message: string }>(`/auth/signin-email`, { email });
 	};
 
 	signInEmailPassword = async (email: string, password: string) => {
@@ -264,10 +267,16 @@ class AuthService extends APIService {
 	 * Request a password reset email.
 	 * Calls POST /auth/request-password with the user's email.
 	 * The API sends an email with a reset link containing a token.
+	 *
+	 * The link opens this app's own page: in direct mode the browser names it (`appResetPasswordUrl`, which Gauzy uses
+	 * only on an origin its deployment lists); in proxy mode this app's route does, from its own configuration.
 	 */
 	requestPassword = async (email: string) => {
 		if (GAUZY_API_BASE_SERVER_URL.value) {
-			return this.post<boolean>('/auth/request-password', { email });
+			return this.post<boolean>('/auth/request-password', {
+				email,
+				appResetPasswordUrl: `${location.origin}${RESET_PASSWORD_CALLBACK_PATH}`
+			});
 		}
 		const api = await getFallbackAPI();
 		return api.post<boolean>('/auth/request-password', { email });

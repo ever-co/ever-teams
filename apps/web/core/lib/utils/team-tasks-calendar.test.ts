@@ -264,11 +264,11 @@ describe('a task dropped on a day', () => {
 		const tenToFourteen = { startDate: '2026-11-10', dueDate: '2026-11-14' };
 
 		expect(droppedTaskDatesOf(tenToFourteen, november(17))).toEqual({
-			startDate: new Date(2026, 10, 13),
+			startDate: new Date(Date.UTC(2026, 10, 13)),
 			dueDate: new Date(Date.UTC(2026, 10, 17))
 		});
 		expect(droppedTaskDatesOf(tenToFourteen, november(2))).toEqual({
-			startDate: new Date(2026, 9, 29),
+			startDate: new Date(Date.UTC(2026, 9, 29)),
 			dueDate: new Date(Date.UTC(2026, 10, 2))
 		});
 	});
