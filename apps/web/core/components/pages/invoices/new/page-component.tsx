@@ -1,11 +1,10 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useId } from 'react';
 import Link from 'next/link';
 import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
 import { controlRecipe } from '@/core/components/common/input';
-import { Notice } from '@/core/components/common/notice';
 import { SegmentedControl } from '@/core/components/common/segmented-control';
 import { DashboardBreadcrumb } from '@/core/components/dashboards/kit/dashboard-breadcrumb';
 import { DashboardToolbar } from '@/core/components/dashboards/kit/dashboard-layout';
@@ -21,13 +20,9 @@ import { formatPeriod, shiftPeriod } from '@/core/lib/utils/dashboard-period';
 import type { InvoiceGrouping } from '@/core/lib/utils/invoices';
 import { isTrackingEnabledState } from '@/core/stores';
 import { InvoiceAccessGuard, INVOICES_PATH, NEW_INVOICE_PATH } from '../invoice-access-guard';
-import { InvoiceDetails } from './invoice-details';
-import { EarlierInvoices } from './invoice-earlier';
-import { OtherCurrencies, UnpricedTimeList } from './invoice-left-out';
-import { InvoiceSheet } from './invoice-sheet';
-import { GROUPING_SWITCH, NEW_INVOICE_LAYOUT } from './new-invoice-recipes';
+import { PreparedInvoice } from './invoice-screen';
+import { GROUPING_SWITCH } from './new-invoice-recipes';
 import { InvoiceSheetSkeleton, MessageLink, NewInvoiceMessage, NewInvoicePageSkeleton } from './new-invoice-states';
-import { SaveInvoiceDialog } from './save-invoice-dialog';
 
 function ClientSelect({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 	const t = useTranslations();
@@ -55,50 +50,6 @@ function ClientSelect({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 				))}
 			</select>
 		</>
-	);
-}
-
-function OverlapNotice({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
-	const t = useTranslations();
-	const count = invoice.overlappingInvoices.length;
-	if (count === 0) {
-		return null;
-	}
-	return (
-		<Notice
-			tone="warning"
-			title={t('invoices.new.earlier.OVERLAP_TITLE', { count, client: invoice.client?.name ?? '' })}
-			description={t('invoices.new.earlier.OVERLAP_MESSAGE')}
-		/>
-	);
-}
-
-function PreparedInvoice({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
-	const [showsProblems, setShowsProblems] = useState(false);
-	const [isConfirming, setIsConfirming] = useState(false);
-
-	const askToSave = () => {
-		setShowsProblems(true);
-		const isReady = invoice.problems.length === 0;
-		if (isReady) {
-			setIsConfirming(true);
-		}
-	};
-
-	return (
-		<div className={NEW_INVOICE_LAYOUT}>
-			<div className="flex min-w-0 flex-col gap-4">
-				<OverlapNotice invoice={invoice} />
-				<InvoiceSheet invoice={invoice} />
-				<OtherCurrencies currencies={invoice.otherCurrencies} onInvoice={invoice.changeCurrency} />
-				<UnpricedTimeList items={invoice.time.unpriced} />
-			</div>
-			<div className="flex min-w-0 flex-col gap-4">
-				<InvoiceDetails invoice={invoice} showsProblems={showsProblems} onSave={askToSave} />
-				<EarlierInvoices invoice={invoice} />
-			</div>
-			<SaveInvoiceDialog open={isConfirming} invoice={invoice} onClose={() => setIsConfirming(false)} />
-		</div>
 	);
 }
 
