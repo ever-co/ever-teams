@@ -331,27 +331,34 @@ async function writeInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> 
 	return { status: 'saved' };
 }
 
+/** Why an edit is not written, or the status the invoice holds when it is. */
+type InvoiceEditCheck = { refusal: InvoiceEditOutcome; status: null } | { refusal: null; status: InvoiceStatus };
+
+function refusedEdit(refusal: InvoiceEditOutcome): InvoiceEditCheck {
+	return { refusal, status: null };
+}
+
 /**
  * Reads the invoice first: a payment, a void or a change saved from elsewhere since it was opened is never written
  * over, and what a failure puts back is what was read. Nothing is sent once another tab switched the workspace; a
  * switch during the save leaves every request in the invoice's workspace.
  */
-async function saveInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
+async function checkInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditCheck> {
 	if (!isChosenWorkspace(edit.scope)) {
-		return { status: 'notSaved' };
+		return refusedEdit({ status: 'notSaved' });
 	}
 	const current = await readInvoiceBack(edit);
 	if (!current) {
-		return { status: 'notChecked' };
+		return refusedEdit({ status: 'notChecked' });
 	}
 	const status = editableStatusOf(current);
 	if (!status) {
-		return { status: 'locked' };
+		return refusedEdit({ status: 'locked' });
 	}
 	if (!isAsOpened(current, edit)) {
-		return { status: 'changed' };
+		return refusedEdit({ status: 'changed' });
 	}
-	return writeInvoiceEdit(editUnderStatus(edit, status));
+	return { refusal: null, status };
 }
 
 export interface InvoiceEditToSave {
@@ -368,7 +375,11 @@ export interface SavedInvoiceEdit {
 
 /** A refused sending leaves the edit saved: it is reported, never thrown. */
 async function saveAndSendInvoiceEdit({ edit, sending }: InvoiceEditToSave): Promise<SavedInvoiceEdit> {
-	const outcome = await saveInvoiceEdit(edit);
+	const check = await checkInvoiceEdit(edit);
+	if (check.status === null) {
+		return { outcome: check.refusal, sending: null };
+	}
+	const outcome = await writeInvoiceEdit(editUnderStatus(edit, check.status));
 	const isSaved = outcome.status === 'saved';
 	if (!isSaved || !sending) {
 		return { outcome, sending: null };
