@@ -14,10 +14,12 @@ import {
 	invoiceService,
 	type InvoicesPage,
 	type InvoicesScope,
-	type InvoiceToEmail
+	type InvoiceToEmail,
+	type InvoiceWriteScope
 } from '@/core/services/client/api/organizations/invoice.service';
 import { queryKeys } from '@/core/query/keys';
-import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { downloadBlob } from '@/core/lib/utils/dashboard-export';
 import {
 	invoiceRevisionsOf,
@@ -242,7 +244,7 @@ export function useSaveAndSendInvoice() {
 export interface InvoiceEdit {
 	invoiceId: string;
 	/** The invoice's workspace: every request of the save goes there, the ones that put it back included. */
-	scope: InvoicesScope;
+	scope: InvoiceWriteScope;
 	revision: InvoiceRevision;
 	previous: InvoiceRevision;
 }
@@ -265,8 +267,9 @@ export type InvoiceEditOutcome =
 	| { status: 'notPutBack'; lineCount: number | null };
 
 async function readInvoiceBack(edit: InvoiceEdit): Promise<TSavedInvoice | null> {
+	const { tenantId, accessToken } = edit.scope;
 	try {
-		return await invoiceService.getInvoice(edit.invoiceId, { tenantId: edit.scope.tenantId });
+		return await invoiceService.getInvoice(edit.invoiceId, { tenantId, accessToken });
 	} catch {
 		return null;
 	}
@@ -288,20 +291,46 @@ function isEditTenantChosen(edit: InvoiceEdit) {
 	return getTenantIdCookie() === edit.scope.tenantId;
 }
 
+function callsApiDirectly() {
+	return Boolean(GAUZY_API_BASE_SERVER_URL.value);
+}
+
 /**
- * Where a write of the edit goes once it has begun. In proxy mode a request goes to the tenant the cookies name,
- * whatever the edit pins, so nothing more is written once another tab chose another tenant. Another organization of
- * the same tenant leaves the request where it belongs.
+ * The edit with the token of the session it begins in, when the browser calls the API itself: each of its requests
+ * then reaches the invoice's tenant, whatever another tab chooses before the save ends. In proxy mode the route takes
+ * the token from the cookies, so there is none to keep.
  */
-function scopeToWriteIn(edit: InvoiceEdit): InvoicesScope {
-	if (!isEditTenantChosen(edit)) {
+function editPinnedToSession(edit: InvoiceEdit): InvoiceEdit {
+	const isDirect = callsApiDirectly();
+	const isSessionOfItsTenant = isEditTenantChosen(edit);
+	const keepsToken = isDirect && isSessionOfItsTenant;
+	if (!keepsToken) {
+		return edit;
+	}
+	const scope = { ...edit.scope, accessToken: getAccessTokenCookie() };
+	return { ...edit, scope };
+}
+
+/** Whether a request of the edit still reaches its tenant: by the token it began with, or while the cookies name it. */
+function reachesItsTenant(edit: InvoiceEdit) {
+	const carriesItsToken = Boolean(edit.scope.accessToken);
+	return carriesItsToken || isEditTenantChosen(edit);
+}
+
+/**
+ * Where a write of the edit goes once it has begun. In direct mode it carries the token the save began with. In proxy
+ * mode a request goes to the tenant the cookies name, whatever the edit pins, so nothing more is written once another
+ * tab chose another tenant. Another organization of the same tenant leaves the request where it belongs.
+ */
+function scopeToWriteIn(edit: InvoiceEdit): InvoiceWriteScope {
+	if (!reachesItsTenant(edit)) {
 		throw new Error(TENANT_SWITCHED);
 	}
 	return edit.scope;
 }
 
 async function notPutBackOf(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
-	if (!isEditTenantChosen(edit)) {
+	if (!reachesItsTenant(edit)) {
 		return NOT_PUT_BACK_UNREAD;
 	}
 	const now = await readInvoiceBack(edit);
@@ -313,7 +342,7 @@ async function notPutBackOf(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
  * lines before it saves the new ones and a failure between the two leaves none.
  */
 async function putInvoiceBack(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
-	if (!isEditTenantChosen(edit)) {
+	if (!reachesItsTenant(edit)) {
 		return NOT_PUT_BACK_UNREAD;
 	}
 	const current = await readInvoiceBack(edit);
@@ -455,11 +484,12 @@ export interface SavedInvoiceEdit {
 
 /** A refused sending leaves the edit saved: it is reported, never thrown. */
 async function saveAndSendInvoiceEdit({ edit, sending }: InvoiceEditToSave): Promise<SavedInvoiceEdit> {
-	const check = await checkInvoiceEdit(edit);
+	const pinnedEdit = editPinnedToSession(edit);
+	const check = await checkInvoiceEdit(pinnedEdit);
 	if (check.status === null) {
 		return { outcome: check.refusal, sending: null };
 	}
-	const outcome = await writeInvoiceEdit(editUnderStatus(edit, check.status));
+	const outcome = await writeInvoiceEdit(editUnderStatus(pinnedEdit, check.status));
 	const isSaved = outcome.status === 'saved';
 	if (!isSaved || !sending) {
 		return { outcome, sending: null };
