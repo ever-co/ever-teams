@@ -2761,7 +2761,8 @@
 			"HINT_BEFORE_START": "Facultatif. Enregistrées sur l'entrée au démarrage du chronomètre.",
 			"HINT_RUNNING": "Les changements faits pendant que le chronomètre tourne ne sont pas encore enregistrés. Pour changer les notes, modifiez l'entrée dans les feuilles de temps après l'arrêt du chronomètre.",
 			"HINT_OTHER_TEAM": "Ces notes appartiennent au chronomètre en cours dans une autre équipe : elles ne peuvent pas être modifiées ici."
-		}
+		},
+		"NOT_BILLABLE": "Non facturable"
 	},
 	"task": {
 		"TITLE": "Tâche",

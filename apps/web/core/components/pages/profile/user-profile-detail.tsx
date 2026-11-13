@@ -299,7 +299,7 @@ function OwnTimerCard({ task, timer }: Readonly<{ task: TTask | null; timer: Rea
 	}
 
 	return (
-		<div className={NOW_CARD}>
+		<div data-timer-surface="" className={NOW_CARD}>
 			{taskLine}
 			<div className="flex">{timer}</div>
 		</div>
