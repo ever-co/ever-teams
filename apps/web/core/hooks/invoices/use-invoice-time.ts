@@ -203,6 +203,48 @@ function offeredProjectsOf(projects: ReadonlyArray<TOrganizationProject>, projec
 	return projectsById(offered);
 }
 
+interface QueryFlags {
+	isLoading: boolean;
+	isError: boolean;
+	isFetching: boolean;
+}
+
+interface TimeReads {
+	projects: { isLoaded: boolean; isError: boolean };
+	free: QueryFlags;
+	all: QueryFlags;
+	employees: QueryFlags;
+	rates: ReadonlyArray<ProjectRatesState>;
+	readsBilledTime: boolean;
+}
+
+function isRefreshing(query: QueryFlags) {
+	return query.isFetching && !query.isLoading;
+}
+
+function readStateOf(reads: TimeReads) {
+	const isReadingRates = reads.rates.some((state) => state.isLoading);
+	const haveRatesFailed = reads.rates.some((state) => state.hasFailed);
+	const isReadingLogs = reads.free.isLoading || reads.all.isLoading;
+	const isReadingTime = isReadingLogs || reads.employees.isLoading;
+	const haveProjectsFailed = reads.projects.isError;
+	// The projects read waits for the signed-in user: until it answered, "no project" is not known yet.
+	const isReadingProjects = !reads.projects.isLoaded && !haveProjectsFailed;
+	const hasTimeFailed = reads.free.isError || reads.employees.isError;
+	const isReadingBilledTime = reads.readsBilledTime && reads.all.isLoading;
+	const hasBilledTimeFailed = reads.readsBilledTime && reads.all.isError;
+	const isReadingAny = isReadingProjects || isReadingTime;
+	const isLoading = isReadingAny || isReadingRates;
+	const hasReadFailed = haveProjectsFailed || hasTimeFailed;
+	const hasPricingFailed = haveRatesFailed || hasBilledTimeFailed;
+	const isError = hasReadFailed || hasPricingFailed;
+	const isRefreshingTime = [reads.free, reads.all, reads.employees].some(isRefreshing);
+	const isRefreshingRates = reads.rates.some((state) => state.isRefreshing);
+	// A read again keeps showing its previous answer: the lines, their rates and their names can still change.
+	const isUpdating = isRefreshingTime || isRefreshingRates;
+	return { isLoading, isError, isUpdating, isReadingBilledTime, hasBilledTimeFailed };
+}
+
 export function useInvoiceTime({
 	clientId,
 	period,
@@ -402,29 +444,17 @@ export function useInvoiceTime({
 		[names, time.unpriced]
 	);
 
-	const isReadingRates = ratesStates.some((state) => state.isLoading);
-	const haveRatesFailed = ratesStates.some((state) => state.hasFailed);
-	const isReadingLogs = freeQuery.isLoading || allQuery.isLoading;
-	const isReadingTime = isReadingLogs || employeesQuery.isLoading;
-	const haveProjectsFailed = projectsQuery.isOrganizationProjectsError;
-	// The projects read waits for the signed-in user: until it answered, "no project" is not known yet.
-	const isReadingProjects = !projectsQuery.isOrganizationProjectsLoaded && !haveProjectsFailed;
-	const hasTimeFailed = freeQuery.isError || employeesQuery.isError;
-	const isReadingBilledTime = readsBilledTime && allQuery.isLoading;
-	const hasBilledTimeFailed = readsBilledTime && allQuery.isError;
-	const isReadingAny = isReadingProjects || isReadingTime;
-	const isLoading = isReadingAny || isReadingRates;
-	const hasReadFailed = haveProjectsFailed || hasTimeFailed;
-	const hasPricingFailed = haveRatesFailed || hasBilledTimeFailed;
-	const isError = hasReadFailed || hasPricingFailed;
-	const isRefreshingLogs = freeQuery.isFetching && !freeQuery.isLoading;
-	const isRefreshingAllLogs = allQuery.isFetching && !allQuery.isLoading;
-	const isRefreshingEmployees = employeesQuery.isFetching && !employeesQuery.isLoading;
-	const isRefreshingRates = ratesStates.some((state) => state.isRefreshing);
-	const isRefreshingAnyLogs = isRefreshingLogs || isRefreshingAllLogs;
-	const isRefreshingTime = isRefreshingAnyLogs || isRefreshingEmployees;
-	// A read again keeps showing its previous answer: the lines, their rates and their names can still change.
-	const isUpdating = isRefreshingTime || isRefreshingRates;
+	const { isLoading, isError, isUpdating, isReadingBilledTime, hasBilledTimeFailed } = readStateOf({
+		projects: {
+			isLoaded: projectsQuery.isOrganizationProjectsLoaded,
+			isError: projectsQuery.isOrganizationProjectsError
+		},
+		free: freeQuery,
+		all: allQuery,
+		employees: employeesQuery,
+		rates: ratesStates,
+		readsBilledTime
+	});
 
 	const refetchProjects = projectsQuery.refetchOrganizationProjects;
 	const refetchFreeLogs = freeQuery.refetch;
