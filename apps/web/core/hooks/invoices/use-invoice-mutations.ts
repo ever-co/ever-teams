@@ -1,10 +1,33 @@
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { invoiceService } from '@/core/services/client/api/organizations/invoice.service';
+import { useCallback, useMemo } from 'react';
+import {
+	useMutation,
+	useMutationState,
+	useQueryClient,
+	type InfiniteData,
+	type Mutation,
+	type QueryClient
+} from '@tanstack/react-query';
+import {
+	invoiceService,
+	type InvoicesPage,
+	type InvoicesScope,
+	type InvoiceToEmail
+} from '@/core/services/client/api/organizations/invoice.service';
 import { queryKeys } from '@/core/query/keys';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { downloadBlob } from '@/core/lib/utils/dashboard-export';
-import type { InvoiceRequest } from '@/core/lib/utils/invoices';
+import {
+	isDraftInvoice,
+	pagesWithInvoiceChanged,
+	pagesWithoutInvoice,
+	SENT_CHANGE,
+	type InvoiceStatusChange,
+	type ListedInvoicesPage
+} from '@/core/lib/utils/invoice-actions';
+import { invoiceStatusOf, type InvoiceRequest, type InvoiceStatus } from '@/core/lib/utils/invoices';
+import type { TInvoice } from '@/core/types/schemas/organization/invoice.schema';
 
 export function useCreateInvoice() {
 	const queryClient = useQueryClient();
@@ -38,4 +61,220 @@ export function useInvoicePdf() {
 		pendingId = mutation.variables?.id ?? null;
 	}
 	return { downloadPdf: mutation.mutate, pendingId };
+}
+
+type InvoicesList = InfiniteData<InvoicesPage, number>;
+
+type PagesPatch = (pages: InvoicesPage[]) => ListedInvoicesPage<TInvoice>[];
+
+/** The workspace an invoice was read in; null when unknown, which refuses any action on it. */
+type ReadWorkspace = InvoicesScope | null;
+
+const WORKSPACE_SWITCHED = 'Another workspace was chosen since the invoice was read';
+
+/**
+ * Where an action on an invoice is made: the workspace the invoice was read in, while the cookies still name it.
+ * Another tab may have switched them since; the action is then refused before any request, as a save is.
+ */
+function workspaceToActIn(scope: ReadWorkspace): InvoicesScope {
+	if (!scope) {
+		throw new Error(WORKSPACE_SWITCHED);
+	}
+	const isSameOrganization = getOrganizationIdCookie() === scope.organizationId;
+	const isSameTenant = getTenantIdCookie() === scope.tenantId;
+	const isSameWorkspace = isSameOrganization && isSameTenant;
+	if (!isSameWorkspace) {
+		throw new Error(WORKSPACE_SWITCHED);
+	}
+	return scope;
+}
+
+/** The list the invoice was read in shows what changed at once, before it is read again. */
+function patchListedInvoices(queryClient: QueryClient, scope: ReadWorkspace, patch: PagesPatch) {
+	if (!scope) {
+		return;
+	}
+	const listKey = queryKeys.invoices.list(scope.tenantId, scope.organizationId);
+	queryClient.setQueryData<InvoicesList>(listKey, (list) => {
+		if (!list) {
+			return list;
+		}
+		return { ...list, pages: patch(list.pages) };
+	});
+}
+
+function showListedStatus(queryClient: QueryClient, scope: ReadWorkspace, invoiceId: string, status: InvoiceStatus) {
+	patchListedInvoices(queryClient, scope, (pages) => pagesWithInvoiceChanged(pages, invoiceId, { status }));
+}
+
+export interface InvoiceToSend extends InvoiceToEmail {
+	/** Only a draft becomes Sent: an invoice sent again keeps the status it reached since. */
+	marksSent: boolean;
+	scope: ReadWorkspace;
+}
+
+/** `sentNotMarked`: the e-mail went out, but the invoice could not be marked Sent. */
+export type InvoiceSendOutcome = 'sent' | 'sentNotMarked';
+
+interface InvoiceSending {
+	outcome: InvoiceSendOutcome;
+	isMarkedSent: boolean;
+}
+
+/**
+ * Read again once the e-mail went out, the invoice becomes Sent only while it is still a draft: a status someone
+ * reached meanwhile (paid, void) is never taken back.
+ */
+async function markSentWhileDraft(invoiceId: string, workspace: InvoicesScope): Promise<boolean> {
+	const currentStatus = await invoiceService.getInvoiceStatus(invoiceId, workspace);
+	const status = invoiceStatusOf(currentStatus);
+	if (!isDraftInvoice(status)) {
+		return false;
+	}
+	await invoiceService.changeInvoiceStatus(invoiceId, SENT_CHANGE, workspace);
+	return true;
+}
+
+async function sendAndMarkSent(target: InvoiceToSend): Promise<InvoiceSending> {
+	const workspace = workspaceToActIn(target.scope);
+	await invoiceService.sendInvoiceByEmail(target, workspace);
+	if (!target.marksSent) {
+		return { outcome: 'sent', isMarkedSent: false };
+	}
+	try {
+		const isMarkedSent = await markSentWhileDraft(target.invoiceId, workspace);
+		return { outcome: 'sent', isMarkedSent };
+	} catch {
+		return { outcome: 'sentNotMarked', isMarkedSent: false };
+	}
+}
+
+/** E-mails the invoice, then marks a draft Sent. Throws when the sending is refused: nothing went out then. */
+async function sendInvoiceToClient(target: InvoiceToSend): Promise<InvoiceSendOutcome> {
+	const sending = await sendAndMarkSent(target);
+	return sending.outcome;
+}
+
+export function useSendInvoice() {
+	const queryClient = useQueryClient();
+	const mutation = useMutation({
+		mutationFn: sendAndMarkSent,
+		onSuccess: (sending, target) => {
+			if (sending.isMarkedSent) {
+				showListedStatus(queryClient, target.scope, target.invoiceId, 'SENT');
+			}
+		},
+		onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all }),
+		meta: { handlesOwnError: true }
+	});
+	const { mutateAsync } = mutation;
+	const sendInvoice = useCallback(
+		async (target: InvoiceToSend) => {
+			const sending = await mutateAsync(target);
+			return sending.outcome;
+		},
+		[mutateAsync]
+	);
+	return { sendInvoice, isSending: mutation.isPending };
+}
+
+export type SaveAndSendOutcome = InvoiceSendOutcome | 'notSent';
+
+export interface SavedAndSentInvoice {
+	invoice: TInvoice;
+	outcome: SaveAndSendOutcome;
+}
+
+interface InvoiceToSaveAndSend {
+	request: InvoiceRequest;
+	email: string;
+}
+
+/** A refused sending leaves the invoice saved as a draft: it is reported, never thrown. */
+async function sendSavedInvoice(target: InvoiceToSend): Promise<SaveAndSendOutcome> {
+	try {
+		return await sendInvoiceToClient(target);
+	} catch {
+		return 'notSent';
+	}
+}
+
+/** Saves the invoice, then sends it. Throws only when the save is refused: nothing was created then. */
+async function saveAndSendInvoice({ request, email }: InvoiceToSaveAndSend): Promise<SavedAndSentInvoice> {
+	const invoice = await invoiceService.createInvoice(request);
+	// Sent from the workspace it was saved in: a switch in another tab meanwhile leaves it a draft
+	const scope = { organizationId: request.organizationId, tenantId: request.tenantId };
+	const target = { invoiceId: invoice.id, invoiceNumber: request.invoiceNumber, email, marksSent: true, scope };
+	const outcome = await sendSavedInvoice(target);
+	return { invoice, outcome };
+}
+
+export function useSaveAndSendInvoice() {
+	const queryClient = useQueryClient();
+	const mutation = useMutation({
+		mutationFn: saveAndSendInvoice,
+		onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all }),
+		meta: { handlesOwnError: true }
+	});
+	return { saveAndSendInvoice: mutation.mutateAsync, isSavingAndSending: mutation.isPending };
+}
+
+export interface InvoiceStatusChangeRequest {
+	invoiceId: string;
+	change: InvoiceStatusChange;
+	scope: ReadWorkspace;
+}
+
+/** Shared by every row and dialog: an invoice whose status change runs stays busy, whichever change ran last. */
+const STATUS_CHANGE_KEY = [...queryKeys.invoices.all, 'status-change'] as const;
+
+function changedInvoiceIdOf(change: Mutation) {
+	const request = change.state.variables as InvoiceStatusChangeRequest;
+	return request.invoiceId;
+}
+
+async function changeStatusInItsWorkspace({ invoiceId, change, scope }: InvoiceStatusChangeRequest) {
+	const workspace = workspaceToActIn(scope);
+	await invoiceService.changeInvoiceStatus(invoiceId, change, workspace);
+}
+
+export function useChangeInvoiceStatus() {
+	const queryClient = useQueryClient();
+	const mutation = useMutation({
+		mutationKey: STATUS_CHANGE_KEY,
+		mutationFn: changeStatusInItsWorkspace,
+		onSuccess: (_answer, { invoiceId, change, scope }) =>
+			showListedStatus(queryClient, scope, invoiceId, change.status),
+		onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all }),
+		meta: { handlesOwnError: true }
+	});
+	const pendingIds = useMutationState({
+		filters: { mutationKey: STATUS_CHANGE_KEY, status: 'pending' },
+		select: changedInvoiceIdOf
+	});
+	const changingIds = useMemo<ReadonlySet<string>>(() => new Set(pendingIds), [pendingIds]);
+	return { changeStatus: mutation.mutateAsync, isChanging: mutation.isPending, changingIds };
+}
+
+interface InvoiceToDelete {
+	invoiceId: string;
+	scope: ReadWorkspace;
+}
+
+async function deleteInItsWorkspace({ invoiceId, scope }: InvoiceToDelete) {
+	const workspace = workspaceToActIn(scope);
+	await invoiceService.deleteInvoice(invoiceId, workspace);
+}
+
+export function useDeleteInvoice() {
+	const queryClient = useQueryClient();
+	const mutation = useMutation({
+		mutationFn: deleteInItsWorkspace,
+		onSuccess: (_answer, { invoiceId, scope }) => {
+			patchListedInvoices(queryClient, scope, (pages) => pagesWithoutInvoice(pages, invoiceId));
+		},
+		onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all }),
+		meta: { handlesOwnError: true }
+	});
+	return { deleteInvoice: mutation.mutateAsync, isDeleting: mutation.isPending };
 }

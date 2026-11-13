@@ -6,7 +6,8 @@ const decimalSchema = z.coerce.number().nullable().optional();
 const invoiceClientSchema = z.object({
 	id: z.string(),
 	name: z.string().nullable().optional(),
-	imageUrl: z.string().nullable().optional()
+	imageUrl: z.string().nullable().optional(),
+	primaryEmail: z.string().nullable().optional()
 });
 
 /** An invoice as the list shows it. Its lines, taxes and payment fields are left out of what the page holds. */
