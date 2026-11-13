@@ -116,7 +116,8 @@ function ColumnRow({ item, headers, options, copy, onChooseColumn }: Readonly<Co
 	if (requirement === 'oneOfTwo') {
 		requirementLabel = t('timeImport.columns.ONE_OF_TWO');
 	}
-	let chosenLabel: ReactNode = undefined;
+	// Never undefined: the select would then show the picked item's own label, which the first pick loses
+	let chosenLabel: ReactNode = null;
 	if (item.columnIndex !== null) {
 		chosenLabel = headers[item.columnIndex];
 	}
