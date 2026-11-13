@@ -184,3 +184,150 @@ describe('the billable time of an invoice that shows the lines it was saved with
 		expect(mockRates.getProjectRates).not.toHaveBeenCalled();
 	});
 });
+
+type BillableReadOptions = { notInvoiced: boolean; scope: { tenantId: string; organizationId: string } };
+
+const freeAda = { ...adaTime, id: 'log-free', invoiceItemId: null };
+const ownAda = { ...adaTime, id: 'log-own', duration: 7200, invoiceItemId: 'line-1' };
+const otherInvoiceAda = { ...adaTime, id: 'log-other', duration: 3600, invoiceItemId: 'line-of-another-invoice' };
+
+/** The free time when asked, all of it otherwise, as an API that records billed time answers. */
+function answerTimeReads(free: unknown[], all: unknown[]) {
+	mockReports.getBillableTimeLogs.mockImplementation(
+		async (_range: unknown, _relations: unknown, options: BillableReadOptions) => {
+			if (options.notInvoiced) {
+				return free;
+			}
+			return all;
+		}
+	);
+}
+
+function readOptionsOfCalls(): BillableReadOptions[] {
+	return mockReports.getBillableTimeLogs.mock.calls.map((call) => call[2] as BillableReadOptions);
+}
+
+function renderTimeOf(options: Partial<Parameters<typeof useInvoiceTime>[0]>) {
+	const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	const store = createStore();
+	store.set(currentOrganizationState, { id: 'organization-1', currency: 'USD' } as TOrganization);
+	const wrapper = ({ children }: Readonly<{ children: React.ReactNode }>) => (
+		<QueryClientProvider client={queryClient}>
+			<Provider store={store}>{children}</Provider>
+		</QueryClientProvider>
+	);
+	const base = { clientId: 'client-acme', period: october, grouping: 'member' as const, labels };
+	return renderHook(() => useInvoiceTime({ ...base, ...options }), { wrapper });
+}
+
+describe('the time a new invoice offers', () => {
+	beforeEach(() => {
+		mockReports.getBillableTimeLogs.mockReset();
+		mockReports.getOwedAmountReport.mockReset();
+		mockRates.getProjectRates.mockReset();
+		mockReports.getOwedAmountReport.mockResolvedValue(owedReport);
+		mockRates.getProjectRates.mockResolvedValue(siteRates);
+	});
+
+	it('is the time no invoice bills, read in the workspace its key holds', async () => {
+		answerTimeReads([freeAda], [freeAda, ownAda]);
+
+		const { result } = renderTimeOf({});
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		expect(readOptionsOfCalls()).toEqual([
+			{ notInvoiced: true, scope: { tenantId: 'tenant-1', organizationId: 'organization-1' } }
+		]);
+		expect(result.current.lines.map((line) => line.timeLogIds)).toEqual([['log-free']]);
+		expect(result.current.recordsBilledTime).toBe(true);
+	});
+
+	it('says the period is all invoiced when every billable hour is on an invoice', async () => {
+		answerTimeReads([], [ownAda]);
+
+		const { result } = renderTimeOf({});
+		await waitFor(() => expect(result.current.isAllInvoiced).toBe(true));
+
+		expect(result.current.isLoading).toBe(false);
+		expect(result.current.lines).toEqual([]);
+	});
+
+	it('does not say so when the period has no billable time at all', async () => {
+		answerTimeReads([], []);
+
+		const { result } = renderTimeOf({});
+		await waitFor(() => expect(readOptionsOfCalls()).toHaveLength(2));
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		expect(result.current.isAllInvoiced).toBe(false);
+	});
+
+	it('comes from an API that does not record billed time when the logs name no line', async () => {
+		answerTimeReads([adaTime], [adaTime]);
+
+		const { result } = renderTimeOf({});
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		expect(result.current.recordsBilledTime).toBe(false);
+		expect(result.current.isAllInvoiced).toBe(false);
+	});
+});
+
+describe('the time of a saved invoice', () => {
+	const billedLines = { lineIds: new Set(['line-1']), projectIds: ['project-site'] };
+
+	beforeEach(() => {
+		mockReports.getBillableTimeLogs.mockReset();
+		mockReports.getOwedAmountReport.mockReset();
+		mockRates.getProjectRates.mockReset();
+		mockReports.getOwedAmountReport.mockResolvedValue(owedReport);
+		mockRates.getProjectRates.mockResolvedValue(siteRates);
+	});
+
+	it('names the time each of its lines bills, without reading the free time or the rates', async () => {
+		answerTimeReads([freeAda], [freeAda, ownAda, otherInvoiceAda]);
+
+		const { result } = renderTimeOf({ enabled: false, billedLines });
+		await waitFor(() => expect(result.current.isReadingBilledTime).toBe(false));
+
+		expect(result.current.billedTimeByLine.get('line-1')).toEqual(['log-own']);
+		expect(readOptionsOfCalls().map((options) => options.notInvoiced)).toEqual([false]);
+		expect(mockReports.getOwedAmountReport).not.toHaveBeenCalled();
+		expect(result.current.lines).toEqual([]);
+		expect(result.current.unpriced).toEqual([]);
+	});
+
+	it('offers its own billed time again with the free time once the time is taken again', async () => {
+		answerTimeReads([freeAda], [freeAda, ownAda, otherInvoiceAda]);
+
+		const { result } = renderTimeOf({ billedLines });
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		expect(result.current.lines).toHaveLength(1);
+		expect(result.current.lines[0].timeLogIds).toEqual(['log-free', 'log-own']);
+		expect(result.current.lines[0].hours).toBe(12);
+	});
+
+	it('is waited for while the time its lines bill is read', async () => {
+		const all = deferred<unknown[]>();
+		mockReports.getBillableTimeLogs.mockReturnValue(all.promise);
+
+		const { result } = renderTimeOf({ enabled: false, billedLines });
+		await waitFor(() => expect(result.current.isReadingBilledTime).toBe(true));
+
+		await act(async () => {
+			all.resolve([ownAda]);
+			await all.promise;
+		});
+		await waitFor(() => expect(result.current.isReadingBilledTime).toBe(false));
+		expect(result.current.hasBilledTimeFailed).toBe(false);
+	});
+
+	it('says when the time its lines bill could not be read', async () => {
+		mockReports.getBillableTimeLogs.mockRejectedValue(new Error('offline'));
+
+		const { result } = renderTimeOf({ enabled: false, billedLines });
+
+		await waitFor(() => expect(result.current.hasBilledTimeFailed).toBe(true));
+	});
+});

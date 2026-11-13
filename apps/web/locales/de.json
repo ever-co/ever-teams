@@ -6895,7 +6895,8 @@
 				"NOT_PUT_BACK_LINES": "Die Änderungen konnten nicht gespeichert werden, und die Rechnung ließ sich nicht auf ihren früheren Stand zurücksetzen: Sie hat jetzt {count, plural, =0 {keine Position} one {# Position} other {# Positionen}}. Prüfen Sie sie, bevor Sie sie senden.",
 				"LOCKED_NOW": "Seit dem Öffnen wurde Rechnung {number} bezahlt oder storniert: Es wurde nichts gespeichert, und sie lässt sich nicht mehr bearbeiten.",
 				"NOT_CHECKED": "Die Rechnung konnte vor dem Speichern nicht erneut gelesen werden, deshalb wurde nichts gespeichert. Versuchen Sie es erneut.",
-				"NOT_REACHED": "Die Verbindung ist fehlgeschlagen: Die Änderungen wurden nicht gespeichert, die Rechnung ist unverändert. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
+				"NOT_REACHED": "Die Verbindung ist fehlgeschlagen: Die Änderungen wurden nicht gespeichert, die Rechnung ist unverändert. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+				"CHANGED": "Seit dem Öffnen wurde Rechnung {number} geändert: Es wurde nichts gespeichert. Öffnen Sie sie erneut aus der Rechnungsliste, um von ihrer aktuellen Fassung auszugehen."
 			}
 		},
 		"replace": {
@@ -6906,7 +6907,20 @@
 			"STAYS_VOID": "Wird diese neue Rechnung nie gespeichert, bleibt Rechnung {number} trotzdem storniert.",
 			"CONFIRM": "Stornieren und ersetzen",
 			"NOTICE_TITLE": "Ersatz für Rechnung {number}",
-			"NOTICE_MESSAGE": "Derselbe Kunde, derselbe Zeitraum, dieselben Positionen. Passen Sie sie an und speichern Sie sie unter einer neuen Nummer."
+			"NOTICE_MESSAGE": "Derselbe Kunde, derselbe Zeitraum, dieselben Positionen. Passen Sie sie an und speichern Sie sie unter einer neuen Nummer.",
+			"NOT_REBUILDABLE": "Rechnung {number} wurde nicht storniert: Sie lässt sich hier nicht aus abrechenbarer Zeit neu erstellen. Stornieren und ersetzen Sie sie dort, wo sie erstellt wurde.",
+			"NOT_VOID_TITLE": "Rechnung {number} ist nicht storniert",
+			"NOT_VOID_MESSAGE": "Hier wird nur eine stornierte Rechnung ersetzt. Öffnen Sie sie aus der Rechnungsliste, um sie zu bearbeiten oder um sie zu stornieren und zu ersetzen."
+		},
+		"billedTime": {
+			"LEFT_OUT_TITLE": "Stunden, die schon auf einer Rechnung stehen, sind ausgenommen",
+			"LEFT_OUT_MESSAGE": "{count, plural, one {Eine Rechnung von {client} berechnet bereits einen Teil dieses Zeitraums. Diese Stunden sind hier nicht aufgeführt.} other {# Rechnungen von {client} berechnen bereits einen Teil dieses Zeitraums. Diese Stunden sind hier nicht aufgeführt.}}",
+			"UNRECORDED_MESSAGE": "{count, plural, one {Diese Rechnung hält nicht fest, welche Stunden sie berechnet, deshalb sind sie hier noch aufgeführt.} other {Diese Rechnungen halten nicht fest, welche Stunden sie berechnen, deshalb sind diese Stunden hier noch aufgeführt.}} Entfernen Sie vor dem Speichern die bereits berechneten Positionen.",
+			"EARLIER_NOTE": "Stunden, die schon auf einer Rechnung stehen, sind auf dieser nicht aufgeführt, außer wenn jene Rechnung nicht festhält, welche Stunden sie berechnet.",
+			"ALL_INVOICED_TITLE": "Die abrechenbare Zeit von {client} in diesem Zeitraum ist bereits berechnet",
+			"ALL_INVOICED_MESSAGE": "Jede abrechenbare Stunde dieses Zeitraums steht auf einer Rechnung. Um einen Teil davon erneut zu berechnen, entfernen Sie die Position von jener Rechnung oder stornieren Sie die Rechnung.",
+			"NEW_REFUSED": "Ein Teil dieser Zeit ist seit dem Lesen auf eine andere Rechnung gekommen oder wurde gelöscht, deshalb wurde nichts gespeichert. Schließen Sie dieses Fenster, um die noch abzurechnende Zeit zu sehen, und speichern Sie dann erneut.",
+			"EDIT_REFUSED": "Ein Teil dieser Zeit ist seit dem Lesen auf eine andere Rechnung gekommen oder wurde gelöscht, deshalb wurden die Änderungen nicht gespeichert und die Rechnung ist unverändert. Schließen Sie dieses Fenster, um die noch abzurechnende Zeit zu sehen, und speichern Sie dann erneut."
 		},
 		"standing": {
 			"OVERDUE": "Überfällig",

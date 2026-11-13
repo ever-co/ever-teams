@@ -45,5 +45,5 @@ export function useSavedInvoice(invoiceId: string | null) {
 		void refetchInvoice();
 	}, [refetchInvoice, refetchOrganization]);
 
-	return { status, saved, number: invoice?.invoiceNumber ?? null, retry };
+	return { status, saved, number: invoice?.invoiceNumber ?? null, isRefreshing: read.isRefreshing, retry };
 }

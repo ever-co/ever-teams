@@ -6895,7 +6895,8 @@
 				"NOT_PUT_BACK_LINES": "Non è stato possibile salvare le modifiche, né riportare la fattura com’era: ora ha {count, plural, =0 {nessuna riga} one {# riga} other {# righe}}. Controllala prima di inviarla.",
 				"LOCKED_NOW": "Da quando è stata aperta, la fattura {number} è stata pagata o annullata: non è stato salvato nulla e non si può più modificare.",
 				"NOT_CHECKED": "Non è stato possibile rileggere la fattura prima di salvare, quindi non è stato salvato nulla. Riprova.",
-				"NOT_REACHED": "La connessione non è riuscita: le modifiche non sono state salvate e la fattura è rimasta com’era. Controlla la connessione e riprova."
+				"NOT_REACHED": "La connessione non è riuscita: le modifiche non sono state salvate e la fattura è rimasta com’era. Controlla la connessione e riprova.",
+				"CHANGED": "Da quando è stata aperta, la fattura {number} è stata modificata: non è stato salvato nulla. Riaprila dall’elenco delle fatture per partire dalla sua versione attuale."
 			}
 		},
 		"replace": {
@@ -6906,7 +6907,20 @@
 			"STAYS_VOID": "Se quella nuova fattura non viene mai salvata, la fattura {number} resta annullata.",
 			"CONFIRM": "Annulla e sostituisci",
 			"NOTICE_TITLE": "Sostituzione della fattura {number}",
-			"NOTICE_MESSAGE": "Stesso cliente, stesso periodo, stesse righe. Sistemale, poi salvala con un nuovo numero."
+			"NOTICE_MESSAGE": "Stesso cliente, stesso periodo, stesse righe. Sistemale, poi salvala con un nuovo numero.",
+			"NOT_REBUILDABLE": "La fattura {number} non è stata annullata: qui non si può ricreare dal tempo fatturabile. Annullala e sostituiscila dove è stata creata.",
+			"NOT_VOID_TITLE": "La fattura {number} non è annullata",
+			"NOT_VOID_MESSAGE": "Qui si sostituisce solo una fattura annullata. Aprila dall’elenco delle fatture per modificarla, oppure per annullarla e sostituirla."
+		},
+		"billedTime": {
+			"LEFT_OUT_TITLE": "Le ore già su una fattura sono escluse",
+			"LEFT_OUT_MESSAGE": "{count, plural, one {Una fattura di {client} fattura già una parte di questo periodo. Quelle ore non sono elencate qui.} other {# fatture di {client} fatturano già una parte di questo periodo. Quelle ore non sono elencate qui.}}",
+			"UNRECORDED_MESSAGE": "{count, plural, one {Quella fattura non indica quali ore fattura, quindi sono ancora elencate qui.} other {Quelle fatture non indicano quali ore fatturano, quindi quelle ore sono ancora elencate qui.}} Rimuovi le righe già fatturate prima di salvare.",
+			"EARLIER_NOTE": "Le ore già su una fattura non sono elencate su questa, tranne quando quella fattura non dice quali ore fattura.",
+			"ALL_INVOICED_TITLE": "Il tempo fatturabile di {client} in questo periodo è già fatturato",
+			"ALL_INVOICED_MESSAGE": "Ogni ora fatturabile di questo periodo è su una fattura. Per fatturarne di nuovo una parte, rimuovi la sua riga da quella fattura o annulla la fattura.",
+			"NEW_REFUSED": "Una parte di questo tempo è passata su un’altra fattura o è stata eliminata da quando è stata letta, quindi non è stato salvato nulla. Chiudi questa finestra per vedere il tempo ancora da fatturare, poi salva di nuovo.",
+			"EDIT_REFUSED": "Una parte di questo tempo è passata su un’altra fattura o è stata eliminata da quando è stata letta, quindi le modifiche non sono state salvate e la fattura è rimasta com’era. Chiudi questa finestra per vedere il tempo ancora da fatturare, poi salva di nuovo."
 		},
 		"standing": {
 			"OVERDUE": "Scaduta",

@@ -88,10 +88,14 @@ export interface SavedInvoice {
 	total: number;
 	grouping: InvoiceGrouping;
 	lines: NamedInvoiceLine[];
+	/** Each line's id on the invoice, by line key: the time logs that name it are the time the line bills. */
+	lineIds: ReadonlyMap<string, string>;
 	/** What each line states, by line key. */
 	descriptions: ReadonlyMap<string, string>;
 	/** The invoice as it was read: what is written back when an edit fails half way. */
 	previous: InvoiceRevision;
+	/** The id on the invoice of each line of `previous`, in its order. */
+	previousLineIds: ReadonlyArray<string>;
 }
 
 export interface SavedInvoiceReading {
@@ -243,6 +247,7 @@ interface SavedLinesContext {
 function namedSavedLinesOf(parts: ReadonlyArray<SavedLineParts>, context: SavedLinesContext) {
 	const seen = new Map<string, number>();
 	const descriptions = new Map<string, string>();
+	const lineIds = new Map<string, string>();
 	const lines = parts.map((part) => {
 		const baseKey = invoiceLineKeyOf({ ...part, currency: context.currency }, context.grouping);
 		const key = uniqueKeyOf(baseKey, seen);
@@ -252,6 +257,7 @@ function namedSavedLinesOf(parts: ReadonlyArray<SavedLineParts>, context: SavedL
 			label = projectName;
 		}
 		descriptions.set(key, part.description);
+		lineIds.set(key, part.item.id);
 		const line: NamedInvoiceLine = {
 			key,
 			projectId: part.projectId,
@@ -271,7 +277,7 @@ function namedSavedLinesOf(parts: ReadonlyArray<SavedLineParts>, context: SavedL
 		return line;
 	});
 	lines.sort(compareNamedLines);
-	return { lines, descriptions };
+	return { lines, descriptions, lineIds };
 }
 
 /** The note an invoice states under its period: everything after the period's line. */
@@ -444,7 +450,7 @@ export function savedInvoiceOf(invoice: TSavedInvoice, reading: SavedInvoiceRead
 	}
 	const grouping = invoiceGroupingOfLines(parts);
 	const context = { grouping, currency: facts.currency, unnamedProject: reading.unnamedProject };
-	const { lines, descriptions } = namedSavedLinesOf(parts, context);
+	const { lines, descriptions, lineIds } = namedSavedLinesOf(parts, context);
 	return {
 		id: invoice.id,
 		workspace: { organizationId: facts.organizationId, tenantId: facts.tenantId },
@@ -461,9 +467,83 @@ export function savedInvoiceOf(invoice: TSavedInvoice, reading: SavedInvoiceRead
 		total: facts.total,
 		grouping,
 		lines,
+		lineIds,
 		descriptions,
-		previous: previousRevisionOf(invoice, facts, parts)
+		previous: previousRevisionOf(invoice, facts, parts),
+		previousLineIds: parts.map((part) => part.item.id)
 	};
+}
+
+const NAMELESS_READING: SavedInvoiceReading = { timeZone: null, unnamedProject: '', clientNames: new Map() };
+
+/** Whether the invoice screen can start from this invoice, to edit it or to replace it, as `savedInvoiceOf` reads it. */
+export function isRebuildableInvoice(invoice: TSavedInvoice): boolean {
+	return savedInvoiceOf(invoice, NAMELESS_READING) !== null;
+}
+
+/** The time logs that name a saved line, by the line's id on the invoice. */
+export type BilledTimeOfLines = ReadonlyMap<string, ReadonlyArray<string>>;
+
+export interface BilledLinesRead {
+	/** The saved lines' ids on the invoice: a time log that names one is time the invoice bills. */
+	lineIds: ReadonlySet<string>;
+	/** Their projects, each once, in order. */
+	projectIds: string[];
+}
+
+const NO_BILLED_LINES: BilledLinesRead = { lineIds: new Set(), projectIds: [] };
+
+/** What reading the time a saved invoice bills needs; nothing for an invoice that is not saved yet. */
+export function billedLinesReadOf(saved: SavedInvoice | null): BilledLinesRead {
+	if (!saved) {
+		return NO_BILLED_LINES;
+	}
+	const lineIds = new Set(saved.lineIds.values());
+	const projects = new Set(saved.lines.map((line) => line.projectId));
+	const projectIds = [...projects].sort((first, second) => first.localeCompare(second));
+	return { lineIds, projectIds };
+}
+
+function billedTimeOfLine(lineId: string | undefined, billed: BilledTimeOfLines) {
+	if (!lineId) {
+		return undefined;
+	}
+	return billed.get(lineId);
+}
+
+/** The saved lines, each naming the time logs that name it; a line no time log names stays as it was saved. */
+export function billedSavedLinesOf(saved: SavedInvoice, billed: BilledTimeOfLines): NamedInvoiceLine[] {
+	return saved.lines.map((line) => {
+		const lineId = saved.lineIds.get(line.key);
+		const timeLogIds = billedTimeOfLine(lineId, billed);
+		if (!timeLogIds) {
+			return line;
+		}
+		return { ...line, timeLogIds };
+	});
+}
+
+/**
+ * The invoice as it was read, each line naming the time logs it bills when the API records billed time: an edit that
+ * fails half way writes the lines back with their time, or the API would count that time as free.
+ */
+export function billedPreviousOf(
+	saved: SavedInvoice,
+	billed: BilledTimeOfLines,
+	recordsBilledTime: boolean
+): InvoiceRevision {
+	if (!recordsBilledTime) {
+		return saved.previous;
+	}
+	const lines = saved.previous.lines.map((line, index) => {
+		const lineId = saved.previousLineIds[index];
+		const timeLogIds = billedTimeOfLine(lineId, billed);
+		if (!timeLogIds) {
+			return line;
+		}
+		return { ...line, timeLogIds: [...timeLogIds] };
+	});
+	return { ...saved.previous, lines };
 }
 
 /**
@@ -665,6 +745,8 @@ export interface WrittenInvoiceLine {
 	projectId?: string | null;
 	employeeId?: string | null;
 	taskId?: string | null;
+	applyTax?: boolean | null;
+	applyDiscount?: boolean | null;
 }
 
 function lineSignatureOf(line: WrittenInvoiceLine) {
@@ -675,7 +757,9 @@ function lineSignatureOf(line: WrittenInvoiceLine) {
 		(line.description ?? '').trim(),
 		hundredthsOf(line.quantity ?? 0),
 		hundredthsOf(line.price ?? 0),
-		hundredthsOf(line.totalValue ?? 0)
+		hundredthsOf(line.totalValue ?? 0),
+		line.applyTax ?? false,
+		line.applyDiscount ?? false
 	];
 	return parts.join('|');
 }

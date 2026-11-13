@@ -9,7 +9,13 @@ import {
 	ProjectConfirmDialog,
 	type ProjectConsequence
 } from '@/core/components/projects/dialogs/project-confirm-dialog';
-import { useDeleteInvoice, useChangeInvoiceStatus, useSendInvoice } from '@/core/hooks/invoices/use-invoice-mutations';
+import {
+	useDeleteInvoice,
+	useChangeInvoiceStatus,
+	useSendInvoice,
+	useVoidToReplace,
+	type VoidToReplaceOutcome
+} from '@/core/hooks/invoices/use-invoice-mutations';
 import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
 import { isDraftInvoice, isInvoiceRecipient, VOID_CHANGE } from '@/core/lib/utils/invoice-actions';
 import { invoiceStatusOf } from '@/core/lib/utils/invoices';
@@ -273,6 +279,8 @@ export function DeleteInvoiceDialog({ open, target, scope, onClose, onDeleted }:
 	);
 }
 
+type VoidAndReplaceFailure = 'notVoided' | 'notRebuildable';
+
 /**
  * A paid invoice is never changed: it is voided, and a new invoice bills the same time instead. The new one is made
  * on the screen `onVoided` opens; left unsaved, the paid invoice stays void, which the dialog says beforehand.
@@ -285,17 +293,17 @@ export function VoidAndReplaceDialog({
 	onVoided
 }: Readonly<InvoiceActionDialogProps & { onVoided: (target: InvoiceActionTarget) => void }>) {
 	const t = useTranslations();
-	const { changeStatus, isChanging } = useChangeInvoiceStatus();
+	const { voidToReplace, isVoiding } = useVoidToReplace();
 	const runOnce = useSingleRun();
-	const [hasFailed, setHasFailed] = useState(false);
+	const [failure, setFailure] = useState<VoidAndReplaceFailure | null>(null);
 	const numberText = target?.numberText ?? '';
 	const clientName = target?.clientName ?? '';
 
 	const close = () => {
-		if (isChanging) {
+		if (isVoiding) {
 			return;
 		}
-		setHasFailed(false);
+		setFailure(null);
 		onClose();
 	};
 
@@ -303,11 +311,16 @@ export function VoidAndReplaceDialog({
 		if (!target) {
 			return;
 		}
-		setHasFailed(false);
+		setFailure(null);
+		let outcome: VoidToReplaceOutcome;
 		try {
-			await changeStatus({ invoiceId: target.invoice.id, change: VOID_CHANGE, scope });
+			outcome = await voidToReplace({ invoiceId: target.invoice.id, scope });
 		} catch {
-			setHasFailed(true);
+			setFailure('notVoided');
+			return;
+		}
+		if (outcome === 'notRebuildable') {
+			setFailure('notRebuildable');
 			return;
 		}
 		toast.success(t('invoices.void.DONE', { number: numberText }));
@@ -326,8 +339,11 @@ export function VoidAndReplaceDialog({
 		}
 	];
 	let error: string | null = null;
-	if (hasFailed) {
+	if (failure === 'notVoided') {
 		error = t('invoices.void.FAILED');
+	}
+	if (failure === 'notRebuildable') {
+		error = t('invoices.replace.NOT_REBUILDABLE', { number: numberText });
 	}
 
 	return (
@@ -340,7 +356,7 @@ export function VoidAndReplaceDialog({
 			subject={subjectOf(target)}
 			consequences={consequences}
 			confirmLabel={t('invoices.replace.CONFIRM')}
-			isPending={isChanging}
+			isPending={isVoiding}
 			error={error}
 			onConfirm={() => void runOnce(voidAndReplace)}
 		/>

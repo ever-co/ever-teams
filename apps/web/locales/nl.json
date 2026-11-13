@@ -6895,7 +6895,8 @@
 				"NOT_PUT_BACK_LINES": "De wijzigingen konden niet worden opgeslagen, en de factuur kon niet worden teruggezet zoals hij was: hij heeft nu {count, plural, =0 {geen regels} one {# regel} other {# regels}}. Controleer hem voordat je hem verstuurt.",
 				"LOCKED_NOW": "Sinds hij werd geopend, is factuur {number} betaald of vervallen: er is niets opgeslagen en hij kan niet meer worden bewerkt.",
 				"NOT_CHECKED": "De factuur kon voor het opslaan niet opnieuw worden gelezen, dus er is niets opgeslagen. Probeer het opnieuw.",
-				"NOT_REACHED": "De verbinding is mislukt: de wijzigingen zijn niet opgeslagen en de factuur is gebleven zoals hij was. Controleer je verbinding en probeer het opnieuw."
+				"NOT_REACHED": "De verbinding is mislukt: de wijzigingen zijn niet opgeslagen en de factuur is gebleven zoals hij was. Controleer je verbinding en probeer het opnieuw.",
+				"CHANGED": "Sinds hij werd geopend, is factuur {number} gewijzigd: er is niets opgeslagen. Open hem opnieuw vanuit de factuurlijst om van de huidige versie uit te gaan."
 			}
 		},
 		"replace": {
@@ -6906,7 +6907,20 @@
 			"STAYS_VOID": "Wordt die nieuwe factuur nooit opgeslagen, dan blijft factuur {number} vervallen.",
 			"CONFIRM": "Laten vervallen en vervangen",
 			"NOTICE_TITLE": "Vervanging van factuur {number}",
-			"NOTICE_MESSAGE": "Dezelfde klant, periode en regels. Pas ze aan en sla hem daarna op onder een nieuw nummer."
+			"NOTICE_MESSAGE": "Dezelfde klant, periode en regels. Pas ze aan en sla hem daarna op onder een nieuw nummer.",
+			"NOT_REBUILDABLE": "Factuur {number} is niet vervallen: hij kan hier niet opnieuw uit factureerbare tijd worden gemaakt. Laat hem vervallen en vervang hem waar hij is gemaakt.",
+			"NOT_VOID_TITLE": "Factuur {number} is niet vervallen",
+			"NOT_VOID_MESSAGE": "Hier wordt alleen een vervallen factuur vervangen. Open hem vanuit de factuurlijst om hem te bewerken, of om hem te laten vervallen en te vervangen."
+		},
+		"billedTime": {
+			"LEFT_OUT_TITLE": "Uren die al op een factuur staan, worden weggelaten",
+			"LEFT_OUT_MESSAGE": "{count, plural, one {Een factuur van {client} factureert al een deel van deze periode. Die uren staan hier niet.} other {# facturen van {client} factureren al een deel van deze periode. Die uren staan hier niet.}}",
+			"UNRECORDED_MESSAGE": "{count, plural, one {Die factuur vermeldt niet welke uren ze factureert, dus ze staan hier nog.} other {Die facturen vermelden niet welke uren ze factureren, dus die uren staan hier nog.}} Verwijder vóór het opslaan de regels die al gefactureerd zijn.",
+			"EARLIER_NOTE": "Uren die al op een factuur staan, staan niet op deze, behalve als die factuur niet vermeldt welke uren ze factureert.",
+			"ALL_INVOICED_TITLE": "De factureerbare tijd van {client} in deze periode is al gefactureerd",
+			"ALL_INVOICED_MESSAGE": "Elk factureerbaar uur van deze periode staat op een factuur. Verwijder de regel van die factuur of laat de factuur vervallen om een deel ervan opnieuw te factureren.",
+			"NEW_REFUSED": "Een deel van deze tijd is sinds het lezen op een andere factuur gekomen of verwijderd, dus er is niets opgeslagen. Sluit dit venster om de tijd te zien die nog te factureren is, en sla daarna opnieuw op.",
+			"EDIT_REFUSED": "Een deel van deze tijd is sinds het lezen op een andere factuur gekomen of verwijderd, dus de wijzigingen zijn niet opgeslagen en de factuur is gebleven zoals hij was. Sluit dit venster om de tijd te zien die nog te factureren is, en sla daarna opnieuw op."
 		},
 		"standing": {
 			"OVERDUE": "Achterstallig",

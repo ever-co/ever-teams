@@ -20,9 +20,18 @@ type MockConfirmDialogProps = {
 
 const mockPush = jest.fn();
 const mockToast = { success: jest.fn(), warning: jest.fn(), error: jest.fn() };
+const mockTranslation = { showsValues: false };
 
 jest.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }));
-jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, useLocale: () => 'en' }));
+jest.mock('next-intl', () => ({
+	useTranslations: () => (key: string, values?: Record<string, unknown>) => {
+		if (!mockTranslation.showsValues || !values) {
+			return key;
+		}
+		return `${key} ${JSON.stringify(values)}`;
+	},
+	useLocale: () => 'en'
+}));
 jest.mock('sonner', () => ({
 	toast: {
 		success: (...args: unknown[]) => mockToast.success(...args),
@@ -68,6 +77,7 @@ jest.mock('@/core/components/projects/dialogs/project-confirm-dialog', () => ({
 	}
 }));
 
+import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
 import { SaveInvoiceChangesDialog } from './save-invoice-changes-dialog';
 
 const NO_CHANGES: InvoiceChanges = {
@@ -117,6 +127,7 @@ function rowTexts() {
 }
 
 beforeEach(() => {
+	mockTranslation.showsValues = false;
 	mockPush.mockReset();
 	mockToast.success.mockReset();
 	mockToast.warning.mockReset();
@@ -151,6 +162,16 @@ describe('the confirmation of an edit', () => {
 		expect(screen.getByRole('button', { name: SAVE_AND_SEND_AGAIN })).toBeTruthy();
 		expect(screen.getByRole('button', { name: SAVE })).toBeTruthy();
 		expect(screen.getByLabelText<HTMLInputElement>('invoices.send.RECIPIENT').value).toBe('billing@acme.test');
+	});
+
+	it('states the earlier total in the currency it was billed in', () => {
+		mockTranslation.showsValues = true;
+		const changes = { ...NO_CHANGES, currency: { before: 'USD', after: 'EUR' }, total: { before: 100, after: 90 } };
+		render(<SaveInvoiceChangesDialog open invoice={invoiceOf({ currency: 'EUR', changes })} onClose={jest.fn()} />);
+
+		const totalRow = rowTexts().find((text) => text?.startsWith('invoices.edit.confirm.TOTAL'));
+		const totals = { total: formatOwed(90, 'EUR', 'en'), before: formatOwed(100, 'USD', 'en') };
+		expect(totalRow).toBe(`invoices.edit.confirm.TOTAL ${JSON.stringify(totals)}`);
 	});
 
 	it('goes back to the list once saved', async () => {
@@ -247,6 +268,13 @@ describe('an edit that could not be saved', () => {
 		expect(onLockedRefusal).not.toHaveBeenCalled();
 	});
 
+	it('says nothing was saved when it was changed from elsewhere since it was opened', async () => {
+		const message = await failingWith({ status: 'changed' });
+
+		expect(message.textContent).toBe('invoices.edit.confirm.CHANGED');
+		expect(mockPush).not.toHaveBeenCalled();
+	});
+
 	it('says nothing was saved when it could not be read before the save', async () => {
 		const message = await failingWith({ status: 'notChecked' });
 
@@ -257,6 +285,13 @@ describe('an edit that could not be saved', () => {
 		const message = await failingWith({ status: 'notPutBack', lineCount: null });
 
 		expect(message.textContent).toBe('invoices.edit.confirm.NOT_PUT_BACK');
+	});
+
+	it('says part of its time was billed elsewhere meanwhile, the invoice as it was', async () => {
+		const message = await failingWith({ status: 'timeBilled' });
+
+		expect(message.textContent).toBe('invoices.billedTime.EDIT_REFUSED');
+		expect(mockPush).not.toHaveBeenCalled();
 	});
 });
 

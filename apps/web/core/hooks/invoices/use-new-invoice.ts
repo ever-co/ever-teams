@@ -29,7 +29,21 @@ import {
 	type InvoiceRequest,
 	type NamedInvoiceLine
 } from '@/core/lib/utils/invoices';
-import { percentTextOf, periodOfDays, type InvoiceWorkspace, type SavedInvoice } from '@/core/lib/utils/invoice-edit';
+import {
+	isCheckingOverlaps,
+	overlapNoticeOf,
+	overlapsAtRiskOf,
+	type OverlapFacts
+} from '@/core/lib/utils/invoice-billed-time';
+import {
+	billedLinesReadOf,
+	billedSavedLinesOf,
+	percentTextOf,
+	periodOfDays,
+	type BilledTimeOfLines,
+	type InvoiceWorkspace,
+	type SavedInvoice
+} from '@/core/lib/utils/invoice-edit';
 import {
 	acceptsPercentText,
 	hasAdjustments,
@@ -43,6 +57,7 @@ import type { TClient } from '@/core/types/schemas';
 import { useCreateInvoice, useSaveAndSendInvoice } from './use-invoice-mutations';
 import { useInvoiceTime, type InvoiceTimeLabels } from './use-invoice-time';
 import { useClientInvoices, useNextInvoiceNumber } from './use-invoices-query';
+import { useInvoicesRecordingTime } from './use-invoices-recording-time';
 
 export const INVOICE_WEEK_START = 1;
 
@@ -174,6 +189,14 @@ function draftClientOf(clients: ReadonlyArray<TClient>, clientId: string | null,
 	return null;
 }
 
+/** The lines a saved invoice was saved with, each naming the time it bills once that time is read. */
+function savedLinesOf(saved: SavedInvoice | null, billed: BilledTimeOfLines): NamedInvoiceLine[] {
+	if (!saved) {
+		return NO_LINES;
+	}
+	return billedSavedLinesOf(saved, billed);
+}
+
 function linesOfSource(
 	source: InvoiceLinesSource,
 	savedLines: NamedInvoiceLine[],
@@ -247,9 +270,12 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 		[t]
 	);
 	const readsTime = linesSource === 'time';
-	const time = useInvoiceTime({ clientId, period, grouping, labels, enabled: readsTime });
-	const savedLines = savedInvoice?.lines ?? NO_LINES;
+	const billedLines = useMemo(() => billedLinesReadOf(savedInvoice), [savedInvoice]);
+	const time = useInvoiceTime({ clientId, period, grouping, labels, enabled: readsTime, billedLines });
+	const billedTimeByLine = time.billedTimeByLine;
+	const savedLines = useMemo(() => savedLinesOf(savedInvoice, billedTimeByLine), [billedTimeByLine, savedInvoice]);
 	const lines = linesOfSource(linesSource, savedLines, time.lines);
+	const recordsBilledTime = time.recordsBilledTime === true;
 
 	const currencies = useMemo(() => invoiceCurrenciesOf(lines), [lines]);
 	const currencyKey = invoiceCurrencyKeyOf(currencies, pickedCurrencyKey);
@@ -295,11 +321,19 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 		() => overlappingInvoicesOf(earlierInvoices, periodDays),
 		[earlierInvoices, periodDays]
 	);
+	const overlapRecording = useInvoicesRecordingTime(overlappingInvoices, recordsBilledTime);
+	const overlappingIds = useMemo(() => overlappingInvoices.map((saved) => saved.id), [overlappingInvoices]);
+	const overlapFacts: OverlapFacts = { overlappingIds, recordsBilledTime, recording: overlapRecording };
+	const overlapNotice = overlapNoticeOf(overlapFacts);
+	const overlapsAtRisk = overlapsAtRiskOf(overlapFacts);
+	// The earlier invoices are checked for the time they record before the overlap can be stated
+	const isCheckingEarlier = isCheckingOverlaps(overlapFacts);
+	const isReadingEarlierInvoices = earlier.isLoading || earlier.isRefreshing;
 
 	const draftProblems = invoiceProblemsOf({ numberText, issueDay, dueDay, currency, lineCount: keptLines.length });
 	// A save that failed unconfirmed reads the client's invoices again: a retry waits for that answer, which may hold it
 	const waits = invoiceWaitsOf({
-		isReadingEarlier: earlier.isLoading || earlier.isRefreshing,
+		isReadingEarlier: isReadingEarlierInvoices || isCheckingEarlier,
 		isReadingTimeAgain: time.isUpdating
 	});
 	const problems = draftProblems.concat(waits);
@@ -348,6 +382,17 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 	}, []);
 
 	const refetchTime = time.refetch;
+	// A refused save leaves the time to read again once its dialog closes: read while the dialog is open, the answer
+	// could replace it, and its refusal with it
+	const [isTimeReadDeferred, setIsTimeReadDeferred] = useState(false);
+	const deferTimeRead = useCallback(() => setIsTimeReadDeferred(true), []);
+	const readDeferredTime = useCallback(() => {
+		if (!isTimeReadDeferred) {
+			return;
+		}
+		setIsTimeReadDeferred(false);
+		refetchTime();
+	}, [isTimeReadDeferred, refetchTime]);
 	// What was written on a saved line stays on the rebuilt line with the same project, member and task.
 	const takeTimeAgain = useCallback(() => {
 		if (linesSource === 'time') {
@@ -402,7 +447,8 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 			lines: keptLines,
 			descriptions,
 			note,
-			adjustments
+			adjustments,
+			recordsBilledTime
 		});
 	}, [
 		adjustments,
@@ -418,6 +464,7 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 		numberText,
 		periodDays,
 		problems.length,
+		recordsBilledTime,
 		timeZone
 	]);
 
@@ -479,6 +526,11 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 		haveEarlierFailed: earlier.isError,
 		refetchEarlier: earlier.refetch,
 		overlappingInvoices,
+		/** The API records the time each line bills: hours already on an invoice are not offered. */
+		recordsBilledTime,
+		overlapNotice,
+		/** The overlapping invoices whose hours may be offered here again. */
+		overlapsAtRisk,
 		problems,
 		isWaiting,
 		mode: start.kind,
@@ -486,6 +538,9 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 		linesSource,
 		takeTimeAgain,
 		backToSavedLines,
+		deferTimeRead,
+		/** Reads the time a refused save left to read again; the screen calls it when the save dialog closes. */
+		readDeferredTime,
 		invoiceRequest
 	};
 }
@@ -509,7 +564,7 @@ function newInvoiceStartOf(replaced: SavedInvoice | null): InvoiceDraftStart {
 export function useNewInvoice(replaced: SavedInvoice | null = null) {
 	const start = useMemo(() => newInvoiceStartOf(replaced), [replaced]);
 	const draft = useInvoiceDraft(start);
-	const { invoiceRequest, setNumberText } = draft;
+	const { invoiceRequest, setNumberText, deferTimeRead } = draft;
 	const { createInvoice, isSaving: isCreating } = useCreateInvoice();
 	const { saveAndSendInvoice, isSavingAndSending } = useSaveAndSendInvoice();
 	const isSaving = isCreating || isSavingAndSending;
@@ -525,14 +580,20 @@ export function useNewInvoice(replaced: SavedInvoice | null = null) {
 				// The next free number is read again after any failure. A save whose outcome is unknown keeps its own
 				// number: had it gone through, saving again under that number is refused instead of creating a second
 				// invoice.
-				const isUnconfirmed = invoiceSaveFailureOf(error) === 'unconfirmed';
-				if (isUnconfirmed) {
+				const failure = invoiceSaveFailureOf(error);
+				if (failure === 'unconfirmed') {
 					setNumberText(String(request.invoiceNumber));
+				}
+				// An invoice saved meanwhile, which took this number or part of this time, can bill hours of these lines:
+				// the lines left are built once the dialog closes
+				const wasRefused = failure !== 'unconfirmed';
+				if (wasRefused) {
+					deferTimeRead();
 				}
 				throw error;
 			}
 		},
-		[invoiceRequest, setNumberText]
+		[deferTimeRead, invoiceRequest, setNumberText]
 	);
 
 	const save = useCallback(() => submit(createInvoice), [createInvoice, submit]);

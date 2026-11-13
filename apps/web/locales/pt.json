@@ -6895,7 +6895,8 @@
 				"NOT_PUT_BACK_LINES": "Não foi possível guardar as alterações nem repor a fatura como estava: agora tem {count, plural, =0 {nenhuma linha} one {# linha} other {# linhas}}. Verifique-a antes de a enviar.",
 				"LOCKED_NOW": "Desde que foi aberta, a fatura {number} foi paga ou anulada: nada foi guardado e já não pode ser editada.",
 				"NOT_CHECKED": "Não foi possível voltar a ler a fatura antes de guardar, por isso nada foi guardado. Tente novamente.",
-				"NOT_REACHED": "A ligação falhou: as alterações não foram guardadas e a fatura ficou como estava. Verifique a sua ligação e tente novamente."
+				"NOT_REACHED": "A ligação falhou: as alterações não foram guardadas e a fatura ficou como estava. Verifique a sua ligação e tente novamente.",
+				"CHANGED": "Desde que foi aberta, a fatura {number} foi alterada: nada foi guardado. Abra-a de novo na lista de faturas para começar pela versão atual."
 			}
 		},
 		"replace": {
@@ -6906,7 +6907,20 @@
 			"STAYS_VOID": "Se essa nova fatura nunca for guardada, a fatura {number} continua anulada.",
 			"CONFIRM": "Anular e substituir",
 			"NOTICE_TITLE": "Substituição da fatura {number}",
-			"NOTICE_MESSAGE": "O mesmo cliente, período e linhas. Ajuste-os e depois guarde-a com um novo número."
+			"NOTICE_MESSAGE": "O mesmo cliente, período e linhas. Ajuste-os e depois guarde-a com um novo número.",
+			"NOT_REBUILDABLE": "A fatura {number} não foi anulada: não pode ser refeita aqui a partir do tempo faturável. Anule-a e substitua-a onde foi feita.",
+			"NOT_VOID_TITLE": "A fatura {number} não está anulada",
+			"NOT_VOID_MESSAGE": "Aqui só se substitui uma fatura anulada. Abra-a na lista de faturas para a editar, ou para a anular e substituir."
+		},
+		"billedTime": {
+			"LEFT_OUT_TITLE": "As horas que já estão numa fatura ficam de fora",
+			"LEFT_OUT_MESSAGE": "{count, plural, one {Uma fatura de {client} já fatura parte deste período. Essas horas não aparecem aqui.} other {# faturas de {client} já faturam parte deste período. Essas horas não aparecem aqui.}}",
+			"UNRECORDED_MESSAGE": "{count, plural, one {Essa fatura não indica que horas fatura, por isso ainda aparecem aqui.} other {Essas faturas não indicam que horas faturam, por isso essas horas ainda aparecem aqui.}} Remova as linhas já faturadas antes de guardar.",
+			"EARLIER_NOTE": "As horas que já estão numa fatura não aparecem nesta, exceto quando essa fatura não indica que horas fatura.",
+			"ALL_INVOICED_TITLE": "O tempo faturável de {client} neste período já está faturado",
+			"ALL_INVOICED_MESSAGE": "Cada hora faturável deste período está numa fatura. Para voltar a faturar parte dele, remova a linha dessa fatura ou anule a fatura.",
+			"NEW_REFUSED": "Parte deste tempo passou para outra fatura ou foi eliminada desde que foi lida, por isso nada foi guardado. Feche esta janela para ver o tempo que falta faturar e depois guarde novamente.",
+			"EDIT_REFUSED": "Parte deste tempo passou para outra fatura ou foi eliminada desde que foi lida, por isso as alterações não foram guardadas e a fatura ficou como estava. Feche esta janela para ver o tempo que falta faturar e depois guarde novamente."
 		},
 		"standing": {
 			"OVERDUE": "Vencida",

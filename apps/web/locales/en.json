@@ -6895,7 +6895,8 @@
 				"NOT_PUT_BACK_LINES": "The changes could not be saved, and the invoice could not be put back as it was: it now has {count, plural, =0 {no line} one {# line} other {# lines}}. Check it before sending it.",
 				"LOCKED_NOW": "Since it was opened, invoice {number} was paid or voided: nothing was saved, and it can no longer be edited.",
 				"NOT_CHECKED": "The invoice could not be read again before saving, so nothing was saved. Try again.",
-				"NOT_REACHED": "The connection failed: the changes were not saved and the invoice is as it was. Check your connection, then try again."
+				"NOT_REACHED": "The connection failed: the changes were not saved and the invoice is as it was. Check your connection, then try again.",
+				"CHANGED": "Since it was opened, invoice {number} was changed: nothing was saved. Open it again from the invoice list to start from its current version."
 			}
 		},
 		"replace": {
@@ -6906,7 +6907,20 @@
 			"STAYS_VOID": "If that new invoice is never saved, invoice {number} stays void.",
 			"CONFIRM": "Void and replace",
 			"NOTICE_TITLE": "Replacing invoice {number}",
-			"NOTICE_MESSAGE": "Same client, period and lines. Adjust them, then save it under a new number."
+			"NOTICE_MESSAGE": "Same client, period and lines. Adjust them, then save it under a new number.",
+			"NOT_REBUILDABLE": "Invoice {number} was not voided: it cannot be rebuilt here from billable time. Void and replace it where it was made.",
+			"NOT_VOID_TITLE": "Invoice {number} is not void",
+			"NOT_VOID_MESSAGE": "Only a void invoice is replaced here. Open it from the invoice list to edit it, or to void and replace it."
+		},
+		"billedTime": {
+			"LEFT_OUT_TITLE": "Hours already on an invoice are left out",
+			"LEFT_OUT_MESSAGE": "{count, plural, one {An invoice of {client} already bills part of this period. Those hours are not listed here.} other {# invoices of {client} already bill part of this period. Those hours are not listed here.}}",
+			"UNRECORDED_MESSAGE": "{count, plural, one {That invoice does not say which hours it bills, so they are still listed here.} other {Those invoices do not say which hours they bill, so those hours are still listed here.}} Remove the lines already billed before saving.",
+			"EARLIER_NOTE": "Hours already on an invoice are not listed on this one, unless that invoice does not say which hours it bills.",
+			"ALL_INVOICED_TITLE": "The billable time of {client} in this period is already invoiced",
+			"ALL_INVOICED_MESSAGE": "Every billable hour of this period is on an invoice. To bill some again, remove its line from that invoice or void the invoice.",
+			"NEW_REFUSED": "Part of this time went on another invoice or was deleted since it was read, so nothing was saved. Close this window to see the time left to bill, then save again.",
+			"EDIT_REFUSED": "Part of this time went on another invoice or was deleted since it was read, so the changes were not saved and the invoice is as it was. Close this window to see the time left to bill, then save again."
 		},
 		"standing": {
 			"OVERDUE": "Overdue",

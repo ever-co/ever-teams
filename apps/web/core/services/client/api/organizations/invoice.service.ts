@@ -21,6 +21,8 @@ const FULL_READ_PAGE_SIZE = 100;
 /** Where a read of every page stops: past this many, a client's latest invoices are compared with a new period. */
 const FULL_READ_MAX_PAGES = 10;
 
+const invoiceStatusSchema = invoiceSchema.pick({ status: true });
+
 export interface InvoicesPage {
 	items: TInvoice[];
 	total: number;
@@ -222,6 +224,19 @@ class InvoiceService extends APIService {
 			tenantId: emailScope.tenantId
 		};
 		await this.put(`/invoices/email/${encodeURIComponent(email)}`, { params }, { tenantId: emailScope.tenantId });
+	};
+
+	getInvoiceStatus = async (invoiceId: string, scope?: InvoicesScope): Promise<string | null> => {
+		try {
+			const readScope = scope ?? this.currentScope();
+			const url = `/invoices/${encodeURIComponent(invoiceId)}`;
+			const response = await this.get(url, { tenantId: readScope.tenantId });
+			const invoice = validateApiResponse(invoiceStatusSchema, response.data, 'getInvoiceStatus API response');
+			return invoice.status ?? null;
+		} catch (error) {
+			this.logValidationError(error, 'Invoice status validation failed:');
+			throw error;
+		}
 	};
 
 	changeInvoiceStatus = async (
