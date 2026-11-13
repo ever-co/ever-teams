@@ -254,15 +254,13 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 			exportZip: (page) =>
 				void exportZip(page, {
 					beforeExport: async () => {
-						// A page of the folder left while its live session was down holds edits only this tab has: nothing is
-						// exported until it is opened again and they are sent (the open page is handled below)
-						const leftUnsent = pagesWithUnsentLiveEdits().some(
-							(id) => id !== pageId && isInside(tree.byId, id, page.id)
-						);
-						if (leftUnsent) return false;
 						const edits = openEditsRef.current;
-						if (!edits || !pageId || !isInside(tree.byId, pageId, page.id) || !edits.pending()) return true;
-						return edits.hold();
+						const isOpenPageInside = pageId !== null && isInside(tree.byId, pageId, page.id);
+						if (edits && isOpenPageInside && edits.pending() && !(await edits.hold())) return false;
+						// Live edits the platform never confirmed exist only in this tab: a page left while its session was down,
+						// or the open page when its save path cannot send them (a page locked since). The live memory clears a
+						// page once its edits are confirmed, so a page still marked there keeps the folder from being exported.
+						return !pagesWithUnsentLiveEdits().some((id) => isInside(tree.byId, id, page.id));
 					}
 				}),
 			drop: (id, parentId) => {
