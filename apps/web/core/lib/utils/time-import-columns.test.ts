@@ -200,6 +200,21 @@ describe('timeImportReadingOf for a file from another tool', () => {
 		expect(row.entry).toMatchObject({ start: NOV_3_AT_9, notes: 'Pairing' });
 	});
 
+	it('reads the date from a start column whose first value is not a time, and leaves only that row out', () => {
+		const sheet = sheetOf('Start,End,Description\nsoon,later,Typo\n2026-11-03 09:00,2026-11-03 10:30,Pairing\n');
+		const [typo, pairing] = draftRowsOf(sheet.rows, CONTEXT, sheet.dateOrder);
+
+		expect(typo.entry).toBeNull();
+		expect(pairing.entry).toMatchObject({ start: NOV_3_AT_9, notes: 'Pairing' });
+	});
+
+	it('still refuses a file whose start column holds times alone, for its missing date', () => {
+		expect(problemOf('Start,End\n09:00,10:00\n2026-11-03 11:00,2026-11-03 12:00\n')).toEqual({
+			code: 'missingColumns',
+			columns: ['date']
+		});
+	});
+
 	it('tells day first from a day above 12, and reads 03/11/2026 as 3 November then', () => {
 		const sheet = sheetOf('Date,From,To\n25/10/2026,09:00,10:00\n03/11/2026,09:00,10:00\n');
 		const rows = draftRowsOf(sheet.rows, CONTEXT, sheet.dateOrder);

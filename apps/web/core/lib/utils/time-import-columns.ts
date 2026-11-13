@@ -1,4 +1,10 @@
-import { dateOrdersOf, datePartOf, holdsDateAndTime, type DateOrder } from '@/core/lib/utils/time-import-cells';
+import {
+	clockTimeOf,
+	dateOrdersOf,
+	datePartOf,
+	holdsDateAndTime,
+	type DateOrder
+} from '@/core/lib/utils/time-import-cells';
 import {
 	NO_TIME_IMPORT_COLUMNS,
 	REPORT_ONLY_HEADERS,
@@ -220,8 +226,28 @@ function firstValueOf(table: TimeImportTable, columnIndex: number | null): strin
 	return null;
 }
 
+function holdsTime(value: string): boolean {
+	const isTimeAlone = clockTimeOf(value) !== null;
+	return isTimeAlone || holdsDateAndTime(value);
+}
+
+/** A value that holds no time at all is a typo of its row: it does not tell what the column holds. */
+function firstTimeOf(table: TimeImportTable, columnIndex: number | null): string | null {
+	if (columnIndex === null) {
+		return null;
+	}
+	for (const record of table.records) {
+		const cell = record.cells[columnIndex] ?? '';
+		const value = cell.trim();
+		if (holdsTime(value)) {
+			return value;
+		}
+	}
+	return null;
+}
+
 function holdsDatesAndTimes(table: TimeImportTable, columnIndex: number | null): boolean {
-	const value = firstValueOf(table, columnIndex);
+	const value = firstTimeOf(table, columnIndex);
 	if (value === null) {
 		return false;
 	}
