@@ -484,7 +484,7 @@ describe('saving an edit to an invoice', () => {
 		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', edit.previous.update, workspace);
 	});
 
-	it('says nothing was saved when nothing reached the invoice, writing nothing back', async () => {
+	it('says the connection failed when its fields never reached the API, writing nothing back', async () => {
 		const asBefore = { ...invoiceRead('SENT'), ...fields, totalValue: 800 };
 		mockGetInvoice.mockResolvedValueOnce(invoiceRead('SENT')).mockResolvedValue(asBefore);
 		mockUpdateInvoice.mockRejectedValue(
@@ -494,8 +494,20 @@ describe('saving an edit to an invoice', () => {
 
 		const saved = await saveWith(result);
 
-		expect(saved).toEqual({ outcome: { status: 'notSaved' }, sending: null });
+		expect(saved).toEqual({ outcome: { status: 'notReached' }, sending: null });
 		expect(mockUpdateInvoice).toHaveBeenCalledTimes(1);
+		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
+	});
+
+	it('says nothing was saved when the API failed on its fields and wrote nothing', async () => {
+		const asBefore = { ...invoiceRead('SENT'), ...fields, totalValue: 800 };
+		mockGetInvoice.mockResolvedValueOnce(invoiceRead('SENT')).mockResolvedValue(asBefore);
+		mockUpdateInvoice.mockRejectedValue(serverFailure());
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'notSaved' }, sending: null });
 		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
 	});
 

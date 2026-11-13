@@ -184,6 +184,13 @@ describe('an edit that could not be saved', () => {
 		expect(mockPush).not.toHaveBeenCalled();
 	});
 
+	it('says the connection failed and nothing changed when its first write never reached the API', async () => {
+		const message = await failingWith({ status: 'notReached' });
+
+		expect(message.textContent).toBe('invoices.edit.confirm.NOT_REACHED');
+		expect(mockPush).not.toHaveBeenCalled();
+	});
+
 	it('says the invoice was put back as it was', async () => {
 		const message = await failingWith({ status: 'putBack' });
 

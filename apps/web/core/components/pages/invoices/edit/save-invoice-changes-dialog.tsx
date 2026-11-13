@@ -107,6 +107,9 @@ function useFailureText(failure: EditFailure | null, number: string): string | n
 	if (failure.status === 'notSaved') {
 		return t('invoices.edit.confirm.NOT_SAVED');
 	}
+	if (failure.status === 'notReached') {
+		return t('invoices.edit.confirm.NOT_REACHED');
+	}
 	if (failure.status === 'locked') {
 		return t('invoices.edit.confirm.LOCKED_NOW', { number });
 	}

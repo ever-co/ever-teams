@@ -18,7 +18,7 @@ import {
 	type InvoiceStatusChange,
 	type ListedInvoicesPage
 } from '@/core/lib/utils/invoice-actions';
-import { haveSameFields, haveSameLines, type InvoiceRevision } from '@/core/lib/utils/invoice-edit';
+import { didNotReachApi, haveSameFields, haveSameLines, type InvoiceRevision } from '@/core/lib/utils/invoice-edit';
 import {
 	invoiceSaveFailureOf,
 	invoiceStatusOf,
@@ -203,6 +203,8 @@ export type InvoiceEditOutcome =
 	| { status: 'saved' }
 	/** The API refused the edit before writing anything. */
 	| { status: 'notSaved' }
+	/** Its first write never reached the API, and the invoice read back is as it was. */
+	| { status: 'notReached' }
 	/** Something was paid on it, or it was voided, since it was opened: nothing was written. */
 	| { status: 'locked' }
 	/** It could not be read before the edit was written: nothing was written. */
@@ -276,6 +278,22 @@ function editUnderStatus(edit: InvoiceEdit, status: InvoiceStatus): InvoiceEdit 
 	};
 }
 
+/** The first write failed: refused, it changed nothing; otherwise the invoice is read back and put back if needed. */
+async function outcomeOfFailedFields(edit: InvoiceEdit, error: unknown): Promise<InvoiceEditOutcome> {
+	const isRefused = invoiceSaveFailureOf(error) === 'refused';
+	if (isRefused) {
+		return { status: 'notSaved' };
+	}
+	const outcome = await putInvoiceBack(edit);
+	const isUntouched = outcome.status === 'notSaved';
+	const wasNotReached = didNotReachApi(error);
+	const isConnectionFailure = isUntouched && wasNotReached;
+	if (isConnectionFailure) {
+		return { status: 'notReached' };
+	}
+	return outcome;
+}
+
 /**
  * Saves an edit in the two writes the API offers: the invoice's own fields, then its lines. A refusal of the first
  * changes nothing; any other failure writes the invoice back as it was read.
@@ -284,11 +302,7 @@ async function writeInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> 
 	try {
 		await invoiceService.updateInvoice(edit.invoiceId, edit.revision.update, edit.scope);
 	} catch (error) {
-		const isRefused = invoiceSaveFailureOf(error) === 'refused';
-		if (isRefused) {
-			return { status: 'notSaved' };
-		}
-		return putInvoiceBack(edit);
+		return outcomeOfFailedFields(edit, error);
 	}
 	try {
 		await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.revision.lines, edit.scope);
