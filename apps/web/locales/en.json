@@ -6807,7 +6807,8 @@
 				"NOT_PUT_BACK_LINES": "The changes could not be saved, and the invoice could not be put back as it was: it now has {count, plural, =0 {no line} one {# line} other {# lines}}. Check it before sending it.",
 				"LOCKED_NOW": "Since it was opened, invoice {number} was paid or voided: nothing was saved, and it can no longer be edited.",
 				"NOT_CHECKED": "The invoice could not be read again before saving, so nothing was saved. Try again.",
-				"NOT_REACHED": "The connection failed: the changes were not saved and the invoice is as it was. Check your connection, then try again."
+				"NOT_REACHED": "The connection failed: the changes were not saved and the invoice is as it was. Check your connection, then try again.",
+				"CHANGED": "Since it was opened, invoice {number} was changed: nothing was saved. Open it again from the invoice list to start from its current version."
 			}
 		},
 		"replace": {
@@ -6818,7 +6819,10 @@
 			"STAYS_VOID": "If that new invoice is never saved, invoice {number} stays void.",
 			"CONFIRM": "Void and replace",
 			"NOTICE_TITLE": "Replacing invoice {number}",
-			"NOTICE_MESSAGE": "Same client, period and lines. Adjust them, then save it under a new number."
+			"NOTICE_MESSAGE": "Same client, period and lines. Adjust them, then save it under a new number.",
+			"NOT_REBUILDABLE": "Invoice {number} was not voided: it cannot be rebuilt here from billable time. Void and replace it where it was made.",
+			"NOT_VOID_TITLE": "Invoice {number} is not void",
+			"NOT_VOID_MESSAGE": "Only a void invoice is replaced here. Open it from the invoice list to edit it, or to void and replace it."
 		},
 		"billedTime": {
 			"LEFT_OUT_TITLE": "Hours already on an invoice are left out",

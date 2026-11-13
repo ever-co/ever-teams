@@ -5,6 +5,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { paidChangeOf } from '@/core/lib/utils/invoice-actions';
+import { invoiceTermsOf } from '@/core/lib/utils/invoices';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 
 const mockCreateInvoice = jest.fn();
@@ -39,6 +40,7 @@ import {
 	useSaveAndSendInvoice,
 	useSaveInvoiceEdit,
 	useSendInvoice,
+	useVoidToReplace,
 	type InvoiceEdit
 } from './use-invoice-mutations';
 import type { InvoiceRequest } from '@/core/lib/utils/invoices';
@@ -315,6 +317,60 @@ describe('settling and deleting an invoice', () => {
 	});
 });
 
+describe('voiding a paid invoice to replace it', () => {
+	const paidInvoice = {
+		id: 'inv-1',
+		invoiceNumber: 42,
+		invoiceDate: '2026-10-31T23:00:00.000Z',
+		dueDate: '2026-11-30T22:59:59.999Z',
+		currency: 'USD',
+		totalValue: 800,
+		status: 'FULLY_PAID',
+		terms: invoiceTermsOf({ fromDay: '2026-10-01', toDay: '2026-10-31' }, ''),
+		toContactId: 'client-acme',
+		organizationId: 'organization-1',
+		tenantId: 'tenant-1',
+		invoiceType: 'BY_PROJECT_HOURS',
+		invoiceItems: [
+			{ id: 'item-1', description: 'Ana Lima', price: 80, quantity: 10, totalValue: 800, projectId: 'p1' }
+		]
+	};
+
+	it('reads it whole, then voids it, and the list shows it at once', async () => {
+		mockGetInvoice.mockResolvedValue(paidInvoice);
+		mockChangeInvoiceStatus.mockResolvedValue(undefined);
+		const queryClient = clientWithDraftListed();
+		const { result } = renderWith(queryClient, () => useVoidToReplace());
+
+		let outcome: unknown = null;
+		await act(async () => {
+			outcome = await result.current.voidToReplace({ invoiceId: 'inv-1', scope: LIST_SCOPE });
+		});
+
+		expect(outcome).toBe('voided');
+		expect(mockGetInvoice).toHaveBeenCalledWith('inv-1', { tenantId: 'tenant-1' });
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', { status: 'VOID' }, LIST_SCOPE);
+		expect(listedStatusOf(queryClient)).toBe('VOID');
+	});
+
+	it.each([
+		['a second tax', { tax2: 5 }],
+		['a flat discount', { discountValue: 50, discountType: 'FLAT' }],
+		['a line without a project', { invoiceItems: [{ ...paidInvoice.invoiceItems[0], projectId: null }] }]
+	])('leaves one with %s as it was: the invoice screen could not rebuild it', async (_kind, change) => {
+		mockGetInvoice.mockResolvedValue({ ...paidInvoice, ...change });
+		const { result } = renderWith(clientWithDraftListed(), () => useVoidToReplace());
+
+		let outcome: unknown = null;
+		await act(async () => {
+			outcome = await result.current.voidToReplace({ invoiceId: 'inv-1', scope: LIST_SCOPE });
+		});
+
+		expect(outcome).toBe('notRebuildable');
+		expect(mockChangeInvoiceStatus).not.toHaveBeenCalled();
+	});
+});
+
 describe('saving an edit to an invoice', () => {
 	const previousLine = { description: 'Ana Lima', price: 80, quantity: 10, totalValue: 800, projectId: 'p1' };
 	const editedLine = { ...previousLine, quantity: 12, totalValue: 960 };
@@ -344,7 +400,7 @@ describe('saving an edit to an invoice', () => {
 	};
 
 	function invoiceRead(status: string, lines: unknown[] = [{ id: 'item-1', ...previousLine }]) {
-		return { id: 'inv-42', status, invoiceItems: lines };
+		return { id: 'inv-42', ...fields, totalValue: 800, status, invoiceItems: lines };
 	}
 
 	function serverFailure() {
@@ -437,6 +493,27 @@ describe('saving an edit to an invoice', () => {
 		expect(queryClient.getQueryState(LIST_KEY)?.isInvalidated).toBe(true);
 	});
 
+	it.each([
+		[
+			'a line',
+			{
+				...invoiceRead('SENT'),
+				invoiceItems: [{ id: 'item-1', ...previousLine, description: 'Ana Lima, design' }]
+			}
+		],
+		['a field', { ...invoiceRead('SENT'), dueDate: '2026-12-15T22:59:59.999Z' }]
+	])('writes nothing over %s saved from elsewhere since it was opened', async (_changed, current) => {
+		mockGetInvoice.mockResolvedValue(current);
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result, sending);
+
+		expect(saved).toEqual({ outcome: { status: 'changed' }, sending: null });
+		expect(mockUpdateInvoice).not.toHaveBeenCalled();
+		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
+		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
+	});
+
 	it('writes nothing when the invoice cannot be read first', async () => {
 		mockGetInvoice.mockRejectedValue(serverFailure());
 		const { result } = renderSaveEdit();
@@ -476,7 +553,9 @@ describe('saving an edit to an invoice', () => {
 	});
 
 	it('leaves the lines the invoice still holds and puts back its fields only', async () => {
-		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
+		mockGetInvoice
+			.mockResolvedValueOnce(invoiceRead('SENT'))
+			.mockResolvedValue({ ...invoiceRead('SENT'), totalValue: 960 });
 		mockUpdateInvoice.mockResolvedValue(undefined);
 		mockReplaceInvoiceLines.mockRejectedValue(refusal());
 		const { result } = renderSaveEdit();
@@ -556,6 +635,34 @@ describe('saving an edit to an invoice', () => {
 		expect(mockChangeInvoiceStatus).not.toHaveBeenCalled();
 	});
 
+	it('marks Sent a draft once sent, the status the save found deciding', async () => {
+		mockGetInvoice.mockResolvedValue(invoiceRead('DRAFT'));
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockResolvedValue(undefined);
+		mockSendInvoiceByEmail.mockResolvedValue(undefined);
+		mockChangeInvoiceStatus.mockResolvedValue(undefined);
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result, sending);
+
+		expect(saved).toEqual({ outcome: { status: 'saved' }, sending: 'sent' });
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-42', { status: 'SENT' }, workspace);
+	});
+
+	it('takes no status back when the draft the editor opened was sent and viewed from elsewhere since', async () => {
+		mockGetInvoice.mockResolvedValue(invoiceRead('VIEWED'));
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockResolvedValue(undefined);
+		mockSendInvoiceByEmail.mockResolvedValue(undefined);
+		const { result } = renderSaveEdit();
+
+		await saveWith(result, { ...sending, marksSent: true });
+
+		expect(mockUpdateInvoice.mock.calls[0][1]).toMatchObject({ status: 'VIEWED' });
+		expect(mockSendInvoiceByEmail).toHaveBeenCalledTimes(1);
+		expect(mockChangeInvoiceStatus).not.toHaveBeenCalled();
+	});
+
 	it('sends nothing when the edit was not saved', async () => {
 		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
 		mockUpdateInvoice.mockRejectedValue(refusal());
@@ -583,10 +690,24 @@ describe('saving an edit to an invoice', () => {
 		}
 	);
 
-	it('writes its lines in the invoice’s workspace when another tab switches it once the save has begun', async () => {
+	it('writes nothing once another tab switched the workspace while the invoice was read first', async () => {
+		mockGetInvoice.mockImplementation(async () => {
+			mockCookieScope.organizationId = 'organization-2';
+			return invoiceRead('SENT');
+		});
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result, sending);
+
+		expect(saved).toEqual({ outcome: { status: 'notSaved' }, sending: null });
+		expect(mockUpdateInvoice).not.toHaveBeenCalled();
+		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
+	});
+
+	it('writes its lines in the invoice’s workspace when another tab chooses another organization once the save has begun', async () => {
 		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
 		mockUpdateInvoice.mockImplementation(async () => {
-			mockCookieScope.tenantId = 'tenant-2';
+			mockCookieScope.organizationId = 'organization-2';
 		});
 		mockReplaceInvoiceLines.mockResolvedValue(undefined);
 		const { result } = renderSaveEdit();
@@ -595,6 +716,39 @@ describe('saving an edit to an invoice', () => {
 
 		expect(saved).toEqual({ outcome: { status: 'saved' }, sending: null });
 		expect(mockReplaceInvoiceLines).toHaveBeenCalledWith('inv-42', edit.revision.lines, workspace);
+	});
+
+	it('writes nothing more once another tab chose another tenant after its fields were written', async () => {
+		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
+		mockUpdateInvoice.mockImplementation(async () => {
+			mockCookieScope.tenantId = 'tenant-2';
+		});
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result, sending);
+
+		expect(saved).toEqual({ outcome: { status: 'notPutBack', lineCount: null }, sending: null });
+		expect(mockUpdateInvoice).toHaveBeenCalledTimes(1);
+		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
+		expect(mockGetInvoice).toHaveBeenCalledTimes(1);
+		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
+	});
+
+	it('puts nothing back once another tab chose another tenant while its lines were refused', async () => {
+		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockImplementation(async () => {
+			mockCookieScope.tenantId = 'tenant-2';
+			throw serverFailure();
+		});
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'notPutBack', lineCount: null }, sending: null });
+		expect(mockUpdateInvoice).toHaveBeenCalledTimes(1);
+		expect(mockReplaceInvoiceLines).toHaveBeenCalledTimes(1);
+		expect(mockGetInvoice).toHaveBeenCalledTimes(1);
 	});
 
 	function timeBilledElsewhere() {
@@ -607,7 +761,9 @@ describe('saving an edit to an invoice', () => {
 	}
 
 	it('puts its fields back and says its time was billed elsewhere when its lines are refused for that', async () => {
-		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
+		mockGetInvoice
+			.mockResolvedValueOnce(invoiceRead('SENT'))
+			.mockResolvedValue({ ...invoiceRead('SENT'), totalValue: 960 });
 		mockUpdateInvoice.mockResolvedValue(undefined);
 		mockReplaceInvoiceLines.mockRejectedValue(timeBilledElsewhere());
 		const { result } = renderSaveEdit();
@@ -621,7 +777,9 @@ describe('saving an edit to an invoice', () => {
 	});
 
 	it('says how many lines the invoice holds when, refused that way, it could not be put back', async () => {
-		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
+		mockGetInvoice
+			.mockResolvedValueOnce(invoiceRead('SENT'))
+			.mockResolvedValue({ ...invoiceRead('SENT'), totalValue: 960 });
 		mockUpdateInvoice.mockResolvedValueOnce(undefined).mockRejectedValue(serverFailure());
 		mockReplaceInvoiceLines.mockRejectedValue(timeBilledElsewhere());
 		const { result } = renderSaveEdit();

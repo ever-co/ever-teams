@@ -17,6 +17,7 @@ type MockConfirmDialogProps = {
 const mockSendInvoice = jest.fn();
 const mockChangeStatus = jest.fn();
 const mockDeleteInvoice = jest.fn();
+const mockVoidToReplace = jest.fn();
 const mockToast = { success: jest.fn(), warning: jest.fn(), error: jest.fn() };
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, useLocale: () => 'en' }));
@@ -41,7 +42,8 @@ jest.mock('@/core/components/common/entity-tile', () => ({ EntityTile: () => nul
 jest.mock('@/core/hooks/invoices/use-invoice-mutations', () => ({
 	useSendInvoice: () => ({ sendInvoice: mockSendInvoice, isSending: false }),
 	useChangeInvoiceStatus: () => ({ changeStatus: mockChangeStatus, isChanging: false, changingIds: new Set() }),
-	useDeleteInvoice: () => ({ deleteInvoice: mockDeleteInvoice, isDeleting: false })
+	useDeleteInvoice: () => ({ deleteInvoice: mockDeleteInvoice, isDeleting: false }),
+	useVoidToReplace: () => ({ voidToReplace: mockVoidToReplace, isVoiding: false })
 }));
 jest.mock('@/core/components/projects/dialogs/project-confirm-dialog', () => ({
 	ProjectConfirmDialog: (props: MockConfirmDialogProps) => {
@@ -91,6 +93,7 @@ beforeEach(() => {
 	mockSendInvoice.mockReset();
 	mockChangeStatus.mockReset();
 	mockDeleteInvoice.mockReset();
+	mockVoidToReplace.mockReset();
 	mockToast.success.mockReset();
 	mockToast.warning.mockReset();
 	mockToast.error.mockReset();
@@ -189,7 +192,7 @@ describe('voiding and deleting an invoice from the list', () => {
 
 describe('voiding a paid invoice to replace it', () => {
 	it('voids it once confirmed, then opens its replacement', async () => {
-		mockChangeStatus.mockResolvedValue(undefined);
+		mockVoidToReplace.mockResolvedValue('voided');
 		const onClose = jest.fn();
 		const onVoided = jest.fn();
 		const target = targetIn('FULLY_PAID');
@@ -197,18 +200,14 @@ describe('voiding a paid invoice to replace it', () => {
 
 		await confirm('invoices.replace.CONFIRM');
 
-		expect(mockChangeStatus).toHaveBeenCalledWith({
-			invoiceId: 'inv-42',
-			change: { status: 'VOID' },
-			scope: LIST_SCOPE
-		});
+		expect(mockVoidToReplace).toHaveBeenCalledWith({ invoiceId: 'inv-42', scope: LIST_SCOPE });
 		expect(mockToast.success).toHaveBeenCalledWith('invoices.void.DONE');
 		expect(onClose).toHaveBeenCalledTimes(1);
 		expect(onVoided).toHaveBeenCalledWith(target);
 	});
 
 	it('opens no replacement when the invoice could not be voided, and stays open', async () => {
-		mockChangeStatus.mockRejectedValue(new Error('Forbidden'));
+		mockVoidToReplace.mockRejectedValue(new Error('Forbidden'));
 		const onClose = jest.fn();
 		const onVoided = jest.fn();
 		const target = targetIn('PARTIALLY_PAID');
@@ -217,6 +216,21 @@ describe('voiding a paid invoice to replace it', () => {
 		await confirm('invoices.replace.CONFIRM');
 
 		expect(screen.getByText('invoices.void.FAILED')).toBeTruthy();
+		expect(onVoided).not.toHaveBeenCalled();
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	it('says why and opens no replacement when the invoice screen cannot rebuild it, which stays as it was', async () => {
+		mockVoidToReplace.mockResolvedValue('notRebuildable');
+		const onClose = jest.fn();
+		const onVoided = jest.fn();
+		const target = targetIn('FULLY_PAID');
+		render(<VoidAndReplaceDialog open scope={LIST_SCOPE} target={target} onClose={onClose} onVoided={onVoided} />);
+
+		await confirm('invoices.replace.CONFIRM');
+
+		expect(screen.getByText('invoices.replace.NOT_REBUILDABLE')).toBeTruthy();
+		expect(mockToast.success).not.toHaveBeenCalled();
 		expect(onVoided).not.toHaveBeenCalled();
 		expect(onClose).not.toHaveBeenCalled();
 	});

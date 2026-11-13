@@ -225,7 +225,7 @@ describe('an invoice opened to be edited', () => {
 		expect(result.current.changes.dueDay).toEqual({ before: '2026-11-30', after: '2026-12-15' });
 	});
 
-	it('sends a sent invoice again without taking its status back, and marks a draft Sent', async () => {
+	it('sends a sent invoice or a draft to the address typed, from the invoice’s workspace', async () => {
 		const sent = renderEdit(savedOf(sentInvoice('SENT')));
 		const draft = renderEdit(savedOf(sentInvoice('DRAFT')));
 		act(() => sent.result.current.setNote('Thank you.'));
@@ -237,14 +237,14 @@ describe('an invoice opened to be edited', () => {
 		});
 
 		const [sentCall, draftCall] = mockSaveInvoiceEdit.mock.calls.map(([request]) => request.sending);
-		expect(sentCall).toEqual({
+		const sendingOfInvoice42 = {
 			invoiceId: 'invoice-42',
 			invoiceNumber: 42,
 			email: 'billing@acme.test',
-			marksSent: false,
 			scope: { organizationId: 'organization-1', tenantId: 'tenant-1' }
-		});
-		expect(draftCall.marksSent).toBe(true);
+		};
+		expect(sentCall).toEqual(sendingOfInvoice42);
+		expect(draftCall).toEqual(sendingOfInvoice42);
 	});
 
 	it('takes the time again, keeping what was written on a line still there', () => {
@@ -265,6 +265,32 @@ describe('an invoice opened to be edited', () => {
 
 		expect(result.current.linesSource).toBe('saved');
 		expect(result.current.problems).toEqual(['unchanged']);
+	});
+});
+
+describe('an invoice read again while its editor is open', () => {
+	it('is saved against the invoice as the editor opened it', async () => {
+		const opened = savedOf(sentInvoice());
+		const readAgain = savedOf({ ...sentInvoice(), dueDate: '2026-12-15T22:59:59.999Z' });
+		const store = createStore();
+		store.set(currentOrganizationState, parisOrganization);
+		const wrapper = ({ children }: Readonly<{ children: React.ReactNode }>) => (
+			<Provider store={store}>{children}</Provider>
+		);
+		const { result, rerender } = renderHook(({ saved }) => useInvoiceEdit(saved), {
+			wrapper,
+			initialProps: { saved: opened }
+		});
+
+		rerender({ saved: readAgain });
+		act(() => result.current.setNote('Thank you.'));
+		await act(async () => {
+			await result.current.save();
+		});
+
+		const { edit } = mockSaveInvoiceEdit.mock.calls[0][0];
+		expect(edit.previous).toBe(opened.previous);
+		expect(result.current.changes.dueDay).toBeNull();
 	});
 });
 

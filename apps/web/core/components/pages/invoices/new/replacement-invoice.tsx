@@ -7,7 +7,7 @@ import { useNewInvoice } from '@/core/hooks/invoices/use-new-invoice';
 import { useSavedInvoice } from '@/core/hooks/invoices/use-saved-invoice';
 import { formatPeriod } from '@/core/lib/utils/dashboard-period';
 import type { SavedInvoice } from '@/core/lib/utils/invoice-edit';
-import { SavedInvoiceMessage } from '../edit/saved-invoice-states';
+import { NotVoidInvoiceMessage, SavedInvoiceMessage } from '../edit/saved-invoice-states';
 import { replacementInvoicePathOf } from '../invoice-access-guard';
 import { CancelInvoiceLink, InvoiceScreenFrame, RevisedInvoiceBody, TakeTimeAgainButton } from './invoice-screen';
 import { NewInvoicePageSkeleton } from './new-invoice-states';
@@ -50,7 +50,10 @@ function ReplacementInvoiceScreen({ replaced }: Readonly<{ replaced: SavedInvoic
 	);
 }
 
-/** A new invoice that replaces a saved one, read first: it starts from its client, period and lines. */
+/**
+ * A new invoice that replaces a void one, read first: it starts from its client, period and lines. A live invoice is
+ * never replaced here, since nothing would void it and its time would be billed twice.
+ */
 export function ReplacementInvoiceContent({ invoiceId }: Readonly<{ invoiceId: string }>) {
 	const t = useTranslations();
 	const read = useSavedInvoice(invoiceId);
@@ -67,6 +70,18 @@ export function ReplacementInvoiceContent({ invoiceId }: Readonly<{ invoiceId: s
 	const replaced = read.saved;
 	if (!replaced) {
 		return <NewInvoicePageSkeleton />;
+	}
+	const isVoid = replaced.status === 'VOID';
+	if (!isVoid) {
+		// The void made just before this page opened may not be in an invoice kept from an earlier read: wait for it
+		if (read.isRefreshing) {
+			return <NewInvoicePageSkeleton />;
+		}
+		return (
+			<InvoiceScreenFrame title={t('invoices.new.TITLE')} href={replacementInvoicePathOf(invoiceId)}>
+				<NotVoidInvoiceMessage number={replaced.number} />
+			</InvoiceScreenFrame>
+		);
 	}
 	return <ReplacementInvoiceScreen key={replaced.id} replaced={replaced} />;
 }

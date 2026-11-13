@@ -474,6 +474,13 @@ export function savedInvoiceOf(invoice: TSavedInvoice, reading: SavedInvoiceRead
 	};
 }
 
+const NAMELESS_READING: SavedInvoiceReading = { timeZone: null, unnamedProject: '', clientNames: new Map() };
+
+/** Whether the invoice screen can start from this invoice, to edit it or to replace it, as `savedInvoiceOf` reads it. */
+export function isRebuildableInvoice(invoice: TSavedInvoice): boolean {
+	return savedInvoiceOf(invoice, NAMELESS_READING) !== null;
+}
+
 /** The time logs that name a saved line, by the line's id on the invoice. */
 export type BilledTimeOfLines = ReadonlyMap<string, ReadonlyArray<string>>;
 
@@ -738,6 +745,8 @@ export interface WrittenInvoiceLine {
 	projectId?: string | null;
 	employeeId?: string | null;
 	taskId?: string | null;
+	applyTax?: boolean | null;
+	applyDiscount?: boolean | null;
 }
 
 function lineSignatureOf(line: WrittenInvoiceLine) {
@@ -748,7 +757,9 @@ function lineSignatureOf(line: WrittenInvoiceLine) {
 		(line.description ?? '').trim(),
 		hundredthsOf(line.quantity ?? 0),
 		hundredthsOf(line.price ?? 0),
-		hundredthsOf(line.totalValue ?? 0)
+		hundredthsOf(line.totalValue ?? 0),
+		line.applyTax ?? false,
+		line.applyDiscount ?? false
 	];
 	return parts.join('|');
 }

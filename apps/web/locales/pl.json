@@ -6807,7 +6807,8 @@
 				"NOT_PUT_BACK_LINES": "Nie udało się zapisać zmian ani przywrócić faktury do poprzedniego stanu: ma teraz {count, plural, =0 {zero pozycji} one {# pozycję} few {# pozycje} many {# pozycji} other {# pozycji}}. Sprawdź ją przed wysłaniem.",
 				"LOCKED_NOW": "Od otwarcia faktura {number} została opłacona lub anulowana: nic nie zostało zapisane i nie można jej już edytować.",
 				"NOT_CHECKED": "Nie udało się ponownie odczytać faktury przed zapisem, więc nic nie zostało zapisane. Spróbuj ponownie.",
-				"NOT_REACHED": "Połączenie nie powiodło się: zmiany nie zostały zapisane, a faktura pozostała bez zmian. Sprawdź połączenie i spróbuj ponownie."
+				"NOT_REACHED": "Połączenie nie powiodło się: zmiany nie zostały zapisane, a faktura pozostała bez zmian. Sprawdź połączenie i spróbuj ponownie.",
+				"CHANGED": "Od otwarcia faktura {number} została zmieniona: nic nie zostało zapisane. Otwórz ją ponownie z listy faktur, aby zacząć od jej aktualnej wersji."
 			}
 		},
 		"replace": {
@@ -6818,7 +6819,10 @@
 			"STAYS_VOID": "Jeśli ta nowa faktura nigdy nie zostanie zapisana, faktura {number} i tak pozostanie anulowana.",
 			"CONFIRM": "Anuluj i zastąp",
 			"NOTICE_TITLE": "Zastępowanie faktury {number}",
-			"NOTICE_MESSAGE": "Ten sam klient, okres i pozycje. Popraw je, a potem zapisz fakturę pod nowym numerem."
+			"NOTICE_MESSAGE": "Ten sam klient, okres i pozycje. Popraw je, a potem zapisz fakturę pod nowym numerem.",
+			"NOT_REBUILDABLE": "Faktura {number} nie została anulowana: nie da się jej tu odtworzyć z rozliczanego czasu. Anuluj ją i zastąp tam, gdzie powstała.",
+			"NOT_VOID_TITLE": "Faktura {number} nie jest anulowana",
+			"NOT_VOID_MESSAGE": "Tu zastępuje się tylko anulowaną fakturę. Otwórz ją z listy faktur, aby ją edytować albo anulować i zastąpić."
 		},
 		"billedTime": {
 			"LEFT_OUT_TITLE": "Godziny, które są już na fakturze, są pominięte",

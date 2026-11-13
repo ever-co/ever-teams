@@ -6807,7 +6807,8 @@
 				"NOT_PUT_BACK_LINES": "Les modifications n’ont pas pu être enregistrées, et la facture n’a pas pu être remise comme avant : elle a maintenant {count, plural, =0 {aucune ligne} one {# ligne} other {# lignes}}. Vérifiez-la avant de l’envoyer.",
 				"LOCKED_NOW": "Depuis son ouverture, la facture {number} a été payée ou annulée : rien n’a été enregistré, et elle ne peut plus être modifiée.",
 				"NOT_CHECKED": "La facture n’a pas pu être relue avant l’enregistrement, donc rien n’a été enregistré. Réessayez.",
-				"NOT_REACHED": "La connexion a échoué : les modifications n’ont pas été enregistrées et la facture est restée telle quelle. Vérifiez votre connexion, puis réessayez."
+				"NOT_REACHED": "La connexion a échoué : les modifications n’ont pas été enregistrées et la facture est restée telle quelle. Vérifiez votre connexion, puis réessayez.",
+				"CHANGED": "Depuis son ouverture, la facture {number} a été modifiée : rien n’a été enregistré. Rouvrez-la depuis la liste des factures pour partir de sa version actuelle."
 			}
 		},
 		"replace": {
@@ -6818,7 +6819,10 @@
 			"STAYS_VOID": "Si cette nouvelle facture n’est jamais enregistrée, la facture {number} reste annulée.",
 			"CONFIRM": "Annuler et remplacer",
 			"NOTICE_TITLE": "Remplacement de la facture {number}",
-			"NOTICE_MESSAGE": "Même client, même période, mêmes lignes. Ajustez-les, puis enregistrez-la sous un nouveau numéro."
+			"NOTICE_MESSAGE": "Même client, même période, mêmes lignes. Ajustez-les, puis enregistrez-la sous un nouveau numéro.",
+			"NOT_REBUILDABLE": "La facture {number} n’a pas été annulée : elle ne peut pas être refaite ici à partir du temps facturable. Annulez-la et remplacez-la là où elle a été faite.",
+			"NOT_VOID_TITLE": "La facture {number} n’est pas annulée",
+			"NOT_VOID_MESSAGE": "Seule une facture annulée est remplacée ici. Ouvrez-la depuis la liste des factures pour la modifier, ou pour l’annuler et la remplacer."
 		},
 		"billedTime": {
 			"LEFT_OUT_TITLE": "Les heures déjà sur une facture sont écartées",

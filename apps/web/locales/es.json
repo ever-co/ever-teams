@@ -6807,7 +6807,8 @@
 				"NOT_PUT_BACK_LINES": "No se pudieron guardar los cambios, y la factura no se pudo dejar como estaba: ahora tiene {count, plural, =0 {ninguna línea} one {# línea} other {# líneas}}. Revísala antes de enviarla.",
 				"LOCKED_NOW": "Desde que se abrió, la factura {number} se pagó o se anuló: no se guardó nada y ya no se puede editar.",
 				"NOT_CHECKED": "No se pudo volver a leer la factura antes de guardar, así que no se guardó nada. Vuelve a intentarlo.",
-				"NOT_REACHED": "La conexión falló: los cambios no se guardaron y la factura sigue como estaba. Comprueba tu conexión y vuelve a intentarlo."
+				"NOT_REACHED": "La conexión falló: los cambios no se guardaron y la factura sigue como estaba. Comprueba tu conexión y vuelve a intentarlo.",
+				"CHANGED": "Desde que se abrió, la factura {number} cambió: no se guardó nada. Ábrela de nuevo desde la lista de facturas para partir de su versión actual."
 			}
 		},
 		"replace": {
@@ -6818,7 +6819,10 @@
 			"STAYS_VOID": "Si esa factura nueva nunca se guarda, la factura {number} sigue anulada.",
 			"CONFIRM": "Anular y reemplazar",
 			"NOTICE_TITLE": "Reemplazo de la factura {number}",
-			"NOTICE_MESSAGE": "Mismo cliente, periodo y líneas. Ajústalos y luego guárdala con un número nuevo."
+			"NOTICE_MESSAGE": "Mismo cliente, periodo y líneas. Ajústalos y luego guárdala con un número nuevo.",
+			"NOT_REBUILDABLE": "La factura {number} no se anuló: no se puede rehacer aquí a partir del tiempo facturable. Anúlala y reemplázala donde se hizo.",
+			"NOT_VOID_TITLE": "La factura {number} no está anulada",
+			"NOT_VOID_MESSAGE": "Aquí solo se reemplaza una factura anulada. Ábrela desde la lista de facturas para editarla, o para anularla y reemplazarla."
 		},
 		"billedTime": {
 			"LEFT_OUT_TITLE": "Las horas que ya están en una factura se dejan fuera",
