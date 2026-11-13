@@ -12,6 +12,7 @@ import { useUpdateTask } from '@/core/hooks/organizations/teams/use-update-task'
 import { useTaskQueries } from '@/core/hooks/organizations/teams/use-task-queries';
 import { cn } from '@/core/lib/helpers';
 import { acceptsDueDate, acceptsStartDate, daysUntilDue } from '@/core/lib/utils/task-detail';
+import { dateOnlyOf, shownDayOf } from '@/core/lib/utils/date-only';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { DETAIL_EMPTY_VALUE } from './task-detail-recipes';
 
@@ -67,18 +68,15 @@ const DATE_LABEL_KEYS = {
 	due: 'pages.taskDetails.DUE_DATE'
 } as const;
 
+/**
+ * The change a picked day makes. A due date names a day: it is saved in the platform's date-only form (midnight UTC of
+ * the day picked), so every reader sees that day. A start date is saved as the local midnight of its day, as before.
+ */
 function dateChangesOf(kind: TaskDateKind, picked: Date | null): Partial<TTask> {
 	if (kind === 'start') {
 		return { startDate: picked };
 	}
-	return { dueDate: picked };
-}
-
-function asDate(value: Date | string | null) {
-	if (!value) {
-		return null;
-	}
-	return new Date(value);
+	return { dueDate: picked ? dateOnlyOf(picked) : null };
 }
 
 function dateValueOf(task: TTask, kind: TaskDateKind) {
@@ -125,11 +123,12 @@ export function TaskDateField({ task, kind }: Readonly<{ task: TTask; kind: Task
 	const { getTaskById } = useTaskQueries();
 	const [open, setOpen] = useState(false);
 	const value = dateValueOf(task, kind);
-	const date = asDate(value);
+	// The day the stored date names, as the reader's calendar shows it (a date-only due date is its own day anywhere).
+	const date = shownDayOf(value);
 	const isDue = kind === 'due';
-	let dueHintDate: Date | null = null;
-	if (isDue) {
-		dueHintDate = date;
+	let dueHintDate: Date | string | null = null;
+	if (isDue && date) {
+		dueHintDate = value;
 	}
 
 	const isAccepted = (picked: Date) => {

@@ -17,6 +17,7 @@ import { useTaskWorkedSeconds } from '@/core/hooks/tasks/use-task-worked-seconds
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { cn } from '@/core/lib/helpers';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
+import { dayNumberOf, dayOfStoredDate, shownDayOf } from '@/core/lib/utils/date-only';
 import {
 	dueDateToneOf,
 	isDoneStatus,
@@ -32,7 +33,6 @@ import { useTeamTaskRowDrag } from './team-task-row-dnd';
 
 const VISIBLE_LABEL_COUNT = 2;
 const VISIBLE_PEOPLE_COUNT = 3;
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** A cell that opens a picker: a quiet button the size of its cell, its empty state revealed on row hover. */
 const CELL_BUTTON =
@@ -95,16 +95,10 @@ function formatDuration(seconds: number) {
 	return `${hours}h ${minutes}m`;
 }
 
-function startOfDay(time: number) {
-	const day = new Date(time);
-	day.setHours(0, 0, 0, 0);
-	return day.getTime();
-}
-
+/** Whole days from the reader's today to the day a stored date names (a date-only due date is its own day anywhere). */
 function daysFromToday(value: Date | string, now: number) {
-	const dayTime = startOfDay(new Date(value).getTime());
-	const today = startOfDay(now);
-	return Math.round((dayTime - today) / DAY_MS);
+	const today = dayNumberOf(new Date(now));
+	return (dayOfStoredDate(value) ?? today) - today;
 }
 
 /** Clicks on the row's own controls are theirs; anywhere else on the row opens the task. */
@@ -410,7 +404,7 @@ function DueDateCell({ task, isDone }: Readonly<{ task: TTask; isDone: boolean }
 	const tone = dueDateToneOf(dueDate, isDone, now);
 	const days = daysFromToday(dueDate, now);
 	const isNear = Math.abs(days) <= 1;
-	let text = formatDay(dueDate);
+	let text = formatDay(shownDayOf(dueDate) ?? dueDate);
 	if (isNear) {
 		text = formatRelativeDay(days);
 	}

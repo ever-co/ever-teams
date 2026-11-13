@@ -24,6 +24,7 @@ import {
 	type StatusGroup
 } from '@/core/lib/utils/project-list';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
+import { shownDayOf } from '@/core/lib/utils/date-only';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import type { TTaskStatus } from '@/core/types/schemas/task/task-status.schema';
 import type { ProjectTasksLayout } from './project-tasks-view';
@@ -126,7 +127,8 @@ function TaskRow({ task, statuses }: Readonly<{ task: TTask; statuses: TTaskStat
 	const locale = useLocale();
 	const number = taskNumberOf(task);
 	const people = (task.members ?? []).map(personFromTaskMember);
-	const dueDate = realDateOf(task.dueDate);
+	// The day the due date names, as the reader's calendar shows it (a date-only due date is its own day anywhere).
+	const dueDate = shownDayOf(realDateOf(task.dueDate));
 	const category = statusCategoryOf(task.status, statuses);
 	const isDone = category === 'done';
 	return (
