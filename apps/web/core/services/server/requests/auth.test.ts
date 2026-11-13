@@ -38,6 +38,18 @@ describe('signInEmailRequest', () => {
 			}
 		});
 	});
+
+	it('names no page without a link, so Gauzy keeps its own', async () => {
+		mockServerFetch.mockResolvedValue({ data: { status: 200, message: 'OK' } });
+
+		await signInEmailRequest('ada@example.org');
+
+		expect(mockServerFetch).toHaveBeenLastCalledWith({
+			path: '/auth/signin.email',
+			method: 'POST',
+			body: { email: 'ada@example.org', ...mockAppBranding }
+		});
+	});
 });
 
 describe('requestPasswordRequest', () => {
@@ -53,6 +65,18 @@ describe('requestPasswordRequest', () => {
 				email: 'ada@example.org',
 				appResetPasswordUrl: 'https://teams.example.org/auth/reset-password'
 			}
+		});
+	});
+
+	it('names no page without a link, so Gauzy keeps its own', async () => {
+		mockServerFetch.mockResolvedValue({ data: true });
+
+		await requestPasswordRequest('ada@example.org');
+
+		expect(mockServerFetch).toHaveBeenLastCalledWith({
+			path: '/auth/request-password',
+			method: 'POST',
+			body: { email: 'ada@example.org' }
 		});
 	});
 });

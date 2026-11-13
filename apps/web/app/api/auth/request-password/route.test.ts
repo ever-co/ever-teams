@@ -34,16 +34,15 @@ describe('POST /api/auth/request-password', () => {
 		expect(await res.json()).toBe(true);
 	});
 
-	it('uses the origin of the request when no public origin is configured', async () => {
+	it('names no page when no public origin is configured, whatever host the request names', async () => {
 		mockAppPublicOrigin.mockReturnValue(null);
 		mockRequestPasswordRequest.mockResolvedValue({ data: true });
 
-		await ask({ email: 'ada@example.org' }, 'https://teams.example.org/api/auth/request-password');
+		// The link carries the token that sets the password: it is never built on a host a caller can choose
+		const res = await ask({ email: 'ada@example.org' }, 'https://other.example/api/auth/request-password');
 
-		expect(mockRequestPasswordRequest).toHaveBeenCalledWith(
-			'ada@example.org',
-			'https://teams.example.org/auth/reset-password'
-		);
+		expect(mockRequestPasswordRequest).toHaveBeenCalledWith('ada@example.org', undefined);
+		expect(res.status).toBe(200);
 	});
 
 	it.each([

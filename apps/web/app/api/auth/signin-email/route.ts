@@ -5,10 +5,12 @@ import { appPublicOrigin } from '@/core/services/server/requests/account-deletio
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
-	// The link of the e-mail opens this app's sign-in page. Its origin is the configured one first: behind a reverse
-	// proxy the request's own URL can be an internal address, which Gauzy would not put in an e-mail.
-	const origin = appPublicOrigin() ?? new URL(req.url).origin;
-	const callbackUrl = `${origin}${SIGN_IN_CALLBACK_PATH}`;
+	// The link of the e-mail opens this app's sign-in page, on the origin this deployment is configured with and never
+	// on the request's own: that one can be an internal address behind a reverse proxy, or a host the caller named,
+	// and the link carries a code that signs the person in. Without a configured origin no page is named, and Gauzy
+	// keeps its own link.
+	const origin = appPublicOrigin();
+	const callbackUrl = origin ? `${origin}${SIGN_IN_CALLBACK_PATH}` : undefined;
 
 	const body = (await req.json()) as unknown as { email: string };
 
