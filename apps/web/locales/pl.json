@@ -6820,7 +6820,9 @@
 			"CONFIRM": "Anuluj i zastąp",
 			"NOTICE_TITLE": "Zastępowanie faktury {number}",
 			"NOTICE_MESSAGE": "Ten sam klient, okres i pozycje. Popraw je, a potem zapisz fakturę pod nowym numerem.",
-			"NOT_REBUILDABLE": "Faktura {number} nie została anulowana: nie da się jej tu odtworzyć z rozliczanego czasu. Anuluj ją i zastąp tam, gdzie powstała."
+			"NOT_REBUILDABLE": "Faktura {number} nie została anulowana: nie da się jej tu odtworzyć z rozliczanego czasu. Anuluj ją i zastąp tam, gdzie powstała.",
+			"NOT_VOID_TITLE": "Faktura {number} nie jest anulowana",
+			"NOT_VOID_MESSAGE": "Tu zastępuje się tylko anulowaną fakturę. Otwórz ją z listy faktur, aby ją edytować albo anulować i zastąpić."
 		}
 	},
 	"timeReports": {

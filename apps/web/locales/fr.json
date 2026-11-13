@@ -6820,7 +6820,9 @@
 			"CONFIRM": "Annuler et remplacer",
 			"NOTICE_TITLE": "Remplacement de la facture {number}",
 			"NOTICE_MESSAGE": "Même client, même période, mêmes lignes. Ajustez-les, puis enregistrez-la sous un nouveau numéro.",
-			"NOT_REBUILDABLE": "La facture {number} n’a pas été annulée : elle ne peut pas être refaite ici à partir du temps facturable. Annulez-la et remplacez-la là où elle a été faite."
+			"NOT_REBUILDABLE": "La facture {number} n’a pas été annulée : elle ne peut pas être refaite ici à partir du temps facturable. Annulez-la et remplacez-la là où elle a été faite.",
+			"NOT_VOID_TITLE": "La facture {number} n’est pas annulée",
+			"NOT_VOID_MESSAGE": "Seule une facture annulée est remplacée ici. Ouvrez-la depuis la liste des factures pour la modifier, ou pour l’annuler et la remplacer."
 		}
 	},
 	"timeReports": {

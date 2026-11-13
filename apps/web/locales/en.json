@@ -6820,7 +6820,9 @@
 			"CONFIRM": "Void and replace",
 			"NOTICE_TITLE": "Replacing invoice {number}",
 			"NOTICE_MESSAGE": "Same client, period and lines. Adjust them, then save it under a new number.",
-			"NOT_REBUILDABLE": "Invoice {number} was not voided: it cannot be rebuilt here from billable time. Void and replace it where it was made."
+			"NOT_REBUILDABLE": "Invoice {number} was not voided: it cannot be rebuilt here from billable time. Void and replace it where it was made.",
+			"NOT_VOID_TITLE": "Invoice {number} is not void",
+			"NOT_VOID_MESSAGE": "Only a void invoice is replaced here. Open it from the invoice list to edit it, or to void and replace it."
 		}
 	},
 	"timeReports": {

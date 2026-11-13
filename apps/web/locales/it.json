@@ -6820,7 +6820,9 @@
 			"CONFIRM": "Annulla e sostituisci",
 			"NOTICE_TITLE": "Sostituzione della fattura {number}",
 			"NOTICE_MESSAGE": "Stesso cliente, stesso periodo, stesse righe. Sistemale, poi salvala con un nuovo numero.",
-			"NOT_REBUILDABLE": "La fattura {number} non è stata annullata: qui non si può ricreare dal tempo fatturabile. Annullala e sostituiscila dove è stata creata."
+			"NOT_REBUILDABLE": "La fattura {number} non è stata annullata: qui non si può ricreare dal tempo fatturabile. Annullala e sostituiscila dove è stata creata.",
+			"NOT_VOID_TITLE": "La fattura {number} non è annullata",
+			"NOT_VOID_MESSAGE": "Qui si sostituisce solo una fattura annullata. Aprila dall’elenco delle fatture per modificarla, oppure per annullarla e sostituirla."
 		}
 	},
 	"timeReports": {

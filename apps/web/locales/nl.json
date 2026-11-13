@@ -6820,7 +6820,9 @@
 			"CONFIRM": "Laten vervallen en vervangen",
 			"NOTICE_TITLE": "Vervanging van factuur {number}",
 			"NOTICE_MESSAGE": "Dezelfde klant, periode en regels. Pas ze aan en sla hem daarna op onder een nieuw nummer.",
-			"NOT_REBUILDABLE": "Factuur {number} is niet vervallen: hij kan hier niet opnieuw uit factureerbare tijd worden gemaakt. Laat hem vervallen en vervang hem waar hij is gemaakt."
+			"NOT_REBUILDABLE": "Factuur {number} is niet vervallen: hij kan hier niet opnieuw uit factureerbare tijd worden gemaakt. Laat hem vervallen en vervang hem waar hij is gemaakt.",
+			"NOT_VOID_TITLE": "Factuur {number} is niet vervallen",
+			"NOT_VOID_MESSAGE": "Hier wordt alleen een vervallen factuur vervangen. Open hem vanuit de factuurlijst om hem te bewerken, of om hem te laten vervallen en te vervangen."
 		}
 	},
 	"timeReports": {

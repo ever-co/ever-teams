@@ -6820,7 +6820,9 @@
 			"CONFIRM": "作废并替换",
 			"NOTICE_TITLE": "正在替换第 {number} 号发票",
 			"NOTICE_MESSAGE": "客户、期间和明细行相同。调整后，以新编号保存。",
-			"NOT_REBUILDABLE": "第 {number} 号发票未作废：无法在此根据计费时间重新生成。请在创建它的地方作废并替换。"
+			"NOT_REBUILDABLE": "第 {number} 号发票未作废：无法在此根据计费时间重新生成。请在创建它的地方作废并替换。",
+			"NOT_VOID_TITLE": "第 {number} 号发票未作废",
+			"NOT_VOID_MESSAGE": "此处只替换已作废的发票。请从发票列表打开它进行编辑，或将其作废并替换。"
 		}
 	},
 	"timeReports": {

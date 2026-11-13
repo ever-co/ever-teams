@@ -6820,7 +6820,9 @@
 			"CONFIRM": "Anular e substituir",
 			"NOTICE_TITLE": "Substituição da fatura {number}",
 			"NOTICE_MESSAGE": "O mesmo cliente, período e linhas. Ajuste-os e depois guarde-a com um novo número.",
-			"NOT_REBUILDABLE": "A fatura {number} não foi anulada: não pode ser refeita aqui a partir do tempo faturável. Anule-a e substitua-a onde foi feita."
+			"NOT_REBUILDABLE": "A fatura {number} não foi anulada: não pode ser refeita aqui a partir do tempo faturável. Anule-a e substitua-a onde foi feita.",
+			"NOT_VOID_TITLE": "A fatura {number} não está anulada",
+			"NOT_VOID_MESSAGE": "Aqui só se substitui uma fatura anulada. Abra-a na lista de faturas para a editar, ou para a anular e substituir."
 		}
 	},
 	"timeReports": {
