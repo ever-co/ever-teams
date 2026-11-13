@@ -3818,6 +3818,7 @@
 			"PERMISSION": "Deine Rolle erlaubt diese Änderung nicht.",
 			"NOT_FOUND": "Dieses Element gibt es nicht mehr. Lade die Seite neu.",
 			"CONFLICT": "Jemand hat es gleichzeitig geändert. Lade neu und versuche es erneut.",
+			"NAME_TAKEN": "Dieser Name wird hier schon verwendet. Wähle einen anderen.",
 			"INVALID": "Einige Werte wurden nicht akzeptiert. Prüfe sie und versuche es erneut.",
 			"TOO_MANY": "Zu viele Versuche. Warte einen Moment und versuche es dann erneut.",
 			"SERVER": "Der Server konnte es nicht abschließen. Versuche es gleich noch einmal.",

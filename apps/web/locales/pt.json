@@ -3818,6 +3818,7 @@
 			"PERMISSION": "Sua função não permite essa alteração.",
 			"NOT_FOUND": "Este item não existe mais. Recarregue a página.",
 			"CONFLICT": "Alguém alterou isso ao mesmo tempo. Recarregue e tente de novo.",
+			"NAME_TAKEN": "Esse nome já está em uso aqui. Escolha outro.",
 			"INVALID": "Alguns valores não foram aceitos. Verifique-os e tente de novo.",
 			"TOO_MANY": "Tentativas demais. Aguarde um momento e tente de novo.",
 			"SERVER": "O servidor não conseguiu concluir. Tente de novo em instantes.",

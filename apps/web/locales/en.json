@@ -3818,6 +3818,7 @@
 			"PERMISSION": "Your role does not allow this change.",
 			"NOT_FOUND": "This item no longer exists. Refresh the page.",
 			"CONFLICT": "Someone changed this at the same time. Refresh and try again.",
+			"NAME_TAKEN": "This name is already used here. Choose another one.",
 			"INVALID": "Some values were not accepted. Check them and try again.",
 			"TOO_MANY": "Too many attempts. Wait a moment, then try again.",
 			"SERVER": "The server could not complete it. Try again in a moment.",

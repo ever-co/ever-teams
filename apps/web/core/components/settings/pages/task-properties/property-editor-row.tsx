@@ -14,6 +14,7 @@ import {
 	PropertyDraft,
 	TaskPropertySettingsKind
 } from '@/core/lib/utils/settings-task-properties';
+import { isNameTakenError } from '@/core/lib/utils/error-feedback';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { PropertyColorField } from './property-color-field';
 import { PropertyIconPicker } from './property-icon-picker';
@@ -118,8 +119,12 @@ export function PropertyEditorRow({
 		setIsSaving(true);
 		try {
 			await onSave(draft);
-		} catch {
-			// The mutation's error toast gives the reason; the row stays open with what was typed.
+		} catch (error) {
+			// The mutation's error toast gives the reason; the row stays open with what was typed. A name Gauzy finds
+			// taken (another member added it meanwhile, after the list was read) is also said on the field.
+			if (isNameTakenError(error)) {
+				setNameError(t('settings.taskProperties.NAME_TAKEN', { kind }));
+			}
 		} finally {
 			setIsSaving(false);
 		}

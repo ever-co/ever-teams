@@ -5,6 +5,7 @@ import { taskLabelService } from '@/core/services/client/api/tasks/task-label.se
 import { ITagCreate } from '@/core/types/interfaces/tag/tag';
 import { useInvalidateTaskLabels } from './use-invalidate-task-labels';
 import { mergeTaskLabelData } from '@/core/lib/helpers/task';
+import { isNameTakenError } from '@/core/lib/utils/error-feedback';
 
 /**
  * Hook for creating a new task label.
@@ -29,7 +30,14 @@ export function useCreateTaskLabel() {
 			const cleanData = mergeTaskLabelData(data, undefined, organizationId, tenantId, teamId);
 			return taskLabelService.createTaskLabels(cleanData);
 		},
-		onSuccess: invalidateTaskLabelsData
+		onSuccess: invalidateTaskLabelsData,
+		// A name Gauzy finds taken belongs to a label this list does not show yet: read the team's labels again.
+		// `onSettled`, not `onError`, so the global toast still says why the label was not added.
+		onSettled: (_label, error) => {
+			if (isNameTakenError(error)) {
+				void invalidateTaskLabelsData();
+			}
+		}
 	});
 
 	return {

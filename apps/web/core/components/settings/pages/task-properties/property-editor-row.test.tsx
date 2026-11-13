@@ -7,6 +7,7 @@ jest.mock('next-intl', () => ({
 }));
 
 import { labelNameKeyOf } from '@/core/lib/utils/task-label-catalog';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { PropertyEditorRow } from './property-editor-row';
 
 const TEAM_LABELS = ['Bug', 'Follow-up'];
@@ -49,5 +50,26 @@ describe('PropertyEditorRow, a label name the team has already', () => {
 		await submitName('Feature');
 
 		expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ name: 'Feature' }));
+	});
+
+	it('says so on the field when Gauzy finds the name taken, as a label added meanwhile', async () => {
+		const refusal = new ApiErrorService('A tag named "Design" already exists here.', 409, 'UNIQUE_CONSTRAINT_VIOLATION', {
+			field: 'name'
+		});
+		const { onSave } = renderRow(jest.fn().mockRejectedValue(refusal));
+
+		await submitName('Design');
+
+		expect(onSave).toHaveBeenCalledTimes(1);
+		expect(screen.getByText('settings.taskProperties.NAME_TAKEN:{"kind":"label"}')).toBeTruthy();
+		expect((screen.getByLabelText('common.NAME') as HTMLInputElement).value).toBe('Design');
+	});
+
+	it('leaves any other refusal to the toast', async () => {
+		renderRow(jest.fn().mockRejectedValue(new ApiErrorService('Internal error', 500)));
+
+		await submitName('Design');
+
+		expect(screen.queryByText('settings.taskProperties.NAME_TAKEN:{"kind":"label"}')).toBeNull();
 	});
 });

@@ -6,6 +6,7 @@ import { ITagCreate } from '@/core/types/interfaces/tag/tag';
 import { TTag } from '@/core/types/schemas';
 import { useInvalidateTaskLabels } from './use-invalidate-task-labels';
 import { mergeTaskLabelData } from '@/core/lib/helpers/task';
+import { isNameTakenError } from '@/core/lib/utils/error-feedback';
 
 /**
  * Hook for editing an existing task label.
@@ -30,7 +31,14 @@ export function useEditTaskLabel() {
 			const cleanData = mergeTaskLabelData(data, existingLabel, organizationId, tenantId, teamId);
 			return taskLabelService.editTaskLabels({ tagId: id, data: cleanData });
 		},
-		onSuccess: invalidateTaskLabelsData
+		onSuccess: invalidateTaskLabelsData,
+		// A name Gauzy finds taken belongs to a label this list does not show yet: read the team's labels again.
+		// `onSettled`, not `onError`, so the global toast still says why the label was not renamed.
+		onSettled: (_label, error) => {
+			if (isNameTakenError(error)) {
+				void invalidateTaskLabelsData();
+			}
+		}
 	});
 
 	return {
