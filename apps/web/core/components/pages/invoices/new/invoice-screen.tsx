@@ -26,17 +26,32 @@ export interface SaveDialogControl {
 	onClose: () => void;
 }
 
+/** Earlier invoices of the same period: a note when the hours they bill are left out, else a warning. */
 export function OverlapNotice({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
 	const t = useTranslations();
-	const count = invoice.overlappingInvoices.length;
-	if (count === 0) {
+	const notice = invoice.overlapNotice;
+	const client = invoice.client?.name ?? '';
+	if (notice.kind === 'none') {
 		return null;
+	}
+	if (notice.kind === 'leftOut') {
+		return (
+			<Notice
+				tone="info"
+				title={t('invoices.billedTime.LEFT_OUT_TITLE')}
+				description={t('invoices.billedTime.LEFT_OUT_MESSAGE', { count: notice.count, client })}
+			/>
+		);
+	}
+	let description = t('invoices.new.earlier.OVERLAP_MESSAGE');
+	if (notice.isUnrecorded) {
+		description = t('invoices.billedTime.UNRECORDED_MESSAGE', { count: notice.count });
 	}
 	return (
 		<Notice
 			tone="warning"
-			title={t('invoices.new.earlier.OVERLAP_TITLE', { count, client: invoice.client?.name ?? '' })}
-			description={t('invoices.new.earlier.OVERLAP_MESSAGE')}
+			title={t('invoices.new.earlier.OVERLAP_TITLE', { count: notice.count, client })}
+			description={description}
 		/>
 	);
 }
