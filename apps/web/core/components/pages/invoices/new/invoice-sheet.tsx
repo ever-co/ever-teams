@@ -13,16 +13,17 @@ import { formatPercent } from '@/core/lib/utils/invoice-totals';
 import {
 	formatInvoiceHours,
 	invoicePeriodTextOf,
+	type InvoiceLineRateSource,
 	type InvoiceProjectGroup,
-	type InvoiceRateSource,
 	type NamedInvoiceLine
 } from '@/core/lib/utils/invoices';
 import { LINE_GRID, QUIET_FIELD } from './new-invoice-recipes';
 
-const RATE_SOURCE_KEYS: Record<InvoiceRateSource, DottedLanguageObjectStringPaths> = {
+const RATE_SOURCE_KEYS: Record<InvoiceLineRateSource, DottedLanguageObjectStringPaths> = {
 	member: 'invoices.new.RATE_SOURCE_MEMBER',
 	project: 'invoices.new.RATE_SOURCE_PROJECT',
-	employee: 'invoices.new.RATE_SOURCE_EMPLOYEE'
+	employee: 'invoices.new.RATE_SOURCE_EMPLOYEE',
+	saved: 'invoices.edit.RATE_SOURCE_SAVED'
 };
 
 const FIGURE = 'whitespace-nowrap text-[13px] tabular-nums';

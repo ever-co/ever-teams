@@ -112,6 +112,9 @@ export interface EmployeeBillingRate {
 
 export type InvoiceRateSource = 'member' | 'project' | 'employee';
 
+/** A line read back from a saved invoice states the rate it was saved with, whatever priced it then. */
+export type InvoiceLineRateSource = InvoiceRateSource | 'saved';
+
 export interface LinePrice {
 	rate: number | null;
 	currency: string | null;
@@ -185,7 +188,7 @@ export interface InvoiceLine {
 	currency: string | null;
 	/** Hours times rate, to the cent: the arithmetic a reader checks on the invoice. */
 	amount: number;
-	rateSource: InvoiceRateSource;
+	rateSource: InvoiceLineRateSource;
 	/** The members of the project are billed different rates: the line states their average, weighted by time. */
 	isAverageRate: boolean;
 }
