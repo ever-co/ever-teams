@@ -424,6 +424,12 @@ async function writeInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> 
 	} catch (error) {
 		return outcomeOfFailedFields(edit, error);
 	}
+	// Lines the edit leaves as they were are not written again: the API deletes an invoice's lines before it saves the
+	// new ones, and a failure between the two would cost lines nobody changed.
+	const keepsItsLines = haveSameLines(edit.revision.lines, edit.previous.lines);
+	if (keepsItsLines) {
+		return { status: 'saved' };
+	}
 	try {
 		const linesScope = scopeToWriteIn(edit);
 		await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.revision.lines, linesScope);
