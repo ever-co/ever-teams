@@ -6,6 +6,7 @@ import { invoiceService, type InvoicesPage } from '@/core/services/client/api/or
 import { queryKeys } from '@/core/query/keys';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { nextInvoiceNumberOf } from '@/core/lib/utils/invoices';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import type { TInvoice } from '@/core/types/schemas/organization/invoice.schema';
 
 const NO_INVOICES: TInvoice[] = [];
@@ -96,6 +97,45 @@ export function useNextInvoiceNumber(enabled: boolean) {
 	return {
 		nextNumber,
 		isLoading: query.isLoading,
+		isError: query.isError,
+		refetch: query.refetch
+	};
+}
+
+/** The API answers a missing invoice with 404, and an id that is not one with 400: there is nothing to read again. */
+function isMissingInvoice(error: unknown) {
+	if (!ApiErrorService.isApiError(error)) {
+		return false;
+	}
+	const status = error.httpResponseStatus;
+	return status === 404 || status === 400;
+}
+
+function retriesInvoiceRead(failureCount: number, error: unknown) {
+	if (isMissingInvoice(error)) {
+		return false;
+	}
+	return failureCount < 2;
+}
+
+/** One invoice with its lines, read again whenever its editor opens: it may have changed since the list was read. */
+export function useInvoiceQuery(invoiceId: string | null) {
+	const tenantId = getTenantIdCookie();
+	const organizationId = getOrganizationIdCookie();
+	const hasScope = Boolean(tenantId) && Boolean(organizationId);
+
+	const query = useQuery({
+		queryKey: queryKeys.invoices.detail(tenantId, organizationId, invoiceId),
+		queryFn: ({ signal }) => invoiceService.getInvoice(invoiceId as string, { signal, tenantId }),
+		enabled: hasScope && Boolean(invoiceId),
+		retry: retriesInvoiceRead,
+		staleTime: 0
+	});
+
+	return {
+		invoice: query.data ?? null,
+		isLoading: query.isLoading,
+		isMissing: isMissingInvoice(query.error),
 		isError: query.isError,
 		refetch: query.refetch
 	};

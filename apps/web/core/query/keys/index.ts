@@ -740,7 +740,12 @@ export const queryKeys = {
 			clientId: string | undefined | null
 		) => ['invoices', 'client', tenantId ?? null, organizationId ?? null, clientId ?? null] as const,
 		highestNumber: (tenantId: string | undefined | null) =>
-			['invoices', 'highest-number', tenantId ?? null] as const
+			['invoices', 'highest-number', tenantId ?? null] as const,
+		detail: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			invoiceId: string | undefined | null
+		) => ['invoices', 'detail', tenantId ?? null, organizationId ?? null, invoiceId ?? null] as const
 	},
 
 	// Keys related to organization projects
