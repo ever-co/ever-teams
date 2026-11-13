@@ -18,6 +18,7 @@ import {
 	type InvoiceStatusChange,
 	type ListedInvoicesPage
 } from '@/core/lib/utils/invoice-actions';
+import { isTimeBilledElsewhere } from '@/core/lib/utils/invoice-billed-time';
 import { haveSameFields, haveSameLines, type InvoiceRevision } from '@/core/lib/utils/invoice-edit';
 import {
 	invoiceSaveFailureOf,
@@ -209,6 +210,8 @@ export type InvoiceEditOutcome =
 	| { status: 'notChecked' }
 	/** Written in part, then written back as it was. */
 	| { status: 'putBack' }
+	/** Its lines name time another invoice billed, or that was deleted, since it was read: it is as it was. */
+	| { status: 'timeBilled' }
 	/** Written in part and not written back: the invoice holds `lineCount` lines, null when it could not be read. */
 	| { status: 'notPutBack'; lineCount: number | null };
 
@@ -252,6 +255,21 @@ async function putInvoiceBack(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
 	}
 }
 
+/**
+ * Lines refused because they name time another invoice billed meanwhile: the API saved none of them, so once the
+ * fields are written back the invoice is as it was.
+ */
+function outcomeOfRefusedLines(error: unknown, putBack: InvoiceEditOutcome): InvoiceEditOutcome {
+	if (!isTimeBilledElsewhere(error)) {
+		return putBack;
+	}
+	const isAsItWas = putBack.status === 'putBack' || putBack.status === 'notSaved';
+	if (!isAsItWas) {
+		return putBack;
+	}
+	return { status: 'timeBilled' };
+}
+
 /** The status the invoice holds now, while it still lets an edit through. */
 function editableStatusOf(invoice: TSavedInvoice): InvoiceStatus | null {
 	const status = invoiceStatusOf(invoice.status);
@@ -292,8 +310,9 @@ async function writeInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> 
 	}
 	try {
 		await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.revision.lines, edit.scope);
-	} catch {
-		return putInvoiceBack(edit);
+	} catch (error) {
+		const putBack = await putInvoiceBack(edit);
+		return outcomeOfRefusedLines(error, putBack);
 	}
 	return { status: 'saved' };
 }

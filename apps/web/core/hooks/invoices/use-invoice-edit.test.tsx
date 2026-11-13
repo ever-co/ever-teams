@@ -345,4 +345,17 @@ describe('the time an edited invoice bills', () => {
 		expect(billedTimeOf(edit.revision.lines)).toEqual(billed);
 		expect(billedTimeOf(edit.previous.lines)).toEqual(billed);
 	});
+
+	it('is read again when the save is refused because part of it was billed elsewhere meanwhile', async () => {
+		mockSaveInvoiceEdit.mockResolvedValue({ outcome: { status: 'timeBilled' }, sending: null });
+		mockTime.refetch.mockClear();
+		const { result } = renderEdit(savedOf(sentInvoice()));
+		act(() => result.current.setDueDay('2026-12-15'));
+
+		await act(async () => {
+			await result.current.save();
+		});
+
+		expect(mockTime.refetch).toHaveBeenCalledTimes(1);
+	});
 });

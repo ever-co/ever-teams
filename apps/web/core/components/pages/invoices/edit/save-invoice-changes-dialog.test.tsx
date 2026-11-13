@@ -213,6 +213,13 @@ describe('an edit that could not be saved', () => {
 
 		expect(message.textContent).toBe('invoices.edit.confirm.NOT_PUT_BACK');
 	});
+
+	it('says part of its time was billed elsewhere meanwhile, the invoice as it was', async () => {
+		const message = await failingWith({ status: 'timeBilled' });
+
+		expect(message.textContent).toBe('invoices.billedTime.EDIT_REFUSED');
+		expect(mockPush).not.toHaveBeenCalled();
+	});
 });
 
 describe('saving an edit and sending it again', () => {

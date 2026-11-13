@@ -116,6 +116,9 @@ function useFailureText(failure: EditFailure | null, number: string): string | n
 	if (failure.status === 'putBack') {
 		return t('invoices.edit.confirm.PUT_BACK');
 	}
+	if (failure.status === 'timeBilled') {
+		return t('invoices.billedTime.EDIT_REFUSED');
+	}
 	if (failure.lineCount === null) {
 		return t('invoices.edit.confirm.NOT_PUT_BACK');
 	}

@@ -11,7 +11,7 @@ import {
 	type SavedInvoice
 } from '@/core/lib/utils/invoice-edit';
 import { parseInvoiceNumber, type InvoiceProblem } from '@/core/lib/utils/invoices';
-import { useSaveInvoiceEdit, type InvoiceEdit } from './use-invoice-mutations';
+import { useSaveInvoiceEdit, type InvoiceEdit, type InvoiceEditToSave } from './use-invoice-mutations';
 import { useInvoiceDraft, type InvoiceDraftStart } from './use-new-invoice';
 
 function problemsOfEdit(draftProblems: InvoiceProblem[], isUnchanged: boolean): InvoiceProblem[] {
@@ -48,6 +48,19 @@ export function useInvoiceEdit(saved: SavedInvoice) {
 	const { saveInvoiceEdit, isSavingEdit } = useSaveInvoiceEdit();
 	const billedTimeByLine = draft.time.billedTimeByLine;
 	const recordsBilledTime = draft.recordsBilledTime;
+	const refetchTime = draft.time.refetch;
+
+	// Another invoice billed part of this time meanwhile: the lines are built again from what is left
+	const saveEdit = useCallback(
+		async (toSave: InvoiceEditToSave) => {
+			const saved = await saveInvoiceEdit(toSave);
+			if (saved.outcome.status === 'timeBilled') {
+				refetchTime();
+			}
+			return saved;
+		},
+		[refetchTime, saveInvoiceEdit]
+	);
 
 	const editOf = useCallback((): InvoiceEdit | null => {
 		if (isUnchanged) {
@@ -67,8 +80,8 @@ export function useInvoiceEdit(saved: SavedInvoice) {
 		if (!edit) {
 			return null;
 		}
-		return saveInvoiceEdit({ edit, sending: null });
-	}, [editOf, saveInvoiceEdit]);
+		return saveEdit({ edit, sending: null });
+	}, [editOf, saveEdit]);
 
 	/** A draft becomes Sent once it goes out; an invoice already sent keeps the status it reached. */
 	const saveAndSend = useCallback(
@@ -81,9 +94,9 @@ export function useInvoiceEdit(saved: SavedInvoice) {
 			const marksSent = isDraftInvoice(saved.status);
 			// Sent from the invoice's workspace: a switch in another tab meanwhile sends nothing
 			const sending = { invoiceId: saved.id, invoiceNumber, email, marksSent, scope: edit.scope };
-			return saveInvoiceEdit({ edit, sending });
+			return saveEdit({ edit, sending });
 		},
-		[editOf, saveInvoiceEdit, saved]
+		[editOf, saveEdit, saved]
 	);
 
 	return { ...draft, problems, changes, save, saveAndSend, isSaving: isSavingEdit };

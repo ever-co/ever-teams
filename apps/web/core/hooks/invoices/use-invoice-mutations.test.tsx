@@ -549,6 +549,40 @@ describe('saving an edit to an invoice', () => {
 		expect(saved).toEqual({ outcome: { status: 'saved' }, sending: null });
 		expect(mockReplaceInvoiceLines).toHaveBeenCalledWith('inv-42', edit.revision.lines, workspace);
 	});
+
+	function timeBilledElsewhere() {
+		const message = 'INVOICE_TIME_LOG_NOT_BILLABLE: a line names a time log it cannot bill.';
+		return ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code 400',
+			status: 400,
+			response: { data: { statusCode: 400, message }, headers: {}, status: 400, statusText: 'Bad Request' }
+		});
+	}
+
+	it('puts its fields back and says its time was billed elsewhere when its lines are refused for that', async () => {
+		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockRejectedValue(timeBilledElsewhere());
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result, sending);
+
+		expect(saved).toEqual({ outcome: { status: 'timeBilled' }, sending: null });
+		expect(mockReplaceInvoiceLines).toHaveBeenCalledTimes(1);
+		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', edit.previous.update, workspace);
+		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
+	});
+
+	it('says how many lines the invoice holds when, refused that way, it could not be put back', async () => {
+		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
+		mockUpdateInvoice.mockResolvedValueOnce(undefined).mockRejectedValue(serverFailure());
+		mockReplaceInvoiceLines.mockRejectedValue(timeBilledElsewhere());
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'notPutBack', lineCount: 1 }, sending: null });
+	});
 });
 
 describe.each(SWITCHED_WORKSPACES)('an invoice of the list after another tab switched the %s', (_switched, cookies) => {
