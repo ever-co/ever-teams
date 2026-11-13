@@ -26,7 +26,7 @@ jest.mock('@/core/hooks/organizations/employees/use-employee', () => ({
 	useEmployeeUpdate: () => ({ updateEmployeeAsync: mockUpdateEmployee })
 }));
 // The organization's read: the store holds what it read, `isError` says it failed
-const mockOrganizationRead = { isError: false };
+const mockOrganizationRead = { isError: false, refetch: jest.fn() };
 jest.mock('@/core/hooks/auth/use-current-organization', () => ({
 	useGetCurrentOrganization: () => mockOrganizationRead
 }));
@@ -410,6 +410,16 @@ describe('Members settings where the organization does not restrict the switch (
 			id: 'employee-admin',
 			data: expect.objectContaining({ isTrackingEnabled: false })
 		});
+	});
+
+	it('reads the organization again when Gauzy refuses a switch an admin restricted meanwhile', async () => {
+		signInAs('manager', ERoleName.EMPLOYEE);
+		mockUpdateMembership.mockRejectedValue(Object.assign(new Error('Forbidden'), { statusCode: 403 }));
+		const view = renderSettings();
+
+		await act(() => view.result.current.setMemberTracking('row-manager', false));
+
+		expect(mockOrganizationRead.refetch).toHaveBeenCalledTimes(1);
 	});
 
 	it('reads an organization that does not state the setting (an older Gauzy) as not restricting it', () => {
