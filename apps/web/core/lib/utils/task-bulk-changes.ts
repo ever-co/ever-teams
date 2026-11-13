@@ -86,14 +86,16 @@ export function bulkChangesForPlatform(changes: ITaskBulkChanges): ITaskBulkChan
 }
 
 /**
- * Whether an undo item's previous values cannot all be put back: a status, priority or size name the platform does
- * not take, with no id beside it. With the id, the record goes back (and the platform names a priority or size from
- * it; a status is read by its id).
+ * Whether an undo item's previous values cannot all be put back: a name the platform does not take, which the undo
+ * leaves out. A status with its id beside it still goes back (the app reads a status by its id). A priority or size
+ * does not: the platform leaves out of the previous values a name the record beside it gives back, so a name it
+ * answers is one that record would not put back (none, or renamed since).
  */
 export function previousCannotBeRestored(item: ITaskBulkUpdateItem): boolean {
 	return NAMED_FIELDS.some(({ name, id, values }) => {
 		const value = item.changes[name];
-		return typeof value === 'string' && !values.has(value) && !item.changes[id];
+		const isLeftOut = typeof value === 'string' && !values.has(value);
+		return isLeftOut && (name !== 'status' || !item.changes[id]);
 	});
 }
 

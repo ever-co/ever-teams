@@ -105,18 +105,16 @@ describe('the bulk update sends the platform only what it takes', () => {
 
 	it('names a team’s own priority or size by its id alone, and puts back what the undo can name', async () => {
 		mockBulkUpdate.mockResolvedValueOnce({
-			applied: 2,
+			applied: 3,
 			refused: 0,
 			results: [
-				// The platform answers the name each task had: a team's own, with its record beside it.
-				{
-					taskId: 't1',
-					ok: true,
-					previous: { priority: 'p9', taskPriorityId: 'p-9', size: 'huge', taskSizeId: 'z-huge' }
-				},
+				// The records alone: the platform leaves out a team's own name that the record gives back.
+				{ taskId: 't1', ok: true, previous: { taskPriorityId: 'p-9', taskSizeId: 'z-huge' } },
+				// A name the record beside it does not give back (renamed since): the undo must leave it out.
+				{ taskId: 't2', ok: true, previous: { priority: 'p9', taskPriorityId: 'p-8' } },
 				// A name alone, written by a client that did not save the record: the undo cannot name it.
 				{
-					taskId: 't2',
+					taskId: 't3',
 					ok: true,
 					previous: { priority: 'p9', taskPriorityId: null, size: 'tiny', taskSizeId: null }
 				}
@@ -125,22 +123,23 @@ describe('the bulk update sends the platform only what it takes', () => {
 		const { result } = renderHook(() => useBulkTaskUpdate());
 		await act(async () => {
 			await result.current.bulkUpdate(
-				['t1', 't2'],
+				['t1', 't2', 't3'],
 				{ taskPriorityId: 'p-0', priority: 'p0', taskSizeId: 'z-xl', size: 'x-large' },
 				'Priority'
 			);
 		});
 		expect(mockBulkUpdate).toHaveBeenCalledWith({
-			taskIds: ['t1', 't2'],
+			taskIds: ['t1', 't2', 't3'],
 			changes: { taskPriorityId: 'p-0', taskSizeId: 'z-xl', size: 'x-large' }
 		});
 
 		mockBulkUpdate.mockResolvedValueOnce({
-			applied: 2,
+			applied: 3,
 			refused: 0,
 			results: [
 				{ taskId: 't1', ok: true },
-				{ taskId: 't2', ok: true }
+				{ taskId: 't2', ok: true },
+				{ taskId: 't3', ok: true }
 			]
 		});
 		const options = mockToast.mock.calls[0][1] as { action: { onClick: () => void } };
@@ -150,12 +149,13 @@ describe('the bulk update sends the platform only what it takes', () => {
 		expect(mockBulkUpdate).toHaveBeenLastCalledWith({
 			items: [
 				{ taskId: 't1', changes: { taskPriorityId: 'p-9', taskSizeId: 'z-huge' } },
-				{ taskId: 't2', changes: { taskPriorityId: null, size: 'tiny', taskSizeId: null } }
+				{ taskId: 't2', changes: { taskPriorityId: 'p-8' } },
+				{ taskId: 't3', changes: { taskPriorityId: null, size: 'tiny', taskSizeId: null } }
 			]
 		});
-		// t1 gets its priority and size back from their records; t2 keeps `p0`'s name, so it was not put back whole.
+		// t1 gets its priority and size back from their records; t2 and t3 keep `p0`, so they were not put back whole.
 		expect((mockToast as unknown as { warning: jest.Mock }).warning).toHaveBeenCalledWith(
-			'taskViews.UNDONE_PARTLY:{"applied":1,"refused":1}'
+			'taskViews.UNDONE_PARTLY:{"applied":1,"refused":2}'
 		);
 	});
 

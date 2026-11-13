@@ -94,16 +94,18 @@ describe('bulk changes as the platform takes them', () => {
 		expect(bulkChangesForPlatform({ priority: 'low', size: 'tiny' })).toEqual({ priority: 'low', size: 'tiny' });
 	});
 
-	it('tells an undo item whose previous priority or size cannot be put back: a name alone the platform does not take', () => {
+	it('tells an undo item whose previous priority or size cannot be put back: a name it must leave out', () => {
 		expect(previousCannotBeRestored({ taskId: 't1', changes: { priority: 'p0', taskPriorityId: null } })).toBe(
 			true
 		);
 		expect(previousCannotBeRestored({ taskId: 't1', changes: { size: 'huge' } })).toBe(true);
-		// With its id, the platform gives the task the record's name back.
+		// The platform answers a team's own name only when the record beside it would not give it back.
 		expect(previousCannotBeRestored({ taskId: 't1', changes: { priority: 'p0', taskPriorityId: 'p-0' } })).toBe(
-			false
+			true
 		);
-		expect(previousCannotBeRestored({ taskId: 't1', changes: { size: 'huge', taskSizeId: 'z-1' } })).toBe(false);
+		// A record alone (the platform left out the name it gives back), or a name the platform takes, goes back whole.
+		expect(previousCannotBeRestored({ taskId: 't1', changes: { taskPriorityId: 'p-0' } })).toBe(false);
+		expect(previousCannotBeRestored({ taskId: 't1', changes: { taskSizeId: 'z-1' } })).toBe(false);
 		expect(previousCannotBeRestored({ taskId: 't1', changes: { priority: 'low', taskPriorityId: null } })).toBe(
 			false
 		);
