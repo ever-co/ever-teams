@@ -30,7 +30,14 @@ const DAILY_REPORT = [
 	{
 		date: '2026-11-03',
 		logs: [
-			{ project: { id: 'website', name: 'Website', organizationContact: { id: 'acme' } }, employeeLogs },
+			{
+				project: {
+					id: 'website',
+					name: 'Website',
+					organizationContact: { id: 'acme', name: 'Acme in the report' }
+				},
+				employeeLogs
+			},
 			{ project: { id: 'old-site', name: 'Old site', organizationContact: null }, employeeLogs }
 		]
 	}
@@ -224,6 +231,9 @@ describe('useTimeActivityReport grouped by client', () => {
 
 		expect(report.isDailyPending).toBe(false);
 		expect(report.isDailyError).toBe(false);
+		expect(report.isBreakdownPending).toBe(false);
+		expect(report.isBreakdownError).toBe(false);
+		expect(report.isClientNamesError).toBe(false);
 		const clientsOfRows = report.rows.map((row) => [row.projectName, row.client]);
 		expect(clientsOfRows).toEqual([
 			['Website', { key: 'acme', name: 'Acme' }],
@@ -233,44 +243,57 @@ describe('useTimeActivityReport grouped by client', () => {
 		expect(mockClientsQueryOptions).toHaveBeenLastCalledWith(READS_NAMES);
 	});
 
-	it('waits for the clients list before it shows time by client', () => {
+	it('shows the figures at once and keeps only the table waiting while the clients list is read', () => {
 		mockClientsList = { isLoaded: false, isError: false };
 
 		const report = reportUnder([], PROJECTS_READ);
 
-		expect(report.isDailyPending).toBe(true);
+		expect(report.isDailyPending).toBe(false);
 		expect(report.isDailyError).toBe(false);
-		expect(report.rows).toEqual([]);
-		expect(report.figures.reportSeconds).toBeNull();
+		expect(report.figures.reportSeconds).toBe(1200);
+		expect(report.isBreakdownPending).toBe(true);
+		expect(report.clientOfProjectLog).toBeNull();
 	});
 
-	it('waits for the projects before it shows time by client', () => {
+	it('keeps only the table waiting while the projects are read', () => {
 		const report = reportUnder([], { isPending: true, isError: false });
 
-		expect(report.isDailyPending).toBe(true);
-		expect(report.rows).toEqual([]);
+		expect(report.isDailyPending).toBe(false);
+		expect(report.figures.reportSeconds).toBe(1200);
+		expect(report.isBreakdownPending).toBe(true);
+		expect(report.clientOfProjectLog).toBeNull();
 	});
 
-	it("shows the report's error when the clients cannot be read, and reads them again on retry", () => {
+	it('names the clients from the report when the clients list cannot be read, says so, and reads it again on retry', () => {
 		mockClientsList = { isLoaded: false, isError: true };
 
 		const report = reportUnder([], PROJECTS_READ);
 
-		expect(report.isDailyError).toBe(true);
+		expect(report.isDailyError).toBe(false);
 		expect(report.isDailyPending).toBe(false);
-		expect(report.rows).toEqual([]);
+		expect(report.isBreakdownError).toBe(false);
+		expect(report.isBreakdownPending).toBe(false);
+		expect(report.isClientNamesError).toBe(true);
+		expect(report.figures.reportSeconds).toBe(1200);
+		const clientsOfRows = report.rows.map((row) => [row.projectName, row.client]);
+		expect(clientsOfRows).toEqual([
+			['Website', { key: 'acme', name: 'Acme in the report' }],
+			['Old site', { key: 'archived-client', name: null }]
+		]);
 
-		report.refetchDaily();
+		report.retryClientNames();
 
 		expect(mockRefetchClientNames).toHaveBeenCalledTimes(1);
-		expect(mockRefetchDaily).toHaveBeenCalledTimes(1);
-		expect(mockRefetchProjectClients).not.toHaveBeenCalled();
+		expect(mockRefetchDaily).not.toHaveBeenCalled();
 	});
 
-	it("shows the report's error when the projects cannot be read, and reads them again on retry", () => {
+	it("shows the table's error only when the projects cannot be read, and reads them again on retry", () => {
 		const report = reportUnder([], { isPending: false, isError: true });
 
-		expect(report.isDailyError).toBe(true);
+		expect(report.isDailyError).toBe(false);
+		expect(report.figures.reportSeconds).toBe(1200);
+		expect(report.isBreakdownError).toBe(true);
+		expect(report.isBreakdownPending).toBe(false);
 
 		report.refetchDaily();
 
@@ -278,13 +301,14 @@ describe('useTimeActivityReport grouped by client', () => {
 		expect(mockRefetchClientNames).not.toHaveBeenCalled();
 	});
 
-	it('waits for the permissions and reads no client before they say the reader may', () => {
+	it('keeps the table waiting for the permissions and reads no client before they say the reader may', () => {
 		mockAccess = 'unknown';
 
 		const report = reportUnder([], PROJECTS_READ);
 
-		expect(report.isDailyPending).toBe(true);
-		expect(report.rows).toEqual([]);
+		expect(report.isDailyPending).toBe(false);
+		expect(report.isBreakdownPending).toBe(true);
+		expect(report.clientOfProjectLog).toBeNull();
 		expect(mockClientsQueryOptions).toHaveBeenLastCalledWith(READS_NO_NAMES);
 	});
 
@@ -296,6 +320,8 @@ describe('useTimeActivityReport grouped by client', () => {
 		const clientsOfRows = report.rows.map((row) => row.client);
 		expect(clientsOfRows).toEqual([undefined, undefined]);
 		expect(report.clientOfProjectLog).toBeNull();
+		expect(report.isBreakdownPending).toBe(false);
+		expect(report.isClientNamesError).toBe(false);
 		expect(mockClientsQueryOptions).toHaveBeenLastCalledWith(READS_NO_NAMES);
 	});
 });

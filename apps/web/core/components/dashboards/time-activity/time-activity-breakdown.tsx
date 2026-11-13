@@ -1,6 +1,6 @@
 'use client';
 
-import { type CSSProperties, memo, useCallback, useMemo } from 'react';
+import { type CSSProperties, type ReactNode, memo, useCallback, useMemo } from 'react';
 import { subDays } from 'date-fns';
 import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { AnimatedHeight } from '@/core/components/common/animated-height';
@@ -892,6 +892,8 @@ interface TimeActivityBreakdownProps {
 	period: Period;
 	isLoading: boolean;
 	isError: boolean;
+	/** A message about the rows shown, above the table. */
+	notice?: ReactNode;
 	hasFilters: boolean;
 	onRetry: () => void;
 	onClearFilters: () => void;
@@ -906,6 +908,7 @@ export function TimeActivityBreakdown({
 	period,
 	isLoading,
 	isError,
+	notice,
 	hasFilters,
 	onRetry,
 	onClearFilters,
@@ -933,6 +936,8 @@ export function TimeActivityBreakdown({
 	const showsHeader = !showsEmpty && !showsError;
 	const hasOpenable = hasOpenableRows(tree.nodes);
 	const showsToggleAll = showsRows && hasOpenable;
+	const hasNotice = Boolean(notice);
+	const showsNotice = showsRows && hasNotice;
 
 	if (isLoading) {
 		return <TimeActivityBreakdownSkeleton grouping={grouping} columns={columns} />;
@@ -956,6 +961,7 @@ export function TimeActivityBreakdown({
 				)
 			}
 		>
+			{showsNotice && notice}
 			<div role="table" aria-label={title} style={gridStyle}>
 				{showsHeader && (
 					<ReportHeaderRow gridClassName={BREAKDOWN_GRID}>

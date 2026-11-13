@@ -253,6 +253,8 @@ export function TimeActivitySummaryBandSkeleton({ isManager = true }: Readonly<{
 export function TimeActivityBandExport({ report }: Readonly<{ report: TimeActivityReport }>) {
 	const filterOptions = useTimeActivityFilterOptions();
 	const hasRows = report.rows.length > 0;
+	const areRowsSettled = !report.isBreakdownPending && !report.isBreakdownError;
+	const canExport = hasRows && areRowsSettled;
 	return (
 		<TimeActivityExportMenu
 			report={report.report}
@@ -264,7 +266,7 @@ export function TimeActivityBandExport({ report }: Readonly<{ report: TimeActivi
 			figures={report.figures}
 			filters={report.settings.filters}
 			filterOptions={filterOptions}
-			isDisabled={!hasRows}
+			isDisabled={!canExport}
 		/>
 	);
 }
