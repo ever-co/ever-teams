@@ -393,6 +393,19 @@ describe('draftRowsOf for a file from another tool', () => {
 		expect(problemCodesOf(start)).toEqual(['startDayMismatch']);
 		expect(problemCodesOf(end)).toEqual(['endDayMismatch']);
 	});
+
+	it('leaves out a row whose duration ends on another day than its end date', () => {
+		const byDuration = { startTime: '23:00', endTime: '' };
+		const sameDay = draftIn({ ...byDuration, endDate: '2026-11-03', duration: '2:00' }, 'yearFirst');
+		const nextDay = draftIn({ ...byDuration, endDate: '2026-11-04', duration: '2:00' }, 'yearFirst');
+		const atMidnight = draftIn({ ...byDuration, endDate: '2026-11-04', duration: '1:00' }, 'yearFirst');
+		const withinDay = draftIn({ endDate: '2026-11-03', endTime: '', duration: '1:30' }, 'yearFirst');
+
+		expect(problemCodesOf(sameDay)).toEqual(['endDayMismatch']);
+		expect(nextDay.entry?.end).toEqual(at(1, 0, 4));
+		expect(atMidnight.entry?.end).toEqual(at(0, 0, 4));
+		expect(withinDay.entry?.end).toEqual(at(10, 30));
+	});
 });
 
 describe('timeImportLookupsOf', () => {

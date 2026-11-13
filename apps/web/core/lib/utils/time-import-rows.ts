@@ -177,6 +177,7 @@ interface TypedPeriod {
 	/** Null when the row gives a duration in place of an end time. */
 	end: TypedMoment | null;
 	durationSeconds: number | null;
+	endDate: CalendarDay | null;
 }
 
 function isSameCalendarDay(first: CalendarDay, second: CalendarDay): boolean {
@@ -254,7 +255,7 @@ function typedPeriodOf(cells: TimeImportCells, order: DateOrder): Reading<TypedP
 		const endDay = endMoment.day ?? endDateDay ?? startDay;
 		end = { day: endDay, clock: endMoment.clock };
 	}
-	return { value: { start, end, durationSeconds }, problems };
+	return { value: { start, end, durationSeconds, endDate: endDateDay }, problems };
 }
 
 function endOf(typed: TypedPeriod, start: Date): Date | null {
@@ -273,6 +274,20 @@ function disagreesWithDuration(typed: TypedPeriod, seconds: number): boolean {
 	}
 	const difference = Math.abs(seconds - (typed.durationSeconds ?? 0));
 	return difference >= SECONDS_PER_MINUTE;
+}
+
+function calendarDayOfDate(date: Date): CalendarDay {
+	return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
+}
+
+/** An end date beside a duration names the day the entry ends, as it does beside an end time. */
+function endsOffEndDate(typed: TypedPeriod, end: Date): boolean {
+	const endsByDuration = typed.end === null;
+	if (!endsByDuration || !typed.endDate) {
+		return false;
+	}
+	const endDay = calendarDayOfDate(end);
+	return !isSameCalendarDay(endDay, typed.endDate);
 }
 
 function periodOf(cells: TimeImportCells, context: TimeImportContext, order: DateOrder): Reading<TimePeriod> {
@@ -297,6 +312,9 @@ function periodOf(cells: TimeImportCells, context: TimeImportContext, order: Dat
 		return { value: null, problems: [{ code: 'endNotAfterStart' }] };
 	}
 	const problems: TimeImportProblem[] = [];
+	if (endsOffEndDate(typed.value, end)) {
+		problems.push({ code: 'endDayMismatch' });
+	}
 	if (disagreesWithDuration(typed.value, seconds)) {
 		problems.push({ code: 'durationMismatch' });
 	}
