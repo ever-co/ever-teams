@@ -633,3 +633,45 @@ export function hasInvoiceChanges(changes: InvoiceChanges): boolean {
 	const hasValueChange = values.some((change) => change !== null);
 	return hasLineChange || hasValueChange || changes.isNoteRewritten;
 }
+
+/** A line as written to the API or read back from it. */
+export interface WrittenInvoiceLine {
+	description?: string | null;
+	price?: number | null;
+	quantity?: number | null;
+	totalValue?: number | null;
+	projectId?: string | null;
+	employeeId?: string | null;
+	taskId?: string | null;
+}
+
+function lineSignatureOf(line: WrittenInvoiceLine) {
+	const parts = [
+		line.projectId ?? '',
+		line.employeeId ?? '',
+		line.taskId ?? '',
+		(line.description ?? '').trim(),
+		hundredthsOf(line.quantity ?? 0),
+		hundredthsOf(line.price ?? 0),
+		hundredthsOf(line.totalValue ?? 0)
+	];
+	return parts.join('|');
+}
+
+function sortedSignaturesOf(lines: ReadonlyArray<WrittenInvoiceLine>) {
+	const signatures = lines.map(lineSignatureOf);
+	return signatures.sort((first, second) => first.localeCompare(second));
+}
+
+/** Whether an invoice read back holds exactly these lines, in any order. */
+export function haveSameLines(
+	current: ReadonlyArray<WrittenInvoiceLine>,
+	expected: ReadonlyArray<WrittenInvoiceLine>
+): boolean {
+	if (current.length !== expected.length) {
+		return false;
+	}
+	const currentSignatures = sortedSignaturesOf(current);
+	const expectedSignatures = sortedSignaturesOf(expected);
+	return currentSignatures.every((signature, index) => signature === expectedSignatures[index]);
+}

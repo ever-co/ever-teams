@@ -1,4 +1,5 @@
 import {
+	haveSameLines,
 	hasInvoiceChanges,
 	invoiceChangesOf,
 	invoiceGroupingOfLines,
@@ -18,7 +19,8 @@ import {
 	invoiceTermsOf,
 	invoiceTimeOf,
 	type BillableEntry,
-	type InvoiceGrouping
+	type InvoiceGrouping,
+	type InvoiceItemRequest
 } from './invoices';
 import type { TSavedInvoice, TSavedInvoiceItem } from '@/core/types/schemas/organization/invoice.schema';
 
@@ -387,5 +389,49 @@ describe('what an edit changes', () => {
 		const saved = readSaved();
 
 		expect(invoiceChangesOf(saved, figuresOf(saved, { total: 1080.001 })).total).toBeNull();
+	});
+});
+
+describe('whether an invoice read back holds the lines written', () => {
+	const written: InvoiceItemRequest[] = [
+		{
+			description: 'Ana Lima',
+			price: 80,
+			quantity: 10,
+			totalValue: 800,
+			invoiceId: 'invoice-42',
+			projectId: 'p1',
+			employeeId: 'ana',
+			applyTax: true,
+			applyDiscount: false,
+			organizationId: 'organization-1',
+			tenantId: 'tenant-1'
+		},
+		{
+			description: 'App',
+			price: 100,
+			quantity: 5,
+			totalValue: 500,
+			invoiceId: 'invoice-42',
+			projectId: 'p2',
+			applyTax: true,
+			applyDiscount: false,
+			organizationId: 'organization-1',
+			tenantId: 'tenant-1'
+		}
+	];
+
+	it('holds them in any order, the API answering its numbers as it stores them', () => {
+		const readBack = [
+			item({ description: 'App', projectId: 'p2', employeeId: null, price: 100, quantity: 5, totalValue: 500 }),
+			item({ description: 'Ana Lima' })
+		];
+
+		expect(haveSameLines(readBack, written)).toBe(true);
+	});
+
+	it('does not hold them when one is missing or differs', () => {
+		expect(haveSameLines([], written)).toBe(false);
+		expect(haveSameLines([item({ description: 'Ana Lima' }), item({ projectId: 'p2' })], written)).toBe(false);
 	});
 });
