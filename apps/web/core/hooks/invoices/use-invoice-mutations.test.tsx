@@ -634,10 +634,24 @@ describe('saving an edit to an invoice', () => {
 		}
 	);
 
-	it('writes its lines in the invoice’s workspace when another tab switches it once the save has begun', async () => {
+	it('writes nothing once another tab switched the workspace while the invoice was read first', async () => {
+		mockGetInvoice.mockImplementation(async () => {
+			mockCookieScope.organizationId = 'organization-2';
+			return invoiceRead('SENT');
+		});
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result, sending);
+
+		expect(saved).toEqual({ outcome: { status: 'notSaved' }, sending: null });
+		expect(mockUpdateInvoice).not.toHaveBeenCalled();
+		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
+	});
+
+	it('writes its lines in the invoice’s workspace when another tab chooses another organization once the save has begun', async () => {
 		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
 		mockUpdateInvoice.mockImplementation(async () => {
-			mockCookieScope.tenantId = 'tenant-2';
+			mockCookieScope.organizationId = 'organization-2';
 		});
 		mockReplaceInvoiceLines.mockResolvedValue(undefined);
 		const { result } = renderSaveEdit();
@@ -646,6 +660,39 @@ describe('saving an edit to an invoice', () => {
 
 		expect(saved).toEqual({ outcome: { status: 'saved' }, sending: null });
 		expect(mockReplaceInvoiceLines).toHaveBeenCalledWith('inv-42', edit.revision.lines, workspace);
+	});
+
+	it('writes nothing more once another tab chose another tenant after its fields were written', async () => {
+		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
+		mockUpdateInvoice.mockImplementation(async () => {
+			mockCookieScope.tenantId = 'tenant-2';
+		});
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result, sending);
+
+		expect(saved).toEqual({ outcome: { status: 'notPutBack', lineCount: null }, sending: null });
+		expect(mockUpdateInvoice).toHaveBeenCalledTimes(1);
+		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
+		expect(mockGetInvoice).toHaveBeenCalledTimes(1);
+		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
+	});
+
+	it('puts nothing back once another tab chose another tenant while its lines were refused', async () => {
+		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockImplementation(async () => {
+			mockCookieScope.tenantId = 'tenant-2';
+			throw serverFailure();
+		});
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'notPutBack', lineCount: null }, sending: null });
+		expect(mockUpdateInvoice).toHaveBeenCalledTimes(1);
+		expect(mockReplaceInvoiceLines).toHaveBeenCalledTimes(1);
+		expect(mockGetInvoice).toHaveBeenCalledTimes(1);
 	});
 });
 

@@ -241,11 +241,43 @@ function lineCountOf(invoice: TSavedInvoice | null): number | null {
 	return invoice.invoiceItems?.length ?? 0;
 }
 
+const TENANT_SWITCHED = 'Another tenant was chosen during the save';
+
+/** Written in part, and not read back: the tenant it belongs to is no longer the one chosen. */
+const NOT_PUT_BACK_UNREAD: InvoiceEditOutcome = { status: 'notPutBack', lineCount: null };
+
+function isEditTenantChosen(edit: InvoiceEdit) {
+	return getTenantIdCookie() === edit.scope.tenantId;
+}
+
+/**
+ * Where a write of the edit goes once it has begun. In proxy mode a request goes to the tenant the cookies name,
+ * whatever the edit pins, so nothing more is written once another tab chose another tenant. Another organization of
+ * the same tenant leaves the request where it belongs.
+ */
+function scopeToWriteIn(edit: InvoiceEdit): InvoicesScope {
+	if (!isEditTenantChosen(edit)) {
+		throw new Error(TENANT_SWITCHED);
+	}
+	return edit.scope;
+}
+
+async function notPutBackOf(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
+	if (!isEditTenantChosen(edit)) {
+		return NOT_PUT_BACK_UNREAD;
+	}
+	const now = await readInvoiceBack(edit);
+	return { status: 'notPutBack', lineCount: lineCountOf(now) };
+}
+
 /**
  * Writes the invoice back as it was read: its lines first, and only when they changed, since the API deletes the
  * lines before it saves the new ones and a failure between the two leaves none.
  */
 async function putInvoiceBack(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
+	if (!isEditTenantChosen(edit)) {
+		return NOT_PUT_BACK_UNREAD;
+	}
 	const current = await readInvoiceBack(edit);
 	const currentLines = current?.invoiceItems ?? [];
 	const keepsItsLines = current !== null && haveSameLines(currentLines, edit.previous.lines);
@@ -256,13 +288,14 @@ async function putInvoiceBack(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
 	}
 	try {
 		if (!keepsItsLines) {
-			await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.previous.lines, edit.scope);
+			const linesScope = scopeToWriteIn(edit);
+			await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.previous.lines, linesScope);
 		}
-		await invoiceService.updateInvoice(edit.invoiceId, edit.previous.update, edit.scope);
+		const fieldsScope = scopeToWriteIn(edit);
+		await invoiceService.updateInvoice(edit.invoiceId, edit.previous.update, fieldsScope);
 		return { status: 'putBack' };
 	} catch {
-		const now = await readInvoiceBack(edit);
-		return { status: 'notPutBack', lineCount: lineCountOf(now) };
+		return notPutBackOf(edit);
 	}
 }
 
@@ -325,7 +358,8 @@ async function writeInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> 
 		return outcomeOfFailedFields(edit, error);
 	}
 	try {
-		await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.revision.lines, edit.scope);
+		const linesScope = scopeToWriteIn(edit);
+		await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.revision.lines, linesScope);
 	} catch {
 		return putInvoiceBack(edit);
 	}
@@ -341,8 +375,8 @@ function refusedEdit(refusal: InvoiceEditOutcome): InvoiceEditCheck {
 
 /**
  * Reads the invoice first: a payment, a void or a change saved from elsewhere since it was opened is never written
- * over, and what a failure puts back is what was read. Nothing is sent once another tab switched the workspace; a
- * switch during the save leaves every request in the invoice's workspace.
+ * over, and what a failure puts back is what was read. Nothing is written once another tab switched the workspace
+ * before the first write; past it, see `scopeToWriteIn`.
  */
 async function checkInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditCheck> {
 	if (!isChosenWorkspace(edit.scope)) {
@@ -358,6 +392,10 @@ async function checkInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditCheck> {
 	}
 	if (!isAsOpened(current, edit)) {
 		return refusedEdit({ status: 'changed' });
+	}
+	const isStillChosen = isChosenWorkspace(edit.scope);
+	if (!isStillChosen) {
+		return refusedEdit({ status: 'notSaved' });
 	}
 	return { refusal: null, status };
 }
