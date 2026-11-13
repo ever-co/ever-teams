@@ -25,7 +25,7 @@ import { InvoiceDetails } from './invoice-details';
 import { EarlierInvoices } from './invoice-earlier';
 import { OtherCurrencies, UnpricedTimeList } from './invoice-left-out';
 import { InvoiceSheet } from './invoice-sheet';
-import { NEW_INVOICE_LAYOUT } from './new-invoice-recipes';
+import { GROUPING_SWITCH, NEW_INVOICE_LAYOUT } from './new-invoice-recipes';
 import { InvoiceSheetSkeleton, MessageLink, NewInvoiceMessage, NewInvoicePageSkeleton } from './new-invoice-states';
 import { SaveInvoiceDialog } from './save-invoice-dialog';
 
@@ -190,6 +190,7 @@ function NewInvoiceContent() {
 		{ title, href: NEW_INVOICE_PATH }
 	];
 	const groupingItems: Array<{ value: InvoiceGrouping; label: string }> = [
+		{ value: 'project', label: t('invoices.new.byProject.GROUP_BY_PROJECT') },
 		{ value: 'member', label: t('invoices.new.GROUP_BY_MEMBER') },
 		{ value: 'task', label: t('invoices.new.GROUP_BY_TASK') }
 	];
@@ -218,15 +219,14 @@ function NewInvoiceContent() {
 								onChange={invoice.changePeriod}
 								weekStartsOn={INVOICE_WEEK_START}
 							/>
+							<SegmentedControl<InvoiceGrouping>
+								items={groupingItems}
+								value={invoice.grouping}
+								onValueChange={invoice.changeGrouping}
+								ariaLabel={t('invoices.new.GROUPING_LABEL')}
+								className={GROUPING_SWITCH}
+							/>
 						</>
-					}
-					trailingControls={
-						<SegmentedControl<InvoiceGrouping>
-							items={groupingItems}
-							value={invoice.grouping}
-							onValueChange={invoice.changeGrouping}
-							ariaLabel={t('invoices.new.GROUPING_LABEL')}
-						/>
 					}
 				/>
 			}
