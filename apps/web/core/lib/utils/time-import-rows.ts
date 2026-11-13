@@ -337,12 +337,6 @@ function viewerNameOf(context: TimeImportContext): string {
 	return viewer?.name ?? '';
 }
 
-function namesViewer(cell: string, context: TimeImportContext): boolean {
-	const namesViewerEmail = isSameName(cell, context.viewerEmail ?? '');
-	const namesViewerName = isSameName(cell, viewerNameOf(context));
-	return namesViewerEmail || namesViewerName;
-}
-
 function namedMemberOf(member: TimeImportMember, context: TimeImportContext): Reading<ResolvedMember> {
 	const isViewer = member.employeeId === context.viewerEmployeeId;
 	if (isViewer) {
@@ -378,8 +372,14 @@ function memberByNameOf(name: string, context: TimeImportContext): Reading<Resol
  */
 function memberOf(cell: string, context: TimeImportContext): Reading<ResolvedMember> {
 	const namesNobody = cell === '';
-	if (namesNobody || namesViewer(cell, context)) {
+	const namesViewerEmail = isSameName(cell, context.viewerEmail ?? '');
+	if (namesNobody || namesViewerEmail) {
 		return viewerAsMember(context);
+	}
+	// Every member of that name is counted, the viewer included: a name they share is no proof the row is theirs
+	const namesViewerName = isSameName(cell, viewerNameOf(context));
+	if (namesViewerName) {
+		return memberByNameOf(cell, context);
 	}
 	if (!context.canImportForOthers) {
 		return { value: null, problems: [{ code: 'memberNotAllowed' }] };

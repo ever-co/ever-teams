@@ -302,6 +302,18 @@ describe('draftRowsOf', () => {
 				{ code: 'memberAmbiguous', count: 2 }
 			]);
 		});
+
+		it('is left out when the viewer shares their name with another member, and stays theirs by email', () => {
+			const namesake = { employeeId: 'employee-vera-2', email: 'vera.2@ever.co', name: VIEWER.name };
+			const members = [VIEWER, ADA, namesake];
+			const ambiguous = [{ code: 'memberAmbiguous', count: 2 }];
+
+			expect(draftOf({ memberEmail: VIEWER.name }, { members }).problems).toEqual(ambiguous);
+			expect(draftOf({ memberEmail: VIEWER.name }, { members, canImportForOthers: true }).problems).toEqual(
+				ambiguous
+			);
+			expect(draftOf({ memberEmail: VIEWER.email }, { members }).entry?.employeeId).toBe(VIEWER.employeeId);
+		});
 	});
 
 	it('judges nothing else on a row with more cells than the header', () => {
