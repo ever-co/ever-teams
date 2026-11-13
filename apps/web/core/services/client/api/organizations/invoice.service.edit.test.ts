@@ -43,6 +43,18 @@ describe('reading an invoice to edit it', () => {
 		expect(config?.tenantId).toBe('tenant-of-the-key');
 		expect(invoice.invoiceItems?.[0]).toMatchObject({ price: 80, quantity: 10, totalValue: 800 });
 	});
+
+	it('reads it with the token it is given rather than the cookies’ one', async () => {
+		const get = jest.spyOn(invoiceService, 'get').mockResolvedValue({ data: savedInvoice } as never);
+
+		await invoiceService.getInvoice('invoice-42', { tenantId: 'tenant-1', accessToken: 'token-1' });
+
+		expect(get.mock.calls[0][1]).toMatchObject({
+			tenantId: 'tenant-1',
+			pinnedAuthorization: true,
+			headers: { Authorization: 'Bearer token-1' }
+		});
+	});
 });
 
 describe('writing an edit', () => {
@@ -76,5 +88,23 @@ describe('writing an edit', () => {
 
 		expect(put.mock.calls[0][2]?.tenantId).toBe('tenant-1');
 		expect(post.mock.calls[0][2]?.tenantId).toBe('tenant-1');
+	});
+
+	it('writes with the token the save began with when it is given, not the one another tab left in the cookies', async () => {
+		const put = jest.spyOn(invoiceService, 'put').mockResolvedValue({ data: {} } as never);
+		const post = jest.spyOn(invoiceService, 'post').mockResolvedValue({ data: [] } as never);
+		const pinned = { organizationId: 'organization-1', tenantId: 'tenant-1', accessToken: 'token-1' };
+		const pinnedConfig = {
+			tenantId: 'tenant-1',
+			pinnedAuthorization: true,
+			headers: { Authorization: 'Bearer token-1' }
+		};
+		mockCookieScope.tenantId = 'tenant-2';
+
+		await invoiceService.updateInvoice('invoice-42', update, pinned);
+		await invoiceService.replaceInvoiceLines('invoice-42', [line] as InvoiceItemRequest[], pinned);
+
+		expect(put.mock.calls[0][2]).toMatchObject(pinnedConfig);
+		expect(post.mock.calls[0][2]).toMatchObject(pinnedConfig);
 	});
 });
