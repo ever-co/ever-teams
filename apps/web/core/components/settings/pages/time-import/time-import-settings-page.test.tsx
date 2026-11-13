@@ -419,4 +419,18 @@ describe('TimeImportSettingsPage', () => {
 		expect(leftOutLine.reason).toContain('timeImport.problems.DATE_UNREADABLE');
 		expect(savedLine.cells.notes).toBe('=cmd');
 	});
+
+	it('keeps an end date column in the report of a file that gave end dates', () => {
+		const rows = rowsOf([sheetRowOf(2, { endDate: '04.11.26', endTime: '', duration: '1:00' })]);
+		const run: TimeImportRun = { outcomes: new Map(), isFinished: true };
+		const report = timeImportReportOf(rows, run);
+		mockTimeImport.mockReturnValue(timeImportOf({ stage: 'done', fileName: 'export.csv', rows, run, report }));
+		render(<TimeImportSettingsPage />);
+
+		fireEvent.click(screen.getByRole('button', { name: 'timeImport.DOWNLOAD_REPORT' }));
+
+		const [lines, columns] = mockDownloadCsv.mock.calls[0] as [TimeImportReportLine[], CsvColumn<never>[]];
+		expect(headersOf(columns)).toContain('end date');
+		expect(lines[0].cells.endDate).toBe('04.11.26');
+	});
 });

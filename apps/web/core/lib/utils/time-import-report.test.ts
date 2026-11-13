@@ -6,7 +6,22 @@ import {
 	timeImportTemplateCsvColumnsOf,
 	type TimeImportReportLine
 } from './time-import-report';
+import { draftRowsOf, type TimeImportContext } from './time-import-rows';
 import type { TimeImportCells } from './time-import-sheet';
+
+const VIEWER_CONTEXT: TimeImportContext = {
+	now: new Date(2026, 10, 5, 18),
+	allowsFutureDates: false,
+	requiresProject: false,
+	teamHasDefaultProject: false,
+	viewerEmployeeId: 'employee-viewer',
+	viewerEmail: 'viewer@ever.co',
+	canImportForOthers: false,
+	matchesEveryTeamTask: true,
+	members: [],
+	projects: [],
+	tasks: []
+};
 
 function lineOf(cells: Partial<TimeImportCells>, row = 2): TimeImportReportLine {
 	return {
@@ -51,7 +66,10 @@ describe('the template of a time import', () => {
 
 describe('the report of a time import', () => {
 	it('writes the row, its cells as the file had them, its status and its reason', () => {
-		const report = csvOf([lineOf({ notes: 'Pairing, then review' }, 7)], timeImportReportCsvColumnsOf(false));
+		const report = csvOf(
+			[lineOf({ notes: 'Pairing, then review' }, 7)],
+			timeImportReportCsvColumnsOf(false, false)
+		);
 
 		expect(report.split('\r\n')).toEqual([
 			'row,date,start time,end time,duration,project,task,notes,billable,status,reason',
@@ -90,39 +108,62 @@ describe('the report of a time import', () => {
 		const oneColumn = lineOf({ endDate: '2026-11-04 01:30', endTime: '2026-11-04 01:30' }, 3);
 		const sameDay = lineOf({}, 4);
 		const report = csvOf([overnight, oneColumn, sameDay], timeImportReportCsvColumnsOf(false));
-		const [, overnightLine, oneColumnLine, sameDayLine] = report.split('\r\n');
+		const [header, overnightLine, oneColumnLine, sameDayLine] = report.split('\r\n');
 
-		expect(overnightLine).toContain(',22:00,2026-11-04 01:30,');
-		expect(oneColumnLine).toContain(',09:00,2026-11-04 01:30,');
-		expect(sameDayLine).toContain(',09:00,10:30,');
+		expect(header).toContain(',start time,end date,end time,');
+		expect(overnightLine).toContain(',22:00,2026-11-04,01:30,');
+		expect(oneColumnLine).toContain(',09:00,2026-11-04 01:30,2026-11-04 01:30,');
+		expect(sameDayLine).toContain(',09:00,,10:30,');
 		expect(timeImportReadingOf(report)).toMatchObject({
 			kind: 'sheet',
-			sheet: { rows: [{ cells: { endTime: '2026-11-04 01:30' } }, {}, { cells: { endTime: '10:30' } }] }
+			sheet: {
+				rows: [
+					{ cells: { endDate: '2026-11-04', endTime: '01:30' } },
+					{},
+					{ cells: { endDate: '', endTime: '10:30' } }
+				]
+			}
 		});
 	});
 
-	it('writes no end date that repeats the date of its row, readable or not', () => {
-		const unreadable = lineOf({ date: '06.11.26', endDate: '06.11.26', endTime: '10:00' });
-		const sameDay = lineOf({ date: '28/10/2026', endDate: '28/10/2026', endTime: '13:15' }, 3);
-		const report = csvOf([unreadable, sameDay], timeImportReportCsvColumnsOf(false));
-		const [, unreadableLine, sameDayLine] = report.split('\r\n');
+	it('keeps an end date that disagrees with the date of its end time, or cannot be read, so the row stays left out', () => {
+		const byEndTime = { project: '', task: '' };
+		const otherDay = lineOf({ ...byEndTime, endDate: '2026-11-04', endTime: '2026-11-03 10:00' });
+		const unreadable = lineOf({ ...byEndTime, endDate: '04.11.26', endTime: '2026-11-03 10:00' }, 3);
+		const report = csvOf([otherDay, unreadable], timeImportReportCsvColumnsOf(false));
+		const reading = timeImportReadingOf(report);
+		if (reading.kind !== 'sheet') {
+			throw new Error(reading.kind);
+		}
+		const [otherDayRow, unreadableRow] = draftRowsOf(reading.sheet.rows, VIEWER_CONTEXT, reading.sheet.dateOrder);
 
-		expect(unreadableLine).toContain(',06.11.26,09:00,10:00,');
-		expect(sameDayLine).toContain(',28/10/2026,09:00,13:15,');
+		expect(otherDayRow.problems).toEqual([{ code: 'endDayMismatch' }]);
+		expect(unreadableRow.problems).toEqual([{ code: 'endDateUnreadable' }]);
 	});
 
-	it('keeps an end date that disagrees with the date of its end time, or cannot be read, so the row stays left out', () => {
-		const otherDay = lineOf({ endDate: '2026-11-04', endTime: '2026-11-03 10:00' });
-		const unreadable = lineOf({ endDate: '04.11.26', endTime: '2026-11-03 10:00' }, 3);
-		const sameDay = lineOf({ endDate: '2026-11-3', endTime: '2026-11-03 10:00' }, 4);
-		const repeatsDate = lineOf({ endDate: '2026-11-03', endTime: '2026-11-04 01:00' }, 5);
-		const report = csvOf([otherDay, unreadable, sameDay, repeatsDate], timeImportReportCsvColumnsOf(false));
-		const [, otherDayLine, unreadableLine, sameDayLine, repeatsDateLine] = report.split('\r\n');
+	it('drops the end date column for a file that gave none', () => {
+		const report = csvOf([lineOf({})], timeImportReportCsvColumnsOf(false, false));
 
-		expect(otherDayLine).toContain(',09:00,2026-11-04 2026-11-03 10:00,');
-		expect(unreadableLine).toContain(',09:00,04.11.26 2026-11-03 10:00,');
-		expect(sameDayLine).toContain(',09:00,2026-11-03 10:00,');
-		expect(repeatsDateLine).toContain(',09:00,2026-11-03 2026-11-04 01:00,');
+		expect(report).not.toContain('end date');
+	});
+
+	it('keeps an end date beside a duration as the file wrote it, so a row left out for it is left out again', () => {
+		const byDuration = { endTime: '', project: '', task: '' };
+		const unreadable = lineOf({ ...byDuration, endDate: '04.11.26', duration: '1:00' });
+		const overnight = lineOf({ ...byDuration, startTime: '23:00', endDate: '2026-11-04', duration: '2:00' }, 3);
+		const report = csvOf([unreadable, overnight], timeImportReportCsvColumnsOf(false));
+		const reading = timeImportReadingOf(report);
+		if (reading.kind !== 'sheet') {
+			throw new Error(reading.kind);
+		}
+		const [unreadableRow, overnightRow] = draftRowsOf(reading.sheet.rows, VIEWER_CONTEXT, reading.sheet.dateOrder);
+
+		expect(unreadableRow.cells).toMatchObject({ endDate: '04.11.26', endTime: '', duration: '1:00' });
+		expect(unreadableRow.problems).toEqual([{ code: 'endDateUnreadable' }]);
+		expect(overnightRow.entry).toMatchObject({
+			start: new Date(2026, 10, 3, 23),
+			end: new Date(2026, 10, 4, 1)
+		});
 	});
 
 	it('is named after the local day of the import', () => {

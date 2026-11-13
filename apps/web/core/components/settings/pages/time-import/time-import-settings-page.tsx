@@ -56,7 +56,8 @@ function TimeImportFlow({ access }: Readonly<{ access: TimeImportAccess }>) {
 
 	const downloadReport = useCallback(() => {
 		const namesMembers = timeImport.rows.some((row) => row.cells.memberEmail !== '');
-		const columns = timeImportReportCsvColumnsOf(canImportForOthers || namesMembers);
+		const givesEndDates = timeImport.rows.some((row) => row.cells.endDate !== '');
+		const columns = timeImportReportCsvColumnsOf(canImportForOthers || namesMembers, givesEndDates);
 		const fileName = timeImportReportFileNameOf(new Date());
 		downloadCsv(reportLinesOf(timeImport, copy), columns, fileName);
 	}, [canImportForOthers, copy, timeImport]);
