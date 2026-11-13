@@ -1046,21 +1046,13 @@ function exportGroupOf(key: string, rows: TimeActivityExportRow[]): ExportGroup 
 	return { key, rows, seconds, activeSeconds, earnings: earningsTotalsOf(rows) };
 }
 
-/** The order of the breakdown's top rows, equal times included, so an export lists the client groups as the screen. */
-function compareAsBreakdownRows(first: ExportGroup, second: ExportGroup) {
-	const bySeconds = second.seconds - first.seconds;
-	if (bySeconds !== 0) {
-		return bySeconds;
-	}
-	return second.key.localeCompare(first.key);
-}
-
 function compareExportGroups(grouping: BreakdownGrouping) {
 	if (grouping === 'date') {
 		return (first: ExportGroup, second: ExportGroup) => second.key.localeCompare(first.key);
 	}
 	if (grouping === 'client') {
-		return compareAsBreakdownRows;
+		// The order of the breakdown's top rows, equal times included, so an export lists the client groups as the screen
+		return compareNodes;
 	}
 	return bySecondsDescending;
 }
@@ -1407,7 +1399,7 @@ function factProjectsOf(facts: ReadonlyArray<BreakdownFact>): ReportProjectRef[]
 }
 
 /** Largest first; equal times keep a stable order, the latest day first. */
-function compareNodes(first: BreakdownNode, second: BreakdownNode) {
+function compareNodes(first: Pick<BreakdownNode, 'key' | 'seconds'>, second: Pick<BreakdownNode, 'key' | 'seconds'>) {
 	const bySeconds = second.seconds - first.seconds;
 	if (bySeconds !== 0) {
 		return bySeconds;

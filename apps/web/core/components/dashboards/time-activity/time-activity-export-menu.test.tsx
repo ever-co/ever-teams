@@ -132,7 +132,11 @@ function optionsUnder(grouping: BreakdownGrouping, clientOfProjectLog: ClientOfP
 			isDisabled={false}
 		/>
 	);
-	const props = mockExportMenuProps.mock.lastCall?.[0] as { options: ExportOption[] };
+	const lastCall = mockExportMenuProps.mock.lastCall;
+	if (!lastCall) {
+		throw new Error('The export menu was never rendered');
+	}
+	const [props] = lastCall as [{ options: ExportOption[] }];
 	return props.options;
 }
 

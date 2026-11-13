@@ -227,6 +227,47 @@ function figuresFromRows(totals: ReportTotals, hasDailyReport: boolean): Counted
 	return { trackedSeconds: totals.seconds, activityPercent: activityPercentOf(totals), totals };
 }
 
+interface ClientLookupInput {
+	hasClientFilter: boolean;
+	isClientGrouping: boolean;
+	needsProjectClients: boolean;
+	readsClientNames: boolean;
+	isClientAccessUnknown: boolean;
+	projects: { isPending: boolean; isError: boolean };
+	names: { isLoaded: boolean; isError: boolean };
+}
+
+/**
+ * The daily report names no client beside a project whose client is archived: only the listed projects tell that
+ * time from the time without a client, so a report filtered by client is not shown before they are read. Grouped by
+ * client, only the table needs them: it waits for the projects and the clients' names, the band and the chart do
+ * not, and a client the clients list could not name keeps the name the report gives it.
+ */
+function clientLookupStateOf(input: ClientLookupInput) {
+	const { hasClientFilter, isClientGrouping, needsProjectClients, readsClientNames, projects, names } = input;
+	const isProjectLookupPending = needsProjectClients && projects.isPending;
+	const isProjectLookupError = needsProjectClients && projects.isError;
+	const isClientAccessPending = isClientGrouping && input.isClientAccessUnknown;
+	const isClientNamesFailure = names.isError && !names.isLoaded;
+	const isClientNamesMissing = !names.isLoaded && !names.isError;
+	const isClientNamesPending = readsClientNames && isClientNamesMissing;
+	const isFilterLookupPending = hasClientFilter && isProjectLookupPending;
+	const isFilterLookupError = hasClientFilter && isProjectLookupError;
+	const isClientLookupPending = isProjectLookupPending || isClientAccessPending || isClientNamesPending;
+	const isClientRowsPending = isClientGrouping && isClientLookupPending;
+	const isClientRowsError = isClientGrouping && isProjectLookupError;
+	return {
+		isProjectLookupError,
+		isClientNamesError: readsClientNames && isClientNamesFailure,
+		isFilterLookupPending,
+		isFilterLookupError,
+		canFilterByClients: !isFilterLookupPending && !isFilterLookupError,
+		isClientRowsPending,
+		isClientRowsError,
+		canTellRowClients: !isClientRowsPending && !isClientRowsError
+	};
+}
+
 export function useTimeActivityReport() {
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
@@ -258,25 +299,24 @@ export function useTimeActivityReport() {
 	const readsClientNames = isClientGrouping && isClientGroupingGranted;
 	const clientsQuery = useClientsQuery({ includeArchived: true, enabled: readsClientNames });
 	const clientNames = useMemo(() => clientNamesOf(clientsQuery.clients), [clientsQuery.clients]);
-	// The daily report names no client beside a project whose client is archived: only the listed projects tell that
-	// time from the time without a client, so a report filtered by client is not shown before they are read. Grouped
-	// by client, only the table needs them: it waits for the projects and the clients' names, the band and the chart
-	// do not, and a client the clients list could not name keeps the name the report gives it
-	const isProjectLookupPending = needsProjectClients && projectClients.isPending;
-	const isProjectLookupError = needsProjectClients && projectClients.isError;
-	const isClientAccessUnknown = settings.clientGroupingAccess === 'unknown';
-	const isClientAccessPending = isClientGrouping && isClientAccessUnknown;
-	const isClientNamesFailure = clientsQuery.isError && !clientsQuery.isLoaded;
-	const isClientNamesError = readsClientNames && isClientNamesFailure;
-	const isClientNamesMissing = !clientsQuery.isLoaded && !clientsQuery.isError;
-	const isClientNamesPending = readsClientNames && isClientNamesMissing;
-	const isFilterLookupPending = hasClientFilter && isProjectLookupPending;
-	const isFilterLookupError = hasClientFilter && isProjectLookupError;
-	const canFilterByClients = !isFilterLookupPending && !isFilterLookupError;
-	const isClientLookupPending = isProjectLookupPending || isClientAccessPending || isClientNamesPending;
-	const isClientRowsPending = isClientGrouping && isClientLookupPending;
-	const isClientRowsError = isClientGrouping && isProjectLookupError;
-	const canTellRowClients = !isClientRowsPending && !isClientRowsError;
+	const {
+		isProjectLookupError,
+		isClientNamesError,
+		isFilterLookupPending,
+		isFilterLookupError,
+		canFilterByClients,
+		isClientRowsPending,
+		isClientRowsError,
+		canTellRowClients
+	} = clientLookupStateOf({
+		hasClientFilter,
+		isClientGrouping,
+		needsProjectClients,
+		readsClientNames,
+		isClientAccessUnknown: settings.clientGroupingAccess === 'unknown',
+		projects: projectClients,
+		names: clientsQuery
+	});
 	const loadedReport = dailyQuery.data ?? EMPTY_REPORT;
 	const report = useMemo(() => {
 		if (!canFilterByClients) {
