@@ -2,7 +2,11 @@
 
 import { useMemo } from 'react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { invoiceService, type InvoicesPage } from '@/core/services/client/api/organizations/invoice.service';
+import {
+	invoiceService,
+	type InvoicesPage,
+	type InvoicesScope
+} from '@/core/services/client/api/organizations/invoice.service';
 import { queryKeys } from '@/core/query/keys';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { nextInvoiceNumberOf } from '@/core/lib/utils/invoices';
@@ -31,6 +35,12 @@ export function useInvoicesQuery({ enabled }: Readonly<{ enabled: boolean }>) {
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
 	const hasScope = Boolean(tenantId) && Boolean(organizationId);
+	const scope = useMemo<InvoicesScope | null>(() => {
+		if (!hasScope) {
+			return null;
+		}
+		return { organizationId, tenantId };
+	}, [hasScope, organizationId, tenantId]);
 
 	const query = useInfiniteQuery({
 		queryKey: queryKeys.invoices.list(tenantId, organizationId),
@@ -52,6 +62,8 @@ export function useInvoicesQuery({ enabled }: Readonly<{ enabled: boolean }>) {
 
 	return {
 		invoices,
+		/** The workspace the list was read in: an action on one of its invoices is made there, or refused. */
+		scope,
 		/** As the API counts them; null until it answered. */
 		total: lastPage?.total ?? null,
 		isLoading: query.isLoading,

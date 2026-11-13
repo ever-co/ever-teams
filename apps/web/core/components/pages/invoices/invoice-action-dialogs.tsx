@@ -13,6 +13,7 @@ import { useDeleteInvoice, useChangeInvoiceStatus, useSendInvoice } from '@/core
 import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
 import { isDraftInvoice, isInvoiceRecipient, VOID_CHANGE } from '@/core/lib/utils/invoice-actions';
 import { invoiceStatusOf } from '@/core/lib/utils/invoices';
+import type { InvoicesScope } from '@/core/services/client/api/organizations/invoice.service';
 import type { TInvoice } from '@/core/types/schemas/organization/invoice.schema';
 import { InvoiceRecipientField, useSentInvoiceToast } from './invoice-sending';
 
@@ -25,6 +26,8 @@ export interface InvoiceActionTarget {
 interface InvoiceActionDialogProps {
 	open: boolean;
 	target: InvoiceActionTarget | null;
+	/** The workspace the list was read in: the action is refused once another one is chosen. */
+	scope: InvoicesScope | null;
 	onClose: () => void;
 }
 
@@ -72,7 +75,7 @@ function subjectOf(target: InvoiceActionTarget | null) {
 	return <InvoiceSubject target={target} />;
 }
 
-export function SendInvoiceDialog({ open, target, onClose }: Readonly<InvoiceActionDialogProps>) {
+export function SendInvoiceDialog({ open, target, scope, onClose }: Readonly<InvoiceActionDialogProps>) {
 	const t = useTranslations();
 	const { sendInvoice, isSending } = useSendInvoice();
 	const showSent = useSentInvoiceToast();
@@ -112,7 +115,7 @@ export function SendInvoiceDialog({ open, target, onClose }: Readonly<InvoiceAct
 		setHasFailed(false);
 		const invoiceNumber = target.invoice.invoiceNumber ?? null;
 		try {
-			const outcome = await sendInvoice({ invoiceId: target.invoice.id, invoiceNumber, email, marksSent });
+			const outcome = await sendInvoice({ invoiceId: target.invoice.id, invoiceNumber, email, marksSent, scope });
 			showSent(outcome, numberText, email);
 			reset();
 			onClose();
@@ -154,7 +157,7 @@ export function SendInvoiceDialog({ open, target, onClose }: Readonly<InvoiceAct
 	);
 }
 
-export function VoidInvoiceDialog({ open, target, onClose }: Readonly<InvoiceActionDialogProps>) {
+export function VoidInvoiceDialog({ open, target, scope, onClose }: Readonly<InvoiceActionDialogProps>) {
 	const t = useTranslations();
 	const { changeStatus, isChanging } = useChangeInvoiceStatus();
 	const runOnce = useSingleRun();
@@ -175,7 +178,7 @@ export function VoidInvoiceDialog({ open, target, onClose }: Readonly<InvoiceAct
 		}
 		setHasFailed(false);
 		try {
-			await changeStatus({ invoiceId: target.invoice.id, change: VOID_CHANGE });
+			await changeStatus({ invoiceId: target.invoice.id, change: VOID_CHANGE, scope });
 			toast.success(t('invoices.void.DONE', { number: numberText }));
 			onClose();
 		} catch {
@@ -209,7 +212,7 @@ export function VoidInvoiceDialog({ open, target, onClose }: Readonly<InvoiceAct
 	);
 }
 
-export function DeleteInvoiceDialog({ open, target, onClose }: Readonly<InvoiceActionDialogProps>) {
+export function DeleteInvoiceDialog({ open, target, scope, onClose }: Readonly<InvoiceActionDialogProps>) {
 	const t = useTranslations();
 	const { deleteInvoice, isDeleting } = useDeleteInvoice();
 	const runOnce = useSingleRun();
@@ -230,7 +233,7 @@ export function DeleteInvoiceDialog({ open, target, onClose }: Readonly<InvoiceA
 		}
 		setHasFailed(false);
 		try {
-			await deleteInvoice(target.invoice.id);
+			await deleteInvoice({ invoiceId: target.invoice.id, scope });
 			toast.success(t('invoices.delete.DONE', { number: numberText }));
 			onClose();
 		} catch {

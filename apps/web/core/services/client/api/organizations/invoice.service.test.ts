@@ -8,6 +8,7 @@ jest.mock('@/core/lib/helpers/cookies', () => ({
 	getTenantIdCookie: () => mockCookieScope.tenantId
 }));
 
+import { VOID_CHANGE } from '@/core/lib/utils/invoice-actions';
 import { invoiceService } from './invoice.service';
 
 function invoicesFrom(first: number, count: number) {
@@ -72,5 +73,42 @@ describe('reading a page of the invoices list', () => {
 		const where = queryOf(get.mock.calls[0][0]).where as Record<string, unknown>;
 		expect([where.organizationId, where.tenantId]).toEqual(['organization-1', 'tenant-1']);
 		expect(get.mock.calls[0][1]?.tenantId).toBe('tenant-1');
+	});
+});
+
+describe('e-mailing, settling and deleting an invoice in the workspace the list was read in', () => {
+	const listScope = { organizationId: 'organization-1', tenantId: 'tenant-1' };
+
+	beforeEach(() => {
+		mockCookieScope.organizationId = 'organization-2';
+		mockCookieScope.tenantId = 'tenant-2';
+	});
+
+	afterEach(() => {
+		jest.restoreAllMocks();
+		mockCookieScope.organizationId = 'organization-1';
+		mockCookieScope.tenantId = 'tenant-1';
+	});
+
+	it('e-mails the invoice as the organization of the list, not the one another tab left in the cookies', async () => {
+		const put = jest.spyOn(invoiceService, 'put').mockResolvedValue({} as never);
+		const target = { invoiceId: 'invoice-1', invoiceNumber: 7, email: 'billing@acme.test' };
+
+		await invoiceService.sendInvoiceByEmail(target, listScope);
+
+		const params = { invoiceNumber: 7, invoiceId: 'invoice-1', isEstimate: false, ...listScope };
+		expect(put.mock.calls[0][1]).toEqual({ params });
+		expect(put.mock.calls[0][2]?.tenantId).toBe('tenant-1');
+	});
+
+	it('changes the status and deletes under the tenant of the list', async () => {
+		const put = jest.spyOn(invoiceService, 'put').mockResolvedValue({} as never);
+		const remove = jest.spyOn(invoiceService, 'delete').mockResolvedValue({} as never);
+
+		await invoiceService.changeInvoiceStatus('invoice-1', VOID_CHANGE, listScope);
+		await invoiceService.deleteInvoice('invoice-1', listScope);
+
+		expect(put.mock.calls[0][2]?.tenantId).toBe('tenant-1');
+		expect(remove.mock.calls[0][1]?.tenantId).toBe('tenant-1');
 	});
 });

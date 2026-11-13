@@ -21,6 +21,7 @@ import {
 	type InvoiceAction,
 	type InvoiceStatusChange
 } from '@/core/lib/utils/invoice-actions';
+import type { InvoicesScope } from '@/core/services/client/api/organizations/invoice.service';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import {
@@ -47,21 +48,21 @@ interface InvoiceDialog {
 }
 
 /** Marking an invoice paid or unpaid needs no confirmation: the toast says the outcome. */
-function useInvoiceStatusToggle() {
+function useInvoiceStatusToggle(scope: InvoicesScope | null) {
 	const t = useTranslations();
 	const { changeStatus, changingId } = useChangeInvoiceStatus();
 	const changeTo = useCallback(
 		async (target: InvoiceActionTarget, change: InvoiceStatusChange, doneKey: DottedLanguageObjectStringPaths) => {
 			const number = target.numberText;
 			try {
-				await changeStatus({ invoiceId: target.invoice.id, change });
+				await changeStatus({ invoiceId: target.invoice.id, change, scope });
 				toast.success(t(doneKey, { number }));
 			} catch (error) {
 				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
 				toast.error(t('invoices.actions.CHANGE_FAILED', { number }), { description: t(reasonKey) });
 			}
 		},
-		[changeStatus, t]
+		[changeStatus, scope, t]
 	);
 	return { changeTo, changingId };
 }
@@ -76,7 +77,7 @@ function InvoicesContent() {
 	const list = useInvoicesQuery({ enabled: access.canView });
 	const { downloadPdf, pendingId } = useInvoicePdf();
 	const clientNames = useClientNames();
-	const { changeTo, changingId } = useInvoiceStatusToggle();
+	const { changeTo, changingId } = useInvoiceStatusToggle(list.scope);
 	const [dialog, setDialog] = useState<InvoiceDialog | null>(null);
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -153,9 +154,24 @@ function InvoicesContent() {
 				</div>
 			)}
 
-			<SendInvoiceDialog open={isDialogOpenFor('send')} target={dialogTarget} onClose={closeDialog} />
-			<VoidInvoiceDialog open={isDialogOpenFor('void')} target={dialogTarget} onClose={closeDialog} />
-			<DeleteInvoiceDialog open={isDialogOpenFor('delete')} target={dialogTarget} onClose={closeDialog} />
+			<SendInvoiceDialog
+				open={isDialogOpenFor('send')}
+				target={dialogTarget}
+				scope={list.scope}
+				onClose={closeDialog}
+			/>
+			<VoidInvoiceDialog
+				open={isDialogOpenFor('void')}
+				target={dialogTarget}
+				scope={list.scope}
+				onClose={closeDialog}
+			/>
+			<DeleteInvoiceDialog
+				open={isDialogOpenFor('delete')}
+				target={dialogTarget}
+				scope={list.scope}
+				onClose={closeDialog}
+			/>
 		</PageLayout>
 	);
 }

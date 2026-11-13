@@ -29,7 +29,7 @@ export interface InvoiceToEmail {
 	email: string;
 }
 
-interface InvoicesScope {
+export interface InvoicesScope {
 	organizationId: string;
 	tenantId: string;
 }
@@ -165,25 +165,36 @@ class InvoiceService extends APIService {
 	 * E-mails the invoice to `email` with its PDF attached, through the organization's own e-mail settings. The API
 	 * answers 202 with no body whatever its mail server did: only a refused request comes back as an error.
 	 */
-	sendInvoiceByEmail = async ({ invoiceId, invoiceNumber, email }: InvoiceToEmail): Promise<void> => {
+	sendInvoiceByEmail = async (
+		{ invoiceId, invoiceNumber, email }: InvoiceToEmail,
+		scope?: InvoicesScope
+	): Promise<void> => {
+		// The API signs the e-mail with the organization named here: the caller's, the cookies' when left out
+		const emailScope = scope ?? this.currentScope();
 		const params = {
 			invoiceNumber,
 			invoiceId,
 			isEstimate: false,
-			organizationId: this.organizationId,
-			tenantId: this.tenantId
+			organizationId: emailScope.organizationId,
+			tenantId: emailScope.tenantId
 		};
-		await this.put(`/invoices/email/${encodeURIComponent(email)}`, { params });
+		await this.put(`/invoices/email/${encodeURIComponent(email)}`, { params }, { tenantId: emailScope.tenantId });
 	};
 
-	changeInvoiceStatus = async (invoiceId: string, change: InvoiceStatusChange): Promise<void> => {
+	changeInvoiceStatus = async (
+		invoiceId: string,
+		change: InvoiceStatusChange,
+		scope?: InvoicesScope
+	): Promise<void> => {
 		// A copy: the request writes the tenant and the organization into the object it is given.
 		const body = { ...change };
-		await this.put(`/invoices/${encodeURIComponent(invoiceId)}/action`, body);
+		const statusScope = scope ?? this.currentScope();
+		await this.put(`/invoices/${encodeURIComponent(invoiceId)}/action`, body, { tenantId: statusScope.tenantId });
 	};
 
-	deleteInvoice = async (invoiceId: string): Promise<void> => {
-		await this.delete(`/invoices/${encodeURIComponent(invoiceId)}`);
+	deleteInvoice = async (invoiceId: string, scope?: InvoicesScope): Promise<void> => {
+		const deletionScope = scope ?? this.currentScope();
+		await this.delete(`/invoices/${encodeURIComponent(invoiceId)}`, { tenantId: deletionScope.tenantId });
 	};
 }
 
