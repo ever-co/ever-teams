@@ -3,6 +3,7 @@
 import { useCallback, useMemo } from 'react';
 import { isDraftInvoice } from '@/core/lib/utils/invoice-actions';
 import {
+	billedPreviousOf,
 	hasInvoiceChanges,
 	invoiceChangesOf,
 	invoiceRevisionOf,
@@ -45,6 +46,8 @@ export function useInvoiceEdit(saved: SavedInvoice) {
 	const isUnchanged = !hasInvoiceChanges(changes);
 	const problems = problemsOfEdit(draft.problems, isUnchanged);
 	const { saveInvoiceEdit, isSavingEdit } = useSaveInvoiceEdit();
+	const billedTimeByLine = draft.time.billedTimeByLine;
+	const recordsBilledTime = draft.recordsBilledTime;
 
 	const editOf = useCallback((): InvoiceEdit | null => {
 		if (isUnchanged) {
@@ -55,8 +58,9 @@ export function useInvoiceEdit(saved: SavedInvoice) {
 			return null;
 		}
 		const revision = invoiceRevisionOf(request, saved);
-		return { invoiceId: saved.id, scope: saved.workspace, revision, previous: saved.previous };
-	}, [invoiceRequest, isUnchanged, saved]);
+		const previous = billedPreviousOf(saved, billedTimeByLine, recordsBilledTime);
+		return { invoiceId: saved.id, scope: saved.workspace, revision, previous };
+	}, [billedTimeByLine, invoiceRequest, isUnchanged, recordsBilledTime, saved]);
 
 	const save = useCallback(async () => {
 		const edit = editOf();

@@ -14,7 +14,13 @@ const mockOrganizationRead = { isError: false, refetch: jest.fn() };
 const mockClients: Array<{ id: string; name: string; paymentTermsDays?: number | null }> = [
 	{ id: 'client-acme', name: 'Acme' }
 ];
-const mockEarlierRead = { invoices: [], isLoading: false, isRefreshing: false, isError: false, refetch: jest.fn() };
+const mockEarlierRead = {
+	invoices: [] as Array<{ id: string; terms: string }>,
+	isLoading: false,
+	isRefreshing: false,
+	isError: false,
+	refetch: jest.fn()
+};
 const mockNextNumber = { nextNumber: 7, isLoading: false, isError: false, refetch: jest.fn() };
 
 const mockLine: InvoiceLine = {
@@ -56,7 +62,9 @@ const mockTime = {
 	isLoading: false,
 	isError: false,
 	isUpdating: false,
-	refetch: jest.fn()
+	refetch: jest.fn(),
+	recordsBilledTime: null as boolean | null,
+	billedTimeByLine: new Map<string, ReadonlyArray<string>>()
 };
 
 jest.mock('./use-invoice-time', () => ({
@@ -69,6 +77,14 @@ jest.mock('./use-invoices-query', () => ({
 jest.mock('./use-invoice-mutations', () => ({
 	useCreateInvoice: () => ({ createInvoice: mockCreateInvoice, isSaving: false }),
 	useSaveAndSendInvoice: () => ({ saveAndSendInvoice: mockSaveAndSendInvoice, isSavingAndSending: false })
+}));
+const mockRecording = { recordedIds: new Set<string>(), isLoading: false, isError: false };
+const mockRecordingCalls: boolean[] = [];
+jest.mock('./use-invoices-recording-time', () => ({
+	useInvoicesRecordingTime: (_invoices: unknown, enabled: boolean) => {
+		mockRecordingCalls.push(enabled);
+		return mockRecording;
+	}
 }));
 
 import { useNewInvoice } from './use-new-invoice';
@@ -413,5 +429,120 @@ describe('the issue date a new invoice starts with', () => {
 
 		expect(result.current.issueDay).toBe('2026-11-13');
 		expect(result.current.dueDay).toBe('2026-12-13');
+	});
+});
+
+describe('the time logs a new invoice bills', () => {
+	const billedElsewhere = ApiErrorService.fromAxiosError({
+		message: 'Request failed with status code 400',
+		status: 400,
+		response: {
+			data: {
+				statusCode: 400,
+				message: 'INVOICE_TIME_LOG_NOT_BILLABLE: a line names a time log it cannot bill.'
+			},
+			headers: {},
+			status: 400,
+			statusText: 'Bad Request'
+		}
+	});
+
+	beforeEach(() => {
+		mockCreateInvoice.mockReset();
+		mockCreateInvoice.mockResolvedValue({ id: 'invoice-1' });
+		mockTime.lines = [{ ...mockLine, timeLogIds: ['log-1', 'log-2'] }];
+		mockTime.refetch.mockClear();
+	});
+
+	afterEach(() => {
+		mockTime.lines = [mockLine];
+		mockTime.recordsBilledTime = null;
+	});
+
+	async function saveInvoice() {
+		const rendered = renderNewInvoice(tokyoOrganization);
+		act(() => rendered.result.current.setDueDay('2099-12-31'));
+		await act(async () => {
+			await rendered.result.current.save().catch(() => undefined);
+		});
+		return rendered;
+	}
+
+	it('are named on its lines when the API records billed time', async () => {
+		mockTime.recordsBilledTime = true;
+
+		await saveInvoice();
+
+		expect(mockCreateInvoice.mock.calls[0][0].invoiceItems[0].timeLogIds).toEqual(['log-1', 'log-2']);
+	});
+
+	it('are not sent to an API that does not record billed time', async () => {
+		mockTime.recordsBilledTime = false;
+
+		await saveInvoice();
+
+		expect(mockCreateInvoice.mock.calls[0][0].invoiceItems[0]).not.toHaveProperty('timeLogIds');
+	});
+
+	it('are read again when another invoice billed part of them meanwhile', async () => {
+		mockTime.recordsBilledTime = true;
+		mockCreateInvoice.mockReset();
+		mockCreateInvoice.mockRejectedValue(billedElsewhere);
+
+		await saveInvoice();
+
+		expect(mockTime.refetch).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe('the earlier invoices of the same period', () => {
+	const overlapping = { id: 'invoice-9', terms: invoiceTermsOf({ fromDay: '2000-01-01', toDay: '2099-12-31' }) };
+
+	beforeEach(() => {
+		mockCreateInvoice.mockReset();
+		mockCreateInvoice.mockResolvedValue({ id: 'invoice-1' });
+		mockEarlierRead.invoices = [overlapping];
+		mockRecordingCalls.length = 0;
+	});
+
+	afterEach(() => {
+		mockEarlierRead.invoices = [];
+		mockTime.recordsBilledTime = null;
+		mockRecording.recordedIds = new Set();
+		mockRecording.isLoading = false;
+	});
+
+	it('stay a warning, and are not checked, when the API does not record billed time', () => {
+		mockTime.recordsBilledTime = false;
+
+		const { result } = renderNewInvoice(tokyoOrganization);
+
+		expect(result.current.overlapNotice).toEqual({ kind: 'mayBillTwice', count: 1, isUnrecorded: false });
+		expect(result.current.overlapsAtRisk).toEqual(['invoice-9']);
+		expect(mockRecordingCalls.every((enabled) => !enabled)).toBe(true);
+	});
+
+	it('are checked for the time they record before a save, and said to leave their hours out once they do', async () => {
+		mockTime.recordsBilledTime = true;
+		mockRecording.isLoading = true;
+		const { result, rerender } = renderNewInvoice(tokyoOrganization);
+		act(() => result.current.setDueDay('2099-12-31'));
+
+		let saved: unknown = 'not answered';
+		await act(async () => {
+			saved = await result.current.save();
+		});
+
+		expect(saved).toBeNull();
+		expect(result.current.problems).toEqual(['readingEarlier']);
+		expect(result.current.overlapNotice).toEqual({ kind: 'none' });
+
+		mockRecording.isLoading = false;
+		mockRecording.recordedIds = new Set(['invoice-9']);
+		rerender();
+
+		expect(result.current.overlapNotice).toEqual({ kind: 'leftOut', count: 1 });
+		expect(result.current.overlapsAtRisk).toEqual([]);
+		expect(mockRecordingCalls.at(-1)).toBe(true);
 	});
 });
