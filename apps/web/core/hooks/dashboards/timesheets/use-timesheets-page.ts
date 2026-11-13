@@ -194,11 +194,13 @@ export function useTimesheetsPage() {
 	const isUpdating = logsQuery.isFetching && hasShownData;
 
 	const allLogs = useMemo(() => {
-		if (showsError) {
+		// Until the projects are read, a client filter cannot tell whose time a log is: nothing is shown, so nothing is
+		// exported with the hours of archived projects left out (or counted as having no client)
+		if (showsError || isClientLookupPending) {
 			return NO_LOGS;
 		}
 		return logsQuery.data ?? NO_LOGS;
-	}, [logsQuery.data, showsError]);
+	}, [isClientLookupPending, logsQuery.data, showsError]);
 
 	const normalizedQuery = useMemo(() => normalizedSearchTextOf(search), [search]);
 
