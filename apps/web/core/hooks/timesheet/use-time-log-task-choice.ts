@@ -72,7 +72,7 @@ function savedTaskFor(saved: SavedTask | null, logId: string): EntryTask | undef
 	return saved.task;
 }
 
-export interface TimeLogTaskChoiceInput {
+interface TimeLogTaskChoiceInput {
 	log: ITimeLog;
 	projects: TOrganizationProject[] | undefined;
 	/** The project the dialog holds for the entry: its own, or the one picked by hand. */
