@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { isDraftInvoice } from '@/core/lib/utils/invoice-actions';
 import {
 	hasInvoiceChanges,
@@ -21,7 +21,9 @@ function problemsOfEdit(draftProblems: InvoiceProblem[], isUnchanged: boolean): 
 }
 
 /** A saved invoice while it is edited on the invoice screen. Nothing reaches the API until `save` is called. */
-export function useInvoiceEdit(saved: SavedInvoice) {
+export function useInvoiceEdit(read: SavedInvoice) {
+	// As opened: a later read would move what the save compares and puts back under a draft that kept the first one
+	const [saved] = useState(read);
 	const start = useMemo<InvoiceDraftStart>(() => ({ kind: 'edit', saved }), [saved]);
 	const draft = useInvoiceDraft(start);
 	const { invoiceRequest, keptLines, descriptions, numberText, issueDay, dueDay, currency, adjustments, note } =

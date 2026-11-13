@@ -258,6 +258,32 @@ describe('an invoice opened to be edited', () => {
 	});
 });
 
+describe('an invoice read again while its editor is open', () => {
+	it('is saved against the invoice as the editor opened it', async () => {
+		const opened = savedOf(sentInvoice());
+		const readAgain = savedOf({ ...sentInvoice(), dueDate: '2026-12-15T22:59:59.999Z' });
+		const store = createStore();
+		store.set(currentOrganizationState, parisOrganization);
+		const wrapper = ({ children }: Readonly<{ children: React.ReactNode }>) => (
+			<Provider store={store}>{children}</Provider>
+		);
+		const { result, rerender } = renderHook(({ saved }) => useInvoiceEdit(saved), {
+			wrapper,
+			initialProps: { saved: opened }
+		});
+
+		rerender({ saved: readAgain });
+		act(() => result.current.setNote('Thank you.'));
+		await act(async () => {
+			await result.current.save();
+		});
+
+		const { edit } = mockSaveInvoiceEdit.mock.calls[0][0];
+		expect(edit.previous).toBe(opened.previous);
+		expect(result.current.changes.dueDay).toBeNull();
+	});
+});
+
 describe('an edit and the workspace its invoice belongs to', () => {
 	async function saveNote(result: { current: ReturnType<typeof useInvoiceEdit> }) {
 		act(() => result.current.setNote('Thank you.'));
