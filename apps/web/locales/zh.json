@@ -6929,7 +6929,20 @@
 			"OVERDUE": "已逾期",
 			"DRAFTS": "草稿",
 			"DRAFT_COUNT": "{count, plural, =0 {无} other {# 张待发送}}",
-			"WITHOUT_BALANCE": "{count, plural, other {# 张部分付款的发票未注明余额，未计入}}"
+			"WITHOUT_BALANCE": "{count, plural, other {# 张部分付款的发票未注明余额，未计入}}",
+			"ERROR": "无法读取待收金额"
+		},
+		"filter": {
+			"LABEL": "显示的发票",
+			"ALL": "全部",
+			"OPEN": "未结",
+			"NONE_DRAFT": "没有待发送的草稿",
+			"NONE_OPEN": "没有待付款的发票",
+			"NONE_OVERDUE": "没有逾期发票",
+			"NONE_PAID": "没有已付发票",
+			"NONE_VOID": "没有作废发票",
+			"SHOW_ALL": "显示全部发票",
+			"LOADED_ONLY": "仅在最近的 {count} 张发票中查找。显示更多可往前查看。"
 		}
 	},
 	"timeReports": {

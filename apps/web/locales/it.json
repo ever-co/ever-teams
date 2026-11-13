@@ -6929,7 +6929,20 @@
 			"OVERDUE": "Scaduto",
 			"DRAFTS": "Bozze",
 			"DRAFT_COUNT": "{count, plural, =0 {Nessuna} one {# da inviare} other {# da inviare}}",
-			"WITHOUT_BALANCE": "{count, plural, one {# fattura pagata in parte non indica il saldo ed è esclusa} other {# fatture pagate in parte non indicano il saldo e sono escluse}}"
+			"WITHOUT_BALANCE": "{count, plural, one {# fattura pagata in parte non indica il saldo ed è esclusa} other {# fatture pagate in parte non indicano il saldo e sono escluse}}",
+			"ERROR": "Non è stato possibile leggere gli importi dovuti"
+		},
+		"filter": {
+			"LABEL": "Fatture da mostrare",
+			"ALL": "Tutte",
+			"OPEN": "Aperte",
+			"NONE_DRAFT": "Nessuna bozza da inviare",
+			"NONE_OPEN": "Nessuna fattura in attesa di pagamento",
+			"NONE_OVERDUE": "Niente è scaduto",
+			"NONE_PAID": "Nessuna fattura pagata",
+			"NONE_VOID": "Nessuna fattura annullata",
+			"SHOW_ALL": "Mostra tutte le fatture",
+			"LOADED_ONLY": "Tra {count, plural, one {l’ultima fattura} other {le # ultime fatture}}. Mostrane altre per andare più indietro."
 		}
 	},
 	"timeReports": {

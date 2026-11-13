@@ -6929,7 +6929,20 @@
 			"OVERDUE": "En retard",
 			"DRAFTS": "Brouillons",
 			"DRAFT_COUNT": "{count, plural, =0 {Aucun} one {# à envoyer} other {# à envoyer}}",
-			"WITHOUT_BALANCE": "{count, plural, one {# facture payée en partie n’indique pas son solde et n’est pas comptée} other {# factures payées en partie n’indiquent pas leur solde et ne sont pas comptées}}"
+			"WITHOUT_BALANCE": "{count, plural, one {# facture payée en partie n’indique pas son solde et n’est pas comptée} other {# factures payées en partie n’indiquent pas leur solde et ne sont pas comptées}}",
+			"ERROR": "Les montants dus n’ont pas pu être lus"
+		},
+		"filter": {
+			"LABEL": "Factures à afficher",
+			"ALL": "Toutes",
+			"OPEN": "Ouvertes",
+			"NONE_DRAFT": "Aucun brouillon à envoyer",
+			"NONE_OPEN": "Aucune facture n’attend de paiement",
+			"NONE_OVERDUE": "Rien n’est en retard",
+			"NONE_PAID": "Aucune facture payée",
+			"NONE_VOID": "Aucune facture annulée",
+			"SHOW_ALL": "Afficher toutes les factures",
+			"LOADED_ONLY": "Parmi {count, plural, one {la dernière facture} other {les # dernières factures}}. Affichez-en plus pour remonter plus loin."
 		}
 	},
 	"timeReports": {

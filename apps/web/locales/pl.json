@@ -6929,7 +6929,20 @@
 			"OVERDUE": "Zaległe",
 			"DRAFTS": "Wersje robocze",
 			"DRAFT_COUNT": "{count, plural, =0 {Brak} one {# do wysłania} few {# do wysłania} many {# do wysłania} other {# do wysłania}}",
-			"WITHOUT_BALANCE": "{count, plural, one {# częściowo opłacona faktura nie podaje salda i jest pominięta} few {# częściowo opłacone faktury nie podają salda i są pominięte} many {# częściowo opłaconych faktur nie podaje salda i jest pominiętych} other {# częściowo opłaconej faktury nie podaje salda}}"
+			"WITHOUT_BALANCE": "{count, plural, one {# częściowo opłacona faktura nie podaje salda i jest pominięta} few {# częściowo opłacone faktury nie podają salda i są pominięte} many {# częściowo opłaconych faktur nie podaje salda i jest pominiętych} other {# częściowo opłaconej faktury nie podaje salda}}",
+			"ERROR": "Nie udało się odczytać należności"
+		},
+		"filter": {
+			"LABEL": "Faktury do pokazania",
+			"ALL": "Wszystkie",
+			"OPEN": "Otwarte",
+			"NONE_DRAFT": "Brak szkiców do wysłania",
+			"NONE_OPEN": "Żadna faktura nie czeka na zapłatę",
+			"NONE_OVERDUE": "Nic nie jest zaległe",
+			"NONE_PAID": "Brak opłaconych faktur",
+			"NONE_VOID": "Brak anulowanych faktur",
+			"SHOW_ALL": "Pokaż wszystkie faktury",
+			"LOADED_ONLY": "Spośród {count, plural, one {ostatniej faktury} few {# ostatnich faktur} many {# ostatnich faktur} other {# ostatniej faktury}}. Pokaż więcej, aby sięgnąć dalej."
 		}
 	},
 	"timeReports": {

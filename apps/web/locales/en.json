@@ -6929,7 +6929,20 @@
 			"OVERDUE": "Overdue",
 			"DRAFTS": "Drafts",
 			"DRAFT_COUNT": "{count, plural, =0 {None} one {# to send} other {# to send}}",
-			"WITHOUT_BALANCE": "{count, plural, one {# partly paid invoice states no balance and is left out} other {# partly paid invoices state no balance and are left out}}"
+			"WITHOUT_BALANCE": "{count, plural, one {# partly paid invoice states no balance and is left out} other {# partly paid invoices state no balance and are left out}}",
+			"ERROR": "What is owed could not be read"
+		},
+		"filter": {
+			"LABEL": "Invoices to show",
+			"ALL": "All",
+			"OPEN": "Open",
+			"NONE_DRAFT": "No drafts to send",
+			"NONE_OPEN": "No invoice is waiting to be paid",
+			"NONE_OVERDUE": "Nothing is overdue",
+			"NONE_PAID": "No paid invoices",
+			"NONE_VOID": "No void invoices",
+			"SHOW_ALL": "Show all invoices",
+			"LOADED_ONLY": "Among the {count, plural, one {# latest invoice} other {# latest invoices}}. Show more to look further back."
 		}
 	},
 	"timeReports": {

@@ -6929,7 +6929,20 @@
 			"OVERDUE": "Vencido",
 			"DRAFTS": "Rascunhos",
 			"DRAFT_COUNT": "{count, plural, =0 {Nenhum} one {# por enviar} other {# por enviar}}",
-			"WITHOUT_BALANCE": "{count, plural, one {# fatura paga em parte não indica o saldo e fica de fora} other {# faturas pagas em parte não indicam o saldo e ficam de fora}}"
+			"WITHOUT_BALANCE": "{count, plural, one {# fatura paga em parte não indica o saldo e fica de fora} other {# faturas pagas em parte não indicam o saldo e ficam de fora}}",
+			"ERROR": "Não foi possível ler os montantes em dívida"
+		},
+		"filter": {
+			"LABEL": "Faturas a mostrar",
+			"ALL": "Todas",
+			"OPEN": "Em aberto",
+			"NONE_DRAFT": "Não há rascunhos por enviar",
+			"NONE_OPEN": "Nenhuma fatura aguarda pagamento",
+			"NONE_OVERDUE": "Nada está vencido",
+			"NONE_PAID": "Nenhuma fatura paga",
+			"NONE_VOID": "Nenhuma fatura anulada",
+			"SHOW_ALL": "Mostrar todas as faturas",
+			"LOADED_ONLY": "Entre {count, plural, one {a última fatura} other {as # últimas faturas}}. Mostre mais para recuar mais."
 		}
 	},
 	"timeReports": {
