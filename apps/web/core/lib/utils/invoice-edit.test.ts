@@ -480,9 +480,13 @@ describe('what the screen of a saved invoice shows while it reads it', () => {
 
 	it('tells a missing invoice from a read that failed, and from one this screen did not make', () => {
 		expect(savedInvoiceStatusOf({ ...ready, isMissing: true, isError: true })).toBe('missing');
-		expect(savedInvoiceStatusOf({ ...ready, isError: true })).toBe('error');
+		expect(savedInvoiceStatusOf({ ...ready, isError: true, hasInvoice: false })).toBe('error');
 		expect(savedInvoiceStatusOf({ ...ready, isReadable: false })).toBe('notFromTime');
 		expect(savedInvoiceStatusOf(ready)).toBe('ready');
+	});
+
+	it('keeps the invoice it read when a read again fails, so the editor and what was typed on it stay', () => {
+		expect(savedInvoiceStatusOf({ ...ready, isError: true })).toBe('ready');
 	});
 
 	it('opens no invoice of another workspace, whatever it was made from', () => {
@@ -532,6 +536,26 @@ describe('whether an invoice read back states the fields an update writes', () =
 				saved.previous.update
 			)
 		).toBe(false);
+	});
+
+	it('tells two rates apart within the same hundredth: a percent has four decimals', () => {
+		const saved = readSaved({ tax: 12.341 });
+
+		expect(haveSameFields(savedRaw({ tax: 12.341 }), saved.previous.update)).toBe(true);
+		expect(haveSameFields(savedRaw({ tax: 12.344 }), saved.previous.update)).toBe(false);
+		expect(haveSameFields(savedRaw({ discountValue: 10.004 }), readSaved().previous.update)).toBe(false);
+	});
+
+	it.each<[string, Partial<TSavedInvoice>]>([
+		['another client', { toContactId: 'client-other', organizationContactId: 'client-other' }],
+		['a flat discount', { discountType: 'FLAT' }],
+		['a tax of another type', { taxType: 'FLAT' }],
+		['a second tax', { tax2: 5 }],
+		['another invoice type', { invoiceType: 'DETAILED_ITEMS' }]
+	])('does not state them once it was given %s', (_change, change) => {
+		const saved = readSaved();
+
+		expect(haveSameFields(savedRaw(change), saved.previous.update)).toBe(false);
 	});
 });
 

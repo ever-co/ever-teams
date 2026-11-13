@@ -716,10 +716,20 @@ export interface WrittenInvoiceFields {
 	dueDate?: string | null;
 	currency?: string | null;
 	discountValue?: number | null;
+	discountType?: string | null;
 	tax?: number | null;
+	taxType?: string | null;
+	tax2?: number | null;
+	tax2Type?: string | null;
 	terms?: string | null;
 	totalValue?: number | null;
+	invoiceType?: string | null;
+	organizationContactId?: string | null;
+	toContactId?: string | null;
 }
+
+/** A percent has at most four decimals (see `invoice-totals`): 12.341 % and 12.344 % are two rates. */
+const PERCENT_SCALE = 10_000;
 
 function instantOf(date: string | null | undefined) {
 	if (!date) {
@@ -728,25 +738,59 @@ function instantOf(date: string | null | undefined) {
 	return new Date(date).getTime();
 }
 
-function haveSameAmounts(
+function tenThousandthsOf(percent: number | null | undefined) {
+	return Math.round((percent ?? 0) * PERCENT_SCALE);
+}
+
+function haveSamePercents(
 	first: ReadonlyArray<number | null | undefined>,
 	second: ReadonlyArray<number | null | undefined>
 ) {
-	return first.every((value, index) => hundredthsOf(value ?? 0) === hundredthsOf(second[index] ?? 0));
+	return first.every((value, index) => tenThousandthsOf(value) === tenThousandthsOf(second[index]));
 }
 
-/** Whether an invoice read back states what the update writes: its number, dates, money and terms. */
+/** A text field an edit writes: unset reads the same whether the API leaves it out or answers null. */
+function haveSameTexts(
+	first: ReadonlyArray<string | null | undefined>,
+	second: ReadonlyArray<string | null | undefined>
+) {
+	return first.every((value, index) => (value ?? null) === (second[index] ?? null));
+}
+
+/**
+ * Whether an invoice read back states what the update writes: its number, dates, client, money and terms, each
+ * percent to the ten-thousandth it is typed in and the total to the cent.
+ */
 export function haveSameFields(current: WrittenInvoiceFields, update: InvoiceUpdate): boolean {
 	const sameNumber = current.invoiceNumber === update.invoiceNumber;
 	const sameIssueDate = instantOf(current.invoiceDate) === instantOf(update.invoiceDate);
 	const sameDueDate = instantOf(current.dueDate) === instantOf(update.dueDate);
 	const sameCurrency = current.currency === update.currency;
 	const sameTerms = (current.terms ?? '') === update.terms;
-	const currentFigures = [current.discountValue, current.tax, current.totalValue];
-	const updateFigures = [update.discountValue, update.tax, update.totalValue];
-	const sameMoney = haveSameAmounts(currentFigures, updateFigures);
-	const sameIdentity = sameNumber && sameCurrency && sameTerms;
+	const sameTotal = hundredthsOf(current.totalValue ?? 0) === hundredthsOf(update.totalValue);
+	const currentPercents = [current.discountValue, current.tax, current.tax2];
+	const updatePercents = [update.discountValue, update.tax, update.tax2];
+	const samePercents = haveSamePercents(currentPercents, updatePercents);
+	const currentTexts = [
+		current.discountType,
+		current.taxType,
+		current.tax2Type,
+		current.invoiceType,
+		current.organizationContactId,
+		current.toContactId
+	];
+	const updateTexts = [
+		update.discountType,
+		update.taxType,
+		update.tax2Type,
+		update.invoiceType,
+		update.organizationContactId,
+		update.toContactId
+	];
+	const sameTexts = haveSameTexts(currentTexts, updateTexts);
+	const sameIdentity = sameNumber && sameCurrency && sameTerms && sameTexts;
 	const sameDates = sameIssueDate && sameDueDate;
+	const sameMoney = sameTotal && samePercents;
 	return sameIdentity && sameDates && sameMoney;
 }
 
@@ -799,7 +843,9 @@ export function savedInvoiceStatusOf(read: SavedInvoiceRead): SavedInvoiceStatus
 	if (read.isMissing) {
 		return 'missing';
 	}
-	if (read.isError || !read.hasInvoice) {
+	// A read again that failed keeps the invoice it had: the screen, and what was typed on it, stay. A save reads the
+	// invoice anew before it writes anything.
+	if (!read.hasInvoice) {
 		return 'error';
 	}
 	if (!read.isOfWorkspace) {
