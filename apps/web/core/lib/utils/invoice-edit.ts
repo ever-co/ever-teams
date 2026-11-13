@@ -675,3 +675,39 @@ export function haveSameLines(
 	const expectedSignatures = sortedSignaturesOf(expected);
 	return currentSignatures.every((signature, index) => signature === expectedSignatures[index]);
 }
+
+/** What the screen of a saved invoice shows while it reads it. */
+export type SavedInvoiceStatus = 'loading' | 'workspaceError' | 'error' | 'missing' | 'notFromTime' | 'ready';
+
+export interface SavedInvoiceRead {
+	/** The organization dates the invoice: its days are read in its zone. */
+	hasOrganization: boolean;
+	hasOrganizationFailed: boolean;
+	isLoading: boolean;
+	isMissing: boolean;
+	isError: boolean;
+	hasInvoice: boolean;
+	isReadable: boolean;
+}
+
+export function savedInvoiceStatusOf(read: SavedInvoiceRead): SavedInvoiceStatus {
+	if (!read.hasOrganization) {
+		if (read.hasOrganizationFailed) {
+			return 'workspaceError';
+		}
+		return 'loading';
+	}
+	if (read.isLoading) {
+		return 'loading';
+	}
+	if (read.isMissing) {
+		return 'missing';
+	}
+	if (read.isError || !read.hasInvoice) {
+		return 'error';
+	}
+	if (!read.isReadable) {
+		return 'notFromTime';
+	}
+	return 'ready';
+}

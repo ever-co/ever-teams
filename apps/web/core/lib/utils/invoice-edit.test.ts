@@ -8,6 +8,7 @@ import {
 	percentTextOf,
 	periodOfDays,
 	savedInvoiceOf,
+	savedInvoiceStatusOf,
 	statedLinesOf,
 	type InvoiceDraftFigures,
 	type SavedInvoice,
@@ -433,5 +434,32 @@ describe('whether an invoice read back holds the lines written', () => {
 	it('does not hold them when one is missing or differs', () => {
 		expect(haveSameLines([], written)).toBe(false);
 		expect(haveSameLines([item({ description: 'Ana Lima' }), item({ projectId: 'p2' })], written)).toBe(false);
+	});
+});
+
+describe('what the screen of a saved invoice shows while it reads it', () => {
+	const ready = {
+		hasOrganization: true,
+		hasOrganizationFailed: false,
+		isLoading: false,
+		isMissing: false,
+		isError: false,
+		hasInvoice: true,
+		isReadable: true
+	};
+
+	it('waits for the workspace that dates the invoice, then for the invoice', () => {
+		expect(savedInvoiceStatusOf({ ...ready, hasOrganization: false })).toBe('loading');
+		expect(savedInvoiceStatusOf({ ...ready, hasOrganization: false, hasOrganizationFailed: true })).toBe(
+			'workspaceError'
+		);
+		expect(savedInvoiceStatusOf({ ...ready, isLoading: true })).toBe('loading');
+	});
+
+	it('tells a missing invoice from a read that failed, and from one this screen did not make', () => {
+		expect(savedInvoiceStatusOf({ ...ready, isMissing: true, isError: true })).toBe('missing');
+		expect(savedInvoiceStatusOf({ ...ready, isError: true })).toBe('error');
+		expect(savedInvoiceStatusOf({ ...ready, isReadable: false })).toBe('notFromTime');
+		expect(savedInvoiceStatusOf(ready)).toBe('ready');
 	});
 });
