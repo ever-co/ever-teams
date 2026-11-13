@@ -1,6 +1,5 @@
 /** @jest-environment jsdom */
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
 import { TimerBillableToggle } from './timer-billable-toggle';
 
@@ -56,11 +55,11 @@ describe('TimerBillableToggle', () => {
 	});
 
 	it('still opens its Billable or Not billable tooltip from the keyboard while locked', async () => {
-		const user = userEvent.setup();
 		render(<TimerBillableToggle locked />);
 
-		await act(() => user.tab());
+		act(() => billableToggle().focus());
 
+		expect(billableToggle().tabIndex).toBe(0);
 		expect(document.activeElement).toBe(billableToggle());
 		expect(await screen.findByText('timer.NOT_BILLABLE')).not.toBeNull();
 	});
