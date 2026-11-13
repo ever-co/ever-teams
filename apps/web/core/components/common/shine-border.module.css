@@ -11,9 +11,11 @@
 	overflow: hidden;
 	pointer-events: none;
 	container-type: size;
+	/* stylelint-disable-next-line property-no-vendor-prefix -- Chromium before 120 and Safari before 15.4 read only these */
 	-webkit-mask:
 		linear-gradient(#000 0 0) content-box,
 		linear-gradient(#000 0 0);
+	/* stylelint-disable-next-line property-no-vendor-prefix */
 	-webkit-mask-composite: xor;
 	mask:
 		linear-gradient(#000 0 0) content-box exclude,
