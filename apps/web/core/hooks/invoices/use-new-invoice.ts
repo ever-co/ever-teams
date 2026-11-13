@@ -584,8 +584,10 @@ export function useNewInvoice(replaced: SavedInvoice | null = null) {
 				if (failure === 'unconfirmed') {
 					setNumberText(String(request.invoiceNumber));
 				}
-				// Another invoice billed part of this time meanwhile: the lines left are built once the dialog closes
-				if (failure === 'timeBilled') {
+				// An invoice saved meanwhile, which took this number or part of this time, can bill hours of these lines:
+				// the lines left are built once the dialog closes
+				const wasRefused = failure !== 'unconfirmed';
+				if (wasRefused) {
 					deferTimeRead();
 				}
 				throw error;

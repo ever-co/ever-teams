@@ -498,6 +498,41 @@ describe('the time logs a new invoice bills', () => {
 		expect(mockTime.refetch).toHaveBeenCalledTimes(1);
 	});
 
+	it('are read again once the dialog is closed after a save refused for its number', async () => {
+		const numberTaken = ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code 400',
+			status: 400,
+			response: {
+				data: { statusCode: 400, message: 'A record with these values already exists.' },
+				headers: {},
+				status: 400,
+				statusText: 'Bad Request'
+			}
+		});
+		mockTime.recordsBilledTime = true;
+		mockCreateInvoice.mockReset();
+		mockCreateInvoice.mockRejectedValue(numberTaken);
+
+		const { result } = await saveInvoice();
+
+		expect(mockTime.refetch).not.toHaveBeenCalled();
+		act(() => result.current.readDeferredTime());
+		expect(mockTime.refetch).toHaveBeenCalledTimes(1);
+	});
+
+	it('are not read again when the dialog closes after a save whose outcome is unknown', async () => {
+		mockTime.recordsBilledTime = true;
+		mockCreateInvoice.mockReset();
+		mockCreateInvoice.mockRejectedValue(
+			ApiErrorService.fromAxiosError({ code: 'ERR_NETWORK', message: 'Network Error' })
+		);
+
+		const { result } = await saveInvoice();
+		act(() => result.current.readDeferredTime());
+
+		expect(mockTime.refetch).not.toHaveBeenCalled();
+	});
+
 	it('are not read again when the dialog closes after a save that went through', async () => {
 		mockTime.recordsBilledTime = true;
 

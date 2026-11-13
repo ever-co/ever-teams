@@ -11,8 +11,20 @@ import {
 	type SavedInvoice
 } from '@/core/lib/utils/invoice-edit';
 import { parseInvoiceNumber, type InvoiceProblem } from '@/core/lib/utils/invoices';
-import { useSaveInvoiceEdit, type InvoiceEdit, type InvoiceEditToSave } from './use-invoice-mutations';
+import {
+	useSaveInvoiceEdit,
+	type InvoiceEdit,
+	type InvoiceEditOutcome,
+	type InvoiceEditToSave
+} from './use-invoice-mutations';
 import { useInvoiceDraft, type InvoiceDraftStart } from './use-new-invoice';
+
+/** The API refused the edit and saved nothing: another invoice saved meanwhile may bill part of this time. */
+function isRefusedEdit(outcome: InvoiceEditOutcome) {
+	const isRefusedBeforeWriting = outcome.status === 'notSaved';
+	const isTimeBilledElsewhere = outcome.status === 'timeBilled';
+	return isRefusedBeforeWriting || isTimeBilledElsewhere;
+}
 
 function problemsOfEdit(draftProblems: InvoiceProblem[], isUnchanged: boolean): InvoiceProblem[] {
 	if (!isUnchanged) {
@@ -50,11 +62,10 @@ export function useInvoiceEdit(saved: SavedInvoice) {
 	const recordsBilledTime = draft.recordsBilledTime;
 	const deferTimeRead = draft.deferTimeRead;
 
-	// Another invoice billed part of this time meanwhile: the lines left are built once the dialog closes
 	const saveEdit = useCallback(
 		async (toSave: InvoiceEditToSave) => {
 			const savedEdit = await saveInvoiceEdit(toSave);
-			if (savedEdit.outcome.status === 'timeBilled') {
+			if (isRefusedEdit(savedEdit.outcome)) {
 				deferTimeRead();
 			}
 			return savedEdit;

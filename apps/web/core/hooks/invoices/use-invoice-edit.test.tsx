@@ -360,4 +360,18 @@ describe('the time an edited invoice bills', () => {
 		act(() => result.current.readDeferredTime());
 		expect(mockTime.refetch).toHaveBeenCalledTimes(1);
 	});
+
+	it('is read again once the dialog is closed after an edit the API refused', async () => {
+		mockSaveInvoiceEdit.mockResolvedValue({ outcome: { status: 'notSaved' }, sending: null });
+		mockTime.refetch.mockClear();
+		const { result } = renderEdit(savedOf(sentInvoice()));
+		act(() => result.current.setDueDay('2026-12-15'));
+
+		await act(async () => {
+			await result.current.save();
+		});
+		act(() => result.current.readDeferredTime());
+
+		expect(mockTime.refetch).toHaveBeenCalledTimes(1);
+	});
 });
