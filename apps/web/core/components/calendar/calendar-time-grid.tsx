@@ -139,7 +139,7 @@ const TimeBlock = memo(function TimeBlock({
 	const isCompact = blockHeight < COMPACT_BLOCK_HEIGHT_PX;
 	const fill = entryFillOf(entry.isManual);
 	const box = blockBoxOf(placed);
-	const toneStyle = entryToneStyle(entry.projectColor);
+	const toneStyle = entryToneStyle(entry.projectColor, entry.projectKey);
 	const label = t('dashboard.calendar.ENTRY_LABEL', { title, range: rangeText, duration });
 	const close = () => setIsOpen(false);
 	const edges = edgesOnDay(entry, day.date);

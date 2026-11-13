@@ -8,9 +8,9 @@ import { PageLayout } from '@/core/components/layouts/default-layout/page-layout
 import { Button } from '@/core/components/duplicated-components/_button';
 import { DashboardBreadcrumb } from '@/core/components/dashboards/kit/dashboard-breadcrumb';
 import { BlockEmptyMessage, DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
-import { type ExportOption, ExportMenu } from '@/core/components/dashboards/kit/export-menu';
+import { ExportMenu } from '@/core/components/dashboards/kit/export-menu';
 import { DASHBOARD_STACK, DASHBOARD_SURFACE } from '@/core/components/dashboards/kit/recipes';
-import { Clock, FileSheet, Plus } from '@/core/components/icons';
+import { Clock, Plus } from '@/core/components/icons';
 import { TimerTaskStartLayer } from '@/core/components/timer/timer-task-start';
 import { useAddTimeAccess } from '@/core/hooks/dashboards/timesheets/use-add-time-access';
 import { useTimesheetDialogs } from '@/core/hooks/dashboards/timesheets/use-timesheet-dialogs';
@@ -43,7 +43,7 @@ import type { TimeEntryReuseHandlers } from './time-entry-reuse';
 import type { TimesheetRowHandlers } from './timesheet-log-row';
 import { TimesheetsMonthView, TimesheetsWeekView } from './timesheets-calendar';
 import { TimesheetsDialogs } from './timesheets-dialogs';
-import { downloadTimesheetCsv } from './timesheets-export';
+import { useTimesheetExportOptions } from './timesheets-export';
 import { useTimesheetFilterCategories, useTimesheetFilterControls } from './timesheets-filters';
 import { TimesheetsList } from './timesheets-list';
 import { TimesheetsReportSkeleton } from './timesheets-page-skeleton';
@@ -141,7 +141,14 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 	const { permissions, formatters, clearSelection } = page;
 
 	const members = page.activeTeam?.members ?? NO_MEMBERS;
-	const categories = useTimesheetFilterCategories({ isManage: permissions.isManage, members, logs: page.allLogs });
+	const categories = useTimesheetFilterCategories({
+		isManage: permissions.isManage,
+		members,
+		logs: page.allLogs,
+		clients: page.clientChoices,
+		canFilterByClient: page.canFilterByClient,
+		hasPickedClient: page.filters.clients.length > 0
+	});
 	const filterControls = useTimesheetFilterControls({
 		filters: page.filters,
 		categories,
@@ -276,18 +283,14 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 		}
 	}, [clearSelection, deleteLogs, dialogs.deleteTarget]);
 
-	const { shownLogs, period } = page;
-	const exportOptions = useMemo<ExportOption[]>(
-		() => [
-			{
-				key: 'csv',
-				label: t('dashboard.timesheets.EXPORT_CSV'),
-				icon: <FileSheet />,
-				run: () => downloadTimesheetCsv(shownLogs, period, t)
-			}
-		],
-		[period, shownLogs, t]
-	);
+	const { shownLogs } = page;
+	const exportOptions = useTimesheetExportOptions({
+		logs: shownLogs,
+		period: page.period,
+		appliedFilters: filterControls.applied,
+		statusFilter: page.statusFilter,
+		search: page.search
+	});
 	const hasShownLogs = shownLogs.length > 0;
 
 	const actionsNode = (
@@ -338,7 +341,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 	if (page.showsError) {
 		body = (
 			<div className="p-4">
-				<DashboardErrorNotice onRetry={() => void page.logsQuery.refetch()} />
+				<DashboardErrorNotice onRetry={page.retry} />
 			</div>
 		);
 	} else if (isScreenshotsView) {

@@ -130,7 +130,7 @@ describe('shortcut bindings', () => {
 
 	it('refuses a sequence or ⌘/Ctrl for a row key, a key the list keeps, and a browser combination', () => {
 		const command = (id: string) => SHORTCUT_COMMANDS.find((item) => item.id === id)!;
-		for (const id of ['listDown', 'listUp', 'listSelect', 'taskStatus', 'taskPriority', 'taskLabels', 'taskDueDate']) {
+		for (const id of ['listDown', 'listUp', 'listSelect', 'taskStatus', 'taskPriority', 'taskLabels', 'taskDueDate', 'taskProject', 'taskAssignee']) {
 			expect(command(id).fixed).toBeFalsy();
 			expect(refusalOf(command(id), parseBinding('g j')!)).toBe('sequence');
 			// ⌘/Ctrl chords belong to the browser and the app's other listeners (the sidebar's Mod+B).
@@ -166,6 +166,9 @@ describe('shortcut bindings', () => {
 		expect(match(press('KeyP', 'p'))?.commandId).toBe('taskPriority');
 		expect(match(press('KeyL', 'l'))?.commandId).toBe('taskLabels');
 		expect(match(press('KeyD', 'd'))?.commandId).toBe('taskDueDate');
+		expect(match(press('KeyM', 'm'))?.commandId).toBe('taskProject');
+		expect(match(press('KeyA', 'a'))?.commandId).toBe('taskAssignee');
+		expect(match(press('KeyA', 'A', { shiftKey: true }))?.commandId).toBe('taskAssignee');
 		// Built in: the arrows (Shift extends), Enter and O, Esc.
 		expect(match(press('ArrowDown', 'ArrowDown'))).toEqual({ commandId: 'listDown', extend: false });
 		expect(match(press('ArrowUp', 'ArrowUp', { shiftKey: true }))).toEqual({ commandId: 'listUp', extend: true });

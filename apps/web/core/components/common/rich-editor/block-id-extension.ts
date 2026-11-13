@@ -2,6 +2,7 @@ import { Extension } from '@tiptap/core';
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model';
 import { Plugin, PluginKey, type EditorState, type Transaction } from '@tiptap/pm/state';
 import { Mapping } from '@tiptap/pm/transform';
+import { newUuid } from '@/core/lib/utils/uuid';
 
 /**
  * Block anchors for the Docs pages: every block of these types carries a `blockId`, the anchor comment threads and
@@ -28,14 +29,7 @@ export function isBlockId(value: unknown): value is string {
 
 /** A new anchor: a version 4 UUID, which the platform's schema requires, from the browser's cryptographic source. */
 export function newBlockId(): string {
-	const cryptoApi = globalThis.crypto;
-	if (typeof cryptoApi.randomUUID === 'function') return cryptoApi.randomUUID();
-	// `randomUUID` needs a secure context (https or localhost); `getRandomValues` does not.
-	const bytes = cryptoApi.getRandomValues(new Uint8Array(16));
-	bytes[6] = (bytes[6] & 0x0f) | 0x40;
-	bytes[8] = (bytes[8] & 0x3f) | 0x80;
-	const hex = [...bytes].map((byte) => byte.toString(16).padStart(2, '0')).join('');
-	return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+	return newUuid();
 }
 
 /**

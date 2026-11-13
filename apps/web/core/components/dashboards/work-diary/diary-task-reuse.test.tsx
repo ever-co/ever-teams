@@ -98,6 +98,7 @@ function entryOf(log: ITimeLog, daySeconds: number): CalendarEntry {
 		isRunning: false,
 		isBillable: false,
 		taskTitle: log.task?.title ?? null,
+		projectKey: null,
 		projectName: null,
 		projectColor: null,
 		reason: null

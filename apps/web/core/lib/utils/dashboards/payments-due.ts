@@ -378,8 +378,15 @@ function compareCurrencyTotals(first: OwedCurrencyTotal, second: OwedCurrencyTot
 	return first.key.localeCompare(second.key);
 }
 
+interface CurrencyFigure {
+	employeeId: string;
+	seconds: number;
+	currency: string | null;
+	amount: number | null;
+}
+
 /** Amounts are summed per currency and never across currencies. */
-function currencyTotalsOf(lines: ReadonlyArray<OwedLine>): OwedCurrencyTotal[] {
+export function currencyTotalsOf(lines: ReadonlyArray<CurrencyFigure>): OwedCurrencyTotal[] {
 	const byCurrency = new Map<string, CurrencyAccumulator>();
 	for (const line of lines) {
 		if (line.amount === null) {

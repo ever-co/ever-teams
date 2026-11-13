@@ -2,7 +2,7 @@ import type { DateRange } from 'react-day-picker';
 import type { TOrganizationProject } from '@/core/types/schemas';
 import type { TTaskStatus } from '@/core/types/schemas/task/task-status.schema';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
-import { projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
+import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
 import { replaceHtmlTags } from './html-tags';
 
 export type ProjectScope = 'active' | 'archived';
@@ -20,10 +20,20 @@ export interface ProjectOrdering {
 	desc: boolean;
 }
 
-export type ProjectColumn = 'status' | 'progress' | 'managers' | 'members' | 'teams' | 'dates' | 'timeSpent' | 'budget';
+export type ProjectColumn =
+	| 'status'
+	| 'client'
+	| 'progress'
+	| 'managers'
+	| 'members'
+	| 'teams'
+	| 'dates'
+	| 'timeSpent'
+	| 'budget';
 
 export const PROJECT_COLUMNS: ProjectColumn[] = [
 	'status',
+	'client',
 	'progress',
 	'managers',
 	'members',
@@ -33,9 +43,19 @@ export const PROJECT_COLUMNS: ProjectColumn[] = [
 	'budget'
 ];
 
-export type ProjectFilterField = 'teams' | 'members' | 'managers' | 'status' | 'budgetTypes';
+export type ProjectFilterField = 'teams' | 'clients' | 'members' | 'managers' | 'status' | 'budgetTypes';
 
-export const PROJECT_FILTER_FIELDS: ProjectFilterField[] = ['teams', 'status', 'managers', 'members', 'budgetTypes'];
+export const PROJECT_FILTER_FIELDS: ProjectFilterField[] = [
+	'teams',
+	'clients',
+	'status',
+	'managers',
+	'members',
+	'budgetTypes'
+];
+
+/** The value of the client filter that keeps the projects without a client. */
+export const NO_CLIENT_FILTER_VALUE = 'none';
 
 export type ProjectFilters = Record<ProjectFilterField, string[]>;
 
@@ -140,6 +160,7 @@ export function urlWithParams(pathname: string, params: URLSearchParams) {
 export function readProjectFilters(params: URLSearchParams): ProjectFilters {
 	return {
 		teams: splitParam(params.get('teams')),
+		clients: splitParam(params.get('clients')),
 		members: splitParam(params.get('members')),
 		managers: splitParam(params.get('managers')),
 		status: splitParam(params.get('status')),
@@ -195,6 +216,18 @@ export function isProjectVisibleInTeam(project: TOrganizationProject, activeTeam
 		return true;
 	}
 	return projectHasNoTeams(project);
+}
+
+/**
+ * The projects the Projects page lists for the active team before any search or filter: the team's own and the
+ * ones without a team, archived ones left out. A count that links to that list counts these, so both always agree.
+ */
+export function projectsListedForTeam(projects: TOrganizationProject[], activeTeamId: string | null | undefined) {
+	return projects.filter((project) => {
+		const isVisibleInTeam = isProjectVisibleInTeam(project, activeTeamId);
+		const isListedAsActive = isValidProjectForDisplay(project, false);
+		return isVisibleInTeam && isListedAsActive;
+	});
 }
 
 function endOfDay(date: Date) {
@@ -264,6 +297,25 @@ function matchesTeams(project: TOrganizationProject, teams: string[]) {
 	return hasAny(teams, teamIds);
 }
 
+export function clientIdOf(project: Pick<TOrganizationProject, 'organizationContactId' | 'organizationContact'>) {
+	const storedId = project.organizationContactId;
+	if (storedId) {
+		return storedId;
+	}
+	return project.organizationContact?.id ?? null;
+}
+
+function matchesClients(project: TOrganizationProject, clients: string[]) {
+	if (clients.length === 0) {
+		return true;
+	}
+	const clientId = clientIdOf(project);
+	if (!clientId) {
+		return clients.includes(NO_CLIENT_FILTER_VALUE);
+	}
+	return clients.includes(clientId);
+}
+
 function matchesManagers(project: TOrganizationProject, managers: string[]) {
 	if (managers.length === 0) {
 		return true;
@@ -320,6 +372,7 @@ function matchesBudgetTypes(project: TOrganizationProject, budgetTypes: string[]
 export function projectMatchesFilters(project: TOrganizationProject, filters: ProjectFilters, statuses: TTaskStatus[]) {
 	const checks = [
 		matchesTeams(project, filters.teams),
+		matchesClients(project, filters.clients),
 		matchesManagers(project, filters.managers),
 		matchesMembers(project, filters.members),
 		matchesStatus(project, filters.status, statuses),
@@ -527,12 +580,21 @@ export function plainTextOf(html: string | null | undefined) {
 	return decoded.replace(/\s+/g, ' ').trim();
 }
 
-interface ProjectContact {
-	name?: string | null;
-}
-
-/** The client: Gauzy returns it under the `organizationContact` relation, kept by the schema's passthrough. */
-export function clientNameOf(project: TOrganizationProject) {
-	const contact = (project as { organizationContact?: ProjectContact | null }).organizationContact;
-	return contact?.name ?? null;
+/**
+ * The client's name. The API leaves an archived client out of the project's relation while the project keeps its
+ * id, so `clientNames` (every client by id, archived ones included) names it.
+ */
+export function clientNameOf(
+	project: Pick<TOrganizationProject, 'organizationContactId' | 'organizationContact'>,
+	clientNames?: ReadonlyMap<string, string>
+) {
+	const relationName = project.organizationContact?.name;
+	if (relationName) {
+		return relationName;
+	}
+	const clientId = clientIdOf(project);
+	if (!clientId) {
+		return null;
+	}
+	return clientNames?.get(clientId) ?? null;
 }

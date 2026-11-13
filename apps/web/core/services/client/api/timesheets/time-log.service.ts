@@ -40,6 +40,13 @@ import {
 } from '@/core/types/schemas';
 import { ITimeLogUpdatePayload } from '@/core/types/interfaces/timesheet/time-log.interface';
 
+const TASK_LABELS_RELATION = 'task.tags';
+
+interface ITimeLogsRelationOptions {
+	/** Each log's task comes with its labels, which a report that filters by label reads from the logs themselves. */
+	withTaskLabels?: boolean;
+}
+
 class TimeLogService extends APIService {
 	getTimeLimitsReport = async (params: TGetTimeLimitReport): Promise<TTimeLimitReportList[]> => {
 		const convertedParams = { ...params, tenantId: this.tenantId, organizationId: this.organizationId };
@@ -215,8 +222,9 @@ class TimeLogService extends APIService {
 		projectIds = [],
 		employeeIds = [],
 		taskIds = [],
-		status = []
-	}: TGetTimerLogsDailyReportRequest) => {
+		status = [],
+		withTaskLabels = false
+	}: TGetTimerLogsDailyReportRequest & ITimeLogsRelationOptions) => {
 		if (!startDate || !endDate) {
 			throw new Error('Required parameters missing: startDate, and endDate are required');
 		}
@@ -238,6 +246,9 @@ class TimeLogService extends APIService {
 		TIMESHEET_RELATIONS.forEach((relation, index) => {
 			params.append(`relations[${index}]`, relation);
 		});
+		if (withTaskLabels) {
+			params.append(`relations[${TIMESHEET_RELATIONS.length}]`, TASK_LABELS_RELATION);
+		}
 
 		const addArrayParam = (key: string, values: string[]) => {
 			values.forEach((value, index) => {
@@ -404,7 +415,8 @@ class TimeLogService extends APIService {
 		taskIds = [],
 		teamIds = [],
 		activityLevel = { start: 0, end: 100 },
-		includeTimeWithoutTeam = false
+		includeTimeWithoutTeam = false,
+		billableOnly = false
 	}: ITimeLogReportDailyRequest) => {
 		if (!this.organizationId || !this.tenantId || !startDate || !endDate) {
 			throw new Error(
@@ -446,6 +458,10 @@ class TimeLogService extends APIService {
 		if (countsTimeWithoutTeam) {
 			queryParams.includeTimeWithoutTeam = 'true';
 		}
+		// Sent only when asked: without the parameter Gauzy counts every log, billable or not
+		if (billableOnly) {
+			queryParams.billableOnly = 'true';
+		}
 
 		const queryString = new URLSearchParams(queryParams).toString();
 
@@ -467,13 +483,14 @@ class TimeLogService extends APIService {
 		timeZone = getDefaultTimezone(),
 		projectIds = [],
 		employeeIds = [],
-		teamIds = []
+		teamIds = [],
+		billableOnly = false
 	}: ITimeLogReportWeeklyRequest): Promise<TTimeLogReportWeekly[]> => {
 		if (!this.organizationId || !this.tenantId) {
 			throw new Error('Required parameters missing: organizationId and tenantId are required');
 		}
 
-		const query = qs.stringify({
+		const queryParams: Record<string, unknown> = {
 			organizationId: this.organizationId,
 			tenantId: this.tenantId,
 			startDate,
@@ -482,7 +499,11 @@ class TimeLogService extends APIService {
 			projectIds,
 			employeeIds,
 			teamIds
-		});
+		};
+		if (billableOnly) {
+			queryParams.billableOnly = true;
+		}
+		const query = qs.stringify(queryParams);
 
 		try {
 			const response = await this.get<TTimeLogReportWeekly[]>(`/timesheet/time-log/report/weekly?${query}`, {

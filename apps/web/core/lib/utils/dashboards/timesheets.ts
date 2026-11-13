@@ -1022,7 +1022,7 @@ function presentFirst(isFirstPresent: boolean) {
 }
 
 /** Rows read like a timesheet: grouped by project, then by task, logs without a project or a task last. */
-export function bySheetRow(first: Pick<SheetRow, 'identity'>, second: Pick<SheetRow, 'identity'>) {
+function bySheetRow(first: Pick<SheetRow, 'identity'>, second: Pick<SheetRow, 'identity'>) {
 	const firstProject = rowProjectNameOf(first);
 	const secondProject = rowProjectNameOf(second);
 	const firstHasProject = firstProject.length > 0;
