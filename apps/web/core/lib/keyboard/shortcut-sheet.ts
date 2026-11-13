@@ -59,6 +59,8 @@ export interface OwnKeyLine {
 	group: ShortcutSheetGroup;
 	labelKey: string;
 	binding: string;
+	/** Matched by a component only some pages have (the list search's `/`): listed while one of them answers it. */
+	onlyWhereAnswered?: boolean;
 }
 
 export interface ShortcutSheetFacts {
@@ -76,7 +78,7 @@ export interface ShortcutSheetFacts {
 	hotkeys: readonly HotkeyGroup[];
 	/** The hotkeys-js declarations bound right now: a hotkey lives only while its component is on the page. */
 	boundHotkeys: { has(declaration: string): boolean };
-	/** The keys a component on the page matches itself right now (the chat page's), by command or key id. */
+	/** The keys a component on the page matches itself right now (the chat page's, `/`), by command or key id. */
 	answered: { has(id: string): boolean };
 	ownKeys: readonly OwnKeyLine[];
 }
@@ -300,6 +302,10 @@ function hotkeyLinesOf(facts: ShortcutSheetFacts, registryLines: readonly Shortc
 function ownKeyLinesOf(facts: ShortcutSheetFacts): ShortcutSheetLine[] {
 	const lines: ShortcutSheetLine[] = [];
 	for (const ownKey of facts.ownKeys) {
+		const isUnanswered = Boolean(ownKey.onlyWhereAnswered) && !facts.answered.has(ownKey.id);
+		if (isUnanswered) {
+			continue;
+		}
 		const binding = parseBinding(ownKey.binding);
 		if (!binding) {
 			continue;

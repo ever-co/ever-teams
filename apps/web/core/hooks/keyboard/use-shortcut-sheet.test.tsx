@@ -43,10 +43,18 @@ describe('useShortcutSheet', () => {
 	});
 
 	it('reads the keys components answer themselves from the constants their listeners match', () => {
+		mockAnswered = new Set(['taskSearchFocus']);
 		const sections = sheet();
 
 		expect(lineOf(sections, 'sidebarToggle')?.keys).toEqual([[['Ctrl', 'B']]]);
 		expect(lineOf(sections, 'taskSearchFocus')?.keys).toEqual([[['/']]]);
+	});
+
+	it('lists / only on a page whose list search answers it', () => {
+		const sections = sheet();
+
+		expect(lineOf(sections, 'sidebarToggle')).toBeDefined();
+		expect(lineOf(sections, 'taskSearchFocus')).toBeUndefined();
 	});
 
 	it('lists a legacy hotkey from its declaration, only while a component has it bound', () => {

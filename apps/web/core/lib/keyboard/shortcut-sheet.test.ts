@@ -130,6 +130,21 @@ describe('shortcutSheetOf, the registry off', () => {
 		expect(idsOf(bound, 'tasks').slice(0, 3)).toEqual(['hotkey:ASSIGN_TASK', 'hotkey:CREATE_TASK', 'listDown']);
 	});
 
+	it('lists a key of a component only some pages have while one of them answers it', () => {
+		const searchKey = {
+			id: 'taskSearchFocus',
+			group: 'tasks' as const,
+			labelKey: 'shortcuts.commands.taskSearchFocus',
+			binding: '/',
+			onlyWhereAnswered: true
+		};
+		const ownKeys = [...factsOf().ownKeys, searchKey];
+		expect(idsOf(factsOf({ ownKeys }), 'tasks')).not.toContain('taskSearchFocus');
+
+		const answered = new Set(['taskSearchFocus']);
+		expect(lineOf(factsOf({ ownKeys, answered }), 'tasks', 'taskSearchFocus')?.keys).toEqual([[['/']]]);
+	});
+
 	it('lists the help under its one key when nothing binds the legacy one', () => {
 		const facts = factsOf({ boundHotkeys: new Set<string>() });
 		expect(lineOf(facts, 'general', 'helpOpen')?.keys).toEqual([[['?']]]);

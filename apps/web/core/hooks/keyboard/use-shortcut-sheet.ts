@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { SIDEBAR_KEYBOARD_SHORTCUT } from '@/core/components/common/sidebar';
 import { pickerOf } from '@/core/components/pages/teams/team/tasks/list/team-task-picker-commands';
-import { TASK_SEARCH_FOCUS_KEY } from '@/core/components/tasks/task-search-field';
+import { TASK_SEARCH_FOCUS_ID, TASK_SEARCH_FOCUS_KEY } from '@/core/components/tasks/task-search-field';
 import { useDetectOS } from '@/core/hooks/common/use-detect-os';
 import { HostKeysMapping, useBoundHotkeys } from '@/core/hooks/common/use-hotkeys';
 import { availableShortcutCommands } from '@/core/lib/keyboard/available-commands';
@@ -22,10 +22,11 @@ const OWN_KEYS: readonly OwnKeyLine[] = [
 		binding: `mod+${SIDEBAR_KEYBOARD_SHORTCUT}`
 	},
 	{
-		id: 'taskSearchFocus',
+		id: TASK_SEARCH_FOCUS_ID,
 		group: 'tasks',
 		labelKey: 'shortcuts.commands.taskSearchFocus',
-		binding: TASK_SEARCH_FOCUS_KEY
+		binding: TASK_SEARCH_FOCUS_KEY,
+		onlyWhereAnswered: true
 	}
 ];
 
