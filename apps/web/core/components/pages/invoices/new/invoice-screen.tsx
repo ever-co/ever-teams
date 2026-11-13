@@ -1,12 +1,19 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
+import Link from 'next/link';
+import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { Notice } from '@/core/components/common/notice';
+import { DashboardBreadcrumb } from '@/core/components/dashboards/kit/dashboard-breadcrumb';
+import { DashboardToolbar } from '@/core/components/dashboards/kit/dashboard-layout';
 import { DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { Clock, Undo } from '@/core/components/icons';
+import { Clock, Invoice, Undo } from '@/core/components/icons';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import type { InvoiceDraftState, InvoiceScreenState } from '@/core/hooks/invoices/use-new-invoice';
+import { isTrackingEnabledState } from '@/core/stores';
+import { INVOICES_PATH } from '../invoice-access-guard';
 import { InvoiceDetails } from './invoice-details';
 import { EarlierInvoices } from './invoice-earlier';
 import { OtherCurrencies, UnpricedTimeList } from './invoice-left-out';
@@ -153,4 +160,42 @@ export function RevisedInvoiceBody({
 		return <TimeReadFailure invoice={invoice} />;
 	}
 	return <PreparedInvoice invoice={invoice} notice={notice} renderSaveDialog={renderSaveDialog} />;
+}
+
+export function CancelInvoiceLink() {
+	const t = useTranslations();
+	return (
+		<Button asChild variant="outline" size="default">
+			<Link href={INVOICES_PATH}>{t('common.CANCEL')}</Link>
+		</Button>
+	);
+}
+
+interface InvoiceScreenFrameProps {
+	title: string;
+	/** Where the breadcrumb's last step points: this screen. */
+	href: string;
+	toolbar?: ReactNode;
+	children: ReactNode;
+}
+
+/** The page around an invoice started from a saved one; a toolbar with its title and Cancel when none is given. */
+export function InvoiceScreenFrame({ title, href, toolbar, children }: Readonly<InvoiceScreenFrameProps>) {
+	const t = useTranslations();
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
+	const breadcrumbPaths = [
+		{ title: t('invoices.TITLE'), href: INVOICES_PATH },
+		{ title, href }
+	];
+	const shownToolbar = toolbar ?? <DashboardToolbar title={title} actions={<CancelInvoiceLink />} />;
+	return (
+		<PageLayout
+			title={title}
+			showTimer={isTrackingEnabled}
+			breadcrumb={<DashboardBreadcrumb icon={<Invoice aria-hidden="true" />} paths={breadcrumbPaths} />}
+			mainHeaderSlot={shownToolbar}
+		>
+			{children}
+		</PageLayout>
+	);
 }
