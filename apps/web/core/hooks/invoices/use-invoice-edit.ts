@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
-import { isDraftInvoice } from '@/core/lib/utils/invoice-actions';
 import {
 	hasInvoiceChanges,
 	invoiceChangesOf,
@@ -76,9 +75,8 @@ export function useInvoiceEdit(read: SavedInvoice) {
 				return null;
 			}
 			const invoiceNumber = edit.revision.update.invoiceNumber;
-			const marksSent = isDraftInvoice(saved.status);
 			// Sent from the invoice's workspace: a switch in another tab meanwhile sends nothing
-			const sending = { invoiceId: saved.id, invoiceNumber, email, marksSent, scope: edit.scope };
+			const sending = { invoiceId: saved.id, invoiceNumber, email, scope: edit.scope };
 			return saveInvoiceEdit({ edit, sending });
 		},
 		[editOf, saveInvoiceEdit, saved]

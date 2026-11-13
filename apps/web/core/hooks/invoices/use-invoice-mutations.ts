@@ -21,6 +21,7 @@ import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/c
 import { downloadBlob } from '@/core/lib/utils/dashboard-export';
 import {
 	invoiceRevisionsOf,
+	isDraftInvoice,
 	pagesWithInvoiceChanged,
 	pagesWithoutInvoice,
 	SENT_CHANGE,
@@ -361,10 +362,13 @@ async function checkInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditCheck> {
 	return { refusal: null, status };
 }
 
+/** Where an edited invoice goes once saved: whether it becomes Sent is decided by the status the save finds. */
+export type InvoiceEditSending = Omit<InvoiceToSend, 'marksSent'>;
+
 export interface InvoiceEditToSave {
 	edit: InvoiceEdit;
 	/** Where the invoice goes once saved; null saves it only. */
-	sending: InvoiceToSend | null;
+	sending: InvoiceEditSending | null;
 }
 
 export interface SavedInvoiceEdit {
@@ -384,7 +388,9 @@ async function saveAndSendInvoiceEdit({ edit, sending }: InvoiceEditToSave): Pro
 	if (!isSaved || !sending) {
 		return { outcome, sending: null };
 	}
-	const sendingOutcome = await sendSavedInvoice(sending);
+	// Only a draft becomes Sent: one sent from elsewhere since the editor opened keeps the status it reached
+	const marksSent = isDraftInvoice(check.status);
+	const sendingOutcome = await sendSavedInvoice({ ...sending, marksSent });
 	return { outcome, sending: sendingOutcome };
 }
 

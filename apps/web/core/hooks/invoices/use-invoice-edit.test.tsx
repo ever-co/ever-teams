@@ -215,7 +215,7 @@ describe('an invoice opened to be edited', () => {
 		expect(result.current.changes.dueDay).toEqual({ before: '2026-11-30', after: '2026-12-15' });
 	});
 
-	it('sends a sent invoice again without taking its status back, and marks a draft Sent', async () => {
+	it('sends a sent invoice or a draft to the address typed, from the invoice’s workspace', async () => {
 		const sent = renderEdit(savedOf(sentInvoice('SENT')));
 		const draft = renderEdit(savedOf(sentInvoice('DRAFT')));
 		act(() => sent.result.current.setNote('Thank you.'));
@@ -227,14 +227,14 @@ describe('an invoice opened to be edited', () => {
 		});
 
 		const [sentCall, draftCall] = mockSaveInvoiceEdit.mock.calls.map(([request]) => request.sending);
-		expect(sentCall).toEqual({
+		const sendingOfInvoice42 = {
 			invoiceId: 'invoice-42',
 			invoiceNumber: 42,
 			email: 'billing@acme.test',
-			marksSent: false,
 			scope: { organizationId: 'organization-1', tenantId: 'tenant-1' }
-		});
-		expect(draftCall.marksSent).toBe(true);
+		};
+		expect(sentCall).toEqual(sendingOfInvoice42);
+		expect(draftCall).toEqual(sendingOfInvoice42);
 	});
 
 	it('takes the time again, keeping what was written on a line still there', () => {

@@ -579,6 +579,34 @@ describe('saving an edit to an invoice', () => {
 		expect(mockChangeInvoiceStatus).not.toHaveBeenCalled();
 	});
 
+	it('marks Sent a draft once sent, the status the save found deciding', async () => {
+		mockGetInvoice.mockResolvedValue(invoiceRead('DRAFT'));
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockResolvedValue(undefined);
+		mockSendInvoiceByEmail.mockResolvedValue(undefined);
+		mockChangeInvoiceStatus.mockResolvedValue(undefined);
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result, sending);
+
+		expect(saved).toEqual({ outcome: { status: 'saved' }, sending: 'sent' });
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-42', { status: 'SENT' }, workspace);
+	});
+
+	it('takes no status back when the draft the editor opened was sent and viewed from elsewhere since', async () => {
+		mockGetInvoice.mockResolvedValue(invoiceRead('VIEWED'));
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockResolvedValue(undefined);
+		mockSendInvoiceByEmail.mockResolvedValue(undefined);
+		const { result } = renderSaveEdit();
+
+		await saveWith(result, { ...sending, marksSent: true });
+
+		expect(mockUpdateInvoice.mock.calls[0][1]).toMatchObject({ status: 'VIEWED' });
+		expect(mockSendInvoiceByEmail).toHaveBeenCalledTimes(1);
+		expect(mockChangeInvoiceStatus).not.toHaveBeenCalled();
+	});
+
 	it('sends nothing when the edit was not saved', async () => {
 		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
 		mockUpdateInvoice.mockRejectedValue(refusal());
