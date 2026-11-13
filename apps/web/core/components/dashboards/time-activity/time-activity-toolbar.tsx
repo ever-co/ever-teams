@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { SegmentedControl, type SegmentedControlItem } from '@/core/components/common/segmented-control';
 import { DashboardToolbar } from '@/core/components/dashboards/kit/dashboard-layout';
@@ -9,13 +9,19 @@ import { useTimeActivityFilterOptions } from '@/core/hooks/dashboards/time-activ
 import type { TimeActivityReport } from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
 import { formatPeriod } from '@/core/lib/utils/dashboard-period';
 import { TIME_ACTIVITY_WEEK_START, type TimeActivityGrouping } from '@/core/lib/utils/dashboards/time-activity';
+import { useRevealSelectedTab } from '@/core/hooks/common/use-reveal-selected-tab';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { TimeActivityControlRow } from './time-activity-control-row';
 import { AppliedTimeActivityFilters, TimeActivityFilterMenu } from './time-activity-filter-menu';
 import { TimeActivityViewMenu } from './time-activity-view-menu';
 
-/** A phone too narrow for every grouping scrolls the switch inside its line; the halo of a focused option stays. */
-const SWITCH_SCROLLER = '-m-1 min-w-0 max-w-full overflow-x-auto p-1 no-scrollbar';
+/** A phone too narrow for every grouping scrolls the switch inside its line. */
+const SWITCH_SCROLLER = '-m-1 min-w-0 max-w-full overflow-x-auto no-scrollbar';
+
+/** The room is inside what scrolls, so the focus ring of the first or last option is never cut, scrolled or not. */
+const SWITCH_RING_ROOM = 'w-max p-1';
+
+const FOCUS_RING_ROOM_PX = 4;
 
 const GROUPING_LABEL_KEYS: Record<TimeActivityGrouping, DottedLanguageObjectStringPaths> = {
 	date: 'dashboard.timeActivity.grouping.DATE',
@@ -43,6 +49,8 @@ export function TimeActivityToolbar({ report }: Readonly<{ report: TimeActivityR
 	const locale = useWorkspaceLocale();
 	const filterOptions = useTimeActivityFilterOptions();
 	const { settings } = report;
+	const switchScrollerRef = useRef<HTMLDivElement>(null);
+	useRevealSelectedTab(switchScrollerRef, settings.grouping, FOCUS_RING_ROOM_PX);
 
 	const groupingItems = useMemo<SegmentedControlItem<TimeActivityGrouping>[]>(
 		() => settings.groupings.map((grouping) => ({ value: grouping, label: t(GROUPING_LABEL_KEYS[grouping]) })),
@@ -77,13 +85,15 @@ export function TimeActivityToolbar({ report }: Readonly<{ report: TimeActivityR
 					}
 					trailing={
 						<>
-							<div className={SWITCH_SCROLLER}>
-								<SegmentedControl<TimeActivityGrouping>
-									items={groupingItems}
-									value={settings.grouping}
-									onValueChange={settings.setGrouping}
-									ariaLabel={t('dashboard.timeActivity.grouping.LABEL')}
-								/>
+							<div ref={switchScrollerRef} className={SWITCH_SCROLLER}>
+								<div className={SWITCH_RING_ROOM}>
+									<SegmentedControl<TimeActivityGrouping>
+										items={groupingItems}
+										value={settings.grouping}
+										onValueChange={settings.setGrouping}
+										ariaLabel={t('dashboard.timeActivity.grouping.LABEL')}
+									/>
+								</div>
 							</div>
 							<TimeActivityViewMenu
 								grouping={settings.grouping}
