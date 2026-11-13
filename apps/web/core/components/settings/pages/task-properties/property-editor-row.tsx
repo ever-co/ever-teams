@@ -1,6 +1,6 @@
 'use client';
 
-import { ChangeEvent, FormEvent, KeyboardEvent, useId, useState } from 'react';
+import { ChangeEvent, FormEvent, KeyboardEvent, useId, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Input } from '@/core/components/common/input';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -68,6 +68,8 @@ export function PropertyEditorRow({
 	const [isIconPicked, setIsIconPicked] = useState(mode === 'edit');
 	const [nameError, setNameError] = useState<string | null>(null);
 	const [isSaving, setIsSaving] = useState(false);
+	// The name in the field now: the field stays editable while a save runs, and its answer may come after a change
+	const typedNameRef = useRef(initialDraft.name);
 
 	const hasLook = hasIconLibrary(kind);
 	const isStatus = kind === 'status';
@@ -85,6 +87,7 @@ export function PropertyEditorRow({
 
 	const changeName = (event: ChangeEvent<HTMLInputElement>) => {
 		const name = event.target.value;
+		typedNameRef.current = name;
 		setDraft((current) => ({ ...current, name }));
 		setNameError(null);
 	};
@@ -121,8 +124,10 @@ export function PropertyEditorRow({
 			await onSave(draft);
 		} catch (error) {
 			// The mutation's error toast gives the reason; the row stays open with what was typed. A name Gauzy finds
-			// taken (another member added it meanwhile, after the list was read) is also said on the field.
-			if (isNameTakenError(error)) {
+			// taken (another member added it meanwhile, after the list was read) is also said on the field, while the
+			// field still holds that name: one typed since was not checked.
+			const isSentNameShown = typedNameRef.current === draft.name;
+			if (isNameTakenError(error) && isSentNameShown) {
 				setNameError(t('settings.taskProperties.NAME_TAKEN', { kind }));
 			}
 		} finally {

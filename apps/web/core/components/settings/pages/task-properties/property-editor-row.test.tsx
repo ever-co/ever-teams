@@ -70,6 +70,27 @@ describe('PropertyEditorRow, a label name the team has already', () => {
 		expect((screen.getByLabelText('common.NAME') as HTMLInputElement).value).toBe('Design');
 	});
 
+	it('says nothing on the field when its name changed before Gauzy refused the one sent', async () => {
+		let refuse: (error: unknown) => void = () => undefined;
+		const pendingSave = new Promise<void>((_resolve, reject) => {
+			refuse = reject;
+		});
+		renderRow(jest.fn().mockReturnValue(pendingSave));
+
+		await submitName('Design');
+		fireEvent.change(screen.getByLabelText('common.NAME'), { target: { value: 'Research' } });
+		await act(async () => {
+			refuse(
+				new ApiErrorService('A tag named "Design" already exists here.', 409, 'UNIQUE_CONSTRAINT_VIOLATION', {
+					field: 'name'
+				})
+			);
+		});
+
+		expect(screen.queryByText('settings.taskProperties.NAME_TAKEN:{"kind":"label"}')).toBeNull();
+		expect((screen.getByLabelText('common.NAME') as HTMLInputElement).value).toBe('Research');
+	});
+
 	it('leaves any other refusal to the toast', async () => {
 		renderRow(jest.fn().mockRejectedValue(new ApiErrorService('Internal error', 500)));
 
