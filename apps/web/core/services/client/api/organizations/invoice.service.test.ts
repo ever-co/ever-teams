@@ -109,6 +109,7 @@ describe('e-mailing, settling and deleting an invoice in the workspace the list 
 		await invoiceService.deleteInvoice('invoice-1', listScope);
 
 		expect(put.mock.calls[0][2]?.tenantId).toBe('tenant-1');
+		expect(put.mock.calls[0][1]).toEqual(expect.objectContaining(listScope));
 		expect(remove.mock.calls[0][1]?.tenantId).toBe('tenant-1');
 	});
 
