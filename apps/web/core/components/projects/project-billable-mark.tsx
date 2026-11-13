@@ -6,19 +6,8 @@ import { cn } from '@/core/lib/helpers';
 import { isBillableByDefault } from '@/core/lib/utils/project-billable';
 import type { TOrganizationProject } from '@/core/types/schemas';
 
-function toneOf(isBillable: boolean) {
-	if (isBillable) {
-		return 'text-primary-ink';
-	}
-	return 'text-muted-foreground/45';
-}
-
-function labelKeyOf(isBillable: boolean) {
-	if (isBillable) {
-		return 'pages.projects.billable.LABEL' as const;
-	}
-	return 'pages.projects.billable.NOT_BILLABLE' as const;
-}
+const BILLABLE_MARK =
+	'inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary-ink dark:bg-primary/15';
 
 export function ProjectBillableMark({
 	project,
@@ -26,15 +15,13 @@ export function ProjectBillableMark({
 }: Readonly<{ project: Pick<TOrganizationProject, 'billable'>; className?: string }>) {
 	const t = useTranslations();
 	const isBillable = isBillableByDefault(project);
-	const label = t(labelKeyOf(isBillable));
+	if (!isBillable) {
+		return null;
+	}
+	const label = t('pages.projects.billable.LABEL');
 	return (
-		<span
-			role="img"
-			aria-label={label}
-			title={label}
-			className={cn('inline-flex shrink-0 items-center', toneOf(isBillable), className)}
-		>
-			<DollarCircle aria-hidden="true" className="size-3.5" />
+		<span role="img" aria-label={label} title={label} className={cn(BILLABLE_MARK, className)}>
+			<DollarCircle aria-hidden="true" className="size-4" />
 		</span>
 	);
 }

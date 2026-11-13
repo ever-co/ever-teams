@@ -6,8 +6,7 @@ import { ProjectBillableMark } from './project-billable-mark';
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string) => {
 		const messages: Record<string, string> = {
-			'pages.projects.billable.LABEL': 'Billable by default',
-			'pages.projects.billable.NOT_BILLABLE': 'Not billable'
+			'pages.projects.billable.LABEL': 'Billable by default'
 		};
 		return messages[key] ?? key;
 	}
@@ -18,15 +17,19 @@ describe('the billable mark of a project', () => {
 		['chose not billable', { billable: false }],
 		['never chose, the API holding null', { billable: null }],
 		['came without the field', {}]
-	])('says Not billable for a project that %s', (_case, project) => {
-		render(<ProjectBillableMark project={project} />);
+	])('is not drawn for a project that %s', (_case, project) => {
+		const { container } = render(<ProjectBillableMark project={project} />);
 
-		expect(screen.getByRole('img', { name: 'Not billable' })).toBeTruthy();
+		expect(container.firstChild).toBeNull();
 	});
 
-	it('says Billable by default for a project that is billable by default', () => {
+	it('is the brand tint around a dollar for a project billable by default', () => {
 		render(<ProjectBillableMark project={{ billable: true }} />);
 
-		expect(screen.getByRole('img', { name: 'Billable by default' })).toBeTruthy();
+		const mark = screen.getByRole('img', { name: 'Billable by default' });
+
+		expect(mark.classList.contains('bg-primary/10')).toBe(true);
+		expect(mark.classList.contains('text-primary-ink')).toBe(true);
+		expect(mark.querySelector('svg')).not.toBeNull();
 	});
 });
