@@ -54,7 +54,7 @@ export function clientAccessOf(permissions: readonly string[]): ClientAccess {
  * Whether the role may read the clients at all: the API refuses the list to a role without it, which the page says
  * in plain words instead of blaming the connection.
  */
-export function canViewClients(permissions: readonly string[]) {
+export function canReadClients(permissions: readonly string[]) {
 	return holdsAnyPermission(permissions, CLIENT_VIEW_PERMISSIONS);
 }
 
@@ -108,6 +108,14 @@ export function clientsById<T extends ClientLike>(clients: T[]) {
 		byId.set(client.id, client);
 	}
 	return byId;
+}
+
+export function clientNamesOf(clients: ReadonlyArray<ClientLike>) {
+	const names = new Map<string, string>();
+	for (const client of clients) {
+		names.set(client.id, client.name);
+	}
+	return names;
 }
 
 type ProjectOfClient = Parameters<typeof clientIdOf>[0];

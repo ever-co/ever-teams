@@ -326,6 +326,35 @@ describe('the time of a saved invoice', () => {
 		expect(result.current.lines.map((line) => line.projectName)).toContain('Old site');
 	});
 
+	it('keeps the hours its lines bill once the time is taken again, when the client has no project left', async () => {
+		const goneProject = {
+			id: 'project-gone',
+			name: 'Old site',
+			organizationContactId: 'client-beta',
+			currency: 'USD'
+		};
+		mockProjectsQuery.organizationProjects = [goneProject];
+		const goneAda = {
+			...adaTime,
+			projectId: 'project-gone',
+			id: 'log-gone',
+			duration: 3600,
+			invoiceItemId: 'line-2'
+		};
+		answerTimeReads([], [goneAda]);
+		const linesOnGoneProject = { lineIds: new Set(['line-2']), projectIds: ['project-gone'] };
+
+		const { result } = renderTimeOf({ billedLines: linesOnGoneProject });
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+		await waitFor(() => expect(result.current.lines).toHaveLength(1));
+
+		expect(result.current.lines[0].timeLogIds).toEqual(['log-gone']);
+		expect(result.current.lines[0].projectName).toBe('Old site');
+		expect(result.current.lines[0].hours).toBe(1);
+		// Without a project of its own the client's free time is never read: the API would answer every project's
+		expect(readOptionsOfCalls().map((options) => options.notInvoiced)).toEqual([false]);
+	});
+
 	it('names the time each of its lines bills, without reading the free time or the rates', async () => {
 		answerTimeReads([freeAda], [freeAda, ownAda, otherInvoiceAda]);
 

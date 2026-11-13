@@ -1,6 +1,6 @@
 'use client';
 
-import { type CSSProperties, memo, useCallback, useMemo } from 'react';
+import { type CSSProperties, type ReactNode, memo, useCallback, useMemo } from 'react';
 import { subDays } from 'date-fns';
 import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { AnimatedHeight } from '@/core/components/common/animated-height';
@@ -18,7 +18,7 @@ import {
 import { cn } from '@/core/lib/helpers';
 import { formatPercent } from '@/core/lib/utils/dashboard-figures';
 import { formatPeriod, type Period } from '@/core/lib/utils/dashboard-period';
-import { activityPercentOf, type DailyReportRow } from '@/core/lib/utils/daily-report-figures';
+import { activityPercentOf } from '@/core/lib/utils/daily-report-figures';
 import {
 	BREAKDOWN_PATHS,
 	type BreakdownDimension,
@@ -26,14 +26,20 @@ import {
 	type BreakdownNode,
 	type BreakdownSubject,
 	type BreakdownTotals,
+	type ClientLabels,
+	type ReportClientRef,
 	type TimeActivityColumn,
+	type TimeActivityRow,
+	clientLabelOf,
 	dateOfKey,
+	hasClient,
 	offersProjectsColumn,
 	todayKeyOf
 } from '@/core/lib/utils/dashboards/time-activity';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import {
+	ClientGlyph,
 	DurationText,
 	EarningsText,
 	FIGURE_TEXT,
@@ -47,14 +53,16 @@ const TITLE_KEYS: Record<BreakdownGrouping, DottedLanguageObjectStringPaths> = {
 	date: 'dashboard.timeActivity.table.TITLE_DATE',
 	member: 'dashboard.timeActivity.table.TITLE_MEMBER',
 	project: 'dashboard.timeActivity.table.TITLE_PROJECT',
-	task: 'dashboard.timeActivity.table.TITLE_TASK'
+	task: 'dashboard.timeActivity.table.TITLE_TASK',
+	client: 'clientGrouping.TITLE'
 };
 
 const DIMENSION_LABEL_KEYS: Record<BreakdownDimension, DottedLanguageObjectStringPaths> = {
 	day: 'dashboard.timeActivity.grouping.DATE',
 	member: 'dashboard.timeActivity.grouping.MEMBER',
 	project: 'dashboard.timeActivity.grouping.PROJECT',
-	task: 'dashboard.timeActivity.grouping.TASK'
+	task: 'dashboard.timeActivity.grouping.TASK',
+	client: 'common.CLIENT'
 };
 
 export interface BreakdownColumns {
@@ -179,6 +187,7 @@ interface BreakdownText {
 	monthDay: Intl.DateTimeFormat;
 	unnamed: string;
 	noProject: string;
+	clientLabels: ClientLabels;
 	noTask: string;
 	noRate: string;
 	noTime: string;
@@ -208,6 +217,9 @@ function countLabelOf(dimension: BreakdownDimension, count: number, t: Translate
 	if (dimension === 'project') {
 		return t('dashboard.timeActivity.table.PROJECTS', { count });
 	}
+	if (dimension === 'client') {
+		return t('clientGrouping.CLIENTS', { count });
+	}
 	return t('dashboard.timeActivity.breakdown.TASKS', { count });
 }
 
@@ -227,6 +239,7 @@ function useBreakdownText(): BreakdownText {
 			monthDay: dateFormatOf(locale, { month: 'short', day: 'numeric' }),
 			unnamed: t('timeActivity.UNNAMED_EMPLOYEE'),
 			noProject: t('common.NO_PROJECT'),
+			clientLabels: { noClient: t('common.NO_CLIENT'), unnamedClient: t('common.CLIENT') },
 			noTask: t('dashboard.timeActivity.export.NO_TASK'),
 			noRate: t('dashboard.timeActivity.table.NO_RATE'),
 			noTime: t('dashboard.timeActivity.figures.NO_TIME'),
@@ -295,6 +308,17 @@ function TaskLabel({ title, text }: Readonly<{ title: string | null; text: Break
 	);
 }
 
+function ClientLabel({ client, text }: Readonly<{ client: ReportClientRef; text: BreakdownText }>) {
+	const name = clientLabelOf(client, text.clientLabels);
+	const isNoClient = !hasClient(client);
+	return (
+		<span className="flex min-w-0 items-center gap-2">
+			<ClientGlyph client={client} name={name} />
+			<span className={cn('truncate', isNoClient && 'text-muted-foreground')}>{name}</span>
+		</span>
+	);
+}
+
 function SubjectLabel({ subject, text }: Readonly<{ subject: BreakdownSubject; text: BreakdownText }>) {
 	if (subject.kind === 'day') {
 		return <DayLabel dateKey={subject.dateKey} text={text} />;
@@ -318,6 +342,9 @@ function SubjectLabel({ subject, text }: Readonly<{ subject: BreakdownSubject; t
 				</span>
 			</span>
 		);
+	}
+	if (subject.kind === 'client') {
+		return <ClientLabel client={subject.client} text={text} />;
 	}
 	return <TaskLabel title={subject.title} text={text} />;
 }
@@ -860,11 +887,13 @@ function hasOpenableRows(nodes: ReadonlyArray<BreakdownNode>) {
 
 interface TimeActivityBreakdownProps {
 	grouping: BreakdownGrouping;
-	rows: ReadonlyArray<DailyReportRow>;
+	rows: ReadonlyArray<TimeActivityRow>;
 	columns: BreakdownColumns;
 	period: Period;
 	isLoading: boolean;
 	isError: boolean;
+	/** A message about the rows shown, above the table. */
+	notice?: ReactNode;
 	hasFilters: boolean;
 	onRetry: () => void;
 	onClearFilters: () => void;
@@ -879,6 +908,7 @@ export function TimeActivityBreakdown({
 	period,
 	isLoading,
 	isError,
+	notice,
 	hasFilters,
 	onRetry,
 	onClearFilters,
@@ -899,13 +929,15 @@ export function TimeActivityBreakdown({
 	const title = t(TITLE_KEYS[grouping]);
 	const topCount = tree.nodes.length;
 	const hasRows = topCount > 0;
-	const showsRows = hasRows && !isLoading;
 	const isSettled = !isLoading && !isError;
+	const showsRows = hasRows && isSettled;
 	const showsEmpty = !hasRows && isSettled;
 	const showsError = isError && !isLoading;
 	const showsHeader = !showsEmpty && !showsError;
 	const hasOpenable = hasOpenableRows(tree.nodes);
 	const showsToggleAll = showsRows && hasOpenable;
+	const hasNotice = Boolean(notice);
+	const showsNotice = showsRows && hasNotice;
 
 	if (isLoading) {
 		return <TimeActivityBreakdownSkeleton grouping={grouping} columns={columns} />;
@@ -929,6 +961,7 @@ export function TimeActivityBreakdown({
 				)
 			}
 		>
+			{showsNotice && notice}
 			<div role="table" aria-label={title} style={gridStyle}>
 				{showsHeader && (
 					<ReportHeaderRow gridClassName={BREAKDOWN_GRID}>

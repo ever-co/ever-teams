@@ -3,10 +3,12 @@ import {
 	bulkItemsForPlatform,
 	bulkRecordChangesOf,
 	bulkStatusNameOf,
+	listedRecordIdOf,
 	PLATFORM_TASK_PRIORITIES,
 	PLATFORM_TASK_SIZES,
 	PLATFORM_TASK_STATUSES,
-	previousCannotBeRestored
+	previousCannotBeRestored,
+	recordChangeOf
 } from './task-bulk-changes';
 
 describe('bulk changes as the platform takes them', () => {
@@ -122,5 +124,49 @@ describe('bulk changes as the platform takes them', () => {
 			{ taskId: 't1', changes: { taskStatusId: 's0' } },
 			{ taskId: 't3', changes: { taskStatusId: 's0', status: 'open' } }
 		]);
+	});
+});
+
+describe('one task’s priority or size, with its record', () => {
+	it('names the record the menu lists a priority or a size by, and none when no record lists it', () => {
+		const items = { p0: { id: 'p-0', value: 'p0' }, high: { id: 'p-high' }, legacy: {} };
+		expect(listedRecordIdOf('priority', items, 'p0')).toBe('p-0');
+		expect(listedRecordIdOf('size', items, 'high')).toBe('p-high');
+		expect(listedRecordIdOf('priority', items, 'legacy')).toBeNull();
+		expect(listedRecordIdOf('priority', items, 'nowhere')).toBeNull();
+		// A status, a label or a version is saved as before.
+		expect(listedRecordIdOf('status', items, 'p0')).toBeUndefined();
+		expect(listedRecordIdOf('version', items, 'p0')).toBeUndefined();
+	});
+
+	it('gives a task a team’s own priority or size by its value and its record together', () => {
+		const task = { priority: 'low', taskPriorityId: 'p-low', size: null, taskSizeId: null };
+		expect(recordChangeOf('priority', task, { value: 'p0', id: 'p-0' })).toEqual({
+			priority: 'p0',
+			taskPriorityId: 'p-0'
+		});
+		expect(recordChangeOf('size', task, { value: 'huge', id: 'z-huge' })).toEqual({
+			size: 'huge',
+			taskSizeId: 'z-huge'
+		});
+	});
+
+	it('moves a task to another record of the same name, and clears a record no longer listed', () => {
+		const task = { priority: 'p0', taskPriorityId: 'p-0-old' };
+		expect(recordChangeOf('priority', task, { value: 'p0', id: 'p-0' })).toEqual({
+			priority: 'p0',
+			taskPriorityId: 'p-0'
+		});
+		expect(recordChangeOf('priority', task, { value: 'p0', id: null })).toEqual({
+			priority: 'p0',
+			taskPriorityId: null
+		});
+	});
+
+	it('changes nothing when the task already has both', () => {
+		expect(
+			recordChangeOf('priority', { priority: 'p0', taskPriorityId: 'p-0' }, { value: 'p0', id: 'p-0' })
+		).toBeNull();
+		expect(recordChangeOf('size', { size: 'tiny' }, { value: 'tiny' })).toBeNull();
 	});
 });

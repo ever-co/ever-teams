@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { getDailyPlanDay } from '@/core/lib/helpers/daily-plan-day';
 import { isTaskFinished } from '@/core/lib/helpers/task';
-import { dayNumberOf, dayOfStoredDate } from '@/core/lib/utils/date-only';
+import { dateOnlyOf, dayNumberOf, dayOfStoredDate } from '@/core/lib/utils/date-only';
 import { EIssueType } from '@/core/types/generics/enums/task';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
@@ -257,6 +257,25 @@ export function relationCandidatesOf(task: TTask, teamTasks: TTask[]) {
 }
 
 type StoredDate = Date | string | null | undefined;
+
+/** Which date of a task its page sets: when work starts, or when it is due. */
+export type TaskDateKind = 'start' | 'due';
+
+/**
+ * The change a day picked for a task's start or due date makes. Both name a calendar day: the picked day (a day of the
+ * reader's calendar, usually its local midnight) is saved in the platform's date-only form, midnight UTC of that day,
+ * so every reader sees the day that was picked, whatever their zone. `null` removes the date.
+ */
+export function taskDateChangesOf(
+	kind: TaskDateKind,
+	picked: Date | null
+): Pick<TTask, 'startDate'> | Pick<TTask, 'dueDate'> {
+	const day = picked ? dateOnlyOf(picked) : null;
+	if (kind === 'start') {
+		return { startDate: day };
+	}
+	return { dueDate: day };
+}
 
 /**
  * Whether a picked start day (a day of the reader's calendar) may go with the task's due date: not after its day.

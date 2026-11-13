@@ -7,7 +7,7 @@
  */
 import { runInThisContext } from 'node:vm';
 import { dateOnlyOf, dayNumberOf, dayOfStoredDate, shownDayOf } from './date-only';
-import { acceptsDueDate, acceptsStartDate, daysUntilDue } from './task-detail';
+import { acceptsDueDate, acceptsStartDate, daysUntilDue, taskDateChangesOf } from './task-detail';
 import { dueDateToneOf, sortTeamTasks } from './team-tasks-view';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
@@ -118,5 +118,46 @@ describe('a due date picked in one zone and read in another', () => {
 			expect(shownDayOf(null)).toBeNull();
 			expect(shownDayOf('not a date')).toBeNull();
 		});
+	});
+});
+
+describe('a start date picked in one zone and read in another', () => {
+	/** What the task page sends for a day picked for a date (the picker gives its local midnight). */
+	const sent = (kind: 'start' | 'due', year: number, month: number, date: number) =>
+		JSON.parse(JSON.stringify(taskDateChangesOf(kind, new Date(year, month, date)))) as Record<string, string>;
+
+	it('is sent as midnight UTC of the day picked, west and east of UTC, as a due date is', () => {
+		for (const zone of [WEST, EAST]) {
+			inZone(zone, () => {
+				expect(`${zone} ${sent('start', 2026, 10, 14).startDate}`).toBe(`${zone} 2026-11-14T00:00:00.000Z`);
+				expect(`${zone} ${sent('due', 2026, 10, 14).dueDate}`).toBe(`${zone} 2026-11-14T00:00:00.000Z`);
+			});
+		}
+		expect(taskDateChangesOf('start', null)).toEqual({ startDate: null });
+		expect(taskDateChangesOf('due', null)).toEqual({ dueDate: null });
+	});
+
+	it('was a moment before: the local midnight of 14 Nov picked in UTC+2 read as 13 Nov in UTC−4', () => {
+		const sentBefore = inZone(
+			EAST,
+			() => JSON.parse(JSON.stringify({ startDate: new Date(2026, 10, 14) })).startDate
+		);
+		expect(inZone(WEST, () => dayText(shownDayOf(sentBefore)))).toBe('Nov 13, 2026');
+	});
+
+	it('shows 14 Nov picked anywhere as 14 Nov to every reader, and takes a due date on that day', () => {
+		const fromWest = inZone(WEST, () => sent('start', 2026, 10, 14).startDate);
+		const fromEast = inZone(EAST, () => sent('start', 2026, 10, 14).startDate);
+		for (const zone of [WEST, EAST, 'America/Los_Angeles', 'Pacific/Auckland', 'UTC']) {
+			inZone(zone, () => {
+				expect(`${zone} ${dayText(shownDayOf(fromWest))}`).toBe(`${zone} Nov 14, 2026`);
+				expect(`${zone} ${dayText(shownDayOf(fromEast))}`).toBe(`${zone} Nov 14, 2026`);
+				expect(`${zone} ${acceptsDueDate(new Date(2026, 10, 14), fromWest)}`).toBe(`${zone} true`);
+				expect(`${zone} ${acceptsDueDate(new Date(2026, 10, 13), fromWest)}`).toBe(`${zone} false`);
+				expect(`${zone} ${acceptsStartDate(new Date(2026, 10, 14), '2026-11-14T00:00:00.000Z')}`).toBe(
+					`${zone} true`
+				);
+			});
+		}
 	});
 });

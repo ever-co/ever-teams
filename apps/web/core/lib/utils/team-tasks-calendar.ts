@@ -109,9 +109,9 @@ interface StoredTaskDates {
 }
 
 /**
- * The dates a task gets when it is dropped on a day of the month, the due date in the platform's date-only form
- * (midnight UTC of the day, as the due date pickers write it). A task with a due date moves as a whole: the day becomes its due date and a start date moves by as
- * many days, so the task keeps its length. A task without one gets the day as its due date and keeps its start date,
+ * The dates a task gets when it is dropped on a day of the month, in the platform's date-only form (midnight UTC of the
+ * day, as the date pickers write them). A task with a due date moves as a whole: the day becomes its due date and a
+ * start date moves by as many days, so the task keeps its length. A task without one gets the day as its due date and keeps its start date,
  * unless the day is before that start (the picker refuses such a day too). Null when there is nothing to change.
  */
 export function droppedTaskDatesOf(task: StoredTaskDates, day: number): { startDate?: Date; dueDate?: Date } | null {

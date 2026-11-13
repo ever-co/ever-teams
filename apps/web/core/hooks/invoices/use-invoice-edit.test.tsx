@@ -266,11 +266,14 @@ describe('an invoice opened to be edited', () => {
 			timeLine({ key: 'p1|cy', employeeId: 'cy', label: 'Cy Diaz', hours: 2, amount: 160, seconds: 7200 })
 		];
 		const { result } = renderEdit(savedOf(sentInvoice()));
+		const refetchesBefore = mockTime.refetch.mock.calls.length;
 
 		act(() => result.current.takeTimeAgain());
 
 		expect(result.current.linesSource).toBe('time');
 		expect(mockTimeCalls.at(-1)?.enabled).toBe(true);
+		// The time is read again, not taken from a cache this tab filled before the hours or rates changed
+		expect(mockTime.refetch.mock.calls.length - refetchesBefore).toBe(1);
 		expect(result.current.descriptions.get('p1|ana')).toBe('Ana Lima, design');
 		expect(result.current.changes).toMatchObject({ addedLines: 1, removedLines: 1, repricedLines: 1 });
 

@@ -515,6 +515,28 @@ describe('saving an edit to an invoice', () => {
 		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
 	});
 
+	it('writes no lines for an edit that leaves them as they were, since the API deletes them before saving new ones', async () => {
+		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		const dueDateOnly = {
+			...edit,
+			revision: {
+				update: { ...fields, totalValue: 800, dueDate: '2026-12-15T22:59:59.999Z' },
+				lines: [previousLine]
+			}
+		} as unknown as InvoiceEdit;
+		const { result } = renderSaveEdit();
+
+		let saved: unknown = null;
+		await act(async () => {
+			saved = await result.current.saveInvoiceEdit({ edit: dueDateOnly, sending: null });
+		});
+
+		expect(saved).toEqual({ outcome: { status: 'saved' }, sending: null });
+		expect(mockUpdateInvoice).toHaveBeenCalledWith('inv-42', dueDateOnly.revision.update, workspace);
+		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
+	});
+
 	it('keeps a status the invoice reached since it was opened', async () => {
 		mockGetInvoice.mockResolvedValue(invoiceRead('VIEWED'));
 		mockUpdateInvoice.mockResolvedValue(undefined);

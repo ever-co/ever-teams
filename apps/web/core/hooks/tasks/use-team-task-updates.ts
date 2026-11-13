@@ -6,7 +6,12 @@ import { toast } from 'sonner';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { useUpdateTask } from '@/core/hooks/organizations/teams/use-update-task';
 import { useBulkTaskUpdate } from '@/core/hooks/task-views/use-bulk-task-update';
-import { bulkRecordChangesOf, bulkStatusNameOf, type TaskRecordChoice } from '@/core/lib/utils/task-bulk-changes';
+import {
+	bulkRecordChangesOf,
+	bulkStatusNameOf,
+	recordChangeOf,
+	type TaskRecordChoice
+} from '@/core/lib/utils/task-bulk-changes';
 import { dateOnlyOf } from '@/core/lib/utils/date-only';
 import { showTaskChangeInBuiltInViews } from '@/core/hooks/task-views/built-in-view-task-cache';
 import { useTaskLabelsQuery } from './use-task-labels-query';
@@ -156,14 +161,7 @@ export function useTeamTaskUpdates() {
 				void bulkUpdate(taskIds, bulkChanges, t('taskViews.FIELD_CHANGED', { field: fieldLabel(field) })).catch(() => undefined);
 				return;
 			}
-			const idField = field === 'priority' ? 'taskPriorityId' : 'taskSizeId';
-			const recordId = choice.id ?? null;
-			applyChange(taskIds, field, (task) => {
-				if (task[field] === choice.value && (task[idField] ?? null) === recordId) {
-					return null;
-				}
-				return { [field]: choice.value, [idField]: recordId } as Partial<TTask>;
-			});
+			applyChange(taskIds, field, (task) => recordChangeOf(field, task, choice));
 		},
 		[applyChange, bulkUpdate, fieldLabel, t, usesBulk]
 	);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -393,12 +393,23 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 		setIsTimeReadDeferred(false);
 		refetchTime();
 	}, [isTimeReadDeferred, refetchTime]);
+	// Switched back to the time, the reads it enables are fetched again: one this tab made minutes ago is still
+	// fresh to the cache and would otherwise price the lines on hours or rates changed since.
+	const refetchesTimeOnSwitchRef = useRef(false);
+	useEffect(() => {
+		if (!readsTime || !refetchesTimeOnSwitchRef.current) {
+			return;
+		}
+		refetchesTimeOnSwitchRef.current = false;
+		refetchTime();
+	}, [readsTime, refetchTime]);
 	// What was written on a saved line stays on the rebuilt line with the same project, member and task.
 	const takeTimeAgain = useCallback(() => {
 		if (linesSource === 'time') {
 			refetchTime();
 			return;
 		}
+		refetchesTimeOnSwitchRef.current = true;
 		setLinesSource('time');
 	}, [linesSource, refetchTime]);
 

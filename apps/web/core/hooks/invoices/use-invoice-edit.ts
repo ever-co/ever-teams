@@ -111,20 +111,20 @@ export function useInvoiceEdit(read: SavedInvoice) {
 		};
 	}, [billedTimeByLine, invoiceRequest, isUnchanged, recordsBilledTime, saved]);
 
-	const save = useCallback(async () => {
+	const save = useCallback(() => {
 		const edit = editOf();
 		if (!edit) {
-			return null;
+			return Promise.resolve(null);
 		}
 		return saveEdit({ edit, sending: null });
 	}, [editOf, saveEdit]);
 
 	/** A draft becomes Sent once it goes out; an invoice already sent keeps the status it reached. */
 	const saveAndSend = useCallback(
-		async (email: string) => {
+		(email: string) => {
 			const edit = editOf();
 			if (!edit) {
-				return null;
+				return Promise.resolve(null);
 			}
 			const invoiceNumber = edit.revision.update.invoiceNumber;
 			// Sent from the invoice's workspace: a switch in another tab meanwhile sends nothing

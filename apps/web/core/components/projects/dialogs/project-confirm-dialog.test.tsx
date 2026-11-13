@@ -9,6 +9,7 @@ type MockButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 	size?: string;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- the Button-only props are left off the DOM button
 function MockButton({ loading: _loading, variant: _variant, size: _size, ...props }: MockButtonProps) {
 	return <button {...props} />;
 }

@@ -137,8 +137,8 @@ describe('a change made from Team tasks on a built-in view', () => {
 		act(() => result.current.moveDates('a', 'move', 3));
 		await waitFor(() => expect(mockUpdateTask).toHaveBeenCalledTimes(1));
 
-		// The due date in the platform's date-only form (midnight UTC of the day); the start as its local midnight.
-		const moved = { startDate: new Date(2026, 10, 13), dueDate: new Date(Date.UTC(2026, 10, 17)) };
+		// Both dates in the platform's date-only form (midnight UTC of the day).
+		const moved = { startDate: new Date(Date.UTC(2026, 10, 13)), dueDate: new Date(Date.UTC(2026, 10, 17)) };
 		expect(listedTask(queryClient, 'a')).toMatchObject(moved);
 	});
 

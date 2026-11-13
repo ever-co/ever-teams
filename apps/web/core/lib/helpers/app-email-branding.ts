@@ -21,8 +21,8 @@ export function httpsLink(value: string | undefined): string | undefined {
 /**
  * This app's branding for the e-mails Gauzy sends on its behalf (`appName`, `appLogo`, `appSignature`, `appLink`,
  * `companyName`, `companyLink`): blank values and links that are not https are left out. Read at runtime, so a
- * rebranded Docker image brands its e-mails too. The Ever ID sign-in (server) and the account deletion request
- * (browser) both send it.
+ * rebranded Docker image brands its e-mails too. The Ever ID sign-in (server), the sign-in code request (the browser
+ * in direct mode, the server in proxy mode) and the account deletion request (browser) send it.
  */
 export function appEmailBranding(): IEverIdEmailBranding {
 	const branding: IEverIdEmailBranding = {

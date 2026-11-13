@@ -70,7 +70,7 @@ export function isBillableOnly(values: ReadonlyArray<string>) {
 }
 
 /** Each project's current client by project id, `null` for a project that has none. */
-type ProjectClientIds = ReadonlyMap<string, string | null>;
+export type ProjectClientIds = ReadonlyMap<string, string | null>;
 
 type ProjectWithClient = Pick<TOrganizationProject, 'id' | 'organizationContactId' | 'organizationContact'>;
 
@@ -223,7 +223,7 @@ export function reportClientChoicesOf(
 	return choices;
 }
 
-type ReportProjectLog = ITimeLogGroupedDailyReport['logs'][number];
+export type ReportProjectLog = ITimeLogGroupedDailyReport['logs'][number];
 
 function statedClientIdOf(project: ReportProjectLog['project'] | null | undefined) {
 	const storedId = project?.organizationContactId;
@@ -233,13 +233,19 @@ function statedClientIdOf(project: ReportProjectLog['project'] | null | undefine
 	return project?.organizationContact?.id ?? null;
 }
 
+/** The client of a project's time in a daily report: `clientIdOfTime`, with the client the report names. */
+export function clientIdOfProjectLog(projectLog: ReportProjectLog, clientIds: ProjectClientIds) {
+	const project = projectLog?.project;
+	const statedClientId = statedClientIdOf(project);
+	return clientIdOfTime(project?.id, clientIds, statedClientId);
+}
+
 function projectLogMatchesClients(
 	projectLog: ReportProjectLog,
 	picked: ReadonlyArray<string>,
 	clientIds: ProjectClientIds
 ) {
-	const project = projectLog?.project;
-	const clientId = clientIdOfTime(project?.id, clientIds, statedClientIdOf(project));
+	const clientId = clientIdOfProjectLog(projectLog, clientIds);
 	return matchesPickedClients(clientId, picked);
 }
 

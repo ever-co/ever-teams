@@ -304,7 +304,7 @@ function daysUntilFriday(day: Date) {
 	return (FRIDAY - weekday + DAYS_IN_WEEK) % DAYS_IN_WEEK;
 }
 
-/** The local midnight of the day a stored date names: a date-only due date is its own day in every zone. */
+/** The local midnight of the day a stored date names: a date-only start or due date is its own day in every zone. */
 function startOfDayOf(value: Date | string | null | undefined) {
 	return shownDayOf(value);
 }
