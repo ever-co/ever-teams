@@ -170,6 +170,14 @@ describe('withGoToPreview', () => {
 		expect(goTo.hasMorePages).toBe(true);
 	});
 
+	it('leaves out a page tied to a command whose row shows no keys: none answered here, or none left', () => {
+		const chatWithoutKeys = { commandId: 'goChat', shortcutDisplay: '' };
+		const docsWithoutBinding = { commandId: 'goDocs', shortcutDisplay: '', shortcutKeys: [] };
+		const [goTo] = withGoToPreview([{ id: 'goTo', commands: [home, chatWithoutKeys, docsWithoutBinding, kanban] }]);
+		expect(goTo.commands).toEqual([home, kanban]);
+		expect(goTo.hasMorePages).toBe(true);
+	});
+
 	it('leaves the group whole when every page has keys, or when none has', () => {
 		const everyPageKeyed = { id: 'goTo', commands: [home, kanban] };
 		const noPageKeyed = { id: 'goTo', commands: [calendar] };

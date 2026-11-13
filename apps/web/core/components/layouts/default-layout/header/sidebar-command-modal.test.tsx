@@ -406,7 +406,9 @@ describe('SidebarCommandModal with the pages of the sidebar', () => {
 		expect(registeredHandlerIds()).toContain('goTimesheets');
 		expect(registeredHandlerIds()).toContain('goWeeklyLimit');
 		expect(pageKeyCapsOf('Tasks › Kanban')).toEqual(['G', 'K']);
-		// No handler is registered for it in this test: no key that would do nothing.
+		// No handler is registered for it in this test: no key that would do nothing, so it waits behind "Show more".
+		expect(queryPageRow('Reports › Timesheets')).toBeNull();
+		fireEvent.click(screen.getByText('common.SHOW_MORE'));
 		expect(pageKeyCapsOf('Reports › Timesheets')).toEqual([]);
 	});
 });

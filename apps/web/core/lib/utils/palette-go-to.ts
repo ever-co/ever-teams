@@ -215,8 +215,9 @@ export interface GoToPreview {
 	hasMorePages?: boolean;
 }
 
-function isTiedToCommand(row: PaletteKeys): boolean {
-	return Boolean(row.commandId);
+function showsKeys(row: PaletteKeys): boolean {
+	const keys = shownKeysOf(row);
+	return keys.length > 0;
 }
 
 /**
@@ -231,7 +232,7 @@ export function withGoToPreview<Command extends PaletteKeys, Group extends Palet
 		if (group.id !== GO_TO_GROUP_ID) {
 			return group;
 		}
-		const keyedPages = group.commands.filter(isTiedToCommand);
+		const keyedPages = group.commands.filter(showsKeys);
 		const hasKeyedPages = keyedPages.length > 0;
 		const hasOtherPages = keyedPages.length < group.commands.length;
 		if (!hasKeyedPages || !hasOtherPages) {
