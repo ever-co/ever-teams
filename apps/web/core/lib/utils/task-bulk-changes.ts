@@ -37,6 +37,12 @@ export function bulkChangesForPlatform(changes: ITaskBulkChanges): ITaskBulkChan
 	return next;
 }
 
+/** Whether an undo item's previous status cannot be put back: a name the platform does not take, with no id beside it. */
+export function statusCannotBeRestored(item: ITaskBulkUpdateItem): boolean {
+	const { status, taskStatusId } = item.changes;
+	return typeof status === 'string' && !PLATFORM_TASK_STATUSES.has(status) && !taskStatusId;
+}
+
 /**
  * Undo items as the platform takes them: each one's changes as above, and an item left with nothing to change is
  * dropped (the route refuses a request with an empty item as a whole). A task's previous status name can be one the

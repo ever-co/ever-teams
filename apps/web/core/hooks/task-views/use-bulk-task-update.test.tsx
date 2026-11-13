@@ -61,6 +61,28 @@ describe('the bulk update sends the platform only what it takes', () => {
 		expect((mockToast as unknown as { success: jest.Mock }).success).not.toHaveBeenCalled();
 	});
 
+	it('says a task was not put back when its previous status was a name alone, though its other values were', async () => {
+		mockBulkUpdate.mockResolvedValueOnce({
+			applied: 1,
+			refused: 0,
+			results: [{ taskId: 't1', ok: true, previous: { status: 'Legacy name', priority: 'high' } }]
+		});
+		const { result } = renderHook(() => useBulkTaskUpdate());
+		await act(async () => {
+			await result.current.bulkUpdate(['t1'], { taskStatusId: 's-qa', status: 'QA', priority: 'low' }, 'Status');
+		});
+		mockBulkUpdate.mockResolvedValueOnce({ applied: 1, refused: 0, results: [{ taskId: 't1', ok: true }] });
+		const options = mockToast.mock.calls[0][1] as { action: { onClick: () => void } };
+		await act(async () => {
+			options.action.onClick();
+		});
+		expect(mockBulkUpdate).toHaveBeenLastCalledWith({ items: [{ taskId: 't1', changes: { priority: 'high' } }] });
+		expect((mockToast as unknown as { warning: jest.Mock }).warning).toHaveBeenCalledWith(
+			'taskViews.UNDONE_PARTLY:{"applied":0,"refused":1}'
+		);
+		expect((mockToast as unknown as { success: jest.Mock }).success).not.toHaveBeenCalled();
+	});
+
 	it('sends no undo when no task’s previous values can be sent, and says none was put back', async () => {
 		mockBulkUpdate.mockResolvedValueOnce({
 			applied: 1,

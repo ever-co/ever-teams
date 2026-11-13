@@ -2,7 +2,8 @@ import {
 	bulkChangesForPlatform,
 	bulkItemsForPlatform,
 	bulkStatusNameOf,
-	PLATFORM_TASK_STATUSES
+	PLATFORM_TASK_STATUSES,
+	statusCannotBeRestored
 } from './task-bulk-changes';
 
 describe('bulk changes as the platform takes them', () => {
@@ -29,6 +30,7 @@ describe('bulk changes as the platform takes them', () => {
 
 	it('leaves out a status name the platform would refuse, and keeps everything else', () => {
 		expect(bulkChangesForPlatform({ taskStatusId: 's1', status: 'QA' })).toEqual({ taskStatusId: 's1' });
+		expect(bulkChangesForPlatform({ taskStatusId: 's1', status: '' })).toEqual({ taskStatusId: 's1' });
 		expect(bulkChangesForPlatform({ taskStatusId: 's1', status: 'done' })).toEqual({
 			taskStatusId: 's1',
 			status: 'done'
@@ -41,6 +43,17 @@ describe('bulk changes as the platform takes them', () => {
 			priority: 'high',
 			projectId: 'p1'
 		});
+	});
+
+	it('tells an undo item whose previous status cannot be put back: a name the platform does not take, and no id', () => {
+		expect(statusCannotBeRestored({ taskId: 't1', changes: { status: 'Legacy name', priority: 'high' } })).toBe(
+			true
+		);
+		expect(statusCannotBeRestored({ taskId: 't1', changes: { status: 'Legacy name', taskStatusId: 's0' } })).toBe(
+			false
+		);
+		expect(statusCannotBeRestored({ taskId: 't1', changes: { status: 'open' } })).toBe(false);
+		expect(statusCannotBeRestored({ taskId: 't1', changes: { status: null, priority: 'high' } })).toBe(false);
 	});
 
 	it('drops an undo item left with nothing to change, which would refuse the whole undo', () => {
