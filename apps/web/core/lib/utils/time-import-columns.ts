@@ -2,6 +2,7 @@ import {
 	clockTimeOf,
 	dateOrdersOf,
 	datePartOf,
+	holdsDateAndMore,
 	holdsDateAndTime,
 	type DateOrder
 } from '@/core/lib/utils/time-import-cells';
@@ -268,6 +269,41 @@ function withDatesOfMoments(table: TimeImportTable, mapping: TimeImportMapping):
 	return withDates;
 }
 
+/** A date or an end date column that holds a date and a time gives the time of its moment too. */
+function withTimesOfDates(table: TimeImportTable, mapping: TimeImportMapping): TimeImportMapping {
+	const withTimes: Record<TimeImportField, number | null> = { ...mapping };
+	const lacksStartTime = mapping.startTime === null;
+	if (lacksStartTime && holdsDatesAndTimes(table, mapping.date)) {
+		withTimes.startTime = mapping.date;
+	}
+	const lacksEndTime = mapping.endTime === null;
+	if (lacksEndTime && holdsDatesAndTimes(table, mapping.endDate)) {
+		withTimes.endTime = mapping.endDate;
+	}
+	return withTimes;
+}
+
+/** The first value with more than a date decides whether the column holds times the import cannot read (`9h30`). */
+function holdsTimesItCannotRead(table: TimeImportTable, columnIndex: number | null): boolean {
+	if (columnIndex === null) {
+		return false;
+	}
+	for (const record of table.records) {
+		const cell = record.cells[columnIndex] ?? '';
+		const value = cell.trim();
+		if (holdsDateAndMore(value)) {
+			return !holdsDateAndTime(value);
+		}
+	}
+	return false;
+}
+
+function datesHoldTimesItCannotRead(table: TimeImportTable, mapping: TimeImportMapping): boolean {
+	const startsUnread = holdsTimesItCannotRead(table, mapping.date);
+	const endsUnread = holdsTimesItCannotRead(table, mapping.endDate);
+	return startsUnread || endsUnread;
+}
+
 export type DateOrderReading =
 	| { kind: 'none' }
 	| { kind: 'told'; order: DateOrder; row: number; value: string }
@@ -445,10 +481,8 @@ type StoredChoiceOf = (headers: ReadonlyArray<string>) => TimeImportColumnsChoic
 
 const NO_STORED_CHOICE: StoredChoiceOf = () => null;
 
-function usesDatesOfMoments(read: TimeImportMapping, suggested: TimeImportMapping): boolean {
-	const hasDateFromStart = read.date !== suggested.date;
-	const hasEndDateFromEnd = read.endDate !== suggested.endDate;
-	return hasDateFromStart || hasEndDateFromEnd;
+function infersFields(read: TimeImportMapping, suggested: TimeImportMapping): boolean {
+	return TIME_IMPORT_FIELDS.some((field) => read[field] !== suggested[field]);
 }
 
 /**
@@ -468,7 +502,8 @@ function sheetDateOrderOf(dates: DateOrderReading, dateOrder: DateOrder | null):
  * the import can read by itself goes straight to its rows. A file with headers it does not know, or whose dates fit
  * two formats, stops on the Columns step, filled with what the import recognised or with the choice kept for the
  * same headers. A file the import cannot use at all is refused whole, with the reason: among them a file whose
- * headers are all known and still miss a part of an entry, since no column of it could give that part.
+ * headers are all known and still miss a part of an entry, since no column of it could give that part, unless its
+ * date columns hold times the import cannot read, which the Columns step then shows.
  */
 export function timeImportReadingOf(
 	text: string,
@@ -484,14 +519,16 @@ export function timeImportReadingOf(
 		return { kind: 'refused', problem: { code: 'duplicateColumn', header: header.duplicateHeader } };
 	}
 	const stored = storedChoiceOf(table.headers);
-	const suggested = withDatesOfMoments(table, header.mapping);
+	const withDates = withDatesOfMoments(table, header.mapping);
+	const suggested = withTimesOfDates(table, withDates);
 	const mapping = stored?.mapping ?? suggested;
 	const missingColumns = missingColumnsOf(mapping);
 	const isMissing = missingColumns.length > 0;
 	const hasStoredChoice = stored !== null;
 	const hasUnknownHeaders = header.unknownHeaders.length > 0;
 	const asksAboutHeaders = hasUnknownHeaders && !hasStoredChoice;
-	const canChooseColumns = asksAboutHeaders || hasStoredChoice;
+	const hasUnreadTimes = datesHoldTimesItCannotRead(table, mapping);
+	const canChooseColumns = asksAboutHeaders || hasStoredChoice || hasUnreadTimes;
 	if (isMissing && !canChooseColumns) {
 		return { kind: 'refused', problem: { code: 'missingColumns', columns: missingColumns } };
 	}
@@ -507,7 +544,8 @@ export function timeImportReadingOf(
 	if (needsChoice) {
 		return { kind: 'columns', table, choice };
 	}
-	const isReadByItself = !usesDatesOfMoments(header.mapping, suggested) && !hasStoredChoice;
+	const infersColumns = infersFields(header.mapping, suggested);
+	const isReadByItself = !infersColumns && !hasStoredChoice;
 	const readsTemplateHeaders = header.readsAsTemplate && isReadByItself;
 	if (dates.kind === 'mixed' && !readsTemplateHeaders) {
 		const { firstRow, firstValue, row, value } = dates;

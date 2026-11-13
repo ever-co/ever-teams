@@ -223,6 +223,25 @@ describe('timeImportReadingOf for a file from another tool', () => {
 		expect(timeAlone.entry).toMatchObject({ start: new Date(2026, 10, 4, 9), end: new Date(2026, 10, 4, 10) });
 	});
 
+	it('reads the start and end times from date columns that hold a date and a time', () => {
+		const sheet = sheetOf('Start date,End date,Description\n2026-11-03 09:00,2026-11-03 10:30,Pairing\n');
+		const [row] = draftRowsOf(sheet.rows, CONTEXT, sheet.dateOrder);
+
+		expect(row.entry).toMatchObject({ start: NOV_3_AT_9, end: new Date(2026, 10, 3, 10, 30), notes: 'Pairing' });
+		expect(timeImportReadingOf('date,end time\n2026-11-03 09:00,10:30\n')).toMatchObject({
+			kind: 'sheet',
+			readsAsTemplate: false
+		});
+	});
+
+	it('opens the Columns step for date columns whose times it cannot read, and still refuses dates alone', () => {
+		expect(timeImportReadingOf('Start date,End date\n2026-11-03 9h00,2026-11-03 10h30\n').kind).toBe('columns');
+		expect(problemOf('Start date,End date\n2026-11-03,2026-11-03\n')).toEqual({
+			code: 'missingColumns',
+			columns: ['startTime', 'endOrDuration']
+		});
+	});
+
 	it('still refuses a file whose start column holds times alone, for its missing date', () => {
 		expect(problemOf('Start,End\n09:00,10:00\n2026-11-03 11:00,2026-11-03 12:00\n')).toEqual({
 			code: 'missingColumns',

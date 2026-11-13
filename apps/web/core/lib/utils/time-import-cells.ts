@@ -216,6 +216,15 @@ export function holdsDateAndTime(text: string): boolean {
 	return hasTime && hasDate;
 }
 
+/** Whether a cell holds a date followed by more text, a time the import can read or not: `2026-11-03 9h30`. */
+export function holdsDateAndMore(text: string): boolean {
+	const parts = dateAndTimeTextOf(text.trim());
+	if (!parts) {
+		return false;
+	}
+	return dateOrdersOf(parts.date).length > 0;
+}
+
 function clockDurationOf(text: string): number | null {
 	const match = CLOCK_DURATION_PATTERN.exec(text);
 	if (!match) {
