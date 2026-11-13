@@ -311,8 +311,13 @@ export function useInvoiceTime({
 
 	const hasScope = Boolean(tenantId) && Boolean(organizationId);
 	const hasProjects = projectIds.length > 0;
-	// Without a project the API would answer the time of every project: the read never runs.
+	// Without a project the API would answer the time of every project: the free time is never read without one.
 	const readsTime = enabled && hasScope && hasProjects;
+	// The time the saved lines bill is read on their own projects: it is taken again even when no project is left to
+	// the client, and the members' rates are read on every project it offers.
+	const takesTime = enabled && hasScope;
+	const offersProjects = allProjectIds.length > 0;
+	const readsMembers = takesTime && offersProjects;
 	const readsRates = enabled && hasScope;
 	const readsBilledTime = hasScope && hasBilledLines;
 	const namesTasks = grouping === 'task';
@@ -328,10 +333,19 @@ export function useInvoiceTime({
 		enabled: readsTime,
 		staleTime: 0
 	});
+	// The period on every offered project: the client's, and those its saved lines bill (the same read without lines)
+	const membersRange = useMemo<TimeLogReportRange>(
+		() => ({ from, to, timeZone, projectIds: allProjectIds }),
+		[allProjectIds, from, timeZone, to]
+	);
 	const employeesQuery = useQuery({
-		queryKey: queryKeys.timesheet.reports.owedAmounts({ ...rangeKey, purpose: 'invoice' }),
-		queryFn: () => timeLogReportService.getOwedAmountReport(range),
-		enabled: readsTime
+		queryKey: queryKeys.timesheet.reports.owedAmounts({
+			...rangeKey,
+			projectIds: allProjectIds,
+			purpose: 'invoice'
+		}),
+		queryFn: () => timeLogReportService.getOwedAmountReport(membersRange),
+		enabled: readsMembers
 	});
 
 	const projectIdSet = useMemo(() => new Set(projectIds), [projectIds]);
@@ -372,9 +386,9 @@ export function useInvoiceTime({
 	const hasInvoicedTime = recordsBilledTime === true && allEntries.length > 0;
 	const isAllInvoiced = checksInvoicedTime && hasInvoicedTime;
 
-	// Lines come from the time only while it is read: the lines a saved invoice shows are its own.
+	// Lines come from the time only once it is taken: the lines a saved invoice shows are its own.
 	let logs = NO_LOGS;
-	if (readsTime) {
+	if (takesTime) {
 		logs = offeredLogs;
 	}
 	const report = employeesQuery.data ?? NO_REPORT;
@@ -464,13 +478,27 @@ export function useInvoiceTime({
 		void refetchProjects();
 		if (readsTime) {
 			void refetchFreeLogs();
+		}
+		if (readsMembers) {
 			void refetchEmployees();
+		}
+		if (takesTime) {
 			void queryClient.refetchQueries({ queryKey: queryKeys.rates.all, type: 'active' });
 		}
 		if (readsAllTime) {
 			void refetchAllLogs();
 		}
-	}, [queryClient, readsAllTime, readsTime, refetchAllLogs, refetchEmployees, refetchFreeLogs, refetchProjects]);
+	}, [
+		queryClient,
+		readsAllTime,
+		readsMembers,
+		readsTime,
+		refetchAllLogs,
+		refetchEmployees,
+		refetchFreeLogs,
+		refetchProjects,
+		takesTime
+	]);
 
 	return {
 		hasProjects,
