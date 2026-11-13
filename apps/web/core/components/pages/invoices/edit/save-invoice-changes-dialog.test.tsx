@@ -196,6 +196,18 @@ describe('an edit that could not be saved', () => {
 		expect(message.textContent).toBe('invoices.edit.confirm.NOT_PUT_BACK_LINES');
 	});
 
+	it('says nothing was saved when something was paid on it, or it was voided, since it was opened', async () => {
+		const message = await failingWith({ status: 'locked' });
+
+		expect(message.textContent).toBe('invoices.edit.confirm.LOCKED_NOW');
+	});
+
+	it('says nothing was saved when it could not be read before the save', async () => {
+		const message = await failingWith({ status: 'notChecked' });
+
+		expect(message.textContent).toBe('invoices.edit.confirm.NOT_CHECKED');
+	});
+
 	it('asks to check it when it could not even be read again', async () => {
 		const message = await failingWith({ status: 'notPutBack', lineCount: null });
 

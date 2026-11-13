@@ -10,6 +10,7 @@ import { queryKeys } from '@/core/query/keys';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { downloadBlob } from '@/core/lib/utils/dashboard-export';
 import {
+	invoiceRevisionsOf,
 	pagesWithInvoiceChanged,
 	pagesWithoutInvoice,
 	SENT_CHANGE,
@@ -17,7 +18,12 @@ import {
 	type ListedInvoicesPage
 } from '@/core/lib/utils/invoice-actions';
 import { haveSameLines, type InvoiceRevision } from '@/core/lib/utils/invoice-edit';
-import { invoiceSaveFailureOf, type InvoiceRequest, type InvoiceStatus } from '@/core/lib/utils/invoices';
+import {
+	invoiceSaveFailureOf,
+	invoiceStatusOf,
+	type InvoiceRequest,
+	type InvoiceStatus
+} from '@/core/lib/utils/invoices';
 import type { TInvoice, TSavedInvoice } from '@/core/types/schemas/organization/invoice.schema';
 
 export function useCreateInvoice() {
@@ -161,6 +167,10 @@ export type InvoiceEditOutcome =
 	| { status: 'saved' }
 	/** The API refused the edit before writing anything. */
 	| { status: 'notSaved' }
+	/** Something was paid on it, or it was voided, since it was opened: nothing was written. */
+	| { status: 'locked' }
+	/** It could not be read before the edit was written: nothing was written. */
+	| { status: 'notChecked' }
 	/** Written in part, then written back as it was. */
 	| { status: 'putBack' }
 	/** Written in part and not written back: the invoice holds `lineCount` lines, null when it could not be read. */
@@ -201,11 +211,35 @@ async function putInvoiceBack(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
 	}
 }
 
+/** The status the invoice holds now, while it still lets an edit through. */
+function editableStatusOf(invoice: TSavedInvoice): InvoiceStatus | null {
+	const status = invoiceStatusOf(invoice.status);
+	if (!status) {
+		return null;
+	}
+	const isEditable = invoiceRevisionsOf(status).includes('edit');
+	if (!isEditable) {
+		return null;
+	}
+	return status;
+}
+
+/** The edit written under the status the invoice holds now: a status reached since it was opened stays. */
+function editUnderStatus(edit: InvoiceEdit, status: InvoiceStatus): InvoiceEdit {
+	const update = { ...edit.revision.update, status };
+	const previousUpdate = { ...edit.previous.update, status };
+	return {
+		...edit,
+		revision: { ...edit.revision, update },
+		previous: { ...edit.previous, update: previousUpdate }
+	};
+}
+
 /**
  * Saves an edit in the two writes the API offers: the invoice's own fields, then its lines. A refusal of the first
  * changes nothing; any other failure writes the invoice back as it was read.
  */
-async function saveInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
+async function writeInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
 	try {
 		await invoiceService.updateInvoice(edit.invoiceId, edit.revision.update);
 	} catch (error) {
@@ -221,6 +255,19 @@ async function saveInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
 		return putInvoiceBack(edit);
 	}
 	return { status: 'saved' };
+}
+
+/** Reads the invoice first: a payment or a void recorded since it was opened is never written over. */
+async function saveInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
+	const current = await readInvoiceBack(edit.invoiceId);
+	if (!current) {
+		return { status: 'notChecked' };
+	}
+	const status = editableStatusOf(current);
+	if (!status) {
+		return { status: 'locked' };
+	}
+	return writeInvoiceEdit(editUnderStatus(edit, status));
 }
 
 export interface InvoiceEditToSave {

@@ -99,13 +99,19 @@ function useChangeRows(changes: InvoiceChanges, currency: string | null): Projec
 	return rows;
 }
 
-function useFailureText(failure: EditFailure | null): string | null {
+function useFailureText(failure: EditFailure | null, number: string): string | null {
 	const t = useTranslations();
 	if (!failure) {
 		return null;
 	}
 	if (failure.status === 'notSaved') {
 		return t('invoices.edit.confirm.NOT_SAVED');
+	}
+	if (failure.status === 'locked') {
+		return t('invoices.edit.confirm.LOCKED_NOW', { number });
+	}
+	if (failure.status === 'notChecked') {
+		return t('invoices.edit.confirm.NOT_CHECKED');
 	}
 	if (failure.status === 'putBack') {
 		return t('invoices.edit.confirm.PUT_BACK');
@@ -135,9 +141,9 @@ export function SaveInvoiceChangesDialog({
 	const [runningMode, setRunningMode] = useState<SaveMode | null>(null);
 	const isRunningRef = useRef(false);
 	const changeRows = useChangeRows(invoice.changes, invoice.currency);
-	const error = useFailureText(failure);
 	const saved = invoice.savedInvoice;
 	const savedNumber = String(saved?.number ?? '');
+	const error = useFailureText(failure, savedNumber);
 	const number = invoice.numberText.trim();
 	const clientName = invoice.client?.name ?? '';
 	const clientEmail = invoice.client?.primaryEmail?.trim() ?? '';
