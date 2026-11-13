@@ -1,6 +1,7 @@
 'use client';
 
 import { memo, useMemo } from 'react';
+import Link from 'next/link';
 import { useLocale, useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { Badge } from '@/core/components/common/badge';
 import { EntityTile } from '@/core/components/common/entity-tile';
@@ -13,6 +14,7 @@ import type { InvoiceToDownload } from '@/core/hooks/invoices/use-invoice-mutati
 import { cn } from '@/core/lib/helpers';
 import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
 import { invoiceClientNameOf, invoiceNumberTextOf, invoicePdfFileNameOf } from '@/core/lib/utils/invoice-labels';
+import { invoicePagePathOf } from '@/core/lib/utils/invoice-paths';
 import { invoiceStandingOf } from '@/core/lib/utils/invoice-standing';
 import {
 	invoiceDayOf,
@@ -203,7 +205,14 @@ const InvoiceRow = memo(function InvoiceRow({
 				<span className="flex min-w-0 flex-col">
 					<span className="truncate text-[13px] font-medium text-foreground">{clientName}</span>
 					<span className="truncate text-xs tabular-nums text-muted-foreground">
-						{numberText && numberLabel}
+						{numberText && (
+							<Link
+								href={invoicePagePathOf(invoice.id)}
+								className="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+							>
+								{numberLabel}
+							</Link>
+						)}
 						{!numberText && t('invoices.NO_NUMBER')}
 						{issuedText && ` · ${t('invoices.ISSUED_ON', { date: issuedText })}`}
 					</span>
