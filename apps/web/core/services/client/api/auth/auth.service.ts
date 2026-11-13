@@ -6,6 +6,7 @@ import {
 	APP_SIGNATURE,
 	GAUZY_API_BASE_SERVER_URL,
 	INVITE_CALLBACK_PATH,
+	RESET_PASSWORD_CALLBACK_PATH,
 	SIGN_IN_CALLBACK_PATH,
 	VERIFY_EMAIL_CALLBACK_PATH,
 	VERIFY_EMAIL_CALLBACK_URL
@@ -266,10 +267,16 @@ class AuthService extends APIService {
 	 * Request a password reset email.
 	 * Calls POST /auth/request-password with the user's email.
 	 * The API sends an email with a reset link containing a token.
+	 *
+	 * The link opens this app's own page: in direct mode the browser names it (`appResetPasswordUrl`, which Gauzy uses
+	 * only on an origin its deployment lists); in proxy mode this app's route does, from its own configuration.
 	 */
 	requestPassword = async (email: string) => {
 		if (GAUZY_API_BASE_SERVER_URL.value) {
-			return this.post<boolean>('/auth/request-password', { email });
+			return this.post<boolean>('/auth/request-password', {
+				email,
+				appResetPasswordUrl: `${location.origin}${RESET_PASSWORD_CALLBACK_PATH}`
+			});
 		}
 		const api = await getFallbackAPI();
 		return api.post<boolean>('/auth/request-password', { email });

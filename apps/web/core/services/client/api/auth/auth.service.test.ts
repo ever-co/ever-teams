@@ -3,6 +3,9 @@
  * browser gives Gauzy this app's branding and the link to its sign-in page (`/auth/passcode` takes the link's
  * `?email=&code=`); it used to give the address alone, and the e-mail came out as Gauzy's, with a link to Gauzy's own
  * app. In proxy mode this app's route builds both from its configuration, so the browser sends the address only.
+ *
+ * Asking for a password reset link works the same way for the page the link opens: Gauzy's own route,
+ * `<client>/#/auth/reset-password`, is not a page of this app, so the request names `/auth/reset-password`.
  */
 const mockAppBranding = {
 	appName: 'Ever Teams',
@@ -12,8 +15,13 @@ const mockAppBranding = {
 	appLink: 'https://teams.example.org/',
 	companyLink: 'https://ever.co/'
 };
+const mockFallbackPost = jest.fn();
 
 jest.mock('@/core/lib/helpers/app-email-branding', () => ({ appEmailBranding: () => mockAppBranding }));
+jest.mock('../../api.service', () => ({
+	...jest.requireActual('../../api.service'),
+	getFallbackAPI: async () => ({ post: mockFallbackPost })
+}));
 
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { authService } from './auth.service';
@@ -65,5 +73,33 @@ describe('authService, asking for a sign-in code', () => {
 
 		expect(post).toHaveBeenCalledTimes(1);
 		expect(post).toHaveBeenCalledWith('/auth/signin-email', { email: 'ada@example.org' });
+	});
+});
+
+describe('authService, asking for a password reset link', () => {
+	it("names this app's reset page to Gauzy in direct mode", async () => {
+		publishApiUrl('https://api.example.org');
+		const post = answerPost();
+
+		await authService.requestPassword('ada@example.org');
+
+		expect(post).toHaveBeenCalledTimes(1);
+		expect(post).toHaveBeenCalledWith('/auth/request-password', {
+			email: 'ada@example.org',
+			appResetPasswordUrl: `${PAGE_ORIGIN}/auth/reset-password`
+		});
+		expect(mockFallbackPost).not.toHaveBeenCalled();
+	});
+
+	it("sends this app's route the address alone in proxy mode", async () => {
+		publishApiUrl('');
+		const post = answerPost();
+		mockFallbackPost.mockResolvedValue({ data: true });
+
+		await authService.requestPassword('ada@example.org');
+
+		expect(mockFallbackPost).toHaveBeenCalledTimes(1);
+		expect(mockFallbackPost).toHaveBeenCalledWith('/auth/request-password', { email: 'ada@example.org' });
+		expect(post).not.toHaveBeenCalled();
 	});
 });
