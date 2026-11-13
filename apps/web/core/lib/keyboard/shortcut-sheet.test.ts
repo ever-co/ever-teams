@@ -167,9 +167,13 @@ describe('shortcutSheetOf, the registry on', () => {
 	});
 
 	it('lists the keys that came with the registry: saving the view, the project of a task', () => {
-		const ids = idsOf(withRegistry(), 'tasks');
+		const ids = idsOf(withRegistry({ registered: new Set([...registered, 'listSaveView']) }), 'tasks');
 		expect(ids).toContain('listSaveView');
 		expect(ids).toContain('taskProject');
+	});
+
+	it('lists saving the view only on a list that registered it, where its keys do something', () => {
+		expect(idsOf(withRegistry(), 'tasks')).not.toContain('listSaveView');
 	});
 
 	it('shows the binding in force, and keeps the line of a command the person left without a key', () => {

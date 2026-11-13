@@ -217,7 +217,10 @@ function isAnswered(command: ShortcutCommand, facts: ShortcutSheetFacts): boolea
 	}
 	// The list matches its row keys itself; a list command that is not a row key (saving the view) is the registry's.
 	const isRowKey = Boolean(command.chordOnly) || Boolean(command.fixed);
-	return isRowKey || facts.registryOn;
+	if (isRowKey) {
+		return true;
+	}
+	return facts.registryOn && facts.registered.has(command.id);
 }
 
 /**
