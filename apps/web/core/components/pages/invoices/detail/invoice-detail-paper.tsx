@@ -115,8 +115,10 @@ function totalRowsOf(
 		});
 	}
 	const totalText = moneyOf(figures.total, currency, locale) ?? t('invoices.NO_TOTAL');
-	rows.push({ key: 'total', label: t('invoices.new.TOTAL'), value: totalText, isTotal: true });
-	rows.push(...paymentRowsOf(invoice, currency, locale, t));
+	rows.push(
+		{ key: 'total', label: t('invoices.new.TOTAL'), value: totalText, isTotal: true },
+		...paymentRowsOf(invoice, currency, locale, t)
+	);
 	return rows;
 }
 

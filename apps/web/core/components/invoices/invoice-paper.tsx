@@ -58,7 +58,7 @@ export interface PaperParty {
 	key: string;
 	label: ReactNode;
 	name: ReactNode;
-	lines?: ReadonlyArray<ReactNode>;
+	lines?: ReadonlyArray<string>;
 }
 
 export function PaperParties({ parties }: Readonly<{ parties: ReadonlyArray<PaperParty> }>) {
@@ -68,8 +68,8 @@ export function PaperParties({ parties }: Readonly<{ parties: ReadonlyArray<Pape
 				<div key={party.key} className="flex min-w-0 flex-col gap-1">
 					<span className="text-xs text-muted-foreground">{party.label}</span>
 					<span className="truncate text-sm font-medium text-foreground">{party.name}</span>
-					{party.lines?.map((line, index) => (
-						<span key={index} className="truncate text-[13px] text-muted-foreground">
+					{party.lines?.map((line) => (
+						<span key={line} className="truncate text-[13px] text-muted-foreground">
 							{line}
 						</span>
 					))}
