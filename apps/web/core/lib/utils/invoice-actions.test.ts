@@ -1,6 +1,9 @@
 import {
 	invoiceActionsOf,
+	invoiceMenuActionsOf,
+	invoiceRevisionsOf,
 	isDraftInvoice,
+	isRevisableInvoice,
 	isInvoiceRecipient,
 	pagesWithInvoiceChanged,
 	pagesWithoutInvoice,
@@ -93,5 +96,40 @@ describe('the list after an action', () => {
 		const remaining = pagesWithoutInvoice(pages, 'z');
 
 		expect(remaining).toEqual(pages);
+	});
+});
+
+describe('rebuilding an invoice from billable time', () => {
+	const madeFromTime = { terms: 'Billable time from 2026-10-01 to 2026-10-31' };
+
+	it('edits an invoice nothing was paid on, and replaces one something was paid on', () => {
+		expect(invoiceRevisionsOf('DRAFT')).toEqual(['edit']);
+		expect(invoiceRevisionsOf('SENT')).toEqual(['edit']);
+		expect(invoiceRevisionsOf('VIEWED')).toEqual(['edit']);
+		expect(invoiceRevisionsOf('PARTIALLY_PAID')).toEqual(['voidAndReplace']);
+		expect(invoiceRevisionsOf('FULLY_PAID')).toEqual(['voidAndReplace']);
+		expect(invoiceRevisionsOf('OVERPAID')).toEqual(['voidAndReplace']);
+	});
+
+	it('never reopens nor changes a void invoice, nor one in a status it does not know', () => {
+		expect(invoiceRevisionsOf('VOID')).toEqual([]);
+		expect(invoiceRevisionsOf(null)).toEqual([]);
+	});
+
+	it('rebuilds only an invoice made from billable time, the one that states its period', () => {
+		expect(isRevisableInvoice(madeFromTime)).toBe(true);
+		expect(isRevisableInvoice({ terms: 'Thanks for your business.' })).toBe(false);
+		expect(isRevisableInvoice({ terms: null })).toBe(false);
+	});
+
+	it('puts Edit first in the menu of a draft, and the replacement last in the menu of a paid invoice', () => {
+		expect(invoiceMenuActionsOf('DRAFT', true)).toEqual(['edit', 'send', 'markPaid', 'void', 'delete']);
+		expect(invoiceMenuActionsOf('FULLY_PAID', true)).toEqual(['send', 'markUnpaid', 'voidAndReplace']);
+		expect(invoiceMenuActionsOf('VOID', true)).toEqual([]);
+	});
+
+	it('keeps the menu as it was for a role that may not rebuild invoices', () => {
+		expect(invoiceMenuActionsOf('DRAFT', false)).toEqual(['send', 'markPaid', 'void', 'delete']);
+		expect(invoiceMenuActionsOf('PARTIALLY_PAID', false)).toEqual(['send', 'markPaid']);
 	});
 });
