@@ -264,31 +264,39 @@ describe('POST /api/auth/ever-id/signup-handoff', () => {
 		expect(gauzy.requests).toEqual([]);
 	});
 
-	it('reads one key at most nine times a minute, below the API limit; then 429 with when to try again', async () => {
-		let clock = Date.now();
-		jest.spyOn(Date, 'now').mockImplementation(() => clock);
-		const { POST } = loadRoute(true);
+	it(
+		'reads one key at most nine times a minute, below the API limit; then 429 with when to try again',
+		async () => {
+			let clock = Date.now();
+			jest.spyOn(Date, 'now').mockImplementation(() => clock);
+			const { POST } = loadRoute(true);
 
-		const statuses: number[] = [];
-		for (let attempt = 0; attempt < 9; attempt++) statuses.push((await POST(post({}))).status);
-		clock += 20_000;
-		const limited = await POST(post({}));
+			const statuses: number[] = [];
+			for (let attempt = 0; attempt < 9; attempt++) statuses.push((await POST(post({}))).status);
+			clock += 20_000;
+			const limited = await POST(post({}));
 
-		expect(statuses).toEqual(Array(9).fill(200));
-		expect(limited.status).toBe(429);
-		expect(limited.headers.get('retry-after')).toBe('40');
-		expect(clearsStepCookie(limited)).toBe(false);
-		expect(gauzy.calls('POST', DETAILS_PATH)).toHaveLength(9);
-	}, REQUEST_LOOP_TIMEOUT_MS);
+			expect(statuses).toEqual(Array(9).fill(200));
+			expect(limited.status).toBe(429);
+			expect(limited.headers.get('retry-after')).toBe('40');
+			expect(clearsStepCookie(limited)).toBe(false);
+			expect(gauzy.calls('POST', DETAILS_PATH)).toHaveLength(9);
+		},
+		REQUEST_LOOP_TIMEOUT_MS
+	);
 
-	it('does not count a read the API could not complete', async () => {
-		const { POST } = loadRoute(true);
-		gauzy.on('POST', DETAILS_PATH, { status: 500, body: {} });
+	it(
+		'does not count a read the API could not complete',
+		async () => {
+			const { POST } = loadRoute(true);
+			gauzy.on('POST', DETAILS_PATH, { status: 500, body: {} });
 
-		const statuses: number[] = [];
-		for (let attempt = 0; attempt < 12; attempt++) statuses.push((await POST(post({}))).status);
+			const statuses: number[] = [];
+			for (let attempt = 0; attempt < 12; attempt++) statuses.push((await POST(post({}))).status);
 
-		expect(statuses).toEqual(Array(12).fill(502));
-		expect(gauzy.calls('POST', DETAILS_PATH)).toHaveLength(12);
-	}, REQUEST_LOOP_TIMEOUT_MS);
+			expect(statuses).toEqual(Array(12).fill(502));
+			expect(gauzy.calls('POST', DETAILS_PATH)).toHaveLength(12);
+		},
+		REQUEST_LOOP_TIMEOUT_MS
+	);
 });
