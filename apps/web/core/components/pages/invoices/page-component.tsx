@@ -45,6 +45,8 @@ type InvoiceDialogKind = 'send' | 'void' | 'delete';
 interface InvoiceDialog {
 	kind: InvoiceDialogKind;
 	target: InvoiceActionTarget;
+	/** The list's workspace when the dialog opened: kept, so a switch while it is open refuses its action. */
+	scope: InvoicesScope | null;
 }
 
 /** Marking an invoice paid or unpaid needs no confirmation: the toast says the outcome. */
@@ -92,15 +94,16 @@ function InvoicesContent() {
 				void changeTo(target, unpaidChangeOf(total), 'invoices.actions.MARKED_UNPAID');
 				return;
 			}
-			setDialog({ kind: action, target });
+			setDialog({ kind: action, target, scope: list.scope });
 			setIsDialogOpen(true);
 		},
-		[changeTo]
+		[changeTo, list.scope]
 	);
 
 	// The dialog keeps its invoice while it fades out.
 	const closeDialog = useCallback(() => setIsDialogOpen(false), []);
 	const dialogTarget = dialog?.target ?? null;
+	const dialogScope = dialog?.scope ?? null;
 	const isDialogOpenFor = (kind: InvoiceDialogKind) => isDialogOpen && dialog?.kind === kind;
 
 	const hasInvoices = list.invoices.length > 0;
@@ -157,19 +160,19 @@ function InvoicesContent() {
 			<SendInvoiceDialog
 				open={isDialogOpenFor('send')}
 				target={dialogTarget}
-				scope={list.scope}
+				scope={dialogScope}
 				onClose={closeDialog}
 			/>
 			<VoidInvoiceDialog
 				open={isDialogOpenFor('void')}
 				target={dialogTarget}
-				scope={list.scope}
+				scope={dialogScope}
 				onClose={closeDialog}
 			/>
 			<DeleteInvoiceDialog
 				open={isDialogOpenFor('delete')}
 				target={dialogTarget}
-				scope={list.scope}
+				scope={dialogScope}
 				onClose={closeDialog}
 			/>
 		</PageLayout>
