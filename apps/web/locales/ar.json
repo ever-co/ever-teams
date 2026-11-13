@@ -6943,6 +6943,27 @@
 			"NONE_VOID": "لا توجد فواتير ملغاة",
 			"SHOW_ALL": "عرض كل الفواتير",
 			"LOADED_ONLY": "ضمن آخر {count, plural, zero {# فاتورة} one {فاتورة واحدة} two {فاتورتين} few {# فواتير} many {# فاتورة} other {# فاتورة}}. اعرض المزيد للرجوع أبعد."
+		},
+		"detail": {
+			"HEADING": "الفاتورة {number}",
+			"PAPER_TITLE": "فاتورة",
+			"COLUMN_DESCRIPTION": "الوصف",
+			"COLUMN_HOURS": "الساعات",
+			"COLUMN_RATE": "السعر",
+			"COLUMN_AMOUNT": "المبلغ",
+			"NO_DESCRIPTION": "بلا وصف",
+			"NO_LINES": "لا تحتوي هذه الفاتورة على بنود.",
+			"DISCOUNT": "الخصم",
+			"TAX": "الضريبة",
+			"TAX_PERCENT": "الضريبة ({percent})",
+			"TAX2": "الضريبة الثانية",
+			"TAX2_PERCENT": "الضريبة الثانية ({percent})",
+			"PAID": "المدفوع",
+			"LEFT_TO_PAY": "المتبقي للدفع",
+			"NOT_FOUND_TITLE": "هذه الفاتورة غير موجودة في مساحة العمل",
+			"NOT_FOUND_MESSAGE": "ربما حُذفت، أو أن الرابط من مساحة عمل أخرى.",
+			"ALL_INVOICES": "كل الفواتير",
+			"ERROR_TITLE": "تعذّر تحميل الفاتورة"
 		}
 	},
 	"timeReports": {

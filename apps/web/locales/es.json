@@ -6943,6 +6943,27 @@
 			"NONE_VOID": "No hay facturas anuladas",
 			"SHOW_ALL": "Mostrar todas las facturas",
 			"LOADED_ONLY": "Entre {count, plural, one {la última factura} other {las # últimas facturas}}. Muestra más para ver más atrás."
+		},
+		"detail": {
+			"HEADING": "Factura {number}",
+			"PAPER_TITLE": "Factura",
+			"COLUMN_DESCRIPTION": "Descripción",
+			"COLUMN_HOURS": "Horas",
+			"COLUMN_RATE": "Tarifa",
+			"COLUMN_AMOUNT": "Importe",
+			"NO_DESCRIPTION": "Sin descripción",
+			"NO_LINES": "Esta factura no tiene líneas.",
+			"DISCOUNT": "Descuento",
+			"TAX": "Impuesto",
+			"TAX_PERCENT": "Impuesto ({percent})",
+			"TAX2": "Segundo impuesto",
+			"TAX2_PERCENT": "Segundo impuesto ({percent})",
+			"PAID": "Pagado",
+			"LEFT_TO_PAY": "Pendiente de pago",
+			"NOT_FOUND_TITLE": "Esta factura no está en el espacio de trabajo",
+			"NOT_FOUND_MESSAGE": "Puede que se haya eliminado, o que el enlace venga de otro espacio de trabajo.",
+			"ALL_INVOICES": "Todas las facturas",
+			"ERROR_TITLE": "No se pudo cargar la factura"
 		}
 	},
 	"timeReports": {

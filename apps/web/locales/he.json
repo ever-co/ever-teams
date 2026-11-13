@@ -6943,6 +6943,27 @@
 			"NONE_VOID": "אין חשבוניות שבוטלו",
 			"SHOW_ALL": "הצגת כל החשבוניות",
 			"LOADED_ONLY": "מתוך {count, plural, one {החשבונית האחרונה} two {שתי החשבוניות האחרונות} other {# החשבוניות האחרונות}}. הציגו עוד כדי לחזור אחורה."
+		},
+		"detail": {
+			"HEADING": "חשבונית {number}",
+			"PAPER_TITLE": "חשבונית",
+			"COLUMN_DESCRIPTION": "תיאור",
+			"COLUMN_HOURS": "שעות",
+			"COLUMN_RATE": "תעריף",
+			"COLUMN_AMOUNT": "סכום",
+			"NO_DESCRIPTION": "ללא תיאור",
+			"NO_LINES": "בחשבונית הזו אין שורות.",
+			"DISCOUNT": "הנחה",
+			"TAX": "מס",
+			"TAX_PERCENT": "מס ({percent})",
+			"TAX2": "מס נוסף",
+			"TAX2_PERCENT": "מס נוסף ({percent})",
+			"PAID": "שולם",
+			"LEFT_TO_PAY": "נותר לתשלום",
+			"NOT_FOUND_TITLE": "החשבונית הזו לא נמצאת בסביבת העבודה",
+			"NOT_FOUND_MESSAGE": "ייתכן שהיא נמחקה, או שהקישור מגיע מסביבת עבודה אחרת.",
+			"ALL_INVOICES": "כל החשבוניות",
+			"ERROR_TITLE": "לא ניתן היה לטעון את החשבונית"
 		}
 	},
 	"timeReports": {

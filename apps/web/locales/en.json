@@ -6943,6 +6943,27 @@
 			"NONE_VOID": "No void invoices",
 			"SHOW_ALL": "Show all invoices",
 			"LOADED_ONLY": "Among the {count, plural, one {# latest invoice} other {# latest invoices}}. Show more to look further back."
+		},
+		"detail": {
+			"HEADING": "Invoice {number}",
+			"PAPER_TITLE": "Invoice",
+			"COLUMN_DESCRIPTION": "Description",
+			"COLUMN_HOURS": "Hours",
+			"COLUMN_RATE": "Rate",
+			"COLUMN_AMOUNT": "Amount",
+			"NO_DESCRIPTION": "No description",
+			"NO_LINES": "This invoice has no lines.",
+			"DISCOUNT": "Discount",
+			"TAX": "Tax",
+			"TAX_PERCENT": "Tax ({percent})",
+			"TAX2": "Second tax",
+			"TAX2_PERCENT": "Second tax ({percent})",
+			"PAID": "Paid",
+			"LEFT_TO_PAY": "Left to pay",
+			"NOT_FOUND_TITLE": "This invoice is not in the workspace",
+			"NOT_FOUND_MESSAGE": "It may have been deleted, or the link comes from another workspace.",
+			"ALL_INVOICES": "All invoices",
+			"ERROR_TITLE": "The invoice could not be loaded"
 		}
 	},
 	"timeReports": {

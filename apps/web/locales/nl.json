@@ -6943,6 +6943,27 @@
 			"NONE_VOID": "Geen geannuleerde facturen",
 			"SHOW_ALL": "Alle facturen tonen",
 			"LOADED_ONLY": "Binnen {count, plural, one {de laatste factuur} other {de # laatste facturen}}. Toon meer om verder terug te kijken."
+		},
+		"detail": {
+			"HEADING": "Factuur {number}",
+			"PAPER_TITLE": "Factuur",
+			"COLUMN_DESCRIPTION": "Omschrijving",
+			"COLUMN_HOURS": "Uren",
+			"COLUMN_RATE": "Tarief",
+			"COLUMN_AMOUNT": "Bedrag",
+			"NO_DESCRIPTION": "Geen omschrijving",
+			"NO_LINES": "Deze factuur heeft geen regels.",
+			"DISCOUNT": "Korting",
+			"TAX": "Belasting",
+			"TAX_PERCENT": "Belasting ({percent})",
+			"TAX2": "Tweede belasting",
+			"TAX2_PERCENT": "Tweede belasting ({percent})",
+			"PAID": "Betaald",
+			"LEFT_TO_PAY": "Nog te betalen",
+			"NOT_FOUND_TITLE": "Deze factuur staat niet in de werkruimte",
+			"NOT_FOUND_MESSAGE": "Misschien is ze verwijderd, of komt de link uit een andere werkruimte.",
+			"ALL_INVOICES": "Alle facturen",
+			"ERROR_TITLE": "De factuur kon niet worden geladen"
 		}
 	},
 	"timeReports": {

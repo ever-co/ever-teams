@@ -6943,6 +6943,27 @@
 			"NONE_VOID": "Няма анулирани фактури",
 			"SHOW_ALL": "Покажи всички фактури",
 			"LOADED_ONLY": "Сред {count, plural, one {последната фактура} other {последните # фактури}}. Покажете още, за да видите по-назад."
+		},
+		"detail": {
+			"HEADING": "Фактура {number}",
+			"PAPER_TITLE": "Фактура",
+			"COLUMN_DESCRIPTION": "Описание",
+			"COLUMN_HOURS": "Часове",
+			"COLUMN_RATE": "Ставка",
+			"COLUMN_AMOUNT": "Сума",
+			"NO_DESCRIPTION": "Без описание",
+			"NO_LINES": "Тази фактура няма редове.",
+			"DISCOUNT": "Отстъпка",
+			"TAX": "Данък",
+			"TAX_PERCENT": "Данък ({percent})",
+			"TAX2": "Втори данък",
+			"TAX2_PERCENT": "Втори данък ({percent})",
+			"PAID": "Платено",
+			"LEFT_TO_PAY": "Остава за плащане",
+			"NOT_FOUND_TITLE": "Тази фактура не е в работното пространство",
+			"NOT_FOUND_MESSAGE": "Може да е изтрита или връзката да е от друго работно пространство.",
+			"ALL_INVOICES": "Всички фактури",
+			"ERROR_TITLE": "Фактурата не можа да се зареди"
 		}
 	},
 	"timeReports": {

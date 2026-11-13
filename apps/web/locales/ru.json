@@ -6943,6 +6943,27 @@
 			"NONE_VOID": "Нет аннулированных счетов",
 			"SHOW_ALL": "Показать все счета",
 			"LOADED_ONLY": "Среди {count, plural, one {последнего # счёта} few {последних # счетов} many {последних # счетов} other {последних # счёта}}. Покажите больше, чтобы заглянуть дальше."
+		},
+		"detail": {
+			"HEADING": "Счёт {number}",
+			"PAPER_TITLE": "Счёт",
+			"COLUMN_DESCRIPTION": "Описание",
+			"COLUMN_HOURS": "Часы",
+			"COLUMN_RATE": "Ставка",
+			"COLUMN_AMOUNT": "Сумма",
+			"NO_DESCRIPTION": "Без описания",
+			"NO_LINES": "В этом счёте нет строк.",
+			"DISCOUNT": "Скидка",
+			"TAX": "Налог",
+			"TAX_PERCENT": "Налог ({percent})",
+			"TAX2": "Второй налог",
+			"TAX2_PERCENT": "Второй налог ({percent})",
+			"PAID": "Оплачено",
+			"LEFT_TO_PAY": "Осталось оплатить",
+			"NOT_FOUND_TITLE": "Этого счёта нет в рабочем пространстве",
+			"NOT_FOUND_MESSAGE": "Возможно, он удалён, или ссылка ведёт из другого рабочего пространства.",
+			"ALL_INVOICES": "Все счета",
+			"ERROR_TITLE": "Не удалось загрузить счёт"
 		}
 	},
 	"timeReports": {

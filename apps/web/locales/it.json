@@ -6943,6 +6943,27 @@
 			"NONE_VOID": "Nessuna fattura annullata",
 			"SHOW_ALL": "Mostra tutte le fatture",
 			"LOADED_ONLY": "Tra {count, plural, one {l’ultima fattura} other {le # ultime fatture}}. Mostrane altre per andare più indietro."
+		},
+		"detail": {
+			"HEADING": "Fattura {number}",
+			"PAPER_TITLE": "Fattura",
+			"COLUMN_DESCRIPTION": "Descrizione",
+			"COLUMN_HOURS": "Ore",
+			"COLUMN_RATE": "Tariffa",
+			"COLUMN_AMOUNT": "Importo",
+			"NO_DESCRIPTION": "Nessuna descrizione",
+			"NO_LINES": "Questa fattura non ha righe.",
+			"DISCOUNT": "Sconto",
+			"TAX": "Imposta",
+			"TAX_PERCENT": "Imposta ({percent})",
+			"TAX2": "Seconda imposta",
+			"TAX2_PERCENT": "Seconda imposta ({percent})",
+			"PAID": "Pagato",
+			"LEFT_TO_PAY": "Da pagare",
+			"NOT_FOUND_TITLE": "Questa fattura non è nello spazio di lavoro",
+			"NOT_FOUND_MESSAGE": "Potrebbe essere stata eliminata, oppure il link viene da un altro spazio di lavoro.",
+			"ALL_INVOICES": "Tutte le fatture",
+			"ERROR_TITLE": "Impossibile caricare la fattura"
 		}
 	},
 	"timeReports": {

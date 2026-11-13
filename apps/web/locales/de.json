@@ -6943,6 +6943,27 @@
 			"NONE_VOID": "Keine stornierten Rechnungen",
 			"SHOW_ALL": "Alle Rechnungen anzeigen",
 			"LOADED_ONLY": "Unter {count, plural, one {der letzten Rechnung} other {den # letzten Rechnungen}}. Laden Sie mehr, um weiter zurückzugehen."
+		},
+		"detail": {
+			"HEADING": "Rechnung {number}",
+			"PAPER_TITLE": "Rechnung",
+			"COLUMN_DESCRIPTION": "Beschreibung",
+			"COLUMN_HOURS": "Stunden",
+			"COLUMN_RATE": "Satz",
+			"COLUMN_AMOUNT": "Betrag",
+			"NO_DESCRIPTION": "Keine Beschreibung",
+			"NO_LINES": "Diese Rechnung hat keine Positionen.",
+			"DISCOUNT": "Rabatt",
+			"TAX": "Steuer",
+			"TAX_PERCENT": "Steuer ({percent})",
+			"TAX2": "Zweite Steuer",
+			"TAX2_PERCENT": "Zweite Steuer ({percent})",
+			"PAID": "Bezahlt",
+			"LEFT_TO_PAY": "Noch offen",
+			"NOT_FOUND_TITLE": "Diese Rechnung ist nicht im Arbeitsbereich",
+			"NOT_FOUND_MESSAGE": "Sie wurde vielleicht gelöscht, oder der Link stammt aus einem anderen Arbeitsbereich.",
+			"ALL_INVOICES": "Alle Rechnungen",
+			"ERROR_TITLE": "Die Rechnung konnte nicht geladen werden"
 		}
 	},
 	"timeReports": {

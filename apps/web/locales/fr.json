@@ -6943,6 +6943,27 @@
 			"NONE_VOID": "Aucune facture annulée",
 			"SHOW_ALL": "Afficher toutes les factures",
 			"LOADED_ONLY": "Parmi {count, plural, one {la dernière facture} other {les # dernières factures}}. Affichez-en plus pour remonter plus loin."
+		},
+		"detail": {
+			"HEADING": "Facture {number}",
+			"PAPER_TITLE": "Facture",
+			"COLUMN_DESCRIPTION": "Description",
+			"COLUMN_HOURS": "Heures",
+			"COLUMN_RATE": "Taux",
+			"COLUMN_AMOUNT": "Montant",
+			"NO_DESCRIPTION": "Sans description",
+			"NO_LINES": "Cette facture n’a aucune ligne.",
+			"DISCOUNT": "Remise",
+			"TAX": "Taxe",
+			"TAX_PERCENT": "Taxe ({percent})",
+			"TAX2": "Seconde taxe",
+			"TAX2_PERCENT": "Seconde taxe ({percent})",
+			"PAID": "Payé",
+			"LEFT_TO_PAY": "Reste à payer",
+			"NOT_FOUND_TITLE": "Cette facture n’est pas dans l’espace de travail",
+			"NOT_FOUND_MESSAGE": "Elle a peut-être été supprimée, ou le lien vient d’un autre espace de travail.",
+			"ALL_INVOICES": "Toutes les factures",
+			"ERROR_TITLE": "La facture n’a pas pu être chargée"
 		}
 	},
 	"timeReports": {

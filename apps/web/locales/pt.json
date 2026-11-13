@@ -6943,6 +6943,27 @@
 			"NONE_VOID": "Nenhuma fatura anulada",
 			"SHOW_ALL": "Mostrar todas as faturas",
 			"LOADED_ONLY": "Entre {count, plural, one {a última fatura} other {as # últimas faturas}}. Mostre mais para recuar mais."
+		},
+		"detail": {
+			"HEADING": "Fatura {number}",
+			"PAPER_TITLE": "Fatura",
+			"COLUMN_DESCRIPTION": "Descrição",
+			"COLUMN_HOURS": "Horas",
+			"COLUMN_RATE": "Taxa",
+			"COLUMN_AMOUNT": "Montante",
+			"NO_DESCRIPTION": "Sem descrição",
+			"NO_LINES": "Esta fatura não tem linhas.",
+			"DISCOUNT": "Desconto",
+			"TAX": "Imposto",
+			"TAX_PERCENT": "Imposto ({percent})",
+			"TAX2": "Segundo imposto",
+			"TAX2_PERCENT": "Segundo imposto ({percent})",
+			"PAID": "Pago",
+			"LEFT_TO_PAY": "Por pagar",
+			"NOT_FOUND_TITLE": "Esta fatura não está no espaço de trabalho",
+			"NOT_FOUND_MESSAGE": "Pode ter sido eliminada, ou a ligação vem de outro espaço de trabalho.",
+			"ALL_INVOICES": "Todas as faturas",
+			"ERROR_TITLE": "Não foi possível carregar a fatura"
 		}
 	},
 	"timeReports": {

@@ -6943,6 +6943,27 @@
 			"NONE_VOID": "没有作废发票",
 			"SHOW_ALL": "显示全部发票",
 			"LOADED_ONLY": "仅在最近的 {count} 张发票中查找。显示更多可往前查看。"
+		},
+		"detail": {
+			"HEADING": "发票 {number}",
+			"PAPER_TITLE": "发票",
+			"COLUMN_DESCRIPTION": "描述",
+			"COLUMN_HOURS": "工时",
+			"COLUMN_RATE": "费率",
+			"COLUMN_AMOUNT": "金额",
+			"NO_DESCRIPTION": "无描述",
+			"NO_LINES": "此发票没有明细行。",
+			"DISCOUNT": "折扣",
+			"TAX": "税",
+			"TAX_PERCENT": "税（{percent}）",
+			"TAX2": "第二税",
+			"TAX2_PERCENT": "第二税（{percent}）",
+			"PAID": "已付",
+			"LEFT_TO_PAY": "待付",
+			"NOT_FOUND_TITLE": "该发票不在此工作区",
+			"NOT_FOUND_MESSAGE": "它可能已被删除，或者链接来自另一个工作区。",
+			"ALL_INVOICES": "全部发票",
+			"ERROR_TITLE": "无法加载发票"
 		}
 	},
 	"timeReports": {

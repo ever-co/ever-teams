@@ -6943,6 +6943,27 @@
 			"NONE_VOID": "Brak anulowanych faktur",
 			"SHOW_ALL": "Pokaż wszystkie faktury",
 			"LOADED_ONLY": "Spośród {count, plural, one {ostatniej faktury} few {# ostatnich faktur} many {# ostatnich faktur} other {# ostatniej faktury}}. Pokaż więcej, aby sięgnąć dalej."
+		},
+		"detail": {
+			"HEADING": "Faktura {number}",
+			"PAPER_TITLE": "Faktura",
+			"COLUMN_DESCRIPTION": "Opis",
+			"COLUMN_HOURS": "Godziny",
+			"COLUMN_RATE": "Stawka",
+			"COLUMN_AMOUNT": "Kwota",
+			"NO_DESCRIPTION": "Brak opisu",
+			"NO_LINES": "Ta faktura nie ma pozycji.",
+			"DISCOUNT": "Rabat",
+			"TAX": "Podatek",
+			"TAX_PERCENT": "Podatek ({percent})",
+			"TAX2": "Drugi podatek",
+			"TAX2_PERCENT": "Drugi podatek ({percent})",
+			"PAID": "Zapłacono",
+			"LEFT_TO_PAY": "Pozostało do zapłaty",
+			"NOT_FOUND_TITLE": "Tej faktury nie ma w przestrzeni roboczej",
+			"NOT_FOUND_MESSAGE": "Mogła zostać usunięta albo link pochodzi z innej przestrzeni roboczej.",
+			"ALL_INVOICES": "Wszystkie faktury",
+			"ERROR_TITLE": "Nie udało się wczytać faktury"
 		}
 	},
 	"timeReports": {
