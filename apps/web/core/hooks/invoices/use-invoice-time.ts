@@ -167,12 +167,15 @@ export function useInvoiceTime({
 	clientId,
 	period,
 	grouping,
-	labels
+	labels,
+	enabled = true
 }: Readonly<{
 	clientId: string | null;
 	period: Period;
 	grouping: InvoiceGrouping;
 	labels: InvoiceTimeLabels;
+	/** Off while the invoice shows the lines it was saved with: its time is read once it is taken again. */
+	enabled?: boolean;
 }>) {
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
@@ -210,7 +213,8 @@ export function useInvoiceTime({
 	const hasScope = Boolean(tenantId) && Boolean(organizationId);
 	const hasProjects = projectIds.length > 0;
 	// Without a project the API would answer the time of every project: the read never runs.
-	const readsTime = hasScope && hasProjects;
+	const readsTime = enabled && hasScope && hasProjects;
+	const readsRates = enabled && hasScope;
 	const namesTasks = grouping === 'task';
 	let relations = NO_RELATIONS;
 	if (namesTasks) {
@@ -238,7 +242,7 @@ export function useInvoiceTime({
 		queries: billedProjectIds.map((projectId) => ({
 			queryKey: queryKeys.rates.project(tenantId, organizationId, projectId),
 			queryFn: () => rateService.getProjectRates(projectId),
-			enabled: hasScope,
+			enabled: readsRates,
 			retry: retriesRatesRead
 		})),
 		combine: projectRatesStatesOf
