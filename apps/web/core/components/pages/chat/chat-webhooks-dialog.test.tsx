@@ -261,6 +261,8 @@ describe('ChatWebhooksDialog', () => {
 			target: { value: 'https://hooks.example.com/click' }
 		});
 		fireEvent.click(within(dialog).getByRole('checkbox'));
+		// The platform lists the new webhook from now on: the list is read again once the write settled.
+		mockList.mockResolvedValue([webhook('w9', { name: 'Alerts' }), webhook('w1')]);
 		await act(async () => {
 			fireEvent.click(within(dialog).getByRole('button', { name: 'teamChat.WEBHOOKS.CREATE' }));
 		});
@@ -271,7 +273,7 @@ describe('ChatWebhooksDialog', () => {
 			interactionUrl: 'https://hooks.example.com/click',
 			canBroadcast: true
 		});
-		const shown = await within(dialog).findByRole('status');
+		const shown = await within(dialog).findByRole('region');
 		expect(shown.textContent).toContain('teamChat.WEBHOOKS.SHOWN_ONCE[name=Alerts]');
 		expect((within(shown).getByLabelText('teamChat.WEBHOOKS.URL') as HTMLInputElement).value).toBe(URL_SECRET);
 		expect((within(shown).getByLabelText('teamChat.WEBHOOKS.SIGNING_SECRET') as HTMLInputElement).value).toBe(
@@ -302,7 +304,7 @@ describe('ChatWebhooksDialog', () => {
 		).toBe(true);
 
 		fireEvent.click(within(shown).getByRole('button', { name: 'teamChat.WEBHOOKS.DONE' }));
-		expect(within(dialog).queryByRole('status')).toBeNull();
+		expect(within(dialog).queryByRole('region')).toBeNull();
 		expect(document.body.innerHTML).not.toContain(SIGNING_SECRET);
 		expect(document.body.innerHTML).not.toContain('hook_url-secret-1');
 
@@ -311,7 +313,7 @@ describe('ChatWebhooksDialog', () => {
 		mockList.mockResolvedValue([webhook('w9', { name: 'Alerts' }), webhook('w1')]);
 		fireEvent.click(screen.getByRole('button', { name: 'open-integrations' }));
 		await within(screen.getByRole('dialog')).findByText('Alerts');
-		expect(screen.queryByRole('status')).toBeNull();
+		expect(screen.queryByRole('region')).toBeNull();
 		expect(document.body.innerHTML).not.toContain(SIGNING_SECRET);
 		expect(document.body.innerHTML).not.toContain('hook_url-secret-1');
 	});
@@ -335,6 +337,7 @@ describe('ChatWebhooksDialog', () => {
 		expect(screen.queryByRole('alertdialog')).toBeNull();
 
 		fireEvent.click(revoke);
+		mockList.mockResolvedValue([webhook('w1', { name: 'Alerts', revokedAt: '2026-11-13T09:00:00.000Z' })]);
 		await act(async () => {
 			fireEvent.click(
 				within(screen.getByRole('alertdialog')).getByRole('button', { name: 'teamChat.WEBHOOKS.REVOKE' })
@@ -368,7 +371,7 @@ describe('ChatWebhooksDialog', () => {
 			);
 		});
 		expect(mockRotate).toHaveBeenCalledWith('w1');
-		const shown = await within(dialog).findByRole('status');
+		const shown = await within(dialog).findByRole('region');
 		expect((within(shown).getByLabelText('teamChat.WEBHOOKS.SIGNING_SECRET') as HTMLInputElement).value).toBe(
 			'signing-secret-2'
 		);
@@ -390,12 +393,38 @@ describe('ChatWebhooksDialog', () => {
 		);
 		fireEvent.change(within(dialog).getByLabelText('teamChat.WEBHOOKS.NAME'), { target: { value: 'Ops alerts' } });
 		fireEvent.change(within(dialog).getByLabelText(/teamChat.WEBHOOKS.INTERACTION_URL/), { target: { value: '' } });
+		mockList.mockResolvedValue([webhook('w1', { name: 'Ops alerts' })]);
 		await act(async () => {
 			fireEvent.click(within(dialog).getByRole('button', { name: 'teamChat.SAVE' }));
 		});
 
 		expect(mockUpdate).toHaveBeenCalledWith('w1', { name: 'Ops alerts', interactionUrl: null });
 		await within(dialog).findByText('Ops alerts');
+	});
+
+	it('closes the edit form of a webhook revoked meanwhile, so a new one can be made', async () => {
+		mockList.mockResolvedValue([webhook('w1', { name: 'Alerts' })]);
+		mockRevoke.mockResolvedValue({
+			webhook: webhook('w1', { name: 'Alerts', revokedAt: '2026-11-13T09:00:00.000Z' })
+		});
+		const dialog = await openDialog();
+
+		fireEvent.click(
+			await within(dialog).findByRole('button', { name: 'teamChat.WEBHOOKS.EDIT_NAMED[name=Alerts]' })
+		);
+		expect(within(dialog).queryByRole('button', { name: 'teamChat.WEBHOOKS.NEW' })).toBeNull();
+		mockList.mockResolvedValue([webhook('w1', { name: 'Alerts', revokedAt: '2026-11-13T09:00:00.000Z' })]);
+		fireEvent.click(within(dialog).getByRole('button', { name: 'teamChat.WEBHOOKS.REVOKE_NAMED[name=Alerts]' }));
+		await act(async () => {
+			fireEvent.click(
+				within(screen.getByRole('alertdialog')).getByRole('button', { name: 'teamChat.WEBHOOKS.REVOKE' })
+			);
+		});
+
+		await within(dialog).findByText('teamChat.WEBHOOKS.REVOKED');
+		expect(
+			(within(dialog).getByRole('button', { name: 'teamChat.WEBHOOKS.NEW' }) as HTMLButtonElement).disabled
+		).toBe(false);
 	});
 
 	it.each([
@@ -436,7 +465,7 @@ describe('ChatWebhooksDialog', () => {
 		expect(alert.getAttribute('data-webhooks-error')).toBe(reason);
 		expect(alert.firstElementChild?.textContent).toMatch(new RegExp(`^${message.replace(/[[\]]/g, '\\$&')}$`));
 		if (detail) expect(alert.textContent).toContain(detail);
-		expect(within(dialog).queryByRole('status')).toBeNull();
+		expect(within(dialog).queryByRole('region')).toBeNull();
 		// A failed write keeps nothing locked: the dialog closes again.
 		fireEvent.click(within(dialog).getByRole('button', { name: 'press-escape' }));
 		expect(screen.queryByRole('dialog')).toBeNull();
@@ -478,10 +507,11 @@ describe('ChatWebhooksDialog', () => {
 
 		fireEvent.click(within(dialog).getByRole('button', { name: 'teamChat.WEBHOOKS.NEW' }));
 		fireEvent.change(within(dialog).getByLabelText('teamChat.WEBHOOKS.NAME'), { target: { value: 'Alerts' } });
+		mockList.mockResolvedValue([webhook('w9', { name: 'Alerts' })]);
 		await act(async () => {
 			fireEvent.click(within(dialog).getByRole('button', { name: 'teamChat.WEBHOOKS.CREATE' }));
 		});
-		await within(dialog).findByRole('status');
+		await within(dialog).findByRole('region');
 		// Revoked at once (the URL leaked?), but the platform answers 404: webhooks were turned off meanwhile.
 		mockList.mockRejectedValue(new ApiErrorService('Cannot GET /api/chat/conversations/c1/webhooks', 404));
 		fireEvent.click(within(dialog).getByRole('button', { name: 'teamChat.WEBHOOKS.REVOKE_NAMED[name=Alerts]' }));
@@ -493,7 +523,7 @@ describe('ChatWebhooksDialog', () => {
 
 		await within(dialog).findByText('teamChat.WEBHOOKS.OFF');
 		expect(within(dialog).getByRole('alert').getAttribute('data-webhooks-error')).toBe('GONE');
-		const shown = within(dialog).getByRole('status');
+		const shown = within(dialog).getByRole('region');
 		expect((within(shown).getByLabelText('teamChat.WEBHOOKS.SIGNING_SECRET') as HTMLInputElement).value).toBe(
 			SIGNING_SECRET
 		);

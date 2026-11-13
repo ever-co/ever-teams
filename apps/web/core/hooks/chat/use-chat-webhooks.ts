@@ -108,10 +108,12 @@ interface ChatWebhookWrites {
 }
 
 /**
- * The writes to a channel's webhooks: create, change, a new signing secret, revoke. Each puts the webhook as the
- * platform answered into the list. The URL and the signing secret in an answer are the caller's to show once: the
- * list never holds them, and the mutation keeps no copy (it is reset once settled, and dropped from its cache at once).
- * Failures are the caller's to word (they mean different things per write).
+ * The writes to a channel's webhooks: create, change, a new signing secret, revoke. A read of the list still under way
+ * is cancelled first (its older answer would undo the write), the webhook goes into the list as the platform answered,
+ * and the list is read again once the write settled (a failed one too: the webhook may be gone, or webhooks off).
+ * The URL and the signing secret in an answer are the caller's to show once: the list never holds them, and the
+ * mutation keeps no copy (it is reset once settled, and dropped from its cache at once). Failures are the caller's to
+ * word (they mean different things per write).
  */
 export function useChatWebhookWrites(conversationId: string): ChatWebhookWrites {
 	const scope = useChatScope();
@@ -121,10 +123,17 @@ export function useChatWebhookWrites(conversationId: string): ChatWebhookWrites 
 		mutationFn: (write: TChatWebhookWrite) => send(conversationId, write),
 		gcTime: 0,
 		meta: { handlesOwnError: true },
+		onMutate: async () => {
+			await queryClient.cancelQueries({ queryKey: queryKeys.chatWebhooks(tenantId, conversationId) });
+		},
 		onSuccess: (result) => {
 			queryClient.setQueryData<IChatWebhook[]>(queryKeys.chatWebhooks(tenantId, conversationId), (list) =>
 				withWebhook(list ?? NO_WEBHOOKS, result.webhook)
 			);
+		},
+		// Not awaited: the write's answer (and a secret in it) shows at once, the list catches up.
+		onSettled: () => {
+			void queryClient.invalidateQueries({ queryKey: queryKeys.chatWebhooks(tenantId, conversationId) });
 		}
 	});
 	const { mutateAsync, reset, isPending } = mutation;

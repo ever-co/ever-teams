@@ -307,10 +307,8 @@ function ChatWebhooksPanel({ conversationId, webhooks, people, onLockChange }: R
 				setSecrets({ name: result.webhook.name, url: result.url, signingSecret: result.signingSecret });
 			}
 		} catch (error) {
-			const { reason, detail } = webhookFailureOf(error, write.kind);
-			setFailure({ reason, detail });
-			// The webhook or the channel is gone, or webhooks were turned off: the list says which.
-			if (reason === 'GONE') refresh();
+			// The list is read again after every write (useChatWebhookWrites): a webhook gone, or webhooks turned off, shows.
+			setFailure(webhookFailureOf(error, write.kind));
 		} finally {
 			setBusy(false);
 		}
@@ -355,7 +353,12 @@ function ChatWebhooksPanel({ conversationId, webhooks, people, onLockChange }: R
 		const chosen = confirming;
 		setConfirming(null);
 		if (!chosen) return;
-		void run({ kind: chosen.kind, webhookId: chosen.webhook.id });
+		// A revoked webhook has no edit form: one left open on it would keep "New webhook" away.
+		const closeItsForm = () => setEditingId((current) => (current === chosen.webhook.id ? null : current));
+		void run(
+			{ kind: chosen.kind, webhookId: chosen.webhook.id },
+			chosen.kind === 'revoke' ? closeItsForm : undefined
+		);
 	};
 
 	const copy = (value: string, which: 'url' | 'secret') => {
@@ -388,12 +391,13 @@ function ChatWebhooksPanel({ conversationId, webhooks, people, onLockChange }: R
 	return (
 		<div className="flex min-w-0 flex-col gap-3">
 			{secrets && (
-				<div
+				<section
 					className="flex flex-col gap-2.5 rounded-xl bg-amber-500/[0.08] p-3 hairline-ring ring-amber-500/30"
-					role="status"
+					aria-live="polite"
+					aria-labelledby={`webhook-secrets-${conversationId}`}
 					data-webhook-secrets=""
 				>
-					<p className="text-[13px] font-medium text-foreground">
+					<p id={`webhook-secrets-${conversationId}`} className="text-[13px] font-medium text-foreground">
 						{t('teamChat.WEBHOOKS.SHOWN_ONCE', { name: secrets.name })}
 					</p>
 					{secrets.url && (
@@ -421,7 +425,7 @@ function ChatWebhooksPanel({ conversationId, webhooks, people, onLockChange }: R
 							{t('teamChat.WEBHOOKS.DONE')}
 						</Button>
 					</div>
-				</div>
+				</section>
 			)}
 
 			{isUnavailable && (

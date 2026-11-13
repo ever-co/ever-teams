@@ -100,6 +100,8 @@ describe('chatWebhooksService', () => {
 				interactionUrl: null,
 				canBroadcast: false
 			});
+			// The answer holds the URL and the signing secret: the development log leaves it out.
+			expect((sent[0] as InternalAxiosRequestConfig & { secretResponse?: boolean }).secretResponse).toBe(true);
 		});
 
 		it('changes the fields named only, with no tenant or organization ids', async () => {
@@ -110,6 +112,7 @@ describe('chatWebhooksService', () => {
 			expect(sent[0].method).toBe('patch');
 			expect(sent[0].url).toBe('/chat/webhooks/w1');
 			expect(bodyOf(sent[0])).toEqual({ name: 'Ops', interactionUrl: null });
+			expect((sent[0] as InternalAxiosRequestConfig & { secretResponse?: boolean }).secretResponse).toBe(true);
 		});
 
 		it('asks a new signing secret and revokes, by the webhook’s id', async () => {
@@ -120,6 +123,7 @@ describe('chatWebhooksService', () => {
 
 			expect([sent[0].method, sent[0].url]).toEqual(['post', '/chat/webhooks/w1/secret']);
 			expect(bodyOf(sent[0])).toEqual({});
+			expect((sent[0] as InternalAxiosRequestConfig & { secretResponse?: boolean }).secretResponse).toBe(true);
 			expect([sent[1].method, sent[1].url]).toEqual(['delete', '/chat/webhooks/w1']);
 		});
 
@@ -155,6 +159,9 @@ describe('chatWebhooksService', () => {
 				['/chat/webhooks/w1/secret', {}]
 			]);
 			expect(mockFallback.patch.mock.calls[0].slice(0, 2)).toEqual(['/chat/webhooks/w1', { canBroadcast: true }]);
+			// Through the proxy too, the answers that may hold a secret stay out of the development log.
+			expect(mockFallback.post.mock.calls.map(([, , config]) => config.secretResponse)).toEqual([true, true]);
+			expect(mockFallback.patch.mock.calls[0][2].secretResponse).toBe(true);
 			expect(mockFallback.delete.mock.calls[0][0]).toBe('/chat/webhooks/w1');
 		});
 	});

@@ -128,6 +128,43 @@ describe('useChatWebhooks', () => {
 });
 
 describe('useChatWebhookWrites', () => {
+	it('cancels a list read under way, whose older answer would undo the write, and reads the list again after', async () => {
+		const { wrapper } = setup();
+		let answerOldRead: (list: IChatWebhook[]) => void = () => undefined;
+		mockList
+			// The probe of the entry.
+			.mockResolvedValueOnce([webhook('w1')])
+			// The read as the dialog opens, still under way when the create is sent: the old list.
+			.mockImplementationOnce(() => new Promise<IChatWebhook[]>((resolve) => (answerOldRead = resolve)))
+			// The read once the write settled.
+			.mockResolvedValue([webhook('w2'), webhook('w1')]);
+		mockCreate.mockResolvedValue({
+			webhook: webhook('w2'),
+			url: 'https://api.example.test/hook/url-secret',
+			signingSecret: 'signing-secret-1'
+		});
+		const { result } = renderHook(
+			() => ({ list: useChatWebhooks(MANAGED, false), writes: useChatWebhookWrites('c1') }),
+			{
+				wrapper
+			}
+		);
+		await waitFor(() => expect(result.current.list.availability).toBe('available'));
+		act(() => result.current.list.refresh());
+		await waitFor(() => expect(mockList).toHaveBeenCalledTimes(2));
+
+		await act(async () => {
+			await result.current.writes.write({ kind: 'create', input: { name: 'Hook w2' } });
+		});
+		await act(async () => {
+			answerOldRead([webhook('w1')]);
+			await Promise.resolve();
+		});
+
+		await waitFor(() => expect(mockList).toHaveBeenCalledTimes(3));
+		await waitFor(() => expect(result.current.list.webhooks.map((item) => item.id)).toEqual(['w2', 'w1']));
+	});
+
 	it('puts a new webhook first in the list, and its URL and secret nowhere but the answer', async () => {
 		const { client, wrapper } = setup();
 		const key = queryKeys.chatWebhooks('ten', 'c1');

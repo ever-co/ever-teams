@@ -16,6 +16,15 @@ const SESSION_HEADERS = new Set([
 	'content-length'
 ]);
 
+/** The headers of the answer: Gauzy's media type, and `no-store` for a route that asked for it. */
+function answerHeaders(upstream: Response, noStore: boolean): Record<string, string> {
+	const headers: Record<string, string> = {
+		'Content-Type': upstream.headers.get('Content-Type') ?? 'application/json'
+	};
+	if (noStore) headers['Cache-Control'] = 'no-store';
+	return headers;
+}
+
 const unsupportedMediaType = () =>
 	NextResponse.json({ statusCode: 415, message: 'Unsupported Media Type' }, { status: 415 });
 
@@ -109,9 +118,6 @@ export async function forwardToGauzy(
 
 	return new NextResponse(upstream.body, {
 		status: upstream.status,
-		headers: {
-			'Content-Type': upstream.headers.get('Content-Type') ?? 'application/json',
-			...(options.noStore ? { 'Cache-Control': 'no-store' } : {})
-		}
+		headers: answerHeaders(upstream, !!options.noStore)
 	});
 }

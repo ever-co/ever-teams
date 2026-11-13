@@ -283,10 +283,12 @@ export class APIService {
 	 */
 	private logResponse(response: AxiosResponse) {
 		if (this.config.enableLogging) {
+			// A request that asked for it keeps its answer out of the log: the answer holds a secret shown once.
+			const hidesBody = (response.config as APIConfig | undefined)?.secretResponse === true;
 			this.logger.debug(
 				`✅ Response: ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`,
 				{
-					data: response.data,
+					data: hidesBody ? '[not logged]' : response.data,
 					headers: response.headers
 				}
 			);
