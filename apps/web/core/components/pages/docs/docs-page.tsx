@@ -39,6 +39,43 @@ export type DocsView = 'home' | 'page' | 'trash';
 /** Tailwind's `lg`, where the tree is a sidebar beside the page. */
 const DESKTOP_QUERY = '(min-width: 1024px)';
 
+/** The controls Tab reaches (the tree's rows walk with the arrows: only one of them is in the tab order). */
+const TABBABLE = [
+	'a[href]',
+	'button:not([disabled])',
+	'input:not([disabled])',
+	'select:not([disabled])',
+	'textarea:not([disabled])',
+	'[tabindex]'
+]
+	.map((selector) => `${selector}:not([tabindex="-1"])`)
+	.join(', ');
+
+/**
+ * Tab and Shift+Tab go round the open drawer's controls, never out of it (to its backdrop or the app's frame); a focus
+ * lost to the page comes back into it. A layer opened from the drawer (a dialog, a menu) is portaled out of it and
+ * keeps its own focus.
+ */
+function keepTabInside(drawer: HTMLElement | null, event: KeyboardEvent) {
+	if (!drawer) return;
+	const active = document.activeElement;
+	const isInside = active instanceof Node && drawer.contains(active);
+	const isBackdrop = active instanceof HTMLElement && active.dataset.docsDrawerBackdrop !== undefined;
+	const isLost = !active || active === document.body || isBackdrop;
+	if (!isInside && !isLost) return;
+	const tabbable = Array.from(drawer.querySelectorAll<HTMLElement>(TABBABLE));
+	const first = tabbable[0];
+	const last = tabbable[tabbable.length - 1];
+	if (!first || !last) {
+		event.preventDefault();
+		return;
+	}
+	if (isLost || active === (event.shiftKey ? first : last)) {
+		event.preventDefault();
+		(event.shiftKey ? last : first).focus();
+	}
+}
+
 /** The Docs pages: the tree pane and, beside it, the page, the trash, or the welcome. */
 export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 	const t = useTranslations();
@@ -82,16 +119,20 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 		if (!enabled) router.replace('/');
 	}, [enabled, router]);
 
-	// The drawer is modal: the focus goes into it (the page behind is inert) and back to what opened it.
+	// The drawer is modal: the focus goes into it (to the open page's row, else its first control), stays there (the
+	// page behind is inert, Tab goes round the drawer) and goes back to what opened it.
 	const drawerRef = useRef<HTMLElement | null>(null);
 	useEffect(() => {
 		if (!isTreeDrawerOpen) return;
 		const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-		const target = drawerRef.current?.querySelector<HTMLElement>('[aria-current="page"], a[href], button:not([disabled])');
+		const drawer = drawerRef.current;
+		const target =
+			drawer?.querySelector<HTMLElement>('[aria-current="page"]') ?? drawer?.querySelector<HTMLElement>(TABBABLE);
 		target?.focus();
 		const close = () => setTreeDrawer((current) => ({ ...current, open: false }));
 		const onKeyDown = (event: KeyboardEvent) => {
 			if (event.key === 'Escape') close();
+			if (event.key === 'Tab') keepTabInside(drawerRef.current, event);
 		};
 		// On a large screen the tree is the sidebar: the drawer (and the inert page) ends there.
 		const desktop = typeof window.matchMedia === 'function' ? window.matchMedia(DESKTOP_QUERY) : null;
@@ -347,6 +388,9 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 					<button
 						type="button"
 						aria-label={t('docs.CLOSE')}
+						// A pointer closes the drawer here; the keyboard has Escape, and Tab stays in the drawer.
+						tabIndex={-1}
+						data-docs-drawer-backdrop=""
 						onClick={() => setTreeDrawer((current) => ({ ...current, open: false }))}
 						className="fixed inset-0 z-30 cursor-default bg-black/30 lg:hidden print:hidden"
 					/>
