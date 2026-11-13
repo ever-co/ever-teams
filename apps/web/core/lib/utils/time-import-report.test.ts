@@ -111,6 +111,20 @@ describe('the report of a time import', () => {
 		expect(sameDayLine).toContain(',28/10/2026,09:00,13:15,');
 	});
 
+	it('keeps an end date that disagrees with the date of its end time, or cannot be read, so the row stays left out', () => {
+		const otherDay = lineOf({ endDate: '2026-11-04', endTime: '2026-11-03 10:00' });
+		const unreadable = lineOf({ endDate: '04.11.26', endTime: '2026-11-03 10:00' }, 3);
+		const sameDay = lineOf({ endDate: '2026-11-3', endTime: '2026-11-03 10:00' }, 4);
+		const repeatsDate = lineOf({ endDate: '2026-11-03', endTime: '2026-11-04 01:00' }, 5);
+		const report = csvOf([otherDay, unreadable, sameDay, repeatsDate], timeImportReportCsvColumnsOf(false));
+		const [, otherDayLine, unreadableLine, sameDayLine, repeatsDateLine] = report.split('\r\n');
+
+		expect(otherDayLine).toContain(',09:00,2026-11-04 2026-11-03 10:00,');
+		expect(unreadableLine).toContain(',09:00,04.11.26 2026-11-03 10:00,');
+		expect(sameDayLine).toContain(',09:00,2026-11-03 10:00,');
+		expect(repeatsDateLine).toContain(',09:00,2026-11-03 2026-11-04 01:00,');
+	});
+
 	it('is named after the local day of the import', () => {
 		expect(timeImportReportFileNameOf(new Date(2026, 10, 12, 23, 30))).toBe('time-import-report-2026-11-12.csv');
 	});

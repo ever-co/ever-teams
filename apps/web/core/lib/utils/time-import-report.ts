@@ -1,5 +1,11 @@
 import { localDayKeyOf, type CsvColumn } from '@/core/lib/utils/dashboard-export';
-import { holdsDateAndTime } from '@/core/lib/utils/time-import-cells';
+import {
+	DATE_ORDERS,
+	calendarDayOf,
+	datePartOf,
+	holdsDateAndTime,
+	type DateOrder
+} from '@/core/lib/utils/time-import-cells';
 import {
 	TIME_IMPORT_HEADERS,
 	TIME_IMPORT_REPORT_HEADERS,
@@ -23,17 +29,44 @@ export function timeImportTemplateCsvColumnsOf(includesMemberEmail: boolean): Cs
 	return columns.map((column) => ({ header: TIME_IMPORT_HEADERS[column], valueOf: () => '' }));
 }
 
+function isSameDayIn(order: DateOrder, first: string, second: string): boolean {
+	const firstDay = calendarDayOf(first, order);
+	const secondDay = calendarDayOf(second, order);
+	if (!firstDay || !secondDay) {
+		return false;
+	}
+	const isSameYear = firstDay.year === secondDay.year;
+	const isSameMonth = firstDay.month === secondDay.month;
+	const isSameDate = firstDay.day === secondDay.day;
+	return isSameYear && isSameMonth && isSameDate;
+}
+
+/** The report does not know the file's date format: a file writes its dates one way, so one format that reads both as the same day is enough. */
+function namesSameDay(endDate: string, endTime: string): boolean {
+	const endDateText = datePartOf(endDate);
+	const endTimeDateText = datePartOf(endTime);
+	return DATE_ORDERS.some((order) => isSameDayIn(order, endDateText, endTimeDateText));
+}
+
+function repeatsEndDate(cells: TimeImportCells): boolean {
+	if (holdsDateAndTime(cells.endTime)) {
+		return namesSameDay(cells.endDate, cells.endTime);
+	}
+	return cells.endDate === cells.date;
+}
+
 /**
  * The template has no end date column: a file that gave one apart has its end date written before the end time, so
- * an entry that ends the next day still does once the report is imported again. An end date that repeats the date
- * is left out, so a date that cannot be read is not named a second time as an end time that cannot be read.
+ * an entry that ends the next day still does once the report is imported again. An end date is left out only when
+ * it repeats what the row already says: the day of an end time that holds its own date, or else the date, so a date
+ * that cannot be read is not named a second time as an end time that cannot be read. An end date that disagrees
+ * with its end time, or cannot be read, stays: the row is still left out once the report is imported again.
  */
 function reportEndTimeOf(cells: TimeImportCells): string {
 	const hasEndDate = cells.endDate !== '';
 	const hasEndTime = cells.endTime !== '';
-	const holdsOwnDate = holdsDateAndTime(cells.endTime);
-	const repeatsDate = cells.endDate === cells.date;
-	if (!hasEndDate || !hasEndTime || holdsOwnDate || repeatsDate) {
+	const isRepeated = repeatsEndDate(cells);
+	if (!hasEndDate || !hasEndTime || isRepeated) {
 		return cells.endTime;
 	}
 	return `${cells.endDate} ${cells.endTime}`;
