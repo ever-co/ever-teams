@@ -2,7 +2,7 @@
 
 import { type ReactNode, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, Bell, BellOff, Link, LogOut, MoreHorizontal, Star, Users } from '@/core/components/icons';
+import { ArrowLeft, Bell, BellOff, Integration, Link, LogOut, MoreHorizontal, Star, Users } from '@/core/components/icons';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -95,7 +95,7 @@ function MembersChip({
 
 /**
  * The top bar of a conversation: what it is (its mark, its name, its topic), who is in it, and the reader's own
- * settings for it (favourite, notifications, the link, leaving).
+ * settings for it (favourite, notifications, the link, leaving); for a channel's managers, its Integrations.
  */
 export function ConversationHeader({
 	conversation,
@@ -107,6 +107,7 @@ export function ConversationHeader({
 	onNotify,
 	onCopyLink,
 	onLeave,
+	onOpenIntegrations,
 	extra,
 	presence
 }: Readonly<{
@@ -120,6 +121,8 @@ export function ConversationHeader({
 	onNotify: (level: EChatNotifyLevel) => void;
 	onCopyLink: () => void;
 	onLeave: () => void;
+	/** Opens the channel's Integrations (its incoming webhooks); none where I may not manage them or they are off. */
+	onOpenIntegrations?: () => void;
 	/** More buttons of the bar, before the members (the conversation's files). */
 	extra?: ReactNode;
 	/** The status dot of each person the app knows, by employee id. */
@@ -182,6 +185,11 @@ export function ConversationHeader({
 						<DropdownMenuItem onClick={onCopyLink}>
 							<Link /> {t('teamChat.COPY_LINK')}
 						</DropdownMenuItem>
+						{onOpenIntegrations && (
+							<DropdownMenuItem onClick={onOpenIntegrations}>
+								<Integration /> {t('teamChat.WEBHOOKS.TITLE')}
+							</DropdownMenuItem>
+						)}
 						{canLeave && (
 							<>
 								<DropdownMenuSeparator />

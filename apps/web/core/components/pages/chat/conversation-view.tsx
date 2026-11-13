@@ -14,6 +14,7 @@ import { useChatFiles } from '@/core/hooks/chat/use-chat-files';
 import { useChatMessages } from '@/core/hooks/chat/use-chat-messages';
 import { useChatPeople, useChatScope } from '@/core/hooks/chat/use-chat-scope';
 import { useChatTypingSignal } from '@/core/hooks/chat/use-chat-typing';
+import { useChatWebhooks } from '@/core/hooks/chat/use-chat-webhooks';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { attachmentIdsOf, filesOfTransfer, isFileDrag } from '@/core/lib/utils/chat-attachments';
 import { ChatPerson, conversationTitle } from '@/core/lib/utils/chat-format';
@@ -29,6 +30,7 @@ import { ChatTypingLine } from './chat-typing-line';
 import { VirtualTimeline, type VirtualTimelineAnchor, type VirtualTimelineHandle } from './chat-virtual-timeline';
 import { ConversationWelcome, DayDivider, JumpToLatest, NewDivider } from './chat-timeline-parts';
 import { BAR_BUTTON, ConversationHeader } from './conversation-header';
+import { ChatWebhooksDialog } from './chat-webhooks-dialog';
 import { CreateTaskFromMessageDialog } from './create-task-dialog';
 import { MessageComposer } from './message-composer';
 import { MessageItem } from './message-item';
@@ -94,6 +96,10 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 	const [editing, setEditing] = useState<IChatMessage | null>(null);
 	const [editValue, setEditValue] = useState('');
 	const [taskFrom, setTaskFrom] = useState<IChatMessage | null>(null);
+	// The channel's incoming webhooks, for its managers (behind NEXT_PUBLIC_CHAT_WEBHOOKS_ENABLED): the entry shows once
+	// the platform lists them, and stays hidden where it answers 404 (off) or 403 (not mine to manage).
+	const webhooks = useChatWebhooks(conversation, canManage);
+	const [integrationsOpen, setIntegrationsOpen] = useState(false);
 	const list = useRef<HTMLDivElement | null>(null);
 	const content = useRef<HTMLDivElement | null>(null);
 	// The virtual list (behind its flag), read once: switching it mid-conversation would lose the reader's place.
@@ -407,6 +413,7 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 				onNotify={setNotify}
 				onCopyLink={copyLink}
 				onLeave={leave}
+				onOpenIntegrations={webhooks.canOpen ? () => setIntegrationsOpen(true) : undefined}
 				presence={presence}
 				extra={<ConversationFilesButton conversationId={conversation.id} people={people.byEmployee} peopleByUser={people.byUser} className={BAR_BUTTON} />}
 			/>
@@ -460,6 +467,9 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 				)}
 			</div>
 			{taskFrom && <CreateTaskFromMessageDialog key={taskFrom.id} message={taskFrom} onClose={() => setTaskFrom(null)} />}
+			{(webhooks.canOpen || integrationsOpen) && (
+				<ChatWebhooksDialog open={integrationsOpen} onOpenChange={setIntegrationsOpen} conversationId={conversation.id} channelName={title} webhooks={webhooks} people={people.byEmployee} />
+			)}
 			<ImageLightbox file={picture} onClose={() => setPictureId(null)} />
 		</div>
 	);

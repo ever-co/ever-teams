@@ -104,6 +104,11 @@ export type APIConfig = AxiosRequestConfig<any> & {
 	tenantId?: string | null;
 	directAPI?: boolean;
 	pinnedAuthorization?: boolean;
+	/**
+	 * The answer holds a secret shown once (a chat webhook's URL or signing secret): the development log of
+	 * `APIService` leaves its body out, in direct and in proxy mode alike.
+	 */
+	secretResponse?: boolean;
 };
 
 async function apiConfig(config?: APIConfig) {
