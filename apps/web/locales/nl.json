@@ -3818,6 +3818,7 @@
 			"PERMISSION": "Je rol staat deze wijziging niet toe.",
 			"NOT_FOUND": "Dit item bestaat niet meer. Vernieuw de pagina.",
 			"CONFLICT": "Iemand heeft dit tegelijk gewijzigd. Vernieuw en probeer het opnieuw.",
+			"NAME_TAKEN": "Deze naam is hier al in gebruik. Kies een andere.",
 			"INVALID": "Sommige waarden zijn niet geaccepteerd. Controleer ze en probeer het opnieuw.",
 			"TOO_MANY": "Te veel pogingen. Wacht even en probeer het dan opnieuw.",
 			"SERVER": "De server kon het niet afronden. Probeer het zo opnieuw.",
