@@ -6509,7 +6509,9 @@
 				"NOT_SAVED": "Les modifications n’ont pas été enregistrées et la facture est restée telle quelle. Vérifiez que son numéro est libre, puis réessayez.",
 				"PUT_BACK": "Les modifications n’ont pas pu être enregistrées, la facture a donc été remise comme avant. Réessayez.",
 				"NOT_PUT_BACK": "Les modifications n’ont pas pu être enregistrées, et la facture n’a pas pu être remise comme avant. Rouvrez-la et vérifiez ses lignes et son total avant de l’envoyer.",
-				"NOT_PUT_BACK_LINES": "Les modifications n’ont pas pu être enregistrées, et la facture n’a pas pu être remise comme avant : elle a maintenant {count, plural, =0 {aucune ligne} one {# ligne} other {# lignes}}. Vérifiez-la avant de l’envoyer."
+				"NOT_PUT_BACK_LINES": "Les modifications n’ont pas pu être enregistrées, et la facture n’a pas pu être remise comme avant : elle a maintenant {count, plural, =0 {aucune ligne} one {# ligne} other {# lignes}}. Vérifiez-la avant de l’envoyer.",
+				"LOCKED_NOW": "Depuis son ouverture, la facture {number} a été payée ou annulée : rien n’a été enregistré, et elle ne peut plus être modifiée.",
+				"NOT_CHECKED": "La facture n’a pas pu être relue avant l’enregistrement, donc rien n’a été enregistré. Réessayez."
 			}
 		},
 		"replace": {

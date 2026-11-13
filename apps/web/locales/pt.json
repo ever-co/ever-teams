@@ -6509,7 +6509,9 @@
 				"NOT_SAVED": "As alterações não foram guardadas e a fatura ficou como estava. Verifique se o número está livre e tente novamente.",
 				"PUT_BACK": "Não foi possível guardar as alterações, por isso a fatura foi reposta como estava. Tente novamente.",
 				"NOT_PUT_BACK": "Não foi possível guardar as alterações nem repor a fatura como estava. Abra-a de novo e verifique as linhas e o total antes de a enviar.",
-				"NOT_PUT_BACK_LINES": "Não foi possível guardar as alterações nem repor a fatura como estava: agora tem {count, plural, =0 {nenhuma linha} one {# linha} other {# linhas}}. Verifique-a antes de a enviar."
+				"NOT_PUT_BACK_LINES": "Não foi possível guardar as alterações nem repor a fatura como estava: agora tem {count, plural, =0 {nenhuma linha} one {# linha} other {# linhas}}. Verifique-a antes de a enviar.",
+				"LOCKED_NOW": "Desde que foi aberta, a fatura {number} foi paga ou anulada: nada foi guardado e já não pode ser editada.",
+				"NOT_CHECKED": "Não foi possível voltar a ler a fatura antes de guardar, por isso nada foi guardado. Tente novamente."
 			}
 		},
 		"replace": {

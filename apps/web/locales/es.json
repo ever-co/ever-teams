@@ -6509,7 +6509,9 @@
 				"NOT_SAVED": "Los cambios no se guardaron y la factura sigue como estaba. Comprueba que su número esté libre y vuelve a intentarlo.",
 				"PUT_BACK": "No se pudieron guardar los cambios, así que la factura se dejó como estaba. Vuelve a intentarlo.",
 				"NOT_PUT_BACK": "No se pudieron guardar los cambios, y la factura no se pudo dejar como estaba. Ábrela de nuevo y revisa sus líneas y su total antes de enviarla.",
-				"NOT_PUT_BACK_LINES": "No se pudieron guardar los cambios, y la factura no se pudo dejar como estaba: ahora tiene {count, plural, =0 {ninguna línea} one {# línea} other {# líneas}}. Revísala antes de enviarla."
+				"NOT_PUT_BACK_LINES": "No se pudieron guardar los cambios, y la factura no se pudo dejar como estaba: ahora tiene {count, plural, =0 {ninguna línea} one {# línea} other {# líneas}}. Revísala antes de enviarla.",
+				"LOCKED_NOW": "Desde que se abrió, la factura {number} se pagó o se anuló: no se guardó nada y ya no se puede editar.",
+				"NOT_CHECKED": "No se pudo volver a leer la factura antes de guardar, así que no se guardó nada. Vuelve a intentarlo."
 			}
 		},
 		"replace": {

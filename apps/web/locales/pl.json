@@ -6509,7 +6509,9 @@
 				"NOT_SAVED": "Zmiany nie zostały zapisane, a faktura pozostała bez zmian. Sprawdź, czy jej numer jest wolny, i spróbuj ponownie.",
 				"PUT_BACK": "Nie udało się zapisać zmian, więc przywrócono fakturę do poprzedniego stanu. Spróbuj ponownie.",
 				"NOT_PUT_BACK": "Nie udało się zapisać zmian ani przywrócić faktury do poprzedniego stanu. Otwórz ją ponownie i sprawdź pozycje oraz sumę przed wysłaniem.",
-				"NOT_PUT_BACK_LINES": "Nie udało się zapisać zmian ani przywrócić faktury do poprzedniego stanu: ma teraz {count, plural, =0 {zero pozycji} one {# pozycję} few {# pozycje} many {# pozycji} other {# pozycji}}. Sprawdź ją przed wysłaniem."
+				"NOT_PUT_BACK_LINES": "Nie udało się zapisać zmian ani przywrócić faktury do poprzedniego stanu: ma teraz {count, plural, =0 {zero pozycji} one {# pozycję} few {# pozycje} many {# pozycji} other {# pozycji}}. Sprawdź ją przed wysłaniem.",
+				"LOCKED_NOW": "Od otwarcia faktura {number} została opłacona lub anulowana: nic nie zostało zapisane i nie można jej już edytować.",
+				"NOT_CHECKED": "Nie udało się ponownie odczytać faktury przed zapisem, więc nic nie zostało zapisane. Spróbuj ponownie."
 			}
 		},
 		"replace": {

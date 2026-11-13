@@ -6509,7 +6509,9 @@
 				"NOT_SAVED": "De wijzigingen zijn niet opgeslagen en de factuur is gebleven zoals hij was. Controleer of het nummer vrij is en probeer het opnieuw.",
 				"PUT_BACK": "De wijzigingen konden niet worden opgeslagen, dus de factuur is teruggezet zoals hij was. Probeer het opnieuw.",
 				"NOT_PUT_BACK": "De wijzigingen konden niet worden opgeslagen, en de factuur kon niet worden teruggezet zoals hij was. Open hem opnieuw en controleer de regels en het totaal voordat je hem verstuurt.",
-				"NOT_PUT_BACK_LINES": "De wijzigingen konden niet worden opgeslagen, en de factuur kon niet worden teruggezet zoals hij was: hij heeft nu {count, plural, =0 {geen regels} one {# regel} other {# regels}}. Controleer hem voordat je hem verstuurt."
+				"NOT_PUT_BACK_LINES": "De wijzigingen konden niet worden opgeslagen, en de factuur kon niet worden teruggezet zoals hij was: hij heeft nu {count, plural, =0 {geen regels} one {# regel} other {# regels}}. Controleer hem voordat je hem verstuurt.",
+				"LOCKED_NOW": "Sinds hij werd geopend, is factuur {number} betaald of vervallen: er is niets opgeslagen en hij kan niet meer worden bewerkt.",
+				"NOT_CHECKED": "De factuur kon voor het opslaan niet opnieuw worden gelezen, dus er is niets opgeslagen. Probeer het opnieuw."
 			}
 		},
 		"replace": {

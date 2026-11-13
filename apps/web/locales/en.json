@@ -6509,7 +6509,9 @@
 				"NOT_SAVED": "The changes were not saved and the invoice is as it was. Check that its number is free, then try again.",
 				"PUT_BACK": "The changes could not be saved, so the invoice was put back as it was. Try again.",
 				"NOT_PUT_BACK": "The changes could not be saved, and the invoice could not be put back as it was. Open it again and check its lines and total before sending it.",
-				"NOT_PUT_BACK_LINES": "The changes could not be saved, and the invoice could not be put back as it was: it now has {count, plural, =0 {no line} one {# line} other {# lines}}. Check it before sending it."
+				"NOT_PUT_BACK_LINES": "The changes could not be saved, and the invoice could not be put back as it was: it now has {count, plural, =0 {no line} one {# line} other {# lines}}. Check it before sending it.",
+				"LOCKED_NOW": "Since it was opened, invoice {number} was paid or voided: nothing was saved, and it can no longer be edited.",
+				"NOT_CHECKED": "The invoice could not be read again before saving, so nothing was saved. Try again."
 			}
 		},
 		"replace": {

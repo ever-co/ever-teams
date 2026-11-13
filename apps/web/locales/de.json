@@ -6509,7 +6509,9 @@
 				"NOT_SAVED": "Die Änderungen wurden nicht gespeichert, die Rechnung ist unverändert. Prüfen Sie, ob ihre Nummer frei ist, und versuchen Sie es erneut.",
 				"PUT_BACK": "Die Änderungen konnten nicht gespeichert werden, deshalb wurde die Rechnung auf ihren früheren Stand zurückgesetzt. Versuchen Sie es erneut.",
 				"NOT_PUT_BACK": "Die Änderungen konnten nicht gespeichert werden, und die Rechnung ließ sich nicht auf ihren früheren Stand zurücksetzen. Öffnen Sie sie erneut und prüfen Sie Positionen und Gesamtbetrag, bevor Sie sie senden.",
-				"NOT_PUT_BACK_LINES": "Die Änderungen konnten nicht gespeichert werden, und die Rechnung ließ sich nicht auf ihren früheren Stand zurücksetzen: Sie hat jetzt {count, plural, =0 {keine Position} one {# Position} other {# Positionen}}. Prüfen Sie sie, bevor Sie sie senden."
+				"NOT_PUT_BACK_LINES": "Die Änderungen konnten nicht gespeichert werden, und die Rechnung ließ sich nicht auf ihren früheren Stand zurücksetzen: Sie hat jetzt {count, plural, =0 {keine Position} one {# Position} other {# Positionen}}. Prüfen Sie sie, bevor Sie sie senden.",
+				"LOCKED_NOW": "Seit dem Öffnen wurde Rechnung {number} bezahlt oder storniert: Es wurde nichts gespeichert, und sie lässt sich nicht mehr bearbeiten.",
+				"NOT_CHECKED": "Die Rechnung konnte vor dem Speichern nicht erneut gelesen werden, deshalb wurde nichts gespeichert. Versuchen Sie es erneut."
 			}
 		},
 		"replace": {
