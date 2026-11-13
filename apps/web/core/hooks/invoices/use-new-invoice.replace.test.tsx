@@ -23,9 +23,10 @@ const mockTime = {
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('next/navigation', () => ({ useSearchParams: () => new URLSearchParams('replaces=invoice-42') }));
+const mockCookieScope = { organizationId: 'organization-1', tenantId: 'tenant-1' };
 jest.mock('@/core/lib/helpers/cookies', () => ({
-	getTenantIdCookie: () => 'tenant-1',
-	getOrganizationIdCookie: () => 'organization-1'
+	getTenantIdCookie: () => mockCookieScope.tenantId,
+	getOrganizationIdCookie: () => mockCookieScope.organizationId
 }));
 jest.mock('@/core/hooks/bootstrap/use-feature-data', () => ({
 	useCurrentOrganizationOwner: () => ({ isError: false, refetch: jest.fn() })
@@ -126,6 +127,8 @@ describe('a new invoice that replaces a void one', () => {
 		mockCreateInvoice.mockReset();
 		mockCreateInvoice.mockResolvedValue({ id: 'invoice-43' });
 		mockTimeCalls.length = 0;
+		mockCookieScope.organizationId = 'organization-1';
+		mockCookieScope.tenantId = 'tenant-1';
 	});
 
 	it('starts from its client, period, lines, note, discount and tax, under the next number and today’s dates', () => {
@@ -169,12 +172,27 @@ describe('a new invoice that replaces a void one', () => {
 			invoiceNumber: 7,
 			status: 'DRAFT',
 			toContactId: 'client-acme',
-			totalValue: 1080
+			totalValue: 1080,
+			organizationId: 'organization-1',
+			tenantId: 'tenant-1'
 		});
 		expect(request.id).not.toBe('invoice-42');
 		expect(request.invoiceItems.map((item: { invoiceId: string }) => item.invoiceId)).toEqual([
 			request.id,
 			request.id
 		]);
+	});
+
+	it('is not saved when it was opened in another workspace than the void invoice’s', async () => {
+		mockCookieScope.organizationId = 'organization-2';
+		const { result } = renderReplacement(replacedInvoice());
+
+		let saved: unknown = 'not answered';
+		await act(async () => {
+			saved = await result.current.save();
+		});
+
+		expect(saved).toBeNull();
+		expect(mockCreateInvoice).not.toHaveBeenCalled();
 	});
 });

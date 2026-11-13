@@ -29,7 +29,7 @@ import {
 	type InvoiceRequest,
 	type NamedInvoiceLine
 } from '@/core/lib/utils/invoices';
-import { percentTextOf, periodOfDays, type SavedInvoice } from '@/core/lib/utils/invoice-edit';
+import { percentTextOf, periodOfDays, type InvoiceWorkspace, type SavedInvoice } from '@/core/lib/utils/invoice-edit';
 import {
 	acceptsPercentText,
 	hasAdjustments,
@@ -138,6 +138,14 @@ function draftSeedOf(start: InvoiceDraftStart, searchedClientId: string | null):
 	return savedDraftSeedOf(start.saved, start.kind === 'edit');
 }
 
+/** A saved invoice is edited or replaced in its own workspace; a new one is made in the workspace the form opens in. */
+function draftScopeOf(start: InvoiceDraftStart): InvoiceWorkspace {
+	if (start.kind === 'new') {
+		return { organizationId: getOrganizationIdCookie(), tenantId: getTenantIdCookie() };
+	}
+	return start.saved.workspace;
+}
+
 function savedInvoiceOfStart(start: InvoiceDraftStart): SavedInvoice | null {
 	if (start.kind === 'new') {
 		return null;
@@ -199,7 +207,7 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 	const isOrganizationLoading = !isOrganizationKnown && !organizationRead.isError;
 	// The workspace the client, its time and its rates are read in when the form opens: the invoice is made there, and
 	// a save after another tab switched the workspace is refused instead of mixing the two
-	const [draftScope] = useState(() => ({ organizationId: getOrganizationIdCookie(), tenantId: getTenantIdCookie() }));
+	const [draftScope] = useState(() => draftScopeOf(start));
 	const clientsQuery = useActiveClients();
 	const clients = clientsQuery.clients;
 

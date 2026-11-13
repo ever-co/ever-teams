@@ -38,6 +38,9 @@ export interface InvoiceUpdate {
 	tenantId: string;
 }
 
+/** The organization and tenant an invoice belongs to. */
+export type InvoiceWorkspace = Pick<InvoiceUpdate, 'organizationId' | 'tenantId'>;
+
 /** An edit is two writes: the invoice's own fields, then the whole set of its lines. */
 export interface InvoiceRevision {
 	update: InvoiceUpdate;
@@ -54,6 +57,8 @@ export interface SavedInvoiceClient {
 /** An invoice made from billable time, read back to be edited or replaced. */
 export interface SavedInvoice {
 	id: string;
+	/** Where it is edited or replaced: never in a workspace another tab chose since. */
+	workspace: InvoiceWorkspace;
 	number: number;
 	status: InvoiceStatus;
 	client: SavedInvoiceClient;
@@ -426,6 +431,7 @@ export function savedInvoiceOf(invoice: TSavedInvoice, reading: SavedInvoiceRead
 	const { lines, descriptions } = namedSavedLinesOf(parts, context);
 	return {
 		id: invoice.id,
+		workspace: { organizationId: facts.organizationId, tenantId: facts.tenantId },
 		number: facts.number,
 		status: facts.status,
 		client: clientOfInvoice(invoice, facts.clientId, reading),

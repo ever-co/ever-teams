@@ -24,9 +24,10 @@ const mockTime = {
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('next/navigation', () => ({ useSearchParams: () => new URLSearchParams() }));
+const mockCookieScope = { organizationId: 'organization-1', tenantId: 'tenant-1' };
 jest.mock('@/core/lib/helpers/cookies', () => ({
-	getTenantIdCookie: () => 'tenant-1',
-	getOrganizationIdCookie: () => 'organization-1'
+	getTenantIdCookie: () => mockCookieScope.tenantId,
+	getOrganizationIdCookie: () => mockCookieScope.organizationId
 }));
 jest.mock('@/core/hooks/bootstrap/use-feature-data', () => ({
 	useCurrentOrganizationOwner: () => ({ isError: false, refetch: jest.fn() })
@@ -150,6 +151,8 @@ beforeEach(() => {
 	mockNextNumberCalls.length = 0;
 	mockTimeCalls.length = 0;
 	mockTime.lines = [];
+	mockCookieScope.organizationId = 'organization-1';
+	mockCookieScope.tenantId = 'tenant-1';
 });
 
 describe('an invoice opened to be edited', () => {
@@ -252,5 +255,45 @@ describe('an invoice opened to be edited', () => {
 
 		expect(result.current.linesSource).toBe('saved');
 		expect(result.current.problems).toEqual(['unchanged']);
+	});
+});
+
+describe('an edit and the workspace its invoice belongs to', () => {
+	async function saveNote(result: { current: ReturnType<typeof useInvoiceEdit> }) {
+		act(() => result.current.setNote('Thank you.'));
+		let saved: unknown = 'not answered';
+		await act(async () => {
+			saved = await result.current.save();
+		});
+		return saved;
+	}
+
+	it('is written in that workspace', async () => {
+		const { result } = renderEdit(savedOf(sentInvoice()));
+
+		await saveNote(result);
+
+		const { edit } = mockSaveInvoiceEdit.mock.calls[0][0];
+		expect(edit.revision.update).toMatchObject({ organizationId: 'organization-1', tenantId: 'tenant-1' });
+	});
+
+	it('sends nothing when the invoice was opened in another workspace', async () => {
+		mockCookieScope.organizationId = 'organization-2';
+		const { result } = renderEdit(savedOf(sentInvoice()));
+
+		const saved = await saveNote(result);
+
+		expect(saved).toBeNull();
+		expect(mockSaveInvoiceEdit).not.toHaveBeenCalled();
+	});
+
+	it('sends nothing once another tab switched the workspace', async () => {
+		const { result } = renderEdit(savedOf(sentInvoice()));
+		mockCookieScope.tenantId = 'tenant-2';
+
+		const saved = await saveNote(result);
+
+		expect(saved).toBeNull();
+		expect(mockSaveInvoiceEdit).not.toHaveBeenCalled();
 	});
 });

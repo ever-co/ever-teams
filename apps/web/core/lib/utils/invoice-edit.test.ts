@@ -97,11 +97,12 @@ function readSaved(extra: Partial<TSavedInvoice> = {}): SavedInvoice {
 }
 
 describe('an invoice read back to be edited', () => {
-	it('states its number, client, period, dates, note, discount and tax as it was saved', () => {
+	it('states its workspace, number, client, period, dates, note, discount and tax as it was saved', () => {
 		const saved = readSaved();
 
 		expect(saved).toMatchObject({
 			id: 'invoice-42',
+			workspace: { organizationId: 'organization-1', tenantId: 'tenant-1' },
 			number: 42,
 			status: 'SENT',
 			client: { id: 'client-acme', name: 'Acme Studio', primaryEmail: 'billing@acme.test' },
