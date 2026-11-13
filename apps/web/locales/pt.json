@@ -4876,7 +4876,7 @@
 			"REQUIREMENTS_LOAD_FAILED": "Não foi possível carregar os requisitos.",
 			"TRACKING_SWITCH_SECTION": "Quem liga o rastreamento de tempo",
 			"RESTRICT_TRACKING_SWITCH_LABEL": "Só um papel superior liga ou desliga o rastreamento de tempo",
-			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Os admins ligam ou desligam o rastreamento de tempo de qualquer pessoa, os gestores só o dos membros da sua equipe, nunca o próprio nem o de outro gestor. Desligado, admins e gestores de equipe o alteram para qualquer pessoa das suas equipes, e quem pode editar funcionários o altera em todas as equipes.",
+			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Os admins ligam ou desligam o rastreamento de tempo de qualquer pessoa, os gestores só o dos membros da sua equipe, nunca o próprio nem o de outro gestor. Desligado, admins e gestores de equipe o alteram para qualquer pessoa das suas equipes, e quem também pode editar funcionários o altera em todas as equipes de uma vez.",
 			"TRACKING_SWITCH_RULE_NOT_SAVED": "A configuração não foi salva.",
 			"ON": "Ligado",
 			"OFF": "Desligado",
