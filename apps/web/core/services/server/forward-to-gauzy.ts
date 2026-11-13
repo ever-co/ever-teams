@@ -16,6 +16,15 @@ const SESSION_HEADERS = new Set([
 	'content-length'
 ]);
 
+/** The headers of the answer: Gauzy's media type, and `no-store` for a route that asked for it. */
+function answerHeaders(upstream: Response, noStore: boolean): Record<string, string> {
+	const headers: Record<string, string> = {
+		'Content-Type': upstream.headers.get('Content-Type') ?? 'application/json'
+	};
+	if (noStore) headers['Cache-Control'] = 'no-store';
+	return headers;
+}
+
 const unsupportedMediaType = () =>
 	NextResponse.json({ statusCode: 415, message: 'Unsupported Media Type' }, { status: 415 });
 
@@ -40,6 +49,11 @@ interface ForwardToGauzyOptions {
 	 * one: the interaction route's `idempotency-key`. Every other header of the request stays here.
 	 */
 	forwardHeaders?: readonly string[];
+	/**
+	 * The answer is marked `Cache-Control: no-store`, as the platform marks its own: for a route whose answer can hold a
+	 * secret shown once (a chat webhook's URL and signing secret), which no cache on the way may keep.
+	 */
+	noStore?: boolean;
 }
 
 /**
@@ -104,6 +118,6 @@ export async function forwardToGauzy(
 
 	return new NextResponse(upstream.body, {
 		status: upstream.status,
-		headers: { 'Content-Type': upstream.headers.get('Content-Type') ?? 'application/json' }
+		headers: answerHeaders(upstream, !!options.noStore)
 	});
 }

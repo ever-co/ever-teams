@@ -166,6 +166,61 @@ export interface IChatInteractionResult {
 	replayed?: boolean;
 }
 
+/** The platform's `CHAT_WEBHOOK_MAX_PER_CONVERSATION`: a channel has at most this many webhooks that are not revoked. */
+export const CHAT_WEBHOOK_MAX_PER_CONVERSATION = 10;
+/** The platform's `CHAT_WEBHOOK_NAME_MAX_LENGTH`. */
+export const CHAT_WEBHOOK_NAME_MAX_LENGTH = 80;
+/** The longest icon or interaction URL the platform stores. */
+export const CHAT_WEBHOOK_URL_MAX_LENGTH = 2048;
+
+/**
+ * An incoming webhook of a channel as its managers see it (`/chat/conversations/:id/webhooks`): never its URL secret
+ * or its signing secret, which only the answer of the write that made them holds ({@link IChatWebhookWriteResult}).
+ */
+export interface IChatWebhook {
+	id: ID;
+	conversationId: ID;
+	name: string;
+	iconUrl?: string | null;
+	/** Where button clicks are posted (signed). None: the webhook's buttons call nobody back. */
+	interactionUrl?: string | null;
+	/** The last characters of the URL secret, so two webhooks can be told apart. */
+	tokenHint: string;
+	/** Whether a signing secret exists (interactions need one). */
+	hasSigningSecret: boolean;
+	/** Whether `@channel` / `@here` in its posts notify the channel. */
+	canBroadcast: boolean;
+	createdByEmployeeId?: ID | null;
+	createdAt?: string;
+	revokedAt?: string | null;
+	revokedByEmployeeId?: ID | null;
+	lastUsedAt?: string | null;
+	acceptedCount: number;
+	rejectedCount: number;
+	rateLimitedCount: number;
+	callbackFailureCount: number;
+}
+
+/** `POST /chat/conversations/:id/webhooks`: a channel's new webhook. */
+export interface IChatWebhookCreateInput {
+	name: string;
+	iconUrl?: string | null;
+	interactionUrl?: string | null;
+	canBroadcast?: boolean;
+}
+
+/** `PATCH /chat/webhooks/:id`: only the fields that change; `null` clears a URL. */
+export type IChatWebhookUpdateInput = Partial<IChatWebhookCreateInput>;
+
+/** The answer of a webhook write: the webhook, and what the write made, shown this once and never again. */
+export interface IChatWebhookWriteResult {
+	webhook: IChatWebhook;
+	/** The URL senders post to (it holds the URL secret): only in the answer of the create. */
+	url?: string;
+	/** The key the interaction callbacks are signed with: only in the answer of the write that made it. */
+	signingSecret?: string;
+}
+
 export interface IChatMessage {
 	id: ID;
 	conversationId: ID;

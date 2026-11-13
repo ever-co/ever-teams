@@ -8,6 +8,7 @@ export type ErrorReason =
 	| 'permission'
 	| 'notFound'
 	| 'conflict'
+	| 'nameTaken'
 	| 'invalid'
 	| 'tooMany'
 	| 'server'
@@ -19,6 +20,7 @@ export const ERROR_REASON_KEYS: Record<ErrorReason, string> = {
 	permission: 'toasts.REASONS.PERMISSION',
 	notFound: 'toasts.REASONS.NOT_FOUND',
 	conflict: 'toasts.REASONS.CONFLICT',
+	nameTaken: 'toasts.REASONS.NAME_TAKEN',
 	invalid: 'toasts.REASONS.INVALID',
 	tooMany: 'toasts.REASONS.TOO_MANY',
 	server: 'toasts.REASONS.SERVER',
@@ -62,6 +64,53 @@ export function errorStatusOf(error: unknown): number | null {
 	}
 
 	return null;
+}
+
+/** Gauzy's code for a value another record of the same place already has. */
+const UNIQUE_CONSTRAINT_VIOLATION = 'UNIQUE_CONSTRAINT_VIOLATION';
+
+/** The error body: Gauzy's, under an Axios error's `response.data`, or the error itself (`ApiErrorService`, a body). */
+function bodyOf(error: Record<string, unknown>): Record<string, unknown> {
+	const response = error.response;
+	if (isRecord(response) && isRecord(response.data)) {
+		return response.data;
+	}
+
+	return error;
+}
+
+function errorCodeOf(error: Record<string, unknown>): unknown {
+	// `ApiErrorService` keeps Gauzy's code as `errorCode`; an Axios error's own `code` is Axios's, not Gauzy's
+	if (typeof error.errorCode === 'string') {
+		return error.errorCode;
+	}
+
+	return bodyOf(error).code;
+}
+
+function refusedFieldOf(error: Record<string, unknown>): unknown {
+	const details = bodyOf(error).details;
+	if (!isRecord(details)) {
+		return undefined;
+	}
+
+	return details.field;
+}
+
+/**
+ * Whether Gauzy refused a name another record of the same place already has: 409 `UNIQUE_CONSTRAINT_VIOLATION` on
+ * `name`, as for a label named like another label of the team (case, dashes and spaces aside).
+ */
+export function isNameTakenError(error: unknown): boolean {
+	if (!isRecord(error)) {
+		return false;
+	}
+	if (errorStatusOf(error) !== 409) {
+		return false;
+	}
+	const isUniqueViolation = errorCodeOf(error) === UNIQUE_CONSTRAINT_VIOLATION;
+
+	return isUniqueViolation && refusedFieldOf(error) === 'name';
 }
 
 function isOffline(): boolean {
@@ -117,6 +166,9 @@ export function errorReasonOf(error: unknown): ErrorReason {
 	}
 	const status = errorStatusOf(error);
 	if (status !== null) {
+		if (isNameTakenError(error)) {
+			return 'nameTaken';
+		}
 		return reasonOfStatus(status);
 	}
 	if (isNetworkFailure(error)) {
