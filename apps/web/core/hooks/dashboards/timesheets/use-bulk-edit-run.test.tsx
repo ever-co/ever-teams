@@ -16,9 +16,10 @@ jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
 		updateTimeLog: (payload: unknown) => mockUpdateTimeLog(payload)
 	}
 }));
+const mockWorkspace = { organizationId: 'organization-a', tenantId: 'tenant-a' };
 jest.mock('@/core/lib/helpers/cookies', () => ({
-	getOrganizationIdCookie: () => 'organization-a',
-	getTenantIdCookie: () => 'tenant-a'
+	getOrganizationIdCookie: () => mockWorkspace.organizationId,
+	getTenantIdCookie: () => mockWorkspace.tenantId
 }));
 jest.mock('@/core/lib/helpers/error-message', () => ({ logErrorInDev: jest.fn() }));
 
@@ -95,6 +96,37 @@ describe('useBulkEditRun', () => {
 		expect(mockUpdateTimeLog.mock.calls).toEqual([
 			[{ timeLogId: 'a', startedAt, stoppedAt, employeeId: 'member', isBillable: true }],
 			[{ timeLogId: 'b', startedAt, stoppedAt, employeeId: 'other-member', isBillable: true }]
+		]);
+	});
+
+	it('writes nothing more once another tab switched the workspace, and counts what was left as not saved', async () => {
+		const lookup = pendingCall<unknown[]>();
+		mockGetTimeLogConflicts.mockReturnValueOnce(lookup.promise);
+		const { result } = renderRun();
+
+		let running: Promise<BulkEditOutcome[] | null> = Promise.resolve(null);
+		act(() => {
+			running = result.current.run([
+				saveOf('a', { organizationId: 'organization-a', tenantId: 'tenant-a' }),
+				saveOf('b', { organizationId: 'organization-a', tenantId: 'tenant-a' })
+			]);
+		});
+		await flushPromises();
+		// Another tab picks a team of another organization while the first entry's overlap is being asked
+		mockWorkspace.organizationId = 'organization-b';
+
+		let outcomes: BulkEditOutcome[] | null = null;
+		await act(async () => {
+			lookup.settle([]);
+			outcomes = await running;
+		});
+
+		mockWorkspace.organizationId = 'organization-a';
+		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
+		expect(mockGetTimeLogConflicts).toHaveBeenCalledTimes(1);
+		expect(outcomes).toEqual([
+			{ logId: 'a', status: 'failed' },
+			{ logId: 'b', status: 'failed' }
 		]);
 	});
 

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { type QueryClient, useQueryClient } from '@tanstack/react-query';
 import { overlapOfPeriods } from '@/core/hooks/timesheet/use-time-overlap-guard';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { writeErrorKeyOf } from '@/core/lib/utils/dashboards/time-write-error';
 import {
@@ -35,6 +36,26 @@ async function removesRecordedTime(queryClient: QueryClient, payload: BulkEditPa
 	}
 }
 
+interface Workspace {
+	organizationId: string;
+	tenantId: string;
+}
+
+function currentWorkspace(): Workspace {
+	return { organizationId: getOrganizationIdCookie(), tenantId: getTenantIdCookie() };
+}
+
+/**
+ * Whether the requests now go to the workspace the entry belongs to. They take the organization and tenant from the
+ * cookies, which another tab may have switched since the page read the entry; its own ids win over the run's start.
+ */
+function isInCurrentWorkspace(save: BulkEditSave, atStart: Workspace): boolean {
+	const now = currentWorkspace();
+	const organizationId = save.log.organizationId || atStart.organizationId;
+	const tenantId = save.log.tenantId || atStart.tenantId;
+	return now.organizationId === organizationId && now.tenantId === tenantId;
+}
+
 /** A save that ended in an error may still have been applied: a request that timed out after the update, for one. */
 function mayHaveChangedEntry(outcome: BulkEditOutcome): boolean {
 	const isUpdated = outcome.status === 'updated';
@@ -46,11 +67,13 @@ function mayHaveChangedEntry(outcome: BulkEditOutcome): boolean {
 async function outcomeOfSave(
 	queryClient: QueryClient,
 	save: BulkEditSave,
-	isPageOpen: () => boolean
+	isPageOpen: () => boolean,
+	workspaceAtStart: Workspace
 ): Promise<BulkEditOutcome | null> {
 	const logId = save.log.id;
 	const payload = bulkEditPayloadOf(save);
-	if (!payload) {
+	// An entry of another workspace than the one requests now go to is neither looked up nor written
+	if (!payload || !isInCurrentWorkspace(save, workspaceAtStart)) {
 		return { logId, status: 'failed' };
 	}
 	const removesTime = await removesRecordedTime(queryClient, payload);
@@ -62,6 +85,9 @@ async function outcomeOfSave(
 	}
 	if (!isPageOpen()) {
 		return null;
+	}
+	if (!isInCurrentWorkspace(save, workspaceAtStart)) {
+		return { logId, status: 'failed' };
 	}
 	try {
 		await timeLogService.updateTimeLog(payload);
@@ -105,6 +131,7 @@ export function useBulkEditRun() {
 			const total = saves.length;
 			const outcomes: BulkEditOutcome[] = [];
 			const isPageOpen = () => isMountedRef.current;
+			const workspaceAtStart = currentWorkspace();
 			setProgress({ done: 0, total });
 			try {
 				for (const save of saves) {
@@ -113,7 +140,7 @@ export function useBulkEditRun() {
 						break;
 					}
 					// One at a time: the API's overlap cleanup is not safe under concurrent saves
-					const outcome = await outcomeOfSave(queryClient, save, isPageOpen);
+					const outcome = await outcomeOfSave(queryClient, save, isPageOpen, workspaceAtStart);
 					if (!outcome) {
 						break;
 					}
