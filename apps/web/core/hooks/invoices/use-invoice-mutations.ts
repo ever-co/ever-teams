@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
 	useMutation,
 	useMutationState,
@@ -19,13 +19,14 @@ import { queryKeys } from '@/core/query/keys';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { downloadBlob } from '@/core/lib/utils/dashboard-export';
 import {
+	isDraftInvoice,
 	pagesWithInvoiceChanged,
 	pagesWithoutInvoice,
 	SENT_CHANGE,
 	type InvoiceStatusChange,
 	type ListedInvoicesPage
 } from '@/core/lib/utils/invoice-actions';
-import type { InvoiceRequest, InvoiceStatus } from '@/core/lib/utils/invoices';
+import { invoiceStatusOf, type InvoiceRequest, type InvoiceStatus } from '@/core/lib/utils/invoices';
 import type { TInvoice } from '@/core/types/schemas/organization/invoice.schema';
 
 export function useCreateInvoice() {
@@ -115,35 +116,66 @@ export interface InvoiceToSend extends InvoiceToEmail {
 /** `sentNotMarked`: the e-mail went out, but the invoice could not be marked Sent. */
 export type InvoiceSendOutcome = 'sent' | 'sentNotMarked';
 
-/** E-mails the invoice, then marks a draft Sent. Throws when the sending is refused: nothing went out then. */
-async function sendInvoiceToClient(target: InvoiceToSend): Promise<InvoiceSendOutcome> {
+interface InvoiceSending {
+	outcome: InvoiceSendOutcome;
+	isMarkedSent: boolean;
+}
+
+/**
+ * Read again once the e-mail went out, the invoice becomes Sent only while it is still a draft: a status someone
+ * reached meanwhile (paid, void) is never taken back.
+ */
+async function markSentWhileDraft(invoiceId: string, workspace: InvoicesScope): Promise<boolean> {
+	const currentStatus = await invoiceService.getInvoiceStatus(invoiceId, workspace);
+	const status = invoiceStatusOf(currentStatus);
+	if (!isDraftInvoice(status)) {
+		return false;
+	}
+	await invoiceService.changeInvoiceStatus(invoiceId, SENT_CHANGE, workspace);
+	return true;
+}
+
+async function sendAndMarkSent(target: InvoiceToSend): Promise<InvoiceSending> {
 	const workspace = workspaceToActIn(target.scope);
 	await invoiceService.sendInvoiceByEmail(target, workspace);
 	if (!target.marksSent) {
-		return 'sent';
+		return { outcome: 'sent', isMarkedSent: false };
 	}
 	try {
-		await invoiceService.changeInvoiceStatus(target.invoiceId, SENT_CHANGE, workspace);
-		return 'sent';
+		const isMarkedSent = await markSentWhileDraft(target.invoiceId, workspace);
+		return { outcome: 'sent', isMarkedSent };
 	} catch {
-		return 'sentNotMarked';
+		return { outcome: 'sentNotMarked', isMarkedSent: false };
 	}
+}
+
+/** E-mails the invoice, then marks a draft Sent. Throws when the sending is refused: nothing went out then. */
+async function sendInvoiceToClient(target: InvoiceToSend): Promise<InvoiceSendOutcome> {
+	const sending = await sendAndMarkSent(target);
+	return sending.outcome;
 }
 
 export function useSendInvoice() {
 	const queryClient = useQueryClient();
 	const mutation = useMutation({
-		mutationFn: sendInvoiceToClient,
-		onSuccess: (outcome, target) => {
-			const isMarkedSent = outcome === 'sent' && target.marksSent;
-			if (isMarkedSent) {
+		mutationFn: sendAndMarkSent,
+		onSuccess: (sending, target) => {
+			if (sending.isMarkedSent) {
 				showListedStatus(queryClient, target.scope, target.invoiceId, 'SENT');
 			}
 		},
 		onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all }),
 		meta: { handlesOwnError: true }
 	});
-	return { sendInvoice: mutation.mutateAsync, isSending: mutation.isPending };
+	const { mutateAsync } = mutation;
+	const sendInvoice = useCallback(
+		async (target: InvoiceToSend) => {
+			const sending = await mutateAsync(target);
+			return sending.outcome;
+		},
+		[mutateAsync]
+	);
+	return { sendInvoice, isSending: mutation.isPending };
 }
 
 export type SaveAndSendOutcome = InvoiceSendOutcome | 'notSent';

@@ -10,7 +10,7 @@ import { GET as readHighestNumber } from './highest/route';
 import { GET as downloadInvoice } from './download/[id]/route';
 import { PUT as emailInvoice } from './email/[email]/route';
 import { PUT as changeInvoiceStatus } from './[id]/action/route';
-import { DELETE as deleteInvoice } from './[id]/route';
+import { DELETE as deleteInvoice, GET as readInvoice } from './[id]/route';
 
 const ORIGIN = 'https://app.ever.team';
 
@@ -317,6 +317,30 @@ describe('PUT /api/invoices/:id/action', () => {
 		await changeInvoiceStatus(request, idParams('../employee'));
 
 		expect(callOf(fetchMock, 1).url).toBe(gauzyUrl('/invoices/..%2Femployee/action'));
+	});
+});
+
+describe('GET /api/invoices/:id', () => {
+	it('forwards the read of one invoice to a role that reads invoices and client rates', async () => {
+		const answer = { id: 'inv-1', status: 'SENT' };
+		const fetchMock = gauzyAnswersInOrder(jsonAnswer(permissionRows(ADMIN)), jsonAnswer(answer));
+		const request = signedInRequest(`${ORIGIN}/api/invoices/inv-1`);
+
+		const response = await readInvoice(request, idParams('inv-1'));
+
+		expect(callOf(fetchMock, 1).url).toBe(gauzyUrl('/invoices/inv-1'));
+		expect(callOf(fetchMock, 1).method).toBe('GET');
+		await expect(response.json()).resolves.toEqual(answer);
+	});
+
+	it('refuses a member, who reads invoices on Gauzy but no client rate, without asking for the invoice', async () => {
+		const fetchMock = gauzyAnswersInOrder(jsonAnswer(permissionRows(MEMBER)));
+		const request = signedInRequest(`${ORIGIN}/api/invoices/inv-1`);
+
+		const response = await readInvoice(request, idParams('inv-1'));
+
+		expect(response.status).toBe(403);
+		expect(fetchMock).toHaveBeenCalledTimes(1);
 	});
 });
 

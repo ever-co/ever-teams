@@ -9,6 +9,7 @@ import { paidChangeOf } from '@/core/lib/utils/invoice-actions';
 const mockCreateInvoice = jest.fn();
 const mockSendInvoiceByEmail = jest.fn();
 const mockChangeInvoiceStatus = jest.fn();
+const mockGetInvoiceStatus = jest.fn();
 const mockDeleteInvoice = jest.fn();
 
 jest.mock('@/core/services/client/api/organizations/invoice.service', () => ({
@@ -16,6 +17,7 @@ jest.mock('@/core/services/client/api/organizations/invoice.service', () => ({
 		createInvoice: (...args: unknown[]) => mockCreateInvoice(...args),
 		sendInvoiceByEmail: (...args: unknown[]) => mockSendInvoiceByEmail(...args),
 		changeInvoiceStatus: (...args: unknown[]) => mockChangeInvoiceStatus(...args),
+		getInvoiceStatus: (...args: unknown[]) => mockGetInvoiceStatus(...args),
 		deleteInvoice: (...args: unknown[]) => mockDeleteInvoice(...args)
 	}
 }));
@@ -85,6 +87,8 @@ beforeEach(() => {
 	mockCreateInvoice.mockReset();
 	mockSendInvoiceByEmail.mockReset();
 	mockChangeInvoiceStatus.mockReset();
+	mockGetInvoiceStatus.mockReset();
+	mockGetInvoiceStatus.mockResolvedValue('DRAFT');
 	mockDeleteInvoice.mockReset();
 	mockCookieScope.organizationId = 'organization-1';
 	mockCookieScope.tenantId = 'tenant-1';
@@ -233,6 +237,39 @@ describe('sending an invoice to its client', () => {
 
 		expect(outcome).toBe('sentNotMarked');
 		expect(mockSendInvoiceByEmail).toHaveBeenCalledTimes(1);
+		expect(listedStatusOf(queryClient)).toBe('DRAFT');
+	});
+
+	it('keeps a status reached while the e-mail went out: an invoice paid meanwhile is not taken back to Sent', async () => {
+		mockSendInvoiceByEmail.mockResolvedValue(undefined);
+		mockGetInvoiceStatus.mockResolvedValue('FULLY_PAID');
+		const queryClient = clientWithDraftListed();
+		const { result } = renderWith(queryClient, () => useSendInvoice());
+
+		let outcome: unknown = null;
+		await act(async () => {
+			outcome = await result.current.sendInvoice(draftToSend);
+		});
+
+		expect(outcome).toBe('sent');
+		expect(mockGetInvoiceStatus).toHaveBeenCalledWith('inv-1', LIST_SCOPE);
+		expect(mockChangeInvoiceStatus).not.toHaveBeenCalled();
+		expect(listedStatusOf(queryClient)).toBe('DRAFT');
+	});
+
+	it('marks nothing when the invoice cannot be read again after the e-mail, and says so', async () => {
+		mockSendInvoiceByEmail.mockResolvedValue(undefined);
+		mockGetInvoiceStatus.mockRejectedValue(new Error('Network Error'));
+		const queryClient = clientWithDraftListed();
+		const { result } = renderWith(queryClient, () => useSendInvoice());
+
+		let outcome: unknown = null;
+		await act(async () => {
+			outcome = await result.current.sendInvoice(draftToSend);
+		});
+
+		expect(outcome).toBe('sentNotMarked');
+		expect(mockChangeInvoiceStatus).not.toHaveBeenCalled();
 		expect(listedStatusOf(queryClient)).toBe('DRAFT');
 	});
 
