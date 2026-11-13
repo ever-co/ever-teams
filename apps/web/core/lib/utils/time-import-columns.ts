@@ -452,6 +452,17 @@ function usesDatesOfMoments(read: TimeImportMapping, suggested: TimeImportMappin
 }
 
 /**
+ * The template has always read its dates year first: a template file whose dates are written two ways keeps that
+ * order, so only the rows written another way are left out, not the whole file. Any other file is refused for it.
+ */
+function sheetDateOrderOf(dates: DateOrderReading, dateOrder: DateOrder | null): DateOrder | null {
+	if (dates.kind === 'mixed') {
+		return 'yearFirst';
+	}
+	return dateOrder;
+}
+
+/**
  * Reads the text of a CSV file into the rows of a time import: the header names the columns, in any order and in
  * the words of the template or of the usual time exports, and every other line that is not blank is a row. A file
  * the import can read by itself goes straight to its rows. A file with headers it does not know, or whose dates fit
@@ -496,16 +507,18 @@ export function timeImportReadingOf(
 	if (needsChoice) {
 		return { kind: 'columns', table, choice };
 	}
-	if (dates.kind === 'mixed') {
+	const isReadByItself = !usesDatesOfMoments(header.mapping, suggested) && !hasStoredChoice;
+	const readsTemplateHeaders = header.readsAsTemplate && isReadByItself;
+	if (dates.kind === 'mixed' && !readsTemplateHeaders) {
 		const { firstRow, firstValue, row, value } = dates;
 		return { kind: 'refused', problem: { code: 'mixedDates', firstRow, firstValue, row, value } };
 	}
-	if (!dateOrder) {
+	const sheetOrder = sheetDateOrderOf(dates, dateOrder);
+	if (!sheetOrder) {
 		return { kind: 'columns', table, choice };
 	}
-	const isTemplateOrder = dateOrder === 'yearFirst';
-	const isReadByItself = !usesDatesOfMoments(header.mapping, suggested) && !hasStoredChoice;
-	const readsAsTemplate = header.readsAsTemplate && isReadByItself && isTemplateOrder;
-	const sheet = timeImportSheetOfTable(table, mapping, dateOrder);
+	const isTemplateOrder = sheetOrder === 'yearFirst';
+	const readsAsTemplate = readsTemplateHeaders && isTemplateOrder;
+	const sheet = timeImportSheetOfTable(table, mapping, sheetOrder);
 	return { kind: 'sheet', table, choice, sheet, readsAsTemplate };
 }

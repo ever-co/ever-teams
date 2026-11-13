@@ -39,6 +39,12 @@ function sheetOf(text: string) {
 	return reading.sheet;
 }
 
+function rowProblemsOf(text: string) {
+	const sheet = sheetOf(text);
+	const rows = draftRowsOf(sheet.rows, CONTEXT, sheet.dateOrder);
+	return rows.map((row) => row.problems);
+}
+
 function problemOf(text: string) {
 	const reading = timeImportReadingOf(text);
 	if (reading.kind !== 'refused') {
@@ -233,6 +239,18 @@ describe('timeImportReadingOf for a file from another tool', () => {
 
 		expect(sheet.dateOrder).toBe('yearFirst');
 		expect(rows[1].problems).toEqual([{ code: 'dateUnreadable', order: 'yearFirst' }]);
+	});
+
+	it('keeps reading year first a template whose dates are written two ways, and leaves only those rows out', () => {
+		const dayAfterYear = 'date,start time,end time\n2026-11-03,09:00,10:00\n25/10/2026,11:00,12:00\n';
+		const yearAfterDay = 'date,start time,end time\n25/10/2026,11:00,12:00\n2026-11-03,09:00,10:00\n';
+		const noYearFirst = 'date,start time,end time\n25/10/2026,09:00,10:00\n10/25/2026,09:00,10:00\n';
+		const unreadable = [{ code: 'dateUnreadable', order: 'yearFirst' }];
+
+		expect(timeImportReadingOf(dayAfterYear)).toMatchObject({ kind: 'sheet', readsAsTemplate: true });
+		expect(rowProblemsOf(dayAfterYear)).toEqual([[], unreadable]);
+		expect(rowProblemsOf(yearAfterDay)).toEqual([unreadable, []]);
+		expect(rowProblemsOf(noYearFirst)).toEqual([unreadable, unreadable]);
 	});
 
 	it('refuses a file whose dates are written two ways, with the row that shows it', () => {
