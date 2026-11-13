@@ -1809,6 +1809,10 @@
 				"title": "Restore project",
 				"description": "Are you sure you want to restore {projectName}?"
 			},
+			"billable": {
+				"LABEL": "Billable by default",
+				"HELP": "Applies to new entries; saved ones keep their value."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archive {projectsCount} projects",

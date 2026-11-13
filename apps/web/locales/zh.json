@@ -1828,6 +1828,10 @@
 				"title": "恢复项目",
 				"description": "您确定要恢复 {projectName} 吗？"
 			},
+			"billable": {
+				"LABEL": "默认可计费",
+				"HELP": "仅适用于新记录；已保存的记录保持不变。"
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "归档 {projectsCount} 个项目",

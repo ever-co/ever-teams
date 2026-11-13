@@ -1960,6 +1960,10 @@
 				"title": "Restaurar proyecto",
 				"description": "¿Estás seguro de que quieres restaurar {projectName}?"
 			},
+			"billable": {
+				"LABEL": "Facturable de forma predeterminada",
+				"HELP": "Se aplica a los nuevos registros; el resto no cambia."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archivar {projectsCount} proyectos",

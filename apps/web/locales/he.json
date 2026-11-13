@@ -1842,6 +1842,10 @@
 				"title": "שחזור פרויקט",
 				"description": "האם אתה בטוח שברצונך לשחזר את {projectName}?"
 			},
+			"billable": {
+				"LABEL": "לחיוב כברירת מחדל",
+				"HELP": "חל על רישומים חדשים; רישומים שנשמרו לא משתנים."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "ארכיון {projectsCount} פרויקטים",

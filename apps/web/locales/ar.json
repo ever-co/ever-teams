@@ -1842,6 +1842,10 @@
 				"title": "استعادة المشروع",
 				"description": "هل أنت متأكد أنك تريد استعادة {projectName}؟"
 			},
+			"billable": {
+				"LABEL": "قابل للفوترة افتراضيًا",
+				"HELP": "ينطبق على السجلات الجديدة، والمحفوظة تحتفظ بقيمتها."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "أرشفة {projectsCount} مشروع",

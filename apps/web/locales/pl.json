@@ -1892,6 +1892,10 @@
 				"title": "Przywróć projekt",
 				"description": "Czy na pewno chcesz przywrócić {projectName}?"
 			},
+			"billable": {
+				"LABEL": "Domyślnie do rozliczenia",
+				"HELP": "Dotyczy nowych wpisów; zapisane pozostają bez zmian."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archiwizuj {projectsCount} projekty",

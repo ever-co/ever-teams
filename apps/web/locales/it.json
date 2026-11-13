@@ -1848,6 +1848,10 @@
 				"title": "Ripristina progetto",
 				"description": "Sei sicuro di voler ripristinare {projectName}?"
 			},
+			"billable": {
+				"LABEL": "Fatturabile per impostazione predefinita",
+				"HELP": "Vale per le nuove voci; quelle salvate non cambiano."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archivia {projectsCount} progetti",

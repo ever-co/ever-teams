@@ -1889,6 +1889,10 @@
 				"title": "Project herstellen",
 				"description": "Weet u zeker dat u {projectName} wilt herstellen?"
 			},
+			"billable": {
+				"LABEL": "Standaard factureerbaar",
+				"HELP": "Geldt voor nieuwe registraties; oude blijven gelijk."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archiveer {projectsCount} projecten",

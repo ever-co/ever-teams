@@ -1892,6 +1892,10 @@
 				"title": "Restaurar projeto",
 				"description": "Tem certeza de que deseja restaurar {projectName}?"
 			},
+			"billable": {
+				"LABEL": "Faturável por padrão",
+				"HELP": "Vale para novos registros; os salvos não mudam."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Arquivar {projectsCount} projetos",

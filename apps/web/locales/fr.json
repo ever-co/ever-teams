@@ -1889,6 +1889,10 @@
 				"title": "Restaurer le projet",
 				"description": "Êtes-vous sûr de vouloir restaurer {projectName}?"
 			},
+			"billable": {
+				"LABEL": "Facturable par défaut",
+				"HELP": "S'applique aux nouvelles saisies ; les autres ne changent pas."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archiver {projectsCount} projets",

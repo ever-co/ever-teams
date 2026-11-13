@@ -1892,6 +1892,10 @@
 				"title": "Projekt wiederherstellen",
 				"description": "Sind Sie sicher, dass Sie {projectName} wiederherstellen möchten?"
 			},
+			"billable": {
+				"LABEL": "Standardmäßig abrechenbar",
+				"HELP": "Gilt für neue Einträge; gespeicherte bleiben gleich."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archivieren {projectsCount} Projekte",
