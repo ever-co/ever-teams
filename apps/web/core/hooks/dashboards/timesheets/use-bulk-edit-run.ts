@@ -35,7 +35,12 @@ async function removesRecordedTime(queryClient: QueryClient, payload: BulkEditPa
 	}
 }
 
-async function outcomeOfSave(queryClient: QueryClient, save: BulkEditSave): Promise<BulkEditOutcome> {
+/** Null when the page was left during the overlap lookup: the entry is never sent. */
+async function outcomeOfSave(
+	queryClient: QueryClient,
+	save: BulkEditSave,
+	isPageOpen: () => boolean
+): Promise<BulkEditOutcome | null> {
 	const logId = save.log.id;
 	const payload = bulkEditPayloadOf(save);
 	if (!payload) {
@@ -47,6 +52,9 @@ async function outcomeOfSave(queryClient: QueryClient, save: BulkEditSave): Prom
 	}
 	if (removesTime) {
 		return { logId, status: 'overlap' };
+	}
+	if (!isPageOpen()) {
+		return null;
 	}
 	try {
 		await timeLogService.updateTimeLog(payload);
@@ -89,15 +97,19 @@ export function useBulkEditRun() {
 			isRunningRef.current = true;
 			const total = saves.length;
 			const outcomes: BulkEditOutcome[] = [];
+			const isPageOpen = () => isMountedRef.current;
 			setProgress({ done: 0, total });
 			try {
 				for (const save of saves) {
 					// A page left in the middle of a run sends nothing more
-					if (!isMountedRef.current) {
+					if (!isPageOpen()) {
 						break;
 					}
 					// One at a time: the API's overlap cleanup is not safe under concurrent saves
-					const outcome = await outcomeOfSave(queryClient, save);
+					const outcome = await outcomeOfSave(queryClient, save, isPageOpen);
+					if (!outcome) {
+						break;
+					}
 					outcomes.push(outcome);
 					setProgress({ done: outcomes.length, total });
 				}

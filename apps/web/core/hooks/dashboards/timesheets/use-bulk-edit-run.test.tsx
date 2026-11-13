@@ -203,6 +203,27 @@ describe('useBulkEditRun', () => {
 		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
 	});
 
+	it('sends nothing once the page is left while an overlap lookup is pending', async () => {
+		const lookup = pendingCall<unknown[]>();
+		mockGetTimeLogConflicts.mockReturnValueOnce(lookup.promise);
+		const { result, unmount } = renderRun();
+
+		let running: Promise<BulkEditOutcome[] | null> = Promise.resolve(null);
+		act(() => {
+			running = result.current.run([saveOf('a'), saveOf('b')]);
+		});
+		await flushPromises();
+		unmount();
+		let outcomes: BulkEditOutcome[] | null = null;
+		await act(async () => {
+			lookup.settle([]);
+			outcomes = await running;
+		});
+
+		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
+		expect(outcomes).toEqual([]);
+	});
+
 	it('does not start a second run while one is going', async () => {
 		const firstSave = pendingCall<unknown>();
 		mockUpdateTimeLog.mockReturnValueOnce(firstSave.promise);
