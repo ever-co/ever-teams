@@ -180,6 +180,20 @@ function RemovedLines({ count, onRestore }: Readonly<{ count: number; onRestore:
 	);
 }
 
+/** An invoice read back shows the lines it was saved with until its time is taken again; the way back stays here. */
+function LinesFromTime({ onBack }: Readonly<{ onBack: () => void }>) {
+	const t = useTranslations();
+	return (
+		<p className="flex flex-wrap items-center gap-x-2 gap-y-1 px-3 text-xs text-muted-foreground">
+			<span>{t('invoices.edit.TIME_LINES')}</span>
+			<Button type="button" variant="ghost" size="sm" onClick={onBack} className="-my-1 text-foreground">
+				<Undo />
+				{t('invoices.edit.BACK_TO_SAVED')}
+			</Button>
+		</p>
+	);
+}
+
 /** A discount is written as what it takes off; none written as zero, never as "-0.00". */
 function takenOffOf(amount: number) {
 	if (amount > 0) {
@@ -233,6 +247,8 @@ export function InvoiceSheet({ invoice }: Readonly<{ invoice: InvoiceDraftState 
 	const locale = useLocale();
 	const hasLines = invoice.groups.length > 0;
 	const hasRemovedLines = invoice.removedCount > 0;
+	const isSavedInvoice = invoice.savedInvoice !== null;
+	const showsTimeLines = isSavedInvoice && invoice.linesSource === 'time';
 	const periodText = invoicePeriodTextOf(invoice.periodDays, locale) ?? '';
 	const totalHours = formatInvoiceHours(invoice.keptHours, locale);
 	let emptyMessage = t('invoices.new.NO_PRICED_LINES');
@@ -257,6 +273,7 @@ export function InvoiceSheet({ invoice }: Readonly<{ invoice: InvoiceDraftState 
 
 			{hasLines && <SheetLines invoice={invoice} />}
 			{!hasLines && <BlockEmptyMessage title={t('invoices.new.NO_LINES_TITLE')} message={emptyMessage} />}
+			{showsTimeLines && <LinesFromTime onBack={invoice.backToSavedLines} />}
 			{hasRemovedLines && <RemovedLines count={invoice.removedCount} onRestore={invoice.restoreLines} />}
 
 			{hasLines && (

@@ -8,6 +8,8 @@ import { DashboardSection } from '@/core/components/dashboards/kit/dashboard-lay
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import type { InvoiceDraftState, InvoiceScreenState } from '@/core/hooks/invoices/use-new-invoice';
 import { cn } from '@/core/lib/helpers';
+import type { SavedInvoice } from '@/core/lib/utils/invoice-edit';
+import { isDraftInvoice } from '@/core/lib/utils/invoice-actions';
 import type { InvoiceDueTermSource, InvoiceProblem } from '@/core/lib/utils/invoices';
 import { FIELD_LABEL } from './new-invoice-recipes';
 
@@ -57,6 +59,23 @@ function SavingNote({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
 		note = t('invoices.new.sending.DRAFT_OR_SEND_NOTE', { email });
 	}
 	return <p className="text-xs text-muted-foreground text-pretty">{note}</p>;
+}
+
+/** An edit keeps the invoice's status: a draft stays one, and a client who received it keeps the earlier version. */
+function EditSavingNote({ saved, clientName }: Readonly<{ saved: SavedInvoice; clientName: string }>) {
+	const t = useTranslations();
+	let note = t('invoices.edit.SENT_NOTE', { client: clientName });
+	if (isDraftInvoice(saved.status)) {
+		note = t('invoices.edit.DRAFT_NOTE');
+	}
+	return <p className={HINT}>{note}</p>;
+}
+
+function editedInvoiceOf(invoice: InvoiceDraftState): SavedInvoice | null {
+	if (invoice.mode !== 'edit') {
+		return null;
+	}
+	return invoice.savedInvoice;
 }
 
 interface PercentFieldProps {
@@ -177,6 +196,11 @@ export function InvoiceDetails({
 	const isDueMissing = invoice.problems.includes('dueDay');
 	const isDueTooEarly = invoice.problems.includes('dueBeforeIssue');
 	const isDueInvalid = showsProblems && (isDueMissing || isDueTooEarly);
+	const editedInvoice = editedInvoiceOf(invoice);
+	let saveLabel = t('invoices.new.SAVE');
+	if (editedInvoice) {
+		saveLabel = t('invoices.edit.SAVE');
+	}
 	let dueDescription: string | undefined;
 	if (invoice.isDueDayOfTerm) {
 		dueDescription = dueTermId;
@@ -197,7 +221,7 @@ export function InvoiceDetails({
 					onChange={(event) => invoice.setNumberText(event.target.value)}
 					className="tabular-nums"
 				/>
-				<NumberHint invoice={invoice} />
+				{!editedInvoice && <NumberHint invoice={invoice} />}
 			</div>
 			<div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
 				<div className="flex min-w-0 flex-col gap-1.5">
@@ -246,7 +270,8 @@ export function InvoiceDetails({
 			</div>
 			<CurrencyField invoice={invoice} id={currencyId} />
 			<NoteField invoice={invoice} id={noteId} />
-			<SavingNote invoice={invoice} />
+			{editedInvoice && <EditSavingNote saved={editedInvoice} clientName={invoice.client?.name ?? ''} />}
+			{!editedInvoice && <SavingNote invoice={invoice} />}
 			<Button
 				type="button"
 				size="default"
@@ -255,7 +280,7 @@ export function InvoiceDetails({
 				aria-describedby={problemsId}
 				className="w-full"
 			>
-				{t('invoices.new.SAVE')}
+				{saveLabel}
 			</Button>
 			<ul id={problemsId} aria-live="polite" className="flex flex-col gap-1 empty:hidden">
 				{listsProblems &&
