@@ -117,6 +117,13 @@ function sentPayloads() {
 	return mockUpdateTimeLog.mock.calls.map(([payload]) => payload);
 }
 
+function toastCount() {
+	const successes = mockToastSuccess.mock.calls.length;
+	const warnings = mockToastWarning.mock.calls.length;
+	const errors = mockToastError.mock.calls.length;
+	return successes + warnings + errors;
+}
+
 describe('useTimesheetBulkEdit', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -206,9 +213,7 @@ describe('useTimesheetBulkEdit', () => {
 
 		expect(mockGetTimeLogConflicts).toHaveBeenCalledTimes(1);
 		expect(sentPayloads()).toEqual([expect.objectContaining({ timeLogId: 'own' })]);
-		expect(mockToastWarning).toHaveBeenCalledWith(
-			'dashboard.timesheets.BULK_EDIT.UPDATED_PARTLY {"updated":1,"notUpdated":1}'
-		);
+		expect(toastCount()).toBe(0);
 		expect(onFinished).toHaveBeenCalledWith(expect.objectContaining({ releasedLogIds: ['own'] }));
 		expect(onClose).not.toHaveBeenCalled();
 		expect(result.current.result?.reasons).toEqual([{ reason: 'notAllowed', count: 1 }]);
@@ -233,7 +238,7 @@ describe('useTimesheetBulkEdit', () => {
 		expect(onFinished).toHaveBeenCalledWith(expect.objectContaining({ releasedLogIds: ['b'] }));
 	});
 
-	it('goes on after a failed save and states both counts', async () => {
+	it('goes on after a failed save and states both counts in its report, without a toast', async () => {
 		mockUpdateTimeLog.mockRejectedValueOnce(new Error('Failed to update time-log', { cause: { status: 500 } }));
 		const { result, onClose } = renderBulkEdit([logOf('a'), logOf('b'), logOf('c')]);
 
@@ -243,9 +248,7 @@ describe('useTimesheetBulkEdit', () => {
 		});
 
 		expect(mockUpdateTimeLog).toHaveBeenCalledTimes(3);
-		expect(mockToastWarning).toHaveBeenCalledWith(
-			'dashboard.timesheets.BULK_EDIT.UPDATED_PARTLY {"updated":2,"notUpdated":1}'
-		);
+		expect(toastCount()).toBe(0);
 		expect(result.current.result).toEqual({
 			updatedCount: 2,
 			notUpdatedCount: 1,
@@ -256,7 +259,7 @@ describe('useTimesheetBulkEdit', () => {
 		expect(result.current.isRunning).toBe(false);
 	});
 
-	it('says that nothing was updated when every save fails', async () => {
+	it('says in its report, without a toast, that nothing was updated when every save fails', async () => {
 		mockUpdateTimeLog.mockRejectedValue(new Error('Failed to update time-log', { cause: { status: 403 } }));
 		const { result } = renderBulkEdit([logOf('a')]);
 
@@ -265,9 +268,8 @@ describe('useTimesheetBulkEdit', () => {
 			await result.current.submit();
 		});
 
-		expect(mockToastError).toHaveBeenCalledWith(
-			'dashboard.timesheets.BULK_EDIT.UPDATED_PARTLY {"updated":0,"notUpdated":1}'
-		);
+		expect(toastCount()).toBe(0);
+		expect(result.current.result).toEqual(expect.objectContaining({ updatedCount: 0, notUpdatedCount: 1 }));
 		expect(result.current.result?.reasons).toEqual([
 			{ reason: 'failed', count: 1, detailKey: 'dashboard.timesheets.SHEET.EDIT.REFUSED' }
 		]);

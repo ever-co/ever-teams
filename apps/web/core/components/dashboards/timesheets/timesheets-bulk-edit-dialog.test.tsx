@@ -265,7 +265,7 @@ describe('TimesheetsBulkEditDialog', () => {
 		expect(onFinished).toHaveBeenCalledWith(expect.objectContaining({ releasedLogIds: ['a', 'b'] }));
 	});
 
-	it('stays open on its report when an entry was not updated', async () => {
+	it('stays open on its report, without a toast, when an entry was not updated', async () => {
 		mockUpdateTimeLog.mockRejectedValueOnce(new Error('Failed to update time-log', { cause: { status: 500 } }));
 		const { closeModal } = renderDialog([logOf('a'), logOf('b')]);
 
@@ -278,7 +278,8 @@ describe('TimesheetsBulkEditDialog', () => {
 			screen.getByText('dashboard.timesheets.BULK_EDIT.REASON.FAILED {"count":1} toasts.REASONS.SERVER')
 		).toBeTruthy();
 		expect(screen.getByText('dashboard.timesheets.BULK_EDIT.STILL_SELECTED')).toBeTruthy();
-		expect(mockToastWarning).toHaveBeenCalledWith(headline);
+		expect(mockToastWarning).not.toHaveBeenCalled();
+		expect(mockToastSuccess).not.toHaveBeenCalled();
 		expect(closeModal).not.toHaveBeenCalled();
 		expect(screen.queryByRole('combobox', { name: TASK })).toBeNull();
 

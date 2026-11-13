@@ -26,8 +26,9 @@ export interface TimesheetBulkEditInput {
 
 /**
  * The bulk edit dialog from its opening to its report: the fields, what they would change among the ticked entries
- * and what they leave out, then the run and its result. A run that updated every entry asked closes the dialog; any
- * entry not updated keeps it open on the reasons.
+ * and what they leave out, then the run and its result. A run that updated every entry asked closes the dialog on a
+ * toast; any entry not updated keeps it open on the reasons, and that report is the only message: a toast would
+ * repeat it over the selection bar.
  */
 export function useTimesheetBulkEdit({ logs, permissions, onFinished, onClose }: TimesheetBulkEditInput) {
 	const t = useTranslations();
@@ -45,27 +46,6 @@ export function useTimesheetBulkEdit({ logs, permissions, onFinished, onClose }:
 	const saveCount = plan.saves.length;
 	const hasEntryToSave = saveCount > 0;
 
-	const announce = useCallback(
-		(report: BulkEditResult) => {
-			const isComplete = report.notUpdatedCount === 0;
-			if (isComplete) {
-				toast.success(t('dashboard.timesheets.BULK_EDIT.UPDATED', { count: report.updatedCount }));
-				return;
-			}
-			const message = t('dashboard.timesheets.BULK_EDIT.UPDATED_PARTLY', {
-				updated: report.updatedCount,
-				notUpdated: report.notUpdatedCount
-			});
-			const hasUpdatedNothing = report.updatedCount === 0;
-			if (hasUpdatedNothing) {
-				toast.error(message);
-				return;
-			}
-			toast.warning(message);
-		},
-		[t]
-	);
-
 	const submit = useCallback(async () => {
 		if (!hasEntryToSave) {
 			return;
@@ -77,16 +57,16 @@ export function useTimesheetBulkEdit({ logs, permissions, onFinished, onClose }:
 			return;
 		}
 		const report = bulkEditResultOf(plan, outcomes);
-		announce(report);
 		onFinished(report);
 		setIsRunning(false);
 		const isComplete = report.notUpdatedCount === 0;
 		if (isComplete) {
+			toast.success(t('dashboard.timesheets.BULK_EDIT.UPDATED', { count: report.updatedCount }));
 			onClose();
 			return;
 		}
 		setResult(report);
-	}, [announce, hasEntryToSave, onClose, onFinished, plan, run]);
+	}, [hasEntryToSave, onClose, onFinished, plan, run, t]);
 
 	let runProgress: BulkEditProgress | null = null;
 	if (isRunning) {
