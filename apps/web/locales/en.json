@@ -6818,6 +6818,16 @@
 			"CONFIRM": "Void and replace",
 			"NOTICE_TITLE": "Replacing invoice {number}",
 			"NOTICE_MESSAGE": "Same client, period and lines. Adjust them, then save it under a new number."
+		},
+		"billedTime": {
+			"LEFT_OUT_TITLE": "Hours already on an invoice are left out",
+			"LEFT_OUT_MESSAGE": "{count, plural, one {An invoice of {client} already bills part of this period. Those hours are not listed here.} other {# invoices of {client} already bill part of this period. Those hours are not listed here.}}",
+			"UNRECORDED_MESSAGE": "{count, plural, one {That invoice does not say which hours it bills, so they are still listed here.} other {Those invoices do not say which hours they bill, so those hours are still listed here.}} Remove the lines already billed before saving.",
+			"EARLIER_NOTE": "Hours already on an invoice are not listed on this one, unless that invoice does not say which hours it bills.",
+			"ALL_INVOICED_TITLE": "The billable time of {client} in this period is already invoiced",
+			"ALL_INVOICED_MESSAGE": "Every billable hour of this period is on an invoice. To bill some again, remove its line from that invoice or void the invoice.",
+			"NEW_REFUSED": "Part of this time went on another invoice or was deleted since it was read, so nothing was saved. The lines now show the time left to bill: check them, then save.",
+			"EDIT_REFUSED": "Part of this time went on another invoice or was deleted since it was read, so the changes were not saved and the invoice is as it was. The lines now show the time left to bill: check them, then save."
 		}
 	},
 	"timeReports": {

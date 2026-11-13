@@ -6818,6 +6818,16 @@
 			"CONFIRM": "Stornieren und ersetzen",
 			"NOTICE_TITLE": "Ersatz für Rechnung {number}",
 			"NOTICE_MESSAGE": "Derselbe Kunde, derselbe Zeitraum, dieselben Positionen. Passen Sie sie an und speichern Sie sie unter einer neuen Nummer."
+		},
+		"billedTime": {
+			"LEFT_OUT_TITLE": "Stunden, die schon auf einer Rechnung stehen, sind ausgenommen",
+			"LEFT_OUT_MESSAGE": "{count, plural, one {Eine Rechnung von {client} berechnet bereits einen Teil dieses Zeitraums. Diese Stunden sind hier nicht aufgeführt.} other {# Rechnungen von {client} berechnen bereits einen Teil dieses Zeitraums. Diese Stunden sind hier nicht aufgeführt.}}",
+			"UNRECORDED_MESSAGE": "{count, plural, one {Diese Rechnung hält nicht fest, welche Stunden sie berechnet, deshalb sind sie hier noch aufgeführt.} other {Diese Rechnungen halten nicht fest, welche Stunden sie berechnen, deshalb sind diese Stunden hier noch aufgeführt.}} Entfernen Sie vor dem Speichern die bereits berechneten Positionen.",
+			"EARLIER_NOTE": "Stunden, die schon auf einer Rechnung stehen, sind auf dieser nicht aufgeführt, außer wenn jene Rechnung nicht festhält, welche Stunden sie berechnet.",
+			"ALL_INVOICED_TITLE": "Die abrechenbare Zeit von {client} in diesem Zeitraum ist bereits berechnet",
+			"ALL_INVOICED_MESSAGE": "Jede abrechenbare Stunde dieses Zeitraums steht auf einer Rechnung. Um einen Teil davon erneut zu berechnen, entfernen Sie die Position von jener Rechnung oder stornieren Sie die Rechnung.",
+			"NEW_REFUSED": "Ein Teil dieser Zeit ist seit dem Lesen auf eine andere Rechnung gekommen oder wurde gelöscht, deshalb wurde nichts gespeichert. Die Positionen zeigen jetzt die noch abzurechnende Zeit: Prüfen Sie sie und speichern Sie dann.",
+			"EDIT_REFUSED": "Ein Teil dieser Zeit ist seit dem Lesen auf eine andere Rechnung gekommen oder wurde gelöscht, deshalb wurden die Änderungen nicht gespeichert und die Rechnung ist unverändert. Die Positionen zeigen jetzt die noch abzurechnende Zeit: Prüfen Sie sie und speichern Sie dann."
 		}
 	},
 	"timeReports": {

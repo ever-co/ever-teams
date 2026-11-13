@@ -6818,6 +6818,16 @@
 			"CONFIRM": "作废并替换",
 			"NOTICE_TITLE": "正在替换第 {number} 号发票",
 			"NOTICE_MESSAGE": "客户、期间和明细行相同。调整后，以新编号保存。"
+		},
+		"billedTime": {
+			"LEFT_OUT_TITLE": "已在发票上的工时已排除",
+			"LEFT_OUT_MESSAGE": "{count, plural, other {{client} 已有 # 张发票计费了此期间的一部分。这些工时不会列在这里。}}",
+			"UNRECORDED_MESSAGE": "{count, plural, other {# 张发票未注明计费的是哪些工时，因此这些工时仍列在这里。}}保存前请移除已开票的明细行。",
+			"EARLIER_NOTE": "已在发票上的工时不会列在这张发票上，除非那张发票未注明计费的是哪些工时。",
+			"ALL_INVOICED_TITLE": "{client} 在此期间的可计费时间已全部开票",
+			"ALL_INVOICED_MESSAGE": "此期间的每个可计费工时都已在发票上。要重新计费其中一部分，请从该发票移除其明细行，或作废该发票。",
+			"NEW_REFUSED": "自读取以来，部分时间已计入另一张发票或已被删除，因此未保存任何内容。明细行现在显示尚待开票的时间：请检查后再保存。",
+			"EDIT_REFUSED": "自读取以来，部分时间已计入另一张发票或已被删除，因此更改未保存，发票保持原样。明细行现在显示尚待开票的时间：请检查后再保存。"
 		}
 	},
 	"timeReports": {

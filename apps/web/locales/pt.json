@@ -6818,6 +6818,16 @@
 			"CONFIRM": "Anular e substituir",
 			"NOTICE_TITLE": "Substituição da fatura {number}",
 			"NOTICE_MESSAGE": "O mesmo cliente, período e linhas. Ajuste-os e depois guarde-a com um novo número."
+		},
+		"billedTime": {
+			"LEFT_OUT_TITLE": "As horas que já estão numa fatura ficam de fora",
+			"LEFT_OUT_MESSAGE": "{count, plural, one {Uma fatura de {client} já fatura parte deste período. Essas horas não aparecem aqui.} other {# faturas de {client} já faturam parte deste período. Essas horas não aparecem aqui.}}",
+			"UNRECORDED_MESSAGE": "{count, plural, one {Essa fatura não indica que horas fatura, por isso ainda aparecem aqui.} other {Essas faturas não indicam que horas faturam, por isso essas horas ainda aparecem aqui.}} Remova as linhas já faturadas antes de guardar.",
+			"EARLIER_NOTE": "As horas que já estão numa fatura não aparecem nesta, exceto quando essa fatura não indica que horas fatura.",
+			"ALL_INVOICED_TITLE": "O tempo faturável de {client} neste período já está faturado",
+			"ALL_INVOICED_MESSAGE": "Cada hora faturável deste período está numa fatura. Para voltar a faturar parte dele, remova a linha dessa fatura ou anule a fatura.",
+			"NEW_REFUSED": "Parte deste tempo passou para outra fatura ou foi eliminada desde que foi lida, por isso nada foi guardado. As linhas mostram agora o tempo que falta faturar: verifique-as e depois guarde.",
+			"EDIT_REFUSED": "Parte deste tempo passou para outra fatura ou foi eliminada desde que foi lida, por isso as alterações não foram guardadas e a fatura ficou como estava. As linhas mostram agora o tempo que falta faturar: verifique-as e depois guarde."
 		}
 	},
 	"timeReports": {

@@ -6818,6 +6818,16 @@
 			"CONFIRM": "Laten vervallen en vervangen",
 			"NOTICE_TITLE": "Vervanging van factuur {number}",
 			"NOTICE_MESSAGE": "Dezelfde klant, periode en regels. Pas ze aan en sla hem daarna op onder een nieuw nummer."
+		},
+		"billedTime": {
+			"LEFT_OUT_TITLE": "Uren die al op een factuur staan, worden weggelaten",
+			"LEFT_OUT_MESSAGE": "{count, plural, one {Een factuur van {client} factureert al een deel van deze periode. Die uren staan hier niet.} other {# facturen van {client} factureren al een deel van deze periode. Die uren staan hier niet.}}",
+			"UNRECORDED_MESSAGE": "{count, plural, one {Die factuur vermeldt niet welke uren ze factureert, dus ze staan hier nog.} other {Die facturen vermelden niet welke uren ze factureren, dus die uren staan hier nog.}} Verwijder vóór het opslaan de regels die al gefactureerd zijn.",
+			"EARLIER_NOTE": "Uren die al op een factuur staan, staan niet op deze, behalve als die factuur niet vermeldt welke uren ze factureert.",
+			"ALL_INVOICED_TITLE": "De factureerbare tijd van {client} in deze periode is al gefactureerd",
+			"ALL_INVOICED_MESSAGE": "Elk factureerbaar uur van deze periode staat op een factuur. Verwijder de regel van die factuur of laat de factuur vervallen om een deel ervan opnieuw te factureren.",
+			"NEW_REFUSED": "Een deel van deze tijd is sinds het lezen op een andere factuur gekomen of verwijderd, dus er is niets opgeslagen. De regels tonen nu de tijd die nog te factureren is: controleer ze en sla dan op.",
+			"EDIT_REFUSED": "Een deel van deze tijd is sinds het lezen op een andere factuur gekomen of verwijderd, dus de wijzigingen zijn niet opgeslagen en de factuur is gebleven zoals hij was. De regels tonen nu de tijd die nog te factureren is: controleer ze en sla dan op."
 		}
 	},
 	"timeReports": {

@@ -6818,6 +6818,16 @@
 			"CONFIRM": "Anuluj i zastąp",
 			"NOTICE_TITLE": "Zastępowanie faktury {number}",
 			"NOTICE_MESSAGE": "Ten sam klient, okres i pozycje. Popraw je, a potem zapisz fakturę pod nowym numerem."
+		},
+		"billedTime": {
+			"LEFT_OUT_TITLE": "Godziny, które są już na fakturze, są pominięte",
+			"LEFT_OUT_MESSAGE": "{count, plural, one {Jedna faktura dla {client} rozlicza już część tego okresu. Tych godzin tu nie ma.} few {# faktury dla {client} rozliczają już część tego okresu. Tych godzin tu nie ma.} many {# faktur dla {client} rozlicza już część tego okresu. Tych godzin tu nie ma.} other {# faktury dla {client} rozlicza już część tego okresu. Tych godzin tu nie ma.}}",
+			"UNRECORDED_MESSAGE": "{count, plural, one {Ta faktura nie podaje, które godziny rozlicza, dlatego nadal są tu widoczne.} few {Te faktury nie podają, które godziny rozliczają, dlatego te godziny nadal są tu widoczne.} many {Te faktury nie podają, które godziny rozliczają, dlatego te godziny nadal są tu widoczne.} other {Te faktury nie podają, które godziny rozliczają, dlatego te godziny nadal są tu widoczne.}} Przed zapisaniem usuń pozycje już zafakturowane.",
+			"EARLIER_NOTE": "Godziny, które są już na fakturze, nie są tu wymienione, chyba że tamta faktura nie podaje, które godziny rozlicza.",
+			"ALL_INVOICED_TITLE": "Czas rozliczalny dla {client} w tym okresie jest już zafakturowany",
+			"ALL_INVOICED_MESSAGE": "Każda rozliczalna godzina tego okresu jest na fakturze. Aby zafakturować część z nich ponownie, usuń jej pozycję z tamtej faktury albo anuluj fakturę.",
+			"NEW_REFUSED": "Część tego czasu trafiła na inną fakturę lub została usunięta od chwili odczytu, więc nic nie zostało zapisane. Pozycje pokazują teraz czas, który zostaje do zafakturowania: sprawdź je, a potem zapisz.",
+			"EDIT_REFUSED": "Część tego czasu trafiła na inną fakturę lub została usunięta od chwili odczytu, więc zmiany nie zostały zapisane, a faktura jest taka jak wcześniej. Pozycje pokazują teraz czas, który zostaje do zafakturowania: sprawdź je, a potem zapisz."
 		}
 	},
 	"timeReports": {
