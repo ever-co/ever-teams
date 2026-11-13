@@ -1,4 +1,5 @@
 import type { ITaskBulkChanges, ITaskBulkUpdateItem } from '@/core/types/interfaces/common/task-views';
+import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 /**
  * The status names the platform's bulk update takes (its `TaskStatusEnum`). The route refuses any other name for the
@@ -64,6 +65,44 @@ export function bulkRecordChangesOf(field: 'priority' | 'size', choice: TaskReco
 		changes[field] = name;
 	}
 	return changes;
+}
+
+/**
+ * The record a priority or a size picked from a task's menu is saved with: the id of the item the menu lists it by
+ * (its items are keyed by their record's value, else its name), or null when no record lists it. Undefined for any
+ * other field, which is saved as before.
+ */
+export function listedRecordIdOf(
+	field: string,
+	items: Readonly<Record<string, { id?: string | null } | undefined>>,
+	picked: unknown
+): string | null | undefined {
+	if (field !== 'priority' && field !== 'size') {
+		return undefined;
+	}
+	return typeof picked === 'string' ? (items[picked]?.id ?? null) : null;
+}
+
+/** The record id a priority or a size is saved with. */
+export const RECORD_ID_FIELDS = { priority: 'taskPriorityId', size: 'taskSizeId' } as const;
+
+/**
+ * The change that gives one task a priority or a size: its name (the value the picker lists) and its record's id
+ * together, as the task page and the list write them, so the task holds the record it shows (a team's own included)
+ * and every reader finds the same one. A choice without an id (no record lists that name) clears the record the task
+ * held, so the two never name different priorities. Null when the task already has both.
+ */
+export function recordChangeOf(
+	field: 'priority' | 'size',
+	task: Partial<Record<'priority' | 'size' | 'taskPriorityId' | 'taskSizeId', string | null>>,
+	choice: TaskRecordChoice & { value: string }
+): Partial<TTask> | null {
+	const idField = RECORD_ID_FIELDS[field];
+	const recordId = choice.id ?? null;
+	if (task[field] === choice.value && (task[idField] ?? null) === recordId) {
+		return null;
+	}
+	return { [field]: choice.value, [idField]: recordId } as Partial<TTask>;
 }
 
 /**

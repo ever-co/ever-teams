@@ -18,6 +18,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import type { ITaskLinkedIssue } from '@/core/types/interfaces/task/task-linked-issue';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { flattenTaskPages } from '@/core/lib/utils/task.utils';
+import { recordChangeOf } from '@/core/lib/utils/task-bulk-changes';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import { useTaskQueries } from './use-task-queries';
 import { refreshAfterTaskUpdate } from './task-update-refresh';
@@ -302,14 +303,24 @@ export function useUpdateTask() {
 		[updateTask, setDetailedTask]
 	);
 
+	/**
+	 * Saves one property of a task picked from its menu. A status goes with `taskStatusId`. A priority or a size given
+	 * with `recordId` (its record's id, null when no record lists the name) goes with its record too, as the team task
+	 * list writes it (`recordChangeOf`), so a team's own priority or size is held by its record and not by its name alone.
+	 */
 	const handleStatusUpdate = useCallback(
 		<T extends ITaskStatusField>(
 			status: ITaskStatusStack[T],
 			field: T,
 			taskStatusId: TTask['taskStatusId'],
 			task?: TTask | null,
-			_loader?: boolean
+			_loader?: boolean,
+			recordId?: string | null
 		) => {
+			if (task && (field === 'priority' || field === 'size') && recordId !== undefined) {
+				const change = recordChangeOf(field, task, { value: status as string, id: recordId });
+				return change ? updateTask({ ...task, ...change }) : undefined;
+			}
 			if (task && status !== (task as any)[field]) {
 				if (field === 'status' && status === 'closed') {
 					const active_user_task = getActiveUserTaskCookie();

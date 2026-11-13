@@ -269,8 +269,21 @@ describe('the dates a drag gives a task', () => {
 			] as const) {
 				host.env.TZ = readerZone;
 				expect(`${readerZone} ${new Date(2026, 10, 20).getTimezoneOffset()}`).toBe(`${readerZone} ${offset}`);
-				const moved = draggedTaskDatesOf({ dueDate: '2026-11-20T00:00:00.000Z' }, 'move', -1);
+				const moved = draggedTaskDatesOf(
+					{ startDate: '2026-11-18T00:00:00.000Z', dueDate: '2026-11-20T00:00:00.000Z' },
+					'move',
+					-1
+				);
+				expect(`${readerZone} ${moved?.startDate?.toISOString()}`).toBe(
+					`${readerZone} 2026-11-17T00:00:00.000Z`
+				);
 				expect(`${readerZone} ${moved?.dueDate?.toISOString()}`).toBe(`${readerZone} 2026-11-19T00:00:00.000Z`);
+				// A start an older version saved as the local midnight of its day moves from that day, to the date-only form.
+				const legacyStart = new Date(2026, 10, 18).toISOString();
+				const startDragged = draggedTaskDatesOf({ startDate: legacyStart, dueDate: '2026-11-20' }, 'start', 1);
+				expect(`${readerZone} ${startDragged?.startDate?.toISOString()}`).toBe(
+					`${readerZone} 2026-11-19T00:00:00.000Z`
+				);
 			}
 		} finally {
 			host.env.TZ = zone ?? current;
@@ -279,9 +292,9 @@ describe('the dates a drag gives a task', () => {
 	});
 
 	it('moves the dates a task has, drags an end of a range, and changes nothing otherwise', () => {
-		// The due date in the platform's date-only form (midnight UTC of its day); the start as its local midnight.
+		// Both dates in the platform's date-only form (midnight UTC of their day).
 		expect(draggedTaskDatesOf({ startDate: '2026-11-10', dueDate: '2026-11-14' }, 'move', 2)).toEqual({
-			startDate: new Date(2026, 10, 12),
+			startDate: new Date(Date.UTC(2026, 10, 12)),
 			dueDate: new Date(Date.UTC(2026, 10, 16))
 		});
 		expect(draggedTaskDatesOf({ startDate: '2026-11-10', dueDate: '2026-11-14' }, 'end', -1)).toEqual({

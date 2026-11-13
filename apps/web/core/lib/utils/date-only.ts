@@ -1,8 +1,8 @@
 /**
- * Due dates name a calendar day. The platform stores such a day in its date-only form, midnight UTC of that day (as
- * its integrations write a provider's day and its own bulk toolbar writes a picked day), and a bare `YYYY-MM-DD` means
- * the same. Every reader shows that day whatever its own zone. Any other value is a moment, read as the reader's
- * calendar day of that moment.
+ * Start and due dates name a calendar day. The platform stores such a day in its date-only form, midnight UTC of that
+ * day (as its integrations write a provider's day and its own bulk toolbar writes a picked day), and a bare
+ * `YYYY-MM-DD` means the same. Every reader shows that day whatever its own zone. Any other value is a moment (a start
+ * date saved by an older version, as the local midnight of its day), read as the reader's calendar day of that moment.
  *
  * Days are counted as whole numbers of days from a fixed epoch, so two days subtract to a whole number whatever the
  * daylight-saving changes in between.
