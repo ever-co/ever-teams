@@ -1784,7 +1784,7 @@
 			},
 			"billable": {
 				"LABEL": "Billable by default",
-				"HELP": "Time tracked or added on this project starts as billable. Each entry can still be changed, and entries already saved keep their value."
+				"HELP": "New entries start billable; saved ones keep their value."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {

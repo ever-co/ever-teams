@@ -1935,7 +1935,7 @@
 			},
 			"billable": {
 				"LABEL": "Facturable de forma predeterminada",
-				"HELP": "El tiempo registrado o agregado en este proyecto empieza como facturable. Cada registro se puede cambiar después, y los registros ya guardados conservan su valor."
+				"HELP": "Los nuevos registros son facturables; el resto no cambia."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {

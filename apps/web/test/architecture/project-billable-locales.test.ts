@@ -2,6 +2,8 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const LOCALES_DIRECTORY = resolve(__dirname, '../../locales');
+const HELP_MAX_LENGTH = 64;
+const SENTENCE_END = /[.!?](?=\s|$)|[。！？]/g;
 
 type TLocaleMessages = { pages: { projects: { billable: Record<string, string> } } };
 
@@ -10,6 +12,11 @@ function billableMessagesOf(file: string): Record<string, string> {
 	const content = readFileSync(localePath, 'utf8');
 	const messages = JSON.parse(content) as TLocaleMessages;
 	return messages.pages.projects.billable;
+}
+
+function sentenceCountOf(text: string): number {
+	const sentenceEnds = text.match(SENTENCE_END) ?? [];
+	return sentenceEnds.length;
 }
 
 const directoryFiles = readdirSync(LOCALES_DIRECTORY);
@@ -26,6 +33,13 @@ describe("translations of a project's billable setting", () => {
 		for (const key of englishKeys) {
 			expect(messages[key]).toBeTruthy();
 		}
+	});
+
+	it.each(localeFiles)('keeps the help of the switch to one short sentence in %s', (file) => {
+		const help = billableMessagesOf(file).HELP;
+
+		expect(help.length).toBeLessThanOrEqual(HELP_MAX_LENGTH);
+		expect(sentenceCountOf(help)).toBe(1);
 	});
 
 	it.each(translatedLocaleFiles)('says it in the language of %s', (file) => {

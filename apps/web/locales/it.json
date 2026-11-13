@@ -1823,7 +1823,7 @@
 			},
 			"billable": {
 				"LABEL": "Fatturabile per impostazione predefinita",
-				"HELP": "Il tempo registrato o aggiunto su questo progetto parte come fatturabile. Ogni registrazione si può ancora modificare, e le registrazioni già salvate mantengono il loro valore."
+				"HELP": "Le nuove voci sono fatturabili; quelle salvate non cambiano."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {

@@ -1864,7 +1864,7 @@
 			},
 			"billable": {
 				"LABEL": "Standaard factureerbaar",
-				"HELP": "Tijd die op dit project wordt geregistreerd of toegevoegd, begint als factureerbaar. Elke registratie kan nog worden gewijzigd, en al opgeslagen registraties houden hun waarde."
+				"HELP": "Nieuwe registraties zijn factureerbaar; oude blijven gelijk."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {
