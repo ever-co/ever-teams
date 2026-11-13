@@ -1,0 +1,58 @@
+/*
+ * A thin gradient ring that turns slowly around its parent's edge. The ring is a mask (the border box minus the
+ * content box, rounded like the parent); the gradient under it is a square larger than the parent's diagonal that
+ * turns with a transform, so the motion runs on the compositor and never repaints the page.
+ */
+.ring {
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	padding: var(--shine-border-thickness, 1.5px);
+	overflow: hidden;
+	pointer-events: none;
+	container-type: size;
+	-webkit-mask:
+		linear-gradient(#000 0 0) content-box,
+		linear-gradient(#000 0 0);
+	-webkit-mask-composite: xor;
+	mask:
+		linear-gradient(#000 0 0) content-box exclude,
+		linear-gradient(#000 0 0);
+	transition: opacity 200ms ease-out;
+}
+
+@starting-style {
+	.ring {
+		opacity: 0;
+	}
+}
+
+.sweep {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: calc(100cqw + 100cqh);
+	aspect-ratio: 1;
+	transform: translate(-50%, -50%);
+	background: conic-gradient(
+		from 0deg,
+		hsl(var(--primary-ink)),
+		hsl(var(--primary)) 25%,
+		hsl(var(--info)) 45%,
+		color-mix(in oklab, hsl(var(--primary)) 45%, white) 62%,
+		hsl(var(--primary)) 80%,
+		hsl(var(--primary-ink))
+	);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.sweep {
+		animation: shine-border-turn 6s linear infinite;
+	}
+}
+
+@keyframes shine-border-turn {
+	to {
+		transform: translate(-50%, -50%) rotate(1turn);
+	}
+}

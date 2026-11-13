@@ -2761,7 +2761,8 @@
 			"HINT_BEFORE_START": "Optional. Wird beim Start des Timers im Eintrag gespeichert.",
 			"HINT_RUNNING": "Änderungen bei laufendem Timer werden noch nicht gespeichert. Um die Notizen zu ändern, bearbeiten Sie den Eintrag nach dem Stoppen des Timers in den Stundenzetteln.",
 			"HINT_OTHER_TEAM": "Diese Notizen gehören zum Timer, der in einem anderen Team läuft, und können hier nicht geändert werden."
-		}
+		},
+		"NOT_BILLABLE": "Nicht abrechenbar"
 	},
 	"task": {
 		"TITLE": "Aufgabe",
