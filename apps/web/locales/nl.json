@@ -6808,7 +6808,8 @@
 				"LOCKED_NOW": "Sinds hij werd geopend, is factuur {number} betaald of vervallen: er is niets opgeslagen en hij kan niet meer worden bewerkt.",
 				"NOT_CHECKED": "De factuur kon voor het opslaan niet opnieuw worden gelezen, dus er is niets opgeslagen. Probeer het opnieuw.",
 				"NOT_REACHED": "De verbinding is mislukt: de wijzigingen zijn niet opgeslagen en de factuur is gebleven zoals hij was. Controleer je verbinding en probeer het opnieuw.",
-				"CHANGED": "Sinds hij werd geopend, is factuur {number} gewijzigd: er is niets opgeslagen. Open hem opnieuw vanuit de factuurlijst om van de huidige versie uit te gaan."
+				"CHANGED": "Sinds hij werd geopend, is factuur {number} gewijzigd: er is niets opgeslagen. Open hem opnieuw vanuit de factuurlijst om van de huidige versie uit te gaan.",
+				"RECORDS_TIME": "Legt de uren vast die de regels factureren, zodat geen andere factuur ze opnieuw factureert."
 			}
 		},
 		"replace": {

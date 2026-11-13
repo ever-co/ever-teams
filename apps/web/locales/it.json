@@ -6808,7 +6808,8 @@
 				"LOCKED_NOW": "Da quando è stata aperta, la fattura {number} è stata pagata o annullata: non è stato salvato nulla e non si può più modificare.",
 				"NOT_CHECKED": "Non è stato possibile rileggere la fattura prima di salvare, quindi non è stato salvato nulla. Riprova.",
 				"NOT_REACHED": "La connessione non è riuscita: le modifiche non sono state salvate e la fattura è rimasta com’era. Controlla la connessione e riprova.",
-				"CHANGED": "Da quando è stata aperta, la fattura {number} è stata modificata: non è stato salvato nulla. Riaprila dall’elenco delle fatture per partire dalla sua versione attuale."
+				"CHANGED": "Da quando è stata aperta, la fattura {number} è stata modificata: non è stato salvato nulla. Riaprila dall’elenco delle fatture per partire dalla sua versione attuale.",
+				"RECORDS_TIME": "Registra le ore fatturate dalle sue righe, così nessun’altra fattura le fattura di nuovo."
 			}
 		},
 		"replace": {

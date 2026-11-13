@@ -6808,7 +6808,8 @@
 				"LOCKED_NOW": "Od otwarcia faktura {number} została opłacona lub anulowana: nic nie zostało zapisane i nie można jej już edytować.",
 				"NOT_CHECKED": "Nie udało się ponownie odczytać faktury przed zapisem, więc nic nie zostało zapisane. Spróbuj ponownie.",
 				"NOT_REACHED": "Połączenie nie powiodło się: zmiany nie zostały zapisane, a faktura pozostała bez zmian. Sprawdź połączenie i spróbuj ponownie.",
-				"CHANGED": "Od otwarcia faktura {number} została zmieniona: nic nie zostało zapisane. Otwórz ją ponownie z listy faktur, aby zacząć od jej aktualnej wersji."
+				"CHANGED": "Od otwarcia faktura {number} została zmieniona: nic nie zostało zapisane. Otwórz ją ponownie z listy faktur, aby zacząć od jej aktualnej wersji.",
+				"RECORDS_TIME": "Zapisuje godziny, które fakturują jej pozycje, aby żadna inna faktura nie zafakturowała ich ponownie."
 			}
 		},
 		"replace": {
