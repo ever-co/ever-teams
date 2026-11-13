@@ -6819,7 +6819,8 @@
 			"STAYS_VOID": "Jeśli ta nowa faktura nigdy nie zostanie zapisana, faktura {number} i tak pozostanie anulowana.",
 			"CONFIRM": "Anuluj i zastąp",
 			"NOTICE_TITLE": "Zastępowanie faktury {number}",
-			"NOTICE_MESSAGE": "Ten sam klient, okres i pozycje. Popraw je, a potem zapisz fakturę pod nowym numerem."
+			"NOTICE_MESSAGE": "Ten sam klient, okres i pozycje. Popraw je, a potem zapisz fakturę pod nowym numerem.",
+			"NOT_REBUILDABLE": "Faktura {number} nie została anulowana: nie da się jej tu odtworzyć z rozliczanego czasu. Anuluj ją i zastąp tam, gdzie powstała."
 		}
 	},
 	"timeReports": {

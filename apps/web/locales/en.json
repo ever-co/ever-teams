@@ -6819,7 +6819,8 @@
 			"STAYS_VOID": "If that new invoice is never saved, invoice {number} stays void.",
 			"CONFIRM": "Void and replace",
 			"NOTICE_TITLE": "Replacing invoice {number}",
-			"NOTICE_MESSAGE": "Same client, period and lines. Adjust them, then save it under a new number."
+			"NOTICE_MESSAGE": "Same client, period and lines. Adjust them, then save it under a new number.",
+			"NOT_REBUILDABLE": "Invoice {number} was not voided: it cannot be rebuilt here from billable time. Void and replace it where it was made."
 		}
 	},
 	"timeReports": {

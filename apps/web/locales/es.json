@@ -6819,7 +6819,8 @@
 			"STAYS_VOID": "Si esa factura nueva nunca se guarda, la factura {number} sigue anulada.",
 			"CONFIRM": "Anular y reemplazar",
 			"NOTICE_TITLE": "Reemplazo de la factura {number}",
-			"NOTICE_MESSAGE": "Mismo cliente, periodo y líneas. Ajústalos y luego guárdala con un número nuevo."
+			"NOTICE_MESSAGE": "Mismo cliente, periodo y líneas. Ajústalos y luego guárdala con un número nuevo.",
+			"NOT_REBUILDABLE": "La factura {number} no se anuló: no se puede rehacer aquí a partir del tiempo facturable. Anúlala y reemplázala donde se hizo."
 		}
 	},
 	"timeReports": {

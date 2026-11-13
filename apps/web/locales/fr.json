@@ -6819,7 +6819,8 @@
 			"STAYS_VOID": "Si cette nouvelle facture n’est jamais enregistrée, la facture {number} reste annulée.",
 			"CONFIRM": "Annuler et remplacer",
 			"NOTICE_TITLE": "Remplacement de la facture {number}",
-			"NOTICE_MESSAGE": "Même client, même période, mêmes lignes. Ajustez-les, puis enregistrez-la sous un nouveau numéro."
+			"NOTICE_MESSAGE": "Même client, même période, mêmes lignes. Ajustez-les, puis enregistrez-la sous un nouveau numéro.",
+			"NOT_REBUILDABLE": "La facture {number} n’a pas été annulée : elle ne peut pas être refaite ici à partir du temps facturable. Annulez-la et remplacez-la là où elle a été faite."
 		}
 	},
 	"timeReports": {

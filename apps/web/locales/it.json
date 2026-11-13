@@ -6819,7 +6819,8 @@
 			"STAYS_VOID": "Se quella nuova fattura non viene mai salvata, la fattura {number} resta annullata.",
 			"CONFIRM": "Annulla e sostituisci",
 			"NOTICE_TITLE": "Sostituzione della fattura {number}",
-			"NOTICE_MESSAGE": "Stesso cliente, stesso periodo, stesse righe. Sistemale, poi salvala con un nuovo numero."
+			"NOTICE_MESSAGE": "Stesso cliente, stesso periodo, stesse righe. Sistemale, poi salvala con un nuovo numero.",
+			"NOT_REBUILDABLE": "La fattura {number} non è stata annullata: qui non si può ricreare dal tempo fatturabile. Annullala e sostituiscila dove è stata creata."
 		}
 	},
 	"timeReports": {

@@ -6819,7 +6819,8 @@
 			"STAYS_VOID": "Wordt die nieuwe factuur nooit opgeslagen, dan blijft factuur {number} vervallen.",
 			"CONFIRM": "Laten vervallen en vervangen",
 			"NOTICE_TITLE": "Vervanging van factuur {number}",
-			"NOTICE_MESSAGE": "Dezelfde klant, periode en regels. Pas ze aan en sla hem daarna op onder een nieuw nummer."
+			"NOTICE_MESSAGE": "Dezelfde klant, periode en regels. Pas ze aan en sla hem daarna op onder een nieuw nummer.",
+			"NOT_REBUILDABLE": "Factuur {number} is niet vervallen: hij kan hier niet opnieuw uit factureerbare tijd worden gemaakt. Laat hem vervallen en vervang hem waar hij is gemaakt."
 		}
 	},
 	"timeReports": {

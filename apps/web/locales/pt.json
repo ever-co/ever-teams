@@ -6819,7 +6819,8 @@
 			"STAYS_VOID": "Se essa nova fatura nunca for guardada, a fatura {number} continua anulada.",
 			"CONFIRM": "Anular e substituir",
 			"NOTICE_TITLE": "Substituição da fatura {number}",
-			"NOTICE_MESSAGE": "O mesmo cliente, período e linhas. Ajuste-os e depois guarde-a com um novo número."
+			"NOTICE_MESSAGE": "O mesmo cliente, período e linhas. Ajuste-os e depois guarde-a com um novo número.",
+			"NOT_REBUILDABLE": "A fatura {number} não foi anulada: não pode ser refeita aqui a partir do tempo faturável. Anule-a e substitua-a onde foi feita."
 		}
 	},
 	"timeReports": {

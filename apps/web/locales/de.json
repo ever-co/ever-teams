@@ -6819,7 +6819,8 @@
 			"STAYS_VOID": "Wird diese neue Rechnung nie gespeichert, bleibt Rechnung {number} trotzdem storniert.",
 			"CONFIRM": "Stornieren und ersetzen",
 			"NOTICE_TITLE": "Ersatz für Rechnung {number}",
-			"NOTICE_MESSAGE": "Derselbe Kunde, derselbe Zeitraum, dieselben Positionen. Passen Sie sie an und speichern Sie sie unter einer neuen Nummer."
+			"NOTICE_MESSAGE": "Derselbe Kunde, derselbe Zeitraum, dieselben Positionen. Passen Sie sie an und speichern Sie sie unter einer neuen Nummer.",
+			"NOT_REBUILDABLE": "Rechnung {number} wurde nicht storniert: Sie lässt sich hier nicht aus abrechenbarer Zeit neu erstellen. Stornieren und ersetzen Sie sie dort, wo sie erstellt wurde."
 		}
 	},
 	"timeReports": {
