@@ -35,6 +35,13 @@ async function removesRecordedTime(queryClient: QueryClient, payload: BulkEditPa
 	}
 }
 
+/** A save that ended in an error may still have been applied: a request that timed out after the update, for one. */
+function mayHaveChangedEntry(outcome: BulkEditOutcome): boolean {
+	const isUpdated = outcome.status === 'updated';
+	const isFailed = outcome.status === 'failed';
+	return isUpdated || isFailed;
+}
+
 /** Null when the page was left during the overlap lookup: the entry is never sent. */
 async function outcomeOfSave(
 	queryClient: QueryClient,
@@ -114,8 +121,8 @@ export function useBulkEditRun() {
 					setProgress({ done: outcomes.length, total });
 				}
 			} finally {
-				const hasSavedEntry = outcomes.some((outcome) => outcome.status === 'updated');
-				if (hasSavedEntry) {
+				const hasChangedEntry = outcomes.some(mayHaveChangedEntry);
+				if (hasChangedEntry) {
 					await refreshViews().catch(() => undefined);
 				}
 				isRunningRef.current = false;

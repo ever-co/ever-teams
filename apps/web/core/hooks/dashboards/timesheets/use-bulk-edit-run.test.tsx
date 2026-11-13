@@ -265,4 +265,15 @@ describe('useBulkEditRun', () => {
 
 		expect(refused.invalidate).not.toHaveBeenCalled();
 	});
+
+	it('reads the views again after a save that failed, since the API may have applied it before the error', async () => {
+		mockUpdateTimeLog.mockRejectedValueOnce(new Error('The request timed out'));
+		const { result, invalidate } = renderRun();
+		await act(async () => {
+			await result.current.run([saveOf('a')]);
+		});
+
+		const refreshedKeys = invalidate.mock.calls.map(([filters]) => filters?.queryKey);
+		expect(refreshedKeys).toEqual([queryKeys.timeLogs.all, queryKeys.activities.all, queryKeys.timesheet.all]);
+	});
 });
