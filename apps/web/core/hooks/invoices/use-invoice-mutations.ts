@@ -216,6 +216,8 @@ export type InvoiceEditOutcome =
 	| { status: 'notReached' }
 	/** Something was paid on it, or it was voided, since it was opened: nothing was written. */
 	| { status: 'locked' }
+	/** Its fields or its lines were saved from elsewhere since it was opened: nothing was written. */
+	| { status: 'changed' }
 	/** It could not be read before the edit was written: nothing was written. */
 	| { status: 'notChecked' }
 	/** Written in part, then written back as it was. */
@@ -276,6 +278,14 @@ function editableStatusOf(invoice: TSavedInvoice): InvoiceStatus | null {
 	return status;
 }
 
+/** Whether the invoice read before the save still states what the editor opened, its fields and its lines. */
+function isAsOpened(current: TSavedInvoice, edit: InvoiceEdit) {
+	const currentLines = current.invoiceItems ?? [];
+	const hasSameLines = haveSameLines(currentLines, edit.previous.lines);
+	const hasSameFields = haveSameFields(current, edit.previous.update);
+	return hasSameLines && hasSameFields;
+}
+
 /** The edit written under the status the invoice holds now: a status reached since it was opened stays. */
 function editUnderStatus(edit: InvoiceEdit, status: InvoiceStatus): InvoiceEdit {
 	const update = { ...edit.revision.update, status };
@@ -322,8 +332,9 @@ async function writeInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> 
 }
 
 /**
- * Reads the invoice first: a payment or a void recorded since it was opened is never written over. Nothing is sent
- * once another tab switched the workspace; a switch during the save leaves every request in the invoice's workspace.
+ * Reads the invoice first: a payment, a void or a change saved from elsewhere since it was opened is never written
+ * over, and what a failure puts back is what was read. Nothing is sent once another tab switched the workspace; a
+ * switch during the save leaves every request in the invoice's workspace.
  */
 async function saveInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
 	if (!isChosenWorkspace(edit.scope)) {
@@ -336,6 +347,9 @@ async function saveInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
 	const status = editableStatusOf(current);
 	if (!status) {
 		return { status: 'locked' };
+	}
+	if (!isAsOpened(current, edit)) {
+		return { status: 'changed' };
 	}
 	return writeInvoiceEdit(editUnderStatus(edit, status));
 }

@@ -344,7 +344,7 @@ describe('saving an edit to an invoice', () => {
 	};
 
 	function invoiceRead(status: string, lines: unknown[] = [{ id: 'item-1', ...previousLine }]) {
-		return { id: 'inv-42', status, invoiceItems: lines };
+		return { id: 'inv-42', ...fields, totalValue: 800, status, invoiceItems: lines };
 	}
 
 	function serverFailure() {
@@ -437,6 +437,27 @@ describe('saving an edit to an invoice', () => {
 		expect(queryClient.getQueryState(LIST_KEY)?.isInvalidated).toBe(true);
 	});
 
+	it.each([
+		[
+			'a line',
+			{
+				...invoiceRead('SENT'),
+				invoiceItems: [{ id: 'item-1', ...previousLine, description: 'Ana Lima, design' }]
+			}
+		],
+		['a field', { ...invoiceRead('SENT'), dueDate: '2026-12-15T22:59:59.999Z' }]
+	])('writes nothing over %s saved from elsewhere since it was opened', async (_changed, current) => {
+		mockGetInvoice.mockResolvedValue(current);
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result, sending);
+
+		expect(saved).toEqual({ outcome: { status: 'changed' }, sending: null });
+		expect(mockUpdateInvoice).not.toHaveBeenCalled();
+		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
+		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
+	});
+
 	it('writes nothing when the invoice cannot be read first', async () => {
 		mockGetInvoice.mockRejectedValue(serverFailure());
 		const { result } = renderSaveEdit();
@@ -476,7 +497,9 @@ describe('saving an edit to an invoice', () => {
 	});
 
 	it('leaves the lines the invoice still holds and puts back its fields only', async () => {
-		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
+		mockGetInvoice
+			.mockResolvedValueOnce(invoiceRead('SENT'))
+			.mockResolvedValue({ ...invoiceRead('SENT'), totalValue: 960 });
 		mockUpdateInvoice.mockResolvedValue(undefined);
 		mockReplaceInvoiceLines.mockRejectedValue(refusal());
 		const { result } = renderSaveEdit();

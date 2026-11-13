@@ -113,6 +113,9 @@ function useFailureText(failure: EditFailure | null, number: string): string | n
 	if (failure.status === 'locked') {
 		return t('invoices.edit.confirm.LOCKED_NOW', { number });
 	}
+	if (failure.status === 'changed') {
+		return t('invoices.edit.confirm.CHANGED', { number });
+	}
 	if (failure.status === 'notChecked') {
 		return t('invoices.edit.confirm.NOT_CHECKED');
 	}

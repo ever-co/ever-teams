@@ -247,6 +247,13 @@ describe('an edit that could not be saved', () => {
 		expect(onLockedRefusal).not.toHaveBeenCalled();
 	});
 
+	it('says nothing was saved when it was changed from elsewhere since it was opened', async () => {
+		const message = await failingWith({ status: 'changed' });
+
+		expect(message.textContent).toBe('invoices.edit.confirm.CHANGED');
+		expect(mockPush).not.toHaveBeenCalled();
+	});
+
 	it('says nothing was saved when it could not be read before the save', async () => {
 		const message = await failingWith({ status: 'notChecked' });
 
