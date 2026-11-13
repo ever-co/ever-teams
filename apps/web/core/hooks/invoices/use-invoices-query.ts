@@ -170,6 +170,8 @@ export function useInvoiceQuery(invoiceId: string | null) {
 		isLoading: query.isLoading,
 		isMissing: isMissingInvoice(query.error),
 		isError: query.isError,
+		/** Read again over an answer kept from an earlier read. */
+		isRefreshing: query.isFetching && !query.isLoading,
 		refetch: query.refetch
 	};
 }

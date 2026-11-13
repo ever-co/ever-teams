@@ -62,6 +62,18 @@ export function SavedInvoiceMessage({ status, number, onRetry }: Readonly<SavedI
 	);
 }
 
+/** Only a void invoice is replaced: one still live is edited, or voided and replaced, from its menu in the list. */
+export function NotVoidInvoiceMessage({ number }: Readonly<{ number: number }>) {
+	const t = useTranslations();
+	return (
+		<NewInvoiceMessage
+			title={t('invoices.replace.NOT_VOID_TITLE', { number: String(number) })}
+			message={t('invoices.replace.NOT_VOID_MESSAGE')}
+			action={<BackToInvoices />}
+		/>
+	);
+}
+
 /**
  * Something was paid on it, or it is void: it is replaced, never changed. Reached after a save refused for that
  * reason, it says the changes were not saved.
