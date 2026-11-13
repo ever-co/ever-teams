@@ -2761,7 +2761,8 @@
 			"HINT_BEFORE_START": "Optional. Wird beim Start des Timers im Eintrag gespeichert.",
 			"HINT_RUNNING": "Änderungen bei laufendem Timer werden noch nicht gespeichert. Um die Notizen zu ändern, bearbeiten Sie den Eintrag nach dem Stoppen des Timers in den Stundenzetteln.",
 			"HINT_OTHER_TEAM": "Diese Notizen gehören zum Timer, der in einem anderen Team läuft, und können hier nicht geändert werden."
-		}
+		},
+		"NOT_BILLABLE": "Nicht abrechenbar"
 	},
 	"task": {
 		"TITLE": "Aufgabe",
@@ -3818,6 +3819,7 @@
 			"PERMISSION": "Deine Rolle erlaubt diese Änderung nicht.",
 			"NOT_FOUND": "Dieses Element gibt es nicht mehr. Lade die Seite neu.",
 			"CONFLICT": "Jemand hat es gleichzeitig geändert. Lade neu und versuche es erneut.",
+			"NAME_TAKEN": "Dieser Name wird hier schon verwendet. Wähle einen anderen.",
 			"INVALID": "Einige Werte wurden nicht akzeptiert. Prüfe sie und versuche es erneut.",
 			"TOO_MANY": "Zu viele Versuche. Warte einen Moment und versuche es dann erneut.",
 			"SERVER": "Der Server konnte es nicht abschließen. Versuche es gleich noch einmal.",
@@ -4874,6 +4876,10 @@
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "Wird nur von den Gauzy-Apps für Desktop und Web geprüft.",
 			"REQUIREMENT_NOT_SAVED": "Die Anforderung wurde nicht gespeichert.",
 			"REQUIREMENTS_LOAD_FAILED": "Die Anforderungen konnten nicht geladen werden.",
+			"TRACKING_SWITCH_SECTION": "Wer die Zeiterfassung schaltet",
+			"RESTRICT_TRACKING_SWITCH_LABEL": "Nur eine höhere Rolle schaltet die Zeiterfassung",
+			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Admins schalten die Zeiterfassung aller ein oder aus, Manager nur die ihrer Teammitglieder, nie ihre eigene oder die eines anderen Managers. Ausgeschaltet schalten Admins und Teammanager sie für alle in ihren Teams, und wer zudem Mitarbeitende bearbeiten darf, stellt damit auch die eigene Zeiterfassung der Person ein, die in allen Teams gilt.",
+			"TRACKING_SWITCH_RULE_NOT_SAVED": "Die Einstellung wurde nicht gespeichert.",
 			"ON": "An",
 			"OFF": "Aus",
 			"DANGER_SECTION": "Gefahrenbereich",
@@ -6732,7 +6738,73 @@
 				"FAILED": "Die Rechnung wurde nicht gespeichert, und es wurde nichts angelegt. Prüfen Sie, ob die Nummer frei ist, und versuchen Sie es erneut.",
 				"UNCHECKED": "Die bereits gespeicherten Rechnungen für {client} konnten nicht gelesen werden, daher wurde dieser Zeitraum nicht mit ihnen abgeglichen.",
 				"UNCONFIRMED": "Das Speichern konnte nicht bestätigt werden, die Rechnung wurde also vielleicht gespeichert. Prüfen Sie die bereits gespeicherten Rechnungen für {client}, bevor Sie erneut speichern."
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "Nach Projekt",
+				"AVERAGE_RATE": "Durchschnittssatz",
+				"AVERAGE_RATE_HINT": "Die Mitglieder dieses Projekts haben unterschiedliche Sätze: Dies ist ihr Durchschnitt, gewichtet nach ihren Stunden."
+			},
+			"terms": {
+				"CLIENT": "Zahlungsziel des Kunden: {days, plural, =0 {sofort fällig} one {# Tag} other {# Tage}}",
+				"ORGANIZATION": "Zahlungsziel des Arbeitsbereichs: {days, plural, one {# Tag} other {# Tage}}",
+				"STANDARD": "Standard-Zahlungsziel: {days, plural, one {# Tag} other {# Tage}}",
+				"NOTE": "Hinweis für den Kunden",
+				"NOTE_HINT": "Wird auf der Rechnung unter ihrem Zeitraum gedruckt."
+			},
+			"adjustments": {
+				"DISCOUNT": "Rabatt (%)",
+				"TAX": "Steuer (%)",
+				"SUBTOTAL": "Zwischensumme",
+				"DISCOUNT_ROW": "Rabatt ({percent})",
+				"TAX_ROW": "Steuer ({percent} von {base})"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "Speichern und senden",
+				"DRAFT_OR_SEND_NOTE": "Im nächsten Schritt speichern Sie sie als Entwurf oder speichern sie und senden sie an {email}.",
+				"SEND_CONSEQUENCE": "„Speichern und senden“ schickt sie außerdem per E-Mail mit dem PDF im Anhang und setzt sie dann auf Gesendet.",
+				"SAVED_NOT_SENT": "Rechnung {number} wurde als Entwurf gespeichert, aber nicht gesendet",
+				"SEND_FROM_LIST": "Senden Sie sie über ihr Menü in der Liste erneut."
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "Aktionen für Rechnung {number}",
+			"SEND": "An den Kunden senden",
+			"SEND_AGAIN": "Erneut senden",
+			"MARK_PAID": "Als bezahlt markieren",
+			"MARK_UNPAID": "Als unbezahlt markieren",
+			"VOID": "Stornieren",
+			"DELETE": "Löschen",
+			"MARKED_PAID": "Rechnung {number} ist als bezahlt markiert",
+			"MARKED_UNPAID": "Rechnung {number} steht wieder auf Gesendet, unbezahlt",
+			"CHANGE_FAILED": "Rechnung {number} wurde nicht geändert",
+			"DOWNLOAD": "Als PDF herunterladen"
+		},
+		"send": {
+			"TITLE": "Rechnung {number} senden?",
+			"ATTACHED": "Sie geht per E-Mail hinaus, mit der Rechnung als PDF im Anhang.",
+			"MARKS_SENT": "Danach steht sie auf Gesendet.",
+			"RECIPIENT": "Senden an",
+			"RECIPIENT_INVALID": "Geben Sie die E-Mail-Adresse ein, an die die Rechnung geht.",
+			"CONFIRM": "Rechnung senden",
+			"SENT": "Rechnung {number} an {email} gesendet",
+			"NOT_MARKED": "Ihr Status konnte nicht auf Gesendet gesetzt werden.",
+			"FAILED": "Rechnung {number} wurde nicht gesendet. Prüfen Sie die Adresse und versuchen Sie es erneut."
+		},
+		"void": {
+			"TITLE": "Rechnung {number} stornieren?",
+			"STAYS_LISTED": "Sie bleibt als Storniert in der Liste, und ihr PDF lässt sich weiterhin herunterladen.",
+			"FINAL": "Eine stornierte Rechnung kann nicht mehr gesendet oder als bezahlt markiert werden.",
+			"CONFIRM": "Rechnung stornieren",
+			"DONE": "Rechnung {number} ist storniert",
+			"FAILED": "Die Rechnung wurde nicht geändert. Versuchen Sie es erneut."
+		},
+		"delete": {
+			"TITLE": "Rechnung {number} löschen?",
+			"FOR_GOOD": "Der Entwurf wird endgültig gelöscht und verschwindet aus der Liste.",
+			"NUMBER_FREE": "Seine Nummer kann einer anderen Rechnung gegeben werden.",
+			"CONFIRM": "Rechnung löschen",
+			"DONE": "Rechnung {number} wurde gelöscht",
+			"FAILED": "Die Rechnung wurde nicht gelöscht. Versuchen Sie es erneut."
 		}
 	},
 	"timeReports": {

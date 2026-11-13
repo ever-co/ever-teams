@@ -12,6 +12,7 @@ import {
 	roundedAmountOf,
 	type OwedCurrencyTotal
 } from '@/core/lib/utils/dashboards/payments-due';
+import { invoiceTotalsOf, NO_ADJUSTMENTS, type InvoiceAdjustments } from '@/core/lib/utils/invoice-totals';
 import { effectiveBillRate, employeeRateValueOf, rateValueOf } from '@/core/lib/utils/rates';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 
@@ -168,12 +169,13 @@ export function linePriceOf({
 	return { rate, source, currency: currencyOf(clientCurrency, organizationCurrency) };
 }
 
-export type InvoiceGrouping = 'member' | 'task';
+export type InvoiceGrouping = 'project' | 'member' | 'task';
 
 export interface InvoiceLine {
 	key: string;
 	projectId: string;
-	employeeId: string;
+	/** Null on a line that gathers the time of every member of the project. */
+	employeeId: string | null;
 	/** Null on a line that gathers a member's time on the project, whatever the task. */
 	taskId: string | null;
 	seconds: number;
@@ -184,6 +186,8 @@ export interface InvoiceLine {
 	/** Hours times rate, to the cent: the arithmetic a reader checks on the invoice. */
 	amount: number;
 	rateSource: InvoiceRateSource;
+	/** The members of the project are billed different rates: the line states their average, weighted by time. */
+	isAverageRate: boolean;
 }
 
 export interface UnpricedTime {
@@ -235,10 +239,124 @@ function addUnpriced(byMember: Map<string, UnpricedTime>, entry: BillableEntry) 
 	byMember.set(key, current);
 }
 
+/** To the cent, half up: the binary error of the arithmetic behind the amount is cleared first (10.005 is 10.01). */
+function halfUpAmountOf(amount: number) {
+	const cents = Number((amount * 100).toPrecision(12));
+	return Math.round(cents) / 100;
+}
+
 /** Hours times rate to the cent, half up: the product's binary error is cleared first (1.15 h at 12.50 is 14.38). */
 export function lineAmountOf(hours: number, rate: number) {
-	const cents = Number((hours * rate * 100).toPrecision(12));
-	return Math.round(cents) / 100;
+	return halfUpAmountOf(hours * rate);
+}
+
+type LinePriceOf = (projectId: string, employeeId: string) => LinePrice;
+
+const SECONDS_PER_HOUR = 3600;
+
+const RATE_SOURCE_ORDER: ReadonlyArray<InvoiceRateSource> = ['member', 'project', 'employee'];
+
+/** The time of one project priced in one currency, at each member's own rate. */
+interface ProjectWorth {
+	key: string;
+	projectId: string;
+	currency: string | null;
+	seconds: number;
+	/** What the time is worth before any rounding: each member's hours times their rate. */
+	worth: number;
+	rates: Set<number>;
+	secondsBySource: Map<InvoiceRateSource, number>;
+}
+
+function projectWorthKeyOf(projectId: string, currency: string | null) {
+	return [projectId, currencyKeyOf(currency)].join('|');
+}
+
+interface KnownPrice {
+	rate: number;
+	source: InvoiceRateSource;
+	currency: string | null;
+}
+
+function addProjectWorth(byProject: Map<string, ProjectWorth>, entry: BillableEntry, price: KnownPrice) {
+	const key = projectWorthKeyOf(entry.projectId, price.currency);
+	const current = byProject.get(key) ?? {
+		key,
+		projectId: entry.projectId,
+		currency: price.currency,
+		seconds: 0,
+		worth: 0,
+		rates: new Set<number>(),
+		secondsBySource: new Map<InvoiceRateSource, number>()
+	};
+	current.seconds += entry.seconds;
+	current.worth += (entry.seconds / SECONDS_PER_HOUR) * price.rate;
+	current.rates.add(price.rate);
+	const sourceSeconds = current.secondsBySource.get(price.source) ?? 0;
+	current.secondsBySource.set(price.source, sourceSeconds + entry.seconds);
+	byProject.set(key, current);
+}
+
+/** The source pricing the most time; a tie goes to the more specific rate. */
+function mainRateSourceOf(secondsBySource: ReadonlyMap<InvoiceRateSource, number>): InvoiceRateSource {
+	let mainSource: InvoiceRateSource = 'employee';
+	let mainSeconds = -1;
+	for (const source of RATE_SOURCE_ORDER) {
+		const seconds = secondsBySource.get(source) ?? -1;
+		if (seconds > mainSeconds) {
+			mainSource = source;
+			mainSeconds = seconds;
+		}
+	}
+	return mainSource;
+}
+
+/**
+ * One line for a project: its hours, the amount they are worth divided by those hours as the rate, to the cent, and
+ * hours times that rate as the amount, so the arithmetic on the document holds.
+ */
+function projectLineOf(project: ProjectWorth): InvoiceLine | null {
+	const hours = decimalHoursOf(project.seconds);
+	if (hours <= 0) {
+		return null;
+	}
+	const exactHours = project.seconds / SECONDS_PER_HOUR;
+	const rate = halfUpAmountOf(project.worth / exactHours);
+	return {
+		key: project.key,
+		projectId: project.projectId,
+		employeeId: null,
+		taskId: null,
+		seconds: project.seconds,
+		hours,
+		rate,
+		currency: project.currency,
+		amount: lineAmountOf(hours, rate),
+		rateSource: mainRateSourceOf(project.secondsBySource),
+		isAverageRate: project.rates.size > 1
+	};
+}
+
+/** Each member's time is priced at their own rate first, then gathered per project and currency. */
+function projectTimeOf(entries: ReadonlyArray<BillableEntry>, priceOf: LinePriceOf): InvoiceTime {
+	const byProject = new Map<string, ProjectWorth>();
+	const unpricedByMember = new Map<string, UnpricedTime>();
+	for (const entry of groupedEntriesOf(entries, 'member')) {
+		const { rate, source, currency } = priceOf(entry.projectId, entry.employeeId);
+		if (rate === null || source === null) {
+			addUnpriced(unpricedByMember, entry);
+			continue;
+		}
+		addProjectWorth(byProject, entry, { rate, source, currency });
+	}
+	const lines: InvoiceLine[] = [];
+	for (const project of byProject.values()) {
+		const line = projectLineOf(project);
+		if (line) {
+			lines.push(line);
+		}
+	}
+	return { lines, unpriced: [...unpricedByMember.values()] };
 }
 
 /**
@@ -252,8 +370,11 @@ export function invoiceTimeOf({
 }: Readonly<{
 	entries: ReadonlyArray<BillableEntry>;
 	grouping: InvoiceGrouping;
-	priceOf: (projectId: string, employeeId: string) => LinePrice;
+	priceOf: LinePriceOf;
 }>): InvoiceTime {
+	if (grouping === 'project') {
+		return projectTimeOf(entries, priceOf);
+	}
 	const lines: InvoiceLine[] = [];
 	const unpricedByMember = new Map<string, UnpricedTime>();
 	for (const entry of groupedEntriesOf(entries, grouping)) {
@@ -276,7 +397,8 @@ export function invoiceTimeOf({
 			rate,
 			currency,
 			amount: lineAmountOf(hours, rate),
-			rateSource: source
+			rateSource: source,
+			isAverageRate: false
 		});
 	}
 	return { lines, unpriced: [...unpricedByMember.values()] };
@@ -343,6 +465,7 @@ export interface InvoiceLineNames {
 
 export interface NamedInvoiceLine extends InvoiceLine {
 	projectName: string;
+	/** Empty on a line that gathers every member of the project. */
 	memberName: string;
 	/** The description the line starts with, until the user writes another. */
 	label: string;
@@ -356,11 +479,27 @@ function taskLabelOf(line: InvoiceLine, memberName: string, names: InvoiceLineNa
 	return `${taskTitle} · ${memberName}`;
 }
 
-function labelOf(line: InvoiceLine, memberName: string, grouping: InvoiceGrouping, names: InvoiceLineNames) {
-	if (grouping === 'task') {
-		return taskLabelOf(line, memberName, names);
+function memberNameOf(line: InvoiceLine, names: InvoiceLineNames) {
+	if (!line.employeeId) {
+		return '';
 	}
-	return memberName;
+	return names.memberNames.get(line.employeeId) ?? names.unnamedMember;
+}
+
+interface LineNaming {
+	projectName: string;
+	memberName: string;
+	grouping: InvoiceGrouping;
+}
+
+function labelOf(line: InvoiceLine, naming: LineNaming, names: InvoiceLineNames) {
+	if (naming.grouping === 'project') {
+		return naming.projectName;
+	}
+	if (naming.grouping === 'task') {
+		return taskLabelOf(line, naming.memberName, names);
+	}
+	return naming.memberName;
 }
 
 function compareNamedLines(first: NamedInvoiceLine, second: NamedInvoiceLine) {
@@ -382,8 +521,9 @@ export function namedLinesOf(
 ): NamedInvoiceLine[] {
 	const named = lines.map((line) => {
 		const projectName = names.projectNames.get(line.projectId) ?? names.unnamedProject;
-		const memberName = names.memberNames.get(line.employeeId) ?? names.unnamedMember;
-		return { ...line, projectName, memberName, label: labelOf(line, memberName, grouping, names) };
+		const memberName = memberNameOf(line, names);
+		const label = labelOf(line, { projectName, memberName, grouping }, names);
+		return { ...line, projectName, memberName, label };
 	});
 	named.sort(compareNamedLines);
 	return named;
@@ -438,12 +578,20 @@ export function invoicePeriodDaysOf(period: Period): InvoicePeriodDays {
 	return { fromDay: localDayKeyOf(period.from), toDay: localDayKeyOf(period.to) };
 }
 
+const NOTE_SEPARATOR = '\n\n';
+
 /**
  * The API stores no period on an invoice. The period is written as the first line of the invoice's terms, which the
- * PDF prints, in one fixed form so the list can read it back whatever the reader's language.
+ * PDF prints, in one fixed form so the list can read it back whatever the reader's language. A note to the client
+ * follows it, after a blank line.
  */
-export function invoiceTermsOf(days: InvoicePeriodDays) {
-	return `${TERMS_PREFIX} ${days.fromDay} to ${days.toDay}`;
+export function invoiceTermsOf(days: InvoicePeriodDays, note = '') {
+	const periodLine = `${TERMS_PREFIX} ${days.fromDay} to ${days.toDay}`;
+	const trimmedNote = note.trim();
+	if (!trimmedNote) {
+		return periodLine;
+	}
+	return `${periodLine}${NOTE_SEPARATOR}${trimmedNote}`;
 }
 
 function isRealDay(dayKey: string) {
@@ -534,12 +682,51 @@ export function todayDayKey(timeZone: string | null | undefined, now = new Date(
 	return zonedDay ?? localDayKeyOf(now);
 }
 
-/** The due day the organization's own setting gives; empty when it has none, so the user picks the day. */
-export function defaultDueDayOf(issueDay: string, daysUntilDue: number | null | undefined): string {
+export type InvoiceDueTermSource = 'client' | 'organization' | 'standard';
+
+export interface InvoiceDueTerm {
+	source: InvoiceDueTermSource;
+	days: number;
+}
+
+/** The term of an invoice whose client and organization state none. */
+export const STANDARD_DUE_DAYS = 30;
+
+function termDaysOf(value: number | null | undefined, minimum: number): number | null {
+	if (typeof value !== 'number') {
+		return null;
+	}
+	const isWhole = Number.isInteger(value);
+	const isLongEnough = value >= minimum;
+	if (!isWhole || !isLongEnough) {
+		return null;
+	}
+	return value;
+}
+
+/**
+ * How many days after its issue an invoice is due: the client's own payment terms, where zero is due on receipt,
+ * else the organization's setting, where zero is no setting as on the API's own screen, else thirty days.
+ */
+export function invoiceDueTermOf(
+	clientTermDays: number | null | undefined,
+	organizationDaysUntilDue: number | null | undefined
+): InvoiceDueTerm {
+	const clientDays = termDaysOf(clientTermDays, 0);
+	if (clientDays !== null) {
+		return { source: 'client', days: clientDays };
+	}
+	const organizationDays = termDaysOf(organizationDaysUntilDue, 1);
+	if (organizationDays !== null) {
+		return { source: 'organization', days: organizationDays };
+	}
+	return { source: 'standard', days: STANDARD_DUE_DAYS };
+}
+
+/** The day `days` after the issue day; empty while the issue day is not a real day. */
+export function dueDayAfter(issueDay: string, days: number): string {
 	const issueDate = dateOfDayKey(issueDay);
-	const days = Number(daysUntilDue);
-	const hasSetting = Number.isInteger(days) && days > 0;
-	if (!issueDate || !hasSetting) {
+	if (!issueDate || !isRealDay(issueDay)) {
 		return '';
 	}
 	return localDayKeyOf(addDays(issueDate, days));
@@ -681,7 +868,7 @@ export interface InvoiceItemRequest {
 	totalValue: number;
 	invoiceId: string;
 	projectId: string;
-	employeeId: string;
+	employeeId?: string;
 	taskId?: string;
 	applyTax: boolean;
 	applyDiscount: boolean;
@@ -730,9 +917,20 @@ export interface InvoiceRequestInput {
 	timeZone: string | null | undefined;
 	lines: ReadonlyArray<NamedInvoiceLine>;
 	descriptions: ReadonlyMap<string, string>;
+	adjustments?: InvoiceAdjustments;
+	note?: string;
 }
 
-function itemRequestOf(line: NamedInvoiceLine, input: InvoiceRequestInput): InvoiceItemRequest {
+function isAboveZero(percent: number | null) {
+	const value = percent ?? 0;
+	return value > 0;
+}
+
+function itemRequestOf(
+	line: NamedInvoiceLine,
+	input: InvoiceRequestInput,
+	adjustments: InvoiceAdjustments
+): InvoiceItemRequest {
 	const item: InvoiceItemRequest = {
 		description: lineDescriptionOf(line, input.descriptions),
 		price: line.rate,
@@ -740,12 +938,15 @@ function itemRequestOf(line: NamedInvoiceLine, input: InvoiceRequestInput): Invo
 		totalValue: line.amount,
 		invoiceId: input.id,
 		projectId: line.projectId,
-		employeeId: line.employeeId,
-		applyTax: false,
-		applyDiscount: false,
+		// The invoice's tax and discount apply to every line; the API's own screen totals the lines that say so.
+		applyTax: isAboveZero(adjustments.taxPercent),
+		applyDiscount: isAboveZero(adjustments.discountPercent),
 		organizationId: input.organizationId,
 		tenantId: input.tenantId
 	};
+	if (line.employeeId) {
+		item.employeeId = line.employeeId;
+	}
 	if (line.taskId) {
 		item.taskId = line.taskId;
 	}
@@ -762,10 +963,13 @@ function totalOfLines(lines: ReadonlyArray<NamedInvoiceLine>) {
 
 /**
  * The invoice and its lines as the API's create route takes them, a draft billed by project hours. Lines priced in
- * another currency than the invoice's are refused: an invoice has one currency and never adds two.
+ * another currency than the invoice's are refused: an invoice has one currency and never adds two. The API's PDF
+ * prints the total as it is stored, so it is stored with the discount and the tax in it.
  */
 export function buildInvoiceRequest(input: InvoiceRequestInput): InvoiceRequest {
 	const lines = input.lines.filter((line) => line.currency === input.currency);
+	const { adjustments = NO_ADJUSTMENTS } = input;
+	const totals = invoiceTotalsOf(totalOfLines(lines), adjustments);
 	return {
 		id: input.id,
 		invoiceNumber: input.invoiceNumber,
@@ -773,15 +977,15 @@ export function buildInvoiceRequest(input: InvoiceRequestInput): InvoiceRequest 
 		dueDate: dayEndOf(input.dueDay, input.timeZone),
 		currency: input.currency,
 		// The API's PDF prints these values as they are: left out, the document reads "null".
-		discountValue: 0,
+		discountValue: adjustments.discountPercent ?? 0,
 		discountType: 'PERCENT',
-		tax: 0,
+		tax: adjustments.taxPercent ?? 0,
 		taxType: 'PERCENT',
 		tax2: 0,
 		tax2Type: 'PERCENT',
-		terms: invoiceTermsOf(input.period),
+		terms: invoiceTermsOf(input.period, input.note),
 		paid: false,
-		totalValue: totalOfLines(lines),
+		totalValue: totals.total,
 		status: 'DRAFT',
 		isEstimate: false,
 		invoiceType: 'BY_PROJECT_HOURS',
@@ -790,7 +994,7 @@ export function buildInvoiceRequest(input: InvoiceRequestInput): InvoiceRequest 
 		fromOrganizationId: input.organizationId,
 		organizationId: input.organizationId,
 		tenantId: input.tenantId,
-		invoiceItems: lines.map((line) => itemRequestOf(line, input))
+		invoiceItems: lines.map((line) => itemRequestOf(line, input, adjustments))
 	};
 }
 

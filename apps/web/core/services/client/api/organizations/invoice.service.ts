@@ -1,6 +1,7 @@
 import qs from 'qs';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import type { InvoiceStatusChange } from '@/core/lib/utils/invoice-actions';
 import type { InvoiceRequest } from '@/core/lib/utils/invoices';
 import { validateApiResponse, validatePaginationResponse, ZodValidationError } from '@/core/types/schemas';
 import {
@@ -17,12 +18,20 @@ const CLIENT_INVOICES_PAGE_SIZE = 100;
 /** A client past this many invoices has its latest ones compared with a new period; the list has every one. */
 const CLIENT_INVOICES_MAX_PAGES = 10;
 
+const invoiceStatusSchema = invoiceSchema.pick({ status: true });
+
 export interface InvoicesPage {
 	items: TInvoice[];
 	total: number;
 }
 
-interface InvoicesScope {
+export interface InvoiceToEmail {
+	invoiceId: string;
+	invoiceNumber: number | null;
+	email: string;
+}
+
+export interface InvoicesScope {
 	organizationId: string;
 	tenantId: string;
 }
@@ -152,6 +161,56 @@ class InvoiceService extends APIService {
 			responseType: 'blob'
 		});
 		return response.data;
+	};
+
+	/**
+	 * E-mails the invoice to `email` with its PDF attached, through the organization's own e-mail settings. The API
+	 * answers 202 with no body whatever its mail server did: only a refused request comes back as an error.
+	 */
+	sendInvoiceByEmail = async (
+		{ invoiceId, invoiceNumber, email }: InvoiceToEmail,
+		scope?: InvoicesScope
+	): Promise<void> => {
+		// The API signs the e-mail with the organization named here: the caller's, the cookies' when left out
+		const emailScope = scope ?? this.currentScope();
+		const params = {
+			invoiceNumber,
+			invoiceId,
+			isEstimate: false,
+			organizationId: emailScope.organizationId,
+			tenantId: emailScope.tenantId
+		};
+		await this.put(`/invoices/email/${encodeURIComponent(email)}`, { params }, { tenantId: emailScope.tenantId });
+	};
+
+	getInvoiceStatus = async (invoiceId: string, scope?: InvoicesScope): Promise<string | null> => {
+		try {
+			const readScope = scope ?? this.currentScope();
+			const url = `/invoices/${encodeURIComponent(invoiceId)}`;
+			const response = await this.get(url, { tenantId: readScope.tenantId });
+			const invoice = validateApiResponse(invoiceStatusSchema, response.data, 'getInvoiceStatus API response');
+			return invoice.status ?? null;
+		} catch (error) {
+			this.logValidationError(error, 'Invoice status validation failed:');
+			throw error;
+		}
+	};
+
+	changeInvoiceStatus = async (
+		invoiceId: string,
+		change: InvoiceStatusChange,
+		scope?: InvoicesScope
+	): Promise<void> => {
+		// A copy, with the list's workspace: the request would otherwise fill in the cookies' organization and tenant,
+		// which another tab may have switched since the list was read.
+		const statusScope = scope ?? this.currentScope();
+		const body = { ...change, organizationId: statusScope.organizationId, tenantId: statusScope.tenantId };
+		await this.put(`/invoices/${encodeURIComponent(invoiceId)}/action`, body, { tenantId: statusScope.tenantId });
+	};
+
+	deleteInvoice = async (invoiceId: string, scope?: InvoicesScope): Promise<void> => {
+		const deletionScope = scope ?? this.currentScope();
+		await this.delete(`/invoices/${encodeURIComponent(invoiceId)}`, { tenantId: deletionScope.tenantId });
 	};
 }
 

@@ -11,9 +11,10 @@ import { periodOfPreset, type Period } from '@/core/lib/utils/dashboard-period';
 import { currencyKeyOf } from '@/core/lib/utils/dashboards/payments-due';
 import {
 	buildInvoiceRequest,
-	defaultDueDayOf,
+	dueDayAfter,
 	invoiceCurrenciesOf,
 	invoiceCurrencyKeyOf,
+	invoiceDueTermOf,
 	invoicePeriodDaysOf,
 	invoiceProblemsOf,
 	invoiceSaveFailureOf,
@@ -27,9 +28,16 @@ import {
 	type InvoiceGrouping,
 	type InvoiceRequest
 } from '@/core/lib/utils/invoices';
+import {
+	acceptsPercentText,
+	hasAdjustments,
+	invoiceTotalsOf,
+	percentOfText,
+	type InvoiceAdjustments
+} from '@/core/lib/utils/invoice-totals';
 import { newUuid } from '@/core/lib/utils/uuid';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
-import { useCreateInvoice } from './use-invoice-mutations';
+import { useCreateInvoice, useSaveAndSendInvoice } from './use-invoice-mutations';
 import { useInvoiceTime, type InvoiceTimeLabels } from './use-invoice-time';
 import { useClientInvoices, useNextInvoiceNumber } from './use-invoices-query';
 
@@ -73,6 +81,9 @@ export function useNewInvoice() {
 	const [typedNumber, setTypedNumber] = useState<string | null>(null);
 	const [pickedIssueDay, setPickedIssueDay] = useState<string | null>(null);
 	const [pickedDueDay, setPickedDueDay] = useState<string | null>(null);
+	const [typedNote, setTypedNote] = useState<string | null>(null);
+	const [discountText, setDiscountText] = useState('');
+	const [taxText, setTaxText] = useState('');
 
 	const timeZone = organization?.timeZone;
 	const today = useMemo(() => todayDayKey(timeZone), [timeZone]);
@@ -111,10 +122,20 @@ export function useNewInvoice() {
 	const groups = useMemo(() => projectGroupsOf(keptLines), [keptLines]);
 	const keptTotal = useMemo(() => invoiceCurrenciesOf(keptLines)[0], [keptLines]);
 	const removedCount = removedLineCountOf(invoiceLines, removedKeys);
+	const subtotal = keptTotal?.amount ?? 0;
+	const adjustments = useMemo<InvoiceAdjustments>(
+		() => ({ discountPercent: percentOfText(discountText), taxPercent: percentOfText(taxText) }),
+		[discountText, taxText]
+	);
+	const totals = useMemo(() => invoiceTotalsOf(subtotal, adjustments), [adjustments, subtotal]);
 
 	const nextNumber = useNextInvoiceNumber(true);
 	const numberText = numberTextOf(typedNumber, nextNumber.nextNumber);
-	const dueDay = pickedDueDay ?? defaultDueDayOf(issueDay, organization?.daysUntilDue);
+	const dueTerm = invoiceDueTermOf(client?.paymentTermsDays, organization?.daysUntilDue);
+	const termDueDay = dueDayAfter(issueDay, dueTerm.days);
+	const dueDay = pickedDueDay ?? termDueDay;
+	const isDueDayOfTerm = dueDay !== '' && dueDay === termDueDay;
+	const note = typedNote ?? organization?.defaultInvoiceEstimateTerms ?? '';
 
 	const periodDays = useMemo(() => invoicePeriodDaysOf(period), [period]);
 	const earlier = useClientInvoices(clientId);
@@ -141,6 +162,8 @@ export function useNewInvoice() {
 	const changeClient = useCallback(
 		(nextClientId: string) => {
 			setPickedClientId(nextClientId || null);
+			// The due day follows the terms of the client the invoice is for.
+			setPickedDueDay(null);
 			resetEdits();
 		},
 		[resetEdits]
@@ -172,6 +195,18 @@ export function useNewInvoice() {
 		setDescriptions((current) => new Map([...current, [lineKey, description]]));
 	}, []);
 
+	const changeDiscount = useCallback((text: string) => {
+		if (acceptsPercentText(text)) {
+			setDiscountText(text);
+		}
+	}, []);
+
+	const changeTax = useCallback((text: string) => {
+		if (acceptsPercentText(text)) {
+			setTaxText(text);
+		}
+	}, []);
+
 	const invoiceRequest = useCallback((): InvoiceRequest | null => {
 		// The organisation's time zone dates the invoice: before it is read, the days would be the browser's.
 		if (!isOrganizationKnown) {
@@ -201,9 +236,12 @@ export function useNewInvoice() {
 			period: periodDays,
 			timeZone,
 			lines: keptLines,
-			descriptions
+			descriptions,
+			note,
+			adjustments
 		});
 	}, [
+		adjustments,
 		clientId,
 		currency,
 		descriptions,
@@ -212,30 +250,44 @@ export function useNewInvoice() {
 		isOrganizationKnown,
 		issueDay,
 		keptLines,
+		note,
 		numberText,
 		periodDays,
 		problems.length,
 		timeZone
 	]);
 
-	const { createInvoice, isSaving } = useCreateInvoice();
-	const save = useCallback(async () => {
-		const request = invoiceRequest();
-		if (!request) {
-			return null;
-		}
-		try {
-			return await createInvoice(request);
-		} catch (error) {
-			// The next free number is read again after any failure. A save whose outcome is unknown keeps its own number:
-			// had it gone through, saving again under that number is refused instead of creating a second invoice.
-			const isUnconfirmed = invoiceSaveFailureOf(error) === 'unconfirmed';
-			if (isUnconfirmed) {
-				setTypedNumber(String(request.invoiceNumber));
+	const { createInvoice, isSaving: isCreating } = useCreateInvoice();
+	const { saveAndSendInvoice, isSavingAndSending } = useSaveAndSendInvoice();
+	const isSaving = isCreating || isSavingAndSending;
+	const submit = useCallback(
+		async <T>(run: (request: InvoiceRequest) => Promise<T>): Promise<T | null> => {
+			const request = invoiceRequest();
+			if (!request) {
+				return null;
 			}
-			throw error;
-		}
-	}, [createInvoice, invoiceRequest]);
+			try {
+				return await run(request);
+			} catch (error) {
+				// The next free number is read again after any failure. A save whose outcome is unknown keeps its own
+				// number: had it gone through, saving again under that number is refused instead of creating a second
+				// invoice.
+				const isUnconfirmed = invoiceSaveFailureOf(error) === 'unconfirmed';
+				if (isUnconfirmed) {
+					setTypedNumber(String(request.invoiceNumber));
+				}
+				throw error;
+			}
+		},
+		[invoiceRequest]
+	);
+
+	const save = useCallback(() => submit(createInvoice), [createInvoice, submit]);
+
+	const saveAndSend = useCallback(
+		(email: string) => submit((request) => saveAndSendInvoice({ request, email })),
+		[saveAndSendInvoice, submit]
+	);
 
 	return {
 		organizationName: organization?.name ?? '',
@@ -263,7 +315,15 @@ export function useNewInvoice() {
 		groups,
 		keptLines,
 		keptHours: keptTotal?.hours ?? 0,
-		total: keptTotal?.amount ?? 0,
+		/** What the invoice asks for: its lines, less the discount, plus the tax. */
+		total: totals.total,
+		totals,
+		adjustments,
+		discountText,
+		changeDiscount,
+		taxText,
+		changeTax,
+		hasAdjustments: hasAdjustments(adjustments),
 		removedCount,
 		removeLine,
 		restoreLines,
@@ -278,6 +338,10 @@ export function useNewInvoice() {
 		setIssueDay: setPickedIssueDay,
 		dueDay,
 		setDueDay: setPickedDueDay,
+		dueTerm,
+		isDueDayOfTerm,
+		note,
+		setNote: setTypedNote,
 		earlierInvoices: earlier.invoices,
 		areEarlierLoading: earlier.isLoading,
 		haveEarlierFailed: earlier.isError,
@@ -286,6 +350,7 @@ export function useNewInvoice() {
 		problems,
 		isWaiting,
 		save,
+		saveAndSend,
 		isSaving
 	};
 }

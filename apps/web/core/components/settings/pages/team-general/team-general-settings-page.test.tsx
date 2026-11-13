@@ -20,6 +20,9 @@ jest.mock('./team-danger-section', () => ({ TeamDangerSection: () => null }));
 jest.mock('./organization-tracking-section', () => ({
 	OrganizationTrackingSection: () => <p>organization requirements</p>
 }));
+jest.mock('./organization-tracking-switch-section', () => ({
+	OrganizationTrackingSwitchSection: () => <p>organization tracking switch</p>
+}));
 
 import { TeamGeneralSettingsPage } from './team-general-settings-page';
 
@@ -40,9 +43,16 @@ describe('TeamGeneralSettingsPage', () => {
 		expect(screen.getByText('organization requirements')).toBeTruthy();
 	});
 
+	it('shows an organization admin who switches time tracking in the organization (#5015)', () => {
+		renderPageAs('ADMIN');
+
+		expect(screen.getByText('organization tracking switch')).toBeTruthy();
+	});
+
 	it('hides them from anyone else', () => {
 		renderPageAs('EMPLOYEE');
 
 		expect(screen.queryByText('organization requirements')).toBeNull();
+		expect(screen.queryByText('organization tracking switch')).toBeNull();
 	});
 });

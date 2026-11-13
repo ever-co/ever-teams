@@ -2761,7 +2761,8 @@
 			"HINT_BEFORE_START": "Opcjonalne. Zapisywane we wpisie przy uruchomieniu timera.",
 			"HINT_RUNNING": "Zmiany wprowadzone podczas działania timera nie są jeszcze zapisywane. Aby zmienić notatki, edytuj wpis w kartach czasu pracy po zatrzymaniu timera.",
 			"HINT_OTHER_TEAM": "Te notatki należą do timera działającego w innym zespole, więc nie można ich tutaj zmienić."
-		}
+		},
+		"NOT_BILLABLE": "Niefakturowane"
 	},
 	"task": {
 		"TITLE": "Zadanie",
@@ -3818,6 +3819,7 @@
 			"PERMISSION": "Twoja rola nie pozwala na tę zmianę.",
 			"NOT_FOUND": "Ten element już nie istnieje. Odśwież stronę.",
 			"CONFLICT": "Ktoś zmienił to w tym samym czasie. Odśwież i spróbuj ponownie.",
+			"NAME_TAKEN": "Ta nazwa jest tu już używana. Wybierz inną.",
 			"INVALID": "Niektóre wartości nie zostały przyjęte. Sprawdź je i spróbuj ponownie.",
 			"TOO_MANY": "Zbyt wiele prób. Odczekaj chwilę i spróbuj ponownie.",
 			"SERVER": "Serwer nie mógł tego dokończyć. Spróbuj za chwilę.",
@@ -4874,6 +4876,10 @@
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "Sprawdzane tylko przez aplikacje Gauzy na komputer i w przeglądarce.",
 			"REQUIREMENT_NOT_SAVED": "Wymaganie nie zostało zapisane.",
 			"REQUIREMENTS_LOAD_FAILED": "Nie udało się wczytać wymagań.",
+			"TRACKING_SWITCH_SECTION": "Kto przełącza śledzenie czasu",
+			"RESTRICT_TRACKING_SWITCH_LABEL": "Tylko wyższa rola włącza lub wyłącza śledzenie czasu",
+			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Administratorzy włączają lub wyłączają śledzenie czasu każdego, menedżerowie tylko członków swojego zespołu, nigdy własne ani innego menedżera. Gdy wyłączone, administratorzy i menedżerowie zespołów przełączają je dla każdego w swoich zespołach, a u tych, którzy mogą też edytować pracowników, przełącznik ustawia też własne śledzenie czasu osoby, które obowiązuje we wszystkich zespołach.",
+			"TRACKING_SWITCH_RULE_NOT_SAVED": "Nie zapisano ustawienia.",
 			"ON": "Włączone",
 			"OFF": "Wyłączone",
 			"DANGER_SECTION": "Strefa zagrożenia",
@@ -6732,7 +6738,73 @@
 				"FAILED": "Faktura nie została zapisana i nic nie zostało utworzone. Sprawdź, czy numer jest wolny, i spróbuj ponownie.",
 				"UNCHECKED": "Nie udało się odczytać faktur już zapisanych dla {client}, więc tego okresu nie porównano z nimi.",
 				"UNCONFIRMED": "Nie udało się potwierdzić zapisu, więc faktura mogła zostać zapisana. Przed ponownym zapisaniem sprawdź faktury już zapisane dla {client}."
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "Według projektu",
+				"AVERAGE_RATE": "stawka średnia",
+				"AVERAGE_RATE_HINT": "Członkowie tego projektu mają różne stawki: to ich średnia ważona godzinami."
+			},
+			"terms": {
+				"CLIENT": "Termin klienta: {days, plural, =0 {płatne przy odbiorze} one {# dzień} few {# dni} many {# dni} other {# dnia}}",
+				"ORGANIZATION": "Termin przestrzeni roboczej: {days, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}",
+				"STANDARD": "Termin domyślny: {days, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}",
+				"NOTE": "Uwaga dla klienta",
+				"NOTE_HINT": "Drukowana na fakturze, pod jej okresem."
+			},
+			"adjustments": {
+				"DISCOUNT": "Rabat (%)",
+				"TAX": "Podatek (%)",
+				"SUBTOTAL": "Suma częściowa",
+				"DISCOUNT_ROW": "Rabat ({percent})",
+				"TAX_ROW": "Podatek ({percent} od {base})"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "Zapisz i wyślij",
+				"DRAFT_OR_SEND_NOTE": "Następnie zapisz ją jako wersję roboczą albo zapisz ją i wyślij na adres {email}.",
+				"SEND_CONSEQUENCE": "„Zapisz i wyślij” dodatkowo wysyła ją e-mailem z załączonym PDF, a potem oznacza jako wysłaną.",
+				"SAVED_NOT_SENT": "Faktura {number} została zapisana jako wersja robocza, ale nie została wysłana",
+				"SEND_FROM_LIST": "Wyślij ją ponownie z jej menu na liście."
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "Działania dla faktury {number}",
+			"SEND": "Wyślij do klienta",
+			"SEND_AGAIN": "Wyślij ponownie",
+			"MARK_PAID": "Oznacz jako opłaconą",
+			"MARK_UNPAID": "Oznacz jako nieopłaconą",
+			"VOID": "Anuluj fakturę",
+			"DELETE": "Usuń",
+			"MARKED_PAID": "Faktura {number} jest oznaczona jako opłacona",
+			"MARKED_UNPAID": "Faktura {number} wróciła do stanu Wysłana, nieopłacona",
+			"CHANGE_FAILED": "Faktura {number} nie została zmieniona",
+			"DOWNLOAD": "Pobierz jako PDF"
+		},
+		"send": {
+			"TITLE": "Wysłać fakturę {number}?",
+			"ATTACHED": "Wychodzi e-mailem, z fakturą w załączniku jako PDF.",
+			"MARKS_SENT": "Potem zostaje oznaczona jako wysłana.",
+			"RECIPIENT": "Wyślij do",
+			"RECIPIENT_INVALID": "Wpisz adres e-mail, na który ma trafić faktura.",
+			"CONFIRM": "Wyślij fakturę",
+			"SENT": "Faktura {number} wysłana na adres {email}",
+			"NOT_MARKED": "Nie udało się zmienić jej stanu na Wysłana.",
+			"FAILED": "Faktura {number} nie została wysłana. Sprawdź adres i spróbuj ponownie."
+		},
+		"void": {
+			"TITLE": "Anulować fakturę {number}?",
+			"STAYS_LISTED": "Zostaje na liście jako anulowana, a jej PDF nadal można pobrać.",
+			"FINAL": "Anulowanej faktury nie można już wysłać ani oznaczyć jako opłaconej.",
+			"CONFIRM": "Anuluj fakturę",
+			"DONE": "Faktura {number} jest anulowana",
+			"FAILED": "Faktura nie została zmieniona. Spróbuj ponownie."
+		},
+		"delete": {
+			"TITLE": "Usunąć fakturę {number}?",
+			"FOR_GOOD": "Wersja robocza zostaje usunięta na stałe i znika z listy.",
+			"NUMBER_FREE": "Jej numer można nadać innej fakturze.",
+			"CONFIRM": "Usuń fakturę",
+			"DONE": "Faktura {number} została usunięta",
+			"FAILED": "Faktura nie została usunięta. Spróbuj ponownie."
 		}
 	},
 	"timeReports": {

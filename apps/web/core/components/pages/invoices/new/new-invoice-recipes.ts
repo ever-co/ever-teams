@@ -2,6 +2,12 @@
 export const NEW_INVOICE_LAYOUT = 'grid grid-cols-1 items-start gap-4 pb-6 lg:grid-cols-[minmax(0,1fr)_20rem]';
 
 /**
+ * The lines switch shares the row of the client and the period, at its end from `sm`. Below, it wraps onto a row of
+ * its own with equal options: three options beside the two pickers would cover them on a phone.
+ */
+export const GROUPING_SWITCH = 'sm:ml-auto max-sm:w-full max-sm:[&>[data-segment]]:flex-1';
+
+/**
  * One grid for every line of the sheet. From `lg` a line is one row: description, hours, rate, amount, remove.
  * Below, the description takes the first row and the figures the second.
  */

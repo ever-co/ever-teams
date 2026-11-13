@@ -2761,7 +2761,8 @@
 			"HINT_BEFORE_START": "Optioneel. Opgeslagen bij de registratie wanneer de timer start.",
 			"HINT_RUNNING": "Wijzigingen terwijl de timer loopt worden nog niet opgeslagen. Bewerk de registratie in Urenstaten nadat je de timer hebt gestopt om de notities te wijzigen.",
 			"HINT_OTHER_TEAM": "Deze notities horen bij de timer die in een ander team loopt en kunnen hier niet worden gewijzigd."
-		}
+		},
+		"NOT_BILLABLE": "Niet factureerbaar"
 	},
 	"task": {
 		"TITLE": "Taak",
@@ -3818,6 +3819,7 @@
 			"PERMISSION": "Je rol staat deze wijziging niet toe.",
 			"NOT_FOUND": "Dit item bestaat niet meer. Vernieuw de pagina.",
 			"CONFLICT": "Iemand heeft dit tegelijk gewijzigd. Vernieuw en probeer het opnieuw.",
+			"NAME_TAKEN": "Deze naam is hier al in gebruik. Kies een andere.",
 			"INVALID": "Sommige waarden zijn niet geaccepteerd. Controleer ze en probeer het opnieuw.",
 			"TOO_MANY": "Te veel pogingen. Wacht even en probeer het dan opnieuw.",
 			"SERVER": "De server kon het niet afronden. Probeer het zo opnieuw.",
@@ -4874,6 +4876,10 @@
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "Alleen gecontroleerd door de Gauzy-apps voor desktop en web.",
 			"REQUIREMENT_NOT_SAVED": "De vereiste is niet opgeslagen.",
 			"REQUIREMENTS_LOAD_FAILED": "De vereisten konden niet worden geladen.",
+			"TRACKING_SWITCH_SECTION": "Wie tijd bijhouden aan- of uitzet",
+			"RESTRICT_TRACKING_SWITCH_LABEL": "Alleen een hogere rol zet tijd bijhouden aan of uit",
+			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Admins zetten tijd bijhouden voor iedereen aan of uit, managers alleen voor hun teamleden, nooit voor zichzelf of een andere manager. Staat het uit, dan zetten admins en teammanagers het om voor iedereen in hun teams, en wie ook medewerkers mag bewerken, zet daarmee ook het eigen tijd bijhouden van de persoon, dat in alle teams geldt.",
+			"TRACKING_SWITCH_RULE_NOT_SAVED": "De instelling is niet opgeslagen.",
 			"ON": "Aan",
 			"OFF": "Uit",
 			"DANGER_SECTION": "Gevarenzone",
@@ -6732,7 +6738,73 @@
 				"FAILED": "De factuur is niet opgeslagen en er is niets aangemaakt. Controleer of het nummer vrij is en probeer het opnieuw.",
 				"UNCHECKED": "De al opgeslagen facturen van {client} konden niet worden gelezen, dus deze periode is er niet mee vergeleken.",
 				"UNCONFIRMED": "Het opslaan kon niet worden bevestigd, dus de factuur is misschien al opgeslagen. Controleer de al opgeslagen facturen van {client} voordat je opnieuw opslaat."
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "Per project",
+				"AVERAGE_RATE": "gemiddeld tarief",
+				"AVERAGE_RATE_HINT": "De leden van dit project hebben verschillende tarieven: dit is hun gemiddelde, gewogen naar hun uren."
+			},
+			"terms": {
+				"CLIENT": "Betaaltermijn van de klant: {days, plural, =0 {direct bij ontvangst} one {# dag} other {# dagen}}",
+				"ORGANIZATION": "Betaaltermijn van de werkruimte: {days, plural, one {# dag} other {# dagen}}",
+				"STANDARD": "Standaardbetaaltermijn: {days, plural, one {# dag} other {# dagen}}",
+				"NOTE": "Opmerking voor de klant",
+				"NOTE_HINT": "Wordt op de factuur afgedrukt, onder de periode."
+			},
+			"adjustments": {
+				"DISCOUNT": "Korting (%)",
+				"TAX": "Belasting (%)",
+				"SUBTOTAL": "Subtotaal",
+				"DISCOUNT_ROW": "Korting ({percent})",
+				"TAX_ROW": "Belasting ({percent} van {base})"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "Opslaan en versturen",
+				"DRAFT_OR_SEND_NOTE": "Sla de factuur hierna op als concept, of sla hem op en verstuur hem naar {email}.",
+				"SEND_CONSEQUENCE": "Opslaan en versturen mailt hem ook, met de pdf als bijlage, en zet hem daarna op Verzonden.",
+				"SAVED_NOT_SENT": "Factuur {number} is als concept opgeslagen, maar niet verzonden",
+				"SEND_FROM_LIST": "Verstuur hem opnieuw via zijn menu in de lijst."
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "Acties voor factuur {number}",
+			"SEND": "Naar de klant sturen",
+			"SEND_AGAIN": "Opnieuw versturen",
+			"MARK_PAID": "Markeren als betaald",
+			"MARK_UNPAID": "Markeren als onbetaald",
+			"VOID": "Laten vervallen",
+			"DELETE": "Verwijderen",
+			"MARKED_PAID": "Factuur {number} is gemarkeerd als betaald",
+			"MARKED_UNPAID": "Factuur {number} staat weer op Verzonden, onbetaald",
+			"CHANGE_FAILED": "Factuur {number} is niet gewijzigd",
+			"DOWNLOAD": "Als pdf downloaden"
+		},
+		"send": {
+			"TITLE": "Factuur {number} versturen?",
+			"ATTACHED": "Hij gaat per e-mail, met de factuur als pdf in de bijlage.",
+			"MARKS_SENT": "Daarna staat hij op Verzonden.",
+			"RECIPIENT": "Versturen naar",
+			"RECIPIENT_INVALID": "Vul het e-mailadres in waar de factuur naartoe gaat.",
+			"CONFIRM": "Factuur versturen",
+			"SENT": "Factuur {number} verzonden naar {email}",
+			"NOT_MARKED": "De status kon niet op Verzonden worden gezet.",
+			"FAILED": "Factuur {number} is niet verzonden. Controleer het adres en probeer het opnieuw."
+		},
+		"void": {
+			"TITLE": "Factuur {number} laten vervallen?",
+			"STAYS_LISTED": "Hij blijft in de lijst als Vervallen, en de pdf kan nog steeds worden gedownload.",
+			"FINAL": "Een vervallen factuur kan niet meer worden verzonden of als betaald gemarkeerd.",
+			"CONFIRM": "Factuur laten vervallen",
+			"DONE": "Factuur {number} is vervallen",
+			"FAILED": "De factuur is niet gewijzigd. Probeer het opnieuw."
+		},
+		"delete": {
+			"TITLE": "Factuur {number} verwijderen?",
+			"FOR_GOOD": "Het concept wordt definitief verwijderd en verdwijnt uit de lijst.",
+			"NUMBER_FREE": "Het nummer kan aan een andere factuur worden gegeven.",
+			"CONFIRM": "Factuur verwijderen",
+			"DONE": "Factuur {number} is verwijderd",
+			"FAILED": "De factuur is niet verwijderd. Probeer het opnieuw."
 		}
 	},
 	"timeReports": {

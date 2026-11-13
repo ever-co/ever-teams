@@ -32,7 +32,7 @@ export function useTeamGeneralSettings() {
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
 	const { editOrganizationTeam } = useEditOrganizationTeam({ toastOnError: false });
 	const { createImageAssets } = useImageAssets();
-	const { arePermissionsLoaded, mayTurnTracking, saveMemberTracking } = useMemberTrackingSwitch();
+	const { isTrackingRuleKnown, mayTurnTracking, saveMemberTracking } = useMemberTrackingSwitch();
 	const teamId = activeTeam?.id;
 
 	const showFailure = useCallback(
@@ -200,8 +200,9 @@ export function useTeamGeneralSettings() {
 		// Whether the user can track here: Gauzy checks their switch in the team and their own (employee) switch
 		ownTracking: activeManager ? canMemberTrackTime(activeManager) : false,
 		canTurnOwnTracking,
-		// The permissions decide whether the save moves the employee switch too: the switch waits for them
-		isOwnTrackingPending: !arePermissionsLoaded,
+		// The permissions decide whether the save moves the employee switch too, and the organization whether the ranks
+		// apply: the switch waits for both
+		isOwnTrackingPending: !isTrackingRuleKnown,
 		saveName,
 		saveColor,
 		saveEmoji,
