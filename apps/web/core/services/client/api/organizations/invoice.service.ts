@@ -223,20 +223,27 @@ class InvoiceService extends APIService {
 	};
 
 	/** The invoice's own fields. Its lines are written apart, by `replaceInvoiceLines`. */
-	updateInvoice = async (invoiceId: string, update: InvoiceUpdate): Promise<void> => {
+	updateInvoice = async (invoiceId: string, update: InvoiceUpdate, scope?: InvoicesScope): Promise<void> => {
 		// A copy: the request writes the tenant and the organization into the object it is given.
 		const body = { ...update };
-		await this.put(`/invoices/${encodeURIComponent(invoiceId)}`, body);
+		const updateScope = scope ?? this.currentScope();
+		await this.put(`/invoices/${encodeURIComponent(invoiceId)}`, body, { tenantId: updateScope.tenantId });
 	};
 
 	/**
 	 * Replaces every line of the invoice. The API deletes its lines, then saves these, in two steps it does not undo:
 	 * a failure between them leaves the invoice without lines.
 	 */
-	replaceInvoiceLines = async (invoiceId: string, lines: ReadonlyArray<InvoiceItemRequest>): Promise<void> => {
+	replaceInvoiceLines = async (
+		invoiceId: string,
+		lines: ReadonlyArray<InvoiceItemRequest>,
+		scope?: InvoicesScope
+	): Promise<void> => {
 		const body: InvoiceItemRequest[] = [...lines];
+		const linesScope = scope ?? this.currentScope();
+		const config = { tenantId: linesScope.tenantId };
 		// The body is the list itself: each line already names its tenant and organization.
-		await this.post(`/invoice-item/bulk/${encodeURIComponent(invoiceId)}`, body, undefined, false);
+		await this.post(`/invoice-item/bulk/${encodeURIComponent(invoiceId)}`, body, config, false);
 	};
 }
 

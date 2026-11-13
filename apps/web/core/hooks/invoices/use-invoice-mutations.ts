@@ -70,6 +70,13 @@ type ReadWorkspace = InvoicesScope | null;
 
 const WORKSPACE_SWITCHED = 'Another workspace was chosen since the invoice was read';
 
+/** Whether the cookies still name the workspace an invoice was read in: another tab may have switched them since. */
+function isChosenWorkspace(scope: InvoicesScope) {
+	const isSameOrganization = getOrganizationIdCookie() === scope.organizationId;
+	const isSameTenant = getTenantIdCookie() === scope.tenantId;
+	return isSameOrganization && isSameTenant;
+}
+
 /**
  * Where an action on an invoice is made: the workspace the invoice was read in, while the cookies still name it.
  * Another tab may have switched them since; the action is then refused before any request, as a save is.
@@ -78,10 +85,7 @@ function workspaceToActIn(scope: ReadWorkspace): InvoicesScope {
 	if (!scope) {
 		throw new Error(WORKSPACE_SWITCHED);
 	}
-	const isSameOrganization = getOrganizationIdCookie() === scope.organizationId;
-	const isSameTenant = getTenantIdCookie() === scope.tenantId;
-	const isSameWorkspace = isSameOrganization && isSameTenant;
-	if (!isSameWorkspace) {
+	if (!isChosenWorkspace(scope)) {
 		throw new Error(WORKSPACE_SWITCHED);
 	}
 	return scope;
@@ -189,6 +193,8 @@ export function useSaveAndSendInvoice() {
 /** An edit to save: what it writes, and the invoice as it was read, to write back if the edit fails half way. */
 export interface InvoiceEdit {
 	invoiceId: string;
+	/** The invoice's workspace: every request of the save goes there, the ones that put it back included. */
+	scope: InvoicesScope;
 	revision: InvoiceRevision;
 	previous: InvoiceRevision;
 }
@@ -206,9 +212,9 @@ export type InvoiceEditOutcome =
 	/** Written in part and not written back: the invoice holds `lineCount` lines, null when it could not be read. */
 	| { status: 'notPutBack'; lineCount: number | null };
 
-async function readInvoiceBack(invoiceId: string): Promise<TSavedInvoice | null> {
+async function readInvoiceBack(edit: InvoiceEdit): Promise<TSavedInvoice | null> {
 	try {
-		return await invoiceService.getInvoice(invoiceId);
+		return await invoiceService.getInvoice(edit.invoiceId, { tenantId: edit.scope.tenantId });
 	} catch {
 		return null;
 	}
@@ -226,7 +232,7 @@ function lineCountOf(invoice: TSavedInvoice | null): number | null {
  * lines before it saves the new ones and a failure between the two leaves none.
  */
 async function putInvoiceBack(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
-	const current = await readInvoiceBack(edit.invoiceId);
+	const current = await readInvoiceBack(edit);
 	const currentLines = current?.invoiceItems ?? [];
 	const keepsItsLines = current !== null && haveSameLines(currentLines, edit.previous.lines);
 	const keepsItsFields = current !== null && haveSameFields(current, edit.previous.update);
@@ -236,12 +242,12 @@ async function putInvoiceBack(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
 	}
 	try {
 		if (!keepsItsLines) {
-			await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.previous.lines);
+			await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.previous.lines, edit.scope);
 		}
-		await invoiceService.updateInvoice(edit.invoiceId, edit.previous.update);
+		await invoiceService.updateInvoice(edit.invoiceId, edit.previous.update, edit.scope);
 		return { status: 'putBack' };
 	} catch {
-		const now = await readInvoiceBack(edit.invoiceId);
+		const now = await readInvoiceBack(edit);
 		return { status: 'notPutBack', lineCount: lineCountOf(now) };
 	}
 }
@@ -276,7 +282,7 @@ function editUnderStatus(edit: InvoiceEdit, status: InvoiceStatus): InvoiceEdit 
  */
 async function writeInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
 	try {
-		await invoiceService.updateInvoice(edit.invoiceId, edit.revision.update);
+		await invoiceService.updateInvoice(edit.invoiceId, edit.revision.update, edit.scope);
 	} catch (error) {
 		const isRefused = invoiceSaveFailureOf(error) === 'refused';
 		if (isRefused) {
@@ -285,16 +291,22 @@ async function writeInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> 
 		return putInvoiceBack(edit);
 	}
 	try {
-		await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.revision.lines);
+		await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.revision.lines, edit.scope);
 	} catch {
 		return putInvoiceBack(edit);
 	}
 	return { status: 'saved' };
 }
 
-/** Reads the invoice first: a payment or a void recorded since it was opened is never written over. */
+/**
+ * Reads the invoice first: a payment or a void recorded since it was opened is never written over. Nothing is sent
+ * once another tab switched the workspace; a switch during the save leaves every request in the invoice's workspace.
+ */
 async function saveInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
-	const current = await readInvoiceBack(edit.invoiceId);
+	if (!isChosenWorkspace(edit.scope)) {
+		return { status: 'notSaved' };
+	}
+	const current = await readInvoiceBack(edit);
 	if (!current) {
 		return { status: 'notChecked' };
 	}

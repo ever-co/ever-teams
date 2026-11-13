@@ -55,7 +55,7 @@ export function useInvoiceEdit(saved: SavedInvoice) {
 			return null;
 		}
 		const revision = invoiceRevisionOf(request, saved);
-		return { invoiceId: saved.id, revision, previous: saved.previous };
+		return { invoiceId: saved.id, scope: saved.workspace, revision, previous: saved.previous };
 	}, [invoiceRequest, isUnchanged, saved]);
 
 	const save = useCallback(async () => {
@@ -73,11 +73,10 @@ export function useInvoiceEdit(saved: SavedInvoice) {
 			if (!edit) {
 				return null;
 			}
-			const { invoiceNumber, organizationId, tenantId } = edit.revision.update;
+			const invoiceNumber = edit.revision.update.invoiceNumber;
 			const marksSent = isDraftInvoice(saved.status);
-			// Sent from the workspace the edit is saved in: a switch in another tab meanwhile sends nothing
-			const scope = { organizationId, tenantId };
-			const sending = { invoiceId: saved.id, invoiceNumber, email, marksSent, scope };
+			// Sent from the invoice's workspace: a switch in another tab meanwhile sends nothing
+			const sending = { invoiceId: saved.id, invoiceNumber, email, marksSent, scope: edit.scope };
 			return saveInvoiceEdit({ edit, sending });
 		},
 		[editOf, saveInvoiceEdit, saved]

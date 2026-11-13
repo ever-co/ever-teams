@@ -47,6 +47,11 @@ const LIST_KEY = queryKeys.invoices.list('tenant-1', 'organization-1');
 
 const LIST_SCOPE = { organizationId: 'organization-1', tenantId: 'tenant-1' };
 
+const SWITCHED_WORKSPACES = [
+	['organization', { organizationId: 'organization-2', tenantId: 'tenant-1' }],
+	['tenant', { organizationId: 'organization-1', tenantId: 'tenant-2' }]
+] as const;
+
 const draftToSend = {
 	invoiceId: 'inv-1',
 	invoiceNumber: 42,
@@ -303,8 +308,10 @@ describe('saving an edit to an invoice', () => {
 		terms: 'Billable time from 2026-10-01 to 2026-10-31',
 		status: 'SENT'
 	};
+	const workspace = { organizationId: 'organization-1', tenantId: 'tenant-1' };
 	const edit = {
 		invoiceId: 'inv-42',
+		scope: workspace,
 		revision: { update: { ...fields, totalValue: 960 }, lines: [editedLine] },
 		previous: { update: { ...fields, totalValue: 800 }, lines: [previousLine] }
 	} as unknown as InvoiceEdit;
@@ -313,7 +320,7 @@ describe('saving an edit to an invoice', () => {
 		invoiceNumber: 42,
 		email: 'billing@acme.test',
 		marksSent: false,
-		scope: LIST_SCOPE
+		scope: workspace
 	};
 
 	function invoiceRead(status: string, lines: unknown[] = [{ id: 'item-1', ...previousLine }]) {
@@ -363,8 +370,9 @@ describe('saving an edit to an invoice', () => {
 		const saved = await saveWith(result);
 
 		expect(saved).toEqual({ outcome: { status: 'saved' }, sending: null });
-		expect(mockUpdateInvoice).toHaveBeenCalledWith('inv-42', edit.revision.update);
-		expect(mockReplaceInvoiceLines).toHaveBeenCalledWith('inv-42', edit.revision.lines);
+		expect(mockGetInvoice).toHaveBeenCalledWith('inv-42', { tenantId: 'tenant-1' });
+		expect(mockUpdateInvoice).toHaveBeenCalledWith('inv-42', edit.revision.update, workspace);
+		expect(mockReplaceInvoiceLines).toHaveBeenCalledWith('inv-42', edit.revision.lines, workspace);
 		expect(mockUpdateInvoice.mock.invocationCallOrder[0]).toBeLessThan(
 			mockReplaceInvoiceLines.mock.invocationCallOrder[0]
 		);
@@ -425,8 +433,8 @@ describe('saving an edit to an invoice', () => {
 		const saved = await saveWith(result);
 
 		expect(saved).toEqual({ outcome: { status: 'putBack' }, sending: null });
-		expect(mockReplaceInvoiceLines).toHaveBeenLastCalledWith('inv-42', edit.previous.lines);
-		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', edit.previous.update);
+		expect(mockReplaceInvoiceLines).toHaveBeenLastCalledWith('inv-42', edit.previous.lines, workspace);
+		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', edit.previous.update, workspace);
 		expect(mockReplaceInvoiceLines.mock.invocationCallOrder[1]).toBeLessThan(
 			mockUpdateInvoice.mock.invocationCallOrder[1]
 		);
@@ -442,7 +450,7 @@ describe('saving an edit to an invoice', () => {
 
 		expect(saved).toEqual({ outcome: { status: 'putBack' }, sending: null });
 		expect(mockReplaceInvoiceLines).toHaveBeenCalledTimes(1);
-		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', edit.previous.update);
+		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', edit.previous.update, workspace);
 	});
 
 	it('puts the invoice back when the answer to its fields was lost and they were written', async () => {
@@ -458,7 +466,7 @@ describe('saving an edit to an invoice', () => {
 
 		expect(saved).toEqual({ outcome: { status: 'putBack' }, sending: null });
 		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
-		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', edit.previous.update);
+		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', edit.previous.update, workspace);
 	});
 
 	it('says nothing was saved when nothing reached the invoice, writing nothing back', async () => {
@@ -497,7 +505,7 @@ describe('saving an edit to an invoice', () => {
 		const saved = await saveWith(result, sending);
 
 		expect(saved).toEqual({ outcome: { status: 'saved' }, sending: 'sent' });
-		expect(mockSendInvoiceByEmail).toHaveBeenCalledWith(sending, LIST_SCOPE);
+		expect(mockSendInvoiceByEmail).toHaveBeenCalledWith(sending, workspace);
 		expect(mockChangeInvoiceStatus).not.toHaveBeenCalled();
 	});
 
@@ -510,12 +518,38 @@ describe('saving an edit to an invoice', () => {
 
 		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
 	});
-});
 
-const SWITCHED_WORKSPACES = [
-	['organization', { organizationId: 'organization-2', tenantId: 'tenant-1' }],
-	['tenant', { organizationId: 'organization-1', tenantId: 'tenant-2' }]
-] as const;
+	it.each(SWITCHED_WORKSPACES)(
+		'reads and writes nothing once another tab switched the %s',
+		async (_switched, cookies) => {
+			mockCookieScope.organizationId = cookies.organizationId;
+			mockCookieScope.tenantId = cookies.tenantId;
+			const { result } = renderSaveEdit();
+
+			const saved = await saveWith(result, sending);
+
+			expect(saved).toEqual({ outcome: { status: 'notSaved' }, sending: null });
+			expect(mockGetInvoice).not.toHaveBeenCalled();
+			expect(mockUpdateInvoice).not.toHaveBeenCalled();
+			expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
+			expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
+		}
+	);
+
+	it('writes its lines in the invoice’s workspace when another tab switches it once the save has begun', async () => {
+		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
+		mockUpdateInvoice.mockImplementation(async () => {
+			mockCookieScope.tenantId = 'tenant-2';
+		});
+		mockReplaceInvoiceLines.mockResolvedValue(undefined);
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'saved' }, sending: null });
+		expect(mockReplaceInvoiceLines).toHaveBeenCalledWith('inv-42', edit.revision.lines, workspace);
+	});
+});
 
 describe.each(SWITCHED_WORKSPACES)('an invoice of the list after another tab switched the %s', (_switched, cookies) => {
 	beforeEach(() => {

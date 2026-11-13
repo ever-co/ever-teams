@@ -2,10 +2,11 @@ import qs from 'qs';
 import type { InvoiceUpdate } from '@/core/lib/utils/invoice-edit';
 import type { InvoiceItemRequest } from '@/core/lib/utils/invoices';
 
+const mockCookieScope = { organizationId: 'organization-1', tenantId: 'tenant-1' };
 jest.mock('@/core/lib/helpers/cookies', () => ({
 	...jest.requireActual('@/core/lib/helpers/cookies'),
-	getOrganizationIdCookie: () => 'organization-1',
-	getTenantIdCookie: () => 'tenant-1'
+	getOrganizationIdCookie: () => mockCookieScope.organizationId,
+	getTenantIdCookie: () => mockCookieScope.tenantId
 }));
 
 import { invoiceService } from './invoice.service';
@@ -23,6 +24,8 @@ const line = { description: 'Ana Lima', price: 80, quantity: 10, totalValue: 800
 
 afterEach(() => {
 	jest.restoreAllMocks();
+	mockCookieScope.organizationId = 'organization-1';
+	mockCookieScope.tenantId = 'tenant-1';
 });
 
 describe('reading an invoice to edit it', () => {
@@ -48,7 +51,7 @@ describe('writing an edit', () => {
 
 		await invoiceService.updateInvoice('invoice-42', update);
 
-		expect(put).toHaveBeenCalledWith('/invoices/invoice-42', update);
+		expect(put).toHaveBeenCalledWith('/invoices/invoice-42', update, { tenantId: 'tenant-1' });
 		expect(put.mock.calls[0][1]).not.toBe(update);
 	});
 
@@ -58,6 +61,20 @@ describe('writing an edit', () => {
 
 		await invoiceService.replaceInvoiceLines('invoice-42', lines);
 
-		expect(post).toHaveBeenCalledWith('/invoice-item/bulk/invoice-42', [line], undefined, false);
+		expect(post).toHaveBeenCalledWith('/invoice-item/bulk/invoice-42', [line], { tenantId: 'tenant-1' }, false);
+	});
+
+	it('writes under the tenant of the invoice’s workspace, not the one another tab left in the cookies', async () => {
+		const put = jest.spyOn(invoiceService, 'put').mockResolvedValue({ data: {} } as never);
+		const post = jest.spyOn(invoiceService, 'post').mockResolvedValue({ data: [] } as never);
+		const invoiceWorkspace = { organizationId: 'organization-1', tenantId: 'tenant-1' };
+		mockCookieScope.organizationId = 'organization-2';
+		mockCookieScope.tenantId = 'tenant-2';
+
+		await invoiceService.updateInvoice('invoice-42', update, invoiceWorkspace);
+		await invoiceService.replaceInvoiceLines('invoice-42', [line] as InvoiceItemRequest[], invoiceWorkspace);
+
+		expect(put.mock.calls[0][2]?.tenantId).toBe('tenant-1');
+		expect(post.mock.calls[0][2]?.tenantId).toBe('tenant-1');
 	});
 });
