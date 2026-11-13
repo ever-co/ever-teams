@@ -73,6 +73,29 @@ function joinedTimeLogIds(current: ReadonlyArray<string> | undefined, added: Rea
 	return [...known, ...added];
 }
 
+/** A log's id joins its entry's own list in place: a copy per log would grow with the square of the logs. */
+function appendLogId(logIdsByKey: Map<string, string[]>, key: string, logId: string) {
+	const logIds = logIdsByKey.get(key);
+	if (logIds) {
+		logIds.push(logId);
+		return;
+	}
+	logIdsByKey.set(key, [logId]);
+}
+
+function entriesWithLogIds(byKey: ReadonlyMap<string, BillableEntry>, logIdsByKey: ReadonlyMap<string, string[]>) {
+	const entries: BillableEntry[] = [];
+	for (const [key, entry] of byKey) {
+		const timeLogIds = logIdsByKey.get(key);
+		if (timeLogIds) {
+			entries.push({ ...entry, timeLogIds });
+			continue;
+		}
+		entries.push(entry);
+	}
+	return entries;
+}
+
 function entryKeyOf(projectId: string, employeeId: string, taskId: string | null) {
 	return [projectId, employeeId, taskId ?? ''].join('|');
 }
@@ -86,6 +109,7 @@ export function billableEntriesOf(
 	projectIds: ReadonlySet<string>
 ): BillableEntry[] {
 	const byKey = new Map<string, BillableEntry>();
+	const logIdsByKey = new Map<string, string[]>();
 	for (const log of logs) {
 		const projectId = log.projectId;
 		const employeeId = log.employeeId;
@@ -108,11 +132,11 @@ export function billableEntriesOf(
 		entry.seconds += seconds;
 		const logId = log.id;
 		if (logId) {
-			entry.timeLogIds = joinedTimeLogIds(entry.timeLogIds, [logId]);
+			appendLogId(logIdsByKey, key, logId);
 		}
 		byKey.set(key, entry);
 	}
-	return [...byKey.values()];
+	return entriesWithLogIds(byKey, logIdsByKey);
 }
 
 export interface ProjectClientRates {
