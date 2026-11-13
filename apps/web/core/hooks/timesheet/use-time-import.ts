@@ -392,7 +392,8 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 		if (step.blocker || !step.dateOrder) {
 			return;
 		}
-		keepColumnsChoice(table.headers, columns);
+		const confirmedChoice: TimeImportColumnsChoice = { ...columns, dateOrder: step.dateOrder };
+		keepColumnsChoice(table.headers, confirmedChoice);
 		const sheet = timeImportSheetOfTable(table, columns.mapping, step.dateOrder);
 		await checkSheet({ fileName, sheet, table, columns, canEditColumns: true });
 	}, [checkSheet, state]);

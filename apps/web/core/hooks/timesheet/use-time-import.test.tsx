@@ -450,6 +450,26 @@ describe('useTimeImport for a file from another tool', () => {
 		expect(second.result.current.summary.readyCount).toBe(2);
 	});
 
+	it('keeps the date format a file told by itself for the next file of the same headers', async () => {
+		const first = renderImport();
+		await act(() =>
+			first.result.current.chooseFile(textFile('Datum,Beginn,Ende,Notiz\n25/02/2024,09:00,10:00,\n'))
+		);
+		act(() => {
+			first.result.current.chooseColumn('date', 0);
+			first.result.current.chooseColumn('startTime', 1);
+			first.result.current.chooseColumn('endTime', 2);
+		});
+		expect(first.result.current.columnsStep?.dateOrder).toBe('dayFirst');
+		await act(() => first.result.current.confirmColumns());
+
+		const second = renderImport();
+		await act(() => second.result.current.chooseFile(textFile(EXPORT, 'april.csv')));
+
+		expect(second.result.current.stage).toBe('preview');
+		expect(second.result.current.rows[0].entry).toMatchObject({ start: at(9), end: at(10) });
+	});
+
 	it('still imports when the browser refuses its storage, and asks again next time', async () => {
 		const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 		const getItem = jest.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
