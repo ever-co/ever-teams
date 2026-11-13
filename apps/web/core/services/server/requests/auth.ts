@@ -48,12 +48,13 @@ export function sendAuthCodeRequest(email: string, callbackUrl: string) {
 /**
  * Asks Gauzy to e-mail a sign-in code, as this app: its branding, and `callbackUrl`, the link to its sign-in page.
  * Gauzy adds `?email=&code=` to the link, and uses it only on an origin its deployment lists (its own page otherwise).
+ * Without a `callbackUrl` (no public origin is configured for this app) no page is named and Gauzy links to its own.
  */
-export function signInEmailRequest(email: string, callbackUrl: string) {
+export function signInEmailRequest(email: string, callbackUrl?: string) {
 	return serverFetch<{ status: number; message: string | 'ok' }>({
 		path: '/auth/signin.email',
 		method: 'POST',
-		body: { email, ...appEmailBranding(), appMagicSignUrl: callbackUrl }
+		body: { email, ...appEmailBranding(), ...(callbackUrl ? { appMagicSignUrl: callbackUrl } : {}) }
 	});
 }
 
@@ -214,13 +215,14 @@ export const resentVerifyUserLinkRequest = (data: {
 /**
  * Asks Gauzy to e-mail a password reset link that opens this app: `resetPasswordUrl` is its own page, to which
  * Gauzy adds `?token=`. Gauzy uses it only on an origin its deployment lists (its own page otherwise), and a Gauzy
- * that does not know the field yet leaves it out.
+ * that does not know the field yet leaves it out. Without a `resetPasswordUrl` (no public origin is configured for
+ * this app) no page is named and Gauzy links to its own.
  */
-export const requestPasswordRequest = (email: string, resetPasswordUrl: string) => {
+export const requestPasswordRequest = (email: string, resetPasswordUrl?: string) => {
 	return serverFetch<boolean>({
 		path: '/auth/request-password',
 		method: 'POST',
-		body: { email, appResetPasswordUrl: resetPasswordUrl }
+		body: { email, ...(resetPasswordUrl ? { appResetPasswordUrl: resetPasswordUrl } : {}) }
 	});
 };
 

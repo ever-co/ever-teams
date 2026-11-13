@@ -54,16 +54,15 @@ describe('POST /api/auth/signin-email', () => {
 		expect(await res.json()).toEqual({ status: 200, message: 'OK' });
 	});
 
-	it('uses the origin of the request when no public origin is configured', async () => {
+	it('names no page when no public origin is configured, whatever host the request names', async () => {
 		configureOrigin({});
 		mockSignInEmailRequest.mockResolvedValue({ data: { status: 200, message: 'OK' } });
 
-		await POST(post({ email: 'ada@example.org' }, 'https://teams.example.org/api/auth/signin-email'));
+		// The link carries a code that signs the person in: it is never built on a host a caller can choose
+		const res = await POST(post({ email: 'ada@example.org' }, 'https://other.example/api/auth/signin-email'));
 
-		expect(mockSignInEmailRequest).toHaveBeenCalledWith(
-			'ada@example.org',
-			'https://teams.example.org/auth/passcode'
-		);
+		expect(mockSignInEmailRequest).toHaveBeenCalledWith('ada@example.org', undefined);
+		expect(res.status).toBe(200);
 	});
 
 	it('refuses an address that is not one, without asking Gauzy', async () => {

@@ -13,10 +13,12 @@ export async function POST(req: Request) {
 		return NextResponse.json({ errors }, { status: 400 });
 	}
 
-	// The link of the e-mail opens this app's own page, on the configured origin first: behind a reverse proxy the
-	// request's own URL can be an internal address, which Gauzy does not put in an e-mail.
-	const origin = appPublicOrigin() ?? new URL(req.url).origin;
-	const resetPasswordUrl = `${origin}${RESET_PASSWORD_CALLBACK_PATH}`;
+	// The link of the e-mail opens this app's own page, on the origin this deployment is configured with and never on
+	// the request's own: that one can be an internal address behind a reverse proxy, or a host the caller named, and
+	// the link carries the token that sets the password. Without a configured origin no page is named, and Gauzy
+	// keeps its own link.
+	const origin = appPublicOrigin();
+	const resetPasswordUrl = origin ? `${origin}${RESET_PASSWORD_CALLBACK_PATH}` : undefined;
 
 	const result = await requestPasswordRequest(body.email, resetPasswordUrl).catch(() => null);
 
