@@ -2043,12 +2043,21 @@ describe('Ever Teams feature surface preservation', () => {
 		// [id]/mappings GET and POST, [id]/mappings/[mappingId] PUT and DELETE, [id]/mappings/[mappingId]/import POST,
 		// [id]/webhook POST, [id]/runs GET, [id]/conflicts GET, [id]/conflicts/[conflictId]/resolve POST).
 		// 350 files and 444 verbs: the 9 / 9 of the clients and invoices with the 341 / 435 of develop and its Jira proxies.
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(350);
+		// 353 files and 449 verbs with the management of a channel's incoming webhooks
+		// (/api/chat/conversations/[id]/webhooks GET and POST, /api/chat/webhooks/[id] PATCH and DELETE,
+		// /api/chat/webhooks/[id]/secret POST).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(353);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(444);
+		).toHaveLength(449);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of the platform's incoming webhook management of a channel (ever-gauzy #11799)
+				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::GET',
+				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::POST',
+				'apps/web/app/api/chat/webhooks/[id]/route.ts::PATCH',
+				'apps/web/app/api/chat/webhooks/[id]/route.ts::DELETE',
+				'apps/web/app/api/chat/webhooks/[id]/secret/route.ts::POST',
 				// Proxy mode twins of Gauzy's invoice routes (#5088)
 				'apps/web/app/api/invoices/route.ts::POST',
 				'apps/web/app/api/invoices/pagination/route.ts::GET',

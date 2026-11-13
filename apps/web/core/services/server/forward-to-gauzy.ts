@@ -40,6 +40,11 @@ interface ForwardToGauzyOptions {
 	 * one: the interaction route's `idempotency-key`. Every other header of the request stays here.
 	 */
 	forwardHeaders?: readonly string[];
+	/**
+	 * The answer is marked `Cache-Control: no-store`, as the platform marks its own: for a route whose answer can hold a
+	 * secret shown once (a chat webhook's URL and signing secret), which no cache on the way may keep.
+	 */
+	noStore?: boolean;
 }
 
 /**
@@ -104,6 +109,9 @@ export async function forwardToGauzy(
 
 	return new NextResponse(upstream.body, {
 		status: upstream.status,
-		headers: { 'Content-Type': upstream.headers.get('Content-Type') ?? 'application/json' }
+		headers: {
+			'Content-Type': upstream.headers.get('Content-Type') ?? 'application/json',
+			...(options.noStore ? { 'Cache-Control': 'no-store' } : {})
+		}
 	});
 }

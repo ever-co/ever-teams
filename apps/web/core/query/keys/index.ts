@@ -528,6 +528,10 @@ export const queryKeys = {
 	chatLinkPreview: (tenantId: string | undefined | null, url: string) => ['chat-link-preview', tenantId ?? null, url] as const,
 	chatLinkPreviewPicture: (tenantId: string | undefined | null, url: string) =>
 		['chat-link-preview-picture', tenantId ?? null, url] as const,
+	// A channel's incoming webhooks, for its managers. Outside the `chat` prefix too: the live channel's invalidation
+	// on every message has no reason to read the list again; the Integrations dialog reads it when it opens.
+	chatWebhooks: (tenantId: string | undefined | null, conversationId: string | undefined | null) =>
+		['chat-webhooks', tenantId ?? null, conversationId ?? null] as const,
 
 	taskComments: {
 		all: ['task-comments'] as const,
