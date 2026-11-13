@@ -724,7 +724,14 @@ export function haveSameFields(current: WrittenInvoiceFields, update: InvoiceUpd
 }
 
 /** What the screen of a saved invoice shows while it reads it. */
-export type SavedInvoiceStatus = 'loading' | 'workspaceError' | 'error' | 'missing' | 'notFromTime' | 'ready';
+export type SavedInvoiceStatus =
+	| 'loading'
+	| 'workspaceError'
+	| 'error'
+	| 'missing'
+	| 'otherWorkspace'
+	| 'notFromTime'
+	| 'ready';
 
 export interface SavedInvoiceRead {
 	/** The organization dates the invoice: its days are read in its zone. */
@@ -734,7 +741,22 @@ export interface SavedInvoiceRead {
 	isMissing: boolean;
 	isError: boolean;
 	hasInvoice: boolean;
+	/** Of the workspace it was read in: see `isInvoiceOfWorkspace`. */
+	isOfWorkspace: boolean;
 	isReadable: boolean;
+}
+
+/**
+ * The API finds an invoice by its id across every organization of the tenant: an invoice of another organization,
+ * opened by its link after another tab switched the workspace, is not edited or replaced from this one.
+ */
+export function isInvoiceOfWorkspace(invoice: TSavedInvoice | null, workspace: InvoiceWorkspace | null) {
+	if (!invoice || !workspace) {
+		return false;
+	}
+	const isSameOrganization = invoice.organizationId === workspace.organizationId;
+	const isSameTenant = invoice.tenantId === workspace.tenantId;
+	return isSameOrganization && isSameTenant;
 }
 
 export function savedInvoiceStatusOf(read: SavedInvoiceRead): SavedInvoiceStatus {
@@ -752,6 +774,9 @@ export function savedInvoiceStatusOf(read: SavedInvoiceRead): SavedInvoiceStatus
 	}
 	if (read.isError || !read.hasInvoice) {
 		return 'error';
+	}
+	if (!read.isOfWorkspace) {
+		return 'otherWorkspace';
 	}
 	if (!read.isReadable) {
 		return 'notFromTime';

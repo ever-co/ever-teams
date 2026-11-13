@@ -148,6 +148,12 @@ export function useInvoiceQuery(invoiceId: string | null) {
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
 	const hasScope = Boolean(tenantId) && Boolean(organizationId);
+	const scope = useMemo<InvoicesScope | null>(() => {
+		if (!hasScope) {
+			return null;
+		}
+		return { organizationId, tenantId };
+	}, [hasScope, organizationId, tenantId]);
 
 	const query = useQuery({
 		queryKey: queryKeys.invoices.detail(tenantId, organizationId, invoiceId),
@@ -159,6 +165,8 @@ export function useInvoiceQuery(invoiceId: string | null) {
 
 	return {
 		invoice: query.data ?? null,
+		/** The workspace the invoice was read in. */
+		scope,
 		isLoading: query.isLoading,
 		isMissing: isMissingInvoice(query.error),
 		isError: query.isError,

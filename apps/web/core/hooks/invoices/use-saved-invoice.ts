@@ -5,7 +5,7 @@ import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useCurrentOrganizationOwner } from '@/core/hooks/bootstrap/use-feature-data';
 import { useClientNames } from '@/core/hooks/clients/use-client-names';
-import { savedInvoiceOf, savedInvoiceStatusOf } from '@/core/lib/utils/invoice-edit';
+import { isInvoiceOfWorkspace, savedInvoiceOf, savedInvoiceStatusOf } from '@/core/lib/utils/invoice-edit';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { useInvoiceQuery } from './use-invoices-query';
 
@@ -34,6 +34,7 @@ export function useSavedInvoice(invoiceId: string | null) {
 		isMissing: read.isMissing,
 		isError: read.isError,
 		hasInvoice: invoice !== null,
+		isOfWorkspace: isInvoiceOfWorkspace(invoice, read.scope),
 		isReadable: saved !== null
 	});
 

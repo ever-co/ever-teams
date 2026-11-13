@@ -6,6 +6,7 @@ import {
 	invoiceGroupingOfLines,
 	invoiceNoteOfTerms,
 	invoiceRevisionOf,
+	isInvoiceOfWorkspace,
 	percentTextOf,
 	periodOfDays,
 	savedInvoiceOf,
@@ -447,6 +448,7 @@ describe('what the screen of a saved invoice shows while it reads it', () => {
 		isMissing: false,
 		isError: false,
 		hasInvoice: true,
+		isOfWorkspace: true,
 		isReadable: true
 	};
 
@@ -463,6 +465,31 @@ describe('what the screen of a saved invoice shows while it reads it', () => {
 		expect(savedInvoiceStatusOf({ ...ready, isError: true })).toBe('error');
 		expect(savedInvoiceStatusOf({ ...ready, isReadable: false })).toBe('notFromTime');
 		expect(savedInvoiceStatusOf(ready)).toBe('ready');
+	});
+
+	it('opens no invoice of another workspace, whatever it was made from', () => {
+		expect(savedInvoiceStatusOf({ ...ready, isOfWorkspace: false })).toBe('otherWorkspace');
+		expect(savedInvoiceStatusOf({ ...ready, isOfWorkspace: false, isReadable: false })).toBe('otherWorkspace');
+	});
+});
+
+describe('whether an invoice read back belongs to the workspace it was read in', () => {
+	const workspace = { organizationId: 'organization-1', tenantId: 'tenant-1' };
+
+	it('belongs to it when it names the same organization and tenant', () => {
+		expect(isInvoiceOfWorkspace(savedRaw(), workspace)).toBe(true);
+	});
+
+	it('does not when it names another organization of the tenant, or another tenant', () => {
+		const otherOrganization = { ...workspace, organizationId: 'organization-2' };
+
+		expect(isInvoiceOfWorkspace(savedRaw(), otherOrganization)).toBe(false);
+		expect(isInvoiceOfWorkspace(savedRaw({ tenantId: 'tenant-2' }), workspace)).toBe(false);
+	});
+
+	it('does not while the invoice or the workspace is unknown', () => {
+		expect(isInvoiceOfWorkspace(null, workspace)).toBe(false);
+		expect(isInvoiceOfWorkspace(savedRaw(), null)).toBe(false);
 	});
 });
 
