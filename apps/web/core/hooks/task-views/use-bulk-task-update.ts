@@ -66,28 +66,30 @@ export function useBulkTaskUpdate() {
 	const run = useCallback(
 		async (input: { taskIds?: string[]; changes?: ITaskBulkChanges; items?: ITaskBulkUpdateItem[] }): Promise<ITaskBulkUpdateOutcome> => {
 			// A status name the platform does not take would refuse the whole request: the id beside it is enough.
-			const outcome = await taskViewsService.bulkUpdate({
-				...input,
-				...(input.changes ? { changes: bulkChangesForPlatform(input.changes) } : {}),
-				...(input.items ? { items: bulkItemsForPlatform(input.items) } : {})
-			});
+			const outcome = await taskViewsService.bulkUpdate(input.changes ? { ...input, changes: bulkChangesForPlatform(input.changes) } : input);
 			refresh();
 			return outcome;
 		},
 		[refresh]
 	);
 
-	/** Sends the previous values back, batch by batch, and says how many tasks were put back. */
+	/**
+	 * Sends the previous values back, batch by batch, and says how many tasks were put back. A task whose previous
+	 * values the platform cannot take (a status name alone, not one of its own) is not sent and counts as not put back.
+	 */
 	const undo = useCallback(
 		async (items: ITaskBulkUpdateItem[]) => {
-			const settled = await Promise.allSettled(batchesOf(items).map((batch) => run({ items: batch })));
+			const sendable = bulkItemsForPlatform(items);
+			const dropped = items.length - sendable.length;
+			const settled = await Promise.allSettled(batchesOf(sendable).map((batch) => run({ items: batch })));
 			const { outcomes, failed } = settledOutcomes(settled);
 			const outcome = mergeOutcomes(outcomes);
 			if (failed > 0 && outcomes.length === 0) {
 				toast.error(t('taskViews.UNDO_FAILED'));
 				return;
 			}
-			if (failed > 0 || outcome.refused > 0) {
+			// `items.length - applied` below counts the tasks left out here as not put back.
+			if (failed > 0 || outcome.refused > 0 || dropped > 0) {
 				toast.warning(t('taskViews.UNDONE_PARTLY', { applied: outcome.applied, refused: outcome.refused + items.length - outcome.applied - outcome.refused }));
 				return;
 			}
