@@ -49,3 +49,49 @@ export function pageOfNotificationEmailLink(hash: string): string | null {
 	}
 	return `${INBOX_PAGE}?item=${encodeURIComponent(item)}`;
 }
+
+/** The page a link meant, kept for this tab while the person signs in. */
+const KEPT_PAGE_KEY = 'ever-teams:notification-email-page';
+
+/** How long a kept page waits for the sign-in: one with an e-mailed code takes a few minutes at most. */
+export const KEPT_PAGE_TTL_MS = 15 * 60 * 1000;
+
+const ENTRY_PAGE = /^\/inbox\?item=[\w-]{1,64}$/;
+
+/** One of the pages pageOfNotificationEmailLink names, and nothing else: what is kept is read back from storage. */
+function isLinkedPage(page: unknown): page is string {
+	return (
+		page === INBOX_PAGE ||
+		page === NOTIFICATION_SETTINGS_PAGE ||
+		(typeof page === 'string' && ENTRY_PAGE.test(page))
+	);
+}
+
+/**
+ * Keeps the page a link means until this tab's sign-in ends. Signed out, the link lands on the sign-in page, and the
+ * page it means is behind the sign-in.
+ */
+export function keepNotificationEmailPage(page: string, now = Date.now()): void {
+	try {
+		window.sessionStorage.setItem(KEPT_PAGE_KEY, JSON.stringify({ page, keptAt: now }));
+	} catch {
+		// No storage (a private window): the sign-in ends on the home page
+	}
+}
+
+/** The page kept for this tab's sign-in, read once: null unless it is one of the linked pages, kept lately. */
+export function takeNotificationEmailPage(now = Date.now()): string | null {
+	try {
+		const stored = window.sessionStorage.getItem(KEPT_PAGE_KEY);
+		if (stored === null) {
+			return null;
+		}
+		window.sessionStorage.removeItem(KEPT_PAGE_KEY);
+		const { page, keptAt } = JSON.parse(stored) as { page?: unknown; keptAt?: unknown };
+		const age = typeof keptAt === 'number' ? now - keptAt : Number.NaN;
+		const isRecent = age >= 0 && age <= KEPT_PAGE_TTL_MS;
+		return isRecent && isLinkedPage(page) ? page : null;
+	} catch {
+		return null;
+	}
+}
