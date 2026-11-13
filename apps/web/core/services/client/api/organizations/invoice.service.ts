@@ -1,5 +1,7 @@
 import qs from 'qs';
 import { APIService } from '../../api.service';
+import { scopedReadConfig, scopedWriteConfig } from '../../api-request-scope';
+import type { APIConfig } from '../../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import type { InvoiceStatusChange } from '@/core/lib/utils/invoice-actions';
 import type { InvoiceUpdate } from '@/core/lib/utils/invoice-edit';
@@ -31,6 +33,8 @@ const SAVED_INVOICE_RELATIONS: ReadonlyArray<string> = ['invoiceItems', 'invoice
 interface SavedInvoiceReadOptions {
 	signal?: AbortSignal;
 	tenantId?: string | null;
+	/** The token the read goes out with; the cookies' one when left out. */
+	accessToken?: string | null;
 }
 
 export interface InvoiceToEmail {
@@ -42,6 +46,29 @@ export interface InvoiceToEmail {
 export interface InvoicesScope {
 	organizationId: string;
 	tenantId: string;
+}
+
+/**
+ * A workspace, and the token a save began with. In direct mode a request carries that token instead of the cookies'
+ * one, so it reaches the workspace whatever another tab chose since; in proxy mode the route uses the cookies' one.
+ */
+export interface InvoiceWriteScope extends InvoicesScope {
+	accessToken?: string | null;
+}
+
+function readConfigOf(options: SavedInvoiceReadOptions): APIConfig {
+	if (!options.accessToken) {
+		return { signal: options.signal, tenantId: options.tenantId };
+	}
+	const scope = { tenantId: options.tenantId, accessToken: options.accessToken };
+	return scopedReadConfig({ scope, signal: options.signal });
+}
+
+function writeConfigOf(scope: InvoiceWriteScope): APIConfig {
+	if (!scope.accessToken) {
+		return { tenantId: scope.tenantId };
+	}
+	return scopedWriteConfig(scope);
 }
 
 interface InvoicesPageOptions {
@@ -263,7 +290,7 @@ class InvoiceService extends APIService {
 			const data = JSON.stringify({ relations: SAVED_INVOICE_RELATIONS });
 			const query = qs.stringify({ data });
 			const url = `/invoices/${encodeURIComponent(invoiceId)}?${query}`;
-			const response = await this.get(url, { signal: options.signal, tenantId: options.tenantId });
+			const response = await this.get(url, readConfigOf(options));
 			return validateApiResponse(savedInvoiceSchema, response.data, 'getInvoice API response');
 		} catch (error) {
 			this.logValidationError(error, 'Invoice validation failed:');
@@ -272,11 +299,11 @@ class InvoiceService extends APIService {
 	};
 
 	/** The invoice's own fields. Its lines are written apart, by `replaceInvoiceLines`. */
-	updateInvoice = async (invoiceId: string, update: InvoiceUpdate, scope?: InvoicesScope): Promise<void> => {
+	updateInvoice = async (invoiceId: string, update: InvoiceUpdate, scope?: InvoiceWriteScope): Promise<void> => {
 		// A copy: the request writes the tenant and the organization into the object it is given.
 		const body = { ...update };
 		const updateScope = scope ?? this.currentScope();
-		await this.put(`/invoices/${encodeURIComponent(invoiceId)}`, body, { tenantId: updateScope.tenantId });
+		await this.put(`/invoices/${encodeURIComponent(invoiceId)}`, body, writeConfigOf(updateScope));
 	};
 
 	/**
@@ -286,11 +313,11 @@ class InvoiceService extends APIService {
 	replaceInvoiceLines = async (
 		invoiceId: string,
 		lines: ReadonlyArray<InvoiceItemRequest>,
-		scope?: InvoicesScope
+		scope?: InvoiceWriteScope
 	): Promise<void> => {
 		const body: InvoiceItemRequest[] = [...lines];
 		const linesScope = scope ?? this.currentScope();
-		const config = { tenantId: linesScope.tenantId };
+		const config = writeConfigOf(linesScope);
 		// The body is the list itself: each line already names its tenant and organization.
 		await this.post(`/invoice-item/bulk/${encodeURIComponent(invoiceId)}`, body, config, false);
 	};

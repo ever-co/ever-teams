@@ -2050,8 +2050,8 @@ describe('Ever Teams feature surface preservation', () => {
 		// PUT, [id]/action PUT, [id] DELETE; #5158).
 		// 356 files and 453 verbs with the read of one invoice, which a sending checks before marking it Sent
 		// (/api/invoices/[id] GET; #5158).
-		// 357 files and 455 verbs: develop's 356 / 453 with the proxies that update one invoice and replace its lines
-		// (/api/invoices/[id] PUT, /api/invoice-item/bulk/[invoiceId] POST; #5159).
+		// 357 files and 455 verbs with the proxies that update one invoice and replace its lines (/api/invoices/[id]
+		// PUT, /api/invoice-item/bulk/[invoiceId] POST; #5159). Its read of one invoice is #5158's.
 		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(357);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))

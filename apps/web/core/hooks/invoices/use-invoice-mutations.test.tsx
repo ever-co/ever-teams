@@ -29,10 +29,15 @@ jest.mock('@/core/services/client/api/organizations/invoice.service', () => ({
 		replaceInvoiceLines: (...args: unknown[]) => mockReplaceInvoiceLines(...args)
 	}
 }));
-const mockCookieScope = { organizationId: 'organization-1', tenantId: 'tenant-1' };
+const mockCookieScope = { organizationId: 'organization-1', tenantId: 'tenant-1', accessToken: 'token-1' };
 jest.mock('@/core/lib/helpers/cookies', () => ({
 	getTenantIdCookie: () => mockCookieScope.tenantId,
-	getOrganizationIdCookie: () => mockCookieScope.organizationId
+	getOrganizationIdCookie: () => mockCookieScope.organizationId,
+	getAccessTokenCookie: () => mockCookieScope.accessToken
+}));
+jest.mock('@/core/constants/config/constants', () => ({
+	...jest.requireActual('@/core/constants/config/constants'),
+	GAUZY_API_BASE_SERVER_URL: { value: '' }
 }));
 
 import {
@@ -46,6 +51,10 @@ import {
 	type InvoiceEdit
 } from './use-invoice-mutations';
 import type { InvoiceRequest } from '@/core/lib/utils/invoices';
+import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+
+/** Empty in proxy mode; the API's address when the browser calls it directly. */
+const mockApiAddress = GAUZY_API_BASE_SERVER_URL as { value: string };
 
 const LIST_KEY = queryKeys.invoices.list('tenant-1', 'organization-1');
 
@@ -111,6 +120,8 @@ beforeEach(() => {
 	mockReplaceInvoiceLines.mockReset();
 	mockCookieScope.organizationId = 'organization-1';
 	mockCookieScope.tenantId = 'tenant-1';
+	mockCookieScope.accessToken = 'token-1';
+	mockApiAddress.value = '';
 });
 
 describe('saving an invoice and the invoices already saved', () => {
@@ -767,7 +778,12 @@ describe('saving an edit to an invoice', () => {
 		expect(mockReplaceInvoiceLines).toHaveBeenCalledWith('inv-42', edit.revision.lines, workspace);
 	});
 
-	it('writes nothing more once another tab chose another tenant after its fields were written', async () => {
+	function chooseAnotherTenant() {
+		mockCookieScope.tenantId = 'tenant-2';
+		mockCookieScope.accessToken = 'token-2';
+	}
+
+	it('writes nothing more in proxy mode once another tab chose another tenant after its fields were written', async () => {
 		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
 		mockUpdateInvoice.mockImplementation(async () => {
 			mockCookieScope.tenantId = 'tenant-2';
@@ -783,7 +799,7 @@ describe('saving an edit to an invoice', () => {
 		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
 	});
 
-	it('puts nothing back once another tab chose another tenant while its lines were refused', async () => {
+	it('puts nothing back in proxy mode once another tab chose another tenant while its lines were refused', async () => {
 		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
 		mockUpdateInvoice.mockResolvedValue(undefined);
 		mockReplaceInvoiceLines.mockImplementation(async () => {
@@ -836,6 +852,59 @@ describe('saving an edit to an invoice', () => {
 		const saved = await saveWith(result);
 
 		expect(saved).toEqual({ outcome: { status: 'notPutBack', lineCount: 1 }, sending: null });
+	});
+
+	describe('in direct mode', () => {
+		const pinned = { ...workspace, accessToken: 'token-1' };
+
+		beforeEach(() => {
+			mockApiAddress.value = 'https://api.test';
+		});
+
+		it('writes its lines in its tenant with the token it began with once another tab chose another tenant', async () => {
+			mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
+			mockUpdateInvoice.mockImplementation(async () => {
+				chooseAnotherTenant();
+			});
+			mockReplaceInvoiceLines.mockResolvedValue(undefined);
+			const { result } = renderSaveEdit();
+
+			const saved = await saveWith(result);
+
+			expect(saved).toEqual({ outcome: { status: 'saved' }, sending: null });
+			expect(mockUpdateInvoice).toHaveBeenCalledWith('inv-42', expect.anything(), pinned);
+			expect(mockReplaceInvoiceLines).toHaveBeenCalledWith('inv-42', edit.revision.lines, pinned);
+		});
+
+		it('puts the invoice back in its tenant once another tab chose another tenant while its lines were refused', async () => {
+			mockGetInvoice.mockResolvedValueOnce(invoiceRead('SENT')).mockResolvedValue(invoiceRead('SENT', []));
+			mockUpdateInvoice.mockResolvedValue(undefined);
+			mockReplaceInvoiceLines
+				.mockImplementationOnce(async () => {
+					chooseAnotherTenant();
+					throw serverFailure();
+				})
+				.mockResolvedValueOnce(undefined);
+			const { result } = renderSaveEdit();
+
+			const saved = await saveWith(result);
+
+			expect(saved).toEqual({ outcome: { status: 'putBack' }, sending: null });
+			expect(mockGetInvoice).toHaveBeenLastCalledWith('inv-42', { tenantId: 'tenant-1', accessToken: 'token-1' });
+			expect(mockReplaceInvoiceLines).toHaveBeenLastCalledWith('inv-42', edit.previous.lines, pinned);
+			expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', edit.previous.update, pinned);
+		});
+
+		it('takes no token from a session of another tenant, and writes nothing', async () => {
+			chooseAnotherTenant();
+			const { result } = renderSaveEdit();
+
+			const saved = await saveWith(result);
+
+			expect(saved).toEqual({ outcome: { status: 'notSaved' }, sending: null });
+			expect(mockGetInvoice).not.toHaveBeenCalled();
+			expect(mockUpdateInvoice).not.toHaveBeenCalled();
+		});
 	});
 });
 
