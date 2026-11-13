@@ -6986,5 +6986,11 @@
 			"ROW_DESCRIPTION": "Добавете записи на време от CSV файл.",
 			"OPEN": "Импортиране от CSV"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "Време по клиент",
+		"CLIENTS": "{count, plural, one {# клиент} other {# клиента}}",
+		"NAMES_ERROR_TITLE": "Списъкът с клиенти не можа да се зареди",
+		"NAMES_ERROR_MESSAGE": "Дотогава архивираните клиенти се показват без имената си."
 	}
 }

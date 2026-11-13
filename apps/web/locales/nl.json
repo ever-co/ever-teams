@@ -6986,5 +6986,11 @@
 			"ROW_DESCRIPTION": "Voeg tijdinvoeren toe vanuit een CSV-bestand.",
 			"OPEN": "Importeren uit CSV"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "Tijd per klant",
+		"CLIENTS": "{count, plural, one {# klant} other {# klanten}}",
+		"NAMES_ERROR_TITLE": "De klantenlijst kon niet worden geladen",
+		"NAMES_ERROR_MESSAGE": "Gearchiveerde klanten staan tot dan zonder hun naam."
 	}
 }

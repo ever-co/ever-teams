@@ -8,6 +8,9 @@ export const CLIENT_CREATE_PERMISSIONS = ['ORG_CONTACT_ADD', 'ORG_CONTACT_EDIT']
 export const CLIENT_EDIT_PERMISSIONS = ['ORG_CONTACT_EDIT'] as const;
 export const CLIENT_ARCHIVE_PERMISSIONS = ['ORG_CONTACT_DELETE', 'ORG_CONTACT_EDIT'] as const;
 
+/** The permission the API asks for to list the clients. */
+export const CLIENT_VIEW_PERMISSIONS = ['ORG_CONTACT_VIEW'] as const;
+
 export const CLIENT_NAME_MAX_LENGTH = 255;
 export const CLIENT_PHONE_MAX_LENGTH = 50;
 export const CLIENT_NOTES_MAX_LENGTH = 2000;
@@ -40,6 +43,10 @@ export function clientAccessOf(permissions: readonly string[]): ClientAccess {
 		canEdit: holdsAnyPermission(permissions, CLIENT_EDIT_PERMISSIONS),
 		canArchive: holdsAnyPermission(permissions, CLIENT_ARCHIVE_PERMISSIONS)
 	};
+}
+
+export function canReadClients(permissions: readonly string[]) {
+	return holdsAnyPermission(permissions, CLIENT_VIEW_PERMISSIONS);
 }
 
 /** An archived client is a withdrawn one: the API keeps the row and stamps the day it was withdrawn. */
@@ -92,6 +99,14 @@ export function clientsById<T extends ClientLike>(clients: T[]) {
 		byId.set(client.id, client);
 	}
 	return byId;
+}
+
+export function clientNamesOf(clients: ReadonlyArray<ClientLike>) {
+	const names = new Map<string, string>();
+	for (const client of clients) {
+		names.set(client.id, client.name);
+	}
+	return names;
 }
 
 type ProjectOfClient = Parameters<typeof clientIdOf>[0];

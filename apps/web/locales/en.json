@@ -6986,5 +6986,11 @@
 			"ROW_DESCRIPTION": "Add time entries from a CSV file.",
 			"OPEN": "Import from CSV"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "Time by client",
+		"CLIENTS": "{count, plural, one {# client} other {# clients}}",
+		"NAMES_ERROR_TITLE": "The clients list could not load",
+		"NAMES_ERROR_MESSAGE": "Archived clients show without their names until it does."
 	}
 }

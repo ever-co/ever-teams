@@ -13,14 +13,21 @@ import { type CsvColumn, downloadCsv, downloadPdf, periodFileNameOf } from '@/co
 import type { Period } from '@/core/lib/utils/dashboard-period';
 import { type CurrencyAmount, formatAmount, formatAmounts } from '@/core/lib/utils/daily-report-figures';
 import {
+	type ClientExportLine,
+	type ClientLabels,
+	type ClientOfProjectLog,
 	type ExportGroup,
+	NO_CLIENT,
 	TIME_ACTIVITY_FILTER_FIELDS,
 	type BreakdownGrouping,
 	type TimeActivityExportRow,
 	type TimeActivityFilterField,
 	type TimeActivityFilters,
+	clientExportLinesOf,
+	clientLabelOf,
 	dateOfKey,
 	exportGroupsOf,
+	exportRowsInGroupOrderOf,
 	exportRowsOf,
 	recordedActivityOf
 } from '@/core/lib/utils/dashboards/time-activity';
@@ -54,6 +61,8 @@ interface ExportContext {
 	report: ReadonlyArray<ITimeLogGroupedDailyReport>;
 	period: Period;
 	grouping: BreakdownGrouping;
+	/** The client of a project's time, when the page groups by client. */
+	clientOf: ClientOfProjectLog | null;
 	isManager: boolean;
 	ownEmployeeId: string | undefined;
 	figures: TimeActivityFigures;
@@ -68,8 +77,25 @@ interface NamedRow {
 	row: TimeActivityExportRow;
 	member: string;
 	project: string;
+	client: string;
 	task: string;
 	status: string;
+}
+
+interface ExportLabels extends ClientLabels {
+	unnamed: string;
+	noProject: string;
+	noTask: string;
+}
+
+function exportLabelsOf(t: Translate): ExportLabels {
+	return {
+		unnamed: t('timeActivity.UNNAMED_EMPLOYEE'),
+		noProject: t('common.NO_PROJECT'),
+		noTask: t('dashboard.timeActivity.export.NO_TASK'),
+		noClient: t('common.NO_CLIENT'),
+		unnamedClient: t('common.CLIENT')
+	};
 }
 
 function onlyEmployeeIdOf(context: ExportContext) {
@@ -79,20 +105,46 @@ function onlyEmployeeIdOf(context: ExportContext) {
 	return context.ownEmployeeId ?? null;
 }
 
-function namedRowsOf(context: ExportContext): NamedRow[] {
-	const { t } = context;
-	const withoutTeamLabel = t('dashboard.NO_TEAM_GROUP');
-	const rows = exportRowsOf(context.report, onlyEmployeeIdOf(context), withoutTeamLabel, context.workspaceCurrency);
-	const unnamed = t('timeActivity.UNNAMED_EMPLOYEE');
-	const noProject = t('common.NO_PROJECT');
-	const noTask = t('dashboard.timeActivity.export.NO_TASK');
-	return rows.map((row) => ({
+function isClientExport(context: ExportContext) {
+	return context.grouping === 'client';
+}
+
+/** Grouped by client, the rows come client after client, in the order of the screen. */
+function exportRowsOfContext(context: ExportContext) {
+	const withoutTeamLabel = context.t('dashboard.NO_TEAM_GROUP');
+	const onlyEmployeeId = onlyEmployeeIdOf(context);
+	const rows = exportRowsOf(
+		context.report,
+		onlyEmployeeId,
+		withoutTeamLabel,
+		context.workspaceCurrency,
+		context.clientOf
+	);
+	if (!isClientExport(context)) {
+		return rows;
+	}
+	return exportRowsInGroupOrderOf(rows, context.grouping);
+}
+
+function clientOfRow(row: TimeActivityExportRow) {
+	return row.client ?? NO_CLIENT;
+}
+
+function namedRowOf(row: TimeActivityExportRow, labels: ExportLabels): NamedRow {
+	return {
 		row,
-		member: row.member || unnamed,
-		project: row.project ?? noProject,
-		task: row.task ?? noTask,
+		member: row.member || labels.unnamed,
+		project: row.project ?? labels.noProject,
+		client: clientLabelOf(clientOfRow(row), labels),
+		task: row.task ?? labels.noTask,
 		status: row.status ?? ''
-	}));
+	};
+}
+
+function namedRowsOf(context: ExportContext): NamedRow[] {
+	const labels = exportLabelsOf(context.t);
+	const rows = exportRowsOfContext(context);
+	return rows.map((row) => namedRowOf(row, labels));
 }
 
 function roundedTo2(value: number) {
@@ -119,9 +171,17 @@ function spreadsheetAmountOf(earnings: number | null) {
 	return roundedTo2(earnings);
 }
 
+function csvClientColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
+	if (!isClientExport(context)) {
+		return [];
+	}
+	return [{ header: context.t('common.CLIENT'), valueOf: (named) => named.client }];
+}
+
 function csvColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
 	const { t } = context;
 	const columns: CsvColumn<NamedRow>[] = [
+		...csvClientColumnsOf(context),
 		{ header: t('common.DATE'), valueOf: (named) => named.row.dateKey },
 		{ header: t('common.MEMBER'), valueOf: (named) => named.member },
 		{ header: t('dashboard.timeActivity.grouping.PROJECT'), valueOf: (named) => named.project },
@@ -158,10 +218,18 @@ interface XlsxColumn {
 	format?: string;
 }
 
+function xlsxClientColumnsOf(context: ExportContext): XlsxColumn[] {
+	if (!isClientExport(context)) {
+		return [];
+	}
+	return [{ header: context.t('common.CLIENT'), value: (named) => named.client, width: 24 }];
+}
+
 /** The previous export's columns, with earnings kept as numbers beside their currency instead of a `$` string. */
 function xlsxColumnsOf(context: ExportContext): XlsxColumn[] {
 	const { t } = context;
 	const columns: XlsxColumn[] = [
+		...xlsxClientColumnsOf(context),
 		{ header: t('common.DATE'), value: (named) => named.row.dateKey, width: 12 },
 		{ header: t('common.MEMBER'), value: (named) => named.member, width: 24 },
 		{ header: t('dashboard.timeActivity.grouping.PROJECT'), value: (named) => named.project, width: 24 },
@@ -212,7 +280,7 @@ function amountsTextOf(amounts: ReadonlyArray<CurrencyAmount>, locale: FormatLoc
 	return formatAmounts(amounts, locale);
 }
 
-function rowAmountTextOf(row: TimeActivityExportRow, locale: FormatLocale) {
+function rowAmountTextOf(row: Pick<TimeActivityExportRow, 'earnings' | 'currency'>, locale: FormatLocale) {
 	const hasAmount = row.earnings !== null;
 	const hasCurrency = row.currency !== null;
 	const isPriced = hasAmount && hasCurrency;
@@ -337,6 +405,15 @@ function pdfLayoutOf(context: ExportContext): PdfLayout {
 			second: (named) => named.member
 		};
 	}
+	if (isClientExport(context)) {
+		return {
+			firstHeader: projectHeader,
+			secondHeader: memberHeader,
+			groupTitle: (_group, named) => named.client,
+			first: (named) => named.project,
+			second: (named) => named.member
+		};
+	}
 	return {
 		firstHeader: dayHeader,
 		secondHeader: memberHeader,
@@ -346,7 +423,45 @@ function pdfLayoutOf(context: ExportContext): PdfLayout {
 	};
 }
 
+function clientPdfRowOf(groupKey: string, line: ClientExportLine, labels: ExportLabels, locale: FormatLocale): PdfRow {
+	return {
+		key: `${groupKey}:${line.key}`,
+		first: line.project ?? labels.noProject,
+		second: line.member || labels.unnamed,
+		task: line.task ?? labels.noTask,
+		tracked: formatDurationShort(line.seconds),
+		earnings: rowAmountTextOf(line, locale),
+		activity: percentTextOf(line.seconds, line.activeSeconds)
+	};
+}
+
+function clientOfGroup(group: ExportGroup) {
+	const [firstRow] = group.rows;
+	return firstRow?.client ?? NO_CLIENT;
+}
+
+function clientPdfGroupsOf(context: ExportContext): PdfGroup[] {
+	const { locale } = context;
+	const labels = exportLabelsOf(context.t);
+	const rows = exportRowsOfContext(context);
+	const groups = exportGroupsOf(rows, context.grouping);
+	return groups.map((group) => {
+		const lines = clientExportLinesOf(group.rows);
+		return {
+			key: group.key,
+			title: clientLabelOf(clientOfGroup(group), labels),
+			tracked: formatDurationShort(group.seconds),
+			earnings: amountsTextOf(group.earnings, locale),
+			activity: percentTextOf(group.seconds, group.activeSeconds),
+			rows: lines.map((line) => clientPdfRowOf(group.key, line, labels, locale))
+		};
+	});
+}
+
 function pdfGroupsOf(context: ExportContext, layout: PdfLayout): PdfGroup[] {
+	if (isClientExport(context)) {
+		return clientPdfGroupsOf(context);
+	}
 	const { locale } = context;
 	const namedRows = namedRowsOf(context);
 	const namedByRow = new Map(namedRows.map((named) => [named.row, named]));
@@ -434,6 +549,7 @@ export function TimeActivityExportMenu({
 	report,
 	period,
 	grouping,
+	clientOf,
 	isManager,
 	ownEmployeeId,
 	figures,
@@ -450,6 +566,7 @@ export function TimeActivityExportMenu({
 			report,
 			period,
 			grouping,
+			clientOf,
 			isManager,
 			ownEmployeeId,
 			figures,
@@ -480,6 +597,7 @@ export function TimeActivityExportMenu({
 			}
 		];
 	}, [
+		clientOf,
 		figures,
 		filterOptions,
 		filters,

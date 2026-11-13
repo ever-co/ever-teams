@@ -6986,5 +6986,11 @@
 			"ROW_DESCRIPTION": "Füge Zeiteinträge aus einer CSV-Datei hinzu.",
 			"OPEN": "Aus CSV importieren"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "Zeit nach Kunde",
+		"CLIENTS": "{count, plural, one {# Kunde} other {# Kunden}}",
+		"NAMES_ERROR_TITLE": "Die Kundenliste konnte nicht geladen werden",
+		"NAMES_ERROR_MESSAGE": "Archivierte Kunden erscheinen bis dahin ohne ihren Namen."
 	}
 }

@@ -6986,5 +6986,11 @@
 			"ROW_DESCRIPTION": "Adicione entradas de tempo a partir de um arquivo CSV.",
 			"OPEN": "Importar de CSV"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "Tempo por cliente",
+		"CLIENTS": "{count, plural, one {# cliente} other {# clientes}}",
+		"NAMES_ERROR_TITLE": "Não foi possível carregar a lista de clientes",
+		"NAMES_ERROR_MESSAGE": "Os clientes arquivados aparecem sem o nome até lá."
 	}
 }

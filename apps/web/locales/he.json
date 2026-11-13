@@ -6986,5 +6986,11 @@
 			"ROW_DESCRIPTION": "הוסיפו רשומות זמן מקובץ CSV.",
 			"OPEN": "ייבוא מ-CSV"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "זמן לפי לקוח",
+		"CLIENTS": "{count, plural, one {לקוח אחד} two {שני לקוחות} other {# לקוחות}}",
+		"NAMES_ERROR_TITLE": "לא ניתן היה לטעון את רשימת הלקוחות",
+		"NAMES_ERROR_MESSAGE": "עד אז לקוחות בארכיון מוצגים ללא שמם."
 	}
 }
