@@ -483,7 +483,7 @@ function ProjectRow({
 							{project.name}
 						</span>
 						<FavoriteMark entity={EBaseEntityEnum.OrganizationProject} id={project.id} />
-						<ProjectBillableMark project={project} />
+						<ProjectBillableMark project={project} hidesBelowSm />
 					</span>
 					<ProjectSubline project={project} clientName={clientName} hasClientColumn={hasClientColumn} />
 				</span>

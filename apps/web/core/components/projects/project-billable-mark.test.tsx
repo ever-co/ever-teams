@@ -32,4 +32,20 @@ describe('the billable mark of a project', () => {
 		expect(mark.classList.contains('text-primary-ink')).toBe(true);
 		expect(mark.querySelector('svg')).not.toBeNull();
 	});
+
+	it('shows at every width by default', () => {
+		render(<ProjectBillableMark project={{ billable: true }} />);
+
+		const mark = screen.getByRole('img', { name: 'Billable by default' });
+
+		expect(mark.classList.contains('max-sm:hidden')).toBe(false);
+	});
+
+	it('stays hidden below the sm breakpoint when asked, leaving the width to the name beside it', () => {
+		render(<ProjectBillableMark project={{ billable: true }} hidesBelowSm />);
+
+		const mark = screen.getByRole('img', { name: 'Billable by default' });
+
+		expect(mark.classList.contains('max-sm:hidden')).toBe(true);
+	});
 });

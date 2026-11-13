@@ -11,8 +11,9 @@ const BILLABLE_MARK =
 
 export function ProjectBillableMark({
 	project,
+	hidesBelowSm = false,
 	className
-}: Readonly<{ project: Pick<TOrganizationProject, 'billable'>; className?: string }>) {
+}: Readonly<{ project: Pick<TOrganizationProject, 'billable'>; hidesBelowSm?: boolean; className?: string }>) {
 	const t = useTranslations();
 	const isBillable = isBillableByDefault(project);
 	if (!isBillable) {
@@ -20,7 +21,12 @@ export function ProjectBillableMark({
 	}
 	const label = t('pages.projects.billable.LABEL');
 	return (
-		<span role="img" aria-label={label} title={label} className={cn(BILLABLE_MARK, className)}>
+		<span
+			role="img"
+			aria-label={label}
+			title={label}
+			className={cn(BILLABLE_MARK, hidesBelowSm && 'max-sm:hidden', className)}
+		>
 			<DollarCircle aria-hidden="true" className="size-4" />
 		</span>
 	);
