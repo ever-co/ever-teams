@@ -146,6 +146,19 @@ describe('TimeImportColumnsStep', () => {
 		expect(sampleOf(/^timeImport\.mapping\.fields\.PROJECT/)).toBe('–');
 	});
 
+	it('gives a select the full name of its column, shown on a pause when the name is cut short', () => {
+		const long = tableOf('Date the work session started on (local time),Beginn,Ende\n03/11/2026,09:00,10:30\n');
+		renderStep(
+			{ mapping: { ...NO_TIME_IMPORT_COLUMNS, date: 0, startTime: 1, endTime: 2 }, dateOrder: 'dayFirst' },
+			long
+		);
+
+		expect(screen.getByLabelText(/^timeImport\.mapping\.fields\.DATE/).getAttribute('title')).toBe(
+			'Date the work session started on (local time)'
+		);
+		expect(screen.getByLabelText(/^timeImport\.mapping\.fields\.PROJECT/).hasAttribute('title')).toBe(false);
+	});
+
 	it('offers Not in this file only for the parts an entry can do without', () => {
 		renderStep({ mapping: CHOSEN, dateOrder: 'dayFirst' });
 		const notInFile = { name: 'timeImport.mapping.NOT_IN_FILE' };

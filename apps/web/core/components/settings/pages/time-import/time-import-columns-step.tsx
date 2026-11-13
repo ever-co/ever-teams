@@ -118,11 +118,12 @@ function ColumnRow({ item, headers, options, copy, onChooseColumn }: Readonly<Co
 	if (requirement === 'oneOfTwo') {
 		requirementLabel = t('timeImport.columns.ONE_OF_TWO');
 	}
-	// Never undefined: the select would then show the picked item's own label, which the first pick loses
-	let chosenLabel: ReactNode = null;
+	let chosenHeader: string | undefined = undefined;
 	if (item.columnIndex !== null) {
-		chosenLabel = headers[item.columnIndex];
+		chosenHeader = headers[item.columnIndex];
 	}
+	// Never undefined: the select would then show the picked item's own label, which the first pick loses
+	let chosenLabel: ReactNode = chosenHeader ?? null;
 	const showsNotInFile = item.columnIndex === null && isOptional;
 	if (showsNotInFile) {
 		chosenLabel = <span className="text-muted-foreground">{t('timeImport.mapping.NOT_IN_FILE')}</span>;
@@ -140,7 +141,7 @@ function ColumnRow({ item, headers, options, copy, onChooseColumn }: Readonly<Co
 				value={selectValueOf(item.columnIndex, isOptional)}
 				onValueChange={(next) => onChooseColumn(item.field, columnIndexOfValue(next))}
 			>
-				<SelectTrigger id={selectId} aria-describedby={sampleId} className={STEP_CONTROL}>
+				<SelectTrigger id={selectId} aria-describedby={sampleId} title={chosenHeader} className={STEP_CONTROL}>
 					<SelectValue placeholder={t('timeImport.mapping.CHOOSE_COLUMN')}>{chosenLabel}</SelectValue>
 				</SelectTrigger>
 				<SelectContent>
