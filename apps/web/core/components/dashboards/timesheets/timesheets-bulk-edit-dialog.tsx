@@ -96,7 +96,7 @@ export function TimesheetsBulkEditDialog({
 			showCloseIcon={!isRunning}
 			title={t('dashboard.timesheets.BULK_EDIT.TITLE', { count: logs.length })}
 			description={description}
-			className="h-[auto] w-full justify-start md:w-40 md:min-w-[28rem]"
+			className="h-[auto] max-h-[calc(100dvh-2rem)] w-full justify-start overflow-y-auto md:w-40 md:min-w-[28rem]"
 		>
 			{body}
 		</Modal>

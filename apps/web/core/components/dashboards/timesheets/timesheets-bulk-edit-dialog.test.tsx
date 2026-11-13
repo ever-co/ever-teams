@@ -24,7 +24,13 @@ type MockSelectProps = {
 	onChange?: (value: string) => void;
 };
 
-type MockModalProps = { title?: string; description?: string; showCloseIcon?: boolean; children?: ReactNode };
+type MockModalProps = {
+	title?: string;
+	description?: string;
+	showCloseIcon?: boolean;
+	className?: string;
+	children?: ReactNode;
+};
 
 jest.mock('jotai', () => ({ useAtomValue: (atom: string) => mockAtomValues[atom] }));
 jest.mock('@/core/stores/teams/organization-team', () => ({ activeTeamState: 'activeTeamState' }));
@@ -75,8 +81,8 @@ jest.mock('@/core/hooks/dashboards/timesheets/use-timesheets-page', () => ({
 
 // The dialog's primitives are replaced by plain elements: what is checked here is what the dialog asks of them
 jest.mock('@/core/components/common/modal', () => ({
-	Modal: ({ title, description, showCloseIcon, children }: MockModalProps) => (
-		<div role="dialog" aria-label={title} data-closable={String(showCloseIcon)}>
+	Modal: ({ title, description, showCloseIcon, className, children }: MockModalProps) => (
+		<div role="dialog" aria-label={title} data-closable={String(showCloseIcon)} className={className}>
 			{description && <p>{description}</p>}
 			{children}
 		</div>
@@ -189,6 +195,13 @@ describe('TimesheetsBulkEditDialog', () => {
 		expect(screen.getByRole('tab', { name: KEEP }).getAttribute('aria-selected')).toBe('true');
 		expect(screen.getByText('dashboard.timesheets.BULK_EDIT.NOTHING_CHOSEN')).toBeTruthy();
 		expect(updateButton().disabled).toBe(true);
+	});
+
+	it('stays within a short screen and scrolls inside it, as the other dialogs do', () => {
+		renderDialog([logOf('a')]);
+
+		const panelClasses = screen.getByRole('dialog').className.split(' ');
+		expect(panelClasses).toEqual(expect.arrayContaining(['max-h-[calc(100dvh-2rem)]', 'overflow-y-auto']));
 	});
 
 	it('names each field as a group, so a picker is found by its label', () => {
