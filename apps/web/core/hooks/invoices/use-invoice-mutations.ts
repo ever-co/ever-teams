@@ -25,10 +25,17 @@ import {
 	pagesWithInvoiceChanged,
 	pagesWithoutInvoice,
 	SENT_CHANGE,
+	VOID_CHANGE,
 	type InvoiceStatusChange,
 	type ListedInvoicesPage
 } from '@/core/lib/utils/invoice-actions';
-import { didNotReachApi, haveSameFields, haveSameLines, type InvoiceRevision } from '@/core/lib/utils/invoice-edit';
+import {
+	didNotReachApi,
+	haveSameFields,
+	haveSameLines,
+	isRebuildableInvoice,
+	type InvoiceRevision
+} from '@/core/lib/utils/invoice-edit';
 import {
 	invoiceSaveFailureOf,
 	invoiceStatusOf,
@@ -494,6 +501,48 @@ export function useChangeInvoiceStatus() {
 	});
 	const changingIds = useMemo<ReadonlySet<string>>(() => new Set(pendingIds), [pendingIds]);
 	return { changeStatus: mutation.mutateAsync, isChanging: mutation.isPending, changingIds };
+}
+
+/** `notRebuildable`: the invoice screen could not start from it, so it was left as it was. */
+export type VoidToReplaceOutcome = 'voided' | 'notRebuildable';
+
+interface InvoiceToReplace {
+	invoiceId: string;
+	scope: ReadWorkspace;
+}
+
+/**
+ * Voids a paid invoice only once its replacement can start from it. The list does not hold its lines, so it is read
+ * whole first: one the invoice screen cannot rebuild is left as it was.
+ */
+async function voidToReplace({ invoiceId, scope }: InvoiceToReplace): Promise<VoidToReplaceOutcome> {
+	const readScope = workspaceToActIn(scope);
+	const invoice = await invoiceService.getInvoice(invoiceId, { tenantId: readScope.tenantId });
+	if (!isRebuildableInvoice(invoice)) {
+		return 'notRebuildable';
+	}
+	// Another tab may have switched the workspace while the invoice was read
+	const voidScope = workspaceToActIn(scope);
+	await invoiceService.changeInvoiceStatus(invoiceId, VOID_CHANGE, voidScope);
+	return 'voided';
+}
+
+/** Void and replace: its row stays busy until it answers, as for any status change of the list. */
+export function useVoidToReplace() {
+	const queryClient = useQueryClient();
+	const mutation = useMutation({
+		mutationKey: STATUS_CHANGE_KEY,
+		mutationFn: voidToReplace,
+		onSuccess: (outcome, { invoiceId, scope }) => {
+			const isVoided = outcome === 'voided';
+			if (isVoided) {
+				showListedStatus(queryClient, scope, invoiceId, 'VOID');
+			}
+		},
+		onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all }),
+		meta: { handlesOwnError: true }
+	});
+	return { voidToReplace: mutation.mutateAsync, isVoiding: mutation.isPending };
 }
 
 interface InvoiceToDelete {

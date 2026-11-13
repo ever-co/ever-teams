@@ -466,6 +466,13 @@ export function savedInvoiceOf(invoice: TSavedInvoice, reading: SavedInvoiceRead
 	};
 }
 
+const NAMELESS_READING: SavedInvoiceReading = { timeZone: null, unnamedProject: '', clientNames: new Map() };
+
+/** Whether the invoice screen can start from this invoice, to edit it or to replace it, as `savedInvoiceOf` reads it. */
+export function isRebuildableInvoice(invoice: TSavedInvoice): boolean {
+	return savedInvoiceOf(invoice, NAMELESS_READING) !== null;
+}
+
 /**
  * What an edit writes: the invoice's fields as the screen built them, under the status it already has, and its lines
  * under its own id.

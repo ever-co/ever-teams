@@ -5,6 +5,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { paidChangeOf } from '@/core/lib/utils/invoice-actions';
+import { invoiceTermsOf } from '@/core/lib/utils/invoices';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 
 const mockCreateInvoice = jest.fn();
@@ -39,6 +40,7 @@ import {
 	useSaveAndSendInvoice,
 	useSaveInvoiceEdit,
 	useSendInvoice,
+	useVoidToReplace,
 	type InvoiceEdit
 } from './use-invoice-mutations';
 import type { InvoiceRequest } from '@/core/lib/utils/invoices';
@@ -312,6 +314,60 @@ describe('settling and deleting an invoice', () => {
 
 		expect(mockDeleteInvoice).toHaveBeenCalledWith('inv-1', LIST_SCOPE);
 		expect(listedPagesOf(queryClient)).toEqual([{ items: [], total: 0 }]);
+	});
+});
+
+describe('voiding a paid invoice to replace it', () => {
+	const paidInvoice = {
+		id: 'inv-1',
+		invoiceNumber: 42,
+		invoiceDate: '2026-10-31T23:00:00.000Z',
+		dueDate: '2026-11-30T22:59:59.999Z',
+		currency: 'USD',
+		totalValue: 800,
+		status: 'FULLY_PAID',
+		terms: invoiceTermsOf({ fromDay: '2026-10-01', toDay: '2026-10-31' }, ''),
+		toContactId: 'client-acme',
+		organizationId: 'organization-1',
+		tenantId: 'tenant-1',
+		invoiceType: 'BY_PROJECT_HOURS',
+		invoiceItems: [
+			{ id: 'item-1', description: 'Ana Lima', price: 80, quantity: 10, totalValue: 800, projectId: 'p1' }
+		]
+	};
+
+	it('reads it whole, then voids it, and the list shows it at once', async () => {
+		mockGetInvoice.mockResolvedValue(paidInvoice);
+		mockChangeInvoiceStatus.mockResolvedValue(undefined);
+		const queryClient = clientWithDraftListed();
+		const { result } = renderWith(queryClient, () => useVoidToReplace());
+
+		let outcome: unknown = null;
+		await act(async () => {
+			outcome = await result.current.voidToReplace({ invoiceId: 'inv-1', scope: LIST_SCOPE });
+		});
+
+		expect(outcome).toBe('voided');
+		expect(mockGetInvoice).toHaveBeenCalledWith('inv-1', { tenantId: 'tenant-1' });
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', { status: 'VOID' }, LIST_SCOPE);
+		expect(listedStatusOf(queryClient)).toBe('VOID');
+	});
+
+	it.each([
+		['a second tax', { tax2: 5 }],
+		['a flat discount', { discountValue: 50, discountType: 'FLAT' }],
+		['a line without a project', { invoiceItems: [{ ...paidInvoice.invoiceItems[0], projectId: null }] }]
+	])('leaves one with %s as it was: the invoice screen could not rebuild it', async (_kind, change) => {
+		mockGetInvoice.mockResolvedValue({ ...paidInvoice, ...change });
+		const { result } = renderWith(clientWithDraftListed(), () => useVoidToReplace());
+
+		let outcome: unknown = null;
+		await act(async () => {
+			outcome = await result.current.voidToReplace({ invoiceId: 'inv-1', scope: LIST_SCOPE });
+		});
+
+		expect(outcome).toBe('notRebuildable');
+		expect(mockChangeInvoiceStatus).not.toHaveBeenCalled();
 	});
 });
 
