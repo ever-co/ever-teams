@@ -6780,6 +6780,8 @@
 			"LOCKED_VOID": "它已作废，作废的发票不会再更改。",
 			"NOT_FROM_TIME_TITLE": "第 {number} 号发票无法在此打开",
 			"NOT_FROM_TIME_MESSAGE": "它不是根据客户的计费时间创建的。请在创建它的地方修改。",
+			"OTHER_WORKSPACE_TITLE": "第 {number} 号发票属于另一个工作区",
+			"OTHER_WORKSPACE_MESSAGE": "请选择它所在的工作区，然后从发票列表中重新打开它。",
 			"SAVED_NOT_SENT": "第 {number} 号发票已保存，但未发送",
 			"confirm": {
 				"TITLE": "保存对第 {number} 号发票的更改？",

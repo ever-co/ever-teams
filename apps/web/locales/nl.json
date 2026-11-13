@@ -6780,6 +6780,8 @@
 			"LOCKED_VOID": "Hij is vervallen, en een vervallen factuur verandert niet meer.",
 			"NOT_FROM_TIME_TITLE": "Factuur {number} kan hier niet worden geopend",
 			"NOT_FROM_TIME_MESSAGE": "Hij is niet gemaakt uit de factureerbare tijd van een klant. Wijzig hem waar hij is gemaakt.",
+			"OTHER_WORKSPACE_TITLE": "Factuur {number} staat in een andere werkruimte",
+			"OTHER_WORKSPACE_MESSAGE": "Kies zijn werkruimte en open hem daarna opnieuw vanuit de lijst met facturen.",
 			"SAVED_NOT_SENT": "Factuur {number} is opgeslagen, maar niet verzonden",
 			"confirm": {
 				"TITLE": "Wijzigingen aan factuur {number} opslaan?",

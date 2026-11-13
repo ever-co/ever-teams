@@ -6780,6 +6780,8 @@
 			"LOCKED_VOID": "È annullata, e una fattura annullata non cambia più.",
 			"NOT_FROM_TIME_TITLE": "La fattura {number} non si può aprire qui",
 			"NOT_FROM_TIME_MESSAGE": "Non è stata creata dal tempo fatturabile di un cliente. Modificala dove è stata creata.",
+			"OTHER_WORKSPACE_TITLE": "La fattura {number} è in un altro spazio di lavoro",
+			"OTHER_WORKSPACE_MESSAGE": "Scegli il suo spazio di lavoro, poi riaprila dall’elenco delle fatture.",
 			"SAVED_NOT_SENT": "La fattura {number} è stata salvata ma non inviata",
 			"confirm": {
 				"TITLE": "Salvare le modifiche alla fattura {number}?",

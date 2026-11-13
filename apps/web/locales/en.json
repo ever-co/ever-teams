@@ -6780,6 +6780,8 @@
 			"LOCKED_VOID": "It is void, and a void invoice never changes.",
 			"NOT_FROM_TIME_TITLE": "Invoice {number} cannot be opened here",
 			"NOT_FROM_TIME_MESSAGE": "It was not made from a client's billable time. Change it where it was made.",
+			"OTHER_WORKSPACE_TITLE": "Invoice {number} is in another workspace",
+			"OTHER_WORKSPACE_MESSAGE": "Choose its workspace, then open it again from the invoice list.",
 			"SAVED_NOT_SENT": "Invoice {number} was saved but not sent",
 			"confirm": {
 				"TITLE": "Save the changes to invoice {number}?",

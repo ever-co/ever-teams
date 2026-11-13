@@ -6780,6 +6780,8 @@
 			"LOCKED_VOID": "Está anulada, e uma fatura anulada já não muda.",
 			"NOT_FROM_TIME_TITLE": "A fatura {number} não pode ser aberta aqui",
 			"NOT_FROM_TIME_MESSAGE": "Não foi feita a partir do tempo faturável de um cliente. Altere-a onde foi feita.",
+			"OTHER_WORKSPACE_TITLE": "A fatura {number} está noutro espaço de trabalho",
+			"OTHER_WORKSPACE_MESSAGE": "Escolha o respetivo espaço de trabalho e abra-a de novo a partir da lista de faturas.",
 			"SAVED_NOT_SENT": "A fatura {number} foi guardada, mas não foi enviada",
 			"confirm": {
 				"TITLE": "Guardar as alterações da fatura {number}?",

@@ -6780,6 +6780,8 @@
 			"LOCKED_VOID": "Jest anulowana, a anulowana faktura już się nie zmienia.",
 			"NOT_FROM_TIME_TITLE": "Faktury {number} nie można tu otworzyć",
 			"NOT_FROM_TIME_MESSAGE": "Nie powstała z rozliczanego czasu klienta. Zmień ją tam, gdzie powstała.",
+			"OTHER_WORKSPACE_TITLE": "Faktura {number} jest w innym obszarze roboczym",
+			"OTHER_WORKSPACE_MESSAGE": "Wybierz jej obszar roboczy, a potem otwórz ją ponownie z listy faktur.",
 			"SAVED_NOT_SENT": "Faktura {number} została zapisana, ale nie została wysłana",
 			"confirm": {
 				"TITLE": "Zapisać zmiany w fakturze {number}?",

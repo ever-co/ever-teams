@@ -6780,6 +6780,8 @@
 			"LOCKED_VOID": "Elle est annulée, et une facture annulée ne change plus.",
 			"NOT_FROM_TIME_TITLE": "La facture {number} ne s’ouvre pas ici",
 			"NOT_FROM_TIME_MESSAGE": "Elle n’a pas été faite à partir du temps facturable d’un client. Modifiez-la là où elle a été faite.",
+			"OTHER_WORKSPACE_TITLE": "La facture {number} est dans un autre espace de travail",
+			"OTHER_WORKSPACE_MESSAGE": "Choisissez son espace de travail, puis rouvrez-la depuis la liste des factures.",
 			"SAVED_NOT_SENT": "La facture {number} est enregistrée mais n’a pas été envoyée",
 			"confirm": {
 				"TITLE": "Enregistrer les modifications de la facture {number} ?",

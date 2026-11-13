@@ -6780,6 +6780,8 @@
 			"LOCKED_VOID": "Está anulada, y una factura anulada ya no cambia.",
 			"NOT_FROM_TIME_TITLE": "La factura {number} no se puede abrir aquí",
 			"NOT_FROM_TIME_MESSAGE": "No se hizo a partir del tiempo facturable de un cliente. Cámbiala donde se hizo.",
+			"OTHER_WORKSPACE_TITLE": "La factura {number} está en otro espacio de trabajo",
+			"OTHER_WORKSPACE_MESSAGE": "Elige su espacio de trabajo y vuelve a abrirla desde la lista de facturas.",
 			"SAVED_NOT_SENT": "La factura {number} se guardó, pero no se envió",
 			"confirm": {
 				"TITLE": "¿Guardar los cambios de la factura {number}?",

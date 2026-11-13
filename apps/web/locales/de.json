@@ -6780,6 +6780,8 @@
 			"LOCKED_VOID": "Sie ist storniert, und eine stornierte Rechnung ändert sich nicht mehr.",
 			"NOT_FROM_TIME_TITLE": "Rechnung {number} lässt sich hier nicht öffnen",
 			"NOT_FROM_TIME_MESSAGE": "Sie wurde nicht aus der abrechenbaren Zeit eines Kunden erstellt. Ändern Sie sie dort, wo sie erstellt wurde.",
+			"OTHER_WORKSPACE_TITLE": "Rechnung {number} liegt in einem anderen Arbeitsbereich",
+			"OTHER_WORKSPACE_MESSAGE": "Wählen Sie ihren Arbeitsbereich und öffnen Sie sie dann erneut aus der Rechnungsliste.",
 			"SAVED_NOT_SENT": "Rechnung {number} wurde gespeichert, aber nicht gesendet",
 			"confirm": {
 				"TITLE": "Änderungen an Rechnung {number} speichern?",
