@@ -2,6 +2,7 @@
 
 import { useId } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
 import { controlRecipe } from '@/core/components/common/input';
@@ -19,10 +20,11 @@ import { cn } from '@/core/lib/helpers';
 import { formatPeriod, shiftPeriod } from '@/core/lib/utils/dashboard-period';
 import type { InvoiceGrouping } from '@/core/lib/utils/invoices';
 import { isTrackingEnabledState } from '@/core/stores';
-import { InvoiceAccessGuard, INVOICES_PATH, NEW_INVOICE_PATH } from '../invoice-access-guard';
+import { InvoiceAccessGuard, INVOICES_PATH, NEW_INVOICE_PATH, REPLACES_PARAM } from '../invoice-access-guard';
 import { PreparedInvoice } from './invoice-screen';
 import { GROUPING_SWITCH } from './new-invoice-recipes';
 import { InvoiceSheetSkeleton, MessageLink, NewInvoiceMessage, NewInvoicePageSkeleton } from './new-invoice-states';
+import { ReplacementInvoiceContent } from './replacement-invoice';
 import { SaveInvoiceDialog } from './save-invoice-dialog';
 
 function ClientSelect({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
@@ -193,10 +195,20 @@ function NewInvoiceContent() {
 	);
 }
 
+/** A new invoice, or one that replaces a saved invoice and starts from it. */
+function NewInvoiceRoute() {
+	const searchParams = useSearchParams();
+	const replacedId = searchParams?.get(REPLACES_PARAM) ?? null;
+	if (replacedId) {
+		return <ReplacementInvoiceContent invoiceId={replacedId} />;
+	}
+	return <NewInvoiceContent />;
+}
+
 function NewInvoicePage() {
 	return (
 		<InvoiceAccessGuard need="create" fallback={<NewInvoicePageSkeleton />}>
-			<NewInvoiceContent />
+			<NewInvoiceRoute />
 		</InvoiceAccessGuard>
 	);
 }
