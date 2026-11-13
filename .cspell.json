@@ -1013,7 +1013,12 @@
 		"Cnone",
 		"Femployee",
 		"globex",
-		"unbilled"
+		"unbilled",
+		"Beginn",
+		"Dauer",
+		"Ende",
+		"Kunde",
+		"Notiz"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
