@@ -21,20 +21,25 @@ jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => {
 	const permissions = { myPermissions: [] };
 	return { useMyRolePermissionsQuery: () => permissions };
 });
+const mockProjectClients = {
+	projects: [],
+	clientIds: new Map<string, string | null>(),
+	isPending: false,
+	isError: false
+};
+const mockUrlFilters = {
+	filters: { clients: [] as string[], billable: [] as string[], labels: [] as string[] },
+	setFilter: jest.fn(),
+	removeFilterValue: jest.fn(),
+	clearFilters: jest.fn()
+};
 jest.mock('@/core/hooks/dashboards/use-report-clients', () => {
-	const projectClients = { projects: [], clientIds: new Map(), isPending: false, isError: false };
 	const choices: unknown[] = [];
-	return { useReportProjectClients: () => projectClients, useReportClientChoices: () => choices };
+	return { useReportProjectClients: () => mockProjectClients, useReportClientChoices: () => choices };
 });
-jest.mock('@/core/hooks/dashboards/use-report-url-filters', () => {
-	const urlFilters = {
-		filters: { clients: [], billable: [], labels: [] },
-		setFilter: jest.fn(),
-		removeFilterValue: jest.fn(),
-		clearFilters: jest.fn()
-	};
-	return { useReportUrlFilters: () => urlFilters };
-});
+jest.mock('@/core/hooks/dashboards/use-report-url-filters', () => ({
+	useReportUrlFilters: () => mockUrlFilters
+}));
 jest.mock('./use-timesheet-page-logs', () => ({
 	useTimesheetPageLogs: (...args: unknown[]) => mockUseTimesheetPageLogs(...args)
 }));
@@ -55,5 +60,51 @@ describe("the Timesheets page's read of its logs", () => {
 		expect(mockUseTimesheetPageLogs).toHaveBeenCalledWith(expect.anything(), expect.anything(), {
 			withTaskLabels: true
 		});
+	});
+});
+
+function logOf(id: string, projectId: string) {
+	return {
+		id,
+		projectId,
+		project: { id: projectId, name: projectId },
+		employee: { id: 'viewer', fullName: 'Ada' },
+		startedAt: new Date(2026, 10, 10, 9),
+		stoppedAt: new Date(2026, 10, 10, 10),
+		duration: 3600
+	};
+}
+
+describe('the Timesheets page under a client filter', () => {
+	afterEach(() => {
+		mockProjectClients.isPending = false;
+		mockProjectClients.clientIds = new Map();
+		mockUrlFilters.filters.clients = [];
+	});
+
+	it("shows (and so exports) no time until it has read which projects are the client's", () => {
+		mockUseTimesheetPageLogs.mockReturnValue({
+			data: [logOf('active-project-log', 'project-active'), logOf('archived-project-log', 'project-archived')],
+			isPlaceholderData: false,
+			isError: false,
+			isFetching: false
+		});
+		mockUrlFilters.filters.clients = ['client-acme'];
+		mockProjectClients.isPending = true;
+		mockProjectClients.clientIds = new Map([['project-active', 'client-acme']]);
+
+		const { result, rerender } = renderHook(() => useTimesheetsPage());
+
+		expect(result.current.shownLogs).toEqual([]);
+
+		mockProjectClients.isPending = false;
+		mockProjectClients.clientIds = new Map([
+			['project-active', 'client-acme'],
+			['project-archived', 'client-acme']
+		]);
+		rerender();
+
+		const shownIds = result.current.shownLogs.map((log) => log.id).sort();
+		expect(shownIds).toEqual(['active-project-log', 'archived-project-log']);
 	});
 });
