@@ -5869,7 +5869,8 @@
 			"searchProjects": "Projecten doorzoeken",
 			"searchTeams": "Teams doorzoeken",
 			"themeToggle": "Wisselen tussen licht en donker",
-			"taskProject": "Project wijzigen"
+			"taskProject": "Project wijzigen",
+			"taskAssignee": "Toegewezen personen wijzigen"
 		},
 		"CHAT_SINGLE_KEY": "Een chattoets is één toets, geen reeks.",
 		"CHAT_TAKEN": "De chat gebruikt die toets al (opmaak, verzenden, verplaatsen of scrollen)."

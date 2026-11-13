@@ -5869,7 +5869,8 @@
 			"searchProjects": "Szukaj w projektach",
 			"searchTeams": "Szukaj w zespołach",
 			"themeToggle": "Przełącz między jasnym a ciemnym",
-			"taskProject": "Zmień projekt"
+			"taskProject": "Zmień projekt",
+			"taskAssignee": "Zmień przypisane osoby"
 		},
 		"CHAT_SINGLE_KEY": "Klawisz czatu to jeden klawisz, nie sekwencja.",
 		"CHAT_TAKEN": "Czat już używa tego klawisza (formatowanie, wysyłanie, przechodzenie lub przewijanie)."

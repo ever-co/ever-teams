@@ -5869,7 +5869,8 @@
 			"searchProjects": "Search the projects",
 			"searchTeams": "Search the teams",
 			"themeToggle": "Switch between light and dark",
-			"taskProject": "Change the project"
+			"taskProject": "Change the project",
+			"taskAssignee": "Change the assignees"
 		},
 		"CHAT_SINGLE_KEY": "A chat key is one key, not a sequence.",
 		"CHAT_TAKEN": "The chat already uses that key (formatting, sending, moving or scrolling)."
