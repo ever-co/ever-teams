@@ -4876,7 +4876,7 @@
 			"REQUIREMENTS_LOAD_FAILED": "No se pudieron cargar los requisitos.",
 			"TRACKING_SWITCH_SECTION": "Quién activa el seguimiento de tiempo",
 			"RESTRICT_TRACKING_SWITCH_LABEL": "Solo un rol superior activa o desactiva el seguimiento de tiempo",
-			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Los administradores activan o desactivan el seguimiento de tiempo de cualquiera; los managers solo el de los miembros de su equipo, nunca el suyo ni el de otro manager. Desactivado, los administradores y los managers de equipo lo cambian para cualquiera de sus equipos, y quienes además pueden editar empleados lo cambian en todos los equipos a la vez.",
+			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Los administradores activan o desactivan el seguimiento de tiempo de cualquiera; los managers solo el de los miembros de su equipo, nunca el suyo ni el de otro manager. Desactivado, los administradores y los managers de equipo lo cambian para cualquiera de sus equipos, y cuando alguien que además puede editar empleados lo desactiva, se desactiva en todos los equipos.",
 			"TRACKING_SWITCH_RULE_NOT_SAVED": "El ajuste no se guardó.",
 			"ON": "Activado",
 			"OFF": "Desactivado",

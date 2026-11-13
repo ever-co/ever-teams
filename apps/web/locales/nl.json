@@ -4876,7 +4876,7 @@
 			"REQUIREMENTS_LOAD_FAILED": "De vereisten konden niet worden geladen.",
 			"TRACKING_SWITCH_SECTION": "Wie tijd bijhouden aan- of uitzet",
 			"RESTRICT_TRACKING_SWITCH_LABEL": "Alleen een hogere rol zet tijd bijhouden aan of uit",
-			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Admins zetten tijd bijhouden voor iedereen aan of uit, managers alleen voor hun teamleden, nooit voor zichzelf of een andere manager. Staat het uit, dan zetten admins en teammanagers het om voor iedereen in hun teams, en wie ook medewerkers mag bewerken zet het in één keer om in alle teams.",
+			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Admins zetten tijd bijhouden voor iedereen aan of uit, managers alleen voor hun teamleden, nooit voor zichzelf of een andere manager. Staat het uit, dan zetten admins en teammanagers het om voor iedereen in hun teams, en zet iemand die ook medewerkers mag bewerken het uit, dan staat het in alle teams uit.",
 			"TRACKING_SWITCH_RULE_NOT_SAVED": "De instelling is niet opgeslagen.",
 			"ON": "Aan",
 			"OFF": "Uit",

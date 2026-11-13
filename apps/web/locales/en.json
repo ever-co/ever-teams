@@ -4876,7 +4876,7 @@
 			"REQUIREMENTS_LOAD_FAILED": "The requirements could not load.",
 			"TRACKING_SWITCH_SECTION": "Who switches time tracking",
 			"RESTRICT_TRACKING_SWITCH_LABEL": "Only a higher role switches time tracking",
-			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Admins turn anyone's time tracking on or off, managers only their team members', never their own or another manager's. When off, admins and team managers switch it for anyone in their teams, and those who may also edit employees switch it in every team at once.",
+			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Admins turn anyone's time tracking on or off, managers only their team members', never their own or another manager's. When off, admins and team managers switch it for anyone in their teams, and when someone who may also edit employees turns it off, it goes off in every team.",
 			"TRACKING_SWITCH_RULE_NOT_SAVED": "The setting was not saved.",
 			"ON": "On",
 			"OFF": "Off",
