@@ -1867,8 +1867,7 @@
 			},
 			"billable": {
 				"LABEL": "Faturável por padrão",
-				"HELP": "O tempo registrado ou adicionado neste projeto começa como faturável. Cada registro ainda pode ser alterado, e os registros já salvos mantêm o seu valor.",
-				"NOT_BILLABLE": "Não faturável"
+				"HELP": "O tempo registrado ou adicionado neste projeto começa como faturável. Cada registro ainda pode ser alterado, e os registros já salvos mantêm o seu valor."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {

@@ -1864,8 +1864,7 @@
 			},
 			"billable": {
 				"LABEL": "Facturable par défaut",
-				"HELP": "Le temps suivi ou ajouté sur ce projet est facturable au départ. Chaque saisie reste modifiable, et les saisies déjà enregistrées gardent leur valeur.",
-				"NOT_BILLABLE": "Non facturable"
+				"HELP": "Le temps suivi ou ajouté sur ce projet est facturable au départ. Chaque saisie reste modifiable, et les saisies déjà enregistrées gardent leur valeur."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {
