@@ -1,7 +1,9 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useCallback, useState } from 'react';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { useAtomValue } from 'jotai';
+import { toast } from 'sonner';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { DashboardBreadcrumb } from '@/core/components/dashboards/kit/dashboard-breadcrumb';
@@ -10,10 +12,24 @@ import { Invoice } from '@/core/components/icons';
 import { useCurrentOrganizationOwner } from '@/core/hooks/bootstrap/use-feature-data';
 import { useClientNames } from '@/core/hooks/clients/use-client-names';
 import { useInvoiceAccess } from '@/core/hooks/invoices/use-invoice-access';
-import { useInvoicePdf } from '@/core/hooks/invoices/use-invoice-mutations';
+import { useChangeInvoiceStatus, useInvoicePdf } from '@/core/hooks/invoices/use-invoice-mutations';
 import { useInvoicesQuery } from '@/core/hooks/invoices/use-invoices-query';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import {
+	paidChangeOf,
+	unpaidChangeOf,
+	type InvoiceAction,
+	type InvoiceStatusChange
+} from '@/core/lib/utils/invoice-actions';
+import type { InvoicesScope } from '@/core/services/client/api/organizations/invoice.service';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
+import {
+	DeleteInvoiceDialog,
+	SendInvoiceDialog,
+	VoidInvoiceDialog,
+	type InvoiceActionTarget
+} from './invoice-action-dialogs';
 import { InvoiceAccessGuard, INVOICES_PATH } from './invoice-access-guard';
 import { InvoicesLedger } from './invoices-ledger';
 import {
@@ -23,6 +39,35 @@ import {
 	InvoicesPageSkeleton,
 	InvoicesToolbar
 } from './invoices-states';
+
+type InvoiceDialogKind = 'send' | 'void' | 'delete';
+
+interface InvoiceDialog {
+	kind: InvoiceDialogKind;
+	target: InvoiceActionTarget;
+	/** The list's workspace when the dialog opened: kept, so a switch while it is open refuses its action. */
+	scope: InvoicesScope | null;
+}
+
+/** Marking an invoice paid or unpaid needs no confirmation: the toast says the outcome. */
+function useInvoiceStatusToggle(scope: InvoicesScope | null) {
+	const t = useTranslations();
+	const { changeStatus, changingIds } = useChangeInvoiceStatus();
+	const changeTo = useCallback(
+		async (target: InvoiceActionTarget, change: InvoiceStatusChange, doneKey: DottedLanguageObjectStringPaths) => {
+			const number = target.numberText;
+			try {
+				await changeStatus({ invoiceId: target.invoice.id, change, scope });
+				toast.success(t(doneKey, { number }));
+			} catch (error) {
+				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+				toast.error(t('invoices.actions.CHANGE_FAILED', { number }), { description: t(reasonKey) });
+			}
+		},
+		[changeStatus, scope, t]
+	);
+	return { changeTo, changingIds };
+}
 
 /** Mounted once the role may read invoices: nothing of an invoice is read for anyone else. */
 function InvoicesContent() {
@@ -34,6 +79,32 @@ function InvoicesContent() {
 	const list = useInvoicesQuery({ enabled: access.canView });
 	const { downloadPdf, pendingId } = useInvoicePdf();
 	const clientNames = useClientNames();
+	const { changeTo, changingIds } = useInvoiceStatusToggle(list.scope);
+	const [dialog, setDialog] = useState<InvoiceDialog | null>(null);
+	const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+	const takeAction = useCallback(
+		(target: InvoiceActionTarget, action: InvoiceAction) => {
+			const total = target.invoice.totalValue;
+			if (action === 'markPaid') {
+				void changeTo(target, paidChangeOf(total), 'invoices.actions.MARKED_PAID');
+				return;
+			}
+			if (action === 'markUnpaid') {
+				void changeTo(target, unpaidChangeOf(total), 'invoices.actions.MARKED_UNPAID');
+				return;
+			}
+			setDialog({ kind: action, target, scope: list.scope });
+			setIsDialogOpen(true);
+		},
+		[changeTo, list.scope]
+	);
+
+	// The dialog keeps its invoice while it fades out.
+	const closeDialog = useCallback(() => setIsDialogOpen(false), []);
+	const dialogTarget = dialog?.target ?? null;
+	const dialogScope = dialog?.scope ?? null;
+	const isDialogOpenFor = (kind: InvoiceDialogKind) => isDialogOpen && dialog?.kind === kind;
 
 	const hasInvoices = list.invoices.length > 0;
 	const showsError = list.isError && !hasInvoices;
@@ -67,6 +138,9 @@ function InvoicesContent() {
 						timeZone={organization?.timeZone}
 						pendingPdfId={pendingId}
 						onDownload={downloadPdf}
+						canEdit={access.canEdit}
+						changingIds={changingIds}
+						onAction={takeAction}
 					/>
 					{list.hasMore && (
 						<Button
@@ -82,6 +156,25 @@ function InvoicesContent() {
 					)}
 				</div>
 			)}
+
+			<SendInvoiceDialog
+				open={isDialogOpenFor('send')}
+				target={dialogTarget}
+				scope={dialogScope}
+				onClose={closeDialog}
+			/>
+			<VoidInvoiceDialog
+				open={isDialogOpenFor('void')}
+				target={dialogTarget}
+				scope={dialogScope}
+				onClose={closeDialog}
+			/>
+			<DeleteInvoiceDialog
+				open={isDialogOpenFor('delete')}
+				target={dialogTarget}
+				scope={dialogScope}
+				onClose={closeDialog}
+			/>
 		</PageLayout>
 	);
 }

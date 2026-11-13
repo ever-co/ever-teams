@@ -16,6 +16,11 @@ export const INVOICES_PATH = '/invoices';
 
 export const NEW_INVOICE_PATH = '/invoices/new';
 
+export function newInvoicePathOf(clientId: string) {
+	const query = new URLSearchParams({ client: clientId });
+	return `${NEW_INVOICE_PATH}?${query.toString()}`;
+}
+
 const HOME_PATH = '/';
 
 interface AccessFlags {

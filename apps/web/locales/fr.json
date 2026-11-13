@@ -2761,7 +2761,8 @@
 			"HINT_BEFORE_START": "Facultatif. Enregistrées sur l'entrée au démarrage du chronomètre.",
 			"HINT_RUNNING": "Les changements faits pendant que le chronomètre tourne ne sont pas encore enregistrés. Pour changer les notes, modifiez l'entrée dans les feuilles de temps après l'arrêt du chronomètre.",
 			"HINT_OTHER_TEAM": "Ces notes appartiennent au chronomètre en cours dans une autre équipe : elles ne peuvent pas être modifiées ici."
-		}
+		},
+		"NOT_BILLABLE": "Non facturable"
 	},
 	"task": {
 		"TITLE": "Tâche",
@@ -3818,6 +3819,7 @@
 			"PERMISSION": "Votre rôle ne permet pas ce changement.",
 			"NOT_FOUND": "Cet élément n'existe plus. Rechargez la page.",
 			"CONFLICT": "Quelqu'un l'a modifié en même temps. Rechargez et réessayez.",
+			"NAME_TAKEN": "Ce nom est déjà utilisé ici. Choisissez-en un autre.",
 			"INVALID": "Certaines valeurs n'ont pas été acceptées. Vérifiez-les et réessayez.",
 			"TOO_MANY": "Trop de tentatives. Patientez un instant, puis réessayez.",
 			"SERVER": "Le serveur n'a pas pu terminer. Réessayez dans un instant.",
@@ -4874,6 +4876,10 @@
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "Vérifié par les applications Gauzy de bureau et web uniquement.",
 			"REQUIREMENT_NOT_SAVED": "L'exigence n'a pas été enregistrée.",
 			"REQUIREMENTS_LOAD_FAILED": "Les exigences n'ont pas pu être chargées.",
+			"TRACKING_SWITCH_SECTION": "Qui active le suivi du temps",
+			"RESTRICT_TRACKING_SWITCH_LABEL": "Seul un rôle supérieur active ou coupe le suivi du temps",
+			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Les admins activent ou coupent le suivi du temps de chacun, les managers seulement celui des membres de leur équipe, jamais le leur ni celui d'un autre manager. Désactivé, les admins et les managers d'équipe le changent pour tous les membres de leurs équipes, et pour ceux qui peuvent aussi modifier les employés, l'interrupteur règle aussi le suivi propre de la personne, qui vaut dans toutes les équipes.",
+			"TRACKING_SWITCH_RULE_NOT_SAVED": "Le réglage n'a pas été enregistré.",
 			"ON": "Activé",
 			"OFF": "Désactivé",
 			"DANGER_SECTION": "Zone de danger",
@@ -6152,7 +6158,48 @@
 		"APP_GONE": "Ce bouton n’est plus disponible.",
 		"APP_NO_ANSWER_YET": "L’application n’a pas encore répondu. Vous pouvez cliquer à nouveau.",
 		"LINK_PREVIEW_LABEL": "{title} ({site}, s'ouvre dans un nouvel onglet)",
-		"LINK_PREVIEW_SITE_LABEL": "{site} (s'ouvre dans un nouvel onglet)"
+		"LINK_PREVIEW_SITE_LABEL": "{site} (s'ouvre dans un nouvel onglet)",
+		"WEBHOOKS": {
+			"TITLE": "Intégrations",
+			"DIALOG_TITLE": "Intégrations de #{name}",
+			"INTRO": "Les webhooks entrants permettent à des automatisations de publier dans ce canal. Chacun a sa propre URL ; ses messages affichent son nom avec un badge App.",
+			"NEW": "Nouveau webhook",
+			"CREATE": "Créer le webhook",
+			"EMPTY": "Aucun webhook pour l’instant.",
+			"FULL": "Un canal a au plus {max} webhooks ; révoquez-en un pour en ajouter un autre.",
+			"NAME": "Nom",
+			"ICON_URL": "URL de l’icône (facultative, https)",
+			"INTERACTION_URL": "URL d’interaction (facultative, https)",
+			"INTERACTION_HINT": "Les clics sur les boutons y sont envoyés, signés avec le secret de signature. Adresses publiques uniquement.",
+			"BROADCAST": "Ses @channel et @here notifient tout le canal",
+			"SHOWN_ONCE": "Copiez-les maintenant pour « {name} » : ils ne sont affichés qu’une seule fois.",
+			"URL": "URL du webhook",
+			"SIGNING_SECRET": "Secret de signature",
+			"COPY": "Copier",
+			"COPIED": "Copié",
+			"COPY_URL": "Copier l’URL du webhook",
+			"COPY_SECRET": "Copier le secret de signature",
+			"COPY_FAILED": "La copie n’a pas fonctionné ; sélectionnez le texte et copiez-le à la main.",
+			"LOAD_FAILED": "Les webhooks de ce canal n’ont pas pu être chargés.",
+			"DONE": "Je les ai copiés",
+			"CREATED_BY": "Par {name} le {date}",
+			"LAST_USED": "dernière utilisation {date}",
+			"NEVER_USED": "jamais utilisé",
+			"COUNTS": "Publiés : {accepted} · Refusés : {rejected} · Limités : {limited} · Rappels échoués : {failures}",
+			"REVOKED": "Révoqué",
+			"EDIT": "Modifier",
+			"EDIT_NAMED": "Modifier {name}",
+			"ROTATE": "Nouveau secret de signature",
+			"ROTATE_NAMED": "Nouveau secret de signature pour {name}",
+			"ROTATE_CONFIRM": "Créer un nouveau secret de signature pour « {name} » ? L’application devra utiliser le nouveau dès maintenant.",
+			"REVOKE": "Révoquer",
+			"REVOKE_NAMED": "Révoquer {name}",
+			"REVOKE_CONFIRM": "Révoquer « {name} » ? Son URL cesse de fonctionner immédiatement, et c’est irréversible.",
+			"FORBIDDEN": "Seul un responsable de ce canal peut gérer ses webhooks.",
+			"GONE": "Ce webhook ou son canal n’est plus disponible.",
+			"INVALID": "Le serveur a refusé ces valeurs. Vérifiez le nom et les adresses (https, hôtes publics uniquement).",
+			"OFF": "Les webhooks entrants ne sont pas disponibles sur ce serveur."
+		}
 	},
 	"docs": {
 		"TITLE": "Documents",
@@ -6691,7 +6738,73 @@
 				"FAILED": "La facture n’a pas été enregistrée et rien n’a été créé. Vérifiez que son numéro est libre, puis réessayez.",
 				"UNCHECKED": "Les factures déjà enregistrées pour {client} n’ont pas pu être lues : cette période n’a pas été comparée avec elles.",
 				"UNCONFIRMED": "L’enregistrement n’a pas pu être confirmé : la facture a peut-être été enregistrée. Vérifiez les factures déjà enregistrées pour {client} avant d’enregistrer à nouveau."
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "Par projet",
+				"AVERAGE_RATE": "tarif moyen",
+				"AVERAGE_RATE_HINT": "Les membres de ce projet ont des tarifs différents : voici leur moyenne, pondérée par leurs heures."
+			},
+			"terms": {
+				"CLIENT": "Conditions du client : {days, plural, =0 {payable à réception} one {# jour} other {# jours}}",
+				"ORGANIZATION": "Conditions de l’espace de travail : {days, plural, one {# jour} other {# jours}}",
+				"STANDARD": "Conditions par défaut : {days, plural, one {# jour} other {# jours}}",
+				"NOTE": "Note au client",
+				"NOTE_HINT": "Imprimée sur la facture, sous sa période."
+			},
+			"adjustments": {
+				"DISCOUNT": "Remise (%)",
+				"TAX": "Taxe (%)",
+				"SUBTOTAL": "Sous-total",
+				"DISCOUNT_ROW": "Remise ({percent})",
+				"TAX_ROW": "Taxe ({percent} de {base})"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "Enregistrer et envoyer",
+				"DRAFT_OR_SEND_NOTE": "Ensuite, enregistrez-la en brouillon, ou enregistrez-la et envoyez-la à {email}.",
+				"SEND_CONSEQUENCE": "Enregistrer et envoyer l’envoie aussi par e-mail avec le PDF en pièce jointe, puis la marque Envoyée.",
+				"SAVED_NOT_SENT": "La facture {number} est enregistrée en brouillon mais n’a pas été envoyée",
+				"SEND_FROM_LIST": "Renvoyez-la depuis son menu dans la liste."
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "Actions de la facture {number}",
+			"SEND": "Envoyer au client",
+			"SEND_AGAIN": "Renvoyer",
+			"MARK_PAID": "Marquer comme payée",
+			"MARK_UNPAID": "Marquer comme impayée",
+			"VOID": "Annuler la facture",
+			"DELETE": "Supprimer",
+			"MARKED_PAID": "La facture {number} est marquée comme payée",
+			"MARKED_UNPAID": "La facture {number} repasse à Envoyée, impayée",
+			"CHANGE_FAILED": "La facture {number} n’a pas été modifiée",
+			"DOWNLOAD": "Télécharger en PDF"
+		},
+		"send": {
+			"TITLE": "Envoyer la facture {number} ?",
+			"ATTACHED": "Elle part par e-mail, avec la facture en pièce jointe au format PDF.",
+			"MARKS_SENT": "Elle est ensuite marquée Envoyée.",
+			"RECIPIENT": "Envoyer à",
+			"RECIPIENT_INVALID": "Saisissez l’adresse e-mail à laquelle envoyer la facture.",
+			"CONFIRM": "Envoyer la facture",
+			"SENT": "Facture {number} envoyée à {email}",
+			"NOT_MARKED": "Son statut n’a pas pu passer à Envoyée.",
+			"FAILED": "La facture {number} n’a pas été envoyée. Vérifiez l’adresse, puis réessayez."
+		},
+		"void": {
+			"TITLE": "Annuler la facture {number} ?",
+			"STAYS_LISTED": "Elle reste dans la liste comme Annulée, et son PDF peut toujours être téléchargé.",
+			"FINAL": "Une facture annulée ne peut plus être envoyée ni marquée comme payée.",
+			"CONFIRM": "Annuler la facture",
+			"DONE": "La facture {number} est annulée",
+			"FAILED": "La facture n’a pas été modifiée. Réessayez."
+		},
+		"delete": {
+			"TITLE": "Supprimer la facture {number} ?",
+			"FOR_GOOD": "Le brouillon est supprimé définitivement et quitte la liste.",
+			"NUMBER_FREE": "Son numéro pourra être donné à une autre facture.",
+			"CONFIRM": "Supprimer la facture",
+			"DONE": "La facture {number} a été supprimée",
+			"FAILED": "La facture n’a pas été supprimée. Réessayez."
 		}
 	},
 	"timeReports": {

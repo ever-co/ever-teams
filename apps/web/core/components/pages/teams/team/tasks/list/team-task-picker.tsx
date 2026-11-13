@@ -24,6 +24,7 @@ import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/project
 import { activeTeamState } from '@/core/stores';
 import { cn } from '@/core/lib/helpers';
 import { statusIdOf } from '@/core/lib/utils/kanban-board';
+import { shownDayOf } from '@/core/lib/utils/date-only';
 import { issueTypeChoicesFor, priorityRankOf } from '@/core/lib/utils/team-tasks-view';
 import type { TStatus } from '@/core/types/interfaces/task/task-card';
 import type { TOrganizationTeamEmployee, TTaskStatus } from '@/core/types/schemas';
@@ -123,7 +124,7 @@ function PriorityPicker(props: Readonly<PickerProps>) {
 		<TaskPropertyMenu
 			options={options}
 			isSelected={isSelected}
-			onSelect={(value) => setPriority(props.taskIds, value)}
+			onSelect={(value) => setPriority(props.taskIds, { value, id: priorityValues[value]?.id })}
 			searchPlaceholder={t('taskMenus.search.priority')}
 			optionLabelClassName="capitalize"
 			open={props.isOpen}
@@ -145,7 +146,7 @@ function SizePicker(props: Readonly<PickerProps>) {
 		<TaskPropertyMenu
 			options={options}
 			isSelected={isSelected}
-			onSelect={(value) => setSize(props.taskIds, value)}
+			onSelect={(value) => setSize(props.taskIds, { value, id: sizeValues[value]?.id })}
 			searchPlaceholder={t('taskMenus.search.size')}
 			optionLabelClassName="capitalize"
 			open={props.isOpen}
@@ -284,7 +285,6 @@ function SelectionAssigneePicker(props: Readonly<PickerProps>) {
 	);
 }
 
-const DAY_MS = 24 * 60 * 60 * 1000;
 const FRIDAY = 5;
 const DAYS_IN_WEEK = 7;
 
@@ -294,8 +294,9 @@ function startOfToday() {
 	return day;
 }
 
+/** The same time `count` calendar days later (a day across a daylight-saving change is not 24 hours long). */
 function addDays(day: Date, count: number) {
-	return new Date(day.getTime() + count * DAY_MS);
+	return new Date(day.getFullYear(), day.getMonth(), day.getDate() + count);
 }
 
 function daysUntilFriday(day: Date) {
@@ -303,13 +304,9 @@ function daysUntilFriday(day: Date) {
 	return (FRIDAY - weekday + DAYS_IN_WEEK) % DAYS_IN_WEEK;
 }
 
+/** The local midnight of the day a stored date names: a date-only start or due date is its own day in every zone. */
 function startOfDayOf(value: Date | string | null | undefined) {
-	if (!value) {
-		return null;
-	}
-	const day = new Date(value);
-	day.setHours(0, 0, 0, 0);
-	return day;
+	return shownDayOf(value);
 }
 
 /** The calendar refuses days before the task's start, as the task page's own date picker does. */

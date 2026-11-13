@@ -197,7 +197,7 @@ export function useTeamMembersSettings() {
 	const { deleteEmployeeFromTasks } = useDeleteTask();
 	const { updateAvatar } = useSettings();
 	const { myPermissions } = useMyRolePermissionsQuery();
-	const { arePermissionsLoaded, mayTurnTracking, writesEmployeeTracking, saveMemberTracking } =
+	const { isTrackingRuleKnown, mayTurnTracking, writesEmployeeTracking, saveMemberTracking } =
 		useMemberTrackingSwitch();
 	const { saveEmployeeRates } = useEmployeeRatesMutation();
 	const { setMemberWorkEnd } = useMemberWorkEnd();
@@ -268,9 +268,10 @@ export function useTeamMembersSettings() {
 			const hasEmployee = Boolean(employeeId);
 			const role = roleOverrides[rowId] ?? roleOf(member);
 			const isTrackingEnabled = trackingOverrides[rowId] ?? isTrackingEnabledOf(member);
-			// Before the permissions load an admin would look like a team manager and save the team switch alone
+			// Before the permissions load an admin would look like a team manager and save the team switch alone, and
+			// before the organization is read nobody knows whether the ranks apply
 			const isSavingTracking = pendingTracking.has(rowId);
-			const waitsForPermissions = !arePermissionsLoaded;
+			const waitsForPermissions = !isTrackingRuleKnown;
 			const workspaceRoleId = workspaceRoleOverrides[rowId] ?? memberWorkspaceRoleIdOf(member);
 			const access = memberAccessOf(member, accessContext);
 			models.push({
@@ -305,7 +306,7 @@ export function useTeamMembersSettings() {
 		return models;
 	}, [
 		accessContext,
-		arePermissionsLoaded,
+		isTrackingRuleKnown,
 		mayTurnTracking,
 		myPermissions,
 		members,

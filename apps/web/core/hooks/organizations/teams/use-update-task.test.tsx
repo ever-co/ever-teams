@@ -226,3 +226,68 @@ describe('useUpdateTask moving the time logs with the task', () => {
 		expect(isInvalidated(client, timeLogsKey)).toBe(false);
 	});
 });
+
+describe('useUpdateTask saving a priority or a size picked from a task’s menu', () => {
+	const task = {
+		...originalTask,
+		priority: 'low',
+		taskPriorityId: 'p-low',
+		size: 'small',
+		taskSizeId: 'z-small',
+		status: 'open',
+		taskStatusId: 's-open'
+	} as TTask;
+
+	async function pick(
+		run: (handle: ReturnType<typeof useUpdateTask>['handleStatusUpdate']) => Promise<unknown> | undefined
+	) {
+		const { result } = renderHook(() => useUpdateTask(), { wrapper: createWrapper(createQueryClient()) });
+		await act(async () => {
+			await run(result.current.handleStatusUpdate);
+		});
+	}
+
+	beforeEach(() => {
+		jest.clearAllMocks();
+		mockUpdateTask.mockImplementation(async ({ data }) => data);
+	});
+
+	it('saves a team’s own priority and size with their records, not by their names alone', async () => {
+		await pick((handle) => handle('p0' as never, 'priority', undefined, task, true, 'p-0'));
+		expect(mockUpdateTask).toHaveBeenLastCalledWith(
+			expect.objectContaining({ data: expect.objectContaining({ priority: 'p0', taskPriorityId: 'p-0' }) })
+		);
+
+		await pick((handle) => handle('huge' as never, 'size', undefined, task, true, 'z-huge'));
+		expect(mockUpdateTask).toHaveBeenLastCalledWith(
+			expect.objectContaining({ data: expect.objectContaining({ size: 'huge', taskSizeId: 'z-huge' }) })
+		);
+	});
+
+	it('moves the task to the record of a name it already shows, and leaves a task that has both alone', async () => {
+		await pick((handle) =>
+			handle('low' as never, 'priority', undefined, { ...task, taskPriorityId: null }, true, 'p-low')
+		);
+		expect(mockUpdateTask).toHaveBeenCalledWith(
+			expect.objectContaining({ data: expect.objectContaining({ priority: 'low', taskPriorityId: 'p-low' }) })
+		);
+		mockUpdateTask.mockClear();
+
+		await pick((handle) => handle('low' as never, 'priority', undefined, task, true, 'p-low'));
+		expect(mockUpdateTask).not.toHaveBeenCalled();
+	});
+
+	it('saves a status, and a priority without a record, as before', async () => {
+		await pick((handle) => handle('in-review' as never, 'status', 's-review', task, true));
+		expect(mockUpdateTask).toHaveBeenLastCalledWith(
+			expect.objectContaining({
+				data: expect.objectContaining({ status: 'in-review', taskStatusId: 's-review' })
+			})
+		);
+
+		await pick((handle) => handle('high' as never, 'priority', undefined, task, true));
+		expect(mockUpdateTask).toHaveBeenLastCalledWith(
+			expect.objectContaining({ data: expect.objectContaining({ priority: 'high', taskPriorityId: 'p-low' }) })
+		);
+	});
+});

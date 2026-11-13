@@ -9,6 +9,7 @@ import { useCallback, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { listedRecordIdOf } from '@/core/lib/utils/task-bulk-changes';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
 	setOptimisticValueAtom,
@@ -94,6 +95,8 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 
 	const task = props.task !== undefined ? props.task : activeTeamTask;
 	const $task = useSyncRef(task);
+	// The menu's items by the value they are picked by (`onItemChange` names the picked value `status`).
+	const statusItems = status;
 
 	// Reset optimistic value when task changes
 	useEffect(() => {
@@ -133,8 +136,12 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 			taskStatusId = selectedStatus?.id;
 		}
 
+		// A priority or a size goes with the record the menu lists it by (null when none does), so the task holds the
+		// record it shows, a team's own included.
+		const recordId = listedRecordIdOf(field, statusItems, status);
+
 		taskUpdateQueue.task((task) => {
-			return handleStatusUpdate(status, updatedField || field, taskStatusId, task.current, true)
+			return handleStatusUpdate(status, updatedField || field, taskStatusId, task.current, true, recordId)
 				?.catch((error: unknown) => {
 					// Error - revert optimistic value and show error toast
 					if ($task.current?.id) {

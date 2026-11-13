@@ -35,6 +35,10 @@ jest.mock('@/core/hooks/organizations/teams/use-team-member', () => ({
 	useIsMemberManager: () => ({ isTeamManager: true, activeManager: null })
 }));
 jest.mock('@/core/hooks/queries/user-user.query', () => ({ useUserQuery: () => ({ data: { id: 'user-a' } }) }));
+// The tracking switch reads the organization; these saves do not depend on it
+jest.mock('@/core/hooks/auth/use-current-organization', () => ({
+	useGetCurrentOrganization: () => ({ isError: false })
+}));
 
 import { useTeamGeneralSettings } from './use-team-general-settings';
 

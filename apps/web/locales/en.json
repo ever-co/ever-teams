@@ -2761,7 +2761,8 @@
 			"HINT_BEFORE_START": "Optional. Saved on the entry when the timer starts.",
 			"HINT_RUNNING": "Changes made while the timer runs are not saved yet. To change the notes, edit the entry in Timesheets after you stop the timer.",
 			"HINT_OTHER_TEAM": "These notes belong to the timer running in another team, so they cannot be changed here."
-		}
+		},
+		"NOT_BILLABLE": "Not billable"
 	},
 	"task": {
 		"TITLE": "Task",
@@ -3818,6 +3819,7 @@
 			"PERMISSION": "Your role does not allow this change.",
 			"NOT_FOUND": "This item no longer exists. Refresh the page.",
 			"CONFLICT": "Someone changed this at the same time. Refresh and try again.",
+			"NAME_TAKEN": "This name is already used here. Choose another one.",
 			"INVALID": "Some values were not accepted. Check them and try again.",
 			"TOO_MANY": "Too many attempts. Wait a moment, then try again.",
 			"SERVER": "The server could not complete it. Try again in a moment.",
@@ -4874,6 +4876,10 @@
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "Checked by the Gauzy desktop and web apps only.",
 			"REQUIREMENT_NOT_SAVED": "The requirement was not saved.",
 			"REQUIREMENTS_LOAD_FAILED": "The requirements could not load.",
+			"TRACKING_SWITCH_SECTION": "Who switches time tracking",
+			"RESTRICT_TRACKING_SWITCH_LABEL": "Only a higher role switches time tracking",
+			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Admins turn anyone's time tracking on or off, managers only their team members', never their own or another manager's. When off, admins and team managers switch it for anyone in their teams, and for those who may also edit employees the switch also sets the person's own tracking, which counts in every team.",
+			"TRACKING_SWITCH_RULE_NOT_SAVED": "The setting was not saved.",
 			"ON": "On",
 			"OFF": "Off",
 			"DANGER_SECTION": "Danger zone",
@@ -6152,7 +6158,48 @@
 		"APP_GONE": "This button is no longer available.",
 		"APP_NO_ANSWER_YET": "The app has not answered yet. You can click again.",
 		"LINK_PREVIEW_LABEL": "{title} ({site}, opens in a new tab)",
-		"LINK_PREVIEW_SITE_LABEL": "{site} (opens in a new tab)"
+		"LINK_PREVIEW_SITE_LABEL": "{site} (opens in a new tab)",
+		"WEBHOOKS": {
+			"TITLE": "Integrations",
+			"DIALOG_TITLE": "Integrations of #{name}",
+			"INTRO": "Incoming webhooks let automation post into this channel. Each one has its own URL; its posts show its name with an App badge.",
+			"NEW": "New webhook",
+			"CREATE": "Create webhook",
+			"EMPTY": "No webhooks yet.",
+			"FULL": "A channel has at most {max} webhooks; revoke one to add another.",
+			"NAME": "Name",
+			"ICON_URL": "Icon URL (optional, https)",
+			"INTERACTION_URL": "Interaction URL (optional, https)",
+			"INTERACTION_HINT": "Button clicks are posted here, signed with the signing secret. Public addresses only.",
+			"BROADCAST": "Its @channel and @here notify everyone in the channel",
+			"SHOWN_ONCE": "Copy these now for “{name}”: they are shown only this once.",
+			"URL": "Webhook URL",
+			"SIGNING_SECRET": "Signing secret",
+			"COPY": "Copy",
+			"COPIED": "Copied",
+			"COPY_URL": "Copy the webhook URL",
+			"COPY_SECRET": "Copy the signing secret",
+			"COPY_FAILED": "Copying did not work; select the text and copy it by hand.",
+			"LOAD_FAILED": "The webhooks of this channel could not be loaded.",
+			"DONE": "I have copied them",
+			"CREATED_BY": "By {name} on {date}",
+			"LAST_USED": "last used {date}",
+			"NEVER_USED": "never used",
+			"COUNTS": "{accepted} posted · {rejected} rejected · {limited} rate-limited · {failures} failed callbacks",
+			"REVOKED": "Revoked",
+			"EDIT": "Edit",
+			"EDIT_NAMED": "Edit {name}",
+			"ROTATE": "New signing secret",
+			"ROTATE_NAMED": "New signing secret for {name}",
+			"ROTATE_CONFIRM": "Make a new signing secret for “{name}”? The app must use the new one from now on.",
+			"REVOKE": "Revoke",
+			"REVOKE_NAMED": "Revoke {name}",
+			"REVOKE_CONFIRM": "Revoke “{name}”? Its URL stops working at once, and this cannot be undone.",
+			"FORBIDDEN": "Only a manager of this channel can manage its webhooks.",
+			"GONE": "This webhook or its channel is no longer available.",
+			"INVALID": "The server refused these values. Check the name and the addresses (https, public hosts only).",
+			"OFF": "Incoming webhooks are not available on this server."
+		}
 	},
 	"docs": {
 		"TITLE": "Docs",
@@ -6691,7 +6738,73 @@
 				"FAILED": "The invoice was not saved and nothing was created. Check that its number is free, then try again.",
 				"UNCHECKED": "The invoices already saved for {client} could not be read, so this period was not checked against them.",
 				"UNCONFIRMED": "The save could not be confirmed, so the invoice may have been saved. Check the invoices already saved for {client} before saving again."
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "By project",
+				"AVERAGE_RATE": "average rate",
+				"AVERAGE_RATE_HINT": "The members of this project have different rates: this is their average, weighted by their hours."
+			},
+			"terms": {
+				"CLIENT": "Client's terms: {days, plural, =0 {due on receipt} one {# day} other {# days}}",
+				"ORGANIZATION": "Workspace terms: {days, plural, one {# day} other {# days}}",
+				"STANDARD": "Default terms: {days, plural, one {# day} other {# days}}",
+				"NOTE": "Note to the client",
+				"NOTE_HINT": "Printed on the invoice, under its period."
+			},
+			"adjustments": {
+				"DISCOUNT": "Discount (%)",
+				"TAX": "Tax (%)",
+				"SUBTOTAL": "Subtotal",
+				"DISCOUNT_ROW": "Discount ({percent})",
+				"TAX_ROW": "Tax ({percent} of {base})"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "Save and send",
+				"DRAFT_OR_SEND_NOTE": "Next, save it as a draft, or save it and send it to {email}.",
+				"SEND_CONSEQUENCE": "Save and send also e-mails it with the PDF attached, then marks it Sent.",
+				"SAVED_NOT_SENT": "Invoice {number} was saved as a draft but not sent",
+				"SEND_FROM_LIST": "Send it again from its menu in the list."
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "Actions for invoice {number}",
+			"SEND": "Send to the client",
+			"SEND_AGAIN": "Send again",
+			"MARK_PAID": "Mark as paid",
+			"MARK_UNPAID": "Mark as unpaid",
+			"VOID": "Void",
+			"DELETE": "Delete",
+			"MARKED_PAID": "Invoice {number} is marked paid",
+			"MARKED_UNPAID": "Invoice {number} is back to Sent, unpaid",
+			"CHANGE_FAILED": "Invoice {number} was not changed",
+			"DOWNLOAD": "Download PDF"
+		},
+		"send": {
+			"TITLE": "Send invoice {number}?",
+			"ATTACHED": "It goes by e-mail, with the invoice attached as a PDF.",
+			"MARKS_SENT": "It is then marked Sent.",
+			"RECIPIENT": "Send to",
+			"RECIPIENT_INVALID": "Enter the e-mail address the invoice goes to.",
+			"CONFIRM": "Send invoice",
+			"SENT": "Invoice {number} sent to {email}",
+			"NOT_MARKED": "Its status could not be changed to Sent.",
+			"FAILED": "Invoice {number} was not sent. Check the address, then try again."
+		},
+		"void": {
+			"TITLE": "Void invoice {number}?",
+			"STAYS_LISTED": "It stays in the list as Void, and its PDF can still be downloaded.",
+			"FINAL": "A void invoice can no longer be sent or marked paid.",
+			"CONFIRM": "Void invoice",
+			"DONE": "Invoice {number} is void",
+			"FAILED": "The invoice was not changed. Try again."
+		},
+		"delete": {
+			"TITLE": "Delete invoice {number}?",
+			"FOR_GOOD": "The draft is deleted for good and leaves the list.",
+			"NUMBER_FREE": "Its number can be given to another invoice.",
+			"CONFIRM": "Delete invoice",
+			"DONE": "Invoice {number} was deleted",
+			"FAILED": "The invoice was not deleted. Try again."
 		}
 	},
 	"timeReports": {

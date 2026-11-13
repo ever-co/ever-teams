@@ -2761,7 +2761,8 @@
 			"HINT_BEFORE_START": "可选。计时器启动时保存到记录中。",
 			"HINT_RUNNING": "计时器运行期间所做的更改暂不保存。如需更改备注，请在停止计时器后于工时表中编辑该记录。",
 			"HINT_OTHER_TEAM": "这些备注属于另一个团队中正在运行的计时器，因此无法在此处更改。"
-		}
+		},
+		"NOT_BILLABLE": "不可计费"
 	},
 	"task": {
 		"TITLE": "任务",
@@ -3818,6 +3819,7 @@
 			"PERMISSION": "你的角色不允许进行此更改。",
 			"NOT_FOUND": "该项目已不存在，请刷新页面。",
 			"CONFLICT": "有人同时修改了它，请刷新后重试。",
+			"NAME_TAKEN": "此名称在这里已被使用，请换一个。",
 			"INVALID": "部分值未被接受，请检查后重试。",
 			"TOO_MANY": "尝试次数过多，请稍候再试。",
 			"SERVER": "服务器无法完成此操作，请稍后重试。",
@@ -4874,6 +4876,10 @@
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "仅由 Gauzy 桌面版和网页版应用检查。",
 			"REQUIREMENT_NOT_SAVED": "要求未保存。",
 			"REQUIREMENTS_LOAD_FAILED": "无法加载这些要求。",
+			"TRACKING_SWITCH_SECTION": "谁可以切换时间跟踪",
+			"RESTRICT_TRACKING_SWITCH_LABEL": "仅更高角色可开关时间跟踪",
+			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "管理员可开关任何人的时间跟踪，经理只能开关其团队成员的，不能开关自己或其他经理的。关闭时，管理员和团队经理可为其团队中的任何人切换；对还能编辑员工的人而言，该开关也会设置此人自己的时间跟踪，它在所有团队中生效。",
+			"TRACKING_SWITCH_RULE_NOT_SAVED": "设置未保存。",
 			"ON": "开",
 			"OFF": "关",
 			"DANGER_SECTION": "危险区域",
@@ -6152,7 +6158,48 @@
 		"APP_GONE": "此按钮已不可用。",
 		"APP_NO_ANSWER_YET": "应用尚未回应。你可以再次点击。",
 		"LINK_PREVIEW_LABEL": "{title}（{site}，在新标签页中打开）",
-		"LINK_PREVIEW_SITE_LABEL": "{site}（在新标签页中打开）"
+		"LINK_PREVIEW_SITE_LABEL": "{site}（在新标签页中打开）",
+		"WEBHOOKS": {
+			"TITLE": "集成",
+			"DIALOG_TITLE": "#{name} 的集成",
+			"INTRO": "传入 Webhook 让自动化程序可以在此频道发帖。每个 Webhook 都有自己的 URL；它的帖子会显示其名称和“应用”标记。",
+			"NEW": "新建 Webhook",
+			"CREATE": "创建 Webhook",
+			"EMPTY": "还没有 Webhook。",
+			"FULL": "一个频道最多有 {max} 个 Webhook；请撤销一个后再添加。",
+			"NAME": "名称",
+			"ICON_URL": "图标 URL（可选，https）",
+			"INTERACTION_URL": "交互 URL（可选，https）",
+			"INTERACTION_HINT": "按钮点击会发送到这里，并用签名密钥签名。仅限公共地址。",
+			"BROADCAST": "它的 @channel 和 @here 会通知频道里的所有人",
+			"SHOWN_ONCE": "请立即为“{name}”复制它们：它们只会显示这一次。",
+			"URL": "Webhook URL",
+			"SIGNING_SECRET": "签名密钥",
+			"COPY": "复制",
+			"COPIED": "已复制",
+			"COPY_URL": "复制 Webhook URL",
+			"COPY_SECRET": "复制签名密钥",
+			"COPY_FAILED": "复制失败；请选中文本并手动复制。",
+			"LOAD_FAILED": "无法加载此频道的 Webhook。",
+			"DONE": "我已复制",
+			"CREATED_BY": "由 {name} 于 {date} 创建",
+			"LAST_USED": "上次使用于 {date}",
+			"NEVER_USED": "从未使用",
+			"COUNTS": "已发布：{accepted} · 已拒绝：{rejected} · 已限流：{limited} · 回调失败：{failures}",
+			"REVOKED": "已撤销",
+			"EDIT": "编辑",
+			"EDIT_NAMED": "编辑 {name}",
+			"ROTATE": "新的签名密钥",
+			"ROTATE_NAMED": "为 {name} 生成新的签名密钥",
+			"ROTATE_CONFIRM": "要为“{name}”生成新的签名密钥吗？从现在起应用必须使用新的密钥。",
+			"REVOKE": "撤销",
+			"REVOKE_NAMED": "撤销 {name}",
+			"REVOKE_CONFIRM": "要撤销“{name}”吗？它的 URL 会立即失效，且无法恢复。",
+			"FORBIDDEN": "只有此频道的管理员才能管理它的 Webhook。",
+			"GONE": "此 Webhook 或其频道已不可用。",
+			"INVALID": "服务器拒绝了这些值。请检查名称和地址（https，仅限公共主机）。",
+			"OFF": "此服务器上不提供传入 Webhook。"
+		}
 	},
 	"docs": {
 		"TITLE": "文档",
@@ -6691,7 +6738,73 @@
 				"FAILED": "发票未保存，也未创建任何内容。请确认编号未被占用，然后重试。",
 				"UNCHECKED": "无法读取已为 {client} 保存的发票，因此本期间未与它们核对。",
 				"UNCONFIRMED": "无法确认是否已保存，因此发票可能已经保存。再次保存前，请先查看已为 {client} 保存的发票。"
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "按项目",
+				"AVERAGE_RATE": "平均费率",
+				"AVERAGE_RATE_HINT": "此项目成员的费率各不相同：这是按各自工时加权的平均值。"
+			},
+			"terms": {
+				"CLIENT": "客户条款：{days, plural, =0 {收到即付} other {# 天}}",
+				"ORGANIZATION": "工作区条款：{days, plural, other {# 天}}",
+				"STANDARD": "默认条款：{days, plural, other {# 天}}",
+				"NOTE": "给客户的备注",
+				"NOTE_HINT": "打印在发票上，位于期间下方。"
+			},
+			"adjustments": {
+				"DISCOUNT": "折扣 (%)",
+				"TAX": "税 (%)",
+				"SUBTOTAL": "小计",
+				"DISCOUNT_ROW": "折扣（{percent}）",
+				"TAX_ROW": "税（{base} 的 {percent}）"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "保存并发送",
+				"DRAFT_OR_SEND_NOTE": "下一步可保存为草稿，或保存并发送至 {email}。",
+				"SEND_CONSEQUENCE": "“保存并发送”还会通过电子邮件发送发票并附上 PDF，然后将其标记为已发送。",
+				"SAVED_NOT_SENT": "第 {number} 号发票已保存为草稿，但未发送",
+				"SEND_FROM_LIST": "请从列表中该发票的菜单再次发送。"
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "第 {number} 号发票的操作",
+			"SEND": "发送给客户",
+			"SEND_AGAIN": "再次发送",
+			"MARK_PAID": "标记为已付清",
+			"MARK_UNPAID": "标记为未付",
+			"VOID": "作废",
+			"DELETE": "删除",
+			"MARKED_PAID": "第 {number} 号发票已标记为已付清",
+			"MARKED_UNPAID": "第 {number} 号发票已回到已发送，未付",
+			"CHANGE_FAILED": "第 {number} 号发票未更改",
+			"DOWNLOAD": "下载 PDF"
+		},
+		"send": {
+			"TITLE": "发送第 {number} 号发票？",
+			"ATTACHED": "将通过电子邮件发送，发票以 PDF 附件形式附上。",
+			"MARKS_SENT": "随后标记为已发送。",
+			"RECIPIENT": "发送至",
+			"RECIPIENT_INVALID": "请输入接收发票的电子邮箱地址。",
+			"CONFIRM": "发送发票",
+			"SENT": "第 {number} 号发票已发送至 {email}",
+			"NOT_MARKED": "无法将其状态改为已发送。",
+			"FAILED": "第 {number} 号发票未发送。请检查地址，然后重试。"
+		},
+		"void": {
+			"TITLE": "作废第 {number} 号发票？",
+			"STAYS_LISTED": "它仍留在列表中，状态为已作废，其 PDF 仍可下载。",
+			"FINAL": "已作废的发票不能再发送或标记为已付清。",
+			"CONFIRM": "作废发票",
+			"DONE": "第 {number} 号发票已作废",
+			"FAILED": "发票未更改。请重试。"
+		},
+		"delete": {
+			"TITLE": "删除第 {number} 号发票？",
+			"FOR_GOOD": "草稿将被永久删除，并从列表中移除。",
+			"NUMBER_FREE": "其编号可以给另一张发票使用。",
+			"CONFIRM": "删除发票",
+			"DONE": "第 {number} 号发票已删除",
+			"FAILED": "发票未删除。请重试。"
 		}
 	},
 	"timeReports": {
