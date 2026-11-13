@@ -31,7 +31,9 @@ import { useCreateTaskLabel } from './use-create-task-label';
 import { useEditTaskLabel } from './use-edit-task-label';
 
 const nameTaken = () =>
-	new ApiErrorService('A tag named "Bug" already exists here.', 409, 'UNIQUE_CONSTRAINT_VIOLATION', { field: 'name' });
+	new ApiErrorService('A tag named "Bug" already exists here.', 409, 'UNIQUE_CONSTRAINT_VIOLATION', {
+		field: 'name'
+	});
 
 function renderWithClient<T>(useHook: () => T) {
 	const client = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
@@ -106,5 +108,9 @@ describe('task label mutations, on a name Gauzy finds taken', () => {
 });
 
 function isNameTaken(error: unknown) {
-	return ApiErrorService.isApiError(error) && error.statusCode === 409 && error.errorCode === 'UNIQUE_CONSTRAINT_VIOLATION';
+	return (
+		ApiErrorService.isApiError(error) &&
+		error.statusCode === 409 &&
+		error.errorCode === 'UNIQUE_CONSTRAINT_VIOLATION'
+	);
 }

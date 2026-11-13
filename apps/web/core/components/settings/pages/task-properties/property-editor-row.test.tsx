@@ -53,9 +53,14 @@ describe('PropertyEditorRow, a label name the team has already', () => {
 	});
 
 	it('says so on the field when Gauzy finds the name taken, as a label added meanwhile', async () => {
-		const refusal = new ApiErrorService('A tag named "Design" already exists here.', 409, 'UNIQUE_CONSTRAINT_VIOLATION', {
-			field: 'name'
-		});
+		const refusal = new ApiErrorService(
+			'A tag named "Design" already exists here.',
+			409,
+			'UNIQUE_CONSTRAINT_VIOLATION',
+			{
+				field: 'name'
+			}
+		);
 		const { onSave } = renderRow(jest.fn().mockRejectedValue(refusal));
 
 		await submitName('Design');

@@ -53,7 +53,9 @@ describe('errorReasonOf, for a name Gauzy finds taken', () => {
 	});
 
 	it('keeps the conflict reason for any other 409', () => {
-		const error = ApiErrorService.fromAxiosError(axiosErrorOf(409, { statusCode: 409, message: 'Changed meanwhile' }));
+		const error = ApiErrorService.fromAxiosError(
+			axiosErrorOf(409, { statusCode: 409, message: 'Changed meanwhile' })
+		);
 
 		expect(errorReasonOf(error)).toBe('conflict');
 	});
