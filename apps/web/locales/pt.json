@@ -6807,7 +6807,8 @@
 				"NOT_PUT_BACK_LINES": "Não foi possível guardar as alterações nem repor a fatura como estava: agora tem {count, plural, =0 {nenhuma linha} one {# linha} other {# linhas}}. Verifique-a antes de a enviar.",
 				"LOCKED_NOW": "Desde que foi aberta, a fatura {number} foi paga ou anulada: nada foi guardado e já não pode ser editada.",
 				"NOT_CHECKED": "Não foi possível voltar a ler a fatura antes de guardar, por isso nada foi guardado. Tente novamente.",
-				"NOT_REACHED": "A ligação falhou: as alterações não foram guardadas e a fatura ficou como estava. Verifique a sua ligação e tente novamente."
+				"NOT_REACHED": "A ligação falhou: as alterações não foram guardadas e a fatura ficou como estava. Verifique a sua ligação e tente novamente.",
+				"CHANGED": "Desde que foi aberta, a fatura {number} foi alterada: nada foi guardado. Abra-a de novo na lista de faturas para começar pela versão atual."
 			}
 		},
 		"replace": {
