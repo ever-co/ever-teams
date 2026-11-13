@@ -6,7 +6,8 @@ import { toast } from 'sonner';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { useUpdateTask } from '@/core/hooks/organizations/teams/use-update-task';
 import { useBulkTaskUpdate } from '@/core/hooks/task-views/use-bulk-task-update';
-import { bulkStatusNameOf } from '@/core/lib/utils/task-bulk-changes';
+import { bulkRecordChangesOf, bulkStatusNameOf, type TaskRecordChoice } from '@/core/lib/utils/task-bulk-changes';
+import { dateOnlyOf } from '@/core/lib/utils/date-only';
 import { showTaskChangeInBuiltInViews } from '@/core/hooks/task-views/built-in-view-task-cache';
 import { useTaskLabelsQuery } from './use-task-labels-query';
 import { tasksByTeamState } from '@/core/stores';
@@ -142,36 +143,39 @@ export function useTeamTaskUpdates() {
 		[applyChange, bulkUpdate, fieldLabel, t, usesBulk]
 	);
 
-	const setPriority = useCallback(
-		(taskIds: string[], priority: string) => {
-			if (usesBulk(taskIds)) {
-				void bulkUpdate(taskIds, { priority }, t('taskViews.FIELD_CHANGED', { field: fieldLabel('priority') })).catch(() => undefined);
+	/**
+	 * Gives the tasks a priority or a size (`value` as the picker lists it, with its record's id). A selection goes in
+	 * one bulk request: the platform takes only its own names there, so a team's own priority or size goes by its id
+	 * alone, and the platform names it from its record. One task (or the feature off) is updated on its own, with the
+	 * name and the record together, as the task page writes them.
+	 */
+	const setRecordField = useCallback(
+		(field: 'priority' | 'size', taskIds: string[], choice: TaskRecordChoice & { value: string }) => {
+			const bulkChanges = usesBulk(taskIds) ? bulkRecordChangesOf(field, choice) : null;
+			if (bulkChanges) {
+				void bulkUpdate(taskIds, bulkChanges, t('taskViews.FIELD_CHANGED', { field: fieldLabel(field) })).catch(() => undefined);
 				return;
 			}
-			applyChange(taskIds, 'priority', (task) => {
-				if (task.priority === priority) {
+			const idField = field === 'priority' ? 'taskPriorityId' : 'taskSizeId';
+			const recordId = choice.id ?? null;
+			applyChange(taskIds, field, (task) => {
+				if (task[field] === choice.value && (task[idField] ?? null) === recordId) {
 					return null;
 				}
-				return { priority: priority as TTask['priority'] };
+				return { [field]: choice.value, [idField]: recordId } as Partial<TTask>;
 			});
 		},
 		[applyChange, bulkUpdate, fieldLabel, t, usesBulk]
 	);
 
+	const setPriority = useCallback(
+		(taskIds: string[], priority: TaskRecordChoice & { value: string }) => setRecordField('priority', taskIds, priority),
+		[setRecordField]
+	);
+
 	const setSize = useCallback(
-		(taskIds: string[], size: string) => {
-			if (usesBulk(taskIds)) {
-				void bulkUpdate(taskIds, { size }, t('taskViews.FIELD_CHANGED', { field: fieldLabel('size') })).catch(() => undefined);
-				return;
-			}
-			applyChange(taskIds, 'size', (task) => {
-				if (task.size === size) {
-					return null;
-				}
-				return { size: size as TTask['size'] };
-			});
-		},
-		[applyChange, bulkUpdate, fieldLabel, t, usesBulk]
+		(taskIds: string[], size: TaskRecordChoice & { value: string }) => setRecordField('size', taskIds, size),
+		[setRecordField]
 	);
 
 	const setIssueType = useCallback(
@@ -209,10 +213,15 @@ export function useTeamTaskUpdates() {
 		[applyChange, bulkUpdate, latestTask, t, taskLabels, usesBulk]
 	);
 
-	/** One task, or a selection (one request with the saved-views feature, one undo); `null` removes the due date. */
+	/**
+	 * One task, or a selection (one request with the saved-views feature, one undo); `null` removes the due date. The
+	 * picked day (a day of the reader's calendar) is saved in the platform's date-only form, midnight UTC of that day,
+	 * so every reader sees the day that was picked, whatever their zone.
+	 */
 	const setDueDate = useCallback(
-		(taskIds: string | string[], dueDate: Date | null) => {
+		(taskIds: string | string[], day: Date | null) => {
 			const ids = typeof taskIds === 'string' ? [taskIds] : taskIds;
+			const dueDate = day ? dateOnlyOf(day) : null;
 			if (usesBulk(ids)) {
 				const message = t('taskViews.FIELD_CHANGED', { field: t('pages.taskDetails.DUE_DATE') });
 				void bulkUpdate(ids, { dueDate: dueDate ? dueDate.toISOString() : null }, message).catch(() => undefined);

@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { queryKeys } from '@/core/query/keys';
 import { taskViewsService } from '@/core/services/client/api/task-views/task-views.service';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
-import { bulkChangesForPlatform, bulkItemsForPlatform, statusCannotBeRestored } from '@/core/lib/utils/task-bulk-changes';
+import { bulkChangesForPlatform, bulkItemsForPlatform, previousCannotBeRestored } from '@/core/lib/utils/task-bulk-changes';
 import {
 	TASK_BULK_UPDATE_MAX,
 	type ITaskBulkChanges,
@@ -65,8 +65,8 @@ export function useBulkTaskUpdate() {
 
 	const run = useCallback(
 		async (input: { taskIds?: string[]; changes?: ITaskBulkChanges; items?: ITaskBulkUpdateItem[] }): Promise<ITaskBulkUpdateOutcome> => {
-			// A status name the platform does not take would refuse the whole request: the id beside it is enough. Undo
-			// items come already filtered (`bulkItemsForPlatform`), so the tasks left out can be counted.
+			// A status, priority or size name the platform does not take would refuse the whole request: the id beside it
+			// is enough. Undo items come already filtered (`bulkItemsForPlatform`), so the tasks left out can be counted.
 			const outcome = await taskViewsService.bulkUpdate(input.changes ? { ...input, changes: bulkChangesForPlatform(input.changes) } : input);
 			refresh();
 			return outcome;
@@ -76,13 +76,14 @@ export function useBulkTaskUpdate() {
 
 	/**
 	 * Sends the previous values back, batch by batch, and says how many tasks were put back. A task whose previous
-	 * values the platform cannot take (a status name alone, not one of its own) is not sent and counts as not put back.
+	 * values the platform cannot take (a status, priority or size name alone, not one of its own) is not sent, or not
+	 * all of it, and counts as not put back.
 	 */
 	const undo = useCallback(
 		async (items: ITaskBulkUpdateItem[]) => {
 			const sendable = bulkItemsForPlatform(items);
-			// A task whose previous status is a name alone (no id) gets its other values back, not its status.
-			const statusLost = new Set(items.filter(statusCannotBeRestored).map((item) => item.taskId));
+			// A task whose previous status, priority or size is a name alone (no id) gets its other values back, not that one.
+			const valueLost = new Set(items.filter(previousCannotBeRestored).map((item) => item.taskId));
 			const settled = await Promise.allSettled(batchesOf(sendable).map((batch) => run({ items: batch })));
 			const { outcomes, failed } = settledOutcomes(settled);
 			const outcome = mergeOutcomes(outcomes);
@@ -90,8 +91,8 @@ export function useBulkTaskUpdate() {
 				toast.error(t('taskViews.UNDO_FAILED'));
 				return;
 			}
-			// Put back means put back whole: the tasks left out, refused, or without their status count as not put back.
-			const restored = outcome.applied - outcome.results.filter((result) => result.ok && statusLost.has(result.taskId)).length;
+			// Put back means put back whole: the tasks left out, refused, or missing a value count as not put back.
+			const restored = outcome.applied - outcome.results.filter((result) => result.ok && valueLost.has(result.taskId)).length;
 			if (failed > 0 || restored < items.length) {
 				toast.warning(t('taskViews.UNDONE_PARTLY', { applied: restored, refused: items.length - restored }));
 				return;
