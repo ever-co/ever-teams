@@ -1,7 +1,8 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useAtomValue } from 'jotai';
+import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { getReportMemberIds, managesEveryTeam } from '@/core/hooks/activities/use-activity-filters';
 import { useClientsQuery } from '@/core/hooks/clients/use-clients-query';
@@ -38,6 +39,9 @@ import { ERoleName } from '@/core/types/generics/enums/role';
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import type { ITimesheetCountsStatistics } from '@/core/types/interfaces/timesheet/timesheet';
 import type { TOrganizationTeam, TUser } from '@/core/types/schemas';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import {
 	type TimeActivityRequest,
 	useTimeActivityCountsQuery,
@@ -142,12 +146,13 @@ function visibleRowsOf<T extends DailyReportRow>(rows: T[], isManager: boolean, 
 function rowsOfReport(
 	report: ReadonlyArray<ITimeLogGroupedDailyReport>,
 	withoutTeamLabel: string,
+	workspaceCurrency: string | null,
 	clientOf: ClientOfProjectLog | null
 ): TimeActivityRow[] {
 	if (!clientOf) {
-		return flattenDailyReport(report, withoutTeamLabel);
+		return flattenDailyReport(report, withoutTeamLabel, workspaceCurrency);
 	}
-	return clientRowsOf(report, clientOf, withoutTeamLabel);
+	return clientRowsOf(report, clientOf, withoutTeamLabel, workspaceCurrency);
 }
 
 function axisFormatOptionsOf(dayCount: number): Intl.DateTimeFormatOptions {
@@ -157,9 +162,9 @@ function axisFormatOptionsOf(dayCount: number): Intl.DateTimeFormatOptions {
 	return { day: 'numeric' };
 }
 
-function chartLabelsOf(locale: string, dayCount: number): ChartDayLabels {
-	const labelFormat = new Intl.DateTimeFormat(locale, { weekday: 'long', month: 'short', day: 'numeric' });
-	const axisFormat = new Intl.DateTimeFormat(locale, axisFormatOptionsOf(dayCount));
+function chartLabelsOf(locale: FormatLocale, dayCount: number): ChartDayLabels {
+	const labelFormat = dateFormatOf(locale, { weekday: 'long', month: 'short', day: 'numeric' });
+	const axisFormat = dateFormatOf(locale, axisFormatOptionsOf(dayCount));
 	return {
 		label: (day) => labelFormat.format(day),
 		axisLabel: (day) => axisFormat.format(day)
@@ -224,7 +229,7 @@ function figuresFromRows(totals: ReportTotals, hasDailyReport: boolean): Counted
 
 export function useTimeActivityReport() {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const { user, isTeamManager } = useAuthenticateUser();
 	const isManager = canManageReport(user, Boolean(isTeamManager));
 	const isOrganizationWide = hasOrganizationWideRole(user);
@@ -286,10 +291,11 @@ export function useTimeActivityReport() {
 	}, [canTellClients, clientNames, isClientGrouping, projectClientIds]);
 
 	const withoutTeamLabel = t('dashboard.NO_TEAM_GROUP');
+	const workspaceCurrency = useAtomValue(currentOrganizationState)?.currency ?? null;
 	const rows = useMemo(() => {
-		const allRows = rowsOfReport(report, withoutTeamLabel, clientOfProjectLog);
+		const allRows = rowsOfReport(report, withoutTeamLabel, workspaceCurrency, clientOfProjectLog);
 		return visibleRowsOf(allRows, isManager, ownEmployeeId);
-	}, [clientOfProjectLog, isManager, ownEmployeeId, report, withoutTeamLabel]);
+	}, [clientOfProjectLog, isManager, ownEmployeeId, report, withoutTeamLabel, workspaceCurrency]);
 
 	const totals = useMemo(() => reportTotalsOf(rows), [rows]);
 

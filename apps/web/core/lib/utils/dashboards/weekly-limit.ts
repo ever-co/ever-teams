@@ -9,6 +9,13 @@ import {
 } from '@/core/lib/utils/dashboard-figures';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { formatPeriod, type Period } from '@/core/lib/utils/dashboard-period';
+import {
+	dateFormatOf,
+	hasNumberFormat,
+	localeKeyOf,
+	numberFormatOf,
+	type FormatLocale
+} from '@/core/lib/utils/workspace-formats';
 
 export type LimitDuration = 'day' | 'week';
 
@@ -20,7 +27,8 @@ export type LimitReportEmployee = TTimeLimitReportList['employees'][number]['emp
 export const LIMIT_WEEK_START = 1;
 
 const SECONDS_PER_HOUR = 3600;
-const WORK_DAYS_PER_WEEK = 5;
+/** A day is measured against a fifth of the week: Gauzy's rule for a weekly limit, and the standard week's five days. */
+export const WORK_DAYS_PER_WEEK = 5;
 const DAYS_PER_WEEK = 7;
 const FULL_SHARE = 100;
 
@@ -477,6 +485,25 @@ export function limitShareLabelOf(share: number, verdict: LimitVerdict): string 
 	return `${tenth.toFixed(1)}%`;
 }
 
+const PDF_SHARE_OPTIONS: Intl.NumberFormatOptions = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+
+/**
+ * The share of the limit in the PDF documents: `12.50%`, as they have always written it, and `12,50%` with the
+ * marks of the number format a workspace chose.
+ */
+export function pdfShareOf(share: number, locale?: FormatLocale): string {
+	const plainShare = `${share.toFixed(2)}%`;
+	if (!locale) {
+		return plainShare;
+	}
+	if (!hasNumberFormat(locale)) {
+		return plainShare;
+	}
+	const format = numberFormatOf(locale, PDF_SHARE_OPTIONS);
+	const amount = format.format(share);
+	return `${amount}%`;
+}
+
 export function clockHoursOf(seconds: number): string {
 	const absoluteSeconds = Math.abs(seconds);
 	const { hours, minutes } = durationPartsOf(absoluteSeconds);
@@ -500,8 +527,8 @@ export function leftOf(remaining: number) {
 
 const dayFormatters = new Map<string, Intl.DateTimeFormat>();
 
-function dayFormatterOf(locale: string, showsYear: boolean) {
-	const cacheKey = `${locale}:${showsYear}`;
+function dayFormatterOf(locale: FormatLocale, showsYear: boolean) {
+	const cacheKey = `${localeKeyOf(locale)}:${showsYear}`;
 	const cached = dayFormatters.get(cacheKey);
 	if (cached) {
 		return cached;
@@ -510,12 +537,12 @@ function dayFormatterOf(locale: string, showsYear: boolean) {
 	if (showsYear) {
 		options.year = 'numeric';
 	}
-	const formatter = new Intl.DateTimeFormat(locale, options);
+	const formatter = dateFormatOf(locale, options);
 	dayFormatters.set(cacheKey, formatter);
 	return formatter;
 }
 
-export function periodLabelOf(periodStart: Date, duration: LimitDuration, locale: string): string {
+export function periodLabelOf(periodStart: Date, duration: LimitDuration, locale: FormatLocale): string {
 	if (duration === 'week') {
 		const periodEnd = periodEndOf(periodStart, duration);
 		return formatPeriod({ from: periodStart, to: periodEnd }, locale);

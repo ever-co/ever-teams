@@ -1,3 +1,4 @@
+import { type ReactNode, useCallback } from 'react';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import { activeTeamDetailLoadingState } from '@/core/stores/teams/organization-team';
 import { clsxm } from '@/core/lib/utils';
@@ -11,6 +12,11 @@ import { ProjectDropDown } from '@/core/components/pages/task/details-section/bl
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { useActiveTeamTask } from '@/core/hooks/tasks/use-active-team-task';
 import { AuthUserTaskInputSkeleton } from '@/core/components/common/skeleton/auth-user-task-input-skeleton';
+import { TimerRecentWork } from '@/core/components/timer/timer-recent-work';
+import { TimerTaskStartLayer } from '@/core/components/timer/timer-task-start';
+import { useTimerTaskStart } from '@/core/hooks/timer/use-timer-task-start';
+
+type RenderAboveTasks = (close: () => void) => ReactNode;
 
 export function AuthUserTaskInput({ className }: IClassName) {
 	const t = useTranslations();
@@ -22,6 +28,25 @@ export function AuthUserTaskInput({ className }: IClassName) {
 	const isTeamDetailPending = useAtomValue(activeTeamDetailLoadingState);
 	const isResolving = isActiveTaskLoading || isTeamUnknown || isTeamDetailPending;
 	const isActiveTaskPending = !activeTeamTask && isResolving;
+
+	const timerStart = useTimerTaskStart();
+	const startTimerOn = timerStart.startOn;
+	const renderRecentWork = useCallback<RenderAboveTasks>(
+		(close) => (
+			<TimerRecentWork
+				onStart={(task) => {
+					close();
+					startTimerOn(task);
+				}}
+			/>
+		),
+		[startTimerOn]
+	);
+	// Recent work starts the timer in one click: it is offered where the member can track time
+	let renderAboveTasks: RenderAboveTasks | undefined;
+	if (isTrackingEnabled) {
+		renderAboveTasks = renderRecentWork;
+	}
 
 	if (isActiveTaskPending) {
 		return <AuthUserTaskInputSkeleton className={className} />;
@@ -38,7 +63,9 @@ export function AuthUserTaskInput({ className }: IClassName) {
 				showTaskNumber={true}
 				autoAssignTaskAuth={isTrackingEnabled}
 				task={activeTeamTask}
+				renderAboveTasks={renderAboveTasks}
 			/>
+			<TimerTaskStartLayer request={timerStart.request} />
 			<div className="flex flex-row flex-wrap gap-3 items-center ml-2 lg:gap-4 md:justify-between lg:justify-start">
 				<div className="items-center mb-4 xl:flex lg:mb-0">
 					<span className="pr-2 font-normal text-muted-foreground">{t('common.ESTIMATE')}:</span>

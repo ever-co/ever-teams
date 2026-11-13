@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import type {
 	EntriesPdfContent,
 	EntriesPdfFigure,
@@ -28,6 +28,8 @@ import {
 } from '@/core/lib/utils/dashboards/timesheet-export';
 import { ALL_STATUSES, hoursMinutesOf, type TimesheetStatusFilter } from '@/core/lib/utils/dashboards/timesheets';
 import { exportToXLSX } from '@/core/lib/utils/export-utils';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { STATUS_LABEL_KEYS } from './timesheet-status';
 
@@ -41,6 +43,8 @@ const SECONDS_PER_DAY = 86400;
 const SHEET_DURATION_FORMAT = '[h]:mm';
 
 const SHEET_DURATION_WIDTH = 12;
+
+const SHEET_NOTES_WIDTH = 48;
 
 /** Start, end, member, project, task, status, billable, duration: the widths of the printed columns, in that order. */
 const PDF_COLUMN_WIDTHS = ['6%', '6%', '16%', '16%', '32%', '10%', '7%', '7%'];
@@ -94,13 +98,13 @@ interface ExportInput {
 	appliedFilters: ReadonlyArray<TimesheetExportFilter>;
 	statusFilter: TimesheetStatusFilter;
 	search: string;
-	locale: string;
+	locale: FormatLocale;
 	t: Translate;
 }
 
 /**
  * The logs on screen as a CSV file, one row per log in the order they started: local day, start and end in 24-hour
- * time, member, project, task, status, billable and the duration as `h:mm`.
+ * time, member, project, task, status, billable, the duration as `h:mm` and the notes.
  */
 function runCsv({ logs, period, t }: ExportInput) {
 	const textColumns = [dayColumnOf(t), ...entryColumnsOf(t)];
@@ -112,6 +116,7 @@ function runCsv({ logs, period, t }: ExportInput) {
 		header: t('dashboard.timesheets.COLUMNS.DURATION'),
 		valueOf: (row) => hoursMinutesOf(row.seconds)
 	});
+	columns.push({ header: t('common.NOTES'), valueOf: (row) => row.notes });
 	const rows = timesheetExportRowsOf(logs);
 	const fileName = periodFileNameOf(FILE_PREFIX, period.from, period.to, 'csv');
 	downloadCsv(rows, columns, fileName);
@@ -131,12 +136,12 @@ async function runXlsx({ logs, period, t }: ExportInput) {
 	const rows = timesheetExportRowsOf(logs);
 	const lines: SheetLine[] = rows.map((row) => {
 		const texts = textColumns.map((column) => column.text(row));
-		return { cells: [...texts, sheetDurationOf(row.seconds)], isTotal: false };
+		return { cells: [...texts, sheetDurationOf(row.seconds), row.notes], isTotal: false };
 	});
 	const totals = timesheetExportTotalsOf(logs);
 	const totalTexts = textColumns.map(() => '');
 	totalTexts[0] = t('common.TOTAL');
-	lines.push({ cells: [...totalTexts, sheetDurationOf(totals.seconds)], isTotal: true });
+	lines.push({ cells: [...totalTexts, sheetDurationOf(totals.seconds), ''], isTotal: true });
 
 	const columns = textColumns.map((column, index) => ({
 		header: column.header,
@@ -150,8 +155,15 @@ async function runXlsx({ logs, period, t }: ExportInput) {
 		width: SHEET_DURATION_WIDTH,
 		format: SHEET_DURATION_FORMAT
 	};
+	const notesColumn = {
+		header: t('common.NOTES'),
+		value: (line: SheetLine) => line.cells[durationIndex + 1],
+		width: SHEET_NOTES_WIDTH
+	};
 	const fileName = periodFileNameOf(FILE_PREFIX, period.from, period.to, 'xlsx');
-	await exportToXLSX(lines, [...columns, durationColumn], fileName, { isBoldRow: (line) => line.isTotal });
+	await exportToXLSX(lines, [...columns, durationColumn, notesColumn], fileName, {
+		isBoldRow: (line) => line.isTotal
+	});
 }
 
 function filterLinesOf({ appliedFilters, statusFilter, search, t }: ExportInput): EntriesPdfFigure[] {
@@ -198,13 +210,13 @@ function pdfContentOf(input: ExportInput): EntriesPdfContent {
 	const headers = columns.map((column) => column.header);
 	const totals = timesheetExportTotalsOf(logs);
 	const totalText = formatDurationShort(totals.seconds);
-	const dayFormat = new Intl.DateTimeFormat(locale, {
+	const dayFormat = dateFormatOf(locale, {
 		weekday: 'long',
 		year: 'numeric',
 		month: 'short',
 		day: 'numeric'
 	});
-	const generatedFormat = new Intl.DateTimeFormat(locale, { dateStyle: 'long' });
+	const generatedFormat = dateFormatOf(locale, { dateStyle: 'long' });
 	const generatedDate = generatedFormat.format(new Date());
 	const days = timesheetExportDaysOf(logs);
 	return {
@@ -247,7 +259,7 @@ export function useTimesheetExportOptions({
 	search
 }: Readonly<Omit<ExportInput, 'locale' | 't'>>): ExportOption[] {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	return useMemo(() => {
 		const input: ExportInput = { logs, period, appliedFilters, statusFilter, search, locale, t };
 		return [

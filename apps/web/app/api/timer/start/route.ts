@@ -4,6 +4,9 @@ import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response'
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import type { IUpdateTimerStatusParams } from '@/core/types/interfaces/timer/timer-status';
 import { NextResponse } from 'next/server';
+import { TIMER_NOTES_MAX_LENGTH, readTimerNotes } from '@/core/lib/utils/timer/timer-notes';
+
+const NOTES_REFUSAL = `description must be a string of at most ${TIMER_NOTES_MAX_LENGTH} characters`;
 
 const PLAN_DAY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -19,6 +22,30 @@ function planDayOf(body: object): string | undefined {
 	return planDay;
 }
 
+// Empty notes are not sent, so a start without any reaches Gauzy as it did before a start could carry notes.
+function notesOf(description: unknown): string | undefined {
+	if (typeof description !== 'string') {
+		return undefined;
+	}
+	const notes = description.trim();
+	if (!notes) {
+		return undefined;
+	}
+	return notes;
+}
+
+// Like the project, the notes belong to the task the body names: a start that falls back to the cookie's task sends none
+function startNotesFieldOf(description: string | undefined, hasBodyTaskId: boolean): { description?: string } {
+	if (!hasBodyTaskId) {
+		return {};
+	}
+	const notes = notesOf(description);
+	if (notes === undefined) {
+		return {};
+	}
+	return { description: notes };
+}
+
 export async function POST(req: Request) {
 	const res = new NextResponse();
 	const {
@@ -28,12 +55,13 @@ export async function POST(req: Request) {
 		access_token,
 		organizationId,
 		taskId: activeTaskIdCookie,
-		teamId: organizationTeamId
+		teamId: activeTeamIdCookie
 	} = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');
 
-	// The caller names the task to start; the cookie is only a fallback for an older client that sends no body.
-	// A malformed body is rejected rather than silently falling back to the cookie, which may name another task.
+	// The caller names the task to start and its tab's team; the cookies are only a fallback for an older client that
+	// sends neither. A malformed body is rejected rather than silently falling back to a cookie: every tab shares them,
+	// so they may name another tab's task or team (#5120).
 	const body: unknown = await req.json().catch(() => ({}));
 	if (!body || typeof body !== 'object' || Array.isArray(body)) {
 		return NextResponse.json({ error: 'Request body must be a JSON object' }, { status: 400 });
@@ -58,7 +86,19 @@ export async function POST(req: Request) {
 		return NextResponse.json({ error: 'projectId must be a non-empty string' }, { status: 400 });
 	}
 
+	const notesReading = readTimerNotes((body as { description?: unknown }).description);
+	if (!notesReading.isValid) {
+		return NextResponse.json({ error: NOTES_REFUSAL }, { status: 400 });
+	}
+
+	const bodyTeamId = (body as { organizationTeamId?: unknown }).organizationTeamId;
+	const hasBodyTeamId = typeof bodyTeamId === 'string' && bodyTeamId.trim() !== '';
+	if (bodyTeamId !== undefined && !hasBodyTeamId) {
+		return NextResponse.json({ error: 'organizationTeamId must be a non-empty string' }, { status: 400 });
+	}
+
 	const taskId = hasBodyTaskId ? bodyTaskId : activeTaskIdCookie;
+	const organizationTeamId = hasBodyTeamId ? bodyTeamId : activeTeamIdCookie;
 
 	const startParams: IUpdateTimerStatusParams = {
 		tenantId: tenantId || '',
@@ -69,7 +109,8 @@ export async function POST(req: Request) {
 		tags: [],
 		isBillable,
 		organizationTeamId,
-		planDay: planDayOf(body)
+		planDay: planDayOf(body),
+		...startNotesFieldOf(notesReading.description, hasBodyTaskId)
 	};
 
 	// The project is the one of the task the body names: a start that falls back to the cookie's task sends none

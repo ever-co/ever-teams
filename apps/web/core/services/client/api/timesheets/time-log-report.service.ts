@@ -4,6 +4,7 @@ import { GAUZY_API_BASE_SERVER_URL, TIMESHEET_RELATIONS } from '@/core/constants
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { validateApiResponse } from '@/core/types/schemas/utils/validation';
+import { billableTimeLogSchema, type TBillableTimeLog } from '@/core/types/schemas/organization/invoice.schema';
 import {
 	owedReportDaySchema,
 	projectBudgetReportSchema,
@@ -69,6 +70,20 @@ class TimeLogReportService extends APIService {
 		const query = qs.stringify(params);
 		const response = await this.get<ITimeLog[]>(`/timesheet/time-log?${query}`, { tenantId: this.tenantId });
 		return response.data ?? [];
+	};
+
+	/**
+	 * The time logs of the given projects in the range, asked billable only. An API that does not know that filter
+	 * answers every log, so each one keeps its own `isBillable` for the caller to check.
+	 */
+	getBillableTimeLogs = async (
+		range: TimeLogReportRange,
+		relations: ReadonlyArray<string>
+	): Promise<TBillableTimeLog[]> => {
+		const params = { ...this.rangeParamsOf(range), billableOnly: true, relations: [...relations] };
+		const query = qs.stringify(params);
+		const response = await this.get<unknown>(`/timesheet/time-log?${query}`, { tenantId: this.tenantId });
+		return validateApiResponse(billableTimeLogSchema.array(), response.data ?? [], 'getBillableTimeLogs response');
 	};
 
 	/** Per day and per member: the tracked time and what it is owed, at the pay rate once set, else the billing rate. */

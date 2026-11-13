@@ -2,7 +2,7 @@
 
 import { memo, type ReactNode, useCallback, useState } from 'react';
 import { isSameYear } from 'date-fns';
-import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
+import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/core/components/common/tooltip';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { InformationCircle } from '@/core/components/icons';
@@ -19,6 +19,8 @@ import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { cn } from '@/core/lib/helpers';
 import type { Period } from '@/core/lib/utils/dashboard-period';
 import type { MemberDay, PlanGroup, PlanGrouping, PlanTotals } from '@/core/lib/utils/dashboards/actual-expected';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import {
 	DESKTOP_CELL,
 	DIFFERENCE_CELL,
@@ -470,8 +472,8 @@ function emptyDayFormatOf(period: Period): Intl.DateTimeFormatOptions {
 	return { month: 'short', day: 'numeric' };
 }
 
-function emptyTitleOf(period: Period, locale: string, t: Translate) {
-	const formatter = new Intl.DateTimeFormat(locale, emptyDayFormatOf(period));
+function emptyTitleOf(period: Period, locale: FormatLocale, t: Translate) {
+	const formatter = dateFormatOf(locale, emptyDayFormatOf(period));
 	const from = formatter.format(period.from);
 	const to = formatter.format(period.to);
 	const isOneDay = from === to;
@@ -495,7 +497,7 @@ export function ActualExpectedEmpty({
 	onPreviousPeriod: () => void;
 }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	if (hasPlansAhead) {
 		return (
 			<BlockEmptyMessage

@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, type ReactNode, useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { SECTION_HEADER, SECTION_META, SECTION_TITLE, SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
@@ -21,6 +21,7 @@ import {
 	weeksOfPeriod
 } from '@/core/lib/utils/dashboards/timesheets';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { dayLabelOf } from './timesheet-day-label';
 import { STATUS_LABEL_KEYS, TimesheetStatusGlyph } from './timesheet-status';
 
@@ -183,7 +184,7 @@ function WeekBlock({
 	formatters: TimesheetFormatters;
 	onOpenDay: (dayKey: string) => void;
 }>) {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const title = formatPeriod({ from: week.from, to: week.to }, locale);
 	const total = totalOfDays(week.days, dayByKey);
 	return (

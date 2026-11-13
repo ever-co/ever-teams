@@ -14,6 +14,7 @@ import {
 	type TimeActivityColumn,
 	hasClient
 } from '@/core/lib/utils/dashboards/time-activity';
+import type { FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 export type FigureColumn = Exclude<TimeActivityColumn, 'project'>;
 
@@ -196,7 +197,12 @@ export function EarningsText({
 	locale,
 	noRateLabel,
 	className
-}: Readonly<{ amounts: ReadonlyArray<CurrencyAmount>; locale: string; noRateLabel: string; className?: string }>) {
+}: Readonly<{
+	amounts: ReadonlyArray<CurrencyAmount>;
+	locale: FormatLocale;
+	noRateLabel: string;
+	className?: string;
+}>) {
 	const hasAmounts = amounts.length > 0;
 	if (!hasAmounts) {
 		return (

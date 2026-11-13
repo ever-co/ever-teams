@@ -1,0 +1,399 @@
+/** @jest-environment jsdom */
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Provider, createStore } from 'jotai';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { type PropsWithChildren, useState } from 'react';
+
+import { useSyncRef } from '@/core/hooks/common/use-sync-ref';
+import { claimedIntervalsOf, type ShownTimes } from '@/core/lib/utils/dashboards/manual-time-entry';
+import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
+import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import type { TOrganization } from '@/core/types/schemas/organization/organization.schema';
+
+const mockUser = {
+	id: 'user-a',
+	tenantId: 'tenant-a',
+	timeZone: 'Europe/Paris (UTC+01:00)',
+	employee: { id: 'employee-a', organizationId: 'organization-a' }
+};
+const mockGetTimeLogs = jest.fn();
+
+jest.mock('@/core/hooks/queries/user-user.query', () => ({
+	useUserQuery: () => ({ data: mockUser })
+}));
+jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
+	timeLogService: { getTimeLogs: (params: unknown) => mockGetTimeLogs(params) }
+}));
+
+import { useDurationEntry } from './use-duration-entry';
+
+const NO_TIMES: ShownTimes = { startMinutes: null, endMinutes: null };
+
+function at(hours: number, minutes = 0, dayOfMonth = 10) {
+	return new Date(2026, 10, dayOfMonth, hours, minutes);
+}
+
+function logOf(id: string, employeeId: string, startedAt: Date, stoppedAt: Date): ITimeLog {
+	return { id, employeeId, startedAt, stoppedAt, duration: 0, version: '1' } as ITimeLog;
+}
+
+function minutesOf(date: Date) {
+	return date.getHours() * 60 + date.getMinutes();
+}
+
+function timesOfInterval(interval: TimeWindow | null): ShownTimes {
+	if (!interval) {
+		return NO_TIMES;
+	}
+	return { startMinutes: minutesOf(interval.start), endMinutes: minutesOf(interval.end) };
+}
+
+interface FormStart {
+	employeeId: string | null;
+	times: ShownTimes;
+}
+
+/** A form as the dialogs hold it: a day, a member, a start and an end that the duration entry may replace. */
+function useForm(start: FormStart) {
+	const [day, setDay] = useState(at(0));
+	const [employeeId, setEmployeeId] = useState(start.employeeId);
+	const [times, setTimes] = useState(start.times);
+	const entry = useDurationEntry({
+		employeeId,
+		day,
+		startMinutes: times.startMinutes,
+		endMinutes: times.endMinutes,
+		onInterval: (interval) => setTimes(timesOfInterval(interval))
+	});
+	return { entry, times, setDay, setEmployeeId, setTimes };
+}
+
+function formProviders() {
+	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	const store = createStore();
+	// Time in the future is allowed, so the proposals do not depend on the day the test runs
+	store.set(currentOrganizationState, { futureDateAllowed: true } as TOrganization);
+	const wrapper = ({ children }: PropsWithChildren) => (
+		<QueryClientProvider client={client}>
+			<Provider store={store}>{children}</Provider>
+		</QueryClientProvider>
+	);
+	return { client, wrapper };
+}
+
+function renderForm(start: Partial<FormStart> = {}) {
+	const { client, wrapper } = formProviders();
+	const formStart: FormStart = { employeeId: 'employee-a', times: NO_TIMES, ...start };
+	const view = renderHook(() => useForm(formStart), { wrapper });
+	return { ...view, client };
+}
+
+type RenderedForm = ReturnType<typeof renderForm>['result'];
+
+/**
+ * Two periods of one day in one form, as the time entry dialog holds them. The form knows the times a period just
+ * received before it renders again, and each period reads the other's through it.
+ */
+function usePeriodsForm() {
+	const [periods, setPeriods] = useState<ShownTimes[]>([NO_TIMES, NO_TIMES]);
+	const latestPeriodsRef = useSyncRef(periods);
+
+	const setTimes = (index: number, times: ShownTimes) => {
+		const updated = [...latestPeriodsRef.current];
+		updated[index] = times;
+		latestPeriodsRef.current = updated;
+		setPeriods(updated);
+	};
+	const readClaimed = (index: number) => {
+		const formPeriods = latestPeriodsRef.current.map((times) => ({ day: at(0), times }));
+		return claimedIntervalsOf(formPeriods, index);
+	};
+	return { periods, setTimes, readClaimed };
+}
+
+function usePeriodEntry(form: ReturnType<typeof usePeriodsForm>, index: number) {
+	const times = form.periods[index];
+	return useDurationEntry({
+		employeeId: 'employee-a',
+		day: at(0),
+		startMinutes: times.startMinutes,
+		endMinutes: times.endMinutes,
+		readClaimed: () => form.readClaimed(index),
+		onInterval: (interval) => form.setTimes(index, timesOfInterval(interval))
+	});
+}
+
+function useTwoPeriods() {
+	const form = usePeriodsForm();
+	const first = usePeriodEntry(form, 0);
+	const second = usePeriodEntry(form, 1);
+	return { entries: [first, second], periods: form.periods, setTimes: form.setTimes };
+}
+
+function renderTwoPeriods() {
+	const { wrapper } = formProviders();
+	return renderHook(() => useTwoPeriods(), { wrapper });
+}
+
+type RenderedPeriods = ReturnType<typeof renderTwoPeriods>['result'];
+
+function typePeriodDuration(result: RenderedPeriods, index: number, text: string) {
+	act(() => result.current.entries[index].change(text));
+	act(() => result.current.entries[index].commit());
+}
+
+function typeDuration(result: RenderedForm, text: string) {
+	act(() => result.current.entry.change(text));
+	act(() => result.current.entry.commit());
+}
+
+async function waitForPhase(result: RenderedForm, kind: string) {
+	await waitFor(() => expect(result.current.entry.phase.kind).toBe(kind));
+}
+
+/** A read of the day that the test answers when it chooses, so it can act while the hook still waits for it. */
+function pendingRead() {
+	let answer: (logs: ITimeLog[]) => void = () => undefined;
+	const logs = new Promise<ITimeLog[]>((resolve) => {
+		answer = resolve;
+	});
+	mockGetTimeLogs.mockReturnValueOnce(logs);
+	return { answer };
+}
+
+/** Answers a pending read and lets everything that waited for it run. */
+async function answerRead(read: ReturnType<typeof pendingRead>, logs: ITimeLog[]) {
+	await act(async () => {
+		read.answer(logs);
+		await new Promise((resolve) => setTimeout(resolve, 0));
+	});
+}
+
+describe('useDurationEntry', () => {
+	beforeEach(() => {
+		mockGetTimeLogs.mockReset();
+		mockGetTimeLogs.mockResolvedValue([]);
+	});
+
+	it("proposes the first free stretch of the member's day, read around that day for that member", async () => {
+		mockGetTimeLogs.mockResolvedValue([logOf('morning', 'employee-a', at(9), at(10, 30))]);
+		const { result, client } = renderForm();
+
+		typeDuration(result, '1:30');
+		await waitForPhase(result, 'proposed');
+
+		expect(result.current.times).toEqual({ startMinutes: 630, endMinutes: 720 });
+		expect(result.current.entry.text).toBe('1h 30m');
+		const request = { startDate: '2026-11-09', endDate: '2026-11-11', timeZone: 'Europe/Paris' };
+		expect(mockGetTimeLogs).toHaveBeenCalledWith({ ...request, employeeIds: ['employee-a'] });
+		const [query] = client.getQueryCache().getAll();
+		expect(query.queryKey).toEqual([
+			'timesheet',
+			'page-logs',
+			{ ...request, tenantId: 'tenant-a', organizationId: 'organization-a', employeeIds: ['employee-a'] }
+		]);
+	});
+
+	it('empties the start and the end while it reads, and leaves them empty when the day has no room', async () => {
+		mockGetTimeLogs.mockResolvedValue([logOf('all-day', 'employee-a', at(0), at(23, 30))]);
+		const { result } = renderForm({ times: { startMinutes: 840, endMinutes: 900 } });
+
+		typeDuration(result, '90m');
+
+		expect(result.current.times).toEqual(NO_TIMES);
+		expect(result.current.entry.phase.kind).toBe('reading');
+
+		await waitForPhase(result, 'noRoom');
+
+		expect(result.current.times).toEqual(NO_TIMES);
+		expect(result.current.entry.text).toBe('1h 30m');
+	});
+
+	it('reads nothing and keeps the times for text that is not a duration', () => {
+		const handPicked = { startMinutes: 840, endMinutes: 900 };
+		const { result } = renderForm({ times: handPicked });
+
+		typeDuration(result, 'soon');
+
+		expect(result.current.entry.phase.kind).toBe('invalid');
+		expect(result.current.entry.text).toBe('soon');
+		expect(result.current.times).toEqual(handPicked);
+		expect(mockGetTimeLogs).not.toHaveBeenCalled();
+	});
+
+	// The form would otherwise save the hour it already showed while the field says its text is no duration
+	it('keeps the form from saving its earlier times while the text is no duration, until it is cleared', () => {
+		const handPicked = { startMinutes: 540, endMinutes: 600 };
+		const { result } = renderForm({ times: handPicked });
+
+		expect(result.current.entry.blocksSave).toBe(false);
+
+		typeDuration(result, '90x');
+
+		expect(result.current.entry.blocksSave).toBe(true);
+		expect(result.current.times).toEqual(handPicked);
+
+		typeDuration(result, '');
+
+		expect(result.current.entry.blocksSave).toBe(false);
+	});
+
+	it('lets the form save again once the member picks the times by hand after a refused text', () => {
+		const { result } = renderForm({ times: { startMinutes: 540, endMinutes: 600 } });
+		typeDuration(result, '90x');
+
+		act(() => result.current.setTimes({ startMinutes: 540, endMinutes: 630 }));
+
+		expect(result.current.entry.blocksSave).toBe(false);
+	});
+
+	it('shows the time from the start to the end, and asks for nothing when the field is left as it was', () => {
+		const { result } = renderForm({ times: { startMinutes: 840, endMinutes: 900 } });
+
+		expect(result.current.entry.text).toBe('1h 0m');
+
+		act(() => result.current.entry.change('1h 0'));
+		act(() => result.current.entry.change('1h 0m'));
+		act(() => result.current.entry.commit());
+
+		expect(result.current.entry.phase.kind).toBe('idle');
+		expect(mockGetTimeLogs).not.toHaveBeenCalled();
+	});
+
+	it('proposes again for another day while the form still shows the proposal', async () => {
+		const { result } = renderForm();
+		typeDuration(result, '2');
+		await waitForPhase(result, 'proposed');
+		mockGetTimeLogs.mockResolvedValue([logOf('next-morning', 'employee-a', at(9, 0, 11), at(11, 0, 11))]);
+
+		act(() => result.current.setDay(at(0, 0, 11)));
+		await waitFor(() => expect(result.current.times).toEqual({ startMinutes: 660, endMinutes: 780 }));
+
+		expect(mockGetTimeLogs).toHaveBeenLastCalledWith(
+			expect.objectContaining({ startDate: '2026-11-10', endDate: '2026-11-12' })
+		);
+	});
+
+	it('leaves the times to the member once they change them by hand', async () => {
+		const { result } = renderForm();
+		typeDuration(result, '2');
+		await waitForPhase(result, 'proposed');
+
+		act(() => result.current.setTimes({ startMinutes: 540, endMinutes: 600 }));
+
+		expect(result.current.entry.phase.kind).toBe('idle');
+		expect(result.current.entry.text).toBe('1h 0m');
+
+		act(() => result.current.setDay(at(0, 0, 11)));
+
+		expect(mockGetTimeLogs).toHaveBeenCalledTimes(1);
+		expect(result.current.times).toEqual({ startMinutes: 540, endMinutes: 600 });
+	});
+
+	it('waits for a member before it reads a day', async () => {
+		const handPicked = { startMinutes: 840, endMinutes: 900 };
+		const { result } = renderForm({ employeeId: null, times: handPicked });
+
+		typeDuration(result, '1:30');
+
+		expect(result.current.entry.phase.kind).toBe('noMember');
+		expect(result.current.times).toEqual(handPicked);
+		expect(mockGetTimeLogs).not.toHaveBeenCalled();
+
+		act(() => result.current.setEmployeeId('employee-a'));
+		await waitForPhase(result, 'proposed');
+
+		expect(result.current.times).toEqual({ startMinutes: 540, endMinutes: 630 });
+	});
+
+	it('leaves the form empty when the duration is cleared while the day is being read', async () => {
+		const read = pendingRead();
+		const { result } = renderForm();
+
+		typeDuration(result, '1:30');
+		typeDuration(result, '');
+		await answerRead(read, []);
+
+		expect(result.current.entry.phase.kind).toBe('idle');
+		expect(result.current.times).toEqual(NO_TIMES);
+	});
+
+	it('keeps the refusal of a text typed while the day is being read', async () => {
+		const read = pendingRead();
+		const { result } = renderForm();
+
+		typeDuration(result, '1:30');
+		typeDuration(result, 'soon');
+		await answerRead(read, []);
+
+		expect(result.current.entry.phase.kind).toBe('invalid');
+		expect(result.current.entry.text).toBe('soon');
+		expect(result.current.times).toEqual(NO_TIMES);
+	});
+
+	it('proposes nothing from the day of a member who was removed while it was being read', async () => {
+		const read = pendingRead();
+		const { result } = renderForm();
+
+		typeDuration(result, '1:30');
+		act(() => result.current.setEmployeeId(null));
+		await answerRead(read, []);
+
+		expect(result.current.entry.phase.kind).toBe('noMember');
+		expect(result.current.times).toEqual(NO_TIMES);
+	});
+
+	it('gives two periods asked before the day is read two intervals that do not overlap', async () => {
+		const read = pendingRead();
+		const { result } = renderTwoPeriods();
+
+		typePeriodDuration(result, 0, '1:30');
+		typePeriodDuration(result, 1, '1:30');
+		await answerRead(read, []);
+
+		// One read answers both: their proposals are placed one after the other, without a render in between
+		expect(mockGetTimeLogs).toHaveBeenCalledTimes(1);
+		expect(result.current.periods).toEqual([
+			{ startMinutes: 540, endMinutes: 630 },
+			{ startMinutes: 630, endMinutes: 720 }
+		]);
+	});
+
+	it('places a proposal around the times another period took while the day was being read', async () => {
+		const read = pendingRead();
+		const { result } = renderTwoPeriods();
+
+		typePeriodDuration(result, 1, '1:30');
+		act(() => result.current.setTimes(0, { startMinutes: 540, endMinutes: 600 }));
+		await answerRead(read, []);
+
+		expect(result.current.periods[1]).toEqual({ startMinutes: 600, endMinutes: 690 });
+	});
+
+	it("proposes nothing when the API answers with the caller's entries instead of the member's", async () => {
+		mockGetTimeLogs.mockResolvedValue([logOf('own', 'employee-a', at(9), at(10, 30))]);
+		const { result } = renderForm({ employeeId: 'employee-b' });
+
+		typeDuration(result, '1:30');
+		await waitForPhase(result, 'failed');
+
+		expect(result.current.times).toEqual(NO_TIMES);
+	});
+
+	it('says the day could not be read, and proposes on a new try', async () => {
+		mockGetTimeLogs.mockRejectedValueOnce(new Error('Network Error'));
+		const { result } = renderForm();
+
+		typeDuration(result, '1:30');
+		await waitForPhase(result, 'failed');
+
+		expect(result.current.times).toEqual(NO_TIMES);
+
+		act(() => result.current.entry.retry());
+		await waitForPhase(result, 'proposed');
+
+		expect(result.current.times).toEqual({ startMinutes: 540, endMinutes: 630 });
+	});
+});

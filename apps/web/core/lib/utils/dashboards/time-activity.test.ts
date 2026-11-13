@@ -41,18 +41,23 @@ const task = (title: string, duration: number, team?: string | null) => ({
 	...teamFieldOf(team)
 });
 
-const reportOf = (tasks: ReturnType<typeof task>[]) =>
+const reportOf = (tasks: ReturnType<typeof task>[], logEmployee: object = employee) =>
 	[
 		{
 			date: '2026-11-05',
 			logs: [
 				{
 					project: { id: 'project-a', name: 'Website' },
-					employeeLogs: [{ employee, sum: 0, activity: 0, tasks }]
+					employeeLogs: [{ employee: logEmployee, sum: 0, activity: 0, tasks }]
 				}
 			]
 		}
 	] as unknown as ITimeLogGroupedDailyReport[];
+
+const ratedReportOf = (billRateCurrency: string | null) => {
+	const ratedEmployee = { ...employee, billRateValue: 40, billRateCurrency };
+	return reportOf([task('home', 900)], ratedEmployee);
+};
 
 describe('Time & Activity export rows', () => {
 	it('lists the time without a team under "No team", as the page groups it', () => {
@@ -224,7 +229,7 @@ describe('the Time & Activity breakdown by client', () => {
 
 describe('the Time & Activity exports of the client grouping', () => {
 	const clientOf = clientOfProjectLogOf(CLIENT_IDS, CLIENT_NAMES);
-	const exportRows = exportRowsOf(CLIENT_REPORT, null, 'No team', clientOf);
+	const exportRows = exportRowsOf(CLIENT_REPORT, null, 'No team', null, clientOf);
 
 	const exportRow = (fields: Partial<TimeActivityExportRow>): TimeActivityExportRow => ({
 		dateKey: '2026-11-03',
@@ -354,6 +359,44 @@ describe('the Time & Activity grouping kept in the page link', () => {
 		expect(offeredGroupingsOf('refused', 'client')).toEqual(everyone);
 		expect(offeredGroupingsOf('unknown', 'date')).toEqual(everyone);
 		expect(offeredGroupingsOf('unknown', 'client')).toEqual([...everyone, 'client']);
+	});
+});
+
+describe('Time & Activity export rows of a rate without a currency of its own (#5087)', () => {
+	it("count it in the workspace's currency", () => {
+		const [row] = exportRowsOf(ratedReportOf(null), null, null, 'EUR');
+
+		expect(row).toEqual(expect.objectContaining({ earnings: 10, currency: 'EUR' }));
+	});
+
+	it('leave a rate that has its own currency in it', () => {
+		const [row] = exportRowsOf(ratedReportOf('GBP'), null, null, 'EUR');
+
+		expect(row).toEqual(expect.objectContaining({ earnings: 10, currency: 'GBP' }));
+	});
+
+	it('count it as before while the workspace currency is not known', () => {
+		const [row] = exportRowsOf(ratedReportOf(null), null);
+
+		expect(row).toEqual(expect.objectContaining({ earnings: 10, currency: 'USD' }));
+	});
+});
+
+describe('Time & Activity grouped by client, a rate without a currency of its own', () => {
+	const clientOf = clientOfProjectLogOf(new Map([['project-a', 'acme']]), CLIENT_NAMES);
+
+	it("is counted in the workspace's currency on the screen, the row keeping its client", () => {
+		const [row] = clientRowsOf(ratedReportOf(null), clientOf, null, 'EUR');
+
+		expect(row.billRateCurrency).toBe('EUR');
+		expect(row.client).toEqual({ key: 'acme', name: 'Acme' });
+	});
+
+	it("is counted in the workspace's currency in the exports, the row keeping its client", () => {
+		const [row] = exportRowsOf(ratedReportOf(null), null, null, 'EUR', clientOf);
+
+		expect(row).toEqual(expect.objectContaining({ earnings: 10, currency: 'EUR' }));
+		expect(row.client).toEqual({ key: 'acme', name: 'Acme' });
 	});
 });
 

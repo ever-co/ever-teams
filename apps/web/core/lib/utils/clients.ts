@@ -1,4 +1,5 @@
 import { isEmail } from 'class-validator';
+import { clientIdOf } from './project-list';
 
 export const CLIENT_CONTACT_TYPE = 'CLIENT';
 
@@ -108,15 +109,16 @@ export function clientNamesOf(clients: ReadonlyArray<ClientLike>) {
 	return names;
 }
 
-interface ProjectOfClient {
-	organizationContactId?: string | null;
-}
+type ProjectOfClient = Parameters<typeof clientIdOf>[0];
 
-/** How many of the given projects each client has; a client without a project is absent from the map. */
+/**
+ * How many of the given projects each client has; a client without a project is absent from the map. A project's
+ * client is read as the projects filter reads it, so a count and the list its link opens hold the same projects.
+ */
 export function projectCountByClient(projects: ProjectOfClient[]) {
 	const counts = new Map<string, number>();
 	for (const project of projects) {
-		const clientId = project.organizationContactId;
+		const clientId = clientIdOf(project);
 		if (!clientId) {
 			continue;
 		}

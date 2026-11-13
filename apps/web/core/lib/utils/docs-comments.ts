@@ -78,7 +78,7 @@ export function docsCommentThreads(comments: readonly IComment[]): DocsCommentTh
 }
 
 /** Where a thread sits for the reading order: its block now, and where its range starts in it (null without one). */
-export type DocsThreadOrderPlace = (thread: DocsCommentThread) => { blockId: string | null; start: number | null };
+type DocsThreadOrderPlace = (thread: DocsCommentThread) => { blockId: string | null; start: number | null };
 
 /**
  * The threads in reading order: those on a block in the order of the blocks on the page (in a block, a range before

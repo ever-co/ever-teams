@@ -126,6 +126,15 @@ describe('the number of projects of a client, which links to the Projects list',
 		const listed = projectsListedForTeam([inOtherTeam], 't1');
 		expect(projectCountByClient(listed).has('c1')).toBe(false);
 	});
+
+	it('counts a project whose client came only as its relation, as the client filter of that list keeps it', () => {
+		const relationOnly = acmeProjectOf('relation-only', {
+			organizationContactId: undefined,
+			organizationContact: { id: 'c1', name: 'Acme' }
+		});
+		expect(projectMatchesFilters(relationOnly, filtersOf(['c1']), [])).toBe(true);
+		expect(projectCountByClient([relationOnly]).get('c1')).toBe(1);
+	});
 });
 
 describe('the client in the project form', () => {

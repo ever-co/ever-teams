@@ -2,7 +2,7 @@
 
 import { Suspense, useCallback, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { AddManualTimeModalSkeleton } from '@/core/components/common/skeleton/calendar-component-skeletons';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { DashboardBreadcrumb } from '@/core/components/dashboards/kit/dashboard-breadcrumb';
@@ -27,6 +27,8 @@ import {
 } from '@/core/lib/utils/dashboards/manual-time-edits';
 import { isTrackingEnabledState } from '@/core/stores';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 import type { EditsFormatters } from './manual-time-edit-row';
 import { useManualTimeEditsExportOptions } from './manual-time-edits-export';
 import { ManualTimeEditsFeed } from './manual-time-edits-feed';
@@ -54,7 +56,7 @@ function noop() {
 
 export function ManualTimeEditsPage() {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const report = useManualTimeEditsReport({ unnamedLabel: t('timeActivity.UNNAMED_EMPLOYEE') });
 	const dialogs = useTimesheetDialogs();
@@ -68,7 +70,7 @@ export function ManualTimeEditsPage() {
 
 	const baseFormatters = report.formatters;
 	const formatters = useMemo<EditsFormatters>(() => {
-		const editedAtFormat = new Intl.DateTimeFormat(locale, {
+		const editedAtFormat = dateFormatOf(locale, {
 			month: 'short',
 			day: 'numeric',
 			hour: '2-digit',
@@ -153,6 +155,7 @@ export function ManualTimeEditsPage() {
 								value={report.period}
 								onChange={report.setPeriod}
 								weekStartsOn={MANUAL_EDITS_WEEK_START}
+								locale={locale}
 							/>
 							<EditsFilterMenu
 								categories={categories}

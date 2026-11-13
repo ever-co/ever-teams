@@ -10,6 +10,7 @@ import {
 	manualReasonOf,
 	type TimesheetFormatters
 } from '@/core/lib/utils/dashboards/timesheets';
+import { entryNotesOf } from '@/core/lib/utils/timer/timer-notes';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 const CHANGE_CHIP = cn(badgeVariants({ variant: 'outline' }), 'h-5 px-1.5 text-muted-foreground');
@@ -55,6 +56,21 @@ export function LogChangeChips({
 		<span className={cn('flex shrink-0 items-center gap-1', className)}>
 			{isAdded && <AddedChip />}
 			{editedAt && <EditedChip editedAt={editedAt} formatters={formatters} />}
+		</span>
+	);
+}
+
+/** The notes typed with the timer or with the time added by hand, quoted under the task; the full text in the title. */
+export function EntryNotesLine({ log }: Readonly<{ log: ITimeLog }>) {
+	const t = useTranslations();
+	const notes = entryNotesOf(log);
+	if (!notes) {
+		return null;
+	}
+	return (
+		<span title={notes} className="max-w-full self-start truncate text-xs text-muted-foreground">
+			<span className="sr-only">{t('common.NOTES')}: </span>
+			{notes}
 		</span>
 	);
 }

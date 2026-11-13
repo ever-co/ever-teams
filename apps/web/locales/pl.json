@@ -699,6 +699,30 @@
 			"WEEK_TITLE": "Karta czasu pracy",
 			"WEEK_NO_MANUAL_TIME_PERMISSION": "Twoja rola nie pozwala dodawać czasu ręcznie, więc arkusz jest tylko do odczytu. Administrator może na to zezwolić."
 		},
+		"myWeek": {
+			"TITLE": "Mój tydzień",
+			"UPDATING": "Wczytywanie Twojego czasu",
+			"SUMMARY_LABEL": "Twój zarejestrowany czas",
+			"TRACKED_THIS_WEEK": "Zarejestrowano w tym tygodniu",
+			"TRACKED_LAST_WEEK": "Zarejestrowano w zeszłym tygodniu",
+			"TRACKED_THIS_MONTH": "Zarejestrowano w tym miesiącu",
+			"LIMIT_LEFT": "Zostało {duration} w tym tygodniu",
+			"LIMIT_UNDER": "{duration} poniżej Twojego limitu tygodniowego",
+			"LIMIT_OVER": "{duration} ponad Twój limit tygodniowy",
+			"LIMIT_SHARE": "{percent} Twojego limitu tygodniowego",
+			"NO_LIMIT": "W Twoim profilu nie ustawiono limitu tygodniowego.",
+			"LIMIT_BY_WEEK": "Twój limit tygodniowy {limit} jest liczony tydzień po tygodniu.",
+			"DAILY_LIMIT_LINE": "{limit} dziennie",
+			"DAILY_LIMIT_HINT": "Linia przerywana to jedna piąta Twojego limitu tygodniowego",
+			"PROJECTS_TITLE": "Czas według projektu",
+			"RECENT_TITLE": "Ostatnie wpisy",
+			"RECENT_LATEST": "{shown} ostatnich z {total, plural, one {# wpisu} few {# wpisów} many {# wpisów} other {# wpisu}}",
+			"EMPTY_THIS_WEEK": "Brak zarejestrowanego czasu w tym tygodniu",
+			"EMPTY_LAST_WEEK": "Brak zarejestrowanego czasu w zeszłym tygodniu",
+			"EMPTY_THIS_MONTH": "Brak zarejestrowanego czasu w tym miesiącu",
+			"EMPTY_HINT": "Uruchom timer na zadaniu, a Twój czas pojawi się tutaj.",
+			"OPEN_TIMER": "Otwórz timer"
+		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# członek} few {# członków} many {# członków} other {# członka}}",
 			"UPDATING": "Aktualizowanie danych",
@@ -1424,6 +1448,7 @@
 				"DAY": "Dzień"
 			},
 			"MEMBER_SWITCH_LABEL": "Kalendarz: {name}. Zmień członka",
+			"PROJECTS_LABEL": "Czas według projektu",
 			"YOU": "Ty",
 			"LEGEND_LABEL": "Legenda",
 			"LEGEND": {
@@ -1455,7 +1480,15 @@
 			"WEEK_STRIP_LABEL": "Dni tygodnia",
 			"HAS_TIME": "Zarejestrowano czas",
 			"NO_MEMBER_TITLE": "Twoje konto nie ma profilu członka w tej przestrzeni",
-			"NO_MEMBER_MESSAGE": "Czas jest rejestrowany dla członków. Poproś administratora o dodanie cię do zespołu."
+			"NO_MEMBER_MESSAGE": "Czas jest rejestrowany dla członków. Poproś administratora o dodanie cię do zespołu.",
+			"DRAG": {
+				"REFUSED_TITLE": "Wpis nie został zmieniony",
+				"CREATE_REFUSED_TITLE": "Nie można tu dodać czasu",
+				"OVERLAP": "Ten czas nakłada się na inny wpis tej osoby. Wybierz wolny czas albo najpierw zmień drugi wpis.",
+				"FUTURE": "Twoja organizacja nie zezwala na czas po bieżącej godzinie.",
+				"APPROVED": "Ten dzień należy do zatwierdzonej karty czasu pracy, więc jego czasu nie można zmienić.",
+				"SAVE_FAILED": "Zmiana nie została zapisana"
+			}
 		},
 		"manualTimeEdits": {
 			"TITLE": "Ręczne zmiany czasu",
@@ -1923,6 +1956,14 @@
 				"MEMBER_COUNT": "{count, plural, one {# członek} few {# członków} many {# członków} other {# członka}}",
 				"ERROR_TITLE": "Nie udało się wczytać projektu",
 				"ERROR_MESSAGE": "Sprawdź połączenie i spróbuj ponownie."
+			},
+			"consumption": {
+				"ORDER_BUDGET_USED": "Wykorzystanie budżetu",
+				"AS_COST": "Jako koszt",
+				"AS_COST_HINT": "Czas tego projektu jest liczony jako koszt, bo rodzaj jego budżetu to Koszt. Pokazuje się w godzinach, gdy rodzaj budżetu to Godziny.",
+				"SUMMARY_LABEL": "Czas i budżet",
+				"OPEN_REPORT": "Otwórz raport budżetu",
+				"LOAD_ERROR": "Nie udało się wczytać spędzonego czasu i wykorzystania budżetu"
 			},
 			"modals": {
 				"openProject": "Otwórz projekt",
@@ -2556,6 +2597,17 @@
 			"LAYOUT_LIST": "Lista",
 			"LAYOUT_BOARD": "Tablica",
 			"LAYOUT_TIMELINE": "Oś czasu",
+			"LAYOUT_LIST_HINT": "Jeden wiersz na zadanie, w grupach",
+			"LAYOUT_BOARD_HINT": "Jedna kolumna na status",
+			"LAYOUT_TIMELINE_HINT": "Jeden pasek na zadanie, od początku do terminu",
+			"LAYOUT_CALENDAR_HINT": "Każde zadanie w dniu swojego terminu",
+			"LAYOUT_TABLE_HINT": "Jedna tabela: wiersz na zadanie, kolumna na właściwość",
+			"CALENDAR_DUE_COUNT": "{count, plural, one {# zadanie z terminem} few {# zadania z terminem} many {# zadań z terminem} other {# zadania z terminem}}",
+			"CALENDAR_EMPTY_MONTH": "Brak zadań z terminem: {month}",
+			"CALENDAR_NO_DUE_DATE": "Bez terminu",
+			"CALENDAR_UNDATED_HINT": "Tych zadań nie ma w kalendarzu. Ustaw termin, aby je umieścić.",
+			"CALENDAR_UNDATED_DRAG_HINT": "Tych zadań nie ma w kalendarzu. Przeciągnij jedno na dzień albo ustaw mu termin.",
+			"CALENDAR_DRAG_HINT": "Przeciągnij na inny dzień, aby zmienić termin.",
 			"TIMELINE_ZOOM": "Powiększenie",
 			"TIMELINE_ZOOM_WEEKS": "Tygodnie",
 			"TIMELINE_ZOOM_MONTHS": "Miesiące",
@@ -2700,6 +2752,15 @@
 			"PAUSE": "Wstrzymany",
 			"IDLE": "Bezczynny",
 			"SUSPENDED": "Zawieszony"
+		},
+		"notes": {
+			"ADD": "Dodaj notatki do timera",
+			"EDIT": "Edytuj notatki timera",
+			"LABEL": "Notatki",
+			"PLACEHOLDER": "Nad czym pracujesz?",
+			"HINT_BEFORE_START": "Opcjonalne. Zapisywane we wpisie przy uruchomieniu timera.",
+			"HINT_RUNNING": "Zmiany wprowadzone podczas działania timera nie są jeszcze zapisywane. Aby zmienić notatki, edytuj wpis w kartach czasu pracy po zatrzymaniu timera.",
+			"HINT_OTHER_TEAM": "Te notatki należą do timera działającego w innym zespole, więc nie można ich tutaj zmienić."
 		}
 	},
 	"task": {
@@ -3004,10 +3065,47 @@
 			"TESTED_TIMER": "Testowany stoper"
 		},
 		"FILL_IN": "Uzupełnij: {fields}.",
-		"END_AFTER_START": "Godzina zakończenia musi być późniejsza niż godzina rozpoczęcia."
+		"END_AFTER_START": "Godzina zakończenia musi być późniejsza niż godzina rozpoczęcia.",
+		"OWN_TIME_ONLY": "Dodajesz czas dla siebie. Administrator może dodać czas komuś innemu.",
+		"DURATION": {
+			"LABEL": "Czas trwania",
+			"PLACEHOLDER": "1:30 lub 90m",
+			"HINT": "Wpisz czas trwania, a zostanie zaproponowany pierwszy wolny przedział dnia.",
+			"READING": "Szukanie wolnego czasu w tym dniu",
+			"PROPOSED": "Propozycja: od {start} do {end}, pierwszy wolny przedział dnia. Możesz go zmienić.",
+			"NO_ROOM": "Tego dnia nie ma wolnego przedziału o długości {duration}. Wybierz początek i koniec albo inny dzień.",
+			"NO_MEMBER": "Najpierw wybierz pracownika: wolny czas jest odczytywany z jego dnia.",
+			"READ_FAILED": "Nie udało się odczytać wpisów z tego dnia, więc nie zaproponowano czasu.",
+			"RETRY": "Spróbuj ponownie"
+		},
+		"REQUIRED": {
+			"TEAM": "Twoja organizacja wymaga zespołu przy każdym wpisie czasu. Otwórz jeden ze swoich zespołów i dodaj czas ponownie.",
+			"PROJECT": "Twoja organizacja wymaga projektu przy każdym wpisie czasu. Wybierz projekt albo zadanie, które go ma.",
+			"TEAM_AND_PROJECT": "Twoja organizacja wymaga zespołu i projektu przy każdym wpisie czasu. Otwórz jeden ze swoich zespołów i wybierz zadanie z projektem."
+		},
+		"TASK_CHANGE": {
+			"PROJECT_FOLLOWS": "Ten wpis przechodzi do projektu zadania: {project}.",
+			"OTHER_TEAM": "Ten wpis należy do innego zespołu. Przełącz się na ten zespół, aby zmienić jego zadanie."
+		}
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Czy na pewno chcesz usunąć ten przedział czasowy?"
+	},
+	"timeEntryActions": {
+		"CONTINUE": "Kontynuuj",
+		"DUPLICATE": "Duplikuj",
+		"TASK_ACTIONS": "Akcje dla {task}",
+		"ALREADY_RUNNING": "Timer już działa dla tego zadania",
+		"recent": {
+			"TITLE": "Ostatnie",
+			"START_ON": "Uruchom timer dla {task}",
+			"ERROR": "Nie udało się wczytać Twoich ostatnich zadań.",
+			"RETRY": "Spróbuj ponownie"
+		},
+		"duplicate": {
+			"OVERLAPS": "Ten czas nakłada się na zapisany już wpis ({range}). Wybierz wolny czas lub inną datę.",
+			"CHECK_FAILED": "Nie udało się sprawdzić wpisów z tego dnia, więc nic nie zostało zapisane. Spróbuj ponownie."
+		}
 	},
 	"chatConfig": {
 		"DIALOG_TITLE": "Konfiguracja czatu AI",
@@ -3127,7 +3225,8 @@
 			"navigation": "Nawigacja",
 			"settings": "Ustawienia",
 			"goTo": "Przejdź do",
-			"chat": "Czat"
+			"chat": "Czat",
+			"timer": "Timer"
 		},
 		"commands": {
 			"inviteUser": "Zaproś użytkownika",
@@ -3149,7 +3248,10 @@
 			"goToTimeAndActivity": "Przejdź do raportu czasu i aktywności",
 			"profile": "Profil",
 			"settings": "Ustawienia",
-			"newMessage": "Nowa wiadomość"
+			"newMessage": "Nowa wiadomość",
+			"startTimer": "Uruchom timer",
+			"stopTimer": "Zatrzymaj timer",
+			"addTime": "Dodaj czas"
 		},
 		"results": {
 			"recent": "Ostatnie",
@@ -3161,7 +3263,9 @@
 			"projects": "Projekty",
 			"pages": "Strony",
 			"untitledPage": "Bez tytułu",
-			"recentlyOpened": "Ostatnio otwierane"
+			"recentlyOpened": "Ostatnio otwierane",
+			"startTimerOn": "Uruchom timer dla zadania",
+			"startTimerOnTask": "Uruchom timer: {task}"
 		}
 	},
 	"modals": {
@@ -3823,7 +3927,10 @@
 			"STOPPED_TASK_SWITCH": "Timer zatrzymany, bo zmieniło się aktywne zadanie",
 			"STALE_STOPPED": "Timer zatrzymany: {stoppedAt}",
 			"STALE_STOPPED_HINT": "Działał dalej po zamknięciu aplikacji. Późniejszą pracę dodaj jako czas ręczny.",
-			"TASK_CLOSED_HINT": "Otwórz zadanie ponownie, aby rejestrować na nim czas."
+			"TASK_CLOSED_HINT": "Otwórz zadanie ponownie, aby rejestrować na nim czas.",
+			"NOTES_NOT_SAVED": "Notatki zmienione w trakcie działania timera nie zostały zapisane",
+			"NOTES_NOT_SAVED_HINT": "Wpis zachował notatki z uruchomienia. Edytuj wpis w kartach czasu pracy, aby je zmienić.",
+			"ALREADY_RUNNING_ON_TASK": "Timer już działa dla tego zadania"
 		},
 		"plans": {
 			"CREATE_FAILED": "Nie utworzono planu",
@@ -4053,7 +4160,8 @@
 		"groups": {
 			"account": "Konto",
 			"team": "Zespół",
-			"taskProperties": "Właściwości zadań"
+			"taskProperties": "Właściwości zadań",
+			"workspace": "Obszar roboczy"
 		},
 		"entries": {
 			"profile": {
@@ -4111,6 +4219,14 @@
 			"versions": {
 				"TITLE": "Wersje",
 				"DESCRIPTION": "Wydania, do których mogą być przypisane zadania."
+			},
+			"import": {
+				"TITLE": "Import",
+				"DESCRIPTION": "Wpisy czasu z pliku CSV."
+			},
+			"workspaceGeneral": {
+				"TITLE": "Ogólne",
+				"DESCRIPTION": "Nazwa obszaru roboczego, waluta oraz formaty dat i liczb."
 			},
 			"automations": {
 				"TITLE": "Automatyzacje",
@@ -4418,6 +4534,121 @@
 				"FINISH_ERROR_TITLE": "Nie udało się połączyć Trello",
 				"RETURN_REFUSED_TITLE": "Trello nie zwróciło tokenu",
 				"RETURN_REFUSED": "Autoryzacja została odrzucona lub powrót przerwany; nic nie zostało połączone. Połącz ponownie, gdy będziesz gotowy."
+			},
+			"jira": {
+				"SECTION_TITLE": "Jira",
+				"SECTION_DESCRIPTION": "Przenieś zgłoszenia z projektów Jira Cloud jako zadania i utrzymuj je w synchronizacji.",
+				"TITLE": "Jira",
+				"CONNECT_NOTE": "Połącz konto Jira, a następnie przypisz jego projekty do projektów tej organizacji.",
+				"CONNECT_UNAVAILABLE": "Jira nie jest skonfigurowana w tej instalacji: platforma potrzebuje najpierw swojej aplikacji OAuth Jira.",
+				"CONNECT": "Połącz Jira",
+				"CONNECTING": "Otwieranie Jira…",
+				"SUMMARY_CONNECTED": "Połączono jako {account}",
+				"SUMMARY_CONNECTED_SITE": "Połączono jako {account} z {site}",
+				"SUMMARY_CONNECTED_NO_ACCOUNT": "Połączono",
+				"STATE_CONNECTED": "Połączono",
+				"STATE_ATTENTION": "Wymaga uwagi",
+				"STATE_SITE_REQUIRED": "Wybierz witrynę",
+				"ATTENTION_TOKEN_REFUSED": "Jira odrzuciła token połączenia. Rozłącz i połącz ponownie.",
+				"ATTENTION_OTHER": "To połączenie wymaga uwagi.",
+				"FACT_ACCOUNT": "Konto",
+				"FACT_SITE": "Witryna",
+				"FACT_CONNECTED": "Połączono dnia",
+				"FACT_MAPPINGS": "Przypisane projekty",
+				"FACT_MAPPINGS_VALUE": "{count, plural, =0 {Jeszcze żadnego} one {# projekt} few {# projekty} other {# projektów}}",
+				"FACT_WEBHOOKS": "Webhooki",
+				"WEBHOOKS_ON": "Włączone: Jira przesyła zmiany na bieżąco.",
+				"WEBHOOKS_OFF": "Wyłączone: platforma nie ma publicznego adresu dla Jira; użyj importów.",
+				"SITE_TITLE": "Witryna Jira",
+				"SITE_REQUIRED": "To konto ma dostęp do kilku witryn Jira. Wybierz witrynę tego połączenia: do tego czasu nic się nie synchronizuje.",
+				"SITE_CHANGE_HINT": "Wybierz inną witrynę dostępną dla konta.",
+				"SITE_CHANGE_BLOCKED": "Usuń przypisania, aby zmienić witrynę: każde wskazuje projekt tej witryny.",
+				"SITE_LABEL": "Witryna",
+				"SITE_PLACEHOLDER": "Wybierz witrynę",
+				"SITE_SAVE": "Użyj tej witryny",
+				"SITE_CHANGE": "Zmień witrynę",
+				"SITES_LOADING": "Odczytywanie witryn…",
+				"NO_SITES": "Konto nie ma dostępu do żadnej witryny Jira.",
+				"WEBHOOK_ACTIVE": "Webhook włączony: Jira wysyła zmiany na bieżąco (odnawiany przed {date}).",
+				"WEBHOOK_FAILED": "Nie udało się zarejestrować webhooka: {reason}",
+				"WEBHOOK_MISSING": "Jeszcze brak webhooka: zmiany docierają z zaplanowanymi importami.",
+				"WEBHOOK_REGISTER": "Zarejestruj webhook",
+				"LOADING_DETAILS": "Wczytywanie przypisań…",
+				"MAPPED_TO": "Zgłoszenia stają się zadaniami projektu {project}",
+				"LAST_IMPORT": "ostatni import {date}",
+				"LAST_IMPORT_NEVER": "jeszcze nie importowano",
+				"STATUSES_MAPPED": "{count, plural, one {# status przypisany} few {# statusy przypisane} other {# statusów przypisanych}}",
+				"ISSUE_TYPES_COUNT": "{count, plural, one {# typ zgłoszenia} few {# typy zgłoszeń} other {# typów zgłoszeń}}",
+				"SYNC_LABEL": "Synchronizacja",
+				"IMPORT_CHANGES": "Importuj zmiany",
+				"IMPORT_ALL": "Importuj wszystko",
+				"REMOVE_MAPPING": "Usuń",
+				"ADD_TITLE": "Przypisz projekt Jira",
+				"ADD_DESCRIPTION": "Wybierz projekt Jira z witryny i projekt, którego zadaniami staną się jego zgłoszenia.",
+				"JIRA_PROJECT_LABEL": "Projekt Jira",
+				"JIRA_PROJECT_PLACEHOLDER": "Wybierz projekt Jira",
+				"PROJECT_LABEL": "Projekt",
+				"PROJECT_PLACEHOLDER": "Wybierz projekt",
+				"DIRECTION_LABEL": "Kierunek",
+				"DIRECTION_inbound": "Jira → zadania",
+				"DIRECTION_outbound": "Zadania → Jira",
+				"DIRECTION_both": "W obie strony",
+				"STATUS_MAP_LABEL": "Status zadania dla statusu Jira",
+				"STATUS_MAP_HINT": "Każda kategoria statusu staje się statusem zadania. Status Jira może też dostać własny status, który ma pierwszeństwo przed jego kategorią.",
+				"CATEGORY_new": "Do zrobienia",
+				"CATEGORY_indeterminate": "W toku",
+				"CATEGORY_done": "Gotowe",
+				"STATUS_OVERRIDES_HINT": "Statusy projektu:",
+				"STATUS_BY_CATEGORY": "Według kategorii",
+				"STATUS_BY_CATEGORY_NAMED": "Według kategorii ({category})",
+				"STATUS_MAP_PLACEHOLDER": "Wybierz status",
+				"STATUS_MAP_UNKNOWN": "{value} (to nie status)",
+				"STATUS_MAP_INVALID": "To nie status projektu ani organizacji: {values}",
+				"STATUS_MAP_EDIT": "Edytuj statusy",
+				"STATUS_MAP_SAVE": "Zapisz statusy",
+				"STATUSES_LOADING": "Odczyt statusów…",
+				"STATUSES_ERROR": "Nie udało się odczytać statusów",
+				"PROJECT_LOADING": "Odczytywanie statusów i typów zgłoszeń projektu…",
+				"NO_STATUSES": "Ten projekt Jira nie ma statusu widocznego dla połączenia.",
+				"ISSUE_TYPES_LABEL": "Typy zgłoszeń",
+				"ISSUE_TYPES_HINT": "Jeśli nie zaznaczysz żadnego typu, importowane będą wszystkie typy zgłoszeń.",
+				"ISSUE_TYPES_GONE": "W projekcie nie ma już żadnego z typów zgłoszeń, które przenosi to przypisanie.",
+				"ISSUE_TYPES_ALL": "Przenoś wszystkie typy",
+				"PROJECTS_LOADING": "Odczyt projektów…",
+				"NO_PROJECTS": "Każdy projekt tej witryny jest przypisany albo nie ma ona żadnego.",
+				"ADD_MAPPING": "Dodaj przypisanie",
+				"SAVING": "Zapisywanie…",
+				"RUNS_TITLE": "Ostatnie uruchomienia",
+				"NO_RUNS": "Brak importu.",
+				"RUN_import": "Import",
+				"RUN_webhook": "Webhook",
+				"RUN_STATUS_running": "W toku",
+				"RUN_STATUS_done": "Gotowe",
+				"RUN_STATUS_failed": "Nieudane",
+				"RUN_COUNTS": "{created} utworzono · {updated} zaktualizowano · {skipped} pominięto · {failed} nieudanych",
+				"RUN_REPORT": "odczytane zgłoszenia: {issues} · komentarze: {comments} · powiązania: {links}",
+				"RUN_INCOMPLETE": "zatrzymany przed końcem: następny import będzie kontynuowany",
+				"RUN_FAILURES": "niezastosowane: {keys}",
+				"RUN_FAILURES_MORE": "{count, plural, one {i # więcej} few {i # więcej} other {i # więcej}}",
+				"DISCONNECT_LABEL": "Rozłącz Jira",
+				"DISCONNECT_CONSEQUENCE": "Zatrzymuje synchronizację dla tej organizacji; zaimportowane zadania zostają.",
+				"DISCONNECT": "Rozłącz",
+				"DISCONNECT_TITLE": "Rozłączyć Jira?",
+				"DISCONNECT_DESCRIPTION": "Połączenie należy do organizacji: każdy zespół, który z niego korzysta, je traci.",
+				"DISCONNECT_STOPS_SYNC": "Zgłoszenia przestają stawać się zadaniami, a zadania przestają trafiać do Jira.",
+				"DISCONNECT_KEEPS_TASKS": "Zadania utworzone już ze zgłoszeń zostają tam, gdzie są.",
+				"DETAILS_ERROR_TITLE": "Nie udało się wczytać przypisań ani przebiegów",
+				"LOAD_ERROR_TITLE": "Nie udało się wczytać integracji Jira",
+				"ACTION_FAILED": "To się nie udało",
+				"CALLBACK_ERROR_TITLE": "Nie udało się połączyć Jira",
+				"CALLBACK_not_configured": "Platforma nie ma aplikacji OAuth Jira.",
+				"CALLBACK_denied": "Jira nie autoryzowała połączenia.",
+				"CALLBACK_invalid_state": "Proces łączenia wygasł lub został już użyty. Zacznij od nowa.",
+				"CALLBACK_exchange_failed": "Jira odrzuciła kod autoryzacji. Zacznij od nowa.",
+				"CALLBACK_site_unreadable": "Po autoryzacji nie udało się odczytać witryn Jira.",
+				"CALLBACK_no_site": "Konto nie ma dostępu do żadnej witryny Jira.",
+				"CALLBACK_site_mismatch": "To połączenie ma mapowania w witrynie Jira, do której konto nie ma już dostępu; pozostało bez zmian.",
+				"CALLBACK_not_saved": "Nie udało się zapisać połączenia."
 			},
 			"conflicts": {
 				"TITLE": "Konflikty synchronizacji",
@@ -4732,7 +4963,37 @@
 			"ACCEPT": "Akceptuj",
 			"REJECT": "Odrzuć",
 			"INVITATIONS_COUNT": "{count, plural, one {# zaproszenie czeka na odpowiedź} few {# zaproszenia czekają na odpowiedź} many {# zaproszeń czeka na odpowiedź} other {# zaproszenia czeka na odpowiedź}}",
-			"REQUESTS_COUNT": "{count, plural, one {# prośba czeka na odpowiedź} few {# prośby czekają na odpowiedź} many {# próśb czeka na odpowiedź} other {# prośby czeka na odpowiedź}}"
+			"REQUESTS_COUNT": "{count, plural, one {# prośba czeka na odpowiedź} few {# prośby czekają na odpowiedź} many {# próśb czeka na odpowiedź} other {# prośby czeka na odpowiedź}}",
+			"FILTER_LABEL": "Wyświetlani członkowie",
+			"FILTER_ACTIVE": "Aktywni",
+			"FILTER_INACTIVE": "Nieaktywni",
+			"INACTIVE_LIST": "Nieaktywni członkowie",
+			"INACTIVE_EMPTY": "Żaden członek tego zespołu nie jest dezaktywowany.",
+			"INACTIVE_ERROR": "Nie udało się wczytać nieaktywnych członków.",
+			"DEACTIVATED_ON": "Dostęp wyłączony {date}",
+			"RESTORE": "Przywróć",
+			"RESTORE_MEMBER": "Przywróć: {name}",
+			"RESTORED": "{name} może znowu się logować i śledzić czas",
+			"RESTORE_FAILED": "Dostęp osoby {name} jest nadal wyłączony",
+			"DEACTIVATE": "Dezaktywuj",
+			"DEACTIVATE_TITLE": "Dezaktywować osobę {name}?",
+			"DEACTIVATE_CONSEQUENCE_ACCESS": "{name} nie może już logować się do tego obszaru roboczego ani śledzić czasu.",
+			"DEACTIVATE_CONSEQUENCE_TEAMS": "Ta osoba przestaje być liczona we wszystkich swoich zespołach.",
+			"DEACTIVATE_CONSEQUENCE_HISTORY": "Jej czas, zadania i komentarze pozostają pod jej nazwiskiem w raportach i historii.",
+			"DEACTIVATE_CONSEQUENCE_RESTORE": "Możesz ją przywrócić z listy Nieaktywni: odzyska dostęp, zespoły i role.",
+			"DEACTIVATED": "Dostęp osoby {name} został wyłączony",
+			"DEACTIVATE_FAILED": "Dostęp osoby {name} jest nadal aktywny",
+			"ROLE_GROUP_TEAM": "W tym zespole",
+			"ROLE_GROUP_WORKSPACE": "W obszarze roboczym",
+			"WORKSPACE_ROLE_SUPER_ADMIN": "Superadmin",
+			"WORKSPACE_ROLE_ADMIN": "Admin",
+			"WORKSPACE_ROLE_MANAGER": "Menedżer",
+			"WORKSPACE_ROLE_EMPLOYEE": "Członek",
+			"WORKSPACE_ROLE_DATA_ENTRY": "Wprowadzanie danych",
+			"WORKSPACE_ROLE_VIEWER": "Przeglądający",
+			"WORKSPACE_ROLE_CANDIDATE": "Kandydat",
+			"WORKSPACE_ROLE_INTERVIEWER": "Rekruter",
+			"WORKSPACE_ROLE_NOT_SAVED": "Rola osoby {name} w obszarze roboczym nie została zmieniona"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profil",
@@ -4866,6 +5127,37 @@
 			"LOAD_ERROR_TEXT": "Twoje przełączniki się nie zmieniły. Spróbuj ponownie za chwilę.",
 			"UNAVAILABLE_TITLE": "W tym obszarze roboczym nie ma jeszcze czego ustawiać",
 			"UNAVAILABLE_TEXT": "Powiadomienia należą do twojego profilu członka w obszarze roboczym, a to konto nie ma tu takiego profilu. Najpierw dołącz do zespołu lub utwórz nowy."
+		},
+		"workspace": {
+			"IDENTITY_SECTION": "Obszar roboczy",
+			"NAME_LABEL": "Nazwa obszaru roboczego",
+			"NAME_DESCRIPTION": "Widoczna w przełączniku obszarów roboczych i na zaproszeniach.",
+			"NAME_INVALID": "Wpisz nazwę o długości od 1 do {max} znaków.",
+			"NAME_SAVED": "Obszar roboczy nazywa się teraz {name}",
+			"NAME_NOT_SAVED": "Nazwa obszaru roboczego nie została zmieniona",
+			"NAME_MAYBE_UNFINISHED": "Zmiana nazwy mogła się nie zakończyć",
+			"NAME_SAVE_AGAIN": "Zapisz tę samą nazwę ponownie, aby ją dokończyć.",
+			"NAME_SUPER_ADMIN_ONLY": "Nazwę obszaru roboczego może zmienić tylko jego superadministrator.",
+			"FORMATS_SECTION": "Waluta i formaty",
+			"FORMATS_DESCRIPTION": "Obowiązują wszędzie tam, gdzie nie ustawiono nic bardziej szczegółowego, na przykład stawki z własną walutą.",
+			"CURRENCY_LABEL": "Waluta domyślna",
+			"CURRENCY_DESCRIPTION": "Waluta, od której zaczyna nowa stawka lub nowy budżet.",
+			"CURRENCY_SAVED": "Waluta domyślna: {currency}",
+			"CURRENCY_OUTCOME": "Nowe stawki i budżety zaczynają w tej walucie.",
+			"CURRENCY_NOT_SAVED": "Waluta nie została zapisana",
+			"CURRENCY_NOT_SET": "Nie ustawiono",
+			"DATE_FORMAT_LABEL": "Format daty",
+			"DATE_FORMAT_DESCRIPTION": "Jak raporty i ich eksporty zapisują daty. Automatyczny stosuje język każdego członka.",
+			"DATE_FORMAT_SAVED": "Format daty zapisany",
+			"DATE_FORMAT_NOT_SAVED": "Format daty nie został zapisany",
+			"NUMBER_FORMAT_LABEL": "Format liczb",
+			"NUMBER_FORMAT_DESCRIPTION": "Jak raporty i ich eksporty zapisują kwoty. Automatyczny stosuje język każdego członka.",
+			"NUMBER_FORMAT_SAVED": "Format liczb zapisany",
+			"NUMBER_FORMAT_NOT_SAVED": "Format liczb nie został zapisany",
+			"FORMAT_OUTCOME": "Raporty i ich eksporty już go używają.",
+			"FORMAT_AUTOMATIC": "Automatyczny",
+			"READ_ONLY_NOTE": "Tylko administratorzy obszaru roboczego mogą zmieniać te ustawienia.",
+			"LOAD_FAILED": "Nie udało się wczytać ustawień obszaru roboczego."
 		},
 		"automations": {
 			"NEW_RULE": "Nowa reguła",
@@ -5577,7 +5869,8 @@
 			"searchProjects": "Szukaj w projektach",
 			"searchTeams": "Szukaj w zespołach",
 			"themeToggle": "Przełącz między jasnym a ciemnym",
-			"taskProject": "Zmień projekt"
+			"taskProject": "Zmień projekt",
+			"taskAssignee": "Zmień przypisane osoby"
 		},
 		"CHAT_SINGLE_KEY": "Klawisz czatu to jeden klawisz, nie sekwencja.",
 		"CHAT_TAKEN": "Czat już używa tego klawisza (formatowanie, wysyłanie, przechodzenie lub przewijanie)."
@@ -6274,6 +6567,133 @@
 			"CREATE_FAILED": "Nie udało się utworzyć klienta. Spróbuj ponownie."
 		}
 	},
+	"invoices": {
+		"TITLE": "Faktury",
+		"COUNT": "{count, plural, one {# faktura} few {# faktury} many {# faktur} other {# faktury}}",
+		"NEW_INVOICE": "Nowa faktura",
+		"NUMBER": "Nr {number}",
+		"NO_NUMBER": "Bez numeru",
+		"NO_CLIENT": "Bez klienta",
+		"NO_PERIOD": "Nie podano okresu",
+		"NO_DUE_DATE": "Bez terminu płatności",
+		"NO_TOTAL": "Bez sumy",
+		"ISSUED_ON": "wystawiona {date}",
+		"DUE_ON": "Termin {date}",
+		"UNDATED": "Bez daty",
+		"DOWNLOAD_PDF_OF": "Pobierz fakturę {number} jako PDF",
+		"SHOW_MORE": "Pokaż więcej faktur",
+		"EMPTY_TITLE": "Nie ma jeszcze faktur",
+		"EMPTY_MESSAGE": "Utwórz fakturę z czasu rozliczalnego zarejestrowanego w projektach klienta.",
+		"EMPTY_MESSAGE_READ_ONLY": "Faktury tego obszaru roboczego pojawią się tutaj.",
+		"ERROR_TITLE": "Nie udało się wczytać faktur",
+		"ERROR_MESSAGE": "Sprawdź połączenie i spróbuj ponownie.",
+		"ACCESS_ERROR_TITLE": "Nie udało się sprawdzić Twojego dostępu do faktur",
+		"status": {
+			"DRAFT": "Wersja robocza",
+			"SENT": "Wysłana",
+			"VIEWED": "Wyświetlona",
+			"FULLY_PAID": "Opłacona",
+			"PARTIALLY_PAID": "Opłacona częściowo",
+			"OVERPAID": "Nadpłacona",
+			"VOID": "Anulowana"
+		},
+		"new": {
+			"TITLE": "Nowa faktura",
+			"CLIENT_PLACEHOLDER": "Wybierz klienta",
+			"GROUPING_LABEL": "Pozycje faktury",
+			"GROUP_BY_MEMBER": "Według osoby",
+			"GROUP_BY_TASK": "Według zadania",
+			"SAVE": "Zapisz fakturę",
+			"SAVED": "Faktura {number} została zapisana",
+			"UPDATING": "Ponowne odczytywanie czasu rozliczalnego",
+			"NO_CLIENTS_TITLE": "Nie ma jeszcze klientów",
+			"NO_CLIENTS_MESSAGE": "Dodaj klienta i przypisz mu projekt, a potem wróć, aby rozliczyć jego czas.",
+			"OPEN_CLIENTS": "Otwórz Klientów",
+			"CHOOSE_CLIENT_TITLE": "Wybierz klienta",
+			"CHOOSE_CLIENT_MESSAGE": "Tutaj pojawi się czas rozliczalny zarejestrowany w projektach klienta w wybranym okresie, wyceniony według stawek klienta.",
+			"TIME_ERROR_TITLE": "Nie udało się wczytać czasu rozliczalnego",
+			"ORGANIZATION_ERROR_TITLE": "Nie udało się wczytać przestrzeni roboczej",
+			"NO_PROJECTS_TITLE": "{client} nie ma żadnego projektu",
+			"NO_PROJECTS_MESSAGE": "Przypisz tego klienta do projektu, aby rozliczyć zarejestrowany w nim czas.",
+			"OPEN_PROJECTS": "Otwórz Projekty",
+			"NO_TIME_TITLE": "Brak czasu rozliczalnego dla {client} w tym okresie",
+			"NO_TIME_MESSAGE": "Fakturowany jest tylko czas oznaczony jako rozliczalny w projektach klienta.",
+			"PREVIOUS_PERIOD": "Pokaż poprzedni okres",
+			"UNNAMED_PROJECT": "Projekt bez nazwy",
+			"NO_TASK": "Bez zadania",
+			"NO_CURRENCY": "Bez waluty",
+			"SHEET_LABEL": "Przygotowywana faktura",
+			"FROM": "Od",
+			"BILL_TO": "Nabywca",
+			"PERIOD": "Okres",
+			"HOURS": "{hours} godz.",
+			"RATE_PER_HOUR": "{rate}/godz.",
+			"RATE_SOURCE_MEMBER": "Stawka klienta tej osoby w tym projekcie",
+			"RATE_SOURCE_PROJECT": "Stawka klienta projektu",
+			"RATE_SOURCE_EMPLOYEE": "Własna stawka rozliczeniowa tej osoby",
+			"DESCRIPTION_OF": "Opis pozycji {name}",
+			"REMOVE_LINE": "Usuń pozycję {name}",
+			"REMOVED_LINES": "{count, plural, one {# pozycja usunięta} few {# pozycje usunięte} many {# pozycji usuniętych} other {# pozycji usuniętych}}",
+			"RESTORE_LINES": "Przywróć",
+			"NO_LINES_TITLE": "Brak pozycji na tej fakturze",
+			"NO_PRICED_LINES": "Żaden czas z tego okresu nie ma stawki w tej walucie.",
+			"ALL_LINES_REMOVED": "Wszystkie pozycje zostały usunięte. Przywróć je, aby rozliczyć ten czas.",
+			"LINES_AND_HOURS": "{count, plural, one {# pozycja} few {# pozycje} many {# pozycji} other {# pozycji}} · {hours} godz.",
+			"LINE_COUNT": "{count, plural, one {# pozycja} few {# pozycje} many {# pozycji} other {# pozycji}}",
+			"TOTAL": "Suma",
+			"details": {
+				"TITLE": "Szczegóły",
+				"NUMBER": "Numer",
+				"NUMBER_HINT": "Następny wolny numer to {number}.",
+				"NUMBER_UNKNOWN": "Nie udało się odczytać następnego wolnego numeru. Wpisz numer, który nie jest jeszcze używany.",
+				"ISSUE_DATE": "Data wystawienia",
+				"DUE_DATE": "Termin płatności",
+				"CURRENCY": "Waluta",
+				"DRAFT_NOTE": "Faktura zostanie zapisana jako wersja robocza. Nic nie jest wysyłane do klienta."
+			},
+			"problems": {
+				"NUMBER": "Wpisz liczbę całkowitą od 1.",
+				"ISSUE_DATE": "Wybierz datę wystawienia.",
+				"DUE_DATE": "Wybierz termin płatności.",
+				"DUE_BEFORE_ISSUE": "Termin płatności jest wcześniejszy niż data wystawienia.",
+				"NO_LINES": "Faktura nie ma żadnej pozycji.",
+				"NO_CURRENCY": "Ten czas nie ma waluty. Ustaw walutę obszaru roboczego lub projektu.",
+				"READING_EARLIER": "Odczytywanie faktur już zapisanych dla tego klienta."
+			},
+			"otherCurrencies": {
+				"TITLE": "Wycenione w innej walucie",
+				"NOTE": "Faktura ma jedną walutę. Ten czas pozostaje poza nią i nigdy nie jest dodawany do jej sumy.",
+				"SWITCH": "Zafakturuj w {currency}"
+			},
+			"unpriced": {
+				"TITLE": "Bez stawki, poza tą fakturą",
+				"NOTE": "Ten czas rozliczalny nie ma stawki klienta, a osoba nie ma stawki rozliczeniowej.",
+				"SET_RATE": "Ustaw stawkę",
+				"SET_RATE_OF": "Ustaw stawkę: {member}, {project}"
+			},
+			"earlier": {
+				"TITLE": "Już zafakturowano dla {client}",
+				"NOTE": "Czas, który jest już na fakturze, nie jest stąd usuwany: faktura nie zapisuje, jaki czas obejmuje. Przed zapisaniem usuń pozycje już zafakturowane.",
+				"ERROR": "Nie udało się wczytać faktur tego klienta.",
+				"NONE": "Dla tego klienta nie zapisano jeszcze żadnej faktury.",
+				"OVERLAPS": "Pokrywa się z tym okresem",
+				"OVERLAP_TITLE": "{count, plural, one {Jedna faktura dla {client} podaje już część tego okresu} few {# faktury dla {client} podają już część tego okresu} many {# faktur dla {client} podaje już część tego okresu} other {# faktury dla {client} podaje już część tego okresu}}",
+				"OVERLAP_MESSAGE": "Ten sam czas może zostać zafakturowany dwa razy. Przed zapisaniem usuń pozycje już zafakturowane.",
+				"SHOW_MORE": "{count, plural, one {Pokaż jeszcze # fakturę} few {Pokaż jeszcze # faktury} many {Pokaż jeszcze # faktur} other {Pokaż jeszcze # faktury}}",
+				"SHOW_FEWER": "Pokaż mniej"
+			},
+			"confirm": {
+				"TITLE": "Zapisać fakturę {number}?",
+				"CLIENT": "Dla {client}, czas rozliczalny z okresu {period}.",
+				"LINES": "{count, plural, one {# pozycja} few {# pozycje} many {# pozycji} other {# pozycji}}, {hours} godz., {total}.",
+				"DATES": "Wystawiona {issueDate}, termin płatności {dueDate}.",
+				"DRAFT": "Zostanie zapisana jako wersja robocza i można ją pobrać jako PDF.",
+				"FAILED": "Faktura nie została zapisana i nic nie zostało utworzone. Sprawdź, czy numer jest wolny, i spróbuj ponownie.",
+				"UNCHECKED": "Nie udało się odczytać faktur już zapisanych dla {client}, więc tego okresu nie porównano z nimi.",
+				"UNCONFIRMED": "Nie udało się potwierdzić zapisu, więc faktura mogła zostać zapisana. Przed ponownym zapisaniem sprawdź faktury już zapisane dla {client}."
+			}
+		}
+	},
 	"timeReports": {
 		"filters": {
 			"BILLABLE_ONLY": "Tylko do rozliczenia"
@@ -6282,6 +6702,145 @@
 			"XLSX": "Plik Excel (.xlsx)",
 			"PDF": "Plik PDF",
 			"LOGS": "Wpisy"
+		}
+	},
+	"timeImport": {
+		"SECTION_TITLE": "Dane śledzenia czasu",
+		"SECTION_DESCRIPTION": "Każdy wiersz pliku staje się wpisem czasu w zespole {team}. Najpierw przeglądasz wszystkie wiersze, a nic nie jest zapisywane, zanim potwierdzisz.",
+		"TEMPLATE_LABEL": "Szablon CSV",
+		"TEMPLATE_DESCRIPTION": "Pusty plik z kolumnami, które odczytuje import.",
+		"TEMPLATE_DOWNLOAD": "Pobierz szablon",
+		"DROP_TITLE": "Upuść tu plik CSV albo wybierz go",
+		"DROP_ACTIVE": "Upuść plik, aby go sprawdzić",
+		"DROP_HINT": "{rows, plural, one {Tylko CSV, do {megabytes} MB i # wiersz na plik.} few {Tylko CSV, do {megabytes} MB i # wiersze na plik.} many {Tylko CSV, do {megabytes} MB i # wierszy na plik.} other {Tylko CSV, do {megabytes} MB i # wiersza na plik.}}",
+		"OWN_TIME_NOTE": "Każdy wiersz jest zapisywany jako twój własny czas.",
+		"OTHERS_NOTE": "Możesz dodawać czas innym członkom zespołu {team}: podaj adres e-mail każdej osoby w kolumnie {column}. Wiersz bez adresu e-mail to twój własny czas.",
+		"COLUMNS_TITLE": "Kolumny",
+		"COLUMNS_DESCRIPTION": "Pierwsza linia pliku nazywa jego kolumny, w dowolnej kolejności. Daty i godziny są odczytywane w twojej strefie czasowej, {timeZone}.",
+		"columns": {
+			"REQUIRED": "Wymagana",
+			"ONE_OF_TWO": "Jedna z dwóch",
+			"DATE": "Dzień wpisu, najpierw rok: {date}.",
+			"START_TIME": "Godzina rozpoczęcia, w formacie 24-godzinnym albo z AM lub PM: {startTime} albo {startTimeMeridiem}.",
+			"END_TIME": "Godzina zakończenia, tego samego dnia: {endTime}.",
+			"DURATION": "Czas trwania, zamiast godziny zakończenia: {duration}, {durationUnits} albo {durationDecimal} dla godzin zapisanych liczbą.",
+			"PROJECT": "Dokładna nazwa projektu tego zespołu. Pusta dla czasu bez projektu.",
+			"TASK_ANY": "Dokładny tytuł zadania tego zespołu. Pusta dla czasu bez zadania.",
+			"TASK_OWN": "Dokładny tytuł zadania tego zespołu przypisanego do członka, którego dotyczy czas. Pusta dla czasu bez zadania.",
+			"NOTES": "Notatka zapisywana razem z wpisem.",
+			"BILLABLE": "{yes} albo {no}. Pusta oznacza {no}.",
+			"MEMBER_EMAIL": "Adres e-mail członka, którego dotyczy czas. Pusta oznacza ciebie."
+		},
+		"FILE_PROBLEM_TITLE": "Nie można zaimportować pliku {fileName}",
+		"fileProblems": {
+			"NOT_CSV": "Odczytywane są tylko pliki CSV. Zapisz arkusz jako CSV, a potem wybierz ten plik.",
+			"TOO_LARGE": "Plik jest większy niż {megabytes} MB. Podziel go na mniejsze pliki.",
+			"NOT_TEXT": "Plik nie jest tekstem zapisanym w UTF-8. W arkuszu kalkulacyjnym zapisz go jako CSV UTF-8.",
+			"EMPTY": "Plik jest pusty.",
+			"UNCLOSED_QUOTE": "W wierszu {row} komórka zaczyna się cudzysłowem, który nigdy nie zostaje zamknięty.",
+			"DUPLICATE_COLUMN": "Kolumna {column} występuje dwa razy.",
+			"MISSING_COLUMNS": "{count, plural, one {Brakuje tej kolumny: {columns}.} few {Brakuje tych kolumn: {columns}.} many {Brakuje tych kolumn: {columns}.} other {Brakuje tych kolumn: {columns}.}}",
+			"END_OR_DURATION": "{endTime} albo {duration}",
+			"NO_ROWS": "Plik ma linię nagłówka i żadnego wiersza pod nią.",
+			"TOO_MANY_ROWS": "{limit, plural, one {Liczba wierszy w pliku: {count}. Import przyjmuje najwyżej # wiersz: podziel plik.} few {Liczba wierszy w pliku: {count}. Import przyjmuje najwyżej # wiersze: podziel plik.} many {Liczba wierszy w pliku: {count}. Import przyjmuje najwyżej # wierszy: podziel plik.} other {Liczba wierszy w pliku: {count}. Import przyjmuje najwyżej # wiersza: podziel plik.}}"
+		},
+		"CHECKING_TITLE": "Sprawdzanie pliku {fileName}",
+		"CHECKING_DESCRIPTION": "{count, plural, one {# wiersz jest porównywany z już zarejestrowanym czasem.} few {# wiersze są porównywane z już zarejestrowanym czasem.} many {# wierszy jest porównywanych z już zarejestrowanym czasem.} other {# wiersza jest porównywane z już zarejestrowanym czasem.}}",
+		"CHECK_FAILED_TITLE": "Nie udało się sprawdzić pliku {fileName}",
+		"CHECK_FAILED_DESCRIPTION": "Nie udało się odczytać już zarejestrowanego czasu, więc na razie nie można zaimportować żadnego wiersza. Nic nie zostało zapisane.",
+		"RETRY": "Spróbuj ponownie",
+		"CHOOSE_ANOTHER": "Wybierz inny plik",
+		"PREVIEW_TITLE": "Podgląd",
+		"PREVIEW_DESCRIPTION": "{count, plural, one {{fileName}, # wiersz. Nic nie jest zapisywane, dopóki nie zaimportujesz.} few {{fileName}, # wiersze. Nic nie jest zapisywane, dopóki nie zaimportujesz.} many {{fileName}, # wierszy. Nic nie jest zapisywane, dopóki nie zaimportujesz.} other {{fileName}, # wiersza. Nic nie jest zapisywane, dopóki nie zaimportujesz.}}",
+		"IGNORED_COLUMNS": "{count, plural, one {Ta kolumna nie jest odczytywana: {columns}.} few {Te kolumny nie są odczytywane: {columns}.} many {Te kolumny nie są odczytywane: {columns}.} other {Te kolumny nie są odczytywane: {columns}.}}",
+		"PREVIEW_CHANGED_TITLE": "Nic nie zostało zapisane: podgląd się zmienił",
+		"PREVIEW_CHANGED_DESCRIPTION": "Plik został sprawdzony jeszcze raz przed zapisaniem i niektóre wiersze się zmieniły, na przykład dlatego, że w międzyczasie zarejestrowano czas. Przejrzyj wiersze, a potem zaimportuj ponownie.",
+		"RECHECK_FAILED_TITLE": "Nic nie zostało zapisane",
+		"RECHECK_FAILED_DESCRIPTION": "Nie udało się sprawdzić pliku po raz ostatni przed zapisaniem. Spróbuj ponownie.",
+		"NOTHING_READY": "Żadnego wiersza tego pliku nie można zaimportować. Popraw pominięte wiersze, a potem wybierz plik ponownie.",
+		"IMPORT_ACTION": "{count, plural, one {Importuj # wpis} few {Importuj # wpisy} many {Importuj # wpisów} other {Importuj # wpisu}}",
+		"RECHECKING": "Ostatnie sprawdzenie pliku przed zapisaniem",
+		"IMPORTING_TITLE": "Importowanie",
+		"IMPORTING_PROGRESS": "{total, plural, one {Zapisano {done} z # wpisu} few {Zapisano {done} z # wpisów} many {Zapisano {done} z # wpisów} other {Zapisano {done} z # wpisu}}",
+		"KEEP_OPEN": "Nie zamykaj tej strony, dopóki import się nie zakończy.",
+		"REPORT_TITLE": "Raport",
+		"DONE_TITLE": "{count, plural, one {Zapisano # wpis} few {Zapisano # wpisy} many {Zapisano # wpisów} other {Zapisano # wpisu}}",
+		"DONE_DESCRIPTION": "Dodany czas: {duration}. Wpisy są już w kartach czasu i w raportach.",
+		"STOPPED_TITLE": "Import zatrzymał się na wierszu {row}",
+		"STOPPED_SAVED": "{count, plural, =0 {Nie zapisano żadnego wpisu.} one {Przed nim zapisano # wpis.} few {Przed nim zapisano # wpisy.} many {Przed nim zapisano # wpisów.} other {Przed nim zapisano # wpisu.}}",
+		"STOPPED_NOT_SENT": "{count, plural, one {# wiersz po nim nie został wysłany.} few {# wiersze po nim nie zostały wysłane.} many {# wierszy po nim nie zostało wysłanych.} other {# wiersza po nim nie zostało wysłane.}}",
+		"DOWNLOAD_REPORT": "Pobierz raport",
+		"IMPORT_ANOTHER": "Importuj kolejny plik",
+		"SHOW_MORE": "{count, plural, one {Pokaż jeszcze # wiersz} few {Pokaż jeszcze # wiersze} many {Pokaż jeszcze # wierszy} other {Pokaż jeszcze # wiersza}}",
+		"figures": {
+			"LABEL": "Liczby dla tego pliku",
+			"READY": "Gotowe",
+			"LEFT_OUT": "Pominięte",
+			"SAVED": "Zapisane",
+			"FAILED": "Nieudane",
+			"NOT_SENT": "Niewysłane",
+			"TIME_TO_ADD": "Czas do dodania",
+			"TIME_ADDED": "Dodany czas"
+		},
+		"filter": {
+			"LABEL": "Pokazywane wiersze",
+			"ALL": "Wszystkie"
+		},
+		"status": {
+			"READY": "Gotowy",
+			"LEFT_OUT": "Pominięty",
+			"SAVED": "Zapisany",
+			"FAILED": "Nieudany",
+			"NOT_SENT": "Niewysłany"
+		},
+		"row": {
+			"NUMBER": "Wiersz {row}",
+			"FOR_MEMBER": "Dla: {name}",
+			"BILLABLE": "Do rozliczenia",
+			"NOT_SENT_REASON": "Import zatrzymał się na wierszu {row}, przed tym wierszem."
+		},
+		"problems": {
+			"EXTRA_CELLS": "Ten wiersz ma więcej komórek niż linia nagłówka. Komórkę zawierającą przecinek lub średnik zapisuje się w cudzysłowie.",
+			"DATE_UNREADABLE": "Nie można odczytać daty. Zapisz ją z rokiem na początku, na przykład {date}.",
+			"START_UNREADABLE": "Nie można odczytać godziny rozpoczęcia. Zapisz ją jak {startTime} albo {startTimeMeridiem}.",
+			"END_MISSING": "Ten wiersz nie ma ani godziny zakończenia, ani czasu trwania.",
+			"END_UNREADABLE": "Nie można odczytać godziny zakończenia. Zapisz ją jak {endTime} albo {endTimeMeridiem}.",
+			"DURATION_UNREADABLE": "Nie można odczytać czasu trwania. Zapisz go jak {duration}, {durationUnits} albo {durationDecimal}.",
+			"END_NOT_AFTER_START": "Koniec musi być późniejszy niż początek. Dla czasu przechodzącego przez północ podaj czas trwania zamiast godziny zakończenia.",
+			"CLOCK_SKIPPED": "Tego dnia zegar przesuwa się do przodu na czas letni, a godzina rozpoczęcia lub zakończenia wypada w pominiętej godzinie. Wpisz godzinę, która istnieje tego dnia.",
+			"DURATION_MISMATCH": "Godzina zakończenia i czas trwania dają dwie różne długości. Zostaw jedno z nich.",
+			"TOO_LONG": "Wpis nie może być dłuższy niż 24 godziny. Czas trwania zapisany samą liczbą jest odczytywany w godzinach.",
+			"IN_FUTURE": "Ten czas jeszcze nie minął, a ta organizacja nie przyjmuje czasu w przyszłości.",
+			"BILLABLE_UNREADABLE": "Komórka rozliczenia musi mieć wartość {yes} albo {no}.",
+			"MEMBER_UNKNOWN": "Żaden członek tego zespołu nie ma tego adresu e-mail.",
+			"MEMBER_NOT_ALLOWED": "Ten wiersz dotyczy innego członka. Możesz importować tylko swój własny czas.",
+			"NO_OWN_MEMBER": "Ten wiersz nie wskazuje żadnego członka, a twoje konto nie ma profilu pracownika, na którym można rejestrować czas.",
+			"PROJECT_UNKNOWN": "Żaden projekt tego zespołu nie ma tej nazwy.",
+			"PROJECT_AMBIGUOUS": "{count, plural, one {# projekt tego zespołu ma tę nazwę.} few {# projekty tego zespołu mają tę nazwę.} many {# projektów tego zespołu ma tę nazwę.} other {# projektu tego zespołu ma tę nazwę.}}",
+			"PROJECT_REQUIRED": "Ta organizacja wymaga projektu przy każdym wpisie czasu. Podaj projekt w tym wierszu.",
+			"TASK_UNKNOWN": "Żadne zadanie tego zespołu nie ma tego tytułu.",
+			"TASK_NOT_ASSIGNED": "To zadanie nie jest przypisane do członka z tego wiersza. Tylko menedżer zespołu może dodać czas do dowolnego zadania zespołu.",
+			"TASK_AMBIGUOUS": "{count, plural, one {# zadanie ma ten tytuł.} few {# zadania mają ten tytuł. Zmień nazwę jednego z nich, aby wiersz wskazywał jedno zadanie.} many {# zadań ma ten tytuł. Zmień nazwę jednego z nich, aby wiersz wskazywał jedno zadanie.} other {# zadania ma ten tytuł. Zmień nazwę jednego z nich, aby wiersz wskazywał jedno zadanie.}}",
+			"ALREADY_RECORDED": "Ten wpis jest już zarejestrowany.",
+			"OVERLAPS_RECORDED": "{count, plural, one {Pokrywa się z już zarejestrowanym wpisem, {range}. Zapisanie go usunęłoby ten wpis.} few {Pokrywa się z # już zarejestrowanymi wpisami, pierwszy {range}. Zapisanie go usunęłoby je.} many {Pokrywa się z # już zarejestrowanymi wpisami, pierwszy {range}. Zapisanie go usunęłoby je.} other {Pokrywa się z # już zarejestrowanego wpisu, pierwszy {range}. Zapisanie go usunęłoby je.}}",
+			"SAME_AS_ROW": "Powtarza wiersz {row} tego pliku.",
+			"OVERLAPS_ROW": "Pokrywa się z wierszem {row} tego pliku, który jest importowany jako pierwszy.",
+			"RECORDED_MEANWHILE": "Podczas importu zarejestrowano wpis w czasie tego wiersza. Zapisanie wiersza usunęłoby ten wpis."
+		},
+		"access": {
+			"MANUAL_TIME_OFF_TITLE": "Ręczne dodawanie czasu jest wyłączone",
+			"MANUAL_TIME_OFF_DESCRIPTION": "Organizacja {organization} nie pozwala członkom dodawać czasu ręcznie, więc czasu nie można też importować.",
+			"NO_PERMISSION_TITLE": "Twoja rola nie może dodawać czasu ręcznie",
+			"NO_PERMISSION_DESCRIPTION": "Import czasu wymaga tego samego uprawnienia co ręczne dodawanie czasu. Poproś administratora organizacji.",
+			"LOAD_FAILED_TITLE": "Nie udało się przygotować importu",
+			"LOAD_FAILED_DESCRIPTION": "Nie udało się wczytać twoich uprawnień, zasad czasu organizacji albo zadań zespołu."
+		},
+		"entry": {
+			"TITLE": "Import",
+			"DESCRIPTION": "Dane z innych narzędzi, przeniesione do tego zespołu.",
+			"ROW_LABEL": "Dane śledzenia czasu",
+			"ROW_DESCRIPTION": "Dodaj wpisy czasu z pliku CSV.",
+			"OPEN": "Importuj z CSV"
 		}
 	},
 	"clientGrouping": {

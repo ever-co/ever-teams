@@ -21,7 +21,7 @@ export interface TimesheetPageLogsScope {
 	isEnabled: boolean;
 }
 
-export interface TimesheetPageLogsOptions {
+interface TimesheetPageLogsOptions {
 	/**
 	 * The labels of each log's task, which only the Timesheets label filter reads. Left out, the key and the request
 	 * stay those of every other read of a period, so the Work diary week and the sheet's reads before a write keep

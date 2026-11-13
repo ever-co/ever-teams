@@ -548,14 +548,15 @@ export function clientOfProjectLogOf(
 export function clientRowsOf(
 	report: ReadonlyArray<ITimeLogGroupedDailyReport>,
 	clientOf: ClientOfProjectLog,
-	withoutTeamLabel: string | null
+	withoutTeamLabel: string | null,
+	workspaceCurrency: string | null = null
 ): TimeActivityRow[] {
 	const rows: TimeActivityRow[] = [];
 	for (const day of report) {
 		for (const projectLog of day?.logs ?? []) {
 			const client = clientOf(projectLog);
 			const dayOfProject = { ...day, logs: [projectLog] };
-			const projectRows = flattenDailyReport([dayOfProject], withoutTeamLabel);
+			const projectRows = flattenDailyReport([dayOfProject], withoutTeamLabel, workspaceCurrency);
 			for (const row of projectRows) {
 				rows.push({ ...row, client });
 			}
@@ -673,13 +674,15 @@ interface MemberRate {
 	currency: string | null;
 }
 
-function rateOf(employeeLog: EmployeeLog): MemberRate {
+function rateOf(employeeLog: EmployeeLog, workspaceCurrency: string | null): MemberRate {
 	const rate = employeeLog.employee?.billRateValue;
 	const hasRate = typeof rate === 'number' && rate > 0;
 	if (!hasRate) {
 		return { rate: null, currency: null };
 	}
-	return { rate, currency: employeeLog.employee?.billRateCurrency || DEFAULT_CURRENCY };
+	const ownCurrency = employeeLog.employee?.billRateCurrency;
+	const sharedCurrency = workspaceCurrency || DEFAULT_CURRENCY;
+	return { rate, currency: ownCurrency || sharedCurrency };
 }
 
 function earningsFor(seconds: number, rate: number | null) {
@@ -764,12 +767,14 @@ function exportClientOf(projectLog: ReportProjectLog, clientOf: ClientOfProjectL
 
 /**
  * Export rows built from the raw daily report on the click. `onlyEmployeeId` keeps a member's own rows when the
- * reader does not manage the others; `clientOf` gives each row the client of its project.
+ * reader does not manage the others. A rate without a currency of its own is in the workspace's. `clientOf` gives
+ * each row the client of its project.
  */
 export function exportRowsOf(
 	report: ReadonlyArray<ITimeLogGroupedDailyReport>,
 	onlyEmployeeId: string | null,
 	withoutTeamLabel: string | null = null,
+	workspaceCurrency: string | null = null,
 	clientOf: ClientOfProjectLog | null = null
 ): TimeActivityExportRow[] {
 	const rows: TimeActivityExportRow[] = [];
@@ -795,7 +800,7 @@ export function exportRowsOf(
 					project,
 					client,
 					activity: finiteOrZero(employeeLog.activity),
-					memberRate: rateOf(employeeLog),
+					memberRate: rateOf(employeeLog, workspaceCurrency),
 					withoutTeamLabel
 				};
 				rows.push(...exportRowsOfEmployeeLog(context, employeeLog));

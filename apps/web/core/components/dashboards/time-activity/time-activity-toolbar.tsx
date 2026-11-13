@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
+import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { SegmentedControl, type SegmentedControlItem } from '@/core/components/common/segmented-control';
 import { DashboardToolbar } from '@/core/components/dashboards/kit/dashboard-layout';
 import { PeriodPicker } from '@/core/components/dashboards/kit/period-picker';
@@ -9,6 +9,7 @@ import { useTimeActivityFilterOptions } from '@/core/hooks/dashboards/time-activ
 import type { TimeActivityReport } from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
 import { formatPeriod } from '@/core/lib/utils/dashboard-period';
 import { TIME_ACTIVITY_WEEK_START, type TimeActivityGrouping } from '@/core/lib/utils/dashboards/time-activity';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { TimeActivityControlRow } from './time-activity-control-row';
 import { AppliedTimeActivityFilters, TimeActivityFilterMenu } from './time-activity-filter-menu';
 import { TimeActivityViewMenu } from './time-activity-view-menu';
@@ -27,7 +28,7 @@ const GROUPING_LABEL_KEYS: Record<TimeActivityGrouping, DottedLanguageObjectStri
 
 function ToolbarMeta({ report }: Readonly<{ report: TimeActivityReport }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const periodText = formatPeriod(report.period, locale);
 	const membersText = t('dashboard.timeActivity.META_MEMBERS', { count: report.totals.memberCount });
 	return <span>{`${periodText} · ${membersText}`}</span>;
@@ -39,6 +40,7 @@ function ToolbarMeta({ report }: Readonly<{ report: TimeActivityReport }>) {
  */
 export function TimeActivityToolbar({ report }: Readonly<{ report: TimeActivityReport }>) {
 	const t = useTranslations();
+	const locale = useWorkspaceLocale();
 	const filterOptions = useTimeActivityFilterOptions();
 	const { settings } = report;
 
@@ -62,6 +64,7 @@ export function TimeActivityToolbar({ report }: Readonly<{ report: TimeActivityR
 								value={report.period}
 								onChange={report.setPeriod}
 								weekStartsOn={TIME_ACTIVITY_WEEK_START}
+								locale={locale}
 							/>
 							<TimeActivityFilterMenu
 								options={filterOptions}

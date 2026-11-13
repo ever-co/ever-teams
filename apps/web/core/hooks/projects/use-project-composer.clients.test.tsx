@@ -39,6 +39,8 @@ jest.mock('@/core/lib/helpers/cookies', () => ({
 	getTenantIdCookie: () => 'tenant-1',
 	getOrganizationIdCookie: () => 'organization-1'
 }));
+// The form reads the organization for a new project's currency (#5143); these tests are about its Client field
+jest.mock('@/core/hooks/auth/use-current-organization', () => ({ useGetCurrentOrganization: () => undefined }));
 jest.mock('@/core/stores', () => {
 	const { atom } = jest.requireActual('jotai') as typeof import('jotai');
 	return {
@@ -142,6 +144,26 @@ describe('the Client field of the project form while a client is being created',
 		expect(result.current.draft.clientId).toBe('client-acme');
 		const offeredIds = result.current.pickableClients.map((client) => client.id);
 		expect(offeredIds).toContain('client-zenith');
+	});
+
+	it('saves the project with a client picked meanwhile, without waiting for the one being created', async () => {
+		const creation = deferred<TClient>();
+		mockContactService.createClient.mockReturnValue(creation.promise);
+		const { result } = renderComposer();
+		await startCreatingClient(result, 'Zenith');
+		expect(result.current.isAwaitingCreatedClient).toBe(true);
+
+		act(() => result.current.setClientId('client-acme'));
+		expect(result.current.isAwaitingCreatedClient).toBe(false);
+
+		await act(() => result.current.submit());
+
+		expect(mockCreateProject).toHaveBeenCalledTimes(1);
+		const [request] = mockCreateProject.mock.calls[0] as [Record<string, unknown>];
+		expect(request).toMatchObject({ name: 'Website', organizationContactId: 'client-acme' });
+
+		await answerCreation(result, creation, zenith);
+		expect(result.current.draft.clientId).toBe('client-acme');
 	});
 
 	it('keeps the field cleared while a client was being created', async () => {

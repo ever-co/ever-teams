@@ -10,10 +10,11 @@ import {
 	totalDurationOf,
 	workDayOfLog
 } from '@/core/lib/utils/dashboards/timesheets';
+import { entryNotesOf } from '@/core/lib/utils/timer/timer-notes';
 import type { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
-/** One log as every export of the Timesheets page writes it: local day, 24-hour start and end, names, duration. */
+/** One log as every export of the Timesheets page writes it: local day, 24-hour start and end, names, duration, notes. */
 export interface TimesheetExportRow {
 	id: string;
 	dayKey: string;
@@ -25,6 +26,8 @@ export interface TimesheetExportRow {
 	status: ETimesheetStatus | null;
 	isBillable: boolean;
 	seconds: number;
+	/** The entry's notes, trimmed; empty when it has none. */
+	notes: string;
 }
 
 function dayKeyOf(log: ITimeLog) {
@@ -56,7 +59,8 @@ function timesheetExportRowOf(log: ITimeLog): TimesheetExportRow {
 		task: log.task?.title ?? '',
 		status: statusOfLog(log),
 		isBillable: Boolean(log.isBillable),
-		seconds: logDurationSeconds(log)
+		seconds: logDurationSeconds(log),
+		notes: entryNotesOf(log) ?? ''
 	};
 }
 

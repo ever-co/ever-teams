@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import type { ExportOption } from '@/core/components/dashboards/kit/export-menu';
 import { FilePdf, FileSheet } from '@/core/components/icons';
 import type { PaymentsDueShown } from '@/core/hooks/dashboards/payments-due/use-payments-due-report';
@@ -24,6 +24,8 @@ import {
 	rateShownOf,
 	roundedAmountOf
 } from '@/core/lib/utils/dashboards/payments-due';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import type { PaymentsPdfContent, PaymentsPdfRow, PaymentsPdfTotal } from './payments-due-pdf';
 
 type Translate = ReturnType<typeof useTranslations>;
@@ -52,7 +54,7 @@ function csvColumnsOf(t: Translate): CsvColumn<OwedExportRow>[] {
 	];
 }
 
-function pdfRateOf(group: OwedMemberGroup, locale: string, t: Translate) {
+function pdfRateOf(group: OwedMemberGroup, locale: FormatLocale, t: Translate) {
 	const shown = rateShownOf(group);
 	if (shown === 'noRate') {
 		return t('dashboard.paymentsDue.NO_RATE');
@@ -65,14 +67,14 @@ function pdfRateOf(group: OwedMemberGroup, locale: string, t: Translate) {
 	return pdfTextOf(`${rate}${unit}`);
 }
 
-function pdfOwedOf(amount: number | null, currency: string | null, locale: string) {
+function pdfOwedOf(amount: number | null, currency: string | null, locale: FormatLocale) {
 	if (amount === null) {
 		return MISSING_FIGURE;
 	}
 	return pdfTextOf(formatOwed(amount, currency, locale));
 }
 
-function pdfRowsOf(groups: ReadonlyArray<OwedMemberGroup>, locale: string, t: Translate): PaymentsPdfRow[] {
+function pdfRowsOf(groups: ReadonlyArray<OwedMemberGroup>, locale: FormatLocale, t: Translate): PaymentsPdfRow[] {
 	return groups.map((group) => ({
 		key: group.key,
 		member: group.name,
@@ -89,7 +91,7 @@ function currencyTotalLabelOf(currency: string | null, t: Translate) {
 	return t('dashboard.paymentsDue.TOTAL_BARE');
 }
 
-function pdfTotalsOf(figures: OwedFigures, locale: string, t: Translate): PaymentsPdfTotal[] {
+function pdfTotalsOf(figures: OwedFigures, locale: FormatLocale, t: Translate): PaymentsPdfTotal[] {
 	const totals: PaymentsPdfTotal[] = figures.currencies.map((total) => ({
 		key: `currency:${total.key}`,
 		label: currencyTotalLabelOf(total.currency, t),
@@ -114,12 +116,12 @@ interface PdfInput {
 	shown: PaymentsDueShown;
 	title: string;
 	periodText: string;
-	locale: string;
+	locale: FormatLocale;
 	t: Translate;
 }
 
 function pdfContentOf({ shown, title, periodText, locale, t }: PdfInput): PaymentsPdfContent {
-	const generatedFormat = new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' });
+	const generatedFormat = dateFormatOf(locale, { dateStyle: 'medium', timeStyle: 'short' });
 	const generatedDate = generatedFormat.format(new Date());
 	const generatedOn = t('dashboard.paymentsDue.export.GENERATED_ON', { date: generatedDate });
 	return {
@@ -150,7 +152,7 @@ export function usePaymentsDueExportOptions({
 	teamName
 }: Readonly<{ shown: PaymentsDueShown | null; teamName: string }>): ExportOption[] {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 
 	return useMemo(() => {
 		if (!shown) {

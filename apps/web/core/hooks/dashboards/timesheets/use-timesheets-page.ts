@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
-import { useLocale } from 'next-intl';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
@@ -41,6 +40,7 @@ import {
 } from '@/core/lib/utils/dashboards/timesheets';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { SheetEditingSource } from './use-sheet-editing';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { useTimesheetPageLogs } from './use-timesheet-page-logs';
 
 /** Members, projects and tasks last as long as the page; clients, billable and labels live in the page link. */
@@ -119,7 +119,7 @@ function withValuesToggled(current: string[], values: string[], shouldSelect: bo
  * list, the selection and who may do what.
  */
 export function useTimesheetsPage() {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 	const { isTeamManager } = useIsMemberManager(user);
@@ -194,11 +194,13 @@ export function useTimesheetsPage() {
 	const isUpdating = logsQuery.isFetching && hasShownData;
 
 	const allLogs = useMemo(() => {
-		if (showsError) {
+		// Until the projects are read, a client filter cannot tell whose time a log is: nothing is shown, so nothing is
+		// exported with the hours of archived projects left out (or counted as having no client)
+		if (showsError || isClientLookupPending) {
 			return NO_LOGS;
 		}
 		return logsQuery.data ?? NO_LOGS;
-	}, [logsQuery.data, showsError]);
+	}, [isClientLookupPending, logsQuery.data, showsError]);
 
 	const normalizedQuery = useMemo(() => normalizedSearchTextOf(search), [search]);
 

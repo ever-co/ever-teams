@@ -9,17 +9,33 @@ export const GROUP_HEIGHT = 36;
 
 const GUTTER_REM = 1.75;
 const MENU_REM = 2;
-const TITLE_MIN_REM = 14;
+/**
+ * The title and the labels gave room to the priority's label, so the default columns still fit a 1280px window
+ * beside the sidebar.
+ */
+const TITLE_MIN_REM = 11;
 
-/** Left of the title: glyph-sized columns; right of it: the value columns, in the order the row reads. */
-const LEADING_COLUMNS: TeamTaskColumn[] = ['priority', 'number', 'status'];
-const TRAILING_COLUMNS: TeamTaskColumn[] = ['labels', 'size', 'project', 'progress', 'dueDate', 'created', 'assignees'];
+/**
+ * Left of the title: the number and the status glyph; right of it: the value columns, in the order the row reads,
+ * the priority first since its coloured label is what the eye looks for after the title.
+ */
+const LEADING_COLUMNS: TeamTaskColumn[] = ['number', 'status'];
+const TRAILING_COLUMNS: TeamTaskColumn[] = [
+	'priority',
+	'labels',
+	'size',
+	'project',
+	'progress',
+	'dueDate',
+	'created',
+	'assignees'
+];
 
 const COLUMN_WIDTH_REM: Record<TeamTaskColumn, number> = {
-	priority: 1.75,
+	priority: 6,
 	number: 4,
 	status: 1.75,
-	labels: 10,
+	labels: 8.75,
 	size: 5.5,
 	project: 8.5,
 	progress: 7.25,

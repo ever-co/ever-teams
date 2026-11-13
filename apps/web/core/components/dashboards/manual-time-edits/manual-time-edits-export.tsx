@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import type { EntriesPdfContent, EntriesPdfGroup } from '@/core/components/dashboards/kit/entries-pdf';
 import type { ExportOption } from '@/core/components/dashboards/kit/export-menu';
 import { STATUS_LABEL_KEYS } from '@/core/components/dashboards/timesheets/timesheet-status';
@@ -15,8 +15,12 @@ import {
 	clockDateTimeOf,
 	type EditsFigures,
 	type EditsGroup,
-	type ManualTimeEntry
+	type ManualTimeEntry,
+	pdfDateTimeOf,
+	pdfDayOf
 } from '@/core/lib/utils/dashboards/manual-time-edits';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 type Translate = ReturnType<typeof useTranslations>;
 
@@ -50,9 +54,29 @@ function statusCellOf(entry: ManualTimeEntry, t: Translate) {
 	return t(STATUS_LABEL_KEYS[entry.status]);
 }
 
-function columnsOf(t: Translate): CsvColumn<ManualTimeEntry>[] {
+type EntryText = (entry: ManualTimeEntry) => string;
+
+interface DateCells {
+	day: EntryText;
+	editedAt: EntryText;
+}
+
+/** A file read by a spreadsheet keeps both as data it can sort, whatever the workspace's date format. */
+const FILE_DATE_CELLS: DateCells = {
+	day: (entry) => entry.dayKey,
+	editedAt: (entry) => clockDateTimeOf(entry.editedAt)
+};
+
+function pdfDateCellsOf(locale: FormatLocale): DateCells {
+	return {
+		day: (entry) => pdfDayOf(entry.day, locale),
+		editedAt: (entry) => pdfDateTimeOf(entry.editedAt, locale)
+	};
+}
+
+function columnsOf(t: Translate, dates: DateCells): CsvColumn<ManualTimeEntry>[] {
 	return [
-		{ header: t('dashboard.timesheets.COLUMNS.DATE'), valueOf: (entry) => entry.dayKey },
+		{ header: t('dashboard.timesheets.COLUMNS.DATE'), valueOf: dates.day },
 		{ header: t('common.MEMBER'), valueOf: (entry) => entry.memberName },
 		{ header: t('dashboard.timesheets.COLUMNS.PROJECT'), valueOf: (entry) => projectCellOf(entry, t) },
 		{ header: t('dashboard.timesheets.COLUMNS.TASK'), valueOf: (entry) => taskCellOf(entry, t) },
@@ -60,10 +84,7 @@ function columnsOf(t: Translate): CsvColumn<ManualTimeEntry>[] {
 		{ header: t('dashboard.timesheets.COLUMNS.END'), valueOf: (entry) => clockTimeOf(entry.end) },
 		{ header: t('dashboard.timesheets.COLUMNS.DURATION'), valueOf: (entry) => hoursMinutesOf(entry.seconds) },
 		{ header: t('dashboard.manualTimeEdits.ADDED'), valueOf: (entry) => yesNoOf(entry.isAdded, t) },
-		{
-			header: t('dashboard.manualTimeEdits.COLUMN_EDITED_AT'),
-			valueOf: (entry) => clockDateTimeOf(entry.editedAt)
-		},
+		{ header: t('dashboard.manualTimeEdits.COLUMN_EDITED_AT'), valueOf: dates.editedAt },
 		{ header: t('dashboard.timesheets.COLUMNS.BILLABLE'), valueOf: (entry) => yesNoOf(entry.isBillable, t) },
 		{ header: t('dashboard.timesheets.COLUMNS.STATUS'), valueOf: (entry) => statusCellOf(entry, t) },
 		{ header: t('dashboard.manualTimeEdits.COLUMN_REASON'), valueOf: (entry) => entry.reason ?? '' }
@@ -77,21 +98,21 @@ function cellTextOf(value: string | number | null | undefined) {
 	return String(value);
 }
 
-function pdfGroupTitleOf(group: EditsGroup, locale: string) {
+function pdfGroupTitleOf(group: EditsGroup, locale: FormatLocale) {
 	if (group.member) {
 		return group.member.name;
 	}
 	if (!group.day) {
 		return '';
 	}
-	const format = new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric' });
+	const format = dateFormatOf(locale, { weekday: 'short', month: 'short', day: 'numeric' });
 	return format.format(group.day);
 }
 
 function pdfGroupsOf(
 	groups: ReadonlyArray<EditsGroup>,
 	columns: ReadonlyArray<CsvColumn<ManualTimeEntry>>,
-	locale: string
+	locale: FormatLocale
 ): EntriesPdfGroup[] {
 	return groups.map((group) => ({
 		key: group.key,
@@ -109,7 +130,7 @@ interface ExportInput {
 	figures: EditsFigures;
 	period: Period;
 	teamName: string;
-	locale: string;
+	locale: FormatLocale;
 	t: Translate;
 }
 
@@ -129,9 +150,9 @@ function summaryOf(figures: EditsFigures, t: Translate) {
 function pdfContentOf({ groups, figures, period, teamName, locale, t }: ExportInput): EntriesPdfContent {
 	const title = t('dashboard.manualTimeEdits.TITLE');
 	const periodText = formatPeriod(period, locale);
-	const generatedFormat = new Intl.DateTimeFormat(locale, { dateStyle: 'long' });
+	const generatedFormat = dateFormatOf(locale, { dateStyle: 'long' });
 	const generatedDate = generatedFormat.format(new Date());
-	const columns = columnsOf(t);
+	const columns = columnsOf(t, pdfDateCellsOf(locale));
 	return {
 		title,
 		period: t('dashboard.manualTimeEdits.PDF_SUBTITLE', { team: teamName, period: periodText }),
@@ -156,7 +177,7 @@ async function runPdf(input: ExportInput) {
 
 function runCsv(input: ExportInput) {
 	const rows = input.groups.flatMap((group) => group.entries);
-	const columns = columnsOf(input.t);
+	const columns = columnsOf(input.t, FILE_DATE_CELLS);
 	const fileName = periodFileNameOf(FILE_PREFIX, input.period.from, input.period.to, 'csv');
 	downloadCsv(rows, columns, fileName);
 }
@@ -173,7 +194,7 @@ export function useManualTimeEditsExportOptions({
 	teamName: string;
 }>): ExportOption[] {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	return useMemo(() => {
 		const input: ExportInput = { groups, figures, period, teamName, locale, t };
 		return [
