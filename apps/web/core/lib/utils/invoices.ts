@@ -755,7 +755,8 @@ export type InvoiceProblem =
 	| 'noLines'
 	| 'noCurrency'
 	| 'readingEarlier'
-	| 'readingTime';
+	| 'readingTime'
+	| 'unchanged';
 
 export interface InvoiceDraftFacts {
 	numberText: string;

@@ -19,7 +19,8 @@ const PROBLEM_KEYS: Record<InvoiceProblem, DottedLanguageObjectStringPaths> = {
 	noLines: 'invoices.new.problems.NO_LINES',
 	noCurrency: 'invoices.new.problems.NO_CURRENCY',
 	readingEarlier: 'invoices.new.problems.READING_EARLIER',
-	readingTime: 'invoices.new.UPDATING'
+	readingTime: 'invoices.new.UPDATING',
+	unchanged: 'invoices.edit.UNCHANGED'
 };
 
 const DUE_TERM_KEYS: Record<InvoiceDueTermSource, DottedLanguageObjectStringPaths> = {
