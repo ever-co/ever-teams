@@ -6819,6 +6819,29 @@
 			"CONFIRM": "Annuler et remplacer",
 			"NOTICE_TITLE": "Remplacement de la facture {number}",
 			"NOTICE_MESSAGE": "Même client, même période, mêmes lignes. Ajustez-les, puis enregistrez-la sous un nouveau numéro."
+		},
+		"standing": {
+			"OVERDUE": "En retard",
+			"UNKNOWN": "Statut inconnu"
+		},
+		"due": {
+			"IN_DAYS": "Échéance dans {count, plural, one {# jour} other {# jours}}",
+			"TODAY": "Échéance aujourd’hui",
+			"TOMORROW": "Échéance demain",
+			"LATE": "{count, plural, one {# jour de retard} other {# jours de retard}}"
+		},
+		"money": {
+			"LABEL": "Sommes dues à l’espace de travail",
+			"OWED": "Dû",
+			"NOTHING_OWED": "Rien n’est dû pour l’instant",
+			"INVOICE_COUNT": "{count, plural, one {# facture} other {# factures}}",
+			"ALSO_OWED": "Aussi dû : {amounts}",
+			"SPLIT_LABEL": "Sommes dues, réparties entre pas encore échues et en retard",
+			"NOT_YET_DUE": "Pas encore échu",
+			"OVERDUE": "En retard",
+			"DRAFTS": "Brouillons",
+			"DRAFT_COUNT": "{count, plural, =0 {Aucun} one {# à envoyer} other {# à envoyer}}",
+			"WITHOUT_BALANCE": "{count, plural, one {# facture payée en partie n’indique pas son solde et n’est pas comptée} other {# factures payées en partie n’indiquent pas leur solde et ne sont pas comptées}}"
 		}
 	},
 	"timeReports": {
@@ -6969,5 +6992,12 @@
 			"ROW_DESCRIPTION": "Ajoutez des entrées de temps depuis un fichier CSV.",
 			"OPEN": "Importer depuis un CSV"
 		}
+	},
+	"recordSheet": {
+		"PREVIOUS": "Précédent",
+		"PREVIOUS_HINT": "Précédent (K)",
+		"NEXT": "Suivant",
+		"NEXT_HINT": "Suivant (J)",
+		"OPEN_PAGE": "Ouvrir en pleine page"
 	}
 }

@@ -6819,6 +6819,29 @@
 			"CONFIRM": "Anuluj i zastąp",
 			"NOTICE_TITLE": "Zastępowanie faktury {number}",
 			"NOTICE_MESSAGE": "Ten sam klient, okres i pozycje. Popraw je, a potem zapisz fakturę pod nowym numerem."
+		},
+		"standing": {
+			"OVERDUE": "Zaległa",
+			"UNKNOWN": "Nieznany status"
+		},
+		"due": {
+			"IN_DAYS": "Termin za {count, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}",
+			"TODAY": "Termin dziś",
+			"TOMORROW": "Termin jutro",
+			"LATE": "{count, plural, one {# dzień po terminie} few {# dni po terminie} many {# dni po terminie} other {# dnia po terminie}}"
+		},
+		"money": {
+			"LABEL": "Kwoty należne przestrzeni roboczej",
+			"OWED": "Należne",
+			"NOTHING_OWED": "Obecnie nic nie jest należne",
+			"INVOICE_COUNT": "{count, plural, one {# faktura} few {# faktury} many {# faktur} other {# faktury}}",
+			"ALSO_OWED": "Należne także: {amounts}",
+			"SPLIT_LABEL": "Należne kwoty, podzielone na jeszcze niewymagalne i zaległe",
+			"NOT_YET_DUE": "Jeszcze niewymagalne",
+			"OVERDUE": "Zaległe",
+			"DRAFTS": "Wersje robocze",
+			"DRAFT_COUNT": "{count, plural, =0 {Brak} one {# do wysłania} few {# do wysłania} many {# do wysłania} other {# do wysłania}}",
+			"WITHOUT_BALANCE": "{count, plural, one {# częściowo opłacona faktura nie podaje salda i jest pominięta} few {# częściowo opłacone faktury nie podają salda i są pominięte} many {# częściowo opłaconych faktur nie podaje salda i jest pominiętych} other {# częściowo opłaconej faktury nie podaje salda}}"
 		}
 	},
 	"timeReports": {
@@ -6969,5 +6992,12 @@
 			"ROW_DESCRIPTION": "Dodaj wpisy czasu z pliku CSV.",
 			"OPEN": "Importuj z CSV"
 		}
+	},
+	"recordSheet": {
+		"PREVIOUS": "Poprzedni",
+		"PREVIOUS_HINT": "Poprzedni (K)",
+		"NEXT": "Następny",
+		"NEXT_HINT": "Następny (J)",
+		"OPEN_PAGE": "Otwórz na całej stronie"
 	}
 }

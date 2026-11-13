@@ -6819,6 +6819,29 @@
 			"CONFIRM": "Anular y reemplazar",
 			"NOTICE_TITLE": "Reemplazo de la factura {number}",
 			"NOTICE_MESSAGE": "Mismo cliente, periodo y líneas. Ajústalos y luego guárdala con un número nuevo."
+		},
+		"standing": {
+			"OVERDUE": "Vencida",
+			"UNKNOWN": "Estado desconocido"
+		},
+		"due": {
+			"IN_DAYS": "Vence en {count, plural, one {# día} other {# días}}",
+			"TODAY": "Vence hoy",
+			"TOMORROW": "Vence mañana",
+			"LATE": "{count, plural, one {# día de retraso} other {# días de retraso}}"
+		},
+		"money": {
+			"LABEL": "Dinero que se debe al espacio de trabajo",
+			"OWED": "Por cobrar",
+			"NOTHING_OWED": "Ahora no hay nada por cobrar",
+			"INVOICE_COUNT": "{count, plural, one {# factura} other {# facturas}}",
+			"ALSO_OWED": "También por cobrar: {amounts}",
+			"SPLIT_LABEL": "Dinero por cobrar, dividido entre aún no vencido y vencido",
+			"NOT_YET_DUE": "Aún no vencido",
+			"OVERDUE": "Vencido",
+			"DRAFTS": "Borradores",
+			"DRAFT_COUNT": "{count, plural, =0 {Ninguno} one {# por enviar} other {# por enviar}}",
+			"WITHOUT_BALANCE": "{count, plural, one {# factura pagada en parte no indica su saldo y queda fuera} other {# facturas pagadas en parte no indican su saldo y quedan fuera}}"
 		}
 	},
 	"timeReports": {
@@ -6969,5 +6992,12 @@
 			"ROW_DESCRIPTION": "Añade entradas de tiempo desde un archivo CSV.",
 			"OPEN": "Importar desde CSV"
 		}
+	},
+	"recordSheet": {
+		"PREVIOUS": "Anterior",
+		"PREVIOUS_HINT": "Anterior (K)",
+		"NEXT": "Siguiente",
+		"NEXT_HINT": "Siguiente (J)",
+		"OPEN_PAGE": "Abrir en página completa"
 	}
 }

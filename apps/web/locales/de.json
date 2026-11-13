@@ -6819,6 +6819,29 @@
 			"CONFIRM": "Stornieren und ersetzen",
 			"NOTICE_TITLE": "Ersatz für Rechnung {number}",
 			"NOTICE_MESSAGE": "Derselbe Kunde, derselbe Zeitraum, dieselben Positionen. Passen Sie sie an und speichern Sie sie unter einer neuen Nummer."
+		},
+		"standing": {
+			"OVERDUE": "Überfällig",
+			"UNKNOWN": "Unbekannter Status"
+		},
+		"due": {
+			"IN_DAYS": "Fällig in {count, plural, one {# Tag} other {# Tagen}}",
+			"TODAY": "Heute fällig",
+			"TOMORROW": "Morgen fällig",
+			"LATE": "{count, plural, one {# Tag überfällig} other {# Tage überfällig}}"
+		},
+		"money": {
+			"LABEL": "Offene Beträge des Arbeitsbereichs",
+			"OWED": "Offen",
+			"NOTHING_OWED": "Derzeit ist nichts offen",
+			"INVOICE_COUNT": "{count, plural, one {# Rechnung} other {# Rechnungen}}",
+			"ALSO_OWED": "Ebenfalls offen: {amounts}",
+			"SPLIT_LABEL": "Offene Beträge, aufgeteilt in noch nicht fällig und überfällig",
+			"NOT_YET_DUE": "Noch nicht fällig",
+			"OVERDUE": "Überfällig",
+			"DRAFTS": "Entwürfe",
+			"DRAFT_COUNT": "{count, plural, =0 {Keine} one {# zu senden} other {# zu senden}}",
+			"WITHOUT_BALANCE": "{count, plural, one {# teilweise bezahlte Rechnung nennt keinen Restbetrag und wird nicht gezählt} other {# teilweise bezahlte Rechnungen nennen keinen Restbetrag und werden nicht gezählt}}"
 		}
 	},
 	"timeReports": {
@@ -6969,5 +6992,12 @@
 			"ROW_DESCRIPTION": "Füge Zeiteinträge aus einer CSV-Datei hinzu.",
 			"OPEN": "Aus CSV importieren"
 		}
+	},
+	"recordSheet": {
+		"PREVIOUS": "Zurück",
+		"PREVIOUS_HINT": "Zurück (K)",
+		"NEXT": "Weiter",
+		"NEXT_HINT": "Weiter (J)",
+		"OPEN_PAGE": "Als ganze Seite öffnen"
 	}
 }

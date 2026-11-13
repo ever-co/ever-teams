@@ -6819,6 +6819,29 @@
 			"CONFIRM": "Laten vervallen en vervangen",
 			"NOTICE_TITLE": "Vervanging van factuur {number}",
 			"NOTICE_MESSAGE": "Dezelfde klant, periode en regels. Pas ze aan en sla hem daarna op onder een nieuw nummer."
+		},
+		"standing": {
+			"OVERDUE": "Achterstallig",
+			"UNKNOWN": "Onbekende status"
+		},
+		"due": {
+			"IN_DAYS": "Vervalt over {count, plural, one {# dag} other {# dagen}}",
+			"TODAY": "Vervalt vandaag",
+			"TOMORROW": "Vervalt morgen",
+			"LATE": "{count, plural, one {# dag te laat} other {# dagen te laat}}"
+		},
+		"money": {
+			"LABEL": "Openstaande bedragen van de werkruimte",
+			"OWED": "Openstaand",
+			"NOTHING_OWED": "Er staat nu niets open",
+			"INVOICE_COUNT": "{count, plural, one {# factuur} other {# facturen}}",
+			"ALSO_OWED": "Ook openstaand: {amounts}",
+			"SPLIT_LABEL": "Openstaande bedragen, verdeeld over nog niet vervallen en achterstallig",
+			"NOT_YET_DUE": "Nog niet vervallen",
+			"OVERDUE": "Achterstallig",
+			"DRAFTS": "Concepten",
+			"DRAFT_COUNT": "{count, plural, =0 {Geen} one {# te versturen} other {# te versturen}}",
+			"WITHOUT_BALANCE": "{count, plural, one {# deels betaalde factuur vermeldt geen saldo en telt niet mee} other {# deels betaalde facturen vermelden geen saldo en tellen niet mee}}"
 		}
 	},
 	"timeReports": {
@@ -6969,5 +6992,12 @@
 			"ROW_DESCRIPTION": "Voeg tijdinvoeren toe vanuit een CSV-bestand.",
 			"OPEN": "Importeren uit CSV"
 		}
+	},
+	"recordSheet": {
+		"PREVIOUS": "Vorige",
+		"PREVIOUS_HINT": "Vorige (K)",
+		"NEXT": "Volgende",
+		"NEXT_HINT": "Volgende (J)",
+		"OPEN_PAGE": "Openen als volledige pagina"
 	}
 }

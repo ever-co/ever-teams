@@ -6819,6 +6819,29 @@
 			"CONFIRM": "作废并替换",
 			"NOTICE_TITLE": "正在替换第 {number} 号发票",
 			"NOTICE_MESSAGE": "客户、期间和明细行相同。调整后，以新编号保存。"
+		},
+		"standing": {
+			"OVERDUE": "已逾期",
+			"UNKNOWN": "未知状态"
+		},
+		"due": {
+			"IN_DAYS": "{count, plural, other {# 天后到期}}",
+			"TODAY": "今天到期",
+			"TOMORROW": "明天到期",
+			"LATE": "{count, plural, other {逾期 # 天}}"
+		},
+		"money": {
+			"LABEL": "工作区的应收金额",
+			"OWED": "应收",
+			"NOTHING_OWED": "目前没有应收款项",
+			"INVOICE_COUNT": "{count, plural, other {# 张发票}}",
+			"ALSO_OWED": "其他应收：{amounts}",
+			"SPLIT_LABEL": "应收金额，分为未到期和已逾期",
+			"NOT_YET_DUE": "未到期",
+			"OVERDUE": "已逾期",
+			"DRAFTS": "草稿",
+			"DRAFT_COUNT": "{count, plural, =0 {无} other {# 张待发送}}",
+			"WITHOUT_BALANCE": "{count, plural, other {# 张部分付款的发票未注明余额，未计入}}"
 		}
 	},
 	"timeReports": {
@@ -6969,5 +6992,12 @@
 			"ROW_DESCRIPTION": "从 CSV 文件添加时间条目。",
 			"OPEN": "从 CSV 导入"
 		}
+	},
+	"recordSheet": {
+		"PREVIOUS": "上一个",
+		"PREVIOUS_HINT": "上一个 (K)",
+		"NEXT": "下一个",
+		"NEXT_HINT": "下一个 (J)",
+		"OPEN_PAGE": "在完整页面中打开"
 	}
 }

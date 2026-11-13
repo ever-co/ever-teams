@@ -6819,6 +6819,29 @@
 			"CONFIRM": "Annulla e sostituisci",
 			"NOTICE_TITLE": "Sostituzione della fattura {number}",
 			"NOTICE_MESSAGE": "Stesso cliente, stesso periodo, stesse righe. Sistemale, poi salvala con un nuovo numero."
+		},
+		"standing": {
+			"OVERDUE": "Scaduta",
+			"UNKNOWN": "Stato sconosciuto"
+		},
+		"due": {
+			"IN_DAYS": "Scade tra {count, plural, one {# giorno} other {# giorni}}",
+			"TODAY": "Scade oggi",
+			"TOMORROW": "Scade domani",
+			"LATE": "{count, plural, one {# giorno di ritardo} other {# giorni di ritardo}}"
+		},
+		"money": {
+			"LABEL": "Importi dovuti allo spazio di lavoro",
+			"OWED": "Da incassare",
+			"NOTHING_OWED": "Al momento non c’è nulla da incassare",
+			"INVOICE_COUNT": "{count, plural, one {# fattura} other {# fatture}}",
+			"ALSO_OWED": "Da incassare anche: {amounts}",
+			"SPLIT_LABEL": "Importi da incassare, divisi tra non ancora scaduti e scaduti",
+			"NOT_YET_DUE": "Non ancora scaduto",
+			"OVERDUE": "Scaduto",
+			"DRAFTS": "Bozze",
+			"DRAFT_COUNT": "{count, plural, =0 {Nessuna} one {# da inviare} other {# da inviare}}",
+			"WITHOUT_BALANCE": "{count, plural, one {# fattura pagata in parte non indica il saldo ed è esclusa} other {# fatture pagate in parte non indicano il saldo e sono escluse}}"
 		}
 	},
 	"timeReports": {
@@ -6969,5 +6992,12 @@
 			"ROW_DESCRIPTION": "Aggiungi voci di tempo da un file CSV.",
 			"OPEN": "Importa da CSV"
 		}
+	},
+	"recordSheet": {
+		"PREVIOUS": "Precedente",
+		"PREVIOUS_HINT": "Precedente (K)",
+		"NEXT": "Successivo",
+		"NEXT_HINT": "Successivo (J)",
+		"OPEN_PAGE": "Apri a pagina intera"
 	}
 }
