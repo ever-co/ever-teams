@@ -7,6 +7,8 @@
 import { MockGauzyApi, REQUIRED_TERMS, busyAnswer, throttledAnswer } from '@/test/ever-id/mock-gauzy-api';
 
 const DETAILS_PATH = '/api/auth/zitadel/signup/details';
+/** A test that sends ten or more requests through the stand-in API: a loaded CI runner takes more than Jest's 5 s for it. */
+const REQUEST_LOOP_TIMEOUT_MS = 30_000;
 const HANDOFF = 'k3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yA';
 const EVER_ID_ENV = [
 	'NEXT_PUBLIC_EVER_ID_APP_NAME',
@@ -277,7 +279,7 @@ describe('POST /api/auth/ever-id/signup-handoff', () => {
 		expect(limited.headers.get('retry-after')).toBe('40');
 		expect(clearsStepCookie(limited)).toBe(false);
 		expect(gauzy.calls('POST', DETAILS_PATH)).toHaveLength(9);
-	});
+	}, REQUEST_LOOP_TIMEOUT_MS);
 
 	it('does not count a read the API could not complete', async () => {
 		const { POST } = loadRoute(true);
@@ -288,5 +290,5 @@ describe('POST /api/auth/ever-id/signup-handoff', () => {
 
 		expect(statuses).toEqual(Array(12).fill(502));
 		expect(gauzy.calls('POST', DETAILS_PATH)).toHaveLength(12);
-	});
+	}, REQUEST_LOOP_TIMEOUT_MS);
 });
