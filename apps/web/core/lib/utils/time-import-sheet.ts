@@ -1,5 +1,5 @@
 import { parseCsv } from '@/core/lib/utils/csv-parse';
-import type { DateOrder } from '@/core/lib/utils/time-import-cells';
+import { clockTimeOf, type DateOrder } from '@/core/lib/utils/time-import-cells';
 
 export const TIME_IMPORT_MAX_BYTES = 1024 * 1024;
 
@@ -238,12 +238,26 @@ function cellAt(record: ReadonlyArray<string>, index: number | null): string {
 	return cell.trim();
 }
 
+/**
+ * A column read for both the end date and the end time is read row by row: a time alone there gives the end time
+ * only, and the entry then ends on the day it starts, as an end time without an end date does.
+ */
+function endDateCellOf(record: ReadonlyArray<string>, mapping: TimeImportMapping): string {
+	const cell = cellAt(record, mapping.endDate);
+	const readsEndTimeColumn = mapping.endDate === mapping.endTime;
+	const isTimeAlone = clockTimeOf(cell) !== null;
+	if (readsEndTimeColumn && isTimeAlone) {
+		return '';
+	}
+	return cell;
+}
+
 function cellsOf(record: ReadonlyArray<string>, mapping: TimeImportMapping): TimeImportCells {
 	const cellOf = (field: TimeImportField) => cellAt(record, mapping[field]);
 	return {
 		date: cellOf('date'),
 		startTime: cellOf('startTime'),
-		endDate: cellOf('endDate'),
+		endDate: endDateCellOf(record, mapping),
 		endTime: cellOf('endTime'),
 		duration: cellOf('duration'),
 		project: cellOf('project'),
