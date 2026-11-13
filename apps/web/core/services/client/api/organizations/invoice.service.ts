@@ -3,7 +3,7 @@ import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import type { InvoiceStatusChange } from '@/core/lib/utils/invoice-actions';
 import type { InvoiceUpdate } from '@/core/lib/utils/invoice-edit';
-import type { InvoiceItemRequest, InvoiceRequest } from '@/core/lib/utils/invoices';
+import type { InvoiceItemRequest, InvoiceRequest, InvoiceStatus } from '@/core/lib/utils/invoices';
 import { validateApiResponse, validatePaginationResponse, ZodValidationError } from '@/core/types/schemas';
 import {
 	highestInvoiceNumberSchema,
@@ -56,6 +56,8 @@ interface InvoicesQueryOptions {
 	page: number;
 	pageSize: number;
 	clientId?: string;
+	/** Only the invoices in this status, as the API writes it. */
+	status?: InvoiceStatus;
 	/** The API's own screen hides the invoices it archived unless asked. */
 	hidesArchived: boolean;
 	scope: InvoicesScope;
@@ -74,7 +76,7 @@ class InvoiceService extends APIService {
 		return { organizationId: this.organizationId, tenantId: this.tenantId };
 	}
 
-	private invoicesQuery({ page, pageSize, clientId, hidesArchived, scope }: InvoicesQueryOptions) {
+	private invoicesQuery({ page, pageSize, clientId, status, hidesArchived, scope }: InvoicesQueryOptions) {
 		const params: Record<string, string> = {
 			'where[organizationId]': scope.organizationId,
 			'where[tenantId]': scope.tenantId,
@@ -92,6 +94,9 @@ class InvoiceService extends APIService {
 		}
 		if (clientId) {
 			params['where[toContactId]'] = clientId;
+		}
+		if (status) {
+			params['where[status]'] = status;
 		}
 		return qs.stringify(params);
 	}
@@ -145,6 +150,26 @@ class InvoiceService extends APIService {
 			return await this.readEveryPage({ clientId, hidesArchived: false, scope }, signal);
 		} catch (error) {
 			this.logValidationError(error, 'Client invoices validation failed:');
+			throw error;
+		}
+	};
+
+	/**
+	 * Every invoice of the workspace in the given statuses, one status after the other. Meant for the drafts and the
+	 * invoices still owed: they are few, and the sums drawn from them must be whole.
+	 */
+	getInvoicesInStatuses = async (
+		statuses: ReadonlyArray<InvoiceStatus>,
+		signal?: AbortSignal,
+		keyScope?: InvoicesScope
+	): Promise<TInvoice[]> => {
+		try {
+			const scope = keyScope ?? this.currentScope();
+			const reads = statuses.map((status) => this.readEveryPage({ status, hidesArchived: true, scope }, signal));
+			const lists = await Promise.all(reads);
+			return lists.flat();
+		} catch (error) {
+			this.logValidationError(error, 'Invoices by status validation failed:');
 			throw error;
 		}
 	};
