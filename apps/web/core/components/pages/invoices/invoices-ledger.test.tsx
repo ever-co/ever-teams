@@ -14,7 +14,7 @@ jest.mock('next-intl', () => ({
 	},
 	useLocale: () => 'en'
 }));
-jest.mock('@/core/components/icons', () => ({ Download: () => null, Loader: () => null }));
+jest.mock('@/core/components/icons', () => ({ CircleAlert: () => null, Download: () => null, Loader: () => null }));
 jest.mock('@/core/components/common/entity-tile', () => ({ EntityTile: () => null }));
 let mockIsCompact = false;
 jest.mock('@/core/hooks/common/use-media-query', () => ({ useMediaQuery: () => mockIsCompact }));

@@ -6,10 +6,13 @@ import { Badge } from '@/core/components/common/badge';
 import { EntityTile } from '@/core/components/common/entity-tile';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Download, Loader } from '@/core/components/icons';
+import { InvoiceDueText } from '@/core/components/invoices/invoice-due-text';
+import { InvoiceStandingLabel } from '@/core/components/invoices/invoice-standing';
 import { useMediaQuery } from '@/core/hooks/common/use-media-query';
 import type { InvoiceToDownload } from '@/core/hooks/invoices/use-invoice-mutations';
 import { cn } from '@/core/lib/helpers';
 import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
+import { invoiceStandingOf } from '@/core/lib/utils/invoice-standing';
 import {
 	invoiceDayOf,
 	invoiceDayTextOf,
@@ -19,6 +22,7 @@ import {
 	invoicePeriodTextOf,
 	invoiceStatusOf,
 	invoiceStatusToneOf,
+	todayDayKey,
 	type InvoiceStatus,
 	type InvoiceStatusTone
 } from '@/core/lib/utils/invoices';
@@ -107,12 +111,48 @@ function clientNameOf(invoice: TInvoice, clientNames: ReadonlyMap<string, string
 	return clientNames.get(clientId) ?? null;
 }
 
+interface CurrencyTotal {
+	currency: string;
+	amount: number;
+}
+
+function compareLargestFirst(first: CurrencyTotal, second: CurrencyTotal) {
+	return second.amount - first.amount;
+}
+
+/** What a month's invoices add up to, one total per currency, largest first; a void invoice bills nothing. */
+function billedTotalsOf(invoices: ReadonlyArray<TInvoice>) {
+	const amountByCurrency = new Map<string, number>();
+	for (const invoice of invoices) {
+		const isVoid = invoiceStatusOf(invoice.status) === 'VOID';
+		const total = invoice.totalValue;
+		if (isVoid || typeof total !== 'number') {
+			continue;
+		}
+		const currency = invoice.currency ?? '';
+		const sum = amountByCurrency.get(currency) ?? 0;
+		amountByCurrency.set(currency, sum + total);
+	}
+	const totals: CurrencyTotal[] = [];
+	for (const [currency, amount] of amountByCurrency) {
+		totals.push({ currency, amount });
+	}
+	totals.sort(compareLargestFirst);
+	return totals;
+}
+
+function totalsTextOf(totals: ReadonlyArray<CurrencyTotal>, locale: string) {
+	const texts = totals.map((total) => formatOwed(total.amount, total.currency || null, locale));
+	return texts.join(' · ');
+}
+
 export type InvoiceActionHandler = (target: InvoiceActionTarget, action: InvoiceMenuAction) => void;
 
 interface InvoiceRowProps {
 	invoice: TInvoice;
 	clientNames: ReadonlyMap<string, string>;
 	timeZone: string | null | undefined;
+	todayKey: string;
 	isDownloading: boolean;
 	onDownload: (invoice: InvoiceToDownload) => void;
 	canEdit: boolean;
@@ -136,6 +176,7 @@ const InvoiceRow = memo(function InvoiceRow({
 	invoice,
 	clientNames,
 	timeZone,
+	todayKey,
 	isDownloading,
 	onDownload,
 	canEdit,
@@ -177,6 +218,10 @@ const InvoiceRow = memo(function InvoiceRow({
 	if (dueText) {
 		dueLabel = t('invoices.DUE_ON', { date: dueText });
 	}
+	const standing = invoiceStandingOf(invoice, todayKey, timeZone);
+	// While money is owed, the due day reads as what it means today ("Due in 5 days", "12 days late")
+	const isOwed = standing === 'open' || standing === 'overdue';
+	const dueToday = <InvoiceDueText invoice={invoice} todayKey={todayKey} timeZone={timeZone} />;
 
 	return (
 		<li className={cn(LEDGER_ROW_GRID, 'min-h-14 px-3 py-2')}>
@@ -196,14 +241,12 @@ const InvoiceRow = memo(function InvoiceRow({
 				{!periodText && <span className={MISSING_VALUE}>{t('invoices.NO_PERIOD')}</span>}
 			</span>
 			<span className="flex min-w-0 max-lg:hidden">
-				{dueText && (
-					<span className={cn(VALUE, 'tabular-nums')}>{t('invoices.DUE_ON', { date: dueText })}</span>
-				)}
-				{!dueText && <span className={MISSING_VALUE}>{t('invoices.NO_DUE_DATE')}</span>}
+				{isOwed && dueToday}
+				{!isOwed && <span className={cn(MISSING_VALUE, 'tabular-nums')}>{dueLabel}</span>}
 			</span>
 			<span className="flex min-w-0 flex-col-reverse items-end gap-1 lg:contents">
 				<span className="flex min-w-0">
-					<InvoiceStatusBadge status={invoice.status} />
+					<InvoiceStandingLabel invoice={invoice} todayKey={todayKey} timeZone={timeZone} />
 				</span>
 				<InvoiceTotal invoice={invoice} />
 			</span>
@@ -237,7 +280,8 @@ const InvoiceRow = memo(function InvoiceRow({
 				)}
 			</span>
 			<span className={cn(LEDGER_ROW_DETAILS, 'text-xs tabular-nums text-muted-foreground')}>
-				{periodLabel} · {dueLabel}
+				{periodLabel} · {isOwed && dueToday}
+				{!isOwed && dueLabel}
 			</span>
 		</li>
 	);
@@ -252,12 +296,15 @@ export function InvoicesLedger({
 	canEdit,
 	changingIds,
 	onAction,
-	canRevise = false
+	canRevise = false,
+	todayKey
 }: Readonly<{
 	invoices: ReadonlyArray<TInvoice>;
 	/** Every client's name by id, archived ones included. */
 	clientNames: ReadonlyMap<string, string>;
 	timeZone: string | null | undefined;
+	/** Today in the organization's zone, where invoices are dated; read here when not given. */
+	todayKey?: string;
 	pendingPdfId: string | null;
 	onDownload: (invoice: InvoiceToDownload) => void;
 	canEdit: boolean;
@@ -270,16 +317,28 @@ export function InvoicesLedger({
 	const locale = useLocale();
 	const isCompact = useMediaQuery(COMPACT_LEDGER_QUERY);
 	const groups = useMemo(() => invoiceMonthGroupsOf(invoices, timeZone), [invoices, timeZone]);
+	const today = todayKey ?? todayDayKey(timeZone);
 
 	return (
 		<div className="flex flex-col gap-5">
 			{groups.map((group) => {
 				const monthText = invoiceMonthTextOf(group.key, locale) ?? t('invoices.UNDATED');
+				const totalsText = totalsTextOf(billedTotalsOf(group.invoices), locale);
 				return (
 					<section key={group.key} aria-label={monthText} className="flex flex-col gap-2">
-						<h2 className="px-1 text-[13px] font-medium text-foreground first-letter:uppercase">
-							{monthText}
-						</h2>
+						<div className="flex min-h-6 items-baseline justify-between gap-3 px-1">
+							<h2 className="flex min-w-0 items-baseline gap-2 text-[13px] font-medium text-foreground">
+								<span className="truncate first-letter:uppercase">{monthText}</span>
+								<span className="shrink-0 text-xs font-normal tabular-nums text-muted-foreground">
+									{t('invoices.COUNT', { count: group.invoices.length })}
+								</span>
+							</h2>
+							{totalsText && (
+								<span className="truncate text-xs tabular-nums text-muted-foreground">
+									{totalsText}
+								</span>
+							)}
+						</div>
 						<ul className={cn(LEDGER_SURFACE, 'py-1')}>
 							{group.invoices.map((invoice) => (
 								<InvoiceRow
@@ -287,6 +346,7 @@ export function InvoicesLedger({
 									invoice={invoice}
 									clientNames={clientNames}
 									timeZone={timeZone}
+									todayKey={today}
 									isDownloading={pendingPdfId === invoice.id}
 									onDownload={onDownload}
 									canEdit={canEdit}
