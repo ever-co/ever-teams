@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
+import type { EntriesPdfContent, EntriesPdfGroup } from '@/core/components/dashboards/kit/entries-pdf';
 import type { ExportOption } from '@/core/components/dashboards/kit/export-menu';
 import { STATUS_LABEL_KEYS } from '@/core/components/dashboards/timesheets/timesheet-status';
 import { FilePdf, FileSheet } from '@/core/components/icons';
@@ -20,11 +21,16 @@ import {
 } from '@/core/lib/utils/dashboards/manual-time-edits';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
-import type { EditsPdfContent, EditsPdfGroup } from './manual-time-edits-pdf';
 
 type Translate = ReturnType<typeof useTranslations>;
 
 const FILE_PREFIX = 'manual-time-edits';
+
+/**
+ * Date, member, project, task, start, end, duration, added, edited at, billable, status, reason: the widths of the
+ * export columns on a landscape page, in that order.
+ */
+const PDF_COLUMN_WIDTHS = ['7%', '10%', '10%', '15%', '5%', '5%', '6%', '5%', '9%', '5%', '7%', '16%'];
 
 function yesNoOf(value: boolean, t: Translate) {
 	if (value) {
@@ -107,7 +113,7 @@ function pdfGroupsOf(
 	groups: ReadonlyArray<EditsGroup>,
 	columns: ReadonlyArray<CsvColumn<ManualTimeEntry>>,
 	locale: FormatLocale
-): EditsPdfGroup[] {
+): EntriesPdfGroup[] {
 	return groups.map((group) => ({
 		key: group.key,
 		title: pdfGroupTitleOf(group, locale),
@@ -141,7 +147,7 @@ function summaryOf(figures: EditsFigures, t: Translate) {
 	];
 }
 
-function pdfContentOf({ groups, figures, period, teamName, locale, t }: ExportInput): EditsPdfContent {
+function pdfContentOf({ groups, figures, period, teamName, locale, t }: ExportInput): EntriesPdfContent {
 	const title = t('dashboard.manualTimeEdits.TITLE');
 	const periodText = formatPeriod(period, locale);
 	const generatedFormat = dateFormatOf(locale, { dateStyle: 'long' });
@@ -153,6 +159,7 @@ function pdfContentOf({ groups, figures, period, teamName, locale, t }: ExportIn
 		generatedOn: t('dashboard.timeActivity.export.GENERATED_ON', { date: generatedDate }),
 		summary: summaryOf(figures, t),
 		columns: columns.map((column) => column.header),
+		columnWidths: PDF_COLUMN_WIDTHS,
 		groups: pdfGroupsOf(groups, columns, locale),
 		footer: `${APP_NAME} · ${title}`,
 		pageLabel: (page, total) => t('dashboard.timeActivity.export.PAGE', { page, total })
@@ -163,8 +170,8 @@ async function runPdf(input: ExportInput) {
 	const content = pdfContentOf(input);
 	const fileName = periodFileNameOf(FILE_PREFIX, input.period.from, input.period.to, 'pdf');
 	await downloadPdf(async () => {
-		const { buildManualTimeEditsPdf } = await import('./manual-time-edits-pdf');
-		return buildManualTimeEditsPdf(content);
+		const { buildEntriesPdf } = await import('@/core/components/dashboards/kit/entries-pdf');
+		return buildEntriesPdf(content);
 	}, fileName);
 }
 

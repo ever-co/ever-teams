@@ -44,6 +44,7 @@ import {
 	Certificate01Icon,
 	Coffee02Icon,
 	ChampionIcon,
+	ChartGanttIcon,
 	ChartHistogramIcon,
 	ChartIncreaseIcon,
 	CheckmarkBadge01Icon,
@@ -83,6 +84,7 @@ import {
 	InboxCheckIcon,
 	InformationCircleIcon,
 	InstagramIcon,
+	Invoice01Icon,
 	JusticeScale01Icon,
 	KanbanIcon,
 	Key01Icon,
@@ -394,6 +396,7 @@ export const ListView = /*#__PURE__*/ icon(ListViewIcon, 'ListView');
 export const Table = /*#__PURE__*/ icon(Table01Icon, 'Table');
 export const GridView = /*#__PURE__*/ icon(GridViewIcon, 'GridView');
 export const Kanban = /*#__PURE__*/ icon(KanbanIcon, 'Kanban');
+export const Timeline = /*#__PURE__*/ icon(ChartGanttIcon, 'Timeline');
 export const Timer = /*#__PURE__*/ icon(Timer02Icon, 'Timer');
 export const TimerOff = /*#__PURE__*/ icon(TimerOffIcon, 'TimerOff');
 export const Idle = /*#__PURE__*/ icon(Coffee02Icon, 'Idle');
@@ -503,3 +506,4 @@ export const StatusCircle = /*#__PURE__*/ icon(DashedLineCircleIcon, 'StatusCirc
 export const Preferences = /*#__PURE__*/ icon(PaintBoardIcon, 'Preferences');
 export const FileImport = /*#__PURE__*/ icon(FileImportIcon, 'FileImport');
 export const FileCsv = /*#__PURE__*/ icon(Csv01Icon, 'FileCsv');
+export const Invoice = /*#__PURE__*/ icon(Invoice01Icon, 'Invoice');

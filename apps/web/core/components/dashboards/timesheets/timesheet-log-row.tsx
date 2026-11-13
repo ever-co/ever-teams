@@ -59,7 +59,7 @@ export const LOG_TYPE_LABEL_KEYS: Partial<Record<ETimeLogType, DottedLanguageObj
 
 const QUICK_ACTION = 'size-7 text-muted-foreground';
 
-export function taskNumberOf(log: ITimeLog) {
+function taskNumberOf(log: ITimeLog) {
 	const taskNumber = log.task?.taskNumber;
 	if (taskNumber) {
 		return taskNumber;

@@ -26,7 +26,9 @@ import {
 	addTimeRangeBetween,
 	addTimeRangeFrom,
 	type CalendarDay,
-	type CalendarView
+	type CalendarView,
+	countedDaysOf,
+	projectTotalsOf
 } from '@/core/lib/utils/calendar-view';
 import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import { type TimesheetFormatters, timesheetFormattersOf } from '@/core/lib/utils/dashboards/timesheets';
@@ -37,6 +39,7 @@ import { CalendarDayPanel } from './calendar-day-panel';
 import { CalendarPageSkeleton } from './calendar-page-skeleton';
 import { DayPlanBlock, DaySummary } from './calendar-day-details';
 import { CalendarMonthView } from './calendar-month-view';
+import { CalendarProjectLegend } from './calendar-project-legend';
 import { CalendarTimeGrid } from './calendar-time-grid';
 import { CalendarLegend, CalendarMemberSwitch, CalendarRangeStepper, CalendarViewSwitch } from './calendar-toolbar';
 import { CalendarWeekStrip } from './calendar-week-strip';
@@ -158,10 +161,18 @@ function CalendarBody({
 	if (showsEmpty) {
 		notice = <EmptyNotice title={emptyTitle} onAddTime={onAddTimeNow} />;
 	}
+	const { days, shownAnchor } = page;
+	// The same days as the toolbar's total, so the projects' times add up to it.
+	const projectTotals = useMemo(() => {
+		const countedDays = countedDaysOf(shownView, days, shownAnchor);
+		return projectTotalsOf(countedDays);
+	}, [days, shownAnchor, shownView]);
+	const showsProjects = !page.isLoading;
 
 	return (
 		<section aria-label={rangeName} className={DASHBOARD_SURFACE}>
 			<CalendarSurfaceHeader notice={notice} />
+			{showsProjects && <CalendarProjectLegend totals={projectTotals} />}
 			{isMonth && (
 				<>
 					<div className="max-sm:hidden">

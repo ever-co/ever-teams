@@ -26,8 +26,11 @@ import {
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { cn } from '@/core/lib/helpers';
 import { relativeTimeTextOf } from '@/core/lib/utils/dashboards/manual-time-edits';
+import { definitionOf } from '@/core/lib/utils/task-views';
 import { builtInViewLabelKey, builtInViewTextKeysOf } from '@/core/lib/utils/task-views-index';
+import { shownTeamTasksLayout } from '@/core/lib/utils/team-tasks-layouts';
 import { ETaskBuiltInView, ETaskViewVisibility, type ITaskView } from '@/core/types/interfaces/common/task-views';
+import { TEAM_TASKS_LAYOUT_OPTIONS } from '../list/team-tasks-layout-options';
 
 const SECTION_TITLE = 'px-1 text-xs font-medium uppercase tracking-wide text-muted-foreground';
 
@@ -86,6 +89,9 @@ export function SavedViewRow({ view, isBusy, onRename, onToggleVisibility, onDel
 	const isPersonal = view.visibility === ETaskViewVisibility.PERSONAL;
 	const updatedAt = view.updatedAt ?? view.createdAt;
 	const VisibilityIcon = isPersonal ? Lock : Globe;
+	const layout = shownTeamTasksLayout(definitionOf(view).settings);
+	const layoutOption = TEAM_TASKS_LAYOUT_OPTIONS[layout];
+	const LayoutIcon = layoutOption.Icon;
 
 	return (
 		<li data-testid="saved-view" className="group flex items-center gap-2 pr-2 transition-colors hover:bg-muted/40">
@@ -97,13 +103,19 @@ export function SavedViewRow({ view, isBusy, onRename, onToggleVisibility, onDel
 					className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground"
 					aria-hidden="true"
 				>
-					<Layers className="size-4" />
+					<LayoutIcon className="size-4" />
 				</span>
 				<span className="flex min-w-0 flex-1 flex-col">
 					<span className="truncate text-sm font-medium text-foreground">{view.name}</span>
 					{view.description && (
 						<span className="truncate text-xs text-muted-foreground">{view.description}</span>
 					)}
+				</span>
+				<span
+					data-testid="saved-view-layout"
+					className="w-20 shrink-0 truncate text-xs text-muted-foreground max-sm:sr-only"
+				>
+					{t(layoutOption.labelKey)}
 				</span>
 				{/* Who sees the view; on a phone its icon alone, the word kept for screen readers. */}
 				<span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
