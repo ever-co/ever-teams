@@ -14,7 +14,23 @@ import {
 	type InvoiceStatus,
 	type NamedInvoiceLine
 } from '@/core/lib/utils/invoices';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import type { TSavedInvoice, TSavedInvoiceItem } from '@/core/types/schemas/organization/invoice.schema';
+
+/** A gateway answers these in the API's place when it could not reach it, or not in time. */
+const GATEWAY_FAILURES: ReadonlySet<number> = new Set([502, 504]);
+
+/** Whether a failed request never reached the API: no answer at all (the network, a timeout), or a gateway's. */
+export function didNotReachApi(error: unknown): boolean {
+	if (!ApiErrorService.isApiError(error)) {
+		return false;
+	}
+	const status = error.httpResponseStatus;
+	if (status === undefined) {
+		return true;
+	}
+	return GATEWAY_FAILURES.has(status);
+}
 
 /** The fields of an invoice an edit writes, and writes back when the edit fails half way. */
 export interface InvoiceUpdate {

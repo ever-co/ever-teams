@@ -62,16 +62,26 @@ export function SavedInvoiceMessage({ status, number, onRetry }: Readonly<SavedI
 	);
 }
 
-/** Something was paid on it, or it is void: it is replaced, never changed. */
-export function LockedInvoiceMessage({ saved }: Readonly<{ saved: SavedInvoice }>) {
+/**
+ * Something was paid on it, or it is void: it is replaced, never changed. Reached after a save refused for that
+ * reason, it says the changes were not saved.
+ */
+export function LockedInvoiceMessage({
+	saved,
+	wasSaveRefused = false
+}: Readonly<{ saved: SavedInvoice; wasSaveRefused?: boolean }>) {
 	const t = useTranslations();
+	const number = String(saved.number);
 	let message = t('invoices.edit.LOCKED_PAID');
 	if (saved.status === 'VOID') {
 		message = t('invoices.edit.LOCKED_VOID');
 	}
+	if (wasSaveRefused) {
+		message = t('invoices.edit.confirm.LOCKED_NOW', { number });
+	}
 	return (
 		<NewInvoiceMessage
-			title={t('invoices.edit.LOCKED_TITLE', { number: String(saved.number) })}
+			title={t('invoices.edit.LOCKED_TITLE', { number })}
 			message={message}
 			action={<BackToInvoices />}
 		/>

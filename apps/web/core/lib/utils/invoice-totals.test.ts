@@ -30,6 +30,14 @@ describe('invoiceTotalsOf', () => {
 		expect(totals).toEqual({ subtotal: 826.4, discount: 123.96, discounted: 702.44, tax: 52.68, total: 755.12 });
 	});
 
+	it('rounds half a cent up, even when the binary arithmetic falls just under it', () => {
+		const taxed = invoiceTotalsOf(100, { discountPercent: null, taxPercent: 1.005 });
+		const discounted = invoiceTotalsOf(100, { discountPercent: 1.005, taxPercent: null });
+
+		expect(taxed).toMatchObject({ tax: 1.01, total: 101.01 });
+		expect(discounted).toMatchObject({ discount: 1.01, discounted: 98.99, total: 98.99 });
+	});
+
 	it('adds a tax alone to the whole subtotal', () => {
 		const totals = invoiceTotalsOf(99.99, { discountPercent: null, taxPercent: 20 });
 
