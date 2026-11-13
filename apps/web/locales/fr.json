@@ -6827,8 +6827,8 @@
 			"EARLIER_NOTE": "Les heures déjà sur une facture ne sont pas listées sur celle-ci, sauf si cette facture n’indique pas quelles heures elle facture.",
 			"ALL_INVOICED_TITLE": "Le temps facturable de {client} sur cette période est déjà facturé",
 			"ALL_INVOICED_MESSAGE": "Chaque heure facturable de cette période est sur une facture. Pour en facturer de nouveau, retirez sa ligne de cette facture ou annulez la facture.",
-			"NEW_REFUSED": "Une partie de ce temps est passée sur une autre facture ou a été supprimée depuis sa lecture, rien n’a donc été enregistré. Les lignes montrent maintenant le temps qui reste à facturer : vérifiez-les, puis enregistrez.",
-			"EDIT_REFUSED": "Une partie de ce temps est passée sur une autre facture ou a été supprimée depuis sa lecture, les modifications n’ont donc pas été enregistrées et la facture est restée comme avant. Les lignes montrent maintenant le temps qui reste à facturer : vérifiez-les, puis enregistrez."
+			"NEW_REFUSED": "Une partie de ce temps est passée sur une autre facture ou a été supprimée depuis sa lecture, rien n’a donc été enregistré. Fermez cette fenêtre pour voir le temps qui reste à facturer, puis enregistrez de nouveau.",
+			"EDIT_REFUSED": "Une partie de ce temps est passée sur une autre facture ou a été supprimée depuis sa lecture, les modifications n’ont donc pas été enregistrées et la facture est restée comme avant. Fermez cette fenêtre pour voir le temps qui reste à facturer, puis enregistrez de nouveau."
 		}
 	},
 	"timeReports": {

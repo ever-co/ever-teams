@@ -6827,8 +6827,8 @@
 			"EARLIER_NOTE": "Hours already on an invoice are not listed on this one, unless that invoice does not say which hours it bills.",
 			"ALL_INVOICED_TITLE": "The billable time of {client} in this period is already invoiced",
 			"ALL_INVOICED_MESSAGE": "Every billable hour of this period is on an invoice. To bill some again, remove its line from that invoice or void the invoice.",
-			"NEW_REFUSED": "Part of this time went on another invoice or was deleted since it was read, so nothing was saved. The lines now show the time left to bill: check them, then save.",
-			"EDIT_REFUSED": "Part of this time went on another invoice or was deleted since it was read, so the changes were not saved and the invoice is as it was. The lines now show the time left to bill: check them, then save."
+			"NEW_REFUSED": "Part of this time went on another invoice or was deleted since it was read, so nothing was saved. Close this window to see the time left to bill, then save again.",
+			"EDIT_REFUSED": "Part of this time went on another invoice or was deleted since it was read, so the changes were not saved and the invoice is as it was. Close this window to see the time left to bill, then save again."
 		}
 	},
 	"timeReports": {

@@ -6827,8 +6827,8 @@
 			"EARLIER_NOTE": "Le ore già su una fattura non sono elencate su questa, tranne quando quella fattura non dice quali ore fattura.",
 			"ALL_INVOICED_TITLE": "Il tempo fatturabile di {client} in questo periodo è già fatturato",
 			"ALL_INVOICED_MESSAGE": "Ogni ora fatturabile di questo periodo è su una fattura. Per fatturarne di nuovo una parte, rimuovi la sua riga da quella fattura o annulla la fattura.",
-			"NEW_REFUSED": "Una parte di questo tempo è passata su un’altra fattura o è stata eliminata da quando è stata letta, quindi non è stato salvato nulla. Ora le righe mostrano il tempo ancora da fatturare: controllale, poi salva.",
-			"EDIT_REFUSED": "Una parte di questo tempo è passata su un’altra fattura o è stata eliminata da quando è stata letta, quindi le modifiche non sono state salvate e la fattura è rimasta com’era. Ora le righe mostrano il tempo ancora da fatturare: controllale, poi salva."
+			"NEW_REFUSED": "Una parte di questo tempo è passata su un’altra fattura o è stata eliminata da quando è stata letta, quindi non è stato salvato nulla. Chiudi questa finestra per vedere il tempo ancora da fatturare, poi salva di nuovo.",
+			"EDIT_REFUSED": "Una parte di questo tempo è passata su un’altra fattura o è stata eliminata da quando è stata letta, quindi le modifiche non sono state salvate e la fattura è rimasta com’era. Chiudi questa finestra per vedere il tempo ancora da fatturare, poi salva di nuovo."
 		}
 	},
 	"timeReports": {

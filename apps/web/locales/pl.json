@@ -6827,8 +6827,8 @@
 			"EARLIER_NOTE": "Godziny, które są już na fakturze, nie są tu wymienione, chyba że tamta faktura nie podaje, które godziny rozlicza.",
 			"ALL_INVOICED_TITLE": "Czas rozliczalny dla {client} w tym okresie jest już zafakturowany",
 			"ALL_INVOICED_MESSAGE": "Każda rozliczalna godzina tego okresu jest na fakturze. Aby zafakturować część z nich ponownie, usuń jej pozycję z tamtej faktury albo anuluj fakturę.",
-			"NEW_REFUSED": "Część tego czasu trafiła na inną fakturę lub została usunięta od chwili odczytu, więc nic nie zostało zapisane. Pozycje pokazują teraz czas, który zostaje do zafakturowania: sprawdź je, a potem zapisz.",
-			"EDIT_REFUSED": "Część tego czasu trafiła na inną fakturę lub została usunięta od chwili odczytu, więc zmiany nie zostały zapisane, a faktura jest taka jak wcześniej. Pozycje pokazują teraz czas, który zostaje do zafakturowania: sprawdź je, a potem zapisz."
+			"NEW_REFUSED": "Część tego czasu trafiła na inną fakturę lub została usunięta od chwili odczytu, więc nic nie zostało zapisane. Zamknij to okno, aby zobaczyć czas, który zostaje do zafakturowania, a potem zapisz ponownie.",
+			"EDIT_REFUSED": "Część tego czasu trafiła na inną fakturę lub została usunięta od chwili odczytu, więc zmiany nie zostały zapisane, a faktura jest taka jak wcześniej. Zamknij to okno, aby zobaczyć czas, który zostaje do zafakturowania, a potem zapisz ponownie."
 		}
 	},
 	"timeReports": {

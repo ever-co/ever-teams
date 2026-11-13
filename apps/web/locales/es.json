@@ -6827,8 +6827,8 @@
 			"EARLIER_NOTE": "Las horas que ya están en una factura no aparecen en esta, salvo cuando esa factura no indica qué horas factura.",
 			"ALL_INVOICED_TITLE": "El tiempo facturable de {client} en este periodo ya está facturado",
 			"ALL_INVOICED_MESSAGE": "Cada hora facturable de este periodo está en una factura. Para volver a facturar parte de ella, quita su línea de esa factura o anula la factura.",
-			"NEW_REFUSED": "Parte de este tiempo pasó a otra factura o se eliminó desde que se leyó, así que no se guardó nada. Las líneas muestran ahora el tiempo que queda por facturar: revísalas y luego guarda.",
-			"EDIT_REFUSED": "Parte de este tiempo pasó a otra factura o se eliminó desde que se leyó, así que los cambios no se guardaron y la factura quedó como estaba. Las líneas muestran ahora el tiempo que queda por facturar: revísalas y luego guarda."
+			"NEW_REFUSED": "Parte de este tiempo pasó a otra factura o se eliminó desde que se leyó, así que no se guardó nada. Cierra esta ventana para ver el tiempo que queda por facturar y luego guarda de nuevo.",
+			"EDIT_REFUSED": "Parte de este tiempo pasó a otra factura o se eliminó desde que se leyó, así que los cambios no se guardaron y la factura quedó como estaba. Cierra esta ventana para ver el tiempo que queda por facturar y luego guarda de nuevo."
 		}
 	},
 	"timeReports": {

@@ -6827,8 +6827,8 @@
 			"EARLIER_NOTE": "Stunden, die schon auf einer Rechnung stehen, sind auf dieser nicht aufgeführt, außer wenn jene Rechnung nicht festhält, welche Stunden sie berechnet.",
 			"ALL_INVOICED_TITLE": "Die abrechenbare Zeit von {client} in diesem Zeitraum ist bereits berechnet",
 			"ALL_INVOICED_MESSAGE": "Jede abrechenbare Stunde dieses Zeitraums steht auf einer Rechnung. Um einen Teil davon erneut zu berechnen, entfernen Sie die Position von jener Rechnung oder stornieren Sie die Rechnung.",
-			"NEW_REFUSED": "Ein Teil dieser Zeit ist seit dem Lesen auf eine andere Rechnung gekommen oder wurde gelöscht, deshalb wurde nichts gespeichert. Die Positionen zeigen jetzt die noch abzurechnende Zeit: Prüfen Sie sie und speichern Sie dann.",
-			"EDIT_REFUSED": "Ein Teil dieser Zeit ist seit dem Lesen auf eine andere Rechnung gekommen oder wurde gelöscht, deshalb wurden die Änderungen nicht gespeichert und die Rechnung ist unverändert. Die Positionen zeigen jetzt die noch abzurechnende Zeit: Prüfen Sie sie und speichern Sie dann."
+			"NEW_REFUSED": "Ein Teil dieser Zeit ist seit dem Lesen auf eine andere Rechnung gekommen oder wurde gelöscht, deshalb wurde nichts gespeichert. Schließen Sie dieses Fenster, um die noch abzurechnende Zeit zu sehen, und speichern Sie dann erneut.",
+			"EDIT_REFUSED": "Ein Teil dieser Zeit ist seit dem Lesen auf eine andere Rechnung gekommen oder wurde gelöscht, deshalb wurden die Änderungen nicht gespeichert und die Rechnung ist unverändert. Schließen Sie dieses Fenster, um die noch abzurechnende Zeit zu sehen, und speichern Sie dann erneut."
 		}
 	},
 	"timeReports": {

@@ -6827,8 +6827,8 @@
 			"EARLIER_NOTE": "Uren die al op een factuur staan, staan niet op deze, behalve als die factuur niet vermeldt welke uren ze factureert.",
 			"ALL_INVOICED_TITLE": "De factureerbare tijd van {client} in deze periode is al gefactureerd",
 			"ALL_INVOICED_MESSAGE": "Elk factureerbaar uur van deze periode staat op een factuur. Verwijder de regel van die factuur of laat de factuur vervallen om een deel ervan opnieuw te factureren.",
-			"NEW_REFUSED": "Een deel van deze tijd is sinds het lezen op een andere factuur gekomen of verwijderd, dus er is niets opgeslagen. De regels tonen nu de tijd die nog te factureren is: controleer ze en sla dan op.",
-			"EDIT_REFUSED": "Een deel van deze tijd is sinds het lezen op een andere factuur gekomen of verwijderd, dus de wijzigingen zijn niet opgeslagen en de factuur is gebleven zoals hij was. De regels tonen nu de tijd die nog te factureren is: controleer ze en sla dan op."
+			"NEW_REFUSED": "Een deel van deze tijd is sinds het lezen op een andere factuur gekomen of verwijderd, dus er is niets opgeslagen. Sluit dit venster om de tijd te zien die nog te factureren is, en sla daarna opnieuw op.",
+			"EDIT_REFUSED": "Een deel van deze tijd is sinds het lezen op een andere factuur gekomen of verwijderd, dus de wijzigingen zijn niet opgeslagen en de factuur is gebleven zoals hij was. Sluit dit venster om de tijd te zien die nog te factureren is, en sla daarna opnieuw op."
 		}
 	},
 	"timeReports": {
