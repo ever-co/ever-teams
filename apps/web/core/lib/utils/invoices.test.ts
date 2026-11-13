@@ -300,6 +300,14 @@ describe('lines by project', () => {
 		expect(line).toMatchObject({ hours: 15, rate: 68.33, amount: 1024.95 });
 	});
 
+	it('rounds a project line’s amount half a cent up, as a member’s line does (1.15 h at 12.50 is 14.38)', () => {
+		const entries: BillableEntry[] = [{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 4140 }];
+
+		const [line] = invoiceTimeOf({ entries, grouping: 'project', priceOf: priceByMember({ ana: 12.5 }) }).lines;
+
+		expect(line).toMatchObject({ hours: 1.15, rate: 12.5, amount: 14.38 });
+	});
+
 	it('states the members’ own rate, not an average, when they are all billed the same', () => {
 		const entries: BillableEntry[] = [
 			{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 1200 },

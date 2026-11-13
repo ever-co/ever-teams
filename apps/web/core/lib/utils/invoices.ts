@@ -326,7 +326,7 @@ function projectLineOf(project: ProjectWorth): InvoiceLine | null {
 		hours,
 		rate,
 		currency: project.currency,
-		amount: roundedAmountOf(hours * rate),
+		amount: lineAmountOf(hours, rate),
 		rateSource: mainRateSourceOf(project.secondsBySource),
 		isAverageRate: project.rates.size > 1
 	};
