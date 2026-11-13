@@ -6943,7 +6943,8 @@
 				"LOCKED_NOW": "Since it was opened, invoice {number} was paid or voided: nothing was saved, and it can no longer be edited.",
 				"NOT_CHECKED": "The invoice could not be read again before saving, so nothing was saved. Try again.",
 				"NOT_REACHED": "The connection failed: the changes were not saved and the invoice is as it was. Check your connection, then try again.",
-				"CHANGED": "Since it was opened, invoice {number} was changed: nothing was saved. Open it again from the invoice list to start from its current version."
+				"CHANGED": "Since it was opened, invoice {number} was changed: nothing was saved. Open it again from the invoice list to start from its current version.",
+				"RECORDS_TIME": "Records the hours its lines bill, so no other invoice bills them again."
 			}
 		},
 		"replace": {

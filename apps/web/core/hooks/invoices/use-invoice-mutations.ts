@@ -33,6 +33,7 @@ import { isTimeBilledElsewhere } from '@/core/lib/utils/invoice-billed-time';
 import {
 	didNotReachApi,
 	haveSameFields,
+	haveSameLineIds,
 	haveSameLines,
 	isRebuildableInvoice,
 	type InvoiceRevision
@@ -246,6 +247,8 @@ export interface InvoiceEdit {
 	scope: InvoicesScope;
 	revision: InvoiceRevision;
 	previous: InvoiceRevision;
+	/** The ids of the lines the editor opened: lines written back after a failed save get new ones. */
+	previousLineIds: ReadonlyArray<string>;
 }
 
 export type InvoiceEditOutcome =
@@ -372,8 +375,9 @@ function editableStatusOf(invoice: TSavedInvoice): InvoiceStatus | null {
 function isAsOpened(current: TSavedInvoice, edit: InvoiceEdit) {
 	const currentLines = current.invoiceItems ?? [];
 	const hasSameLines = haveSameLines(currentLines, edit.previous.lines);
+	const hasSameLineIds = haveSameLineIds(currentLines, edit.previousLineIds);
 	const hasSameFields = haveSameFields(current, edit.previous.update);
-	return hasSameLines && hasSameFields;
+	return [hasSameLines, hasSameLineIds, hasSameFields].every(Boolean);
 }
 
 /** The edit written under the status the invoice holds now: a status reached since it was opened stays. */

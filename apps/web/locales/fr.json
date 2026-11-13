@@ -6943,7 +6943,8 @@
 				"LOCKED_NOW": "Depuis son ouverture, la facture {number} a été payée ou annulée : rien n’a été enregistré, et elle ne peut plus être modifiée.",
 				"NOT_CHECKED": "La facture n’a pas pu être relue avant l’enregistrement, donc rien n’a été enregistré. Réessayez.",
 				"NOT_REACHED": "La connexion a échoué : les modifications n’ont pas été enregistrées et la facture est restée telle quelle. Vérifiez votre connexion, puis réessayez.",
-				"CHANGED": "Depuis son ouverture, la facture {number} a été modifiée : rien n’a été enregistré. Rouvrez-la depuis la liste des factures pour partir de sa version actuelle."
+				"CHANGED": "Depuis son ouverture, la facture {number} a été modifiée : rien n’a été enregistré. Rouvrez-la depuis la liste des factures pour partir de sa version actuelle.",
+				"RECORDS_TIME": "Enregistre les heures que facturent ses lignes : aucune autre facture ne pourra les facturer."
 			}
 		},
 		"replace": {

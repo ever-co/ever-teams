@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import {
 	billedPreviousOf,
+	billsUnrecordedTimeOf,
 	hasInvoiceChanges,
 	invoiceChangesOf,
 	invoiceRevisionOf,
@@ -41,6 +42,12 @@ export function useInvoiceEdit(read: SavedInvoice) {
 	const { invoiceRequest, keptLines, descriptions, numberText, issueDay, dueDay, currency, adjustments, note } =
 		draft;
 	const total = draft.total;
+	const billedTimeByLine = draft.time.billedTimeByLine;
+	const recordsBilledTime = draft.recordsBilledTime;
+	const billsUnrecordedTime = useMemo(
+		() => recordsBilledTime && billsUnrecordedTimeOf(keptLines, billedTimeByLine),
+		[billedTimeByLine, keptLines, recordsBilledTime]
+	);
 	const changes = useMemo(
 		() =>
 			invoiceChangesOf(saved, {
@@ -52,15 +59,26 @@ export function useInvoiceEdit(read: SavedInvoice) {
 				discountPercent: adjustments.discountPercent,
 				taxPercent: adjustments.taxPercent,
 				note,
-				total
+				total,
+				billsUnrecordedTime
 			}),
-		[adjustments, currency, descriptions, dueDay, issueDay, keptLines, note, numberText, saved, total]
+		[
+			adjustments,
+			billsUnrecordedTime,
+			currency,
+			descriptions,
+			dueDay,
+			issueDay,
+			keptLines,
+			note,
+			numberText,
+			saved,
+			total
+		]
 	);
 	const isUnchanged = !hasInvoiceChanges(changes);
 	const problems = problemsOfEdit(draft.problems, isUnchanged);
 	const { saveInvoiceEdit, isSavingEdit } = useSaveInvoiceEdit();
-	const billedTimeByLine = draft.time.billedTimeByLine;
-	const recordsBilledTime = draft.recordsBilledTime;
 	const deferTimeRead = draft.deferTimeRead;
 
 	const saveEdit = useCallback(
@@ -84,7 +102,13 @@ export function useInvoiceEdit(read: SavedInvoice) {
 		}
 		const revision = invoiceRevisionOf(request, saved);
 		const previous = billedPreviousOf(saved, billedTimeByLine, recordsBilledTime);
-		return { invoiceId: saved.id, scope: saved.workspace, revision, previous };
+		return {
+			invoiceId: saved.id,
+			scope: saved.workspace,
+			revision,
+			previous,
+			previousLineIds: saved.previousLineIds
+		};
 	}, [billedTimeByLine, invoiceRequest, isUnchanged, recordsBilledTime, saved]);
 
 	const save = useCallback(async () => {

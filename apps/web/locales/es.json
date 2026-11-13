@@ -6943,7 +6943,8 @@
 				"LOCKED_NOW": "Desde que se abrió, la factura {number} se pagó o se anuló: no se guardó nada y ya no se puede editar.",
 				"NOT_CHECKED": "No se pudo volver a leer la factura antes de guardar, así que no se guardó nada. Vuelve a intentarlo.",
 				"NOT_REACHED": "La conexión falló: los cambios no se guardaron y la factura sigue como estaba. Comprueba tu conexión y vuelve a intentarlo.",
-				"CHANGED": "Desde que se abrió, la factura {number} cambió: no se guardó nada. Ábrela de nuevo desde la lista de facturas para partir de su versión actual."
+				"CHANGED": "Desde que se abrió, la factura {number} cambió: no se guardó nada. Ábrela de nuevo desde la lista de facturas para partir de su versión actual.",
+				"RECORDS_TIME": "Registra las horas que facturan sus líneas, para que ninguna otra factura vuelva a facturarlas."
 			}
 		},
 		"replace": {

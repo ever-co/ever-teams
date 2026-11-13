@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from 'react';
 import { useQueries, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
-import { endOfDay, startOfDay } from 'date-fns';
+import { addDays, endOfDay, startOfDay, subDays } from 'date-fns';
 import { queryKeys } from '@/core/query/keys';
 import { rateService } from '@/core/services/client/api/organizations/rate.service';
 import {
@@ -14,7 +14,12 @@ import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/project
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import type { Period } from '@/core/lib/utils/dashboard-period';
-import { offeredLogsOf, recordsBilledTimeOf, timeLogIdsByLineOf } from '@/core/lib/utils/invoice-billed-time';
+import {
+	logsStartedWithin,
+	offeredLogsOf,
+	recordsBilledTimeOf,
+	timeLogIdsByLineOf
+} from '@/core/lib/utils/invoice-billed-time';
 import type { BilledLinesRead } from '@/core/lib/utils/invoice-edit';
 import {
 	billableEntriesOf,
@@ -167,6 +172,79 @@ function sortedIdsOf(ids: Iterable<string>) {
 	return distinct.sort((first, second) => first.localeCompare(second));
 }
 
+/**
+ * Whoever made a saved invoice read its period's days in their own time zone: the time its lines bill is read a day
+ * wider on each side, so a log near the first or the last midnight keeps its line.
+ */
+function billedReadStartOf(from: Date, readsWider: boolean) {
+	if (!readsWider) {
+		return from;
+	}
+	return subDays(from, 1);
+}
+
+function billedReadEndOf(to: Date, readsWider: boolean) {
+	if (!readsWider) {
+		return to;
+	}
+	return addDays(to, 1);
+}
+
+/** The period's own logs out of a wider read: whether the period is all invoiced is told by its own time only. */
+function periodLogsOf(logs: TBillableTimeLog[], from: Date, to: Date, readsWider: boolean) {
+	if (!readsWider) {
+		return logs;
+	}
+	return logsStartedWithin(logs, from, to);
+}
+
+function offeredProjectsOf(projects: ReadonlyArray<TOrganizationProject>, projectIds: ReadonlySet<string>) {
+	const offered = projects.filter((project) => projectIds.has(project.id));
+	return projectsById(offered);
+}
+
+interface QueryFlags {
+	isLoading: boolean;
+	isError: boolean;
+	isFetching: boolean;
+}
+
+interface TimeReads {
+	projects: { isLoaded: boolean; isError: boolean };
+	free: QueryFlags;
+	all: QueryFlags;
+	employees: QueryFlags;
+	rates: ReadonlyArray<ProjectRatesState>;
+	readsBilledTime: boolean;
+}
+
+function isRefreshing(query: QueryFlags) {
+	return query.isFetching && !query.isLoading;
+}
+
+function readStateOf(reads: TimeReads) {
+	const isReadingRates = reads.rates.some((state) => state.isLoading);
+	const haveRatesFailed = reads.rates.some((state) => state.hasFailed);
+	const isReadingLogs = reads.free.isLoading || reads.all.isLoading;
+	const isReadingTime = isReadingLogs || reads.employees.isLoading;
+	const haveProjectsFailed = reads.projects.isError;
+	// The projects read waits for the signed-in user: until it answered, "no project" is not known yet.
+	const isReadingProjects = !reads.projects.isLoaded && !haveProjectsFailed;
+	const hasTimeFailed = reads.free.isError || reads.employees.isError;
+	const isReadingBilledTime = reads.readsBilledTime && reads.all.isLoading;
+	const hasBilledTimeFailed = reads.readsBilledTime && reads.all.isError;
+	const isReadingAny = isReadingProjects || isReadingTime;
+	const isLoading = isReadingAny || isReadingRates;
+	const hasReadFailed = haveProjectsFailed || hasTimeFailed;
+	const hasPricingFailed = haveRatesFailed || hasBilledTimeFailed;
+	const isError = hasReadFailed || hasPricingFailed;
+	const isRefreshingTime = [reads.free, reads.all, reads.employees].some(isRefreshing);
+	const isRefreshingRates = reads.rates.some((state) => state.isRefreshing);
+	// A read again keeps showing its previous answer: the lines, their rates and their names can still change.
+	const isUpdating = isRefreshingTime || isRefreshingRates;
+	return { isLoading, isError, isUpdating, isReadingBilledTime, hasBilledTimeFailed };
+}
+
 export function useInvoiceTime({
 	clientId,
 	period,
@@ -210,13 +288,16 @@ export function useInvoiceTime({
 
 	const from = useMemo(() => startOfDay(period.from), [period.from]);
 	const to = useMemo(() => endOfDay(period.to), [period.to]);
+	const hasBilledLines = billedLines.lineIds.size > 0;
+	const allFrom = useMemo(() => billedReadStartOf(from, hasBilledLines), [from, hasBilledLines]);
+	const allTo = useMemo(() => billedReadEndOf(to, hasBilledLines), [hasBilledLines, to]);
 	const range = useMemo<TimeLogReportRange>(
 		() => ({ from, to, timeZone, projectIds }),
 		[from, projectIds, timeZone, to]
 	);
 	const allRange = useMemo<TimeLogReportRange>(
-		() => ({ from, to, timeZone, projectIds: allProjectIds }),
-		[allProjectIds, from, timeZone, to]
+		() => ({ from: allFrom, to: allTo, timeZone, projectIds: allProjectIds }),
+		[allFrom, allProjectIds, allTo, timeZone]
 	);
 	const scope = useMemo(() => ({ tenantId, organizationId }), [organizationId, tenantId]);
 	const rangeKey = {
@@ -233,7 +314,6 @@ export function useInvoiceTime({
 	// Without a project the API would answer the time of every project: the read never runs.
 	const readsTime = enabled && hasScope && hasProjects;
 	const readsRates = enabled && hasScope;
-	const hasBilledLines = billedLines.lineIds.size > 0;
 	const readsBilledTime = hasScope && hasBilledLines;
 	const namesTasks = grouping === 'task';
 	let relations = NO_RELATIONS;
@@ -265,6 +345,8 @@ export function useInvoiceTime({
 	const allQuery = useQuery({
 		queryKey: queryKeys.timesheet.reports.billableLogs({
 			...rangeKey,
+			from: allFrom.toISOString(),
+			to: allTo.toISOString(),
 			projectIds: allProjectIds,
 			namesTasks,
 			notInvoiced: false
@@ -282,7 +364,11 @@ export function useInvoiceTime({
 	);
 	const billedTimeByLine = useMemo(() => timeLogIdsByLineOf(allLogs, billedLineIds), [allLogs, billedLineIds]);
 	const recordsBilledTime = useMemo(() => recordsBilledTimeOf([...freeLogs, ...allLogs]), [allLogs, freeLogs]);
-	const allEntries = useMemo(() => billableEntriesOf(allLogs, projectIdSet), [allLogs, projectIdSet]);
+	const periodLogs = useMemo(
+		() => periodLogsOf(allLogs, from, to, hasBilledLines),
+		[allLogs, from, hasBilledLines, to]
+	);
+	const allEntries = useMemo(() => billableEntriesOf(periodLogs, projectIdSet), [periodLogs, projectIdSet]);
 	const hasInvoicedTime = recordsBilledTime === true && allEntries.length > 0;
 	const isAllInvoiced = checksInvoicedTime && hasInvoicedTime;
 
@@ -292,7 +378,13 @@ export function useInvoiceTime({
 		logs = offeredLogs;
 	}
 	const report = employeesQuery.data ?? NO_REPORT;
-	const entries = useMemo(() => billableEntriesOf(logs, projectIdSet), [logs, projectIdSet]);
+	// The saved lines' time stays priced and named on a project that left the client since
+	const offeredProjectIdSet = useMemo(() => new Set(allProjectIds), [allProjectIds]);
+	const offeredProjectsById = useMemo(
+		() => offeredProjectsOf(organizationProjects, offeredProjectIdSet),
+		[offeredProjectIdSet, organizationProjects]
+	);
+	const entries = useMemo(() => billableEntriesOf(logs, offeredProjectIdSet), [logs, offeredProjectIdSet]);
 	const pricedProjectIds = useMemo(() => sortedIdsOf(entries.map((entry) => entry.projectId)), [entries]);
 
 	const ratesStates = useQueries({
@@ -318,23 +410,23 @@ export function useInvoiceTime({
 			linePriceOf({
 				employeeId,
 				projectRates: ratesByProject.get(projectId),
-				projectCurrency: clientProjectsById.get(projectId)?.currency,
+				projectCurrency: offeredProjectsById.get(projectId)?.currency,
 				employeeRate: employees.get(employeeId),
 				organizationCurrency
 			}),
-		[clientProjectsById, employees, organizationCurrency, ratesByProject]
+		[employees, offeredProjectsById, organizationCurrency, ratesByProject]
 	);
 
 	const names = useMemo<InvoiceLineNames>(
 		() => ({
-			projectNames: namesOfMap(clientProjectsById, (project) => project.name?.trim() ?? ''),
+			projectNames: namesOfMap(offeredProjectsById, (project) => project.name?.trim() ?? ''),
 			memberNames: namesOfMap(employees, (employee) => employee.name),
 			taskTitles: taskTitlesOf(logs),
 			unnamedProject: labels.unnamedProject,
 			unnamedMember: labels.unnamedMember,
 			noTask: labels.noTask
 		}),
-		[clientProjectsById, employees, labels.noTask, labels.unnamedMember, labels.unnamedProject, logs]
+		[employees, labels.noTask, labels.unnamedMember, labels.unnamedProject, logs, offeredProjectsById]
 	);
 
 	const time = useMemo(() => invoiceTimeOf({ entries, grouping, priceOf }), [entries, grouping, priceOf]);
@@ -352,29 +444,17 @@ export function useInvoiceTime({
 		[names, time.unpriced]
 	);
 
-	const isReadingRates = ratesStates.some((state) => state.isLoading);
-	const haveRatesFailed = ratesStates.some((state) => state.hasFailed);
-	const isReadingLogs = freeQuery.isLoading || allQuery.isLoading;
-	const isReadingTime = isReadingLogs || employeesQuery.isLoading;
-	const haveProjectsFailed = projectsQuery.isOrganizationProjectsError;
-	// The projects read waits for the signed-in user: until it answered, "no project" is not known yet.
-	const isReadingProjects = !projectsQuery.isOrganizationProjectsLoaded && !haveProjectsFailed;
-	const hasTimeFailed = freeQuery.isError || employeesQuery.isError;
-	const isReadingBilledTime = readsBilledTime && allQuery.isLoading;
-	const hasBilledTimeFailed = readsBilledTime && allQuery.isError;
-	const isReadingAny = isReadingProjects || isReadingTime;
-	const isLoading = isReadingAny || isReadingRates;
-	const hasReadFailed = haveProjectsFailed || hasTimeFailed;
-	const hasPricingFailed = haveRatesFailed || hasBilledTimeFailed;
-	const isError = hasReadFailed || hasPricingFailed;
-	const isRefreshingLogs = freeQuery.isFetching && !freeQuery.isLoading;
-	const isRefreshingAllLogs = allQuery.isFetching && !allQuery.isLoading;
-	const isRefreshingEmployees = employeesQuery.isFetching && !employeesQuery.isLoading;
-	const isRefreshingRates = ratesStates.some((state) => state.isRefreshing);
-	const isRefreshingAnyLogs = isRefreshingLogs || isRefreshingAllLogs;
-	const isRefreshingTime = isRefreshingAnyLogs || isRefreshingEmployees;
-	// A read again keeps showing its previous answer: the lines, their rates and their names can still change.
-	const isUpdating = isRefreshingTime || isRefreshingRates;
+	const { isLoading, isError, isUpdating, isReadingBilledTime, hasBilledTimeFailed } = readStateOf({
+		projects: {
+			isLoaded: projectsQuery.isOrganizationProjectsLoaded,
+			isError: projectsQuery.isOrganizationProjectsError
+		},
+		free: freeQuery,
+		all: allQuery,
+		employees: employeesQuery,
+		rates: ratesStates,
+		readsBilledTime
+	});
 
 	const refetchProjects = projectsQuery.refetchOrganizationProjects;
 	const refetchFreeLogs = freeQuery.refetch;

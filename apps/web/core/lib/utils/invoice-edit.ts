@@ -597,6 +597,31 @@ export function statedLinesOf(
 	}));
 }
 
+function recordedTimeLogIdsOf(billed: BilledTimeOfLines) {
+	const recorded = new Set<string>();
+	for (const timeLogIds of billed.values()) {
+		for (const timeLogId of timeLogIds) {
+			recorded.add(timeLogId);
+		}
+	}
+	return recorded;
+}
+
+/**
+ * Whether the lines bill a time log no saved line records yet. An invoice saved before billed time was recorded names
+ * none: taken again with the same figures, saving it records the time it bills, a change of its own.
+ */
+export function billsUnrecordedTimeOf(
+	lines: ReadonlyArray<Pick<NamedInvoiceLine, 'timeLogIds'>>,
+	billed: BilledTimeOfLines
+): boolean {
+	const recorded = recordedTimeLogIdsOf(billed);
+	return lines.some((line) => {
+		const timeLogIds = line.timeLogIds ?? [];
+		return timeLogIds.some((timeLogId) => !recorded.has(timeLogId));
+	});
+}
+
 /** What the invoice on screen states, compared with the saved one. */
 export interface InvoiceDraftFigures {
 	lines: ReadonlyArray<StatedInvoiceLine>;
@@ -608,6 +633,8 @@ export interface InvoiceDraftFigures {
 	taxPercent: number | null;
 	note: string;
 	total: number;
+	/** The lines bill a time log no saved line records yet. */
+	billsUnrecordedTime: boolean;
 }
 
 export interface ValueChange<T> {
@@ -630,6 +657,8 @@ export interface InvoiceChanges {
 	tax: ValueChange<number> | null;
 	currency: ValueChange<string> | null;
 	isNoteRewritten: boolean;
+	/** Saving records the time the lines bill, which the saved invoice does not record yet. */
+	recordsBilledTime: boolean;
 }
 
 const CENTS_PER_UNIT = 100;
@@ -716,7 +745,8 @@ export function invoiceChangesOf(saved: SavedInvoice, draft: InvoiceDraftFigures
 		discount: changeOf(savedDiscount, draft.discountPercent ?? 0),
 		tax: changeOf(savedTax, draft.taxPercent ?? 0),
 		currency: optionalChangeOf(saved.currency, draft.currency),
-		isNoteRewritten: saved.note.trim() !== draft.note.trim()
+		isNoteRewritten: saved.note.trim() !== draft.note.trim(),
+		recordsBilledTime: draft.billsUnrecordedTime
 	};
 }
 
@@ -733,7 +763,22 @@ export function hasInvoiceChanges(changes: InvoiceChanges): boolean {
 		changes.currency
 	];
 	const hasValueChange = values.some((change) => change !== null);
-	return hasLineChange || hasValueChange || changes.isNoteRewritten;
+	const kinds = [hasLineChange, hasValueChange, changes.isNoteRewritten, changes.recordsBilledTime];
+	return kinds.some(Boolean);
+}
+
+function sortedLineIdsOf(ids: ReadonlyArray<string>) {
+	return [...ids].sort((first, second) => first.localeCompare(second));
+}
+
+/** Whether the invoice still holds the lines the editor opened: lines written back after a failed save have new ids. */
+export function haveSameLineIds(current: ReadonlyArray<{ id?: string | null }>, opened: ReadonlyArray<string>) {
+	const currentIds = sortedLineIdsOf(current.map((line) => line.id ?? ''));
+	const openedIds = sortedLineIdsOf(opened);
+	if (currentIds.length !== openedIds.length) {
+		return false;
+	}
+	return currentIds.every((id, index) => id === openedIds[index]);
 }
 
 /** A line as written to the API or read back from it. */

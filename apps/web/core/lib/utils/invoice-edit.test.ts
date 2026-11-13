@@ -3,8 +3,10 @@ import {
 	billedLinesReadOf,
 	billedPreviousOf,
 	billedSavedLinesOf,
+	billsUnrecordedTimeOf,
 	didNotReachApi,
 	haveSameFields,
+	haveSameLineIds,
 	haveSameLines,
 	hasInvoiceChanges,
 	invoiceChangesOf,
@@ -329,6 +331,7 @@ function figuresOf(saved: SavedInvoice, extra: Partial<InvoiceDraftFigures> = {}
 		taxPercent: saved.taxPercent,
 		note: saved.note,
 		total: saved.total,
+		billsUnrecordedTime: false,
 		...extra
 	};
 }
@@ -611,5 +614,38 @@ describe('the time a saved invoice bills', () => {
 
 	it('is not read for an invoice that has none to name', () => {
 		expect(billedLinesReadOf(null)).toEqual({ lineIds: new Set(), projectIds: [] });
+	});
+});
+
+describe('an invoice saved before the time its lines bill was recorded', () => {
+	const billed = new Map([['item-1', ['log-1', 'log-2']]]);
+
+	it('bills time no saved line records when one of its lines names a log the invoice does not record yet', () => {
+		expect(billsUnrecordedTimeOf([{ timeLogIds: ['log-1', 'log-3'] }], billed)).toBe(true);
+	});
+
+	it('bills no such time when every log its lines name is recorded, or when they name none', () => {
+		expect(billsUnrecordedTimeOf([{ timeLogIds: ['log-2', 'log-1'] }], billed)).toBe(false);
+		expect(billsUnrecordedTimeOf([{}], new Map())).toBe(false);
+	});
+
+	it('counts the recording of that time as a change of its own, with the same figures', () => {
+		const saved = readSaved();
+
+		const changes = invoiceChangesOf(saved, figuresOf(saved, { billsUnrecordedTime: true }));
+
+		expect(changes.recordsBilledTime).toBe(true);
+		expect(hasInvoiceChanges(changes)).toBe(true);
+	});
+});
+
+describe('the lines an invoice holds when its edit is saved', () => {
+	it('are the ones the editor opened when their ids are the same, in any order', () => {
+		expect(haveSameLineIds([{ id: 'item-2' }, { id: 'item-1' }], ['item-1', 'item-2'])).toBe(true);
+	});
+
+	it('are not once they were written back under new ids, or another line was added', () => {
+		expect(haveSameLineIds([{ id: 'item-9' }, { id: 'item-2' }], ['item-1', 'item-2'])).toBe(false);
+		expect(haveSameLineIds([{ id: 'item-1' }], ['item-1', 'item-2'])).toBe(false);
 	});
 });

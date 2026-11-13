@@ -97,6 +97,9 @@ function useChangeRows(changes: InvoiceChanges, currency: string | null): Projec
 	if (changes.isNoteRewritten) {
 		rows.push({ key: 'note', icon: <FileText />, text: t('invoices.edit.confirm.NOTE') });
 	}
+	if (changes.recordsBilledTime) {
+		rows.push({ key: 'billedTime', icon: <Clock />, text: t('invoices.edit.confirm.RECORDS_TIME') });
+	}
 	return rows;
 }
 
