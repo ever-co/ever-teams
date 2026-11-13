@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { queryKeys } from '@/core/query/keys';
 import { taskViewsService } from '@/core/services/client/api/task-views/task-views.service';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
+import { bulkChangesForPlatform, bulkItemsForPlatform } from '@/core/lib/utils/task-bulk-changes';
 import {
 	TASK_BULK_UPDATE_MAX,
 	type ITaskBulkChanges,
@@ -64,7 +65,12 @@ export function useBulkTaskUpdate() {
 
 	const run = useCallback(
 		async (input: { taskIds?: string[]; changes?: ITaskBulkChanges; items?: ITaskBulkUpdateItem[] }): Promise<ITaskBulkUpdateOutcome> => {
-			const outcome = await taskViewsService.bulkUpdate(input);
+			// A status name the platform does not take would refuse the whole request: the id beside it is enough.
+			const outcome = await taskViewsService.bulkUpdate({
+				...input,
+				...(input.changes ? { changes: bulkChangesForPlatform(input.changes) } : {}),
+				...(input.items ? { items: bulkItemsForPlatform(input.items) } : {})
+			});
 			refresh();
 			return outcome;
 		},

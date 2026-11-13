@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { useUpdateTask } from '@/core/hooks/organizations/teams/use-update-task';
 import { useBulkTaskUpdate } from '@/core/hooks/task-views/use-bulk-task-update';
+import { bulkStatusNameOf } from '@/core/lib/utils/task-bulk-changes';
 import { showTaskChangeInBuiltInViews } from '@/core/hooks/task-views/built-in-view-task-cache';
 import { useTaskLabelsQuery } from './use-task-labels-query';
 import { tasksByTeamState } from '@/core/stores';
@@ -125,7 +126,9 @@ export function useTeamTaskUpdates() {
 	const setStatus = useCallback(
 		(taskIds: string[], status: TTaskStatus) => {
 			if (usesBulk(taskIds)) {
-				void bulkUpdate(taskIds, { taskStatusId: status.id, status: status.name }, t('taskViews.FIELD_CHANGED', { field: fieldLabel('status') })).catch(() => undefined);
+				// The platform's bulk update takes only its own status names; any other status goes by its id alone.
+				const name = bulkStatusNameOf(status);
+				void bulkUpdate(taskIds, { taskStatusId: status.id, ...(name ? { status: name } : {}) }, t('taskViews.FIELD_CHANGED', { field: fieldLabel('status') })).catch(() => undefined);
 				return;
 			}
 			applyChange(taskIds, 'status', (task) => {
