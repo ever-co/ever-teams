@@ -14,6 +14,8 @@ import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/project
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import type { Period } from '@/core/lib/utils/dashboard-period';
+import { offeredLogsOf, recordsBilledTimeOf, timeLogIdsByLineOf } from '@/core/lib/utils/invoice-billed-time';
+import type { BilledLinesRead } from '@/core/lib/utils/invoice-edit';
 import {
 	billableEntriesOf,
 	invoiceTimeOf,
@@ -40,6 +42,8 @@ const NO_REPORT: TOwedReportDay[] = [];
 const TASK_RELATIONS: ReadonlyArray<string> = ['task'];
 
 const NO_RELATIONS: ReadonlyArray<string> = [];
+
+const NO_BILLED_LINES: BilledLinesRead = { lineIds: new Set(), projectIds: [] };
 
 export interface InvoiceTimeLabels {
 	unnamedProject: string;
@@ -168,7 +172,8 @@ export function useInvoiceTime({
 	period,
 	grouping,
 	labels,
-	enabled = true
+	enabled = true,
+	billedLines = NO_BILLED_LINES
 }: Readonly<{
 	clientId: string | null;
 	period: Period;
@@ -176,6 +181,8 @@ export function useInvoiceTime({
 	labels: InvoiceTimeLabels;
 	/** Off while the invoice shows the lines it was saved with: its time is read once it is taken again. */
 	enabled?: boolean;
+	/** The lines of the saved invoice being edited or replaced: the time they bill is read whatever lines are shown. */
+	billedLines?: BilledLinesRead;
 }>) {
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
@@ -194,6 +201,12 @@ export function useInvoiceTime({
 	}, [clientId, organizationProjects]);
 	const clientProjectsById = useMemo(() => projectsById(clientProjects), [clientProjects]);
 	const projectIds = useMemo(() => sortedIdsOf(clientProjectsById.keys()), [clientProjectsById]);
+	// A saved line's project may have left the client since: the time it bills is read on its own project too
+	const billedProjectIds = billedLines.projectIds;
+	const allProjectIds = useMemo(
+		() => sortedIdsOf([...projectIds, ...billedProjectIds]),
+		[billedProjectIds, projectIds]
+	);
 
 	const from = useMemo(() => startOfDay(period.from), [period.from]);
 	const to = useMemo(() => endOfDay(period.to), [period.to]);
@@ -201,6 +214,11 @@ export function useInvoiceTime({
 		() => ({ from, to, timeZone, projectIds }),
 		[from, projectIds, timeZone, to]
 	);
+	const allRange = useMemo<TimeLogReportRange>(
+		() => ({ from, to, timeZone, projectIds: allProjectIds }),
+		[allProjectIds, from, timeZone, to]
+	);
+	const scope = useMemo(() => ({ tenantId, organizationId }), [organizationId, tenantId]);
 	const rangeKey = {
 		tenantId,
 		organizationId,
@@ -215,20 +233,20 @@ export function useInvoiceTime({
 	// Without a project the API would answer the time of every project: the read never runs.
 	const readsTime = enabled && hasScope && hasProjects;
 	const readsRates = enabled && hasScope;
+	const hasBilledLines = billedLines.lineIds.size > 0;
+	const readsBilledTime = hasScope && hasBilledLines;
 	const namesTasks = grouping === 'task';
 	let relations = NO_RELATIONS;
 	if (namesTasks) {
 		relations = TASK_RELATIONS;
 	}
 
-	const logsQuery = useQuery({
-		queryKey: queryKeys.timesheet.reports.billableLogs({ ...rangeKey, namesTasks }),
-		queryFn: () =>
-			timeLogReportService.getBillableTimeLogs(range, relations, {
-				notInvoiced: false,
-				scope: { tenantId, organizationId }
-			}),
-		enabled: readsTime
+	// Read again whenever the screen opens: another invoice may bill part of this time since the last read.
+	const freeQuery = useQuery({
+		queryKey: queryKeys.timesheet.reports.billableLogs({ ...rangeKey, namesTasks, notInvoiced: true }),
+		queryFn: () => timeLogReportService.getBillableTimeLogs(range, relations, { notInvoiced: true, scope }),
+		enabled: readsTime,
+		staleTime: 0
 	});
 	const employeesQuery = useQuery({
 		queryKey: queryKeys.timesheet.reports.owedAmounts({ ...rangeKey, purpose: 'invoice' }),
@@ -236,14 +254,49 @@ export function useInvoiceTime({
 		enabled: readsTime
 	});
 
-	const logs = logsQuery.data ?? NO_LOGS;
-	const report = employeesQuery.data ?? NO_REPORT;
 	const projectIdSet = useMemo(() => new Set(projectIds), [projectIds]);
+	const freeLogs = freeQuery.data ?? NO_LOGS;
+	const freeEntries = useMemo(() => billableEntriesOf(freeLogs, projectIdSet), [freeLogs, projectIdSet]);
+	const isFreeTimeEmpty = freeQuery.isSuccess && freeEntries.length === 0;
+	// No free time left: all of the time tells a period already invoiced from one without billable time
+	const checksInvoicedTime = readsTime && isFreeTimeEmpty;
+	const readsAllTime = readsBilledTime || checksInvoicedTime;
+
+	const allQuery = useQuery({
+		queryKey: queryKeys.timesheet.reports.billableLogs({
+			...rangeKey,
+			projectIds: allProjectIds,
+			namesTasks,
+			notInvoiced: false
+		}),
+		queryFn: () => timeLogReportService.getBillableTimeLogs(allRange, relations, { notInvoiced: false, scope }),
+		enabled: readsAllTime,
+		staleTime: 0
+	});
+
+	const allLogs = allQuery.data ?? NO_LOGS;
+	const billedLineIds = billedLines.lineIds;
+	const offeredLogs = useMemo(
+		() => offeredLogsOf(freeLogs, allLogs, billedLineIds),
+		[allLogs, billedLineIds, freeLogs]
+	);
+	const billedTimeByLine = useMemo(() => timeLogIdsByLineOf(allLogs, billedLineIds), [allLogs, billedLineIds]);
+	const recordsBilledTime = useMemo(() => recordsBilledTimeOf([...freeLogs, ...allLogs]), [allLogs, freeLogs]);
+	const allEntries = useMemo(() => billableEntriesOf(allLogs, projectIdSet), [allLogs, projectIdSet]);
+	const hasInvoicedTime = recordsBilledTime === true && allEntries.length > 0;
+	const isAllInvoiced = checksInvoicedTime && hasInvoicedTime;
+
+	// Lines come from the time only while it is read: the lines a saved invoice shows are its own.
+	let logs = NO_LOGS;
+	if (readsTime) {
+		logs = offeredLogs;
+	}
+	const report = employeesQuery.data ?? NO_REPORT;
 	const entries = useMemo(() => billableEntriesOf(logs, projectIdSet), [logs, projectIdSet]);
-	const billedProjectIds = useMemo(() => sortedIdsOf(entries.map((entry) => entry.projectId)), [entries]);
+	const pricedProjectIds = useMemo(() => sortedIdsOf(entries.map((entry) => entry.projectId)), [entries]);
 
 	const ratesStates = useQueries({
-		queries: billedProjectIds.map((projectId) => ({
+		queries: pricedProjectIds.map((projectId) => ({
 			queryKey: queryKeys.rates.project(tenantId, organizationId, projectId),
 			queryFn: () => rateService.getProjectRates(projectId),
 			enabled: readsRates,
@@ -254,9 +307,9 @@ export function useInvoiceTime({
 
 	const ratesByProject = useMemo(() => {
 		const byProject = new Map<string, TProjectRates | null>();
-		ratesStates.forEach((state, index) => byProject.set(billedProjectIds[index], state.rates));
+		ratesStates.forEach((state, index) => byProject.set(pricedProjectIds[index], state.rates));
 		return byProject;
-	}, [billedProjectIds, ratesStates]);
+	}, [pricedProjectIds, ratesStates]);
 
 	const employees = useMemo(() => employeesOfReport(report), [report]);
 
@@ -301,30 +354,43 @@ export function useInvoiceTime({
 
 	const isReadingRates = ratesStates.some((state) => state.isLoading);
 	const haveRatesFailed = ratesStates.some((state) => state.hasFailed);
-	const isReadingTime = logsQuery.isLoading || employeesQuery.isLoading;
+	const isReadingLogs = freeQuery.isLoading || allQuery.isLoading;
+	const isReadingTime = isReadingLogs || employeesQuery.isLoading;
 	const haveProjectsFailed = projectsQuery.isOrganizationProjectsError;
 	// The projects read waits for the signed-in user: until it answered, "no project" is not known yet.
 	const isReadingProjects = !projectsQuery.isOrganizationProjectsLoaded && !haveProjectsFailed;
-	const hasTimeFailed = logsQuery.isError || employeesQuery.isError;
+	const hasTimeFailed = freeQuery.isError || employeesQuery.isError;
+	const isReadingBilledTime = readsBilledTime && allQuery.isLoading;
+	const hasBilledTimeFailed = readsBilledTime && allQuery.isError;
 	const isReadingAny = isReadingProjects || isReadingTime;
 	const isLoading = isReadingAny || isReadingRates;
 	const hasReadFailed = haveProjectsFailed || hasTimeFailed;
-	const isError = hasReadFailed || haveRatesFailed;
-	const isRefreshingLogs = logsQuery.isFetching && !logsQuery.isLoading;
+	const hasPricingFailed = haveRatesFailed || hasBilledTimeFailed;
+	const isError = hasReadFailed || hasPricingFailed;
+	const isRefreshingLogs = freeQuery.isFetching && !freeQuery.isLoading;
+	const isRefreshingAllLogs = allQuery.isFetching && !allQuery.isLoading;
 	const isRefreshingEmployees = employeesQuery.isFetching && !employeesQuery.isLoading;
 	const isRefreshingRates = ratesStates.some((state) => state.isRefreshing);
+	const isRefreshingAnyLogs = isRefreshingLogs || isRefreshingAllLogs;
+	const isRefreshingTime = isRefreshingAnyLogs || isRefreshingEmployees;
 	// A read again keeps showing its previous answer: the lines, their rates and their names can still change.
-	const isUpdating = isRefreshingLogs || isRefreshingEmployees || isRefreshingRates;
+	const isUpdating = isRefreshingTime || isRefreshingRates;
 
 	const refetchProjects = projectsQuery.refetchOrganizationProjects;
-	const refetchLogs = logsQuery.refetch;
+	const refetchFreeLogs = freeQuery.refetch;
+	const refetchAllLogs = allQuery.refetch;
 	const refetchEmployees = employeesQuery.refetch;
 	const refetch = useCallback(() => {
 		void refetchProjects();
-		void refetchLogs();
-		void refetchEmployees();
-		void queryClient.refetchQueries({ queryKey: queryKeys.rates.all, type: 'active' });
-	}, [queryClient, refetchEmployees, refetchLogs, refetchProjects]);
+		if (readsTime) {
+			void refetchFreeLogs();
+			void refetchEmployees();
+			void queryClient.refetchQueries({ queryKey: queryKeys.rates.all, type: 'active' });
+		}
+		if (readsAllTime) {
+			void refetchAllLogs();
+		}
+	}, [queryClient, readsAllTime, readsTime, refetchAllLogs, refetchEmployees, refetchFreeLogs, refetchProjects]);
 
 	return {
 		hasProjects,
@@ -333,6 +399,14 @@ export function useInvoiceTime({
 		isLoading,
 		isError,
 		isUpdating,
-		refetch
+		refetch,
+		/** The API records the time each invoice line bills; null until a time log was read. */
+		recordsBilledTime,
+		/** The time logs that name each line of the saved invoice, by line id. */
+		billedTimeByLine,
+		isReadingBilledTime,
+		hasBilledTimeFailed,
+		/** Every billable hour of the period is on an invoice: the period is not without billable time. */
+		isAllInvoiced
 	};
 }
