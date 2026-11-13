@@ -929,8 +929,8 @@ export function TimeActivityBreakdown({
 	const title = t(TITLE_KEYS[grouping]);
 	const topCount = tree.nodes.length;
 	const hasRows = topCount > 0;
-	const showsRows = hasRows && !isLoading;
 	const isSettled = !isLoading && !isError;
+	const showsRows = hasRows && isSettled;
 	const showsEmpty = !hasRows && isSettled;
 	const showsError = isError && !isLoading;
 	const showsHeader = !showsEmpty && !showsError;
