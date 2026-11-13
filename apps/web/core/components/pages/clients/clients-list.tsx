@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, type MouseEvent } from 'react';
+import { memo } from 'react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { EntityTile } from '@/core/components/common/entity-tile';
@@ -10,7 +10,7 @@ import { Building, Calendar, Folder, Mail, Plus } from '@/core/components/icons'
 import { ClientActionsMenu } from '@/core/components/clients/client-actions-menu';
 import type { ClientFormField } from '@/core/components/clients/client-form-dialog';
 import { clientSinceTextOf } from '@/core/components/clients/client-format';
-import { handleClientClick } from '@/core/components/clients/client-row-click';
+import { openClientOnPlainClick } from '@/core/components/clients/client-row-click';
 import { MUTED_VALUE, formatProjectDay } from '@/core/components/projects/project-cells';
 import { cn } from '@/core/lib/helpers';
 import {
@@ -22,7 +22,14 @@ import {
 	type ListReadState
 } from '@/core/lib/utils/clients';
 import type { TClient } from '@/core/types/schemas';
-import { CELL, CLIENTS_TABLE_GRID, CLIENTS_TABLE_SURFACE, WIDE_CELL } from './clients-table-grid';
+import {
+	ABOVE_ROW_LINK,
+	CELL,
+	CLIENTS_TABLE_GRID,
+	CLIENTS_TABLE_SURFACE,
+	ROW_LINK,
+	WIDE_CELL
+} from './clients-table-grid';
 
 const LABEL = 'flex min-w-0 items-center gap-1.5 px-2 [&_svg]:size-3.5 [&_svg]:shrink-0';
 
@@ -240,23 +247,16 @@ const ClientRow = memo(function ClientRow({
 	onOpenClient
 }: RowProps) {
 	const pagePath = clientPagePathOf(client.id);
-	const opensOverList = Boolean(onOpenClient);
 	let openOverList: (() => void) | undefined;
 	if (onOpenClient) {
 		openOverList = () => onOpenClient(client);
 	}
-	const handleClick = (event: MouseEvent<HTMLLIElement>) => {
-		handleClientClick(event, pagePath, openOverList);
-	};
 
 	return (
 		<li
-			onClick={handleClick}
-			onAuxClick={handleClick}
 			className={cn(
 				CLIENTS_TABLE_GRID,
-				'min-h-12 pl-1 transition-colors [content-visibility:auto] [contain-intrinsic-size:auto_48px] hover:bg-foreground/[0.03]',
-				opensOverList && 'cursor-pointer'
+				'relative min-h-12 pl-1 transition-colors [content-visibility:auto] [contain-intrinsic-size:auto_48px] hover:bg-foreground/[0.03]'
 			)}
 		>
 			<span className="flex min-w-0 items-center gap-2.5 px-2 py-1.5">
@@ -268,7 +268,8 @@ const ClientRow = memo(function ClientRow({
 				<span className="flex min-w-0 flex-col">
 					<Link
 						href={pagePath}
-						className={cn(QUIET_LINK, 'w-fit max-w-full text-[13px] font-medium text-foreground')}
+						onClick={(event) => openClientOnPlainClick(event, openOverList)}
+						className={cn(QUIET_LINK, ROW_LINK, 'w-fit max-w-full text-[13px] font-medium text-foreground')}
 					>
 						{client.name}
 					</Link>
@@ -276,15 +277,19 @@ const ClientRow = memo(function ClientRow({
 				</span>
 			</span>
 			<span className={WIDE_CELL}>
-				<ContactCell client={client} canEdit={access.canEdit} onEdit={onEdit} />
+				<span className={cn(ABOVE_ROW_LINK, 'min-w-0')}>
+					<ContactCell client={client} canEdit={access.canEdit} onEdit={onEdit} />
+				</span>
 			</span>
 			<span className="flex min-w-0 items-center">
-				<ProjectCountCell client={client} count={projectCount} state={projectCountsState} />
+				<span className={cn(ABOVE_ROW_LINK, 'min-w-0')}>
+					<ProjectCountCell client={client} count={projectCount} state={projectCountsState} />
+				</span>
 			</span>
 			<span className={WIDE_CELL}>
 				<ClientSinceCell client={client} />
 			</span>
-			<span className="flex justify-center">
+			<span className={cn(ABOVE_ROW_LINK, 'flex justify-center')}>
 				<ClientActionsMenu
 					client={client}
 					access={access}

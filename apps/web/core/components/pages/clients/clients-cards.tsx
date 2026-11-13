@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, type MouseEvent, type ReactNode } from 'react';
+import { memo, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import stc from 'string-to-color';
@@ -12,7 +12,8 @@ import { ClientActionsMenu } from '@/core/components/clients/client-actions-menu
 import type { ClientFormField } from '@/core/components/clients/client-form-dialog';
 import { clientSinceTextOf } from '@/core/components/clients/client-format';
 import { newInvoiceHrefOf } from '@/core/components/clients/client-links';
-import { handleClientClick } from '@/core/components/clients/client-row-click';
+import { openClientOnPlainClick } from '@/core/components/clients/client-row-click';
+import { cn } from '@/core/lib/helpers';
 import {
 	clientCreatedDateOf,
 	clientPagePathOf,
@@ -22,7 +23,7 @@ import {
 	type ListReadState
 } from '@/core/lib/utils/clients';
 import type { TClient } from '@/core/types/schemas';
-import { CLIENTS_CARDS_GRID } from './clients-table-grid';
+import { ABOVE_ROW_LINK, CLIENTS_CARDS_GRID, ROW_LINK } from './clients-table-grid';
 
 const FACT_LABEL = 'truncate text-xs text-muted-foreground';
 
@@ -122,16 +123,9 @@ const ClientCard = memo(function ClientCard({
 	}
 
 	const openOverList = () => onOpenClient(client);
-	const handleClick = (event: MouseEvent<HTMLLIElement>) => {
-		handleClientClick(event, pagePath, openOverList);
-	};
 
 	return (
-		<li
-			onClick={handleClick}
-			onAuxClick={handleClick}
-			className="flex cursor-pointer flex-col gap-3 rounded-xl bg-card p-4 hairline-ring ring-border shadow-sm shadow-black/6.5 transition-colors [content-visibility:auto] [contain-intrinsic-size:auto_200px] hover:bg-foreground/[0.015]"
-		>
+		<li className="relative flex flex-col gap-3 rounded-xl bg-card p-4 hairline-ring ring-border shadow-sm shadow-black/6.5 transition-colors [content-visibility:auto] [contain-intrinsic-size:auto_200px] hover:bg-foreground/[0.015]">
 			<div className="flex min-w-0 items-center gap-2.5">
 				<EntityTile
 					name={client.name}
@@ -140,20 +134,26 @@ const ClientCard = memo(function ClientCard({
 				/>
 				<Link
 					href={pagePath}
-					className="min-w-0 truncate rounded-sm text-[13px] font-medium text-foreground outline-none transition-colors hover:text-primary-ink focus-visible:ring-[3px] focus-visible:ring-ring/25"
+					onClick={(event) => openClientOnPlainClick(event, openOverList)}
+					className={cn(
+						ROW_LINK,
+						'min-w-0 truncate rounded-sm text-[13px] font-medium text-foreground outline-none transition-colors hover:text-primary-ink focus-visible:ring-[3px] focus-visible:ring-ring/25'
+					)}
 				>
 					{client.name}
 				</Link>
 				<span className="ml-auto shrink-0 text-xs text-muted-foreground">{standingWord}</span>
-				<ClientActionsMenu
-					client={client}
-					access={access}
-					canCreateInvoice={canCreateInvoice}
-					onEdit={onEdit}
-					onArchive={onArchive}
-					onRestore={onRestore}
-					triggerClassName="-mr-1.5"
-				/>
+				<span className={ABOVE_ROW_LINK}>
+					<ClientActionsMenu
+						client={client}
+						access={access}
+						canCreateInvoice={canCreateInvoice}
+						onEdit={onEdit}
+						onArchive={onArchive}
+						onRestore={onRestore}
+						triggerClassName="-mr-1.5"
+					/>
+				</span>
 			</div>
 			{hasNotes && (
 				<p className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
@@ -174,7 +174,7 @@ const ClientCard = memo(function ClientCard({
 					<TermsFact client={client} />
 				</Fact>
 			</dl>
-			<div className="mt-auto flex items-center gap-2">
+			<div className={cn(ABOVE_ROW_LINK, 'mt-auto flex w-fit items-center gap-2')}>
 				{newInvoiceHref && (
 					<Button asChild variant="outline" size="sm">
 						<Link href={newInvoiceHref}>

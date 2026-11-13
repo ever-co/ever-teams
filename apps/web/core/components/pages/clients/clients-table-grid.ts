@@ -14,3 +14,9 @@ export const CLIENTS_TABLE_SURFACE = 'rounded-xl bg-card hairline-ring ring-bord
 export const CLIENTS_CARDS_GRID = 'grid grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-3';
 
 export const SKELETON_BAR = 'bg-foreground/[0.06]';
+
+/** The client's name stretched over its whole row or card: the row opens from anywhere, as a real link. */
+export const ROW_LINK = "after:absolute after:inset-0 after:content-['']";
+
+/** A control of a row raised over the stretched name, so it keeps its own click. */
+export const ABOVE_ROW_LINK = 'relative z-10';
