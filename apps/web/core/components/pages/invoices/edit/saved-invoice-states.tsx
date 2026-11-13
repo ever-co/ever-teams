@@ -4,7 +4,13 @@ import { useTranslations } from 'next-intl';
 import { DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
 import type { SavedInvoice, SavedInvoiceStatus } from '@/core/lib/utils/invoice-edit';
 import { INVOICES_PATH } from '../invoice-access-guard';
-import { MessageLink, NewInvoiceMessage } from '../new/new-invoice-states';
+import { MessageLink, NewInvoiceMessage, NewInvoicePageSkeleton } from '../new/new-invoice-states';
+
+/** The invoice screen while an invoice is read to be edited. */
+export function EditInvoicePageSkeleton() {
+	const t = useTranslations();
+	return <NewInvoicePageSkeleton title={t('invoices.edit.LOADING_TITLE')} />;
+}
 
 function BackToInvoices() {
 	const t = useTranslations();
