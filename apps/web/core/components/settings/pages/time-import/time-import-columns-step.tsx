@@ -25,7 +25,7 @@ const STEP_CONTROL = 'h-8 w-full text-[13px]';
 
 const STEP_SAMPLE = 'truncate text-xs text-muted-foreground';
 
-const FIRST_ROWS_HEAD = 'px-3 py-1.5 font-medium whitespace-nowrap text-muted-foreground first:ps-0';
+const FIRST_ROWS_HEAD = 'px-3 py-1.5 text-start font-medium whitespace-nowrap text-muted-foreground first:ps-0';
 
 const FIRST_ROWS_CELL = 'px-3 py-1.5 text-foreground first:ps-0';
 

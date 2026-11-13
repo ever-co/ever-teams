@@ -230,6 +230,17 @@ describe('TimeImportColumnsStep', () => {
 		expect(firstRows.querySelector('b')).toBeNull();
 	});
 
+	it('starts each header of the first rows where its values start, as a table cell does', () => {
+		renderStep({ mapping: CHOSEN, dateOrder: 'dayFirst' });
+		const firstRows = screen.getByRole('table', { name: 'timeImport.mapping.FIRST_ROWS' });
+		const headers = within(firstRows).getAllByRole('columnheader');
+
+		expect(headers).toHaveLength(5);
+		for (const header of headers) {
+			expect(header.classList.contains('text-start')).toBe(true);
+		}
+	});
+
 	it('names the columns it leaves out, and goes back to the file choice on request', () => {
 		const handlers = renderStep({ mapping: CHOSEN, dateOrder: 'dayFirst' });
 
