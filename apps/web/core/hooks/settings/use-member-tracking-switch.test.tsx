@@ -5,6 +5,7 @@ import { Provider, createStore } from 'jotai';
 import { act, renderHook } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
 import { activeTeamIdState, organizationTeamsState } from '@/core/stores';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { ERoleName } from '@/core/types/generics/enums/role';
 
 let mockUser: { id: string; role: { name: string } } | null = null;
@@ -41,8 +42,12 @@ import { useTeamMembersSettings } from './use-team-members-settings';
 
 /**
  * The tracking switch of the Members settings and of the Team settings (#5015), which share one rule and one save
- * (`useMemberTrackingSwitch`): only someone of a higher role switches a member's tracking, an admin also an admin's.
+ * (`useMemberTrackingSwitch`). Where the organization restricts the switch to higher roles, only someone of a higher
+ * role switches a member's tracking, an admin also an admin's; elsewhere, the default, Gauzy's own permissions decide.
  */
+
+/** The organization of the team, which restricts the switch to higher roles unless a test says otherwise. */
+let organization: Record<string, unknown>;
 
 /**
  * A row of the team: its user's tenant role (null when it did not load), and its place in the team (the MANAGER role
@@ -117,6 +122,7 @@ function signInAs(
 function renderInTeam<Result>(useSettings: () => Result, members: unknown[] = team.members) {
 	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 	const store = createStore();
+	store.set(currentOrganizationState, organization as never);
 	store.set(organizationTeamsState, [{ ...team, members }] as never);
 	store.set(activeTeamIdState, 'team-a');
 	const wrapper = ({ children }: PropsWithChildren) => (
@@ -150,6 +156,7 @@ beforeEach(() => {
 	jest.clearAllMocks();
 	mockUpdateMembership.mockResolvedValue({ affected: 1 });
 	mockUpdateEmployee.mockResolvedValue({});
+	organization = { id: 'organization-a', name: 'Acme', restrictTrackingSwitchToHigherRoles: true };
 });
 
 describe('Members settings: who gets the tracking switch on which row (#5015)', () => {
@@ -355,5 +362,68 @@ describe('Team settings: the switch of one’s own tracking (#5015)', () => {
 		signInAs('own', ERoleName.ADMIN, ['ORG_EMPLOYEES_EDIT']);
 
 		expect(renderOwn(ownManagerRow(ERoleName.ADMIN)).result.current.isOwnTrackingPending).toBe(false);
+	});
+});
+
+/** The default: Gauzy writes the team switch for an admin or a team manager, the own one for ORG_EMPLOYEES_EDIT. */
+describe('Members settings where the organization does not restrict the switch (#5015)', () => {
+	beforeEach(() => {
+		organization = { ...organization, restrictTrackingSwitchToHigherRoles: false };
+	});
+
+	it('gives a team manager the switch on every row, their own and the other managers’ included', () => {
+		signInAs('manager', ERoleName.EMPLOYEE);
+
+		expect(rowsWithSwitch(renderSettings())).toEqual(team.members.map((row) => row.id.replace('row-', '')));
+	});
+
+	it('still gives a member the switch on no row: Gauzy does not let them write it', () => {
+		signInAs('member', ERoleName.EMPLOYEE);
+
+		expect(rowsWithSwitch(renderSettings())).toEqual([]);
+	});
+
+	it("moves only a team manager's own switch in the team, as they may not write the employee one", async () => {
+		signInAs('manager', ERoleName.EMPLOYEE);
+		const view = renderSettings();
+
+		await act(() => view.result.current.setMemberTracking('row-manager', false));
+
+		expect(mockUpdateMembership).toHaveBeenCalledWith('row-manager', teamSwitch(false));
+		expect(mockUpdateEmployee).not.toHaveBeenCalled();
+	});
+
+	it('moves the employee switch too for a holder of ORG_EMPLOYEES_EDIT, whatever the member’s role', async () => {
+		signInAs('flagged-manager', ERoleName.EMPLOYEE, ['ORG_EMPLOYEES_EDIT']);
+		const view = renderSettings();
+
+		await act(() => view.result.current.setMemberTracking('row-admin', false));
+
+		expect(mockUpdateMembership).toHaveBeenCalledWith('row-admin', teamSwitch(false));
+		expect(mockUpdateEmployee).toHaveBeenCalledWith({
+			id: 'employee-admin',
+			data: expect.objectContaining({ isTrackingEnabled: false })
+		});
+	});
+
+	it('reads an organization that does not state the setting (an older Gauzy) as not restricting it', () => {
+		organization = { ...organization };
+		delete organization.restrictTrackingSwitchToHigherRoles;
+		signInAs('manager', ERoleName.EMPLOYEE);
+
+		expect(rowOf(renderSettings(), 'manager').showsTracking).toBe(true);
+	});
+});
+
+describe('Team settings where the organization does not restrict the switch (#5015)', () => {
+	beforeEach(() => {
+		organization = { ...organization, restrictTrackingSwitchToHigherRoles: false };
+	});
+
+	it('offers a team manager the switch of their own tracking', () => {
+		signInAs('own', ERoleName.EMPLOYEE);
+		const ownRow = member('own', ERoleName.EMPLOYEE, { isManager: true });
+
+		expect(renderInTeam(useTeamGeneralSettings, [ownRow]).result.current.canTurnOwnTracking).toBe(true);
 	});
 });

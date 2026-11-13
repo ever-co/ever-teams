@@ -4,6 +4,7 @@ import { useCallback, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { useQueryClient } from '@tanstack/react-query';
 import { activeTeamManagersState, isTeamManagerMember } from '@/core/stores';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { queryKeys } from '@/core/query/keys';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
@@ -16,9 +17,13 @@ import type { TUpdateEmployee } from '@/core/types/schemas/organization/employee
 
 /**
  * Who may turn a member's time tracking on or off, and the save that does it, as Gauzy accepts it
- * (ever-co/ever-teams#5015): only someone of a higher rank, an admin also for another admin. Gauzy checks two
- * switches before a start: the member's switch in the team, and their own (employee) switch, which counts in every
- * team.
+ * (ever-co/ever-teams#5015). Gauzy checks two switches before a start: the member's switch in the team, and their own
+ * (employee) switch, which counts in every team.
+ *
+ * Where the organization restricts the switch to higher roles (`restrictTrackingSwitchToHigherRoles`), only someone of
+ * a higher rank switches it, an admin also for another admin, as below. Elsewhere, the default, Gauzy writes the team
+ * switch for an admin or a manager of the team, and the employee switch for a holder of ORG_EMPLOYEES_EDIT, whoever
+ * the member is.
  *
  * - The team switch: Gauzy writes it for an admin or a manager of the team. A rank in a team is the tenant role's
  *   (SUPER_ADMIN and ADMIN, then MANAGER, then the rest), raised to manager for a manager of the team. A team manager
@@ -38,6 +43,9 @@ export function useMemberTrackingSwitch() {
 	const { myPermissions, isLoaded: arePermissionsLoaded } = useMyRolePermissionsQuery();
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
 	const { updateEmployeeAsync } = useEmployeeUpdate();
+	// A Gauzy that predates the setting, or an organization not read yet, writes the switches without the ranks
+	const organization = useAtomValue(currentOrganizationState);
+	const restrictsSwitch = organization?.restrictTrackingSwitchToHigherRoles === true;
 
 	const userId = user?.id;
 	const ownRoleRank = rankOfRole(user?.role?.name);
@@ -53,17 +61,23 @@ export function useMemberTrackingSwitch() {
 			if (!writesTeamSwitch) {
 				return false;
 			}
+			if (!restrictsSwitch) {
+				return true;
+			}
 			return mayTurnTrackingOfRole(ownRankInTeam, memberRoleNameOf(member), isTeamManagerMember(member));
 		},
-		[ownRankInTeam, writesTeamSwitch]
+		[ownRankInTeam, restrictsSwitch, writesTeamSwitch]
 	);
 
 	/** Whether the save moves the member's own (employee) switch too, which Gauzy allows only on these terms. */
 	const writesEmployeeTracking = useCallback(
 		(member: TOrganizationTeamEmployee) => {
+			if (!restrictsSwitch) {
+				return canEditEmployees;
+			}
 			return canEditEmployees && mayTurnTrackingOfRole(ownRoleRank, memberRoleNameOf(member));
 		},
-		[canEditEmployees, ownRoleRank]
+		[canEditEmployees, ownRoleRank, restrictsSwitch]
 	);
 
 	/**
