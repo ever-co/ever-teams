@@ -1,5 +1,6 @@
 import { useSetAtom } from 'jotai';
 import { useTranslations } from 'next-intl';
+import { useClose } from '@headlessui/react';
 import { Keyboard } from '@/core/components/icons';
 import { shortcutsHelpOpenAtom } from '@/core/stores/common/shortcuts';
 import { Button } from './button';
@@ -9,7 +10,12 @@ import { Tooltip } from '../duplicated-components/tooltip';
 export function KeyboardShortcuts() {
 	const t = useTranslations();
 	const setSheetOpen = useSetAtom(shortcutsHelpOpenAtom);
-	const openSheet = () => setSheetOpen(true);
+	// The account menu it sits in on phones closes first: its panel is drawn above every dialog. Elsewhere a no-op.
+	const closeMenu = useClose();
+	const openSheet = () => {
+		closeMenu();
+		setSheetOpen(true);
+	};
 
 	return (
 		<Tooltip label={t('common.KEYBOARD_SHORTCUTS')} placement="auto">

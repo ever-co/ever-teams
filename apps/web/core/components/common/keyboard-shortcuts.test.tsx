@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 
 const mockSetSheetOpen = jest.fn();
 
@@ -29,6 +30,10 @@ function pressH() {
 }
 
 describe('KeyboardShortcuts', () => {
+	beforeEach(() => {
+		mockSetSheetOpen.mockClear();
+	});
+
 	it('opens the one shortcuts sheet of the app, with no dialog and no key of its own', () => {
 		render(<KeyboardShortcuts />);
 
@@ -38,5 +43,21 @@ describe('KeyboardShortcuts', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'common.KEYBOARD_SHORTCUTS' }));
 		expect(mockSetSheetOpen).toHaveBeenCalledWith(true);
 		expect(screen.queryByRole('dialog')).toBeNull();
+	});
+
+	it('closes the account menu it sits in as it opens the sheet, so the menu does not stay above the sheet', () => {
+		render(
+			<Popover>
+				<PopoverButton>account</PopoverButton>
+				<PopoverPanel>
+					<KeyboardShortcuts />
+				</PopoverPanel>
+			</Popover>
+		);
+		fireEvent.click(screen.getByRole('button', { name: 'account' }));
+		fireEvent.click(screen.getByRole('button', { name: 'common.KEYBOARD_SHORTCUTS' }));
+
+		expect(mockSetSheetOpen).toHaveBeenCalledWith(true);
+		expect(screen.queryByRole('button', { name: 'common.KEYBOARD_SHORTCUTS' })).toBeNull();
 	});
 });
