@@ -32,6 +32,7 @@ import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view'
 import type { TOrganizationTeamEmployee, TTaskStatus } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { TeamTasksDisplayMenu } from './team-tasks-display-menu';
+import { TeamTasksLayoutSwitch } from './team-tasks-layout-switch';
 
 const ISSUE_TYPE_OPTIONS: PropertyFilterOption[] = [
 	EIssueType.EPIC,
@@ -281,10 +282,13 @@ export function TeamTasksToolbar({
 						)}
 					</span>
 				</div>
-				<Button size="sm" onClick={onCreate}>
-					<Plus />
-					{t('pages.teamTasks.NEW_TASK')}
-				</Button>
+				<div className="flex flex-wrap items-center gap-3">
+					<TeamTasksLayoutSwitch view={view} />
+					<Button size="sm" onClick={onCreate}>
+						<Plus />
+						{t('pages.teamTasks.NEW_TASK')}
+					</Button>
+				</div>
 			</div>
 			<div className="flex flex-wrap items-center justify-between gap-3 pb-3">
 				<SegmentedControl

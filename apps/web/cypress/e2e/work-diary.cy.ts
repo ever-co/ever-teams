@@ -54,10 +54,15 @@ describe('work diary', () => {
 		cy.contains(LONG_DAY.format(start), { timeout: 20_000 }).should('be.visible');
 
 		cy.get(`${DAY_STRIP} button[aria-pressed="false"]:not([disabled])`).first().click();
-		cy.location('search').should('match', /date=\d{4}-\d{2}-\d{2}/);
+		// Retried until the click's navigation lands: the link already held a date (the start day), so a plain match
+		// would pass at once and read the old one.
+		cy.location('search').should((search) => {
+			const date = new URLSearchParams(search).get('date') ?? '';
+			expect(date).to.match(/^\d{4}-\d{2}-\d{2}$/);
+			expect(date).not.to.equal(dayKeyOf(start));
+		});
 		cy.location('search').then((search) => {
 			const picked = new URLSearchParams(search).get('date') ?? '';
-			expect(picked).not.to.equal(dayKeyOf(start));
 			cy.reload();
 			cy.location('search').should('contain', `date=${picked}`);
 			const [year, month, day] = picked.split('-').map(Number);

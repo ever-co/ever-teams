@@ -86,7 +86,7 @@ interface DragSession {
 	preview: GridDragPreview | null;
 }
 
-export interface GridDragOptions {
+interface GridDragOptions {
 	days: ReadonlyArray<CalendarDay>;
 	hourHeightPx: number;
 	bodyRef: RefObject<HTMLDivElement | null>;

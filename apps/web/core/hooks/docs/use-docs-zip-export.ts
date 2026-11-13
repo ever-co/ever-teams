@@ -7,7 +7,7 @@ import { docsService } from '@/core/services/client/api/docs';
 import { saveBlob, zipExportFailureOf, zipExportFileName } from '@/core/lib/utils/docs-export';
 import type { IDocumentPage } from '@/core/types/interfaces/common/docs';
 
-export interface DocsZipExportOptions {
+interface DocsZipExportOptions {
 	/** Runs first; false stops the export (the page's latest text could not be saved). */
 	beforeExport?: () => Promise<boolean>;
 	/** The title to name the file by, when it is newer than the page's (a title being typed). */

@@ -156,6 +156,8 @@ export interface ITimeLogRequestParams {
 		end: number;
 	};
 	includeTimeWithoutTeam?: boolean;
+	/** Counts billable time only. The daily and weekly report routes forward it. */
+	billableOnly?: boolean;
 }
 
 // export type LogType = 'TRACKED' | 'MANUAL' | 'IDLE';
@@ -250,6 +252,10 @@ function buildTimeLogParams(params: ITimeLogRequestParams): URLSearchParams {
 
 	if (params.includeTimeWithoutTeam) {
 		baseParams.append('includeTimeWithoutTeam', 'true');
+	}
+
+	if (params.billableOnly) {
+		baseParams.append('billableOnly', 'true');
 	}
 
 	return baseParams;

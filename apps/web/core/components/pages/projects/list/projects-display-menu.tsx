@@ -39,6 +39,7 @@ const ORDER_LABEL_KEYS: Record<ProjectOrderField, DottedLanguageObjectStringPath
 
 export const COLUMN_LABEL_KEYS: Record<ProjectColumn, DottedLanguageObjectStringPaths> = {
 	status: 'common.STATUS',
+	client: 'common.CLIENT',
 	progress: 'common.PROGRESS',
 	managers: 'common.MANAGERS',
 	members: 'common.MEMBERS',

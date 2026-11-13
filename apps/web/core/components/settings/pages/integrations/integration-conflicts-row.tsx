@@ -171,7 +171,7 @@ function ResolveFeedback({ list, providerName }: Readonly<{ list: IntegrationCon
 
 export interface IntegrationConflictsRowProps {
 	provider: TIntegrationConflictProvider;
-	/** The provider's name as the page shows it (Linear, Asana, Trello). */
+	/** The provider's name as the page shows it (Linear, Asana, Trello, Jira). */
 	providerName: string;
 	integrationId: string;
 	/** Only what this run found (a run's count in the runs list sets it); null: every run. */

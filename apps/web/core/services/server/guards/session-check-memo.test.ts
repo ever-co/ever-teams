@@ -52,6 +52,17 @@ describe('SessionCheckMemo', () => {
 		expect(check).toHaveBeenCalledTimes(2);
 	});
 
+	it('checks a token again once its answer was dropped, and keeps the others', async () => {
+		await memo.answer('token-a', check, keepable);
+		await memo.answer('token-b', check, keepable);
+
+		memo.drop('token-a');
+		await memo.answer('token-a', check, keepable);
+		await memo.answer('token-b', check, keepable);
+
+		expect(check).toHaveBeenCalledTimes(3);
+	});
+
 	it('checks again once the window has passed', async () => {
 		await memo.answer('token-a', check, keepable);
 		now += 5_000;

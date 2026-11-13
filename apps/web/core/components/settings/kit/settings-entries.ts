@@ -133,7 +133,7 @@ export function entriesOfGroup(
 	});
 }
 
-export const NO_HIDDEN_ENTRIES: ReadonlySet<SettingsEntryId> = new Set<SettingsEntryId>();
+const NO_HIDDEN_ENTRIES: ReadonlySet<SettingsEntryId> = new Set<SettingsEntryId>();
 
 export function isSettingsPath(strippedPathname: string): boolean {
 	const isRoot = strippedPathname === SETTINGS_ROOT;

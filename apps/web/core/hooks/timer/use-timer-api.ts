@@ -337,15 +337,17 @@ export function useTimerApi({
 		mutationFn: async ({
 			taskId,
 			projectId,
+			organizationTeamId,
 			isBillable,
 			description
 		}: {
 			taskId: string;
 			projectId?: string | null;
+			organizationTeamId?: string;
 			isBillable: boolean;
 			description?: string;
 		}) => {
-			return await timerService.startTimer({ taskId, projectId, isBillable, description });
+			return await timerService.startTimer({ taskId, projectId, organizationTeamId, isBillable, description });
 		},
 		// runStartTimer shows the translated TIMER_START_FAILED toast; this keeps the raw global
 		// "Mutation Error" toast from showing a second one
@@ -723,6 +725,8 @@ export function useTimerApi({
 			const startRequest = startTimerMutate({
 				taskId: taskIdToUse,
 				projectId: projectIdToUse,
+				// This tab's team: the team cookie is shared by every tab and may name another tab's team (#5120)
+				organizationTeamId: teamIdAtStart,
 				isBillable: isBillableToUse,
 				description: notesToUse
 			});
@@ -740,7 +744,8 @@ export function useTimerApi({
 				if (isStillTeamOfStart) {
 					store.set(timerNotesState, (notes) => {
 						// Continued notes replace a draft: tied to the entry, the draft would overwrite them at the stop
-						const notesSent = continuedNotes === undefined ? notes : { text: continuedNotes, timeLogId: null };
+						const notesSent =
+							continuedNotes === undefined ? notes : { text: continuedNotes, timeLogId: null };
 						const notesAfterStart = timerNotesAfterStart(notesSent, res.data, notesToUse);
 						return notesAfterStart === notesSent ? notes : notesAfterStart;
 					});

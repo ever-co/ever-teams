@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { conflictResolveRefusalOf, type ConflictResolveRefusal } from '@/core/lib/utils/integration-sync-conflicts';
 import { queryKeys } from '@/core/query/keys';
 import { asanaIntegrationService } from '@/core/services/client/api/integrations/asana.service';
+import { jiraIntegrationService } from '@/core/services/client/api/integrations/jira.service';
 import { linearIntegrationService } from '@/core/services/client/api/integrations/linear.service';
 import { trelloIntegrationService } from '@/core/services/client/api/integrations/trello.service';
 import { activeTeamState, teamTasksState } from '@/core/stores';
@@ -17,7 +18,7 @@ import type {
 	TIntegrationConflictStatus
 } from '@/core/types/interfaces/integrations/integration-sync-conflict';
 
-/** The conflict routes of a provider's client (the three serve the same shapes). */
+/** The conflict routes of a provider's client (the four serve the same shapes). */
 export interface IntegrationConflictClient {
 	conflicts: (
 		integrationId: string,
@@ -34,7 +35,8 @@ export interface IntegrationConflictClient {
 const CLIENTS: Record<TIntegrationConflictProvider, IntegrationConflictClient> = {
 	linear: linearIntegrationService,
 	asana: asanaIntegrationService,
-	trello: trelloIntegrationService
+	trello: trelloIntegrationService,
+	jira: jiraIntegrationService
 };
 
 /** How many conflicts the list reads (the platform's own default page), and how many more "Show more" adds, up to the route's limit. */
@@ -79,7 +81,7 @@ export interface IntegrationConflicts {
 }
 
 /**
- * The sync conflicts of a Linear, Asana or Trello connection (`GET …/conflicts`) and their resolution
+ * The sync conflicts of a Linear, Asana, Trello or Jira connection (`GET …/conflicts`) and their resolution
  * (`POST …/conflicts/:id/resolve`, `keep: external | platform`). A resolved conflict leaves the open list at once and
  * every list of the provider is read again; a conflict resolved elsewhere (404) reads them again too, and a task that
  * changed since (409) keeps its conflict.
