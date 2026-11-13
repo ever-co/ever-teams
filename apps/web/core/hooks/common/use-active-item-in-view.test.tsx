@@ -10,7 +10,6 @@ function rectAt(left: number, width: number): DOMRect {
 	return { left, width, right: left + width, top: 0, bottom: 40, height: 40, x: left, y: 0, toJSON: () => ({}) };
 }
 
-/** A phone-wide strip of three tabs whose last one sits beyond the right edge. */
 function Strip({ active }: Readonly<{ active: string }>) {
 	const activeRef = useRef<HTMLButtonElement>(null);
 	const stripRef = useActiveItemInView<HTMLDivElement, HTMLButtonElement>(activeRef, active);
@@ -31,7 +30,7 @@ function Strip({ active }: Readonly<{ active: string }>) {
 	);
 }
 
-const tabLefts: Record<string, number> = { all: 28, tasks: 120, goTo: 420 };
+const tabLeftsOnAPhone: Record<string, number> = { all: 28, tasks: 120, goTo: 420 };
 
 function layOut(strip: HTMLElement, scrollWidth: number) {
 	Object.defineProperty(strip, 'clientWidth', { configurable: true, value: 343 });
@@ -39,7 +38,7 @@ function layOut(strip: HTMLElement, scrollWidth: number) {
 	strip.getBoundingClientRect = () => rectAt(16, 343);
 	strip.scrollTo = jest.fn() as unknown as typeof strip.scrollTo;
 	for (const tab of Array.from(strip.querySelectorAll<HTMLElement>('[data-tab]'))) {
-		const left = tabLefts[tab.dataset.tab ?? 'all'];
+		const left = tabLeftsOnAPhone[tab.dataset.tab ?? 'all'];
 		tab.getBoundingClientRect = () => rectAt(left, 60);
 	}
 }
