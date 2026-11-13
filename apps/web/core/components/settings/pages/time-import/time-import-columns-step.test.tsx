@@ -159,6 +159,34 @@ describe('TimeImportColumnsStep', () => {
 		expect(screen.getByLabelText(/^timeImport\.mapping\.fields\.PROJECT/).hasAttribute('title')).toBe(false);
 	});
 
+	it('names a column without a header by its place in the file, and maps it by that place', () => {
+		const unnamed = tableOf(',Beginn,Dauer,Foo\n03/11/2026,09:00,1:30,x\n');
+		const columnOne = 'timeImport.mapping.UNNAMED_COLUMN {"position":1}';
+		const handlers = renderStep(
+			{ mapping: { ...NO_TIME_IMPORT_COLUMNS, startTime: 1, duration: 2 }, dateOrder: null },
+			unnamed
+		);
+
+		fireEvent.click(
+			within(selectOf(/^timeImport\.mapping\.fields\.DATE/)).getByRole('option', { name: columnOne })
+		);
+
+		expect(handlers.onChooseColumn.mock.calls).toEqual([['date', 0]]);
+		expect(screen.getByRole('columnheader', { name: columnOne })).toBeTruthy();
+	});
+
+	it('shows a chosen column without a header by its place in the file', () => {
+		const unnamed = tableOf(',Beginn,Dauer\n03/11/2026,09:00,1:30\n');
+		renderStep(
+			{ mapping: { ...NO_TIME_IMPORT_COLUMNS, date: 0, startTime: 1, duration: 2 }, dateOrder: 'dayFirst' },
+			unnamed
+		);
+
+		expect(screen.getByLabelText(/^timeImport\.mapping\.fields\.DATE/).textContent).toBe(
+			'timeImport.mapping.UNNAMED_COLUMN {"position":1}'
+		);
+	});
+
 	it('offers Not in this file only for the parts an entry can do without', () => {
 		renderStep({ mapping: CHOSEN, dateOrder: 'dayFirst' });
 		const notInFile = { name: 'timeImport.mapping.NOT_IN_FILE' };

@@ -57,14 +57,11 @@ interface ColumnOption {
 	label: string;
 }
 
-function columnOptionsOf(headers: ReadonlyArray<string>): ColumnOption[] {
-	const options: ColumnOption[] = [];
-	headers.forEach((header, index) => {
-		if (header !== '') {
-			options.push({ value: String(index), label: header });
-		}
+function columnOptionsOf(headers: ReadonlyArray<string>, copy: TimeImportCopy): ColumnOption[] {
+	return headers.map((_, index) => {
+		const label = copy.columnLabelOf(headers, index);
+		return { value: String(index), label };
 	});
-	return options;
 }
 
 function selectValueOf(columnIndex: number | null, isOptional: boolean): string {
@@ -120,7 +117,7 @@ function ColumnRow({ item, headers, options, copy, onChooseColumn }: Readonly<Co
 	}
 	let chosenHeader: string | undefined = undefined;
 	if (item.columnIndex !== null) {
-		chosenHeader = headers[item.columnIndex];
+		chosenHeader = copy.columnLabelOf(headers, item.columnIndex);
 	}
 	// Never undefined: the select would then show the picked item's own label, which the first pick loses
 	let chosenLabel: ReactNode = chosenHeader ?? null;
@@ -240,7 +237,7 @@ function DateFormatRow({ step, copy, onChooseDateOrder }: Readonly<DateFormatRow
 	);
 }
 
-function FirstRows({ step }: Readonly<{ step: TimeImportColumnsStepData }>) {
+function FirstRows({ step, copy }: Readonly<{ step: TimeImportColumnsStepData; copy: TimeImportCopy }>) {
 	const t = useTranslations();
 	const labelId = useId();
 	const columnIndexes = step.headers.map((_, index) => index);
@@ -256,7 +253,7 @@ function FirstRows({ step }: Readonly<{ step: TimeImportColumnsStepData }>) {
 						<tr className="hairline-b border-border">
 							{columnIndexes.map((columnIndex) => (
 								<th key={columnIndex} scope="col" className={FIRST_ROWS_HEAD}>
-									{step.headers[columnIndex]}
+									{copy.columnLabelOf(step.headers, columnIndex)}
 								</th>
 							))}
 						</tr>
@@ -301,7 +298,7 @@ export function TimeImportColumnsStep({
 }: Readonly<TimeImportColumnsStepProps>) {
 	const t = useTranslations();
 	const blockerId = useId();
-	const options = useMemo(() => columnOptionsOf(step.headers), [step.headers]);
+	const options = useMemo(() => columnOptionsOf(step.headers, copy), [copy, step.headers]);
 
 	let blockerText: string | null = null;
 	if (step.blocker === 'missing') {
@@ -348,7 +345,7 @@ export function TimeImportColumnsStep({
 					/>
 				))}
 				<DateFormatRow step={step} copy={copy} onChooseDateOrder={onChooseDateOrder} />
-				<FirstRows step={step} />
+				<FirstRows step={step} copy={copy} />
 				<div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3">
 					{blockerText && (
 						<p

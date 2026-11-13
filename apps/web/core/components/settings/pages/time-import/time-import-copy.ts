@@ -104,6 +104,17 @@ export function useTimeImportCopy() {
 
 	const dateOrderLabel = useCallback((order: DateOrder): string => t(DATE_ORDER_KEYS[order]), [t]);
 
+	const columnLabelOf = useCallback(
+		(headers: ReadonlyArray<string>, columnIndex: number): string => {
+			const header = headers[columnIndex] ?? '';
+			if (header !== '') {
+				return header;
+			}
+			return t('timeImport.mapping.UNNAMED_COLUMN', { position: columnIndex + 1 });
+		},
+		[t]
+	);
+
 	const dateReadingOf = useCallback(
 		(value: string, order: DateOrder): string | null => {
 			const day = calendarDayOf(value, order);
@@ -292,11 +303,13 @@ export function useTimeImportCopy() {
 			reasonsOf,
 			fieldLabel,
 			dateOrderLabel,
+			columnLabelOf,
 			dateReadingOf,
 			missingPartOf,
 			mixedDatesText
 		}),
 		[
+			columnLabelOf,
 			dateOrderLabel,
 			dateReadingOf,
 			fieldLabel,
