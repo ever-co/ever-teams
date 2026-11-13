@@ -13,6 +13,7 @@ import { useDocsFavorites } from '@/core/hooks/docs/use-docs-favorites';
 import { useDocsExpanded, useDocsRecent } from '@/core/hooks/docs/use-docs-recent';
 import { useDocsScope } from '@/core/hooks/docs/use-docs-scope';
 import { useDocsTree } from '@/core/hooks/docs/use-docs-tree';
+import { pagesWithUnsentLiveEdits } from '@/core/hooks/docs/use-docs-live';
 import { useDocsZipExport } from '@/core/hooks/docs/use-docs-zip-export';
 import { isInside } from '@/core/lib/utils/docs-export';
 import type { DocsPageEdits } from '@/core/lib/utils/docs-page-edits';
@@ -253,6 +254,12 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 			exportZip: (page) =>
 				void exportZip(page, {
 					beforeExport: async () => {
+						// A page of the folder left while its live session was down holds edits only this tab has: nothing is
+						// exported until it is opened again and they are sent (the open page is handled below)
+						const leftUnsent = pagesWithUnsentLiveEdits().some(
+							(id) => id !== pageId && isInside(tree.byId, id, page.id)
+						);
+						if (leftUnsent) return false;
 						const edits = openEditsRef.current;
 						if (!edits || !pageId || !isInside(tree.byId, pageId, page.id) || !edits.pending()) return true;
 						return edits.hold();

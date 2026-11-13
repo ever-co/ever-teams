@@ -158,6 +158,15 @@ describe('createDocsLiveMemory', () => {
 		expect(memory.get('page-8')).toBeDefined();
 		expect(memory.get('left-offline')?.unsent).toBe(true);
 	});
+
+	it('names the documents holding unsent edits, and only them', () => {
+		const memory = createDocsLiveMemory(8);
+		memory.set('user-1:page-a', { doc: new Y.Doc(), lineage: 'l:1', unsent: true });
+		memory.set('user-1:page-b', { doc: new Y.Doc(), lineage: 'l:1' });
+		memory.set('user-1:page-c', { doc: new Y.Doc(), lineage: 'l:1', unsent: true });
+
+		expect(memory.unsentKeys()).toEqual(['user-1:page-a', 'user-1:page-c']);
+	});
 });
 
 describe('DocsLiveBinding', () => {
@@ -711,7 +720,9 @@ describe('DocsLiveBinding', () => {
 		await settle();
 		transport.play(syncFrame(serverWith('Start')));
 		binding.updateUser({ ...ME, name: 'Me, renamed' });
-		expect(binding.getSnapshot().awareness.getLocalState()).toMatchObject({ user: { id: ME.id, name: 'Me, renamed' } });
+		expect(binding.getSnapshot().awareness.getLocalState()).toMatchObject({
+			user: { id: ME.id, name: 'Me, renamed' }
+		});
 		await jest.advanceTimersByTimeAsync(200);
 		expect(transport.subscriptions).toHaveLength(1);
 		expect(transport.awareness.length).toBeGreaterThan(1);
