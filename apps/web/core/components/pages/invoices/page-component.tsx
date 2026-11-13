@@ -9,12 +9,15 @@ import { PageLayout } from '@/core/components/layouts/default-layout';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { DashboardBreadcrumb } from '@/core/components/dashboards/kit/dashboard-breadcrumb';
 import { Button } from '@/core/components/duplicated-components/_button';
+import { DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
 import { Invoice } from '@/core/components/icons';
+import { InvoiceMoneyBand, InvoiceMoneyBandSkeleton } from '@/core/components/invoices/invoice-money-band';
 import { useCurrentOrganizationOwner } from '@/core/hooks/bootstrap/use-feature-data';
 import { useClientNames } from '@/core/hooks/clients/use-client-names';
 import { useInvoiceAccess } from '@/core/hooks/invoices/use-invoice-access';
 import { useChangeInvoiceStatus, useInvoicePdf } from '@/core/hooks/invoices/use-invoice-mutations';
-import { useInvoicesQuery } from '@/core/hooks/invoices/use-invoices-query';
+import { useInvoicesOverview } from '@/core/hooks/invoices/use-invoices-overview';
+import { useLedgerStanding } from '@/core/hooks/invoices/use-ledger-standing';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import {
 	paidChangeOf,
@@ -24,7 +27,6 @@ import {
 } from '@/core/lib/utils/invoice-actions';
 import type { InvoicesScope } from '@/core/services/client/api/organizations/invoice.service';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
-import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import {
 	DeleteInvoiceDialog,
 	SendInvoiceDialog,
@@ -37,6 +39,7 @@ import { InvoicesLedger } from './invoices-ledger';
 import {
 	InvoicesEmptyState,
 	InvoicesErrorState,
+	InvoicesFilterEmptyState,
 	InvoicesLedgerSkeleton,
 	InvoicesPageSkeleton,
 	InvoicesToolbar
@@ -77,9 +80,10 @@ function InvoicesContent() {
 	const router = useRouter();
 	const activeTeam = useAtomValue(activeTeamState);
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
-	const organization = useAtomValue(currentOrganizationState);
 	const access = useInvoiceAccess();
-	const list = useInvoicesQuery({ enabled: access.canView });
+	const { filter, setFilter } = useLedgerStanding();
+	const overview = useInvoicesOverview({ enabled: access.canView, filter });
+	const { list, liveSummary } = overview;
 	const { downloadPdf, pendingId } = useInvoicePdf();
 	const clientNames = useClientNames();
 	const { changeTo, changingIds } = useInvoiceStatusToggle(list.scope);
@@ -124,7 +128,25 @@ function InvoicesContent() {
 	const showsError = list.isError && !hasInvoices;
 	const isSettled = !list.isLoading && !list.isError;
 	const showsEmpty = isSettled && !hasInvoices;
-	const showsLedger = !list.isLoading && hasInvoices;
+	const showsBody = !list.isLoading && hasInvoices;
+	// Drafts, Open and Overdue list the invoices read whole: until that read arrives they have no rows to show
+	const isWaitingForWhole = overview.isFilterWhole && !liveSummary;
+	const hasRows = overview.rows.length > 0;
+	const isRowsKnown = showsBody && !isWaitingForWhole;
+	const showsRows = isRowsKnown && hasRows;
+	const showsFilterEmpty = isRowsKnown && !hasRows;
+	const showsBand = showsBody && liveSummary !== null;
+	const showsBandSkeleton = showsBody && overview.isLiveLoading;
+	const showsLiveError = showsBody && overview.hasLiveFailed;
+	const showsRowsSkeleton = showsBandSkeleton && overview.isFilterWhole;
+	const showsMore = showsBody && list.hasMore && !overview.isFilterWhole;
+	const isFiltered = filter !== 'all';
+	const showsLoadedOnly = showsRows && overview.mayHoldMore && isFiltered;
+	const showAll = useCallback(() => setFilter('all'), [setFilter]);
+	let ledgerFilter;
+	if (hasInvoices) {
+		ledgerFilter = { filter, counts: overview.counts, onFilterChange: setFilter };
+	}
 
 	const pageTitle = t('invoices.TITLE');
 	const breadcrumbPaths = [
@@ -138,26 +160,51 @@ function InvoicesContent() {
 			showTimer={isTrackingEnabled}
 			breadcrumb={<DashboardBreadcrumb icon={<Invoice aria-hidden="true" />} paths={breadcrumbPaths} />}
 			mainHeaderSlot={
-				<InvoicesToolbar total={list.total} isLoading={list.isLoading} canCreate={access.canCreate} />
+				<InvoicesToolbar
+					total={list.total}
+					isLoading={list.isLoading}
+					canCreate={access.canCreate}
+					ledgerFilter={ledgerFilter}
+				/>
 			}
 		>
 			{list.isLoading && <InvoicesLedgerSkeleton />}
 			{showsError && <InvoicesErrorState onRetry={() => void list.refetch()} />}
 			{showsEmpty && <InvoicesEmptyState canCreate={access.canCreate} />}
-			{showsLedger && (
-				<div className="flex flex-col gap-4 pb-6">
-					<InvoicesLedger
-						invoices={list.invoices}
-						clientNames={clientNames}
-						timeZone={organization?.timeZone}
-						pendingPdfId={pendingId}
-						onDownload={downloadPdf}
-						canEdit={access.canEdit}
-						changingIds={changingIds}
-						onAction={takeAction}
-						canRevise={access.canCreate}
-					/>
-					{list.hasMore && (
+			{showsBody && (
+				<div className="flex flex-col gap-5 pb-6">
+					{showsBand && liveSummary && (
+						<InvoiceMoneyBand summary={liveSummary} picked={filter} onPick={setFilter} />
+					)}
+					{showsBandSkeleton && <InvoiceMoneyBandSkeleton />}
+					{showsLiveError && (
+						<DashboardErrorNotice
+							title={t('invoices.money.ERROR')}
+							onRetry={() => void overview.refetchLive()}
+						/>
+					)}
+					{showsRowsSkeleton && <InvoicesLedgerSkeleton />}
+					{showsRows && (
+						<InvoicesLedger
+							invoices={overview.rows}
+							clientNames={clientNames}
+							timeZone={overview.timeZone}
+							todayKey={overview.todayKey}
+							pendingPdfId={pendingId}
+							onDownload={downloadPdf}
+							canEdit={access.canEdit}
+							changingIds={changingIds}
+							onAction={takeAction}
+							canRevise={access.canCreate}
+						/>
+					)}
+					{showsFilterEmpty && <InvoicesFilterEmptyState filter={filter} onShowAll={showAll} />}
+					{showsLoadedOnly && (
+						<p className="px-1 text-xs text-muted-foreground">
+							{t('invoices.filter.LOADED_ONLY', { count: list.invoices.length })}
+						</p>
+					)}
+					{showsMore && (
 						<Button
 							type="button"
 							variant="outline"
