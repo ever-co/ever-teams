@@ -1,4 +1,7 @@
 import {
+	billedLinesReadOf,
+	billedPreviousOf,
+	billedSavedLinesOf,
 	haveSameFields,
 	haveSameLines,
 	hasInvoiceChanges,
@@ -514,5 +517,53 @@ describe('whether an invoice read back states the fields an update writes', () =
 				saved.previous.update
 			)
 		).toBe(false);
+	});
+});
+
+describe('the time a saved invoice bills', () => {
+	const billed = new Map([
+		['item-1', ['log-1', 'log-2']],
+		['item-of-another-invoice', ['log-9']]
+	]);
+
+	it('is read through each line’s id on the invoice', () => {
+		const saved = readSaved();
+
+		expect([...saved.lineIds.entries()]).toEqual([
+			['p1|ana', 'item-1'],
+			['p2|bo', 'item-2']
+		]);
+		expect(saved.previousLineIds).toEqual(['item-1', 'item-2']);
+		expect(billedLinesReadOf(saved)).toEqual({ lineIds: new Set(['item-1', 'item-2']), projectIds: ['p1', 'p2'] });
+	});
+
+	it('is named on each saved line, a line no time log names staying as it was saved', () => {
+		const saved = readSaved();
+
+		const lines = billedSavedLinesOf(saved, billed);
+
+		expect(lines.map((line) => [line.key, line.timeLogIds])).toEqual([
+			['p2|bo', undefined],
+			['p1|ana', ['log-1', 'log-2']]
+		]);
+	});
+
+	it('is written back with the lines when an edit fails half way, to an API that records it', () => {
+		const saved = readSaved();
+
+		const previous = billedPreviousOf(saved, billed, true);
+
+		expect(previous.lines.map((line) => line.timeLogIds)).toEqual([['log-1', 'log-2'], undefined]);
+		expect(previous.update).toBe(saved.previous.update);
+	});
+
+	it('is not named on the lines written back to an API that does not record it', () => {
+		const saved = readSaved();
+
+		expect(billedPreviousOf(saved, billed, false)).toBe(saved.previous);
+	});
+
+	it('is not read for an invoice that has none to name', () => {
+		expect(billedLinesReadOf(null)).toEqual({ lineIds: new Set(), projectIds: [] });
 	});
 });
