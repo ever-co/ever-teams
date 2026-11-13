@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { paidChangeOf } from '@/core/lib/utils/invoice-actions';
@@ -281,6 +281,26 @@ describe('settling and deleting an invoice', () => {
 		expect(listedStatusOf(queryClient)).toBe('FULLY_PAID');
 	});
 
+	it('keeps every invoice whose status change runs marked as changing, not only the latest one', async () => {
+		const answers: Array<() => void> = [];
+		mockChangeInvoiceStatus.mockImplementation(() => new Promise<void>((resolve) => answers.push(resolve)));
+		const queryClient = clientWithDraftListed();
+		const { result } = renderWith(queryClient, () => useChangeInvoiceStatus());
+
+		act(() => {
+			void result.current.changeStatus({ invoiceId: 'inv-1', change: paidChangeOf(10), scope: LIST_SCOPE });
+			void result.current.changeStatus({ invoiceId: 'inv-2', change: paidChangeOf(20), scope: LIST_SCOPE });
+		});
+		await waitFor(() => expect(answers).toHaveLength(2));
+		await waitFor(() => expect(result.current.changingIds).toEqual(new Set(['inv-1', 'inv-2'])));
+
+		act(() => answers[1]());
+		await waitFor(() => expect(result.current.changingIds).toEqual(new Set(['inv-1'])));
+
+		act(() => answers[0]());
+		await waitFor(() => expect(result.current.changingIds.size).toBe(0));
+	});
+
 	it('takes a deleted draft out of the list at once', async () => {
 		mockDeleteInvoice.mockResolvedValue(undefined);
 		const queryClient = clientWithDraftListed();
@@ -402,6 +422,21 @@ describe('saving an edit to an invoice', () => {
 		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
 	});
 
+	it('leaves the editor’s own read for its dialog to close when the invoice was paid since it was opened', async () => {
+		mockGetInvoice.mockResolvedValue(invoiceRead('FULLY_PAID'));
+		const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+		const editorRead = queryKeys.invoices.detail('tenant-1', 'organization-1', 'inv-42');
+		queryClient.setQueryData(editorRead, invoiceRead('SENT'));
+		queryClient.setQueryData(LIST_KEY, { pages: [], pageParams: [1] });
+		const { result } = renderWith(queryClient, () => useSaveInvoiceEdit());
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'locked' }, sending: null });
+		expect(queryClient.getQueryState(editorRead)?.isInvalidated).toBe(false);
+		expect(queryClient.getQueryState(LIST_KEY)?.isInvalidated).toBe(true);
+	});
+
 	it('writes nothing when the invoice cannot be read first', async () => {
 		mockGetInvoice.mockRejectedValue(serverFailure());
 		const { result } = renderSaveEdit();
@@ -469,7 +504,7 @@ describe('saving an edit to an invoice', () => {
 		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', edit.previous.update, workspace);
 	});
 
-	it('says nothing was saved when nothing reached the invoice, writing nothing back', async () => {
+	it('says the connection failed when its fields never reached the API, writing nothing back', async () => {
 		const asBefore = { ...invoiceRead('SENT'), ...fields, totalValue: 800 };
 		mockGetInvoice.mockResolvedValueOnce(invoiceRead('SENT')).mockResolvedValue(asBefore);
 		mockUpdateInvoice.mockRejectedValue(
@@ -479,8 +514,20 @@ describe('saving an edit to an invoice', () => {
 
 		const saved = await saveWith(result);
 
-		expect(saved).toEqual({ outcome: { status: 'notSaved' }, sending: null });
+		expect(saved).toEqual({ outcome: { status: 'notReached' }, sending: null });
 		expect(mockUpdateInvoice).toHaveBeenCalledTimes(1);
+		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
+	});
+
+	it('says nothing was saved when the API failed on its fields and wrote nothing', async () => {
+		const asBefore = { ...invoiceRead('SENT'), ...fields, totalValue: 800 };
+		mockGetInvoice.mockResolvedValueOnce(invoiceRead('SENT')).mockResolvedValue(asBefore);
+		mockUpdateInvoice.mockRejectedValue(serverFailure());
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'notSaved' }, sending: null });
 		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
 	});
 

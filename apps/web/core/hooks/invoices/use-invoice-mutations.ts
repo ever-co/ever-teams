@@ -1,6 +1,15 @@
 'use client';
 
-import { useMutation, useQueryClient, type InfiniteData, type QueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import {
+	hashKey,
+	useMutation,
+	useMutationState,
+	useQueryClient,
+	type InfiniteData,
+	type Mutation,
+	type QueryClient
+} from '@tanstack/react-query';
 import {
 	invoiceService,
 	type InvoicesPage,
@@ -18,7 +27,7 @@ import {
 	type InvoiceStatusChange,
 	type ListedInvoicesPage
 } from '@/core/lib/utils/invoice-actions';
-import { haveSameFields, haveSameLines, type InvoiceRevision } from '@/core/lib/utils/invoice-edit';
+import { didNotReachApi, haveSameFields, haveSameLines, type InvoiceRevision } from '@/core/lib/utils/invoice-edit';
 import {
 	invoiceSaveFailureOf,
 	invoiceStatusOf,
@@ -203,6 +212,8 @@ export type InvoiceEditOutcome =
 	| { status: 'saved' }
 	/** The API refused the edit before writing anything. */
 	| { status: 'notSaved' }
+	/** Its first write never reached the API, and the invoice read back is as it was. */
+	| { status: 'notReached' }
 	/** Something was paid on it, or it was voided, since it was opened: nothing was written. */
 	| { status: 'locked' }
 	/** It could not be read before the edit was written: nothing was written. */
@@ -276,6 +287,22 @@ function editUnderStatus(edit: InvoiceEdit, status: InvoiceStatus): InvoiceEdit 
 	};
 }
 
+/** The first write failed: refused, it changed nothing; otherwise the invoice is read back and put back if needed. */
+async function outcomeOfFailedFields(edit: InvoiceEdit, error: unknown): Promise<InvoiceEditOutcome> {
+	const isRefused = invoiceSaveFailureOf(error) === 'refused';
+	if (isRefused) {
+		return { status: 'notSaved' };
+	}
+	const outcome = await putInvoiceBack(edit);
+	const isUntouched = outcome.status === 'notSaved';
+	const wasNotReached = didNotReachApi(error);
+	const isConnectionFailure = isUntouched && wasNotReached;
+	if (isConnectionFailure) {
+		return { status: 'notReached' };
+	}
+	return outcome;
+}
+
 /**
  * Saves an edit in the two writes the API offers: the invoice's own fields, then its lines. A refusal of the first
  * changes nothing; any other failure writes the invoice back as it was read.
@@ -284,11 +311,7 @@ async function writeInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> 
 	try {
 		await invoiceService.updateInvoice(edit.invoiceId, edit.revision.update, edit.scope);
 	} catch (error) {
-		const isRefused = invoiceSaveFailureOf(error) === 'refused';
-		if (isRefused) {
-			return { status: 'notSaved' };
-		}
-		return putInvoiceBack(edit);
+		return outcomeOfFailedFields(edit, error);
 	}
 	try {
 		await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.revision.lines, edit.scope);
@@ -340,11 +363,28 @@ async function saveAndSendInvoiceEdit({ edit, sending }: InvoiceEditToSave): Pro
 	return { outcome, sending: sendingOutcome };
 }
 
+/**
+ * Reads the invoices again after an edit. A refusal because the invoice was paid or voided since it was opened leaves
+ * the editor's own read alone: its answer would replace the editor, and the refusal with it, before it is read.
+ */
+function readInvoicesAfterEdit(queryClient: QueryClient, edit: InvoiceEdit, saved: SavedInvoiceEdit | undefined) {
+	const isLocked = saved?.outcome.status === 'locked';
+	if (!isLocked) {
+		return queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all });
+	}
+	const editorRead = queryKeys.invoices.detail(edit.scope.tenantId, edit.scope.organizationId, edit.invoiceId);
+	const editorReadHash = hashKey(editorRead);
+	return queryClient.invalidateQueries({
+		queryKey: queryKeys.invoices.all,
+		predicate: (query) => query.queryHash !== editorReadHash
+	});
+}
+
 export function useSaveInvoiceEdit() {
 	const queryClient = useQueryClient();
 	const mutation = useMutation({
 		mutationFn: saveAndSendInvoiceEdit,
-		onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all }),
+		onSettled: (saved, _error, { edit }) => readInvoicesAfterEdit(queryClient, edit, saved),
 		meta: { handlesOwnError: true }
 	});
 	return { saveInvoiceEdit: mutation.mutateAsync, isSavingEdit: mutation.isPending };
@@ -356,6 +396,14 @@ export interface InvoiceStatusChangeRequest {
 	scope: ReadWorkspace;
 }
 
+/** Shared by every row and dialog: an invoice whose status change runs stays busy, whichever change ran last. */
+const STATUS_CHANGE_KEY = [...queryKeys.invoices.all, 'status-change'] as const;
+
+function changedInvoiceIdOf(change: Mutation) {
+	const request = change.state.variables as InvoiceStatusChangeRequest;
+	return request.invoiceId;
+}
+
 async function changeStatusInItsWorkspace({ invoiceId, change, scope }: InvoiceStatusChangeRequest) {
 	const workspace = workspaceToActIn(scope);
 	await invoiceService.changeInvoiceStatus(invoiceId, change, workspace);
@@ -364,17 +412,19 @@ async function changeStatusInItsWorkspace({ invoiceId, change, scope }: InvoiceS
 export function useChangeInvoiceStatus() {
 	const queryClient = useQueryClient();
 	const mutation = useMutation({
+		mutationKey: STATUS_CHANGE_KEY,
 		mutationFn: changeStatusInItsWorkspace,
 		onSuccess: (_answer, { invoiceId, change, scope }) =>
 			showListedStatus(queryClient, scope, invoiceId, change.status),
 		onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all }),
 		meta: { handlesOwnError: true }
 	});
-	let changingId: string | null = null;
-	if (mutation.isPending) {
-		changingId = mutation.variables?.invoiceId ?? null;
-	}
-	return { changeStatus: mutation.mutateAsync, isChanging: mutation.isPending, changingId };
+	const pendingIds = useMutationState({
+		filters: { mutationKey: STATUS_CHANGE_KEY, status: 'pending' },
+		select: changedInvoiceIdOf
+	});
+	const changingIds = useMemo<ReadonlySet<string>>(() => new Set(pendingIds), [pendingIds]);
+	return { changeStatus: mutation.mutateAsync, isChanging: mutation.isPending, changingIds };
 }
 
 interface InvoiceToDelete {

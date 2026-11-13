@@ -250,7 +250,7 @@ export function InvoicesLedger({
 	pendingPdfId,
 	onDownload,
 	canEdit,
-	changingId,
+	changingIds,
 	onAction,
 	canRevise = false
 }: Readonly<{
@@ -261,7 +261,7 @@ export function InvoicesLedger({
 	pendingPdfId: string | null;
 	onDownload: (invoice: InvoiceToDownload) => void;
 	canEdit: boolean;
-	changingId: string | null;
+	changingIds: ReadonlySet<string>;
 	onAction: InvoiceActionHandler;
 	/** The role may edit an invoice, or void and replace it: it may create invoices. */
 	canRevise?: boolean;
@@ -290,7 +290,7 @@ export function InvoicesLedger({
 									isDownloading={pendingPdfId === invoice.id}
 									onDownload={onDownload}
 									canEdit={canEdit}
-									isChanging={changingId === invoice.id}
+									isChanging={changingIds.has(invoice.id)}
 									onAction={onAction}
 									isCompact={isCompact}
 									canRevise={canRevise}

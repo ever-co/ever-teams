@@ -212,7 +212,7 @@ export function ProjectConfirmDialog({
 					{extra}
 				</div>
 			</div>
-			<div className={PROJECT_DIALOG_FOOTER}>
+			<div className={cn(PROJECT_DIALOG_FOOTER, 'justify-end')}>
 				{error && (
 					<p role="alert" className="mr-auto text-xs text-destructive-ink">
 						{error}
@@ -225,7 +225,6 @@ export function ProjectConfirmDialog({
 					onClick={onClose}
 					disabled={isBusy}
 					data-initial-focus=""
-					className={cn(!error && 'ml-auto')}
 				>
 					{t('common.CANCEL')}
 				</Button>

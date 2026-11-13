@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { DashboardToolbar } from '@/core/components/dashboards/kit/dashboard-layout';
@@ -10,12 +11,25 @@ import { formatPeriod } from '@/core/lib/utils/dashboard-period';
 import { invoiceRevisionsOf } from '@/core/lib/utils/invoice-actions';
 import type { SavedInvoice } from '@/core/lib/utils/invoice-edit';
 import { editInvoicePathOf, InvoiceAccessGuard } from '../invoice-access-guard';
-import { CancelInvoiceLink, InvoiceScreenFrame, RevisedInvoiceBody, TakeTimeAgainButton } from '../new/invoice-screen';
+import {
+	CancelInvoiceLink,
+	InvoiceScreenFrame,
+	RevisedInvoiceBody,
+	TakeTimeAgainButton,
+	type SaveDialogControl
+} from '../new/invoice-screen';
 import { SaveInvoiceChangesDialog } from './save-invoice-changes-dialog';
 import { EditInvoicePageSkeleton, LockedInvoiceMessage, SavedInvoiceMessage } from './saved-invoice-states';
 
+interface EditInvoiceScreenProps {
+	saved: SavedInvoice;
+	/** A save was refused because the invoice was paid or voided since it was opened. */
+	onSaveLocked: () => void;
+	onSaveDialogClosed: () => void;
+}
+
 /** The invoice screen opened on a saved invoice: the same sheet and details, its title naming the invoice. */
-function EditInvoiceScreen({ saved }: Readonly<{ saved: SavedInvoice }>) {
+function EditInvoiceScreen({ saved, onSaveLocked, onSaveDialogClosed }: Readonly<EditInvoiceScreenProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const invoice = useInvoiceEdit(saved);
@@ -30,12 +44,23 @@ function EditInvoiceScreen({ saved }: Readonly<{ saved: SavedInvoice }>) {
 			controls={<TakeTimeAgainButton invoice={invoice} />}
 		/>
 	);
+	const renderSaveDialog = (dialog: SaveDialogControl) => {
+		const close = () => {
+			dialog.onClose();
+			onSaveDialogClosed();
+		};
+		return (
+			<SaveInvoiceChangesDialog
+				open={dialog.open}
+				onClose={close}
+				invoice={invoice}
+				onLockedRefusal={onSaveLocked}
+			/>
+		);
+	};
 	return (
 		<InvoiceScreenFrame title={title} href={editInvoicePathOf(saved.id)} toolbar={toolbar}>
-			<RevisedInvoiceBody
-				invoice={invoice}
-				renderSaveDialog={(dialog) => <SaveInvoiceChangesDialog {...dialog} invoice={invoice} />}
-			/>
+			<RevisedInvoiceBody invoice={invoice} renderSaveDialog={renderSaveDialog} />
 		</InvoiceScreenFrame>
 	);
 }
@@ -46,6 +71,16 @@ function EditInvoiceContent() {
 	const params = useParams<{ id: string }>();
 	const invoiceId = params?.id ?? '';
 	const read = useSavedInvoice(invoiceId || null);
+	const [wasSaveRefused, setWasSaveRefused] = useState(false);
+	const readAgain = read.retry;
+	const markSaveRefused = useCallback(() => setWasSaveRefused(true), []);
+	// A refused save leaves the invoice's read for its dialog to close: its answer replaces the editor.
+	const readAgainAfterRefusal = useCallback(() => {
+		if (!wasSaveRefused) {
+			return;
+		}
+		readAgain();
+	}, [readAgain, wasSaveRefused]);
 	const loadingTitle = t('invoices.edit.LOADING_TITLE');
 	const editPath = editInvoicePathOf(invoiceId);
 	if (read.status === 'loading') {
@@ -66,11 +101,18 @@ function EditInvoiceContent() {
 	if (!isEditable) {
 		return (
 			<InvoiceScreenFrame title={loadingTitle} href={editPath}>
-				<LockedInvoiceMessage saved={saved} />
+				<LockedInvoiceMessage saved={saved} wasSaveRefused={wasSaveRefused} />
 			</InvoiceScreenFrame>
 		);
 	}
-	return <EditInvoiceScreen key={saved.id} saved={saved} />;
+	return (
+		<EditInvoiceScreen
+			key={saved.id}
+			saved={saved}
+			onSaveLocked={markSaveRefused}
+			onSaveDialogClosed={readAgainAfterRefusal}
+		/>
+	);
 }
 
 /** Editing rebuilds lines from everyone's time: it opens for the roles that may create invoices. */

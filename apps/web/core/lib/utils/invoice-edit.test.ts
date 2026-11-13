@@ -1,4 +1,6 @@
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import {
+	didNotReachApi,
 	haveSameFields,
 	haveSameLines,
 	hasInvoiceChanges,
@@ -514,5 +516,33 @@ describe('whether an invoice read back states the fields an update writes', () =
 				saved.previous.update
 			)
 		).toBe(false);
+	});
+});
+
+describe('a failed write that never reached the API', () => {
+	function answeredWith(status: number) {
+		return ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code ' + status,
+			status,
+			response: { data: {}, headers: {}, status, statusText: '' }
+		});
+	}
+
+	it('is one that got no answer: the network, a timeout, the browser', () => {
+		const lost = ApiErrorService.fromAxiosError({ code: 'ERR_NETWORK', message: 'Network Error' });
+
+		expect(didNotReachApi(lost)).toBe(true);
+	});
+
+	it.each([502, 504])('is one a gateway answered with %i in the API’s place', (status) => {
+		expect(didNotReachApi(answeredWith(status))).toBe(true);
+	});
+
+	it.each([400, 500, 503])('is not one the API answered with %i', (status) => {
+		expect(didNotReachApi(answeredWith(status))).toBe(false);
+	});
+
+	it('is not an error of another kind', () => {
+		expect(didNotReachApi(new Error('unexpected'))).toBe(false);
 	});
 });

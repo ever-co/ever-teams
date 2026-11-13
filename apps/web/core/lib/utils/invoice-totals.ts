@@ -21,6 +21,11 @@ const PERCENT_BASE = 100;
 
 const MAX_PERCENT = 100;
 
+/** A percent has at most four decimals: in ten-thousandths it is a whole number, and its share of the cents is exact. */
+const PERCENT_SCALE = 10_000;
+
+const SCALED_PERCENT_BASE = PERCENT_BASE * PERCENT_SCALE;
+
 /** Up to three digits, then a point or a comma and up to four decimals: 8.875 is a real tax rate. */
 const PERCENT_TEXT_PATTERN = /^\d{0,3}(?:[.,]\d{0,4})?$/;
 
@@ -36,7 +41,9 @@ function percentOfCents(cents: number, percent: number | null) {
 	if (percent === null) {
 		return 0;
 	}
-	const share = (cents * percent) / PERCENT_BASE;
+	const scaledPercent = Math.round(percent * PERCENT_SCALE);
+	const scaledShare = cents * scaledPercent;
+	const share = scaledShare / SCALED_PERCENT_BASE;
 	return Math.round(share);
 }
 
