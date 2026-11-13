@@ -90,7 +90,11 @@ export function useTimeImportCopy() {
 		[locale]
 	);
 	const listFormatter = useMemo(() => new Intl.ListFormat(locale, { type: 'conjunction' }), [locale]);
-	const dayFormatter = useMemo(() => new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }), [locale]);
+	// The month as a word: in numbers, as some languages write a medium date, a reading cannot tell the two orders apart
+	const readingFormatter = useMemo(
+		() => new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long', year: 'numeric' }),
+		[locale]
+	);
 
 	const rangeOf = useCallback((start: Date, end: Date) => rangeFormatter.formatRange(start, end), [rangeFormatter]);
 
@@ -107,9 +111,9 @@ export function useTimeImportCopy() {
 				return null;
 			}
 			const date = new Date(day.year, day.month - 1, day.day);
-			return dayFormatter.format(date);
+			return readingFormatter.format(date);
 		},
-		[dayFormatter]
+		[readingFormatter]
 	);
 
 	const missingPartOf = useCallback(

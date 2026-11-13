@@ -20,9 +20,11 @@ function translate(key: string, values?: Record<string, unknown>) {
 	return `${key} ${JSON.stringify(values)}`;
 }
 
+let mockLocale = 'en';
+
 jest.mock('next-intl', () => ({
 	useTranslations: () => translate,
-	useLocale: () => 'en'
+	useLocale: () => mockLocale
 }));
 // Each option is a button that picks its value, inside a container the test can scope to
 jest.mock('@/core/components/common/select', () => {
@@ -128,6 +130,10 @@ function checkButton(): HTMLButtonElement {
 }
 
 describe('TimeImportColumnsStep', () => {
+	afterEach(() => {
+		mockLocale = 'en';
+	});
+
 	it('shows each part of an entry with the column it is read from and the first value of that column', () => {
 		renderStep({ mapping: CHOSEN, dateOrder: 'dayFirst' });
 
@@ -175,7 +181,7 @@ describe('TimeImportColumnsStep', () => {
 			name: /DAY_FIRST/
 		});
 
-		expect(dayFirst.textContent).toContain('Nov 3, 2026');
+		expect(dayFirst.textContent).toContain('November 3, 2026');
 		expect(screen.getByRole('status').textContent).toBe('timeImport.mapping.DATE_FORMAT_MISSING');
 		expect(checkButton().disabled).toBe(true);
 
@@ -215,7 +221,7 @@ describe('TimeImportColumnsStep', () => {
 		const handlers = renderStep({ mapping: CHOSEN, dateOrder: 'dayFirst' });
 
 		expect(screen.queryByRole('status')).toBeNull();
-		expect(sampleOf(/^timeImport\.mapping\.DATE_FORMAT/)).toBe('03/11/2026 · Nov 3, 2026');
+		expect(sampleOf(/^timeImport\.mapping\.DATE_FORMAT/)).toBe('03/11/2026 · November 3, 2026');
 		fireEvent.click(checkButton());
 
 		expect(handlers.onConfirm).toHaveBeenCalledTimes(1);
@@ -228,6 +234,29 @@ describe('TimeImportColumnsStep', () => {
 		expect(within(firstRows).getAllByRole('row')).toHaveLength(3);
 		expect(within(firstRows).getByText('<b>Pairing</b>')).toBeTruthy();
 		expect(firstRows.querySelector('b')).toBeNull();
+	});
+
+	it('names the month of the day a date format reads, in every language', () => {
+		const november = new Date(2026, 10, 3);
+		for (const locale of ['en', 'de', 'bg', 'ar']) {
+			mockLocale = locale;
+			const monthName = new Intl.DateTimeFormat(locale, { month: 'long' }).format(november);
+			const { unmount } = render(
+				<Harness
+					table={TABLE}
+					choice={{ mapping: CHOSEN, dateOrder: 'dayFirst' }}
+					handlers={{
+						onChooseColumn: jest.fn(),
+						onChooseDateOrder: jest.fn(),
+						onConfirm: jest.fn(),
+						onChooseAnother: jest.fn()
+					}}
+				/>
+			);
+
+			expect(sampleOf(/^timeImport\.mapping\.DATE_FORMAT/)).toContain(monthName);
+			unmount();
+		}
 	});
 
 	it('starts each header of the first rows where its values start, as a table cell does', () => {
