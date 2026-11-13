@@ -26,8 +26,10 @@ import {
 	removedLineCountOf,
 	todayDayKey,
 	type InvoiceGrouping,
-	type InvoiceRequest
+	type InvoiceRequest,
+	type NamedInvoiceLine
 } from '@/core/lib/utils/invoices';
+import { percentTextOf, periodOfDays, type SavedInvoice } from '@/core/lib/utils/invoice-edit';
 import {
 	acceptsPercentText,
 	hasAdjustments,
@@ -37,6 +39,7 @@ import {
 } from '@/core/lib/utils/invoice-totals';
 import { newUuid } from '@/core/lib/utils/uuid';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
+import type { TClient } from '@/core/types/schemas';
 import { useCreateInvoice, useSaveAndSendInvoice } from './use-invoice-mutations';
 import { useInvoiceTime, type InvoiceTimeLabels } from './use-invoice-time';
 import { useClientInvoices, useNextInvoiceNumber } from './use-invoices-query';
@@ -57,8 +60,136 @@ function numberTextOf(typedNumber: string | null, nextNumber: number | null) {
 	return String(nextNumber);
 }
 
-/** A new invoice while it is prepared. Nothing reaches the API until `save` is called. */
-export function useNewInvoice() {
+/** Where an invoice starts from: nothing, or a saved invoice to edit, or to replace by a new one. */
+export type InvoiceDraftStart =
+	| { kind: 'new' }
+	| { kind: 'edit'; saved: SavedInvoice }
+	| { kind: 'replace'; saved: SavedInvoice };
+
+/** The lines an invoice was saved with, or lines rebuilt from the time as it is now. */
+export type InvoiceLinesSource = 'saved' | 'time';
+
+const NEW_INVOICE: InvoiceDraftStart = { kind: 'new' };
+
+const NO_LINES: NamedInvoiceLine[] = [];
+
+/** What an invoice holds when its screen opens. */
+interface DraftSeed {
+	clientId: string | null;
+	period: Period;
+	grouping: InvoiceGrouping;
+	linesSource: InvoiceLinesSource;
+	descriptions: ReadonlyMap<string, string>;
+	currencyKey: string | null;
+	numberText: string | null;
+	issueDay: string | null;
+	dueDay: string | null;
+	note: string | null;
+	discountText: string;
+	taxText: string;
+}
+
+function newDraftSeedOf(clientId: string | null): DraftSeed {
+	return {
+		clientId,
+		period: periodOfPreset('lastMonth', INVOICE_WEEK_START),
+		grouping: 'member',
+		linesSource: 'time',
+		descriptions: NO_DESCRIPTIONS,
+		currencyKey: null,
+		numberText: null,
+		issueDay: null,
+		dueDay: null,
+		note: null,
+		discountText: '',
+		taxText: ''
+	};
+}
+
+/** A replacement bills what the saved invoice billed, as it did; an edit also keeps its number and its dates. */
+function savedDraftSeedOf(saved: SavedInvoice, keepsNumberAndDates: boolean): DraftSeed {
+	const period = periodOfDays(saved.period) ?? periodOfPreset('lastMonth', INVOICE_WEEK_START);
+	const seed: DraftSeed = {
+		clientId: saved.client.id,
+		period,
+		grouping: saved.grouping,
+		linesSource: 'saved',
+		descriptions: saved.descriptions,
+		currencyKey: currencyKeyOf(saved.currency),
+		numberText: null,
+		issueDay: null,
+		dueDay: null,
+		note: saved.note,
+		discountText: percentTextOf(saved.discountPercent),
+		taxText: percentTextOf(saved.taxPercent)
+	};
+	if (keepsNumberAndDates) {
+		seed.numberText = String(saved.number);
+		seed.issueDay = saved.issueDay;
+		seed.dueDay = saved.dueDay;
+	}
+	return seed;
+}
+
+function draftSeedOf(start: InvoiceDraftStart, searchedClientId: string | null): DraftSeed {
+	if (start.kind === 'new') {
+		return newDraftSeedOf(searchedClientId);
+	}
+	return savedDraftSeedOf(start.saved, start.kind === 'edit');
+}
+
+function savedInvoiceOfStart(start: InvoiceDraftStart): SavedInvoice | null {
+	if (start.kind === 'new') {
+		return null;
+	}
+	return start.saved;
+}
+
+/** The saved invoice's client stands in while the list of active clients does not hold it: it may be archived. */
+function savedClientOf(saved: SavedInvoice | null): TClient | null {
+	if (!saved) {
+		return null;
+	}
+	const { id, name, primaryEmail, imageUrl } = saved.client;
+	return { id, name, primaryEmail, imageUrl };
+}
+
+function draftClientOf(clients: ReadonlyArray<TClient>, clientId: string | null, savedClient: TClient | null) {
+	const listed = clients.find((candidate) => candidate.id === clientId);
+	if (listed) {
+		return listed;
+	}
+	const isSavedClient = savedClient !== null && savedClient.id === clientId;
+	if (isSavedClient) {
+		return savedClient;
+	}
+	return null;
+}
+
+function linesOfSource(
+	source: InvoiceLinesSource,
+	savedLines: NamedInvoiceLine[],
+	timeLines: NamedInvoiceLine[]
+): NamedInvoiceLine[] {
+	if (source === 'saved') {
+		return savedLines;
+	}
+	return timeLines;
+}
+
+/** The client's other invoices: the invoice edited or replaced is not compared with itself. */
+function invoicesBesides<T extends { id: string }>(invoices: T[], saved: SavedInvoice | null): T[] {
+	if (!saved) {
+		return invoices;
+	}
+	return invoices.filter((invoice) => invoice.id !== saved.id);
+}
+
+/**
+ * An invoice while it is prepared: empty, or started from a saved invoice. Nothing reaches the API here; the hooks
+ * that create or edit an invoice save it.
+ */
+export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 	const t = useTranslations();
 	const searchParams = useSearchParams();
 	const organizationRead = useCurrentOrganizationOwner();
@@ -69,26 +200,30 @@ export function useNewInvoice() {
 	const clientsQuery = useActiveClients();
 	const clients = clientsQuery.clients;
 
-	const [pickedClientId, setPickedClientId] = useState<string | null>(() => searchParams?.get('client') ?? null);
-	const [period, setPeriod] = useState<Period>(() => periodOfPreset('lastMonth', INVOICE_WEEK_START));
-	const [grouping, setGrouping] = useState<InvoiceGrouping>('member');
+	const [seed] = useState(() => draftSeedOf(start, searchParams?.get('client') ?? null));
+	const [pickedClientId, setPickedClientId] = useState<string | null>(seed.clientId);
+	const [period, setPeriod] = useState<Period>(seed.period);
+	const [grouping, setGrouping] = useState<InvoiceGrouping>(seed.grouping);
+	const [linesSource, setLinesSource] = useState<InvoiceLinesSource>(seed.linesSource);
 	const [removedKeys, setRemovedKeys] = useState<ReadonlySet<string>>(NO_KEYS);
-	const [descriptions, setDescriptions] = useState<ReadonlyMap<string, string>>(NO_DESCRIPTIONS);
-	const [pickedCurrencyKey, setPickedCurrencyKey] = useState<string | null>(null);
-	const [typedNumber, setTypedNumber] = useState<string | null>(null);
-	const [pickedIssueDay, setPickedIssueDay] = useState<string | null>(null);
-	const [pickedDueDay, setPickedDueDay] = useState<string | null>(null);
-	const [typedNote, setTypedNote] = useState<string | null>(null);
-	const [discountText, setDiscountText] = useState('');
-	const [taxText, setTaxText] = useState('');
+	const [descriptions, setDescriptions] = useState<ReadonlyMap<string, string>>(seed.descriptions);
+	const [pickedCurrencyKey, setPickedCurrencyKey] = useState<string | null>(seed.currencyKey);
+	const [typedNumber, setTypedNumber] = useState<string | null>(seed.numberText);
+	const [pickedIssueDay, setPickedIssueDay] = useState<string | null>(seed.issueDay);
+	const [pickedDueDay, setPickedDueDay] = useState<string | null>(seed.dueDay);
+	const [typedNote, setTypedNote] = useState<string | null>(seed.note);
+	const [discountText, setDiscountText] = useState(seed.discountText);
+	const [taxText, setTaxText] = useState(seed.taxText);
+	const savedInvoice = savedInvoiceOfStart(start);
 
 	const timeZone = organization?.timeZone;
 	const today = useMemo(() => todayDayKey(timeZone), [timeZone]);
 	const issueDay = pickedIssueDay ?? today;
 
+	const savedClient = useMemo(() => savedClientOf(savedInvoice), [savedInvoice]);
 	const client = useMemo(
-		() => clients.find((candidate) => candidate.id === pickedClientId) ?? null,
-		[clients, pickedClientId]
+		() => draftClientOf(clients, pickedClientId, savedClient),
+		[clients, pickedClientId, savedClient]
 	);
 	const clientId = client?.id ?? null;
 
@@ -100,9 +235,12 @@ export function useNewInvoice() {
 		}),
 		[t]
 	);
-	const time = useInvoiceTime({ clientId, period, grouping, labels });
+	const readsTime = linesSource === 'time';
+	const time = useInvoiceTime({ clientId, period, grouping, labels, enabled: readsTime });
+	const savedLines = savedInvoice?.lines ?? NO_LINES;
+	const lines = linesOfSource(linesSource, savedLines, time.lines);
 
-	const currencies = useMemo(() => invoiceCurrenciesOf(time.lines), [time.lines]);
+	const currencies = useMemo(() => invoiceCurrenciesOf(lines), [lines]);
 	const currencyKey = invoiceCurrencyKeyOf(currencies, pickedCurrencyKey);
 	const currencyTotal = currencies.find((total) => total.key === currencyKey);
 	const currency = currencyTotal?.currency ?? null;
@@ -112,8 +250,8 @@ export function useNewInvoice() {
 	);
 
 	const invoiceLines = useMemo(
-		() => time.lines.filter((line) => currencyKeyOf(line.currency) === currencyKey),
-		[currencyKey, time.lines]
+		() => lines.filter((line) => currencyKeyOf(line.currency) === currencyKey),
+		[currencyKey, lines]
 	);
 	const keptLines = useMemo(() => keptLinesOf(invoiceLines, removedKeys), [invoiceLines, removedKeys]);
 	const groups = useMemo(() => projectGroupsOf(keptLines), [keptLines]);
@@ -126,7 +264,9 @@ export function useNewInvoice() {
 	);
 	const totals = useMemo(() => invoiceTotalsOf(subtotal, adjustments), [adjustments, subtotal]);
 
-	const nextNumber = useNextInvoiceNumber(true);
+	// An edited invoice keeps its number: the next free one is not read for it.
+	const readsNextNumber = start.kind !== 'edit';
+	const nextNumber = useNextInvoiceNumber(readsNextNumber);
 	const numberText = numberTextOf(typedNumber, nextNumber.nextNumber);
 	const dueTerm = invoiceDueTermOf(client?.paymentTermsDays, organization?.daysUntilDue);
 	const termDueDay = dueDayAfter(issueDay, dueTerm.days);
@@ -136,9 +276,13 @@ export function useNewInvoice() {
 
 	const periodDays = useMemo(() => invoicePeriodDaysOf(period), [period]);
 	const earlier = useClientInvoices(clientId);
+	const earlierInvoices = useMemo(
+		() => invoicesBesides(earlier.invoices, savedInvoice),
+		[earlier.invoices, savedInvoice]
+	);
 	const overlappingInvoices = useMemo(
-		() => overlappingInvoicesOf(earlier.invoices, periodDays),
-		[earlier.invoices, periodDays]
+		() => overlappingInvoicesOf(earlierInvoices, periodDays),
+		[earlierInvoices, periodDays]
 	);
 
 	const draftProblems = invoiceProblemsOf({ numberText, issueDay, dueDay, currency, lineCount: keptLines.length });
@@ -187,6 +331,18 @@ export function useNewInvoice() {
 	const describeLine = useCallback((lineKey: string, description: string) => {
 		setDescriptions((current) => new Map([...current, [lineKey, description]]));
 	}, []);
+
+	const refetchTime = time.refetch;
+	// What was written on a saved line stays on the rebuilt line with the same project, member and task.
+	const takeTimeAgain = useCallback(() => {
+		if (linesSource === 'time') {
+			refetchTime();
+			return;
+		}
+		setLinesSource('time');
+	}, [linesSource, refetchTime]);
+
+	const backToSavedLines = useCallback(() => setLinesSource('saved'), []);
 
 	const changeDiscount = useCallback((text: string) => {
 		if (acceptsPercentText(text)) {
@@ -244,38 +400,6 @@ export function useNewInvoice() {
 		timeZone
 	]);
 
-	const { createInvoice, isSaving: isCreating } = useCreateInvoice();
-	const { saveAndSendInvoice, isSavingAndSending } = useSaveAndSendInvoice();
-	const isSaving = isCreating || isSavingAndSending;
-	const submit = useCallback(
-		async <T>(run: (request: InvoiceRequest) => Promise<T>): Promise<T | null> => {
-			const request = invoiceRequest();
-			if (!request) {
-				return null;
-			}
-			try {
-				return await run(request);
-			} catch (error) {
-				// The next free number is read again after any failure. A save whose outcome is unknown keeps its own
-				// number: had it gone through, saving again under that number is refused instead of creating a second
-				// invoice.
-				const isUnconfirmed = invoiceSaveFailureOf(error) === 'unconfirmed';
-				if (isUnconfirmed) {
-					setTypedNumber(String(request.invoiceNumber));
-				}
-				throw error;
-			}
-		},
-		[invoiceRequest]
-	);
-
-	const save = useCallback(() => submit(createInvoice), [createInvoice, submit]);
-
-	const saveAndSend = useCallback(
-		(email: string) => submit((request) => saveAndSendInvoice({ request, email })),
-		[saveAndSendInvoice, submit]
-	);
-
 	return {
 		organizationName: organization?.name ?? '',
 		isOrganizationLoading,
@@ -329,17 +453,72 @@ export function useNewInvoice() {
 		isDueDayOfTerm,
 		note,
 		setNote: setTypedNote,
-		earlierInvoices: earlier.invoices,
+		earlierInvoices,
 		areEarlierLoading: earlier.isLoading,
 		haveEarlierFailed: earlier.isError,
 		refetchEarlier: earlier.refetch,
 		overlappingInvoices,
 		problems,
 		isWaiting,
-		save,
-		saveAndSend,
-		isSaving
+		mode: start.kind,
+		savedInvoice,
+		linesSource,
+		takeTimeAgain,
+		backToSavedLines,
+		invoiceRequest
 	};
+}
+
+export type InvoiceDraftState = ReturnType<typeof useInvoiceDraft>;
+
+function newInvoiceStartOf(replaced: SavedInvoice | null): InvoiceDraftStart {
+	if (!replaced) {
+		return NEW_INVOICE;
+	}
+	return { kind: 'replace', saved: replaced };
+}
+
+/**
+ * A new invoice while it is prepared, empty or started from a void invoice it replaces. Nothing reaches the API until
+ * `save` is called.
+ */
+export function useNewInvoice(replaced: SavedInvoice | null = null) {
+	const start = useMemo(() => newInvoiceStartOf(replaced), [replaced]);
+	const draft = useInvoiceDraft(start);
+	const { invoiceRequest, setNumberText } = draft;
+	const { createInvoice, isSaving: isCreating } = useCreateInvoice();
+	const { saveAndSendInvoice, isSavingAndSending } = useSaveAndSendInvoice();
+	const isSaving = isCreating || isSavingAndSending;
+	const submit = useCallback(
+		async <T>(run: (request: InvoiceRequest) => Promise<T>): Promise<T | null> => {
+			const request = invoiceRequest();
+			if (!request) {
+				return null;
+			}
+			try {
+				return await run(request);
+			} catch (error) {
+				// The next free number is read again after any failure. A save whose outcome is unknown keeps its own
+				// number: had it gone through, saving again under that number is refused instead of creating a second
+				// invoice.
+				const isUnconfirmed = invoiceSaveFailureOf(error) === 'unconfirmed';
+				if (isUnconfirmed) {
+					setNumberText(String(request.invoiceNumber));
+				}
+				throw error;
+			}
+		},
+		[invoiceRequest, setNumberText]
+	);
+
+	const save = useCallback(() => submit(createInvoice), [createInvoice, submit]);
+
+	const saveAndSend = useCallback(
+		(email: string) => submit((request) => saveAndSendInvoice({ request, email })),
+		[saveAndSendInvoice, submit]
+	);
+
+	return { ...draft, save, saveAndSend, isSaving };
 }
 
 export type NewInvoiceState = ReturnType<typeof useNewInvoice>;
