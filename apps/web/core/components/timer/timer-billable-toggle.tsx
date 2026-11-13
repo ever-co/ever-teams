@@ -20,7 +20,8 @@ function stateLabelKeyOf(isBillable: boolean) {
 
 /**
  * Whether the entry is billable, as a $ toggle: its name stays "Billable" and `aria-pressed` tells the state. A billable
- * entry gets the brand tint and the shine ring.
+ * entry gets the brand tint and the shine ring. Locked, it stays focusable and its tooltip hangs on a wrapper, since the
+ * button then takes no pointer events: the tooltip is the only place that says "Not billable".
  */
 export function TimerBillableToggle({ locked = false, className }: Readonly<{ locked?: boolean; className?: string }>) {
 	const t = useTranslations();
@@ -28,19 +29,22 @@ export function TimerBillableToggle({ locked = false, className }: Readonly<{ lo
 	const isDisabled = locked || isLocked;
 
 	const toggle = useCallback(() => {
+		if (isDisabled) {
+			return;
+		}
 		setIsBillable(!isBillable);
-	}, [isBillable, setIsBillable]);
+	}, [isBillable, isDisabled, setIsBillable]);
 
 	return (
 		<Tooltip>
-			<TooltipTrigger delay={TIMER_TOOLTIP_DELAY_MS} asChild>
+			<TooltipTrigger delay={TIMER_TOOLTIP_DELAY_MS} render={<span className="inline-flex rounded-full" />}>
 				<Button
 					type="button"
 					variant="outline"
 					size="icon-sm"
 					aria-label={t('timer.BILLABLE')}
 					aria-pressed={isBillable}
-					disabled={isDisabled}
+					aria-disabled={isDisabled}
 					onClick={toggle}
 					className={cn(TIMER_ENTRY_TOGGLE, className)}
 				>

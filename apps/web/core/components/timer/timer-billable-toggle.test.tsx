@@ -1,5 +1,6 @@
 /** @jest-environment jsdom */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { TimerBillableToggle } from './timer-billable-toggle';
 
@@ -47,7 +48,20 @@ describe('TimerBillableToggle', () => {
 		mockBillable = { isBillable: true, isLocked: false };
 		render(<TimerBillableToggle locked />);
 
-		expect(billableToggle().disabled).toBe(true);
+		fireEvent.click(billableToggle());
+
+		expect(billableToggle().getAttribute('aria-disabled')).toBe('true');
+		expect(mockSetIsBillable).not.toHaveBeenCalled();
 		expect(billableToggle().querySelector('[data-shine-border]')).not.toBeNull();
+	});
+
+	it('still opens its Billable or Not billable tooltip from the keyboard while locked', async () => {
+		const user = userEvent.setup();
+		render(<TimerBillableToggle locked />);
+
+		await act(() => user.tab());
+
+		expect(document.activeElement).toBe(billableToggle());
+		expect(await screen.findByText('timer.NOT_BILLABLE')).not.toBeNull();
 	});
 });
