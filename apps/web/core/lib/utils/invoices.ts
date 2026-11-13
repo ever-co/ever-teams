@@ -239,10 +239,15 @@ function addUnpriced(byMember: Map<string, UnpricedTime>, entry: BillableEntry) 
 	byMember.set(key, current);
 }
 
+/** To the cent, half up: the binary error of the arithmetic behind the amount is cleared first (10.005 is 10.01). */
+function halfUpAmountOf(amount: number) {
+	const cents = Number((amount * 100).toPrecision(12));
+	return Math.round(cents) / 100;
+}
+
 /** Hours times rate to the cent, half up: the product's binary error is cleared first (1.15 h at 12.50 is 14.38). */
 export function lineAmountOf(hours: number, rate: number) {
-	const cents = Number((hours * rate * 100).toPrecision(12));
-	return Math.round(cents) / 100;
+	return halfUpAmountOf(hours * rate);
 }
 
 type LinePriceOf = (projectId: string, employeeId: string) => LinePrice;
@@ -316,7 +321,7 @@ function projectLineOf(project: ProjectWorth): InvoiceLine | null {
 		return null;
 	}
 	const exactHours = project.seconds / SECONDS_PER_HOUR;
-	const rate = roundedAmountOf(project.worth / exactHours);
+	const rate = halfUpAmountOf(project.worth / exactHours);
 	return {
 		key: project.key,
 		projectId: project.projectId,
