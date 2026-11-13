@@ -239,6 +239,12 @@ function addUnpriced(byMember: Map<string, UnpricedTime>, entry: BillableEntry) 
 	byMember.set(key, current);
 }
 
+/** Hours times rate to the cent, half up: the product's binary error is cleared first (1.15 h at 12.50 is 14.38). */
+export function lineAmountOf(hours: number, rate: number) {
+	const cents = Number((hours * rate * 100).toPrecision(12));
+	return Math.round(cents) / 100;
+}
+
 type LinePriceOf = (projectId: string, employeeId: string) => LinePrice;
 
 const SECONDS_PER_HOUR = 3600;
@@ -385,7 +391,7 @@ export function invoiceTimeOf({
 			hours,
 			rate,
 			currency,
-			amount: roundedAmountOf(hours * rate),
+			amount: lineAmountOf(hours, rate),
 			rateSource: source,
 			isAverageRate: false
 		});

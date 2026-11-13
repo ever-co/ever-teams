@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import type { ExportOption } from '@/core/components/dashboards/kit/export-menu';
 import { FilePdf, FileSheet } from '@/core/components/icons';
 import {
@@ -25,6 +25,8 @@ import {
 	type BudgetTotal
 } from '@/core/lib/utils/dashboards/project-budget';
 import type { Period } from '@/core/lib/utils/dashboard-period';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import {
 	budgetLabelOf,
 	budgetNotesOf,
@@ -98,13 +100,13 @@ function rowsInViewOrder(groups: ReadonlyArray<BudgetGroup>) {
 	return groups.flatMap((group) => group.rows);
 }
 
-function totalSpentOfBudget(total: BudgetTotal, locale: string) {
+function totalSpentOfBudget(total: BudgetTotal, locale: FormatLocale) {
 	const spentText = amountTextOf(total.spent, total, locale);
 	const budgetText = budgetTextOf(total.budget, total, locale);
 	return `${spentText} / ${budgetText}`;
 }
 
-function hoursFigureOf(figures: BudgetFigures, locale: string, t: Translate): BudgetPdfFigure {
+function hoursFigureOf(figures: BudgetFigures, locale: FormatLocale, t: Translate): BudgetPdfFigure {
 	const label = t('dashboard.projectBudget.HOURS_BUDGETS');
 	const total = figures.hoursTotal;
 	if (!total) {
@@ -113,7 +115,7 @@ function hoursFigureOf(figures: BudgetFigures, locale: string, t: Translate): Bu
 	return { label, value: totalSpentOfBudget(total, locale) };
 }
 
-function summaryOf(figures: BudgetFigures, locale: string, t: Translate): BudgetPdfFigure[] {
+function summaryOf(figures: BudgetFigures, locale: FormatLocale, t: Translate): BudgetPdfFigure[] {
 	const costFigures = figures.costTotals.map((total) => ({
 		label: costBudgetsLabelOf(total, t),
 		value: totalSpentOfBudget(total, locale)
@@ -127,7 +129,7 @@ function summaryOf(figures: BudgetFigures, locale: string, t: Translate): Budget
 	];
 }
 
-function pdfRowOf(row: BudgetRow, scope: BudgetScope, locale: string, t: Translate): BudgetPdfRow {
+function pdfRowOf(row: BudgetRow, scope: BudgetScope, locale: FormatLocale, t: Translate): BudgetPdfRow {
 	const statusKey = verdictKeyOf(row, row.risk, scope);
 	return {
 		key: row.key,
@@ -141,7 +143,7 @@ function pdfRowOf(row: BudgetRow, scope: BudgetScope, locale: string, t: Transla
 	};
 }
 
-function pdfTotalOf(total: BudgetTotal, scope: BudgetScope, locale: string, t: Translate): BudgetPdfRow {
+function pdfTotalOf(total: BudgetTotal, scope: BudgetScope, locale: FormatLocale, t: Translate): BudgetPdfRow {
 	const label = totalLabelOf(total, t);
 	const count = t('dashboard.projectBudget.PROJECTS_COUNT', { count: total.projectCount });
 	const statusKey = verdictKeyOf(total, null, scope);
@@ -160,7 +162,7 @@ function pdfTotalOf(total: BudgetTotal, scope: BudgetScope, locale: string, t: T
 function pdfGroupsOf(
 	groups: ReadonlyArray<BudgetGroup>,
 	scope: BudgetScope,
-	locale: string,
+	locale: FormatLocale,
 	t: Translate
 ): BudgetPdfGroup[] {
 	return groups.map((group) => {
@@ -172,9 +174,9 @@ function pdfGroupsOf(
 	});
 }
 
-function scopeTextOf(scope: BudgetScope, period: Period, locale: string, t: Translate) {
+function scopeTextOf(scope: BudgetScope, period: Period, locale: FormatLocale, t: Translate) {
 	if (scope === 'whole') {
-		const dayFormat = new Intl.DateTimeFormat(locale, { dateStyle: 'medium' });
+		const dayFormat = dateFormatOf(locale, { dateStyle: 'medium' });
 		const day = dayFormat.format(period.to);
 		return t('dashboard.projectBudget.PDF_SCOPE_WHOLE', { day });
 	}
@@ -187,12 +189,12 @@ interface PdfInput {
 	groups: ReadonlyArray<BudgetGroup>;
 	totals: ReadonlyArray<BudgetTotal>;
 	figures: BudgetFigures;
-	locale: string;
+	locale: FormatLocale;
 	t: Translate;
 }
 
 function pdfContentOf({ scope, period, groups, totals, figures, locale, t }: PdfInput): ProjectBudgetPdfContent {
-	const generatedFormat = new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' });
+	const generatedFormat = dateFormatOf(locale, { dateStyle: 'medium', timeStyle: 'short' });
 	const generatedAt = generatedFormat.format(new Date());
 	return {
 		title: t('dashboard.projectBudget.TITLE'),
@@ -229,7 +231,7 @@ export function useProjectBudgetExportOptions({
 	figures: BudgetFigures;
 }>): ExportOption[] {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 
 	return useMemo(() => {
 		const pdfInput: PdfInput = { scope, period, groups, totals, figures, locale, t };

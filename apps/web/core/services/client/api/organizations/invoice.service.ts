@@ -23,11 +23,6 @@ export interface InvoicesPage {
 	total: number;
 }
 
-interface InvoicesPageOptions {
-	page: number;
-	signal?: AbortSignal;
-}
-
 export interface InvoiceToEmail {
 	invoiceId: string;
 	invoiceNumber: number | null;
@@ -37,6 +32,13 @@ export interface InvoiceToEmail {
 interface InvoicesScope {
 	organizationId: string;
 	tenantId: string;
+}
+
+interface InvoicesPageOptions {
+	page: number;
+	signal?: AbortSignal;
+	/** The organization and tenant the caller's cache key holds; the cookies' when left out. */
+	scope?: InvoicesScope;
 }
 
 interface InvoicesQueryOptions {
@@ -90,9 +92,10 @@ class InvoiceService extends APIService {
 		return validatePaginationResponse(invoiceSchema, response.data, 'getInvoices API response');
 	};
 
-	getInvoices = async ({ page, signal }: InvoicesPageOptions): Promise<InvoicesPage> => {
+	getInvoices = async ({ page, signal, scope }: InvoicesPageOptions): Promise<InvoicesPage> => {
 		try {
-			const options = { page, pageSize: INVOICES_PAGE_SIZE, hidesArchived: true, scope: this.currentScope() };
+			const pageScope = scope ?? this.currentScope();
+			const options = { page, pageSize: INVOICES_PAGE_SIZE, hidesArchived: true, scope: pageScope };
 			return await this.readInvoicesPage(options, signal);
 		} catch (error) {
 			this.logValidationError(error, 'Invoices validation failed:');
@@ -101,11 +104,15 @@ class InvoiceService extends APIService {
 	};
 
 	/** Every invoice saved for a client, archived ones included: each one billed the client. */
-	getClientInvoices = async (clientId: string, signal?: AbortSignal): Promise<TInvoice[]> => {
+	getClientInvoices = async (
+		clientId: string,
+		signal?: AbortSignal,
+		keyScope?: InvoicesScope
+	): Promise<TInvoice[]> => {
 		try {
 			// Choosing a team of another organization changes the cookies between two pages: every page keeps the
-			// organization the read started in.
-			const scope = this.currentScope();
+			// organization the read started in, the one the caller's cache key holds when it names one.
+			const scope = keyScope ?? this.currentScope();
 			const invoices: TInvoice[] = [];
 			for (let page = 1; page <= CLIENT_INVOICES_MAX_PAGES; page += 1) {
 				const options = { page, pageSize: CLIENT_INVOICES_PAGE_SIZE, clientId, hidesArchived: false, scope };

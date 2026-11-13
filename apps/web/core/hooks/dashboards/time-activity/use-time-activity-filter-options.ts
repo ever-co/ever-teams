@@ -2,11 +2,15 @@
 
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
+import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks/auth';
+import { useReportClientChoices } from '@/core/hooks/dashboards/use-report-clients';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { isProject } from '@/core/lib/helpers/type-guards';
+import { BILLABLE_ONLY_VALUE, type ReportClientChoice } from '@/core/lib/utils/dashboards/report-filters';
 import type { TimeActivityFilterField } from '@/core/lib/utils/dashboards/time-activity';
+import { NO_CLIENT_FILTER_VALUE } from '@/core/lib/utils/project-list';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import type { TOrganizationProject, TOrganizationTeam, TUser } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
@@ -129,6 +133,10 @@ function taskOptionOf(task: TTask): TimeActivityFilterOption {
 	return { value: task.id, name: task.title ?? '', prefix: taskPrefixOf(task) };
 }
 
+function clientOptionOf(client: ReportClientChoice): TimeActivityFilterOption {
+	return { value: client.id, name: client.name };
+}
+
 function compact<T>(items: Array<T | null>): T[] {
 	const kept: T[] = [];
 	for (const item of items) {
@@ -140,9 +148,11 @@ function compact<T>(items: Array<T | null>): T[] {
 }
 
 export function useTimeActivityFilterOptions(): TimeActivityFilterOptions {
+	const t = useTranslations();
 	const { user, isTeamManager } = useAuthenticateUser();
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const { organizationProjects } = useOrganizationProjectsQuery();
+	const clientChoices = useReportClientChoices(organizationProjects);
 	const activeTeam = useAtomValue(activeTeamState);
 	const teamTasks = useAtomValue(tasksByTeamState);
 	const canSeeEveryone = Boolean(isTeamManager);
@@ -161,11 +171,29 @@ export function useTimeActivityFilterOptions(): TimeActivityFilterOptions {
 		projectOptions.sort(byName);
 		const tasks = visibleTasksOf(teamTasks, canSeeEveryone, userId);
 		const taskOptions = tasks.map(taskOptionOf);
+		const noClientOption: TimeActivityFilterOption = { value: NO_CLIENT_FILTER_VALUE, name: t('common.NO_CLIENT') };
+		const namedClientOptions = clientChoices.map(clientOptionOf);
+		const billableOnlyOption: TimeActivityFilterOption = {
+			value: BILLABLE_ONLY_VALUE,
+			name: t('timeReports.filters.BILLABLE_ONLY')
+		};
 		return {
 			teamIds: teamOptions,
 			employeeIds: memberOptions,
 			projectIds: projectOptions,
-			taskIds: taskOptions
+			taskIds: taskOptions,
+			clientIds: [noClientOption, ...namedClientOptions],
+			billable: [billableOnlyOption]
 		};
-	}, [activeTeam?.members, canSeeEveryone, organizationProjects, teamTasks, user, userId, userManagedTeams]);
+	}, [
+		activeTeam?.members,
+		canSeeEveryone,
+		clientChoices,
+		organizationProjects,
+		t,
+		teamTasks,
+		user,
+		userId,
+		userManagedTeams
+	]);
 }

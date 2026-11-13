@@ -454,6 +454,11 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 						title: t('sidebar.WORK_DIARY'),
 						label: 'work-and-diary',
 						url: myWorkNavigation.workDiary
+					},
+					{
+						title: t('dashboard.myWeek.TITLE'),
+						label: 'my-week',
+						url: myWorkNavigation.myWeek
 					}
 				]
 			},
@@ -473,6 +478,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		encodedUsername,
 		myWorkNavigation.timeAndActivity,
 		myWorkNavigation.workDiary,
+		myWorkNavigation.myWeek,
 		isTeamManager,
 		canViewInvoices,
 		savedViews

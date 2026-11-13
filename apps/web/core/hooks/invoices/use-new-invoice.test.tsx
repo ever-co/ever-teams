@@ -14,7 +14,7 @@ const mockOrganizationRead = { isError: false, refetch: jest.fn() };
 const mockClients: Array<{ id: string; name: string; paymentTermsDays?: number | null }> = [
 	{ id: 'client-acme', name: 'Acme' }
 ];
-const mockEarlierRead = { invoices: [], isLoading: false, isError: false, refetch: jest.fn() };
+const mockEarlierRead = { invoices: [], isLoading: false, isRefreshing: false, isError: false, refetch: jest.fn() };
 const mockNextNumber = { nextNumber: 7, isLoading: false, isError: false, refetch: jest.fn() };
 
 const mockLine: InvoiceLine = {
@@ -33,9 +33,10 @@ const mockLine: InvoiceLine = {
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('next/navigation', () => ({ useSearchParams: () => new URLSearchParams('client=client-acme') }));
+let mockOrganizationCookie = 'organization-1';
 jest.mock('@/core/lib/helpers/cookies', () => ({
 	getTenantIdCookie: () => 'tenant-1',
-	getOrganizationIdCookie: () => 'organization-1'
+	getOrganizationIdCookie: () => mockOrganizationCookie
 }));
 jest.mock('@/core/hooks/bootstrap/use-feature-data', () => ({
 	useCurrentOrganizationOwner: () => mockOrganizationRead
@@ -261,6 +262,42 @@ describe('the due date of a new invoice', () => {
 		expect(result.current.dueDay).toBe('2026-12-17');
 		expect(result.current.dueTerm).toEqual({ source: 'organization', days: 45 });
 		expect(result.current.isDueDayOfTerm).toBe(true);
+	});
+});
+
+describe('saving a new invoice after another tab switched the workspace', () => {
+	beforeEach(() => {
+		mockCreateInvoice.mockReset();
+		mockCreateInvoice.mockResolvedValue({ id: 'invoice-1' });
+		mockOrganizationRead.isError = false;
+		mockOrganizationCookie = 'organization-1';
+	});
+
+	it('makes the invoice in the organization its client and time were read in', async () => {
+		const { result } = renderNewInvoice(tokyoOrganization);
+		act(() => result.current.setDueDay('2099-12-31'));
+
+		await act(async () => {
+			await result.current.save();
+		});
+
+		expect(mockCreateInvoice.mock.calls[0][0]).toEqual(
+			expect.objectContaining({ organizationId: 'organization-1', tenantId: 'tenant-1' })
+		);
+	});
+
+	it('sends nothing once the workspace in the cookies is another one', async () => {
+		const { result } = renderNewInvoice(tokyoOrganization);
+		act(() => result.current.setDueDay('2099-12-31'));
+		mockOrganizationCookie = 'organization-2';
+
+		let saved: unknown = 'not answered';
+		await act(async () => {
+			saved = await result.current.save();
+		});
+
+		expect(saved).toBeNull();
+		expect(mockCreateInvoice).not.toHaveBeenCalled();
 	});
 });
 

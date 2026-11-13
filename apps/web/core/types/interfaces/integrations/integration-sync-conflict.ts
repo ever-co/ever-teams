@@ -1,12 +1,12 @@
 /**
- * The sync conflicts of the platform's task integrations (Linear, Asana, Trello: `GET /integration/<provider>/:id/conflicts`
+ * The sync conflicts of the platform's task integrations (Linear, Asana, Trello, Jira: `GET /integration/<provider>/:id/conflicts`
  * and `POST …/conflicts/:conflictId/resolve`). A synced task field changed both in the provider and on the platform to
  * different values since they last agreed: the provider's value was applied to the task, and the task's is kept in
  * the conflict, for a manager to accept or restore.
  */
 
 /** The providers whose connections record conflicts. */
-export type TIntegrationConflictProvider = 'linear' | 'asana' | 'trello';
+export type TIntegrationConflictProvider = 'linear' | 'asana' | 'trello' | 'jira';
 
 /** The synced task fields a conflict can name, in the order the platform lists them. */
 export const INTEGRATION_CONFLICT_FIELDS = ['title', 'description', 'status', 'priority', 'dueDate'] as const;
@@ -27,7 +27,7 @@ export interface IIntegrationSyncConflict {
 	/** The run that found it. */
 	runId: string | null;
 	taskId: string;
-	/** The provider item's id (a Linear issue, an Asana task, a Trello card). */
+	/** The provider item's id (a Linear issue, an Asana task, a Trello card, a Jira issue). */
 	sourceId: string;
 	field: TIntegrationConflictField;
 	/** The value both sides last agreed on. */

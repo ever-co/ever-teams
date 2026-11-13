@@ -109,6 +109,12 @@ describe('a Kanban card with a selection', () => {
 		expect(selection.openPicker).toHaveBeenLastCalledWith('labels', ['t2'], card);
 	});
 
+	it('opens the assignees picker with A for the whole selection the card is in', () => {
+		const { selection, title, card } = renderCard(['t1', 't2']);
+		fireEvent.keyDown(title, { code: 'KeyA', key: 'a' });
+		expect(selection.openPicker).toHaveBeenLastCalledWith('assignees', ['t1', 't2'], card);
+	});
+
 	it('leaves the second key of a registry sequence to the registry', () => {
 		const { selection, title } = renderCard([]);
 		mockPending = true;

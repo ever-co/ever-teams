@@ -1092,7 +1092,10 @@ function collectRealHeadSurface(): Surface {
 		'process.stdout.write(JSON.stringify(result.surface));'
 	].join('\n');
 	const result = checkedSpawn(
-		spawnSync(process.execPath, ['--input-type=module', '--eval', expression], { encoding: 'utf8', maxBuffer: SURFACE_MAX_BUFFER })
+		spawnSync(process.execPath, ['--input-type=module', '--eval', expression], {
+			encoding: 'utf8',
+			maxBuffer: SURFACE_MAX_BUFFER
+		})
 	);
 	if (result.status !== 0) throw new Error(result.stderr);
 	realHeadSurface = JSON.parse(result.stdout) as Surface;
@@ -2026,18 +2029,26 @@ describe('Ever Teams feature surface preservation', () => {
 		// documents/[id]/comments/[commentId]/anchor PUT and DELETE).
 		// 323 files and 414 verbs with the task automations proxies (/api/task-automations GET POST, templates GET,
 		// order PUT, [id] GET PUT DELETE, [id]/test POST, [id]/runs GET).
-		// 324 files and 415 verbs with the trash's Delete forever, which deletes a task only while it is still in the
+		// 325 files and 416 verbs with the members settings proxies: the inactive employees (GET /api/employee/inactive)
+		// and the workspace role of an account (PUT /api/user/[id]/role).
+		// 326 files and 417 verbs with the workspace rename proxy (PUT /api/tenant, #5087).
+		// 327 files and 418 verbs with the trash's Delete forever, which deletes a task only while it is still in the
 		// trash (/api/tasks/[id]/trashed DELETE).
-		// 329 files and 420 verbs with the clients' proxies (/api/organization-contact POST, pagination GET, [id] PUT,
+		// 332 files and 423 verbs: develop's 327 / 418 plus the clients' proxies (/api/organization-contact POST, pagination GET, [id] PUT,
 		// [id]/soft DELETE, [id]/recover PUT; #5082).
-		// 333 files and 424 verbs with the invoices' proxies (/api/invoices POST, pagination GET, highest GET,
+		// 336 files and 427 verbs: 4 more with the invoices' proxies (/api/invoices POST, pagination GET, highest GET,
 		// download/[id] GET; #5088).
-		// 336 files and 427 verbs with the proxies that e-mail, settle and delete an invoice (/api/invoices/email/[email]
+		// 341 files and 435 verbs with the Jira integration proxies (/api/integration/jira/**: status GET, install/state
+		// POST, [id] GET and DELETE, [id]/sites GET, [id]/site PUT, [id]/projects GET, [id]/projects/[projectId] GET,
+		// [id]/mappings GET and POST, [id]/mappings/[mappingId] PUT and DELETE, [id]/mappings/[mappingId]/import POST,
+		// [id]/webhook POST, [id]/runs GET, [id]/conflicts GET, [id]/conflicts/[conflictId]/resolve POST).
+		// 350 files and 444 verbs: the 9 / 9 of the clients and invoices with the 341 / 435 of develop and its Jira proxies.
+		// 353 files and 447 verbs with the proxies that e-mail, settle and delete an invoice (/api/invoices/email/[email]
 		// PUT, [id]/action PUT, [id] DELETE; #5158).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(336);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(353);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(427);
+		).toHaveLength(447);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's routes that e-mail an invoice, change its status and delete it (#5158)
@@ -2055,6 +2066,24 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/organization-contact/[id]/route.ts::PUT',
 				'apps/web/app/api/organization-contact/[id]/soft/route.ts::DELETE',
 				'apps/web/app/api/organization-contact/[id]/recover/route.ts::PUT',
+				// Proxy mode twins of the platform's Jira Cloud integration routes (2026-11-12)
+				'apps/web/app/api/integration/jira/status/route.ts::GET',
+				'apps/web/app/api/integration/jira/install/state/route.ts::POST',
+				'apps/web/app/api/integration/jira/[id]/route.ts::GET',
+				'apps/web/app/api/integration/jira/[id]/route.ts::DELETE',
+				'apps/web/app/api/integration/jira/[id]/sites/route.ts::GET',
+				'apps/web/app/api/integration/jira/[id]/site/route.ts::PUT',
+				'apps/web/app/api/integration/jira/[id]/projects/route.ts::GET',
+				'apps/web/app/api/integration/jira/[id]/projects/[projectId]/route.ts::GET',
+				'apps/web/app/api/integration/jira/[id]/mappings/route.ts::GET',
+				'apps/web/app/api/integration/jira/[id]/mappings/route.ts::POST',
+				'apps/web/app/api/integration/jira/[id]/mappings/[mappingId]/route.ts::PUT',
+				'apps/web/app/api/integration/jira/[id]/mappings/[mappingId]/route.ts::DELETE',
+				'apps/web/app/api/integration/jira/[id]/mappings/[mappingId]/import/route.ts::POST',
+				'apps/web/app/api/integration/jira/[id]/webhook/route.ts::POST',
+				'apps/web/app/api/integration/jira/[id]/runs/route.ts::GET',
+				'apps/web/app/api/integration/jira/[id]/conflicts/route.ts::GET',
+				'apps/web/app/api/integration/jira/[id]/conflicts/[conflictId]/resolve/route.ts::POST',
 				// Proxy mode twin of the platform's Delete forever from the task trash (2026-11-12)
 				'apps/web/app/api/tasks/[id]/trashed/route.ts::DELETE',
 				// Proxy mode twins of the platform's task automations routes (2026-11-11)
@@ -2071,6 +2100,11 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/plugins/docs/documents/[id]/comment-anchors/route.ts::GET',
 				'apps/web/app/api/plugins/docs/documents/[id]/comments/[commentId]/anchor/route.ts::PUT',
 				'apps/web/app/api/plugins/docs/documents/[id]/comments/[commentId]/anchor/route.ts::DELETE',
+				// Proxy mode routes of the members settings: deactivated members and workspace roles (#5092)
+				'apps/web/app/api/employee/inactive/route.ts::GET',
+				'apps/web/app/api/user/[id]/role/route.ts::PUT',
+				// Proxy mode twin of Gauzy's PUT /tenant, for the workspace's name (#5087)
+				'apps/web/app/api/tenant/route.ts::PUT',
 				// Proxy mode twins of the platform's comment withdrawal, reactions and task trash (2026-11-12)
 				'apps/web/app/api/comment/[id]/soft/route.ts::DELETE',
 				'apps/web/app/api/comment/[id]/recover/route.ts::PUT',

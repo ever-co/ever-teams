@@ -3,6 +3,7 @@ import type { DayBarDatum } from '@/core/components/dashboards/kit/day-bars-char
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { formatAmount } from '@/core/lib/utils/daily-report-figures';
 import type { TOwedReportDay, TOwedReportEmployee } from '@/core/types/schemas/timer/time-log-reports.schema';
+import { dateFormatOf, numberFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 export type PaymentsGrouping = 'member' | 'day';
 
@@ -377,7 +378,7 @@ function compareCurrencyTotals(first: OwedCurrencyTotal, second: OwedCurrencyTot
 	return first.key.localeCompare(second.key);
 }
 
-export interface CurrencyFigure {
+interface CurrencyFigure {
 	/** Null on a figure that gathers several members: it adds to no member count. */
 	employeeId: string | null;
 	seconds: number;
@@ -669,11 +670,11 @@ export function maxValueOf(days: ReadonlyArray<DayBarDatum>) {
 
 const BARE_AMOUNT_OPTIONS: Intl.NumberFormatOptions = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
 
-export function formatOwed(amount: number, currency: string | null, locale: string) {
+export function formatOwed(amount: number, currency: string | null, locale: FormatLocale) {
 	if (currency) {
 		return formatAmount({ currency, amount }, locale);
 	}
-	return new Intl.NumberFormat(locale, BARE_AMOUNT_OPTIONS).format(amount);
+	return numberFormatOf(locale, BARE_AMOUNT_OPTIONS).format(amount);
 }
 
 function compactOptionsOf(currency: string | null): Intl.NumberFormatOptions {
@@ -684,9 +685,9 @@ function compactOptionsOf(currency: string | null): Intl.NumberFormatOptions {
 }
 
 /** Axis ticks stay narrow ("$250", "$1.5K") so they fit the chart's gutter; the tooltip keeps the cents. */
-export function formatOwedTick(value: number, currency: string | null, locale: string) {
+export function formatOwedTick(value: number, currency: string | null, locale: FormatLocale) {
 	try {
-		return new Intl.NumberFormat(locale, compactOptionsOf(currency)).format(value);
+		return numberFormatOf(locale, compactOptionsOf(currency)).format(value);
 	} catch {
 		return formatOwed(value, currency, locale);
 	}
@@ -703,16 +704,16 @@ export function roundedAmountOf(amount: number) {
 	return cents / 100;
 }
 
-function dayNameFormatOf(locale: string) {
-	return new Intl.DateTimeFormat(locale, { weekday: 'short' });
+function dayNameFormatOf(locale: FormatLocale) {
+	return dateFormatOf(locale, { weekday: 'short' });
 }
 
-function dayDateFormatOf(day: Date, locale: string) {
+function dayDateFormatOf(day: Date, locale: FormatLocale) {
 	const isCurrentYear = isSameYear(day, new Date());
 	if (isCurrentYear) {
-		return new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' });
+		return dateFormatOf(locale, { month: 'short', day: 'numeric' });
 	}
-	return new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric', year: 'numeric' });
+	return dateFormatOf(locale, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 export interface DayNameLabels {
@@ -720,7 +721,7 @@ export interface DayNameLabels {
 	yesterday: string;
 }
 
-export function dayNameOf(day: Date, locale: string, labels: DayNameLabels) {
+export function dayNameOf(day: Date, locale: FormatLocale, labels: DayNameLabels) {
 	if (isToday(day)) {
 		return labels.today;
 	}
@@ -730,7 +731,7 @@ export function dayNameOf(day: Date, locale: string, labels: DayNameLabels) {
 	return dayNameFormatOf(locale).format(day);
 }
 
-export function dayDateOf(day: Date, locale: string) {
+export function dayDateOf(day: Date, locale: FormatLocale) {
 	return dayDateFormatOf(day, locale).format(day);
 }
 
@@ -936,14 +937,14 @@ export interface AmountSegment {
 	isMinor: boolean;
 }
 
-function amountFormatOf(currency: string | null, locale: string) {
+function amountFormatOf(currency: string | null, locale: FormatLocale) {
 	if (currency) {
-		return new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 2 });
+		return numberFormatOf(locale, { style: 'currency', currency, maximumFractionDigits: 2 });
 	}
-	return new Intl.NumberFormat(locale, BARE_AMOUNT_OPTIONS);
+	return numberFormatOf(locale, BARE_AMOUNT_OPTIONS);
 }
 
-function amountPartsOf(amount: number, currency: string | null, locale: string): Intl.NumberFormatPart[] | null {
+function amountPartsOf(amount: number, currency: string | null, locale: FormatLocale): Intl.NumberFormatPart[] | null {
 	try {
 		const format = amountFormatOf(currency, locale);
 		return format.formatToParts(amount);
@@ -959,7 +960,7 @@ function isMinorPart(part: Intl.NumberFormatPart) {
 }
 
 /** The amount as `formatOwed` writes it, split so the decimal separator and the cents can take a lighter tone. */
-export function owedSegmentsOf(amount: number, currency: string | null, locale: string): AmountSegment[] {
+export function owedSegmentsOf(amount: number, currency: string | null, locale: FormatLocale): AmountSegment[] {
 	const parts = amountPartsOf(amount, currency, locale);
 	if (!parts) {
 		return [{ text: formatOwed(amount, currency, locale), isMinor: false }];

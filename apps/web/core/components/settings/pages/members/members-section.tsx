@@ -1,28 +1,32 @@
 'use client';
 
 import { useCallback, useId, useMemo, useState } from 'react';
-import { useFormatter, useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { controlGroupRecipe } from '@/core/components/common/input';
-import { Search, Task, UserAdd, UserRemove } from '@/core/components/icons';
+import { SegmentedControl, type SegmentedControlItem } from '@/core/components/common/segmented-control';
+import { History, Lock, Search, Task, Undo, UserAdd, UserRemove, Users } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
+import type { WorkspaceRole } from '@/core/lib/utils/member-access';
 import { useHasBeenOpen } from '@/core/hooks/common/use-has-been-open';
+import { useInactiveMembers } from '@/core/hooks/settings/use-inactive-members';
 import { useTeamMembersSettings, type MemberRowModel } from '@/core/hooks/settings/use-team-members-settings';
 import { SETTINGS_SURFACE, SettingsSection } from '@/core/components/settings/kit/settings-page';
-import { ConfirmDestructiveDialog } from '@/core/components/settings/kit/danger';
-import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { ConfirmMemberDialog } from './confirm-member-dialog';
+import { InactiveMembersList } from './inactive-members-list';
 import { MemberRow, type MemberRowActions } from './member-row';
-import { MemberAvatar, PersonLines } from './people-parts';
 
 const MIN_ROWS_FOR_SEARCH = 8;
 
-function matchesQuery(row: MemberRowModel, query: string): boolean {
+type MembersFilter = 'active' | 'inactive';
+
+function matchesQuery(person: Readonly<{ name: string; email: string }>, query: string): boolean {
 	const needle = query.trim().toLowerCase();
 	if (!needle) {
 		return true;
 	}
-	const inName = row.name.toLowerCase().includes(needle);
-	const inEmail = row.email.toLowerCase().includes(needle);
+	const inName = person.name.toLowerCase().includes(needle);
+	const inEmail = person.email.toLowerCase().includes(needle);
 	return inName || inEmail;
 }
 
@@ -60,62 +64,47 @@ function RemoveMemberDialog({
 	onRemove: (rowId: string) => Promise<void>;
 }>) {
 	const t = useTranslations();
-	const [shown, setShown] = useState<MemberRowModel | null>(member);
-	const [isPending, setIsPending] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-
-	// Keep the last member on screen while the dialog plays its closing transition
-	if (member && member !== shown) {
-		setShown(member);
-	}
-	const isOpen = Boolean(member);
-	const name = shown?.name ?? '';
-
-	const close = () => {
-		setError(null);
-		onClose();
-	};
-
-	const confirm = async () => {
-		if (!shown) {
-			return;
-		}
-		setIsPending(true);
-		setError(null);
-		try {
-			await onRemove(shown.id);
-			onClose();
-		} catch (failure) {
-			const reasonKey = errorReasonKeyOf(failure) as DottedLanguageObjectStringPaths;
-			setError(t(reasonKey));
-		} finally {
-			setIsPending(false);
-		}
-	};
-
-	const subject = shown && (
-		<div className="flex items-center gap-3 rounded-xl px-1">
-			<MemberAvatar name={shown.name} imageUrl={shown.imageUrl} />
-			<PersonLines name={shown.name} detail={shown.email} />
-		</div>
-	);
-
 	return (
-		<ConfirmDestructiveDialog
-			open={isOpen}
-			onClose={close}
-			title={t('settings.members.REMOVE_TITLE', { name, team: teamName })}
-			subject={subject}
-			consequences={[
+		<ConfirmMemberDialog
+			member={member}
+			titleOf={(name) => t('settings.members.REMOVE_TITLE', { name, team: teamName })}
+			consequencesOf={(name) => [
 				{ key: 'list', icon: <UserRemove />, text: t('settings.members.REMOVE_CONSEQUENCE_LIST', { name }) },
 				{ key: 'tasks', icon: <Task />, text: t('settings.members.REMOVE_CONSEQUENCE_TASKS') }
 			]}
 			confirmLabel={t('settings.members.REMOVE_CONFIRM')}
-			isPending={isPending}
-			error={error}
-			onConfirm={() => {
-				void confirm();
-			}}
+			onClose={onClose}
+			onConfirm={onRemove}
+		/>
+	);
+}
+
+function DeactivateMemberDialog({
+	member,
+	canConfirm,
+	onClose,
+	onDeactivate
+}: Readonly<{
+	member: MemberRowModel | null;
+	canConfirm: boolean;
+	onClose: () => void;
+	onDeactivate: (rowId: string) => Promise<void>;
+}>) {
+	const t = useTranslations();
+	return (
+		<ConfirmMemberDialog
+			member={member}
+			titleOf={(name) => t('settings.members.DEACTIVATE_TITLE', { name })}
+			consequencesOf={(name) => [
+				{ key: 'access', icon: <Lock />, text: t('settings.members.DEACTIVATE_CONSEQUENCE_ACCESS', { name }) },
+				{ key: 'teams', icon: <Users />, text: t('settings.members.DEACTIVATE_CONSEQUENCE_TEAMS') },
+				{ key: 'history', icon: <History />, text: t('settings.members.DEACTIVATE_CONSEQUENCE_HISTORY') },
+				{ key: 'restore', icon: <Undo />, text: t('settings.members.DEACTIVATE_CONSEQUENCE_RESTORE') }
+			]}
+			confirmLabel={t('settings.members.DEACTIVATE')}
+			confirmDisabled={!canConfirm}
+			onClose={onClose}
+			onConfirm={onDeactivate}
 		/>
 	);
 }
@@ -145,22 +134,125 @@ function NoMembers({ onInvite, canInvite }: Readonly<{ onInvite: () => void; can
 	);
 }
 
-export function MembersSection({ onInvite, canInvite }: Readonly<{ onInvite: () => void; canInvite: boolean }>) {
+function ActiveMembersList({
+	rows,
+	visibleRows,
+	query,
+	assignableRoles,
+	actions,
+	canInvite,
+	onInvite,
+	onClearQuery
+}: Readonly<{
+	rows: ReadonlyArray<MemberRowModel>;
+	visibleRows: ReadonlyArray<MemberRowModel>;
+	query: string;
+	assignableRoles: ReadonlyArray<WorkspaceRole>;
+	actions: MemberRowActions;
+	canInvite: boolean;
+	onInvite: () => void;
+	onClearQuery: () => void;
+}>) {
 	const t = useTranslations();
 	const format = useFormatter();
-	const { teamName, rows, changeRole, removeMember, renameMember, setMemberTracking, saveMemberRates } =
-		useTeamMembersSettings();
-	const [query, setQuery] = useState('');
-	const [removing, setRemoving] = useState<MemberRowModel | null>(null);
-	const mountsRemoveDialog = useHasBeenOpen(Boolean(removing));
-
-	const showsSearch = rows.length >= MIN_ROWS_FOR_SEARCH;
-	const visibleRows = useMemo(() => rows.filter((row) => matchesQuery(row, query)), [query, rows]);
+	const formatJoined = useCallback(
+		(date: Date) => t('settings.members.JOINED', { date: format.dateTime(date, { dateStyle: 'medium' }) }),
+		[format, t]
+	);
 	const hasMembers = rows.length > 0;
 	const hasVisibleRows = visibleRows.length > 0;
 
-	const formatJoined = useCallback(
-		(date: Date) => t('settings.members.JOINED', { date: format.dateTime(date, { dateStyle: 'medium' }) }),
+	if (!hasMembers) {
+		return (
+			<div className={SETTINGS_SURFACE}>
+				<NoMembers onInvite={onInvite} canInvite={canInvite} />
+			</div>
+		);
+	}
+	if (!hasVisibleRows) {
+		return (
+			<div className={SETTINGS_SURFACE}>
+				<NoMatch query={query} onClear={onClearQuery} />
+			</div>
+		);
+	}
+
+	return (
+		<ul className={SETTINGS_SURFACE} aria-label={t('settings.members.MEMBERS_SECTION')}>
+			{visibleRows.map((row) => (
+				<MemberRow
+					key={row.id}
+					row={row}
+					assignableRoles={assignableRoles}
+					formatJoined={formatJoined}
+					actions={actions}
+				/>
+			))}
+		</ul>
+	);
+}
+
+export function MembersSection({ onInvite, canInvite }: Readonly<{ onInvite: () => void; canInvite: boolean }>) {
+	const t = useTranslations();
+	const format = useFormatter();
+	const {
+		teamName,
+		rows,
+		assignableRoles,
+		changeRole,
+		changeWorkspaceRole,
+		deactivateMember,
+		removeMember,
+		renameMember,
+		setMemberTracking,
+		saveMemberRates
+	} = useTeamMembersSettings();
+	const [query, setQuery] = useState('');
+	const [filter, setFilter] = useState<MembersFilter>('active');
+	const [removing, setRemoving] = useState<MemberRowModel | null>(null);
+	const [deactivating, setDeactivating] = useState<MemberRowModel | null>(null);
+	const mountsRemoveDialog = useHasBeenOpen(Boolean(removing));
+	const mountsDeactivateDialog = useHasBeenOpen(Boolean(deactivating));
+	const wantsInactive = filter === 'inactive';
+	const inactive = useInactiveMembers(wantsInactive);
+
+	const showsInactive = inactive.canList && wantsInactive;
+	const visibleRows = useMemo(() => rows.filter((row) => matchesQuery(row, query)), [query, rows]);
+	const visibleInactiveMembers = useMemo(
+		() => inactive.members.filter((member) => matchesQuery(member, query)),
+		[inactive.members, query]
+	);
+	let listedCount = rows.length;
+	if (showsInactive) {
+		listedCount = inactive.members.length;
+	}
+	const hasEnoughRowsToSearch = listedCount >= MIN_ROWS_FOR_SEARCH;
+	const isSearching = query !== '';
+	const showsSearch = hasEnoughRowsToSearch || isSearching;
+	const hasInactiveMembers = inactive.members.length > 0;
+	const hasVisibleInactiveMembers = visibleInactiveMembers.length > 0;
+	const hidesEveryInactiveMember = hasInactiveMembers && !hasVisibleInactiveMembers;
+	const showsInactiveNoMatch = showsInactive && hidesEveryInactiveMember;
+	const showsInactiveList = showsInactive && !hidesEveryInactiveMember;
+	const deactivatingRow = rows.find((row) => row.id === deactivating?.id);
+	const canConfirmDeactivation = Boolean(deactivatingRow?.canDeactivate);
+	const clearQuery = () => setQuery('');
+
+	const filters = useMemo<SegmentedControlItem<MembersFilter>[]>(
+		() => [
+			{ value: 'active', label: t('settings.members.FILTER_ACTIVE') },
+			{ value: 'inactive', label: t('settings.members.FILTER_INACTIVE') }
+		],
+		[t]
+	);
+
+	const showFilter = (next: MembersFilter) => {
+		setFilter(next);
+		setQuery('');
+	};
+
+	const formatDeactivated = useCallback(
+		(date: Date) => t('settings.members.DEACTIVATED_ON', { date: format.dateTime(date, { dateStyle: 'medium' }) }),
 		[format, t]
 	);
 
@@ -169,30 +261,21 @@ export function MembersSection({ onInvite, canInvite }: Readonly<{ onInvite: () 
 			onChangeRole: (rowId, role) => {
 				void changeRole(rowId, role);
 			},
+			onChangeWorkspaceRole: (rowId, roleId) => {
+				void changeWorkspaceRole(rowId, roleId);
+			},
 			onToggleTracking: (rowId, enabled) => {
 				void setMemberTracking(rowId, enabled);
 			},
 			onRequestRemove: setRemoving,
+			onRequestDeactivate: setDeactivating,
 			onRename: renameMember,
 			onSaveRates: saveMemberRates
 		}),
-		[changeRole, renameMember, saveMemberRates, setMemberTracking]
+		[changeRole, changeWorkspaceRole, renameMember, saveMemberRates, setMemberTracking]
 	);
 
-	let body = <NoMembers onInvite={onInvite} canInvite={canInvite} />;
-	if (hasMembers) {
-		body = <NoMatch query={query} onClear={() => setQuery('')} />;
-	}
-	if (hasVisibleRows) {
-		body = (
-			<ul className={SETTINGS_SURFACE} aria-label={t('settings.members.MEMBERS_SECTION')}>
-				{visibleRows.map((row) => (
-					<MemberRow key={row.id} row={row} formatJoined={formatJoined} actions={actions} />
-				))}
-			</ul>
-		);
-	}
-	const isMessage = !hasVisibleRows;
+	const search = showsSearch && <MemberSearch value={query} onChange={setQuery} />;
 
 	return (
 		<SettingsSection
@@ -200,15 +283,65 @@ export function MembersSection({ onInvite, canInvite }: Readonly<{ onInvite: () 
 			title={t('settings.members.MEMBERS_SECTION')}
 			description={t('settings.members.MEMBERS_COUNT', { count: rows.length })}
 		>
-			{showsSearch && <MemberSearch value={query} onChange={setQuery} />}
-			{isMessage && <div className={SETTINGS_SURFACE}>{body}</div>}
-			{!isMessage && body}
+			{inactive.canList && (
+				<div className="flex flex-wrap items-center justify-between gap-2">
+					<SegmentedControl
+						items={filters}
+						value={filter}
+						onValueChange={showFilter}
+						ariaLabel={t('settings.members.FILTER_LABEL')}
+					/>
+					{search}
+				</div>
+			)}
+			{!inactive.canList && search}
+			{!showsInactive && (
+				<ActiveMembersList
+					rows={rows}
+					visibleRows={visibleRows}
+					query={query}
+					assignableRoles={assignableRoles}
+					actions={actions}
+					canInvite={canInvite}
+					onInvite={onInvite}
+					onClearQuery={clearQuery}
+				/>
+			)}
+			{showsInactiveNoMatch && (
+				<div className={SETTINGS_SURFACE}>
+					<NoMatch query={query} onClear={clearQuery} />
+				</div>
+			)}
+			{showsInactiveList && (
+				<InactiveMembersList
+					members={visibleInactiveMembers}
+					isLoading={inactive.isLoading}
+					isError={inactive.isError}
+					canRestore={inactive.canRestore}
+					busyIds={inactive.busyIds}
+					formatDeactivated={formatDeactivated}
+					onRetry={() => {
+						void inactive.retry();
+					}}
+					onRestore={(member) => {
+						void inactive.restore(member);
+					}}
+				/>
+			)}
 			{mountsRemoveDialog && (
 				<RemoveMemberDialog
 					member={removing}
 					teamName={teamName}
 					onClose={() => setRemoving(null)}
 					onRemove={removeMember}
+				/>
+			)}
+			{mountsDeactivateDialog && (
+				<DeactivateMemberDialog
+					member={deactivating}
+					canConfirm={canConfirmDeactivation}
+					onClose={() => setDeactivating(null)}
+					onDeactivate={deactivateMember}
 				/>
 			)}
 		</SettingsSection>

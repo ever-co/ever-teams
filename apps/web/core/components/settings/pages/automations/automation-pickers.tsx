@@ -97,7 +97,7 @@ export function useAutomationLookups(): AutomationLookups {
 		for (const list of [taskOptions, teams, projects, members, labels, priorities, statuses]) {
 			for (const option of list) names.set(option.id.toLowerCase(), option.label);
 		}
-		for (const row of [...((taskStatuses ?? []) as Named[]), ...((taskPriorities ?? []) as Named[])]) {
+		for (const row of [...(taskStatuses as Named[]), ...(taskPriorities as Named[])]) {
 			if (row.id && row.name) names.set(String(row.id).toLowerCase(), row.name);
 		}
 		return {

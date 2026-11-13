@@ -6,6 +6,7 @@ import type { TOrganizationProject } from '@/core/types/schemas';
 import type { TTaskStatus } from '@/core/types/schemas/task/task-status.schema';
 import { ProjectFacts, ProjectLinks, ProjectProperties } from '@/core/components/projects/project-properties';
 import { EntityFilesSection } from '@/core/components/common/entity-files/entity-files-section';
+import { ProjectBudgetSummary } from './project-budget-summary';
 import { ProjectDescription } from './project-description';
 import { ProjectProgressPanel } from './project-progress-panel';
 
@@ -19,6 +20,7 @@ export function ProjectOverview({
 	return (
 		<div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] xl:gap-10">
 			<div className="flex min-w-0 flex-col gap-8">
+				<ProjectBudgetSummary project={project} />
 				<ProjectProperties project={project} statuses={statuses} />
 				<ProjectLinks project={project} />
 				<ProjectDescription project={project} canEdit={canEditContent} />

@@ -5,6 +5,7 @@ import { useSetAtom } from 'jotai';
 import { useCallback, useRef } from 'react';
 import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-layout-effect';
 
+import { withoutTimerNotesDraft } from '@/core/lib/utils/timer/timer-notes';
 import { queryKeys } from '@/core/query/keys';
 import {
 	activeTaskStatisticsState,
@@ -17,6 +18,7 @@ import {
 	tasksStatisticsState,
 	teamTasksState,
 	timeCounterState,
+	timerNotesState,
 	timerSecondsState,
 	timerStatusFetchingState,
 	timerStatusState
@@ -67,6 +69,7 @@ export function useScopeTransitionGuard(scope: ShellScope, enabled = true) {
 	const setTimeCounter = useSetAtom(timeCounterState);
 	const setTimerSeconds = useSetAtom(timerSecondsState);
 	const setTimerFetching = useSetAtom(timerStatusFetchingState);
+	const setTimerNotes = useSetAtom(timerNotesState);
 	const setTasksFetching = useSetAtom(tasksFetchingState);
 	const setTaskStatistics = useSetAtom(tasksStatisticsState);
 	const setActiveTaskStatistics = useSetAtom(activeTaskStatisticsState);
@@ -127,6 +130,8 @@ export function useScopeTransitionGuard(scope: ShellScope, enabled = true) {
 				setTimeCounter(0);
 				setTimerSeconds(0);
 				setTimerFetching(false);
+				// A notes draft was typed for the team or the account left behind: the next one never sends it
+				setTimerNotes(withoutTimerNotesDraft);
 			}
 			if (statisticsChanged) {
 				setTasksFetching(false);
@@ -153,6 +158,7 @@ export function useScopeTransitionGuard(scope: ShellScope, enabled = true) {
 		setTimeCounter,
 		setTimerSeconds,
 		setTimerFetching,
+		setTimerNotes,
 		setTimerStatus
 	]);
 

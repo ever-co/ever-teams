@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { notFound } from 'next/navigation';
 import { type DottedLanguageObjectStringPaths, useFormatter, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Notice } from '@/core/components/common/notice';
@@ -259,8 +258,8 @@ function AutomationsSettingsContent() {
 	const { availability, templates, retry } = useTaskAutomationsAvailability();
 	const title = t('settings.entries.automations.TITLE');
 
-	// Off (the default): the page does not exist for this deployment, and nothing was asked of the platform.
-	if (availability === 'off') notFound();
+	// Off (the default): nothing is asked of the platform, and the page says automations are not available here.
+	if (availability === 'off') return <AutomationsUnavailable />;
 
 	if (availability === 'available') return <AutomationsManager templates={templates} />;
 	if (availability === 'loading') return <AutomationsSettingsSkeleton />;
@@ -286,8 +285,18 @@ function AutomationsSettingsContent() {
 			</SettingsPage>
 		);
 	}
+	return <AutomationsUnavailable />;
+}
+
+/**
+ * Automations are not available here: the deployment has them off, or the platform does not run them. The page says
+ * so inside the settings layout, as the task trash does when it is off, rather than answering with the not-found page:
+ * that page carries the app's footer links, which the egress audit does not allow on a settings route.
+ */
+function AutomationsUnavailable() {
+	const t = useTranslations();
 	return (
-		<SettingsPage title={title}>
+		<SettingsPage title={t('settings.entries.automations.TITLE')}>
 			<Notice tone="info" title={t('settings.automations.UNAVAILABLE_TITLE')} description={t('settings.automations.UNAVAILABLE_DESCRIPTION')} />
 		</SettingsPage>
 	);
@@ -295,8 +304,8 @@ function AutomationsSettingsContent() {
 
 /** Settings → Automations: the organization's task automation rules (managers). */
 export function AutomationsSettingsPage() {
-	// Off (the default): the page does not exist for this deployment, whoever opens it.
-	if (!isTaskAutomationsEnabled()) notFound();
+	// Off (the default): nothing is asked of the platform, whoever opens the page.
+	if (!isTaskAutomationsEnabled()) return <AutomationsUnavailable />;
 	return (
 		<TeamSettingsGate skeleton={<AutomationsSettingsSkeleton />} requiresManager>
 			<AutomationsSettingsContent />

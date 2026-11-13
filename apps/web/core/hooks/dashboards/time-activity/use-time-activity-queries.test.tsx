@@ -41,4 +41,23 @@ describe('useTimeActivityDailyQuery', () => {
 			expect.objectContaining({ teamIds: ['team-a'], includeTimeWithoutTeam: true })
 		);
 	});
+
+	it('asks for billable time only when the filter is on, and reads the report again when it changes', async () => {
+		mockGetTimeLogReportDaily.mockClear();
+		mockGetTimeLogReportDaily.mockResolvedValue({ data: [] });
+		const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		const wrapper = ({ children }: PropsWithChildren) => (
+			<QueryClientProvider client={client}>{children}</QueryClientProvider>
+		);
+
+		const { result, rerender } = renderHook(
+			({ billableOnly }: { billableOnly: boolean }) => useTimeActivityDailyQuery({ ...request, billableOnly }),
+			{ wrapper, initialProps: { billableOnly: false } }
+		);
+		await waitFor(() => expect(result.current.isSuccess).toBe(true));
+		rerender({ billableOnly: true });
+
+		await waitFor(() => expect(mockGetTimeLogReportDaily).toHaveBeenCalledTimes(2));
+		expect(mockGetTimeLogReportDaily).toHaveBeenLastCalledWith(expect.objectContaining({ billableOnly: true }));
+	});
 });

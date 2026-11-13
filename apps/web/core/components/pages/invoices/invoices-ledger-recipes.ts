@@ -10,6 +10,6 @@ export const LEDGER_ROW_GRID =
 export const COMPACT_LEDGER_QUERY = '(width < 64rem)';
 
 /** The whole width of the row, past the client's 2rem tile and its gap; from `lg` the columns state the same. */
-export const LEDGER_ROW_DETAILS = 'col-span-full min-w-0 truncate pl-10.5 lg:hidden';
+export const LEDGER_ROW_DETAILS = 'col-span-full min-w-0 text-pretty pl-10.5 lg:hidden';
 
 export const LEDGER_SURFACE = 'rounded-xl bg-card hairline-ring ring-border shadow-sm shadow-black/6.5';

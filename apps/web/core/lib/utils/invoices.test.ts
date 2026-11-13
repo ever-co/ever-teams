@@ -17,6 +17,7 @@ import {
 	invoiceTimeOf,
 	invoiceWaitsOf,
 	keptLinesOf,
+	lineAmountOf,
 	lineDescriptionOf,
 	linePriceOf,
 	namedLinesOf,
@@ -798,5 +799,13 @@ describe('invoice list', () => {
 			['2026-11', ['a', 'b', 'c']],
 			['', ['d']]
 		]);
+	});
+});
+
+describe('the amount of an invoice line', () => {
+	it('rounds half a cent up, whatever the binary error of hours times rate', () => {
+		expect(lineAmountOf(1.15, 12.5)).toBe(14.38);
+		expect(lineAmountOf(2, 45)).toBe(90);
+		expect(lineAmountOf(0.01, 0.5)).toBe(0.01);
 	});
 });

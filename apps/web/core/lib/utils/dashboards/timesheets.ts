@@ -19,6 +19,7 @@ import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { dateFormatOf, localeTagOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 export const TIMESHEET_WEEK_START: WeekStart = 1;
 
@@ -482,14 +483,15 @@ function dayDateOptions(showsYear: boolean): Intl.DateTimeFormatOptions {
 }
 
 /** One set of `Intl` formatters per locale, built once per page and shared by every row. */
-export function timesheetFormattersOf(locale: string, now = new Date()): TimesheetFormatters {
-	const timeFormat = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' });
-	const currentYearFormat = new Intl.DateTimeFormat(locale, dayDateOptions(false));
-	const otherYearFormat = new Intl.DateTimeFormat(locale, dayDateOptions(true));
-	const weekdayFormat = new Intl.DateTimeFormat(locale, { weekday: 'long' });
-	const weekdayShortFormat = new Intl.DateTimeFormat(locale, { weekday: 'short' });
-	const monthFormat = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' });
-	const dayNumberFormat = new Intl.DateTimeFormat(locale, { day: 'numeric' });
+export function timesheetFormattersOf(locale: FormatLocale, now = new Date()): TimesheetFormatters {
+	const timeFormat = dateFormatOf(locale, { hour: '2-digit', minute: '2-digit' });
+	const currentYearFormat = dateFormatOf(locale, dayDateOptions(false));
+	const otherYearFormat = dateFormatOf(locale, dayDateOptions(true));
+	const weekdayFormat = dateFormatOf(locale, { weekday: 'long' });
+	const weekdayShortFormat = dateFormatOf(locale, { weekday: 'short' });
+	const monthFormat = dateFormatOf(locale, { month: 'long', year: 'numeric' });
+	const dayNumberFormat = dateFormatOf(locale, { day: 'numeric' });
+	const tag = localeTagOf(locale);
 	const currentYear = now.getFullYear();
 	return {
 		time: (date) => timeFormat.format(date),
@@ -500,9 +502,9 @@ export function timesheetFormattersOf(locale: string, now = new Date()): Timeshe
 			}
 			return otherYearFormat.format(date);
 		},
-		weekday: (date) => capitalizedOf(weekdayFormat.format(date), locale),
+		weekday: (date) => capitalizedOf(weekdayFormat.format(date), tag),
 		weekdayShort: (date) => weekdayShortFormat.format(date),
-		monthTitle: (date) => capitalizedOf(monthFormat.format(date), locale),
+		monthTitle: (date) => capitalizedOf(monthFormat.format(date), tag),
 		dayNumber: (date) => dayNumberFormat.format(date)
 	};
 }
@@ -1020,7 +1022,7 @@ function presentFirst(isFirstPresent: boolean) {
 }
 
 /** Rows read like a timesheet: grouped by project, then by task, logs without a project or a task last. */
-export function bySheetRow(first: Pick<SheetRow, 'identity'>, second: Pick<SheetRow, 'identity'>) {
+function bySheetRow(first: Pick<SheetRow, 'identity'>, second: Pick<SheetRow, 'identity'>) {
 	const firstProject = rowProjectNameOf(first);
 	const secondProject = rowProjectNameOf(second);
 	const firstHasProject = firstProject.length > 0;

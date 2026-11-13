@@ -5,4 +5,5 @@ export * from './time-logs';
 export * from './time-slot';
 export * from './timer';
 export * from './timer-billable';
+export * from './timer-notes';
 export * from './timer-reminder';

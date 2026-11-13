@@ -3,7 +3,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
-import { useLocale } from 'next-intl';
 import { useTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-feature-data';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
@@ -44,6 +43,8 @@ import type { PaginationResponse } from '@/core/types/interfaces/common/data-res
 import type { TOrganizationTeam } from '@/core/types/schemas';
 import type { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import type { TTimeLogReportWeekly } from '@/core/types/schemas/timer/time-log.schema';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 /** Keeps this report's entries apart from the Time & Activity week grid, which caches the bare report array. */
 const REPORT_KEY = 'actual-expected';
@@ -154,9 +155,9 @@ function axisFormatOptionsOf(dayCount: number): Intl.DateTimeFormatOptions {
 	return { day: 'numeric' };
 }
 
-function chartLabelsOf(locale: string, dayCount: number): PlanChartLabels {
-	const labelFormat = new Intl.DateTimeFormat(locale, { weekday: 'long', month: 'short', day: 'numeric' });
-	const axisFormat = new Intl.DateTimeFormat(locale, axisFormatOptionsOf(dayCount));
+function chartLabelsOf(locale: FormatLocale, dayCount: number): PlanChartLabels {
+	const labelFormat = dateFormatOf(locale, { weekday: 'long', month: 'short', day: 'numeric' });
+	const axisFormat = dateFormatOf(locale, axisFormatOptionsOf(dayCount));
 	return {
 		label: (day) => labelFormat.format(day),
 		axisLabel: (day) => axisFormat.format(day)
@@ -164,9 +165,9 @@ function chartLabelsOf(locale: string, dayCount: number): PlanChartLabels {
 }
 
 /** The variance tooltip names the day as "Tue, Nov 4"; the axis keeps the chart's short labels. */
-function varianceLabelsOf(locale: string, dayCount: number): PlanChartLabels {
-	const labelFormat = new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric' });
-	const axisFormat = new Intl.DateTimeFormat(locale, axisFormatOptionsOf(dayCount));
+function varianceLabelsOf(locale: FormatLocale, dayCount: number): PlanChartLabels {
+	const labelFormat = dateFormatOf(locale, { weekday: 'short', month: 'short', day: 'numeric' });
+	const axisFormat = dateFormatOf(locale, axisFormatOptionsOf(dayCount));
 	return {
 		label: (day) => labelFormat.format(day),
 		axisLabel: (day) => axisFormat.format(day)
@@ -177,7 +178,7 @@ interface ShownInput {
 	result: ActualResult;
 	plans: ReadonlyArray<TDailyPlan>;
 	membersById: ReadonlyMap<string, PlanMember>;
-	locale: string;
+	locale: FormatLocale;
 }
 
 function shownMembersOf(employeeIds: ReadonlyArray<string>, membersById: ReadonlyMap<string, PlanMember>) {
@@ -233,13 +234,13 @@ function groupsOf(shown: ActualExpectedShown | null, grouping: PlanGrouping, col
  * weekly report, which gives the time of each member on each day of the range in the reader's zone.
  */
 export function useActualExpectedReport({ unnamedLabel }: Readonly<{ unnamedLabel: string }>) {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const queryClient = useQueryClient();
 	const activeTeam = useAtomValue(activeTeamState);
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
 	const timeZone = useMemo(() => getDefaultTimezone(), []);
-	const collator = useMemo(() => new Intl.Collator(locale), [locale]);
+	const collator = useMemo(() => new Intl.Collator(locale.tag), [locale.tag]);
 
 	const [period, setPeriod] = useState<Period>(() => periodOfPreset('thisWeek', PLAN_WEEK_START));
 	const [grouping, setGrouping] = useState<PlanGrouping>('member');
