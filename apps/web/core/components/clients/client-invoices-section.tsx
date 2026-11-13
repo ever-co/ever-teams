@@ -13,13 +13,13 @@ import { FileText, Invoice } from '@/core/components/icons';
 import { InvoiceDueText } from '@/core/components/invoices/invoice-due-text';
 import { InvoiceStandingLabel } from '@/core/components/invoices/invoice-standing';
 import { MoneyFigure } from '@/core/components/invoices/money-figure';
-import { INVOICES_PATH } from '@/core/components/pages/invoices/invoice-access-guard';
 import { cn } from '@/core/lib/helpers';
 import {
 	invoiceStandingOf,
 	type InvoiceStanding,
 	type InvoiceStandingSummary
 } from '@/core/lib/utils/invoice-standing';
+import { invoicePagePathOf } from '@/core/lib/utils/invoice-paths';
 import { invoiceDayOf, invoiceDayTextOf } from '@/core/lib/utils/invoices';
 import type { TInvoice } from '@/core/types/schemas/organization/invoice.schema';
 import { ClientSection } from './client-section';
@@ -56,10 +56,6 @@ const ROW_GRID =
 const WIDE_ONLY = 'hidden @xl:flex';
 
 const NARROW_ONLY = '@xl:hidden';
-
-function invoicePathOf(invoiceId: string) {
-	return `${INVOICES_PATH}/${encodeURIComponent(invoiceId)}`;
-}
 
 function numberTextOf(invoice: TInvoice) {
 	const number = invoice.invoiceNumber;
@@ -126,7 +122,7 @@ const ClientInvoiceRow = memo(function ClientInvoiceRow({ invoice, todayKey, tim
 	return (
 		<li className="[content-visibility:auto] [contain-intrinsic-size:auto_48px]">
 			<Link
-				href={invoicePathOf(invoice.id)}
+				href={invoicePagePathOf(invoice.id)}
 				className={cn(
 					ROW_GRID,
 					'-mx-2 min-h-12 rounded-md px-2 py-1.5 outline-none transition-colors hover:bg-foreground/[0.03] focus-visible:ring-[3px] focus-visible:ring-ring/25'
