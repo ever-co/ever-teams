@@ -64,8 +64,10 @@ export function useCreateTask() {
 			issueType?: string | null;
 			status?: string | null;
 			taskStatusId: string;
-			priority?: ETaskPriority | null;
-			size?: ETaskSize | null;
+			/** One of the platform's values, or the team's own (the value of its record). */
+			priority?: ETaskPriority | string | null;
+			/** One of the platform's values, or the team's own (the value of its record). */
+			size?: ETaskSize | string | null;
 			tags?: TTag[] | null;
 			description?: string | null;
 			projectId?: string | null;

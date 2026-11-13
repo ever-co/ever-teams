@@ -53,13 +53,15 @@ const baseTaskSchema = z
 		description: z.string().optional().nullable(),
 		// Statuses are per-organization rows in Gauzy: besides the standard values, a task can hold a custom one.
 		status: z.nativeEnum(ETaskStatusName).or(z.string()).optional().nullable(),
+		// Priorities and sizes are per-organization rows in Gauzy too: besides the standard values (the title-case
+		// ones read as lower case), a task can hold a team's own, which the platform writes as the record's value.
 		priority: z
 			.nativeEnum(ETaskPriority)
-			.or(z.enum(['Urgent', 'High', 'Medium', 'Low']))
-			.transform((val) => val.toLowerCase())
+			.or(z.enum(['Urgent', 'High', 'Medium', 'Low']).transform((val) => val.toLowerCase()))
+			.or(z.string())
 			.optional()
 			.nullable(),
-		size: z.nativeEnum(ETaskSize).optional().nullable(),
+		size: z.nativeEnum(ETaskSize).or(z.string()).optional().nullable(),
 		// Issue types are per-organization rows in Gauzy too: a task can hold Memo or a custom type.
 		issueType: z.nativeEnum(EIssueType).or(z.string()).optional().nullable(),
 		startDate: z.coerce.date().optional().nullable(),

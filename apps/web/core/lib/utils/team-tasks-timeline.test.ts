@@ -1,3 +1,4 @@
+import { runInThisContext } from 'node:vm';
 import {
 	draggedDatesOf,
 	draggedTaskDatesOf,
@@ -254,29 +255,37 @@ describe('the dates a drag gives a bar', () => {
 });
 
 describe('the dates a drag gives a task', () => {
-	it('reads a midnight-UTC date as its day in any zone, so a move one day earlier is a change', () => {
-		const zone = process.env['TZ'];
+	it('reads a midnight-UTC date as its day in any zone, and writes the day it moves to the same way', () => {
+		// Jest hands the file a copy of process.env: the zone is set on the real process, and checked to have moved.
+		const host = runInThisContext('process') as NodeJS.Process;
+		const zone = host.env.TZ;
+		const current = Intl.DateTimeFormat().resolvedOptions().timeZone;
 		try {
-			for (const readerZone of ['America/Los_Angeles', 'Asia/Tokyo', 'Europe/Paris', 'UTC']) {
-				process.env['TZ'] = readerZone;
+			for (const [readerZone, offset] of [
+				['America/Los_Angeles', 480],
+				['Asia/Tokyo', -540],
+				['Europe/Paris', -60],
+				['UTC', 0]
+			] as const) {
+				host.env.TZ = readerZone;
+				expect(`${readerZone} ${new Date(2026, 10, 20).getTimezoneOffset()}`).toBe(`${readerZone} ${offset}`);
 				const moved = draggedTaskDatesOf({ dueDate: '2026-11-20T00:00:00.000Z' }, 'move', -1);
-				expect(`${readerZone} ${moved?.dueDate?.toDateString()}`).toBe(
-					`${readerZone} ${new Date(2026, 10, 19).toDateString()}`
-				);
+				expect(`${readerZone} ${moved?.dueDate?.toISOString()}`).toBe(`${readerZone} 2026-11-19T00:00:00.000Z`);
 			}
 		} finally {
-			if (zone === undefined) delete process.env['TZ'];
-			else process.env['TZ'] = zone;
+			host.env.TZ = zone ?? current;
+			if (zone === undefined) delete host.env.TZ;
 		}
 	});
 
 	it('moves the dates a task has, drags an end of a range, and changes nothing otherwise', () => {
+		// The due date in the platform's date-only form (midnight UTC of its day); the start as its local midnight.
 		expect(draggedTaskDatesOf({ startDate: '2026-11-10', dueDate: '2026-11-14' }, 'move', 2)).toEqual({
 			startDate: new Date(2026, 10, 12),
-			dueDate: new Date(2026, 10, 16)
+			dueDate: new Date(Date.UTC(2026, 10, 16))
 		});
 		expect(draggedTaskDatesOf({ startDate: '2026-11-10', dueDate: '2026-11-14' }, 'end', -1)).toEqual({
-			dueDate: new Date(2026, 10, 13)
+			dueDate: new Date(Date.UTC(2026, 10, 13))
 		});
 		expect(draggedTaskDatesOf({ startDate: null, dueDate: null }, 'move', 1)).toBeNull();
 		expect(draggedTaskDatesOf({ dueDate: '2026-11-20' }, 'start', 1)).toBeNull();
