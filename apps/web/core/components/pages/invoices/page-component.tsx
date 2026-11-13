@@ -52,7 +52,7 @@ interface InvoiceDialog {
 /** Marking an invoice paid or unpaid needs no confirmation: the toast says the outcome. */
 function useInvoiceStatusToggle(scope: InvoicesScope | null) {
 	const t = useTranslations();
-	const { changeStatus, changingId } = useChangeInvoiceStatus();
+	const { changeStatus, changingIds } = useChangeInvoiceStatus();
 	const changeTo = useCallback(
 		async (target: InvoiceActionTarget, change: InvoiceStatusChange, doneKey: DottedLanguageObjectStringPaths) => {
 			const number = target.numberText;
@@ -66,7 +66,7 @@ function useInvoiceStatusToggle(scope: InvoicesScope | null) {
 		},
 		[changeStatus, scope, t]
 	);
-	return { changeTo, changingId };
+	return { changeTo, changingIds };
 }
 
 /** Mounted once the role may read invoices: nothing of an invoice is read for anyone else. */
@@ -79,7 +79,7 @@ function InvoicesContent() {
 	const list = useInvoicesQuery({ enabled: access.canView });
 	const { downloadPdf, pendingId } = useInvoicePdf();
 	const clientNames = useClientNames();
-	const { changeTo, changingId } = useInvoiceStatusToggle(list.scope);
+	const { changeTo, changingIds } = useInvoiceStatusToggle(list.scope);
 	const [dialog, setDialog] = useState<InvoiceDialog | null>(null);
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -139,7 +139,7 @@ function InvoicesContent() {
 						pendingPdfId={pendingId}
 						onDownload={downloadPdf}
 						canEdit={access.canEdit}
-						changingId={changingId}
+						changingIds={changingIds}
 						onAction={takeAction}
 					/>
 					{list.hasMore && (

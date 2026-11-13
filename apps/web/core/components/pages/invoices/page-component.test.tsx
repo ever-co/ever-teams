@@ -41,7 +41,7 @@ jest.mock('@/core/hooks/invoices/use-invoice-access', () => ({
 	useInvoiceAccess: () => ({ canView: true, canEdit: true, canCreate: true })
 }));
 jest.mock('@/core/hooks/invoices/use-invoice-mutations', () => ({
-	useChangeInvoiceStatus: () => ({ changeStatus: mockChangeStatus, changingId: null }),
+	useChangeInvoiceStatus: () => ({ changeStatus: mockChangeStatus, changingIds: new Set() }),
 	useInvoicePdf: () => ({ downloadPdf: jest.fn(), pendingId: null })
 }));
 jest.mock('@/core/hooks/invoices/use-invoices-query', () => ({ useInvoicesQuery: () => mockList.current }));

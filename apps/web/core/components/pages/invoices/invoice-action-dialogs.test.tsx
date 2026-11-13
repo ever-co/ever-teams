@@ -38,7 +38,7 @@ jest.mock('@/core/components/icons', () => ({
 jest.mock('@/core/components/common/entity-tile', () => ({ EntityTile: () => null }));
 jest.mock('@/core/hooks/invoices/use-invoice-mutations', () => ({
 	useSendInvoice: () => ({ sendInvoice: mockSendInvoice, isSending: false }),
-	useChangeInvoiceStatus: () => ({ changeStatus: mockChangeStatus, isChanging: false, changingId: null }),
+	useChangeInvoiceStatus: () => ({ changeStatus: mockChangeStatus, isChanging: false, changingIds: new Set() }),
 	useDeleteInvoice: () => ({ deleteInvoice: mockDeleteInvoice, isDeleting: false })
 }));
 jest.mock('@/core/components/projects/dialogs/project-confirm-dialog', () => ({

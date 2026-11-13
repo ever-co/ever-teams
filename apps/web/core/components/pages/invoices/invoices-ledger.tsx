@@ -247,7 +247,7 @@ export function InvoicesLedger({
 	pendingPdfId,
 	onDownload,
 	canEdit,
-	changingId,
+	changingIds,
 	onAction
 }: Readonly<{
 	invoices: ReadonlyArray<TInvoice>;
@@ -257,7 +257,7 @@ export function InvoicesLedger({
 	pendingPdfId: string | null;
 	onDownload: (invoice: InvoiceToDownload) => void;
 	canEdit: boolean;
-	changingId: string | null;
+	changingIds: ReadonlySet<string>;
 	onAction: InvoiceActionHandler;
 }>) {
 	const t = useTranslations();
@@ -284,7 +284,7 @@ export function InvoicesLedger({
 									isDownloading={pendingPdfId === invoice.id}
 									onDownload={onDownload}
 									canEdit={canEdit}
-									isChanging={changingId === invoice.id}
+									isChanging={changingIds.has(invoice.id)}
 									onAction={onAction}
 									isCompact={isCompact}
 								/>

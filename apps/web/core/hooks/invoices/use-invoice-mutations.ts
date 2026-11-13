@@ -1,6 +1,14 @@
 'use client';
 
-import { useMutation, useQueryClient, type InfiniteData, type QueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import {
+	useMutation,
+	useMutationState,
+	useQueryClient,
+	type InfiniteData,
+	type Mutation,
+	type QueryClient
+} from '@tanstack/react-query';
 import {
 	invoiceService,
 	type InvoicesPage,
@@ -185,6 +193,14 @@ export interface InvoiceStatusChangeRequest {
 	scope: ReadWorkspace;
 }
 
+/** Shared by every row and dialog: an invoice whose status change runs stays busy, whichever change ran last. */
+const STATUS_CHANGE_KEY = [...queryKeys.invoices.all, 'status-change'] as const;
+
+function changedInvoiceIdOf(change: Mutation) {
+	const request = change.state.variables as InvoiceStatusChangeRequest;
+	return request.invoiceId;
+}
+
 async function changeStatusInItsWorkspace({ invoiceId, change, scope }: InvoiceStatusChangeRequest) {
 	const workspace = workspaceToActIn(scope);
 	await invoiceService.changeInvoiceStatus(invoiceId, change, workspace);
@@ -193,17 +209,19 @@ async function changeStatusInItsWorkspace({ invoiceId, change, scope }: InvoiceS
 export function useChangeInvoiceStatus() {
 	const queryClient = useQueryClient();
 	const mutation = useMutation({
+		mutationKey: STATUS_CHANGE_KEY,
 		mutationFn: changeStatusInItsWorkspace,
 		onSuccess: (_answer, { invoiceId, change, scope }) =>
 			showListedStatus(queryClient, scope, invoiceId, change.status),
 		onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all }),
 		meta: { handlesOwnError: true }
 	});
-	let changingId: string | null = null;
-	if (mutation.isPending) {
-		changingId = mutation.variables?.invoiceId ?? null;
-	}
-	return { changeStatus: mutation.mutateAsync, isChanging: mutation.isPending, changingId };
+	const pendingIds = useMutationState({
+		filters: { mutationKey: STATUS_CHANGE_KEY, status: 'pending' },
+		select: changedInvoiceIdOf
+	});
+	const changingIds = useMemo<ReadonlySet<string>>(() => new Set(pendingIds), [pendingIds]);
+	return { changeStatus: mutation.mutateAsync, isChanging: mutation.isPending, changingIds };
 }
 
 interface InvoiceToDelete {
