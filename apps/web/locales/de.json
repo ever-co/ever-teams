@@ -1867,7 +1867,7 @@
 			},
 			"billable": {
 				"LABEL": "Standardmäßig abrechenbar",
-				"HELP": "Neue Einträge sind abrechenbar; gespeicherte bleiben gleich."
+				"HELP": "Gilt für neue Einträge; gespeicherte bleiben gleich."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {

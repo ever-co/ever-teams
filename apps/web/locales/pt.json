@@ -1867,7 +1867,7 @@
 			},
 			"billable": {
 				"LABEL": "Faturável por padrão",
-				"HELP": "Novos registros começam faturáveis; os salvos não mudam."
+				"HELP": "Vale para novos registros; os salvos não mudam."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {

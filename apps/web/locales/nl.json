@@ -1864,7 +1864,7 @@
 			},
 			"billable": {
 				"LABEL": "Standaard factureerbaar",
-				"HELP": "Nieuwe registraties zijn factureerbaar; oude blijven gelijk."
+				"HELP": "Geldt voor nieuwe registraties; oude blijven gelijk."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {

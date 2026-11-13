@@ -1864,7 +1864,7 @@
 			},
 			"billable": {
 				"LABEL": "Facturable par défaut",
-				"HELP": "Nouvelles saisies facturables ; les anciennes ne changent pas."
+				"HELP": "S'applique aux nouvelles saisies ; les autres ne changent pas."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {

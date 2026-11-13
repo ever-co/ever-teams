@@ -1784,7 +1784,7 @@
 			},
 			"billable": {
 				"LABEL": "Billable by default",
-				"HELP": "New entries start billable; saved ones keep their value."
+				"HELP": "Applies to new entries; saved ones keep their value."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {

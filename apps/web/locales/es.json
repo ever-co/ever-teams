@@ -1935,7 +1935,7 @@
 			},
 			"billable": {
 				"LABEL": "Facturable de forma predeterminada",
-				"HELP": "Los nuevos registros son facturables; el resto no cambia."
+				"HELP": "Se aplica a los nuevos registros; el resto no cambia."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {

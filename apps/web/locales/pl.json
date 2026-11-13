@@ -1867,7 +1867,7 @@
 			},
 			"billable": {
 				"LABEL": "Domyślnie do rozliczenia",
-				"HELP": "Nowe wpisy są do rozliczenia; zapisane pozostają bez zmian."
+				"HELP": "Dotyczy nowych wpisów; zapisane pozostają bez zmian."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {
