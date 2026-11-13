@@ -9,6 +9,7 @@ import {
 	type InvoiceGrouping,
 	type InvoiceItemRequest,
 	type InvoicePeriodDays,
+	type InvoiceRequest,
 	type InvoiceStatus,
 	type NamedInvoiceLine
 } from '@/core/lib/utils/invoices';
@@ -440,4 +441,33 @@ export function savedInvoiceOf(invoice: TSavedInvoice, reading: SavedInvoiceRead
 		descriptions,
 		previous: previousRevisionOf(invoice, facts, parts)
 	};
+}
+
+/**
+ * What an edit writes: the invoice's fields as the screen built them, under the status it already has, and its lines
+ * under its own id.
+ */
+export function invoiceRevisionOf(request: InvoiceRequest, saved: SavedInvoice): InvoiceRevision {
+	const update: InvoiceUpdate = {
+		invoiceNumber: request.invoiceNumber,
+		invoiceDate: request.invoiceDate,
+		dueDate: request.dueDate,
+		currency: request.currency,
+		discountValue: request.discountValue,
+		discountType: request.discountType,
+		tax: request.tax,
+		taxType: request.taxType,
+		tax2: request.tax2,
+		tax2Type: request.tax2Type,
+		terms: request.terms,
+		totalValue: request.totalValue,
+		status: saved.status,
+		invoiceType: request.invoiceType,
+		organizationContactId: request.organizationContactId,
+		toContactId: request.toContactId,
+		organizationId: request.organizationId,
+		tenantId: request.tenantId
+	};
+	const lines = request.invoiceItems.map((item) => ({ ...item, invoiceId: saved.id }));
+	return { update, lines };
 }

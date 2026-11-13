@@ -1,13 +1,21 @@
 import {
 	invoiceGroupingOfLines,
 	invoiceNoteOfTerms,
+	invoiceRevisionOf,
 	percentTextOf,
 	periodOfDays,
 	savedInvoiceOf,
 	type SavedInvoice,
 	type SavedInvoiceReading
 } from './invoice-edit';
-import { invoiceLineKeyOf, invoiceTermsOf, invoiceTimeOf, type BillableEntry, type InvoiceGrouping } from './invoices';
+import {
+	buildInvoiceRequest,
+	invoiceLineKeyOf,
+	invoiceTermsOf,
+	invoiceTimeOf,
+	type BillableEntry,
+	type InvoiceGrouping
+} from './invoices';
 import type { TSavedInvoice, TSavedInvoiceItem } from '@/core/types/schemas/organization/invoice.schema';
 
 const reading: SavedInvoiceReading = {
@@ -244,5 +252,53 @@ describe('the note and the figures of a saved invoice', () => {
 		expect(period?.from).toEqual(new Date(2026, 9, 1));
 		expect(period?.to).toEqual(new Date(2026, 9, 31));
 		expect(periodOfDays({ fromDay: 'soon', toDay: '2026-10-31' })).toBeNull();
+	});
+});
+
+function requestOf(saved: SavedInvoice) {
+	return buildInvoiceRequest({
+		id: 'browser-made-id',
+		organizationId: 'organization-1',
+		tenantId: 'tenant-1',
+		clientId: saved.client.id,
+		invoiceNumber: 43,
+		issueDay: '2026-11-02',
+		dueDay: '2026-12-02',
+		currency: 'USD',
+		period: saved.period,
+		timeZone: 'Europe/Paris',
+		lines: saved.lines,
+		descriptions: saved.descriptions,
+		adjustments: { discountPercent: null, taxPercent: 20 },
+		note: 'Payment by bank transfer.'
+	});
+}
+
+describe('what an edit writes', () => {
+	it('keeps the status the invoice reached and writes the fields the screen built', () => {
+		const saved = readSaved();
+
+		const { update } = invoiceRevisionOf(requestOf(saved), saved);
+
+		expect(update).toMatchObject({
+			invoiceNumber: 43,
+			status: 'SENT',
+			discountValue: 0,
+			tax: 20,
+			totalValue: 1560,
+			toContactId: 'client-acme',
+			invoiceType: 'BY_PROJECT_HOURS'
+		});
+		expect(update).not.toHaveProperty('paid');
+		expect(update).not.toHaveProperty('invoiceItems');
+	});
+
+	it('writes every line under the id of the invoice edited', () => {
+		const saved = readSaved();
+
+		const { lines } = invoiceRevisionOf(requestOf(saved), saved);
+
+		expect(lines).toHaveLength(2);
+		expect(lines.every((line) => line.invoiceId === 'invoice-42')).toBe(true);
 	});
 });
