@@ -123,23 +123,36 @@ describe('the tree drawer of a page on a phone', () => {
 		expect(pressTab().defaultPrevented).toBe(false);
 	});
 
-	it('brings a focus lost outside the drawer back into it, but never takes it from another layer', () => {
+	it("brings a focus lost to the page, or left on the app's frame, back into the drawer", () => {
 		openDrawer();
 		(document.activeElement as HTMLElement).blur();
-		pressTab();
+		expect(pressTab().defaultPrevented).toBe(true);
 		expect(document.activeElement).toBe(screen.getByText('new page'));
 
-		// A dialog opened from the drawer (rename, move) is portaled out of it, and keeps its own focus.
-		const layer = document.createElement('div');
-		layer.setAttribute('role', 'dialog');
-		const field = document.createElement('input');
-		layer.appendChild(field);
-		document.body.appendChild(layer);
-		field.focus();
-		expect(pressTab().defaultPrevented).toBe(false);
-		expect(document.activeElement).toBe(field);
-		layer.remove();
+		// The app's header stays above the backdrop: a click there leaves the focus on it.
+		screen.getByText('frame control').focus();
+		expect(pressTab().defaultPrevented).toBe(true);
+		expect(document.activeElement).toBe(screen.getByText('new page'));
+		screen.getByText('frame control').focus();
+		pressTab(true);
+		expect(document.activeElement).toBe(screen.getByText('search'));
 	});
+
+	it.each(['dialog', 'menu'])(
+		'never takes the focus from a %s opened from the drawer (portaled out of it)',
+		(role) => {
+			openDrawer();
+			const layer = document.createElement('div');
+			layer.setAttribute('role', role);
+			const control = document.createElement('button');
+			layer.appendChild(control);
+			document.body.appendChild(layer);
+			control.focus();
+			expect(pressTab().defaultPrevented).toBe(false);
+			expect(document.activeElement).toBe(control);
+			layer.remove();
+		}
+	);
 
 	it('keeps its backdrop out of the tab order (a pointer closes the drawer there, Escape from the keyboard)', () => {
 		openDrawer();

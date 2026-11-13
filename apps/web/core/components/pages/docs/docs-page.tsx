@@ -51,26 +51,28 @@ const TABBABLE = [
 	.map((selector) => `${selector}:not([tabindex="-1"])`)
 	.join(', ');
 
+/** The layers a control of the drawer may open, portaled out of it (a dialog, a menu, a list of options). */
+const LAYER = '[role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"]';
+
 /**
- * Tab and Shift+Tab go round the open drawer's controls, never out of it (to its backdrop or the app's frame); a focus
- * lost to the page comes back into it. A layer opened from the drawer (a dialog, a menu) is portaled out of it and
- * keeps its own focus.
+ * Tab and Shift+Tab go round the open drawer's controls, never out of it (to its backdrop or the app's frame, whose
+ * header stays above the backdrop): a focus anywhere else on the page comes back into the drawer. A layer opened from
+ * the drawer (a dialog, a menu) is portaled out of it and keeps its own focus.
  */
 function keepTabInside(drawer: HTMLElement | null, event: KeyboardEvent) {
 	if (!drawer) return;
 	const active = document.activeElement;
 	const isInside = active instanceof Node && drawer.contains(active);
-	const isBackdrop = active instanceof HTMLElement && active.dataset.docsDrawerBackdrop !== undefined;
-	const isLost = !active || active === document.body || isBackdrop;
-	if (!isInside && !isLost) return;
+	const layer = !isInside && active instanceof Element ? active.closest(LAYER) : null;
+	if (layer) return;
 	const tabbable = Array.from(drawer.querySelectorAll<HTMLElement>(TABBABLE));
 	const first = tabbable[0];
-	const last = tabbable[tabbable.length - 1];
+	const last = tabbable.at(-1);
 	if (!first || !last) {
 		event.preventDefault();
 		return;
 	}
-	if (isLost || active === (event.shiftKey ? first : last)) {
+	if (!isInside || active === (event.shiftKey ? first : last)) {
 		event.preventDefault();
 		(event.shiftKey ? last : first).focus();
 	}
@@ -390,7 +392,6 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 						aria-label={t('docs.CLOSE')}
 						// A pointer closes the drawer here; the keyboard has Escape, and Tab stays in the drawer.
 						tabIndex={-1}
-						data-docs-drawer-backdrop=""
 						onClick={() => setTreeDrawer((current) => ({ ...current, open: false }))}
 						className="fixed inset-0 z-30 cursor-default bg-black/30 lg:hidden print:hidden"
 					/>

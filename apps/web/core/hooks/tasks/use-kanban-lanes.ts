@@ -61,7 +61,7 @@ function settledOverrides(
 ): StatusOverrides {
 	const fields = overrides[statusId];
 	const entry = fields?.[field];
-	if (!entry || entry.save !== save) {
+	if (entry?.save !== save) {
 		return overrides;
 	}
 	if (savedOn) {

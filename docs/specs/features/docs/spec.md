@@ -106,13 +106,15 @@ single-writer autosave with conflict detection saves the page.
   client is connected.
 - **FR-8** Search MUST cover titles and text through the platform and appear in the
   command palette and the Docs header.
-- **FR-9** Export MUST offer Markdown (single page, with sub-pages as zip) and PDF (a
-  page, or a page with its sub-pages). The platform renders the PDF from the saved page and
-  the app downloads the file under the name the platform gives it (ever-teams #5074); the
-  PDF entries show only while the platform's PDF export answers its probe, and the page's
-  pending edits are saved (or confirmed live) first, or nothing is exported. Print stays
-  the browser's. The import of exported workspaces (#5074) is behind
-  `NEXT_PUBLIC_DOCS_IMPORT_ENABLED` (Docs on too) and the platform's import probe.
+- **FR-9** Export MUST offer Markdown (single page, with sub-pages as zip)
+  and PDF (a page, or a page with its sub-pages). The platform renders the
+  PDF from the saved page and the app downloads the file under the name the
+  platform gives it (ever-teams #5074). The PDF entries show only while the
+  platform's PDF export answers its probe, and the page's pending edits are
+  saved (or confirmed live) first, or nothing is exported. Print stays the
+  browser's. The import of exported workspaces (#5074) is behind
+  `NEXT_PUBLIC_DOCS_IMPORT_ENABLED` (Docs on too) and the platform's import
+  probe.
 - **FR-10** `/docs` MUST be a protected path; every string MUST exist in every locale.
 - **FR-11** The feature MUST detect a platform without the pages API once per session and
   hide itself.
