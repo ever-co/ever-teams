@@ -6537,7 +6537,13 @@
 			"NAME_REQUIRED": "Saisissez le nom du client.",
 			"EMAIL_INVALID": "Saisissez une adresse e-mail valide ou laissez le champ vide.",
 			"CREATE": "Créer le client",
-			"SAVE_FAILED": "Le client n'a pas pu être enregistré. Réessayez."
+			"SAVE_FAILED": "Le client n'a pas pu être enregistré. Réessayez.",
+			"BILLING": "Facturation",
+			"CUSTOM_DAYS_LABEL": "Jours pour payer, de 0 à {max}",
+			"DAYS_UNIT": "{count, plural, one {jour} other {jours}}",
+			"PAYMENT_TERMS": "Conditions de paiement",
+			"TERMS_HINT": "Fixe la date d’échéance des factures faites pour ce client.",
+			"TERMS_INVALID": "Saisissez un nombre de jours entre 0 et 365."
 		},
 		"toasts": {
 			"CREATED": "{name} a été ajouté aux clients",
@@ -6551,13 +6557,15 @@
 			"LEAVES_PICKER": "Il n'est plus proposé comme client d'un projet.",
 			"CAN_RESTORE": "Vous pouvez le restaurer depuis la liste Archivés.",
 			"CONFIRM": "Archiver le client",
-			"FAILED": "Le client n'a pas pu être archivé. Réessayez."
+			"FAILED": "Le client n'a pas pu être archivé. Réessayez.",
+			"KEEPS_INVOICES": "Ses factures restent, et peuvent encore être envoyées, payées ou annulées."
 		},
 		"restore": {
 			"TITLE": "Restaurer {name} ?",
 			"BACK_IN_PICKER": "Il est de nouveau proposé comme client d'un projet.",
 			"CONFIRM": "Restaurer le client",
-			"FAILED": "Le client n'a pas pu être restauré. Réessayez."
+			"FAILED": "Le client n'a pas pu être restauré. Réessayez.",
+			"KEEPS_EVERYTHING": "Ses projets, son temps et ses factures sont tels que vous les avez laissés."
 		},
 		"picker": {
 			"ADD": "Ajouter un client",
@@ -6565,6 +6573,86 @@
 			"CREATE": "Créer le client « {name} »",
 			"NO_CLIENT": "Aucun client",
 			"CREATE_FAILED": "Le client n'a pas pu être créé. Réessayez."
+		},
+		"COLUMN_SINCE": "Depuis",
+		"FOOT_PROJECTS": "{count, plural, one {# projet} other {# projets}}",
+		"LINK_COPIED": "Lien vers {name} copié",
+		"LINK_NOT_COPIED": "Le lien n’a pas pu être copié. Copiez-le depuis la barre d’adresse.",
+		"NO_ACCESS_TITLE": "Les clients ne sont pas ouverts à votre rôle",
+		"NO_ACCESS_MESSAGE": "Demandez à un responsable de l’espace de travail de donner à votre rôle l’accès aux clients.",
+		"OPEN_CLIENT": "Ouvrir",
+		"contact": {
+			"ADD": "Ajouter un contact",
+			"ADD_EMAIL": "Ajouter un e-mail",
+			"ADD_FOR": "Ajouter les coordonnées de {name}",
+			"ADD_PHONE": "Ajouter un téléphone",
+			"COPY": "Copier {value}",
+			"NOT_COPIED": "La copie a échoué. Sélectionnez le texte pour le copier.",
+			"NO_EMAIL": "Pas d’e-mail",
+			"NO_PHONE": "Pas de téléphone"
+		},
+		"facts": {
+			"ADDED": "Ajouté",
+			"EDIT_CONTACT": "Modifier le contact",
+			"EDIT_NOTES": "Modifier les notes",
+			"EDIT_TERMS": "Modifier les conditions de paiement",
+			"SINCE": "Client depuis {date}",
+			"TERMS": "Conditions"
+		},
+		"invoices": {
+			"ALL": "Toutes",
+			"OPEN": "Ouvertes",
+			"EMPTY_TITLE": "Aucune facture pour l’instant",
+			"EMPTY_MESSAGE": "Les factures faites pour ce client s’affichent ici.",
+			"FILTER_LABEL": "Factures à afficher",
+			"NONE_IN_FILTER": "Aucune facture avec ce statut",
+			"SUMMARY_OPEN": "{count, plural, one {# ouverte} other {# ouvertes}}",
+			"SUMMARY_OVERDUE": "{count} en retard",
+			"SUMMARY_PAID": "{count, plural, one {# payée} other {# payées}}",
+			"SUMMARY_DRAFTS": "{count, plural, one {# brouillon} other {# brouillons}}",
+			"SUMMARY_VOID": "{count, plural, one {# annulée} other {# annulées}}"
+		},
+		"notes": {
+			"ADD": "Ajouter une note",
+			"NONE": "Aucune note",
+			"READ_MORE": "Lire la suite",
+			"SHOW_LESS": "Réduire"
+		},
+		"order": {
+			"TRIGGER": "Trié par {order}",
+			"NEWEST": "Plus récents",
+			"MOST_PROJECTS": "Plus de projets"
+		},
+		"projects": {
+			"EMPTY_TITLE": "Aucun projet pour ce client",
+			"EMPTY_MESSAGE": "Choisissez ce client dans les réglages d’un projet pour le voir ici."
+		},
+		"sheet": {
+			"POSITION": "{position} sur {total}"
+		},
+		"standing": {
+			"ALSO": "Aussi {amounts}",
+			"BILLED": "Facturé",
+			"LABEL": "Facturation de {name}",
+			"LAST_INVOICE": "Dernière facture",
+			"NOTHING": "Rien",
+			"NO_INVOICE_TITLE": "Pas encore de facture pour {name}",
+			"NO_INVOICE_MESSAGE": "Facturez le temps suivi pour ce client pour voir ici ce qu’il doit."
+		},
+		"terms": {
+			"CUSTOM": "Autre",
+			"DAYS": "{days, plural, one {# jour} other {# jours}}",
+			"DUE_ON_RECEIPT": "Payable à réception",
+			"NET_DAYS": "Paiement à {days, plural, one {# jour} other {# jours}}",
+			"RECEIPT": "À réception",
+			"WORKSPACE": "Espace de travail",
+			"WORKSPACE_DAYS": "Espace de travail ({days, plural, one {# jour} other {# jours}})",
+			"WORKSPACE_SHORT": "Par défaut"
+		},
+		"detail": {
+			"NOT_FOUND_TITLE": "Ce client n’est pas dans l’espace de travail",
+			"NOT_FOUND_MESSAGE": "Il a peut-être été supprimé, ou le lien vient d’un autre espace de travail.",
+			"ALL_CLIENTS": "Tous les clients"
 		}
 	},
 	"invoices": {

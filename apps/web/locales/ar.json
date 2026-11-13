@@ -6537,7 +6537,13 @@
 			"NAME_REQUIRED": "أدخل اسم العميل.",
 			"EMAIL_INVALID": "أدخل بريدًا إلكترونيًا صالحًا أو اترك الحقل فارغًا.",
 			"CREATE": "إنشاء العميل",
-			"SAVE_FAILED": "تعذّر حفظ العميل. حاول مرة أخرى."
+			"SAVE_FAILED": "تعذّر حفظ العميل. حاول مرة أخرى.",
+			"BILLING": "الفوترة",
+			"CUSTOM_DAYS_LABEL": "أيام الدفع، من 0 إلى {max}",
+			"DAYS_UNIT": "{count, plural, zero {يوم} one {يوم} two {يومان} few {أيام} many {يومًا} other {يوم}}",
+			"PAYMENT_TERMS": "شروط الدفع",
+			"TERMS_HINT": "تحدد تاريخ استحقاق الفواتير الصادرة لهذا العميل.",
+			"TERMS_INVALID": "أدخل عدد أيام من 0 إلى 365."
 		},
 		"toasts": {
 			"CREATED": "تمت إضافة {name} إلى العملاء",
@@ -6551,13 +6557,15 @@
 			"LEAVES_PICKER": "لن يُعرض بعد الآن كعميل لمشروع.",
 			"CAN_RESTORE": "يمكنك استعادته من قائمة المؤرشفين.",
 			"CONFIRM": "أرشفة العميل",
-			"FAILED": "تعذّرت أرشفة العميل. حاول مرة أخرى."
+			"FAILED": "تعذّرت أرشفة العميل. حاول مرة أخرى.",
+			"KEEPS_INVOICES": "تبقى فواتيره، ويمكن إرسالها أو دفعها أو إلغاؤها."
 		},
 		"restore": {
 			"TITLE": "استعادة {name}؟",
 			"BACK_IN_PICKER": "يُعرض من جديد كعميل لمشروع.",
 			"CONFIRM": "استعادة العميل",
-			"FAILED": "تعذّرت استعادة العميل. حاول مرة أخرى."
+			"FAILED": "تعذّرت استعادة العميل. حاول مرة أخرى.",
+			"KEEPS_EVERYTHING": "مشاريعه ووقته وفواتيره كما تركتها."
 		},
 		"picker": {
 			"ADD": "إضافة عميل",
@@ -6565,6 +6573,86 @@
 			"CREATE": "إنشاء العميل «{name}»",
 			"NO_CLIENT": "بلا عميل",
 			"CREATE_FAILED": "تعذّر إنشاء العميل. حاول مرة أخرى."
+		},
+		"COLUMN_SINCE": "منذ",
+		"FOOT_PROJECTS": "{count, plural, zero {# مشروع} one {مشروع واحد} two {مشروعان} few {# مشاريع} many {# مشروعًا} other {# مشروع}}",
+		"LINK_COPIED": "تم نسخ رابط {name}",
+		"LINK_NOT_COPIED": "تعذّر نسخ الرابط. انسخه من شريط العنوان.",
+		"NO_ACCESS_TITLE": "العملاء غير متاحين لدورك",
+		"NO_ACCESS_MESSAGE": "اطلب من أحد مديري مساحة العمل منح دورك صلاحية الوصول إلى العملاء.",
+		"OPEN_CLIENT": "فتح",
+		"contact": {
+			"ADD": "إضافة جهة اتصال",
+			"ADD_EMAIL": "إضافة بريد إلكتروني",
+			"ADD_FOR": "إضافة بيانات الاتصال لـ {name}",
+			"ADD_PHONE": "إضافة هاتف",
+			"COPY": "نسخ {value}",
+			"NOT_COPIED": "تعذّر النسخ. حدّد النص لنسخه.",
+			"NO_EMAIL": "لا يوجد بريد إلكتروني",
+			"NO_PHONE": "لا يوجد هاتف"
+		},
+		"facts": {
+			"ADDED": "تاريخ الإضافة",
+			"EDIT_CONTACT": "تعديل جهة الاتصال",
+			"EDIT_NOTES": "تعديل الملاحظات",
+			"EDIT_TERMS": "تعديل شروط الدفع",
+			"SINCE": "عميل منذ {date}",
+			"TERMS": "الشروط"
+		},
+		"invoices": {
+			"ALL": "الكل",
+			"OPEN": "المفتوحة",
+			"EMPTY_TITLE": "لا توجد فواتير بعد",
+			"EMPTY_MESSAGE": "تظهر هنا الفواتير الصادرة لهذا العميل.",
+			"FILTER_LABEL": "الفواتير المعروضة",
+			"NONE_IN_FILTER": "لا توجد فواتير بهذه الحالة",
+			"SUMMARY_OPEN": "مفتوحة: {count}",
+			"SUMMARY_OVERDUE": "متأخرة: {count}",
+			"SUMMARY_PAID": "مدفوعة: {count}",
+			"SUMMARY_DRAFTS": "مسودات: {count}",
+			"SUMMARY_VOID": "ملغاة: {count}"
+		},
+		"notes": {
+			"ADD": "إضافة ملاحظة",
+			"NONE": "لا توجد ملاحظات",
+			"READ_MORE": "قراءة المزيد",
+			"SHOW_LESS": "عرض أقل"
+		},
+		"order": {
+			"TRIGGER": "الترتيب: {order}",
+			"NEWEST": "الأحدث أولًا",
+			"MOST_PROJECTS": "الأكثر مشاريع"
+		},
+		"projects": {
+			"EMPTY_TITLE": "لا توجد مشاريع لهذا العميل",
+			"EMPTY_MESSAGE": "اختر هذا العميل في إعدادات مشروع ليظهر هنا."
+		},
+		"sheet": {
+			"POSITION": "{position} من {total}"
+		},
+		"standing": {
+			"ALSO": "وأيضًا {amounts}",
+			"BILLED": "المفوتر",
+			"LABEL": "فوترة {name}",
+			"LAST_INVOICE": "آخر فاتورة",
+			"NOTHING": "لا شيء",
+			"NO_INVOICE_TITLE": "لا توجد فواتير لـ {name} بعد",
+			"NO_INVOICE_MESSAGE": "فوتر الوقت المسجّل لهذا العميل لترى هنا المبلغ المستحق عليه."
+		},
+		"terms": {
+			"CUSTOM": "مخصص",
+			"DAYS": "{days, plural, zero {# يوم} one {يوم واحد} two {يومان} few {# أيام} many {# يومًا} other {# يوم}}",
+			"DUE_ON_RECEIPT": "مستحقة عند الاستلام",
+			"NET_DAYS": "الدفع خلال {days, plural, zero {# يوم} one {يوم واحد} two {يومين} few {# أيام} many {# يومًا} other {# يوم}}",
+			"RECEIPT": "عند الاستلام",
+			"WORKSPACE": "مساحة العمل",
+			"WORKSPACE_DAYS": "مساحة العمل ({days, plural, zero {# يوم} one {يوم واحد} two {يومان} few {# أيام} many {# يومًا} other {# يوم}})",
+			"WORKSPACE_SHORT": "افتراضي"
+		},
+		"detail": {
+			"NOT_FOUND_TITLE": "هذا العميل غير موجود في مساحة العمل",
+			"NOT_FOUND_MESSAGE": "ربما حُذف، أو أن الرابط من مساحة عمل أخرى.",
+			"ALL_CLIENTS": "كل العملاء"
 		}
 	},
 	"invoices": {

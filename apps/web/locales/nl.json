@@ -6537,7 +6537,13 @@
 			"NAME_REQUIRED": "Vul de naam van de klant in.",
 			"EMAIL_INVALID": "Vul een geldig e-mailadres in of laat het veld leeg.",
 			"CREATE": "Klant aanmaken",
-			"SAVE_FAILED": "De klant kon niet worden opgeslagen. Probeer het opnieuw."
+			"SAVE_FAILED": "De klant kon niet worden opgeslagen. Probeer het opnieuw.",
+			"BILLING": "Facturering",
+			"CUSTOM_DAYS_LABEL": "Dagen om te betalen, van 0 tot {max}",
+			"DAYS_UNIT": "{count, plural, one {dag} other {dagen}}",
+			"PAYMENT_TERMS": "Betaaltermijn",
+			"TERMS_HINT": "Bepaalt de vervaldatum van de facturen voor deze klant.",
+			"TERMS_INVALID": "Vul een aantal dagen in van 0 tot 365."
 		},
 		"toasts": {
 			"CREATED": "{name} is toegevoegd aan de klanten",
@@ -6551,13 +6557,15 @@
 			"LEAVES_PICKER": "De klant wordt niet meer aangeboden als klant van een project.",
 			"CAN_RESTORE": "Je kunt de klant herstellen vanuit de lijst Gearchiveerd.",
 			"CONFIRM": "Klant archiveren",
-			"FAILED": "De klant kon niet worden gearchiveerd. Probeer het opnieuw."
+			"FAILED": "De klant kon niet worden gearchiveerd. Probeer het opnieuw.",
+			"KEEPS_INVOICES": "De facturen blijven en kunnen nog worden verstuurd, betaald of geannuleerd."
 		},
 		"restore": {
 			"TITLE": "{name} herstellen?",
 			"BACK_IN_PICKER": "De klant wordt weer aangeboden als klant van een project.",
 			"CONFIRM": "Klant herstellen",
-			"FAILED": "De klant kon niet worden hersteld. Probeer het opnieuw."
+			"FAILED": "De klant kon niet worden hersteld. Probeer het opnieuw.",
+			"KEEPS_EVERYTHING": "Projecten, tijd en facturen staan nog zoals je ze achterliet."
 		},
 		"picker": {
 			"ADD": "Klant toevoegen",
@@ -6565,6 +6573,86 @@
 			"CREATE": "Klant ‘{name}’ aanmaken",
 			"NO_CLIENT": "Geen klant",
 			"CREATE_FAILED": "De klant kon niet worden aangemaakt. Probeer het opnieuw."
+		},
+		"COLUMN_SINCE": "Sinds",
+		"FOOT_PROJECTS": "{count, plural, one {# project} other {# projecten}}",
+		"LINK_COPIED": "Link naar {name} gekopieerd",
+		"LINK_NOT_COPIED": "De link kon niet worden gekopieerd. Kopieer hem uit de adresbalk.",
+		"NO_ACCESS_TITLE": "Klanten zijn niet gedeeld met jouw rol",
+		"NO_ACCESS_MESSAGE": "Vraag een beheerder van de werkruimte om jouw rol toegang tot de klanten te geven.",
+		"OPEN_CLIENT": "Openen",
+		"contact": {
+			"ADD": "Contact toevoegen",
+			"ADD_EMAIL": "E-mail toevoegen",
+			"ADD_FOR": "Contactgegevens toevoegen voor {name}",
+			"ADD_PHONE": "Telefoon toevoegen",
+			"COPY": "{value} kopiëren",
+			"NOT_COPIED": "Kopiëren is mislukt. Selecteer de tekst om hem te kopiëren.",
+			"NO_EMAIL": "Geen e-mail",
+			"NO_PHONE": "Geen telefoon"
+		},
+		"facts": {
+			"ADDED": "Toegevoegd",
+			"EDIT_CONTACT": "Contact bewerken",
+			"EDIT_NOTES": "Notities bewerken",
+			"EDIT_TERMS": "Betaaltermijn bewerken",
+			"SINCE": "Klant sinds {date}",
+			"TERMS": "Termijn"
+		},
+		"invoices": {
+			"ALL": "Alle",
+			"OPEN": "Open",
+			"EMPTY_TITLE": "Nog geen facturen",
+			"EMPTY_MESSAGE": "Facturen voor deze klant verschijnen hier.",
+			"FILTER_LABEL": "Te tonen facturen",
+			"NONE_IN_FILTER": "Geen facturen met deze status",
+			"SUMMARY_OPEN": "{count} open",
+			"SUMMARY_OVERDUE": "{count} achterstallig",
+			"SUMMARY_PAID": "{count} betaald",
+			"SUMMARY_DRAFTS": "{count, plural, one {# concept} other {# concepten}}",
+			"SUMMARY_VOID": "{count} geannuleerd"
+		},
+		"notes": {
+			"ADD": "Notitie toevoegen",
+			"NONE": "Geen notities",
+			"READ_MORE": "Meer lezen",
+			"SHOW_LESS": "Minder tonen"
+		},
+		"order": {
+			"TRIGGER": "Gesorteerd op {order}",
+			"NEWEST": "Nieuwste eerst",
+			"MOST_PROJECTS": "Meeste projecten"
+		},
+		"projects": {
+			"EMPTY_TITLE": "Geen projecten voor deze klant",
+			"EMPTY_MESSAGE": "Kies deze klant in de instellingen van een project om het hier te zien."
+		},
+		"sheet": {
+			"POSITION": "{position} van {total}"
+		},
+		"standing": {
+			"ALSO": "Ook {amounts}",
+			"BILLED": "Gefactureerd",
+			"LABEL": "Facturering van {name}",
+			"LAST_INVOICE": "Laatste factuur",
+			"NOTHING": "Niets",
+			"NO_INVOICE_TITLE": "Nog geen facturen voor {name}",
+			"NO_INVOICE_MESSAGE": "Factureer de geregistreerde tijd voor deze klant om hier te zien wat er openstaat."
+		},
+		"terms": {
+			"CUSTOM": "Anders",
+			"DAYS": "{days, plural, one {# dag} other {# dagen}}",
+			"DUE_ON_RECEIPT": "Direct bij ontvangst",
+			"NET_DAYS": "Betaling binnen {days, plural, one {# dag} other {# dagen}}",
+			"RECEIPT": "Bij ontvangst",
+			"WORKSPACE": "Werkruimte",
+			"WORKSPACE_DAYS": "Werkruimte ({days, plural, one {# dag} other {# dagen}})",
+			"WORKSPACE_SHORT": "Standaard"
+		},
+		"detail": {
+			"NOT_FOUND_TITLE": "Deze klant staat niet in de werkruimte",
+			"NOT_FOUND_MESSAGE": "Misschien is hij verwijderd, of komt de link uit een andere werkruimte.",
+			"ALL_CLIENTS": "Alle klanten"
 		}
 	},
 	"invoices": {

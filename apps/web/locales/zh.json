@@ -6537,7 +6537,13 @@
 			"NAME_REQUIRED": "请输入客户名称。",
 			"EMAIL_INVALID": "请输入有效的电子邮件地址，或将此项留空。",
 			"CREATE": "创建客户",
-			"SAVE_FAILED": "无法保存客户，请重试。"
+			"SAVE_FAILED": "无法保存客户，请重试。",
+			"BILLING": "账单",
+			"CUSTOM_DAYS_LABEL": "付款天数，0 到 {max}",
+			"DAYS_UNIT": "{count, plural, other {天}}",
+			"PAYMENT_TERMS": "付款条款",
+			"TERMS_HINT": "决定为该客户开具的发票的到期日。",
+			"TERMS_INVALID": "请输入 0 到 365 之间的天数。"
 		},
 		"toasts": {
 			"CREATED": "已将 {name} 添加到客户",
@@ -6551,13 +6557,15 @@
 			"LEAVES_PICKER": "它不再作为项目的客户选项出现。",
 			"CAN_RESTORE": "您可以在“已归档”列表中恢复它。",
 			"CONFIRM": "归档客户",
-			"FAILED": "无法归档客户，请重试。"
+			"FAILED": "无法归档客户，请重试。",
+			"KEEPS_INVOICES": "其发票会保留，仍可发送、收款或作废。"
 		},
 		"restore": {
 			"TITLE": "恢复 {name}？",
 			"BACK_IN_PICKER": "它会重新作为项目的客户选项出现。",
 			"CONFIRM": "恢复客户",
-			"FAILED": "无法恢复客户，请重试。"
+			"FAILED": "无法恢复客户，请重试。",
+			"KEEPS_EVERYTHING": "其项目、时间和发票保持原样。"
 		},
 		"picker": {
 			"ADD": "添加客户",
@@ -6565,6 +6573,86 @@
 			"CREATE": "创建客户“{name}”",
 			"NO_CLIENT": "无客户",
 			"CREATE_FAILED": "无法创建客户，请重试。"
+		},
+		"COLUMN_SINCE": "合作起始",
+		"FOOT_PROJECTS": "{count, plural, other {# 个项目}}",
+		"LINK_COPIED": "已复制 {name} 的链接",
+		"LINK_NOT_COPIED": "无法复制链接。请从地址栏复制。",
+		"NO_ACCESS_TITLE": "你的角色无权查看客户",
+		"NO_ACCESS_MESSAGE": "请工作区管理员为你的角色开通客户访问权限。",
+		"OPEN_CLIENT": "打开",
+		"contact": {
+			"ADD": "添加联系方式",
+			"ADD_EMAIL": "添加邮箱",
+			"ADD_FOR": "为 {name} 添加联系方式",
+			"ADD_PHONE": "添加电话",
+			"COPY": "复制 {value}",
+			"NOT_COPIED": "无法复制。请选中文本后复制。",
+			"NO_EMAIL": "无邮箱",
+			"NO_PHONE": "无电话"
+		},
+		"facts": {
+			"ADDED": "添加于",
+			"EDIT_CONTACT": "编辑联系方式",
+			"EDIT_NOTES": "编辑备注",
+			"EDIT_TERMS": "编辑付款条款",
+			"SINCE": "客户始于 {date}",
+			"TERMS": "条款"
+		},
+		"invoices": {
+			"ALL": "全部",
+			"OPEN": "未结",
+			"EMPTY_TITLE": "暂无发票",
+			"EMPTY_MESSAGE": "为该客户开具的发票会显示在这里。",
+			"FILTER_LABEL": "显示的发票",
+			"NONE_IN_FILTER": "没有该状态的发票",
+			"SUMMARY_OPEN": "{count} 张未结",
+			"SUMMARY_OVERDUE": "{count} 张逾期",
+			"SUMMARY_PAID": "{count} 张已付",
+			"SUMMARY_DRAFTS": "{count} 份草稿",
+			"SUMMARY_VOID": "{count} 张作废"
+		},
+		"notes": {
+			"ADD": "添加备注",
+			"NONE": "暂无备注",
+			"READ_MORE": "展开",
+			"SHOW_LESS": "收起"
+		},
+		"order": {
+			"TRIGGER": "排序：{order}",
+			"NEWEST": "最新优先",
+			"MOST_PROJECTS": "项目最多"
+		},
+		"projects": {
+			"EMPTY_TITLE": "该客户暂无项目",
+			"EMPTY_MESSAGE": "在项目设置中选择该客户，项目就会显示在这里。"
+		},
+		"sheet": {
+			"POSITION": "第 {position} / {total} 个"
+		},
+		"standing": {
+			"ALSO": "另有 {amounts}",
+			"BILLED": "已开票",
+			"LABEL": "{name} 的账单",
+			"LAST_INVOICE": "最近发票",
+			"NOTHING": "无",
+			"NO_INVOICE_TITLE": "{name} 暂无发票",
+			"NO_INVOICE_MESSAGE": "为该客户记录的时间开票后，这里会显示待收金额。"
+		},
+		"terms": {
+			"CUSTOM": "自定义",
+			"DAYS": "{days, plural, other {# 天}}",
+			"DUE_ON_RECEIPT": "收到即付",
+			"NET_DAYS": "{days, plural, other {# 天内付款}}",
+			"RECEIPT": "收到即付",
+			"WORKSPACE": "工作区默认",
+			"WORKSPACE_DAYS": "工作区默认（{days, plural, other {# 天}}）",
+			"WORKSPACE_SHORT": "默认"
+		},
+		"detail": {
+			"NOT_FOUND_TITLE": "该客户不在此工作区",
+			"NOT_FOUND_MESSAGE": "它可能已被删除，或者链接来自另一个工作区。",
+			"ALL_CLIENTS": "全部客户"
 		}
 	},
 	"invoices": {

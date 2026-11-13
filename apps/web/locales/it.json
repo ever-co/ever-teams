@@ -6537,7 +6537,13 @@
 			"NAME_REQUIRED": "Inserisci il nome del cliente.",
 			"EMAIL_INVALID": "Inserisci un indirizzo email valido o lascia il campo vuoto.",
 			"CREATE": "Crea cliente",
-			"SAVE_FAILED": "Impossibile salvare il cliente. Riprova."
+			"SAVE_FAILED": "Impossibile salvare il cliente. Riprova.",
+			"BILLING": "Fatturazione",
+			"CUSTOM_DAYS_LABEL": "Giorni per pagare, da 0 a {max}",
+			"DAYS_UNIT": "{count, plural, one {giorno} other {giorni}}",
+			"PAYMENT_TERMS": "Termini di pagamento",
+			"TERMS_HINT": "Fissa la scadenza delle fatture fatte per questo cliente.",
+			"TERMS_INVALID": "Inserisci un numero di giorni da 0 a 365."
 		},
 		"toasts": {
 			"CREATED": "{name} è stato aggiunto ai clienti",
@@ -6551,13 +6557,15 @@
 			"LEAVES_PICKER": "Non viene più proposto come cliente di un progetto.",
 			"CAN_RESTORE": "Puoi ripristinarlo dall'elenco Archiviati.",
 			"CONFIRM": "Archivia cliente",
-			"FAILED": "Impossibile archiviare il cliente. Riprova."
+			"FAILED": "Impossibile archiviare il cliente. Riprova.",
+			"KEEPS_INVOICES": "Le sue fatture restano e possono ancora essere inviate, pagate o annullate."
 		},
 		"restore": {
 			"TITLE": "Ripristinare {name}?",
 			"BACK_IN_PICKER": "Viene di nuovo proposto come cliente di un progetto.",
 			"CONFIRM": "Ripristina cliente",
-			"FAILED": "Impossibile ripristinare il cliente. Riprova."
+			"FAILED": "Impossibile ripristinare il cliente. Riprova.",
+			"KEEPS_EVERYTHING": "I suoi progetti, il tempo e le fatture sono come li hai lasciati."
 		},
 		"picker": {
 			"ADD": "Aggiungi cliente",
@@ -6565,6 +6573,86 @@
 			"CREATE": "Crea il cliente «{name}»",
 			"NO_CLIENT": "Nessun cliente",
 			"CREATE_FAILED": "Impossibile creare il cliente. Riprova."
+		},
+		"COLUMN_SINCE": "Dal",
+		"FOOT_PROJECTS": "{count, plural, one {# progetto} other {# progetti}}",
+		"LINK_COPIED": "Link a {name} copiato",
+		"LINK_NOT_COPIED": "Impossibile copiare il link. Copialo dalla barra degli indirizzi.",
+		"NO_ACCESS_TITLE": "I clienti non sono aperti al tuo ruolo",
+		"NO_ACCESS_MESSAGE": "Chiedi a un responsabile dello spazio di lavoro di dare al tuo ruolo l’accesso ai clienti.",
+		"OPEN_CLIENT": "Apri",
+		"contact": {
+			"ADD": "Aggiungi contatto",
+			"ADD_EMAIL": "Aggiungi email",
+			"ADD_FOR": "Aggiungi i contatti di {name}",
+			"ADD_PHONE": "Aggiungi telefono",
+			"COPY": "Copia {value}",
+			"NOT_COPIED": "Copia non riuscita. Seleziona il testo per copiarlo.",
+			"NO_EMAIL": "Nessuna email",
+			"NO_PHONE": "Nessun telefono"
+		},
+		"facts": {
+			"ADDED": "Aggiunto",
+			"EDIT_CONTACT": "Modifica contatto",
+			"EDIT_NOTES": "Modifica note",
+			"EDIT_TERMS": "Modifica termini di pagamento",
+			"SINCE": "Cliente dal {date}",
+			"TERMS": "Termini"
+		},
+		"invoices": {
+			"ALL": "Tutte",
+			"OPEN": "Aperte",
+			"EMPTY_TITLE": "Ancora nessuna fattura",
+			"EMPTY_MESSAGE": "Le fatture fatte per questo cliente compaiono qui.",
+			"FILTER_LABEL": "Fatture da mostrare",
+			"NONE_IN_FILTER": "Nessuna fattura con questo stato",
+			"SUMMARY_OPEN": "{count, plural, one {# aperta} other {# aperte}}",
+			"SUMMARY_OVERDUE": "{count, plural, one {# scaduta} other {# scadute}}",
+			"SUMMARY_PAID": "{count, plural, one {# pagata} other {# pagate}}",
+			"SUMMARY_DRAFTS": "{count, plural, one {# bozza} other {# bozze}}",
+			"SUMMARY_VOID": "{count, plural, one {# annullata} other {# annullate}}"
+		},
+		"notes": {
+			"ADD": "Aggiungi una nota",
+			"NONE": "Nessuna nota",
+			"READ_MORE": "Leggi tutto",
+			"SHOW_LESS": "Mostra meno"
+		},
+		"order": {
+			"TRIGGER": "Ordinati per {order}",
+			"NEWEST": "Più recenti",
+			"MOST_PROJECTS": "Più progetti"
+		},
+		"projects": {
+			"EMPTY_TITLE": "Nessun progetto per questo cliente",
+			"EMPTY_MESSAGE": "Scegli questo cliente nelle impostazioni di un progetto per vederlo qui."
+		},
+		"sheet": {
+			"POSITION": "{position} di {total}"
+		},
+		"standing": {
+			"ALSO": "Anche {amounts}",
+			"BILLED": "Fatturato",
+			"LABEL": "Fatturazione di {name}",
+			"LAST_INVOICE": "Ultima fattura",
+			"NOTHING": "Niente",
+			"NO_INVOICE_TITLE": "Ancora nessuna fattura per {name}",
+			"NO_INVOICE_MESSAGE": "Fattura il tempo registrato per questo cliente per vedere qui quanto deve."
+		},
+		"terms": {
+			"CUSTOM": "Altro",
+			"DAYS": "{days, plural, one {# giorno} other {# giorni}}",
+			"DUE_ON_RECEIPT": "Pagamento a vista",
+			"NET_DAYS": "Pagamento a {days, plural, one {# giorno} other {# giorni}}",
+			"RECEIPT": "A vista",
+			"WORKSPACE": "Spazio di lavoro",
+			"WORKSPACE_DAYS": "Spazio di lavoro ({days, plural, one {# giorno} other {# giorni}})",
+			"WORKSPACE_SHORT": "Predefiniti"
+		},
+		"detail": {
+			"NOT_FOUND_TITLE": "Questo cliente non è nello spazio di lavoro",
+			"NOT_FOUND_MESSAGE": "Potrebbe essere stato eliminato, oppure il link viene da un altro spazio di lavoro.",
+			"ALL_CLIENTS": "Tutti i clienti"
 		}
 	},
 	"invoices": {

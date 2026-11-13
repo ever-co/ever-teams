@@ -6537,7 +6537,13 @@
 			"NAME_REQUIRED": "Enter the client's name.",
 			"EMAIL_INVALID": "Enter a valid email address, or leave the field empty.",
 			"CREATE": "Create client",
-			"SAVE_FAILED": "The client could not be saved. Try again."
+			"SAVE_FAILED": "The client could not be saved. Try again.",
+			"BILLING": "Billing",
+			"CUSTOM_DAYS_LABEL": "Days to pay, from 0 to {max}",
+			"DAYS_UNIT": "{count, plural, one {day} other {days}}",
+			"PAYMENT_TERMS": "Payment terms",
+			"TERMS_HINT": "Sets the due date of the invoices made for this client.",
+			"TERMS_INVALID": "Enter a number of days from 0 to 365."
 		},
 		"toasts": {
 			"CREATED": "{name} was added to the clients",
@@ -6551,13 +6557,15 @@
 			"LEAVES_PICKER": "It is no longer offered as the client of a project.",
 			"CAN_RESTORE": "You can restore it from the Archived list.",
 			"CONFIRM": "Archive client",
-			"FAILED": "The client could not be archived. Try again."
+			"FAILED": "The client could not be archived. Try again.",
+			"KEEPS_INVOICES": "Its invoices stay, and can still be sent, paid or voided."
 		},
 		"restore": {
 			"TITLE": "Restore {name}?",
 			"BACK_IN_PICKER": "It is offered again as the client of a project.",
 			"CONFIRM": "Restore client",
-			"FAILED": "The client could not be restored. Try again."
+			"FAILED": "The client could not be restored. Try again.",
+			"KEEPS_EVERYTHING": "Its projects, time and invoices are as you left them."
 		},
 		"picker": {
 			"ADD": "Add client",
@@ -6565,6 +6573,86 @@
 			"CREATE": "Create client “{name}”",
 			"NO_CLIENT": "No client",
 			"CREATE_FAILED": "The client could not be created. Try again."
+		},
+		"COLUMN_SINCE": "Since",
+		"FOOT_PROJECTS": "{count, plural, one {# project} other {# projects}}",
+		"LINK_COPIED": "Link to {name} copied",
+		"LINK_NOT_COPIED": "The link could not be copied. Copy it from the address bar.",
+		"NO_ACCESS_TITLE": "Clients are not shared with your role",
+		"NO_ACCESS_MESSAGE": "Ask a workspace manager to give your role access to the clients.",
+		"OPEN_CLIENT": "Open",
+		"contact": {
+			"ADD": "Add contact",
+			"ADD_EMAIL": "Add email",
+			"ADD_FOR": "Add contact details for {name}",
+			"ADD_PHONE": "Add phone",
+			"COPY": "Copy {value}",
+			"NOT_COPIED": "It could not be copied. Select the text to copy it.",
+			"NO_EMAIL": "No email",
+			"NO_PHONE": "No phone"
+		},
+		"facts": {
+			"ADDED": "Added",
+			"EDIT_CONTACT": "Edit contact",
+			"EDIT_NOTES": "Edit notes",
+			"EDIT_TERMS": "Edit payment terms",
+			"SINCE": "Client since {date}",
+			"TERMS": "Terms"
+		},
+		"invoices": {
+			"ALL": "All",
+			"OPEN": "Open",
+			"EMPTY_TITLE": "No invoices yet",
+			"EMPTY_MESSAGE": "Invoices made for this client are listed here.",
+			"FILTER_LABEL": "Invoices to show",
+			"NONE_IN_FILTER": "No invoices with this status",
+			"SUMMARY_OPEN": "{count} open",
+			"SUMMARY_OVERDUE": "{count} overdue",
+			"SUMMARY_PAID": "{count} paid",
+			"SUMMARY_DRAFTS": "{count, plural, one {# draft} other {# drafts}}",
+			"SUMMARY_VOID": "{count} void"
+		},
+		"notes": {
+			"ADD": "Add a note",
+			"NONE": "No notes",
+			"READ_MORE": "Read more",
+			"SHOW_LESS": "Show less"
+		},
+		"order": {
+			"TRIGGER": "Sorted by {order}",
+			"NEWEST": "Newest first",
+			"MOST_PROJECTS": "Most projects"
+		},
+		"projects": {
+			"EMPTY_TITLE": "No projects for this client",
+			"EMPTY_MESSAGE": "Pick this client in a project's settings to list it here."
+		},
+		"sheet": {
+			"POSITION": "{position} of {total}"
+		},
+		"standing": {
+			"ALSO": "Also {amounts}",
+			"BILLED": "Billed",
+			"LABEL": "Billing of {name}",
+			"LAST_INVOICE": "Last invoice",
+			"NOTHING": "None",
+			"NO_INVOICE_TITLE": "No invoices for {name} yet",
+			"NO_INVOICE_MESSAGE": "Bill the time tracked for this client to see here what it owes."
+		},
+		"terms": {
+			"CUSTOM": "Custom",
+			"DAYS": "{days, plural, one {# day} other {# days}}",
+			"DUE_ON_RECEIPT": "Due on receipt",
+			"NET_DAYS": "Net {days, plural, one {# day} other {# days}}",
+			"RECEIPT": "On receipt",
+			"WORKSPACE": "Workspace default",
+			"WORKSPACE_DAYS": "Workspace default ({days, plural, one {# day} other {# days}})",
+			"WORKSPACE_SHORT": "Default"
+		},
+		"detail": {
+			"NOT_FOUND_TITLE": "This client is not in the workspace",
+			"NOT_FOUND_MESSAGE": "It may have been deleted, or the link comes from another workspace.",
+			"ALL_CLIENTS": "All clients"
 		}
 	},
 	"invoices": {
