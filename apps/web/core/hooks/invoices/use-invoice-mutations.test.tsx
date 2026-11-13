@@ -426,7 +426,8 @@ describe('saving an edit to an invoice', () => {
 		invoiceId: 'inv-42',
 		scope: workspace,
 		revision: { update: { ...fields, totalValue: 960 }, lines: [editedLine] },
-		previous: { update: { ...fields, totalValue: 800 }, lines: [previousLine] }
+		previous: { update: { ...fields, totalValue: 800 }, lines: [previousLine] },
+		previousLineIds: ['item-1']
 	} as unknown as InvoiceEdit;
 	const sending = {
 		invoiceId: 'inv-42',
@@ -490,6 +491,17 @@ describe('saving an edit to an invoice', () => {
 			mockReplaceInvoiceLines.mock.invocationCallOrder[0]
 		);
 		expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['invoices'] });
+	});
+
+	it('writes nothing once its lines were written back under new ids since it was opened', async () => {
+		mockGetInvoice.mockResolvedValue(invoiceRead('SENT', [{ id: 'item-9', ...previousLine }]));
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'changed' }, sending: null });
+		expect(mockUpdateInvoice).not.toHaveBeenCalled();
+		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
 	});
 
 	it('keeps a status the invoice reached since it was opened', async () => {

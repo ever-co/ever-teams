@@ -5,6 +5,7 @@ import {
 	billedSavedLinesOf,
 	didNotReachApi,
 	haveSameFields,
+	haveSameLineIds,
 	haveSameLines,
 	hasInvoiceChanges,
 	invoiceChangesOf,
@@ -611,5 +612,16 @@ describe('the time a saved invoice bills', () => {
 
 	it('is not read for an invoice that has none to name', () => {
 		expect(billedLinesReadOf(null)).toEqual({ lineIds: new Set(), projectIds: [] });
+	});
+});
+
+describe('the lines an invoice holds when its edit is saved', () => {
+	it('are the ones the editor opened when their ids are the same, in any order', () => {
+		expect(haveSameLineIds([{ id: 'item-2' }, { id: 'item-1' }], ['item-1', 'item-2'])).toBe(true);
+	});
+
+	it('are not once they were written back under new ids, or another line was added', () => {
+		expect(haveSameLineIds([{ id: 'item-9' }, { id: 'item-2' }], ['item-1', 'item-2'])).toBe(false);
+		expect(haveSameLineIds([{ id: 'item-1' }], ['item-1', 'item-2'])).toBe(false);
 	});
 });

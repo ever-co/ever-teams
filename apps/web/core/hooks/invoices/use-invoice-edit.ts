@@ -84,7 +84,13 @@ export function useInvoiceEdit(read: SavedInvoice) {
 		}
 		const revision = invoiceRevisionOf(request, saved);
 		const previous = billedPreviousOf(saved, billedTimeByLine, recordsBilledTime);
-		return { invoiceId: saved.id, scope: saved.workspace, revision, previous };
+		return {
+			invoiceId: saved.id,
+			scope: saved.workspace,
+			revision,
+			previous,
+			previousLineIds: saved.previousLineIds
+		};
 	}, [billedTimeByLine, invoiceRequest, isUnchanged, recordsBilledTime, saved]);
 
 	const save = useCallback(async () => {

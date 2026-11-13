@@ -247,6 +247,19 @@ describe('an invoice opened to be edited', () => {
 		expect(draftCall).toEqual(sendingOfInvoice42);
 	});
 
+	it('carries the ids of the lines it opened, so a save refuses lines written back under new ones', async () => {
+		const saved = savedOf(sentInvoice());
+		const { result } = renderEdit(saved);
+		act(() => result.current.setDueDay('2026-12-15'));
+
+		await act(async () => {
+			await result.current.save();
+		});
+
+		const { edit } = mockSaveInvoiceEdit.mock.calls[0][0];
+		expect(edit.previousLineIds).toEqual(saved.previousLineIds);
+	});
+
 	it('takes the time again, keeping what was written on a line still there', () => {
 		mockTime.lines = [
 			timeLine({}),

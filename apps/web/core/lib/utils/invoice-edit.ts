@@ -736,6 +736,20 @@ export function hasInvoiceChanges(changes: InvoiceChanges): boolean {
 	return hasLineChange || hasValueChange || changes.isNoteRewritten;
 }
 
+function sortedLineIdsOf(ids: ReadonlyArray<string>) {
+	return [...ids].sort((first, second) => first.localeCompare(second));
+}
+
+/** Whether the invoice still holds the lines the editor opened: lines written back after a failed save have new ids. */
+export function haveSameLineIds(current: ReadonlyArray<{ id?: string | null }>, opened: ReadonlyArray<string>) {
+	const currentIds = sortedLineIdsOf(current.map((line) => line.id ?? ''));
+	const openedIds = sortedLineIdsOf(opened);
+	if (currentIds.length !== openedIds.length) {
+		return false;
+	}
+	return currentIds.every((id, index) => id === openedIds[index]);
+}
+
 /** A line as written to the API or read back from it. */
 export interface WrittenInvoiceLine {
 	description?: string | null;
