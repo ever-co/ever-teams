@@ -1,6 +1,7 @@
 import {
 	claimForThisTab,
 	pruneTabClaims,
+	releaseTabClaim,
 	TAB_CLAIM_PREFIX,
 	TAB_CLAIM_SETTLE_MS,
 	TAB_CLAIM_TTL_MS,
@@ -229,5 +230,27 @@ describe('pruneTabClaims', () => {
 		pruneTabClaims(storage, 1000);
 
 		expect([...storage.values.keys()].sort()).toEqual([`${TAB_CLAIM_PREFIX}live`, 'someone-else']);
+	});
+});
+
+describe('releaseTabClaim', () => {
+	it('gives back a claim the tab did not act on, so the next claim of the key acts', async () => {
+		const storage = new MapStorage();
+		const locks = fakeLocks();
+		await claimForThisTab('reminder-1', { environment: tab('a', { storage, locks }) });
+
+		releaseTabClaim('reminder-1', { environment: tab('a', { storage, locks }) });
+
+		await expect(claimForThisTab('reminder-1', { environment: tab('b', { storage, locks }) })).resolves.toBe(true);
+	});
+
+	it("leaves another tab's claim alone", async () => {
+		const storage = new MapStorage();
+		const locks = fakeLocks();
+		await claimForThisTab('reminder-1', { environment: tab('a', { storage, locks }) });
+
+		releaseTabClaim('reminder-1', { environment: tab('b', { storage, locks }) });
+
+		await expect(claimForThisTab('reminder-1', { environment: tab('c', { storage, locks }) })).resolves.toBe(false);
 	});
 });

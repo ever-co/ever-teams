@@ -39,7 +39,22 @@
   asked again twice after a pause. A compact card of text only (the site's
   name and always its host, title, two lines of description). Behind
   `NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED`, off by default; the platform's
-  route needs `GAUZY_CHAT_LINK_PREVIEWS_ENABLED=true`. Open: an image proxy
-  on the platform. The answer's `image` and `icon` sit on the linked site's
-  hosts, and drawing them would make each reader's browser call that site,
-  so the card shows neither until the platform serves them itself
+  route needs `GAUZY_CHAT_LINK_PREVIEWS_ENABLED=true`. The answer's `image`
+  and `icon` sit on the linked site's hosts, and drawing them would make each
+  reader's browser call that site, so the card never uses those addresses
+- [x] T16b The page's picture in a preview card, as the platform serves it
+  (`GET /chat/link-preview/image?url=<the link>`, platform chat T30; proxy
+  twin `/api/chat/link-preview/image`): shown from the bytes answered (an
+  object URL, released with the card), never from the linked site; asked
+  only when the preview names a picture; 204 keeps the card text only, 404
+  turns pictures off for the page, 429 / 503 asked again twice; the alt is
+  the page's picture description. Behind
+  `NEXT_PUBLIC_CHAT_LINK_PREVIEW_IMAGES_ENABLED` (off by default, needs the
+  previews on); the platform's route needs
+  `GAUZY_CHAT_LINK_PREVIEW_IMAGES_ENABLED=true`
+- [x] T17 Platform gaps (ever-gauzy #11800): editable task cards (status,
+  priority and assignees in place, through `PATCH /chat/messages/:id/tasks/:taskId`,
+  FR-14), "is typing" under the timeline and under a thread (`typing.signalled`),
+  messages of files only (empty body, `📎 names` in previews), unsent uploads
+  discarded (`DELETE /chat/attachments/:documentId`), `chatService.reorderCategories`
+  (no ordering UI yet), thumbnails sized from the files' `width` / `height` (#5072)

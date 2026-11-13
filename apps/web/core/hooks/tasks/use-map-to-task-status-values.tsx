@@ -19,7 +19,15 @@ export function useMapToTaskStatusValues<T extends Omit<TTaskStatus, 'name'> & {
 				value: item.value || item.name,
 				bgColor: item.color,
 				bordered,
-				icon: <TaskPropertyIcon kind={kind} name={item.value || item.name} color={item.color} />
+				icon: (
+					<TaskPropertyIcon
+						kind={kind}
+						name={item.value || item.name}
+						color={item.color}
+						icon={item.icon}
+						iconUrl={item.fullIconUrl}
+					/>
+				)
 			};
 
 			if (value.value) {

@@ -87,6 +87,32 @@ type CustomSelectProps = {
 	placeholder?: string;
 };
 
+type CustomSelectOption = CustomSelectProps['options'][number];
+
+/** An option rendered as an element is shown as it is; anything else it renders to is shown as text. */
+function optionContentOf(
+	option: CustomSelectOption,
+	optionValue: string,
+	renderOption: CustomSelectProps['renderOption']
+): React.ReactNode {
+	if (!renderOption) {
+		return option.label || option.name || option.title || optionValue;
+	}
+	const rendered = renderOption(option);
+	if (React.isValidElement(rendered)) {
+		return rendered;
+	}
+	return String(rendered || '');
+}
+
+function canShowContent(content: React.ReactNode): boolean {
+	if (React.isValidElement(content)) {
+		return true;
+	}
+	const isText = typeof content === 'string';
+	return isText && content !== '';
+}
+
 /**
  * A customizable dropdown select menu for choosing a .
  *
@@ -162,19 +188,11 @@ export function CustomSelect({
 								return null;
 							}
 
-							// Get display text with fallback for object options
-							let displayText: string = '';
-							if (renderOption) {
-								const rendered = renderOption(option);
-								displayText = typeof rendered === 'string' ? rendered : String(rendered || '');
-							} else {
-								displayText = option.label || option.name || option.title || optionValue;
-							}
+							const optionContent = optionContentOf(option, optionValue, renderOption);
 
-							// Ensure display text is valid
-							if (!displayText || typeof displayText !== 'string') {
+							if (!canShowContent(optionContent)) {
 								if (process.env.NODE_ENV === 'development') {
-									console.warn('🚨 Invalid display text in CustomSelect:', { option, displayText });
+									console.warn('🚨 Invalid display text in CustomSelect:', { option, optionContent });
 								}
 								return null;
 							}
@@ -182,7 +200,7 @@ export function CustomSelect({
 							return (
 								<SelectItem key={`${optionValue}-${index}`} value={optionValue}>
 									<span className="overflow-x-hidden whitespace-nowrap text-ellipsis max-w-96">
-										{displayText}
+										{optionContent}
 									</span>
 								</SelectItem>
 							);

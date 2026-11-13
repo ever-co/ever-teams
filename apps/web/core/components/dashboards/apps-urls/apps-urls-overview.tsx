@@ -2,6 +2,7 @@
 
 import { memo, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { ActivityIcon } from '@/core/components/activities/activity-icon';
 import { ShareBar, shareToneOf } from '@/core/components/dashboards/kit/share-rows';
 import { DASHBOARD_SURFACE, SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { InformationCircle } from '@/core/components/icons';
@@ -31,8 +32,9 @@ function SplitLegendName({ row }: Readonly<{ row: ShareRow<TitleTotal> }>) {
 		return <span className="truncate text-muted-foreground">{t('dashboard.appsUrls.UNTITLED')}</span>;
 	}
 	return (
-		<span className="truncate text-foreground" title={title}>
-			{title}
+		<span className="flex min-w-0 items-center gap-2 text-foreground" title={title}>
+			<ActivityIcon title={title} kind={row.item?.kind} url={row.item?.url} />
+			<span className="truncate">{title}</span>
 		</span>
 	);
 }

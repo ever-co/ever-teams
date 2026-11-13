@@ -25,6 +25,7 @@ export * from './organization/organization.schema';
 export * from './organization/employee.schema';
 export * from './organization/user-organization.schema';
 export * from './organization/organization-project.schema';
+export * from './organization/organization-contact.schema';
 export * from './team/organization-team.schema';
 export * from './team/organization-team-employee.schema';
 export * from './team/public-organization-team.schema';

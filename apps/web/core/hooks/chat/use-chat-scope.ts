@@ -44,15 +44,16 @@ const NO_PEOPLE: readonly IChatPersonSummary[] = [];
 /**
  * The people by employee id (and by user id), for chips, avatars and mention suggestions: the members of the active
  * team, and everyone else of the organization from the platform's own list (a conversation is not bound to a team).
- * Where chat is off, or while that list is not there, the team alone.
+ * Where chat is off, or while that list is not there, the team alone. `enabled` false reads the list only if another
+ * part of the page loaded it.
  */
-export function useChatPeople(): ChatPeople {
+export function useChatPeople(enabled = true): ChatPeople {
 	const team = useAtomValue(activeTeamState);
 	const scope = useChatScope();
 	const directory = useQuery({
 		queryKey: queryKeys.chat.people(scope?.tenantId, scope?.organizationId),
 		queryFn: ({ signal }) => chatService.people(signal),
-		enabled: scope !== null && isChatEnabled(),
+		enabled: enabled && scope !== null && isChatEnabled(),
 		staleTime: PEOPLE_STALE_MS,
 		retry: false
 	});

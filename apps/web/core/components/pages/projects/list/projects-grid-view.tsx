@@ -16,10 +16,16 @@ import {
 	formatProjectDay,
 	useProjectBudget
 } from '@/core/components/projects/project-cells';
+import { FavoriteMark } from '@/core/components/favorites/favorite-parts';
 import { ProjectActionsMenu } from '@/core/components/projects/project-actions-menu';
+import { ProjectBudgetUseCell } from '@/core/components/projects/project-consumption-cells';
+import type { ProjectConsumptionState } from '@/core/hooks/projects/use-project-consumption';
+import { hasProjectBudget, timeSpentOf, timeSpentTextOf } from '@/core/lib/utils/project-consumption';
+import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { cn } from '@/core/lib/helpers';
 import type { ProjectsListState } from '@/core/hooks/projects/use-projects-list-state';
 import type { ProjectTaskStatsState } from '@/core/hooks/projects/use-project-task-stats';
+import { useClientNames } from '@/core/hooks/clients/use-client-names';
 import {
 	clientNameOf,
 	completionPercentOf,
@@ -41,15 +47,18 @@ export function ProjectsGridView({
 	list,
 	groups,
 	statuses,
-	taskStats
+	taskStats,
+	consumption
 }: Readonly<{
 	list: ProjectsListState;
 	groups: ProjectStatusGroup[];
 	statuses: TTaskStatus[];
 	taskStats: ProjectTaskStatsState;
+	consumption: ProjectConsumptionState;
 }>) {
 	const t = useTranslations();
 	const isGrouped = list.grouping === 'status';
+	const clientNames = useClientNames();
 	const noStatusLabel = t('pages.projects.list.NO_STATUS');
 	return (
 		<div className="flex flex-col gap-6">
@@ -69,8 +78,10 @@ export function ProjectsGridView({
 								key={project.id}
 								project={project}
 								list={list}
+								clientNames={clientNames}
 								statuses={statuses}
 								taskStats={taskStats}
+								consumption={consumption}
 							/>
 						))}
 					</div>
@@ -156,6 +167,51 @@ function BudgetFact({ project }: Readonly<{ project: TOrganizationProject }>) {
 	);
 }
 
+function BudgetUseFact({
+	project,
+	consumption
+}: Readonly<{ project: TOrganizationProject; consumption: ProjectConsumptionState }>) {
+	const t = useTranslations();
+	return (
+		<div className="flex w-full min-w-0 flex-col gap-1">
+			<span className="text-xs text-muted-foreground">{t('pages.projects.list.COLUMN_BUDGET')}</span>
+			<ProjectBudgetUseCell project={project} consumption={consumption} />
+		</div>
+	);
+}
+
+function TimeSpentFact({
+	projectId,
+	consumption
+}: Readonly<{ projectId: string; consumption: ProjectConsumptionState }>) {
+	const t = useTranslations();
+	const locale = useLocale();
+	const row = consumption.rowOf(projectId);
+	const timeSpent = timeSpentOf(row);
+	if (timeSpent.hours === null) {
+		return null;
+	}
+	const timeText = timeSpentTextOf(timeSpent.hours, locale);
+	return <CardFact label={t('common.TIME_SPENT')}>{timeText}</CardFact>;
+}
+
+/**
+ * The amounts of an hours budget already tell the time spent, so a card writes the time apart only for a project
+ * without a budget.
+ */
+function ConsumptionFacts({
+	project,
+	consumption
+}: Readonly<{ project: TOrganizationProject; consumption: ProjectConsumptionState }>) {
+	if (!consumption.isAvailable) {
+		return <BudgetFact project={project} />;
+	}
+	if (hasProjectBudget(project)) {
+		return <BudgetUseFact project={project} consumption={consumption} />;
+	}
+	return <TimeSpentFact projectId={project.id} consumption={consumption} />;
+}
+
 function ArchivedFact({ project }: Readonly<{ project: TOrganizationProject }>) {
 	const t = useTranslations();
 	const locale = useLocale();
@@ -169,17 +225,21 @@ function ArchivedFact({ project }: Readonly<{ project: TOrganizationProject }>) 
 function ProjectCard({
 	project,
 	list,
+	clientNames,
 	statuses,
-	taskStats
+	taskStats,
+	consumption
 }: Readonly<{
 	project: TOrganizationProject;
 	list: ProjectsListState;
+	clientNames: ReadonlyMap<string, string>;
 	statuses: TTaskStatus[];
 	taskStats: ProjectTaskStatsState;
+	consumption: ProjectConsumptionState;
 }>) {
 	const t = useTranslations();
 	const isSelected = list.selectedIds.includes(project.id);
-	const client = clientNameOf(project);
+	const client = clientNameOf(project, clientNames);
 	const description = plainTextOf(project.description);
 	const tags = project.tags ?? [];
 	const people = (project.members ?? []).map(personFromProjectMember);
@@ -198,12 +258,15 @@ function ProjectCard({
 				<ProjectTile project={project} size="xl" />
 				<div className="flex min-w-0 flex-1 flex-col">
 					{eyebrow && <span className="truncate text-xs text-muted-foreground">{eyebrow}</span>}
-					<Link
-						href={`/projects/${project.id}`}
-						className="truncate rounded-sm text-sm font-semibold text-foreground outline-none transition-colors after:absolute after:inset-0 after:rounded-xl hover:text-primary-ink focus-visible:ring-[3px] focus-visible:ring-ring/25"
-					>
-						{project.name}
-					</Link>
+					<span className="flex min-w-0 items-center gap-1.5">
+						<Link
+							href={`/projects/${project.id}`}
+							className="truncate rounded-sm text-sm font-semibold text-foreground outline-none transition-colors after:absolute after:inset-0 after:rounded-xl hover:text-primary-ink focus-visible:ring-[3px] focus-visible:ring-ring/25"
+						>
+							{project.name}
+						</Link>
+						<FavoriteMark entity={EBaseEntityEnum.OrganizationProject} id={project.id} />
+					</span>
 				</div>
 				<div className="relative z-[1] flex items-center gap-1">
 					<Checkbox
@@ -238,7 +301,7 @@ function ProjectCard({
 					<span className="text-xs text-muted-foreground">{t('common.TEAMS')}</span>
 					<TeamsCell teams={project.teams ?? []} max={1} />
 				</div>
-				<BudgetFact project={project} />
+				<ConsumptionFacts project={project} consumption={consumption} />
 				<ArchivedFact project={project} />
 			</footer>
 		</article>

@@ -110,6 +110,21 @@ class UserService extends APIService {
 		await this.put<TUser>(`/user/${userId}`, { hash: password });
 	};
 
+	/**
+	 * Gives a workspace role to someone else: Gauzy's `PUT /user/:id` with the role alone (ORG_USERS_EDIT, and
+	 * SUPER_ADMIN_EDIT for the super admin role). The proxy has a route of its own for it, because its
+	 * `PUT /api/user/:id` writes the signed-in account whatever the id.
+	 */
+	assignUserRole = async ({ userId, roleId }: { userId: string; roleId: string }): Promise<void> => {
+		const userSegment = encodeURIComponent(userId);
+		let endpoint = `/user/${userSegment}/role`;
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			endpoint = `/user/${userSegment}`;
+		}
+
+		await this.put(endpoint, { roleId });
+	};
+
 	// update/delete profile avatar for user setting
 	updateUserAvatar = async ({ userId, body }: { userId: string; body: Partial<TUser> }): Promise<TUser> => {
 		try {

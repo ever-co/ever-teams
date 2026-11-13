@@ -10,6 +10,7 @@ import { Plus } from '@/core/components/icons';
 import { TaskPropertyIcon, TaskPropertyPlaceholderIcon } from '@/core/components/tasks/task-property-icon';
 import { useTaskSettingsAccess } from '@/core/hooks/tasks/use-task-settings-access';
 import { cn } from '@/core/lib/helpers';
+import { isLabelNameTaken } from '@/core/lib/utils/task-label-catalog';
 import {
 	defaultSwatchFor,
 	draftOfItem,
@@ -82,6 +83,8 @@ interface PropertyListProps {
 	onMakeDefault?: (item: PropertyListItem) => Promise<void>;
 	onDelete?: (item: PropertyListItem) => Promise<unknown>;
 	renderDeleteDialog?: (props: PropertyDeleteRenderProps) => ReactNode;
+	/** A second way to fill an empty list, next to its Add button (the labels offer their catalog). */
+	emptyAction?: ReactNode;
 }
 
 interface DisplayGroup {
@@ -172,8 +175,9 @@ const GHOST_ROW_WIDTHS = ['w-full', 'w-4/5', 'w-3/5'];
 function EmptyState({
 	kind,
 	onAdd,
-	disabled
-}: Readonly<{ kind: TaskPropertySettingsKind; onAdd: () => void; disabled: boolean }>) {
+	disabled,
+	action
+}: Readonly<{ kind: TaskPropertySettingsKind; onAdd: () => void; disabled: boolean; action?: ReactNode }>) {
 	const t = useTranslations();
 	return (
 		<div className="flex flex-col items-center px-6 py-8 text-center">
@@ -194,10 +198,13 @@ function EmptyState({
 			<p className="mt-1 max-w-sm text-xs text-pretty text-muted-foreground">
 				{t('settings.taskProperties.EMPTY_DESCRIPTION', { kind })}
 			</p>
-			<Button type="button" variant="outline" size="sm" onClick={onAdd} disabled={disabled} className="mt-4">
-				<Plus />
-				{t('settings.taskProperties.ADD', { kind })}
-			</Button>
+			<div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+				<Button type="button" variant="outline" size="sm" onClick={onAdd} disabled={disabled}>
+					<Plus />
+					{t('settings.taskProperties.ADD', { kind })}
+				</Button>
+				{action}
+			</div>
 		</div>
 	);
 }
@@ -241,7 +248,8 @@ export function PropertyList({
 	onMove,
 	onMakeDefault,
 	onDelete,
-	renderDeleteDialog
+	renderDeleteDialog,
+	emptyAction
 }: Readonly<PropertyListProps>) {
 	const t = useTranslations();
 	const listId = useId();
@@ -426,12 +434,19 @@ export function PropertyList({
 		[t]
 	);
 
+	// Tasks, filters and pickers tell a team's labels apart by name: a label may not take another one's name
+	const isNameTakenByAnother = (name: string) => {
+		const edited = editor?.mode === 'edit' ? items.find((item) => item.id === editor.itemId) : null;
+		return isLabelNameTaken(items, name, edited);
+	};
+
 	const renderEditor = (mode: 'create' | 'edit', initialDraft: PropertyDraft) => (
 		<PropertyEditorRow
 			kind={kind}
 			mode={mode}
 			initialDraft={initialDraft}
 			showsGroupHint={isGrouped}
+			isNameTaken={kind === 'label' ? isNameTakenByAnother : undefined}
 			onCancel={cancelEditor}
 			onSave={saveDraft}
 		/>
@@ -530,7 +545,7 @@ export function PropertyList({
 	} else if (showsEmpty) {
 		content = (
 			<div className={PROPERTY_SURFACE}>
-				<EmptyState kind={kind} onAdd={() => openCreate(ALL)} disabled={isCreateRefused} />
+				<EmptyState kind={kind} onAdd={() => openCreate(ALL)} disabled={isCreateRefused} action={emptyAction} />
 			</div>
 		);
 	} else {

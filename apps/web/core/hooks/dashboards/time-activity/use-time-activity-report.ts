@@ -1,9 +1,11 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useCallback, useMemo, useState } from 'react';
+import { useAtomValue } from 'jotai';
+import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { getReportMemberIds, managesEveryTeam } from '@/core/hooks/activities/use-activity-filters';
+import { useReportProjectClients } from '@/core/hooks/dashboards/use-report-clients';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
@@ -14,6 +16,7 @@ import {
 	dayFiguresOf,
 	flattenDailyReport
 } from '@/core/lib/utils/daily-report-figures';
+import { filterDailyReportByClients, isBillableOnly } from '@/core/lib/utils/dashboards/report-filters';
 import {
 	type ChartDayLabels,
 	type ReportTotals,
@@ -30,12 +33,16 @@ import { ERoleName } from '@/core/types/generics/enums/role';
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import type { ITimesheetCountsStatistics } from '@/core/types/interfaces/timesheet/timesheet';
 import type { TOrganizationTeam, TUser } from '@/core/types/schemas';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import {
 	type TimeActivityRequest,
 	useTimeActivityCountsQuery,
 	useTimeActivityDailyQuery
 } from './use-time-activity-queries';
 import { useTimeActivitySettings } from './use-time-activity-settings';
+import type { WeekDailySource } from './use-time-activity-week';
 
 const MANAGING_ROLES: ReadonlySet<string> = new Set([ERoleName.SUPER_ADMIN, ERoleName.MANAGER, ERoleName.ADMIN]);
 
@@ -118,7 +125,8 @@ function requestOf(
 		teamIds: filters.teamIds,
 		projectIds: filters.projectIds,
 		taskIds: filters.taskIds,
-		includeTimeWithoutTeam: true
+		includeTimeWithoutTeam: true,
+		billableOnly: isBillableOnly(filters.billable)
 	};
 }
 
@@ -136,9 +144,9 @@ function axisFormatOptionsOf(dayCount: number): Intl.DateTimeFormatOptions {
 	return { day: 'numeric' };
 }
 
-function chartLabelsOf(locale: string, dayCount: number): ChartDayLabels {
-	const labelFormat = new Intl.DateTimeFormat(locale, { weekday: 'long', month: 'short', day: 'numeric' });
-	const axisFormat = new Intl.DateTimeFormat(locale, axisFormatOptionsOf(dayCount));
+function chartLabelsOf(locale: FormatLocale, dayCount: number): ChartDayLabels {
+	const labelFormat = dateFormatOf(locale, { weekday: 'long', month: 'short', day: 'numeric' });
+	const axisFormat = dateFormatOf(locale, axisFormatOptionsOf(dayCount));
 	return {
 		label: (day) => labelFormat.format(day),
 		axisLabel: (day) => axisFormat.format(day)
@@ -164,16 +172,17 @@ function reportSecondsOf(totals: ReportTotals, hasDailyReport: boolean) {
 }
 
 /**
- * Tracked time and activity come from Gauzy's counts (timer logs only), as before. The counts endpoint has no task
- * filter, so with tasks picked both figures are summed from the daily report, which honours it.
+ * Tracked time and activity come from Gauzy's counts (timer logs only), as before. The counts endpoint filters
+ * neither by task nor by billable time and knows nothing of a client, so with one of these filters on both figures
+ * are summed from the rows of the daily report, which hold exactly the filtered time.
  */
 function countedFiguresOf(
 	totals: ReportTotals,
 	counts: ITimesheetCountsStatistics | null | undefined,
-	hasTaskFilter: boolean,
+	sumsFromRows: boolean,
 	hasDailyReport: boolean
 ): CountedFigures {
-	if (hasTaskFilter) {
+	if (sumsFromRows) {
 		return figuresFromRows(totals, hasDailyReport);
 	}
 	if (!counts) {
@@ -185,10 +194,10 @@ function countedFiguresOf(
 function figuresOf(
 	totals: ReportTotals,
 	counts: ITimesheetCountsStatistics | null | undefined,
-	hasTaskFilter: boolean,
+	sumsFromRows: boolean,
 	hasDailyReport: boolean
 ): TimeActivityFigures {
-	const counted = countedFiguresOf(totals, counts, hasTaskFilter, hasDailyReport);
+	const counted = countedFiguresOf(totals, counts, sumsFromRows, hasDailyReport);
 	const reportSeconds = reportSecondsOf(totals, hasDailyReport);
 	return { ...counted, reportSeconds };
 }
@@ -202,7 +211,7 @@ function figuresFromRows(totals: ReportTotals, hasDailyReport: boolean): Counted
 
 export function useTimeActivityReport() {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const { user, isTeamManager } = useAuthenticateUser();
 	const isManager = canManageReport(user, Boolean(isTeamManager));
 	const isOrganizationWide = hasOrganizationWideRole(user);
@@ -218,15 +227,34 @@ export function useTimeActivityReport() {
 
 	const dailyQuery = useTimeActivityDailyQuery(request);
 	const countsQuery = useTimeActivityCountsQuery(request);
+	const pickedClients = settings.filters.clientIds;
 	const hasTaskFilter = settings.filters.taskIds.length > 0;
-	const report = dailyQuery.data ?? EMPTY_REPORT;
-	const hasDailyReport = dailyQuery.data !== undefined;
+	const hasClientFilter = pickedClients.length > 0;
+	const billableOnly = isBillableOnly(settings.filters.billable);
+	const sumsFiguresFromRows = hasTaskFilter || hasClientFilter || billableOnly;
+	const projectClients = useReportProjectClients({ includesArchived: false, isEnabled: hasClientFilter });
+	const projectClientIds = projectClients.clientIds;
+	// The daily report names no client beside a project whose client is archived: only the listed projects tell that
+	// time from the time without a client, so a report filtered by client is not shown before they are read
+	const isClientLookupPending = hasClientFilter && projectClients.isPending;
+	const isClientLookupError = hasClientFilter && projectClients.isError;
+	const canTellClients = !isClientLookupPending && !isClientLookupError;
+	const loadedReport = dailyQuery.data ?? EMPTY_REPORT;
+	const report = useMemo(() => {
+		if (!canTellClients) {
+			return EMPTY_REPORT;
+		}
+		return filterDailyReportByClients(loadedReport, pickedClients, projectClientIds);
+	}, [canTellClients, loadedReport, pickedClients, projectClientIds]);
+	const hasDailyData = dailyQuery.data !== undefined;
+	const hasDailyReport = hasDailyData && canTellClients;
 
 	const withoutTeamLabel = t('dashboard.NO_TEAM_GROUP');
+	const workspaceCurrency = useAtomValue(currentOrganizationState)?.currency ?? null;
 	const rows = useMemo(() => {
-		const allRows = flattenDailyReport(report, withoutTeamLabel);
+		const allRows = flattenDailyReport(report, withoutTeamLabel, workspaceCurrency);
 		return visibleRowsOf(allRows, isManager, ownEmployeeId);
-	}, [isManager, ownEmployeeId, report, withoutTeamLabel]);
+	}, [isManager, ownEmployeeId, report, withoutTeamLabel, workspaceCurrency]);
 
 	const totals = useMemo(() => reportTotalsOf(rows), [rows]);
 
@@ -241,21 +269,39 @@ export function useTimeActivityReport() {
 	const groups = useMemo(() => reportGroupsOf(rows, tableGrouping), [rows, tableGrouping]);
 
 	const figures = useMemo(
-		() => figuresOf(totals, countsQuery.data, hasTaskFilter, hasDailyReport),
-		[countsQuery.data, hasDailyReport, hasTaskFilter, totals]
+		() => figuresOf(totals, countsQuery.data, sumsFiguresFromRows, hasDailyReport),
+		[countsQuery.data, hasDailyReport, sumsFiguresFromRows, totals]
 	);
 
-	const isDailyPending = dailyQuery.isPending;
-	const needsCounts = !hasTaskFilter;
+	const isDailyFailure = dailyQuery.isError && !hasDailyData;
+	const isDailyError = isDailyFailure || isClientLookupError;
+	const isWaitingForDaily = dailyQuery.isPending || isClientLookupPending;
+	const isDailyPending = isWaitingForDaily && !isDailyError;
+	const needsCounts = !sumsFiguresFromRows;
 	const isCountsPending = needsCounts && countsQuery.isPending;
 	const isFiguresLoading = isDailyPending || isCountsPending;
-	const isDailyError = dailyQuery.isError && !hasDailyReport;
 	const hasCounts = countsQuery.data !== undefined;
 	const isCountsFailure = countsQuery.isError && !hasCounts;
 	const isCountsError = needsCounts && isCountsFailure;
 	const isDailyUpdating = dailyQuery.isFetching && hasDailyReport;
 	const isCountsUpdating = countsQuery.isFetching && hasCounts;
 	const isUpdating = isDailyUpdating || isCountsUpdating;
+
+	const { refetch: refetchDailyReport } = dailyQuery;
+	const { refetch: refetchProjectClients } = projectClients;
+	const refetchDaily = useCallback(() => {
+		void refetchDailyReport();
+		if (isClientLookupError) {
+			refetchProjectClients();
+		}
+	}, [isClientLookupError, refetchDailyReport, refetchProjectClients]);
+	// The weekly report has no project in its rows: with a client picked, the week grid is built from these rows
+	const weekDailySource = useMemo<WeekDailySource | null>(() => {
+		if (!hasClientFilter) {
+			return null;
+		}
+		return { rows, isLoading: isDailyPending, isError: isDailyError, refetch: () => void refetchDaily() };
+	}, [hasClientFilter, isDailyError, isDailyPending, refetchDaily, rows]);
 
 	return {
 		user,
@@ -274,12 +320,13 @@ export function useTimeActivityReport() {
 		groups,
 		figures,
 		hasTaskFilter,
+		weekDailySource,
 		isDailyPending,
 		isFiguresLoading,
 		isDailyError,
 		isCountsError,
 		isUpdating,
-		refetchDaily: dailyQuery.refetch,
+		refetchDaily,
 		refetchCounts: countsQuery.refetch
 	};
 }

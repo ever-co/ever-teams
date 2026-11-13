@@ -10,7 +10,7 @@ import { FileGlyph } from '@/core/components/common/entity-files/entity-file-gly
 import { cn } from '@/core/lib/helpers';
 import { uploadedFileOf } from '@/core/hooks/chat/use-chat-attachments';
 import { useChatFiles } from '@/core/hooks/chat/use-chat-files';
-import { isPictureFile, isWebUrl, pictureUrlOf, type ChatAttachmentDraft } from '@/core/lib/utils/chat-attachments';
+import { isPictureFile, isWebUrl, pictureBoxOf, pictureUrlOf, type ChatAttachmentDraft } from '@/core/lib/utils/chat-attachments';
 import { ChatPerson } from '@/core/lib/utils/chat-format';
 import { fullDateTime } from '@/core/lib/utils/chat-timeline';
 import { fileKindOf, formatFileSize } from '@/core/lib/utils/entity-files';
@@ -166,23 +166,27 @@ export function ImageLightbox({ file, onClose }: Readonly<{ file: IChatFile | nu
 /**
  * The files of a message: pictures as thumbnails that open in a lightbox, other files as chips that open in a new tab.
  * Only an address the platform gave is shown or opened, and only a web one; a file the list does not have yet shows its
- * name (sent from this tab) or a plain "File", and nothing is fetched for it.
+ * name (sent from this tab, or as the message names its files) or a plain "File", and nothing is fetched for it. A
+ * single picture whose size the platform knows takes its place before it loads, so the timeline does not jump.
  */
 function MessageAttachmentsComponent({
 	attachmentIds,
 	files,
+	names,
 	onOpenImage,
 	onBrokenImage
 }: Readonly<{
 	attachmentIds: readonly string[];
 	files: ReadonlyMap<string, IChatFile>;
+	/** The names the message gives its files (`attachmentNames`), in the order of `attachmentIds`. */
+	names?: readonly string[];
 	onOpenImage: (file: IChatFile) => void;
 	onBrokenImage?: () => void;
 }>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	if (!attachmentIds.length) return null;
-	const shown = attachmentIds.map((id) => shownAttachmentOf(id, files, t('teamChat.ATTACHMENT')));
+	const shown = attachmentIds.map((id, index) => shownAttachmentOf(id, files, names?.[index] || t('teamChat.ATTACHMENT')));
 	const pictures = shown.filter(
 		(item) => item.file && isPictureFile(item.file) && !!pictureUrlOf(item.file, 'thumb')
 	);
@@ -194,6 +198,8 @@ function MessageAttachmentsComponent({
 				<ul className="flex flex-wrap gap-1.5" aria-label={t('teamChat.FILES')}>
 					{pictures.map((item) => {
 						const file = item.file as IChatFile;
+						// Only a single picture is drawn at its own proportions; several are squares already.
+						const box = pictures.length === 1 ? pictureBoxOf(file) : null;
 						return (
 							<li key={item.id}>
 								<button
@@ -209,9 +215,13 @@ function MessageAttachmentsComponent({
 										loading="lazy"
 										referrerPolicy="no-referrer"
 										onError={onBrokenImage}
+										width={box ? (file.width as number) : undefined}
+										height={box ? (file.height as number) : undefined}
+										style={box ? { width: box.width, aspectRatio: box.aspectRatio } : undefined}
 										className={cn(
-											'block max-h-60 w-auto max-w-full object-cover',
-											pictures.length > 1 ? 'size-32 sm:size-40' : 'max-w-[min(20rem,100%)]'
+											'block max-w-full object-cover',
+											box ? 'h-auto' : 'max-h-60 w-auto',
+											!box && (pictures.length > 1 ? 'size-32 sm:size-40' : 'max-w-[min(20rem,100%)]')
 										)}
 									/>
 								</button>

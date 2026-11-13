@@ -5,15 +5,20 @@ import { validateApiResponse } from '@/core/types/schemas';
 import { uploadedDocumentsSchema, type TUploadedDocuments } from '@/core/types/schemas/documents/entity-file.schema';
 import type {
 	IChatCategory,
+	IChatCategoryReorderInput,
+	IChatCategoryReorderResult,
 	IChatConversationCreateInput,
 	IChatConversationList,
 	IChatConversationUpdateInput,
 	IChatConversationWithState,
 	IChatCreateTaskInput,
 	IChatCreateTaskResult,
+	IChatDraftDiscardResult,
 	IChatEvent,
 	IChatFilesQuery,
 	IChatFilesResult,
+	IChatInteraction,
+	IChatInteractionResult,
 	IChatLinkPreview,
 	IChatMemberState,
 	IChatMemberStateInput,
@@ -27,7 +32,11 @@ import type {
 	IChatReadAllResult,
 	IChatSendResult,
 	IChatStates,
-	IChatThreadPage
+	IChatTaskUpdateInput,
+	IChatTaskUpdateResult,
+	IChatThreadPage,
+	IChatTypingInput,
+	IChatTypingResult
 } from '@/core/types/interfaces/common/chat';
 
 /** The newest page a conversation opens with (the platform's default is 50, its maximum 200). */
@@ -134,6 +143,12 @@ class ChatService extends APIService {
 		return response.data;
 	};
 
+	/** The order of every category (first to last), and of the channels within them, saved in one call (`CHAT_MANAGE`). */
+	reorderCategories = async (input: IChatCategoryReorderInput): Promise<IChatCategoryReorderResult> => {
+		const response = await this.post<IChatCategoryReorderResult>('/chat/categories/reorder', { ...input }, undefined, false);
+		return response.data;
+	};
+
 	// ---------------------------------------------------------------- messages
 
 	messages = async (conversationId: string, query: IChatMessagesQuery = {}, signal?: AbortSignal): Promise<IChatMessagePage> => {
@@ -161,6 +176,16 @@ class ChatService extends APIService {
 	};
 
 	/**
+	 * The picture of a link's preview as the platform serves it (`url` is the link, not the picture), or null when the
+	 * link has none (204). Pictures off on the platform (404) and its pace (429, 503) are errors with their status.
+	 */
+	linkPreviewImage = async (url: string, signal?: AbortSignal): Promise<Blob | null> => {
+		const response = await this.get<Blob>('/chat/link-preview/image', { signal, params: { url }, responseType: 'blob' });
+		if (response.status === 204 || !response.data || response.data.size === 0) return null;
+		return response.data;
+	};
+
+	/**
 	 * Uploads the files of a message to the organization's documents (the platform's own upload path). They are the
 	 * sender's private files, kept out of the knowledge base and of AI classification: the conversation shows them to
 	 * its members through the message. The send then names the documents.
@@ -176,6 +201,22 @@ class ChatService extends APIService {
 		form.append('classifyWithAi', 'false');
 		const response = await this.post<TUploadedDocuments>('/plugins/docs/documents/upload', form, { signal });
 		return validateApiResponse(uploadedDocumentsSchema, response.data, 'uploadAttachments API response');
+	};
+
+	/**
+	 * Discards a file uploaded for a message and never sent: the platform removes it only while no message carries it
+	 * (a file already sent stays). A platform older than the route answers 404.
+	 */
+	discardAttachment = async (documentId: string): Promise<IChatDraftDiscardResult> => {
+		const response = await this.delete<IChatDraftDiscardResult>(`/chat/attachments/${path(documentId)}`);
+		return response.data;
+	};
+
+	/** "Is typing": the other members hear it for a few seconds (the platform tells one place at most every 2.5 s). */
+	typing = async (conversationId: string, input: IChatTypingInput = {}): Promise<IChatTypingResult> => {
+		const body = input.threadRootId ? { threadRootId: input.threadRootId } : {};
+		const response = await this.post<IChatTypingResult>(`/chat/conversations/${path(conversationId)}/typing`, body, undefined, false);
+		return response.data;
 	};
 
 	pins = async (conversationId: string, signal?: AbortSignal): Promise<IChatMessage[]> => {
@@ -206,6 +247,41 @@ class ChatService extends APIService {
 	/** A task from a message; the message keeps a `created` reference to it. Needs the task permission as well. */
 	createTask = async (messageId: string, input: IChatCreateTaskInput): Promise<IChatCreateTaskResult> => {
 		const response = await this.post<IChatCreateTaskResult>(`/chat/messages/${path(messageId)}/create-task`, input, undefined, false);
+		return response.data;
+	};
+
+	/** Changes a task from its card in a message (status, priority, assignees); needs the task edit permission too. */
+	updateTask = async (messageId: string, taskId: string, input: IChatTaskUpdateInput): Promise<IChatTaskUpdateResult> => {
+		const response = await this.patch<IChatTaskUpdateResult>(`/chat/messages/${path(messageId)}/tasks/${path(taskId)}`, { ...input });
+		return response.data;
+	};
+
+	/**
+	 * Clicks a button of an app message: the platform calls the app back; its reply, if any, comes back as the message.
+	 * `idempotencyKey` (one per click, the same on each retry of it) goes in the `Idempotency-Key` header, in direct mode
+	 * and through the proxy route alike: the platform answers a repeat of it with the first click and calls the app no
+	 * second time. `timeoutMs` bounds this one request (the client's own deadline otherwise). The body is the button only
+	 * (no tenant or organization ids: the route's DTO takes none).
+	 */
+	interact = async (
+		messageId: string,
+		actionId: string,
+		blockId?: string | null,
+		idempotencyKey?: string,
+		timeoutMs?: number
+	): Promise<IChatInteractionResult> => {
+		const response = await this.post<IChatInteractionResult>(
+			`/chat/messages/${path(messageId)}/interactions`,
+			blockId ? { actionId, blockId } : { actionId },
+			{ ...(idempotencyKey ? { headers: { 'Idempotency-Key': idempotencyKey } } : {}), ...(timeoutMs ? { timeout: timeoutMs } : {}) },
+			false
+		);
+		return response.data;
+	};
+
+	/** The state of one of my clicks (while the app's callback is retried). */
+	interaction = async (interactionId: string, signal?: AbortSignal): Promise<IChatInteraction> => {
+		const response = await this.get<IChatInteraction>(`/chat/interactions/${path(interactionId)}`, { signal });
 		return response.data;
 	};
 

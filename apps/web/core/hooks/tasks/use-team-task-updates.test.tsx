@@ -10,6 +10,9 @@ let mockTasks: Array<Record<string, unknown>> = [];
 jest.mock('@/core/hooks/task-views/use-bulk-task-update', () => ({
 	useBulkTaskUpdate: () => ({ bulkUpdate: mockBulkUpdate, isBulkAvailable: mockBulkAvailable })
 }));
+jest.mock('@/core/hooks/task-views/built-in-view-task-cache', () => ({
+	showTaskChangeInBuiltInViews: () => () => undefined
+}));
 jest.mock('@/core/hooks/organizations/teams/use-update-task', () => ({
 	useUpdateTask: () => ({ updateTask: mockUpdateTask })
 }));
@@ -30,6 +33,7 @@ jest.mock('@/core/lib/utils/task.utils', () => ({ taskUpdateQueue: { task: (run:
 jest.mock('@/core/lib/utils/error-feedback', () => ({ errorReasonKeyOf: () => 'reason' }));
 
 import { useTeamTaskUpdates } from './use-team-task-updates';
+import { dayNumberOf } from '@/core/lib/utils/team-tasks-timeline';
 
 const task = (id: string, extra: Record<string, unknown> = {}) => ({ id, title: id, ...extra });
 
@@ -68,8 +72,9 @@ describe('the property changes of a selection (T10: project and due date)', () =
 		await Promise.resolve();
 		expect(mockBulkUpdate).not.toHaveBeenCalled();
 		expect(mockUpdateTask).toHaveBeenCalledTimes(2);
-		expect(mockUpdateTask).toHaveBeenNthCalledWith(1, expect.objectContaining({ id: 't2', projectId: 'p1' }));
-		expect(mockUpdateTask).toHaveBeenNthCalledWith(2, expect.objectContaining({ id: 't3', dueDate: day }));
+		// The tracked time follows the task to its project, as from the task's own project picker.
+		expect(mockUpdateTask).toHaveBeenNthCalledWith(1, expect.objectContaining({ id: 't2', projectId: 'p1' }), { moveTimeLogs: true });
+		expect(mockUpdateTask).toHaveBeenNthCalledWith(2, expect.objectContaining({ id: 't3', dueDate: day }), undefined);
 	});
 
 	it('updates each task on its own without the platform bulk update (the feature off)', () => {
@@ -79,7 +84,41 @@ describe('the property changes of a selection (T10: project and due date)', () =
 		result.current.setDueDate(['t1', 't2'], null);
 		expect(mockBulkUpdate).not.toHaveBeenCalled();
 		expect(mockUpdateTask).toHaveBeenCalledTimes(4);
-		expect(mockUpdateTask).toHaveBeenCalledWith(expect.objectContaining({ id: 't2', projectId: 'p3' }));
-		expect(mockUpdateTask).toHaveBeenCalledWith(expect.objectContaining({ id: 't1', dueDate: null }));
+		expect(mockUpdateTask).toHaveBeenCalledWith(expect.objectContaining({ id: 't2', projectId: 'p3' }), { moveTimeLogs: true });
+		expect(mockUpdateTask).toHaveBeenCalledWith(expect.objectContaining({ id: 't1', dueDate: null }), undefined);
+	});
+});
+
+describe('a task moved to a day of the calendar', () => {
+	const november = (date: number) => dayNumberOf(new Date(2026, 10, date));
+
+	beforeEach(() => {
+		mockBulkUpdate.mockReset();
+		mockUpdateTask.mockReset().mockResolvedValue(undefined);
+		mockTasks = [task('ranged', { startDate: '2026-11-10', dueDate: '2026-11-14' }), task('undated')];
+	});
+
+	it('falls due that day with its start moved as much, in one update of its own', () => {
+		const { result } = renderHook(() => useTeamTaskUpdates());
+		result.current.moveToDay('ranged', november(17));
+		result.current.moveToDay('undated', november(20));
+
+		expect(mockBulkUpdate).not.toHaveBeenCalled();
+		expect(mockUpdateTask).toHaveBeenCalledTimes(2);
+		const movedRange = expect.objectContaining({
+			id: 'ranged',
+			startDate: new Date(2026, 10, 13),
+			dueDate: new Date(2026, 10, 17)
+		});
+		expect(mockUpdateTask).toHaveBeenNthCalledWith(1, movedRange, undefined);
+		const datedNow = expect.objectContaining({ id: 'undated', dueDate: new Date(2026, 10, 20) });
+		expect(mockUpdateTask).toHaveBeenNthCalledWith(2, datedNow, undefined);
+	});
+
+	it('sends nothing when the task is already due that day', () => {
+		const { result } = renderHook(() => useTeamTaskUpdates());
+		result.current.moveToDay('ranged', november(14));
+
+		expect(mockUpdateTask).not.toHaveBeenCalled();
 	});
 });

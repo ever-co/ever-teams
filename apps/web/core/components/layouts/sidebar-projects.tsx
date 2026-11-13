@@ -12,10 +12,12 @@ import {
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 import { EntityTile } from '@/core/components/common/entity-tile';
-import { Archive, InformationCircle, Link, MoreHorizontal, Pencil, Plus } from '@/core/components/icons';
+import { Archive, InformationCircle, Link, MoreHorizontal, Pencil, Plus, Star } from '@/core/components/icons';
+import { useFavoriteToggle } from '@/core/hooks/favorites/use-favorite-toggle';
 import { useProjectPermissions } from '@/core/hooks/projects/use-project-permissions';
 import { useProjectActionModal } from '@/core/hooks/use-project-action-modal';
 import { cn } from '@/core/lib/helpers';
+import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import type { TOrganizationProject } from '@/core/types/schemas';
 
 const ROW_ACTION_BUTTON =
@@ -56,6 +58,11 @@ export function SidebarProjectMenu({ project }: Readonly<{ project: TOrganizatio
 	const isArchived = Boolean(project.isArchived);
 	const canChange = canEdit && !isArchived;
 	const projectName = project.name ?? '';
+	const favorites = useFavoriteToggle(EBaseEntityEnum.OrganizationProject);
+	const isFavorite = favorites.isFavorite(project.id);
+	const toggleFavorite = () => {
+		favorites.toggleFavorite(project.id).catch(() => toast.error(t('favorites.UPDATE_FAILED')));
+	};
 
 	const copyLink = useCallback(async () => {
 		const url = `${window.location.origin}/projects/${project.id}`;
@@ -94,6 +101,10 @@ export function SidebarProjectMenu({ project }: Readonly<{ project: TOrganizatio
 				<DropdownMenuItem onClick={() => void copyLink()}>
 					<Link />
 					{t('sidebar.projectMenu.COPY_LINK')}
+				</DropdownMenuItem>
+				<DropdownMenuItem disabled={favorites.isPending(project.id)} onClick={toggleFavorite}>
+					<Star className={cn(isFavorite && 'fill-current text-amber-500')} />
+					{isFavorite ? t('favorites.REMOVE') : t('favorites.ADD')}
 				</DropdownMenuItem>
 				{canChange && (
 					<>

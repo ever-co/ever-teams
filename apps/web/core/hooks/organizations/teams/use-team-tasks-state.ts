@@ -6,17 +6,20 @@ import {
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@/core/lib/helpers/index';
-import { getValidActiveTask, isHeldTeamTask } from '@/core/lib/utils/task.utils';
+import { getValidActiveTask, isHeldTeamTask, memberTaskIdOf } from '@/core/lib/utils/task.utils';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import {
 	activeTeamState,
 	activeTeamTaskState,
+	localTimerStatusState,
 	memberActiveTaskIdState,
 	tasksByTeamState,
 	teamTasksCompleteState,
-	teamTasksState
+	teamTasksState,
+	timerStatusState,
+	timerTaskIdState
 } from '@/core/stores';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useAtomValue, useSetAtom, useStore } from 'jotai';
 import isEqual from 'lodash/isEqual';
 import { useUpdateEmployeeActiveTask } from './use-organization-teams-employee';
@@ -70,6 +73,13 @@ function setActiveTeamTaskIfChanged(store: JotaiStore, task: TTask | null) {
 		return;
 	}
 	store.set(activeTeamTaskState, task);
+}
+
+// The local status says running from the start request on, the server status once the run began
+function isTimerRunning(store: JotaiStore): boolean {
+	const isStarting = store.get(localTimerStatusState)?.running === true;
+	const isRunning = store.get(timerStatusState)?.running === true;
+	return isStarting || isRunning;
 }
 
 /**
@@ -184,7 +194,14 @@ function useActiveTaskSetter() {
 		[store, setActiveTeamTask, setActiveUserTaskCookieCb, updateOrganizationTeamEmployeeActiveTask, authUserRef]
 	);
 
-	return { setActiveTask, isUpdatingActiveTask, expectedActiveTaskIdRef, authUserRef, store };
+	return {
+		setActiveTask,
+		isUpdatingActiveTask,
+		expectedActiveTaskIdRef,
+		authUserRef,
+		authUserId: authUser?.id,
+		store
+	};
 }
 
 /**
@@ -213,7 +230,8 @@ export function useSetActiveTask() {
  * - `activeTeamTask` - Currently active task
  */
 export function useTeamTasksState() {
-	const { setActiveTask, isUpdatingActiveTask, expectedActiveTaskIdRef, authUserRef, store } = useActiveTaskSetter();
+	const { setActiveTask, isUpdatingActiveTask, expectedActiveTaskIdRef, authUserRef, authUserId, store } =
+		useActiveTaskSetter();
 
 	const setAllTasks = useSetAtom(teamTasksState);
 	const tasks = useAtomValue(tasksByTeamState);
@@ -222,6 +240,11 @@ export function useTeamTasksState() {
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const activeTeamTaskRef = useSyncRef(activeTeamTask);
+	// The member's own task on the server, read from the team: the one the task bar and their card show
+	const memberTaskId = useMemo(() => {
+		const member = activeTeam?.members?.find((teamMember) => teamMember.employee?.userId === authUserId);
+		return memberTaskIdOf(member);
+	}, [activeTeam?.members, authUserId]);
 
 	// Sync active task from server (multi-device sync)
 	useConditionalUpdateEffect(
@@ -246,7 +269,13 @@ export function useTeamTasksState() {
 				syncActiveTaskIdCookie(memberActiveTask.id);
 				syncActiveUserTaskCookie(activeUserTaskCookieValue(memberActiveTask, authUserRef.current?.id));
 			} else if (memberActiveTaskId && activeTeam?.id && tasksComplete) {
-				const keepsHeldTask = isHeldTeamTask(activeTeamTaskRef.current, memberActiveTaskId, activeTeam.id);
+				const keepsHeldTask = isHeldTeamTask(
+					activeTeamTaskRef.current,
+					memberActiveTaskId,
+					activeTeam.id,
+					store.get(timerTaskIdState),
+					memberActiveTaskId
+				);
 				if (!keepsHeldTask) {
 					setActiveTeamTaskIfChanged(store, null);
 					syncActiveTaskIdCookie('');
@@ -261,6 +290,17 @@ export function useTeamTasksState() {
 	// Get the active task from cookie and put on global store
 	useConditionalUpdateEffect(
 		() => {
+			// The task cookies are shared by every tab, and another tab may have picked another task. While a timer
+			// runs, a tab that holds an active task keeps it and only takes the list's newer copy of it, so a pick
+			// made in another tab never stops the timer here (#5120). A tab without an active task still takes one.
+			const heldTask = activeTeamTaskRef.current;
+			if (heldTask && isTimerRunning(store)) {
+				const listedCopy = getValidActiveTask(tasks, heldTask.id, activeTeam?.id);
+				if (listedCopy) {
+					setActiveTeamTaskIfChanged(store, listedCopy);
+				}
+				return;
+			}
 			const active_user_task = getActiveUserTaskCookie();
 			const active_taskid =
 				active_user_task?.userId === authUserRef.current?.id
@@ -272,12 +312,42 @@ export function useTeamTasksState() {
 				setActiveTeamTaskIfChanged(store, validTask);
 				return;
 			}
-			const keepsHeldTask = isHeldTeamTask(activeTeamTaskRef.current, active_taskid, activeTeam?.id);
+			// The task chosen on this device wins while the timer holds it outside the loaded list, or while a later
+			// page may still bring it. A task read from a daily plan comes without its teams: it is held while the
+			// timer runs on it or is starting on it (the start itself rewrites the list), or once the member's record
+			// in the team names it, which the save of the chosen task brings back before the start (#5119).
+			const timerTaskId = store.get(timerTaskIdState);
+			const keepsChosenTask = isHeldTeamTask(
+				activeTeamTaskRef.current,
+				active_taskid,
+				activeTeam?.id,
+				timerTaskId,
+				memberTaskId
+			);
+			if (active_taskid && (keepsChosenTask || !tasksComplete)) {
+				return;
+			}
+			// No task of this team was chosen on this device, or the chosen one is gone: the timer takes the member's own
+			// task, the one the task bar shows (only a task they are assigned to, as there), and the cookies keep it
+			const userId = authUserRef.current?.id;
+			const memberTask = getValidActiveTask(tasks, memberTaskId, activeTeam?.id);
+			const isAssignedToMember = !!memberTask?.members?.some((member) => member.userId === userId);
+			if (memberTask && isAssignedToMember) {
+				setActiveTeamTaskIfChanged(store, memberTask);
+				syncActiveTaskIdCookie(memberTask.id);
+				syncActiveUserTaskCookie(activeUserTaskCookieValue(memberTask, userId));
+				return;
+			}
+			// The member's own task is held only outside the loaded list: a listed one they are not assigned to is dropped
+			const keepsHeldTask =
+				keepsChosenTask ||
+				(!memberTask &&
+					isHeldTeamTask(activeTeamTaskRef.current, memberTaskId, activeTeam?.id, timerTaskId, memberTaskId));
 			if (tasksComplete && !keepsHeldTask) {
 				setActiveTeamTaskIfChanged(store, null);
 			}
 		},
-		[tasks, tasksComplete, authUserRef, activeTeam?.id],
+		[tasks, tasksComplete, authUserRef, activeTeam?.id, memberTaskId],
 		Boolean(activeTeamTask)
 	);
 

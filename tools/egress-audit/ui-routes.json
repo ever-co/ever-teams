@@ -99,6 +99,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/clients",
+      "file": "apps/web/app/[locale]/(main)/clients/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/dashboard/app-url/:teamId",
       "file": "apps/web/app/[locale]/(main)/dashboard/app-url/[teamId]/page.tsx",
       "source": "router"
@@ -134,6 +139,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/favorites",
+      "file": "apps/web/app/[locale]/(main)/favorites/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/inbox",
       "file": "apps/web/app/[locale]/(main)/inbox/page.tsx",
       "source": "router"
@@ -141,6 +151,16 @@
     {
       "path": "/:locale/integration/github",
       "file": "apps/web/app/[locale]/(main)/integration/github/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/invoices",
+      "file": "apps/web/app/[locale]/(main)/invoices/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/invoices/new",
+      "file": "apps/web/app/[locale]/(main)/invoices/new/page.tsx",
       "source": "router"
     },
     {
@@ -154,6 +174,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/meet",
+      "file": "apps/web/app/[locale]/(main)/meet/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/meet/jitsi",
       "file": "apps/web/app/[locale]/(main)/meet/jitsi/page.tsx",
       "source": "router"
@@ -161,6 +186,11 @@
     {
       "path": "/:locale/meet/livekit",
       "file": "apps/web/app/[locale]/(main)/meet/livekit/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/my-week",
+      "file": "apps/web/app/[locale]/(main)/my-week/page.tsx",
       "source": "router"
     },
     {
@@ -249,6 +279,16 @@
       "source": "router"
     },
     {
+      "path": "/:locale/settings/team/automations",
+      "file": "apps/web/app/[locale]/(main)/settings/team/automations/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/settings/team/import",
+      "file": "apps/web/app/[locale]/(main)/settings/team/import/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/settings/team/integrations",
       "file": "apps/web/app/[locale]/(main)/settings/team/integrations/page.tsx",
       "source": "router"
@@ -289,6 +329,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/settings/workspace",
+      "file": "apps/web/app/[locale]/(main)/settings/workspace/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/task/:id",
       "file": "apps/web/app/[locale]/(main)/task/[id]/page.tsx",
       "source": "router"
@@ -309,6 +354,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/team/tasks/trash",
+      "file": "apps/web/app/[locale]/(main)/(teams)/team/tasks/trash/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/unauthorized",
       "file": "apps/web/app/[locale]/(focus)/unauthorized/page.tsx",
       "source": "router"
@@ -326,6 +376,21 @@
     {
       "path": "/:locale/views/:viewId",
       "file": "apps/web/app/[locale]/(main)/views/[viewId]/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/work-diary",
+      "file": "apps/web/app/[locale]/(main)/work-diary/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/workspace/new",
+      "file": "apps/web/app/[locale]/(main)/workspace/new/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/workspace/welcome",
+      "file": "apps/web/app/[locale]/(main)/workspace/welcome/page.tsx",
       "source": "router"
     },
     {

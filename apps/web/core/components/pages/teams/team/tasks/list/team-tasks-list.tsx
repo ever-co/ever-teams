@@ -11,6 +11,7 @@ import {
 	type MouseEvent,
 	type RefObject
 } from 'react';
+import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { defaultRangeExtractor, useVirtualizer, type Range } from '@tanstack/react-virtual';
 import { cn } from '@/core/lib/helpers';
@@ -27,15 +28,19 @@ import {
 } from '@/core/lib/keyboard/shortcuts';
 import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
 import type { TeamTasksListRow } from '@/core/lib/utils/team-tasks-view';
+import type { TaskOrderMove } from '@/core/lib/utils/task-view-order';
 import { GROUP_HEIGHT, ROW_HEIGHT, TEAM_TASK_LIST_MIN_WIDTH, type TeamTasksGrid } from './team-tasks-grid';
 import { TeamTasksListProvider, type TeamTaskPickerKind, type TeamTasksListActions } from './team-tasks-list-context';
 import { TeamTaskRow } from './team-task-row';
 import { TeamTasksBoard } from './team-tasks-board';
+import { TeamTasksTimelineView } from './team-tasks-timeline';
 import { cellAppliesToSelection, pickerOf } from './team-task-picker-commands';
-import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
+import { shownTeamTasksLayout } from '@/core/lib/utils/team-tasks-layouts';
 import { TeamTasksGroupHeader } from './team-tasks-group-header';
 import { TeamTasksColumnHeader } from './team-tasks-column-header';
 import type { TeamTaskMenuAnchor } from './team-task-menu';
+import { useTeamTaskListReorder } from './team-task-row-dnd';
+import { TeamTasksCalendarSkeleton } from './team-tasks-calendar-skeleton';
 
 const OVERSCAN = 10;
 
@@ -57,8 +62,11 @@ function keyCapOf(binding: ShortcutBinding | null | undefined, isMac: boolean) {
 export interface TeamTasksListCommands {
 	openTask: (taskId: string) => void;
 	openPicker: (kind: TeamTaskPickerKind, taskIds: string[], anchor: Element, shortcut?: string) => void;
-	openMenu: (taskId: string, anchor: TeamTaskMenuAnchor) => void;
+	/** `groupKey`: the group of the row the menu opens from (a task with several assignees has a row under each). */
+	openMenu: (taskId: string, anchor: TeamTaskMenuAnchor, groupKey?: string | null) => void;
 	createTaskInGroup: (statusName: string | null) => void;
+	/** A row dropped next to another one of its group, in a saved view's manual order. */
+	moveTask?: (move: TaskOrderMove) => void;
 }
 
 function rowSizeOf(row: TeamTasksListRow | undefined) {
@@ -170,19 +178,49 @@ interface TeamTasksListProps {
 	scrollRef: RefObject<HTMLDivElement | null>;
 }
 
+/** The calendar's code loads when the layout is first picked, so the list's page keeps its weight. */
+const TeamTasksCalendarView = dynamic(
+	() => import('./team-tasks-calendar').then((mod) => ({ default: mod.TeamTasksCalendarView })),
+	{ ssr: false, loading: () => <TeamTasksCalendarSkeleton /> }
+);
+
 /**
  * The tasks of the page: rows, or with the saved-views feature and a board layout, cards in one lane per status (the
- * Kanban page's board) on the same tasks, selection and commands.
+ * Kanban page's board), or with a timeline layout, bars on a calendar, or with a calendar layout, a month with each
+ * task on its due date, or with a table layout, the same rows without groups and with their columns drawn, on the
+ * same tasks, selection and commands.
  */
 export function TeamTasksList(props: Readonly<TeamTasksListProps>) {
-	const isBoard = props.view.settings.layout === 'board' && isTaskViewsEnabled();
-	if (isBoard) {
+	const layout = shownTeamTasksLayout(props.view.settings);
+	if (layout === 'board') {
 		return <TeamTasksBoard view={props.view} commands={props.commands} />;
+	}
+	if (layout === 'timeline') {
+		return <TeamTasksTimelineView view={props.view} commands={props.commands} />;
+	}
+	if (layout === 'calendar') {
+		return <TeamTasksCalendarView view={props.view} commands={props.commands} />;
+	}
+	if (layout === 'table') {
+		return <TeamTasksRows {...props} hasCellLines={true} />;
 	}
 	return <TeamTasksRows {...props} />;
 }
 
-function TeamTasksRows({ view, grid, commands, scrollRef }: Readonly<TeamTasksListProps>) {
+/**
+ * The table layout draws its columns from `lg`, where a row is the shared grid: every cell and every column label
+ * fills the row's height and carries a hairline on its left edge.
+ */
+const TABLE_CELL_LINES =
+	'lg:[&_[role=gridcell]]:self-stretch lg:[&_[role=gridcell]]:items-center lg:[&_[role=gridcell]]:content-center lg:[&_[role=gridcell]]:hairline-l lg:[&_[role=gridcell]]:border-border lg:[&_[role=columnheader]]:self-stretch lg:[&_[role=columnheader]]:items-center lg:[&_[role=columnheader]]:hairline-l lg:[&_[role=columnheader]]:border-border';
+
+function TeamTasksRows({
+	view,
+	grid,
+	commands,
+	scrollRef,
+	hasCellLines = false
+}: Readonly<TeamTasksListProps & { hasCellLines?: boolean }>) {
 	const t = useTranslations();
 	const { rows, orderedIds, selectedIds } = view;
 	const [focusedTaskId, setFocusedTaskId] = useState<string | null>(null);
@@ -194,6 +232,8 @@ function TeamTasksRows({ view, grid, commands, scrollRef }: Readonly<TeamTasksLi
 	// The person's bindings with the saved-views feature on (letters by their physical key, as the registry reads
 	// them); without it, the keys the list always had, by the character typed.
 	const bindings = canRebind ? preferredBindings : DEFAULT_BINDINGS;
+	const canReorder = view.canReorder && commands.moveTask !== undefined;
+	useTeamTaskListReorder(scrollRef, canReorder, commands.moveTask);
 
 	const stickyIndexes = useMemo(() => {
 		const indexes: number[] = [];
@@ -373,7 +413,7 @@ function TeamTasksRows({ view, grid, commands, scrollRef }: Readonly<TeamTasksLi
 			anchor = row;
 		}
 		setFocusedTaskId(taskId);
-		commands.openMenu(taskId, anchor);
+		commands.openMenu(taskId, anchor, row.dataset.groupKey);
 	};
 
 	const actions = useMemo<TeamTasksListActions>(
@@ -385,7 +425,7 @@ function TeamTasksRows({ view, grid, commands, scrollRef }: Readonly<TeamTasksLi
 				const ids = targetIdsFor(firstId, appliesToSelection);
 				commands.openPicker(kind, ids, anchor);
 			},
-			openRowMenu: (taskId, anchor) => commands.openMenu(taskId, anchor),
+			openRowMenu: (taskId, anchor, groupKey) => commands.openMenu(taskId, anchor, groupKey),
 			toggleSelected: view.toggleSelected,
 			setManySelected: view.setManySelected,
 			toggleGroup: view.toggleGroup,
@@ -439,7 +479,10 @@ function TeamTasksRows({ view, grid, commands, scrollRef }: Readonly<TeamTasksLi
 				aria-multiselectable={true}
 				onKeyDown={handleKeyDown}
 				onContextMenu={handleContextMenu}
-				className="relative h-full overflow-auto overscroll-contain custom-scrollbar"
+				className={cn(
+					'relative h-full overflow-auto overscroll-contain custom-scrollbar',
+					hasCellLines && TABLE_CELL_LINES
+				)}
 			>
 				<div ref={contentRef} style={grid.style} className={cn('min-w-full', TEAM_TASK_LIST_MIN_WIDTH)}>
 					<TeamTasksColumnHeader
@@ -490,6 +533,7 @@ function TeamTasksRows({ view, grid, commands, scrollRef }: Readonly<TeamTasksLi
 										isFocused={focusedTaskId === row.task.id}
 										isTabStop={tabStopId === row.task.id}
 										isSelecting={isSelecting}
+										reorderGroupKey={canReorder ? row.group.key : null}
 									/>
 								</div>
 							);

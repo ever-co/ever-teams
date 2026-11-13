@@ -27,14 +27,21 @@ export type TMemberPresence = 'online' | 'idle' | 'offline';
 // How far the server clock is ahead of this browser. `lastSeenAt` is stamped by the server, so its
 // age is measured on the server clock. It stays 0 until a heartbeat answer gives the server time.
 let serverClockOffsetMs = 0;
+let isServerClockRead = false;
 
 /** Records the server clock from a time the server just stamped, such as the heartbeat answer. */
 export const syncServerClock = (serverTime?: string | Date | null): void => {
 	if (!serverTime) return;
 
 	const offset = new Date(serverTime).getTime() - Date.now();
-	if (!Number.isNaN(offset)) serverClockOffsetMs = offset;
+	if (!Number.isNaN(offset)) {
+		serverClockOffsetMs = offset;
+		isServerClockRead = true;
+	}
 };
+
+/** How far the server clock is ahead of this browser, or null while no server time was read. */
+export const serverClockOffset = (): number | null => (isServerClockRead ? serverClockOffsetMs : null);
 
 /**
  * Presence from the member's last heartbeat: online when it is recent and not idle, idle when it is

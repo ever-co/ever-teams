@@ -28,6 +28,7 @@ import {
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { useTeamTasksList, type TeamTaskPickerKind } from './team-tasks-list-context';
 import { TEAM_TASK_ROW_GRID, TEAM_TASK_WIDE_CELL, type TeamTaskColumn } from './team-tasks-grid';
+import { useTeamTaskRowDrag } from './team-task-row-dnd';
 
 const VISIBLE_LABEL_COUNT = 2;
 const VISIBLE_PEOPLE_COUNT = 3;
@@ -46,6 +47,12 @@ const ON_ROW_HOVER =
 
 const LABEL_CHIP =
 	'chip-3d inline-flex h-5 min-w-0 max-w-24 shrink items-center gap-1 rounded-[5px] px-1.5 text-[11px] font-medium [&_[data-slot=task-property-icon]]:size-3';
+
+/** The priority as a relief label in its own colour, with its glyph and its name. */
+const PRIORITY_CHIP =
+	'chip-3d inline-flex h-5 min-w-0 max-w-full items-center gap-1 rounded-[5px] px-1.5 text-[11px] font-medium capitalize [&_[data-slot=task-property-icon]]:size-3';
+
+const UNPAINTED_CHIP = '[--chip:hsl(var(--muted-foreground))]';
 
 const MUTED_CHIP =
 	'inline-flex h-5 shrink-0 items-center rounded-[5px] bg-foreground/5 px-1.5 text-[11px] font-medium tabular-nums text-muted-foreground';
@@ -136,10 +143,22 @@ function PriorityCell({ task }: Readonly<{ task: TTask }>) {
 	const { priorityItems } = useTeamTasksList();
 	const priority = task.priority as string | null | undefined;
 	const item = itemOf(priorityItems, priority);
-	const label = `${t('taskMenus.fields.priority')}: ${readableName(priority)}`;
+	const name = readableName(priority);
+	const label = `${t('taskMenus.fields.priority')}: ${name}`;
+	const color = item?.bgColor;
+	const isPainted = isPaintableColor(color);
+	let chipStyle;
+	if (isPainted) {
+		chipStyle = dataColorChipStyle(color);
+	}
 	return (
-		<PickerCell kind="priority" taskId={task.id} label={label} className={GLYPH_BUTTON}>
-			{priority && <TaskPropertyIcon kind="priority" name={priority} color={item?.bgColor} />}
+		<PickerCell kind="priority" taskId={task.id} label={label} className={CELL_BUTTON}>
+			{priority && (
+				<span style={chipStyle} className={cn(PRIORITY_CHIP, !isPainted && UNPAINTED_CHIP)}>
+					<TaskPropertyIcon kind="priority" name={priority} color={color} />
+					<span className="truncate">{name}</span>
+				</span>
+			)}
 			{!priority && <Placeholder kind="priority" />}
 		</PickerCell>
 	);
@@ -201,8 +220,9 @@ function TitleCell({
 	task,
 	isDone,
 	showsIssueType,
-	showsParent
-}: Readonly<{ task: TTask; isDone: boolean; showsIssueType: boolean; showsParent: boolean }>) {
+	showsParent,
+	isReorderable
+}: Readonly<{ task: TTask; isDone: boolean; showsIssueType: boolean; showsParent: boolean; isReorderable: boolean }>) {
 	const t = useTranslations();
 	const { openTask } = useTeamTasksList();
 	const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
@@ -232,6 +252,8 @@ function TitleCell({
 				href={`/task/${task.id}`}
 				onClick={handleClick}
 				tabIndex={-1}
+				// In a manual order the row is dragged, not the link.
+				draggable={isReorderable ? false : undefined}
 				className={cn(
 					'min-w-0 truncate text-[13px] font-medium outline-none hover:underline hover:decoration-foreground/30 hover:underline-offset-2',
 					isDone && 'text-muted-foreground',
@@ -448,6 +470,9 @@ function AssigneesCell({ task, hidesOnWide }: Readonly<{ task: TTask; hidesOnWid
 }
 
 function TrailingCell({ column, task, isDone }: Readonly<{ column: TeamTaskColumn; task: TTask; isDone: boolean }>) {
+	if (column === 'priority') {
+		return <PriorityCell task={task} />;
+	}
 	if (column === 'labels') {
 		return <LabelsCell task={task} />;
 	}
@@ -476,6 +501,24 @@ export interface TeamTaskRowProps {
 	/** The row Tab lands on: the focused one, or the first when none is. */
 	isTabStop: boolean;
 	isSelecting: boolean;
+	/** The group the row moves in when the list follows a saved view's manual order; null otherwise. */
+	reorderGroupKey?: string | null;
+}
+
+function DropLine({ edge }: Readonly<{ edge: 'top' | 'bottom' | null }>) {
+	if (!edge) {
+		return null;
+	}
+	return (
+		<span
+			aria-hidden="true"
+			className={cn(
+				'pointer-events-none absolute inset-x-0 z-[1] h-0.5 bg-primary',
+				edge === 'top' && '-top-px',
+				edge === 'bottom' && '-bottom-px'
+			)}
+		/>
+	);
 }
 
 /**
@@ -488,9 +531,12 @@ export const TeamTaskRow = memo(function TeamTaskRow({
 	isSelected,
 	isFocused,
 	isTabStop,
-	isSelecting
+	isSelecting,
+	reorderGroupKey = null
 }: TeamTaskRowProps) {
 	const t = useTranslations();
+	const { rowRef, isDragging, dropEdge } = useTeamTaskRowDrag(task.id, reorderGroupKey);
+	const isReorderable = reorderGroupKey !== null;
 	const { grid, properties, statuses, liveByTask, openTask, openRowMenu, toggleSelected, focusTask } =
 		useTeamTasksList();
 	const status = statusOfTask(task, statuses);
@@ -512,14 +558,16 @@ export const TeamTaskRow = memo(function TeamTaskRow({
 		toggleSelected(task.id, event.shiftKey);
 	};
 	const handleMenuClick = (event: MouseEvent<HTMLButtonElement>) => {
-		openRowMenu(task.id, event.currentTarget);
+		openRowMenu(task.id, event.currentTarget, reorderGroupKey);
 	};
 
 	return (
 		<div
+			ref={rowRef}
 			role="row"
 			tabIndex={rowTabIndex(isTabStop)}
 			data-task-id={task.id}
+			data-group-key={reorderGroupKey ?? undefined}
 			data-focused={focusFlag(isFocused)}
 			aria-selected={isSelected}
 			onClick={handleRowClick}
@@ -527,9 +575,11 @@ export const TeamTaskRow = memo(function TeamTaskRow({
 			className={cn(
 				TEAM_TASK_ROW_GRID,
 				'group/row relative h-10 cursor-default pr-1 outline-none hairline-b border-border transition-colors hover:bg-foreground/[0.025] data-[focused]:bg-foreground/[0.035] max-lg:pl-1',
-				isSelected && 'bg-primary/[0.05] hover:bg-primary/[0.07] data-[focused]:bg-primary/[0.08]'
+				isSelected && 'bg-primary/[0.05] hover:bg-primary/[0.07] data-[focused]:bg-primary/[0.08]',
+				isDragging && 'opacity-40'
 			)}
 		>
+			<DropLine edge={dropEdge} />
 			{isLive && (
 				<span aria-hidden="true" className="absolute inset-y-1.5 left-0 w-0.5 rounded-r-full bg-primary" />
 			)}
@@ -542,13 +592,6 @@ export const TeamTaskRow = memo(function TeamTaskRow({
 				/>
 			</span>
 			{grid.leading.map((column) => {
-				if (column === 'priority') {
-					return (
-						<span key={column} role="gridcell" className={cn(TEAM_TASK_WIDE_CELL, 'flex justify-center')}>
-							<PriorityCell task={task} />
-						</span>
-					);
-				}
 				if (column === 'number') {
 					return (
 						<span
@@ -571,6 +614,7 @@ export const TeamTaskRow = memo(function TeamTaskRow({
 				isDone={isDone}
 				showsIssueType={properties.issueType}
 				showsParent={properties.parent}
+				isReorderable={isReorderable}
 			/>
 			{grid.trailing.map((column) => {
 				if (column === 'assignees') {

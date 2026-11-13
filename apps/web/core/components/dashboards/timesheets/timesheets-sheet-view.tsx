@@ -4,12 +4,13 @@ import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { MemberCell } from '@/core/components/dashboards/kit/member-cell';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
+import type { CopyPreviousWeek } from '@/core/hooks/dashboards/timesheets/use-copy-previous-week';
+import type { SheetEditing } from '@/core/hooks/dashboards/timesheets/use-sheet-editing';
 import type { TimesheetSheetState } from '@/core/hooks/dashboards/timesheets/use-timesheet-sheet';
 import type { TimesheetPermissions } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
 import { cn } from '@/core/lib/helpers';
 import type { SheetMember, TimesheetFormatters, WeekSheet } from '@/core/lib/utils/dashboards/timesheets';
 import type { TimesheetRowHandlers } from './timesheet-log-row';
-import { TimesheetStatusChip } from './timesheet-status';
 import {
 	memberNameOrFallback,
 	TimesheetsMemberPicker,
@@ -18,55 +19,58 @@ import {
 } from './timesheets-member-rail';
 import { TimesheetsSheetEntries } from './timesheets-sheet-entries';
 import { type SheetPendingActions, type SheetSelectionActions, TimesheetsSheetFooter } from './timesheets-sheet-footer';
+import {
+	copyWeekOf,
+	EmptySheetHint,
+	SHEET_HEADER,
+	SheetCopyConfirmDialog,
+	SheetEditNotice,
+	SheetHeader
+} from './timesheets-sheet-tools';
 import { TimesheetsWeekSheet, TimesheetsWeekSheetSkeleton } from './timesheets-week-sheet';
 
-const META_SEPARATOR = ' · ';
+export { SHEET_HEADER };
 
 /** The rail and the sheet side by side from `lg`; the rail is as tall as the sheet and scrolls on its own. */
 export const WITH_RAIL = 'lg:grid lg:min-h-96 lg:grid-cols-[15rem_minmax(0,1fr)]';
 
 export const RAIL_CELL = 'relative max-lg:hidden';
 
-export const SHEET_HEADER = 'flex min-h-12 flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-2';
-
-function sheetCountsOf(sheet: WeekSheet, t: ReturnType<typeof useTranslations>) {
-	const taskCount = t('dashboard.timesheets.SHEET.TASK_COUNT', { count: sheet.rows.length });
-	const logCount = t('dashboard.timesheets.LOG_COUNT', { count: sheet.logCount });
-	return [taskCount, logCount].join(META_SEPARATOR);
-}
-
 function SheetMemberHeader({
 	member,
 	members,
 	sheet,
 	showsPicker,
+	copyWeek,
 	onPick
 }: Readonly<{
 	member: SheetMember;
 	members: ReadonlyArray<SheetMember>;
 	sheet: WeekSheet;
 	showsPicker: boolean;
+	copyWeek: CopyPreviousWeek | null;
 	onPick: (memberId: string) => void;
 }>) {
 	const t = useTranslations();
 	const name = memberNameOrFallback(member, t('dashboard.timesheets.SHEET.UNNAMED_MEMBER'));
-	const counts = sheetCountsOf(sheet, t);
-	return (
-		<div className={SHEET_HEADER}>
-			<div className="flex min-w-0 items-center">
-				{showsPicker && (
-					<span className="flex min-w-0 lg:hidden">
-						<TimesheetsMemberPicker members={members} picked={member} onPick={onPick} />
-					</span>
-				)}
-				<MemberCell name={name} imageUrl={member.imageUrl} className={cn(showsPicker && 'max-lg:hidden')} />
-			</div>
-			<div className="flex min-w-0 items-center gap-2">
-				<span className="truncate text-xs tabular-nums text-muted-foreground">{counts}</span>
-				<TimesheetStatusChip status={member.status} />
-			</div>
-		</div>
+	const lead = (
+		<>
+			{showsPicker && (
+				<span className="flex min-w-0 lg:hidden">
+					<TimesheetsMemberPicker members={members} picked={member} onPick={onPick} />
+				</span>
+			)}
+			<MemberCell name={name} imageUrl={member.imageUrl} className={cn(showsPicker && 'max-lg:hidden')} />
+		</>
 	);
+	return <SheetHeader lead={lead} sheet={sheet} status={member.status} copyWeek={copyWeek} />;
+}
+
+function permissionMessageOf(editing: SheetEditing | null, t: ReturnType<typeof useTranslations>) {
+	if (!editing?.lacksOnlyManualTimePermission) {
+		return undefined;
+	}
+	return t('dashboard.workDiary.WEEK_NO_MANUAL_TIME_PERMISSION');
 }
 
 /**
@@ -85,7 +89,9 @@ export function TimesheetsSheetView({
 	selection,
 	pending,
 	isApproving,
-	emptyContent
+	emptyContent,
+	editing = null,
+	onClearFilters
 }: Readonly<{
 	state: TimesheetSheetState;
 	formatters: TimesheetFormatters;
@@ -97,11 +103,21 @@ export function TimesheetsSheetView({
 	pending: Omit<SheetPendingActions, 'memberName'>;
 	isApproving: boolean;
 	emptyContent: ReactNode;
+	editing?: SheetEditing | null;
+	onClearFilters: () => void;
 }>) {
 	const t = useTranslations();
 	const { members, member, days, sheet } = state;
 	const showsRail = members.length > 1;
 	const memberName = memberNameOf(member, t('dashboard.timesheets.SHEET.UNNAMED_MEMBER'));
+	const copyWeek = copyWeekOf(editing);
+	const permissionMessage = permissionMessageOf(editing, t);
+	const hasMember = Boolean(member);
+	const hasRows = sheet.rows.length > 0;
+	const draftRowCount = editing?.draftRows.length ?? 0;
+	const hasDraftRows = draftRowCount > 0;
+	const isWithoutRows = !hasRows && !hasDraftRows;
+	const isEmptyMemberSheet = hasMember && isWithoutRows;
 
 	return (
 		<div className={cn(showsRail && WITH_RAIL)}>
@@ -123,7 +139,15 @@ export function TimesheetsSheetView({
 						members={members}
 						sheet={sheet}
 						showsPicker={showsRail}
+						copyWeek={copyWeek}
 						onPick={state.pickMember}
+					/>
+				)}
+				{member && editing && (
+					<SheetEditNotice
+						lock={editing.sheetLock}
+						onClearFilters={onClearFilters}
+						permissionMessage={permissionMessage}
 					/>
 				)}
 				<TimesheetsWeekSheet
@@ -134,10 +158,12 @@ export function TimesheetsSheetView({
 					selectedIdSet={selectedIdSet}
 					openCell={state.openCell}
 					isCellOpen={state.isCellOpen}
+					editing={editing}
 					onSelectLogs={onSelectLogs}
 					onOpenCell={state.openCellEntries}
 				/>
 				{!member && emptyContent}
+				{isEmptyMemberSheet && <EmptySheetHint editing={editing} fallback={emptyContent} />}
 				{member && (
 					<TimesheetsSheetFooter
 						selection={selection}
@@ -157,6 +183,7 @@ export function TimesheetsSheetView({
 				permissions={permissions}
 				handlers={handlers}
 			/>
+			{editing && <SheetCopyConfirmDialog copyWeek={editing.copyWeek} />}
 		</div>
 	);
 }

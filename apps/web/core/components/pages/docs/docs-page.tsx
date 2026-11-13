@@ -13,13 +13,21 @@ import { useDocsFavorites } from '@/core/hooks/docs/use-docs-favorites';
 import { useDocsExpanded, useDocsRecent } from '@/core/hooks/docs/use-docs-recent';
 import { useDocsScope } from '@/core/hooks/docs/use-docs-scope';
 import { useDocsTree } from '@/core/hooks/docs/use-docs-tree';
+import { pagesWithUnsentLiveEdits } from '@/core/hooks/docs/use-docs-live';
+import { useDocsZipExport } from '@/core/hooks/docs/use-docs-zip-export';
+import { isInside } from '@/core/lib/utils/docs-export';
+import type { DocsPageEdits } from '@/core/lib/utils/docs-page-edits';
 import { cn } from '@/core/lib/helpers';
-import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
+import { isDocsEnabled, isDocsImportEnabled } from '@/core/lib/utils/docs-enabled';
+import { errorKeyOf } from '@/core/lib/utils/docs-import';
+import { useDocsImportAvailability, useDocsImportRun } from '@/core/hooks/docs/use-docs-import';
 import { lastVisited, localStorageOrNull } from '@/core/lib/utils/docs-recent';
 import { ancestorIdsOf, pageTitle } from '@/core/lib/utils/docs-tree';
 import { EDocumentVisibility, type IDocumentPage } from '@/core/types/interfaces/common/docs';
+import type { IDocumentImport } from '@/core/types/interfaces/common/docs-import';
 import { DocsHome, type DocsNewPageRequest } from './docs-home';
 import { DocsIconDialog } from './docs-icon-dialog';
+import { DocsImportDialog } from './docs-import-dialog';
 import { DocsMoveDialog, DocsNameDialog } from './docs-dialogs';
 import { DocsPageView, type DocsPageViewActions } from './docs-page-view';
 import { DocsTrash } from './docs-trash';
@@ -42,10 +50,20 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 	const scope = useDocsScope();
 	const tree = useDocsTree(enabled && availability !== 'unavailable');
 	const spaces = useDocsSpaces(enabled && availability === 'available');
+	// The import of exported workspaces: this deployment's flag, then the platform's probe (404 = not offered).
+	const importing = useDocsImportAvailability(isDocsImportEnabled() && availability === 'available');
+	/** The import dialog, with the page it may land under (`null` parent: from the home). */
+	const [importInto, setImportInto] = useState<{ parent: { id: string; name: string } | null } | null>(null);
 	const { expanded, toggle, setOpen, expandAll } = useDocsExpanded();
 	const favorites = useDocsFavorites();
 	const { recentIds, forget } = useDocsRecent();
 	const actions = useDocsActions();
+	const { run: exportZip } = useDocsZipExport();
+	// Where the open page's edits stand: a folder's zip waits for them when the page is inside the folder.
+	const openEditsRef = useRef<DocsPageEdits | null>(null);
+	const setOpenEdits = useCallback((edits: DocsPageEdits | null) => {
+		openEditsRef.current = edits;
+	}, []);
 
 	// Below the large breakpoint the tree and the home do not fit side by side: the tree shows first, and its Home row
 	// swaps it for the home, which has a way back.
@@ -231,6 +249,20 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 			duplicate: (page, deep) => void duplicate(page, deep),
 			setVisibility: (page, visibility) => void setVisibility(page, visibility),
 			trash: (page) => void trash(page),
+			// A folder holds no text of its own, but the open page may be in it: its edits are saved first, or nothing is
+			// exported (a save failing or in conflict).
+			exportZip: (page) =>
+				void exportZip(page, {
+					beforeExport: async () => {
+						const edits = openEditsRef.current;
+						const isOpenPageInside = pageId !== null && isInside(tree.byId, pageId, page.id);
+						if (edits && isOpenPageInside && edits.pending() && !(await edits.hold())) return false;
+						// Live edits the platform never confirmed exist only in this tab: a page left while its session was down,
+						// or the open page when its save path cannot send them (a page locked since). The live memory clears a
+						// page once its edits are confirmed, so a page still marked there keeps the folder from being exported.
+						return !pagesWithUnsentLiveEdits().some((id) => isInside(tree.byId, id, page.id));
+					}
+				}),
 			drop: (id, parentId) => {
 				void actions
 					.movePage(id, parentId)
@@ -248,8 +280,32 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 					.catch((error: unknown) => fail(error, 'docs.MOVE_ERROR'));
 			}
 		}),
-		[actions, createAndOpen, duplicate, fail, reorder, setOpen, setVisibility, toggleFavorite, trash, tree.byId]
+		[actions, createAndOpen, duplicate, exportZip, fail, pageId, reorder, setOpen, setVisibility, toggleFavorite, trash, tree.byId]
 	);
+
+	// The import run is the page's, so closing its dialog keeps it. When an import is over the tree is read again (once
+	// per import); one that ends while its dialog is closed says so.
+	const { retry: retryTree } = tree;
+	const importOpenRef = useRef(false);
+	useEffect(() => {
+		importOpenRef.current = importInto !== null;
+	}, [importInto]);
+	const importRun = useDocsImportRun(
+		useCallback(
+			(finished: IDocumentImport) => {
+				retryTree();
+				if (importOpenRef.current) return;
+				if (finished.status === 'FAILED') toast.error(t(errorKeyOf(finished.errorCode)));
+				else toast.success(t('docs.IMPORT.SUMMARY', { imported: finished.importedCount, skipped: finished.skippedCount, failed: finished.failedCount }));
+			},
+			[retryTree, t]
+		)
+	);
+	const closeImport = useCallback(() => {
+		// An upload or an import still running stays, for the dialog's next opening; a finished one is put away.
+		if (!importRun.inProgress) importRun.reset();
+		setImportInto(null);
+	}, [importRun]);
 
 	const pageActions = useMemo<DocsPageViewActions>(
 		() => ({
@@ -264,9 +320,10 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 			restoreVersion: actions.restoreVersion,
 			toggleFavorite,
 			isFavorite: favorites.isFavorite,
-			newSubPage: (page) => void createAndOpen(page.id, page.visibility, {}, page.organizationTeamId)
+			newSubPage: (page) => void createAndOpen(page.id, page.visibility, {}, page.organizationTeamId),
+			importHere: importing.available ? (page) => setImportInto({ parent: { id: page.id, name: page.name } }) : undefined
 		}),
-		[actions, createAndOpen, duplicate, favorites.isFavorite, moveToSpace, restore, setVisibility, toggleFavorite, trash]
+		[actions, createAndOpen, duplicate, favorites.isFavorite, importing.available, moveToSpace, restore, setVisibility, toggleFavorite, trash]
 	);
 
 	if (!enabled) return null;
@@ -329,6 +386,7 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 							actions={pageActions}
 							spaces={spaces}
 							onOpenTree={() => setTreeDrawer({ open: true, pageId })}
+							onEdits={setOpenEdits}
 						/>
 					)}
 					{view === 'trash' && (
@@ -349,11 +407,27 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 							tree={tree}
 							favoriteIds={favorites.favoriteIds}
 							onNewPage={({ visibility, ...start }) => createAndOpen(null, visibility, start)}
+							onImport={importing.available ? () => setImportInto({ parent: null }) : undefined}
 							onBack={() => setHomeOnPhone(false)}
 						/>
 					)}
 				</main>
 			</div>
+
+			{importing.available && importInto !== null && (
+				<DocsImportDialog
+					open
+					maxZipBytes={importing.maxZipBytes}
+					parent={importInto?.parent ?? null}
+					teamSpaces={spaces.available ? spaces.teamSpaces : []}
+					run={importRun}
+					onOpenPage={(id) => {
+						closeImport();
+						router.push(`/docs/${encodeURIComponent(id)}`);
+					}}
+					onClose={closeImport}
+				/>
+			)}
 
 			<DocsNameDialog
 				open={renaming !== null}

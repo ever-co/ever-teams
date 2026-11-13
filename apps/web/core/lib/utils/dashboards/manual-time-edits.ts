@@ -5,6 +5,7 @@ import { formatPercent, type ShareRow, shareRowsOf } from '@/core/lib/utils/dash
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { daysOfPeriod, type Period, type WeekStart } from '@/core/lib/utils/dashboard-period';
 import {
+	clockTimeOf,
 	endOfLog,
 	logDurationSeconds,
 	NO_PROJECT_VALUE,
@@ -13,6 +14,7 @@ import {
 	statusOfLog,
 	workDayOfLog
 } from '@/core/lib/utils/dashboards/timesheets';
+import { dateFormatOf, hasDateFormat, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
@@ -551,6 +553,30 @@ export function clockDateTimeOf(date: Date | null) {
 	const hours = String(date.getHours()).padStart(2, '0');
 	const minutes = String(date.getMinutes()).padStart(2, '0');
 	return `${day} ${hours}:${minutes}`;
+}
+
+const PDF_DAY_OPTIONS: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
+
+/**
+ * The day of a line of the PDF, which people read: `04/11/2026` in the date format the workspace chose, and
+ * `2026-11-04`, as in the files, while it chose none.
+ */
+export function pdfDayOf(day: Date, locale: FormatLocale) {
+	if (!hasDateFormat(locale)) {
+		return localDayKeyOf(day);
+	}
+	const format = dateFormatOf(locale, PDF_DAY_OPTIONS);
+	return format.format(day);
+}
+
+/** The same for a moment of a line of the PDF: its day, then the local 24-hour time the files write. */
+export function pdfDateTimeOf(date: Date | null, locale: FormatLocale) {
+	if (!date) {
+		return '';
+	}
+	const day = pdfDayOf(date, locale);
+	const time = clockTimeOf(date);
+	return `${day} ${time}`;
 }
 
 export const FEED_VISIBLE_ENTRIES = 8;

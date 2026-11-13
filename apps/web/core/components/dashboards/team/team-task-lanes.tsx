@@ -58,7 +58,13 @@ export function StatusTile({ status }: Readonly<{ status: TTaskStatus }>) {
 			)}
 			style={style}
 		>
-			<TaskPropertyIcon kind="status" name={status.name} color={status.color} />
+			<TaskPropertyIcon
+				kind="status"
+				name={status.name}
+				color={status.color}
+				icon={status.icon}
+				iconUrl={status.fullIconUrl}
+			/>
 		</span>
 	);
 }

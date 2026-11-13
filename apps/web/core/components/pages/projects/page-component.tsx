@@ -17,6 +17,9 @@ import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/project
 import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 import { useProjectsListState } from '@/core/hooks/projects/use-projects-list-state';
 import { useProjectTaskStats } from '@/core/hooks/projects/use-project-task-stats';
+import { useCanSeeProjectConsumption, useProjectConsumption } from '@/core/hooks/projects/use-project-consumption';
+import { DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
+import { sortProjectsWithConsumption } from '@/core/lib/utils/project-consumption';
 import { isValidProjectForDisplay } from '@/core/lib/helpers/type-guards';
 import { isSavedTeamLoading } from '@/core/lib/helpers/saved-team';
 import {
@@ -26,7 +29,6 @@ import {
 	projectMatchesDateRange,
 	projectMatchesFilters,
 	projectMatchesSearch,
-	sortProjects,
 	type ProjectStatusGroup
 } from '@/core/lib/utils/project-list';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
@@ -83,8 +85,10 @@ function ProjectsPage() {
 		refetchOrganizationProjects
 	} = useOrganizationProjectsQuery();
 	const { taskStatuses } = useTaskStatusesQuery();
-	const list = useProjectsListState();
+	const showsConsumption = useCanSeeProjectConsumption();
+	const list = useProjectsListState({ showsConsumption });
 	const taskStats = useProjectTaskStats();
+	const consumption = useProjectConsumption({ isEnabled: showsConsumption });
 	const categories = useProjectFilterCategories(organizationProjects);
 
 	const createModal = useModal();
@@ -114,8 +118,17 @@ function ProjectsPage() {
 		const dated = scoped.filter((project) => projectMatchesDateRange(project, list.dateRange));
 		const filtered = dated.filter((project) => projectMatchesFilters(project, list.filters, taskStatuses));
 		const searched = filtered.filter((project) => projectMatchesSearch(project, list.search));
-		return sortProjects(searched, list.ordering);
-	}, [isArchivedScope, list.dateRange, list.filters, list.ordering, list.search, taskStatuses, teamProjects]);
+		return sortProjectsWithConsumption(searched, list.ordering, consumption.rowOf);
+	}, [
+		consumption.rowOf,
+		isArchivedScope,
+		list.dateRange,
+		list.filters,
+		list.ordering,
+		list.search,
+		taskStatuses,
+		teamProjects
+	]);
 
 	const isGrouped = list.grouping === 'status';
 	const groups = useMemo(
@@ -142,6 +155,7 @@ function ProjectsPage() {
 	const showsEmpty = !isLoading && !showsError && !hasProjects;
 	const showsList = !isLoading && hasProjects;
 	const isListView = list.view === 'LIST';
+	const showsConsumptionError = showsList && consumption.hasFailed;
 
 	const clearSearchAndFilters = () => {
 		list.setSearch('');
@@ -186,6 +200,13 @@ function ProjectsPage() {
 					onCreate={createModal.openModal}
 				/>
 			)}
+			{showsConsumptionError && (
+				<DashboardErrorNotice
+					title={t('pages.projects.consumption.LOAD_ERROR')}
+					onRetry={consumption.retry}
+					className="mb-3"
+				/>
+			)}
 			{showsList && isListView && (
 				<ProjectsListView
 					list={list}
@@ -193,10 +214,17 @@ function ProjectsPage() {
 					statuses={taskStatuses}
 					taskStats={taskStats}
 					visibleProjectIds={shownIds}
+					consumption={consumption}
 				/>
 			)}
 			{showsList && !isListView && (
-				<ProjectsGridView list={list} groups={groups} statuses={taskStatuses} taskStats={taskStats} />
+				<ProjectsGridView
+					list={list}
+					groups={groups}
+					statuses={taskStatuses}
+					taskStats={taskStats}
+					consumption={consumption}
+				/>
 			)}
 			{hasSelection && (
 				<ProjectsSelectionBar

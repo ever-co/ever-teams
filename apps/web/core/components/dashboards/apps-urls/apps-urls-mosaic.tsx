@@ -15,7 +15,7 @@ import {
 	type MosaicRect,
 	type MosaicTile
 } from '@/core/lib/utils/dashboards/apps-urls';
-import { AppTile } from './usage-cells';
+import { ActivityIcon } from '@/core/components/activities/activity-icon';
 
 /** The mosaic keeps one height whatever the period, so the list under it never jumps. */
 const MOSAIC_FRAME = 'relative h-80 md:h-88';
@@ -97,7 +97,7 @@ function TileMark({ item }: Readonly<{ item: MosaicItem }>) {
 			</span>
 		);
 	}
-	return <AppTile title={item.title} />;
+	return <ActivityIcon title={item.title} kind={item.kind} url={item.url} />;
 }
 
 function TileContent({

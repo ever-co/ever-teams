@@ -1,7 +1,7 @@
 import { addDays, differenceInDays, isAfter, isEqual } from 'date-fns';
 import type { DottedLanguageObjectStringPaths } from 'next-intl';
 import { isValidUrl } from '@/core/lib/utils/is-valid-url';
-import { personFromProjectMember, realDateOf, type ProjectPerson } from '@/core/lib/utils/project-list';
+import { clientIdOf, personFromProjectMember, realDateOf, type ProjectPerson } from '@/core/lib/utils/project-list';
 import { EProjectBilling, EProjectBudgetType } from '@/core/types/generics/enums/project';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import type { TCreateProjectRequest, TOrganizationProject, TTag } from '@/core/types/schemas';
@@ -72,6 +72,7 @@ export interface ProjectDraft {
 	budget: number | null;
 	currency: string | null;
 	billing: EProjectBilling;
+	clientId: string | null;
 }
 
 export type ProjectDraftErrorKey = 'name' | 'dates' | 'projectUrl' | 'taskKey' | 'description' | 'teams' | 'image';
@@ -149,8 +150,22 @@ export function emptyProjectDraft(activeTeamId: string | null | undefined, today
 		budgetType: EProjectBudgetType.HOURS,
 		budget: null,
 		currency: null,
-		billing: EProjectBilling.FLAT_FEE
+		billing: EProjectBilling.FLAT_FEE,
+		clientId: null
 	};
+}
+
+/**
+ * A new project's draft as the form shows and saves it: in the workspace's currency until the person picks one. The
+ * workspace may be read after the form opened, so its currency is not written into the draft the person fills.
+ */
+export function draftInWorkspaceCurrency(draft: ProjectDraft, workspaceCurrency: string | null): ProjectDraft {
+	const hasPickedCurrency = Boolean(draft.currency);
+	const hasNothingToOffer = !workspaceCurrency;
+	if (hasPickedCurrency || hasNothingToOffer) {
+		return draft;
+	}
+	return { ...draft, currency: workspaceCurrency };
 }
 
 function budgetOf(budget: number | null | undefined) {
@@ -181,7 +196,8 @@ export function draftFromProject(project: TOrganizationProject, activeTeamId: st
 		budgetType: project.budgetType ?? EProjectBudgetType.HOURS,
 		budget: budgetOf(project.budget),
 		currency: project.currency ?? null,
-		billing: project.billing ?? EProjectBilling.FLAT_FEE
+		billing: project.billing ?? EProjectBilling.FLAT_FEE,
+		clientId: clientIdOf(project)
 	};
 }
 
@@ -403,6 +419,17 @@ function imageFieldsOf(draft: ProjectDraft, uploadedImage: ProjectImageAsset | n
 	return { imageUrl: draft.imageUrl, imageId: draft.imageId };
 }
 
+/** A new project without a client leaves the field out; an edited one sends null, which clears the stored client. */
+function clientFieldOf(draft: Pick<ProjectDraft, 'clientId'>, base: TOrganizationProject | null | undefined) {
+	if (draft.clientId) {
+		return { organizationContactId: draft.clientId };
+	}
+	if (base) {
+		return { organizationContactId: null };
+	}
+	return {};
+}
+
 /** The request body the previous wizard's review step sent, built from one draft. */
 export function buildProjectRequest(draft: ProjectDraft, context: ProjectRequestContext) {
 	const { base, teams, tags, currentEmployeeId, uploadedImage } = context;
@@ -434,7 +461,8 @@ export function buildProjectRequest(draft: ProjectDraft, context: ProjectRequest
 		isActive: base?.isActive ?? true,
 		isArchived: base?.isArchived ?? false,
 		isTasksAutoSync: base?.isTasksAutoSync ?? true,
-		isTasksAutoSyncOnLabel: base?.isTasksAutoSyncOnLabel ?? true
+		isTasksAutoSyncOnLabel: base?.isTasksAutoSyncOnLabel ?? true,
+		...clientFieldOf(draft, base)
 	};
 	return request;
 }

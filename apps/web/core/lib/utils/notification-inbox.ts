@@ -1,3 +1,4 @@
+import { timerReminderNoticeOf, type TimerReminderNotice } from '@/core/lib/notifications/timer-reminders';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { EEmployeeNotificationType, IEmployeeNotification } from '@/core/types/interfaces/common/employee-notification';
 import { docsInboxHrefOf } from './docs-links';
@@ -22,11 +23,16 @@ export interface NotificationEntry {
 	taskId: string | null;
 	/** Where opening the notification leads when it is not about a task. */
 	href: string | null;
+	/** A reminder of a timer left running: its level, the hours it names and its run, read in the reader's language. */
+	timerReminder: TimerReminderNotice | null;
 	createdAt: Date;
 }
 
 /** A rate change request is answered in Members settings, where an admin edits the member's rate. */
 const RATE_CHANGE_REQUEST_HREF = '/settings/team/members';
+
+/** A timer reminder opens the page the timer is on. */
+export const TIMER_REMINDER_HREF = '/';
 
 /** The verbs of Gauzy's title templates (`employee-notification.helper.ts`), in the order they are tried. */
 const TITLE_ACTION_WORDS = [
@@ -107,6 +113,9 @@ function hrefOf(type: EEmployeeNotificationType | null, notification: IEmployeeN
 	if (isRateChangeRequest) {
 		return RATE_CHANGE_REQUEST_HREF;
 	}
+	if (type === EEmployeeNotificationType.TimerReminder) {
+		return TIMER_REMINDER_HREF;
+	}
 	// A page (shared, reviewed, commented while followed) opens in Docs where the deployment has it.
 	if (isDocsEnabled() && notification.entity === EBaseEntityEnum.Document) {
 		return docsInboxHrefOf(notification.entity, notification.entityId, null, type === EEmployeeNotificationType.Comment);
@@ -154,6 +163,7 @@ export function toNotificationEntry(notification: IEmployeeNotification): Notifi
 		message: distinctMessageOf(notification, subject),
 		taskId: taskIdOf(notification),
 		href: hrefOf(type, notification),
+		timerReminder: timerReminderNoticeOf(notification),
 		createdAt: new Date(notification.createdAt)
 	};
 }

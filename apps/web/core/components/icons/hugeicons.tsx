@@ -1,4 +1,6 @@
 import {
+	Csv01Icon,
+	FileImportIcon,
 	Plug01Icon,
 	GitBranchIcon,
 	DashedLineCircleIcon,
@@ -42,6 +44,7 @@ import {
 	Certificate01Icon,
 	Coffee02Icon,
 	ChampionIcon,
+	ChartGanttIcon,
 	ChartHistogramIcon,
 	ChartIncreaseIcon,
 	CheckmarkBadge01Icon,
@@ -80,6 +83,7 @@ import {
 	InboxCheckIcon,
 	InformationCircleIcon,
 	InstagramIcon,
+	Invoice01Icon,
 	JusticeScale01Icon,
 	KanbanIcon,
 	Key01Icon,
@@ -147,6 +151,7 @@ import {
 	Tick02Icon,
 	TickDouble02Icon,
 	Timer02Icon,
+	TimerOffIcon,
 	UmbrellaIcon,
 	UnfoldMoreIcon,
 	Upload01Icon,
@@ -190,12 +195,20 @@ import {
 	UserSettings01Icon,
 	RefreshIcon,
 	ComputerIcon,
+	ComputerScreenShareIcon,
 	ArrowTurnUpIcon,
 	LifebuoyIcon,
 	MailValidation01Icon,
 	ArrowDown02Icon,
 	ArrowDownDoubleIcon,
-	CancelCircleIcon
+	ArrowUpDoubleIcon,
+	CancelCircleIcon,
+	CalendarAdd01Icon,
+	CallEnd01Icon,
+	Login03Icon,
+	MicOff01Icon,
+	VideoOffIcon,
+	VolumeHighIcon
 } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 
@@ -381,7 +394,9 @@ export const ListView = /*#__PURE__*/ icon(ListViewIcon, 'ListView');
 export const Table = /*#__PURE__*/ icon(Table01Icon, 'Table');
 export const GridView = /*#__PURE__*/ icon(GridViewIcon, 'GridView');
 export const Kanban = /*#__PURE__*/ icon(KanbanIcon, 'Kanban');
+export const Timeline = /*#__PURE__*/ icon(ChartGanttIcon, 'Timeline');
 export const Timer = /*#__PURE__*/ icon(Timer02Icon, 'Timer');
+export const TimerOff = /*#__PURE__*/ icon(TimerOffIcon, 'TimerOff');
 export const Idle = /*#__PURE__*/ icon(Coffee02Icon, 'Idle');
 export const Task = /*#__PURE__*/ icon(Task01Icon, 'Task');
 export const TaskDone = /*#__PURE__*/ icon(TaskDone01Icon, 'TaskDone');
@@ -426,6 +441,14 @@ export const ArrowUpDown = /*#__PURE__*/ icon(ArrowUpDownIcon, 'ArrowUpDown');
 /** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const MicOn = /*#__PURE__*/ icon(Mic01Icon, 'MicOn');
 export const VideoCall = /*#__PURE__*/ icon(Video01Icon, 'VideoCall');
+// Meetings: the pre-join screen and the room bar
+export const MicOff = /*#__PURE__*/ icon(MicOff01Icon, 'MicOff');
+export const VideoOff = /*#__PURE__*/ icon(VideoOffIcon, 'VideoOff');
+export const PhoneOff = /*#__PURE__*/ icon(CallEnd01Icon, 'PhoneOff');
+export const Volume = /*#__PURE__*/ icon(VolumeHighIcon, 'Volume');
+export const CalendarPlus = /*#__PURE__*/ icon(CalendarAdd01Icon, 'CalendarPlus');
+export const ScreenShare = /*#__PURE__*/ icon(ComputerScreenShareIcon, 'ScreenShare');
+export const LogIn = /*#__PURE__*/ icon(Login03Icon, 'LogIn');
 /** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Inbox2 = /*#__PURE__*/ icon(InboxIcon, 'Inbox2');
 export const InboxCheck = /*#__PURE__*/ icon(InboxCheckIcon, 'InboxCheck');
@@ -436,6 +459,7 @@ export const Bot = /*#__PURE__*/ icon(BotIcon, 'Bot');
 export const ArrowUp = /*#__PURE__*/ icon(ArrowUp02Icon, 'ArrowUp');
 export const ArrowDown = /*#__PURE__*/ icon(ArrowDown02Icon, 'ArrowDown');
 export const ChevronsDown = /*#__PURE__*/ icon(ArrowDownDoubleIcon, 'ChevronsDown');
+export const ChevronsUp = /*#__PURE__*/ icon(ArrowUpDoubleIcon, 'ChevronsUp');
 /** @public Part of the icon set; no screen uses it since the sweep of 2026-11-05 (#4905, #4914). */
 export const Refresh = /*#__PURE__*/ icon(RefreshIcon, 'Refresh');
 export const CircleX = /*#__PURE__*/ icon(CancelCircleIcon, 'CircleX');
@@ -478,3 +502,6 @@ export const Integration = /*#__PURE__*/ icon(Plug01Icon, 'Integration');
 export const Version = /*#__PURE__*/ icon(GitBranchIcon, 'Version');
 export const StatusCircle = /*#__PURE__*/ icon(DashedLineCircleIcon, 'StatusCircle');
 export const Preferences = /*#__PURE__*/ icon(PaintBoardIcon, 'Preferences');
+export const FileImport = /*#__PURE__*/ icon(FileImportIcon, 'FileImport');
+export const FileCsv = /*#__PURE__*/ icon(Csv01Icon, 'FileCsv');
+export const Invoice = /*#__PURE__*/ icon(Invoice01Icon, 'Invoice');
