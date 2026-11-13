@@ -24,8 +24,10 @@ import { TimeActivityToolbar } from './time-activity-toolbar';
 
 const GROUPINGS: TimeActivityGrouping[] = ['date', 'member', 'project', 'task', 'week', 'client'];
 
+const PHONE_SCROLLER_WIDTH = 343;
+
 /** The switch at 375 px as the browser lays it out: a 343 px scroller over 389 px of options. */
-const SCROLLER = { left: 12, width: 343, contentWidth: 389 };
+const SCROLLER = { left: 12, width: PHONE_SCROLLER_WIDTH, contentWidth: 389 };
 const FOCUS_RING = 3;
 const TABS: Record<string, { left: number; width: number }> = {
 	'dashboard.timeActivity.grouping.DATE': { left: 18, width: 53 },
@@ -120,8 +122,43 @@ function scrollerOfSwitch() {
 	return scroller;
 }
 
+const resizeObservers = new Set<FakeResizeObserver>();
+
+class FakeResizeObserver {
+	readonly targets = new Set<Element>();
+
+	constructor(readonly callback: () => void) {
+		resizeObservers.add(this);
+	}
+
+	observe(target: Element) {
+		this.targets.add(target);
+	}
+
+	unobserve(target: Element) {
+		this.targets.delete(target);
+	}
+
+	disconnect() {
+		this.targets.clear();
+		resizeObservers.delete(this);
+	}
+}
+
+function resizeScrollerTo(width: number) {
+	SCROLLER.width = width;
+	const scroller = scrollerOfSwitch();
+	for (const observer of resizeObservers) {
+		const watchesScroller = observer.targets.has(scroller);
+		if (watchesScroller) {
+			observer.callback();
+		}
+	}
+}
+
 describe('TimeActivityToolbar grouping switch on a narrow screen', () => {
 	beforeEach(() => {
+		SCROLLER.width = PHONE_SCROLLER_WIDTH;
 		// The smooth scroll of a later pick asks `window.matchMedia` about reduced motion, which jsdom does not provide.
 		window.matchMedia = jest.fn().mockReturnValue({ matches: false }) as unknown as typeof window.matchMedia;
 		jest.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function boxOf(this: Element) {
@@ -157,5 +194,22 @@ describe('TimeActivityToolbar grouping switch on a narrow screen', () => {
 		render(<TimeActivityToolbar report={reportOf('member')} />);
 
 		expect(scrollerOfSwitch().scrollLeft).toBe(0);
+	});
+
+	it('brings the pick back into view when the switch narrows, Client fitting before and cut after', () => {
+		const originalResizeObserver = globalThis.ResizeObserver;
+		globalThis.ResizeObserver = FakeResizeObserver as unknown as typeof ResizeObserver;
+		try {
+			SCROLLER.width = 400;
+			render(<TimeActivityToolbar report={reportOf('client')} />);
+			expect(scrollerOfSwitch().scrollLeft).toBe(0);
+
+			resizeScrollerTo(PHONE_SCROLLER_WIDTH);
+
+			expectWholeInView('common.CLIENT');
+		} finally {
+			globalThis.ResizeObserver = originalResizeObserver;
+			resizeObservers.clear();
+		}
 	});
 });

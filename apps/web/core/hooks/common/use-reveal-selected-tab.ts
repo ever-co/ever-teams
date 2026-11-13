@@ -1,6 +1,6 @@
 'use client';
 
-import { type RefObject, useRef } from 'react';
+import { type RefObject, useEffect, useRef } from 'react';
 import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-layout-effect';
 import { scrollBehavior } from '@/core/lib/utils/motion';
 import { type ContentSpan, revealedScrollLeftOf } from '@/core/lib/utils/scroll-reveal';
@@ -23,6 +23,28 @@ function scrollScrollerTo(scroller: HTMLElement, left: number, behavior: ScrollB
 	scroller.scrollTo({ left, behavior });
 }
 
+function revealedLeftOf(scroller: HTMLElement, room: number) {
+	const selected = scroller.querySelector<HTMLElement>(SELECTED_TAB);
+	if (!selected) {
+		return null;
+	}
+	const view = {
+		scrollLeft: scroller.scrollLeft,
+		viewWidth: scroller.clientWidth,
+		contentWidth: scroller.scrollWidth
+	};
+	const span = contentSpanOf(scroller, selected);
+	return revealedScrollLeftOf(view, span, room);
+}
+
+function scrollToRevealed(scroller: HTMLElement, left: number, behavior: ScrollBehavior) {
+	const isInView = left === scroller.scrollLeft;
+	if (isInView) {
+		return;
+	}
+	scrollScrollerTo(scroller, left, behavior);
+}
+
 /** The first reveal happens as the page arrives: no motion then. */
 function revealBehaviorOf(isFirstReveal: boolean): ScrollBehavior {
 	if (isFirstReveal) {
@@ -33,8 +55,8 @@ function revealBehaviorOf(isFirstReveal: boolean): ScrollBehavior {
 
 /**
  * Keeps the selected tab of a switch that scrolls sideways whole in view, with `room` pixels around it for its focus
- * ring: when the switch mounts and whenever `selectedKey` changes (a click, an arrow key, a link). Only the scroller
- * moves, never the page.
+ * ring: when the switch mounts, whenever `selectedKey` changes (a click, an arrow key, a link) and when the switch
+ * changes width. Only the scroller moves, never the page, and a change of width moves it without motion.
  */
 export function useRevealSelectedTab(scrollerRef: RefObject<HTMLElement | null>, selectedKey: string, room: number) {
 	const hasRevealedRef = useRef(false);
@@ -44,23 +66,36 @@ export function useRevealSelectedTab(scrollerRef: RefObject<HTMLElement | null>,
 		if (!scroller) {
 			return;
 		}
-		const selected = scroller.querySelector<HTMLElement>(SELECTED_TAB);
-		if (!selected) {
+		const left = revealedLeftOf(scroller, room);
+		if (left === null) {
 			return;
 		}
-		const view = {
-			scrollLeft: scroller.scrollLeft,
-			viewWidth: scroller.clientWidth,
-			contentWidth: scroller.scrollWidth
-		};
-		const span = contentSpanOf(scroller, selected);
-		const left = revealedScrollLeftOf(view, span, room);
 		const isFirstReveal = !hasRevealedRef.current;
 		hasRevealedRef.current = true;
-		const isInView = left === scroller.scrollLeft;
-		if (isInView) {
+		scrollToRevealed(scroller, left, revealBehaviorOf(isFirstReveal));
+	}, [room, scrollerRef, selectedKey]);
+
+	useEffect(() => {
+		const scroller = scrollerRef.current;
+		const canObserve = typeof ResizeObserver !== 'undefined';
+		if (!scroller || !canObserve) {
 			return;
 		}
-		scrollScrollerTo(scroller, left, revealBehaviorOf(isFirstReveal));
-	}, [room, scrollerRef, selectedKey]);
+		let observedWidth = scroller.clientWidth;
+		const observer = new ResizeObserver(() => {
+			const width = scroller.clientWidth;
+			const hasNewWidth = width !== observedWidth;
+			observedWidth = width;
+			if (!hasNewWidth) {
+				return;
+			}
+			const left = revealedLeftOf(scroller, room);
+			if (left === null) {
+				return;
+			}
+			scrollToRevealed(scroller, left, 'auto');
+		});
+		observer.observe(scroller);
+		return () => observer.disconnect();
+	}, [room, scrollerRef]);
 }
