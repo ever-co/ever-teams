@@ -10,6 +10,7 @@ import { HostKeysMapping, useBoundHotkeys } from '@/core/hooks/common/use-hotkey
 import { availableShortcutCommands } from '@/core/lib/keyboard/available-commands';
 import { shortcutSheetOf, type OwnKeyLine, type ShortcutSheetSection } from '@/core/lib/keyboard/shortcut-sheet';
 import { shortcutHandlersAtom } from '@/core/stores/common/shortcuts';
+import { useAnsweredKeySet } from './use-answered-keys';
 import { useKeyboardPreferences } from './use-keyboard-preferences';
 
 /** The keys components answer by themselves, each built from the constant its own listener matches. */
@@ -37,6 +38,7 @@ export function useShortcutSheet(): ShortcutSheetSection[] {
 	const { bindings, canRebind: registryOn } = useKeyboardPreferences();
 	const registered = useAtomValue(shortcutHandlersAtom);
 	const boundHotkeys = useBoundHotkeys();
+	const answered = useAnsweredKeySet();
 	const isMac = os === 'Mac';
 
 	return useMemo(() => {
@@ -51,7 +53,8 @@ export function useShortcutSheet(): ShortcutSheetSection[] {
 			answersRowKey,
 			hotkeys: HostKeysMapping,
 			boundHotkeys,
+			answered,
 			ownKeys: OWN_KEYS
 		});
-	}, [bindings, boundHotkeys, isMac, registered, registryOn]);
+	}, [answered, bindings, boundHotkeys, isMac, registered, registryOn]);
 }

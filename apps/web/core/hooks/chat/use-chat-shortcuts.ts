@@ -2,9 +2,10 @@
 
 import { useEffect, useRef } from 'react';
 import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-layout-effect';
+import { useAnsweredKeys } from '@/core/hooks/keyboard/use-answered-keys';
 import { useKeyboardPreferences } from '@/core/hooks/keyboard/use-keyboard-preferences';
 import { chordOfEvent, isDialogOpen, isTypingTarget } from '@/core/lib/keyboard/shortcuts';
-import { chatShortcutOf, type ChatShortcutId } from '@/core/lib/utils/chat-shortcuts';
+import { CHAT_SHORTCUT_IDS, chatShortcutOf, type ChatShortcutId } from '@/core/lib/utils/chat-shortcuts';
 
 type ChatShortcutHandlers = Partial<Record<ChatShortcutId, () => void>>;
 
@@ -21,6 +22,8 @@ export function useChatShortcuts(handlers: ChatShortcutHandlers, enabled = true)
 	useIsomorphicLayoutEffect(() => {
 		latest.current = handlers;
 	});
+	const handledIds = CHAT_SHORTCUT_IDS.filter((id) => Boolean(handlers[id]));
+	useAnsweredKeys(handledIds, enabled);
 
 	useEffect(() => {
 		if (!enabled || typeof window === 'undefined') return;

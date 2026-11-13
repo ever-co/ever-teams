@@ -43,6 +43,7 @@ function factsOf(changes: Partial<ShortcutSheetFacts> = {}): ShortcutSheetFacts 
 		answersRowKey: (commandId) => ROW_KEYS_WITHOUT_REGISTRY.has(commandId),
 		hotkeys: HOTKEYS,
 		boundHotkeys: new Set(['shift+h,h']),
+		answered: new Set<string>(),
 		ownKeys: [
 			{ id: 'sidebarToggle', group: 'general', labelKey: 'shortcuts.commands.sidebarToggle', binding: 'mod+b' }
 		],
@@ -179,14 +180,21 @@ describe('shortcutSheetOf, the registry on', () => {
 });
 
 describe('shortcutSheetOf, the chat', () => {
-	it('lists the chat keys where the chat is on, with the binding the person set whatever the registry', () => {
+	const chatPageKeys = new Set(['chatPrevious', 'chatNext', 'chatUnreads']);
+
+	it('lists the keys the chat page answers, with the binding the person set whatever the registry', () => {
 		const bindings = effectiveBindings(SHORTCUT_COMMANDS, { chatUnreads: 'alt+u' });
-		const facts = factsOf({ commands: SHORTCUT_COMMANDS, bindings });
-		expect(idsOf(facts, 'chat')).toContain('chatNext');
+		const facts = factsOf({ commands: SHORTCUT_COMMANDS, bindings, answered: chatPageKeys });
+		expect(idsOf(facts, 'chat')).toEqual(['chatPrevious', 'chatNext', 'chatUnreads']);
 		expect(lineOf(facts, 'chat', 'chatUnreads')?.keys).toEqual([[['⌥', 'U']]]);
 	});
 
-	it('lists none where it is off', () => {
-		expect(idsOf(factsOf(), 'chat')).toEqual([]);
+	it('lists none on another page, where nothing answers them, even with the chat on', () => {
+		expect(idsOf(factsOf({ commands: SHORTCUT_COMMANDS }), 'chat')).toEqual([]);
+		expect(idsOf(factsOf({ commands: SHORTCUT_COMMANDS, registryOn: true }), 'chat')).toEqual([]);
+	});
+
+	it('lists none where the chat is off', () => {
+		expect(idsOf(factsOf({ answered: chatPageKeys }), 'chat')).toEqual([]);
 	});
 });

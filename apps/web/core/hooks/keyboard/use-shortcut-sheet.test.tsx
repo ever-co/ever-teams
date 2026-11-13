@@ -6,6 +6,7 @@ import type { ShortcutSheetLine, ShortcutSheetSection } from '@/core/lib/keyboar
 let mockRegistryOn = false;
 let mockBoundHotkeys = new Set<string>();
 let mockRegistered = new Map<string, () => void>();
+let mockAnswered = new Set<string>();
 
 jest.mock('@/core/hooks/keyboard/use-keyboard-preferences', () => {
 	const { effectiveBindings, SHORTCUT_COMMANDS } = jest.requireActual('@/core/lib/keyboard/shortcuts');
@@ -18,6 +19,7 @@ jest.mock('@/core/hooks/common/use-hotkeys', () => ({
 	useBoundHotkeys: () => mockBoundHotkeys
 }));
 jest.mock('jotai', () => ({ ...jest.requireActual('jotai'), useAtomValue: () => mockRegistered }));
+jest.mock('./use-answered-keys', () => ({ useAnsweredKeySet: () => mockAnswered }));
 
 import { HostKeys } from '@/core/hooks/common/use-hotkeys';
 import { useShortcutSheet } from './use-shortcut-sheet';
@@ -37,6 +39,7 @@ describe('useShortcutSheet', () => {
 		mockRegistryOn = false;
 		mockBoundHotkeys = new Set<string>();
 		mockRegistered = new Map();
+		mockAnswered = new Set<string>();
 	});
 
 	it('reads the keys components answer themselves from the constants their listeners match', () => {

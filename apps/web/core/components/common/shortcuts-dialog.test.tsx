@@ -51,6 +51,7 @@ jest.mock('@/core/hooks/keyboard/use-shortcut-sheet', () => {
 					}
 				],
 				boundHotkeys: mockBoundHotkeys,
+				answered: { has: () => true },
 				ownKeys: [
 					{
 						id: 'sidebarToggle',

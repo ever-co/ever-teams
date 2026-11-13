@@ -76,6 +76,8 @@ export interface ShortcutSheetFacts {
 	hotkeys: readonly HotkeyGroup[];
 	/** The hotkeys-js declarations bound right now: a hotkey lives only while its component is on the page. */
 	boundHotkeys: { has(declaration: string): boolean };
+	/** The keys a component on the page matches itself right now (the chat page's), by command or key id. */
+	answered: { has(id: string): boolean };
 	ownKeys: readonly OwnKeyLine[];
 }
 
@@ -209,7 +211,7 @@ function isAnswered(command: ShortcutCommand, facts: ShortcutSheetFacts): boolea
 		return facts.answersRowKey(command.id);
 	}
 	if (command.context === 'chat') {
-		return true;
+		return facts.answered.has(command.id);
 	}
 	// The list matches its row keys itself; a list command that is not a row key (saving the view) is the registry's.
 	const isRowKey = Boolean(command.chordOnly) || Boolean(command.fixed);
