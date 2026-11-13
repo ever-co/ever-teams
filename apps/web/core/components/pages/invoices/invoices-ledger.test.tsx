@@ -76,7 +76,7 @@ describe('a row of the invoices list', () => {
 				pendingPdfId={null}
 				onDownload={jest.fn()}
 				canEdit={false}
-				changingId={null}
+				changingIds={new Set()}
 				onAction={jest.fn()}
 			/>
 		);
@@ -107,7 +107,7 @@ describe('the buttons of a row of the invoices list', () => {
 				pendingPdfId={null}
 				onDownload={jest.fn()}
 				canEdit
-				changingId={null}
+				changingIds={new Set()}
 				onAction={jest.fn()}
 			/>
 		);

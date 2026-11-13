@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { paidChangeOf } from '@/core/lib/utils/invoice-actions';
@@ -279,6 +279,26 @@ describe('settling and deleting an invoice', () => {
 
 		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', paidChangeOf(1080), LIST_SCOPE);
 		expect(listedStatusOf(queryClient)).toBe('FULLY_PAID');
+	});
+
+	it('keeps every invoice whose status change runs marked as changing, not only the latest one', async () => {
+		const answers: Array<() => void> = [];
+		mockChangeInvoiceStatus.mockImplementation(() => new Promise<void>((resolve) => answers.push(resolve)));
+		const queryClient = clientWithDraftListed();
+		const { result } = renderWith(queryClient, () => useChangeInvoiceStatus());
+
+		act(() => {
+			void result.current.changeStatus({ invoiceId: 'inv-1', change: paidChangeOf(10), scope: LIST_SCOPE });
+			void result.current.changeStatus({ invoiceId: 'inv-2', change: paidChangeOf(20), scope: LIST_SCOPE });
+		});
+		await waitFor(() => expect(answers).toHaveLength(2));
+		await waitFor(() => expect(result.current.changingIds).toEqual(new Set(['inv-1', 'inv-2'])));
+
+		act(() => answers[1]());
+		await waitFor(() => expect(result.current.changingIds).toEqual(new Set(['inv-1'])));
+
+		act(() => answers[0]());
+		await waitFor(() => expect(result.current.changingIds.size).toBe(0));
 	});
 
 	it('takes a deleted draft out of the list at once', async () => {
