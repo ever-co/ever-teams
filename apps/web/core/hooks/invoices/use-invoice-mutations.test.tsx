@@ -680,6 +680,46 @@ describe('saving an edit to an invoice', () => {
 		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
 	});
 
+	it('writes nothing over an invoice it could not read back after a failed save', async () => {
+		mockGetInvoice.mockResolvedValueOnce(invoiceRead('SENT')).mockRejectedValue(serverFailure());
+		mockUpdateInvoice.mockRejectedValueOnce(
+			ApiErrorService.fromAxiosError({ code: 'ERR_NETWORK', message: 'Network Error' })
+		);
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		// Unread, the invoice may hold anything: the lines are not deleted and rewritten blind
+		expect(saved).toEqual({ outcome: { status: 'notPutBack', lineCount: null }, sending: null });
+		expect(mockUpdateInvoice).toHaveBeenCalledTimes(1);
+		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
+	});
+
+	it('puts back the fields only of an edit that kept its lines, whatever lines the invoice holds now', async () => {
+		const fieldsOnly = {
+			...edit,
+			revision: {
+				update: { ...fields, totalValue: 800, dueDate: '2026-12-15T22:59:59.999Z' },
+				lines: [previousLine]
+			}
+		} as unknown as InvoiceEdit;
+		const linesChangedElsewhere = [{ id: 'item-2', ...previousLine, quantity: 11, totalValue: 880 }];
+		mockGetInvoice
+			.mockResolvedValueOnce(invoiceRead('SENT'))
+			.mockResolvedValue({ ...invoiceRead('SENT', linesChangedElsewhere), dueDate: '2026-12-15T22:59:59.999Z' });
+		mockUpdateInvoice.mockRejectedValueOnce(serverFailure()).mockResolvedValueOnce(undefined);
+		const { result } = renderSaveEdit();
+
+		let saved: unknown = null;
+		await act(async () => {
+			saved = await result.current.saveInvoiceEdit({ edit: fieldsOnly, sending: null });
+		});
+
+		expect(saved).toEqual({ outcome: { status: 'putBack' }, sending: null });
+		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
+		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', fieldsOnly.previous.update, workspace);
+	});
+
 	it('says how many lines the invoice holds when it could not be put back', async () => {
 		mockGetInvoice.mockResolvedValueOnce(invoiceRead('SENT')).mockResolvedValue(invoiceRead('SENT', []));
 		mockUpdateInvoice.mockResolvedValue(undefined);

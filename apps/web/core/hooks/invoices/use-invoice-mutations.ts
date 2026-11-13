@@ -284,7 +284,10 @@ function lineCountOf(invoice: TSavedInvoice | null): number | null {
 
 const TENANT_SWITCHED = 'Another tenant was chosen during the save';
 
-/** Written in part, and not read back: the tenant it belongs to is no longer the one chosen. */
+/**
+ * Perhaps written in part, and not read back: the tenant it belongs to is no longer the one chosen, or the read
+ * failed. What it holds now is unknown, so nothing is written over it.
+ */
 const NOT_PUT_BACK_UNREAD: InvoiceEditOutcome = { status: 'notPutBack', lineCount: null };
 
 function isEditTenantChosen(edit: InvoiceEdit) {
@@ -346,15 +349,21 @@ async function putInvoiceBack(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
 		return NOT_PUT_BACK_UNREAD;
 	}
 	const current = await readInvoiceBack(edit);
-	const currentLines = current?.invoiceItems ?? [];
-	const keepsItsLines = current !== null && haveSameLines(currentLines, edit.previous.lines);
-	const keepsItsFields = current !== null && haveSameFields(current, edit.previous.update);
+	if (!current) {
+		return NOT_PUT_BACK_UNREAD;
+	}
+	const currentLines = current.invoiceItems ?? [];
+	// Only lines this save may have written are put back: an edit that keeps its lines never wrote any, and lines
+	// changed from elsewhere since are not this save's to undo.
+	const wroteLines = !haveSameLines(edit.revision.lines, edit.previous.lines);
+	const putsLinesBack = wroteLines && !haveSameLines(currentLines, edit.previous.lines);
+	const keepsItsFields = haveSameFields(current, edit.previous.update);
 	// Nothing reached the invoice, as when the network failed before the first write: there is nothing to put back.
-	if (keepsItsLines && keepsItsFields) {
+	if (!putsLinesBack && keepsItsFields) {
 		return { status: 'notSaved' };
 	}
 	try {
-		if (!keepsItsLines) {
+		if (putsLinesBack) {
 			const linesScope = scopeToWriteIn(edit);
 			await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.previous.lines, linesScope);
 		}
