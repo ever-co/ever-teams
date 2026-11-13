@@ -1,8 +1,10 @@
 import {
 	TIME_IMPORT_MAX_BYTES,
 	TIME_IMPORT_MAX_ROWS,
+	rowCountProblemOf,
 	timeImportFileRefusalOf,
 	timeImportSheetOf,
+	timeImportTableOf,
 	timeImportTemplateColumnsOf
 } from './time-import-sheet';
 
@@ -14,6 +16,14 @@ function sheetOf(text: string) {
 		throw new Error(`The file was refused: ${result.problem.code}`);
 	}
 	return result.sheet;
+}
+
+function tableOf(text: string) {
+	const result = timeImportTableOf(text);
+	if (!result.table) {
+		throw new Error(`The file was refused: ${result.problem.code}`);
+	}
+	return result.table;
 }
 
 describe('timeImportFileRefusalOf', () => {
@@ -62,6 +72,7 @@ describe('timeImportSheetOf', () => {
 				cells: {
 					date: '2026-11-03',
 					startTime: '09:00',
+					endDate: '',
 					endTime: '10:30',
 					duration: '',
 					project: 'Website',
@@ -90,12 +101,6 @@ describe('timeImportSheetOf', () => {
 		});
 	});
 
-	it('numbers rows as a spreadsheet does, blank lines counted and left out', () => {
-		const sheet = sheetOf('date,start time,duration\n2026-11-03,09:00,1h\n\n , ,\n2026-11-04,09:00,1h\n');
-
-		expect(sheet.rows.map((row) => row.row)).toEqual([2, 5]);
-	});
-
 	it('reads a missing cell at the end of a line as empty', () => {
 		const sheet = sheetOf(`${HEADER}\n2026-11-03,09:00,10:00\n`);
 
@@ -116,11 +121,6 @@ describe('timeImportSheetOf', () => {
 
 		expect(sheet.ignoredHeaders).toEqual(['client']);
 		expect(sheet.rows[0].cells.date).toBe('2026-11-03');
-	});
-
-	it('refuses a file with no line at all', () => {
-		expect(timeImportSheetOf('').problem).toEqual({ code: 'empty' });
-		expect(timeImportSheetOf('\n\n  \n').problem).toEqual({ code: 'empty' });
 	});
 
 	it('refuses a file without the columns every row needs, and names them', () => {
@@ -144,9 +144,38 @@ describe('timeImportSheetOf', () => {
 			header: 'date'
 		});
 	});
+});
 
+describe('timeImportTableOf', () => {
+	it('reads the first line that is not blank as the header, trimmed, and the lines under it as they are', () => {
+		const table = tableOf('\n Date , start time\n2026-11-03, 09:00 \n');
+
+		expect(table.headers).toEqual(['Date', 'start time']);
+		expect(table.records).toEqual([{ row: 3, cells: ['2026-11-03', ' 09:00 '] }]);
+	});
+
+	it('numbers rows as a spreadsheet does, blank lines counted and left out', () => {
+		const table = tableOf('date,start time,duration\n2026-11-03,09:00,1h\n\n , ,\n2026-11-04,09:00,1h\n');
+
+		expect(table.records.map((record) => record.row)).toEqual([2, 5]);
+	});
+
+	it('refuses a file with no line at all', () => {
+		expect(timeImportTableOf('').problem).toEqual({ code: 'empty' });
+		expect(timeImportTableOf('\n\n  \n').problem).toEqual({ code: 'empty' });
+	});
+
+	it('refuses a file where a quoted cell is never closed, with its row', () => {
+		expect(timeImportTableOf('date,start time,duration,notes\n2026-11-03,09:00,1h,"open\n').problem).toEqual({
+			code: 'unclosedQuote',
+			row: 2
+		});
+	});
+});
+
+describe('rowCountProblemOf', () => {
 	it('refuses a file with a header and no row', () => {
-		expect(timeImportSheetOf(`${HEADER}\n\n`).problem).toEqual({ code: 'noRows' });
+		expect(rowCountProblemOf(tableOf('date,start time,end time\n\n'))).toEqual({ code: 'noRows' });
 	});
 
 	it('refuses a file over the row limit and tells how many rows it has', () => {
@@ -154,17 +183,10 @@ describe('timeImportSheetOf', () => {
 		const atLimit = Array.from({ length: TIME_IMPORT_MAX_ROWS }, () => line).join('\n');
 		const overLimit = `${atLimit}\n${line}`;
 
-		expect(timeImportSheetOf(`date,start time,end time\n${atLimit}\n`).problem).toBeNull();
-		expect(timeImportSheetOf(`date,start time,end time\n${overLimit}\n`).problem).toEqual({
+		expect(rowCountProblemOf(tableOf(`date,start time,end time\n${atLimit}\n`))).toBeNull();
+		expect(rowCountProblemOf(tableOf(`date,start time,end time\n${overLimit}\n`))).toEqual({
 			code: 'tooManyRows',
 			count: TIME_IMPORT_MAX_ROWS + 1
-		});
-	});
-
-	it('refuses a file where a quoted cell is never closed, with its row', () => {
-		expect(timeImportSheetOf('date,start time,duration,notes\n2026-11-03,09:00,1h,"open\n').problem).toEqual({
-			code: 'unclosedQuote',
-			row: 2
 		});
 	});
 });

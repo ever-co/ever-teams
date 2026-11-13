@@ -1,11 +1,12 @@
 import { csvOf } from './dashboard-export';
+import { timeImportReadingOf } from './time-import-columns';
 import {
 	timeImportReportCsvColumnsOf,
 	timeImportReportFileNameOf,
 	timeImportTemplateCsvColumnsOf,
 	type TimeImportReportLine
 } from './time-import-report';
-import { timeImportSheetOf, type TimeImportCells } from './time-import-sheet';
+import type { TimeImportCells } from './time-import-sheet';
 
 function lineOf(cells: Partial<TimeImportCells>, row = 2): TimeImportReportLine {
 	return {
@@ -13,6 +14,7 @@ function lineOf(cells: Partial<TimeImportCells>, row = 2): TimeImportReportLine 
 		cells: {
 			date: '2026-11-03',
 			startTime: '09:00',
+			endDate: '',
 			endTime: '10:30',
 			duration: '',
 			project: 'Website',
@@ -43,7 +45,7 @@ describe('the template of a time import', () => {
 	it('is a file the import reads, and refuses only for having no row', () => {
 		const template = csvOf([], timeImportTemplateCsvColumnsOf(true));
 
-		expect(timeImportSheetOf(template).problem).toEqual({ code: 'noRows' });
+		expect(timeImportReadingOf(template)).toEqual({ kind: 'refused', problem: { code: 'noRows' } });
 	});
 });
 
@@ -72,10 +74,55 @@ describe('the report of a time import', () => {
 			[lineOf({}, 2), lineOf({ startTime: '11:00', endTime: '12:00' }, 3)],
 			timeImportReportCsvColumnsOf(true)
 		);
-		const { sheet } = timeImportSheetOf(report);
+		const reading = timeImportReadingOf(report);
 
-		expect(sheet?.ignoredHeaders).toEqual([]);
-		expect(sheet?.rows.map((row) => row.cells.startTime)).toEqual(['09:00', '11:00']);
+		expect(reading).toMatchObject({
+			kind: 'sheet',
+			sheet: {
+				ignoredHeaders: [],
+				rows: [{ cells: { startTime: '09:00' } }, { cells: { startTime: '11:00' } }]
+			}
+		});
+	});
+
+	it('writes a separate end date before the end time, so an entry that ends the next day comes back as one', () => {
+		const overnight = lineOf({ startTime: '22:00', endDate: '2026-11-04', endTime: '01:30' });
+		const oneColumn = lineOf({ endDate: '2026-11-04 01:30', endTime: '2026-11-04 01:30' }, 3);
+		const sameDay = lineOf({}, 4);
+		const report = csvOf([overnight, oneColumn, sameDay], timeImportReportCsvColumnsOf(false));
+		const [, overnightLine, oneColumnLine, sameDayLine] = report.split('\r\n');
+
+		expect(overnightLine).toContain(',22:00,2026-11-04 01:30,');
+		expect(oneColumnLine).toContain(',09:00,2026-11-04 01:30,');
+		expect(sameDayLine).toContain(',09:00,10:30,');
+		expect(timeImportReadingOf(report)).toMatchObject({
+			kind: 'sheet',
+			sheet: { rows: [{ cells: { endTime: '2026-11-04 01:30' } }, {}, { cells: { endTime: '10:30' } }] }
+		});
+	});
+
+	it('writes no end date that repeats the date of its row, readable or not', () => {
+		const unreadable = lineOf({ date: '06.11.26', endDate: '06.11.26', endTime: '10:00' });
+		const sameDay = lineOf({ date: '28/10/2026', endDate: '28/10/2026', endTime: '13:15' }, 3);
+		const report = csvOf([unreadable, sameDay], timeImportReportCsvColumnsOf(false));
+		const [, unreadableLine, sameDayLine] = report.split('\r\n');
+
+		expect(unreadableLine).toContain(',06.11.26,09:00,10:00,');
+		expect(sameDayLine).toContain(',28/10/2026,09:00,13:15,');
+	});
+
+	it('keeps an end date that disagrees with the date of its end time, or cannot be read, so the row stays left out', () => {
+		const otherDay = lineOf({ endDate: '2026-11-04', endTime: '2026-11-03 10:00' });
+		const unreadable = lineOf({ endDate: '04.11.26', endTime: '2026-11-03 10:00' }, 3);
+		const sameDay = lineOf({ endDate: '2026-11-3', endTime: '2026-11-03 10:00' }, 4);
+		const repeatsDate = lineOf({ endDate: '2026-11-03', endTime: '2026-11-04 01:00' }, 5);
+		const report = csvOf([otherDay, unreadable, sameDay, repeatsDate], timeImportReportCsvColumnsOf(false));
+		const [, otherDayLine, unreadableLine, sameDayLine, repeatsDateLine] = report.split('\r\n');
+
+		expect(otherDayLine).toContain(',09:00,2026-11-04 2026-11-03 10:00,');
+		expect(unreadableLine).toContain(',09:00,04.11.26 2026-11-03 10:00,');
+		expect(sameDayLine).toContain(',09:00,2026-11-03 10:00,');
+		expect(repeatsDateLine).toContain(',09:00,2026-11-03 2026-11-04 01:00,');
 	});
 
 	it('is named after the local day of the import', () => {

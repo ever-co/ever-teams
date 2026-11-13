@@ -20,6 +20,7 @@ import {
 import { rowStatusOf } from '@/core/lib/utils/time-import-rows';
 import { TimeImportChecking } from './time-import-checking';
 import { TimeImportColumnsGuide } from './time-import-columns-guide';
+import { TimeImportColumnsStep } from './time-import-columns-step';
 import { type TimeImportCopy, useTimeImportCopy } from './time-import-copy';
 import { TimeImportResult } from './time-import-result';
 import { TimeImportSettingsSkeleton } from './time-import-settings-skeleton';
@@ -46,7 +47,7 @@ function TimeImportFlow({ access }: Readonly<{ access: TimeImportAccess }>) {
 	const copy = useTimeImportCopy();
 	const timeImport = useTimeImport({ contextAt: access.contextAt, saveScope: access.saveScope });
 	const { canImportForOthers } = access;
-	const { stage, chooseFile } = timeImport;
+	const { stage, chooseFile, columnsStep } = timeImport;
 
 	const downloadTemplate = useCallback(() => {
 		const columns = timeImportTemplateCsvColumnsOf(canImportForOthers);
@@ -62,7 +63,8 @@ function TimeImportFlow({ access }: Readonly<{ access: TimeImportAccess }>) {
 
 	const isIdle = stage === 'idle';
 	const isChecking = stage === 'checking';
-	const showsRows = !isIdle && !isChecking;
+	const isChoosingColumns = stage === 'columns';
+	const showsRows = !isIdle && !isChecking && !isChoosingColumns;
 
 	return (
 		<>
@@ -75,6 +77,17 @@ function TimeImportFlow({ access }: Readonly<{ access: TimeImportAccess }>) {
 					copy={copy}
 					onFile={(file) => void chooseFile(file)}
 					onDownloadTemplate={downloadTemplate}
+				/>
+			)}
+			{columnsStep && (
+				<TimeImportColumnsStep
+					fileName={timeImport.fileName}
+					step={columnsStep}
+					copy={copy}
+					onChooseColumn={timeImport.chooseColumn}
+					onChooseDateOrder={timeImport.chooseDateOrder}
+					onConfirm={() => void timeImport.confirmColumns()}
+					onChooseAnother={timeImport.reset}
 				/>
 			)}
 			{isChecking && (

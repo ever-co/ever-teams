@@ -1,11 +1,13 @@
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import {
-	calendarDayOf,
-	clockTimeOf,
+	cellDayOf,
+	cellMomentOf,
 	durationSecondsOf,
 	yesNoOf,
 	type CalendarDay,
-	type ClockTime
+	type CellMoment,
+	type ClockTime,
+	type DateOrder
 } from '@/core/lib/utils/time-import-cells';
 import type { TimeImportCells, TimeImportSheetRow } from '@/core/lib/utils/time-import-sheet';
 import {
@@ -60,10 +62,13 @@ export interface TimeImportContext {
 
 export type TimeImportProblem =
 	| { code: 'extraCells' }
-	| { code: 'dateUnreadable' }
+	| { code: 'dateUnreadable'; order: DateOrder }
 	| { code: 'startUnreadable' }
+	| { code: 'startDayMismatch' }
 	| { code: 'endMissing' }
 	| { code: 'endUnreadable' }
+	| { code: 'endDateUnreadable' }
+	| { code: 'endDayMismatch' }
 	| { code: 'durationUnreadable' }
 	| { code: 'endNotAfterStart' }
 	| { code: 'clockSkipped' }
@@ -72,6 +77,8 @@ export type TimeImportProblem =
 	| { code: 'inFuture' }
 	| { code: 'billableUnreadable' }
 	| { code: 'memberUnknown' }
+	| { code: 'memberNameUnknown' }
+	| { code: 'memberAmbiguous'; count: number }
 	| { code: 'memberNotAllowed' }
 	| { code: 'noOwnMember' }
 	| { code: 'projectUnknown' }
@@ -160,34 +167,73 @@ function secondsBetween(start: Date, end: Date): number {
 	return Math.round(milliseconds / MS_PER_SECOND);
 }
 
-interface TypedPeriod {
+interface TypedMoment {
 	day: CalendarDay;
-	startClock: ClockTime;
-	endClock: ClockTime | null;
+	clock: ClockTime;
+}
+
+interface TypedPeriod {
+	start: TypedMoment;
+	/** Null when the row gives a duration in place of an end time. */
+	end: TypedMoment | null;
 	durationSeconds: number | null;
 }
 
-function typedPeriodOf(cells: TimeImportCells): Reading<TypedPeriod> {
-	const problems: TimeImportProblem[] = [];
-	const day = calendarDayOf(cells.date);
-	if (!day) {
-		problems.push({ code: 'dateUnreadable' });
+function isSameCalendarDay(first: CalendarDay, second: CalendarDay): boolean {
+	const isSameYear = first.year === second.year;
+	const isSameMonth = first.month === second.month;
+	const isSameDate = first.day === second.day;
+	return isSameYear && isSameMonth && isSameDate;
+}
+
+/** A time cell that holds its own date, and a date column, may name two different days for the same moment. */
+function daysDisagree(cellDay: CalendarDay | null, columnDay: CalendarDay | null): boolean {
+	if (!cellDay || !columnDay) {
+		return false;
 	}
-	const startClock = clockTimeOf(cells.startTime);
-	if (!startClock) {
+	return !isSameCalendarDay(cellDay, columnDay);
+}
+
+/**
+ * The start and the end of a row as typed, its dates read in the order of the file. A start or an end may hold its
+ * own date; a time alone takes the date of its row, and an end time without an end date ends on the start's day.
+ */
+function typedPeriodOf(cells: TimeImportCells, order: DateOrder): Reading<TypedPeriod> {
+	const problems: TimeImportProblem[] = [];
+	const hasDate = cells.date !== '';
+	const dateDay = cellDayOf(cells.date, order);
+	const startMoment = cellMomentOf(cells.startTime, order);
+	const startDay = startMoment?.day ?? dateDay;
+	const isDateUnreadable = hasDate && dateDay === null;
+	const hasNoDay = startDay === null;
+	if (isDateUnreadable || hasNoDay) {
+		problems.push({ code: 'dateUnreadable', order });
+	}
+	if (!startMoment) {
 		problems.push({ code: 'startUnreadable' });
+	}
+	if (daysDisagree(startMoment?.day ?? null, dateDay)) {
+		problems.push({ code: 'startDayMismatch' });
 	}
 	const hasEndTime = cells.endTime !== '';
 	const hasDuration = cells.duration !== '';
 	if (!hasEndTime && !hasDuration) {
 		problems.push({ code: 'endMissing' });
 	}
-	let endClock: ClockTime | null = null;
+	let endMoment: CellMoment | null = null;
 	if (hasEndTime) {
-		endClock = clockTimeOf(cells.endTime);
+		endMoment = cellMomentOf(cells.endTime, order);
 	}
-	if (hasEndTime && !endClock) {
+	if (hasEndTime && !endMoment) {
 		problems.push({ code: 'endUnreadable' });
+	}
+	const hasEndDate = cells.endDate !== '';
+	const endDateDay = cellDayOf(cells.endDate, order);
+	if (hasEndDate && !endDateDay) {
+		problems.push({ code: 'endDateUnreadable' });
+	}
+	if (daysDisagree(endMoment?.day ?? null, endDateDay)) {
+		problems.push({ code: 'endDayMismatch' });
 	}
 	let durationSeconds: number | null = null;
 	if (hasDuration) {
@@ -199,15 +245,21 @@ function typedPeriodOf(cells: TimeImportCells): Reading<TypedPeriod> {
 	if (problems.length > 0) {
 		return { value: null, problems };
 	}
-	if (!day || !startClock) {
+	if (!startDay || !startMoment) {
 		return { value: null, problems };
 	}
-	return { value: { day, startClock, endClock, durationSeconds }, problems };
+	const start: TypedMoment = { day: startDay, clock: startMoment.clock };
+	let end: TypedMoment | null = null;
+	if (endMoment) {
+		const endDay = endMoment.day ?? endDateDay ?? startDay;
+		end = { day: endDay, clock: endMoment.clock };
+	}
+	return { value: { start, end, durationSeconds }, problems };
 }
 
 function endOf(typed: TypedPeriod, start: Date): Date | null {
-	if (typed.endClock) {
-		return localDateOf(typed.day, typed.endClock);
+	if (typed.end) {
+		return localDateOf(typed.end.day, typed.end.clock);
 	}
 	const durationSeconds = typed.durationSeconds ?? 0;
 	return new Date(start.getTime() + durationSeconds * MS_PER_SECOND);
@@ -215,7 +267,7 @@ function endOf(typed: TypedPeriod, start: Date): Date | null {
 
 /** An end time and a duration on the same row must tell the same length, to the minute. */
 function disagreesWithDuration(typed: TypedPeriod, seconds: number): boolean {
-	const hasBoth = typed.endClock !== null && typed.durationSeconds !== null;
+	const hasBoth = typed.end !== null && typed.durationSeconds !== null;
 	if (!hasBoth) {
 		return false;
 	}
@@ -223,12 +275,12 @@ function disagreesWithDuration(typed: TypedPeriod, seconds: number): boolean {
 	return difference >= SECONDS_PER_MINUTE;
 }
 
-function periodOf(cells: TimeImportCells, context: TimeImportContext): Reading<TimePeriod> {
-	const typed = typedPeriodOf(cells);
+function periodOf(cells: TimeImportCells, context: TimeImportContext, order: DateOrder): Reading<TimePeriod> {
+	const typed = typedPeriodOf(cells, order);
 	if (!typed.value) {
 		return { value: null, problems: typed.problems };
 	}
-	const start = localDateOf(typed.value.day, typed.value.startClock);
+	const start = localDateOf(typed.value.start.day, typed.value.start.clock);
 	let end: Date | null = null;
 	if (start) {
 		end = endOf(typed.value, start);
@@ -276,28 +328,66 @@ function viewerAsMember(context: TimeImportContext): Reading<ResolvedMember> {
 	return { value: { employeeId: context.viewerEmployeeId, name: null }, problems: [] };
 }
 
-/**
- * Whose time the row is. A file is never trusted to book time for someone else: an email other than the viewer's
- * own only counts for a viewer the API lets add time for that member, and leaves the row out for anyone else.
- */
-function memberOf(email: string, context: TimeImportContext): Reading<ResolvedMember> {
-	const namesNobody = email === '';
-	const namesViewer = isSameName(email, context.viewerEmail ?? '');
-	if (namesNobody || namesViewer) {
-		return viewerAsMember(context);
-	}
-	if (!context.canImportForOthers) {
-		return { value: null, problems: [{ code: 'memberNotAllowed' }] };
-	}
-	const member = context.members.find((candidate) => isSameName(candidate.email, email));
-	if (!member) {
-		return { value: null, problems: [{ code: 'memberUnknown' }] };
-	}
+function isEmailLike(text: string): boolean {
+	return text.includes('@');
+}
+
+function viewerNameOf(context: TimeImportContext): string {
+	const viewer = context.members.find((member) => member.employeeId === context.viewerEmployeeId);
+	return viewer?.name ?? '';
+}
+
+function namedMemberOf(member: TimeImportMember, context: TimeImportContext): Reading<ResolvedMember> {
 	const isViewer = member.employeeId === context.viewerEmployeeId;
 	if (isViewer) {
 		return viewerAsMember(context);
 	}
 	return { value: { employeeId: member.employeeId, name: member.name }, problems: [] };
+}
+
+function memberByEmailOf(email: string, context: TimeImportContext): Reading<ResolvedMember> {
+	const member = context.members.find((candidate) => isSameName(candidate.email, email));
+	if (!member) {
+		return { value: null, problems: [{ code: 'memberUnknown' }] };
+	}
+	return namedMemberOf(member, context);
+}
+
+/** Two members of a team may share a name: such a row names nobody for sure, and only an email settles it. */
+function memberByNameOf(name: string, context: TimeImportContext): Reading<ResolvedMember> {
+	const matches = context.members.filter((candidate) => isSameName(candidate.name, name));
+	if (matches.length === 0) {
+		return { value: null, problems: [{ code: 'memberNameUnknown' }] };
+	}
+	if (matches.length > 1) {
+		return { value: null, problems: [{ code: 'memberAmbiguous', count: matches.length }] };
+	}
+	return namedMemberOf(matches[0], context);
+}
+
+/**
+ * Whose time the row is, named by email or by name as the team lists its members. A file is never trusted to book
+ * time for someone else: a member other than the viewer only counts for a viewer the API lets add time for that
+ * member, and leaves the row out for anyone else.
+ */
+function memberOf(cell: string, context: TimeImportContext): Reading<ResolvedMember> {
+	const namesNobody = cell === '';
+	const namesViewerEmail = isSameName(cell, context.viewerEmail ?? '');
+	if (namesNobody || namesViewerEmail) {
+		return viewerAsMember(context);
+	}
+	// Every member of that name is counted, the viewer included: a name they share is no proof the row is theirs
+	const namesViewerName = isSameName(cell, viewerNameOf(context));
+	if (namesViewerName) {
+		return memberByNameOf(cell, context);
+	}
+	if (!context.canImportForOthers) {
+		return { value: null, problems: [{ code: 'memberNotAllowed' }] };
+	}
+	if (isEmailLike(cell)) {
+		return memberByEmailOf(cell, context);
+	}
+	return memberByNameOf(cell, context);
 }
 
 function projectOf(name: string, context: TimeImportContext): Reading<TimeImportProject> {
@@ -354,13 +444,13 @@ function missesRequiredProject(cells: TimeImportCells, task: TimeImportTask | nu
 	return !hasTaskProject && !context.teamHasDefaultProject;
 }
 
-function draftRowOf(sheetRow: TimeImportSheetRow, context: TimeImportContext): TimeImportRow {
+function draftRowOf(sheetRow: TimeImportSheetRow, context: TimeImportContext, order: DateOrder): TimeImportRow {
 	const { row, cells } = sheetRow;
 	// Its cells are shifted from the extra one on, so what the others seem to hold is not judged
 	if (sheetRow.extraCellCount > 0) {
 		return { row, cells, entry: null, problems: [{ code: 'extraCells' }] };
 	}
-	const period = periodOf(cells, context);
+	const period = periodOf(cells, context, order);
 	const billable = billableOf(cells.billable);
 	const member = memberOf(cells.memberEmail, context);
 	const project = projectOf(cells.project, context);
@@ -399,11 +489,16 @@ function draftRowOf(sheetRow: TimeImportSheetRow, context: TimeImportContext): T
 }
 
 /**
- * Judges every row on its own cells: dates and times, the member, the project and the task. Nothing here asks the
- * API anything; whether a row overlaps recorded time is settled afterwards by `checkedRowsOf`.
+ * Judges every row on its own cells: dates and times, the member, the project and the task, the dates read in the
+ * order of the file. Nothing here asks the API anything; whether a row overlaps recorded time is settled afterwards
+ * by `checkedRowsOf`.
  */
-export function draftRowsOf(sheetRows: ReadonlyArray<TimeImportSheetRow>, context: TimeImportContext): TimeImportRow[] {
-	return sheetRows.map((sheetRow) => draftRowOf(sheetRow, context));
+export function draftRowsOf(
+	sheetRows: ReadonlyArray<TimeImportSheetRow>,
+	context: TimeImportContext,
+	order: DateOrder = 'yearFirst'
+): TimeImportRow[] {
+	return sheetRows.map((sheetRow) => draftRowOf(sheetRow, context, order));
 }
 
 export function isReadyRow(row: TimeImportRow): row is TimeImportRow & { entry: TimeImportEntry } {
