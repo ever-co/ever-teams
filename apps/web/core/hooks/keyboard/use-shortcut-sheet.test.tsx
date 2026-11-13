@@ -67,14 +67,22 @@ describe('useShortcutSheet', () => {
 		expect(lineOf(sections, 'helpOpen')?.keys).toEqual([[['?']], [['H']]]);
 	});
 
-	it('asks the task list which row keys open a picker: the project one only with the registry', () => {
-		expect(lineOf(sheet(), 'taskProject')).toBeUndefined();
+	it('lists the keys of a list and of a task only on a page whose list or board answers them', () => {
+		expect(lineOf(sheet(), 'listDown')).toBeUndefined();
+		expect(lineOf(sheet(), 'taskStatus')).toBeUndefined();
 
+		mockAnswered = new Set(['listDown', 'taskStatus']);
+		const sections = sheet();
+
+		expect(lineOf(sections, 'listDown')?.keys).toEqual([[['J']]]);
+		expect(lineOf(sections, 'taskStatus')?.keys).toEqual([[['S']]]);
+	});
+
+	it('lists a global command of the registry only while a handler is registered for it', () => {
 		mockRegistryOn = true;
 		mockRegistered = new Map([['paletteOpen', jest.fn()]]);
 		const sections = sheet();
 
-		expect(lineOf(sections, 'taskProject')?.keys).toEqual([[['M']]]);
 		expect(lineOf(sections, 'paletteOpen')?.keys).toEqual([[['Ctrl', 'K']]]);
 		expect(lineOf(sections, 'goTasks')).toBeUndefined();
 	});

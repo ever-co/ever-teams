@@ -3,7 +3,8 @@ import {
 	effectiveBindings,
 	parseBinding,
 	type ShortcutBinding,
-	type ShortcutCommand
+	type ShortcutCommand,
+	type ShortcutContext
 } from './shortcuts';
 
 /**
@@ -73,12 +74,13 @@ export interface ShortcutSheetFacts {
 	bindings: ReadonlyMap<string, ShortcutBinding | null>;
 	/** The commands a handler is registered for right now. */
 	registered: { has(commandId: string): boolean };
-	/** Whether a focused row answers the key of a task command: some pickers only exist with the registry. */
-	answersRowKey: (commandId: string) => boolean;
 	hotkeys: readonly HotkeyGroup[];
 	/** The hotkeys-js declarations bound right now: a hotkey lives only while its component is on the page. */
 	boundHotkeys: { has(declaration: string): boolean };
-	/** The keys a component on the page matches itself right now (the chat page's, `/`), by command or key id. */
+	/**
+	 * The keys a component on the page matches itself right now, by command or key id: a list's rows, a board's cards,
+	 * the chat page, the list search's `/`.
+	 */
 	answered: { has(id: string): boolean };
 	ownKeys: readonly OwnKeyLine[];
 }
@@ -94,6 +96,9 @@ const GLOBAL_COMMAND_GROUPS: Readonly<Record<string, ShortcutSheetGroup>> = {
 	taskCreate: 'tasks',
 	settingsOpen: 'navigation'
 };
+
+/** The contexts whose keys a page matches itself, never the registry: a focused task's (a row, a card), the chat's. */
+const PAGE_MATCHED_CONTEXTS: ReadonlySet<ShortcutContext> = new Set(['task', 'chat']);
 
 /** The registry names its commands that lead to a page `go…`. */
 const GO_TO_COMMAND_ID = /^go[A-Z]/;
@@ -201,26 +206,25 @@ function groupOfCommand(command: ShortcutCommand): ShortcutSheetGroup {
 	return 'general';
 }
 
-/** Whether a key press of the command reaches someone right now. */
-function isAnswered(command: ShortcutCommand, facts: ShortcutSheetFacts): boolean {
-	if (command.context === 'global') {
-		if (facts.registryOn) {
-			return facts.registered.has(command.id);
-		}
-		return ANSWERED_WITHOUT_REGISTRY.has(command.id);
-	}
-	if (command.context === 'task') {
-		return facts.answersRowKey(command.id);
-	}
-	if (command.context === 'chat') {
-		return facts.answered.has(command.id);
-	}
-	// The list matches its row keys itself; a list command that is not a row key (saving the view) is the registry's.
-	const isRowKey = Boolean(command.chordOnly) || Boolean(command.fixed);
-	if (isRowKey) {
+function isMatchedByPage(command: ShortcutCommand): boolean {
+	if (PAGE_MATCHED_CONTEXTS.has(command.context)) {
 		return true;
 	}
-	return facts.registryOn && facts.registered.has(command.id);
+	// The list matches its row keys itself; a list command that is not a row key (saving the view) is the registry's.
+	const isListCommand = command.context === 'list';
+	const isRowKey = Boolean(command.chordOnly) || Boolean(command.fixed);
+	return isListCommand && isRowKey;
+}
+
+/** Whether a key press of the command reaches someone on this page right now. */
+function isAnswered(command: ShortcutCommand, facts: ShortcutSheetFacts): boolean {
+	if (isMatchedByPage(command)) {
+		return facts.answered.has(command.id);
+	}
+	if (facts.registryOn) {
+		return facts.registered.has(command.id);
+	}
+	return ANSWERED_WITHOUT_REGISTRY.has(command.id);
 }
 
 /**

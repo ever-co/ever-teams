@@ -30,9 +30,21 @@ const HOTKEYS: HotkeyGroup[] = [
 
 const WITHOUT_CHAT = SHORTCUT_COMMANDS.filter((command) => command.context !== 'chat');
 
-/** The pickers a focused row opens without the registry: the project one comes with it. */
-const ROW_KEYS_WITHOUT_REGISTRY = new Set(['taskStatus', 'taskPriority', 'taskLabels', 'taskDueDate']);
+/** The keys the rows of the team's task list answer without the registry: the project and assignee pickers need it. */
+const TASK_LIST_KEYS = new Set([
+	'listDown',
+	'listUp',
+	'listOpen',
+	'listSelect',
+	'listClear',
+	'taskStatus',
+	'taskPriority',
+	'taskLabels',
+	'taskDueDate'
+]);
+const TASK_LIST_KEYS_WITH_REGISTRY = new Set([...TASK_LIST_KEYS, 'taskProject', 'taskAssignee']);
 
+/** The facts of the team's task list page, unless the test changes them. */
 function factsOf(changes: Partial<ShortcutSheetFacts> = {}): ShortcutSheetFacts {
 	return {
 		isMac: true,
@@ -40,10 +52,9 @@ function factsOf(changes: Partial<ShortcutSheetFacts> = {}): ShortcutSheetFacts 
 		commands: WITHOUT_CHAT,
 		bindings: effectiveBindings(WITHOUT_CHAT, null),
 		registered: new Set<string>(),
-		answersRowKey: (commandId) => ROW_KEYS_WITHOUT_REGISTRY.has(commandId),
 		hotkeys: HOTKEYS,
 		boundHotkeys: new Set(['shift+h,h']),
-		answered: new Set<string>(),
+		answered: TASK_LIST_KEYS,
 		ownKeys: [
 			{ id: 'sidebarToggle', group: 'general', labelKey: 'shortcuts.commands.sidebarToggle', binding: 'mod+b' }
 		],
@@ -111,6 +122,10 @@ describe('shortcutSheetOf, the registry off', () => {
 		]);
 	});
 
+	it('lists no key of a list or of a task on a page whose list does not answer them', () => {
+		expect(idsOf(factsOf({ answered: new Set<string>() }), 'tasks')).toEqual([]);
+	});
+
 	it('reads the list keys from the defaults: a binding the person once changed is not in force without the registry', () => {
 		const bindings = effectiveBindings(WITHOUT_CHAT, { listDown: 'b' });
 		expect(lineOf(factsOf({ bindings }), 'tasks', 'listDown')?.keys).toEqual([[['J']]]);
@@ -155,7 +170,7 @@ describe('shortcutSheetOf, the registry on', () => {
 	const registered = new Set(['paletteOpen', 'helpOpen', 'taskCreate', 'settingsOpen', 'goTasks', 'themeToggle']);
 
 	function withRegistry(changes: Partial<ShortcutSheetFacts> = {}): ShortcutSheetFacts {
-		return factsOf({ registryOn: true, registered, answersRowKey: () => true, ...changes });
+		return factsOf({ registryOn: true, registered, answered: TASK_LIST_KEYS_WITH_REGISTRY, ...changes });
 	}
 
 	it('lists a global command only while a handler is registered for it', () => {
@@ -174,6 +189,12 @@ describe('shortcutSheetOf, the registry on', () => {
 
 	it('lists saving the view only on a list that registered it, where its keys do something', () => {
 		expect(idsOf(withRegistry(), 'tasks')).not.toContain('listSaveView');
+	});
+
+	it('lists on a board the keys its cards answer: selecting and the pickers, no moving or opening', () => {
+		const cardKeys = ['listSelect', 'taskStatus', 'taskPriority', 'taskLabels', 'taskDueDate', 'taskProject'];
+		const onBoard = withRegistry({ answered: new Set(cardKeys) });
+		expect(idsOf(onBoard, 'tasks')).toEqual(['taskCreate', ...cardKeys]);
 	});
 
 	it('shows the binding in force, and keeps the line of a command the person left without a key', () => {

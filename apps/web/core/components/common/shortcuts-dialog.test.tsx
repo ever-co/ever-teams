@@ -36,7 +36,6 @@ jest.mock('@/core/hooks/keyboard/use-shortcut-sheet', () => {
 				commands,
 				bindings: shortcuts.effectiveBindings(commands, null),
 				registered: { has: () => true },
-				answersRowKey: () => true,
 				hotkeys: [
 					{
 						group: 'general',

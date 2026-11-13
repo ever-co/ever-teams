@@ -3,7 +3,6 @@
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { SIDEBAR_KEYBOARD_SHORTCUT } from '@/core/components/common/sidebar';
-import { pickerOf } from '@/core/components/pages/teams/team/tasks/list/team-task-picker-commands';
 import { TASK_SEARCH_FOCUS_ID, TASK_SEARCH_FOCUS_KEY } from '@/core/components/tasks/task-search-field';
 import { useDetectOS } from '@/core/hooks/common/use-detect-os';
 import { HostKeysMapping, useBoundHotkeys } from '@/core/hooks/common/use-hotkeys';
@@ -43,15 +42,12 @@ export function useShortcutSheet(): ShortcutSheetSection[] {
 	const isMac = os === 'Mac';
 
 	return useMemo(() => {
-		// The same question the task list asks before it opens a picker from a key.
-		const answersRowKey = (commandId: string) => pickerOf(commandId, registryOn) !== null;
 		return shortcutSheetOf({
 			isMac,
 			registryOn,
 			commands: availableShortcutCommands(),
 			bindings,
 			registered,
-			answersRowKey,
 			hotkeys: HostKeysMapping,
 			boundHotkeys,
 			answered,
