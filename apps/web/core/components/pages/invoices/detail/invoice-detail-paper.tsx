@@ -140,7 +140,11 @@ export function InvoiceDetailPaper({
 	if (period) {
 		periodText = invoicePeriodTextOf(period, locale);
 	}
-	const note = invoiceNoteOfTerms(invoice.terms);
+	// Only an invoice made from billable time opens its terms with the period line, which the head already states
+	let note = invoice.terms?.trim() ?? '';
+	if (period) {
+		note = invoiceNoteOfTerms(invoice.terms);
+	}
 	const clientEmail = invoice.toContact?.primaryEmail?.trim();
 
 	const facts = [];
