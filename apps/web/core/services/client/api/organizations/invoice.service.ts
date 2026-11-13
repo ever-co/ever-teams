@@ -16,10 +16,10 @@ import {
 const INVOICES_PAGE_SIZE = 50;
 
 /** The API serves at most 100 invoices a page. */
-const CLIENT_INVOICES_PAGE_SIZE = 100;
+const FULL_READ_PAGE_SIZE = 100;
 
-/** A client past this many invoices has its latest ones compared with a new period; the list has every one. */
-const CLIENT_INVOICES_MAX_PAGES = 10;
+/** Where a read of every page stops: past this many, a client's latest invoices are compared with a new period. */
+const FULL_READ_MAX_PAGES = 10;
 
 export interface InvoicesPage {
 	items: TInvoice[];
@@ -60,6 +60,8 @@ interface InvoicesQueryOptions {
 	hidesArchived: boolean;
 	scope: InvoicesScope;
 }
+
+type InvoicesListOptions = Omit<InvoicesQueryOptions, 'page' | 'pageSize'>;
 
 class InvoiceService extends APIService {
 	private logValidationError(error: unknown, message: string) {
@@ -114,6 +116,22 @@ class InvoiceService extends APIService {
 		}
 	};
 
+	/** Reads page after page until the API has given every invoice it counts, or the page cap is reached. */
+	private readonly readEveryPage = async (list: InvoicesListOptions, signal?: AbortSignal): Promise<TInvoice[]> => {
+		const invoices: TInvoice[] = [];
+		for (let page = 1; page <= FULL_READ_MAX_PAGES; page += 1) {
+			const options = { ...list, page, pageSize: FULL_READ_PAGE_SIZE };
+			const { items, total } = await this.readInvoicesPage(options, signal);
+			invoices.push(...items);
+			const isLastPage = items.length < FULL_READ_PAGE_SIZE;
+			const hasEverything = invoices.length >= total;
+			if (isLastPage || hasEverything) {
+				break;
+			}
+		}
+		return invoices;
+	};
+
 	/** Every invoice saved for a client, archived ones included: each one billed the client. */
 	getClientInvoices = async (
 		clientId: string,
@@ -124,18 +142,7 @@ class InvoiceService extends APIService {
 			// Choosing a team of another organization changes the cookies between two pages: every page keeps the
 			// organization the read started in, the one the caller's cache key holds when it names one.
 			const scope = keyScope ?? this.currentScope();
-			const invoices: TInvoice[] = [];
-			for (let page = 1; page <= CLIENT_INVOICES_MAX_PAGES; page += 1) {
-				const options = { page, pageSize: CLIENT_INVOICES_PAGE_SIZE, clientId, hidesArchived: false, scope };
-				const { items, total } = await this.readInvoicesPage(options, signal);
-				invoices.push(...items);
-				const isLastPage = items.length < CLIENT_INVOICES_PAGE_SIZE;
-				const hasEverything = invoices.length >= total;
-				if (isLastPage || hasEverything) {
-					break;
-				}
-			}
-			return invoices;
+			return await this.readEveryPage({ clientId, hidesArchived: false, scope }, signal);
 		} catch (error) {
 			this.logValidationError(error, 'Client invoices validation failed:');
 			throw error;
