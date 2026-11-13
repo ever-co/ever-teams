@@ -25,13 +25,15 @@ export function timeImportTemplateCsvColumnsOf(includesMemberEmail: boolean): Cs
 
 /**
  * The template has no end date column: a file that gave one apart has its end date written before the end time, so
- * an entry that ends the next day still does once the report is imported again.
+ * an entry that ends the next day still does once the report is imported again. An end date that repeats the date
+ * is left out, so a date that cannot be read is not named a second time as an end time that cannot be read.
  */
 function reportEndTimeOf(cells: TimeImportCells): string {
 	const hasEndDate = cells.endDate !== '';
 	const hasEndTime = cells.endTime !== '';
 	const holdsOwnDate = holdsDateAndTime(cells.endTime);
-	if (!hasEndDate || !hasEndTime || holdsOwnDate) {
+	const repeatsDate = cells.endDate === cells.date;
+	if (!hasEndDate || !hasEndTime || holdsOwnDate || repeatsDate) {
 		return cells.endTime;
 	}
 	return `${cells.endDate} ${cells.endTime}`;

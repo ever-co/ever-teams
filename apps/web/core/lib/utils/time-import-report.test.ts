@@ -101,6 +101,16 @@ describe('the report of a time import', () => {
 		});
 	});
 
+	it('writes no end date that repeats the date of its row, readable or not', () => {
+		const unreadable = lineOf({ date: '06.11.26', endDate: '06.11.26', endTime: '10:00' });
+		const sameDay = lineOf({ date: '28/10/2026', endDate: '28/10/2026', endTime: '13:15' }, 3);
+		const report = csvOf([unreadable, sameDay], timeImportReportCsvColumnsOf(false));
+		const [, unreadableLine, sameDayLine] = report.split('\r\n');
+
+		expect(unreadableLine).toContain(',06.11.26,09:00,10:00,');
+		expect(sameDayLine).toContain(',28/10/2026,09:00,13:15,');
+	});
+
 	it('is named after the local day of the import', () => {
 		expect(timeImportReportFileNameOf(new Date(2026, 10, 12, 23, 30))).toBe('time-import-report-2026-11-12.csv');
 	});
