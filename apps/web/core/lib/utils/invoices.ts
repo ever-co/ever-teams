@@ -12,6 +12,7 @@ import {
 	roundedAmountOf,
 	type OwedCurrencyTotal
 } from '@/core/lib/utils/dashboards/payments-due';
+import { isTimeBilledElsewhere } from '@/core/lib/utils/invoice-billed-time';
 import { invoiceTotalsOf, NO_ADJUSTMENTS, type InvoiceAdjustments } from '@/core/lib/utils/invoice-totals';
 import { effectiveBillRate, employeeRateValueOf, rateValueOf } from '@/core/lib/utils/rates';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
@@ -828,7 +829,8 @@ export function invoiceProblemsOf(facts: InvoiceDraftFacts): InvoiceProblem[] {
 	return problems;
 }
 
-export type InvoiceSaveFailure = 'refused' | 'unconfirmed';
+/** `timeBilled`: refused because part of its time was billed by another invoice, or deleted, since it was read. */
+export type InvoiceSaveFailure = 'refused' | 'unconfirmed' | 'timeBilled';
 
 function isRefusalStatus(status: number) {
 	return status >= 400 && status < 500;
@@ -840,6 +842,9 @@ function isRefusalStatus(status: number) {
  * server failure, or with an answer that could not be read, the invoice may have been saved all the same.
  */
 export function invoiceSaveFailureOf(error: unknown): InvoiceSaveFailure {
+	if (isTimeBilledElsewhere(error)) {
+		return 'timeBilled';
+	}
 	if (!ApiErrorService.isApiError(error)) {
 		return 'unconfirmed';
 	}

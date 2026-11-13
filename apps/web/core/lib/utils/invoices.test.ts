@@ -942,3 +942,23 @@ describe('the time logs each line bills', () => {
 		});
 	});
 });
+
+describe('a save refused because its time was billed elsewhere meanwhile', () => {
+	it('is told apart from the other refusals', () => {
+		const status = 400;
+		const message =
+			'INVOICE_TIME_LOG_NOT_BILLABLE: a line names a time log it cannot bill. Nothing was saved: read the time not invoiced yet (notInvoiced=true) and save again.';
+		const billedElsewhere = ApiErrorService.fromAxiosError({
+			message: `Request failed with status code ${status}`,
+			status,
+			response: {
+				data: { statusCode: status, message, error: 'Bad Request' },
+				headers: {},
+				status,
+				statusText: 'Error'
+			}
+		});
+
+		expect(invoiceSaveFailureOf(billedElsewhere)).toBe('timeBilled');
+	});
+});
