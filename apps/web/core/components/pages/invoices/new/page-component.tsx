@@ -23,6 +23,7 @@ import { InvoiceAccessGuard, INVOICES_PATH, NEW_INVOICE_PATH } from '../invoice-
 import { PreparedInvoice } from './invoice-screen';
 import { GROUPING_SWITCH } from './new-invoice-recipes';
 import { InvoiceSheetSkeleton, MessageLink, NewInvoiceMessage, NewInvoicePageSkeleton } from './new-invoice-states';
+import { SaveInvoiceDialog } from './save-invoice-dialog';
 
 function ClientSelect({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 	const t = useTranslations();
@@ -125,7 +126,12 @@ function NewInvoiceBody({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 			/>
 		);
 	}
-	return <PreparedInvoice invoice={invoice} />;
+	return (
+		<PreparedInvoice
+			invoice={invoice}
+			renderSaveDialog={(dialog) => <SaveInvoiceDialog {...dialog} invoice={invoice} />}
+		/>
+	);
 }
 
 /** Mounted once the role may create invoices: nothing of an invoice is read for anyone else. */

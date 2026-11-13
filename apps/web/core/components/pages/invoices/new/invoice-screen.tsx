@@ -1,17 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Notice } from '@/core/components/common/notice';
-import type { NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
+import type { InvoiceDraftState, InvoiceScreenState } from '@/core/hooks/invoices/use-new-invoice';
 import { InvoiceDetails } from './invoice-details';
 import { EarlierInvoices } from './invoice-earlier';
 import { OtherCurrencies, UnpricedTimeList } from './invoice-left-out';
 import { InvoiceSheet } from './invoice-sheet';
 import { NEW_INVOICE_LAYOUT } from './new-invoice-recipes';
-import { SaveInvoiceDialog } from './save-invoice-dialog';
 
-export function OverlapNotice({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
+export interface SaveDialogControl {
+	open: boolean;
+	onClose: () => void;
+}
+
+export function OverlapNotice({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
 	const t = useTranslations();
 	const count = invoice.overlappingInvoices.length;
 	if (count === 0) {
@@ -26,7 +30,17 @@ export function OverlapNotice({ invoice }: Readonly<{ invoice: NewInvoiceState }
 	);
 }
 
-export function PreparedInvoice({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
+/** The invoice being prepared beside its details; the save is confirmed in the dialog of the screen it is on. */
+export function PreparedInvoice({
+	invoice,
+	notice,
+	renderSaveDialog
+}: Readonly<{
+	invoice: InvoiceScreenState;
+	/** Above the sheet, where the overlap warning sits. */
+	notice?: ReactNode;
+	renderSaveDialog: (dialog: SaveDialogControl) => ReactNode;
+}>) {
 	const [showsProblems, setShowsProblems] = useState(false);
 	const [isConfirming, setIsConfirming] = useState(false);
 
@@ -41,6 +55,7 @@ export function PreparedInvoice({ invoice }: Readonly<{ invoice: NewInvoiceState
 	return (
 		<div className={NEW_INVOICE_LAYOUT}>
 			<div className="flex min-w-0 flex-col gap-4">
+				{notice}
 				<OverlapNotice invoice={invoice} />
 				<InvoiceSheet invoice={invoice} />
 				<OtherCurrencies currencies={invoice.otherCurrencies} onInvoice={invoice.changeCurrency} />
@@ -50,7 +65,7 @@ export function PreparedInvoice({ invoice }: Readonly<{ invoice: NewInvoiceState
 				<InvoiceDetails invoice={invoice} showsProblems={showsProblems} onSave={askToSave} />
 				<EarlierInvoices invoice={invoice} />
 			</div>
-			<SaveInvoiceDialog open={isConfirming} invoice={invoice} onClose={() => setIsConfirming(false)} />
+			{renderSaveDialog({ open: isConfirming, onClose: () => setIsConfirming(false) })}
 		</div>
 	);
 }

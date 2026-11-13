@@ -6,7 +6,7 @@ import { Button } from '@/core/components/common/button';
 import { Input, controlRecipe } from '@/core/components/common/input';
 import { DashboardSection } from '@/core/components/dashboards/kit/dashboard-layout';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
-import type { NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
+import type { InvoiceDraftState, InvoiceScreenState } from '@/core/hooks/invoices/use-new-invoice';
 import { cn } from '@/core/lib/helpers';
 import type { InvoiceDueTermSource, InvoiceProblem } from '@/core/lib/utils/invoices';
 import { FIELD_LABEL } from './new-invoice-recipes';
@@ -36,7 +36,7 @@ const NOTE_FIELD = cn(controlRecipe, 'field-sizing-content max-h-[6lh] min-h-16 
 const HINT = 'text-xs text-muted-foreground text-pretty';
 
 /** Which term gave the due date; silent once the user picks another day. */
-function DueTermHint({ invoice, id }: Readonly<{ invoice: NewInvoiceState; id: string }>) {
+function DueTermHint({ invoice, id }: Readonly<{ invoice: InvoiceDraftState; id: string }>) {
 	const t = useTranslations();
 	if (!invoice.isDueDayOfTerm) {
 		return null;
@@ -49,7 +49,7 @@ function DueTermHint({ invoice, id }: Readonly<{ invoice: NewInvoiceState; id: s
 	);
 }
 
-function SavingNote({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
+function SavingNote({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
 	const t = useTranslations();
 	const email = invoice.client?.primaryEmail?.trim();
 	let note = t('invoices.new.details.DRAFT_NOTE');
@@ -84,7 +84,7 @@ function PercentField({ id, label, value, onChange }: Readonly<PercentFieldProps
 	);
 }
 
-function NoteField({ invoice, id }: Readonly<{ invoice: NewInvoiceState; id: string }>) {
+function NoteField({ invoice, id }: Readonly<{ invoice: InvoiceDraftState; id: string }>) {
 	const t = useTranslations();
 	const hintId = `${id}-hint`;
 	return (
@@ -107,7 +107,7 @@ function NoteField({ invoice, id }: Readonly<{ invoice: NewInvoiceState; id: str
 	);
 }
 
-function NumberHint({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
+function NumberHint({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
 	const t = useTranslations();
 	if (invoice.isNumberLoading) {
 		return <span aria-hidden="true" className={cn('h-2.5 w-32', SKELETON_BAR)} />;
@@ -122,7 +122,7 @@ function NumberHint({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 	);
 }
 
-function CurrencyField({ invoice, id }: Readonly<{ invoice: NewInvoiceState; id: string }>) {
+function CurrencyField({ invoice, id }: Readonly<{ invoice: InvoiceDraftState; id: string }>) {
 	const t = useTranslations();
 	const hasChoice = invoice.currencies.length > 1;
 	if (!hasChoice) {
@@ -158,7 +158,7 @@ export function InvoiceDetails({
 	invoice,
 	showsProblems,
 	onSave
-}: Readonly<{ invoice: NewInvoiceState; showsProblems: boolean; onSave: () => void }>) {
+}: Readonly<{ invoice: InvoiceScreenState; showsProblems: boolean; onSave: () => void }>) {
 	const t = useTranslations();
 	const fieldId = useId();
 	const numberId = `${fieldId}-number`;

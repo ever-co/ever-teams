@@ -471,6 +471,9 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 
 export type InvoiceDraftState = ReturnType<typeof useInvoiceDraft>;
 
+/** What the invoice screen reads, whether the invoice is new, edited or a replacement. */
+export type InvoiceScreenState = InvoiceDraftState & Readonly<{ isSaving: boolean }>;
+
 function newInvoiceStartOf(replaced: SavedInvoice | null): InvoiceDraftStart {
 	if (!replaced) {
 		return NEW_INVOICE;

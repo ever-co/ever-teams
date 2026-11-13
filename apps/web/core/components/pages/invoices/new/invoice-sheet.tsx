@@ -6,7 +6,7 @@ import { BlockEmptyMessage } from '@/core/components/dashboards/kit/dashboard-st
 import { DASHBOARD_SURFACE } from '@/core/components/dashboards/kit/recipes';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Folder, Undo, X } from '@/core/components/icons';
-import type { NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
+import type { InvoiceDraftState } from '@/core/hooks/invoices/use-new-invoice';
 import { cn } from '@/core/lib/helpers';
 import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
 import { formatPercent } from '@/core/lib/utils/invoice-totals';
@@ -135,7 +135,7 @@ function ProjectLines({
 }
 
 /** By project, a line is a whole project: the lines are listed without a band per project. */
-function SheetLines({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
+function SheetLines({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
 	if (invoice.grouping === 'project') {
 		return (
 			<ul className="flex flex-col gap-3 px-3 lg:gap-1.5">
@@ -198,7 +198,7 @@ function AdjustmentRow({ label, value }: Readonly<{ label: string; value: string
 }
 
 /** Subtotal, discount and tax, the tax with what it is taken of, so the reader can follow the total. */
-function AdjustedSubtotal({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
+function AdjustedSubtotal({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const { totals, adjustments, currency } = invoice;
@@ -228,7 +228,7 @@ function AdjustedSubtotal({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 }
 
 /** The API's PDF prints these lines as they are written here: description, hours, rate and amount. */
-export function InvoiceSheet({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
+export function InvoiceSheet({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const hasLines = invoice.groups.length > 0;
