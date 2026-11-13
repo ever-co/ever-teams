@@ -16,6 +16,10 @@ import { TimeImportRowItem } from './time-import-row';
 
 const ROWS_SHOWN_PER_STEP = 50;
 
+/** The section's header row stacks below `sm`: Change columns gets its own line, the description the full width. */
+const HEADER_STACKED_ON_PHONES =
+	'max-sm:[&>div:first-child]:flex-col max-sm:[&>div:first-child]:items-start max-sm:[&>div:first-child]:gap-2';
+
 const ALL_ROWS = 'all';
 
 type RowFilter = typeof ALL_ROWS | TimeImportRowStatus;
@@ -191,12 +195,17 @@ export function TimeImportResult({ timeImport, copy, onDownloadReport }: Readonl
 	const showsFilter = isPreview || isDone;
 	const showsIgnoredHeaders = isPreview && ignoredHeaders.length > 0;
 	const offersColumns = isPreview && timeImport.canEditColumns;
+	let sectionClassName: string | undefined = undefined;
+	if (offersColumns) {
+		sectionClassName = HEADER_STACKED_ON_PHONES;
+	}
 
 	return (
 		<SettingsSection
 			id="time-import"
 			title={title}
 			description={<span className={FILE_NAME_TEXT}>{description}</span>}
+			className={sectionClassName}
 			actions={
 				offersColumns && (
 					<Button type="button" variant="ghost" size="sm" onClick={timeImport.editColumns}>
