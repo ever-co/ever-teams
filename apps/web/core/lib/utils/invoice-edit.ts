@@ -6,6 +6,7 @@ import {
 	invoiceLineKeyOf,
 	invoicePeriodOfTerms,
 	invoiceStatusOf,
+	lineDescriptionOf,
 	type InvoiceGrouping,
 	type InvoiceItemRequest,
 	type InvoicePeriodDays,
@@ -470,4 +471,165 @@ export function invoiceRevisionOf(request: InvoiceRequest, saved: SavedInvoice):
 	};
 	const lines = request.invoiceItems.map((item) => ({ ...item, invoiceId: saved.id }));
 	return { update, lines };
+}
+
+/** A line as the invoice states it, to tell what an edit changes. */
+export interface StatedInvoiceLine {
+	key: string;
+	description: string;
+	hours: number;
+	rate: number;
+	amount: number;
+}
+
+export function statedLinesOf(
+	lines: ReadonlyArray<NamedInvoiceLine>,
+	descriptions: ReadonlyMap<string, string>
+): StatedInvoiceLine[] {
+	return lines.map((line) => ({
+		key: line.key,
+		description: lineDescriptionOf(line, descriptions),
+		hours: line.hours,
+		rate: line.rate,
+		amount: line.amount
+	}));
+}
+
+/** What the invoice on screen states, compared with the saved one. */
+export interface InvoiceDraftFigures {
+	lines: ReadonlyArray<StatedInvoiceLine>;
+	number: number | null;
+	issueDay: string;
+	dueDay: string;
+	currency: string | null;
+	discountPercent: number | null;
+	taxPercent: number | null;
+	note: string;
+	total: number;
+}
+
+export interface ValueChange<T> {
+	before: T;
+	after: T;
+}
+
+export interface InvoiceChanges {
+	addedLines: number;
+	removedLines: number;
+	/** Lines still there with other hours, another rate or another amount. */
+	repricedLines: number;
+	/** Lines still there with the same figures and another description. */
+	rewrittenDescriptions: number;
+	total: ValueChange<number> | null;
+	issueDay: ValueChange<string> | null;
+	dueDay: ValueChange<string> | null;
+	number: ValueChange<number> | null;
+	discount: ValueChange<number> | null;
+	tax: ValueChange<number> | null;
+	currency: ValueChange<string> | null;
+	isNoteRewritten: boolean;
+}
+
+const CENTS_PER_UNIT = 100;
+
+function changeOf<T>(before: T, after: T): ValueChange<T> | null {
+	if (before === after) {
+		return null;
+	}
+	return { before, after };
+}
+
+function hundredthsOf(value: number) {
+	return Math.round(value * CENTS_PER_UNIT);
+}
+
+function amountChangeOf(before: number, after: number): ValueChange<number> | null {
+	if (hundredthsOf(before) === hundredthsOf(after)) {
+		return null;
+	}
+	return { before, after };
+}
+
+function haveSameFigures(first: StatedInvoiceLine, second: StatedInvoiceLine) {
+	const sameHours = hundredthsOf(first.hours) === hundredthsOf(second.hours);
+	const sameRate = hundredthsOf(first.rate) === hundredthsOf(second.rate);
+	const sameAmount = hundredthsOf(first.amount) === hundredthsOf(second.amount);
+	return sameHours && sameRate && sameAmount;
+}
+
+interface LineChanges {
+	added: number;
+	removed: number;
+	repriced: number;
+	rewritten: number;
+}
+
+/** Lines are matched by key: the same project, member and task, under the grouping the invoice was made with. */
+function lineChangesOf(before: ReadonlyArray<StatedInvoiceLine>, after: ReadonlyArray<StatedInvoiceLine>): LineChanges {
+	const beforeByKey = new Map(before.map((line) => [line.key, line]));
+	const afterKeys = new Set(after.map((line) => line.key));
+	const changes: LineChanges = { added: 0, removed: 0, repriced: 0, rewritten: 0 };
+	for (const line of after) {
+		const previous = beforeByKey.get(line.key);
+		if (!previous) {
+			changes.added += 1;
+			continue;
+		}
+		if (!haveSameFigures(previous, line)) {
+			changes.repriced += 1;
+			continue;
+		}
+		const isRewritten = previous.description.trim() !== line.description.trim();
+		if (isRewritten) {
+			changes.rewritten += 1;
+		}
+	}
+	const removedLines = before.filter((line) => !afterKeys.has(line.key));
+	changes.removed = removedLines.length;
+	return changes;
+}
+
+function optionalChangeOf<T>(before: T, after: T | null): ValueChange<T> | null {
+	if (after === null) {
+		return null;
+	}
+	return changeOf(before, after);
+}
+
+/** What saving the invoice on screen would change on the saved one. */
+export function invoiceChangesOf(saved: SavedInvoice, draft: InvoiceDraftFigures): InvoiceChanges {
+	const savedLines = statedLinesOf(saved.lines, saved.descriptions);
+	const lines = lineChangesOf(savedLines, draft.lines);
+	const savedDiscount = saved.discountPercent ?? 0;
+	const savedTax = saved.taxPercent ?? 0;
+	return {
+		addedLines: lines.added,
+		removedLines: lines.removed,
+		repricedLines: lines.repriced,
+		rewrittenDescriptions: lines.rewritten,
+		total: amountChangeOf(saved.total, draft.total),
+		issueDay: changeOf(saved.issueDay, draft.issueDay),
+		dueDay: changeOf(saved.dueDay, draft.dueDay),
+		number: optionalChangeOf(saved.number, draft.number),
+		discount: changeOf(savedDiscount, draft.discountPercent ?? 0),
+		tax: changeOf(savedTax, draft.taxPercent ?? 0),
+		currency: optionalChangeOf(saved.currency, draft.currency),
+		isNoteRewritten: saved.note.trim() !== draft.note.trim()
+	};
+}
+
+export function hasInvoiceChanges(changes: InvoiceChanges): boolean {
+	const lineCounts = [changes.addedLines, changes.removedLines, changes.repricedLines, changes.rewrittenDescriptions];
+	const hasLineChange = lineCounts.some((count) => count > 0);
+	const values = [
+		changes.total,
+		changes.issueDay,
+		changes.dueDay,
+		changes.number,
+		changes.discount,
+		changes.tax,
+		changes.currency
+	];
+	const hasValueChange = values.some((change) => change !== null);
+	return hasLineChange || hasValueChange || changes.isNoteRewritten;
 }

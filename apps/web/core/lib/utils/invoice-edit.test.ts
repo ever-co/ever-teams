@@ -1,10 +1,14 @@
 import {
+	hasInvoiceChanges,
+	invoiceChangesOf,
 	invoiceGroupingOfLines,
 	invoiceNoteOfTerms,
 	invoiceRevisionOf,
 	percentTextOf,
 	periodOfDays,
 	savedInvoiceOf,
+	statedLinesOf,
+	type InvoiceDraftFigures,
 	type SavedInvoice,
 	type SavedInvoiceReading
 } from './invoice-edit';
@@ -300,5 +304,88 @@ describe('what an edit writes', () => {
 
 		expect(lines).toHaveLength(2);
 		expect(lines.every((line) => line.invoiceId === 'invoice-42')).toBe(true);
+	});
+});
+
+function figuresOf(saved: SavedInvoice, extra: Partial<InvoiceDraftFigures> = {}): InvoiceDraftFigures {
+	return {
+		lines: statedLinesOf(saved.lines, saved.descriptions),
+		number: saved.number,
+		issueDay: saved.issueDay,
+		dueDay: saved.dueDay,
+		currency: saved.currency,
+		discountPercent: saved.discountPercent,
+		taxPercent: saved.taxPercent,
+		note: saved.note,
+		total: saved.total,
+		...extra
+	};
+}
+
+describe('what an edit changes', () => {
+	it('changes nothing until something is changed', () => {
+		const saved = readSaved();
+
+		expect(hasInvoiceChanges(invoiceChangesOf(saved, figuresOf(saved)))).toBe(false);
+	});
+
+	it('counts the lines removed, added and repriced, and the descriptions rewritten', () => {
+		const saved = readSaved();
+		const [design, ana] = statedLinesOf(saved.lines, saved.descriptions);
+		const lines = [
+			{ ...ana, hours: 12, amount: 960 },
+			{ key: 'p3|cy', description: 'Cy Diaz', hours: 2, rate: 50, amount: 100 }
+		];
+
+		const changes = invoiceChangesOf(saved, figuresOf(saved, { lines }));
+
+		expect(design.key).toBe('p2|bo');
+		expect(changes).toMatchObject({ addedLines: 1, removedLines: 1, repricedLines: 1, rewrittenDescriptions: 0 });
+		expect(hasInvoiceChanges(changes)).toBe(true);
+	});
+
+	it('tells a description rewritten from a line repriced', () => {
+		const saved = readSaved();
+		const lines = statedLinesOf(saved.lines, saved.descriptions).map((line) => ({
+			...line,
+			description: 'Support'
+		}));
+
+		const changes = invoiceChangesOf(saved, figuresOf(saved, { lines }));
+
+		expect(changes).toMatchObject({ repricedLines: 0, rewrittenDescriptions: 2 });
+	});
+
+	it('states the total, dates, number, discount, tax, currency and note before and after', () => {
+		const saved = readSaved();
+		const draft = figuresOf(saved, {
+			total: 1200,
+			issueDay: '2026-11-02',
+			dueDay: '2026-12-02',
+			number: 43,
+			discountPercent: null,
+			taxPercent: 20,
+			currency: 'EUR',
+			note: 'Pay within 30 days.'
+		});
+
+		const changes = invoiceChangesOf(saved, draft);
+
+		expect(changes).toMatchObject({
+			total: { before: 1080, after: 1200 },
+			issueDay: { before: '2026-11-01', after: '2026-11-02' },
+			dueDay: { before: '2026-11-30', after: '2026-12-02' },
+			number: { before: 42, after: 43 },
+			discount: { before: 10, after: 0 },
+			tax: null,
+			currency: { before: 'USD', after: 'EUR' },
+			isNoteRewritten: true
+		});
+	});
+
+	it('sees no change in a total that differs by less than a cent', () => {
+		const saved = readSaved();
+
+		expect(invoiceChangesOf(saved, figuresOf(saved, { total: 1080.001 })).total).toBeNull();
 	});
 });
