@@ -17,6 +17,7 @@ import { effectiveBillRate, employeeRateValueOf, rateValueOf } from '@/core/lib/
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 
 export interface BillableLogLike {
+	id?: string | null;
 	projectId?: string | null;
 	employeeId?: string | null;
 	taskId?: string | null;
@@ -31,6 +32,8 @@ export interface BillableEntry {
 	employeeId: string;
 	taskId: string | null;
 	seconds: number;
+	/** The time logs it adds up, as far as they state their id. */
+	timeLogIds?: ReadonlyArray<string>;
 }
 
 const MILLISECONDS_PER_SECOND = 1000;
@@ -59,6 +62,14 @@ function secondsOfLog(log: BillableLogLike) {
 		seconds = duration;
 	}
 	return Math.max(seconds, 0);
+}
+
+function joinedTimeLogIds(current: ReadonlyArray<string> | undefined, added: ReadonlyArray<string> | undefined) {
+	if (!added?.length) {
+		return current;
+	}
+	const known = current ?? [];
+	return [...known, ...added];
 }
 
 function entryKeyOf(projectId: string, employeeId: string, taskId: string | null) {
@@ -94,6 +105,10 @@ export function billableEntriesOf(
 		const key = entryKeyOf(projectId, employeeId, taskId);
 		const entry = byKey.get(key) ?? { projectId, employeeId, taskId, seconds: 0 };
 		entry.seconds += seconds;
+		const logId = log.id;
+		if (logId) {
+			entry.timeLogIds = joinedTimeLogIds(entry.timeLogIds, [logId]);
+		}
 		byKey.set(key, entry);
 	}
 	return [...byKey.values()];
@@ -191,6 +206,11 @@ export interface InvoiceLine {
 	rateSource: InvoiceLineRateSource;
 	/** The members of the project are billed different rates: the line states their average, weighted by time. */
 	isAverageRate: boolean;
+	/**
+	 * The time logs the line bills, when known: a line built from time names them, a saved line once its time is
+	 * read.
+	 */
+	timeLogIds?: ReadonlyArray<string>;
 }
 
 export interface UnpricedTime {
@@ -216,8 +236,9 @@ function groupedEntriesOf(entries: ReadonlyArray<BillableEntry>, grouping: Invoi
 	const byMember = new Map<string, BillableEntry>();
 	for (const entry of entries) {
 		const key = memberKeyOf(entry.projectId, entry.employeeId);
-		const current = byMember.get(key) ?? { ...entry, taskId: null, seconds: 0 };
+		const current = byMember.get(key) ?? { ...entry, taskId: null, seconds: 0, timeLogIds: undefined };
 		current.seconds += entry.seconds;
+		current.timeLogIds = joinedTimeLogIds(current.timeLogIds, entry.timeLogIds);
 		byMember.set(key, current);
 	}
 	return [...byMember.values()];
@@ -269,6 +290,7 @@ interface ProjectWorth {
 	worth: number;
 	rates: Set<number>;
 	secondsBySource: Map<InvoiceRateSource, number>;
+	timeLogIds?: ReadonlyArray<string>;
 }
 
 function projectWorthKeyOf(projectId: string, currency: string | null) {
@@ -297,6 +319,7 @@ function addProjectWorth(byProject: Map<string, ProjectWorth>, entry: BillableEn
 	current.rates.add(price.rate);
 	const sourceSeconds = current.secondsBySource.get(price.source) ?? 0;
 	current.secondsBySource.set(price.source, sourceSeconds + entry.seconds);
+	current.timeLogIds = joinedTimeLogIds(current.timeLogIds, entry.timeLogIds);
 	byProject.set(key, current);
 }
 
@@ -336,7 +359,8 @@ function projectLineOf(project: ProjectWorth): InvoiceLine | null {
 		currency: project.currency,
 		amount: lineAmountOf(hours, rate),
 		rateSource: mainRateSourceOf(project.secondsBySource),
-		isAverageRate: project.rates.size > 1
+		isAverageRate: project.rates.size > 1,
+		timeLogIds: project.timeLogIds
 	};
 }
 
@@ -401,7 +425,8 @@ export function invoiceTimeOf({
 			currency,
 			amount: lineAmountOf(hours, rate),
 			rateSource: source,
-			isAverageRate: false
+			isAverageRate: false,
+			timeLogIds: entry.timeLogIds
 		});
 	}
 	return { lines, unpriced: [...unpricedByMember.values()] };
@@ -901,6 +926,8 @@ export interface InvoiceItemRequest {
 	applyDiscount: boolean;
 	organizationId: string;
 	tenantId: string;
+	/** The time logs the line bills, which the API marks as billed by it in the save. */
+	timeLogIds?: string[];
 }
 
 export interface InvoiceRequest {
@@ -946,6 +973,8 @@ export interface InvoiceRequestInput {
 	descriptions: ReadonlyMap<string, string>;
 	adjustments?: InvoiceAdjustments;
 	note?: string;
+	/** The API records the time each line bills: the lines name their time logs. An older API is sent none. */
+	recordsBilledTime?: boolean;
 }
 
 function isAboveZero(percent: number | null) {
@@ -976,6 +1005,12 @@ function itemRequestOf(
 	}
 	if (line.taskId) {
 		item.taskId = line.taskId;
+	}
+	const timeLogIds = line.timeLogIds ?? [];
+	const recordsTime = input.recordsBilledTime === true;
+	const namesTimeLogs = timeLogIds.length > 0;
+	if (recordsTime && namesTimeLogs) {
+		item.timeLogIds = [...timeLogIds];
 	}
 	return item;
 }
