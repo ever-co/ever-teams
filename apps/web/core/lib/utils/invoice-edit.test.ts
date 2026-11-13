@@ -3,6 +3,7 @@ import {
 	billedLinesReadOf,
 	billedPreviousOf,
 	billedSavedLinesOf,
+	billsUnrecordedTimeOf,
 	didNotReachApi,
 	haveSameFields,
 	haveSameLineIds,
@@ -330,6 +331,7 @@ function figuresOf(saved: SavedInvoice, extra: Partial<InvoiceDraftFigures> = {}
 		taxPercent: saved.taxPercent,
 		note: saved.note,
 		total: saved.total,
+		billsUnrecordedTime: false,
 		...extra
 	};
 }
@@ -612,6 +614,28 @@ describe('the time a saved invoice bills', () => {
 
 	it('is not read for an invoice that has none to name', () => {
 		expect(billedLinesReadOf(null)).toEqual({ lineIds: new Set(), projectIds: [] });
+	});
+});
+
+describe('an invoice saved before the time its lines bill was recorded', () => {
+	const billed = new Map([['item-1', ['log-1', 'log-2']]]);
+
+	it('bills time no saved line records when one of its lines names a log the invoice does not record yet', () => {
+		expect(billsUnrecordedTimeOf([{ timeLogIds: ['log-1', 'log-3'] }], billed)).toBe(true);
+	});
+
+	it('bills no such time when every log its lines name is recorded, or when they name none', () => {
+		expect(billsUnrecordedTimeOf([{ timeLogIds: ['log-2', 'log-1'] }], billed)).toBe(false);
+		expect(billsUnrecordedTimeOf([{}], new Map())).toBe(false);
+	});
+
+	it('counts the recording of that time as a change of its own, with the same figures', () => {
+		const saved = readSaved();
+
+		const changes = invoiceChangesOf(saved, figuresOf(saved, { billsUnrecordedTime: true }));
+
+		expect(changes.recordsBilledTime).toBe(true);
+		expect(hasInvoiceChanges(changes)).toBe(true);
 	});
 });
 

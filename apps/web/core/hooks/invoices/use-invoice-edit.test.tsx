@@ -359,6 +359,16 @@ describe('the time an edited invoice bills', () => {
 		mockTime.billedTimeByLine = new Map();
 	});
 
+	it('counts as a change the hours its lines bill that the invoice does not record yet', () => {
+		mockTime.recordsBilledTime = true;
+		mockTime.lines = [timeLine({ timeLogIds: ['log-9'] })];
+		const { result } = renderEdit(savedOf(sentInvoice()));
+
+		act(() => result.current.takeTimeAgain());
+
+		expect(result.current.changes.recordsBilledTime).toBe(true);
+	});
+
 	it('is read for its saved lines, whatever lines are shown', () => {
 		renderEdit(savedOf(sentInvoice()));
 
