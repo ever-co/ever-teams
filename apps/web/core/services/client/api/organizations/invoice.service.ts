@@ -2,12 +2,15 @@ import qs from 'qs';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import type { InvoiceStatusChange } from '@/core/lib/utils/invoice-actions';
-import type { InvoiceRequest } from '@/core/lib/utils/invoices';
+import type { InvoiceUpdate } from '@/core/lib/utils/invoice-edit';
+import type { InvoiceItemRequest, InvoiceRequest } from '@/core/lib/utils/invoices';
 import { validateApiResponse, validatePaginationResponse, ZodValidationError } from '@/core/types/schemas';
 import {
 	highestInvoiceNumberSchema,
 	invoiceSchema,
-	type TInvoice
+	savedInvoiceSchema,
+	type TInvoice,
+	type TSavedInvoice
 } from '@/core/types/schemas/organization/invoice.schema';
 
 const INVOICES_PAGE_SIZE = 50;
@@ -23,6 +26,14 @@ const invoiceStatusSchema = invoiceSchema.pick({ status: true });
 export interface InvoicesPage {
 	items: TInvoice[];
 	total: number;
+}
+
+/** What the editor reads with an invoice: its lines, the name of each line's project, and its client. */
+const SAVED_INVOICE_RELATIONS: ReadonlyArray<string> = ['invoiceItems', 'invoiceItems.project', 'toContact'];
+
+interface SavedInvoiceReadOptions {
+	signal?: AbortSignal;
+	tenantId?: string | null;
 }
 
 export interface InvoiceToEmail {
@@ -211,6 +222,44 @@ class InvoiceService extends APIService {
 	deleteInvoice = async (invoiceId: string, scope?: InvoicesScope): Promise<void> => {
 		const deletionScope = scope ?? this.currentScope();
 		await this.delete(`/invoices/${encodeURIComponent(invoiceId)}`, { tenantId: deletionScope.tenantId });
+	};
+
+	/** One invoice with its lines, their projects and its client, read in the tenant the caller's cache key holds. */
+	getInvoice = async (invoiceId: string, options: SavedInvoiceReadOptions = {}): Promise<TSavedInvoice> => {
+		try {
+			const data = JSON.stringify({ relations: SAVED_INVOICE_RELATIONS });
+			const query = qs.stringify({ data });
+			const url = `/invoices/${encodeURIComponent(invoiceId)}?${query}`;
+			const response = await this.get(url, { signal: options.signal, tenantId: options.tenantId });
+			return validateApiResponse(savedInvoiceSchema, response.data, 'getInvoice API response');
+		} catch (error) {
+			this.logValidationError(error, 'Invoice validation failed:');
+			throw error;
+		}
+	};
+
+	/** The invoice's own fields. Its lines are written apart, by `replaceInvoiceLines`. */
+	updateInvoice = async (invoiceId: string, update: InvoiceUpdate, scope?: InvoicesScope): Promise<void> => {
+		// A copy: the request writes the tenant and the organization into the object it is given.
+		const body = { ...update };
+		const updateScope = scope ?? this.currentScope();
+		await this.put(`/invoices/${encodeURIComponent(invoiceId)}`, body, { tenantId: updateScope.tenantId });
+	};
+
+	/**
+	 * Replaces every line of the invoice. The API deletes its lines, then saves these, in two steps it does not undo:
+	 * a failure between them leaves the invoice without lines.
+	 */
+	replaceInvoiceLines = async (
+		invoiceId: string,
+		lines: ReadonlyArray<InvoiceItemRequest>,
+		scope?: InvoicesScope
+	): Promise<void> => {
+		const body: InvoiceItemRequest[] = [...lines];
+		const linesScope = scope ?? this.currentScope();
+		const config = { tenantId: linesScope.tenantId };
+		// The body is the list itself: each line already names its tenant and organization.
+		await this.post(`/invoice-item/bulk/${encodeURIComponent(invoiceId)}`, body, config, false);
 	};
 }
 

@@ -4,12 +4,18 @@ import { useCallback, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { EntityTile } from '@/core/components/common/entity-tile';
-import { CircleX, FileText, Invoice, Mail, Send, Trash } from '@/core/components/icons';
+import { Alert, CircleX, FileText, Invoice, Mail, Refresh, Send, Trash } from '@/core/components/icons';
 import {
 	ProjectConfirmDialog,
 	type ProjectConsequence
 } from '@/core/components/projects/dialogs/project-confirm-dialog';
-import { useDeleteInvoice, useChangeInvoiceStatus, useSendInvoice } from '@/core/hooks/invoices/use-invoice-mutations';
+import {
+	useDeleteInvoice,
+	useChangeInvoiceStatus,
+	useSendInvoice,
+	useVoidToReplace,
+	type VoidToReplaceOutcome
+} from '@/core/hooks/invoices/use-invoice-mutations';
 import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
 import { isDraftInvoice, isInvoiceRecipient, VOID_CHANGE } from '@/core/lib/utils/invoice-actions';
 import { invoiceStatusOf } from '@/core/lib/utils/invoices';
@@ -263,6 +269,90 @@ export function DeleteInvoiceDialog({ open, target, scope, onClose }: Readonly<I
 			isPending={isDeleting}
 			error={error}
 			onConfirm={() => void runOnce(remove)}
+		/>
+	);
+}
+
+type VoidAndReplaceFailure = 'notVoided' | 'notRebuildable';
+
+/**
+ * A paid invoice is never changed: it is voided, and a new invoice bills the same time instead. The new one is made
+ * on the screen `onVoided` opens; left unsaved, the paid invoice stays void, which the dialog says beforehand.
+ */
+export function VoidAndReplaceDialog({
+	open,
+	target,
+	scope,
+	onClose,
+	onVoided
+}: Readonly<InvoiceActionDialogProps & { onVoided: (target: InvoiceActionTarget) => void }>) {
+	const t = useTranslations();
+	const { voidToReplace, isVoiding } = useVoidToReplace();
+	const runOnce = useSingleRun();
+	const [failure, setFailure] = useState<VoidAndReplaceFailure | null>(null);
+	const numberText = target?.numberText ?? '';
+	const clientName = target?.clientName ?? '';
+
+	const close = () => {
+		if (isVoiding) {
+			return;
+		}
+		setFailure(null);
+		onClose();
+	};
+
+	const voidAndReplace = async () => {
+		if (!target) {
+			return;
+		}
+		setFailure(null);
+		let outcome: VoidToReplaceOutcome;
+		try {
+			outcome = await voidToReplace({ invoiceId: target.invoice.id, scope });
+		} catch {
+			setFailure('notVoided');
+			return;
+		}
+		if (outcome === 'notRebuildable') {
+			setFailure('notRebuildable');
+			return;
+		}
+		toast.success(t('invoices.void.DONE', { number: numberText }));
+		onClose();
+		onVoided(target);
+	};
+
+	const consequences: ProjectConsequence[] = [
+		{ key: 'voids', icon: <FileText />, text: t('invoices.replace.VOIDS') },
+		{ key: 'opens', icon: <Invoice />, text: t('invoices.replace.OPENS', { client: clientName }) },
+		{
+			key: 'stays',
+			icon: <Alert />,
+			text: t('invoices.replace.STAYS_VOID', { number: numberText }),
+			tone: 'danger'
+		}
+	];
+	let error: string | null = null;
+	if (failure === 'notVoided') {
+		error = t('invoices.void.FAILED');
+	}
+	if (failure === 'notRebuildable') {
+		error = t('invoices.replace.NOT_REBUILDABLE', { number: numberText });
+	}
+
+	return (
+		<ProjectConfirmDialog
+			open={open}
+			onClose={close}
+			icon={<Refresh />}
+			tone="danger"
+			title={t('invoices.replace.TITLE', { number: numberText })}
+			subject={subjectOf(target)}
+			consequences={consequences}
+			confirmLabel={t('invoices.replace.CONFIRM')}
+			isPending={isVoiding}
+			error={error}
+			onConfirm={() => void runOnce(voidAndReplace)}
 		/>
 	);
 }

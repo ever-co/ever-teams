@@ -8,7 +8,7 @@ import { DashboardSection } from '@/core/components/dashboards/kit/dashboard-lay
 import { FoldToggle } from '@/core/components/dashboards/kit/fold-toggle';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { Button } from '@/core/components/duplicated-components/_button';
-import type { NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
+import type { InvoiceDraftState } from '@/core/hooks/invoices/use-new-invoice';
 import { cn } from '@/core/lib/helpers';
 import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
 import { invoicePeriodOfTerms, invoicePeriodTextOf } from '@/core/lib/utils/invoices';
@@ -61,7 +61,7 @@ function EarlierSkeleton() {
  * an invoice nor the time it covers, so nothing is taken off the lines: the list says so and marks the saved
  * invoices whose stated period shares a day with this one.
  */
-export function EarlierInvoices({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
+export function EarlierInvoices({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
 	const t = useTranslations();
 	const [isExpanded, setIsExpanded] = useState(false);
 	const clientName = invoice.client?.name ?? '';

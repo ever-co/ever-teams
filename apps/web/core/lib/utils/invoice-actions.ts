@@ -1,5 +1,5 @@
 import { isEmail } from 'class-validator';
-import type { InvoiceStatus } from '@/core/lib/utils/invoices';
+import { invoicePeriodOfTerms, type InvoiceStatus } from '@/core/lib/utils/invoices';
 
 export type InvoiceAction = 'send' | 'markPaid' | 'markUnpaid' | 'void' | 'delete';
 
@@ -24,6 +24,57 @@ export function invoiceActionsOf(status: InvoiceStatus | null): ReadonlyArray<In
 		return NO_ACTIONS;
 	}
 	return ACTIONS_BY_STATUS[status];
+}
+
+/** Rebuilding an invoice from billable time: an edit while nothing was paid on it, a replacement once something was. */
+export type InvoiceRevisingAction = 'edit' | 'voidAndReplace';
+
+export type InvoiceMenuAction = InvoiceAction | InvoiceRevisingAction;
+
+/** A void invoice is never reopened nor changed: what it billed is billed again by a new invoice. */
+const REVISIONS_BY_STATUS: Record<InvoiceStatus, ReadonlyArray<InvoiceRevisingAction>> = {
+	DRAFT: ['edit'],
+	SENT: ['edit'],
+	VIEWED: ['edit'],
+	PARTIALLY_PAID: ['voidAndReplace'],
+	FULLY_PAID: ['voidAndReplace'],
+	OVERPAID: ['voidAndReplace'],
+	VOID: []
+};
+
+const NO_REVISIONS: ReadonlyArray<InvoiceRevisingAction> = [];
+
+export function invoiceRevisionsOf(status: InvoiceStatus | null): ReadonlyArray<InvoiceRevisingAction> {
+	if (!status) {
+		return NO_REVISIONS;
+	}
+	return REVISIONS_BY_STATUS[status];
+}
+
+/** Only an invoice made from billable time states its period, and only such an invoice can be rebuilt from it. */
+export function isRevisableInvoice(invoice: Readonly<{ terms?: string | null }>) {
+	return invoicePeriodOfTerms(invoice.terms) !== null;
+}
+
+/** The rows of an invoice's menu: Edit first, the replacement last, after the actions that end an invoice. */
+export function invoiceMenuActionsOf(
+	status: InvoiceStatus | null,
+	mayRevise: boolean
+): ReadonlyArray<InvoiceMenuAction> {
+	const actions = invoiceActionsOf(status);
+	if (!mayRevise) {
+		return actions;
+	}
+	const revisions = invoiceRevisionsOf(status);
+	const menu: InvoiceMenuAction[] = [];
+	if (revisions.includes('edit')) {
+		menu.push('edit');
+	}
+	menu.push(...actions);
+	if (revisions.includes('voidAndReplace')) {
+		menu.push('voidAndReplace');
+	}
+	return menu;
 }
 
 /** A draft was never sent: sending makes it Sent. An invoice sent again keeps the status it reached since. */
