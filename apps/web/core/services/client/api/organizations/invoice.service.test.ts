@@ -111,4 +111,14 @@ describe('e-mailing, settling and deleting an invoice in the workspace the list 
 		expect(put.mock.calls[0][2]?.tenantId).toBe('tenant-1');
 		expect(remove.mock.calls[0][1]?.tenantId).toBe('tenant-1');
 	});
+
+	it('reads the status an invoice holds now under the tenant of the list', async () => {
+		const get = jest.spyOn(invoiceService, 'get').mockResolvedValue({ data: { status: 'FULLY_PAID' } } as never);
+
+		const status = await invoiceService.getInvoiceStatus('invoice-1', listScope);
+
+		expect(status).toBe('FULLY_PAID');
+		expect(get.mock.calls[0][0]).toBe('/invoices/invoice-1');
+		expect(get.mock.calls[0][1]?.tenantId).toBe('tenant-1');
+	});
 });
