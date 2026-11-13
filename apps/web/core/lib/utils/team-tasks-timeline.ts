@@ -256,10 +256,9 @@ export function draggedDatesOf(
 
 /**
  * The dates a drag of `deltaDays` gives a task, read from the task's stored dates by the timeline's day rules (a bare
- * date and midnight UTC are that day). The due date is written in the platform's date-only form (midnight UTC of the
- * day), as the due-date pickers write it, so every reader sees that day; the start date as the local midnight of its
- * day, as the start-date picker writes it. Null when the drag changes nothing (no movement, an end of a single date,
- * an end already at the other).
+ * date and midnight UTC are that day). Both are written in the platform's date-only form (midnight UTC of the day), as
+ * the date pickers write them, so every reader sees those days. Null when the drag changes nothing (no movement, an
+ * end of a single date, an end already at the other).
  */
 export function draggedTaskDatesOf(
 	task: { startDate?: Date | string | null; dueDate?: Date | string | null },
@@ -281,7 +280,7 @@ export function draggedTaskDatesOf(
 		return null;
 	}
 	return {
-		...(next.startDay === undefined ? {} : { startDate: dateOfDayNumber(next.startDay) }),
+		...(next.startDay === undefined ? {} : { startDate: dateOnlyOfDayNumber(next.startDay) }),
 		...(next.dueDay === undefined ? {} : { dueDate: dateOnlyOfDayNumber(next.dueDay) })
 	};
 }

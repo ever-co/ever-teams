@@ -149,10 +149,10 @@ describe('a task moved to a day of the calendar', () => {
 
 		expect(mockBulkUpdate).not.toHaveBeenCalled();
 		expect(mockUpdateTask).toHaveBeenCalledTimes(2);
-		// The due date in the platform's date-only form (midnight UTC of the day); the start as its local midnight.
+		// Both dates in the platform's date-only form (midnight UTC of the day).
 		const movedRange = expect.objectContaining({
 			id: 'ranged',
-			startDate: new Date(2026, 10, 13),
+			startDate: new Date(Date.UTC(2026, 10, 13)),
 			dueDate: new Date(Date.UTC(2026, 10, 17))
 		});
 		expect(mockUpdateTask).toHaveBeenNthCalledWith(1, movedRange, undefined);

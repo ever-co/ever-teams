@@ -18,6 +18,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import type { ITaskLinkedIssue } from '@/core/types/interfaces/task/task-linked-issue';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { flattenTaskPages } from '@/core/lib/utils/task.utils';
+import { recordChangeOf } from '@/core/lib/utils/task-bulk-changes';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import { useTaskQueries } from './use-task-queries';
 import { refreshAfterTaskUpdate } from './task-update-refresh';
@@ -69,6 +70,21 @@ function isShownInDetail(detail: TTask | null, taskId: string) {
 }
 
 /** A save answers after the reader may have moved to another task: only the task that was saved takes the answer. */
+/** A closed task is no longer the active one: the cookies that keep it active (the user's and the timer's) forget it. */
+function forgetActiveTask(taskId: string) {
+	const activeUserTask = getActiveUserTaskCookie();
+	if (activeUserTask?.taskId === taskId) {
+		setActiveUserTaskCookie({
+			taskId: '',
+			userId: ''
+		});
+	}
+	const activeTaskId = getActiveTaskIdCookie() ?? '';
+	if (activeTaskId === taskId) {
+		setActiveTaskIdCookie('');
+	}
+}
+
 function mergedIntoDetail(current: TTask | null, taskId: string, changes: Partial<TTask>) {
 	if (current?.id !== taskId) {
 		return current;
@@ -302,27 +318,27 @@ export function useUpdateTask() {
 		[updateTask, setDetailedTask]
 	);
 
+	/**
+	 * Saves one property of a task picked from its menu. A status goes with `taskStatusId`. A priority or a size given
+	 * with `recordId` (its record's id, null when no record lists the name) goes with its record too, as the team task
+	 * list writes it (`recordChangeOf`), so a team's own priority or size is held by its record and not by its name alone.
+	 */
 	const handleStatusUpdate = useCallback(
 		<T extends ITaskStatusField>(
 			status: ITaskStatusStack[T],
 			field: T,
 			taskStatusId: TTask['taskStatusId'],
 			task?: TTask | null,
-			_loader?: boolean
+			_loader?: boolean,
+			recordId?: string | null
 		) => {
+			if (task && (field === 'priority' || field === 'size') && recordId !== undefined) {
+				const change = recordChangeOf(field, task, { value: status as string, id: recordId });
+				return change ? updateTask({ ...task, ...change }) : undefined;
+			}
 			if (task && status !== (task as any)[field]) {
 				if (field === 'status' && status === 'closed') {
-					const active_user_task = getActiveUserTaskCookie();
-					if (active_user_task?.taskId === task.id) {
-						setActiveUserTaskCookie({
-							taskId: '',
-							userId: ''
-						});
-					}
-					const active_task_id = getActiveTaskIdCookie() ?? '';
-					if (active_task_id === task.id) {
-						setActiveTaskIdCookie('');
-					}
+					forgetActiveTask(task.id);
 				}
 
 				return updateTask({
