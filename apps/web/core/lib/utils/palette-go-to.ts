@@ -151,6 +151,11 @@ interface PaletteKeys {
 	shortcutKeys?: string[];
 }
 
+/** The key caps a palette row shows: the ones it was given, or else one per character of its own keys (`⌘K`). */
+export function shownKeysOf(row: Pick<PaletteKeys, 'shortcutDisplay' | 'shortcutKeys'>): string[] {
+	return row.shortcutKeys ?? Array.from(row.shortcutDisplay);
+}
+
 interface PaletteGroup<Command> {
 	id: string;
 	commands: Command[];

@@ -53,6 +53,7 @@ import {
 	openablePageHandlers,
 	paletteListedGroups,
 	SECTION_SEPARATOR,
+	shownKeysOf,
 	withGoToPreview,
 	type GoToPreview
 } from '@/core/lib/utils/palette-go-to';
@@ -117,10 +118,6 @@ function showsChatResultsIn(tab: string) {
 
 function showsResultsIn(tab: string, resultsTab: string) {
 	return tab === ALL_GROUPS_TAB || tab === resultsTab;
-}
-
-function shortcutKeysOf(command: Pick<CommandShortcutConfig, 'shortcutDisplay' | 'shortcutKeys'>) {
-	return command.shortcutKeys ?? Array.from(command.shortcutDisplay);
 }
 
 function hasKeySequence(command: Pick<CommandShortcutConfig, 'sequence'>) {
@@ -745,7 +742,7 @@ export const SidebarCommandModal: FC<{
 							{command.description}
 						</span>
 						<CommandShortcut>
-							{shortcutKeysOf(command).map((key, keyIndex) => (
+							{shownKeysOf(command).map((key, keyIndex) => (
 								<kbd key={`${command.shortcutDisplay}-${keyIndex}`} className={commandKeycapClass}>
 									{key}
 								</kbd>
