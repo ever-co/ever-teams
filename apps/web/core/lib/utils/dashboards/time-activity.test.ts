@@ -236,8 +236,10 @@ describe('the Time & Activity exports of the client grouping', () => {
 		employeeId: 'ada',
 		member: 'Ada',
 		project: 'Website',
+		projectKey: 'website',
 		client: null,
 		task: 'Home',
+		taskKey: 'task-home',
 		status: null,
 		seconds: 0,
 		earnings: null,
@@ -308,7 +310,16 @@ describe('the Time & Activity exports of the client grouping', () => {
 			exportRow({ seconds: 600, activity: 50, earnings: 10, currency: 'USD' }),
 			exportRow({ dateKey: '2026-11-04', seconds: 1200, activity: 100, earnings: 20, currency: 'USD' }),
 			exportRow({ employeeId: 'bob', member: 'Bob', seconds: 300 }),
-			exportRow({ project: 'App', task: 'Login', seconds: 2400, activity: 25, earnings: 40, currency: 'USD' })
+			exportRow({
+				project: 'App',
+				projectKey: 'app',
+				task: 'Login',
+				taskKey: 'task-login',
+				seconds: 2400,
+				activity: 25,
+				earnings: 40,
+				currency: 'USD'
+			})
 		];
 
 		const lines = clientExportLinesOf(rows);
@@ -320,6 +331,41 @@ describe('the Time & Activity exports of the client grouping', () => {
 			['Website', 'Bob', 'Home', 300, 0]
 		]);
 		expect(lines.map((line) => line.earnings)).toEqual([40, 30, null]);
+	});
+
+	it('keeps apart two projects of a client that share a name, and two tasks that share a title', () => {
+		const sameTitleTask = { ...task('home', 300), task: { id: 'task-home-again', title: 'home' } };
+		const twinReport = [
+			{
+				date: '2026-11-03',
+				logs: [
+					{
+						project: { id: 'website', name: 'Website' },
+						employeeLogs: [memberLog(900, [task('home', 600), sameTitleTask])]
+					},
+					{
+						project: { id: 'website-new', name: 'Website' },
+						employeeLogs: [memberLog(1200, [task('home', 1200)])]
+					}
+				]
+			}
+		] as unknown as ITimeLogGroupedDailyReport[];
+		const twinClientIds = new Map<string, string | null>([
+			['website', 'acme'],
+			['website-new', 'acme']
+		]);
+		const twinClientOf = clientOfProjectLogOf(twinClientIds, CLIENT_NAMES);
+		const rows = exportRowsOf(twinReport, null, 'No team', null, twinClientOf);
+
+		const [acme] = exportGroupsOf(rows, 'client');
+		const lines = clientExportLinesOf(acme.rows);
+
+		const summary = lines.map((line) => [line.project, line.task, line.seconds]);
+		expect(summary).toEqual([
+			['Website', 'home', 1200],
+			['Website', 'home', 600],
+			['Website', 'home', 300]
+		]);
 	});
 });
 

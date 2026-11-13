@@ -11,7 +11,8 @@ import {
 	earningsByCurrencyOf,
 	earningsOfRow,
 	flattenDailyReport,
-	projectKeyOf
+	projectKeyOf,
+	taskKeyOf
 } from '@/core/lib/utils/daily-report-figures';
 import {
 	type ProjectClientIds,
@@ -614,9 +615,11 @@ export interface TimeActivityExportRow {
 	employeeId: string;
 	member: string;
 	project: string | null;
+	projectKey: string;
 	/** Only in an export of the client grouping. */
 	client: ReportClientRef | null;
 	task: string | null;
+	taskKey: string;
 	status: string | null;
 	seconds: number;
 	earnings: number | null;
@@ -697,26 +700,35 @@ interface ExportRowContext {
 	employeeId: string;
 	member: string;
 	project: string | null;
+	projectId: string | null;
+	isWithoutTeam: boolean;
 	client: ReportClientRef | null;
 	activity: number;
 	memberRate: MemberRate;
 	withoutTeamLabel: string | null;
 }
 
-function exportRowOf(
-	context: ExportRowContext,
-	task: string | null,
-	status: string | null,
-	seconds: number
-): TimeActivityExportRow {
+interface ExportTask {
+	key: string;
+	title: string | null;
+	status: string | null;
+}
+
+function exportTaskOf(taskLog: TaskLog): ExportTask {
+	return { key: taskKeyOf(taskLog), title: taskTitleOf(taskLog), status: taskStatusOf(taskLog) };
+}
+
+function exportRowOf(context: ExportRowContext, task: ExportTask, seconds: number): TimeActivityExportRow {
 	return {
 		dateKey: context.dateKey,
 		employeeId: context.employeeId,
 		member: context.member,
 		project: context.project,
+		projectKey: projectKeyOf(context),
 		client: context.client,
-		task,
-		status,
+		task: task.title,
+		taskKey: task.key,
+		status: task.status,
 		seconds,
 		earnings: earningsFor(seconds, context.memberRate.rate),
 		currency: context.memberRate.currency,
@@ -730,19 +742,20 @@ function contextOfTask(context: ExportRowContext, taskLog: TaskLog): ExportRowCo
 	if (!isWithoutTeam) {
 		return context;
 	}
-	return { ...context, project: context.withoutTeamLabel };
+	return { ...context, project: context.withoutTeamLabel, isWithoutTeam: true };
 }
 
 function exportRowsOfEmployeeLog(context: ExportRowContext, employeeLog: EmployeeLog): TimeActivityExportRow[] {
 	const tasks = employeeLog.tasks ?? [];
 	if (tasks.length === 0) {
 		const seconds = finiteOrZero(employeeLog.sum);
-		return [exportRowOf(context, null, null, seconds)];
+		const noTask: ExportTask = { key: NO_TASK_KEY, title: null, status: null };
+		return [exportRowOf(context, noTask, seconds)];
 	}
 	return tasks.map((taskLog) => {
 		const seconds = finiteOrZero(taskLog?.duration);
 		const taskContext = contextOfTask(context, taskLog);
-		return exportRowOf(taskContext, taskTitleOf(taskLog), taskStatusOf(taskLog), seconds);
+		return exportRowOf(taskContext, exportTaskOf(taskLog), seconds);
 	});
 }
 
@@ -783,6 +796,7 @@ export function exportRowsOf(
 		const dateKey = rawDate.slice(0, 10);
 		for (const projectLog of day?.logs ?? []) {
 			const project = projectLog?.project?.name ?? null;
+			const projectId = projectLog?.project?.id ?? null;
 			const client = exportClientOf(projectLog, clientOf);
 			for (const employeeLog of projectLog?.employeeLogs ?? []) {
 				const employeeId = employeeLog?.employee?.id;
@@ -798,6 +812,8 @@ export function exportRowsOf(
 					employeeId,
 					member: memberNameOf(employeeLog),
 					project,
+					projectId,
+					isWithoutTeam: false,
 					client,
 					activity: finiteOrZero(employeeLog.activity),
 					memberRate: rateOf(employeeLog, workspaceCurrency),
@@ -1078,6 +1094,7 @@ export interface ClientExportLine {
 	key: string;
 	member: string;
 	project: string | null;
+	projectKey: string;
 	task: string | null;
 	seconds: number;
 	activeSeconds: number;
@@ -1086,7 +1103,7 @@ export interface ClientExportLine {
 }
 
 function clientLineKeyOf(row: TimeActivityExportRow) {
-	const parts = [row.project ?? '', row.employeeId, row.task ?? ''];
+	const parts = [row.projectKey, row.employeeId, row.taskKey];
 	return JSON.stringify(parts);
 }
 
@@ -1095,6 +1112,7 @@ function emptyClientLineOf(row: TimeActivityExportRow, key: string): ClientExpor
 		key,
 		member: row.member,
 		project: row.project,
+		projectKey: row.projectKey,
 		task: row.task,
 		seconds: 0,
 		activeSeconds: 0,
@@ -1114,9 +1132,8 @@ function addedEarnings(total: number | null, earnings: number | null) {
 function projectSecondsOf(lines: ReadonlyArray<ClientExportLine>) {
 	const seconds = new Map<string, number>();
 	for (const line of lines) {
-		const project = line.project ?? '';
-		const previous = seconds.get(project) ?? 0;
-		seconds.set(project, previous + line.seconds);
+		const previous = seconds.get(line.projectKey) ?? 0;
+		seconds.set(line.projectKey, previous + line.seconds);
 	}
 	return seconds;
 }
@@ -1125,8 +1142,8 @@ function compareClientLines(projectSeconds: ReadonlyMap<string, number>) {
 	return (first: ClientExportLine, second: ClientExportLine) => {
 		const firstProject = first.project ?? '';
 		const secondProject = second.project ?? '';
-		const firstProjectSeconds = projectSeconds.get(firstProject) ?? 0;
-		const secondProjectSeconds = projectSeconds.get(secondProject) ?? 0;
+		const firstProjectSeconds = projectSeconds.get(first.projectKey) ?? 0;
+		const secondProjectSeconds = projectSeconds.get(second.projectKey) ?? 0;
 		const byProjectTime = secondProjectSeconds - firstProjectSeconds;
 		if (byProjectTime !== 0) {
 			return byProjectTime;
@@ -1134,6 +1151,10 @@ function compareClientLines(projectSeconds: ReadonlyMap<string, number>) {
 		const byProject = firstProject.localeCompare(secondProject);
 		if (byProject !== 0) {
 			return byProject;
+		}
+		const byProjectKey = first.projectKey.localeCompare(second.projectKey);
+		if (byProjectKey !== 0) {
+			return byProjectKey;
 		}
 		return second.seconds - first.seconds;
 	};
