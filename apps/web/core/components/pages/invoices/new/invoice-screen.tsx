@@ -153,6 +153,9 @@ export function RevisedInvoiceBody({
 	const readsTime = invoice.linesSource === 'time';
 	const isReadingTime = readsTime && time.isLoading;
 	const hasTimeFailed = readsTime && time.isError;
+	// The saved lines are saved again with the time they bill: they wait for it
+	const isReadingLinesTime = isReadingTime || time.isReadingBilledTime;
+	const hasBilledTimeFailed = !readsTime && time.hasBilledTimeFailed;
 	const isWaiting = invoice.areClientsLoading || invoice.isOrganizationLoading;
 	if (isWaiting) {
 		return <InvoiceSheetSkeleton />;
@@ -168,11 +171,14 @@ export function RevisedInvoiceBody({
 			/>
 		);
 	}
-	if (isReadingTime) {
+	if (isReadingLinesTime) {
 		return <InvoiceSheetSkeleton />;
 	}
 	if (hasTimeFailed) {
 		return <TimeReadFailure invoice={invoice} />;
+	}
+	if (hasBilledTimeFailed) {
+		return <DashboardErrorNotice title={t('invoices.new.TIME_ERROR_TITLE')} onRetry={time.refetch} />;
 	}
 	return <PreparedInvoice invoice={invoice} notice={notice} renderSaveDialog={renderSaveDialog} />;
 }
