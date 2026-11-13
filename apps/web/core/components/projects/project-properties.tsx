@@ -30,6 +30,7 @@ import {
 	useProjectBudget
 } from '@/core/components/projects/project-cells';
 import { AvatarStack } from '@/core/components/teams/people-avatars';
+import { useClientNames } from '@/core/hooks/clients/use-client-names';
 import { cn } from '@/core/lib/helpers';
 import {
 	clientNameOf,
@@ -149,7 +150,8 @@ export function ProjectProperties({
 	const t = useTranslations();
 	const managers = managersOf(project).map(personFromProjectMember);
 	const members = contributorsOf(project).map(personFromProjectMember);
-	const client = clientNameOf(project);
+	const clientNames = useClientNames();
+	const client = clientNameOf(project, clientNames);
 	const tags = project.tags ?? [];
 	const hasTags = tags.length > 0;
 	return (

@@ -37,6 +37,10 @@ export interface TimeActivityFilters {
 	employeeIds: string[];
 	projectIds: string[];
 	taskIds: string[];
+	/** Kept in the page link, unlike the four above; `none` stands for the time without a client. */
+	clientIds: string[];
+	/** Kept in the page link; holds the one value that asks for billable time only. */
+	billable: string[];
 }
 
 export type TimeActivityFilterField = keyof TimeActivityFilters;
@@ -45,10 +49,26 @@ export const TIME_ACTIVITY_FILTER_FIELDS: ReadonlyArray<TimeActivityFilterField>
 	'teamIds',
 	'employeeIds',
 	'projectIds',
-	'taskIds'
+	'taskIds',
+	'clientIds',
+	'billable'
 ];
 
-export const EMPTY_TIME_ACTIVITY_FILTERS: TimeActivityFilters = {
+/** The filters the page saves in the browser, under the keys of the previous page. */
+const STORED_FILTER_FIELDS = ['teamIds', 'employeeIds', 'projectIds', 'taskIds'] as const;
+
+export type StoredTimeActivityFilterField = (typeof STORED_FILTER_FIELDS)[number];
+
+export type StoredTimeActivityFilters = Pick<TimeActivityFilters, StoredTimeActivityFilterField>;
+
+export function isStoredTimeActivityFilterField(
+	field: TimeActivityFilterField
+): field is StoredTimeActivityFilterField {
+	const storedFields: ReadonlyArray<string> = STORED_FILTER_FIELDS;
+	return storedFields.includes(field);
+}
+
+export const EMPTY_STORED_TIME_ACTIVITY_FILTERS: StoredTimeActivityFilters = {
 	teamIds: [],
 	employeeIds: [],
 	projectIds: [],
@@ -61,7 +81,7 @@ export const TIME_ACTIVITY_FILTERS_STORAGE_KEY = 'ever-teams-activity-filters';
 export const TIME_ACTIVITY_COLUMNS_STORAGE_KEY = 'ever-teams-activity-view-options';
 
 /** The previous page saved whole objects under these names; only their ids are read back. */
-const LEGACY_FILTER_KEYS: Record<TimeActivityFilterField, string> = {
+const LEGACY_FILTER_KEYS: Record<StoredTimeActivityFilterField, string> = {
 	teamIds: 'teams',
 	employeeIds: 'members',
 	projectIds: 'projects',
@@ -109,7 +129,7 @@ function idsOf(value: unknown): string[] {
 	return [...ids];
 }
 
-function storedIdsOf(stored: Record<string, unknown>, field: TimeActivityFilterField) {
+function storedIdsOf(stored: Record<string, unknown>, field: StoredTimeActivityFilterField) {
 	const hasCurrentField = Array.isArray(stored[field]);
 	if (hasCurrentField) {
 		return idsOf(stored[field]);
@@ -118,9 +138,9 @@ function storedIdsOf(stored: Record<string, unknown>, field: TimeActivityFilterF
 }
 
 /** Saved filters as ids, whatever the version that saved them. */
-export function filtersFromStorage(stored: unknown): TimeActivityFilters {
+export function filtersFromStorage(stored: unknown): StoredTimeActivityFilters {
 	if (!isRecord(stored)) {
-		return EMPTY_TIME_ACTIVITY_FILTERS;
+		return EMPTY_STORED_TIME_ACTIVITY_FILTERS;
 	}
 	return {
 		teamIds: storedIdsOf(stored, 'teamIds'),
@@ -684,6 +704,46 @@ export function weekGridRowsOf(
 		};
 	});
 	return rows.sort((first, second) => collator.compare(first.name, second.name));
+}
+
+function emptyWeekGridRowOf(row: DailyReportRow, dayCount: number): WeekGridRow {
+	const seconds = Array.from({ length: dayCount }, () => 0);
+	return {
+		employeeId: row.employeeId,
+		name: row.employeeName,
+		imageUrl: row.employeeImageUrl,
+		seconds,
+		total: 0
+	};
+}
+
+/**
+ * The week grid from the period's daily rows, for a filter the weekly report cannot apply: one row per member with
+ * time on the days given, as the weekly report lists them.
+ */
+export function weekGridRowsOfDailyRows(
+	rows: ReadonlyArray<DailyReportRow>,
+	dayKeys: ReadonlyArray<string>,
+	locale: string
+): WeekGridRow[] {
+	const indexByDay = new Map<string, number>();
+	dayKeys.forEach((dayKey, index) => {
+		indexByDay.set(dayKey, index);
+	});
+	const byMember = new Map<string, WeekGridRow>();
+	for (const row of rows) {
+		const dayIndex = indexByDay.get(row.dateKey);
+		if (dayIndex === undefined) {
+			continue;
+		}
+		const gridRow = byMember.get(row.employeeId) ?? emptyWeekGridRowOf(row, dayKeys.length);
+		gridRow.seconds[dayIndex] += row.seconds;
+		gridRow.total += row.seconds;
+		byMember.set(row.employeeId, gridRow);
+	}
+	const collator = new Intl.Collator(locale);
+	const gridRows = [...byMember.values()];
+	return gridRows.sort((first, second) => collator.compare(first.name, second.name));
 }
 
 export function weekColumnTotalsOf(rows: ReadonlyArray<WeekGridRow>, dayCount: number) {

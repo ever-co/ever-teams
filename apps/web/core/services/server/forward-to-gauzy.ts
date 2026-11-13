@@ -34,7 +34,7 @@ function forwardedHeaders(req: Request, names: readonly string[]): Record<string
 }
 
 /** What a route lets through besides the session, the query string and the JSON body. */
-export interface ForwardToGauzyOptions {
+interface ForwardToGauzyOptions {
 	/**
 	 * Request headers the route hands on as the browser sent them (lower-case names), for a Gauzy endpoint that reads
 	 * one: the interaction route's `idempotency-key`. Every other header of the request stays here.

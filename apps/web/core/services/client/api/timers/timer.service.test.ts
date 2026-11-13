@@ -2,6 +2,9 @@
  * A team can require a daily plan before its members track time. Gauzy used to accept a plan dated the UTC day
  * before, of or after the start, so a member who had only planned tomorrow could track today. The start now names
  * the member's day, the same browser day the timer checks read plans for, in both API modes.
+ *
+ * The start also names the team of the tab that starts it: the team cookie is shared by every tab, and another tab
+ * may have switched it to its own team (#5120).
  */
 // apps/web/.env sets NEXT_PUBLIC_GAUZY_API_SERVER_URL, which would otherwise decide the API mode of every case.
 jest.mock('@/core/constants/config/constants', () => ({
@@ -25,6 +28,12 @@ jest.mock('moment', () => {
 });
 
 const mockFallbackPost = jest.fn();
+
+// Another tab has switched the team cookie every tab shares to its own team
+jest.mock('@/core/lib/helpers/cookies', () => ({
+	...jest.requireActual('@/core/lib/helpers/cookies'),
+	getActiveTeamIdCookie: () => 'team-of-another-tab'
+}));
 
 jest.mock('../../api.service', () => ({
 	...jest.requireActual('../../api.service'),
@@ -110,6 +119,28 @@ describe('TimerService.startTimer', () => {
 			description: 'Fix the login page',
 			planDay: '2026-11-05'
 		});
+	});
+
+	it("starts on this tab's team, not the one another tab left in the team cookie, in direct mode", async () => {
+		publishedApiOrigin.value = 'https://api.example.test';
+		const post = jest.spyOn(timerService, 'post').mockResolvedValue({ data: {} } as never);
+		jest.spyOn(timerService, 'getTimerStatus').mockResolvedValue({ data: {} } as never);
+
+		await timerService.startTimer({ taskId: 'task-1', organizationTeamId: 'team-of-this-tab', isBillable: false });
+
+		expect(post).toHaveBeenCalledWith(
+			'/timesheet/timer/start',
+			expect.objectContaining({ organizationTeamId: 'team-of-this-tab' })
+		);
+	});
+
+	it("sends this tab's team to the start route in proxy mode", async () => {
+		await timerService.startTimer({ taskId: 'task-1', organizationTeamId: 'team-of-this-tab', isBillable: false });
+
+		expect(mockFallbackPost).toHaveBeenCalledWith(
+			expect.stringMatching(/^\/timer\/start\?/),
+			expect.objectContaining({ organizationTeamId: 'team-of-this-tab' })
+		);
 	});
 });
 

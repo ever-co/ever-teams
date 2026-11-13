@@ -99,6 +99,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/clients",
+      "file": "apps/web/app/[locale]/(main)/clients/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/dashboard/app-url/:teamId",
       "file": "apps/web/app/[locale]/(main)/dashboard/app-url/[teamId]/page.tsx",
       "source": "router"
@@ -146,6 +151,16 @@
     {
       "path": "/:locale/integration/github",
       "file": "apps/web/app/[locale]/(main)/integration/github/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/invoices",
+      "file": "apps/web/app/[locale]/(main)/invoices/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/invoices/new",
+      "file": "apps/web/app/[locale]/(main)/invoices/new/page.tsx",
       "source": "router"
     },
     {

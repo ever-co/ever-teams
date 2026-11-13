@@ -22,9 +22,8 @@ interface ColumnLabel {
 const COLUMN_LABELS: Record<TeamTaskColumn, ColumnLabel> = {
 	priority: {
 		labelKey: 'taskMenus.fields.priority',
-		icon: <TaskPropertyPlaceholderIcon kind="priority" />,
-		ordering: 'priority',
-		isGlyphOnly: true
+		icon: null,
+		ordering: 'priority'
 	},
 	number: { labelKey: 'pages.teamTasks.COLUMN_NUMBER', icon: null, ordering: 'number' },
 	status: {
