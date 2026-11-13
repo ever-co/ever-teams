@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQueryClient, type InfiniteData, type QueryClient } from '@tanstack/react-query';
+import { hashKey, useMutation, useQueryClient, type InfiniteData, type QueryClient } from '@tanstack/react-query';
 import {
 	invoiceService,
 	type InvoicesPage,
@@ -340,11 +340,28 @@ async function saveAndSendInvoiceEdit({ edit, sending }: InvoiceEditToSave): Pro
 	return { outcome, sending: sendingOutcome };
 }
 
+/**
+ * Reads the invoices again after an edit. A refusal because the invoice was paid or voided since it was opened leaves
+ * the editor's own read alone: its answer would replace the editor, and the refusal with it, before it is read.
+ */
+function readInvoicesAfterEdit(queryClient: QueryClient, edit: InvoiceEdit, saved: SavedInvoiceEdit | undefined) {
+	const isLocked = saved?.outcome.status === 'locked';
+	if (!isLocked) {
+		return queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all });
+	}
+	const editorRead = queryKeys.invoices.detail(edit.scope.tenantId, edit.scope.organizationId, edit.invoiceId);
+	const editorReadHash = hashKey(editorRead);
+	return queryClient.invalidateQueries({
+		queryKey: queryKeys.invoices.all,
+		predicate: (query) => query.queryHash !== editorReadHash
+	});
+}
+
 export function useSaveInvoiceEdit() {
 	const queryClient = useQueryClient();
 	const mutation = useMutation({
 		mutationFn: saveAndSendInvoiceEdit,
-		onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all }),
+		onSettled: (saved, _error, { edit }) => readInvoicesAfterEdit(queryClient, edit, saved),
 		meta: { handlesOwnError: true }
 	});
 	return { saveInvoiceEdit: mutation.mutateAsync, isSavingEdit: mutation.isPending };

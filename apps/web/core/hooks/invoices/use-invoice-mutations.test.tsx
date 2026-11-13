@@ -402,6 +402,21 @@ describe('saving an edit to an invoice', () => {
 		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
 	});
 
+	it('leaves the editor’s own read for its dialog to close when the invoice was paid since it was opened', async () => {
+		mockGetInvoice.mockResolvedValue(invoiceRead('FULLY_PAID'));
+		const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+		const editorRead = queryKeys.invoices.detail('tenant-1', 'organization-1', 'inv-42');
+		queryClient.setQueryData(editorRead, invoiceRead('SENT'));
+		queryClient.setQueryData(LIST_KEY, { pages: [], pageParams: [1] });
+		const { result } = renderWith(queryClient, () => useSaveInvoiceEdit());
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'locked' }, sending: null });
+		expect(queryClient.getQueryState(editorRead)?.isInvalidated).toBe(false);
+		expect(queryClient.getQueryState(LIST_KEY)?.isInvalidated).toBe(true);
+	});
+
 	it('writes nothing when the invoice cannot be read first', async () => {
 		mockGetInvoice.mockRejectedValue(serverFailure());
 		const { result } = renderSaveEdit();

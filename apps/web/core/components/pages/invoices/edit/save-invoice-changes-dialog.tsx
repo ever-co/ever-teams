@@ -129,8 +129,15 @@ function useFailureText(failure: EditFailure | null, number: string): string | n
 export function SaveInvoiceChangesDialog({
 	open,
 	invoice,
-	onClose
-}: Readonly<{ open: boolean; invoice: InvoiceEditState; onClose: () => void }>) {
+	onClose,
+	onLockedRefusal
+}: Readonly<{
+	open: boolean;
+	invoice: InvoiceEditState;
+	onClose: () => void;
+	/** The save was refused because the invoice was paid or voided since it was opened; the refusal stays on screen. */
+	onLockedRefusal?: () => void;
+}>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const router = useRouter();
@@ -164,6 +171,14 @@ export function SaveInvoiceChangesDialog({
 		onClose();
 	};
 
+	const refuse = (outcome: EditFailure) => {
+		setFailure(outcome);
+		const isLocked = outcome.status === 'locked';
+		if (isLocked) {
+			onLockedRefusal?.();
+		}
+	};
+
 	/** One click saves once: a click that comes while a save runs does nothing. */
 	const run = async (mode: SaveMode, task: () => Promise<void>) => {
 		if (isRunningRef.current) {
@@ -187,7 +202,7 @@ export function SaveInvoiceChangesDialog({
 			return;
 		}
 		if (result.outcome.status !== 'saved') {
-			setFailure(result.outcome);
+			refuse(result.outcome);
 			return;
 		}
 		toast.success(t('invoices.new.SAVED', { number }));
@@ -220,7 +235,7 @@ export function SaveInvoiceChangesDialog({
 			return;
 		}
 		if (result.outcome.status !== 'saved') {
-			setFailure(result.outcome);
+			refuse(result.outcome);
 			return;
 		}
 		showSending(result.sending, email);

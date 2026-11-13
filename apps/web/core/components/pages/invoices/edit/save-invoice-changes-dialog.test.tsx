@@ -202,6 +202,44 @@ describe('an edit that could not be saved', () => {
 		expect(message.textContent).toBe('invoices.edit.confirm.LOCKED_NOW');
 	});
 
+	it('keeps the refusal on screen and reports it when something was paid on it since it was opened', async () => {
+		const save = jest.fn().mockResolvedValue({ outcome: { status: 'locked' }, sending: null });
+		const onLockedRefusal = jest.fn();
+		render(
+			<SaveInvoiceChangesDialog
+				open
+				invoice={invoiceOf({ save })}
+				onClose={jest.fn()}
+				onLockedRefusal={onLockedRefusal}
+			/>
+		);
+
+		fireEvent.click(screen.getByRole('button', { name: SAVE }));
+
+		const message = await screen.findByRole('alert');
+		expect(message.textContent).toBe('invoices.edit.confirm.LOCKED_NOW');
+		expect(onLockedRefusal).toHaveBeenCalledTimes(1);
+		expect(mockPush).not.toHaveBeenCalled();
+	});
+
+	it('reports no refusal of that kind when the API refused the edit', async () => {
+		const save = jest.fn().mockResolvedValue({ outcome: { status: 'notSaved' }, sending: null });
+		const onLockedRefusal = jest.fn();
+		render(
+			<SaveInvoiceChangesDialog
+				open
+				invoice={invoiceOf({ save })}
+				onClose={jest.fn()}
+				onLockedRefusal={onLockedRefusal}
+			/>
+		);
+
+		fireEvent.click(screen.getByRole('button', { name: SAVE }));
+
+		await screen.findByRole('alert');
+		expect(onLockedRefusal).not.toHaveBeenCalled();
+	});
+
 	it('says nothing was saved when it could not be read before the save', async () => {
 		const message = await failingWith({ status: 'notChecked' });
 
