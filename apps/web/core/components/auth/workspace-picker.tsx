@@ -22,6 +22,8 @@ import { AUTH_CONTROL_HEIGHT, AUTH_QUIET_LINK } from '@/core/components/auth/kit
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 import { getFirstTeamId, hasTeams, isWorkspaceNotSetUp, workspaceHasTeam } from '@/core/lib/utils/workspace.utils';
 import { cn } from '@/core/lib/helpers';
+import { setPathAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
+import { CREATE_WORKSPACE_PATH } from '@/core/hooks/auth/use-create-workspace';
 
 export type WorkspacePickerProps = {
 	className?: string;
@@ -242,7 +244,15 @@ export function WorkspacePicker(props: Readonly<WorkspacePickerProps>) {
 						<span className="truncate text-[13px] font-medium text-foreground">{accountEmail}</span>
 					</div>
 					{props.onBackButtonClick && (
-						<button type="button" onClick={props.onBackButtonClick} className={AUTH_QUIET_LINK}>
+						<button
+							type="button"
+							onClick={() => {
+								// Leaving the list drops what "Create a new workspace" set for this sign-in
+								setPathAfterSignIn(null);
+								props.onBackButtonClick?.();
+							}}
+							className={AUTH_QUIET_LINK}
+						>
 							{t('auth.workspace.NOT_YOU')}
 						</button>
 					)}
@@ -407,9 +417,19 @@ export function WorkspacePicker(props: Readonly<WorkspacePickerProps>) {
 				disabled={isContinueDisabled}
 				id="continue-to-workspace"
 				className="mt-6 w-full max-sm:h-11"
+				onClick={() => setPathAfterSignIn(null)}
 			>
 				{t('common.CONTINUE')}
 			</Button>
+			{/* Signs in to the chosen workspace, then opens the creation of another one (#5025) */}
+			<button
+				type="submit"
+				disabled={isContinueDisabled || props.signInWorkspaceLoading}
+				onClick={() => setPathAfterSignIn(CREATE_WORKSPACE_PATH)}
+				className={cn(AUTH_QUIET_LINK, 'mt-3 self-center disabled:opacity-50')}
+			>
+				{t('auth.workspace.CREATE_NEW')}
+			</button>
 		</form>
 	);
 }

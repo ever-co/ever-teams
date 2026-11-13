@@ -2,6 +2,7 @@ import { EEmployeeNotificationType } from '@/core/types/interfaces/common/employ
 import {
 	defaultEmailModeOf,
 	digestHourOf,
+	emailDeliveryNoticeOf,
 	emailModeOf,
 	isTimeOfDay,
 	ownEmailModeOf,
@@ -68,5 +69,25 @@ describe('notification preferences', () => {
 		});
 		expect(withPreferencePatch(current, { pushByType: { Mention: undefined } }).pushByType).toEqual({});
 		expect(withPreferencePatch(current, { digestHour: 9 }).pushByType).toEqual({ Mention: false });
+	});
+});
+
+describe('emailDeliveryNoticeOf', () => {
+	const status = (enabled: boolean, available: boolean) => ({
+		email: { enabled, available },
+		push: { enabled: false, available: false },
+		checkedAt: '2026-11-11T12:00:00.000Z'
+	});
+
+	it('says off when the platform sends no notification emails, unavailable when none can go out, else nothing', () => {
+		expect(emailDeliveryNoticeOf(status(false, false))).toBe('off');
+		expect(emailDeliveryNoticeOf(status(true, false))).toBe('unavailable');
+		expect(emailDeliveryNoticeOf(status(true, true))).toBeNull();
+	});
+
+	it('says nothing when the platform does not say', () => {
+		expect(emailDeliveryNoticeOf(null)).toBeNull();
+		expect(emailDeliveryNoticeOf(undefined)).toBeNull();
+		expect(emailDeliveryNoticeOf({})).toBeNull();
 	});
 });

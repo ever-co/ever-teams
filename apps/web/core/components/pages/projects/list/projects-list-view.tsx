@@ -6,8 +6,10 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Checkbox } from '@/core/components/common/checkbox';
 import {
 	ArrowUp,
+	Building,
 	Calendar,
 	ChevronRight,
+	Clock,
 	Folder,
 	Analytics,
 	UserCheck,
@@ -19,7 +21,7 @@ import {
 import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
 import {
 	PeopleCell,
-	ProjectBudgetCell,
+	ProjectClientCell,
 	ProjectDatesCell,
 	ProjectProgressCell,
 	ProjectStatusChip,
@@ -27,10 +29,19 @@ import {
 	TeamsCell,
 	formatProjectDay
 } from '@/core/components/projects/project-cells';
+import { FavoriteMark } from '@/core/components/favorites/favorite-parts';
 import { ProjectActionsMenu } from '@/core/components/projects/project-actions-menu';
+import {
+	ProjectBudgetRiskMark,
+	ProjectBudgetUseCell,
+	ProjectTimeSpentCell
+} from '@/core/components/projects/project-consumption-cells';
+import type { ProjectConsumptionState } from '@/core/hooks/projects/use-project-consumption';
+import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { cn } from '@/core/lib/helpers';
 import type { ProjectsListState } from '@/core/hooks/projects/use-projects-list-state';
 import type { ProjectTaskStatsState } from '@/core/hooks/projects/use-project-task-stats';
+import { useClientNames } from '@/core/hooks/clients/use-client-names';
 import {
 	clientNameOf,
 	contributorsOf,
@@ -38,6 +49,7 @@ import {
 	statusLabelOf,
 	personFromProjectMember,
 	realDateOf,
+	isConsumptionOrderField,
 	PROJECT_COLUMNS,
 	type ProjectColumn,
 	type ProjectOrderField,
@@ -49,27 +61,36 @@ import { COLUMN_LABEL_KEYS } from './projects-display-menu';
 
 const COLUMN_WIDTHS_REM: Record<ProjectColumn, number> = {
 	status: 8.5,
+	client: 9,
 	progress: 7.5,
 	managers: 5.5,
 	members: 6.5,
 	teams: 9,
 	dates: 12,
+	timeSpent: 7.5,
 	budget: 6.5
 };
 
+/** Room for two amounts written with a currency code, as "BGN 612.52 / BGN 2,640.00". */
+const BUDGET_USE_COLUMN_REM = 12;
+
 const COLUMN_ICONS: Record<ProjectColumn, ReactNode> = {
 	status: <CircleCheck />,
+	client: <Building />,
 	progress: <Analytics />,
 	managers: <UserCheck />,
 	members: <Users />,
 	teams: <UsersGroup />,
 	dates: <Calendar />,
+	timeSpent: <Clock />,
 	budget: <Wallet />
 };
 
 const COLUMN_ORDER_FIELD: Partial<Record<ProjectColumn, ProjectOrderField>> = {
 	status: 'status',
-	dates: 'startDate'
+	dates: 'startDate',
+	timeSpent: 'timeSpent',
+	budget: 'budgetUsed'
 };
 
 const SELECT_COLUMN_REM = 2;
@@ -80,13 +101,21 @@ function remOf(value: number) {
 	return `${value}rem`;
 }
 
+function columnWidthOf(column: ProjectColumn, showsConsumption: boolean) {
+	const isBudgetUse = column === 'budget' && showsConsumption;
+	if (isBudgetUse) {
+		return BUDGET_USE_COLUMN_REM;
+	}
+	return COLUMN_WIDTHS_REM[column];
+}
+
 /** Below the sum of its columns the list scrolls sideways instead of squeezing the cells. */
-function gridStyleOf(columns: ProjectColumn[]): CSSProperties {
+function gridStyleOf(columns: ProjectColumn[], showsConsumption: boolean): CSSProperties {
 	const projectTrack = `minmax(${remOf(PROJECT_COLUMN_MIN_REM)},1fr)`;
 	const tracks = [remOf(SELECT_COLUMN_REM), projectTrack];
 	let minWidth = SELECT_COLUMN_REM + PROJECT_COLUMN_MIN_REM + ACTIONS_COLUMN_REM;
 	for (const column of columns) {
-		const width = COLUMN_WIDTHS_REM[column];
+		const width = columnWidthOf(column, showsConsumption);
 		tracks.push(remOf(width));
 		minWidth += width;
 	}
@@ -106,6 +135,7 @@ export interface ProjectsListViewProps {
 	statuses: TTaskStatus[];
 	taskStats: ProjectTaskStatsState;
 	visibleProjectIds: string[];
+	consumption: ProjectConsumptionState;
 }
 
 export function ProjectsListView({
@@ -113,12 +143,14 @@ export function ProjectsListView({
 	groups,
 	statuses,
 	taskStats,
-	visibleProjectIds
+	visibleProjectIds,
+	consumption
 }: Readonly<ProjectsListViewProps>) {
 	const columns = list.isColumnVisible;
 	const visibleColumns = PROJECT_COLUMNS.filter((column) => columns(column));
-	const gridStyle = gridStyleOf(visibleColumns);
+	const gridStyle = gridStyleOf(visibleColumns, list.showsConsumption);
 	const isGrouped = list.grouping === 'status';
+	const clientNames = useClientNames();
 	const [collapsedGroups, setCollapsedGroups] = useState<string[]>([]);
 
 	const toggleGroup = (key: string) => {
@@ -157,8 +189,10 @@ export function ProjectsListView({
 											project={project}
 											list={list}
 											columns={visibleColumns}
+											clientNames={clientNames}
 											statuses={statuses}
 											taskStats={taskStats}
+											consumption={consumption}
 										/>
 									))}
 								</div>
@@ -225,9 +259,20 @@ function ColumnLabels({
 	);
 }
 
+function orderFieldOfColumn(list: ProjectsListState, column: ProjectColumn) {
+	const field = COLUMN_ORDER_FIELD[column];
+	if (!field) {
+		return undefined;
+	}
+	if (!list.isOrderFieldOffered(field)) {
+		return undefined;
+	}
+	return field;
+}
+
 function ColumnLabel({ list, column }: Readonly<{ list: ProjectsListState; column: ProjectColumn }>) {
 	const t = useTranslations();
-	const field = COLUMN_ORDER_FIELD[column];
+	const field = orderFieldOfColumn(list, column);
 	const label = t(COLUMN_LABEL_KEYS[column]);
 	if (field) {
 		return (
@@ -257,7 +302,9 @@ function SortableLabel({
 			list.setOrdering({ id: field, desc: !list.ordering.desc });
 			return;
 		}
-		list.setOrdering({ id: field, desc: false });
+		// Time spent and budget used are read from the top: the most spent and the most used come first.
+		const startsDescending = isConsumptionOrderField(field);
+		list.setOrdering({ id: field, desc: startsDescending });
 	};
 	return (
 		<button
@@ -323,54 +370,90 @@ function GroupHeader({
 	);
 }
 
-function ProjectSubline({ project }: Readonly<{ project: TOrganizationProject }>) {
+const SUBLINE = 'truncate text-xs text-muted-foreground';
+
+function joinedSubline(parts: string[]) {
+	return parts.join(' · ');
+}
+
+/**
+ * Under the name: the code, the client and the archive day. From `lg` up the client has its own column, so the
+ * line drops it there when that column is shown.
+ */
+function ProjectSubline({
+	project,
+	clientName,
+	hasClientColumn
+}: Readonly<{ project: TOrganizationProject; clientName: string | null; hasClientColumn: boolean }>) {
 	const t = useTranslations();
 	const locale = useLocale();
-	const client = clientNameOf(project);
 	const archivedAt = realDateOf(project.archivedAt);
-	const parts: string[] = [];
+	const leadingParts: string[] = [];
 	if (project.code) {
-		parts.push(project.code);
+		leadingParts.push(project.code);
 	}
-	if (client) {
-		parts.push(client);
-	}
+	const trailingParts: string[] = [];
 	if (project.isArchived && archivedAt) {
-		parts.push(t('pages.projects.list.ARCHIVED_ON', { date: formatProjectDay(archivedAt, locale) }));
+		trailingParts.push(t('pages.projects.list.ARCHIVED_ON', { date: formatProjectDay(archivedAt, locale) }));
+	}
+	const partsWithoutClient = [...leadingParts, ...trailingParts];
+	let parts = partsWithoutClient;
+	if (clientName) {
+		parts = [...leadingParts, clientName, ...trailingParts];
 	}
 	const hasParts = parts.length > 0;
 	if (!hasParts) {
 		return null;
 	}
-	return <span className="truncate text-xs text-muted-foreground">{parts.join(' · ')}</span>;
+	const dropsClientOnWide = hasClientColumn && Boolean(clientName);
+	if (!dropsClientOnWide) {
+		return <span className={SUBLINE}>{joinedSubline(parts)}</span>;
+	}
+	const hasPartsWithoutClient = partsWithoutClient.length > 0;
+	return (
+		<>
+			<span className={cn(SUBLINE, 'lg:hidden')}>{joinedSubline(parts)}</span>
+			{hasPartsWithoutClient && (
+				<span className={cn(SUBLINE, 'max-lg:hidden')}>{joinedSubline(partsWithoutClient)}</span>
+			)}
+		</>
+	);
 }
 
 function ProjectRow({
 	project,
 	list,
 	columns,
+	clientNames,
 	statuses,
-	taskStats
+	taskStats,
+	consumption
 }: Readonly<{
 	project: TOrganizationProject;
 	list: ProjectsListState;
 	columns: ProjectColumn[];
+	clientNames: ReadonlyMap<string, string>;
 	statuses: TTaskStatus[];
 	taskStats: ProjectTaskStatsState;
+	consumption: ProjectConsumptionState;
 }>) {
 	const t = useTranslations();
 	const isSelected = list.selectedIds.includes(project.id);
 	const managers = managersOf(project).map(personFromProjectMember);
 	const members = contributorsOf(project).map(personFromProjectMember);
+	const clientName = clientNameOf(project, clientNames);
+	const hasClientColumn = columns.includes('client');
 
 	const cells: Record<ProjectColumn, ReactNode> = {
 		status: <ProjectStatusChip statusName={project.status} statuses={statuses} />,
+		client: <ProjectClientCell project={project} clientNames={clientNames} />,
 		progress: <ProjectProgressCell projectId={project.id} taskStats={taskStats} />,
 		managers: <PeopleCell people={managers} max={3} />,
 		members: <PeopleCell people={members} max={3} />,
 		teams: <TeamsCell teams={project.teams ?? []} max={1} />,
 		dates: <ProjectDatesCell startDate={project.startDate} endDate={project.endDate} />,
-		budget: <ProjectBudgetCell project={project} />
+		timeSpent: <ProjectTimeSpentCell projectId={project.id} consumption={consumption} />,
+		budget: <ProjectBudgetUseCell project={project} consumption={consumption} />
 	};
 
 	return (
@@ -394,13 +477,19 @@ function ProjectRow({
 			>
 				<ProjectTile project={project} size="lg" />
 				<span className="flex min-w-0 flex-col">
-					<span className="truncate text-[13px] font-medium text-foreground transition-colors group-hover/link:text-primary-ink">
-						{project.name}
+					<span className="flex min-w-0 items-center gap-1.5">
+						<span className="truncate text-[13px] font-medium text-foreground transition-colors group-hover/link:text-primary-ink">
+							{project.name}
+						</span>
+						<FavoriteMark entity={EBaseEntityEnum.OrganizationProject} id={project.id} />
 					</span>
-					<ProjectSubline project={project} />
+					<ProjectSubline project={project} clientName={clientName} hasClientColumn={hasClientColumn} />
 				</span>
 			</Link>
-			<span className="px-2 lg:hidden">{cells.status}</span>
+			<span className="flex items-center gap-1.5 px-2 lg:hidden">
+				<ProjectBudgetRiskMark projectId={project.id} consumption={consumption} />
+				{cells.status}
+			</span>
 			{columns.map((column) => (
 				<span key={column} className={CELL}>
 					{cells[column]}

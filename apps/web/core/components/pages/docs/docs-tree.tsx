@@ -13,7 +13,7 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { cn } from '@/core/lib/helpers';
 import { canMoveUnder, dropPositionAt, flattenTree, nextFocusIndex, pageTitle, type DocTree, type DocTreeNode, type DocsDropPosition } from '@/core/lib/utils/docs-tree';
-import { EDocumentVisibility, type IDocumentPage } from '@/core/types/interfaces/common/docs';
+import { EDocumentKind, EDocumentVisibility, type IDocumentPage } from '@/core/types/interfaces/common/docs';
 import { DocsPageGlyph } from './docs-page-glyph';
 
 export const DOCS_DRAG_TYPE = 'application/x-docs-page';
@@ -30,6 +30,8 @@ export interface DocsTreeActions {
 	duplicate: (page: IDocumentPage, deep: boolean) => void;
 	setVisibility: (page: IDocumentPage, visibility: EDocumentVisibility) => void;
 	trash: (page: IDocumentPage) => void;
+	/** A folder and what is in it as a zip of Markdown files (absent where the tree offers no export). */
+	exportZip?: (page: IDocumentPage) => void;
 	/** Drop of a dragged page onto another (nest) or onto the section (root). */
 	drop: (pageId: string, parentId: string | null) => void;
 	/** Drop of a dragged page beside another: before or after it among its siblings. */
@@ -316,6 +318,12 @@ function DocsTreeRow({ row, isActive, isExpanded, isFavorite, dropPosition, tabI
 						>
 							{isPrivate ? t('docs.MAKE_WORKSPACE') : t('docs.MAKE_PRIVATE')}
 						</DropdownMenuItem>
+						{page.kind === EDocumentKind.FOLDER && actions.exportZip && (
+							<>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem onClick={() => actions.exportZip?.(page)}>{t('docs.EXPORT_FOLDER_ZIP')}</DropdownMenuItem>
+							</>
+						)}
 						<DropdownMenuSeparator />
 						<DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => actions.trash(page)}>
 							{t('docs.MOVE_TO_TRASH')}

@@ -19,8 +19,12 @@ import { DOCS_LIVE_FIELD } from '@/core/lib/docs-live/config';
 import { quoteOf } from '@/core/lib/utils/docs-comments';
 import { mentionedEmployeeIds } from '@/core/lib/utils/docs-markdown';
 import { unsupportedTypesOf } from '@/core/lib/utils/docs-content';
-import type { IDocumentNode } from '@/core/types/interfaces/common/docs';
-import { DocsCommentMarksExtension, DocsTaskChipsExtension, setCommentMarks, setTaskChips } from './docs-editor-extensions';
+import { liveAnchorResolverOf } from '@/core/lib/docs-live/anchor-resolver';
+import type { DocsLiveAnchorResolver } from '@/core/lib/utils/docs-comment-anchors';
+import type { IDocumentCommentAnchorInput, IDocumentNode } from '@/core/types/interfaces/common/docs';
+import { liveRelativeRangeOf } from './docs-comment-live-range';
+import { selectionCommentAnchor } from './docs-comment-ranges';
+import { DocsCommentMarksExtension, DocsTaskChipsExtension, setCommentMarks, setTaskChips, type DocsCommentRange } from './docs-editor-extensions';
 import { editorHtmlOf } from './docs-editor-html';
 import { DocsMobileFormatBar } from './docs-mobile-format-bar';
 
@@ -40,17 +44,24 @@ export interface DocsEditorApi {
 	focus: (position?: 'start' | 'end') => void;
 	/**
 	 * The block of the selection as a comment's place: its anchor (given to it now when it has none, which is an edit
-	 * of the page, saved as any other) and the selected text as its quote. Null when the selection is in no block.
+	 * of the page, saved as any other), the selected text as its quote and, when text is selected, its range in the
+	 * block (with its live relative positions in a live session). Null when the selection is in no block.
 	 */
-	anchorSelection: () => { blockId: string; quote: string; created: boolean } | null;
+	anchorSelection: () => { blockId: string; quote: string; created: boolean; range: IDocumentCommentAnchorInput | null } | null;
 }
 
 /** The comment threads the editor marks, and what it does with them. */
 export interface DocsEditorComments {
+	/** The blocks with an open thread that has no range. */
 	openBlockIds: readonly string[];
+	/** The open threads made on a range of text: their text is highlighted. */
+	ranges: readonly DocsCommentRange[];
 	/** The block a thread or a link points at, lit. */
 	activeBlockId: string | null;
-	onOpenThread: (blockId: string) => void;
+	/** The thread whose range is lit. */
+	activeThreadId: string | null;
+	/** A marker or a highlighted range asks for a thread: the range's own, else the block's newest. */
+	onOpenThread: (blockId: string, threadId?: string) => void;
 	/** Comment on the selection (the selection toolbar, Mod-Alt-M, the phone's formatting row). */
 	onComment: () => void;
 	/** Copy the address of the selection's block. */
@@ -83,6 +94,8 @@ interface DocsEditorSurfaceProps {
 	sourceJson?: IDocumentNode | null;
 	comments?: DocsEditorComments | null;
 }
+
+const NO_RANGES: readonly DocsCommentRange[] = [];
 
 /** The editor of the RichEditor once it is up (it is made after the first render), again when it is rebuilt. */
 function useEditorOf(editorRef: RefObject<RichEditorHandle | null>, rebuild: string): Editor | null {
@@ -137,6 +150,13 @@ export function DocsEditorSurface({
 	const liveBinding = live?.binding ?? null;
 	const liveDoc = live?.doc ?? null;
 	const liveAwareness = live?.awareness ?? null;
+	// The shared document, for the comments' live ranges (read by the editor's callbacks, made once).
+	const liveDocRef = useRef<Doc | null>(liveDoc);
+	const liveResolverRef = useRef<DocsLiveAnchorResolver | null>(null);
+	useEffect(() => {
+		liveDocRef.current = liveDoc;
+		liveResolverRef.current = liveDoc ? liveAnchorResolverOf(liveDoc, DOCS_LIVE_FIELD) : null;
+	}, [liveDoc]);
 	// Live, the editor's binding deletes from the shared document (for everyone) whatever its schema cannot render: the
 	// document is checked before the editor is bound, and the session checks every update after (`bindEditor`). Done
 	// while rendering, so no update can land between the check and the editor.
@@ -198,7 +218,15 @@ export function DocsEditorSurface({
 		const { from, to } = current.state.selection;
 		const selected = current.state.doc.textBetween(from, to, ' ', ' ').trim();
 		const block = blockOf(current.state.doc, anchored.blockId);
-		return { blockId: anchored.blockId, quote: quoteOf(selected || block?.node.textContent || ''), created: anchored.transaction !== null };
+		// The selected text as a range of its block; live, its ends follow the others' edits too.
+		const found = selectionCommentAnchor(current.state, liveRelativeRangeOf(current.state, liveDocRef.current));
+		const range = found && found.blockId === anchored.blockId ? found : null;
+		return {
+			blockId: anchored.blockId,
+			quote: quoteOf(range?.quote || selected || block?.node.textContent || ''),
+			created: anchored.transaction !== null,
+			range
+		};
 	}, []);
 
 	useEffect(() => {
@@ -226,9 +254,11 @@ export function DocsEditorSurface({
 		() => [
 			BlockIds,
 			DocsCommentMarksExtension.configure({
-				onOpenThread: (blockId) => commentsRef.current?.onOpenThread(blockId),
+				onOpenThread: (blockId, threadId) =>
+					threadId ? commentsRef.current?.onOpenThread(blockId, threadId) : commentsRef.current?.onOpenThread(blockId),
 				onComment: () => commentsRef.current?.onComment(),
-				markerLabel: () => labelsRef.current.marker
+				markerLabel: () => labelsRef.current.marker,
+				liveResolver: () => liveResolverRef.current
 			}),
 			DocsTaskChipsExtension.configure({
 				origin: () => (typeof window === 'undefined' ? 'http://localhost' : window.location.origin),
@@ -242,10 +272,12 @@ export function DocsEditorSurface({
 	const editor = useEditorOf(editorRef, live ? `live-${live.generation}` : 'page');
 	const openKey = comments?.openBlockIds.join(',') ?? '';
 	const activeBlockId = comments?.activeBlockId ?? null;
+	const ranges = comments?.ranges ?? NO_RANGES;
+	const activeThreadId = comments?.activeThreadId ?? null;
 	useEffect(() => {
 		if (!editor) return;
-		setCommentMarks(editor.view, { open: new Set(openKey ? openKey.split(',') : []), active: activeBlockId });
-	}, [activeBlockId, editor, openKey]);
+		setCommentMarks(editor.view, { open: new Set(openKey ? openKey.split(',') : []), active: activeBlockId, ranges, activeThread: activeThreadId });
+	}, [activeBlockId, activeThreadId, editor, openKey, ranges]);
 	useEffect(() => {
 		if (editor) setTaskChips(editor.view, taskChips);
 	}, [editor, taskChips]);
@@ -320,13 +352,16 @@ export function DocsEditorSurface({
 
 /**
  * The surface's styles: the sticky formatting row (hidden on a phone, where the row above the keyboard takes its place
- * while typing), the blocks with an open thread (a tint and a button in the margin), the block a link points at, and
- * the task chips.
+ * while typing), the blocks with an open thread (a tint and a button in the margin), the text of a thread made on a
+ * range (a highlight, brighter for the thread asked for), the block a link points at, and the task chips.
  */
 const DOCS_SURFACE_CLASS = [
 	'docs-editor-surface min-h-[50vh] [&_[role=toolbar]]:sticky [&_[role=toolbar]]:top-0 [&_[role=toolbar]]:z-10 [&_[role=toolbar]]:bg-background print:[&_[role=toolbar]]:hidden',
 	'[&_.docs-commented-block]:relative [&_.docs-commented-block]:rounded-sm [&_.docs-commented-block]:bg-amber-500/[0.07] [&_.docs-commented-block]:shadow-[inset_2px_0_0_rgb(245_158_11/0.6)]',
+	'[&_.docs-marked-block]:relative',
 	'[&_.docs-active-block]:rounded-sm [&_.docs-active-block]:bg-amber-500/[0.16] [&_.docs-active-block]:transition-colors',
+	'[&_.docs-comment-range]:cursor-pointer [&_.docs-comment-range]:rounded-[2px] [&_.docs-comment-range]:bg-amber-500/[0.18] [&_.docs-comment-range]:shadow-[inset_0_-2px_0_rgb(245_158_11/0.55)] [&_.docs-comment-range]:transition-colors [&_.docs-comment-range:hover]:bg-amber-500/[0.28]',
+	'[&_.docs-comment-range-active]:bg-amber-500/[0.34] [&_.docs-comment-range-active]:shadow-[inset_0_-2px_0_rgb(217_119_6/0.9)]',
 	'[&_.docs-comment-marker]:absolute [&_.docs-comment-marker]:-left-7 [&_.docs-comment-marker]:top-0.5 [&_.docs-comment-marker]:flex [&_.docs-comment-marker]:size-5 [&_.docs-comment-marker]:cursor-pointer [&_.docs-comment-marker]:items-center [&_.docs-comment-marker]:justify-center [&_.docs-comment-marker]:rounded-md [&_.docs-comment-marker]:border-0 [&_.docs-comment-marker]:bg-amber-500/20 [&_.docs-comment-marker]:p-0 [&_.docs-comment-marker:hover]:bg-amber-500/35 max-sm:[&_.docs-comment-marker]:-left-5',
 	'[&_.docs-comment-marker]:after:block [&_.docs-comment-marker]:after:size-2 [&_.docs-comment-marker]:after:rounded-full [&_.docs-comment-marker]:after:bg-amber-600 [&_.docs-comment-marker]:after:content-[""]',
 	'[&_.docs-task-chip]:me-1 [&_.docs-task-chip]:inline-flex [&_.docs-task-chip]:cursor-pointer [&_.docs-task-chip]:items-center [&_.docs-task-chip]:gap-1 [&_.docs-task-chip]:rounded-md [&_.docs-task-chip]:border-0 [&_.docs-task-chip]:bg-foreground/[0.06] [&_.docs-task-chip]:px-1.5 [&_.docs-task-chip]:align-baseline [&_.docs-task-chip]:text-[0.8em] [&_.docs-task-chip]:font-medium [&_.docs-task-chip]:leading-5 [&_.docs-task-chip]:text-foreground/80 [&_.docs-task-chip:hover]:bg-foreground/[0.1]',

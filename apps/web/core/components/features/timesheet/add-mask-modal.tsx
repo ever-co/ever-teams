@@ -13,24 +13,54 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@/core/components/common/select';
+import { useSyncRef } from '@/core/hooks/common/use-sync-ref';
 import { useCreateTimesheet } from '@/core/hooks/timesheet/use-create-timesheet';
+import { useTimeOverlapGuard } from '@/core/hooks/timesheet/use-time-overlap-guard';
+import { useOpenSession } from '@/core/hooks/common/use-open-session';
+import { type OverlapSummary, periodsOverlapEachOther } from '@/core/lib/utils/time-log-overlap';
+import {
+	TimeOverlapCheckError,
+	TimeOverlapConfirmDialog
+} from '@/core/components/features/manual-time/time-overlap-confirm-dialog';
 import { toUTC } from '@/core/lib/helpers/index';
-import { Plus, Spinner } from '@/core/components/icons';
+import {
+	ADD_TIME_ENTRY_STEP_MINUTES,
+	type CheckTimeEntrySave,
+	periodLengthOf,
+	type RefuseTimeEntryOverlap,
+	timeChoiceOf,
+	type TimeEntryCopy
+} from '@/core/lib/utils/time-entry-reuse';
+import { CircleAlert, Plus, Spinner } from '@/core/components/icons';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { controlGroupRecipe, controlRecipe } from '@/core/components/common/input';
 import { CustomSelect } from '../../common/multiple-select';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { ToggleButton } from '../tasks/edit-task-modal';
 import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
+import { FixedMemberField } from './fixed-member-field';
+import { ShiftDurationField } from './shift-duration-field';
 import { ETimeLogType, ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { useAtomValue } from 'jotai';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import { type FixedMember, timeOptionsWith } from '@/core/lib/utils/dashboards/manual-time-entry';
+import { entryProjectIdOf, findProject, projectChoicesFor } from '@/core/lib/utils/dashboards/time-entry-task';
 import type { TOrganizationProject } from '@/core/types/schemas/organization/organization-project.schema';
+import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;
 	closeModal: () => void;
+	/** A copied entry the dialog opens filled with; an empty form when not given. */
+	prefill?: TimeEntryCopy;
+	/** Asked before the periods are saved: a returned message refuses the save and is shown in the dialog. */
+	checkBeforeSave?: CheckTimeEntrySave;
+	/** A copy only: an overlap found as the periods are sent is refused with this message, never offered to save. */
+	refusalOfOverlap?: RefuseTimeEntryOverlap;
+	/** The only member the dialog adds time for (a team manager adds their own); without it the dialog picks one. */
+	fixedMember?: FixedMember | null;
 }
 
 interface Shift {
@@ -38,7 +68,12 @@ interface Shift {
 	endTime: string;
 	totalHours: string;
 	dateFrom: Date | string;
+	/** Set while the period's duration field refuses its text: the times shown are not the duration it reports. */
+	blocksSave?: boolean;
 }
+
+/** The fields a period's own controls write. */
+type ShiftField = Exclude<keyof Shift, 'blocksSave'>;
 
 interface FormState {
 	billableChoice: boolean | null;
@@ -94,22 +129,6 @@ const clearSkippedTimes = (shift: Shift, day: Date) => {
 	if (clearStart || clearEnd) shift.totalHours = '00:00h';
 };
 
-function findProject(projectId: string | null | undefined, projects: TOrganizationProject[]) {
-	if (!projectId) {
-		return undefined;
-	}
-	return projects.find((project) => project.id === projectId);
-}
-
-/** The project of an entry on this task: the task's own project as it is now, or else the one picked by hand. */
-function entryProjectIdOf(task: { projectId?: string | null } | undefined, pickedProjectId: string): string {
-	const taskProjectId = task?.projectId;
-	if (taskProjectId) {
-		return taskProjectId;
-	}
-	return pickedProjectId;
-}
-
 /** The billable value picked by hand, or else the entry's project's own setting. */
 function billableOf(billableChoice: boolean | null, project: TOrganizationProject | null): boolean {
 	if (billableChoice !== null) {
@@ -118,51 +137,119 @@ function billableOf(billableChoice: boolean | null, project: TOrganizationProjec
 	return project?.billable === true;
 }
 
-/**
- * A task's time goes to the task's own project: when the task has one, it is the only project offered. A task
- * project missing from the list (archived, or not loaded yet) offers none, since another pick would not be saved.
- */
-function projectChoicesFor(
-	taskProjectId: string | null | undefined,
-	taskProject: TOrganizationProject | undefined,
-	projects: TOrganizationProject[]
-) {
-	if (!taskProjectId) {
-		return projects;
+/** An entry without a project sends no project field: the API refuses an empty id as a wrong format. */
+function projectFieldOf(projectId: string) {
+	if (!projectId) {
+		return {};
 	}
-	if (taskProject) {
-		return [taskProject];
-	}
-	return [];
+	return { projectId };
 }
 
-export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
+function emptyFormOf(employeeId: string) {
+	return {
+		notes: '',
+		billableChoice: null as boolean | null,
+		taskId: '',
+		employeeId,
+		projectId: '',
+		shifts: [{ startTime: '', endTime: '', totalHours: '00:00h', dateFrom: new Date() }] as Shift[]
+	};
+}
+
+const NOTES_MAX_LENGTH = 120;
+
+const MILLISECONDS_PER_SECOND = 1000;
+
+interface CopiedForm {
+	notes: string;
+	billableChoice: boolean | null;
+	taskId: string;
+	employeeId: string;
+	projectId: string;
+	shifts: Shift[];
+}
+
+function offeredIdOf(id: string, isOffered: boolean) {
+	if (isOffered) {
+		return id;
+	}
+	return '';
+}
+
+/**
+ * The form of a copied entry, on the interval the copy was placed at. Its task and its employee are taken only when
+ * the dialog's lists offer them: an id the form cannot show would be saved without the person seeing it.
+ */
+function copiedFormOf(
+	copy: TimeEntryCopy | undefined,
+	tasks: TTask[],
+	members: TOrganizationTeamEmployee[] | null | undefined
+): Partial<CopiedForm> {
+	if (!copy) {
+		return {};
+	}
+	const isTaskOffered = tasks.some((task) => task.id === copy.taskId);
+	const teamMembers = members ?? [];
+	const isEmployeeOffered = teamMembers.some((member) => member.employeeId === copy.employeeId);
+	const milliseconds = copy.end.getTime() - copy.start.getTime();
+	const seconds = milliseconds / MILLISECONDS_PER_SECOND;
+	const period: Shift = {
+		startTime: timeChoiceOf(copy.start),
+		endTime: timeChoiceOf(copy.end),
+		totalHours: periodLengthOf(seconds),
+		dateFrom: copy.start
+	};
+	return {
+		notes: copy.description.slice(0, NOTES_MAX_LENGTH),
+		billableChoice: copy.isBillable,
+		taskId: offeredIdOf(copy.taskId, isTaskOffered),
+		employeeId: offeredIdOf(copy.employeeId, isEmployeeOffered),
+		projectId: copy.projectId,
+		shifts: [period]
+	};
+}
+
+export function AddTaskModal({
+	closeModal,
+	isOpen,
+	prefill,
+	checkBeforeSave,
+	fixedMember,
+	refusalOfOverlap
+}: Readonly<IAddTaskModalProps>) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { generateTimeOptions } = useTimelogFilterOptions();
 	const { organizationProjects, getOrganizationProjectsLoading } = useOrganizationProjectsQuery();
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const { createTimesheet, loadingCreateTimesheet } = useCreateTimesheet();
+	const overlapGuard = useTimeOverlapGuard({ isOpen });
 
-	const timeOptions = generateTimeOptions(5);
+	const timeOptions = generateTimeOptions(ADD_TIME_ENTRY_STEP_MINUTES);
 	const t = useTranslations();
+	const fixedEmployeeId = fixedMember?.employeeId ?? '';
 
-	const [formState, setFormState] = React.useState({
-		notes: '',
-		billableChoice: null as boolean | null,
-		taskId: '',
-		employeeId: '',
-		projectId: '',
-		shifts: [{ startTime: '', endTime: '', totalHours: '00:00h', dateFrom: new Date() }] as Shift[]
+	const [formState, setFormState] = React.useState(() => {
+		const copiedForm = copiedFormOf(prefill, tasks, activeTeam?.members);
+		// A fixed member is the only one the dialog adds time for, a copy of another member's entry included
+		const fixedEmployee = fixedEmployeeId ? { employeeId: fixedEmployeeId } : {};
+		return { ...emptyFormOf(fixedEmployeeId), ...copiedForm, ...fixedEmployee };
 	});
+	// Raised by a save: the period rows start over too, with the duration typed in them and its proposal
+	const [formVersion, setFormVersion] = React.useState(0);
+	const [saveRefusal, setSaveRefusal] = React.useState('');
+	const [isCheckingSave, setIsCheckingSave] = React.useState(false);
+	const openSessionOf = useOpenSession(isOpen);
 
 	// The task and the employee come from the active team's lists: when that team changes under the open form
 	// (a team switch from another tab), they are cleared instead of being saved with the new team
 	const activeTeamId = activeTeam?.id;
 	const [formTeamId, setFormTeamId] = React.useState(activeTeamId);
+	// Two periods of the entry overlap: said under the periods, since the API would remove the earlier one
+	const [hasOverlappingPeriods, setHasOverlappingPeriods] = React.useState(false);
 	if (formTeamId !== activeTeamId) {
 		setFormTeamId(activeTeamId);
-		setFormState((prevState) => ({ ...prevState, taskId: '', employeeId: '' }));
+		setFormState((prevState) => ({ ...prevState, taskId: '', employeeId: fixedEmployeeId }));
 	}
 
 	// The required task and employee: Save stays disabled until both are picked
@@ -184,7 +271,10 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	// Its billable default is unknown until the entry's project has loaded
 	const hasUnloadedProject = Boolean(entryProjectId) && !selectedProject;
 	const waitsForProject = hasUnloadedProject && getOrganizationProjectsLoading;
-	const isSaveDisabled = loadingCreateTimesheet || waitsForProject;
+	const isSaving = loadingCreateTimesheet || overlapGuard.isChecking || isCheckingSave;
+	// A period whose duration field refuses its text still shows its earlier times: those are not saved in its place
+	const hasRefusedDuration = formState.shifts.some((shift) => shift.blocksSave === true);
+	const isSaveDisabled = isSaving || waitsForProject || hasRefusedDuration;
 
 	const pickTask = useCallback(
 		(taskId: string) => {
@@ -261,11 +351,20 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 		[t]
 	);
 
+	const refusalOf = async (check: CheckTimeEntrySave, employeeId: string, periods: { start: Date; end: Date }[]) => {
+		setIsCheckingSave(true);
+		try {
+			return await check({ employeeId, periods });
+		} finally {
+			setIsCheckingSave(false);
+		}
+	};
+
 	const handleAddTimesheet = async (formState: FormState) => {
 		const payload = {
 			isBillable,
 			description: formState.notes,
-			projectId: entryProjectId,
+			...projectFieldOf(entryProjectId),
 			logType: ETimeLogType.MANUAL as any,
 			source: ETimeLogSource.TEAMS as any,
 			taskId: formState.taskId,
@@ -298,17 +397,58 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 				}
 				return { start, end };
 			});
-			await Promise.all(
-				entries.map(({ start, end }) =>
-					createTimesheet({
-						...payload,
-						startedAt: start,
-						stoppedAt: end,
-						taskId: payload.taskId
-					})
-				)
-			);
-			closeModal();
+			// Sent together, the later of two overlapping periods would make the API remove the earlier one
+			const overlap = periodsOverlapEachOther(entries);
+			setHasOverlappingPeriods(overlap);
+			if (overlap) {
+				return;
+			}
+			// A copied entry is refused over another entry, before the overlap warning could offer to save it
+			if (checkBeforeSave) {
+				const session = openSessionOf();
+				const refusal = await refusalOf(checkBeforeSave, formState.employeeId, entries);
+				// Closed while the check ran: the copy is not saved behind the person's back
+				const wasDismissed = session !== openSessionOf();
+				if (wasDismissed) {
+					return;
+				}
+				setSaveRefusal(refusal ?? '');
+				if (refusal) {
+					return;
+				}
+			}
+			const saveEntries = async () => {
+				try {
+					await Promise.all(
+						entries.map(({ start, end }) =>
+							createTimesheet({
+								...payload,
+								startedAt: start,
+								stoppedAt: end,
+								taskId: payload.taskId
+							})
+						)
+					);
+					closeModal();
+					// The dialog stays mounted once opened: the next entry starts empty, not on the times just saved
+					setFormState(emptyFormOf(fixedEmployeeId));
+					setFormVersion((version) => version + 1);
+				} catch (error) {
+					console.error('Failed to create timesheet:', error);
+				}
+			};
+			// A copy over an entry recorded since its check is refused like one the check found
+			let refuseCopiedOverlap: ((overlap: OverlapSummary) => void) | undefined;
+			if (refusalOfOverlap) {
+				refuseCopiedOverlap = (overlap) => setSaveRefusal(refusalOfOverlap(overlap));
+			}
+			// Every period is checked before any is sent
+			await overlapGuard.saveAfterCheck({
+				employeeId: formState.employeeId,
+				periods: entries,
+				save: saveEntries,
+				refuseOverlap: refuseCopiedOverlap
+			});
 		} catch (error) {
 			console.error('Failed to create timesheet:', error);
 		}
@@ -350,7 +490,14 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						)}
 					/>
 				</div>
-				<div className="block">
+				{fixedMember && (
+					<FixedMemberField
+						label={t('manualTime.EMPLOYEE')}
+						name={fixedMember.name}
+						hint={t('manualTime.OWN_TIME_ONLY')}
+					/>
+				)}
+				<div className={clsxm('block', fixedMember && 'hidden')}>
 					<label className="block mb-1.5 text-sm font-medium leading-none text-foreground">
 						{t('manualTime.EMPLOYEE')}
 						<span className="ml-1 text-destructive-ink">*</span>:
@@ -379,8 +526,10 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 				</div>
 				<div>
 					<OptimizedAccordion
+						key={formVersion}
 						setShifts={(e) => updateFormState('shifts', e)}
 						shifts={formState.shifts}
+						employeeId={formState.employeeId}
 						t={t}
 						timeOptions={timeOptions}
 					/>
@@ -436,6 +585,18 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						{formState.notes.length}/{120}
 					</div>
 				</div>
+				{saveRefusal && (
+					<p role="alert" className="flex items-start gap-1.5 text-[13px] text-destructive-ink">
+						<CircleAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+						{saveRefusal}
+					</p>
+				)}
+				{hasOverlappingPeriods && (
+					<p role="alert" className="text-xs text-destructive-ink">
+						{t('timeOverlap.PERIODS_OVERLAP')}
+					</p>
+				)}
+				<TimeOverlapCheckError guard={overlapGuard} />
 				<div className="flex gap-x-2 justify-end items-center w-full">
 					<Button variant="outline" size="lg" type="button" onClick={closeModal}>
 						{t('common.CANCEL')}
@@ -446,11 +607,12 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						onClick={() => handleAddTimesheet(formState as any)}
 						type="submit"
 					>
-						{loadingCreateTimesheet && <Spinner className="animate-spin" />}
+						{isSaving && <Spinner className="animate-spin" />}
 						{t('common.SAVE')}
 					</Button>
 				</div>
 			</div>
+			<TimeOverlapConfirmDialog guard={overlapGuard} confirmLabel={t('timeOverlap.CONFIRM_SAVE')} />
 		</Modal>
 	);
 }
@@ -507,11 +669,13 @@ const ShiftTimingSelect = ({
 const OptimizedAccordion = ({
 	setShifts,
 	shifts,
+	employeeId,
 	timeOptions,
 	t
 }: {
 	shifts: Shift[];
 	setShifts: React.Dispatch<React.SetStateAction<Shift[]>>;
+	employeeId: string;
 	timeOptions: string[];
 	t: TranslationHooks;
 }) => {
@@ -534,7 +698,7 @@ const OptimizedAccordion = ({
 		setShifts(updatedShifts);
 	};
 
-	const handleShiftChange = (index: number, field: keyof Shift, value: string) => {
+	const handleShiftChange = (index: number, field: ShiftField, value: string) => {
 		const updatedShifts = [...shifts];
 		updatedShifts[index][field] = value;
 
@@ -572,6 +736,31 @@ const OptimizedAccordion = ({
 		setShifts(updatedShifts);
 	};
 
+	// The times of several periods can arrive before the dialog renders again (a member change asks every period
+	// again at once): each one is written on the periods as the previous one left them, not as last rendered
+	const latestShiftsRef = useSyncRef(shifts);
+
+	const handleShiftTimes = (index: number, startTime: string, endTime: string) => {
+		const updatedShifts = [...latestShiftsRef.current];
+		const totalHours = calculateTotalHoursHour(startTime, endTime);
+		updatedShifts[index] = { ...updatedShifts[index], startTime, endTime, totalHours };
+		latestShiftsRef.current = updatedShifts;
+		setShifts(updatedShifts);
+	};
+
+	const readLatestShifts = () => latestShiftsRef.current;
+
+	const handleSaveBlock = (index: number, blocksSave: boolean) => {
+		const updatedShifts = [...latestShiftsRef.current];
+		const shift = updatedShifts[index];
+		if (!shift) {
+			return;
+		}
+		updatedShifts[index] = { ...shift, blocksSave };
+		latestShiftsRef.current = updatedShifts;
+		setShifts(updatedShifts);
+	};
+
 	return (
 		<>
 			{shifts.map((element, index) => {
@@ -600,6 +789,10 @@ const OptimizedAccordion = ({
 										index={index}
 										onChange={handleShiftChange}
 										timeOptions={timeOptions}
+										readShifts={readLatestShifts}
+										employeeId={employeeId}
+										onTimes={handleShiftTimes}
+										onSaveBlock={handleSaveBlock}
 									/>
 								</div>
 							</AccordionContent>
@@ -625,17 +818,27 @@ const ShiftManagement = ({
 	value,
 	index,
 	timeOptions,
+	readShifts,
+	employeeId,
+	onTimes,
+	onSaveBlock,
 	t
 }: {
-	onChange: (index: number, field: keyof Shift, value: string) => void;
+	onChange: (index: number, field: ShiftField, value: string) => void;
 	value: Shift;
 	index: number;
 	timeOptions: string[];
+	readShifts: () => Shift[];
+	employeeId: string;
+	onTimes: (index: number, startTime: string, endTime: string) => void;
+	onSaveBlock: (index: number, blocksSave: boolean) => void;
 	t: TranslationHooks;
 }) => {
 	// Times skipped by a daylight saving change on the picked day cannot be saved as picked.
 	const baseDate = value.dateFrom ? new Date(value.dateFrom) : null;
 	const isTimeDisabled = (time: string) => baseDate !== null && createLocalDate(baseDate, time) === null;
+	const pickedTimes = [value.startTime, value.endTime];
+	const shownTimeOptions = timeOptionsWith(timeOptions, pickedTimes, convertToMinutesHour);
 
 	return (
 		<>
@@ -652,7 +855,7 @@ const ShiftManagement = ({
 				<div className="flex gap-2 justify-between items-center mb-1 w-full">
 					<ShiftTimingSelect
 						label="Start"
-						timeOptions={timeOptions}
+						timeOptions={shownTimeOptions}
 						placeholder="00:00:00"
 						className="bg-foreground/5"
 						value={value.startTime}
@@ -661,18 +864,24 @@ const ShiftManagement = ({
 					/>
 					<ShiftTimingSelect
 						label="End"
-						timeOptions={timeOptions}
+						timeOptions={shownTimeOptions}
 						placeholder="00:00:00"
 						className="bg-foreground/5"
 						value={value.endTime}
 						onChange={(value) => onChange(index, 'endTime', value)}
 						isTimeDisabled={isTimeDisabled}
 					/>
-					<button className="flex h-9 shrink-0 items-center rounded-md bg-foreground/5 px-2.5 text-sm font-medium tabular-nums focus:outline-none">
-						{value.totalHours}
-					</button>
 				</div>
 			</div>
+			<ShiftDurationField
+				shift={value}
+				readShifts={readShifts}
+				index={index}
+				employeeId={employeeId}
+				minutesOfOption={convertToMinutesHour}
+				onTimes={onTimes}
+				onSaveBlock={onSaveBlock}
+			/>
 		</>
 	);
 };

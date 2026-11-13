@@ -114,3 +114,168 @@ describe('TimeLogService daily report time without a team', () => {
 		expect((await requestDailyReport(['team-a'])).has('includeTimeWithoutTeam')).toBe(false);
 	});
 });
+
+describe('TimeLogService lookup of the time a manual entry would overlap', () => {
+	afterEach(() => jest.restoreAllMocks());
+
+	const startDate = new Date('2026-11-10T18:30:00.000Z');
+	const endDate = new Date('2026-11-10T19:30:00.000Z');
+
+	function answerWith(data: unknown) {
+		jest.spyOn(timeLogService as never, 'organizationId', 'get').mockReturnValue('organization-a' as never);
+		jest.spyOn(timeLogService as never, 'tenantId', 'get').mockReturnValue('tenant-a' as never);
+		return jest.spyOn(timeLogService, 'get').mockResolvedValue({ data } as never);
+	}
+
+	function queryOf(get: jest.SpyInstance) {
+		const [url] = get.mock.calls[0];
+		return new URL(url, 'https://client.test');
+	}
+
+	it('asks for the member, the organization and the exact interval, with the task and the project', async () => {
+		const get = answerWith([]);
+
+		await timeLogService.getTimeLogConflicts({ employeeId: 'employee-a', startDate, endDate });
+
+		const url = queryOf(get);
+		expect(url.pathname).toBe('/timesheet/time-log/conflict');
+		expect(url.searchParams.get('employeeId')).toBe('employee-a');
+		expect(url.searchParams.get('organizationId')).toBe('organization-a');
+		expect(url.searchParams.get('startDate')).toBe('2026-11-10T18:30:00.000Z');
+		expect(url.searchParams.get('endDate')).toBe('2026-11-10T19:30:00.000Z');
+		expect(url.searchParams.get('relations[0]')).toBe('task');
+		expect(url.searchParams.get('relations[1]')).toBe('project');
+		expect(url.searchParams.has('ignoreId[0]')).toBe(false);
+	});
+
+	it('names the edited entry so the API leaves it out', async () => {
+		const get = answerWith([]);
+
+		await timeLogService.getTimeLogConflicts({ employeeId: 'employee-a', startDate, endDate, ignoreId: 'log-1' });
+
+		expect(queryOf(get).searchParams.get('ignoreId[0]')).toBe('log-1');
+	});
+
+	it('keeps only what the warning reads, and accepts the fields the API leaves empty', async () => {
+		answerWith([
+			{
+				id: 'log-2',
+				startedAt: '2026-11-10T18:42:00.000Z',
+				stoppedAt: null,
+				isRunning: true,
+				description: 'Private note',
+				task: { id: 'task-1', title: 'Fix the login page' },
+				project: null,
+				timeSlots: [{ id: 'slot-1' }]
+			}
+		]);
+
+		const conflicts = await timeLogService.getTimeLogConflicts({ employeeId: 'employee-a', startDate, endDate });
+
+		expect(conflicts).toEqual([
+			{
+				id: 'log-2',
+				startedAt: '2026-11-10T18:42:00.000Z',
+				stoppedAt: null,
+				isRunning: true,
+				task: { title: 'Fix the login page' },
+				project: null
+			}
+		]);
+	});
+
+	it('fails on an answer that is not a list of entries, so nothing is saved on a guess', async () => {
+		answerWith({ message: 'Forbidden' });
+		const { logger } = timeLogService as unknown as { logger: { error: (...args: unknown[]) => void } };
+		jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+
+		await expect(
+			timeLogService.getTimeLogConflicts({ employeeId: 'employee-a', startDate, endDate })
+		).rejects.toThrow();
+	});
+});
+
+function spyOnServiceGet() {
+	jest.spyOn(timeLogService as never, 'organizationId', 'get').mockReturnValue('organization-a' as never);
+	jest.spyOn(timeLogService as never, 'tenantId', 'get').mockReturnValue('tenant-a' as never);
+	return jest.spyOn(timeLogService, 'get').mockResolvedValue({ data: [] } as never);
+}
+
+function sentQueryOf(get: ReturnType<typeof spyOnServiceGet>) {
+	const [url] = get.mock.calls[0];
+	return new URL(url, 'https://client.test').searchParams;
+}
+
+describe('TimeLogService reports of billable time only', () => {
+	afterEach(() => jest.restoreAllMocks());
+
+	const day = {
+		organizationId: 'organization-a',
+		tenantId: 'tenant-a',
+		startDate: '2026-11-05',
+		endDate: '2026-11-05'
+	};
+	const week = { startDate: '2026-11-02T00:00:00.000Z', endDate: '2026-11-08T23:59:59.999Z' };
+
+	it('asks the daily report for billable time only when the filter is on', async () => {
+		const get = spyOnServiceGet();
+
+		await timeLogService.getTimeLogReportDaily({ ...day, billableOnly: true });
+
+		expect(sentQueryOf(get).get('billableOnly')).toBe('true');
+	});
+
+	it('asks the weekly report for billable time only when the filter is on', async () => {
+		const get = spyOnServiceGet();
+
+		await timeLogService.getTimeLogReportWeekly({ ...week, billableOnly: true });
+
+		expect(sentQueryOf(get).get('billableOnly')).toBe('true');
+	});
+
+	it('leaves the parameter out otherwise, so both reports keep counting every log', async () => {
+		const dailyGet = spyOnServiceGet();
+		await timeLogService.getTimeLogReportDaily(day);
+		expect(sentQueryOf(dailyGet).has('billableOnly')).toBe(false);
+		jest.restoreAllMocks();
+
+		const weeklyGet = spyOnServiceGet();
+		await timeLogService.getTimeLogReportWeekly({ ...week, billableOnly: false });
+		expect(sentQueryOf(weeklyGet).has('billableOnly')).toBe(false);
+	});
+});
+
+describe('TimeLogService time logs with the labels of their tasks', () => {
+	afterEach(() => jest.restoreAllMocks());
+
+	const period = { startDate: '2026-11-05', endDate: '2026-11-05', timeZone: 'UTC' };
+
+	function relationsOf(query: URLSearchParams) {
+		const relations: string[] = [];
+		query.forEach((value, name) => {
+			if (name.startsWith('relations[')) {
+				relations.push(value);
+			}
+		});
+		return relations;
+	}
+
+	it('asks for the labels of each task after the relations every page reads', async () => {
+		const get = spyOnServiceGet();
+
+		await timeLogService.getTimeLogs({ ...period, withTaskLabels: true });
+
+		const query = sentQueryOf(get);
+		const relations = relationsOf(query);
+		expect(relations).toContain('task');
+		expect(query.get(`relations[${relations.length - 1}]`)).toBe('task.tags');
+	});
+
+	it('keeps the request of the other pages as it was', async () => {
+		const get = spyOnServiceGet();
+
+		await timeLogService.getTimeLogs(period);
+
+		expect(relationsOf(sentQueryOf(get))).not.toContain('task.tags');
+	});
+});

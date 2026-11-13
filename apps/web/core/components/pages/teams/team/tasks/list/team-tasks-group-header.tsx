@@ -5,6 +5,7 @@ import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { Checkbox } from '@/core/components/common/checkbox';
 import { ChevronRight, Plus, User } from '@/core/components/icons';
+import { dataColorHue, isPaintableColor } from '@/core/components/tasks/task-data-color';
 import { TaskPropertyIcon, TaskPropertyPlaceholderIcon } from '@/core/components/tasks/task-property-icon';
 import { PersonAvatar } from '@/core/components/teams/people-avatars';
 import { activeTeamWorkedDurationByTaskState } from '@/core/stores';
@@ -14,6 +15,19 @@ import { NONE_VALUE, type TeamTasksGroup } from '@/core/lib/utils/team-tasks-vie
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { useTeamTasksList } from './team-tasks-list-context';
 import { TEAM_TASK_WIDE_CELL } from './team-tasks-grid';
+
+const BAND =
+	'group/band flex h-9 items-center pr-1 hairline-b border-border max-lg:pl-2 lg:grid lg:[grid-template-columns:var(--team-task-grid)]';
+
+/** The fill of every band. Opaque: a band is sticky, and rows must not show through. */
+const NEUTRAL_BAND = 'bg-[color-mix(in_oklab,hsl(var(--background)),hsl(var(--foreground))_2.5%)]';
+
+/**
+ * A wash of the group's own colour (`--band`) over the neutral fill, as a layer of its own: a colour the browser
+ * cannot read drops the wash alone and leaves the band opaque.
+ */
+const BAND_WASH =
+	'bg-[image:linear-gradient(color-mix(in_oklab,var(--band)_10%,transparent),color-mix(in_oklab,var(--band)_10%,transparent))] dark:bg-[image:linear-gradient(color-mix(in_oklab,var(--band)_16%,transparent),color-mix(in_oklab,var(--band)_16%,transparent))]';
 
 const COUNT_CHIP =
 	'inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-[5px] bg-foreground/[0.06] px-1 text-[11px] font-medium tabular-nums text-muted-foreground';
@@ -75,7 +89,15 @@ function useGroupIdentity(group: TeamTasksGroup): GroupIdentity {
 				keepsCase: true
 			};
 		}
-		const glyph = <TaskPropertyIcon kind="status" name={group.status.name} color={group.status.color} />;
+		const glyph = (
+			<TaskPropertyIcon
+				kind="status"
+				name={group.status.name}
+				color={group.status.color}
+				icon={group.status.icon}
+				iconUrl={group.status.fullIconUrl}
+			/>
+		);
 		return { glyph, name: readableName(group.status.name), keepsCase: false };
 	}
 	if (group.grouping === 'priority') {
@@ -132,6 +154,22 @@ function selectionStateOf(ids: string[], selectedIds: ReadonlySet<string>): Chec
 	return false;
 }
 
+/** The colour a band is tinted with: its status's or its priority's own. Other groupings have none. */
+function bandColorOf(group: TeamTasksGroup, priorityItems: ReadonlyMap<string, { bgColor?: string | null }>) {
+	if (group.grouping === 'status') {
+		return group.status?.color;
+	}
+	if (group.grouping === 'priority') {
+		return priorityItems.get(group.value)?.bgColor;
+	}
+	return undefined;
+}
+
+function bandToneStyle(color: string): CSSProperties {
+	const bandVariables = { '--band': dataColorHue(color) };
+	return bandVariables as CSSProperties;
+}
+
 function GroupTotal({ tasks, style }: Readonly<{ tasks: TTask[]; style: CSSProperties }>) {
 	const durations = useAtomValue(activeTeamWorkedDurationByTaskState);
 	const total = workedTotalOf(tasks, durations);
@@ -155,8 +193,14 @@ export const TeamTasksGroupHeader = memo(function TeamTasksGroupHeader({
 	selectedIds
 }: Readonly<{ group: TeamTasksGroup; isCollapsed: boolean; selectedIds: ReadonlySet<string> }>) {
 	const t = useTranslations();
-	const { grid, toggleGroup, setManySelected, createTaskInGroup } = useTeamTasksList();
+	const { grid, priorityItems, toggleGroup, setManySelected, createTaskInGroup } = useTeamTasksList();
 	const identity = useGroupIdentity(group);
+	const bandColor = bandColorOf(group, priorityItems);
+	const isTinted = isPaintableColor(bandColor);
+	let bandStyle: CSSProperties | undefined;
+	if (isTinted) {
+		bandStyle = bandToneStyle(bandColor);
+	}
 	const ids = uniqueIdsOf(group.tasks);
 	const checked = selectionStateOf(ids, selectedIds);
 	const count = group.tasks.length;
@@ -173,7 +217,8 @@ export const TeamTasksGroupHeader = memo(function TeamTasksGroupHeader({
 		<div
 			role="row"
 			aria-expanded={!isCollapsed}
-			className="group/band flex h-9 items-center bg-[color-mix(in_oklab,hsl(var(--background)),hsl(var(--foreground))_2.5%)] pr-1 hairline-b border-border max-lg:pl-2 lg:grid lg:[grid-template-columns:var(--team-task-grid)]"
+			style={bandStyle}
+			className={cn(BAND, NEUTRAL_BAND, isTinted && BAND_WASH)}
 		>
 			<span role="gridcell" className={cn(TEAM_TASK_WIDE_CELL, 'flex justify-center')}>
 				<Checkbox

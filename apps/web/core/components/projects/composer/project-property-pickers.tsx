@@ -4,7 +4,7 @@ import { useMemo, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { EntityTile } from '@/core/components/common/entity-tile';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/core/components/common/tooltip';
-import { Lock, Plus, Tag, X } from '@/core/components/icons';
+import { Building, Lock, Plus, Refresh, Tag, X } from '@/core/components/icons';
 import { MUTED_VALUE, PersonFace, ProjectStatusChip, teamImageOf } from '@/core/components/projects/project-cells';
 import { dataColorDotStyle, isPaintableColor } from '@/core/components/tasks/task-data-color';
 import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
@@ -14,13 +14,14 @@ import {
 	type TaskPropertyMenuOption
 } from '@/core/components/tasks/task-property-menu';
 import { cn } from '@/core/lib/helpers';
+import { hasClientNamed, type ListReadState } from '@/core/lib/utils/clients';
 import {
 	PROJECT_STATUS_LABEL_KEYS,
 	PROJECT_STATUS_VALUES,
 	type ProjectPersonOption
 } from '@/core/lib/utils/project-composer';
 import { findStatusByName, normalizeStatusName } from '@/core/lib/utils/project-list';
-import type { TTag } from '@/core/types/schemas';
+import type { TClient, TTag } from '@/core/types/schemas';
 import type { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
 import type { TTaskStatus } from '@/core/types/schemas/task/task-status.schema';
 import {
@@ -338,6 +339,127 @@ export function ProjectTagsPicker({
 			>
 				<AddTextTrigger label={addLabel} />
 			</TaskPropertyMenu>
+		</>
+	);
+}
+
+interface SelectedProjectClient {
+	id: string;
+	name: string;
+	isArchived: boolean;
+}
+
+const CLIENT_LIST_NOTE = 'flex min-h-8 items-center px-2 py-1.5 text-[13px] leading-5 text-muted-foreground';
+
+interface ProjectClientPickerProps {
+	/** The clients on offer: the active ones. */
+	clients: TClient[];
+	listState: ListReadState;
+	selectedClient: SelectedProjectClient | null;
+	canCreate: boolean;
+	isCreating: boolean;
+	/** While the project saves: the save sends the client as it was when Save was pressed. */
+	disabled?: boolean;
+	onSelect: (clientId: string) => void;
+	onClear: () => void;
+	onCreate: (name: string) => void;
+	onRetry: () => void;
+}
+
+function clientOptionOf(client: TClient): TaskPropertyMenuOption<string> {
+	return {
+		key: client.id,
+		value: client.id,
+		label: client.name,
+		icon: <EntityTile name={client.name} imageUrl={client.imageUrl} className="size-4 text-[7px]" />
+	};
+}
+
+export function ProjectClientPicker({
+	clients,
+	listState,
+	selectedClient,
+	canCreate,
+	isCreating,
+	disabled = false,
+	onSelect,
+	onClear,
+	onCreate,
+	onRetry
+}: Readonly<ProjectClientPickerProps>) {
+	const t = useTranslations();
+	const options = useMemo(() => clients.map(clientOptionOf), [clients]);
+	const selectedId = selectedClient?.id;
+	// A client the viewer may not read has no name here; it is still shown as set.
+	const selectedName = selectedClient?.name || t('common.CLIENT');
+	let triggerLabel = t('clients.picker.ADD');
+	if (selectedClient) {
+		triggerLabel = t('clients.picker.CHANGE');
+	}
+
+	const renderCreateRow = (query: string) => {
+		const name = query.trim();
+		const isNewName = name.length > 0 && !hasClientNamed(clients, name);
+		const showsCreate = canCreate && isNewName;
+		if (!showsCreate) {
+			return null;
+		}
+		return (
+			<TaskPropertyMenuAction icon={<Building />} onClick={() => onCreate(name)} disabled={isCreating}>
+				{t('clients.picker.CREATE', { name })}
+			</TaskPropertyMenuAction>
+		);
+	};
+
+	const renderFooter = (query: string) => {
+		if (listState === 'loading') {
+			return <p className={CLIENT_LIST_NOTE}>{t('common.LOADING')}</p>;
+		}
+		if (listState === 'failed') {
+			return (
+				<>
+					<p role="alert" className={CLIENT_LIST_NOTE}>
+						{t('clients.ERROR_TITLE')}
+					</p>
+					<TaskPropertyMenuAction icon={<Refresh />} onClick={onRetry}>
+						{t('pages.unauthorized.TRY_AGAIN')}
+					</TaskPropertyMenuAction>
+				</>
+			);
+		}
+		return renderCreateRow(query);
+	};
+
+	return (
+		<>
+			<TaskPropertyMenu
+				options={options}
+				disabled={disabled}
+				isSelected={(value) => value === selectedId}
+				onSelect={onSelect}
+				searchPlaceholder={t('clients.SEARCH_PLACEHOLDER')}
+				triggerLabel={triggerLabel}
+				triggerClassName={VALUE_BUTTON}
+				popupClassName="w-60"
+				footer={renderFooter}
+			>
+				{selectedClient && (
+					<>
+						<EntityTile name={selectedName} className="size-4 text-[7px]" />
+						<span className="truncate">{selectedName}</span>
+					</>
+				)}
+				{!selectedClient && <AddTextTrigger label={t('clients.picker.ADD')} />}
+			</TaskPropertyMenu>
+			{selectedClient?.isArchived && (
+				<span className="text-xs text-muted-foreground">{t('clients.SCOPE_ARCHIVED')}</span>
+			)}
+			{selectedClient && !disabled && (
+				<RemoveChipButton
+					label={t('pages.projects.modals.removeItem', { name: selectedName })}
+					onRemove={onClear}
+				/>
+			)}
 		</>
 	);
 }

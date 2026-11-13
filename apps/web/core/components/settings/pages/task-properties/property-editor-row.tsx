@@ -9,6 +9,7 @@ import {
 	draftWithTemplate,
 	groupOfTemplate,
 	hasIconLibrary,
+	hasIconPicker,
 	isPropertyNameFilled,
 	PropertyDraft,
 	TaskPropertySettingsKind
@@ -28,6 +29,8 @@ interface PropertyEditorRowProps {
 	mode: PropertyEditorMode;
 	initialDraft: PropertyDraft;
 	showsGroupHint?: boolean;
+	/** Whether another row of the list already has the name: the row then refuses it, as a duplicate. */
+	isNameTaken?: (name: string) => boolean;
 	onCancel: () => void;
 	onSave: (draft: PropertyDraft) => Promise<void>;
 }
@@ -51,6 +54,7 @@ export function PropertyEditorRow({
 	mode,
 	initialDraft,
 	showsGroupHint = false,
+	isNameTaken,
 	onCancel,
 	onSave
 }: Readonly<PropertyEditorRowProps>) {
@@ -90,7 +94,8 @@ export function PropertyEditorRow({
 
 	const changeIcon = (icon: string) => {
 		setIsIconPicked(true);
-		setDraft((current) => ({ ...current, icon }));
+		// The URL Gauzy gave belongs to the stored icon only
+		setDraft((current) => ({ ...current, icon, iconUrl: null }));
 	};
 
 	const changeTemplate = (template: ETaskStatusName | null) => {
@@ -104,6 +109,10 @@ export function PropertyEditorRow({
 		}
 		if (!isPropertyNameFilled(draft.name)) {
 			setNameError(t('settings.taskProperties.NAME_REQUIRED'));
+			return;
+		}
+		if (isNameTaken?.(draft.name)) {
+			setNameError(t('settings.taskProperties.NAME_TAKEN', { kind }));
 			return;
 		}
 		setIsSaving(true);
@@ -131,7 +140,9 @@ export function PropertyEditorRow({
 			className="flex flex-col gap-3 bg-foreground/[0.025] px-4 py-3"
 		>
 			<div className="flex items-start gap-2">
-				{hasLook && <PropertyIconPicker kind={kind} value={draft.icon} onChange={changeIcon} />}
+				{hasIconPicker(kind) && (
+					<PropertyIconPicker kind={kind} value={draft.icon} valueUrl={draft.iconUrl} onChange={changeIcon} />
+				)}
 				<div className="flex min-w-0 flex-1 flex-col gap-1">
 					<label htmlFor={nameId} className="sr-only">
 						{t('common.NAME')}
@@ -189,6 +200,8 @@ export function PropertyEditorRow({
 							kind={kind}
 							name={draft.name}
 							color={draft.color}
+							icon={draft.icon}
+							iconUrl={draft.iconUrl}
 							placeholder={namePlaceholder}
 						/>
 					</div>

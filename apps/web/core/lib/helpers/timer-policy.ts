@@ -10,12 +10,17 @@ interface TimerEligibilityState {
 	hasActiveTask: boolean;
 	isActiveTaskClosed: boolean;
 	isTimerRunning: boolean;
+	/** Whether the timer shows the run: the team-filtered status reads it as running */
+	isRunShown: boolean;
 	timerSource: ETimeLogSource | undefined;
 }
 
 export function canRunTimerForState(state: TimerEligibilityState): boolean {
 	if (!state.isEmailVerified) return false;
 	if (state.hasActiveTask && !state.isActiveTaskClosed) return true;
+	// A run the timer shows can be stopped without an active task, which a reload leaves empty when the run's task is
+	// in another project of the team (#5122)
+	if (state.isRunShown) return true;
 	return state.isTimerRunning && state.timerSource !== ETimeLogSource.TEAMS;
 }
 
@@ -66,14 +71,14 @@ export function isStaleTeamsTimer(
 }
 
 /**
- * Modal types that the timer policy can request to show.
+ * Modal types that the timer policy can request to show. Only a team that requires a plan gets them: elsewhere
+ * planning the day is the member's choice, never a step of Start.
  *
- * - ENFORCE_PLAN: Hard block — task is NOT in today's plan and team requires a plan.
- * - ENFORCE_PLAN_SOFT: Soft prompt — task is not planned, but user can add it.
- * - SUGGEST_DAILY_PLAN: Suggest the user create a daily plan.
+ * - ENFORCE_PLAN: Hard block — task is NOT in today's plan.
+ * - SUGGEST_DAILY_PLAN: Ask the user to create today's plan.
  * - TASKS_ESTIMATION_HOURS: Prompt user to estimate tasks / set work hours.
  */
-export type TimerModalType = 'ENFORCE_PLAN' | 'ENFORCE_PLAN_SOFT' | 'SUGGEST_DAILY_PLAN' | 'TASKS_ESTIMATION_HOURS';
+export type TimerModalType = 'ENFORCE_PLAN' | 'SUGGEST_DAILY_PLAN' | 'TASKS_ESTIMATION_HOURS';
 
 /**
  * Discriminated union of all possible timer actions.
@@ -83,6 +88,7 @@ export type TimerAction =
 	| { type: 'NOOP' }
 	| { type: 'STOP_TIMER' }
 	| { type: 'START_TIMER' }
+	| { type: 'WARN_ALREADY_TRACKING' }
 	| { type: 'SHOW_MODAL'; modal: TimerModalType };
 
 /**
@@ -97,6 +103,11 @@ export interface TimerPolicyState {
 	canRunTimer: boolean;
 	/** Whether the timer is currently running */
 	isTimerRunning: boolean;
+	/**
+	 * Whether a timer runs that the timer does not show: one on a task outside the active team's tasks, started on
+	 * another device or in another tab. The timer reads it as stopped and offers Start.
+	 */
+	hasHiddenRun: boolean;
 	/** Whether the team requires a daily plan to track time */
 	requirePlan: boolean;
 	/** Whether a daily plan exists for today (with tasks) */
@@ -129,17 +140,27 @@ export interface TimerPolicyState {
  * WHAT to do, not HOW to do it. The hook layer handles execution.
  *
  * Decision tree (in order of priority):
- * 1. Guard: fetching or can't run → NOOP
+ * 1. Guards: fetching → NOOP, a run the timer does not show → WARN_ALREADY_TRACKING, can't run → NOOP
  * 2. Running → STOP_TIMER
- * 3. Require plan + task not planned → ENFORCE_PLAN (hard block)
- * 4. All modals seen today → startOrEstimate check
- * 5. Suggestion modal not seen → suggest plan or check estimation
- * 6. Estimate hours modal not seen → check estimation
- * 7. Fallback → startOrEstimate check
+ * 3. Team does not require a plan → START_TIMER
+ * 4. Task not in today's plan → ENFORCE_PLAN (hard block)
+ * 5. All modals seen today → startOrEstimate check
+ * 6. Suggestion modal not seen → suggest plan or check estimation
+ * 7. Estimate hours modal not seen → check estimation
+ * 8. Fallback → startOrEstimate check
  */
 export function getTimerAction(state: TimerPolicyState): TimerAction {
-	// 1. Guard: cannot act
-	if (state.isTimerStatusFetching || !state.canRunTimer) {
+	// 1. Guards: the status is loading
+	if (state.isTimerStatusFetching) {
+		return { type: 'NOOP' };
+	}
+	// The timer offers Start over a run it does not show: a stop would end time tracked elsewhere unseen. Checked
+	// before the next guard, so a Start shown disabled over such a run says why as well.
+	if (state.hasHiddenRun) {
+		return { type: 'WARN_ALREADY_TRACKING' };
+	}
+	// Cannot act
+	if (!state.canRunTimer) {
 		return { type: 'NOOP' };
 	}
 
@@ -148,17 +169,26 @@ export function getTimerAction(state: TimerPolicyState): TimerAction {
 		return { type: 'STOP_TIMER' };
 	}
 
-	// 3. Hard enforce: plan required + task NOT in plan
-	if (state.requirePlan && state.hasPlan && !state.isActiveTaskPlanned) {
+	// 3. The team leaves planning to its members: Start starts, with or without a plan for today
+	if (!state.requirePlan) {
+		return { type: 'START_TIMER' };
+	}
+
+	// 4. Hard enforce: task NOT in today's plan
+	if (state.hasPlan && !state.isActiveTaskPlanned) {
 		return { type: 'SHOW_MODAL', modal: 'ENFORCE_PLAN' };
 	}
 
-	// 4. All modals already shown today → go straight to start/estimate check
-	if (state.hasSeenSuggestionModalToday && state.hasSeenEstimateHoursModalToday && state.hasSeenPlanEstimateHoursModalToday) {
+	// 5. All modals already shown today → go straight to start/estimate check
+	if (
+		state.hasSeenSuggestionModalToday &&
+		state.hasSeenEstimateHoursModalToday &&
+		state.hasSeenPlanEstimateHoursModalToday
+	) {
 		return resolveStartOrEstimate(state);
 	}
 
-	// 5. Suggestion modal NOT shown today
+	// 6. Suggestion modal NOT shown today
 	if (!state.hasSeenSuggestionModalToday) {
 		if (!state.hasPlan) {
 			return { type: 'SHOW_MODAL', modal: 'SUGGEST_DAILY_PLAN' };
@@ -166,20 +196,20 @@ export function getTimerAction(state: TimerPolicyState): TimerAction {
 		return resolveEstimationFlow(state);
 	}
 
-	// 6. Estimate hours modal NOT shown today
+	// 7. Estimate hours modal NOT shown today
 	if (!state.hasSeenEstimateHoursModalToday) {
 		return resolveEstimationFlow(state);
 	}
 
-	// 7. Fallback
+	// 8. Fallback
 	return resolveStartOrEstimate(state);
 }
 
 // ==================== INTERNAL HELPERS ====================
 
 /**
- * Handles the "missing estimation hours" sub-flow.
- * Mirrors the original handleMissingTasksEstimationHours + handleCheckSelectedTaskOnTodayPlan.
+ * Handles the "missing estimation hours" sub-flow: once a day, today's plan opens before the timer starts. The plan
+ * holds the active task by now, step 4 blocked a start on any other.
  */
 function resolveEstimationFlow(state: TimerPolicyState): TimerAction {
 	if (!state.hasPlan) {
@@ -187,30 +217,22 @@ function resolveEstimationFlow(state: TimerPolicyState): TimerAction {
 	}
 
 	if (!state.hasSeenEstimateHoursModalToday) {
-		// Check if active task is in plan
-		if (state.isActiveTaskPlanned) {
-			return { type: 'SHOW_MODAL', modal: 'TASKS_ESTIMATION_HOURS' };
-		}
-		return { type: 'SHOW_MODAL', modal: 'ENFORCE_PLAN_SOFT' };
+		return { type: 'SHOW_MODAL', modal: 'TASKS_ESTIMATION_HOURS' };
 	}
 
 	return resolveStartOrEstimate(state);
 }
 
 /**
- * Final check before starting the timer.
- * If plan is required and estimates are incomplete/mismatched, show estimation modal.
+ * Final check before starting the timer of a team that requires a plan: estimates that are missing or far from the
+ * planned hours open the estimation modal instead.
  */
 function resolveStartOrEstimate(state: TimerPolicyState): TimerAction {
-	if (
-		state.requirePlan &&
-		(!state.areAllTasksEstimated || !state.hasWorkedHours || state.estimationTimeDifference > 1)
-	) {
+	if (!state.areAllTasksEstimated || !state.hasWorkedHours || state.estimationTimeDifference > 1) {
 		return { type: 'SHOW_MODAL', modal: 'TASKS_ESTIMATION_HOURS' };
 	}
 	return { type: 'START_TIMER' };
 }
-
 
 /**
  * Read a localStorage flag and check if it matches today's date.

@@ -7,6 +7,7 @@ import { cn } from '@/core/lib/helpers';
 import { PersonAvatar } from '@/core/components/teams/people-avatars';
 import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
 import { NotificationTypeBadge } from '../notification-type-badge';
+import { timerReminderDescriptionOf, timerReminderSentenceOf } from '../timer-reminder-copy';
 import { formatNotificationAge, formatNotificationDate, NotificationEntry } from '@/core/lib/utils/notification-inbox';
 import { EEmployeeNotificationType } from '@/core/types/interfaces/common/employee-notification';
 
@@ -35,7 +36,8 @@ const EVENT_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPa
 	[EEmployeeNotificationType.Message]: 'notifications.EVENTS.MESSAGE',
 	[EEmployeeNotificationType.Broadcast]: 'notifications.EVENTS.BROADCAST',
 	[EEmployeeNotificationType.Payment]: 'notifications.EVENTS.PAYMENT',
-	[EEmployeeNotificationType.RateChangeRequest]: 'notifications.EVENTS.RATE_CHANGE_REQUEST'
+	[EEmployeeNotificationType.RateChangeRequest]: 'notifications.EVENTS.RATE_CHANGE_REQUEST',
+	[EEmployeeNotificationType.TimerReminder]: 'notifications.EVENTS.TIMER_REMINDER'
 };
 
 const TYPE_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPaths> = {
@@ -46,7 +48,8 @@ const TYPE_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPat
 	[EEmployeeNotificationType.Message]: 'notifications.TYPES.MESSAGE',
 	[EEmployeeNotificationType.Broadcast]: 'notifications.TYPES.BROADCAST',
 	[EEmployeeNotificationType.Payment]: 'notifications.TYPES.PAYMENT',
-	[EEmployeeNotificationType.RateChangeRequest]: 'notifications.TYPES.RATE_CHANGE_REQUEST'
+	[EEmployeeNotificationType.RateChangeRequest]: 'notifications.TYPES.RATE_CHANGE_REQUEST',
+	[EEmployeeNotificationType.TimerReminder]: 'notifications.TYPES.TIMER_REMINDER'
 };
 
 const ROW_ACTION_CLASS =
@@ -85,6 +88,9 @@ function SenderName({ children }: Readonly<{ children: ReactNode }>) {
 
 function useEventSentence(entry: NotificationEntry): ReactNode {
 	const t = useTranslations();
+	if (entry.timerReminder) {
+		return timerReminderSentenceOf(t, entry.timerReminder);
+	}
 	if (!entry.type) {
 		return entry.rawTitle;
 	}
@@ -137,6 +143,8 @@ export const NotificationRow = memo(function NotificationRow({
 	const t = useTranslations();
 	const sentence = useEventSentence(entry);
 	const subject = useSubject(entry, task);
+	// A timer reminder says what to do in the reader's language; the platform's text is English
+	const message = entry.timerReminder ? timerReminderDescriptionOf(t, entry.timerReminder) : entry.message;
 	const age = formatNotificationAge(entry.createdAt, locale, now);
 	const fullDate = formatNotificationDate(entry.createdAt, locale);
 	const sender = { id: entry.id, name: entry.senderName ?? '', imageUrl: entry.senderImageUrl };
@@ -184,12 +192,12 @@ export const NotificationRow = memo(function NotificationRow({
 							· {age}
 						</time>
 					</span>
-					{entry.message && (
+					{message && (
 						<span
-							title={entry.message}
+							title={message}
 							className="mt-1 line-clamp-2 rounded-md bg-foreground/[0.025] px-2 py-1.5 text-xs leading-snug text-foreground/80 hairline-ring ring-border"
 						>
-							{entry.message}
+							{message}
 						</span>
 					)}
 					{entry.isUnread && <span className="sr-only">{t('notifications.UNREAD')}</span>}

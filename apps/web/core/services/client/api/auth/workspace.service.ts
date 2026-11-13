@@ -1,11 +1,24 @@
 import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
-import { APIService } from '../../api.service';
+import { APIService, getFallbackAPI } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { TUser } from '@/core/types/schemas/user/user.schema';
 import { TWorkspace, TWorkspaceResponse, workspaceResponseSchema } from '@/core/types/schemas';
 import QueryString from 'qs';
 import { validateApiResponse } from '@/core/types/schemas/utils/validation';
 import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
+import type { CreateWorkspaceBody } from '@/core/lib/validation/workspace';
+
+/**
+ * How long the creation may take: the route's steps (Gauzy's opening, the sign-up's steps, then invitations given up
+ * after 15 seconds) fit well within it. A creation that times out is an unknown outcome, never "not created".
+ */
+const CREATE_WORKSPACE_TIMEOUT_MS = 120_000;
+
+/** What a workspace creation answers: the invitations sent to its first team. */
+interface CreatedWorkspace {
+	invited: number;
+	invitesFailed: boolean;
+}
 
 /**
  * Service for workspace management
@@ -65,6 +78,18 @@ class WorkspaceService extends APIService {
 			this.logger.error('Error validating workspace access:', { error });
 			return false;
 		}
+	};
+
+	/**
+	 * Another workspace for the signed-in person, its first team and the members invited to it (#5025). Always this
+	 * app's own route, in direct mode too: it signs the browser in to the new workspace (its cookies) once set up.
+	 */
+	createWorkspace = async (body: CreateWorkspaceBody): Promise<CreatedWorkspace> => {
+		const api = await getFallbackAPI();
+		const { data } = await api.post<CreatedWorkspace>('/auth/create-workspace', body, {
+			timeout: CREATE_WORKSPACE_TIMEOUT_MS
+		});
+		return data;
 	};
 
 	/**

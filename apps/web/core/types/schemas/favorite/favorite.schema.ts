@@ -34,6 +34,22 @@ export const favoriteSchema = z
 	.strict();
 
 // Favorite create schema
+/**
+ * A favourite task as `GET /favorite/type` answers it: the task row alone, without relations. Only what a favourite's
+ * row shows is checked; the rest passes through.
+ */
+export const favoriteTaskSchema = z
+	.object({
+		id: uuIdSchema,
+		title: z.string(),
+		number: z.number().nullable().optional(),
+		prefix: z.string().nullable().optional(),
+		taskNumber: z.string().nullable().optional(),
+		issueType: z.string().nullable().optional(),
+		status: z.string().nullable().optional()
+	})
+	.passthrough();
+
 export const favoriteCreateSchema = z.object({
 	entityId: uuIdSchema,
 	entity: baseEntityEnumSchema,
@@ -45,3 +61,4 @@ export const favoriteCreateSchema = z.object({
 // Export TypeScript types
 export type TFavorite = z.infer<typeof favoriteSchema>;
 export type TFavoriteCreate = z.infer<typeof favoriteCreateSchema>;
+export type TFavoriteTask = z.infer<typeof favoriteTaskSchema>;

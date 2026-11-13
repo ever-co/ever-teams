@@ -29,3 +29,25 @@ export function isChatLinkPreviewsEnabled(): boolean {
 	const runtimeFlag = readRuntimeEnv('NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED') || process.env.NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED;
 	return runtimeFlag === 'true';
 }
+
+/**
+ * Whether a preview card also shows the page's picture (`NEXT_PUBLIC_CHAT_LINK_PREVIEW_IMAGES_ENABLED=true`, read at
+ * runtime, on top of the previews themselves). The picture comes from the platform (`/chat/link-preview/image`, which
+ * fetched it and serves it; on when `GAUZY_CHAT_LINK_PREVIEW_IMAGES_ENABLED=true`), never from the linked site, so the
+ * reader's browser still calls no other site. Off by default: cards stay text only.
+ */
+export function isChatLinkPreviewPicturesEnabled(): boolean {
+	const runtimeFlag =
+		readRuntimeEnv('NEXT_PUBLIC_CHAT_LINK_PREVIEW_IMAGES_ENABLED') || process.env.NEXT_PUBLIC_CHAT_LINK_PREVIEW_IMAGES_ENABLED;
+	return runtimeFlag === 'true' && isChatLinkPreviewsEnabled();
+}
+
+/**
+ * Whether app messages (posted by the platform's incoming webhooks) show their blocks and buttons
+ * (`NEXT_PUBLIC_CHAT_WEBHOOKS_ENABLED=true`, read at runtime). Off by default: an app message then shows its text
+ * only, as before. A button calls the platform, which answers 404 where its webhooks are off.
+ */
+export function isChatWebhooksEnabled(): boolean {
+	const runtimeFlag = readRuntimeEnv('NEXT_PUBLIC_CHAT_WEBHOOKS_ENABLED') || process.env.NEXT_PUBLIC_CHAT_WEBHOOKS_ENABLED;
+	return runtimeFlag === 'true';
+}

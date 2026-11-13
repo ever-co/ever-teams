@@ -5,6 +5,7 @@ import {
 	DOCS_LIVE_BACKOFF_MIN_MS,
 	DOCS_LIVE_AWARENESS_MS,
 	DOCS_LIVE_BATCH_MS,
+	DOCS_LIVE_CONFIRM_TIMEOUT_MS,
 	DOCS_LIVE_FIELD,
 	DOCS_LIVE_REMEMBERED_PAGES,
 	DOCS_LIVE_SYNC_TIMEOUT_MS
@@ -103,7 +104,10 @@ export interface DocsLiveTransport {
 export interface DocsLiveRemembered {
 	doc: Y.Doc;
 	lineage: string;
-	/** It holds edits the platform never confirmed (the page was left before they were): the tab warns on close. */
+	/**
+	 * It holds edits the platform never confirmed (the page was left before they were, or live editing stopped before
+	 * the page view took them as its draft): the tab warns on close, and the memory never evicts it.
+	 */
 	unsent?: boolean;
 	/** The binding that last wrote the entry: only it clears `unsent` (a binding that came back since owns it). */
 	owner?: unknown;
@@ -116,6 +120,8 @@ export interface DocsLiveMemory {
 	clear(): void;
 	/** Whether any remembered document holds edits the platform never confirmed. */
 	hasUnsent(): boolean;
+	/** The keys of the remembered documents holding edits the platform never confirmed (the recency order is kept). */
+	unsentKeys(): string[];
 }
 
 /** What the binding reads of a refusal: its HTTP status and the platform's code. */
@@ -176,7 +182,11 @@ function carriesChanges(missing: Uint8Array, platformState: Uint8Array): boolean
 	return !Y.equalDeleteSets(ds, Y.decodeUpdate(platformState).ds);
 }
 
-/** A small LRU of pages' live documents. */
+/**
+ * A small LRU of pages' live documents. A document holding edits the platform never confirmed (`unsent`) is the only
+ * copy of them: it is kept outside the limit, and goes only when its edits are settled (sent, or taken as the
+ * autosave's draft) or the tab signs out.
+ */
 export function createDocsLiveMemory(limit = DOCS_LIVE_REMEMBERED_PAGES): DocsLiveMemory {
 	const entries = new Map<string, DocsLiveRemembered>();
 	return {
@@ -191,9 +201,14 @@ export function createDocsLiveMemory(limit = DOCS_LIVE_REMEMBERED_PAGES): DocsLi
 		set(key, entry) {
 			entries.delete(key);
 			entries.set(key, entry);
-			while (entries.size > limit) {
-				const oldest = entries.keys().next().value as string;
+			let settled = 0;
+			for (const value of entries.values()) if (!value.unsent) settled += 1;
+			// The least recently used first; a document with unsent edits is skipped (deleting while iterating is safe).
+			for (const [oldest, value] of entries) {
+				if (settled <= limit) break;
+				if (value.unsent) continue;
 				entries.delete(oldest);
+				settled -= 1;
 			}
 		},
 		delete(key) {
@@ -205,6 +220,11 @@ export function createDocsLiveMemory(limit = DOCS_LIVE_REMEMBERED_PAGES): DocsLi
 		hasUnsent() {
 			for (const entry of entries.values()) if (entry.unsent) return true;
 			return false;
+		},
+		unsentKeys() {
+			const keys: string[] = [];
+			for (const [key, entry] of entries) if (entry.unsent) keys.push(key);
+			return keys;
 		}
 	};
 }
@@ -308,6 +328,8 @@ export class DocsLiveBinding {
 	/** Local edits made, and the count of them the platform confirmed: more made than confirmed is unsent work. */
 	private localEdits = 0;
 	private confirmedEdits = 0;
+	/** Waiting for the platform to confirm the local edits made up to `covers` (see `whenConfirmed`). */
+	private readonly confirmWaiters = new Set<{ covers: number; settle: (confirmed: boolean) => void }>();
 	private awarenessTimer: unknown = null;
 
 	private readonly onDocUpdate = (update: Uint8Array, origin: unknown) => {
@@ -429,6 +451,42 @@ export class DocsLiveBinding {
 		return this.state !== 'fallback' && this.localEdits > this.confirmedEdits;
 	}
 
+	/**
+	 * Waits for the platform to confirm every edit made here so far: `true` once it holds them (a block's new anchor,
+	 * which a comment or a copied link then names), `false` when it will not in time — live editing stopped, the view
+	 * left, the platform refused them as read-only, or `timeoutMs` passed first (a session still down).
+	 */
+	whenConfirmed(timeoutMs = DOCS_LIVE_CONFIRM_TIMEOUT_MS): Promise<boolean> {
+		if (this.destroyed || this.state === 'fallback') return Promise.resolve(false);
+		const covers = this.localEdits;
+		if (this.confirmedEdits >= covers) return Promise.resolve(true);
+		// Edits the platform already refused as read-only wait for a mode change nothing here can bring about.
+		if (this.readOnly && this.heldWhileReadOnly) return Promise.resolve(false);
+		return new Promise<boolean>((resolve) => {
+			let timer: unknown = null;
+			const waiter = {
+				covers,
+				settle: (confirmed: boolean) => {
+					if (!this.confirmWaiters.delete(waiter)) return;
+					if (timer !== null) this.clearTimer(timer);
+					resolve(confirmed);
+				}
+			};
+			this.confirmWaiters.add(waiter);
+			timer = this.setTimer(() => waiter.settle(false), timeoutMs);
+		});
+	}
+
+	/**
+	 * The page view holds the edits live editing stopped with as the autosave's draft (see `fallback`): the document
+	 * kept for them in the tab's memory goes. A binding of the page opened since owns its entry, and keeps it.
+	 */
+	draftAdopted(): void {
+		if (this.state !== 'fallback') return;
+		const entry = this.memory?.get(this.memoryKey);
+		if (entry && entry.doc === this.doc && entry.owner === this) this.memory?.delete(this.memoryKey);
+	}
+
 	/** The document holds content the editor does not know (see `bindEditor`): live editing stops (`unsupported`). */
 	refuseEditor(unknownTypes: string[]): void {
 		this.fallback('unsupported', unknownTypes);
@@ -443,6 +501,7 @@ export class DocsLiveBinding {
 		this.pending = [];
 		this.destroyed = true;
 		this.clearTimers();
+		this.settleConfirmWaiters();
 		this.listeners.clear();
 		const stop = this.stopSubscription;
 		this.stopSubscription = null;
@@ -615,6 +674,7 @@ export class DocsLiveBinding {
 
 		this.enterSession(frame, lineage);
 		this.sendMissing(stateVector, update);
+		this.clearRememberedUnsent();
 		this.peers = this.readPeers();
 		this.emit();
 		this.sendAwarenessNow();
@@ -623,7 +683,10 @@ export class DocsLiveBinding {
 	/** The `sync` frame applied: this session is the one edits and cursors go to. */
 	private enterSession(frame: DocsLiveFrame, lineage: string | null): void {
 		this.lineage = lineage;
-		if (lineage !== null) this.memory?.set(this.memoryKey, { doc: this.doc, lineage, owner: this });
+		// Edits not confirmed yet (restored from an earlier visit, typed while the session was down) keep the document
+		// marked unsent until the platform confirms them (`clearRememberedUnsent`): never evicted, warned about on close.
+		const unsent = this.localEdits > this.confirmedEdits;
+		if (lineage !== null) this.memory?.set(this.memoryKey, { doc: this.doc, lineage, unsent, owner: this });
 		if (typeof frame.revision === 'number') this.revision = frame.revision;
 		this.readOnly = Boolean(frame.readOnly);
 		this.readOnlyReason = this.readOnly ? (frame.reason ?? null) : null;
@@ -705,8 +768,15 @@ export class DocsLiveBinding {
 		this.stopSubscription = null;
 		stop?.();
 		// The page is read again from the platform; edits it never confirmed are the snapshot's `unsentEdits`, which the
-		// page view keeps as the autosave's draft (the document itself is not kept: another lineage may follow).
-		this.memory?.delete(this.memoryKey);
+		// page view takes as the autosave's draft. Until it says it holds them (`draftAdopted`), their document stays in
+		// the tab's memory, marked unsent: a view left before (during the reread, the editor's code loading) or a page
+		// that cannot be edited now (locked, in the trash) leaves them to the next visit, and the tab warns on close.
+		// Without such edits the document is forgotten: another lineage may follow.
+		if (this.localEdits > this.confirmedEdits && this.lineage !== null) {
+			this.memory?.set(this.memoryKey, { doc: this.doc, lineage: this.lineage, unsent: true, owner: this });
+		} else {
+			this.memory?.delete(this.memoryKey);
+		}
 		this.forgetPeers();
 		this.emit();
 	}
@@ -759,6 +829,8 @@ export class DocsLiveBinding {
 				if (this.sending === sending) this.sending = null;
 				this.confirmedEdits = Math.max(this.confirmedEdits, covers);
 				this.invalidRefusals = 0;
+				this.settleConfirmWaiters();
+				this.clearRememberedUnsent();
 				if (this.destroyed || this.state === 'fallback' || !this.inSession) return;
 				// Typed while this one went: the next batch goes now (it waited for this one).
 				if (this.pending.length && this.batchTimer === null && !this.sending) {
@@ -960,8 +1032,30 @@ export class DocsLiveBinding {
 		};
 	}
 
+	/**
+	 * Every edit made here is confirmed: the remembered document's unsent mark goes. Only while the entry is this
+	 * binding's; a view that left or stopped live editing keeps its own marker (see `destroy` and `fallback`).
+	 */
+	private clearRememberedUnsent(): void {
+		if (this.destroyed || this.state === 'fallback' || this.localEdits > this.confirmedEdits) return;
+		const entry = this.memory?.get(this.memoryKey);
+		if (!entry?.unsent || entry.doc !== this.doc || entry.owner !== this) return;
+		this.memory?.set(this.memoryKey, { ...entry, unsent: false });
+	}
+
+	/** Answers the waits of `whenConfirmed` that the current counts settle. */
+	private settleConfirmWaiters(): void {
+		if (!this.confirmWaiters.size) return;
+		const stopped = this.destroyed || this.state === 'fallback';
+		for (const waiter of Array.from(this.confirmWaiters)) {
+			if (this.confirmedEdits >= waiter.covers) waiter.settle(true);
+			else if (stopped || (this.readOnly && this.heldWhileReadOnly)) waiter.settle(false);
+		}
+	}
+
 	private emit(): void {
 		this.snapshot = this.buildSnapshot();
+		this.settleConfirmWaiters();
 		for (const listener of Array.from(this.listeners)) listener();
 	}
 }

@@ -4,12 +4,12 @@ import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 
 import { activeTeamState, activeTeamTaskState, timerStatusState } from '@/core/stores';
+import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TOrganizationTeam } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
-import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { findTimerPlans } from '@/core/lib/helpers/daily-plan-day';
 import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
 
@@ -35,10 +35,6 @@ export interface UseTimerPlanStatusReturn {
 	activeTeamTask: TTask | null;
 	/** The timer status (shared atom — avoids duplicate subscriptions in consumers) */
 	timerStatus: ITimerStatus | null;
-	/** Reads the personal plans when nothing has loaded them yet, from cache when they are fresh */
-	ensureMyDailyPlans?: () => Promise<PaginationResponse<TDailyPlan> | undefined>;
-	/** Whether the personal plans were already read in this scope */
-	hasCachedMyDailyPlans?: () => boolean;
 }
 
 /**
@@ -58,9 +54,11 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const timerStatus = useAtomValue(timerStatusState);
+	// What the timers show: the status filtered to the active team
+	const shownTimerStatus = useAtomValue(teamTimerStatusState);
 
 	const { user } = useAuthenticateUser();
-	const { myDailyPlans, ensureMyDailyPlans, hasCachedMyDailyPlans } = useMyDailyPlans();
+	const { myDailyPlans } = useMyDailyPlans();
 
 	// ==================== DERIVED STATE ====================
 
@@ -90,9 +88,16 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 				hasActiveTask: !!activeTeamTask,
 				isActiveTaskClosed: activeTeamTask?.status === ETaskStatusName.CLOSED,
 				isTimerRunning: !!timerStatus?.running,
+				isRunShown: !!shownTimerStatus?.running,
 				timerSource: timerStatus?.lastLog?.source
 			}),
-		[user?.isEmailVerified, activeTeamTask, timerStatus?.running, timerStatus?.lastLog?.source]
+		[
+			user?.isEmailVerified,
+			activeTeamTask,
+			timerStatus?.running,
+			shownTimerStatus?.running,
+			timerStatus?.lastLog?.source
+		]
 	);
 
 	// ==================== RETURN ====================
@@ -105,8 +110,6 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 		canRunTimer,
 		activeTeam,
 		activeTeamTask,
-		timerStatus,
-		ensureMyDailyPlans,
-		hasCachedMyDailyPlans
+		timerStatus
 	};
 }

@@ -1,0 +1,46 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
+import { PageLayout } from '@/core/components/layouts/default-layout';
+import { DashboardSection, DashboardToolbar } from '@/core/components/dashboards/kit/dashboard-layout';
+import { MetricStrip } from '@/core/components/dashboards/kit/metric-strip';
+import { DASHBOARD_STACK } from '@/core/components/dashboards/kit/recipes';
+import { DiaryDayStripSkeleton } from './diary-day-strip';
+import { DiaryHoursSkeleton } from './diary-hours';
+import { DIARY_COLUMNS, DiaryRowsSkeleton } from './work-diary-parts';
+
+const FIGURE_KEYS = ['tracked', 'activity', 'tasks', 'screenshots'] as const;
+
+/** The Work diary page while it loads, in the page's own layout: toolbar, figures, tasks, plan, apps, hours. */
+export function WorkDiaryPageSkeleton() {
+	const t = useTranslations();
+	const title = t('sidebar.WORK_DIARY');
+	const figures = FIGURE_KEYS.map((key) => ({ key, label: '', value: '' }));
+	return (
+		<PageLayout
+			title={title}
+			className="min-h-0 flex-1"
+			mainHeaderSlot={<DashboardToolbar title={title} isMetaLoading controls={<DiaryDayStripSkeleton />} />}
+		>
+			<div className={DASHBOARD_STACK} aria-busy="true">
+				<DashboardSection>
+					<MetricStrip items={figures} isLoading ariaLabel={t('dashboard.workDiary.FIGURES_LABEL')} />
+				</DashboardSection>
+				<div className={DIARY_COLUMNS}>
+					<DashboardSection title={t('common.TASKS')}>
+						<DiaryRowsSkeleton />
+					</DashboardSection>
+					<DashboardSection title={t('dashboard.calendar.PLAN_TITLE')}>
+						<DiaryRowsSkeleton />
+					</DashboardSection>
+					<DashboardSection title={t('dashboard.timesheets.diary.APPS')}>
+						<DiaryRowsSkeleton />
+					</DashboardSection>
+				</div>
+				<DashboardSection title={t('common.SCREENSHOTS')} bodyClassName="px-4 pb-4">
+					<DiaryHoursSkeleton />
+				</DashboardSection>
+			</div>
+		</PageLayout>
+	);
+}

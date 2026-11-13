@@ -1,9 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import type { DottedLanguageObjectStringPaths } from 'next-intl';
 import { activeTeamState, organizationTeamsState } from '@/core/stores';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
+import { useGetCurrentOrganization } from '@/core/hooks/auth/use-current-organization';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useTagsQuery } from '@/core/hooks/tags/use-tags-query';
 import { useCreateTag } from '@/core/hooks/tags/use-create-tag';
@@ -11,11 +13,17 @@ import { useImageAssets } from '@/core/hooks/common/use-image-assets';
 import { appendDictatedText } from '@/core/hooks/ai/use-dictation';
 import { useCreateOrganizationProject } from '@/core/hooks/organizations/projects/use-create-organization-project';
 import { useEditOrganizationProject } from '@/core/hooks/organizations/projects/use-edit-organization-project';
+import { useClientAccess } from '@/core/hooks/clients/use-client-access';
+import { useClientMutations } from '@/core/hooks/clients/use-client-mutations';
+import { useClientsQuery } from '@/core/hooks/clients/use-clients-query';
+import { emptyClientDraft, isArchivedClient, listReadStateOf } from '@/core/lib/utils/clients';
+import { clientNameOf } from '@/core/lib/utils/project-list';
 import {
 	assignProjectRole,
 	buildProjectRequest,
 	canDeselectProjectTeam,
 	draftFromProject,
+	draftInWorkspaceCurrency,
 	emptyProjectDraft,
 	endDateAfterNewStart,
 	hasDraftErrors,
@@ -34,7 +42,7 @@ import {
 } from '@/core/lib/utils/project-composer';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import type { EProjectBilling, EProjectBudgetType } from '@/core/types/generics/enums/project';
-import type { TOrganizationProject, TTag } from '@/core/types/schemas';
+import type { TClient, TOrganizationProject, TTag } from '@/core/types/schemas';
 
 export type ProjectComposerMode = 'create' | 'edit';
 
@@ -72,6 +80,39 @@ function withCreatedTags(tags: TTag[], createdTags: TTag[]) {
 	return [...tags, ...missingTags];
 }
 
+/** A client created from the dialog is usable at once, before the client list has been fetched again. */
+function withCreatedClients(clients: TClient[], createdClients: TClient[]) {
+	const knownIds = new Set(clients.map((client) => client.id));
+	const missingClients = createdClients.filter((client) => !knownIds.has(client.id));
+	if (missingClients.length === 0) {
+		return clients;
+	}
+	return [...clients, ...missingClients];
+}
+
+/**
+ * The project's client as the dialog shows it. A client the list does not hold (the viewer may not read clients)
+ * keeps the name the project came with.
+ */
+function selectedClientOf(
+	clientId: string | null,
+	clients: TClient[],
+	project: TOrganizationProject | null | undefined
+) {
+	if (!clientId) {
+		return null;
+	}
+	const client = clients.find((candidate) => candidate.id === clientId);
+	if (client) {
+		return { id: client.id, name: client.name, isArchived: isArchivedClient(client) };
+	}
+	let projectClientName: string | null = null;
+	if (project) {
+		projectClientName = clientNameOf(project);
+	}
+	return { id: clientId, name: projectClientName ?? '', isArchived: false };
+}
+
 function toggleId(ids: string[], id: string) {
 	const isSelected = ids.includes(id);
 	if (isSelected) {
@@ -81,25 +122,44 @@ function toggleId(ids: string[], id: string) {
 }
 
 export function useProjectComposer({ mode, project, onDone }: UseProjectComposerOptions) {
+	const isNewProject = mode === 'create';
+	// The form opens from any page, and most of them do not read the organization its currency comes from
+	useGetCurrentOrganization({ enabled: isNewProject });
 	const activeTeam = useAtomValue(activeTeamState);
 	const organizationTeams = useAtomValue(organizationTeamsState);
+	const organization = useAtomValue(currentOrganizationState);
 	const { data: user } = useUserQuery();
 	const { tags: fetchedTags } = useTagsQuery();
 	const { createTag, createTagLoading } = useCreateTag();
 	const { createImageAssets, loading: isUploadingImage } = useImageAssets();
 	const { createOrganizationProject, createOrganizationProjectLoading } = useCreateOrganizationProject();
 	const { editOrganizationProject, editOrganizationProjectLoading } = useEditOrganizationProject();
+	const {
+		clients: fetchedClients,
+		isLoaded: isClientListLoaded,
+		isError: hasClientListFailed,
+		refetch: refetchClientList
+	} = useClientsQuery({ includeArchived: true });
+	const { canCreate: mayCreateClients } = useClientAccess();
+	const { createClient, isCreating: isCreatingClient } = useClientMutations();
 
 	const activeTeamId = activeTeam?.id ?? null;
 	const isAdmin = isAdminRole(user?.role?.name);
 	const currentEmployeeId = user?.employee?.id ?? user?.employeeId ?? null;
 
-	const [draft, setDraft] = useState<ProjectDraft>(() => {
+	const [enteredDraft, setEnteredDraft] = useState<ProjectDraft>(() => {
 		if (mode === 'edit' && project) {
 			return draftFromProject(project, activeTeamId);
 		}
 		return emptyProjectDraft(activeTeamId);
 	});
+	const workspaceCurrency = organization?.currency ?? null;
+	const draft = useMemo(() => {
+		if (!isNewProject) {
+			return enteredDraft;
+		}
+		return draftInWorkspaceCurrency(enteredDraft, workspaceCurrency);
+	}, [enteredDraft, isNewProject, workspaceCurrency]);
 	const [imageFile, setImageFile] = useState<File | null>(null);
 	const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
 	const [imageError, setImageError] = useState<DottedLanguageObjectStringPaths | null>(null);
@@ -108,7 +168,25 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	const [submitError, setSubmitError] = useState<ProjectComposerSubmitError>(null);
 	const [createdTags, setCreatedTags] = useState<TTag[]>([]);
 
+	const [createdClients, setCreatedClients] = useState<TClient[]>([]);
+	const [hasClientCreateFailed, setHasClientCreateFailed] = useState(false);
+	// Counts the choices made in the Client field: a client created meanwhile must not replace a later one.
+	const clientChoiceCount = useRef(0);
+	// The draft waits for a client being created only while that creation is still the last choice in the field.
+	const [isAwaitingCreatedClient, setIsAwaitingCreatedClient] = useState(false);
+
 	const tags = useMemo(() => withCreatedTags(fetchedTags, createdTags), [fetchedTags, createdTags]);
+
+	const clients = useMemo(() => withCreatedClients(fetchedClients, createdClients), [fetchedClients, createdClients]);
+	const clientListState = listReadStateOf(isClientListLoaded, hasClientListFailed);
+	const isClientListReady = clientListState === 'ready';
+	// Without the list a typed name cannot be told from an existing client: creating it could repeat that client.
+	const canCreateClient = mayCreateClients && isClientListReady;
+	const pickableClients = useMemo(() => clients.filter((client) => !isArchivedClient(client)), [clients]);
+	const selectedClient = useMemo(
+		() => selectedClientOf(draft.clientId, clients, project),
+		[draft.clientId, clients, project]
+	);
 
 	useEffect(() => {
 		return () => {
@@ -153,14 +231,14 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	}, [hasTriedSubmit, validationErrors, imageError]);
 
 	const updateDraft = useCallback((patch: Partial<ProjectDraft>) => {
-		setDraft((current) => ({ ...current, ...patch }));
+		setEnteredDraft((current) => ({ ...current, ...patch }));
 		setSubmitError(null);
 	}, []);
 
 	const setName = useCallback((name: string) => updateDraft({ name }), [updateDraft]);
 
 	const appendToName = useCallback((dictated: string) => {
-		setDraft((current) => ({ ...current, name: appendDictatedText(current.name, dictated) }));
+		setEnteredDraft((current) => ({ ...current, name: appendDictatedText(current.name, dictated) }));
 	}, []);
 
 	const setDescription = useCallback((description: string) => updateDraft({ description }), [updateDraft]);
@@ -172,7 +250,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	const setTaskKey = useCallback((taskKey: string) => updateDraft({ taskKey: taskKey.toUpperCase() }), [updateDraft]);
 
 	const setStartDate = useCallback((startDate: Date) => {
-		setDraft((current) => ({
+		setEnteredDraft((current) => ({
 			...current,
 			startDate,
 			endDate: endDateAfterNewStart(startDate, current.endDate)
@@ -224,7 +302,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 
 	const setTeamIds = useCallback(
 		(teamIds: string[]) => {
-			setDraft((current) => ({
+			setEnteredDraft((current) => ({
 				...current,
 				teamIds: teamIdsKeepingLocked(current.teamIds, teamIds, activeTeamId, isAdmin)
 			}));
@@ -234,7 +312,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	);
 
 	const setRoles = useCallback((managerIds: string[] | undefined, memberIds: string[] | undefined) => {
-		setDraft((current) => ({ ...current, ...rolesAfterDictation(current, managerIds, memberIds) }));
+		setEnteredDraft((current) => ({ ...current, ...rolesAfterDictation(current, managerIds, memberIds) }));
 		setSubmitError(null);
 	}, []);
 
@@ -243,7 +321,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	const restoreFields = useCallback((fields: Partial<ProjectDraft>) => updateDraft(fields), [updateDraft]);
 
 	const togglePerson = useCallback((employeeId: string, role: ProjectMemberRole) => {
-		setDraft((current) => {
+		setEnteredDraft((current) => {
 			const hasRole = idsWithRole(current, role).includes(employeeId);
 			if (hasRole) {
 				return { ...current, ...removeFromProject(current, employeeId) };
@@ -254,7 +332,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	}, []);
 
 	const toggleTag = useCallback((tagId: string) => {
-		setDraft((current) => ({ ...current, tagIds: toggleId(current.tagIds, tagId) }));
+		setEnteredDraft((current) => ({ ...current, tagIds: toggleId(current.tagIds, tagId) }));
 	}, []);
 
 	const addTag = useCallback(
@@ -265,12 +343,52 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 			}
 			const selectCreatedTag = (tag: TTag) => {
 				setCreatedTags((current) => [...current, tag]);
-				setDraft((current) => ({ ...current, tagIds: [...current.tagIds, tag.id] }));
+				setEnteredDraft((current) => ({ ...current, tagIds: [...current.tagIds, tag.id] }));
 			};
 			createTag({ name: tagName, color: randomTagColor() }, { onSuccess: selectCreatedTag });
 		},
 		[createTag]
 	);
+
+	const setClientId = useCallback(
+		(clientId: string | null) => {
+			clientChoiceCount.current += 1;
+			setIsAwaitingCreatedClient(false);
+			setHasClientCreateFailed(false);
+			updateDraft({ clientId });
+		},
+		[updateDraft]
+	);
+
+	const addClient = useCallback(
+		async (name: string) => {
+			clientChoiceCount.current += 1;
+			const choiceAtStart = clientChoiceCount.current;
+			const isStillTheChoice = () => clientChoiceCount.current === choiceAtStart;
+			setIsAwaitingCreatedClient(true);
+			setHasClientCreateFailed(false);
+			try {
+				const client = await createClient(emptyClientDraft(name));
+				setCreatedClients((current) => [...current, client]);
+				if (isStillTheChoice()) {
+					updateDraft({ clientId: client.id });
+				}
+			} catch {
+				// A creation replaced by another pick or a clear meanwhile no longer speaks for the field
+				if (isStillTheChoice()) {
+					setHasClientCreateFailed(true);
+				}
+			}
+			if (isStillTheChoice()) {
+				setIsAwaitingCreatedClient(false);
+			}
+		},
+		[createClient, updateDraft]
+	);
+
+	const retryClientList = useCallback(() => {
+		void refetchClientList();
+	}, [refetchClientList]);
 
 	const setBudgetType = useCallback((budgetType: EProjectBudgetType) => updateDraft({ budgetType }), [updateDraft]);
 
@@ -304,6 +422,10 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	);
 
 	const submit = useCallback(async () => {
+		// A client being created is not in the draft yet: saving now would leave it out of the project.
+		if (isAwaitingCreatedClient) {
+			return;
+		}
 		setHasTriedSubmit(true);
 		setSubmitError(null);
 		const hasErrors = hasDraftErrors(validationErrors);
@@ -329,7 +451,18 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 			return;
 		}
 		onDone?.(savedProject);
-	}, [validationErrors, uploadImage, draft, project, teams, tags, currentEmployeeId, saveProject, onDone]);
+	}, [
+		isAwaitingCreatedClient,
+		validationErrors,
+		uploadImage,
+		draft,
+		project,
+		teams,
+		tags,
+		currentEmployeeId,
+		saveProject,
+		onDone
+	]);
 
 	const isSaving = createOrganizationProjectLoading || editOrganizationProjectLoading;
 	const isSubmitting = isSaving || isUploadingImage;
@@ -348,6 +481,16 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 		activeTeamId,
 		isAdmin,
 		createTagLoading,
+		pickableClients,
+		selectedClient,
+		clientListState,
+		retryClientList,
+		canCreateClient,
+		isCreatingClient,
+		isAwaitingCreatedClient,
+		hasClientCreateFailed,
+		setClientId,
+		addClient,
 		canDeselectTeam,
 		setName,
 		appendToName,

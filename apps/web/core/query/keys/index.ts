@@ -64,6 +64,8 @@ export const queryKeys = {
 					organizationId ?? null,
 					organizationTeamId ?? null
 				] as const,
+			inactiveByScope: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+				['users', 'employees', 'inactive-scope', tenantId ?? null, organizationId ?? null] as const,
 			working: (
 				tenantId: string | undefined | null,
 				organizationId: string | undefined | null,
@@ -366,6 +368,8 @@ export const queryKeys = {
 			userId: string | undefined | null,
 			viewId: string | undefined | null
 		) => ['task-views', 'detail', tenantId ?? null, organizationId ?? null, userId ?? null, viewId ?? null] as const,
+		/** Prefix shared by every builtIn key */
+		builtInAll: ['task-views', 'built-in'] as const,
 		builtIn: (
 			tenantId: string | undefined | null,
 			organizationId: string | undefined | null,
@@ -376,6 +380,14 @@ export const queryKeys = {
 	tasks: {
 		// Standard task keys (preserved for backward compatibility)
 		all: ['tasks'] as const,
+		/** The trash of a team or a project, under `tasks.all`: a task change (a live hint, a delete) refetches it. */
+		trash: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			teamId: string | undefined | null,
+			projectId: string | undefined | null,
+			search: string
+		) => ['tasks', 'trash', tenantId ?? null, organizationId ?? null, teamId ?? null, projectId ?? null, search] as const,
 		detail: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : [])] as const,
 		byEmployee: (employeeId: string | undefined | null, teamId: string | undefined | null) =>
 			['tasks', 'by-employee', ...(employeeId ? [employeeId] : []), ...(teamId ? [teamId] : [])] as const,
@@ -443,6 +455,28 @@ export const queryKeys = {
 		) => ['notifications', 'settings', tenantId ?? null, organizationId ?? null, employeeId ?? null] as const
 	},
 
+	// Settings → Automations: the organization's rules, the templates and a rule's run history. The user is part of
+	// every key: what one sign-in read (or was refused) never shows for the next one.
+	taskAutomations: {
+		all: ['task-automations'] as const,
+		templates: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null
+		) => ['task-automations', 'templates', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		rules: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null
+		) => ['task-automations', 'rules', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		runs: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null,
+			ruleId: string | undefined | null
+		) => ['task-automations', 'runs', tenantId ?? null, organizationId ?? null, userId ?? null, ruleId ?? null] as const
+	},
+
 	inbox: {
 		all: ['inbox'] as const,
 		items: (
@@ -463,7 +497,10 @@ export const queryKeys = {
 			organizationId: string | undefined | null,
 			userId: string | undefined | null,
 			id: string | undefined | null
-		) => ['inbox', 'item', tenantId ?? null, organizationId ?? null, userId ?? null, id ?? null] as const
+		) => ['inbox', 'item', tenantId ?? null, organizationId ?? null, userId ?? null, id ?? null] as const,
+		// Whether emails and web push can deliver for the organization: the platform's answer, not the caller's.
+		deliveryStatus: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			['inbox', 'delivery-status', tenantId ?? null, organizationId ?? null] as const
 	},
 	chat: {
 		all: ['chat'] as const,
@@ -489,6 +526,8 @@ export const queryKeys = {
 	// The preview of a link, one per link and kept for the session. Outside the `chat` prefix on purpose: the live
 	// channel invalidates `['chat']` on every change, and no message event changes what a page says about itself.
 	chatLinkPreview: (tenantId: string | undefined | null, url: string) => ['chat-link-preview', tenantId ?? null, url] as const,
+	chatLinkPreviewPicture: (tenantId: string | undefined | null, url: string) =>
+		['chat-link-preview-picture', tenantId ?? null, url] as const,
 
 	taskComments: {
 		all: ['task-comments'] as const,
@@ -496,7 +535,13 @@ export const queryKeys = {
 			tenantId: string | undefined | null,
 			organizationId: string | undefined | null,
 			taskId: string | undefined | null
-		) => ['task-comments', 'by-task', tenantId ?? null, organizationId ?? null, taskId ?? null] as const
+		) => ['task-comments', 'by-task', tenantId ?? null, organizationId ?? null, taskId ?? null] as const,
+		/** Under the task's comments key: whatever refetches the comments (a live hint, a post) refetches these too. */
+		reactionsByTask: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			taskId: string | undefined | null
+		) => ['task-comments', 'by-task', tenantId ?? null, organizationId ?? null, taskId ?? null, 'reactions'] as const
 	},
 
 	taskMetadata: {
@@ -678,6 +723,30 @@ export const queryKeys = {
 		detail: (projectId: string | undefined | null) => ['projects', ...(projectId ? [projectId] : [])] as const
 	},
 
+	// Keys related to clients (organization contacts of the client type)
+	clients: {
+		all: ['clients'] as const,
+		list: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			includeArchived: boolean
+		) => ['clients', 'list', tenantId ?? null, organizationId ?? null, includeArchived] as const
+	},
+
+	// Keys related to invoices
+	invoices: {
+		all: ['invoices'] as const,
+		list: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			['invoices', 'list', tenantId ?? null, organizationId ?? null] as const,
+		ofClient: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			clientId: string | undefined | null
+		) => ['invoices', 'client', tenantId ?? null, organizationId ?? null, clientId ?? null] as const,
+		highestNumber: (tenantId: string | undefined | null) =>
+			['invoices', 'highest-number', tenantId ?? null] as const
+	},
+
 	// Keys related to organization projects
 	organizationProjects: {
 		all: ['organization-projects'] as const,
@@ -734,6 +803,8 @@ export const queryKeys = {
 			all: ['timesheet', 'reports'] as const,
 			changedLogs: (params: Record<string, unknown>) => ['timesheet', 'reports', 'changed-logs', params] as const,
 			owedAmounts: (params: Record<string, unknown>) => ['timesheet', 'reports', 'owed-amounts', params] as const,
+			billableLogs: (params: Record<string, unknown>) =>
+				['timesheet', 'reports', 'billable-logs', params] as const,
 			projectBudgets: (params: Record<string, unknown>) =>
 				['timesheet', 'reports', 'project-budgets', params] as const
 		},
@@ -756,6 +827,15 @@ export const queryKeys = {
 				...(endDate ? [endDate] : [])
 			] as const,
 		timeLog: (logId: string | null | undefined) => ['timesheet', 'time-log', ...(logId ? [logId] : [])] as const,
+		// Under `timesheet` so a saved or removed entry never leaves a stale overlap answer behind.
+		conflicts: (params: {
+			tenantId: string | null;
+			organizationId: string | null;
+			employeeId: string;
+			startDate: string;
+			endDate: string;
+			ignoreId: string | null;
+		}) => ['timesheet', 'conflicts', params] as const,
 		logs: (
 			tenantId: string | null | undefined,
 			organizationId: string | null | undefined,
@@ -908,6 +988,32 @@ export const queryKeys = {
 				runId: string | undefined | null
 			) => ['integrations', 'trello', 'conflicts', tenantId ?? null, organizationId ?? null, integrationId ?? null, status ?? null, runId ?? null] as const
 		},
+		jira: {
+			all: ['integrations', 'jira'] as const,
+			status: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+				['integrations', 'jira', 'status', tenantId ?? null, organizationId ?? null] as const,
+			sites: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'jira', 'sites', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			mappings: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'jira', 'mappings', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			/** The projects of the connection's site (keyed by the site: a new site has other projects). */
+			projects: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, cloudId: string | undefined | null) =>
+				['integrations', 'jira', 'projects', tenantId ?? null, organizationId ?? null, integrationId ?? null, cloudId ?? null] as const,
+			/** One project's statuses and issue types, keyed by the site too (two sites may hold a project of the same id). */
+			project: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, cloudId: string | undefined | null, jiraProjectId: string | undefined | null) =>
+				['integrations', 'jira', 'project', tenantId ?? null, organizationId ?? null, integrationId ?? null, cloudId ?? null, jiraProjectId ?? null] as const,
+			runs: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'jira', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			/** Every conflict list of the provider (a resolve or a finished run reads them again). */
+			conflictsAll: ['integrations', 'jira', 'conflicts'] as const,
+			conflicts: (
+				tenantId: string | undefined | null,
+				organizationId: string | undefined | null,
+				integrationId: string | undefined | null,
+				status: string | undefined | null,
+				runId: string | undefined | null
+			) => ['integrations', 'jira', 'conflicts', tenantId ?? null, organizationId ?? null, integrationId ?? null, status ?? null, runId ?? null] as const
+		},
 		types: (tenantId: string | undefined | null) =>
 			['integrations', 'types', ...(tenantId ? [tenantId] : [])] as const,
 		byTenant: (tenantId: string | undefined | null) =>
@@ -994,6 +1100,13 @@ export const queryKeys = {
 
 	board: {
 		liveCollaboration: ['live-collaboration'] as const
+	},
+
+	// Meetings the signed-in member scheduled (Ever Gauzy employee appointments)
+	meetings: {
+		all: ['meetings'] as const,
+		scheduled: (employeeId: string | undefined | null) =>
+			['meetings', 'scheduled', ...(employeeId ? [employeeId] : [])] as const
 	},
 
 	timeLogs: {
@@ -1087,8 +1200,17 @@ export const queryKeys = {
 			['docs', 'spaces', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
 		follow: (tenantId: string | undefined | null, userId: string | undefined | null, pageId: string | undefined | null) =>
 			['docs', 'follow', tenantId ?? null, userId ?? null, pageId ?? null] as const,
+		// Whether the platform imports exported workspaces / exports PDFs (404 while off), and one import's state.
+		importProbe: (tenantId: string | undefined | null, organizationId: string | undefined | null, userId: string | undefined | null) =>
+			['docs', 'import-probe', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		pdfProbe: (tenantId: string | undefined | null) => ['docs', 'pdf-probe', tenantId ?? null] as const,
+		import: (tenantId: string | undefined | null, importId: string | undefined | null) =>
+			['docs', 'import', tenantId ?? null, importId ?? null] as const,
 		/** The platform's comments on the page (entity `Document`), block threads and page comments alike. */
 		comments: (tenantId: string | undefined | null, organizationId: string | undefined | null, pageId: string | undefined | null) =>
-			['docs', 'comments', tenantId ?? null, organizationId ?? null, pageId ?? null] as const
+			['docs', 'comments', tenantId ?? null, organizationId ?? null, pageId ?? null] as const,
+		/** The text ranges of the page's comments: under the comments' key, so whatever reads the comments again reads them too. */
+		commentAnchors: (tenantId: string | undefined | null, organizationId: string | undefined | null, pageId: string | undefined | null) =>
+			['docs', 'comments', tenantId ?? null, organizationId ?? null, pageId ?? null, 'anchors'] as const
 	}
 };

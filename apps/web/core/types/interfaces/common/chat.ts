@@ -40,6 +40,13 @@ export const CHAT_MESSAGE_MAX_LENGTH = 4000;
 export const CHAT_GROUP_MAX_MEMBERS = 50;
 /** The platform's `CHAT_MESSAGE_MAX_ATTACHMENTS`: a message carries at most this many files. */
 export const CHAT_MESSAGE_MAX_ATTACHMENTS = 10;
+/** The platform's `CHAT_TYPING_TTL_MS`: how long "is typing" shows when a signal says nothing of it. */
+export const CHAT_TYPING_TTL_MS = 6000;
+/**
+ * The platform's `CHAT_TYPING_MIN_INTERVAL_MS`: one place's typing is told at most this often.
+ * @public Mirrors the platform's limit next to `CHAT_TYPING_TTL_MS`; nothing in the app reads it yet.
+ */
+export const CHAT_TYPING_MIN_INTERVAL_MS = 2500;
 
 /** Mention tokens inside a body: `<@employeeId>`, `<#conversationId>`, `<!channel>`, `<!here>`. */
 export const CHAT_MENTION_TOKEN_PATTERN = /<(@|#)([0-9a-fA-F-]{36})>|<!(channel|here)>/g;
@@ -111,13 +118,64 @@ export interface IChatTaskReference {
 	kind: EChatTaskReferenceKind | string;
 }
 
+/**
+ * The blocks an app message (an incoming webhook's post) renders; every text is plain text.
+ * @public Lists the block types the platform sends; nothing in the app reads it as a type yet.
+ */
+export type TChatAppBlockType = 'header' | 'section' | 'divider' | 'context' | 'actions' | 'text';
+
+/** A button of an app message: with `url` it opens that https page, otherwise a click calls the app back. */
+export interface IChatAppButton {
+	actionId: string;
+	text: string;
+	value?: string | null;
+	url?: string | null;
+	style?: 'primary' | 'danger' | null;
+}
+
+export type IChatAppBlock =
+	| { type: 'header'; text: string }
+	| { type: 'section'; text?: string | null; fields?: string[] | null }
+	| { type: 'divider' }
+	| { type: 'context'; elements: string[] }
+	| { type: 'actions'; blockId?: string | null; elements: IChatAppButton[] }
+	| { type: 'text'; text: string };
+
+/** Where the app's callback of a click stands. */
+export type TChatInteractionStatus = 'pending' | 'delivered' | 'retrying' | 'failed';
+
+/** One click on a button of an app message (`POST /chat/messages/:id/interactions`). */
+export interface IChatInteraction {
+	interactionId: ID;
+	messageId: ID;
+	conversationId: ID;
+	actionId: string;
+	status: TChatInteractionStatus;
+	attempts: number;
+	/** Whether the app's reply replaced the message. */
+	replyApplied: boolean;
+	error?: string | null;
+}
+
+export interface IChatInteractionResult {
+	interaction: IChatInteraction;
+	/** The message as the app's reply left it, when it replied. */
+	message?: IChatMessage;
+	events: IChatEvent[];
+	/** The click's `Idempotency-Key` named an earlier click: this is that click as it is now, and nothing was sent again. */
+	replayed?: boolean;
+}
+
 export interface IChatMessage {
 	id: ID;
 	conversationId: ID;
 	authorEmployeeId?: ID | null;
 	authorUserId?: ID | null;
 	kind: EChatMessageKind | string;
-	/** Markdown subset with mention tokens; empty for a deleted message. */
+	/**
+	 * Markdown subset with mention tokens; empty for a deleted message (`deletedAt` set) and for a message of files
+	 * only (`attachmentIds` not empty).
+	 */
 	body: string;
 	mentionEmployeeIds?: ID[] | null;
 	mentionsChannel: boolean;
@@ -131,8 +189,19 @@ export interface IChatMessage {
 	pinnedByEmployeeId?: ID | null;
 	editedAt?: string | null;
 	attachmentIds?: ID[] | null;
+	/**
+	 * The names the files had when the message was sent or last edited, one per line: what a message of files only
+	 * reads as in a preview. Null without files, and absent from a platform older than the field.
+	 */
+	attachmentNames?: string | null;
 	nonce?: string | null;
 	appName?: string | null;
+	/** The incoming webhook that posted an app message (`kind: app`). */
+	webhookId?: ID | null;
+	/** The icon of the app that posted the message (https). */
+	appIconUrl?: string | null;
+	/** The layout of an app message, plain text throughout; `body` is its text fallback. */
+	blocks?: IChatAppBlock[] | null;
 	/** The assistant the author wrote the message with (an AI client posting in their name), when one did. */
 	assistedBy?: string | null;
 	deletedAt?: string | null;
@@ -200,7 +269,8 @@ export interface IChatMemberStateInput {
 }
 
 export interface IChatMessageCreateInput {
-	body: string;
+	/** The text; may be empty (or left out) when the message carries at least one attachment. */
+	body?: string;
 	nonce?: string;
 	replyToId?: ID;
 	threadRootId?: ID;
@@ -227,6 +297,7 @@ export interface IChatCreateTaskResult {
 }
 
 export interface IChatMessageUpdateInput {
+	/** The new text; may be empty when the message, after the edit, carries at least one attachment. */
 	body: string;
 	attachmentIds?: ID[];
 	mentionEmployeeIds?: ID[];
@@ -247,6 +318,9 @@ export interface IChatFile {
 	status?: string | null;
 	fileUrl?: string | null;
 	thumbUrl?: string | null;
+	/** A picture's size in pixels as shown (orientation applied), read when it was uploaded; null when unknown. */
+	width?: number | null;
+	height?: number | null;
 	authorEmployeeId?: ID | null;
 	authorUserId?: ID | null;
 	attachedAt: string;
@@ -300,4 +374,71 @@ export interface IChatMessagesQuery {
 	after?: ID;
 	around?: ID;
 	limit?: number;
+}
+
+/**
+ * `PATCH /chat/messages/:id/tasks/:taskId`: change a task from its card in a message (its status, its priority, its
+ * assignees), through the platform's task update and its task permissions. Only what is named changes.
+ */
+export interface IChatTaskUpdateInput {
+	/** The status's name (a board column), as the task page writes it; with `taskStatusId` when the status is a record. */
+	status?: string;
+	taskStatusId?: ID | null;
+	/** The priority's name; with `taskPriorityId` when the priority is a record; null clears it. */
+	priority?: string | null;
+	taskPriorityId?: ID | null;
+	/** The assignees, all of them (an empty list unassigns everyone). */
+	assigneeEmployeeIds?: ID[];
+}
+
+/** What a change from a task card answers: the task as it is now, and the events the change caused. */
+export interface IChatTaskUpdateResult {
+	task: { id: ID; status?: string | null; priority?: string | null; [key: string]: unknown };
+	events: IChatEvent[];
+}
+
+/** `POST /chat/conversations/:id/typing`: I am typing in the conversation (or in one of its threads). */
+export interface IChatTypingInput {
+	threadRootId?: ID;
+}
+
+/** Whether the signal was told (a repeat within the platform's interval is not), and how long the members show it. */
+export interface IChatTypingResult {
+	sent: boolean;
+	expiresInMs: number;
+}
+
+/** The real-time channel's `typing.signalled` signal: someone is typing in a conversation, or in one of its threads. */
+export interface IChatTypingSignal {
+	conversationId: ID;
+	threadRootId?: ID | null;
+	employeeId?: ID | null;
+	userId: ID;
+	at: string;
+	/** How long to show it unless the typist signals again (absent from a signal not sent by the chat's own route). */
+	expiresInMs?: number;
+}
+
+/** The channels of one category in the order the sidebar shows them; `categoryId` null for the uncategorized. */
+export interface IChatCategoryChannelOrder {
+	categoryId: ID | null;
+	conversationIds: ID[];
+}
+
+/** `POST /chat/categories/reorder`: every category of the organization first to last, and optionally their channels. */
+export interface IChatCategoryReorderInput {
+	categoryIds: ID[];
+	channels?: IChatCategoryChannelOrder[];
+}
+
+export interface IChatCategoryReorderResult {
+	categories: IChatCategory[];
+	/** The channels whose category or place changed. */
+	conversations: Array<{ id: ID; categoryId: ID | null; position: number }>;
+	events: IChatEvent[];
+}
+
+/** `DELETE /chat/attachments/:documentId`: whether the file, uploaded and never sent, was discarded. */
+export interface IChatDraftDiscardResult {
+	discarded: boolean;
 }
