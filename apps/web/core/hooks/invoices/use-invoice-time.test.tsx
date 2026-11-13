@@ -284,6 +284,18 @@ describe('the time of a saved invoice', () => {
 		mockRates.getProjectRates.mockResolvedValue(siteRates);
 	});
 
+	it('reads the time its lines bill a day wider on each side: its maker read the period in their own zone', async () => {
+		answerTimeReads([], [ownAda]);
+
+		const { result } = renderTimeOf({ enabled: false, billedLines });
+		await waitFor(() => expect(result.current.isReadingBilledTime).toBe(false));
+
+		const range = mockReports.getBillableTimeLogs.mock.calls[0][0] as { from: Date; to: Date };
+		expect(range.from).toEqual(new Date(2026, 8, 30));
+		expect(range.to).toEqual(new Date(2026, 10, 1, 23, 59, 59, 999));
+		expect(result.current.billedTimeByLine.get('line-1')).toEqual(['log-own']);
+	});
+
 	it('names the time each of its lines bills, without reading the free time or the rates', async () => {
 		answerTimeReads([freeAda], [freeAda, ownAda, otherInvoiceAda]);
 

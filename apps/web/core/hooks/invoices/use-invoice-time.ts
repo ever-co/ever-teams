@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from 'react';
 import { useQueries, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
-import { endOfDay, startOfDay } from 'date-fns';
+import { addDays, endOfDay, startOfDay, subDays } from 'date-fns';
 import { queryKeys } from '@/core/query/keys';
 import { rateService } from '@/core/services/client/api/organizations/rate.service';
 import {
@@ -14,7 +14,12 @@ import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/project
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import type { Period } from '@/core/lib/utils/dashboard-period';
-import { offeredLogsOf, recordsBilledTimeOf, timeLogIdsByLineOf } from '@/core/lib/utils/invoice-billed-time';
+import {
+	logsStartedWithin,
+	offeredLogsOf,
+	recordsBilledTimeOf,
+	timeLogIdsByLineOf
+} from '@/core/lib/utils/invoice-billed-time';
 import type { BilledLinesRead } from '@/core/lib/utils/invoice-edit';
 import {
 	billableEntriesOf,
@@ -167,6 +172,32 @@ function sortedIdsOf(ids: Iterable<string>) {
 	return distinct.sort((first, second) => first.localeCompare(second));
 }
 
+/**
+ * Whoever made a saved invoice read its period's days in their own time zone: the time its lines bill is read a day
+ * wider on each side, so a log near the first or the last midnight keeps its line.
+ */
+function billedReadStartOf(from: Date, readsWider: boolean) {
+	if (!readsWider) {
+		return from;
+	}
+	return subDays(from, 1);
+}
+
+function billedReadEndOf(to: Date, readsWider: boolean) {
+	if (!readsWider) {
+		return to;
+	}
+	return addDays(to, 1);
+}
+
+/** The period's own logs out of a wider read: whether the period is all invoiced is told by its own time only. */
+function periodLogsOf(logs: TBillableTimeLog[], from: Date, to: Date, readsWider: boolean) {
+	if (!readsWider) {
+		return logs;
+	}
+	return logsStartedWithin(logs, from, to);
+}
+
 export function useInvoiceTime({
 	clientId,
 	period,
@@ -210,13 +241,16 @@ export function useInvoiceTime({
 
 	const from = useMemo(() => startOfDay(period.from), [period.from]);
 	const to = useMemo(() => endOfDay(period.to), [period.to]);
+	const hasBilledLines = billedLines.lineIds.size > 0;
+	const allFrom = useMemo(() => billedReadStartOf(from, hasBilledLines), [from, hasBilledLines]);
+	const allTo = useMemo(() => billedReadEndOf(to, hasBilledLines), [hasBilledLines, to]);
 	const range = useMemo<TimeLogReportRange>(
 		() => ({ from, to, timeZone, projectIds }),
 		[from, projectIds, timeZone, to]
 	);
 	const allRange = useMemo<TimeLogReportRange>(
-		() => ({ from, to, timeZone, projectIds: allProjectIds }),
-		[allProjectIds, from, timeZone, to]
+		() => ({ from: allFrom, to: allTo, timeZone, projectIds: allProjectIds }),
+		[allFrom, allProjectIds, allTo, timeZone]
 	);
 	const scope = useMemo(() => ({ tenantId, organizationId }), [organizationId, tenantId]);
 	const rangeKey = {
@@ -233,7 +267,6 @@ export function useInvoiceTime({
 	// Without a project the API would answer the time of every project: the read never runs.
 	const readsTime = enabled && hasScope && hasProjects;
 	const readsRates = enabled && hasScope;
-	const hasBilledLines = billedLines.lineIds.size > 0;
 	const readsBilledTime = hasScope && hasBilledLines;
 	const namesTasks = grouping === 'task';
 	let relations = NO_RELATIONS;
@@ -265,6 +298,8 @@ export function useInvoiceTime({
 	const allQuery = useQuery({
 		queryKey: queryKeys.timesheet.reports.billableLogs({
 			...rangeKey,
+			from: allFrom.toISOString(),
+			to: allTo.toISOString(),
 			projectIds: allProjectIds,
 			namesTasks,
 			notInvoiced: false
@@ -282,7 +317,11 @@ export function useInvoiceTime({
 	);
 	const billedTimeByLine = useMemo(() => timeLogIdsByLineOf(allLogs, billedLineIds), [allLogs, billedLineIds]);
 	const recordsBilledTime = useMemo(() => recordsBilledTimeOf([...freeLogs, ...allLogs]), [allLogs, freeLogs]);
-	const allEntries = useMemo(() => billableEntriesOf(allLogs, projectIdSet), [allLogs, projectIdSet]);
+	const periodLogs = useMemo(
+		() => periodLogsOf(allLogs, from, to, hasBilledLines),
+		[allLogs, from, hasBilledLines, to]
+	);
+	const allEntries = useMemo(() => billableEntriesOf(periodLogs, projectIdSet), [periodLogs, projectIdSet]);
 	const hasInvoicedTime = recordsBilledTime === true && allEntries.length > 0;
 	const isAllInvoiced = checksInvoicedTime && hasInvoicedTime;
 

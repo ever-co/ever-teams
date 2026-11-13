@@ -211,3 +211,25 @@ export function recordingReadDaysOf(periods: ReadonlyArray<InvoicePeriodDays>): 
 	}
 	return { fromDay: shiftedDayKey(fromDay, -1), toDay: shiftedDayKey(toDay, 1) };
 }
+
+export interface StartedLogLike {
+	startedAt?: string | null;
+}
+
+/**
+ * The logs that start within these bounds, the bounds included, from a read a day wider on each side. A log whose
+ * start is not stated stays: the read already chose it.
+ */
+export function logsStartedWithin<T extends StartedLogLike>(logs: ReadonlyArray<T>, from: Date, to: Date): T[] {
+	const fromTime = from.getTime();
+	const toTime = to.getTime();
+	return logs.filter((log) => {
+		const startedTime = Date.parse(log.startedAt ?? '');
+		if (Number.isNaN(startedTime)) {
+			return true;
+		}
+		const isAfterStart = startedTime >= fromTime;
+		const isBeforeEnd = startedTime <= toTime;
+		return isAfterStart && isBeforeEnd;
+	});
+}

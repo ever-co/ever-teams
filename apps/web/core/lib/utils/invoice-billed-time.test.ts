@@ -2,6 +2,7 @@ import { ApiErrorService } from '@/core/services/client/api-error.service';
 import {
 	invoicesRecordingTimeOf,
 	isTimeBilledElsewhere,
+	logsStartedWithin,
 	offeredLogsOf,
 	overlapNoticeOf,
 	overlapsAtRiskOf,
@@ -185,5 +186,29 @@ describe('the days read to check the earlier invoices', () => {
 
 	it('are none without a period', () => {
 		expect(recordingReadDaysOf([])).toBeNull();
+	});
+});
+
+describe('the logs of a period out of a read a day wider on each side', () => {
+	const from = new Date('2026-10-01T00:00:00.000Z');
+	const to = new Date('2026-10-31T23:59:59.999Z');
+
+	it('keeps the logs that start within the period, its bounds included, and those whose start is not stated', () => {
+		const logs = [
+			{ id: 'first', startedAt: '2026-10-01T00:00:00.000Z' },
+			{ id: 'last', startedAt: '2026-10-31T23:59:59.999Z' },
+			{ id: 'unstated', startedAt: null }
+		];
+
+		expect(logsStartedWithin(logs, from, to).map((log) => log.id)).toEqual(['first', 'last', 'unstated']);
+	});
+
+	it('leaves out the logs of the day before and the day after', () => {
+		const logs = [
+			{ id: 'before', startedAt: '2026-09-30T23:30:00.000Z' },
+			{ id: 'after', startedAt: '2026-11-01T00:30:00.000Z' }
+		];
+
+		expect(logsStartedWithin(logs, from, to)).toEqual([]);
 	});
 });
