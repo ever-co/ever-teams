@@ -4,10 +4,12 @@ import { useCallback, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { useQueryClient } from '@tanstack/react-query';
 import { activeTeamManagersState, isTeamManagerMember } from '@/core/stores';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { queryKeys } from '@/core/query/keys';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { useEmployeeUpdate } from '@/core/hooks/organizations/employees/use-employee';
+import { useGetCurrentOrganization } from '@/core/hooks/auth/use-current-organization';
 import { useOrganizationEmployeeTeams } from '@/core/hooks/organizations/teams/use-organization-teams-employee';
 import { mayTurnTrackingOfRole, rankInTeam, rankOfRole } from '@/core/lib/helpers/tracking-switch';
 import { employeeIdOf, memberRoleNameOf, memberUserIdOf } from '@/core/lib/utils/settings-team';
@@ -16,9 +18,13 @@ import type { TUpdateEmployee } from '@/core/types/schemas/organization/employee
 
 /**
  * Who may turn a member's time tracking on or off, and the save that does it, as Gauzy accepts it
- * (ever-co/ever-teams#5015): only someone of a higher rank, an admin also for another admin. Gauzy checks two
- * switches before a start: the member's switch in the team, and their own (employee) switch, which counts in every
- * team.
+ * (ever-co/ever-teams#5015). Gauzy checks two switches before a start: the member's switch in the team, and their own
+ * (employee) switch, which counts in every team.
+ *
+ * Where the organization restricts the switch to higher roles (`restrictTrackingSwitchToHigherRoles`), only someone of
+ * a higher rank switches it, an admin also for another admin, as below. Elsewhere, the default, Gauzy writes the team
+ * switch for an admin or a manager of the team, and the employee switch for a holder of ORG_EMPLOYEES_EDIT, whoever
+ * the member is.
  *
  * - The team switch: Gauzy writes it for an admin or a manager of the team. A rank in a team is the tenant role's
  *   (SUPER_ADMIN and ADMIN, then MANAGER, then the rest), raised to manager for a manager of the team. A team manager
@@ -29,6 +35,8 @@ import type { TUpdateEmployee } from '@/core/types/schemas/organization/employee
  *   it with the team switch; anyone else cannot turn on a member whose employee switch is off.
  * - A member whose role did not load could be an admin: only an admin switches them.
  * - Nothing is saved before the permissions are known: they decide whether the employee switch goes with the team one.
+ *   Nor before the organization is read: it decides whether the ranks apply. A read that failed keeps the ranks, which
+ *   never offer a switch Gauzy refuses; an organization read without the setting (an older Gauzy) has no ranks.
  */
 export function useMemberTrackingSwitch() {
 	const queryClient = useQueryClient();
@@ -38,6 +46,12 @@ export function useMemberTrackingSwitch() {
 	const { myPermissions, isLoaded: arePermissionsLoaded } = useMyRolePermissionsQuery();
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
 	const { updateEmployeeAsync } = useEmployeeUpdate();
+	// Read here too: the sections that read the organization are an admin's, and a manager's switches depend on it
+	const organizationRead = useGetCurrentOrganization({ enabled: true });
+	const organization = useAtomValue(currentOrganizationState);
+	const isOrganizationKnown = Boolean(organization) || organizationRead.isError;
+	const restrictsSwitch = organization ? organization.restrictTrackingSwitchToHigherRoles === true : true;
+	const isTrackingRuleKnown = arePermissionsLoaded && isOrganizationKnown;
 
 	const userId = user?.id;
 	const ownRoleRank = rankOfRole(user?.role?.name);
@@ -53,17 +67,23 @@ export function useMemberTrackingSwitch() {
 			if (!writesTeamSwitch) {
 				return false;
 			}
+			if (!restrictsSwitch) {
+				return true;
+			}
 			return mayTurnTrackingOfRole(ownRankInTeam, memberRoleNameOf(member), isTeamManagerMember(member));
 		},
-		[ownRankInTeam, writesTeamSwitch]
+		[ownRankInTeam, restrictsSwitch, writesTeamSwitch]
 	);
 
 	/** Whether the save moves the member's own (employee) switch too, which Gauzy allows only on these terms. */
 	const writesEmployeeTracking = useCallback(
 		(member: TOrganizationTeamEmployee) => {
+			if (!restrictsSwitch) {
+				return canEditEmployees;
+			}
 			return canEditEmployees && mayTurnTrackingOfRole(ownRoleRank, memberRoleNameOf(member));
 		},
-		[canEditEmployees, ownRoleRank]
+		[canEditEmployees, ownRoleRank, restrictsSwitch]
 	);
 
 	/**
@@ -72,9 +92,9 @@ export function useMemberTrackingSwitch() {
 	 */
 	const saveMemberTracking = useCallback(
 		async (team: TOrganizationTeam, member: TOrganizationTeamEmployee, enabled: boolean) => {
-			if (!arePermissionsLoaded) {
-				// Without them an admin's save would write the team switch alone, and tracking would stay off
-				throw new Error('The permissions are not known yet');
+			if (!isTrackingRuleKnown) {
+				// Without the permissions an admin's save would write the team switch alone, and tracking would stay off
+				throw new Error('The permissions or the organization are not known yet');
 			}
 			const rowId = member.id;
 			const employeeId = employeeIdOf(member);
@@ -108,11 +128,11 @@ export function useMemberTrackingSwitch() {
 			// The rows read the employee through the team: without this they keep the old value
 			await queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
 		},
-		[arePermissionsLoaded, queryClient, updateEmployeeAsync, updateOrganizationTeamEmployee, writesEmployeeTracking]
+		[isTrackingRuleKnown, queryClient, updateEmployeeAsync, updateOrganizationTeamEmployee, writesEmployeeTracking]
 	);
 
 	return useMemo(
-		() => ({ arePermissionsLoaded, mayTurnTracking, writesEmployeeTracking, saveMemberTracking }),
-		[arePermissionsLoaded, mayTurnTracking, writesEmployeeTracking, saveMemberTracking]
+		() => ({ isTrackingRuleKnown, mayTurnTracking, writesEmployeeTracking, saveMemberTracking }),
+		[isTrackingRuleKnown, mayTurnTracking, writesEmployeeTracking, saveMemberTracking]
 	);
 }
