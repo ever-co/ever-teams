@@ -47,5 +47,42 @@ export const billableTimeLogSchema = z.object({
 	task: billableTaskSchema.nullable().optional()
 });
 
+const savedLineProjectSchema = z.object({
+	id: z.string(),
+	name: z.string().nullable().optional()
+});
+
+/** A line of a saved invoice, with the name of its project. */
+export const savedInvoiceItemSchema = z.object({
+	id: z.string(),
+	description: z.string().nullable().optional(),
+	price: decimalSchema,
+	quantity: decimalSchema,
+	totalValue: decimalSchema,
+	applyTax: z.boolean().nullable().optional(),
+	applyDiscount: z.boolean().nullable().optional(),
+	projectId: z.string().nullable().optional(),
+	employeeId: z.string().nullable().optional(),
+	taskId: z.string().nullable().optional(),
+	project: savedLineProjectSchema.nullable().optional()
+});
+
+/** One invoice as its editor reads it: its own fields, its discount and taxes, and its lines. */
+export const savedInvoiceSchema = invoiceSchema.extend({
+	organizationId: z.string().nullable().optional(),
+	tenantId: z.string().nullable().optional(),
+	organizationContactId: z.string().nullable().optional(),
+	invoiceType: z.string().nullable().optional(),
+	discountValue: decimalSchema,
+	discountType: z.string().nullable().optional(),
+	tax: decimalSchema,
+	taxType: z.string().nullable().optional(),
+	tax2: decimalSchema,
+	tax2Type: z.string().nullable().optional(),
+	invoiceItems: z.array(savedInvoiceItemSchema).nullable().optional()
+});
+
 export type TInvoice = z.infer<typeof invoiceSchema>;
 export type TBillableTimeLog = z.infer<typeof billableTimeLogSchema>;
+export type TSavedInvoice = z.infer<typeof savedInvoiceSchema>;
+export type TSavedInvoiceItem = z.infer<typeof savedInvoiceItemSchema>;

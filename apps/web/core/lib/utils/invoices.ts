@@ -494,7 +494,8 @@ function labelOf(line: InvoiceLine, naming: LineNaming, names: InvoiceLineNames)
 	return naming.memberName;
 }
 
-function compareNamedLines(first: NamedInvoiceLine, second: NamedInvoiceLine) {
+/** Lines by project name, then by label: the order the sheet and the PDF list them in. */
+export function compareNamedLines(first: NamedInvoiceLine, second: NamedInvoiceLine) {
 	const projectOrder = first.projectName.localeCompare(second.projectName);
 	if (projectOrder !== 0) {
 		return projectOrder;
@@ -519,6 +520,28 @@ export function namedLinesOf(
 	});
 	named.sort(compareNamedLines);
 	return named;
+}
+
+export interface InvoiceLineParts {
+	projectId: string;
+	employeeId: string | null;
+	taskId: string | null;
+	currency: string | null;
+}
+
+/**
+ * The key of a line with these parts under a grouping, the same whether the line comes from time or from a saved
+ * invoice: what the user wrote on a saved line stays on the line the time rebuilds.
+ */
+export function invoiceLineKeyOf(parts: InvoiceLineParts, grouping: InvoiceGrouping): string {
+	if (grouping === 'project') {
+		return projectWorthKeyOf(parts.projectId, parts.currency);
+	}
+	const employeeId = parts.employeeId ?? '';
+	if (grouping === 'task') {
+		return entryKeyOf(parts.projectId, employeeId, parts.taskId);
+	}
+	return memberKeyOf(parts.projectId, employeeId);
 }
 
 export interface InvoiceProjectGroup {
