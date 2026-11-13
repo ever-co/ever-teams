@@ -251,12 +251,12 @@ describe('the busy days of a month', () => {
 describe('a task dropped on a day', () => {
 	const november = (date: number) => dayNumberOf(new Date(2026, 10, date));
 
-	it('falls due that day, as a local midnight', () => {
+	it('falls due that day, in the platform’s date-only form (midnight UTC of the day)', () => {
 		expect(droppedTaskDatesOf({ dueDate: '2026-11-14' }, november(17))).toEqual({
-			dueDate: new Date(2026, 10, 17)
+			dueDate: new Date(Date.UTC(2026, 10, 17))
 		});
 		expect(droppedTaskDatesOf({ dueDate: '2026-11-14T00:00:00.000Z' }, november(9))).toEqual({
-			dueDate: new Date(2026, 10, 9)
+			dueDate: new Date(Date.UTC(2026, 10, 9))
 		});
 	});
 
@@ -265,21 +265,23 @@ describe('a task dropped on a day', () => {
 
 		expect(droppedTaskDatesOf(tenToFourteen, november(17))).toEqual({
 			startDate: new Date(2026, 10, 13),
-			dueDate: new Date(2026, 10, 17)
+			dueDate: new Date(Date.UTC(2026, 10, 17))
 		});
 		expect(droppedTaskDatesOf(tenToFourteen, november(2))).toEqual({
 			startDate: new Date(2026, 9, 29),
-			dueDate: new Date(2026, 10, 2)
+			dueDate: new Date(Date.UTC(2026, 10, 2))
 		});
 	});
 
 	it('gets a due date when it had none, and keeps its start', () => {
-		expect(droppedTaskDatesOf({ dueDate: null }, november(20))).toEqual({ dueDate: new Date(2026, 10, 20) });
+		expect(droppedTaskDatesOf({ dueDate: null }, november(20))).toEqual({
+			dueDate: new Date(Date.UTC(2026, 10, 20))
+		});
 		expect(droppedTaskDatesOf({ startDate: '2026-11-18' }, november(20))).toEqual({
-			dueDate: new Date(2026, 10, 20)
+			dueDate: new Date(Date.UTC(2026, 10, 20))
 		});
 		expect(droppedTaskDatesOf({ startDate: '2026-11-18' }, november(18))).toEqual({
-			dueDate: new Date(2026, 10, 18)
+			dueDate: new Date(Date.UTC(2026, 10, 18))
 		});
 	});
 

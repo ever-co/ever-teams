@@ -168,6 +168,18 @@ export function statusIdOf(task: TTask, statuses: TTaskStatus[]) {
 	return byName?.id;
 }
 
+/**
+ * The status of a task that no lane of these statuses has (another team's, one since removed), by name; null when a lane
+ * has it or the task has none. The board shows such a task in its first lane, so its card names its own status.
+ */
+export function strayStatusOf(task: TTask, statuses: TTaskStatus[]): string | null {
+	if (statusIdOf(task, statuses)) {
+		return null;
+	}
+	const name = (task.status as string | null | undefined)?.trim();
+	return name || null;
+}
+
 function orderedByDrop(tasks: TTask[], droppedOrder: string[] | undefined) {
 	if (!droppedOrder || droppedOrder.length === 0) {
 		return tasks;
@@ -181,7 +193,8 @@ function orderedByDrop(tasks: TTask[], droppedOrder: string[] | undefined) {
 
 /**
  * One lane per status in the statuses' order. A task whose status belongs to no lane (no status, or another team's
- * status set) lands in the first lane so it stays visible and can be dragged to the right one.
+ * status set) lands in the first lane so it stays visible (its card names its own status, see `strayStatusOf`) and,
+ * when it is the team's, can be dragged to the right one.
  */
 export function buildKanbanLanes(tasks: TTask[], statuses: TTaskStatus[], laneOrder: KanbanLaneOrder): KanbanLane[] {
 	const orderedStatuses = sortStatusesByOrder(statuses);

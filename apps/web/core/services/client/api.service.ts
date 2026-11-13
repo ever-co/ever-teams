@@ -283,10 +283,12 @@ export class APIService {
 	 */
 	private logResponse(response: AxiosResponse) {
 		if (this.config.enableLogging) {
+			// A request that asked for it keeps its answer out of the log: the answer holds a secret shown once.
+			const hidesBody = (response.config as APIConfig).secretResponse === true;
 			this.logger.debug(
 				`✅ Response: ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`,
 				{
-					data: response.data,
+					data: hidesBody ? '[not logged]' : response.data,
 					headers: response.headers
 				}
 			);
@@ -592,11 +594,14 @@ export class APIService {
 	 * @param {string} url - Endpoint path.
 	 * @param {object} [data={}] - Request payload.
 	 * @param {object} [config={}] - Additional config.
+	 * @param {boolean} [includeTenantAndOrganizationIds=true] - Add `tenantId` / `organizationId` to the body (as `post`
+	 * does); `false` for a route whose body takes neither.
 	 */
 	async patch<T = any>(
 		url: string,
 		data?: Record<string, any> | FormData,
-		config?: APIConfig
+		config?: APIConfig,
+		includeTenantAndOrganizationIds = true
 	): Promise<AxiosResponse<T>> {
 		const { baseURL, headers, tenantId, organizationId } = await this.getApiConfig(config);
 		const { directAPI = true } = config || {};
@@ -610,7 +615,7 @@ export class APIService {
 		this.cancelSources.set(requestId, controller);
 		try {
 			return await this.executeRequest<T>(() => {
-				if (data && !(data instanceof FormData)) {
+				if (data && !(data instanceof FormData) && includeTenantAndOrganizationIds) {
 					if (!('tenantId' in data)) {
 						(data as any).tenantId = tenantId;
 					}

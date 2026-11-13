@@ -9,8 +9,7 @@ import { clsxm } from '@/core/lib/utils/clsxm';
 import { Text } from '@/core/components/common/typography';
 import { useTranslations } from 'next-intl';
 import { TimerButton } from './timer-button';
-import { TimerBillableSwitch } from './timer-billable-switch';
-import { TimerNotesButton } from './timer-notes-button';
+import { TimerEntryToggles } from './timer-entry-toggles';
 import { Transition } from '@headlessui/react';
 
 import { ArrowTurnUp, Desktop, Globe, Lifebuoy, Smartphone } from '@/core/components/icons';
@@ -46,10 +45,17 @@ function useHydrated() {
 	return hydrated;
 }
 
-const CLOCK_CLASS_NAME = 'w-[9.5rem] text-3xl font-semibold tabular-nums lg:text-start';
+/**
+ * Below sm the clock steps down to the design system's timer size on the same line height, so the start button and
+ * its two toggles keep their 44px in the phone's pane and the pane keeps its height.
+ */
+const CLOCK_CLASS_NAME =
+	'w-[6.75rem] text-2xl leading-9 font-semibold tabular-nums sm:w-[9.5rem] sm:text-3xl lg:text-start';
 
 /** The profile's figures row sets the timer beside 15px values: a clock at the size of a figure, not a headline. */
 const COMPACT_CLOCK_CLASS_NAME = 'w-[6.5rem] text-xl font-semibold tabular-nums lg:text-start';
+
+const RUNNING_FRACTION_CLASS_NAME = 'text-sm font-normal text-muted-foreground';
 
 function clockClassNameOf(compact: boolean) {
 	if (compact) {
@@ -58,6 +64,15 @@ function clockClassNameOf(compact: boolean) {
 	return CLOCK_CLASS_NAME;
 }
 
+/** The phone's clock has no room for the running fraction of a second. */
+function runningFractionClassNameOf(compact: boolean) {
+	if (compact) {
+		return RUNNING_FRACTION_CLASS_NAME;
+	}
+	return clsxm(RUNNING_FRACTION_CLASS_NAME, 'max-sm:hidden');
+}
+
+/** The start button's diameter, which the entry's toggles share, so the timer's round controls read as one row. */
 function timerButtonClassNameOf(compact: boolean) {
 	if (compact) {
 		return 'size-9';
@@ -131,11 +146,19 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 	useHotkeys(HostKeys.START_STOP_TIMER, handleStartSTOPTimer);
 
 	const clockClassName = clockClassNameOf(compact);
+	const runningFractionClassName = runningFractionClassNameOf(compact);
 	const timerButtonClassName = timerButtonClassNameOf(compact);
 
 	return (
 		<div className={clsxm('flex min-w-[260px] flex-row items-center justify-between gap-4 p-2', className)}>
-			<div className="flex min-w-0 items-center gap-2">
+			<div className="flex min-w-0 items-center gap-2 lg:gap-4">
+				{showTimerButton && (
+					<TimerEntryToggles
+						locked={isBillableLocked}
+						className="gap-2"
+						toggleClassName={timerButtonClassName}
+					/>
+				)}
 				<div className="flex min-w-0 items-start gap-2">
 					<div className="flex min-w-0 flex-col">
 						<Transition
@@ -154,7 +177,7 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 								className={clsxm(clockClassName, isTrackedElsewhere && 'text-muted-foreground')}
 							>
 								{isTimerRunning ? (
-									<RunningClock className="text-sm font-normal text-muted-foreground" />
+									<RunningClock className={runningFractionClassName} />
 								) : (
 									`${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`
 								)}
@@ -183,8 +206,6 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 			{showTimerButton && (
 				<div className="flex h-fit shrink-0 items-center justify-center">
 					<div className="flex items-center gap-3">
-						<TimerNotesButton />
-						<TimerBillableSwitch locked={isBillableLocked} />
 						<Tooltip
 							label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
 							placement="top-start"
@@ -211,11 +232,16 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 }
 
 /**
- * The compact timer of the top bar: a pill like its neighbours (team switcher, Collaborate), the round button
- * concentric with it (4px all around) so nothing of the button crosses the pill's edge.
+ * The compact timer of the top bar: a pill like its neighbours (team switcher, Collaborate), the round controls at
+ * both ends concentric with it (4px all around) so nothing crosses the pill's edge.
  */
 const MIN_TIMER_FRAME =
-	'inline-flex h-8 items-center gap-2 rounded-full bg-card pl-3 pr-1 hairline-ring ring-border shadow-[0_1px_1px_rgb(0_0_0/0.04)] dark:ring-foreground/15';
+	'inline-flex h-8 items-center gap-2 rounded-full bg-card pl-3 pr-1 hairline-ring ring-border shadow-[0_1px_1px_rgb(0_0_0/0.04)] sm:pl-1 dark:ring-foreground/15';
+
+/** From sm up: on a phone the pill has no room left, and the main timer carries the same toggles. */
+const MIN_TIMER_TOGGLES = 'hidden sm:flex';
+
+const MIN_TIMER_TOGGLE = 'size-6';
 
 export function MinTimerFrame({ className }: IClassName) {
 	const hydrated = useHydrated();
@@ -236,10 +262,17 @@ export function MinTimerFrame({ className }: IClassName) {
 
 	// Display optimistic state if available, otherwise use real state
 	const displayRunning = optimisticRunning ?? timerStatus?.running;
+	const isBillableLocked = Boolean(displayRunning);
 	const todayWorkedLabel = `${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`;
 
 	return (
-		<div className={clsxm(MIN_TIMER_FRAME, className)}>
+		<div data-timer-surface="" className={clsxm(MIN_TIMER_FRAME, className)}>
+			<TimerEntryToggles
+				locked={isBillableLocked}
+				className={MIN_TIMER_TOGGLES}
+				toggleClassName={MIN_TIMER_TOGGLE}
+			/>
+
 			<Transition
 				show={true}
 				appear={true}
@@ -270,9 +303,6 @@ export function MinTimerFrame({ className }: IClassName) {
 					<TimerRunningSourceIcon source={timerStatus?.lastLog?.source || ETimeLogSource.TEAMS} />
 				</Tooltip>
 			)}
-
-			{/* From sm up: on a phone the pill has no room left, and the main timer carries the same notes */}
-			<TimerNotesButton className="hidden size-6 sm:inline-flex" />
 
 			<div className="z-[50] flex">
 				<TimerButton

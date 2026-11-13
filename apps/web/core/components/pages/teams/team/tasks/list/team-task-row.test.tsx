@@ -1,6 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
+import { runInThisContext } from 'node:vm';
 import { fireEvent, render } from '@testing-library/react';
 import { dataColorHue } from '@/core/components/tasks/task-data-color';
 import { DEFAULT_TEAM_TASKS_VIEW, type TeamTasksViewSettings } from '@/core/lib/utils/team-tasks-view';
@@ -117,5 +118,73 @@ describe('the priority of a row of the team tasks list', () => {
 
 		expect(hidden.title).not.toBeNull();
 		expect(hidden.priorityCell).toBeNull();
+	});
+});
+
+/** Runs `body` with the clock in `zone`: Jest's copy of process.env does not move the zone, the real process's does. */
+function inZone<T>(zone: string, body: () => T): T {
+	const host = runInThisContext('process') as NodeJS.Process;
+	const previous = host.env.TZ;
+	const current = Intl.DateTimeFormat().resolvedOptions().timeZone;
+	host.env.TZ = zone;
+	try {
+		return body();
+	} finally {
+		host.env.TZ = previous ?? current;
+		if (previous === undefined) delete host.env.TZ;
+	}
+}
+
+describe('the due date of a row', () => {
+	/** The row's due date cell, as the list formats a day ("Nov 14") and a near one ("in 0 days"). */
+	function dueCellOf(dueDate: string, now: Date) {
+		mockList = {
+			grid: teamTasksGridOf(DEFAULT_TEAM_TASKS_VIEW),
+			properties: DEFAULT_TEAM_TASKS_VIEW.properties,
+			statuses: [],
+			priorityItems: new Map(),
+			sizeItems: new Map(),
+			projectNames: new Map(),
+			memberNames: new Map(),
+			taskById: new Map(),
+			childCounts: new Map(),
+			childDoneCounts: new Map(),
+			liveByTask: new Map(),
+			formatDay: (value: Date | string) =>
+				new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(value)),
+			formatRelativeDay: (days: number) => `in ${days} days`,
+			now: now.getTime(),
+			openTask: jest.fn(),
+			openPicker: jest.fn(),
+			openRowMenu: jest.fn(),
+			toggleSelected: jest.fn(),
+			focusTask: jest.fn()
+		};
+		const task = { id: 't1', title: 'Ship the release', dueDate, members: [], tags: [] } as unknown as TTask;
+		const { container, unmount } = render(
+			<TeamTaskRow task={task} isSelected={false} isFocused={false} isTabStop={false} isSelecting={false} />
+		);
+		const text = container.querySelector<HTMLElement>('[data-cell="dueDate"]')?.textContent;
+		unmount();
+		return text;
+	}
+
+	it('shows a date-only due date as its own day west and east of UTC', () => {
+		const stored = '2026-11-14T00:00:00.000Z';
+		for (const [zone, offset] of [
+			['America/Caracas', 240],
+			['Africa/Johannesburg', -120]
+		] as const) {
+			inZone(zone, () => {
+				expect(`${zone} ${new Date(2026, 10, 14).getTimezoneOffset()}`).toBe(`${zone} ${offset}`);
+				expect(`${zone} ${dueCellOf(stored, new Date(2026, 10, 20, 12))}`).toBe(`${zone} Nov 14`);
+				// Due today all of its own day, also in the evening west of UTC.
+				expect(`${zone} ${dueCellOf(stored, new Date(2026, 10, 14, 23, 30))}`).toBe(`${zone} in 0 days`);
+			});
+		}
+	});
+
+	it('shows a due date that cannot be read as none', () => {
+		expect(dueCellOf('not a date', new Date(2026, 10, 14))).toBe('');
 	});
 });
