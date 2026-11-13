@@ -1,12 +1,14 @@
-import { INVITE_CALLBACK_PATH } from '@/core/constants/config/constants';
+import { SIGN_IN_CALLBACK_PATH } from '@/core/constants/config/constants';
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { signInEmailRequest } from '@/core/services/server/requests';
+import { appPublicOrigin } from '@/core/services/server/requests/account-deletion';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
-	const url = new URL(req.url);
-
-	const callbackUrl = `${url}${INVITE_CALLBACK_PATH}`;
+	// The link of the e-mail opens this app's sign-in page. Its origin is the configured one first: behind a reverse
+	// proxy the request's own URL can be an internal address, which Gauzy would not put in an e-mail.
+	const origin = appPublicOrigin() ?? new URL(req.url).origin;
+	const callbackUrl = `${origin}${SIGN_IN_CALLBACK_PATH}`;
 
 	const body = (await req.json()) as unknown as { email: string };
 

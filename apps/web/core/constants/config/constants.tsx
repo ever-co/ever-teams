@@ -281,6 +281,8 @@ export const LOG_FOLDER_MAX_SIZE = getNextPublicEnv(
 // Invite
 export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL;
 export const INVITE_CALLBACK_PATH = '/auth/accept-invite';
+/** The page the link of the sign-in code e-mail opens: it takes the link's `?email=&code=` and signs the person in. */
+export const SIGN_IN_CALLBACK_PATH = '/auth/passcode';
 export const VERIFY_EMAIL_CALLBACK_URL = process.env.VERIFY_EMAIL_CALLBACK_URL;
 export const VERIFY_EMAIL_CALLBACK_PATH = '/verify-email';
 export const GA_MEASUREMENT_ID = getNextPublicEnv(
