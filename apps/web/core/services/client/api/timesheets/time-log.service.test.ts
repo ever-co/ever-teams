@@ -194,3 +194,88 @@ describe('TimeLogService lookup of the time a manual entry would overlap', () =>
 		).rejects.toThrow();
 	});
 });
+
+function spyOnServiceGet() {
+	jest.spyOn(timeLogService as never, 'organizationId', 'get').mockReturnValue('organization-a' as never);
+	jest.spyOn(timeLogService as never, 'tenantId', 'get').mockReturnValue('tenant-a' as never);
+	return jest.spyOn(timeLogService, 'get').mockResolvedValue({ data: [] } as never);
+}
+
+function sentQueryOf(get: ReturnType<typeof spyOnServiceGet>) {
+	const [url] = get.mock.calls[0];
+	return new URL(url, 'https://client.test').searchParams;
+}
+
+describe('TimeLogService reports of billable time only', () => {
+	afterEach(() => jest.restoreAllMocks());
+
+	const day = {
+		organizationId: 'organization-a',
+		tenantId: 'tenant-a',
+		startDate: '2026-11-05',
+		endDate: '2026-11-05'
+	};
+	const week = { startDate: '2026-11-02T00:00:00.000Z', endDate: '2026-11-08T23:59:59.999Z' };
+
+	it('asks the daily report for billable time only when the filter is on', async () => {
+		const get = spyOnServiceGet();
+
+		await timeLogService.getTimeLogReportDaily({ ...day, billableOnly: true });
+
+		expect(sentQueryOf(get).get('billableOnly')).toBe('true');
+	});
+
+	it('asks the weekly report for billable time only when the filter is on', async () => {
+		const get = spyOnServiceGet();
+
+		await timeLogService.getTimeLogReportWeekly({ ...week, billableOnly: true });
+
+		expect(sentQueryOf(get).get('billableOnly')).toBe('true');
+	});
+
+	it('leaves the parameter out otherwise, so both reports keep counting every log', async () => {
+		const dailyGet = spyOnServiceGet();
+		await timeLogService.getTimeLogReportDaily(day);
+		expect(sentQueryOf(dailyGet).has('billableOnly')).toBe(false);
+		jest.restoreAllMocks();
+
+		const weeklyGet = spyOnServiceGet();
+		await timeLogService.getTimeLogReportWeekly({ ...week, billableOnly: false });
+		expect(sentQueryOf(weeklyGet).has('billableOnly')).toBe(false);
+	});
+});
+
+describe('TimeLogService time logs with the labels of their tasks', () => {
+	afterEach(() => jest.restoreAllMocks());
+
+	const period = { startDate: '2026-11-05', endDate: '2026-11-05', timeZone: 'UTC' };
+
+	function relationsOf(query: URLSearchParams) {
+		const relations: string[] = [];
+		query.forEach((value, name) => {
+			if (name.startsWith('relations[')) {
+				relations.push(value);
+			}
+		});
+		return relations;
+	}
+
+	it('asks for the labels of each task after the relations every page reads', async () => {
+		const get = spyOnServiceGet();
+
+		await timeLogService.getTimeLogs({ ...period, withTaskLabels: true });
+
+		const query = sentQueryOf(get);
+		const relations = relationsOf(query);
+		expect(relations).toContain('task');
+		expect(query.get(`relations[${relations.length - 1}]`)).toBe('task.tags');
+	});
+
+	it('keeps the request of the other pages as it was', async () => {
+		const get = spyOnServiceGet();
+
+		await timeLogService.getTimeLogs(period);
+
+		expect(relationsOf(sentQueryOf(get))).not.toContain('task.tags');
+	});
+});

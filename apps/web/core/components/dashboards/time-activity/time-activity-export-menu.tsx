@@ -43,7 +43,9 @@ const FILTER_LABEL_KEYS: Record<TimeActivityFilterField, DottedLanguageObjectStr
 	teamIds: 'dashboard.timeActivity.filters.TEAMS',
 	employeeIds: 'dashboard.timeActivity.filters.MEMBERS',
 	projectIds: 'dashboard.timeActivity.filters.PROJECTS',
-	taskIds: 'dashboard.timeActivity.filters.TASKS'
+	taskIds: 'dashboard.timeActivity.filters.TASKS',
+	clientIds: 'clients.TITLE',
+	billable: 'dashboard.timesheets.BILLABLE'
 };
 
 type Translate = ReturnType<typeof useTranslations>;

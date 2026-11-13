@@ -79,6 +79,7 @@ export const SHORTCUT_COMMANDS: readonly ShortcutCommand[] = [
 	{ id: 'taskLabels', context: 'task', defaultBinding: 'l', chordOnly: true },
 	{ id: 'taskDueDate', context: 'task', defaultBinding: 'd', chordOnly: true },
 	{ id: 'taskProject', context: 'task', defaultBinding: 'm', chordOnly: true },
+	{ id: 'taskAssignee', context: 'task', defaultBinding: 'a', chordOnly: true },
 	// the chat page (it matches these itself, in the composer too: Alt or ⌘/Ctrl chords, and Escape)
 	{ id: 'chatPrevious', context: 'chat', defaultBinding: 'alt+arrowup' },
 	{ id: 'chatNext', context: 'chat', defaultBinding: 'alt+arrowdown' },

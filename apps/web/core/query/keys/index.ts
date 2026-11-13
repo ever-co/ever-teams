@@ -368,6 +368,8 @@ export const queryKeys = {
 			userId: string | undefined | null,
 			viewId: string | undefined | null
 		) => ['task-views', 'detail', tenantId ?? null, organizationId ?? null, userId ?? null, viewId ?? null] as const,
+		/** Prefix shared by every builtIn key */
+		builtInAll: ['task-views', 'built-in'] as const,
 		builtIn: (
 			tenantId: string | undefined | null,
 			organizationId: string | undefined | null,
@@ -721,6 +723,30 @@ export const queryKeys = {
 		detail: (projectId: string | undefined | null) => ['projects', ...(projectId ? [projectId] : [])] as const
 	},
 
+	// Keys related to clients (organization contacts of the client type)
+	clients: {
+		all: ['clients'] as const,
+		list: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			includeArchived: boolean
+		) => ['clients', 'list', tenantId ?? null, organizationId ?? null, includeArchived] as const
+	},
+
+	// Keys related to invoices
+	invoices: {
+		all: ['invoices'] as const,
+		list: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			['invoices', 'list', tenantId ?? null, organizationId ?? null] as const,
+		ofClient: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			clientId: string | undefined | null
+		) => ['invoices', 'client', tenantId ?? null, organizationId ?? null, clientId ?? null] as const,
+		highestNumber: (tenantId: string | undefined | null) =>
+			['invoices', 'highest-number', tenantId ?? null] as const
+	},
+
 	// Keys related to organization projects
 	organizationProjects: {
 		all: ['organization-projects'] as const,
@@ -777,6 +803,8 @@ export const queryKeys = {
 			all: ['timesheet', 'reports'] as const,
 			changedLogs: (params: Record<string, unknown>) => ['timesheet', 'reports', 'changed-logs', params] as const,
 			owedAmounts: (params: Record<string, unknown>) => ['timesheet', 'reports', 'owed-amounts', params] as const,
+			billableLogs: (params: Record<string, unknown>) =>
+				['timesheet', 'reports', 'billable-logs', params] as const,
 			projectBudgets: (params: Record<string, unknown>) =>
 				['timesheet', 'reports', 'project-budgets', params] as const
 		},

@@ -40,7 +40,7 @@ export const docsCommentMarksKey = new PluginKey<DocsCommentMarks>('docsCommentM
 const NO_MARKS: DocsCommentMarks = { open: new Set(), active: null, ranges: [], activeThread: null };
 
 /** How long after the last edit the ranges are found again (meanwhile their highlights move with the text). */
-export const COMMENT_RANGES_REFRESH_MS = 150;
+const COMMENT_RANGES_REFRESH_MS = 150;
 
 const refreshRangesMeta = 'docsCommentRangesRefresh';
 
@@ -162,7 +162,7 @@ function commentDecorations(doc: ProseMirrorNode, marks: DocsCommentMarks, optio
 }
 
 /** The highlighted range at a position (the shortest of those around it), when there is one. */
-export function commentRangeAt(state: EditorState, pos: number): RangeSpec | null {
+function commentRangeAt(state: EditorState, pos: number): RangeSpec | null {
 	const decorations = (docsCommentMarksKey.getState(state) as unknown as { decorations?: DecorationSet } | undefined)?.decorations;
 	if (!decorations) return null;
 	let best: { spec: RangeSpec; size: number } | null = null;

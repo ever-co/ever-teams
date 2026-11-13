@@ -131,9 +131,22 @@ export interface CalendarEntry {
 	isRunning: boolean;
 	isBillable: boolean;
 	taskTitle: string | null;
+	/**
+	 * The id of the project the log came with, what its colour is derived from when it has none. Null for time
+	 * without a project, and for a log that names a project Gauzy no longer returns: it has no name to show.
+	 */
+	projectKey: string | null;
 	projectName: string | null;
 	projectColor: string | null;
 	reason: string | null;
+}
+
+/** The time one project took over the counted days. `key` is null for the time without a project. */
+export interface CalendarProjectTotal {
+	key: string | null;
+	name: string | null;
+	color: string | null;
+	seconds: number;
 }
 
 export interface CalendarPlanTask {
@@ -334,6 +347,7 @@ function entryOf(log: ITimeLog, start: Date, now: Date): CalendarEntry {
 		isRunning,
 		isBillable: log.isBillable === true,
 		taskTitle: trimmedOrNull(log.task?.title),
+		projectKey: log.project?.id || null,
 		projectName: trimmedOrNull(log.project?.name),
 		projectColor: trimmedOrNull(log.project?.color),
 		reason: manualReasonOf(log)
@@ -561,6 +575,52 @@ export function trackedTotalOf(days: ReadonlyArray<CalendarDay>) {
 		total += day.trackedSeconds;
 	}
 	return total;
+}
+
+const WITHOUT_PROJECT = '';
+
+function isWithoutProject(total: CalendarProjectTotal) {
+	return total.key === null;
+}
+
+/** Largest first; the time without a project closes the list, whatever its size. */
+function compareProjectTotals(first: CalendarProjectTotal, second: CalendarProjectTotal) {
+	const firstIsLast = isWithoutProject(first);
+	const secondIsLast = isWithoutProject(second);
+	if (firstIsLast !== secondIsLast) {
+		return Number(firstIsLast) - Number(secondIsLast);
+	}
+	return second.seconds - first.seconds;
+}
+
+/**
+ * Where the time of the given days went, one total per project. Each entry counts the part of its log inside its
+ * day (`daySeconds`), as the days' own totals do, so the totals add up to `trackedTotalOf` of the same days.
+ */
+export function projectTotalsOf(days: ReadonlyArray<CalendarDay>): CalendarProjectTotal[] {
+	const byProject = new Map<string, CalendarProjectTotal>();
+	for (const day of days) {
+		for (const entry of day.entries) {
+			const projectKey = entry.projectKey;
+			const mapKey = projectKey ?? WITHOUT_PROJECT;
+			const existing = byProject.get(mapKey);
+			if (existing) {
+				existing.seconds += entry.daySeconds;
+				existing.name ??= entry.projectName;
+				existing.color ??= entry.projectColor;
+				continue;
+			}
+			byProject.set(mapKey, {
+				key: projectKey,
+				name: entry.projectName,
+				color: entry.projectColor,
+				seconds: entry.daySeconds
+			});
+		}
+	}
+	const totals = [...byProject.values()];
+	const withTime = totals.filter((total) => total.seconds > 0);
+	return withTime.sort(compareProjectTotals);
 }
 
 /** Minutes from the top of a day's column, counted in elapsed time, so the grid and its drags agree. */

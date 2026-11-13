@@ -26,6 +26,7 @@ import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { cn } from '@/core/lib/helpers';
 import type { ProjectsListState } from '@/core/hooks/projects/use-projects-list-state';
 import type { ProjectTaskStatsState } from '@/core/hooks/projects/use-project-task-stats';
+import { useClientNames } from '@/core/hooks/clients/use-client-names';
 import {
 	clientNameOf,
 	completionPercentOf,
@@ -58,6 +59,7 @@ export function ProjectsGridView({
 }>) {
 	const t = useTranslations();
 	const isGrouped = list.grouping === 'status';
+	const clientNames = useClientNames();
 	const noStatusLabel = t('pages.projects.list.NO_STATUS');
 	return (
 		<div className="flex flex-col gap-6">
@@ -77,6 +79,7 @@ export function ProjectsGridView({
 								key={project.id}
 								project={project}
 								list={list}
+								clientNames={clientNames}
 								statuses={statuses}
 								taskStats={taskStats}
 								consumption={consumption}
@@ -223,19 +226,21 @@ function ArchivedFact({ project }: Readonly<{ project: TOrganizationProject }>) 
 function ProjectCard({
 	project,
 	list,
+	clientNames,
 	statuses,
 	taskStats,
 	consumption
 }: Readonly<{
 	project: TOrganizationProject;
 	list: ProjectsListState;
+	clientNames: ReadonlyMap<string, string>;
 	statuses: TTaskStatus[];
 	taskStats: ProjectTaskStatsState;
 	consumption: ProjectConsumptionState;
 }>) {
 	const t = useTranslations();
 	const isSelected = list.selectedIds.includes(project.id);
-	const client = clientNameOf(project);
+	const client = clientNameOf(project, clientNames);
 	const description = plainTextOf(project.description);
 	const tags = project.tags ?? [];
 	const people = (project.members ?? []).map(personFromProjectMember);

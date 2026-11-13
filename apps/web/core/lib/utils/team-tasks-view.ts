@@ -39,10 +39,10 @@ export type TeamTasksFilterField =
 export type TeamTasksFilters = Partial<Record<TeamTasksFilterField, string[]>>;
 
 /**
- * How the tasks are shown: rows, cards in one lane per status, or bars on a calendar from each task's start to its
- * due date (the saved-views feature).
+ * How the tasks are shown: rows in groups, cards in one lane per status, bars on a calendar from each task's start to
+ * its due date (both with the saved-views feature), a month with each task on the day it is due, or one flat table.
  */
-export type TeamTasksLayout = 'list' | 'board' | 'timeline';
+export type TeamTasksLayout = 'list' | 'board' | 'timeline' | 'calendar' | 'table';
 
 export interface TeamTasksViewSettings {
 	/** Absent in what was stored before the board came, and for a list: a list. */

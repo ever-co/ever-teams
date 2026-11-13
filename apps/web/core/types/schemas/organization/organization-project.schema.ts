@@ -81,6 +81,12 @@ export const organizationProjectBaseSchema = z
 		archiveTasksIn: z.coerce.number().optional(),
 		closeTasksIn: z.coerce.number().optional(),
 		defaultAssigneeId: z.string().optional().nullable(),
+		organizationContactId: z.string().optional().nullable(),
+		organizationContact: z
+			.object({ id: z.string(), name: z.string().optional().nullable() })
+			.passthrough()
+			.optional()
+			.nullable(),
 		// Relations (will be populated by API)
 		members: z.array(z.any()).optional(),
 		teams: z.array(z.any()).optional(),
@@ -125,7 +131,8 @@ export const createProjectRequestSchema = organizationProjectBaseSchema
 		billable: true,
 		currency: true,
 		teams: true,
-		status: true
+		status: true,
+		organizationContactId: true
 	})
 	.extend({
 		memberIds: z.array(z.string()).optional(),

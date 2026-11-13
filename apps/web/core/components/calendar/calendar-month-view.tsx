@@ -44,7 +44,7 @@ function EntryLine({ entry }: Readonly<{ entry: CalendarEntry }>) {
 	const duration = formatDurationShort(entry.durationSeconds);
 	return (
 		<span className="flex min-w-0 items-center gap-1.5 text-[11px] leading-4">
-			<ProjectDot color={entry.projectColor} className="size-1.5" />
+			<ProjectDot color={entry.projectColor} projectKey={entry.projectKey} className="size-1.5" />
 			<span className="min-w-0 flex-1 truncate text-foreground">{title}</span>
 			<span className="shrink-0 tabular-nums text-muted-foreground">{duration}</span>
 		</span>

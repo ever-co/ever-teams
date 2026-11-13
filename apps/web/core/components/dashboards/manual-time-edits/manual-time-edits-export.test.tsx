@@ -5,7 +5,7 @@ import { renderHook } from '@testing-library/react';
 import type { CsvColumn } from '@/core/lib/utils/dashboard-export';
 import type { EditsFigures, EditsGroup, ManualTimeEntry } from '@/core/lib/utils/dashboards/manual-time-edits';
 import type { WorkspaceLocale } from '@/core/lib/utils/workspace-formats';
-import type { EditsPdfContent } from './manual-time-edits-pdf';
+import type { EntriesPdfContent } from '@/core/components/dashboards/kit/entries-pdf';
 
 const mockBuildPdf = jest.fn();
 const mockDownloadCsv = jest.fn();
@@ -20,8 +20,8 @@ jest.mock('@/core/lib/utils/dashboard-export', () => ({
 		await buildDocument();
 	}
 }));
-jest.mock('./manual-time-edits-pdf', () => ({
-	buildManualTimeEditsPdf: (content: unknown) => mockBuildPdf(content)
+jest.mock('@/core/components/dashboards/kit/entries-pdf', () => ({
+	buildEntriesPdf: (content: unknown) => mockBuildPdf(content)
 }));
 
 import { useManualTimeEditsExportOptions } from './manual-time-edits-export';
@@ -71,7 +71,7 @@ async function runExport(key: 'pdf' | 'csv') {
 
 async function pdfRowCells(): Promise<string[]> {
 	await runExport('pdf');
-	const content = mockBuildPdf.mock.calls[0][0] as EditsPdfContent;
+	const content = mockBuildPdf.mock.calls[0][0] as EntriesPdfContent;
 	return content.groups[0].rows[0].cells;
 }
 
