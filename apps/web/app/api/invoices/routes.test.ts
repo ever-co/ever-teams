@@ -10,7 +10,8 @@ import { GET as readHighestNumber } from './highest/route';
 import { GET as downloadInvoice } from './download/[id]/route';
 import { PUT as emailInvoice } from './email/[email]/route';
 import { PUT as changeInvoiceStatus } from './[id]/action/route';
-import { DELETE as deleteInvoice } from './[id]/route';
+import { DELETE as deleteInvoice, GET as readInvoice, PUT as updateInvoice } from './[id]/route';
+import { POST as replaceInvoiceLines } from '../invoice-item/bulk/[invoiceId]/route';
 
 const ORIGIN = 'https://app.ever.team';
 
@@ -340,5 +341,118 @@ describe('DELETE /api/invoices/:id', () => {
 
 		expect(response.status).toBe(403);
 		expect(fetchMock).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe('GET /api/invoices/:id', () => {
+	const query = `?data=${encodeURIComponent(JSON.stringify({ relations: ['invoiceItems'] }))}`;
+
+	it('forwards the read of one invoice and the relations it names to a role that reads invoices and client rates', async () => {
+		const answer = { id: 'inv-1', invoiceItems: [] };
+		const fetchMock = gauzyAnswersInOrder(jsonAnswer(permissionRows(ADMIN)), jsonAnswer(answer));
+		const request = signedInRequest(`${ORIGIN}/api/invoices/inv-1${query}`);
+
+		const response = await readInvoice(request, idParams('inv-1'));
+
+		expect(callOf(fetchMock, 1).url).toBe(gauzyUrl(`/invoices/inv-1${query}`));
+		expect(callOf(fetchMock, 1).method).toBe('GET');
+		await expect(response.json()).resolves.toEqual(answer);
+	});
+
+	it('refuses a member, who reads invoices on Gauzy but no client rate, without asking for the invoice', async () => {
+		const fetchMock = gauzyAnswersInOrder(jsonAnswer(permissionRows(MEMBER)));
+		const request = signedInRequest(`${ORIGIN}/api/invoices/inv-1${query}`);
+
+		const response = await readInvoice(request, idParams('inv-1'));
+
+		expect(response.status).toBe(403);
+		expect(fetchMock).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe('PUT /api/invoices/:id', () => {
+	const update = {
+		invoiceNumber: 42,
+		status: 'SENT',
+		totalValue: 1080,
+		organizationId: 'org-1',
+		tenantId: 'tenant-1'
+	};
+
+	it('updates the invoice for a role that edits invoices and reads everyone’s time', async () => {
+		const fetchMock = gauzyAnswersInOrder(jsonAnswer(permissionRows(ADMIN)), jsonAnswer({ id: 'inv-1' }, 202));
+		const request = signedInRequest(`${ORIGIN}/api/invoices/inv-1`, 'PUT', update);
+
+		const response = await updateInvoice(request, idParams('inv-1'));
+
+		expect(callOf(fetchMock, 1).url).toBe(gauzyUrl('/invoices/inv-1'));
+		expect(callOf(fetchMock, 1).method).toBe('PUT');
+		expect(JSON.parse(callOf(fetchMock, 1).body as string)).toEqual(update);
+		expect(response.status).toBe(202);
+	});
+
+	it.each([
+		['a member', MEMBER],
+		['a role that reads the invoices but may not edit them', READ_ONLY],
+		['a role that cannot read everyone’s time, whose edit would rebuild the lines of its own time only', EDITOR]
+	])('refuses %s without asking Gauzy to write', async (_role, permissions) => {
+		const fetchMock = gauzyAnswersInOrder(jsonAnswer(permissionRows(permissions)));
+		const request = signedInRequest(`${ORIGIN}/api/invoices/inv-1`, 'PUT', update);
+
+		const response = await updateInvoice(request, idParams('inv-1'));
+
+		expect(response.status).toBe(403);
+		expect(fetchMock).toHaveBeenCalledTimes(1);
+	});
+
+	it('keeps an id that looks like a path inside its own segment', async () => {
+		const fetchMock = gauzyAnswersInOrder(jsonAnswer(permissionRows(ADMIN)), jsonAnswer({}, 404));
+		const request = signedInRequest(`${ORIGIN}/api/invoices/x`, 'PUT', update);
+
+		await updateInvoice(request, idParams('../employee'));
+
+		expect(callOf(fetchMock, 1).url).toBe(gauzyUrl('/invoices/..%2Femployee'));
+	});
+});
+
+function invoiceIdParams(invoiceId: string) {
+	return { params: Promise.resolve({ invoiceId }) };
+}
+
+describe('POST /api/invoice-item/bulk/:invoiceId', () => {
+	const lines = [{ description: 'Ana Lima', price: 80, quantity: 10, totalValue: 800, invoiceId: 'inv-1' }];
+
+	it('replaces the lines for a role that edits invoices and reads everyone’s time, the list as it was sent', async () => {
+		const fetchMock = gauzyAnswersInOrder(jsonAnswer(permissionRows(ADMIN)), jsonAnswer(lines, 201));
+		const request = signedInRequest(`${ORIGIN}/api/invoice-item/bulk/inv-1`, 'POST', lines);
+
+		const response = await replaceInvoiceLines(request, invoiceIdParams('inv-1'));
+
+		expect(callOf(fetchMock, 1).url).toBe(gauzyUrl('/invoice-item/bulk/inv-1'));
+		expect(callOf(fetchMock, 1).method).toBe('POST');
+		expect(JSON.parse(callOf(fetchMock, 1).body as string)).toEqual(lines);
+		expect(response.status).toBe(201);
+	});
+
+	it.each([
+		['a member', MEMBER],
+		['a role that cannot read everyone’s time: Gauzy would delete its own lines only and double the others', EDITOR]
+	])('refuses %s without asking Gauzy to write', async (_role, permissions) => {
+		const fetchMock = gauzyAnswersInOrder(jsonAnswer(permissionRows(permissions)));
+		const request = signedInRequest(`${ORIGIN}/api/invoice-item/bulk/inv-1`, 'POST', lines);
+
+		const response = await replaceInvoiceLines(request, invoiceIdParams('inv-1'));
+
+		expect(response.status).toBe(403);
+		expect(fetchMock).toHaveBeenCalledTimes(1);
+	});
+
+	it('keeps an id that looks like a path inside its own segment', async () => {
+		const fetchMock = gauzyAnswersInOrder(jsonAnswer(permissionRows(ADMIN)), jsonAnswer({}, 404));
+		const request = signedInRequest(`${ORIGIN}/api/invoice-item/bulk/x`, 'POST', lines);
+
+		await replaceInvoiceLines(request, invoiceIdParams('../employee'));
+
+		expect(callOf(fetchMock, 1).url).toBe(gauzyUrl('/invoice-item/bulk/..%2Femployee'));
 	});
 });

@@ -2034,12 +2034,18 @@ describe('Ever Teams feature surface preservation', () => {
 		// download/[id] GET; #5088).
 		// 336 files and 427 verbs with the proxies that e-mail, settle and delete an invoice (/api/invoices/email/[email]
 		// PUT, [id]/action PUT, [id] DELETE; #5158).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(336);
+		// 337 files and 430 verbs with the proxies that read and update one invoice and replace its lines
+		// (/api/invoices/[id] GET and PUT, /api/invoice-item/bulk/[invoiceId] POST; #5159).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(337);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(427);
+		).toHaveLength(430);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of Gauzy's routes that read and update one invoice and replace its lines (#5159)
+				'apps/web/app/api/invoices/[id]/route.ts::GET',
+				'apps/web/app/api/invoices/[id]/route.ts::PUT',
+				'apps/web/app/api/invoice-item/bulk/[invoiceId]/route.ts::POST',
 				// Proxy mode twins of Gauzy's routes that e-mail an invoice, change its status and delete it (#5158)
 				'apps/web/app/api/invoices/email/[email]/route.ts::PUT',
 				'apps/web/app/api/invoices/[id]/action/route.ts::PUT',
