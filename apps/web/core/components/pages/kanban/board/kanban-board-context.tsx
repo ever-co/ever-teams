@@ -2,6 +2,7 @@
 
 import { createContext, ReactNode, useContext, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
+import { useAnsweredKeys } from '@/core/hooks/keyboard/use-answered-keys';
 import { useTaskPrioritiesValue } from '@/core/hooks/tasks/use-task-priorities-value';
 import { useTaskSizesValue } from '@/core/hooks/tasks/use-task-sizes-value';
 import { activeTeamState, activeTeamTaskState } from '@/core/stores';
@@ -12,6 +13,7 @@ import type { TOrganizationTeamEmployee, TTaskStatus } from '@/core/types/schema
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import type { ShortcutBinding } from '@/core/lib/keyboard/shortcuts';
 import type { TeamTaskPickerKind } from '@/core/components/pages/teams/team/tasks/list/team-tasks-list-context';
+import { pickerCommandIdsOf } from '@/core/components/pages/teams/team/tasks/list/team-task-picker-commands';
 
 export interface KanbanBoardActions {
 	moveTask: (task: TTask, toStatus: TTaskStatus, toIndex: number) => void;
@@ -128,10 +130,15 @@ export interface KanbanSelection {
 // Apart from the card context too: a selection change re-renders the cards, never the board's lanes.
 const KanbanSelectionContext = createContext<KanbanSelection | null>(null);
 
+/** The keys a focused card answers on a board that has a selection (`KanbanTaskCard`): `X`, and the pickers'. */
+const CARD_KEY_IDS: readonly string[] = ['listSelect', ...pickerCommandIdsOf(true)];
+
 export function KanbanSelectionProvider({
 	selection,
 	children
 }: Readonly<{ selection: KanbanSelection | null; children: ReactNode }>) {
+	const hasSelection = selection !== null;
+	useAnsweredKeys(CARD_KEY_IDS, hasSelection);
 	return <KanbanSelectionContext.Provider value={selection}>{children}</KanbanSelectionContext.Provider>;
 }
 
