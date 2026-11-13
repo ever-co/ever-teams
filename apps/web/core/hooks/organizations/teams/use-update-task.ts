@@ -70,6 +70,21 @@ function isShownInDetail(detail: TTask | null, taskId: string) {
 }
 
 /** A save answers after the reader may have moved to another task: only the task that was saved takes the answer. */
+/** A closed task is no longer the active one: the cookies that keep it active (the user's and the timer's) forget it. */
+function forgetActiveTask(taskId: string) {
+	const activeUserTask = getActiveUserTaskCookie();
+	if (activeUserTask?.taskId === taskId) {
+		setActiveUserTaskCookie({
+			taskId: '',
+			userId: ''
+		});
+	}
+	const activeTaskId = getActiveTaskIdCookie() ?? '';
+	if (activeTaskId === taskId) {
+		setActiveTaskIdCookie('');
+	}
+}
+
 function mergedIntoDetail(current: TTask | null, taskId: string, changes: Partial<TTask>) {
 	if (current?.id !== taskId) {
 		return current;
@@ -323,17 +338,7 @@ export function useUpdateTask() {
 			}
 			if (task && status !== (task as any)[field]) {
 				if (field === 'status' && status === 'closed') {
-					const active_user_task = getActiveUserTaskCookie();
-					if (active_user_task?.taskId === task.id) {
-						setActiveUserTaskCookie({
-							taskId: '',
-							userId: ''
-						});
-					}
-					const active_task_id = getActiveTaskIdCookie() ?? '';
-					if (active_task_id === task.id) {
-						setActiveTaskIdCookie('');
-					}
+					forgetActiveTask(task.id);
 				}
 
 				return updateTask({
