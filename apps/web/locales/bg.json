@@ -6970,6 +6970,7 @@
 			"CONTINUE": "{count, plural, one {Проверка на # ред} other {Проверка на # реда}}",
 			"FIRST_ROWS": "Първи редове от файла",
 			"EDIT": "Промяна на колоните",
+			"UNNAMED_COLUMN": "Колона {position}",
 			"fields": {
 				"DATE": "Дата",
 				"START_TIME": "Начален час",

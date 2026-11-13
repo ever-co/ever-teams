@@ -6970,6 +6970,7 @@
 			"CONTINUE": "{count, plural, one {Проверить # строку} few {Проверить # строки} many {Проверить # строк} other {Проверить # строки}}",
 			"FIRST_ROWS": "Первые строки файла",
 			"EDIT": "Изменить столбцы",
+			"UNNAMED_COLUMN": "Столбец {position}",
 			"fields": {
 				"DATE": "Дата",
 				"START_TIME": "Время начала",

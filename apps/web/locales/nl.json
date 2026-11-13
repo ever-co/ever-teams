@@ -6970,6 +6970,7 @@
 			"CONTINUE": "{count, plural, one {# rij controleren} other {# rijen controleren}}",
 			"FIRST_ROWS": "Eerste rijen van het bestand",
 			"EDIT": "Kolommen wijzigen",
+			"UNNAMED_COLUMN": "Kolom {position}",
 			"fields": {
 				"DATE": "Datum",
 				"START_TIME": "Starttijd",

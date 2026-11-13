@@ -6970,6 +6970,7 @@
 			"CONTINUE": "{count, plural, one {בדיקת שורה אחת} two {בדיקת שתי שורות} other {בדיקת # שורות}}",
 			"FIRST_ROWS": "השורות הראשונות בקובץ",
 			"EDIT": "שינוי עמודות",
+			"UNNAMED_COLUMN": "עמודה {position}",
 			"fields": {
 				"DATE": "תאריך",
 				"START_TIME": "שעת התחלה",

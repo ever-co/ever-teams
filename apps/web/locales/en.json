@@ -6970,6 +6970,7 @@
 			"CONTINUE": "{count, plural, one {Check # row} other {Check # rows}}",
 			"FIRST_ROWS": "First rows of the file",
 			"EDIT": "Change columns",
+			"UNNAMED_COLUMN": "Column {position}",
 			"fields": {
 				"DATE": "Date",
 				"START_TIME": "Start time",

@@ -6970,6 +6970,7 @@
 			"CONTINUE": "{count, plural, one {Sprawdź # wiersz} few {Sprawdź # wiersze} many {Sprawdź # wierszy} other {Sprawdź # wiersza}}",
 			"FIRST_ROWS": "Pierwsze wiersze pliku",
 			"EDIT": "Zmień kolumny",
+			"UNNAMED_COLUMN": "Kolumna {position}",
 			"fields": {
 				"DATE": "Data",
 				"START_TIME": "Godzina rozpoczęcia",

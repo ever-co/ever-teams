@@ -6970,6 +6970,7 @@
 			"CONTINUE": "{count, plural, zero {لا صفوف للتحقق منها} one {تحقّق من صف واحد} two {تحقّق من صفّين} few {تحقّق من # صفوف} many {تحقّق من # صفًا} other {تحقّق من # صف}}",
 			"FIRST_ROWS": "أول صفوف الملف",
 			"EDIT": "تغيير الأعمدة",
+			"UNNAMED_COLUMN": "العمود {position}",
 			"fields": {
 				"DATE": "التاريخ",
 				"START_TIME": "وقت البدء",

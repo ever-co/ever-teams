@@ -6970,6 +6970,7 @@
 			"CONTINUE": "{count, plural, other {检查 # 行}}",
 			"FIRST_ROWS": "文件的前几行",
 			"EDIT": "更改列",
+			"UNNAMED_COLUMN": "第 {position} 列",
 			"fields": {
 				"DATE": "日期",
 				"START_TIME": "开始时间",

@@ -6970,6 +6970,7 @@
 			"CONTINUE": "{count, plural, one {Vérifier # ligne} other {Vérifier # lignes}}",
 			"FIRST_ROWS": "Premières lignes du fichier",
 			"EDIT": "Changer les colonnes",
+			"UNNAMED_COLUMN": "Colonne {position}",
 			"fields": {
 				"DATE": "Date",
 				"START_TIME": "Heure de début",
