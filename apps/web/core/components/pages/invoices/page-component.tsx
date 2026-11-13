@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { toast } from 'sonner';
@@ -18,7 +19,7 @@ import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import {
 	paidChangeOf,
 	unpaidChangeOf,
-	type InvoiceAction,
+	type InvoiceMenuAction,
 	type InvoiceStatusChange
 } from '@/core/lib/utils/invoice-actions';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
@@ -26,10 +27,11 @@ import { currentOrganizationState } from '@/core/stores/user/user-organizations'
 import {
 	DeleteInvoiceDialog,
 	SendInvoiceDialog,
+	VoidAndReplaceDialog,
 	VoidInvoiceDialog,
 	type InvoiceActionTarget
 } from './invoice-action-dialogs';
-import { InvoiceAccessGuard, INVOICES_PATH } from './invoice-access-guard';
+import { InvoiceAccessGuard, INVOICES_PATH, replacementInvoicePathOf } from './invoice-access-guard';
 import { InvoicesLedger } from './invoices-ledger';
 import {
 	InvoicesEmptyState,
@@ -39,7 +41,7 @@ import {
 	InvoicesToolbar
 } from './invoices-states';
 
-type InvoiceDialogKind = 'send' | 'void' | 'delete';
+type InvoiceDialogKind = 'send' | 'void' | 'voidAndReplace' | 'delete';
 
 interface InvoiceDialog {
 	kind: InvoiceDialogKind;
@@ -69,6 +71,7 @@ function useInvoiceStatusToggle() {
 /** Mounted once the role may read invoices: nothing of an invoice is read for anyone else. */
 function InvoicesContent() {
 	const t = useTranslations();
+	const router = useRouter();
 	const activeTeam = useAtomValue(activeTeamState);
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const organization = useAtomValue(currentOrganizationState);
@@ -81,8 +84,12 @@ function InvoicesContent() {
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 
 	const takeAction = useCallback(
-		(target: InvoiceActionTarget, action: InvoiceAction) => {
+		(target: InvoiceActionTarget, action: InvoiceMenuAction) => {
 			const total = target.invoice.totalValue;
+			// Edit is a link of the menu: it never comes here.
+			if (action === 'edit') {
+				return;
+			}
 			if (action === 'markPaid') {
 				void changeTo(target, paidChangeOf(total), 'invoices.actions.MARKED_PAID');
 				return;
@@ -99,6 +106,13 @@ function InvoicesContent() {
 
 	// The dialog keeps its invoice while it fades out.
 	const closeDialog = useCallback(() => setIsDialogOpen(false), []);
+	const openReplacement = useCallback(
+		(target: InvoiceActionTarget) => {
+			const replacementPath = replacementInvoicePathOf(target.invoice.id);
+			router.push(replacementPath);
+		},
+		[router]
+	);
 	const dialogTarget = dialog?.target ?? null;
 	const isDialogOpenFor = (kind: InvoiceDialogKind) => isDialogOpen && dialog?.kind === kind;
 
@@ -137,6 +151,7 @@ function InvoicesContent() {
 						canEdit={access.canEdit}
 						changingId={changingId}
 						onAction={takeAction}
+						canRevise={access.canCreate}
 					/>
 					{list.hasMore && (
 						<Button
@@ -155,6 +170,12 @@ function InvoicesContent() {
 
 			<SendInvoiceDialog open={isDialogOpenFor('send')} target={dialogTarget} onClose={closeDialog} />
 			<VoidInvoiceDialog open={isDialogOpenFor('void')} target={dialogTarget} onClose={closeDialog} />
+			<VoidAndReplaceDialog
+				open={isDialogOpenFor('voidAndReplace')}
+				target={dialogTarget}
+				onClose={closeDialog}
+				onVoided={openReplacement}
+			/>
 			<DeleteInvoiceDialog open={isDialogOpenFor('delete')} target={dialogTarget} onClose={closeDialog} />
 		</PageLayout>
 	);

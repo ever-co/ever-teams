@@ -28,10 +28,12 @@ jest.mock('sonner', () => ({
 	}
 }));
 jest.mock('@/core/components/icons', () => ({
+	Alert: () => null,
 	CircleX: () => null,
 	FileText: () => null,
 	Invoice: () => null,
 	Mail: () => null,
+	Refresh: () => null,
 	Send: () => null,
 	Trash: () => null
 }));
@@ -58,7 +60,12 @@ jest.mock('@/core/components/projects/dialogs/project-confirm-dialog', () => ({
 	}
 }));
 
-import { DeleteInvoiceDialog, SendInvoiceDialog, VoidInvoiceDialog } from './invoice-action-dialogs';
+import {
+	DeleteInvoiceDialog,
+	SendInvoiceDialog,
+	VoidAndReplaceDialog,
+	VoidInvoiceDialog
+} from './invoice-action-dialogs';
 
 function targetIn(status: string, primaryEmail: string | null = 'billing@acme.test'): InvoiceActionTarget {
 	const invoice = {
@@ -169,6 +176,36 @@ describe('voiding and deleting an invoice from the list', () => {
 		await confirm('invoices.delete.CONFIRM');
 
 		expect(screen.getByText('invoices.delete.FAILED')).toBeTruthy();
+		expect(onClose).not.toHaveBeenCalled();
+	});
+});
+
+describe('voiding a paid invoice to replace it', () => {
+	it('voids it once confirmed, then opens its replacement', async () => {
+		mockChangeStatus.mockResolvedValue(undefined);
+		const onClose = jest.fn();
+		const onVoided = jest.fn();
+		const target = targetIn('FULLY_PAID');
+		render(<VoidAndReplaceDialog open target={target} onClose={onClose} onVoided={onVoided} />);
+
+		await confirm('invoices.replace.CONFIRM');
+
+		expect(mockChangeStatus).toHaveBeenCalledWith({ invoiceId: 'inv-42', change: { status: 'VOID' } });
+		expect(mockToast.success).toHaveBeenCalledWith('invoices.void.DONE');
+		expect(onClose).toHaveBeenCalledTimes(1);
+		expect(onVoided).toHaveBeenCalledWith(target);
+	});
+
+	it('opens no replacement when the invoice could not be voided, and stays open', async () => {
+		mockChangeStatus.mockRejectedValue(new Error('Forbidden'));
+		const onClose = jest.fn();
+		const onVoided = jest.fn();
+		render(<VoidAndReplaceDialog open target={targetIn('PARTIALLY_PAID')} onClose={onClose} onVoided={onVoided} />);
+
+		await confirm('invoices.replace.CONFIRM');
+
+		expect(screen.getByText('invoices.void.FAILED')).toBeTruthy();
+		expect(onVoided).not.toHaveBeenCalled();
 		expect(onClose).not.toHaveBeenCalled();
 	});
 });

@@ -22,7 +22,7 @@ import {
 	type InvoiceStatus,
 	type InvoiceStatusTone
 } from '@/core/lib/utils/invoices';
-import { invoiceActionsOf, type InvoiceAction } from '@/core/lib/utils/invoice-actions';
+import { invoiceActionsOf, type InvoiceMenuAction } from '@/core/lib/utils/invoice-actions';
 import type { TInvoice } from '@/core/types/schemas/organization/invoice.schema';
 import type { InvoiceActionTarget } from './invoice-action-dialogs';
 import { InvoiceActionsMenu, type InvoiceMenuDownload } from './invoice-actions-menu';
@@ -107,7 +107,7 @@ function clientNameOf(invoice: TInvoice, clientNames: ReadonlyMap<string, string
 	return clientNames.get(clientId) ?? null;
 }
 
-export type InvoiceActionHandler = (target: InvoiceActionTarget, action: InvoiceAction) => void;
+export type InvoiceActionHandler = (target: InvoiceActionTarget, action: InvoiceMenuAction) => void;
 
 interface InvoiceRowProps {
 	invoice: TInvoice;
@@ -120,6 +120,7 @@ interface InvoiceRowProps {
 	onAction: InvoiceActionHandler;
 	/** The row has room for one button only: its menu then holds the PDF too. */
 	isCompact: boolean;
+	canRevise: boolean;
 }
 
 function hasActionsMenu(invoice: TInvoice, canEdit: boolean) {
@@ -140,7 +141,8 @@ const InvoiceRow = memo(function InvoiceRow({
 	canEdit,
 	isChanging,
 	onAction,
-	isCompact
+	isCompact,
+	canRevise
 }: InvoiceRowProps) {
 	const t = useTranslations();
 	const locale = useLocale();
@@ -158,7 +160,7 @@ const InvoiceRow = memo(function InvoiceRow({
 	if (downloadsFromMenu) {
 		menuDownload = { isPending: isDownloading, onSelect: () => onDownload(toDownload) };
 	}
-	const pickAction = (picked: TInvoice, action: InvoiceAction) => {
+	const pickAction = (picked: TInvoice, action: InvoiceMenuAction) => {
 		onAction({ invoice: picked, numberText: numberText ?? '', clientName }, action);
 	};
 	const issuedText = invoiceDayTextOf(invoiceDayOf(invoice.invoiceDate, timeZone), locale);
@@ -229,6 +231,7 @@ const InvoiceRow = memo(function InvoiceRow({
 							isChanging={isChanging}
 							onAction={pickAction}
 							download={menuDownload}
+							canRevise={canRevise}
 						/>
 					</span>
 				)}
@@ -248,7 +251,8 @@ export function InvoicesLedger({
 	onDownload,
 	canEdit,
 	changingId,
-	onAction
+	onAction,
+	canRevise = false
 }: Readonly<{
 	invoices: ReadonlyArray<TInvoice>;
 	/** Every client's name by id, archived ones included. */
@@ -259,6 +263,8 @@ export function InvoicesLedger({
 	canEdit: boolean;
 	changingId: string | null;
 	onAction: InvoiceActionHandler;
+	/** The role may edit an invoice, or void and replace it: it may create invoices. */
+	canRevise?: boolean;
 }>) {
 	const t = useTranslations();
 	const locale = useLocale();
@@ -287,6 +293,7 @@ export function InvoicesLedger({
 									isChanging={changingId === invoice.id}
 									onAction={onAction}
 									isCompact={isCompact}
+									canRevise={canRevise}
 								/>
 							))}
 						</ul>

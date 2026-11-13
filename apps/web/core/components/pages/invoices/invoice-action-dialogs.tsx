@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { EntityTile } from '@/core/components/common/entity-tile';
-import { CircleX, FileText, Invoice, Mail, Send, Trash } from '@/core/components/icons';
+import { Alert, CircleX, FileText, Invoice, Mail, Refresh, Send, Trash } from '@/core/components/icons';
 import {
 	ProjectConfirmDialog,
 	type ProjectConsequence
@@ -260,6 +260,79 @@ export function DeleteInvoiceDialog({ open, target, onClose }: Readonly<InvoiceA
 			isPending={isDeleting}
 			error={error}
 			onConfirm={() => void runOnce(remove)}
+		/>
+	);
+}
+
+/**
+ * A paid invoice is never changed: it is voided, and a new invoice bills the same time instead. The new one is made
+ * on the screen `onVoided` opens; left unsaved, the paid invoice stays void, which the dialog says beforehand.
+ */
+export function VoidAndReplaceDialog({
+	open,
+	target,
+	onClose,
+	onVoided
+}: Readonly<InvoiceActionDialogProps & { onVoided: (target: InvoiceActionTarget) => void }>) {
+	const t = useTranslations();
+	const { changeStatus, isChanging } = useChangeInvoiceStatus();
+	const runOnce = useSingleRun();
+	const [hasFailed, setHasFailed] = useState(false);
+	const numberText = target?.numberText ?? '';
+	const clientName = target?.clientName ?? '';
+
+	const close = () => {
+		if (isChanging) {
+			return;
+		}
+		setHasFailed(false);
+		onClose();
+	};
+
+	const voidAndReplace = async () => {
+		if (!target) {
+			return;
+		}
+		setHasFailed(false);
+		try {
+			await changeStatus({ invoiceId: target.invoice.id, change: VOID_CHANGE });
+		} catch {
+			setHasFailed(true);
+			return;
+		}
+		toast.success(t('invoices.void.DONE', { number: numberText }));
+		onClose();
+		onVoided(target);
+	};
+
+	const consequences: ProjectConsequence[] = [
+		{ key: 'voids', icon: <FileText />, text: t('invoices.replace.VOIDS') },
+		{ key: 'opens', icon: <Invoice />, text: t('invoices.replace.OPENS', { client: clientName }) },
+		{
+			key: 'stays',
+			icon: <Alert />,
+			text: t('invoices.replace.STAYS_VOID', { number: numberText }),
+			tone: 'danger'
+		}
+	];
+	let error: string | null = null;
+	if (hasFailed) {
+		error = t('invoices.void.FAILED');
+	}
+
+	return (
+		<ProjectConfirmDialog
+			open={open}
+			onClose={close}
+			icon={<Refresh />}
+			tone="danger"
+			title={t('invoices.replace.TITLE', { number: numberText })}
+			subject={subjectOf(target)}
+			consequences={consequences}
+			confirmLabel={t('invoices.replace.CONFIRM')}
+			isPending={isChanging}
+			error={error}
+			onConfirm={() => void runOnce(voidAndReplace)}
 		/>
 	);
 }
