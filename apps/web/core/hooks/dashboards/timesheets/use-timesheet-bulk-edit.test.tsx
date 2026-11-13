@@ -21,6 +21,18 @@ const mockProjects = [
 jest.mock('jotai', () => ({ useAtomValue: (atom: string) => mockAtomValues[atom] }));
 jest.mock('@/core/stores/teams/organization-team', () => ({ activeTeamState: 'activeTeamState' }));
 jest.mock('@/core/stores/teams/team-tasks', () => ({ tasksByTeamState: 'tasksByTeamState' }));
+jest.mock('sonner', () => ({
+	toast: {
+		success: (message: string) => mockToastSuccess(message),
+		warning: (message: string) => mockToastWarning(message),
+		error: (message: string) => mockToastError(message)
+	}
+}));
+jest.mock('@/core/lib/helpers/cookies', () => ({
+	getOrganizationIdCookie: () => 'organization-a',
+	getTenantIdCookie: () => 'tenant-a'
+}));
+jest.mock('@/core/lib/helpers/error-message', () => ({ logErrorInDev: jest.fn() }));
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: Record<string, unknown>) => {
 		if (!values) {
@@ -29,11 +41,10 @@ jest.mock('next-intl', () => ({
 		return `${key} ${JSON.stringify(values)}`;
 	}
 }));
-jest.mock('sonner', () => ({
-	toast: {
-		success: (message: string) => mockToastSuccess(message),
-		warning: (message: string) => mockToastWarning(message),
-		error: (message: string) => mockToastError(message)
+jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
+	timeLogService: {
+		getTimeLogConflicts: (params: unknown) => mockGetTimeLogConflicts(params),
+		updateTimeLog: (payload: unknown) => mockUpdateTimeLog(payload)
 	}
 }));
 jest.mock('@/core/hooks/organizations/projects/use-organization-projects-query', () => ({
@@ -44,17 +55,6 @@ jest.mock('@/core/hooks/organizations/projects/use-organization-projects-query',
 		refetchOrganizationProjects: jest.fn()
 	})
 }));
-jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
-	timeLogService: {
-		getTimeLogConflicts: (params: unknown) => mockGetTimeLogConflicts(params),
-		updateTimeLog: (payload: unknown) => mockUpdateTimeLog(payload)
-	}
-}));
-jest.mock('@/core/lib/helpers/cookies', () => ({
-	getOrganizationIdCookie: () => 'organization-a',
-	getTenantIdCookie: () => 'tenant-a'
-}));
-jest.mock('@/core/lib/helpers/error-message', () => ({ logErrorInDev: jest.fn() }));
 // The page hook drags the whole page's data layer in; only its edit rule is needed here
 jest.mock('./use-timesheets-page', () => ({
 	canEditLog: (log: ITimeLog, permissions: TimesheetPermissions) => {

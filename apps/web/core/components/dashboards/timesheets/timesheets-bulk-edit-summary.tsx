@@ -90,7 +90,7 @@ export function TimesheetsBulkEditPreview({
 
 	if (progress) {
 		return (
-			<div role="status" className={SUMMARY_INSET}>
+			<output className={SUMMARY_INSET}>
 				<p className={cn(SUMMARY_HEADLINE, 'flex items-center gap-2')}>
 					<Spinner aria-hidden="true" className="size-3.5 shrink-0 animate-spin text-muted-foreground" />
 					{t('dashboard.timesheets.BULK_EDIT.PROGRESS', {
@@ -98,23 +98,23 @@ export function TimesheetsBulkEditPreview({
 						total: progress.total
 					})}
 				</p>
-			</div>
+			</output>
 		);
 	}
 
 	if (!hasChoice) {
 		return (
-			<div role="status" className={SUMMARY_INSET}>
+			<output className={SUMMARY_INSET}>
 				<p className={SUMMARY_LINE}>{t('dashboard.timesheets.BULK_EDIT.NOTHING_CHOSEN')}</p>
-			</div>
+			</output>
 		);
 	}
 
 	return (
-		<div role="status" className={SUMMARY_INSET}>
+		<output className={SUMMARY_INSET}>
 			<p className={SUMMARY_HEADLINE}>{t('dashboard.timesheets.BULK_EDIT.WILL_UPDATE', { count: saveCount })}</p>
 			<ReasonLines lines={leftOutLines} />
-		</div>
+		</output>
 	);
 }
 
@@ -130,7 +130,7 @@ function toneOf(result: BulkEditResult): OrbTone {
 export function TimesheetsBulkEditReport({ result }: Readonly<{ result: BulkEditResult }>) {
 	const t = useTranslations();
 	return (
-		<div role="status" className={cn('flex items-start gap-2.5', SUMMARY_TINT)}>
+		<output className={cn('flex items-start gap-2.5', SUMMARY_TINT)}>
 			<ToastOrb tone={toneOf(result)} size="sm" />
 			<div className="flex min-w-0 flex-col gap-1.5">
 				<p className={cn(SUMMARY_HEADLINE, 'leading-6')}>
@@ -142,6 +142,6 @@ export function TimesheetsBulkEditReport({ result }: Readonly<{ result: BulkEdit
 				<ReasonLines lines={result.reasons} />
 				<p className={SUMMARY_LINE}>{t('dashboard.timesheets.BULK_EDIT.STILL_SELECTED')}</p>
 			</div>
-		</div>
+		</output>
 	);
 }

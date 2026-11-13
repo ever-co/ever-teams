@@ -266,7 +266,7 @@ describe('TimesheetsBulkEditDialog', () => {
 		expect(updateButton().disabled).toBe(true);
 		expect(screen.getByRole<HTMLButtonElement>('button', { name: 'common.CANCEL' }).disabled).toBe(true);
 		expect(screen.getByRole('dialog').getAttribute('data-closable')).toBe('false');
-		expect(screen.getByRole('group', { name: BILLABLE }).closest('fieldset')?.disabled).toBe(true);
+		expect(screen.getByRole('group', { name: BILLABLE }).matches(':disabled')).toBe(true);
 
 		await act(async () => {
 			firstSave.settle();

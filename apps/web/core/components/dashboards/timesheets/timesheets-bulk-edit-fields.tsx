@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode, useId } from 'react';
+import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { AnimatedHeight } from '@/core/components/common/animated-height';
 import { EntityTile } from '@/core/components/common/entity-tile';
@@ -115,14 +115,11 @@ function renderTaskOption(option: TTask | KeepOption) {
 }
 
 function Field({ label, children }: Readonly<{ label: string; children: ReactNode }>) {
-	const labelId = useId();
 	return (
-		<div role="group" aria-labelledby={labelId} className="flex flex-col gap-1">
-			<span id={labelId} className={modalFieldLabelClass}>
-				{label}
-			</span>
+		<fieldset className="flex min-w-0 flex-col gap-1">
+			<legend className={cn(modalFieldLabelClass, 'mb-1')}>{label}</legend>
 			{children}
-		</div>
+		</fieldset>
 	);
 }
 
