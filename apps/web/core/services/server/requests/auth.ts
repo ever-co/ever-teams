@@ -211,11 +211,16 @@ export const resentVerifyUserLinkRequest = (data: {
 	});
 };
 
-export const requestPasswordRequest = (email: string) => {
+/**
+ * Asks Gauzy to e-mail a password reset link that opens this app: `resetPasswordUrl` is its own page, to which
+ * Gauzy adds `?token=`. Gauzy uses it only on an origin its deployment lists (its own page otherwise), and a Gauzy
+ * that does not know the field yet leaves it out.
+ */
+export const requestPasswordRequest = (email: string, resetPasswordUrl: string) => {
 	return serverFetch<boolean>({
 		path: '/auth/request-password',
 		method: 'POST',
-		body: { email }
+		body: { email, appResetPasswordUrl: resetPasswordUrl }
 	});
 };
 
