@@ -4876,7 +4876,7 @@
 			"REQUIREMENTS_LOAD_FAILED": "Les exigences n'ont pas pu être chargées.",
 			"TRACKING_SWITCH_SECTION": "Qui active le suivi du temps",
 			"RESTRICT_TRACKING_SWITCH_LABEL": "Seul un rôle supérieur active ou coupe le suivi du temps",
-			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Les admins activent ou coupent le suivi du temps de chacun, les managers seulement celui des membres de leur équipe, jamais le leur ni celui d'un autre manager. Désactivé, quiconque peut modifier un membre le change.",
+			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Les admins activent ou coupent le suivi du temps de chacun, les managers seulement celui des membres de leur équipe, jamais le leur ni celui d'un autre manager. Désactivé, les admins et les managers d'équipe le changent pour tous les membres de leurs équipes, et quiconque peut modifier les employés le change dans toutes les équipes.",
 			"TRACKING_SWITCH_RULE_NOT_SAVED": "Le réglage n'a pas été enregistré.",
 			"ON": "Activé",
 			"OFF": "Désactivé",

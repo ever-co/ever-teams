@@ -4876,7 +4876,7 @@
 			"REQUIREMENTS_LOAD_FAILED": "Nie udało się wczytać wymagań.",
 			"TRACKING_SWITCH_SECTION": "Kto przełącza śledzenie czasu",
 			"RESTRICT_TRACKING_SWITCH_LABEL": "Tylko wyższa rola włącza lub wyłącza śledzenie czasu",
-			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Administratorzy włączają lub wyłączają śledzenie czasu każdego, menedżerowie tylko członków swojego zespołu, nigdy własne ani innego menedżera. Gdy wyłączone, przełącza je każdy, kto może edytować członka.",
+			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Administratorzy włączają lub wyłączają śledzenie czasu każdego, menedżerowie tylko członków swojego zespołu, nigdy własne ani innego menedżera. Gdy wyłączone, administratorzy i menedżerowie zespołów przełączają je dla każdego w swoich zespołach, a kto może edytować pracowników, przełącza je we wszystkich zespołach.",
 			"TRACKING_SWITCH_RULE_NOT_SAVED": "Nie zapisano ustawienia.",
 			"ON": "Włączone",
 			"OFF": "Wyłączone",

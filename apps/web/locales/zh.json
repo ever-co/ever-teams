@@ -4876,7 +4876,7 @@
 			"REQUIREMENTS_LOAD_FAILED": "无法加载这些要求。",
 			"TRACKING_SWITCH_SECTION": "谁可以切换时间跟踪",
 			"RESTRICT_TRACKING_SWITCH_LABEL": "仅更高角色可开关时间跟踪",
-			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "管理员可开关任何人的时间跟踪，经理只能开关其团队成员的，不能开关自己或其他经理的。关闭时，能编辑成员的人即可切换。",
+			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "管理员可开关任何人的时间跟踪，经理只能开关其团队成员的，不能开关自己或其他经理的。关闭时，管理员和团队经理可为其团队中的任何人切换，能编辑员工的人可在所有团队中切换。",
 			"TRACKING_SWITCH_RULE_NOT_SAVED": "设置未保存。",
 			"ON": "开",
 			"OFF": "关",

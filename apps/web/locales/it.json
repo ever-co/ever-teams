@@ -4876,7 +4876,7 @@
 			"REQUIREMENTS_LOAD_FAILED": "Non è stato possibile caricare i requisiti.",
 			"TRACKING_SWITCH_SECTION": "Chi attiva il tracciamento del tempo",
 			"RESTRICT_TRACKING_SWITCH_LABEL": "Solo un ruolo superiore attiva o disattiva il tracciamento del tempo",
-			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Gli admin attivano o disattivano il tracciamento del tempo di chiunque, i manager solo quello dei membri del loro team, mai il proprio né quello di un altro manager. Se disattivato, lo cambia chi può modificare un membro.",
+			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Gli admin attivano o disattivano il tracciamento del tempo di chiunque, i manager solo quello dei membri del loro team, mai il proprio né quello di un altro manager. Se disattivato, admin e manager di team lo cambiano per chiunque nei loro team, e chi può modificare i dipendenti lo cambia in tutti i team.",
 			"TRACKING_SWITCH_RULE_NOT_SAVED": "L'impostazione non è stata salvata.",
 			"ON": "Attivo",
 			"OFF": "Disattivo",
