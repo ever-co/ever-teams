@@ -375,7 +375,22 @@ function isMadeFromTime(invoice: TSavedInvoice) {
 	const isDiscountReadable = isPercentOrNone(invoice.discountValue, invoice.discountType);
 	const isTaxReadable = isPercentOrNone(invoice.tax, invoice.taxType);
 	const hasNoSecondTax = isUnset(invoice.tax2);
-	return isTimeType && isDiscountReadable && isTaxReadable && hasNoSecondTax;
+	return isTimeType && isDiscountReadable && isTaxReadable && hasNoSecondTax && appliesItsRatesToEveryLine(invoice);
+}
+
+/**
+ * This screen applies the invoice's discount and tax to every line. A line that does not take a discount or tax the
+ * invoice has (one set apart on the API's own screen) would be priced again on any save, so such an invoice is not
+ * edited here.
+ */
+function appliesItsRatesToEveryLine(invoice: TSavedInvoice) {
+	const hasDiscount = !isUnset(invoice.discountValue);
+	const hasTax = !isUnset(invoice.tax);
+	return (invoice.invoiceItems ?? []).every((item) => {
+		const keepsDiscount = !hasDiscount || item.applyDiscount === true;
+		const keepsTax = !hasTax || item.applyTax === true;
+		return keepsDiscount && keepsTax;
+	});
 }
 
 function previousLineOf(part: SavedLineParts, invoiceId: string, facts: SavedInvoiceFacts): InvoiceItemRequest {

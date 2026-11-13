@@ -42,8 +42,9 @@ function item(extra: Partial<TSavedInvoiceItem> = {}): TSavedInvoiceItem {
 		price: 80,
 		quantity: 10,
 		totalValue: 800,
+		// As this screen writes them: the invoice's 10 % discount and 20 % tax apply to every line
 		applyTax: true,
-		applyDiscount: false,
+		applyDiscount: true,
 		projectId: 'p1',
 		employeeId: 'ana',
 		taskId: null,
@@ -184,7 +185,7 @@ describe('an invoice read back to be edited', () => {
 			projectId: 'p1',
 			employeeId: 'ana',
 			applyTax: true,
-			applyDiscount: false,
+			applyDiscount: true,
 			organizationId: 'organization-1',
 			tenantId: 'tenant-1'
 		});
@@ -205,7 +206,15 @@ describe('an invoice read back to be edited', () => {
 		['is billed by product', { invoiceType: 'BY_PRODUCTS' }],
 		['has a line made from no project', { invoiceItems: [item({ projectId: null })] }],
 		['has a status the web does not know', { status: 'ARCHIVED' }],
-		['states no client', { toContactId: null }]
+		['states no client', { toContactId: null }],
+		[
+			'has a line its tax does not apply to (a save would tax it)',
+			{ invoiceItems: [item({ id: 'taxed' }), item({ id: 'untaxed', applyTax: false })] }
+		],
+		[
+			'has a line its discount does not apply to (a save would discount it)',
+			{ invoiceItems: [item({ id: 'discounted' }), item({ id: 'full-price', applyDiscount: null })] }
+		]
 	])('is not edited here when it %s: it was not made from billable time by this screen', (_case, extra) => {
 		expect(savedInvoiceOf(savedRaw(extra as Partial<TSavedInvoice>), reading)).toBeNull();
 	});
@@ -429,8 +438,16 @@ describe('whether an invoice read back holds the lines written', () => {
 
 	it('holds them in any order, the API answering its numbers as it stores them', () => {
 		const readBack = [
-			item({ description: 'App', projectId: 'p2', employeeId: null, price: 100, quantity: 5, totalValue: 500 }),
-			item({ description: 'Ana Lima' })
+			item({
+				description: 'App',
+				projectId: 'p2',
+				employeeId: null,
+				price: 100,
+				quantity: 5,
+				totalValue: 500,
+				applyDiscount: false
+			}),
+			item({ description: 'Ana Lima', applyDiscount: false })
 		];
 
 		expect(haveSameLines(readBack, written)).toBe(true);
@@ -448,9 +465,10 @@ describe('whether an invoice read back holds the lines written', () => {
 			employeeId: null,
 			price: 100,
 			quantity: 5,
-			totalValue: 500
+			totalValue: 500,
+			applyDiscount: false
 		});
-		const ana = item({ description: 'Ana Lima' });
+		const ana = item({ description: 'Ana Lima', applyDiscount: false });
 
 		expect(haveSameLines([app, { ...ana, applyTax: false }], written)).toBe(false);
 		expect(haveSameLines([app, { ...ana, applyDiscount: true }], written)).toBe(false);
