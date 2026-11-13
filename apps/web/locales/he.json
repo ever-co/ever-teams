@@ -6845,6 +6845,8 @@
 	},
 	"clientGrouping": {
 		"TITLE": "זמן לפי לקוח",
-		"CLIENTS": "{count, plural, one {לקוח אחד} two {שני לקוחות} other {# לקוחות}}"
+		"CLIENTS": "{count, plural, one {לקוח אחד} two {שני לקוחות} other {# לקוחות}}",
+		"NAMES_ERROR_TITLE": "לא ניתן היה לטעון את רשימת הלקוחות",
+		"NAMES_ERROR_MESSAGE": "עד אז לקוחות בארכיון מוצגים ללא שמם."
 	}
 }

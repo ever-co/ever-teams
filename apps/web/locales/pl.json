@@ -6845,6 +6845,8 @@
 	},
 	"clientGrouping": {
 		"TITLE": "Czas według klienta",
-		"CLIENTS": "{count, plural, one {# klient} few {# klientów} many {# klientów} other {# klienta}}"
+		"CLIENTS": "{count, plural, one {# klient} few {# klientów} many {# klientów} other {# klienta}}",
+		"NAMES_ERROR_TITLE": "Nie udało się wczytać listy klientów",
+		"NAMES_ERROR_MESSAGE": "Zarchiwizowani klienci są do tego czasu widoczni bez nazw."
 	}
 }

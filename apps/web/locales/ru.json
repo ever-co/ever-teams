@@ -6845,6 +6845,8 @@
 	},
 	"clientGrouping": {
 		"TITLE": "Время по клиентам",
-		"CLIENTS": "{count, plural, one {# клиент} few {# клиента} many {# клиентов} other {# клиента}}"
+		"CLIENTS": "{count, plural, one {# клиент} few {# клиента} many {# клиентов} other {# клиента}}",
+		"NAMES_ERROR_TITLE": "Не удалось загрузить список клиентов",
+		"NAMES_ERROR_MESSAGE": "До тех пор архивные клиенты показаны без названий."
 	}
 }

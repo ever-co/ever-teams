@@ -6845,6 +6845,8 @@
 	},
 	"clientGrouping": {
 		"TITLE": "按客户统计时间",
-		"CLIENTS": "{count, plural, other {# 个客户}}"
+		"CLIENTS": "{count, plural, other {# 个客户}}",
+		"NAMES_ERROR_TITLE": "无法加载客户列表",
+		"NAMES_ERROR_MESSAGE": "在此之前，已归档的客户不显示名称。"
 	}
 }

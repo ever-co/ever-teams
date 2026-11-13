@@ -6845,6 +6845,8 @@
 	},
 	"clientGrouping": {
 		"TITLE": "Tempo por cliente",
-		"CLIENTS": "{count, plural, one {# cliente} other {# clientes}}"
+		"CLIENTS": "{count, plural, one {# cliente} other {# clientes}}",
+		"NAMES_ERROR_TITLE": "Não foi possível carregar a lista de clientes",
+		"NAMES_ERROR_MESSAGE": "Os clientes arquivados aparecem sem o nome até lá."
 	}
 }

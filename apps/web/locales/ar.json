@@ -6845,6 +6845,8 @@
 	},
 	"clientGrouping": {
 		"TITLE": "الوقت حسب العميل",
-		"CLIENTS": "{count, plural, one {عميل واحد} two {عميلان} few {# عملاء} many {# عميلًا} other {# عميل}}"
+		"CLIENTS": "{count, plural, one {عميل واحد} two {عميلان} few {# عملاء} many {# عميلًا} other {# عميل}}",
+		"NAMES_ERROR_TITLE": "تعذّر تحميل قائمة العملاء",
+		"NAMES_ERROR_MESSAGE": "يظهر العملاء المؤرشفون دون أسمائهم إلى أن يتم تحميلها."
 	}
 }
