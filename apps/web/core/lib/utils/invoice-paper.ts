@@ -90,6 +90,21 @@ function sumOf(lines: ReadonlyArray<PaperLineFigures>) {
 	return cents / CENTS_PER_UNIT;
 }
 
+type LineAdjustmentFlag = 'applyDiscount' | 'applyTax';
+
+/** A line saved without the flag takes the adjustment, as the composer saves every line. */
+function appliesToEveryLine(items: ReadonlyArray<TSavedInvoiceItem>, flag: LineAdjustmentFlag) {
+	return items.every((item) => item[flag] !== false);
+}
+
+/** A percent of the subtotal, when it applies to every line: of a part of the lines its amount is left to the total. */
+function baseFor(items: ReadonlyArray<TSavedInvoiceItem>, flag: LineAdjustmentFlag, base: number | null) {
+	if (!appliesToEveryLine(items, flag)) {
+		return null;
+	}
+	return base;
+}
+
 function discountOf(invoice: TSavedInvoice, subtotal: number | null): PaperAdjustment | null {
 	const value = invoice.discountValue;
 	if (!isStated(value)) {
@@ -98,9 +113,10 @@ function discountOf(invoice: TSavedInvoice, subtotal: number | null): PaperAdjus
 	if (invoice.discountType !== PERCENT_TYPE) {
 		return { kind: 'discount', percent: null, amount: value };
 	}
+	const base = baseFor(invoice.invoiceItems ?? [], 'applyDiscount', subtotal);
 	let amount: number | null = null;
-	if (subtotal !== null) {
-		amount = invoiceTotalsOf(subtotal, { discountPercent: value, taxPercent: null }).discount;
+	if (base !== null) {
+		amount = invoiceTotalsOf(base, { discountPercent: value, taxPercent: null }).discount;
 	}
 	return { kind: 'discount', percent: value, amount };
 }
@@ -145,7 +161,7 @@ export function invoicePaperFiguresOf(invoice: TSavedInvoice): InvoicePaperFigur
 	const subtotal = sumOf(lines);
 	const discount = discountOf(invoice, subtotal);
 	const taxBase = taxBaseOf(subtotal, discount);
-	const tax = taxOf('tax', invoice.tax, invoice.taxType, taxBase);
+	const tax = taxOf('tax', invoice.tax, invoice.taxType, baseFor(invoice.invoiceItems ?? [], 'applyTax', taxBase));
 	const secondTax = taxOf('tax2', invoice.tax2, invoice.tax2Type, taxBase);
 	const adjustments: PaperAdjustment[] = [];
 	for (const adjustment of [discount, tax, secondTax]) {
