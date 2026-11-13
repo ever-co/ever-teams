@@ -12,6 +12,7 @@ import { useEmployeeUpdate } from '@/core/hooks/organizations/employees/use-empl
 import { useGetCurrentOrganization } from '@/core/hooks/auth/use-current-organization';
 import { useOrganizationEmployeeTeams } from '@/core/hooks/organizations/teams/use-organization-teams-employee';
 import { mayTurnTrackingOfRole, rankInTeam, rankOfRole } from '@/core/lib/helpers/tracking-switch';
+import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import { employeeIdOf, memberRoleNameOf, memberUserIdOf } from '@/core/lib/utils/settings-team';
 import type { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { TUpdateEmployee } from '@/core/types/schemas/organization/employee.schema';
@@ -52,6 +53,21 @@ export function useMemberTrackingSwitch() {
 	const isOrganizationKnown = Boolean(organization) || organizationRead.isError;
 	const restrictsSwitch = organization ? organization.restrictTrackingSwitchToHigherRoles === true : true;
 	const isTrackingRuleKnown = arePermissionsLoaded && isOrganizationKnown;
+	const rereadOrganization = organizationRead.refetch;
+
+	/**
+	 * Gauzy refuses (403) a switch an admin restricted to higher roles after this page read the organization, which
+	 * stays fresh for an hour: read it again so the rows follow the rule, then fail the save as before.
+	 */
+	const rereadRuleOnRefusal = useCallback(
+		(error: unknown): never => {
+			if (errorStatusOf(error) === 403) {
+				void rereadOrganization();
+			}
+			throw error;
+		},
+		[rereadOrganization]
+	);
 
 	const userId = user?.id;
 	const ownRoleRank = rankOfRole(user?.role?.name);
@@ -108,7 +124,7 @@ export function useMemberTrackingSwitch() {
 					isTrackingEnabled
 				});
 			const previousTeamTracking = Boolean(member.isTrackingEnabled);
-			await saveTeamTracking(enabled);
+			await saveTeamTracking(enabled).catch(rereadRuleOnRefusal);
 			if (writesEmployeeTracking(member)) {
 				const employee = member.employee;
 				const data: TUpdateEmployee = {
@@ -122,13 +138,20 @@ export function useMemberTrackingSwitch() {
 					await updateEmployeeAsync({ id: employeeId, data });
 				} catch (error) {
 					await saveTeamTracking(previousTeamTracking).catch(() => undefined);
-					throw error;
+					rereadRuleOnRefusal(error);
 				}
 			}
 			// The rows read the employee through the team: without this they keep the old value
 			await queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
 		},
-		[isTrackingRuleKnown, queryClient, updateEmployeeAsync, updateOrganizationTeamEmployee, writesEmployeeTracking]
+		[
+			isTrackingRuleKnown,
+			queryClient,
+			rereadRuleOnRefusal,
+			updateEmployeeAsync,
+			updateOrganizationTeamEmployee,
+			writesEmployeeTracking
+		]
 	);
 
 	return useMemo(
