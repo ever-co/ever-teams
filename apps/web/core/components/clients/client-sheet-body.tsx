@@ -73,6 +73,7 @@ export function ClientSheetBody({
 				/>
 				{canViewInvoices && (
 					<ClientInvoicesSection
+						key={client.id}
 						invoices={standing.invoices}
 						summary={standing.summary}
 						todayKey={standing.todayKey}

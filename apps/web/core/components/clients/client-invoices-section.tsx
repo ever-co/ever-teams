@@ -225,7 +225,9 @@ export function ClientInvoicesSection({
 	const [isExpanded, setIsExpanded] = useState(false);
 	const summaryText = useSummaryText(summary);
 	const total = invoices.length;
-	const hasFilter = total > SHOWN_INVOICES;
+	const isFiltered = filter !== 'all';
+	const hasManyInvoices = total > SHOWN_INVOICES;
+	const hasFilter = hasManyInvoices || isFiltered;
 	const rows = useMemo(
 		() => rowsOfFilter(invoices, filter, todayKey, timeZone),
 		[filter, invoices, timeZone, todayKey]

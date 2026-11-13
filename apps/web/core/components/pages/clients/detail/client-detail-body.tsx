@@ -54,6 +54,7 @@ export function ClientDetailBody({
 			<div className="flex min-w-0 flex-col gap-6 self-start lg:col-start-1">
 				{canViewInvoices && (
 					<ClientInvoicesSection
+						key={client.id}
 						invoices={standing.invoices}
 						summary={standing.summary}
 						todayKey={standing.todayKey}
