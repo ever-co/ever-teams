@@ -18,9 +18,6 @@ const INVOICES_PAGE_SIZE = 50;
 /** The API serves at most 100 invoices a page. */
 const FULL_READ_PAGE_SIZE = 100;
 
-/** Where a read of every page stops: past this many, a client's latest invoices are compared with a new period. */
-const FULL_READ_MAX_PAGES = 10;
-
 const invoiceStatusSchema = invoiceSchema.pick({ status: true });
 
 export interface InvoicesPage {
@@ -126,15 +123,19 @@ class InvoiceService extends APIService {
 	/** Reads page after page until the API has given every invoice it counts, or the page cap is reached. */
 	private readonly readEveryPage = async (list: InvoicesListOptions, signal?: AbortSignal): Promise<TInvoice[]> => {
 		const invoices: TInvoice[] = [];
-		for (let page = 1; page <= FULL_READ_MAX_PAGES; page += 1) {
+		let page = 1;
+		let pageCount = 1;
+		// Bounded by the total the API reports on each page: the sums drawn from this read must be whole
+		while (page <= pageCount) {
 			const options = { ...list, page, pageSize: FULL_READ_PAGE_SIZE };
 			const { items, total } = await this.readInvoicesPage(options, signal);
 			invoices.push(...items);
+			pageCount = Math.ceil(total / FULL_READ_PAGE_SIZE);
 			const isLastPage = items.length < FULL_READ_PAGE_SIZE;
-			const hasEverything = invoices.length >= total;
-			if (isLastPage || hasEverything) {
+			if (isLastPage) {
 				break;
 			}
+			page += 1;
 		}
 		return invoices;
 	};
