@@ -12,6 +12,7 @@ import { useMediaQuery } from '@/core/hooks/common/use-media-query';
 import type { InvoiceToDownload } from '@/core/hooks/invoices/use-invoice-mutations';
 import { cn } from '@/core/lib/helpers';
 import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
+import { invoiceClientNameOf, invoiceNumberTextOf, invoicePdfFileNameOf } from '@/core/lib/utils/invoice-labels';
 import { invoiceStandingOf } from '@/core/lib/utils/invoice-standing';
 import {
 	invoiceDayOf,
@@ -68,21 +69,6 @@ export function InvoiceStatusBadge({ status }: Readonly<{ status: string | null 
 	return <Badge variant={variant}>{label}</Badge>;
 }
 
-function numberTextOf(invoice: TInvoice) {
-	const number = invoice.invoiceNumber;
-	if (typeof number !== 'number') {
-		return null;
-	}
-	return String(number);
-}
-
-function pdfFileNameOf(numberText: string | null) {
-	if (!numberText) {
-		return 'invoice.pdf';
-	}
-	return `invoice-${numberText}.pdf`;
-}
-
 function InvoiceTotal({ invoice }: Readonly<{ invoice: TInvoice }>) {
 	const t = useTranslations();
 	const locale = useLocale();
@@ -96,19 +82,6 @@ function InvoiceTotal({ invoice }: Readonly<{ invoice: TInvoice }>) {
 			{formatOwed(total, currency, locale)}
 		</span>
 	);
-}
-
-/** The API drops an archived client from the invoice's relation while the invoice keeps the client's id. */
-function clientNameOf(invoice: TInvoice, clientNames: ReadonlyMap<string, string>) {
-	const relatedName = invoice.toContact?.name?.trim();
-	if (relatedName) {
-		return relatedName;
-	}
-	const clientId = invoice.toContactId;
-	if (!clientId) {
-		return null;
-	}
-	return clientNames.get(clientId) ?? null;
 }
 
 interface CurrencyTotal {
@@ -187,9 +160,9 @@ const InvoiceRow = memo(function InvoiceRow({
 }: InvoiceRowProps) {
 	const t = useTranslations();
 	const locale = useLocale();
-	const clientName = clientNameOf(invoice, clientNames) ?? t('invoices.NO_CLIENT');
-	const numberText = numberTextOf(invoice);
-	const fileName = pdfFileNameOf(numberText);
+	const clientName = invoiceClientNameOf(invoice, clientNames) ?? t('invoices.NO_CLIENT');
+	const numberText = invoiceNumberTextOf(invoice);
+	const fileName = invoicePdfFileNameOf(numberText);
 	const toDownload: InvoiceToDownload = { id: invoice.id, fileName };
 	const hasMenu = hasActionsMenu(invoice, canEdit);
 	const downloadsFromMenu = isCompact && hasMenu;
