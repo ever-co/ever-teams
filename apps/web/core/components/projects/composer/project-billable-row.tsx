@@ -33,6 +33,7 @@ export function ProjectBillableRow({ billable, onChange }: Readonly<ProjectBilla
 					isBillable={isBillable}
 					onChange={onChange}
 					label={t('pages.projects.billable.LABEL')}
+					isLabelVisible={false}
 				/>
 			</PropertyRow>
 		</Field>

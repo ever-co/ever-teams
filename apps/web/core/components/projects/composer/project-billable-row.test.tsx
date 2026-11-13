@@ -41,6 +41,15 @@ describe('the Billable by default switch of the project form', () => {
 		expect(help?.textContent).toBe(HELP);
 	});
 
+	it('shows no text of its own beside the row label, its name staying for assistive technology', () => {
+		const { billableSwitch } = renderRow(null);
+
+		const name = screen.getByText(LABEL);
+
+		expect(name.classList.contains('sr-only')).toBe(true);
+		expect(billableSwitch.closest('label')?.contains(name)).toBe(true);
+	});
+
 	it.each([
 		['on', true, 'true'],
 		['off', false, 'false'],
