@@ -126,6 +126,10 @@ describe('the page a sign-in opens (#5025)', () => {
 		expect(signIn({ replace: true })).toHaveBeenCalledWith('/workspace/new');
 	});
 
+	it('opens a page set with its query: the Inbox entry a notification e-mail linked to', () => {
+		expect(signInWith('/inbox?item=item-1')).toHaveBeenCalledWith('/inbox?item=item-1');
+	});
+
 	it('forgets a page set for a sign-in that never came: a much later one opens the home page', () => {
 		const now = jest.spyOn(Date, 'now').mockReturnValue(Date.UTC(2026, 10, 11, 9, 0));
 		setPathAfterSignIn('/workspace/new');

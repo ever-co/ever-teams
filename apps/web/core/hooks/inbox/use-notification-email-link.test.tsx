@@ -4,11 +4,16 @@ import { act, renderHook } from '@testing-library/react';
 import { useNotificationEmailLink } from './use-notification-email-link';
 
 const replace = jest.fn();
+const setPathAfterSignIn = jest.fn();
 let pathname: string | null = '/';
 
 jest.mock('next/navigation', () => ({
 	usePathname: () => pathname,
 	useRouter: () => ({ replace })
+}));
+
+jest.mock('@/core/lib/auth/navigate-after-sign-in', () => ({
+	setPathAfterSignIn: (path: string | null) => setPathAfterSignIn(path)
 }));
 
 /** The fragment a link lands with, set as a browser sets it before the app starts. */
@@ -19,6 +24,7 @@ function landWith(hash: string) {
 describe('useNotificationEmailLink', () => {
 	beforeEach(() => {
 		replace.mockClear();
+		setPathAfterSignIn.mockClear();
 		pathname = '/';
 		landWith('');
 	});
@@ -54,7 +60,7 @@ describe('useNotificationEmailLink', () => {
 	});
 
 	it.each([['/auth/passcode'], ['/fr/auth/passcode'], ['/auth/password']])(
-		'does not open the page from the sign-in page %s',
+		'keeps the page for the end of the sign-in on the sign-in page %s, without opening it',
 		(signInPage) => {
 			pathname = signInPage;
 			landWith('#/pages/inbox?item=item-1');
@@ -62,8 +68,30 @@ describe('useNotificationEmailLink', () => {
 			renderHook(() => useNotificationEmailLink());
 
 			expect(replace).not.toHaveBeenCalled();
+			expect(setPathAfterSignIn).toHaveBeenCalledTimes(1);
+			expect(setPathAfterSignIn).toHaveBeenCalledWith('/inbox?item=item-1');
 		}
 	);
+
+	it('sets no page for a sign-in that another fragment, or none, comes with', () => {
+		pathname = '/auth/passcode';
+
+		landWith('');
+		renderHook(() => useNotificationEmailLink());
+		landWith('#/auth/reset-password?token=abc');
+		renderHook(() => useNotificationEmailLink());
+
+		expect(setPathAfterSignIn).not.toHaveBeenCalled();
+	});
+
+	it('sets no page for a later sign-in when the link opens signed in', () => {
+		landWith('#/pages/inbox?item=item-1');
+
+		renderHook(() => useNotificationEmailLink());
+
+		expect(replace).toHaveBeenCalledWith('/inbox?item=item-1');
+		expect(setPathAfterSignIn).not.toHaveBeenCalled();
+	});
 
 	it('opens a link pasted in a tab that is already on the app', () => {
 		renderHook(() => useNotificationEmailLink());
