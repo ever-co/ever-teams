@@ -5869,7 +5869,8 @@
 			"searchProjects": "Cerca nei progetti",
 			"searchTeams": "Cerca nei team",
 			"themeToggle": "Passa da chiaro a scuro",
-			"taskProject": "Cambia il progetto"
+			"taskProject": "Cambia il progetto",
+			"taskAssignee": "Cambia gli assegnatari"
 		},
 		"CHAT_SINGLE_KEY": "Un tasto della chat è un solo tasto, non una sequenza.",
 		"CHAT_TAKEN": "La chat usa già quel tasto (formattazione, invio, spostamento o scorrimento)."

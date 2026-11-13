@@ -5869,7 +5869,8 @@
 			"searchProjects": "Rechercher dans les projets",
 			"searchTeams": "Rechercher dans les équipes",
 			"themeToggle": "Basculer entre clair et sombre",
-			"taskProject": "Changer le projet"
+			"taskProject": "Changer le projet",
+			"taskAssignee": "Changer les personnes assignées"
 		},
 		"CHAT_SINGLE_KEY": "Une touche du chat est une seule touche, pas une séquence.",
 		"CHAT_TAKEN": "Le chat utilise déjà cette touche (mise en forme, envoi, déplacement ou défilement)."

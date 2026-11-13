@@ -5869,7 +5869,8 @@
 			"searchProjects": "Projekte durchsuchen",
 			"searchTeams": "Teams durchsuchen",
 			"themeToggle": "Zwischen hell und dunkel wechseln",
-			"taskProject": "Projekt ändern"
+			"taskProject": "Projekt ändern",
+			"taskAssignee": "Zugewiesene ändern"
 		},
 		"CHAT_SINGLE_KEY": "Eine Chat-Taste ist eine einzelne Taste, keine Folge.",
 		"CHAT_TAKEN": "Der Chat verwendet diese Taste bereits (Formatieren, Senden, Bewegen oder Scrollen)."

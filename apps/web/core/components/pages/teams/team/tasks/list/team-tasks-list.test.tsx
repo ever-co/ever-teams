@@ -221,3 +221,32 @@ describe('TeamTasksList project and due date keys (T10)', () => {
 		expect(commands.openPicker).not.toHaveBeenCalled();
 	});
 });
+
+describe('TeamTasksList assignee key', () => {
+	beforeEach(() => {
+		mockSequencePending = false;
+	});
+
+	it('opens the assignees picker with A for the selection the focused row is in, with the registry on', () => {
+		const { row, commands } = renderList({ canRebind: true, selected: ['t1', 't2'] });
+		fireEvent.keyDown(row('t1'), key('KeyA', 'a'));
+		expect(commands.openPicker).toHaveBeenCalledWith('assignees', ['t1', 't2'], row('t1'), 'A');
+		// A row outside the selection: that row alone.
+		fireEvent.keyDown(row('t3'), key('KeyA', 'a'));
+		expect(commands.openPicker).toHaveBeenLastCalledWith('assignees', ['t3'], row('t3'), 'A');
+	});
+
+	it('follows the key the person gave it, and no longer answers A', () => {
+		const { row, commands } = renderList({ canRebind: true, overrides: { taskAssignee: 'i' } });
+		fireEvent.keyDown(row('t1'), key('KeyA', 'a'));
+		expect(commands.openPicker).not.toHaveBeenCalled();
+		fireEvent.keyDown(row('t1'), key('KeyI', 'i'));
+		expect(commands.openPicker).toHaveBeenCalledWith('assignees', ['t1'], row('t1'), 'I');
+	});
+
+	it('leaves A alone with the registry off: the list keeps the keys it had', () => {
+		const { row, commands } = renderList({ canRebind: false });
+		fireEvent.keyDown(row('t1'), key('KeyA', 'a'));
+		expect(commands.openPicker).not.toHaveBeenCalled();
+	});
+});
