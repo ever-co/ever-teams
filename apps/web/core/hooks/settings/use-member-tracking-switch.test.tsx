@@ -25,6 +25,11 @@ jest.mock('@/core/hooks/organizations/teams/use-organization-teams-employee', ()
 jest.mock('@/core/hooks/organizations/employees/use-employee', () => ({
 	useEmployeeUpdate: () => ({ updateEmployeeAsync: mockUpdateEmployee })
 }));
+// The organization's read: the store holds what it read, `isError` says it failed
+const mockOrganizationRead = { isError: false };
+jest.mock('@/core/hooks/auth/use-current-organization', () => ({
+	useGetCurrentOrganization: () => mockOrganizationRead
+}));
 jest.mock('@/core/hooks/organizations/teams/use-edit-organization-team', () => ({
 	useEditOrganizationTeam: () => ({ editOrganizationTeam: jest.fn() })
 }));
@@ -47,7 +52,7 @@ import { useTeamMembersSettings } from './use-team-members-settings';
  */
 
 /** The organization of the team, which restricts the switch to higher roles unless a test says otherwise. */
-let organization: Record<string, unknown>;
+let organization: Record<string, unknown> | null;
 
 /**
  * A row of the team: its user's tenant role (null when it did not load), and its place in the team (the MANAGER role
@@ -157,6 +162,7 @@ beforeEach(() => {
 	mockUpdateMembership.mockResolvedValue({ affected: 1 });
 	mockUpdateEmployee.mockResolvedValue({});
 	organization = { id: 'organization-a', name: 'Acme', restrictTrackingSwitchToHigherRoles: true };
+	mockOrganizationRead.isError = false;
 });
 
 describe('Members settings: who gets the tracking switch on which row (#5015)', () => {
@@ -407,11 +413,37 @@ describe('Members settings where the organization does not restrict the switch (
 	});
 
 	it('reads an organization that does not state the setting (an older Gauzy) as not restricting it', () => {
-		organization = { ...organization };
-		delete organization.restrictTrackingSwitchToHigherRoles;
+		const olderGauzyOrganization = { ...organization };
+		delete olderGauzyOrganization.restrictTrackingSwitchToHigherRoles;
+		organization = olderGauzyOrganization;
 		signInAs('manager', ERoleName.EMPLOYEE);
 
 		expect(rowOf(renderSettings(), 'manager').showsTracking).toBe(true);
+	});
+});
+
+/** The organization says whether the ranks apply: nothing is offered or saved on a guess (#5015). */
+describe('Members settings while the organization is not known', () => {
+	it('keeps the tracking switches waiting, and saves nothing, until the organization is read', async () => {
+		organization = null;
+		signInAs('manager', ERoleName.EMPLOYEE);
+		const view = renderSettings();
+
+		expect(rowOf(view, 'member').isTrackingPending).toBe(true);
+
+		await act(() => view.result.current.setMemberTracking('row-member', false));
+
+		expect(mockUpdateMembership).not.toHaveBeenCalled();
+	});
+
+	it('keeps the ranks when the organization could not be read, which offer no switch Gauzy would refuse', () => {
+		organization = null;
+		mockOrganizationRead.isError = true;
+		signInAs('manager', ERoleName.EMPLOYEE);
+		const view = renderSettings();
+
+		expect(rowsWithSwitch(view)).toEqual(['member', 'member-off-by-admin']);
+		expect(rowOf(view, 'member').isTrackingPending).toBe(false);
 	});
 });
 
