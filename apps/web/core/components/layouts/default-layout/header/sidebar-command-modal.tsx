@@ -131,6 +131,7 @@ const ClickableCommandItem: FC<{
 	action: ShortcutAction;
 	className?: string;
 	keywords?: string[];
+	value?: string;
 }> = ({ children, action, ...props }) => {
 	const handleClick = React.useCallback(
 		(event: React.MouseEvent<HTMLDivElement>) => {
@@ -727,6 +728,7 @@ export const SidebarCommandModal: FC<{
 						key={`${group.id}-${commandIndex}`}
 						className={paletteActionRowClass}
 						keywords={command.keywords}
+						value={command.value}
 						action={() => {
 							executeAction(command.action);
 						}}

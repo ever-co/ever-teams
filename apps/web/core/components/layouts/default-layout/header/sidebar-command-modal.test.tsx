@@ -71,7 +71,9 @@ jest.mock('@/core/components/common/command', () => {
 		CommandInput: ({ value, onValueChange }: { value: string; onValueChange: (value: string) => void }) => (
 			<input aria-label="search" value={value} onChange={(event) => onValueChange(event.target.value)} />
 		),
-		CommandItem: Pass,
+		CommandItem: ({ children, value }: { children?: React.ReactNode; value?: string }) => (
+			<div data-value={value}>{children}</div>
+		),
 		CommandList: Pass,
 		CommandShortcut: Pass
 	};
@@ -376,6 +378,17 @@ describe('SidebarCommandModal with the pages of the sidebar', () => {
 		expect(screen.queryByText('common.SHOW_MORE')).toBeNull();
 		// "Show more" opens the "Go to" tab: the palette stays open.
 		expect(mockSetOpen).not.toHaveBeenCalledWith(false);
+	});
+
+	it('lists two pages that read the same, the second with a value of its own for the palette to tell them apart', () => {
+		const sprint = { title: 'Sprint', section: 'Views' };
+		const pages = [...MEMBER_PAGES, { ...sprint, url: '/views/v-1' }, { ...sprint, url: '/views/v-2' }];
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={pages} />);
+		fireEvent.click(screen.getByText('common.SHOW_MORE'));
+
+		const rows = screen.getAllByText((_, element) => readsAsRow(element, 'Views › Sprint'));
+		const values = rows.map((row) => row.parentElement?.getAttribute('data-value'));
+		expect(values).toEqual([null, 'Views › Sprint\u200B']);
 	});
 
 	it('lists every page once something is typed', () => {

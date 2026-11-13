@@ -76,7 +76,15 @@ export interface GoToRow {
 	url: string;
 	/** The registry command that leads to the same page: the row shows its keys. */
 	commandId?: string;
+	/** What the palette tells the row apart by, when it reads like an earlier row (two views with one name). */
+	value?: string;
 }
+
+/**
+ * The palette tells its rows apart by their text: a row that reads like an earlier one gets this mark, which nobody
+ * types or sees, once per earlier row, so every page stays reachable.
+ */
+const REPEATED_LABEL_MARK = '\u200B';
 
 function labelOf(page: SidebarPage): string {
 	if (!page.section) {
@@ -87,23 +95,26 @@ function labelOf(page: SidebarPage): string {
 
 /**
  * The rows of "Go to", in the order of the sidebar. A page the sidebar links twice (Time & activity, under My work
- * and under Reports) is listed once, and so is a name: the palette tells its rows apart by their text. A registry
- * command goes to the first row that leads where it leads.
+ * and under Reports) is listed once; two pages that read the same (a saved view named like another view) are both
+ * listed. A registry command goes to the first row that leads where it leads.
  */
 export function goToRowsOf(pages: readonly SidebarPage[]): GoToRow[] {
 	const rows: GoToRow[] = [];
 	const listedUrls = new Set<string>();
-	const listedLabels = new Set<string>();
+	const rowsByLabel = new Map<string, number>();
 	const givenCommands = new Set<string>();
 	for (const page of pages) {
-		const label = labelOf(page);
-		const isRepeat = listedUrls.has(page.url) || listedLabels.has(label);
-		if (isRepeat) {
+		if (listedUrls.has(page.url)) {
 			continue;
 		}
 		listedUrls.add(page.url);
-		listedLabels.add(label);
+		const label = labelOf(page);
+		const earlierRows = rowsByLabel.get(label) ?? 0;
+		rowsByLabel.set(label, earlierRows + 1);
 		const row: GoToRow = { label, title: page.title, section: page.section, url: page.url };
+		if (earlierRows > 0) {
+			row.value = `${label}${REPEATED_LABEL_MARK.repeat(earlierRows)}`;
+		}
 		const commandId = goToCommandIdOf(page.url);
 		const isCommandFree = commandId !== undefined && !givenCommands.has(commandId);
 		if (isCommandFree) {

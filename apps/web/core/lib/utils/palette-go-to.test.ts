@@ -71,12 +71,27 @@ describe('goToRowsOf', () => {
 		expect(labels).toContain('Reports › Timesheets');
 	});
 
-	it('lists a name once, so no two rows of the palette read the same', () => {
+	it('lists every page that reads like another, each later one with a value of its own for the palette', () => {
 		const rows = goToRowsOf([
 			{ title: 'Sprint', url: '/views/v-1', section: 'Views' },
-			{ title: 'Sprint', url: '/views/v-2', section: 'Views' }
+			{ title: 'Sprint', url: '/views/v-2', section: 'Views' },
+			{ title: 'Sprint', url: '/views/v-3', section: 'Views' }
 		]);
-		expect(rows).toEqual([{ label: 'Views › Sprint', title: 'Sprint', section: 'Views', url: '/views/v-1' }]);
+		expect(rows.map((row) => row.url)).toEqual(['/views/v-1', '/views/v-2', '/views/v-3']);
+		expect(rows.map((row) => row.label)).toEqual(['Views › Sprint', 'Views › Sprint', 'Views › Sprint']);
+		expect(rows[0].value).toBeUndefined();
+		expect(new Set(rows.map((row) => row.value ?? row.label)).size).toBe(3);
+	});
+
+	it('keeps a saved view named like a built-in one, beside the built-in view and its keys', () => {
+		const rows = goToRowsOf([
+			{ title: 'Overdue', url: '/views/overdue', section: 'Views' },
+			{ title: 'Overdue', url: '/views/v-9', section: 'Views' }
+		]);
+		expect(rows.map((row) => row.url)).toEqual(['/views/overdue', '/views/v-9']);
+		expect(rows[0].commandId).toBe('goOverdue');
+		expect(rows[1].commandId).toBeUndefined();
+		expect(rows[1].value).not.toBe(rows[1].label);
 	});
 
 	it('ties each row to the command that leads to its page, and a command to one row only', () => {

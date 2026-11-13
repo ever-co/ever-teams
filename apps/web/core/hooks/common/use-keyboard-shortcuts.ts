@@ -22,6 +22,8 @@ export interface CommandShortcutConfig {
 	shortcutKeys?: string[];
 	/** More words the palette finds the entry by (its binding as text: `g t`, `gt`). */
 	keywords?: string[];
+	/** What the palette tells the entry apart by in place of its text, when another entry reads the same. */
+	value?: string;
 }
 
 export interface CommandGroupConfig {

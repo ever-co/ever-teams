@@ -44,6 +44,7 @@ export function useGoToCommands(icon?: React.ReactNode, pages?: readonly Sidebar
 				section: row.section,
 				shortcutDisplay: '',
 				commandId: row.commandId,
+				value: row.value,
 				action: () => router.push(row.url),
 				icon
 			});
