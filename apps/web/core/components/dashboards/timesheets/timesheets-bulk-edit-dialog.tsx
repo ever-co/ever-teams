@@ -10,7 +10,6 @@ import {
 	modalSecondaryActionClass
 } from '@/core/components/common/modal';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { Spinner } from '@/core/components/icons';
 import { useTimesheetBulkEdit } from '@/core/hooks/dashboards/timesheets/use-timesheet-bulk-edit';
 import type { TimesheetPermissions } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
 import type { BulkEditResult } from '@/core/lib/utils/dashboards/timesheet-bulk-edit';
@@ -71,7 +70,6 @@ export function TimesheetsBulkEditDialog({
 					{t('common.CANCEL')}
 				</Button>
 				<Button type="submit" size="default" disabled={!edit.canSubmit} className={modalPrimaryActionClass}>
-					{isRunning && <Spinner className="size-4 animate-spin" />}
 					{t('dashboard.timesheets.BULK_EDIT.UPDATE', { count: edit.saveCount })}
 				</Button>
 			</div>

@@ -2,6 +2,7 @@
 
 import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { type OrbTone, ToastOrb } from '@/core/components/common/toast-orb';
+import { Spinner } from '@/core/components/icons';
 import type { BulkEditProgress } from '@/core/hooks/dashboards/timesheets/use-bulk-edit-run';
 import { cn } from '@/core/lib/helpers';
 import type {
@@ -71,7 +72,7 @@ function positionOf(progress: BulkEditProgress) {
 
 /**
  * What the edit will do, said before it is confirmed: how many entries it updates, then how many it leaves out and
- * why. While it runs, how far it is.
+ * why. While it runs, how far it is, with the run's spinner, so the Update button keeps its width.
  */
 export function TimesheetsBulkEditPreview({
 	hasChoice,
@@ -90,7 +91,8 @@ export function TimesheetsBulkEditPreview({
 	if (progress) {
 		return (
 			<div role="status" className={SUMMARY_INSET}>
-				<p className={SUMMARY_HEADLINE}>
+				<p className={cn(SUMMARY_HEADLINE, 'flex items-center gap-2')}>
+					<Spinner aria-hidden="true" className="size-3.5 shrink-0 animate-spin text-muted-foreground" />
 					{t('dashboard.timesheets.BULK_EDIT.PROGRESS', {
 						done: positionOf(progress),
 						total: progress.total

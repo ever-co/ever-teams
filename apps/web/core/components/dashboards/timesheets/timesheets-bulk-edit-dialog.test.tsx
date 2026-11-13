@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import type { TimesheetPermissions } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
 import type { BulkEditResult } from '@/core/lib/utils/dashboards/timesheet-bulk-edit';
@@ -100,7 +100,7 @@ jest.mock('@/core/components/common/multiple-select', () => ({
 jest.mock('@/core/components/features/timesheet/time-log-task-field', () => ({ TaskLine: () => null }));
 jest.mock('@/core/components/common/entity-tile', () => ({ EntityTile: () => null }));
 jest.mock('@/core/components/common/toast-orb', () => ({ ToastOrb: () => null }));
-jest.mock('@/core/components/icons', () => ({ Minus: () => null, Spinner: () => null }));
+jest.mock('@/core/components/icons', () => ({ Minus: () => null, Spinner: () => <span data-testid="spinner" /> }));
 
 import { TimesheetsBulkEditDialog } from './timesheets-bulk-edit-dialog';
 
@@ -263,6 +263,26 @@ describe('TimesheetsBulkEditDialog', () => {
 		expect(mockUpdateTimeLog).toHaveBeenCalledTimes(2);
 		expect(mockToastSuccess).toHaveBeenCalledWith('dashboard.timesheets.BULK_EDIT.UPDATED {"count":2}');
 		expect(onFinished).toHaveBeenCalledWith(expect.objectContaining({ releasedLogIds: ['a', 'b'] }));
+	});
+
+	it('keeps the Update button as it was while it runs: the spinner turns in the progress line', async () => {
+		const firstSave = pendingSave();
+		mockUpdateTimeLog.mockReturnValueOnce(firstSave.promise);
+		renderDialog([logOf('a'), logOf('b')]);
+
+		fireEvent.click(screen.getByRole('tab', { name: YES }));
+		const labelAtRest = updateButton().textContent;
+		fireEvent.click(updateButton());
+
+		await waitFor(() => expect(mockUpdateTimeLog).toHaveBeenCalledTimes(1));
+		const progressLine = screen.getByText('dashboard.timesheets.BULK_EDIT.PROGRESS {"done":1,"total":2}');
+		expect(within(progressLine).getByTestId('spinner')).toBeTruthy();
+		expect(within(updateButton()).queryByTestId('spinner')).toBeNull();
+		expect(updateButton().textContent).toBe(labelAtRest);
+
+		await act(async () => {
+			firstSave.settle();
+		});
 	});
 
 	it('stays open on its report, without a toast, when an entry was not updated', async () => {
