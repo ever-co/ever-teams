@@ -378,7 +378,7 @@ function compareCurrencyTotals(first: OwedCurrencyTotal, second: OwedCurrencyTot
 	return first.key.localeCompare(second.key);
 }
 
-export interface CurrencyFigure {
+interface CurrencyFigure {
 	employeeId: string;
 	seconds: number;
 	currency: string | null;

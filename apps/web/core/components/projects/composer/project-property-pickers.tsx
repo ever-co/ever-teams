@@ -343,7 +343,7 @@ export function ProjectTagsPicker({
 	);
 }
 
-export interface SelectedProjectClient {
+interface SelectedProjectClient {
 	id: string;
 	name: string;
 	isArchived: boolean;

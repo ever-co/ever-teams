@@ -123,8 +123,8 @@ export function filesOnlyLine(names: readonly string[], fileWord: string): strin
 }
 
 /** The largest a single picture's thumbnail is drawn, in CSS pixels (its box in the timeline). */
-export const CHAT_THUMB_MAX_WIDTH = 320;
-export const CHAT_THUMB_MAX_HEIGHT = 240;
+const CHAT_THUMB_MAX_WIDTH = 320;
+const CHAT_THUMB_MAX_HEIGHT = 240;
 
 /**
  * The box a picture's thumbnail takes before it loads, so the timeline does not jump when it does: its width, fitted

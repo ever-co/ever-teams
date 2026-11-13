@@ -139,7 +139,7 @@ export function withPreferencePatch(
 }
 
 /** What the email section says about delivery: none can go out at all (`off`), or none for the organization now. */
-export type EmailDeliveryNotice = 'off' | 'unavailable';
+type EmailDeliveryNotice = 'off' | 'unavailable';
 
 /**
  * The notice of the email section from the platform's delivery status (`GET /inbox/delivery/status`): `off` when the

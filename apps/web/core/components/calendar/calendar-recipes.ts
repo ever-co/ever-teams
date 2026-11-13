@@ -10,7 +10,7 @@ export const HOUR_HEIGHT_PX = 48;
 /** Below this height a block keeps its title and duration on one line. */
 export const COMPACT_BLOCK_HEIGHT_PX = 40;
 
-export const MIN_BLOCK_HEIGHT_PX = 18;
+const MIN_BLOCK_HEIGHT_PX = 18;
 
 /** A block shorter than half an hour has no room for resize edges: it still moves, and its menu edits it. */
 export const RESIZABLE_BLOCK_HEIGHT_PX = 24;

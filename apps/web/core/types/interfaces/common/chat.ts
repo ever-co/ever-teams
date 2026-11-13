@@ -42,7 +42,10 @@ export const CHAT_GROUP_MAX_MEMBERS = 50;
 export const CHAT_MESSAGE_MAX_ATTACHMENTS = 10;
 /** The platform's `CHAT_TYPING_TTL_MS`: how long "is typing" shows when a signal says nothing of it. */
 export const CHAT_TYPING_TTL_MS = 6000;
-/** The platform's `CHAT_TYPING_MIN_INTERVAL_MS`: one place's typing is told at most this often. */
+/**
+ * The platform's `CHAT_TYPING_MIN_INTERVAL_MS`: one place's typing is told at most this often.
+ * @public Mirrors the platform's limit next to `CHAT_TYPING_TTL_MS`; nothing in the app reads it yet.
+ */
 export const CHAT_TYPING_MIN_INTERVAL_MS = 2500;
 
 /** Mention tokens inside a body: `<@employeeId>`, `<#conversationId>`, `<!channel>`, `<!here>`. */
@@ -115,7 +118,10 @@ export interface IChatTaskReference {
 	kind: EChatTaskReferenceKind | string;
 }
 
-/** The blocks an app message (an incoming webhook's post) renders; every text is plain text. */
+/**
+ * The blocks an app message (an incoming webhook's post) renders; every text is plain text.
+ * @public Lists the block types the platform sends; nothing in the app reads it as a type yet.
+ */
 export type TChatAppBlockType = 'header' | 'section' | 'divider' | 'context' | 'actions' | 'text';
 
 /** A button of an app message: with `url` it opens that https page, otherwise a click calls the app back. */
