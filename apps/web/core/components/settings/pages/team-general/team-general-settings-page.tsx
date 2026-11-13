@@ -13,6 +13,7 @@ import { TeamTrackingSection } from './team-tracking-section';
 import { TeamDefaultProjectSection } from './team-default-project-section';
 import { TeamDangerSection } from './team-danger-section';
 import { OrganizationTrackingSection } from './organization-tracking-section';
+import { OrganizationTrackingSwitchSection } from './organization-tracking-switch-section';
 
 function TeamGeneralContent() {
 	const t = useTranslations();
@@ -64,6 +65,7 @@ function TeamGeneralContent() {
 				setRequirePlanToTrack={settings.setRequirePlanToTrack}
 			/>
 			{isOrganizationAdmin && <OrganizationTrackingSection />}
+			{isOrganizationAdmin && <OrganizationTrackingSwitchSection />}
 			<TeamDangerSection key={`danger-${team.id}`} />
 		</SettingsPage>
 	);
