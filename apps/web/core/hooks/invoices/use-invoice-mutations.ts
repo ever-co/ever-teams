@@ -17,7 +17,7 @@ import {
 	type InvoiceStatusChange,
 	type ListedInvoicesPage
 } from '@/core/lib/utils/invoice-actions';
-import { haveSameLines, type InvoiceRevision } from '@/core/lib/utils/invoice-edit';
+import { haveSameFields, haveSameLines, type InvoiceRevision } from '@/core/lib/utils/invoice-edit';
 import {
 	invoiceSaveFailureOf,
 	invoiceStatusOf,
@@ -199,6 +199,11 @@ async function putInvoiceBack(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
 	const current = await readInvoiceBack(edit.invoiceId);
 	const currentLines = current?.invoiceItems ?? [];
 	const keepsItsLines = current !== null && haveSameLines(currentLines, edit.previous.lines);
+	const keepsItsFields = current !== null && haveSameFields(current, edit.previous.update);
+	// Nothing reached the invoice, as when the network failed before the first write: there is nothing to put back.
+	if (keepsItsLines && keepsItsFields) {
+		return { status: 'notSaved' };
+	}
 	try {
 		if (!keepsItsLines) {
 			await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.previous.lines);

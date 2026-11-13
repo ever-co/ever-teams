@@ -676,6 +676,47 @@ export function haveSameLines(
 	return currentSignatures.every((signature, index) => signature === expectedSignatures[index]);
 }
 
+/** The fields of an invoice read back, as far as an edit writes them. */
+export interface WrittenInvoiceFields {
+	invoiceNumber?: number | null;
+	invoiceDate?: string | null;
+	dueDate?: string | null;
+	currency?: string | null;
+	discountValue?: number | null;
+	tax?: number | null;
+	terms?: string | null;
+	totalValue?: number | null;
+}
+
+function instantOf(date: string | null | undefined) {
+	if (!date) {
+		return Number.NaN;
+	}
+	return new Date(date).getTime();
+}
+
+function haveSameAmounts(
+	first: ReadonlyArray<number | null | undefined>,
+	second: ReadonlyArray<number | null | undefined>
+) {
+	return first.every((value, index) => hundredthsOf(value ?? 0) === hundredthsOf(second[index] ?? 0));
+}
+
+/** Whether an invoice read back states what the update writes: its number, dates, money and terms. */
+export function haveSameFields(current: WrittenInvoiceFields, update: InvoiceUpdate): boolean {
+	const sameNumber = current.invoiceNumber === update.invoiceNumber;
+	const sameIssueDate = instantOf(current.invoiceDate) === instantOf(update.invoiceDate);
+	const sameDueDate = instantOf(current.dueDate) === instantOf(update.dueDate);
+	const sameCurrency = current.currency === update.currency;
+	const sameTerms = (current.terms ?? '') === update.terms;
+	const currentFigures = [current.discountValue, current.tax, current.totalValue];
+	const updateFigures = [update.discountValue, update.tax, update.totalValue];
+	const sameMoney = haveSameAmounts(currentFigures, updateFigures);
+	const sameIdentity = sameNumber && sameCurrency && sameTerms;
+	const sameDates = sameIssueDate && sameDueDate;
+	return sameIdentity && sameDates && sameMoney;
+}
+
 /** What the screen of a saved invoice shows while it reads it. */
 export type SavedInvoiceStatus = 'loading' | 'workspaceError' | 'error' | 'missing' | 'notFromTime' | 'ready';
 

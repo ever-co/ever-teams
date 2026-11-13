@@ -1,4 +1,5 @@
 import {
+	haveSameFields,
 	haveSameLines,
 	hasInvoiceChanges,
 	invoiceChangesOf,
@@ -461,5 +462,29 @@ describe('what the screen of a saved invoice shows while it reads it', () => {
 		expect(savedInvoiceStatusOf({ ...ready, isError: true })).toBe('error');
 		expect(savedInvoiceStatusOf({ ...ready, isReadable: false })).toBe('notFromTime');
 		expect(savedInvoiceStatusOf(ready)).toBe('ready');
+	});
+});
+
+describe('whether an invoice read back states the fields an update writes', () => {
+	it('states them when its number, dates, money and terms are the same, whatever the form of each', () => {
+		const saved = readSaved();
+		const readBack = { ...savedRaw(), invoiceDate: '2026-11-01T00:00:00+01:00', discountValue: 10.0 };
+
+		expect(haveSameFields(readBack, saved.previous.update)).toBe(true);
+	});
+
+	it('does not state them once one of them changed', () => {
+		const saved = readSaved();
+
+		expect(haveSameFields({ ...savedRaw(), totalValue: 1200 }, saved.previous.update)).toBe(false);
+		expect(haveSameFields({ ...savedRaw(), dueDate: '2026-12-15T22:59:59.999Z' }, saved.previous.update)).toBe(
+			false
+		);
+		expect(
+			haveSameFields(
+				{ ...savedRaw(), terms: 'Billable time from 2026-10-01 to 2026-10-31' },
+				saved.previous.update
+			)
+		).toBe(false);
 	});
 });

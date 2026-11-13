@@ -259,10 +259,20 @@ describe('settling and deleting an invoice', () => {
 describe('saving an edit to an invoice', () => {
 	const previousLine = { description: 'Ana Lima', price: 80, quantity: 10, totalValue: 800, projectId: 'p1' };
 	const editedLine = { ...previousLine, quantity: 12, totalValue: 960 };
+	const fields = {
+		invoiceNumber: 42,
+		invoiceDate: '2026-10-31T23:00:00.000Z',
+		dueDate: '2026-11-30T22:59:59.999Z',
+		currency: 'USD',
+		discountValue: 0,
+		tax: 0,
+		terms: 'Billable time from 2026-10-01 to 2026-10-31',
+		status: 'SENT'
+	};
 	const edit = {
 		invoiceId: 'inv-42',
-		revision: { update: { invoiceNumber: 42, totalValue: 960, status: 'SENT' }, lines: [editedLine] },
-		previous: { update: { invoiceNumber: 42, totalValue: 800, status: 'SENT' }, lines: [previousLine] }
+		revision: { update: { ...fields, totalValue: 960 }, lines: [editedLine] },
+		previous: { update: { ...fields, totalValue: 800 }, lines: [previousLine] }
 	} as unknown as InvoiceEdit;
 	const sending = { invoiceId: 'inv-42', invoiceNumber: 42, email: 'billing@acme.test', marksSent: false };
 
@@ -395,8 +405,10 @@ describe('saving an edit to an invoice', () => {
 		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', edit.previous.update);
 	});
 
-	it('puts the invoice back when the answer to its fields was lost: they may have been written', async () => {
-		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
+	it('puts the invoice back when the answer to its fields was lost and they were written', async () => {
+		mockGetInvoice
+			.mockResolvedValueOnce(invoiceRead('SENT'))
+			.mockResolvedValue({ ...invoiceRead('SENT'), ...fields, totalValue: 960 });
 		mockUpdateInvoice
 			.mockRejectedValueOnce(ApiErrorService.fromAxiosError({ code: 'ERR_NETWORK', message: 'Network Error' }))
 			.mockResolvedValueOnce(undefined);
@@ -407,6 +419,21 @@ describe('saving an edit to an invoice', () => {
 		expect(saved).toEqual({ outcome: { status: 'putBack' }, sending: null });
 		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
 		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', edit.previous.update);
+	});
+
+	it('says nothing was saved when nothing reached the invoice, writing nothing back', async () => {
+		const asBefore = { ...invoiceRead('SENT'), ...fields, totalValue: 800 };
+		mockGetInvoice.mockResolvedValueOnce(invoiceRead('SENT')).mockResolvedValue(asBefore);
+		mockUpdateInvoice.mockRejectedValue(
+			ApiErrorService.fromAxiosError({ code: 'ERR_NETWORK', message: 'Network Error' })
+		);
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'notSaved' }, sending: null });
+		expect(mockUpdateInvoice).toHaveBeenCalledTimes(1);
+		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
 	});
 
 	it('says how many lines the invoice holds when it could not be put back', async () => {
