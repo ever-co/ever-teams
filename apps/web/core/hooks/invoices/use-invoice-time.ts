@@ -198,6 +198,11 @@ function periodLogsOf(logs: TBillableTimeLog[], from: Date, to: Date, readsWider
 	return logsStartedWithin(logs, from, to);
 }
 
+function offeredProjectsOf(projects: ReadonlyArray<TOrganizationProject>, projectIds: ReadonlySet<string>) {
+	const offered = projects.filter((project) => projectIds.has(project.id));
+	return projectsById(offered);
+}
+
 export function useInvoiceTime({
 	clientId,
 	period,
@@ -331,7 +336,13 @@ export function useInvoiceTime({
 		logs = offeredLogs;
 	}
 	const report = employeesQuery.data ?? NO_REPORT;
-	const entries = useMemo(() => billableEntriesOf(logs, projectIdSet), [logs, projectIdSet]);
+	// The saved lines' time stays priced and named on a project that left the client since
+	const offeredProjectIdSet = useMemo(() => new Set(allProjectIds), [allProjectIds]);
+	const offeredProjectsById = useMemo(
+		() => offeredProjectsOf(organizationProjects, offeredProjectIdSet),
+		[offeredProjectIdSet, organizationProjects]
+	);
+	const entries = useMemo(() => billableEntriesOf(logs, offeredProjectIdSet), [logs, offeredProjectIdSet]);
 	const pricedProjectIds = useMemo(() => sortedIdsOf(entries.map((entry) => entry.projectId)), [entries]);
 
 	const ratesStates = useQueries({
@@ -357,23 +368,23 @@ export function useInvoiceTime({
 			linePriceOf({
 				employeeId,
 				projectRates: ratesByProject.get(projectId),
-				projectCurrency: clientProjectsById.get(projectId)?.currency,
+				projectCurrency: offeredProjectsById.get(projectId)?.currency,
 				employeeRate: employees.get(employeeId),
 				organizationCurrency
 			}),
-		[clientProjectsById, employees, organizationCurrency, ratesByProject]
+		[employees, offeredProjectsById, organizationCurrency, ratesByProject]
 	);
 
 	const names = useMemo<InvoiceLineNames>(
 		() => ({
-			projectNames: namesOfMap(clientProjectsById, (project) => project.name?.trim() ?? ''),
+			projectNames: namesOfMap(offeredProjectsById, (project) => project.name?.trim() ?? ''),
 			memberNames: namesOfMap(employees, (employee) => employee.name),
 			taskTitles: taskTitlesOf(logs),
 			unnamedProject: labels.unnamedProject,
 			unnamedMember: labels.unnamedMember,
 			noTask: labels.noTask
 		}),
-		[clientProjectsById, employees, labels.noTask, labels.unnamedMember, labels.unnamedProject, logs]
+		[employees, labels.noTask, labels.unnamedMember, labels.unnamedProject, logs, offeredProjectsById]
 	);
 
 	const time = useMemo(() => invoiceTimeOf({ entries, grouping, priceOf }), [entries, grouping, priceOf]);

@@ -284,6 +284,10 @@ describe('the time of a saved invoice', () => {
 		mockRates.getProjectRates.mockResolvedValue(siteRates);
 	});
 
+	afterEach(() => {
+		mockProjectsQuery.organizationProjects = [siteProject];
+	});
+
 	it('reads the time its lines bill a day wider on each side: its maker read the period in their own zone', async () => {
 		answerTimeReads([], [ownAda]);
 
@@ -294,6 +298,32 @@ describe('the time of a saved invoice', () => {
 		expect(range.from).toEqual(new Date(2026, 8, 30));
 		expect(range.to).toEqual(new Date(2026, 10, 1, 23, 59, 59, 999));
 		expect(result.current.billedTimeByLine.get('line-1')).toEqual(['log-own']);
+	});
+
+	it('keeps the hours its lines bill on a project that left the client since, once the time is taken again', async () => {
+		const goneProject = {
+			id: 'project-gone',
+			name: 'Old site',
+			organizationContactId: 'client-beta',
+			currency: 'USD'
+		};
+		mockProjectsQuery.organizationProjects = [siteProject, goneProject];
+		const goneAda = {
+			...adaTime,
+			projectId: 'project-gone',
+			id: 'log-gone',
+			duration: 3600,
+			invoiceItemId: 'line-2'
+		};
+		answerTimeReads([freeAda], [freeAda, goneAda]);
+		const linesOnGoneProject = { lineIds: new Set(['line-2']), projectIds: ['project-gone'] };
+
+		const { result } = renderTimeOf({ billedLines: linesOnGoneProject });
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		const billedLogIds = result.current.lines.flatMap((line) => line.timeLogIds ?? []);
+		expect(billedLogIds).toEqual(expect.arrayContaining(['log-free', 'log-gone']));
+		expect(result.current.lines.map((line) => line.projectName)).toContain('Old site');
 	});
 
 	it('names the time each of its lines bills, without reading the free time or the rates', async () => {
