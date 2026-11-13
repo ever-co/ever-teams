@@ -5,18 +5,25 @@ import { act, renderHook } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { paidChangeOf } from '@/core/lib/utils/invoice-actions';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 
 const mockCreateInvoice = jest.fn();
 const mockSendInvoiceByEmail = jest.fn();
 const mockChangeInvoiceStatus = jest.fn();
 const mockDeleteInvoice = jest.fn();
+const mockGetInvoice = jest.fn();
+const mockUpdateInvoice = jest.fn();
+const mockReplaceInvoiceLines = jest.fn();
 
 jest.mock('@/core/services/client/api/organizations/invoice.service', () => ({
 	invoiceService: {
 		createInvoice: (...args: unknown[]) => mockCreateInvoice(...args),
 		sendInvoiceByEmail: (...args: unknown[]) => mockSendInvoiceByEmail(...args),
 		changeInvoiceStatus: (...args: unknown[]) => mockChangeInvoiceStatus(...args),
-		deleteInvoice: (...args: unknown[]) => mockDeleteInvoice(...args)
+		deleteInvoice: (...args: unknown[]) => mockDeleteInvoice(...args),
+		getInvoice: (...args: unknown[]) => mockGetInvoice(...args),
+		updateInvoice: (...args: unknown[]) => mockUpdateInvoice(...args),
+		replaceInvoiceLines: (...args: unknown[]) => mockReplaceInvoiceLines(...args)
 	}
 }));
 jest.mock('@/core/lib/helpers/cookies', () => ({
@@ -29,7 +36,9 @@ import {
 	useCreateInvoice,
 	useDeleteInvoice,
 	useSaveAndSendInvoice,
-	useSendInvoice
+	useSaveInvoiceEdit,
+	useSendInvoice,
+	type InvoiceEdit
 } from './use-invoice-mutations';
 import type { InvoiceRequest } from '@/core/lib/utils/invoices';
 
@@ -77,6 +86,9 @@ beforeEach(() => {
 	mockSendInvoiceByEmail.mockReset();
 	mockChangeInvoiceStatus.mockReset();
 	mockDeleteInvoice.mockReset();
+	mockGetInvoice.mockReset();
+	mockUpdateInvoice.mockReset();
+	mockReplaceInvoiceLines.mockReset();
 });
 
 describe('saving an invoice and the invoices already saved', () => {
@@ -241,5 +253,156 @@ describe('settling and deleting an invoice', () => {
 
 		expect(mockDeleteInvoice).toHaveBeenCalledWith('inv-1');
 		expect(listedPagesOf(queryClient)).toEqual([{ items: [], total: 0 }]);
+	});
+});
+
+describe('saving an edit to an invoice', () => {
+	const previousLine = { description: 'Ana Lima', price: 80, quantity: 10, totalValue: 800, projectId: 'p1' };
+	const editedLine = { ...previousLine, quantity: 12, totalValue: 960 };
+	const edit = {
+		invoiceId: 'inv-42',
+		revision: { update: { invoiceNumber: 42, totalValue: 960 }, lines: [editedLine] },
+		previous: { update: { invoiceNumber: 42, totalValue: 800 }, lines: [previousLine] }
+	} as unknown as InvoiceEdit;
+
+	function serverFailure() {
+		return ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code 500',
+			status: 500,
+			response: { data: {}, headers: {}, status: 500, statusText: 'Internal Server Error' }
+		});
+	}
+
+	function refusal() {
+		return ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code 400',
+			status: 400,
+			response: { data: {}, headers: {}, status: 400, statusText: 'Bad Request' }
+		});
+	}
+
+	function renderSaveEdit() {
+		const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+		const invalidateQueries = jest.spyOn(queryClient, 'invalidateQueries');
+		const rendered = renderWith(queryClient, () => useSaveInvoiceEdit());
+		return { ...rendered, invalidateQueries };
+	}
+
+	async function saveWith(result: { current: ReturnType<typeof useSaveInvoiceEdit> }, sending = null) {
+		let saved: unknown = null;
+		await act(async () => {
+			saved = await result.current.saveInvoiceEdit({ edit, sending });
+		});
+		return saved;
+	}
+
+	it('writes the invoice’s fields, then its lines, and reads the invoices again', async () => {
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockResolvedValue(undefined);
+		const { result, invalidateQueries } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'saved' }, sending: null });
+		expect(mockUpdateInvoice).toHaveBeenCalledWith('inv-42', edit.revision.update);
+		expect(mockReplaceInvoiceLines).toHaveBeenCalledWith('inv-42', edit.revision.lines);
+		expect(mockUpdateInvoice.mock.invocationCallOrder[0]).toBeLessThan(
+			mockReplaceInvoiceLines.mock.invocationCallOrder[0]
+		);
+		expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['invoices'] });
+	});
+
+	it('changes nothing more when the API refuses the fields: its lines are never touched', async () => {
+		mockUpdateInvoice.mockRejectedValue(refusal());
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'notSaved' }, sending: null });
+		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
+		expect(mockGetInvoice).not.toHaveBeenCalled();
+	});
+
+	it('puts its lines back first when they were deleted and not saved, then its fields', async () => {
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockRejectedValueOnce(serverFailure()).mockResolvedValueOnce(undefined);
+		mockGetInvoice.mockResolvedValue({ id: 'inv-42', invoiceItems: [] });
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'putBack' }, sending: null });
+		expect(mockReplaceInvoiceLines).toHaveBeenLastCalledWith('inv-42', edit.previous.lines);
+		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', edit.previous.update);
+		expect(mockReplaceInvoiceLines.mock.invocationCallOrder[1]).toBeLessThan(
+			mockUpdateInvoice.mock.invocationCallOrder[1]
+		);
+	});
+
+	it('leaves the lines the invoice still holds and puts back its fields only', async () => {
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockRejectedValue(refusal());
+		mockGetInvoice.mockResolvedValue({ id: 'inv-42', invoiceItems: [{ id: 'item-1', ...previousLine }] });
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'putBack' }, sending: null });
+		expect(mockReplaceInvoiceLines).toHaveBeenCalledTimes(1);
+		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', edit.previous.update);
+	});
+
+	it('puts the invoice back when the answer to its fields was lost: they may have been written', async () => {
+		mockUpdateInvoice
+			.mockRejectedValueOnce(ApiErrorService.fromAxiosError({ code: 'ERR_NETWORK', message: 'Network Error' }))
+			.mockResolvedValueOnce(undefined);
+		mockGetInvoice.mockResolvedValue({ id: 'inv-42', invoiceItems: [{ id: 'item-1', ...previousLine }] });
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'putBack' }, sending: null });
+		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
+		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', edit.previous.update);
+	});
+
+	it('says how many lines the invoice holds when it could not be put back', async () => {
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockRejectedValue(serverFailure());
+		mockGetInvoice.mockResolvedValue({ id: 'inv-42', invoiceItems: [] });
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'notPutBack', lineCount: 0 }, sending: null });
+	});
+
+	it('sends the invoice once saved, keeping an invoice already sent in its status', async () => {
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockResolvedValue(undefined);
+		mockSendInvoiceByEmail.mockResolvedValue(undefined);
+		const sending = { invoiceId: 'inv-42', invoiceNumber: 42, email: 'billing@acme.test', marksSent: false };
+		const { result } = renderSaveEdit();
+
+		let saved: unknown = null;
+		await act(async () => {
+			saved = await result.current.saveInvoiceEdit({ edit, sending });
+		});
+
+		expect(saved).toEqual({ outcome: { status: 'saved' }, sending: 'sent' });
+		expect(mockSendInvoiceByEmail).toHaveBeenCalledWith(sending);
+		expect(mockChangeInvoiceStatus).not.toHaveBeenCalled();
+	});
+
+	it('sends nothing when the edit was not saved', async () => {
+		mockUpdateInvoice.mockRejectedValue(refusal());
+		const sending = { invoiceId: 'inv-42', invoiceNumber: 42, email: 'billing@acme.test', marksSent: false };
+		const { result } = renderSaveEdit();
+
+		await act(async () => {
+			await result.current.saveInvoiceEdit({ edit, sending });
+		});
+
+		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
 	});
 });

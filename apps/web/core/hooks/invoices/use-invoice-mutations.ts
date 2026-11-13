@@ -16,8 +16,9 @@ import {
 	type InvoiceStatusChange,
 	type ListedInvoicesPage
 } from '@/core/lib/utils/invoice-actions';
-import type { InvoiceRequest, InvoiceStatus } from '@/core/lib/utils/invoices';
-import type { TInvoice } from '@/core/types/schemas/organization/invoice.schema';
+import { haveSameLines, type InvoiceRevision } from '@/core/lib/utils/invoice-edit';
+import { invoiceSaveFailureOf, type InvoiceRequest, type InvoiceStatus } from '@/core/lib/utils/invoices';
+import type { TInvoice, TSavedInvoice } from '@/core/types/schemas/organization/invoice.schema';
 
 export function useCreateInvoice() {
 	const queryClient = useQueryClient();
@@ -147,6 +148,112 @@ export function useSaveAndSendInvoice() {
 		meta: { handlesOwnError: true }
 	});
 	return { saveAndSendInvoice: mutation.mutateAsync, isSavingAndSending: mutation.isPending };
+}
+
+/** An edit to save: what it writes, and the invoice as it was read, to write back if the edit fails half way. */
+export interface InvoiceEdit {
+	invoiceId: string;
+	revision: InvoiceRevision;
+	previous: InvoiceRevision;
+}
+
+export type InvoiceEditOutcome =
+	| { status: 'saved' }
+	/** The API refused the edit before writing anything. */
+	| { status: 'notSaved' }
+	/** Written in part, then written back as it was. */
+	| { status: 'putBack' }
+	/** Written in part and not written back: the invoice holds `lineCount` lines, null when it could not be read. */
+	| { status: 'notPutBack'; lineCount: number | null };
+
+async function readInvoiceBack(invoiceId: string): Promise<TSavedInvoice | null> {
+	try {
+		return await invoiceService.getInvoice(invoiceId);
+	} catch {
+		return null;
+	}
+}
+
+function lineCountOf(invoice: TSavedInvoice | null): number | null {
+	if (!invoice) {
+		return null;
+	}
+	return invoice.invoiceItems?.length ?? 0;
+}
+
+/**
+ * Writes the invoice back as it was read: its lines first, and only when they changed, since the API deletes the
+ * lines before it saves the new ones and a failure between the two leaves none.
+ */
+async function putInvoiceBack(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
+	const current = await readInvoiceBack(edit.invoiceId);
+	const currentLines = current?.invoiceItems ?? [];
+	const keepsItsLines = current !== null && haveSameLines(currentLines, edit.previous.lines);
+	try {
+		if (!keepsItsLines) {
+			await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.previous.lines);
+		}
+		await invoiceService.updateInvoice(edit.invoiceId, edit.previous.update);
+		return { status: 'putBack' };
+	} catch {
+		const now = await readInvoiceBack(edit.invoiceId);
+		return { status: 'notPutBack', lineCount: lineCountOf(now) };
+	}
+}
+
+/**
+ * Saves an edit in the two writes the API offers: the invoice's own fields, then its lines. A refusal of the first
+ * changes nothing; any other failure writes the invoice back as it was read.
+ */
+async function saveInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
+	try {
+		await invoiceService.updateInvoice(edit.invoiceId, edit.revision.update);
+	} catch (error) {
+		const isRefused = invoiceSaveFailureOf(error) === 'refused';
+		if (isRefused) {
+			return { status: 'notSaved' };
+		}
+		return putInvoiceBack(edit);
+	}
+	try {
+		await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.revision.lines);
+	} catch {
+		return putInvoiceBack(edit);
+	}
+	return { status: 'saved' };
+}
+
+export interface InvoiceEditToSave {
+	edit: InvoiceEdit;
+	/** Where the invoice goes once saved; null saves it only. */
+	sending: InvoiceToSend | null;
+}
+
+export interface SavedInvoiceEdit {
+	outcome: InvoiceEditOutcome;
+	/** What the sending did, when the edit was saved and was to be sent. */
+	sending: SaveAndSendOutcome | null;
+}
+
+/** A refused sending leaves the edit saved: it is reported, never thrown. */
+async function saveAndSendInvoiceEdit({ edit, sending }: InvoiceEditToSave): Promise<SavedInvoiceEdit> {
+	const outcome = await saveInvoiceEdit(edit);
+	const isSaved = outcome.status === 'saved';
+	if (!isSaved || !sending) {
+		return { outcome, sending: null };
+	}
+	const sendingOutcome = await sendSavedInvoice(sending);
+	return { outcome, sending: sendingOutcome };
+}
+
+export function useSaveInvoiceEdit() {
+	const queryClient = useQueryClient();
+	const mutation = useMutation({
+		mutationFn: saveAndSendInvoiceEdit,
+		onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all }),
+		meta: { handlesOwnError: true }
+	});
+	return { saveInvoiceEdit: mutation.mutateAsync, isSavingEdit: mutation.isPending };
 }
 
 export interface InvoiceStatusChangeRequest {
