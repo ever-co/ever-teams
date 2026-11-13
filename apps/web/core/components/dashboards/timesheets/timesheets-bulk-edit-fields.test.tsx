@@ -61,6 +61,11 @@ function pickerTexts() {
 	return pickers.map((picker) => picker.textContent);
 }
 
+/** The width cap of an option, read from the option the field shows: the list draws its options the same way. */
+function widthCapOf(text: string) {
+	return screen.getByText(text).closest('[class*="max-w-[calc(var(--anchor-width)-3rem)]"]');
+}
+
 describe('TimesheetsBulkEditFields', () => {
 	it('rests on Keep as is in the project and the task pickers', () => {
 		render(<TimesheetsBulkEditFields fields={fieldsOf({})} isDisabled={false} />);
@@ -76,6 +81,17 @@ describe('TimesheetsBulkEditFields', () => {
 		render(<TimesheetsBulkEditFields fields={fields} isDisabled={false} />);
 
 		expect(pickerTexts()).toEqual(['Site', 'Landing page']);
+	});
+
+	it('keeps the project and task options within the width of their field', () => {
+		const fields = fieldsOf({
+			project: { pickedId: 'project-site' },
+			task: { pickedId: 'task-landing', pickedTask: landingPage }
+		});
+		render(<TimesheetsBulkEditFields fields={fields} isDisabled={false} />);
+
+		expect(widthCapOf('Site')).not.toBeNull();
+		expect(widthCapOf('Landing page')).not.toBeNull();
 	});
 
 	it('says that the projects are loading, then that they could not load with a way to try again', () => {

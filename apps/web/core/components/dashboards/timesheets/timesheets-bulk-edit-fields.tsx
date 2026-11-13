@@ -30,6 +30,9 @@ const FIELD_STATE = 'flex min-h-9 items-center gap-2 text-[13px] text-muted-fore
 /** The segments share the row, so the control lines up with the pickers above it. */
 const BILLABLE_SEGMENTS = 'flex w-full [&>[data-segment]]:flex-1';
 
+/** The field's width less the list's and the row's padding: a long name is cut instead of widening the list. */
+const LIST_OPTION = 'block max-w-[calc(var(--anchor-width)-3rem)]';
+
 type BillableOption = 'keep' | 'yes' | 'no';
 
 function billableOptionOf(value: boolean | null): BillableOption {
@@ -93,14 +96,22 @@ function renderProjectOption(option: TOrganizationProject | KeepOption) {
 	if (isKeepOption(option)) {
 		return <KeepLine />;
 	}
-	return <ProjectLine project={option} />;
+	return (
+		<span className={LIST_OPTION}>
+			<ProjectLine project={option} />
+		</span>
+	);
 }
 
 function renderTaskOption(option: TTask | KeepOption) {
 	if (isKeepOption(option)) {
 		return <KeepLine />;
 	}
-	return <TaskLine task={option} />;
+	return (
+		<span className={LIST_OPTION}>
+			<TaskLine task={option} />
+		</span>
+	);
 }
 
 function Field({ label, children }: Readonly<{ label: string; children: ReactNode }>) {
