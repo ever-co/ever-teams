@@ -665,6 +665,8 @@ export interface WrittenInvoiceLine {
 	projectId?: string | null;
 	employeeId?: string | null;
 	taskId?: string | null;
+	applyTax?: boolean | null;
+	applyDiscount?: boolean | null;
 }
 
 function lineSignatureOf(line: WrittenInvoiceLine) {
@@ -675,7 +677,9 @@ function lineSignatureOf(line: WrittenInvoiceLine) {
 		(line.description ?? '').trim(),
 		hundredthsOf(line.quantity ?? 0),
 		hundredthsOf(line.price ?? 0),
-		hundredthsOf(line.totalValue ?? 0)
+		hundredthsOf(line.totalValue ?? 0),
+		line.applyTax ?? false,
+		line.applyDiscount ?? false
 	];
 	return parts.join('|');
 }

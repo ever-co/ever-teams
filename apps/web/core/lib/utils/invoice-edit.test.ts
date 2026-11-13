@@ -440,6 +440,22 @@ describe('whether an invoice read back holds the lines written', () => {
 		expect(haveSameLines([], written)).toBe(false);
 		expect(haveSameLines([item({ description: 'Ana Lima' }), item({ projectId: 'p2' })], written)).toBe(false);
 	});
+
+	it('does not hold them when only a line’s tax or discount flag differs, a missing flag being off', () => {
+		const app = item({
+			description: 'App',
+			projectId: 'p2',
+			employeeId: null,
+			price: 100,
+			quantity: 5,
+			totalValue: 500
+		});
+		const ana = item({ description: 'Ana Lima' });
+
+		expect(haveSameLines([app, { ...ana, applyTax: false }], written)).toBe(false);
+		expect(haveSameLines([app, { ...ana, applyDiscount: true }], written)).toBe(false);
+		expect(haveSameLines([app, { ...ana, applyDiscount: null }], written)).toBe(true);
+	});
 });
 
 describe('what the screen of a saved invoice shows while it reads it', () => {
