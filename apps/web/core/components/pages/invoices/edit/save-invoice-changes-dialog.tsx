@@ -32,7 +32,7 @@ const NOT_SENT_TOAST_MS = 10_000;
 function useChangeRows(changes: InvoiceChanges, currency: string | null): ProjectConsequence[] {
 	const t = useTranslations();
 	const locale = useLocale();
-	const amountText = (amount: number) => formatOwed(amount, currency, locale);
+	const amountText = (amount: number, amountCurrency: string | null) => formatOwed(amount, amountCurrency, locale);
 	const dayText = (day: string) => invoiceDayTextOf(day, locale) ?? day;
 	const percentText = (percent: number) => formatPercent(percent, locale);
 	const rows: ProjectConsequence[] = [];
@@ -53,8 +53,9 @@ function useChangeRows(changes: InvoiceChanges, currency: string | null): Projec
 		rows.push({ key: 'descriptions', icon: <Pencil />, text });
 	}
 	if (changes.total) {
-		const total = amountText(changes.total.after);
-		const before = amountText(changes.total.before);
+		const beforeCurrency = changes.currency?.before ?? currency;
+		const total = amountText(changes.total.after, currency);
+		const before = amountText(changes.total.before, beforeCurrency);
 		const text = t('invoices.edit.confirm.TOTAL', { total, before });
 		rows.push({ key: 'total', icon: <Invoice />, text });
 	}
