@@ -25,6 +25,21 @@ describe('the workspace entry of Settings (#5087)', () => {
 	});
 });
 
+describe('the API tokens entry of Settings (#5209)', () => {
+	it('closes the account group, for every member', () => {
+		const forMembers = entriesOfGroup('account', false).map((entry) => entry.id);
+		const forManagers = entriesOfGroup('account', true).map((entry) => entry.id);
+
+		expect(forMembers).toEqual(['profile', 'preferences', 'workingHours', 'notifications', 'apiTokens']);
+		expect(forManagers).toEqual(forMembers);
+	});
+
+	it('is the current entry of its own page, not of the profile above it', () => {
+		expect(activeSettingsEntry('/settings/personal/api-tokens')?.id).toBe('apiTokens');
+		expect(activeSettingsEntry('/settings/personal')?.id).toBe('profile');
+	});
+});
+
 function teamEntryIds(canManageTeam: boolean) {
 	const entries = entriesOfGroup('team', canManageTeam);
 	return entries.map((entry) => entry.id);

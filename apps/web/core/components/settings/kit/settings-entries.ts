@@ -6,6 +6,7 @@ import {
 	FileImport,
 	FlagPriority,
 	Integration,
+	Key,
 	Layers,
 	Preferences,
 	Ruler,
@@ -27,6 +28,7 @@ export type SettingsEntryId =
 	| 'preferences'
 	| 'workingHours'
 	| 'notifications'
+	| 'apiTokens'
 	| 'workspaceGeneral'
 	| 'teamGeneral'
 	| 'members'
@@ -60,6 +62,8 @@ export const SETTINGS_ENTRIES: ReadonlyArray<SettingsEntry> = [
 	{ id: 'preferences', group: 'account', href: '/settings/personal/preferences', icon: Preferences },
 	{ id: 'workingHours', group: 'account', href: '/settings/personal/working-hours', icon: Clock },
 	{ id: 'notifications', group: 'account', href: '/settings/personal/notifications', icon: Bell },
+	// Offered only while the server has personal API tokens on: `useHiddenSettingsEntries` hides it otherwise.
+	{ id: 'apiTokens', group: 'account', href: '/settings/personal/api-tokens', icon: Key },
 	{ id: 'workspaceGeneral', group: 'workspace', href: '/settings/workspace', icon: Building },
 	{ id: 'teamGeneral', group: 'team', href: '/settings/team', icon: Settings },
 	{ id: 'members', group: 'team', href: '/settings/team/members', icon: Users, managerOnly: true },
