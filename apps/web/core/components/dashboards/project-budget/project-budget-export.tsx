@@ -274,5 +274,5 @@ export function useProjectBudgetExportOptions({
 				}
 			}
 		];
-	}, [figures, groups, locale, period, scope, t, totals]);
+	}, [costNoteKey, figures, groups, locale, period, scope, t, totals]);
 }
