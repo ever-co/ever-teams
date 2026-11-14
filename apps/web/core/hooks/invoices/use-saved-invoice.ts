@@ -45,5 +45,15 @@ export function useSavedInvoice(invoiceId: string | null) {
 		void refetchInvoice();
 	}, [refetchInvoice, refetchOrganization]);
 
-	return { status, saved, number: invoice?.invoiceNumber ?? null, isRefreshing: read.isRefreshing, retry };
+	return {
+		status,
+		saved,
+		number: invoice?.invoiceNumber ?? null,
+		isRefreshing: read.isRefreshing,
+		/** When the invoice held was read; one kept from an earlier visit was read before this one began. */
+		readAt: read.readAt,
+		/** The last read failed, though the invoice of an earlier one may still be held. */
+		hasReadFailed: read.isError,
+		retry
+	};
 }

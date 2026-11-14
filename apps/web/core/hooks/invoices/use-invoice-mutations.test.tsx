@@ -287,9 +287,20 @@ describe('sending an invoice to its client', () => {
 		expect(listedStatusOf(queryClient)).toBe('DRAFT');
 	});
 
+	it('sends nothing when the invoice cannot be read before the e-mail', async () => {
+		mockGetInvoiceStatus.mockRejectedValue(new Error('Network Error'));
+		const { result } = renderWith(clientWithDraftListed(), () => useSendInvoice());
+
+		await act(async () => {
+			await expect(result.current.sendInvoice(draftToSend)).rejects.toThrow();
+		});
+
+		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
+	});
+
 	it('marks nothing when the invoice cannot be read again after the e-mail, and says so', async () => {
 		mockSendInvoiceByEmail.mockResolvedValue(undefined);
-		mockGetInvoiceStatus.mockRejectedValue(new Error('Network Error'));
+		mockGetInvoiceStatus.mockResolvedValueOnce('DRAFT').mockRejectedValue(new Error('Network Error'));
 		const queryClient = clientWithDraftListed();
 		const { result } = renderWith(queryClient, () => useSendInvoice());
 
@@ -351,6 +362,20 @@ describe('settling and deleting an invoice', () => {
 		await waitFor(() => expect(result.current.changingIds.size).toBe(0));
 	});
 
+	it('e-mails nothing once the invoice was voided while its dialog was open', async () => {
+		mockGetInvoiceStatus.mockResolvedValue('VOID');
+		const queryClient = clientWithDraftListed();
+		const { result } = renderWith(queryClient, () => useSendInvoice());
+
+		await act(async () => {
+			await expect(result.current.sendInvoice(draftToSend)).rejects.toMatchObject({ status: 409 });
+		});
+
+		// An e-mail cannot be taken back: the status is read before anything is sent
+		expect(mockGetInvoiceStatus).toHaveBeenCalledWith('inv-1', LIST_SCOPE);
+		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
+	});
+
 	it('takes a deleted draft out of the list at once', async () => {
 		mockDeleteInvoice.mockResolvedValue(undefined);
 		const queryClient = clientWithDraftListed();
@@ -362,6 +387,56 @@ describe('settling and deleting an invoice', () => {
 
 		expect(mockDeleteInvoice).toHaveBeenCalledWith('inv-1', LIST_SCOPE);
 		expect(listedPagesOf(queryClient)).toEqual([{ items: [], total: 0 }]);
+	});
+
+	it.each(['SENT', 'FULLY_PAID'])(
+		'deletes nothing once the draft became %s while its dialog was open',
+		async (status) => {
+			mockGetInvoiceStatus.mockResolvedValue(status);
+			const queryClient = clientWithDraftListed();
+			const { result } = renderWith(queryClient, () => useDeleteInvoice());
+
+			await act(async () => {
+				await expect(
+					result.current.deleteInvoice({ invoiceId: 'inv-1', scope: LIST_SCOPE })
+				).rejects.toMatchObject({
+					status: 409
+				});
+			});
+
+			expect(mockGetInvoiceStatus).toHaveBeenCalledWith('inv-1', LIST_SCOPE);
+			expect(mockDeleteInvoice).not.toHaveBeenCalled();
+			expect(listedStatusOf(queryClient)).toBe('DRAFT');
+		}
+	);
+
+	it('deletes nothing when another tab switched the workspace while the invoice was read', async () => {
+		mockGetInvoiceStatus.mockImplementation(async () => {
+			mockCookieScope.organizationId = 'organization-2';
+			return 'DRAFT';
+		});
+		const { result } = renderWith(clientWithDraftListed(), () => useDeleteInvoice());
+
+		await act(async () => {
+			await expect(result.current.deleteInvoice({ invoiceId: 'inv-1', scope: LIST_SCOPE })).rejects.toThrow();
+		});
+
+		expect(mockDeleteInvoice).not.toHaveBeenCalled();
+	});
+
+	it('voids nothing once the invoice was paid while its dialog was open', async () => {
+		mockGetInvoiceStatus.mockResolvedValue('FULLY_PAID');
+		const queryClient = clientWithDraftListed();
+		const { result } = renderWith(queryClient, () => useChangeInvoiceStatus());
+
+		await act(async () => {
+			await expect(
+				result.current.changeStatus({ invoiceId: 'inv-1', change: { status: 'VOID' }, scope: LIST_SCOPE })
+			).rejects.toMatchObject({ status: 409 });
+		});
+
+		expect(mockChangeInvoiceStatus).not.toHaveBeenCalled();
+		expect(listedStatusOf(queryClient)).toBe('DRAFT');
 	});
 });
 
@@ -477,6 +552,23 @@ describe('voiding a paid invoice to replace it', () => {
 			{ id: 'item-1', description: 'Ana Lima', price: 80, quantity: 10, totalValue: 800, projectId: 'p1' }
 		]
 	};
+
+	it.each(['SENT', 'VOID'])('voids nothing once the invoice became %s while its dialog was open', async (status) => {
+		mockGetInvoice.mockResolvedValue({ ...paidInvoice, status });
+		const queryClient = clientWithDraftListed();
+		const { result } = renderWith(queryClient, () => useVoidToReplace());
+
+		await act(async () => {
+			await expect(result.current.voidToReplace({ invoiceId: 'inv-1', scope: LIST_SCOPE })).rejects.toMatchObject(
+				{
+					status: 409
+				}
+			);
+		});
+
+		expect(mockChangeInvoiceStatus).not.toHaveBeenCalled();
+		expect(listedStatusOf(queryClient)).toBe('DRAFT');
+	});
 
 	it('reads it whole, then voids it, and the list shows it at once', async () => {
 		mockGetInvoice.mockResolvedValue(paidInvoice);
@@ -691,6 +783,26 @@ describe('saving an edit to an invoice', () => {
 		const saved = await saveWith(result);
 
 		expect(saved).toEqual({ outcome: { status: 'locked' }, sending: null });
+		expect(queryClient.getQueryState(editorRead)?.isInvalidated).toBe(false);
+		expect(queryClient.getQueryState(LIST_KEY)?.isInvalidated).toBe(true);
+	});
+
+	it('leaves the editor’s own read for its dialog to close when the invoice was paid while its lines were refused', async () => {
+		mockGetInvoice
+			.mockResolvedValueOnce(invoiceRead('SENT'))
+			.mockResolvedValue({ ...invoiceRead('FULLY_PAID', []), totalValue: 960 });
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockRejectedValue(serverFailure());
+		const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+		const editorRead = queryKeys.invoices.detail('tenant-1', 'organization-1', 'inv-42');
+		queryClient.setQueryData(editorRead, invoiceRead('SENT'));
+		queryClient.setQueryData(LIST_KEY, { pages: [], pageParams: [1] });
+		const { result } = renderWith(queryClient, () => useSaveInvoiceEdit());
+
+		const saved = await saveWith(result);
+
+		// Read now, the paid invoice would replace the editor, and the dialog saying its lines may be gone with it
+		expect(saved).toEqual({ outcome: { status: 'notPutBack', lineCount: 0 }, sending: null });
 		expect(queryClient.getQueryState(editorRead)?.isInvalidated).toBe(false);
 		expect(queryClient.getQueryState(LIST_KEY)?.isInvalidated).toBe(true);
 	});

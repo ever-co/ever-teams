@@ -32,6 +32,7 @@ import {
 	unpaidChangeOf,
 	VOID_CHANGE,
 	type InvoiceAction,
+	type InvoiceRevisingAction,
 	type InvoiceStatusChange,
 	type ListedInvoicesPage
 } from '@/core/lib/utils/invoice-actions';
@@ -165,6 +166,8 @@ async function markSentWhileDraft(invoiceId: string, workspace: InvoicesScope): 
 
 async function sendAndMarkSent(target: InvoiceToSend): Promise<InvoiceSending> {
 	const workspace = workspaceToActIn(target.scope);
+	// An e-mail cannot be taken back: an invoice voided since the dialog opened is never sent
+	await assertActionOffered(target.invoiceId, 'send', workspace);
 	await invoiceService.sendInvoiceByEmail(target, workspace);
 	if (!target.marksSent) {
 		return { outcome: 'sent', isMarkedSent: false };
@@ -581,12 +584,13 @@ async function saveAndSendInvoiceEdit({ edit, sending }: InvoiceEditToSave): Pro
 }
 
 /**
- * Reads the invoices again after an edit. A refusal because the invoice was paid or voided since it was opened leaves
- * the editor's own read alone: its answer would replace the editor, and the refusal with it, before it is read.
+ * Reads the invoices again after an edit. A save that did not go through leaves the editor's own read alone: its
+ * answer could replace the editor (an invoice paid or voided meanwhile turns into the locked message), and the dialog
+ * saying what happened to the invoice with it, before that is read. The editor reads it again once the dialog closes.
  */
 function readInvoicesAfterEdit(queryClient: QueryClient, edit: InvoiceEdit, saved: SavedInvoiceEdit | undefined) {
-	const isLocked = saved?.outcome.status === 'locked';
-	if (!isLocked) {
+	const hasFailed = saved !== undefined && saved.outcome.status !== 'saved';
+	if (!hasFailed) {
 		return queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all });
 	}
 	const editorRead = queryKeys.invoices.detail(edit.scope.tenantId, edit.scope.organizationId, edit.invoiceId);
@@ -628,10 +632,34 @@ class InvoiceActionWithdrawnError extends Error {
 	/** Read as a conflict: someone changed the invoice at the same time. */
 	readonly status = 409;
 
-	constructor(action: InvoicePaymentAction) {
+	constructor(action: InvoiceAction | InvoiceRevisingAction) {
 		super(`The invoice's current status no longer offers ${action}`);
 		this.name = 'InvoiceActionWithdrawnError';
 	}
+}
+
+/**
+ * Refuses an action the invoice's current status no longer offers: a list or a dialog acts on the status it read, and
+ * the invoice may have been sent, paid or voided since. Nothing is written once another tab switched the workspace
+ * while the invoice was read.
+ */
+async function assertActionOffered(invoiceId: string, action: InvoiceAction, workspace: InvoicesScope) {
+	const currentStatus = await invoiceService.getInvoiceStatus(invoiceId, workspace);
+	const isOffered = invoiceActionsOf(invoiceStatusOf(currentStatus)).includes(action);
+	if (!isOffered) {
+		throw new InvoiceActionWithdrawnError(action);
+	}
+	if (!isChosenWorkspace(workspace)) {
+		throw new Error(WORKSPACE_SWITCHED);
+	}
+}
+
+/** The action a fixed change makes when the invoice's status must still offer it: Void, once paid, is refused. */
+function actionOfFixedChange(change: InvoiceStatusChange): InvoiceAction | null {
+	if (change.status === 'VOID') {
+		return 'void';
+	}
+	return null;
 }
 
 /**
@@ -659,6 +687,10 @@ async function currentPaymentChangeOf(
 async function changeStatusInItsWorkspace(request: InvoiceStatusChangeRequest): Promise<InvoiceStatusChange> {
 	const workspace = workspaceToActIn(request.scope);
 	if ('change' in request) {
+		const action = actionOfFixedChange(request.change);
+		if (action) {
+			await assertActionOffered(request.invoiceId, action, workspace);
+		}
 		await invoiceService.changeInvoiceStatus(request.invoiceId, request.change, workspace);
 		return request.change;
 	}
@@ -704,6 +736,11 @@ interface InvoiceToReplace {
 async function voidToReplace({ invoiceId, scope }: InvoiceToReplace): Promise<VoidToReplaceOutcome> {
 	const readScope = workspaceToActIn(scope);
 	const invoice = await invoiceService.getInvoice(invoiceId, { tenantId: readScope.tenantId });
+	// Marked unpaid or voided since the dialog opened, it is no longer one to void and replace
+	const isStillReplaceable = invoiceRevisionsOf(invoiceStatusOf(invoice.status)).includes('voidAndReplace');
+	if (!isStillReplaceable) {
+		throw new InvoiceActionWithdrawnError('voidAndReplace');
+	}
 	if (!isRebuildableInvoice(invoice)) {
 		return 'notRebuildable';
 	}
@@ -736,8 +773,10 @@ interface InvoiceToDelete {
 	scope: ReadWorkspace;
 }
 
+/** Only a draft is deleted: one sent or paid since the dialog opened is refused before any request deletes it. */
 async function deleteInItsWorkspace({ invoiceId, scope }: InvoiceToDelete) {
 	const workspace = workspaceToActIn(scope);
+	await assertActionOffered(invoiceId, 'delete', workspace);
 	await invoiceService.deleteInvoice(invoiceId, workspace);
 }
 
