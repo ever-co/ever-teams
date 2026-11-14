@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
 import { useGetCurrentOrganization } from '@/core/hooks/auth/use-current-organization';
+import { trackTimerCommand } from '@/core/hooks/timer/use-timer-api';
 import { queryKeys } from '@/core/query/keys';
 import { timerService } from '@/core/services/client/api/timers/timer.service';
 import { timerStatusState } from '@/core/stores';
@@ -98,7 +99,8 @@ export function useTimerDiscard() {
 		setDiscarding(true);
 		setFailure(null);
 		try {
-			const { data } = await timerService.discardTimer({ timeLogId });
+			// A timer command: a status read sent before it (a heartbeat) cannot put the discarded run back on screen
+			const { data } = await trackTimerCommand(timerService.discardTimer({ timeLogId }));
 			if (data) {
 				setTimerStatus(data);
 			}

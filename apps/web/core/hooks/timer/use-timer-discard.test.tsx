@@ -16,6 +16,10 @@ const mockReadOrganization = jest.fn();
 jest.mock('@/core/services/client/api/timers/timer.service', () => ({
 	timerService: { discardTimer: (...args: unknown[]) => mockDiscardTimer(...args) }
 }));
+const mockTrackTimerCommand = jest.fn(<T,>(request: Promise<T>) => request);
+jest.mock('@/core/hooks/timer/use-timer-api', () => ({
+	trackTimerCommand: <T,>(request: Promise<T>) => mockTrackTimerCommand(request)
+}));
 jest.mock('@/core/hooks/auth/use-current-organization', () => ({
 	useGetCurrentOrganization: (...args: unknown[]) => mockReadOrganization(...args)
 }));
@@ -54,6 +58,7 @@ function renderDiscard(organization: Record<string, unknown> | null) {
 beforeEach(() => {
 	jest.useFakeTimers({ now: START + 60_000, doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask'] });
 	mockDiscardTimer.mockReset();
+	mockTrackTimerCommand.mockClear();
 	mockToastSuccess.mockReset();
 	mockReadOrganization.mockReset();
 	mockReadOrganization.mockReturnValue({ isError: false, refetch: jest.fn() });
@@ -101,6 +106,9 @@ describe('useTimerDiscard', () => {
 
 		expect(discarded).toBe(true);
 		expect(mockDiscardTimer).toHaveBeenCalledWith({ timeLogId: 'log-1' });
+		// Tracked as a timer command, so an older status read cannot put the run back
+		expect(mockTrackTimerCommand).toHaveBeenCalledTimes(1);
+		expect(mockTrackTimerCommand).toHaveBeenCalledWith(mockDiscardTimer.mock.results[0].value);
 		expect(store.get(timerStatusState)).toEqual(STOPPED);
 		expect(result.current.failure).toBeNull();
 		expect(mockToastSuccess).toHaveBeenCalled();
