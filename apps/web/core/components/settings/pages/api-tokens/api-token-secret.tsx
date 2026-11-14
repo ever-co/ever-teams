@@ -113,9 +113,7 @@ export function ApiTokenSecret({ value }: Readonly<{ value: string }>) {
 					{buttonText}
 				</Button>
 			</div>
-			<p role="status" className="min-h-4 text-xs text-muted-foreground">
-				{statusText}
-			</p>
+			<output className="block min-h-4 text-xs text-muted-foreground">{statusText}</output>
 		</div>
 	);
 }
