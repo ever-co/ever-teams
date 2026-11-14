@@ -355,11 +355,16 @@ async function notPutBackOf(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
 type EditWritesSent = 'fields' | 'fieldsAndLines';
 
 /**
- * Whether the invoice read back holds nothing but what it was read with and what this save may have written: its
- * fields as read or as written, and its lines as read or, once they were sent, as written or deleted (the API deletes
- * an invoice's lines before it saves the new ones). Anything else was saved from elsewhere meanwhile.
+ * Whether the invoice read back holds nothing but what it was read with and what this save may have written: the
+ * status the save was written under, its fields as read or as written, and its lines as read or, once they were sent,
+ * as written or deleted (the API deletes an invoice's lines before it saves the new ones). Anything else was saved
+ * from elsewhere meanwhile: a payment or a void reached since is never written back over.
  */
 function holdsOnlyThisSave(current: TSavedInvoice, edit: InvoiceEdit, writesSent: EditWritesSent): boolean {
+	const hasStatusAsWritten = invoiceStatusOf(current.status) === invoiceStatusOf(edit.previous.update.status);
+	if (!hasStatusAsWritten) {
+		return false;
+	}
 	const hasFieldsAsRead = haveSameFields(current, edit.previous.update);
 	const hasFieldsAsWritten = haveSameFields(current, edit.revision.update);
 	if (!hasFieldsAsRead && !hasFieldsAsWritten) {
