@@ -794,7 +794,12 @@
 				"NONE": "Geen project",
 				"COUNT": "{count, plural, one {# project} other {# projecten}}",
 				"OTHER": "{count, plural, one {# ander project} other {# andere projecten}}",
-				"EMPTY": "Projecten verschijnen hier zodra er tijd is geregistreerd in de periode."
+				"EMPTY": "Projecten verschijnen hier zodra er tijd is geregistreerd in de periode.",
+				"SPLIT": "Tijd verdelen per",
+				"BY_CLIENT": "Per klant",
+				"OTHER_CLIENTS": "{count, plural, one {# andere klant} other {# andere klanten}}",
+				"CLIENTS_EMPTY": "Klanten verschijnen hier zodra er tijd is geregistreerd in de periode.",
+				"CLIENTS_ERROR": "De klanten van de projecten konden niet worden gelezen."
 			},
 			"table": {
 				"VIEW": "Rijen groeperen",

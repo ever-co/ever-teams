@@ -794,7 +794,12 @@
 				"NONE": "Sans projet",
 				"COUNT": "{count, plural, one {# projet} other {# projets}}",
 				"OTHER": "{count, plural, one {# autre projet} other {# autres projets}}",
-				"EMPTY": "Les projets s'affichent ici dès que du temps est suivi sur la période."
+				"EMPTY": "Les projets s'affichent ici dès que du temps est suivi sur la période.",
+				"SPLIT": "Répartir le temps par",
+				"BY_CLIENT": "Par client",
+				"OTHER_CLIENTS": "{count, plural, one {# autre client} other {# autres clients}}",
+				"CLIENTS_EMPTY": "Les clients s'affichent ici dès que du temps est suivi sur la période.",
+				"CLIENTS_ERROR": "Les clients des projets n'ont pas pu être lus."
 			},
 			"table": {
 				"VIEW": "Regrouper les lignes",

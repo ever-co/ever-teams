@@ -794,7 +794,12 @@
 				"NONE": "无项目",
 				"COUNT": "{count, plural, one {# 个项目} other {# 个项目}}",
 				"OTHER": "{count, plural, one {其他 # 个项目} other {其他 # 个项目}}",
-				"EMPTY": "本期记录时间后，项目会显示在这里。"
+				"EMPTY": "本期记录时间后，项目会显示在这里。",
+				"SPLIT": "时间划分方式",
+				"BY_CLIENT": "按客户",
+				"OTHER_CLIENTS": "{count, plural, one {其他 # 个客户} other {其他 # 个客户}}",
+				"CLIENTS_EMPTY": "本期记录时间后，客户会显示在这里。",
+				"CLIENTS_ERROR": "无法读取项目的客户。"
 			},
 			"table": {
 				"VIEW": "行的分组方式",
