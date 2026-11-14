@@ -1537,6 +1537,7 @@
 				"SAVED": "Voce divisa in due",
 				"FAILED_RESTORED": "Non è stato possibile dividere la voce, che è tornata com’era. Riprova.",
 				"FAILED_FIRST_PART_KEPT": "La prima parte è stata salvata, ma la seconda ({range}) non è stata aggiunta. Aggiungila con Aggiungi tempo.",
+				"FAILED_UNKNOWN": "Non è stato possibile confermare la divisione. Ricarica il calendario e controlla questa voce prima di riprovare.",
 				"ADD_REST": "Aggiungi la seconda parte",
 				"REFUSED": {
 					"TRACKED": "Il tempo tracciato porta con sé attività e screenshot, che solo il server può ripartire tra due voci. Per ora si può dividere solo il tempo aggiunto a mano.",

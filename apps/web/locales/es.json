@@ -1537,6 +1537,7 @@
 				"SAVED": "Entrada dividida en dos",
 				"FAILED_RESTORED": "No se pudo dividir la entrada y quedó como estaba. Inténtalo de nuevo.",
 				"FAILED_FIRST_PART_KEPT": "La primera parte se guardó, pero la segunda ({range}) no se pudo añadir. Añádela con Añadir tiempo.",
+				"FAILED_UNKNOWN": "No se pudo confirmar la división. Recarga el calendario y revisa esta entrada antes de volver a intentarlo.",
 				"ADD_REST": "Añadir la segunda parte",
 				"REFUSED": {
 					"TRACKED": "El tiempo registrado lleva su actividad y capturas de pantalla, que solo el servidor puede repartir entre dos entradas. Por ahora solo se puede dividir el tiempo añadido a mano.",

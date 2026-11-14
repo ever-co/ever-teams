@@ -1537,6 +1537,7 @@
 				"SAVED": "Registro dividido em dois",
 				"FAILED_RESTORED": "Não foi possível dividir o registro, que voltou a ser como era. Tente novamente.",
 				"FAILED_FIRST_PART_KEPT": "A primeira parte foi salva, mas a segunda ({range}) não pôde ser adicionada. Adicione-a com Adicionar tempo.",
+				"FAILED_UNKNOWN": "Não foi possível confirmar a divisão. Recarregue o calendário e confira este registro antes de tentar novamente.",
 				"ADD_REST": "Adicionar a segunda parte",
 				"REFUSED": {
 					"TRACKED": "O tempo rastreado carrega sua atividade e capturas de tela, que só o servidor pode repartir entre dois registros. Por enquanto, só o tempo adicionado à mão pode ser dividido.",

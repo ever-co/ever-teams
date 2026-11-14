@@ -1537,6 +1537,7 @@
 				"SAVED": "Registratie in tweeën gesplitst",
 				"FAILED_RESTORED": "De registratie kon niet worden gesplitst en staat weer zoals ze was. Probeer het opnieuw.",
 				"FAILED_FIRST_PART_KEPT": "Het eerste deel is opgeslagen, maar het tweede deel ({range}) kon niet worden toegevoegd. Voeg het toe met Tijd toevoegen.",
+				"FAILED_UNKNOWN": "Het splitsen kon niet worden bevestigd. Laad de kalender opnieuw en controleer deze registratie voordat je het opnieuw probeert.",
 				"ADD_REST": "Tweede deel toevoegen",
 				"REFUSED": {
 					"TRACKED": "Bijgehouden tijd draagt zijn activiteit en schermafbeeldingen mee, die alleen de server over twee registraties kan verdelen. Voorlopig kan alleen handmatig toegevoegde tijd worden gesplitst.",

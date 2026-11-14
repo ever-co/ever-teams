@@ -1537,6 +1537,7 @@
 				"SAVED": "Eintrag in zwei geteilt",
 				"FAILED_RESTORED": "Der Eintrag konnte nicht geteilt werden und ist wieder wie vorher. Versuche es erneut.",
 				"FAILED_FIRST_PART_KEPT": "Der erste Teil wurde gespeichert, aber der zweite Teil ({range}) konnte nicht hinzugefügt werden. Füge ihn mit „Zeit hinzufügen“ hinzu.",
+				"FAILED_UNKNOWN": "Die Teilung konnte nicht bestätigt werden. Lade den Kalender neu und prüfe diesen Eintrag, bevor du es erneut versuchst.",
 				"ADD_REST": "Zweiten Teil hinzufügen",
 				"REFUSED": {
 					"TRACKED": "Erfasste Zeit trägt ihre Aktivität und Screenshots, die nur der Server auf zwei Einträge aufteilen kann. Vorerst lässt sich nur manuell hinzugefügte Zeit teilen.",
