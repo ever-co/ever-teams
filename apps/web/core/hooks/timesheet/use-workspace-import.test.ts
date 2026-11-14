@@ -96,7 +96,7 @@ describe('workspaceEntryRowsOf', () => {
 		const rows = [
 			{
 				row: 2,
-				cells: { ...NO_CELLS, project: 'Website', memberEmail: 'marie@studio.io' },
+				cells: { ...NO_CELLS, project: 'Website', memberEmail: 'marie@studio.io', billable: 'Yes' },
 				entry: { employeeId: 'emp-marie' },
 				problems: []
 			},
@@ -116,7 +116,8 @@ describe('workspaceEntryRowsOf', () => {
 				tagNames: ['Design', 'Meeting'],
 				memberEmail: 'marie@studio.io',
 				readyEmployeeId: 'emp-marie',
-				isMemberUnknown: false
+				isMemberUnknown: false,
+				billable: true
 			},
 			{
 				row: 3,
@@ -125,7 +126,8 @@ describe('workspaceEntryRowsOf', () => {
 				tagNames: [],
 				memberEmail: 'amina@agency.io',
 				readyEmployeeId: null,
-				isMemberUnknown: true
+				isMemberUnknown: true,
+				billable: null
 			}
 		]);
 	});

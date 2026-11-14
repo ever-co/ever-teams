@@ -33,6 +33,8 @@ export interface WorkspaceEntryRow {
 	/** The member the row is filed under when the time import accepts it, else null. */
 	readyEmployeeId: string | null;
 	isMemberUnknown: boolean;
+	/** The row's billable cell, or null when it does not say. */
+	billable: boolean | null;
 }
 
 export interface WorkspaceMember {
@@ -188,6 +190,7 @@ function splitByExisting(names: ReadonlyArray<string>, existing: ReadonlyArray<E
 /** The projects of the file, then those only entries name, each with the first client and settings given for it. */
 function plannedProjectsOf(input: WorkspacePlanInput): PlannedProject[] {
 	const byKey = new Map<string, PlannedProject>();
+	const namedByEntriesOnly = new Set<string>();
 	for (const project of projectsOfFile(input.projectsFile)) {
 		const key = nameKeyOf(project.name);
 		if (!byKey.has(key)) {
@@ -202,12 +205,20 @@ function plannedProjectsOf(input: WorkspacePlanInput): PlannedProject[] {
 		const known = byKey.get(key);
 		const clientName = row.clientName || null;
 		if (!known) {
-			byKey.set(key, { name: row.projectName.trim(), clientName, color: null, billable: null });
+			byKey.set(key, { name: row.projectName.trim(), clientName, color: null, billable: row.billable });
+			namedByEntriesOnly.add(key);
 			continue;
 		}
+		let next = known;
 		if (!known.clientName && clientName) {
-			byKey.set(key, { ...known, clientName });
+			next = { ...next, clientName };
 		}
+		// A project named only by entries takes their billable default when they all agree
+		const entriesDisagree = namedByEntriesOnly.has(key) && next.billable !== row.billable;
+		if (entriesDisagree) {
+			next = { ...next, billable: null };
+		}
+		byKey.set(key, next);
 	}
 	return [...byKey.values()];
 }

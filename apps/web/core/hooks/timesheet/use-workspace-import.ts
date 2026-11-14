@@ -27,6 +27,7 @@ import {
 	type WorkspaceTable
 } from '@/core/lib/utils/workspace-import-files';
 import {
+	billableOf,
 	nameKeyOf,
 	plannedProjectIdOf,
 	tagNamesOf,
@@ -142,7 +143,8 @@ export function workspaceEntryRowsOf(
 			tagNames: tagNamesOf(cellAt(cells, tagsIndex)),
 			memberEmail: row.cells.memberEmail,
 			readyEmployeeId: readyEmployeeIdOf(row),
-			isMemberUnknown: row.problems.some((problem) => problem.code === MEMBER_UNKNOWN)
+			isMemberUnknown: row.problems.some((problem) => problem.code === MEMBER_UNKNOWN),
+			billable: billableOf(row.cells.billable)
 		};
 	});
 }

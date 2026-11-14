@@ -28,6 +28,7 @@ function entry(row: number, patch: Partial<WorkspaceEntryRow>): WorkspaceEntryRo
 		memberEmail: 'marie@studio.io',
 		readyEmployeeId: 'emp-marie',
 		isMemberUnknown: false,
+		billable: null,
 		...patch
 	};
 }
@@ -126,6 +127,29 @@ describe('workspaceImportPlanOf', () => {
 });
 
 describe('cell readers', () => {
+	it('gives a project named only by entries the billable default its entries agree on', () => {
+		const plan = workspaceImportPlanOf({
+			clientsFile: null,
+			projectsFile: null,
+			tagsFile: null,
+			entryRows: [
+				entry(2, { projectName: 'Field', billable: true }),
+				entry(3, { projectName: 'field', billable: true }),
+				entry(4, { projectName: 'Mixed', billable: true }),
+				entry(5, { projectName: 'Mixed', billable: false }),
+				entry(6, { projectName: 'Unsaid' })
+			],
+			existing: NONE,
+			members: MEMBERS
+		});
+
+		expect(plan.projects.create.map((project) => [project.name, project.billable])).toEqual([
+			['Field', true],
+			['Mixed', null],
+			['Unsaid', null]
+		]);
+	});
+
 	it('reads billable words, colours and label lists', () => {
 		expect([billableOf('Yes'), billableOf('NO'), billableOf('maybe')]).toEqual([true, false, null]);
 		expect([colorOf('#a1b2c3'), colorOf('A1B2C3'), colorOf('red')]).toEqual(['#A1B2C3', '#A1B2C3', null]);
