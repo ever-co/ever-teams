@@ -7,15 +7,19 @@ export const WORK_DIARY_PATH = '/work-diary';
 /** The signed-in person's own week: their tracked time against their weekly limit, by day and by project. */
 export const MY_WEEK_PATH = '/my-week';
 
+/** The signed-in person's time goals, and those of the members of the team she manages. */
+export const GOALS_PATH = '/goals';
+
 /**
- * The links of the sidebar's My work group. Work diary and My week are the person's own pages, outside Reports (only
- * team managers may open Reports); the team's timesheets stay under Reports › Timesheets.
+ * The links of the sidebar's My work group. Work diary, My week and Goals are the person's own pages, outside Reports
+ * (only team managers may open Reports); the team's timesheets stay under Reports › Timesheets.
  */
 export function getMyWorkNavigation() {
 	return {
 		timeAndActivity: '/reports/time-and-activity',
 		workDiary: WORK_DIARY_PATH,
-		myWeek: MY_WEEK_PATH
+		myWeek: MY_WEEK_PATH,
+		goals: GOALS_PATH
 	};
 }
 
