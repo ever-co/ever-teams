@@ -38,7 +38,9 @@ jest.mock('@tanstack/react-query', () => ({
 	}
 }));
 jest.mock('@/core/services/client/api/tasks/task.service', () => ({ taskService: { getTasks: jest.fn() } }));
-const mockOrganizationProjects: { organizationProjects: unknown[] } = { organizationProjects: [] };
+const mockOrganizationProjects: { organizationProjects: unknown[]; getOrganizationProjectsLoading?: boolean } = {
+	organizationProjects: []
+};
 jest.mock('@/core/hooks/organizations/projects/use-organization-projects-query', () => ({
 	useOrganizationProjectsQuery: () => mockOrganizationProjects
 }));
@@ -705,7 +707,12 @@ describe('AddManualTimeModal billable status', () => {
 
 	afterEach(() => {
 		mockOrganizationProjects.organizationProjects = [];
+		mockOrganizationProjects.getOrganizationProjectsLoading = false;
 	});
+
+	function addTimeButton() {
+		return screen.getByRole('button', { name: 'common.ADD_TIME' }) as HTMLButtonElement;
+	}
 
 	it("starts from the billable default of the picked task's project", () => {
 		renderAddTimeDialog();
@@ -715,6 +722,81 @@ describe('AddManualTimeModal billable status', () => {
 
 		expect(mockAddManualTime).toHaveBeenCalledWith(
 			expect.objectContaining({ taskId: 'task-site', isBillable: true })
+		);
+	});
+
+	it("saves nothing while the project that gives the default is loading, then saves with that project's default", () => {
+		mockOrganizationProjects.organizationProjects = [];
+		mockOrganizationProjects.getOrganizationProjectsLoading = true;
+		const { rerender } = renderAddTimeDialog();
+		pickInSelect('task', 'task-site');
+
+		submitDialog();
+		// Enter in another field submits the form as well
+		const form = addTimeButton().closest('form');
+		if (form) {
+			fireEvent.submit(form);
+		}
+
+		expect(addTimeButton().disabled).toBe(true);
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+
+		mockOrganizationProjects.organizationProjects = [siteProject];
+		mockOrganizationProjects.getOrganizationProjectsLoading = false;
+		rerender(<AddManualTimeModal isOpen params="AddTime" closeModal={closeModal} />);
+		submitDialog();
+
+		expect(addTimeButton().disabled).toBe(false);
+		expect(mockAddManualTime).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-site', isBillable: true })
+		);
+	});
+
+	it('saves a choice made by hand at once, while the project is still loading', () => {
+		mockOrganizationProjects.organizationProjects = [];
+		mockOrganizationProjects.getOrganizationProjectsLoading = true;
+		renderAddTimeDialog();
+		pickInSelect('task', 'task-site');
+
+		fireEvent.click(screen.getByRole('switch'));
+		submitDialog();
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-site', isBillable: true })
+		);
+	});
+
+	it('keeps a choice made by hand through edits of the other fields', () => {
+		const { container } = renderAddTimeDialog();
+		pickInSelect('task', 'task-site');
+
+		fireEvent.click(screen.getByRole('switch'));
+		const notes = container.querySelector('textarea');
+		if (notes) {
+			fireEvent.change(notes, { target: { value: 'Pairing on the site' } });
+		}
+		fillTimes(container);
+		submitDialog();
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-site', isBillable: false })
+		);
+	});
+
+	it("starts again from the default of another billable project's task once that task is picked", () => {
+		const shopProject = { id: 'project-shop', name: 'Shop', billable: true };
+		const shopTask = { ...siteTask, id: 'task-shop', title: 'Shop', projectId: 'project-shop' };
+		mockOrganizationProjects.organizationProjects = [siteProject, shopProject];
+		mockAtomValues.tasksByTeamState = [siteTask, shopTask];
+		renderAddTimeDialog();
+		pickInSelect('task', 'task-site');
+		fireEvent.click(screen.getByRole('switch'));
+
+		pickInSelect('task', 'task-shop');
+		submitDialog();
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-shop', isBillable: true })
 		);
 	});
 });

@@ -177,10 +177,15 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	}, [isOtherTeamPicked, pickedTeamTaskItems, activeTeamTaskList]);
 	// The entry goes to its task's project, else to the project picked; read among the organization's projects, as the
 	// timesheet's dialog reads them, since a task's project need not be one of its team's
-	const { organizationProjects } = useOrganizationProjectsQuery();
+	const { organizationProjects, getOrganizationProjectsLoading } = useOrganizationProjectsQuery();
 	const pickedTask = tasks.find((task) => task.id === taskId);
 	const entryProjectId = entryProjectIdOf(pickedTask, projectId);
-	const isBillable = entryBillableOf(billableChoice, findProject(entryProjectId, organizationProjects ?? []));
+	const entryProject = findProject(entryProjectId, organizationProjects ?? []);
+	const isBillable = entryBillableOf(billableChoice, entryProject);
+	// Without a choice by hand the entry is billable as its project starts its time, unknown until the project has
+	// loaded: Save waits for it, as in the timesheet's dialog
+	const hasUnloadedProject = Boolean(entryProjectId) && !entryProject;
+	const waitsForProject = billableChoice === null && hasUnloadedProject && getOrganizationProjectsLoading;
 
 	const {
 		addManualTime,
@@ -388,9 +393,10 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	});
 
 	// While the duration field refuses its text the start and the end are still the earlier ones: they are not saved
-	// in place of the duration it reports. Enter in another field submits the form too, hence the check here as well.
+	// in place of the duration it reports. Nor is an entry whose billable default is still loading. Enter in another
+	// field submits the form too, hence the check here as well.
 	const submitUnlessDurationRefused = (event: FormEvent<HTMLFormElement>) => {
-		if (durationEntry.blocksSave) {
+		if (durationEntry.blocksSave || waitsForProject) {
 			event.preventDefault();
 			return;
 		}
@@ -815,7 +821,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 						)}
 						<Button
 							loading={isSaving}
-							disabled={isSaving || durationEntry.blocksSave}
+							disabled={isSaving || durationEntry.blocksSave || waitsForProject}
 							type="submit"
 							size="default"
 							className={modalPrimaryActionClass}
