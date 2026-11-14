@@ -19,7 +19,12 @@ const SESSION: Session = {
 	teamId: 'team-1'
 };
 
-const RUN_FROM_YESTERDAY = { id: 'log-1', startedAt: '2026-11-14T22:30:00.000Z', isRunning: true, source: 'BROWSER_EXTENSION' };
+const RUN_FROM_YESTERDAY = {
+	id: 'log-1',
+	startedAt: '2026-11-14T22:30:00.000Z',
+	isRunning: true,
+	source: 'BROWSER_EXTENSION'
+};
 
 describe('getTimerStatus past midnight', () => {
 	beforeEach(() => {
@@ -53,7 +58,10 @@ describe('getTimerStatus past midnight', () => {
 
 		installFakeFetch((url) => {
 			if (url.includes('/status/worked')) {
-				return { status: 200, body: [{ running: false, lastLog: { ...RUN_FROM_YESTERDAY, isRunning: false } }] };
+				return {
+					status: 200,
+					body: [{ running: false, lastLog: { ...RUN_FROM_YESTERDAY, isRunning: false } }]
+				};
 			}
 			return { status: 200, body: { running: false, duration: 0, lastLog: null } };
 		});
