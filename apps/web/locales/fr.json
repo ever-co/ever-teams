@@ -7257,7 +7257,7 @@
 				"DATE_UNREADABLE_MONTH_FIRST": "La date est illisible. Écrivez-la avec le mois en premier, comme {monthFirst}.",
 				"END_DATE_UNREADABLE": "La date de fin est illisible. Écrivez-la comme la date.",
 				"START_DAY_MISMATCH": "La date et l'heure de début donnent deux jours différents. Gardez l'une des deux.",
-				"END_DAY_MISMATCH": "La date de fin et l'heure de fin donnent deux jours différents. Gardez l'une des deux.",
+				"END_DAY_MISMATCH": "La date de fin n'est pas le jour où cette entrée se termine. Corrigez la date de fin ou les heures.",
 				"MEMBER_NAME_UNKNOWN": "Aucun membre de cette équipe ne porte ce nom.",
 				"MEMBER_AMBIGUOUS": "{count, plural, one {# membre de cette équipe porte ce nom.} other {# membres de cette équipe portent ce nom. Indiquez le membre par son e-mail.}}"
 			}

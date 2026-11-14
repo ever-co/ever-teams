@@ -7257,7 +7257,7 @@
 				"DATE_UNREADABLE_MONTH_FIRST": "De datum is niet leesbaar. Schrijf hem met de maand eerst, zoals {monthFirst}.",
 				"END_DATE_UNREADABLE": "De einddatum is niet leesbaar. Schrijf hem op dezelfde manier als de datum.",
 				"START_DAY_MISMATCH": "De datum en de starttijd geven twee verschillende dagen. Houd een van de twee.",
-				"END_DAY_MISMATCH": "De einddatum en de eindtijd geven twee verschillende dagen. Houd een van de twee.",
+				"END_DAY_MISMATCH": "De einddatum is niet de dag waarop deze invoer eindigt. Corrigeer de einddatum of de tijden.",
 				"MEMBER_NAME_UNKNOWN": "Geen lid van dit team heeft deze naam.",
 				"MEMBER_AMBIGUOUS": "{count, plural, one {# lid van dit team heeft deze naam.} other {# leden van dit team hebben deze naam. Geef het lid op met het e-mailadres.}}"
 			}

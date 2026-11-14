@@ -7257,7 +7257,7 @@
 				"DATE_UNREADABLE_MONTH_FIRST": "Nie można odczytać daty. Zapisz ją z miesiącem na początku, na przykład {monthFirst}.",
 				"END_DATE_UNREADABLE": "Nie można odczytać daty zakończenia. Zapisz ją tak samo jak datę.",
 				"START_DAY_MISMATCH": "Data i godzina rozpoczęcia dają dwa różne dni. Zostaw jedno z nich.",
-				"END_DAY_MISMATCH": "Data zakończenia i godzina zakończenia dają dwa różne dni. Zostaw jedno z nich.",
+				"END_DAY_MISMATCH": "Data zakończenia nie jest dniem, w którym kończy się ten wpis. Popraw datę zakończenia lub godziny.",
 				"MEMBER_NAME_UNKNOWN": "Żaden członek tego zespołu nie ma tego imienia i nazwiska.",
 				"MEMBER_AMBIGUOUS": "{count, plural, one {# członek tego zespołu ma to imię i nazwisko.} few {# członków tego zespołu ma to imię i nazwisko. Wskaż członka po adresie e-mail.} many {# członków tego zespołu ma to imię i nazwisko. Wskaż członka po adresie e-mail.} other {# członka tego zespołu ma to imię i nazwisko. Wskaż członka po adresie e-mail.}}"
 			}

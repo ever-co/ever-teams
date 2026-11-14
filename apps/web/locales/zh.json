@@ -7257,7 +7257,7 @@
 				"DATE_UNREADABLE_MONTH_FIRST": "无法读取日期。请按月份在前的格式填写，例如 {monthFirst}。",
 				"END_DATE_UNREADABLE": "无法读取结束日期。请按与日期相同的格式填写。",
 				"START_DAY_MISMATCH": "日期和开始时间给出了两个不同的日子。请只保留其中一个。",
-				"END_DAY_MISMATCH": "结束日期和结束时间给出了两个不同的日子。请只保留其中一个。",
+				"END_DAY_MISMATCH": "结束日期不是该条目结束的那一天。请更正结束日期或时间。",
 				"MEMBER_NAME_UNKNOWN": "此团队中没有成员使用这个名字。",
 				"MEMBER_AMBIGUOUS": "{count, plural, other {此团队中有 # 名成员使用这个名字。请用邮箱指定成员。}}"
 			}

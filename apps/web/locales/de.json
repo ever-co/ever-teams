@@ -7257,7 +7257,7 @@
 				"DATE_UNREADABLE_MONTH_FIRST": "Das Datum ist nicht lesbar. Schreibe es mit dem Monat zuerst, wie {monthFirst}.",
 				"END_DATE_UNREADABLE": "Das Enddatum ist nicht lesbar. Schreibe es wie das Datum.",
 				"START_DAY_MISMATCH": "Datum und Startzeit ergeben zwei verschiedene Tage. Behalte eines von beiden.",
-				"END_DAY_MISMATCH": "Enddatum und Endzeit ergeben zwei verschiedene Tage. Behalte eines von beiden.",
+				"END_DAY_MISMATCH": "Das Enddatum ist nicht der Tag, an dem dieser Eintrag endet. Korrigiere das Enddatum oder die Uhrzeiten.",
 				"MEMBER_NAME_UNKNOWN": "Kein Mitglied dieses Teams hat diesen Namen.",
 				"MEMBER_AMBIGUOUS": "{count, plural, one {# Mitglied dieses Teams hat diesen Namen.} other {# Mitglieder dieses Teams haben diesen Namen. Gib das Mitglied per E-Mail an.}}"
 			}
