@@ -282,53 +282,72 @@ async function bufferOf(file: WorkspacePickedFile): Promise<ArrayBuffer | null> 
 	}
 }
 
+/** Why a dropped file is not opened at all: a type the import does not read, or larger than the limit. */
+function refusalOfFile(file: WorkspacePickedFile, extension: string): WorkspaceFileProblem | null {
+	const isSupported = ['csv', 'json', 'zip'].includes(extension);
+	if (!isSupported) {
+		return { code: 'notSupported', fileName: file.name };
+	}
+	if (file.size > WORKSPACE_IMPORT_MAX_FILE_BYTES) {
+		return { code: 'tooLarge', fileName: file.name };
+	}
+	return null;
+}
+
+/** The text of a file, or none when it is not UTF-8 text (listed as a problem). */
+function textsOfBytes(fileName: string, bytes: ArrayBuffer | Uint8Array, problems: WorkspaceFileProblem[]): NamedText[] {
+	const text = decode(bytes);
+	if (text === null) {
+		problems.push({ code: 'notText', fileName });
+		return [];
+	}
+	return [{ fileName, text }];
+}
+
+/** The CSV and JSON texts of an archive's files; any other file, and the archive when it cannot be opened, is listed. */
+function textsOfArchive(fileName: string, buffer: ArrayBuffer, problems: WorkspaceFileProblem[]): NamedText[] {
+	const reading = zipEntriesOf(buffer);
+	if (!reading.entries) {
+		problems.push({ code: 'zip', fileName, problem: reading.problem });
+		return [];
+	}
+	const texts: NamedText[] = [];
+	for (const entry of reading.entries) {
+		const entryName = `${fileName} / ${entry.name}`;
+		const entryExtension = extensionOf(entry.name);
+		if (entryExtension !== 'csv' && entryExtension !== 'json') {
+			problems.push({ code: 'notSupported', fileName: entryName });
+			continue;
+		}
+		texts.push(...textsOfBytes(entryName, entry.bytes, problems));
+	}
+	return texts;
+}
+
+/** The texts one dropped file gives: its own, or those of the archive it is; what cannot be read is listed. */
+async function textsOfFile(file: WorkspacePickedFile, problems: WorkspaceFileProblem[]): Promise<NamedText[]> {
+	const extension = extensionOf(file.name);
+	const refusal = refusalOfFile(file, extension);
+	if (refusal) {
+		problems.push(refusal);
+		return [];
+	}
+	const buffer = await bufferOf(file);
+	if (!buffer) {
+		problems.push({ code: 'unreadable', fileName: file.name });
+		return [];
+	}
+	if (extension === 'zip') {
+		return textsOfArchive(file.name, buffer, problems);
+	}
+	return textsOfBytes(file.name, buffer, problems);
+}
+
 /** Every CSV or JSON text of the dropped files, archives opened; what cannot be read becomes a problem. */
 async function textsOf(files: ReadonlyArray<WorkspacePickedFile>, problems: WorkspaceFileProblem[]) {
 	const texts: NamedText[] = [];
 	for (const file of files) {
-		const extension = extensionOf(file.name);
-		const isSupported = ['csv', 'json', 'zip'].includes(extension);
-		if (!isSupported) {
-			problems.push({ code: 'notSupported', fileName: file.name });
-			continue;
-		}
-		if (file.size > WORKSPACE_IMPORT_MAX_FILE_BYTES) {
-			problems.push({ code: 'tooLarge', fileName: file.name });
-			continue;
-		}
-		const buffer = await bufferOf(file);
-		if (!buffer) {
-			problems.push({ code: 'unreadable', fileName: file.name });
-			continue;
-		}
-		if (extension !== 'zip') {
-			const text = decode(buffer);
-			if (text === null) {
-				problems.push({ code: 'notText', fileName: file.name });
-				continue;
-			}
-			texts.push({ fileName: file.name, text });
-			continue;
-		}
-		const reading = zipEntriesOf(buffer);
-		if (!reading.entries) {
-			problems.push({ code: 'zip', fileName: file.name, problem: reading.problem });
-			continue;
-		}
-		for (const entry of reading.entries) {
-			const entryName = `${file.name} / ${entry.name}`;
-			const entryExtension = extensionOf(entry.name);
-			if (entryExtension !== 'csv' && entryExtension !== 'json') {
-				problems.push({ code: 'notSupported', fileName: entryName });
-				continue;
-			}
-			const text = decode(entry.bytes);
-			if (text === null) {
-				problems.push({ code: 'notText', fileName: entryName });
-				continue;
-			}
-			texts.push({ fileName: entryName, text });
-		}
+		texts.push(...(await textsOfFile(file, problems)));
 	}
 	return texts;
 }

@@ -1,4 +1,3 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTimerStatusRequest, readTodayRange, stopTimerRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
@@ -12,45 +11,81 @@ function toIsoDate(value: unknown): string | null {
 	return Number.isNaN(time) ? null : new Date(time).toISOString();
 }
 
+interface StopBody {
+	source: any;
+	startedAt?: unknown;
+	stoppedAt?: unknown;
+	description?: unknown;
+	timeLogId?: unknown;
+}
+
+interface StopFields {
+	startedAt?: string;
+	stoppedAt?: string;
+	timeLogId?: string;
+	description?: string;
+}
+
+type StopReading = { fields: StopFields; refusal: null } | { fields: null; refusal: string };
+
+const refused = (refusal: string): StopReading => ({ fields: null, refusal });
+
+/** The fields of a stop the route hands on to Gauzy, or why it refuses the body (a 400). */
+function stopFieldsOf(body: StopBody): StopReading {
+	const startedAt = toIsoDate(body.startedAt);
+	const stoppedAt = toIsoDate(body.stoppedAt);
+	if ((body.startedAt != null && !startedAt) || (body.stoppedAt != null && !stoppedAt)) {
+		return refused('startedAt and stoppedAt must be ISO dates');
+	}
+	// A stop is only ever back-dated (to a closed tab's last heartbeat), never set in the future, which would
+	// credit time not worked. One minute of slack covers clock skew.
+	if (stoppedAt && Date.parse(stoppedAt) > Date.now() + 60_000) {
+		return refused('stoppedAt cannot be in the future');
+	}
+	// The time log the stop is for, when it names one. A stop that names one badly is refused: sent without it, it
+	// would end whatever runs, which is what naming the log is there to prevent
+	const namesTimeLog = body.timeLogId !== undefined && body.timeLogId !== null;
+	if (namesTimeLog && (typeof body.timeLogId !== 'string' || !body.timeLogId)) {
+		return refused('timeLogId must be the id of a time log');
+	}
+	const notes = readTimerNotes(body.description);
+	if (!notes.isValid) {
+		return refused(NOTES_REFUSAL);
+	}
+	const fields: StopFields = {};
+	if (startedAt) fields.startedAt = startedAt;
+	if (stoppedAt) fields.stoppedAt = stoppedAt;
+	if (namesTimeLog) fields.timeLogId = body.timeLogId as string;
+	if (notes.description !== undefined) fields.description = notes.description;
+	return { fields, refusal: null };
+}
+
+/**
+ * Gauzy's refusal the route passes through, read from serverFetch's rejection (a rejected promise carrying Gauzy's
+ * error body): a 406 (no running timer left to stop), which the client tells apart from a failure, and a 409 (the
+ * stop names a time log that is not the running one, and nothing was stopped). Null for any other failure.
+ */
+async function passedRefusalOf(error: unknown): Promise<{ statusCode: 406 | 409 } | null> {
+	const rejection: { statusCode?: number } | undefined = await Promise.resolve(error).then(
+		() => undefined,
+		(gauzyError) => gauzyError
+	);
+	const statusCode = rejection?.statusCode;
+	if (statusCode === 406 || statusCode === 409) {
+		return { ...rejection, statusCode };
+	}
+	return null;
+}
+
 export async function POST(req: Request) {
 	const res = new NextResponse();
 	const { $res, user, tenantId, access_token, organizationId, taskId } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');
 
-	const body = (await req.json()) as unknown as {
-		source: any;
-		startedAt?: unknown;
-		stoppedAt?: unknown;
-		description?: unknown;
-		timeLogId?: unknown;
-	};
-	const { source } = body;
-	const startedAt = toIsoDate(body.startedAt);
-	const stoppedAt = toIsoDate(body.stoppedAt);
-	if ((body.startedAt != null && !startedAt) || (body.stoppedAt != null && !stoppedAt)) {
-		return NextResponse.json({ message: 'startedAt and stoppedAt must be ISO dates' }, { status: 400 });
-	}
-	// A stop is only ever back-dated (to a closed tab's last heartbeat), never set in the future, which would
-	// credit time not worked. One minute of slack covers clock skew.
-	if (stoppedAt && Date.parse(stoppedAt) > Date.now() + 60_000) {
-		return NextResponse.json({ message: 'stoppedAt cannot be in the future' }, { status: 400 });
-	}
-
-	// The time log the stop is for, when it names one. A stop that names one badly is refused: sent without it, it
-	// would end whatever runs, which is what naming the log is there to prevent
-	const namesTimeLog = body.timeLogId !== undefined && body.timeLogId !== null;
-	if (namesTimeLog && (typeof body.timeLogId !== 'string' || !body.timeLogId)) {
-		return NextResponse.json({ message: 'timeLogId must be the id of a time log' }, { status: 400 });
-	}
-	const timeLogField = namesTimeLog ? { timeLogId: body.timeLogId as string } : {};
-
-	const notes = readTimerNotes(body.description);
-	if (!notes.isValid) {
-		return NextResponse.json({ message: NOTES_REFUSAL }, { status: 400 });
-	}
-	const notesField: { description?: string } = {};
-	if (notes.description !== undefined) {
-		notesField.description = notes.description;
+	const body = (await req.json()) as unknown as StopBody;
+	const { fields, refusal } = stopFieldsOf(body);
+	if (refusal !== null) {
+		return NextResponse.json({ message: refusal }, { status: 400 });
 	}
 
 	try {
@@ -59,31 +94,17 @@ export async function POST(req: Request) {
 				tenantId,
 				organizationId,
 				logType: 'TRACKED',
-				source: source,
+				source: body.source,
 				tags: [],
 				// Task id is optional in case timer is already started in another source
-				...(taskId
-					? {
-							taskId
-						}
-					: {}),
-				...(startedAt ? { startedAt } : {}),
-				...(stoppedAt ? { stoppedAt } : {}),
-				...timeLogField,
-				...notesField
+				...(taskId ? { taskId } : {}),
+				...fields
 			},
 			access_token
 		);
 	} catch (error) {
-		// serverFetch throws a rejected promise carrying Gauzy's error body. Pass a 406 (no running timer
-		// left to stop) through so the client can tell it apart from a failure.
-		const rejection: { statusCode?: number } | undefined = await Promise.resolve(error).then(
-			() => undefined,
-			(gauzyError) => gauzyError
-		);
-		if (rejection?.statusCode === 406) return NextResponse.json(rejection, { status: 406 });
-		// And a 409: the stop names a time log that is not the running one, and nothing was stopped
-		if (rejection?.statusCode === 409) return NextResponse.json(rejection, { status: 409 });
+		const passed = await passedRefusalOf(error);
+		if (passed) return NextResponse.json(passed, { status: passed.statusCode });
 		throw error;
 	}
 
