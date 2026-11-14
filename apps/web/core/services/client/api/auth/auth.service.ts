@@ -38,9 +38,10 @@ function signInCodeRequestBody(email: string) {
 
 /**
  * The request that renews the session answers for itself: its 401 says the refresh token is refused, and must not
- * start the renewal a refused request starts (api.service.ts handleUnauthorized).
+ * start the renewal a refused request starts (api.service.ts handleUnauthorized). Its answer is a new token pair,
+ * which never goes to the development log.
  */
-const RENEWAL_REQUEST = { noSessionRenewal: true };
+const RENEWAL_REQUEST = { noSessionRenewal: true, secretResponse: true };
 
 class AuthService extends APIService {
 	/**

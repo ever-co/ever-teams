@@ -9,12 +9,21 @@ jest.mock('@/core/lib/helpers/cookies', () => ({
 	getTenantIdCookie: () => 'tenant-1'
 }));
 jest.mock('@/core/lib/auth/handle-unauthorized', () => ({ handleUnauthorized: jest.fn() }));
-jest.mock('../logs/logger.service', () => ({ Logger: { getInstance: () => ({ debug: mockDebug }) } }));
+// Read when a service logs, not when it is built: services are built as their modules load
+jest.mock('../logs/logger.service', () => ({
+	Logger: { getInstance: () => ({ debug: (...args: unknown[]) => mockDebug(...args) }) }
+}));
 jest.mock('../logs/logger-adapter.service', () => ({
 	HttpLoggerAdapter: jest.fn().mockImplementation(() => ({ logError: jest.fn() }))
 }));
+// Direct mode: the renewal goes to Gauzy through the auth service's own client
+jest.mock('@/core/constants/config/constants', () => ({
+	...jest.requireActual('@/core/constants/config/constants'),
+	GAUZY_API_BASE_SERVER_URL: { value: 'https://api.example.test' }
+}));
 
 import { APIService } from './api.service';
+import { authService } from './api/auth/auth.service';
 import type { APIConfig } from './axios';
 import { requestBodyForLog } from './request-log-body';
 
@@ -71,6 +80,34 @@ describe('development request log', () => {
 			signingSecret: 'signing-secret-1'
 		});
 	});
+
+	it('logs a session renewal without the refresh token it sends or the pair it receives', async () => {
+		(authService as unknown as { config: { enableLogging: boolean } }).config.enableLogging = true;
+		let sentBody = '';
+		authService.axiosInstance.defaults.adapter = async (config) => {
+			sentBody = String(config.data);
+			return {
+				config,
+				data: { token: 'access-token-2', refresh_token: 'refresh-token-2' },
+				headers: {},
+				status: 201,
+				statusText: 'Created'
+			} as AxiosResponse;
+		};
+
+		const answer = await authService.refreshTokenRaw('refresh-token-1');
+
+		expect(sentBody).toContain('refresh-token-1');
+		expect(answer.data).toEqual({ token: 'access-token-2', refresh_token: 'refresh-token-2' });
+		const requestLog = mockDebug.mock.calls.find(([message]) => String(message).includes('Request'));
+		expect(requestLog?.[1].data).toEqual(expect.objectContaining({ refresh_token: '[hidden]' }));
+		const responseLog = mockDebug.mock.calls.find(([message]) => String(message).includes('Response'));
+		expect(responseLog?.[1].data).toBe('[not logged]');
+		const logged = JSON.stringify(mockDebug.mock.calls);
+		expect(logged).not.toContain('refresh-token-1');
+		expect(logged).not.toContain('refresh-token-2');
+		expect(logged).not.toContain('access-token-2');
+	});
 });
 
 describe('requestBodyForLog', () => {
@@ -80,6 +117,13 @@ describe('requestBodyForLog', () => {
 			password: '[hidden]',
 			confirmPassword: '[hidden]',
 			hash: '[hidden]'
+		});
+	});
+
+	it('hides a refresh token, which renews a session as a password would open one', () => {
+		expect(requestBodyForLog({ refresh_token: 'r', organizationId: 'o' })).toEqual({
+			refresh_token: '[hidden]',
+			organizationId: 'o'
 		});
 	});
 
