@@ -11,15 +11,21 @@ export function useSession() {
 
 	useEffect(() => {
 		let isOpen = true;
+		// A change that lands before the first read answers is newer than what that read found
+		let isFirstReadSuperseded = false;
 		void loadSession().then((stored) => {
-			if (isOpen) {
-				setSession(stored);
-				setLoading(false);
+			if (!isOpen) {
+				return;
 			}
+			if (!isFirstReadSuperseded) {
+				setSession(stored);
+			}
+			setLoading(false);
 		});
 		const onChanged = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
 			const sessionChanged = area === 'local' && 'session' in changes;
 			if (sessionChanged) {
+				isFirstReadSuperseded = true;
 				setSession((changes.session.newValue as Session | undefined) ?? null);
 			}
 		};
