@@ -9,7 +9,10 @@ import type {
 } from '@/core/types/interfaces/auth/two-factor';
 import { serverFetch } from '../fetch';
 
-/** The session of the caller, for Gauzy's signed-in two-factor routes. */
+/**
+ * The session of the caller, for Gauzy's signed-in two-factor routes. Every request keeps the status of a refusal
+ * without a JSON body (an API without these routes, or its proxy, may answer a bare 404).
+ */
 interface ISession {
 	bearer_token: string;
 	tenantId: string;
@@ -18,7 +21,12 @@ interface ISession {
 /** `GET /auth/two-factor`: the caller's own state (the organization decides `requiredByOrganization`). */
 export function twoFactorStatusRequest({ organizationId, ...session }: ISession & { organizationId?: string }) {
 	const query = organizationId ? `?organizationId=${encodeURIComponent(organizationId)}` : '';
-	return serverFetch<ITwoFactorStatus>({ path: `/auth/two-factor${query}`, method: 'GET', ...session });
+	return serverFetch<ITwoFactorStatus>({
+		path: `/auth/two-factor${query}`,
+		method: 'GET',
+		...session,
+		keepsStatusOnError: true
+	});
 }
 
 export function enrollTwoFactorRequest({ issuer, ...session }: ISession & { issuer?: string }) {
@@ -26,7 +34,8 @@ export function enrollTwoFactorRequest({ issuer, ...session }: ISession & { issu
 		path: '/auth/two-factor/enroll',
 		method: 'POST',
 		body: issuer ? { issuer } : {},
-		...session
+		...session,
+		keepsStatusOnError: true
 	});
 }
 
@@ -35,12 +44,19 @@ export function confirmTwoFactorRequest({ code, ...session }: ISession & { code:
 		path: '/auth/two-factor/confirm',
 		method: 'POST',
 		body: { code },
-		...session
+		...session,
+		keepsStatusOnError: true
 	});
 }
 
 export function disableTwoFactorRequest({ proof, ...session }: ISession & { proof: ITwoFactorProof }) {
-	return serverFetch<ITwoFactorStatus>({ path: '/auth/two-factor/disable', method: 'POST', body: proof, ...session });
+	return serverFetch<ITwoFactorStatus>({
+		path: '/auth/two-factor/disable',
+		method: 'POST',
+		body: proof,
+		...session,
+		keepsStatusOnError: true
+	});
 }
 
 export function regenerateRecoveryCodesRequest({ proof, ...session }: ISession & { proof: ITwoFactorProof }) {
@@ -48,7 +64,8 @@ export function regenerateRecoveryCodesRequest({ proof, ...session }: ISession &
 		path: '/auth/two-factor/recovery-codes',
 		method: 'POST',
 		body: proof,
-		...session
+		...session,
+		keepsStatusOnError: true
 	});
 }
 
@@ -57,11 +74,17 @@ export function resetMemberTwoFactorRequest({ userId, ...session }: ISession & {
 	return serverFetch<{ reset: boolean }>({
 		path: `/auth/two-factor/users/${encodeURIComponent(userId)}`,
 		method: 'DELETE',
-		...session
+		...session,
+		keepsStatusOnError: true
 	});
 }
 
 /** Public: trades the challenge of a sign-in and its code (or a recovery code) for the session. */
 export function verifyTwoFactorRequest(input: ITwoFactorVerifyInput) {
-	return serverFetch<IAuthResponse>({ path: '/auth/two-factor/verify', method: 'POST', body: input });
+	return serverFetch<IAuthResponse>({
+		path: '/auth/two-factor/verify',
+		method: 'POST',
+		body: input,
+		keepsStatusOnError: true
+	});
 }
