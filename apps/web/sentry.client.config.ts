@@ -6,6 +6,7 @@
 import type * as SentrySdk from '@sentry/nextjs';
 import { readRuntimeEnv } from '@/env-config';
 import { isAccountDeletionPath } from '@/core/lib/auth/account-deletion';
+import { isSharedReportPath } from '@/core/lib/utils/shared-report-path';
 
 type Sentry = typeof SentrySdk;
 type EarlyError = { error: unknown; mechanism: string };
@@ -113,6 +114,8 @@ async function loadSentryClient(): Promise<Sentry | undefined> {
 	// A page load that starts on the account deletion pages leaves Sentry off: the SDK records the address it starts
 	// on (page load span, navigation breadcrumbs, replay), and the e-mailed link carries a deletion token in it.
 	if (isAccountDeletionPath(window.location.pathname)) return undefined;
+	// The same for a shared report: its link carries the token that opens it.
+	if (isSharedReportPath(window.location.pathname)) return undefined;
 
 	// Registered synchronously, before the first await: nothing thrown from here on is missed.
 	const takeEarlyErrors = bufferEarlyErrors();
