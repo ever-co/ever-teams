@@ -100,6 +100,8 @@ const Tasks: FC<Props> = ({
 	const [search, setSearch] = useState('');
 	const [newTitle, setNewTitle] = useState('');
 	const [newEstimate, setNewEstimate] = useState('');
+	// The estimate fields keep their own hours and minutes: a new key empties them with the value sent
+	const [estimateFieldsKey, setEstimateFieldsKey] = useState(0);
 	const [adding, setAdding] = useState(false);
 	const [addError, setAddError] = useState<Refusal | null>(null);
 
@@ -126,6 +128,7 @@ const Tasks: FC<Props> = ({
 			onCreated(created);
 			setNewTitle('');
 			setNewEstimate('');
+			setEstimateFieldsKey((key) => key + 1);
 		} catch (failure) {
 			setAddError(refusalFrom(failure));
 		} finally {
@@ -209,7 +212,7 @@ const Tasks: FC<Props> = ({
 				/>
 				<div className="flex items-center justify-between gap-2 text-sm">
 					<div className="flex items-center">
-						<TasksEstimatedInputs task={null} onEstimateChange={onEstimateChange} />
+						<TasksEstimatedInputs key={estimateFieldsKey} task={null} onEstimateChange={onEstimateChange} />
 					</div>
 					<button type="submit" className={ghostButton} disabled={adding || !newTitle.trim()}>
 						{adding && <SpinnerIcon className="h-4 w-4" />}
