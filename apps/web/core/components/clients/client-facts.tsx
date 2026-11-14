@@ -120,14 +120,18 @@ function ClientNotes({ notes }: Readonly<{ notes: string }>) {
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [isClamped, setIsClamped] = useState(false);
 
+	// Measured with the clamp on only: expanded, the text never runs longer than itself, and the toggle would go
 	useLayoutEffect(() => {
 		const text = textRef.current;
 		if (!text) {
 			return;
 		}
+		if (isExpanded) {
+			return;
+		}
 		const runsLonger = text.scrollHeight > text.clientHeight + 1;
 		setIsClamped(runsLonger);
-	}, [notes]);
+	}, [notes, isExpanded]);
 
 	const showsToggle = isClamped || isExpanded;
 	let toggleLabel = t('clients.notes.READ_MORE');
