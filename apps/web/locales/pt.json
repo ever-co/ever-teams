@@ -7315,5 +7315,17 @@
 		"CLIENTS": "{count, plural, one {# cliente} other {# clientes}}",
 		"NAMES_ERROR_TITLE": "Não foi possível carregar a lista de clientes",
 		"NAMES_ERROR_MESSAGE": "Os clientes arquivados aparecem sem o nome até lá."
+	},
+	"timeZoneNotice": {
+		"TITLE": "Seu perfil usa {profileZone} ({profileOffset}). Este navegador está em {browserZone} ({browserOffset}).",
+		"DESCRIPTION": "As folhas de ponto contam seus dias no fuso do seu perfil e os outros relatórios no deste navegador, então um registro perto da meia-noite pode cair em outro dia.",
+		"TITLE_NO_PROFILE_ZONE": "Seu perfil não tem fuso horário. Este navegador está em {browserZone} ({browserOffset}).",
+		"DESCRIPTION_NO_PROFILE_ZONE": "Até você escolher um, as folhas de ponto contam seus dias em UTC e os outros relatórios no fuso deste navegador.",
+		"USE": "Usar {zone}",
+		"KEEP": "Manter {zone}",
+		"SAVING": "Salvando…",
+		"SAVE_FAILED": "Não foi possível salvar seu fuso horário.",
+		"SAVE_FAILED_DESCRIPTION": "Seu perfil não mudou. Verifique sua conexão e tente novamente.",
+		"TRY_AGAIN": "Tentar novamente"
 	}
 }

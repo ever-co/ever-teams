@@ -7315,5 +7315,17 @@
 		"CLIENTS": "{count, plural, one {# klant} other {# klanten}}",
 		"NAMES_ERROR_TITLE": "De klantenlijst kon niet worden geladen",
 		"NAMES_ERROR_MESSAGE": "Gearchiveerde klanten staan tot dan zonder hun naam."
+	},
+	"timeZoneNotice": {
+		"TITLE": "Je profiel gebruikt {profileZone} ({profileOffset}). Deze browser staat in {browserZone} ({browserOffset}).",
+		"DESCRIPTION": "Urenstaten tellen je dagen in de tijdzone van je profiel en de andere rapporten in die van deze browser, dus een registratie rond middernacht kan op een andere dag vallen.",
+		"TITLE_NO_PROFILE_ZONE": "Je profiel heeft geen tijdzone. Deze browser staat in {browserZone} ({browserOffset}).",
+		"DESCRIPTION_NO_PROFILE_ZONE": "Tot je er een kiest, tellen urenstaten je dagen in UTC en de andere rapporten in de tijdzone van deze browser.",
+		"USE": "{zone} gebruiken",
+		"KEEP": "{zone} houden",
+		"SAVING": "Opslaan…",
+		"SAVE_FAILED": "Je tijdzone kon niet worden opgeslagen.",
+		"SAVE_FAILED_DESCRIPTION": "Je profiel is niet gewijzigd. Controleer je verbinding en probeer het opnieuw.",
+		"TRY_AGAIN": "Opnieuw proberen"
 	}
 }

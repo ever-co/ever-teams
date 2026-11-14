@@ -12,6 +12,7 @@ import { pathCarriesItsOwnTimer } from './timer-paths';
 import GlobalHeader from './global-header';
 import { DemoBanner } from './demo-banner';
 import { PageContentScroller } from './page-content-scroller';
+import { TimeZoneNotice } from './time-zone-notice';
 
 type PageLayoutProps = PropsWithChildren<{
 	/** Updates the browser tab title ("title | APP_NAME"). */
@@ -67,6 +68,8 @@ export function PageLayout({
 
 	const headerRef = useRef<HTMLDivElement>(null);
 	const headerHeight = useElementHeight<HTMLDivElement | null>(headerRef);
+	const noticeRef = useRef<HTMLDivElement>(null);
+	const noticeHeight = useElementHeight<HTMLDivElement | null>(noticeRef);
 
 	useEffect(() => {
 		if (!title) return;
@@ -83,7 +86,9 @@ export function PageLayout({
 		if (!headerHeight) return;
 
 		const hasMultipleTimers = pathCarriesItsOwnTimer(path);
-		const headerIsShort = headerHeight <= SHORT_HEADER_HEIGHT;
+		// The time zone notice sits in the header while it shows: the rule reads the page's own header
+		const pageHeaderHeight = headerHeight - noticeHeight;
+		const headerIsShort = pageHeaderHeight <= SHORT_HEADER_HEIGHT;
 		const shouldActivateTimer = !hasMultipleTimers || headerIsShort;
 
 		setActiveTimer((prev) => {
@@ -93,7 +98,7 @@ export function PageLayout({
 			return prev;
 		});
 		setShouldRenderTimer(true);
-	}, [path, headerHeight, mainHeaderSlot]);
+	}, [path, headerHeight, noticeHeight, mainHeaderSlot]);
 
 	const timerActive = shouldRenderTimer && activeTimer;
 	const headerCarriesTimer = timerActive || Boolean(showTimer);
@@ -101,9 +106,18 @@ export function PageLayout({
 	const headerShowsTimer = headerCarriesTimer && isTrackingEnabled;
 	// In its place, a member whose tracking is turned off reads why
 	const headerShowsTrackingOff = headerCarriesTimer && isOwnTrackingOff;
+	// About the signed-in member's own profile: nothing to say on a public team page or the not-found page
+	const showsTimeZoneNotice = !publicTeam && !notFound;
+	let timeZoneNotice: ReactNode = null;
+	if (showsTimeZoneNotice) {
+		timeZoneNotice = <TimeZoneNotice />;
+	}
 
 	return (
-		<div className="flex h-full min-h-0 w-full flex-col overflow-clip" data-pane-surface={fill ? 'true' : undefined}>
+		<div
+			className="flex h-full min-h-0 w-full flex-col overflow-clip"
+			data-pane-surface={fill ? 'true' : undefined}
+		>
 			{/* Outside headerRef: the strip must not count towards the header height the timer logic measures. */}
 			<DemoBanner />
 			<GlobalHeader
@@ -115,9 +129,13 @@ export function PageLayout({
 				breadcrumb={breadcrumb}
 				mainHeaderSlot={mainHeaderSlot}
 				mainHeaderSlotClassName={mainHeaderSlotClassName}
+				notice={timeZoneNotice}
+				noticeRef={noticeRef}
 			/>
 			<PageContentScroller contentClassName={fill ? 'h-full' : undefined}>
-				<main className={cn('relative flex min-h-full w-full flex-col p-4', fill && 'h-full min-h-0', className)}>
+				<main
+					className={cn('relative flex min-h-full w-full flex-col p-4', fill && 'h-full min-h-0', className)}
+				>
 					{/* `clip`, not `hidden`: overflow-x hidden makes this a scroll container of its own. PageContentScroller owns scrolling. */}
 					<div
 						className={cn(

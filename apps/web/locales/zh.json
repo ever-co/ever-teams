@@ -7315,5 +7315,17 @@
 		"CLIENTS": "{count, plural, other {# 个客户}}",
 		"NAMES_ERROR_TITLE": "无法加载客户列表",
 		"NAMES_ERROR_MESSAGE": "在此之前，已归档的客户不显示名称。"
+	},
+	"timeZoneNotice": {
+		"TITLE": "你的个人资料使用 {profileZone}（{profileOffset}）。此浏览器位于 {browserZone}（{browserOffset}）。",
+		"DESCRIPTION": "时间表按你个人资料的时区计算每一天，其他报告按此浏览器的时区计算，因此接近午夜的记录可能落在另一天。",
+		"TITLE_NO_PROFILE_ZONE": "你的个人资料没有设置时区。此浏览器位于 {browserZone}（{browserOffset}）。",
+		"DESCRIPTION_NO_PROFILE_ZONE": "在你选择时区之前，时间表按 UTC 计算你的每一天，其他报告按此浏览器的时区计算。",
+		"USE": "使用 {zone}",
+		"KEEP": "保留 {zone}",
+		"SAVING": "正在保存…",
+		"SAVE_FAILED": "无法保存你的时区。",
+		"SAVE_FAILED_DESCRIPTION": "你的个人资料没有更改。请检查网络连接后重试。",
+		"TRY_AGAIN": "重试"
 	}
 }
