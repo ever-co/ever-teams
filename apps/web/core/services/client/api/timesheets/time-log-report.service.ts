@@ -28,7 +28,7 @@ export interface TimeLogReportRange {
 
 export type ChangedTimeLogKind = 'added' | 'edited';
 
-export interface BillableTimeReadOptions {
+interface BillableTimeReadOptions {
 	/** Leaves out the time a live invoice bills. An API that does not record billed time ignores it. */
 	notInvoiced: boolean;
 	/** The organization and tenant the caller's cache key holds, whatever the cookies say when the read starts. */

@@ -22,7 +22,7 @@ export function isTimeBilledElsewhere(error: unknown): boolean {
 	return isRefusal && namesTimeLog;
 }
 
-export interface BilledLogLike {
+interface BilledLogLike {
 	id?: string | null;
 	/** The invoice line that bills the log, null when none does; left out by an API that does not record it. */
 	invoiceItemId?: string | null;
@@ -212,7 +212,7 @@ export function recordingReadDaysOf(periods: ReadonlyArray<InvoicePeriodDays>): 
 	return { fromDay: shiftedDayKey(fromDay, -1), toDay: shiftedDayKey(toDay, 1) };
 }
 
-export interface StartedLogLike {
+interface StartedLogLike {
 	startedAt?: string | null;
 }
 
