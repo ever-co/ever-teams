@@ -35,21 +35,23 @@ function sumOfTasks(tasks: ReadonlyArray<ITimerTaskLog>): number {
 
 /**
  * A member's time on a project and day with each entry rounded. The daily report lists one task row per entry, so
- * each row is rounded on its own and the member's time adds them; the activity percent stays what was tracked.
+ * each row is rounded on its own and the member's time adds them. The activity percent stays what was tracked, and
+ * the tracked time stays beside the rounded time: Gauzy measures activity on the tracked time, so every average of
+ * it is weighted by that time, never by the rounded one.
  */
 function roundedEmployeeLogOf(employeeLog: ITimerEmployeeLog, rule: DurationRoundingRule): ITimerEmployeeLog {
 	const tasks = employeeLog?.tasks ?? [];
-	const roundedTasks = tasks.map((task) => ({
-		...task,
-		duration: roundedSecondsOf(secondsOf(task?.duration), rule)
-	}));
+	const roundedTasks = tasks.map((task) => {
+		const trackedDuration = secondsOf(task?.duration);
+		return { ...task, duration: roundedSecondsOf(trackedDuration, rule), trackedDuration };
+	});
 	let sum = sumOfTasks(roundedTasks);
 	// Time the rows do not account for is rounded as one entry
 	const timeOutsideTasks = secondsOf(employeeLog?.sum) - sumOfTasks(tasks);
 	if (timeOutsideTasks > 0) {
 		sum += roundedSecondsOf(timeOutsideTasks, rule);
 	}
-	return { ...employeeLog, tasks: roundedTasks, sum };
+	return { ...employeeLog, tasks: roundedTasks, sum, trackedSum: secondsOf(employeeLog?.sum) };
 }
 
 /**

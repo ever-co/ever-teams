@@ -31,6 +31,7 @@ const FIGURES: TimeActivityFigures = {
 	totals: {
 		seconds: HOUR,
 		activeSeconds: HOUR / 2,
+		trackedSeconds: HOUR,
 		earnings: [],
 		dayCount: 1,
 		memberCount: 1,

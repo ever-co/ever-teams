@@ -11,7 +11,13 @@ import type { TimeActivityFilterOptions } from '@/core/hooks/dashboards/time-act
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { type CsvColumn, downloadCsv, downloadPdf, periodFileNameOf } from '@/core/lib/utils/dashboard-export';
 import type { Period } from '@/core/lib/utils/dashboard-period';
-import { type CurrencyAmount, formatAmount, formatAmounts } from '@/core/lib/utils/daily-report-figures';
+import {
+	activityPercentOf,
+	type CurrencyAmount,
+	type FigureTotals,
+	formatAmount,
+	formatAmounts
+} from '@/core/lib/utils/daily-report-figures';
 import {
 	type ClientExportLine,
 	type ClientLabels,
@@ -296,12 +302,12 @@ function rowAmountTextOf(row: Pick<TimeActivityExportRow, 'earnings' | 'currency
 	return formatAmount({ amount, currency }, locale);
 }
 
-function percentTextOf(seconds: number, activeSeconds: number) {
-	if (seconds <= 0) {
+/** The activity is a share of the time as tracked, as on the page, whatever rounding the time shown has. */
+function percentTextOf(figures: FigureTotals) {
+	if (figures.seconds <= 0) {
 		return MISSING_VALUE;
 	}
-	const share = (activeSeconds / seconds) * 100;
-	return `${Math.round(share)}%`;
+	return `${Math.round(activityPercentOf(figures))}%`;
 }
 
 function printedPeriodOf(period: Period, locale: FormatLocale) {
@@ -435,7 +441,7 @@ function clientPdfRowOf(groupKey: string, line: ClientExportLine, labels: Export
 		task: line.task ?? labels.noTask,
 		tracked: formatDurationShort(line.seconds),
 		earnings: rowAmountTextOf(line, locale),
-		activity: percentTextOf(line.seconds, line.activeSeconds)
+		activity: percentTextOf(line)
 	};
 }
 
@@ -456,7 +462,7 @@ function clientPdfGroupsOf(context: ExportContext): PdfGroup[] {
 			title: clientLabelOf(clientOfGroup(group), labels),
 			tracked: formatDurationShort(group.seconds),
 			earnings: amountsTextOf(group.earnings, locale),
-			activity: percentTextOf(group.seconds, group.activeSeconds),
+			activity: percentTextOf(group),
 			rows: lines.map((line) => clientPdfRowOf(group.key, line, labels, locale))
 		};
 	});
@@ -494,7 +500,7 @@ function pdfGroupsOf(context: ExportContext, layout: PdfLayout): PdfGroup[] {
 			title: layout.groupTitle(group, firstNamed),
 			tracked: formatDurationShort(group.seconds),
 			earnings: amountsTextOf(group.earnings, locale),
-			activity: percentTextOf(group.seconds, group.activeSeconds),
+			activity: percentTextOf(group),
 			rows
 		});
 	}

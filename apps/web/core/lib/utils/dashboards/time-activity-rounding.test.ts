@@ -1,5 +1,17 @@
+import { activityPercentOf, dayFiguresOf, flattenDailyReport } from '@/core/lib/utils/daily-report-figures';
 import type { DurationRoundingRule } from '@/core/lib/utils/duration-rounding';
 import type { ITimeLogGroupedDailyReport, ITimerTaskLog } from '@/core/types/interfaces/activity/activity-report';
+import {
+	breakdownFactsOf,
+	breakdownTreeOf,
+	chartDaysOf,
+	clientExportLinesOf,
+	dayActivityPercentOf,
+	exportGroupsOf,
+	exportRowsOf,
+	reportGroupsOf,
+	reportTotalsOf
+} from './time-activity';
 import { roundedDailyReportOf } from './time-activity-rounding';
 
 const QUARTER_UP: DurationRoundingRule = { intervalMinutes: 15, direction: 'UP' };
@@ -89,5 +101,90 @@ describe('roundedDailyReportOf', () => {
 		const rounded = employeeLogOf(roundedDailyReportOf(report, QUARTER_UP));
 
 		expect(rounded.tasks[0]).toEqual(expect.objectContaining({ organizationTeamId: null, duration: 15 * MINUTE }));
+	});
+});
+
+describe('the activity of a report with each entry rounded', () => {
+	// Gauzy measures activity on the time as tracked: 1 min at 100% and 14 min at 0% is 1 min active in 15, 6.7%
+	const TRACKED_ACTIVITY = (1 / 15) * 100;
+
+	function memberLogOf(id: string, minutes: number, activity: number) {
+		return { employee: { id }, sum: minutes * MINUTE, activity, tasks: [entryRowOf('task-1', minutes)] };
+	}
+
+	function twoMembersOf(first: [number, number], second: [number, number]) {
+		return [
+			{
+				date: '2026-11-10',
+				logs: [
+					{
+						project: { id: 'project-a', name: 'Project A' },
+						employeeLogs: [memberLogOf('marie', ...first), memberLogOf('jo', ...second)]
+					}
+				]
+			}
+		] as unknown as ITimeLogGroupedDailyReport[];
+	}
+
+	const ONE_ACTIVE_MINUTE_IN_FIFTEEN = twoMembersOf([1, 100], [14, 0]);
+
+	function roundedRowsOf(report: ReadonlyArray<ITimeLogGroupedDailyReport>, rule: DurationRoundingRule) {
+		return flattenDailyReport(roundedDailyReportOf(report, rule));
+	}
+
+	it('stays a share of the tracked time in the totals while the time shown is rounded', () => {
+		const rows = roundedRowsOf(ONE_ACTIVE_MINUTE_IN_FIFTEEN, QUARTER_UP);
+
+		const totals = reportTotalsOf(rows);
+
+		expect(totals.seconds).toBe(30 * MINUTE);
+		expect(activityPercentOf(totals)).toBeCloseTo(TRACKED_ACTIVITY);
+	});
+
+	it('keeps the activity of the time as tracked in the table, the chart and the breakdown', () => {
+		const rows = roundedRowsOf(ONE_ACTIVE_MINUTE_IN_FIFTEEN, QUARTER_UP);
+
+		const [day] = reportGroupsOf(rows, 'date');
+		const [chartDay] = chartDaysOf([new Date(2026, 10, 10)], dayFiguresOf(rows), '2026-11-10', {
+			label: () => '',
+			axisLabel: () => ''
+		});
+		const breakdown = breakdownTreeOf(breakdownFactsOf(rows), 'member');
+
+		expect(activityPercentOf(day)).toBeCloseTo(TRACKED_ACTIVITY);
+		expect(day.lines.map((line) => Math.round(activityPercentOf(line)))).toEqual([100, 0]);
+		expect(chartDay.value).toBe(30 * MINUTE);
+		expect(dayActivityPercentOf(chartDay)).toBeCloseTo(TRACKED_ACTIVITY);
+		expect(activityPercentOf(breakdown.totals)).toBeCloseTo(TRACKED_ACTIVITY);
+	});
+
+	it('keeps the activity of the time as tracked in the exports', () => {
+		const exportRows = exportRowsOf(roundedDailyReportOf(ONE_ACTIVE_MINUTE_IN_FIFTEEN, QUARTER_UP), null);
+
+		const [group] = exportGroupsOf(exportRows, 'date');
+		const lines = clientExportLinesOf(exportRows);
+
+		expect(group.seconds).toBe(30 * MINUTE);
+		expect(activityPercentOf(group)).toBeCloseTo(TRACKED_ACTIVITY);
+		expect(lines.map((line) => Math.round(activityPercentOf(line)))).toEqual([100, 0]);
+	});
+
+	it('counts the activity of an entry rounded down to nothing, in the totals as in the breakdown', () => {
+		// 1 min at 100% rounds down to nothing and 20 min at 0% to 15 min: 1 min active in 21 tracked
+		const rows = roundedRowsOf(twoMembersOf([1, 100], [20, 0]), { intervalMinutes: 15, direction: 'DOWN' });
+
+		const totals = reportTotalsOf(rows);
+		const breakdown = breakdownTreeOf(breakdownFactsOf(rows), 'date');
+
+		expect(totals.seconds).toBe(15 * MINUTE);
+		expect(activityPercentOf(totals)).toBeCloseTo((1 / 21) * 100);
+		expect(activityPercentOf(breakdown.totals)).toBeCloseTo((1 / 21) * 100);
+	});
+
+	it('leaves the rows of time as tracked as they were without a rule', () => {
+		const rows = flattenDailyReport(roundedDailyReportOf(ONE_ACTIVE_MINUTE_IN_FIFTEEN, null));
+
+		expect(rows.map((row) => row.trackedSeconds)).toEqual([undefined, undefined]);
+		expect(rows.map((row) => row.activeSeconds)).toEqual([MINUTE, 0]);
 	});
 });
