@@ -3416,7 +3416,13 @@
 		"EVER_APPS": "Ever 应用",
 		"CURRENT_APP": "{app}，你当前所在的应用",
 		"OPENS_IN_NEW_TAB": "（在新标签页中打开）",
-		"APP_OPENS_IN_NEW_TAB": "{app}（在新标签页中打开）"
+		"APP_OPENS_IN_NEW_TAB": "{app}（在新标签页中打开）",
+		"OTHER_ORGANIZATIONS_LOADING": "正在加载你的其他组织",
+		"OTHER_ORGANIZATIONS_FAILED": "无法加载你的其他组织。",
+		"TRY_AGAIN": "重试",
+		"UNNAMED_ORGANIZATION": "未命名的组织",
+		"OPEN_ORGANIZATION": "打开你在那里的团队",
+		"ORGANIZATION_SWITCH_FAILED": "无法打开此组织。请重试。"
 	},
 	"workspaceCreation": {
 		"TITLE": "创建工作区",
@@ -3956,6 +3962,7 @@
 			"NO_TASK": "请选择一个任务来启动计时器",
 			"START_IN_PROGRESS": "计时器仍在为另一个任务启动",
 			"WORKSPACE_OPENING": "新工作区正在打开：请在它打开后再启动计时器。",
+			"ORGANIZATION_OPENING": "另一个组织正在打开：请在它打开后再启动计时器。",
 			"STOPPED_TEAM_SWITCH": "您切换了团队，计时器已停止",
 			"STOPPED_TASK_SWITCH": "您的当前任务已变更，计时器已停止",
 			"STALE_STOPPED": "计时器已停止：{stoppedAt}",

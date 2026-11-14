@@ -3416,7 +3416,13 @@
 		"EVER_APPS": "Ever-Apps",
 		"CURRENT_APP": "{app}, die App, in der du bist",
 		"OPENS_IN_NEW_TAB": "(öffnet sich in einem neuen Tab)",
-		"APP_OPENS_IN_NEW_TAB": "{app} (öffnet sich in einem neuen Tab)"
+		"APP_OPENS_IN_NEW_TAB": "{app} (öffnet sich in einem neuen Tab)",
+		"OTHER_ORGANIZATIONS_LOADING": "Ihre anderen Organisationen werden geladen",
+		"OTHER_ORGANIZATIONS_FAILED": "Ihre anderen Organisationen konnten nicht geladen werden.",
+		"TRY_AGAIN": "Erneut versuchen",
+		"UNNAMED_ORGANIZATION": "Organisation ohne Namen",
+		"OPEN_ORGANIZATION": "Ihre Teams dort öffnen",
+		"ORGANIZATION_SWITCH_FAILED": "Diese Organisation konnte nicht geöffnet werden. Versuchen Sie es erneut."
 	},
 	"workspaceCreation": {
 		"TITLE": "Arbeitsbereich erstellen",
@@ -3956,6 +3962,7 @@
 			"NO_TASK": "Wählen Sie eine Aufgabe, um den Timer zu starten",
 			"START_IN_PROGRESS": "Der Timer startet gerade noch für eine andere Aufgabe",
 			"WORKSPACE_OPENING": "Dein neuer Workspace wird geöffnet: Starte den Timer, sobald er offen ist.",
+			"ORGANIZATION_OPENING": "Eine andere Organisation wird geöffnet: Starte den Timer, sobald sie offen ist.",
 			"STOPPED_TEAM_SWITCH": "Timer gestoppt, weil Sie das Team gewechselt haben",
 			"STOPPED_TASK_SWITCH": "Timer gestoppt, weil sich Ihre aktive Aufgabe geändert hat",
 			"STALE_STOPPED": "Timer gestoppt: {stoppedAt}",

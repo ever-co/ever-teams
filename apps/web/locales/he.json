@@ -3416,7 +3416,13 @@
 		"EVER_APPS": "אפליקציות Ever",
 		"CURRENT_APP": "{app}, האפליקציה שבה אתם נמצאים",
 		"OPENS_IN_NEW_TAB": "(נפתח בכרטיסייה חדשה)",
-		"APP_OPENS_IN_NEW_TAB": "{app} (נפתח בכרטיסייה חדשה)"
+		"APP_OPENS_IN_NEW_TAB": "{app} (נפתח בכרטיסייה חדשה)",
+		"OTHER_ORGANIZATIONS_LOADING": "טוען את הארגונים האחרים שלך",
+		"OTHER_ORGANIZATIONS_FAILED": "לא ניתן היה לטעון את הארגונים האחרים שלך.",
+		"TRY_AGAIN": "נסה שוב",
+		"UNNAMED_ORGANIZATION": "ארגון ללא שם",
+		"OPEN_ORGANIZATION": "פתח את הצוותים שלך שם",
+		"ORGANIZATION_SWITCH_FAILED": "לא ניתן היה לפתוח את הארגון הזה. נסה שוב."
 	},
 	"workspaceCreation": {
 		"TITLE": "יצירת סביבת עבודה",
@@ -3956,6 +3962,7 @@
 			"NO_TASK": "בחר משימה כדי להפעיל את הטיימר",
 			"START_IN_PROGRESS": "הטיימר עדיין מופעל על משימה אחרת",
 			"WORKSPACE_OPENING": "סביבת העבודה החדשה נפתחת: אפשר להפעיל את הטיימר אחרי שתיפתח.",
+			"ORGANIZATION_OPENING": "ארגון אחר נפתח: אפשר להפעיל את הטיימר אחרי שייפתח.",
 			"STOPPED_TEAM_SWITCH": "הטיימר נעצר כי עברת לצוות אחר",
 			"STOPPED_TASK_SWITCH": "הטיימר נעצר כי המשימה הפעילה שלך השתנתה",
 			"STALE_STOPPED": "הטיימר נעצר: {stoppedAt}",

@@ -3416,7 +3416,13 @@
 		"EVER_APPS": "Ever-apps",
 		"CURRENT_APP": "{app}, de app waarin je bent",
 		"OPENS_IN_NEW_TAB": "(opent in een nieuw tabblad)",
-		"APP_OPENS_IN_NEW_TAB": "{app} (opent in een nieuw tabblad)"
+		"APP_OPENS_IN_NEW_TAB": "{app} (opent in een nieuw tabblad)",
+		"OTHER_ORGANIZATIONS_LOADING": "Je andere organisaties worden geladen",
+		"OTHER_ORGANIZATIONS_FAILED": "Je andere organisaties konden niet worden geladen.",
+		"TRY_AGAIN": "Opnieuw proberen",
+		"UNNAMED_ORGANIZATION": "Organisatie zonder naam",
+		"OPEN_ORGANIZATION": "Je teams daar openen",
+		"ORGANIZATION_SWITCH_FAILED": "Deze organisatie kon niet worden geopend. Probeer het opnieuw."
 	},
 	"workspaceCreation": {
 		"TITLE": "Werkruimte maken",
@@ -3956,6 +3962,7 @@
 			"NO_TASK": "Kies een taak om de timer te starten",
 			"START_IN_PROGRESS": "De timer start nog voor een andere taak",
 			"WORKSPACE_OPENING": "Je nieuwe werkruimte wordt geopend: start de timer zodra die open is.",
+			"ORGANIZATION_OPENING": "Een andere organisatie wordt geopend: start de timer zodra die open is.",
 			"STOPPED_TEAM_SWITCH": "Timer gestopt omdat je van team bent gewisseld",
 			"STOPPED_TASK_SWITCH": "Timer gestopt omdat je actieve taak is gewijzigd",
 			"STALE_STOPPED": "Timer gestopt: {stoppedAt}",

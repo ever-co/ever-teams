@@ -1,5 +1,6 @@
 import { IUserOrganization } from '@/core/types/interfaces/organization/user-organization';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { apiErrorStatusOf, unwrapRejection } from '@/core/services/server/fetch';
 import {
 	createOrganizationTeamRequest,
 	getAllOrganizationTeamRequest,
@@ -45,7 +46,7 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
-	const { $res, user, access_token, tenantId, status } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId, organizationId, status } = await authenticatedGuard(req, res);
 
 	if (!user) {
 		return NextResponse.json({}, { status: status ?? 401 });
@@ -65,16 +66,30 @@ export async function GET(req: Request) {
 			return acc;
 		}, [] as IUserOrganization[]);
 
+		// Gauzy keeps a member (not a workspace admin) inside the organization of their session, so it refuses the
+		// teams of their other organizations: that refusal leaves the organization out instead of failing the whole
+		// list (#5204). Any other failed read, and any failed read of the session's organization, still fails it.
 		const call_teams = filteredOrganization.map((item) =>
 			getAllOrganizationTeamRequest(
 				{ tenantId: tenantId || '', organizationId: item.organizationId || '' },
-				access_token || ''
-			)
+				access_token || '',
+				// A refusal whose body carries no status still gives its HTTP status
+				{ keepsStatusOnError: true }
+			).catch(async (error: unknown) => {
+				const isOtherOrganization = item.organizationId !== organizationId;
+				const answerStatus = apiErrorStatusOf(await unwrapRejection(error));
+				const isRefusal = answerStatus === 400 || answerStatus === 403;
+				if (isOtherOrganization && isRefusal) {
+					return null;
+				}
+				throw error;
+			})
 		);
 
-		const teams = await Promise.all(call_teams).then((tms) =>
-			tms.reduce(
-				(acc, { data }) => {
+		const teams = await Promise.all(call_teams).then((reads) =>
+			reads.reduce(
+				(acc, read) => {
+					const data = read?.data;
 					if (data?.items) {
 						acc.items.push(...data.items);
 						acc.total += data.total;
