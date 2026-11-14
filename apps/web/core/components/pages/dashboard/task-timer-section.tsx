@@ -48,6 +48,23 @@ const TaskBlockTimer = dynamic(() => import('@/core/components/timer/timer').the
 	loading: () => <TimerSkeleton className={TASK_BLOCK_TIMER_CLASS_NAME} />
 });
 
+const TaskBlockRunMenu = dynamic(
+	() => import('@/core/components/timer/timer-run-menu').then((mod) => ({ default: mod.TimerRunMenu })),
+	{ ssr: false }
+);
+
+/** Under the timer on a phone: the input's toggle, and the timer's run menu at its end while a run may be discarded. */
+const TASK_INPUT_TOGGLE_ROW_CLASS_NAME = 'mt-2 flex w-full items-center gap-2 md:hidden';
+
+/** The toggle shares its row with the run menu: it takes the room left, at the row's top. */
+const TASK_INPUT_TOGGLE_IN_ROW_CLASS_NAME = 'mt-0 min-w-0 flex-1';
+
+/**
+ * The timer's own row has no room for the run menu on a phone (`Timer` leaves it out below sm): it stands here, at the
+ * height of the input's toggle.
+ */
+const TASK_BLOCK_RUN_MENU_CLASS_NAME = 'size-7 sm:hidden';
+
 export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEnabled: boolean }>) {
 	const [showInput, setShowInput] = useState(false);
 	const timerStatus = useAtomValue(timerStatusState);
@@ -69,17 +86,20 @@ export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEna
 					!hasPane && TASK_INPUT_WITHOUT_TIMER_CLASS_NAME
 				)}
 			/>
-			<button
-				type="button"
-				aria-expanded={showInput}
-				onClick={() => setShowInput((p) => !p)}
-				className={TASK_INPUT_TOGGLE_CLASS_NAME}
-			>
-				<ChevronDown
-					className={clsxm('size-5 transition-transform', showInput && 'rotate-180')}
-					aria-label={showInput ? 'hide the issue input' : 'show the issue input'}
-				/>
-			</button>
+			<div className={TASK_INPUT_TOGGLE_ROW_CLASS_NAME}>
+				<button
+					type="button"
+					aria-expanded={showInput}
+					onClick={() => setShowInput((p) => !p)}
+					className={clsxm(TASK_INPUT_TOGGLE_CLASS_NAME, TASK_INPUT_TOGGLE_IN_ROW_CLASS_NAME)}
+				>
+					<ChevronDown
+						className={clsxm('size-5 transition-transform', showInput && 'rotate-180')}
+						aria-label={showInput ? 'hide the issue input' : 'show the issue input'}
+					/>
+				</button>
+				{showsTimer && <TaskBlockRunMenu className={TASK_BLOCK_RUN_MENU_CLASS_NAME} />}
+			</div>
 			{/* shrink-0: the timer keeps its natural width; the task-input column (min-w-0) is what gives way,
 			    so the play button stays inside the viewport at 1280/1366px with the sidebar open. */}
 			{showsTimer && (

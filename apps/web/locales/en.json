@@ -2793,6 +2793,32 @@
 			"HINT_RUNNING": "Changes made while the timer runs are not saved yet. To change the notes, edit the entry in Timesheets after you stop the timer.",
 			"HINT_OTHER_TEAM": "These notes belong to the timer running in another team, so they cannot be changed here."
 		},
+		"discard": {
+			"MENU": "More timer actions",
+			"ACTION": "Discard this run",
+			"TITLE": "Discard this run?",
+			"DESCRIPTION": "Nothing is saved.",
+			"DESCRIPTION_ELSEWHERE": "This run was started from {source}, and it stops there too. Nothing is saved.",
+			"CONFIRM": "Discard",
+			"DISCARDING": "Discarding…",
+			"DISCARDED": "Run discarded",
+			"DISCARDED_HINT": "The timer is stopped and nothing was saved.",
+			"sources": {
+				"DESKTOP": "the desktop app",
+				"MOBILE": "the mobile app",
+				"BROWSER_EXTENSION": "the browser extension",
+				"OTHER": "another app"
+			},
+			"failures": {
+				"NOT_RUNNING": "No timer runs anymore, so nothing was discarded.",
+				"DISABLED": "Your organization does not allow discarding a run.",
+				"TOO_LATE": "This run started too long ago to be discarded. Stop it, then edit the entry in Timesheets.",
+				"FORBIDDEN": "Your role does not allow discarding this run.",
+				"NOT_SUPPORTED": "This server does not offer discarding a run yet.",
+				"CHANGED": "Another run started meanwhile, so nothing was discarded.",
+				"GENERIC": "The run could not be discarded. Check your connection, then try again."
+			}
+		},
 		"NOT_BILLABLE": "Not billable"
 	},
 	"task": {

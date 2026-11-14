@@ -149,13 +149,13 @@ let pendingStartTaskId: string | null = null;
 let pendingStopTimer: Promise<void> | null = null;
 /** Track last stopTimer call to prevent duplicate calls within short time window */
 let lastStopTimerTimestamp = 0;
-// Bumped when a start, stop or toggle is sent and again when it lands. A sync reads the status back after its
+// Bumped when a start, stop, toggle or discard is sent and again when it lands. A sync reads the status back after its
 // time slot, so that read may predate such a command: it only updates the status when none was in flight when
 // the sync started and none happened meanwhile.
 let timerCommandSeq = 0;
 let timerCommandsInFlight = 0;
 
-function trackTimerCommand<T>(request: Promise<T>): Promise<T> {
+export function trackTimerCommand<T>(request: Promise<T>): Promise<T> {
 	timerCommandSeq += 1;
 	timerCommandsInFlight += 1;
 	return request.finally(() => {
