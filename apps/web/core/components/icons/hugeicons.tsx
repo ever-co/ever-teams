@@ -127,6 +127,7 @@ import {
 	QrCodeIcon,
 	RotateLeft01Icon,
 	RulerIcon,
+	ScissorIcon,
 	Search01Icon,
 	Sent02Icon,
 	Settings01Icon,
@@ -366,6 +367,7 @@ export const Plus = /*#__PURE__*/ icon(PlusSignIcon, 'Plus');
 export const PlusCircle = /*#__PURE__*/ icon(AddCircleIcon, 'PlusCircle');
 export const RotateLeft = /*#__PURE__*/ icon(RotateLeft01Icon, 'RotateLeft');
 export const Ruler = /*#__PURE__*/ icon(RulerIcon, 'Ruler');
+export const Scissors = /*#__PURE__*/ icon(ScissorIcon, 'Scissors');
 export const Trash = /*#__PURE__*/ icon(Delete02Icon, 'Trash');
 export const Upload = /*#__PURE__*/ icon(Upload01Icon, 'Upload');
 export const Video = /*#__PURE__*/ icon(Video01Icon, 'Video');

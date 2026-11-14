@@ -1515,6 +1515,52 @@
 				"FUTURE": "Je organisatie staat geen tijd na het huidige tijdstip toe.",
 				"APPROVED": "Deze dag hoort bij een goedgekeurde urenstaat, dus de tijd kan niet worden gewijzigd.",
 				"SAVE_FAILED": "Wijziging niet opgeslagen"
+			},
+			"MENU": {
+				"STOP": "Timer stoppen",
+				"ADD_TIME_HERE": "Hier tijd toevoegen",
+				"SPLIT": "Splitsen",
+				"NO_ACTIONS": "Je kunt deze registratie niet wijzigen."
+			},
+			"SPLIT": {
+				"TITLE": "Registratie splitsen",
+				"REFUSED_TITLE": "Deze registratie kan niet worden gesplitst",
+				"TIME_LABEL": "Splitsen om",
+				"TIME_OUTSIDE": "Kies een tijd binnen de registratie, minstens een minuut na het begin en voor het einde.",
+				"PARTS_LABEL": "De twee registraties",
+				"FIRST_PART": "Eerste deel",
+				"SECOND_PART": "Tweede deel",
+				"TASK_LABEL": "Taak van het tweede deel: {task}",
+				"TASK_SEARCH": "Taken zoeken",
+				"ACTION": "Splitsen",
+				"SAVING": "Splitsen…",
+				"SAVED": "Registratie in tweeën gesplitst",
+				"FAILED_RESTORED": "De registratie kon niet worden gesplitst en staat weer zoals ze was. Probeer het opnieuw.",
+				"FAILED_FIRST_PART_KEPT": "Het eerste deel is opgeslagen, maar het tweede deel ({range}) kon niet worden toegevoegd. Voeg het toe met Tijd toevoegen.",
+				"FAILED_UNKNOWN": "Het splitsen kon niet worden bevestigd. Laad de kalender opnieuw en controleer deze registratie voordat je het opnieuw probeert.",
+				"ADD_REST": "Tweede deel toevoegen",
+				"REFUSED": {
+					"TRACKED": "Bijgehouden tijd draagt zijn activiteit en schermafbeeldingen mee, die alleen de server over twee registraties kan verdelen. Voorlopig kan alleen handmatig toegevoegde tijd worden gesplitst.",
+					"RUNNING": "De timer loopt nog. Stop hem en splits dan de registratie.",
+					"TOO_SHORT": "Deze registratie is te kort: elk deel moet minstens een minuut duren.",
+					"APPROVED": "Deze dag hoort bij een goedgekeurde urenstaat, dus de tijd ervan kan niet veranderen.",
+					"PERMISSION": "Je rol of je organisatie staat niet toe dat je tijd wijzigt of handmatig toevoegt."
+				}
+			},
+			"SETTINGS": {
+				"LABEL": "Rasterinstellingen",
+				"SNAP": "Uitlijnen op",
+				"SNAP_OPTION": "{minutes, plural, =60 {1 uur} one {# minuut} other {# minuten}}",
+				"FIRST_HOUR": "Eerste uur",
+				"LAST_HOUR": "Laatste uur",
+				"END_OF_DAY": "Einde van de dag",
+				"HOURS_HINT": "Registraties buiten deze uren blijven zichtbaar: het raster wordt tot daar uitgebreid.",
+				"ROW_HEIGHT": "Rijhoogte",
+				"ROW_COMPACT": "Compact",
+				"ROW_DEFAULT": "Standaard",
+				"ROW_TALL": "Hoog",
+				"KEPT_HERE": "Opgeslagen in deze browser",
+				"RESET": "Herstellen"
 			}
 		},
 		"manualTimeEdits": {

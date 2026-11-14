@@ -22,6 +22,7 @@ import {
 	DAY_COLUMN_ATTRIBUTE,
 	type GridDragKind,
 	type GridDragPreview,
+	type GridPress,
 	useCalendarGridDrag
 } from '@/core/hooks/calendar/use-calendar-grid-drag';
 import { useNowMinute } from '@/core/hooks/calendar/use-now-minute';
@@ -29,10 +30,19 @@ import { cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { edgesOnDay, type ResizeEdge } from '@/core/lib/utils/calendar-drag';
 import {
+	type CalendarGridSettings,
+	gridHeightOf,
+	type GridHourEdge,
+	gridHourLabelsOf,
+	gridMinuteAtOffset,
+	gridOffsetOfMinute,
+	gridWindowOf,
+	hourHeightOf
+} from '@/core/lib/utils/calendar-grid-settings';
+import {
 	type CalendarDay,
 	type CalendarEntry,
 	hourLabelsOf,
-	HOURS_IN_DAY,
 	isWeekendDay,
 	placedEntriesOf,
 	type PlacedEntry,
@@ -49,34 +59,60 @@ import {
 	ENTRY_BAR,
 	entryFillOf,
 	entryToneStyle,
-	HOUR_HEIGHT_PX,
-	HOUR_LINES_STYLE,
-	pixelsOfMinutes,
+	hourLinesStyleOf,
 	RESIZABLE_BLOCK_HEIGHT_PX,
 	RESIZE_EDGE,
 	WEEKEND_TINT
 } from './calendar-recipes';
-import { type DayGhost, dayGhostOf, DragGhost } from './calendar-drag-ghost';
+import { type CalendarMenuAnchor, type CalendarMenuTarget, pointAnchor } from './calendar-context-menu';
+import { type DayGhost, dayGhostOf, DragGhost, type GridGeometry } from './calendar-drag-ghost';
 import { type EntryHandlers, entryRangeTextOf, useEntryTitle } from './calendar-entry-parts';
 import { EntryDetails } from './calendar-entry-details';
 
 const GUTTER_WIDTH = '3.5rem';
 
-const GRID_HEIGHT_PX = HOURS_IN_DAY * HOUR_HEIGHT_PX;
+/** The scroll area is at least this tall, or as tall as a shorter grid. */
+const MIN_SCROLL_HEIGHT_PX = 320;
+
+const MINUTES_PER_HOUR = 60;
 
 /** Two pixels between blocks that share a column, so overlapping logs read as two. */
 const BLOCK_GAP_PX = 2;
+
+/** An inner hour is named at its line; the first and last hours of a shorter window sit inside its edges. */
+const HOUR_LABEL_PLACES: Record<GridHourEdge, string> = {
+	top: 'translate-y-0.5',
+	inside: '-translate-y-1/2',
+	bottom: '-translate-y-[calc(100%+2px)]'
+};
 
 function gridColumnsOf(dayCount: number): CSSProperties {
 	return { gridTemplateColumns: `${GUTTER_WIDTH} repeat(${dayCount}, minmax(0, 1fr))` };
 }
 
-function blockHeightOf(placed: PlacedEntry) {
+function blockHeightOf(placed: PlacedEntry, hourHeightPx: number) {
 	const minutes = placed.endMinute - placed.startMinute;
-	return blockHeightOfMinutes(minutes);
+	return blockHeightOfMinutes(minutes, hourHeightPx);
 }
 
-type GridDragStarts = Pick<CalendarGridDrag, 'beginCreate' | 'beginMove' | 'beginResize'>;
+function isInsideWindow(minute: number, geometry: GridGeometry) {
+	return minute >= geometry.window.firstMinute && minute <= geometry.window.lastMinute;
+}
+
+type GridDragStarts = Pick<CalendarGridDrag, 'beginCreate' | 'beginMove' | 'beginPress' | 'beginResize'>;
+
+type OpenMenu = (target: CalendarMenuTarget) => void;
+
+/** A finger's long press opens the menu when it lifts (the drag hook's press): the browser's own menu is dropped. */
+function isTouchContextMenu(event: MouseEvent<HTMLElement>) {
+	const nativeEvent = event.nativeEvent as Partial<globalThis.PointerEvent>;
+	return nativeEvent.pointerType === 'touch';
+}
+
+/** The context menu key and Shift+F10 send no pointer position: the menu opens against the element. */
+function isKeyboardContextMenu(event: MouseEvent<HTMLElement>) {
+	return event.clientX === 0 && event.clientY === 0;
+}
 
 const DRAG_CURSORS: Record<GridDragKind, string> = {
 	create: '',
@@ -98,9 +134,9 @@ function draggedEntryIdOf(preview: GridDragPreview | null) {
 	return preview.entry.id;
 }
 
-function blockBoxOf(placed: PlacedEntry): CSSProperties {
-	const top = pixelsOfMinutes(placed.startMinute);
-	const height = blockHeightOf(placed);
+function blockBoxOf(placed: PlacedEntry, geometry: GridGeometry): CSSProperties {
+	const top = gridOffsetOfMinute(placed.startMinute, geometry.window, geometry.hourHeightPx);
+	const height = blockHeightOf(placed, geometry.hourHeightPx);
 	const share = 100 / placed.columnCount;
 	const left = share * placed.column;
 	return {
@@ -118,7 +154,9 @@ const TimeBlock = memo(function TimeBlock({
 	handlers,
 	isDraggable,
 	isDragged,
-	dragStarts
+	dragStarts,
+	geometry,
+	onOpenMenu
 }: Readonly<{
 	placed: PlacedEntry;
 	day: CalendarDay;
@@ -127,6 +165,8 @@ const TimeBlock = memo(function TimeBlock({
 	isDraggable: boolean;
 	isDragged: boolean;
 	dragStarts: GridDragStarts;
+	geometry: GridGeometry;
+	onOpenMenu?: OpenMenu;
 }>) {
 	const t = useTranslations();
 	const [isOpen, setIsOpen] = useState(false);
@@ -135,10 +175,10 @@ const TimeBlock = memo(function TimeBlock({
 	const runningLabel = t('dashboard.timesheets.RUNNING');
 	const rangeText = entryRangeTextOf(entry, formatters, runningLabel);
 	const duration = formatDurationShort(entry.durationSeconds);
-	const blockHeight = blockHeightOf(placed);
+	const blockHeight = blockHeightOf(placed, geometry.hourHeightPx);
 	const isCompact = blockHeight < COMPACT_BLOCK_HEIGHT_PX;
 	const fill = entryFillOf(entry.isManual);
-	const box = blockBoxOf(placed);
+	const box = blockBoxOf(placed, geometry);
 	const toneStyle = entryToneStyle(entry.projectColor, entry.projectKey);
 	const label = t('dashboard.calendar.ENTRY_LABEL', { title, range: rangeText, duration });
 	const close = () => setIsOpen(false);
@@ -147,12 +187,31 @@ const TimeBlock = memo(function TimeBlock({
 	const showsStartEdge = isResizable && edges.hasStart;
 	const showsEndEdge = isResizable && edges.hasEnd;
 
-	let startMove: ((event: PointerEvent<HTMLElement>) => void) | undefined;
+	// An entry that does not move still opens its menu under a held finger
+	let startPointer: ((event: PointerEvent<HTMLElement>) => void) | undefined;
 	if (isDraggable) {
-		startMove = (event) => dragStarts.beginMove(day, entry, event);
+		startPointer = (event) => dragStarts.beginMove(day, entry, event);
+	} else if (onOpenMenu) {
+		startPointer = (event) => dragStarts.beginPress(day, entry, event);
 	}
 	const startResize = (edge: ResizeEdge) => (event: PointerEvent<HTMLElement>) => {
 		dragStarts.beginResize(day, entry, edge, event);
+	};
+
+	const openMenu = (event: MouseEvent<HTMLButtonElement>) => {
+		if (!onOpenMenu) {
+			return;
+		}
+		event.preventDefault();
+		if (isTouchContextMenu(event)) {
+			return;
+		}
+		let anchor: CalendarMenuAnchor = pointAnchor(event.clientX, event.clientY);
+		if (isKeyboardContextMenu(event)) {
+			anchor = event.currentTarget;
+		}
+		setIsOpen(false);
+		onOpenMenu({ kind: 'entry', entry, anchor });
 	};
 
 	return (
@@ -162,7 +221,8 @@ const TimeBlock = memo(function TimeBlock({
 					type="button"
 					aria-label={label}
 					style={{ ...box, ...toneStyle }}
-					onPointerDown={startMove}
+					onPointerDown={startPointer}
+					onContextMenu={openMenu}
 					className={cn(
 						'absolute z-[1] flex min-w-0 flex-col overflow-hidden rounded-md py-1 pr-1.5 pl-2.5 text-left hairline-ring ring-foreground/5',
 						fill,
@@ -214,9 +274,12 @@ const TimeBlock = memo(function TimeBlock({
 	);
 });
 
-function NowLine() {
+function NowLine({ geometry }: Readonly<{ geometry: GridGeometry }>) {
 	const minute = useNowMinute();
-	const top = pixelsOfMinutes(minute);
+	if (!isInsideWindow(minute, geometry)) {
+		return null;
+	}
+	const top = gridOffsetOfMinute(minute, geometry.window, geometry.hourHeightPx);
 	return (
 		<span
 			aria-hidden="true"
@@ -228,9 +291,12 @@ function NowLine() {
 	);
 }
 
-function NowPill({ formatters }: Readonly<{ formatters: TimesheetFormatters }>) {
+function NowPill({ formatters, geometry }: Readonly<{ formatters: TimesheetFormatters; geometry: GridGeometry }>) {
 	const minute = useNowMinute();
-	const top = pixelsOfMinutes(minute);
+	if (!isInsideWindow(minute, geometry)) {
+		return null;
+	}
+	const top = gridOffsetOfMinute(minute, geometry.window, geometry.hourHeightPx);
 	const now = new Date();
 	const timeText = formatters.time(now);
 	return (
@@ -253,7 +319,9 @@ const DayColumn = memo(function DayColumn({
 	draggedEntryId,
 	canDragEntry,
 	dragStarts,
-	onAddTime
+	geometry,
+	onAddTime,
+	onOpenMenu
 }: Readonly<{
 	day: CalendarDay;
 	formatters: TimesheetFormatters;
@@ -263,7 +331,9 @@ const DayColumn = memo(function DayColumn({
 	draggedEntryId: string | null;
 	canDragEntry: (entry: CalendarEntry) => boolean;
 	dragStarts: GridDragStarts;
+	geometry: GridGeometry;
 	onAddTime: (start: Date) => void;
+	onOpenMenu?: OpenMenu;
 }>) {
 	const placedEntries = useMemo(() => placedEntriesOf(day.entries, day.date), [day.date, day.entries]);
 	const isDayToday = isToday(day.date);
@@ -271,22 +341,34 @@ const DayColumn = memo(function DayColumn({
 	const showsEntries = !isLoading;
 	const dayDate = day.date;
 	const dayColumnMark = { [DAY_COLUMN_ATTRIBUTE]: day.key };
+	const hourLinesStyle = useMemo(() => hourLinesStyleOf(geometry.hourHeightPx), [geometry.hourHeightPx]);
 
-	const addTimeAtPointer = useCallback(
+	const slotAtPointer = useCallback(
 		(event: MouseEvent<HTMLButtonElement>) => {
 			const bounds = event.currentTarget.getBoundingClientRect();
 			const offsetY = event.clientY - bounds.top;
-			const minutesFromMidnight = (offsetY / HOUR_HEIGHT_PX) * 60;
-			const start = slotStartAt(dayDate, minutesFromMidnight);
-			onAddTime(start);
+			const minutesFromMidnight = gridMinuteAtOffset(offsetY, geometry.window, geometry.hourHeightPx);
+			return slotStartAt(dayDate, minutesFromMidnight);
 		},
-		[dayDate, onAddTime]
+		[dayDate, geometry]
 	);
+	const addTimeAtPointer = (event: MouseEvent<HTMLButtonElement>) => onAddTime(slotAtPointer(event));
+	const openSlotMenu = (event: MouseEvent<HTMLButtonElement>) => {
+		if (!onOpenMenu) {
+			return;
+		}
+		event.preventDefault();
+		if (isTouchContextMenu(event)) {
+			return;
+		}
+		const anchor = pointAnchor(event.clientX, event.clientY);
+		onOpenMenu({ kind: 'slot', start: slotAtPointer(event), anchor });
+	};
 	const startSelection = (event: PointerEvent<HTMLElement>) => dragStarts.beginCreate(day, event);
 	return (
 		<div
 			role="gridcell"
-			style={HOUR_LINES_STYLE}
+			style={hourLinesStyle}
 			className={cn('relative hairline-l border-border', isWeekend && WEEKEND_TINT)}
 			{...dayColumnMark}
 		>
@@ -296,6 +378,7 @@ const DayColumn = memo(function DayColumn({
 				aria-hidden="true"
 				onClick={addTimeAtPointer}
 				onPointerDown={startSelection}
+				onContextMenu={openSlotMenu}
 				className="absolute inset-0 cursor-cell outline-none"
 			/>
 			<div className="pointer-events-none absolute inset-y-0 right-0 left-0.5 [&>*]:pointer-events-auto">
@@ -310,15 +393,17 @@ const DayColumn = memo(function DayColumn({
 							isDraggable={canDragEntry(placed.entry)}
 							isDragged={placed.entry.id === draggedEntryId}
 							dragStarts={dragStarts}
+							geometry={geometry}
+							onOpenMenu={onOpenMenu}
 						/>
 					))}
 			</div>
 			{ghost && (
 				<div className="pointer-events-none absolute inset-y-0 right-0.5 left-0.5">
-					<DragGhost ghost={ghost} formatters={formatters} />
+					<DragGhost ghost={ghost} formatters={formatters} geometry={geometry} />
 				</div>
 			)}
-			{isDayToday && <NowLine />}
+			{isDayToday && <NowLine geometry={geometry} />}
 		</div>
 	);
 });
@@ -383,9 +468,11 @@ function DayHeader({
 
 /**
  * The week and day grids: an hour gutter written in the reader's zone, one column per day with its total in the
- * header, and the logs as blocks placed by their start and end, side by side where they overlap. The grid opens on
- * the first entry of the shown days, or on 08:00. Empty time is dragged to select a new entry; an entry added by hand
- * is dragged to another time or day, and by its edges to a new start or end.
+ * header, and the logs as blocks placed by their start and end, side by side where they overlap. The grid draws the
+ * hours and row height of the person's settings, widened to any entry outside them, and opens on the first entry of
+ * the shown days, or on 08:00. Empty time is dragged to select a new entry; an entry added by hand is dragged to
+ * another time or day, and by its edges to a new start or end, in the settings' step. A right click, the context
+ * menu key or a held finger opens the menu of an entry or of empty time.
  */
 export function CalendarTimeGrid({
 	days,
@@ -394,9 +481,11 @@ export function CalendarTimeGrid({
 	timeZone,
 	isLoading,
 	moves,
+	settings,
 	onAddTime,
 	onAddTimeRange,
-	onOpenDay
+	onOpenDay,
+	onOpenMenu
 }: Readonly<{
 	days: ReadonlyArray<CalendarDay>;
 	formatters: TimesheetFormatters;
@@ -404,28 +493,52 @@ export function CalendarTimeGrid({
 	timeZone: string;
 	isLoading: boolean;
 	moves: CalendarEntryMoves;
+	settings: CalendarGridSettings;
 	onAddTime: (start: Date) => void;
 	onAddTimeRange: (range: TimeWindow) => void;
 	onOpenDay?: (date: Date) => void;
+	onOpenMenu?: OpenMenu;
 }>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const bodyRef = useRef<HTMLDivElement>(null);
+	const geometry = useMemo<GridGeometry>(
+		() => ({ window: gridWindowOf(days, settings), hourHeightPx: hourHeightOf(settings.rowHeight) }),
+		[days, settings]
+	);
+	const openPressMenu = useCallback(
+		(press: GridPress) => {
+			if (!onOpenMenu) {
+				return;
+			}
+			const anchor = pointAnchor(press.clientX, press.clientY);
+			if (press.kind === 'entry') {
+				onOpenMenu({ kind: 'entry', entry: press.entry, anchor });
+				return;
+			}
+			const start = slotStartAt(press.day.date, press.minute);
+			onOpenMenu({ kind: 'slot', start, anchor });
+		},
+		[onOpenMenu]
+	);
 	const drag = useCalendarGridDrag({
 		days,
-		hourHeightPx: HOUR_HEIGHT_PX,
+		hourHeightPx: geometry.hourHeightPx,
+		gridWindow: geometry.window,
+		stepMinutes: settings.snapMinutes,
 		bodyRef,
 		scrollRef,
 		creatableSpot: moves.creatableSpot,
 		onCreateRefused: moves.announceCreateRefusal,
 		onCreateRange: onAddTimeRange,
-		onMoveEntry: moves.moveEntry
+		onMoveEntry: moves.moveEntry,
+		onPress: onOpenMenu ? openPressMenu : undefined
 	});
-	const { beginCreate, beginMove, beginResize } = drag;
+	const { beginCreate, beginMove, beginPress, beginResize } = drag;
 	const dragStarts = useMemo<GridDragStarts>(
-		() => ({ beginCreate, beginMove, beginResize }),
-		[beginCreate, beginMove, beginResize]
+		() => ({ beginCreate, beginMove, beginPress, beginResize }),
+		[beginCreate, beginMove, beginPress, beginResize]
 	);
 	const isDragging = drag.activeKind !== null;
 	const dragCursor = dragCursorOf(drag.activeKind);
@@ -435,22 +548,27 @@ export function CalendarTimeGrid({
 	const dayCount = days.length;
 	const hasManyDays = dayCount > 1;
 	const columnsStyle = gridColumnsOf(dayCount);
+	const { window: gridWindow, hourHeightPx } = geometry;
 	const hourLabels = useMemo(() => {
 		const labelDay = firstDate ?? new Date();
-		return hourLabelsOf(locale, labelDay);
-	}, [firstDate, locale]);
+		const texts = new Map(hourLabelsOf(locale, labelDay).map((item) => [item.hour, item.label]));
+		return gridHourLabelsOf(gridWindow).map((item) => ({ ...item, label: texts.get(item.hour) ?? '' }));
+	}, [firstDate, gridWindow, locale]);
 	const zoneName = useMemo(() => shortTimeZoneNameOf(locale, timeZone, new Date()), [locale, timeZone]);
 	const hasToday = days.some((day) => isToday(day.date));
 	const firstKey = firstDay?.key ?? '';
-	const scrollKey = `${firstKey}:${dayCount}:${isLoading}`;
+	const gridHeight = gridHeightOf(gridWindow, hourHeightPx);
+	const scrollMinHeight = Math.min(MIN_SCROLL_HEIGHT_PX, gridHeight);
+	const scrollKey = `${firstKey}:${dayCount}:${isLoading}:${gridWindow.firstMinute}:${hourHeightPx}`;
 
 	const scrollToFirstEntry = useEffectEvent(() => {
 		const container = scrollRef.current;
 		if (!container) {
 			return;
 		}
-		const scrollHour = scrollHourOf(days);
-		container.scrollTop = scrollHour * HOUR_HEIGHT_PX;
+		const scrollMinute = scrollHourOf(days) * MINUTES_PER_HOUR;
+		const offset = gridOffsetOfMinute(scrollMinute, gridWindow, hourHeightPx);
+		container.scrollTop = Math.max(offset, 0);
 	});
 
 	useLayoutEffect(() => {
@@ -490,8 +608,9 @@ export function CalendarTimeGrid({
 				<div
 					ref={scrollRef}
 					onClickCapture={drag.dropClickAfterDrag}
+					style={{ minHeight: scrollMinHeight }}
 					className={cn(
-						'relative max-h-[min(44rem,calc(100dvh-15rem))] min-h-80 overflow-y-auto overscroll-contain [scrollbar-gutter:stable] [-webkit-touch-callout:none]',
+						'relative max-h-[min(44rem,calc(100dvh-15rem))] overflow-y-auto overscroll-contain [scrollbar-gutter:stable] [-webkit-touch-callout:none]',
 						isDragging && 'select-none',
 						dragCursor
 					)}
@@ -499,20 +618,25 @@ export function CalendarTimeGrid({
 					<div
 						ref={bodyRef}
 						role="row"
-						style={{ ...columnsStyle, height: GRID_HEIGHT_PX }}
+						style={{ ...columnsStyle, height: gridHeight }}
 						className="relative grid"
 					>
 						<div role="rowheader" aria-hidden="true" className="relative">
 							{hourLabels.map((item) => (
 								<span
 									key={item.hour}
-									style={{ top: item.hour * HOUR_HEIGHT_PX }}
-									className="absolute right-1.5 -translate-y-1/2 text-[10px] tabular-nums text-muted-foreground"
+									style={{
+										top: gridOffsetOfMinute(item.hour * MINUTES_PER_HOUR, gridWindow, hourHeightPx)
+									}}
+									className={cn(
+										'absolute right-1.5 text-[10px] tabular-nums text-muted-foreground',
+										HOUR_LABEL_PLACES[item.edge]
+									)}
 								>
 									{item.label}
 								</span>
 							))}
-							{hasToday && <NowPill formatters={formatters} />}
+							{hasToday && <NowPill formatters={formatters} geometry={geometry} />}
 						</div>
 						{days.map((day) => (
 							<DayColumn
@@ -525,7 +649,9 @@ export function CalendarTimeGrid({
 								draggedEntryId={draggedEntryId}
 								canDragEntry={moves.canDragEntry}
 								dragStarts={dragStarts}
+								geometry={geometry}
 								onAddTime={onAddTime}
+								onOpenMenu={onOpenMenu}
 							/>
 						))}
 					</div>
