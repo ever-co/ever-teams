@@ -201,8 +201,10 @@ describe('splitCalendarEntry', () => {
 		expect(calls).toEqual(['update 9-11']);
 	});
 
-	it('adds nothing when the entry cannot be shortened, and sets it back in case the answer was only lost', async () => {
+	it('adds nothing when the entry cannot be shortened, and sets it back when the server holds it shortened', async () => {
+		// The answer was lost, but the shortening went through: the server holds the first part only
 		mockUpdateTimeLog.mockRejectedValueOnce(new Error('timeout'));
+		mockGetTimeLogs.mockResolvedValueOnce([LOG]).mockResolvedValueOnce([{ ...LOG, stoppedAt: at(11) }]);
 
 		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
 
@@ -211,8 +213,33 @@ describe('splitCalendarEntry', () => {
 		expect(mockAddManualTime).not.toHaveBeenCalled();
 	});
 
+	it('writes nothing after a failed shortening when the server still holds the whole entry', async () => {
+		mockUpdateTimeLog.mockRejectedValueOnce(new Error('timeout'));
+
+		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'restored' }));
+		expect(calls).toEqual([]);
+		expect(mockUpdateTimeLog).toHaveBeenCalledTimes(1);
+	});
+
+	it.each([
+		['was changed meanwhile', [{ ...LOG, stoppedAt: at(12) }]],
+		['is gone', []]
+	])('writes nothing after a failed shortening when the entry %s, and says to check it', async (_case, onServer) => {
+		mockUpdateTimeLog.mockRejectedValueOnce(new Error('timeout'));
+		mockGetTimeLogs.mockResolvedValueOnce([LOG]).mockResolvedValueOnce(onServer);
+
+		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'unknown' }));
+		expect(mockUpdateTimeLog).toHaveBeenCalledTimes(1);
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+
 	it('says the outcome is not known when the entry can be neither shortened nor set back', async () => {
 		mockUpdateTimeLog.mockRejectedValueOnce(new Error('timeout')).mockRejectedValueOnce(new Error('offline'));
+		mockGetTimeLogs.mockResolvedValueOnce([LOG]).mockResolvedValueOnce([{ ...LOG, stoppedAt: at(11) }]);
 
 		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
 

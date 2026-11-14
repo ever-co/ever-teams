@@ -121,7 +121,7 @@ export async function splitCalendarEntry(request: CalendarSplitRequest) {
 			employeeId
 		});
 	} catch (shortenError) {
-		await restoreAfterFailedShortening(log, window, shortenError);
+		await restoreAfterFailedShortening(log, { whole: window, shortened: parts.first }, shortenError);
 	}
 	const secondTaskId = secondTask?.id ?? textOrUndefined(current.taskId);
 	try {
@@ -158,19 +158,36 @@ function restoreWindow(log: ITimeLog, window: TimeWindow) {
 	});
 }
 
+function isSameWindow(first: TimeWindow | null, second: TimeWindow): boolean {
+	return first?.start.getTime() === second.start.getTime() && first?.end.getTime() === second.end.getTime();
+}
+
 /**
- * The shortening failed, yet its answer may only have been lost: the entry is set back to its whole time, which no
- * other entry covers, so it ends as it was either way. When that fails too, the outcome is not known. A refusal of
- * the API (a 4xx) changed nothing: the entry is as it was, and nothing more is written.
+ * The shortening failed, yet its answer may only have been lost. A refusal of the API (a 4xx) changed nothing: the
+ * entry is as it was, and nothing more is written. Otherwise the entry is read again first: still whole, nothing is
+ * written; shortened as asked, it is set back to its whole time; in any other state (changed meanwhile, gone, or not
+ * readable) nothing is written over it, and the outcome is to be checked.
  */
-async function restoreAfterFailedShortening(log: ITimeLog, window: TimeWindow, shortenError: unknown): Promise<never> {
+async function restoreAfterFailedShortening(
+	log: ITimeLog,
+	windows: { whole: TimeWindow; shortened: TimeWindow },
+	shortenError: unknown
+): Promise<never> {
 	const status = errorStatusOf(shortenError);
 	const isRefusal = status !== null && status >= 400 && status < 500;
 	if (isRefusal) {
 		throw new CalendarSplitError('restored', shortenError);
 	}
+	const current = await currentLogOf(log);
+	const currentWindow = current ? windowOfLog(current) : null;
+	if (isSameWindow(currentWindow, windows.whole)) {
+		throw new CalendarSplitError('restored', shortenError);
+	}
+	if (!isSameWindow(currentWindow, windows.shortened)) {
+		throw new CalendarSplitError('unknown', shortenError);
+	}
 	try {
-		await restoreWindow(log, window);
+		await restoreWindow(log, windows.whole);
 	} catch {
 		throw new CalendarSplitError('unknown', shortenError);
 	}
