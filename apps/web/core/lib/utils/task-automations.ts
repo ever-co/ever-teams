@@ -9,6 +9,7 @@ import {
 	type ITaskAutomationRule,
 	type ITaskAutomationRuleCreateInput,
 	type ITaskAutomationTemplate,
+	type ITaskAutomationTrigger,
 	TASK_AUTOMATION_LIMITS
 } from '@/core/types/interfaces/common/task-automation';
 
@@ -266,14 +267,20 @@ function actionOf(draft: TaskAutomationActionDraft): ITaskAutomationAction {
 	}
 }
 
+/** The trigger as the platform takes it: the status lists of a status change, "merged only" of a closed link. */
+function triggerOf(form: TaskAutomationForm): ITaskAutomationTrigger {
+	if (form.trigger === ETaskAutomationTrigger.STATUS_CHANGED) {
+		return { type: form.trigger, toStatuses: unique(form.toStatuses), fromStatuses: unique(form.fromStatuses) };
+	}
+	if (form.trigger === ETaskAutomationTrigger.LINK_CLOSED) {
+		return { type: form.trigger, mergedOnly: form.mergedOnly === true };
+	}
+	return { type: form.trigger };
+}
+
 /** The form as the platform takes it: for each type exactly the fields it reads. */
 export function ruleInputFromForm(form: TaskAutomationForm): ITaskAutomationRuleCreateInput {
-	const trigger =
-		form.trigger === ETaskAutomationTrigger.STATUS_CHANGED
-			? { type: form.trigger, toStatuses: unique(form.toStatuses), fromStatuses: unique(form.fromStatuses) }
-			: form.trigger === ETaskAutomationTrigger.LINK_CLOSED
-				? { type: form.trigger, mergedOnly: form.mergedOnly === true }
-				: { type: form.trigger };
+	const trigger = triggerOf(form);
 	return {
 		name: form.name.trim(),
 		description: form.description.trim() || null,

@@ -415,7 +415,6 @@ export function AutomationRuleEditor({
 									<Checkbox
 										checked={form.mergedOnly}
 										onCheckedChange={(checked) => patch({ mergedOnly: checked === true })}
-										aria-label={t('settings.automations.MERGED_ONLY')}
 										aria-describedby={ids.mergedOnly}
 										data-testid="automation-merged-only"
 									/>

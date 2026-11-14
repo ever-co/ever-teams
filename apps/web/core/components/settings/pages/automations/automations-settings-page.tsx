@@ -69,9 +69,8 @@ function RuleRow({
 }>) {
 	const t = useTranslations();
 	const format = useFormatter();
-	const trigger = rule.trigger.mergedOnly
-		? `${t(`settings.automations.triggers.${rule.trigger.type}` as Key)} · ${t('settings.automations.MERGED_ONLY')}`
-		: t(`settings.automations.triggers.${rule.trigger.type}` as Key);
+	const triggerName = t(`settings.automations.triggers.${rule.trigger.type}` as Key);
+	const trigger = rule.trigger.mergedOnly ? `${triggerName} · ${t('settings.automations.MERGED_ONLY')}` : triggerName;
 	const lastRun = rule.lastRunAt
 		? t('settings.automations.LAST_RUN', { when: format.relativeTime(new Date(rule.lastRunAt)) })
 		: t('settings.automations.NEVER_RAN');
