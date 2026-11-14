@@ -38,6 +38,10 @@ jest.mock('@tanstack/react-query', () => ({
 	}
 }));
 jest.mock('@/core/services/client/api/tasks/task.service', () => ({ taskService: { getTasks: jest.fn() } }));
+const mockOrganizationProjects: { organizationProjects: unknown[] } = { organizationProjects: [] };
+jest.mock('@/core/hooks/organizations/projects/use-organization-projects-query', () => ({
+	useOrganizationProjectsQuery: () => mockOrganizationProjects
+}));
 jest.mock('@/core/hooks/auth/use-reactive-access-token-cookie', () => ({
 	useReactiveAccessTokenCookie: () => 'access-token'
 }));
@@ -675,5 +679,42 @@ describe('AddManualTimeModal overlap with time already recorded', () => {
 
 		expect(mockSaveAfterCheck).not.toHaveBeenCalled();
 		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+});
+
+describe('AddManualTimeModal billable status', () => {
+	const siteProject = { id: 'project-site', name: 'Site', billable: true };
+	const siteTask = {
+		id: 'task-site',
+		title: 'Site',
+		projectId: 'project-site',
+		teams: [{ id: 'team-a' }],
+		members: []
+	};
+
+	beforeEach(() => {
+		mockAddManualTime.mockReset();
+		mockPickedTeamTasksQuery.data = undefined;
+		// The task's project is the organization's, not one of the team's
+		mockOrganizationProjects.organizationProjects = [siteProject];
+		mockAtomValues.activeTeamState = teamA;
+		mockAtomValues.activeTeamTaskState = null;
+		mockAtomValues.organizationTeamsState = [teamA, teamB];
+		mockAtomValues.tasksByTeamState = [siteTask];
+	});
+
+	afterEach(() => {
+		mockOrganizationProjects.organizationProjects = [];
+	});
+
+	it("starts from the billable default of the picked task's project", () => {
+		renderAddTimeDialog();
+
+		pickInSelect('task', 'task-site');
+		submitDialog();
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-site', isBillable: true })
+		);
 	});
 });

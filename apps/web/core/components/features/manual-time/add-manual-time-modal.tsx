@@ -11,6 +11,9 @@ import { cn } from '@/core/lib/helpers';
 import { Calendar, CircleAlert } from '@/core/components/icons';
 import { Input, controlGroupRecipe, controlRecipe } from '@/core/components/common/input';
 import { BillableSwitch } from '@/core/components/common/billable-switch';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import { entryProjectIdOf, findProject } from '@/core/lib/utils/dashboards/time-entry-task';
+import { entryBillableOf } from '@/core/lib/utils/project-billable';
 import { DialogFieldLabel } from '@/core/components/common/dialog-field-label';
 import { DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
 import { manualTimeRefusalKeyOf, minutesOfClockText } from '@/core/lib/utils/dashboards/manual-time-entry';
@@ -113,7 +116,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const refusalOfOverlap = props.refusalOfOverlap;
 	const t = useTranslations();
 	const locale = useLocale();
-	const [isBillable, setIsBillable] = useState<boolean>(prefill?.isBillable ?? false);
+	// Set by hand, or the copied entry's; until then the entry is billable as its project starts its time
+	const [billableChoice, setBillableChoice] = useState<boolean | null>(prefill?.isBillable ?? null);
 	const [description, setDescription] = useState<string>(prefill?.description ?? '');
 	const [isCheckingSave, setIsCheckingSave] = useState(false);
 	const [reason, setReason] = useState<string>('');
@@ -171,6 +175,12 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		const otherKnownTasks = activeTeamTaskList.filter((task) => !pickedTeamTaskIds.has(task.id));
 		return [...pickedTeamTasks, ...otherKnownTasks];
 	}, [isOtherTeamPicked, pickedTeamTaskItems, activeTeamTaskList]);
+	// The entry goes to its task's project, else to the project picked; read among the organization's projects, as the
+	// timesheet's dialog reads them, since a task's project need not be one of its team's
+	const { organizationProjects } = useOrganizationProjectsQuery();
+	const pickedTask = tasks.find((task) => task.id === taskId);
+	const entryProjectId = entryProjectIdOf(pickedTask, projectId);
+	const isBillable = entryBillableOf(billableChoice, findProject(entryProjectId, organizationProjects ?? []));
 
 	const {
 		addManualTime,
@@ -395,7 +405,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			setDescription('');
 			setErrorMsg('');
 			setReason('');
-			setIsBillable(false);
+			setBillableChoice(null);
 		}
 	}, [addManualTimeSuccess, timeLog, closeModal]);
 
@@ -581,12 +591,14 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const handleChange = useCallback((field: string, selectedItem: Item | null) => {
 		if (field === 'Project') {
 			setProjectId(selectedItem?.id ?? '');
+			setBillableChoice(null);
 		} else if (field === 'Employee') {
 			// Employee items are team member rows, whose own id is not the employee id
 			setEmployeeId(selectedItem?.employeeId ?? selectedItem?.employee?.id ?? '');
 		} else if (field === 'Task') {
 			isTaskPickedRef.current = true;
 			setTaskId(selectedItem?.id ?? '');
+			setBillableChoice(null);
 		}
 	}, []);
 
@@ -747,6 +759,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 									}
 									isTaskPickedRef.current = true;
 									setTaskId(value);
+									setBillableChoice(null);
 								}}
 							/>
 						</div>
@@ -791,7 +804,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				<div className="flex flex-wrap items-center justify-between gap-3 pt-1">
 					<BillableSwitch
 						isBillable={isBillable}
-						onChange={setIsBillable}
+						onChange={setBillableChoice}
 						label={t('dashboard.timesheets.BILLABLE')}
 					/>
 					<div className="ml-auto flex items-center gap-2">
