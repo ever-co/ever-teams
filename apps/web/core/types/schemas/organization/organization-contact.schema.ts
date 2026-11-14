@@ -30,7 +30,8 @@ export const clientRequestSchema = z.object({
 	contactType: z.literal('CLIENT'),
 	organizationId: z.string().min(1),
 	tenantId: z.string().min(1),
-	contact: z.object({ id: z.string().min(1) }).optional()
+	contact: z.object({ id: z.string().min(1) }).optional(),
+	paymentTermsDays: z.number().int().min(0).nullable().optional()
 });
 
 export type TClient = z.infer<typeof clientSchema>;

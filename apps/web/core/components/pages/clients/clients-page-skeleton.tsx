@@ -5,12 +5,18 @@ import { PageSkeletonFrame, ToolbarPills } from '@/core/components/layouts/page-
 import { SegmentedControlSkeleton } from '@/core/components/common/skeleton/segmented-control-skeleton';
 import { ClientsCountSkeleton, ClientsListSkeleton } from './clients-list-states';
 
+const VIEW_SEGMENTS = [{}, {}];
+
 const SCOPE_SEGMENTS = [
 	{ labelWidth: 'w-10', hasCount: true },
 	{ labelWidth: 'w-14', hasCount: true }
 ];
 
+const CREATE_WIDTHS = ['w-28'];
+
 const SEARCH_WIDTHS = ['w-full sm:w-60'];
+
+const SORT_WIDTHS = ['w-20'];
 
 function ClientsToolbarSkeleton() {
 	const t = useTranslations();
@@ -21,12 +27,19 @@ function ClientsToolbarSkeleton() {
 					<h1 className="truncate text-lg font-semibold text-foreground">{t('clients.TITLE')}</h1>
 					<ClientsCountSkeleton />
 				</div>
-				<div className="flex flex-wrap items-center gap-2">
-					<SegmentedControlSkeleton segments={SCOPE_SEGMENTS} />
+				<div className="flex items-center gap-2">
+					<SegmentedControlSkeleton segments={VIEW_SEGMENTS} />
+					<ToolbarPills widths={CREATE_WIDTHS} />
 				</div>
 			</div>
 			<div className="flex flex-wrap items-center gap-2 pb-3">
-				<ToolbarPills widths={SEARCH_WIDTHS} />
+				<SegmentedControlSkeleton segments={SCOPE_SEGMENTS} />
+				<div className="flex max-sm:order-last max-sm:basis-full">
+					<ToolbarPills widths={SEARCH_WIDTHS} />
+				</div>
+				<div className="ml-auto flex">
+					<ToolbarPills widths={SORT_WIDTHS} />
+				</div>
 			</div>
 		</div>
 	);

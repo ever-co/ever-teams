@@ -160,6 +160,28 @@ describe('useBulkEditRun', () => {
 		expect(mockUpdateTimeLog).toHaveBeenCalledWith(expect.objectContaining({ timeLogId: 'b' }));
 	});
 
+	it.each([
+		['moved to another project', { projectId: 'project-b' }],
+		['moved to another task', { taskId: 'task-b' }],
+		['made billable', { isBillable: true }],
+		['approved', { timesheet: { status: 'APPROVED' } }],
+		['started running', { isRunning: true }],
+		['moved to another team', { organizationTeamId: 'team-b' }]
+	])('saves nothing for an entry %s since the dialog planned its fields', async (_changed, change) => {
+		const save = saveOf('a');
+		Object.assign(storedLog('a'), change);
+		const { result } = renderRun();
+
+		let outcomes: BulkEditOutcome[] | null = null;
+		await act(async () => {
+			outcomes = await result.current.run([save]);
+		});
+
+		// The plan sends only what differed from the old values: sent now, it could leave a task on another project
+		expect(outcomes).toEqual([{ logId: 'a', status: 'failed' }]);
+		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
+	});
+
 	it('saves nothing for an entry moved to another day since the dialog read it', async () => {
 		const save = saveOf('a');
 		storedLog('a').startedAt = new Date('2026-11-12T09:00:00.000Z');
