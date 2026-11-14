@@ -1,3 +1,4 @@
+// cspell:ignore FGHIJ
 /**
  * Asking for a sign-in code. Gauzy sends the e-mail, so the request says whose e-mail it is. In direct mode the
  * browser gives Gauzy this app's branding and the link to its sign-in page (`/auth/passcode` takes the link's

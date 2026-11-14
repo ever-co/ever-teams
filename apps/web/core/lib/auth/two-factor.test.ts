@@ -1,3 +1,4 @@
+// cspell:ignore DPEHPK EHPK FGHIJ JBSW JBSWY fghij
 import {
 	authenticatorCodeOf,
 	isAuthenticatorCode,

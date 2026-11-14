@@ -1,4 +1,5 @@
 'use client';
+// cspell:words otpauth
 
 import { useId, useState, type FormEvent } from 'react';
 import { useTranslations } from 'next-intl';

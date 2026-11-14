@@ -1,3 +1,4 @@
+// cspell:ignore IJKL MNOP
 import { AxiosAdapter, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 const mockDebug = jest.fn();

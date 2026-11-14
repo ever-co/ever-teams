@@ -1,4 +1,5 @@
 /** @jest-environment jsdom */
+// cspell:ignore DPEHPK JBSWY otpauth totp
 import React, { type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
@@ -59,7 +60,10 @@ describe('useTwoFactorSettings', () => {
 			recoveryCodesLeft: 0,
 			requiredByOrganization: false
 		});
-		mockTwoFactorService.enroll.mockResolvedValue({ secret: SECRET, otpauthUrl: `otpauth://totp/x?secret=${SECRET}` });
+		mockTwoFactorService.enroll.mockResolvedValue({
+			secret: SECRET,
+			otpauthUrl: `otpauth://totp/x?secret=${SECRET}`
+		});
 		mockTwoFactorService.confirm.mockResolvedValue({
 			enabledAt: '2026-11-14T12:00:00.000Z',
 			recoveryCodes: RECOVERY_CODES

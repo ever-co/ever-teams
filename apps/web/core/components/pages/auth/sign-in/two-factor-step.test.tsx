@@ -1,4 +1,5 @@
 /** @jest-environment jsdom */
+// cspell:ignore FGHIJ fghij
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { TTwoFactorSignIn } from '@/core/hooks/auth/use-two-factor-sign-in';
 import { TwoFactorStep } from './two-factor-step';

@@ -1,3 +1,4 @@
+// cspell:ignore FGHIJ
 /**
  * The person's own two-factor calls: bodies without tenant or organization (Gauzy's routes take neither), answers
  * holding a secret kept out of the development log, and a wrong code (401) shown as such, never a sign-out.

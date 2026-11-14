@@ -1,3 +1,4 @@
+// cspell:ignore FGHIJ
 import { twoFactorProofSchema, twoFactorUserIdSchema, twoFactorVerifySchema } from './two-factor';
 
 describe('two-factor request bodies', () => {
