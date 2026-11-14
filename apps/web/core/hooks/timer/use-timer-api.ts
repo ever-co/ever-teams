@@ -155,7 +155,7 @@ let lastStopTimerTimestamp = 0;
 let timerCommandSeq = 0;
 let timerCommandsInFlight = 0;
 
-function trackTimerCommand<T>(request: Promise<T>): Promise<T> {
+export function trackTimerCommand<T>(request: Promise<T>): Promise<T> {
 	timerCommandSeq += 1;
 	timerCommandsInFlight += 1;
 	return request.finally(() => {

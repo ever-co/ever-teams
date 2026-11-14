@@ -17,6 +17,16 @@ jest.mock('@/core/services/client/api/timers/timer.service', () => ({
 	}
 }));
 
+const mockTrackTimerCommand = jest.fn(<T,>(request: Promise<T>) => request);
+jest.mock('@/core/hooks/timer/use-timer-api', () => ({
+	trackTimerCommand: <T,>(request: Promise<T>) => mockTrackTimerCommand(request)
+}));
+let mockOrganizationId = 'org-1';
+jest.mock('@/core/lib/helpers/cookies', () => ({
+	getTenantIdCookie: () => 'tenant-1',
+	getOrganizationIdCookie: () => mockOrganizationId
+}));
+
 import { useMoveTimerStart, useTimerStartMoveSupport } from './use-timer-start-move';
 
 function setup() {
@@ -33,6 +43,7 @@ function setup() {
 
 afterEach(() => {
 	jest.clearAllMocks();
+	mockOrganizationId = 'org-1';
 });
 
 describe('useTimerStartMoveSupport', () => {
@@ -77,6 +88,35 @@ describe('useMoveTimerStart', () => {
 			reason: 'Forgot'
 		});
 		expect(store.get(timerStatusState)).toEqual(movedStatus);
+	});
+
+	it('counts as a timer command, so a status read before it lands cannot undo it', async () => {
+		mockMoveTimerStart.mockResolvedValue({ data: { running: true, duration: 2100, lastLog: { id: 'log-1' } } });
+		const { wrapper } = setup();
+
+		const { result } = renderHook(() => useMoveTimerStart(), { wrapper });
+		await act(async () => {
+			await result.current.moveStart({ startedAt: new Date(2026, 10, 16, 9, 0) });
+		});
+
+		expect(mockTrackTimerCommand).toHaveBeenCalledTimes(1);
+	});
+
+	it('drops an answer that lands after the workspace changed', async () => {
+		let answer: (value: unknown) => void = () => undefined;
+		mockMoveTimerStart.mockReturnValue(new Promise((resolve) => (answer = resolve)));
+		const { store, wrapper } = setup();
+		const before = store.get(timerStatusState);
+
+		const { result } = renderHook(() => useMoveTimerStart(), { wrapper });
+		await act(async () => {
+			const moving = result.current.moveStart({ startedAt: new Date(2026, 10, 16, 9, 0) });
+			mockOrganizationId = 'org-2';
+			answer({ data: { running: true, duration: 2100, lastLog: { id: 'log-1' } } });
+			await moving;
+		});
+
+		expect(store.get(timerStatusState)).toBe(before);
 	});
 
 	it('remembers a missing route, so the panel shows the start alone from then on', async () => {

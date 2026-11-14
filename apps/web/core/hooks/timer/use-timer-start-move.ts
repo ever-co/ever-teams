@@ -2,6 +2,9 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSetAtom } from 'jotai';
+import { useCallback } from 'react';
+import { trackTimerCommand } from '@/core/hooks/timer/use-timer-api';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { queryKeys } from '@/core/query/keys';
 import { timerService } from '@/core/services/client/api/timers/timer.service';
 import { timerStatusState } from '@/core/stores/timer/timer';
@@ -34,18 +37,31 @@ interface TimerStartMove {
 	reason?: string;
 }
 
+/** The workspace a request belongs to, read from the session's cookies. */
+function workspaceScope() {
+	return `${getTenantIdCookie() ?? ''}:${getOrganizationIdCookie() ?? ''}`;
+}
+
 /**
  * Moves the start of the caller's running timer. The status Gauzy answers after the move replaces the one the timer
  * shows, so the clock jumps at once; the team's figures are read again for today's total. A refusal leaves the timer
- * as it was and is thrown to the caller, which says why.
+ * as it was and is thrown to the caller, which says why. The move counts as a timer command, so a status read before
+ * it lands (a heartbeat) cannot put the old start back, and an answer that lands after the workspace changed is
+ * dropped.
  */
 export function useMoveTimerStart() {
 	const queryClient = useQueryClient();
 	const setTimerStatus = useSetAtom(timerStatusState);
 
 	const mutation = useMutation({
-		mutationFn: (move: TimerStartMove) => timerService.moveTimerStart(move),
-		onSuccess: (response) => {
+		mutationFn: async ({ move, scope }: { move: TimerStartMove; scope: string }) => {
+			const response = await trackTimerCommand(timerService.moveTimerStart(move));
+			return { response, sameWorkspace: workspaceScope() === scope };
+		},
+		onSuccess: ({ response, sameWorkspace }) => {
+			if (!sameWorkspace) {
+				return;
+			}
 			const status = response?.data;
 			if (status) {
 				setTimerStatus(status);
@@ -61,5 +77,12 @@ export function useMoveTimerStart() {
 		}
 	});
 
-	return { moveStart: mutation.mutateAsync, saving: mutation.isPending, reset: mutation.reset };
+	// The workspace is read when Save is pressed, before anything is awaited
+	const { mutateAsync } = mutation;
+	const moveStart = useCallback(
+		(move: TimerStartMove) => mutateAsync({ move, scope: workspaceScope() }),
+		[mutateAsync]
+	);
+
+	return { moveStart, saving: mutation.isPending, reset: mutation.reset };
 }
