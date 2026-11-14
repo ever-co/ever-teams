@@ -9,11 +9,13 @@ import { DialogFieldLabel } from '@/core/components/common/dialog-field-label';
 import { Input } from '@/core/components/common/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { Clock } from '@/core/components/icons';
+import { useGetCurrentOrganization } from '@/core/hooks/auth/use-current-organization';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { useMoveTimerStart, useTimerStartMoveSupport } from '@/core/hooks/timer/use-timer-start-move';
 import { clsxm } from '@/core/lib/utils/clsxm';
 import {
 	TIMER_START_REASON_MAX_LENGTH,
+	type TimePolicy,
 	type TimerStartMoveAccess,
 	isSameStartMinute,
 	localStartMoveRefusalKeyOf,
@@ -32,6 +34,11 @@ const VIEW_MESSAGE_KEYS: Record<Extract<TimerStartMoveAccess, { kind: 'view' }>[
 	unsupported: 'timer.startMove.UNSUPPORTED',
 	checking: 'timer.startMove.CHECKING'
 };
+
+/** An organization that could not be read: the field is offered, and the API refuses a move with its reason. */
+const UNREAD_ORGANIZATION: TimePolicy = { allowModifyTime: true, allowManualTime: true, requireReason: false };
+
+const REASON_REQUIRED_KEY = 'timer.startMove.REASON_REQUIRED';
 
 /**
  * The running time as a button: it opens a small panel with the start of the run, and where the rules let the person
@@ -68,20 +75,23 @@ function RunningTimerStartPopover({
 }: Readonly<RunningTimerStartPopoverProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
-	const organization = useAtomValue(currentOrganizationState);
 	const { myPermissions, isLoaded: permissionsLoaded } = useMyRolePermissionsQuery();
 	const [open, setOpen] = useState(false);
 	const probedSupport = useTimerStartMoveSupport(open);
+	// Most pages never read the organization: the panel reads its rules when it opens
+	const organizationRead = useGetCurrentOrganization({ enabled: open });
+	const organization = useAtomValue(currentOrganizationState);
 
 	const runStart = new Date(runStartValue);
 	const formatTime = (date: Date) => date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' });
 	const startLabel = formatTime(runStart);
-	const support = permissionsLoaded ? probedSupport : 'checking';
+	const organizationKnown = organization !== null || organizationRead.isError;
+	const support = permissionsLoaded && organizationKnown ? probedSupport : 'checking';
 	const access = timerStartMoveAccessOf({
 		source,
 		support,
 		permissions: myPermissions,
-		organization
+		organization: organization ?? UNREAD_ORGANIZATION
 	});
 
 	return (
@@ -140,7 +150,10 @@ function TimerStartForm({ runStart, earlierAllowed, reasonRequired, formatTime, 
 	const [timeText, setTimeText] = useState(startText);
 	const [reason, setReason] = useState('');
 	const [errorKey, setErrorKey] = useState<string | null>(null);
+	// An organization read before its reason rule changed: the API's refusal brings the reason field
+	const [apiAsksReason, setApiAsksReason] = useState(false);
 	const { moveStart, saving } = useMoveTimerStart();
+	const asksReason = reasonRequired || apiAsksReason;
 
 	const start = startFromTimeText(runStart, timeText);
 	const isUnchanged = start === null || isSameStartMinute(start, runStart);
@@ -156,7 +169,7 @@ function TimerStartForm({ runStart, earlierAllowed, reasonRequired, formatTime, 
 			runStart,
 			now: new Date(),
 			earlierAllowed,
-			reasonRequired,
+			reasonRequired: asksReason,
 			reason
 		});
 		if (localRefusalKey) {
@@ -169,7 +182,11 @@ function TimerStartForm({ runStart, earlierAllowed, reasonRequired, formatTime, 
 			toast.success(t('timer.startMove.SAVED', { time: formatTime(start) }));
 			onClose();
 		} catch (error) {
-			setErrorKey(timerStartMoveRefusalKeyOf(error));
+			const refusalKey = timerStartMoveRefusalKeyOf(error);
+			if (refusalKey === REASON_REQUIRED_KEY) {
+				setApiAsksReason(true);
+			}
+			setErrorKey(refusalKey);
 		}
 	};
 
@@ -197,7 +214,7 @@ function TimerStartForm({ runStart, earlierAllowed, reasonRequired, formatTime, 
 				/>
 				{laterOnly && <p className="mt-1.5 text-xs text-muted-foreground">{t('timer.startMove.LATER_ONLY')}</p>}
 			</div>
-			{reasonRequired && (
+			{asksReason && (
 				<div className="flex flex-col">
 					<DialogFieldLabel htmlFor={reasonId} isRequired>
 						{t('timer.startMove.REASON')}

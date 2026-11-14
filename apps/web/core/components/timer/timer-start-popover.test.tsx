@@ -23,6 +23,14 @@ jest.mock('@/core/hooks/timer/use-timer-start-move', () => ({
 	useTimerStartMoveSupport: () => mockSupport,
 	useMoveTimerStart: () => ({ moveStart: mockMoveStart, saving: false, reset: jest.fn() })
 }));
+const mockGetCurrentOrganization = jest.fn();
+let mockOrganizationReadFailed = false;
+jest.mock('@/core/hooks/auth/use-current-organization', () => ({
+	useGetCurrentOrganization: (options: unknown) => {
+		mockGetCurrentOrganization(options);
+		return { isError: mockOrganizationReadFailed, refetch: jest.fn() };
+	}
+}));
 
 import { TimerStartPopover } from './timer-start-popover';
 
@@ -33,7 +41,7 @@ function renderTimer({
 	source = 'TEAMS',
 	running = true,
 	organization = OPEN_ORGANIZATION
-}: { source?: string; running?: boolean; organization?: Record<string, unknown> } = {}) {
+}: { source?: string; running?: boolean; organization?: Record<string, unknown> | null } = {}) {
 	const store = createStore();
 	store.set(timerStatusState, {
 		running,
@@ -59,6 +67,7 @@ beforeEach(() => {
 	});
 	mockSupport = 'supported';
 	mockPermissions = EDITOR;
+	mockOrganizationReadFailed = false;
 });
 
 afterEach(() => {
@@ -166,6 +175,39 @@ describe('TimerStartPopover', () => {
 
 		expect(screen.getByText(messageKey)).toBeTruthy();
 		expect(screen.queryByLabelText(/timer\.startMove\.NEW_START/)).toBeNull();
+	});
+
+	it("reads the organization's rules when the panel opens, and waits for them", () => {
+		renderTimer({ organization: null });
+
+		expect(mockGetCurrentOrganization).toHaveBeenLastCalledWith({ enabled: false });
+		openPanel();
+
+		expect(mockGetCurrentOrganization).toHaveBeenLastCalledWith({ enabled: true });
+		expect(screen.getByText('timer.startMove.CHECKING')).toBeTruthy();
+		expect(screen.queryByLabelText(/timer\.startMove\.NEW_START/)).toBeNull();
+	});
+
+	it('leaves the rules to the API when the organization cannot be read', () => {
+		mockOrganizationReadFailed = true;
+		renderTimer({ organization: null });
+		openPanel();
+
+		expect(screen.getByLabelText(/timer\.startMove\.NEW_START/)).toBeTruthy();
+	});
+
+	it('asks for the reason when the API says the organization requires one', async () => {
+		mockMoveStart.mockRejectedValue({ statusCode: 400, errorCode: 'TIMER_START_REASON_REQUIRED' });
+		renderTimer();
+		openPanel();
+
+		fireEvent.change(screen.getByLabelText(/timer\.startMove\.NEW_START/), { target: { value: '09:00' } });
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'common.SAVE' }));
+		});
+
+		expect(screen.getByRole('alert').textContent).toBe('timer.startMove.REASON_REQUIRED');
+		expect(screen.getByLabelText(/^timer\.startMove\.REASON/)).toBeTruthy();
 	});
 
 	it('shows the start without the field against an API that cannot move it', () => {
