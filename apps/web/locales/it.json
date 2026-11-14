@@ -5194,7 +5194,15 @@
 			"FORMAT_OUTCOME": "I report e le loro esportazioni ora lo usano.",
 			"FORMAT_AUTOMATIC": "Automatico",
 			"READ_ONLY_NOTE": "Solo gli amministratori dello spazio di lavoro possono cambiare queste impostazioni.",
-			"LOAD_FAILED": "Non è stato possibile caricare le impostazioni dello spazio di lavoro."
+			"LOAD_FAILED": "Non è stato possibile caricare le impostazioni dello spazio di lavoro.",
+			"DATA_SECTION": "Dati",
+			"EXPORT_LABEL": "Esporta tutti i dati",
+			"EXPORT_DESCRIPTION": "Uno ZIP di file CSV, uno per tabella: tutte le organizzazioni dello spazio di lavoro, nel formato che l'importazione rilegge.",
+			"EXPORT_ACTION": "Esporta",
+			"EXPORTING": "Esportazione…",
+			"EXPORT_DONE": "Dati dello spazio di lavoro esportati",
+			"EXPORT_FAILED": "L'esportazione non è stata completata",
+			"EXPORT_FAILED_DESCRIPTION": "Non è stato salvato nulla. Uno spazio di lavoro grande richiede tempo: riprova tra un momento."
 		},
 		"automations": {
 			"NEW_RULE": "Nuova regola",

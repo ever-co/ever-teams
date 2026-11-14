@@ -5194,7 +5194,15 @@
 			"FORMAT_OUTCOME": "Reports and their exports now use it.",
 			"FORMAT_AUTOMATIC": "Automatic",
 			"READ_ONLY_NOTE": "Only workspace admins can change these settings.",
-			"LOAD_FAILED": "The workspace settings could not load."
+			"LOAD_FAILED": "The workspace settings could not load.",
+			"DATA_SECTION": "Data",
+			"EXPORT_LABEL": "Export all data",
+			"EXPORT_DESCRIPTION": "A ZIP of CSV files, one per table: every organization of the workspace, in the format the import reads back.",
+			"EXPORT_ACTION": "Export",
+			"EXPORTING": "Exporting…",
+			"EXPORT_DONE": "Workspace data exported",
+			"EXPORT_FAILED": "The export did not finish",
+			"EXPORT_FAILED_DESCRIPTION": "Nothing was saved. A large workspace takes a while: try again in a moment."
 		},
 		"automations": {
 			"NEW_RULE": "New rule",

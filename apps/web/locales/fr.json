@@ -5194,7 +5194,15 @@
 			"FORMAT_OUTCOME": "Les rapports et leurs exports l'utilisent désormais.",
 			"FORMAT_AUTOMATIC": "Automatique",
 			"READ_ONLY_NOTE": "Seuls les administrateurs de l'espace de travail peuvent modifier ces réglages.",
-			"LOAD_FAILED": "Les réglages de l'espace de travail n'ont pas pu être chargés."
+			"LOAD_FAILED": "Les réglages de l'espace de travail n'ont pas pu être chargés.",
+			"DATA_SECTION": "Données",
+			"EXPORT_LABEL": "Exporter toutes les données",
+			"EXPORT_DESCRIPTION": "Un ZIP de fichiers CSV, un par table : toutes les organisations de l'espace de travail, au format que l'import relit.",
+			"EXPORT_ACTION": "Exporter",
+			"EXPORTING": "Export en cours…",
+			"EXPORT_DONE": "Données de l'espace de travail exportées",
+			"EXPORT_FAILED": "L'export n'est pas allé jusqu'au bout",
+			"EXPORT_FAILED_DESCRIPTION": "Rien n'a été enregistré. Un grand espace de travail prend du temps : réessayez dans un instant."
 		},
 		"automations": {
 			"NEW_RULE": "Nouvelle règle",
