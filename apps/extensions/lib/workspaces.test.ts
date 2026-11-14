@@ -1,7 +1,14 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { isSameSignIn, isSessionRefused, renewedSessionOf, sessionFrom, workspacesOf, type Session } from './workspaces.ts';
+import {
+	isSameSignIn,
+	isSessionRefused,
+	renewedSessionOf,
+	sessionFrom,
+	workspacesOf,
+	type Session
+} from './workspaces.ts';
 
 const confirmAnswer = {
 	workspaces: [
