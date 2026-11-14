@@ -10,6 +10,7 @@ import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permis
 import {
 	type CreatableSpot,
 	creatableSpotAt,
+	dayKeysOfWindow,
 	type DragRefusal,
 	dragRefusalOf,
 	type DragRules
@@ -62,6 +63,10 @@ export interface CalendarEntryMoves {
 	creatableSpot: (time: Date) => CreatableSpot;
 	announceCreateRefusal: (refusal: DragRefusal) => void;
 	moveEntry: (entry: CalendarEntry, next: TimeWindow) => void;
+	/** The role and the organization let the viewer change recorded time, whatever the grid shows right now. */
+	allowsTimeChanges: boolean;
+	/** The entry covers a day whose time is approved: nothing on it changes. */
+	isOnApprovedDay: (entry: CalendarEntry) => boolean;
 }
 
 /**
@@ -85,9 +90,18 @@ export function useCalendarEntryMoves(page: CalendarPageState, canEditLog: (log:
 	const allowsModifyTime = organization?.allowModifyTime !== false;
 	const allowsFutureDates = organization?.futureDateAllowed === true;
 	const isShowingLoadedDays = !isLoading && !isShowingPreviousChoice;
-	const mayModifyTime = hasModifyPermission && allowsModifyTime && isShowingLoadedDays;
+	const allowsTimeChanges = hasModifyPermission && allowsModifyTime;
+	const mayModifyTime = allowsTimeChanges && isShowingLoadedDays;
 
 	const approvedDayKeys = useMemo(() => approvedDayKeysOf(memberLogs), [memberLogs]);
+
+	const isOnApprovedDay = useCallback(
+		(entry: CalendarEntry) => {
+			const dayKeys = dayKeysOfWindow({ start: entry.start, end: entry.end });
+			return dayKeys.some((dayKey) => approvedDayKeys.has(dayKey));
+		},
+		[approvedDayKeys]
+	);
 
 	const rulesAt = useCallback(
 		(now: Date): DragRules => ({ memberLogs, approvedDayKeys, allowsFutureDates, now }),
@@ -188,7 +202,7 @@ export function useCalendarEntryMoves(page: CalendarPageState, canEditLog: (log:
 	);
 
 	return useMemo<CalendarEntryMoves>(
-		() => ({ canDragEntry, creatableSpot, announceCreateRefusal, moveEntry }),
-		[announceCreateRefusal, canDragEntry, creatableSpot, moveEntry]
+		() => ({ canDragEntry, creatableSpot, announceCreateRefusal, moveEntry, allowsTimeChanges, isOnApprovedDay }),
+		[allowsTimeChanges, announceCreateRefusal, canDragEntry, creatableSpot, isOnApprovedDay, moveEntry]
 	);
 }
