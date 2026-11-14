@@ -5,6 +5,7 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { Calendar } from '@/core/components/common/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { Calendar as CalendarGlyph, ChevronDown, X } from '@/core/components/icons';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import { cn } from '@/core/lib/helpers';
 import {
 	format,
@@ -194,7 +195,8 @@ const createRangeHelper = (handleDateRangeChange: (range: DateRange | undefined)
 };
 
 const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: PredefinedRangeProps) => {
-	const weekOptions = React.useMemo(() => ({ weekStartsOn: 1 as const }), []);
+	const weekStartsOn = useWorkspaceWeekStart();
+	const weekOptions = React.useMemo(() => ({ weekStartsOn }), [weekStartsOn]);
 
 	const createRange = React.useMemo(() => createRangeHelper(handleDateRangeChange), [handleDateRangeChange]);
 
