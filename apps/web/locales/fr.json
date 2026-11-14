@@ -5046,7 +5046,52 @@
 			"RESET_TWO_FACTOR_CONFIRM": "Réinitialiser",
 			"RESET_TWO_FACTOR_DONE": "L’authentification à deux facteurs de {name} est réinitialisée",
 			"RESET_TWO_FACTOR_NOTHING": "{name} n’avait pas d’authentification à deux facteurs à réinitialiser",
-			"RESET_TWO_FACTOR_FAILED": "L’authentification à deux facteurs de {name} n’a pas pu être réinitialisée"
+			"RESET_TWO_FACTOR_FAILED": "L’authentification à deux facteurs de {name} n’a pas pu être réinitialisée",
+			"placeholder": {
+				"ADD": "Ajouter sans compte",
+				"ADD_TITLE": "Ajouter une personne sans compte",
+				"ADD_DESCRIPTION": "Pour une personne qui a travaillé avec l'équipe et n'a pas de compte. Elle ne reçoit aucun e-mail, ne peut pas se connecter et ne lance jamais de minuteur. Son temps compte dans les rapports, les feuilles de temps, les budgets et les factures comme celui de tout membre.",
+				"EMAIL": "E-mail",
+				"OPTIONAL": "facultatif",
+				"EMAIL_HINT": "Gardé pour l'inviter plus tard à récupérer son temps. Rien n'est envoyé maintenant.",
+				"EMAIL_INVALID": "Saisissez un e-mail valide, ou laissez le champ vide.",
+				"ADD_CONFIRM": "Ajouter le membre",
+				"ADD_FAILED": "Le membre n'a pas été ajouté.",
+				"ADDED": "{name} a été ajouté sans compte.",
+				"NO_ACCOUNT": "Sans compte",
+				"NO_EMAIL": "Pas d'e-mail",
+				"CLAIM": "Inviter à récupérer",
+				"CLAIM_TITLE": "Inviter {name} à récupérer son temps",
+				"CLAIM_DESCRIPTION": "{name} reçoit une invitation par e-mail. En l’acceptant, son temps, ses équipes et ses taux passent sur son propre compte.",
+				"CLAIM_CONFIRM": "Envoyer l'invitation",
+				"CLAIM_FAILED": "L'invitation n'a pas été envoyée.",
+				"CLAIM_SENT": "Invitation envoyée à {email}. Le temps de {name} passe sur son compte dès qu’il l’accepte.",
+				"CLAIM_PENDING": "Invitation envoyée",
+				"CLAIM_PENDING_TO": "Invitation à récupérer envoyée à {email}",
+				"MERGE": "Fusionner avec un membre",
+				"MERGE_TITLE": "Fusionner {name} avec un membre",
+				"MERGE_DESCRIPTION": "Tout ce que possède ce membre sans compte passe au membre choisi. Une fusion ne peut pas être annulée.",
+				"MERGE_INTO": "Fusionner avec",
+				"MERGE_PICK": "Choisir un membre",
+				"MERGE_NO_TARGET": "Personne dans cette équipe n'a encore de compte avec lequel fusionner.",
+				"MERGE_READING": "Lecture de ce qui serait déplacé…",
+				"MERGE_PREVIEW_FAILED": "Ce qui serait déplacé n'a pas pu être lu.",
+				"RETRY": "Réessayer",
+				"MERGE_MOVES_TIME": "{count, plural, one {# entrée} other {# entrées}} ({duration}) passent à {target}.",
+				"MERGE_MOVES_WORK": "{timesheets, plural, one {# feuille de temps} other {# feuilles de temps}} et {tasks, plural, one {# affectation de tâche} other {# affectations de tâche}} suivent.",
+				"MERGE_MOVES_TEAMS": "{target} rejoint ses équipes : {teams}.",
+				"MERGE_OVERLAPS": "{count, plural, one {# de ces entrées chevauche} other {# de ces entrées chevauchent}} le temps de {target}.",
+				"MERGE_REMOVES": "{name} est retiré des membres.",
+				"MERGE_CONFIRM": "Fusionner",
+				"MERGE_FAILED": "Les membres n'ont pas été fusionnés.",
+				"MERGED": "{name} a été fusionné avec {target}.",
+				"errors": {
+					"EMAIL_TAKEN": "Un membre de cette organisation a déjà cet e-mail.",
+					"CLAIM_HAS_ACCOUNT": "Cet e-mail a déjà un compte. Fusionnez plutôt le membre avec le membre de cette personne.",
+					"MERGE_TIME_OFF": "Les deux membres ont un solde de congés pour la même règle et la même année ({years}). Réglez-le sur l’un des deux, puis fusionnez à nouveau. Rien n’a été déplacé.",
+					"MERGE_TIME_OFF_ANY": "Les deux membres ont un solde de congés pour la même règle et la même année. Réglez-le sur l’un des deux, puis fusionnez à nouveau. Rien n’a été déplacé."
+				}
+			}
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profil",
@@ -7389,6 +7434,15 @@
 				"MEMBER_NAME_UNKNOWN": "Aucun membre de cette équipe ne porte ce nom.",
 				"MEMBER_AMBIGUOUS": "{count, plural, one {# membre de cette équipe porte ce nom.} other {# membres de cette équipe portent ce nom. Indiquez le membre par son e-mail.}}"
 			}
+		},
+		"placeholders": {
+			"TITLE": "{count, plural, one {# personne de ce fichier n'est pas} other {# personnes de ce fichier ne sont pas}} dans cette équipe ({rows, plural, one {# ligne} other {# lignes}})",
+			"DESCRIPTION": "Ajoutez-les comme membres sans compte : ils ne reçoivent aucun e-mail et ne peuvent pas se connecter. Leurs lignes sont ensuite vérifiées à nouveau et importées comme celles de tout membre.",
+			"NAMES": "{names}{more, plural, =0 {} other { et # de plus}}",
+			"ADD": "Ajouter {count, plural, one {# membre} other {# membres}} sans compte",
+			"FAILED": "Ils n'ont pas été ajoutés.",
+			"OUTSIDE_TEAM_TITLE": "{count, plural, one {# personne fait déjà partie} other {# personnes font déjà partie}} de l'organisation, pas de cette équipe",
+			"OUTSIDE_TEAM_DESCRIPTION": "{names} : ajoutez-les à cette équipe dans Paramètres > Membres, puis choisissez à nouveau le fichier."
 		}
 	},
 	"recordSheet": {

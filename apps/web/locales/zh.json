@@ -5046,7 +5046,52 @@
 			"RESET_TWO_FACTOR_CONFIRM": "重置",
 			"RESET_TWO_FACTOR_DONE": "已重置 {name} 的双重身份验证",
 			"RESET_TWO_FACTOR_NOTHING": "{name} 没有需要重置的双重身份验证",
-			"RESET_TWO_FACTOR_FAILED": "无法重置 {name} 的双重身份验证"
+			"RESET_TWO_FACTOR_FAILED": "无法重置 {name} 的双重身份验证",
+			"placeholder": {
+				"ADD": "添加无账户成员",
+				"ADD_TITLE": "添加没有账户的人",
+				"ADD_DESCRIPTION": "适用于曾与团队合作但没有账户的人。他们不会收到邮件，无法登录，也从不启动计时器。他们的时间像任何成员一样计入报告、工时表、预算和发票。",
+				"EMAIL": "邮箱",
+				"OPTIONAL": "可选",
+				"EMAIL_HINT": "保存后可在以后邀请他们认领自己的时间。现在不会发送任何内容。",
+				"EMAIL_INVALID": "请输入有效的邮箱，或留空。",
+				"ADD_CONFIRM": "添加成员",
+				"ADD_FAILED": "未添加该成员。",
+				"ADDED": "已添加无账户成员 {name}。",
+				"NO_ACCOUNT": "无账户",
+				"NO_EMAIL": "无邮箱",
+				"CLAIM": "邀请认领",
+				"CLAIM_TITLE": "邀请 {name} 认领自己的时间",
+				"CLAIM_DESCRIPTION": "{name} 会收到一封邀请邮件。接受后，其时间、团队和费率将转到其自己的账户。",
+				"CLAIM_CONFIRM": "发送邀请",
+				"CLAIM_FAILED": "邀请未发送。",
+				"CLAIM_SENT": "已向 {email} 发送邀请。{name} 接受后，其时间将转到其账户。",
+				"CLAIM_PENDING": "已发送邀请",
+				"CLAIM_PENDING_TO": "认领邀请已发送至 {email}",
+				"MERGE": "合并到成员",
+				"MERGE_TITLE": "将 {name} 合并到成员",
+				"MERGE_DESCRIPTION": "这个无账户成员的所有内容都会转给你选择的成员。合并无法撤销。",
+				"MERGE_INTO": "合并到",
+				"MERGE_PICK": "选择成员",
+				"MERGE_NO_TARGET": "这个团队中还没有人拥有可合并的账户。",
+				"MERGE_READING": "正在读取将转移的内容…",
+				"MERGE_PREVIEW_FAILED": "无法读取将转移的内容。",
+				"RETRY": "重试",
+				"MERGE_MOVES_TIME": "{count} 条记录（{duration}）转给 {target}。",
+				"MERGE_MOVES_WORK": "{timesheets} 张工时表和 {tasks} 个任务分配随之转移。",
+				"MERGE_MOVES_TEAMS": "{target} 加入其团队：{teams}。",
+				"MERGE_OVERLAPS": "其中 {count} 条记录与 {target} 自己的时间重叠。",
+				"MERGE_REMOVES": "{name} 将从成员中移除。",
+				"MERGE_CONFIRM": "合并",
+				"MERGE_FAILED": "成员未合并。",
+				"MERGED": "已将 {name} 合并到 {target}。",
+				"errors": {
+					"EMAIL_TAKEN": "该组织已有成员使用此邮箱。",
+					"CLAIM_HAS_ACCOUNT": "此邮箱已有账户。请改为将该成员合并到此人的成员中。",
+					"MERGE_TIME_OFF": "两位成员在同一政策和同一年度（{years}）都有休假余额。请在其中一位成员上处理后再合并。未转移任何内容。",
+					"MERGE_TIME_OFF_ANY": "两位成员在同一政策和同一年度都有休假余额。请在其中一位成员上处理后再合并。未转移任何内容。"
+				}
+			}
 		},
 		"profile": {
 			"SECTION_PROFILE": "个人资料",
@@ -7389,6 +7434,15 @@
 				"MEMBER_NAME_UNKNOWN": "此团队中没有成员使用这个名字。",
 				"MEMBER_AMBIGUOUS": "{count, plural, other {此团队中有 # 名成员使用这个名字。请用邮箱指定成员。}}"
 			}
+		},
+		"placeholders": {
+			"TITLE": "此文件中有 {count} 人不在这个团队中（{rows} 行）",
+			"DESCRIPTION": "将他们添加为无账户成员：他们不会收到邮件，也无法登录。随后会重新检查他们的行，并像任何成员一样导入。",
+			"NAMES": "{names}{more, plural, =0 {} other {，另有 # 人}}",
+			"ADD": "添加 {count} 名无账户成员",
+			"FAILED": "未添加他们。",
+			"OUTSIDE_TEAM_TITLE": "{count} 人已属于该组织，但不在这个团队中",
+			"OUTSIDE_TEAM_DESCRIPTION": "{names}：请在 设置 > 成员 中将他们加入这个团队，然后重新选择文件。"
 		}
 	},
 	"recordSheet": {
