@@ -2,7 +2,7 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { getTimerStatusRequest, readTodayRange, startTimerRequest } from '@/core/services/server/requests';
 import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
-import type { IUpdateTimerStatusParams } from '@/core/types/interfaces/timer/timer-status';
+import type { IUpdateTimerStatusParams, TTimerStartLogType } from '@/core/types/interfaces/timer/timer-status';
 import { NextResponse } from 'next/server';
 import { TIMER_NOTES_MAX_LENGTH, readTimerNotes } from '@/core/lib/utils/timer/timer-notes';
 
@@ -20,6 +20,20 @@ function planDayOf(body: object): string | undefined {
 		return undefined;
 	}
 	return planDay;
+}
+
+const LOG_TYPE_REFUSAL = 'logType must be TRACKED or BREAK';
+
+// A start records work unless the body asks for a break (Gauzy #11940); an older client sends no type.
+function logTypeOf(body: object): TTimerStartLogType | null {
+	const logType = (body as { logType?: unknown }).logType;
+	if (logType === undefined || logType === 'TRACKED') {
+		return 'TRACKED';
+	}
+	if (logType === 'BREAK') {
+		return 'BREAK';
+	}
+	return null;
 }
 
 // Empty notes are not sent, so a start without any reaches Gauzy as it did before a start could carry notes.
@@ -97,6 +111,13 @@ export async function POST(req: Request) {
 		return NextResponse.json({ error: 'organizationTeamId must be a non-empty string' }, { status: 400 });
 	}
 
+	const logType = logTypeOf(body);
+	if (!logType) {
+		return NextResponse.json({ error: LOG_TYPE_REFUSAL }, { status: 400 });
+	}
+	// A break is never billable, whatever the body says
+	const startsBreak = logType === 'BREAK';
+
 	const taskId = hasBodyTaskId ? bodyTaskId : activeTaskIdCookie;
 	const organizationTeamId = hasBodyTeamId ? bodyTeamId : activeTeamIdCookie;
 
@@ -104,10 +125,10 @@ export async function POST(req: Request) {
 		tenantId: tenantId || '',
 		organizationId: organizationId || '',
 		taskId: taskId || '',
-		logType: 'TRACKED',
+		logType,
 		source: ETimeLogSource.TEAMS,
 		tags: [],
-		isBillable,
+		isBillable: isBillable && !startsBreak,
 		organizationTeamId,
 		planDay: planDayOf(body),
 		...startNotesFieldOf(notesReading.description, hasBodyTaskId)
@@ -120,7 +141,13 @@ export async function POST(req: Request) {
 	}
 
 	try {
-		await startTimerRequest(startParams, access_token || '');
+		// Gauzy refuses a break with a body that names its reason (BREAKS_NOT_ALLOWED) but not its status: the status
+		// is kept so the timer can say why. A work start reads its refusals as before.
+		if (startsBreak) {
+			await startTimerRequest(startParams, access_token || '', { keepsStatusOnError: true });
+		} else {
+			await startTimerRequest(startParams, access_token || '');
+		}
 	} catch (error) {
 		// Gauzy's refusal goes back with its status and message (403 when tracking is off) instead of a 500, so the
 		// timer can tell the user why

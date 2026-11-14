@@ -123,6 +123,43 @@ class TimerService extends APIService {
 		);
 	};
 
+	/**
+	 * A break from the timer (Gauzy #11940): a start of type BREAK, which ends the running work entry. It is never
+	 * billable and carries the task work starts again on; "back to work" is an ordinary start on that task.
+	 */
+	startBreak = async ({
+		taskId,
+		organizationTeamId
+	}: {
+		taskId?: string | null;
+		organizationTeamId?: string | null;
+	}) => {
+		const taskField = taskId ? { taskId } : {};
+
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			await this.post('/timesheet/timer/start', {
+				tenantId: this.tenantId,
+				organizationId: this.organizationId,
+				...taskField,
+				logType: 'BREAK',
+				source: ETimeLogSource.TEAMS,
+				tags: [],
+				isBillable: false,
+				organizationTeamId: organizationTeamId || this.activeTeamId
+			});
+
+			return this.getTimerStatus();
+		}
+
+		const api = await getFallbackAPI();
+		return api.post<ITimerStatus>(`/timer/start?${getTodayRangeQuery()}`, {
+			...taskField,
+			...(organizationTeamId ? { organizationTeamId } : {}),
+			isBillable: false,
+			logType: 'BREAK'
+		});
+	};
+
 	private readonly resetTimeSlotSync = <R extends { data?: ITimerStatus }>(at: number, response: R): R => {
 		this.lastTimeSlotSync = { at, timeLogId: response.data?.lastLog?.id };
 		return response;
