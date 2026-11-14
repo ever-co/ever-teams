@@ -2,7 +2,7 @@
 
 import React, { type ReactNode, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useTaskQueries } from '@/core/hooks';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { APP_DIALOG_BODY, AppDialog, AppDialogHeader } from '@/core/components/common/app-dialog';
@@ -13,6 +13,8 @@ import { TOrganizationProject, TTimeSlot } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { QUIET_SHOT_FRAME, SHOT_FRAME, SlotThumbnail } from './screenshot-item';
 import { formatDateValue, type SlotScreenshot, screenshotsOf, slotRangeTextOf } from './screenshot-slots';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 
 interface SlotTimeLog {
 	projectId?: string;
@@ -203,11 +205,11 @@ function ScreenshotStrip({ slot, format }: Readonly<{ slot: TTimeSlot; format: I
 /** Mounted only while the dialog is open, so the projects read starts when a slot's detail opens. */
 function ScreenshotDetailsContent({ slot, onClose }: Readonly<{ slot: TTimeSlot; onClose: () => void }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const formats = useMemo(
 		() => ({
-			day: new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long' }),
-			time: new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' })
+			day: dateFormatOf(locale, { weekday: 'long', day: 'numeric', month: 'long' }),
+			time: dateFormatOf(locale, { hour: 'numeric', minute: '2-digit' })
 		}),
 		[locale]
 	);

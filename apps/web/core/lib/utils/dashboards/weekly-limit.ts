@@ -8,7 +8,7 @@ import {
 	percentOf
 } from '@/core/lib/utils/dashboard-figures';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
-import { formatPeriod, type Period } from '@/core/lib/utils/dashboard-period';
+import { formatPeriod, type Period, type WeekStart } from '@/core/lib/utils/dashboard-period';
 import {
 	dateFormatOf,
 	hasNumberFormat,
@@ -86,13 +86,100 @@ export interface LimitFigures {
 }
 
 /** Week reports cover whole Monday-to-Sunday weeks, so a week's limit is never compared with part of a week. */
-export function requestPeriodOf(period: Period, duration: LimitDuration): Period {
+export function requestPeriodOf(
+	period: Period,
+	duration: LimitDuration,
+	weekStartsOn: WeekStart = LIMIT_WEEK_START
+): Period {
 	if (duration === 'week') {
-		const from = startOfWeek(period.from, { weekStartsOn: LIMIT_WEEK_START });
-		const to = endOfWeek(period.to, { weekStartsOn: LIMIT_WEEK_START });
+		const from = startOfWeek(period.from, { weekStartsOn });
+		const to = endOfWeek(period.to, { weekStartsOn });
 		return { from, to };
 	}
 	return { from: startOfDay(period.from), to: endOfDay(period.to) };
+}
+
+/**
+ * What the report is cached by: the request Gauzy gets, the view shown and the week start its days are added into.
+ * The daily and the weekly view can send Gauzy the same request and keep different rows from it.
+ */
+export function limitCacheParamsOf<Params extends object>(
+	params: Params,
+	shownDuration: LimitDuration,
+	weekStartsOn: WeekStart
+) {
+	return { ...params, shownDuration, weekStartsOn };
+}
+
+/**
+ * The duration to ask Gauzy for. Gauzy measures its weeks from Monday whatever the organisation stores, so a workspace
+ * whose week starts on another day asks for days and adds them up into its own weeks.
+ */
+export function apiLimitDurationOf(duration: LimitDuration, weekStartsOn: WeekStart): LimitDuration {
+	const needsDays = duration === 'week' && weekStartsOn !== LIMIT_WEEK_START;
+	if (needsDays) {
+		return 'day';
+	}
+	return duration;
+}
+
+/** Gauzy gives a day a fifth of the weekly limit. */
+const LIMIT_DAYS_PER_WEEK = 5;
+
+type LimitReportItem = TTimeLimitReportList['employees'][number];
+
+function percentageOf(used: number, limit: number): number {
+	if (limit <= 0) {
+		return 0;
+	}
+	return (used * 100) / limit;
+}
+
+function weekKeyOfDay(dayKey: string, weekStartsOn: WeekStart): string | null {
+	const day = localDateOfKey(dayKey);
+	if (!day) {
+		return null;
+	}
+	return localDayKeyOf(startOfWeek(day, { weekStartsOn }));
+}
+
+function addedItemOf(sum: LimitReportItem | undefined, item: LimitReportItem): LimitReportItem {
+	const weeklyLimit = finiteOrZero(item.limit) * LIMIT_DAYS_PER_WEEK;
+	if (!sum) {
+		return { ...item, duration: finiteOrZero(item.duration), limit: weeklyLimit };
+	}
+	return { ...sum, duration: sum.duration + finiteOrZero(item.duration), limit: Math.max(sum.limit, weeklyLimit) };
+}
+
+/**
+ * Gauzy's day rows added up into the workspace's weeks, in the shape of its own week rows: a week's time is the sum of
+ * its days, its limit the weekly limit (five days' limit).
+ */
+export function weeklyReportsOfDays(
+	dayReports: ReadonlyArray<TTimeLimitReportList>,
+	weekStartsOn: WeekStart
+): TTimeLimitReportList[] {
+	const weeks = new Map<string, Map<string, LimitReportItem>>();
+	for (const report of dayReports) {
+		const weekKey = weekKeyOfDay(report.date, weekStartsOn);
+		if (!weekKey) {
+			continue;
+		}
+		const items = weeks.get(weekKey) ?? new Map<string, LimitReportItem>();
+		report.employees.forEach((item, itemIndex) => {
+			const employeeId = employeeIdOf(item.employee, itemIndex);
+			items.set(employeeId, addedItemOf(items.get(employeeId), item));
+		});
+		weeks.set(weekKey, items);
+	}
+	const weekKeys = [...weeks.keys()].sort((first, second) => first.localeCompare(second));
+	return weekKeys.map((weekKey) => {
+		const items = [...(weeks.get(weekKey)?.values() ?? [])];
+		return {
+			date: weekKey,
+			employees: items.map((item) => ({ ...item, durationPercentage: percentageOf(item.duration, item.limit) }))
+		};
+	});
 }
 
 /**
@@ -135,9 +222,9 @@ function isWithinPeriod(date: Date, period: Period) {
 	return startsAfterFrom && startsBeforeTo;
 }
 
-function isLimitPeriodStart(date: Date, duration: LimitDuration) {
+function isLimitPeriodStart(date: Date, duration: LimitDuration, weekStartsOn: WeekStart) {
 	if (duration === 'week') {
-		return date.getDay() === LIMIT_WEEK_START;
+		return date.getDay() === weekStartsOn;
 	}
 	return true;
 }
@@ -201,6 +288,8 @@ export interface LimitEntriesInput {
 	standardLimit: number;
 	members: ReadonlyMap<string, LimitMember>;
 	unnamedLabel: string;
+	/** The first day of the weeks the report counts, Gauzy's Monday when none is given. */
+	weekStartsOn?: WeekStart;
 }
 
 function employeeIdOf(employee: LimitReportEmployee, itemIndex: number) {
@@ -253,7 +342,7 @@ export function limitEntriesOf(input: LimitEntriesInput): LimitEntry[] {
 			continue;
 		}
 		const isInPeriod = isWithinPeriod(periodStart, input.period);
-		const isPeriodStart = isLimitPeriodStart(periodStart, input.duration);
+		const isPeriodStart = isLimitPeriodStart(periodStart, input.duration, input.weekStartsOn ?? LIMIT_WEEK_START);
 		const isKept = isInPeriod && isPeriodStart;
 		if (!isKept) {
 			continue;

@@ -21,6 +21,8 @@ import {
 } from '@/core/lib/utils/project-list';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 import type { TOrganizationProject } from '@/core/types/schemas';
+import { numberFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import type { TTaskStatus } from '@/core/types/schemas/task/task-status.schema';
 import type { ProjectTaskStatsState } from '@/core/hooks/projects/use-project-task-stats';
 
@@ -276,17 +278,15 @@ function DateSide({ label, fallback }: Readonly<{ label: string | null; fallback
 	return <span>{label}</span>;
 }
 
-function formatAmount(locale: string, amount: number, currency: string | null | undefined) {
+function formatAmount(locale: FormatLocale, amount: number, currency: string | null | undefined) {
 	if (currency) {
 		try {
-			return new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(
-				amount
-			);
+			return numberFormatOf(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount);
 		} catch {
-			return `${new Intl.NumberFormat(locale).format(amount)} ${currency}`;
+			return `${numberFormatOf(locale).format(amount)} ${currency}`;
 		}
 	}
-	return new Intl.NumberFormat(locale).format(amount);
+	return numberFormatOf(locale).format(amount);
 }
 
 interface ProjectBudgetValue {
@@ -297,7 +297,7 @@ interface ProjectBudgetValue {
 /** Gauzy writes 0 when no budget was entered, so a zero budget reads as unset rather than as a figure. */
 export function useProjectBudget(project: Pick<TOrganizationProject, 'budget' | 'budgetType' | 'currency'>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const budget = project.budget;
 	const hasBudget = typeof budget === 'number' && budget > 0;
 	if (!hasBudget) {
@@ -305,7 +305,7 @@ export function useProjectBudget(project: Pick<TOrganizationProject, 'budget' | 
 	}
 	const isHours = project.budgetType === EProjectBudgetType.HOURS;
 	if (isHours) {
-		const hours = new Intl.NumberFormat(locale).format(budget);
+		const hours = numberFormatOf(locale).format(budget);
 		const value: ProjectBudgetValue = { amount: hours, unit: t('pages.projects.list.HOURS_UNIT') };
 		return value;
 	}

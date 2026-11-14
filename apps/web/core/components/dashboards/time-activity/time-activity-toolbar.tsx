@@ -8,12 +8,13 @@ import { PeriodPicker } from '@/core/components/dashboards/kit/period-picker';
 import { useTimeActivityFilterOptions } from '@/core/hooks/dashboards/time-activity/use-time-activity-filter-options';
 import type { TimeActivityReport } from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
 import { formatPeriod } from '@/core/lib/utils/dashboard-period';
-import { TIME_ACTIVITY_WEEK_START, type TimeActivityGrouping } from '@/core/lib/utils/dashboards/time-activity';
+import { type TimeActivityGrouping } from '@/core/lib/utils/dashboards/time-activity';
 import { useRevealSelectedTab } from '@/core/hooks/common/use-reveal-selected-tab';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { TimeActivityControlRow } from './time-activity-control-row';
 import { AppliedTimeActivityFilters, TimeActivityFilterMenu } from './time-activity-filter-menu';
 import { TimeActivityViewMenu } from './time-activity-view-menu';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 
 /** A phone too narrow for every grouping scrolls the switch inside its line. */
 const SWITCH_SCROLLER = '-m-1 min-w-0 max-w-full overflow-x-auto no-scrollbar';
@@ -46,6 +47,7 @@ function ToolbarMeta({ report }: Readonly<{ report: TimeActivityReport }>) {
  */
 export function TimeActivityToolbar({ report }: Readonly<{ report: TimeActivityReport }>) {
 	const t = useTranslations();
+	const weekStart = useWorkspaceWeekStart();
 	const locale = useWorkspaceLocale();
 	const filterOptions = useTimeActivityFilterOptions();
 	const { settings } = report;
@@ -71,7 +73,7 @@ export function TimeActivityToolbar({ report }: Readonly<{ report: TimeActivityR
 							<PeriodPicker
 								value={report.period}
 								onChange={report.setPeriod}
-								weekStartsOn={TIME_ACTIVITY_WEEK_START}
+								weekStartsOn={weekStart}
 								locale={locale}
 							/>
 							<TimeActivityFilterMenu

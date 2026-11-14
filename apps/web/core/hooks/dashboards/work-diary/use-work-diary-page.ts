@@ -18,11 +18,10 @@ import {
 	calendarDaysOf,
 	calendarEntriesOf,
 	plansByDayOf,
-	visibleRangeOf,
-	weekStartOf
+	visibleRangeOf
 } from '@/core/lib/utils/calendar-view';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
-import { daysOfPeriod, type Period } from '@/core/lib/utils/dashboard-period';
+import { daysOfPeriod, type Period, weekStartOf } from '@/core/lib/utils/dashboard-period';
 import { timesheetPathOf } from '@/core/lib/utils/dashboards/team';
 import { isOrganizationRole } from '@/core/lib/utils/dashboards/timesheets';
 import {

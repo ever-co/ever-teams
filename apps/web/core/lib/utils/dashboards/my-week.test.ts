@@ -389,3 +389,15 @@ describe('taskIdOfEntry', () => {
 		expect(notes && taskIdOfEntry(notes)).toBeNull();
 	});
 });
+
+describe('My week counts its week from the workspace week start', () => {
+	it('shows Sunday 1 to Saturday 7 November as this week when the workspace starts its weeks on Sunday', () => {
+		const wednesday = new Date(2026, 10, 4, 12, 0);
+
+		const sundayWeek = myWeekPeriodOf('thisWeek', wednesday, 0);
+		const mondayWeek = myWeekPeriodOf('thisWeek', wednesday);
+
+		expect([localDayKeyOf(sundayWeek.from), localDayKeyOf(sundayWeek.to)]).toEqual(['2026-11-01', '2026-11-07']);
+		expect([localDayKeyOf(mondayWeek.from), localDayKeyOf(mondayWeek.to)]).toEqual(['2026-11-02', '2026-11-08']);
+	});
+});
