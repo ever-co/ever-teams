@@ -89,3 +89,14 @@ it('answers 502 when Gauzy cannot be reached', async () => {
 
 	expect(response.status).toBe(502);
 });
+
+it('passes the day the new rate applies from on, and refuses one Gauzy would not read', async () => {
+	mockUpdateProjectRate.mockResolvedValue({ data: { id: PROJECT_ID, billRateValue: 80, repricedTimeLogs: 9 } });
+
+	const response = await putRate({ billRateValue: 80, applyFrom: '2026-10-01' });
+
+	expect(response.status).toBe(200);
+	expect(mockUpdateProjectRate).toHaveBeenCalledWith(expect.objectContaining({ applyFrom: '2026-10-01' }));
+	expect((await putRate({ billRateValue: 80, applyFrom: '01/10/2026' })).status).toBe(400);
+	expect(mockUpdateProjectRate).toHaveBeenCalledTimes(1);
+});
