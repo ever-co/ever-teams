@@ -96,7 +96,7 @@ jest.mock('@/core/hooks/organizations/teams/use-switch-organization', () => ({
 	useSwitchOrganization: () => mockSwitch
 }));
 
-import { activeTeamIdState, organizationTeamsState, timerStartingState, timerStatusState } from '@/core/stores';
+import { activeTeamIdState, organizationTeamsState, timerStartsInFlightState, timerStatusState } from '@/core/stores';
 import { TeamsDropDown } from './teams-dropdown';
 
 const studioTeams = [
@@ -104,12 +104,12 @@ const studioTeams = [
 	{ id: 'studio-ops', name: 'Studio Ops', organizationId: 'studio', members: [] }
 ];
 
-function renderDropdown({ isTimerStarting = false }: { isTimerStarting?: boolean } = {}) {
+function renderDropdown({ startsInFlight = 0 }: { startsInFlight?: number } = {}) {
 	const store = createStore();
 	store.set(organizationTeamsState, studioTeams as never);
 	store.set(activeTeamIdState, 'studio-design');
 	store.set(timerStatusState, { running: false } as never);
-	store.set(timerStartingState, isTimerStarting);
+	store.set(timerStartsInFlightState, startsInFlight);
 	render(
 		<Provider store={store}>
 			<TeamsDropDown />
@@ -157,7 +157,7 @@ describe('TeamsDropDown while another organization opens', () => {
 	});
 
 	it('refuses to open another organization while a timer start is on its way', () => {
-		renderDropdown({ isTimerStarting: true });
+		renderDropdown({ startsInFlight: 1 });
 
 		fireEvent.click(screen.getByRole('menuitem', { name: /Labs Design/ }));
 

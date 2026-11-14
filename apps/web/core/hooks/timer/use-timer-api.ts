@@ -38,7 +38,7 @@ import {
 	localTimerStatusState,
 	organizationOpeningState,
 	timerNotesState,
-	timerStartingState,
+	timerStartsInFlightState,
 	timerStatusFetchingState,
 	timerStatusState,
 	workspaceOpeningState
@@ -733,7 +733,7 @@ export function useTimerApi({
 			const continuedNotes = notesForStartOf(pendingNotes, taskIdToUse);
 			const notesToUse = continuedNotes ?? notesToSendAtStart(store.get(timerNotesState));
 			// Until Gauzy answers, the status still says stopped: the team menu reads this instead (#5204)
-			store.set(timerStartingState, true);
+			store.set(timerStartsInFlightState, (count) => count + 1);
 			const startRequest = startTimerMutate({
 				taskId: taskIdToUse,
 				projectId: projectIdToUse,
@@ -830,7 +830,7 @@ export function useTimerApi({
 					});
 				})
 				.finally(() => {
-					store.set(timerStartingState, false);
+					store.set(timerStartsInFlightState, (count) => Math.max(0, count - 1));
 					if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
 				});
 			// Updating the task status to "In Progress" when the timer is started
