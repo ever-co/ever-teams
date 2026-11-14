@@ -24,20 +24,34 @@ function fileOf(name: string, content: string | Uint8Array): WorkspacePickedFile
 	};
 }
 
+function crc32Of(bytes: Uint8Array): number {
+	let crc = 0xffffffff;
+	for (const byte of bytes) {
+		crc ^= byte;
+		for (let bit = 0; bit < 8; bit += 1) {
+			crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+		}
+	}
+	return (crc ^ 0xffffffff) >>> 0;
+}
+
 /** One deflated entry, enough for the archive path of the reader. */
 function zipWith(entryName: string, text: string): Uint8Array {
 	const name = encoder.encode(entryName);
 	const content = encoder.encode(text);
 	const packed = deflateRaw(content);
+	const crc = crc32Of(content);
 	const local = new DataView(new ArrayBuffer(30));
 	local.setUint32(0, 0x04034b50, true);
 	local.setUint16(8, 8, true);
+	local.setUint32(14, crc, true);
 	local.setUint32(18, packed.byteLength, true);
 	local.setUint32(22, content.byteLength, true);
 	local.setUint16(26, name.byteLength, true);
 	const central = new DataView(new ArrayBuffer(46));
 	central.setUint32(0, 0x02014b50, true);
 	central.setUint16(10, 8, true);
+	central.setUint32(16, crc, true);
 	central.setUint32(20, packed.byteLength, true);
 	central.setUint32(24, content.byteLength, true);
 	central.setUint16(28, name.byteLength, true);
