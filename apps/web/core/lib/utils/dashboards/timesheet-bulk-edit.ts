@@ -173,6 +173,18 @@ export function bulkEditPlanOf(
 	return plan;
 }
 
+/**
+ * Whether the entry still has the task, project and billable choice its saved fields were worked out from. The plan
+ * sends only what differs from them, so after a change made elsewhere (the entry moved to another project, say) it
+ * would leave a task on a project that is not its own.
+ */
+export function keepsPlannedFields(planned: ITimeLog, current: ITimeLog): boolean {
+	const hasSameTask = ownTaskIdOf(planned) === ownTaskIdOf(current);
+	const hasSameProject = ownProjectIdOf(planned) === ownProjectIdOf(current);
+	const hasSameBillable = Boolean(planned.isBillable) === Boolean(current.isBillable);
+	return hasSameTask && hasSameProject && hasSameBillable;
+}
+
 export type BulkEditPayload = ITimeLogUpdatePayload & { startedAt: Date; stoppedAt: Date; employeeId: string };
 
 /**
