@@ -1,0 +1,206 @@
+{
+	"signInTitle": {
+		"message": "Bei Ever Teams anmelden"
+	},
+	"signInEmailLabel": {
+		"message": "E-Mail"
+	},
+	"signInEmailPlaceholder": {
+		"message": "sie@firma.de"
+	},
+	"signInSendCode": {
+		"message": "Code senden"
+	},
+	"signInSending": {
+		"message": "Wird gesendet…"
+	},
+	"signInCodeSent": {
+		"message": "Wir haben einen Code an $EMAIL$ gesendet. Geben Sie ihn unten ein.",
+		"placeholders": {
+			"email": {
+				"content": "$1",
+				"example": "marie@example.com"
+			}
+		}
+	},
+	"signInCodeLabel": {
+		"message": "Code"
+	},
+	"signInConfirm": {
+		"message": "Anmelden"
+	},
+	"signInConfirming": {
+		"message": "Anmeldung…"
+	},
+	"signInOtherEmail": {
+		"message": "Andere E-Mail verwenden"
+	},
+	"signInWrongCode": {
+		"message": "Dieser Code ist ungültig oder abgelaufen."
+	},
+	"signInNoWorkspace": {
+		"message": "Für diese E-Mail ist kein Arbeitsbereich offen."
+	},
+	"signInChooseWorkspace": {
+		"message": "Arbeitsbereich wählen"
+	},
+	"headerTeam": {
+		"message": "Team"
+	},
+	"headerAccount": {
+		"message": "Konto"
+	},
+	"headerSettings": {
+		"message": "Einstellungen"
+	},
+	"headerSignOut": {
+		"message": "Abmelden"
+	},
+	"timerRegion": {
+		"message": "Timer"
+	},
+	"timerLoading": {
+		"message": "Timer wird geladen…"
+	},
+	"timerStart": {
+		"message": "Starten"
+	},
+	"timerStop": {
+		"message": "Stoppen"
+	},
+	"timerStarting": {
+		"message": "Wird gestartet…"
+	},
+	"timerStopping": {
+		"message": "Wird gestoppt…"
+	},
+	"timerNoTask": {
+		"message": "Wählen Sie unten eine Aufgabe, um den Timer zu starten."
+	},
+	"timerStartedElsewhere": {
+		"message": "In einer anderen App oder auf einem anderen Gerät gestartet."
+	},
+	"timerTotalToday": {
+		"message": "Heute gearbeitet:"
+	},
+	"timerCheckTeam": {
+		"message": "Team ansehen"
+	},
+	"tasksAll": {
+		"message": "Ihre Aufgaben"
+	},
+	"tasksSearch": {
+		"message": "Ihre Aufgaben durchsuchen"
+	},
+	"tasksRecent": {
+		"message": "Zuletzt"
+	},
+	"tasksLoading": {
+		"message": "Aufgaben werden geladen…"
+	},
+	"tasksLoadFailed": {
+		"message": "Ihre Aufgaben konnten nicht geladen werden."
+	},
+	"tasksEmpty": {
+		"message": "In diesem Team ist Ihnen keine Aufgabe zugewiesen."
+	},
+	"tasksNoMatch": {
+		"message": "Keine Aufgabe passt zu Ihrer Suche."
+	},
+	"tasksNewTaskLabel": {
+		"message": "Neue Aufgabe"
+	},
+	"tasksNewTaskPlaceholder": {
+		"message": "z. B. Ever Teams Erweiterung"
+	},
+	"tasksEstimated": {
+		"message": "Geschätzt:"
+	},
+	"tasksEstimateHours": {
+		"message": "Geschätzte Stunden"
+	},
+	"tasksEstimateMinutes": {
+		"message": "Geschätzte Minuten"
+	},
+	"tasksHoursShort": {
+		"message": "Std"
+	},
+	"tasksMinutesShort": {
+		"message": "Min"
+	},
+	"tasksAddTask": {
+		"message": "Aufgabe hinzufügen"
+	},
+	"tasksAddFailed": {
+		"message": "Die Aufgabe konnte nicht erstellt werden."
+	},
+	"refusalPlanRequired": {
+		"message": "Ihr Team verlangt einen Tagesplan, bevor Sie Zeit erfassen. Planen Sie zuerst Ihren Tag."
+	},
+	"refusalTaskNotPlanned": {
+		"message": "Fügen Sie diese Aufgabe dem heutigen Plan hinzu, bevor Sie Zeit darauf erfassen."
+	},
+	"refusalTrackingOff": {
+		"message": "Die Zeiterfassung ist für Sie ausgeschaltet. Bitten Sie einen Admin, sie einzuschalten."
+	},
+	"errorOffline": {
+		"message": "Ever Teams ist nicht erreichbar. Prüfen Sie die Verbindung und versuchen Sie es erneut."
+	},
+	"errorSessionExpired": {
+		"message": "Ihre Sitzung ist abgelaufen. Melden Sie sich erneut an."
+	},
+	"errorTimerChangedElsewhere": {
+		"message": "Der Timer wurde in einer anderen App geändert. Er zeigt jetzt, was läuft."
+	},
+	"errorWithReason": {
+		"message": "$REASON$",
+		"placeholders": {
+			"reason": {
+				"content": "$1",
+				"example": "Task is archived"
+			}
+		}
+	},
+	"errorGeneric": {
+		"message": "Etwas ist schiefgelaufen. Versuchen Sie es erneut."
+	},
+	"actionRetry": {
+		"message": "Erneut versuchen"
+	},
+	"optionsTitle": {
+		"message": "Einstellungen der Ever Teams Erweiterung"
+	},
+	"optionsApiUrl": {
+		"message": "API-Adresse"
+	},
+	"optionsApiUrlHint": {
+		"message": "Die Ever Teams API, bei der Sie sich anmelden: https://api.ever.team für den gehosteten Dienst oder Ihr eigener Server."
+	},
+	"optionsAppUrl": {
+		"message": "Adresse der Web-App"
+	},
+	"optionsSignedOutNote": {
+		"message": "Wenn Sie die API-Adresse ändern, werden Sie von der Erweiterung abgemeldet."
+	},
+	"optionsInvalidUrl": {
+		"message": "Geben Sie eine vollständige Adresse mit https:// ein (oder http://localhost für einen lokalen Server)."
+	},
+	"optionsSave": {
+		"message": "Speichern"
+	},
+	"optionsSaved": {
+		"message": "Gespeichert."
+	},
+	"refusalRequiredTeamAndProject": {
+		"message": "Ihre Organisation verlangt für jeden Timer ein Team und ein Projekt. Öffnen Sie eines Ihrer Teams, ordnen Sie die Aufgabe einem Projekt zu und starten Sie erneut."
+	},
+	"refusalRequiredTeam": {
+		"message": "Ihre Organisation verlangt für jeden Timer ein Team. Öffnen Sie eines Ihrer Teams und starten Sie erneut."
+	},
+	"refusalRequiredProject": {
+		"message": "Ihre Organisation verlangt für jeden Timer ein Projekt. Ordnen Sie die Aufgabe einem Projekt zu oder geben Sie dem Team ein Standardprojekt und starten Sie erneut."
+	},
+	"refusalRequiredDetails": {
+		"message": "Ihre Organisation verlangt Angaben, die dieser Timer nicht hat. Fragen Sie einen Administrator, welche."
+	}
+}

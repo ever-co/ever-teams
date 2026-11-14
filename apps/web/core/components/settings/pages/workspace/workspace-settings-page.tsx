@@ -4,7 +4,9 @@ import { useTranslations } from 'next-intl';
 import { Notice } from '@/core/components/common/notice';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { SettingsPage } from '@/core/components/settings/kit/settings-page';
+import { useWorkspaceDataExport } from '@/core/hooks/settings/use-workspace-data-export';
 import { useWorkspaceSettings } from '@/core/hooks/settings/use-workspace-settings';
+import { WorkspaceDataSection } from './workspace-data-section';
 import { WorkspaceFormatsSection } from './workspace-formats-section';
 import { WorkspaceIdentitySection } from './workspace-identity-section';
 import { WorkspaceRatesSection } from './workspace-rates-section';
@@ -13,6 +15,10 @@ import { WorkspaceSettingsSkeleton } from './workspace-settings-skeleton';
 export function WorkspaceSettingsPage() {
 	const t = useTranslations();
 	const settings = useWorkspaceSettings();
+	const dataExport = useWorkspaceDataExport({
+		workspaceName: settings.name,
+		organizationId: settings.organization?.id
+	});
 	const title = t('settings.entries.workspaceGeneral.TITLE');
 	const description = t('settings.entries.workspaceGeneral.DESCRIPTION');
 
@@ -62,6 +68,13 @@ export function WorkspaceSettingsPage() {
 				canEdit={settings.canEdit}
 				saveTimeLogsKeepTheirRates={settings.saveTimeLogsKeepTheirRates}
 			/>
+			{dataExport.canExport && (
+				<WorkspaceDataSection
+					isExporting={dataExport.isExporting}
+					isFailed={dataExport.isFailed}
+					onExport={() => void dataExport.exportAll()}
+				/>
+			)}
 		</SettingsPage>
 	);
 }

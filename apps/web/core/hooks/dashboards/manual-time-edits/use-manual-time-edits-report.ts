@@ -42,10 +42,17 @@ import {
 	totalSecondsOfEntries,
 	trackedSecondsOf
 } from '@/core/lib/utils/dashboards/manual-time-edits';
+import { deletedEntriesOf, withHistoryOf } from '@/core/lib/utils/dashboards/manual-time-edits-history';
+import type { DeletedEntry, TimeLogHistoryChange } from '@/core/lib/utils/time-log-history';
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { type ChangedLogsRequest, useChangedTimeLogs } from './use-changed-time-logs';
+import {
+	type PeriodHistoryRequest,
+	type PeriodHistoryState,
+	useTimeLogPeriodHistory
+} from './use-time-log-period-history';
 import { useWorkspaceWeekPeriod } from '@/core/hooks/common/use-workspace-week-period';
 
 /** This week, counted from the workspace's first day. */
@@ -56,6 +63,10 @@ function thisWeekOf(weekStart: WeekStart): Period {
 const NO_ENTRIES: ManualTimeEntry[] = [];
 
 const NO_DAILY_REPORT: ITimeLogGroupedDailyReport[] = [];
+
+const NO_HISTORY: ReadonlyMap<string, TimeLogHistoryChange[]> = new Map();
+
+const NO_DELETED: DeletedEntry[] = [];
 
 const SHORT_AXIS_DAYS = 7;
 
@@ -141,7 +152,43 @@ function hasAnyFilter(filters: EditsFilters) {
 	const hasMembers = filters.members.length > 0;
 	const hasProjects = filters.projects.length > 0;
 	const hasBillable = filters.billable.length > 0;
-	return hasMembers || hasProjects || hasBillable;
+	const hasKinds = filters.kinds.length > 0;
+	return hasMembers || hasProjects || hasBillable || hasKinds;
+}
+
+/**
+ * The history is read for the rows on screen: while a new period loads, the page still shows the previous one's rows,
+ * and their history must not mix with the new period's deletions.
+ */
+function historyRequestOf(shown: ChangedLogsRequest): PeriodHistoryRequest {
+	const { range, keyParams } = shown;
+	return {
+		tenantId: keyParams.tenantId,
+		organizationId: keyParams.organizationId,
+		employeeIds: range.employeeIds ?? [],
+		from: range.from,
+		to: range.to
+	};
+}
+
+/** The history read for the period, or nothing while it is loading, refused or not kept by the API. */
+function historyOf(state: PeriodHistoryState) {
+	if (state.status !== 'ready') {
+		return { byEntry: NO_HISTORY, deleted: NO_DELETED };
+	}
+	return { byEntry: state.byEntry, deleted: state.deleted };
+}
+
+/** A kind of change picked before the history became unreadable narrows nothing: no entry could match it. */
+function appliedFiltersOf(filters: EditsFilters, hasChangeKinds: boolean): EditsFilters {
+	if (hasChangeKinds) {
+		return filters;
+	}
+	return { ...filters, kinds: [] };
+}
+
+function isCounted(entry: ManualTimeEntry) {
+	return !entry.isDeleted;
 }
 
 interface TrackedShareInput {
@@ -236,23 +283,36 @@ export function useManualTimeEditsReport({ unnamedLabel }: Readonly<{ unnamedLab
 	const changed = useChangedTimeLogs(request, isEnabled);
 	const dailyQuery = useTimeActivityDailyQuery(trackedRequest);
 	const pair = changed.pair;
+	const shownRequest = pair?.request ?? request;
+	const historyRequest = useMemo(() => historyRequestOf(shownRequest), [shownRequest]);
+	const hasShownRows = pair !== null;
+	const periodHistory = useTimeLogPeriodHistory(historyRequest, isEnabled && hasShownRows);
+	const historyStatus = periodHistory.status;
+	const isHistoryLoading = hasShownRows && historyStatus === 'loading';
+	const hasChangeKinds = historyStatus === 'ready';
+	const { byEntry, deleted } = historyOf(periodHistory);
 
 	const entries = useMemo(() => {
 		if (!pair) {
 			return NO_ENTRIES;
 		}
-		return changedEntriesOf({
+		const changedEntries = changedEntriesOf({
 			addedLogs: pair.addedLogs,
 			editedLogs: pair.editedLogs,
 			members: membersById,
 			unnamedLabel
 		});
-	}, [membersById, pair, unnamedLabel]);
+		const withHistory = withHistoryOf(changedEntries, byEntry);
+		const deletedEntries = deletedEntriesOf({ deleted, byEntry, members: membersById, unnamedLabel });
+		return [...withHistory, ...deletedEntries];
+	}, [byEntry, deleted, membersById, pair, unnamedLabel]);
 
+	const appliedFilters = useMemo(() => appliedFiltersOf(filters, hasChangeKinds), [filters, hasChangeKinds]);
 	const narrowedEntries = useMemo(
-		() => entries.filter((entry) => entryMatchesFilters(entry, filters)),
-		[entries, filters]
+		() => entries.filter((entry) => entryMatchesFilters(entry, appliedFilters)),
+		[appliedFilters, entries]
 	);
+	const countedEntries = useMemo(() => narrowedEntries.filter(isCounted), [narrowedEntries]);
 	const shownEntries = useMemo(
 		() => narrowedEntries.filter((entry) => entryMatchesAction(entry, action)),
 		[action, narrowedEntries]
@@ -260,14 +320,14 @@ export function useManualTimeEditsReport({ unnamedLabel }: Readonly<{ unnamedLab
 	const figures = useMemo(() => editsFiguresOf(narrowedEntries), [narrowedEntries]);
 	const shownSeconds = useMemo(() => totalSecondsOfEntries(shownEntries), [shownEntries]);
 	const groups = useMemo(() => groupsOf(shownEntries, grouping), [grouping, shownEntries]);
-	const rankings = useMemo(() => manualRankingsOf(narrowedEntries), [narrowedEntries]);
+	const rankings = useMemo(() => manualRankingsOf(countedEntries), [countedEntries]);
 
 	const shownPeriod = pair?.request.period ?? period;
 	const chartDays = useMemo(() => {
 		const dayCount = periodLengthInDays(shownPeriod);
 		const labels = chartLabelsOf(locale, dayCount);
-		return chartDaysOf(shownPeriod, narrowedEntries, labels);
-	}, [locale, narrowedEntries, shownPeriod]);
+		return chartDaysOf(shownPeriod, countedEntries, labels);
+	}, [countedEntries, locale, shownPeriod]);
 
 	const dailyReport = dailyQuery.data ?? NO_DAILY_REPORT;
 	const dailyRows = useMemo(() => flattenDailyReport(dailyReport), [dailyReport]);
@@ -382,6 +442,10 @@ export function useManualTimeEditsReport({ unnamedLabel }: Readonly<{ unnamedLab
 		showsError: changed.showsError,
 		showsNoMembers,
 		isFiltered,
+		historyStatus,
+		hasChangeKinds,
+		/** The history of the shown rows is still loading: an export now would miss its deleted entries and changes. */
+		isHistoryLoading,
 		refetch: changed.refetch
 	};
 }

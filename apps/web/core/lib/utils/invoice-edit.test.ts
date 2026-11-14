@@ -14,6 +14,7 @@ import {
 	invoiceNoteOfTerms,
 	invoiceRevisionOf,
 	isInvoiceOfWorkspace,
+	organizationOfWorkspace,
 	percentTextOf,
 	periodOfDays,
 	savedInvoiceOf,
@@ -536,6 +537,29 @@ describe('whether an invoice read back belongs to the workspace it was read in',
 	it('does not while the invoice or the workspace is unknown', () => {
 		expect(isInvoiceOfWorkspace(null, workspace)).toBe(false);
 		expect(isInvoiceOfWorkspace(savedRaw(), null)).toBe(false);
+	});
+});
+
+describe('the organization an invoice is read in', () => {
+	const workspace = { organizationId: 'organization-2', tenantId: 'tenant-1' };
+	const previous = { id: 'organization-1', tenantId: 'tenant-1', timeZone: 'Europe/Paris' };
+	const switchedTo = { id: 'organization-2', tenantId: 'tenant-1', timeZone: 'America/New_York' };
+
+	it('is none for the render a workspace switch leaves the previous organization in, so its zone reads nothing', () => {
+		expect(organizationOfWorkspace(previous, workspace)).toBeNull();
+	});
+
+	it('is the current organization once it is the one of the read', () => {
+		expect(organizationOfWorkspace(switchedTo, workspace)).toBe(switchedTo);
+	});
+
+	it('is none for an organization of another tenant with the same id', () => {
+		expect(organizationOfWorkspace({ ...switchedTo, tenantId: 'tenant-2' }, workspace)).toBeNull();
+	});
+
+	it('is the current organization while nothing is read, and none while none is known', () => {
+		expect(organizationOfWorkspace(previous, null)).toBe(previous);
+		expect(organizationOfWorkspace(null, workspace)).toBeNull();
 	});
 });
 

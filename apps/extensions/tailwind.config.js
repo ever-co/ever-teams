@@ -1,7 +1,8 @@
 /** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
 module.exports = {
 	mode: 'jit',
-	darkMode: 'class',
+	// The popup follows the browser's light or dark theme
+	darkMode: 'media',
 	content: ['./**/*.{ts,tsx}'],
 	theme: {
 		fontFamily: {

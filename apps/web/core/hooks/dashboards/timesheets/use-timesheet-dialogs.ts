@@ -4,12 +4,17 @@ import { useCallback, useState } from 'react';
 import { timesheetIdsOf } from '@/core/lib/utils/dashboards/timesheets';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
-/** Where a reject or a delete was asked from: a row speaks for one log, the selection bar for the selection. */
-export type TimesheetActionSource = 'row' | 'bulk';
+/**
+ * Where a reject or a delete was asked from: a row speaks for one log, the selection bar for the selection, the row
+ * of a group of similar entries for every entry of the group.
+ */
+export type TimesheetActionSource = 'row' | 'bulk' | 'group';
 
 export interface RejectTarget {
 	timesheetIds: string[];
 	source: TimesheetActionSource;
+	/** How many entries were asked to be rejected (their timesheets can hold more). */
+	entryCount: number;
 }
 
 export interface DeleteTarget {
@@ -17,7 +22,7 @@ export interface DeleteTarget {
 	source: TimesheetActionSource;
 }
 
-const NO_REJECT_TARGET: RejectTarget = { timesheetIds: [], source: 'row' };
+const NO_REJECT_TARGET: RejectTarget = { timesheetIds: [], source: 'row', entryCount: 0 };
 const NO_DELETE_TARGET: DeleteTarget = { logIds: [], source: 'row' };
 
 /**
@@ -47,7 +52,7 @@ export function useTimesheetDialogs() {
 		if (timesheetIds.length === 0) {
 			return;
 		}
-		setRejectTarget({ timesheetIds, source });
+		setRejectTarget({ timesheetIds, source, entryCount: logs.length });
 		setIsRejectOpen(true);
 	}, []);
 	const closeReject = useCallback(() => setIsRejectOpen(false), []);

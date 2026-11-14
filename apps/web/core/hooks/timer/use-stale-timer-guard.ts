@@ -9,6 +9,7 @@ import { SYNC_TIMER_INTERVAL } from '@/core/constants/config/constants';
 import { onSignOut } from '@/core/lib/auth/sign-out-cleanups';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { isRunningTeamsLog, isStaleTeamsTimer } from '@/core/lib/helpers/timer-policy';
+import { forgetSavedStop, parseSavedStop, storedSavedStop } from '@/core/lib/utils/timer/saved-stop';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerService } from '@/core/services/client/api/timers';
@@ -64,6 +65,81 @@ export function useStopStaleTeamsTimer() {
 }
 
 /**
+ * Applies the stop the employee asked for as their session ended, which the browser kept (saved-stop.ts): the run it
+ * was pressed for ends at the time it was pressed, as it would have with a session that went on. Resolves to true
+ * when that stop ended the run.
+ *
+ * It ends that run only, and only while it is still the running one. It never ends the run before its last
+ * heartbeat, up to which the API has it going on (a computer clock running late would). And when the app was no
+ * longer following the run as Stop was pressed (the computer had slept, the tab was frozen), the time since its last
+ * heartbeat is no more counted than after a closed tab: the run is left to that rule, which ends it at the heartbeat.
+ */
+function useApplySavedStop() {
+	const t = useTranslations();
+	const locale = useWorkspaceLocale();
+	const queryClient = useQueryClient();
+
+	return useCallback(
+		async (employeeId: string, isTrackingTime: boolean) => {
+			const savedStop = parseSavedStop(storedSavedStop());
+			// Another employee's stop stays for them: they may sign in again on this browser
+			if (!savedStop || savedStop.employeeId !== employeeId) return false;
+			// Nothing runs for the employee anymore: the run was stopped meanwhile
+			if (!isTrackingTime) {
+				forgetSavedStop(savedStop.timeLogId);
+				return false;
+			}
+
+			const response = await timerService.getLastTimerLog(employeeId);
+			const lastLog = response.data?.[0]?.lastLog;
+			const pressedAt = Date.parse(savedStop.pressedAt);
+			const isStillItsRun = !!lastLog?.isRunning && lastLog.id === savedStop.timeLogId;
+			if (!isStillItsRun || isStaleTeamsTimer(lastLog, pressedAt)) {
+				forgetSavedStop(savedStop.timeLogId);
+				return false;
+			}
+
+			// The time Stop was pressed is the computer's. Never before the run's last heartbeat, which a clock running
+			// late would give, nor after the present on the API's clock, when the answer gives it (a clock running fast)
+			const lastHeartbeat = new Date(lastLog.stoppedAt ?? Number.NaN).getTime();
+			const serverNow = Date.parse(response.headers?.date ?? '');
+			const earliest = Number.isNaN(lastHeartbeat) ? pressedAt : lastHeartbeat;
+			const latest = Number.isNaN(serverNow) ? Number.POSITIVE_INFINITY : Math.max(serverNow, earliest);
+			const stoppedAt = new Date(Math.min(Math.max(pressedAt, earliest), latest)).toISOString();
+
+			try {
+				await timerService.stopTimer({
+					source: savedStop.source,
+					startedAt: lastLog.startedAt,
+					stoppedAt,
+					timeLogId: savedStop.timeLogId
+				});
+			} catch (error) {
+				// 406: the run was stopped as this stop arrived. 409: another run is the running one by then. Neither
+				// is a run this stop may end.
+				if (!(ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(406, 409))) throw error;
+				forgetSavedStop(savedStop.timeLogId);
+				return false;
+			}
+
+			forgetSavedStop(savedStop.timeLogId);
+			const shownStoppedAt = dateFormatOf(locale, {
+				dateStyle: 'medium',
+				timeStyle: 'short'
+			}).format(new Date(stoppedAt));
+			toast.info(t('toasts.timer.STALE_STOPPED', { stoppedAt: shownStoppedAt }), {
+				id: 'timer-saved-stop-applied',
+				description: t('toasts.timer.SAVED_STOP_HINT')
+			});
+			void queryClient.invalidateQueries({ queryKey: queryKeys.timer.all });
+			void queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+			return true;
+		},
+		[locale, queryClient, t]
+	);
+}
+
+/**
  * The page's closed-tab checks: the employees whose check is over, and the check in flight per employee. Module
  * scope on purpose (#5118): the check runs once per page load. The timer's owner mounts again within a page (the
  * (main) layout after a page outside it), and a check made again then found the run this page kept alive stale,
@@ -95,14 +171,17 @@ function checkOncePerPage(employeeId: string, check: () => Promise<unknown>): Pr
 }
 
 /**
- * Checks once per employee and page load, when the app loads, for a TEAMS timer left running by a closed tab.
- * Returns true when the check is over: the heartbeat must wait for it, or it would revive the stale timer.
+ * Checks once per employee and page load, when the app loads, for a TEAMS timer left running by a closed tab, after
+ * the stop the employee asked for as their session ended, when the browser kept one.
+ * Returns true when the check is over: the heartbeat must wait for it, or it would revive the stale timer, and move
+ * the end of a run past the time its stop was asked for.
  */
 export function useStaleTimerGuard(
 	employee: Pick<TEmployee, 'id' | 'isTrackingTime'> | null | undefined,
 	enabled: boolean
 ): boolean {
 	const stopStaleTeamsTimer = useStopStaleTeamsTimer();
+	const applySavedStop = useApplySavedStop();
 	const employeeId = employee?.id;
 	const isTrackingTime = !!employee?.isTrackingTime;
 	const [settledFor, setSettledFor] = useState<string | null>(null);
@@ -116,8 +195,14 @@ export function useStaleTimerGuard(
 		}
 		let isCurrent = true;
 		let retryTimer: number | undefined;
+		// The stop the employee asked for comes first: the closed-tab rule would end its run at the last heartbeat.
 		// An employee who is not tracking time has no run left behind
-		const check = isTrackingTime ? () => stopStaleTeamsTimer(employeeId) : () => Promise.resolve();
+		const check = async () => {
+			const isStoppedAsAsked = await applySavedStop(employeeId, isTrackingTime);
+			if (!isStoppedAsAsked && isTrackingTime) {
+				await stopStaleTeamsTimer(employeeId);
+			}
+		};
 		void checkOncePerPage(employeeId, check).then(
 			() => {
 				if (isCurrent) setSettledFor(employeeId);
@@ -134,7 +219,7 @@ export function useStaleTimerGuard(
 			isCurrent = false;
 			window.clearTimeout(retryTimer);
 		};
-	}, [attempt, enabled, employeeId, isTrackingTime, stopStaleTeamsTimer]);
+	}, [applySavedStop, attempt, enabled, employeeId, isTrackingTime, stopStaleTeamsTimer]);
 
 	return !employeeId || settledFor === employeeId;
 }

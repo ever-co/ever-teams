@@ -1,94 +1,130 @@
+import { getTimerStatus, sendHeartbeat, type TimerStatus } from '~lib/gauzy';
+import { isOwnPagePort } from '~lib/ports';
+import { sendsHeartbeat } from '~lib/run-policy';
+import { createStatusOrder } from '~lib/status-order';
+import { loadSession, takeSessionOut } from '~lib/session-store';
+import { badgeText, secondsSince } from '~lib/time-format';
+import { isSameSignIn, type Session } from '~lib/workspaces';
 import browser from '~misc/browser';
 import { MessageTypesFromBackgroundEnum, MessageTypesToBackgroundEnum } from '~typescript/enums/MessageTypesEnum';
-import { TimerStateEnum } from '~typescript/enums/TimerStateEnum';
 import type { IPostMessage } from '~typescript/interfaces/PostMessage';
-import type { ITimerTask } from '~typescript/types/Tasks';
 
-let tasks: ITimerTask[] = [];
-let activeTaskIndex: number | null = null;
-let timeout: ReturnType<typeof setTimeout> | null = null;
-let runState: TimerStateEnum = TimerStateEnum.stopped;
-let interval = 1000; // ms
-let workPort: chrome.runtime.Port | null = null;
+// The badge shows hours and minutes, so a read of the API each minute keeps it right without polling every second.
+// The same minute is the heartbeat that credits a run started here, as the web credits its own each minute.
+const REFRESH_ALARM = 'refresh-timer-status';
+const REFRESH_EVERY_MINUTES = 1;
+// The primary color of the web's timer button
+const BADGE_COLOR = '#6366f1';
 
+const ports = new Set<chrome.runtime.Port>();
+
+// The background's reads and the popup's reports in one order: an answer older than what the popup reported is dropped
+const statusOrder = createStatusOrder();
+
+function broadcast(status: TimerStatus | null): void {
+	const message: IPostMessage<TimerStatus | null> = {
+		type: MessageTypesFromBackgroundEnum.statusUpdate,
+		payload: status
+	};
+	for (const port of ports) {
+		port.postMessage(message);
+	}
+}
+
+async function showBadge(status: TimerStatus | null): Promise<void> {
+	const run = status?.lastLog;
+	const isRunning = Boolean(status?.running && run);
+	if (!isRunning || !run) {
+		await browser.action.setBadgeText({ text: '' });
+		return;
+	}
+	await browser.action.setBadgeBackgroundColor({ color: BADGE_COLOR });
+	await browser.action.setBadgeText({ text: badgeText(secondsSince(run.startedAt, Date.now())) });
+}
+
+/** Credits the minute of a run started here; a run started by another app is left to that app. */
+async function creditOwnRun(session: Session, status: TimerStatus): Promise<void> {
+	const run = status.lastLog;
+	const isOwnRun = Boolean(status.running && run && sendsHeartbeat(run));
+	if (!isOwnRun || !run) {
+		return;
+	}
+	await sendHeartbeat(session, run);
+}
+
+/**
+ * Reads the timer of the signed-in person and shows it on the toolbar badge; nothing when signed out or stopped.
+ * With `heartbeat`, also credits the running time of a run started here.
+ */
+async function refresh(heartbeat = false): Promise<void> {
+	const session = await loadSession();
+	if (!session) {
+		await showBadge(null);
+		broadcast(null);
+		return;
+	}
+	const ticket = statusOrder.readSent();
+	try {
+		const status = await getTimerStatus(session);
+		// A newer read, or a status the popup reported after a start or a stop, came first: this answer is older
+		if (!statusOrder.isLatest(ticket)) {
+			return;
+		}
+		await showBadge(status);
+		broadcast(status);
+		if (heartbeat) {
+			await creditOwnRun(session, status);
+		}
+	} catch (error) {
+		const isSignedOutElsewhere = (error as { status?: number }).status === 401;
+		// A sign-in made while this read was out is not the one that failed, and stays
+		const signedOut = isSignedOutElsewhere && (await takeSessionOut((stored) => isSameSignIn(stored, session)));
+		if (signedOut) {
+			await showBadge(null);
+			broadcast(null);
+		}
+		// Offline or a server error: the badge keeps its last value, and the next heartbeat credits the missed time
+	}
+}
+
+function scheduleRefresh(): void {
+	browser.alarms.create(REFRESH_ALARM, { periodInMinutes: REFRESH_EVERY_MINUTES });
+	void refresh();
+}
+
+browser.runtime.onInstalled.addListener(scheduleRefresh);
+browser.runtime.onStartup.addListener(scheduleRefresh);
+
+browser.alarms.onAlarm.addListener((alarm) => {
+	if (alarm.name === REFRESH_ALARM) {
+		void refresh(true);
+	}
+});
+
+// A sign-in, a sign-out or another active team: the badge follows at once instead of at the next minute
+browser.storage.onChanged.addListener((changes, area) => {
+	const sessionChanged = area === 'local' && 'session' in changes;
+	if (sessionChanged) {
+		void refresh();
+	}
+});
+
+// The popup read the timer (after a start or a stop, or a run stopped elsewhere): the badge shows what it shows
 browser.runtime.onConnect.addListener((port) => {
-	workPort = port;
-	let expected = Date.now() + interval;
-
-	function postUpdateTask() {
-		const activeTask = tasks[activeTaskIndex];
-		if (workPort) {
-			const totalWorked = tasks.reduce((a, v) => v.timer + a, 0);
-			workPort.postMessage({
-				type: MessageTypesFromBackgroundEnum.taskUpdate,
-				payload: {
-					id: activeTask ? activeTask.id : null,
-					timer: activeTask ? activeTask.timer : 0,
-					runState: activeTask ? runState : TimerStateEnum.paused,
-					totalWorked
-				}
-			});
-		}
+	// A port a web page opened (a content script names its tab) neither sets the badge nor hears the timer
+	if (!isOwnPagePort(port)) {
+		port.disconnect();
+		return;
 	}
-
-	if (tasks.length > 0 && activeTaskIndex !== null && tasks[activeTaskIndex]) {
-		postUpdateTask();
-	}
-
-	function step() {
-		if (tasks.length > 0 && activeTaskIndex !== null && tasks[activeTaskIndex]) {
-			let dt = Date.now() - expected; // the drift (positive for overshooting)
-			if (dt > interval) {
-				// something awful happened. Maybe the browser (tab) was inactive?
-				// possibly special handling to avoid futile "catch up" run
-			}
-			tasks[activeTaskIndex].timer += 1;
-			postUpdateTask();
-
-			expected += interval;
-			timeout = setTimeout(step, interval); // take into account drift
-		}
-	}
-
-	port.onDisconnect.addListener(() => {
-		workPort = null;
-		timeout = null;
-	});
-
-	port.onMessage.addListener((msg: IPostMessage) => {
-		if (activeTaskIndex !== null) {
-			if (msg.type === MessageTypesToBackgroundEnum.startTimer && runState !== TimerStateEnum.running) {
-				timeout = setTimeout(step, interval);
-				runState = TimerStateEnum.running;
-			}
-			if (msg.type === MessageTypesToBackgroundEnum.pauseTimer) {
-				clearTimeout(timeout);
-				timeout = null;
-				runState = TimerStateEnum.paused;
-			}
-			if (msg.type === MessageTypesToBackgroundEnum.stopTimer) {
-				clearTimeout(timeout);
-				timeout = null;
-				tasks[activeTaskIndex].timer = 0;
-				runState = TimerStateEnum.stopped;
-			}
-		}
-
-		if (msg.type === MessageTypesToBackgroundEnum.updateTasks && msg.payload && Array.isArray(msg.payload)) {
-			tasks = msg.payload.map((x) => {
-				const element = tasks.find((y) => y.id === x.id);
-
-				return element ? element : { id: x.id, timer: 0 };
-			});
-		}
-		if (msg.type == MessageTypesToBackgroundEnum.updateActiveTaskIndex) {
-			const index = tasks.findIndex((x) => x.id === msg.payload.id);
-
-			if (index !== -1) {
-				activeTaskIndex = index;
-				postUpdateTask();
-			}
+	ports.add(port);
+	port.onDisconnect.addListener(() => ports.delete(port));
+	port.onMessage.addListener((message: IPostMessage<TimerStatus>) => {
+		const isStatusRead = message.type === MessageTypesToBackgroundEnum.statusRead && message.payload;
+		if (isStatusRead) {
+			statusOrder.reported();
+			void showBadge(message.payload ?? null);
 		}
 	});
 });
+
 export {};

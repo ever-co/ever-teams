@@ -25,7 +25,9 @@ jest.mock('@/core/hooks/queries/user-user.query', () => ({
 	})
 }));
 
-jest.mock('jotai', () => ({ useAtomValue: () => [] }));
+// The real jotai keeps `atom()` for the stores the form's cells read at import time (the workspace locale's
+// organization store), only the reads are stubbed
+jest.mock('jotai', () => ({ ...jest.requireActual('jotai'), useAtomValue: () => [] }));
 
 jest.mock('@/core/stores', () => ({
 	activeTeamManagersState: 'active-team-managers',

@@ -1019,7 +1019,14 @@
 		"Ende",
 		"Kunde",
 		"Notiz",
-		"initech"
+		"initech",
+		"Amina",
+		"Diallo",
+		"Équipe",
+		"RRGGBB",
+		"otpauth",
+		"qrcode",
+		"totp"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

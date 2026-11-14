@@ -123,11 +123,14 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 		}));
 
 		useEffect(() => {
-			if (autoFocus) {
-				setTimeout(() => {
-					inputsRef.current[0].focus();
-				}, 100);
+			if (!autoFocus) {
+				return;
 			}
+			// The field can be gone by then (a step that swaps it for another field at once)
+			const timer = setTimeout(() => {
+				inputsRef.current[0]?.focus();
+			}, 100);
+			return () => clearTimeout(timer);
 		}, [autoFocus, inputsRef]);
 
 		useEffect(() => {
