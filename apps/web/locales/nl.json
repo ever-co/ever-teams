@@ -5243,6 +5243,8 @@
 			"TO_STATUSES": "Naar de statussen",
 			"FROM_STATUSES": "Vanuit de statussen",
 			"ANY_STATUS": "Kies er geen voor elke status.",
+			"MERGED_ONLY": "Alleen gemergede pull requests",
+			"MERGED_ONLY_HINT": "Een pull request die zonder merge wordt gesloten, start de regel niet; de merge na heropenen wel. Het sluiten van een issue start de regel zoals voorheen.",
 			"NO_CONDITIONS": "Geen voorwaarden: de regel draait elke keer.",
 			"ADD_CONDITION": "Voorwaarde toevoegen",
 			"ADD_ACTION": "Actie toevoegen",

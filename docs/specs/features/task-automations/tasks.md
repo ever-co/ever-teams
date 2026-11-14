@@ -8,3 +8,5 @@
 - [x] T4 Page: list, switch, reorder, template picker, editor, dry run, history, delete, skeleton
 - [x] T5 Settings entry (manager-only, hidden by the flag and on 404), route, `settings.automations` strings in the 13 locales
 - [ ] T6 Manual check against a platform with `GAUZY_TASK_AUTOMATIONS_ENABLED=true` (ever-gauzy#11804)
+- [x] T7 "Merged pull requests only" on the link-closed trigger: the checkbox in the editor, the form mapping, the
+      list label, strings in the 13 locales (platform: ever-gauzy#11944)

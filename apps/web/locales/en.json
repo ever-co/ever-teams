@@ -5243,6 +5243,8 @@
 			"TO_STATUSES": "To the statuses",
 			"FROM_STATUSES": "From the statuses",
 			"ANY_STATUS": "Choose none for any status.",
+			"MERGED_ONLY": "Merged pull requests only",
+			"MERGED_ONLY_HINT": "A pull request closed without merging does not run the rule; its merge after a reopen still does. An issue’s close runs it as before.",
 			"NO_CONDITIONS": "No conditions: the rule runs every time.",
 			"ADD_CONDITION": "Add a condition",
 			"ADD_ACTION": "Add an action",
