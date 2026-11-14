@@ -98,6 +98,27 @@ describe('splitCalendarEntry, an entry without its member', () => {
 	});
 });
 
+describe('splitCalendarEntry, the fields of the second part', () => {
+	it("takes them from the entry as the server holds it now, not from the grid's copy", async () => {
+		// Another tab changed the notes, the billable state and the client since the calendar read the entry
+		mockGetTimeLogs.mockResolvedValueOnce([
+			{ ...LOG, description: 'Login page, reviewed', isBillable: false, organizationContactId: 'client-2' }
+		]);
+
+		await splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(
+			expect.objectContaining({
+				description: 'Login page, reviewed',
+				isBillable: false,
+				organizationContactId: 'client-2',
+				taskId: 'task-1',
+				projectId: 'project-1'
+			})
+		);
+	});
+});
+
 describe('splitCalendarEntry, a shortening the API refuses', () => {
 	it.each([400, 403, 409, 422])('writes nothing more after a %s: the entry was never changed', async (status) => {
 		mockUpdateTimeLog.mockRejectedValueOnce(Object.assign(new Error('refused'), { statusCode: status }));

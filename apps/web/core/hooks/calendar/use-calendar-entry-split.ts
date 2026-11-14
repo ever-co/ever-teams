@@ -58,7 +58,7 @@ function windowOfLog(log: ITimeLog): TimeWindow | null {
  * project, stopped and not approved. Its copy in the grid may be older: shortened from it, a change made since would
  * be undone, and a part added from it would carry the old task.
  */
-function isStillTheSplitEntry(planned: ITimeLog, current: ITimeLog | null, window: TimeWindow): boolean {
+function isStillTheSplitEntry(planned: ITimeLog, current: ITimeLog | null, window: TimeWindow): current is ITimeLog {
 	if (!current) {
 		return false;
 	}
@@ -102,7 +102,8 @@ export async function splitCalendarEntry(request: CalendarSplitRequest) {
 	if (!employeeId) {
 		throw new CalendarSplitError('restored', new Error('An entry without its member cannot be split'));
 	}
-	// The entry is read again first: nothing is written from a copy the server no longer holds
+	// The entry is read again first: nothing is written from a copy the server no longer holds, and the second part
+	// takes the fields the server holds now (notes or billable state changed in another tab included)
 	const current = await currentLogOf(log);
 	if (!isStillTheSplitEntry(log, current, window)) {
 		throw new CalendarSplitError('changed', null);
@@ -122,18 +123,18 @@ export async function splitCalendarEntry(request: CalendarSplitRequest) {
 	} catch (shortenError) {
 		await restoreAfterFailedShortening(log, window, shortenError);
 	}
-	const secondTaskId = secondTask?.id ?? textOrUndefined(log.taskId);
+	const secondTaskId = secondTask?.id ?? textOrUndefined(current.taskId);
 	try {
 		await timeLogService.addManualTime({
 			tenantId,
 			employeeId,
-			projectId: textOrUndefined(secondTask?.projectId ?? log.projectId),
+			projectId: textOrUndefined(secondTask?.projectId ?? current.projectId),
 			taskId: secondTaskId,
-			organizationContactId: textOrUndefined(log.organizationContactId),
-			organizationTeamId: textOrUndefined(log.organizationTeamId),
-			description: textOrUndefined(log.description),
-			reason: textOrUndefined(log.reason),
-			isBillable: log.isBillable,
+			organizationContactId: textOrUndefined(current.organizationContactId),
+			organizationTeamId: textOrUndefined(current.organizationTeamId),
+			description: textOrUndefined(current.description),
+			reason: textOrUndefined(current.reason),
+			isBillable: current.isBillable,
 			startedAt: parts.second.start,
 			stoppedAt: parts.second.end,
 			logType: ETimeLogType.MANUAL,
