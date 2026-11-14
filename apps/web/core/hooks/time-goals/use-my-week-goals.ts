@@ -24,5 +24,6 @@ export function useMyWeekGoals(enabled: boolean) {
 		return own;
 	}, [employeeId, progress.rows]);
 
-	return { rows, isShown: enabled && isAvailable && rows.length > 0 };
+	// Once the last goal is archived, progress read before (kept by the cache) no longer shows
+	return { rows, isShown: enabled && isAvailable && hasGoals && rows.length > 0 };
 }
