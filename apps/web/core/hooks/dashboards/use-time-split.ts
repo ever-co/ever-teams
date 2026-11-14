@@ -52,7 +52,7 @@ function itemsOf(isClientMode: boolean, rows: ReadonlyArray<DailyReportRow>, cli
  */
 export function useTimeSplit({ rows, report, keepRow = keepEveryRow }: TimeSplitSource) {
 	const t = useTranslations();
-	const [pickedMode, setMode] = useState<TimeSplitMode>('project');
+	const [pickedMode, setPickedMode] = useState<TimeSplitMode>('project');
 	const { myPermissions } = useMyRolePermissionsQuery();
 	const mayReadClients = canReadClients(myPermissions);
 	const mode = effectiveModeOf(pickedMode, mayReadClients);
@@ -96,7 +96,7 @@ export function useTimeSplit({ rows, report, keepRow = keepEveryRow }: TimeSplit
 
 	return {
 		mode,
-		setMode,
+		setMode: setPickedMode,
 		canSplitByClient: mayReadClients,
 		rows: splitRows,
 		totalSeconds: splitTotalOf(items),
