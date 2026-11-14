@@ -2909,6 +2909,7 @@
 				"FORBIDDEN": "Votre rôle ne permet pas d'abandonner cette session.",
 				"NOT_SUPPORTED": "Ce serveur ne permet pas encore d'abandonner une session.",
 				"CHANGED": "Une autre session a commencé entre-temps : rien n'a été abandonné.",
+				"TRACKER_RUN": "Cette session est enregistrée par l'application de bureau ou l'agent, qui tiennent eux-mêmes son temps : elle ne peut pas être abandonnée ici.",
 				"GENERIC": "La session n'a pas pu être abandonnée. Vérifiez votre connexion, puis réessayez."
 			}
 		}

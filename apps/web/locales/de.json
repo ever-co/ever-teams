@@ -2909,6 +2909,7 @@
 				"FORBIDDEN": "Ihre Rolle erlaubt das Verwerfen dieses Laufs nicht.",
 				"NOT_SUPPORTED": "Dieser Server bietet das Verwerfen eines Laufs noch nicht an.",
 				"CHANGED": "Inzwischen hat ein anderer Lauf begonnen, daher wurde nichts verworfen.",
+				"TRACKER_RUN": "Dieser Lauf wird von der Desktop-App oder dem Agenten erfasst, die seine Zeit selbst führen, daher kann er hier nicht verworfen werden.",
 				"GENERIC": "Der Lauf konnte nicht verworfen werden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
 			}
 		}

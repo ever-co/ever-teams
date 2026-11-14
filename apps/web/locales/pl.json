@@ -2909,6 +2909,7 @@
 				"FORBIDDEN": "Twoja rola nie pozwala odrzucić tej sesji.",
 				"NOT_SUPPORTED": "Ten serwer nie oferuje jeszcze odrzucania sesji.",
 				"CHANGED": "W międzyczasie zaczęła się inna sesja, więc nic nie zostało odrzucone.",
+				"TRACKER_RUN": "Tę sesję rejestruje aplikacja desktopowa lub agent, które same prowadzą jej czas, więc nie można jej tutaj odrzucić.",
 				"GENERIC": "Nie udało się odrzucić sesji. Sprawdź połączenie i spróbuj ponownie."
 			}
 		}

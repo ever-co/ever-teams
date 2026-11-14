@@ -2909,6 +2909,7 @@
 				"FORBIDDEN": "Tu rol no permite descartar esta sesión.",
 				"NOT_SUPPORTED": "Este servidor todavía no permite descartar una sesión.",
 				"CHANGED": "Mientras tanto empezó otra sesión, así que no se descartó nada.",
+				"TRACKER_RUN": "Esta sesión la registra la aplicación de escritorio o el agente, que guardan su tiempo ellos mismos, así que no se puede descartar aquí.",
 				"GENERIC": "No se pudo descartar la sesión. Comprueba tu conexión y vuelve a intentarlo."
 			}
 		}

@@ -2909,6 +2909,7 @@
 				"FORBIDDEN": "Your role does not allow discarding this run.",
 				"NOT_SUPPORTED": "This server does not offer discarding a run yet.",
 				"CHANGED": "Another run started meanwhile, so nothing was discarded.",
+				"TRACKER_RUN": "This run is recorded by the desktop app or the agent, which keep its time themselves, so it cannot be discarded here.",
 				"GENERIC": "The run could not be discarded. Check your connection, then try again."
 			}
 		}

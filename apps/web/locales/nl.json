@@ -2909,6 +2909,7 @@
 				"FORBIDDEN": "Je rol staat het verwerpen van deze sessie niet toe.",
 				"NOT_SUPPORTED": "Deze server biedt het verwerpen van een sessie nog niet aan.",
 				"CHANGED": "Intussen is een andere sessie gestart, dus er is niets verworpen.",
+				"TRACKER_RUN": "Deze sessie wordt vastgelegd door de desktop-app of de agent, die de tijd zelf bijhouden, dus ze kan hier niet worden verworpen.",
 				"GENERIC": "De sessie kon niet worden verworpen. Controleer je verbinding en probeer het opnieuw."
 			}
 		}

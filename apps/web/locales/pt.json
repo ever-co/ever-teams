@@ -2909,6 +2909,7 @@
 				"FORBIDDEN": "A sua função não permite descartar esta sessão.",
 				"NOT_SUPPORTED": "Este servidor ainda não permite descartar uma sessão.",
 				"CHANGED": "Entretanto começou outra sessão, por isso nada foi descartado.",
+				"TRACKER_RUN": "Esta sessão é registrada pelo aplicativo de desktop ou pelo agente, que guardam o tempo por conta própria, por isso não pode ser descartada aqui.",
 				"GENERIC": "Não foi possível descartar a sessão. Verifique a ligação e tente novamente."
 			}
 		}

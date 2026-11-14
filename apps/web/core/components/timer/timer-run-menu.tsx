@@ -41,6 +41,7 @@ const FAILURE_KEYS = {
 	FORBIDDEN: 'timer.discard.failures.FORBIDDEN',
 	NOT_SUPPORTED: 'timer.discard.failures.NOT_SUPPORTED',
 	CHANGED: 'timer.discard.failures.CHANGED',
+	TRACKER_RUN: 'timer.discard.failures.TRACKER_RUN',
 	GENERIC: 'timer.discard.failures.GENERIC'
 } as const satisfies Record<TimerDiscardFailure, string>;
 

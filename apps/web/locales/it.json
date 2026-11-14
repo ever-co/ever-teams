@@ -2909,6 +2909,7 @@
 				"FORBIDDEN": "Il tuo ruolo non consente di scartare questa sessione.",
 				"NOT_SUPPORTED": "Questo server non consente ancora di scartare una sessione.",
 				"CHANGED": "Nel frattempo è iniziata un'altra sessione, quindi non è stato scartato nulla.",
+				"TRACKER_RUN": "Questa sessione è registrata dall'app desktop o dall'agente, che tengono da soli il suo tempo, quindi non può essere scartata qui.",
 				"GENERIC": "Non è stato possibile scartare la sessione. Controlla la connessione e riprova."
 			}
 		}

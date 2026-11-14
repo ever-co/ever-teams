@@ -57,7 +57,13 @@ export function useTimerDiscard() {
 
 	const runningLog = timerStatus?.lastLog;
 	const startedAt = startedAtOf(runningLog?.startedAt);
-	const availability = timerDiscardAvailabilityOf({ organization, running, startedAt, now: Date.now() });
+	const availability = timerDiscardAvailabilityOf({
+		organization,
+		running,
+		source: runningLog?.source,
+		startedAt,
+		now: Date.now()
+	});
 	const closesAt = availability.available ? availability.closesAt : null;
 
 	useEffect(() => {

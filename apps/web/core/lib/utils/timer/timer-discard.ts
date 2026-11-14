@@ -1,11 +1,15 @@
 import { ApiErrorService } from '@/core/services/client/api-error.service';
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 
 /** The codes of the API's 403 answers to a discard (ever-co/ever-gauzy#11935). */
 export const TIMER_DISCARD_DISABLED = 'TIMER_DISCARD_DISABLED';
 export const TIMER_DISCARD_TOO_LATE = 'TIMER_DISCARD_TOO_LATE';
 
+/** The code of the API's 409 to the discard of a run the desktop app or the agent records. */
+const TIMER_DISCARD_TRACKER_RUN = 'TIMER_DISCARD_TRACKER_RUN';
+
 /** Why the running timer offers no Discard. */
-export type TimerDiscardUnavailableReason = 'NOT_RUNNING' | 'NOT_SUPPORTED' | 'DISABLED' | 'TOO_LATE';
+export type TimerDiscardUnavailableReason = 'NOT_RUNNING' | 'NOT_SUPPORTED' | 'DISABLED' | 'TOO_LATE' | 'TRACKER_RUN';
 
 /** Why a discard the API answered was refused or failed. */
 export type TimerDiscardFailure =
@@ -15,6 +19,7 @@ export type TimerDiscardFailure =
 	| 'FORBIDDEN'
 	| 'NOT_SUPPORTED'
 	| 'CHANGED'
+	| 'TRACKER_RUN'
 	| 'GENERIC';
 
 export type TimerDiscardAvailability =
@@ -28,6 +33,8 @@ interface TimerDiscardInput {
 		| null
 		| undefined;
 	running: boolean;
+	/** Where the running log was started: the desktop app records its own time, which the API never discards. */
+	source?: ETimeLogSource | string | null;
 	/** The running log's start, in milliseconds; null when the status does not say. */
 	startedAt: number | null;
 	now: number;
@@ -61,11 +68,15 @@ function closingTimeOf(limitMinutes: number | null | undefined, startedAt: numbe
 export function timerDiscardAvailabilityOf({
 	organization,
 	running,
+	source,
 	startedAt,
 	now
 }: TimerDiscardInput): TimerDiscardAvailability {
 	if (!running) {
 		return { available: false, reason: 'NOT_RUNNING' };
+	}
+	if (source === ETimeLogSource.DESKTOP) {
+		return { available: false, reason: 'TRACKER_RUN' };
 	}
 	if (!hasDiscardSettings(organization)) {
 		return { available: false, reason: 'NOT_SUPPORTED' };
@@ -106,6 +117,9 @@ export function timerDiscardFailureOf(error: unknown): TimerDiscardFailure {
 		return 'NOT_SUPPORTED';
 	}
 	if (error.hasHttpResponseStatus(409)) {
+		if (error.errorCode === TIMER_DISCARD_TRACKER_RUN) {
+			return 'TRACKER_RUN';
+		}
 		return 'CHANGED';
 	}
 	return 'GENERIC';
