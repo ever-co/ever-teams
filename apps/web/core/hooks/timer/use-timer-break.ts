@@ -11,6 +11,7 @@ import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { breakElapsedSecondsOf, breakRefusalKeyOf, timerBreakStateOf } from '@/core/lib/utils/timer/timer-break';
 import { queryKeys } from '@/core/query/keys';
 import { timerService } from '@/core/services/client/api/timers/timer.service';
+import { startUnderTimerGuard } from '@/core/hooks/timer/use-timer-api';
 import { activeTeamIdState } from '@/core/stores';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
@@ -49,25 +50,44 @@ export function useTimerBreak(timerStatus: ITimerStatus | null | undefined, stop
 		]);
 	}, [queryClient]);
 
-	const takeBreak = useCallback(async () => {
-		setPendingAction('take');
+	// The work's stop, then the break's start. True once the break's start was asked, whatever its answer.
+	const stopWorkThenStartBreak = useCallback(async () => {
 		try {
 			await stopWork();
 		} catch {
 			// The stop already told the member why: the work goes on, and no break starts
-			setPendingAction(null);
-			return;
+			return false;
 		}
 		try {
 			await timerService.startBreak({ taskId, organizationTeamId });
 		} catch (error) {
 			const reasonKey = breakRefusalKeyOf(error) as DottedLanguageObjectStringPaths;
 			toast.error(t('breaks.REFUSED'), { id: 'timer-break-refused', description: t(reasonKey) });
+		}
+		return true;
+	}, [organizationTeamId, stopWork, t, taskId]);
+
+	const takeBreak = useCallback(async () => {
+		let asksBreak = false;
+		// Under the start guard every timer shares, from the stop to the break's start: a start asked meanwhile (the
+		// other timer, a task card, the start key) cannot land beside the break and be ended by it, or end it
+		const breakStart = startUnderTimerGuard(async () => {
+			asksBreak = await stopWorkThenStartBreak();
+		});
+		if (!breakStart) {
+			toast.warning(t('toasts.timer.START_IN_PROGRESS'), { id: 'timer-start-in-progress' });
+			return;
+		}
+		setPendingAction('take');
+		try {
+			await breakStart;
 		} finally {
 			setPendingAction(null);
+		}
+		if (asksBreak) {
 			await refreshAfterBreak();
 		}
-	}, [organizationTeamId, refreshAfterBreak, stopWork, t, taskId]);
+	}, [refreshAfterBreak, stopWorkThenStartBreak, t]);
 
 	// Ends the break without starting work, the end of the day for one: Gauzy's stop ends a running break
 	const endBreak = useCallback(async () => {

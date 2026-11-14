@@ -16,7 +16,7 @@ import { activeTeamIdState, organizationTeamsState, timerNotesState, timerStatus
 import { timerStartNotesState } from '@/core/stores/timer/timer-start-notes';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
-import { ALREADY_TRACKING_TOAST_ID, useTimerApi } from './use-timer-api';
+import { ALREADY_TRACKING_TOAST_ID, pendingTimerStart, startUnderTimerGuard, useTimerApi } from './use-timer-api';
 
 const NOW = Date.parse('2026-11-12T10:00:00.000Z');
 /** The start of the day the timer status reads. */
@@ -404,5 +404,76 @@ describe("Start with a notes draft and a continued entry's notes", () => {
 		expect(outcome).toBe('started');
 		expect(mockStartBodies).toEqual([expect.objectContaining({ description: 'Typed in the timer' })]);
 		expect(tab.store.get(timerNotesState)).toEqual({ text: 'Typed in the timer', timeLogId: 'log-new' });
+	});
+});
+
+/**
+ * A break (#5216) stops the work, then starts the break: Gauzy's start ends whatever runs, so a work start landing
+ * beside the break would be ended by it, or end it. The break holds the start guard every timer shares meanwhile.
+ */
+describe('Start while a break is being taken', () => {
+	beforeEach(() => {
+		mockGauzy.lastLog = null;
+		mockGauzy.isTrackingTime = false;
+		mockGauzy.statusReadFails = false;
+		mockGauzy.lastLogReadFails = false;
+		mockStartBodies.length = 0;
+	});
+
+	it('sends no start until the break has landed, then starts as usual', async () => {
+		const tab = renderTab();
+		let landBreak = () => {};
+		const breakStart = startUnderTimerGuard(
+			() =>
+				new Promise<void>((resolve) => {
+					landBreak = resolve;
+				})
+		);
+		expect(breakStart).not.toBeNull();
+		expect(pendingTimerStart()).toBe(breakStart);
+
+		// A task card's start of a task: refused, as during any other start
+		let refusal: unknown;
+		await act(async () => {
+			await tab.result.current.startTimer(TASK).catch((error: unknown) => {
+				refusal = error;
+			});
+		});
+		expect(refusal).toBeInstanceOf(Error);
+		expect(mockToastWarning).toHaveBeenCalledWith('toasts.timer.START_IN_PROGRESS', {
+			id: 'timer-start-in-progress'
+		});
+		// The start key or the other timer, naming no task: waits for the break, and no work starts
+		let keyOutcome: unknown;
+		await act(async () => {
+			const keyStart = tab.result.current.startTimer();
+			landBreak();
+			keyOutcome = await keyStart;
+		});
+		expect(keyOutcome).toBe('blocked');
+		expect(mockStartTimer).not.toHaveBeenCalled();
+		expect(pendingTimerStart()).toBeNull();
+
+		const outcome = await tab.pressStart();
+
+		expect(outcome).toBe('started');
+		expect(mockStartTimer).toHaveBeenCalledTimes(1);
+	});
+
+	it('runs no second break while one is being taken', async () => {
+		let landBreak = () => {};
+		const first = startUnderTimerGuard(
+			() =>
+				new Promise<void>((resolve) => {
+					landBreak = resolve;
+				})
+		);
+		const second = jest.fn(async () => undefined);
+
+		expect(startUnderTimerGuard(second)).toBeNull();
+		expect(second).not.toHaveBeenCalled();
+
+		landBreak();
+		await first;
 	});
 });

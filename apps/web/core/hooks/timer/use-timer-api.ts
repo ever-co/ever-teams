@@ -184,6 +184,22 @@ function releaseStopGuard(request: Promise<void>) {
 	if (pendingStopTimer === request) pendingStopTimer = null;
 }
 
+/**
+ * Runs a start this hook does not send itself under the shared start guard: a break (#5216), from the stop of the
+ * work to the start of the break. A start asked meanwhile, by the other timer, a task card or a shortcut, waits for
+ * it or is refused as during any start, so the work and the break never start over each other and end one another.
+ * It resolves 'blocked', as no work starts. Null, with nothing run, while another start is already in flight.
+ */
+export function startUnderTimerGuard(run: () => Promise<unknown>): Promise<TimerStartOutcome> | null {
+	if (pendingStartTimer) return null;
+	const request: Promise<TimerStartOutcome> = trackTimerCommand(run())
+		.then(() => 'blocked' as const)
+		.finally(() => releaseStartGuard(request));
+	pendingStartTimer = request;
+	pendingStartTaskId = null;
+	return request;
+}
+
 type RunGoingOn = { status: ITimerStatus; inDayStatus: boolean };
 
 /**
