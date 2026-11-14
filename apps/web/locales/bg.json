@@ -7059,5 +7059,17 @@
 		"CLIENTS": "{count, plural, one {# клиент} other {# клиента}}",
 		"NAMES_ERROR_TITLE": "Списъкът с клиенти не можа да се зареди",
 		"NAMES_ERROR_MESSAGE": "Дотогава архивираните клиенти се показват без имената си."
+	},
+	"timeZoneNotice": {
+		"TITLE": "Профилът ви използва {profileZone} ({profileOffset}). Този браузър е в {browserZone} ({browserOffset}).",
+		"DESCRIPTION": "Дните и часовете в отчетите следват профила ви.",
+		"TITLE_NO_PROFILE_ZONE": "Профилът ви няма часова зона. Този браузър е в {browserZone} ({browserOffset}).",
+		"DESCRIPTION_NO_PROFILE_ZONE": "Докато не изберете такава, отчетите броят дните и часовете в UTC.",
+		"USE": "Използване на {zone}",
+		"KEEP": "Оставяне на {zone}",
+		"SAVING": "Записване…",
+		"SAVE_FAILED": "Часовата ви зона не можа да бъде записана.",
+		"SAVE_FAILED_DESCRIPTION": "Профилът ви не е променен. Проверете връзката си и опитайте отново.",
+		"TRY_AGAIN": "Опитайте отново"
 	}
 }

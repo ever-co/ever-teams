@@ -7059,5 +7059,17 @@
 		"CLIENTS": "{count, plural, one {לקוח אחד} two {שני לקוחות} other {# לקוחות}}",
 		"NAMES_ERROR_TITLE": "לא ניתן היה לטעון את רשימת הלקוחות",
 		"NAMES_ERROR_MESSAGE": "עד אז לקוחות בארכיון מוצגים ללא שמם."
+	},
+	"timeZoneNotice": {
+		"TITLE": "הפרופיל שלך משתמש ב־{profileZone} ({profileOffset}). הדפדפן הזה נמצא ב־{browserZone} ({browserOffset}).",
+		"DESCRIPTION": "הימים והשעות בדוחות נקבעים לפי הפרופיל שלך.",
+		"TITLE_NO_PROFILE_ZONE": "אין אזור זמן בפרופיל שלך. הדפדפן הזה נמצא ב־{browserZone} ({browserOffset}).",
+		"DESCRIPTION_NO_PROFILE_ZONE": "עד שייבחר אזור זמן, הדוחות סופרים ימים ושעות לפי UTC.",
+		"USE": "שימוש ב־{zone}",
+		"KEEP": "השארת {zone}",
+		"SAVING": "שומר…",
+		"SAVE_FAILED": "לא ניתן היה לשמור את אזור הזמן שלך.",
+		"SAVE_FAILED_DESCRIPTION": "הפרופיל שלך לא השתנה. כדאי לבדוק את החיבור ולנסות שוב.",
+		"TRY_AGAIN": "לנסות שוב"
 	}
 }

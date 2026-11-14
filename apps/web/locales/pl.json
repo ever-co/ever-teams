@@ -7059,5 +7059,17 @@
 		"CLIENTS": "{count, plural, one {# klient} few {# klientów} many {# klientów} other {# klienta}}",
 		"NAMES_ERROR_TITLE": "Nie udało się wczytać listy klientów",
 		"NAMES_ERROR_MESSAGE": "Zarchiwizowani klienci są do tego czasu widoczni bez nazw."
+	},
+	"timeZoneNotice": {
+		"TITLE": "Twój profil używa strefy {profileZone} ({profileOffset}). Ta przeglądarka jest w strefie {browserZone} ({browserOffset}).",
+		"DESCRIPTION": "Dni i godziny w raportach są liczone według twojego profilu.",
+		"TITLE_NO_PROFILE_ZONE": "Twój profil nie ma strefy czasowej. Ta przeglądarka jest w strefie {browserZone} ({browserOffset}).",
+		"DESCRIPTION_NO_PROFILE_ZONE": "Dopóki jej nie wybierzesz, raporty liczą dni i godziny w UTC.",
+		"USE": "Użyj {zone}",
+		"KEEP": "Zachowaj {zone}",
+		"SAVING": "Zapisywanie…",
+		"SAVE_FAILED": "Nie udało się zapisać twojej strefy czasowej.",
+		"SAVE_FAILED_DESCRIPTION": "Twój profil się nie zmienił. Sprawdź połączenie i spróbuj ponownie.",
+		"TRY_AGAIN": "Spróbuj ponownie"
 	}
 }

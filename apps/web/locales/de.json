@@ -7059,5 +7059,17 @@
 		"CLIENTS": "{count, plural, one {# Kunde} other {# Kunden}}",
 		"NAMES_ERROR_TITLE": "Die Kundenliste konnte nicht geladen werden",
 		"NAMES_ERROR_MESSAGE": "Archivierte Kunden erscheinen bis dahin ohne ihren Namen."
+	},
+	"timeZoneNotice": {
+		"TITLE": "Dein Profil verwendet {profileZone} ({profileOffset}). Dieser Browser ist in {browserZone} ({browserOffset}).",
+		"DESCRIPTION": "Tage und Uhrzeiten in Berichten richten sich nach deinem Profil.",
+		"TITLE_NO_PROFILE_ZONE": "Dein Profil hat keine Zeitzone. Dieser Browser ist in {browserZone} ({browserOffset}).",
+		"DESCRIPTION_NO_PROFILE_ZONE": "Bis du eine wählst, zählen Berichte Tage und Uhrzeiten in UTC.",
+		"USE": "{zone} verwenden",
+		"KEEP": "{zone} behalten",
+		"SAVING": "Wird gespeichert…",
+		"SAVE_FAILED": "Deine Zeitzone konnte nicht gespeichert werden.",
+		"SAVE_FAILED_DESCRIPTION": "Dein Profil ist unverändert. Prüfe deine Verbindung und versuche es erneut.",
+		"TRY_AGAIN": "Erneut versuchen"
 	}
 }

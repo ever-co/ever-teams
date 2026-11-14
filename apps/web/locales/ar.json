@@ -7059,5 +7059,17 @@
 		"CLIENTS": "{count, plural, one {عميل واحد} two {عميلان} few {# عملاء} many {# عميلًا} other {# عميل}}",
 		"NAMES_ERROR_TITLE": "تعذّر تحميل قائمة العملاء",
 		"NAMES_ERROR_MESSAGE": "يظهر العملاء المؤرشفون دون أسمائهم إلى أن يتم تحميلها."
+	},
+	"timeZoneNotice": {
+		"TITLE": "يستخدم ملفك الشخصي {profileZone} ({profileOffset}). هذا المتصفح في {browserZone} ({browserOffset}).",
+		"DESCRIPTION": "تتبع الأيام والأوقات في التقارير ملفك الشخصي.",
+		"TITLE_NO_PROFILE_ZONE": "لا يحتوي ملفك الشخصي على منطقة زمنية. هذا المتصفح في {browserZone} ({browserOffset}).",
+		"DESCRIPTION_NO_PROFILE_ZONE": "إلى أن تختار منطقة، تُحتسب الأيام والأوقات في التقارير بتوقيت UTC.",
+		"USE": "استخدام {zone}",
+		"KEEP": "الإبقاء على {zone}",
+		"SAVING": "جارٍ الحفظ…",
+		"SAVE_FAILED": "تعذّر حفظ منطقتك الزمنية.",
+		"SAVE_FAILED_DESCRIPTION": "لم يتغير ملفك الشخصي. تحقق من اتصالك وحاول مرة أخرى.",
+		"TRY_AGAIN": "حاول مرة أخرى"
 	}
 }

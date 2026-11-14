@@ -7059,5 +7059,17 @@
 		"CLIENTS": "{count, plural, one {# client} other {# clients}}",
 		"NAMES_ERROR_TITLE": "La liste des clients n'a pas pu se charger",
 		"NAMES_ERROR_MESSAGE": "Les clients archivés s'affichent sans leur nom en attendant."
+	},
+	"timeZoneNotice": {
+		"TITLE": "Votre profil utilise {profileZone} ({profileOffset}). Ce navigateur est sur {browserZone} ({browserOffset}).",
+		"DESCRIPTION": "Les jours et les heures des rapports suivent votre profil.",
+		"TITLE_NO_PROFILE_ZONE": "Votre profil n'a pas de fuseau horaire. Ce navigateur est sur {browserZone} ({browserOffset}).",
+		"DESCRIPTION_NO_PROFILE_ZONE": "Tant que vous n'en choisissez pas, les jours et les heures des rapports sont comptés en UTC.",
+		"USE": "Utiliser {zone}",
+		"KEEP": "Garder {zone}",
+		"SAVING": "Enregistrement…",
+		"SAVE_FAILED": "Votre fuseau horaire n'a pas pu être enregistré.",
+		"SAVE_FAILED_DESCRIPTION": "Votre profil n'a pas changé. Vérifiez votre connexion et réessayez.",
+		"TRY_AGAIN": "Réessayer"
 	}
 }

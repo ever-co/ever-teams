@@ -7059,5 +7059,17 @@
 		"CLIENTS": "{count, plural, one {# client} other {# clients}}",
 		"NAMES_ERROR_TITLE": "The clients list could not load",
 		"NAMES_ERROR_MESSAGE": "Archived clients show without their names until it does."
+	},
+	"timeZoneNotice": {
+		"TITLE": "Your profile uses {profileZone} ({profileOffset}). This browser is in {browserZone} ({browserOffset}).",
+		"DESCRIPTION": "Days and times in reports follow your profile.",
+		"TITLE_NO_PROFILE_ZONE": "Your profile has no time zone. This browser is in {browserZone} ({browserOffset}).",
+		"DESCRIPTION_NO_PROFILE_ZONE": "Until you choose one, days and times in reports are counted in UTC.",
+		"USE": "Use {zone}",
+		"KEEP": "Keep {zone}",
+		"SAVING": "Saving…",
+		"SAVE_FAILED": "Your time zone could not be saved.",
+		"SAVE_FAILED_DESCRIPTION": "Your profile has not changed. Check your connection and try again.",
+		"TRY_AGAIN": "Try again"
 	}
 }
