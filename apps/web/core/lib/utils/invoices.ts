@@ -919,6 +919,25 @@ function dayEndOf(dayKey: string, timeZone: string | null | undefined) {
 	return endOfDay(day).toISOString();
 }
 
+const DAY_KEY_FORMATS = new Map<string, Intl.DateTimeFormat>();
+
+/** One formatter per zone, kept: a list dates three days per invoice and must not build one each time. */
+function dayKeyFormatOf(timeZone: string | null | undefined) {
+	const zone = timeZone?.trim() ?? '';
+	const cached = DAY_KEY_FORMATS.get(zone);
+	if (cached) {
+		return cached;
+	}
+	const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
+	if (zone) {
+		options.timeZone = zone;
+	}
+	// The Canadian English form of a date is the day key itself: 2026-10-05.
+	const format = new Intl.DateTimeFormat('en-CA', options);
+	DAY_KEY_FORMATS.set(zone, format);
+	return format;
+}
+
 /** The calendar day an invoice date stands for in the organization's zone, the one the API's PDF prints it in. */
 export function invoiceDayOf(date: string | null | undefined, timeZone: string | null | undefined): string | null {
 	if (!date) {
@@ -928,15 +947,8 @@ export function invoiceDayOf(date: string | null | undefined, timeZone: string |
 	if (Number.isNaN(instant.getTime())) {
 		return null;
 	}
-	const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
-	const zone = timeZone?.trim();
-	if (zone) {
-		options.timeZone = zone;
-	}
 	try {
-		// The Canadian English form of a date is the day key itself: 2026-10-05.
-		const format = new Intl.DateTimeFormat('en-CA', options);
-		return format.format(instant);
+		return dayKeyFormatOf(timeZone).format(instant);
 	} catch {
 		return localDayKeyOf(instant);
 	}
@@ -1155,8 +1167,14 @@ export function invoiceMonthTextOf(monthKey: string, locale: string): string | n
 }
 
 /** Hours as the invoice states them, always to the hundredth: 10.50, never 10.5. */
+const HOURS_FORMATS = new Map<string, Intl.NumberFormat>();
+
 export function formatInvoiceHours(hours: number, locale: string) {
-	const format = new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+	let format = HOURS_FORMATS.get(locale);
+	if (!format) {
+		format = new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+		HOURS_FORMATS.set(locale, format);
+	}
 	return format.format(hours);
 }
 

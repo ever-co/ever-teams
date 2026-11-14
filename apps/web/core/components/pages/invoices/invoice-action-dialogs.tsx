@@ -218,7 +218,12 @@ export function VoidInvoiceDialog({ open, target, scope, onClose }: Readonly<Inv
 	);
 }
 
-export function DeleteInvoiceDialog({ open, target, scope, onClose }: Readonly<InvoiceActionDialogProps>) {
+interface DeleteInvoiceDialogProps extends InvoiceActionDialogProps {
+	/** The draft is gone: the page that showed it leaves it. */
+	onDeleted?: (target: InvoiceActionTarget) => void;
+}
+
+export function DeleteInvoiceDialog({ open, target, scope, onClose, onDeleted }: Readonly<DeleteInvoiceDialogProps>) {
 	const t = useTranslations();
 	const { deleteInvoice, isDeleting } = useDeleteInvoice();
 	const runOnce = useSingleRun();
@@ -242,6 +247,7 @@ export function DeleteInvoiceDialog({ open, target, scope, onClose }: Readonly<I
 			await deleteInvoice({ invoiceId: target.invoice.id, scope });
 			toast.success(t('invoices.delete.DONE', { number: numberText }));
 			onClose();
+			onDeleted?.(target);
 		} catch {
 			setHasFailed(true);
 		}

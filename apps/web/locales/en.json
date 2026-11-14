@@ -6615,7 +6615,13 @@
 			"NAME_REQUIRED": "Enter the client's name.",
 			"EMAIL_INVALID": "Enter a valid email address, or leave the field empty.",
 			"CREATE": "Create client",
-			"SAVE_FAILED": "The client could not be saved. Try again."
+			"SAVE_FAILED": "The client could not be saved. Try again.",
+			"BILLING": "Billing",
+			"CUSTOM_DAYS_LABEL": "Days to pay, from 0 to {max}",
+			"DAYS_UNIT": "{count, plural, one {day} other {days}}",
+			"PAYMENT_TERMS": "Payment terms",
+			"TERMS_HINT": "Sets the due date of the invoices made for this client.",
+			"TERMS_INVALID": "Enter a number of days from 0 to 365."
 		},
 		"toasts": {
 			"CREATED": "{name} was added to the clients",
@@ -6629,13 +6635,15 @@
 			"LEAVES_PICKER": "It is no longer offered as the client of a project.",
 			"CAN_RESTORE": "You can restore it from the Archived list.",
 			"CONFIRM": "Archive client",
-			"FAILED": "The client could not be archived. Try again."
+			"FAILED": "The client could not be archived. Try again.",
+			"KEEPS_INVOICES": "Its invoices stay, and can still be sent, paid or voided."
 		},
 		"restore": {
 			"TITLE": "Restore {name}?",
 			"BACK_IN_PICKER": "It is offered again as the client of a project.",
 			"CONFIRM": "Restore client",
-			"FAILED": "The client could not be restored. Try again."
+			"FAILED": "The client could not be restored. Try again.",
+			"KEEPS_EVERYTHING": "Its projects, time and invoices are as you left them."
 		},
 		"picker": {
 			"ADD": "Add client",
@@ -6643,6 +6651,86 @@
 			"CREATE": "Create client “{name}”",
 			"NO_CLIENT": "No client",
 			"CREATE_FAILED": "The client could not be created. Try again."
+		},
+		"COLUMN_SINCE": "Since",
+		"FOOT_PROJECTS": "{count, plural, one {# project} other {# projects}}",
+		"LINK_COPIED": "Link to {name} copied",
+		"LINK_NOT_COPIED": "The link could not be copied. Copy it from the address bar.",
+		"NO_ACCESS_TITLE": "Clients are not shared with your role",
+		"NO_ACCESS_MESSAGE": "Ask a workspace manager to give your role access to the clients.",
+		"OPEN_CLIENT": "Open",
+		"contact": {
+			"ADD": "Add contact",
+			"ADD_EMAIL": "Add email",
+			"ADD_FOR": "Add contact details for {name}",
+			"ADD_PHONE": "Add phone",
+			"COPY": "Copy {value}",
+			"NOT_COPIED": "It could not be copied. Select the text to copy it.",
+			"NO_EMAIL": "No email",
+			"NO_PHONE": "No phone"
+		},
+		"facts": {
+			"ADDED": "Added",
+			"EDIT_CONTACT": "Edit contact",
+			"EDIT_NOTES": "Edit notes",
+			"EDIT_TERMS": "Edit payment terms",
+			"SINCE": "Client since {date}",
+			"TERMS": "Terms"
+		},
+		"invoices": {
+			"ALL": "All",
+			"OPEN": "Open",
+			"EMPTY_TITLE": "No invoices yet",
+			"EMPTY_MESSAGE": "Invoices made for this client are listed here.",
+			"FILTER_LABEL": "Invoices to show",
+			"NONE_IN_FILTER": "No invoices with this status",
+			"SUMMARY_OPEN": "{count} open",
+			"SUMMARY_OVERDUE": "{count} overdue",
+			"SUMMARY_PAID": "{count} paid",
+			"SUMMARY_DRAFTS": "{count, plural, one {# draft} other {# drafts}}",
+			"SUMMARY_VOID": "{count} void"
+		},
+		"notes": {
+			"ADD": "Add a note",
+			"NONE": "No notes",
+			"READ_MORE": "Read more",
+			"SHOW_LESS": "Show less"
+		},
+		"order": {
+			"TRIGGER": "Sorted by {order}",
+			"NEWEST": "Newest first",
+			"MOST_PROJECTS": "Most projects"
+		},
+		"projects": {
+			"EMPTY_TITLE": "No projects for this client",
+			"EMPTY_MESSAGE": "Pick this client in a project's settings to list it here."
+		},
+		"sheet": {
+			"POSITION": "{position} of {total}"
+		},
+		"standing": {
+			"ALSO": "Also {amounts}",
+			"BILLED": "Billed",
+			"LABEL": "Billing of {name}",
+			"LAST_INVOICE": "Last invoice",
+			"NOTHING": "None",
+			"NO_INVOICE_TITLE": "No invoices for {name} yet",
+			"NO_INVOICE_MESSAGE": "Bill the time tracked for this client to see here what it owes."
+		},
+		"terms": {
+			"CUSTOM": "Custom",
+			"DAYS": "{days, plural, one {# day} other {# days}}",
+			"DUE_ON_RECEIPT": "Due on receipt",
+			"NET_DAYS": "Net {days, plural, one {# day} other {# days}}",
+			"RECEIPT": "On receipt",
+			"WORKSPACE": "Workspace default",
+			"WORKSPACE_DAYS": "Workspace default ({days, plural, one {# day} other {# days}})",
+			"WORKSPACE_SHORT": "Default"
+		},
+		"detail": {
+			"NOT_FOUND_TITLE": "This client is not in the workspace",
+			"NOT_FOUND_MESSAGE": "It may have been deleted, or the link comes from another workspace.",
+			"ALL_CLIENTS": "All clients"
 		}
 	},
 	"invoices": {
@@ -6912,6 +7000,63 @@
 			"ALL_INVOICED_MESSAGE": "Every billable hour of this period is on an invoice. To bill some again, remove its line from that invoice or void the invoice.",
 			"NEW_REFUSED": "Part of this time went on another invoice or was deleted since it was read, so nothing was saved. Close this window to see the time left to bill, then save again.",
 			"EDIT_REFUSED": "Part of this time went on another invoice or was deleted since it was read, so the changes were not saved and the invoice is as it was. Close this window to see the time left to bill, then save again."
+		},
+		"standing": {
+			"OVERDUE": "Overdue",
+			"UNKNOWN": "Unknown status"
+		},
+		"due": {
+			"IN_DAYS": "Due in {count, plural, one {# day} other {# days}}",
+			"TODAY": "Due today",
+			"TOMORROW": "Due tomorrow",
+			"LATE": "{count, plural, one {# day late} other {# days late}}"
+		},
+		"money": {
+			"LABEL": "Money owed to the workspace",
+			"OWED": "Owed",
+			"NOTHING_OWED": "Nothing is owed right now",
+			"INVOICE_COUNT": "{count, plural, one {# invoice} other {# invoices}}",
+			"ALSO_OWED": "Also owed: {amounts}",
+			"SPLIT_LABEL": "Owed money, split between not yet due and overdue",
+			"NOT_YET_DUE": "Not yet due",
+			"OVERDUE": "Overdue",
+			"DRAFTS": "Drafts",
+			"DRAFT_COUNT": "{count, plural, =0 {None} one {# to send} other {# to send}}",
+			"WITHOUT_BALANCE": "{count, plural, one {# partly paid invoice states no balance and is left out} other {# partly paid invoices state no balance and are left out}}",
+			"ERROR": "What is owed could not be read"
+		},
+		"filter": {
+			"LABEL": "Invoices to show",
+			"ALL": "All",
+			"OPEN": "Open",
+			"NONE_DRAFT": "No drafts to send",
+			"NONE_OPEN": "No invoice is waiting to be paid",
+			"NONE_OVERDUE": "Nothing is overdue",
+			"NONE_PAID": "No paid invoices",
+			"NONE_VOID": "No void invoices",
+			"SHOW_ALL": "Show all invoices",
+			"LOADED_ONLY": "Among the {count, plural, one {# latest invoice} other {# latest invoices}}. Show more to look further back."
+		},
+		"detail": {
+			"HEADING": "Invoice {number}",
+			"PAPER_TITLE": "Invoice",
+			"COLUMN_DESCRIPTION": "Description",
+			"COLUMN_HOURS": "Hours",
+			"COLUMN_RATE": "Rate",
+			"COLUMN_AMOUNT": "Amount",
+			"NO_DESCRIPTION": "No description",
+			"NO_LINES": "This invoice has no lines.",
+			"DISCOUNT": "Discount",
+			"TAX": "Tax",
+			"TAX_PERCENT": "Tax ({percent})",
+			"TAX2": "Second tax",
+			"TAX2_PERCENT": "Second tax ({percent})",
+			"PAID": "Paid",
+			"LEFT_TO_PAY": "Left to pay",
+			"NOT_FOUND_TITLE": "This invoice is not in the workspace",
+			"NOT_FOUND_MESSAGE": "It may have been deleted, or the link comes from another workspace.",
+			"ALL_INVOICES": "All invoices",
+			"ERROR_TITLE": "The invoice could not be loaded"
 		}
 	},
 	"timeReports": {
@@ -7062,6 +7207,13 @@
 			"ROW_DESCRIPTION": "Add time entries from a CSV file.",
 			"OPEN": "Import from CSV"
 		}
+	},
+	"recordSheet": {
+		"PREVIOUS": "Previous",
+		"PREVIOUS_HINT": "Previous (K)",
+		"NEXT": "Next",
+		"NEXT_HINT": "Next (J)",
+		"OPEN_PAGE": "Open full page"
 	},
 	"clientGrouping": {
 		"TITLE": "Time by client",

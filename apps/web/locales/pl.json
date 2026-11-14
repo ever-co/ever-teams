@@ -6615,7 +6615,13 @@
 			"NAME_REQUIRED": "Wpisz nazwę klienta.",
 			"EMAIL_INVALID": "Wpisz poprawny adres e-mail lub zostaw pole puste.",
 			"CREATE": "Utwórz klienta",
-			"SAVE_FAILED": "Nie udało się zapisać klienta. Spróbuj ponownie."
+			"SAVE_FAILED": "Nie udało się zapisać klienta. Spróbuj ponownie.",
+			"BILLING": "Rozliczenia",
+			"CUSTOM_DAYS_LABEL": "Dni na zapłatę, od 0 do {max}",
+			"DAYS_UNIT": "{count, plural, one {dzień} few {dni} many {dni} other {dnia}}",
+			"PAYMENT_TERMS": "Termin płatności",
+			"TERMS_HINT": "Ustala termin płatności faktur wystawianych temu klientowi.",
+			"TERMS_INVALID": "Wpisz liczbę dni od 0 do 365."
 		},
 		"toasts": {
 			"CREATED": "Dodano {name} do klientów",
@@ -6629,13 +6635,15 @@
 			"LEAVES_PICKER": "Nie jest już proponowany jako klient projektu.",
 			"CAN_RESTORE": "Możesz go przywrócić z listy Zarchiwizowani.",
 			"CONFIRM": "Zarchiwizuj klienta",
-			"FAILED": "Nie udało się zarchiwizować klienta. Spróbuj ponownie."
+			"FAILED": "Nie udało się zarchiwizować klienta. Spróbuj ponownie.",
+			"KEEPS_INVOICES": "Faktury zostają i nadal można je wysłać, opłacić lub anulować."
 		},
 		"restore": {
 			"TITLE": "Przywrócić {name}?",
 			"BACK_IN_PICKER": "Jest znów proponowany jako klient projektu.",
 			"CONFIRM": "Przywróć klienta",
-			"FAILED": "Nie udało się przywrócić klienta. Spróbuj ponownie."
+			"FAILED": "Nie udało się przywrócić klienta. Spróbuj ponownie.",
+			"KEEPS_EVERYTHING": "Projekty, czas i faktury pozostały bez zmian."
 		},
 		"picker": {
 			"ADD": "Dodaj klienta",
@@ -6643,6 +6651,86 @@
 			"CREATE": "Utwórz klienta „{name}”",
 			"NO_CLIENT": "Brak klienta",
 			"CREATE_FAILED": "Nie udało się utworzyć klienta. Spróbuj ponownie."
+		},
+		"COLUMN_SINCE": "Od",
+		"FOOT_PROJECTS": "{count, plural, one {# projekt} few {# projekty} many {# projektów} other {# projektu}}",
+		"LINK_COPIED": "Skopiowano link do: {name}",
+		"LINK_NOT_COPIED": "Nie udało się skopiować linku. Skopiuj go z paska adresu.",
+		"NO_ACCESS_TITLE": "Klienci nie są dostępni dla Twojej roli",
+		"NO_ACCESS_MESSAGE": "Poproś osobę zarządzającą przestrzenią roboczą o dostęp do klientów dla Twojej roli.",
+		"OPEN_CLIENT": "Otwórz",
+		"contact": {
+			"ADD": "Dodaj kontakt",
+			"ADD_EMAIL": "Dodaj e-mail",
+			"ADD_FOR": "Dodaj dane kontaktowe: {name}",
+			"ADD_PHONE": "Dodaj telefon",
+			"COPY": "Kopiuj {value}",
+			"NOT_COPIED": "Nie udało się skopiować. Zaznacz tekst, aby go skopiować.",
+			"NO_EMAIL": "Brak e-maila",
+			"NO_PHONE": "Brak telefonu"
+		},
+		"facts": {
+			"ADDED": "Dodano",
+			"EDIT_CONTACT": "Edytuj kontakt",
+			"EDIT_NOTES": "Edytuj notatki",
+			"EDIT_TERMS": "Edytuj termin płatności",
+			"SINCE": "Klient od {date}",
+			"TERMS": "Termin"
+		},
+		"invoices": {
+			"ALL": "Wszystkie",
+			"OPEN": "Otwarte",
+			"EMPTY_TITLE": "Brak faktur",
+			"EMPTY_MESSAGE": "Tu pojawią się faktury wystawione temu klientowi.",
+			"FILTER_LABEL": "Faktury do pokazania",
+			"NONE_IN_FILTER": "Brak faktur o tym statusie",
+			"SUMMARY_OPEN": "{count, plural, one {# otwarta} few {# otwarte} many {# otwartych} other {# otwartej}}",
+			"SUMMARY_OVERDUE": "{count, plural, one {# zaległa} few {# zaległe} many {# zaległych} other {# zaległej}}",
+			"SUMMARY_PAID": "{count, plural, one {# opłacona} few {# opłacone} many {# opłaconych} other {# opłaconej}}",
+			"SUMMARY_DRAFTS": "{count, plural, one {# szkic} few {# szkice} many {# szkiców} other {# szkicu}}",
+			"SUMMARY_VOID": "{count, plural, one {# anulowana} few {# anulowane} many {# anulowanych} other {# anulowanej}}"
+		},
+		"notes": {
+			"ADD": "Dodaj notatkę",
+			"NONE": "Brak notatek",
+			"READ_MORE": "Czytaj więcej",
+			"SHOW_LESS": "Pokaż mniej"
+		},
+		"order": {
+			"TRIGGER": "Sortowanie: {order}",
+			"NEWEST": "Najnowsi",
+			"MOST_PROJECTS": "Najwięcej projektów"
+		},
+		"projects": {
+			"EMPTY_TITLE": "Brak projektów tego klienta",
+			"EMPTY_MESSAGE": "Wybierz tego klienta w ustawieniach projektu, aby go tu zobaczyć."
+		},
+		"sheet": {
+			"POSITION": "{position} z {total}"
+		},
+		"standing": {
+			"ALSO": "Także {amounts}",
+			"BILLED": "Zafakturowano",
+			"LABEL": "Rozliczenia: {name}",
+			"LAST_INVOICE": "Ostatnia faktura",
+			"NOTHING": "Brak",
+			"NO_INVOICE_TITLE": "Brak faktur dla: {name}",
+			"NO_INVOICE_MESSAGE": "Zafakturuj czas zarejestrowany dla tego klienta, aby zobaczyć tu, ile jest do zapłaty."
+		},
+		"terms": {
+			"CUSTOM": "Inny",
+			"DAYS": "{days, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}",
+			"DUE_ON_RECEIPT": "Płatne przy odbiorze",
+			"NET_DAYS": "Płatność w ciągu {days, plural, one {# dnia} few {# dni} many {# dni} other {# dnia}}",
+			"RECEIPT": "Przy odbiorze",
+			"WORKSPACE": "Przestrzeń robocza",
+			"WORKSPACE_DAYS": "Przestrzeń robocza ({days, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}})",
+			"WORKSPACE_SHORT": "Domyślny"
+		},
+		"detail": {
+			"NOT_FOUND_TITLE": "Tego klienta nie ma w przestrzeni roboczej",
+			"NOT_FOUND_MESSAGE": "Mógł zostać usunięty albo link pochodzi z innej przestrzeni roboczej.",
+			"ALL_CLIENTS": "Wszyscy klienci"
 		}
 	},
 	"invoices": {
@@ -6912,6 +7000,63 @@
 			"ALL_INVOICED_MESSAGE": "Każda rozliczalna godzina tego okresu jest na fakturze. Aby zafakturować część z nich ponownie, usuń jej pozycję z tamtej faktury albo anuluj fakturę.",
 			"NEW_REFUSED": "Część tego czasu trafiła na inną fakturę lub została usunięta od chwili odczytu, więc nic nie zostało zapisane. Zamknij to okno, aby zobaczyć czas, który zostaje do zafakturowania, a potem zapisz ponownie.",
 			"EDIT_REFUSED": "Część tego czasu trafiła na inną fakturę lub została usunięta od chwili odczytu, więc zmiany nie zostały zapisane, a faktura jest taka jak wcześniej. Zamknij to okno, aby zobaczyć czas, który zostaje do zafakturowania, a potem zapisz ponownie."
+		},
+		"standing": {
+			"OVERDUE": "Zaległa",
+			"UNKNOWN": "Nieznany status"
+		},
+		"due": {
+			"IN_DAYS": "Termin za {count, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}",
+			"TODAY": "Termin dziś",
+			"TOMORROW": "Termin jutro",
+			"LATE": "{count, plural, one {# dzień po terminie} few {# dni po terminie} many {# dni po terminie} other {# dnia po terminie}}"
+		},
+		"money": {
+			"LABEL": "Kwoty należne przestrzeni roboczej",
+			"OWED": "Należne",
+			"NOTHING_OWED": "Obecnie nic nie jest należne",
+			"INVOICE_COUNT": "{count, plural, one {# faktura} few {# faktury} many {# faktur} other {# faktury}}",
+			"ALSO_OWED": "Należne także: {amounts}",
+			"SPLIT_LABEL": "Należne kwoty, podzielone na jeszcze niewymagalne i zaległe",
+			"NOT_YET_DUE": "Jeszcze niewymagalne",
+			"OVERDUE": "Zaległe",
+			"DRAFTS": "Wersje robocze",
+			"DRAFT_COUNT": "{count, plural, =0 {Brak} one {# do wysłania} few {# do wysłania} many {# do wysłania} other {# do wysłania}}",
+			"WITHOUT_BALANCE": "{count, plural, one {# częściowo opłacona faktura nie podaje salda i jest pominięta} few {# częściowo opłacone faktury nie podają salda i są pominięte} many {# częściowo opłaconych faktur nie podaje salda i jest pominiętych} other {# częściowo opłaconej faktury nie podaje salda}}",
+			"ERROR": "Nie udało się odczytać należności"
+		},
+		"filter": {
+			"LABEL": "Faktury do pokazania",
+			"ALL": "Wszystkie",
+			"OPEN": "Otwarte",
+			"NONE_DRAFT": "Brak szkiców do wysłania",
+			"NONE_OPEN": "Żadna faktura nie czeka na zapłatę",
+			"NONE_OVERDUE": "Nic nie jest zaległe",
+			"NONE_PAID": "Brak opłaconych faktur",
+			"NONE_VOID": "Brak anulowanych faktur",
+			"SHOW_ALL": "Pokaż wszystkie faktury",
+			"LOADED_ONLY": "Spośród {count, plural, one {ostatniej faktury} few {# ostatnich faktur} many {# ostatnich faktur} other {# ostatniej faktury}}. Pokaż więcej, aby sięgnąć dalej."
+		},
+		"detail": {
+			"HEADING": "Faktura {number}",
+			"PAPER_TITLE": "Faktura",
+			"COLUMN_DESCRIPTION": "Opis",
+			"COLUMN_HOURS": "Godziny",
+			"COLUMN_RATE": "Stawka",
+			"COLUMN_AMOUNT": "Kwota",
+			"NO_DESCRIPTION": "Brak opisu",
+			"NO_LINES": "Ta faktura nie ma pozycji.",
+			"DISCOUNT": "Rabat",
+			"TAX": "Podatek",
+			"TAX_PERCENT": "Podatek ({percent})",
+			"TAX2": "Drugi podatek",
+			"TAX2_PERCENT": "Drugi podatek ({percent})",
+			"PAID": "Zapłacono",
+			"LEFT_TO_PAY": "Pozostało do zapłaty",
+			"NOT_FOUND_TITLE": "Tej faktury nie ma w przestrzeni roboczej",
+			"NOT_FOUND_MESSAGE": "Mogła zostać usunięta albo link pochodzi z innej przestrzeni roboczej.",
+			"ALL_INVOICES": "Wszystkie faktury",
+			"ERROR_TITLE": "Nie udało się wczytać faktury"
 		}
 	},
 	"timeReports": {
@@ -7062,6 +7207,13 @@
 			"ROW_DESCRIPTION": "Dodaj wpisy czasu z pliku CSV.",
 			"OPEN": "Importuj z CSV"
 		}
+	},
+	"recordSheet": {
+		"PREVIOUS": "Poprzedni",
+		"PREVIOUS_HINT": "Poprzedni (K)",
+		"NEXT": "Następny",
+		"NEXT_HINT": "Następny (J)",
+		"OPEN_PAGE": "Otwórz na całej stronie"
 	},
 	"clientGrouping": {
 		"TITLE": "Czas według klienta",

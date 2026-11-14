@@ -1,23 +1,36 @@
 'use client';
 
-import { memo, type ReactNode } from 'react';
+import { Fragment, memo, type ReactNode } from 'react';
 import { useLocale, useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { BlockEmptyMessage } from '@/core/components/dashboards/kit/dashboard-states';
-import { DASHBOARD_SURFACE } from '@/core/components/dashboards/kit/recipes';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Folder, Undo, X } from '@/core/components/icons';
+import {
+	InvoicePaper,
+	PaperGroup,
+	PaperHead,
+	PaperLine,
+	PaperLines,
+	PaperNote,
+	PaperParties,
+	PaperTotals,
+	type PaperFact,
+	type PaperTotalRow
+} from '@/core/components/invoices/invoice-paper';
 import type { InvoiceDraftState } from '@/core/hooks/invoices/use-new-invoice';
-import { cn } from '@/core/lib/helpers';
 import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
 import { formatPercent } from '@/core/lib/utils/invoice-totals';
 import {
 	formatInvoiceHours,
+	invoiceDayTextOf,
 	invoicePeriodTextOf,
 	type InvoiceLineRateSource,
 	type InvoiceProjectGroup,
 	type NamedInvoiceLine
 } from '@/core/lib/utils/invoices';
-import { LINE_GRID, QUIET_FIELD } from './new-invoice-recipes';
+import { QUIET_FIELD } from './new-invoice-recipes';
+
+type Translate = ReturnType<typeof useTranslations>;
 
 const RATE_SOURCE_KEYS: Record<InvoiceLineRateSource, DottedLanguageObjectStringPaths> = {
 	member: 'invoices.new.RATE_SOURCE_MEMBER',
@@ -26,18 +39,6 @@ const RATE_SOURCE_KEYS: Record<InvoiceLineRateSource, DottedLanguageObjectString
 	saved: 'invoices.edit.RATE_SOURCE_SAVED'
 };
 
-const FIGURE = 'whitespace-nowrap text-[13px] tabular-nums';
-
-function Party({ label, name, detail }: Readonly<{ label: string; name: string; detail?: string | null }>) {
-	return (
-		<div className="flex min-w-0 flex-col gap-0.5">
-			<span className="text-xs text-muted-foreground">{label}</span>
-			<span className="truncate text-sm font-medium text-foreground">{name}</span>
-			{detail && <span className="truncate text-xs text-muted-foreground">{detail}</span>}
-		</div>
-	);
-}
-
 interface LineRowProps {
 	line: NamedInvoiceLine;
 	description: string | undefined;
@@ -45,6 +46,7 @@ interface LineRowProps {
 	onRemove: (lineKey: string) => void;
 }
 
+/** A line of the paper: its description is written in place, as the API's PDF will print it. */
 const LineRow = memo(function LineRow({ line, description, onDescribe, onRemove }: LineRowProps) {
 	const t = useTranslations();
 	const locale = useLocale();
@@ -55,142 +57,112 @@ const LineRow = memo(function LineRow({ line, description, onDescribe, onRemove 
 	if (line.isAverageRate) {
 		rateHint = t('invoices.new.byProject.AVERAGE_RATE_HINT');
 	}
+	let detail: ReactNode;
+	if (line.isAverageRate) {
+		detail = <span title={rateHint}>{t('invoices.new.byProject.AVERAGE_RATE')}</span>;
+	}
 	return (
-		<li className={LINE_GRID}>
-			<input
-				type="text"
-				value={description ?? line.label}
-				placeholder={line.label}
-				aria-label={t('invoices.new.DESCRIPTION_OF', { name: line.label })}
-				onChange={(event) => onDescribe(line.key, event.target.value)}
-				className={cn(QUIET_FIELD, 'col-span-full lg:col-span-1')}
-			/>
-			<span className={cn(FIGURE, 'text-foreground lg:text-right')}>{hoursText}</span>
-			<span className={cn(FIGURE, 'flex flex-col text-muted-foreground lg:items-end')} title={rateHint}>
-				<span>{rateText}</span>
-				{line.isAverageRate && (
-					<span className="text-[11px] leading-4 font-medium">
-						{t('invoices.new.byProject.AVERAGE_RATE')}
-					</span>
-				)}
-			</span>
-			<span className={cn(FIGURE, 'text-right font-medium text-foreground')}>
-				{formatOwed(line.amount, line.currency, locale)}
-			</span>
-			<Button
-				type="button"
-				variant="ghost"
-				size="icon-sm"
-				aria-label={removeLabel}
-				title={removeLabel}
-				onClick={() => onRemove(line.key)}
-				className="text-muted-foreground"
-			>
-				<X />
-			</Button>
-		</li>
+		<PaperLine
+			description={
+				<span className="-ml-2.5 flex min-w-0 items-center gap-1">
+					<input
+						type="text"
+						value={description ?? line.label}
+						placeholder={line.label}
+						aria-label={t('invoices.new.DESCRIPTION_OF', { name: line.label })}
+						onChange={(event) => onDescribe(line.key, event.target.value)}
+						className={QUIET_FIELD}
+					/>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+						aria-label={removeLabel}
+						title={removeLabel}
+						onClick={() => onRemove(line.key)}
+						className="shrink-0 text-muted-foreground"
+					>
+						<X />
+					</Button>
+				</span>
+			}
+			detail={detail}
+			hours={hoursText}
+			rate={<span title={rateHint}>{rateText}</span>}
+			amount={formatOwed(line.amount, line.currency, locale)}
+		/>
 	);
 });
 
-function ProjectLines({
-	group,
-	currency,
-	descriptions,
-	onDescribe,
-	onRemove
-}: Readonly<{
-	group: InvoiceProjectGroup;
-	currency: string | null;
-	descriptions: ReadonlyMap<string, string>;
-	onDescribe: (lineKey: string, description: string) => void;
-	onRemove: (lineKey: string) => void;
-}>) {
+interface LinesProps {
+	invoice: InvoiceDraftState;
+}
+
+function ProjectBand({ group, currency }: Readonly<{ group: InvoiceProjectGroup; currency: string | null }>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const hoursText = t('invoices.new.HOURS', { hours: formatInvoiceHours(group.hours, locale) });
 	return (
-		<li className="flex flex-col gap-2.5">
-			<div className="flex items-center justify-between gap-3 rounded-lg bg-foreground/[0.03] px-3 py-2">
+		<PaperGroup
+			label={
 				<span className="flex min-w-0 items-center gap-2">
 					<Folder aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
-					<span className="truncate text-[13px] font-medium text-foreground">{group.projectName}</span>
+					<span className="truncate">{group.projectName}</span>
 				</span>
-				<span className="shrink-0 text-xs tabular-nums text-muted-foreground">
-					{hoursText} · {formatOwed(group.amount, currency, locale)}
-				</span>
-			</div>
-			<ul className="flex flex-col gap-3 px-3 lg:gap-1.5">
-				{group.lines.map((line) => (
-					<LineRow
-						key={line.key}
-						line={line}
-						description={descriptions.get(line.key)}
-						onDescribe={onDescribe}
-						onRemove={onRemove}
-					/>
-				))}
-			</ul>
-		</li>
+			}
+			meta={`${hoursText} · ${formatOwed(group.amount, currency, locale)}`}
+		/>
 	);
 }
 
-/** By project, a line is a whole project: the lines are listed without a band per project. */
-function SheetLines({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
+/** By project, a line is a whole project; by member or by task, the lines of a project follow its band. */
+function SheetLines({ invoice }: Readonly<LinesProps>) {
+	const t = useTranslations();
+	const labels = {
+		description: t('invoices.detail.COLUMN_DESCRIPTION'),
+		hours: t('invoices.detail.COLUMN_HOURS'),
+		rate: t('invoices.detail.COLUMN_RATE'),
+		amount: t('invoices.detail.COLUMN_AMOUNT')
+	};
+	const rowOf = (line: NamedInvoiceLine) => (
+		<LineRow
+			key={line.key}
+			line={line}
+			description={invoice.descriptions.get(line.key)}
+			onDescribe={invoice.describeLine}
+			onRemove={invoice.removeLine}
+		/>
+	);
 	if (invoice.grouping === 'project') {
-		return (
-			<ul className="flex flex-col gap-3 px-3 lg:gap-1.5">
-				{invoice.keptLines.map((line) => (
-					<LineRow
-						key={line.key}
-						line={line}
-						description={invoice.descriptions.get(line.key)}
-						onDescribe={invoice.describeLine}
-						onRemove={invoice.removeLine}
-					/>
-				))}
-			</ul>
-		);
+		return <PaperLines labels={labels}>{invoice.keptLines.map(rowOf)}</PaperLines>;
 	}
 	return (
-		<ul className="flex flex-col gap-5">
+		<PaperLines labels={labels}>
 			{invoice.groups.map((group) => (
-				<ProjectLines
-					key={group.projectId}
-					group={group}
-					currency={invoice.currency}
-					descriptions={invoice.descriptions}
-					onDescribe={invoice.describeLine}
-					onRemove={invoice.removeLine}
-				/>
+				<Fragment key={group.projectId}>
+					<ProjectBand group={group} currency={invoice.currency} />
+					{group.lines.map(rowOf)}
+				</Fragment>
 			))}
-		</ul>
+		</PaperLines>
 	);
 }
 
-function RemovedLines({ count, onRestore }: Readonly<{ count: number; onRestore: () => void }>) {
-	const t = useTranslations();
+function SheetNote({ children, action }: Readonly<{ children: ReactNode; action: ReactNode }>) {
 	return (
-		<p className="flex flex-wrap items-center gap-x-2 gap-y-1 px-3 text-xs text-muted-foreground">
-			<span className="tabular-nums">{t('invoices.new.REMOVED_LINES', { count })}</span>
-			<Button type="button" variant="ghost" size="sm" onClick={onRestore} className="-my-1 text-foreground">
-				<Undo />
-				{t('invoices.new.RESTORE_LINES')}
-			</Button>
+		<p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+			<span className="tabular-nums">{children}</span>
+			{action}
 		</p>
 	);
 }
 
-/** An invoice read back shows the lines it was saved with until its time is taken again; the way back stays here. */
-function LinesFromTime({ onBack }: Readonly<{ onBack: () => void }>) {
-	const t = useTranslations();
+function UndoButton({ label, onClick }: Readonly<{ label: string; onClick: () => void }>) {
 	return (
-		<p className="flex flex-wrap items-center gap-x-2 gap-y-1 px-3 text-xs text-muted-foreground">
-			<span>{t('invoices.edit.TIME_LINES')}</span>
-			<Button type="button" variant="ghost" size="sm" onClick={onBack} className="-my-1 text-foreground">
-				<Undo />
-				{t('invoices.edit.BACK_TO_SAVED')}
-			</Button>
-		</p>
+		<Button type="button" variant="ghost" size="sm" onClick={onClick} className="-my-1 text-foreground">
+			<Undo />
+			{label}
+		</Button>
 	);
 }
 
@@ -202,46 +174,55 @@ function takenOffOf(amount: number) {
 	return 0;
 }
 
-function AdjustmentRow({ label, value }: Readonly<{ label: string; value: string }>) {
-	return (
-		<>
-			<dt className="text-muted-foreground">{label}</dt>
-			<dd className="text-right text-foreground">{value}</dd>
-		</>
-	);
-}
-
-/** Subtotal, discount and tax, the tax with what it is taken of, so the reader can follow the total. */
-function AdjustedSubtotal({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
-	const t = useTranslations();
-	const locale = useLocale();
+function totalRowsOf(invoice: InvoiceDraftState, locale: string, t: Translate): PaperTotalRow[] {
 	const { totals, adjustments, currency } = invoice;
-	const { discountPercent, taxPercent } = adjustments;
 	const amountText = (amount: number) => formatOwed(amount, currency, locale);
-	const discountTakenOff = takenOffOf(totals.discount);
-	let discountRow: ReactNode = null;
-	if (discountPercent !== null) {
-		const percent = formatPercent(discountPercent, locale);
-		const label = t('invoices.new.adjustments.DISCOUNT_ROW', { percent });
-		discountRow = <AdjustmentRow label={label} value={amountText(discountTakenOff)} />;
+	const rows: PaperTotalRow[] = [];
+	if (invoice.hasAdjustments) {
+		rows.push({
+			key: 'subtotal',
+			label: t('invoices.new.adjustments.SUBTOTAL'),
+			value: amountText(totals.subtotal)
+		});
 	}
-	let taxRow: ReactNode = null;
-	if (taxPercent !== null) {
-		const percent = formatPercent(taxPercent, locale);
+	if (adjustments.discountPercent !== null) {
+		const percent = formatPercent(adjustments.discountPercent, locale);
+		rows.push({
+			key: 'discount',
+			label: t('invoices.new.adjustments.DISCOUNT_ROW', { percent }),
+			value: amountText(takenOffOf(totals.discount))
+		});
+	}
+	if (adjustments.taxPercent !== null) {
+		const percent = formatPercent(adjustments.taxPercent, locale);
 		const base = amountText(totals.discounted);
-		const label = t('invoices.new.adjustments.TAX_ROW', { percent, base });
-		taxRow = <AdjustmentRow label={label} value={amountText(totals.tax)} />;
+		rows.push({
+			key: 'tax',
+			label: t('invoices.new.adjustments.TAX_ROW', { percent, base }),
+			value: amountText(totals.tax)
+		});
 	}
-	return (
-		<dl className="grid grid-cols-[auto_auto] gap-x-6 gap-y-1 text-[13px] tabular-nums">
-			<AdjustmentRow label={t('invoices.new.adjustments.SUBTOTAL')} value={amountText(totals.subtotal)} />
-			{discountRow}
-			{taxRow}
-		</dl>
-	);
+	rows.push({ key: 'total', label: t('invoices.new.TOTAL'), value: amountText(invoice.total), isTotal: true });
+	return rows;
 }
 
-/** The API's PDF prints these lines as they are written here: description, hours, rate and amount. */
+function headFactsOf(invoice: InvoiceDraftState, locale: string, t: Translate): PaperFact[] {
+	const facts: PaperFact[] = [];
+	const issuedText = invoiceDayTextOf(invoice.issueDay, locale);
+	if (issuedText) {
+		facts.push({ key: 'issued', label: t('invoices.new.details.ISSUE_DATE'), value: issuedText });
+	}
+	const dueText = invoiceDayTextOf(invoice.dueDay, locale);
+	if (dueText) {
+		facts.push({ key: 'due', label: t('invoices.new.details.DUE_DATE'), value: dueText });
+	}
+	const periodText = invoicePeriodTextOf(invoice.periodDays, locale);
+	if (periodText) {
+		facts.push({ key: 'period', label: t('invoices.new.PERIOD'), value: periodText });
+	}
+	return facts;
+}
+
 export function InvoiceSheet({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
 	const t = useTranslations();
 	const locale = useLocale();
@@ -249,49 +230,70 @@ export function InvoiceSheet({ invoice }: Readonly<{ invoice: InvoiceDraftState 
 	const hasRemovedLines = invoice.removedCount > 0;
 	const isSavedInvoice = invoice.savedInvoice !== null;
 	const showsTimeLines = isSavedInvoice && invoice.linesSource === 'time';
-	const periodText = invoicePeriodTextOf(invoice.periodDays, locale) ?? '';
 	const totalHours = formatInvoiceHours(invoice.keptHours, locale);
+	const note = invoice.note.trim();
+	let numberText = '';
+	if (invoice.numberText) {
+		numberText = t('invoices.NUMBER', { number: invoice.numberText });
+	}
 	let emptyMessage = t('invoices.new.NO_PRICED_LINES');
 	if (hasRemovedLines) {
 		emptyMessage = t('invoices.new.ALL_LINES_REMOVED');
 	}
+	const clientLines: string[] = [];
+	const clientEmail = invoice.client?.primaryEmail?.trim();
+	if (clientEmail) {
+		clientLines.push(clientEmail);
+	}
 
 	return (
-		<section
-			aria-label={t('invoices.new.SHEET_LABEL')}
-			className={cn(DASHBOARD_SURFACE, 'flex flex-col gap-6 p-4 sm:p-6')}
-		>
-			<header className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-				<Party label={t('invoices.new.FROM')} name={invoice.organizationName} />
-				<Party
-					label={t('invoices.new.BILL_TO')}
-					name={invoice.client?.name ?? ''}
-					detail={invoice.client?.primaryEmail}
+		<section aria-label={t('invoices.new.SHEET_LABEL')}>
+			<InvoicePaper>
+				<PaperHead
+					sender={invoice.organizationName}
+					title={t('invoices.detail.PAPER_TITLE')}
+					number={numberText}
+					facts={headFactsOf(invoice, locale, t)}
 				/>
-				<Party label={t('invoices.new.PERIOD')} name={periodText} />
-			</header>
-
-			{hasLines && <SheetLines invoice={invoice} />}
-			{!hasLines && <BlockEmptyMessage title={t('invoices.new.NO_LINES_TITLE')} message={emptyMessage} />}
-			{showsTimeLines && <LinesFromTime onBack={invoice.backToSavedLines} />}
-			{hasRemovedLines && <RemovedLines count={invoice.removedCount} onRestore={invoice.restoreLines} />}
-
-			{hasLines && (
-				<footer className="flex flex-wrap items-end justify-between gap-4 px-3">
-					<p className="text-xs tabular-nums text-muted-foreground">
-						{t('invoices.new.LINES_AND_HOURS', { count: invoice.keptLines.length, hours: totalHours })}
-					</p>
-					<div className="ml-auto flex flex-col items-end gap-3">
-						{invoice.hasAdjustments && <AdjustedSubtotal invoice={invoice} />}
-						<div className="flex flex-col items-end gap-0.5">
-							<span className="text-xs text-muted-foreground">{t('invoices.new.TOTAL')}</span>
-							<span className="text-2xl font-semibold tabular-nums text-foreground">
-								{formatOwed(invoice.total, invoice.currency, locale)}
-							</span>
-						</div>
+				<PaperParties
+					parties={[
+						{ key: 'from', label: t('invoices.new.FROM'), name: invoice.organizationName },
+						{
+							key: 'to',
+							label: t('invoices.new.BILL_TO'),
+							name: invoice.client?.name ?? '',
+							lines: clientLines
+						}
+					]}
+				/>
+				{hasLines && <SheetLines invoice={invoice} />}
+				{!hasLines && <BlockEmptyMessage title={t('invoices.new.NO_LINES_TITLE')} message={emptyMessage} />}
+				{showsTimeLines && (
+					<SheetNote
+						action={
+							<UndoButton label={t('invoices.edit.BACK_TO_SAVED')} onClick={invoice.backToSavedLines} />
+						}
+					>
+						{t('invoices.edit.TIME_LINES')}
+					</SheetNote>
+				)}
+				{hasRemovedLines && (
+					<SheetNote
+						action={<UndoButton label={t('invoices.new.RESTORE_LINES')} onClick={invoice.restoreLines} />}
+					>
+						{t('invoices.new.REMOVED_LINES', { count: invoice.removedCount })}
+					</SheetNote>
+				)}
+				{hasLines && (
+					<div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+						<p className="text-xs tabular-nums text-muted-foreground">
+							{t('invoices.new.LINES_AND_HOURS', { count: invoice.keptLines.length, hours: totalHours })}
+						</p>
+						<PaperTotals rows={totalRowsOf(invoice, locale, t)} />
 					</div>
-				</footer>
-			)}
+				)}
+				{note && <PaperNote label={t('invoices.new.terms.NOTE')}>{note}</PaperNote>}
+			</InvoicePaper>
 		</section>
 	);
 }

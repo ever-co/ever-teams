@@ -6615,7 +6615,13 @@
 			"NAME_REQUIRED": "Geben Sie den Namen des Kunden ein.",
 			"EMAIL_INVALID": "Geben Sie eine gültige E-Mail-Adresse ein oder lassen Sie das Feld leer.",
 			"CREATE": "Kunde erstellen",
-			"SAVE_FAILED": "Der Kunde konnte nicht gespeichert werden. Versuchen Sie es erneut."
+			"SAVE_FAILED": "Der Kunde konnte nicht gespeichert werden. Versuchen Sie es erneut.",
+			"BILLING": "Abrechnung",
+			"CUSTOM_DAYS_LABEL": "Tage bis zur Zahlung, 0 bis {max}",
+			"DAYS_UNIT": "{count, plural, one {Tag} other {Tage}}",
+			"PAYMENT_TERMS": "Zahlungsziel",
+			"TERMS_HINT": "Legt das Fälligkeitsdatum der Rechnungen für diesen Kunden fest.",
+			"TERMS_INVALID": "Geben Sie eine Anzahl Tage von 0 bis 365 ein."
 		},
 		"toasts": {
 			"CREATED": "{name} wurde zu den Kunden hinzugefügt",
@@ -6629,13 +6635,15 @@
 			"LEAVES_PICKER": "Er wird nicht mehr als Kunde eines Projekts angeboten.",
 			"CAN_RESTORE": "Sie können ihn in der Liste Archiviert wiederherstellen.",
 			"CONFIRM": "Kunde archivieren",
-			"FAILED": "Der Kunde konnte nicht archiviert werden. Versuchen Sie es erneut."
+			"FAILED": "Der Kunde konnte nicht archiviert werden. Versuchen Sie es erneut.",
+			"KEEPS_INVOICES": "Die Rechnungen bleiben erhalten und können weiter versendet, bezahlt oder storniert werden."
 		},
 		"restore": {
 			"TITLE": "{name} wiederherstellen?",
 			"BACK_IN_PICKER": "Er wird wieder als Kunde eines Projekts angeboten.",
 			"CONFIRM": "Kunde wiederherstellen",
-			"FAILED": "Der Kunde konnte nicht wiederhergestellt werden. Versuchen Sie es erneut."
+			"FAILED": "Der Kunde konnte nicht wiederhergestellt werden. Versuchen Sie es erneut.",
+			"KEEPS_EVERYTHING": "Projekte, Zeit und Rechnungen sind so, wie Sie sie verlassen haben."
 		},
 		"picker": {
 			"ADD": "Kunde hinzufügen",
@@ -6643,6 +6651,86 @@
 			"CREATE": "Kunde „{name}“ erstellen",
 			"NO_CLIENT": "Kein Kunde",
 			"CREATE_FAILED": "Der Kunde konnte nicht erstellt werden. Versuchen Sie es erneut."
+		},
+		"COLUMN_SINCE": "Seit",
+		"FOOT_PROJECTS": "{count, plural, one {# Projekt} other {# Projekte}}",
+		"LINK_COPIED": "Link zu {name} kopiert",
+		"LINK_NOT_COPIED": "Der Link konnte nicht kopiert werden. Kopieren Sie ihn aus der Adressleiste.",
+		"NO_ACCESS_TITLE": "Kunden sind für Ihre Rolle nicht freigegeben",
+		"NO_ACCESS_MESSAGE": "Bitten Sie eine Person, die den Arbeitsbereich verwaltet, Ihrer Rolle Zugriff auf die Kunden zu geben.",
+		"OPEN_CLIENT": "Öffnen",
+		"contact": {
+			"ADD": "Kontakt hinzufügen",
+			"ADD_EMAIL": "E-Mail hinzufügen",
+			"ADD_FOR": "Kontaktdaten für {name} hinzufügen",
+			"ADD_PHONE": "Telefon hinzufügen",
+			"COPY": "{value} kopieren",
+			"NOT_COPIED": "Kopieren fehlgeschlagen. Markieren Sie den Text, um ihn zu kopieren.",
+			"NO_EMAIL": "Keine E-Mail",
+			"NO_PHONE": "Kein Telefon"
+		},
+		"facts": {
+			"ADDED": "Hinzugefügt",
+			"EDIT_CONTACT": "Kontakt bearbeiten",
+			"EDIT_NOTES": "Notizen bearbeiten",
+			"EDIT_TERMS": "Zahlungsziel bearbeiten",
+			"SINCE": "Kunde seit {date}",
+			"TERMS": "Zahlungsziel"
+		},
+		"invoices": {
+			"ALL": "Alle",
+			"OPEN": "Offen",
+			"EMPTY_TITLE": "Noch keine Rechnungen",
+			"EMPTY_MESSAGE": "Rechnungen für diesen Kunden erscheinen hier.",
+			"FILTER_LABEL": "Angezeigte Rechnungen",
+			"NONE_IN_FILTER": "Keine Rechnungen mit diesem Status",
+			"SUMMARY_OPEN": "{count} offen",
+			"SUMMARY_OVERDUE": "{count} überfällig",
+			"SUMMARY_PAID": "{count} bezahlt",
+			"SUMMARY_DRAFTS": "{count, plural, one {# Entwurf} other {# Entwürfe}}",
+			"SUMMARY_VOID": "{count} storniert"
+		},
+		"notes": {
+			"ADD": "Notiz hinzufügen",
+			"NONE": "Keine Notizen",
+			"READ_MORE": "Mehr lesen",
+			"SHOW_LESS": "Weniger anzeigen"
+		},
+		"order": {
+			"TRIGGER": "Sortiert nach {order}",
+			"NEWEST": "Neueste zuerst",
+			"MOST_PROJECTS": "Meiste Projekte"
+		},
+		"projects": {
+			"EMPTY_TITLE": "Keine Projekte für diesen Kunden",
+			"EMPTY_MESSAGE": "Wählen Sie diesen Kunden in den Einstellungen eines Projekts, damit es hier erscheint."
+		},
+		"sheet": {
+			"POSITION": "{position} von {total}"
+		},
+		"standing": {
+			"ALSO": "Außerdem {amounts}",
+			"BILLED": "Abgerechnet",
+			"LABEL": "Abrechnung von {name}",
+			"LAST_INVOICE": "Letzte Rechnung",
+			"NOTHING": "Nichts",
+			"NO_INVOICE_TITLE": "Noch keine Rechnungen für {name}",
+			"NO_INVOICE_MESSAGE": "Rechnen Sie die erfasste Zeit für diesen Kunden ab, um hier zu sehen, was offen ist."
+		},
+		"terms": {
+			"CUSTOM": "Eigenes",
+			"DAYS": "{days, plural, one {# Tag} other {# Tage}}",
+			"DUE_ON_RECEIPT": "Sofort fällig",
+			"NET_DAYS": "Zahlbar in {days, plural, one {# Tag} other {# Tagen}}",
+			"RECEIPT": "Sofort",
+			"WORKSPACE": "Arbeitsbereich",
+			"WORKSPACE_DAYS": "Arbeitsbereich ({days, plural, one {# Tag} other {# Tage}})",
+			"WORKSPACE_SHORT": "Standard"
+		},
+		"detail": {
+			"NOT_FOUND_TITLE": "Dieser Kunde ist nicht im Arbeitsbereich",
+			"NOT_FOUND_MESSAGE": "Er wurde vielleicht gelöscht, oder der Link stammt aus einem anderen Arbeitsbereich.",
+			"ALL_CLIENTS": "Alle Kunden"
 		}
 	},
 	"invoices": {
@@ -6912,6 +7000,63 @@
 			"ALL_INVOICED_MESSAGE": "Jede abrechenbare Stunde dieses Zeitraums steht auf einer Rechnung. Um einen Teil davon erneut zu berechnen, entfernen Sie die Position von jener Rechnung oder stornieren Sie die Rechnung.",
 			"NEW_REFUSED": "Ein Teil dieser Zeit ist seit dem Lesen auf eine andere Rechnung gekommen oder wurde gelöscht, deshalb wurde nichts gespeichert. Schließen Sie dieses Fenster, um die noch abzurechnende Zeit zu sehen, und speichern Sie dann erneut.",
 			"EDIT_REFUSED": "Ein Teil dieser Zeit ist seit dem Lesen auf eine andere Rechnung gekommen oder wurde gelöscht, deshalb wurden die Änderungen nicht gespeichert und die Rechnung ist unverändert. Schließen Sie dieses Fenster, um die noch abzurechnende Zeit zu sehen, und speichern Sie dann erneut."
+		},
+		"standing": {
+			"OVERDUE": "Überfällig",
+			"UNKNOWN": "Unbekannter Status"
+		},
+		"due": {
+			"IN_DAYS": "Fällig in {count, plural, one {# Tag} other {# Tagen}}",
+			"TODAY": "Heute fällig",
+			"TOMORROW": "Morgen fällig",
+			"LATE": "{count, plural, one {# Tag überfällig} other {# Tage überfällig}}"
+		},
+		"money": {
+			"LABEL": "Offene Beträge des Arbeitsbereichs",
+			"OWED": "Offen",
+			"NOTHING_OWED": "Derzeit ist nichts offen",
+			"INVOICE_COUNT": "{count, plural, one {# Rechnung} other {# Rechnungen}}",
+			"ALSO_OWED": "Ebenfalls offen: {amounts}",
+			"SPLIT_LABEL": "Offene Beträge, aufgeteilt in noch nicht fällig und überfällig",
+			"NOT_YET_DUE": "Noch nicht fällig",
+			"OVERDUE": "Überfällig",
+			"DRAFTS": "Entwürfe",
+			"DRAFT_COUNT": "{count, plural, =0 {Keine} one {# zu senden} other {# zu senden}}",
+			"WITHOUT_BALANCE": "{count, plural, one {# teilweise bezahlte Rechnung nennt keinen Restbetrag und wird nicht gezählt} other {# teilweise bezahlte Rechnungen nennen keinen Restbetrag und werden nicht gezählt}}",
+			"ERROR": "Die offenen Beträge konnten nicht gelesen werden"
+		},
+		"filter": {
+			"LABEL": "Angezeigte Rechnungen",
+			"ALL": "Alle",
+			"OPEN": "Offen",
+			"NONE_DRAFT": "Keine Entwürfe zu versenden",
+			"NONE_OPEN": "Keine Rechnung wartet auf Zahlung",
+			"NONE_OVERDUE": "Nichts ist überfällig",
+			"NONE_PAID": "Keine bezahlten Rechnungen",
+			"NONE_VOID": "Keine stornierten Rechnungen",
+			"SHOW_ALL": "Alle Rechnungen anzeigen",
+			"LOADED_ONLY": "Unter {count, plural, one {der letzten Rechnung} other {den # letzten Rechnungen}}. Laden Sie mehr, um weiter zurückzugehen."
+		},
+		"detail": {
+			"HEADING": "Rechnung {number}",
+			"PAPER_TITLE": "Rechnung",
+			"COLUMN_DESCRIPTION": "Beschreibung",
+			"COLUMN_HOURS": "Stunden",
+			"COLUMN_RATE": "Satz",
+			"COLUMN_AMOUNT": "Betrag",
+			"NO_DESCRIPTION": "Keine Beschreibung",
+			"NO_LINES": "Diese Rechnung hat keine Positionen.",
+			"DISCOUNT": "Rabatt",
+			"TAX": "Steuer",
+			"TAX_PERCENT": "Steuer ({percent})",
+			"TAX2": "Zweite Steuer",
+			"TAX2_PERCENT": "Zweite Steuer ({percent})",
+			"PAID": "Bezahlt",
+			"LEFT_TO_PAY": "Noch offen",
+			"NOT_FOUND_TITLE": "Diese Rechnung ist nicht im Arbeitsbereich",
+			"NOT_FOUND_MESSAGE": "Sie wurde vielleicht gelöscht, oder der Link stammt aus einem anderen Arbeitsbereich.",
+			"ALL_INVOICES": "Alle Rechnungen",
+			"ERROR_TITLE": "Die Rechnung konnte nicht geladen werden"
 		}
 	},
 	"timeReports": {
@@ -7062,6 +7207,13 @@
 			"ROW_DESCRIPTION": "Füge Zeiteinträge aus einer CSV-Datei hinzu.",
 			"OPEN": "Aus CSV importieren"
 		}
+	},
+	"recordSheet": {
+		"PREVIOUS": "Zurück",
+		"PREVIOUS_HINT": "Zurück (K)",
+		"NEXT": "Weiter",
+		"NEXT_HINT": "Weiter (J)",
+		"OPEN_PAGE": "Als ganze Seite öffnen"
 	},
 	"clientGrouping": {
 		"TITLE": "Zeit nach Kunde",

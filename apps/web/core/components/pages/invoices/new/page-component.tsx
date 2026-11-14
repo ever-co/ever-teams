@@ -1,11 +1,9 @@
 'use client';
 
-import { useId } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
-import { controlRecipe } from '@/core/components/common/input';
 import { SegmentedControl } from '@/core/components/common/segmented-control';
 import { DashboardBreadcrumb } from '@/core/components/dashboards/kit/dashboard-breadcrumb';
 import { DashboardToolbar } from '@/core/components/dashboards/kit/dashboard-layout';
@@ -16,43 +14,26 @@ import { Invoice } from '@/core/components/icons';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { INVOICE_WEEK_START, useNewInvoice, type NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
-import { cn } from '@/core/lib/helpers';
 import { formatPeriod, shiftPeriod } from '@/core/lib/utils/dashboard-period';
 import type { InvoiceGrouping } from '@/core/lib/utils/invoices';
 import { isTrackingEnabledState } from '@/core/stores';
 import { InvoiceAccessGuard, INVOICES_PATH, NEW_INVOICE_PATH, REPLACES_PARAM } from '../invoice-access-guard';
+import { InvoiceClientMenu } from './invoice-client-menu';
 import { PreparedInvoice } from './invoice-screen';
 import { GROUPING_SWITCH } from './new-invoice-recipes';
 import { InvoiceSheetSkeleton, MessageLink, NewInvoiceMessage, NewInvoicePageSkeleton } from './new-invoice-states';
 import { ReplacementInvoiceContent } from './replacement-invoice';
 import { SaveInvoiceDialog } from './save-invoice-dialog';
 
-function ClientSelect({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
-	const t = useTranslations();
-	const selectId = useId();
+function ClientMenu({ invoice, className }: Readonly<{ invoice: NewInvoiceState; className?: string }>) {
 	return (
-		<>
-			<label htmlFor={selectId} className="sr-only">
-				{t('common.CLIENT')}
-			</label>
-			<select
-				id={selectId}
-				value={invoice.client?.id ?? ''}
-				disabled={invoice.areClientsLoading}
-				onChange={(event) => invoice.changeClient(event.target.value)}
-				className={cn(
-					controlRecipe,
-					'h-8 w-auto max-w-full min-w-36 rounded-full px-3 text-[13px] sm:max-w-64 sm:min-w-44'
-				)}
-			>
-				<option value="">{t('invoices.new.CLIENT_PLACEHOLDER')}</option>
-				{invoice.clients.map((client) => (
-					<option key={client.id} value={client.id}>
-						{client.name}
-					</option>
-				))}
-			</select>
-		</>
+		<InvoiceClientMenu
+			clients={invoice.clients}
+			client={invoice.client}
+			isLoading={invoice.areClientsLoading}
+			onChange={invoice.changeClient}
+			className={className}
+		/>
 	);
 }
 
@@ -92,6 +73,7 @@ function NewInvoiceBody({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 			<NewInvoiceMessage
 				title={t('invoices.new.CHOOSE_CLIENT_TITLE')}
 				message={t('invoices.new.CHOOSE_CLIENT_MESSAGE')}
+				action={<ClientMenu invoice={invoice} />}
 			/>
 		);
 	}
@@ -182,7 +164,7 @@ function NewInvoiceContent() {
 					}
 					controls={
 						<>
-							<ClientSelect invoice={invoice} />
+							<ClientMenu invoice={invoice} />
 							<PeriodPicker
 								value={invoice.period}
 								onChange={invoice.changePeriod}
