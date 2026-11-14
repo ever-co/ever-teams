@@ -184,6 +184,26 @@ describe('readWorkspaceFiles', () => {
 		]);
 	});
 
+	it('refuses a JSON list past 10 000 records or 200 columns before building its table', async () => {
+		const records = (count: number) => Array.from({ length: count }, (_item, index) => ({ name: `Client ${index}` }));
+		// Each record brings a key of its own: as a table, a cell for every key in every record
+		const ownKeys = Array.from({ length: 201 }, (_item, index) => ({ name: 'Acme', [`field ${index}`]: 'x' }));
+
+		const files = await readWorkspaceFiles([
+			fileOf('clients.json', JSON.stringify(records(10_001))),
+			fileOf('workspace.json', JSON.stringify({ projects: ownKeys, tags: records(10_000) }))
+		]);
+
+		expect(files.problems).toEqual([
+			{ code: 'jsonTooLarge', fileName: 'clients.json' },
+			{ code: 'jsonTooLarge', fileName: 'workspace.json / projects' }
+		]);
+		expect(files.clients).toBeNull();
+		expect(files.projects).toBeNull();
+		// A list within the limits is read as before
+		expect(files.tags?.table.records).toHaveLength(10_000);
+	});
+
 	it('reads the first file of a list and says the next one of the same kind is not used', async () => {
 		const files = await readWorkspaceFiles([
 			fileOf('clients.csv', 'Name\nAcme\n'),

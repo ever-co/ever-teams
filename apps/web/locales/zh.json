@@ -7487,6 +7487,7 @@
 				"zip_unsupported": "压缩包使用了导入无法读取的格式。",
 				"zip_tooLarge": "压缩包解压后超过 {megabytes} MB。",
 				"json": "JSON 中没有记录列表。",
+				"jsonTooLarge": "一个列表中超过 {records} 条记录或 {columns} 列。",
 				"csv": "无法读取 CSV：有引号未闭合，或文件为空。",
 				"unknownContent": "既不是客户、项目、标签，也不是时间记录。",
 				"entriesColumnsDiffer": "时间记录的列与第一个时间记录文件不同。",

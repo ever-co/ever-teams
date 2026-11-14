@@ -7487,6 +7487,7 @@
 				"zip_unsupported": "L'archivio usa un formato che l'importazione non sa leggere.",
 				"zip_tooLarge": "L'archivio supera {megabytes} MB una volta aperto.",
 				"json": "Il JSON non contiene alcun elenco di record.",
+				"jsonTooLarge": "Più di {records} record o {columns} colonne in un solo elenco.",
 				"csv": "Il CSV non è leggibile: una virgoletta non viene mai chiusa, oppure il file è vuoto.",
 				"unknownContent": "Né clienti, né progetti, né tag, né voci di tempo.",
 				"entriesColumnsDiffer": "Voci di tempo con colonne diverse dal primo file di voci.",

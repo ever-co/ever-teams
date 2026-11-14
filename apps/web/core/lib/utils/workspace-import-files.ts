@@ -10,6 +10,13 @@ import { zipEntriesOf, type ZipProblem } from './workspace-import-zip';
 /** What one dropped file may weigh: an archive of a team's export, or one of its files. */
 export const WORKSPACE_IMPORT_MAX_FILE_BYTES = 10 * 1024 * 1024;
 
+/**
+ * What one JSON list may hold. A list is read into a table with a cell for each of its keys in every record: ten
+ * megabytes of records that each bring a key of their own would make hundreds of millions of cells.
+ */
+export const WORKSPACE_JSON_MAX_RECORDS = 10_000;
+export const WORKSPACE_JSON_MAX_COLUMNS = 200;
+
 /** What a file of the export holds, told by its name or, failing that, by its columns. */
 export type WorkspaceFileKind = 'entries' | 'clients' | 'projects' | 'tags';
 
@@ -26,6 +33,7 @@ export type WorkspaceFileProblem =
 	| { code: 'notText'; fileName: string }
 	| { code: 'zip'; fileName: string; problem: ZipProblem }
 	| { code: 'json'; fileName: string }
+	| { code: 'jsonTooLarge'; fileName: string }
 	| { code: 'csv'; fileName: string; problem: TimeImportSheetProblem }
 	| { code: 'unknownContent'; fileName: string }
 	| { code: 'entriesColumnsDiffer'; fileName: string }
@@ -162,22 +170,42 @@ function isRecordList(value: unknown): value is Array<Record<string, unknown>> {
 	return isList && value.every((item) => typeof item === 'object' && item !== null && !Array.isArray(item));
 }
 
-/** A JSON list of records as a table; the first record's keys come first, then any new key in order. */
-export function tableOfRecords(items: ReadonlyArray<Record<string, unknown>>): TimeImportTable {
-	const rows = items.map(flatRowOf);
-	const headers: string[] = [];
+/** The keys of the rows, the first row's first, then any new key in order. */
+function headersOfRows(rows: ReadonlyArray<Map<string, string>>): Set<string> {
+	const headers = new Set<string>();
 	for (const row of rows) {
 		for (const key of row.keys()) {
-			if (!headers.includes(key)) {
-				headers.push(key);
-			}
+			headers.add(key);
 		}
 	}
+	return headers;
+}
+
+function tableOfRows(rows: ReadonlyArray<Map<string, string>>, headers: ReadonlyArray<string>): TimeImportTable {
 	const records: TimeImportRecord[] = rows.map((row, index) => ({
 		row: index + 2,
 		cells: headers.map((header) => row.get(header) ?? '')
 	}));
 	return { headers, records };
+}
+
+/** A JSON list of records as a table; the first record's keys come first, then any new key in order. */
+export function tableOfRecords(items: ReadonlyArray<Record<string, unknown>>): TimeImportTable {
+	const rows = items.map(flatRowOf);
+	return tableOfRows(rows, [...headersOfRows(rows)]);
+}
+
+/** As tableOfRecords, or null for a list past the limits, told before its table is built. */
+function boundedTableOfRecords(items: ReadonlyArray<Record<string, unknown>>): TimeImportTable | null {
+	if (items.length > WORKSPACE_JSON_MAX_RECORDS) {
+		return null;
+	}
+	const rows = items.map(flatRowOf);
+	const headers = headersOfRows(rows);
+	if (headers.size > WORKSPACE_JSON_MAX_COLUMNS) {
+		return null;
+	}
+	return tableOfRows(rows, [...headers]);
 }
 
 /** The lists a JSON file holds: the file itself when it is a list, else each list it names, under that name. */
@@ -307,7 +335,14 @@ function tablesOf(
 			problems.push({ code: 'json', fileName: named.fileName });
 			return [];
 		}
-		return lists.map((list) => ({ fileName: list.name, table: tableOfRecords(list.items) }));
+		return lists.flatMap((list) => {
+			const table = boundedTableOfRecords(list.items);
+			if (!table) {
+				problems.push({ code: 'jsonTooLarge', fileName: list.name });
+				return [];
+			}
+			return [{ fileName: list.name, table }];
+		});
 	}
 	const reading = timeImportTableOf(named.text);
 	if (!reading.table) {

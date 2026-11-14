@@ -4,6 +4,8 @@ import { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import {
 	WORKSPACE_IMPORT_MAX_FILE_BYTES,
+	WORKSPACE_JSON_MAX_COLUMNS,
+	WORKSPACE_JSON_MAX_RECORDS,
 	type WorkspaceFileKind,
 	type WorkspaceFileProblem
 } from '@/core/lib/utils/workspace-import-files';
@@ -60,6 +62,11 @@ export function useWorkspaceImportCopy() {
 					return zipProblemText(problem.problem);
 				case 'json':
 					return t('timeImport.workspace.problems.json');
+				case 'jsonTooLarge':
+					return t('timeImport.workspace.problems.jsonTooLarge', {
+						records: WORKSPACE_JSON_MAX_RECORDS,
+						columns: WORKSPACE_JSON_MAX_COLUMNS
+					});
 				case 'csv':
 					return t('timeImport.workspace.problems.csv');
 				case 'unknownContent':

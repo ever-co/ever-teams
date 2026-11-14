@@ -7487,6 +7487,7 @@
 				"zip_unsupported": "The archive uses a format the import cannot read.",
 				"zip_tooLarge": "The archive unpacks to more than {megabytes} MB.",
 				"json": "The JSON holds no list of records.",
+				"jsonTooLarge": "More than {records} records or {columns} columns in one list.",
 				"csv": "The CSV cannot be read: a quote is never closed, or the file is empty.",
 				"unknownContent": "Neither clients, projects, tags nor time entries.",
 				"entriesColumnsDiffer": "Time entries with other columns than the first file of entries.",

@@ -7487,6 +7487,7 @@
 				"zip_unsupported": "O arquivo usa um formato que a importação não consegue ler.",
 				"zip_tooLarge": "O arquivo ultrapassa {megabytes} MB depois de aberto.",
 				"json": "O JSON não contém nenhuma lista de registos.",
+				"jsonTooLarge": "Mais de {records} registos ou {columns} colunas numa só lista.",
 				"csv": "O CSV não pode ser lido: uma aspa nunca é fechada, ou o ficheiro está vazio.",
 				"unknownContent": "Nem clientes, nem projetos, nem tags, nem registos de tempo.",
 				"entriesColumnsDiffer": "Registos de tempo com colunas diferentes do primeiro ficheiro de registos.",

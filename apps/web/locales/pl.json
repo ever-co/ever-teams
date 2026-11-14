@@ -7487,6 +7487,7 @@
 				"zip_unsupported": "Archiwum używa formatu, którego import nie potrafi odczytać.",
 				"zip_tooLarge": "Archiwum po rozpakowaniu przekracza {megabytes} MB.",
 				"json": "JSON nie zawiera listy rekordów.",
+				"jsonTooLarge": "Ponad {records} rekordów lub {columns} kolumn na jednej liście.",
 				"csv": "Nie można odczytać CSV: cudzysłów nie jest zamknięty albo plik jest pusty.",
 				"unknownContent": "Ani klienci, ani projekty, ani tagi, ani wpisy czasu.",
 				"entriesColumnsDiffer": "Wpisy czasu z innymi kolumnami niż w pierwszym pliku wpisów.",

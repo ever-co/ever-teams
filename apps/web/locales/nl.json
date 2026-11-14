@@ -7487,6 +7487,7 @@
 				"zip_unsupported": "Het archief gebruikt een indeling die de import niet kan lezen.",
 				"zip_tooLarge": "Het archief wordt uitgepakt groter dan {megabytes} MB.",
 				"json": "De JSON bevat geen lijst met records.",
+				"jsonTooLarge": "Meer dan {records} records of {columns} kolommen in één lijst.",
 				"csv": "De CSV kan niet gelezen worden: een aanhalingsteken wordt nooit gesloten, of het bestand is leeg.",
 				"unknownContent": "Geen klanten, projecten, tags of tijdregistraties.",
 				"entriesColumnsDiffer": "Tijdregistraties met andere kolommen dan het eerste registratiebestand.",

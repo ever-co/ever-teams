@@ -7487,6 +7487,7 @@
 				"zip_unsupported": "Das Archiv nutzt ein Format, das der Import nicht lesen kann.",
 				"zip_tooLarge": "Das Archiv wird entpackt größer als {megabytes} MB.",
 				"json": "Das JSON enthält keine Liste von Datensätzen.",
+				"jsonTooLarge": "Mehr als {records} Datensätze oder {columns} Spalten in einer Liste.",
 				"csv": "Die CSV kann nicht gelesen werden: Ein Anführungszeichen wird nie geschlossen, oder die Datei ist leer.",
 				"unknownContent": "Weder Kunden, Projekte, Tags noch Zeiteinträge.",
 				"entriesColumnsDiffer": "Zeiteinträge mit anderen Spalten als die erste Datei mit Einträgen.",
