@@ -38,3 +38,9 @@ export const NARROW_ONLY = 'lg:hidden';
 
 /** Rows far below the fold skip layout and paint until they come near, with the height they will take. */
 export const DEFERRED_ROW = '[content-visibility:auto] [contain-intrinsic-size:auto_2.75rem]';
+
+/** An entry shown under the row of its group of similar entries: a shade of the row and its task under the group's. */
+export const NESTED_ROW = 'bg-foreground/[0.02]';
+
+/** The width of the group row's expand control and its gap, so a nested task lines up with the group's task. */
+export const NESTED_TASK_INDENT = 'pl-6.5';

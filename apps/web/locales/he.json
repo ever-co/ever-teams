@@ -599,6 +599,21 @@
 				"EDITED_AT": "נערך ב-{date}, {time}",
 				"REASON_PREFIX": "סיבה:"
 			},
+			"SIMILAR": {
+				"ENTRY_COUNT": "{count, plural, one {רישום אחד} two {שני רישומים} other {# רישומים}}",
+				"SHOW_ENTRIES": "הצגת הרישומים של {task}",
+				"HIDE_ENTRIES": "הסתרת הרישומים של {task}",
+				"SELECT_GROUP": "{count, plural, one {בחירת רישום אחד של {task}} two {בחירת שני הרישומים של {task}} other {בחירת # הרישומים של {task}}}",
+				"CONFIRM_BILLABLE": "{count, plural, one {לסמן רישום אחד לחיוב?} two {לסמן שני רישומים לחיוב?} other {לסמן # רישומים לחיוב?}}",
+				"CONFIRM_NOT_BILLABLE": "{count, plural, one {לסמן רישום אחד כלא לחיוב?} two {לסמן שני רישומים כלא לחיוב?} other {לסמן # רישומים כלא לחיוב?}}",
+				"CONFIRM_STATUS": "{count, plural, one {לשנות את הסטטוס של רישום אחד ל„{status}”?} two {לשנות את הסטטוס של שני רישומים ל„{status}”?} other {לשנות את הסטטוס של # רישומים ל„{status}”?}}",
+				"CONFIRM_SCOPE": "כל הרישומים של {task} בשורה זו משתנים.",
+				"CHANGED": "{count, plural, one {רישום אחד שונה} two {שני רישומים שונו} other {# רישומים שונו}}",
+				"PARTLY_CHANGED": "{changed} מתוך {count} רישומים שונו. האחרים שמרו על ערכם.",
+				"REJECT_COUNT": "{count, plural, one {עומדים לדחות רישום אחד. להמשיך?} two {עומדים לדחות שני רישומים. להמשיך?} other {עומדים לדחות # רישומים. להמשיך?}}",
+				"VIEW_GROUP": "קיבוץ רישומים דומים",
+				"VIEW_GROUP_HELP": "רישומים של יום עם אותה משימה, אותו פרויקט, אותן הערות ואותו מצב חיוב מוצגים בשורה אחת."
+			},
 			"STATUS_CARDS": {
 				"PENDING": "ממתין לאישור",
 				"LOG_UNIT": "{count, plural, one {רישום} two {רישומים} other {רישומים}}"

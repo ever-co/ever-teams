@@ -599,6 +599,21 @@
 				"EDITED_AT": "Bearbeitet am {date}, {time}",
 				"REASON_PREFIX": "Grund:"
 			},
+			"SIMILAR": {
+				"ENTRY_COUNT": "{count, plural, one {# Eintrag} other {# Einträge}}",
+				"SHOW_ENTRIES": "Einträge von {task} anzeigen",
+				"HIDE_ENTRIES": "Einträge von {task} ausblenden",
+				"SELECT_GROUP": "{count, plural, one {# Eintrag von {task} auswählen} other {Die # Einträge von {task} auswählen}}",
+				"CONFIRM_BILLABLE": "{count, plural, one {# Eintrag als abrechenbar markieren?} other {# Einträge als abrechenbar markieren?}}",
+				"CONFIRM_NOT_BILLABLE": "{count, plural, one {# Eintrag als nicht abrechenbar markieren?} other {# Einträge als nicht abrechenbar markieren?}}",
+				"CONFIRM_STATUS": "{count, plural, one {# Eintrag auf „{status}“ setzen?} other {# Einträge auf „{status}“ setzen?}}",
+				"CONFIRM_SCOPE": "Alle Einträge von {task} in dieser Zeile ändern sich.",
+				"CHANGED": "{count, plural, one {# Eintrag geändert} other {# Einträge geändert}}",
+				"PARTLY_CHANGED": "{changed} von {count} Einträgen geändert. Die übrigen behalten ihren Wert.",
+				"REJECT_COUNT": "{count, plural, one {Sie lehnen # Eintrag ab. Möchten Sie fortfahren?} other {Sie lehnen # Einträge ab. Möchten Sie fortfahren?}}",
+				"VIEW_GROUP": "Ähnliche Einträge gruppieren",
+				"VIEW_GROUP_HELP": "Einträge eines Tages mit derselben Aufgabe, demselben Projekt, denselben Notizen und demselben Abrechnungsstatus erscheinen als eine Zeile."
+			},
 			"STATUS_CARDS": {
 				"PENDING": "Wartet auf Freigabe",
 				"LOG_UNIT": "{count, plural, one {Eintrag} other {Einträge}}"
