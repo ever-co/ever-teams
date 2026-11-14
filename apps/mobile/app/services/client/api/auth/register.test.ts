@@ -87,7 +87,7 @@ it('keeps the refresh token its renewal answered: the session is renewed once th
 
 	// A day later: the access token has expired, and the next request renews the session
 	jest.setSystemTime(START + 25 * HOUR_MS);
-	const profile = await currentAuthenticatedUserRequest({ bearer_token: session.authToken });
+	const profile = await currentAuthenticatedUserRequest({ bearer_token: String(session.authToken) });
 
 	expect(profile.response.status).toBe(200);
 	expect(session.isAuthenticated).toBe(true);
