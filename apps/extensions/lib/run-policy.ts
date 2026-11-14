@@ -27,3 +27,8 @@ export function heartbeatSecondsOf(run: RunTimes, now: number): number {
 	const seconds = Math.round((now - lastHeartbeat) / 1000);
 	return Math.min(MAX_HEARTBEAT_SECONDS, Math.max(0, seconds));
 }
+
+/** The source a stop sends: the run's own, as the web does, so the API applies that app's stop rules. */
+export function stopSourceOf(run: { source?: string | null }): string {
+	return run.source || EXTENSION_SOURCE;
+}

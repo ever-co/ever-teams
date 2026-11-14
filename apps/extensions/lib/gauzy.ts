@@ -1,7 +1,7 @@
 import { publicRequest, sessionRequest } from '~lib/api-client';
 import { idListOf, optionalField } from '~lib/optional';
 import type { PlanLike } from '~lib/plan-rule';
-import { EXTENSION_SOURCE, heartbeatSecondsOf } from '~lib/run-policy';
+import { EXTENSION_SOURCE, heartbeatSecondsOf, stopSourceOf } from '~lib/run-policy';
 import { sessionFrom, workspacesOf, type Session, type WorkspaceChoice } from '~lib/workspaces';
 
 export { EXTENSION_SOURCE };
@@ -129,15 +129,15 @@ export async function sendHeartbeat(session: Session, run: RunningLog, now = Dat
 }
 
 /** Stops the run the popup shows; a 409 means another run replaced it meanwhile and goes on. */
-export async function stopTimer(session: Session, timeLogId: string): Promise<void> {
+export async function stopTimer(session: Session, run: RunningLog): Promise<void> {
 	await sessionRequest(session, '/timesheet/timer/stop', {
 		method: 'POST',
 		body: {
 			tenantId: session.tenantId,
 			organizationId: session.organizationId,
 			logType: 'TRACKED',
-			source: EXTENSION_SOURCE,
-			timeLogId
+			source: stopSourceOf(run),
+			timeLogId: run.id
 		}
 	});
 }

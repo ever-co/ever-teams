@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { EXTENSION_SOURCE, heartbeatSecondsOf, sendsHeartbeat } from './run-policy.ts';
+import { EXTENSION_SOURCE, heartbeatSecondsOf, sendsHeartbeat, stopSourceOf } from './run-policy.ts';
 
 const startedAt = '2026-11-14T09:00:00.000Z';
 const at = (iso: string) => new Date(iso).getTime();
@@ -37,5 +37,17 @@ describe('heartbeatSecondsOf', () => {
 	it('credits nothing for a heartbeat in the future or a broken date', () => {
 		assert.equal(heartbeatSecondsOf({ startedAt, stoppedAt: '2026-11-14T10:00:00.000Z' }, at(startedAt)), 0);
 		assert.equal(heartbeatSecondsOf({ startedAt: 'not a date', stoppedAt: null }, at(startedAt)), 0);
+	});
+});
+
+describe('stopSourceOf', () => {
+	it('stops a run with the source that started it, as the web does', () => {
+		assert.equal(stopSourceOf({ source: 'DESKTOP' }), 'DESKTOP');
+		assert.equal(stopSourceOf({ source: EXTENSION_SOURCE }), EXTENSION_SOURCE);
+	});
+
+	it('names the browser extension when the run has no source', () => {
+		assert.equal(stopSourceOf({ source: null }), EXTENSION_SOURCE);
+		assert.equal(stopSourceOf({}), EXTENSION_SOURCE);
 	});
 });

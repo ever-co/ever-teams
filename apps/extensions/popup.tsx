@@ -117,7 +117,7 @@ function SignedIn({ session, settings, onSignOut, onTeamSelect }: {
 				// The last seconds since the minute heartbeat; a failed credit must not keep the timer running
 				await sendHeartbeat(session, running).catch(() => undefined);
 			}
-			await stopTimer(session, running.id);
+			await stopTimer(session, running);
 		});
 	};
 
