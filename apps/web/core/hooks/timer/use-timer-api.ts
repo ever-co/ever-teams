@@ -18,12 +18,14 @@ import { shouldRetryQuery } from '@/core/lib/helpers/retry-utils';
 import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
 import { taskOnStartProject, timerStartProjectId } from '@/core/lib/helpers/team-default-project';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { isSessionEnding } from '@/core/lib/auth/handle-unauthorized';
 import {
 	isTrackingOffRefusal,
 	requiredTrackingFieldsMessageKeyOf,
 	requiredTrackingFieldsOf
 } from '@/core/lib/helpers/timer-errors';
 import { notesToSendAtStart, notesToSendAtStop, timerNotesAfterStart } from '@/core/lib/utils/timer/timer-notes';
+import { forgetSavedStop, saveStop } from '@/core/lib/utils/timer/saved-stop';
 import { notesForStartOf } from '@/core/lib/utils/timer/timer-start-notes';
 import { startTaskOf } from '@/core/lib/utils/timer/timer-start-task';
 import { queryKeys } from '@/core/query/keys';
@@ -952,11 +954,27 @@ export function useTimerApi({
 		if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
 		const runningLog = timerStatusRef.current?.lastLog;
 		const notesAtStop = notesToSendAtStop(store.get(timerNotesState), runningLog);
+		// Kept in the browser until the API answers: a stop refused because the session ended leaves with the page
+		// for the sign-in page, and nothing else would remember that the person asked to stop, or when
+		const employeeId = user?.employee?.id;
+		if (runningLog?.id && employeeId) {
+			saveStop({
+				employeeId,
+				timeLogId: runningLog.id,
+				source: runningLog.source || ETimeLogSource.TEAMS,
+				pressedAt: new Date(lastStopTimerTimestamp).toISOString()
+			});
+		}
 		// Tracked after the sync above, so that sync's status read can never put a running timer back
 		const request: Promise<void> = trackTimerCommand(
 			stopTimerMutate({ source: runningLog?.source || ETimeLogSource.TEAMS, description: notesAtStop })
 		)
 			.catch((error) => {
+				// The session goes on: the timer does too, and the person asks again. Only a stop the session's end
+				// took with it stays kept.
+				if (!isSessionEnding()) {
+					forgetSavedStop(runningLog?.id);
+				}
 				// The last known server status still says running: undo the optimistic stop so the clock agrees
 				// with it, and refetch the status in case the stop landed after all. Only a running snapshot is put
 				// back: a stop sent while another one was pending captured that one's optimistic running:false.
@@ -971,6 +989,8 @@ export function useTimerApi({
 				throw error;
 			})
 			.then(async (res) => {
+				// Answered: the run is stopped, or was already
+				forgetSavedStop(runningLog?.id);
 				res.data &&
 					(!statusEnabled || isCurrentScope()) &&
 					!isEqual(timerStatus, res.data) &&

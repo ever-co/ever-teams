@@ -7,6 +7,11 @@
  * continue.", the timer went on, and the tab was sent to the sign-in page: the refresh token was never tried. The
  * stop now goes through. The session is renewed behind it and the stop is sent again, without a word to the member.
  *
+ * When the refresh token is refused too (the computer was off for longer than it lives, or the session was ended
+ * from elsewhere), the session cannot be renewed: the stop is refused and the tab leaves for the sign-in page. The
+ * stop is not lost with the page: it is kept in the browser, with the run it is for and the time it was pressed,
+ * until the API answers it.
+ *
  * The session and timer hooks, the API services and their interceptors are the app's own here: only the transport
  * is a stand-in for Gauzy.
  */
@@ -56,12 +61,13 @@ jest.mock('@/core/hooks/tasks/use-task-statuses-query', () => ({ useTaskStatuses
 jest.mock('./use-timer-billable', () => ({ useResolveTimerBillable: () => jest.fn(async () => false) }));
 
 import { getAccessTokenCookie, getRefreshTokenCookie } from '@/core/lib/helpers/cookies';
+import { forgetSavedStop, parseSavedStop, storedSavedStop } from '@/core/lib/utils/timer/saved-stop';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { timerService } from '@/core/services/client/api/timers';
 import { userService } from '@/core/services/client/api/users/user.service';
 import { activeTeamIdState, organizationTeamsState, timerStatusState } from '@/core/stores';
 import { openFakeGauzyPage, type FakeGauzyPage } from '@/test/auth/fake-gauzy-page';
-import { HOUR_MS } from '@/test/auth/fake-gauzy-session';
+import { FAKE_USER, HOUR_MS } from '@/test/auth/fake-gauzy-session';
 import { useTimerApi } from './use-timer-api';
 
 let page: FakeGauzyPage;
@@ -102,7 +108,10 @@ beforeEach(() => {
 	page = openFakeGauzyPage([timerService, authService, userService]);
 });
 
-afterEach(() => page.close());
+afterEach(() => {
+	forgetSavedStop();
+	page.close();
+});
 
 describe('Stop pressed after the access token expired, while the refresh token is still good', () => {
 	it('stops the timer without an error and keeps the member signed in', async () => {
@@ -122,6 +131,56 @@ describe('Stop pressed after the access token expired, while the refresh token i
 		expect(page.isSignedOut()).toBe(false);
 		expect(gauzy.acceptsAccessToken(getAccessTokenCookie())).toBe(true);
 		expect(gauzy.acceptsRefreshToken(getRefreshTokenCookie())).toBe(true);
+		// Answered: nothing of it is kept
+		expect(storedSavedStop()).toBeNull();
+		tab.unmount();
+	});
+});
+
+describe('Stop pressed when the session can no longer be renewed', () => {
+	it('is kept in the browser, with its run and the time it was pressed, as the tab leaves for the sign-in page', async () => {
+		const { gauzy } = page;
+		const tab = await openTabWithRunningTimer();
+		const run = gauzy.timeLog();
+		// The computer was off for longer than the refresh token lives
+		page.wait(8 * 24 * HOUR_MS);
+		const pressedAt = new Date(Date.now()).toISOString();
+
+		await tab.pressStop();
+
+		expect(mockToastError).toHaveBeenCalledWith('toasts.timer.STOP_FAILED', {
+			id: 'timer-stop-failed',
+			description: 'toasts.REASONS.SESSION'
+		});
+		expect(page.sentToSignIn).toHaveBeenCalledTimes(1);
+		// Nothing stopped the run: it goes on in the API
+		expect(gauzy.timeLog()?.isRunning).toBe(true);
+		expect(parseSavedStop(storedSavedStop())).toEqual({
+			employeeId: FAKE_USER.employeeId,
+			timeLogId: run?.id,
+			source: 'TEAMS',
+			pressedAt
+		});
+		tab.unmount();
+	});
+
+	it('is not kept when it fails while the session goes on: the timer goes on, and the person asks again', async () => {
+		const { gauzy } = page;
+		// Later than the stop above: the timer takes two stops within half a second for one
+		page.wait(9 * 24 * HOUR_MS);
+		const tab = await openTabWithRunningTimer();
+		gauzy.goOffline();
+
+		await tab.pressStop();
+
+		// The stop failed for a reason of its own, which the person is told
+		expect(mockToastError).toHaveBeenCalledTimes(1);
+		expect(mockToastError).not.toHaveBeenCalledWith(
+			'toasts.timer.STOP_FAILED',
+			expect.objectContaining({ description: 'toasts.REASONS.SESSION' })
+		);
+		expect(page.isSignedOut()).toBe(false);
+		expect(storedSavedStop()).toBeNull();
 		tab.unmount();
 	});
 });

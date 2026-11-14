@@ -29,6 +29,14 @@ export async function handleUnauthorized(
 }
 
 /**
+ * Whether the app is ending the session in this tab: the sign-out has begun and the page is leaving for the sign-in
+ * page. A request that fails then failed with the session, not for a reason of its own.
+ */
+export function isSessionEnding(): boolean {
+	return isRedirecting;
+}
+
+/**
  * Perform the actual logout (clear cookies, cache, redirect)
  */
 async function performLogout(reason: DisconnectionReason, details?: Record<string, unknown>) {
