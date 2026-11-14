@@ -69,8 +69,7 @@ function sourceKeyOf(source: ETimeLogSource | undefined) {
  */
 export function TimerRunMenu({ className }: Readonly<{ className?: string }>) {
 	const t = useTranslations();
-	const { availability, runningLogId, runningSource, discard, discarding, failure, resetFailure } =
-		useTimerDiscard();
+	const { availability, runningLogId, runningSource, discard, discarding, failure, resetFailure } = useTimerDiscard();
 	const [confirming, setConfirming] = useState(false);
 	// The run the confirmation was opened for: a run started meanwhile elsewhere is never the one discarded
 	const [confirmedRunId, setConfirmedRunId] = useState<string | undefined>(undefined);

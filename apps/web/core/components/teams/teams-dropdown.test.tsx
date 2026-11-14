@@ -189,7 +189,9 @@ describe('TeamsDropDown while another organization opens', () => {
 	it('refuses to open another organization while a write is still on its way', async () => {
 		const queryClient = new QueryClient();
 		// A save the page that the switch replaces would cut off
-		const save = queryClient.getMutationCache().build(queryClient, { mutationFn: () => new Promise(() => undefined) });
+		const save = queryClient
+			.getMutationCache()
+			.build(queryClient, { mutationFn: () => new Promise(() => undefined) });
 		void save.execute(undefined);
 		await act(async () => undefined);
 		renderDropdown({ queryClient });

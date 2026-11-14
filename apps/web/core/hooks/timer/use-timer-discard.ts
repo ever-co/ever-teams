@@ -94,33 +94,33 @@ export function useTimerDiscard() {
 
 	const discard = useCallback(
 		async (timeLogId?: string): Promise<boolean> => {
-		if (discarding) {
-			return false;
-		}
-		// Without the run the member confirmed, the API would remove whichever runs now
-		if (!timeLogId) {
-			setFailure('CHANGED');
-			return false;
-		}
-		setDiscarding(true);
-		setFailure(null);
-		try {
-			// A timer command: a status read sent before it (a heartbeat) cannot put the discarded run back on screen
-			const { data } = await trackTimerCommand(timerService.discardTimer({ timeLogId }));
-			if (data) {
-				setTimerStatus(data);
+			if (discarding) {
+				return false;
 			}
-			refreshAfter('DISCARDED');
-			toast.success(t('timer.discard.DISCARDED'), { description: t('timer.discard.DISCARDED_HINT') });
-			return true;
-		} catch (error) {
-			const reason = timerDiscardFailureOf(error);
-			setFailure(reason);
-			refreshAfter(reason);
-			return false;
-		} finally {
-			setDiscarding(false);
-		}
+			// Without the run the member confirmed, the API would remove whichever runs now
+			if (!timeLogId) {
+				setFailure('CHANGED');
+				return false;
+			}
+			setDiscarding(true);
+			setFailure(null);
+			try {
+				// A timer command: a status read sent before it (a heartbeat) cannot put the discarded run back on screen
+				const { data } = await trackTimerCommand(timerService.discardTimer({ timeLogId }));
+				if (data) {
+					setTimerStatus(data);
+				}
+				refreshAfter('DISCARDED');
+				toast.success(t('timer.discard.DISCARDED'), { description: t('timer.discard.DISCARDED_HINT') });
+				return true;
+			} catch (error) {
+				const reason = timerDiscardFailureOf(error);
+				setFailure(reason);
+				refreshAfter(reason);
+				return false;
+			} finally {
+				setDiscarding(false);
+			}
 		},
 		[discarding, refreshAfter, setTimerStatus, t]
 	);

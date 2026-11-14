@@ -208,7 +208,9 @@ describe('startFromTimeText', () => {
 	it('keeps a time later than now on the run day, for the panel to refuse', () => {
 		const runStart = new Date(2026, 10, 16, 9, 0);
 
-		expect(startFromTimeText(runStart, '11:00', new Date(2026, 10, 16, 10, 0))).toEqual(new Date(2026, 10, 16, 11, 0));
+		expect(startFromTimeText(runStart, '11:00', new Date(2026, 10, 16, 10, 0))).toEqual(
+			new Date(2026, 10, 16, 11, 0)
+		);
 	});
 
 	it('refuses a time that is not one', () => {

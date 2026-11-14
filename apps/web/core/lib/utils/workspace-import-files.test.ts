@@ -185,7 +185,8 @@ describe('readWorkspaceFiles', () => {
 	});
 
 	it('refuses a JSON list past 10 000 records or 200 columns before building its table', async () => {
-		const records = (count: number) => Array.from({ length: count }, (_item, index) => ({ name: `Client ${index}` }));
+		const records = (count: number) =>
+			Array.from({ length: count }, (_item, index) => ({ name: `Client ${index}` }));
 		// Each record brings a key of its own: as a table, a cell for every key in every record
 		const ownKeys = Array.from({ length: 201 }, (_item, index) => ({ name: 'Acme', [`field ${index}`]: 'x' }));
 

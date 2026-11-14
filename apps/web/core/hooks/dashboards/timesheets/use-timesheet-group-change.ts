@@ -3,11 +3,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import {
-	bulkEditPlanOf,
-	bulkEditResultOf,
-	type BulkEditPlan
-} from '@/core/lib/utils/dashboards/timesheet-bulk-edit';
+import { bulkEditPlanOf, bulkEditResultOf, type BulkEditPlan } from '@/core/lib/utils/dashboards/timesheet-bulk-edit';
 import type { TimesheetEntryGroup } from '@/core/lib/utils/dashboards/timesheet-entry-groups';
 import { statusOfLog } from '@/core/lib/utils/dashboards/timesheets';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';

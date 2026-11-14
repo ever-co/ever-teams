@@ -54,8 +54,14 @@ describe('PUT /api/timer/started-at', () => {
 	});
 
 	it("passes Gauzy's refusal and its reason code through, as direct mode would see them", async () => {
-		const refusal = { message: 'The new start overlaps another of your time entries.', code: 'TIMER_START_OVERLAP' };
-		gauzyAnswersInOrder(jsonAnswer(permissionRows(['TIME_TRACKER', 'ALLOW_MODIFY_TIME'])), jsonAnswer(refusal, 409));
+		const refusal = {
+			message: 'The new start overlaps another of your time entries.',
+			code: 'TIMER_START_OVERLAP'
+		};
+		gauzyAnswersInOrder(
+			jsonAnswer(permissionRows(['TIME_TRACKER', 'ALLOW_MODIFY_TIME'])),
+			jsonAnswer(refusal, 409)
+		);
 		const request = signedInRequest(`${ORIGIN}/api/timer/started-at`, 'PUT', move);
 
 		const response = await moveTimerStart(request);

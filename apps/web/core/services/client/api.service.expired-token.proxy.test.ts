@@ -69,9 +69,7 @@ describe('proxy mode: a timer stop made with an expired access token, while the 
 
 		expect(error?.statusCode).toBe(401);
 		expect(gauzy.count('POST', '/timer/stop')).toBe(1);
-		expect(gauzy.sentTo('POST', '/timer/stop').map((request) => request.accessToken)).not.toContain(
-			pairOfB.token
-		);
+		expect(gauzy.sentTo('POST', '/timer/stop').map((request) => request.accessToken)).not.toContain(pairOfB.token);
 		expect(gauzy.timeLog()?.isRunning).toBe(true);
 		expect(gauzy.count('POST', '/auth/refresh')).toBe(0);
 		expect(page.sentToSignIn).not.toHaveBeenCalled();

@@ -93,7 +93,6 @@ describe('POST /api/auth/refresh', () => {
 		expect(await res.json()).toEqual(expect.objectContaining({ token: 'access-2', refresh_token: 'refresh-2' }));
 	});
 
-
 	it('answers the new pair when the profile read never answers: the read gives up at its deadline', async () => {
 		const deadlines: number[] = [];
 		// The deadline passes at once, so the test does not wait five seconds
