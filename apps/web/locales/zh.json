@@ -5598,7 +5598,20 @@
 		"REQUEST_SENT": "申请已发送，已通知组织管理员。",
 		"REQUEST_NOBODY": "你的组织还没有可通知的管理员。请直接联系工作区所有者。",
 		"REQUEST_UNAVAILABLE": "此服务器暂不支持费率调整申请。请直接联系管理员。",
-		"REQUEST_FAILED": "申请未发送。"
+		"REQUEST_FAILED": "申请未发送。",
+		"APPLY_QUESTION": "应用于已记录的时间？",
+		"APPLY_FROM_NOW": "否，从现在起",
+		"APPLY_FROM_NOW_DETAIL": "已记录的时间保留其价格。",
+		"APPLY_ALL_TIME": "是，全部",
+		"APPLY_ALL_TIME_DETAIL": "所有已记录的时间都采用新费率。",
+		"APPLY_FROM_DAY": "是，从某个日期起",
+		"APPLY_FROM_DAY_DETAIL": "在该日期当天或之后记录的时间采用新费率。",
+		"APPLY_DAY": "起始日期",
+		"APPLY_DAY_MISSING": "请选择新费率开始生效的日期。",
+		"APPLY_WORKSPACE_HINT": "在“设置 > 工作区”中开启“过去的时间保留其费率”后，已记录的时间默认保留其价格。",
+		"RATE_SAVED": "费率已保存",
+		"ENTRIES_REPRICED": "{count, plural, =0 {没有时间记录改变价格。} other {# 条时间记录改变了价格。}}",
+		"PAST_TIME_KEPT": "已记录的时间保留其价格。"
 	},
 	"auth": {
 		"code": {

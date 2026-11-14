@@ -5598,7 +5598,20 @@
 		"REQUEST_SENT": "Demande envoyée. Les admins de votre organisation ont été prévenus.",
 		"REQUEST_NOBODY": "Votre organisation n'a pas encore d'admin à prévenir. Demandez directement au propriétaire de l'espace de travail.",
 		"REQUEST_UNAVAILABLE": "Ce serveur ne prend pas encore les demandes de changement de taux. Demandez directement à votre admin.",
-		"REQUEST_FAILED": "La demande n'a pas été envoyée."
+		"REQUEST_FAILED": "La demande n'a pas été envoyée.",
+		"APPLY_QUESTION": "Appliquer au temps déjà suivi ?",
+		"APPLY_FROM_NOW": "Non, à partir de maintenant",
+		"APPLY_FROM_NOW_DETAIL": "Le temps déjà suivi garde son prix.",
+		"APPLY_ALL_TIME": "Oui, à tout",
+		"APPLY_ALL_TIME_DETAIL": "Tout le temps déjà suivi prend le nouveau taux.",
+		"APPLY_FROM_DAY": "Oui, à partir d’une date",
+		"APPLY_FROM_DAY_DETAIL": "Le temps suivi ce jour-là ou après prend le nouveau taux.",
+		"APPLY_DAY": "À partir du",
+		"APPLY_DAY_MISSING": "Choisissez le jour à partir duquel le nouveau taux s’applique.",
+		"APPLY_WORKSPACE_HINT": "Le temps déjà suivi garde son prix par défaut quand « Le temps passé garde son taux » est activé dans Paramètres > Espace de travail.",
+		"RATE_SAVED": "Taux enregistré",
+		"ENTRIES_REPRICED": "{count, plural, =0 {Aucune entrée de temps n’a changé de prix.} one {# entrée de temps a changé de prix.} other {# entrées de temps ont changé de prix.}}",
+		"PAST_TIME_KEPT": "Le temps déjà suivi garde son prix."
 	},
 	"auth": {
 		"code": {

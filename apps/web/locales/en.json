@@ -5598,7 +5598,20 @@
 		"REQUEST_SENT": "Request sent. Your organization's admins were notified.",
 		"REQUEST_NOBODY": "Your organization has no admin to notify yet. Ask your workspace owner directly.",
 		"REQUEST_UNAVAILABLE": "This server cannot take rate change requests yet. Ask your admin directly.",
-		"REQUEST_FAILED": "The request was not sent."
+		"REQUEST_FAILED": "The request was not sent.",
+		"APPLY_QUESTION": "Apply to time already tracked?",
+		"APPLY_FROM_NOW": "No, from now on",
+		"APPLY_FROM_NOW_DETAIL": "Time already tracked keeps its price.",
+		"APPLY_ALL_TIME": "Yes, all of it",
+		"APPLY_ALL_TIME_DETAIL": "All the time already tracked takes the new rate.",
+		"APPLY_FROM_DAY": "Yes, from a date",
+		"APPLY_FROM_DAY_DETAIL": "Time tracked on or after this day takes the new rate.",
+		"APPLY_DAY": "From",
+		"APPLY_DAY_MISSING": "Pick the day the new rate applies from.",
+		"APPLY_WORKSPACE_HINT": "Time already tracked keeps its price by default when “Past time keeps its rate” is on in Settings > Workspace.",
+		"RATE_SAVED": "Rate saved",
+		"ENTRIES_REPRICED": "{count, plural, =0 {No time entry changed price.} one {# time entry changed price.} other {# time entries changed price.}}",
+		"PAST_TIME_KEPT": "Time already tracked keeps its price."
 	},
 	"auth": {
 		"code": {

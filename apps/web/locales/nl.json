@@ -5598,7 +5598,20 @@
 		"REQUEST_SENT": "Aanvraag verstuurd. De admins van je organisatie hebben een melding gekregen.",
 		"REQUEST_NOBODY": "Je organisatie heeft nog geen admin om te melden. Vraag het direct aan de eigenaar van de werkruimte.",
 		"REQUEST_UNAVAILABLE": "Deze server neemt nog geen aanvragen voor tariefwijziging aan. Vraag het direct aan je admin.",
-		"REQUEST_FAILED": "De aanvraag is niet verstuurd."
+		"REQUEST_FAILED": "De aanvraag is niet verstuurd.",
+		"APPLY_QUESTION": "Toepassen op al geregistreerde tijd?",
+		"APPLY_FROM_NOW": "Nee, vanaf nu",
+		"APPLY_FROM_NOW_DETAIL": "Al geregistreerde tijd houdt zijn prijs.",
+		"APPLY_ALL_TIME": "Ja, op alles",
+		"APPLY_ALL_TIME_DETAIL": "Alle al geregistreerde tijd krijgt het nieuwe tarief.",
+		"APPLY_FROM_DAY": "Ja, vanaf een datum",
+		"APPLY_FROM_DAY_DETAIL": "Tijd die op of na deze dag is geregistreerd krijgt het nieuwe tarief.",
+		"APPLY_DAY": "Vanaf",
+		"APPLY_DAY_MISSING": "Kies de dag vanaf wanneer het nieuwe tarief geldt.",
+		"APPLY_WORKSPACE_HINT": "Al geregistreerde tijd houdt standaard zijn prijs wanneer „Eerdere tijd houdt zijn tarief” aan staat in Instellingen > Werkruimte.",
+		"RATE_SAVED": "Tarief opgeslagen",
+		"ENTRIES_REPRICED": "{count, plural, =0 {Geen tijdregistratie is van prijs veranderd.} one {# tijdregistratie is van prijs veranderd.} other {# tijdregistraties zijn van prijs veranderd.}}",
+		"PAST_TIME_KEPT": "Al geregistreerde tijd houdt zijn prijs."
 	},
 	"auth": {
 		"code": {

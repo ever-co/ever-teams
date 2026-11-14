@@ -7,11 +7,14 @@ import { Input } from '@/core/components/common/input';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Spinner } from '@/core/components/icons';
 import { CurrencySelect } from '@/core/components/rates/currency-select';
+import { RateApplyQuestion } from '@/core/components/rates/rate-apply-question';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { SETTINGS_SKELETON_BAR } from '@/core/components/settings/kit/settings-page';
 import { useEmployeePayRate } from '@/core/hooks/organizations/rates/use-rates';
+import { useRateApplyQuestion } from '@/core/hooks/organizations/rates/use-rate-apply-question';
 import { useGetCurrentOrganization } from '@/core/hooks/auth/use-current-organization';
 import { cn } from '@/core/lib/helpers';
+import { changesRateIn } from '@/core/lib/utils/rate-apply';
 import {
 	changedEmployeeRatesOf,
 	changedPayRateOf,
@@ -24,7 +27,7 @@ import {
 } from '@/core/lib/utils/rates';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { MemberRate, MemberRowModel } from '@/core/hooks/settings/use-team-members-settings';
-import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rates.schema';
+import type { IEmployeeRatesInput, RateSaveOutcome } from '@/core/types/schemas/organization/rates.schema';
 import { MemberAvatar } from './people-parts';
 
 const PROBLEM_KEYS: Record<RateInputProblem, DottedLanguageObjectStringPaths> = {
@@ -71,7 +74,8 @@ export function MemberRateEditor({
 	/** Whether the pay rate is part of the edit; one's own profile leaves it out without ORG_EMPLOYEES_EDIT. */
 	editsPayRate?: boolean;
 	onCancel: () => void;
-	onSaveRates: (rowId: string, rates: IEmployeeRatesInput) => Promise<void>;
+	/** Answers how many time entries took the new rates when Gauzy states it. */
+	onSaveRates: (rowId: string, rates: IEmployeeRatesInput) => Promise<RateSaveOutcome | void>;
 }>) {
 	const t = useTranslations();
 	const rateId = useId();
@@ -106,6 +110,7 @@ export function MemberRateEditor({
 	const [payCurrencyChoice, setPayCurrencyChoice] = useState<string | null>(null);
 	const payText = payTextChoice ?? rateInputTextOf(storedPayRate);
 	const payCurrency = payCurrencyChoice ?? initialPayCurrency;
+	const applyQuestion = useRateApplyQuestion();
 
 	const save = async (event: FormEvent) => {
 		event.preventDefault();
@@ -137,15 +142,28 @@ export function MemberRateEditor({
 				{ value: pay.value, currency: payCurrency }
 			);
 		}
-		const changes = { ...billingChanges, ...payChanges };
+		const changes: IEmployeeRatesInput = { ...billingChanges, ...payChanges };
 		const hasChanges = Object.keys(changes).length > 0;
 		if (!hasChanges) {
 			onCancel();
 			return;
 		}
+		const changesRate = changesRateIn(changes);
+		if (changesRate) {
+			const answer = applyQuestion.applyFromOfSave();
+			if (answer.isDayMissing) {
+				return;
+			}
+			if (answer.applyFrom) {
+				changes.ratesApplyFrom = answer.applyFrom;
+			}
+		}
 		setIsSaving(true);
 		try {
-			await onSaveRates(row.id, changes);
+			const outcome = await onSaveRates(row.id, changes);
+			if (changesRate) {
+				applyQuestion.confirmSaved(outcome);
+			}
 			onCancel();
 		} catch (saveError) {
 			const reasonKey = errorReasonKeyOf(saveError) as DottedLanguageObjectStringPaths;
@@ -281,6 +299,19 @@ export function MemberRateEditor({
 								{t('rates.PAY_RATE_HINT')}
 							</p>
 						</>
+					)}
+					{applyQuestion.rule && applyQuestion.choice && (
+						<div className="col-span-2 mt-1 sm:col-span-3">
+							<RateApplyQuestion
+								rule={applyQuestion.rule}
+								choice={applyQuestion.choice}
+								onChoiceChange={applyQuestion.pickChoice}
+								day={applyQuestion.day}
+								onDayChange={applyQuestion.setDay}
+								isDayMissing={applyQuestion.isDayMissing}
+								disabled={isSaving}
+							/>
+						</div>
 					)}
 					{error && (
 						<p id={errorId} role="alert" className="col-span-2 text-xs text-destructive-ink sm:col-span-3">

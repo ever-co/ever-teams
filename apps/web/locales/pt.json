@@ -5598,7 +5598,20 @@
 		"REQUEST_SENT": "Pedido enviado. Os admins da sua organização foram avisados.",
 		"REQUEST_NOBODY": "Sua organização ainda não tem admin para avisar. Pergunte diretamente ao dono do espaço de trabalho.",
 		"REQUEST_UNAVAILABLE": "Este servidor ainda não aceita pedidos de mudança de taxa. Pergunte diretamente ao seu admin.",
-		"REQUEST_FAILED": "O pedido não foi enviado."
+		"REQUEST_FAILED": "O pedido não foi enviado.",
+		"APPLY_QUESTION": "Aplicar ao tempo já registrado?",
+		"APPLY_FROM_NOW": "Não, a partir de agora",
+		"APPLY_FROM_NOW_DETAIL": "O tempo já registrado mantém seu preço.",
+		"APPLY_ALL_TIME": "Sim, a todo",
+		"APPLY_ALL_TIME_DETAIL": "Todo o tempo já registrado recebe a nova taxa.",
+		"APPLY_FROM_DAY": "Sim, a partir de uma data",
+		"APPLY_FROM_DAY_DETAIL": "O tempo registrado nesse dia ou depois recebe a nova taxa.",
+		"APPLY_DAY": "A partir de",
+		"APPLY_DAY_MISSING": "Escolha o dia a partir do qual a nova taxa se aplica.",
+		"APPLY_WORKSPACE_HINT": "O tempo já registrado mantém seu preço por padrão quando “O tempo passado mantém sua taxa” está ativado em Configurações > Espaço de trabalho.",
+		"RATE_SAVED": "Taxa salva",
+		"ENTRIES_REPRICED": "{count, plural, =0 {Nenhum registro de tempo mudou de preço.} one {# registro de tempo mudou de preço.} other {# registros de tempo mudaram de preço.}}",
+		"PAST_TIME_KEPT": "O tempo já registrado mantém seu preço."
 	},
 	"auth": {
 		"code": {

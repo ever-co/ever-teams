@@ -5598,7 +5598,20 @@
 		"REQUEST_SENT": "Richiesta inviata. Gli admin della tua organizzazione sono stati avvisati.",
 		"REQUEST_NOBODY": "La tua organizzazione non ha ancora un admin da avvisare. Chiedi direttamente al proprietario dello spazio di lavoro.",
 		"REQUEST_UNAVAILABLE": "Questo server non accetta ancora richieste di cambio tariffa. Chiedi direttamente al tuo admin.",
-		"REQUEST_FAILED": "La richiesta non è stata inviata."
+		"REQUEST_FAILED": "La richiesta non è stata inviata.",
+		"APPLY_QUESTION": "Applicare al tempo già registrato?",
+		"APPLY_FROM_NOW": "No, da ora in poi",
+		"APPLY_FROM_NOW_DETAIL": "Il tempo già registrato mantiene il suo prezzo.",
+		"APPLY_ALL_TIME": "Sì, a tutto",
+		"APPLY_ALL_TIME_DETAIL": "Tutto il tempo già registrato prende la nuova tariffa.",
+		"APPLY_FROM_DAY": "Sì, da una data",
+		"APPLY_FROM_DAY_DETAIL": "Il tempo registrato in quel giorno o dopo prende la nuova tariffa.",
+		"APPLY_DAY": "Dal",
+		"APPLY_DAY_MISSING": "Scegli il giorno da cui si applica la nuova tariffa.",
+		"APPLY_WORKSPACE_HINT": "Il tempo già registrato mantiene il suo prezzo per impostazione predefinita quando «Il tempo passato mantiene la sua tariffa» è attivo in Impostazioni > Spazio di lavoro.",
+		"RATE_SAVED": "Tariffa salvata",
+		"ENTRIES_REPRICED": "{count, plural, =0 {Nessuna voce di tempo ha cambiato prezzo.} one {# voce di tempo ha cambiato prezzo.} other {# voci di tempo hanno cambiato prezzo.}}",
+		"PAST_TIME_KEPT": "Il tempo già registrato mantiene il suo prezzo."
 	},
 	"auth": {
 		"code": {
