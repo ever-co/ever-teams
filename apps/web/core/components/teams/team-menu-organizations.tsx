@@ -116,6 +116,8 @@ function OrganizationGroup({
 							<span className="flex size-4 shrink-0 items-center justify-center">
 								{isSwitching && <Loader className="size-3.5 animate-spin text-muted-foreground" />}
 							</span>
+							{/* The width of the current organization's team settings button, so the counts line up */}
+							<span className="size-6 shrink-0" aria-hidden="true" />
 						</DropdownMenuItem>
 					))}
 				{!listsItsTeams && (
