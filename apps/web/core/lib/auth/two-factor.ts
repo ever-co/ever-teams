@@ -174,3 +174,50 @@ export function twoFactorSignInFailureOf(error: unknown, expiresAt: string, now:
 	}
 	return { kind: 'failed' };
 }
+
+/** Why a change of the person's own two-factor settings failed, for the message it shows. */
+export type TwoFactorWriteFailure =
+	| { kind: 'wrong-code' }
+	| { kind: 'too-many'; minutes: number | null }
+	| { kind: 'unavailable' }
+	| { kind: 'changed' }
+	| { kind: 'failed' };
+
+/**
+ * Why a change of the settings failed: a code that was refused (401, or 400 for its format), too many codes (429),
+ * a server that cannot keep secrets (503), a state changed meanwhile (409), or anything else.
+ */
+export function twoFactorWriteFailureOf(error: unknown): TwoFactorWriteFailure {
+	const status = httpStatusOf(error);
+	if (status === 429) {
+		const seconds = retryAfterSecondsOf(error);
+		if (seconds === null) {
+			return { kind: 'too-many', minutes: null };
+		}
+		return { kind: 'too-many', minutes: retryMinutesOf(seconds) };
+	}
+	if (status === 401 || status === 400) {
+		return { kind: 'wrong-code' };
+	}
+	if (status === 503) {
+		return { kind: 'unavailable' };
+	}
+	if (status === 409) {
+		return { kind: 'changed' };
+	}
+	return { kind: 'failed' };
+}
+
+/** A typed proof: six digits are a code of the app, anything longer a recovery code. */
+export function twoFactorProofOf(value: string): { code: string } | { recoveryCode: string } | null {
+	const digits = authenticatorCodeOf(value);
+	const isDigitsOnly = value.replace(/\s/g, '') === digits;
+	if (isDigitsOnly && isAuthenticatorCode(digits)) {
+		return { code: digits };
+	}
+	const recoveryCode = recoveryCodeOf(value);
+	if (isRecoveryCode(recoveryCode)) {
+		return { recoveryCode };
+	}
+	return null;
+}

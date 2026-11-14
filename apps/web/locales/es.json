@@ -4265,6 +4265,10 @@
 			"automations": {
 				"TITLE": "Automatizaciones",
 				"DESCRIPTION": "Reglas que hacen avanzar las tareas de la organización por usted."
+			},
+			"security": {
+				"TITLE": "Seguridad",
+				"DESCRIPTION": "Cómo inicias sesión: la autenticación en dos pasos."
 			}
 		},
 		"index": {
@@ -5385,6 +5389,58 @@
 					"DESCRIPTION": "Cuando se cierra un pull request o una incidencia vinculados a una tarea abierta, la tarea pasa a hecha."
 				}
 			}
+		},
+		"security": {
+			"SECTION_TITLE": "Autenticación en dos pasos",
+			"SECTION_DESCRIPTION": "Los inicios de sesión también piden un código de una aplicación de autenticación en tu teléfono.",
+			"APP_LABEL": "Aplicación de autenticación",
+			"ON": "Activada",
+			"OFF": "Desactivada",
+			"OFF_DESCRIPTION": "Los inicios de sesión solo piden tu código por correo o tu contraseña.",
+			"ON_DESCRIPTION": "Los inicios de sesión piden un código de tu aplicación de autenticación.",
+			"ON_SINCE": "Los inicios de sesión piden un código de tu aplicación de autenticación. Activada desde el {date}.",
+			"TURN_ON": "Activar",
+			"TURN_OFF": "Desactivar",
+			"CANCEL": "Cancelar",
+			"RETRY": "Reintentar",
+			"CODES_LABEL": "Códigos de recuperación",
+			"CODES_LEFT": "{count, plural, =0 {No queda ningún código sin usar} one {Queda # código sin usar} other {Quedan # códigos sin usar}}",
+			"NEW_CODES": "Nuevos códigos de recuperación",
+			"SETUP_STEP_KEY": "1. Añade esta cuenta a tu aplicación de autenticación",
+			"SETUP_STEP_KEY_TEXT": "En este dispositivo, abre el enlace. En otro dispositivo, añade una cuenta en la aplicación y escribe esta clave.",
+			"SETUP_KEY_LABEL": "Clave de configuración",
+			"COPY_KEY": "Copiar clave",
+			"OPEN_IN_APP": "Abrir en la aplicación de autenticación",
+			"SETUP_STEP_CODE": "2. Introduce el código de {length} dígitos que muestra la aplicación",
+			"CODE_INCOMPLETE": "Introduce los {length} dígitos del código.",
+			"SETUP_FAILED": "No se pudo configurar la autenticación en dos pasos",
+			"TURNED_ON": "La autenticación en dos pasos está activada",
+			"TURNED_OFF": "La autenticación en dos pasos está desactivada",
+			"CODES_TITLE": "Tus códigos de recuperación",
+			"CODES_TEXT": "Cada código te permite iniciar sesión una vez si pierdes el teléfono. Guárdalos ahora en un lugar seguro: no se volverán a mostrar.",
+			"COPY_CODES": "Copiar códigos",
+			"DOWNLOAD_CODES": "Descargar",
+			"CODES_DONE": "Ya guardé mis códigos",
+			"CODES_FILE_HEADING": "Códigos de recuperación de {appName}",
+			"COPIED": "Copiado",
+			"COPY_FAILED": "No se pudo copiar. Selecciona el texto y cópialo.",
+			"TURN_OFF_PROOF": "Para desactivarla, introduce un código de tu aplicación o un código de recuperación",
+			"NEW_CODES_PROOF": "Para obtener nuevos códigos de recuperación, introduce un código de tu aplicación o un código de recuperación. Los códigos actuales dejarán de funcionar.",
+			"PROOF_HINT": "Un código de 6 dígitos de tu aplicación de autenticación o uno de tus códigos de recuperación.",
+			"PROOF_PLACEHOLDER": "123456 o XXXXX-XXXXX",
+			"PROOF_INCOMPLETE": "Introduce un código de 6 dígitos o un código de recuperación completo.",
+			"WRONG_CODE": "Este código no es correcto. Introduce el código que muestra ahora tu aplicación o un código de recuperación.",
+			"TOO_MANY": "Demasiados códigos incorrectos. Vuelve a intentarlo en {minutes, plural, one {# minuto} other {# minutos}}.",
+			"TOO_MANY_LATER": "Demasiados códigos incorrectos. Espera unos minutos y vuelve a intentarlo.",
+			"CHANGED": "La autenticación en dos pasos cambió mientras tanto. Revísala y vuelve a intentarlo.",
+			"FAILED": "No se pudo cambiar. Vuelve a intentarlo en un momento.",
+			"UNAVAILABLE_TITLE": "Aún no disponible en este servidor",
+			"UNAVAILABLE_DESCRIPTION": "Este servidor aún no puede guardar claves de autenticación. Pide a tu administrador que lo configure.",
+			"UNSUPPORTED_TITLE": "La autenticación en dos pasos no está disponible",
+			"UNSUPPORTED_DESCRIPTION": "Este servidor no ofrece autenticación en dos pasos.",
+			"READ_FAILED": "No se pudo leer la autenticación en dos pasos",
+			"REQUIRED_TITLE": "Tu organización te pide activarla",
+			"REQUIRED_DESCRIPTION": "Sus miembros también inician sesión con un código de una aplicación de autenticación."
 		}
 	},
 	"taskDetail": {

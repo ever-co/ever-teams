@@ -4265,6 +4265,10 @@
 			"automations": {
 				"TITLE": "Automazioni",
 				"DESCRIPTION": "Regole che fanno avanzare le attività dell’organizzazione al posto tuo."
+			},
+			"security": {
+				"TITLE": "Sicurezza",
+				"DESCRIPTION": "Come accedi: l’autenticazione a due fattori."
 			}
 		},
 		"index": {
@@ -5385,6 +5389,58 @@
 					"DESCRIPTION": "Quando una pull request o una issue collegata a un’attività aperta viene chiusa, l’attività passa a completata."
 				}
 			}
+		},
+		"security": {
+			"SECTION_TITLE": "Autenticazione a due fattori",
+			"SECTION_DESCRIPTION": "Gli accessi chiedono anche un codice da un’app di autenticazione sul tuo telefono.",
+			"APP_LABEL": "App di autenticazione",
+			"ON": "Attiva",
+			"OFF": "Disattivata",
+			"OFF_DESCRIPTION": "Gli accessi chiedono solo il codice via email o la password.",
+			"ON_DESCRIPTION": "Gli accessi chiedono un codice dalla tua app di autenticazione.",
+			"ON_SINCE": "Gli accessi chiedono un codice dalla tua app di autenticazione. Attiva dal {date}.",
+			"TURN_ON": "Attiva",
+			"TURN_OFF": "Disattiva",
+			"CANCEL": "Annulla",
+			"RETRY": "Riprova",
+			"CODES_LABEL": "Codici di recupero",
+			"CODES_LEFT": "{count, plural, =0 {Nessun codice inutilizzato} one {# codice inutilizzato} other {# codici inutilizzati}}",
+			"NEW_CODES": "Nuovi codici di recupero",
+			"SETUP_STEP_KEY": "1. Aggiungi questo account all’app di autenticazione",
+			"SETUP_STEP_KEY_TEXT": "Su questo dispositivo, apri il link. Su un altro dispositivo, aggiungi un account nell’app e digita questa chiave.",
+			"SETUP_KEY_LABEL": "Chiave di configurazione",
+			"COPY_KEY": "Copia chiave",
+			"OPEN_IN_APP": "Apri nell’app di autenticazione",
+			"SETUP_STEP_CODE": "2. Inserisci il codice di {length} cifre mostrato dall’app",
+			"CODE_INCOMPLETE": "Inserisci tutte le {length} cifre del codice.",
+			"SETUP_FAILED": "Non è stato possibile configurare l’autenticazione a due fattori",
+			"TURNED_ON": "L’autenticazione a due fattori è attiva",
+			"TURNED_OFF": "L’autenticazione a due fattori è disattivata",
+			"CODES_TITLE": "I tuoi codici di recupero",
+			"CODES_TEXT": "Ogni codice ti fa accedere una volta se perdi il telefono. Salvali ora in un posto sicuro: non verranno mostrati di nuovo.",
+			"COPY_CODES": "Copia codici",
+			"DOWNLOAD_CODES": "Scarica",
+			"CODES_DONE": "Ho salvato i miei codici",
+			"CODES_FILE_HEADING": "Codici di recupero {appName}",
+			"COPIED": "Copiato",
+			"COPY_FAILED": "Impossibile copiare. Seleziona il testo e copialo.",
+			"TURN_OFF_PROOF": "Per disattivarla, inserisci un codice dell’app o un codice di recupero",
+			"NEW_CODES_PROOF": "Per avere nuovi codici di recupero, inserisci un codice dell’app o un codice di recupero. I codici attuali smetteranno di funzionare.",
+			"PROOF_HINT": "Un codice di 6 cifre dall’app di autenticazione, o uno dei tuoi codici di recupero.",
+			"PROOF_PLACEHOLDER": "123456 o XXXXX-XXXXX",
+			"PROOF_INCOMPLETE": "Inserisci un codice di 6 cifre o un codice di recupero completo.",
+			"WRONG_CODE": "Questo codice non è corretto. Inserisci il codice che l’app mostra ora, o un codice di recupero.",
+			"TOO_MANY": "Troppi codici errati. Riprova tra {minutes, plural, one {# minuto} other {# minuti}}.",
+			"TOO_MANY_LATER": "Troppi codici errati. Attendi qualche minuto, poi riprova.",
+			"CHANGED": "L’autenticazione a due fattori è cambiata nel frattempo. Controllala e riprova.",
+			"FAILED": "Non è stato possibile modificarla. Riprova tra un momento.",
+			"UNAVAILABLE_TITLE": "Non ancora disponibile su questo server",
+			"UNAVAILABLE_DESCRIPTION": "Questo server non può ancora conservare chiavi di autenticazione. Chiedi al tuo amministratore di configurarlo.",
+			"UNSUPPORTED_TITLE": "L’autenticazione a due fattori non è disponibile",
+			"UNSUPPORTED_DESCRIPTION": "Questo server non offre l’autenticazione a due fattori.",
+			"READ_FAILED": "Non è stato possibile leggere l’autenticazione a due fattori",
+			"REQUIRED_TITLE": "La tua organizzazione ti chiede di attivarla",
+			"REQUIRED_DESCRIPTION": "I suoi membri accedono anche con un codice da un’app di autenticazione."
 		}
 	},
 	"taskDetail": {

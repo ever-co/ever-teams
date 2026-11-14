@@ -4265,6 +4265,10 @@
 			"automations": {
 				"TITLE": "自动化",
 				"DESCRIPTION": "替你推进组织任务的规则。"
+			},
+			"security": {
+				"TITLE": "安全",
+				"DESCRIPTION": "登录方式：双重身份验证。"
 			}
 		},
 		"index": {
@@ -5385,6 +5389,58 @@
 					"DESCRIPTION": "与未完成任务关联的拉取请求或问题关闭时，任务转为已完成。"
 				}
 			}
+		},
+		"security": {
+			"SECTION_TITLE": "双重身份验证",
+			"SECTION_DESCRIPTION": "登录时还需输入手机上身份验证器应用中的验证码。",
+			"APP_LABEL": "身份验证器应用",
+			"ON": "已开启",
+			"OFF": "已关闭",
+			"OFF_DESCRIPTION": "登录时只需电子邮件验证码或密码。",
+			"ON_DESCRIPTION": "登录时需要身份验证器应用中的验证码。",
+			"ON_SINCE": "登录时需要身份验证器应用中的验证码。自 {date} 起开启。",
+			"TURN_ON": "开启",
+			"TURN_OFF": "关闭",
+			"CANCEL": "取消",
+			"RETRY": "重试",
+			"CODES_LABEL": "恢复码",
+			"CODES_LEFT": "{count, plural, =0 {没有未使用的恢复码} other {剩余 # 个未使用的恢复码}}",
+			"NEW_CODES": "新的恢复码",
+			"SETUP_STEP_KEY": "1. 将此账户添加到身份验证器应用",
+			"SETUP_STEP_KEY_TEXT": "在此设备上，打开链接。在其他设备上，在应用中添加账户并输入此密钥。",
+			"SETUP_KEY_LABEL": "设置密钥",
+			"COPY_KEY": "复制密钥",
+			"OPEN_IN_APP": "在身份验证器应用中打开",
+			"SETUP_STEP_CODE": "2. 输入应用显示的 {length} 位验证码",
+			"CODE_INCOMPLETE": "请输入完整的 {length} 位验证码。",
+			"SETUP_FAILED": "无法设置双重身份验证",
+			"TURNED_ON": "双重身份验证已开启",
+			"TURNED_OFF": "双重身份验证已关闭",
+			"CODES_TITLE": "您的恢复码",
+			"CODES_TEXT": "如果手机丢失，每个恢复码可让您登录一次。请立即将其保存在安全的地方：它们不会再次显示。",
+			"COPY_CODES": "复制恢复码",
+			"DOWNLOAD_CODES": "下载",
+			"CODES_DONE": "我已保存恢复码",
+			"CODES_FILE_HEADING": "{appName} 恢复码",
+			"COPIED": "已复制",
+			"COPY_FAILED": "无法复制。请选中文本后复制。",
+			"TURN_OFF_PROOF": "如需关闭，请输入应用中的验证码或恢复码",
+			"NEW_CODES_PROOF": "如需获取新的恢复码，请输入应用中的验证码或恢复码。当前的恢复码将失效。",
+			"PROOF_HINT": "身份验证器应用中的 6 位验证码，或您的某个恢复码。",
+			"PROOF_PLACEHOLDER": "123456 或 XXXXX-XXXXX",
+			"PROOF_INCOMPLETE": "请输入 6 位验证码或完整的恢复码。",
+			"WRONG_CODE": "验证码不正确。请输入应用当前显示的验证码或恢复码。",
+			"TOO_MANY": "错误验证码过多。请在 {minutes} 分钟后重试。",
+			"TOO_MANY_LATER": "错误验证码过多。请等待几分钟后重试。",
+			"CHANGED": "双重身份验证在此期间已更改。请检查后重试。",
+			"FAILED": "无法更改。请稍后重试。",
+			"UNAVAILABLE_TITLE": "此服务器暂不可用",
+			"UNAVAILABLE_DESCRIPTION": "此服务器暂时无法保存身份验证密钥。请联系管理员进行设置。",
+			"UNSUPPORTED_TITLE": "双重身份验证不可用",
+			"UNSUPPORTED_DESCRIPTION": "此服务器不提供双重身份验证。",
+			"READ_FAILED": "无法读取双重身份验证状态",
+			"REQUIRED_TITLE": "您的组织要求您开启此功能",
+			"REQUIRED_DESCRIPTION": "其成员登录时还需输入身份验证器应用中的验证码。"
 		}
 	},
 	"taskDetail": {

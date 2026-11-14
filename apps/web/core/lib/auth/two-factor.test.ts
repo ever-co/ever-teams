@@ -9,6 +9,8 @@ import {
 	secretGroupsOf,
 	twoFactorChallengeOf,
 	twoFactorSignInFailureOf,
+	twoFactorProofOf,
+	twoFactorWriteFailureOf,
 	twoFactorStatusFailureOf
 } from './two-factor';
 
@@ -143,5 +145,27 @@ describe('twoFactorSignInFailureOf', () => {
 		expect(twoFactorSignInFailureOf({ statusCode: 400 }, expiresAt, beforeExpiry)).toEqual({ kind: 'wrong-code' });
 		expect(twoFactorSignInFailureOf({ statusCode: 502 }, expiresAt, beforeExpiry)).toEqual({ kind: 'failed' });
 		expect(twoFactorSignInFailureOf(new Error('offline'), expiresAt, beforeExpiry)).toEqual({ kind: 'failed' });
+	});
+});
+
+describe('twoFactorWriteFailureOf', () => {
+	it('tells a refused code, too many codes, a server without secrets and a change made meanwhile', () => {
+		expect(twoFactorWriteFailureOf({ statusCode: 401 })).toEqual({ kind: 'wrong-code' });
+		expect(twoFactorWriteFailureOf({ statusCode: 429, details: { retryAfter: 61 } })).toEqual({
+			kind: 'too-many',
+			minutes: 2
+		});
+		expect(twoFactorWriteFailureOf({ statusCode: 503 })).toEqual({ kind: 'unavailable' });
+		expect(twoFactorWriteFailureOf({ statusCode: 409 })).toEqual({ kind: 'changed' });
+		expect(twoFactorWriteFailureOf(new Error('offline'))).toEqual({ kind: 'failed' });
+	});
+});
+
+describe('twoFactorProofOf', () => {
+	it('reads six digits as a code of the app and anything longer as a recovery code', () => {
+		expect(twoFactorProofOf('123 456')).toEqual({ code: '123456' });
+		expect(twoFactorProofOf('abcde-fghij')).toEqual({ recoveryCode: 'ABCDE-FGHIJ' });
+		expect(twoFactorProofOf('1234')).toBeNull();
+		expect(twoFactorProofOf('')).toBeNull();
 	});
 });

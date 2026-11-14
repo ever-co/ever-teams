@@ -39,6 +39,15 @@ export const queryKeys = {
 				['users', 'operations', 'deletion-preview', ...(userId ? [userId] : [])] as const,
 			deleteMe: ['users', 'operations', 'delete-me'] as const
 		},
+		// The signed-in person's own two-factor authentication (the organization decides whether it is asked for)
+		twoFactor: {
+			all: ['users', 'two-factor'] as const,
+			status: (
+				tenantId: string | undefined | null,
+				organizationId: string | undefined | null,
+				userId: string | undefined | null
+			) => ['users', 'two-factor', 'status', tenantId ?? null, organizationId ?? null, userId ?? null] as const
+		},
 		settings: {
 			all: ['users', 'settings'] as const,
 			updateAvatar: (userId: string | undefined | null) =>

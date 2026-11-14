@@ -4265,6 +4265,10 @@
 			"automations": {
 				"TITLE": "Automatisierungen",
 				"DESCRIPTION": "Regeln, die die Aufgaben der Organisation für Sie bewegen."
+			},
+			"security": {
+				"TITLE": "Sicherheit",
+				"DESCRIPTION": "Wie du dich anmeldest: Zwei-Faktor-Authentifizierung."
 			}
 		},
 		"index": {
@@ -5385,6 +5389,58 @@
 					"DESCRIPTION": "Wenn ein mit einer offenen Aufgabe verknüpfter Pull-Request oder ein Issue geschlossen wird, wechselt die Aufgabe auf erledigt."
 				}
 			}
+		},
+		"security": {
+			"SECTION_TITLE": "Zwei-Faktor-Authentifizierung",
+			"SECTION_DESCRIPTION": "Anmeldungen verlangen zusätzlich einen Code aus einer Authenticator-App auf deinem Telefon.",
+			"APP_LABEL": "Authenticator-App",
+			"ON": "Ein",
+			"OFF": "Aus",
+			"OFF_DESCRIPTION": "Anmeldungen verlangen nur deinen E-Mail-Code oder dein Passwort.",
+			"ON_DESCRIPTION": "Anmeldungen verlangen einen Code aus deiner Authenticator-App.",
+			"ON_SINCE": "Anmeldungen verlangen einen Code aus deiner Authenticator-App. Eingeschaltet seit {date}.",
+			"TURN_ON": "Einschalten",
+			"TURN_OFF": "Ausschalten",
+			"CANCEL": "Abbrechen",
+			"RETRY": "Erneut versuchen",
+			"CODES_LABEL": "Wiederherstellungscodes",
+			"CODES_LEFT": "{count, plural, =0 {Kein ungenutzter Code mehr} one {# ungenutzter Code übrig} other {# ungenutzte Codes übrig}}",
+			"NEW_CODES": "Neue Wiederherstellungscodes",
+			"SETUP_STEP_KEY": "1. Füge dieses Konto deiner Authenticator-App hinzu",
+			"SETUP_STEP_KEY_TEXT": "Auf diesem Gerät öffnest du den Link. Auf einem anderen Gerät fügst du in der App ein Konto hinzu und tippst diesen Schlüssel ein.",
+			"SETUP_KEY_LABEL": "Einrichtungsschlüssel",
+			"COPY_KEY": "Schlüssel kopieren",
+			"OPEN_IN_APP": "In der Authenticator-App öffnen",
+			"SETUP_STEP_CODE": "2. Gib den {length}-stelligen Code ein, den die App anzeigt",
+			"CODE_INCOMPLETE": "Gib alle {length} Ziffern des Codes ein.",
+			"SETUP_FAILED": "Die Zwei-Faktor-Authentifizierung konnte nicht eingerichtet werden",
+			"TURNED_ON": "Die Zwei-Faktor-Authentifizierung ist eingeschaltet",
+			"TURNED_OFF": "Die Zwei-Faktor-Authentifizierung ist ausgeschaltet",
+			"CODES_TITLE": "Deine Wiederherstellungscodes",
+			"CODES_TEXT": "Jeder Code meldet dich einmal an, falls du dein Telefon verlierst. Bewahre sie jetzt sicher auf: Sie werden nicht noch einmal angezeigt.",
+			"COPY_CODES": "Codes kopieren",
+			"DOWNLOAD_CODES": "Herunterladen",
+			"CODES_DONE": "Ich habe meine Codes gespeichert",
+			"CODES_FILE_HEADING": "{appName}-Wiederherstellungscodes",
+			"COPIED": "Kopiert",
+			"COPY_FAILED": "Kopieren nicht möglich. Markiere den Text und kopiere ihn.",
+			"TURN_OFF_PROOF": "Zum Ausschalten gib einen Code aus deiner App oder einen Wiederherstellungscode ein",
+			"NEW_CODES_PROOF": "Für neue Wiederherstellungscodes gib einen Code aus deiner App oder einen Wiederherstellungscode ein. Die bisherigen Codes gelten dann nicht mehr.",
+			"PROOF_HINT": "Ein 6-stelliger Code aus deiner Authenticator-App oder einer deiner Wiederherstellungscodes.",
+			"PROOF_PLACEHOLDER": "123456 oder XXXXX-XXXXX",
+			"PROOF_INCOMPLETE": "Gib einen 6-stelligen Code oder einen vollständigen Wiederherstellungscode ein.",
+			"WRONG_CODE": "Dieser Code stimmt nicht. Gib den Code ein, den deine App jetzt anzeigt, oder einen Wiederherstellungscode.",
+			"TOO_MANY": "Zu viele falsche Codes. Versuche es in {minutes, plural, one {# Minute} other {# Minuten}} erneut.",
+			"TOO_MANY_LATER": "Zu viele falsche Codes. Warte ein paar Minuten und versuche es dann erneut.",
+			"CHANGED": "Die Zwei-Faktor-Authentifizierung wurde inzwischen geändert. Prüfe sie und versuche es erneut.",
+			"FAILED": "Die Änderung war nicht möglich. Versuche es gleich noch einmal.",
+			"UNAVAILABLE_TITLE": "Auf diesem Server noch nicht verfügbar",
+			"UNAVAILABLE_DESCRIPTION": "Dieser Server kann noch keine Authenticator-Schlüssel speichern. Bitte deinen Administrator, es einzurichten.",
+			"UNSUPPORTED_TITLE": "Zwei-Faktor-Authentifizierung ist nicht verfügbar",
+			"UNSUPPORTED_DESCRIPTION": "Dieser Server bietet keine Zwei-Faktor-Authentifizierung an.",
+			"READ_FAILED": "Die Zwei-Faktor-Authentifizierung konnte nicht gelesen werden",
+			"REQUIRED_TITLE": "Deine Organisation bittet dich, sie einzuschalten",
+			"REQUIRED_DESCRIPTION": "Ihre Mitglieder melden sich zusätzlich mit einem Code aus einer Authenticator-App an."
 		}
 	},
 	"taskDetail": {

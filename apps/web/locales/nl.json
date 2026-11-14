@@ -4265,6 +4265,10 @@
 			"automations": {
 				"TITLE": "Automatiseringen",
 				"DESCRIPTION": "Regels die de taken van de organisatie voor u verplaatsen."
+			},
+			"security": {
+				"TITLE": "Beveiliging",
+				"DESCRIPTION": "Hoe je inlogt: tweestapsverificatie."
 			}
 		},
 		"index": {
@@ -5385,6 +5389,58 @@
 					"DESCRIPTION": "Als een pull request of issue die aan een open taak is gekoppeld wordt gesloten, gaat de taak naar klaar."
 				}
 			}
+		},
+		"security": {
+			"SECTION_TITLE": "Tweestapsverificatie",
+			"SECTION_DESCRIPTION": "Bij het inloggen wordt ook om een code uit een authenticator-app op je telefoon gevraagd.",
+			"APP_LABEL": "Authenticator-app",
+			"ON": "Aan",
+			"OFF": "Uit",
+			"OFF_DESCRIPTION": "Bij het inloggen wordt alleen om je e-mailcode of wachtwoord gevraagd.",
+			"ON_DESCRIPTION": "Bij het inloggen wordt om een code uit je authenticator-app gevraagd.",
+			"ON_SINCE": "Bij het inloggen wordt om een code uit je authenticator-app gevraagd. Aan sinds {date}.",
+			"TURN_ON": "Aanzetten",
+			"TURN_OFF": "Uitzetten",
+			"CANCEL": "Annuleren",
+			"RETRY": "Opnieuw proberen",
+			"CODES_LABEL": "Herstelcodes",
+			"CODES_LEFT": "{count, plural, =0 {Geen ongebruikte code meer} one {# ongebruikte code over} other {# ongebruikte codes over}}",
+			"NEW_CODES": "Nieuwe herstelcodes",
+			"SETUP_STEP_KEY": "1. Voeg dit account toe aan je authenticator-app",
+			"SETUP_STEP_KEY_TEXT": "Op dit apparaat open je de link. Op een ander apparaat voeg je in de app een account toe en typ je deze sleutel.",
+			"SETUP_KEY_LABEL": "Instelsleutel",
+			"COPY_KEY": "Sleutel kopiëren",
+			"OPEN_IN_APP": "Openen in authenticator-app",
+			"SETUP_STEP_CODE": "2. Voer de {length}-cijferige code in die de app toont",
+			"CODE_INCOMPLETE": "Voer alle {length} cijfers van de code in.",
+			"SETUP_FAILED": "Tweestapsverificatie kon niet worden ingesteld",
+			"TURNED_ON": "Tweestapsverificatie staat aan",
+			"TURNED_OFF": "Tweestapsverificatie staat uit",
+			"CODES_TITLE": "Je herstelcodes",
+			"CODES_TEXT": "Met elke code log je één keer in als je je telefoon kwijt bent. Bewaar ze nu op een veilige plek: ze worden niet opnieuw getoond.",
+			"COPY_CODES": "Codes kopiëren",
+			"DOWNLOAD_CODES": "Downloaden",
+			"CODES_DONE": "Ik heb mijn codes bewaard",
+			"CODES_FILE_HEADING": "{appName}-herstelcodes",
+			"COPIED": "Gekopieerd",
+			"COPY_FAILED": "Kopiëren lukte niet. Selecteer de tekst en kopieer die.",
+			"TURN_OFF_PROOF": "Voer om uit te zetten een code uit je app of een herstelcode in",
+			"NEW_CODES_PROOF": "Voer voor nieuwe herstelcodes een code uit je app of een herstelcode in. De huidige codes werken dan niet meer.",
+			"PROOF_HINT": "Een 6-cijferige code uit je authenticator-app, of een van je herstelcodes.",
+			"PROOF_PLACEHOLDER": "123456 of XXXXX-XXXXX",
+			"PROOF_INCOMPLETE": "Voer een 6-cijferige code of een volledige herstelcode in.",
+			"WRONG_CODE": "Deze code klopt niet. Voer de code in die je app nu toont, of een herstelcode.",
+			"TOO_MANY": "Te veel verkeerde codes. Probeer het over {minutes, plural, one {# minuut} other {# minuten}} opnieuw.",
+			"TOO_MANY_LATER": "Te veel verkeerde codes. Wacht een paar minuten en probeer het dan opnieuw.",
+			"CHANGED": "Tweestapsverificatie is intussen gewijzigd. Controleer het en probeer het opnieuw.",
+			"FAILED": "Het kon niet worden gewijzigd. Probeer het zo opnieuw.",
+			"UNAVAILABLE_TITLE": "Nog niet beschikbaar op deze server",
+			"UNAVAILABLE_DESCRIPTION": "Deze server kan nog geen authenticatorsleutels bewaren. Vraag je beheerder om het in te stellen.",
+			"UNSUPPORTED_TITLE": "Tweestapsverificatie is niet beschikbaar",
+			"UNSUPPORTED_DESCRIPTION": "Deze server biedt geen tweestapsverificatie aan.",
+			"READ_FAILED": "Tweestapsverificatie kon niet worden gelezen",
+			"REQUIRED_TITLE": "Je organisatie vraagt je dit aan te zetten",
+			"REQUIRED_DESCRIPTION": "Haar leden loggen ook in met een code uit een authenticator-app."
 		}
 	},
 	"taskDetail": {
