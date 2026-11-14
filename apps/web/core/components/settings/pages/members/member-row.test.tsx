@@ -71,6 +71,8 @@ function rowOf(overrides: Partial<MemberRowModel> = {}): MemberRowModel {
 		canChangeWorkspaceRole: false,
 		isWorkspaceRolePending: false,
 		canDeactivate: false,
+		userId: 'user-ana',
+		canResetTwoFactor: false,
 		...overrides
 	};
 }
@@ -192,5 +194,22 @@ describe('the mark of a workspace admin', () => {
 			expect(view.container.querySelector('.chip-3d')).toBeNull();
 			view.unmount();
 		}
+	});
+});
+
+describe("a member's two-factor reset", () => {
+	it('is offered to an administrator where the platform has two-factor authentication', () => {
+		const row = rowOf({ canResetTwoFactor: true });
+		const actions = { ...actionsOf(), onRequestResetTwoFactor: jest.fn() };
+		renderRow(row, [], actions);
+
+		fireEvent.click(screen.getByRole('menuitem', { name: 'settings.members.RESET_TWO_FACTOR' }));
+
+		expect(actions.onRequestResetTwoFactor).toHaveBeenCalledWith(row);
+	});
+
+	it('is not offered where the platform has none, nor to a viewer who may not reset', () => {
+		renderRow(rowOf({ canResetTwoFactor: true, canRemove: true }));
+		expect(itemNames()).not.toContain('settings.members.RESET_TWO_FACTOR');
 	});
 });

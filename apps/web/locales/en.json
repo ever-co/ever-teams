@@ -3857,7 +3857,8 @@
 			"INVALID": "Some values were not accepted. Check them and try again.",
 			"TOO_MANY": "Too many attempts. Wait a moment, then try again.",
 			"SERVER": "The server could not complete it. Try again in a moment.",
-			"UNKNOWN": "Try again in a moment."
+			"UNKNOWN": "Try again in a moment.",
+			"TWO_FACTOR": "This account asks for a code from an authenticator app. Sign in with your email address or your password to enter it."
 		},
 		"common": {
 			"NEWSLETTER_SUBSCRIBED": "You are subscribed to the newsletter",
@@ -4267,6 +4268,10 @@
 			"automations": {
 				"TITLE": "Automations",
 				"DESCRIPTION": "Rules that move the organization's tasks for you."
+			},
+			"security": {
+				"TITLE": "Security",
+				"DESCRIPTION": "How you sign in: two-factor authentication."
 			}
 		},
 		"index": {
@@ -5033,7 +5038,15 @@
 			"WORKSPACE_ROLE_VIEWER": "Viewer",
 			"WORKSPACE_ROLE_CANDIDATE": "Candidate",
 			"WORKSPACE_ROLE_INTERVIEWER": "Interviewer",
-			"WORKSPACE_ROLE_NOT_SAVED": "The workspace role of {name} was not changed"
+			"WORKSPACE_ROLE_NOT_SAVED": "The workspace role of {name} was not changed",
+			"RESET_TWO_FACTOR": "Reset two-factor authentication",
+			"RESET_TWO_FACTOR_TITLE": "Reset two-factor authentication for {name}?",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "If {name} turned it on, it is turned off: their next sign-in asks only for their email code or password.",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} can turn it on again from their Security settings. The reset is recorded.",
+			"RESET_TWO_FACTOR_CONFIRM": "Reset",
+			"RESET_TWO_FACTOR_DONE": "Two-factor authentication of {name} is reset",
+			"RESET_TWO_FACTOR_NOTHING": "{name} had no two-factor authentication to reset",
+			"RESET_TWO_FACTOR_FAILED": "Two-factor authentication of {name} could not be reset"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profile",
@@ -5421,6 +5434,59 @@
 					"DESCRIPTION": "When a pull request or issue linked to an open task closes, the task moves to done."
 				}
 			}
+		},
+		"security": {
+			"SECTION_TITLE": "Two-factor authentication",
+			"SECTION_DESCRIPTION": "Sign-ins also ask for a code from an authenticator app on your phone.",
+			"APP_LABEL": "Authenticator app",
+			"ON": "On",
+			"OFF": "Off",
+			"OFF_DESCRIPTION": "Sign-ins ask only for your email code or your password.",
+			"ON_DESCRIPTION": "Sign-ins ask for a code from your authenticator app.",
+			"ON_SINCE": "Sign-ins ask for a code from your authenticator app. On since {date}.",
+			"TURN_ON": "Turn on",
+			"TURN_OFF": "Turn off",
+			"CANCEL": "Cancel",
+			"RETRY": "Try again",
+			"CODES_LABEL": "Recovery codes",
+			"CODES_LEFT": "{count, plural, =0 {No unused code left} one {# unused code left} other {# unused codes left}}",
+			"NEW_CODES": "New recovery codes",
+			"SETUP_STEP_KEY": "1. Add this account to your authenticator app",
+			"SETUP_STEP_KEY_TEXT": "Scan the QR code with your authenticator app. On this device, open the link instead, or type the key.",
+			"SETUP_KEY_LABEL": "Setup key",
+			"COPY_KEY": "Copy key",
+			"OPEN_IN_APP": "Open in authenticator app",
+			"SETUP_STEP_CODE": "2. Enter the {length}-digit code the app shows",
+			"CODE_INCOMPLETE": "Enter all {length} digits of the code.",
+			"SETUP_FAILED": "Two-factor authentication could not be set up",
+			"TURNED_ON": "Two-factor authentication is on",
+			"TURNED_OFF": "Two-factor authentication is off",
+			"CODES_TITLE": "Your recovery codes",
+			"CODES_TEXT": "Each code signs you in once if you lose your phone. Save them somewhere safe now: they are not shown again.",
+			"COPY_CODES": "Copy codes",
+			"DOWNLOAD_CODES": "Download",
+			"CODES_DONE": "I saved my codes",
+			"CODES_FILE_HEADING": "{appName} recovery codes",
+			"COPIED": "Copied",
+			"COPY_FAILED": "Could not copy. Select the text and copy it.",
+			"TURN_OFF_PROOF": "To turn it off, enter a code from your app or a recovery code",
+			"NEW_CODES_PROOF": "To get new recovery codes, enter a code from your app or a recovery code. The current codes stop working.",
+			"PROOF_HINT": "A 6-digit code from your authenticator app, or one of your recovery codes.",
+			"PROOF_PLACEHOLDER": "123456 or XXXX-XXXX-XXXX-XXXX",
+			"PROOF_INCOMPLETE": "Enter a 6-digit code or a whole recovery code.",
+			"WRONG_CODE": "This code is not right. Enter the code your app shows now, or a recovery code.",
+			"TOO_MANY": "Too many wrong codes. Try again in {minutes, plural, one {# minute} other {# minutes}}.",
+			"TOO_MANY_LATER": "Too many wrong codes. Wait a few minutes, then try again.",
+			"CHANGED": "Two-factor authentication changed meanwhile. Check it and try again.",
+			"FAILED": "It could not be changed. Try again in a moment.",
+			"UNAVAILABLE_TITLE": "Not available on this server yet",
+			"UNAVAILABLE_DESCRIPTION": "Two-factor authentication is not turned on for this server. Ask your administrator to turn it on.",
+			"UNSUPPORTED_TITLE": "Two-factor authentication is not available",
+			"UNSUPPORTED_DESCRIPTION": "This server does not offer two-factor authentication.",
+			"READ_FAILED": "Two-factor authentication could not be read",
+			"REQUIRED_TITLE": "Your organization asks you to turn this on",
+			"REQUIRED_DESCRIPTION": "Its members sign in with a code from an authenticator app as well.",
+			"QR_ALT": "QR code of this account for your authenticator app"
 		}
 	},
 	"taskDetail": {
@@ -5787,6 +5853,28 @@
 			"TEXT": "The sign-in did not complete. Try again, or sign in with your e-mail.",
 			"RETRY": "Back to sign in",
 			"CODE": "Error code: {code}"
+		},
+		"twoFactor": {
+			"TITLE": "Enter your authentication code",
+			"DESCRIPTION": "Open your authenticator app and enter the {length}-digit code it shows for <address>{email}</address>.",
+			"RECOVERY_DESCRIPTION": "Enter one of the recovery codes you saved when you turned on two-factor authentication. Each code works once.",
+			"CODE_LABEL": "Authentication code",
+			"RECOVERY_LABEL": "Recovery code",
+			"USE_RECOVERY": "Use a recovery code instead",
+			"USE_APP": "Use your authenticator app instead",
+			"SUBMIT": "Verify and sign in",
+			"BACK": "Back to sign in",
+			"WRONG_CODE": "This code is not right. Enter the code your authenticator app shows now.",
+			"WRONG_RECOVERY_CODE": "This recovery code is not right, or it was already used.",
+			"CODE_INCOMPLETE": "Enter all {length} digits of the code.",
+			"RECOVERY_INCOMPLETE": "Enter the whole recovery code.",
+			"EXPIRED": "This sign-in waited too long for its code. Sign in again.",
+			"SIGN_IN_AGAIN": "Sign in again",
+			"TOO_MANY": "Too many wrong codes. Try again in {minutes, plural, one {# minute} other {# minutes}}.",
+			"TOO_MANY_LATER": "Too many wrong codes. Wait a few minutes, then try again.",
+			"FAILED": "The code could not be checked. Try again in a moment.",
+			"SCENE_TITLE": "One more step",
+			"SCENE_TEXT": "This account is protected by two-factor authentication."
 		}
 	},
 	"taskViews": {

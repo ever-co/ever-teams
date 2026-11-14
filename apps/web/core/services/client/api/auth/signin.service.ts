@@ -11,6 +11,7 @@ import { inviteService } from '../organizations/teams/invites';
 import { userOrganizationService } from '../users/user-organization.service';
 import { organizationTeamService } from '../organizations/teams/team.service';
 import { IAuthResponse, ISigninEmailConfirmResponse, ISigninWorkspaceInput } from '@/core/types/interfaces/auth/auth';
+import type { ITwoFactorVerifyInput } from '@/core/types/interfaces/auth/two-factor';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { TOrganizationTeam } from '@/core/types/schemas';
 
@@ -187,6 +188,55 @@ class SigninService extends APIService {
 			lastTeamId: params.lastTeamId
 		});
 
+		const session = await this.startWorkspaceSession(data, params.teamId);
+		if (session) {
+			return session;
+		}
+
+		// An e-mail sign-up confirmed after register has no workspace yet: the server sets it up and signs in
+		// (the session cookies come with its answer). An account in a tenant it does not own is refused below.
+		if (await finishSignupSetup(params.email, params.token)) {
+			return Promise.resolve({
+				data: { team: undefined, loginResponse: data },
+				status: 200,
+				statusText: '',
+				headers: {},
+				config: {} as InternalAxiosRequestConfig
+			} as AxiosResponse<{ loginResponse: IAuthResponse; team: TOrganizationTeam | undefined }>);
+		}
+
+		throw notReadyError();
+	};
+
+	/**
+	 * The second step of a sign-in that asked for a second factor (`POST /auth/two-factor/verify`): the challenge and
+	 * its code (or a recovery code) are traded for the session, which then starts as a workspace sign-in does.
+	 * A wrong code is Gauzy's 401, expected here: it answers the code, not a lost session.
+	 */
+	verifyTwoFactorGauzy = async (params: ITwoFactorVerifyInput & { teamId: string }) => {
+		const { teamId, ...input } = params;
+		const { data } = await this.post<IAuthResponse>(
+			'/auth/two-factor/verify',
+			{ ...input },
+			{ expectedUnauthorized: true, secretResponse: true },
+			false
+		);
+
+		const session = await this.startWorkspaceSession(data, teamId);
+		if (session) {
+			return session;
+		}
+		throw notReadyError();
+	};
+
+	/**
+	 * Sets the session cookies of a workspace sign-in: the organization the token names, the tenant, the user and
+	 * `teamId`. Null when the account has no organization yet.
+	 */
+	private readonly startWorkspaceSession = async (
+		data: IAuthResponse,
+		teamId: string
+	): Promise<AxiosResponse<{ loginResponse: IAuthResponse }> | null> => {
 		/**
 		 * Get the first team from first organization
 		 */
@@ -208,23 +258,7 @@ class SigninService extends APIService {
 		const organization = pickTokenOrganization(organizations?.items, access_token);
 
 		if (!organization) {
-			// An e-mail sign-up confirmed after register has no workspace yet: the server sets it up and signs in
-			// (the session cookies come with its answer). An account in a tenant it does not own is refused below.
-			if (await finishSignupSetup(params.email, params.token)) {
-				return Promise.resolve({
-					data: { team: undefined, loginResponse: data },
-					status: 200,
-					statusText: '',
-					headers: {},
-					config: {} as InternalAxiosRequestConfig
-				} as AxiosResponse<{ loginResponse: IAuthResponse; team: TOrganizationTeam | undefined }>);
-			}
-
-			return Promise.reject({
-				errors: {
-					email: `Your account is not yet ready to be used on the ${APP_NAME} Platform`
-				}
-			});
+			return null;
 		}
 
 		setAuthCookies({
@@ -232,7 +266,7 @@ class SigninService extends APIService {
 			refresh_token: {
 				token: data.refresh_token
 			},
-			teamId: params.teamId,
+			teamId,
 			tenantId,
 			organizationId: organization?.organizationId || '',
 			languageId: 'en', // TODO: not sure what should be here
@@ -248,7 +282,15 @@ class SigninService extends APIService {
 			config: {} as InternalAxiosRequestConfig
 		};
 
-		return Promise.resolve(response);
+		return response;
+	};
+}
+
+function notReadyError() {
+	return {
+		errors: {
+			email: `Your account is not yet ready to be used on the ${APP_NAME} Platform`
+		}
 	};
 }
 
