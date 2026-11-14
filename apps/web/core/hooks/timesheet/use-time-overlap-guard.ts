@@ -66,7 +66,7 @@ function conflictsOfPeriod(
 	});
 }
 
-export interface OverlapLookup {
+interface OverlapLookup {
 	/** The member the time is saved for: the lookup reads that member's entries. */
 	employeeId: string;
 	periods: ReadonlyArray<TimePeriod>;
