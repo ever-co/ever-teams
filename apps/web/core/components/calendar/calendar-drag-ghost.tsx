@@ -7,6 +7,7 @@ import { type MinuteRange, rangeOnDay } from '@/core/lib/utils/calendar-drag';
 import type { CalendarDay, CalendarEntry } from '@/core/lib/utils/calendar-view';
 import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import type { TimesheetFormatters } from '@/core/lib/utils/dashboards/timesheets';
+import { gridOffsetOfMinute, type GridWindow } from '@/core/lib/utils/calendar-grid-settings';
 import type { GridDragPreview } from '@/core/hooks/calendar/use-calendar-grid-drag';
 import {
 	blockHeightOfMinutes,
@@ -14,7 +15,6 @@ import {
 	ENTRY_BAR,
 	entryFillOf,
 	entryToneStyle,
-	pixelsOfMinutes,
 	SELECTION_GHOST
 } from './calendar-recipes';
 import { useEntryTitle } from './calendar-entry-parts';
@@ -25,6 +25,12 @@ export interface DayGhost {
 	range: MinuteRange;
 	window: TimeWindow;
 	entry: CalendarEntry | null;
+}
+
+/** The hours a grid draws and the height of one of them, from the person's grid settings. */
+export interface GridGeometry {
+	window: GridWindow;
+	hourHeightPx: number;
 }
 
 /** The part of the drag drawn in one day's column: a selection stays in its day, a moved entry may cover two. */
@@ -46,14 +52,14 @@ export function dayGhostOf(preview: GridDragPreview | null, day: CalendarDay): D
 	return { range, window: preview.window, entry: preview.entry };
 }
 
-function ghostBoxOf(range: MinuteRange): CSSProperties {
-	const top = pixelsOfMinutes(range.startMinute);
-	const height = blockHeightOfMinutes(range.endMinute - range.startMinute);
+function ghostBoxOf(range: MinuteRange, geometry: GridGeometry): CSSProperties {
+	const top = gridOffsetOfMinute(range.startMinute, geometry.window, geometry.hourHeightPx);
+	const height = blockHeightOfMinutes(range.endMinute - range.startMinute, geometry.hourHeightPx);
 	return { top, height };
 }
 
-function isCompactRange(range: MinuteRange) {
-	const height = blockHeightOfMinutes(range.endMinute - range.startMinute);
+function isCompactRange(range: MinuteRange, geometry: GridGeometry) {
+	const height = blockHeightOfMinutes(range.endMinute - range.startMinute, geometry.hourHeightPx);
 	return height < COMPACT_BLOCK_HEIGHT_PX;
 }
 
@@ -92,12 +98,13 @@ function GhostTimes({
 function EntryGhost({
 	ghost,
 	entry,
-	formatters
-}: Readonly<{ ghost: DayGhost; entry: CalendarEntry; formatters: TimesheetFormatters }>) {
+	formatters,
+	geometry
+}: Readonly<{ ghost: DayGhost; entry: CalendarEntry; formatters: TimesheetFormatters; geometry: GridGeometry }>) {
 	const title = useEntryTitle(entry);
 	const { rangeText, duration } = windowTextsOf(ghost.window, formatters);
-	const isCompact = isCompactRange(ghost.range);
-	const box = ghostBoxOf(ghost.range);
+	const isCompact = isCompactRange(ghost.range, geometry);
+	const box = ghostBoxOf(ghost.range, geometry);
 	const toneStyle = entryToneStyle(entry.projectColor, entry.projectKey);
 	const fill = entryFillOf(entry.isManual);
 	return (
@@ -113,10 +120,14 @@ function EntryGhost({
 	);
 }
 
-function SelectionGhost({ ghost, formatters }: Readonly<{ ghost: DayGhost; formatters: TimesheetFormatters }>) {
+function SelectionGhost({
+	ghost,
+	formatters,
+	geometry
+}: Readonly<{ ghost: DayGhost; formatters: TimesheetFormatters; geometry: GridGeometry }>) {
 	const { rangeText, duration } = windowTextsOf(ghost.window, formatters);
-	const isCompact = isCompactRange(ghost.range);
-	const box = ghostBoxOf(ghost.range);
+	const isCompact = isCompactRange(ghost.range, geometry);
+	const box = ghostBoxOf(ghost.range, geometry);
 	return (
 		<div aria-hidden="true" style={box} className={cn(GHOST_FRAME, SELECTION_GHOST)}>
 			<GhostTimes rangeText={rangeText} duration={duration} isCompact={isCompact} />
@@ -125,9 +136,13 @@ function SelectionGhost({ ghost, formatters }: Readonly<{ ghost: DayGhost; forma
 }
 
 /** What a drag is about to do, drawn over the column with its times: the selected time, or the entry's new place. */
-export function DragGhost({ ghost, formatters }: Readonly<{ ghost: DayGhost; formatters: TimesheetFormatters }>) {
+export function DragGhost({
+	ghost,
+	formatters,
+	geometry
+}: Readonly<{ ghost: DayGhost; formatters: TimesheetFormatters; geometry: GridGeometry }>) {
 	if (ghost.entry) {
-		return <EntryGhost ghost={ghost} entry={ghost.entry} formatters={formatters} />;
+		return <EntryGhost ghost={ghost} entry={ghost.entry} formatters={formatters} geometry={geometry} />;
 	}
-	return <SelectionGhost ghost={ghost} formatters={formatters} />;
+	return <SelectionGhost ghost={ghost} formatters={formatters} geometry={geometry} />;
 }

@@ -41,7 +41,7 @@ export function useTimesheetLogActions() {
 		[t, updateTimesheetStatus]
 	);
 
-	const setBillable = useCallback(
+	const writeBillable = useCallback(
 		async (log: ITimeLog, isBillable: boolean) => {
 			try {
 				await updateTimeLog({
@@ -51,11 +51,35 @@ export function useTimesheetLogActions() {
 					employeeId: log.employeeId,
 					isBillable
 				});
+				return true;
 			} catch (error) {
 				console.error('Failed to change the billable state', error);
+				return false;
 			}
 		},
 		[updateTimeLog]
+	);
+
+	const setBillable = useCallback(
+		async (log: ITimeLog, isBillable: boolean) => {
+			await writeBillable(log, isBillable);
+		},
+		[writeBillable]
+	);
+
+	/** The billable state of several entries, written one after the other as from each row; answers how many changed. */
+	const setBillableOf = useCallback(
+		async (logs: ReadonlyArray<ITimeLog>, isBillable: boolean) => {
+			let changedCount = 0;
+			for (const log of logs) {
+				const isChanged = await writeBillable(log, isBillable);
+				if (isChanged) {
+					changedCount += 1;
+				}
+			}
+			return changedCount;
+		},
+		[writeBillable]
 	);
 
 	const deleteLogs = useCallback(
@@ -80,6 +104,7 @@ export function useTimesheetLogActions() {
 	return {
 		changeStatus,
 		setBillable,
+		setBillableOf,
 		deleteLogs,
 		isChangingStatus: loadingUpdateTimesheetStatus,
 		isDeleting: loadingDeleteTimesheet

@@ -7,6 +7,7 @@ import type { CalendarEntry } from '@/core/lib/utils/calendar-view';
 import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import { queryKeys } from '@/core/query/keys';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 const mockGetTimeLogConflicts = jest.fn();
@@ -192,5 +193,23 @@ describe('useCalendarEntryMoves', () => {
 		const { result } = renderMoves(pageOf({}));
 
 		expect(result.current.canDragEntry(movedEntry)).toBe(true);
+	});
+
+	it('tells an entry on a day whose time is approved from one on an open day', () => {
+		const approvedLog = { ...manualLog('approved', 13, 14), timesheet: { status: ETimesheetStatus.APPROVED } };
+		const nextDayLog = { ...manualLog('next', 9, 10), startedAt: new Date(2024, 0, 9, 9) };
+		const nextDayEntry = { ...entryOf(nextDayLog), end: new Date(2024, 0, 9, 10) };
+		const memberLogs = [movedLog, approvedLog as ITimeLog];
+		const { result } = renderMoves(pageOf({ memberLogs }));
+
+		expect(result.current.isOnApprovedDay(movedEntry)).toBe(true);
+		expect(result.current.isOnApprovedDay(nextDayEntry)).toBe(false);
+	});
+
+	it('says the role and the organization allow time changes even while the days are read', () => {
+		const { result } = renderMoves(pageOf({ isLoading: true }));
+
+		expect(result.current.allowsTimeChanges).toBe(true);
+		expect(result.current.canDragEntry(movedEntry)).toBe(false);
 	});
 });

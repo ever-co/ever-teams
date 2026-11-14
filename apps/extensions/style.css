@@ -31,3 +31,15 @@ input::-webkit-inner-spin-button {
 	-webkit-appearance: none;
 	margin: 0;
 }
+
+/* The list's scrollbar in the browser's dark theme */
+@media (prefers-color-scheme: dark) {
+	.scrollbar::-webkit-scrollbar,
+	.scrollbar::-webkit-scrollbar-track {
+		background-color: #18181b;
+	}
+
+	.scrollbar::-webkit-scrollbar-thumb {
+		background-color: #71717a;
+	}
+}
