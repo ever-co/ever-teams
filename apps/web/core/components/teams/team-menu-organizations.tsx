@@ -39,7 +39,11 @@ export function TeamMenuOrganizations(props: Readonly<ITeamMenuOrganizationsProp
 		return (
 			<>
 				<DropdownMenuSeparator />
-				<div role="status" aria-label={t('switchers.OTHER_ORGANIZATIONS_LOADING')} className="flex flex-col gap-1.5 px-2 py-1.5">
+				<div
+					role="status"
+					aria-label={t('switchers.OTHER_ORGANIZATIONS_LOADING')}
+					className="flex flex-col gap-1.5 px-2 py-1.5"
+				>
 					<Skeleton className="h-3 w-24 bg-foreground/[0.06]" />
 					<div className="flex items-center gap-2.5">
 						<Skeleton className="size-5 rounded-[28%] bg-foreground/[0.06]" />

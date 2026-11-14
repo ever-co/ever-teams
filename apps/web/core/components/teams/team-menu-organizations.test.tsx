@@ -96,9 +96,7 @@ describe('TeamMenuOrganizations', () => {
 	});
 
 	it('shows the loading state, then nothing more for someone in one organization', () => {
-		const { rerender } = render(
-			<TeamMenuOrganizations {...renderProps({ isLoading: true })} />
-		);
+		const { rerender } = render(<TeamMenuOrganizations {...renderProps({ isLoading: true })} />);
 		expect(screen.getByRole('status', { name: 'switchers.OTHER_ORGANIZATIONS_LOADING' })).toBeInTheDocument();
 
 		rerender(<TeamMenuOrganizations {...renderProps({ organizations: [] })} />);

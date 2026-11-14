@@ -81,7 +81,13 @@ describe('useSwitchOrganization', () => {
 
 	it("opens the person's last team there when no team was picked, read with the new session", async () => {
 		mockGetOrganizationTeams.mockResolvedValue({
-			data: { items: [labsTeam('labs-design'), labsTeam('labs-research'), { id: 'studio-team', organizationId: 'studio' }] }
+			data: {
+				items: [
+					labsTeam('labs-design'),
+					labsTeam('labs-research'),
+					{ id: 'studio-team', organizationId: 'studio' }
+				]
+			}
 		});
 		const { result } = renderHook(() => useSwitchOrganization(), { wrapper });
 

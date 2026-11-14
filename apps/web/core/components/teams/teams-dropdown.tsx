@@ -172,7 +172,9 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				{
 					onError: () => {
 						setFailedOrganizationId(organization.id);
-						toast.error(t('switchers.ORGANIZATION_SWITCH_FAILED'), { id: ORGANIZATION_SWITCH_FAILED_TOAST_ID });
+						toast.error(t('switchers.ORGANIZATION_SWITCH_FAILED'), {
+							id: ORGANIZATION_SWITCH_FAILED_TOAST_ID
+						});
 					}
 				}
 			);

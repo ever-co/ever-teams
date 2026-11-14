@@ -100,7 +100,9 @@ export function withTeams<TTeam extends ITeamMenuTeam>(
 			return { ...organization, teams: [], teamsListed: false };
 		}
 		const named = teams.filter((team) => Boolean(team.id && team.name));
-		const ofThisOrganization = named.filter((team) => !team.organizationId || team.organizationId === organization.id);
+		const ofThisOrganization = named.filter(
+			(team) => !team.organizationId || team.organizationId === organization.id
+		);
 		return { ...organization, teams: ofThisOrganization, teamsListed: true };
 	});
 }

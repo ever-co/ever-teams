@@ -61,7 +61,10 @@ describe('GET /api/organization-team/organizations', () => {
 		const response = await read();
 
 		expect(response.status).toBe(200);
-		expect(mockGetUserOrganizations).toHaveBeenCalledWith({ tenantId: 'tenant-1', userId: 'user-1' }, 'token-studio');
+		expect(mockGetUserOrganizations).toHaveBeenCalledWith(
+			{ tenantId: 'tenant-1', userId: 'user-1' },
+			'token-studio'
+		);
 		expect(mockGetAllOrganizationTeams).toHaveBeenCalledWith(
 			{ tenantId: 'tenant-1', organizationId: 'labs' },
 			'token-studio'

@@ -44,7 +44,10 @@ describe('teamMenuOrganizationsOf', () => {
 	});
 
 	it('answers no other organization to someone who belongs to one', () => {
-		const result = teamMenuOrganizationsOf([{ organizationId: 'studio', organization: { name: 'Studio' } }], 'studio');
+		const result = teamMenuOrganizationsOf(
+			[{ organizationId: 'studio', organization: { name: 'Studio' } }],
+			'studio'
+		);
 
 		expect(result.others).toEqual([]);
 	});

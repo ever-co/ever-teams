@@ -271,7 +271,14 @@ export const queryKeys = {
 			tenantId: string | undefined | null,
 			organizationId: string | undefined | null,
 			userId: string | undefined | null
-		) => ['organization-teams', 'menu-organizations', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		) =>
+			[
+				'organization-teams',
+				'menu-organizations',
+				tenantId ?? null,
+				organizationId ?? null,
+				userId ?? null
+			] as const,
 		detail: (teamId: string | undefined | null) => ['organization-teams', ...(teamId ? [teamId] : [])] as const,
 		detailByScope: (
 			tenantId: string | undefined | null,
