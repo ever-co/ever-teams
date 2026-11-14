@@ -70,6 +70,9 @@ jest.mock('./invoices-ledger', () => ({
 				<button type="button" onClick={() => onAction(target, 'markPaid')}>
 					mark 42 paid
 				</button>
+				<button type="button" onClick={() => onAction(target, 'markUnpaid')}>
+					mark 42 unpaid
+				</button>
 			</>
 		);
 	}
@@ -146,5 +149,20 @@ describe('marking a listed invoice paid', () => {
 
 		// The amounts come from the invoice read when the change is made: the list's total may be outdated
 		expect(mockChangeStatus).toHaveBeenCalledWith({ invoiceId: 'inv-42', payment: 'markPaid', scope: WORKSPACE_A });
+	});
+
+	it('asks for the unpaid action the same way', async () => {
+		mockList.current = listIn(WORKSPACE_A);
+		render(<InvoicesPage />);
+
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'mark 42 unpaid' }));
+		});
+
+		expect(mockChangeStatus).toHaveBeenCalledWith({
+			invoiceId: 'inv-42',
+			payment: 'markUnpaid',
+			scope: WORKSPACE_A
+		});
 	});
 });

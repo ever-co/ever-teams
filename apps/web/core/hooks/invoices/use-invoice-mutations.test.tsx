@@ -411,7 +411,9 @@ describe('marking a listed invoice paid or unpaid', () => {
 		['markPaid', 'FULLY_PAID'],
 		['markPaid', 'OVERPAID'],
 		['markPaid', 'VOID'],
+		['markUnpaid', 'DRAFT'],
 		['markUnpaid', 'SENT'],
+		['markUnpaid', 'VIEWED'],
 		['markUnpaid', 'PARTIALLY_PAID']
 	] as const)('refuses %s once the invoice became %s, and writes nothing', async (payment, status) => {
 		mockGetInvoice.mockResolvedValue({ ...invoiceNow, status });
