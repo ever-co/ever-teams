@@ -2839,7 +2839,32 @@
 			"HINT_RUNNING": "As alterações feitas com o temporizador em andamento ainda não são salvas. Para alterar as notas, edite a entrada nas folhas de horas depois de parar o temporizador.",
 			"HINT_OTHER_TEAM": "Estas notas pertencem ao temporizador em andamento em outra equipe, por isso não podem ser alteradas aqui."
 		},
-		"NOT_BILLABLE": "Não faturável"
+		"NOT_BILLABLE": "Não faturável",
+		"startMove": {
+			"TITLE": "Início do temporizador em curso",
+			"STARTED_AT": "Iniciado às {time}",
+			"OPEN": "Iniciado às {time}. Alterar o início",
+			"NEW_START": "Novo início",
+			"REASON": "Motivo",
+			"REASON_PLACEHOLDER": "Por que o início muda",
+			"LATER_ONLY": "Você não pode adicionar tempo à mão, então o início só pode ficar mais tarde.",
+			"SAVING": "Salvando…",
+			"SAVED": "O temporizador agora começa às {time}.",
+			"CHECKING": "Verificando se o início pode mudar…",
+			"VIEW_TRACKER": "Este temporizador roda no aplicativo de desktop. Altere o início lá.",
+			"VIEW_NOT_ALLOWED": "Você não pode alterar o tempo registrado nesta organização.",
+			"UNSUPPORTED": "O início de um temporizador em curso ainda não pode ser alterado neste servidor.",
+			"NOT_RUNNING": "O temporizador não está mais em execução.",
+			"TRACKER_RUN": "Este temporizador roda no aplicativo de desktop ou no agente, que registram o tempo por conta própria. Altere o início lá.",
+			"IN_FUTURE": "O início não pode ser depois de agora.",
+			"EDIT_NOT_ALLOWED": "Você não pode alterar o tempo registrado.",
+			"MANUAL_NOT_ALLOWED": "Um início mais cedo adiciona tempo à mão, o que você não pode fazer. Escolha um início mais tarde.",
+			"REASON_REQUIRED": "Sua organização pede um motivo.",
+			"REASON_TOO_LONG": "O motivo é longo demais: no máximo 255 caracteres.",
+			"OVERLAP": "Outro registro seu cobre esse horário. Escolha um início depois que ele terminar.",
+			"CHANGED": "O início acabou de mudar em outro lugar. Confira e tente de novo.",
+			"SAVE_FAILED": "Não foi possível salvar o início. Tente de novo."
+		}
 	},
 	"task": {
 		"TITLE": "Tarefa",

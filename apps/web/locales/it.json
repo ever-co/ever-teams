@@ -2839,7 +2839,32 @@
 			"HINT_RUNNING": "Le modifiche fatte mentre il timer è in corso non vengono ancora salvate. Per cambiare le note, modifica la voce nei fogli presenze dopo aver fermato il timer.",
 			"HINT_OTHER_TEAM": "Queste note appartengono al timer in corso in un altro team, quindi non si possono modificare qui."
 		},
-		"NOT_BILLABLE": "Non fatturabile"
+		"NOT_BILLABLE": "Non fatturabile",
+		"startMove": {
+			"TITLE": "Inizio del timer in corso",
+			"STARTED_AT": "Avviato alle {time}",
+			"OPEN": "Avviato alle {time}. Modifica l'inizio",
+			"NEW_START": "Nuovo inizio",
+			"REASON": "Motivo",
+			"REASON_PLACEHOLDER": "Perché cambia l'inizio",
+			"LATER_ONLY": "Non ti è consentito aggiungere tempo a mano, quindi l'inizio può solo spostarsi più tardi.",
+			"SAVING": "Salvataggio…",
+			"SAVED": "Il timer ora inizia alle {time}.",
+			"CHECKING": "Verifica che l'inizio possa cambiare…",
+			"VIEW_TRACKER": "Questo timer gira nell'app desktop. Modifica lì il suo inizio.",
+			"VIEW_NOT_ALLOWED": "Non ti è consentito modificare il tempo registrato in questa organizzazione.",
+			"UNSUPPORTED": "L'inizio di un timer in corso non può ancora essere modificato su questo server.",
+			"NOT_RUNNING": "Il timer non è più in corso.",
+			"TRACKER_RUN": "Questo timer gira nell'app desktop o nell'agente, che registrano da soli il suo tempo. Modifica lì il suo inizio.",
+			"IN_FUTURE": "L'inizio non può essere dopo adesso.",
+			"EDIT_NOT_ALLOWED": "Non ti è consentito modificare il tempo registrato.",
+			"MANUAL_NOT_ALLOWED": "Un inizio anticipato aggiunge tempo a mano, cosa che non ti è consentita. Scegli un inizio più tardi.",
+			"REASON_REQUIRED": "La tua organizzazione chiede un motivo.",
+			"REASON_TOO_LONG": "Il motivo è troppo lungo: al massimo 255 caratteri.",
+			"OVERLAP": "Un'altra tua voce copre quel momento. Scegli un inizio dopo la sua fine.",
+			"CHANGED": "L'inizio è appena cambiato altrove. Controllalo e riprova.",
+			"SAVE_FAILED": "Impossibile salvare l'inizio. Riprova."
+		}
 	},
 	"task": {
 		"TITLE": "Compito",

@@ -2839,7 +2839,32 @@
 			"HINT_RUNNING": "Änderungen bei laufendem Timer werden noch nicht gespeichert. Um die Notizen zu ändern, bearbeiten Sie den Eintrag nach dem Stoppen des Timers in den Stundenzetteln.",
 			"HINT_OTHER_TEAM": "Diese Notizen gehören zum Timer, der in einem anderen Team läuft, und können hier nicht geändert werden."
 		},
-		"NOT_BILLABLE": "Nicht abrechenbar"
+		"NOT_BILLABLE": "Nicht abrechenbar",
+		"startMove": {
+			"TITLE": "Beginn des laufenden Timers",
+			"STARTED_AT": "Gestartet um {time}",
+			"OPEN": "Gestartet um {time}. Beginn ändern",
+			"NEW_START": "Neuer Beginn",
+			"REASON": "Grund",
+			"REASON_PLACEHOLDER": "Warum sich der Beginn ändert",
+			"LATER_ONLY": "Zeit von Hand hinzuzufügen ist dir nicht erlaubt, daher kann der Beginn nur später werden.",
+			"SAVING": "Wird gespeichert…",
+			"SAVED": "Der Timer beginnt jetzt um {time}.",
+			"CHECKING": "Es wird geprüft, ob sich der Beginn ändern lässt…",
+			"VIEW_TRACKER": "Dieser Timer läuft in der Desktop-App. Ändere seinen Beginn dort.",
+			"VIEW_NOT_ALLOWED": "Erfasste Zeit zu ändern ist dir in dieser Organisation nicht erlaubt.",
+			"UNSUPPORTED": "Der Beginn eines laufenden Timers kann auf diesem Server noch nicht geändert werden.",
+			"NOT_RUNNING": "Der Timer läuft nicht mehr.",
+			"TRACKER_RUN": "Dieser Timer läuft in der Desktop-App oder im Agenten, die seine Zeit selbst erfassen. Ändere seinen Beginn dort.",
+			"IN_FUTURE": "Der Beginn darf nicht später als jetzt sein.",
+			"EDIT_NOT_ALLOWED": "Erfasste Zeit zu ändern ist dir nicht erlaubt.",
+			"MANUAL_NOT_ALLOWED": "Ein früherer Beginn fügt Zeit von Hand hinzu, was dir nicht erlaubt ist. Wähle einen späteren Beginn.",
+			"REASON_REQUIRED": "Deine Organisation verlangt einen Grund.",
+			"REASON_TOO_LONG": "Der Grund ist zu lang: höchstens 255 Zeichen.",
+			"OVERLAP": "Ein anderer deiner Einträge deckt diese Zeit ab. Wähle einen Beginn nach seinem Ende.",
+			"CHANGED": "Der Beginn wurde gerade anderswo geändert. Prüfe ihn und versuche es erneut.",
+			"SAVE_FAILED": "Der Beginn konnte nicht gespeichert werden. Versuche es erneut."
+		}
 	},
 	"task": {
 		"TITLE": "Aufgabe",

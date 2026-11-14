@@ -2839,7 +2839,32 @@
 			"HINT_RUNNING": "Wijzigingen terwijl de timer loopt worden nog niet opgeslagen. Bewerk de registratie in Urenstaten nadat je de timer hebt gestopt om de notities te wijzigen.",
 			"HINT_OTHER_TEAM": "Deze notities horen bij de timer die in een ander team loopt en kunnen hier niet worden gewijzigd."
 		},
-		"NOT_BILLABLE": "Niet factureerbaar"
+		"NOT_BILLABLE": "Niet factureerbaar",
+		"startMove": {
+			"TITLE": "Begin van de lopende timer",
+			"STARTED_AT": "Gestart om {time}",
+			"OPEN": "Gestart om {time}. Begin wijzigen",
+			"NEW_START": "Nieuw begin",
+			"REASON": "Reden",
+			"REASON_PLACEHOLDER": "Waarom het begin verandert",
+			"LATER_ONLY": "Je mag geen tijd met de hand toevoegen, dus het begin kan alleen later worden.",
+			"SAVING": "Opslaan…",
+			"SAVED": "De timer begint nu om {time}.",
+			"CHECKING": "Controleren of het begin kan veranderen…",
+			"VIEW_TRACKER": "Deze timer loopt in de desktop-app. Wijzig het begin daar.",
+			"VIEW_NOT_ALLOWED": "Je mag geregistreerde tijd in deze organisatie niet wijzigen.",
+			"UNSUPPORTED": "Het begin van een lopende timer kan op deze server nog niet worden gewijzigd.",
+			"NOT_RUNNING": "De timer loopt niet meer.",
+			"TRACKER_RUN": "Deze timer loopt in de desktop-app of de agent, die zelf de tijd registreren. Wijzig het begin daar.",
+			"IN_FUTURE": "Het begin kan niet later zijn dan nu.",
+			"EDIT_NOT_ALLOWED": "Je mag geregistreerde tijd niet wijzigen.",
+			"MANUAL_NOT_ALLOWED": "Een eerder begin voegt tijd met de hand toe, wat je niet mag. Kies een later begin.",
+			"REASON_REQUIRED": "Je organisatie vraagt om een reden.",
+			"REASON_TOO_LONG": "De reden is te lang: hoogstens 255 tekens.",
+			"OVERLAP": "Een andere registratie van jou dekt die tijd. Kies een begin na het einde ervan.",
+			"CHANGED": "Het begin is net elders gewijzigd. Controleer het en probeer het opnieuw.",
+			"SAVE_FAILED": "Het begin kon niet worden opgeslagen. Probeer het opnieuw."
+		}
 	},
 	"task": {
 		"TITLE": "Taak",

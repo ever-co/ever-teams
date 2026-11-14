@@ -2056,10 +2056,11 @@ describe('Ever Teams feature surface preservation', () => {
 		// /api/user-api-tokens GET and POST, /api/user-api-tokens/[id] DELETE; #5209).
 		// 361 files and 460 verbs with the team menu's organizations of the workspace in proxy mode
 		// (/api/organization-team/organizations GET; #5204).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(361);
+		// 362 files and 461 verbs with the correction of the running timer's start (/api/timer/started-at PUT, #5203).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(362);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(460);
+		).toHaveLength(461);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's personal API token routes (#5209)
@@ -2069,6 +2070,8 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/user-api-tokens/[id]/route.ts::DELETE',
 				// The team menu's organizations of the workspace in proxy mode (#5204)
 				'apps/web/app/api/organization-team/organizations/route.ts::GET',
+				// Proxy mode twin of Gauzy's route that moves the start of the running timer (#5203)
+				'apps/web/app/api/timer/started-at/route.ts::PUT',
 				// Proxy mode twins of the platform's incoming webhook management of a channel (ever-gauzy #11799)
 				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::GET',
 				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::POST',
