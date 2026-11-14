@@ -125,8 +125,30 @@ export function isSameSignIn(stored: Session | null, session: Session): stored i
 		return false;
 	}
 	const isSameRefreshToken = stored.refreshToken === session.refreshToken;
-	const isSamePerson = stored.userId === session.userId && stored.apiUrl === session.apiUrl;
-	return isSameRefreshToken && isSamePerson;
+	return isSameRefreshToken && isSamePerson(stored, session);
+}
+
+/** Whether two sessions are the same person on the same API, whatever their tokens. */
+export function isSamePerson(stored: Session, session: Session): boolean {
+	return stored.userId === session.userId && stored.apiUrl === session.apiUrl;
+}
+
+/**
+ * What a renewal does with the stored session it read again, alone (under the session lock): renew it; take it as
+ * it is, when another view or the background renewed it meanwhile (its refresh token is the one the API accepts
+ * now); or nothing, when the person signed out or another person or API signed in.
+ */
+export function renewalStepOf(stored: Session | null, refused: Session): 'renew' | 'useStored' | 'none' {
+	if (!stored || !isSamePerson(stored, refused)) {
+		return 'none';
+	}
+	if (stored.token !== refused.token) {
+		return 'useStored';
+	}
+	if (!stored.refreshToken) {
+		return 'none';
+	}
+	return 'renew';
 }
 
 /** A refresh token the API refused ends the session; a busy or failing server (429, 5xx) does not. */

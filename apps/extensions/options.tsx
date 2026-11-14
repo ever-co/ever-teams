@@ -4,14 +4,7 @@ import Notice from '~components/shared/Notice';
 import { isAllowedAddress } from '~lib/address';
 import { apiOriginOf, revokeSession } from '~lib/api-client';
 import { t } from '~lib/i18n';
-import {
-	clearSession,
-	DEFAULT_API_URL,
-	DEFAULT_APP_URL,
-	loadSession,
-	loadSettings,
-	saveSettings
-} from '~lib/session-store';
+import { DEFAULT_API_URL, DEFAULT_APP_URL, loadSettings, saveSettings, takeSessionOut } from '~lib/session-store';
 import { primaryButton, roundInput } from '~misc/tailwindClasses';
 
 import './style.css';
@@ -51,8 +44,7 @@ function Options() {
 		await saveSettings({ apiUrl: nextApiUrl, appUrl: appUrl.trim().replace(/\/+$/, '') });
 		// A session belongs to the API that opened it: it is signed out, and that API revokes it
 		if (apiChanged) {
-			const stored = await loadSession();
-			await clearSession();
+			const stored = await takeSessionOut();
 			if (stored) {
 				await revokeSession(stored);
 			}

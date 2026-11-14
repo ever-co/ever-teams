@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { revokeSession } from '~lib/api-client';
-import { clearSession, loadSession, saveSession, saveSelectedTaskId } from '~lib/session-store';
+import { loadSession, selectStoredTeam, storeSignIn, takeSessionOut } from '~lib/session-store';
 import type { Session } from '~lib/workspaces';
 import browser from '~misc/browser';
 
@@ -38,14 +38,13 @@ export function useSession() {
 	}, []);
 
 	const signedIn = useCallback(async (next: Session) => {
-		await saveSession(next);
+		await storeSignIn(next);
 		setSession(next);
 	}, []);
 
 	/** Signs out here, then has the API revoke the session's refresh token. */
 	const signOut = useCallback(async () => {
-		const stored = await loadSession();
-		await clearSession();
+		const stored = await takeSessionOut();
 		setSession(null);
 		if (stored) {
 			await revokeSession(stored);
@@ -58,9 +57,7 @@ export function useSession() {
 			if (!session) {
 				return;
 			}
-			const next = { ...session, teamId };
-			await saveSelectedTaskId(null);
-			await saveSession(next);
+			const next = await selectStoredTeam(session, teamId);
 			setSession(next);
 		},
 		[session]

@@ -1,6 +1,6 @@
 import type { ApiFailure } from '~lib/refusal';
-import { loadSession, saveSession } from '~lib/session-store';
-import { isSessionRefused, renewedSessionOf, type Session } from '~lib/workspaces';
+import { loadSession, saveSession, withSessionLock } from '~lib/session-store';
+import { isSessionRefused, renewalStepOf, renewedSessionOf, type Session } from '~lib/workspaces';
 
 /** A failed call to the API; status 0 when the API could not be reached at all. */
 export class ApiError extends Error implements ApiFailure {
@@ -125,13 +125,26 @@ export async function revokeSession(session: Session): Promise<void> {
 }
 
 /**
- * Trades the refresh token for a new access token and keeps it. Returns the renewed session, or null when the session
- * cannot be renewed (signed out elsewhere, expired).
+ * Trades the refresh token for a new access token and keeps it, alone among the extension's views and its
+ * background (the session lock): two renewals with one refresh token would have the API refuse the second, as a
+ * token already rotated. Returns the renewed session (or the one another view renewed meanwhile), or null when the
+ * session cannot be renewed (signed out, expired).
  */
-async function renewed(session: Session): Promise<Session | null> {
-	if (!session.refreshToken) {
-		return null;
-	}
+function renewed(refused: Session): Promise<Session | null> {
+	return withSessionLock(async () => {
+		const stored = await loadSession();
+		const step = renewalStepOf(stored, refused);
+		if (step === 'none' || !stored) {
+			return null;
+		}
+		if (step === 'useStored') {
+			return stored;
+		}
+		return renewedNow(stored);
+	});
+}
+
+async function renewedNow(session: Session): Promise<Session | null> {
 	const response = await send(
 		urlOf(session.apiUrl, '/auth/refresh-token'),
 		'POST',
