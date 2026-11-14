@@ -5,6 +5,7 @@ import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl
 import { useQueryClient, type Mutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { twoFactorChallengeOf } from '@/core/lib/auth/two-factor';
 import { IS_DEV_MODE } from '@/core/constants/config/constants';
 
 /** One toast for a burst of failures (a list saved row by row), replaced instead of stacked. */
@@ -22,8 +23,10 @@ declare module '@tanstack/react-query' {
 function leavesErrorToFallback(mutation: Mutation<unknown, unknown, unknown, unknown>): boolean {
 	const hasOwnHandler = Boolean(mutation.options.onError);
 	const callerHandlesIt = mutation.meta?.handlesOwnError === true;
+	// A two-factor challenge is no failure: the page asks for the code (accepting an invitation, for one)
+	const asksForSecondFactor = twoFactorChallengeOf(mutation.state.error) !== null;
 
-	return !hasOwnHandler && !callerHandlesIt;
+	return !hasOwnHandler && !callerHandlesIt && !asksForSecondFactor;
 }
 
 /**
