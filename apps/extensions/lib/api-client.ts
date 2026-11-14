@@ -1,3 +1,4 @@
+import { withoutTrailingSlashes } from '~lib/address';
 import type { ApiFailure } from '~lib/refusal';
 import { loadSession, saveSession, withSessionLock } from '~lib/session-store';
 import { isSessionRefused, renewalStepOf, renewedSessionOf, type Session } from '~lib/workspaces';
@@ -31,10 +32,11 @@ interface RequestOptions {
 
 /** The API origin a person typed, as the base of every route: no trailing slash and no `/api` suffix. */
 export function apiOriginOf(apiUrl: string): string {
-	return apiUrl
-		.trim()
-		.replace(/\/+$/, '')
-		.replace(/\/api$/, '');
+	const origin = withoutTrailingSlashes(apiUrl.trim());
+	if (origin.endsWith('/api')) {
+		return origin.slice(0, -'/api'.length);
+	}
+	return origin;
 }
 
 function urlOf(apiUrl: string, path: string, query?: RequestOptions['query']): string {

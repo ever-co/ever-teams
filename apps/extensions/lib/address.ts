@@ -11,6 +11,15 @@ function isOpenable(value: string): boolean {
 	}
 }
 
+/** The address without the slashes that end it, read from its end once (no backtracking pattern). */
+export function withoutTrailingSlashes(value: string): string {
+	let end = value.length;
+	while (end > 0 && value[end - 1] === '/') {
+		end -= 1;
+	}
+	return value.slice(0, end);
+}
+
 /** Whether an API or web app address may be saved: an https address, or plain http on this computer. */
 export function isAllowedAddress(value: string): boolean {
 	const address = value.trim();

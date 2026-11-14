@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { isAllowedAddress } from './address.ts';
+import { isAllowedAddress, withoutTrailingSlashes } from './address.ts';
 
 describe('isAllowedAddress', () => {
 	it('accepts an https address, and plain http on this computer only', () => {
@@ -17,5 +17,20 @@ describe('isAllowedAddress', () => {
 		assert.equal(isAllowedAddress('http://localhost:70000'), false);
 		assert.equal(isAllowedAddress('https://'), false);
 		assert.equal(isAllowedAddress('api.ever.team'), false);
+	});
+});
+
+describe('withoutTrailingSlashes', () => {
+	it('drops every slash that ends the address, and keeps the others', () => {
+		assert.equal(withoutTrailingSlashes('https://app.ever.team///'), 'https://app.ever.team');
+		assert.equal(withoutTrailingSlashes('https://app.ever.team/team/'), 'https://app.ever.team/team');
+		assert.equal(withoutTrailingSlashes('https://app.ever.team'), 'https://app.ever.team');
+		assert.equal(withoutTrailingSlashes('///'), '');
+	});
+
+	it('reads a long run of slashes at once', () => {
+		const started = performance.now();
+		assert.equal(withoutTrailingSlashes(`https://a${'/'.repeat(100_000)}x`), `https://a${'/'.repeat(100_000)}x`);
+		assert.ok(performance.now() - started < 100);
 	});
 });
