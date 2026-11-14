@@ -263,6 +263,7 @@ describe('isHistoryUnsupportedStatus', () => {
 		expect(isHistoryUnsupportedStatus(404)).toBe(true);
 		expect(isHistoryUnsupportedStatus(400)).toBe(true);
 		expect(isHistoryUnsupportedStatus(405)).toBe(true);
+		expect(isHistoryUnsupportedStatus(406)).toBe(true);
 		expect(isHistoryUnsupportedStatus(403)).toBe(false);
 		expect(isHistoryUnsupportedStatus(500)).toBe(false);
 		expect(isHistoryUnsupportedStatus(undefined)).toBe(false);

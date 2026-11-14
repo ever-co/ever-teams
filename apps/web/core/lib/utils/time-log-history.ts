@@ -63,8 +63,11 @@ const ACTIONS: Readonly<Record<string, TimeLogHistoryAction>> = {
 	Deleted: 'deleted'
 };
 
-/** Statuses an API without the history routes answers: no route (404, 405), or `history` read as an entry id (400). */
-const UNSUPPORTED_STATUSES = new Set([400, 404, 405]);
+/**
+ * Statuses an API without the history routes answers: no route (404, 405), or `history` read as an entry id (400, or
+ * 406 from its id check).
+ */
+const UNSUPPORTED_STATUSES = new Set([400, 404, 405, 406]);
 
 /** SQLite answers the JSON columns as text. */
 function parsedOf(value: unknown): unknown {
