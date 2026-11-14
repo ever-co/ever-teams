@@ -6,6 +6,7 @@ import { Search } from '@/core/components/icons';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from 'core/components/common/dialog';
 import { cn } from '@/core/lib/helpers';
 import { useActiveIndicator, type IndicatorBox } from '@/core/hooks/common/use-active-indicator';
+import { useActiveItemInView } from '@/core/hooks/common/use-active-item-in-view';
 
 const commandKeycapClass =
 	'keycap-3d inline-flex h-5 min-w-5 items-center justify-center rounded-[5px] px-1 font-sans text-[11px] font-medium leading-none text-foreground/70';
@@ -119,8 +120,9 @@ function tabIndicatorStyle(box: IndicatorBox): React.CSSProperties {
 
 function CommandTabs({ label, items, value, onValueChange, className }: Readonly<CommandTabsProps>) {
 	const { listRef, activeRef, box } = useActiveIndicator<HTMLDivElement, HTMLButtonElement>(value);
+	const stripRef = useActiveItemInView<HTMLDivElement, HTMLButtonElement>(activeRef, value);
 	return (
-		<div className={cn('no-scrollbar overflow-x-auto hairline-b border-border px-3', className)}>
+		<div ref={stripRef} className={cn('no-scrollbar overflow-x-auto hairline-b border-border px-3', className)}>
 			<div ref={listRef} role="tablist" aria-label={label} className="relative flex min-w-max items-end gap-1">
 				{items.map((item) => {
 					const isActive = item.value === value;

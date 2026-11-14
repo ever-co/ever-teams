@@ -436,6 +436,42 @@
 		"reason": "Kept, not removed (#5092): the case is now the first row of an it.each, \"shows %s once the team is read again, though the team itself did not change\", in the same file, which also checks a member's new workspace role. The rate case runs unchanged."
 	},
 	{
+		"id": "removed:overlayComponents:apps/web/core/components/pages/clients/page-component.tsx::closeDialog",
+		"reason": "Moved into useClientDialogs (core/hooks/clients/use-client-dialogs.ts, #5199) as its close: the client page's create, edit, archive and restore dialogs still open and close from there, and a dialog now keeps its client while it fades out."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/pages/clients/page-component.tsx::setDialog",
+		"reason": "Moved unchanged into useClientDialogs (core/hooks/clients/use-client-dialogs.ts, #5199), which the client page and the client's own page share."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/pages/invoices/page-component.tsx::closeDialog",
+		"reason": "Moved unchanged into useInvoiceActionFlow (pages/invoices/invoice-action-flow.tsx, #5199), which the invoice list, its peek and the invoice's own page share."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/pages/invoices/page-component.tsx::isDialogOpen",
+		"reason": "Moved unchanged into useInvoiceActionFlow (pages/invoices/invoice-action-flow.tsx, #5199), which the invoice list, its peek and the invoice's own page share."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/pages/invoices/page-component.tsx::isDialogOpenFor",
+		"reason": "Moved unchanged into InvoiceActionDialogs (pages/invoices/invoice-action-flow.tsx, #5199) as isOpenFor: the send, void, void-and-replace and delete dialogs are mounted there."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/pages/invoices/page-component.tsx::setDialog",
+		"reason": "Moved unchanged into useInvoiceActionFlow (pages/invoices/invoice-action-flow.tsx, #5199), which the invoice list, its peek and the invoice's own page share."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/pages/invoices/page-component.tsx::setIsDialogOpen",
+		"reason": "Moved unchanged into useInvoiceActionFlow (pages/invoices/invoice-action-flow.tsx, #5199), which the invoice list, its peek and the invoice's own page share."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/common/keyboard-shortcuts.tsx::closeModal",
+		"reason": "The keyboard button's own shortcut dialog was folded into the app's one shortcuts sheet (#5227): ShortcutsDialog, mounted once by KeyboardShortcutsMount, opens from the button and from the H keys through shortcutsHelpOpenAtom, and closes there."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/common/keyboard-shortcuts.tsx::openModal",
+		"reason": "The keyboard button's own shortcut dialog was folded into the app's one shortcuts sheet (#5227): the button now sets shortcutsHelpOpenAtom, and ShortcutsDialog, mounted once by KeyboardShortcutsMount, opens; the H keys still open it."
+	},
+	{
 		"id": "removed:testNames:apps/web/core/components/pages/invoices/edit/save-invoice-changes-dialog.test.tsx::says nothing changed when the API refused it::#1",
 		"reason": "Kept, not removed (#5234, Sonar S5976 on #5230): the case is a row of the it.each \"says %s, and stays on the invoice\" in the same file, with the same outcome and message."
 	},

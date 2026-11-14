@@ -189,7 +189,9 @@ export function keepsPlannedFields(planned: ITimeLog, current: ITimeLog): boolea
 	const hasSameTask = ownTaskIdOf(planned) === ownTaskIdOf(current);
 	const hasSameProject = ownProjectIdOf(planned) === ownProjectIdOf(current);
 	const hasSameBillable = Boolean(planned.isBillable) === Boolean(current.isBillable);
-	return hasSameTask && hasSameProject && hasSameBillable;
+	// The plan let a task change through only for an entry of the listed team: one moved to another team is not its own
+	const hasSameTeam = (planned.organizationTeamId ?? null) === (current.organizationTeamId ?? null);
+	return hasSameTask && hasSameProject && hasSameBillable && hasSameTeam;
 }
 
 export type BulkEditPayload = ITimeLogUpdatePayload & { startedAt: Date; stoppedAt: Date; employeeId: string };

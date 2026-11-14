@@ -5,11 +5,10 @@ import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { Notice } from '@/core/components/common/notice';
 import { Skeleton } from '@/core/components/common/skeleton';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { Archive, Building, Search } from '@/core/components/icons';
+import { Archive, Building, Lock, Search } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import type { ClientScope } from '@/core/lib/utils/clients';
-
-const SKELETON_BAR = 'bg-foreground/[0.06]';
+import { CLIENTS_TABLE_GRID, CLIENTS_TABLE_SURFACE, SKELETON_BAR } from './clients-table-grid';
 
 const SKELETON_ROWS = 6;
 
@@ -31,23 +30,46 @@ export function ClientsCountSkeleton() {
 
 export function ClientsListSkeleton() {
 	return (
-		<div aria-hidden="true" className="rounded-xl bg-card hairline-ring ring-border shadow-sm shadow-black/6.5">
-			<div className="flex h-9 items-center gap-6 hairline-b border-border px-3">
-				<Skeleton className={cn('h-2.5 w-20', SKELETON_BAR)} />
-				<Skeleton className={cn('ml-auto h-2.5 w-16 max-lg:hidden', SKELETON_BAR)} />
-				<Skeleton className={cn('h-2.5 w-16 max-lg:hidden', SKELETON_BAR)} />
-				<Skeleton className={cn('h-2.5 w-16', SKELETON_BAR)} />
+		<div aria-hidden="true" className={CLIENTS_TABLE_SURFACE}>
+			<div className={cn(CLIENTS_TABLE_GRID, 'h-9 pl-1 hairline-b border-border')}>
+				<span className="px-2">
+					<Skeleton className={cn('h-2.5 w-16 rounded-full', SKELETON_BAR)} />
+				</span>
+				<span className="px-2 max-lg:hidden">
+					<Skeleton className={cn('h-2.5 w-16 rounded-full', SKELETON_BAR)} />
+				</span>
+				<span className="px-2">
+					<Skeleton className={cn('h-2.5 w-14 rounded-full', SKELETON_BAR)} />
+				</span>
+				<span className="px-2 max-lg:hidden">
+					<Skeleton className={cn('h-2.5 w-16 rounded-full', SKELETON_BAR)} />
+				</span>
+				<span />
 			</div>
 			<div className="hairline-divide-y divide-border">
 				{rowKeys(SKELETON_ROWS).map((key, index) => (
-					<div key={key} className="flex h-13 items-center gap-3 px-3">
-						<Skeleton className={cn('size-8 rounded-[9px]', SKELETON_BAR)} />
-						<Skeleton className={cn('h-3', SKELETON_BAR, nameBarWidthOf(index))} />
-						<Skeleton className={cn('ml-auto h-3 w-36 max-lg:hidden', SKELETON_BAR)} />
-						<Skeleton className={cn('h-3 w-24 max-lg:hidden', SKELETON_BAR)} />
-						<Skeleton className={cn('h-3 w-16', SKELETON_BAR)} />
+					<div key={key} className={cn(CLIENTS_TABLE_GRID, 'min-h-12 pl-1')}>
+						<span className="flex items-center gap-2.5 px-2">
+							<Skeleton className={cn('size-7 rounded-[8px]', SKELETON_BAR)} />
+							<Skeleton className={cn('h-3 rounded-full', SKELETON_BAR, nameBarWidthOf(index))} />
+						</span>
+						<span className="px-2 max-lg:hidden">
+							<Skeleton className={cn('h-3 w-40 rounded-full', SKELETON_BAR)} />
+						</span>
+						<span className="px-2">
+							<Skeleton className={cn('h-3 w-16 rounded-full', SKELETON_BAR)} />
+						</span>
+						<span className="px-2 max-lg:hidden">
+							<Skeleton className={cn('h-3 w-14 rounded-full', SKELETON_BAR)} />
+						</span>
+						<span />
 					</div>
 				))}
+			</div>
+			<div className={cn(CLIENTS_TABLE_GRID, 'min-h-10 pl-1 hairline-t border-border')}>
+				<span className="px-2">
+					<Skeleton className={cn('h-2.5 w-14 rounded-full', SKELETON_BAR)} />
+				</span>
 			</div>
 		</div>
 	);
@@ -121,6 +143,19 @@ export function ClientsErrorState({ onRetry }: Readonly<{ onRetry: () => void }>
 			actionLabel={t('pages.unauthorized.TRY_AGAIN')}
 			actionVariant="outline"
 			onAction={onRetry}
+			minHeight="420px"
+		/>
+	);
+}
+
+/** A role without the right to read the clients is told so, instead of a connection problem it does not have. */
+export function ClientsNoAccessState() {
+	const t = useTranslations();
+	return (
+		<AnimatedEmptyState
+			title={t('clients.NO_ACCESS_TITLE')}
+			message={t('clients.NO_ACCESS_MESSAGE')}
+			icon={<Lock />}
 			minHeight="420px"
 		/>
 	);

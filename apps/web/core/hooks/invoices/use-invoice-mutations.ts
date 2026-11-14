@@ -36,10 +36,13 @@ import {
 	type InvoiceStatusChange,
 	type ListedInvoicesPage
 } from '@/core/lib/utils/invoice-actions';
+import { isTimeBilledElsewhere } from '@/core/lib/utils/invoice-billed-time';
 import {
 	didNotReachApi,
 	haveSameFields,
+	haveSameLineIds,
 	haveSameLines,
+	haveSameTimeLogIds,
 	isRebuildableInvoice,
 	type InvoiceRevision
 } from '@/core/lib/utils/invoice-edit';
@@ -254,6 +257,8 @@ export interface InvoiceEdit {
 	scope: InvoiceWriteScope;
 	revision: InvoiceRevision;
 	previous: InvoiceRevision;
+	/** The ids of the lines the editor opened: lines written back after a failed save get new ones. */
+	previousLineIds: ReadonlyArray<string>;
 }
 
 export type InvoiceEditOutcome =
@@ -270,6 +275,8 @@ export type InvoiceEditOutcome =
 	| { status: 'notChecked' }
 	/** Written in part, then written back as it was. */
 	| { status: 'putBack' }
+	/** Its lines name time another invoice billed, or that was deleted, since it was read: it is as it was. */
+	| { status: 'timeBilled' }
 	/** Written in part and not written back: the invoice holds `lineCount` lines, null when it could not be read. */
 	| { status: 'notPutBack'; lineCount: number | null };
 
@@ -416,6 +423,21 @@ async function putInvoiceBack(edit: InvoiceEdit, writesSent: EditWritesSent): Pr
 	}
 }
 
+/**
+ * Lines refused because they name time another invoice billed meanwhile: the API saved none of them, so once the
+ * fields are written back the invoice is as it was.
+ */
+function outcomeOfRefusedLines(error: unknown, putBack: InvoiceEditOutcome): InvoiceEditOutcome {
+	if (!isTimeBilledElsewhere(error)) {
+		return putBack;
+	}
+	const isAsItWas = putBack.status === 'putBack' || putBack.status === 'notSaved';
+	if (!isAsItWas) {
+		return putBack;
+	}
+	return { status: 'timeBilled' };
+}
+
 /** The status the invoice holds now, while it still lets an edit through. */
 function editableStatusOf(invoice: TSavedInvoice): InvoiceStatus | null {
 	const status = invoiceStatusOf(invoice.status);
@@ -433,8 +455,9 @@ function editableStatusOf(invoice: TSavedInvoice): InvoiceStatus | null {
 function isAsOpened(current: TSavedInvoice, edit: InvoiceEdit) {
 	const currentLines = current.invoiceItems ?? [];
 	const hasSameLines = haveSameLines(currentLines, edit.previous.lines);
+	const hasSameLineIds = haveSameLineIds(currentLines, edit.previousLineIds);
 	const hasSameFields = haveSameFields(current, edit.previous.update);
-	return hasSameLines && hasSameFields;
+	return [hasSameLines, hasSameLineIds, hasSameFields].every(Boolean);
 }
 
 /** The edit written under the status the invoice holds now: a status reached since it was opened stays. */
@@ -475,16 +498,20 @@ async function writeInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> 
 		return outcomeOfFailedFields(edit, error);
 	}
 	// Lines the edit leaves as they were are not written again: the API deletes an invoice's lines before it saves the
-	// new ones, and a failure between the two would cost lines nobody changed.
-	const keepsItsLines = haveSameLines(edit.revision.lines, edit.previous.lines);
+	// new ones, and a failure between the two would cost lines nobody changed. Lines that only record the time they
+	// bill are written: the API marks that time billed only when it saves them.
+	const keepsItsLines =
+		haveSameLines(edit.revision.lines, edit.previous.lines) &&
+		haveSameTimeLogIds(edit.revision.lines, edit.previous.lines);
 	if (keepsItsLines) {
 		return { status: 'saved' };
 	}
 	try {
 		const linesScope = scopeToWriteIn(edit);
 		await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.revision.lines, linesScope);
-	} catch {
-		return putInvoiceBack(edit, 'fieldsAndLines');
+	} catch (error) {
+		const putBack = await putInvoiceBack(edit, 'fieldsAndLines');
+		return outcomeOfRefusedLines(error, putBack);
 	}
 	return { status: 'saved' };
 }
@@ -526,7 +553,7 @@ async function checkInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditCheck> {
 /** Where an edited invoice goes once saved: whether it becomes Sent is decided by the status the save finds. */
 type InvoiceEditSending = Omit<InvoiceToSend, 'marksSent'>;
 
-interface InvoiceEditToSave {
+export interface InvoiceEditToSave {
 	edit: InvoiceEdit;
 	/** Where the invoice goes once saved; null saves it only. */
 	sending: InvoiceEditSending | null;

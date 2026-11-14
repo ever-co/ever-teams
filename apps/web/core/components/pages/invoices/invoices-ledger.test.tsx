@@ -1,7 +1,8 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
 import { invoiceDayOf, invoiceDayTextOf, invoicePeriodTextOf, invoiceTermsOf } from '@/core/lib/utils/invoices';
 import type { TInvoice } from '@/core/types/schemas/organization/invoice.schema';
 
@@ -14,7 +15,7 @@ jest.mock('next-intl', () => ({
 	},
 	useLocale: () => 'en'
 }));
-jest.mock('@/core/components/icons', () => ({ Download: () => null, Loader: () => null }));
+jest.mock('@/core/components/icons', () => ({ CircleAlert: () => null, Download: () => null, Loader: () => null }));
 jest.mock('@/core/components/common/entity-tile', () => ({ EntityTile: () => null }));
 let mockIsCompact = false;
 jest.mock('@/core/hooks/common/use-media-query', () => ({ useMediaQuery: () => mockIsCompact }));
@@ -90,6 +91,87 @@ describe('a row of the invoices list', () => {
 		expect(period.fromLarge.length).toBeGreaterThan(0);
 		expect(due.belowLarge.length).toBeGreaterThan(0);
 		expect(due.fromLarge.length).toBeGreaterThan(0);
+	});
+});
+
+describe('the months of the invoices list', () => {
+	it('gives no count or total to the last month while more invoices may follow on a page not read yet', () => {
+		const october = { ...invoice, id: 'invoice-41', invoiceNumber: 41, invoiceDate: '2026-10-20T00:00:00.000Z' };
+		render(
+			<InvoicesLedger
+				invoices={[invoice, october as TInvoice]}
+				clientNames={new Map()}
+				timeZone="UTC"
+				pendingPdfId={null}
+				onDownload={jest.fn()}
+				canEdit={false}
+				changingIds={new Set()}
+				onAction={jest.fn()}
+				mayHoldMore
+			/>
+		);
+
+		const [november, lastMonth] = screen.getAllByRole('region');
+
+		expect(within(november).getByText(/invoices.COUNT/)).toBeTruthy();
+		expect(within(lastMonth).queryByText(/invoices.COUNT/)).toBeNull();
+	});
+
+	it('totals what a month billed: its drafts left out, one total per currency however its code is written', () => {
+		const sent = {
+			...invoice,
+			id: 'invoice-43',
+			invoiceNumber: 43,
+			status: 'SENT',
+			totalValue: 100,
+			currency: 'usd'
+		};
+		const paid = {
+			...sent,
+			id: 'invoice-44',
+			invoiceNumber: 44,
+			status: 'FULLY_PAID',
+			totalValue: 50,
+			currency: 'USD '
+		};
+		render(
+			<InvoicesLedger
+				invoices={[invoice, sent as TInvoice, paid as TInvoice]}
+				clientNames={new Map()}
+				timeZone="UTC"
+				pendingPdfId={null}
+				onDownload={jest.fn()}
+				canEdit={false}
+				changingIds={new Set()}
+				onAction={jest.fn()}
+			/>
+		);
+
+		const [november] = screen.getAllByRole('region');
+
+		expect(within(november).getByText(formatOwed(150, 'USD', 'en'))).toBeTruthy();
+		expect(within(november).queryByText(formatOwed(950, 'USD', 'en'))).toBeNull();
+	});
+});
+
+describe('a row of an invoice without a number', () => {
+	it('still opens the invoice page, its link saying it has no number', () => {
+		render(
+			<InvoicesLedger
+				invoices={[{ ...invoice, invoiceNumber: null } as unknown as TInvoice]}
+				clientNames={new Map()}
+				timeZone="UTC"
+				pendingPdfId={null}
+				onDownload={jest.fn()}
+				canEdit={false}
+				changingIds={new Set()}
+				onAction={jest.fn()}
+			/>
+		);
+
+		const link = screen.getByRole('link', { name: 'invoices.NO_NUMBER' });
+
+		expect(link.getAttribute('href')).toContain('invoice-42');
 	});
 });
 

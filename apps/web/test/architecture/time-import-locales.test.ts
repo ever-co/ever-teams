@@ -80,4 +80,17 @@ describe('time import translations', () => {
 			expect(messages[key]).not.toBe(englishImport[key]);
 		}
 	});
+
+	it.each(translatedLocaleFiles)('speaks the language of %s in the Columns step', (file) => {
+		const messages = flatMessagesOf(readMessages(file).timeImport);
+
+		for (const key of [
+			'mapping.DESCRIPTION',
+			'mapping.CONTINUE',
+			'mapping.fields.START_TIME',
+			'mapping.problems.MEMBER_NAME_UNKNOWN'
+		]) {
+			expect(messages[key]).not.toBe(englishImport[key]);
+		}
+	});
 });

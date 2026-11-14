@@ -164,3 +164,20 @@ export function pagesWithoutInvoice<T extends Identified>(
 		return { ...page, items, total };
 	});
 }
+
+export type NextInvoiceAction = Extract<InvoiceAction, 'send' | 'markPaid'>;
+
+const NEXT_ACTION_BY_STATUS: Partial<Record<InvoiceStatus, NextInvoiceAction>> = {
+	DRAFT: 'send',
+	SENT: 'markPaid',
+	VIEWED: 'markPaid',
+	PARTIALLY_PAID: 'markPaid'
+};
+
+/** The step an invoice waits for: a draft is sent, an invoice still owed is marked paid; the others wait for none. */
+export function nextInvoiceActionOf(status: InvoiceStatus | null): NextInvoiceAction | null {
+	if (!status) {
+		return null;
+	}
+	return NEXT_ACTION_BY_STATUS[status] ?? null;
+}
