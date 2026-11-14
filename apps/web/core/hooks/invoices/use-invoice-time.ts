@@ -20,7 +20,8 @@ import {
 	recordsBilledTimeOf,
 	timeLogIdsByLineOf
 } from '@/core/lib/utils/invoice-billed-time';
-import type { BilledLinesRead } from '@/core/lib/utils/invoice-edit';
+import { periodOfDays, type BilledLinesRead } from '@/core/lib/utils/invoice-edit';
+import type { InvoicePeriodDays } from '@/core/lib/utils/invoices';
 import {
 	billableEntriesOf,
 	invoiceTimeOf,
@@ -183,6 +184,31 @@ function billedReadStartOf(from: Date, readsWider: boolean) {
 	return subDays(from, 1);
 }
 
+/**
+ * The days the time of saved lines is read over: the period shown and, for a saved invoice, its own period, so an edit
+ * that picks another period keeps the links of the time those lines bill (a rollback writes them back).
+ */
+function billedSpanOf(from: Date, to: Date, savedDays: InvoicePeriodDays | null | undefined): { from: Date; to: Date } {
+	if (!savedDays) {
+		return { from, to };
+	}
+	const saved = periodOfDays(savedDays);
+	if (!saved) {
+		return { from, to };
+	}
+	const savedFrom = startOfDay(saved.from);
+	const savedTo = endOfDay(saved.to);
+	let spanFrom = from;
+	if (savedFrom < from) {
+		spanFrom = savedFrom;
+	}
+	let spanTo = to;
+	if (savedTo > to) {
+		spanTo = savedTo;
+	}
+	return { from: spanFrom, to: spanTo };
+}
+
 function billedReadEndOf(to: Date, readsWider: boolean) {
 	if (!readsWider) {
 		return to;
@@ -293,8 +319,13 @@ export function useInvoiceTime({
 	const from = useMemo(() => startOfDay(period.from), [period.from]);
 	const to = useMemo(() => endOfDay(period.to), [period.to]);
 	const hasBilledLines = billedLines.lineIds.size > 0;
-	const allFrom = useMemo(() => billedReadStartOf(from, hasBilledLines), [from, hasBilledLines]);
-	const allTo = useMemo(() => billedReadEndOf(to, hasBilledLines), [hasBilledLines, to]);
+	const savedDays = billedLines.period;
+	const billedSpan = useMemo(() => billedSpanOf(from, to, savedDays), [from, savedDays, to]);
+	const allFrom = useMemo(
+		() => billedReadStartOf(billedSpan.from, hasBilledLines),
+		[billedSpan.from, hasBilledLines]
+	);
+	const allTo = useMemo(() => billedReadEndOf(billedSpan.to, hasBilledLines), [billedSpan.to, hasBilledLines]);
 	const range = useMemo<TimeLogReportRange>(
 		() => ({ from, to, timeZone, projectIds }),
 		[from, projectIds, timeZone, to]

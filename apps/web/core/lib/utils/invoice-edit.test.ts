@@ -625,7 +625,11 @@ describe('the time a saved invoice bills', () => {
 			['p2|bo', 'item-2']
 		]);
 		expect(saved.previousLineIds).toEqual(['item-1', 'item-2']);
-		expect(billedLinesReadOf(saved)).toEqual({ lineIds: new Set(['item-1', 'item-2']), projectIds: ['p1', 'p2'] });
+		expect(billedLinesReadOf(saved)).toEqual({
+			lineIds: new Set(['item-1', 'item-2']),
+			projectIds: ['p1', 'p2'],
+			period: { fromDay: '2026-10-01', toDay: '2026-10-31' }
+		});
 	});
 
 	it('is named on each saved line, a line no time log names staying as it was saved', () => {
