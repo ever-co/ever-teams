@@ -1,6 +1,10 @@
 import { ERoleName } from '@/core/types/generics/enums/role';
 
-/** The permission Gauzy guards `GET /export` with: the archive of every table of the workspace. */
+/**
+ * The permission the app asks for the archive of every table of the workspace, on its page and in its proxy route.
+ * Gauzy's `GET /export` lets a role through with `ALL_ORG_VIEW` or `EXPORT_ADD`: the app asks for the one meant
+ * for exports, so a role that may only view the organization gets no archive of the whole workspace from it.
+ */
 export const WORKSPACE_EXPORT_PERMISSION = 'EXPORT_ADD';
 
 /** Longest part of the file name taken from the workspace's name. */
@@ -18,7 +22,7 @@ const END_OF_CENTRAL_DIRECTORY = [0x50, 0x4b, 0x05, 0x06];
 const END_RECORD_LENGTH = 22;
 const MAX_COMMENT_LENGTH = 0xffff;
 
-/** Whether the route may hand the export on: the permission the API asks for it. */
+/** Whether the route may hand the export on: `EXPORT_ADD`, stricter than Gauzy's own guard (see above). */
 export function holdsWorkspaceExportPermission(permissions: ReadonlyArray<string>): boolean {
 	return permissions.includes(WORKSPACE_EXPORT_PERMISSION);
 }

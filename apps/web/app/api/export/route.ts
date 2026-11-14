@@ -6,8 +6,9 @@ import { refuseUnlessPermitted } from '@/core/services/server/refuse-without-per
 const EXPORT_TIMEOUT_MS = 15 * 60_000;
 
 /**
- * Proxy mode twin of Gauzy's `GET /export`, the ZIP of every table of the session's workspace. A role without the
- * permission Gauzy guards it with is refused here, and the archive streams back without being held in memory.
+ * Proxy mode twin of Gauzy's `GET /export`, the ZIP of every table of the session's workspace. A role without
+ * `EXPORT_ADD` is refused here, although Gauzy also lets `ALL_ORG_VIEW` through, and the archive streams back without
+ * being held in memory.
  */
 export async function GET(req: Request) {
 	const refusal = await refuseUnlessPermitted(req, holdsWorkspaceExportPermission);
