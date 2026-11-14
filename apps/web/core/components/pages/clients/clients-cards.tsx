@@ -74,7 +74,10 @@ function ProjectsFact({ client, count, state }: Readonly<{ client: TClient; coun
 		<Link
 			href={clientProjectsPathOf(client.id)}
 			aria-label={t('clients.PROJECT_COUNT', { count })}
-			className="rounded-sm outline-none transition-colors hover:text-primary-ink focus-visible:ring-[3px] focus-visible:ring-ring/25"
+			className={cn(
+				ABOVE_ROW_LINK,
+				'rounded-sm outline-none transition-colors hover:text-primary-ink focus-visible:ring-[3px] focus-visible:ring-ring/25'
+			)}
 		>
 			{count}
 		</Link>
