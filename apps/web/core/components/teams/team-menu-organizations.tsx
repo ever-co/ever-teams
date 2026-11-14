@@ -39,8 +39,7 @@ export function TeamMenuOrganizations(props: Readonly<ITeamMenuOrganizationsProp
 		return (
 			<>
 				<DropdownMenuSeparator />
-				<div
-					role="status"
+				<output
 					aria-label={t('switchers.OTHER_ORGANIZATIONS_LOADING')}
 					className="flex flex-col gap-1.5 px-2 py-1.5"
 				>
@@ -49,7 +48,7 @@ export function TeamMenuOrganizations(props: Readonly<ITeamMenuOrganizationsProp
 						<Skeleton className="size-5 rounded-[28%] bg-foreground/[0.06]" />
 						<Skeleton className="h-3.5 w-32 bg-foreground/[0.06]" />
 					</div>
-				</div>
+				</output>
 			</>
 		);
 	}
