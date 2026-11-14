@@ -24,6 +24,7 @@ import {
 	timerStatusState
 } from '@/core/stores';
 import { useAtomValue, useAtom } from 'jotai';
+import { useIsMutating, useQueryClient } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/core/lib/helpers';
 import Link from 'next/link';
@@ -152,7 +153,10 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const switchingOrganizationId = organizationBeingOpened(switchOrganization);
 	const isSwitchingOrganization = switchingOrganizationId !== null;
 	const blocksTeamChange = timerRunningStatus || isSwitchingOrganization;
-	const blocksOrganizationSwitch = blocksTeamChange || isTimerStarting;
+	// A write still on its way (a save, a timer command) would be cut off by the page the switch replaces
+	const queryClient = useQueryClient();
+	const hasPendingWrites = useIsMutating() > 0;
+	const blocksOrganizationSwitch = blocksTeamChange || isTimerStarting || hasPendingWrites;
 	const cannotCreateTeam = !user?.isEmailVerified || blocksTeamChange;
 
 	const selectTeam = useCallback(
@@ -193,7 +197,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				});
 				return;
 			}
-			if (isSwitchingOrganization) {
+			if (isSwitchingOrganization || queryClient.isMutating() > 0) {
 				return;
 			}
 			setFailedOrganizationId(null);
@@ -209,7 +213,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				}
 			);
 		},
-		[isSwitchingOrganization, isTimerStarting, switchOrganization, t, timerRunningStatus]
+		[isSwitchingOrganization, isTimerStarting, queryClient, switchOrganization, t, timerRunningStatus]
 	);
 
 	const startTeamCreation = useCallback(() => {

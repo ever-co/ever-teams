@@ -7,8 +7,9 @@
  * organization's teams wait, with their settings, until the page is replaced.
  */
 import type { MouseEvent, ReactNode } from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('next/navigation', () => ({ usePathname: () => '/', useRouter: () => ({ push: jest.fn() }) }));
@@ -111,8 +112,9 @@ const studioTeams = [
 
 function renderDropdown({
 	isTimerStarting = false,
-	isLocalTimerRunning = false
-}: { isTimerStarting?: boolean; isLocalTimerRunning?: boolean } = {}) {
+	isLocalTimerRunning = false,
+	queryClient = new QueryClient()
+}: { isTimerStarting?: boolean; isLocalTimerRunning?: boolean; queryClient?: QueryClient } = {}) {
 	const store = createStore();
 	store.set(organizationTeamsState, studioTeams as never);
 	store.set(activeTeamIdState, 'studio-design');
@@ -120,9 +122,11 @@ function renderDropdown({
 	store.set(timerStartingState, isTimerStarting);
 	store.set(localTimerStatusState, { lastTaskId: 'task-1', runnedDateTime: 0, running: isLocalTimerRunning });
 	render(
-		<Provider store={store}>
-			<TeamsDropDown />
-		</Provider>
+		<QueryClientProvider client={queryClient}>
+			<Provider store={store}>
+				<TeamsDropDown />
+			</Provider>
+		</QueryClientProvider>
 	);
 }
 
@@ -180,6 +184,20 @@ describe('TeamsDropDown while another organization opens', () => {
 
 		expect(mockSwitch.mutate).not.toHaveBeenCalled();
 		expect(studioOps().getAttribute('aria-disabled')).toBe('true');
+	});
+
+	it('refuses to open another organization while a write is still on its way', async () => {
+		const queryClient = new QueryClient();
+		// A save the page that the switch replaces would cut off
+		const save = queryClient.getMutationCache().build(queryClient, { mutationFn: () => new Promise(() => undefined) });
+		void save.execute(undefined);
+		await act(async () => undefined);
+		renderDropdown({ queryClient });
+
+		fireEvent.click(screen.getByRole('menuitem', { name: /Labs Design/ }));
+
+		expect(mockSwitch.mutate).not.toHaveBeenCalled();
+		queryClient.clear();
 	});
 
 	it('keeps them unavailable once the switch is done, until the page is replaced', () => {
