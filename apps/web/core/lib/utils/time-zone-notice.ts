@@ -61,6 +61,10 @@ function offsetNameAt(formatter: Intl.DateTimeFormat, date: Date): string {
  * reports then count the same days whichever of the two the profile names, and the notice has nothing to say.
  */
 function keepTheSameTime(firstZone: string, secondZone: string, from: Date): boolean {
+	// The common case, where the notice has nothing to say: no day-by-day comparison
+	if (firstZone === secondZone) {
+		return true;
+	}
 	const first = offsetFormatterOf(firstZone);
 	const second = offsetFormatterOf(secondZone);
 	if (!first || !second) {

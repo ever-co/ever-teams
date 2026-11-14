@@ -70,6 +70,16 @@ describe('timeZoneNoticeOf', () => {
 		expect(noticeFor('america/new york', 'America/New_York')).toBeNull();
 	});
 
+	it('compares the year of offsets only for two different names', () => {
+		const formatToParts = jest.spyOn(Intl.DateTimeFormat.prototype, 'formatToParts');
+
+		expect(noticeFor('America/New_York (UTC -05:00)', 'America/New_York')).toBeNull();
+
+		// The browser offset is read once; the same name needs no day-by-day comparison
+		expect(formatToParts.mock.calls.length).toBeLessThanOrEqual(2);
+		formatToParts.mockRestore();
+	});
+
 	it('says nothing for two names of zones that keep the same time all year', () => {
 		expect(noticeFor('Europe/Brussels (UTC +01:00)', 'Europe/Paris')).toBeNull();
 	});
