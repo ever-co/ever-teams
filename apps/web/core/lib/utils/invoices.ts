@@ -65,12 +65,23 @@ function secondsOfLog(log: BillableLogLike) {
 	return Math.max(seconds, 0);
 }
 
+/**
+ * A group's log ids with an entry's appended. The first list a group takes is a copy, so an entry's own list is never
+ * changed; after that the group's list grows in place, since a copy per entry would grow with the square of the logs
+ * on a large invoice.
+ */
 function joinedTimeLogIds(current: ReadonlyArray<string> | undefined, added: ReadonlyArray<string> | undefined) {
 	if (!added?.length) {
 		return current;
 	}
-	const known = current ?? [];
-	return [...known, ...added];
+	if (!current) {
+		return [...added];
+	}
+	const groupLogIds = current as string[];
+	for (const logId of added) {
+		groupLogIds.push(logId);
+	}
+	return groupLogIds;
 }
 
 /** A log's id joins its entry's own list in place: a copy per log would grow with the square of the logs. */
