@@ -3,7 +3,7 @@
 import { memo, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useAtomValue } from 'jotai';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { DashboardSection } from '@/core/components/dashboards/kit/dashboard-layout';
 import { ProjectMark } from '@/core/components/dashboards/team/team-marks';
 import { TaskTitle } from '@/core/components/dashboards/timesheets/timesheet-log-row';
@@ -17,6 +17,7 @@ import {
 } from '@/core/lib/utils/dashboards/timesheets';
 import { teamTasksState } from '@/core/stores/teams/team-tasks';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 
 type Translate = ReturnType<typeof useTranslations>;
 
@@ -133,7 +134,7 @@ export function MyWeekRecentEntries({
 	canTrackTime
 }: Readonly<{ entries: ReadonlyArray<MyWeekEntry>; entryCount: number; canTrackTime: boolean }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const teamTasks = useAtomValue(teamTasksState);
 	const tasksById = useMemo(() => tasksByIdOf(teamTasks), [teamTasks]);
 	const formatters = useMemo(() => timesheetFormattersOf(locale), [locale]);
