@@ -3963,7 +3963,8 @@
 			"TASK_CLOSED_HINT": "Reabra a tarefa para registrar tempo nela.",
 			"NOTES_NOT_SAVED": "As notas alteradas enquanto o temporizador corria não foram salvas",
 			"NOTES_NOT_SAVED_HINT": "A entrada manteve as notas do início. Edite a entrada nas folhas de horas para alterá-las.",
-			"ALREADY_RUNNING_ON_TASK": "O temporizador já está em execução nesta tarefa"
+			"ALREADY_RUNNING_ON_TASK": "O temporizador já está em execução nesta tarefa",
+			"SAVED_STOP_HINT": "É a parada que você pediu antes de a sessão terminar."
 		},
 		"plans": {
 			"CREATE_FAILED": "O plano não foi criado",

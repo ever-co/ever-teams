@@ -3963,7 +3963,8 @@
 			"TASK_CLOSED_HINT": "Öffnen Sie die Aufgabe wieder, um Zeit darauf zu erfassen.",
 			"NOTES_NOT_SAVED": "Die während des laufenden Timers geänderten Notizen wurden nicht gespeichert",
 			"NOTES_NOT_SAVED_HINT": "Der Eintrag hat die Notizen vom Start behalten. Bearbeiten Sie den Eintrag in den Stundenzetteln, um sie zu ändern.",
-			"ALREADY_RUNNING_ON_TASK": "Der Timer läuft bereits für diese Aufgabe"
+			"ALREADY_RUNNING_ON_TASK": "Der Timer läuft bereits für diese Aufgabe",
+			"SAVED_STOP_HINT": "Das ist der Stopp, den du vor dem Ende deiner Sitzung angefordert hast."
 		},
 		"plans": {
 			"CREATE_FAILED": "Der Plan wurde nicht erstellt",

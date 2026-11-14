@@ -20,18 +20,24 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createStore, Provider } from 'jotai';
 import type { PropsWithChildren } from 'react';
 
-// Direct mode, whatever NEXT_PUBLIC_GAUZY_API_SERVER_URL the env files loaded for Jest set
+// Direct mode and the shipped ten minutes of the closed-tab rule, whatever the env files loaded for Jest set
 jest.mock('@/core/constants/config/constants', () => ({
 	...jest.requireActual('@/core/constants/config/constants'),
-	GAUZY_API_BASE_SERVER_URL: { value: 'https://api.example.test' }
+	GAUZY_API_BASE_SERVER_URL: { value: 'https://api.example.test' },
+	STALE_TIMER_THRESHOLD: { value: 10 * 60_000 }
 }));
 
 const mockToastError = jest.fn();
+const mockToastInfo = jest.fn();
 
 jest.mock('next/navigation', () => ({ usePathname: () => '/', useParams: () => ({}) }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, useLocale: () => 'en' }));
 jest.mock('sonner', () => ({
-	toast: { error: (...args: unknown[]) => mockToastError(...args), warning: jest.fn(), info: jest.fn() }
+	toast: {
+		error: (...args: unknown[]) => mockToastError(...args),
+		warning: jest.fn(),
+		info: (...args: unknown[]) => mockToastInfo(...args)
+	}
 }));
 // What the app logs is sent to its own log route
 jest.mock('@/core/services/logs/logger-client', () => ({ sendLogToAPI: jest.fn(async () => undefined) }));
@@ -60,6 +66,9 @@ jest.mock('@/core/hooks/organizations/teams/use-update-task', () => ({
 jest.mock('@/core/hooks/tasks/use-task-statuses-query', () => ({ useTaskStatusesQuery: () => ({ taskStatuses: [] }) }));
 jest.mock('./use-timer-billable', () => ({ useResolveTimerBillable: () => jest.fn(async () => false) }));
 
+import { resetUnauthorizedHandler } from '@/core/lib/auth/handle-unauthorized';
+import { clearSessionEndedNotice, storedSessionEndedNotice } from '@/core/lib/auth/session-ended-notice';
+import { resetSessionRenewal } from '@/core/lib/auth/session-renewal';
 import { getAccessTokenCookie, getRefreshTokenCookie } from '@/core/lib/helpers/cookies';
 import { forgetSavedStop, parseSavedStop, storedSavedStop } from '@/core/lib/utils/timer/saved-stop';
 import { authService } from '@/core/services/client/api/auth/auth.service';
@@ -68,6 +77,7 @@ import { userService } from '@/core/services/client/api/users/user.service';
 import { activeTeamIdState, organizationTeamsState, timerStatusState } from '@/core/stores';
 import { openFakeGauzyPage, type FakeGauzyPage } from '@/test/auth/fake-gauzy-page';
 import { FAKE_USER, HOUR_MS } from '@/test/auth/fake-gauzy-session';
+import { useStaleTimerGuard } from './use-stale-timer-guard';
 import { useTimerApi } from './use-timer-api';
 
 let page: FakeGauzyPage;
@@ -100,16 +110,42 @@ async function openTabWithRunningTimer() {
 			await Promise.resolve(result.current.stopTimer()).catch(() => undefined);
 		});
 	};
-	return { pressStop, store, unmount };
+	/** The heartbeat the tab sends every minute while its timer runs. */
+	const sendHeartbeat = async () => {
+		await act(async () => {
+			await result.current.syncTimer();
+		});
+	};
+	return { pressStop, sendHeartbeat, store, unmount };
+}
+
+/**
+ * The person signs in again, in a page loaded anew as the sign-in page was, and the app opens: its timer owner
+ * runs the check every page load starts with, which the heartbeat waits for.
+ */
+async function signInAgainAndOpenTheApp() {
+	resetUnauthorizedHandler();
+	resetSessionRenewal();
+	page.signIn();
+	const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	const wrapper = ({ children }: PropsWithChildren) => (
+		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+	);
+	const employee = { id: FAKE_USER.employeeId, isTrackingTime: !!page.gauzy.timeLog()?.isRunning };
+	const { result, unmount } = renderHook(() => useStaleTimerGuard(employee, true), { wrapper });
+	await waitFor(() => expect(result.current).toBe(true));
+	unmount();
 }
 
 beforeEach(() => {
 	mockToastError.mockReset();
+	mockToastInfo.mockReset();
 	page = openFakeGauzyPage([timerService, authService, userService]);
 });
 
 afterEach(() => {
 	forgetSavedStop();
+	clearSessionEndedNotice();
 	page.close();
 });
 
@@ -164,10 +200,42 @@ describe('Stop pressed when the session can no longer be renewed', () => {
 		tab.unmount();
 	});
 
+	it('is applied when the person signs in again: the run ends at the time Stop was pressed, no tracked time lost', async () => {
+		const { gauzy } = page;
+		// Later than the stops above: the timer takes two stops within half a second for one
+		page.wait(10 * 24 * HOUR_MS);
+		const tab = await openTabWithRunningTimer();
+		await tab.sendHeartbeat();
+		const lastHeartbeat = gauzy.timeLog()?.stoppedAt;
+		// Forty seconds of work later, the session is ended from elsewhere, and the person presses Stop
+		page.wait(40_000);
+		gauzy.endSession();
+		const pressedAt = new Date(Date.now()).toISOString();
+
+		await tab.pressStop();
+		tab.unmount();
+
+		// The person is told why they are on the sign-in page, and the run goes on in the API meanwhile
+		expect(page.sentToSignIn).toHaveBeenCalledTimes(1);
+		expect(storedSessionEndedNotice()).not.toBeNull();
+		expect(gauzy.timeLog()).toEqual(expect.objectContaining({ isRunning: true, stoppedAt: lastHeartbeat }));
+
+		// They sign in again the next morning
+		page.wait(15 * HOUR_MS);
+		await signInAgainAndOpenTheApp();
+
+		// The closed-tab rule alone ended the run at its last heartbeat: the forty seconds were lost
+		expect(gauzy.timeLog()).toEqual(expect.objectContaining({ isRunning: false, stoppedAt: pressedAt }));
+		expect(mockToastInfo).toHaveBeenCalledWith('toasts.timer.STALE_STOPPED', {
+			id: 'timer-saved-stop-applied',
+			description: 'toasts.timer.SAVED_STOP_HINT'
+		});
+		expect(storedSavedStop()).toBeNull();
+	});
+
 	it('is not kept when it fails while the session goes on: the timer goes on, and the person asks again', async () => {
 		const { gauzy } = page;
-		// Later than the stop above: the timer takes two stops within half a second for one
-		page.wait(9 * 24 * HOUR_MS);
+		page.wait(20 * 24 * HOUR_MS);
 		const tab = await openTabWithRunningTimer();
 		gauzy.goOffline();
 

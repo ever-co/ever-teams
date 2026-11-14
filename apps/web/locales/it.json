@@ -3963,7 +3963,8 @@
 			"TASK_CLOSED_HINT": "Riapri l'attività per registrarvi del tempo.",
 			"NOTES_NOT_SAVED": "Le note modificate mentre il timer era attivo non sono state salvate",
 			"NOTES_NOT_SAVED_HINT": "La voce ha mantenuto le note dell'avvio. Modifica la voce nei fogli presenze per cambiarle.",
-			"ALREADY_RUNNING_ON_TASK": "Il timer è già attivo su questa attività"
+			"ALREADY_RUNNING_ON_TASK": "Il timer è già attivo su questa attività",
+			"SAVED_STOP_HINT": "È l'arresto che avevi richiesto prima della fine della sessione."
 		},
 		"plans": {
 			"CREATE_FAILED": "Il piano non è stato creato",
