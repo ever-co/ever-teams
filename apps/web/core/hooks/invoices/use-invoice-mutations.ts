@@ -602,10 +602,34 @@ class InvoiceActionWithdrawnError extends Error {
 	/** Read as a conflict: someone changed the invoice at the same time. */
 	readonly status = 409;
 
-	constructor(action: InvoicePaymentAction) {
+	constructor(action: InvoiceAction) {
 		super(`The invoice's current status no longer offers ${action}`);
 		this.name = 'InvoiceActionWithdrawnError';
 	}
+}
+
+/**
+ * Refuses an action the invoice's current status no longer offers: a list or a dialog acts on the status it read, and
+ * the invoice may have been sent, paid or voided since. Nothing is written once another tab switched the workspace
+ * while the invoice was read.
+ */
+async function assertActionOffered(invoiceId: string, action: InvoiceAction, workspace: InvoicesScope) {
+	const currentStatus = await invoiceService.getInvoiceStatus(invoiceId, workspace);
+	const isOffered = invoiceActionsOf(invoiceStatusOf(currentStatus)).includes(action);
+	if (!isOffered) {
+		throw new InvoiceActionWithdrawnError(action);
+	}
+	if (!isChosenWorkspace(workspace)) {
+		throw new Error(WORKSPACE_SWITCHED);
+	}
+}
+
+/** The action a fixed change makes when the invoice's status must still offer it: Void, once paid, is refused. */
+function actionOfFixedChange(change: InvoiceStatusChange): InvoiceAction | null {
+	if (change.status === 'VOID') {
+		return 'void';
+	}
+	return null;
 }
 
 /**
@@ -633,6 +657,10 @@ async function currentPaymentChangeOf(
 async function changeStatusInItsWorkspace(request: InvoiceStatusChangeRequest): Promise<InvoiceStatusChange> {
 	const workspace = workspaceToActIn(request.scope);
 	if ('change' in request) {
+		const action = actionOfFixedChange(request.change);
+		if (action) {
+			await assertActionOffered(request.invoiceId, action, workspace);
+		}
 		await invoiceService.changeInvoiceStatus(request.invoiceId, request.change, workspace);
 		return request.change;
 	}
@@ -710,8 +738,10 @@ interface InvoiceToDelete {
 	scope: ReadWorkspace;
 }
 
+/** Only a draft is deleted: one sent or paid since the dialog opened is refused before any request deletes it. */
 async function deleteInItsWorkspace({ invoiceId, scope }: InvoiceToDelete) {
 	const workspace = workspaceToActIn(scope);
+	await assertActionOffered(invoiceId, 'delete', workspace);
 	await invoiceService.deleteInvoice(invoiceId, workspace);
 }
 

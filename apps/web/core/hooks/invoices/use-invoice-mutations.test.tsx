@@ -363,6 +363,56 @@ describe('settling and deleting an invoice', () => {
 		expect(mockDeleteInvoice).toHaveBeenCalledWith('inv-1', LIST_SCOPE);
 		expect(listedPagesOf(queryClient)).toEqual([{ items: [], total: 0 }]);
 	});
+
+	it.each(['SENT', 'FULLY_PAID'])(
+		'deletes nothing once the draft became %s while its dialog was open',
+		async (status) => {
+			mockGetInvoiceStatus.mockResolvedValue(status);
+			const queryClient = clientWithDraftListed();
+			const { result } = renderWith(queryClient, () => useDeleteInvoice());
+
+			await act(async () => {
+				await expect(
+					result.current.deleteInvoice({ invoiceId: 'inv-1', scope: LIST_SCOPE })
+				).rejects.toMatchObject({
+					status: 409
+				});
+			});
+
+			expect(mockGetInvoiceStatus).toHaveBeenCalledWith('inv-1', LIST_SCOPE);
+			expect(mockDeleteInvoice).not.toHaveBeenCalled();
+			expect(listedStatusOf(queryClient)).toBe('DRAFT');
+		}
+	);
+
+	it('deletes nothing when another tab switched the workspace while the invoice was read', async () => {
+		mockGetInvoiceStatus.mockImplementation(async () => {
+			mockCookieScope.organizationId = 'organization-2';
+			return 'DRAFT';
+		});
+		const { result } = renderWith(clientWithDraftListed(), () => useDeleteInvoice());
+
+		await act(async () => {
+			await expect(result.current.deleteInvoice({ invoiceId: 'inv-1', scope: LIST_SCOPE })).rejects.toThrow();
+		});
+
+		expect(mockDeleteInvoice).not.toHaveBeenCalled();
+	});
+
+	it('voids nothing once the invoice was paid while its dialog was open', async () => {
+		mockGetInvoiceStatus.mockResolvedValue('FULLY_PAID');
+		const queryClient = clientWithDraftListed();
+		const { result } = renderWith(queryClient, () => useChangeInvoiceStatus());
+
+		await act(async () => {
+			await expect(
+				result.current.changeStatus({ invoiceId: 'inv-1', change: { status: 'VOID' }, scope: LIST_SCOPE })
+			).rejects.toMatchObject({ status: 409 });
+		});
+
+		expect(mockChangeInvoiceStatus).not.toHaveBeenCalled();
+		expect(listedStatusOf(queryClient)).toBe('DRAFT');
+	});
 });
 
 describe('marking a listed invoice paid or unpaid', () => {
