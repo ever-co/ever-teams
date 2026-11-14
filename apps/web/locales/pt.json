@@ -3963,7 +3963,8 @@
 			"TASK_CLOSED_HINT": "Reabra a tarefa para registrar tempo nela.",
 			"NOTES_NOT_SAVED": "As notas alteradas enquanto o temporizador corria não foram salvas",
 			"NOTES_NOT_SAVED_HINT": "A entrada manteve as notas do início. Edite a entrada nas folhas de horas para alterá-las.",
-			"ALREADY_RUNNING_ON_TASK": "O temporizador já está em execução nesta tarefa"
+			"ALREADY_RUNNING_ON_TASK": "O temporizador já está em execução nesta tarefa",
+			"SAVED_STOP_HINT": "É a parada que você pediu antes de a sessão terminar."
 		},
 		"plans": {
 			"CREATE_FAILED": "O plano não foi criado",
@@ -5750,6 +5751,13 @@
 			"TEXT": "O início de sessão não foi concluído. Tente novamente ou entre com o seu e-mail.",
 			"RETRY": "Voltar ao início de sessão",
 			"CODE": "Código de erro: {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Sua sessão terminou",
+			"TEXT": "Entre de novo para continuar.",
+			"TIMER_RUNNING": "Seu temporizador estava rodando. Entre de novo antes de {deadline} e ele continua. Depois disso, ele é parado no último registro salvo: {savedUntil}.",
+			"TIMER_STILL_RUNNING": "Seu temporizador continua rodando. Entre de novo para pará-lo.",
+			"STOP_SAVED": "A parada do temporizador que você pediu está salva: {time}. Ela será aplicada assim que você entrar de novo."
 		}
 	},
 	"taskViews": {

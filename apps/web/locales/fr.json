@@ -3963,7 +3963,8 @@
 			"TASK_CLOSED_HINT": "Rouvrez la tâche pour y suivre du temps.",
 			"NOTES_NOT_SAVED": "Les notes modifiées pendant que le chronomètre tournait n'ont pas été enregistrées",
 			"NOTES_NOT_SAVED_HINT": "L'entrée a gardé les notes du démarrage. Modifiez l'entrée dans les feuilles de temps pour les changer.",
-			"ALREADY_RUNNING_ON_TASK": "Le chronomètre tourne déjà sur cette tâche"
+			"ALREADY_RUNNING_ON_TASK": "Le chronomètre tourne déjà sur cette tâche",
+			"SAVED_STOP_HINT": "C'est l'arrêt que vous aviez demandé avant la fin de votre session."
 		},
 		"plans": {
 			"CREATE_FAILED": "Le plan n'a pas été créé",
@@ -5750,6 +5751,13 @@
 			"TEXT": "La connexion n'a pas abouti. Réessayez, ou connectez-vous avec votre e-mail.",
 			"RETRY": "Retour à la connexion",
 			"CODE": "Code d'erreur : {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Votre session a expiré",
+			"TEXT": "Reconnectez-vous pour continuer.",
+			"TIMER_RUNNING": "Votre chronomètre tournait. Reconnectez-vous avant {deadline} et il continue de tourner. Passé ce délai, il est arrêté à son dernier enregistrement : {savedUntil}.",
+			"TIMER_STILL_RUNNING": "Votre chronomètre tourne toujours. Reconnectez-vous pour l'arrêter.",
+			"STOP_SAVED": "L'arrêt du chronomètre que vous avez demandé est enregistré : {time}. Il sera appliqué dès votre reconnexion."
 		}
 	},
 	"taskViews": {

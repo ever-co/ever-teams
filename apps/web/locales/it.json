@@ -3963,7 +3963,8 @@
 			"TASK_CLOSED_HINT": "Riapri l'attività per registrarvi del tempo.",
 			"NOTES_NOT_SAVED": "Le note modificate mentre il timer era attivo non sono state salvate",
 			"NOTES_NOT_SAVED_HINT": "La voce ha mantenuto le note dell'avvio. Modifica la voce nei fogli presenze per cambiarle.",
-			"ALREADY_RUNNING_ON_TASK": "Il timer è già attivo su questa attività"
+			"ALREADY_RUNNING_ON_TASK": "Il timer è già attivo su questa attività",
+			"SAVED_STOP_HINT": "È l'arresto che avevi richiesto prima della fine della sessione."
 		},
 		"plans": {
 			"CREATE_FAILED": "Il piano non è stato creato",
@@ -5750,6 +5751,13 @@
 			"TEXT": "L'accesso non è stato completato. Riprova oppure accedi con la tua e-mail.",
 			"RETRY": "Torna all'accesso",
 			"CODE": "Codice di errore: {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "La sessione è scaduta",
+			"TEXT": "Accedi di nuovo per continuare.",
+			"TIMER_RUNNING": "Il tuo timer era in esecuzione. Accedi di nuovo prima di {deadline} e continuerà. Dopo, viene fermato all'ultimo salvataggio: {savedUntil}.",
+			"TIMER_STILL_RUNNING": "Il tuo timer è ancora in esecuzione. Accedi di nuovo per fermarlo.",
+			"STOP_SAVED": "L'arresto del timer che hai richiesto è salvato: {time}. Verrà applicato appena accedi di nuovo."
 		}
 	},
 	"taskViews": {

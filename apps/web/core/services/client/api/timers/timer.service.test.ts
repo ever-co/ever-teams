@@ -174,4 +174,28 @@ describe('TimerService.stopTimer', () => {
 			source: ETimeLogSource.TEAMS
 		});
 	});
+
+	// A stop made for one run (the one a person asked to stop before their session ended) names it, so that Gauzy
+	// refuses it when another run is the running one by then
+	const namedStop = {
+		source: ETimeLogSource.TEAMS,
+		stoppedAt: '2026-11-04T22:00:00.000Z',
+		timeLogId: '9a1c3f0e-6f0b-4d53-9a43-1c1f6a2b7d10'
+	};
+
+	it('names the time log a stop is for to Gauzy in direct mode', async () => {
+		publishedApiOrigin.value = 'https://api.example.test';
+		const post = jest.spyOn(timerService, 'post').mockResolvedValue({ data: {} } as never);
+		jest.spyOn(timerService, 'getTimerStatus').mockResolvedValue({ data: {} } as never);
+
+		await timerService.stopTimer(namedStop);
+
+		expect(post).toHaveBeenCalledWith('/timesheet/timer/stop', expect.objectContaining(namedStop));
+	});
+
+	it('names the time log a stop is for to the stop route in proxy mode', async () => {
+		await timerService.stopTimer(namedStop);
+
+		expect(mockFallbackPost).toHaveBeenCalledWith(expect.stringMatching(/^\/timer\/stop\?/), namedStop);
+	});
 });

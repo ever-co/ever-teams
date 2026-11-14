@@ -134,6 +134,7 @@ jest.mock('@/core/lib/auth/token-organization', () => ({
 	syncTokenOrganization: () => mockSyncTokenOrganization()
 }));
 
+import { leaveSessionEndedNotice, storedSessionEndedNotice } from '@/core/lib/auth/session-ended-notice';
 import { InitState } from './init-state';
 
 function resetState() {
@@ -433,5 +434,17 @@ describe('InitState dependency DAG', () => {
 
 		expect(mockCancelQueries).not.toHaveBeenCalled();
 		expect(mockInvalidateQueries).not.toHaveBeenCalled();
+	});
+});
+
+describe('InitState, once someone is signed in', () => {
+	beforeEach(resetState);
+
+	it('forgets what the sign-in page said about a session the app ended in this tab', () => {
+		leaveSessionEndedNotice();
+
+		render(<InitState />);
+
+		expect(storedSessionEndedNotice()).toBeNull();
 	});
 });

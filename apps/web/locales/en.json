@@ -3963,7 +3963,8 @@
 			"TASK_CLOSED_HINT": "Reopen the task to track time on it.",
 			"NOTES_NOT_SAVED": "The notes changed while the timer ran were not saved",
 			"NOTES_NOT_SAVED_HINT": "The entry kept the notes it started with. Edit the entry in Timesheets to change them.",
-			"ALREADY_RUNNING_ON_TASK": "The timer is already running on this task"
+			"ALREADY_RUNNING_ON_TASK": "The timer is already running on this task",
+			"SAVED_STOP_HINT": "This is the stop you asked for before your session ended."
 		},
 		"plans": {
 			"CREATE_FAILED": "The plan was not created",
@@ -5750,6 +5751,13 @@
 			"TEXT": "The sign-in did not complete. Try again, or sign in with your e-mail.",
 			"RETRY": "Back to sign in",
 			"CODE": "Error code: {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Your session has ended",
+			"TEXT": "Sign in again to continue.",
+			"TIMER_RUNNING": "Your timer was running. Sign in again before {deadline} and it keeps running. After that, it is stopped at {savedUntil}, the last time it was saved.",
+			"TIMER_STILL_RUNNING": "Your timer is still running. Sign in again to stop it.",
+			"STOP_SAVED": "The timer stop you asked for at {time} is saved. It is applied as soon as you sign in again."
 		}
 	},
 	"taskViews": {

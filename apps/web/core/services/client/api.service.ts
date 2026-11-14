@@ -17,13 +17,37 @@ import {
 	getTenantIdCookie
 } from '@/core/lib/helpers/cookies';
 import { handleUnauthorized } from '@/core/lib/auth/handle-unauthorized';
+import { tokensShareScope } from '@/core/lib/auth/jwt-utils';
+import { renewSession } from '@/core/lib/auth/session-renewal';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, {
+	AxiosError,
+	AxiosHeaders,
+	AxiosInstance,
+	AxiosRequestConfig,
+	AxiosResponse,
+	InternalAxiosRequestConfig
+} from 'axios';
 import { APIConfig } from './axios';
 import { HttpLoggerAdapter } from '../logs/logger-adapter.service';
 import { Logger } from '../logs/logger.service';
 import { ApiErrorService } from './api-error.service';
 import { requestBodyForLog } from './request-log-body';
+
+/** A request as Axios gives it back with its 401, and what this service notes on it. */
+type RefusedRequest = InternalAxiosRequestConfig &
+	APIConfig & {
+		/** The request was sent again once the session was renewed: a 401 it gets now is its answer. */
+		sentAgainAfterRenewal?: boolean;
+	};
+
+function bearerTokenOf(request: RefusedRequest): string | null {
+	const authorization = AxiosHeaders.from(request.headers).get('Authorization');
+	if (typeof authorization !== 'string' || !authorization.startsWith('Bearer ')) {
+		return null;
+	}
+	return authorization.slice('Bearer '.length) || null;
+}
 
 /**
  * Configuration Options for HTTP Request
@@ -160,6 +184,10 @@ export class APIService {
 	 * @returns A promise that rejects the error
 	 */
 	private _handleAxiosError(error: AxiosError): never {
+		// Already boxed by the call that failed: the session renewal a refused request waited for
+		if (ApiErrorService.isApiError(error)) {
+			throw error;
+		}
 		if (axios.isCancel(error)) {
 			throw ApiErrorService.fromAxiosError({
 				...error,
@@ -187,7 +215,7 @@ export class APIService {
 				this.logError(error);
 
 				if (error.response && error.response.status === 401) {
-					this.handleUnauthorized(error);
+					return this.handleUnauthorized(error);
 				}
 				return Promise.reject(error);
 			}
@@ -227,42 +255,66 @@ export class APIService {
 	}
 
 	/**
-	 * Handles 401 Unauthorized errors by redirecting users appropriately.
-	 * This logic adapts to special path prefixes used in Our App (e.g., /god-mode, /spaces).
+	 * Answers a request the API refused with 401. On a page that needs a session, the session is renewed with the
+	 * refresh token (session-renewal.ts, once for every request refused meanwhile) and the request is sent again
+	 * with the new token. The API refused it before running anything, so sending it again is safe, a timer start
+	 * or stop included.
 	 *
-	 * NOTE: Token refresh is handled by the centralized handleUnauthorized() function
-	 * which has a 600ms debounce window allowing refreshUserData() to attempt refresh
-	 * before logout (optimistic recovery pattern).
+	 * - The session cannot be renewed (the API refuses the refresh token, or there is none): the centralized
+	 *   handleUnauthorized() signs the person out, and the request fails with its 401.
+	 * - The renewal could not be made now (no network, a server error): the request fails with that error, which
+	 *   tells the caller more than the 401 would, and the session is kept.
+	 * - The request is refused again once the session is renewed: that 401 is its answer. Nothing is renewed a
+	 *   second time, and nobody is signed out.
 	 *
-	 * The 600ms window is critical:
-	 * 1. When 401 occurs, handleUnauthorized() is called
-	 * 2. It sets a 600ms timeout before logout
-	 * 3. During this window, refreshUserData() can attempt token refresh
-	 * 4. If refresh succeeds, cancelPendingLogout() prevents the logout
-	 * 5. If refresh fails, logout proceeds normally
+	 * Sign-in pages and public team pages are open without a session: a 401 there is the request's answer.
 	 *
 	 * @param {any} error - The error object from Axios response.
+	 * @returns The answer of the request sent again.
 	 * @private
 	 */
-	private handleUnauthorized(error: any) {
+	private async handleUnauthorized(error: any): Promise<AxiosResponse> {
 		const paths = location.pathname.split('/').filter(Boolean);
 		const isAuthPath =
 			(!paths.includes('join') &&
 				(paths[0] === 'team' || (APPLICATION_LANGUAGES_CODE.includes(paths[0]) && paths[1] === 'team'))) ||
 			paths[0] === 'auth';
-		if (isAuthPath) {
-			return error?.response;
+		const request = error.config as RefusedRequest | undefined;
+		if (isAuthPath || !request || request.noSessionRenewal || request.sentAgainAfterRenewal) {
+			throw error;
 		}
 
-		// Use centralized handler which has 600ms debounce for token refresh attempts
-		// Don't disconnect immediately - this gives refreshUserData() a chance to recover
-		handleUnauthorized(DisconnectionReason.UNAUTHORIZED_401, {
-			status: 401,
-			endpoint: error.config?.url,
-			method: error.config?.method,
-			path: location.pathname,
-			context: 'api.service.ts -> handleUnauthorized'
-		});
+		const refusedToken = bearerTokenOf(request);
+		const renewal = await renewSession(refusedToken);
+
+		if (renewal.outcome === 'ended') {
+			const reason = renewal.hadRefreshToken
+				? DisconnectionReason.REFRESH_TOKEN_EXPIRED
+				: DisconnectionReason.COOKIES_MISSING;
+			void handleUnauthorized(reason, {
+				status: 401,
+				endpoint: request.url,
+				method: request.method,
+				path: location.pathname,
+				context: 'api.service.ts -> handleUnauthorized'
+			});
+			throw error;
+		}
+		if (renewal.outcome === 'unavailable') {
+			throw renewal.error ?? error;
+		}
+
+		request.sentAgainAfterRenewal = true;
+		if (request.pinnedAuthorization) {
+			// Pinned to the session it was built for: only a token of that same user, tenant and organization
+			// takes the place of the refused one
+			const renewedToken = getAccessTokenCookie();
+			if (!refusedToken || !renewedToken || !tokensShareScope(refusedToken, renewedToken)) {
+				throw error;
+			}
+			request.headers.set('Authorization', `Bearer ${renewedToken}`);
+		}
+		return this.axiosInstance.request(request);
 	}
 
 	/**

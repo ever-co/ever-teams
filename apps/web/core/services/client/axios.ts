@@ -1,7 +1,5 @@
 import { APPLICATION_LANGUAGES_CODE, GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
-import { handleUnauthorized } from '@/core/lib/auth/handle-unauthorized';
-import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { APIService } from './api.service';
 import { buildAPIService, buildDirectAPIService } from './api-factory';
@@ -9,7 +7,7 @@ import { buildAPIService, buildDirectAPIService } from './api-factory';
 let api: APIService;
 let apiDirect: APIService;
 
-// Public team pages are open to visitors without a session, so a 401 there must not log anyone out.
+// Public team pages are open to visitors without a session: a 401 there is an answer like another.
 const isPublicTeamPage = () => {
 	const paths = location.pathname.split('/').filter(Boolean);
 	return (
@@ -37,21 +35,8 @@ export const getAPI = async (): Promise<APIService> => {
 			(error: any) => Promise.reject(error)
 		);
 
-		api.axiosInstance.interceptors.response.use(
-			(response: AxiosResponse) => response,
-			async (error: { response: AxiosResponse; config?: any }) => {
-				if (error.response?.status === 401 && !isPublicTeamPage()) {
-					// Let handleUnauthorized() attempt token refresh before logging out
-					handleUnauthorized(DisconnectionReason.UNAUTHORIZED_401, {
-						status: 401,
-						endpoint: error.config?.url,
-						method: error.config?.method,
-						context: 'axios.ts -> api.axiosInstance.interceptors.response.use'
-					});
-				}
-				return Promise.reject(error);
-			}
-		);
+		// What a 401 does (renew the session, send the request again, or sign out) is decided by the APIService this
+		// client is built on, once for the request: api.service.ts handleUnauthorized()
 	}
 	return api;
 };
@@ -78,20 +63,10 @@ export const getAPIDirect = async (): Promise<APIService> => {
 		apiDirect.axiosInstance.interceptors.response.use(
 			(response: AxiosResponse) => response,
 			async (error: { response: AxiosResponse; config?: any }) => {
-				const statusCode = error.response?.status;
-				if (statusCode === 401) {
-					if (isPublicTeamPage()) {
-						return error.response;
-					}
-					// Don't disconnect immediately - let handleUnauthorized() trigger the 600ms debounce
-					// which gives refreshUserData() a chance to attempt token refresh
-					handleUnauthorized(DisconnectionReason.UNAUTHORIZED_401, {
-						status: 401,
-						endpoint: error.config?.url,
-						method: error.config?.method,
-						path: location.pathname,
-						context: 'axios.ts -> apiDirect.axiosInstance.interceptors.response.use'
-					});
+				// Elsewhere, what a 401 does (renew the session, send the request again, or sign out) is decided by the
+				// APIService this client is built on, once for the request: api.service.ts handleUnauthorized()
+				if (error.response?.status === 401 && isPublicTeamPage()) {
+					return error.response;
 				}
 				return Promise.reject(error);
 			}
@@ -104,6 +79,11 @@ export type APIConfig = AxiosRequestConfig<any> & {
 	tenantId?: string | null;
 	directAPI?: boolean;
 	pinnedAuthorization?: boolean;
+	/**
+	 * A 401 of this request is its answer: the session is not renewed for it and it is not sent again. For the
+	 * request that renews the session itself, whose 401 says the refresh token is refused.
+	 */
+	noSessionRenewal?: boolean;
 	/**
 	 * The answer holds a secret shown once (a chat webhook's URL or signing secret): the development log of
 	 * `APIService` leaves its body out, in direct and in proxy mode alike.
