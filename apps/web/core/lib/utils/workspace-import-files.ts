@@ -242,7 +242,7 @@ function withEntriesAppended(first: WorkspaceTable, next: TimeImportTable): Work
 
 function decode(bytes: ArrayBuffer | Uint8Array): string | null {
 	try {
-		return new TextDecoder('utf-8', { fatal: true }).decode(bytes).replace(/^﻿/u, '');
+		return new TextDecoder('utf-8', { fatal: true }).decode(bytes).replace(/^\uFEFF/u, '');
 	} catch {
 		return null;
 	}
