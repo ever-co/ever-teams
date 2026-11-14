@@ -833,6 +833,27 @@ export interface SavedInvoiceRead {
 }
 
 /**
+ * The current organization, once it is the one of the workspace the invoice was read in. Right after a workspace
+ * switch, the read already answers in the new workspace while the current organization is still the previous one for a
+ * render: its time zone would read the invoice, and an editor would keep that reading as its baseline. Until both
+ * agree, there is no organization yet. With no read, the current organization stands.
+ */
+export function organizationOfWorkspace<T extends { id: string; tenantId?: string | null }>(
+	organization: T | null,
+	workspace: InvoiceWorkspace | null
+): T | null {
+	if (!organization || !workspace) {
+		return organization;
+	}
+	const isSameOrganization = organization.id === workspace.organizationId;
+	const isSameTenant = !organization.tenantId || organization.tenantId === workspace.tenantId;
+	if (isSameOrganization && isSameTenant) {
+		return organization;
+	}
+	return null;
+}
+
+/**
  * The API finds an invoice by its id across every organization of the tenant: an invoice of another organization,
  * opened by its link after another tab switched the workspace, is not edited or replaced from this one.
  */
