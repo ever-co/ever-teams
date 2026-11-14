@@ -9,7 +9,7 @@
  * them (proxy mode), which answer a timer command with the day's status.
  *
  * The clock is `Date.now()`, so a test that moves it (`jest.setSystemTime`, a `Date.now` spy) ages the tokens for the
- * app and for this stand-in alike.
+ * app and for this stand-in alike. `serverClockOffsetMs` sets the API's clock apart from the computer's.
  */
 import { AxiosAdapter, AxiosError, AxiosHeaders, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
@@ -23,11 +23,13 @@ export const FAKE_USER = {
 	organizationId: '44444444-4444-4444-8444-444444444444'
 };
 
-interface FakeGauzyOptions {
+export interface FakeGauzyOptions {
 	/** Access token lifetime. Gauzy's default is one day. */
 	accessLifetimeMs?: number;
 	/** Refresh token lifetime. Gauzy's code default is seven days; its sample configuration sets one day. */
 	refreshLifetimeMs?: number;
+	/** How far the API's clock is from the computer's: negative when the computer's clock runs ahead. */
+	serverClockOffsetMs?: number;
 }
 
 interface FakeGauzyRequest {
@@ -89,10 +91,11 @@ export function createFakeGauzy(options: FakeGauzyOptions = {}) {
 	let held: Array<() => void> = [];
 	let timeLog: FakeTimeLog | null = null;
 	let brokenRenewals: 'network' | 'server' | null = null;
+	const serverNow = () => Date.now() + (options.serverClockOffsetMs ?? 0);
 
 	const mintPair = (organizationId = FAKE_USER.organizationId) => {
 		sequence += 1;
-		const now = Date.now();
+		const now = serverNow();
 		const identity = { id: FAKE_USER.id, tenantId: FAKE_USER.tenantId, organizationId };
 		const token = signedToken({
 			...identity,
@@ -154,7 +157,7 @@ export function createFakeGauzy(options: FakeGauzyOptions = {}) {
 		}
 		const record = refreshTokens.get(String(body.refresh_token));
 		if (!record) return refuse(config, 'Unauthorized');
-		if (record.expiresAt <= Date.now()) return refuse(config, 'jwt expired');
+		if (record.expiresAt <= serverNow()) return refuse(config, 'jwt expired');
 		if (record.status !== 'active') return refuse(config, `Token is ${record.status}`);
 		record.status = 'rotated';
 		const pair = mintPair(record.organizationId);
@@ -173,14 +176,14 @@ export function createFakeGauzy(options: FakeGauzyOptions = {}) {
 				message: 'This stop names a time log that is not the running one.'
 			});
 		}
-		const stoppedAt = typeof body.stoppedAt === 'string' ? body.stoppedAt : new Date(Date.now()).toISOString();
+		const stoppedAt = typeof body.stoppedAt === 'string' ? body.stoppedAt : new Date(serverNow()).toISOString();
 		timeLog = { ...timeLog, isRunning: false, stoppedAt };
 		return null;
 	};
 
 	const heartbeat = () => {
 		// It moves the running log's end to the server's time
-		if (timeLog?.isRunning) timeLog = { ...timeLog, stoppedAt: new Date(Date.now()).toISOString() };
+		if (timeLog?.isRunning) timeLog = { ...timeLog, stoppedAt: new Date(serverNow()).toISOString() };
 	};
 
 	const answerRoute = (config: InternalAxiosRequestConfig, request: FakeGauzyRequest): AxiosResponse => {
@@ -190,7 +193,7 @@ export function createFakeGauzy(options: FakeGauzyOptions = {}) {
 		if (route === 'POST /auth/refresh') return answerRefresh(config, body, true);
 
 		const expiresAt = request.accessToken ? accessTokens.get(request.accessToken) : undefined;
-		if (!expiresAt || expiresAt <= Date.now() || refusedRoutes.has(route)) return refuse(config, 'Unauthorized');
+		if (!expiresAt || expiresAt <= serverNow() || refusedRoutes.has(route)) return refuse(config, 'Unauthorized');
 
 		switch (route) {
 			case 'GET /user/me':
@@ -271,7 +274,7 @@ export function createFakeGauzy(options: FakeGauzyOptions = {}) {
 		 */
 		renewFromAnotherTab: (refreshToken: string) => {
 			const record = refreshTokens.get(refreshToken);
-			if (record?.status !== 'active' || record.expiresAt <= Date.now()) {
+			if (record?.status !== 'active' || record.expiresAt <= serverNow()) {
 				throw new Error('The other tab could not renew the session with this refresh token');
 			}
 			record.status = 'rotated';
@@ -299,6 +302,11 @@ export function createFakeGauzy(options: FakeGauzyOptions = {}) {
 			});
 			accessTokens.clear();
 		},
+		/** The running timer is stopped from another device. */
+		stopTimerElsewhere: () => {
+			if (timeLog?.isRunning)
+				timeLog = { ...timeLog, isRunning: false, stoppedAt: new Date(serverNow()).toISOString() };
+		},
 		/** A timer the person started earlier, still running. */
 		runTimer: (startedMsAgo = 30 * 60 * 1000): FakeTimeLog => {
 			const startedAt = new Date(Date.now() - startedMsAgo).toISOString();
@@ -309,12 +317,12 @@ export function createFakeGauzy(options: FakeGauzyOptions = {}) {
 		/** Whether the refresh token is the one the server would accept now. */
 		acceptsRefreshToken: (refreshToken: string | null | undefined) => {
 			const record = refreshToken ? refreshTokens.get(refreshToken) : undefined;
-			return !!record && record.status === 'active' && record.expiresAt > Date.now();
+			return !!record && record.status === 'active' && record.expiresAt > serverNow();
 		},
 		/** Whether the access token is one the server would accept now. */
 		acceptsAccessToken: (accessToken: string | null | undefined) => {
 			const expiresAt = accessToken ? accessTokens.get(accessToken) : undefined;
-			return !!expiresAt && expiresAt > Date.now();
+			return !!expiresAt && expiresAt > serverNow();
 		}
 	};
 }

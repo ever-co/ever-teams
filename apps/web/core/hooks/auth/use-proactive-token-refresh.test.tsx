@@ -16,12 +16,14 @@ jest.mock('@/core/lib/helpers/cookies', () => ({
 jest.mock('@/core/services/client/api/auth/auth.service', () => ({
 	authService: { refreshTokenRaw: jest.fn() }
 }));
+// A token that lives two hours: the scheduler looks at it once a minute (a tenth of its lifetime, a minute at most)
 jest.mock('@/core/lib/auth/jwt-utils', () => ({
 	shouldRefreshToken: () => shouldRefresh,
 	getTokenRemainingTime: () => 3600,
 	getTokenLifetime: () => 7200,
 	formatRemainingTime: (value: number) => String(value),
-	calculateRefreshInterval: () => 10_000
+	getTokenRenewalTime: () => Number.MAX_SAFE_INTEGER,
+	isTokenExpired: () => false
 }));
 jest.mock('@/core/constants/config/constants', () => ({ INIT_DELAY_MS: 10 }));
 
@@ -44,18 +46,18 @@ describe('useProactiveTokenRefresh scheduler ownership', () => {
 		const timeoutSpy = jest.spyOn(window, 'setTimeout');
 		const { rerender, unmount } = renderHook(() => useProactiveTokenRefresh());
 		await act(async () => jest.advanceTimersByTime(10));
-		expect(timeoutSpy.mock.calls.filter(([, delay]) => delay === 10_000)).toHaveLength(0);
+		expect(timeoutSpy.mock.calls.filter(([, delay]) => delay === 60_000)).toHaveLength(0);
 
 		accessToken = 'access-token';
 		pathname = '/';
 		rerender();
 		await act(async () => jest.advanceTimersByTime(10));
-		expect(timeoutSpy.mock.calls.filter(([, delay]) => delay === 10_000)).toHaveLength(1);
+		expect(timeoutSpy.mock.calls.filter(([, delay]) => delay === 60_000)).toHaveLength(1);
 
 		pathname = '/dashboard';
 		rerender();
 		await act(async () => jest.advanceTimersByTime(10));
-		expect(timeoutSpy.mock.calls.filter(([, delay]) => delay === 10_000)).toHaveLength(2);
+		expect(timeoutSpy.mock.calls.filter(([, delay]) => delay === 60_000)).toHaveLength(2);
 
 		unmount();
 		expect(jest.getTimerCount()).toBeLessThanOrEqual(1);
