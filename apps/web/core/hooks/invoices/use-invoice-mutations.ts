@@ -32,6 +32,7 @@ import {
 	unpaidChangeOf,
 	VOID_CHANGE,
 	type InvoiceAction,
+	type InvoiceRevisingAction,
 	type InvoiceStatusChange,
 	type ListedInvoicesPage
 } from '@/core/lib/utils/invoice-actions';
@@ -162,6 +163,8 @@ async function markSentWhileDraft(invoiceId: string, workspace: InvoicesScope): 
 
 async function sendAndMarkSent(target: InvoiceToSend): Promise<InvoiceSending> {
 	const workspace = workspaceToActIn(target.scope);
+	// An e-mail cannot be taken back: an invoice voided since the dialog opened is never sent
+	await assertActionOffered(target.invoiceId, 'send', workspace);
 	await invoiceService.sendInvoiceByEmail(target, workspace);
 	if (!target.marksSent) {
 		return { outcome: 'sent', isMarkedSent: false };
@@ -602,7 +605,7 @@ class InvoiceActionWithdrawnError extends Error {
 	/** Read as a conflict: someone changed the invoice at the same time. */
 	readonly status = 409;
 
-	constructor(action: InvoiceAction) {
+	constructor(action: InvoiceAction | InvoiceRevisingAction) {
 		super(`The invoice's current status no longer offers ${action}`);
 		this.name = 'InvoiceActionWithdrawnError';
 	}
@@ -706,6 +709,11 @@ interface InvoiceToReplace {
 async function voidToReplace({ invoiceId, scope }: InvoiceToReplace): Promise<VoidToReplaceOutcome> {
 	const readScope = workspaceToActIn(scope);
 	const invoice = await invoiceService.getInvoice(invoiceId, { tenantId: readScope.tenantId });
+	// Marked unpaid or voided since the dialog opened, it is no longer one to void and replace
+	const isStillReplaceable = invoiceRevisionsOf(invoiceStatusOf(invoice.status)).includes('voidAndReplace');
+	if (!isStillReplaceable) {
+		throw new InvoiceActionWithdrawnError('voidAndReplace');
+	}
 	if (!isRebuildableInvoice(invoice)) {
 		return 'notRebuildable';
 	}
