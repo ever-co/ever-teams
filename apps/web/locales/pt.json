@@ -3962,6 +3962,7 @@
 			"NO_TASK": "Escolha uma tarefa para iniciar o temporizador",
 			"START_IN_PROGRESS": "O temporizador ainda está iniciando em outra tarefa",
 			"WORKSPACE_OPENING": "O seu novo espaço de trabalho está a abrir: inicie o temporizador quando estiver aberto.",
+			"ORGANIZATION_OPENING": "Está a abrir outra organização: inicie o temporizador quando estiver aberta.",
 			"STOPPED_TEAM_SWITCH": "Temporizador parado porque você trocou de equipe",
 			"STOPPED_TASK_SWITCH": "Temporizador parado porque sua tarefa ativa mudou",
 			"STALE_STOPPED": "Temporizador parado: {stoppedAt}",

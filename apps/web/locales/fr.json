@@ -3962,6 +3962,7 @@
 			"NO_TASK": "Choisissez une tâche pour démarrer le chronomètre",
 			"START_IN_PROGRESS": "Le chronomètre démarre encore sur une autre tâche",
 			"WORKSPACE_OPENING": "Votre nouvel espace de travail s’ouvre : lancez le chronomètre une fois qu’il est ouvert.",
+			"ORGANIZATION_OPENING": "Une autre organisation s’ouvre : lancez le chronomètre une fois qu’elle est ouverte.",
 			"STOPPED_TEAM_SWITCH": "Chronomètre arrêté, car vous avez changé d'équipe",
 			"STOPPED_TASK_SWITCH": "Chronomètre arrêté, car votre tâche active a changé",
 			"STALE_STOPPED": "Chronomètre arrêté : {stoppedAt}",

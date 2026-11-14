@@ -3962,6 +3962,7 @@
 			"NO_TASK": "Select a task to start the timer",
 			"START_IN_PROGRESS": "The timer is still starting on another task",
 			"WORKSPACE_OPENING": "Your new workspace is opening: start the timer once it is open.",
+			"ORGANIZATION_OPENING": "Another organization is opening: start the timer once it is open.",
 			"STOPPED_TEAM_SWITCH": "Timer stopped because you switched teams",
 			"STOPPED_TASK_SWITCH": "Timer stopped because your active task changed",
 			"STALE_STOPPED": "Timer stopped at {stoppedAt}",

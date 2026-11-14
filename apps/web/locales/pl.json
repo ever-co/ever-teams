@@ -3962,6 +3962,7 @@
 			"NO_TASK": "Wybierz zadanie, aby uruchomić timer",
 			"START_IN_PROGRESS": "Timer wciąż uruchamia się dla innego zadania",
 			"WORKSPACE_OPENING": "Nowa przestrzeń robocza się otwiera: uruchom licznik czasu, gdy będzie otwarta.",
+			"ORGANIZATION_OPENING": "Otwiera się inna organizacja: uruchom licznik czasu, gdy będzie otwarta.",
 			"STOPPED_TEAM_SWITCH": "Timer zatrzymany po zmianie zespołu",
 			"STOPPED_TASK_SWITCH": "Timer zatrzymany, bo zmieniło się aktywne zadanie",
 			"STALE_STOPPED": "Timer zatrzymany: {stoppedAt}",
