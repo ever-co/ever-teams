@@ -10,6 +10,7 @@ import { Calendar } from '@/core/components/common/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo } from 'react';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 
 /**
  * DatePickerWithRange component provides a date range picker with preset ranges.
@@ -140,15 +141,19 @@ const PresetDates = ({
 	date: DateRange | undefined;
 }) => {
 	const t = useTranslations();
+	const weekStart = useWorkspaceWeekStart();
 
 	const presets = useMemo(
 		() => [
 			{ label: t('common.TODAY'), range: { from: new Date(), to: new Date() } },
 			{ label: t('common.YESTERDAY'), range: { from: subDays(new Date(), 1), to: subDays(new Date(), 1) } },
-			{ label: t('common.THIS_WEEK'), range: { from: startOfWeek(new Date()), to: endOfWeek(new Date()) } },
+			{ label: t('common.THIS_WEEK'), range: { from: startOfWeek(new Date(), { weekStartsOn: weekStart }), to: endOfWeek(new Date(), { weekStartsOn: weekStart }) } },
 			{
 				label: t('common.LAST_WEEK'),
-				range: { from: startOfWeek(subDays(new Date(), 7)), to: endOfWeek(subDays(new Date(), 7)) }
+				range: {
+					from: startOfWeek(subDays(new Date(), 7), { weekStartsOn: weekStart }),
+					to: endOfWeek(subDays(new Date(), 7), { weekStartsOn: weekStart })
+				}
 			},
 			{ label: t('common.THIS_MONTH'), range: { from: startOfMonth(new Date()), to: endOfMonth(new Date()) } },
 			{
@@ -161,7 +166,7 @@ const PresetDates = ({
 			{ label: t('common.FILTER_LAST_7_DAYS'), range: { from: subDays(new Date(), 7), to: new Date() } },
 			{ label: t('common.LAST_TWO_WEEKS'), range: { from: subDays(new Date(), 14), to: new Date() } }
 		],
-		[t]
+		[t, weekStart]
 	);
 
 	const [selected, setSelected] = React.useState<DateRange>();
