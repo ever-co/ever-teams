@@ -36,7 +36,7 @@ import { TOrganizationTeam } from '@/core/types/schemas';
 import { useActiveTeamSnapshot } from '@/core/hooks/organizations/teams/use-active-team-snapshot';
 import { useTeamMenuOrganizations } from '@/core/hooks/organizations/teams/use-team-menu-organizations';
 import { useSwitchOrganization } from '@/core/hooks/organizations/teams/use-switch-organization';
-import type { ITeamMenuOrganization } from '@/core/lib/utils/team-menu-organizations';
+import { teamsOutsideOtherOrganizations, type ITeamMenuOrganization } from '@/core/lib/utils/team-menu-organizations';
 import { TeamMenuOrganizations, teamImageOf } from './team-menu-organizations';
 
 const TEAM_SWITCH_BLOCKED_TOAST_ID = 'team-switch-blocked-timer-running';
@@ -151,12 +151,16 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const menuOrganizations = useTeamMenuOrganizations();
 	const switchOrganization = useSwitchOrganization();
 	const [failedOrganizationId, setFailedOrganizationId] = useState<string | null>(null);
-	const otherOrganizations = menuOrganizations.data?.others ?? [];
+	const otherOrganizations = useMemo(() => menuOrganizations.data?.others ?? [], [menuOrganizations.data?.others]);
 	const currentOrganizationName = menuOrganizations.data?.current?.name;
 	const hasOtherOrganizations = otherOrganizations.length > 0;
 	const labelsCurrentOrganization = hasOtherOrganizations && Boolean(currentOrganizationName);
 	const switchingOrganizationId = organizationBeingOpened(switchOrganization);
 	const isSwitchingOrganization = switchingOrganizationId !== null;
+	const teamsOfThisOrganization = useMemo(
+		() => teamsOutsideOtherOrganizations(orderedTeams, otherOrganizations),
+		[orderedTeams, otherOrganizations]
+	);
 
 	const openOtherOrganization = useCallback(
 		(organization: ITeamMenuOrganization, team?: TOrganizationTeam) => {
@@ -239,7 +243,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 							</div>
 						)}
 
-						{orderedTeams.map((team) => {
+						{teamsOfThisOrganization.map((team) => {
 							const isActiveTeam = team.id === activeTeam?.id;
 							return (
 								<DropdownMenuItem
