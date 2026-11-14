@@ -8,9 +8,9 @@
  *
  * This drives the same hook + effect shape the page uses and asserts ONE validation per (code, email).
  */
-import { act, render, waitFor } from '@testing-library/react';
+import { act, render, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 const mockValidate = jest.fn();
 const mockAccept = jest.fn();
@@ -108,24 +108,19 @@ describe('useAcceptInvite → an existing account with two-factor authentication
 			message: 'Two-factor authentication is on for this account.',
 			details: { challenge: 'signed.challenge', expiresAt: '2026-11-14T12:05:00.000Z' }
 		});
-		let hook: ReturnType<typeof useAcceptInvite> | null = null;
-		function Capture() {
-			hook = useAcceptInvite();
-			return null;
-		}
 		const qc = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
-		render(
-			<QueryClientProvider client={qc}>
-				<Capture />
-			</QueryClientProvider>
-		);
+		const { result } = renderHook(() => useAcceptInvite(), {
+			wrapper: ({ children }: { children: ReactNode }) => (
+				<QueryClientProvider client={qc}>{children}</QueryClientProvider>
+			)
+		});
 		await act(async () => {
-			await hook!.validateInvitation({ code: 'CODE', email: 'ada@example.org' });
+			await result.current.validateInvitation({ code: 'CODE', email: 'ada@example.org' });
 		});
 
 		let outcome: unknown;
 		await act(async () => {
-			outcome = await hook!.handleAcceptInvitation({
+			outcome = await result.current.handleAcceptInvitation({
 				password: 'long enough',
 				user: { firstName: 'Ada', lastName: 'L', email: 'ada@example.org' },
 				code: 'CODE',
@@ -134,7 +129,7 @@ describe('useAcceptInvite → an existing account with two-factor authentication
 		});
 
 		expect(outcome).toBe('second-factor');
-		expect(hook!.twoFactor.pending).toEqual({
+		expect(result.current.twoFactor.pending).toEqual({
 			challenge: expect.objectContaining({ challenge: 'signed.challenge' }),
 			selectedTeam: ''
 		});

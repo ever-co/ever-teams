@@ -1,4 +1,3 @@
-// cspell:words otpauth
 /**
  * Two-factor authentication with an authenticator app (Gauzy `/api/auth/two-factor/*`, ever-co/ever-gauzy#11916).
  * Off for every account until its owner turns it on.

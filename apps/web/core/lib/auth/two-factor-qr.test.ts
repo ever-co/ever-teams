@@ -1,3 +1,4 @@
+// cspell:ignore DPEHPK JBSW JBSWY KBSW
 import QRCode from 'qrcode';
 import { TWO_FACTOR_QR_OPTIONS, twoFactorQrImageOf } from './two-factor-qr';
 

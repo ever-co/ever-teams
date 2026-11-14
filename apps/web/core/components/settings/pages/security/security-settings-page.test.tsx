@@ -1,5 +1,5 @@
 /** @jest-environment jsdom */
-// cspell:ignore DPEHPK EHPK JBSW JBSWY otpauth totp
+// cspell:ignore DPEHPK EHPK JBSW JBSWY
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
 const mockSettings = jest.fn();

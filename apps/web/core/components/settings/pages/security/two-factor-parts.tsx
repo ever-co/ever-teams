@@ -1,5 +1,4 @@
 'use client';
-// cspell:words otpauth
 
 import { useEffect, useId, useState, type FormEvent } from 'react';
 import { useTranslations } from 'next-intl';
@@ -77,10 +76,6 @@ function FieldError({ id, message }: Readonly<{ id: string; message: string | nu
 }
 
 /**
- * The setup: the key for the authenticator app (a link that opens the app on this device, and the key to type), then
- * the first code it shows, which turns two-factor authentication on.
- */
-/**
  * The setup address as a QR code for an authenticator app on another device. Dark on a white tile in both themes (a
  * QR code is read dark on light); the key and the link next to it stay the way to add it without a camera.
  */
@@ -117,6 +112,10 @@ function SetupQrCode({ otpauthUrl }: Readonly<{ otpauthUrl: string }>) {
 	);
 }
 
+/**
+ * The setup: the key for the authenticator app (its QR code, a link that opens the app on this device, and the key to
+ * type), then the first code it shows, which turns two-factor authentication on.
+ */
 export function SetupPanel({
 	enrollment,
 	confirming,
