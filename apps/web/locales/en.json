@@ -5756,7 +5756,8 @@
 			"TITLE": "Your session has ended",
 			"TEXT": "Sign in again to continue.",
 			"TIMER_RUNNING": "Your timer was running. Sign in again before {deadline} and it keeps running. After that, it is stopped at {savedUntil}, the last time it was saved.",
-			"TIMER_STILL_RUNNING": "Your timer is still running. Sign in again to stop it."
+			"TIMER_STILL_RUNNING": "Your timer is still running. Sign in again to stop it.",
+			"STOP_SAVED": "The timer stop you asked for at {time} is saved. It is applied as soon as you sign in again."
 		}
 	},
 	"taskViews": {

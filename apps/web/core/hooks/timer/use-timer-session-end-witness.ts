@@ -30,7 +30,10 @@ export function useTimerSessionEndWitness(): void {
 				const lastHeartbeat = new Date(run.stoppedAt ?? Number.NaN).getTime();
 				// A run is written with its end at its start: only a heartbeat moves it
 				const hasHadHeartbeat = !Number.isNaN(lastHeartbeat) && !(lastHeartbeat <= startedAt);
-				return { savedUntil: hasHadHeartbeat ? new Date(lastHeartbeat).toISOString() : null };
+				return {
+					timeLogId: run.id ?? null,
+					savedUntil: hasHadHeartbeat ? new Date(lastHeartbeat).toISOString() : null
+				};
 			}),
 		[store]
 	);

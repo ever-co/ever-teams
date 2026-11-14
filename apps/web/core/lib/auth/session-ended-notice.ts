@@ -15,6 +15,8 @@ const NOTICE_KEY = 'ever-teams.session-ended';
 
 /** The timer run a tab showed as its session ended. */
 interface TimerAtSessionEnd {
+	/** The run, which a stop the browser kept for it names (saved-stop.ts). */
+	timeLogId: string | null;
 	/**
 	 * The time the run is saved up to in the API: its last heartbeat, as the tab last read it. Null for a run that
 	 * has had no heartbeat yet.
@@ -98,8 +100,14 @@ export function parseSessionEndedNotice(stored: string | null): SessionEndedNoti
 		if (!notice.timer) {
 			return { at: notice.at };
 		}
-		const { savedUntil } = notice.timer;
-		return { at: notice.at, timer: { savedUntil: typeof savedUntil === 'string' ? savedUntil : null } };
+		const { timeLogId, savedUntil } = notice.timer;
+		return {
+			at: notice.at,
+			timer: {
+				timeLogId: typeof timeLogId === 'string' ? timeLogId : null,
+				savedUntil: typeof savedUntil === 'string' ? savedUntil : null
+			}
+		};
 	} catch {
 		return null;
 	}

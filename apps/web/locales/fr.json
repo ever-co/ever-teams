@@ -5756,7 +5756,8 @@
 			"TITLE": "Votre session a expiré",
 			"TEXT": "Reconnectez-vous pour continuer.",
 			"TIMER_RUNNING": "Votre chronomètre tournait. Reconnectez-vous avant {deadline} et il continue de tourner. Passé ce délai, il est arrêté à son dernier enregistrement : {savedUntil}.",
-			"TIMER_STILL_RUNNING": "Votre chronomètre tourne toujours. Reconnectez-vous pour l'arrêter."
+			"TIMER_STILL_RUNNING": "Votre chronomètre tourne toujours. Reconnectez-vous pour l'arrêter.",
+			"STOP_SAVED": "L'arrêt du chronomètre que vous avez demandé est enregistré : {time}. Il sera appliqué dès votre reconnexion."
 		}
 	},
 	"taskViews": {

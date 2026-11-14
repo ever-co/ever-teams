@@ -9,6 +9,7 @@ import {
 	storedSessionEndedNotice,
 	type SessionEndedNotice as Notice
 } from '@/core/lib/auth/session-ended-notice';
+import { parseSavedStop, storedSavedStop } from '@/core/lib/utils/timer/saved-stop';
 
 // The note is written as the page that ends the session goes away: it does not change while this page is shown
 const subscribeToNothing = () => () => undefined;
@@ -49,9 +50,35 @@ function useTimerLine(notice: Notice | null): string | null {
 }
 
 /**
+ * The stop the person asked for as the session ended, which the browser kept (saved-stop.ts): it is applied at their
+ * next sign-in. Only the stop of the run this tab showed is theirs to hear about, and only when it ends that run at
+ * the time it was pressed: for a run the app was no longer following then (the computer had slept), the closed-tab
+ * rule ends it, which the timer line says.
+ */
+function useSavedStopLine(notice: Notice | null): string | null {
+	const t = useTranslations();
+	const locale = useLocale();
+	const stored = useSyncExternalStore(subscribeToNothing, storedSavedStop, noNoteOnTheServer);
+	const savedStop = useMemo(() => parseSavedStop(stored), [stored]);
+	if (!notice?.timer || !savedStop || savedStop.timeLogId !== notice.timer.timeLogId) {
+		return null;
+	}
+
+	const pressedAt = Date.parse(savedStop.pressedAt);
+	const delay = STALE_TIMER_THRESHOLD.value;
+	const savedUntil = Date.parse(notice.timer.savedUntil ?? '');
+	const wasLeftAlone = delay > 0 && !Number.isNaN(savedUntil) && pressedAt - savedUntil > delay;
+	if (wasLeftAlone) {
+		return null;
+	}
+	return t('auth.sessionEnded.STOP_SAVED', { time: shownTimeOf(pressedAt, notice.at, locale) });
+}
+
+/**
  * Tells a person the app signed out by itself why they are on the sign-in page: their session ended, which the page
  * shown alone does not say. A timer that was running goes on in the API meanwhile, and the notice says what becomes
- * of it. Renders nothing after a sign-out the person asked for, or on a first visit.
+ * of it, or that the stop they asked for is saved. Renders nothing after a sign-out the person asked for, or on a
+ * first visit.
  */
 export function SessionEndedNotice({ className }: Readonly<{ className?: string }>) {
 	const t = useTranslations();
@@ -59,6 +86,9 @@ export function SessionEndedNotice({ className }: Readonly<{ className?: string 
 	const stored = useSyncExternalStore(subscribeToNothing, storedSessionEndedNotice, noNoteOnTheServer);
 	const notice = useMemo(() => parseSessionEndedNotice(stored), [stored]);
 	const timerLine = useTimerLine(notice);
+	const savedStopLine = useSavedStopLine(notice);
+	// A stop that is saved ends the run: what the timer would do left alone no longer applies
+	const runLine = savedStopLine ?? timerLine;
 
 	if (!notice) {
 		return null;
@@ -67,7 +97,7 @@ export function SessionEndedNotice({ className }: Readonly<{ className?: string 
 	return (
 		<AuthNotice tone="warning" title={t('auth.sessionEnded.TITLE')} className={className}>
 			<p>{t('auth.sessionEnded.TEXT')}</p>
-			{timerLine && <p className="mt-1">{timerLine}</p>}
+			{runLine && <p className="mt-1">{runLine}</p>}
 		</AuthNotice>
 	);
 }

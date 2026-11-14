@@ -5756,7 +5756,8 @@
 			"TITLE": "Sua sessão terminou",
 			"TEXT": "Entre de novo para continuar.",
 			"TIMER_RUNNING": "Seu temporizador estava rodando. Entre de novo antes de {deadline} e ele continua. Depois disso, ele é parado no último registro salvo: {savedUntil}.",
-			"TIMER_STILL_RUNNING": "Seu temporizador continua rodando. Entre de novo para pará-lo."
+			"TIMER_STILL_RUNNING": "Seu temporizador continua rodando. Entre de novo para pará-lo.",
+			"STOP_SAVED": "A parada do temporizador que você pediu está salva: {time}. Ela será aplicada assim que você entrar de novo."
 		}
 	},
 	"taskViews": {

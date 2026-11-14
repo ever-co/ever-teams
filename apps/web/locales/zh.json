@@ -5756,7 +5756,8 @@
 			"TITLE": "你的会话已结束",
 			"TEXT": "请重新登录后继续。",
 			"TIMER_RUNNING": "你的计时器当时正在运行。请在 {deadline} 之前重新登录，它会继续运行。之后它将停在最后一次保存的时间：{savedUntil}。",
-			"TIMER_STILL_RUNNING": "你的计时器仍在运行。请重新登录后将其停止。"
+			"TIMER_STILL_RUNNING": "你的计时器仍在运行。请重新登录后将其停止。",
+			"STOP_SAVED": "你要求的计时器停止已保存：{time}。重新登录后将立即生效。"
 		}
 	},
 	"taskViews": {

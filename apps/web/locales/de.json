@@ -5756,7 +5756,8 @@
 			"TITLE": "Deine Sitzung ist abgelaufen",
 			"TEXT": "Melde dich erneut an, um fortzufahren.",
 			"TIMER_RUNNING": "Dein Timer lief. Melde dich vor {deadline} erneut an, dann läuft er weiter. Danach wird er zum letzten gespeicherten Zeitpunkt gestoppt: {savedUntil}.",
-			"TIMER_STILL_RUNNING": "Dein Timer läuft weiter. Melde dich erneut an, um ihn zu stoppen."
+			"TIMER_STILL_RUNNING": "Dein Timer läuft weiter. Melde dich erneut an, um ihn zu stoppen.",
+			"STOP_SAVED": "Der von dir angeforderte Timer-Stopp ist gespeichert: {time}. Er wird angewendet, sobald du dich wieder anmeldest."
 		}
 	},
 	"taskViews": {

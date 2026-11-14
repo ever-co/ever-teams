@@ -2,7 +2,8 @@
 /**
  * The app ends a session that cannot go on (the API refuses its refresh token, or the session's cookies are gone) and
  * sends the tab to the sign-in page. That page said nothing about it: the person found a sign-in form where their
- * work was, with no reason given, and no word about the timer that was running.
+ * work was, with no reason given, and no word about the timer that was running, nor about the stop they had just
+ * asked for.
  *
  * The sign-out is the app's own here (handle-unauthorized.ts); only the page's address is a stand-in.
  */
@@ -34,6 +35,7 @@ jest.mock('@/core/lib/utils/web-push', () => ({ unsubscribeThisBrowserPush: jest
 import { useTimerSessionEndWitness } from '@/core/hooks/timer/use-timer-session-end-witness';
 import { handleUnauthorized } from '@/core/lib/auth/handle-unauthorized';
 import { clearSessionEndedNotice } from '@/core/lib/auth/session-ended-notice';
+import { forgetSavedStop, saveStop } from '@/core/lib/utils/timer/saved-stop';
 import { timerStatusState } from '@/core/stores';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
@@ -86,6 +88,7 @@ beforeEach(() => {
 afterEach(() => {
 	cleanup();
 	clearSessionEndedNotice();
+	forgetSavedStop();
 	page.close();
 });
 
@@ -186,5 +189,51 @@ describe('the sign-in page, when a timer was running as the app ended the sessio
 		const notice = await openSignInPageAfterSessionEnded();
 
 		expect(notice).not.toContain('auth.sessionEnded.TIMER');
+	});
+});
+
+describe('the sign-in page, when Stop was pressed as the app ended the session', () => {
+	/** The stop the browser kept (saved-stop.ts), pressed that long after the run's last heartbeat. */
+	const keepStop = (afterLastHeartbeatMs: number, timeLogId = 'log-1') => {
+		const pressedAt = Date.parse(LAST_HEARTBEAT) + afterLastHeartbeatMs;
+		saveStop({
+			employeeId: 'employee-1',
+			timeLogId,
+			source: ETimeLogSource.TEAMS,
+			pressedAt: new Date(pressedAt).toISOString()
+		});
+		return pressedAt;
+	};
+
+	it('says the stop is saved, with the time it was pressed, and that it is applied at the next sign-in', async () => {
+		openAppWithTimer({ source: ETimeLogSource.TEAMS, isRunning: true, stoppedAt: LAST_HEARTBEAT });
+		const pressedAt = keepStop(40_000);
+
+		const notice = await openSignInPageAfterSessionEnded();
+
+		expect(notice).toContain(`auth.sessionEnded.STOP_SAVED ${JSON.stringify({ time: shownTime(pressedAt) })}`);
+		// The run ends with that stop: what the timer would do left alone no longer applies
+		expect(notice).not.toContain('auth.sessionEnded.TIMER');
+	});
+
+	it('says nothing of a stop kept for another run, which someone else asked for on this browser', async () => {
+		openAppWithTimer({ source: ETimeLogSource.TEAMS, isRunning: true, stoppedAt: LAST_HEARTBEAT });
+		keepStop(40_000, 'log-of-someone-else');
+
+		const notice = await openSignInPageAfterSessionEnded();
+
+		expect(notice).not.toContain('auth.sessionEnded.STOP_SAVED');
+		expect(notice).toContain('auth.sessionEnded.TIMER_RUNNING');
+	});
+
+	it('says where the run is stopped instead, when the app was not following it as Stop was pressed', async () => {
+		// The computer slept for an hour with the timer running: the closed-tab rule ends the run at its last heartbeat
+		openAppWithTimer({ source: ETimeLogSource.TEAMS, isRunning: true, stoppedAt: LAST_HEARTBEAT });
+		keepStop(60 * MINUTE);
+
+		const notice = await openSignInPageAfterSessionEnded();
+
+		expect(notice).not.toContain('auth.sessionEnded.STOP_SAVED');
+		expect(notice).toContain('auth.sessionEnded.TIMER_RUNNING');
 	});
 });
