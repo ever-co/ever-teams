@@ -172,6 +172,20 @@ describe('useCalendarGridDrag', () => {
 		expect(onMoveEntry).toHaveBeenCalledWith(ENTRY, { start: at(10), end: at(11) });
 	});
 
+	it('moves an entry a held finger shifts by less than a scroll, once the step changes its place', () => {
+		const byFive = setUp({ stepMinutes: 5 });
+		const sevenMinutes = (7 / 60) * HOUR_HEIGHT;
+
+		act(() => byFive.harness.drag?.beginMove(DAY, ENTRY, pressEvent(byFive.harness, 'touch', 9.5 * HOUR_HEIGHT)));
+		act(() => jest.advanceTimersByTime(400));
+		windowPointer('pointermove', 9.5 * HOUR_HEIGHT + sevenMinutes);
+		windowPointer('pointerup', 9.5 * HOUR_HEIGHT + sevenMinutes);
+		act(() => jest.advanceTimersByTime(100));
+
+		expect(byFive.onPress).not.toHaveBeenCalled();
+		expect(byFive.onMoveEntry).toHaveBeenCalledWith(ENTRY, { start: at(9, 5), end: at(10, 5) });
+	});
+
 	it('never waits for a hold with a mouse: a right click opens the menu instead', () => {
 		const { harness, onPress } = setUp();
 

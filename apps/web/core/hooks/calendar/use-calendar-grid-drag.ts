@@ -90,6 +90,8 @@ interface DragSession {
 	isHeld: boolean;
 	/** The finger moved after the hold: the release ends a drag. */
 	hasMovedAfterHold: boolean;
+	/** What the drag showed when the hold ended: a release on another snapped place is a drag, however small the move. */
+	heldPreview: GridDragPreview | null;
 	/** A press on an entry that does not move: the hold opens nothing until the release. */
 	isPressOnly: boolean;
 	day: CalendarDay;
@@ -358,6 +360,7 @@ export function useCalendarGridDrag(options: GridDragOptions) {
 			return;
 		}
 		activate(session, session.startX, session.startY);
+		session.heldPreview = session.preview;
 	});
 
 	const handlePointerMove = useEffectEvent((event: PointerEvent) => {
@@ -416,7 +419,8 @@ export function useCalendarGridDrag(options: GridDragOptions) {
 		if (session.isGivenUp) {
 			dropClicksFor(CLICK_AFTER_DRAG_MILLISECONDS);
 		}
-		const isPress = session.isHeld && !session.hasMovedAfterHold && !session.isGivenUp;
+		const hasMovedPlace = !isSamePreview(session.preview, session.heldPreview);
+		const isPress = session.isHeld && !session.hasMovedAfterHold && !hasMovedPlace && !session.isGivenUp;
 		const press = pressOf(session);
 		const onPress = options.onPress;
 		if (isPress && press && onPress) {
@@ -562,6 +566,7 @@ export function useCalendarGridDrag(options: GridDragOptions) {
 				waitsForHold: isTouch && !isResize,
 				isHeld: false,
 				hasMovedAfterHold: false,
+				heldPreview: null,
 				isPressOnly: false,
 				day,
 				dayIndex,
