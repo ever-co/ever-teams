@@ -44,6 +44,13 @@ export function useRateApplyQuestion() {
 		setIsDayMissing(false);
 	};
 
+	/** Back to the organization's default answer, without a day: each edit asks afresh. */
+	const reset = () => {
+		setPickedChoice(null);
+		setDayText('');
+		setIsDayMissing(false);
+	};
+
 	/** The day a save of a changed rate sends; "from a date" without one saves nothing, and the question says so. */
 	const applyFromOfSave = (): RateApplyFrom => {
 		if (!choice) {
@@ -67,7 +74,7 @@ export function useRateApplyQuestion() {
 		toast.success(t('rates.RATE_SAVED'), { description: t(description.key, { count: description.count }) });
 	};
 
-	return { rule, choice, pickChoice, day, setDay, isDayMissing, applyFromOfSave, confirmSaved };
+	return { rule, choice, pickChoice, day, setDay, isDayMissing, reset, applyFromOfSave, confirmSaved };
 }
 
 export type RateApplyQuestionState = ReturnType<typeof useRateApplyQuestion>;

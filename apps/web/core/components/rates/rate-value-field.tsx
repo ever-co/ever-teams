@@ -89,6 +89,7 @@ export function RateValueField({
 		if (isNextOpen) {
 			setDraft(rateInputTextOf(value));
 			setError(null);
+			applyQuestion.reset();
 		}
 		setIsOpen(isNextOpen);
 	};
