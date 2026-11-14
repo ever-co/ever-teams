@@ -89,6 +89,17 @@ describe('clientSplitItemsOf', () => {
 	});
 });
 
+describe('clientSplitItemsOf, names', () => {
+	it('keeps a client name a row gave when a later row of the same client has none', () => {
+		const rows: TimeActivityRow[] = [
+			{ ...rowOf('a', HOUR), client: { key: 'acme', name: 'Acme' } },
+			{ ...rowOf('c', HOUR), client: { key: 'acme', name: null } }
+		];
+
+		expect(clientSplitItemsOf(rows).map((item) => item.name)).toEqual(['Acme']);
+	});
+});
+
 describe('splitRowsOf', () => {
 	it('ranks the time by value, with shares that add up to 100 of the time in view', () => {
 		const rows = splitRowsOf([itemOf('b', 10 * HOUR), itemOf('none', 2 * HOUR, true), itemOf('a', 30 * HOUR)]);

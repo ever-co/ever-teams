@@ -90,7 +90,12 @@ export function clientSplitItemsOf(rows: ReadonlyArray<TimeActivityRow>): TimeSp
 	const clients = new Map<string, ReportClientRef>();
 	for (const row of rows) {
 		const client = clientOfRow(row);
-		clients.set(client.key, client);
+		const known = clients.get(client.key);
+		// A row whose project names no client keeps the name another row of the same client gave
+		const keepsKnownName = Boolean(known?.name) && !client.name;
+		if (!keepsKnownName) {
+			clients.set(client.key, client);
+		}
 	}
 	const groups = groupRowsBy(rows, (row) => clientOfRow(row).key);
 	return groups.map((group) => {
