@@ -168,9 +168,9 @@ class TimerService extends APIService {
 	/**
 	 * Discards the caller's running timer: the API removes the run, its time slots and screenshots, as if it never
 	 * started. `timeLogId` names the run the member saw, so a run started meanwhile elsewhere is never removed (409).
-	 * Answers the timer status after the discard.
+	 * Answers the timer status after the discard, or null when that read failed: the run is discarded all the same.
 	 */
-	discardTimer = async ({ timeLogId }: { timeLogId?: string }) => {
+	discardTimer = async ({ timeLogId }: { timeLogId?: string }): Promise<{ data: ITimerStatus | null }> => {
 		const timeLogField = timeLogId ? { timeLogId } : {};
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
@@ -180,11 +180,16 @@ class TimerService extends APIService {
 				organizationId: this.organizationId
 			});
 
-			return this.getTimerStatus();
+			return this.getTimerStatus().then(
+				({ data }) => ({ data }),
+				() => ({ data: null })
+			);
 		}
 
 		const api = await getFallbackAPI();
-		return api.post<ITimerStatus>(`/timer/discard?${getTodayRangeQuery()}`, timeLogField);
+		// The route answers a null status when its read after the discard fails
+		const { data } = await api.post<ITimerStatus | null>(`/timer/discard?${getTodayRangeQuery()}`, timeLogField);
+		return { data };
 	};
 
 	// /timesheet/timer/status only sees logs started today; this returns the employee's last log of any day.

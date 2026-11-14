@@ -44,9 +44,13 @@ export async function POST(req: Request) {
 		return gauzyErrorResponse(error, 'The timer could not be discarded.');
 	}
 
-	const { data: timerStatus } = await getTimerStatusRequest(
+	// The run is discarded by now: a failed status read must not make the discard look failed, the client reads again
+	const timerStatus = await getTimerStatusRequest(
 		{ tenantId, organizationId, ...readTodayRange(req) },
 		access_token
+	).then(
+		({ data }) => data,
+		() => null
 	);
 
 	return $res(timerStatus);

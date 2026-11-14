@@ -5,6 +5,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 import type { PropsWithChildren } from 'react';
 
+import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerStatusState } from '@/core/stores';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
@@ -125,6 +126,22 @@ describe('useTimerDiscard', () => {
 
 		expect(mockTrackTimerCommand).toHaveBeenCalledTimes(1);
 		expect(mockTrackTimerCommand).toHaveBeenCalledWith(mockDiscardTimer.mock.results[0].value);
+	});
+
+	it('counts a discard whose status read failed as done: the timer reads stopped and the views read again', async () => {
+		mockDiscardTimer.mockResolvedValue({ data: null });
+		const { result, store, invalidate } = renderDiscard({ id: 'organization-1', allowDiscardTimer: null });
+
+		let discarded = false;
+		await act(async () => {
+			discarded = await result.current.discard('log-1');
+		});
+
+		expect(discarded).toBe(true);
+		expect(result.current.failure).toBeNull();
+		expect(store.get(timerStatusState)?.running).toBe(false);
+		expect(mockToastSuccess).toHaveBeenCalled();
+		expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.timer.all });
 	});
 
 	it('takes the offer away once the run is older than the organization allows', async () => {

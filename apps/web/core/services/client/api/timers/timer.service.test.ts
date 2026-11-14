@@ -194,6 +194,16 @@ describe('TimerService.discardTimer', () => {
 		expect(answer.data).toEqual({ running: false });
 	});
 
+	it('answers a null status, not a failure, when the status read after the discard fails', async () => {
+		publishedApiOrigin.value = 'https://api.example.test';
+		jest.spyOn(timerService, 'post').mockResolvedValue({ data: undefined } as never);
+		jest.spyOn(timerService, 'getTimerStatus').mockRejectedValue(new Error('offline'));
+
+		const answer = await timerService.discardTimer({ timeLogId: 'log-1' });
+
+		expect(answer.data).toBeNull();
+	});
+
 	it('sends no log id for a discard that saw none', async () => {
 		publishedApiOrigin.value = 'https://api.example.test';
 		const post = jest.spyOn(timerService, 'post').mockResolvedValue({ data: undefined } as never);
