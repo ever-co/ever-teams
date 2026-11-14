@@ -70,11 +70,12 @@ import { resetUnauthorizedHandler } from '@/core/lib/auth/handle-unauthorized';
 import { clearSessionEndedNotice, storedSessionEndedNotice } from '@/core/lib/auth/session-ended-notice';
 import { resetSessionRenewal } from '@/core/lib/auth/session-renewal';
 import { getAccessTokenCookie, getRefreshTokenCookie } from '@/core/lib/helpers/cookies';
-import { forgetSavedStop, parseSavedStop, storedSavedStop } from '@/core/lib/utils/timer/saved-stop';
+import { forgetSavedStop, parseSavedStop, saveStop, storedSavedStop } from '@/core/lib/utils/timer/saved-stop';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { timerService } from '@/core/services/client/api/timers';
 import { userService } from '@/core/services/client/api/users/user.service';
 import { activeTeamIdState, organizationTeamsState, timerStatusState } from '@/core/stores';
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { openFakeGauzyPage, type FakeGauzyPage } from '@/test/auth/fake-gauzy-page';
 import { FAKE_USER, HOUR_MS } from '@/test/auth/fake-gauzy-session';
 import { useStaleTimerGuard } from './use-stale-timer-guard';
@@ -249,6 +250,44 @@ describe('Stop pressed when the session can no longer be renewed', () => {
 		);
 		expect(page.isSignedOut()).toBe(false);
 		expect(storedSavedStop()).toBeNull();
+		tab.unmount();
+	});
+});
+
+describe('a stop whose run the tab does not know', () => {
+	it('never forgets the stop kept for another run, whether it is answered or fails', async () => {
+		const { gauzy } = page;
+		// Later than the stops above: the timer takes two stops within half a second for one
+		page.wait(30 * 24 * HOUR_MS);
+		// A's stop, kept in this browser when A's session ended before the API answered it
+		saveStop({
+			employeeId: 'employee-of-a',
+			timeLogId: 'run-of-a',
+			source: ETimeLogSource.TEAMS,
+			pressedAt: new Date(Date.now()).toISOString()
+		});
+		const keptStopOfA = storedSavedStop();
+		// B's tab knows its timer runs, but not which run: the status it holds names no log
+		const tab = await openTabWithRunningTimer();
+		await act(async () => {
+			tab.store.set(timerStatusState, { duration: 0, running: true, lastLog: undefined } as never);
+		});
+
+		// B's stop fails while B's session goes on
+		gauzy.goOffline();
+		await tab.pressStop();
+		expect(gauzy.timeLog()?.isRunning).toBe(true);
+		expect(storedSavedStop()).toBe(keptStopOfA);
+
+		// B asks again, and the stop is answered
+		gauzy.goOnline();
+		page.wait(60_000);
+		await act(async () => {
+			tab.store.set(timerStatusState, { duration: 0, running: true, lastLog: undefined } as never);
+		});
+		await tab.pressStop();
+		expect(gauzy.timeLog()?.isRunning).toBe(false);
+		expect(storedSavedStop()).toBe(keptStopOfA);
 		tab.unmount();
 	});
 });

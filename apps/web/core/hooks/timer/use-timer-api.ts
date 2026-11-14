@@ -985,8 +985,9 @@ export function useTimerApi({
 			.catch((error) => {
 				// The session goes on: the timer does too, and the person asks again. Only a stop the session's end
 				// took with it stays kept.
-				if (!isSessionEnding()) {
-					forgetSavedStop(runningLog?.id);
+				// Only the stop kept for this run: with no run known, forgetting would drop another run's kept stop
+				if (!isSessionEnding() && runningLog?.id) {
+					forgetSavedStop(runningLog.id);
 				}
 				// The last known server status still says running: undo the optimistic stop so the clock agrees
 				// with it, and refetch the status in case the stop landed after all. Only a running snapshot is put
@@ -1002,8 +1003,11 @@ export function useTimerApi({
 				throw error;
 			})
 			.then(async (res) => {
-				// Answered: the run is stopped, or was already
-				forgetSavedStop(runningLog?.id);
+				// Answered: the run is stopped, or was already. A stop with no run known never forgets the stop kept for
+				// another run (another person's, whose session ended in this browser)
+				if (runningLog?.id) {
+					forgetSavedStop(runningLog.id);
+				}
 				res.data &&
 					(!statusEnabled || isCurrentScope()) &&
 					!isEqual(timerStatus, res.data) &&
