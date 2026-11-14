@@ -337,14 +337,17 @@ export function useInvoiceTime({
 		enabled: readsTime,
 		staleTime: 0
 	});
-	// The period on every offered project: the client's, and those its saved lines bill (the same read without lines)
+	// Every offered project (the client's, and those its saved lines bill) over the days the billed time is read in: a
+	// member whose billed time sits in a widened day is named and priced too (the same read without saved lines)
 	const membersRange = useMemo<TimeLogReportRange>(
-		() => ({ from, to, timeZone, projectIds: allProjectIds }),
-		[allProjectIds, from, timeZone, to]
+		() => ({ from: allFrom, to: allTo, timeZone, projectIds: allProjectIds }),
+		[allFrom, allProjectIds, allTo, timeZone]
 	);
 	const employeesQuery = useQuery({
 		queryKey: queryKeys.timesheet.reports.owedAmounts({
 			...rangeKey,
+			from: allFrom.toISOString(),
+			to: allTo.toISOString(),
 			projectIds: allProjectIds,
 			purpose: 'invoice'
 		}),

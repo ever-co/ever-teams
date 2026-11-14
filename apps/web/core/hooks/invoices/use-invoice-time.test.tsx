@@ -396,6 +396,18 @@ describe('the time of a saved invoice', () => {
 		expect(result.current.lines[0].hours).toBe(12);
 	});
 
+	it('reads its members and their rates over the same wider days as the time its lines bill', async () => {
+		answerTimeReads([], [ownAda]);
+
+		const { result } = renderTimeOf({ billedLines });
+		await waitFor(() => expect(result.current.isReadingBilledTime).toBe(false));
+		await waitFor(() => expect(mockReports.getOwedAmountReport).toHaveBeenCalled());
+
+		const range = mockReports.getOwedAmountReport.mock.calls[0][0] as { from: Date; to: Date };
+		expect(range.from).toEqual(new Date(2026, 8, 30));
+		expect(range.to).toEqual(new Date(2026, 10, 1, 23, 59, 59, 999));
+	});
+
 	it('is waited for while the time its lines bill is read', async () => {
 		const all = deferred<unknown[]>();
 		mockReports.getBillableTimeLogs.mockReturnValue(all.promise);
