@@ -76,6 +76,19 @@ describe('useTimerDiscard', () => {
 		expect(result.current.availability).toEqual({ available: false, reason: 'NOT_SUPPORTED' });
 	});
 
+	it('refuses a discard that names no run, and asks the API nothing', async () => {
+		const { result } = renderDiscard({ id: 'organization-1', allowDiscardTimer: null });
+
+		let discarded = true;
+		await act(async () => {
+			discarded = await result.current.discard(undefined);
+		});
+
+		expect(discarded).toBe(false);
+		expect(result.current.failure).toBe('CHANGED');
+		expect(mockDiscardTimer).not.toHaveBeenCalled();
+	});
+
 	it('discards the run the member sees, then shows the stopped status the API answers', async () => {
 		mockDiscardTimer.mockResolvedValue({ data: STOPPED });
 		const { result, store, invalidate } = renderDiscard({ id: 'organization-1', allowDiscardTimer: null });
@@ -83,7 +96,7 @@ describe('useTimerDiscard', () => {
 		expect(result.current.availability).toEqual({ available: true, closesAt: null });
 		let discarded = false;
 		await act(async () => {
-			discarded = await result.current.discard();
+			discarded = await result.current.discard('log-1');
 		});
 
 		expect(discarded).toBe(true);
@@ -100,7 +113,7 @@ describe('useTimerDiscard', () => {
 
 		let discarded = true;
 		await act(async () => {
-			discarded = await result.current.discard();
+			discarded = await result.current.discard('log-1');
 		});
 
 		expect(discarded).toBe(false);

@@ -68,13 +68,17 @@ function sourceKeyOf(source: ETimeLogSource | undefined) {
  */
 export function TimerRunMenu({ className }: Readonly<{ className?: string }>) {
 	const t = useTranslations();
-	const { availability, runningSource, discard, discarding, failure, resetFailure } = useTimerDiscard();
+	const { availability, runningLogId, runningSource, discard, discarding, failure, resetFailure } =
+		useTimerDiscard();
 	const [confirming, setConfirming] = useState(false);
+	// The run the confirmation was opened for: a run started meanwhile elsewhere is never the one discarded
+	const [confirmedRunId, setConfirmedRunId] = useState<string | undefined>(undefined);
 
 	const openConfirmation = useCallback(() => {
 		resetFailure();
+		setConfirmedRunId(runningLogId);
 		setConfirming(true);
-	}, [resetFailure]);
+	}, [resetFailure, runningLogId]);
 
 	const changeConfirmation = useCallback(
 		(open: boolean) => {
@@ -88,11 +92,11 @@ export function TimerRunMenu({ className }: Readonly<{ className?: string }>) {
 	);
 
 	const confirmDiscard = useCallback(async () => {
-		const discarded = await discard();
+		const discarded = await discard(confirmedRunId);
 		if (discarded) {
 			setConfirming(false);
 		}
-	}, [discard]);
+	}, [confirmedRunId, discard]);
 
 	const sourceKey = sourceKeyOf(runningSource);
 	let description = t('timer.discard.DESCRIPTION');

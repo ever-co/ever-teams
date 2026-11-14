@@ -37,8 +37,8 @@ function startedAtOf(startedAt: Date | string | undefined): number | null {
 
 /**
  * The Discard of the running timer (#5219): whether the running timer offers it (the organization's switch and age
- * limit, an API that knows the discard), and the discard itself. A discard names the run this tab shows, so a run
- * started meanwhile elsewhere is never removed. On success the timer reads the stopped status the API answers, and
+ * limit, an API that knows the discard), and the discard itself. A discard names the run the confirmation was opened
+ * for (`runningLogId` then), so a run started meanwhile elsewhere is never removed; without one it is refused. On success the timer reads the stopped status the API answers, and
  * every view that counts time reads again; on a refusal the timer stays as it is and `failure` names the reason.
  */
 export function useTimerDiscard() {
@@ -85,14 +85,20 @@ export function useTimerDiscard() {
 		[queryClient]
 	);
 
-	const discard = useCallback(async (): Promise<boolean> => {
+	const discard = useCallback(
+		async (timeLogId?: string): Promise<boolean> => {
 		if (discarding) {
+			return false;
+		}
+		// Without the run the member confirmed, the API would remove whichever runs now
+		if (!timeLogId) {
+			setFailure('CHANGED');
 			return false;
 		}
 		setDiscarding(true);
 		setFailure(null);
 		try {
-			const { data } = await timerService.discardTimer({ timeLogId: runningLog?.id });
+			const { data } = await timerService.discardTimer({ timeLogId });
 			if (data) {
 				setTimerStatus(data);
 			}
@@ -107,9 +113,19 @@ export function useTimerDiscard() {
 		} finally {
 			setDiscarding(false);
 		}
-	}, [discarding, refreshAfter, runningLog?.id, setTimerStatus, t]);
+		},
+		[discarding, refreshAfter, setTimerStatus, t]
+	);
 
 	const resetFailure = useCallback(() => setFailure(null), []);
 
-	return { availability, runningSource: runningLog?.source, discard, discarding, failure, resetFailure };
+	return {
+		availability,
+		runningLogId: runningLog?.id,
+		runningSource: runningLog?.source,
+		discard,
+		discarding,
+		failure,
+		resetFailure
+	};
 }
