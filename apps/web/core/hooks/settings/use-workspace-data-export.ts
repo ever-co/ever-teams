@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback } from 'react';
+import { useAtomValue, useStore } from 'jotai';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
@@ -13,8 +14,7 @@ import {
 	workspaceExportFileName
 } from '@/core/lib/utils/workspace-data-export';
 import { workspaceExportService } from '@/core/services/client/api/export/workspace-export.service';
-
-type ExportState = 'idle' | 'exporting' | 'failed';
+import { workspaceDataExportState } from '@/core/stores/settings/workspace-data-export';
 
 /** The bytes that tell a whole ZIP archive: its signature, then its end record and the longest comment after it. */
 const ARCHIVE_SIGNATURE_BYTES = 4;
@@ -45,21 +45,22 @@ interface WorkspaceDataExportOptions {
 /**
  * The export of all of the workspace's data: who gets it, and the export itself. The archive is saved only once it
  * arrived whole; a failed or cut answer turns into a failure the page shows with a new try, never into a broken file.
+ * Its state lives in the tab's store, so one export runs at a time even when the page is left and opened again.
  */
 export function useWorkspaceDataExport({ workspaceName, organizationId }: WorkspaceDataExportOptions) {
 	const t = useTranslations();
 	const { data: user } = useUserQuery();
 	const { myPermissions } = useMyRolePermissionsQuery();
-	const [state, setState] = useState<ExportState>('idle');
-	const isRunningRef = useRef(false);
+	const store = useStore();
+	const state = useAtomValue(workspaceDataExportState, { store });
 
 	const exportAll = useCallback(async () => {
 		const isReady = Boolean(organizationId);
-		if (isRunningRef.current || !isReady) {
+		const isRunning = store.get(workspaceDataExportState) === 'exporting';
+		if (isRunning || !isReady) {
 			return;
 		}
-		isRunningRef.current = true;
-		setState('exporting');
+		store.set(workspaceDataExportState, 'exporting');
 		try {
 			const scope = {
 				tenantId: getTenantIdCookie(),
@@ -74,13 +75,11 @@ export function useWorkspaceDataExport({ workspaceName, organizationId }: Worksp
 			const fileName = workspaceExportFileName(workspaceName, new Date());
 			downloadBlob(archive, fileName);
 			toast.success(t('settings.workspace.EXPORT_DONE'), { description: fileName });
-			setState('idle');
+			store.set(workspaceDataExportState, 'idle');
 		} catch {
-			setState('failed');
-		} finally {
-			isRunningRef.current = false;
+			store.set(workspaceDataExportState, 'failed');
 		}
-	}, [organizationId, t, workspaceName]);
+	}, [organizationId, store, t, workspaceName]);
 
 	return {
 		canExport: canExportWorkspaceData(user?.role?.name, myPermissions),

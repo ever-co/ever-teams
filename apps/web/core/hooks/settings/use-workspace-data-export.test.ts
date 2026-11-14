@@ -1,6 +1,8 @@
 /** @jest-environment jsdom */
 
 import { Blob as NodeBlob } from 'node:buffer';
+import { createElement, type ReactNode } from 'react';
+import { Provider, createStore } from 'jotai';
 import { act, renderHook, waitFor } from '@testing-library/react';
 
 const mockDownloadArchive = jest.fn();
@@ -52,6 +54,14 @@ function deferred<T>() {
 
 const workspace = { workspaceName: 'Acme Labs', organizationId: 'organization-a' };
 
+type ExportOptions = Parameters<typeof useWorkspaceDataExport>[0];
+
+/** The hook in a store of its own, or in `store` to stand for the same tab rendering the page again. */
+function renderExport(options: ExportOptions, store = createStore()) {
+	const wrapper = ({ children }: { children: ReactNode }) => createElement(Provider, { store }, children);
+	return renderHook(() => useWorkspaceDataExport(options), { wrapper });
+}
+
 describe('useWorkspaceDataExport', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -60,20 +70,20 @@ describe('useWorkspaceDataExport', () => {
 	});
 
 	it('offers the export to the workspace owner holding the permission only', () => {
-		expect(renderHook(() => useWorkspaceDataExport(workspace)).result.current.canExport).toBe(true);
+		expect(renderExport(workspace).result.current.canExport).toBe(true);
 
 		mockRoleName = 'ADMIN';
-		expect(renderHook(() => useWorkspaceDataExport(workspace)).result.current.canExport).toBe(false);
+		expect(renderExport(workspace).result.current.canExport).toBe(false);
 
 		mockRoleName = 'SUPER_ADMIN';
 		mockPermissions = ['ALL_ORG_EDIT'];
-		expect(renderHook(() => useWorkspaceDataExport(workspace)).result.current.canExport).toBe(false);
+		expect(renderExport(workspace).result.current.canExport).toBe(false);
 	});
 
 	it('saves the whole archive under the workspace name and the day, and says so', async () => {
 		const archive = archiveOf();
 		mockDownloadArchive.mockResolvedValue(archive);
-		const { result } = renderHook(() => useWorkspaceDataExport(workspace));
+		const { result } = renderExport(workspace);
 
 		await act(() => result.current.exportAll());
 
@@ -93,7 +103,7 @@ describe('useWorkspaceDataExport', () => {
 	it('says it is working until the archive arrives, and starts one export at a time', async () => {
 		const answer = deferred<Blob>();
 		mockDownloadArchive.mockReturnValue(answer.promise);
-		const { result } = renderHook(() => useWorkspaceDataExport(workspace));
+		const { result } = renderExport(workspace);
 
 		let first: Promise<void> = Promise.resolve();
 		act(() => {
@@ -111,9 +121,35 @@ describe('useWorkspaceDataExport', () => {
 		expect(mockDownloadBlob).toHaveBeenCalledTimes(1);
 	});
 
+	it('shows a page opened again while the archive is prepared that it is running, and starts no second one', async () => {
+		const answer = deferred<Blob>();
+		mockDownloadArchive.mockReturnValue(answer.promise);
+		const tab = createStore();
+		const first = renderExport(workspace, tab);
+
+		let running: Promise<void> = Promise.resolve();
+		act(() => {
+			running = first.result.current.exportAll();
+		});
+		await waitFor(() => expect(first.result.current.isExporting).toBe(true));
+		first.unmount();
+
+		const again = renderExport(workspace, tab);
+		expect(again.result.current.isExporting).toBe(true);
+		await act(() => again.result.current.exportAll());
+		expect(mockDownloadArchive).toHaveBeenCalledTimes(1);
+
+		await act(async () => {
+			answer.resolve(archiveOf());
+			await running;
+		});
+		expect(again.result.current.isExporting).toBe(false);
+		expect(mockDownloadBlob).toHaveBeenCalledTimes(1);
+	});
+
 	it('says the export failed, and saves nothing, when the request fails', async () => {
 		mockDownloadArchive.mockRejectedValue(Object.assign(new Error('Network Error'), { statusCode: 0 }));
-		const { result } = renderHook(() => useWorkspaceDataExport(workspace));
+		const { result } = renderExport(workspace);
 
 		await act(() => result.current.exportAll());
 
@@ -125,7 +161,7 @@ describe('useWorkspaceDataExport', () => {
 	it('reads only the ends of a large archive, and saves it when it is whole', async () => {
 		const archive = archiveOf({ filler: 200_000 });
 		mockDownloadArchive.mockResolvedValue(archive);
-		const { result } = renderHook(() => useWorkspaceDataExport(workspace));
+		const { result } = renderExport(workspace);
 
 		await act(() => result.current.exportAll());
 
@@ -135,7 +171,7 @@ describe('useWorkspaceDataExport', () => {
 
 	it('never saves a large archive cut on its way', async () => {
 		mockDownloadArchive.mockResolvedValue(archiveOf({ filler: 200_000, cut: true }));
-		const { result } = renderHook(() => useWorkspaceDataExport(workspace));
+		const { result } = renderExport(workspace);
 
 		await act(() => result.current.exportAll());
 
@@ -145,7 +181,7 @@ describe('useWorkspaceDataExport', () => {
 
 	it('never saves an archive cut on its way: it says the export failed instead', async () => {
 		mockDownloadArchive.mockResolvedValue(archiveOf({ cut: true }));
-		const { result } = renderHook(() => useWorkspaceDataExport(workspace));
+		const { result } = renderExport(workspace);
 
 		await act(() => result.current.exportAll());
 
@@ -156,7 +192,7 @@ describe('useWorkspaceDataExport', () => {
 
 	it('clears the failure once a new try goes through', async () => {
 		mockDownloadArchive.mockRejectedValueOnce(new Error('Gateway Timeout')).mockResolvedValueOnce(archiveOf());
-		const { result } = renderHook(() => useWorkspaceDataExport(workspace));
+		const { result } = renderExport(workspace);
 
 		await act(() => result.current.exportAll());
 		expect(result.current.isFailed).toBe(true);
