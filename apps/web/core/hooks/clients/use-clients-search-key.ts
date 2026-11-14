@@ -1,6 +1,11 @@
 'use client';
 
 import { useEffect, type RefObject } from 'react';
+import { TASK_SEARCH_FOCUS_ID } from '@/core/components/tasks/task-search-field';
+import { useAnsweredKeys } from '@/core/hooks/keyboard/use-answered-keys';
+
+/** The key the shortcuts sheet lists for "/" while this list answers it. */
+const SEARCH_FOCUS_KEY_IDS: readonly string[] = [TASK_SEARCH_FOCUS_ID];
 
 function isTypingTarget(target: EventTarget | null) {
 	if (!(target instanceof HTMLElement)) {
@@ -27,6 +32,7 @@ function isInDialog(target: EventTarget | null) {
  * something else already answered, or pressed in a dialog, is left alone.
  */
 export function useClientsSearchKey(boxRef: RefObject<HTMLElement | null>) {
+	useAnsweredKeys(SEARCH_FOCUS_KEY_IDS);
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
 			const isSlash = event.key === '/';

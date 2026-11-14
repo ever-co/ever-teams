@@ -2,6 +2,9 @@
 
 import React, { useRef } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { getDefaultStore } from 'jotai';
+import { TASK_SEARCH_FOCUS_ID } from '@/core/components/tasks/task-search-field';
+import { answeredKeysAtom } from '@/core/stores/common/shortcuts';
 import { useClientsSearchKey } from './use-clients-search-key';
 
 function SearchBox() {
@@ -28,6 +31,16 @@ function search() {
 }
 
 describe('the "/" key of the clients list', () => {
+	it('is listed on the shortcuts sheet while the list answers it, and no longer once it is gone', () => {
+		const { unmount } = render(<SearchBox />);
+
+		expect(getDefaultStore().get(answeredKeysAtom)).toContain(TASK_SEARCH_FOCUS_ID);
+
+		unmount();
+
+		expect(getDefaultStore().get(answeredKeysAtom)).not.toContain(TASK_SEARCH_FOCUS_ID);
+	});
+
 	it('jumps into the search field from the list', () => {
 		render(<SearchBox />);
 
