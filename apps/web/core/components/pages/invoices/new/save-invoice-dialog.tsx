@@ -176,6 +176,9 @@ export function SaveInvoiceDialog({
 	if (failure === 'unconfirmed') {
 		error = t('invoices.new.confirm.UNCONFIRMED', { client: clientName });
 	}
+	if (failure === 'timeBilled') {
+		error = t('invoices.billedTime.NEW_REFUSED');
+	}
 	// A read that started after the dialog opened can still change what it states: the save waits for it.
 	const isWaiting = invoice.isWaiting;
 

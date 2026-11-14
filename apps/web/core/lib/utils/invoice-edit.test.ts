@@ -1,7 +1,12 @@
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import {
+	billedLinesReadOf,
+	billedPreviousOf,
+	billedSavedLinesOf,
+	billsUnrecordedTimeOf,
 	didNotReachApi,
 	haveSameFields,
+	haveSameLineIds,
 	haveSameLines,
 	hasInvoiceChanges,
 	invoiceChangesOf,
@@ -335,6 +340,7 @@ function figuresOf(saved: SavedInvoice, extra: Partial<InvoiceDraftFigures> = {}
 		taxPercent: saved.taxPercent,
 		note: saved.note,
 		total: saved.total,
+		billsUnrecordedTime: false,
 		...extra
 	};
 }
@@ -602,5 +608,90 @@ describe('a failed write that never reached the API', () => {
 
 	it('is not an error of another kind', () => {
 		expect(didNotReachApi(new Error('unexpected'))).toBe(false);
+	});
+});
+
+describe('the time a saved invoice bills', () => {
+	const billed = new Map([
+		['item-1', ['log-1', 'log-2']],
+		['item-of-another-invoice', ['log-9']]
+	]);
+
+	it('is read through each line’s id on the invoice', () => {
+		const saved = readSaved();
+
+		expect([...saved.lineIds.entries()]).toEqual([
+			['p1|ana', 'item-1'],
+			['p2|bo', 'item-2']
+		]);
+		expect(saved.previousLineIds).toEqual(['item-1', 'item-2']);
+		expect(billedLinesReadOf(saved)).toEqual({
+			lineIds: new Set(['item-1', 'item-2']),
+			projectIds: ['p1', 'p2'],
+			period: { fromDay: '2026-10-01', toDay: '2026-10-31' }
+		});
+	});
+
+	it('is named on each saved line, a line no time log names staying as it was saved', () => {
+		const saved = readSaved();
+
+		const lines = billedSavedLinesOf(saved, billed);
+
+		expect(lines.map((line) => [line.key, line.timeLogIds])).toEqual([
+			['p2|bo', undefined],
+			['p1|ana', ['log-1', 'log-2']]
+		]);
+	});
+
+	it('is written back with the lines when an edit fails half way, to an API that records it', () => {
+		const saved = readSaved();
+
+		const previous = billedPreviousOf(saved, billed, true);
+
+		expect(previous.lines.map((line) => line.timeLogIds)).toEqual([['log-1', 'log-2'], undefined]);
+		expect(previous.update).toBe(saved.previous.update);
+	});
+
+	it('is not named on the lines written back to an API that does not record it', () => {
+		const saved = readSaved();
+
+		expect(billedPreviousOf(saved, billed, false)).toBe(saved.previous);
+	});
+
+	it('is not read for an invoice that has none to name', () => {
+		expect(billedLinesReadOf(null)).toEqual({ lineIds: new Set(), projectIds: [] });
+	});
+});
+
+describe('an invoice saved before the time its lines bill was recorded', () => {
+	const billed = new Map([['item-1', ['log-1', 'log-2']]]);
+
+	it('bills time no saved line records when one of its lines names a log the invoice does not record yet', () => {
+		expect(billsUnrecordedTimeOf([{ timeLogIds: ['log-1', 'log-3'] }], billed)).toBe(true);
+	});
+
+	it('bills no such time when every log its lines name is recorded, or when they name none', () => {
+		expect(billsUnrecordedTimeOf([{ timeLogIds: ['log-2', 'log-1'] }], billed)).toBe(false);
+		expect(billsUnrecordedTimeOf([{}], new Map())).toBe(false);
+	});
+
+	it('counts the recording of that time as a change of its own, with the same figures', () => {
+		const saved = readSaved();
+
+		const changes = invoiceChangesOf(saved, figuresOf(saved, { billsUnrecordedTime: true }));
+
+		expect(changes.recordsBilledTime).toBe(true);
+		expect(hasInvoiceChanges(changes)).toBe(true);
+	});
+});
+
+describe('the lines an invoice holds when its edit is saved', () => {
+	it('are the ones the editor opened when their ids are the same, in any order', () => {
+		expect(haveSameLineIds([{ id: 'item-2' }, { id: 'item-1' }], ['item-1', 'item-2'])).toBe(true);
+	});
+
+	it('are not once they were written back under new ids, or another line was added', () => {
+		expect(haveSameLineIds([{ id: 'item-9' }, { id: 'item-2' }], ['item-1', 'item-2'])).toBe(false);
+		expect(haveSameLineIds([{ id: 'item-1' }], ['item-1', 'item-2'])).toBe(false);
 	});
 });

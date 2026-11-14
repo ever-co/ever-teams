@@ -11,7 +11,13 @@ import type { TimeActivityFilterOptions } from '@/core/hooks/dashboards/time-act
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { type CsvColumn, downloadCsv, downloadPdf, periodFileNameOf } from '@/core/lib/utils/dashboard-export';
 import type { Period } from '@/core/lib/utils/dashboard-period';
-import { type CurrencyAmount, formatAmount, formatAmounts } from '@/core/lib/utils/daily-report-figures';
+import {
+	activityPercentOf,
+	type CurrencyAmount,
+	type FigureTotals,
+	formatAmount,
+	formatAmounts
+} from '@/core/lib/utils/daily-report-figures';
 import {
 	type ClientExportLine,
 	type ClientLabels,
@@ -31,6 +37,8 @@ import {
 	exportRowsOf,
 	recordedActivityOf
 } from '@/core/lib/utils/dashboards/time-activity';
+import { ROUNDING_NOTE_KEYS } from '@/core/lib/utils/dashboards/time-activity-rounding';
+import type { DurationRoundingRule } from '@/core/lib/utils/duration-rounding';
 import { exportToXLSX } from '@/core/lib/utils/export-utils';
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
@@ -68,6 +76,8 @@ interface ExportContext {
 	figures: TimeActivityFigures;
 	filters: TimeActivityFilters;
 	filterOptions: TimeActivityFilterOptions;
+	/** The workspace rounds each entry: the rows already are, and the PDF says so. */
+	roundingRule: DurationRoundingRule | null;
 	locale: FormatLocale;
 	workspaceCurrency: string | null;
 	t: Translate;
@@ -292,12 +302,12 @@ function rowAmountTextOf(row: Pick<TimeActivityExportRow, 'earnings' | 'currency
 	return formatAmount({ amount, currency }, locale);
 }
 
-function percentTextOf(seconds: number, activeSeconds: number) {
-	if (seconds <= 0) {
+/** The activity is a share of the time as tracked, as on the page, whatever rounding the time shown has. */
+function percentTextOf(figures: FigureTotals) {
+	if (figures.seconds <= 0) {
 		return MISSING_VALUE;
 	}
-	const share = (activeSeconds / seconds) * 100;
-	return `${Math.round(share)}%`;
+	return `${Math.round(activityPercentOf(figures))}%`;
 }
 
 function printedPeriodOf(period: Period, locale: FormatLocale) {
@@ -431,7 +441,7 @@ function clientPdfRowOf(groupKey: string, line: ClientExportLine, labels: Export
 		task: line.task ?? labels.noTask,
 		tracked: formatDurationShort(line.seconds),
 		earnings: rowAmountTextOf(line, locale),
-		activity: percentTextOf(line.seconds, line.activeSeconds)
+		activity: percentTextOf(line)
 	};
 }
 
@@ -452,7 +462,7 @@ function clientPdfGroupsOf(context: ExportContext): PdfGroup[] {
 			title: clientLabelOf(clientOfGroup(group), labels),
 			tracked: formatDurationShort(group.seconds),
 			earnings: amountsTextOf(group.earnings, locale),
-			activity: percentTextOf(group.seconds, group.activeSeconds),
+			activity: percentTextOf(group),
 			rows: lines.map((line) => clientPdfRowOf(group.key, line, labels, locale))
 		};
 	});
@@ -490,7 +500,7 @@ function pdfGroupsOf(context: ExportContext, layout: PdfLayout): PdfGroup[] {
 			title: layout.groupTitle(group, firstNamed),
 			tracked: formatDurationShort(group.seconds),
 			earnings: amountsTextOf(group.earnings, locale),
-			activity: percentTextOf(group.seconds, group.activeSeconds),
+			activity: percentTextOf(group),
 			rows
 		});
 	}
@@ -513,10 +523,16 @@ function pdfContentOf(context: ExportContext): TimeActivityPdfContent {
 	const layout = pdfLayoutOf(context);
 	const title = t('dashboard.timeActivity.export.DOCUMENT_TITLE');
 	const generatedDate = dateFormatOf(locale, { dateStyle: 'long' }).format(new Date());
+	let generatedOn: string = t('dashboard.timeActivity.export.GENERATED_ON', { date: generatedDate });
+	const rule = context.roundingRule;
+	if (rule) {
+		const note = t(ROUNDING_NOTE_KEYS[rule.direction], { minutes: rule.intervalMinutes });
+		generatedOn = `${generatedOn} · ${note}`;
+	}
 	return {
 		title,
 		period: printedPeriodOf(context.period, locale),
-		generatedOn: t('dashboard.timeActivity.export.GENERATED_ON', { date: generatedDate }),
+		generatedOn,
 		filtersTitle: t('dashboard.timeActivity.export.FILTERS'),
 		filters: filterLinesOf(context),
 		summary: summaryOf(context),
@@ -555,8 +571,14 @@ export function TimeActivityExportMenu({
 	figures,
 	filters,
 	filterOptions,
+	roundingRule = null,
 	isDisabled
-}: Readonly<Omit<ExportContext, 'locale' | 'workspaceCurrency' | 't'> & { isDisabled: boolean }>) {
+}: Readonly<
+	Omit<ExportContext, 'locale' | 'workspaceCurrency' | 't' | 'roundingRule'> & {
+		roundingRule?: DurationRoundingRule | null;
+		isDisabled: boolean;
+	}
+>) {
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
 	const workspaceCurrency = useAtomValue(currentOrganizationState)?.currency ?? null;
@@ -572,6 +594,7 @@ export function TimeActivityExportMenu({
 			figures,
 			filters,
 			filterOptions,
+			roundingRule,
 			locale,
 			workspaceCurrency,
 			t
@@ -607,6 +630,7 @@ export function TimeActivityExportMenu({
 		ownEmployeeId,
 		period,
 		report,
+		roundingRule,
 		t,
 		workspaceCurrency
 	]);

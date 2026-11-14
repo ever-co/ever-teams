@@ -1,11 +1,9 @@
 'use client';
 
-import { useId } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
-import { controlRecipe } from '@/core/components/common/input';
 import { SegmentedControl } from '@/core/components/common/segmented-control';
 import { DashboardBreadcrumb } from '@/core/components/dashboards/kit/dashboard-breadcrumb';
 import { DashboardToolbar } from '@/core/components/dashboards/kit/dashboard-layout';
@@ -15,44 +13,29 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { Invoice } from '@/core/components/icons';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { PageLayout } from '@/core/components/layouts/default-layout';
-import { INVOICE_WEEK_START, useNewInvoice, type NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
-import { cn } from '@/core/lib/helpers';
+import { useNewInvoice, type NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
 import { formatPeriod, shiftPeriod } from '@/core/lib/utils/dashboard-period';
 import type { InvoiceGrouping } from '@/core/lib/utils/invoices';
 import { isTrackingEnabledState } from '@/core/stores';
 import { InvoiceAccessGuard, INVOICES_PATH, NEW_INVOICE_PATH, REPLACES_PARAM } from '../invoice-access-guard';
+import { InvoiceClientMenu } from './invoice-client-menu';
 import { PreparedInvoice } from './invoice-screen';
 import { GROUPING_SWITCH } from './new-invoice-recipes';
 import { InvoiceSheetSkeleton, MessageLink, NewInvoiceMessage, NewInvoicePageSkeleton } from './new-invoice-states';
 import { ReplacementInvoiceContent } from './replacement-invoice';
 import { SaveInvoiceDialog } from './save-invoice-dialog';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
+import { useCurrentOrganizationOwner } from '@/core/hooks/bootstrap/use-feature-data';
 
-function ClientSelect({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
-	const t = useTranslations();
-	const selectId = useId();
+function ClientMenu({ invoice, className }: Readonly<{ invoice: NewInvoiceState; className?: string }>) {
 	return (
-		<>
-			<label htmlFor={selectId} className="sr-only">
-				{t('common.CLIENT')}
-			</label>
-			<select
-				id={selectId}
-				value={invoice.client?.id ?? ''}
-				disabled={invoice.areClientsLoading}
-				onChange={(event) => invoice.changeClient(event.target.value)}
-				className={cn(
-					controlRecipe,
-					'h-8 w-auto max-w-full min-w-36 rounded-full px-3 text-[13px] sm:max-w-64 sm:min-w-44'
-				)}
-			>
-				<option value="">{t('invoices.new.CLIENT_PLACEHOLDER')}</option>
-				{invoice.clients.map((client) => (
-					<option key={client.id} value={client.id}>
-						{client.name}
-					</option>
-				))}
-			</select>
-		</>
+		<InvoiceClientMenu
+			clients={invoice.clients}
+			client={invoice.client}
+			isLoading={invoice.areClientsLoading}
+			onChange={invoice.changeClient}
+			className={className}
+		/>
 	);
 }
 
@@ -92,6 +75,7 @@ function NewInvoiceBody({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 			<NewInvoiceMessage
 				title={t('invoices.new.CHOOSE_CLIENT_TITLE')}
 				message={t('invoices.new.CHOOSE_CLIENT_MESSAGE')}
+				action={<ClientMenu invoice={invoice} />}
 			/>
 		);
 	}
@@ -107,6 +91,16 @@ function NewInvoiceBody({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 				title={t('invoices.new.NO_PROJECTS_TITLE', { client: clientName })}
 				message={t('invoices.new.NO_PROJECTS_MESSAGE')}
 				action={<MessageLink href="/projects">{t('invoices.new.OPEN_PROJECTS')}</MessageLink>}
+			/>
+		);
+	}
+	const isAllInvoiced = !hasBillableTime && time.isAllInvoiced;
+	if (isAllInvoiced) {
+		return (
+			<NewInvoiceMessage
+				title={t('invoices.billedTime.ALL_INVOICED_TITLE', { client: clientName })}
+				message={t('invoices.billedTime.ALL_INVOICED_MESSAGE')}
+				action={<MessageLink href={INVOICES_PATH}>{t('invoices.edit.BACK_TO_LIST')}</MessageLink>}
 			/>
 		);
 	}
@@ -139,6 +133,7 @@ function NewInvoiceBody({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 /** Mounted once the role may create invoices: nothing of an invoice is read for anyone else. */
 function NewInvoiceContent() {
 	const t = useTranslations();
+	const weekStart = useWorkspaceWeekStart();
 	const locale = useLocale();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const invoice = useNewInvoice();
@@ -172,11 +167,11 @@ function NewInvoiceContent() {
 					}
 					controls={
 						<>
-							<ClientSelect invoice={invoice} />
+							<ClientMenu invoice={invoice} />
 							<PeriodPicker
 								value={invoice.period}
 								onChange={invoice.changePeriod}
-								weekStartsOn={INVOICE_WEEK_START}
+								weekStartsOn={weekStart}
 							/>
 							<SegmentedControl<InvoiceGrouping>
 								items={groupingItems}
@@ -205,7 +200,9 @@ function NewInvoiceRoute() {
 	return <NewInvoiceContent />;
 }
 
+/** The workspace's week start, clock and formats come with the organisation, loaded here on a direct visit. */
 function NewInvoicePage() {
+	useCurrentOrganizationOwner();
 	return (
 		<InvoiceAccessGuard need="create" fallback={<NewInvoicePageSkeleton />}>
 			<NewInvoiceRoute />

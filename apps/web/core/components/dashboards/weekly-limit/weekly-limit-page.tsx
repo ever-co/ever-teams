@@ -13,7 +13,8 @@ import { PeriodPicker } from '@/core/components/dashboards/kit/period-picker';
 import { DASHBOARD_STACK } from '@/core/components/dashboards/kit/recipes';
 import { useWeeklyLimitReport } from '@/core/hooks/dashboards/weekly-limit/use-weekly-limit-report';
 import { formatPeriod, shiftPeriod } from '@/core/lib/utils/dashboard-period';
-import { LIMIT_WEEK_START, type LimitDuration, type LimitMember } from '@/core/lib/utils/dashboards/weekly-limit';
+import type { LimitDuration, LimitMember } from '@/core/lib/utils/dashboards/weekly-limit';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import { isTrackingEnabledState } from '@/core/stores';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { LimitAttentionList, LimitAttentionSkeleton } from './limit-attention';
@@ -42,6 +43,7 @@ function toggledKeyOf(current: string | null, key: string) {
 
 export function WeeklyLimitPage() {
 	const t = useTranslations();
+	const weekStart = useWorkspaceWeekStart();
 	const locale = useWorkspaceLocale();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const report = useWeeklyLimitReport({ unnamedLabel: t('timeActivity.UNNAMED_EMPLOYEE') });
@@ -106,7 +108,7 @@ export function WeeklyLimitPage() {
 							<PeriodPicker
 								value={period}
 								onChange={setPeriod}
-								weekStartsOn={LIMIT_WEEK_START}
+								weekStartsOn={weekStart}
 								locale={locale}
 							/>
 							<MemberFilterMenu

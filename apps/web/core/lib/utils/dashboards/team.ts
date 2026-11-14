@@ -450,7 +450,7 @@ export function projectSharesOf(
 
 export interface ChartBucket {
 	key: string;
-	/** The calendar start of the bucket (the Monday of a week, the 1st of a month), for its label. */
+	/** The calendar start of the bucket (the first day of a week, the 1st of a month), for its label. */
 	start: Date;
 	seconds: number;
 	activeSeconds: number;
@@ -471,9 +471,9 @@ interface BucketDraft {
 	projects: Set<string>;
 }
 
-function bucketStartOf(day: Date, granularity: ChartGranularity) {
+function bucketStartOf(day: Date, granularity: ChartGranularity, weekStartsOn: WeekStart) {
 	if (granularity === 'week') {
-		return startOfWeek(day, { weekStartsOn: TEAM_WEEK_STARTS_ON });
+		return startOfWeek(day, { weekStartsOn });
 	}
 	if (granularity === 'month') {
 		return startOfMonth(day);
@@ -516,13 +516,14 @@ export function chartBucketsOf(
 	rows: ReadonlyArray<DailyReportRow>,
 	period: Period,
 	granularity: ChartGranularity,
+	weekStartsOn: WeekStart = TEAM_WEEK_STARTS_ON,
 	now = new Date()
 ): ChartBucket[] {
 	const today = startOfDay(now);
 	const drafts = new Map<string, BucketDraft>();
 	const bucketKeyByDay = new Map<string, string>();
 	for (const day of daysOfPeriod(period)) {
-		const start = bucketStartOf(day, granularity);
+		const start = bucketStartOf(day, granularity, weekStartsOn);
 		const key = localDayKeyOf(start);
 		bucketKeyByDay.set(localDayKeyOf(day), key);
 		const existing = drafts.get(key);
@@ -737,9 +738,9 @@ function seriesKeyOfRow(row: DailyReportRow, leadingKeys: ReadonlySet<string>) {
 }
 
 /** The slot a worked day falls in, keyed like `chartBucketsOf` keys its buckets. */
-function bucketKeyOfDay(dateKey: string, granularity: ChartGranularity) {
+function bucketKeyOfDay(dateKey: string, granularity: ChartGranularity, weekStartsOn: WeekStart) {
 	const day = localDateOfKey(dateKey);
-	const start = bucketStartOf(day, granularity);
+	const start = bucketStartOf(day, granularity, weekStartsOn);
 	return localDayKeyOf(start);
 }
 
@@ -753,6 +754,7 @@ function stacksBy(
 	rows: ReadonlyArray<DailyReportRow>,
 	buckets: ReadonlyArray<ChartBucket>,
 	granularity: ChartGranularity,
+	weekStartsOn: WeekStart,
 	seriesKeyOf: (row: DailyReportRow) => string
 ): ColumnStack[] {
 	const stacks = new Map<string, ColumnStack>();
@@ -760,7 +762,7 @@ function stacksBy(
 		stacks.set(bucket.key, { key: bucket.key, bucket, values: {} });
 	}
 	for (const row of rows) {
-		const bucketKey = bucketKeyOfDay(row.dateKey, granularity);
+		const bucketKey = bucketKeyOfDay(row.dateKey, granularity, weekStartsOn);
 		const stack = stacks.get(bucketKey);
 		if (!stack) {
 			continue;
@@ -776,10 +778,11 @@ export function columnStacksOf(
 	rows: ReadonlyArray<DailyReportRow>,
 	buckets: ReadonlyArray<ChartBucket>,
 	granularity: ChartGranularity,
-	series: ReadonlyArray<ProjectSeries>
+	series: ReadonlyArray<ProjectSeries>,
+	weekStartsOn: WeekStart = TEAM_WEEK_STARTS_ON
 ): ColumnStack[] {
 	const leadingKeys = leadingSeriesKeysOf(series);
-	return stacksBy(rows, buckets, granularity, (row) => seriesKeyOfRow(row, leadingKeys));
+	return stacksBy(rows, buckets, granularity, weekStartsOn, (row) => seriesKeyOfRow(row, leadingKeys));
 }
 
 export function seriesValueOf(stack: ColumnStack, seriesKey: string) {
@@ -809,11 +812,12 @@ export interface StripColumn {
 function stripColumnsOf(
 	memberRows: ReadonlyArray<DailyReportRow>,
 	buckets: ReadonlyArray<ChartBucket>,
-	granularity: ChartGranularity
+	granularity: ChartGranularity,
+	weekStartsOn: WeekStart
 ): StripColumn[] {
 	const secondsByBucket = new Map<string, number>();
 	for (const row of memberRows) {
-		const bucketKey = bucketKeyOfDay(row.dateKey, granularity);
+		const bucketKey = bucketKeyOfDay(row.dateKey, granularity, weekStartsOn);
 		const current = secondsByBucket.get(bucketKey) ?? 0;
 		secondsByBucket.set(bucketKey, current + row.seconds);
 	}
@@ -871,12 +875,13 @@ export function rosterMembersOf(
 	members: ReadonlyArray<MemberSummary>,
 	buckets: ReadonlyArray<ChartBucket>,
 	granularity: ChartGranularity,
-	userIds: ReadonlyMap<string, string>
+	userIds: ReadonlyMap<string, string>,
+	weekStartsOn: WeekStart = TEAM_WEEK_STARTS_ON
 ): RosterMember[] {
 	const rowsByEmployee = rowsByEmployeeOf(rows);
 	return members.map((summary) => {
 		const memberRows = rowsByEmployee.get(summary.key) ?? [];
-		const columns = stripColumnsOf(memberRows, buckets, granularity);
+		const columns = stripColumnsOf(memberRows, buckets, granularity, weekStartsOn);
 		const peakColumnKey = peakColumnKeyOf(columns);
 		const topProject = topProjectOf(memberRows);
 		const userId = userIds.get(summary.key) ?? null;
@@ -1129,10 +1134,11 @@ export function memberColumnStacksOf(
 	rows: ReadonlyArray<DailyReportRow>,
 	buckets: ReadonlyArray<ChartBucket>,
 	granularity: ChartGranularity,
-	series: ReadonlyArray<MemberSeries>
+	series: ReadonlyArray<MemberSeries>,
+	weekStartsOn: WeekStart = TEAM_WEEK_STARTS_ON
 ): ColumnStack[] {
 	const leadingKeys = leadingSeriesKeysOf(series);
-	return stacksBy(rows, buckets, granularity, (row) => memberSeriesKeyOfRow(row, leadingKeys));
+	return stacksBy(rows, buckets, granularity, weekStartsOn, (row) => memberSeriesKeyOfRow(row, leadingKeys));
 }
 
 function carriesProjectTime(entry: ProjectSeries) {

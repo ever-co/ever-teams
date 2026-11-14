@@ -104,6 +104,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/clients/:id",
+      "file": "apps/web/app/[locale]/(main)/clients/[id]/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/dashboard/app-url/:teamId",
       "file": "apps/web/app/[locale]/(main)/dashboard/app-url/[teamId]/page.tsx",
       "source": "router"
@@ -156,6 +161,11 @@
     {
       "path": "/:locale/invoices",
       "file": "apps/web/app/[locale]/(main)/invoices/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/invoices/:id",
+      "file": "apps/web/app/[locale]/(main)/invoices/[id]/page.tsx",
       "source": "router"
     },
     {

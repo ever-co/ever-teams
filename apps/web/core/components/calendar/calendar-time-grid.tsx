@@ -59,6 +59,7 @@ import {
 import { type DayGhost, dayGhostOf, DragGhost } from './calendar-drag-ghost';
 import { type EntryHandlers, entryRangeTextOf, useEntryTitle } from './calendar-entry-parts';
 import { EntryDetails } from './calendar-entry-details';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 
 const GUTTER_WIDTH = '3.5rem';
 
@@ -410,6 +411,7 @@ export function CalendarTimeGrid({
 }>) {
 	const t = useTranslations();
 	const locale = useLocale();
+	const workspaceLocale = useWorkspaceLocale();
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const bodyRef = useRef<HTMLDivElement>(null);
 	const drag = useCalendarGridDrag({
@@ -437,8 +439,8 @@ export function CalendarTimeGrid({
 	const columnsStyle = gridColumnsOf(dayCount);
 	const hourLabels = useMemo(() => {
 		const labelDay = firstDate ?? new Date();
-		return hourLabelsOf(locale, labelDay);
-	}, [firstDate, locale]);
+		return hourLabelsOf(workspaceLocale, labelDay);
+	}, [firstDate, workspaceLocale]);
 	const zoneName = useMemo(() => shortTimeZoneNameOf(locale, timeZone, new Date()), [locale, timeZone]);
 	const hasToday = days.some((day) => isToday(day.date));
 	const firstKey = firstDay?.key ?? '';

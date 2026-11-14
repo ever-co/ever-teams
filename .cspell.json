@@ -1014,6 +1014,11 @@
 		"Femployee",
 		"globex",
 		"unbilled",
+		"Beginn",
+		"Dauer",
+		"Ende",
+		"Kunde",
+		"Notiz",
 		"initech"
 	],
 	"useGitignore": true,

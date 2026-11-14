@@ -10,14 +10,19 @@ const invoiceClientSchema = z.object({
 	primaryEmail: z.string().nullable().optional()
 });
 
-/** An invoice as the list shows it. Its lines, taxes and payment fields are left out of what the page holds. */
+/** An invoice as the list shows it. Its lines and taxes are left out of what the page holds. */
 export const invoiceSchema = z.object({
 	id: z.string(),
+	/** Tells the latest copy apart when two reads meet the same invoice. */
+	updatedAt: z.coerce.date().optional(),
 	invoiceNumber: decimalSchema,
 	invoiceDate: z.string().nullable().optional(),
 	dueDate: z.string().nullable().optional(),
 	currency: z.string().nullable().optional(),
 	totalValue: decimalSchema,
+	/** What was paid on the invoice and what is left, as the paid and unpaid actions write them. */
+	alreadyPaid: decimalSchema,
+	amountDue: decimalSchema,
 	status: z.string().nullable().optional(),
 	terms: z.string().nullable().optional(),
 	toContactId: z.string().nullable().optional(),
@@ -44,7 +49,12 @@ export const billableTimeLogSchema = z.object({
 	duration: z.coerce.number().nullable().optional().catch(null),
 	startedAt: z.string().nullable().optional(),
 	stoppedAt: z.string().nullable().optional(),
-	task: billableTaskSchema.nullable().optional()
+	task: billableTaskSchema.nullable().optional(),
+	/**
+	 * The invoice line that bills the log, null when none does. An API that records billed time states it on every
+	 * log; an older one leaves the key out.
+	 */
+	invoiceItemId: z.string().nullable().optional()
 });
 
 const savedLineProjectSchema = z.object({

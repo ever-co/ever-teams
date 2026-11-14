@@ -14,8 +14,8 @@ import {
 import { Users, X } from '@/core/components/icons';
 import { formatPeriod, type Period } from '@/core/lib/utils/dashboard-period';
 import { APPS_URLS_VIEWS, type AppsUrlsView, type UsagePerson } from '@/core/lib/utils/dashboards/apps-urls';
-import { APPS_URLS_WEEK_START } from '@/core/hooks/dashboards/apps-urls/use-apps-urls-report';
 import { PersonFace, personNameOrFallback } from './usage-cells';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 
 type MemberFilterField = 'members';
 
@@ -167,6 +167,7 @@ export const AppsUrlsToolbar = memo(function AppsUrlsToolbar({
 	isExportDisabled: boolean;
 }>) {
 	const t = useTranslations();
+	const weekStart = useWorkspaceWeekStart();
 	const viewItems = useMemo<SegmentedControlItem<AppsUrlsView>[]>(
 		() => APPS_URLS_VIEWS.map((value) => ({ value, label: t(VIEW_LABEL_KEYS[value]) })),
 		[t]
@@ -185,7 +186,7 @@ export const AppsUrlsToolbar = memo(function AppsUrlsToolbar({
 			actions={<ExportMenu options={exportOptions} isDisabled={isExportDisabled} />}
 			controls={
 				<>
-					<PeriodPicker value={period} onChange={onPeriodChange} weekStartsOn={APPS_URLS_WEEK_START} />
+					<PeriodPicker value={period} onChange={onPeriodChange} weekStartsOn={weekStart} />
 					{canFilterMembers && (
 						<MemberFilter
 							people={people}

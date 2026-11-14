@@ -8,13 +8,13 @@ import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/c
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import type { CalendarView } from '@/core/lib/utils/calendar-view';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
-import { type Period, presetOfPeriod } from '@/core/lib/utils/dashboard-period';
+import { type Period, presetOfPeriod, type WeekStart } from '@/core/lib/utils/dashboard-period';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import {
 	dailyLimitSecondsOf,
 	DEFAULT_MY_WEEK_PERIOD,
 	isWeekPeriod,
 	MY_WEEK_PERIODS,
-	MY_WEEK_STARTS_ON,
 	type MyWeekEntry,
 	type MyWeekPeriodKey,
 	myWeekDaysOf,
@@ -61,8 +61,8 @@ function isPeriodKey(value: string | null): value is MyWeekPeriodKey {
 	return keys.includes(value);
 }
 
-function shownKeyOf(shownPeriod: Period, pickedKey: MyWeekPeriodKey): MyWeekPeriodKey {
-	const matchingKey = presetOfPeriod(shownPeriod, MY_WEEK_PERIODS, MY_WEEK_STARTS_ON);
+function shownKeyOf(shownPeriod: Period, pickedKey: MyWeekPeriodKey, weekStartsOn: WeekStart): MyWeekPeriodKey {
+	const matchingKey = presetOfPeriod(shownPeriod, MY_WEEK_PERIODS, weekStartsOn);
 	if (isPeriodKey(matchingKey)) {
 		return matchingKey;
 	}
@@ -84,7 +84,8 @@ export function useMyWeekPage() {
 	const now = new Date();
 	const todayKey = localDayKeyOf(now);
 	const today = useMemo(() => parseISO(todayKey), [todayKey]);
-	const period = useMemo(() => myWeekPeriodOf(periodKey, today), [periodKey, today]);
+	const weekStart = useWorkspaceWeekStart();
+	const period = useMemo(() => myWeekPeriodOf(periodKey, today, weekStart), [periodKey, today, weekStart]);
 
 	const employeeId: string | null = user?.employee?.id ?? null;
 	const isUserReady = user !== undefined;
@@ -106,7 +107,7 @@ export function useMyWeekPage() {
 		() => shownPeriodOf(period, loadedPeriod, isPlaceholder),
 		[isPlaceholder, loadedPeriod, period]
 	);
-	const shownKey = shownKeyOf(shownPeriod, periodKey);
+	const shownKey = shownKeyOf(shownPeriod, periodKey, weekStart);
 	const dataUpdatedAt = logsQuery.dataUpdatedAt;
 	const resultLogs = result?.logs;
 

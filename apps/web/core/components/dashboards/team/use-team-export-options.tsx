@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import type { ExportOption } from '@/core/components/dashboards/kit/export-menu';
 import { FilePdf, FileSheet } from '@/core/components/icons';
 import type { TeamDashboardState } from '@/core/hooks/dashboards/team/use-team-dashboard';
@@ -11,6 +11,8 @@ import { formatDurationShort, formatPercent } from '@/core/lib/utils/dashboard-f
 import { formatPeriod } from '@/core/lib/utils/dashboard-period';
 import { exportRowsOf, formatHoursMinutes, localDateOfKey, rowActivityOf } from '@/core/lib/utils/dashboards/team';
 import type { TeamReportPdfInput, TeamReportPdfRow } from './export/team-report-pdf';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf, numberFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 const FILE_PREFIX = 'team-report';
 
@@ -83,16 +85,16 @@ function pdfRowsOf(rows: ReadonlyArray<DailyReportRow>, dateFormat: Intl.DateTim
 	});
 }
 
-function pdfInputOf(dashboard: TeamDashboardState, locale: string, t: Translate): TeamReportPdfInput {
+function pdfInputOf(dashboard: TeamDashboardState, locale: FormatLocale, t: Translate): TeamReportPdfInput {
 	const { totals } = dashboard;
-	const numberFormat = new Intl.NumberFormat(locale);
-	const dateFormat = new Intl.DateTimeFormat(locale, {
+	const numberFormat = numberFormatOf(locale);
+	const dateFormat = dateFormatOf(locale, {
 		weekday: 'short',
 		month: 'short',
 		day: 'numeric',
 		year: 'numeric'
 	});
-	const generatedFormat = new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' });
+	const generatedFormat = dateFormatOf(locale, { dateStyle: 'medium', timeStyle: 'short' });
 	const rows = exportRowsOf(dashboard.rows);
 	const trackedText = formatDurationShort(totals.seconds);
 	const activityText = formatPercent(totals.activity);
@@ -128,7 +130,7 @@ function pdfInputOf(dashboard: TeamDashboardState, locale: string, t: Translate)
  */
 export function useTeamExportOptions(dashboard: TeamDashboardState): ExportOption[] {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 
 	return useMemo(() => {
 		const { period } = dashboard;

@@ -176,13 +176,18 @@ export interface ITimerTaskLog {
 	client: IOrganizationContact;
 	/** Stated only when the report counts the time logged without a team (`includeTimeWithoutTeam`): null is that time. */
 	organizationTeamId?: string | null;
+	/** Set only once the workspace's rule rounded `duration` (`roundedDailyReportOf`): the duration as tracked. */
+	trackedDuration?: number;
 }
 
 export interface ITimerEmployeeLog {
 	employee: IEmployee;
 	sum: number;
 	tasks: ITimerTaskLog[];
+	/** Measured on the time as tracked, never on rounded time. */
 	activity: number;
+	/** Set only once the workspace's rule rounded `sum` (`roundedDailyReportOf`): the time as tracked. */
+	trackedSum?: number;
 }
 
 /** The current client the daily report states beside a project; the API leaves it out once that client is archived. */

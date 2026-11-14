@@ -8,6 +8,18 @@ import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { requiredTrackingFieldsOf } from '@/core/lib/helpers/timer-errors';
 import { chunksOf } from '@/core/lib/utils/dashboards/timesheets';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { safeGetLocalStorage, safeSetLocalStorage } from '@/core/lib/utils/local-storage-cleanup';
+import type { DateOrder } from '@/core/lib/utils/time-import-cells';
+import {
+	timeImportColumnsStepOf,
+	timeImportReadingOf,
+	type TimeImportColumnsStep
+} from '@/core/lib/utils/time-import-columns';
+import {
+	TIME_IMPORT_COLUMNS_STORAGE_KEY,
+	storedColumnsChoiceOf,
+	withColumnsChoiceKept
+} from '@/core/lib/utils/time-import-columns-storage';
 import {
 	checkedRowsOf,
 	draftRowsOf,
@@ -27,9 +39,12 @@ import {
 } from '@/core/lib/utils/time-import-rows';
 import {
 	timeImportFileRefusalOf,
-	timeImportSheetOf,
+	timeImportSheetOfTable,
+	type TimeImportColumnsChoice,
+	type TimeImportField,
 	type TimeImportFileProblem,
-	type TimeImportSheet
+	type TimeImportSheet,
+	type TimeImportTable
 } from '@/core/lib/utils/time-import-sheet';
 import { hasUnreadableInterval } from '@/core/lib/utils/time-log-overlap';
 import { queryKeys } from '@/core/query/keys';
@@ -46,18 +61,30 @@ const PROJECT_REQUIRED_KEY = 'timeImport.problems.PROJECT_REQUIRED';
 const RECORDED_MEANWHILE_KEY = 'timeImport.problems.RECORDED_MEANWHILE';
 
 /**
- * `idle`: no file yet, or a file that was refused whole. `checking`: its rows are compared with recorded time.
- * `preview`: every row has its verdict and nothing is saved. `rechecking` then `importing`: the member confirmed.
- * `done`: the report.
+ * `idle`: no file yet, or a file that was refused whole. `columns`: the member says which column holds what, for a
+ * file the import cannot read by itself. `checking`: its rows are compared with recorded time. `preview`: every row
+ * has its verdict and nothing is saved. `rechecking` then `importing`: the member confirmed. `done`: the report.
  */
-type TimeImportStage = 'idle' | 'checking' | 'preview' | 'rechecking' | 'importing' | 'done';
+type TimeImportStage = 'idle' | 'columns' | 'checking' | 'preview' | 'rechecking' | 'importing' | 'done';
 
 export type PickedFile = Pick<File, 'name' | 'size' | 'arrayBuffer'>;
+
+interface StagedFile {
+	fileName: string;
+	sheet: TimeImportSheet;
+	table: TimeImportTable;
+	columns: TimeImportColumnsChoice;
+	/** False for the template, which the import reads by itself with nothing to change. */
+	canEditColumns: boolean;
+}
 
 interface TimeImportState {
 	stage: TimeImportStage;
 	fileName: string;
 	fileProblem: TimeImportFileProblem | null;
+	table: TimeImportTable | null;
+	columns: TimeImportColumnsChoice | null;
+	canEditColumns: boolean;
 	sheet: TimeImportSheet | null;
 	rows: ReadonlyArray<TimeImportRow>;
 	hasCheckFailed: boolean;
@@ -73,12 +100,35 @@ const IDLE: TimeImportState = {
 	stage: 'idle',
 	fileName: '',
 	fileProblem: null,
+	table: null,
+	columns: null,
+	canEditColumns: false,
 	sheet: null,
 	rows: [],
 	hasCheckFailed: false,
 	hasPreviewChanged: false,
 	outcomes: NO_OUTCOMES
 };
+
+function storedChoiceOf(headers: ReadonlyArray<string>): TimeImportColumnsChoice | null {
+	const stored = safeGetLocalStorage<unknown>(TIME_IMPORT_COLUMNS_STORAGE_KEY, null);
+	return storedColumnsChoiceOf(stored, headers);
+}
+
+/** Kept on this browser only: a browser that refuses its storage still imports, and is asked again next time. */
+function keepColumnsChoice(headers: ReadonlyArray<string>, choice: TimeImportColumnsChoice) {
+	const stored = safeGetLocalStorage<unknown>(TIME_IMPORT_COLUMNS_STORAGE_KEY, null);
+	const kept = withColumnsChoiceKept(stored, headers, choice);
+	safeSetLocalStorage(TIME_IMPORT_COLUMNS_STORAGE_KEY, kept);
+}
+
+function stagedFileOf(state: TimeImportState): StagedFile | null {
+	const { fileName, sheet, table, columns, canEditColumns } = state;
+	if (!sheet || !table || !columns) {
+		return null;
+	}
+	return { fileName, sheet, table, columns, canEditColumns };
+}
 
 /** The file's text, or null when its bytes are not UTF-8: a spreadsheet or a file in another encoding. */
 async function textOf(file: PickedFile): Promise<string | null> {
@@ -202,7 +252,8 @@ interface TimeImportOptions {
 
 /**
  * The import of time entries from a CSV file, from the picked file to the report. A file is read and judged in the
- * browser, row by row, and its rows are compared with the time already recorded. Nothing is saved before
+ * browser, row by row, after a Columns step when the import cannot tell by itself which column holds what or how its
+ * dates are written, and its rows are compared with the time already recorded. Nothing is saved before
  * `confirm`, which checks the file once more (time may have been recorded while the preview was open) and then
  * saves the ready rows one after the other through the manual time call, each after one more read of its day,
  * stopping at the first refusal or at the first row whose time was recorded meanwhile.
@@ -235,7 +286,7 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 	const check = useCallback(
 		async (sheet: TimeImportSheet): Promise<TimeImportRow[]> => {
 			const now = new Date();
-			const drafts = draftRowsOf(sheet.rows, contextAt(now));
+			const drafts = draftRowsOf(sheet.rows, contextAt(now), sheet.dateOrder);
 			const lookups = timeImportLookupsOf(drafts);
 			const logsByLookup = await readRecordedLogs(queryClient, lookups);
 			return checkedRowsOf({ rows: drafts, logsByLookup, now });
@@ -244,19 +295,19 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 	);
 
 	const checkSheet = useCallback(
-		async (fileName: string, sheet: TimeImportSheet) => {
+		async (staged: StagedFile) => {
 			runRef.current += 1;
 			const run = runRef.current;
-			setState({ ...IDLE, stage: 'checking', fileName, sheet });
+			setState({ ...IDLE, ...staged, stage: 'checking' });
 			try {
-				const rows = await check(sheet);
+				const rows = await check(staged.sheet);
 				if (runRef.current === run) {
-					setState({ ...IDLE, stage: 'preview', fileName, sheet, rows });
+					setState({ ...IDLE, ...staged, stage: 'preview', rows });
 				}
 			} catch (error) {
 				logErrorInDev('Time import check failed', error);
 				if (runRef.current === run) {
-					setState({ ...IDLE, stage: 'checking', fileName, sheet, hasCheckFailed: true });
+					setState({ ...IDLE, ...staged, stage: 'checking', hasCheckFailed: true });
 				}
 			}
 		},
@@ -284,26 +335,78 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 				setState({ ...IDLE, fileName, fileProblem: { code: 'notText' } });
 				return;
 			}
-			const reading = timeImportSheetOf(text);
-			if (!reading.sheet) {
+			const reading = timeImportReadingOf(text, storedChoiceOf);
+			if (reading.kind === 'refused') {
 				setState({ ...IDLE, fileName, fileProblem: reading.problem });
 				return;
 			}
-			await checkSheet(fileName, reading.sheet);
+			const { table, choice } = reading;
+			if (reading.kind === 'columns') {
+				setState({ ...IDLE, stage: 'columns', fileName, table, columns: choice, canEditColumns: true });
+				return;
+			}
+			const canEditColumns = !reading.readsAsTemplate;
+			await checkSheet({ fileName, sheet: reading.sheet, table, columns: choice, canEditColumns });
 		},
 		[checkSheet, isSaving]
 	);
 
 	const retryCheck = useCallback(() => {
-		if (state.sheet) {
-			void checkSheet(state.fileName, state.sheet);
+		const staged = stagedFileOf(state);
+		if (staged) {
+			void checkSheet(staged);
 		}
-	}, [checkSheet, state.fileName, state.sheet]);
+	}, [checkSheet, state]);
 
 	const reset = useCallback(() => {
 		runRef.current += 1;
 		setState(IDLE);
 	}, []);
+
+	const chooseColumn = useCallback((field: TimeImportField, columnIndex: number | null) => {
+		setState((current) => {
+			if (current.stage !== 'columns' || !current.columns) {
+				return current;
+			}
+			const mapping: Record<TimeImportField, number | null> = { ...current.columns.mapping };
+			mapping[field] = columnIndex;
+			return { ...current, columns: { ...current.columns, mapping } };
+		});
+	}, []);
+
+	const chooseDateOrder = useCallback((dateOrder: DateOrder) => {
+		setState((current) => {
+			if (current.stage !== 'columns' || !current.columns) {
+				return current;
+			}
+			return { ...current, columns: { ...current.columns, dateOrder } };
+		});
+	}, []);
+
+	const confirmColumns = useCallback(async () => {
+		const { stage, fileName, table, columns } = state;
+		if (stage !== 'columns' || !table || !columns) {
+			return;
+		}
+		const step = timeImportColumnsStepOf(table, columns);
+		if (step.blocker || !step.dateOrder) {
+			return;
+		}
+		const confirmedChoice: TimeImportColumnsChoice = { ...columns, dateOrder: step.dateOrder };
+		keepColumnsChoice(table.headers, confirmedChoice);
+		const sheet = timeImportSheetOfTable(table, columns.mapping, step.dateOrder);
+		await checkSheet({ fileName, sheet, table, columns, canEditColumns: true });
+	}, [checkSheet, state]);
+
+	const editColumns = useCallback(() => {
+		const { stage, fileName, table, columns, canEditColumns } = state;
+		const isPreview = stage === 'preview';
+		if (!isPreview || !canEditColumns || !table || !columns) {
+			return;
+		}
+		runRef.current += 1;
+		setState({ ...IDLE, stage: 'columns', fileName, table, columns, canEditColumns });
+	}, [state]);
 
 	const saveRows = useCallback(
 		async (run: number, rows: ReadonlyArray<TimeImportRow>) => {
@@ -389,6 +492,14 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 		}
 		return timeImportReportOf(rows, run);
 	}, [rows, run]);
+	const { table, columns } = state;
+	const columnsStep = useMemo<TimeImportColumnsStep | null>(() => {
+		const isColumns = stage === 'columns';
+		if (!isColumns || !table || !columns) {
+			return null;
+		}
+		return timeImportColumnsStepOf(table, columns);
+	}, [columns, stage, table]);
 
 	return {
 		stage,
@@ -397,6 +508,8 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 		ignoredHeaders: state.sheet?.ignoredHeaders ?? NO_HEADERS,
 		/** The rows the file holds, known as soon as it is read and before any of them has a verdict. */
 		fileRowCount: state.sheet?.rows.length ?? 0,
+		columnsStep,
+		canEditColumns: state.canEditColumns,
 		rows,
 		summary,
 		run,
@@ -405,6 +518,10 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 		hasPreviewChanged: state.hasPreviewChanged,
 		chooseFile,
 		retryCheck,
+		chooseColumn,
+		chooseDateOrder,
+		confirmColumns,
+		editColumns,
 		confirm,
 		reset
 	};

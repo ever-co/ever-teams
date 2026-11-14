@@ -21,15 +21,33 @@ import {
 	workspaceOfTenant,
 	workspacesAfterRename
 } from '@/core/lib/utils/settings-workspace';
-import type { WorkspaceDateFormat, WorkspaceNumberFormat } from '@/core/lib/utils/workspace-formats';
+import type { DurationRoundingRule } from '@/core/lib/utils/duration-rounding';
+import type {
+	WorkspaceClock,
+	WorkspaceCurrencyPosition,
+	WorkspaceDateFormat,
+	WorkspaceNumberFormat
+} from '@/core/lib/utils/workspace-formats';
 import { queryKeys } from '@/core/query/keys';
 import { organizationService, type TOrganizationChanges } from '@/core/services/client/api/organizations';
 import { tenantService } from '@/core/services/client/api/tenants/tenant.service';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
+import type { EWeekDays } from '@/core/types/generics/enums/date';
 import type { TOrganization } from '@/core/types/schemas';
 import type { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 
-type WorkspaceChanges = Pick<TOrganizationChanges, 'name' | 'currency' | 'dateFormat' | 'numberFormat'>;
+type WorkspaceChanges = Pick<
+	TOrganizationChanges,
+	| 'name'
+	| 'currency'
+	| 'dateFormat'
+	| 'numberFormat'
+	| 'startWeekOn'
+	| 'timeFormat'
+	| 'currencyPosition'
+	| 'durationRoundingInterval'
+	| 'durationRoundingDirection'
+>;
 
 /**
  * The workspace a save belongs to, read when the save is asked: another tab may switch workspace before it runs. Its
@@ -85,7 +103,7 @@ function workspaceNameOf(workspace: TWorkspace | null, organization: TOrganizati
 }
 
 /**
- * The current workspace's name, currency and formats, who may change them, and their saves. A save says what it
+ * The current workspace's name, currency, formats and duration rounding, who may change them, and their saves. A save says what it
  * changed, or why it failed, and a failed one throws so its control goes back to the stored value.
  */
 export function useWorkspaceSettings() {
@@ -258,6 +276,67 @@ export function useWorkspaceSettings() {
 		[reportedSave, saveOrganization, scopeOfSave, t]
 	);
 
+	// Gauzy stores the interval and the direction together: a rule is saved, or cleared, as a pair
+	const saveDurationRounding = useCallback(
+		async (rule: DurationRoundingRule | null) => {
+			const scope = scopeOfSave();
+			const changes: WorkspaceChanges = {
+				durationRoundingInterval: rule?.intervalMinutes ?? null,
+				durationRoundingDirection: rule?.direction ?? null
+			};
+			let text: SaveText = {
+				failureKey: 'settings.workspace.ROUNDING_NOT_SAVED',
+				saved: t('settings.workspace.ROUNDING_OFF_SAVED'),
+				outcome: t('settings.workspace.ROUNDING_OFF_OUTCOME')
+			};
+			if (rule) {
+				text = {
+					failureKey: 'settings.workspace.ROUNDING_NOT_SAVED',
+					saved: t('settings.workspace.ROUNDING_SAVED'),
+					outcome: t('settings.workspace.ROUNDING_OUTCOME')
+				};
+			}
+			await reportedSave(() => saveOrganization(scope, changes), text);
+		},
+		[reportedSave, saveOrganization, scopeOfSave, t]
+	);
+
+	const saveWeekStart = useCallback(
+		async (startWeekOn: EWeekDays) => {
+			const scope = scopeOfSave();
+			await reportedSave(() => saveOrganization(scope, { startWeekOn }), {
+				failureKey: 'settings.workspace.WEEK_START_NOT_SAVED',
+				saved: t('settings.workspace.WEEK_START_SAVED'),
+				outcome: t('settings.workspace.EVERY_PAGE_OUTCOME')
+			});
+		},
+		[reportedSave, saveOrganization, scopeOfSave, t]
+	);
+
+	const saveClock = useCallback(
+		async (timeFormat: WorkspaceClock) => {
+			const scope = scopeOfSave();
+			await reportedSave(() => saveOrganization(scope, { timeFormat }), {
+				failureKey: 'settings.workspace.CLOCK_NOT_SAVED',
+				saved: t('settings.workspace.CLOCK_SAVED'),
+				outcome: t('settings.workspace.EVERY_PAGE_OUTCOME')
+			});
+		},
+		[reportedSave, saveOrganization, scopeOfSave, t]
+	);
+
+	const saveCurrencyPosition = useCallback(
+		async (currencyPosition: WorkspaceCurrencyPosition) => {
+			const scope = scopeOfSave();
+			await reportedSave(() => saveOrganization(scope, { currencyPosition }), {
+				failureKey: 'settings.workspace.CURRENCY_POSITION_NOT_SAVED',
+				saved: t('settings.workspace.CURRENCY_POSITION_SAVED'),
+				outcome: t('settings.workspace.EVERY_PAGE_OUTCOME')
+			});
+		},
+		[reportedSave, saveOrganization, scopeOfSave, t]
+	);
+
 	return {
 		organization,
 		name,
@@ -269,6 +348,10 @@ export function useWorkspaceSettings() {
 		saveName,
 		saveCurrency,
 		saveDateFormat,
-		saveNumberFormat
+		saveNumberFormat,
+		saveWeekStart,
+		saveClock,
+		saveCurrencyPosition,
+		saveDurationRounding
 	};
 }

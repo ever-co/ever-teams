@@ -1,5 +1,6 @@
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import { formatAmount } from '@/core/lib/utils/daily-report-figures';
+import { numberFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { ECurrencies } from '@/core/types/generics/enums/currency';
 import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rates.schema';
 
@@ -328,13 +329,17 @@ export function currencyLabelOf(code: string, locale: string): string {
 }
 
 /** A rate as money when its currency is known, else as a bare number; null when there is no rate. */
-export function rateAmountTextOf(value: unknown, currency: string | null | undefined, locale: string): string | null {
+export function rateAmountTextOf(
+	value: unknown,
+	currency: string | null | undefined,
+	locale: FormatLocale
+): string | null {
 	const rate = rateValueOf(value);
 	if (rate === null) {
 		return null;
 	}
 	if (!currency) {
-		return new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(rate);
+		return numberFormatOf(locale, { maximumFractionDigits: 2 }).format(rate);
 	}
 	return formatAmount({ currency, amount: rate }, locale);
 }
