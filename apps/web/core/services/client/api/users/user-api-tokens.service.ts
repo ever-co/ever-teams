@@ -29,9 +29,9 @@ class UserApiTokensService extends APIService {
 		return page.items;
 	};
 
-	/** Creates a token: the answer holds its secret, which no later read gives again. */
+	/** Creates a token: the answer holds its secret, which no later read gives again, and stays out of the request log. */
 	create = async (input: TCreateUserApiTokenInput): Promise<TCreatedUserApiToken> => {
-		const response = await this.post<unknown>('/user-api-tokens', input, undefined, false);
+		const response = await this.post<unknown>('/user-api-tokens', input, { secretResponse: true }, false);
 		return validateApiResponse(createdUserApiTokenSchema, response.data, 'userApiTokens.create API response');
 	};
 

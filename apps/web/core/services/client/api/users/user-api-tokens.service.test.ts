@@ -75,7 +75,7 @@ describe('userApiTokensService.list', () => {
 });
 
 describe('userApiTokensService.create', () => {
-	it('sends the name and the expiry alone, and keeps the secret it answers', async () => {
+	it('sends the name and the expiry alone, keeps the secret it answers out of the request log, and returns it', async () => {
 		const post = jest
 			.spyOn(userApiTokensService, 'post')
 			.mockResolvedValue(answer({ ...LISTED, token: 'gzy_abc.secret' }, 201));
@@ -85,7 +85,7 @@ describe('userApiTokensService.create', () => {
 		expect(post).toHaveBeenCalledWith(
 			'/user-api-tokens',
 			{ name: 'Friday report', expiry: '1y' },
-			undefined,
+			{ secretResponse: true },
 			false
 		);
 		expect(created.token).toBe('gzy_abc.secret');
