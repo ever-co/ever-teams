@@ -183,7 +183,7 @@ describe('WorkspaceImportFlow', () => {
 		expect(screen.queryByRole('button', { name: 'choose other' })).toBeNull();
 	});
 
-	it('keeps the entries out when a step failed', () => {
+	it('keeps the entries out when a step failed, and leaves other files to the notice of the stop', () => {
 		const creation: WorkspaceCreationState = {
 			status: 'failed',
 			tallies: null,
@@ -199,7 +199,7 @@ describe('WorkspaceImportFlow', () => {
 
 		expect(screen.getByTestId('progress')).toBeTruthy();
 		expect(screen.queryByTestId('entries')).toBeNull();
-		expect(screen.getByRole('button', { name: 'choose other' })).toBeTruthy();
+		expect(screen.queryByRole('button', { name: 'choose other' })).toBeNull();
 	});
 
 	it('shows the entries as they are saved once the lists exist', () => {

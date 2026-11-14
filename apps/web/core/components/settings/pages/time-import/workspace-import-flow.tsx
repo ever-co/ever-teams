@@ -89,9 +89,11 @@ export function WorkspaceImportFlow({ access, modeSwitch }: Readonly<WorkspaceIm
 	const showsProgress = creationPlan !== null && hasStarted;
 	const showsEntries = workspace.hasEntries && isEntriesJudged && !isCreating && !hasFailed;
 	const isEntriesRefused = workspace.hasEntries && fileProblem !== null;
-	let chooseOther: (() => void) | undefined = workspace.reset;
-	if (isBusy) {
-		chooseOther = undefined;
+	// Left out while the import saves, and once it stopped: the notice of the stop offers other files itself
+	const offersOtherFiles = !isBusy && !hasFailed;
+	let chooseOther: (() => void) | undefined = undefined;
+	if (offersOtherFiles) {
+		chooseOther = workspace.reset;
 	}
 
 	return (
