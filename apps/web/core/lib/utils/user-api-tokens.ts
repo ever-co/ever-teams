@@ -108,12 +108,12 @@ export function sortUserApiTokens(tokens: ReadonlyArray<TUserApiToken>, now: Dat
  * Where a script trades its token: on the API the app calls directly when it does (`NEXT_PUBLIC_GAUZY_API_SERVER_URL`),
  * else the route alone, on whatever address the deployment gives its API.
  */
-export function exchangeUrlOf(apiOrigin: string | undefined): string {
-	let origin = apiOrigin ?? '';
-	while (origin.endsWith('/')) {
-		origin = origin.slice(0, -1);
+export function exchangeUrlOf(apiOrigin = ''): string {
+	let end = apiOrigin.length;
+	while (end > 0 && apiOrigin[end - 1] === '/') {
+		end -= 1;
 	}
-	return `${origin}${EXCHANGE_PATH}`;
+	return `${apiOrigin.slice(0, end)}${EXCHANGE_PATH}`;
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
