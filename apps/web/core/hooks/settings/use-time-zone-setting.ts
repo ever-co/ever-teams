@@ -37,8 +37,9 @@ export function useTimeZoneSetting() {
 			}
 			setPendingZone(zone);
 			try {
-				await updateAvatar({ timeZone: value, id: userId });
-				return true;
+				const saved = await updateAvatar({ timeZone: value, id: userId });
+				// An API whose update does not take the zone answers success and keeps the old one: what it holds counts
+				return saved?.timeZone === value;
 			} catch {
 				return false;
 			} finally {
