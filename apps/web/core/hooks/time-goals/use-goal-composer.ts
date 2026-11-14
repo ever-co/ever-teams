@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTimeGoalWrites } from '@/core/hooks/time-goals/use-time-goals';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import {
@@ -9,6 +9,7 @@ import {
 	EMPTY_GOAL_DRAFT,
 	goalDraftErrorsOf,
 	type GoalDraft,
+	type GoalListChanges,
 	type GoalOwnerChoice,
 	updateInputOf
 } from '@/core/lib/utils/time-goals';
@@ -45,9 +46,18 @@ export function useGoalComposer({ mode, goal, activeTeamId, onDone }: GoalCompos
 		}
 		return EMPTY_GOAL_DRAFT;
 	});
+	const [listChanges, setListChanges] = useState<GoalListChanges>({ projects: false, clients: false });
 	const [hasTriedSaving, setHasTriedSaving] = useState(false);
 	const [saveError, setSaveError] = useState<GoalSaveError>(null);
 	const { write, isWriting } = useTimeGoalWrites();
+	// A save answered after the form closed (Cancel during the save) must not close the dialog opened since
+	const isMounted = useRef(true);
+	useEffect(() => {
+		isMounted.current = true;
+		return () => {
+			isMounted.current = false;
+		};
+	}, []);
 
 	const allErrors = useMemo(() => goalDraftErrorsOf(draft), [draft]);
 	const errors = hasTriedSaving ? allErrors : {};
@@ -64,15 +74,14 @@ export function useGoalComposer({ mode, goal, activeTeamId, onDone }: GoalCompos
 	const setOwner = useCallback((owner: GoalOwnerChoice) => change({ owner }), [change]);
 	const setMemberId = useCallback((memberId: string) => change({ memberId }), [change]);
 	const setBillableOnly = useCallback((billableOnly: boolean) => change({ billableOnly }), [change]);
-	const toggleProject = useCallback(
-		(projectId: string) =>
-			setDraft((current) => ({ ...current, projectIds: toggled(current.projectIds, projectId) })),
-		[]
-	);
-	const toggleClient = useCallback(
-		(clientId: string) => setDraft((current) => ({ ...current, clientIds: toggled(current.clientIds, clientId) })),
-		[]
-	);
+	const toggleProject = useCallback((projectId: string) => {
+		setDraft((current) => ({ ...current, projectIds: toggled(current.projectIds, projectId) }));
+		setListChanges((current) => ({ ...current, projects: true }));
+	}, []);
+	const toggleClient = useCallback((clientId: string) => {
+		setDraft((current) => ({ ...current, clientIds: toggled(current.clientIds, clientId) }));
+		setListChanges((current) => ({ ...current, clients: true }));
+	}, []);
 
 	const submit = useCallback(async () => {
 		setHasTriedSaving(true);
@@ -84,16 +93,21 @@ export function useGoalComposer({ mode, goal, activeTeamId, onDone }: GoalCompos
 		try {
 			let saved: ITimeGoal;
 			if (isEdit && goal) {
-				saved = await write({ kind: 'update', goalId: goal.id, input: updateInputOf(draft, goal) });
+				saved = await write({ kind: 'update', goalId: goal.id, input: updateInputOf(draft, listChanges) });
 			} else {
 				saved = await write({ kind: 'create', input: createInputOf(draft, activeTeamId) });
 			}
-			onDone(saved);
+			if (isMounted.current) {
+				onDone(saved);
+			}
 		} catch (error) {
+			if (!isMounted.current) {
+				return;
+			}
 			const isForbidden = errorStatusOf(error) === 403;
 			setSaveError(isForbidden ? 'forbidden' : 'save');
 		}
-	}, [activeTeamId, allErrors, draft, goal, isEdit, isWriting, onDone, write]);
+	}, [activeTeamId, allErrors, draft, goal, isEdit, isWriting, listChanges, onDone, write]);
 
 	return {
 		draft,

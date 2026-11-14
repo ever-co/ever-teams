@@ -220,7 +220,7 @@ describe('the goal form', () => {
 		});
 	});
 
-	it('leaves the projects and clients out of an edit that did not change them', () => {
+	it('leaves the projects and clients out of an edit that did not touch them', () => {
 		// Its only listed project was deleted: the goal counts nothing, and an empty list sent would count every project
 		const goal = goalOf({
 			projects: [],
@@ -229,7 +229,7 @@ describe('the goal form', () => {
 		});
 		const draft = draftOfGoal(goal);
 
-		const input = updateInputOf({ ...draft, hours: '25' }, goal);
+		const input = updateInputOf({ ...draft, hours: '25' }, { projects: false, clients: false });
 
 		expect(input).toEqual({
 			name: 'Client A',
@@ -238,10 +238,13 @@ describe('the goal form', () => {
 			period: ETimeGoalPeriod.WEEK,
 			billableOnly: false
 		});
-		expect(updateInputOf({ ...draft, projectIds: ['project-1'], clientIds: [] }, goal)).toMatchObject({
-			projectIds: ['project-1'],
-			organizationContactIds: []
-		});
+		expect(
+			updateInputOf({ ...draft, projectIds: ['project-1'], clientIds: [] }, { projects: true, clients: true })
+		).toMatchObject({ projectIds: ['project-1'], organizationContactIds: [] });
+		// A project picked then removed: the list shows "Any project", and that is what is sent
+		expect(updateInputOf(draft, { projects: true, clients: false })).toEqual(
+			expect.objectContaining({ projectIds: [] })
+		);
 	});
 
 	it('keeps a client the goal counts as a chip once the active list no longer holds it', () => {

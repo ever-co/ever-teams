@@ -251,27 +251,26 @@ function idsOf(items: ITimeGoal['projects']) {
 	return (items ?? []).map((item) => item.id);
 }
 
-function holdsSameIds(first: ReadonlyArray<string>, second: ReadonlyArray<string>) {
-	return first.length === second.length && first.every((id) => second.includes(id));
+/** Which of a goal's lists the person changed in the dialog. */
+export interface GoalListChanges {
+	projects: boolean;
+	clients: boolean;
 }
 
 /**
- * What an edit sends: what the goal asks for, and its projects and clients only when the draft changed them; whom it
- * counts stays as it was set. A list sent replaces the goal's, and an empty one counts everything: sending the lists
- * back unchanged would turn a goal whose listed projects (or clients) are all deleted, which counts nothing, into one
- * that counts every project.
+ * What an edit sends: what the goal asks for, and its projects and clients only once the person changed them in the
+ * dialog; whom it counts stays as it was set. A list sent replaces the goal's, and an empty one counts everything:
+ * sending an untouched list back would turn a goal whose listed projects (or clients) are all deleted, which counts
+ * nothing, into one that counts every project. A list the person did change is sent as the dialog shows it.
  *
- * @param goal - The goal edited; without it both lists are sent.
+ * @param changes - The lists changed; without it both are sent.
  */
-export function updateInputOf(
-	draft: GoalDraft,
-	goal?: Pick<ITimeGoal, 'projects' | 'organizationContacts'>
-): ITimeGoalUpdateInput {
+export function updateInputOf(draft: GoalDraft, changes?: GoalListChanges): ITimeGoalUpdateInput {
 	const input: ITimeGoalUpdateInput = { ...ruleOf(draft), billableOnly: draft.billableOnly };
-	if (!goal || !holdsSameIds(draft.projectIds, idsOf(goal.projects))) {
+	if (!changes || changes.projects) {
 		input.projectIds = draft.projectIds;
 	}
-	if (!goal || !holdsSameIds(draft.clientIds, idsOf(goal.organizationContacts))) {
+	if (!changes || changes.clients) {
 		input.organizationContactIds = draft.clientIds;
 	}
 	return input;

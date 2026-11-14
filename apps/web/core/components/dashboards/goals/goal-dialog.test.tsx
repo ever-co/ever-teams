@@ -148,6 +148,59 @@ describe('GoalDialog', () => {
 		expect(write.input).not.toHaveProperty('projectIds');
 	});
 
+	it('lets a project picked then removed reset the list, as the dialog shows it', async () => {
+		// Every project it listed was deleted: it counts nothing, and the dialog says "Any project"
+		render(
+			<GoalDialog
+				open
+				mode="edit"
+				goal={goalOf({ projects: [], listedProjectsOnly: true })}
+				owners={OWNERS}
+				projects={[{ id: 'website', name: 'Website' }]}
+				clients={ACTIVE_CLIENTS}
+				onClose={jest.fn()}
+			/>
+		);
+		const projectsRow = screen.getByRole('region', { name: 'dashboard.goals.form.PROJECTS' });
+
+		fireEvent.click(within(projectsRow).getByRole('menuitem', { name: 'Website' }));
+		fireEvent.click(within(projectsRow).getByRole('menuitem', { name: 'Website' }));
+		await save('common.SAVE_CHANGES');
+
+		const [[write]] = mockWrite.mock.calls;
+		expect(write.input.projectIds).toEqual([]);
+		expect(write.input).not.toHaveProperty('organizationContactIds');
+	});
+
+	it('does not close a dialog opened after the one whose save was cancelled', async () => {
+		let answer: (goal: ITimeGoal) => void = () => undefined;
+		mockWrite.mockImplementation(() => new Promise<ITimeGoal>((resolve) => (answer = resolve)));
+		const onClose = jest.fn();
+		const goal = goalOf();
+		const dialogOf = (open: boolean, edited: ITimeGoal | null) => (
+			<GoalDialog
+				open={open}
+				mode={edited ? 'edit' : 'create'}
+				goal={edited}
+				owners={OWNERS}
+				projects={[]}
+				clients={ACTIVE_CLIENTS}
+				onClose={onClose}
+			/>
+		);
+		const { rerender } = render(dialogOf(true, goal));
+
+		await save('common.SAVE_CHANGES');
+		rerender(dialogOf(false, null));
+		rerender(dialogOf(true, null));
+		await act(async () => {
+			answer(goal);
+		});
+
+		expect(onClose).not.toHaveBeenCalled();
+		expect(screen.getByRole('heading', { name: 'dashboard.goals.form.CREATE_TITLE' })).toBeTruthy();
+	});
+
 	it('keeps an unnamed client the goal counts under a placeholder name', () => {
 		renderDialog({ mode: 'edit', goal: goalOf({ organizationContacts: [{ id: 'client-x', name: null }] }) });
 
