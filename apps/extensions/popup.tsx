@@ -95,7 +95,8 @@ function SignedIn({
 			return;
 		}
 		void act(async () => {
-			const requiresPlan = await teamRequiresPlan(session).catch(() => false);
+			// The API does not hold this source to the plan rule: a failed read refuses the start rather than skip it
+			const requiresPlan = await teamRequiresPlan(session);
 			if (requiresPlan) {
 				const refusalCode = planRefusalOf({
 					teamRequiresPlan: true,
