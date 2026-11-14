@@ -30,6 +30,18 @@ function lastOpenedTeamId(): string | null {
 }
 
 /**
+ * Keeps the team for this browser's next start. Storage is optional (full, or disabled): the team cookie already names
+ * the team, and the new session is installed, so the switch goes on without it.
+ */
+function rememberOpenedTeam(teamId: string) {
+	try {
+		globalThis.window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, teamId);
+	} catch {
+		// The team cookie is enough to open the team
+	}
+}
+
+/**
  * Opens another organization of the workspace without signing out (ever-co/ever-teams#5204), as the sign-in screen
  * does: Gauzy renews the session for it (`POST /auth/switch-organization`), the cookies take the new session, the
  * organization and its team, and the app starts again on it so that every page reads that organization only. When
@@ -53,7 +65,7 @@ export function useSwitchOrganization() {
 			const teamToOpen = team ?? (await personsTeamIn(organizationId, session.token, user?.id, user?.lastTeamId));
 			if (teamToOpen) {
 				setActiveTeamIdCookie(teamToOpen.id);
-				globalThis.window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, teamToOpen.id);
+				rememberOpenedTeam(teamToOpen.id);
 			}
 			return { organizationId, teamId: teamToOpen?.id ?? null };
 		},

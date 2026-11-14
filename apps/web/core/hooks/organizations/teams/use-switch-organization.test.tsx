@@ -101,6 +101,21 @@ describe('useSwitchOrganization', () => {
 		expect(mockCookies.setActiveTeamIdCookie).toHaveBeenCalledWith('labs-research');
 	});
 
+	it('still starts the app again when the browser cannot store the team', async () => {
+		const setItem = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+			throw new DOMException('The quota has been exceeded.', 'QuotaExceededError');
+		});
+		const { result } = renderHook(() => useSwitchOrganization(), { wrapper });
+
+		await act(async () => {
+			await result.current.mutateAsync({ organizationId: 'labs', team: labsTeam('labs-design') });
+		});
+		setItem.mockRestore();
+
+		expect(mockCookies.setActiveTeamIdCookie).toHaveBeenCalledWith('labs-design');
+		await waitFor(() => expect(assign).toHaveBeenCalledWith('/'));
+	});
+
 	it('changes nothing when Gauzy refuses the switch', async () => {
 		mockSwitchOrganizationRaw.mockRejectedValue(Object.assign(new Error('401'), { httpResponseStatus: 401 }));
 		const { result } = renderHook(() => useSwitchOrganization(), { wrapper });
