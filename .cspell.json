@@ -1019,7 +1019,10 @@
 		"Ende",
 		"Kunde",
 		"Notiz",
-		"initech"
+		"initech",
+		"otpauth",
+		"qrcode",
+		"totp"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

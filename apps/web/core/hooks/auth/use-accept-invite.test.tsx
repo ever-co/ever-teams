@@ -8,9 +8,9 @@
  *
  * This drives the same hook + effect shape the page uses and asserts ONE validation per (code, email).
  */
-import { act, render, waitFor } from '@testing-library/react';
+import { act, render, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 const mockValidate = jest.fn();
 const mockAccept = jest.fn();
@@ -90,5 +90,102 @@ describe('useAcceptInvite → validateInvitation', () => {
 		expect(mockValidate).toHaveBeenCalledTimes(1);
 		expect(mockValidate).toHaveBeenCalledWith({ code: 'BNYGCTLF', email: 'et-e2e-invitee-1@ever.co' });
 		expect(RENDERS.length).toBeGreaterThan(5); // it did re-render — the point is that it did not re-validate
+	});
+});
+
+describe('useAcceptInvite → an existing account with two-factor authentication', () => {
+	it('asks for the code instead of opening a session', async () => {
+		const { setAuthCookies } = jest.requireMock('@/core/lib/helpers/cookies') as { setAuthCookies: jest.Mock };
+		mockValidate.mockResolvedValue({
+			email: 'ada@example.org',
+			organization: { name: 'o' },
+			teams: [{ id: 'team-1' }]
+		});
+		mockAccept.mockRejectedValue({
+			isApiError: true,
+			statusCode: 403,
+			errorCode: 'TWO_FACTOR_REQUIRED',
+			message: 'Two-factor authentication is on for this account.',
+			details: { challenge: 'signed.challenge', expiresAt: '2026-11-14T12:05:00.000Z' }
+		});
+		const qc = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+		const { result } = renderHook(() => useAcceptInvite(), {
+			wrapper: ({ children }: { children: ReactNode }) => (
+				<QueryClientProvider client={qc}>{children}</QueryClientProvider>
+			)
+		});
+		await act(async () => {
+			await result.current.validateInvitation({ code: 'CODE', email: 'ada@example.org' });
+		});
+
+		let outcome: unknown;
+		await act(async () => {
+			outcome = await result.current.handleAcceptInvitation({
+				password: 'long enough',
+				user: { firstName: 'Ada', lastName: 'L', email: 'ada@example.org' },
+				code: 'CODE',
+				email: 'ada@example.org'
+			});
+		});
+
+		expect(outcome).toBe('second-factor');
+		expect(result.current.twoFactor.pending).toEqual({
+			challenge: expect.objectContaining({ challenge: 'signed.challenge' }),
+			selectedTeam: ''
+		});
+		expect(setAuthCookies).not.toHaveBeenCalled();
+
+		// Another invitation opened on the same page: the earlier account's code step is not carried over to it
+		mockValidate.mockResolvedValue({ email: 'grace@example.org', organization: { name: 'o2' }, teams: [] });
+		await act(async () => {
+			await result.current.validateInvitation({ code: 'OTHER', email: 'grace@example.org' });
+		});
+
+		expect(result.current.twoFactor.pending).toBeNull();
+	});
+
+	it('does not ask for the code of an invitation answered after another one was opened', async () => {
+		mockValidate.mockResolvedValue({ email: 'ada@example.org', organization: { name: 'o' }, teams: [] });
+		let refuse: (reason: unknown) => void = () => undefined;
+		mockAccept.mockReturnValue(
+			new Promise((_, onReject) => {
+				refuse = onReject;
+			})
+		);
+		const qc = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+		const { result } = renderHook(() => useAcceptInvite(), {
+			wrapper: ({ children }: { children: ReactNode }) => (
+				<QueryClientProvider client={qc}>{children}</QueryClientProvider>
+			)
+		});
+		await act(async () => {
+			await result.current.validateInvitation({ code: 'CODE', email: 'ada@example.org' });
+		});
+
+		let accepting: Promise<unknown> = Promise.resolve();
+		act(() => {
+			accepting = result.current.handleAcceptInvitation({
+				password: 'long enough',
+				user: { firstName: 'Ada', lastName: 'L', email: 'ada@example.org' },
+				code: 'CODE',
+				email: 'ada@example.org'
+			});
+		});
+		mockValidate.mockResolvedValue({ email: 'grace@example.org', organization: { name: 'o2' }, teams: [] });
+		await act(async () => {
+			await result.current.validateInvitation({ code: 'OTHER', email: 'grace@example.org' });
+		});
+		await act(async () => {
+			refuse({
+				isApiError: true,
+				statusCode: 403,
+				errorCode: 'TWO_FACTOR_REQUIRED',
+				message: 'Two-factor authentication is on for this account.',
+				details: { challenge: 'old.challenge', expiresAt: '2026-11-14T12:05:00.000Z' }
+			});
+			await expect(accepting).rejects.toEqual(expect.objectContaining({ errorCode: 'TWO_FACTOR_REQUIRED' }));
+		});
+
+		expect(result.current.twoFactor.pending).toBeNull();
 	});
 });

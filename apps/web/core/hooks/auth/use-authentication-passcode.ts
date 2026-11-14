@@ -18,7 +18,9 @@ import {
 } from '@/core/lib/auth/ever-id/session';
 import { restartEverIdSignIn } from '@/core/lib/auth/ever-id/restart';
 import { everIdService } from '@/core/services/client/api/auth/ever-id.service';
-import { navigateAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
+import { navigateAfterSignIn, setPathAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
+import { TWO_FACTOR_SETTINGS_PATH, asksTwoFactorSetup, twoFactorChallengeOf } from '@/core/lib/auth/two-factor';
+import { useTwoFactorSignIn } from './use-two-factor-sign-in';
 
 /** Shown for a 429: Gauzy throttles the code endpoints and locks an account after repeated wrong codes. */
 const TOO_MANY_ATTEMPTS = 'pages.auth.everId.TOO_MANY_ATTEMPTS';
@@ -103,6 +105,9 @@ export function useAuthenticationPasscode() {
 	} = useQueryCall(authService.signInWorkspace);
 	const { queryCall, loading, infiniteLoading } = useQueryCall(authService.signInWithEmailAndCode);
 
+	const twoFactor = useTwoFactorSignIn();
+	const { ask: askForSecondFactor } = twoFactor;
+
 	const handleChange = (e: any) => {
 		const { name, value } = e.target;
 		setFormValues((prevState) => ({ ...prevState, [name]: value }));
@@ -130,7 +135,11 @@ export function useAuthenticationPasscode() {
 			};
 
 			signInWorkspaceQueryCall(workspaceParams)
-				.then(() => {
+				.then((response) => {
+					// The organization asks its members for two-factor authentication: its setup opens first
+					if (asksTwoFactorSetup(response)) {
+						setPathAfterSignIn(TWO_FACTOR_SETTINGS_PATH);
+					}
 					setAuthenticated(true);
 					// Reset infinite loading before navigation to ensure clean state
 					infiniteWLoading.current = false;
@@ -144,6 +153,12 @@ export function useAuthenticationPasscode() {
 						restartEverIdSignIn();
 						return;
 					}
+					// The account asks for a second factor: the page asks for its code, nothing failed
+					const challenge = twoFactorChallengeOf(err);
+					if (challenge) {
+						askForSecondFactor(challenge, params.selectedTeam);
+						return;
+					}
 					if (err.response?.status === 400) {
 						setErrors((err.response?.data as any)?.errors || {});
 					}
@@ -151,7 +166,7 @@ export function useAuthenticationPasscode() {
 					onError?.(err);
 				});
 		},
-		[signInWorkspaceQueryCall, infiniteWLoading]
+		[signInWorkspaceQueryCall, infiniteWLoading, askForSecondFactor]
 	);
 
 	/**
@@ -455,7 +470,8 @@ export function useAuthenticationPasscode() {
 		everIdConfirmLoading,
 		everIdTeamsUnavailable,
 		everIdTenantless,
-		leaveEverIdStep
+		leaveEverIdStep,
+		twoFactor
 	};
 }
 

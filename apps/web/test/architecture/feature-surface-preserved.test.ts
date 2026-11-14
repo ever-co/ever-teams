@@ -2052,14 +2052,24 @@ describe('Ever Teams feature surface preservation', () => {
 		// (/api/invoices/[id] GET; #5158).
 		// 357 files and 455 verbs with the proxies that update one invoice and replace its lines (/api/invoices/[id]
 		// PUT, /api/invoice-item/bulk/[invoiceId] POST; #5159). Its read of one invoice is #5158's.
-		// 359 files and 457 verbs with the history of a time entry and the changes of a period
+		// 364 files and 462 verbs with the two-factor authentication proxies (/api/auth/two-factor GET, enroll, confirm,
+		// disable, recovery-codes and verify POST, users/[userId] DELETE; #5210).
+		// 366 files and 464 verbs with the history of a time entry and the changes of a period
 		// (GET /api/timesheet/time-log/[id]/history, GET /api/timesheet/time-log/history; #5222).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(359);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(366);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(457);
+		).toHaveLength(464);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of Gauzy's two-factor authentication routes (ever-gauzy #11916, #5210)
+				'apps/web/app/api/auth/two-factor/route.ts::GET',
+				'apps/web/app/api/auth/two-factor/enroll/route.ts::POST',
+				'apps/web/app/api/auth/two-factor/confirm/route.ts::POST',
+				'apps/web/app/api/auth/two-factor/disable/route.ts::POST',
+				'apps/web/app/api/auth/two-factor/recovery-codes/route.ts::POST',
+				'apps/web/app/api/auth/two-factor/verify/route.ts::POST',
+				'apps/web/app/api/auth/two-factor/users/[userId]/route.ts::DELETE',
 				// Proxy mode twins of the platform's incoming webhook management of a channel (ever-gauzy #11799)
 				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::GET',
 				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::POST',

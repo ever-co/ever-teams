@@ -60,3 +60,27 @@ describe('errorReasonOf, for a name Gauzy finds taken', () => {
 		expect(errorReasonOf(error)).toBe('conflict');
 	});
 });
+
+describe('errorReasonOf, for a sign-in that asks for a second factor', () => {
+	it('says the account asks for a code instead of a missing permission', () => {
+		const error = ApiErrorService.fromAxiosError(
+			axiosErrorOf(403, {
+				statusCode: 403,
+				error: 'Forbidden',
+				code: 'TWO_FACTOR_REQUIRED',
+				message: 'Two-factor authentication is on for this account.',
+				challenge: 'signed.challenge',
+				expiresAt: '2026-11-14T12:05:00.000Z'
+			})
+		);
+
+		expect(errorReasonOf(error)).toBe('twoFactor');
+		expect(errorReasonKeyOf(error)).toBe('toasts.REASONS.TWO_FACTOR');
+	});
+
+	it('keeps the permission reason for any other 403', () => {
+		const error = ApiErrorService.fromAxiosError(axiosErrorOf(403, { statusCode: 403, message: 'Forbidden' }));
+
+		expect(errorReasonOf(error)).toBe('permission');
+	});
+});
