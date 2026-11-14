@@ -3,7 +3,7 @@
 import { memo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { DollarCircle, Pencil, Trash } from '@/core/components/icons';
+import { Break, DollarCircle, Pencil, Trash } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import type { CalendarEntry } from '@/core/lib/utils/calendar-view';
@@ -42,7 +42,22 @@ export function entryRangeTextOf(entry: CalendarEntry, formatters: TimesheetForm
 
 export function useEntryTitle(entry: CalendarEntry) {
 	const t = useTranslations();
+	// A break reads as one, whatever task it paused (#5216)
+	if (entry.isBreak) {
+		return t('breaks.BREAK');
+	}
 	return entry.taskTitle ?? t('dashboard.timesheets.NO_TASK');
+}
+
+/** The kind of a break, beside the Manual chip of time added by hand. */
+export function BreakEntryChip() {
+	const t = useTranslations();
+	return (
+		<span className="inline-flex h-5 shrink-0 items-center gap-1 rounded-md bg-foreground/5 px-1.5 text-[11px] font-medium text-muted-foreground">
+			<Break aria-hidden="true" className="size-3" />
+			{t('breaks.BREAK')}
+		</span>
+	);
 }
 
 export function ManualChip() {
@@ -144,7 +159,7 @@ export const EntryListRow = memo(function EntryListRow({
 	const runningLabel = t('dashboard.timesheets.RUNNING');
 	const rangeText = entryRangeTextOf(entry, formatters, runningLabel);
 	const duration = formatDurationShort(entry.durationSeconds);
-	const fill = entryFillOf(entry.isManual);
+	const fill = entryFillOf(entry.isManual, entry.isBreak);
 	const canEdit = handlers.canEdit(entry.log);
 	return (
 		<li className="flex flex-col gap-2 py-3 [contain-intrinsic-size:auto_72px] [content-visibility:auto]">
@@ -164,6 +179,7 @@ export const EntryListRow = memo(function EntryListRow({
 				<div className="flex shrink-0 flex-col items-end gap-1">
 					<span className="text-[13px] font-medium tabular-nums text-foreground">{duration}</span>
 					{entry.isManual && <ManualChip />}
+					{entry.isBreak && <BreakEntryChip />}
 				</div>
 			</div>
 			<ReasonQuote reason={entry.reason} />

@@ -343,6 +343,10 @@ const NO_TASK_KEY = 'no-task';
 export function diaryTasksOf(entries: ReadonlyArray<CalendarEntry>): DiaryTask[] {
 	const byKey = new Map<string, DiaryTask>();
 	for (const entry of entries) {
+		// A break is no work on the task it paused (#5216): the day lists it apart
+		if (entry.isBreak) {
+			continue;
+		}
 		const taskId = entry.log.task?.id ?? entry.log.taskId ?? null;
 		const key = taskId ?? NO_TASK_KEY;
 		const existing = byKey.get(key);

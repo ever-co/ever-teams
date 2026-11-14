@@ -27,7 +27,14 @@ import { DiaryBody, DiaryHoursSkeleton } from './diary-hours';
 import { DiarySlotSheet } from './diary-slot-sheet';
 import { DiaryWeekView } from './diary-week-view';
 import { type DiaryTaskReuse, DiaryTaskReuseLayers, useDiaryTaskReuse } from './diary-task-reuse';
-import { DIARY_COLUMNS, DiaryAppRows, DiaryFigures, DiaryRowsSkeleton, DiaryTaskRows } from './work-diary-parts';
+import {
+	DIARY_COLUMNS,
+	DiaryAppRows,
+	DiaryBreaksLine,
+	DiaryFigures,
+	DiaryRowsSkeleton,
+	DiaryTaskRows
+} from './work-diary-parts';
 import { WorkDiaryPageSkeleton } from './work-diary-page-skeleton';
 
 interface DayFormats {
@@ -151,6 +158,7 @@ function DiaryDayView({
 				>
 					{page.isLogsLoading && <DiaryRowsSkeleton />}
 					{!page.isLogsLoading && <DiaryTaskRows tasks={tasks} renderActions={renderTaskActions} />}
+					{!page.isLogsLoading && <DiaryBreaksLine day={shownDay} />}
 				</DashboardSection>
 				{plan}
 				<DashboardSection

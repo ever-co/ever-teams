@@ -49,13 +49,22 @@ export function getTimerWorkedStatusRequest(
 	});
 }
 
-export function startTimerRequest(params: IUpdateTimerStatusParams, bearer_token: string) {
+/**
+ * @param options `keepsStatusOnError`: a refusal whose body carries no status (Gauzy's break rules, #11940) keeps the
+ * answer's HTTP status, so the route passes it on instead of a 502.
+ */
+export function startTimerRequest(
+	params: IUpdateTimerStatusParams,
+	bearer_token: string,
+	options: { keepsStatusOnError?: boolean } = {}
+) {
 	return serverFetch<ITimeLog>({
 		path: '/timesheet/timer/start',
 		method: 'POST',
 		bearer_token,
 		body: params,
-		tenantId: params.tenantId
+		tenantId: params.tenantId,
+		keepsStatusOnError: options.keepsStatusOnError
 	});
 }
 

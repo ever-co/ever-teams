@@ -174,6 +174,28 @@ function membersFigureOf(figures: TimeActivityFigures, t: Translate): BandFigure
 	};
 }
 
+/**
+ * The breaks of the period beside the worked time, never counted in it (#5216): none without a break, "–" when they
+ * could not be read, so a failed read never passes for a period without breaks.
+ */
+function breaksFigureOf(figures: TimeActivityFigures, t: Translate): BandFigure | null {
+	const label = t('breaks.FIGURE_LABEL');
+	if (figures.breakSeconds === null) {
+		const reason = t('dashboard.timeActivity.figures.UNAVAILABLE');
+		return { key: 'breaks', label, value: <MissingValue reason={reason} />, hint: reason };
+	}
+	const breakSeconds = figures.breakSeconds ?? 0;
+	if (breakSeconds <= 0) {
+		return null;
+	}
+	return {
+		key: 'breaks',
+		label,
+		value: formatDurationShort(breakSeconds),
+		hint: t('breaks.FIGURE_HINT')
+	};
+}
+
 interface BandInput {
 	figures: TimeActivityFigures;
 	isManager: boolean;
@@ -183,7 +205,12 @@ interface BandInput {
 function bandFiguresOf({ figures, isManager, roundingRule }: BandInput, locale: FormatLocale, t: Translate) {
 	const total = totalFigureOf(figures, t, roundingNoteOf(roundingRule, t));
 	const activity = activityFigureOf(figures, locale, t);
-	const list: BandFigure[] = [total, activity];
+	const list: BandFigure[] = [total];
+	const breaks = breaksFigureOf(figures, t);
+	if (breaks) {
+		list.push(breaks);
+	}
+	list.push(activity);
 	if (isManager) {
 		const earnings = earningsFigureOf(figures, locale, t);
 		list.push(earnings);

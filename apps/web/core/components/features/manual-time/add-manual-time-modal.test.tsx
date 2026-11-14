@@ -24,6 +24,8 @@ type MockCustomSelectProps = {
 	onChange?: (value: string) => void;
 };
 
+// Breaks (#5216) off, as in a workspace that never turned them on
+jest.mock('@/core/hooks/timer/use-breaks-allowed', () => ({ useBreaksAllowed: () => false }));
 jest.mock('jotai', () => ({
 	useAtomValue: (atom: string) => mockAtomValues[atom]
 }));

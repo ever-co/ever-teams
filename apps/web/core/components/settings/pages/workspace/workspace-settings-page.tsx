@@ -6,6 +6,8 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { SettingsPage } from '@/core/components/settings/kit/settings-page';
 import { useWorkspaceDataExport } from '@/core/hooks/settings/use-workspace-data-export';
 import { useWorkspaceSettings } from '@/core/hooks/settings/use-workspace-settings';
+import { useOrganizationBreaksSwitch } from '@/core/hooks/settings/use-organization-tracking-requirements';
+import { WorkspaceBreaksSection } from './workspace-breaks-section';
 import { WorkspaceDataSection } from './workspace-data-section';
 import { WorkspaceFormatsSection } from './workspace-formats-section';
 import { WorkspaceIdentitySection } from './workspace-identity-section';
@@ -15,6 +17,7 @@ import { WorkspaceSettingsSkeleton } from './workspace-settings-skeleton';
 export function WorkspaceSettingsPage() {
 	const t = useTranslations();
 	const settings = useWorkspaceSettings();
+	const { saveAllowBreaks } = useOrganizationBreaksSwitch();
 	const dataExport = useWorkspaceDataExport({
 		workspaceName: settings.name,
 		organizationId: settings.organization?.id
@@ -67,6 +70,12 @@ export function WorkspaceSettingsPage() {
 				organization={organization}
 				canEdit={settings.canEdit}
 				saveTimeLogsKeepTheirRates={settings.saveTimeLogsKeepTheirRates}
+			/>
+			<WorkspaceBreaksSection
+				key={`breaks-${organization.id}`}
+				organization={organization}
+				canEdit={settings.canEdit}
+				saveAllowBreaks={saveAllowBreaks}
 			/>
 			{dataExport.canExport && (
 				<WorkspaceDataSection
