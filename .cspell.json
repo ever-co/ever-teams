@@ -1018,7 +1018,8 @@
 		"Dauer",
 		"Ende",
 		"Kunde",
-		"Notiz"
+		"Notiz",
+		"initech"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

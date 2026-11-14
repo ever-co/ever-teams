@@ -5,7 +5,7 @@ import { useAtomValue } from 'jotai';
 import { useQueryClient } from '@tanstack/react-query';
 import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { writeErrorKeyOf } from '@/core/hooks/dashboards/timesheets/use-sheet-cell-writes';
+import { writeErrorKeyOf } from '@/core/lib/utils/dashboards/time-write-error';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import {
 	type CreatableSpot,

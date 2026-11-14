@@ -6,8 +6,10 @@ import { Button } from '@/core/components/common/button';
 import { Input, controlRecipe } from '@/core/components/common/input';
 import { DashboardSection } from '@/core/components/dashboards/kit/dashboard-layout';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
-import type { NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
+import type { InvoiceDraftState, InvoiceScreenState } from '@/core/hooks/invoices/use-new-invoice';
 import { cn } from '@/core/lib/helpers';
+import type { SavedInvoice } from '@/core/lib/utils/invoice-edit';
+import { isDraftInvoice } from '@/core/lib/utils/invoice-actions';
 import type { InvoiceDueTermSource, InvoiceProblem } from '@/core/lib/utils/invoices';
 import { FIELD_LABEL } from './new-invoice-recipes';
 
@@ -19,7 +21,8 @@ const PROBLEM_KEYS: Record<InvoiceProblem, DottedLanguageObjectStringPaths> = {
 	noLines: 'invoices.new.problems.NO_LINES',
 	noCurrency: 'invoices.new.problems.NO_CURRENCY',
 	readingEarlier: 'invoices.new.problems.READING_EARLIER',
-	readingTime: 'invoices.new.UPDATING'
+	readingTime: 'invoices.new.UPDATING',
+	unchanged: 'invoices.edit.UNCHANGED'
 };
 
 const DUE_TERM_KEYS: Record<InvoiceDueTermSource, DottedLanguageObjectStringPaths> = {
@@ -35,7 +38,7 @@ const NOTE_FIELD = cn(controlRecipe, 'field-sizing-content max-h-[6lh] min-h-16 
 const HINT = 'text-xs text-muted-foreground text-pretty';
 
 /** Which term gave the due date; silent once the user picks another day. */
-function DueTermHint({ invoice, id }: Readonly<{ invoice: NewInvoiceState; id: string }>) {
+function DueTermHint({ invoice, id }: Readonly<{ invoice: InvoiceDraftState; id: string }>) {
 	const t = useTranslations();
 	if (!invoice.isDueDayOfTerm) {
 		return null;
@@ -48,7 +51,7 @@ function DueTermHint({ invoice, id }: Readonly<{ invoice: NewInvoiceState; id: s
 	);
 }
 
-function SavingNote({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
+function SavingNote({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
 	const t = useTranslations();
 	const email = invoice.client?.primaryEmail?.trim();
 	let note = t('invoices.new.details.DRAFT_NOTE');
@@ -56,6 +59,23 @@ function SavingNote({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 		note = t('invoices.new.sending.DRAFT_OR_SEND_NOTE', { email });
 	}
 	return <p className="text-xs text-muted-foreground text-pretty">{note}</p>;
+}
+
+/** An edit keeps the invoice's status: a draft stays one, and a client who received it keeps the earlier version. */
+function EditSavingNote({ saved, clientName }: Readonly<{ saved: SavedInvoice; clientName: string }>) {
+	const t = useTranslations();
+	let note = t('invoices.edit.SENT_NOTE', { client: clientName });
+	if (isDraftInvoice(saved.status)) {
+		note = t('invoices.edit.DRAFT_NOTE');
+	}
+	return <p className={HINT}>{note}</p>;
+}
+
+function editedInvoiceOf(invoice: InvoiceDraftState): SavedInvoice | null {
+	if (invoice.mode !== 'edit') {
+		return null;
+	}
+	return invoice.savedInvoice;
 }
 
 interface PercentFieldProps {
@@ -83,7 +103,7 @@ function PercentField({ id, label, value, onChange }: Readonly<PercentFieldProps
 	);
 }
 
-function NoteField({ invoice, id }: Readonly<{ invoice: NewInvoiceState; id: string }>) {
+function NoteField({ invoice, id }: Readonly<{ invoice: InvoiceDraftState; id: string }>) {
 	const t = useTranslations();
 	const hintId = `${id}-hint`;
 	return (
@@ -106,7 +126,7 @@ function NoteField({ invoice, id }: Readonly<{ invoice: NewInvoiceState; id: str
 	);
 }
 
-function NumberHint({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
+function NumberHint({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
 	const t = useTranslations();
 	if (invoice.isNumberLoading) {
 		return <span aria-hidden="true" className={cn('h-2.5 w-32', SKELETON_BAR)} />;
@@ -121,7 +141,7 @@ function NumberHint({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 	);
 }
 
-function CurrencyField({ invoice, id }: Readonly<{ invoice: NewInvoiceState; id: string }>) {
+function CurrencyField({ invoice, id }: Readonly<{ invoice: InvoiceDraftState; id: string }>) {
 	const t = useTranslations();
 	const hasChoice = invoice.currencies.length > 1;
 	if (!hasChoice) {
@@ -157,7 +177,7 @@ export function InvoiceDetails({
 	invoice,
 	showsProblems,
 	onSave
-}: Readonly<{ invoice: NewInvoiceState; showsProblems: boolean; onSave: () => void }>) {
+}: Readonly<{ invoice: InvoiceScreenState; showsProblems: boolean; onSave: () => void }>) {
 	const t = useTranslations();
 	const fieldId = useId();
 	const numberId = `${fieldId}-number`;
@@ -176,6 +196,11 @@ export function InvoiceDetails({
 	const isDueMissing = invoice.problems.includes('dueDay');
 	const isDueTooEarly = invoice.problems.includes('dueBeforeIssue');
 	const isDueInvalid = showsProblems && (isDueMissing || isDueTooEarly);
+	const editedInvoice = editedInvoiceOf(invoice);
+	let saveLabel = t('invoices.new.SAVE');
+	if (editedInvoice) {
+		saveLabel = t('invoices.edit.SAVE');
+	}
 	let dueDescription: string | undefined;
 	if (invoice.isDueDayOfTerm) {
 		dueDescription = dueTermId;
@@ -196,7 +221,7 @@ export function InvoiceDetails({
 					onChange={(event) => invoice.setNumberText(event.target.value)}
 					className="tabular-nums"
 				/>
-				<NumberHint invoice={invoice} />
+				{!editedInvoice && <NumberHint invoice={invoice} />}
 			</div>
 			<div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
 				<div className="flex min-w-0 flex-col gap-1.5">
@@ -245,7 +270,8 @@ export function InvoiceDetails({
 			</div>
 			<CurrencyField invoice={invoice} id={currencyId} />
 			<NoteField invoice={invoice} id={noteId} />
-			<SavingNote invoice={invoice} />
+			{editedInvoice && <EditSavingNote saved={editedInvoice} clientName={invoice.client?.name ?? ''} />}
+			{!editedInvoice && <SavingNote invoice={invoice} />}
 			<Button
 				type="button"
 				size="default"
@@ -254,7 +280,7 @@ export function InvoiceDetails({
 				aria-describedby={problemsId}
 				className="w-full"
 			>
-				{t('invoices.new.SAVE')}
+				{saveLabel}
 			</Button>
 			<ul id={problemsId} aria-live="polite" className="flex flex-col gap-1 empty:hidden">
 				{listsProblems &&

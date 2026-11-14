@@ -112,6 +112,9 @@ export interface EmployeeBillingRate {
 
 export type InvoiceRateSource = 'member' | 'project' | 'employee';
 
+/** A line read back from a saved invoice states the rate it was saved with, whatever priced it then. */
+export type InvoiceLineRateSource = InvoiceRateSource | 'saved';
+
 export interface LinePrice {
 	rate: number | null;
 	currency: string | null;
@@ -185,7 +188,7 @@ export interface InvoiceLine {
 	currency: string | null;
 	/** Hours times rate, to the cent: the arithmetic a reader checks on the invoice. */
 	amount: number;
-	rateSource: InvoiceRateSource;
+	rateSource: InvoiceLineRateSource;
 	/** The members of the project are billed different rates: the line states their average, weighted by time. */
 	isAverageRate: boolean;
 }
@@ -502,7 +505,8 @@ function labelOf(line: InvoiceLine, naming: LineNaming, names: InvoiceLineNames)
 	return naming.memberName;
 }
 
-function compareNamedLines(first: NamedInvoiceLine, second: NamedInvoiceLine) {
+/** Lines by project name, then by label: the order the sheet and the PDF list them in. */
+export function compareNamedLines(first: NamedInvoiceLine, second: NamedInvoiceLine) {
 	const projectOrder = first.projectName.localeCompare(second.projectName);
 	if (projectOrder !== 0) {
 		return projectOrder;
@@ -527,6 +531,28 @@ export function namedLinesOf(
 	});
 	named.sort(compareNamedLines);
 	return named;
+}
+
+export interface InvoiceLineParts {
+	projectId: string;
+	employeeId: string | null;
+	taskId: string | null;
+	currency: string | null;
+}
+
+/**
+ * The key of a line with these parts under a grouping, the same whether the line comes from time or from a saved
+ * invoice: what the user wrote on a saved line stays on the line the time rebuilds.
+ */
+export function invoiceLineKeyOf(parts: InvoiceLineParts, grouping: InvoiceGrouping): string {
+	if (grouping === 'project') {
+		return projectWorthKeyOf(parts.projectId, parts.currency);
+	}
+	const employeeId = parts.employeeId ?? '';
+	if (grouping === 'task') {
+		return entryKeyOf(parts.projectId, employeeId, parts.taskId);
+	}
+	return memberKeyOf(parts.projectId, employeeId);
 }
 
 export interface InvoiceProjectGroup {
@@ -740,7 +766,8 @@ export type InvoiceProblem =
 	| 'noLines'
 	| 'noCurrency'
 	| 'readingEarlier'
-	| 'readingTime';
+	| 'readingTime'
+	| 'unchanged';
 
 export interface InvoiceDraftFacts {
 	numberText: string;

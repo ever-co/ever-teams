@@ -154,3 +154,33 @@ describe('the projects whose time a new invoice bills', () => {
 		expect(result.current.lines).toHaveLength(1);
 	});
 });
+
+describe('the billable time of an invoice that shows the lines it was saved with', () => {
+	beforeEach(() => {
+		mockReports.getBillableTimeLogs.mockReset();
+		mockReports.getOwedAmountReport.mockReset();
+		mockRates.getProjectRates.mockReset();
+	});
+
+	it('is not read until it is taken again', async () => {
+		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		const store = createStore();
+		const wrapper = ({ children }: Readonly<{ children: React.ReactNode }>) => (
+			<QueryClientProvider client={queryClient}>
+				<Provider store={store}>{children}</Provider>
+			</QueryClientProvider>
+		);
+		const options = { clientId: 'client-acme', period: october, grouping: 'member' as const, labels };
+
+		const { result } = renderHook(() => useInvoiceTime({ ...options, enabled: false }), { wrapper });
+		await act(async () => {
+			await Promise.resolve();
+		});
+
+		expect(result.current.lines).toEqual([]);
+		expect(result.current.isUpdating).toBe(false);
+		expect(mockReports.getBillableTimeLogs).not.toHaveBeenCalled();
+		expect(mockReports.getOwedAmountReport).not.toHaveBeenCalled();
+		expect(mockRates.getProjectRates).not.toHaveBeenCalled();
+	});
+});

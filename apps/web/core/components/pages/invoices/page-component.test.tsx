@@ -22,6 +22,7 @@ const mockSendDialog: { props: MockDialogProps | null } = { props: null };
 const mockChangeStatus = jest.fn();
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn() }) }));
 jest.mock('jotai', () => ({ ...jest.requireActual('jotai'), useAtomValue: () => null }));
 jest.mock('sonner', () => ({ toast: { success: jest.fn(), error: jest.fn() } }));
 jest.mock('@/core/stores', () => ({ activeTeamState: {}, isTrackingEnabledState: {} }));
@@ -55,6 +56,7 @@ jest.mock('./invoice-action-dialogs', () => ({
 		return null;
 	},
 	VoidInvoiceDialog: () => null,
+	VoidAndReplaceDialog: () => null,
 	DeleteInvoiceDialog: () => null
 }));
 jest.mock('./invoices-ledger', () => ({

@@ -398,6 +398,8 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 
 	const setBilling = useCallback((billing: EProjectBilling) => updateDraft({ billing }), [updateDraft]);
 
+	const setBillable = useCallback((billable: boolean) => updateDraft({ billable }), [updateDraft]);
+
 	const uploadImage = useCallback(async (): Promise<ProjectImageAsset | null | 'failed'> => {
 		if (!imageFile) {
 			return null;
@@ -515,6 +517,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 		setBudget,
 		setCurrency,
 		setBilling,
+		setBillable,
 		restoreFields,
 		submit
 	};

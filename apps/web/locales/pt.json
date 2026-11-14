@@ -687,6 +687,33 @@
 				"NO_APPS": "Nenhuma app nem site registado nestes dez minutos.",
 				"OPEN_FULL": "Abrir a captura em tamanho real",
 				"SHOT_OF": "Captura {index} de {count}"
+			},
+			"BULK_EDIT": {
+				"TITLE": "{count, plural, one {Editar # entrada} other {Editar # entradas}}",
+				"DESCRIPTION": "Apenas os campos que você alterar são salvos. Cada entrada mantém a sua data, os seus horários, as suas notas e o seu membro.",
+				"KEEP": "Manter como está",
+				"PROJECT_FOLLOWS": "O tempo desta tarefa vai para o projeto dela: {project}.",
+				"PROJECT_FOLLOWS_UNNAMED": "O tempo desta tarefa vai para o projeto da tarefa.",
+				"TASKS_OF_PROJECT": "Tarefas de {project} e tarefas sem projeto.",
+				"PROJECTS_LOADING": "Carregando projetos",
+				"PROJECTS_FAILED": "Não foi possível carregar os projetos.",
+				"NOTHING_CHOSEN": "Todos os campos estão em «Manter como está», por isso nada muda por enquanto.",
+				"WILL_UPDATE": "{count, plural, =0 {Nenhuma entrada será atualizada} one {# entrada será atualizada} other {# entradas serão atualizadas}}",
+				"UPDATE": "{count, plural, =0 {Atualizar entradas} one {Atualizar # entrada} other {Atualizar # entradas}}",
+				"PROGRESS": "Atualizando entradas: {done} de {total}",
+				"UPDATED": "{count, plural, one {# entrada atualizada} other {# entradas atualizadas}}",
+				"UPDATED_PARTLY": "{updated, plural, =0 {Nenhuma entrada atualizada} one {# entrada atualizada} other {# entradas atualizadas}}, {notUpdated, plural, one {# não atualizada} other {# não atualizadas}}",
+				"STILL_SELECTED": "As entradas não atualizadas continuam selecionadas.",
+				"REASON": {
+					"NOT_ALLOWED": "{count, plural, one {# entrada não é sua: apenas o membro dela ou um administrador pode editá-la.} other {# entradas não são suas: apenas o membro delas ou um administrador pode editá-las.}}",
+					"RUNNING": "{count, plural, one {# entrada de um cronômetro em andamento: pare o cronômetro primeiro.} other {# entradas de cronômetros em andamento: pare os cronômetros primeiro.}}",
+					"APPROVED": "{count, plural, one {# entrada está aprovada: altere o status dela primeiro.} other {# entradas estão aprovadas: altere o status delas primeiro.}}",
+					"OTHER_TEAM": "{count, plural, one {# entrada de outra equipe: mude para essa equipe para alterar a tarefa dela.} other {# entradas de outra equipe: mude para essa equipe para alterar a tarefa delas.}}",
+					"UNCHANGED": "{count, plural, one {# entrada já tem estes valores.} other {# entradas já têm estes valores.}}",
+					"OVERLAP": "{count, plural, one {# entrada se sobrepõe a outro tempo registrado: salvá-la removeria esse tempo.} other {# entradas se sobrepõem a outro tempo registrado: salvá-las removeria esse tempo.}}",
+					"CHECK_FAILED": "{count, plural, one {Não foi possível verificar a sobreposição de # entrada, por isso ela não foi salva.} other {Não foi possível verificar a sobreposição de # entradas, por isso elas não foram salvas.}}",
+					"FAILED": "{count, plural, one {Não foi possível salvar # entrada.} other {Não foi possível salvar # entradas.}}"
+				}
 			}
 		},
 		"workDiary": {
@@ -1864,6 +1891,10 @@
 			"restoreModal": {
 				"title": "Restaurar projeto",
 				"description": "Tem certeza de que deseja restaurar {projectName}?"
+			},
+			"billable": {
+				"LABEL": "Faturável por padrão",
+				"HELP": "Vale para novos registros; os salvos não mudam."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {
@@ -6805,6 +6836,71 @@
 			"CONFIRM": "Eliminar a fatura",
 			"DONE": "A fatura {number} foi eliminada",
 			"FAILED": "A fatura não foi eliminada. Tente novamente."
+		},
+		"edit": {
+			"TITLE": "Editar a fatura {number}",
+			"LOADING_TITLE": "Editar a fatura",
+			"SAVE": "Guardar as alterações",
+			"TAKE_TIME_AGAIN": "Voltar a ler o tempo",
+			"TIME_LINES": "Linhas refeitas a partir do tempo tal como está agora.",
+			"BACK_TO_SAVED": "Voltar às linhas guardadas",
+			"RATE_SOURCE_SAVED": "A tarifa guardada na fatura",
+			"DRAFT_NOTE": "Continua a ser um rascunho. Nada é enviado ao cliente.",
+			"SENT_NOTE": "{client} tem a versão anterior até ela ser enviada de novo.",
+			"UNCHANGED": "Ainda não mudou nada.",
+			"TIME_ERROR_MESSAGE": "Tente novamente ou volte às linhas guardadas.",
+			"LOAD_ERROR_TITLE": "Não foi possível carregar a fatura",
+			"NOT_FOUND_TITLE": "Esta fatura já não existe",
+			"NOT_FOUND_MESSAGE": "Pode ter sido eliminada. A lista mostra as faturas que restam.",
+			"BACK_TO_LIST": "Abrir Faturas",
+			"LOCKED_TITLE": "A fatura {number} não pode ser editada",
+			"LOCKED_PAID": "Já foi pago algo nela. Anule-a e substitua-a a partir do respetivo menu na lista.",
+			"LOCKED_VOID": "Está anulada, e uma fatura anulada já não muda.",
+			"NOT_FROM_TIME_TITLE": "A fatura {number} não pode ser aberta aqui",
+			"NOT_FROM_TIME_MESSAGE": "Não foi feita a partir do tempo faturável de um cliente. Altere-a onde foi feita.",
+			"OTHER_WORKSPACE_TITLE": "A fatura {number} está noutro espaço de trabalho",
+			"OTHER_WORKSPACE_MESSAGE": "Escolha o respetivo espaço de trabalho e abra-a de novo a partir da lista de faturas.",
+			"SAVED_NOT_SENT": "A fatura {number} foi guardada, mas não foi enviada",
+			"confirm": {
+				"TITLE": "Guardar as alterações da fatura {number}?",
+				"LINES_ADDED": "{count, plural, one {# linha adicionada} other {# linhas adicionadas}}.",
+				"LINES_REMOVED": "{count, plural, one {# linha removida} other {# linhas removidas}}.",
+				"LINES_CHANGED": "{count, plural, one {# linha com outras horas ou outra tarifa} other {# linhas com outras horas ou outra tarifa}}.",
+				"DESCRIPTIONS": "{count, plural, one {# descrição reescrita} other {# descrições reescritas}}.",
+				"TOTAL": "Total {total}, em vez de {before}.",
+				"ISSUE_DATE": "Emitida a {date}, em vez de {before}.",
+				"DUE_DATE": "Vence a {date}, em vez de {before}.",
+				"NUMBER": "Número {number}, em vez de {before}.",
+				"DISCOUNT": "Desconto {percent}, em vez de {before}.",
+				"TAX": "Imposto {percent}, em vez de {before}.",
+				"CURRENCY": "Faturada em {currency}, em vez de {before}.",
+				"NOTE": "A nota para o cliente é reescrita.",
+				"EARLIER_VERSION": "{client} tem a versão anterior.",
+				"STAYS_DRAFT": "Continua a ser um rascunho.",
+				"SEND_AGAIN": "Guardar e reenviar também envia esta versão ao cliente por e-mail, com o PDF em anexo.",
+				"SAVE_AND_SEND_AGAIN": "Guardar e reenviar",
+				"NOT_SAVED": "As alterações não foram guardadas e a fatura ficou como estava. Verifique se o número está livre e tente novamente.",
+				"PUT_BACK": "Não foi possível guardar as alterações, por isso a fatura foi reposta como estava. Tente novamente.",
+				"NOT_PUT_BACK": "Não foi possível guardar as alterações nem repor a fatura como estava. Abra-a de novo e verifique as linhas e o total antes de a enviar.",
+				"NOT_PUT_BACK_LINES": "Não foi possível guardar as alterações nem repor a fatura como estava: agora tem {count, plural, =0 {nenhuma linha} one {# linha} other {# linhas}}. Verifique-a antes de a enviar.",
+				"LOCKED_NOW": "Desde que foi aberta, a fatura {number} foi paga ou anulada: nada foi guardado e já não pode ser editada.",
+				"NOT_CHECKED": "Não foi possível voltar a ler a fatura antes de guardar, por isso nada foi guardado. Tente novamente.",
+				"NOT_REACHED": "A ligação falhou: as alterações não foram guardadas e a fatura ficou como estava. Verifique a sua ligação e tente novamente.",
+				"CHANGED": "Desde que foi aberta, a fatura {number} foi alterada: nada foi guardado. Abra-a de novo na lista de faturas para começar pela versão atual."
+			}
+		},
+		"replace": {
+			"ACTION": "Anular e substituir",
+			"TITLE": "Anular a fatura {number} e substituí-la?",
+			"VOIDS": "Fica na lista como Anulada, com o que foi pago nela.",
+			"OPENS": "Abre-se uma nova fatura para {client}, com o mesmo período e as mesmas linhas, para ajustar e guardar com um novo número.",
+			"STAYS_VOID": "Se essa nova fatura nunca for guardada, a fatura {number} continua anulada.",
+			"CONFIRM": "Anular e substituir",
+			"NOTICE_TITLE": "Substituição da fatura {number}",
+			"NOTICE_MESSAGE": "O mesmo cliente, período e linhas. Ajuste-os e depois guarde-a com um novo número.",
+			"NOT_REBUILDABLE": "A fatura {number} não foi anulada: não pode ser refeita aqui a partir do tempo faturável. Anule-a e substitua-a onde foi feita.",
+			"NOT_VOID_TITLE": "A fatura {number} não está anulada",
+			"NOT_VOID_MESSAGE": "Aqui só se substitui uma fatura anulada. Abra-a na lista de faturas para a editar, ou para a anular e substituir."
 		}
 	},
 	"timeReports": {
@@ -6998,5 +7094,11 @@
 				"MEMBER_AMBIGUOUS": "{count, plural, one {# membro desta equipe tem este nome.} other {# membros desta equipe têm este nome. Indique o membro pelo e-mail.}}"
 			}
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "Tempo por cliente",
+		"CLIENTS": "{count, plural, one {# cliente} other {# clientes}}",
+		"NAMES_ERROR_TITLE": "Não foi possível carregar a lista de clientes",
+		"NAMES_ERROR_MESSAGE": "Os clientes arquivados aparecem sem o nome até lá."
 	}
 }
