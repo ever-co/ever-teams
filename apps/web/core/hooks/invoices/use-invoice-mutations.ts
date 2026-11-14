@@ -22,12 +22,16 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { downloadBlob } from '@/core/lib/utils/dashboard-export';
 import {
+	invoiceActionsOf,
 	invoiceRevisionsOf,
 	isDraftInvoice,
+	paidChangeOf,
 	pagesWithInvoiceChanged,
 	pagesWithoutInvoice,
 	SENT_CHANGE,
+	unpaidChangeOf,
 	VOID_CHANGE,
+	type InvoiceAction,
 	type InvoiceStatusChange,
 	type ListedInvoicesPage
 } from '@/core/lib/utils/invoice-actions';
@@ -128,7 +132,7 @@ function showListedStatus(queryClient: QueryClient, scope: ReadWorkspace, invoic
 	patchListedInvoices(queryClient, scope, (pages) => pagesWithInvoiceChanged(pages, invoiceId, { status }));
 }
 
-export interface InvoiceToSend extends InvoiceToEmail {
+interface InvoiceToSend extends InvoiceToEmail {
 	/** Only a draft becomes Sent: an invoice sent again keeps the status it reached since. */
 	marksSent: boolean;
 	scope: ReadWorkspace;
@@ -201,7 +205,7 @@ export function useSendInvoice() {
 
 export type SaveAndSendOutcome = InvoiceSendOutcome | 'notSent';
 
-export interface SavedAndSentInvoice {
+interface SavedAndSentInvoice {
 	invoice: TInvoice;
 	outcome: SaveAndSendOutcome;
 }
@@ -483,15 +487,15 @@ async function checkInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditCheck> {
 }
 
 /** Where an edited invoice goes once saved: whether it becomes Sent is decided by the status the save finds. */
-export type InvoiceEditSending = Omit<InvoiceToSend, 'marksSent'>;
+type InvoiceEditSending = Omit<InvoiceToSend, 'marksSent'>;
 
-export interface InvoiceEditToSave {
+interface InvoiceEditToSave {
 	edit: InvoiceEdit;
 	/** Where the invoice goes once saved; null saves it only. */
 	sending: InvoiceEditSending | null;
 }
 
-export interface SavedInvoiceEdit {
+interface SavedInvoiceEdit {
 	outcome: InvoiceEditOutcome;
 	/** What the sending did, when the edit was saved and was to be sent. */
 	sending: SaveAndSendOutcome | null;
@@ -542,11 +546,13 @@ export function useSaveInvoiceEdit() {
 	return { saveInvoiceEdit: mutation.mutateAsync, isSavingEdit: mutation.isPending };
 }
 
-export interface InvoiceStatusChangeRequest {
-	invoiceId: string;
-	change: InvoiceStatusChange;
-	scope: ReadWorkspace;
-}
+/** Marking paid or unpaid: what is paid and due comes from the invoice as the API holds it when the change is made. */
+export type InvoicePaymentAction = Extract<InvoiceAction, 'markPaid' | 'markUnpaid'>;
+
+/** A change that does not depend on the invoice's amounts, such as Void, or a payment action. */
+type InvoiceStatusChangeRequest =
+	| { invoiceId: string; change: InvoiceStatusChange; scope: ReadWorkspace }
+	| { invoiceId: string; payment: InvoicePaymentAction; scope: ReadWorkspace };
 
 /** Shared by every row and dialog: an invoice whose status change runs stays busy, whichever change ran last. */
 const STATUS_CHANGE_KEY = [...queryKeys.invoices.all, 'status-change'] as const;
@@ -556,9 +562,50 @@ function changedInvoiceIdOf(change: Mutation) {
 	return request.invoiceId;
 }
 
-async function changeStatusInItsWorkspace({ invoiceId, change, scope }: InvoiceStatusChangeRequest) {
-	const workspace = workspaceToActIn(scope);
-	await invoiceService.changeInvoiceStatus(invoiceId, change, workspace);
+/** Refused before any write: the invoice's status changed since it was listed and no longer offers the action. */
+class InvoiceActionWithdrawnError extends Error {
+	/** Read as a conflict: someone changed the invoice at the same time. */
+	readonly status = 409;
+
+	constructor(action: InvoicePaymentAction) {
+		super(`The invoice's current status no longer offers ${action}`);
+		this.name = 'InvoiceActionWithdrawnError';
+	}
+}
+
+/**
+ * The payment change built from the invoice read now. The list's copy may be older: its total, edited elsewhere
+ * since, would be saved as the amount paid or due, and its status may no longer offer the action.
+ */
+async function currentPaymentChangeOf(
+	invoiceId: string,
+	payment: InvoicePaymentAction,
+	workspace: InvoicesScope
+): Promise<InvoiceStatusChange> {
+	const invoice = await invoiceService.getInvoice(invoiceId, { tenantId: workspace.tenantId });
+	const status = invoiceStatusOf(invoice.status);
+	const isOffered = invoiceActionsOf(status).includes(payment);
+	if (!isOffered) {
+		throw new InvoiceActionWithdrawnError(payment);
+	}
+	if (payment === 'markPaid') {
+		return paidChangeOf(invoice.totalValue);
+	}
+	return unpaidChangeOf(invoice.totalValue);
+}
+
+/** The change made, so the list shows the status it was given. */
+async function changeStatusInItsWorkspace(request: InvoiceStatusChangeRequest): Promise<InvoiceStatusChange> {
+	const workspace = workspaceToActIn(request.scope);
+	if ('change' in request) {
+		await invoiceService.changeInvoiceStatus(request.invoiceId, request.change, workspace);
+		return request.change;
+	}
+	const change = await currentPaymentChangeOf(request.invoiceId, request.payment, workspace);
+	// Another tab may have switched the workspace while the invoice was read
+	const changeScope = workspaceToActIn(request.scope);
+	await invoiceService.changeInvoiceStatus(request.invoiceId, change, changeScope);
+	return change;
 }
 
 export function useChangeInvoiceStatus() {
@@ -566,8 +613,7 @@ export function useChangeInvoiceStatus() {
 	const mutation = useMutation({
 		mutationKey: STATUS_CHANGE_KEY,
 		mutationFn: changeStatusInItsWorkspace,
-		onSuccess: (_answer, { invoiceId, change, scope }) =>
-			showListedStatus(queryClient, scope, invoiceId, change.status),
+		onSuccess: (change, { invoiceId, scope }) => showListedStatus(queryClient, scope, invoiceId, change.status),
 		onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all }),
 		meta: { handlesOwnError: true }
 	});

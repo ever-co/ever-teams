@@ -13,15 +13,14 @@ import { Invoice } from '@/core/components/icons';
 import { useCurrentOrganizationOwner } from '@/core/hooks/bootstrap/use-feature-data';
 import { useClientNames } from '@/core/hooks/clients/use-client-names';
 import { useInvoiceAccess } from '@/core/hooks/invoices/use-invoice-access';
-import { useChangeInvoiceStatus, useInvoicePdf } from '@/core/hooks/invoices/use-invoice-mutations';
+import {
+	useChangeInvoiceStatus,
+	useInvoicePdf,
+	type InvoicePaymentAction
+} from '@/core/hooks/invoices/use-invoice-mutations';
 import { useInvoicesQuery } from '@/core/hooks/invoices/use-invoices-query';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
-import {
-	paidChangeOf,
-	unpaidChangeOf,
-	type InvoiceMenuAction,
-	type InvoiceStatusChange
-} from '@/core/lib/utils/invoice-actions';
+import type { InvoiceMenuAction } from '@/core/lib/utils/invoice-actions';
 import type { InvoicesScope } from '@/core/services/client/api/organizations/invoice.service';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
@@ -51,15 +50,22 @@ interface InvoiceDialog {
 	scope: InvoicesScope | null;
 }
 
-/** Marking an invoice paid or unpaid needs no confirmation: the toast says the outcome. */
+/**
+ * Marking an invoice paid or unpaid needs no confirmation: the toast says the outcome. The amounts paid and due come
+ * from the invoice read when the change is made, never from the list's copy of its total.
+ */
 function useInvoiceStatusToggle(scope: InvoicesScope | null) {
 	const t = useTranslations();
 	const { changeStatus, changingIds } = useChangeInvoiceStatus();
 	const changeTo = useCallback(
-		async (target: InvoiceActionTarget, change: InvoiceStatusChange, doneKey: DottedLanguageObjectStringPaths) => {
+		async (
+			target: InvoiceActionTarget,
+			payment: InvoicePaymentAction,
+			doneKey: DottedLanguageObjectStringPaths
+		) => {
 			const number = target.numberText;
 			try {
-				await changeStatus({ invoiceId: target.invoice.id, change, scope });
+				await changeStatus({ invoiceId: target.invoice.id, payment, scope });
 				toast.success(t(doneKey, { number }));
 			} catch (error) {
 				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
@@ -88,17 +94,16 @@ function InvoicesContent() {
 
 	const takeAction = useCallback(
 		(target: InvoiceActionTarget, action: InvoiceMenuAction) => {
-			const total = target.invoice.totalValue;
 			// Edit is a link of the menu: it never comes here.
 			if (action === 'edit') {
 				return;
 			}
 			if (action === 'markPaid') {
-				void changeTo(target, paidChangeOf(total), 'invoices.actions.MARKED_PAID');
+				void changeTo(target, action, 'invoices.actions.MARKED_PAID');
 				return;
 			}
 			if (action === 'markUnpaid') {
-				void changeTo(target, unpaidChangeOf(total), 'invoices.actions.MARKED_UNPAID');
+				void changeTo(target, action, 'invoices.actions.MARKED_UNPAID');
 				return;
 			}
 			setDialog({ kind: action, target, scope: list.scope });

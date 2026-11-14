@@ -134,3 +134,17 @@ describe('the workspace an action on a listed invoice is made in', () => {
 		);
 	});
 });
+
+describe('marking a listed invoice paid', () => {
+	it('asks for the payment action, and never sends the list’s copy of the total as the amount paid', async () => {
+		mockList.current = listIn(WORKSPACE_A);
+		render(<InvoicesPage />);
+
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'mark 42 paid' }));
+		});
+
+		// The amounts come from the invoice read when the change is made: the list's total may be outdated
+		expect(mockChangeStatus).toHaveBeenCalledWith({ invoiceId: 'inv-42', payment: 'markPaid', scope: WORKSPACE_A });
+	});
+});
