@@ -209,7 +209,7 @@ export function SaveInvoiceChangesDialog({
 		setFailure(null);
 		const result = await invoice.save();
 		if (!result) {
-			setFailure(NOT_SAVED);
+			refuse(NOT_SAVED);
 			return;
 		}
 		if (result.outcome.status !== 'saved') {
@@ -242,7 +242,7 @@ export function SaveInvoiceChangesDialog({
 		}
 		const result = await invoice.saveAndSend(email);
 		if (!result) {
-			setFailure(NOT_SAVED);
+			refuse(NOT_SAVED);
 			return;
 		}
 		if (result.outcome.status !== 'saved') {
