@@ -35,6 +35,7 @@ function stateOf(overrides: Record<string, unknown> = {}) {
 	return {
 		availability: { available: true, closesAt: null },
 		runningSource: 'TEAMS',
+		runningLogId: 'log-a',
 		discard: mockDiscard,
 		discarding: false,
 		failure: null,
@@ -73,6 +74,19 @@ describe('TimerRunMenu', () => {
 
 		expect(mockDiscard).toHaveBeenCalledTimes(1);
 		expect(screen.queryByText('timer.discard.TITLE')).toBeNull();
+	});
+
+	it('keeps naming the app of the run the confirmation was opened for, even when another run shows meanwhile', async () => {
+		mockDiscardState = stateOf({ runningSource: 'MOBILE' });
+		const { rerender } = render(<TimerRunMenu />);
+		fireEvent.click(screen.getByRole('menuitem', { name: 'timer.discard.ACTION' }));
+		await screen.findByText('timer.discard.DESCRIPTION_ELSEWHERE(timer.discard.sources.MOBILE)');
+
+		// Another device stopped that run and this app started one: the status refresh shows it
+		mockDiscardState = stateOf({ runningLogId: 'log-b', runningSource: 'TEAMS' });
+		rerender(<TimerRunMenu />);
+
+		expect(screen.getByText('timer.discard.DESCRIPTION_ELSEWHERE(timer.discard.sources.MOBILE)')).toBeTruthy();
 	});
 
 	it('keeps the confirmation open with the reason when the discard is refused', async () => {
