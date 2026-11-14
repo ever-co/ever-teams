@@ -58,6 +58,7 @@ import { TimesheetsSheetView } from './timesheets-sheet-view';
 import { TimesheetsSelectionBar } from './timesheets-states';
 import { TimesheetsStatusCards } from './timesheets-status-cards';
 import { TimesheetsToolbar } from './timesheets-toolbar';
+import { TimesheetsViewMenu } from './timesheets-view-menu';
 
 const NO_MEMBERS: TOrganizationTeamEmployee[] = [];
 
@@ -244,6 +245,13 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 	const canEditSelection = selectedLogs.some((log) => canEditLog(log, permissions));
 	const selectedSeconds = useMemo(() => totalDurationOf(selectedLogs), [selectedLogs]);
 	const isSheetView = page.view === 'sheet';
+	const isListView = page.view === 'list';
+	let listViewMenu: ReactNode = null;
+	if (isListView) {
+		listViewMenu = (
+			<TimesheetsViewMenu isGrouping={grouping.isGrouping} onGroupingChange={grouping.setIsGrouping} />
+		);
+	}
 	const isScreenshotsView = page.view === 'screenshots';
 	const isSelectableView = !isSheetView && !isScreenshotsView;
 	const showsSelectionBar = hasSelection && isSelectableView;
@@ -500,6 +508,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 					filterMenu={filterControls.menu}
 					appliedFilters={filterControls.chips}
 					actions={actionsNode}
+					viewMenu={listViewMenu}
 				/>
 			}
 		>
