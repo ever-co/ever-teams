@@ -408,6 +408,18 @@ describe('the time of a saved invoice', () => {
 		expect(range.to).toEqual(new Date(2026, 10, 1, 23, 59, 59, 999));
 	});
 
+	it('reads the time its lines bill over its own period too, when the edit picks another one', async () => {
+		answerTimeReads([], [ownAda]);
+		const savedInSeptember = { ...billedLines, period: { fromDay: '2026-09-01', toDay: '2026-09-30' } };
+
+		const { result } = renderTimeOf({ enabled: false, billedLines: savedInSeptember });
+		await waitFor(() => expect(result.current.isReadingBilledTime).toBe(false));
+
+		const range = mockReports.getBillableTimeLogs.mock.calls[0][0] as { from: Date; to: Date };
+		expect(range.from).toEqual(new Date(2026, 7, 31));
+		expect(range.to).toEqual(new Date(2026, 10, 1, 23, 59, 59, 999));
+	});
+
 	it('is waited for while the time its lines bill is read', async () => {
 		const all = deferred<unknown[]>();
 		mockReports.getBillableTimeLogs.mockReturnValue(all.promise);

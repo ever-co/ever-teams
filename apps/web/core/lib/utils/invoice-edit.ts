@@ -504,6 +504,8 @@ export interface BilledLinesRead {
 	lineIds: ReadonlySet<string>;
 	/** Their projects, each once, in order. */
 	projectIds: string[];
+	/** The saved invoice's own period: the time its lines bill is read over it, whatever period an edit picks. */
+	period?: InvoicePeriodDays | null;
 }
 
 const NO_BILLED_LINES: BilledLinesRead = { lineIds: new Set(), projectIds: [] };
@@ -516,7 +518,7 @@ export function billedLinesReadOf(saved: SavedInvoice | null): BilledLinesRead {
 	const lineIds = new Set(saved.lineIds.values());
 	const projects = new Set(saved.lines.map((line) => line.projectId));
 	const projectIds = [...projects].sort((first, second) => first.localeCompare(second));
-	return { lineIds, projectIds };
+	return { lineIds, projectIds, period: saved.period };
 }
 
 function billedTimeOfLine(lineId: string | undefined, billed: BilledTimeOfLines) {
