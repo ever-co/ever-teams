@@ -844,6 +844,26 @@ export function haveSameLines(
 	return currentSignatures.every((signature, index) => signature === expectedSignatures[index]);
 }
 
+function timeLogIdSetOf(lines: ReadonlyArray<{ timeLogIds?: ReadonlyArray<string> }>) {
+	return new Set(lines.flatMap((line) => line.timeLogIds ?? []));
+}
+
+/**
+ * Whether both sets of lines bill the same time logs, whatever line or order names them. The API reads no time log
+ * back with a line, so an edit that only records the time its lines bill changes nothing `haveSameLines` sees.
+ */
+export function haveSameTimeLogIds(
+	first: ReadonlyArray<{ timeLogIds?: ReadonlyArray<string> }>,
+	second: ReadonlyArray<{ timeLogIds?: ReadonlyArray<string> }>
+): boolean {
+	const firstIds = timeLogIdSetOf(first);
+	const secondIds = timeLogIdSetOf(second);
+	if (firstIds.size !== secondIds.size) {
+		return false;
+	}
+	return [...firstIds].every((id) => secondIds.has(id));
+}
+
 /** The fields of an invoice read back, as far as an edit writes them. */
 export interface WrittenInvoiceFields {
 	invoiceNumber?: number | null;

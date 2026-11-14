@@ -631,6 +631,32 @@ describe('saving an edit to an invoice', () => {
 		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
 	});
 
+	it('writes the lines of an edit that only records the time they bill, since the API marks it billed with them', async () => {
+		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockResolvedValue(undefined);
+		const recordsBilledTime = {
+			...edit,
+			revision: {
+				update: { ...fields, totalValue: 800 },
+				lines: [{ ...previousLine, timeLogIds: ['log-1'] }]
+			}
+		} as unknown as InvoiceEdit;
+		const { result } = renderSaveEdit();
+
+		let saved: unknown = null;
+		await act(async () => {
+			saved = await result.current.saveInvoiceEdit({ edit: recordsBilledTime, sending: null });
+		});
+
+		expect(saved).toEqual({ outcome: { status: 'saved' }, sending: null });
+		expect(mockReplaceInvoiceLines).toHaveBeenCalledWith(
+			'inv-42',
+			[expect.objectContaining({ timeLogIds: ['log-1'] })],
+			workspace
+		);
+	});
+
 	it('keeps a status the invoice reached since it was opened', async () => {
 		mockGetInvoice.mockResolvedValue(invoiceRead('VIEWED'));
 		mockUpdateInvoice.mockResolvedValue(undefined);
