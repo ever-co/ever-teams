@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
-import { groupLogsByWorkDay, totalDurationOf } from './timesheets';
+import { ALL_STATUSES, groupLogsByWorkDay, statusSummaryOf, totalDurationOf } from './timesheets';
 
 function logOf(id: string, start: string, end: string, logType: ETimeLogType): ITimeLog {
 	return {
@@ -31,5 +31,11 @@ describe('Timesheets totals with breaks', () => {
 
 	it('leaves breaks out of a selection total too', () => {
 		expect(totalDurationOf(day)).toBe(7 * 3600);
+	});
+
+	it('leaves breaks out of the time of the status cards, which still count them among the entries', () => {
+		const summary = statusSummaryOf(day);
+
+		expect(summary[ALL_STATUSES]).toEqual({ count: 3, seconds: 7 * 3600 });
 	});
 });

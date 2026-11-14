@@ -239,11 +239,14 @@ function emptySummary(): StatusSummary {
 	};
 }
 
-/** The number of logs and the time per status, over every log given (never a page of them). */
+/**
+ * The number of logs and the time per status, over every log given (never a page of them). A break counts among the
+ * entries the card lists, never in its time, which is worked time like the totals of the page (#5216).
+ */
 export function statusSummaryOf(logs: ReadonlyArray<ITimeLog>): StatusSummary {
 	const summary = emptySummary();
 	for (const log of logs) {
-		const seconds = logDurationSeconds(log);
+		const seconds = isBreakLog(log) ? 0 : logDurationSeconds(log);
 		summary[ALL_STATUSES].count += 1;
 		summary[ALL_STATUSES].seconds += seconds;
 		const status = statusOfLog(log);
