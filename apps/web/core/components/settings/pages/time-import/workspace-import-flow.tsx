@@ -71,7 +71,10 @@ export function WorkspaceImportFlow({ access, modeSwitch }: Readonly<WorkspaceIm
 		return (
 			<>
 				{modeSwitch}
-				<WorkspaceImportUpload teamName={access.teamName} onFiles={(picked) => void workspace.chooseFiles(picked)} />
+				<WorkspaceImportUpload
+					teamName={access.teamName}
+					onFiles={(picked) => void workspace.chooseFiles(picked)}
+				/>
 			</>
 		);
 	}
@@ -95,7 +98,10 @@ export function WorkspaceImportFlow({ access, modeSwitch }: Readonly<WorkspaceIm
 		<>
 			<WorkspaceImportFiles files={files} onChooseOther={chooseOther} />
 			{workspace.isLoadingExisting && (
-				<Waiting title={t('timeImport.workspace.PLAN_TITLE')} label={t('timeImport.workspace.EXISTING_LOADING')} />
+				<Waiting
+					title={t('timeImport.workspace.PLAN_TITLE')}
+					label={t('timeImport.workspace.EXISTING_LOADING')}
+				/>
 			)}
 			{workspace.hasExistingFailed && (
 				<Notice

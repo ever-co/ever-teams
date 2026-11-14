@@ -54,7 +54,10 @@ describe('WorkspaceImportFiles', () => {
 		const clients = tableOf('export.zip / clients.csv', 'clients', 3);
 		const entries = tableOf('time.json / time_entries', 'entries', 200);
 		render(
-			<WorkspaceImportFiles files={{ ...NOTHING, clients, entries, read: [clients, entries] }} onChooseOther={jest.fn()} />
+			<WorkspaceImportFiles
+				files={{ ...NOTHING, clients, entries, read: [clients, entries] }}
+				onChooseOther={jest.fn()}
+			/>
 		);
 
 		expect(screen.getByText('export.zip / clients.csv')).toBeTruthy();

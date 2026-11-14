@@ -129,7 +129,10 @@ describe('readWorkspaceFiles', () => {
 		const files = await readWorkspaceFiles([
 			fileOf('clients.json', JSON.stringify([{ name: 'Acme' }, { name: 'Globex' }])),
 			fileOf('time-entries-october.csv', 'Email,Start Date,Duration\na@x.io,2026-10-01,1\n'),
-			fileOf('export.zip', zipWith('time-entries-november.csv', 'Email,Start Date,Duration\nb@x.io,2026-11-02,2\n'))
+			fileOf(
+				'export.zip',
+				zipWith('time-entries-november.csv', 'Email,Start Date,Duration\nb@x.io,2026-11-02,2\n')
+			)
 		]);
 
 		expect(files.problems).toEqual([]);

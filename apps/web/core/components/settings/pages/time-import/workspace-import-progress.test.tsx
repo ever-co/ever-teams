@@ -76,8 +76,12 @@ describe('WorkspaceImportProgress', () => {
 		const clients = stepRow('timeImport.workspace.figures.CLIENTS');
 		expect(clients.getByText('timeImport.workspace.STEP_COUNTS {"created":2,"reused":1,"failed":0}')).toBeTruthy();
 		expect(clients.getByText('timeImport.workspace.status.done')).toBeTruthy();
-		expect(stepRow('timeImport.workspace.figures.PROJECTS').getByText('timeImport.workspace.status.running')).toBeTruthy();
-		expect(stepRow('timeImport.workspace.figures.LABELS').getByText('timeImport.workspace.status.waiting')).toBeTruthy();
+		expect(
+			stepRow('timeImport.workspace.figures.PROJECTS').getByText('timeImport.workspace.status.running')
+		).toBeTruthy();
+		expect(
+			stepRow('timeImport.workspace.figures.LABELS').getByText('timeImport.workspace.status.waiting')
+		).toBeTruthy();
 		expect(screen.getByText('timeImport.KEEP_OPEN')).toBeTruthy();
 		expect(screen.queryByRole('button')).toBeNull();
 	});
@@ -91,7 +95,9 @@ describe('WorkspaceImportProgress', () => {
 		};
 		render(<WorkspaceImportProgress plan={PLAN} creation={creation} hasEntries onReset={onReset} />);
 
-		expect(stepRow('timeImport.workspace.figures.PROJECTS').getByText('timeImport.workspace.status.failed')).toBeTruthy();
+		expect(
+			stepRow('timeImport.workspace.figures.PROJECTS').getByText('timeImport.workspace.status.failed')
+		).toBeTruthy();
 		expect(screen.getByText('timeImport.workspace.FAILED_TITLE {"name":"Website"}')).toBeTruthy();
 		expect(
 			screen.getByText('toasts.REASONS.PERMISSION timeImport.workspace.FAILED_DESCRIPTION', { exact: false })
@@ -109,7 +115,9 @@ describe('WorkspaceImportProgress', () => {
 		};
 		render(<WorkspaceImportProgress plan={PLAN} creation={creation} hasEntries onReset={jest.fn()} />);
 
-		expect(stepRow('timeImport.workspace.figures.LABELS').getByText('timeImport.workspace.STEP_SKIPPED {"count":1}')).toBeTruthy();
+		expect(
+			stepRow('timeImport.workspace.figures.LABELS').getByText('timeImport.workspace.STEP_SKIPPED {"count":1}')
+		).toBeTruthy();
 	});
 
 	it('ends with the lists in the workspace when the export had no entries', () => {

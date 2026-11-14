@@ -147,7 +147,10 @@ describe('WorkspaceImportFlow', () => {
 
 	it('shows the files, the plan and the entries before anything is saved', () => {
 		mockWorkspace.mockReturnValue(
-			workspaceOf({ files: FILES, hasEntries: true, plan: PLAN }, { stage: 'preview', summary: { readyCount: 200 } })
+			workspaceOf(
+				{ files: FILES, hasEntries: true, plan: PLAN },
+				{ stage: 'preview', summary: { readyCount: 200 } }
+			)
 		);
 		renderFlow();
 
@@ -161,7 +164,14 @@ describe('WorkspaceImportFlow', () => {
 		const creation: WorkspaceCreationState = { status: 'creating', tallies: null, failure: null };
 		mockWorkspace.mockReturnValue(
 			workspaceOf(
-				{ files: FILES, hasEntries: true, plan: PLAN, creationPlan: PLAN, creation, creationSavesEntries: true },
+				{
+					files: FILES,
+					hasEntries: true,
+					plan: PLAN,
+					creationPlan: PLAN,
+					creation,
+					creationSavesEntries: true
+				},
 				{ stage: 'preview', summary: { readyCount: 200 } }
 			)
 		);

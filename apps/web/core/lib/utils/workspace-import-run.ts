@@ -153,7 +153,11 @@ export function workspaceStepStatusesOf(
 	plan: WorkspaceImportPlan,
 	progress: WorkspaceCreationProgress
 ): Record<WorkspaceStep, WorkspaceStepStatus> {
-	const statuses: Record<WorkspaceStep, WorkspaceStepStatus> = { clients: 'waiting', projects: 'waiting', labels: 'waiting' };
+	const statuses: Record<WorkspaceStep, WorkspaceStepStatus> = {
+		clients: 'waiting',
+		projects: 'waiting',
+		labels: 'waiting'
+	};
 	if (progress.status === 'idle') {
 		return statuses;
 	}

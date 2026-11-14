@@ -246,7 +246,10 @@ export function WorkspaceImportPlanPanel({
 							<p>{t('timeImport.workspace.UNKNOWN_EMAILS_DESCRIPTION')}</p>
 							<ul className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1">
 								{unknownEmails.map((unknown) => (
-									<li key={unknown.email} className={cn('font-medium text-foreground', FILE_NAME_TEXT)}>
+									<li
+										key={unknown.email}
+										className={cn('font-medium text-foreground', FILE_NAME_TEXT)}
+									>
 										{unknown.email}
 									</li>
 								))}
@@ -260,7 +263,9 @@ export function WorkspaceImportPlanPanel({
 					{t('timeImport.workspace.TAGGED_ENTRIES_NOTE', { count: taggedEntryCount })}
 				</SettingsReadOnlyNote>
 			)}
-			{skipsLabels && <SettingsReadOnlyNote>{t('timeImport.workspace.LABELS_SKIPPED_NOTE')}</SettingsReadOnlyNote>}
+			{skipsLabels && (
+				<SettingsReadOnlyNote>{t('timeImport.workspace.LABELS_SKIPPED_NOTE')}</SettingsReadOnlyNote>
+			)}
 		</SettingsSection>
 	);
 }

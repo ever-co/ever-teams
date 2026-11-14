@@ -125,7 +125,10 @@ function cellOf(value: unknown): string {
 		return '';
 	}
 	if (Array.isArray(value)) {
-		return value.map(cellOf).filter((cell) => cell !== '').join(', ');
+		return value
+			.map(cellOf)
+			.filter((cell) => cell !== '')
+			.join(', ');
 	}
 	if (typeof value === 'object') {
 		const name = (value as Record<string, unknown>).name;
@@ -178,7 +181,10 @@ export function tableOfRecords(items: ReadonlyArray<Record<string, unknown>>): T
 }
 
 /** The lists a JSON file holds: the file itself when it is a list, else each list it names, under that name. */
-function jsonListsOf(fileName: string, text: string): Array<{ name: string; items: Array<Record<string, unknown>> }> | null {
+function jsonListsOf(
+	fileName: string,
+	text: string
+): Array<{ name: string; items: Array<Record<string, unknown>> }> | null {
 	let parsed: unknown;
 	try {
 		parsed = JSON.parse(text);
@@ -291,7 +297,10 @@ async function textsOf(files: ReadonlyArray<WorkspacePickedFile>, problems: Work
 	return texts;
 }
 
-function tablesOf(named: NamedText, problems: WorkspaceFileProblem[]): Array<{ fileName: string; table: TimeImportTable }> {
+function tablesOf(
+	named: NamedText,
+	problems: WorkspaceFileProblem[]
+): Array<{ fileName: string; table: TimeImportTable }> {
 	if (extensionOf(named.fileName) === 'json') {
 		const lists = jsonListsOf(named.fileName, named.text);
 		if (!lists) {

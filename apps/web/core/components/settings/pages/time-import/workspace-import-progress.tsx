@@ -58,7 +58,12 @@ interface WorkspaceImportProgressProps {
 }
 
 /** The clients, projects and labels of an import as they are created, step by step, and how the run ended. */
-export function WorkspaceImportProgress({ plan, creation, hasEntries, onReset }: Readonly<WorkspaceImportProgressProps>) {
+export function WorkspaceImportProgress({
+	plan,
+	creation,
+	hasEntries,
+	onReset
+}: Readonly<WorkspaceImportProgressProps>) {
 	const t = useTranslations();
 	const statuses = workspaceStepStatusesOf(plan, creation);
 	const { tallies, failure } = creation;
