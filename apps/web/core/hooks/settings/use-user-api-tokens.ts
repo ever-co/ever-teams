@@ -99,7 +99,7 @@ function useUserApiTokensScope(): UserApiTokensScope | null {
 	}, [tenantId, userId]);
 }
 
-/** Asks the server once per sign-in whether it has the tokens on: `GET /user-api-tokens/config`. */
+/** Asks the server whether it has the tokens on (`GET /user-api-tokens/config`), again at most every five minutes. */
 export function useUserApiTokensAvailability() {
 	const scope = useUserApiTokensScope();
 	const query = useQuery({
