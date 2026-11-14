@@ -449,7 +449,16 @@ describe('Start while another organization of the workspace is opening', () => {
 		mockStartTimer.mockImplementationOnce(
 			() =>
 				new Promise((resolve) => {
-					answerStart = () => resolve({ data: { running: true, lastLog: null } });
+					answerStart = () => {
+						const log = {
+							id: 'log-new',
+							source: ETimeLogSource.TEAMS,
+							isRunning: true,
+							startedAt: minutesAgo(0),
+							stoppedAt: minutesAgo(0)
+						};
+						resolve({ data: { running: true, lastLog: log } });
+					};
 				})
 		);
 
