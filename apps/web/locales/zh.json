@@ -5415,7 +5415,7 @@
 			"CODES_LEFT": "{count, plural, =0 {没有未使用的恢复码} other {剩余 # 个未使用的恢复码}}",
 			"NEW_CODES": "新的恢复码",
 			"SETUP_STEP_KEY": "1. 将此账户添加到身份验证器应用",
-			"SETUP_STEP_KEY_TEXT": "在此设备上，打开链接。在其他设备上，在应用中添加账户并输入此密钥。",
+			"SETUP_STEP_KEY_TEXT": "使用身份验证器应用扫描二维码。在此设备上，也可以打开链接或输入密钥。",
 			"SETUP_KEY_LABEL": "设置密钥",
 			"COPY_KEY": "复制密钥",
 			"OPEN_IN_APP": "在身份验证器应用中打开",
@@ -5448,7 +5448,8 @@
 			"UNSUPPORTED_DESCRIPTION": "此服务器不提供双重身份验证。",
 			"READ_FAILED": "无法读取双重身份验证状态",
 			"REQUIRED_TITLE": "您的组织要求您开启此功能",
-			"REQUIRED_DESCRIPTION": "其成员登录时还需输入身份验证器应用中的验证码。"
+			"REQUIRED_DESCRIPTION": "其成员登录时还需输入身份验证器应用中的验证码。",
+			"QR_ALT": "此账户用于身份验证器应用的二维码"
 		}
 	},
 	"taskDetail": {

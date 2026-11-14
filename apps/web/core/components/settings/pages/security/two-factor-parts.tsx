@@ -1,7 +1,7 @@
 'use client';
 // cspell:words otpauth
 
-import { useId, useState, type FormEvent } from 'react';
+import { useEffect, useId, useState, type FormEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { APP_NAME } from '@/core/constants/config/constants';
@@ -18,6 +18,7 @@ import {
 	twoFactorProofOf,
 	twoFactorWriteFailureOf
 } from '@/core/lib/auth/two-factor';
+import { twoFactorQrImageOf } from '@/core/lib/auth/two-factor-qr';
 import type { ITwoFactorEnrollment, ITwoFactorProof } from '@/core/types/interfaces/auth/two-factor';
 
 type Translate = ReturnType<typeof useTranslations>;
@@ -79,6 +80,43 @@ function FieldError({ id, message }: Readonly<{ id: string; message: string | nu
  * The setup: the key for the authenticator app (a link that opens the app on this device, and the key to type), then
  * the first code it shows, which turns two-factor authentication on.
  */
+/**
+ * The setup address as a QR code for an authenticator app on another device. Dark on a white tile in both themes (a
+ * QR code is read dark on light); the key and the link next to it stay the way to add it without a camera.
+ */
+function SetupQrCode({ otpauthUrl }: Readonly<{ otpauthUrl: string }>) {
+	const t = useTranslations();
+	const [image, setImage] = useState<string | null>(null);
+
+	useEffect(() => {
+		let isCurrent = true;
+		twoFactorQrImageOf(otpauthUrl)
+			.then((drawn) => {
+				if (isCurrent) setImage(drawn);
+			})
+			.catch(() => {
+				// Not drawn: the key and the link below still add the account
+				if (isCurrent) setImage(null);
+			});
+		return () => {
+			isCurrent = false;
+		};
+	}, [otpauthUrl]);
+
+	if (!image) {
+		return <span aria-hidden="true" className="size-40 rounded-lg bg-foreground/[0.05]" />;
+	}
+	return (
+		<img
+			src={image}
+			alt={t('settings.security.QR_ALT')}
+			width={160}
+			height={160}
+			className="size-40 rounded-lg bg-white p-1 ring-1 ring-border"
+		/>
+	);
+}
+
 export function SetupPanel({
 	enrollment,
 	confirming,
@@ -119,6 +157,7 @@ export function SetupPanel({
 				<li className="flex flex-col gap-2">
 					<span className={SETTINGS_ROW_LABEL}>{t('settings.security.SETUP_STEP_KEY')}</span>
 					<span className={SETTINGS_ROW_DESCRIPTION}>{t('settings.security.SETUP_STEP_KEY_TEXT')}</span>
+					<SetupQrCode otpauthUrl={enrollment.otpauthUrl} />
 					<div className="flex flex-wrap items-center gap-2">
 						<code
 							aria-label={t('settings.security.SETUP_KEY_LABEL')}

@@ -5415,7 +5415,7 @@
 			"CODES_LEFT": "{count, plural, =0 {Kein ungenutzter Code mehr} one {# ungenutzter Code übrig} other {# ungenutzte Codes übrig}}",
 			"NEW_CODES": "Neue Wiederherstellungscodes",
 			"SETUP_STEP_KEY": "1. Füge dieses Konto deiner Authenticator-App hinzu",
-			"SETUP_STEP_KEY_TEXT": "Auf diesem Gerät öffnest du den Link. Auf einem anderen Gerät fügst du in der App ein Konto hinzu und tippst diesen Schlüssel ein.",
+			"SETUP_STEP_KEY_TEXT": "Scanne den QR-Code mit deiner Authenticator-App. Auf diesem Gerät öffnest du stattdessen den Link oder tippst den Schlüssel ein.",
 			"SETUP_KEY_LABEL": "Einrichtungsschlüssel",
 			"COPY_KEY": "Schlüssel kopieren",
 			"OPEN_IN_APP": "In der Authenticator-App öffnen",
@@ -5448,7 +5448,8 @@
 			"UNSUPPORTED_DESCRIPTION": "Dieser Server bietet keine Zwei-Faktor-Authentifizierung an.",
 			"READ_FAILED": "Die Zwei-Faktor-Authentifizierung konnte nicht gelesen werden",
 			"REQUIRED_TITLE": "Deine Organisation bittet dich, sie einzuschalten",
-			"REQUIRED_DESCRIPTION": "Ihre Mitglieder melden sich zusätzlich mit einem Code aus einer Authenticator-App an."
+			"REQUIRED_DESCRIPTION": "Ihre Mitglieder melden sich zusätzlich mit einem Code aus einer Authenticator-App an.",
+			"QR_ALT": "QR-Code dieses Kontos für deine Authenticator-App"
 		}
 	},
 	"taskDetail": {

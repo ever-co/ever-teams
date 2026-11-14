@@ -5415,7 +5415,7 @@
 			"CODES_LEFT": "{count, plural, =0 {Nenhum código por usar} one {# código por usar} other {# códigos por usar}}",
 			"NEW_CODES": "Novos códigos de recuperação",
 			"SETUP_STEP_KEY": "1. Adicione esta conta à sua aplicação de autenticação",
-			"SETUP_STEP_KEY_TEXT": "Neste dispositivo, abra a ligação. Noutro dispositivo, adicione uma conta na aplicação e escreva esta chave.",
+			"SETUP_STEP_KEY_TEXT": "Leia o código QR com a sua aplicação de autenticação. Neste dispositivo, abra antes a ligação ou escreva a chave.",
 			"SETUP_KEY_LABEL": "Chave de configuração",
 			"COPY_KEY": "Copiar chave",
 			"OPEN_IN_APP": "Abrir na aplicação de autenticação",
@@ -5448,7 +5448,8 @@
 			"UNSUPPORTED_DESCRIPTION": "Este servidor não oferece autenticação de dois fatores.",
 			"READ_FAILED": "Não foi possível ler a autenticação de dois fatores",
 			"REQUIRED_TITLE": "A sua organização pede-lhe que a ative",
-			"REQUIRED_DESCRIPTION": "Os seus membros iniciam sessão também com um código de uma aplicação de autenticação."
+			"REQUIRED_DESCRIPTION": "Os seus membros iniciam sessão também com um código de uma aplicação de autenticação.",
+			"QR_ALT": "Código QR desta conta para a sua aplicação de autenticação"
 		}
 	},
 	"taskDetail": {

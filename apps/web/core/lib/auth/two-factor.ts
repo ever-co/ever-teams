@@ -234,3 +234,6 @@ export function asksTwoFactorSetup(answer: unknown): boolean {
 	const loginResponse = recordOf(data?.loginResponse);
 	return loginResponse?.twoFactorSetupRequired === true;
 }
+
+/** What a step that may open a session answered when the account asks for its two-factor code instead. */
+export const SECOND_FACTOR_ASKED = 'second-factor';

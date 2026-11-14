@@ -12,6 +12,7 @@ jest.mock('next-intl', () => ({
 }));
 
 import { SecuritySettingsPage } from './security-settings-page';
+import { twoFactorQrImageOf } from '@/core/lib/auth/two-factor-qr';
 
 const OFF = {
 	available: true,
@@ -46,6 +47,8 @@ describe('SecuritySettingsPage', () => {
 	beforeAll(() => {
 		// The notices' orb asks whether motion is reduced
 		window.matchMedia = jest.fn().mockReturnValue({ matches: true }) as unknown as typeof window.matchMedia;
+		// jsdom has no TextEncoder, which browsers and Node have: the QR code encodes the address with it
+		Object.assign(globalThis, { TextEncoder: jest.requireActual<typeof import('util')>('util').TextEncoder });
 	});
 
 	it('offers to turn it on, then shows the key and asks for the first code', async () => {
@@ -58,6 +61,11 @@ describe('SecuritySettingsPage', () => {
 		});
 
 		expect(screen.getByText('JBSW Y3DP EHPK 3PXP')).toBeTruthy();
+		// The QR code encodes the setup address: drawn again with the library, the image is the same
+		const qr = (await screen.findByRole('img', { name: 'settings.security.QR_ALT' })) as HTMLImageElement;
+		expect(qr.getAttribute('src')).toBe(
+			await twoFactorQrImageOf('otpauth://totp/Ever%20Teams:ada?secret=JBSWY3DPEHPK3PXP')
+		);
 		expect(screen.getByPlaceholderText('000000').getAttribute('aria-required')).toBe('true');
 		expect(screen.getByRole('link', { name: 'settings.security.OPEN_IN_APP' }).getAttribute('href')).toContain(
 			'otpauth://totp/'

@@ -5415,7 +5415,7 @@
 			"CODES_LEFT": "{count, plural, =0 {Geen ongebruikte code meer} one {# ongebruikte code over} other {# ongebruikte codes over}}",
 			"NEW_CODES": "Nieuwe herstelcodes",
 			"SETUP_STEP_KEY": "1. Voeg dit account toe aan je authenticator-app",
-			"SETUP_STEP_KEY_TEXT": "Op dit apparaat open je de link. Op een ander apparaat voeg je in de app een account toe en typ je deze sleutel.",
+			"SETUP_STEP_KEY_TEXT": "Scan de QR-code met je authenticator-app. Op dit apparaat open je in plaats daarvan de link, of typ je de sleutel.",
 			"SETUP_KEY_LABEL": "Instelsleutel",
 			"COPY_KEY": "Sleutel kopiëren",
 			"OPEN_IN_APP": "Openen in authenticator-app",
@@ -5448,7 +5448,8 @@
 			"UNSUPPORTED_DESCRIPTION": "Deze server biedt geen tweestapsverificatie aan.",
 			"READ_FAILED": "Tweestapsverificatie kon niet worden gelezen",
 			"REQUIRED_TITLE": "Je organisatie vraagt je dit aan te zetten",
-			"REQUIRED_DESCRIPTION": "Haar leden loggen ook in met een code uit een authenticator-app."
+			"REQUIRED_DESCRIPTION": "Haar leden loggen ook in met een code uit een authenticator-app.",
+			"QR_ALT": "QR-code van dit account voor je authenticator-app"
 		}
 	},
 	"taskDetail": {
