@@ -1,16 +1,19 @@
 'use client';
 
-import { memo, type ReactNode, useEffect } from 'react';
+import { Fragment, memo, type ReactNode, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Checkbox } from '@/core/components/common/checkbox';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { GroupToggle, ReportGroup, ReportHeaderRow } from '@/core/components/dashboards/kit/dashboard-layout';
 import { NUMBER_CELL } from '@/core/components/dashboards/kit/recipes';
 import { ChevronDown, ChevronUp } from '@/core/components/icons';
+import type { SimilarEntryGrouping } from '@/core/hooks/dashboards/timesheets/use-similar-entry-grouping';
+import type { TimesheetGroupHandlers } from '@/core/hooks/dashboards/timesheets/use-timesheet-group-change';
 import { DAYS_PER_STEP, type TimesheetPermissions } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
 import { cn } from '@/core/lib/helpers';
 import { scrollBehavior } from '@/core/lib/utils/motion';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
+import { listItemsOf, type TimesheetListItem } from '@/core/lib/utils/dashboards/timesheet-entry-groups';
 import type {
 	TimesheetDay,
 	TimesheetFormatters,
@@ -18,6 +21,8 @@ import type {
 	TimesheetSortKey
 } from '@/core/lib/utils/dashboards/timesheets';
 import { dayLabelOf } from './timesheet-day-label';
+import { TimesheetEntryGroupMenu } from './timesheet-entry-group-menu';
+import { TimesheetEntryGroupRow } from './timesheet-entry-group-row';
 import { TimesheetLogRow, type TimesheetRowHandlers } from './timesheet-log-row';
 import { DAY_SUMMARY_SPAN, dayLabelSpanOf, logGridOf, WIDE_ONLY } from './timesheets-grid';
 
@@ -145,6 +150,70 @@ export function ListColumns({
 	);
 }
 
+interface DayRowsProps {
+	onSelectDay: (logIds: string[], shouldSelect: boolean) => void;
+	showsMember: boolean;
+	selectedIdSet: ReadonlySet<string>;
+	permissions: TimesheetPermissions;
+	formatters: TimesheetFormatters;
+	handlers: TimesheetRowHandlers;
+	grouping: SimilarEntryGrouping;
+	groupHandlers: TimesheetGroupHandlers;
+}
+
+/** One item of a day: an entry, or the row of a group of similar entries with its entries under it while open. */
+function DayItemRows({ item, rows }: Readonly<{ item: TimesheetListItem; rows: DayRowsProps }>) {
+	const { selectedIdSet, showsMember, permissions, formatters, handlers, grouping } = rows;
+	if (item.kind === 'entry') {
+		return (
+			<TimesheetLogRow
+				log={item.log}
+				isSelected={selectedIdSet.has(item.log.id)}
+				showsMember={showsMember}
+				permissions={permissions}
+				formatters={formatters}
+				handlers={handlers}
+			/>
+		);
+	}
+	const { group } = item;
+	const isGroupOpen = grouping.isGroupOpen(group.key);
+	return (
+		<>
+			<TimesheetEntryGroupRow
+				group={group}
+				isOpen={isGroupOpen}
+				onToggle={grouping.toggleGroup}
+				selectedIdSet={selectedIdSet}
+				onSelect={rows.onSelectDay}
+				showsMember={showsMember}
+				formatters={formatters}
+				menu={<TimesheetEntryGroupMenu group={group} permissions={permissions} handlers={rows.groupHandlers} />}
+			/>
+			{isGroupOpen &&
+				group.logs.map((log) => (
+					<TimesheetLogRow
+						key={log.id}
+						log={log}
+						isSelected={selectedIdSet.has(log.id)}
+						showsMember={showsMember}
+						permissions={permissions}
+						formatters={formatters}
+						handlers={handlers}
+						isNested
+					/>
+				))}
+		</>
+	);
+}
+
+function itemKeyOf(item: TimesheetListItem) {
+	if (item.kind === 'entry') {
+		return item.log.id;
+	}
+	return item.group.key;
+}
+
 const TimesheetDayGroup = memo(function TimesheetDayGroup({
 	day,
 	isOpen,
@@ -154,19 +223,32 @@ const TimesheetDayGroup = memo(function TimesheetDayGroup({
 	selectedIdSet,
 	permissions,
 	formatters,
-	handlers
-}: Readonly<{
-	day: TimesheetDay;
-	isOpen: boolean;
-	onToggleDay: (dayKey: string) => void;
-	onSelectDay: (logIds: string[], shouldSelect: boolean) => void;
-	showsMember: boolean;
-	selectedIdSet: ReadonlySet<string>;
-	permissions: TimesheetPermissions;
-	formatters: TimesheetFormatters;
-	handlers: TimesheetRowHandlers;
-}>) {
+	handlers,
+	grouping,
+	groupHandlers
+}: Readonly<
+	DayRowsProps & {
+		day: TimesheetDay;
+		isOpen: boolean;
+		onToggleDay: (dayKey: string) => void;
+	}
+>) {
 	const t = useTranslations();
+	const { isGrouping } = grouping;
+	const items = useMemo(
+		() => listItemsOf(day.logs, { dayKey: day.key, isGrouping }),
+		[day.key, day.logs, isGrouping]
+	);
+	const rows: DayRowsProps = {
+		onSelectDay,
+		showsMember,
+		selectedIdSet,
+		permissions,
+		formatters,
+		handlers,
+		grouping,
+		groupHandlers
+	};
 	const label = dayLabelOf(day.date, t, formatters);
 	const selection = daySelectionOf(day, selectedIdSet);
 	const logIds = day.logs.map((log) => log.id);
@@ -206,16 +288,10 @@ const TimesheetDayGroup = memo(function TimesheetDayGroup({
 		<div id={dayAnchorIdOf(day.key)} className="scroll-mt-12">
 			<ReportGroup isOpen={isOpen} header={header} headerClassName={logGridOf(showsMember)}>
 				<div className="hairline-divide-y divide-border">
-					{day.logs.map((log) => (
-						<TimesheetLogRow
-							key={log.id}
-							log={log}
-							isSelected={selectedIdSet.has(log.id)}
-							showsMember={showsMember}
-							permissions={permissions}
-							formatters={formatters}
-							handlers={handlers}
-						/>
+					{items.map((item) => (
+						<Fragment key={itemKeyOf(item)}>
+							<DayItemRows item={item} rows={rows} />
+						</Fragment>
 					))}
 				</div>
 			</ReportGroup>
@@ -225,7 +301,8 @@ const TimesheetDayGroup = memo(function TimesheetDayGroup({
 
 /**
  * The list view: one group per day the time was worked, most recent first, each with its own select-all, its
- * number of logs and its total; the first days render at once and the rest come with "Show more days".
+ * number of logs and its total; the first days render at once and the rest come with "Show more days". With grouping
+ * on, a day's entries that record the same work show as one row that opens on them.
  */
 export function TimesheetsList({
 	days,
@@ -243,7 +320,9 @@ export function TimesheetsList({
 	onFocusHandled,
 	sort,
 	onSort,
-	emptyContent
+	emptyContent,
+	grouping,
+	groupHandlers
 }: Readonly<{
 	days: ReadonlyArray<TimesheetDay>;
 	visibleDayCount: number;
@@ -261,6 +340,8 @@ export function TimesheetsList({
 	sort: TimesheetSort | null;
 	onSort: (key: TimesheetSortKey) => void;
 	emptyContent: ReactNode;
+	grouping: SimilarEntryGrouping;
+	groupHandlers: TimesheetGroupHandlers;
 }>) {
 	const t = useTranslations();
 	const shownDays = days.slice(0, visibleDayCount);
@@ -296,6 +377,8 @@ export function TimesheetsList({
 							permissions={permissions}
 							formatters={formatters}
 							handlers={handlers}
+							grouping={grouping}
+							groupHandlers={groupHandlers}
 						/>
 					))}
 				</div>
