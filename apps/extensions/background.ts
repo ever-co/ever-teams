@@ -1,6 +1,7 @@
 import { getTimerStatus, sendHeartbeat, type TimerStatus } from '~lib/gauzy';
 import { isOwnPagePort } from '~lib/ports';
 import { sendsHeartbeat } from '~lib/run-policy';
+import { createStatusOrder } from '~lib/status-order';
 import { loadSession, takeSessionOut } from '~lib/session-store';
 import { badgeText, secondsSince } from '~lib/time-format';
 import { isSameSignIn, type Session } from '~lib/workspaces';
@@ -16,6 +17,9 @@ const REFRESH_EVERY_MINUTES = 1;
 const BADGE_COLOR = '#6366f1';
 
 const ports = new Set<chrome.runtime.Port>();
+
+// The background's reads and the popup's reports in one order: an answer older than what the popup reported is dropped
+const statusOrder = createStatusOrder();
 
 function broadcast(status: TimerStatus | null): void {
 	const message: IPostMessage<TimerStatus | null> = {
@@ -59,8 +63,13 @@ async function refresh(heartbeat = false): Promise<void> {
 		broadcast(null);
 		return;
 	}
+	const ticket = statusOrder.readSent();
 	try {
 		const status = await getTimerStatus(session);
+		// A newer read, or a status the popup reported after a start or a stop, came first: this answer is older
+		if (!statusOrder.isLatest(ticket)) {
+			return;
+		}
 		await showBadge(status);
 		broadcast(status);
 		if (heartbeat) {
@@ -112,6 +121,7 @@ browser.runtime.onConnect.addListener((port) => {
 	port.onMessage.addListener((message: IPostMessage<TimerStatus>) => {
 		const isStatusRead = message.type === MessageTypesToBackgroundEnum.statusRead && message.payload;
 		if (isStatusRead) {
+			statusOrder.reported();
 			void showBadge(message.payload ?? null);
 		}
 	});
