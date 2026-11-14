@@ -22,9 +22,6 @@ export interface PeriodHistoryRange {
 /** Gauzy answers at most 500 rows a page. */
 const PAGE_SIZE = 500;
 
-/** A period rarely holds more than a few pages of changes; this keeps a runaway read bounded. */
-const MAX_PAGES = 10;
-
 function listOrUndefined(values: ReadonlyArray<string> | undefined) {
 	const hasValues = Boolean(values) && (values?.length ?? 0) > 0;
 	if (!hasValues) {
@@ -54,11 +51,12 @@ class TimeLogHistoryService extends APIService {
 		}
 	};
 
-	/** The changes recorded over a period on the entries of some members (every page). */
+	/** The changes recorded over a period on the entries of some members: every page the API's total announces. */
 	getPeriodHistory = async (range: PeriodHistoryRange): Promise<HistoryRead<ITimeLogHistoryRow[]>> => {
 		const rows: ITimeLogHistoryRow[] = [];
 		try {
-			for (let page = 1; page <= MAX_PAGES; page++) {
+			let pageCount = 1;
+			for (let page = 1; page <= pageCount; page++) {
 				const query = qs.stringify({
 					tenantId: this.tenantId,
 					organizationId: this.organizationId,
@@ -75,8 +73,9 @@ class TimeLogHistoryService extends APIService {
 				const items = response.data?.items ?? [];
 				rows.push(...items);
 				const total = response.data?.total ?? rows.length;
-				const isLastPage = items.length < PAGE_SIZE || rows.length >= total;
-				if (isLastPage) {
+				pageCount = Math.ceil(total / PAGE_SIZE);
+				const isShortPage = items.length < PAGE_SIZE;
+				if (isShortPage) {
 					break;
 				}
 			}
