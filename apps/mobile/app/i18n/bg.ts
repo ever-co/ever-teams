@@ -10,6 +10,10 @@ const bg = {
 		discard: 'Discard',
 		logOut: 'Log Out' // @demo remove-current-line
 	},
+	session: {
+		endedTitle: 'Сесията ви изтече',
+		endedMessage: 'Влезте отново, за да продължите.'
+	},
 	welcomeScreen: {
 		postscript:
 			"psst  — This probably isn't what your app looks like. (Unless your designer handed you these screens, and in that case, ship it!)",

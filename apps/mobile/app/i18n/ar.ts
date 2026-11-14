@@ -13,6 +13,10 @@ const ar: Translations = {
 		discard: 'Discard'
 		// @demo remove-current-line
 	},
+	session: {
+		endedTitle: 'انتهت جلستك',
+		endedMessage: 'سجّل الدخول مرة أخرى للمتابعة.'
+	},
 	welcomeScreen: {
 		postscript:
 			'ربما لا يكون هذا هو الشكل الذي يبدو عليه تطبيقك مالم يمنحك المصمم هذه الشاشات وشحنها في هذه الحالة',

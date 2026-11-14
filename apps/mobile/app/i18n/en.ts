@@ -10,6 +10,10 @@ const en = {
 		save: 'Save',
 		logOut: 'Log Out' // @demo remove-current-line
 	},
+	session: {
+		endedTitle: 'Your session has ended',
+		endedMessage: 'Sign in again to continue.'
+	},
 	welcomeScreen: {
 		postscript:
 			"psst  — This probably isn't what your app looks like. (Unless your designer handed you these screens, and in that case, ship it!)",

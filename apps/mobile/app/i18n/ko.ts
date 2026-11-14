@@ -12,6 +12,10 @@ const ko: Translations = {
 		confirm: 'Confirm',
 		discard: 'Discard'
 	},
+	session: {
+		endedTitle: '세션이 종료되었습니다',
+		endedMessage: '계속하려면 다시 로그인하세요.'
+	},
 	welcomeScreen: {
 		postscript:
 			'잠깐! — 지금 보시는 것은 아마도 당신의 앱의 모양새가 아닐겁니다. (디자이너분이 이렇게 건내주셨다면 모를까요. 만약에 그렇다면, 이대로 가져갑시다!) ',
