@@ -150,6 +150,10 @@ describe('the rate each time entry stores (#5212)', () => {
 			[50, 3600]
 		]);
 		expect(new Set(rows.map((row) => row.key)).size).toBe(2);
+		expect(rows.map((row) => row.keyAcrossRates)).toEqual([
+			'2026-11-05:project-a:employee-a',
+			'2026-11-05:project-a:employee-a'
+		]);
 		expect(earningsByCurrencyOf(rows)).toEqual([{ currency: 'EUR', amount: 90 }]);
 	});
 

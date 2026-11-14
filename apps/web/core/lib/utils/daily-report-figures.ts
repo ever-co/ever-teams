@@ -26,6 +26,8 @@ export interface DailyReportRow {
 	tasks: DailyReportTask[];
 	/** Time a team member logged without a team, which a team report gathers in its own "No team" group. */
 	isWithoutTeam?: boolean;
+	/** On the rows of a member's project day split by rate (#5212): the key they share, as one row had before. */
+	keyAcrossRates?: string;
 }
 
 export interface DailyReportTask {
@@ -238,16 +240,21 @@ function projectFieldsOf(context: RowContext, part: EmployeeLogPart) {
 	};
 }
 
-function rowKeyOf(context: RowContext, part: EmployeeLogPart) {
+function keyAcrossRatesOf(context: RowContext, part: EmployeeLogPart) {
 	const projectKey = context.project?.id ?? NO_PROJECT_KEY;
-	let key = `${context.dateKey}:${projectKey}:${context.employeeId}`;
 	if (part.isWithoutTeam) {
-		key = `${context.dateKey}:${NO_TEAM_KEY}:${projectKey}:${context.employeeId}`;
+		return `${context.dateKey}:${NO_TEAM_KEY}:${projectKey}:${context.employeeId}`;
 	}
+	return `${context.dateKey}:${projectKey}:${context.employeeId}`;
+}
+
+/** A row split by rate keeps the key the whole row had, beside its own; a row of one rate has only that key. */
+function rowKeysOf(context: RowContext, part: EmployeeLogPart): Pick<DailyReportRow, 'key' | 'keyAcrossRates'> {
+	const keyAcrossRates = keyAcrossRatesOf(context, part);
 	if (part.rateKey === undefined) {
-		return key;
+		return { key: keyAcrossRates };
 	}
-	return `${key}:${part.rateKey}`;
+	return { key: `${keyAcrossRates}:${part.rateKey}`, keyAcrossRates };
 }
 
 /** The rate a row is priced at: the one its entries store, else the member's current rate, as before (#5212). */
@@ -286,7 +293,7 @@ function rowOf(context: RowContext, part: EmployeeLogPart): DailyReportRow {
 	const employee = context.employeeLog.employee;
 	const activity = numberOrZero(context.employeeLog.activity);
 	return {
-		key: rowKeyOf(context, part),
+		...rowKeysOf(context, part),
 		dateKey: context.dateKey,
 		employeeId: context.employeeId,
 		employeeName: employeeNameOf(employee),
