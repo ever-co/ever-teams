@@ -125,10 +125,10 @@ describe('the saves of a board lane', () => {
 		await landNewestFirst();
 		rerender();
 
-		expect(mockOverlaps).toEqual([]);
-		expect(sentValues(TODO.id, 'isCollapsed')).toEqual([true, false]);
 		expect(serverTodo()?.isCollapsed).toBe(false);
 		expect(shownTodo(result)?.isCollapsed).toBe(false);
+		expect(sentValues(TODO.id, 'isCollapsed')).toEqual([true, false]);
+		expect(mockOverlaps).toEqual([]);
 	});
 
 	it('sends two writes for a lane collapsed, expanded and collapsed again quickly, the latest one last', async () => {
@@ -220,15 +220,16 @@ describe('the saves of a board lane', () => {
 			act(() => result.current.moveLane('a', 2));
 			act(() => result.current.moveLane('b', 2));
 			expect(shownOrder(result)).toEqual(['c', 'a', 'b']);
-			// Every lane's place changed twice: the second move's writes wait for the first move's.
-			expect(mockEditTaskStatus).toHaveBeenCalledTimes(3);
+			const sentBeforeAnswers = mockEditTaskStatus.mock.calls.length;
 
 			await landNewestFirst();
 			rerender();
 
-			expect(mockOverlaps).toEqual([]);
 			expect(serverOrder()).toEqual(['c', 'a', 'b']);
 			expect(shownOrder(result)).toEqual(['c', 'a', 'b']);
+			// Every lane's place changed twice: the second move's writes waited for the first move's.
+			expect(sentBeforeAnswers).toBe(3);
+			expect(mockOverlaps).toEqual([]);
 		});
 
 		it('sends two writes for a lane moved three times quickly, its latest place last', async () => {
