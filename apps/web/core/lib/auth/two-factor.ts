@@ -221,3 +221,16 @@ export function twoFactorProofOf(value: string): { code: string } | { recoveryCo
 	}
 	return null;
 }
+
+/** Settings > Security, where the person turns two-factor authentication on. */
+export const TWO_FACTOR_SETTINGS_PATH = '/settings/personal/security';
+
+/**
+ * Whether a workspace sign-in's answer (`{ data: { loginResponse } }`, in both modes) says the organization asks this
+ * person to turn two-factor authentication on (`twoFactorSetupRequired`, set only when the organization requires it).
+ */
+export function asksTwoFactorSetup(answer: unknown): boolean {
+	const data = recordOf(recordOf(answer)?.data);
+	const loginResponse = recordOf(data?.loginResponse);
+	return loginResponse?.twoFactorSetupRequired === true;
+}

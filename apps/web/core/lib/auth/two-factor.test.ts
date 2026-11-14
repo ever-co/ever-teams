@@ -11,6 +11,7 @@ import {
 	twoFactorSignInFailureOf,
 	twoFactorProofOf,
 	twoFactorWriteFailureOf,
+	asksTwoFactorSetup,
 	twoFactorStatusFailureOf
 } from './two-factor';
 
@@ -167,5 +168,15 @@ describe('twoFactorProofOf', () => {
 		expect(twoFactorProofOf('abcde-fghij')).toEqual({ recoveryCode: 'ABCDE-FGHIJ' });
 		expect(twoFactorProofOf('1234')).toBeNull();
 		expect(twoFactorProofOf('')).toBeNull();
+	});
+});
+
+describe('asksTwoFactorSetup', () => {
+	it('reads the flag of a workspace sign-in whose organization requires two-factor authentication', () => {
+		expect(asksTwoFactorSetup({ data: { loginResponse: { token: 't', twoFactorSetupRequired: true } } })).toBe(
+			true
+		);
+		expect(asksTwoFactorSetup({ data: { loginResponse: { token: 't' } } })).toBe(false);
+		expect(asksTwoFactorSetup(undefined)).toBe(false);
 	});
 });

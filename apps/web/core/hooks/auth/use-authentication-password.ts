@@ -9,8 +9,8 @@ import { authService } from '@/core/services/client/api/auth/auth.service';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
-import { navigateAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
-import { twoFactorChallengeOf } from '@/core/lib/auth/two-factor';
+import { navigateAfterSignIn, setPathAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
+import { TWO_FACTOR_SETTINGS_PATH, asksTwoFactorSetup, twoFactorChallengeOf } from '@/core/lib/auth/two-factor';
 import { useTwoFactorSignIn } from './use-two-factor-sign-in';
 
 type AuthCodeRef = {
@@ -105,7 +105,11 @@ export function useAuthenticationPassword() {
 			onError?: (error: unknown) => void
 		) => {
 			signInWorkspaceQueryCall(params)
-				.then(() => {
+				.then((response) => {
+					// The organization asks its members for two-factor authentication: its setup opens first
+					if (asksTwoFactorSetup(response)) {
+						setPathAfterSignIn(TWO_FACTOR_SETTINGS_PATH);
+					}
 					setAuthenticated(true);
 					// Reset infinite loading before navigation to ensure clean state
 					infiniteLoading.current = false;
