@@ -2,7 +2,7 @@
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useStore } from 'jotai';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
@@ -31,6 +31,7 @@ import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 
 import { dayAndEveScopeOf, memberTimeLogsQueryOf } from './member-time-logs-query';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 
 function runningLogOf(status: ITimerStatus | null): ITimeLog | null {
 	if (!status?.running) {
@@ -79,7 +80,7 @@ export interface TimeEntryDuplicateDraft extends TimeEntryCopy {
  */
 export function useTimeEntryDuplicate({ stepMinutes }: Readonly<{ stepMinutes: number }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const store = useStore();
 	const queryClient = useQueryClient();
 	const { data: user } = useUserQuery();

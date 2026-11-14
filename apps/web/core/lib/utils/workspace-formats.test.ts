@@ -1,6 +1,9 @@
 import {
 	WORKSPACE_DATE_FORMATS,
 	WORKSPACE_NUMBER_FORMATS,
+	localeKeyOf,
+	workspaceClockOf,
+	workspaceCurrencyPositionOf,
 	dateFormatOf,
 	hasDateFormat,
 	hasNumberFormat,
@@ -9,6 +12,8 @@ import {
 	workspaceDateFormatOf,
 	workspaceNumberFormatOf,
 	type WorkspaceDateFormat,
+	type WorkspaceClock,
+	type WorkspaceCurrencyPosition,
 	type WorkspaceLocale,
 	type WorkspaceNumberFormat
 } from './workspace-formats';
@@ -306,5 +311,128 @@ describe('numberFormatOf with a workspace number format', () => {
 		const written = numberFormatOf(localeOf('en', null, '1.234,56'), twoDecimals).formatRange(1000, 2500.5);
 
 		expect(written).toBe('1.000,00\u20132.500,50');
+	});
+});
+
+/** ICU versions differ on the space before AM and PM (a plain or a narrow no-break space): compare with plain ones. */
+function withPlainSpaces(text: string): string {
+	return text.replace(/\s/gu, ' ');
+}
+
+function clockLocaleOf(
+	tag: string,
+	clock: WorkspaceClock | null,
+	dateFormat: WorkspaceDateFormat | null = null
+): WorkspaceLocale {
+	return { tag, dateFormat, numberFormat: null, clock, currencyPosition: null };
+}
+
+function positionLocaleOf(
+	tag: string,
+	currencyPosition: WorkspaceCurrencyPosition | null,
+	numberFormat: WorkspaceNumberFormat | null = null
+): WorkspaceLocale {
+	return { tag, dateFormat: null, numberFormat, clock: null, currencyPosition };
+}
+
+describe('the clock and the currency side an organization stores', () => {
+	it('reads the clock Gauzy stores, as a number or as text', () => {
+		expect(workspaceClockOf(12)).toBe(12);
+		expect(workspaceClockOf(24)).toBe(24);
+		expect(workspaceClockOf('24')).toBe(24);
+		expect(workspaceClockOf(null)).toBeNull();
+		expect(workspaceClockOf(13)).toBeNull();
+	});
+
+	it('reads the two sides Gauzy stores for the currency sign', () => {
+		expect(workspaceCurrencyPositionOf('LEFT')).toBe('LEFT');
+		expect(workspaceCurrencyPositionOf('RIGHT')).toBe('RIGHT');
+		expect(workspaceCurrencyPositionOf('MIDDLE')).toBeNull();
+		expect(workspaceCurrencyPositionOf(undefined)).toBeNull();
+	});
+
+	it('keys a cache of formats apart when only the clock or the currency side differs', () => {
+		const keys = new Set([
+			localeKeyOf(clockLocaleOf('en', 12)),
+			localeKeyOf(clockLocaleOf('en', 24)),
+			localeKeyOf(positionLocaleOf('en', 'LEFT')),
+			localeKeyOf(positionLocaleOf('en', 'RIGHT'))
+		]);
+
+		expect(keys.size).toBe(4);
+	});
+});
+
+describe('dateFormatOf with a workspace clock', () => {
+	const time: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' };
+
+	it('writes every time of day on the 24-hour clock, whatever the language', () => {
+		for (const tag of APP_LANGUAGES) {
+			expect(dateFormatOf(clockLocaleOf(tag, 24), time).format(MONDAY)).toContain('14:05');
+		}
+	});
+
+	it('writes every time of day on the 12-hour clock, without a leading zero', () => {
+		expect(withPlainSpaces(dateFormatOf(clockLocaleOf('en', 12), time).format(MONDAY))).toBe('2:05 PM');
+		expect(withPlainSpaces(dateFormatOf(clockLocaleOf('fr', 12), time).format(MONDAY))).toBe('2:05 PM');
+	});
+
+	it('overrides a clock the caller asked for', () => {
+		const options: Intl.DateTimeFormatOptions = { ...time, hour12: false };
+
+		expect(withPlainSpaces(dateFormatOf(clockLocaleOf('en', 12), options).format(MONDAY))).toBe('2:05 PM');
+	});
+
+	it('puts the clock after a date written in the workspace pattern', () => {
+		const options: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric', ...time };
+
+		expect(dateFormatOf(clockLocaleOf('en', 24, 'DD/MM/YYYY'), options).format(MONDAY)).toBe('09/11/2026 14:05');
+	});
+
+	it('leaves a date without a time, and a reader without a workspace clock, as they were', () => {
+		const day: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', timeZone: 'UTC' };
+
+		expect(dateFormatOf(clockLocaleOf('en', 24), day).format(MONDAY)).toBe('November 9');
+		expect(withPlainSpaces(dateFormatOf(clockLocaleOf('en', null), time).format(MONDAY))).toBe('02:05 PM');
+	});
+});
+
+describe('numberFormatOf with a workspace currency side', () => {
+	const euros: Intl.NumberFormatOptions = { style: 'currency', currency: 'EUR' };
+
+	it('puts the sign after the amount for a language that writes it before', () => {
+		expect(numberFormatOf(positionLocaleOf('en', 'RIGHT'), euros).format(1234.5)).toBe('1,234.50\u00a0\u20ac');
+		expect(numberFormatOf(positionLocaleOf('en', 'RIGHT'), euros).format(-1234.5)).toBe('-1,234.50\u00a0\u20ac');
+	});
+
+	it('puts the sign before the amount for a language that writes it after', () => {
+		expect(numberFormatOf(positionLocaleOf('fr', 'LEFT'), euros).format(1234.5)).toBe('\u20ac1\u202f234,50');
+		expect(numberFormatOf(positionLocaleOf('fr', 'LEFT'), euros).format(-1234.5)).toBe('-\u20ac1\u202f234,50');
+	});
+
+	it('keeps a space between a currency code and the amount it now leads', () => {
+		const code: Intl.NumberFormatOptions = { style: 'currency', currency: 'USD', currencyDisplay: 'code' };
+
+		expect(numberFormatOf(positionLocaleOf('de', 'LEFT'), code).format(12)).toBe('USD\u00a012,00');
+	});
+
+	it("moves the sign together with the workspace's separators", () => {
+		const written = numberFormatOf(positionLocaleOf('en', 'RIGHT', '1.234,56'), euros).format(1234.5);
+
+		expect(written).toBe('1.234,50\u00a0\u20ac');
+	});
+
+	it('leaves an amount where the language already puts it, and a plain number, as they were', () => {
+		const plain: Intl.NumberFormatOptions = { maximumFractionDigits: 2 };
+
+		expect(numberFormatOf(positionLocaleOf('en', 'LEFT'), euros).format(12)).toBe('\u20ac12.00');
+		expect(numberFormatOf(positionLocaleOf('fr', 'RIGHT'), euros).format(12)).toBe('12,00\u00a0\u20ac');
+		expect(numberFormatOf(positionLocaleOf('en', 'RIGHT'), plain).format(1234.5)).toBe('1,234.5');
+	});
+
+	it('names the moved sign among its parts', () => {
+		const parts = numberFormatOf(positionLocaleOf('en', 'RIGHT'), euros).formatToParts(12);
+
+		expect(parts.map((part) => part.type)).toEqual(['integer', 'decimal', 'fraction', 'literal', 'currency']);
 	});
 });

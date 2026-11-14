@@ -23,6 +23,7 @@ import {
 import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import { dayLabelOf } from './timesheet-day-label';
 import { STATUS_LABEL_KEYS, TimesheetStatusGlyph } from './timesheet-status';
 
@@ -231,7 +232,8 @@ function WeekBlock({
  * order they started. A card or "N more logs" opens that day in the list.
  */
 export function TimesheetsWeekView({ period, dayByKey, formatters, onOpenDay, notice }: Readonly<CalendarProps>) {
-	const weeks = useMemo(() => weeksOfPeriod(period), [period]);
+	const weekStart = useWorkspaceWeekStart();
+	const weeks = useMemo(() => weeksOfPeriod(period, new Date(), weekStart), [period, weekStart]);
 	const showsTitles = weeks.length > 1;
 	return (
 		<div className="flex flex-col gap-4">
@@ -369,7 +371,8 @@ function MonthBlock({
  * a day with logs opens in the list.
  */
 export function TimesheetsMonthView({ period, dayByKey, formatters, onOpenDay, notice }: Readonly<CalendarProps>) {
-	const months = useMemo(() => monthsOfPeriod(period), [period]);
+	const weekStart = useWorkspaceWeekStart();
+	const months = useMemo(() => monthsOfPeriod(period, new Date(), weekStart), [period, weekStart]);
 	return (
 		<div className="flex flex-col gap-4">
 			{notice}

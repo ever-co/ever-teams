@@ -12,7 +12,7 @@ import { PeriodPicker } from '@/core/components/dashboards/kit/period-picker';
 import { DASHBOARD_STACK } from '@/core/components/dashboards/kit/recipes';
 import { useProjectBudgetReport } from '@/core/hooks/dashboards/project-budget/use-project-budget-report';
 import { formatPeriod, type Period } from '@/core/lib/utils/dashboard-period';
-import { BUDGET_WEEK_START, type BudgetScope } from '@/core/lib/utils/dashboards/project-budget';
+import { type BudgetScope } from '@/core/lib/utils/dashboards/project-budget';
 import { isTrackingEnabledState } from '@/core/stores';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import type { FormatLocale } from '@/core/lib/utils/workspace-formats';
@@ -21,6 +21,7 @@ import { ProjectBudgetPortfolio } from './budget-portfolio';
 import { ProjectBudgetUnbudgeted } from './budget-unbudgeted';
 import { useProjectBudgetExportOptions } from './project-budget-export';
 import { BudgetScopeControl, useBudgetFilterControls } from './project-budget-toolbar';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 
 const PAGE_PATH = '/reports/project-budget';
 
@@ -34,6 +35,7 @@ function metaOf(scope: BudgetScope, period: Period, projectsText: string, locale
 
 export function ProjectBudgetPage() {
 	const t = useTranslations();
+	const weekStart = useWorkspaceWeekStart();
 	const locale = useWorkspaceLocale();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const report = useProjectBudgetReport({ unnamedLabel: t('dashboard.projectBudget.UNNAMED_PROJECT') });
@@ -92,7 +94,7 @@ export function ProjectBudgetPage() {
 								<PeriodPicker
 									value={period}
 									onChange={setPeriod}
-									weekStartsOn={BUDGET_WEEK_START}
+									weekStartsOn={weekStart}
 									locale={locale}
 								/>
 							)}

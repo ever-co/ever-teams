@@ -8,6 +8,7 @@ import { useTeamDashboardStatisticsProps } from '@/core/hooks/activities/use-tea
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { useAreTeamsSettled } from '@/core/hooks/organizations/teams/use-are-teams-settled';
 import { useTeamManagerRole } from '@/core/hooks/organizations/teams/use-team-member';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import { activeTeamState, organizationTeamsState } from '@/core/stores';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { flattenDailyReport } from '@/core/lib/utils/daily-report-figures';
@@ -114,6 +115,7 @@ function standardDaySecondsOf(hours: number | undefined) {
  */
 export function useTeamDashboard({ routeTeamId }: Readonly<{ routeTeamId?: string }>) {
 	const t = useTranslations();
+	const weekStart = useWorkspaceWeekStart();
 	const { user, isManage, mergedProps, enabled } = useActivityFilters();
 	const organizationTeams = useAtomValue(organizationTeamsState);
 	const activeTeam = useAtomValue(activeTeamState);
@@ -241,27 +243,30 @@ export function useTeamDashboard({ routeTeamId }: Readonly<{ routeTeamId?: strin
 
 	const granularityOptions = useMemo(() => granularityOptionsOf(chartPeriod), [chartPeriod]);
 	const granularity = effectiveGranularityOf(pickedGranularity, granularityOptions);
-	const buckets = useMemo(() => chartBucketsOf(rows, chartPeriod, granularity), [chartPeriod, granularity, rows]);
+	const buckets = useMemo(
+		() => chartBucketsOf(rows, chartPeriod, granularity, weekStart),
+		[chartPeriod, granularity, rows, weekStart]
+	);
 
 	const series = useMemo(() => projectSeriesOf(rows), [rows]);
 	const columnStacks = useMemo(
-		() => columnStacksOf(rows, buckets, granularity, series),
-		[buckets, granularity, rows, series]
+		() => columnStacksOf(rows, buckets, granularity, series, weekStart),
+		[buckets, granularity, rows, series, weekStart]
 	);
 	const userIds = useMemo(
 		() => userIdsByEmployeeOf(report ?? NO_REPORT, organizationTeams),
 		[organizationTeams, report]
 	);
 	const rosterMembers = useMemo(
-		() => rosterMembersOf(rows, members, buckets, granularity, userIds),
-		[buckets, granularity, members, rows, userIds]
+		() => rosterMembersOf(rows, members, buckets, granularity, userIds, weekStart),
+		[buckets, granularity, members, rows, userIds, weekStart]
 	);
 	const rosterDays = useMemo(() => rosterDaysOf(rows, days, series), [days, rows, series]);
 
 	const memberSeries = useMemo(() => memberSeriesOf(rows), [rows]);
 	const memberColumnStacks = useMemo(
-		() => memberColumnStacksOf(rows, buckets, granularity, memberSeries),
-		[buckets, granularity, memberSeries, rows]
+		() => memberColumnStacksOf(rows, buckets, granularity, memberSeries, weekStart),
+		[buckets, granularity, memberSeries, rows, weekStart]
 	);
 	const hasProjectSplit = hasProjectTime(series);
 	const live = useTeamLiveBoard({ rows, pickedMemberIds: filters.members, authUserId: user?.id ?? null });

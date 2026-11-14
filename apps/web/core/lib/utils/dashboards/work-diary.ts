@@ -9,7 +9,7 @@ import {
 	startOfWeek
 } from 'date-fns';
 import type { CalendarEntry } from '@/core/lib/utils/calendar-view';
-import { clampedDayOfPeriod, type Period } from '@/core/lib/utils/dashboard-period';
+import { clampedDayOfPeriod, type Period, type WeekStart } from '@/core/lib/utils/dashboard-period';
 import type { TTimeSlotsData } from '@/core/types/schemas/timer/time-slot.schema';
 import { entryNotesOf } from '@/core/lib/utils/timer/timer-notes';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
@@ -199,7 +199,7 @@ export function diaryDayOf(timeSlots: ReadonlyArray<TTimeSlotsData>, day: Date):
 }
 
 /** The days the strip shows: the whole period up to two weeks, otherwise the week of the day on screen. */
-export function diaryStripDaysOf(period: Period, day: Date): Date[] {
+export function diaryStripDaysOf(period: Period, day: Date, weekStartsOn: WeekStart = TIMESHEET_WEEK_START): Date[] {
 	const first = startOfDay(period.from);
 	const last = startOfDay(period.to);
 	const length = differenceInCalendarDays(last, first) + 1;
@@ -207,8 +207,8 @@ export function diaryStripDaysOf(period: Period, day: Date): Date[] {
 	if (isShort) {
 		return eachDayOfInterval({ start: first, end: last });
 	}
-	const weekStart = startOfWeek(day, { weekStartsOn: TIMESHEET_WEEK_START });
-	const weekEnd = endOfWeek(day, { weekStartsOn: TIMESHEET_WEEK_START });
+	const weekStart = startOfWeek(day, { weekStartsOn });
+	const weekEnd = endOfWeek(day, { weekStartsOn });
 	const start = clampedDayOfPeriod(weekStart, period);
 	const end = clampedDayOfPeriod(weekEnd, period);
 	return eachDayOfInterval({ start, end });

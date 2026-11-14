@@ -829,3 +829,136 @@ describe('the amount of an invoice line', () => {
 		expect(lineAmountOf(0.01, 0.5)).toBe(0.01);
 	});
 });
+
+describe('the time logs each line bills', () => {
+	const clientProjects = new Set(['p1', 'p2']);
+	const billedLogs = [
+		log({ id: 'log-1' }),
+		log({ id: 'log-2', taskId: null, duration: 1800 }),
+		log({ id: 'log-3', employeeId: 'bo' })
+	];
+	const entries = billableEntriesOf(billedLogs, clientProjects);
+
+	it('are kept on the entry of the project, member and task they were logged on', () => {
+		expect(entries.map((entry) => entry.timeLogIds)).toEqual([['log-1'], ['log-2'], ['log-3']]);
+	});
+
+	it('leave out a log the invoice does not bill, as the entries do', () => {
+		const logs = [
+			log({ id: 'log-1' }),
+			log({ id: 'log-2', isBillable: false }),
+			log({ id: 'log-3', projectId: 'x' })
+		];
+
+		expect(billableEntriesOf(logs, clientProjects).map((entry) => entry.timeLogIds)).toEqual([['log-1']]);
+	});
+
+	it('are gathered on the line of their member, by member', () => {
+		const { lines } = invoiceTimeOf({ entries, grouping: 'member', priceOf: flatPrice(80) });
+
+		expect(lines.map((line) => [line.employeeId, line.timeLogIds])).toEqual([
+			['ana', ['log-1', 'log-2']],
+			['bo', ['log-3']]
+		]);
+	});
+
+	it('stay on the line of their task, by task', () => {
+		const { lines } = invoiceTimeOf({ entries, grouping: 'task', priceOf: flatPrice(80) });
+
+		expect(lines.map((line) => [line.employeeId, line.taskId, line.timeLogIds])).toEqual([
+			['ana', 't1', ['log-1']],
+			['ana', null, ['log-2']],
+			['bo', 't1', ['log-3']]
+		]);
+	});
+
+	it('are gathered on the line of their project and currency, by project', () => {
+		const priceOf = (_projectId: string, employeeId: string): LinePrice => {
+			if (employeeId === 'bo') {
+				return { rate: 70, currency: 'EUR', source: 'member' };
+			}
+			return { rate: 80, currency: 'USD', source: 'member' };
+		};
+
+		const { lines } = invoiceTimeOf({ entries, grouping: 'project', priceOf });
+
+		expect(lines.map((line) => [line.currency, line.timeLogIds])).toEqual([
+			['USD', ['log-1', 'log-2']],
+			['EUR', ['log-3']]
+		]);
+	});
+
+	it('are left on no line when their time has no rate', () => {
+		const { lines, unpriced } = invoiceTimeOf({ entries, grouping: 'member', priceOf: flatPrice(null) });
+
+		expect(lines).toEqual([]);
+		expect(unpriced).toHaveLength(2);
+	});
+
+	describe('in the request that saves the invoice', () => {
+		const named = namedLinesOf(
+			invoiceTimeOf({ entries, grouping: 'member', priceOf: flatPrice(80) }).lines,
+			'member',
+			names
+		);
+		const input = {
+			id: 'inv-1',
+			organizationId: 'org-1',
+			tenantId: 'tenant-1',
+			clientId: 'c1',
+			invoiceNumber: 13,
+			issueDay: '2026-11-02',
+			dueDay: '2026-12-02',
+			currency: 'USD',
+			period: { fromDay: '2026-10-01', toDay: '2026-10-31' },
+			timeZone: 'Europe/Paris',
+			lines: named,
+			descriptions: new Map<string, string>()
+		};
+
+		it('name the time logs of each line, with its organization, to an API that records billed time', () => {
+			const request = buildInvoiceRequest({ ...input, recordsBilledTime: true });
+
+			expect(request.invoiceItems.map((item) => [item.employeeId, item.organizationId, item.timeLogIds])).toEqual(
+				[
+					['ana', 'org-1', ['log-1', 'log-2']],
+					['bo', 'org-1', ['log-3']]
+				]
+			);
+		});
+
+		it('are not sent to an API that does not record billed time', () => {
+			const request = buildInvoiceRequest({ ...input, recordsBilledTime: false });
+
+			expect(request.invoiceItems.some((item) => 'timeLogIds' in item)).toBe(false);
+		});
+
+		it('are not sent for a line that names none', () => {
+			const withoutLogs = named.map((line) => ({ ...line, timeLogIds: undefined }));
+
+			const request = buildInvoiceRequest({ ...input, lines: withoutLogs, recordsBilledTime: true });
+
+			expect(request.invoiceItems.some((item) => 'timeLogIds' in item)).toBe(false);
+		});
+	});
+});
+
+describe('a save refused because its time was billed elsewhere meanwhile', () => {
+	it('is told apart from the other refusals', () => {
+		const status = 400;
+		const message =
+			'INVOICE_TIME_LOG_NOT_BILLABLE: a line names a time log it cannot bill. Nothing was saved: read the time not invoiced yet (notInvoiced=true) and save again.';
+		const billedElsewhere = ApiErrorService.fromAxiosError({
+			message: `Request failed with status code ${status}`,
+			status,
+			response: {
+				data: { statusCode: status, message, error: 'Bad Request' },
+				headers: {},
+				status,
+				statusText: 'Error'
+			}
+		});
+
+		expect(invoiceSaveFailureOf(billedElsewhere)).toBe('timeBilled');
+	});
+});

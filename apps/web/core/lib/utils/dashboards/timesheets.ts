@@ -418,11 +418,15 @@ export interface CalendarWeek {
 }
 
 /** The whole weeks that cover a period, so a column always means the same weekday. */
-export function weeksOfPeriod(period: Period, today = new Date()): CalendarWeek[] {
+export function weeksOfPeriod(
+	period: Period,
+	today = new Date(),
+	weekStartsOn: WeekStart = TIMESHEET_WEEK_START
+): CalendarWeek[] {
 	const weeks: CalendarWeek[] = [];
-	let weekStart = startOfWeek(period.from, { weekStartsOn: TIMESHEET_WEEK_START });
+	let weekStart = startOfWeek(period.from, { weekStartsOn });
 	while (!isAfter(weekStart, period.to)) {
-		const weekEnd = endOfWeek(weekStart, { weekStartsOn: TIMESHEET_WEEK_START });
+		const weekEnd = endOfWeek(weekStart, { weekStartsOn });
 		const dates = daysBetween(weekStart, weekEnd);
 		weeks.push({
 			key: localDayKeyOf(weekStart),
@@ -442,12 +446,16 @@ export interface CalendarMonth {
 }
 
 /** Every month the period touches, each as whole weeks so the grid keeps seven columns. */
-export function monthsOfPeriod(period: Period, today = new Date()): CalendarMonth[] {
+export function monthsOfPeriod(
+	period: Period,
+	today = new Date(),
+	weekStartsOn: WeekStart = TIMESHEET_WEEK_START
+): CalendarMonth[] {
 	const months: CalendarMonth[] = [];
 	let month = startOfMonth(period.from);
 	while (!isAfter(month, period.to)) {
-		const gridStart = startOfWeek(month, { weekStartsOn: TIMESHEET_WEEK_START });
-		const gridEnd = endOfWeek(endOfMonth(month), { weekStartsOn: TIMESHEET_WEEK_START });
+		const gridStart = startOfWeek(month, { weekStartsOn });
+		const gridEnd = endOfWeek(endOfMonth(month), { weekStartsOn });
 		const dates = daysBetween(gridStart, gridEnd);
 		months.push({
 			key: localDayKeyOf(month),
@@ -534,14 +542,18 @@ const SHORTEST_MONTH = 28;
  * The period a view opens on: the week sheet and the week view need at least a week and a month view a month, so a
  * shorter period grows to the week or the month it starts in. A longer period is kept as it is.
  */
-export function periodForView(period: Period, view: TimesheetView): Period {
+export function periodForView(
+	period: Period,
+	view: TimesheetView,
+	weekStartsOn: WeekStart = TIMESHEET_WEEK_START
+): Period {
 	const length = differenceInCalendarDays(period.to, period.from) + 1;
 	const needsAWeek = view === 'week' || view === 'sheet';
 	if (needsAWeek) {
 		const isShorterThanAWeek = length < DAYS_IN_A_WEEK;
 		if (isShorterThanAWeek) {
-			const from = startOfWeek(period.from, { weekStartsOn: TIMESHEET_WEEK_START });
-			const to = endOfWeek(period.from, { weekStartsOn: TIMESHEET_WEEK_START });
+			const from = startOfWeek(period.from, { weekStartsOn });
+			const to = endOfWeek(period.from, { weekStartsOn });
 			return { from, to };
 		}
 		return period;

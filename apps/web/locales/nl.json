@@ -5193,6 +5193,23 @@
 			"NUMBER_FORMAT_NOT_SAVED": "De getalnotatie is niet opgeslagen",
 			"FORMAT_OUTCOME": "Rapporten en hun exports gebruiken die nu.",
 			"FORMAT_AUTOMATIC": "Automatisch",
+			"WEEK_START_LABEL": "Week begint op",
+			"WEEK_START_DESCRIPTION": "De eerste dag van elke weekweergave, weekkiezer, elk rapport en elke export.",
+			"WEEK_START_SAVED": "Begin van de week opgeslagen",
+			"WEEK_START_NOT_SAVED": "Het begin van de week is niet opgeslagen",
+			"CLOCK_LABEL": "Klok",
+			"CLOCK_DESCRIPTION": "Hoe elke pagina en export een tijdstip schrijft.",
+			"CLOCK_24": "24-uurs ({sample})",
+			"CLOCK_12": "12-uurs ({sample})",
+			"CLOCK_SAVED": "Klok opgeslagen",
+			"CLOCK_NOT_SAVED": "De klok is niet opgeslagen",
+			"CURRENCY_POSITION_LABEL": "Valutasymbool",
+			"CURRENCY_POSITION_DESCRIPTION": "Waar elk bedrag zijn valutasymbool schrijft.",
+			"CURRENCY_POSITION_BEFORE": "Voor het bedrag ({sample})",
+			"CURRENCY_POSITION_AFTER": "Na het bedrag ({sample})",
+			"CURRENCY_POSITION_SAVED": "Positie van het valutasymbool opgeslagen",
+			"CURRENCY_POSITION_NOT_SAVED": "De positie van het valutasymbool is niet opgeslagen",
+			"EVERY_PAGE_OUTCOME": "Elke pagina en export gebruikt het nu.",
 			"READ_ONLY_NOTE": "Alleen beheerders van de werkruimte kunnen deze instellingen wijzigen.",
 			"LOAD_FAILED": "De instellingen van de werkruimte konden niet worden geladen."
 		},
@@ -5844,7 +5861,7 @@
 	},
 	"shortcuts": {
 		"TITLE": "Sneltoetsen",
-		"DESCRIPTION": "De toetsen van elk gebied. Letters volgen de fysieke toets, dus ze werken op elke indeling.",
+		"DESCRIPTION": "De toetsen die in de app werken, per gebied.",
 		"DESCRIPTION_REBIND": "De toetsen van elk gebied. Wijzig er een door nieuwe toetsen op te nemen; de wijziging volgt je op al je apparaten.",
 		"NONE": "Geen",
 		"THEN": "dan",
@@ -5909,10 +5926,20 @@
 			"searchTeams": "Teams doorzoeken",
 			"themeToggle": "Wisselen tussen licht en donker",
 			"taskProject": "Project wijzigen",
-			"taskAssignee": "Toegewezen personen wijzigen"
+			"taskAssignee": "Toegewezen personen wijzigen",
+			"sidebarToggle": "Zijbalk tonen of verbergen",
+			"taskSearchFocus": "In de lijst zoeken"
 		},
 		"CHAT_SINGLE_KEY": "Een chattoets is één toets, geen reeks.",
-		"CHAT_TAKEN": "De chat gebruikt die toets al (opmaak, verzenden, verplaatsen of scrollen)."
+		"CHAT_TAKEN": "De chat gebruikt die toets al (opmaak, verzenden, verplaatsen of scrollen).",
+		"OR": "of",
+		"groups": {
+			"general": "Algemeen",
+			"timer": "Timer",
+			"tasks": "Taken",
+			"navigation": "Navigatie",
+			"chat": "Chat"
+		}
 	},
 	"realtime": {
 		"RECONNECTING": "Opnieuw verbinden…"
@@ -6617,7 +6644,13 @@
 			"NAME_REQUIRED": "Vul de naam van de klant in.",
 			"EMAIL_INVALID": "Vul een geldig e-mailadres in of laat het veld leeg.",
 			"CREATE": "Klant aanmaken",
-			"SAVE_FAILED": "De klant kon niet worden opgeslagen. Probeer het opnieuw."
+			"SAVE_FAILED": "De klant kon niet worden opgeslagen. Probeer het opnieuw.",
+			"BILLING": "Facturering",
+			"CUSTOM_DAYS_LABEL": "Dagen om te betalen, van 0 tot {max}",
+			"DAYS_UNIT": "{count, plural, one {dag} other {dagen}}",
+			"PAYMENT_TERMS": "Betaaltermijn",
+			"TERMS_HINT": "Bepaalt de vervaldatum van de facturen voor deze klant.",
+			"TERMS_INVALID": "Vul een aantal dagen in van 0 tot 365."
 		},
 		"toasts": {
 			"CREATED": "{name} is toegevoegd aan de klanten",
@@ -6631,13 +6664,15 @@
 			"LEAVES_PICKER": "De klant wordt niet meer aangeboden als klant van een project.",
 			"CAN_RESTORE": "Je kunt de klant herstellen vanuit de lijst Gearchiveerd.",
 			"CONFIRM": "Klant archiveren",
-			"FAILED": "De klant kon niet worden gearchiveerd. Probeer het opnieuw."
+			"FAILED": "De klant kon niet worden gearchiveerd. Probeer het opnieuw.",
+			"KEEPS_INVOICES": "De facturen blijven en kunnen nog worden verstuurd, betaald of geannuleerd."
 		},
 		"restore": {
 			"TITLE": "{name} herstellen?",
 			"BACK_IN_PICKER": "De klant wordt weer aangeboden als klant van een project.",
 			"CONFIRM": "Klant herstellen",
-			"FAILED": "De klant kon niet worden hersteld. Probeer het opnieuw."
+			"FAILED": "De klant kon niet worden hersteld. Probeer het opnieuw.",
+			"KEEPS_EVERYTHING": "Projecten, tijd en facturen staan nog zoals je ze achterliet."
 		},
 		"picker": {
 			"ADD": "Klant toevoegen",
@@ -6645,6 +6680,86 @@
 			"CREATE": "Klant ‘{name}’ aanmaken",
 			"NO_CLIENT": "Geen klant",
 			"CREATE_FAILED": "De klant kon niet worden aangemaakt. Probeer het opnieuw."
+		},
+		"COLUMN_SINCE": "Sinds",
+		"FOOT_PROJECTS": "{count, plural, one {# project} other {# projecten}}",
+		"LINK_COPIED": "Link naar {name} gekopieerd",
+		"LINK_NOT_COPIED": "De link kon niet worden gekopieerd. Kopieer hem uit de adresbalk.",
+		"NO_ACCESS_TITLE": "Klanten zijn niet gedeeld met jouw rol",
+		"NO_ACCESS_MESSAGE": "Vraag een beheerder van de werkruimte om jouw rol toegang tot de klanten te geven.",
+		"OPEN_CLIENT": "Openen",
+		"contact": {
+			"ADD": "Contact toevoegen",
+			"ADD_EMAIL": "E-mail toevoegen",
+			"ADD_FOR": "Contactgegevens toevoegen voor {name}",
+			"ADD_PHONE": "Telefoon toevoegen",
+			"COPY": "{value} kopiëren",
+			"NOT_COPIED": "Kopiëren is mislukt. Selecteer de tekst om hem te kopiëren.",
+			"NO_EMAIL": "Geen e-mail",
+			"NO_PHONE": "Geen telefoon"
+		},
+		"facts": {
+			"ADDED": "Toegevoegd",
+			"EDIT_CONTACT": "Contact bewerken",
+			"EDIT_NOTES": "Notities bewerken",
+			"EDIT_TERMS": "Betaaltermijn bewerken",
+			"SINCE": "Klant sinds {date}",
+			"TERMS": "Termijn"
+		},
+		"invoices": {
+			"ALL": "Alle",
+			"OPEN": "Open",
+			"EMPTY_TITLE": "Nog geen facturen",
+			"EMPTY_MESSAGE": "Facturen voor deze klant verschijnen hier.",
+			"FILTER_LABEL": "Te tonen facturen",
+			"NONE_IN_FILTER": "Geen facturen met deze status",
+			"SUMMARY_OPEN": "{count} open",
+			"SUMMARY_OVERDUE": "{count} achterstallig",
+			"SUMMARY_PAID": "{count} betaald",
+			"SUMMARY_DRAFTS": "{count, plural, one {# concept} other {# concepten}}",
+			"SUMMARY_VOID": "{count} geannuleerd"
+		},
+		"notes": {
+			"ADD": "Notitie toevoegen",
+			"NONE": "Geen notities",
+			"READ_MORE": "Meer lezen",
+			"SHOW_LESS": "Minder tonen"
+		},
+		"order": {
+			"TRIGGER": "Gesorteerd op {order}",
+			"NEWEST": "Nieuwste eerst",
+			"MOST_PROJECTS": "Meeste projecten"
+		},
+		"projects": {
+			"EMPTY_TITLE": "Geen projecten voor deze klant",
+			"EMPTY_MESSAGE": "Kies deze klant in de instellingen van een project om het hier te zien."
+		},
+		"sheet": {
+			"POSITION": "{position} van {total}"
+		},
+		"standing": {
+			"ALSO": "Ook {amounts}",
+			"BILLED": "Gefactureerd",
+			"LABEL": "Facturering van {name}",
+			"LAST_INVOICE": "Laatste factuur",
+			"NOTHING": "Niets",
+			"NO_INVOICE_TITLE": "Nog geen facturen voor {name}",
+			"NO_INVOICE_MESSAGE": "Factureer de geregistreerde tijd voor deze klant om hier te zien wat er openstaat."
+		},
+		"terms": {
+			"CUSTOM": "Anders",
+			"DAYS": "{days, plural, one {# dag} other {# dagen}}",
+			"DUE_ON_RECEIPT": "Direct bij ontvangst",
+			"NET_DAYS": "Betaling binnen {days, plural, one {# dag} other {# dagen}}",
+			"RECEIPT": "Bij ontvangst",
+			"WORKSPACE": "Werkruimte",
+			"WORKSPACE_DAYS": "Werkruimte ({days, plural, one {# dag} other {# dagen}})",
+			"WORKSPACE_SHORT": "Standaard"
+		},
+		"detail": {
+			"NOT_FOUND_TITLE": "Deze klant staat niet in de werkruimte",
+			"NOT_FOUND_MESSAGE": "Misschien is hij verwijderd, of komt de link uit een andere werkruimte.",
+			"ALL_CLIENTS": "Alle klanten"
 		}
 	},
 	"invoices": {
@@ -6888,7 +7003,8 @@
 				"LOCKED_NOW": "Sinds hij werd geopend, is factuur {number} betaald of vervallen: er is niets opgeslagen en hij kan niet meer worden bewerkt.",
 				"NOT_CHECKED": "De factuur kon voor het opslaan niet opnieuw worden gelezen, dus er is niets opgeslagen. Probeer het opnieuw.",
 				"NOT_REACHED": "De verbinding is mislukt: de wijzigingen zijn niet opgeslagen en de factuur is gebleven zoals hij was. Controleer je verbinding en probeer het opnieuw.",
-				"CHANGED": "Sinds hij werd geopend, is factuur {number} gewijzigd: er is niets opgeslagen. Open hem opnieuw vanuit de factuurlijst om van de huidige versie uit te gaan."
+				"CHANGED": "Sinds hij werd geopend, is factuur {number} gewijzigd: er is niets opgeslagen. Open hem opnieuw vanuit de factuurlijst om van de huidige versie uit te gaan.",
+				"RECORDS_TIME": "Legt de uren vast die de regels factureren, zodat geen andere factuur ze opnieuw factureert."
 			}
 		},
 		"replace": {
@@ -6903,6 +7019,73 @@
 			"NOT_REBUILDABLE": "Factuur {number} is niet vervallen: hij kan hier niet opnieuw uit factureerbare tijd worden gemaakt. Laat hem vervallen en vervang hem waar hij is gemaakt.",
 			"NOT_VOID_TITLE": "Factuur {number} is niet vervallen",
 			"NOT_VOID_MESSAGE": "Hier wordt alleen een vervallen factuur vervangen. Open hem vanuit de factuurlijst om hem te bewerken, of om hem te laten vervallen en te vervangen."
+		},
+		"billedTime": {
+			"LEFT_OUT_TITLE": "Uren die al op een factuur staan, worden weggelaten",
+			"LEFT_OUT_MESSAGE": "{count, plural, one {Een factuur van {client} factureert al een deel van deze periode. Die uren staan hier niet.} other {# facturen van {client} factureren al een deel van deze periode. Die uren staan hier niet.}}",
+			"UNRECORDED_MESSAGE": "{count, plural, one {Die factuur vermeldt niet welke uren ze factureert, dus ze staan hier nog.} other {Die facturen vermelden niet welke uren ze factureren, dus die uren staan hier nog.}} Verwijder vóór het opslaan de regels die al gefactureerd zijn.",
+			"EARLIER_NOTE": "Uren die al op een factuur staan, staan niet op deze, behalve als die factuur niet vermeldt welke uren ze factureert.",
+			"ALL_INVOICED_TITLE": "De factureerbare tijd van {client} in deze periode is al gefactureerd",
+			"ALL_INVOICED_MESSAGE": "Elk factureerbaar uur van deze periode staat op een factuur. Verwijder de regel van die factuur of laat de factuur vervallen om een deel ervan opnieuw te factureren.",
+			"NEW_REFUSED": "Een deel van deze tijd is sinds het lezen op een andere factuur gekomen of verwijderd, dus er is niets opgeslagen. Sluit dit venster om de tijd te zien die nog te factureren is, en sla daarna opnieuw op.",
+			"EDIT_REFUSED": "Een deel van deze tijd is sinds het lezen op een andere factuur gekomen of verwijderd, dus de wijzigingen zijn niet opgeslagen en de factuur is gebleven zoals hij was. Sluit dit venster om de tijd te zien die nog te factureren is, en sla daarna opnieuw op."
+		},
+		"standing": {
+			"OVERDUE": "Achterstallig",
+			"UNKNOWN": "Onbekende status"
+		},
+		"due": {
+			"IN_DAYS": "Vervalt over {count, plural, one {# dag} other {# dagen}}",
+			"TODAY": "Vervalt vandaag",
+			"TOMORROW": "Vervalt morgen",
+			"LATE": "{count, plural, one {# dag te laat} other {# dagen te laat}}"
+		},
+		"money": {
+			"LABEL": "Openstaande bedragen van de werkruimte",
+			"OWED": "Openstaand",
+			"NOTHING_OWED": "Er staat nu niets open",
+			"INVOICE_COUNT": "{count, plural, one {# factuur} other {# facturen}}",
+			"ALSO_OWED": "Ook openstaand: {amounts}",
+			"SPLIT_LABEL": "Openstaande bedragen, verdeeld over nog niet vervallen en achterstallig",
+			"NOT_YET_DUE": "Nog niet vervallen",
+			"OVERDUE": "Achterstallig",
+			"DRAFTS": "Concepten",
+			"DRAFT_COUNT": "{count, plural, =0 {Geen} one {# te versturen} other {# te versturen}}",
+			"WITHOUT_BALANCE": "{count, plural, one {# deels betaalde factuur vermeldt geen saldo en telt niet mee} other {# deels betaalde facturen vermelden geen saldo en tellen niet mee}}",
+			"ERROR": "De openstaande bedragen konden niet worden gelezen"
+		},
+		"filter": {
+			"LABEL": "Te tonen facturen",
+			"ALL": "Alle",
+			"OPEN": "Open",
+			"NONE_DRAFT": "Geen concepten om te versturen",
+			"NONE_OPEN": "Geen factuur wacht op betaling",
+			"NONE_OVERDUE": "Niets is achterstallig",
+			"NONE_PAID": "Geen betaalde facturen",
+			"NONE_VOID": "Geen geannuleerde facturen",
+			"SHOW_ALL": "Alle facturen tonen",
+			"LOADED_ONLY": "Binnen {count, plural, one {de laatste factuur} other {de # laatste facturen}}. Toon meer om verder terug te kijken."
+		},
+		"detail": {
+			"HEADING": "Factuur {number}",
+			"PAPER_TITLE": "Factuur",
+			"COLUMN_DESCRIPTION": "Omschrijving",
+			"COLUMN_HOURS": "Uren",
+			"COLUMN_RATE": "Tarief",
+			"COLUMN_AMOUNT": "Bedrag",
+			"NO_DESCRIPTION": "Geen omschrijving",
+			"NO_LINES": "Deze factuur heeft geen regels.",
+			"DISCOUNT": "Korting",
+			"TAX": "Belasting",
+			"TAX_PERCENT": "Belasting ({percent})",
+			"TAX2": "Tweede belasting",
+			"TAX2_PERCENT": "Tweede belasting ({percent})",
+			"PAID": "Betaald",
+			"LEFT_TO_PAY": "Nog te betalen",
+			"NOT_FOUND_TITLE": "Deze factuur staat niet in de werkruimte",
+			"NOT_FOUND_MESSAGE": "Misschien is ze verwijderd, of komt de link uit een andere werkruimte.",
+			"ALL_INVOICES": "Alle facturen",
+			"ERROR_TITLE": "De factuur kon niet worden geladen"
 		}
 	},
 	"timeReports": {
@@ -7052,7 +7235,57 @@
 			"ROW_LABEL": "Tijdregistratiegegevens",
 			"ROW_DESCRIPTION": "Voeg tijdinvoeren toe vanuit een CSV-bestand.",
 			"OPEN": "Importeren uit CSV"
+		},
+		"mapping": {
+			"DESCRIPTION": "Kies de kolom van {fileName} die elk deel van een invoer bevat. Er wordt niets opgeslagen voordat je importeert.",
+			"HEADER_PART": "Deel van een invoer",
+			"HEADER_COLUMN": "Kolom van het bestand",
+			"HEADER_SAMPLE": "Eerste waarde",
+			"NOT_IN_FILE": "Niet in dit bestand",
+			"CHOOSE_COLUMN": "Kies een kolom",
+			"DATE_FORMAT": "Datumnotatie",
+			"CHOOSE_DATE_FORMAT": "Kies een notatie",
+			"MISSING": "Kies een kolom voor {parts} om verder te gaan.",
+			"DATE_FORMAT_MISSING": "Kies hoe de datums van dit bestand geschreven zijn om verder te gaan.",
+			"MIXED_DATES": "De datums in dit bestand zijn op twee manieren geschreven: {firstValue} op rij {firstRow}, {value} op rij {row}. Schrijf alle datums op dezelfde manier.",
+			"CONTINUE": "{count, plural, one {# rij controleren} other {# rijen controleren}}",
+			"FIRST_ROWS": "Eerste rijen van het bestand",
+			"EDIT": "Kolommen wijzigen",
+			"UNNAMED_COLUMN": "Kolom {position}",
+			"fields": {
+				"DATE": "Datum",
+				"START_TIME": "Starttijd",
+				"END_DATE": "Einddatum",
+				"END_TIME": "Eindtijd",
+				"DURATION": "Duur",
+				"PROJECT": "Project",
+				"TASK": "Taak",
+				"NOTES": "Notities",
+				"BILLABLE": "Factureerbaar",
+				"MEMBER": "Lid"
+			},
+			"orders": {
+				"YEAR_FIRST": "Jaar eerst",
+				"DAY_FIRST": "Dag eerst",
+				"MONTH_FIRST": "Maand eerst"
+			},
+			"problems": {
+				"DATE_UNREADABLE_DAY_FIRST": "De datum is niet leesbaar. Schrijf hem met de dag eerst, zoals {dayFirst}.",
+				"DATE_UNREADABLE_MONTH_FIRST": "De datum is niet leesbaar. Schrijf hem met de maand eerst, zoals {monthFirst}.",
+				"END_DATE_UNREADABLE": "De einddatum is niet leesbaar. Schrijf hem op dezelfde manier als de datum.",
+				"START_DAY_MISMATCH": "De datum en de starttijd geven twee verschillende dagen. Houd een van de twee.",
+				"END_DAY_MISMATCH": "De einddatum is niet de dag waarop deze invoer eindigt. Corrigeer de einddatum of de tijden.",
+				"MEMBER_NAME_UNKNOWN": "Geen lid van dit team heeft deze naam.",
+				"MEMBER_AMBIGUOUS": "{count, plural, one {# lid van dit team heeft deze naam.} other {# leden van dit team hebben deze naam. Geef het lid op met het e-mailadres.}}"
+			}
 		}
+	},
+	"recordSheet": {
+		"PREVIOUS": "Vorige",
+		"PREVIOUS_HINT": "Vorige (K)",
+		"NEXT": "Volgende",
+		"NEXT_HINT": "Volgende (J)",
+		"OPEN_PAGE": "Openen als volledige pagina"
 	},
 	"clientGrouping": {
 		"TITLE": "Tijd per klant",

@@ -13,7 +13,7 @@ import { PeriodPicker } from '@/core/components/dashboards/kit/period-picker';
 import { DASHBOARD_STACK } from '@/core/components/dashboards/kit/recipes';
 import { useActualExpectedReport } from '@/core/hooks/dashboards/actual-expected/use-actual-expected-report';
 import { formatPeriod, shiftPeriod } from '@/core/lib/utils/dashboard-period';
-import { PLAN_WEEK_START, type VarianceDay } from '@/core/lib/utils/dashboards/actual-expected';
+import { type VarianceDay } from '@/core/lib/utils/dashboards/actual-expected';
 import { isTrackingEnabledState } from '@/core/stores';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { useActualExpectedExportOptions } from './actual-expected-export';
@@ -21,6 +21,7 @@ import { ActualExpectedEmpty } from './actual-expected-table';
 import { AppliedPlanMemberFilters, PlanGroupingControl, PlanMemberFilterMenu } from './actual-expected-toolbar';
 import { PlanBulletRows } from './bullet-rows';
 import { PlanOverview } from './plan-overview';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 
 const PAGE_PATH = '/reports/actual-and-expected-hours';
 
@@ -28,6 +29,7 @@ const EMPTY_VARIANCE_DAYS: VarianceDay[] = [];
 
 export function ActualExpectedPage() {
 	const t = useTranslations();
+	const weekStart = useWorkspaceWeekStart();
 	const locale = useWorkspaceLocale();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const report = useActualExpectedReport({ unnamedLabel: t('timeActivity.UNNAMED_EMPLOYEE') });
@@ -83,7 +85,7 @@ export function ActualExpectedPage() {
 							<PeriodPicker
 								value={period}
 								onChange={setPeriod}
-								weekStartsOn={PLAN_WEEK_START}
+								weekStartsOn={weekStart}
 								locale={locale}
 							/>
 							<PlanMemberFilterMenu

@@ -3,6 +3,8 @@ import { resolve } from 'node:path';
 
 const MAIN_PAGES = resolve(__dirname, '../../app/[locale]/(main)');
 
+const PAGE_COMPONENTS = resolve(__dirname, '../../core/components/pages');
+
 /**
  * The pages whose figures and dates follow the workspace's formats. The formats come with the organisation, which
  * a page loads through its owner hook: without it a direct visit, or a reload, shows the reader's own formats.
@@ -15,12 +17,25 @@ const PAGES_WITH_WORKSPACE_FORMATS = [
 	'reports/weekly-limit/page.tsx',
 	'reports/payments-due/page.tsx',
 	'reports/project-budget/page.tsx',
-	'work-diary/page.tsx'
+	'work-diary/page.tsx',
+	'calendar/page.tsx',
+	'my-week/page.tsx',
+	'dashboard/team-dashboard/[teamId]/page.tsx',
+	'projects/[id]/page.tsx'
 ];
+
+/** Pages whose route file only renders a page component: the component loads the organisation instead. */
+const PAGE_COMPONENTS_WITH_WORKSPACE_FORMATS = ['projects/page-component.tsx', 'invoices/new/page-component.tsx'];
 
 describe('pages that follow the workspace formats', () => {
 	it.each(PAGES_WITH_WORKSPACE_FORMATS)('%s loads the organisation its formats come from', (page) => {
 		const source = readFileSync(resolve(MAIN_PAGES, page), 'utf8');
+
+		expect(source).toContain('useCurrentOrganizationOwner()');
+	});
+
+	it.each(PAGE_COMPONENTS_WITH_WORKSPACE_FORMATS)('%s loads the organisation its formats come from', (page) => {
+		const source = readFileSync(resolve(PAGE_COMPONENTS, page), 'utf8');
 
 		expect(source).toContain('useCurrentOrganizationOwner()');
 	});

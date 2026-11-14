@@ -40,6 +40,15 @@ jest.mock('@tanstack/react-query', () => ({
 	}
 }));
 jest.mock('@/core/services/client/api/tasks/task.service', () => ({ taskService: { getTasks: jest.fn() } }));
+const mockOrganizationProjects: {
+	organizationProjects: unknown[];
+	getOrganizationProjectsLoading?: boolean;
+	isOrganizationProjectsError?: boolean;
+	refetchOrganizationProjects?: jest.Mock;
+} = { organizationProjects: [] };
+jest.mock('@/core/hooks/organizations/projects/use-organization-projects-query', () => ({
+	useOrganizationProjectsQuery: () => mockOrganizationProjects
+}));
 jest.mock('@/core/hooks/auth/use-reactive-access-token-cookie', () => ({
 	useReactiveAccessTokenCookie: () => 'access-token'
 }));
@@ -677,5 +686,122 @@ describe('AddManualTimeModal overlap with time already recorded', () => {
 
 		expect(mockSaveAfterCheck).not.toHaveBeenCalled();
 		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+});
+
+describe('AddManualTimeModal billable status', () => {
+	const siteProject = { id: 'project-site', name: 'Site', billable: true };
+	const siteTask = {
+		id: 'task-site',
+		title: 'Site',
+		projectId: 'project-site',
+		teams: [{ id: 'team-a' }],
+		members: []
+	};
+	const otherSiteTask = { ...siteTask, id: 'task-site-2', title: 'Site, second task' };
+
+	beforeEach(() => {
+		mockAddManualTime.mockReset();
+		mockPickedTeamTasksQuery.data = undefined;
+		// The task's project is the organization's, not one of the team's
+		mockOrganizationProjects.organizationProjects = [siteProject];
+		mockAtomValues.activeTeamState = teamA;
+		mockAtomValues.activeTeamTaskState = null;
+		mockAtomValues.organizationTeamsState = [teamA, teamB];
+		mockAtomValues.tasksByTeamState = [siteTask, otherSiteTask];
+	});
+
+	afterEach(() => {
+		mockOrganizationProjects.organizationProjects = [];
+		mockOrganizationProjects.getOrganizationProjectsLoading = false;
+		mockOrganizationProjects.isOrganizationProjectsError = false;
+		mockOrganizationProjects.refetchOrganizationProjects = undefined;
+	});
+
+	function setBillableByHand(isBillable: boolean) {
+		const billable = screen.getByRole('switch');
+		const isChecked = billable.getAttribute('aria-checked') === 'true';
+		if (isChecked !== isBillable) {
+			fireEvent.click(billable);
+		}
+	}
+
+	function savedBillable() {
+		return mockAddManualTime.mock.calls[0]?.[0]?.isBillable;
+	}
+
+	it("starts from the billable default of the picked task's project", () => {
+		renderAddTimeDialog();
+
+		pickInSelect('task', 'task-site');
+		submitDialog();
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-site', isBillable: true })
+		);
+	});
+
+	it('keeps Billable as set by hand while other fields change', () => {
+		const { container } = renderAddTimeDialog();
+
+		pickInSelect('task', 'task-site');
+		setBillableByHand(false);
+		fillTimes(container);
+		submitDialog();
+
+		expect(savedBillable()).toBe(false);
+	});
+
+	it("starts again from the project's default when another task is picked", () => {
+		renderAddTimeDialog();
+
+		pickInSelect('task', 'task-site');
+		setBillableByHand(false);
+		pickInSelect('task', 'task-site-2');
+		submitDialog();
+
+		expect(savedBillable()).toBe(true);
+	});
+
+	it("waits for the entry's project before saving a Billable nobody set", () => {
+		mockOrganizationProjects.organizationProjects = [];
+		mockOrganizationProjects.getOrganizationProjectsLoading = true;
+		renderAddTimeDialog();
+
+		pickInSelect('task', 'task-site');
+		submitDialog();
+
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+		const save = screen.getByRole('button', { name: 'common.ADD_TIME' }) as HTMLButtonElement;
+		expect(save.disabled).toBe(true);
+		expect(screen.getByRole('status').textContent).toContain('dashboard.timesheets.BULK_EDIT.PROJECTS_LOADING');
+	});
+
+	it('saves a Billable set by hand while the projects still load', () => {
+		mockOrganizationProjects.organizationProjects = [];
+		mockOrganizationProjects.getOrganizationProjectsLoading = true;
+		renderAddTimeDialog();
+
+		pickInSelect('task', 'task-site');
+		setBillableByHand(true);
+		submitDialog();
+
+		expect(savedBillable()).toBe(true);
+	});
+
+	it('offers to load the projects again when they failed, and saves nothing until then', () => {
+		const refetch = jest.fn();
+		mockOrganizationProjects.organizationProjects = [];
+		mockOrganizationProjects.isOrganizationProjectsError = true;
+		mockOrganizationProjects.refetchOrganizationProjects = refetch;
+		renderAddTimeDialog();
+
+		pickInSelect('task', 'task-site');
+		submitDialog();
+		clickButton('manualTime.DURATION.RETRY');
+
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+		expect(screen.getByRole('alert').textContent).toContain('dashboard.timesheets.BULK_EDIT.PROJECTS_FAILED');
+		expect(refetch).toHaveBeenCalled();
 	});
 });

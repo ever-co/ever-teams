@@ -751,6 +751,9 @@ export const queryKeys = {
 		) => ['invoices', 'client', tenantId ?? null, organizationId ?? null, clientId ?? null] as const,
 		highestNumber: (tenantId: string | undefined | null) =>
 			['invoices', 'highest-number', tenantId ?? null] as const,
+		/** The drafts and the invoices still owed, read whole. */
+		live: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			['invoices', 'live', tenantId ?? null, organizationId ?? null] as const,
 		detail: (
 			tenantId: string | undefined | null,
 			organizationId: string | undefined | null,

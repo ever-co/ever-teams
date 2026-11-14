@@ -124,7 +124,13 @@ interface InvoiceActionsMenuProps {
 	download?: InvoiceMenuDownload;
 	/** The role may rebuild invoices from billable time: edit them, or void and replace them. */
 	canRevise?: boolean;
+	/** Actions offered beside the menu already, as the next step of an invoice's page: they leave the menu. */
+	omit?: ReadonlyArray<InvoiceMenuAction>;
+	/** `outline` beside the pill buttons of an invoice's header; `ghost` in a row. */
+	triggerVariant?: 'ghost' | 'outline';
 }
+
+const NO_OMITTED_ACTIONS: ReadonlyArray<InvoiceMenuAction> = [];
 
 /** What can be done with one invoice in its status; nothing is rendered when there is nothing. */
 export function InvoiceActionsMenu({
@@ -133,12 +139,15 @@ export function InvoiceActionsMenu({
 	isChanging,
 	onAction,
 	download,
-	canRevise = false
+	canRevise = false,
+	omit = NO_OMITTED_ACTIONS,
+	triggerVariant = 'ghost'
 }: Readonly<InvoiceActionsMenuProps>) {
 	const t = useTranslations();
 	const status = invoiceStatusOf(invoice.status);
 	const mayRevise = canRevise && isRevisableInvoice(invoice);
-	const actions = invoiceMenuActionsOf(status, mayRevise);
+	const statusActions = invoiceMenuActionsOf(status, mayRevise);
+	const actions = statusActions.filter((action) => !omit.includes(action));
 	const leadingActions = actions.filter((action) => !ENDING_ACTIONS.has(action));
 	const endingActions = actions.filter((action) => ENDING_ACTIONS.has(action));
 	const hasDownload = download !== undefined;
@@ -169,7 +178,7 @@ export function InvoiceActionsMenu({
 			<MenuButton
 				aria-label={t('invoices.actions.MENU_LABEL', { number: numberText })}
 				disabled={isBusy}
-				className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'text-muted-foreground')}
+				className={cn(buttonVariants({ variant: triggerVariant, size: 'icon' }), 'text-muted-foreground')}
 			>
 				{isBusy && <Loader className="animate-spin" />}
 				{!isBusy && <MoreHorizontal />}
