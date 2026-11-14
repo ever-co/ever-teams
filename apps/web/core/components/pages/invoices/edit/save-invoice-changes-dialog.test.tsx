@@ -243,6 +243,49 @@ describe('an edit that could not be saved', () => {
 		expect(mockPush).not.toHaveBeenCalled();
 	});
 
+	it('tells the page when nothing could be sent, the workspace having been switched in another tab', async () => {
+		const save = jest.fn().mockResolvedValue(null);
+		const onSaveFailed = jest.fn();
+		render(
+			<SaveInvoiceChangesDialog
+				open
+				invoice={invoiceOf({ save })}
+				onClose={jest.fn()}
+				onSaveFailed={onSaveFailed}
+			/>
+		);
+
+		fireEvent.click(screen.getByRole('button', { name: SAVE }));
+
+		await screen.findByRole('alert');
+		expect(onSaveFailed).toHaveBeenCalledTimes(1);
+	});
+
+	it.each([
+		['not put back', { status: 'notPutBack', lineCount: 0 }, 1],
+		['refused by the API', { status: 'notSaved' }, 1],
+		['saved', { status: 'saved' }, 0]
+	])(
+		'tells the page when a save did not go through (%s), so it reads the invoice once closed',
+		async (_case, outcome, calls) => {
+			const save = jest.fn().mockResolvedValue({ outcome, sending: null });
+			const onSaveFailed = jest.fn();
+			render(
+				<SaveInvoiceChangesDialog
+					open
+					invoice={invoiceOf({ save })}
+					onClose={jest.fn()}
+					onSaveFailed={onSaveFailed}
+				/>
+			);
+
+			fireEvent.click(screen.getByRole('button', { name: SAVE }));
+
+			await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
+			await waitFor(() => expect(onSaveFailed).toHaveBeenCalledTimes(calls));
+		}
+	);
+
 	it('reports no refusal of that kind when the API refused the edit', async () => {
 		const save = jest.fn().mockResolvedValue({ outcome: { status: 'notSaved' }, sending: null });
 		const onLockedRefusal = jest.fn();
