@@ -160,11 +160,15 @@ describe('useWorkspaceDataExport', () => {
 
 	it('reads only the ends of a large archive, and saves it when it is whole', async () => {
 		const archive = archiveOf({ filler: 200_000 });
+		const readWhole = jest.spyOn(archive, 'arrayBuffer');
+		const sliced = jest.spyOn(archive, 'slice');
 		mockDownloadArchive.mockResolvedValue(archive);
 		const { result } = renderExport(workspace);
 
 		await act(() => result.current.exportAll());
 
+		expect(readWhole).not.toHaveBeenCalled();
+		expect(sliced.mock.calls).toEqual([[0, 4], [archive.size - (22 + 0xffff)]]);
 		expect(mockDownloadBlob.mock.calls[0][0]).toBe(archive);
 		expect(result.current.isFailed).toBe(false);
 	});
