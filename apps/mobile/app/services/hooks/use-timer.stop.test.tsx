@@ -58,7 +58,12 @@ async function openTimerScreen() {
 		act(async () => {
 			await result.current.stopTimer();
 		});
-	return { pressStop };
+	/** The team and the task change at once: each change stops the timer. */
+	const stopTwiceAtOnce = () =>
+		act(async () => {
+			await Promise.all([result.current.stopTimer(), result.current.stopTimer()]);
+		});
+	return { pressStop, stopTwiceAtOnce };
 }
 
 beforeEach(() => {
@@ -149,6 +154,47 @@ describe('Stop pressed on the timer screen', () => {
 		await screen.pressStop();
 
 		expect(timerStore.localTimerStatus.running).toBe(false);
+		// Its status too: polled as running, the timer would be synced as if it still ran
+		expect(timerStore.timerStatus.running).toBe(false);
 		expect(showMessage).not.toHaveBeenCalled();
+	});
+
+	it('shows the timer stopped, and says nothing, when one of two stops asked at once fails after the other stopped it', async () => {
+		const screen = await openTimerScreen();
+		const isStop = (input: RequestInfo | URL) =>
+			typeof input === 'string' && input.includes('/timesheet/timer/stop');
+		// The first stop fails on the network, once the second one has stopped the timer
+		let stops = 0;
+		let secondAnswered!: () => void;
+		const second = new Promise<void>((resolve) => (secondAnswered = resolve));
+		global.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+			if (isStop(input) && ++stops === 1) {
+				await second;
+				throw new TypeError('Network request failed');
+			}
+			const response = await gauzy.fetch(input, init);
+			if (isStop(input)) secondAnswered();
+			return response;
+		}) as typeof fetch;
+
+		await screen.stopTwiceAtOnce();
+
+		expect(gauzy.timer()?.isRunning).toBe(false);
+		expect(timerStore.timerStatus.running).toBe(false);
+		expect(timerStore.localTimerStatus.running).toBe(false);
+		expect(timerStore.timerStatusFetchingState).toBe(false);
+		expect(showMessage).not.toHaveBeenCalled();
+	});
+
+	it('shows the timer running again, and says so once, when two stops asked at once both fail', async () => {
+		const screen = await openTimerScreen();
+		gauzy.breakStop('network');
+
+		await screen.stopTwiceAtOnce();
+
+		expect(gauzy.timer()?.isRunning).toBe(true);
+		expect(timerStore.localTimerStatus.running).toBe(true);
+		expect(timerStore.localTimerStatus.runnedDateTime).toBeGreaterThan(0);
+		expect(showMessage).toHaveBeenCalledTimes(1);
 	});
 });
