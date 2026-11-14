@@ -21,7 +21,6 @@ import {
 	timeLogIdsByLineOf
 } from '@/core/lib/utils/invoice-billed-time';
 import { periodOfDays, type BilledLinesRead } from '@/core/lib/utils/invoice-edit';
-import type { InvoicePeriodDays } from '@/core/lib/utils/invoices';
 import {
 	billableEntriesOf,
 	invoiceTimeOf,
@@ -30,6 +29,7 @@ import {
 	type EmployeeBillingRate,
 	type InvoiceGrouping,
 	type InvoiceLineNames,
+	type InvoicePeriodDays,
 	type NamedInvoiceLine,
 	type UnpricedTime
 } from '@/core/lib/utils/invoices';
