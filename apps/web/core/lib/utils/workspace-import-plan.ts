@@ -189,16 +189,16 @@ function plannedProjectsOf(input: WorkspacePlanInput): PlannedProject[] {
 			byKey.set(key, project);
 		}
 	}
-	const entryBillables = new Map<string, Set<boolean>>();
+	const billableValuesByKey = new Map<string, Set<boolean>>();
 	for (const row of input.entryRows) {
 		const key = nameKeyOf(row.projectName);
 		if (key === '') {
 			continue;
 		}
 		if (row.billable !== null) {
-			const billables = entryBillables.get(key) ?? new Set<boolean>();
-			billables.add(row.billable);
-			entryBillables.set(key, billables);
+			const values = billableValuesByKey.get(key) ?? new Set<boolean>();
+			values.add(row.billable);
+			billableValuesByKey.set(key, values);
 		}
 		const known = byKey.get(key);
 		const clientName = row.clientName || null;
@@ -213,12 +213,12 @@ function plannedProjectsOf(input: WorkspacePlanInput): PlannedProject[] {
 	// A project the projects file gives no billable default takes the one its entries agree on: none when they
 	// differ, or when none of them says
 	return [...byKey.entries()].map(([key, project]) => {
-		const billables = entryBillables.get(key);
-		const isAgreed = project.billable === null && billables?.size === 1;
+		const values = billableValuesByKey.get(key);
+		const isAgreed = project.billable === null && values?.size === 1;
 		if (!isAgreed) {
 			return project;
 		}
-		return { ...project, billable: [...billables][0] };
+		return { ...project, billable: [...values][0] };
 	});
 }
 

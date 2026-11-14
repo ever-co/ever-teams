@@ -1019,7 +1019,11 @@
 		"Ende",
 		"Kunde",
 		"Notiz",
-		"initech"
+		"initech",
+		"Amina",
+		"Diallo",
+		"Équipe",
+		"RRGGBB"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
