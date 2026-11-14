@@ -31,6 +31,8 @@ import {
 	exportRowsOf,
 	recordedActivityOf
 } from '@/core/lib/utils/dashboards/time-activity';
+import { ROUNDING_NOTE_KEYS } from '@/core/lib/utils/dashboards/time-activity-rounding';
+import type { DurationRoundingRule } from '@/core/lib/utils/duration-rounding';
 import { exportToXLSX } from '@/core/lib/utils/export-utils';
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
@@ -68,6 +70,8 @@ interface ExportContext {
 	figures: TimeActivityFigures;
 	filters: TimeActivityFilters;
 	filterOptions: TimeActivityFilterOptions;
+	/** The workspace rounds each entry: the rows already are, and the PDF says so. */
+	roundingRule: DurationRoundingRule | null;
 	locale: FormatLocale;
 	workspaceCurrency: string | null;
 	t: Translate;
@@ -513,10 +517,16 @@ function pdfContentOf(context: ExportContext): TimeActivityPdfContent {
 	const layout = pdfLayoutOf(context);
 	const title = t('dashboard.timeActivity.export.DOCUMENT_TITLE');
 	const generatedDate = dateFormatOf(locale, { dateStyle: 'long' }).format(new Date());
+	let generatedOn: string = t('dashboard.timeActivity.export.GENERATED_ON', { date: generatedDate });
+	const rule = context.roundingRule;
+	if (rule) {
+		const note = t(ROUNDING_NOTE_KEYS[rule.direction], { minutes: rule.intervalMinutes });
+		generatedOn = `${generatedOn} · ${note}`;
+	}
 	return {
 		title,
 		period: printedPeriodOf(context.period, locale),
-		generatedOn: t('dashboard.timeActivity.export.GENERATED_ON', { date: generatedDate }),
+		generatedOn,
 		filtersTitle: t('dashboard.timeActivity.export.FILTERS'),
 		filters: filterLinesOf(context),
 		summary: summaryOf(context),
@@ -555,8 +565,14 @@ export function TimeActivityExportMenu({
 	figures,
 	filters,
 	filterOptions,
+	roundingRule = null,
 	isDisabled
-}: Readonly<Omit<ExportContext, 'locale' | 'workspaceCurrency' | 't'> & { isDisabled: boolean }>) {
+}: Readonly<
+	Omit<ExportContext, 'locale' | 'workspaceCurrency' | 't' | 'roundingRule'> & {
+		roundingRule?: DurationRoundingRule | null;
+		isDisabled: boolean;
+	}
+>) {
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
 	const workspaceCurrency = useAtomValue(currentOrganizationState)?.currency ?? null;
@@ -572,6 +588,7 @@ export function TimeActivityExportMenu({
 			figures,
 			filters,
 			filterOptions,
+			roundingRule,
 			locale,
 			workspaceCurrency,
 			t
@@ -607,6 +624,7 @@ export function TimeActivityExportMenu({
 		ownEmployeeId,
 		period,
 		report,
+		roundingRule,
 		t,
 		workspaceCurrency
 	]);

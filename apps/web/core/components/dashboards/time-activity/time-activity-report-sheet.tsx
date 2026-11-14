@@ -7,6 +7,7 @@ import type { DayBarDatum } from '@/core/components/dashboards/kit/day-bars-char
 import { DASHBOARD_SURFACE, SECTION_TITLE } from '@/core/components/dashboards/kit/recipes';
 import type { TimeActivityFigures } from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
 import { hasActivityIn } from '@/core/lib/utils/dashboards/time-activity';
+import type { DurationRoundingRule } from '@/core/lib/utils/duration-rounding';
 import { type AreaChartLabels, TimeActivityAreaChart, TimeActivityAreaChartSkeleton } from './time-activity-area-chart';
 import { TimeActivitySummaryBand, TimeActivitySummaryBandSkeleton } from './time-activity-summary-band';
 
@@ -89,7 +90,8 @@ export function TimeActivityReportSheet({
 	isCountsError,
 	onRetryDaily,
 	onRetryCounts,
-	exportSlot
+	exportSlot,
+	roundingRule = null
 }: Readonly<{
 	figures: TimeActivityFigures;
 	chartDays: DayBarDatum[];
@@ -101,6 +103,7 @@ export function TimeActivityReportSheet({
 	onRetryDaily: () => void;
 	onRetryCounts: () => void;
 	exportSlot: ReactNode;
+	roundingRule?: DurationRoundingRule | null;
 }>) {
 	const t = useTranslations();
 	const labels = useChartLabels();
@@ -119,6 +122,7 @@ export function TimeActivityReportSheet({
 				isManager={isManager}
 				isLoading={isLoading}
 				actions={exportSlot}
+				roundingRule={roundingRule}
 			/>
 			{isCountsError && <DashboardErrorNotice onRetry={onRetryCounts} className="mx-2 mb-2" />}
 			<div className={CHART_PART}>
