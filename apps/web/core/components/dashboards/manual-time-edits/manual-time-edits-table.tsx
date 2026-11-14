@@ -89,6 +89,14 @@ export interface GroupSelection {
 	isPartial: boolean;
 }
 
+/** A deleted entry is only read: it can be neither edited nor picked. */
+export function canEditEntry(entry: ManualTimeEntry, permissions: TimesheetPermissions) {
+	if (entry.isDeleted) {
+		return false;
+	}
+	return canEditLog(entry.log, permissions);
+}
+
 export function groupSelectionOf(
 	group: EditsGroup,
 	selectedIdSet: ReadonlySet<string>,
@@ -97,7 +105,7 @@ export function groupSelectionOf(
 	const selectableIds: string[] = [];
 	const selectedEntries: ManualTimeEntry[] = [];
 	for (const entry of group.entries) {
-		const canEdit = canEditLog(entry.log, permissions);
+		const canEdit = canEditEntry(entry, permissions);
 		if (!canEdit) {
 			continue;
 		}
@@ -227,7 +235,7 @@ const EditsGroupBlock = memo(function EditsGroupBlock({
 						entry={entry}
 						grouping={grouping}
 						isSelected={selectedIdSet.has(entry.key)}
-						canEdit={canEditLog(entry.log, permissions)}
+						canEdit={canEditEntry(entry, permissions)}
 						formatters={formatters}
 						handlers={handlers}
 					/>

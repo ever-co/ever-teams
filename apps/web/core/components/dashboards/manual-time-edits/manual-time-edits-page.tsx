@@ -61,7 +61,7 @@ export function ManualTimeEditsPage() {
 	const report = useManualTimeEditsReport({ unnamedLabel: t('timeActivity.UNNAMED_EMPLOYEE') });
 	const dialogs = useTimesheetDialogs();
 	const { deleteLogs, isDeleting } = useTimesheetLogActions();
-	const categories = useEditsFilterCategories(report.members);
+	const categories = useEditsFilterCategories(report.members, report.hasChangeKinds);
 	const [isAddTimeOpen, setIsAddTimeOpen] = useState(false);
 	const hasOpenedAddTime = useHasBeenOpen(isAddTimeOpen);
 
@@ -202,6 +202,7 @@ export function ManualTimeEditsPage() {
 							members={report.members}
 							selectedIdSet={report.selectedIdSet}
 							permissions={report.permissions}
+							historyStatus={report.historyStatus}
 							formatters={formatters}
 							handlers={handlers}
 							isLoading={report.isLoading}
