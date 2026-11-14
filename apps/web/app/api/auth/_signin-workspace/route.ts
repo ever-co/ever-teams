@@ -13,6 +13,7 @@ import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { finishSignupWorkspace } from '@/core/services/server/finish-signup';
 import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
+import { respondWithWorkspaceSession } from '@/core/services/server/workspace-session';
 
 export async function POST(req: Request) {
 	try {
@@ -150,60 +151,38 @@ export async function POST(req: Request) {
 		const { data } = await signInWorkspaceRequest({ email, token, defaultTeamId, lastTeamId });
 
 		/**
-		 * Get the first team from first organization
+		 * The organization the token names, with its session cookies (shared with the two-factor completion)
 		 */
-		const tenantId = data.user?.tenantId || '';
-		const access_token = data.token;
-		const userId = data.user?.id;
-
-		// An account with no tenant yet has no organization to list (and the list needs a tenant)
-		const organizations = tenantId
-			? (await getUserOrganizationsRequest({ tenantId, userId }, access_token)).data
-			: undefined;
-
-		const organization = pickTokenOrganization(organizations?.items, access_token);
-
-		if (!organization) {
-			// An e-mail sign-up confirmed after the register route answered "check your e-mail" has no workspace yet:
-			// it is set up now (an account in a tenant it does not own is left alone and refused below)
-			const setupResponse = NextResponse.json({ loginResponse: data }, { status: 200 });
-			const setup = await finishSignupWorkspace({
-				req,
-				response: setupResponse,
-				email,
-				workspaceToken: token,
-				userId
-			});
-			if (setup === 'ok') return setupResponse;
-
-			return NextResponse.json(
-				{
-					errors: {
-						email: `Your account is not yet ready to be used on the ${APP_NAME} Platform`
-					}
-				},
-				{ status: 400 }
-			);
+		const sessionResponse = await respondWithWorkspaceSession({
+			req,
+			loginResponse: data,
+			teamId: body.teamId,
+			body: { loginResponse: data }
+		});
+		if (sessionResponse) {
+			return sessionResponse;
 		}
 
-		const res = NextResponse.json({ loginResponse: data });
-		setAuthCookies(
-			{
-				access_token: data.token,
-				refresh_token: {
-					token: data.refresh_token
-				},
-				teamId: body.teamId,
-				tenantId,
-				organizationId: organization?.organizationId || '',
-				languageId: 'en', // TODO: not sure what should be here
-				noTeamPopup: true,
-				userId
-			},
-			{ req, res }
-		);
+		// An e-mail sign-up confirmed after the register route answered "check your e-mail" has no workspace yet:
+		// it is set up now (an account in a tenant it does not own is left alone and refused below)
+		const setupResponse = NextResponse.json({ loginResponse: data }, { status: 200 });
+		const setup = await finishSignupWorkspace({
+			req,
+			response: setupResponse,
+			email,
+			workspaceToken: token,
+			userId: data.user?.id
+		});
+		if (setup === 'ok') return setupResponse;
 
-		return res;
+		return NextResponse.json(
+			{
+				errors: {
+					email: `Your account is not yet ready to be used on the ${APP_NAME} Platform`
+				}
+			},
+			{ status: 400 }
+		);
 	} catch (err) {
 		console.log({ err });
 		return NextResponse.json(
