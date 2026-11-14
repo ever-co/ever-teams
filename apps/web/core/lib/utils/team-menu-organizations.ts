@@ -139,6 +139,21 @@ export async function readTeamMenuOrganizations<TTeam extends ITeamMenuTeam>({
 }
 
 /**
+ * The teams of the menu's first group: in proxy mode the app's team list holds every organization's teams of a
+ * workspace admin, so the teams of an organization the menu lists in its own group are left out of the first one.
+ */
+export function teamsOutsideOtherOrganizations<TTeam extends ITeamMenuTeam>(
+	teams: readonly TTeam[],
+	otherOrganizations: readonly { id: string }[]
+): TTeam[] {
+	if (otherOrganizations.length === 0) {
+		return [...teams];
+	}
+	const otherIds = new Set(otherOrganizations.map((organization) => organization.id));
+	return teams.filter((team) => !team.organizationId || !otherIds.has(team.organizationId));
+}
+
+/**
  * The team to open in an organization just switched to: the first of `preferredTeamIds` that is one of its teams
  * (the team last opened there, then the person's last team), else its first team; null when it has none.
  */
