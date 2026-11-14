@@ -7,41 +7,18 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { Lock } from '@/core/components/icons';
 import { SettingsPage } from '@/core/components/settings/kit/settings-page';
 import { TeamSettingsGate } from '@/core/components/settings/kit/team-settings-gate';
-import { type TimeImport, useTimeImport } from '@/core/hooks/timesheet/use-time-import';
+import { useTimeImport } from '@/core/hooks/timesheet/use-time-import';
 import { type TimeImportAccess, useTimeImportAccess } from '@/core/hooks/timesheet/use-time-import-access';
 import { downloadCsv } from '@/core/lib/utils/dashboard-export';
-import {
-	TIME_IMPORT_TEMPLATE_FILE_NAME,
-	timeImportReportCsvColumnsOf,
-	timeImportReportFileNameOf,
-	timeImportTemplateCsvColumnsOf,
-	type TimeImportReportLine
-} from '@/core/lib/utils/time-import-report';
-import { rowStatusOf } from '@/core/lib/utils/time-import-rows';
+import { TIME_IMPORT_TEMPLATE_FILE_NAME, timeImportTemplateCsvColumnsOf } from '@/core/lib/utils/time-import-report';
 import { TimeImportChecking } from './time-import-checking';
 import { TimeImportColumnsGuide } from './time-import-columns-guide';
 import { TimeImportColumnsStep } from './time-import-columns-step';
-import { type TimeImportCopy, useTimeImportCopy } from './time-import-copy';
+import { useTimeImportCopy } from './time-import-copy';
 import { TimeImportResult } from './time-import-result';
 import { TimeImportSettingsSkeleton } from './time-import-settings-skeleton';
 import { TimeImportUpload } from './time-import-upload';
-
-const REASON_SEPARATOR = ' ';
-
-function reportLinesOf(timeImport: TimeImport, copy: TimeImportCopy): TimeImportReportLine[] {
-	const { rows, run, report } = timeImport;
-	const refusedRow = report?.refusal?.row ?? null;
-	return rows.map((row) => {
-		const status = rowStatusOf(row, run);
-		const reasons = copy.reasonsOf(row, run, refusedRow);
-		return {
-			row: row.row,
-			cells: row.cells,
-			status: copy.statusLabel(status),
-			reason: reasons.join(REASON_SEPARATOR)
-		};
-	});
-}
+import { useTimeImportReportDownload } from './use-time-import-report-download';
 
 function TimeImportFlow({ access }: Readonly<{ access: TimeImportAccess }>) {
 	const copy = useTimeImportCopy();
@@ -54,13 +31,7 @@ function TimeImportFlow({ access }: Readonly<{ access: TimeImportAccess }>) {
 		downloadCsv([], columns, TIME_IMPORT_TEMPLATE_FILE_NAME);
 	}, [canImportForOthers]);
 
-	const downloadReport = useCallback(() => {
-		const namesMembers = timeImport.rows.some((row) => row.cells.memberEmail !== '');
-		const givesEndDates = timeImport.rows.some((row) => row.cells.endDate !== '');
-		const columns = timeImportReportCsvColumnsOf(canImportForOthers || namesMembers, givesEndDates);
-		const fileName = timeImportReportFileNameOf(new Date());
-		downloadCsv(reportLinesOf(timeImport, copy), columns, fileName);
-	}, [canImportForOthers, copy, timeImport]);
+	const downloadReport = useTimeImportReportDownload(timeImport, copy, canImportForOthers);
 
 	const isIdle = stage === 'idle';
 	const isChecking = stage === 'checking';
