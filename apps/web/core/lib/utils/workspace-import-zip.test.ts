@@ -7,6 +7,8 @@ interface FileSpec {
 	deflate?: boolean;
 	flags?: number;
 	method?: number;
+	/** The unpacked size the archive claims, when it lies about it. */
+	declaredSize?: number;
 }
 
 /** A minimal archive writer for the tests: local headers, central directory, end record (CRC left at 0). */
@@ -27,19 +29,20 @@ function zipOf(files: ReadonlyArray<FileSpec>): ArrayBuffer {
 		}
 		const method = file.method ?? defaultMethod;
 		const flags = file.flags ?? 0;
+		const declaredSize = file.declaredSize ?? content.byteLength;
 		const local = new DataView(new ArrayBuffer(30));
 		local.setUint32(0, 0x04034b50, true);
 		local.setUint16(6, flags, true);
 		local.setUint16(8, method, true);
 		local.setUint32(18, packed.byteLength, true);
-		local.setUint32(22, content.byteLength, true);
+		local.setUint32(22, declaredSize, true);
 		local.setUint16(26, name.byteLength, true);
 		const central = new DataView(new ArrayBuffer(46));
 		central.setUint32(0, 0x02014b50, true);
 		central.setUint16(8, flags, true);
 		central.setUint16(10, method, true);
 		central.setUint32(20, packed.byteLength, true);
-		central.setUint32(24, content.byteLength, true);
+		central.setUint32(24, declaredSize, true);
 		central.setUint16(28, name.byteLength, true);
 		central.setUint32(42, offset, true);
 		chunks.push(new Uint8Array(local.buffer), name, packed);
@@ -97,5 +100,11 @@ describe('zipEntriesOf', () => {
 		expect(textsOf(zipOf([{ name: 'a.csv', text: 'x', flags: 1 }]))).toBe('encrypted');
 		expect(textsOf(zipOf([{ name: 'a.csv', text: 'x', method: 12 }]))).toBe('unsupported');
 		expect(textsOf(new TextEncoder().encode('date,start\n2026-10-01,09:00\n').buffer)).toBe('notZip');
+	});
+
+	it('stops unpacking an entry that unpacks past what the archive may hold, whatever size it claims', () => {
+		const flood = 'a'.repeat(21 * 1024 * 1024);
+
+		expect(textsOf(zipOf([{ name: 'time.csv', text: flood, deflate: true, declaredSize: 10 }]))).toBe('tooLarge');
 	});
 });

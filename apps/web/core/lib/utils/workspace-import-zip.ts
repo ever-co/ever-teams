@@ -1,4 +1,4 @@
-import { inflateRaw } from 'pako';
+import { Inflate } from 'pako';
 
 /** What one archive may unpack to: an export of a few years of a team fits, a crafted archive does not fill memory. */
 export const WORKSPACE_ZIP_MAX_BYTES = 20 * 1024 * 1024;
@@ -12,6 +12,7 @@ const ZIP64_MARKER = 0xffffffff;
 const ENCRYPTED_FLAG = 0x1;
 const STORED = 0;
 const DEFLATED = 8;
+const INFLATE_CHUNK_BYTES = 64 * 1024;
 
 export interface ZipEntry {
 	/** The path inside the archive, with forward slashes. */
@@ -54,12 +55,41 @@ function isSkipped(name: string): boolean {
 	return isFolder || isHidden || isSystemFolder;
 }
 
-function contentOf(bytes: Uint8Array, method: number, size: number): Uint8Array {
+/**
+ * Unpacks a deflated entry chunk by chunk and stops as soon as it passes `budget`: the size an archive claims is not
+ * trusted, a crafted entry can claim a few bytes and unpack to gigabytes.
+ */
+function inflateWithin(packed: Uint8Array, budget: number): Uint8Array {
+	const inflator = new Inflate({ raw: true, chunkSize: INFLATE_CHUNK_BYTES });
+	const chunks: Uint8Array[] = [];
+	let total = 0;
+	inflator.onData = (chunk) => {
+		const bytes = chunk as Uint8Array;
+		total += bytes.byteLength;
+		if (total > budget) {
+			throw new ZipRefusal('tooLarge');
+		}
+		chunks.push(bytes);
+	};
+	inflator.push(packed, true);
+	if (inflator.err) {
+		throw new ZipRefusal('notZip');
+	}
+	const content = new Uint8Array(total);
+	let position = 0;
+	for (const chunk of chunks) {
+		content.set(chunk, position);
+		position += chunk.byteLength;
+	}
+	return content;
+}
+
+function contentOf(bytes: Uint8Array, method: number, size: number, budget: number): Uint8Array {
 	if (method === STORED) {
 		return bytes;
 	}
 	if (method === DEFLATED) {
-		const content = inflateRaw(bytes);
+		const content = inflateWithin(bytes, budget);
 		if (content.byteLength !== size) {
 			throw new ZipRefusal('notZip');
 		}
@@ -129,7 +159,8 @@ function readEntries(buffer: ArrayBuffer): ZipEntry[] {
 		const localExtraLength = view.getUint16(localOffset + 28, true);
 		const dataStart = localOffset + 30 + localNameLength + localExtraLength;
 		const packed = bytes.subarray(dataStart, dataStart + packedSize);
-		entries.push({ name, bytes: contentOf(packed, method, size) });
+		const budget = WORKSPACE_ZIP_MAX_BYTES - (unpackedBytes - size);
+		entries.push({ name, bytes: contentOf(packed, method, size, budget) });
 	}
 	return entries;
 }
