@@ -133,15 +133,18 @@ class AuthService extends APIService {
 			logInDev('[AuthService] Token refreshed successfully via API route');
 			return result;
 		} catch (error: any) {
+			// The API service rejects with an ApiErrorService, which keeps the HTTP status in `statusCode`: without it a
+			// refused refresh token (401) was not told apart from a renewal that could not be made
+			const status = error?.response?.status || error?.status || error?.statusCode;
 			console.error('[AuthService] Token refresh failed:', {
-				status: error?.response?.status || error?.status,
+				status,
 				message: error?.message,
 				hasRefreshToken: !!refresh_token
 			});
 
 			// Re-throw with more context
 			const enhancedError = new Error(`Token refresh failed: ${error?.message || 'Unknown error'}`);
-			(enhancedError as any).status = error?.response?.status || error?.status;
+			(enhancedError as any).status = status;
 			(enhancedError as any).response = error?.response;
 			throw enhancedError;
 		}

@@ -41,10 +41,6 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	const queryClient = useQueryClient();
 	const t = useTranslations();
 
-	// Track consecutive refresh failures for smarter error handling
-	const consecutiveFailures = useRef(0);
-	const maxConsecutiveFailures = 3; // Allow 3 failures before logout
-
 	const { isTeamManager } = useIsMemberManager(user);
 
 	const refreshTokenMutation = useMutation({
@@ -53,13 +49,10 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 			return await authService.refreshToken();
 		},
 		onSuccess: () => {
-			consecutiveFailures.current = 0;
 			logInDev('[Auth] ✅ Token refreshed successfully');
 			queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
 		},
 		onError: (error: unknown) => {
-			consecutiveFailures.current += 1;
-
 			const isUnauthorized = isUnauthorizedError(error);
 
 			// Use the utility function for consistent 401 detection
@@ -76,24 +69,9 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 				return;
 			}
 
-			// Network or server errors - allow retries
-			if (consecutiveFailures.current >= maxConsecutiveFailures) {
-				const details = {
-					consecutiveFailures: consecutiveFailures.current,
-					maxConsecutiveFailures,
-					error: (error as Error)?.message,
-					stack: (error as Error)?.stack,
-					context: 'useAuthenticateUser -> refreshTokenMutation (max retries)'
-				};
-				logErrorInDev(`[Auth] ❌ Refresh failed ${maxConsecutiveFailures} times - logging out`, details);
-				toast.error(t('toasts.auth.SESSION_NOT_RENEWED'));
-				handleUnauthorized(DisconnectionReason.TEMPORARY_ERROR, details);
-			} else {
-				console.warn(
-					`[Auth] ⚠️ Refresh attempt ${consecutiveFailures.current}/${maxConsecutiveFailures} failed:`,
-					(error as Error)?.message
-				);
-			}
+			// A renewal that could not be made (no network, a server error) says nothing about the session: it is
+			// kept, however many times in a row that happens. Only a refused refresh token ends it, above.
+			console.warn('[Auth] ⚠️ Token refresh failed:', (error as Error)?.message);
 		},
 		retry: 1,
 		gcTime: 0
