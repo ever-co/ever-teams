@@ -3,6 +3,10 @@ import { describe, it } from 'node:test';
 
 import { planRefusalOf } from './plan-rule.ts';
 
+// West of UTC, so that a plan stored at the instant it was made has another day here than in UTC. Run in UTC, the
+// test of that case could not tell the person's day from the UTC one.
+process.env.TZ = 'America/New_York';
+
 const plan = (date: string, taskIds: string[]) => ({ date, tasks: taskIds.map((id) => ({ id })) });
 
 describe('planRefusalOf', () => {
@@ -45,11 +49,13 @@ describe('planRefusalOf, the day of a plan', () => {
 	});
 
 	it("reads an older plan, stored at the instant it was made, in the person's own day, as the web does", () => {
-		// An instant whose day here differs from its UTC day: just after UTC midnight west of UTC, just before east of it
-		const isWestOfUtc = new Date('2026-11-14T12:00:00.000Z').getTimezoneOffset() > 0;
-		const madeAt = isWestOfUtc ? '2026-11-15T01:00:00.000Z' : '2026-11-14T23:30:00.000Z';
-		const localDay = new Date(madeAt).toLocaleDateString('en-CA');
-		const plans = [{ date: madeAt, tasks: [{ id: 't1' }] }];
-		assert.equal(planRefusalOf({ teamRequiresPlan: true, plans, taskId: 't1', planDay: localDay }), null);
+		// 01:00 UTC on November 15 is 20:00 on November 14 in New York
+		const plans = [{ date: '2026-11-15T01:00:00.000Z', tasks: [{ id: 't1' }] }];
+		assert.equal(new Date(plans[0].date).getTimezoneOffset(), 300);
+		assert.equal(planRefusalOf({ teamRequiresPlan: true, plans, taskId: 't1', planDay: '2026-11-14' }), null);
+		assert.equal(
+			planRefusalOf({ teamRequiresPlan: true, plans, taskId: 't1', planDay: '2026-11-15' }),
+			'DAILY_PLAN_REQUIRED'
+		);
 	});
 });
