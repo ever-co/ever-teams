@@ -5750,6 +5750,10 @@
 			"TEXT": "El inicio de sesión no se completó. Vuelve a intentarlo o inicia sesión con tu correo.",
 			"RETRY": "Volver al inicio de sesión",
 			"CODE": "Código de error: {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Tu sesión terminó",
+			"TEXT": "Vuelve a iniciar sesión para continuar."
 		}
 	},
 	"taskViews": {

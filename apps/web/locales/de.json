@@ -5750,6 +5750,10 @@
 			"TEXT": "Die Anmeldung wurde nicht abgeschlossen. Versuch es erneut oder melde dich mit deiner E-Mail an.",
 			"RETRY": "Zurück zur Anmeldung",
 			"CODE": "Fehlercode: {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Deine Sitzung ist abgelaufen",
+			"TEXT": "Melde dich erneut an, um fortzufahren."
 		}
 	},
 	"taskViews": {

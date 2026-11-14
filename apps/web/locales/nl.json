@@ -5750,6 +5750,10 @@
 			"TEXT": "Het aanmelden is niet voltooid. Probeer het opnieuw of meld je aan met je e-mail.",
 			"RETRY": "Terug naar aanmelden",
 			"CODE": "Foutcode: {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Je sessie is verlopen",
+			"TEXT": "Log opnieuw in om verder te gaan."
 		}
 	},
 	"taskViews": {

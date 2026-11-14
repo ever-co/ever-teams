@@ -6,6 +6,9 @@
  *
  * Three failed renewals in a row used to sign the person out, with "Your session could not be renewed", whatever
  * made them fail.
+ *
+ * A session the app ends leaves a note for the sign-in page, which says why the person is on it. A sign-out the
+ * person asked for leaves none.
  */
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -36,6 +39,7 @@ jest.mock('@/core/hooks/organizations/teams/use-active-team-member', () => ({
 	useActiveTeamMemberUserId: () => undefined
 }));
 
+import { clearSessionEndedNotice, storedSessionEndedNotice } from '@/core/lib/auth/session-ended-notice';
 import { getRefreshTokenCookie } from '@/core/lib/helpers/cookies';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { userService } from '@/core/services/client/api/users/user.service';
@@ -62,7 +66,11 @@ async function openSignedInPage() {
 		act(async () => {
 			await result.current.refreshToken().catch(() => undefined);
 		});
-	return { renew };
+	const signOut = () =>
+		act(async () => {
+			await result.current.logOut();
+		});
+	return { renew, signOut };
 }
 
 beforeEach(() => {
@@ -70,7 +78,10 @@ beforeEach(() => {
 	page = openFakeGauzyPage([authService, userService]);
 });
 
-afterEach(() => page.close());
+afterEach(() => {
+	clearSessionEndedNotice();
+	page.close();
+});
 
 describe('a renewal the page asks for', () => {
 	it.each([
@@ -103,5 +114,19 @@ describe('a renewal the page asks for', () => {
 		expect(mockToastError).toHaveBeenCalledWith('toasts.auth.SESSION_ENDED');
 		expect(page.sentToSignIn).toHaveBeenCalledTimes(1);
 		expect(getRefreshTokenCookie()).toBeFalsy();
+		// The toast goes away with the page: the sign-in page is told too
+		expect(storedSessionEndedNotice()).not.toBeNull();
+	});
+});
+
+describe('a sign-out the person asked for', () => {
+	it('leaves no note for the sign-in page: the person knows why they are on it', async () => {
+		const { signOut } = await openSignedInPage();
+
+		await signOut();
+
+		expect(page.leftAfterSignOut).toHaveBeenCalledTimes(1);
+		expect(getRefreshTokenCookie()).toBeFalsy();
+		expect(storedSessionEndedNotice()).toBeNull();
 	});
 });

@@ -5750,6 +5750,10 @@
 			"TEXT": "L'accesso non è stato completato. Riprova oppure accedi con la tua e-mail.",
 			"RETRY": "Torna all'accesso",
 			"CODE": "Codice di errore: {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "La sessione è scaduta",
+			"TEXT": "Accedi di nuovo per continuare."
 		}
 	},
 	"taskViews": {

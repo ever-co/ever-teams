@@ -5750,6 +5750,10 @@
 			"TEXT": "La connexion n'a pas abouti. Réessayez, ou connectez-vous avec votre e-mail.",
 			"RETRY": "Retour à la connexion",
 			"CODE": "Code d'erreur : {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Votre session a expiré",
+			"TEXT": "Reconnectez-vous pour continuer."
 		}
 	},
 	"taskViews": {

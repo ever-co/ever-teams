@@ -47,10 +47,11 @@ export function openFakeGauzyPage(
 	}
 
 	const sentToSignIn = jest.fn();
+	const leftAfterSignOut = jest.fn();
 	const openAt = (pathname: string) => {
 		Object.defineProperty(window, 'location', {
 			configurable: true,
-			value: { ...originalLocation, pathname, assign: sentToSignIn }
+			value: { ...originalLocation, pathname, assign: sentToSignIn, replace: leftAfterSignOut }
 		});
 	};
 	openAt('/');
@@ -72,6 +73,8 @@ export function openFakeGauzyPage(
 		gauzy,
 		/** The calls that sent the page to the sign-in page. */
 		sentToSignIn,
+		/** The calls that left the page after a sign-out the person asked for. */
+		leftAfterSignOut,
 		/** The page the person is on. */
 		openAt,
 		keepInCookies,

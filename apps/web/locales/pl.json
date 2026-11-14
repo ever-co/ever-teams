@@ -5750,6 +5750,10 @@
 			"TEXT": "Logowanie nie zostało ukończone. Spróbuj ponownie albo zaloguj się przez e-mail.",
 			"RETRY": "Wróć do logowania",
 			"CODE": "Kod błędu: {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Twoja sesja wygasła",
+			"TEXT": "Zaloguj się ponownie, aby kontynuować."
 		}
 	},
 	"taskViews": {

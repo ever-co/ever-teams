@@ -5750,6 +5750,10 @@
 			"TEXT": "The sign-in did not complete. Try again, or sign in with your e-mail.",
 			"RETRY": "Back to sign in",
 			"CODE": "Error code: {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Your session has ended",
+			"TEXT": "Sign in again to continue."
 		}
 	},
 	"taskViews": {

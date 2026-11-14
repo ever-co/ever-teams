@@ -5750,6 +5750,10 @@
 			"TEXT": "O início de sessão não foi concluído. Tente novamente ou entre com o seu e-mail.",
 			"RETRY": "Voltar ao início de sessão",
 			"CODE": "Código de erro: {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Sua sessão terminou",
+			"TEXT": "Entre de novo para continuar."
 		}
 	},
 	"taskViews": {
