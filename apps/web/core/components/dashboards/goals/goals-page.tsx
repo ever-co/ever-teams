@@ -262,7 +262,8 @@ function GoalsBody({
 			</DashboardSection>
 		);
 	}
-	if (page.isMemberUnknown) {
+	// Personal goals need a member profile; the progress of the team someone manages (or acts for) does not
+	if (page.isMemberUnknown && !page.managesTeam) {
 		return (
 			<DashboardSection>
 				<BlockEmptyMessage
@@ -279,6 +280,14 @@ function GoalsBody({
 		return <GoalsBodySkeleton />;
 	}
 	const showsTeam = page.managesTeam;
+	if (page.isMemberUnknown) {
+		return (
+			<>
+				<TeamGoals page={page} handlers={handlers} />
+				<ArchivedGoals page={page} onRestore={onRestore} />
+			</>
+		);
+	}
 	if (!page.hasAnyGoal && !showsTeam) {
 		return (
 			<>
@@ -359,6 +368,8 @@ export function GoalsPage() {
 	const onRestore = useCallback((goal: ITimeGoal) => void restoreGoal(goal), [restoreGoal]);
 
 	const showsControls = isAvailable && !page.isMemberUnknown;
+	// Someone without a member profile who manages the team still picks the period of its progress
+	const showsPeriods = isAvailable && (!page.isMemberUnknown || page.managesTeam);
 	let editedGoal: ITimeGoal | null = null;
 	if (dialog?.mode === 'edit') {
 		editedGoal = dialog.goal;
@@ -382,7 +393,7 @@ export function GoalsPage() {
 					isUpdating={page.isUpdating}
 					updatingLabel={t('dashboard.goals.UPDATING')}
 					actions={showsControls && <NewGoalButton onClick={openCreate} />}
-					controls={showsControls && <PeriodSwitch page={page} />}
+					controls={showsPeriods && <PeriodSwitch page={page} />}
 				/>
 			}
 		>

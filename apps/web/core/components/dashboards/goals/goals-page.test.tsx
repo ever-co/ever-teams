@@ -194,6 +194,43 @@ describe('GoalsPage', () => {
 		expect(within(paul).getByText('dashboard.goals.FIGURE:{"tracked":"3h 0m","target":"20h"}')).toBeTruthy();
 	});
 
+	it('shows the team’s progress to a manager without a member profile, and no personal goals', () => {
+		const paulRow = rowOf(
+			goalOf({ id: 'support', name: 'Support', employeeId: 'paul' }),
+			3 * HOUR,
+			ETimeGoalState.IN_PROGRESS,
+			'paul'
+		);
+		mockPage = pageOf({
+			isMemberUnknown: true,
+			ownRows: [],
+			hasAnyGoal: false,
+			managesTeam: true,
+			team: {
+				groups: [{ person: { employeeId: 'paul', name: 'Paul', imageUrl: null }, rows: [paulRow] }],
+				isLoading: false,
+				isError: false,
+				retry: jest.fn()
+			}
+		});
+		render(<GoalsPage />);
+
+		const team = screen.getByRole('region', { name: 'dashboard.goals.TEAM_GOALS' });
+		expect(within(team).getByText('Support')).toBeTruthy();
+		expect(screen.queryByText('dashboard.calendar.NO_MEMBER_TITLE')).toBeNull();
+		expect(screen.queryByRole('region', { name: 'dashboard.goals.YOUR_GOALS' })).toBeNull();
+		expect(screen.getByRole('tablist', { name: 'dashboard.goals.PERIOD_LABEL' })).toBeTruthy();
+		expect(screen.queryByRole('button', { name: 'dashboard.goals.NEW_GOAL' })).toBeNull();
+	});
+
+	it('tells someone without a member profile who manages no team why there is nothing', () => {
+		mockPage = pageOf({ isMemberUnknown: true, ownRows: [], hasAnyGoal: false });
+		render(<GoalsPage />);
+
+		expect(screen.getByText('dashboard.calendar.NO_MEMBER_TITLE')).toBeTruthy();
+		expect(screen.queryByRole('region', { name: 'dashboard.goals.TEAM_GOALS' })).toBeNull();
+	});
+
 	it('shows a member no one else’s progress', () => {
 		render(<GoalsPage />);
 
