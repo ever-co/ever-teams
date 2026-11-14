@@ -15,6 +15,9 @@ const SHEET_WIDTHS = {
 
 export type RecordSheetWidth = keyof typeof SHEET_WIDTHS;
 
+/** Marks the sheet's own popup, so its keys can be told apart from those of a dialog opened over it. */
+const RECORD_SHEET_ATTRIBUTE = 'data-record-sheet';
+
 interface RecordSheetProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
@@ -37,6 +40,7 @@ export function RecordSheet({ open, onOpenChange, title, width = 'md', children 
 				side="right"
 				showCloseButton={false}
 				initialFocus={popupRef}
+				{...{ [RECORD_SHEET_ATTRIBUTE]: '' }}
 				className={cn(floatingSheetSurface, SHEET_WIDTHS[width], 'flex flex-col')}
 			>
 				<SheetTitle className="sr-only">{title}</SheetTitle>
@@ -112,11 +116,23 @@ function isTyping(target: EventTarget | null) {
 	return isField || target.isContentEditable;
 }
 
+/** A key pressed in a dialog opened over the sheet (an edit form, a confirmation) belongs to that dialog. */
+function isInAnotherDialog(target: EventTarget | null) {
+	if (!(target instanceof Element)) {
+		return false;
+	}
+	const dialog = target.closest('[role="dialog"], [role="alertdialog"]');
+	if (!dialog) {
+		return false;
+	}
+	return !dialog.hasAttribute(RECORD_SHEET_ATTRIBUTE);
+}
+
 function hasModifier(event: KeyboardEvent) {
 	return event.metaKey || event.ctrlKey || event.altKey;
 }
 
-/** J and K walk the list a sheet was opened from, while it is open and nobody is typing. */
+/** J and K walk the list a sheet was opened from, while it is open, nobody types and no dialog is over it. */
 export function useRecordSheetKeys({
 	enabled,
 	onPrevious,
@@ -127,7 +143,7 @@ export function useRecordSheetKeys({
 			return;
 		}
 		const handleKeyDown = (event: KeyboardEvent) => {
-			const isIgnored = hasModifier(event) || isTyping(event.target);
+			const isIgnored = hasModifier(event) || isTyping(event.target) || isInAnotherDialog(event.target);
 			if (isIgnored) {
 				return;
 			}
