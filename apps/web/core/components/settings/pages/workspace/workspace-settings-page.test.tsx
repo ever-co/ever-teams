@@ -34,6 +34,12 @@ jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, use
 jest.mock('@/core/hooks/settings/use-workspace-settings', () => ({
 	useWorkspaceSettings: () => mockSettings
 }));
+const mockExportAll = jest.fn(async () => undefined);
+const NO_EXPORT = { canExport: false, isExporting: false, isFailed: false, exportAll: mockExportAll };
+let mockDataExport = NO_EXPORT;
+jest.mock('@/core/hooks/settings/use-workspace-data-export', () => ({
+	useWorkspaceDataExport: () => mockDataExport
+}));
 jest.mock('@/core/components/common/select', () => {
 	const { createContext, useContext } = jest.requireActual<typeof React>('react');
 	const PickContext = createContext<(value: string) => void>(() => undefined);
@@ -87,6 +93,26 @@ describe('WorkspaceSettingsPage', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		mockSettings = settingsOf();
+		mockDataExport = NO_EXPORT;
+	});
+
+	it('offers the workspace owner to export all data, below the formats', () => {
+		mockDataExport = { ...NO_EXPORT, canExport: true };
+		render(<WorkspaceSettingsPage />);
+
+		const data = screen.getByRole('heading', { name: 'settings.workspace.DATA_SECTION' });
+		const formats = screen.getByRole('heading', { name: 'settings.workspace.FORMATS_SECTION' });
+		const dataComesAfterFormats = formats.compareDocumentPosition(data) === Node.DOCUMENT_POSITION_FOLLOWING;
+		expect(dataComesAfterFormats).toBe(true);
+		fireEvent.click(screen.getByRole('button', { name: 'settings.workspace.EXPORT_ACTION' }));
+		expect(mockExportAll).toHaveBeenCalledTimes(1);
+	});
+
+	it('shows no Data section to anyone else', () => {
+		render(<WorkspaceSettingsPage />);
+
+		expect(screen.queryByRole('heading', { name: 'settings.workspace.DATA_SECTION' })).toBeNull();
+		expect(screen.queryByRole('button', { name: 'settings.workspace.EXPORT_ACTION' })).toBeNull();
 	});
 
 	it('shows its sections loading until the workspace is read', () => {

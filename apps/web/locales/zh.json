@@ -5372,7 +5372,15 @@
 			"FORMAT_OUTCOME": "报告及其导出文件现已使用该格式。",
 			"FORMAT_AUTOMATIC": "自动",
 			"READ_ONLY_NOTE": "只有工作区管理员可以更改这些设置。",
-			"LOAD_FAILED": "无法加载工作区设置。"
+			"LOAD_FAILED": "无法加载工作区设置。",
+			"DATA_SECTION": "数据",
+			"EXPORT_LABEL": "导出全部数据",
+			"EXPORT_DESCRIPTION": "由 CSV 文件组成的 ZIP，每张表一个文件：包含工作区的所有组织，采用导入功能可以读回的格式。",
+			"EXPORT_ACTION": "导出",
+			"EXPORTING": "正在导出…",
+			"EXPORT_DONE": "工作区数据已导出",
+			"EXPORT_FAILED": "导出未完成",
+			"EXPORT_FAILED_DESCRIPTION": "没有保存任何内容。较大的工作区需要一些时间：请稍后重试。"
 		},
 		"automations": {
 			"NEW_RULE": "新建规则",

@@ -5372,7 +5372,15 @@
 			"FORMAT_OUTCOME": "Berichte und ihre Exporte verwenden es jetzt.",
 			"FORMAT_AUTOMATIC": "Automatisch",
 			"READ_ONLY_NOTE": "Nur Administratoren des Arbeitsbereichs können diese Einstellungen ändern.",
-			"LOAD_FAILED": "Die Einstellungen des Arbeitsbereichs konnten nicht geladen werden."
+			"LOAD_FAILED": "Die Einstellungen des Arbeitsbereichs konnten nicht geladen werden.",
+			"DATA_SECTION": "Daten",
+			"EXPORT_LABEL": "Alle Daten exportieren",
+			"EXPORT_DESCRIPTION": "Ein ZIP mit CSV-Dateien, eine pro Tabelle: jede Organisation des Arbeitsbereichs, im Format, das der Import wieder einliest.",
+			"EXPORT_ACTION": "Exportieren",
+			"EXPORTING": "Wird exportiert…",
+			"EXPORT_DONE": "Daten des Arbeitsbereichs exportiert",
+			"EXPORT_FAILED": "Der Export wurde nicht abgeschlossen",
+			"EXPORT_FAILED_DESCRIPTION": "Es wurde nichts gespeichert. Ein großer Arbeitsbereich braucht Zeit: Versuchen Sie es gleich noch einmal."
 		},
 		"automations": {
 			"NEW_RULE": "Neue Regel",

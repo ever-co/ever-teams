@@ -6,7 +6,18 @@ import { requestAccessToken, requestCookies } from './request-cookies';
 const UPSTREAM_TIMEOUT_MS = 120_000;
 
 /** The headers of a file answer that travel back to the browser (the name of the download among them). */
-const PASSED_HEADERS = ['content-type', 'content-length', 'content-disposition', 'cache-control', 'x-content-type-options'];
+const PASSED_HEADERS = [
+	'content-type',
+	'content-length',
+	'content-disposition',
+	'cache-control',
+	'x-content-type-options'
+];
+
+export interface ForwardDownloadOptions {
+	/** How long the whole answer may take, the file's transfer included (two minutes unless set). */
+	timeoutMs?: number;
+}
 
 /**
  * Hands a proxy mode GET of a file (a PDF, a zip) on to the Gauzy endpoint the browser calls in direct mode, with the
@@ -15,7 +26,12 @@ const PASSED_HEADERS = ['content-type', 'content-length', 'content-disposition',
  *
  * The route fixes `path`; only the query string comes from the request.
  */
-export async function forwardDownloadToGauzy(req: Request, path: string): Promise<Response> {
+export async function forwardDownloadToGauzy(
+	req: Request,
+	path: string,
+	options: ForwardDownloadOptions = {}
+): Promise<Response> {
+	const timeoutMs = options.timeoutMs ?? UPSTREAM_TIMEOUT_MS;
 	const cookies = requestCookies(req);
 	const access_token = requestAccessToken(cookies);
 	if (!access_token) return NextResponse.json({ statusCode: 401, message: 'Unauthorized' }, { status: 401 });
@@ -28,7 +44,7 @@ export async function forwardDownloadToGauzy(req: Request, path: string): Promis
 			authorization: `Bearer ${access_token}`,
 			...(tenantId ? { 'tenant-id': tenantId } : {})
 		},
-		signal: AbortSignal.any([req.signal, AbortSignal.timeout(UPSTREAM_TIMEOUT_MS)])
+		signal: AbortSignal.any([req.signal, AbortSignal.timeout(timeoutMs)])
 	}).catch((error: Error) => error);
 
 	if (!(upstream instanceof Response)) {
