@@ -55,7 +55,8 @@ function Options() {
 		<main className="min-h-screen bg-zinc-50 px-4 py-10 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
 			<form
 				onSubmit={onSubmit}
-				className="mx-auto flex max-w-md flex-col gap-4 rounded-2xl bg-white p-6 shadow-xl shadow-black/5 ring-1 ring-zinc-900/10 dark:bg-zinc-900 dark:ring-white/10">
+				className="mx-auto flex max-w-md flex-col gap-4 rounded-2xl bg-white p-6 shadow-xl shadow-black/5 ring-1 ring-zinc-900/10 dark:bg-zinc-900 dark:ring-white/10"
+			>
 				<h1 className="text-xl font-semibold">{t('optionsTitle')}</h1>
 				<div className="flex flex-col gap-1.5">
 					<label className="text-sm font-medium" htmlFor="api-url">

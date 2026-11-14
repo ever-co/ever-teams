@@ -3,12 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ApiError } from '~lib/api-client';
 import { listTasks, type TaskItem } from '~lib/gauzy';
 import { refusalOf, type Refusal } from '~lib/refusal';
-import {
-	loadRecentTaskIds,
-	loadSelectedTaskId,
-	saveRecentTaskIds,
-	saveSelectedTaskId
-} from '~lib/session-store';
+import { loadRecentTaskIds, loadSelectedTaskId, saveRecentTaskIds, saveSelectedTaskId } from '~lib/session-store';
 import { rememberRecent } from '~lib/task-order';
 import type { Session } from '~lib/workspaces';
 

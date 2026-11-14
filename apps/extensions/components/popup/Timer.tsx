@@ -72,7 +72,9 @@ function TaskLine({ taskTitle, startedElsewhere }: { taskTitle: string | null; s
 			<p className="max-w-full truncate text-sm font-medium" title={taskTitle}>
 				{taskTitle}
 			</p>
-			{startedElsewhere && <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('timerStartedElsewhere')}</p>}
+			{startedElsewhere && (
+				<p className="text-xs text-zinc-500 dark:text-zinc-400">{t('timerStartedElsewhere')}</p>
+			)}
 		</div>
 	);
 }
@@ -101,14 +103,16 @@ export const Timer: FC<TimerProps> = ({
 	return (
 		<section
 			aria-label={t('timerRegion')}
-			className="flex flex-col items-center gap-3 rounded-xl bg-white p-4 shadow-sm shadow-black/5 ring-1 ring-zinc-900/10 dark:bg-zinc-900 dark:ring-white/10">
+			className="flex flex-col items-center gap-3 rounded-xl bg-white p-4 shadow-sm shadow-black/5 ring-1 ring-zinc-900/10 dark:bg-zinc-900 dark:ring-white/10"
+		>
 			<TaskLine taskTitle={taskTitle} startedElsewhere={startedElsewhere} />
 			<p
 				className={classNames('font-semibold tabular-nums text-4xl', {
 					'text-zinc-900 dark:text-white': isRunning,
 					'text-zinc-400 dark:text-zinc-500': !isRunning
 				})}
-				aria-live="off">
+				aria-live="off"
+			>
 				{formatClock(runSeconds)}
 			</p>
 			<button
@@ -117,18 +121,22 @@ export const Timer: FC<TimerProps> = ({
 				disabled={isDisabled}
 				aria-label={label}
 				title={label}
-				className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-indigo-500 text-white shadow-md shadow-black/15 ring-1 ring-indigo-600 hover:bg-indigo-500/90 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300 disabled:pointer-events-none disabled:opacity-50">
+				className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-indigo-500 text-white shadow-md shadow-black/15 ring-1 ring-indigo-600 hover:bg-indigo-500/90 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300 disabled:pointer-events-none disabled:opacity-50"
+			>
 				<ButtonIcon isRunning={isRunning} busy={busy} />
 			</button>
 			<div className="flex w-full items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
 				<span className={inheritTextSize}>
 					{t('timerTotalToday')}{' '}
-					<b className="font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">{formatClock(todaySeconds)}</b>
+					<b className="font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
+						{formatClock(todaySeconds)}
+					</b>
 				</span>
 				<button
 					type="button"
 					onClick={onCheckTeam}
-					className="font-medium text-indigo-600 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 rounded dark:text-indigo-400">
+					className="font-medium text-indigo-600 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 rounded dark:text-indigo-400"
+				>
 					{t('timerCheckTeam')}
 				</button>
 			</div>

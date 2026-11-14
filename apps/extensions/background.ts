@@ -17,7 +17,10 @@ const BADGE_COLOR = '#6366f1';
 const ports = new Set<chrome.runtime.Port>();
 
 function broadcast(status: TimerStatus | null): void {
-	const message: IPostMessage<TimerStatus | null> = { type: MessageTypesFromBackgroundEnum.statusUpdate, payload: status };
+	const message: IPostMessage<TimerStatus | null> = {
+		type: MessageTypesFromBackgroundEnum.statusUpdate,
+		payload: status
+	};
 	for (const port of ports) {
 		port.postMessage(message);
 	}

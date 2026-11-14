@@ -52,7 +52,12 @@ function shownTaskTitle(runningTitle: string | null | undefined, selectedTitle: 
 	return selectedTitle ?? null;
 }
 
-function SignedIn({ session, settings, onSignOut, onTeamSelect }: {
+function SignedIn({
+	session,
+	settings,
+	onSignOut,
+	onTeamSelect
+}: {
 	session: Session;
 	settings: Settings;
 	onSignOut: () => void;

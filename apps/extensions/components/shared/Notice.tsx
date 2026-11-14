@@ -26,14 +26,17 @@ export const Notice: FC<NoticeProps> = ({ tone, children, action }) => {
 			role={roleOf(isError)}
 			className={classNames('flex items-start justify-between gap-2 rounded-lg px-3 py-2 text-xs ring-1', {
 				'bg-red-500/10 text-red-700 ring-red-500/20 dark:text-red-300': isError,
-				'bg-zinc-900/5 text-zinc-600 ring-zinc-900/10 dark:bg-white/5 dark:text-zinc-300 dark:ring-white/10': !isError
-			})}>
+				'bg-zinc-900/5 text-zinc-600 ring-zinc-900/10 dark:bg-white/5 dark:text-zinc-300 dark:ring-white/10':
+					!isError
+			})}
+		>
 			<span className={classNames('leading-snug', inheritTextSize)}>{children}</span>
 			{action && (
 				<button
 					type="button"
 					onClick={action.onClick}
-					className="shrink-0 font-medium underline underline-offset-2 hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 rounded">
+					className="shrink-0 font-medium underline underline-offset-2 hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 rounded"
+				>
 					{action.label}
 				</button>
 			)}

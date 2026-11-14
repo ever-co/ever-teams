@@ -31,6 +31,9 @@ describe('planRefusalOf', () => {
 			planRefusalOf({ teamRequiresPlan: true, plans: today, taskId: 't1', planDay: '2026-11-14' }),
 			'TASK_NOT_PLANNED'
 		);
-		assert.equal(planRefusalOf({ teamRequiresPlan: true, plans: today, taskId: 't2', planDay: '2026-11-14' }), null);
+		assert.equal(
+			planRefusalOf({ teamRequiresPlan: true, plans: today, taskId: 't2', planDay: '2026-11-14' }),
+			null
+		);
 	});
 });

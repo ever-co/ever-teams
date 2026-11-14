@@ -3,7 +3,12 @@ import { describe, it } from 'node:test';
 
 import { orderTasks, rememberRecent } from './task-order.ts';
 
-const task = (id: string, title: string, updatedAt: string, taskNumber?: string) => ({ id, title, updatedAt, taskNumber });
+const task = (id: string, title: string, updatedAt: string, taskNumber?: string) => ({
+	id,
+	title,
+	updatedAt,
+	taskNumber
+});
 
 const tasks = [
 	task('a', 'Write the release notes', '2026-11-10T10:00:00Z', '12'),

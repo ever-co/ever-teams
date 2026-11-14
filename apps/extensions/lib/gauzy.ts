@@ -49,7 +49,11 @@ export async function confirmSignInCode(apiUrl: string, email: string, code: str
 }
 
 /** Enters one workspace; null when the API answered no session. */
-export async function enterWorkspace(apiUrl: string, email: string, workspace: WorkspaceChoice): Promise<Session | null> {
+export async function enterWorkspace(
+	apiUrl: string,
+	email: string,
+	workspace: WorkspaceChoice
+): Promise<Session | null> {
 	const answer = await publicRequest<unknown>(apiUrl, '/auth/signin.workspace', {
 		method: 'POST',
 		body: { email, token: workspace.token, ...optionalField('teamId', workspace.lastTeamId) }
@@ -185,9 +189,13 @@ export async function teamRequiresPlan(session: Session): Promise<boolean> {
 	if (!session.teamId) {
 		return false;
 	}
-	const team = await sessionRequest<{ requirePlanToTrack?: boolean }>(session, `/organization-team/${session.teamId}`, {
-		query: { organizationId: session.organizationId, tenantId: session.tenantId }
-	});
+	const team = await sessionRequest<{ requirePlanToTrack?: boolean }>(
+		session,
+		`/organization-team/${session.teamId}`,
+		{
+			query: { organizationId: session.organizationId, tenantId: session.tenantId }
+		}
+	);
 	return team?.requirePlanToTrack === true;
 }
 

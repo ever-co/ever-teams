@@ -41,7 +41,13 @@ function estimateSecondsOf(estimate: string): number {
 	return hours * 3600 + minutes * 60;
 }
 
-function ListState({ loading, error, isEmpty, hasSearch, onRetry }: {
+function ListState({
+	loading,
+	error,
+	isEmpty,
+	hasSearch,
+	onRetry
+}: {
 	loading: boolean;
 	error: Refusal | null;
 	isEmpty: boolean;
@@ -144,7 +150,11 @@ const Tasks: FC<Props> = ({
 			<ListState loading={loading} error={error} isEmpty={isEmpty} hasSearch={hasSearch} onRetry={onRetry} />
 
 			{showList && (
-				<ul className="scrollbar flex max-h-52 flex-col gap-1 overflow-y-auto pr-0.5" role="listbox" aria-label={t('tasksAll')}>
+				<ul
+					className="scrollbar flex max-h-52 flex-col gap-1 overflow-y-auto pr-0.5"
+					role="listbox"
+					aria-label={t('tasksAll')}
+				>
 					{shown.map((task) => {
 						const isSelected = task.id === selectedTaskId;
 						const isRecent = recentSet.has(task.id);
@@ -157,12 +167,18 @@ const Tasks: FC<Props> = ({
 									className={classNames(
 										'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-start text-sm ring-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 disabled:cursor-not-allowed',
 										{
-											'bg-zinc-900 text-white ring-zinc-900 dark:bg-white dark:text-zinc-900 dark:ring-white': isSelected,
-											'ring-zinc-900/10 hover:bg-zinc-900/5 dark:ring-white/10 dark:hover:bg-white/5': !isSelected,
+											'bg-zinc-900 text-white ring-zinc-900 dark:bg-white dark:text-zinc-900 dark:ring-white':
+												isSelected,
+											'ring-zinc-900/10 hover:bg-zinc-900/5 dark:ring-white/10 dark:hover:bg-white/5':
+												!isSelected,
 											'disabled:opacity-60': !isSelected
 										}
-									)}>
-									<span className={classNames('min-w-0 flex-1', textEllipsis, inheritTextSize)} title={task.title}>
+									)}
+								>
+									<span
+										className={classNames('min-w-0 flex-1', textEllipsis, inheritTextSize)}
+										title={task.title}
+									>
 										{task.title}
 									</span>
 									{isRecent && (
@@ -181,7 +197,8 @@ const Tasks: FC<Props> = ({
 			<form
 				className="flex flex-col gap-2 rounded-lg p-2 ring-1 ring-zinc-900/10 dark:ring-white/10"
 				onSubmit={onAddTask}
-				aria-label={t('tasksNewTaskLabel')}>
+				aria-label={t('tasksNewTaskLabel')}
+			>
 				<input
 					type="text"
 					className={roundInput}
@@ -199,7 +216,11 @@ const Tasks: FC<Props> = ({
 						{t('tasksAddTask')}
 					</button>
 				</div>
-				{addError && <Notice tone="error">{t('tasksAddFailed')} {t(addError.key, addError.reason)}</Notice>}
+				{addError && (
+					<Notice tone="error">
+						{t('tasksAddFailed')} {t(addError.key, addError.reason)}
+					</Notice>
+				)}
 			</form>
 		</section>
 	);

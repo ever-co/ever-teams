@@ -110,7 +110,9 @@ export const SignIn: FC<SignInProps> = ({ apiUrl, onSignedIn, onOpenSettings }) 
 			<img className="h-6 w-auto self-start dark:invert" src={logoImg} alt="Ever Teams" />
 			<div className="flex flex-col gap-1">
 				<h1 className="text-base font-semibold">{t('signInTitle')}</h1>
-				{step === 'code' && <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('signInCodeSent', email.trim())}</p>}
+				{step === 'code' && (
+					<p className="text-xs text-zinc-500 dark:text-zinc-400">{t('signInCodeSent', email.trim())}</p>
+				)}
 				{step === 'workspace' && (
 					<p className="text-xs text-zinc-500 dark:text-zinc-400">{t('signInChooseWorkspace')}</p>
 				)}
@@ -168,7 +170,8 @@ export const SignIn: FC<SignInProps> = ({ apiUrl, onSignedIn, onOpenSettings }) 
 								type="button"
 								disabled={busy}
 								onClick={() => onPickWorkspace(workspace)}
-								className="w-full truncate rounded-lg px-3 py-2 text-start text-sm ring-1 ring-zinc-900/10 hover:bg-zinc-900/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 disabled:opacity-50 dark:ring-white/15 dark:hover:bg-white/5">
+								className="w-full truncate rounded-lg px-3 py-2 text-start text-sm ring-1 ring-zinc-900/10 hover:bg-zinc-900/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 disabled:opacity-50 dark:ring-white/15 dark:hover:bg-white/5"
+							>
 								{workspace.name || workspace.teams[0]?.name}
 							</button>
 						</li>
@@ -189,7 +192,11 @@ export const SignIn: FC<SignInProps> = ({ apiUrl, onSignedIn, onOpenSettings }) 
 						{t('signInOtherEmail')}
 					</button>
 				)}
-				<button type="button" className="underline underline-offset-2 hover:no-underline" onClick={onOpenSettings}>
+				<button
+					type="button"
+					className="underline underline-offset-2 hover:no-underline"
+					onClick={onOpenSettings}
+				>
 					{t('headerSettings')}
 				</button>
 			</div>

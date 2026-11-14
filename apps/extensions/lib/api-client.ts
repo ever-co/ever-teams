@@ -31,7 +31,10 @@ interface RequestOptions {
 
 /** The API origin a person typed, as the base of every route: no trailing slash and no `/api` suffix. */
 export function apiOriginOf(apiUrl: string): string {
-	return apiUrl.trim().replace(/\/+$/, '').replace(/\/api$/, '');
+	return apiUrl
+		.trim()
+		.replace(/\/+$/, '')
+		.replace(/\/api$/, '');
 }
 
 function urlOf(apiUrl: string, path: string, query?: RequestOptions['query']): string {
@@ -115,7 +118,12 @@ async function renewed(session: Session): Promise<Session | null> {
 	if (!session.refreshToken) {
 		return null;
 	}
-	const response = await send(urlOf(session.apiUrl, '/auth/refresh-token'), 'POST', { refresh_token: session.refreshToken }, {});
+	const response = await send(
+		urlOf(session.apiUrl, '/auth/refresh-token'),
+		'POST',
+		{ refresh_token: session.refreshToken },
+		{}
+	);
 	if (!response.ok) {
 		return null;
 	}

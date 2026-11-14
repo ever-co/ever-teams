@@ -57,29 +57,35 @@ const Header: FC<HeaderProps> = ({ session, teamLocked, onTeamSelect, onOpenSett
 						aria-label={t('headerAccount')}
 						title={session.email}
 						onClick={() => setMenuOpen((open) => !open)}
-						className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500/10 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-500/20 hover:bg-indigo-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 dark:text-indigo-200">
+						className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500/10 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-500/20 hover:bg-indigo-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 dark:text-indigo-200"
+					>
 						{initialsOf(session.name)}
 					</button>
 					{menuOpen && (
 						<div
 							role="menu"
-							className="absolute right-0 z-20 mt-1.5 w-52 rounded-xl bg-white p-1 shadow-md shadow-black/10 ring-1 ring-zinc-900/10 dark:bg-zinc-800 dark:ring-white/10">
+							className="absolute right-0 z-20 mt-1.5 w-52 rounded-xl bg-white p-1 shadow-md shadow-black/10 ring-1 ring-zinc-900/10 dark:bg-zinc-800 dark:ring-white/10"
+						>
 							<div className="px-2 py-1.5">
 								<p className={`text-sm font-medium ${textEllipsis}`}>{session.name}</p>
-								<p className={`text-xs text-zinc-500 dark:text-zinc-400 ${textEllipsis}`}>{session.email}</p>
+								<p className={`text-xs text-zinc-500 dark:text-zinc-400 ${textEllipsis}`}>
+									{session.email}
+								</p>
 							</div>
 							<button
 								type="button"
 								role="menuitem"
 								onClick={onOpenSettings}
-								className="block w-full rounded-md px-2 py-1.5 text-start text-sm hover:bg-zinc-900/5 dark:hover:bg-white/10">
+								className="block w-full rounded-md px-2 py-1.5 text-start text-sm hover:bg-zinc-900/5 dark:hover:bg-white/10"
+							>
 								{t('headerSettings')}
 							</button>
 							<button
 								type="button"
 								role="menuitem"
 								onClick={onSignOut}
-								className="block w-full rounded-md px-2 py-1.5 text-start text-sm text-red-600 hover:bg-red-500/10 dark:text-red-300">
+								className="block w-full rounded-md px-2 py-1.5 text-start text-sm text-red-600 hover:bg-red-500/10 dark:text-red-300"
+							>
 								{t('headerSignOut')}
 							</button>
 						</div>

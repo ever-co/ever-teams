@@ -51,7 +51,8 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
 						'block w-full rounded-md px-2 py-1.5 text-start text-sm hover:bg-zinc-900/5 focus-visible:bg-zinc-900/5 focus-visible:outline-none dark:hover:bg-white/10 dark:focus-visible:bg-white/10',
 						textEllipsis,
 						isSelected && 'font-medium'
-					)}>
+					)}
+				>
 					{option.title}
 				</button>
 			</li>
@@ -67,7 +68,8 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
 				aria-label={buttonLabel}
 				disabled={disabled}
 				className={classNames('inline-flex items-center justify-between', buttonClassNames)}
-				onClick={() => setHidden((prev) => !prev)}>
+				onClick={() => setHidden((prev) => !prev)}
+			>
 				<span className={classNames(textEllipsis, inheritTextSize)}>{buttonTitle}</span>
 				{svgCaret}
 			</button>
@@ -76,7 +78,8 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
 					'scrollbar absolute right-0 z-10 mt-1.5 max-h-64 w-48 overflow-auto rounded-xl bg-white p-1 shadow-md shadow-black/10 ring-1 ring-zinc-900/10 dark:bg-zinc-800 dark:ring-white/10',
 					dropdownHidden && 'hidden',
 					optionContainerClassNames
-				)}>
+				)}
+			>
 				<ul role="listbox" className="text-zinc-700 dark:text-zinc-200">
 					{optionElements}
 				</ul>
@@ -92,7 +95,8 @@ const svgCaret = (
 		fill="none"
 		stroke="currentColor"
 		viewBox="0 0 24 24"
-		xmlns="http://www.w3.org/2000/svg">
+		xmlns="http://www.w3.org/2000/svg"
+	>
 		<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
 	</svg>
 );
