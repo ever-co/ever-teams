@@ -7,7 +7,7 @@ import type { UseReportActivityProps } from '@/core/hooks/activities/use-activit
 import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import type { DailyReportRow } from '@/core/lib/utils/daily-report-figures';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
-import type { Period } from '@/core/lib/utils/dashboard-period';
+import type { Period, WeekStart } from '@/core/lib/utils/dashboard-period';
 import {
 	initialWeekIndexOf,
 	todayKeyOf,
@@ -71,6 +71,15 @@ export interface WeekDayColumn {
 	isFuture: boolean;
 }
 
+/**
+ * The week the person moved to, kept with the week start it counts in: a week start read or saved after the grid
+ * opened reopens the week holding today, as the index of a week in the old count names another week in the new one.
+ */
+interface MovedWeek {
+	weekStartsOn: WeekStart;
+	index: number;
+}
+
 function dayColumnsOf(weekStart: Date, window: Period, todayKey: string): WeekDayColumn[] {
 	const fromKey = localDayKeyOf(window.from);
 	const toKey = localDayKeyOf(window.to);
@@ -102,7 +111,9 @@ export function useTimeActivityWeek({
 	const locale = useLocale();
 	const weekStartsOn = useWorkspaceWeekStart();
 	const weekStarts = useMemo(() => weekStartsOfPeriod(period, weekStartsOn), [period, weekStartsOn]);
-	const [weekIndex, setWeekIndex] = useState(() => initialWeekIndexOf(weekStarts));
+	const initialIndex = useMemo(() => initialWeekIndexOf(weekStarts), [weekStarts]);
+	const [moved, setMoved] = useState<MovedWeek | null>(null);
+	const weekIndex = moved?.weekStartsOn === weekStartsOn ? moved.index : initialIndex;
 	const lastIndex = weekStarts.length - 1;
 	const safeIndex = Math.min(weekIndex, lastIndex);
 	const weekStart = weekStarts[safeIndex];
@@ -148,8 +159,16 @@ export function useTimeActivityWeek({
 	const canGoNext = hasNextWeek && isNextWeekStarted;
 	const canGoPrevious = safeIndex > 0;
 
-	const goPrevious = useCallback(() => setWeekIndex((index) => Math.max(index - 1, 0)), []);
-	const goNext = useCallback(() => setWeekIndex((index) => Math.min(index + 1, lastIndex)), [lastIndex]);
+	const moveBy = useCallback(
+		(step: number) =>
+			setMoved((current) => {
+				const from = current?.weekStartsOn === weekStartsOn ? current.index : initialIndex;
+				return { weekStartsOn, index: Math.min(Math.max(from + step, 0), lastIndex) };
+			}),
+		[initialIndex, lastIndex, weekStartsOn]
+	);
+	const goPrevious = useCallback(() => moveBy(-1), [moveBy]);
+	const goNext = useCallback(() => moveBy(1), [moveBy]);
 
 	const source = dailySource ?? weekly;
 
