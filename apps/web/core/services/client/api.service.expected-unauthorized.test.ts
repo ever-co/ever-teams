@@ -7,7 +7,11 @@ jest.mock('@/core/lib/helpers/cookies', () => ({
 	getAccessTokenCookie: () => 'access-token',
 	getActiveTeamIdCookie: () => 'team-1',
 	getOrganizationIdCookie: () => 'organization-1',
-	getTenantIdCookie: () => 'tenant-1'
+	getTenantIdCookie: () => 'tenant-1',
+	// No refresh token: the 401 cannot be renewed, so the session ends (api.service.ts handleUnauthorized)
+	getRefreshTokenCookie: () => undefined,
+	setAccessTokenCookie: jest.fn(),
+	setRefreshTokenCookie: jest.fn()
 }));
 jest.mock('@/core/lib/auth/handle-unauthorized', () => ({ handleUnauthorized: jest.fn() }));
 jest.mock('../logs/logger.service', () => ({

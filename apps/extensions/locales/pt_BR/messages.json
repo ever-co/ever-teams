@@ -1,0 +1,206 @@
+{
+	"signInTitle": {
+		"message": "Entrar no Ever Teams"
+	},
+	"signInEmailLabel": {
+		"message": "E-mail"
+	},
+	"signInEmailPlaceholder": {
+		"message": "voce@empresa.com"
+	},
+	"signInSendCode": {
+		"message": "Enviar um código"
+	},
+	"signInSending": {
+		"message": "Enviando…"
+	},
+	"signInCodeSent": {
+		"message": "Enviamos um código para $EMAIL$. Digite-o abaixo.",
+		"placeholders": {
+			"email": {
+				"content": "$1",
+				"example": "marie@example.com"
+			}
+		}
+	},
+	"signInCodeLabel": {
+		"message": "Código"
+	},
+	"signInConfirm": {
+		"message": "Entrar"
+	},
+	"signInConfirming": {
+		"message": "Entrando…"
+	},
+	"signInOtherEmail": {
+		"message": "Usar outro e-mail"
+	},
+	"signInWrongCode": {
+		"message": "Este código é inválido ou expirou."
+	},
+	"signInNoWorkspace": {
+		"message": "Nenhum espaço de trabalho está aberto para este e-mail."
+	},
+	"signInChooseWorkspace": {
+		"message": "Escolha um espaço de trabalho"
+	},
+	"headerTeam": {
+		"message": "Equipe"
+	},
+	"headerAccount": {
+		"message": "Conta"
+	},
+	"headerSettings": {
+		"message": "Configurações"
+	},
+	"headerSignOut": {
+		"message": "Sair"
+	},
+	"timerRegion": {
+		"message": "Cronômetro"
+	},
+	"timerLoading": {
+		"message": "Carregando o cronômetro…"
+	},
+	"timerStart": {
+		"message": "Iniciar"
+	},
+	"timerStop": {
+		"message": "Parar"
+	},
+	"timerStarting": {
+		"message": "Iniciando…"
+	},
+	"timerStopping": {
+		"message": "Parando…"
+	},
+	"timerNoTask": {
+		"message": "Escolha uma tarefa abaixo para iniciar o cronômetro."
+	},
+	"timerStartedElsewhere": {
+		"message": "Iniciado em outro app ou em outro dispositivo."
+	},
+	"timerTotalToday": {
+		"message": "Total trabalhado hoje:"
+	},
+	"timerCheckTeam": {
+		"message": "Ver a equipe"
+	},
+	"tasksAll": {
+		"message": "Suas tarefas"
+	},
+	"tasksSearch": {
+		"message": "Buscar suas tarefas"
+	},
+	"tasksRecent": {
+		"message": "Recente"
+	},
+	"tasksLoading": {
+		"message": "Carregando suas tarefas…"
+	},
+	"tasksLoadFailed": {
+		"message": "Não foi possível carregar suas tarefas."
+	},
+	"tasksEmpty": {
+		"message": "Nenhuma tarefa está atribuída a você nesta equipe."
+	},
+	"tasksNoMatch": {
+		"message": "Nenhuma tarefa corresponde à sua busca."
+	},
+	"tasksNewTaskLabel": {
+		"message": "Nova tarefa"
+	},
+	"tasksNewTaskPlaceholder": {
+		"message": "ex. Extensão do Ever Teams"
+	},
+	"tasksEstimated": {
+		"message": "Estimativa:"
+	},
+	"tasksEstimateHours": {
+		"message": "Horas estimadas"
+	},
+	"tasksEstimateMinutes": {
+		"message": "Minutos estimados"
+	},
+	"tasksHoursShort": {
+		"message": "hh"
+	},
+	"tasksMinutesShort": {
+		"message": "mm"
+	},
+	"tasksAddTask": {
+		"message": "Adicionar tarefa"
+	},
+	"tasksAddFailed": {
+		"message": "Não foi possível criar a tarefa."
+	},
+	"refusalPlanRequired": {
+		"message": "Sua equipe exige um plano diário antes de registrar tempo. Planeje seu dia primeiro."
+	},
+	"refusalTaskNotPlanned": {
+		"message": "Adicione esta tarefa ao plano de hoje antes de registrar tempo nela."
+	},
+	"refusalTrackingOff": {
+		"message": "O registro de tempo está desativado para você. Peça a um administrador para ativá-lo."
+	},
+	"errorOffline": {
+		"message": "Não foi possível acessar o Ever Teams. Verifique a conexão e tente de novo."
+	},
+	"errorSessionExpired": {
+		"message": "Sua sessão terminou. Entre novamente."
+	},
+	"errorTimerChangedElsewhere": {
+		"message": "O cronômetro mudou em outro app. Agora mostra o que está em andamento."
+	},
+	"errorWithReason": {
+		"message": "$REASON$",
+		"placeholders": {
+			"reason": {
+				"content": "$1",
+				"example": "Task is archived"
+			}
+		}
+	},
+	"errorGeneric": {
+		"message": "Algo deu errado. Tente de novo."
+	},
+	"actionRetry": {
+		"message": "Tentar de novo"
+	},
+	"optionsTitle": {
+		"message": "Configurações da extensão Ever Teams"
+	},
+	"optionsApiUrl": {
+		"message": "Endereço da API"
+	},
+	"optionsApiUrlHint": {
+		"message": "A API do Ever Teams em que você entra: https://api.ever.team para o serviço hospedado, ou seu próprio servidor."
+	},
+	"optionsAppUrl": {
+		"message": "Endereço do app web"
+	},
+	"optionsSignedOutNote": {
+		"message": "Mudar o endereço da API encerra sua sessão na extensão."
+	},
+	"optionsInvalidUrl": {
+		"message": "Digite um endereço completo começando com https:// (ou http://localhost para um servidor local)."
+	},
+	"optionsSave": {
+		"message": "Salvar"
+	},
+	"optionsSaved": {
+		"message": "Salvo."
+	},
+	"refusalRequiredTeamAndProject": {
+		"message": "Sua organização exige uma equipe e um projeto em cada cronômetro. Abra uma das suas equipes, coloque a tarefa em um projeto e inicie novamente."
+	},
+	"refusalRequiredTeam": {
+		"message": "Sua organização exige uma equipe em cada cronômetro. Abra uma das suas equipes e inicie novamente."
+	},
+	"refusalRequiredProject": {
+		"message": "Sua organização exige um projeto em cada cronômetro. Coloque a tarefa em um projeto ou dê à equipe um projeto padrão e inicie novamente."
+	},
+	"refusalRequiredDetails": {
+		"message": "Sua organização exige dados que este cronômetro não tem. Pergunte a um administrador quais."
+	}
+}

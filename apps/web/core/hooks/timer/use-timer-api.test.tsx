@@ -12,7 +12,14 @@ import { createStore, Provider } from 'jotai';
 import type { PropsWithChildren } from 'react';
 
 import { queryKeys } from '@/core/query/keys';
-import { activeTeamIdState, organizationTeamsState, timerNotesState, timerStatusState } from '@/core/stores';
+import {
+	activeTeamIdState,
+	organizationOpeningState,
+	organizationTeamsState,
+	timerNotesState,
+	timerStartsInFlightState,
+	timerStatusState
+} from '@/core/stores';
 import { timerStartNotesState } from '@/core/stores/timer/timer-start-notes';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
@@ -404,5 +411,165 @@ describe("Start with a notes draft and a continued entry's notes", () => {
 		expect(outcome).toBe('started');
 		expect(mockStartBodies).toEqual([expect.objectContaining({ description: 'Typed in the timer' })]);
 		expect(tab.store.get(timerNotesState)).toEqual({ text: 'Typed in the timer', timeLogId: 'log-new' });
+	});
+});
+
+/**
+ * #5204: picking a team of another organization in the team menu moves the session there once Gauzy answers. A timer
+ * started meanwhile would keep running in the organization left behind, so the start is refused until the page is
+ * replaced, whether the switch began before the start or during its checks.
+ */
+describe('Start while another organization of the workspace is opening', () => {
+	beforeEach(() => {
+		mockGauzy.lastLog = null;
+		mockGauzy.isTrackingTime = false;
+		mockGauzy.statusReadFails = false;
+		mockGauzy.lastLogReadFails = false;
+		mockStartBodies.length = 0;
+		mockToastWarning.mockClear();
+		mockStartTimer.mockClear();
+	});
+
+	it('refuses the start and says another organization is opening', async () => {
+		const tab = renderTab();
+		act(() => tab.store.set(organizationOpeningState, true));
+
+		const outcome = await tab.pressStart();
+
+		expect(outcome).toBe('blocked');
+		expect(mockStartTimer).not.toHaveBeenCalled();
+		expect(mockToastWarning).toHaveBeenCalledWith('toasts.timer.ORGANIZATION_OPENING', {
+			id: 'timer-organization-opening'
+		});
+	});
+
+	it('says a start is on its way until Gauzy answers it, so the team menu can refuse a switch meanwhile', async () => {
+		const tab = renderTab();
+		let answerStart: () => void = () => undefined;
+		mockStartTimer.mockImplementationOnce(
+			() =>
+				new Promise((resolve) => {
+					answerStart = () => {
+						const log = {
+							id: 'log-new',
+							source: ETimeLogSource.TEAMS,
+							isRunning: true,
+							startedAt: minutesAgo(0),
+							stoppedAt: minutesAgo(0)
+						};
+						resolve({ data: { running: true, lastLog: log } });
+					};
+				})
+		);
+
+		let started: Promise<unknown> | undefined;
+		act(() => {
+			started = tab.result.current.startTimer(TASK);
+		});
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+		await act(async () => {
+			await Promise.resolve();
+		});
+		const whileSent = tab.store.get(timerStartsInFlightState);
+		await act(async () => {
+			answerStart();
+			await started;
+		});
+
+		expect(whileSent).toBe(1);
+		expect(tab.store.get(timerStartsInFlightState)).toBe(0);
+	});
+
+	it("keeps saying a start is on its way while a later start is unanswered, when an earlier start's bookkeeping ends", async () => {
+		const tab = renderTab();
+		act(() => {
+			tab.store.set(organizationTeamsState, [
+				{
+					id: 'team-1',
+					name: 'Team',
+					members: [{ id: 'member-1', employee: { userId: 'user-1' } }],
+					projects: []
+				}
+			] as never);
+		});
+		// Start A lands at once, then saves the active task, which waits
+		let finishActiveTaskOfA: () => void = () => undefined;
+		mockUpdateActiveTask.mockImplementationOnce(
+			() =>
+				new Promise<undefined>((resolve) => {
+					finishActiveTaskOfA = () => resolve(undefined);
+				})
+		);
+		let startA: Promise<unknown> | undefined;
+		await act(async () => {
+			startA = tab.result.current.startTimer(TASK);
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+		// The timer is stopped elsewhere meanwhile, and start B is sent; Gauzy has not answered it yet
+		mockGauzy.lastLog = null;
+		mockGauzy.isTrackingTime = false;
+		act(() => tab.store.set(timerStatusState, { running: false, lastLog: null } as never));
+		let answerB: () => void = () => undefined;
+		mockStartTimer.mockImplementationOnce(
+			() =>
+				new Promise((resolve) => {
+					answerB = () => resolve({ data: { running: false, lastLog: null } } as never);
+				})
+		);
+		let startB: Promise<unknown> | undefined;
+		await act(async () => {
+			startB = tab.result.current.startTimer(TASK);
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+		expect(mockStartTimer).toHaveBeenCalledTimes(2);
+
+		await act(async () => {
+			finishActiveTaskOfA();
+			await startA;
+		});
+		const whileBUnanswered = tab.store.get(timerStartsInFlightState) > 0;
+		await act(async () => {
+			answerB();
+			await startB;
+		});
+
+		expect(whileBUnanswered).toBe(true);
+		expect(tab.store.get(timerStartsInFlightState)).toBe(0);
+	});
+
+	it('refuses the start when the switch begins during its checks', async () => {
+		const tab = renderTab();
+		let answerBillable: (isBillable: boolean) => void = () => undefined;
+		const billableRead = new Promise<boolean>((resolve) => {
+			answerBillable = resolve;
+		});
+		let billableAsked: () => void = () => undefined;
+		const isBillableAsked = new Promise<void>((resolve) => {
+			billableAsked = resolve;
+		});
+		mockResolveBillable.mockImplementationOnce(() => {
+			billableAsked();
+			return billableRead;
+		});
+
+		let started: Promise<unknown> | undefined;
+		act(() => {
+			started = tab.result.current.startTimer(TASK);
+		});
+		await act(async () => {
+			await isBillableAsked;
+		});
+		// The person picks another organization while the start reads the task's project
+		act(() => tab.store.set(organizationOpeningState, true));
+		let outcome: unknown;
+		await act(async () => {
+			answerBillable(false);
+			outcome = await started;
+		});
+
+		expect(outcome).toBe('blocked');
+		expect(mockStartTimer).not.toHaveBeenCalled();
 	});
 });

@@ -177,6 +177,8 @@ export function getOrganizationTeamRequest(
  *
  * @param {TeamRequestParams} params Contains organizationId, tenantId, and optional relationship specifications.
  * @param {string} bearer_token Token for request authentication.
+ * @param options.keepsStatusOnError Rejects an error answer without a status in its body with one giving the HTTP
+ * status (off by default, see `serverFetch`).
  * @returns A Promise resolving to a paginated list of organization team data.
  */
 export function getAllOrganizationTeamRequest(
@@ -194,7 +196,8 @@ export function getAllOrganizationTeamRequest(
 			'projects.customFields.repository'
 		]
 	}: ITeamRequestParams,
-	bearer_token: string
+	bearer_token: string,
+	{ keepsStatusOnError = false }: { keepsStatusOnError?: boolean } = {}
 ) {
 	// Consolidate all parameters into a single object
 	const params = {
@@ -213,7 +216,8 @@ export function getAllOrganizationTeamRequest(
 		path: `/organization-team?${query}`,
 		method: 'GET',
 		bearer_token,
-		tenantId
+		tenantId,
+		keepsStatusOnError
 	});
 }
 
