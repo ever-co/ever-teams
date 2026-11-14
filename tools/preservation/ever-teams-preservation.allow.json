@@ -434,5 +434,33 @@
 	{
 		"id": "removed:testNames:apps/web/core/hooks/organizations/teams/use-organization-teams-query.test.tsx::shows a member's new rate once the team is read again, though the team itself did not change::#1",
 		"reason": "Kept, not removed (#5092): the case is now the first row of an it.each, \"shows %s once the team is read again, though the team itself did not change\", in the same file, which also checks a member's new workspace role. The rate case runs unchanged."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/pages/clients/page-component.tsx::closeDialog",
+		"reason": "Moved into useClientDialogs (core/hooks/clients/use-client-dialogs.ts, #5199) as its close: the client page's create, edit, archive and restore dialogs still open and close from there, and a dialog now keeps its client while it fades out."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/pages/clients/page-component.tsx::setDialog",
+		"reason": "Moved unchanged into useClientDialogs (core/hooks/clients/use-client-dialogs.ts, #5199), which the client page and the client's own page share."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/pages/invoices/page-component.tsx::closeDialog",
+		"reason": "Moved unchanged into useInvoiceActionFlow (pages/invoices/invoice-action-flow.tsx, #5199), which the invoice list, its peek and the invoice's own page share."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/pages/invoices/page-component.tsx::isDialogOpen",
+		"reason": "Moved unchanged into useInvoiceActionFlow (pages/invoices/invoice-action-flow.tsx, #5199), which the invoice list, its peek and the invoice's own page share."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/pages/invoices/page-component.tsx::isDialogOpenFor",
+		"reason": "Moved unchanged into InvoiceActionDialogs (pages/invoices/invoice-action-flow.tsx, #5199) as isOpenFor: the send, void, void-and-replace and delete dialogs are mounted there."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/pages/invoices/page-component.tsx::setDialog",
+		"reason": "Moved unchanged into useInvoiceActionFlow (pages/invoices/invoice-action-flow.tsx, #5199), which the invoice list, its peek and the invoice's own page share."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/pages/invoices/page-component.tsx::setIsDialogOpen",
+		"reason": "Moved unchanged into useInvoiceActionFlow (pages/invoices/invoice-action-flow.tsx, #5199), which the invoice list, its peek and the invoice's own page share."
 	}
 ]
