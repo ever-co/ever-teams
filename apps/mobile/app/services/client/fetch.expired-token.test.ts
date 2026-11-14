@@ -10,6 +10,7 @@ import { showMessage } from 'react-native-flash-message';
 import { AuthenticationStore, AuthenticationStoreModel } from '../../models/authentication-store';
 import { TimerSource } from '../interfaces/ITimer';
 import { createFakeGauzy, FakeGauzy, HOUR_MS } from '../../../test/fake-gauzy-session';
+import { renewSessionNow } from './fetch';
 import { currentAuthenticatedUserRequest } from './requests/auth';
 import { stopTimerRequest } from './requests/timer';
 
@@ -156,29 +157,40 @@ describe('a session the API no longer renews', () => {
 });
 
 describe('a renewal on its way when the person signs out and signs in again', () => {
-	it('does not send the refused request again with the token of the session signed in since', async () => {
-		gauzy.runTimer();
-		wait(25 * HOUR_MS);
-		// The renewal's answer is held until the other sign-in is made
+	/** The first renewal's request reaches the API only once `answer()` is called: the other sign-in comes first. */
+	function holdFirstRenewal() {
 		let renewalAsked!: () => void;
-		let answerRenewal!: () => void;
+		let answer!: () => void;
 		const asked = new Promise<void>((resolve) => (renewalAsked = resolve));
-		const answerHeld = new Promise<void>((resolve) => (answerRenewal = resolve));
+		const answerHeld = new Promise<void>((resolve) => (answer = resolve));
+		let renewals = 0;
 		global.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
-			if (String(input).includes('/auth/refresh-token')) {
+			if (typeof input === 'string' && input.includes('/auth/refresh-token') && ++renewals === 1) {
 				renewalAsked();
 				await answerHeld;
 			}
 			return gauzy.fetch(input, init);
 		}) as typeof fetch;
+		return { asked, answer };
+	}
 
-		const stop = stopTimer();
-		await asked;
-		// Another sign-in while the renewal is on its way: another account, maybe, of the same tenant
+	/** Another sign-in: another account, maybe, of the same tenant. */
+	function signInAgain() {
 		const otherSession = gauzy.signIn();
 		session().setAuthToken(otherSession.token);
 		session().setRefreshToken(otherSession.refresh_token);
-		answerRenewal();
+		return otherSession;
+	}
+
+	it('does not send the refused request again with the token of the session signed in since', async () => {
+		gauzy.runTimer();
+		wait(25 * HOUR_MS);
+		const firstRenewal = holdFirstRenewal();
+
+		const stop = stopTimer();
+		await firstRenewal.asked;
+		const otherSession = signInAgain();
+		firstRenewal.answer();
 		const { response } = await stop;
 
 		// The stop of the session that ended is answered as refused: it never leaves again, to stop another's timer
@@ -188,6 +200,28 @@ describe('a renewal on its way when the person signs out and signs in again', ()
 		// The session signed in since is the one the app holds, untouched
 		expect(session().authToken).toBe(otherSession.token);
 		expect(session().refreshToken).toBe(otherSession.refresh_token);
+		expect(showMessage).not.toHaveBeenCalled();
+	});
+
+	it('renews the session signed in since with its own refresh token, not with the renewal of the one that ended', async () => {
+		gauzy.runTimer();
+		wait(25 * HOUR_MS);
+		const firstRenewal = holdFirstRenewal();
+
+		const stop = stopTimer();
+		await firstRenewal.asked;
+		const otherSession = signInAgain();
+		// A screen of the new session needs a fresh token while the ended session's renewal is still on its way
+		const renewal = renewSessionNow();
+		firstRenewal.answer();
+
+		expect(await renewal).toBe('renewed');
+		expect((await stop).response.status).toBe(401);
+		// Each session sent its own refresh token once, and the app keeps the pair answered to the new one
+		expect(gauzy.sentTo('POST', '/auth/refresh-token')).toHaveLength(2);
+		expect(session().refreshToken).not.toBe(otherSession.refresh_token);
+		expect(gauzy.acceptsRefreshToken(session().refreshToken)).toBe(true);
+		expect(gauzy.acceptsAccessToken(session().authToken)).toBe(true);
 		expect(showMessage).not.toHaveBeenCalled();
 	});
 });

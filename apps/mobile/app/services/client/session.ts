@@ -46,7 +46,10 @@ export interface RenewalMeans {
 const RENEWED_TOKEN_GRACE_MS = 30_000;
 
 let holder: SessionHolder | null = null;
-let renewalInFlight: Promise<SessionRenewal> | null = null;
+/** A renewal under way, and the refresh token it sent: the session it renews. */
+type RenewalInFlight = { refreshToken: string | undefined; outcome: Promise<SessionRenewal> };
+
+let renewalInFlight: RenewalInFlight | null = null;
 /** The access token the last renewal stored, and when. */
 let lastRenewal: { accessToken: string; at: number } | null = null;
 /**
@@ -171,13 +174,19 @@ export function renewSession(refusedToken: string | null, means: RenewalMeans): 
 		}
 	}
 
-	if (!renewalInFlight) {
-		const renewal = askForNewPair(session, means, !!refusedToken).finally(() => {
-			if (renewalInFlight === renewal) {
-				renewalInFlight = null;
-			}
-		});
+	// A renewal under way is shared by the session it renews. One of a session that ended since (a sign-out, then
+	// another sign-in) answers `unavailable`: the session signed in since renews with its own refresh token.
+	const { refreshToken } = session.tokens();
+	if (!renewalInFlight || renewalInFlight.refreshToken !== refreshToken) {
+		const renewal: RenewalInFlight = {
+			refreshToken,
+			outcome: askForNewPair(session, means, !!refusedToken).finally(() => {
+				if (renewalInFlight === renewal) {
+					renewalInFlight = null;
+				}
+			})
+		};
 		renewalInFlight = renewal;
 	}
-	return renewalInFlight;
+	return renewalInFlight.outcome;
 }
