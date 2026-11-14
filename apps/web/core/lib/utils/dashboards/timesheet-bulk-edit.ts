@@ -181,7 +181,9 @@ export function bulkEditPlanOf(
  */
 export function keepsPlannedFields(planned: ITimeLog, current: ITimeLog): boolean {
 	const isApprovedNow = statusOfLog(current) === ETimesheetStatus.APPROVED;
-	if (isApprovedNow) {
+	// A running entry has no final end yet: the stop it holds is the timer's last beat
+	const isRunningNow = current.isRunning === true;
+	if (isApprovedNow || isRunningNow) {
 		return false;
 	}
 	const hasSameTask = ownTaskIdOf(planned) === ownTaskIdOf(current);
