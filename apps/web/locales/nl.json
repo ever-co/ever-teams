@@ -7168,7 +7168,8 @@
 			},
 			"FAILED_TITLE": "De import is gestopt bij “{name}”",
 			"FAILED_DESCRIPTION": "Er is geen tijdregistratie opgeslagen. Wat eerder is aangemaakt blijft in de workspace en wordt hergebruikt als je dezelfde bestanden opnieuw importeert.",
-			"CREATED_TITLE": "De klanten, projecten en labels staan in de workspace"
+			"CREATED_TITLE": "De klanten, projecten en labels staan in de workspace",
+			"PAGE_DESCRIPTION": "Klanten, projecten, labels en tijdregistraties uit een andere tool voor tijdregistratie."
 		}
 	},
 	"clientGrouping": {

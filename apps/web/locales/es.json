@@ -7168,7 +7168,8 @@
 			},
 			"FAILED_TITLE": "La importación se detuvo en «{name}»",
 			"FAILED_DESCRIPTION": "No se guardó ninguna entrada de tiempo. Lo creado antes se queda en el espacio de trabajo y se reutiliza cuando vuelvas a importar los mismos archivos.",
-			"CREATED_TITLE": "Los clientes, proyectos y etiquetas están en el espacio de trabajo"
+			"CREATED_TITLE": "Los clientes, proyectos y etiquetas están en el espacio de trabajo",
+			"PAGE_DESCRIPTION": "Clientes, proyectos, etiquetas y entradas de tiempo desde otra herramienta de control de tiempo."
 		}
 	},
 	"clientGrouping": {

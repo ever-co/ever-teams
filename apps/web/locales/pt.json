@@ -7168,7 +7168,8 @@
 			},
 			"FAILED_TITLE": "A importação parou em «{name}»",
 			"FAILED_DESCRIPTION": "Nenhum registo de tempo foi guardado. O que foi criado antes fica no espaço de trabalho e é reutilizado quando importar de novo os mesmos ficheiros.",
-			"CREATED_TITLE": "Os clientes, projetos e etiquetas estão no espaço de trabalho"
+			"CREATED_TITLE": "Os clientes, projetos e etiquetas estão no espaço de trabalho",
+			"PAGE_DESCRIPTION": "Clientes, projetos, etiquetas e registos de tempo de outra ferramenta de registo de tempo."
 		}
 	},
 	"clientGrouping": {

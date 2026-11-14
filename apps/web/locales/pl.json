@@ -7168,7 +7168,8 @@
 			},
 			"FAILED_TITLE": "Import zatrzymał się na „{name}”",
 			"FAILED_DESCRIPTION": "Żaden wpis czasu nie został zapisany. To, co utworzono wcześniej, zostaje w przestrzeni roboczej i jest używane ponownie przy kolejnym imporcie tych samych plików.",
-			"CREATED_TITLE": "Klienci, projekty i etykiety są w przestrzeni roboczej"
+			"CREATED_TITLE": "Klienci, projekty i etykiety są w przestrzeni roboczej",
+			"PAGE_DESCRIPTION": "Klienci, projekty, etykiety i wpisy czasu z innego narzędzia do śledzenia czasu."
 		}
 	},
 	"clientGrouping": {

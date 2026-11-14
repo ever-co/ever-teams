@@ -175,12 +175,16 @@ function TimeImportGate() {
 	const showsEntriesImport = showsFlow && mode === 'entries';
 	const showsWorkspaceImport = showsFlow && mode === 'workspace';
 	const modeSwitch = <ImportModeSwitch mode={mode} onChange={setMode} />;
+	let description = t('settings.entries.import.DESCRIPTION');
+	if (showsWorkspaceImport) {
+		description = t('timeImport.workspace.PAGE_DESCRIPTION');
+	}
 
 	if (access.isLoading && !showsFlow) {
 		return <TimeImportSettingsSkeleton />;
 	}
 	return (
-		<SettingsPage title={t('settings.entries.import.TITLE')} description={t('settings.entries.import.DESCRIPTION')}>
+		<SettingsPage title={t('settings.entries.import.TITLE')} description={description}>
 			{showsEntriesImport && <TimeImportFlow key={teamId} access={access} modeSwitch={modeSwitch} />}
 			{showsWorkspaceImport && <WorkspaceImportFlow key={teamId} access={access} modeSwitch={modeSwitch} />}
 			{!showsFlow && <TimeImportBlocked access={access} />}

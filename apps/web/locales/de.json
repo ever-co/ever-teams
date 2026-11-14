@@ -7168,7 +7168,8 @@
 			},
 			"FAILED_TITLE": "Der Import hat bei „{name}“ angehalten",
 			"FAILED_DESCRIPTION": "Kein Zeiteintrag wurde gespeichert. Was vorher angelegt wurde, bleibt im Workspace und wird beim erneuten Import derselben Dateien wiederverwendet.",
-			"CREATED_TITLE": "Kunden, Projekte und Labels sind im Workspace"
+			"CREATED_TITLE": "Kunden, Projekte und Labels sind im Workspace",
+			"PAGE_DESCRIPTION": "Kunden, Projekte, Labels und Zeiteinträge aus einem anderen Zeiterfassungstool."
 		}
 	},
 	"clientGrouping": {

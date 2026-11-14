@@ -7168,7 +7168,8 @@
 			},
 			"FAILED_TITLE": "L'import s'est arrêté sur « {name} »",
 			"FAILED_DESCRIPTION": "Aucune entrée de temps n'a été enregistrée. Ce qui a été créé avant reste dans l'espace de travail et est réutilisé quand vous importez de nouveau les mêmes fichiers.",
-			"CREATED_TITLE": "Les clients, projets et étiquettes sont dans l'espace de travail"
+			"CREATED_TITLE": "Les clients, projets et étiquettes sont dans l'espace de travail",
+			"PAGE_DESCRIPTION": "Clients, projets, étiquettes et entrées de temps depuis un autre outil de suivi du temps."
 		}
 	},
 	"clientGrouping": {

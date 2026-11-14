@@ -460,6 +460,7 @@ describe('TimeImportSettingsPage', () => {
 		fireEvent.click(screen.getByRole('tab', { name: 'timeImport.workspace.MODE_WORKSPACE' }));
 
 		expect(screen.getByRole('region', { name: 'workspace import' })).toBeTruthy();
+		expect(screen.getByText('timeImport.workspace.PAGE_DESCRIPTION')).toBeTruthy();
 		expect(screen.queryByRole('button', { name: 'timeImport.DROP_TITLE' })).toBeNull();
 		fireEvent.click(screen.getByRole('tab', { name: 'timeImport.workspace.MODE_ENTRIES' }));
 		expect(screen.getByRole('button', { name: 'timeImport.DROP_TITLE' })).toBeTruthy();
