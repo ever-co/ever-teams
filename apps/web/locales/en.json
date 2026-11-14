@@ -7062,9 +7062,9 @@
 	},
 	"timeZoneNotice": {
 		"TITLE": "Your profile uses {profileZone} ({profileOffset}). This browser is in {browserZone} ({browserOffset}).",
-		"DESCRIPTION": "Days and times in reports follow your profile.",
+		"DESCRIPTION": "Timesheets count your days in your profile's zone and the other reports in this browser's, so an entry near midnight can land on a different day.",
 		"TITLE_NO_PROFILE_ZONE": "Your profile has no time zone. This browser is in {browserZone} ({browserOffset}).",
-		"DESCRIPTION_NO_PROFILE_ZONE": "Until you choose one, days and times in reports are counted in UTC.",
+		"DESCRIPTION_NO_PROFILE_ZONE": "Until you choose one, Timesheets count your days in UTC and the other reports in this browser's zone.",
 		"USE": "Use {zone}",
 		"KEEP": "Keep {zone}",
 		"SAVING": "Saving…",

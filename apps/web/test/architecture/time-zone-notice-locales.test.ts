@@ -28,6 +28,13 @@ describe('time zone notice messages', () => {
 		expect(Object.keys(english).length).toBeGreaterThan(0);
 	});
 
+	it('says which views count days in which zone: Timesheets the profile, the other reports the browser', () => {
+		expect(english.DESCRIPTION).toMatch(/Timesheets/);
+		expect(english.DESCRIPTION).toMatch(/browser/);
+		expect(english.DESCRIPTION_NO_PROFILE_ZONE).toMatch(/Timesheets/);
+		expect(english.DESCRIPTION_NO_PROFILE_ZONE).toMatch(/browser/);
+	});
+
 	it.each(files)('gives %s every message with the English placeholders', (file) => {
 		const messages = noticeMessagesOf(file);
 

@@ -7062,9 +7062,9 @@
 	},
 	"timeZoneNotice": {
 		"TITLE": "Twój profil używa strefy {profileZone} ({profileOffset}). Ta przeglądarka jest w strefie {browserZone} ({browserOffset}).",
-		"DESCRIPTION": "Dni i godziny w raportach są liczone według twojego profilu.",
+		"DESCRIPTION": "Karty czasu liczą twoje dni w strefie z twojego profilu, a pozostałe raporty w strefie tej przeglądarki, więc wpis blisko północy może trafić na inny dzień.",
 		"TITLE_NO_PROFILE_ZONE": "Twój profil nie ma strefy czasowej. Ta przeglądarka jest w strefie {browserZone} ({browserOffset}).",
-		"DESCRIPTION_NO_PROFILE_ZONE": "Dopóki jej nie wybierzesz, raporty liczą dni i godziny w UTC.",
+		"DESCRIPTION_NO_PROFILE_ZONE": "Dopóki jej nie wybierzesz, karty czasu liczą twoje dni w UTC, a pozostałe raporty w strefie tej przeglądarki.",
 		"USE": "Użyj {zone}",
 		"KEEP": "Zachowaj {zone}",
 		"SAVING": "Zapisywanie…",

@@ -7062,9 +7062,9 @@
 	},
 	"timeZoneNotice": {
 		"TITLE": "你的个人资料使用 {profileZone}（{profileOffset}）。此浏览器位于 {browserZone}（{browserOffset}）。",
-		"DESCRIPTION": "报告中的日期和时间以你的个人资料为准。",
+		"DESCRIPTION": "时间表按你个人资料的时区计算每一天，其他报告按此浏览器的时区计算，因此接近午夜的记录可能落在另一天。",
 		"TITLE_NO_PROFILE_ZONE": "你的个人资料没有设置时区。此浏览器位于 {browserZone}（{browserOffset}）。",
-		"DESCRIPTION_NO_PROFILE_ZONE": "在你选择时区之前，报告按 UTC 计算日期和时间。",
+		"DESCRIPTION_NO_PROFILE_ZONE": "在你选择时区之前，时间表按 UTC 计算你的每一天，其他报告按此浏览器的时区计算。",
 		"USE": "使用 {zone}",
 		"KEEP": "保留 {zone}",
 		"SAVING": "正在保存…",

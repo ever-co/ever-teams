@@ -7062,9 +7062,9 @@
 	},
 	"timeZoneNotice": {
 		"TITLE": "Votre profil utilise {profileZone} ({profileOffset}). Ce navigateur est sur {browserZone} ({browserOffset}).",
-		"DESCRIPTION": "Les jours et les heures des rapports suivent votre profil.",
+		"DESCRIPTION": "Les feuilles de temps comptent vos journées dans le fuseau de votre profil et les autres rapports dans celui de ce navigateur : une entrée proche de minuit peut tomber un autre jour.",
 		"TITLE_NO_PROFILE_ZONE": "Votre profil n'a pas de fuseau horaire. Ce navigateur est sur {browserZone} ({browserOffset}).",
-		"DESCRIPTION_NO_PROFILE_ZONE": "Tant que vous n'en choisissez pas, les jours et les heures des rapports sont comptés en UTC.",
+		"DESCRIPTION_NO_PROFILE_ZONE": "Tant que vous n'en choisissez pas, les feuilles de temps comptent vos journées en UTC et les autres rapports dans le fuseau de ce navigateur.",
 		"USE": "Utiliser {zone}",
 		"KEEP": "Garder {zone}",
 		"SAVING": "Enregistrement…",

@@ -7062,9 +7062,9 @@
 	},
 	"timeZoneNotice": {
 		"TITLE": "Je profiel gebruikt {profileZone} ({profileOffset}). Deze browser staat in {browserZone} ({browserOffset}).",
-		"DESCRIPTION": "Dagen en tijden in rapporten volgen je profiel.",
+		"DESCRIPTION": "Urenstaten tellen je dagen in de tijdzone van je profiel en de andere rapporten in die van deze browser, dus een registratie rond middernacht kan op een andere dag vallen.",
 		"TITLE_NO_PROFILE_ZONE": "Je profiel heeft geen tijdzone. Deze browser staat in {browserZone} ({browserOffset}).",
-		"DESCRIPTION_NO_PROFILE_ZONE": "Tot je er een kiest, tellen rapporten dagen en tijden in UTC.",
+		"DESCRIPTION_NO_PROFILE_ZONE": "Tot je er een kiest, tellen urenstaten je dagen in UTC en de andere rapporten in de tijdzone van deze browser.",
 		"USE": "{zone} gebruiken",
 		"KEEP": "{zone} houden",
 		"SAVING": "Opslaan…",

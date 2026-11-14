@@ -7062,9 +7062,9 @@
 	},
 	"timeZoneNotice": {
 		"TITLE": "Seu perfil usa {profileZone} ({profileOffset}). Este navegador está em {browserZone} ({browserOffset}).",
-		"DESCRIPTION": "Os dias e horários dos relatórios seguem seu perfil.",
+		"DESCRIPTION": "As folhas de ponto contam seus dias no fuso do seu perfil e os outros relatórios no deste navegador, então um registro perto da meia-noite pode cair em outro dia.",
 		"TITLE_NO_PROFILE_ZONE": "Seu perfil não tem fuso horário. Este navegador está em {browserZone} ({browserOffset}).",
-		"DESCRIPTION_NO_PROFILE_ZONE": "Até você escolher um, os relatórios contam dias e horários em UTC.",
+		"DESCRIPTION_NO_PROFILE_ZONE": "Até você escolher um, as folhas de ponto contam seus dias em UTC e os outros relatórios no fuso deste navegador.",
 		"USE": "Usar {zone}",
 		"KEEP": "Manter {zone}",
 		"SAVING": "Salvando…",
