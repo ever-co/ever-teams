@@ -7,6 +7,15 @@ import { languageZodSchemaType } from '../common/language.schema';
  * Zod schemas for Organization-related interfaces
  */
 
+/** Minutes sent as text, as a numeric column comes, read as the number they write; anything else is left as sent. */
+function numberOfText(value: unknown) {
+	const isText = typeof value === 'string' && value.trim() !== '';
+	if (!isText) {
+		return value;
+	}
+	return Number(value);
+}
+
 // Organization timer setting schema
 export const organizationTimerSettingSchema = z.object({
 	allowTrackInactivity: z.boolean().optional(),
@@ -66,7 +75,7 @@ export const organizationSchema = z
 		taxId: z.string().optional().nullable(),
 		numberFormat: z.string().optional().nullable(),
 		// The workspace's rule for rounding durations in reports; an API without it sends neither field
-		durationRoundingInterval: z.number().optional().nullable().catch(null),
+		durationRoundingInterval: z.preprocess(numberOfText, z.number().optional().nullable()).catch(null),
 		durationRoundingDirection: z.enum(['UP', 'DOWN', 'NEAREST']).optional().nullable().catch(null),
 		bonusPercentage: z.number().optional().nullable(),
 		employees: z.array(z.any()).optional(), // Will be properly typed when employee schema is created
