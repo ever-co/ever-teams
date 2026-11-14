@@ -25,7 +25,8 @@ export interface SessionHolder {
  * - `renewed`: the app holds an access token the API accepts, a request refused with the old one can be sent again;
  * - `ended`: the API refuses the refresh token, or there is none to renew with. The session is over in the app;
  * - `unavailable`: no new pair, and nothing is known about the session. The renewal failed for a reason of its own
- *   (no network, a server error), the refused token is not the session's, or it was itself renewed moments ago.
+ *   (no network, a server error), the refused token is not the session's, it was itself renewed moments ago, or the
+ *   person signed out or in while the renewal was on its way.
  */
 export type SessionRenewal = 'renewed' | 'ended' | 'unavailable';
 
@@ -117,8 +118,10 @@ async function askForNewPair(
 		return 'unavailable';
 	}
 	if (session.tokens().refreshToken !== refreshToken) {
-		// Signed out, or signed in again, while the renewal was on its way: this answer is not that session's
-		return session.tokens().accessToken ? 'renewed' : 'ended';
+		// Signed out, or signed in again, while the renewal was on its way: this answer is not that session's, and
+		// the requests that waited for it are of the session that ended. Sent again, they would act for whoever
+		// signed in since (a Stop would stop their timer), so nothing is known that lets them be sent again.
+		return 'unavailable';
 	}
 	if (answer.status === 401) {
 		return end();

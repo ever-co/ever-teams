@@ -155,6 +155,43 @@ describe('a session the API no longer renews', () => {
 	});
 });
 
+describe('a renewal on its way when the person signs out and signs in again', () => {
+	it('does not send the refused request again with the token of the session signed in since', async () => {
+		gauzy.runTimer();
+		wait(25 * HOUR_MS);
+		// The renewal's answer is held until the other sign-in is made
+		let renewalAsked!: () => void;
+		let answerRenewal!: () => void;
+		const asked = new Promise<void>((resolve) => (renewalAsked = resolve));
+		const answerHeld = new Promise<void>((resolve) => (answerRenewal = resolve));
+		global.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+			if (String(input).includes('/auth/refresh-token')) {
+				renewalAsked();
+				await answerHeld;
+			}
+			return gauzy.fetch(input, init);
+		}) as typeof fetch;
+
+		const stop = stopTimer();
+		await asked;
+		// Another sign-in while the renewal is on its way: another account, maybe, of the same tenant
+		const otherSession = gauzy.signIn();
+		session().setAuthToken(otherSession.token);
+		session().setRefreshToken(otherSession.refresh_token);
+		answerRenewal();
+		const { response } = await stop;
+
+		// The stop of the session that ended is answered as refused: it never leaves again, to stop another's timer
+		expect(response.status).toBe(401);
+		expect(gauzy.sentTo('POST', '/timesheet/timer/stop').map((request) => request.status)).toEqual([401]);
+		expect(gauzy.timer()?.isRunning).toBe(true);
+		// The session signed in since is the one the app holds, untouched
+		expect(session().authToken).toBe(otherSession.token);
+		expect(session().refreshToken).toBe(otherSession.refresh_token);
+		expect(showMessage).not.toHaveBeenCalled();
+	});
+});
+
 describe('a request that does not carry the session', () => {
 	it('is answered as it is when its token is not the session`s: a sign-in under way is not the session', async () => {
 		const tokenOfASignInUnderWay = 'token-of-a-workspace-not-chosen-yet';
