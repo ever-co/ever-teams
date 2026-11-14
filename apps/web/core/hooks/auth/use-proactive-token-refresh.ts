@@ -31,8 +31,13 @@ const MIN_CHECK_INTERVAL_MS = 5_000;
 const MAX_RENEWAL_GAP_MS = 10 * 60_000;
 const MIN_RENEWAL_GAP_MS = 30_000;
 
-/** A renewal that could not be made is not asked again sooner than this. */
+/**
+ * A renewal that could not be made is not asked again sooner than this, however many events call for a look
+ * together, and the wait doubles with each failure in a row, up to the maximum: an API that stays down is not asked
+ * every minute by every open tab.
+ */
 const ATTEMPT_GAP_MS = 10_000;
+const MAX_ATTEMPT_GAP_MS = 5 * 60_000;
 
 function within(value: number, minimum: number, maximum: number): number {
 	return Math.max(minimum, Math.min(value, maximum));
@@ -76,10 +81,12 @@ function isRenewalDue(accessToken: string | null): boolean {
  *
  * Strategy:
  * 1. Look at the token on mount and on each page change, then about once a minute (recursive setTimeout)
- * 2. At each look: renew only if the token is due
- * 3. Use retry logic with exponential backoff for network errors, and try again at the next look for as long as
+ * 2. Look again when the tab is shown, gets the focus, comes back from the page cache, and when the connection
+ *    comes back: timers do not run while the computer sleeps, and a renewal planned for that time was missed
+ * 3. At each look: renew only if the token is due
+ * 4. Use retry logic with exponential backoff for network errors, and try again at the next look for as long as
  *    there is a refresh token: a failure never ends the schedule
- * 4. Force logout on 401 errors (refresh token invalid)
+ * 5. Force logout on 401 errors (refresh token invalid)
  *
  * Why looking every minute instead of one long timer?
  * - A timer planned for twelve hours later does not fire while the computer sleeps, and resumes late on some systems
@@ -94,6 +101,7 @@ export function useProactiveTokenRefresh() {
 	// When this tab last renewed ahead of time, and when it last tried: kept across page changes
 	const lastRenewalAtRef = useRef(0);
 	const lastAttemptAtRef = useRef(0);
+	const failedAttemptsRef = useRef(0);
 
 	useEffect(() => {
 		let active = true;
@@ -127,10 +135,13 @@ export function useProactiveTokenRefresh() {
 			}
 
 			const now = Date.now();
+			const attemptGap = Math.min(ATTEMPT_GAP_MS * 2 ** failedAttemptsRef.current, MAX_ATTEMPT_GAP_MS);
 			const isTooSoon =
-				now - lastAttemptAtRef.current < ATTEMPT_GAP_MS ||
+				now - lastAttemptAtRef.current < attemptGap ||
 				now - lastRenewalAtRef.current < renewalGapOf(accessToken);
-			if (isTooSoon) {
+			// Without a network the request cannot leave: the look made when the connection comes back asks
+			const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+			if (isTooSoon || isOffline) {
 				return false;
 			}
 
@@ -174,6 +185,7 @@ export function useProactiveTokenRefresh() {
 				}
 
 				lastRenewalAtRef.current = Date.now();
+				failedAttemptsRef.current = 0;
 				// Log success with next check timing
 				const newRemaining = getTokenRemainingTime(getAccessTokenCookie() ?? '');
 				logInDev(
@@ -181,7 +193,8 @@ export function useProactiveTokenRefresh() {
 				);
 				return true;
 			} catch (error) {
-				// Network error - will be retried at the next look
+				// Network error - will be retried at a later look
+				failedAttemptsRef.current += 1;
 				logErrorInDev('[ProactiveTokenRefresh] ❌ Token refresh failed (network error)', {
 					source: 'useProactiveTokenRefresh',
 					error: String(error)
@@ -236,6 +249,21 @@ export function useProactiveTokenRefresh() {
 			scheduleNextCheck();
 		};
 
+		// The moments a planned renewal may have been missed: the tab was hidden or frozen, the computer slept, the
+		// network was away. The look is the same as the scheduled one.
+		const checkNow = () => {
+			void performRefreshIfNeeded();
+		};
+		const checkWhenVisible = () => {
+			if (document.visibilityState === 'visible') checkNow();
+		};
+		// The connection is back: what failed without it is asked again at once
+		const checkOnceOnline = () => {
+			failedAttemptsRef.current = 0;
+			lastAttemptAtRef.current = 0;
+			checkNow();
+		};
+
 		// Initial setup after a short delay to let app fully initialize
 		// WHY 2 SECONDS? This hook mounts in app/layout.tsx (root layout), which means:
 		// 1. Cookies may not be fully parsed yet during React hydration
@@ -248,6 +276,11 @@ export function useProactiveTokenRefresh() {
 			if (active) void setupRefreshSchedule();
 		}, INIT_DELAY_MS);
 
+		window.addEventListener('online', checkOnceOnline);
+		window.addEventListener('focus', checkNow);
+		window.addEventListener('pageshow', checkNow);
+		document.addEventListener('visibilitychange', checkWhenVisible);
+
 		// Cleanup function
 		return () => {
 			active = false;
@@ -256,6 +289,10 @@ export function useProactiveTokenRefresh() {
 				timeoutRef.current = null;
 			}
 			clearTimeout(initialTimeout);
+			window.removeEventListener('online', checkOnceOnline);
+			window.removeEventListener('focus', checkNow);
+			window.removeEventListener('pageshow', checkNow);
+			document.removeEventListener('visibilitychange', checkWhenVisible);
 		};
 	}, [pathname]);
 }

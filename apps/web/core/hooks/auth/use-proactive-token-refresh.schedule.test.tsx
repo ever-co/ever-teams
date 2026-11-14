@@ -5,7 +5,8 @@
  * at the planned minute, or on the computer staying awake.
  *
  * It did: each page change planned it again from zero, so for someone who navigates it only ran at the very second
- * the token expired, and a timer planned hours ahead does not run while the computer sleeps.
+ * the token expired; a renewal that failed during an outage ended the schedule for good; and nothing looked at the
+ * token again when the connection or the computer came back.
  */
 import { act, renderHook } from '@testing-library/react';
 
@@ -136,6 +137,39 @@ describe('the renewal after the planned time was missed, for a token that lives 
 	// Due ten minutes after it was issued
 	const shortTokens = { accessLifetimeMs: 20 * MINUTE_MS };
 
+	it('runs when the connection is back after an outage that outlasted the token', async () => {
+		openBrowser(shortTokens);
+		page.signIn();
+		const app = await openApp();
+		await pass(5 * MINUTE_MS);
+		page.gauzy.goOffline();
+		// The renewals planned from half the lifetime on fail one after the other, and the token expires meanwhile
+		await pass(30 * MINUTE_MS);
+		expect(isSessionGood()).toBe(false);
+
+		page.gauzy.goOnline();
+		window.dispatchEvent(new Event('online'));
+		await pass(MINUTE_MS);
+
+		expect(isSessionGood()).toBe(true);
+		expect(page.isSignedOut()).toBe(false);
+		app.unmount();
+	});
+
+	it('runs when the tab is shown again after the computer slept past the expiry', async () => {
+		openBrowser(shortTokens);
+		page.signIn();
+		const app = await openApp();
+		skip(2 * HOUR_MS);
+
+		document.dispatchEvent(new Event('visibilitychange'));
+		await pass(MINUTE_MS);
+
+		expect(isSessionGood()).toBe(true);
+		expect(page.isSignedOut()).toBe(false);
+		app.unmount();
+	});
+
 	it('runs within a minute of a wake-up no event announced', async () => {
 		openBrowser(shortTokens);
 		page.signIn();
@@ -144,6 +178,27 @@ describe('the renewal after the planned time was missed, for a token that lives 
 
 		await pass(MINUTE_MS);
 
+		expect(isSessionGood()).toBe(true);
+		app.unmount();
+	});
+
+	it('keeps trying, less and less often, while the API cannot be reached, and ends nothing', async () => {
+		openBrowser(shortTokens);
+		page.signIn();
+		const app = await openApp();
+		page.gauzy.breakRenewals('network');
+
+		// Due from the tenth minute on: fifty minutes of failures
+		await pass(HOUR_MS);
+
+		// A look per minute would make fifty attempts of four requests each
+		expect(page.renewals()).toBeGreaterThan(4);
+		expect(page.renewals()).toBeLessThan(80);
+		expect(page.isSignedOut()).toBe(false);
+
+		// The API is back: the session is renewed at a later look, without any event
+		page.gauzy.breakRenewals(null);
+		await pass(6 * MINUTE_MS);
 		expect(isSessionGood()).toBe(true);
 		app.unmount();
 	});
