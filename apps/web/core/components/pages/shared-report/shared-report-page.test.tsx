@@ -1,0 +1,162 @@
+/** @jest-environment jsdom */
+import React, { type ReactNode } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, screen, waitFor } from '@testing-library/react';
+import type { IPublicSavedReport } from '@/core/types/interfaces/timesheet/saved-report';
+
+const mockReadShared = jest.fn();
+
+jest.mock('next-intl', () => ({
+	useTranslations: () => (key: string, values?: Record<string, string>) =>
+		values ? `${key} ${JSON.stringify(values)}` : key,
+	useLocale: () => 'en'
+}));
+// The table's module reaches the app layout, which this page does not use, as the table's own test mocks it
+jest.mock('@/core/components/layouts/default-layout', () => ({ PageLayout: () => null }));
+jest.mock('@/core/services/client/api/timesheets/saved-report.service', () => ({
+	savedReportService: { readShared: (token: string) => mockReadShared(token) }
+}));
+jest.mock('@/core/components/dashboards/time-activity/time-activity-area-chart', () => ({
+	TimeActivityAreaChart: ({ days }: { days: unknown[] }) => <div data-testid="chart">{days.length} days</div>,
+	TimeActivityAreaChartSkeleton: () => <div data-testid="chart-skeleton" />
+}));
+jest.mock('@/core/components/dashboards/time-activity/time-activity-breakdown', () => ({
+	...jest.requireActual('@/core/components/dashboards/time-activity/time-activity-breakdown'),
+	TimeActivityBreakdown: ({
+		rows,
+		columns
+	}: {
+		rows: { employeeName: string }[];
+		columns: { earnings: boolean };
+	}) => (
+		<div data-testid="table">
+			{rows.map((row) => row.employeeName).join(', ')} earnings:{String(columns.earnings)}
+		</div>
+	)
+}));
+
+import { SharedReportPage } from './shared-report-page';
+
+function renderPage(token = 'tok-1') {
+	const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	const wrapper = ({ children }: { children: ReactNode }) => (
+		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+	);
+	return render(<SharedReportPage token={token} />, { wrapper });
+}
+
+function sharedReport(fields: Partial<IPublicSavedReport> = {}): IPublicSavedReport {
+	return {
+		name: 'Client A, last month',
+		kind: 'TIME_AND_ACTIVITY',
+		grouping: 'project',
+		includeAmounts: false,
+		period: { rule: 'lastMonth', startDate: '2026-10-01', endDate: '2026-10-31', timeZone: 'UTC' },
+		generatedAt: '2026-11-14T10:00:00.000Z',
+		days: [
+			{
+				date: '2026-10-02',
+				sum: 5400,
+				logs: [
+					{
+						project: {
+							id: 'p1',
+							name: 'Website',
+							organizationContact: { id: 'client-a', name: 'Client A' }
+						},
+						employeeLogs: [
+							{
+								employee: {
+									id: 'ada',
+									fullName: 'Ada Lovelace',
+									user: { firstName: 'Ada', lastName: 'Lovelace', name: 'Ada Lovelace' }
+								},
+								sum: 5400,
+								tasks: [{ task: { id: 't1', title: 'Home page' }, duration: 5400, client: null }]
+							}
+						]
+					}
+				]
+			}
+		],
+		totals: { duration: 5400 },
+		...fields
+	};
+}
+
+describe('SharedReportPage', () => {
+	beforeEach(() => {
+		mockReadShared.mockReset();
+	});
+
+	it('shows the report read through its link: name, period, total, chart and table, read only', async () => {
+		mockReadShared.mockResolvedValue(sharedReport());
+
+		renderPage('tok-1');
+
+		expect(await screen.findByRole('heading', { name: 'Client A, last month' })).toBeTruthy();
+		expect(mockReadShared).toHaveBeenCalledWith('tok-1');
+		expect(screen.getByText('1h 30m')).toBeTruthy();
+		expect(screen.getByTestId('chart').textContent).toBe('31 days');
+		expect(screen.getByTestId('table').textContent).toContain('Ada Lovelace');
+		expect(screen.getByText('sharedReport.READ_ONLY_BADGE')).toBeTruthy();
+		expect(screen.getByText(/sharedReport\.READ_ONLY \{/)).toBeTruthy();
+	});
+
+	it('shows durations only when the author left amounts out', async () => {
+		mockReadShared.mockResolvedValue(sharedReport());
+
+		renderPage();
+
+		await screen.findByTestId('table');
+		expect(screen.queryByText('dashboard.timeActivity.columns.EARNINGS')).toBeNull();
+		expect(screen.getByTestId('table').textContent).toContain('earnings:false');
+	});
+
+	it('shows the amounts per currency, summed from the rows like the table, when the author included them', async () => {
+		const withRate = sharedReport({
+			includeAmounts: true,
+			totals: { duration: 5400, amounts: [{ currency: 'EUR', amount: 75.01 }] }
+		});
+		const [day] = withRate.days;
+		const [projectLog] = day.logs;
+		const [employeeLog] = projectLog.employeeLogs;
+		employeeLog.employee = { ...employeeLog.employee, billRateValue: 50, billRateCurrency: 'EUR' };
+		mockReadShared.mockResolvedValue(withRate);
+
+		renderPage();
+
+		expect(await screen.findByText('dashboard.timeActivity.columns.EARNINGS')).toBeTruthy();
+		expect(screen.getByText(/75.00/)).toBeTruthy();
+		expect(screen.getByTestId('table').textContent).toContain('earnings:true');
+	});
+
+	it('says a link that does not work any more no longer works', async () => {
+		mockReadShared.mockRejectedValue({ statusCode: 404, message: 'This report link does not work.' });
+
+		renderPage();
+
+		expect(await screen.findByText('sharedReport.NOT_WORKING_TITLE')).toBeTruthy();
+		expect(screen.queryByTestId('table')).toBeNull();
+	});
+
+	it('reads again after a server failure, then offers to try again', async () => {
+		mockReadShared.mockRejectedValue({ statusCode: 503, message: 'Service unavailable' });
+
+		renderPage();
+
+		// A server failure is read again twice (1 s, then 2 s apart) before the page says so
+		expect(await screen.findByText('sharedReport.ERROR_TITLE', undefined, { timeout: 8000 })).toBeTruthy();
+		expect(mockReadShared).toHaveBeenCalledTimes(3);
+		expect(screen.getByText('pages.unauthorized.TRY_AGAIN')).toBeTruthy();
+	}, 15000);
+
+	it('says no time was tracked in an empty period', async () => {
+		mockReadShared.mockResolvedValue(sharedReport({ days: [], totals: { duration: 0 } }));
+
+		renderPage();
+
+		expect(await screen.findByText('sharedReport.EMPTY')).toBeTruthy();
+		await waitFor(() => expect(screen.queryByTestId('table')).toBeNull());
+	});
+});
