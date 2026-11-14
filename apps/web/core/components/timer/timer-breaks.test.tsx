@@ -98,6 +98,8 @@ jest.mock('@/core/hooks/common/use-hotkeys', () => ({
 jest.mock('@/core/hooks/common/use-detect-os', () => ({ useDetectOS: () => ({ os: 'Windows' }) }));
 jest.mock('@/core/components/features/daily-plan/timer-plan-dialogs', () => ({ TimerPlanDialogs: () => null }));
 jest.mock('./timer-billable-toggle', () => ({ TimerBillableToggle: () => null }));
+// The run's menu (#5219) shows only over a running timer, never during a break
+jest.mock('./timer-run-menu', () => ({ TimerRunMenu: () => null }));
 jest.mock('../duplicated-components/_progress-bar', () => ({ ProgressBar: () => null }));
 jest.mock('../duplicated-components/tooltip', () => ({ Tooltip: ({ children }: TChildrenProps) => <>{children}</> }));
 jest.mock('@/core/components/common/tooltip', () => ({

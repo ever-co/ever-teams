@@ -1,7 +1,17 @@
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { hasErrors } from '@/core/lib/helpers/validations';
+import { apiErrorStatusOf, unwrapRejection } from '@/core/services/server/fetch';
 import { currentAuthenticatedUserRequest, refreshTokenRequest } from '@/core/services/server/requests/auth';
 import { NextResponse } from 'next/server';
+
+/** Gauzy's error body (`statusCode`, `message`), or the error of a request that got no answer. */
+type RefreshFailure = { statusCode?: number; message?: string };
+
+/**
+ * How long the profile read after a renewal may take. Gauzy has rotated the pair by then, so the pair must reach the
+ * browser well before the browser stops waiting for this route (60 s): a read that hangs gives no profile instead.
+ */
+const PROFILE_READ_DEADLINE_MS = 5_000;
 
 export async function POST(req: Request) {
 	const body = (await req.json()) as { refresh_token: string } | null;
@@ -19,16 +29,27 @@ export async function POST(req: Request) {
 	try {
 		const refreshResult = await refreshTokenRequest(refresh_token);
 		if (!refreshResult?.data?.token) {
+			// Gauzy said yes and sent no pair: a bad answer of the API, not a refusal of the refresh token. A 401 here
+			// would end a session whose refresh token may still be good.
 			console.error('[API /auth/refresh] No token in refresh response');
 			return NextResponse.json(
-				{ message: 'Token refresh failed: No token received', statusCode: 401 },
-				{ status: 401 }
+				{ message: 'Token refresh failed: No token received', statusCode: 502 },
+				{ status: 502 }
 			);
 		}
 
-		const { data: user } = await currentAuthenticatedUserRequest({
-			bearer_token: refreshResult.data.token
-		});
+		// Gauzy has rotated the refresh token by now: the new pair is the only one it accepts from here on, so it is
+		// answered whatever the profile read gives. Dropped, it left the browser with a refresh token Gauzy refuses.
+		const user = await currentAuthenticatedUserRequest({
+			bearer_token: refreshResult.data.token,
+			signal: AbortSignal.timeout(PROFILE_READ_DEADLINE_MS)
+		}).then(
+			({ data }) => data,
+			async (error: unknown) => {
+				logErrorInDev('API /auth/refresh Profile read failed after the renewal:', await unwrapRejection(error));
+				return undefined;
+			}
+		);
 
 		// NOTE: We don't set cookies server-side here because:
 		// 1. NextResponse.json() creates a new response object, losing any headers set on `res`
@@ -46,11 +67,18 @@ export async function POST(req: Request) {
 		// Why? Errors without a status code are typically network/timeout issues.
 		// Returning 401 would cause the client to treat transient failures as "token invalid → logout",
 		// when the token might actually be fine. 500 signals "try again later" instead.
-		const statusCode = error?.statusCode || error?.status || 500;
-		const message = error?.message || 'Token refresh failed';
+		//
+		// A refusal of Gauzy (the refresh token expired, was revoked, or was rotated by another renewal) is not one of
+		// them: serverFetch rejects it with a promise that holds Gauzy's body, read here. Looked for on the promise
+		// itself, its status and message were never found, and the browser was answered 500 for every refusal.
+		const reason = (await unwrapRejection(error)) as RefreshFailure | null | undefined;
+		// Only an HTTP error status of Gauzy's body is answered as is: anything else (no answer, a body without one) is
+		// a 500, which NextResponse accepts and the browser reads as a renewal to try again
+		const statusCode = apiErrorStatusOf(reason) ?? 500;
+		const message = reason?.message || 'Token refresh failed';
 
 		// Log full error details in dev mode for debugging (stack trace, etc.)
-		logErrorInDev('API /auth/refresh Refresh failed:', error);
+		logErrorInDev('API /auth/refresh Refresh failed:', reason);
 		console.error('[API /auth/refresh] Refresh failed:', { statusCode, message });
 
 		return NextResponse.json({ message, statusCode }, { status: statusCode });

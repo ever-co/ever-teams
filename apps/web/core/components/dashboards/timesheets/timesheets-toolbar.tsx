@@ -91,7 +91,8 @@ export function TimesheetsToolbar({
 	onSearchChange,
 	filterMenu,
 	appliedFilters,
-	actions
+	actions,
+	viewMenu = null
 }: Readonly<{
 	title: string;
 	meta: string;
@@ -106,6 +107,8 @@ export function TimesheetsToolbar({
 	filterMenu: ReactNode;
 	appliedFilters: ReactNode;
 	actions: ReactNode;
+	/** The View menu of the view on screen, after the view switch, for a view that has one. */
+	viewMenu?: ReactNode;
 }>) {
 	const t = useTranslations();
 	const weekStart = useWorkspaceWeekStart();
@@ -140,12 +143,15 @@ export function TimesheetsToolbar({
 				</>
 			}
 			trailingControls={
-				<SegmentedControl<TimesheetView>
-					items={viewItems}
-					value={view}
-					onValueChange={onViewChange}
-					ariaLabel={t('dashboard.timesheets.VIEW_LABEL')}
-				/>
+				<>
+					<SegmentedControl<TimesheetView>
+						items={viewItems}
+						value={view}
+						onValueChange={onViewChange}
+						ariaLabel={t('dashboard.timesheets.VIEW_LABEL')}
+					/>
+					{viewMenu}
+				</>
 			}
 			belowControls={appliedFilters}
 		/>

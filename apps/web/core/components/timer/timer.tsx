@@ -11,6 +11,8 @@ import { useTranslations } from 'next-intl';
 import { TimerButton } from './timer-button';
 import { BreakClock, TimerBreakButton } from './timer-break-controls';
 import { TimerEntryToggles } from './timer-entry-toggles';
+import { TimerStartPopover } from './timer-start-popover';
+import { TimerRunMenu } from './timer-run-menu';
 import { Transition } from '@headlessui/react';
 
 import { ArrowTurnUp, Break, Desktop, Globe, Lifebuoy, Smartphone } from '@/core/components/icons';
@@ -152,6 +154,18 @@ function useWorkStart(breakState: TimerBreakState, startTimer: (task?: TTask) =>
 	return useCallback(() => startTimer(resumeTask ?? undefined), [resumeTask, startTimer]);
 }
 
+/**
+ * The run's menu, beside the start button. The home timer's row has no room for a fourth round control on a phone:
+ * the block under the timer carries the menu there (`TaskTimerSection`). The profile's compact row keeps it.
+ */
+function runMenuClassNameOf(compact: boolean) {
+	const diameter = timerButtonClassNameOf(compact);
+	if (compact) {
+		return diameter;
+	}
+	return clsxm(diameter, 'max-sm:hidden');
+}
+
 export function Timer({ className, showTimerButton = true, compact = false }: IClassName<{ compact?: boolean }>) {
 	const t = useTranslations();
 	const hydrated = useHydrated();
@@ -230,13 +244,18 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 	const clockClassName = clockClassNameOf(compact);
 	const runningFractionClassName = runningFractionClassNameOf(compact);
 	const timerButtonClassName = timerButtonClassNameOf(compact);
+	const runMenuClassName = runMenuClassNameOf(compact);
 
 	let clockFace: ReactNode = `${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`;
 	if (isOnBreak) {
 		clockFace = <BreakClock startedAtMs={breakStartedAtMsOf(breakState)} />;
 	}
 	if (isTimerRunning) {
-		clockFace = <RunningClock className={runningFractionClassName} />;
+		clockFace = (
+			<TimerStartPopover>
+				<RunningClock className={runningFractionClassName} />
+			</TimerStartPopover>
+		);
 	}
 	let startTooltipLabel = osSpecificTimerTooltipLabel;
 	if (!canRunTimer) {
@@ -321,6 +340,7 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 								className={timerButtonClassName}
 							/>
 						)}
+						<TimerRunMenu className={runMenuClassName} />
 						<Tooltip
 							label={backToWorkLabel ?? startTooltipLabel}
 							placement="top-start"
@@ -361,6 +381,9 @@ const MIN_TIMER_TOGGLE = 'size-6';
 
 /** From sm up, as the toggles: on a phone the main timer carries the break button. */
 const MIN_TIMER_BREAK_BUTTON = 'flex max-sm:hidden';
+
+/** The run's menu follows the toggles: from sm up in the pill, the main timer carries it on a phone. */
+const MIN_TIMER_RUN_MENU = 'max-sm:hidden';
 
 export function MinTimerFrame({ className }: IClassName) {
 	const t = useTranslations();
@@ -406,7 +429,11 @@ export function MinTimerFrame({ className }: IClassName) {
 		);
 	}
 	if (isTimerRunning) {
-		clockFace = <RunningClock className="text-muted-foreground" />;
+		clockFace = (
+			<TimerStartPopover>
+				<RunningClock className="text-muted-foreground" />
+			</TimerStartPopover>
+		);
 	}
 
 	return (
@@ -470,6 +497,8 @@ export function MinTimerFrame({ className }: IClassName) {
 					/>
 				</div>
 			)}
+
+			<TimerRunMenu className={clsxm(MIN_TIMER_TOGGLE, MIN_TIMER_RUN_MENU)} />
 
 			<div className="z-[50] flex">
 				<TimerButton
