@@ -205,7 +205,7 @@ class SigninService extends APIService {
 			} as AxiosResponse<{ loginResponse: IAuthResponse; team: TOrganizationTeam | undefined }>);
 		}
 
-		return Promise.reject(notReadyError());
+		throw notReadyError();
 	};
 
 	/**
@@ -226,7 +226,7 @@ class SigninService extends APIService {
 		if (session) {
 			return session;
 		}
-		return Promise.reject(notReadyError());
+		throw notReadyError();
 	};
 
 	/**

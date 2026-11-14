@@ -79,7 +79,7 @@ type AuthCodeFieldProps = {
 	onChange: (code: string) => void;
 	/** How many slots (the e-mailed sign-in code has AUTH_CODE_LENGTH, an authenticator app code 6). */
 	length?: number;
-	allowedCharacters?: AuthCodeProps['allowedCharacters'];
+	allowedCharacters?: NonNullable<AuthCodeProps['allowedCharacters']>;
 };
 
 export function AuthCodeField({

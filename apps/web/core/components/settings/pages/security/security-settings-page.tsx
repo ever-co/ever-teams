@@ -105,8 +105,8 @@ function TwoFactorSection({ settings }: Readonly<{ settings: Settings }>) {
 		try {
 			const enrollment = await enroll.mutateAsync();
 			setPanel({ kind: 'setup', enrollment });
-		} catch (failure) {
-			toast.error(t('settings.security.SETUP_FAILED'), { description: writeFailureMessageOf(t, failure) });
+		} catch (error_) {
+			toast.error(t('settings.security.SETUP_FAILED'), { description: writeFailureMessageOf(t, error_) });
 		}
 	};
 
@@ -116,8 +116,8 @@ function TwoFactorSection({ settings }: Readonly<{ settings: Settings }>) {
 			const { recoveryCodes } = await confirm.mutateAsync(code);
 			setPanel({ kind: 'codes', codes: recoveryCodes });
 			toast.success(t('settings.security.TURNED_ON'));
-		} catch (failure) {
-			setError(writeFailureMessageOf(t, failure));
+		} catch (error_) {
+			setError(writeFailureMessageOf(t, error_));
 		}
 	};
 
@@ -127,8 +127,8 @@ function TwoFactorSection({ settings }: Readonly<{ settings: Settings }>) {
 			await disable.mutateAsync(proof);
 			closePanel();
 			toast.success(t('settings.security.TURNED_OFF'));
-		} catch (failure) {
-			setError(writeFailureMessageOf(t, failure));
+		} catch (error_) {
+			setError(writeFailureMessageOf(t, error_));
 		}
 	};
 
@@ -137,8 +137,8 @@ function TwoFactorSection({ settings }: Readonly<{ settings: Settings }>) {
 		try {
 			const { recoveryCodes } = await regenerate.mutateAsync(proof);
 			setPanel({ kind: 'codes', codes: recoveryCodes });
-		} catch (failure) {
-			setError(writeFailureMessageOf(t, failure));
+		} catch (error_) {
+			setError(writeFailureMessageOf(t, error_));
 		}
 	};
 

@@ -81,7 +81,7 @@ export function authenticatorCodeOf(value: string): string {
 }
 
 export function isAuthenticatorCode(value: string): boolean {
-	return new RegExp(`^\\d{${TWO_FACTOR_CODE_LENGTH}}$`).test(value);
+	return new RegExp(String.raw`^\d{${TWO_FACTOR_CODE_LENGTH}}$`).test(value);
 }
 
 /** A recovery code as the API writes it: upper case, letters, digits and dashes. */
