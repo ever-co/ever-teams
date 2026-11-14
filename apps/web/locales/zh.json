@@ -3963,7 +3963,8 @@
 			"TASK_CLOSED_HINT": "重新打开该任务即可为其记录时间。",
 			"NOTES_NOT_SAVED": "计时器运行期间修改的备注未保存",
 			"NOTES_NOT_SAVED_HINT": "该记录保留了启动时的备注。请在工时表中编辑该记录以进行更改。",
-			"ALREADY_RUNNING_ON_TASK": "计时器已在此任务上运行"
+			"ALREADY_RUNNING_ON_TASK": "计时器已在此任务上运行",
+			"SAVED_STOP_HINT": "这是你在会话结束前要求的停止。"
 		},
 		"plans": {
 			"CREATE_FAILED": "计划未创建",
@@ -5750,6 +5751,13 @@
 			"TEXT": "登录未完成。请重试，或使用电子邮件登录。",
 			"RETRY": "返回登录",
 			"CODE": "错误代码：{code}"
+		},
+		"sessionEnded": {
+			"TITLE": "你的会话已结束",
+			"TEXT": "请重新登录后继续。",
+			"TIMER_RUNNING": "你的计时器当时正在运行。请在 {deadline} 之前重新登录，它会继续运行。之后它将停在最后一次保存的时间：{savedUntil}。",
+			"TIMER_STILL_RUNNING": "你的计时器仍在运行。请重新登录后将其停止。",
+			"STOP_SAVED": "你要求的计时器停止已保存：{time}。重新登录后将立即生效。"
 		}
 	},
 	"taskViews": {

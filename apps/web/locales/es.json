@@ -3963,7 +3963,8 @@
 			"TASK_CLOSED_HINT": "Vuelve a abrir la tarea para registrar tiempo en ella.",
 			"NOTES_NOT_SAVED": "Las notas cambiadas mientras corría el temporizador no se guardaron",
 			"NOTES_NOT_SAVED_HINT": "La entrada conservó las notas del inicio. Edita la entrada en las hojas de tiempo para cambiarlas.",
-			"ALREADY_RUNNING_ON_TASK": "El temporizador ya está en marcha en esta tarea"
+			"ALREADY_RUNNING_ON_TASK": "El temporizador ya está en marcha en esta tarea",
+			"SAVED_STOP_HINT": "Es la detención que pediste antes de que terminara tu sesión."
 		},
 		"plans": {
 			"CREATE_FAILED": "El plan no se creó",
@@ -5750,6 +5751,13 @@
 			"TEXT": "El inicio de sesión no se completó. Vuelve a intentarlo o inicia sesión con tu correo.",
 			"RETRY": "Volver al inicio de sesión",
 			"CODE": "Código de error: {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Tu sesión terminó",
+			"TEXT": "Vuelve a iniciar sesión para continuar.",
+			"TIMER_RUNNING": "Tu temporizador estaba en marcha. Vuelve a iniciar sesión antes de {deadline} y seguirá en marcha. Después, se detiene en su último guardado: {savedUntil}.",
+			"TIMER_STILL_RUNNING": "Tu temporizador sigue en marcha. Vuelve a iniciar sesión para detenerlo.",
+			"STOP_SAVED": "La detención del temporizador que pediste está guardada: {time}. Se aplicará en cuanto vuelvas a iniciar sesión."
 		}
 	},
 	"taskViews": {

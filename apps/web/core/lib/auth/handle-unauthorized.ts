@@ -6,6 +6,7 @@ import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
 import { isPasswordRecoveryPage } from '@/core/lib/auth/signed-in-auth-paths';
 import { runSignOutCleanups } from '@/core/lib/auth/sign-out-cleanups';
+import { clearSessionEndedNotice, leaveSessionEndedNotice } from '@/core/lib/auth/session-ended-notice';
 
 let isRedirecting = false;
 
@@ -28,6 +29,14 @@ export async function handleUnauthorized(
 }
 
 /**
+ * Whether the app is ending the session in this tab: the sign-out has begun and the page is leaving for the sign-in
+ * page. A request that fails then failed with the session, not for a reason of its own.
+ */
+export function isSessionEnding(): boolean {
+	return isRedirecting;
+}
+
+/**
  * Perform the actual logout (clear cookies, cache, redirect)
  */
 async function performLogout(reason: DisconnectionReason, details?: Record<string, unknown>) {
@@ -35,6 +44,8 @@ async function performLogout(reason: DisconnectionReason, details?: Record<strin
 	isRedirecting = true;
 	// Log the disconnection
 	logDisconnection(reason, details);
+	// The person did not ask for this sign-out: the sign-in page they are sent to says why they are on it
+	leaveSessionEndedNotice();
 
 	// 1. Clear all authentication cookies, and what the features keep of the person in memory (unsaved Docs text)
 	removeAuthCookies();
@@ -63,6 +74,8 @@ async function performLogout(reason: DisconnectionReason, details?: Record<strin
 		// 4. Redirect to login page, except from a password recovery page: an old session still in the browser that
 		// opens a reset link ends here, and leaving the page would lose the link
 		if (isPasswordRecoveryPage(window.location.pathname)) {
+			// No sign-in page follows: the note left for it goes too
+			clearSessionEndedNotice();
 			isRedirecting = false;
 			return;
 		}

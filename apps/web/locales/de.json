@@ -3963,7 +3963,8 @@
 			"TASK_CLOSED_HINT": "Öffnen Sie die Aufgabe wieder, um Zeit darauf zu erfassen.",
 			"NOTES_NOT_SAVED": "Die während des laufenden Timers geänderten Notizen wurden nicht gespeichert",
 			"NOTES_NOT_SAVED_HINT": "Der Eintrag hat die Notizen vom Start behalten. Bearbeiten Sie den Eintrag in den Stundenzetteln, um sie zu ändern.",
-			"ALREADY_RUNNING_ON_TASK": "Der Timer läuft bereits für diese Aufgabe"
+			"ALREADY_RUNNING_ON_TASK": "Der Timer läuft bereits für diese Aufgabe",
+			"SAVED_STOP_HINT": "Das ist der Stopp, den du vor dem Ende deiner Sitzung angefordert hast."
 		},
 		"plans": {
 			"CREATE_FAILED": "Der Plan wurde nicht erstellt",
@@ -5750,6 +5751,13 @@
 			"TEXT": "Die Anmeldung wurde nicht abgeschlossen. Versuch es erneut oder melde dich mit deiner E-Mail an.",
 			"RETRY": "Zurück zur Anmeldung",
 			"CODE": "Fehlercode: {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Deine Sitzung ist abgelaufen",
+			"TEXT": "Melde dich erneut an, um fortzufahren.",
+			"TIMER_RUNNING": "Dein Timer lief. Melde dich vor {deadline} erneut an, dann läuft er weiter. Danach wird er zum letzten gespeicherten Zeitpunkt gestoppt: {savedUntil}.",
+			"TIMER_STILL_RUNNING": "Dein Timer läuft weiter. Melde dich erneut an, um ihn zu stoppen.",
+			"STOP_SAVED": "Der von dir angeforderte Timer-Stopp ist gespeichert: {time}. Er wird angewendet, sobald du dich wieder anmeldest."
 		}
 	},
 	"taskViews": {

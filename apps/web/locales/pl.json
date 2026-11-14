@@ -3963,7 +3963,8 @@
 			"TASK_CLOSED_HINT": "Otwórz zadanie ponownie, aby rejestrować na nim czas.",
 			"NOTES_NOT_SAVED": "Notatki zmienione w trakcie działania timera nie zostały zapisane",
 			"NOTES_NOT_SAVED_HINT": "Wpis zachował notatki z uruchomienia. Edytuj wpis w kartach czasu pracy, aby je zmienić.",
-			"ALREADY_RUNNING_ON_TASK": "Timer już działa dla tego zadania"
+			"ALREADY_RUNNING_ON_TASK": "Timer już działa dla tego zadania",
+			"SAVED_STOP_HINT": "To zatrzymanie zażądane przed wygaśnięciem sesji."
 		},
 		"plans": {
 			"CREATE_FAILED": "Nie utworzono planu",
@@ -5750,6 +5751,13 @@
 			"TEXT": "Logowanie nie zostało ukończone. Spróbuj ponownie albo zaloguj się przez e-mail.",
 			"RETRY": "Wróć do logowania",
 			"CODE": "Kod błędu: {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Twoja sesja wygasła",
+			"TEXT": "Zaloguj się ponownie, aby kontynuować.",
+			"TIMER_RUNNING": "Twój timer był uruchomiony. Zaloguj się ponownie przed {deadline}, a będzie działał dalej. Później zostanie zatrzymany w chwili ostatniego zapisu: {savedUntil}.",
+			"TIMER_STILL_RUNNING": "Twój timer nadal działa. Zaloguj się ponownie, aby go zatrzymać.",
+			"STOP_SAVED": "Żądane zatrzymanie timera zostało zapisane: {time}. Zostanie zastosowane, gdy tylko zalogujesz się ponownie."
 		}
 	},
 	"taskViews": {
