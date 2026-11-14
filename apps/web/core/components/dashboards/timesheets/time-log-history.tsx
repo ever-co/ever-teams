@@ -303,7 +303,7 @@ function HistoryNote({ children, className }: Readonly<{ children: ReactNode; cl
 function HistorySkeleton() {
 	const t = useTranslations();
 	return (
-		<div role="status" className="flex flex-col gap-3">
+		<output className="flex flex-col gap-3">
 			<span className="sr-only">{t('dashboard.timesheets.HISTORY.LOADING')}</span>
 			{['w-40', 'w-32'].map((width) => (
 				<span key={width} aria-hidden="true" className="flex flex-col gap-1.5">
@@ -312,7 +312,7 @@ function HistorySkeleton() {
 					<span className={cn('h-2 w-44', SKELETON_BAR)} />
 				</span>
 			))}
-		</div>
+		</output>
 	);
 }
 

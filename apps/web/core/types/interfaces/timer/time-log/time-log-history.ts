@@ -1,3 +1,6 @@
+/** A JSON column of an activity log row: parsed on PostgreSQL and MySQL, text on SQLite, or nothing. */
+type JsonColumn<T> = T | string | null;
+
 /**
  * One row of a time entry's history as Gauzy answers it (`GET /timesheet/time-log/:id/history` and
  * `GET /timesheet/time-log/history`): an activity log row whose entity is `TimeLog`. On SQLite the JSON fields can
@@ -9,14 +12,14 @@ export interface ITimeLogHistoryRow {
 	/** `Created` (added by hand), `Updated` or `Deleted`. */
 	action: string;
 	createdAt: string;
-	updatedFields?: string[] | string | null;
-	previousValues?: Array<Record<string, unknown>> | string | null;
-	updatedValues?: Array<Record<string, unknown>> | string | null;
+	updatedFields?: JsonColumn<string[]>;
+	previousValues?: JsonColumn<Array<Record<string, unknown>>>;
+	updatedValues?: JsonColumn<Array<Record<string, unknown>>>;
 	/** The names of the records an id points at, as they were when the change was recorded. */
-	previousEntities?: Array<Record<string, unknown>> | string | null;
-	updatedEntities?: Array<Record<string, unknown>> | string | null;
+	previousEntities?: JsonColumn<Array<Record<string, unknown>>>;
+	updatedEntities?: JsonColumn<Array<Record<string, unknown>>>;
 	/** `employeeId`: the entry's owner; `reason`: the reason the person gave. */
-	data?: Record<string, unknown> | string | null;
+	data?: JsonColumn<Record<string, unknown>>;
 	/** The employee of the person who made the change, when they have one. */
 	employeeId?: string | null;
 	createdByUserId?: string | null;
