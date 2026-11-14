@@ -2054,12 +2054,20 @@ describe('Ever Teams feature surface preservation', () => {
 		// PUT, /api/invoice-item/bulk/[invoiceId] POST; #5159). Its read of one invoice is #5158's.
 		// 364 files and 462 verbs with the two-factor authentication proxies (/api/auth/two-factor GET, enroll, confirm,
 		// disable, recovery-codes and verify POST, users/[userId] DELETE; #5210).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(364);
+		// 369 files and 467 verbs with the proxies of the members without an account (/api/employee-placeholder POST,
+		// bulk POST, [id]/claim POST, [id]/merge-preview GET, [id]/merge POST; #5202).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(369);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(462);
+		).toHaveLength(467);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of Gauzy's members without an account (ever-gauzy #11913, #5202)
+				'apps/web/app/api/employee-placeholder/route.ts::POST',
+				'apps/web/app/api/employee-placeholder/bulk/route.ts::POST',
+				'apps/web/app/api/employee-placeholder/[id]/claim/route.ts::POST',
+				'apps/web/app/api/employee-placeholder/[id]/merge-preview/route.ts::GET',
+				'apps/web/app/api/employee-placeholder/[id]/merge/route.ts::POST',
 				// Proxy mode twins of Gauzy's two-factor authentication routes (ever-gauzy #11916, #5210)
 				'apps/web/app/api/auth/two-factor/route.ts::GET',
 				'apps/web/app/api/auth/two-factor/enroll/route.ts::POST',
