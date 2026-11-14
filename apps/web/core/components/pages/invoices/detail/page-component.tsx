@@ -32,8 +32,14 @@ import {
 	InvoiceDetailPageSkeleton
 } from './invoice-detail-skeleton';
 
+/** The read of the organization whose time zone dates the invoice and whose name signs it. */
+interface OrganizationRead {
+	isError: boolean;
+	refetch: () => unknown;
+}
+
 /** Mounted once the role may read invoices: nothing of an invoice is read for anyone else. */
-function InvoiceDetailContent() {
+function InvoiceDetailContent({ organizationRead }: Readonly<{ organizationRead: OrganizationRead }>) {
 	const t = useTranslations();
 	const router = useRouter();
 	const params = useParams<{ id: string }>();
@@ -78,6 +84,8 @@ function InvoiceDetailContent() {
 	const isOfOtherWorkspace = Boolean(invoice) && !isOfWorkspace;
 	const isMissing = read.isMissing || isOfOtherWorkspace;
 	const hasFailed = read.isError && !read.isMissing;
+	// Without its organization the document would lose its sender, and its days would follow the browser's zone
+	const hasOrganizationFailed = organizationRead.isError && !organization;
 
 	let header: ReactNode = <InvoiceDetailHeaderSkeleton />;
 	let body: ReactNode = <InvoiceDetailBodySkeleton />;
@@ -103,6 +111,18 @@ function InvoiceDetailContent() {
 				actionLabel={t('pages.unauthorized.TRY_AGAIN')}
 				actionVariant="outline"
 				onAction={() => void read.refetch()}
+				minHeight="420px"
+			/>
+		);
+	} else if (hasOrganizationFailed) {
+		header = undefined;
+		body = (
+			<AnimatedEmptyState
+				title={t('invoices.detail.ERROR_TITLE')}
+				message={t('invoices.ERROR_MESSAGE')}
+				actionLabel={t('pages.unauthorized.TRY_AGAIN')}
+				actionVariant="outline"
+				onAction={() => void organizationRead.refetch()}
 				minHeight="420px"
 			/>
 		);
@@ -149,10 +169,10 @@ function InvoiceDetailContent() {
 
 /** The organisation (its time zone dates the invoice) is loaded through its owner hook. */
 export function InvoiceDetailPageComponent() {
-	useCurrentOrganizationOwner();
+	const organizationRead = useCurrentOrganizationOwner();
 	return (
 		<InvoiceAccessGuard need="view" fallback={<InvoiceDetailPageSkeleton />}>
-			<InvoiceDetailContent />
+			<InvoiceDetailContent organizationRead={organizationRead} />
 		</InvoiceAccessGuard>
 	);
 }
