@@ -100,6 +100,18 @@ export function requestPeriodOf(
 }
 
 /**
+ * What the report is cached by: the request Gauzy gets, the view shown and the week start its days are added into.
+ * The daily and the weekly view can send Gauzy the same request and keep different rows from it.
+ */
+export function limitCacheParamsOf<Params extends object>(
+	params: Params,
+	shownDuration: LimitDuration,
+	weekStartsOn: WeekStart
+) {
+	return { ...params, shownDuration, weekStartsOn };
+}
+
+/**
  * The duration to ask Gauzy for. Gauzy measures its weeks from Monday whatever the organisation stores, so a workspace
  * whose week starts on another day asks for days and adds them up into its own weeks.
  */

@@ -18,6 +18,7 @@ import {
 	groupsByPeriodOf,
 	LIMIT_WEEK_START,
 	limitAttentionOf,
+	limitCacheParamsOf,
 	limitEntriesOf,
 	limitFiguresOf,
 	limitMatrixRowsOf,
@@ -203,7 +204,9 @@ export function useWeeklyLimitReport({ unnamedLabel }: Readonly<{ unnamedLabel: 
 
 	const isLive = isLiveDayRange(localDayKeyOf(requestPeriod.from), localDayKeyOf(requestPeriod.to));
 	const query = useQuery({
-		queryKey: queryKeys.timer.timeLimits.byParams({ ...request.params, organizationId, tenantId }),
+		queryKey: queryKeys.timer.timeLimits.byParams(
+			limitCacheParamsOf({ ...request.params, organizationId, tenantId }, request.duration, request.weekStartsOn)
+		),
 		queryFn: () => fetchWeeklyLimit(request),
 		enabled: isEnabled,
 		placeholderData: (previous) => previousOfSameScope(previous, request.scopeKey),

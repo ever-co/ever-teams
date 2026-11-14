@@ -1,7 +1,13 @@
 import { describe, expect, it } from '@jest/globals';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import type { TTimeLimitReportList } from '@/core/types/schemas';
-import { apiLimitDurationOf, limitEntriesOf, requestPeriodOf, weeklyReportsOfDays } from './weekly-limit';
+import {
+	apiLimitDurationOf,
+	limitCacheParamsOf,
+	limitEntriesOf,
+	requestPeriodOf,
+	weeklyReportsOfDays
+} from './weekly-limit';
 
 const SUNDAY = 0;
 const MONDAY = 1;
@@ -62,5 +68,18 @@ describe('the Weekly limit counts weeks from the workspace week start', () => {
 		});
 
 		expect(entries.map((entry) => entry.periodKey)).toEqual(['2026-11-01', '2026-11-08']);
+	});
+});
+
+describe('the Weekly limit cache', () => {
+	it('keeps the daily and the weekly view apart when Gauzy is asked for the same days', () => {
+		const params = { startDate: '2026-11-01', endDate: '2026-11-07', duration: 'day' };
+
+		const daily = limitCacheParamsOf(params, 'day', SUNDAY);
+		const weekly = limitCacheParamsOf(params, 'week', SUNDAY);
+		const mondayWeekly = limitCacheParamsOf(params, 'week', MONDAY);
+
+		expect(daily).not.toEqual(weekly);
+		expect(weekly).not.toEqual(mondayWeekly);
 	});
 });
