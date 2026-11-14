@@ -812,6 +812,24 @@ describe('saving an edit to an invoice', () => {
 		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', fieldsOnly.previous.update, workspace);
 	});
 
+	it('never puts lines back after its fields failed, though another user saved other lines meanwhile', async () => {
+		const linesSavedElsewhere = [{ id: 'item-2', ...previousLine, quantity: 11, totalValue: 880 }];
+		mockGetInvoice
+			.mockResolvedValueOnce(invoiceRead('SENT'))
+			.mockResolvedValue({ ...invoiceRead('SENT', linesSavedElsewhere), ...fields, totalValue: 960 });
+		// The answer to the fields was lost: they may have been written, its lines were never sent
+		mockUpdateInvoice
+			.mockRejectedValueOnce(ApiErrorService.fromAxiosError({ code: 'ECONNABORTED', message: 'timeout' }))
+			.mockResolvedValueOnce(undefined);
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'putBack' }, sending: null });
+		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
+		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', edit.previous.update, workspace);
+	});
+
 	it('says how many lines the invoice holds when it could not be put back', async () => {
 		mockGetInvoice.mockResolvedValueOnce(invoiceRead('SENT')).mockResolvedValue(invoiceRead('SENT', []));
 		mockUpdateInvoice.mockResolvedValue(undefined);

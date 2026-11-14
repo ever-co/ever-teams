@@ -344,11 +344,14 @@ async function notPutBackOf(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
 	return { status: 'notPutBack', lineCount: lineCountOf(now) };
 }
 
+/** Which writes of the edit were sent before it failed: the fields always go first, the lines only after them. */
+type EditWritesSent = 'fields' | 'fieldsAndLines';
+
 /**
  * Writes the invoice back as it was read: its lines first, and only when they changed, since the API deletes the
  * lines before it saves the new ones and a failure between the two leaves none.
  */
-async function putInvoiceBack(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
+async function putInvoiceBack(edit: InvoiceEdit, writesSent: EditWritesSent): Promise<InvoiceEditOutcome> {
 	if (!reachesItsTenant(edit)) {
 		return NOT_PUT_BACK_UNREAD;
 	}
@@ -357,10 +360,10 @@ async function putInvoiceBack(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
 		return NOT_PUT_BACK_UNREAD;
 	}
 	const currentLines = current.invoiceItems ?? [];
-	// Only lines this save may have written are put back: an edit that keeps its lines never wrote any, and lines
-	// changed from elsewhere since are not this save's to undo.
-	const wroteLines = !haveSameLines(edit.revision.lines, edit.previous.lines);
-	const putsLinesBack = wroteLines && !haveSameLines(currentLines, edit.previous.lines);
+	// Only lines this save may have written are put back: a save whose fields failed never sent its lines, an edit
+	// that keeps its lines never sends any, and lines changed from elsewhere since are not this save's to undo.
+	const sentLines = writesSent === 'fieldsAndLines';
+	const putsLinesBack = sentLines && !haveSameLines(currentLines, edit.previous.lines);
 	const keepsItsFields = haveSameFields(current, edit.previous.update);
 	// Nothing reached the invoice, as when the network failed before the first write: there is nothing to put back.
 	if (!putsLinesBack && keepsItsFields) {
@@ -417,7 +420,7 @@ async function outcomeOfFailedFields(edit: InvoiceEdit, error: unknown): Promise
 	if (isRefused) {
 		return { status: 'notSaved' };
 	}
-	const outcome = await putInvoiceBack(edit);
+	const outcome = await putInvoiceBack(edit, 'fields');
 	const isUntouched = outcome.status === 'notSaved';
 	const wasNotReached = didNotReachApi(error);
 	const isConnectionFailure = isUntouched && wasNotReached;
@@ -447,7 +450,7 @@ async function writeInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> 
 		const linesScope = scopeToWriteIn(edit);
 		await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.revision.lines, linesScope);
 	} catch {
-		return putInvoiceBack(edit);
+		return putInvoiceBack(edit, 'fieldsAndLines');
 	}
 	return { status: 'saved' };
 }
