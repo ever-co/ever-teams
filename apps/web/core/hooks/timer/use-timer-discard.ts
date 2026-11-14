@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useReducer, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
@@ -64,7 +64,7 @@ export function useTimerDiscard() {
 	const [discarding, setDiscarding] = useState(false);
 	const [failure, setFailure] = useState<TimerDiscardFailure | null>(null);
 	// Bumped when the organization's age limit closes the offer, so the availability is read again then.
-	const [, setLimitPassed] = useState(0);
+	const [, readAvailabilityAgain] = useReducer((count: number) => count + 1, 0);
 
 	const runningLog = timerStatus?.lastLog;
 	const startedAt = startedAtOf(runningLog?.startedAt);
@@ -75,7 +75,7 @@ export function useTimerDiscard() {
 		if (closesAt === null) {
 			return undefined;
 		}
-		const timeout = setTimeout(() => setLimitPassed((count) => count + 1), Math.max(0, closesAt - Date.now()));
+		const timeout = setTimeout(readAvailabilityAgain, Math.max(0, closesAt - Date.now()));
 		return () => clearTimeout(timeout);
 	}, [closesAt]);
 
