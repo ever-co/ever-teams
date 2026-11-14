@@ -117,10 +117,9 @@ export function createFakeGauzy({
 		return response;
 	};
 
-	// A route that fails on the network throws: the promise then rejects, as `fetch` does
-	const fetch = jest.fn(
-		(input: RequestInfo | URL, init: RequestInit = {}) =>
-			new Promise<Response>((resolve) => resolve(send(input, init)))
+	// Answered later, as `fetch` does: a route that fails on the network throws, and the promise then rejects
+	const fetch = jest.fn((input: RequestInfo | URL, init: RequestInit = {}) =>
+		Promise.resolve().then(() => send(input, init))
 	);
 
 	return {
