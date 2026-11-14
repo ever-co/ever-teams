@@ -649,6 +649,23 @@
 					"CHECK_FAILED": "{count, plural, zero {لا إدخالات تعذّر التحقق منها.} one {تعذّر التحقق من تداخل إدخال واحد، لذلك لم يُحفظ.} two {تعذّر التحقق من تداخل إدخالين، لذلك لم يُحفظا.} few {تعذّر التحقق من تداخل # إدخالات، لذلك لم تُحفظ.} many {تعذّر التحقق من تداخل # إدخالًا، لذلك لم تُحفظ.} other {تعذّر التحقق من تداخل # إدخال، لذلك لم تُحفظ.}}",
 					"FAILED": "{count, plural, zero {لا إدخالات تعذّر حفظها.} one {تعذّر حفظ إدخال واحد.} two {تعذّر حفظ إدخالين.} few {تعذّر حفظ # إدخالات.} many {تعذّر حفظ # إدخالًا.} other {تعذّر حفظ # إدخال.}}"
 				}
+			},
+			"HISTORY": {
+				"TITLE": "سجل الإدخال",
+				"OPEN": "{edited}. عرض السجل",
+				"ADDED_BY": "أضافه {name}",
+				"EDITED_BY": "عدّله {name}",
+				"DELETED_BY": "حذفه {name}",
+				"DELETED": "محذوف",
+				"WHEN": "{date}، {time}",
+				"FIELD_CHANGED": "تغيّر من {before} إلى {after}",
+				"NONE": "لا شيء",
+				"LOADING": "جارٍ تحميل السجل",
+				"ERROR": "تعذّر تحميل سجل هذا الإدخال.",
+				"RETRY": "إعادة المحاولة",
+				"FORBIDDEN": "لا يمكنك عرض سجل هذا الإدخال.",
+				"UNSUPPORTED": "لا يحتفظ هذا الخادم بسجل إدخالات الوقت.",
+				"NOT_KEPT": "لم تُحفظ القيم السابقة: عُدّل هذا الإدخال قبل بدء تسجيل سجله."
 			}
 		},
 		"workDiary": {
@@ -1510,7 +1527,19 @@
 			"LEGEND_TRACKED": "مسجّل",
 			"RANK_MEMBERS_TITLE": "من يضيف الوقت يدويًا",
 			"RANK_OTHER_MEMBERS": "{count, plural, zero {لا أعضاء آخرين} one {عضو آخر} two {عضوان آخران} few {# أعضاء آخرين} many {# عضوًا آخر} other {# عضو آخر}}",
-			"RANK_OTHER_PROJECTS": "{count, plural, zero {لا مشاريع أخرى} one {مشروع آخر} two {مشروعان آخران} few {# مشاريع أخرى} many {# مشروعًا آخر} other {# مشروع آخر}}"
+			"RANK_OTHER_PROJECTS": "{count, plural, zero {لا مشاريع أخرى} one {مشروع آخر} two {مشروعان آخران} few {# مشاريع أخرى} many {# مشروعًا آخر} other {# مشروع آخر}}",
+			"DELETED": "محذوف",
+			"DELETED_AT": "حُذف في {when}",
+			"FEED_DELETED": "<actor>{name}</actor>: حُذف <figure>{duration}</figure> في <link>{task}</link>",
+			"FEED_DELETED_NO_TASK": "<actor>{name}</actor>: حُذف <figure>{duration}</figure> بدون مهمة",
+			"KIND_LABEL": "نوع التغيير",
+			"KIND_TIME": "الوقت",
+			"KIND_TASK_PROJECT": "المهمة أو المشروع",
+			"SHOW_HISTORY": "السجل",
+			"HIDE_HISTORY": "إخفاء السجل",
+			"NOT_KEPT": "لم تُحفظ القيم السابقة",
+			"COLUMN_BEFORE": "قبل",
+			"COLUMN_AFTER": "بعد"
 		}
 	},
 	"timeActivity": {

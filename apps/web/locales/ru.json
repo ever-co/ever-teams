@@ -714,6 +714,23 @@
 					"CHECK_FAILED": "{count, plural, one {Не удалось проверить пересечение для # записи, поэтому она не сохранена.} few {Не удалось проверить пересечение для # записей, поэтому они не сохранены.} many {Не удалось проверить пересечение для # записей, поэтому они не сохранены.} other {Не удалось проверить пересечение для # записи, поэтому они не сохранены.}}",
 					"FAILED": "{count, plural, one {Не удалось сохранить # запись.} few {Не удалось сохранить # записи.} many {Не удалось сохранить # записей.} other {Не удалось сохранить # записи.}}"
 				}
+			},
+			"HISTORY": {
+				"TITLE": "История записи",
+				"OPEN": "{edited}. Показать историю",
+				"ADDED_BY": "Добавил(а) {name}",
+				"EDITED_BY": "Изменил(а) {name}",
+				"DELETED_BY": "Удалил(а) {name}",
+				"DELETED": "Удалено",
+				"WHEN": "{date}, {time}",
+				"FIELD_CHANGED": "изменено с {before} на {after}",
+				"NONE": "Нет",
+				"LOADING": "Загрузка истории",
+				"ERROR": "Не удалось загрузить историю этой записи.",
+				"RETRY": "Повторить",
+				"FORBIDDEN": "Вы не можете просматривать историю этой записи.",
+				"UNSUPPORTED": "Этот сервер не хранит историю записей времени.",
+				"NOT_KEPT": "Прежние значения не сохранились: запись изменили до того, как начала вестись её история."
 			}
 		},
 		"workDiary": {
@@ -1575,7 +1592,19 @@
 			"LEGEND_TRACKED": "Учтено",
 			"RANK_MEMBERS_TITLE": "Кто добавляет время вручную",
 			"RANK_OTHER_MEMBERS": "{count, plural, one {ещё # участник} few {ещё # участника} many {ещё # участников} other {ещё # участника}}",
-			"RANK_OTHER_PROJECTS": "{count, plural, one {ещё # проект} few {ещё # проекта} many {ещё # проектов} other {ещё # проекта}}"
+			"RANK_OTHER_PROJECTS": "{count, plural, one {ещё # проект} few {ещё # проекта} many {ещё # проектов} other {ещё # проекта}}",
+			"DELETED": "Удалено",
+			"DELETED_AT": "Удалено {when}",
+			"FEED_DELETED": "<actor>{name}</actor>: удалено <figure>{duration}</figure> в <link>{task}</link>",
+			"FEED_DELETED_NO_TASK": "<actor>{name}</actor>: удалено <figure>{duration}</figure> без задачи",
+			"KIND_LABEL": "Тип изменения",
+			"KIND_TIME": "Время",
+			"KIND_TASK_PROJECT": "Задача или проект",
+			"SHOW_HISTORY": "История",
+			"HIDE_HISTORY": "Скрыть историю",
+			"NOT_KEPT": "Прежние значения не сохранились",
+			"COLUMN_BEFORE": "До",
+			"COLUMN_AFTER": "После"
 		}
 	},
 	"timeActivity": {

@@ -714,6 +714,23 @@
 					"CHECK_FAILED": "{count, plural, one {Nie udało się sprawdzić, czy # wpis pokrywa się z innym czasem, więc nie został zapisany.} few {Nie udało się sprawdzić, czy # wpisy pokrywają się z innym czasem, więc nie zostały zapisane.} many {Nie udało się sprawdzić, czy # wpisów pokrywa się z innym czasem, więc nie zostały zapisane.} other {Nie udało się sprawdzić, czy # wpisu pokrywa się z innym czasem, więc nie zostały zapisane.}}",
 					"FAILED": "{count, plural, one {Nie udało się zapisać # wpisu.} few {Nie udało się zapisać # wpisów.} many {Nie udało się zapisać # wpisów.} other {Nie udało się zapisać # wpisu.}}"
 				}
+			},
+			"HISTORY": {
+				"TITLE": "Historia wpisu",
+				"OPEN": "{edited}. Pokaż historię",
+				"ADDED_BY": "Dodane przez {name}",
+				"EDITED_BY": "Edytowane przez {name}",
+				"DELETED_BY": "Usunięte przez {name}",
+				"DELETED": "Usunięty",
+				"WHEN": "{date}, {time}",
+				"FIELD_CHANGED": "zmieniono z {before} na {after}",
+				"NONE": "Brak",
+				"LOADING": "Wczytywanie historii",
+				"ERROR": "Nie udało się wczytać historii tego wpisu.",
+				"RETRY": "Spróbuj ponownie",
+				"FORBIDDEN": "Nie możesz zobaczyć historii tego wpisu.",
+				"UNSUPPORTED": "Ten serwer nie przechowuje historii wpisów czasu.",
+				"NOT_KEPT": "Wcześniejsze wartości nie zostały zachowane: ten wpis zmieniono, zanim zaczęto zapisywać jego historię."
 			}
 		},
 		"workDiary": {
@@ -1575,7 +1592,19 @@
 			"LEGEND_TRACKED": "Zarejestrowany",
 			"RANK_MEMBERS_TITLE": "Kto dodaje czas ręcznie",
 			"RANK_OTHER_MEMBERS": "{count, plural, one {# inna osoba} few {# inne osoby} many {# innych osób} other {# innej osoby}}",
-			"RANK_OTHER_PROJECTS": "{count, plural, one {# inny projekt} few {# inne projekty} many {# innych projektów} other {# innego projektu}}"
+			"RANK_OTHER_PROJECTS": "{count, plural, one {# inny projekt} few {# inne projekty} many {# innych projektów} other {# innego projektu}}",
+			"DELETED": "Usunięty",
+			"DELETED_AT": "Usunięto {when}",
+			"FEED_DELETED": "<actor>{name}</actor>: usunięto <figure>{duration}</figure> przy <link>{task}</link>",
+			"FEED_DELETED_NO_TASK": "<actor>{name}</actor>: usunięto <figure>{duration}</figure> bez zadania",
+			"KIND_LABEL": "Rodzaj zmiany",
+			"KIND_TIME": "Czas",
+			"KIND_TASK_PROJECT": "Zadanie lub projekt",
+			"SHOW_HISTORY": "Historia",
+			"HIDE_HISTORY": "Ukryj historię",
+			"NOT_KEPT": "Wcześniejsze wartości nie zostały zachowane",
+			"COLUMN_BEFORE": "Przed",
+			"COLUMN_AFTER": "Po"
 		}
 	},
 	"timeActivity": {

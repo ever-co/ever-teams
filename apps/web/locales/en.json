@@ -714,6 +714,23 @@
 					"CHECK_FAILED": "{count, plural, one {# entry could not be checked for overlapping time, so it was not saved.} other {# entries could not be checked for overlapping time, so they were not saved.}}",
 					"FAILED": "{count, plural, one {# entry could not be saved.} other {# entries could not be saved.}}"
 				}
+			},
+			"HISTORY": {
+				"TITLE": "Entry history",
+				"OPEN": "{edited}. Show the history",
+				"ADDED_BY": "Added by {name}",
+				"EDITED_BY": "Edited by {name}",
+				"DELETED_BY": "Deleted by {name}",
+				"DELETED": "Deleted",
+				"WHEN": "{date}, {time}",
+				"FIELD_CHANGED": "changed from {before} to {after}",
+				"NONE": "None",
+				"LOADING": "Loading the history",
+				"ERROR": "The history of this entry could not be loaded.",
+				"RETRY": "Try again",
+				"FORBIDDEN": "You cannot see the history of this entry.",
+				"UNSUPPORTED": "This server does not keep the history of time entries.",
+				"NOT_KEPT": "Earlier values were not kept: this entry was changed before its history was recorded."
 			}
 		},
 		"workDiary": {
@@ -1575,7 +1592,19 @@
 			"LEGEND_TRACKED": "Tracked",
 			"RANK_MEMBERS_TITLE": "Who adds time by hand",
 			"RANK_OTHER_MEMBERS": "{count, plural, one {# other member} other {# other members}}",
-			"RANK_OTHER_PROJECTS": "{count, plural, one {# other project} other {# other projects}}"
+			"RANK_OTHER_PROJECTS": "{count, plural, one {# other project} other {# other projects}}",
+			"DELETED": "Deleted",
+			"DELETED_AT": "Deleted {when}",
+			"FEED_DELETED": "<actor>{name}</actor>’s <figure>{duration}</figure> on <link>{task}</link> was deleted",
+			"FEED_DELETED_NO_TASK": "<actor>{name}</actor>’s <figure>{duration}</figure> without a task was deleted",
+			"KIND_LABEL": "Kind of change",
+			"KIND_TIME": "Time",
+			"KIND_TASK_PROJECT": "Task or project",
+			"SHOW_HISTORY": "History",
+			"HIDE_HISTORY": "Hide history",
+			"NOT_KEPT": "Earlier values were not kept",
+			"COLUMN_BEFORE": "Before",
+			"COLUMN_AFTER": "After"
 		}
 	},
 	"timeActivity": {

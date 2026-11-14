@@ -714,6 +714,23 @@
 					"CHECK_FAILED": "{count, plural, one {לא ניתן היה לבדוק חפיפה עבור רישום אחד, ולכן הוא לא נשמר.} two {לא ניתן היה לבדוק חפיפה עבור שני רישומים, ולכן הם לא נשמרו.} other {לא ניתן היה לבדוק חפיפה עבור # רישומים, ולכן הם לא נשמרו.}}",
 					"FAILED": "{count, plural, one {לא ניתן היה לשמור רישום אחד.} two {לא ניתן היה לשמור שני רישומים.} other {לא ניתן היה לשמור # רישומים.}}"
 				}
+			},
+			"HISTORY": {
+				"TITLE": "היסטוריית הרישום",
+				"OPEN": "{edited}. הצגת ההיסטוריה",
+				"ADDED_BY": "נוסף על ידי {name}",
+				"EDITED_BY": "נערך על ידי {name}",
+				"DELETED_BY": "נמחק על ידי {name}",
+				"DELETED": "נמחק",
+				"WHEN": "{date}, {time}",
+				"FIELD_CHANGED": "השתנה מ־{before} ל־{after}",
+				"NONE": "ללא",
+				"LOADING": "טוען את ההיסטוריה",
+				"ERROR": "לא ניתן היה לטעון את ההיסטוריה של רישום זה.",
+				"RETRY": "נסה שוב",
+				"FORBIDDEN": "אין לך הרשאה לראות את ההיסטוריה של רישום זה.",
+				"UNSUPPORTED": "שרת זה אינו שומר היסטוריה של רישומי זמן.",
+				"NOT_KEPT": "הערכים הקודמים לא נשמרו: הרישום נערך לפני שההיסטוריה שלו התחילה להירשם."
 			}
 		},
 		"workDiary": {
@@ -1575,7 +1592,19 @@
 			"LEGEND_TRACKED": "נרשם",
 			"RANK_MEMBERS_TITLE": "מי מוסיף זמן ידנית",
 			"RANK_OTHER_MEMBERS": "{count, plural, one {חבר צוות נוסף} two {שני חברי צוות נוספים} other {# חברי צוות נוספים}}",
-			"RANK_OTHER_PROJECTS": "{count, plural, one {פרויקט נוסף} two {שני פרויקטים נוספים} other {# פרויקטים נוספים}}"
+			"RANK_OTHER_PROJECTS": "{count, plural, one {פרויקט נוסף} two {שני פרויקטים נוספים} other {# פרויקטים נוספים}}",
+			"DELETED": "נמחק",
+			"DELETED_AT": "נמחק ב־{when}",
+			"FEED_DELETED": "<actor>{name}</actor>: נמחקו <figure>{duration}</figure> במשימה <link>{task}</link>",
+			"FEED_DELETED_NO_TASK": "<actor>{name}</actor>: נמחקו <figure>{duration}</figure> ללא משימה",
+			"KIND_LABEL": "סוג השינוי",
+			"KIND_TIME": "זמן",
+			"KIND_TASK_PROJECT": "משימה או פרויקט",
+			"SHOW_HISTORY": "היסטוריה",
+			"HIDE_HISTORY": "הסתרת ההיסטוריה",
+			"NOT_KEPT": "הערכים הקודמים לא נשמרו",
+			"COLUMN_BEFORE": "לפני",
+			"COLUMN_AFTER": "אחרי"
 		}
 	},
 	"timeActivity": {

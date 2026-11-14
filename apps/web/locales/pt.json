@@ -714,6 +714,23 @@
 					"CHECK_FAILED": "{count, plural, one {Não foi possível verificar a sobreposição de # entrada, por isso ela não foi salva.} other {Não foi possível verificar a sobreposição de # entradas, por isso elas não foram salvas.}}",
 					"FAILED": "{count, plural, one {Não foi possível salvar # entrada.} other {Não foi possível salvar # entradas.}}"
 				}
+			},
+			"HISTORY": {
+				"TITLE": "Histórico da entrada",
+				"OPEN": "{edited}. Ver o histórico",
+				"ADDED_BY": "Adicionado por {name}",
+				"EDITED_BY": "Editado por {name}",
+				"DELETED_BY": "Excluído por {name}",
+				"DELETED": "Excluído",
+				"WHEN": "{date}, {time}",
+				"FIELD_CHANGED": "alterado de {before} para {after}",
+				"NONE": "Nenhum",
+				"LOADING": "Carregando o histórico",
+				"ERROR": "Não foi possível carregar o histórico desta entrada.",
+				"RETRY": "Tentar novamente",
+				"FORBIDDEN": "Você não pode ver o histórico desta entrada.",
+				"UNSUPPORTED": "Este servidor não guarda o histórico das entradas de tempo.",
+				"NOT_KEPT": "Os valores anteriores não foram guardados: esta entrada foi alterada antes de seu histórico ser registrado."
 			}
 		},
 		"workDiary": {
@@ -1575,7 +1592,19 @@
 			"LEGEND_TRACKED": "Registrado",
 			"RANK_MEMBERS_TITLE": "Quem adiciona tempo à mão",
 			"RANK_OTHER_MEMBERS": "{count, plural, one {Mais # membro} other {Mais # membros}}",
-			"RANK_OTHER_PROJECTS": "{count, plural, one {Mais # projeto} other {Mais # projetos}}"
+			"RANK_OTHER_PROJECTS": "{count, plural, one {Mais # projeto} other {Mais # projetos}}",
+			"DELETED": "Excluído",
+			"DELETED_AT": "Excluído em {when}",
+			"FEED_DELETED": "O tempo de <actor>{name}</actor> em <link>{task}</link> foi excluído: <figure>{duration}</figure>",
+			"FEED_DELETED_NO_TASK": "O tempo de <actor>{name}</actor> sem tarefa foi excluído: <figure>{duration}</figure>",
+			"KIND_LABEL": "Tipo de alteração",
+			"KIND_TIME": "Tempo",
+			"KIND_TASK_PROJECT": "Tarefa ou projeto",
+			"SHOW_HISTORY": "Histórico",
+			"HIDE_HISTORY": "Ocultar histórico",
+			"NOT_KEPT": "Os valores anteriores não foram guardados",
+			"COLUMN_BEFORE": "Antes",
+			"COLUMN_AFTER": "Depois"
 		}
 	},
 	"timeActivity": {

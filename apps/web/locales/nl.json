@@ -714,6 +714,23 @@
 					"CHECK_FAILED": "{count, plural, one {Van # invoer kon de overlap niet worden gecontroleerd, dus die is niet opgeslagen.} other {Van # invoeren kon de overlap niet worden gecontroleerd, dus die zijn niet opgeslagen.}}",
 					"FAILED": "{count, plural, one {# invoer kon niet worden opgeslagen.} other {# invoeren konden niet worden opgeslagen.}}"
 				}
+			},
+			"HISTORY": {
+				"TITLE": "Geschiedenis van de invoer",
+				"OPEN": "{edited}. Geschiedenis tonen",
+				"ADDED_BY": "Toegevoegd door {name}",
+				"EDITED_BY": "Bewerkt door {name}",
+				"DELETED_BY": "Verwijderd door {name}",
+				"DELETED": "Verwijderd",
+				"WHEN": "{date}, {time}",
+				"FIELD_CHANGED": "gewijzigd van {before} naar {after}",
+				"NONE": "Geen",
+				"LOADING": "Geschiedenis laden",
+				"ERROR": "De geschiedenis van deze invoer kon niet worden geladen.",
+				"RETRY": "Opnieuw proberen",
+				"FORBIDDEN": "Je kunt de geschiedenis van deze invoer niet zien.",
+				"UNSUPPORTED": "Deze server bewaart geen geschiedenis van tijdinvoer.",
+				"NOT_KEPT": "Eerdere waarden zijn niet bewaard: deze invoer is gewijzigd voordat de geschiedenis werd vastgelegd."
 			}
 		},
 		"workDiary": {
@@ -1575,7 +1592,19 @@
 			"LEGEND_TRACKED": "Geregistreerd",
 			"RANK_MEMBERS_TITLE": "Wie tijd met de hand toevoegt",
 			"RANK_OTHER_MEMBERS": "{count, plural, one {# ander lid} other {# andere leden}}",
-			"RANK_OTHER_PROJECTS": "{count, plural, one {# ander project} other {# andere projecten}}"
+			"RANK_OTHER_PROJECTS": "{count, plural, one {# ander project} other {# andere projecten}}",
+			"DELETED": "Verwijderd",
+			"DELETED_AT": "Verwijderd op {when}",
+			"FEED_DELETED": "De tijd van <actor>{name}</actor> op <link>{task}</link> is verwijderd: <figure>{duration}</figure>",
+			"FEED_DELETED_NO_TASK": "De tijd van <actor>{name}</actor> zonder taak is verwijderd: <figure>{duration}</figure>",
+			"KIND_LABEL": "Soort wijziging",
+			"KIND_TIME": "Tijd",
+			"KIND_TASK_PROJECT": "Taak of project",
+			"SHOW_HISTORY": "Geschiedenis",
+			"HIDE_HISTORY": "Geschiedenis verbergen",
+			"NOT_KEPT": "Eerdere waarden zijn niet bewaard",
+			"COLUMN_BEFORE": "Voor",
+			"COLUMN_AFTER": "Na"
 		}
 	},
 	"timeActivity": {

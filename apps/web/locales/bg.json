@@ -714,6 +714,23 @@
 					"CHECK_FAILED": "{count, plural, one {Не успяхме да проверим застъпването на # запис, затова той не беше запазен.} other {Не успяхме да проверим застъпването на # записа, затова те не бяха запазени.}}",
 					"FAILED": "{count, plural, one {# запис не можа да бъде запазен.} other {# записа не можаха да бъдат запазени.}}"
 				}
+			},
+			"HISTORY": {
+				"TITLE": "История на записа",
+				"OPEN": "{edited}. Показване на историята",
+				"ADDED_BY": "Добавено от {name}",
+				"EDITED_BY": "Редактирано от {name}",
+				"DELETED_BY": "Изтрито от {name}",
+				"DELETED": "Изтрито",
+				"WHEN": "{date}, {time}",
+				"FIELD_CHANGED": "променено от {before} на {after}",
+				"NONE": "Няма",
+				"LOADING": "Зареждане на историята",
+				"ERROR": "Историята на този запис не можа да се зареди.",
+				"RETRY": "Опитай отново",
+				"FORBIDDEN": "Не можете да видите историята на този запис.",
+				"UNSUPPORTED": "Този сървър не пази история на записите за време.",
+				"NOT_KEPT": "Предишните стойности не са запазени: записът е променен, преди да започне да се води историята му."
 			}
 		},
 		"workDiary": {
@@ -1575,7 +1592,19 @@
 			"LEGEND_TRACKED": "Отчетено",
 			"RANK_MEMBERS_TITLE": "Кой добавя време ръчно",
 			"RANK_OTHER_MEMBERS": "{count, plural, one {още # член} other {още # членове}}",
-			"RANK_OTHER_PROJECTS": "{count, plural, one {още # проект} other {още # проекта}}"
+			"RANK_OTHER_PROJECTS": "{count, plural, one {още # проект} other {още # проекта}}",
+			"DELETED": "Изтрито",
+			"DELETED_AT": "Изтрито на {when}",
+			"FEED_DELETED": "Времето на <actor>{name}</actor> по <link>{task}</link> е изтрито: <figure>{duration}</figure>",
+			"FEED_DELETED_NO_TASK": "Времето на <actor>{name}</actor> без задача е изтрито: <figure>{duration}</figure>",
+			"KIND_LABEL": "Вид промяна",
+			"KIND_TIME": "Време",
+			"KIND_TASK_PROJECT": "Задача или проект",
+			"SHOW_HISTORY": "История",
+			"HIDE_HISTORY": "Скриване на историята",
+			"NOT_KEPT": "Предишните стойности не са запазени",
+			"COLUMN_BEFORE": "Преди",
+			"COLUMN_AFTER": "След"
 		}
 	},
 	"timeActivity": {

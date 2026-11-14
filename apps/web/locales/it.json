@@ -714,6 +714,23 @@
 					"CHECK_FAILED": "{count, plural, one {Non è stato possibile verificare la sovrapposizione di # voce, quindi non è stata salvata.} other {Non è stato possibile verificare la sovrapposizione di # voci, quindi non sono state salvate.}}",
 					"FAILED": "{count, plural, one {Non è stato possibile salvare # voce.} other {Non è stato possibile salvare # voci.}}"
 				}
+			},
+			"HISTORY": {
+				"TITLE": "Cronologia della voce",
+				"OPEN": "{edited}. Mostra la cronologia",
+				"ADDED_BY": "Aggiunto da {name}",
+				"EDITED_BY": "Modificato da {name}",
+				"DELETED_BY": "Eliminato da {name}",
+				"DELETED": "Eliminato",
+				"WHEN": "{date}, {time}",
+				"FIELD_CHANGED": "cambiato da {before} a {after}",
+				"NONE": "Nessuno",
+				"LOADING": "Caricamento della cronologia",
+				"ERROR": "Impossibile caricare la cronologia di questa voce.",
+				"RETRY": "Riprova",
+				"FORBIDDEN": "Non puoi vedere la cronologia di questa voce.",
+				"UNSUPPORTED": "Questo server non conserva la cronologia delle voci di tempo.",
+				"NOT_KEPT": "I valori precedenti non sono stati conservati: questa voce è stata modificata prima che la sua cronologia venisse registrata."
 			}
 		},
 		"workDiary": {
@@ -1575,7 +1592,19 @@
 			"LEGEND_TRACKED": "Tracciato",
 			"RANK_MEMBERS_TITLE": "Chi aggiunge tempo a mano",
 			"RANK_OTHER_MEMBERS": "{count, plural, one {# altro membro} other {altri # membri}}",
-			"RANK_OTHER_PROJECTS": "{count, plural, one {# altro progetto} other {altri # progetti}}"
+			"RANK_OTHER_PROJECTS": "{count, plural, one {# altro progetto} other {altri # progetti}}",
+			"DELETED": "Eliminato",
+			"DELETED_AT": "Eliminato il {when}",
+			"FEED_DELETED": "Il tempo di <actor>{name}</actor> su <link>{task}</link> è stato eliminato: <figure>{duration}</figure>",
+			"FEED_DELETED_NO_TASK": "Il tempo di <actor>{name}</actor> senza attività è stato eliminato: <figure>{duration}</figure>",
+			"KIND_LABEL": "Tipo di modifica",
+			"KIND_TIME": "Tempo",
+			"KIND_TASK_PROJECT": "Attività o progetto",
+			"SHOW_HISTORY": "Cronologia",
+			"HIDE_HISTORY": "Nascondi cronologia",
+			"NOT_KEPT": "I valori precedenti non sono stati conservati",
+			"COLUMN_BEFORE": "Prima",
+			"COLUMN_AFTER": "Dopo"
 		}
 	},
 	"timeActivity": {

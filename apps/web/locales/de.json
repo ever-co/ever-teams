@@ -714,6 +714,23 @@
 					"CHECK_FAILED": "{count, plural, one {Bei # Eintrag konnte die Überschneidung nicht geprüft werden, er wurde daher nicht gespeichert.} other {Bei # Einträgen konnte die Überschneidung nicht geprüft werden, sie wurden daher nicht gespeichert.}}",
 					"FAILED": "{count, plural, one {# Eintrag konnte nicht gespeichert werden.} other {# Einträge konnten nicht gespeichert werden.}}"
 				}
+			},
+			"HISTORY": {
+				"TITLE": "Verlauf des Eintrags",
+				"OPEN": "{edited}. Verlauf anzeigen",
+				"ADDED_BY": "Hinzugefügt von {name}",
+				"EDITED_BY": "Bearbeitet von {name}",
+				"DELETED_BY": "Gelöscht von {name}",
+				"DELETED": "Gelöscht",
+				"WHEN": "{date}, {time}",
+				"FIELD_CHANGED": "geändert von {before} zu {after}",
+				"NONE": "Keine",
+				"LOADING": "Verlauf wird geladen",
+				"ERROR": "Der Verlauf dieses Eintrags konnte nicht geladen werden.",
+				"RETRY": "Erneut versuchen",
+				"FORBIDDEN": "Sie können den Verlauf dieses Eintrags nicht sehen.",
+				"UNSUPPORTED": "Dieser Server speichert keinen Verlauf von Zeiteinträgen.",
+				"NOT_KEPT": "Frühere Werte wurden nicht gespeichert: Dieser Eintrag wurde geändert, bevor sein Verlauf aufgezeichnet wurde."
 			}
 		},
 		"workDiary": {
@@ -1575,7 +1592,19 @@
 			"LEGEND_TRACKED": "Erfasst",
 			"RANK_MEMBERS_TITLE": "Wer Zeit von Hand einträgt",
 			"RANK_OTHER_MEMBERS": "{count, plural, one {# weiteres Mitglied} other {# weitere Mitglieder}}",
-			"RANK_OTHER_PROJECTS": "{count, plural, one {# weiteres Projekt} other {# weitere Projekte}}"
+			"RANK_OTHER_PROJECTS": "{count, plural, one {# weiteres Projekt} other {# weitere Projekte}}",
+			"DELETED": "Gelöscht",
+			"DELETED_AT": "Gelöscht am {when}",
+			"FEED_DELETED": "Die Zeit von <actor>{name}</actor> für <link>{task}</link> wurde gelöscht: <figure>{duration}</figure>",
+			"FEED_DELETED_NO_TASK": "Die Zeit von <actor>{name}</actor> ohne Aufgabe wurde gelöscht: <figure>{duration}</figure>",
+			"KIND_LABEL": "Art der Änderung",
+			"KIND_TIME": "Zeit",
+			"KIND_TASK_PROJECT": "Aufgabe oder Projekt",
+			"SHOW_HISTORY": "Verlauf",
+			"HIDE_HISTORY": "Verlauf ausblenden",
+			"NOT_KEPT": "Frühere Werte wurden nicht gespeichert",
+			"COLUMN_BEFORE": "Vorher",
+			"COLUMN_AFTER": "Nachher"
 		}
 	},
 	"timeActivity": {

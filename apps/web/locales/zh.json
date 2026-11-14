@@ -714,6 +714,23 @@
 					"CHECK_FAILED": "{count, plural, other {无法检查 # 条记录是否与其他时间重叠，因此未保存。}}",
 					"FAILED": "{count, plural, other {# 条记录无法保存。}}"
 				}
+			},
+			"HISTORY": {
+				"TITLE": "条目历史",
+				"OPEN": "{edited}。查看历史",
+				"ADDED_BY": "由 {name} 添加",
+				"EDITED_BY": "由 {name} 编辑",
+				"DELETED_BY": "由 {name} 删除",
+				"DELETED": "已删除",
+				"WHEN": "{date} {time}",
+				"FIELD_CHANGED": "从 {before} 改为 {after}",
+				"NONE": "无",
+				"LOADING": "正在加载历史",
+				"ERROR": "无法加载此条目的历史。",
+				"RETRY": "重试",
+				"FORBIDDEN": "你无法查看此条目的历史。",
+				"UNSUPPORTED": "此服务器不保存时间条目的历史。",
+				"NOT_KEPT": "未保留之前的值：此条目在开始记录历史之前已被修改。"
 			}
 		},
 		"workDiary": {
@@ -1575,7 +1592,19 @@
 			"LEGEND_TRACKED": "已记录",
 			"RANK_MEMBERS_TITLE": "谁在手动添加时间",
 			"RANK_OTHER_MEMBERS": "{count, plural, other {其他 # 名成员}}",
-			"RANK_OTHER_PROJECTS": "{count, plural, other {其他 # 个项目}}"
+			"RANK_OTHER_PROJECTS": "{count, plural, other {其他 # 个项目}}",
+			"DELETED": "已删除",
+			"DELETED_AT": "删除于 {when}",
+			"FEED_DELETED": "<actor>{name}</actor> 在 <link>{task}</link> 上的 <figure>{duration}</figure> 已被删除",
+			"FEED_DELETED_NO_TASK": "<actor>{name}</actor> 的 <figure>{duration}</figure>（无任务）已被删除",
+			"KIND_LABEL": "更改类型",
+			"KIND_TIME": "时间",
+			"KIND_TASK_PROJECT": "任务或项目",
+			"SHOW_HISTORY": "历史",
+			"HIDE_HISTORY": "隐藏历史",
+			"NOT_KEPT": "未保留之前的值",
+			"COLUMN_BEFORE": "之前",
+			"COLUMN_AFTER": "之后"
 		}
 	},
 	"timeActivity": {

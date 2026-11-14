@@ -714,6 +714,23 @@
 					"CHECK_FAILED": "{count, plural, one {Le chevauchement de # entrée n'a pas pu être vérifié, elle n'a donc pas été enregistrée.} other {Le chevauchement de # entrées n'a pas pu être vérifié, elles n'ont donc pas été enregistrées.}}",
 					"FAILED": "{count, plural, one {# entrée n'a pas pu être enregistrée.} other {# entrées n'ont pas pu être enregistrées.}}"
 				}
+			},
+			"HISTORY": {
+				"TITLE": "Historique de l’entrée",
+				"OPEN": "{edited}. Voir l’historique",
+				"ADDED_BY": "Ajouté par {name}",
+				"EDITED_BY": "Modifié par {name}",
+				"DELETED_BY": "Supprimé par {name}",
+				"DELETED": "Supprimé",
+				"WHEN": "{date} à {time}",
+				"FIELD_CHANGED": "modifié de {before} à {after}",
+				"NONE": "Aucun",
+				"LOADING": "Chargement de l’historique",
+				"ERROR": "L’historique de cette entrée n’a pas pu être chargé.",
+				"RETRY": "Réessayer",
+				"FORBIDDEN": "Vous ne pouvez pas voir l’historique de cette entrée.",
+				"UNSUPPORTED": "Ce serveur ne conserve pas l’historique des entrées de temps.",
+				"NOT_KEPT": "Les valeurs précédentes n’ont pas été conservées : cette entrée a été modifiée avant l’enregistrement de son historique."
 			}
 		},
 		"workDiary": {
@@ -1575,7 +1592,19 @@
 			"LEGEND_TRACKED": "Suivi",
 			"RANK_MEMBERS_TITLE": "Qui ajoute du temps à la main",
 			"RANK_OTHER_MEMBERS": "{count, plural, one {# autre membre} other {# autres membres}}",
-			"RANK_OTHER_PROJECTS": "{count, plural, one {# autre projet} other {# autres projets}}"
+			"RANK_OTHER_PROJECTS": "{count, plural, one {# autre projet} other {# autres projets}}",
+			"DELETED": "Supprimé",
+			"DELETED_AT": "Supprimé le {when}",
+			"FEED_DELETED": "Le temps de <actor>{name}</actor> sur <link>{task}</link> a été supprimé : <figure>{duration}</figure>",
+			"FEED_DELETED_NO_TASK": "Le temps de <actor>{name}</actor> sans tâche a été supprimé : <figure>{duration}</figure>",
+			"KIND_LABEL": "Type de modification",
+			"KIND_TIME": "Temps",
+			"KIND_TASK_PROJECT": "Tâche ou projet",
+			"SHOW_HISTORY": "Historique",
+			"HIDE_HISTORY": "Masquer l’historique",
+			"NOT_KEPT": "Les valeurs précédentes n’ont pas été conservées",
+			"COLUMN_BEFORE": "Avant",
+			"COLUMN_AFTER": "Après"
 		}
 	},
 	"timeActivity": {
