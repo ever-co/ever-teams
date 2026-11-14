@@ -136,6 +136,8 @@ export interface TaskAutomationForm {
 	trigger: ETaskAutomationTrigger;
 	toStatuses: string[];
 	fromStatuses: string[];
+	/** `LINK_CLOSED`: only a merged pull request (or an issue's close) runs the rule. */
+	mergedOnly: boolean;
 	conditions: TaskAutomationConditionDraft[];
 	actions: TaskAutomationActionDraft[];
 }
@@ -189,6 +191,7 @@ export function emptyTaskAutomationForm(): TaskAutomationForm {
 		trigger: ETaskAutomationTrigger.STATUS_CHANGED,
 		toStatuses: [],
 		fromStatuses: [],
+		mergedOnly: false,
 		conditions: [],
 		actions: [actionDraftOf()]
 	};
@@ -207,6 +210,7 @@ function fromParts(parts: {
 		trigger: parts.trigger?.type ?? ETaskAutomationTrigger.STATUS_CHANGED,
 		toStatuses: unique(parts.trigger?.toStatuses),
 		fromStatuses: unique(parts.trigger?.fromStatuses),
+		mergedOnly: parts.trigger?.mergedOnly === true,
 		conditions: (parts.conditions ?? []).map(conditionDraftOf),
 		actions: (parts.actions ?? []).map(actionDraftOf)
 	};
@@ -267,7 +271,9 @@ export function ruleInputFromForm(form: TaskAutomationForm): ITaskAutomationRule
 	const trigger =
 		form.trigger === ETaskAutomationTrigger.STATUS_CHANGED
 			? { type: form.trigger, toStatuses: unique(form.toStatuses), fromStatuses: unique(form.fromStatuses) }
-			: { type: form.trigger };
+			: form.trigger === ETaskAutomationTrigger.LINK_CLOSED
+				? { type: form.trigger, mergedOnly: form.mergedOnly === true }
+				: { type: form.trigger };
 	return {
 		name: form.name.trim(),
 		description: form.description.trim() || null,

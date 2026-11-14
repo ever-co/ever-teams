@@ -5243,6 +5243,8 @@
 			"TO_STATUSES": "Agli stati",
 			"FROM_STATUSES": "Dagli stati",
 			"ANY_STATUS": "Non sceglierne nessuno per qualsiasi stato.",
+			"MERGED_ONLY": "Solo pull request con merge",
+			"MERGED_ONLY_HINT": "Una pull request chiusa senza merge non esegue la regola; il suo merge dopo una riapertura sì. La chiusura di una issue la esegue come prima.",
 			"NO_CONDITIONS": "Nessuna condizione: la regola viene eseguita ogni volta.",
 			"ADD_CONDITION": "Aggiungi una condizione",
 			"ADD_ACTION": "Aggiungi un’azione",

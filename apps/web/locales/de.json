@@ -5243,6 +5243,8 @@
 			"TO_STATUSES": "Zu den Status",
 			"FROM_STATUSES": "Von den Status",
 			"ANY_STATUS": "Wählen Sie keinen für jeden Status.",
+			"MERGED_ONLY": "Nur gemergte Pull-Requests",
+			"MERGED_ONLY_HINT": "Ein ohne Merge geschlossener Pull-Request startet die Regel nicht; sein Merge nach dem erneuten Öffnen schon. Das Schließen eines Issues startet sie wie bisher.",
 			"NO_CONDITIONS": "Keine Bedingungen: Die Regel läuft jedes Mal.",
 			"ADD_CONDITION": "Bedingung hinzufügen",
 			"ADD_ACTION": "Aktion hinzufügen",
