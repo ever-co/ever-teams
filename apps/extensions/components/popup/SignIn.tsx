@@ -8,7 +8,7 @@ import { confirmSignInCode, enterWorkspace, sendSignInCode } from '~lib/gauzy';
 import { t } from '~lib/i18n';
 import { refusalOf } from '~lib/refusal';
 import type { Session, WorkspaceChoice } from '~lib/workspaces';
-import { primaryButton, roundInput } from '~misc/tailwindClasses';
+import { inheritTextSize, primaryButton, roundInput } from '~misc/tailwindClasses';
 
 interface SignInProps {
 	apiUrl: string;
@@ -180,7 +180,7 @@ export const SignIn: FC<SignInProps> = ({ apiUrl, onSignedIn, onOpenSettings }) 
 
 			<div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
 				{step === 'email' && (
-					<span className="truncate" title={apiUrl}>
+					<span className={`truncate ${inheritTextSize}`} title={apiUrl}>
 						{apiUrl}
 					</span>
 				)}

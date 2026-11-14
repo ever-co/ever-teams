@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React, { useRef, useState, type FC } from 'react';
 
 import useOnClickOutside from '~hooks/useOnClickOutside';
-import { textEllipsis } from '~misc/tailwindClasses';
+import { inheritTextSize, textEllipsis } from '~misc/tailwindClasses';
 
 export interface IOption {
 	id: string;
@@ -68,7 +68,7 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
 				disabled={disabled}
 				className={classNames('inline-flex items-center justify-between', buttonClassNames)}
 				onClick={() => setHidden((prev) => !prev)}>
-				<span className={classNames(textEllipsis)}>{buttonTitle}</span>
+				<span className={classNames(textEllipsis, inheritTextSize)}>{buttonTitle}</span>
 				{svgCaret}
 			</button>
 			<div

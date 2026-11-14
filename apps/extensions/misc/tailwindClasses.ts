@@ -31,3 +31,6 @@ disabled:pointer-events-none disabled:opacity-50`;
 export const ghostButton = `inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-zinc-600
 hover:bg-zinc-900/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400
 dark:text-zinc-300 dark:hover:bg-white/10`;
+
+// style.css gives every span 1rem: a span inside sized text (a button, a notice) takes that text's size instead
+export const inheritTextSize = 'text-[length:inherit]';

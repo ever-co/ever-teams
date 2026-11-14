@@ -6,6 +6,7 @@ import Notice from '~components/shared/Notice';
 import { t } from '~lib/i18n';
 import type { Refusal } from '~lib/refusal';
 import { formatClock } from '~lib/time-format';
+import { inheritTextSize } from '~misc/tailwindClasses';
 
 interface TimerProps {
 	isRunning: boolean;
@@ -67,7 +68,7 @@ function TaskLine({ taskTitle, startedElsewhere }: { taskTitle: string | null; s
 		return <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('timerNoTask')}</p>;
 	}
 	return (
-		<div className="flex min-w-0 flex-col items-center gap-0.5">
+		<div className="flex w-full min-w-0 flex-col items-center gap-0.5">
 			<p className="max-w-full truncate text-sm font-medium" title={taskTitle}>
 				{taskTitle}
 			</p>
@@ -120,7 +121,7 @@ export const Timer: FC<TimerProps> = ({
 				<ButtonIcon isRunning={isRunning} busy={busy} />
 			</button>
 			<div className="flex w-full items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
-				<span>
+				<span className={inheritTextSize}>
 					{t('timerTotalToday')}{' '}
 					<b className="font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">{formatClock(todaySeconds)}</b>
 				</span>

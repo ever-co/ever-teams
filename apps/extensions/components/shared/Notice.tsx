@@ -1,6 +1,8 @@
 import classNames from 'classnames';
 import React, { type FC, type ReactNode } from 'react';
 
+import { inheritTextSize } from '~misc/tailwindClasses';
+
 interface NoticeProps {
 	tone: 'error' | 'info';
 	children: ReactNode;
@@ -26,7 +28,7 @@ export const Notice: FC<NoticeProps> = ({ tone, children, action }) => {
 				'bg-red-500/10 text-red-700 ring-red-500/20 dark:text-red-300': isError,
 				'bg-zinc-900/5 text-zinc-600 ring-zinc-900/10 dark:bg-white/5 dark:text-zinc-300 dark:ring-white/10': !isError
 			})}>
-			<span className="leading-snug">{children}</span>
+			<span className={classNames('leading-snug', inheritTextSize)}>{children}</span>
 			{action && (
 				<button
 					type="button"

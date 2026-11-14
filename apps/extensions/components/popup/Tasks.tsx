@@ -9,7 +9,7 @@ import { t } from '~lib/i18n';
 import { refusalOf, type Refusal } from '~lib/refusal';
 import { orderTasks } from '~lib/task-order';
 import type { Session } from '~lib/workspaces';
-import { ghostButton, roundInput, textEllipsis } from '~misc/tailwindClasses';
+import { ghostButton, inheritTextSize, roundInput, textEllipsis } from '~misc/tailwindClasses';
 
 import TasksEstimatedInputs from './TasksEstimatedInputs';
 
@@ -162,7 +162,7 @@ const Tasks: FC<Props> = ({
 											'disabled:opacity-60': !isSelected
 										}
 									)}>
-									<span className={classNames('min-w-0 flex-1', textEllipsis)} title={task.title}>
+									<span className={classNames('min-w-0 flex-1', textEllipsis, inheritTextSize)} title={task.title}>
 										{task.title}
 									</span>
 									{isRecent && (
