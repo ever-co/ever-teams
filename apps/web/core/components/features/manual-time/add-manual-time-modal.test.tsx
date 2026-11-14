@@ -38,9 +38,12 @@ jest.mock('@tanstack/react-query', () => ({
 	}
 }));
 jest.mock('@/core/services/client/api/tasks/task.service', () => ({ taskService: { getTasks: jest.fn() } }));
-const mockOrganizationProjects: { organizationProjects: unknown[]; getOrganizationProjectsLoading?: boolean } = {
-	organizationProjects: []
-};
+const mockOrganizationProjects: {
+	organizationProjects: unknown[];
+	getOrganizationProjectsLoading?: boolean;
+	isOrganizationProjectsError?: boolean;
+	refetchOrganizationProjects?: jest.Mock;
+} = { organizationProjects: [] };
 jest.mock('@/core/hooks/organizations/projects/use-organization-projects-query', () => ({
 	useOrganizationProjectsQuery: () => mockOrganizationProjects
 }));
@@ -693,6 +696,7 @@ describe('AddManualTimeModal billable status', () => {
 		teams: [{ id: 'team-a' }],
 		members: []
 	};
+	const otherSiteTask = { ...siteTask, id: 'task-site-2', title: 'Site, second task' };
 
 	beforeEach(() => {
 		mockAddManualTime.mockReset();
@@ -702,16 +706,26 @@ describe('AddManualTimeModal billable status', () => {
 		mockAtomValues.activeTeamState = teamA;
 		mockAtomValues.activeTeamTaskState = null;
 		mockAtomValues.organizationTeamsState = [teamA, teamB];
-		mockAtomValues.tasksByTeamState = [siteTask];
+		mockAtomValues.tasksByTeamState = [siteTask, otherSiteTask];
 	});
 
 	afterEach(() => {
 		mockOrganizationProjects.organizationProjects = [];
 		mockOrganizationProjects.getOrganizationProjectsLoading = false;
+		mockOrganizationProjects.isOrganizationProjectsError = false;
+		mockOrganizationProjects.refetchOrganizationProjects = undefined;
 	});
 
-	function addTimeButton() {
-		return screen.getByRole('button', { name: 'common.ADD_TIME' }) as HTMLButtonElement;
+	function setBillableByHand(isBillable: boolean) {
+		const billable = screen.getByRole('switch');
+		const isChecked = billable.getAttribute('aria-checked') === 'true';
+		if (isChecked !== isBillable) {
+			fireEvent.click(billable);
+		}
+	}
+
+	function savedBillable() {
+		return mockAddManualTime.mock.calls[0]?.[0]?.isBillable;
 	}
 
 	it("starts from the billable default of the picked task's project", () => {
@@ -725,78 +739,67 @@ describe('AddManualTimeModal billable status', () => {
 		);
 	});
 
-	it("saves nothing while the project that gives the default is loading, then saves with that project's default", () => {
-		mockOrganizationProjects.organizationProjects = [];
-		mockOrganizationProjects.getOrganizationProjectsLoading = true;
-		const { rerender } = renderAddTimeDialog();
-		pickInSelect('task', 'task-site');
-
-		submitDialog();
-		// Enter in another field submits the form as well
-		const form = addTimeButton().closest('form');
-		if (form) {
-			fireEvent.submit(form);
-		}
-
-		expect(addTimeButton().disabled).toBe(true);
-		expect(mockAddManualTime).not.toHaveBeenCalled();
-
-		mockOrganizationProjects.organizationProjects = [siteProject];
-		mockOrganizationProjects.getOrganizationProjectsLoading = false;
-		rerender(<AddManualTimeModal isOpen params="AddTime" closeModal={closeModal} />);
-		submitDialog();
-
-		expect(addTimeButton().disabled).toBe(false);
-		expect(mockAddManualTime).toHaveBeenCalledWith(
-			expect.objectContaining({ taskId: 'task-site', isBillable: true })
-		);
-	});
-
-	it('saves a choice made by hand at once, while the project is still loading', () => {
-		mockOrganizationProjects.organizationProjects = [];
-		mockOrganizationProjects.getOrganizationProjectsLoading = true;
-		renderAddTimeDialog();
-		pickInSelect('task', 'task-site');
-
-		fireEvent.click(screen.getByRole('switch'));
-		submitDialog();
-
-		expect(mockAddManualTime).toHaveBeenCalledWith(
-			expect.objectContaining({ taskId: 'task-site', isBillable: true })
-		);
-	});
-
-	it('keeps a choice made by hand through edits of the other fields', () => {
+	it('keeps Billable as set by hand while other fields change', () => {
 		const { container } = renderAddTimeDialog();
-		pickInSelect('task', 'task-site');
 
-		fireEvent.click(screen.getByRole('switch'));
-		const notes = container.querySelector('textarea');
-		if (notes) {
-			fireEvent.change(notes, { target: { value: 'Pairing on the site' } });
-		}
+		pickInSelect('task', 'task-site');
+		setBillableByHand(false);
 		fillTimes(container);
 		submitDialog();
 
-		expect(mockAddManualTime).toHaveBeenCalledWith(
-			expect.objectContaining({ taskId: 'task-site', isBillable: false })
-		);
+		expect(savedBillable()).toBe(false);
 	});
 
-	it("starts again from the default of another billable project's task once that task is picked", () => {
-		const shopProject = { id: 'project-shop', name: 'Shop', billable: true };
-		const shopTask = { ...siteTask, id: 'task-shop', title: 'Shop', projectId: 'project-shop' };
-		mockOrganizationProjects.organizationProjects = [siteProject, shopProject];
-		mockAtomValues.tasksByTeamState = [siteTask, shopTask];
+	it("starts again from the project's default when another task is picked", () => {
 		renderAddTimeDialog();
-		pickInSelect('task', 'task-site');
-		fireEvent.click(screen.getByRole('switch'));
 
-		pickInSelect('task', 'task-shop');
+		pickInSelect('task', 'task-site');
+		setBillableByHand(false);
+		pickInSelect('task', 'task-site-2');
 		submitDialog();
 
-		expect(mockAddManualTime).toHaveBeenCalledWith(
-			expect.objectContaining({ taskId: 'task-shop', isBillable: true })
-		);
+		expect(savedBillable()).toBe(true);
+	});
+
+	it("waits for the entry's project before saving a Billable nobody set", () => {
+		mockOrganizationProjects.organizationProjects = [];
+		mockOrganizationProjects.getOrganizationProjectsLoading = true;
+		renderAddTimeDialog();
+
+		pickInSelect('task', 'task-site');
+		submitDialog();
+
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+		const save = screen.getByRole('button', { name: 'common.ADD_TIME' }) as HTMLButtonElement;
+		expect(save.disabled).toBe(true);
+		expect(screen.getByRole('status').textContent).toContain('dashboard.timesheets.BULK_EDIT.PROJECTS_LOADING');
+	});
+
+	it('saves a Billable set by hand while the projects still load', () => {
+		mockOrganizationProjects.organizationProjects = [];
+		mockOrganizationProjects.getOrganizationProjectsLoading = true;
+		renderAddTimeDialog();
+
+		pickInSelect('task', 'task-site');
+		setBillableByHand(true);
+		submitDialog();
+
+		expect(savedBillable()).toBe(true);
+	});
+
+	it('offers to load the projects again when they failed, and saves nothing until then', () => {
+		const refetch = jest.fn();
+		mockOrganizationProjects.organizationProjects = [];
+		mockOrganizationProjects.isOrganizationProjectsError = true;
+		mockOrganizationProjects.refetchOrganizationProjects = refetch;
+		renderAddTimeDialog();
+
+		pickInSelect('task', 'task-site');
+		submitDialog();
+		clickButton('manualTime.DURATION.RETRY');
+
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+		expect(screen.getByRole('alert').textContent).toContain('dashboard.timesheets.BULK_EDIT.PROJECTS_FAILED');
+		expect(refetch).toHaveBeenCalled();
 	});
 });
