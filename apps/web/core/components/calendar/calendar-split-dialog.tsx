@@ -11,7 +11,11 @@ import { Input } from '@/core/components/common/input';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { ChevronsUpDown, CircleAlert, Info, Plus, Scissors, Spinner, X } from '@/core/components/icons';
 import { TaskPickerMenu } from '@/core/components/tasks/detail/task-picker-menu';
-import { type SplitTask, useCalendarEntrySplit } from '@/core/hooks/calendar/use-calendar-entry-split';
+import {
+	type CalendarEntrySplit,
+	type SplitTask,
+	useCalendarEntrySplit
+} from '@/core/hooks/calendar/use-calendar-entry-split';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { cn } from '@/core/lib/helpers';
 import {
@@ -97,11 +101,13 @@ function FailureNotice({
 function SplitForm({
 	entry,
 	formatters,
+	split,
 	onClose,
 	onAddTime
 }: Readonly<{
 	entry: CalendarEntry;
 	formatters: TimesheetFormatters;
+	split: CalendarEntrySplit;
 	onClose: () => void;
 	onAddTime: (range: TimeWindow) => void;
 }>) {
@@ -110,7 +116,6 @@ function SplitForm({
 	const errorId = useId();
 	const tasks = useAtomValue(tasksByTeamState);
 	const { data: user } = useUserQuery();
-	const split = useCalendarEntrySplit();
 	const window: TimeWindow = { start: entry.start, end: entry.end };
 	const [clockText, setClockText] = useState(() => clockTextOf(defaultSplitTimeOf(window)));
 	const [secondTask, setSecondTask] = useState<TTask | null>(null);
@@ -147,6 +152,9 @@ function SplitForm({
 	};
 
 	let failure: ReactNode = null;
+	if (split.failure === 'overlap') {
+		failure = <FailureNotice text={t('dashboard.calendar.DRAG.OVERLAP')} />;
+	}
 	if (split.failure === 'restored') {
 		failure = <FailureNotice text={t('dashboard.calendar.SPLIT.FAILED_RESTORED')} />;
 	}
@@ -283,8 +291,15 @@ export function CalendarSplitDialog({
 	const t = useTranslations();
 	const title = entry ? <EntrySummary entry={entry} formatters={formatters} /> : null;
 	const isRefused = refusal !== 'none';
+	// The writes of a split go on after a close: nothing closes the dialog until they end, so their outcome is seen
+	const split = useCalendarEntrySplit();
+	const { isSaving, reset } = split;
+	const close = () => {
+		reset();
+		onClose();
+	};
 	return (
-		<AppDialog open={isOpen} onClose={onClose} width="sm">
+		<AppDialog open={isOpen} onClose={close} width="sm" dismissible={!isSaving}>
 			<div className="flex items-start justify-between gap-3 px-5 pt-5">
 				<span
 					aria-hidden="true"
@@ -296,7 +311,8 @@ export function CalendarSplitDialog({
 					type="button"
 					variant="ghost"
 					size="icon-sm"
-					onClick={onClose}
+					onClick={close}
+					disabled={isSaving}
 					aria-label={t('common.CLOSE')}
 					className="-mt-1 -mr-2 text-muted-foreground"
 				>
@@ -311,13 +327,14 @@ export function CalendarSplitDialog({
 					{title}
 				</DialogDescription>
 			</div>
-			{entry && isRefused && <RefusedBody refusal={refusal} onClose={onClose} />}
+			{entry && isRefused && <RefusedBody refusal={refusal} onClose={close} />}
 			{entry && !isRefused && (
 				<SplitForm
 					key={entry.log.id}
 					entry={entry}
 					formatters={formatters}
-					onClose={onClose}
+					split={split}
+					onClose={close}
 					onAddTime={onAddTime}
 				/>
 			)}
