@@ -554,12 +554,13 @@ async function saveAndSendInvoiceEdit({ edit, sending }: InvoiceEditToSave): Pro
 }
 
 /**
- * Reads the invoices again after an edit. A refusal because the invoice was paid or voided since it was opened leaves
- * the editor's own read alone: its answer would replace the editor, and the refusal with it, before it is read.
+ * Reads the invoices again after an edit. A save that did not go through leaves the editor's own read alone: its
+ * answer could replace the editor (an invoice paid or voided meanwhile turns into the locked message), and the dialog
+ * saying what happened to the invoice with it, before that is read. The editor reads it again once the dialog closes.
  */
 function readInvoicesAfterEdit(queryClient: QueryClient, edit: InvoiceEdit, saved: SavedInvoiceEdit | undefined) {
-	const isLocked = saved?.outcome.status === 'locked';
-	if (!isLocked) {
+	const hasFailed = saved !== undefined && saved.outcome.status !== 'saved';
+	if (!hasFailed) {
 		return queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all });
 	}
 	const editorRead = queryKeys.invoices.detail(edit.scope.tenantId, edit.scope.organizationId, edit.invoiceId);

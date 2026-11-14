@@ -137,13 +137,16 @@ export function SaveInvoiceChangesDialog({
 	open,
 	invoice,
 	onClose,
-	onLockedRefusal
+	onLockedRefusal,
+	onSaveFailed
 }: Readonly<{
 	open: boolean;
 	invoice: InvoiceEditState;
 	onClose: () => void;
 	/** The save was refused because the invoice was paid or voided since it was opened; the refusal stays on screen. */
 	onLockedRefusal?: () => void;
+	/** Any save that did not go through: the page reads the invoice again once this dialog is closed. */
+	onSaveFailed?: () => void;
 }>) {
 	const t = useTranslations();
 	const locale = useLocale();
@@ -180,6 +183,7 @@ export function SaveInvoiceChangesDialog({
 
 	const refuse = (outcome: EditFailure) => {
 		setFailure(outcome);
+		onSaveFailed?.();
 		const isLocked = outcome.status === 'locked';
 		if (isLocked) {
 			onLockedRefusal?.();

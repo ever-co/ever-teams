@@ -657,6 +657,26 @@ describe('saving an edit to an invoice', () => {
 		expect(queryClient.getQueryState(LIST_KEY)?.isInvalidated).toBe(true);
 	});
 
+	it('leaves the editor’s own read for its dialog to close when the invoice was paid while its lines were refused', async () => {
+		mockGetInvoice
+			.mockResolvedValueOnce(invoiceRead('SENT'))
+			.mockResolvedValue({ ...invoiceRead('FULLY_PAID', []), totalValue: 960 });
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockRejectedValue(serverFailure());
+		const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+		const editorRead = queryKeys.invoices.detail('tenant-1', 'organization-1', 'inv-42');
+		queryClient.setQueryData(editorRead, invoiceRead('SENT'));
+		queryClient.setQueryData(LIST_KEY, { pages: [], pageParams: [1] });
+		const { result } = renderWith(queryClient, () => useSaveInvoiceEdit());
+
+		const saved = await saveWith(result);
+
+		// Read now, the paid invoice would replace the editor, and the dialog saying its lines may be gone with it
+		expect(saved).toEqual({ outcome: { status: 'notPutBack', lineCount: 0 }, sending: null });
+		expect(queryClient.getQueryState(editorRead)?.isInvalidated).toBe(false);
+		expect(queryClient.getQueryState(LIST_KEY)?.isInvalidated).toBe(true);
+	});
+
 	it.each([
 		[
 			'a line',
