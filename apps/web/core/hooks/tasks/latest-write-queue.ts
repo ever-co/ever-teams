@@ -13,19 +13,20 @@ export function createLatestWriteQueue(): LatestWriteQueue {
 	// A key is here while one of its writes is on its way; its value is the write waiting to go next, if any.
 	const waiting = new Map<string, (() => Promise<unknown>) | null>();
 
-	async function sendInTurn(key: string, first: () => Promise<unknown>) {
-		let next: (() => Promise<unknown>) | null = first;
-		while (next) {
-			waiting.set(key, null);
-			try {
-				await next();
-			} catch (error) {
-				// A write reports its own failure; should one still throw, the write waiting goes all the same.
-				console.error('Could not send a write', error);
-			}
-			next = waiting.get(key) ?? null;
+	async function sendInTurn(key: string, write: () => Promise<unknown>): Promise<void> {
+		waiting.set(key, null);
+		try {
+			await write();
+		} catch (error) {
+			// A write reports its own failure; should one still throw, the write waiting goes all the same.
+			console.error('Could not send a write', error);
 		}
-		waiting.delete(key);
+		const next = waiting.get(key);
+		if (next) {
+			await sendInTurn(key, next);
+		} else {
+			waiting.delete(key);
+		}
 	}
 
 	return {
