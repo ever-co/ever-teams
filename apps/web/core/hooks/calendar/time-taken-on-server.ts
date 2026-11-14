@@ -48,6 +48,11 @@ function overlapsPart(conflict: { startedAt?: string | null; stoppedAt?: string 
 	}
 	const start = new Date(conflict.startedAt).getTime();
 	const end = new Date(conflict.stoppedAt).getTime();
+	// A time the server sends that does not read as a date may cover the part: it counts as covering it
+	const isReadable = Number.isFinite(start) && Number.isFinite(end);
+	if (!isReadable) {
+		return true;
+	}
 	return start < part.end.getTime() && end > part.start.getTime();
 }
 

@@ -108,14 +108,25 @@ describe('splitCalendarEntry', () => {
 		expect(calls).toEqual(['update 9-11', 'update 9-13']);
 	});
 
-	it('says the first part was kept when the entry cannot be put back either', async () => {
+	it('says the outcome is not known when the entry cannot be put back either, since that write may have landed', async () => {
 		mockAddManualTime.mockRejectedValueOnce(new Error('refused'));
 		mockUpdateTimeLog.mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('offline'));
 
 		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
 
 		await expect(split).rejects.toBeInstanceOf(CalendarSplitError);
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'unknown' }));
+	});
+
+	it('takes an entry the server answers with an unreadable time for one covering the second part', async () => {
+		const unreadable = { id: 'log-4', startedAt: 'not a date', stoppedAt: 'not a date', taskId: 'task-1' };
+		mockAddManualTime.mockRejectedValueOnce(new Error('timeout'));
+		mockGetTimeLogConflicts.mockResolvedValueOnce([]).mockResolvedValueOnce([unreadable]);
+
+		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
 		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'first-part-kept' }));
+		expect(calls).toEqual(['update 9-11']);
 	});
 
 	it('adds nothing when the entry cannot be shortened, and sets it back in case the answer was only lost', async () => {
@@ -178,13 +189,13 @@ describe('splitCalendarEntry', () => {
 		expect(calls).toEqual(['update 9-11']);
 	});
 
-	it('says the first part was kept when the server cannot say whether the second part was saved', async () => {
+	it('says the outcome is not known when the server cannot say whether the second part was saved', async () => {
 		mockAddManualTime.mockRejectedValueOnce(new Error('timeout'));
 		mockGetTimeLogConflicts.mockResolvedValueOnce([]).mockRejectedValueOnce(new Error('offline'));
 
 		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
 
-		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'first-part-kept' }));
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'unknown' }));
 		expect(calls).toEqual(['update 9-11']);
 	});
 });

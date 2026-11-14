@@ -137,7 +137,8 @@ async function restoreAfterFailedShortening(log: ITimeLog, window: TimeWindow, s
 /**
  * The second part could not be added. The server is read first: when it holds that very part (a lost answer), the
  * split is done; when another entry covers the time, nothing is stretched over it and the first part is kept; when
- * the time is free, the entry gets its whole time back. When the server cannot be read, the first part is kept.
+ * the time is free, the entry gets its whole time back. When the server cannot be read, or the restoring write fails
+ * (it may still have landed), the outcome is not known: nothing more is offered that could write over saved time.
  */
 async function restoreAfterFailedAdd(
 	log: ITimeLog,
@@ -149,7 +150,7 @@ async function restoreAfterFailedAdd(
 	try {
 		state = await partOnServer(log, second.part, second.taskId);
 	} catch {
-		throw new CalendarSplitError('first-part-kept', addError);
+		throw new CalendarSplitError('unknown', addError);
 	}
 	if (state === 'saved') {
 		return;
@@ -160,7 +161,7 @@ async function restoreAfterFailedAdd(
 	try {
 		await restoreWindow(log, window);
 	} catch {
-		throw new CalendarSplitError('first-part-kept', addError);
+		throw new CalendarSplitError('unknown', addError);
 	}
 	throw new CalendarSplitError('restored', addError);
 }
