@@ -133,6 +133,26 @@ describe('the renewal ahead of time, for a token that lives a day', () => {
 	});
 });
 
+describe('the renewal ahead of time, for a token that lives two minutes', () => {
+	it('runs at half the lifetime of each token, not at every look the renewal gap allows', async () => {
+		openBrowser({ accessLifetimeMs: 2 * MINUTE_MS });
+		page.signIn();
+		const app = await openApp();
+		const renewalsAtOpening = page.renewals();
+
+		await pass(10 * MINUTE_MS);
+
+		// A renewal a minute (each token reaches its halfway point a minute after it was issued). A five-minute
+		// expiry buffer made every fresh token due at once: a renewal every 36 seconds, some sixteen in ten minutes.
+		const renewals = page.renewals() - renewalsAtOpening;
+		expect(renewals).toBeGreaterThanOrEqual(8);
+		expect(renewals).toBeLessThanOrEqual(11);
+		expect(isSessionGood()).toBe(true);
+		expect(page.isSignedOut()).toBe(false);
+		app.unmount();
+	});
+});
+
 describe('the renewal after the planned time was missed, for a token that lives twenty minutes', () => {
 	// Due ten minutes after it was issued
 	const shortTokens = { accessLifetimeMs: 20 * MINUTE_MS };

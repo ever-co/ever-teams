@@ -166,8 +166,10 @@ export function getTokenRemainingTime(token: string): number {
  * - For 1h token → refresh every 30min
  *
  * Constraints:
- * - Minimum: 10 minutes (avoid excessive API calls)
  * - Maximum: 12 hours (ensure refresh before expiration)
+ * - Never later than half of the lifetime: a token that lives two minutes is renewed at its own halfway point. A
+ *   ten-minute floor once put that point past the expiry, and the five-minute expiry buffer then renewed it at
+ *   every look instead.
  *
  * @param token - The JWT token string
  * @returns Refresh interval in milliseconds
@@ -177,7 +179,6 @@ function calculateRefreshInterval(token: string): number {
 
 	// Default to 12 hours if we can't determine lifetime
 	const DEFAULT_INTERVAL = 12 * 60 * 60 * 1000; // 12 hours in ms
-	const MIN_INTERVAL = 10 * 60 * 1000; // 10 minutes in ms
 	const MAX_INTERVAL = 12 * 60 * 60 * 1000; // 12 hours in ms
 
 	if (!lifetime) {
@@ -189,7 +190,7 @@ function calculateRefreshInterval(token: string): number {
 	const optimalInterval = (lifetime * 1000) / 2;
 
 	// Apply constraints
-	const interval = Math.max(MIN_INTERVAL, Math.min(optimalInterval, MAX_INTERVAL));
+	const interval = Math.min(optimalInterval, MAX_INTERVAL);
 
 	logInDev(`[JWT] Token lifetime: ${lifetime}s, Refresh interval: ${interval / 1000 / 60}min`);
 

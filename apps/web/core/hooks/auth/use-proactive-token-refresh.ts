@@ -59,14 +59,28 @@ function renewalGapOf(accessToken: string | null): number {
 	return lifetime ? within(lifetime / 4, MIN_RENEWAL_GAP_MS, MAX_RENEWAL_GAP_MS) : MIN_RENEWAL_GAP_MS;
 }
 
+/** A renewal is due this long before the expiry, or a quarter of the lifetime earlier for a short-lived token. */
+const EXPIRY_BUFFER_SECONDS = 300;
+
+function expiryBufferSecondsOf(accessToken: string): number {
+	const lifetimeSeconds = getTokenLifetime(accessToken);
+	return lifetimeSeconds ? Math.min(EXPIRY_BUFFER_SECONDS, lifetimeSeconds / 4) : EXPIRY_BUFFER_SECONDS;
+}
+
 /**
  * Whether the renewal ahead of time is due: the token is past half of its lifetime, counted from the time it was
- * issued, or it expires within five minutes. A session left with its refresh token alone is due too.
+ * issued, or it expires within five minutes (a quarter of its lifetime, for a token that lives less than twenty: a
+ * fixed five minutes made a fresh two-minute token due at once). A session left with its refresh token alone is due
+ * too.
  */
 function isRenewalDue(accessToken: string | null): boolean {
 	if (!accessToken) return true;
 	const renewalTime = getTokenRenewalTime(accessToken);
-	return renewalTime === null || Date.now() >= renewalTime || shouldRefreshToken(accessToken, 300);
+	return (
+		renewalTime === null ||
+		Date.now() >= renewalTime ||
+		shouldRefreshToken(accessToken, expiryBufferSecondsOf(accessToken))
+	);
 }
 
 /**
