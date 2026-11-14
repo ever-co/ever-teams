@@ -186,10 +186,10 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 		t
 	);
 
-	const { changeStatus, setBillable, setBillableOf, deleteLogs, isChangingStatus, isDeleting } = actions;
+	const { changeStatus, setBillable, deleteLogs, isChangingStatus, isDeleting } = actions;
 	const { openReject, openEdit, openDelete } = dialogs;
 	const grouping = useSimilarEntryGrouping();
-	const groupChange = useTimesheetGroupChange({ setBillableOf, changeStatus, openReject, openDelete });
+	const groupChange = useTimesheetGroupChange({ permissions, changeStatus, openReject, openDelete });
 
 	const timerStart = useTimerTaskStart();
 	const { canContinue, continueLog } = useTimeEntryContinue(timerStart.startOn);

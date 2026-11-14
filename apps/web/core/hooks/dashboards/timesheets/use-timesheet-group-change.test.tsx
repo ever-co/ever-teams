@@ -1,10 +1,17 @@
 /** @jest-environment jsdom */
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
+import type { PropsWithChildren } from 'react';
 import type { TimesheetEntryGroup } from '@/core/lib/utils/dashboards/timesheet-entry-groups';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 const mockToast = { success: jest.fn(), warning: jest.fn(), error: jest.fn() };
+const mockGetTimeLogConflicts = jest.fn();
+const mockUpdateTimeLog = jest.fn();
+const mockGetTimeLogs = jest.fn();
+/** The entries as the API holds them now. */
+let mockStoredLogs: ITimeLog[] = [];
 
 jest.mock('sonner', () => ({
 	toast: {
@@ -22,59 +29,118 @@ jest.mock('next-intl', () => ({
 		return `${key}(${parts.join(',')})`;
 	}
 }));
+// The billable change runs as the page's bulk edit: each entry read again, its interval checked, then written
+jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
+	timeLogService: {
+		getTimeLogConflicts: (params: unknown) => mockGetTimeLogConflicts(params),
+		getTimeLogs: (params: unknown) => mockGetTimeLogs(params),
+		updateTimeLog: (payload: unknown) => mockUpdateTimeLog(payload)
+	}
+}));
+jest.mock('@/core/lib/helpers/cookies', () => ({
+	getOrganizationIdCookie: () => 'organization-a',
+	getTenantIdCookie: () => 'tenant-a'
+}));
+jest.mock('@/core/lib/helpers/error-message', () => ({ logErrorInDev: jest.fn() }));
 
+import type { TimesheetPermissions } from './use-timesheets-page';
 import { useTimesheetGroupChange } from './use-timesheet-group-change';
 
-function logOf(id: string): ITimeLog {
+const startedAt = new Date('2026-11-10T09:00:00.000Z');
+const stoppedAt = new Date('2026-11-10T10:00:00.000Z');
+
+function logOf(id: string, overrides: Partial<ITimeLog> = {}): ITimeLog {
 	return {
 		id,
 		duration: 3600,
 		version: '1',
+		employeeId: 'member',
+		startedAt,
+		stoppedAt,
 		isBillable: true,
-		timesheet: { id: 'sheet', status: ETimesheetStatus.PENDING } as ITimeLog['timesheet']
+		timesheet: { id: 'sheet', status: ETimesheetStatus.PENDING } as ITimeLog['timesheet'],
+		...overrides
 	};
 }
 
-const LOGS = ['a', 'b', 'c', 'd', 'e', 'f'].map(logOf);
+const LOGS = ['a', 'b', 'c', 'd', 'e', 'f'].map((id) => logOf(id));
 
-const GROUP: TimesheetEntryGroup = {
-	key: '2026-11-10|fix-login',
-	logs: LOGS,
-	firstStart: null,
-	lastEnd: null,
-	isRunning: false,
-	totalSeconds: 6 * 3600
+function groupOf(logs: ITimeLog[]): TimesheetEntryGroup {
+	return {
+		key: '2026-11-10|fix-login',
+		logs,
+		firstStart: null,
+		lastEnd: null,
+		isRunning: false,
+		totalSeconds: logs.length * 3600
+	};
+}
+
+const GROUP = groupOf(LOGS);
+
+const MANAGER: TimesheetPermissions = {
+	hasOrganizationRole: true,
+	isManage: true,
+	canApprove: true,
+	userId: 'manager-user',
+	employeeId: 'manager'
 };
 
-function renderChange(changedCount = LOGS.length) {
+function renderChange(permissions: TimesheetPermissions = MANAGER) {
 	const actions = {
-		setBillableOf: jest.fn().mockResolvedValue(changedCount),
+		permissions,
 		changeStatus: jest.fn().mockResolvedValue(true),
 		openReject: jest.fn(),
 		openDelete: jest.fn()
 	};
-	const hook = renderHook(() => useTimesheetGroupChange(actions));
+	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	const wrapper = ({ children }: PropsWithChildren) => (
+		<QueryClientProvider client={client}>{children}</QueryClientProvider>
+	);
+	const hook = renderHook(() => useTimesheetGroupChange(actions), { wrapper });
 	return { actions, hook };
 }
+
+/** Another entry of the member, recorded over the same hour. */
+const overlappedLog = {
+	id: 'other',
+	startedAt: '2026-11-10T09:30:00.000Z',
+	stoppedAt: '2026-11-10T10:30:00.000Z',
+	isRunning: false
+};
+
+async function confirmBillable(hook: ReturnType<typeof renderChange>['hook'], group: TimesheetEntryGroup) {
+	act(() => hook.result.current.handlers.setBillable(group, false));
+	await act(async () => {
+		await hook.result.current.confirm();
+	});
+}
+
+const writtenIds = () => mockUpdateTimeLog.mock.calls.map(([payload]) => (payload as { timeLogId: string }).timeLogId);
 
 describe('useTimesheetGroupChange', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
+		mockStoredLogs = LOGS.map((log) => ({ ...log }));
+		mockGetTimeLogs.mockImplementation(async () => mockStoredLogs);
+		mockGetTimeLogConflicts.mockResolvedValue([]);
+		mockUpdateTimeLog.mockResolvedValue({});
 	});
 
 	it('asks before marking every entry of a group not billable, then writes all of them', async () => {
-		const { actions, hook } = renderChange();
+		const { hook } = renderChange();
 
 		act(() => hook.result.current.handlers.setBillable(GROUP, false));
 		expect(hook.result.current.isOpen).toBe(true);
 		expect(hook.result.current.change).toEqual({ kind: 'billable', group: GROUP, isBillable: false });
-		expect(actions.setBillableOf).not.toHaveBeenCalled();
+		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
 
 		await act(async () => {
 			await hook.result.current.confirm();
 		});
 
-		expect(actions.setBillableOf).toHaveBeenCalledWith(LOGS, false);
+		expect(writtenIds()).toEqual(['a', 'b', 'c', 'd', 'e', 'f']);
+		expect(mockUpdateTimeLog).toHaveBeenCalledWith(expect.objectContaining({ timeLogId: 'a', isBillable: false }));
 		expect(mockToast.success).toHaveBeenCalledWith('dashboard.timesheets.SIMILAR.CHANGED(count=6)');
 		expect(hook.result.current.isOpen).toBe(false);
 	});
@@ -88,12 +154,15 @@ describe('useTimesheetGroupChange', () => {
 	});
 
 	it('says how many entries changed when some writes fail', async () => {
-		const { hook } = renderChange(4);
-
-		act(() => hook.result.current.handlers.setBillable(GROUP, false));
-		await act(async () => {
-			await hook.result.current.confirm();
+		mockUpdateTimeLog.mockImplementation(async (payload: { timeLogId: string }) => {
+			if (payload.timeLogId === 'b' || payload.timeLogId === 'e') {
+				throw new Error('refused');
+			}
+			return {};
 		});
+		const { hook } = renderChange();
+
+		await confirmBillable(hook, GROUP);
 
 		expect(mockToast.warning).toHaveBeenCalledWith(
 			'dashboard.timesheets.SIMILAR.PARTLY_CHANGED(changed=4,count=6)'
@@ -101,14 +170,50 @@ describe('useTimesheetGroupChange', () => {
 	});
 
 	it('says no entry changed when every write fails', async () => {
-		const { hook } = renderChange(0);
+		mockUpdateTimeLog.mockRejectedValue(new Error('refused'));
+		const { hook } = renderChange();
 
-		act(() => hook.result.current.handlers.setBillable(GROUP, false));
-		await act(async () => {
-			await hook.result.current.confirm();
-		});
+		await confirmBillable(hook, GROUP);
 
 		expect(mockToast.error).toHaveBeenCalledWith('dashboard.timesheets.SIMILAR.PARTLY_CHANGED(changed=0,count=6)');
+	});
+
+	it('writes no entry whose interval now overlaps another entry: the API would remove that one', async () => {
+		mockGetTimeLogConflicts.mockResolvedValue([overlappedLog]);
+		const { hook } = renderChange();
+
+		await confirmBillable(hook, GROUP);
+
+		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
+		expect(mockToast.error).toHaveBeenCalledWith('dashboard.timesheets.SIMILAR.PARTLY_CHANGED(changed=0,count=6)');
+	});
+
+	it('leaves out a running and an approved entry of the group, and writes the others', async () => {
+		const running = logOf('running', { isRunning: true });
+		const approved = logOf('approved', {
+			timesheet: { id: 'sheet', status: ETimesheetStatus.APPROVED } as ITimeLog['timesheet']
+		});
+		const group = groupOf([logOf('a'), running, approved, logOf('b')]);
+		mockStoredLogs = group.logs.map((log) => ({ ...log }));
+		const { hook } = renderChange();
+
+		await confirmBillable(hook, group);
+
+		expect(writtenIds()).toEqual(['a', 'b']);
+		expect(mockToast.warning).toHaveBeenCalledWith(
+			'dashboard.timesheets.SIMILAR.PARTLY_CHANGED(changed=2,count=4)'
+		);
+	});
+
+	it("leaves out another member's entries for a reader who may change only their own", async () => {
+		const own = logOf('own', { employeeId: 'me' });
+		const group = groupOf([own, logOf('theirs', { employeeId: 'someone-else' })]);
+		mockStoredLogs = group.logs.map((log) => ({ ...log }));
+		const { hook } = renderChange({ ...MANAGER, hasOrganizationRole: false, userId: 'me-user', employeeId: 'me' });
+
+		await confirmBillable(hook, group);
+
+		expect(writtenIds()).toEqual(['own']);
 	});
 
 	it('asks before changing the status of a group, then changes it for every entry', async () => {
@@ -165,13 +270,15 @@ describe('useTimesheetGroupChange', () => {
 	});
 
 	it('cannot be dismissed while its entries are written', async () => {
-		const { actions, hook } = renderChange();
-		let finishWrites: (count: number) => void = () => undefined;
-		actions.setBillableOf.mockReturnValue(
-			new Promise<number>((resolve) => {
-				finishWrites = resolve;
-			})
-		);
+		let finishWrites: () => void = () => undefined;
+		const writesHeld = new Promise<void>((resolve) => {
+			finishWrites = resolve;
+		});
+		mockUpdateTimeLog.mockImplementation(async () => {
+			await writesHeld;
+			return {};
+		});
+		const { hook } = renderChange();
 
 		act(() => hook.result.current.handlers.setBillable(GROUP, false));
 		let saving: Promise<void> = Promise.resolve();
@@ -182,19 +289,19 @@ describe('useTimesheetGroupChange', () => {
 
 		expect(hook.result.current.isOpen).toBe(true);
 		await act(async () => {
-			finishWrites(LOGS.length);
+			finishWrites();
 			await saving;
 		});
 		expect(hook.result.current.isOpen).toBe(false);
 	});
 
 	it('writes nothing when the confirmation is closed', () => {
-		const { actions, hook } = renderChange();
+		const { hook } = renderChange();
 
 		act(() => hook.result.current.handlers.setBillable(GROUP, false));
 		act(() => hook.result.current.close());
 
 		expect(hook.result.current.isOpen).toBe(false);
-		expect(actions.setBillableOf).not.toHaveBeenCalled();
+		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
 	});
 });
