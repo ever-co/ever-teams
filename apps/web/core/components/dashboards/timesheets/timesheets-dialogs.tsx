@@ -107,6 +107,14 @@ function rejectDescriptionOf(target: RejectTarget, t: ReturnType<typeof useTrans
 	return t('dashboard.timesheets.SIMILAR.REJECT_COUNT', { count: target.entryCount });
 }
 
+/** Gauzy rejects whole timesheets, so a group's reject also says that the other entries of its timesheets change. */
+function rejectNoteOf(target: RejectTarget, t: ReturnType<typeof useTranslations>): string | undefined {
+	if (target.source !== 'group') {
+		return undefined;
+	}
+	return t('dashboard.timesheets.SHEET.WHOLE_TIMESHEETS');
+}
+
 /**
  * The existing timesheet dialogs, each mounted once for the whole page and loaded on its first opening, so the
  * page carries none of them until one is needed.
@@ -133,6 +141,7 @@ export function TimesheetsDialogs({
 	const hasOpenedEdit = useHasBeenOpen(dialogs.isEditOpen);
 	const hasOpenedReject = useHasBeenOpen(dialogs.isRejectOpen);
 	const rejectDescription = rejectDescriptionOf(dialogs.rejectTarget, t);
+	const rejectNote = rejectNoteOf(dialogs.rejectTarget, t);
 	const showsAddTime = canAddTime && hasOpenedAddTime;
 	// The form starts over when the member it is fixed to changes
 	const addTimeFormKey = addTimeMember?.employeeId ?? ANY_MEMBER_KEY;
@@ -167,6 +176,7 @@ export function TimesheetsDialogs({
 					closeModal={dialogs.closeReject}
 					selectTimesheetId={dialogs.rejectTarget.timesheetIds}
 					description={rejectDescription}
+					note={rejectNote}
 					onReject={onRejected}
 					maxReasonLength={REASON_MAX_LENGTH}
 					minReasonLength={0}

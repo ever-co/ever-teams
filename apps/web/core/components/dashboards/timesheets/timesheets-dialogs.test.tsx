@@ -15,7 +15,13 @@ jest.mock('next-intl', () => ({
 // Every dialog of the page is loaded on demand; a stand-in shows the props each one receives.
 jest.mock('next/dynamic', () => () => (props: Record<string, unknown>) => {
 	if ('selectTimesheetId' in props) {
-		return <div data-testid="reject-dialog" data-description={String(props.description ?? '')} />;
+		return (
+			<div
+				data-testid="reject-dialog"
+				data-description={String(props.description ?? '')}
+				data-note={String(props.note ?? '')}
+			/>
+		);
 	}
 	if ('countID' in props) {
 		return <div data-testid="delete-dialog" data-count={String(props.countID)} />;
@@ -85,9 +91,18 @@ describe('TimesheetsDialogs for a group of similar entries', () => {
 		);
 	});
 
+	it('warns that a group reject changes whole timesheets', () => {
+		openWith((dialogs) => dialogs.openReject(GROUP_LOGS, 'group'));
+
+		expect(screen.getByTestId('reject-dialog').getAttribute('data-note')).toBe(
+			'dashboard.timesheets.SHEET.WHOLE_TIMESHEETS'
+		);
+	});
+
 	it("keeps the reject dialog's own words for one entry", () => {
 		openWith((dialogs) => dialogs.openReject([logOf('a')], 'row'));
 
 		expect(screen.getByTestId('reject-dialog').getAttribute('data-description')).toBe('');
+		expect(screen.getByTestId('reject-dialog').getAttribute('data-note')).toBe('');
 	});
 });
