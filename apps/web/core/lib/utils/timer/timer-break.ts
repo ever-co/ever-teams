@@ -57,6 +57,22 @@ export function timerBreakStateOf(status: ITimerStatus | null | undefined): Time
 	};
 }
 
+/**
+ * The task "Back to work" starts again: the one the break paused, when the team's list holds it. Named to the start,
+ * so neither a task page opened during the break nor the active task picked meanwhile takes its place; null when not
+ * on break or when the list does not hold it, and the start then picks its task as any start does.
+ */
+export function breakResumeTaskOf<T extends { id: string }>(
+	breakState: Pick<TimerBreakState, 'isOnBreak' | 'taskId'>,
+	tasks: ReadonlyArray<T>
+): T | null {
+	const pausedTaskId = breakState.taskId;
+	if (!breakState.isOnBreak || !pausedTaskId) {
+		return null;
+	}
+	return tasks.find((task) => task.id === pausedTaskId) ?? null;
+}
+
 /** Whole seconds since the break started, never below zero (a clock a little behind the server's). */
 export function breakElapsedSecondsOf(startedAt: Date, now: Date): number {
 	const elapsedMilliseconds = now.getTime() - startedAt.getTime();

@@ -15,7 +15,10 @@ import { Transition } from '@headlessui/react';
 
 import { ArrowTurnUp, Break, Desktop, Globe, Lifebuoy, Smartphone } from '@/core/components/icons';
 import { useTimerBreak } from '@/core/hooks/timer/use-timer-break';
-import type { TimerBreakState } from '@/core/lib/utils/timer/timer-break';
+import { breakResumeTaskOf, type TimerBreakState } from '@/core/lib/utils/timer/timer-break';
+import { tasksByTeamState } from '@/core/stores';
+import type { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAtomValue } from 'jotai';
 import { HotkeysEvent } from 'hotkeys-js';
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { TimerPlanDialogs } from '@/core/components/features/daily-plan/timer-plan-dialogs';
@@ -124,12 +127,28 @@ function BreakCaption({ isFromThisApp }: Readonly<{ isFromThisApp: boolean }>) {
 	);
 }
 
+/**
+ * The timer's start. During a break it is "Back to work", which names the task the break paused: a task page opened
+ * or another active task picked during the break never takes its place (#5216). Any other start picks its task as
+ * before.
+ */
+function useWorkStart(breakState: TimerBreakState, startTimer: (task?: TTask) => unknown) {
+	const teamTasks = useAtomValue(tasksByTeamState);
+	const resumeTask = breakResumeTaskOf(breakState, teamTasks);
+	return useCallback(() => startTimer(resumeTask ?? undefined), [resumeTask, startTimer]);
+}
+
 export function Timer({ className, showTimerButton = true, compact = false }: IClassName<{ compact?: boolean }>) {
 	const t = useTranslations();
 	const hydrated = useHydrated();
 
 	const { canRunTimer, timerStatus, startTimer, stopTimer } = useTimerView();
-	const { modals, actionDisabled, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
+	const { allowsBreaks, breakState, pendingAction, takeBreak, endBreak } = useTimerBreak(timerStatus, stopTimer);
+	const startWork = useWorkStart(breakState, startTimer);
+	const { modals, actionDisabled, startStopTimerHandler } = useStartStopTimerHandler({
+		startTimer: startWork,
+		stopTimer
+	});
 
 	// FIX_NOTE: Use team-scoped time instead of global timerStatus.duration
 	// timerStatus.duration is global and doesn't change when switching teams
@@ -154,7 +173,6 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 	const isOtherSource = runningSource !== ETimeLogSource.TEAMS;
 	const isTrackedElsewhere = isTimerRunning && hasRunningSource && isOtherSource;
 
-	const { allowsBreaks, breakState, pendingAction, takeBreak, endBreak } = useTimerBreak(timerStatus, stopTimer);
 	const isOnBreak = breakState.isOnBreak;
 	// "End break" stays offered for a break taken before the organization turned breaks off
 	const showsBreakButton = isOnBreak || (allowsBreaks && isTimerRunning);
@@ -335,7 +353,12 @@ export function MinTimerFrame({ className }: IClassName) {
 	const hydrated = useHydrated();
 	const { timerStatus, startTimer, stopTimer } = useTimerView();
 	const isTimerRunning = Boolean(timerStatus?.running);
-	const { modals, actionDisabled, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
+	const { allowsBreaks, breakState, pendingAction, takeBreak, endBreak } = useTimerBreak(timerStatus, stopTimer);
+	const startWork = useWorkStart(breakState, startTimer);
+	const { modals, actionDisabled, startStopTimerHandler } = useStartStopTimerHandler({
+		startTimer: startWork,
+		stopTimer
+	});
 
 	// NOTE_FIX: Use team-scoped time instead of global timerStatus.duration
 	// timerStatus.duration is global and doesn't change when switching teams
@@ -353,7 +376,6 @@ export function MinTimerFrame({ className }: IClassName) {
 	const isBillableLocked = Boolean(displayRunning);
 	const todayWorkedLabel = `${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`;
 
-	const { allowsBreaks, breakState, pendingAction, takeBreak, endBreak } = useTimerBreak(timerStatus, stopTimer);
 	const isOnBreak = breakState.isOnBreak;
 	const showsBreakButton = isOnBreak || (allowsBreaks && isTimerRunning);
 	const isBreakPending = pendingAction !== null;

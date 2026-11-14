@@ -7,6 +7,7 @@ import {
 	breakElapsedSecondsOf,
 	breakOverlapKeyOf,
 	breakRefusalKeyOf,
+	breakResumeTaskOf,
 	breakSecondsOf,
 	breaksAllowedIn,
 	isBreakLog,
@@ -75,6 +76,22 @@ describe('timerBreakStateOf', () => {
 		expect(timerBreakStateOf(stoppedBreak).isOnBreak).toBe(false);
 		expect(timerBreakStateOf(work).isOnBreak).toBe(false);
 		expect(timerBreakStateOf(null).isOnBreak).toBe(false);
+	});
+});
+
+describe('breakResumeTaskOf', () => {
+	const paused = { id: 'task-paused', title: 'Paused' };
+	const other = { id: 'task-other', title: 'Other' };
+	const onBreak = { isOnBreak: true, taskId: paused.id };
+
+	it('is the task the break paused, whatever task is active or open', () => {
+		expect(breakResumeTaskOf(onBreak, [other, paused])).toBe(paused);
+	});
+
+	it('is none off a break, for a break with no task, or for a task the list does not hold', () => {
+		expect(breakResumeTaskOf({ isOnBreak: false, taskId: paused.id }, [paused])).toBeNull();
+		expect(breakResumeTaskOf({ isOnBreak: true, taskId: null }, [paused])).toBeNull();
+		expect(breakResumeTaskOf(onBreak, [other])).toBeNull();
 	});
 });
 
