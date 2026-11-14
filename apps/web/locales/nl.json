@@ -1229,7 +1229,10 @@
 				"SUMMARY": "Samenvatting van de periode",
 				"NO_ACTIVITY": "Geen activiteit vastgelegd in deze periode",
 				"CHART_LABEL": "Geregistreerde tijd en activiteit per dag",
-				"BY_TIMER": "{duration} via de timer"
+				"BY_TIMER": "{duration} via de timer",
+				"ROUNDED_UP": "Per registratie naar boven afgerond op {minutes} min",
+				"ROUNDED_DOWN": "Per registratie naar beneden afgerond op {minutes} min",
+				"ROUNDED_NEAREST": "Per registratie afgerond op de dichtstbijzijnde {minutes} min"
 			},
 			"breakdown": {
 				"RANK": "Rang",

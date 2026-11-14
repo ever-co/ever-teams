@@ -1229,7 +1229,10 @@
 				"SUMMARY": "Riepilogo del periodo",
 				"NO_ACTIVITY": "Nessuna attività registrata in questo periodo",
 				"CHART_LABEL": "Tempo registrato e attività al giorno",
-				"BY_TIMER": "{duration} con il timer"
+				"BY_TIMER": "{duration} con il timer",
+				"ROUNDED_UP": "Arrotondato per eccesso a {minutes} min per voce",
+				"ROUNDED_DOWN": "Arrotondato per difetto a {minutes} min per voce",
+				"ROUNDED_NEAREST": "Arrotondato ai {minutes} min più vicini per voce"
 			},
 			"breakdown": {
 				"RANK": "Posizione",

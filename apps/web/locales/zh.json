@@ -1229,7 +1229,10 @@
 				"SUMMARY": "本期汇总",
 				"NO_ACTIVITY": "本期没有活跃度记录",
 				"CHART_LABEL": "每天的已记录时间和活跃度",
-				"BY_TIMER": "计时器 {duration}"
+				"BY_TIMER": "计时器 {duration}",
+				"ROUNDED_UP": "每条记录向上取整到 {minutes} 分钟",
+				"ROUNDED_DOWN": "每条记录向下取整到 {minutes} 分钟",
+				"ROUNDED_NEAREST": "每条记录四舍五入到 {minutes} 分钟"
 			},
 			"breakdown": {
 				"RANK": "排名",

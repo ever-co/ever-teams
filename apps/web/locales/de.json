@@ -1229,7 +1229,10 @@
 				"SUMMARY": "Zusammenfassung des Zeitraums",
 				"NO_ACTIVITY": "In diesem Zeitraum wurde keine Aktivität erfasst",
 				"CHART_LABEL": "Erfasste Zeit und Aktivität pro Tag",
-				"BY_TIMER": "{duration} per Timer"
+				"BY_TIMER": "{duration} per Timer",
+				"ROUNDED_UP": "Pro Eintrag auf {minutes} Min. aufgerundet",
+				"ROUNDED_DOWN": "Pro Eintrag auf {minutes} Min. abgerundet",
+				"ROUNDED_NEAREST": "Pro Eintrag auf die nächsten {minutes} Min. gerundet"
 			},
 			"breakdown": {
 				"RANK": "Rang",

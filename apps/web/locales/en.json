@@ -1229,7 +1229,10 @@
 				"SUMMARY": "Summary of the period",
 				"NO_ACTIVITY": "No activity recorded in this period",
 				"CHART_LABEL": "Tracked time and activity per day",
-				"BY_TIMER": "{duration} by timer"
+				"BY_TIMER": "{duration} by timer",
+				"ROUNDED_UP": "Rounded up to {minutes} min per entry",
+				"ROUNDED_DOWN": "Rounded down to {minutes} min per entry",
+				"ROUNDED_NEAREST": "Rounded to the nearest {minutes} min per entry"
 			},
 			"breakdown": {
 				"RANK": "Rank",

@@ -1229,7 +1229,10 @@
 				"SUMMARY": "Podsumowanie okresu",
 				"NO_ACTIVITY": "W tym okresie nie zarejestrowano aktywności",
 				"CHART_LABEL": "Zarejestrowany czas i aktywność dziennie",
-				"BY_TIMER": "{duration} z timera"
+				"BY_TIMER": "{duration} z timera",
+				"ROUNDED_UP": "Zaokrąglone w górę do {minutes} min na wpis",
+				"ROUNDED_DOWN": "Zaokrąglone w dół do {minutes} min na wpis",
+				"ROUNDED_NEAREST": "Zaokrąglone do najbliższych {minutes} min na wpis"
 			},
 			"breakdown": {
 				"RANK": "Pozycja",

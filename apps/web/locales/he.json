@@ -1229,7 +1229,10 @@
 				"SUMMARY": "סיכום התקופה",
 				"NO_ACTIVITY": "לא נרשמה פעילות בתקופה הזו",
 				"CHART_LABEL": "זמן שנרשם ופעילות לפי יום",
-				"BY_TIMER": "{duration} לפי הטיימר"
+				"BY_TIMER": "{duration} לפי הטיימר",
+				"ROUNDED_UP": "מעוגל כלפי מעלה ל-{minutes} דק׳ לכל רשומה",
+				"ROUNDED_DOWN": "מעוגל כלפי מטה ל-{minutes} דק׳ לכל רשומה",
+				"ROUNDED_NEAREST": "מעוגל ל-{minutes} הדק׳ הקרובות לכל רשומה"
 			},
 			"breakdown": {
 				"RANK": "דירוג",

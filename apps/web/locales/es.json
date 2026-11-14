@@ -1229,7 +1229,10 @@
 				"SUMMARY": "Resumen del período",
 				"NO_ACTIVITY": "No se registró actividad en este período",
 				"CHART_LABEL": "Tiempo registrado y actividad por día",
-				"BY_TIMER": "{duration} con el temporizador"
+				"BY_TIMER": "{duration} con el temporizador",
+				"ROUNDED_UP": "Redondeado hacia arriba a {minutes} min por entrada",
+				"ROUNDED_DOWN": "Redondeado hacia abajo a {minutes} min por entrada",
+				"ROUNDED_NEAREST": "Redondeado a los {minutes} min más cercanos por entrada"
 			},
 			"breakdown": {
 				"RANK": "Posición",

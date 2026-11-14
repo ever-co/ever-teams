@@ -1164,7 +1164,10 @@
 				"SUMMARY": "ملخص الفترة",
 				"NO_ACTIVITY": "لم يُسجَّل نشاط في هذه الفترة",
 				"CHART_LABEL": "الوقت المسجّل والنشاط لكل يوم",
-				"BY_TIMER": "{duration} عبر المؤقت"
+				"BY_TIMER": "{duration} عبر المؤقت",
+				"ROUNDED_UP": "مقرّب إلى الأعلى إلى {minutes} دقيقة لكل إدخال",
+				"ROUNDED_DOWN": "مقرّب إلى الأدنى إلى {minutes} دقيقة لكل إدخال",
+				"ROUNDED_NEAREST": "مقرّب إلى أقرب {minutes} دقيقة لكل إدخال"
 			},
 			"breakdown": {
 				"RANK": "الترتيب",
