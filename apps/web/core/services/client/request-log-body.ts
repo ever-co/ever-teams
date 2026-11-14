@@ -1,5 +1,8 @@
-/** Body fields that carry a password in clear text: `hash` is the new password of `PUT /user/:id`. */
-const SECRET_BODY_FIELDS = new Set(['hash', 'password', 'confirmPassword']);
+/**
+ * Body fields that carry a secret in clear text: `hash` is the new password of `PUT /user/:id`, `refresh_token` renews
+ * a session.
+ */
+const SECRET_BODY_FIELDS = new Set(['hash', 'password', 'confirmPassword', 'refresh_token']);
 
 const HIDDEN = '[hidden]';
 

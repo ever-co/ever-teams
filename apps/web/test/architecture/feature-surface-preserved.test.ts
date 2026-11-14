@@ -2052,12 +2052,30 @@ describe('Ever Teams feature surface preservation', () => {
 		// (/api/invoices/[id] GET; #5158).
 		// 357 files and 455 verbs with the proxies that update one invoice and replace its lines (/api/invoices/[id]
 		// PUT, /api/invoice-item/bulk/[invoiceId] POST; #5159). Its read of one invoice is #5158's.
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(357);
+		// 360 files and 459 verbs with the personal API token proxies (/api/user-api-tokens/config GET,
+		// /api/user-api-tokens GET and POST, /api/user-api-tokens/[id] DELETE; #5209).
+		// 361 files and 460 verbs with the team menu's organizations of the workspace in proxy mode
+		// (/api/organization-team/organizations GET; #5204).
+		// 362 files and 461 verbs with the correction of the running timer's start (/api/timer/started-at PUT, #5203).
+		// 363 files and 462 verbs with the discard of the running timer (/api/timer/discard POST; #5219).
+		// 364 files and 463 verbs with the export of all of the workspace's data (/api/export GET; #5208).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(364);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(455);
+		).toHaveLength(463);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of Gauzy's personal API token routes (#5209)
+				'apps/web/app/api/user-api-tokens/config/route.ts::GET',
+				'apps/web/app/api/user-api-tokens/route.ts::GET',
+				'apps/web/app/api/user-api-tokens/route.ts::POST',
+				'apps/web/app/api/user-api-tokens/[id]/route.ts::DELETE',
+				// The team menu's organizations of the workspace in proxy mode (#5204)
+				'apps/web/app/api/organization-team/organizations/route.ts::GET',
+				// Proxy mode twin of Gauzy's route that moves the start of the running timer (#5203)
+				'apps/web/app/api/timer/started-at/route.ts::PUT',
+				// Proxy mode twin of Gauzy's export of every table of the workspace (#5208)
+				'apps/web/app/api/export/route.ts::GET',
 				// Proxy mode twins of the platform's incoming webhook management of a channel (ever-gauzy #11799)
 				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::GET',
 				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::POST',
@@ -2194,6 +2212,7 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/task-estimation/route.ts::POST',
 				'apps/web/app/api/task-statuses/reorder/route.ts::PATCH',
 				'apps/web/app/api/timer/status/worked/route.ts::GET',
+				'apps/web/app/api/timer/discard/route.ts::POST',
 				'apps/web/app/api/timer/toggle/route.ts::POST',
 				'apps/web/app/api/timer/toogle/route.ts::POST',
 				'apps/web/app/api/timesheet/status/route.ts::PUT',

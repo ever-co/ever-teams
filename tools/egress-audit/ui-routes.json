@@ -274,6 +274,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/settings/personal/api-tokens",
+      "file": "apps/web/app/[locale]/(main)/settings/personal/api-tokens/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/settings/personal/notifications",
       "file": "apps/web/app/[locale]/(main)/settings/personal/notifications/page.tsx",
       "source": "router"

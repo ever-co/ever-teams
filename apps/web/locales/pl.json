@@ -599,6 +599,21 @@
 				"EDITED_AT": "Edytowano {date}, {time}",
 				"REASON_PREFIX": "Powód:"
 			},
+			"SIMILAR": {
+				"ENTRY_COUNT": "{count, plural, one {# wpis} few {# wpisy} many {# wpisów} other {# wpisu}}",
+				"SHOW_ENTRIES": "Pokaż wpisy zadania {task}",
+				"HIDE_ENTRIES": "Ukryj wpisy zadania {task}",
+				"SELECT_GROUP": "{count, plural, one {Zaznacz # wpis zadania {task}} few {Zaznacz # wpisy zadania {task}} many {Zaznacz # wpisów zadania {task}} other {Zaznacz # wpisu zadania {task}}}",
+				"CONFIRM_BILLABLE": "{count, plural, one {Oznaczyć # wpis jako do rozliczenia?} few {Oznaczyć # wpisy jako do rozliczenia?} many {Oznaczyć # wpisów jako do rozliczenia?} other {Oznaczyć # wpisu jako do rozliczenia?}}",
+				"CONFIRM_NOT_BILLABLE": "{count, plural, one {Oznaczyć # wpis jako nie do rozliczenia?} few {Oznaczyć # wpisy jako nie do rozliczenia?} many {Oznaczyć # wpisów jako nie do rozliczenia?} other {Oznaczyć # wpisu jako nie do rozliczenia?}}",
+				"CONFIRM_STATUS": "{count, plural, one {Zmienić status # wpisu na „{status}”?} few {Zmienić status # wpisów na „{status}”?} many {Zmienić status # wpisów na „{status}”?} other {Zmienić status # wpisu na „{status}”?}}",
+				"CONFIRM_SCOPE": "Zmienią się wszystkie wpisy zadania {task} w tym wierszu.",
+				"CHANGED": "{count, plural, one {Zmieniono # wpis} few {Zmieniono # wpisy} many {Zmieniono # wpisów} other {Zmieniono # wpisu}}",
+				"PARTLY_CHANGED": "Zmieniono {changed} z {count} wpisów. Pozostałe zachowały swoją wartość.",
+				"REJECT_COUNT": "{count, plural, one {Zamierzasz odrzucić # wpis. Czy chcesz kontynuować?} few {Zamierzasz odrzucić # wpisy. Czy chcesz kontynuować?} many {Zamierzasz odrzucić # wpisów. Czy chcesz kontynuować?} other {Zamierzasz odrzucić # wpisu. Czy chcesz kontynuować?}}",
+				"VIEW_GROUP": "Grupuj podobne wpisy",
+				"VIEW_GROUP_HELP": "Wpisy z jednego dnia z tym samym zadaniem, projektem, notatkami i stanem rozliczenia są pokazane w jednym wierszu."
+			},
 			"STATUS_CARDS": {
 				"PENDING": "Czeka na zatwierdzenie",
 				"LOG_UNIT": "{count, plural, one {wpis} few {wpisy} many {wpisów} other {wpisu}}"
@@ -794,7 +809,12 @@
 				"NONE": "Bez projektu",
 				"COUNT": "{count, plural, one {# projekt} few {# projekty} many {# projektów} other {# projektu}}",
 				"OTHER": "{count, plural, one {# inny projekt} few {# inne projekty} many {# innych projektów} other {# innego projektu}}",
-				"EMPTY": "Projekty pojawią się tutaj, gdy w okresie zostanie zarejestrowany czas."
+				"EMPTY": "Projekty pojawią się tutaj, gdy w okresie zostanie zarejestrowany czas.",
+				"SPLIT": "Podziel czas według",
+				"BY_CLIENT": "Według klienta",
+				"OTHER_CLIENTS": "{count, plural, one {# inny klient} few {# innych klientów} many {# innych klientów} other {# innego klienta}}",
+				"CLIENTS_EMPTY": "Klienci pojawią się tutaj, gdy w okresie zostanie zarejestrowany czas.",
+				"CLIENTS_ERROR": "Nie udało się odczytać klientów projektów."
 			},
 			"table": {
 				"VIEW": "Grupuj wiersze",
@@ -1518,6 +1538,53 @@
 				"FUTURE": "Twoja organizacja nie zezwala na czas po bieżącej godzinie.",
 				"APPROVED": "Ten dzień należy do zatwierdzonej karty czasu pracy, więc jego czasu nie można zmienić.",
 				"SAVE_FAILED": "Zmiana nie została zapisana"
+			},
+			"MENU": {
+				"STOP": "Zatrzymaj licznik",
+				"ADD_TIME_HERE": "Dodaj czas tutaj",
+				"SPLIT": "Podziel",
+				"NO_ACTIONS": "Nie możesz zmienić tego wpisu."
+			},
+			"SPLIT": {
+				"TITLE": "Podziel wpis",
+				"REFUSED_TITLE": "Tego wpisu nie można podzielić",
+				"TIME_LABEL": "Podziel o",
+				"TIME_OUTSIDE": "Wybierz godzinę wewnątrz wpisu, co najmniej minutę po jego początku i przed końcem.",
+				"PARTS_LABEL": "Dwa wpisy",
+				"FIRST_PART": "Pierwsza część",
+				"SECOND_PART": "Druga część",
+				"TASK_LABEL": "Zadanie drugiej części: {task}",
+				"TASK_SEARCH": "Szukaj zadań",
+				"ACTION": "Podziel",
+				"SAVING": "Dzielenie…",
+				"SAVED": "Wpis podzielony na dwa",
+				"FAILED_RESTORED": "Nie udało się podzielić wpisu i wrócił do poprzedniego stanu. Spróbuj ponownie.",
+				"FAILED_CHANGED": "Ten wpis zmienił się od czasu wczytania go przez kalendarz, więc nic nie zostało podzielone. Sprawdź go i spróbuj ponownie.",
+				"FAILED_FIRST_PART_KEPT": "Pierwsza część została zapisana, ale drugiej ({range}) nie udało się dodać. Dodaj ją przez Dodaj czas.",
+				"FAILED_UNKNOWN": "Nie udało się potwierdzić podziału. Odśwież kalendarz i sprawdź ten wpis, zanim spróbujesz ponownie.",
+				"ADD_REST": "Dodaj drugą część",
+				"REFUSED": {
+					"TRACKED": "Śledzony czas niesie swoją aktywność i zrzuty ekranu, które tylko serwer może rozdzielić między dwa wpisy. Na razie można dzielić tylko czas dodany ręcznie.",
+					"RUNNING": "Licznik nadal działa. Zatrzymaj go, a potem podziel wpis.",
+					"TOO_SHORT": "Ten wpis jest za krótki: każda część musi trwać co najmniej minutę.",
+					"APPROVED": "Ten dzień należy do zatwierdzonej karty czasu pracy, więc jego czasu nie można zmienić.",
+					"PERMISSION": "Twoja rola lub organizacja nie pozwala zmieniać czasu ani dodawać go ręcznie."
+				}
+			},
+			"SETTINGS": {
+				"LABEL": "Ustawienia siatki",
+				"SNAP": "Przyciągaj do",
+				"SNAP_OPTION": "{minutes, plural, =60 {1 godzina} one {# minuta} few {# minuty} many {# minut} other {# minuty}}",
+				"FIRST_HOUR": "Pierwsza godzina",
+				"LAST_HOUR": "Ostatnia godzina",
+				"END_OF_DAY": "Koniec dnia",
+				"HOURS_HINT": "Wpisy poza tymi godzinami nadal są widoczne: siatka poszerza się do nich.",
+				"ROW_HEIGHT": "Wysokość wierszy",
+				"ROW_COMPACT": "Zwarta",
+				"ROW_DEFAULT": "Domyślna",
+				"ROW_TALL": "Wysoka",
+				"KEPT_HERE": "Zapisane w tej przeglądarce",
+				"RESET": "Resetuj"
 			}
 		},
 		"manualTimeEdits": {
@@ -2796,7 +2863,59 @@
 			"HINT_RUNNING": "Zmiany wprowadzone podczas działania timera nie są jeszcze zapisywane. Aby zmienić notatki, edytuj wpis w kartach czasu pracy po zatrzymaniu timera.",
 			"HINT_OTHER_TEAM": "Te notatki należą do timera działającego w innym zespole, więc nie można ich tutaj zmienić."
 		},
-		"NOT_BILLABLE": "Niefakturowane"
+		"NOT_BILLABLE": "Niefakturowane",
+		"startMove": {
+			"TITLE": "Początek działającego timera",
+			"STARTED_AT": "Rozpoczęto o {time}",
+			"OPEN": "Rozpoczęto o {time}. Zmień początek",
+			"NEW_START": "Nowy początek",
+			"REASON": "Powód",
+			"REASON_PLACEHOLDER": "Dlaczego początek się zmienia",
+			"LATER_ONLY": "Nie możesz dodawać czasu ręcznie, więc początek można tylko przesunąć później.",
+			"SAVING": "Zapisywanie…",
+			"SAVED": "Timer zaczyna się teraz o {time}.",
+			"CHECKING": "Sprawdzanie, czy początek można zmienić…",
+			"VIEW_TRACKER": "Ten timer działa w aplikacji desktopowej. Zmień jego początek tam.",
+			"VIEW_NOT_ALLOWED": "Nie możesz zmieniać zarejestrowanego czasu w tej organizacji.",
+			"UNSUPPORTED": "Na tym serwerze nie można jeszcze zmienić początku działającego timera.",
+			"NOT_RUNNING": "Timer już nie działa.",
+			"TRACKER_RUN": "Ten timer działa w aplikacji desktopowej lub agencie, które same rejestrują jego czas. Zmień jego początek tam.",
+			"IN_FUTURE": "Początek nie może być późniejszy niż teraz.",
+			"EDIT_NOT_ALLOWED": "Nie możesz zmieniać zarejestrowanego czasu.",
+			"MANUAL_NOT_ALLOWED": "Wcześniejszy początek dodaje czas ręcznie, czego nie możesz robić. Wybierz późniejszy początek.",
+			"REASON_REQUIRED": "Twoja organizacja wymaga podania powodu.",
+			"REASON_TOO_LONG": "Powód jest za długi: najwyżej 255 znaków.",
+			"OVERLAP": "Inny twój wpis obejmuje ten czas. Wybierz początek po jego zakończeniu.",
+			"CHANGED": "Początek właśnie zmienił się gdzie indziej. Sprawdź go i spróbuj ponownie.",
+			"SAVE_FAILED": "Nie udało się zapisać początku. Spróbuj ponownie."
+		},
+		"discard": {
+			"MENU": "Więcej działań timera",
+			"ACTION": "Odrzuć tę sesję",
+			"TITLE": "Odrzucić tę sesję?",
+			"DESCRIPTION": "Nic nie zostanie zapisane.",
+			"DESCRIPTION_ELSEWHERE": "Ta sesja została uruchomiona z {source} i tam też się zatrzyma. Nic nie zostanie zapisane.",
+			"CONFIRM": "Odrzuć",
+			"DISCARDING": "Odrzucanie…",
+			"DISCARDED": "Sesja odrzucona",
+			"DISCARDED_HINT": "Timer jest zatrzymany i nic nie zostało zapisane.",
+			"sources": {
+				"DESKTOP": "aplikacji desktopowej",
+				"MOBILE": "aplikacji mobilnej",
+				"BROWSER_EXTENSION": "rozszerzenia przeglądarki",
+				"OTHER": "innej aplikacji"
+			},
+			"failures": {
+				"NOT_RUNNING": "Żaden timer już nie działa, więc nic nie zostało odrzucone.",
+				"DISABLED": "Twoja organizacja nie pozwala odrzucać sesji.",
+				"TOO_LATE": "Ta sesja zaczęła się zbyt dawno, aby ją odrzucić. Zatrzymaj ją, a potem edytuj wpis w Kartach czasu pracy.",
+				"FORBIDDEN": "Twoja rola nie pozwala odrzucić tej sesji.",
+				"NOT_SUPPORTED": "Ten serwer nie oferuje jeszcze odrzucania sesji.",
+				"CHANGED": "W międzyczasie zaczęła się inna sesja, więc nic nie zostało odrzucone.",
+				"TRACKER_RUN": "Tę sesję rejestruje aplikacja desktopowa lub agent, które same prowadzą jej czas, więc nie można jej tutaj odrzucić.",
+				"GENERIC": "Nie udało się odrzucić sesji. Sprawdź połączenie i spróbuj ponownie."
+			}
+		}
 	},
 	"task": {
 		"TITLE": "Zadanie",
@@ -3419,7 +3538,13 @@
 		"EVER_APPS": "Aplikacje Ever",
 		"CURRENT_APP": "{app}, aplikacja, w której jesteś",
 		"OPENS_IN_NEW_TAB": "(otwiera się w nowej karcie)",
-		"APP_OPENS_IN_NEW_TAB": "{app} (otwiera się w nowej karcie)"
+		"APP_OPENS_IN_NEW_TAB": "{app} (otwiera się w nowej karcie)",
+		"OTHER_ORGANIZATIONS_LOADING": "Wczytywanie Twoich innych organizacji",
+		"OTHER_ORGANIZATIONS_FAILED": "Nie udało się wczytać Twoich innych organizacji.",
+		"TRY_AGAIN": "Spróbuj ponownie",
+		"UNNAMED_ORGANIZATION": "Organizacja bez nazwy",
+		"OPEN_ORGANIZATION": "Otwórz tam swoje zespoły",
+		"ORGANIZATION_SWITCH_FAILED": "Nie udało się otworzyć tej organizacji. Spróbuj ponownie."
 	},
 	"workspaceCreation": {
 		"TITLE": "Utwórz obszar roboczy",
@@ -3959,6 +4084,7 @@
 			"NO_TASK": "Wybierz zadanie, aby uruchomić timer",
 			"START_IN_PROGRESS": "Timer wciąż uruchamia się dla innego zadania",
 			"WORKSPACE_OPENING": "Nowa przestrzeń robocza się otwiera: uruchom licznik czasu, gdy będzie otwarta.",
+			"ORGANIZATION_OPENING": "Otwiera się inna organizacja: uruchom licznik czasu, gdy będzie otwarta.",
 			"STOPPED_TEAM_SWITCH": "Timer zatrzymany po zmianie zespołu",
 			"STOPPED_TASK_SWITCH": "Timer zatrzymany, bo zmieniło się aktywne zadanie",
 			"STALE_STOPPED": "Timer zatrzymany: {stoppedAt}",
@@ -3966,7 +4092,8 @@
 			"TASK_CLOSED_HINT": "Otwórz zadanie ponownie, aby rejestrować na nim czas.",
 			"NOTES_NOT_SAVED": "Notatki zmienione w trakcie działania timera nie zostały zapisane",
 			"NOTES_NOT_SAVED_HINT": "Wpis zachował notatki z uruchomienia. Edytuj wpis w kartach czasu pracy, aby je zmienić.",
-			"ALREADY_RUNNING_ON_TASK": "Timer już działa dla tego zadania"
+			"ALREADY_RUNNING_ON_TASK": "Timer już działa dla tego zadania",
+			"SAVED_STOP_HINT": "To zatrzymanie zażądane przed wygaśnięciem sesji."
 		},
 		"plans": {
 			"CREATE_FAILED": "Nie utworzono planu",
@@ -4215,6 +4342,10 @@
 			"notifications": {
 				"TITLE": "Powiadomienia",
 				"DESCRIPTION": "Które zdarzenia cię powiadamiają."
+			},
+			"apiTokens": {
+				"TITLE": "Tokeny API",
+				"DESCRIPTION": "Klucze, których Twoje skrypty używają, by wywoływać API w Twoim imieniu."
 			},
 			"teamGeneral": {
 				"TITLE": "Ogólne",
@@ -5168,6 +5299,60 @@
 			"UNAVAILABLE_TITLE": "W tym obszarze roboczym nie ma jeszcze czego ustawiać",
 			"UNAVAILABLE_TEXT": "Powiadomienia należą do twojego profilu członka w obszarze roboczym, a to konto nie ma tu takiego profilu. Najpierw dołącz do zespołu lub utwórz nowy."
 		},
+		"apiTokens": {
+			"PAGE_DESCRIPTION": "Każdy token pozwala skryptowi wywoływać API w Twoim imieniu. Odwołany token natychmiast przestaje działać.",
+			"SECTION_TOKENS": "Twoje tokeny",
+			"COUNT": "Aktywne tokeny: {count} z {max}",
+			"CREATE": "Utwórz token",
+			"LIMIT_REACHED": "Masz {max} aktywnych tokenów, czyli maksymalną liczbę. Odwołaj nieużywany token, aby utworzyć kolejny.",
+			"EMPTY_TITLE": "Nie masz jeszcze tokenów API",
+			"EMPTY_TEXT": "Utwórz osobny token dla każdego skryptu, aby móc odwołać jeden bez ruszania pozostałych.",
+			"LIST_FAILED_TITLE": "Nie udało się odczytać Twoich tokenów API",
+			"LIST_FAILED_TEXT": "Sprawdź połączenie i spróbuj ponownie.",
+			"RETRY": "Spróbuj ponownie",
+			"CREATED_ON": "Utworzono {date}",
+			"LAST_USED_ON": "Ostatnio użyto {date}",
+			"NEVER_USED": "Nigdy nieużyty",
+			"EXPIRES_ON": "Wygasa {date}",
+			"EXPIRED_ON": "Wygasł {date}",
+			"NEVER_EXPIRES": "Nie wygasa",
+			"EXPIRED": "Wygasł",
+			"REVOKE": "Odwołaj",
+			"REVOKE_TITLE": "Odwołać „{name}”?",
+			"REVOKE_DESCRIPTION": "Skrypty nie mogą już wymienić tego tokenu na dostęp; dostęp, który już mają, wygasa w ciągu godziny. Tej operacji nie można cofnąć.",
+			"REVOKE_CONFIRM": "Odwołaj token",
+			"REVOKE_FAILED": "Nie udało się odwołać tokenu. Spróbuj ponownie.",
+			"CREATE_TITLE": "Utwórz token API",
+			"NAME_LABEL": "Nazwa",
+			"NAME_HINT": "Do czego służy token, na przykład „Raport piątkowy”.",
+			"NAME_REQUIRED": "Nadaj tokenowi nazwę.",
+			"NAME_TOO_LONG": "Nazwa może mieć najwyżej {max} znaków.",
+			"EXPIRY_LEGEND": "Wygaśnięcie",
+			"EXPIRY_90D": "Za 90 dni",
+			"EXPIRY_1Y": "Za rok",
+			"EXPIRY_NEVER": "Nigdy",
+			"EXPIRY_ON_DATE": "Dnia {date}",
+			"EXPIRY_NEVER_DETAIL": "Działa, dopóki go nie odwołasz.",
+			"CREATING": "Tworzenie…",
+			"CREATE_FAILED": "Nie udało się utworzyć tokenu. Spróbuj ponownie.",
+			"CREATE_LIMIT": "Masz już {max} aktywnych tokenów. Odwołaj jeden, aby utworzyć kolejny.",
+			"CREATE_DISABLED": "Ten serwer nie oferuje już tokenów API.",
+			"SECRET_TITLE": "Skopiuj teraz swój token",
+			"SECRET_TEXT": "„{name}” jest gotowy. Jego sekret jest pokazywany tylko ten jeden raz: zapisz go w bezpiecznym miejscu, zanim zamkniesz to okno.",
+			"SECRET_LABEL": "Token",
+			"COPY": "Kopiuj",
+			"COPY_TOKEN": "Kopiuj token",
+			"COPIED": "Skopiowano",
+			"COPY_DONE": "Token został skopiowany.",
+			"COPY_FAILED": "Nie udało się skopiować: zaznacz token i skopiuj go.",
+			"DONE": "Gotowe",
+			"USAGE_TITLE": "Użycie tokenu w skrypcie",
+			"USAGE_EXCHANGE": "Wymień token na krótkotrwały token dostępu:",
+			"USAGE_CALL": "Następnie wywołuj API jak zwykle, z tokenem dostępu w nagłówku „Authorization: Bearer”, i wymień token ponownie, gdy token dostępu wygaśnie.",
+			"UNAVAILABLE_TITLE": "Tokeny API nie są tu dostępne",
+			"UNAVAILABLE_TEXT": "Ten serwer nie ma włączonych osobistych tokenów API. Jeśli potrzebujesz tokenu, zwróć się do administratora.",
+			"AVAILABILITY_FAILED_TITLE": "Nie udało się sprawdzić, czy ten serwer oferuje tokeny API"
+		},
 		"workspace": {
 			"IDENTITY_SECTION": "Obszar roboczy",
 			"NAME_LABEL": "Nazwa obszaru roboczego",
@@ -5231,7 +5416,15 @@
 			"CURRENCY_POSITION_NOT_SAVED": "Nie zapisano położenia symbolu waluty",
 			"EVERY_PAGE_OUTCOME": "Każda strona i każdy eksport używają go teraz.",
 			"READ_ONLY_NOTE": "Tylko administratorzy obszaru roboczego mogą zmieniać te ustawienia.",
-			"LOAD_FAILED": "Nie udało się wczytać ustawień obszaru roboczego."
+			"LOAD_FAILED": "Nie udało się wczytać ustawień obszaru roboczego.",
+			"DATA_SECTION": "Dane",
+			"EXPORT_LABEL": "Eksportuj wszystkie dane",
+			"EXPORT_DESCRIPTION": "Archiwum ZIP z plikami CSV, po jednym na tabelę: wszystkie organizacje obszaru roboczego, w formacie, który import odczyta z powrotem.",
+			"EXPORT_ACTION": "Eksportuj",
+			"EXPORTING": "Eksportowanie…",
+			"EXPORT_DONE": "Dane obszaru roboczego wyeksportowane",
+			"EXPORT_FAILED": "Eksport nie został ukończony",
+			"EXPORT_FAILED_DESCRIPTION": "Nic nie zostało zapisane. Duży obszar roboczy wymaga czasu: spróbuj ponownie za chwilę."
 		},
 		"automations": {
 			"NEW_RULE": "Nowa reguła",
@@ -5787,6 +5980,13 @@
 			"TEXT": "Logowanie nie zostało ukończone. Spróbuj ponownie albo zaloguj się przez e-mail.",
 			"RETRY": "Wróć do logowania",
 			"CODE": "Kod błędu: {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Twoja sesja wygasła",
+			"TEXT": "Zaloguj się ponownie, aby kontynuować.",
+			"TIMER_RUNNING": "Twój timer był uruchomiony. Zaloguj się ponownie przed {deadline}, a będzie działał dalej. Później zostanie zatrzymany w chwili ostatniego zapisu: {savedUntil}.",
+			"TIMER_STILL_RUNNING": "Twój timer nadal działa. Zaloguj się ponownie, aby go zatrzymać.",
+			"STOP_SAVED": "Żądane zatrzymanie timera zostało zapisane: {time}. Zostanie zastosowane, gdy tylko zalogujesz się ponownie."
 		}
 	},
 	"taskViews": {
@@ -7301,6 +7501,83 @@
 				"MEMBER_NAME_UNKNOWN": "Żaden członek tego zespołu nie ma tego imienia i nazwiska.",
 				"MEMBER_AMBIGUOUS": "{count, plural, one {# członek tego zespołu ma to imię i nazwisko.} few {# członków tego zespołu ma to imię i nazwisko. Wskaż członka po adresie e-mail.} many {# członków tego zespołu ma to imię i nazwisko. Wskaż członka po adresie e-mail.} other {# członka tego zespołu ma to imię i nazwisko. Wskaż członka po adresie e-mail.}}"
 			}
+		},
+		"workspace": {
+			"MODE_LEGEND": "Co zaimportować",
+			"MODE_ENTRIES": "Wpisy czasu (CSV)",
+			"MODE_WORKSPACE": "Cała przestrzeń robocza",
+			"SECTION_TITLE": "Import z innego narzędzia do śledzenia czasu",
+			"SECTION_DESCRIPTION": "Upuść eksport przestrzeni roboczej z innego narzędzia: jego klienci, projekty, etykiety i wpisy czasu trafią do {team}. Nic nie jest zapisywane przed Twoim potwierdzeniem.",
+			"DROP_TITLE": "Upuść tutaj pliki eksportu albo je wybierz",
+			"DROP_ACTIVE": "Upuść pliki, aby je odczytać",
+			"DROP_HINT": "Pliki CSV lub JSON albo ich ZIP, do {megabytes} MB każdy.",
+			"FILES_NOTE": "Każdy plik jest rozpoznawany po nazwie (klienci, projekty, tagi, wpisy czasu) lub po kolumnach. Projekty biorą klienta, kolor i domyślną płatność z pliku projektów, a w przeciwnym razie z wpisów.",
+			"READING": "Odczytywanie plików…",
+			"FILES_TITLE": "Odczytane pliki",
+			"KIND_entries": "Wpisy czasu",
+			"KIND_clients": "Klienci",
+			"KIND_projects": "Projekty",
+			"KIND_tags": "Tagi",
+			"FILE_ROWS": "{count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}",
+			"LEFT_OUT_TITLE": "{count, plural, one {# plik pominięty} few {# pliki pominięte} many {# plików pominiętych} other {# pliku pominiętego}}",
+			"problems": {
+				"notSupported": "To nie jest plik CSV, JSON ani ZIP.",
+				"tooLarge": "Większy niż {megabytes} MB.",
+				"notText": "To nie jest tekst UTF-8.",
+				"zip_notZip": "To nie jest archiwum ZIP, które da się otworzyć.",
+				"zip_encrypted": "Archiwum jest chronione hasłem.",
+				"zip_unsupported": "Archiwum używa formatu, którego import nie potrafi odczytać.",
+				"zip_tooLarge": "Archiwum po rozpakowaniu przekracza {megabytes} MB.",
+				"json": "JSON nie zawiera listy rekordów.",
+				"csv": "Nie można odczytać CSV: cudzysłów nie jest zamknięty albo plik jest pusty.",
+				"unknownContent": "Ani klienci, ani projekty, ani tagi, ani wpisy czasu.",
+				"entriesColumnsDiffer": "Wpisy czasu z innymi kolumnami niż w pierwszym pliku wpisów.",
+				"repeatedKind": "{kind}: już odczytane z innego pliku. Używany jest tylko pierwszy.",
+				"tableTooLarge": "Więcej kolumn lub komórek, niż import odczytuje (najwyżej {columns} kolumn).",
+				"unreadable": "Przeglądarka nie mogła odczytać pliku: wybierz go ponownie."
+			},
+			"NOTHING_READ": "Żadnego pliku eksportu nie można użyć. Wybierz eksport ponownie.",
+			"CHOOSE_OTHER": "Wybierz inne pliki",
+			"NO_RIGHTS_TITLE": "Twoja rola nie może importować przestrzeni roboczej",
+			"NO_RIGHTS_DESCRIPTION": "Import przestrzeni roboczej tworzy klientów i projekty. Poproś administratora o uprawnienia do dodawania klientów i projektów albo zaimportuj wpisy czasu z pliku CSV.",
+			"EXISTING_LOADING": "Odczytywanie klientów i projektów przestrzeni roboczej…",
+			"EXISTING_FAILED_TITLE": "Nie udało się odczytać klientów i projektów przestrzeni roboczej",
+			"EXISTING_FAILED_DESCRIPTION": "Bez nich import nie wie, co już istnieje.",
+			"PLAN_TITLE": "Co zrobi import",
+			"PLAN_DESCRIPTION": "Najpierw klienci, potem projekty, potem etykiety, a na końcu wpisy czasu poniżej. To, co już istnieje, jest używane ponownie, bez względu na wielkość liter.",
+			"figures": {
+				"LABEL": "Co utworzy import",
+				"CLIENTS": "Klienci",
+				"PROJECTS": "Projekty",
+				"LABELS": "Etykiety"
+			},
+			"NEW_AND_REUSED": "nowe: {created} · ponownie: {reused}",
+			"TO_CREATE": "Do utworzenia",
+			"TO_REUSE": "Już w przestrzeni roboczej",
+			"NO_CLIENT": "Bez klienta",
+			"BILLABLE": "Płatny",
+			"NOT_BILLABLE": "Niepłatny",
+			"MEMBERS_TITLE": "Wpisy na członka",
+			"MEMBER_ENTRIES": "{count, plural, one {# wpis} few {# wpisy} many {# wpisów} other {# wpisu}}",
+			"UNKNOWN_EMAILS_TITLE": "{count, plural, one {# adres, którego nie ma żaden członek} few {# adresy, których nie ma żaden członek} many {# adresów, których nie ma żaden członek} other {# adresu, którego nie ma żaden członek}}",
+			"UNKNOWN_EMAILS_DESCRIPTION": "Ich wiersze są pomijane i nigdy nie trafiają na konto innej osoby. Zaproś te osoby do zespołu, a potem zaimportuj te same pliki ponownie: nic nie powstaje dwa razy.",
+			"TAGGED_ENTRIES_NOTE": "{count, plural, one {# wpis ma etykiety} few {# wpisy mają etykiety} many {# wpisów ma etykiety} other {# wpisu ma etykiety}}. Etykiety są tworzone dla zespołu, ale wpisy czasu nie mają etykiet: nie są do nich przypisywane.",
+			"LABELS_SKIPPED_NOTE": "Twoja rola nie może dodawać etykiet: są wymienione, ale nie zostaną utworzone.",
+			"NOTHING_TO_DO": "Wszystko w tych plikach już istnieje i żaden wpis nie jest gotowy do importu.",
+			"IMPORT_LISTS_ACTION": "Importuj klientów, projekty i etykiety",
+			"PROGRESS_TITLE": "Postęp importu",
+			"STEP_COUNTS": "utworzono: {created} · ponownie: {reused} · błędy: {failed}",
+			"STEP_SKIPPED": "nieutworzone: {count}",
+			"status": {
+				"waiting": "Oczekuje",
+				"running": "W toku",
+				"done": "Gotowe",
+				"failed": "Błąd"
+			},
+			"FAILED_TITLE": "Import zatrzymał się na „{name}”",
+			"FAILED_DESCRIPTION": "Żaden wpis czasu nie został zapisany. To, co utworzono wcześniej, zostaje w przestrzeni roboczej i jest używane ponownie przy kolejnym imporcie tych samych plików.",
+			"CREATED_TITLE": "Klienci, projekty i etykiety są w przestrzeni roboczej",
+			"PAGE_DESCRIPTION": "Klienci, projekty, etykiety i wpisy czasu z innego narzędzia do śledzenia czasu."
 		}
 	},
 	"recordSheet": {

@@ -15,8 +15,16 @@ import { LazyCreateTeamModal } from '@/core/components/optimized-components/team
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { activeTeamState, detailedTaskState, organizationTeamsState, timerStatusState } from '@/core/stores';
+import {
+	activeTeamState,
+	detailedTaskState,
+	localTimerStatusState,
+	organizationTeamsState,
+	timerStartsInFlightState,
+	timerStatusState
+} from '@/core/stores';
 import { useAtomValue, useAtom } from 'jotai';
+import { useIsMutating, useQueryClient } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/core/lib/helpers';
 import Link from 'next/link';
@@ -34,9 +42,14 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { TOrganizationTeam } from '@/core/types/schemas';
 import { useActiveTeamSnapshot } from '@/core/hooks/organizations/teams/use-active-team-snapshot';
+import { useTeamMenuOrganizations } from '@/core/hooks/organizations/teams/use-team-menu-organizations';
+import { useSwitchOrganization } from '@/core/hooks/organizations/teams/use-switch-organization';
+import { teamsOutsideOtherOrganizations, type ITeamMenuOrganization } from '@/core/lib/utils/team-menu-organizations';
+import { TeamMenuOrganizations, teamImageOf } from './team-menu-organizations';
 
 const TEAM_SWITCH_BLOCKED_TOAST_ID = 'team-switch-blocked-timer-running';
 const CREATE_BLOCKED_TOAST_ID = 'create-blocked-timer-running';
+const ORGANIZATION_SWITCH_FAILED_TOAST_ID = 'organization-switch-failed';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { data: user } = useUserQuery();
@@ -47,12 +60,14 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { setActiveTeam } = useCreateOrganizationTeam();
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const timerStatus = useAtomValue(timerStatusState);
+	// This tab's own status says running as soon as Start is pressed, before the server's status does
+	const localTimerStatus = useAtomValue(localTimerStatusState);
 	const t = useTranslations();
 
 	// Timer running status check - similar to task-input.tsx
 	const timerRunningStatus = useMemo(() => {
-		return Boolean(timerStatus?.running);
-	}, [timerStatus]);
+		return Boolean(timerStatus?.running) || Boolean(localTimerStatus?.running);
+	}, [localTimerStatus, timerStatus]);
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
 	const path = usePathname();
 	const router = useRouter();
@@ -123,23 +138,82 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const showsTeamSkeleton = isTeamUnknown && !activeTeamSnapshot;
 	const managesSeveralTeams = userManagedTeams.length > 1;
 	const showsAllTeams = managesSeveralTeams || isAllTeamsPage;
-	const cannotCreateTeam = !user?.isEmailVerified || timerRunningStatus;
 	const orderedTeams = useMemo(() => activeTeamFirst(teams, activeTeam?.id), [teams, activeTeam?.id]);
+	// A start sent but not answered yet: the status still says stopped, and a switch would leave that timer behind
+	const isTimerStarting = useAtomValue(timerStartsInFlightState) > 0;
+
+	// The person's other organizations of the workspace, read once the session is known so the menu opens on them
+	const menuOrganizations = useTeamMenuOrganizations();
+	const switchOrganization = useSwitchOrganization();
+	const [failedOrganizationId, setFailedOrganizationId] = useState<string | null>(null);
+	const otherOrganizations = useMemo(() => menuOrganizations.data?.others ?? [], [menuOrganizations.data?.others]);
+	const currentOrganizationName = menuOrganizations.data?.current?.name;
+	const hasOtherOrganizations = otherOrganizations.length > 0;
+	const labelsCurrentOrganization = hasOtherOrganizations && Boolean(currentOrganizationName);
+	const switchingOrganizationId = organizationBeingOpened(switchOrganization);
+	const isSwitchingOrganization = switchingOrganizationId !== null;
+	const blocksTeamChange = timerRunningStatus || isSwitchingOrganization;
+	// A write still on its way (a save, a timer command) would be cut off by the page the switch replaces
+	const queryClient = useQueryClient();
+	const hasPendingWrites = useIsMutating() > 0;
+	const blocksOrganizationSwitch = blocksTeamChange || isTimerStarting || hasPendingWrites;
+	const cannotCreateTeam = !user?.isEmailVerified || blocksTeamChange;
 
 	const selectTeam = useCallback(
 		(team: TOrganizationTeam) => {
+			// Another organization is opening: a team picked here would undo the switch's team and organization
+			if (isSwitchingOrganization) {
+				return;
+			}
 			onChangeActiveTeam({ key: team.id, data: team } as TeamItem);
 		},
-		[onChangeActiveTeam]
+		[isSwitchingOrganization, onChangeActiveTeam]
 	);
 
 	const openTeamSettings = useCallback(
 		(event: MouseEvent<HTMLAnchorElement>, team: TOrganizationTeam) => {
 			event.stopPropagation();
+			if (isSwitchingOrganization) {
+				event.preventDefault();
+				return;
+			}
 			selectTeam(team);
 			setMenuOpen(false);
 		},
-		[selectTeam]
+		[isSwitchingOrganization, selectTeam]
+	);
+
+	const teamsOfThisOrganization = useMemo(
+		() => teamsOutsideOtherOrganizations(orderedTeams, otherOrganizations),
+		[orderedTeams, otherOrganizations]
+	);
+
+	const openOtherOrganization = useCallback(
+		(organization: ITeamMenuOrganization, team?: TOrganizationTeam) => {
+			const isTimerOn = timerRunningStatus || isTimerStarting;
+			if (isTimerOn) {
+				toast.warning(t('common.TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'), {
+					id: TEAM_SWITCH_BLOCKED_TOAST_ID
+				});
+				return;
+			}
+			if (isSwitchingOrganization || queryClient.isMutating() > 0) {
+				return;
+			}
+			setFailedOrganizationId(null);
+			switchOrganization.mutate(
+				{ organizationId: organization.id, team },
+				{
+					onError: () => {
+						setFailedOrganizationId(organization.id);
+						toast.error(t('switchers.ORGANIZATION_SWITCH_FAILED'), {
+							id: ORGANIZATION_SWITCH_FAILED_TOAST_ID
+						});
+					}
+				}
+			);
+		},
+		[isSwitchingOrganization, isTimerStarting, queryClient, switchOrganization, t, timerRunningStatus]
 	);
 
 	const startTeamCreation = useCallback(() => {
@@ -147,8 +221,12 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 			toast.warning(t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'), { id: CREATE_BLOCKED_TOAST_ID });
 			return;
 		}
+		// Another organization is opening: a team created here would become the active one over the switch's
+		if (isSwitchingOrganization) {
+			return;
+		}
 		openModal();
-	}, [timerRunningStatus, t, openModal]);
+	}, [isSwitchingOrganization, timerRunningStatus, t, openModal]);
 
 	return (
 		<div>
@@ -185,7 +263,12 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 					</DropdownMenuTrigger>
 
 					<DropdownMenuContent align="end" sideOffset={6} className="w-72">
-						<DropdownMenuLabel>{t('common.TEAMS')}</DropdownMenuLabel>
+						{labelsCurrentOrganization && (
+							<DropdownMenuLabel className="truncate" title={currentOrganizationName}>
+								{currentOrganizationName}
+							</DropdownMenuLabel>
+						)}
+						{!labelsCurrentOrganization && <DropdownMenuLabel>{t('common.TEAMS')}</DropdownMenuLabel>}
 
 						{timerRunningStatus && (
 							<div className="mx-1 mb-1 flex items-start gap-2 rounded-md bg-warning/10 px-2 py-1.5 text-xs text-warning-foreground">
@@ -194,12 +277,12 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 							</div>
 						)}
 
-						{orderedTeams.map((team) => {
+						{teamsOfThisOrganization.map((team) => {
 							const isActiveTeam = team.id === activeTeam?.id;
 							return (
 								<DropdownMenuItem
 									key={team.id}
-									disabled={timerRunningStatus}
+									disabled={blocksTeamChange}
 									onClick={() => selectTeam(team)}
 									className="group/team h-9 gap-2.5"
 								>
@@ -222,6 +305,19 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 								</DropdownMenuItem>
 							);
 						})}
+
+						<TeamMenuOrganizations
+							organizations={otherOrganizations}
+							isLoading={menuOrganizations.isLoading}
+							isError={menuOrganizations.isError}
+							onRetry={() => void menuOrganizations.refetch()}
+							isDisabled={blocksOrganizationSwitch}
+							switchingOrganizationId={switchingOrganizationId}
+							failedOrganizationId={failedOrganizationId}
+							onPickTeam={openOtherOrganization}
+							onPickOrganization={(organization) => openOtherOrganization(organization)}
+							countClassName={COUNT_KEYCAP}
+						/>
 
 						<DropdownMenuSeparator />
 
@@ -272,12 +368,16 @@ const COUNT_KEYCAP = cn(commandKeycapClass, 'tabular-nums');
 const TEAM_SETTINGS_BUTTON =
 	'flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground/70 outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25';
 
-function teamImageOf(team: TOrganizationTeam | null | undefined) {
-	const thumbUrl = team?.image?.thumbUrl;
-	if (thumbUrl) {
-		return thumbUrl;
+/**
+ * The organization a switch under way is opening, or null when none runs. A switch that succeeded is still under way:
+ * the page is being replaced.
+ */
+function organizationBeingOpened(switching: ReturnType<typeof useSwitchOrganization>): string | null {
+	const isUnderWay = switching.isPending || switching.isSuccess;
+	if (!isUnderWay) {
+		return null;
 	}
-	return team?.image?.fullUrl ?? '';
+	return switching.variables?.organizationId ?? null;
 }
 
 function activeTeamFirst(teams: TOrganizationTeam[], activeTeamId: string | undefined) {

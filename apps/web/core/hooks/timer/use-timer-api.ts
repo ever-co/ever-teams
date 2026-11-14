@@ -18,12 +18,14 @@ import { shouldRetryQuery } from '@/core/lib/helpers/retry-utils';
 import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
 import { taskOnStartProject, timerStartProjectId } from '@/core/lib/helpers/team-default-project';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { isSessionEnding } from '@/core/lib/auth/handle-unauthorized';
 import {
 	isTrackingOffRefusal,
 	requiredTrackingFieldsMessageKeyOf,
 	requiredTrackingFieldsOf
 } from '@/core/lib/helpers/timer-errors';
 import { notesToSendAtStart, notesToSendAtStop, timerNotesAfterStart } from '@/core/lib/utils/timer/timer-notes';
+import { forgetSavedStop, saveStop } from '@/core/lib/utils/timer/saved-stop';
 import { notesForStartOf } from '@/core/lib/utils/timer/timer-start-notes';
 import { startTaskOf } from '@/core/lib/utils/timer/timer-start-task';
 import { queryKeys } from '@/core/query/keys';
@@ -36,7 +38,9 @@ import {
 	detailedTaskState,
 	leftActiveTaskIdState,
 	localTimerStatusState,
+	organizationOpeningState,
 	timerNotesState,
+	timerStartsInFlightState,
 	timerStatusFetchingState,
 	timerStatusState,
 	workspaceOpeningState
@@ -155,7 +159,7 @@ let lastStopTimerTimestamp = 0;
 let timerCommandSeq = 0;
 let timerCommandsInFlight = 0;
 
-function trackTimerCommand<T>(request: Promise<T>): Promise<T> {
+export function trackTimerCommand<T>(request: Promise<T>): Promise<T> {
 	timerCommandSeq += 1;
 	timerCommandsInFlight += 1;
 	return request.finally(() => {
@@ -256,6 +260,7 @@ export function useTimerApi({
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const isWorkspaceOpeningRef = useSyncRef(useAtomValue(workspaceOpeningState));
+	const isOrganizationOpeningRef = useSyncRef(useAtomValue(organizationOpeningState));
 	const { taskStatuses } = useTaskStatusesQuery({ enabled });
 	const detailedTask = useAtomValue(detailedTaskState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
@@ -645,12 +650,19 @@ export function useTimerApi({
 		}
 	}, [activeTeamRef, keepRunOrClearStuckFlag, queryClient, refreshUserData, stopStaleTeamsTimer, t, timerStatusRef]);
 
-	/** A new workspace is opening (#5025): says so and tells the start to stop. */
+	/**
+	 * A new workspace (#5025), or another organization of this one (#5204), is opening: says so and tells the start to
+	 * stop.
+	 */
 	const warnIfWorkspaceOpening = useCallback((): boolean => {
+		if (isOrganizationOpeningRef.current) {
+			toast.warning(t('toasts.timer.ORGANIZATION_OPENING'), { id: 'timer-organization-opening' });
+			return true;
+		}
 		if (!isWorkspaceOpeningRef.current) return false;
 		toast.warning(t('toasts.timer.WORKSPACE_OPENING'), { id: 'timer-workspace-opening' });
 		return true;
-	}, [isWorkspaceOpeningRef, t]);
+	}, [isOrganizationOpeningRef, isWorkspaceOpeningRef, t]);
 
 	const runStartTimer = useCallback(
 		async (explicitTask?: TTask, onRequestLanded?: () => void): Promise<TimerStartOutcome> => {
@@ -722,6 +734,8 @@ export function useTimerApi({
 			// timer, and become the timer's notes once it runs (#5131 with #5113)
 			const continuedNotes = notesForStartOf(pendingNotes, taskIdToUse);
 			const notesToUse = continuedNotes ?? notesToSendAtStart(store.get(timerNotesState));
+			// Until Gauzy answers, the status still says stopped: the team menu reads this instead (#5204)
+			store.set(timerStartsInFlightState, (count) => count + 1);
 			const startRequest = startTimerMutate({
 				taskId: taskIdToUse,
 				projectId: projectIdToUse,
@@ -818,6 +832,7 @@ export function useTimerApi({
 					});
 				})
 				.finally(() => {
+					store.set(timerStartsInFlightState, (count) => Math.max(0, count - 1));
 					if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
 				});
 			// Updating the task status to "In Progress" when the timer is started
@@ -952,11 +967,28 @@ export function useTimerApi({
 		if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
 		const runningLog = timerStatusRef.current?.lastLog;
 		const notesAtStop = notesToSendAtStop(store.get(timerNotesState), runningLog);
+		// Kept in the browser until the API answers: a stop refused because the session ended leaves with the page
+		// for the sign-in page, and nothing else would remember that the person asked to stop, or when
+		const employeeId = user?.employee?.id;
+		if (runningLog?.id && employeeId) {
+			saveStop({
+				employeeId,
+				timeLogId: runningLog.id,
+				source: runningLog.source || ETimeLogSource.TEAMS,
+				pressedAt: new Date(lastStopTimerTimestamp).toISOString()
+			});
+		}
 		// Tracked after the sync above, so that sync's status read can never put a running timer back
 		const request: Promise<void> = trackTimerCommand(
 			stopTimerMutate({ source: runningLog?.source || ETimeLogSource.TEAMS, description: notesAtStop })
 		)
 			.catch((error) => {
+				// The session goes on: the timer does too, and the person asks again. Only a stop the session's end
+				// took with it stays kept.
+				// Only the stop kept for this run: with no run known, forgetting would drop another run's kept stop
+				if (!isSessionEnding() && runningLog?.id) {
+					forgetSavedStop(runningLog.id);
+				}
 				// The last known server status still says running: undo the optimistic stop so the clock agrees
 				// with it, and refetch the status in case the stop landed after all. Only a running snapshot is put
 				// back: a stop sent while another one was pending captured that one's optimistic running:false.
@@ -971,6 +1003,11 @@ export function useTimerApi({
 				throw error;
 			})
 			.then(async (res) => {
+				// Answered: the run is stopped, or was already. A stop with no run known never forgets the stop kept for
+				// another run (another person's, whose session ended in this browser)
+				if (runningLog?.id) {
+					forgetSavedStop(runningLog.id);
+				}
 				res.data &&
 					(!statusEnabled || isCurrentScope()) &&
 					!isEqual(timerStatus, res.data) &&

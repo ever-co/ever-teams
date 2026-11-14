@@ -266,6 +266,19 @@ export const queryKeys = {
 			userId: string | undefined | null
 		) => ['organization-teams', 'list-scope', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
 		paginated: (params: Record<string, string>) => ['organization-teams', 'paginated', params] as const,
+		/** The person's organizations of the workspace, as the team menu groups them (#5204). */
+		menuOrganizations: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null
+		) =>
+			[
+				'organization-teams',
+				'menu-organizations',
+				tenantId ?? null,
+				organizationId ?? null,
+				userId ?? null
+			] as const,
 		detail: (teamId: string | undefined | null) => ['organization-teams', ...(teamId ? [teamId] : [])] as const,
 		detailByScope: (
 			tenantId: string | undefined | null,
@@ -453,6 +466,16 @@ export const queryKeys = {
 			organizationId: string | undefined | null,
 			employeeId: string | undefined | null
 		) => ['notifications', 'settings', tenantId ?? null, organizationId ?? null, employeeId ?? null] as const
+	},
+
+	// Settings → API tokens: whether the server offers them, and the person's own tokens. The tenant and the user are
+	// part of every key: one sign-in's tokens never show for the next one.
+	userApiTokens: {
+		all: ['user-api-tokens'] as const,
+		config: (tenantId: string | undefined | null, userId: string | undefined | null) =>
+			['user-api-tokens', 'config', tenantId ?? null, userId ?? null] as const,
+		list: (tenantId: string | undefined | null, userId: string | undefined | null) =>
+			['user-api-tokens', 'list', tenantId ?? null, userId ?? null] as const
 	},
 
 	// Settings → Automations: the organization's rules, the templates and a rule's run history. The user is part of

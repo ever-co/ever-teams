@@ -599,6 +599,21 @@
 				"EDITED_AT": "Bearbeitet am {date}, {time}",
 				"REASON_PREFIX": "Grund:"
 			},
+			"SIMILAR": {
+				"ENTRY_COUNT": "{count, plural, one {# Eintrag} other {# Einträge}}",
+				"SHOW_ENTRIES": "Einträge von {task} anzeigen",
+				"HIDE_ENTRIES": "Einträge von {task} ausblenden",
+				"SELECT_GROUP": "{count, plural, one {# Eintrag von {task} auswählen} other {Die # Einträge von {task} auswählen}}",
+				"CONFIRM_BILLABLE": "{count, plural, one {# Eintrag als abrechenbar markieren?} other {# Einträge als abrechenbar markieren?}}",
+				"CONFIRM_NOT_BILLABLE": "{count, plural, one {# Eintrag als nicht abrechenbar markieren?} other {# Einträge als nicht abrechenbar markieren?}}",
+				"CONFIRM_STATUS": "{count, plural, one {# Eintrag auf „{status}“ setzen?} other {# Einträge auf „{status}“ setzen?}}",
+				"CONFIRM_SCOPE": "Alle Einträge von {task} in dieser Zeile ändern sich.",
+				"CHANGED": "{count, plural, one {# Eintrag geändert} other {# Einträge geändert}}",
+				"PARTLY_CHANGED": "{changed} von {count} Einträgen geändert. Die übrigen behalten ihren Wert.",
+				"REJECT_COUNT": "{count, plural, one {Sie lehnen # Eintrag ab. Möchten Sie fortfahren?} other {Sie lehnen # Einträge ab. Möchten Sie fortfahren?}}",
+				"VIEW_GROUP": "Ähnliche Einträge gruppieren",
+				"VIEW_GROUP_HELP": "Einträge eines Tages mit derselben Aufgabe, demselben Projekt, denselben Notizen und demselben Abrechnungsstatus erscheinen als eine Zeile."
+			},
 			"STATUS_CARDS": {
 				"PENDING": "Wartet auf Freigabe",
 				"LOG_UNIT": "{count, plural, one {Eintrag} other {Einträge}}"
@@ -794,7 +809,12 @@
 				"NONE": "Kein Projekt",
 				"COUNT": "{count, plural, one {# Projekt} other {# Projekte}}",
 				"OTHER": "{count, plural, one {# weiteres Projekt} other {# weitere Projekte}}",
-				"EMPTY": "Projekte erscheinen hier, sobald im Zeitraum Zeit erfasst wurde."
+				"EMPTY": "Projekte erscheinen hier, sobald im Zeitraum Zeit erfasst wurde.",
+				"SPLIT": "Zeit aufteilen nach",
+				"BY_CLIENT": "Nach Kunde",
+				"OTHER_CLIENTS": "{count, plural, one {# weiterer Kunde} other {# weitere Kunden}}",
+				"CLIENTS_EMPTY": "Kunden erscheinen hier, sobald im Zeitraum Zeit erfasst wurde.",
+				"CLIENTS_ERROR": "Die Kunden der Projekte konnten nicht gelesen werden."
 			},
 			"table": {
 				"VIEW": "Zeilen gruppieren",
@@ -1518,6 +1538,53 @@
 				"FUTURE": "Ihre Organisation erlaubt keine Zeit nach der aktuellen Uhrzeit.",
 				"APPROVED": "Dieser Tag gehört zu einem genehmigten Stundenzettel, daher kann seine Zeit nicht geändert werden.",
 				"SAVE_FAILED": "Änderung nicht gespeichert"
+			},
+			"MENU": {
+				"STOP": "Timer stoppen",
+				"ADD_TIME_HERE": "Hier Zeit hinzufügen",
+				"SPLIT": "Teilen",
+				"NO_ACTIONS": "Du kannst diesen Eintrag nicht ändern."
+			},
+			"SPLIT": {
+				"TITLE": "Eintrag teilen",
+				"REFUSED_TITLE": "Dieser Eintrag kann nicht geteilt werden",
+				"TIME_LABEL": "Teilen um",
+				"TIME_OUTSIDE": "Wähle eine Uhrzeit innerhalb des Eintrags, mindestens eine Minute nach Beginn und vor dem Ende.",
+				"PARTS_LABEL": "Die zwei Einträge",
+				"FIRST_PART": "Erster Teil",
+				"SECOND_PART": "Zweiter Teil",
+				"TASK_LABEL": "Aufgabe des zweiten Teils: {task}",
+				"TASK_SEARCH": "Aufgaben suchen",
+				"ACTION": "Teilen",
+				"SAVING": "Wird geteilt…",
+				"SAVED": "Eintrag in zwei geteilt",
+				"FAILED_RESTORED": "Der Eintrag konnte nicht geteilt werden und ist wieder wie vorher. Versuche es erneut.",
+				"FAILED_CHANGED": "Dieser Eintrag hat sich geändert, seit der Kalender ihn geladen hat, daher wurde nichts geteilt. Prüfe ihn und versuche es erneut.",
+				"FAILED_FIRST_PART_KEPT": "Der erste Teil wurde gespeichert, aber der zweite Teil ({range}) konnte nicht hinzugefügt werden. Füge ihn mit „Zeit hinzufügen“ hinzu.",
+				"FAILED_UNKNOWN": "Die Teilung konnte nicht bestätigt werden. Lade den Kalender neu und prüfe diesen Eintrag, bevor du es erneut versuchst.",
+				"ADD_REST": "Zweiten Teil hinzufügen",
+				"REFUSED": {
+					"TRACKED": "Erfasste Zeit trägt ihre Aktivität und Screenshots, die nur der Server auf zwei Einträge aufteilen kann. Vorerst lässt sich nur manuell hinzugefügte Zeit teilen.",
+					"RUNNING": "Der Timer läuft noch. Stoppe ihn und teile dann den Eintrag.",
+					"TOO_SHORT": "Dieser Eintrag ist zu kurz: Jeder Teil muss mindestens eine Minute dauern.",
+					"APPROVED": "Dieser Tag gehört zu einem genehmigten Stundenzettel, daher kann seine Zeit nicht geändert werden.",
+					"PERMISSION": "Deine Rolle oder deine Organisation erlaubt weder das Ändern von Zeit noch das manuelle Hinzufügen."
+				}
+			},
+			"SETTINGS": {
+				"LABEL": "Rastereinstellungen",
+				"SNAP": "Einrasten auf",
+				"SNAP_OPTION": "{minutes, plural, =60 {1 Stunde} one {# Minute} other {# Minuten}}",
+				"FIRST_HOUR": "Erste Stunde",
+				"LAST_HOUR": "Letzte Stunde",
+				"END_OF_DAY": "Tagesende",
+				"HOURS_HINT": "Einträge außerhalb dieser Stunden bleiben sichtbar: Das Raster erweitert sich bis zu ihnen.",
+				"ROW_HEIGHT": "Zeilenhöhe",
+				"ROW_COMPACT": "Kompakt",
+				"ROW_DEFAULT": "Standard",
+				"ROW_TALL": "Hoch",
+				"KEPT_HERE": "In diesem Browser gespeichert",
+				"RESET": "Zurücksetzen"
 			}
 		},
 		"manualTimeEdits": {
@@ -2796,7 +2863,59 @@
 			"HINT_RUNNING": "Änderungen bei laufendem Timer werden noch nicht gespeichert. Um die Notizen zu ändern, bearbeiten Sie den Eintrag nach dem Stoppen des Timers in den Stundenzetteln.",
 			"HINT_OTHER_TEAM": "Diese Notizen gehören zum Timer, der in einem anderen Team läuft, und können hier nicht geändert werden."
 		},
-		"NOT_BILLABLE": "Nicht abrechenbar"
+		"NOT_BILLABLE": "Nicht abrechenbar",
+		"startMove": {
+			"TITLE": "Beginn des laufenden Timers",
+			"STARTED_AT": "Gestartet um {time}",
+			"OPEN": "Gestartet um {time}. Beginn ändern",
+			"NEW_START": "Neuer Beginn",
+			"REASON": "Grund",
+			"REASON_PLACEHOLDER": "Warum sich der Beginn ändert",
+			"LATER_ONLY": "Zeit von Hand hinzuzufügen ist dir nicht erlaubt, daher kann der Beginn nur später werden.",
+			"SAVING": "Wird gespeichert…",
+			"SAVED": "Der Timer beginnt jetzt um {time}.",
+			"CHECKING": "Es wird geprüft, ob sich der Beginn ändern lässt…",
+			"VIEW_TRACKER": "Dieser Timer läuft in der Desktop-App. Ändere seinen Beginn dort.",
+			"VIEW_NOT_ALLOWED": "Erfasste Zeit zu ändern ist dir in dieser Organisation nicht erlaubt.",
+			"UNSUPPORTED": "Der Beginn eines laufenden Timers kann auf diesem Server noch nicht geändert werden.",
+			"NOT_RUNNING": "Der Timer läuft nicht mehr.",
+			"TRACKER_RUN": "Dieser Timer läuft in der Desktop-App oder im Agenten, die seine Zeit selbst erfassen. Ändere seinen Beginn dort.",
+			"IN_FUTURE": "Der Beginn darf nicht später als jetzt sein.",
+			"EDIT_NOT_ALLOWED": "Erfasste Zeit zu ändern ist dir nicht erlaubt.",
+			"MANUAL_NOT_ALLOWED": "Ein früherer Beginn fügt Zeit von Hand hinzu, was dir nicht erlaubt ist. Wähle einen späteren Beginn.",
+			"REASON_REQUIRED": "Deine Organisation verlangt einen Grund.",
+			"REASON_TOO_LONG": "Der Grund ist zu lang: höchstens 255 Zeichen.",
+			"OVERLAP": "Ein anderer deiner Einträge deckt diese Zeit ab. Wähle einen Beginn nach seinem Ende.",
+			"CHANGED": "Der Beginn wurde gerade anderswo geändert. Prüfe ihn und versuche es erneut.",
+			"SAVE_FAILED": "Der Beginn konnte nicht gespeichert werden. Versuche es erneut."
+		},
+		"discard": {
+			"MENU": "Weitere Timer-Aktionen",
+			"ACTION": "Diesen Lauf verwerfen",
+			"TITLE": "Diesen Lauf verwerfen?",
+			"DESCRIPTION": "Nichts wird gespeichert.",
+			"DESCRIPTION_ELSEWHERE": "Dieser Lauf wurde in {source} gestartet und stoppt dort ebenfalls. Nichts wird gespeichert.",
+			"CONFIRM": "Verwerfen",
+			"DISCARDING": "Wird verworfen…",
+			"DISCARDED": "Lauf verworfen",
+			"DISCARDED_HINT": "Der Timer ist gestoppt und nichts wurde gespeichert.",
+			"sources": {
+				"DESKTOP": "der Desktop-App",
+				"MOBILE": "der mobilen App",
+				"BROWSER_EXTENSION": "der Browsererweiterung",
+				"OTHER": "einer anderen App"
+			},
+			"failures": {
+				"NOT_RUNNING": "Es läuft kein Timer mehr, daher wurde nichts verworfen.",
+				"DISABLED": "Ihre Organisation erlaubt das Verwerfen eines Laufs nicht.",
+				"TOO_LATE": "Dieser Lauf hat vor zu langer Zeit begonnen, um verworfen zu werden. Stoppen Sie ihn und bearbeiten Sie den Eintrag dann in den Zeiterfassungen.",
+				"FORBIDDEN": "Ihre Rolle erlaubt das Verwerfen dieses Laufs nicht.",
+				"NOT_SUPPORTED": "Dieser Server bietet das Verwerfen eines Laufs noch nicht an.",
+				"CHANGED": "Inzwischen hat ein anderer Lauf begonnen, daher wurde nichts verworfen.",
+				"TRACKER_RUN": "Dieser Lauf wird von der Desktop-App oder dem Agenten erfasst, die seine Zeit selbst führen, daher kann er hier nicht verworfen werden.",
+				"GENERIC": "Der Lauf konnte nicht verworfen werden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
+			}
+		}
 	},
 	"task": {
 		"TITLE": "Aufgabe",
@@ -3419,7 +3538,13 @@
 		"EVER_APPS": "Ever-Apps",
 		"CURRENT_APP": "{app}, die App, in der du bist",
 		"OPENS_IN_NEW_TAB": "(öffnet sich in einem neuen Tab)",
-		"APP_OPENS_IN_NEW_TAB": "{app} (öffnet sich in einem neuen Tab)"
+		"APP_OPENS_IN_NEW_TAB": "{app} (öffnet sich in einem neuen Tab)",
+		"OTHER_ORGANIZATIONS_LOADING": "Ihre anderen Organisationen werden geladen",
+		"OTHER_ORGANIZATIONS_FAILED": "Ihre anderen Organisationen konnten nicht geladen werden.",
+		"TRY_AGAIN": "Erneut versuchen",
+		"UNNAMED_ORGANIZATION": "Organisation ohne Namen",
+		"OPEN_ORGANIZATION": "Ihre Teams dort öffnen",
+		"ORGANIZATION_SWITCH_FAILED": "Diese Organisation konnte nicht geöffnet werden. Versuchen Sie es erneut."
 	},
 	"workspaceCreation": {
 		"TITLE": "Arbeitsbereich erstellen",
@@ -3959,6 +4084,7 @@
 			"NO_TASK": "Wählen Sie eine Aufgabe, um den Timer zu starten",
 			"START_IN_PROGRESS": "Der Timer startet gerade noch für eine andere Aufgabe",
 			"WORKSPACE_OPENING": "Dein neuer Workspace wird geöffnet: Starte den Timer, sobald er offen ist.",
+			"ORGANIZATION_OPENING": "Eine andere Organisation wird geöffnet: Starte den Timer, sobald sie offen ist.",
 			"STOPPED_TEAM_SWITCH": "Timer gestoppt, weil Sie das Team gewechselt haben",
 			"STOPPED_TASK_SWITCH": "Timer gestoppt, weil sich Ihre aktive Aufgabe geändert hat",
 			"STALE_STOPPED": "Timer gestoppt: {stoppedAt}",
@@ -3966,7 +4092,8 @@
 			"TASK_CLOSED_HINT": "Öffnen Sie die Aufgabe wieder, um Zeit darauf zu erfassen.",
 			"NOTES_NOT_SAVED": "Die während des laufenden Timers geänderten Notizen wurden nicht gespeichert",
 			"NOTES_NOT_SAVED_HINT": "Der Eintrag hat die Notizen vom Start behalten. Bearbeiten Sie den Eintrag in den Stundenzetteln, um sie zu ändern.",
-			"ALREADY_RUNNING_ON_TASK": "Der Timer läuft bereits für diese Aufgabe"
+			"ALREADY_RUNNING_ON_TASK": "Der Timer läuft bereits für diese Aufgabe",
+			"SAVED_STOP_HINT": "Das ist der Stopp, den du vor dem Ende deiner Sitzung angefordert hast."
 		},
 		"plans": {
 			"CREATE_FAILED": "Der Plan wurde nicht erstellt",
@@ -4215,6 +4342,10 @@
 			"notifications": {
 				"TITLE": "Benachrichtigungen",
 				"DESCRIPTION": "Welche Ereignisse dich benachrichtigen."
+			},
+			"apiTokens": {
+				"TITLE": "API-Tokens",
+				"DESCRIPTION": "Schlüssel, mit denen Ihre Skripte die API in Ihrem Namen aufrufen."
 			},
 			"teamGeneral": {
 				"TITLE": "Allgemein",
@@ -5168,6 +5299,60 @@
 			"UNAVAILABLE_TITLE": "In diesem Arbeitsbereich gibt es noch nichts einzustellen",
 			"UNAVAILABLE_TEXT": "Benachrichtigungen gehören zu deinem Mitgliedsprofil in einem Arbeitsbereich, und dieses Konto hat hier keins. Tritt zuerst einem Team bei oder erstelle eins."
 		},
+		"apiTokens": {
+			"PAGE_DESCRIPTION": "Mit jedem Token kann ein Skript die API in Ihrem Namen aufrufen. Ein widerrufenes Token funktioniert sofort nicht mehr.",
+			"SECTION_TOKENS": "Ihre Tokens",
+			"COUNT": "{count} von {max} aktiven Tokens",
+			"CREATE": "Token erstellen",
+			"LIMIT_REACHED": "Sie haben {max} aktive Tokens, das erlaubte Maximum. Widerrufen Sie eines, das Sie nicht mehr brauchen, um ein neues zu erstellen.",
+			"EMPTY_TITLE": "Noch keine API-Tokens",
+			"EMPTY_TEXT": "Erstellen Sie für jedes Skript ein eigenes Token, damit Sie eines widerrufen können, ohne die anderen zu berühren.",
+			"LIST_FAILED_TITLE": "Ihre API-Tokens konnten nicht geladen werden",
+			"LIST_FAILED_TEXT": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+			"RETRY": "Erneut versuchen",
+			"CREATED_ON": "Erstellt am {date}",
+			"LAST_USED_ON": "Zuletzt verwendet am {date}",
+			"NEVER_USED": "Nie verwendet",
+			"EXPIRES_ON": "Läuft am {date} ab",
+			"EXPIRED_ON": "Abgelaufen am {date}",
+			"NEVER_EXPIRES": "Läuft nie ab",
+			"EXPIRED": "Abgelaufen",
+			"REVOKE": "Widerrufen",
+			"REVOKE_TITLE": "„{name}“ widerrufen?",
+			"REVOKE_DESCRIPTION": "Skripte können dieses Token nicht mehr gegen Zugriff eintauschen; Zugriff, den sie bereits haben, endet innerhalb einer Stunde. Dies kann nicht rückgängig gemacht werden.",
+			"REVOKE_CONFIRM": "Token widerrufen",
+			"REVOKE_FAILED": "Das Token konnte nicht widerrufen werden. Versuchen Sie es erneut.",
+			"CREATE_TITLE": "API-Token erstellen",
+			"NAME_LABEL": "Name",
+			"NAME_HINT": "Wofür das Token gedacht ist, zum Beispiel „Freitagsbericht“.",
+			"NAME_REQUIRED": "Geben Sie dem Token einen Namen.",
+			"NAME_TOO_LONG": "Der Name darf höchstens {max} Zeichen lang sein.",
+			"EXPIRY_LEGEND": "Ablauf",
+			"EXPIRY_90D": "In 90 Tagen",
+			"EXPIRY_1Y": "In 1 Jahr",
+			"EXPIRY_NEVER": "Nie",
+			"EXPIRY_ON_DATE": "Am {date}",
+			"EXPIRY_NEVER_DETAIL": "Funktioniert, bis Sie es widerrufen.",
+			"CREATING": "Wird erstellt…",
+			"CREATE_FAILED": "Das Token konnte nicht erstellt werden. Versuchen Sie es erneut.",
+			"CREATE_LIMIT": "Sie haben bereits {max} aktive Tokens. Widerrufen Sie eines, um ein neues zu erstellen.",
+			"CREATE_DISABLED": "Dieser Server bietet keine API-Tokens mehr an.",
+			"SECRET_TITLE": "Kopieren Sie Ihr Token jetzt",
+			"SECRET_TEXT": "„{name}“ ist bereit. Sein Geheimnis wird nur dieses eine Mal angezeigt: Bewahren Sie es sicher auf, bevor Sie dieses Fenster schließen.",
+			"SECRET_LABEL": "Token",
+			"COPY": "Kopieren",
+			"COPY_TOKEN": "Token kopieren",
+			"COPIED": "Kopiert",
+			"COPY_DONE": "Das Token ist kopiert.",
+			"COPY_FAILED": "Kopieren fehlgeschlagen: Markieren Sie das Token und kopieren Sie es.",
+			"DONE": "Fertig",
+			"USAGE_TITLE": "Ein Token in einem Skript verwenden",
+			"USAGE_EXCHANGE": "Tauschen Sie das Token gegen ein kurzlebiges Zugriffstoken:",
+			"USAGE_CALL": "Rufen Sie dann die API wie gewohnt auf, mit dem Zugriffstoken im Header „Authorization: Bearer“, und tauschen Sie das Token erneut, wenn das Zugriffstoken abläuft.",
+			"UNAVAILABLE_TITLE": "API-Tokens werden hier nicht angeboten",
+			"UNAVAILABLE_TEXT": "Auf diesem Server sind persönliche API-Tokens nicht aktiviert. Wenden Sie sich an Ihren Administrator, wenn Sie eines benötigen.",
+			"AVAILABILITY_FAILED_TITLE": "Es konnte nicht geprüft werden, ob dieser Server API-Tokens anbietet"
+		},
 		"workspace": {
 			"IDENTITY_SECTION": "Arbeitsbereich",
 			"NAME_LABEL": "Name des Arbeitsbereichs",
@@ -5231,7 +5416,15 @@
 			"CURRENCY_POSITION_NOT_SAVED": "Die Position des Währungssymbols wurde nicht gespeichert",
 			"EVERY_PAGE_OUTCOME": "Jede Seite und jeder Export verwendet es jetzt.",
 			"READ_ONLY_NOTE": "Nur Administratoren des Arbeitsbereichs können diese Einstellungen ändern.",
-			"LOAD_FAILED": "Die Einstellungen des Arbeitsbereichs konnten nicht geladen werden."
+			"LOAD_FAILED": "Die Einstellungen des Arbeitsbereichs konnten nicht geladen werden.",
+			"DATA_SECTION": "Daten",
+			"EXPORT_LABEL": "Alle Daten exportieren",
+			"EXPORT_DESCRIPTION": "Ein ZIP mit CSV-Dateien, eine pro Tabelle: jede Organisation des Arbeitsbereichs, im Format, das der Import wieder einliest.",
+			"EXPORT_ACTION": "Exportieren",
+			"EXPORTING": "Wird exportiert…",
+			"EXPORT_DONE": "Daten des Arbeitsbereichs exportiert",
+			"EXPORT_FAILED": "Der Export wurde nicht abgeschlossen",
+			"EXPORT_FAILED_DESCRIPTION": "Es wurde nichts gespeichert. Ein großer Arbeitsbereich braucht Zeit: Versuchen Sie es gleich noch einmal."
 		},
 		"automations": {
 			"NEW_RULE": "Neue Regel",
@@ -5787,6 +5980,13 @@
 			"TEXT": "Die Anmeldung wurde nicht abgeschlossen. Versuch es erneut oder melde dich mit deiner E-Mail an.",
 			"RETRY": "Zurück zur Anmeldung",
 			"CODE": "Fehlercode: {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Deine Sitzung ist abgelaufen",
+			"TEXT": "Melde dich erneut an, um fortzufahren.",
+			"TIMER_RUNNING": "Dein Timer lief. Melde dich vor {deadline} erneut an, dann läuft er weiter. Danach wird er zum letzten gespeicherten Zeitpunkt gestoppt: {savedUntil}.",
+			"TIMER_STILL_RUNNING": "Dein Timer läuft weiter. Melde dich erneut an, um ihn zu stoppen.",
+			"STOP_SAVED": "Der von dir angeforderte Timer-Stopp ist gespeichert: {time}. Er wird angewendet, sobald du dich wieder anmeldest."
 		}
 	},
 	"taskViews": {
@@ -7301,6 +7501,83 @@
 				"MEMBER_NAME_UNKNOWN": "Kein Mitglied dieses Teams hat diesen Namen.",
 				"MEMBER_AMBIGUOUS": "{count, plural, one {# Mitglied dieses Teams hat diesen Namen.} other {# Mitglieder dieses Teams haben diesen Namen. Gib das Mitglied per E-Mail an.}}"
 			}
+		},
+		"workspace": {
+			"MODE_LEGEND": "Was importiert wird",
+			"MODE_ENTRIES": "Zeiteinträge (CSV)",
+			"MODE_WORKSPACE": "Ganzer Workspace",
+			"SECTION_TITLE": "Aus einem anderen Zeiterfassungstool importieren",
+			"SECTION_DESCRIPTION": "Legen Sie den Workspace-Export Ihres anderen Tools ab: seine Kunden, Projekte, Labels und Zeiteinträge kommen in {team}. Nichts wird gespeichert, bevor Sie bestätigen.",
+			"DROP_TITLE": "Exportdateien hier ablegen oder auswählen",
+			"DROP_ACTIVE": "Dateien ablegen, um sie zu lesen",
+			"DROP_HINT": "CSV- oder JSON-Dateien oder ein ZIP davon, jeweils bis zu {megabytes} MB.",
+			"FILES_NOTE": "Jede Datei wird an ihrem Namen (Kunden, Projekte, Tags, Zeiteinträge) oder an ihren Spalten erkannt. Projekte übernehmen Kunde, Farbe und Standard für abrechenbar aus einer Projektdatei, sonst aus den Einträgen.",
+			"READING": "Dateien werden gelesen…",
+			"FILES_TITLE": "Gelesene Dateien",
+			"KIND_entries": "Zeiteinträge",
+			"KIND_clients": "Kunden",
+			"KIND_projects": "Projekte",
+			"KIND_tags": "Tags",
+			"FILE_ROWS": "{count, plural, one {# Zeile} other {# Zeilen}}",
+			"LEFT_OUT_TITLE": "{count, plural, one {# Datei ausgelassen} other {# Dateien ausgelassen}}",
+			"problems": {
+				"notSupported": "Keine CSV-, JSON- oder ZIP-Datei.",
+				"tooLarge": "Größer als {megabytes} MB.",
+				"notText": "Kein UTF-8-Text.",
+				"zip_notZip": "Kein ZIP-Archiv, das sich öffnen lässt.",
+				"zip_encrypted": "Das Archiv ist mit einem Passwort geschützt.",
+				"zip_unsupported": "Das Archiv nutzt ein Format, das der Import nicht lesen kann.",
+				"zip_tooLarge": "Das Archiv wird entpackt größer als {megabytes} MB.",
+				"json": "Das JSON enthält keine Liste von Datensätzen.",
+				"csv": "Die CSV kann nicht gelesen werden: Ein Anführungszeichen wird nie geschlossen, oder die Datei ist leer.",
+				"unknownContent": "Weder Kunden, Projekte, Tags noch Zeiteinträge.",
+				"entriesColumnsDiffer": "Zeiteinträge mit anderen Spalten als die erste Datei mit Einträgen.",
+				"repeatedKind": "{kind}: schon aus einer anderen Datei gelesen. Nur die erste wird verwendet.",
+				"tableTooLarge": "Mehr Spalten oder Zellen, als der Import liest (höchstens {columns} Spalten).",
+				"unreadable": "Der Browser konnte die Datei nicht lesen: Wählen Sie sie erneut."
+			},
+			"NOTHING_READ": "Keine Datei des Exports konnte verwendet werden. Wählen Sie den Export erneut.",
+			"CHOOSE_OTHER": "Andere Dateien wählen",
+			"NO_RIGHTS_TITLE": "Ihre Rolle kann keinen Workspace importieren",
+			"NO_RIGHTS_DESCRIPTION": "Ein Workspace-Import legt Kunden und Projekte an. Bitten Sie einen Admin um die Rechte, Kunden und Projekte hinzuzufügen, oder importieren Sie Zeiteinträge aus einer CSV-Datei.",
+			"EXISTING_LOADING": "Kunden und Projekte des Workspaces werden gelesen…",
+			"EXISTING_FAILED_TITLE": "Kunden und Projekte des Workspaces konnten nicht gelesen werden",
+			"EXISTING_FAILED_DESCRIPTION": "Ohne sie kann der Import nicht erkennen, was schon existiert.",
+			"PLAN_TITLE": "Was der Import tut",
+			"PLAN_DESCRIPTION": "Zuerst Kunden, dann Projekte, dann Labels, dann die Zeiteinträge unten. Was schon existiert, wird wiederverwendet, unabhängig von Groß- und Kleinschreibung.",
+			"figures": {
+				"LABEL": "Was der Import anlegt",
+				"CLIENTS": "Kunden",
+				"PROJECTS": "Projekte",
+				"LABELS": "Labels"
+			},
+			"NEW_AND_REUSED": "{created} neu · {reused} wiederverwendet",
+			"TO_CREATE": "Anzulegen",
+			"TO_REUSE": "Schon im Workspace",
+			"NO_CLIENT": "Kein Kunde",
+			"BILLABLE": "Abrechenbar",
+			"NOT_BILLABLE": "Nicht abrechenbar",
+			"MEMBERS_TITLE": "Einträge pro Mitglied",
+			"MEMBER_ENTRIES": "{count, plural, one {# Eintrag} other {# Einträge}}",
+			"UNKNOWN_EMAILS_TITLE": "{count, plural, one {# E-Mail, die kein Mitglied hat} other {# E-Mails, die kein Mitglied hat}}",
+			"UNKNOWN_EMAILS_DESCRIPTION": "Ihre Zeilen werden ausgelassen und nie unter jemand anderem abgelegt. Laden Sie diese Personen ins Team ein und importieren Sie dieselben Dateien erneut: Nichts wird doppelt angelegt.",
+			"TAGGED_ENTRIES_NOTE": "{count, plural, one {# Eintrag trägt Labels} other {# Einträge tragen Labels}}. Die Labels werden für das Team angelegt, aber Zeiteinträge haben keine Labels: Sie werden nicht zugeordnet.",
+			"LABELS_SKIPPED_NOTE": "Ihre Rolle kann keine Labels hinzufügen: Sie werden aufgelistet, aber nicht angelegt.",
+			"NOTHING_TO_DO": "Alles in diesen Dateien existiert bereits, und kein Eintrag ist zum Import bereit.",
+			"IMPORT_LISTS_ACTION": "Kunden, Projekte und Labels importieren",
+			"PROGRESS_TITLE": "Fortschritt des Imports",
+			"STEP_COUNTS": "{created} angelegt · {reused} wiederverwendet · {failed} fehlgeschlagen",
+			"STEP_SKIPPED": "{count} nicht angelegt",
+			"status": {
+				"waiting": "Wartet",
+				"running": "Läuft",
+				"done": "Fertig",
+				"failed": "Fehlgeschlagen"
+			},
+			"FAILED_TITLE": "Der Import hat bei „{name}“ angehalten",
+			"FAILED_DESCRIPTION": "Kein Zeiteintrag wurde gespeichert. Was vorher angelegt wurde, bleibt im Workspace und wird beim erneuten Import derselben Dateien wiederverwendet.",
+			"CREATED_TITLE": "Kunden, Projekte und Labels sind im Workspace",
+			"PAGE_DESCRIPTION": "Kunden, Projekte, Labels und Zeiteinträge aus einem anderen Zeiterfassungstool."
 		}
 	},
 	"recordSheet": {

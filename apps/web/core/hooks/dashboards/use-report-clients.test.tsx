@@ -32,8 +32,12 @@ function projectsQueryOf({ isLoaded = false, isError = false }: { isLoaded?: boo
 
 let mockProjectsQuery = projectsQueryOf({ isLoaded: true });
 
+const mockProjectsQueryOptions = jest.fn();
 jest.mock('@/core/hooks/organizations/projects/use-organization-projects-query', () => ({
-	useOrganizationProjectsQuery: () => mockProjectsQuery
+	useOrganizationProjectsQuery: (options: unknown) => {
+		mockProjectsQueryOptions(options);
+		return mockProjectsQuery;
+	}
 }));
 jest.mock('@/core/hooks/clients/use-clients-query', () => ({
 	useActiveClients: () => ({ clients: [{ id: 'globex', name: 'Globex' }] })
@@ -142,5 +146,28 @@ describe('useReportClientChoices', () => {
 			{ id: 'acme', name: 'Acme' },
 			{ id: 'globex', name: 'Globex' }
 		]);
+	});
+});
+
+describe('useReportProjectClients, when it reads the projects list', () => {
+	it('reads it whatever isEnabled says, for the reports that always did', () => {
+		renderHook(() => useReportProjectClients({ includesArchived: false, isEnabled: false }), {
+			wrapper: wrapperOf()
+		});
+
+		expect(mockProjectsQueryOptions).toHaveBeenLastCalledWith({ enabled: true });
+	});
+
+	it('reads it only while enabled for a caller that asks so, never on page load', () => {
+		const { rerender } = renderHook(
+			({ isEnabled }) =>
+				useReportProjectClients({ includesArchived: true, isEnabled, readsListOnlyWhenEnabled: true }),
+			{ wrapper: wrapperOf(), initialProps: { isEnabled: false } }
+		);
+		expect(mockProjectsQueryOptions).toHaveBeenLastCalledWith({ enabled: false });
+
+		rerender({ isEnabled: true });
+
+		expect(mockProjectsQueryOptions).toHaveBeenLastCalledWith({ enabled: true });
 	});
 });

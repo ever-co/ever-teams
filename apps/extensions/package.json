@@ -8,7 +8,8 @@
 	"scripts": {
 		"dev": "yarn plasmo dev",
 		"start": "yarn dev",
-		"build": "yarn plasmo build"
+		"build": "yarn plasmo build",
+		"test": "node --import ./test/register-aliases.mjs --test \"lib/**/*.test.ts\""
 	},
 	"dependencies": {
 		"@tailwindcss/forms": "^0.5.3",
@@ -58,8 +59,15 @@
 		]
 	},
 	"manifest": {
+		"default_locale": "en",
+		"permissions": [
+			"storage",
+			"alarms"
+		],
 		"host_permissions": [
-			"https://*/*"
+			"https://*/*",
+			"http://localhost/*",
+			"http://127.0.0.1/*"
 		]
 	},
 	"resolutions": {

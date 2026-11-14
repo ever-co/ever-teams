@@ -20,12 +20,12 @@ import {
 } from '@/core/lib/utils/time-import-sheet';
 import { FILE_NAME_TEXT, TIME_IMPORT_MAX_MEGABYTES, type TimeImportCopy } from './time-import-copy';
 
-const DROP_ZONE =
+export const DROP_ZONE =
 	'flex w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-lg hairline-border border-dashed border-foreground/20 px-4 py-7 text-center outline-none transition-colors hover:border-foreground/35 hover:bg-foreground/[0.025] focus-visible:ring-[3px] focus-visible:ring-ring/25';
 
-const DROP_ZONE_ACTIVE = 'border-primary/50 bg-primary/[0.04]';
+export const DROP_ZONE_ACTIVE = 'border-primary/50 bg-primary/[0.04]';
 
-function hasDraggedFiles(event: DragEvent<HTMLElement>) {
+export function hasDraggedFiles(event: DragEvent<HTMLElement>) {
 	return event.dataTransfer.types.includes('Files');
 }
 

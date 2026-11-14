@@ -174,4 +174,76 @@ describe('TimerService.stopTimer', () => {
 			source: ETimeLogSource.TEAMS
 		});
 	});
+
+	// A stop made for one run (the one a person asked to stop before their session ended) names it, so that Gauzy
+	// refuses it when another run is the running one by then
+	const namedStop = {
+		source: ETimeLogSource.TEAMS,
+		stoppedAt: '2026-11-04T22:00:00.000Z',
+		timeLogId: '9a1c3f0e-6f0b-4d53-9a43-1c1f6a2b7d10'
+	};
+
+	it('names the time log a stop is for to Gauzy in direct mode', async () => {
+		publishedApiOrigin.value = 'https://api.example.test';
+		const post = jest.spyOn(timerService, 'post').mockResolvedValue({ data: {} } as never);
+		jest.spyOn(timerService, 'getTimerStatus').mockResolvedValue({ data: {} } as never);
+
+		await timerService.stopTimer(namedStop);
+
+		expect(post).toHaveBeenCalledWith('/timesheet/timer/stop', expect.objectContaining(namedStop));
+	});
+
+	it('names the time log a stop is for to the stop route in proxy mode', async () => {
+		await timerService.stopTimer(namedStop);
+
+		expect(mockFallbackPost).toHaveBeenCalledWith(expect.stringMatching(/^\/timer\/stop\?/), namedStop);
+	});
+});
+
+describe('TimerService.discardTimer', () => {
+	it("discards the caller's running log through Gauzy in direct mode, naming the log it saw", async () => {
+		publishedApiOrigin.value = 'https://api.example.test';
+		const post = jest.spyOn(timerService, 'post').mockResolvedValue({ data: undefined } as never);
+		const status = jest
+			.spyOn(timerService, 'getTimerStatus')
+			.mockResolvedValue({ data: { running: false } } as never);
+
+		const answer = await timerService.discardTimer({ timeLogId: 'log-1' });
+
+		expect(post).toHaveBeenCalledWith('/timesheet/timer/discard', expect.objectContaining({ timeLogId: 'log-1' }));
+		expect(Object.keys(post.mock.calls[0][1] as object)).toEqual(
+			expect.arrayContaining(['tenantId', 'organizationId'])
+		);
+		expect(status).toHaveBeenCalled();
+		expect(answer.data).toEqual({ running: false });
+	});
+
+	it('reports a discard as done when the status read after it fails', async () => {
+		publishedApiOrigin.value = 'https://api.example.test';
+		jest.spyOn(timerService, 'post').mockResolvedValue({ data: undefined } as never);
+		jest.spyOn(timerService, 'getTimerStatus').mockRejectedValue(new Error('Network Error'));
+
+		await expect(timerService.discardTimer({ timeLogId: 'log-1' })).resolves.toEqual({ data: undefined });
+	});
+
+	it('sends no log id for a discard that saw none', async () => {
+		publishedApiOrigin.value = 'https://api.example.test';
+		const post = jest.spyOn(timerService, 'post').mockResolvedValue({ data: undefined } as never);
+		jest.spyOn(timerService, 'getTimerStatus').mockResolvedValue({ data: { running: false } } as never);
+
+		await timerService.discardTimer({});
+
+		expect(post.mock.calls[0][1]).not.toHaveProperty('timeLogId');
+	});
+
+	it('discards through the discard route in proxy mode, which answers the new status', async () => {
+		mockFallbackPost.mockResolvedValue({ data: { running: false } });
+
+		const answer = await timerService.discardTimer({ timeLogId: 'log-1' });
+
+		expect(mockFallbackPost).toHaveBeenCalledWith(expect.stringMatching(/^\/timer\/discard\?/), {
+			timeLogId: 'log-1'
+		});
+		expect(answer.data).toEqual({ running: false });
+	});
 });

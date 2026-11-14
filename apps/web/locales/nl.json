@@ -599,6 +599,21 @@
 				"EDITED_AT": "Bewerkt op {date}, {time}",
 				"REASON_PREFIX": "Reden:"
 			},
+			"SIMILAR": {
+				"ENTRY_COUNT": "{count, plural, one {# registratie} other {# registraties}}",
+				"SHOW_ENTRIES": "Registraties van {task} tonen",
+				"HIDE_ENTRIES": "Registraties van {task} verbergen",
+				"SELECT_GROUP": "{count, plural, one {# registratie van {task} selecteren} other {De # registraties van {task} selecteren}}",
+				"CONFIRM_BILLABLE": "{count, plural, one {# registratie als factureerbaar markeren?} other {# registraties als factureerbaar markeren?}}",
+				"CONFIRM_NOT_BILLABLE": "{count, plural, one {# registratie als niet factureerbaar markeren?} other {# registraties als niet factureerbaar markeren?}}",
+				"CONFIRM_STATUS": "{count, plural, one {# registratie op ‘{status}’ zetten?} other {# registraties op ‘{status}’ zetten?}}",
+				"CONFIRM_SCOPE": "Alle registraties van {task} in deze rij veranderen.",
+				"CHANGED": "{count, plural, one {# registratie gewijzigd} other {# registraties gewijzigd}}",
+				"PARTLY_CHANGED": "{changed} van {count} registraties gewijzigd. De andere houden hun waarde.",
+				"REJECT_COUNT": "{count, plural, one {U staat op het punt # registratie af te wijzen. Wilt u doorgaan?} other {U staat op het punt # registraties af te wijzen. Wilt u doorgaan?}}",
+				"VIEW_GROUP": "Vergelijkbare registraties groeperen",
+				"VIEW_GROUP_HELP": "Registraties van een dag met dezelfde taak, hetzelfde project, dezelfde notities en dezelfde factureerbaarheid staan op één rij."
+			},
 			"STATUS_CARDS": {
 				"PENDING": "Wacht op goedkeuring",
 				"LOG_UNIT": "{count, plural, one {registratie} other {registraties}}"
@@ -794,7 +809,12 @@
 				"NONE": "Geen project",
 				"COUNT": "{count, plural, one {# project} other {# projecten}}",
 				"OTHER": "{count, plural, one {# ander project} other {# andere projecten}}",
-				"EMPTY": "Projecten verschijnen hier zodra er tijd is geregistreerd in de periode."
+				"EMPTY": "Projecten verschijnen hier zodra er tijd is geregistreerd in de periode.",
+				"SPLIT": "Tijd verdelen per",
+				"BY_CLIENT": "Per klant",
+				"OTHER_CLIENTS": "{count, plural, one {# andere klant} other {# andere klanten}}",
+				"CLIENTS_EMPTY": "Klanten verschijnen hier zodra er tijd is geregistreerd in de periode.",
+				"CLIENTS_ERROR": "De klanten van de projecten konden niet worden gelezen."
 			},
 			"table": {
 				"VIEW": "Rijen groeperen",
@@ -1518,6 +1538,53 @@
 				"FUTURE": "Je organisatie staat geen tijd na het huidige tijdstip toe.",
 				"APPROVED": "Deze dag hoort bij een goedgekeurde urenstaat, dus de tijd kan niet worden gewijzigd.",
 				"SAVE_FAILED": "Wijziging niet opgeslagen"
+			},
+			"MENU": {
+				"STOP": "Timer stoppen",
+				"ADD_TIME_HERE": "Hier tijd toevoegen",
+				"SPLIT": "Splitsen",
+				"NO_ACTIONS": "Je kunt deze registratie niet wijzigen."
+			},
+			"SPLIT": {
+				"TITLE": "Registratie splitsen",
+				"REFUSED_TITLE": "Deze registratie kan niet worden gesplitst",
+				"TIME_LABEL": "Splitsen om",
+				"TIME_OUTSIDE": "Kies een tijd binnen de registratie, minstens een minuut na het begin en voor het einde.",
+				"PARTS_LABEL": "De twee registraties",
+				"FIRST_PART": "Eerste deel",
+				"SECOND_PART": "Tweede deel",
+				"TASK_LABEL": "Taak van het tweede deel: {task}",
+				"TASK_SEARCH": "Taken zoeken",
+				"ACTION": "Splitsen",
+				"SAVING": "Splitsen…",
+				"SAVED": "Registratie in tweeën gesplitst",
+				"FAILED_RESTORED": "De registratie kon niet worden gesplitst en staat weer zoals ze was. Probeer het opnieuw.",
+				"FAILED_CHANGED": "Deze registratie is gewijzigd sinds de agenda haar laadde, dus er is niets gesplitst. Controleer haar en probeer het opnieuw.",
+				"FAILED_FIRST_PART_KEPT": "Het eerste deel is opgeslagen, maar het tweede deel ({range}) kon niet worden toegevoegd. Voeg het toe met Tijd toevoegen.",
+				"FAILED_UNKNOWN": "Het splitsen kon niet worden bevestigd. Laad de kalender opnieuw en controleer deze registratie voordat je het opnieuw probeert.",
+				"ADD_REST": "Tweede deel toevoegen",
+				"REFUSED": {
+					"TRACKED": "Bijgehouden tijd draagt zijn activiteit en schermafbeeldingen mee, die alleen de server over twee registraties kan verdelen. Voorlopig kan alleen handmatig toegevoegde tijd worden gesplitst.",
+					"RUNNING": "De timer loopt nog. Stop hem en splits dan de registratie.",
+					"TOO_SHORT": "Deze registratie is te kort: elk deel moet minstens een minuut duren.",
+					"APPROVED": "Deze dag hoort bij een goedgekeurde urenstaat, dus de tijd ervan kan niet veranderen.",
+					"PERMISSION": "Je rol of je organisatie staat niet toe dat je tijd wijzigt of handmatig toevoegt."
+				}
+			},
+			"SETTINGS": {
+				"LABEL": "Rasterinstellingen",
+				"SNAP": "Uitlijnen op",
+				"SNAP_OPTION": "{minutes, plural, =60 {1 uur} one {# minuut} other {# minuten}}",
+				"FIRST_HOUR": "Eerste uur",
+				"LAST_HOUR": "Laatste uur",
+				"END_OF_DAY": "Einde van de dag",
+				"HOURS_HINT": "Registraties buiten deze uren blijven zichtbaar: het raster wordt tot daar uitgebreid.",
+				"ROW_HEIGHT": "Rijhoogte",
+				"ROW_COMPACT": "Compact",
+				"ROW_DEFAULT": "Standaard",
+				"ROW_TALL": "Hoog",
+				"KEPT_HERE": "Opgeslagen in deze browser",
+				"RESET": "Herstellen"
 			}
 		},
 		"manualTimeEdits": {
@@ -2796,7 +2863,59 @@
 			"HINT_RUNNING": "Wijzigingen terwijl de timer loopt worden nog niet opgeslagen. Bewerk de registratie in Urenstaten nadat je de timer hebt gestopt om de notities te wijzigen.",
 			"HINT_OTHER_TEAM": "Deze notities horen bij de timer die in een ander team loopt en kunnen hier niet worden gewijzigd."
 		},
-		"NOT_BILLABLE": "Niet factureerbaar"
+		"NOT_BILLABLE": "Niet factureerbaar",
+		"startMove": {
+			"TITLE": "Begin van de lopende timer",
+			"STARTED_AT": "Gestart om {time}",
+			"OPEN": "Gestart om {time}. Begin wijzigen",
+			"NEW_START": "Nieuw begin",
+			"REASON": "Reden",
+			"REASON_PLACEHOLDER": "Waarom het begin verandert",
+			"LATER_ONLY": "Je mag geen tijd met de hand toevoegen, dus het begin kan alleen later worden.",
+			"SAVING": "Opslaan…",
+			"SAVED": "De timer begint nu om {time}.",
+			"CHECKING": "Controleren of het begin kan veranderen…",
+			"VIEW_TRACKER": "Deze timer loopt in de desktop-app. Wijzig het begin daar.",
+			"VIEW_NOT_ALLOWED": "Je mag geregistreerde tijd in deze organisatie niet wijzigen.",
+			"UNSUPPORTED": "Het begin van een lopende timer kan op deze server nog niet worden gewijzigd.",
+			"NOT_RUNNING": "De timer loopt niet meer.",
+			"TRACKER_RUN": "Deze timer loopt in de desktop-app of de agent, die zelf de tijd registreren. Wijzig het begin daar.",
+			"IN_FUTURE": "Het begin kan niet later zijn dan nu.",
+			"EDIT_NOT_ALLOWED": "Je mag geregistreerde tijd niet wijzigen.",
+			"MANUAL_NOT_ALLOWED": "Een eerder begin voegt tijd met de hand toe, wat je niet mag. Kies een later begin.",
+			"REASON_REQUIRED": "Je organisatie vraagt om een reden.",
+			"REASON_TOO_LONG": "De reden is te lang: hoogstens 255 tekens.",
+			"OVERLAP": "Een andere registratie van jou dekt die tijd. Kies een begin na het einde ervan.",
+			"CHANGED": "Het begin is net elders gewijzigd. Controleer het en probeer het opnieuw.",
+			"SAVE_FAILED": "Het begin kon niet worden opgeslagen. Probeer het opnieuw."
+		},
+		"discard": {
+			"MENU": "Meer timeracties",
+			"ACTION": "Deze sessie verwerpen",
+			"TITLE": "Deze sessie verwerpen?",
+			"DESCRIPTION": "Er wordt niets opgeslagen.",
+			"DESCRIPTION_ELSEWHERE": "Deze sessie is gestart vanuit {source} en stopt daar ook. Er wordt niets opgeslagen.",
+			"CONFIRM": "Verwerpen",
+			"DISCARDING": "Bezig met verwerpen…",
+			"DISCARDED": "Sessie verworpen",
+			"DISCARDED_HINT": "De timer is gestopt en er is niets opgeslagen.",
+			"sources": {
+				"DESKTOP": "de desktop-app",
+				"MOBILE": "de mobiele app",
+				"BROWSER_EXTENSION": "de browserextensie",
+				"OTHER": "een andere app"
+			},
+			"failures": {
+				"NOT_RUNNING": "Er loopt geen timer meer, dus er is niets verworpen.",
+				"DISABLED": "Je organisatie staat het verwerpen van een sessie niet toe.",
+				"TOO_LATE": "Deze sessie is te lang geleden gestart om te verwerpen. Stop hem en bewerk daarna de invoer in Urenstaten.",
+				"FORBIDDEN": "Je rol staat het verwerpen van deze sessie niet toe.",
+				"NOT_SUPPORTED": "Deze server biedt het verwerpen van een sessie nog niet aan.",
+				"CHANGED": "Intussen is een andere sessie gestart, dus er is niets verworpen.",
+				"TRACKER_RUN": "Deze sessie wordt vastgelegd door de desktop-app of de agent, die de tijd zelf bijhouden, dus ze kan hier niet worden verworpen.",
+				"GENERIC": "De sessie kon niet worden verworpen. Controleer je verbinding en probeer het opnieuw."
+			}
+		}
 	},
 	"task": {
 		"TITLE": "Taak",
@@ -3419,7 +3538,13 @@
 		"EVER_APPS": "Ever-apps",
 		"CURRENT_APP": "{app}, de app waarin je bent",
 		"OPENS_IN_NEW_TAB": "(opent in een nieuw tabblad)",
-		"APP_OPENS_IN_NEW_TAB": "{app} (opent in een nieuw tabblad)"
+		"APP_OPENS_IN_NEW_TAB": "{app} (opent in een nieuw tabblad)",
+		"OTHER_ORGANIZATIONS_LOADING": "Je andere organisaties worden geladen",
+		"OTHER_ORGANIZATIONS_FAILED": "Je andere organisaties konden niet worden geladen.",
+		"TRY_AGAIN": "Opnieuw proberen",
+		"UNNAMED_ORGANIZATION": "Organisatie zonder naam",
+		"OPEN_ORGANIZATION": "Je teams daar openen",
+		"ORGANIZATION_SWITCH_FAILED": "Deze organisatie kon niet worden geopend. Probeer het opnieuw."
 	},
 	"workspaceCreation": {
 		"TITLE": "Werkruimte maken",
@@ -3959,6 +4084,7 @@
 			"NO_TASK": "Kies een taak om de timer te starten",
 			"START_IN_PROGRESS": "De timer start nog voor een andere taak",
 			"WORKSPACE_OPENING": "Je nieuwe werkruimte wordt geopend: start de timer zodra die open is.",
+			"ORGANIZATION_OPENING": "Een andere organisatie wordt geopend: start de timer zodra die open is.",
 			"STOPPED_TEAM_SWITCH": "Timer gestopt omdat je van team bent gewisseld",
 			"STOPPED_TASK_SWITCH": "Timer gestopt omdat je actieve taak is gewijzigd",
 			"STALE_STOPPED": "Timer gestopt: {stoppedAt}",
@@ -3966,7 +4092,8 @@
 			"TASK_CLOSED_HINT": "Heropen de taak om er tijd op te registreren.",
 			"NOTES_NOT_SAVED": "De notities die tijdens de timer zijn gewijzigd, zijn niet opgeslagen",
 			"NOTES_NOT_SAVED_HINT": "De registratie heeft de notities van de start behouden. Bewerk de registratie in Urenstaten om ze te wijzigen.",
-			"ALREADY_RUNNING_ON_TASK": "De timer loopt al voor deze taak"
+			"ALREADY_RUNNING_ON_TASK": "De timer loopt al voor deze taak",
+			"SAVED_STOP_HINT": "Dit is de stop die je vroeg voordat je sessie afliep."
 		},
 		"plans": {
 			"CREATE_FAILED": "Het plan is niet aangemaakt",
@@ -4215,6 +4342,10 @@
 			"notifications": {
 				"TITLE": "Meldingen",
 				"DESCRIPTION": "Welke gebeurtenissen je een melding geven."
+			},
+			"apiTokens": {
+				"TITLE": "API-tokens",
+				"DESCRIPTION": "Sleutels waarmee je scripts de API namens jou aanroepen."
 			},
 			"teamGeneral": {
 				"TITLE": "Algemeen",
@@ -5168,6 +5299,60 @@
 			"UNAVAILABLE_TITLE": "Nog niets in te stellen in deze werkruimte",
 			"UNAVAILABLE_TEXT": "Meldingen horen bij je ledenprofiel in een werkruimte, en dit account heeft er hier geen. Word eerst lid van een team of maak er een."
 		},
+		"apiTokens": {
+			"PAGE_DESCRIPTION": "Met elk token kan een script de API namens jou aanroepen. Een ingetrokken token werkt meteen niet meer.",
+			"SECTION_TOKENS": "Je tokens",
+			"COUNT": "{count} van {max} actieve tokens",
+			"CREATE": "Token maken",
+			"LIMIT_REACHED": "Je hebt {max} actieve tokens, het toegestane maximum. Trek er een in die je niet meer gebruikt om een nieuw te maken.",
+			"EMPTY_TITLE": "Nog geen API-tokens",
+			"EMPTY_TEXT": "Maak per script een eigen token, zodat je er een kunt intrekken zonder de andere te raken.",
+			"LIST_FAILED_TITLE": "Je API-tokens konden niet worden gelezen",
+			"LIST_FAILED_TEXT": "Controleer je verbinding en probeer het opnieuw.",
+			"RETRY": "Opnieuw proberen",
+			"CREATED_ON": "Gemaakt op {date}",
+			"LAST_USED_ON": "Laatst gebruikt op {date}",
+			"NEVER_USED": "Nooit gebruikt",
+			"EXPIRES_ON": "Verloopt op {date}",
+			"EXPIRED_ON": "Verlopen op {date}",
+			"NEVER_EXPIRES": "Verloopt nooit",
+			"EXPIRED": "Verlopen",
+			"REVOKE": "Intrekken",
+			"REVOKE_TITLE": "“{name}” intrekken?",
+			"REVOKE_DESCRIPTION": "Scripts kunnen dit token niet meer inwisselen voor toegang; toegang die ze al hebben, eindigt binnen een uur. Dit kan niet ongedaan worden gemaakt.",
+			"REVOKE_CONFIRM": "Token intrekken",
+			"REVOKE_FAILED": "Het token kon niet worden ingetrokken. Probeer het opnieuw.",
+			"CREATE_TITLE": "Een API-token maken",
+			"NAME_LABEL": "Naam",
+			"NAME_HINT": "Waar het token voor is, bijvoorbeeld “Vrijdagrapport”.",
+			"NAME_REQUIRED": "Geef het token een naam.",
+			"NAME_TOO_LONG": "De naam mag hoogstens {max} tekens lang zijn.",
+			"EXPIRY_LEGEND": "Verloopt",
+			"EXPIRY_90D": "Over 90 dagen",
+			"EXPIRY_1Y": "Over 1 jaar",
+			"EXPIRY_NEVER": "Nooit",
+			"EXPIRY_ON_DATE": "Op {date}",
+			"EXPIRY_NEVER_DETAIL": "Werkt tot je het intrekt.",
+			"CREATING": "Bezig met maken…",
+			"CREATE_FAILED": "Het token kon niet worden gemaakt. Probeer het opnieuw.",
+			"CREATE_LIMIT": "Je hebt al {max} actieve tokens. Trek er een in om een nieuw te maken.",
+			"CREATE_DISABLED": "Deze server biedt geen API-tokens meer aan.",
+			"SECRET_TITLE": "Kopieer je token nu",
+			"SECRET_TEXT": "“{name}” is klaar. Het geheim wordt alleen deze keer getoond: bewaar het op een veilige plek voordat je dit venster sluit.",
+			"SECRET_LABEL": "Token",
+			"COPY": "Kopiëren",
+			"COPY_TOKEN": "Het token kopiëren",
+			"COPIED": "Gekopieerd",
+			"COPY_DONE": "Het token is gekopieerd.",
+			"COPY_FAILED": "Kopiëren mislukt: selecteer het token en kopieer het.",
+			"DONE": "Klaar",
+			"USAGE_TITLE": "Een token in een script gebruiken",
+			"USAGE_EXCHANGE": "Wissel het token in voor een kortlevend toegangstoken:",
+			"USAGE_CALL": "Roep daarna de API aan zoals gewoonlijk, met het toegangstoken in de header “Authorization: Bearer”, en wissel het token opnieuw in wanneer het toegangstoken verloopt.",
+			"UNAVAILABLE_TITLE": "API-tokens worden hier niet aangeboden",
+			"UNAVAILABLE_TEXT": "Op deze server staan persoonlijke API-tokens niet aan. Vraag het je beheerder als je er een nodig hebt.",
+			"AVAILABILITY_FAILED_TITLE": "Kon niet nagaan of deze server API-tokens aanbiedt"
+		},
 		"workspace": {
 			"IDENTITY_SECTION": "Werkruimte",
 			"NAME_LABEL": "Naam van de werkruimte",
@@ -5231,7 +5416,15 @@
 			"CURRENCY_POSITION_NOT_SAVED": "De positie van het valutasymbool is niet opgeslagen",
 			"EVERY_PAGE_OUTCOME": "Elke pagina en export gebruikt het nu.",
 			"READ_ONLY_NOTE": "Alleen beheerders van de werkruimte kunnen deze instellingen wijzigen.",
-			"LOAD_FAILED": "De instellingen van de werkruimte konden niet worden geladen."
+			"LOAD_FAILED": "De instellingen van de werkruimte konden niet worden geladen.",
+			"DATA_SECTION": "Gegevens",
+			"EXPORT_LABEL": "Alle gegevens exporteren",
+			"EXPORT_DESCRIPTION": "Een ZIP met CSV-bestanden, één per tabel: elke organisatie van de werkruimte, in het formaat dat de import weer inleest.",
+			"EXPORT_ACTION": "Exporteren",
+			"EXPORTING": "Bezig met exporteren…",
+			"EXPORT_DONE": "Gegevens van de werkruimte geëxporteerd",
+			"EXPORT_FAILED": "De export is niet voltooid",
+			"EXPORT_FAILED_DESCRIPTION": "Er is niets opgeslagen. Een grote werkruimte kost tijd: probeer het zo opnieuw."
 		},
 		"automations": {
 			"NEW_RULE": "Nieuwe regel",
@@ -5787,6 +5980,13 @@
 			"TEXT": "Het aanmelden is niet voltooid. Probeer het opnieuw of meld je aan met je e-mail.",
 			"RETRY": "Terug naar aanmelden",
 			"CODE": "Foutcode: {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Je sessie is verlopen",
+			"TEXT": "Log opnieuw in om verder te gaan.",
+			"TIMER_RUNNING": "Je timer liep. Log opnieuw in vóór {deadline} en hij loopt door. Daarna wordt hij gestopt op het laatst opgeslagen moment: {savedUntil}.",
+			"TIMER_STILL_RUNNING": "Je timer loopt nog. Log opnieuw in om hem te stoppen.",
+			"STOP_SAVED": "De timerstop die je hebt gevraagd is opgeslagen: {time}. Hij wordt toegepast zodra je opnieuw inlogt."
 		}
 	},
 	"taskViews": {
@@ -7301,6 +7501,83 @@
 				"MEMBER_NAME_UNKNOWN": "Geen lid van dit team heeft deze naam.",
 				"MEMBER_AMBIGUOUS": "{count, plural, one {# lid van dit team heeft deze naam.} other {# leden van dit team hebben deze naam. Geef het lid op met het e-mailadres.}}"
 			}
+		},
+		"workspace": {
+			"MODE_LEGEND": "Wat importeren",
+			"MODE_ENTRIES": "Tijdregistraties (CSV)",
+			"MODE_WORKSPACE": "Hele workspace",
+			"SECTION_TITLE": "Importeren uit een andere tool voor tijdregistratie",
+			"SECTION_DESCRIPTION": "Zet de workspace-export van je andere tool neer: de klanten, projecten, labels en tijdregistraties komen in {team}. Er wordt niets opgeslagen voordat je bevestigt.",
+			"DROP_TITLE": "Zet de exportbestanden hier neer, of kies ze",
+			"DROP_ACTIVE": "Laat de bestanden los om ze te lezen",
+			"DROP_HINT": "CSV- of JSON-bestanden, of een ZIP daarvan, tot {megabytes} MB per stuk.",
+			"FILES_NOTE": "Elk bestand wordt herkend aan zijn naam (klanten, projecten, tags, tijdregistraties) of aan zijn kolommen. Projecten nemen hun klant, kleur en standaard factureerbaar over uit een projectenbestand, anders uit de registraties.",
+			"READING": "Bestanden lezen…",
+			"FILES_TITLE": "Gelezen bestanden",
+			"KIND_entries": "Tijdregistraties",
+			"KIND_clients": "Klanten",
+			"KIND_projects": "Projecten",
+			"KIND_tags": "Tags",
+			"FILE_ROWS": "{count, plural, one {# rij} other {# rijen}}",
+			"LEFT_OUT_TITLE": "{count, plural, one {# bestand weggelaten} other {# bestanden weggelaten}}",
+			"problems": {
+				"notSupported": "Geen CSV-, JSON- of ZIP-bestand.",
+				"tooLarge": "Groter dan {megabytes} MB.",
+				"notText": "Geen UTF-8-tekst.",
+				"zip_notZip": "Geen ZIP-archief dat geopend kan worden.",
+				"zip_encrypted": "Het archief is met een wachtwoord beveiligd.",
+				"zip_unsupported": "Het archief gebruikt een indeling die de import niet kan lezen.",
+				"zip_tooLarge": "Het archief wordt uitgepakt groter dan {megabytes} MB.",
+				"json": "De JSON bevat geen lijst met records.",
+				"csv": "De CSV kan niet gelezen worden: een aanhalingsteken wordt nooit gesloten, of het bestand is leeg.",
+				"unknownContent": "Geen klanten, projecten, tags of tijdregistraties.",
+				"entriesColumnsDiffer": "Tijdregistraties met andere kolommen dan het eerste registratiebestand.",
+				"repeatedKind": "{kind}: al uit een ander bestand gelezen. Alleen het eerste wordt gebruikt.",
+				"tableTooLarge": "Meer kolommen of cellen dan de import leest (hoogstens {columns} kolommen).",
+				"unreadable": "De browser kon het bestand niet lezen: kies het opnieuw."
+			},
+			"NOTHING_READ": "Geen enkel bestand van de export kon gebruikt worden. Kies de export opnieuw.",
+			"CHOOSE_OTHER": "Andere bestanden kiezen",
+			"NO_RIGHTS_TITLE": "Je rol kan geen workspace importeren",
+			"NO_RIGHTS_DESCRIPTION": "Een workspace importeren maakt klanten en projecten aan. Vraag een beheerder om de rechten om klanten en projecten toe te voegen, of importeer tijdregistraties uit een CSV-bestand.",
+			"EXISTING_LOADING": "Klanten en projecten van de workspace lezen…",
+			"EXISTING_FAILED_TITLE": "De klanten en projecten van de workspace konden niet gelezen worden",
+			"EXISTING_FAILED_DESCRIPTION": "Zonder die gegevens weet de import niet wat al bestaat.",
+			"PLAN_TITLE": "Wat de import doet",
+			"PLAN_DESCRIPTION": "Eerst klanten, dan projecten, dan labels, dan de tijdregistraties hieronder. Wat al bestaat wordt hergebruikt, ongeacht hoofdletters.",
+			"figures": {
+				"LABEL": "Wat de import aanmaakt",
+				"CLIENTS": "Klanten",
+				"PROJECTS": "Projecten",
+				"LABELS": "Labels"
+			},
+			"NEW_AND_REUSED": "{created} nieuw · {reused} hergebruikt",
+			"TO_CREATE": "Aan te maken",
+			"TO_REUSE": "Al in de workspace",
+			"NO_CLIENT": "Geen klant",
+			"BILLABLE": "Factureerbaar",
+			"NOT_BILLABLE": "Niet factureerbaar",
+			"MEMBERS_TITLE": "Registraties per lid",
+			"MEMBER_ENTRIES": "{count, plural, one {# registratie} other {# registraties}}",
+			"UNKNOWN_EMAILS_TITLE": "{count, plural, one {# e-mailadres dat geen lid heeft} other {# e-mailadressen die geen lid heeft}}",
+			"UNKNOWN_EMAILS_DESCRIPTION": "Hun rijen worden weggelaten en nooit onder iemand anders opgeslagen. Nodig deze mensen uit in het team en importeer daarna dezelfde bestanden opnieuw: niets wordt dubbel aangemaakt.",
+			"TAGGED_ENTRIES_NOTE": "{count, plural, one {# registratie heeft labels} other {# registraties hebben labels}}. De labels worden voor het team aangemaakt, maar tijdregistraties hebben geen labels: ze worden niet gekoppeld.",
+			"LABELS_SKIPPED_NOTE": "Je rol kan geen labels toevoegen: ze worden vermeld maar niet aangemaakt.",
+			"NOTHING_TO_DO": "Alles in deze bestanden bestaat al en geen enkele registratie is klaar om te importeren.",
+			"IMPORT_LISTS_ACTION": "Klanten, projecten en labels importeren",
+			"PROGRESS_TITLE": "Voortgang van de import",
+			"STEP_COUNTS": "{created} aangemaakt · {reused} hergebruikt · {failed} mislukt",
+			"STEP_SKIPPED": "{count} niet aangemaakt",
+			"status": {
+				"waiting": "Wacht",
+				"running": "Bezig",
+				"done": "Klaar",
+				"failed": "Mislukt"
+			},
+			"FAILED_TITLE": "De import is gestopt bij “{name}”",
+			"FAILED_DESCRIPTION": "Er is geen tijdregistratie opgeslagen. Wat eerder is aangemaakt blijft in de workspace en wordt hergebruikt als je dezelfde bestanden opnieuw importeert.",
+			"CREATED_TITLE": "De klanten, projecten en labels staan in de workspace",
+			"PAGE_DESCRIPTION": "Klanten, projecten, labels en tijdregistraties uit een andere tool voor tijdregistratie."
 		}
 	},
 	"recordSheet": {

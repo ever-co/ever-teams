@@ -6,6 +6,13 @@ export const timerStatusState = atom<ITimerStatus | null>(null);
 
 export const timerStatusFetchingState = atom<boolean>(false);
 
+/**
+ * The start requests on their way to Gauzy (#5204): the timer status says stopped until one lands, so the team menu
+ * refuses to open another organization while this is above zero, as the started timer would be out of sight there. A
+ * count, not a flag: a start that lands and ends its bookkeeping must not clear a later start still unanswered.
+ */
+export const timerStartsInFlightState = atom<number>(0);
+
 export const timeCounterState = atom<number>(0);
 
 export const timerSecondsState = atom<number>(0);

@@ -599,6 +599,21 @@
 				"EDITED_AT": "Edited {date}, {time}",
 				"REASON_PREFIX": "Reason:"
 			},
+			"SIMILAR": {
+				"ENTRY_COUNT": "{count, plural, one {# entry} other {# entries}}",
+				"SHOW_ENTRIES": "Show the entries of {task}",
+				"HIDE_ENTRIES": "Hide the entries of {task}",
+				"SELECT_GROUP": "{count, plural, one {Select # entry of {task}} other {Select the # entries of {task}}}",
+				"CONFIRM_BILLABLE": "{count, plural, one {Mark # entry billable?} other {Mark # entries billable?}}",
+				"CONFIRM_NOT_BILLABLE": "{count, plural, one {Mark # entry not billable?} other {Mark # entries not billable?}}",
+				"CONFIRM_STATUS": "{count, plural, one {Set # entry to {status}?} other {Set # entries to {status}?}}",
+				"CONFIRM_SCOPE": "Every entry of {task} in this row changes.",
+				"CHANGED": "{count, plural, one {# entry changed} other {# entries changed}}",
+				"PARTLY_CHANGED": "{changed} of {count} entries changed. The others kept their value.",
+				"REJECT_COUNT": "{count, plural, one {You are about to reject # entry, would you like to proceed?} other {You are about to reject # entries, would you like to proceed?}}",
+				"VIEW_GROUP": "Group similar entries",
+				"VIEW_GROUP_HELP": "Entries of a day with the same task, project, notes and billable state show as one row."
+			},
 			"STATUS_CARDS": {
 				"PENDING": "Pending approval",
 				"LOG_UNIT": "{count, plural, one {log} other {logs}}"
@@ -794,7 +809,12 @@
 				"NONE": "No project",
 				"COUNT": "{count, plural, one {# project} other {# projects}}",
 				"OTHER": "{count, plural, one {# other project} other {# other projects}}",
-				"EMPTY": "Projects show here once time is tracked in the period."
+				"EMPTY": "Projects show here once time is tracked in the period.",
+				"SPLIT": "Split the time by",
+				"BY_CLIENT": "By client",
+				"OTHER_CLIENTS": "{count, plural, one {# other client} other {# other clients}}",
+				"CLIENTS_EMPTY": "Clients show here once time is tracked in the period.",
+				"CLIENTS_ERROR": "The clients of the projects could not be read."
 			},
 			"table": {
 				"VIEW": "Group the rows",
@@ -1518,6 +1538,53 @@
 				"FUTURE": "Your organization doesn't allow time after the current time.",
 				"APPROVED": "This day belongs to an approved timesheet, so its time can't be changed.",
 				"SAVE_FAILED": "Change not saved"
+			},
+			"MENU": {
+				"STOP": "Stop timer",
+				"ADD_TIME_HERE": "Add time here",
+				"SPLIT": "Split",
+				"NO_ACTIONS": "You can't change this entry."
+			},
+			"SPLIT": {
+				"TITLE": "Split entry",
+				"REFUSED_TITLE": "This entry can't be split",
+				"TIME_LABEL": "Split at",
+				"TIME_OUTSIDE": "Pick a time inside the entry, at least a minute after its start and before its end.",
+				"PARTS_LABEL": "The two entries",
+				"FIRST_PART": "First part",
+				"SECOND_PART": "Second part",
+				"TASK_LABEL": "Task of the second part: {task}",
+				"TASK_SEARCH": "Search tasks",
+				"ACTION": "Split",
+				"SAVING": "Splitting…",
+				"SAVED": "Entry split in two",
+				"FAILED_RESTORED": "The entry could not be split and is back as it was. Try again.",
+				"FAILED_CHANGED": "This entry changed since the calendar loaded it, so nothing was split. Check it and try again.",
+				"FAILED_FIRST_PART_KEPT": "The first part was saved, but the second part ({range}) could not be added. Add it with Add time.",
+				"FAILED_UNKNOWN": "The split could not be confirmed. Reload the calendar and check this entry before you try again.",
+				"ADD_REST": "Add the second part",
+				"REFUSED": {
+					"TRACKED": "Tracked time carries its activity and screenshots, which only the server can share between two entries. Only time added by hand can be split for now.",
+					"RUNNING": "The timer is still running. Stop it, then split the entry.",
+					"TOO_SHORT": "This entry is too short: each part must last at least a minute.",
+					"APPROVED": "This day belongs to an approved timesheet, so its time can't be changed.",
+					"PERMISSION": "Your role or your organization doesn't allow changing time or adding time by hand."
+				}
+			},
+			"SETTINGS": {
+				"LABEL": "Grid settings",
+				"SNAP": "Snap to",
+				"SNAP_OPTION": "{minutes, plural, =60 {1 hour} one {# minute} other {# minutes}}",
+				"FIRST_HOUR": "First hour",
+				"LAST_HOUR": "Last hour",
+				"END_OF_DAY": "End of day",
+				"HOURS_HINT": "Entries outside these hours still show: the grid widens to them.",
+				"ROW_HEIGHT": "Row height",
+				"ROW_COMPACT": "Compact",
+				"ROW_DEFAULT": "Default",
+				"ROW_TALL": "Tall",
+				"KEPT_HERE": "Saved in this browser",
+				"RESET": "Reset"
 			}
 		},
 		"manualTimeEdits": {
@@ -2796,7 +2863,59 @@
 			"HINT_RUNNING": "Changes made while the timer runs are not saved yet. To change the notes, edit the entry in Timesheets after you stop the timer.",
 			"HINT_OTHER_TEAM": "These notes belong to the timer running in another team, so they cannot be changed here."
 		},
-		"NOT_BILLABLE": "Not billable"
+		"NOT_BILLABLE": "Not billable",
+		"startMove": {
+			"TITLE": "Start of the running timer",
+			"STARTED_AT": "Started at {time}",
+			"OPEN": "Started at {time}. Change the start",
+			"NEW_START": "New start",
+			"REASON": "Reason",
+			"REASON_PLACEHOLDER": "Why the start changes",
+			"LATER_ONLY": "Adding time by hand is not allowed for you, so the start can only move later.",
+			"SAVING": "Saving…",
+			"SAVED": "The timer now starts at {time}.",
+			"CHECKING": "Checking whether the start can change…",
+			"VIEW_TRACKER": "This timer runs in the desktop app. Change its start there.",
+			"VIEW_NOT_ALLOWED": "Changing tracked time is not allowed for you in this organization.",
+			"UNSUPPORTED": "The start of a running timer cannot be changed on this server yet.",
+			"NOT_RUNNING": "The timer is no longer running.",
+			"TRACKER_RUN": "This timer runs in the desktop app or the agent, which record its time themselves. Change its start there.",
+			"IN_FUTURE": "The start cannot be later than now.",
+			"EDIT_NOT_ALLOWED": "Changing tracked time is not allowed for you.",
+			"MANUAL_NOT_ALLOWED": "An earlier start adds time by hand, which is not allowed for you. Choose a later start.",
+			"REASON_REQUIRED": "Your organization asks for a reason.",
+			"REASON_TOO_LONG": "The reason is too long: 255 characters at most.",
+			"OVERLAP": "Another of your entries covers that time. Choose a start after it ends.",
+			"CHANGED": "The start just changed elsewhere. Check it and try again.",
+			"SAVE_FAILED": "The start could not be saved. Try again."
+		},
+		"discard": {
+			"MENU": "More timer actions",
+			"ACTION": "Discard this run",
+			"TITLE": "Discard this run?",
+			"DESCRIPTION": "Nothing is saved.",
+			"DESCRIPTION_ELSEWHERE": "This run was started from {source}, and it stops there too. Nothing is saved.",
+			"CONFIRM": "Discard",
+			"DISCARDING": "Discarding…",
+			"DISCARDED": "Run discarded",
+			"DISCARDED_HINT": "The timer is stopped and nothing was saved.",
+			"sources": {
+				"DESKTOP": "the desktop app",
+				"MOBILE": "the mobile app",
+				"BROWSER_EXTENSION": "the browser extension",
+				"OTHER": "another app"
+			},
+			"failures": {
+				"NOT_RUNNING": "No timer runs anymore, so nothing was discarded.",
+				"DISABLED": "Your organization does not allow discarding a run.",
+				"TOO_LATE": "This run started too long ago to be discarded. Stop it, then edit the entry in Timesheets.",
+				"FORBIDDEN": "Your role does not allow discarding this run.",
+				"NOT_SUPPORTED": "This server does not offer discarding a run yet.",
+				"CHANGED": "Another run started meanwhile, so nothing was discarded.",
+				"TRACKER_RUN": "This run is recorded by the desktop app or the agent, which keep its time themselves, so it cannot be discarded here.",
+				"GENERIC": "The run could not be discarded. Check your connection, then try again."
+			}
+		}
 	},
 	"task": {
 		"TITLE": "Task",
@@ -3419,7 +3538,13 @@
 		"EVER_APPS": "Ever apps",
 		"CURRENT_APP": "{app}, the app you are in",
 		"OPENS_IN_NEW_TAB": "(opens in a new tab)",
-		"APP_OPENS_IN_NEW_TAB": "{app} (opens in a new tab)"
+		"APP_OPENS_IN_NEW_TAB": "{app} (opens in a new tab)",
+		"OTHER_ORGANIZATIONS_LOADING": "Loading your other organizations",
+		"OTHER_ORGANIZATIONS_FAILED": "Your other organizations could not be loaded.",
+		"TRY_AGAIN": "Try again",
+		"UNNAMED_ORGANIZATION": "Unnamed organization",
+		"OPEN_ORGANIZATION": "Open your teams there",
+		"ORGANIZATION_SWITCH_FAILED": "This organization could not be opened. Try again."
 	},
 	"workspaceCreation": {
 		"TITLE": "Create a workspace",
@@ -3959,6 +4084,7 @@
 			"NO_TASK": "Select a task to start the timer",
 			"START_IN_PROGRESS": "The timer is still starting on another task",
 			"WORKSPACE_OPENING": "Your new workspace is opening: start the timer once it is open.",
+			"ORGANIZATION_OPENING": "Another organization is opening: start the timer once it is open.",
 			"STOPPED_TEAM_SWITCH": "Timer stopped because you switched teams",
 			"STOPPED_TASK_SWITCH": "Timer stopped because your active task changed",
 			"STALE_STOPPED": "Timer stopped at {stoppedAt}",
@@ -3966,7 +4092,8 @@
 			"TASK_CLOSED_HINT": "Reopen the task to track time on it.",
 			"NOTES_NOT_SAVED": "The notes changed while the timer ran were not saved",
 			"NOTES_NOT_SAVED_HINT": "The entry kept the notes it started with. Edit the entry in Timesheets to change them.",
-			"ALREADY_RUNNING_ON_TASK": "The timer is already running on this task"
+			"ALREADY_RUNNING_ON_TASK": "The timer is already running on this task",
+			"SAVED_STOP_HINT": "This is the stop you asked for before your session ended."
 		},
 		"plans": {
 			"CREATE_FAILED": "The plan was not created",
@@ -4215,6 +4342,10 @@
 			"notifications": {
 				"TITLE": "Notifications",
 				"DESCRIPTION": "Which events notify you."
+			},
+			"apiTokens": {
+				"TITLE": "API tokens",
+				"DESCRIPTION": "Keys your scripts use to call the API as you."
 			},
 			"teamGeneral": {
 				"TITLE": "General",
@@ -5168,6 +5299,60 @@
 			"UNAVAILABLE_TITLE": "Nothing to set in this workspace yet",
 			"UNAVAILABLE_TEXT": "Notifications belong to your member profile in a workspace, and this account has none here. Join or create a team first."
 		},
+		"apiTokens": {
+			"PAGE_DESCRIPTION": "Each token lets a script call the API as you. Revoke a token and it stops working at once.",
+			"SECTION_TOKENS": "Your tokens",
+			"COUNT": "{count} of {max} working tokens",
+			"CREATE": "Create token",
+			"LIMIT_REACHED": "You hold {max} working tokens, the most allowed. Revoke one you no longer use to create another.",
+			"EMPTY_TITLE": "No API tokens yet",
+			"EMPTY_TEXT": "Create one token for each script, so that you can revoke one without touching the others.",
+			"LIST_FAILED_TITLE": "Your API tokens could not be read",
+			"LIST_FAILED_TEXT": "Check your connection, then try again.",
+			"RETRY": "Try again",
+			"CREATED_ON": "Created {date}",
+			"LAST_USED_ON": "Last used {date}",
+			"NEVER_USED": "Never used",
+			"EXPIRES_ON": "Expires {date}",
+			"EXPIRED_ON": "Expired {date}",
+			"NEVER_EXPIRES": "Never expires",
+			"EXPIRED": "Expired",
+			"REVOKE": "Revoke",
+			"REVOKE_TITLE": "Revoke “{name}”?",
+			"REVOKE_DESCRIPTION": "Scripts can no longer trade this token for access; access they already hold ends within an hour. This cannot be undone.",
+			"REVOKE_CONFIRM": "Revoke token",
+			"REVOKE_FAILED": "The token could not be revoked. Try again.",
+			"CREATE_TITLE": "Create an API token",
+			"NAME_LABEL": "Name",
+			"NAME_HINT": "What the token is for, such as “Friday report”.",
+			"NAME_REQUIRED": "Give the token a name.",
+			"NAME_TOO_LONG": "Keep the name to {max} characters.",
+			"EXPIRY_LEGEND": "Expires",
+			"EXPIRY_90D": "In 90 days",
+			"EXPIRY_1Y": "In 1 year",
+			"EXPIRY_NEVER": "Never",
+			"EXPIRY_ON_DATE": "On {date}",
+			"EXPIRY_NEVER_DETAIL": "Works until you revoke it.",
+			"CREATING": "Creating…",
+			"CREATE_FAILED": "The token could not be created. Try again.",
+			"CREATE_LIMIT": "You already hold {max} working tokens. Revoke one to create another.",
+			"CREATE_DISABLED": "This server no longer offers API tokens.",
+			"SECRET_TITLE": "Copy your token now",
+			"SECRET_TEXT": "“{name}” is ready. Its secret is shown this once: store it somewhere safe before you close this window.",
+			"SECRET_LABEL": "Token",
+			"COPY": "Copy",
+			"COPY_TOKEN": "Copy the token",
+			"COPIED": "Copied",
+			"COPY_DONE": "The token is copied.",
+			"COPY_FAILED": "Copying failed: select the token and copy it.",
+			"DONE": "Done",
+			"USAGE_TITLE": "Use a token in a script",
+			"USAGE_EXCHANGE": "Trade the token for a short-lived access token:",
+			"USAGE_CALL": "Then call the API as usual, with the access token in the “Authorization: Bearer” header, and trade the token again when the access token expires.",
+			"UNAVAILABLE_TITLE": "API tokens are not offered here",
+			"UNAVAILABLE_TEXT": "This server does not have personal API tokens on. Ask your administrator if you need one.",
+			"AVAILABILITY_FAILED_TITLE": "Whether this server offers API tokens could not be read"
+		},
 		"workspace": {
 			"IDENTITY_SECTION": "Workspace",
 			"NAME_LABEL": "Workspace name",
@@ -5231,7 +5416,15 @@
 			"CURRENCY_POSITION_NOT_SAVED": "The currency symbol position was not saved",
 			"EVERY_PAGE_OUTCOME": "Every page and export now uses it.",
 			"READ_ONLY_NOTE": "Only workspace admins can change these settings.",
-			"LOAD_FAILED": "The workspace settings could not load."
+			"LOAD_FAILED": "The workspace settings could not load.",
+			"DATA_SECTION": "Data",
+			"EXPORT_LABEL": "Export all data",
+			"EXPORT_DESCRIPTION": "A ZIP of CSV files, one per table: every organization of the workspace, in the format the import reads back.",
+			"EXPORT_ACTION": "Export",
+			"EXPORTING": "Exporting…",
+			"EXPORT_DONE": "Workspace data exported",
+			"EXPORT_FAILED": "The export did not finish",
+			"EXPORT_FAILED_DESCRIPTION": "Nothing was saved. A large workspace takes a while: try again in a moment."
 		},
 		"automations": {
 			"NEW_RULE": "New rule",
@@ -5787,6 +5980,13 @@
 			"TEXT": "The sign-in did not complete. Try again, or sign in with your e-mail.",
 			"RETRY": "Back to sign in",
 			"CODE": "Error code: {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Your session has ended",
+			"TEXT": "Sign in again to continue.",
+			"TIMER_RUNNING": "Your timer was running. Sign in again before {deadline} and it keeps running. After that, it is stopped at {savedUntil}, the last time it was saved.",
+			"TIMER_STILL_RUNNING": "Your timer is still running. Sign in again to stop it.",
+			"STOP_SAVED": "The timer stop you asked for at {time} is saved. It is applied as soon as you sign in again."
 		}
 	},
 	"taskViews": {
@@ -7301,6 +7501,83 @@
 				"MEMBER_NAME_UNKNOWN": "No member of this team has this name.",
 				"MEMBER_AMBIGUOUS": "{count, plural, one {# member of this team has this name.} other {# members of this team have this name. Name the member by email.}}"
 			}
+		},
+		"workspace": {
+			"MODE_LEGEND": "What to import",
+			"MODE_ENTRIES": "Time entries (CSV)",
+			"MODE_WORKSPACE": "Whole workspace",
+			"SECTION_TITLE": "Import from another time tracking tool",
+			"SECTION_DESCRIPTION": "Drop your other tool's workspace export: its clients, projects, labels and time entries come into {team}. Nothing is saved before you confirm.",
+			"DROP_TITLE": "Drop the export files here, or choose them",
+			"DROP_ACTIVE": "Drop the files to read them",
+			"DROP_HINT": "CSV or JSON files, or a ZIP of them, up to {megabytes} MB each.",
+			"FILES_NOTE": "Each file is recognized by its name (clients, projects, tags, time entries) or by its columns. Projects take their client, color and billable default from a projects file, else from the entries.",
+			"READING": "Reading the files…",
+			"FILES_TITLE": "Files read",
+			"KIND_entries": "Time entries",
+			"KIND_clients": "Clients",
+			"KIND_projects": "Projects",
+			"KIND_tags": "Tags",
+			"FILE_ROWS": "{count, plural, one {# row} other {# rows}}",
+			"LEFT_OUT_TITLE": "{count, plural, one {# file left out} other {# files left out}}",
+			"problems": {
+				"notSupported": "Not a CSV, JSON or ZIP file.",
+				"tooLarge": "Larger than {megabytes} MB.",
+				"notText": "Not UTF-8 text.",
+				"zip_notZip": "Not a ZIP archive that can be opened.",
+				"zip_encrypted": "The archive is protected by a password.",
+				"zip_unsupported": "The archive uses a format the import cannot read.",
+				"zip_tooLarge": "The archive unpacks to more than {megabytes} MB.",
+				"json": "The JSON holds no list of records.",
+				"csv": "The CSV cannot be read: a quote is never closed, or the file is empty.",
+				"unknownContent": "Neither clients, projects, tags nor time entries.",
+				"entriesColumnsDiffer": "Time entries with other columns than the first file of entries.",
+				"repeatedKind": "{kind}: already read from another file. Only the first one is used.",
+				"tableTooLarge": "More columns or cells than the import reads ({columns} columns at most).",
+				"unreadable": "The browser could not read the file: choose it again."
+			},
+			"NOTHING_READ": "No file of the export could be used. Choose the export again.",
+			"CHOOSE_OTHER": "Choose other files",
+			"NO_RIGHTS_TITLE": "Your role cannot import a workspace",
+			"NO_RIGHTS_DESCRIPTION": "Importing a workspace creates clients and projects. Ask an admin for the rights to add clients and projects, or import time entries from a CSV file.",
+			"EXISTING_LOADING": "Reading the workspace's clients and projects…",
+			"EXISTING_FAILED_TITLE": "The workspace's clients and projects could not be read",
+			"EXISTING_FAILED_DESCRIPTION": "Without them the import cannot tell what already exists.",
+			"PLAN_TITLE": "What the import does",
+			"PLAN_DESCRIPTION": "Clients first, then projects, then labels, then the time entries below. What already exists is reused, letter case aside.",
+			"figures": {
+				"LABEL": "What the import creates",
+				"CLIENTS": "Clients",
+				"PROJECTS": "Projects",
+				"LABELS": "Labels"
+			},
+			"NEW_AND_REUSED": "{created} new · {reused} reused",
+			"TO_CREATE": "To create",
+			"TO_REUSE": "Already in the workspace",
+			"NO_CLIENT": "No client",
+			"BILLABLE": "Billable",
+			"NOT_BILLABLE": "Not billable",
+			"MEMBERS_TITLE": "Entries per member",
+			"MEMBER_ENTRIES": "{count, plural, one {# entry} other {# entries}}",
+			"UNKNOWN_EMAILS_TITLE": "{count, plural, one {# email no member has} other {# emails no member has}}",
+			"UNKNOWN_EMAILS_DESCRIPTION": "Their rows are left out and never filed under someone else. Invite these people to the team, then import the same files again: nothing is created twice.",
+			"TAGGED_ENTRIES_NOTE": "{count, plural, one {# entry carries labels} other {# entries carry labels}}. The labels are created for the team, but time entries hold no labels: they are not attached.",
+			"LABELS_SKIPPED_NOTE": "Your role cannot add labels: they are listed but not created.",
+			"NOTHING_TO_DO": "Everything in these files already exists, and no entry is ready to import.",
+			"IMPORT_LISTS_ACTION": "Import clients, projects and labels",
+			"PROGRESS_TITLE": "Import progress",
+			"STEP_COUNTS": "{created} created · {reused} reused · {failed} failed",
+			"STEP_SKIPPED": "{count} not created",
+			"status": {
+				"waiting": "Waiting",
+				"running": "In progress",
+				"done": "Done",
+				"failed": "Failed"
+			},
+			"FAILED_TITLE": "The import stopped on “{name}”",
+			"FAILED_DESCRIPTION": "No time entry was saved. What was created before stays in the workspace and is reused when you import the same files again.",
+			"CREATED_TITLE": "Clients, projects and labels are in the workspace",
+			"PAGE_DESCRIPTION": "Clients, projects, labels and time entries from another time tracking tool."
 		}
 	},
 	"recordSheet": {
