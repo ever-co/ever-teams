@@ -139,7 +139,10 @@ describe('End break', () => {
 	it('ends the break that still runs', async () => {
 		mockGetTimerStatus.mockResolvedValue({ data: breakRunning });
 		mockStopTimer.mockResolvedValue({ data: { running: false, lastLog: null } });
-		const { result } = renderBreak(breakRunning, jest.fn(async () => undefined));
+		const { result } = renderBreak(
+			breakRunning,
+			jest.fn(async () => undefined)
+		);
 
 		await act(async () => {
 			await result.current.endBreak();
@@ -151,7 +154,10 @@ describe('End break', () => {
 
 	it('never stops the work another tab started since this tab read its status', async () => {
 		mockGetTimerStatus.mockResolvedValue({ data: workRunning });
-		const { result } = renderBreak(breakRunning, jest.fn(async () => undefined));
+		const { result } = renderBreak(
+			breakRunning,
+			jest.fn(async () => undefined)
+		);
 
 		await act(async () => {
 			await result.current.endBreak();

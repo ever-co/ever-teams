@@ -126,9 +126,14 @@ export function useBreakElapsedSeconds(startedAtMs: number | null): number {
 		if (startedAtMs === null) {
 			return undefined;
 		}
-		setNow(new Date());
-		const interval = setInterval(() => setNow(new Date()), SECOND_MS);
-		return () => clearInterval(interval);
+		const tick = () => setNow(new Date());
+		// Read the clock at once for a break that just showed, then once per second
+		const firstTick = setTimeout(tick, 0);
+		const interval = setInterval(tick, SECOND_MS);
+		return () => {
+			clearTimeout(firstTick);
+			clearInterval(interval);
+		};
 	}, [startedAtMs]);
 	if (startedAtMs === null) {
 		return 0;

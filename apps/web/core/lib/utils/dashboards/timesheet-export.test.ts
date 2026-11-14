@@ -110,7 +110,10 @@ describe('the totals of a Timesheets export', () => {
 
 describe('breaks in a Timesheets export (#5216)', () => {
 	// Ada's day: work 9:00-12:00, a break 12:00-13:00 on the task she paused, then work 13:00-17:00
-	const morning = logOf('morning', new Date(2026, 10, 4, 9, 0), 180, { employee: ada, task: { id: 't1', title: 'Header' } });
+	const morning = logOf('morning', new Date(2026, 10, 4, 9, 0), 180, {
+		employee: ada,
+		task: { id: 't1', title: 'Header' }
+	});
 	const lunch = logOf('lunch', new Date(2026, 10, 4, 12, 0), 60, {
 		employee: ada,
 		task: { id: 't1', title: 'Header' },
