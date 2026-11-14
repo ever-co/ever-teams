@@ -453,9 +453,7 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 		refetchLabels,
 		rights.canCreateLabels,
 		savesEntries,
-		saveScope.organizationId,
-		saveScope.organizationTeamId,
-		saveScope.tenantId
+		saveScope
 	]);
 
 	// The entries are saved on the render after the projects exist, so that their check reads the real projects

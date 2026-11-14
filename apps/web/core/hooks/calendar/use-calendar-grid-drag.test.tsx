@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import { act, render } from '@testing-library/react';
-import { type PointerEvent as ReactPointerEvent, useRef } from 'react';
+import { type PointerEvent as ReactPointerEvent, useEffect, useRef } from 'react';
 import type { GridWindow } from '@/core/lib/utils/calendar-grid-settings';
 import type { CalendarDay, CalendarEntry } from '@/core/lib/utils/calendar-view';
 import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
@@ -28,14 +28,17 @@ interface Harness {
 }
 
 function Grid({
-	harness,
+	onDrag,
+	onColumn,
 	stepMinutes,
 	gridWindow,
 	onPress,
 	onMoveEntry,
 	onCreateRange
 }: Readonly<{
-	harness: Harness;
+	/** The hook's answer of the last render, for the test to drive. */
+	onDrag: (drag: CalendarGridDrag) => void;
+	onColumn: (column: HTMLElement | null) => void;
 	stepMinutes: number;
 	gridWindow: GridWindow;
 	onPress: (press: GridPress) => void;
@@ -44,7 +47,7 @@ function Grid({
 }>) {
 	const bodyRef = useRef<HTMLDivElement>(null);
 	const scrollRef = useRef<HTMLDivElement>(null);
-	harness.drag = useCalendarGridDrag({
+	const drag = useCalendarGridDrag({
 		days: [DAY],
 		hourHeightPx: HOUR_HEIGHT,
 		gridWindow,
@@ -57,16 +60,14 @@ function Grid({
 		onMoveEntry,
 		onPress
 	});
+	useEffect(() => {
+		onDrag(drag);
+	});
 	const markColumn = { [DAY_COLUMN_ATTRIBUTE]: DAY.key };
 	return (
 		<div ref={scrollRef}>
 			<div ref={bodyRef}>
-				<div
-					{...markColumn}
-					ref={(element) => {
-						harness.column = element;
-					}}
-				/>
+				<div {...markColumn} ref={onColumn} />
 			</div>
 		</div>
 	);
@@ -79,7 +80,12 @@ function setUp(options: { stepMinutes?: number; gridWindow?: GridWindow } = {}) 
 	const onCreateRange = jest.fn();
 	render(
 		<Grid
-			harness={harness}
+			onDrag={(drag) => {
+				harness.drag = drag;
+			}}
+			onColumn={(column) => {
+				harness.column = column;
+			}}
 			stepMinutes={options.stepMinutes ?? 15}
 			gridWindow={options.gridWindow ?? WHOLE_DAY}
 			onPress={onPress}
