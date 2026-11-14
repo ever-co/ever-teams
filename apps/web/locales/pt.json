@@ -5243,6 +5243,8 @@
 			"TO_STATUSES": "Para os status",
 			"FROM_STATUSES": "Dos status",
 			"ANY_STATUS": "Não escolha nenhum para qualquer status.",
+			"MERGED_ONLY": "Somente pull requests mesclados",
+			"MERGED_ONLY_HINT": "Um pull request fechado sem mesclar não executa a regra; a mesclagem depois de reabri-lo, sim. O fechamento de uma issue a executa como antes.",
 			"NO_CONDITIONS": "Sem condições: a regra é executada sempre.",
 			"ADD_CONDITION": "Adicionar uma condição",
 			"ADD_ACTION": "Adicionar uma ação",

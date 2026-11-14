@@ -9,7 +9,7 @@ export const CLIENT_EDIT_PERMISSIONS = ['ORG_CONTACT_EDIT'] as const;
 export const CLIENT_ARCHIVE_PERMISSIONS = ['ORG_CONTACT_DELETE', 'ORG_CONTACT_EDIT'] as const;
 
 /** The permission the API asks for to list the clients. */
-export const CLIENT_VIEW_PERMISSIONS = ['ORG_CONTACT_VIEW'] as const;
+const CLIENT_VIEW_PERMISSIONS = ['ORG_CONTACT_VIEW'] as const;
 
 export const CLIENT_NAME_MAX_LENGTH = 255;
 export const CLIENT_PHONE_MAX_LENGTH = 50;

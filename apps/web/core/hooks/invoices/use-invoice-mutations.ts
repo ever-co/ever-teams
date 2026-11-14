@@ -22,12 +22,16 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { downloadBlob } from '@/core/lib/utils/dashboard-export';
 import {
+	invoiceActionsOf,
 	invoiceRevisionsOf,
 	isDraftInvoice,
+	paidChangeOf,
 	pagesWithInvoiceChanged,
 	pagesWithoutInvoice,
 	SENT_CHANGE,
+	unpaidChangeOf,
 	VOID_CHANGE,
+	type InvoiceAction,
 	type InvoiceStatusChange,
 	type ListedInvoicesPage
 } from '@/core/lib/utils/invoice-actions';
@@ -128,7 +132,7 @@ function showListedStatus(queryClient: QueryClient, scope: ReadWorkspace, invoic
 	patchListedInvoices(queryClient, scope, (pages) => pagesWithInvoiceChanged(pages, invoiceId, { status }));
 }
 
-export interface InvoiceToSend extends InvoiceToEmail {
+interface InvoiceToSend extends InvoiceToEmail {
 	/** Only a draft becomes Sent: an invoice sent again keeps the status it reached since. */
 	marksSent: boolean;
 	scope: ReadWorkspace;
@@ -201,7 +205,7 @@ export function useSendInvoice() {
 
 export type SaveAndSendOutcome = InvoiceSendOutcome | 'notSent';
 
-export interface SavedAndSentInvoice {
+interface SavedAndSentInvoice {
 	invoice: TInvoice;
 	outcome: SaveAndSendOutcome;
 }
@@ -284,7 +288,10 @@ function lineCountOf(invoice: TSavedInvoice | null): number | null {
 
 const TENANT_SWITCHED = 'Another tenant was chosen during the save';
 
-/** Written in part, and not read back: the tenant it belongs to is no longer the one chosen. */
+/**
+ * Perhaps written in part, and not read back: the tenant it belongs to is no longer the one chosen, or the read
+ * failed. What it holds now is unknown, so nothing is written over it.
+ */
 const NOT_PUT_BACK_UNREAD: InvoiceEditOutcome = { status: 'notPutBack', lineCount: null };
 
 function isEditTenantChosen(edit: InvoiceEdit) {
@@ -337,24 +344,64 @@ async function notPutBackOf(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
 	return { status: 'notPutBack', lineCount: lineCountOf(now) };
 }
 
+/** Which writes of the edit were sent before it failed: the fields always go first, the lines only after them. */
+type EditWritesSent = 'fields' | 'fieldsAndLines';
+
+/**
+ * Whether the invoice read back holds nothing but what it was read with and what this save may have written: the
+ * status the save was written under, its fields as read or as written, and its lines as read or, once they were sent,
+ * as written or deleted (the API deletes an invoice's lines before it saves the new ones). Anything else was saved
+ * from elsewhere meanwhile: a payment or a void reached since is never written back over.
+ */
+function holdsOnlyThisSave(current: TSavedInvoice, edit: InvoiceEdit, writesSent: EditWritesSent): boolean {
+	const hasStatusAsWritten = invoiceStatusOf(current.status) === invoiceStatusOf(edit.previous.update.status);
+	if (!hasStatusAsWritten) {
+		return false;
+	}
+	const hasFieldsAsRead = haveSameFields(current, edit.previous.update);
+	const hasFieldsAsWritten = haveSameFields(current, edit.revision.update);
+	if (!hasFieldsAsRead && !hasFieldsAsWritten) {
+		return false;
+	}
+	const currentLines = current.invoiceItems ?? [];
+	if (haveSameLines(currentLines, edit.previous.lines)) {
+		return true;
+	}
+	// Its lines were never sent, yet they changed: they were saved from elsewhere
+	if (writesSent === 'fields') {
+		return false;
+	}
+	const hasLinesAsWritten = haveSameLines(currentLines, edit.revision.lines);
+	const hasNoLines = currentLines.length === 0;
+	return hasLinesAsWritten || hasNoLines;
+}
+
 /**
  * Writes the invoice back as it was read: its lines first, and only when they changed, since the API deletes the
- * lines before it saves the new ones and a failure between the two leaves none.
+ * lines before it saves the new ones and a failure between the two leaves none. An invoice that also holds a change
+ * saved from elsewhere meanwhile is left as it is: putting back what was read would mix the old fields, the total
+ * among them, with newer lines, or undo that other change.
  */
-async function putInvoiceBack(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
+async function putInvoiceBack(edit: InvoiceEdit, writesSent: EditWritesSent): Promise<InvoiceEditOutcome> {
 	if (!reachesItsTenant(edit)) {
 		return NOT_PUT_BACK_UNREAD;
 	}
 	const current = await readInvoiceBack(edit);
-	const currentLines = current?.invoiceItems ?? [];
-	const keepsItsLines = current !== null && haveSameLines(currentLines, edit.previous.lines);
-	const keepsItsFields = current !== null && haveSameFields(current, edit.previous.update);
+	if (!current) {
+		return NOT_PUT_BACK_UNREAD;
+	}
+	if (!holdsOnlyThisSave(current, edit, writesSent)) {
+		return { status: 'notPutBack', lineCount: lineCountOf(current) };
+	}
+	const currentLines = current.invoiceItems ?? [];
+	const putsLinesBack = !haveSameLines(currentLines, edit.previous.lines);
+	const keepsItsFields = haveSameFields(current, edit.previous.update);
 	// Nothing reached the invoice, as when the network failed before the first write: there is nothing to put back.
-	if (keepsItsLines && keepsItsFields) {
+	if (!putsLinesBack && keepsItsFields) {
 		return { status: 'notSaved' };
 	}
 	try {
-		if (!keepsItsLines) {
+		if (putsLinesBack) {
 			const linesScope = scopeToWriteIn(edit);
 			await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.previous.lines, linesScope);
 		}
@@ -404,7 +451,7 @@ async function outcomeOfFailedFields(edit: InvoiceEdit, error: unknown): Promise
 	if (isRefused) {
 		return { status: 'notSaved' };
 	}
-	const outcome = await putInvoiceBack(edit);
+	const outcome = await putInvoiceBack(edit, 'fields');
 	const isUntouched = outcome.status === 'notSaved';
 	const wasNotReached = didNotReachApi(error);
 	const isConnectionFailure = isUntouched && wasNotReached;
@@ -434,7 +481,7 @@ async function writeInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditOutcome> 
 		const linesScope = scopeToWriteIn(edit);
 		await invoiceService.replaceInvoiceLines(edit.invoiceId, edit.revision.lines, linesScope);
 	} catch {
-		return putInvoiceBack(edit);
+		return putInvoiceBack(edit, 'fieldsAndLines');
 	}
 	return { status: 'saved' };
 }
@@ -474,15 +521,15 @@ async function checkInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditCheck> {
 }
 
 /** Where an edited invoice goes once saved: whether it becomes Sent is decided by the status the save finds. */
-export type InvoiceEditSending = Omit<InvoiceToSend, 'marksSent'>;
+type InvoiceEditSending = Omit<InvoiceToSend, 'marksSent'>;
 
-export interface InvoiceEditToSave {
+interface InvoiceEditToSave {
 	edit: InvoiceEdit;
 	/** Where the invoice goes once saved; null saves it only. */
 	sending: InvoiceEditSending | null;
 }
 
-export interface SavedInvoiceEdit {
+interface SavedInvoiceEdit {
 	outcome: InvoiceEditOutcome;
 	/** What the sending did, when the edit was saved and was to be sent. */
 	sending: SaveAndSendOutcome | null;
@@ -507,12 +554,13 @@ async function saveAndSendInvoiceEdit({ edit, sending }: InvoiceEditToSave): Pro
 }
 
 /**
- * Reads the invoices again after an edit. A refusal because the invoice was paid or voided since it was opened leaves
- * the editor's own read alone: its answer would replace the editor, and the refusal with it, before it is read.
+ * Reads the invoices again after an edit. A save that did not go through leaves the editor's own read alone: its
+ * answer could replace the editor (an invoice paid or voided meanwhile turns into the locked message), and the dialog
+ * saying what happened to the invoice with it, before that is read. The editor reads it again once the dialog closes.
  */
 function readInvoicesAfterEdit(queryClient: QueryClient, edit: InvoiceEdit, saved: SavedInvoiceEdit | undefined) {
-	const isLocked = saved?.outcome.status === 'locked';
-	if (!isLocked) {
+	const hasFailed = saved !== undefined && saved.outcome.status !== 'saved';
+	if (!hasFailed) {
 		return queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all });
 	}
 	const editorRead = queryKeys.invoices.detail(edit.scope.tenantId, edit.scope.organizationId, edit.invoiceId);
@@ -533,11 +581,13 @@ export function useSaveInvoiceEdit() {
 	return { saveInvoiceEdit: mutation.mutateAsync, isSavingEdit: mutation.isPending };
 }
 
-export interface InvoiceStatusChangeRequest {
-	invoiceId: string;
-	change: InvoiceStatusChange;
-	scope: ReadWorkspace;
-}
+/** Marking paid or unpaid: what is paid and due comes from the invoice as the API holds it when the change is made. */
+export type InvoicePaymentAction = Extract<InvoiceAction, 'markPaid' | 'markUnpaid'>;
+
+/** A change that does not depend on the invoice's amounts, such as Void, or a payment action. */
+type InvoiceStatusChangeRequest =
+	| { invoiceId: string; change: InvoiceStatusChange; scope: ReadWorkspace }
+	| { invoiceId: string; payment: InvoicePaymentAction; scope: ReadWorkspace };
 
 /** Shared by every row and dialog: an invoice whose status change runs stays busy, whichever change ran last. */
 const STATUS_CHANGE_KEY = [...queryKeys.invoices.all, 'status-change'] as const;
@@ -547,9 +597,81 @@ function changedInvoiceIdOf(change: Mutation) {
 	return request.invoiceId;
 }
 
-async function changeStatusInItsWorkspace({ invoiceId, change, scope }: InvoiceStatusChangeRequest) {
-	const workspace = workspaceToActIn(scope);
-	await invoiceService.changeInvoiceStatus(invoiceId, change, workspace);
+/** Refused before any write: the invoice's status changed since it was listed and no longer offers the action. */
+class InvoiceActionWithdrawnError extends Error {
+	/** Read as a conflict: someone changed the invoice at the same time. */
+	readonly status = 409;
+
+	constructor(action: InvoiceAction) {
+		super(`The invoice's current status no longer offers ${action}`);
+		this.name = 'InvoiceActionWithdrawnError';
+	}
+}
+
+/**
+ * Refuses an action the invoice's current status no longer offers: a list or a dialog acts on the status it read, and
+ * the invoice may have been sent, paid or voided since. Nothing is written once another tab switched the workspace
+ * while the invoice was read.
+ */
+async function assertActionOffered(invoiceId: string, action: InvoiceAction, workspace: InvoicesScope) {
+	const currentStatus = await invoiceService.getInvoiceStatus(invoiceId, workspace);
+	const isOffered = invoiceActionsOf(invoiceStatusOf(currentStatus)).includes(action);
+	if (!isOffered) {
+		throw new InvoiceActionWithdrawnError(action);
+	}
+	if (!isChosenWorkspace(workspace)) {
+		throw new Error(WORKSPACE_SWITCHED);
+	}
+}
+
+/** The action a fixed change makes when the invoice's status must still offer it: Void, once paid, is refused. */
+function actionOfFixedChange(change: InvoiceStatusChange): InvoiceAction | null {
+	if (change.status === 'VOID') {
+		return 'void';
+	}
+	return null;
+}
+
+/**
+ * The payment change built from the invoice read now. The list's copy may be older: its total, edited elsewhere
+ * since, would be saved as the amount paid or due, and its status may no longer offer the action.
+ */
+async function currentPaymentChangeOf(
+	invoiceId: string,
+	payment: InvoicePaymentAction,
+	workspace: InvoicesScope
+): Promise<InvoiceStatusChange> {
+	const invoice = await invoiceService.getInvoice(invoiceId, { tenantId: workspace.tenantId });
+	const status = invoiceStatusOf(invoice.status);
+	const isOffered = invoiceActionsOf(status).includes(payment);
+	if (!isOffered) {
+		throw new InvoiceActionWithdrawnError(payment);
+	}
+	if (payment === 'markPaid') {
+		return paidChangeOf(invoice.totalValue);
+	}
+	return unpaidChangeOf(invoice.totalValue);
+}
+
+/** The change made, so the list shows the status it was given. */
+async function changeStatusInItsWorkspace(request: InvoiceStatusChangeRequest): Promise<InvoiceStatusChange> {
+	const workspace = workspaceToActIn(request.scope);
+	if ('change' in request) {
+		const action = actionOfFixedChange(request.change);
+		if (action) {
+			await assertActionOffered(request.invoiceId, action, workspace);
+		}
+		await invoiceService.changeInvoiceStatus(request.invoiceId, request.change, workspace);
+		return request.change;
+	}
+	const change = await currentPaymentChangeOf(request.invoiceId, request.payment, workspace);
+	// Another tab may have switched the workspace while the invoice was read: nothing is written then, and the write
+	// goes to the workspace the invoice was read in
+	if (!isChosenWorkspace(workspace)) {
+		throw new Error(WORKSPACE_SWITCHED);
+	}
+	await invoiceService.changeInvoiceStatus(request.invoiceId, change, workspace);
+	return change;
 }
 
 export function useChangeInvoiceStatus() {
@@ -557,8 +679,7 @@ export function useChangeInvoiceStatus() {
 	const mutation = useMutation({
 		mutationKey: STATUS_CHANGE_KEY,
 		mutationFn: changeStatusInItsWorkspace,
-		onSuccess: (_answer, { invoiceId, change, scope }) =>
-			showListedStatus(queryClient, scope, invoiceId, change.status),
+		onSuccess: (change, { invoiceId, scope }) => showListedStatus(queryClient, scope, invoiceId, change.status),
 		onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all }),
 		meta: { handlesOwnError: true }
 	});
@@ -617,8 +738,10 @@ interface InvoiceToDelete {
 	scope: ReadWorkspace;
 }
 
+/** Only a draft is deleted: one sent or paid since the dialog opened is refused before any request deletes it. */
 async function deleteInItsWorkspace({ invoiceId, scope }: InvoiceToDelete) {
 	const workspace = workspaceToActIn(scope);
+	await assertActionOffered(invoiceId, 'delete', workspace);
 	await invoiceService.deleteInvoice(invoiceId, workspace);
 }
 

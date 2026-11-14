@@ -67,7 +67,7 @@ export type InvoiceDraftStart =
 	| { kind: 'replace'; saved: SavedInvoice };
 
 /** The lines an invoice was saved with, or lines rebuilt from the time as it is now. */
-export type InvoiceLinesSource = 'saved' | 'time';
+type InvoiceLinesSource = 'saved' | 'time';
 
 const NEW_INVOICE: InvoiceDraftStart = { kind: 'new' };
 

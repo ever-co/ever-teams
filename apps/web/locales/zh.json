@@ -5243,6 +5243,8 @@
 			"TO_STATUSES": "变为以下状态",
 			"FROM_STATUSES": "从以下状态",
 			"ANY_STATUS": "不选则表示任意状态。",
+			"MERGED_ONLY": "仅已合并的拉取请求",
+			"MERGED_ONLY_HINT": "未合并就关闭的拉取请求不会运行此规则；重新打开后合并仍会运行。问题关闭时照常运行。",
 			"NO_CONDITIONS": "没有条件：规则每次都会运行。",
 			"ADD_CONDITION": "添加条件",
 			"ADD_ACTION": "添加操作",

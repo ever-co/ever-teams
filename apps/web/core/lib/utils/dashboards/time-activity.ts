@@ -29,13 +29,7 @@ export type TableGrouping = 'date' | 'member' | 'project';
 export type BreakdownGrouping = Exclude<TimeActivityGrouping, 'week'>;
 
 /** The groupings every reader gets; the client grouping joins them for a reader who may read the clients. */
-export const TIME_ACTIVITY_GROUPINGS: ReadonlyArray<TimeActivityGrouping> = [
-	'date',
-	'member',
-	'project',
-	'task',
-	'week'
-];
+const TIME_ACTIVITY_GROUPINGS: ReadonlyArray<TimeActivityGrouping> = ['date', 'member', 'project', 'task', 'week'];
 
 /** The page link's parameter for its grouping; the date grouping, the default, leaves it out. */
 export const TIME_ACTIVITY_GROUPING_PARAM = 'groupBy';
@@ -482,7 +476,7 @@ export function reportTotalsOf(rows: ReadonlyArray<DailyReportRow>): ReportTotal
 }
 
 /** The time without a client: the key of the client filter's "No client", so a group and its filter value match. */
-export const NO_CLIENT_KEY = NO_CLIENT_FILTER_VALUE;
+const NO_CLIENT_KEY = NO_CLIENT_FILTER_VALUE;
 
 /** A client of the report. `name` is null for the time without a client, and for a client no list names. */
 export interface ReportClientRef {
