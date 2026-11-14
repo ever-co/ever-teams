@@ -10,7 +10,8 @@ import {
 	type BulkEditOutcome,
 	type BulkEditPayload,
 	bulkEditPayloadOf,
-	type BulkEditSave
+	type BulkEditSave,
+	keepsPlannedFields
 } from '@/core/lib/utils/dashboards/timesheet-bulk-edit';
 import { endOfLog, startOfLog } from '@/core/lib/utils/dashboards/timesheets';
 import { queryKeys } from '@/core/query/keys';
@@ -91,11 +92,12 @@ async function currentLogOf(log: ITimeLog): Promise<ITimeLog | null> {
 
 /**
  * The update of the entry built from what the API holds now: the dialog's copy may be older, and its start and end
- * sent back would undo a change made since (a shortened entry would get its removed time back).
+ * sent back would undo a change made since (a shortened entry would get its removed time back). An entry whose task,
+ * project or billable choice changed since is not saved: its fields were worked out from the old ones.
  */
 async function currentPayloadOf(save: BulkEditSave): Promise<BulkEditPayload | null> {
 	const currentLog = await currentLogOf(save.log);
-	if (!currentLog) {
+	if (!currentLog || !keepsPlannedFields(save.log, currentLog)) {
 		return null;
 	}
 	return bulkEditPayloadOf({ log: currentLog, fields: save.fields });
