@@ -196,12 +196,12 @@ describe('historyValueTextOf', () => {
 });
 
 describe('changeSideTextOf', () => {
-	const labelOf = (field: string) => field.toUpperCase();
+	const labelOf = (field: string) => `[${field}]`;
 
 	it('writes each field of one side with its label, for a file', () => {
 		const [change] = historyChangesOf([editRow()]);
-		expect(changeSideTextOf(change, 'before', FORMAT, labelOf)).toBe('STOPPEDAT 11:00; DURATION 2 h');
-		expect(changeSideTextOf(change, 'after', FORMAT, labelOf)).toBe('STOPPEDAT 14:00; DURATION 5 h');
+		expect(changeSideTextOf(change, 'before', FORMAT, labelOf)).toBe('[stoppedAt] 11:00; [duration] 2 h');
+		expect(changeSideTextOf(change, 'after', FORMAT, labelOf)).toBe('[stoppedAt] 14:00; [duration] 5 h');
 	});
 });
 
