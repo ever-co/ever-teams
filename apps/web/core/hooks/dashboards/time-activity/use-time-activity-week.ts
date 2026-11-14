@@ -4,11 +4,11 @@ import { useCallback, useMemo, useState } from 'react';
 import { useLocale } from 'next-intl';
 import { useActivityWeeklyReportQuery } from '@/core/hooks/activities/queries/use-activity-weekly-report-query';
 import type { UseReportActivityProps } from '@/core/hooks/activities/use-activity-filters';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import type { DailyReportRow } from '@/core/lib/utils/daily-report-figures';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import type { Period } from '@/core/lib/utils/dashboard-period';
 import {
-	TIME_ACTIVITY_WEEK_START,
 	initialWeekIndexOf,
 	todayKeyOf,
 	weekColumnTotalsOf,
@@ -100,13 +100,14 @@ export function useTimeActivityWeek({
 	dailySource: WeekDailySource | null;
 }>) {
 	const locale = useLocale();
-	const weekStarts = useMemo(() => weekStartsOfPeriod(period, TIME_ACTIVITY_WEEK_START), [period]);
+	const weekStartsOn = useWorkspaceWeekStart();
+	const weekStarts = useMemo(() => weekStartsOfPeriod(period, weekStartsOn), [period, weekStartsOn]);
 	const [weekIndex, setWeekIndex] = useState(() => initialWeekIndexOf(weekStarts));
 	const lastIndex = weekStarts.length - 1;
 	const safeIndex = Math.min(weekIndex, lastIndex);
 	const weekStart = weekStarts[safeIndex];
 
-	const window = useMemo(() => weekWindowOf(weekStart, period, TIME_ACTIVITY_WEEK_START), [period, weekStart]);
+	const window = useMemo(() => weekWindowOf(weekStart, period, weekStartsOn), [period, weekStart, weekStartsOn]);
 	const columns = useMemo(() => dayColumnsOf(weekStart, window, todayKeyOf()), [weekStart, window]);
 	const mergedProps = useMemo(() => weeklyPropsOf(request, userId), [request, userId]);
 	const readsWeeklyReport = mergedProps !== null && dailySource === null;
