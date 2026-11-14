@@ -288,6 +288,7 @@ export function useManualTimeEditsReport({ unnamedLabel }: Readonly<{ unnamedLab
 	const hasShownRows = pair !== null;
 	const periodHistory = useTimeLogPeriodHistory(historyRequest, isEnabled && hasShownRows);
 	const historyStatus = periodHistory.status;
+	const isHistoryLoading = hasShownRows && historyStatus === 'loading';
 	const hasChangeKinds = historyStatus === 'ready';
 	const { byEntry, deleted } = historyOf(periodHistory);
 
@@ -443,6 +444,8 @@ export function useManualTimeEditsReport({ unnamedLabel }: Readonly<{ unnamedLab
 		isFiltered,
 		historyStatus,
 		hasChangeKinds,
+		/** The history of the shown rows is still loading: an export now would miss its deleted entries and changes. */
+		isHistoryLoading,
 		refetch: changed.refetch
 	};
 }
