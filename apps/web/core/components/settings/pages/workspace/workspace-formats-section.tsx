@@ -16,21 +16,35 @@ import { cn } from '@/core/lib/helpers';
 import { currencyLabelOf } from '@/core/lib/utils/rates';
 import {
 	AUTOMATIC_FORMAT,
+	CLOCK_CHOICES,
+	CURRENCY_POSITION_CHOICES,
 	DATE_FORMAT_CHOICES,
 	NUMBER_FORMAT_CHOICES,
+	clockChoiceOf,
+	clockSampleOf,
+	currencyPositionChoiceOf,
+	currencyPositionSampleOf,
 	dateFormatChoiceOf,
 	dateFormatSampleOf,
 	numberFormatChoiceOf,
 	numberFormatSampleOf,
+	weekStartChoiceOf,
+	weekStartChoicesOf,
+	weekdayNameOf,
 	type DateFormatChoice,
 	type NumberFormatChoice
 } from '@/core/lib/utils/settings-workspace';
 import {
+	workspaceClockOf,
+	workspaceCurrencyPositionOf,
 	workspaceDateFormatOf,
 	workspaceNumberFormatOf,
+	type WorkspaceClock,
+	type WorkspaceCurrencyPosition,
 	type WorkspaceDateFormat,
 	type WorkspaceNumberFormat
 } from '@/core/lib/utils/workspace-formats';
+import { EWeekDays } from '@/core/types/generics/enums/date';
 import type { TOrganization } from '@/core/types/schemas';
 
 const CONTROL_WIDTH = 'w-full sm:w-56';
@@ -204,12 +218,59 @@ function useFormatOptions() {
 	}, [t]);
 }
 
+/** The week start, clock and currency symbol options, each labelled in the reader's language with a sample. */
+function useCalendarAndMoneyOptions(organization: TOrganization) {
+	const t = useTranslations();
+	const locale = useLocale();
+	const storedWeekStart = organization.startWeekOn;
+	const currency = organization.currency ?? '';
+	return useMemo(() => {
+		const weekStartOptions: ChoiceOption[] = weekStartChoicesOf(storedWeekStart).map((day) => ({
+			value: day,
+			label: weekdayNameOf(day, locale)
+		}));
+		const clockOptions: ChoiceOption[] = CLOCK_CHOICES.map((clock) => ({
+			value: String(clock),
+			label: clockLabelOf(clock, clockSampleOf(clock, locale), t)
+		}));
+		const currencyPositionOptions: ChoiceOption[] = CURRENCY_POSITION_CHOICES.map((position) => ({
+			value: position,
+			label: currencyPositionLabelOf(position, currencyPositionSampleOf(position, currency, locale), t)
+		}));
+		return { weekStartOptions, clockOptions, currencyPositionOptions };
+	}, [currency, locale, storedWeekStart, t]);
+}
+
+type Translate = ReturnType<typeof useTranslations>;
+
+function clockLabelOf(clock: WorkspaceClock, sample: string, t: Translate): string {
+	if (clock === 24) {
+		return t('settings.workspace.CLOCK_24', { sample });
+	}
+	return t('settings.workspace.CLOCK_12', { sample });
+}
+
+function currencyPositionLabelOf(position: WorkspaceCurrencyPosition, sample: string, t: Translate): string {
+	if (position === 'LEFT') {
+		return t('settings.workspace.CURRENCY_POSITION_BEFORE', { sample });
+	}
+	return t('settings.workspace.CURRENCY_POSITION_AFTER', { sample });
+}
+
+function weekDayOf(choice: string): EWeekDays | null {
+	const day = Object.values(EWeekDays).find((known) => known === choice);
+	return day ?? null;
+}
+
 interface WorkspaceFormatsSectionProps {
 	organization: TOrganization;
 	canEdit: boolean;
 	saveCurrency: (currency: string) => Promise<void>;
 	saveDateFormat: (dateFormat: WorkspaceDateFormat | null) => Promise<void>;
 	saveNumberFormat: (numberFormat: WorkspaceNumberFormat | null) => Promise<void>;
+	saveWeekStart: (startWeekOn: EWeekDays) => Promise<void>;
+	saveClock: (clock: WorkspaceClock) => Promise<void>;
+	saveCurrencyPosition: (position: WorkspaceCurrencyPosition) => Promise<void>;
 }
 
 export function WorkspaceFormatsSection({
@@ -217,10 +278,14 @@ export function WorkspaceFormatsSection({
 	canEdit,
 	saveCurrency,
 	saveDateFormat,
-	saveNumberFormat
+	saveNumberFormat,
+	saveWeekStart,
+	saveClock,
+	saveCurrencyPosition
 }: Readonly<WorkspaceFormatsSectionProps>) {
 	const t = useTranslations();
 	const { dateOptions, numberOptions } = useFormatOptions();
+	const { weekStartOptions, clockOptions, currencyPositionOptions } = useCalendarAndMoneyOptions(organization);
 
 	const saveDateChoice = useCallback(
 		(choice: string) => saveDateFormat(workspaceDateFormatOf(choice)),
@@ -229,6 +294,36 @@ export function WorkspaceFormatsSection({
 	const saveNumberChoice = useCallback(
 		(choice: string) => saveNumberFormat(workspaceNumberFormatOf(choice)),
 		[saveNumberFormat]
+	);
+	const saveWeekStartChoice = useCallback(
+		async (choice: string) => {
+			const day = weekDayOf(choice);
+			if (day === null) {
+				return;
+			}
+			await saveWeekStart(day);
+		},
+		[saveWeekStart]
+	);
+	const saveClockChoice = useCallback(
+		async (choice: string) => {
+			const clock = workspaceClockOf(choice);
+			if (clock === null) {
+				return;
+			}
+			await saveClock(clock);
+		},
+		[saveClock]
+	);
+	const saveCurrencyPositionChoice = useCallback(
+		async (choice: string) => {
+			const position = workspaceCurrencyPositionOf(choice);
+			if (position === null) {
+				return;
+			}
+			await saveCurrencyPosition(position);
+		},
+		[saveCurrencyPosition]
 	);
 
 	return (
@@ -254,6 +349,30 @@ export function WorkspaceFormatsSection({
 					options={numberOptions}
 					canEdit={canEdit}
 					onSave={saveNumberChoice}
+				/>
+				<ChoiceRow
+					label={t('settings.workspace.WEEK_START_LABEL')}
+					description={t('settings.workspace.WEEK_START_DESCRIPTION')}
+					value={weekStartChoiceOf(organization.startWeekOn)}
+					options={weekStartOptions}
+					canEdit={canEdit}
+					onSave={saveWeekStartChoice}
+				/>
+				<ChoiceRow
+					label={t('settings.workspace.CLOCK_LABEL')}
+					description={t('settings.workspace.CLOCK_DESCRIPTION')}
+					value={String(clockChoiceOf(organization.timeFormat))}
+					options={clockOptions}
+					canEdit={canEdit}
+					onSave={saveClockChoice}
+				/>
+				<ChoiceRow
+					label={t('settings.workspace.CURRENCY_POSITION_LABEL')}
+					description={t('settings.workspace.CURRENCY_POSITION_DESCRIPTION')}
+					value={currencyPositionChoiceOf(organization.currencyPosition)}
+					options={currencyPositionOptions}
+					canEdit={canEdit}
+					onSave={saveCurrencyPositionChoice}
 				/>
 			</SettingsSurface>
 			{!canEdit && <SettingsReadOnlyNote>{t('settings.workspace.READ_ONLY_NOTE')}</SettingsReadOnlyNote>}
