@@ -9,7 +9,7 @@ export const TIMER_DISCARD_TOO_LATE = 'TIMER_DISCARD_TOO_LATE';
 const TIMER_DISCARD_TRACKER_RUN = 'TIMER_DISCARD_TRACKER_RUN';
 
 /** Why the running timer offers no Discard. */
-export type TimerDiscardUnavailableReason = 'NOT_RUNNING' | 'NOT_SUPPORTED' | 'DISABLED' | 'TOO_LATE' | 'TRACKER_RUN';
+type TimerDiscardUnavailableReason = 'NOT_RUNNING' | 'NOT_SUPPORTED' | 'DISABLED' | 'TOO_LATE' | 'TRACKER_RUN';
 
 /** Why a discard the API answered was refused or failed. */
 export type TimerDiscardFailure =
@@ -22,7 +22,7 @@ export type TimerDiscardFailure =
 	| 'TRACKER_RUN'
 	| 'GENERIC';
 
-export type TimerDiscardAvailability =
+type TimerDiscardAvailability =
 	| { available: true; closesAt: number | null }
 	| { available: false; reason: TimerDiscardUnavailableReason };
 
