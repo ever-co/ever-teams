@@ -24,7 +24,7 @@ export interface PaperAdjustment {
 
 export interface InvoicePaperFigures {
 	lines: PaperLineFigures[];
-	/** The lines added up; null when a line states no amount. */
+	/** The lines added up; null when the invoice came without its lines, or a line states no amount. */
 	subtotal: number | null;
 	/** What the first tax is taken of: the subtotal less the discount, when both amounts are known. */
 	taxBase: number | null;
@@ -155,10 +155,18 @@ function taxBaseOf(subtotal: number | null, discount: PaperAdjustment | null) {
 	return subtotal - discount.amount;
 }
 
+/** An invoice read without its line list has an unknown subtotal; one read with no line adds up to 0. */
+function subtotalOf(items: TSavedInvoice['invoiceItems'], lines: ReadonlyArray<PaperLineFigures>) {
+	if (!Array.isArray(items)) {
+		return null;
+	}
+	return sumOf(lines);
+}
+
 /** The figures an invoice's paper shows, as the API holds them: its total is the one it billed, never recomputed. */
 export function invoicePaperFiguresOf(invoice: TSavedInvoice): InvoicePaperFigures {
 	const lines = (invoice.invoiceItems ?? []).map(lineOf);
-	const subtotal = sumOf(lines);
+	const subtotal = subtotalOf(invoice.invoiceItems, lines);
 	const discount = discountOf(invoice, subtotal);
 	const taxBase = taxBaseOf(subtotal, discount);
 	const tax = taxOf('tax', invoice.tax, invoice.taxType, baseFor(invoice.invoiceItems ?? [], 'applyTax', taxBase));
