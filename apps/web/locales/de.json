@@ -2793,6 +2793,32 @@
 			"HINT_RUNNING": "Änderungen bei laufendem Timer werden noch nicht gespeichert. Um die Notizen zu ändern, bearbeiten Sie den Eintrag nach dem Stoppen des Timers in den Stundenzetteln.",
 			"HINT_OTHER_TEAM": "Diese Notizen gehören zum Timer, der in einem anderen Team läuft, und können hier nicht geändert werden."
 		},
+		"discard": {
+			"MENU": "Weitere Timer-Aktionen",
+			"ACTION": "Diesen Lauf verwerfen",
+			"TITLE": "Diesen Lauf verwerfen?",
+			"DESCRIPTION": "Nichts wird gespeichert.",
+			"DESCRIPTION_ELSEWHERE": "Dieser Lauf wurde in {source} gestartet und stoppt dort ebenfalls. Nichts wird gespeichert.",
+			"CONFIRM": "Verwerfen",
+			"DISCARDING": "Wird verworfen…",
+			"DISCARDED": "Lauf verworfen",
+			"DISCARDED_HINT": "Der Timer ist gestoppt und nichts wurde gespeichert.",
+			"sources": {
+				"DESKTOP": "der Desktop-App",
+				"MOBILE": "der mobilen App",
+				"BROWSER_EXTENSION": "der Browsererweiterung",
+				"OTHER": "einer anderen App"
+			},
+			"failures": {
+				"NOT_RUNNING": "Es läuft kein Timer mehr, daher wurde nichts verworfen.",
+				"DISABLED": "Ihre Organisation erlaubt das Verwerfen eines Laufs nicht.",
+				"TOO_LATE": "Dieser Lauf hat vor zu langer Zeit begonnen, um verworfen zu werden. Stoppen Sie ihn und bearbeiten Sie den Eintrag dann in den Zeiterfassungen.",
+				"FORBIDDEN": "Ihre Rolle erlaubt das Verwerfen dieses Laufs nicht.",
+				"NOT_SUPPORTED": "Dieser Server bietet das Verwerfen eines Laufs noch nicht an.",
+				"CHANGED": "Inzwischen hat ein anderer Lauf begonnen, daher wurde nichts verworfen.",
+				"GENERIC": "Der Lauf konnte nicht verworfen werden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
+			}
+		},
 		"NOT_BILLABLE": "Nicht abrechenbar"
 	},
 	"task": {

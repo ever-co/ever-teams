@@ -2793,6 +2793,32 @@
 			"HINT_RUNNING": "Wijzigingen terwijl de timer loopt worden nog niet opgeslagen. Bewerk de registratie in Urenstaten nadat je de timer hebt gestopt om de notities te wijzigen.",
 			"HINT_OTHER_TEAM": "Deze notities horen bij de timer die in een ander team loopt en kunnen hier niet worden gewijzigd."
 		},
+		"discard": {
+			"MENU": "Meer timeracties",
+			"ACTION": "Deze sessie verwerpen",
+			"TITLE": "Deze sessie verwerpen?",
+			"DESCRIPTION": "Er wordt niets opgeslagen.",
+			"DESCRIPTION_ELSEWHERE": "Deze sessie is gestart vanuit {source} en stopt daar ook. Er wordt niets opgeslagen.",
+			"CONFIRM": "Verwerpen",
+			"DISCARDING": "Bezig met verwerpen…",
+			"DISCARDED": "Sessie verworpen",
+			"DISCARDED_HINT": "De timer is gestopt en er is niets opgeslagen.",
+			"sources": {
+				"DESKTOP": "de desktop-app",
+				"MOBILE": "de mobiele app",
+				"BROWSER_EXTENSION": "de browserextensie",
+				"OTHER": "een andere app"
+			},
+			"failures": {
+				"NOT_RUNNING": "Er loopt geen timer meer, dus er is niets verworpen.",
+				"DISABLED": "Je organisatie staat het verwerpen van een sessie niet toe.",
+				"TOO_LATE": "Deze sessie is te lang geleden gestart om te verwerpen. Stop hem en bewerk daarna de invoer in Urenstaten.",
+				"FORBIDDEN": "Je rol staat het verwerpen van deze sessie niet toe.",
+				"NOT_SUPPORTED": "Deze server biedt het verwerpen van een sessie nog niet aan.",
+				"CHANGED": "Intussen is een andere sessie gestart, dus er is niets verworpen.",
+				"GENERIC": "De sessie kon niet worden verworpen. Controleer je verbinding en probeer het opnieuw."
+			}
+		},
 		"NOT_BILLABLE": "Niet factureerbaar"
 	},
 	"task": {

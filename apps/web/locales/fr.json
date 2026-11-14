@@ -2793,6 +2793,32 @@
 			"HINT_RUNNING": "Les changements faits pendant que le chronomètre tourne ne sont pas encore enregistrés. Pour changer les notes, modifiez l'entrée dans les feuilles de temps après l'arrêt du chronomètre.",
 			"HINT_OTHER_TEAM": "Ces notes appartiennent au chronomètre en cours dans une autre équipe : elles ne peuvent pas être modifiées ici."
 		},
+		"discard": {
+			"MENU": "Autres actions du chronomètre",
+			"ACTION": "Abandonner cette session",
+			"TITLE": "Abandonner cette session ?",
+			"DESCRIPTION": "Rien n'est enregistré.",
+			"DESCRIPTION_ELSEWHERE": "Cette session a été lancée depuis {source} et s'y arrête aussi. Rien n'est enregistré.",
+			"CONFIRM": "Abandonner",
+			"DISCARDING": "Abandon en cours…",
+			"DISCARDED": "Session abandonnée",
+			"DISCARDED_HINT": "Le chronomètre est arrêté et rien n'a été enregistré.",
+			"sources": {
+				"DESKTOP": "l'application de bureau",
+				"MOBILE": "l'application mobile",
+				"BROWSER_EXTENSION": "l'extension du navigateur",
+				"OTHER": "une autre application"
+			},
+			"failures": {
+				"NOT_RUNNING": "Aucun chronomètre ne tourne plus : rien n'a été abandonné.",
+				"DISABLED": "Votre organisation ne permet pas d'abandonner une session.",
+				"TOO_LATE": "Cette session a commencé il y a trop longtemps pour être abandonnée. Arrêtez-la, puis modifiez l'entrée dans Feuilles de temps.",
+				"FORBIDDEN": "Votre rôle ne permet pas d'abandonner cette session.",
+				"NOT_SUPPORTED": "Ce serveur ne permet pas encore d'abandonner une session.",
+				"CHANGED": "Une autre session a commencé entre-temps : rien n'a été abandonné.",
+				"GENERIC": "La session n'a pas pu être abandonnée. Vérifiez votre connexion, puis réessayez."
+			}
+		},
 		"NOT_BILLABLE": "Non facturable"
 	},
 	"task": {
