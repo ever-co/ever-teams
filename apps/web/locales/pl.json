@@ -1556,6 +1556,7 @@
 				"SAVING": "Dzielenie…",
 				"SAVED": "Wpis podzielony na dwa",
 				"FAILED_RESTORED": "Nie udało się podzielić wpisu i wrócił do poprzedniego stanu. Spróbuj ponownie.",
+				"FAILED_CHANGED": "Ten wpis zmienił się od czasu wczytania go przez kalendarz, więc nic nie zostało podzielone. Sprawdź go i spróbuj ponownie.",
 				"FAILED_FIRST_PART_KEPT": "Pierwsza część została zapisana, ale drugiej ({range}) nie udało się dodać. Dodaj ją przez Dodaj czas.",
 				"FAILED_UNKNOWN": "Nie udało się potwierdzić podziału. Odśwież kalendarz i sprawdź ten wpis, zanim spróbujesz ponownie.",
 				"ADD_REST": "Dodaj drugą część",

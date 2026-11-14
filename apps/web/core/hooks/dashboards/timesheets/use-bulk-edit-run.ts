@@ -70,7 +70,7 @@ function mayHaveChangedEntry(outcome: BulkEditOutcome): boolean {
  * The entry as the API holds it now, read over the days of its interval for its member. Null when it is no longer
  * there (deleted, or moved to another day or member) or when it cannot be read.
  */
-async function currentLogOf(log: ITimeLog): Promise<ITimeLog | null> {
+export async function currentLogOf(log: ITimeLog): Promise<ITimeLog | null> {
 	const startedAt = startOfLog(log);
 	const stoppedAt = endOfLog(log);
 	const employeeId = log.employeeId ?? log.employee?.id;

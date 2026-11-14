@@ -1556,6 +1556,7 @@
 				"SAVING": "Scission…",
 				"SAVED": "Entrée scindée en deux",
 				"FAILED_RESTORED": "L'entrée n'a pas pu être scindée et a été remise comme avant. Réessayez.",
+				"FAILED_CHANGED": "Cette entrée a changé depuis que le calendrier l'a chargée : rien n'a été scindé. Vérifiez-la, puis réessayez.",
 				"FAILED_FIRST_PART_KEPT": "La première partie est enregistrée, mais la seconde ({range}) n'a pas pu être ajoutée. Ajoutez-la avec Ajouter du temps.",
 				"FAILED_UNKNOWN": "La scission n'a pas pu être confirmée. Rechargez le calendrier et vérifiez cette entrée avant de réessayer.",
 				"ADD_REST": "Ajouter la seconde partie",

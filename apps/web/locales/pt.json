@@ -1556,6 +1556,7 @@
 				"SAVING": "Dividindo…",
 				"SAVED": "Registro dividido em dois",
 				"FAILED_RESTORED": "Não foi possível dividir o registro, que voltou a ser como era. Tente novamente.",
+				"FAILED_CHANGED": "Este registro mudou desde que o calendário o carregou, então nada foi dividido. Verifique-o e tente novamente.",
 				"FAILED_FIRST_PART_KEPT": "A primeira parte foi salva, mas a segunda ({range}) não pôde ser adicionada. Adicione-a com Adicionar tempo.",
 				"FAILED_UNKNOWN": "Não foi possível confirmar a divisão. Recarregue o calendário e confira este registro antes de tentar novamente.",
 				"ADD_REST": "Adicionar a segunda parte",

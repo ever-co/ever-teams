@@ -1556,6 +1556,7 @@
 				"SAVING": "Splitting…",
 				"SAVED": "Entry split in two",
 				"FAILED_RESTORED": "The entry could not be split and is back as it was. Try again.",
+				"FAILED_CHANGED": "This entry changed since the calendar loaded it, so nothing was split. Check it and try again.",
 				"FAILED_FIRST_PART_KEPT": "The first part was saved, but the second part ({range}) could not be added. Add it with Add time.",
 				"FAILED_UNKNOWN": "The split could not be confirmed. Reload the calendar and check this entry before you try again.",
 				"ADD_REST": "Add the second part",

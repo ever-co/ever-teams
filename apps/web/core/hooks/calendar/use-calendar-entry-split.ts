@@ -2,11 +2,13 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { currentLogOf } from '@/core/hooks/dashboards/timesheets/use-bulk-edit-run';
 import { splitPartsOf } from '@/core/lib/utils/calendar-split';
-import { endOfLog, memberIdOfLog, startOfLog } from '@/core/lib/utils/dashboards/timesheets';
+import { endOfLog, memberIdOfLog, startOfLog, statusOfLog } from '@/core/lib/utils/dashboards/timesheets';
 import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import { queryKeys } from '@/core/query/keys';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { ETimeLogSource, ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ZodValidationError } from '@/core/types/schemas';
@@ -14,10 +16,11 @@ import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { isTakenOnServer, type PartOnServer, partOnServer } from './time-taken-on-server';
 
 /**
- * How a split ended when it did not: refused before any change because another entry now covers the time, put back
- * as it was, the first part kept and the rest to add by hand, or an outcome the server could not confirm.
+ * How a split ended when it did not: refused before any change because another entry now covers the time, or
+ * because the entry is no longer the one the dialog split (`changed`), put back as it was, the first part kept and
+ * the rest to add by hand, or an outcome the server could not confirm.
  */
-export type CalendarSplitFailure = 'overlap' | 'restored' | 'first-part-kept' | 'unknown';
+export type CalendarSplitFailure = 'overlap' | 'changed' | 'restored' | 'first-part-kept' | 'unknown';
 
 export class CalendarSplitError extends Error {
 	constructor(
@@ -49,6 +52,28 @@ function windowOfLog(log: ITimeLog): TimeWindow | null {
 	return { start, end };
 }
 
+/**
+ * Whether the entry the API holds now is still the one the dialog split: there, with the same time, task and
+ * project, stopped and not approved. Its copy in the grid may be older: shortened from it, a change made since would
+ * be undone, and a part added from it would carry the old task.
+ */
+function isStillTheSplitEntry(planned: ITimeLog, current: ITimeLog | null, window: TimeWindow): boolean {
+	if (!current) {
+		return false;
+	}
+	const isRunning = current.isRunning === true;
+	const isApproved = statusOfLog(current) === ETimesheetStatus.APPROVED;
+	if (isRunning || isApproved) {
+		return false;
+	}
+	const currentWindow = windowOfLog(current);
+	const hasSameStart = currentWindow?.start.getTime() === window.start.getTime();
+	const hasSameEnd = currentWindow?.end.getTime() === window.end.getTime();
+	const hasSameTask = (current.taskId ?? null) === (planned.taskId ?? null);
+	const hasSameProject = (current.projectId ?? null) === (planned.projectId ?? null);
+	return hasSameStart && hasSameEnd && hasSameTask && hasSameProject;
+}
+
 function textOrUndefined(value: string | null | undefined) {
 	if (!value) {
 		return undefined;
@@ -71,6 +96,11 @@ export async function splitCalendarEntry(request: CalendarSplitRequest) {
 	}
 	const parts = splitPartsOf(window, splitAt);
 	const employeeId = memberIdOfLog(log) ?? undefined;
+	// The entry is read again first: nothing is written from a copy the server no longer holds
+	const current = await currentLogOf(log);
+	if (!isStillTheSplitEntry(log, current, window)) {
+		throw new CalendarSplitError('changed', null);
+	}
 	// The API deletes whatever new manual time overlaps: an entry saved since the grid was read is never written over
 	const isTaken = await isTakenOnServer(log, window);
 	if (isTaken) {

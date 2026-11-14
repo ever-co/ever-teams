@@ -8,6 +8,8 @@ const mockUpdateTimeLog = jest.fn(async (payload: { startedAt?: Date; stoppedAt?
 	return {};
 });
 const mockGetTimeLogConflicts = jest.fn<Promise<unknown[]>, [unknown]>(async () => []);
+// The entry as the server holds it now, read before any write
+const mockGetTimeLogs = jest.fn<Promise<unknown[]>, [unknown]>(async () => []);
 const mockAddManualTime = jest.fn(async (request: { startedAt: Date; stoppedAt: Date }) => {
 	calls.push(`add ${request.startedAt.getHours()}-${request.stoppedAt.getHours()}`);
 	return {};
@@ -17,7 +19,8 @@ jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
 	timeLogService: {
 		updateTimeLog: (payload: never) => mockUpdateTimeLog(payload),
 		addManualTime: (request: never) => mockAddManualTime(request),
-		getTimeLogConflicts: (query: never) => mockGetTimeLogConflicts(query)
+		getTimeLogConflicts: (query: never) => mockGetTimeLogConflicts(query),
+		getTimeLogs: (query: never) => mockGetTimeLogs(query)
 	}
 }));
 
@@ -50,6 +53,8 @@ beforeEach(() => {
 	mockAddManualTime.mockClear();
 	mockGetTimeLogConflicts.mockReset();
 	mockGetTimeLogConflicts.mockResolvedValue([]);
+	mockGetTimeLogs.mockReset();
+	mockGetTimeLogs.mockResolvedValue([LOG]);
 });
 
 const OTHER_ENTRY = {
@@ -59,6 +64,26 @@ const OTHER_ENTRY = {
 	startedAt: at(11),
 	stoppedAt: at(12)
 };
+
+describe('splitCalendarEntry, the entry read again before any write', () => {
+	it.each([
+		['is gone', []],
+		['was moved', [{ ...LOG, startedAt: at(10) }]],
+		['was shortened', [{ ...LOG, stoppedAt: at(12) }]],
+		['has another task', [{ ...LOG, taskId: 'task-9' }]],
+		['has another project', [{ ...LOG, projectId: 'project-9' }]],
+		['runs', [{ ...LOG, isRunning: true }]],
+		['was approved', [{ ...LOG, timesheet: { status: 'APPROVED' } }]]
+	])('writes nothing when the entry %s since the calendar read it', async (_case, onServer) => {
+		mockGetTimeLogs.mockResolvedValueOnce(onServer);
+
+		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'changed' }));
+		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+});
 
 describe('splitCalendarEntry', () => {
 	it('shortens the entry first, then adds the rest, since the API deletes whatever new manual time overlaps', async () => {

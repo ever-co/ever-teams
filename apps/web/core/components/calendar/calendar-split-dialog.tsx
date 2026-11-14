@@ -155,6 +155,9 @@ function SplitForm({
 	if (split.failure === 'overlap') {
 		failure = <FailureNotice text={t('dashboard.calendar.DRAG.OVERLAP')} />;
 	}
+	if (split.failure === 'changed') {
+		failure = <FailureNotice text={t('dashboard.calendar.SPLIT.FAILED_CHANGED')} />;
+	}
 	if (split.failure === 'unknown') {
 		failure = <FailureNotice text={t('dashboard.calendar.SPLIT.FAILED_UNKNOWN')} />;
 	}
