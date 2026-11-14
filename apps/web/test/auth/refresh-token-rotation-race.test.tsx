@@ -23,12 +23,17 @@ jest.mock('@/core/services/logs/logger-client', () => ({ sendLogToAPI: jest.fn(a
 import { useProactiveTokenRefresh } from '@/core/hooks/auth/use-proactive-token-refresh';
 import { getAccessTokenCookie, getRefreshTokenCookie, removeAuthCookies } from '@/core/lib/helpers/cookies';
 import { authService } from '@/core/services/client/api/auth/auth.service';
+import { timerService } from '@/core/services/client/api/timers';
 import { userService } from '@/core/services/client/api/users/user.service';
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { openFakeGauzyPage, type FakeGauzyPage } from './fake-gauzy-page';
 import { FAKE_USER, HOUR_MS } from './fake-gauzy-session';
+import { installFakeWebLocks } from './fake-web-locks';
 
 const MINUTE_MS = 60 * 1000;
-const CLIENTS = [authService, userService];
+/** The lock the tabs of the browser renew under, one at a time. */
+const RENEWAL_LOCK = 'ever-teams.session-renewal';
+const CLIENTS = [authService, userService, timerService];
 
 let page: FakeGauzyPage;
 
@@ -164,5 +169,57 @@ describe('two renewals started together in one tab', () => {
 		expect(gauzy.acceptsRefreshToken(getRefreshTokenCookie())).toBe(true);
 		expect(gauzy.acceptsAccessToken(getAccessTokenCookie())).toBe(true);
 		unmount();
+	});
+});
+
+describe('two tabs that renew together, in a browser with Web Locks', () => {
+	let locks: ReturnType<typeof installFakeWebLocks>;
+
+	beforeEach(() => {
+		jest.useFakeTimers();
+		page = openFakeGauzyPage(CLIENTS, { clock: 'jest timers' });
+		locks = installFakeWebLocks();
+	});
+	afterEach(() => {
+		locks.remove();
+		page.close();
+		jest.useRealTimers();
+	});
+
+	it('renew one at a time: the tab that waited finds the new pair and sends nothing', async () => {
+		const { gauzy } = page;
+		const pair = page.signIn();
+		gauzy.runTimer();
+		jest.setSystemTime(Date.now() + 25 * HOUR_MS);
+
+		// The other tab renews first, and holds the lock while it does
+		const otherTabIsDone = locks.holdFromAnotherTab(RENEWAL_LOCK);
+		const stop = timerService.stopTimer({ source: ETimeLogSource.TEAMS });
+		await jest.advanceTimersByTimeAsync(1_000);
+		expect(page.renewals()).toBe(0);
+		const pairOfOtherTab = gauzy.renewFromAnotherTab(pair.refresh_token);
+		page.keepInCookies(pairOfOtherTab);
+		otherTabIsDone();
+		await jest.advanceTimersByTimeAsync(1_000);
+
+		// This tab's stop, refused with the expired token, went through with the other tab's pair
+		expect((await stop).data.running).toBe(false);
+		expect(page.renewals()).toBe(0);
+		expectSessionOf(pairOfOtherTab);
+	});
+
+	it('does not wait for ever for a tab that keeps the lock: it renews on its own after a while', async () => {
+		const { gauzy } = page;
+		page.signIn();
+		locks.holdFromAnotherTab(RENEWAL_LOCK);
+
+		const renewal = authService.refreshToken();
+		await jest.advanceTimersByTimeAsync(14_000);
+		expect(page.renewals()).toBe(0);
+		await jest.advanceTimersByTimeAsync(2_000);
+
+		await expect(renewal).resolves.toEqual(expect.objectContaining({ id: FAKE_USER.id }));
+		expect(page.renewals()).toBe(1);
+		expect(gauzy.acceptsRefreshToken(getRefreshTokenCookie())).toBe(true);
 	});
 });

@@ -29,6 +29,12 @@ type SessionRenewal =
  */
 const RENEWED_TOKEN_GRACE_MS = 30_000;
 
+/** The Web Lock one renewal at a time runs under, among the tabs of the browser. */
+const RENEWAL_LOCK = 'ever-teams.session-renewal';
+
+/** How long a tab waits for that lock before it renews without it: the tab that holds it may never answer. */
+const RENEWAL_LOCK_WAIT_MS = 15_000;
+
 /**
  * How long, and how often, a renewal whose refresh token another one rotated first looks for that one's pair in the
  * cookies: the other answer may still be on its way to the browser.
@@ -90,7 +96,7 @@ async function requestNewPair(refreshTokenAtCall: string | undefined): Promise<S
 		return { outcome: 'ended', hadRefreshToken: false };
 	}
 	if (refreshTokenAtCall && refreshToken !== refreshTokenAtCall) {
-		// The session was renewed since this renewal was asked for: that pair is the session's
+		// Another tab renewed the session while this one waited for its turn: its pair is the session's
 		return { outcome: 'renewed' };
 	}
 
@@ -125,9 +131,40 @@ async function requestNewPair(refreshTokenAtCall: string | undefined): Promise<S
 }
 
 /**
+ * One renewal at a time among the tabs of the browser, where it has Web Locks (secure contexts): a tab that waited
+ * for its turn finds the pair the tab before it stored, and sends nothing. Elsewhere, and when the lock is not
+ * given in time, the renewal runs on its own: a refusal because another one rotated the token first is then
+ * settled by takePairOfOtherRenewal().
+ */
+async function renewInTurn(refreshTokenAtCall: string | undefined): Promise<SessionRenewal> {
+	const locks = typeof navigator !== 'undefined' ? navigator.locks : undefined;
+	if (!locks?.request) {
+		return requestNewPair(refreshTokenAtCall);
+	}
+
+	const waiting = new AbortController();
+	const giveUp = setTimeout(() => waiting.abort(), RENEWAL_LOCK_WAIT_MS);
+	try {
+		// The lock awaits the callback's promise and answers its value; the DOM typing names the promise itself
+		return (await locks.request(RENEWAL_LOCK, { signal: waiting.signal }, () => {
+			clearTimeout(giveUp);
+			return requestNewPair(refreshTokenAtCall);
+		})) as SessionRenewal;
+	} catch (error) {
+		if (waiting.signal.aborted) {
+			return requestNewPair(refreshTokenAtCall);
+		}
+		return { outcome: 'unavailable', error };
+	} finally {
+		clearTimeout(giveUp);
+	}
+}
+
+/**
  * Renews the session with the refresh token: the one way the browser gets a new access token, whoever asks (a
  * request the API refused, the renewal ahead of time, a page that needs a fresh token). Callers that ask while a
- * renewal is under way share it, so this tab sends the refresh token, which Gauzy accepts once, only once.
+ * renewal is under way share it, and the tabs of the browser renew one at a time, so the refresh token, which Gauzy
+ * accepts once, is sent once.
  *
  * @param refusedToken The access token of the request the API refused with 401, when the renewal answers one. When
  *   the session already holds another token, it was renewed since that request left, and nothing is sent.
@@ -144,7 +181,7 @@ export function renewSession(refusedToken?: string | null): Promise<SessionRenew
 	}
 
 	if (!renewalInFlight) {
-		const renewal = requestNewPair(getRefreshTokenCookie()).finally(() => {
+		const renewal = renewInTurn(getRefreshTokenCookie()).finally(() => {
 			if (renewalInFlight === renewal) {
 				renewalInFlight = null;
 			}
