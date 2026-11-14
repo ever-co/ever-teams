@@ -55,18 +55,40 @@ function serverBrowserSide(): BrowserSide {
 	return UNKNOWN_BROWSER;
 }
 
-function subscribe(listener: () => void) {
-	listeners.add(listener);
-	return () => {
-		listeners.delete(listener);
-	};
-}
-
 function remember(change: Partial<BrowserSide>) {
 	browserSide = { ...readBrowserSide(), ...change };
 	for (const listener of listeners) {
 		listener();
 	}
+}
+
+/** A laptop that travels changes zone while a page stays open: read it again when the page comes back to the front. */
+function refreshZone() {
+	if (!browserSide) {
+		return;
+	}
+	const zone = detectTimeZone();
+	if (zone === browserSide.zone) {
+		return;
+	}
+	remember({ zone });
+}
+
+function subscribe(listener: () => void) {
+	const isFirst = listeners.size === 0;
+	listeners.add(listener);
+	if (isFirst) {
+		window.addEventListener('focus', refreshZone);
+		document.addEventListener('visibilitychange', refreshZone);
+	}
+	return () => {
+		listeners.delete(listener);
+		const isLast = listeners.size === 0;
+		if (isLast) {
+			window.removeEventListener('focus', refreshZone);
+			document.removeEventListener('visibilitychange', refreshZone);
+		}
+	};
 }
 
 /** The notice that offers the browser's time zone when it differs from the profile's, with its three answers. */

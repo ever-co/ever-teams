@@ -10,6 +10,7 @@ import {
 import type { useTimeZoneNotice as UseTimeZoneNotice } from './use-time-zone-notice';
 
 let mockUser: { id: string; timeZone: string | null } | undefined;
+let mockBrowserZone = 'America/New_York';
 const mockSaveZone = jest.fn<Promise<boolean>, [string]>();
 
 jest.mock('@/core/hooks/queries/user-user.query', () => ({ useUserQuery: () => ({ data: mockUser }) }));
@@ -18,7 +19,7 @@ jest.mock('@/core/hooks/settings/use-time-zone-setting', () => ({
 }));
 jest.mock('@/core/lib/utils/settings-time-zone', () => ({
 	...jest.requireActual('@/core/lib/utils/settings-time-zone'),
-	detectTimeZone: () => 'America/New_York'
+	detectTimeZone: () => mockBrowserZone
 }));
 
 const PAIR = 'Africa/Kinshasa|America/New_York';
@@ -47,6 +48,7 @@ async function renderNotice() {
 beforeEach(() => {
 	mockUser = { id: 'user-1', timeZone: 'Africa/Kinshasa (UTC +01:00)' };
 	mockSaveZone.mockReset();
+	mockBrowserZone = 'America/New_York';
 	window.localStorage.clear();
 	window.sessionStorage.clear();
 });
@@ -104,6 +106,20 @@ describe('useTimeZoneNotice', () => {
 		const nextPage = renderHook(() => useNotice());
 
 		expect(nextPage.result.current.notice).toBeNull();
+	});
+
+	it('reads the browser zone again when the page comes back to the front', async () => {
+		const { result } = await renderNotice();
+		act(() => result.current.keepProfileZone());
+		expect(result.current.notice).toBeNull();
+
+		// The laptop landed in Chicago while the page stayed open
+		mockBrowserZone = 'America/Chicago';
+		act(() => {
+			window.dispatchEvent(new Event('focus'));
+		});
+
+		expect(result.current.notice?.browserZone).toBe('America/Chicago');
 	});
 
 	it('closes for the rest of the session only', async () => {
