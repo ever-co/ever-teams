@@ -787,47 +787,46 @@ describe('saving an edit to an invoice', () => {
 		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
 	});
 
-	it('puts back the fields only of an edit that kept its lines, whatever lines the invoice holds now', async () => {
-		const fieldsOnly = {
+	it.each([
+		['newer lines and their total', { totalValue: 880 }],
+		['newer lines, with its own fields written', {}]
+	])('leaves as it is an invoice saved from elsewhere (%s) while its fields failed', async (_saved, elsewhere) => {
+		const newDueDate = '2026-12-15T22:59:59.999Z';
+		const dueDateOnly = {
 			...edit,
-			revision: {
-				update: { ...fields, totalValue: 800, dueDate: '2026-12-15T22:59:59.999Z' },
-				lines: [previousLine]
-			}
+			revision: { update: { ...fields, totalValue: 800, dueDate: newDueDate }, lines: [previousLine] }
 		} as unknown as InvoiceEdit;
-		const linesChangedElsewhere = [{ id: 'item-2', ...previousLine, quantity: 11, totalValue: 880 }];
-		mockGetInvoice
-			.mockResolvedValueOnce(invoiceRead('SENT'))
-			.mockResolvedValue({ ...invoiceRead('SENT', linesChangedElsewhere), dueDate: '2026-12-15T22:59:59.999Z' });
-		mockUpdateInvoice.mockRejectedValueOnce(serverFailure()).mockResolvedValueOnce(undefined);
+		const linesSavedElsewhere = [{ id: 'item-2', ...previousLine, quantity: 11, totalValue: 880 }];
+		const readBack = { ...invoiceRead('SENT', linesSavedElsewhere), dueDate: newDueDate, ...elsewhere };
+		mockGetInvoice.mockResolvedValueOnce(invoiceRead('SENT')).mockResolvedValue(readBack);
+		mockUpdateInvoice.mockRejectedValueOnce(serverFailure());
 		const { result } = renderSaveEdit();
 
 		let saved: unknown = null;
 		await act(async () => {
-			saved = await result.current.saveInvoiceEdit({ edit: fieldsOnly, sending: null });
+			saved = await result.current.saveInvoiceEdit({ edit: dueDateOnly, sending: null });
 		});
 
-		expect(saved).toEqual({ outcome: { status: 'putBack' }, sending: null });
+		// Putting back what was read would set the old total over the newer lines, or replace them
+		expect(saved).toEqual({ outcome: { status: 'notPutBack', lineCount: 1 }, sending: null });
+		expect(mockUpdateInvoice).toHaveBeenCalledTimes(1);
 		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
-		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', fieldsOnly.previous.update, workspace);
 	});
 
-	it('never puts lines back after its fields failed, though another user saved other lines meanwhile', async () => {
-		const linesSavedElsewhere = [{ id: 'item-2', ...previousLine, quantity: 11, totalValue: 880 }];
+	it('leaves lines saved from elsewhere as they are once its own lines were refused', async () => {
+		const linesSavedElsewhere = [{ id: 'item-3', ...editedLine, quantity: 9, totalValue: 720 }];
 		mockGetInvoice
 			.mockResolvedValueOnce(invoiceRead('SENT'))
-			.mockResolvedValue({ ...invoiceRead('SENT', linesSavedElsewhere), ...fields, totalValue: 960 });
-		// The answer to the fields was lost: they may have been written, its lines were never sent
-		mockUpdateInvoice
-			.mockRejectedValueOnce(ApiErrorService.fromAxiosError({ code: 'ECONNABORTED', message: 'timeout' }))
-			.mockResolvedValueOnce(undefined);
+			.mockResolvedValue({ ...invoiceRead('SENT', linesSavedElsewhere), totalValue: 960 });
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockRejectedValue(serverFailure());
 		const { result } = renderSaveEdit();
 
 		const saved = await saveWith(result);
 
-		expect(saved).toEqual({ outcome: { status: 'putBack' }, sending: null });
-		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
-		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', edit.previous.update, workspace);
+		expect(saved).toEqual({ outcome: { status: 'notPutBack', lineCount: 1 }, sending: null });
+		expect(mockReplaceInvoiceLines).toHaveBeenCalledTimes(1);
+		expect(mockUpdateInvoice).toHaveBeenCalledTimes(1);
 	});
 
 	it('says how many lines the invoice holds when it could not be put back', async () => {

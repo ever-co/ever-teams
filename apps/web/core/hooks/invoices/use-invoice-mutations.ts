@@ -348,8 +348,34 @@ async function notPutBackOf(edit: InvoiceEdit): Promise<InvoiceEditOutcome> {
 type EditWritesSent = 'fields' | 'fieldsAndLines';
 
 /**
+ * Whether the invoice read back holds nothing but what it was read with and what this save may have written: its
+ * fields as read or as written, and its lines as read or, once they were sent, as written or deleted (the API deletes
+ * an invoice's lines before it saves the new ones). Anything else was saved from elsewhere meanwhile.
+ */
+function holdsOnlyThisSave(current: TSavedInvoice, edit: InvoiceEdit, writesSent: EditWritesSent): boolean {
+	const hasFieldsAsRead = haveSameFields(current, edit.previous.update);
+	const hasFieldsAsWritten = haveSameFields(current, edit.revision.update);
+	if (!hasFieldsAsRead && !hasFieldsAsWritten) {
+		return false;
+	}
+	const currentLines = current.invoiceItems ?? [];
+	if (haveSameLines(currentLines, edit.previous.lines)) {
+		return true;
+	}
+	// Its lines were never sent, yet they changed: they were saved from elsewhere
+	if (writesSent === 'fields') {
+		return false;
+	}
+	const hasLinesAsWritten = haveSameLines(currentLines, edit.revision.lines);
+	const hasNoLines = currentLines.length === 0;
+	return hasLinesAsWritten || hasNoLines;
+}
+
+/**
  * Writes the invoice back as it was read: its lines first, and only when they changed, since the API deletes the
- * lines before it saves the new ones and a failure between the two leaves none.
+ * lines before it saves the new ones and a failure between the two leaves none. An invoice that also holds a change
+ * saved from elsewhere meanwhile is left as it is: putting back what was read would mix the old fields, the total
+ * among them, with newer lines, or undo that other change.
  */
 async function putInvoiceBack(edit: InvoiceEdit, writesSent: EditWritesSent): Promise<InvoiceEditOutcome> {
 	if (!reachesItsTenant(edit)) {
@@ -359,11 +385,11 @@ async function putInvoiceBack(edit: InvoiceEdit, writesSent: EditWritesSent): Pr
 	if (!current) {
 		return NOT_PUT_BACK_UNREAD;
 	}
+	if (!holdsOnlyThisSave(current, edit, writesSent)) {
+		return { status: 'notPutBack', lineCount: lineCountOf(current) };
+	}
 	const currentLines = current.invoiceItems ?? [];
-	// Only lines this save may have written are put back: a save whose fields failed never sent its lines, an edit
-	// that keeps its lines never sends any, and lines changed from elsewhere since are not this save's to undo.
-	const sentLines = writesSent === 'fieldsAndLines';
-	const putsLinesBack = sentLines && !haveSameLines(currentLines, edit.previous.lines);
+	const putsLinesBack = !haveSameLines(currentLines, edit.previous.lines);
 	const keepsItsFields = haveSameFields(current, edit.previous.update);
 	// Nothing reached the invoice, as when the network failed before the first write: there is nothing to put back.
 	if (!putsLinesBack && keepsItsFields) {
