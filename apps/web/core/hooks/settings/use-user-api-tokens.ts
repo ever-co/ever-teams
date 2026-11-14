@@ -163,6 +163,8 @@ export function useCreateUserApiToken() {
 	return useMutation<TCreatedUserApiToken, unknown, TCreateUserApiTokenInput>({
 		mutationFn: (input) => userApiTokensService.create(input),
 		gcTime: 0,
+		// The dialog says why a creation failed (createFailureOf): the global fallback toast would say it twice
+		meta: { handlesOwnError: true },
 		onSettled: () =>
 			queryClient.invalidateQueries({ queryKey: queryKeys.userApiTokens.list(scope?.tenantId, scope?.userId) })
 	});
@@ -175,6 +177,8 @@ export function useRevokeUserApiToken() {
 	const listKey = queryKeys.userApiTokens.list(scope?.tenantId, scope?.userId);
 	return useMutation<void, unknown, string>({
 		mutationFn: (id) => userApiTokensService.revoke(id),
+		// The revoke dialog says the token could not be revoked: the global fallback toast would say it twice
+		meta: { handlesOwnError: true },
 		onSuccess: (_result, id) => {
 			queryClient.setQueryData<TUserApiToken[]>(listKey, (tokens) => tokens?.filter((token) => token.id !== id));
 		},
