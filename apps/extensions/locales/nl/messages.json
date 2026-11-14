@@ -1,0 +1,206 @@
+{
+	"signInTitle": {
+		"message": "Aanmelden bij Ever Teams"
+	},
+	"signInEmailLabel": {
+		"message": "E-mail"
+	},
+	"signInEmailPlaceholder": {
+		"message": "jij@bedrijf.nl"
+	},
+	"signInSendCode": {
+		"message": "Stuur me een code"
+	},
+	"signInSending": {
+		"message": "Verzenden…"
+	},
+	"signInCodeSent": {
+		"message": "We hebben een code naar $EMAIL$ gestuurd. Vul hem hieronder in.",
+		"placeholders": {
+			"email": {
+				"content": "$1",
+				"example": "marie@example.com"
+			}
+		}
+	},
+	"signInCodeLabel": {
+		"message": "Code"
+	},
+	"signInConfirm": {
+		"message": "Aanmelden"
+	},
+	"signInConfirming": {
+		"message": "Aanmelden…"
+	},
+	"signInOtherEmail": {
+		"message": "Ander e-mailadres gebruiken"
+	},
+	"signInWrongCode": {
+		"message": "Deze code is ongeldig of verlopen."
+	},
+	"signInNoWorkspace": {
+		"message": "Geen werkruimte staat open voor dit e-mailadres."
+	},
+	"signInChooseWorkspace": {
+		"message": "Kies een werkruimte"
+	},
+	"headerTeam": {
+		"message": "Team"
+	},
+	"headerAccount": {
+		"message": "Account"
+	},
+	"headerSettings": {
+		"message": "Instellingen"
+	},
+	"headerSignOut": {
+		"message": "Afmelden"
+	},
+	"timerRegion": {
+		"message": "Timer"
+	},
+	"timerLoading": {
+		"message": "Timer laden…"
+	},
+	"timerStart": {
+		"message": "Starten"
+	},
+	"timerStop": {
+		"message": "Stoppen"
+	},
+	"timerStarting": {
+		"message": "Starten…"
+	},
+	"timerStopping": {
+		"message": "Stoppen…"
+	},
+	"timerNoTask": {
+		"message": "Kies hieronder een taak om de timer te starten."
+	},
+	"timerStartedElsewhere": {
+		"message": "Gestart in een andere app of op een ander apparaat."
+	},
+	"timerTotalToday": {
+		"message": "Vandaag gewerkt:"
+	},
+	"timerCheckTeam": {
+		"message": "Team bekijken"
+	},
+	"tasksAll": {
+		"message": "Je taken"
+	},
+	"tasksSearch": {
+		"message": "Zoek in je taken"
+	},
+	"tasksRecent": {
+		"message": "Recent"
+	},
+	"tasksLoading": {
+		"message": "Taken laden…"
+	},
+	"tasksLoadFailed": {
+		"message": "Je taken konden niet worden geladen."
+	},
+	"tasksEmpty": {
+		"message": "Er is je geen taak toegewezen in dit team."
+	},
+	"tasksNoMatch": {
+		"message": "Geen taak komt overeen met je zoekopdracht."
+	},
+	"tasksNewTaskLabel": {
+		"message": "Nieuwe taak"
+	},
+	"tasksNewTaskPlaceholder": {
+		"message": "bijv. Ever Teams-extensie"
+	},
+	"tasksEstimated": {
+		"message": "Geschat:"
+	},
+	"tasksEstimateHours": {
+		"message": "Geschatte uren"
+	},
+	"tasksEstimateMinutes": {
+		"message": "Geschatte minuten"
+	},
+	"tasksHoursShort": {
+		"message": "uu"
+	},
+	"tasksMinutesShort": {
+		"message": "mm"
+	},
+	"tasksAddTask": {
+		"message": "Taak toevoegen"
+	},
+	"tasksAddFailed": {
+		"message": "De taak kon niet worden aangemaakt."
+	},
+	"refusalPlanRequired": {
+		"message": "Je team vereist een dagplanning voordat je tijd registreert. Plan eerst je dag."
+	},
+	"refusalTaskNotPlanned": {
+		"message": "Voeg deze taak toe aan de planning van vandaag voordat je er tijd op registreert."
+	},
+	"refusalTrackingOff": {
+		"message": "Tijdregistratie staat voor jou uit. Vraag een beheerder om die aan te zetten."
+	},
+	"errorOffline": {
+		"message": "Ever Teams is niet bereikbaar. Controleer de verbinding en probeer het opnieuw."
+	},
+	"errorSessionExpired": {
+		"message": "Je sessie is verlopen. Meld je opnieuw aan."
+	},
+	"errorTimerChangedElsewhere": {
+		"message": "De timer is in een andere app gewijzigd. Hij toont nu wat loopt."
+	},
+	"errorWithReason": {
+		"message": "$REASON$",
+		"placeholders": {
+			"reason": {
+				"content": "$1",
+				"example": "Task is archived"
+			}
+		}
+	},
+	"errorGeneric": {
+		"message": "Er ging iets mis. Probeer het opnieuw."
+	},
+	"actionRetry": {
+		"message": "Opnieuw"
+	},
+	"optionsTitle": {
+		"message": "Instellingen van de Ever Teams-extensie"
+	},
+	"optionsApiUrl": {
+		"message": "API-adres"
+	},
+	"optionsApiUrlHint": {
+		"message": "De Ever Teams-API waarbij je je aanmeldt: https://api.ever.team voor de gehoste dienst, of je eigen server."
+	},
+	"optionsAppUrl": {
+		"message": "Adres van de web-app"
+	},
+	"optionsSignedOutNote": {
+		"message": "Als je het API-adres wijzigt, word je afgemeld bij de extensie."
+	},
+	"optionsInvalidUrl": {
+		"message": "Vul een volledig adres in dat begint met https:// (of http://localhost voor een lokale server)."
+	},
+	"optionsSave": {
+		"message": "Opslaan"
+	},
+	"optionsSaved": {
+		"message": "Opgeslagen."
+	},
+	"refusalRequiredTeamAndProject": {
+		"message": "Je organisatie vereist een team en een project bij elke timer. Open een van je teams, zet de taak in een project en start opnieuw."
+	},
+	"refusalRequiredTeam": {
+		"message": "Je organisatie vereist een team bij elke timer. Open een van je teams en start opnieuw."
+	},
+	"refusalRequiredProject": {
+		"message": "Je organisatie vereist een project bij elke timer. Zet de taak in een project of geef het team een standaardproject en start opnieuw."
+	},
+	"refusalRequiredDetails": {
+		"message": "Je organisatie vereist gegevens die deze timer niet heeft. Vraag een beheerder welke."
+	}
+}
