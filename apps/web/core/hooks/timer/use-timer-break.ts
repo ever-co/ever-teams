@@ -93,7 +93,12 @@ export function useTimerBreak(timerStatus: ITimerStatus | null | undefined, stop
 	const endBreak = useCallback(async () => {
 		setPendingAction('end');
 		try {
-			await timerService.stopTimer({ source: breakSource });
+			// Gauzy's stop ends whatever runs: when another tab or device went back to work since this one read its
+			// status, that work goes on, and this tab only shows it
+			const { data: status } = await timerService.getTimerStatus();
+			if (timerBreakStateOf(status).isOnBreak) {
+				await timerService.stopTimer({ source: breakSource });
+			}
 		} catch (error) {
 			// 406: another tab or device ended it first
 			const isAlreadyEnded = ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(406);

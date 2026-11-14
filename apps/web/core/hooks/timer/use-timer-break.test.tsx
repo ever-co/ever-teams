@@ -121,3 +121,44 @@ describe('Take a break', () => {
 		await start;
 	});
 });
+
+const breakRunning = {
+	running: false,
+	lastLog: {
+		id: 'break-1',
+		logType: ETimeLogType.BREAK,
+		isRunning: true,
+		taskId: 'task-1',
+		source: ETimeLogSource.TEAMS,
+		startedAt: '2026-11-14T12:00:00.000Z'
+	}
+} as unknown as ITimerStatus;
+
+/** Two tabs: this one still shows the break, while the other may have gone back to work meanwhile. */
+describe('End break', () => {
+	it('ends the break that still runs', async () => {
+		mockGetTimerStatus.mockResolvedValue({ data: breakRunning });
+		mockStopTimer.mockResolvedValue({ data: { running: false, lastLog: null } });
+		const { result } = renderBreak(breakRunning, jest.fn(async () => undefined));
+
+		await act(async () => {
+			await result.current.endBreak();
+		});
+
+		expect(mockStopTimer).toHaveBeenCalledWith({ source: ETimeLogSource.TEAMS });
+		expect(mockToastError).not.toHaveBeenCalled();
+	});
+
+	it('never stops the work another tab started since this tab read its status', async () => {
+		mockGetTimerStatus.mockResolvedValue({ data: workRunning });
+		const { result } = renderBreak(breakRunning, jest.fn(async () => undefined));
+
+		await act(async () => {
+			await result.current.endBreak();
+		});
+
+		expect(mockStopTimer).not.toHaveBeenCalled();
+		expect(mockToastError).not.toHaveBeenCalled();
+		expect(result.current.pendingAction).toBeNull();
+	});
+});
