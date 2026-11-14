@@ -5314,7 +5314,7 @@
 			"EXPIRED": "Verlopen",
 			"REVOKE": "Intrekken",
 			"REVOKE_TITLE": "“{name}” intrekken?",
-			"REVOKE_DESCRIPTION": "Scripts die dit token gebruiken, werken meteen niet meer. Dit kan niet ongedaan worden gemaakt.",
+			"REVOKE_DESCRIPTION": "Scripts kunnen dit token niet meer inwisselen voor toegang; toegang die ze al hebben, eindigt binnen een uur. Dit kan niet ongedaan worden gemaakt.",
 			"REVOKE_CONFIRM": "Token intrekken",
 			"REVOKE_FAILED": "Het token kon niet worden ingetrokken. Probeer het opnieuw.",
 			"CREATE_TITLE": "Een API-token maken",

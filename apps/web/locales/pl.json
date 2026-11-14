@@ -5314,7 +5314,7 @@
 			"EXPIRED": "Wygasł",
 			"REVOKE": "Odwołaj",
 			"REVOKE_TITLE": "Odwołać „{name}”?",
-			"REVOKE_DESCRIPTION": "Skrypty używające tego tokenu natychmiast przestaną działać. Tej operacji nie można cofnąć.",
+			"REVOKE_DESCRIPTION": "Skrypty nie mogą już wymienić tego tokenu na dostęp; dostęp, który już mają, wygasa w ciągu godziny. Tej operacji nie można cofnąć.",
 			"REVOKE_CONFIRM": "Odwołaj token",
 			"REVOKE_FAILED": "Nie udało się odwołać tokenu. Spróbuj ponownie.",
 			"CREATE_TITLE": "Utwórz token API",

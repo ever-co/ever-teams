@@ -5314,7 +5314,7 @@
 			"EXPIRED": "Expired",
 			"REVOKE": "Revoke",
 			"REVOKE_TITLE": "Revoke “{name}”?",
-			"REVOKE_DESCRIPTION": "Scripts that use this token stop working at once. This cannot be undone.",
+			"REVOKE_DESCRIPTION": "Scripts can no longer trade this token for access; access they already hold ends within an hour. This cannot be undone.",
 			"REVOKE_CONFIRM": "Revoke token",
 			"REVOKE_FAILED": "The token could not be revoked. Try again.",
 			"CREATE_TITLE": "Create an API token",

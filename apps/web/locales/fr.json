@@ -5314,7 +5314,7 @@
 			"EXPIRED": "Expiré",
 			"REVOKE": "Révoquer",
 			"REVOKE_TITLE": "Révoquer « {name} » ?",
-			"REVOKE_DESCRIPTION": "Les scripts qui utilisent ce jeton cessent aussitôt de fonctionner. Cette action est définitive.",
+			"REVOKE_DESCRIPTION": "Les scripts ne peuvent plus échanger ce jeton contre un accès ; l'accès qu'ils détiennent déjà prend fin dans l'heure. Cette action est définitive.",
 			"REVOKE_CONFIRM": "Révoquer le jeton",
 			"REVOKE_FAILED": "Le jeton n’a pas pu être révoqué. Réessayez.",
 			"CREATE_TITLE": "Créer un jeton d’API",

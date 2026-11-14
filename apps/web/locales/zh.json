@@ -5314,7 +5314,7 @@
 			"EXPIRED": "已过期",
 			"REVOKE": "撤销",
 			"REVOKE_TITLE": "撤销“{name}”？",
-			"REVOKE_DESCRIPTION": "使用此令牌的脚本将立即停止工作。此操作无法撤回。",
+			"REVOKE_DESCRIPTION": "脚本将无法再用此令牌换取访问权限；它们已获得的访问权限将在一小时内失效。此操作无法撤回。",
 			"REVOKE_CONFIRM": "撤销令牌",
 			"REVOKE_FAILED": "无法撤销令牌，请重试。",
 			"CREATE_TITLE": "创建 API 令牌",

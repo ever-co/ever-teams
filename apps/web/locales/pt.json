@@ -5314,7 +5314,7 @@
 			"EXPIRED": "Expirado",
 			"REVOKE": "Revogar",
 			"REVOKE_TITLE": "Revogar “{name}”?",
-			"REVOKE_DESCRIPTION": "Os scripts que usam este token deixam de funcionar na hora. Não é possível desfazer.",
+			"REVOKE_DESCRIPTION": "Os scripts deixam de poder trocar este token por acesso; o acesso que já têm termina no prazo de uma hora. Não é possível desfazer.",
 			"REVOKE_CONFIRM": "Revogar token",
 			"REVOKE_FAILED": "Não foi possível revogar o token. Tente novamente.",
 			"CREATE_TITLE": "Criar um token de API",

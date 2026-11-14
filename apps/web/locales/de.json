@@ -5314,7 +5314,7 @@
 			"EXPIRED": "Abgelaufen",
 			"REVOKE": "Widerrufen",
 			"REVOKE_TITLE": "„{name}“ widerrufen?",
-			"REVOKE_DESCRIPTION": "Skripte, die dieses Token verwenden, funktionieren sofort nicht mehr. Dies kann nicht rückgängig gemacht werden.",
+			"REVOKE_DESCRIPTION": "Skripte können dieses Token nicht mehr gegen Zugriff eintauschen; Zugriff, den sie bereits haben, endet innerhalb einer Stunde. Dies kann nicht rückgängig gemacht werden.",
 			"REVOKE_CONFIRM": "Token widerrufen",
 			"REVOKE_FAILED": "Das Token konnte nicht widerrufen werden. Versuchen Sie es erneut.",
 			"CREATE_TITLE": "API-Token erstellen",
