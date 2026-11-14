@@ -295,7 +295,11 @@ function refusalOfFile(file: WorkspacePickedFile, extension: string): WorkspaceF
 }
 
 /** The text of a file, or none when it is not UTF-8 text (listed as a problem). */
-function textsOfBytes(fileName: string, bytes: ArrayBuffer | Uint8Array, problems: WorkspaceFileProblem[]): NamedText[] {
+function textsOfBytes(
+	fileName: string,
+	bytes: ArrayBuffer | Uint8Array,
+	problems: WorkspaceFileProblem[]
+): NamedText[] {
 	const text = decode(bytes);
 	if (text === null) {
 		problems.push({ code: 'notText', fileName });

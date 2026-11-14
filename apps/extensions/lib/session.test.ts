@@ -145,7 +145,9 @@ describe('a renewal the API never answers', () => {
 			}
 			return { status: 401, body: { statusCode: 401, message: 'Unauthorized' } };
 		});
-		const stillWaiting = new Promise<'still waiting'>((resolve) => setTimeout(() => resolve('still waiting'), 1_000));
+		const stillWaiting = new Promise<'still waiting'>((resolve) =>
+			setTimeout(() => resolve('still waiting'), 1_000)
+		);
 		try {
 			const request = sessionRequest(SESSION, '/timesheet/timer/status').then(
 				() => 'answered',
