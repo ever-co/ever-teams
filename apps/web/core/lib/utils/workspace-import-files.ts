@@ -13,6 +13,8 @@ export const WORKSPACE_IMPORT_MAX_FILE_BYTES = 10 * 1024 * 1024;
 /** What a JSON list may lay out as a table: a list of records with a new key each would fill memory as a grid. */
 export const WORKSPACE_TABLE_MAX_COLUMNS = 200;
 const WORKSPACE_TABLE_MAX_CELLS = 2_000_000;
+/** What a JSON list may hold, told before any record of it is read: each one is flattened into a row first. */
+const WORKSPACE_TABLE_MAX_RECORDS = 10_000;
 
 /** What a file of the export holds, told by its name or, failing that, by its columns. */
 export type WorkspaceFileKind = 'entries' | 'clients' | 'projects' | 'tags';
@@ -170,9 +172,12 @@ function isRecordList(value: unknown): value is Array<Record<string, unknown>> {
 
 /**
  * A JSON list of records as a table; the first record's keys come first, then any new key in order. Null when it
- * would lay out more columns or cells than the import reads.
+ * holds more records, or would lay out more columns or cells, than the import reads.
  */
 export function tableOfRecords(items: ReadonlyArray<Record<string, unknown>>): TimeImportTable | null {
+	if (items.length > WORKSPACE_TABLE_MAX_RECORDS) {
+		return null;
+	}
 	const rows = items.map(flatRowOf);
 	const seen = new Set<string>();
 	const headers: string[] = [];

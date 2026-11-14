@@ -210,6 +210,19 @@ describe('readWorkspaceFiles', () => {
 });
 
 describe('readWorkspaceFiles on files it must not expand', () => {
+	it('leaves out a JSON list of more than 10 000 records before reading any of them', async () => {
+		const records = (count: number) => Array.from({ length: count }, (_item, index) => ({ name: `Client ${index}` }));
+
+		const files = await readWorkspaceFiles([
+			fileOf('clients.json', JSON.stringify(records(10_001))),
+			fileOf('tags.json', JSON.stringify(records(10_000)))
+		]);
+
+		expect(files.problems).toEqual([{ code: 'tableTooLarge', fileName: 'clients.json' }]);
+		expect(files.clients).toBeNull();
+		expect(files.tags?.table.records).toHaveLength(10_000);
+	});
+
 	it('leaves out a JSON list with more columns than the import reads, before laying it out', async () => {
 		const items = Array.from({ length: 300 }, (_, index) => ({ [`field ${index}`]: 'x' }));
 
