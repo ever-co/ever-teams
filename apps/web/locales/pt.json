@@ -2864,6 +2864,32 @@
 			"OVERLAP": "Outro registro seu cobre esse horário. Escolha um início depois que ele terminar.",
 			"CHANGED": "O início acabou de mudar em outro lugar. Confira e tente de novo.",
 			"SAVE_FAILED": "Não foi possível salvar o início. Tente de novo."
+		},
+		"discard": {
+			"MENU": "Mais ações do temporizador",
+			"ACTION": "Descartar esta sessão",
+			"TITLE": "Descartar esta sessão?",
+			"DESCRIPTION": "Nada é guardado.",
+			"DESCRIPTION_ELSEWHERE": "Esta sessão foi iniciada a partir de {source} e também para lá. Nada é guardado.",
+			"CONFIRM": "Descartar",
+			"DISCARDING": "A descartar…",
+			"DISCARDED": "Sessão descartada",
+			"DISCARDED_HINT": "O temporizador está parado e nada foi guardado.",
+			"sources": {
+				"DESKTOP": "a aplicação de computador",
+				"MOBILE": "a aplicação móvel",
+				"BROWSER_EXTENSION": "a extensão do navegador",
+				"OTHER": "outra aplicação"
+			},
+			"failures": {
+				"NOT_RUNNING": "Já não há nenhum temporizador a correr, por isso nada foi descartado.",
+				"DISABLED": "A sua organização não permite descartar uma sessão.",
+				"TOO_LATE": "Esta sessão começou há demasiado tempo para ser descartada. Pare-a e depois edite a entrada em Folhas de horas.",
+				"FORBIDDEN": "A sua função não permite descartar esta sessão.",
+				"NOT_SUPPORTED": "Este servidor ainda não permite descartar uma sessão.",
+				"CHANGED": "Entretanto começou outra sessão, por isso nada foi descartado.",
+				"GENERIC": "Não foi possível descartar a sessão. Verifique a ligação e tente novamente."
+			}
 		}
 	},
 	"task": {

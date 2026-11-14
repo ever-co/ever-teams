@@ -2864,6 +2864,32 @@
 			"OVERLAP": "Inny twój wpis obejmuje ten czas. Wybierz początek po jego zakończeniu.",
 			"CHANGED": "Początek właśnie zmienił się gdzie indziej. Sprawdź go i spróbuj ponownie.",
 			"SAVE_FAILED": "Nie udało się zapisać początku. Spróbuj ponownie."
+		},
+		"discard": {
+			"MENU": "Więcej działań timera",
+			"ACTION": "Odrzuć tę sesję",
+			"TITLE": "Odrzucić tę sesję?",
+			"DESCRIPTION": "Nic nie zostanie zapisane.",
+			"DESCRIPTION_ELSEWHERE": "Ta sesja została uruchomiona z {source} i tam też się zatrzyma. Nic nie zostanie zapisane.",
+			"CONFIRM": "Odrzuć",
+			"DISCARDING": "Odrzucanie…",
+			"DISCARDED": "Sesja odrzucona",
+			"DISCARDED_HINT": "Timer jest zatrzymany i nic nie zostało zapisane.",
+			"sources": {
+				"DESKTOP": "aplikacji desktopowej",
+				"MOBILE": "aplikacji mobilnej",
+				"BROWSER_EXTENSION": "rozszerzenia przeglądarki",
+				"OTHER": "innej aplikacji"
+			},
+			"failures": {
+				"NOT_RUNNING": "Żaden timer już nie działa, więc nic nie zostało odrzucone.",
+				"DISABLED": "Twoja organizacja nie pozwala odrzucać sesji.",
+				"TOO_LATE": "Ta sesja zaczęła się zbyt dawno, aby ją odrzucić. Zatrzymaj ją, a potem edytuj wpis w Kartach czasu pracy.",
+				"FORBIDDEN": "Twoja rola nie pozwala odrzucić tej sesji.",
+				"NOT_SUPPORTED": "Ten serwer nie oferuje jeszcze odrzucania sesji.",
+				"CHANGED": "W międzyczasie zaczęła się inna sesja, więc nic nie zostało odrzucone.",
+				"GENERIC": "Nie udało się odrzucić sesji. Sprawdź połączenie i spróbuj ponownie."
+			}
 		}
 	},
 	"task": {

@@ -2864,6 +2864,32 @@
 			"OVERLAP": "你的另一条记录覆盖了这段时间。请选择在它结束之后的开始时间。",
 			"CHANGED": "开始时间刚刚在别处被更改。请检查后重试。",
 			"SAVE_FAILED": "无法保存开始时间。请重试。"
+		},
+		"discard": {
+			"MENU": "更多计时器操作",
+			"ACTION": "放弃本次计时",
+			"TITLE": "放弃本次计时？",
+			"DESCRIPTION": "不会保存任何内容。",
+			"DESCRIPTION_ELSEWHERE": "本次计时是从{source}开始的，那里也会一并停止。不会保存任何内容。",
+			"CONFIRM": "放弃",
+			"DISCARDING": "正在放弃…",
+			"DISCARDED": "已放弃本次计时",
+			"DISCARDED_HINT": "计时器已停止，没有保存任何内容。",
+			"sources": {
+				"DESKTOP": "桌面应用",
+				"MOBILE": "移动应用",
+				"BROWSER_EXTENSION": "浏览器扩展",
+				"OTHER": "其他应用"
+			},
+			"failures": {
+				"NOT_RUNNING": "计时器已不在运行，因此没有放弃任何内容。",
+				"DISABLED": "你的组织不允许放弃计时。",
+				"TOO_LATE": "本次计时开始得太久，无法放弃。请先停止，再在工时表中编辑该条目。",
+				"FORBIDDEN": "你的角色不允许放弃本次计时。",
+				"NOT_SUPPORTED": "此服务器暂不支持放弃计时。",
+				"CHANGED": "期间已开始另一次计时，因此没有放弃任何内容。",
+				"GENERIC": "无法放弃本次计时。请检查网络连接后重试。"
+			}
 		}
 	},
 	"task": {

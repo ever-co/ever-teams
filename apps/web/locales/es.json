@@ -2864,6 +2864,32 @@
 			"OVERLAP": "Otra de tus entradas cubre ese momento. Elige un inicio después de que termine.",
 			"CHANGED": "El inicio acaba de cambiar en otro lugar. Revísalo e inténtalo de nuevo.",
 			"SAVE_FAILED": "No se pudo guardar el inicio. Inténtalo de nuevo."
+		},
+		"discard": {
+			"MENU": "Más acciones del temporizador",
+			"ACTION": "Descartar esta sesión",
+			"TITLE": "¿Descartar esta sesión?",
+			"DESCRIPTION": "No se guarda nada.",
+			"DESCRIPTION_ELSEWHERE": "Esta sesión se inició desde {source} y también se detiene allí. No se guarda nada.",
+			"CONFIRM": "Descartar",
+			"DISCARDING": "Descartando…",
+			"DISCARDED": "Sesión descartada",
+			"DISCARDED_HINT": "El temporizador está detenido y no se guardó nada.",
+			"sources": {
+				"DESKTOP": "la aplicación de escritorio",
+				"MOBILE": "la aplicación móvil",
+				"BROWSER_EXTENSION": "la extensión del navegador",
+				"OTHER": "otra aplicación"
+			},
+			"failures": {
+				"NOT_RUNNING": "Ya no hay ningún temporizador en marcha, así que no se descartó nada.",
+				"DISABLED": "Tu organización no permite descartar una sesión.",
+				"TOO_LATE": "Esta sesión empezó hace demasiado tiempo para descartarla. Detenla y luego edita la entrada en Hojas de horas.",
+				"FORBIDDEN": "Tu rol no permite descartar esta sesión.",
+				"NOT_SUPPORTED": "Este servidor todavía no permite descartar una sesión.",
+				"CHANGED": "Mientras tanto empezó otra sesión, así que no se descartó nada.",
+				"GENERIC": "No se pudo descartar la sesión. Comprueba tu conexión y vuelve a intentarlo."
+			}
 		}
 	},
 	"task": {

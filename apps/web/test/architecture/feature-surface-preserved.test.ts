@@ -2057,10 +2057,11 @@ describe('Ever Teams feature surface preservation', () => {
 		// 361 files and 460 verbs with the team menu's organizations of the workspace in proxy mode
 		// (/api/organization-team/organizations GET; #5204).
 		// 362 files and 461 verbs with the correction of the running timer's start (/api/timer/started-at PUT, #5203).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(362);
+		// 363 files and 462 verbs with the discard of the running timer (/api/timer/discard POST; #5219).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(363);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(461);
+		).toHaveLength(462);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's personal API token routes (#5209)
@@ -2208,6 +2209,7 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/task-estimation/route.ts::POST',
 				'apps/web/app/api/task-statuses/reorder/route.ts::PATCH',
 				'apps/web/app/api/timer/status/worked/route.ts::GET',
+				'apps/web/app/api/timer/discard/route.ts::POST',
 				'apps/web/app/api/timer/toggle/route.ts::POST',
 				'apps/web/app/api/timer/toogle/route.ts::POST',
 				'apps/web/app/api/timesheet/status/route.ts::PUT',
