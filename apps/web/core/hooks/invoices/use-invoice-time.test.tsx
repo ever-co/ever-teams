@@ -262,6 +262,23 @@ describe('the time a new invoice offers', () => {
 		expect(result.current.isAllInvoiced).toBe(false);
 	});
 
+	it('says the time could not be read when the check for an invoiced period fails', async () => {
+		mockReports.getBillableTimeLogs.mockImplementation(
+			async (_range: unknown, _relations: unknown, options: BillableReadOptions) => {
+				if (options.notInvoiced) {
+					return [];
+				}
+				throw new Error('offline');
+			}
+		);
+
+		const { result } = renderTimeOf({});
+		await waitFor(() => expect(readOptionsOfCalls()).toHaveLength(2));
+
+		await waitFor(() => expect(result.current.isError).toBe(true));
+		expect(result.current.isAllInvoiced).toBe(false);
+	});
+
 	it('comes from an API that does not record billed time when the logs name no line', async () => {
 		answerTimeReads([adaTime], [adaTime]);
 

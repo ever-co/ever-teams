@@ -216,6 +216,8 @@ interface TimeReads {
 	employees: QueryFlags;
 	rates: ReadonlyArray<ProjectRatesState>;
 	readsBilledTime: boolean;
+	/** The read of all the time runs: for the saved lines' time, or to tell a period already invoiced. */
+	readsAllTime: boolean;
 }
 
 function isRefreshing(query: QueryFlags) {
@@ -230,7 +232,9 @@ function readStateOf(reads: TimeReads) {
 	const haveProjectsFailed = reads.projects.isError;
 	// The projects read waits for the signed-in user: until it answered, "no project" is not known yet.
 	const isReadingProjects = !reads.projects.isLoaded && !haveProjectsFailed;
-	const hasTimeFailed = reads.free.isError || reads.employees.isError;
+	// Failed, the check for a period already invoiced would leave "no time" on screen instead of the error
+	const hasAllTimeFailed = reads.readsAllTime && reads.all.isError;
+	const hasTimeFailed = reads.free.isError || reads.employees.isError || hasAllTimeFailed;
 	const isReadingBilledTime = reads.readsBilledTime && reads.all.isLoading;
 	const hasBilledTimeFailed = reads.readsBilledTime && reads.all.isError;
 	const isReadingAny = isReadingProjects || isReadingTime;
@@ -467,7 +471,8 @@ export function useInvoiceTime({
 		all: allQuery,
 		employees: employeesQuery,
 		rates: ratesStates,
-		readsBilledTime
+		readsBilledTime,
+		readsAllTime
 	});
 
 	const refetchProjects = projectsQuery.refetchOrganizationProjects;
