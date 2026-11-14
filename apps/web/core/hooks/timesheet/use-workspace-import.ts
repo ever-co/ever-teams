@@ -204,6 +204,8 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 	const [isReading, setIsReading] = useState(false);
 	const [createdProjects, setCreatedProjects] = useState<ExistingRecord[]>([]);
 	const [creation, setCreation] = useState<WorkspaceCreationState>(NO_CREATION);
+	// The plan a creation started from: the live one follows the workspace as the created records load back
+	const [creationPlan, setCreationPlan] = useState<WorkspaceImportPlan | null>(null);
 	const [shouldSaveEntries, setShouldSaveEntries] = useState(false);
 	// Counts the files and the runs started: an older one that answers late changes nothing
 	const runRef = useRef(0);
@@ -232,6 +234,7 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 	);
 
 	const hasEntries = files?.entries !== null && files?.entries !== undefined;
+	const savesEntries = hasEntries && timeImport.summary.readyCount > 0;
 	const isEntriesJudged = timeImport.stage === 'preview' || timeImport.stage === 'done';
 	const areExistingLoaded = clientsQuery.isLoaded && isOrganizationProjectsLoaded;
 	const hasExistingFailed = clientsQuery.isError || isOrganizationProjectsError;
@@ -258,6 +261,7 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 			const run = runRef.current;
 			timeImport.reset();
 			setCreation(NO_CREATION);
+			setCreationPlan(null);
 			setCreatedProjects([]);
 			setIsReading(true);
 			const read = await readWorkspaceFiles(picked);
@@ -280,6 +284,7 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 		setFiles(null);
 		setIsReading(false);
 		setCreation(NO_CREATION);
+		setCreationPlan(null);
 		setCreatedProjects([]);
 		setShouldSaveEntries(false);
 	}, [timeImport]);
@@ -301,6 +306,7 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 		runRef.current += 1;
 		const run = runRef.current;
 		const isRunGoing = () => runRef.current === run;
+		setCreationPlan(plan);
 		setCreation({ status: 'creating', tallies: null, failure: null });
 		const organizationId = saveScope.organizationId ?? '';
 		const result = await runWorkspaceCreation(plan, {
@@ -351,15 +357,15 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 		}
 		setCreation({ status: 'created', tallies: result.tallies, failure: null });
 		setCreatedProjects(result.projects);
-		setShouldSaveEntries(hasEntries);
+		setShouldSaveEntries(savesEntries);
 	}, [
 		createProject,
 		creation.status,
-		hasEntries,
 		invalidateTaskLabelsData,
 		plan,
 		queryClient,
 		rights.canCreateLabels,
+		savesEntries,
 		saveScope.organizationId,
 		saveScope.organizationTeamId,
 		saveScope.tenantId
@@ -380,6 +386,8 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 		files,
 		isReading,
 		hasEntries,
+		/** Whether entries are saved once the lists exist: some are ready. */
+		savesEntries,
 		isLoadingExisting: rights.canStart && !areExistingLoaded && !hasExistingFailed,
 		hasExistingFailed,
 		retryExisting: () => {
@@ -387,6 +395,7 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 			void queryClient.invalidateQueries({ queryKey: queryKeys.organizationProjects.all });
 		},
 		plan,
+		creationPlan,
 		creation,
 		timeImport: { ...timeImport, confirm, reset },
 		chooseFiles,
