@@ -32,6 +32,7 @@ import {
 } from '@/core/lib/utils/calendar-view';
 import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import { type TimesheetFormatters, timesheetFormattersOf } from '@/core/lib/utils/dashboards/timesheets';
+import { calendarGridSettingsState } from '@/core/stores/calendar/calendar-grid-settings';
 import { isTrackingEnabledState } from '@/core/stores/timer/active-timer';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { EntryHandlers } from './calendar-entry-parts';
@@ -168,6 +169,7 @@ function CalendarBody({
 		return projectTotalsOf(countedDays);
 	}, [days, shownAnchor, shownView]);
 	const showsProjects = !page.isLoading;
+	const gridSettings = useAtomValue(calendarGridSettingsState);
 
 	return (
 		<section aria-label={rangeName} className={DASHBOARD_SURFACE}>
@@ -206,6 +208,7 @@ function CalendarBody({
 					timeZone={page.timeZone}
 					isLoading={page.isLoading}
 					moves={moves}
+					settings={gridSettings}
 					onAddTime={onAddTime}
 					onAddTimeRange={onAddTimeRange}
 					onOpenDay={page.openDayView}
@@ -220,6 +223,7 @@ function CalendarBody({
 						timeZone={page.timeZone}
 						isLoading={page.isLoading}
 						moves={moves}
+						settings={gridSettings}
 						onAddTime={onAddTime}
 						onAddTimeRange={onAddTimeRange}
 					/>
