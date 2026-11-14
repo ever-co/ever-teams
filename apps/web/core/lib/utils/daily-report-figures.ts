@@ -36,11 +36,21 @@ type EmployeeLog = ITimeLogGroupedDailyReport['logs'][number]['employeeLogs'][nu
 
 type TaskLog = EmployeeLog['tasks'][number];
 
-/** The part of a member's project row that was logged with a team, or without one. */
+/** A billing rate and its currency, as a report row states them. */
+export interface StatedRate {
+	value: number | null;
+	currency: string | null;
+}
+
+/** The part of a member's project row that was logged with a team, or without one, at one rate. */
 interface EmployeeLogPart {
 	tasks: TaskLog[];
 	seconds: number;
 	isWithoutTeam: boolean;
+	/** The rate its entries store; absent from a Gauzy that states none, which prices it at the current rate. */
+	rate?: StatedRate;
+	/** Set when the row's entries store several rates: it tells this part's key from the others'. */
+	rateKey?: string;
 }
 
 function numberOrZero(value: unknown) {
@@ -96,8 +106,69 @@ function secondsOfTasks(tasks: ReadonlyArray<TaskLog>) {
 	return seconds;
 }
 
+function positiveOrNull(value: unknown): number | null {
+	const parsed = Number(value);
+	const isRate = Number.isFinite(parsed) && parsed > 0;
+	if (!isRate) {
+		return null;
+	}
+	return parsed;
+}
+
+/**
+ * The billing rate a task row states (#5212): the rate its time entry stores, or the member's current one for an
+ * entry that stores none. Undefined from a Gauzy that states no rate on its rows, which are priced at the member's
+ * current rate. A rate without a currency of its own is in the workspace's.
+ */
+export function statedRateOf(task: TaskLog): StatedRate | undefined {
+	const statesRate = Boolean(task) && 'billRateValue' in task;
+	if (!statesRate) {
+		return undefined;
+	}
+	const currency = task.billRateCurrency?.trim() || null;
+	return { value: positiveOrNull(task.billRateValue), currency };
+}
+
+function statedRateKeyOf(rate: StatedRate | undefined) {
+	if (!rate) {
+		return '';
+	}
+	return `${rate.value ?? 'none'}|${rate.currency ?? ''}`;
+}
+
+/** A part whose entries store several rates becomes one part per rate, so each is priced at its own. */
+function partsByRateOf(part: EmployeeLogPart): EmployeeLogPart[] {
+	const byRate = new Map<string, { rate: StatedRate | undefined; tasks: TaskLog[] }>();
+	for (const task of part.tasks) {
+		const rate = statedRateOf(task);
+		const key = statedRateKeyOf(rate);
+		const group = byRate.get(key) ?? { rate, tasks: [] };
+		group.tasks.push(task);
+		byRate.set(key, group);
+	}
+	const groups = [...byRate.entries()];
+	if (groups.length <= 1) {
+		const rate = groups[0]?.[1].rate;
+		if (!rate) {
+			return [part];
+		}
+		return [{ ...part, rate }];
+	}
+	return groups.map(([rateKey, group]) => ({
+		tasks: group.tasks,
+		seconds: secondsOfTasks(group.tasks),
+		isWithoutTeam: part.isWithoutTeam,
+		rate: group.rate,
+		rateKey
+	}));
+}
+
 /** A member's project row as Gauzy sends it, or split in two when part of its time was logged without a team. */
 function partsOf(employeeLog: EmployeeLog): EmployeeLogPart[] {
+	return teamPartsOf(employeeLog).flatMap(partsByRateOf);
+}
+
+function teamPartsOf(employeeLog: EmployeeLog): EmployeeLogPart[] {
 	const tasks = employeeLog.tasks ?? [];
 	const tasksWithoutTeam = tasks.filter(isWithoutTeamTask);
 	if (tasksWithoutTeam.length === 0) {
@@ -147,10 +218,30 @@ function projectFieldsOf(context: RowContext, part: EmployeeLogPart) {
 
 function rowKeyOf(context: RowContext, part: EmployeeLogPart) {
 	const projectKey = context.project?.id ?? NO_PROJECT_KEY;
+	let key = `${context.dateKey}:${projectKey}:${context.employeeId}`;
 	if (part.isWithoutTeam) {
-		return `${context.dateKey}:${NO_TEAM_KEY}:${projectKey}:${context.employeeId}`;
+		key = `${context.dateKey}:${NO_TEAM_KEY}:${projectKey}:${context.employeeId}`;
 	}
-	return `${context.dateKey}:${projectKey}:${context.employeeId}`;
+	if (part.rateKey === undefined) {
+		return key;
+	}
+	return `${key}:${part.rateKey}`;
+}
+
+/** The rate a row is priced at: the one its entries store, else the member's current rate, as before (#5212). */
+function rowRateOf(
+	context: RowContext,
+	part: EmployeeLogPart
+): Pick<DailyReportRow, 'billRateValue' | 'billRateCurrency'> {
+	if (part.rate) {
+		return { billRateValue: part.rate.value, billRateCurrency: part.rate.currency || context.workspaceCurrency };
+	}
+	const employee = context.employeeLog.employee;
+	const ownCurrency = employee?.billRateCurrency ?? null;
+	return {
+		billRateValue: employee?.billRateValue ?? null,
+		billRateCurrency: ownCurrency || context.workspaceCurrency
+	};
 }
 
 // Rows with a team keep the shape they had before the report could count time without a team
@@ -164,15 +255,13 @@ function withoutTeamFlagOf(part: EmployeeLogPart): Pick<DailyReportRow, 'isWitho
 function rowOf(context: RowContext, part: EmployeeLogPart): DailyReportRow {
 	const employee = context.employeeLog.employee;
 	const activity = numberOrZero(context.employeeLog.activity);
-	const ownCurrency = employee?.billRateCurrency ?? null;
 	return {
 		key: rowKeyOf(context, part),
 		dateKey: context.dateKey,
 		employeeId: context.employeeId,
 		employeeName: employeeNameOf(employee),
 		employeeImageUrl: employee?.user?.imageUrl ?? null,
-		billRateValue: employee?.billRateValue ?? null,
-		billRateCurrency: ownCurrency || context.workspaceCurrency,
+		...rowRateOf(context, part),
 		...projectFieldsOf(context, part),
 		seconds: part.seconds,
 		activeSeconds: (part.seconds * activity) / 100,

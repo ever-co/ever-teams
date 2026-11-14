@@ -176,6 +176,12 @@ export interface ITimerTaskLog {
 	client: IOrganizationContact;
 	/** Stated only when the report counts the time logged without a team (`includeTimeWithoutTeam`): null is that time. */
 	organizationTeamId?: string | null;
+	/**
+	 * The billing rate that prices the entry and its currency (empty: the organization's), stated once Gauzy stores
+	 * rates on time entries (#5212): the rate the entry stores, or the member's current one for an entry that stores none.
+	 */
+	billRateValue?: number | string | null;
+	billRateCurrency?: string | null;
 }
 
 export interface ITimerEmployeeLog {

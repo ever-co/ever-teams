@@ -12,6 +12,7 @@ import {
 	earningsOfRow,
 	flattenDailyReport,
 	projectKeyOf,
+	statedRateOf,
 	taskKeyOf
 } from '@/core/lib/utils/daily-report-figures';
 import {
@@ -682,6 +683,19 @@ function rateOf(employeeLog: EmployeeLog, workspaceCurrency: string | null): Mem
 	return { rate, currency: ownCurrency || sharedCurrency };
 }
 
+/** The rate a task row states, the one its time entry stores (#5212); else the member's current rate, as before. */
+function rateOfTask(taskLog: TaskLog, context: ExportRowContext): MemberRate {
+	const stated = statedRateOf(taskLog);
+	if (!stated) {
+		return context.memberRate;
+	}
+	if (stated.value === null) {
+		return { rate: null, currency: null };
+	}
+	const sharedCurrency = context.workspaceCurrency || DEFAULT_CURRENCY;
+	return { rate: stated.value, currency: stated.currency || sharedCurrency };
+}
+
 function earningsFor(seconds: number, rate: number | null) {
 	if (rate === null) {
 		return null;
@@ -699,6 +713,7 @@ interface ExportRowContext {
 	client: ReportClientRef | null;
 	activity: number;
 	memberRate: MemberRate;
+	workspaceCurrency: string | null;
 	withoutTeamLabel: string | null;
 }
 
@@ -748,7 +763,7 @@ function exportRowsOfEmployeeLog(context: ExportRowContext, employeeLog: Employe
 	}
 	return tasks.map((taskLog) => {
 		const seconds = finiteOrZero(taskLog?.duration);
-		const taskContext = contextOfTask(context, taskLog);
+		const taskContext = { ...contextOfTask(context, taskLog), memberRate: rateOfTask(taskLog, context) };
 		return exportRowOf(taskContext, exportTaskOf(taskLog), seconds);
 	});
 }
@@ -811,6 +826,7 @@ export function exportRowsOf(
 					client,
 					activity: finiteOrZero(employeeLog.activity),
 					memberRate: rateOf(employeeLog, workspaceCurrency),
+					workspaceCurrency,
 					withoutTeamLabel
 				};
 				rows.push(...exportRowsOfEmployeeLog(context, employeeLog));
