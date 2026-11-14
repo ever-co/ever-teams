@@ -163,7 +163,8 @@ describe('useBulkEditRun', () => {
 	it.each([
 		['moved to another project', { projectId: 'project-b' }],
 		['moved to another task', { taskId: 'task-b' }],
-		['made billable', { isBillable: true }]
+		['made billable', { isBillable: true }],
+		['approved', { timesheet: { status: 'APPROVED' } }]
 	])('saves nothing for an entry %s since the dialog planned its fields', async (_changed, change) => {
 		const save = saveOf('a');
 		Object.assign(storedLog('a'), change);

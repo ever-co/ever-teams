@@ -174,11 +174,16 @@ export function bulkEditPlanOf(
 }
 
 /**
- * Whether the entry still has the task, project and billable choice its saved fields were worked out from. The plan
- * sends only what differs from them, so after a change made elsewhere (the entry moved to another project, say) it
- * would leave a task on a project that is not its own.
+ * Whether the entry still has the task, project and billable choice its saved fields were worked out from, and is
+ * still not approved. The plan sends only what differs from them, so after a change made elsewhere (the entry moved
+ * to another project, say) it would leave a task on a project that is not its own; and approved time is left out of a
+ * bulk edit, as the plan does with the entries approved when the dialog opened.
  */
 export function keepsPlannedFields(planned: ITimeLog, current: ITimeLog): boolean {
+	const isApprovedNow = statusOfLog(current) === ETimesheetStatus.APPROVED;
+	if (isApprovedNow) {
+		return false;
+	}
 	const hasSameTask = ownTaskIdOf(planned) === ownTaskIdOf(current);
 	const hasSameProject = ownProjectIdOf(planned) === ownProjectIdOf(current);
 	const hasSameBillable = Boolean(planned.isBillable) === Boolean(current.isBillable);
