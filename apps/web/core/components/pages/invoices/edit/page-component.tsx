@@ -93,9 +93,16 @@ function EditInvoiceContent() {
 		setReadsAfterDialog(false);
 		readAgain();
 	}, [readAgain, readsAfterDialog, wasSaveRefused]);
+	// Details kept from an earlier visit may be older than the invoice, and the editor keeps the invoice it opens on:
+	// it waits for this visit's read. Once that read is in, a later one (a refresh) never reopens the editor.
+	const [hasOpeningRead, setHasOpeningRead] = useState(false);
+	const isOpeningReadDone = read.status !== 'loading' && !read.isRefreshing;
+	if (isOpeningReadDone && !hasOpeningRead) {
+		setHasOpeningRead(true);
+	}
 	const loadingTitle = t('invoices.edit.LOADING_TITLE');
 	const editPath = editInvoicePathOf(invoiceId);
-	if (read.status === 'loading') {
+	if (read.status === 'loading' || !(hasOpeningRead || isOpeningReadDone)) {
 		return <EditInvoicePageSkeleton />;
 	}
 	if (read.status !== 'ready') {
