@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { focusManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
 
@@ -49,7 +49,12 @@ function failure(status: number, code?: string) {
 }
 
 function renderSessions() {
-	const client = new QueryClient({ defaultOptions: { queries: { retry: 2, retryDelay: 1 } } });
+	// The app's defaults (core/query/config) turn focus and reconnect refreshes off
+	const client = new QueryClient({
+		defaultOptions: {
+			queries: { retry: 2, retryDelay: 1, refetchOnWindowFocus: false, refetchOnReconnect: false }
+		}
+	});
 	const wrapper = ({ children }: PropsWithChildren) => (
 		<QueryClientProvider client={client}>{children}</QueryClientProvider>
 	);
@@ -104,6 +109,30 @@ describe('useUserSessions', () => {
 			await client.invalidateQueries({ queryKey: ['users'] });
 		});
 
+		expect(mockList).toHaveBeenCalledTimes(1);
+	});
+
+	it('reads the list again when the person comes back to the tab', async () => {
+		mockList.mockResolvedValue([THIS_DEVICE, LAPTOP]);
+		const { result } = renderSessions();
+		await waitFor(() => expect(result.current.sessions).toHaveLength(2));
+		expect(mockList).toHaveBeenCalledTimes(1);
+
+		act(() => {
+			focusManager.setFocused(false);
+			focusManager.setFocused(true);
+		});
+
+		await waitFor(() => expect(mockList).toHaveBeenCalledTimes(2));
+		focusManager.setFocused(undefined);
+	});
+
+	it('does not ask again after a 401, which the session renewal already answered', async () => {
+		mockList.mockRejectedValue(failure(401));
+
+		const { result } = renderSessions();
+
+		await waitFor(() => expect(result.current.isError).toBe(true));
 		expect(mockList).toHaveBeenCalledTimes(1);
 	});
 

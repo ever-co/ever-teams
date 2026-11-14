@@ -8,15 +8,24 @@ import {
 	sessionsInOrder,
 	type IUserSessionSignOutOthersInput
 } from '@/core/lib/auth/user-sessions';
+import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import { queryKeys } from '@/core/query/keys';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { userSessionService } from '@/core/services/client/api/auth/user-session.service';
 
-/** How many times a failed read is tried again; a 404 (an API without sessions) never is. */
+/**
+ * How many times a failed read is tried again. A refusal (4xx) never is: a 404 says the API has no sessions, and a
+ * 401 was already answered by the session renewal, which signs a session signed out elsewhere out of this tab.
+ */
 const LIST_RETRIES = 2;
 
+function isRefusal(error: unknown): boolean {
+	const status = errorStatusOf(error);
+	return status !== null && status >= 400 && status < 500;
+}
+
 function shouldRetryList(failureCount: number, error: unknown): boolean {
-	if (isSessionsUnavailable(error)) {
+	if (isSessionsUnavailable(error) || isRefusal(error)) {
 		return false;
 	}
 	return failureCount < LIST_RETRIES;
@@ -39,8 +48,10 @@ export function useUserSessions() {
 		queryFn: ({ signal }) => userSessionService.list(signal),
 		enabled: Boolean(userId),
 		retry: shouldRetryList,
-		// Another device can sign in or out at any time: the list is read again whenever the page is shown
-		staleTime: 0
+		// Another device can sign in or out at any time: the list is read again whenever the page is shown, and when
+		// the person comes back to the tab (the app's default turns focus refreshes off)
+		staleTime: 0,
+		refetchOnWindowFocus: true
 	});
 	const listed = sessionsQuery.data;
 	const sessions = useMemo(() => sessionsInOrder(listed ?? []), [listed]);
