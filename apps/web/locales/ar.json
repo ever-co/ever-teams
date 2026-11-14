@@ -1184,7 +1184,10 @@
 				"SUMMARY": "ملخص الفترة",
 				"NO_ACTIVITY": "لم يُسجَّل نشاط في هذه الفترة",
 				"CHART_LABEL": "الوقت المسجّل والنشاط لكل يوم",
-				"BY_TIMER": "{duration} عبر المؤقت"
+				"BY_TIMER": "{duration} عبر المؤقت",
+				"ROUNDED_UP": "مقرّب إلى الأعلى إلى {minutes} دقيقة لكل إدخال",
+				"ROUNDED_DOWN": "مقرّب إلى الأدنى إلى {minutes} دقيقة لكل إدخال",
+				"ROUNDED_NEAREST": "مقرّب إلى أقرب {minutes} دقيقة لكل إدخال"
 			},
 			"breakdown": {
 				"RANK": "الترتيب",
@@ -5378,6 +5381,23 @@
 			"NUMBER_FORMAT_NOT_SAVED": "لم يُحفظ تنسيق الأرقام",
 			"FORMAT_OUTCOME": "تستخدمه التقارير وملفات تصديرها من الآن.",
 			"FORMAT_AUTOMATIC": "تلقائي",
+			"ROUNDING_LABEL": "تقريب المدد",
+			"ROUNDING_DESCRIPTION": "تقرّب صفحة الوقت والنشاط وملفات تصديرها والفواتير المبنية على الوقت كل إدخال. تُبقي جداول الوقت الوقت كما سُجّل.",
+			"ROUNDING_OFF": "متوقف",
+			"ROUNDING_INTERVAL": "{minutes} دقيقة",
+			"ROUNDING_DIRECTION_LABEL": "اتجاه التقريب",
+			"ROUNDING_UP": "إلى الأعلى",
+			"ROUNDING_DOWN": "إلى الأدنى",
+			"ROUNDING_NEAREST": "إلى الأقرب",
+			"ROUNDING_RULE_UP": "إلى الأعلى إلى {minutes} دقيقة",
+			"ROUNDING_RULE_DOWN": "إلى الأدنى إلى {minutes} دقيقة",
+			"ROUNDING_RULE_NEAREST": "إلى أقرب {minutes} دقيقة",
+			"ROUNDING_EXAMPLE": "يظهر إدخال مدته {tracked} بمدة {rounded}.",
+			"ROUNDING_SAVED": "حُفظ تقريب المدد",
+			"ROUNDING_OUTCOME": "تقرّب صفحة الوقت والنشاط وملفات تصديرها والفواتير الجديدة المبنية على الوقت كل إدخال من الآن.",
+			"ROUNDING_OFF_SAVED": "أُوقف تقريب المدد",
+			"ROUNDING_OFF_OUTCOME": "تعرض التقارير الوقت كما سُجّل من جديد.",
+			"ROUNDING_NOT_SAVED": "لم يُحفظ تقريب المدد",
 			"WEEK_START_LABEL": "يبدأ الأسبوع يوم",
 			"WEEK_START_DESCRIPTION": "أول يوم في كل عرض أسبوعي ومحدد أسبوع وتقرير وتصدير.",
 			"WEEK_START_SAVED": "تم حفظ بداية الأسبوع",
@@ -7034,6 +7054,9 @@
 			"NO_PRICED_LINES": "لا وقت في هذه الفترة له سعر بهذه العملة.",
 			"ALL_LINES_REMOVED": "أُزيلت كل البنود. استعدها لفوترة هذا الوقت.",
 			"LINES_AND_HOURS": "{count, plural, zero {لا بنود} one {بند واحد} two {بندان} few {# بنود} many {# بندًا} other {# بند}} · {hours} س",
+			"ROUNDED_UP": "كل إدخال مقرّب إلى الأعلى إلى {minutes} دقيقة",
+			"ROUNDED_DOWN": "كل إدخال مقرّب إلى الأدنى إلى {minutes} دقيقة",
+			"ROUNDED_NEAREST": "كل إدخال مقرّب إلى أقرب {minutes} دقيقة",
 			"LINE_COUNT": "{count, plural, zero {لا بنود} one {بند واحد} two {بندان} few {# بنود} many {# بندًا} other {# بند}}",
 			"TOTAL": "الإجمالي",
 			"details": {
@@ -7569,5 +7592,17 @@
 		"CLIENTS": "{count, plural, one {عميل واحد} two {عميلان} few {# عملاء} many {# عميلًا} other {# عميل}}",
 		"NAMES_ERROR_TITLE": "تعذّر تحميل قائمة العملاء",
 		"NAMES_ERROR_MESSAGE": "يظهر العملاء المؤرشفون دون أسمائهم إلى أن يتم تحميلها."
+	},
+	"timeZoneNotice": {
+		"TITLE": "يستخدم ملفك الشخصي {profileZone} ({profileOffset}). هذا المتصفح في {browserZone} ({browserOffset}).",
+		"DESCRIPTION": "تحتسب جداول الوقت أيامك وفق منطقة ملفك الشخصي، وتحتسبها التقارير الأخرى وفق منطقة هذا المتصفح، لذا قد يقع إدخال قريب من منتصف الليل في يوم آخر.",
+		"TITLE_NO_PROFILE_ZONE": "لا يحتوي ملفك الشخصي على منطقة زمنية. هذا المتصفح في {browserZone} ({browserOffset}).",
+		"DESCRIPTION_NO_PROFILE_ZONE": "إلى أن تختار منطقة، تحتسب جداول الوقت أيامك بتوقيت UTC، وتحتسبها التقارير الأخرى وفق منطقة هذا المتصفح.",
+		"USE": "استخدام {zone}",
+		"KEEP": "الإبقاء على {zone}",
+		"SAVING": "جارٍ الحفظ…",
+		"SAVE_FAILED": "تعذّر حفظ منطقتك الزمنية.",
+		"SAVE_FAILED_DESCRIPTION": "لم يتغير ملفك الشخصي. تحقق من اتصالك وحاول مرة أخرى.",
+		"TRY_AGAIN": "حاول مرة أخرى"
 	}
 }

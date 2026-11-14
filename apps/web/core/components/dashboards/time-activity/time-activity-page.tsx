@@ -86,6 +86,7 @@ export function TimeActivityPage() {
 					onRetryDaily={retryDaily}
 					onRetryCounts={retryCounts}
 					exportSlot={<TimeActivityBandExport report={report} />}
+					roundingRule={report.roundingRule}
 				/>
 				<TimeActivityTimeSplit report={report} />
 				{isWeekGrid && (

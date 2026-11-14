@@ -1249,7 +1249,10 @@
 				"SUMMARY": "Podsumowanie okresu",
 				"NO_ACTIVITY": "W tym okresie nie zarejestrowano aktywności",
 				"CHART_LABEL": "Zarejestrowany czas i aktywność dziennie",
-				"BY_TIMER": "{duration} z timera"
+				"BY_TIMER": "{duration} z timera",
+				"ROUNDED_UP": "Zaokrąglone w górę do {minutes} min na wpis",
+				"ROUNDED_DOWN": "Zaokrąglone w dół do {minutes} min na wpis",
+				"ROUNDED_NEAREST": "Zaokrąglone do najbliższych {minutes} min na wpis"
 			},
 			"breakdown": {
 				"RANK": "Pozycja",
@@ -5378,6 +5381,23 @@
 			"NUMBER_FORMAT_NOT_SAVED": "Format liczb nie został zapisany",
 			"FORMAT_OUTCOME": "Raporty i ich eksporty już go używają.",
 			"FORMAT_AUTOMATIC": "Automatyczny",
+			"ROUNDING_LABEL": "Zaokrąglaj czas trwania",
+			"ROUNDING_DESCRIPTION": "Czas i aktywność, jego eksporty oraz faktury tworzone z czasu zaokrąglają każdy wpis. Karty czasu zachowują czas tak, jak go zarejestrowano.",
+			"ROUNDING_OFF": "Wyłączone",
+			"ROUNDING_INTERVAL": "{minutes} min",
+			"ROUNDING_DIRECTION_LABEL": "Kierunek zaokrąglania",
+			"ROUNDING_UP": "W górę",
+			"ROUNDING_DOWN": "W dół",
+			"ROUNDING_NEAREST": "Do najbliższej",
+			"ROUNDING_RULE_UP": "W górę do {minutes} min",
+			"ROUNDING_RULE_DOWN": "W dół do {minutes} min",
+			"ROUNDING_RULE_NEAREST": "Do najbliższych {minutes} min",
+			"ROUNDING_EXAMPLE": "Wpis {tracked} jest pokazywany jako {rounded}.",
+			"ROUNDING_SAVED": "Zaokrąglanie czasu trwania zapisane",
+			"ROUNDING_OUTCOME": "Czas i aktywność, jego eksporty oraz nowe faktury tworzone z czasu zaokrąglają teraz każdy wpis.",
+			"ROUNDING_OFF_SAVED": "Zaokrąglanie czasu trwania wyłączone",
+			"ROUNDING_OFF_OUTCOME": "Raporty znów pokazują czas tak, jak go zarejestrowano.",
+			"ROUNDING_NOT_SAVED": "Nie zapisano zaokrąglania czasu trwania",
 			"WEEK_START_LABEL": "Tydzień zaczyna się w",
 			"WEEK_START_DESCRIPTION": "Pierwszy dzień każdego widoku tygodnia, wyboru tygodnia, raportu i eksportu.",
 			"WEEK_START_SAVED": "Zapisano początek tygodnia",
@@ -7034,6 +7054,9 @@
 			"NO_PRICED_LINES": "Żaden czas z tego okresu nie ma stawki w tej walucie.",
 			"ALL_LINES_REMOVED": "Wszystkie pozycje zostały usunięte. Przywróć je, aby rozliczyć ten czas.",
 			"LINES_AND_HOURS": "{count, plural, one {# pozycja} few {# pozycje} many {# pozycji} other {# pozycji}} · {hours} godz.",
+			"ROUNDED_UP": "Każdy wpis zaokrąglony w górę do {minutes} min",
+			"ROUNDED_DOWN": "Każdy wpis zaokrąglony w dół do {minutes} min",
+			"ROUNDED_NEAREST": "Każdy wpis zaokrąglony do najbliższych {minutes} min",
 			"LINE_COUNT": "{count, plural, one {# pozycja} few {# pozycje} many {# pozycji} other {# pozycji}}",
 			"TOTAL": "Suma",
 			"details": {
@@ -7569,5 +7592,17 @@
 		"CLIENTS": "{count, plural, one {# klient} few {# klientów} many {# klientów} other {# klienta}}",
 		"NAMES_ERROR_TITLE": "Nie udało się wczytać listy klientów",
 		"NAMES_ERROR_MESSAGE": "Zarchiwizowani klienci są do tego czasu widoczni bez nazw."
+	},
+	"timeZoneNotice": {
+		"TITLE": "Twój profil używa strefy {profileZone} ({profileOffset}). Ta przeglądarka jest w strefie {browserZone} ({browserOffset}).",
+		"DESCRIPTION": "Karty czasu liczą twoje dni w strefie z twojego profilu, a pozostałe raporty w strefie tej przeglądarki, więc wpis blisko północy może trafić na inny dzień.",
+		"TITLE_NO_PROFILE_ZONE": "Twój profil nie ma strefy czasowej. Ta przeglądarka jest w strefie {browserZone} ({browserOffset}).",
+		"DESCRIPTION_NO_PROFILE_ZONE": "Dopóki jej nie wybierzesz, karty czasu liczą twoje dni w UTC, a pozostałe raporty w strefie tej przeglądarki.",
+		"USE": "Użyj {zone}",
+		"KEEP": "Zachowaj {zone}",
+		"SAVING": "Zapisywanie…",
+		"SAVE_FAILED": "Nie udało się zapisać twojej strefy czasowej.",
+		"SAVE_FAILED_DESCRIPTION": "Twój profil się nie zmienił. Sprawdź połączenie i spróbuj ponownie.",
+		"TRY_AGAIN": "Spróbuj ponownie"
 	}
 }
