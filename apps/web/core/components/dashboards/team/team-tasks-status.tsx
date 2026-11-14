@@ -12,10 +12,10 @@ import { formatPercent } from '@/core/lib/utils/dashboard-figures';
 import type { LaneTask, StatusRow } from '@/core/lib/utils/dashboards/team';
 import { taskNumberLabel } from '@/core/lib/utils/team-tasks-view';
 import { TeamCard } from './team-card';
-import { FULL_SPAN } from './team-grid';
+import { PAIRED_WIDE_SPAN } from './team-grid';
 import { AssigneeStack, StatusTile, statusLabelOf, TimeLine } from './team-task-lanes';
 
-const CARD_CLASS = FULL_SPAN;
+const CARD_CLASS = PAIRED_WIDE_SPAN;
 
 /** The in-progress list shows as many rows as the status list beside it, so neither column leaves a gap. */
 const MIN_SHOWN_IN_PROGRESS = 4;

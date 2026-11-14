@@ -809,7 +809,12 @@
 				"NONE": "Nessun progetto",
 				"COUNT": "{count, plural, one {# progetto} other {# progetti}}",
 				"OTHER": "{count, plural, one {# altro progetto} other {# altri progetti}}",
-				"EMPTY": "I progetti compaiono qui appena viene registrato del tempo nel periodo."
+				"EMPTY": "I progetti compaiono qui appena viene registrato del tempo nel periodo.",
+				"SPLIT": "Suddividi il tempo per",
+				"BY_CLIENT": "Per cliente",
+				"OTHER_CLIENTS": "{count, plural, one {# altro cliente} other {# altri clienti}}",
+				"CLIENTS_EMPTY": "I clienti compaiono qui appena viene registrato del tempo nel periodo.",
+				"CLIENTS_ERROR": "Impossibile leggere i clienti dei progetti."
 			},
 			"table": {
 				"VIEW": "Raggruppa le righe",

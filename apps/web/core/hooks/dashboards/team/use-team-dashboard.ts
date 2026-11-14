@@ -362,6 +362,8 @@ export function useTeamDashboard({ routeTeamId }: Readonly<{ routeTeamId?: strin
 		memberOptions,
 		sort: sorts[view],
 		toggleSort,
+		/** The daily report behind the rows, for the split of the time by client. */
+		report: report ?? NO_REPORT,
 		rows,
 		totals,
 		members,
