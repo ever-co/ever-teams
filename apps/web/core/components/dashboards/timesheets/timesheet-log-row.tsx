@@ -291,7 +291,14 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 						{t('dashboard.timesheets.REJECTION_REASON', { reason: rejectionReason })}
 					</span>
 				)}
-				<span className={cn('flex min-w-0 items-center gap-2 text-xs text-muted-foreground', NARROW_ONLY)}>
+				<span
+					className={cn(
+						'flex min-w-0 items-center gap-2 text-xs text-muted-foreground',
+						// Indented under its group, the line has less room: it wraps rather than run past the column
+						isNested && 'flex-wrap gap-y-1',
+						NARROW_ONLY
+					)}
+				>
 					<TimesheetStatusChip status={status} className="h-5 px-1.5" />
 					<LogChangeChips log={log} formatters={formatters} />
 					<span className="shrink-0 tabular-nums">{timeRange}</span>
