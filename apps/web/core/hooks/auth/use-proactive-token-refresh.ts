@@ -10,7 +10,7 @@ import {
 	calculateRefreshInterval
 } from '@/core/lib/auth/jwt-utils';
 import { handleUnauthorized } from '@/core/lib/auth/handle-unauthorized';
-import { renewSession } from '@/core/lib/auth/session-renewal';
+import { isSessionOver, renewSession } from '@/core/lib/auth/session-renewal';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { retryWithBackoff } from '@/core/lib/auth/retry-logic';
 import { logErrorInDev, logInDev } from '@/core/lib/helpers/error-message';
@@ -108,8 +108,10 @@ export function useProactiveTokenRefresh() {
 				if (!active) return false;
 
 				if (renewal.outcome === 'ended') {
-					// Without a refresh token there is no session to end here: the person signed out in another tab
-					if (renewal.hadRefreshToken) {
+					// Without a refresh token there is no session to end here: the person signed out in another tab.
+					// And a session whose refresh token was lost to a rotation works until its access token
+					// expires (isSessionOver): it is not ended ahead of time.
+					if (renewal.hadRefreshToken && isSessionOver(renewal)) {
 						const details = { source: 'useProactiveTokenRefresh' };
 						logErrorInDev(
 							'[ProactiveTokenRefresh] ❌ Refresh token rejected (401) - forcing logout',

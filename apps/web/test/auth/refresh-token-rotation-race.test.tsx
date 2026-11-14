@@ -40,6 +40,16 @@ let page: FakeGauzyPage;
 /** Lets what is already under way go on: a second renewal, if one was going to be sent, is sent by then. */
 const letRequestsLeave = () => act(async () => new Promise<void>((resolve) => setTimeout(resolve, 60)));
 
+/** The error a request, or a renewal, was rejected with. */
+async function failureOf(request: Promise<unknown>): Promise<{ status?: number; statusCode?: number }> {
+	try {
+		await request;
+	} catch (error) {
+		return error as { status?: number; statusCode?: number };
+	}
+	throw new Error('The request was expected to fail');
+}
+
 /** The session is the one of the pair: both of its tokens are in the cookies. */
 function expectSessionOf(pair: { token: string; refresh_token: string }) {
 	expect(page.isSignedOut()).toBe(false);
@@ -128,17 +138,61 @@ describe('a renewal whose refresh token another one rotated, before that one sto
 		await expect(renewal).resolves.toEqual(expect.objectContaining({ id: FAKE_USER.id }));
 		expectSessionOf(pairOfOtherTab);
 	});
+});
 
-	it('ends the session when no pair ever shows up: the answer of the other renewal was lost', async () => {
-		const { gauzy } = page;
+describe('a session whose refresh token another request rotated, when the pair never comes (its answer was lost)', () => {
+	beforeEach(() => {
+		jest.useFakeTimers();
+		page = openFakeGauzyPage(CLIENTS, { clock: 'jest timers' });
+	});
+	afterEach(() => {
+		page.close();
+		jest.useRealTimers();
+	});
+
+	/** The person signed in, then a renewal rotated the refresh token and its answer never reached the browser. */
+	function signInThenLoseRenewal() {
 		const pair = page.signIn();
-		gauzy.renewFromAnotherTab(pair.refresh_token);
+		page.gauzy.renewFromAnotherTab(pair.refresh_token);
+	}
 
-		const renewal = authService.refreshToken();
-		const outcome = expect(renewal).rejects.toEqual(expect.objectContaining({ status: 401 }));
+	it('is kept while its access token works: a renewal a page asks for fails, and ends nothing', async () => {
+		signInThenLoseRenewal();
+
+		const failure = failureOf(authService.refreshToken());
 		await jest.advanceTimersByTimeAsync(11_000);
 
-		await outcome;
+		// Not a 401: the page is told the renewal failed, not that the session ended
+		expect((await failure).status).toBeUndefined();
+		expect(page.isSignedOut()).toBe(false);
+	});
+
+	it('is kept by the renewal ahead of time, which asks the API once and not again', async () => {
+		signInThenLoseRenewal();
+		// The token is about to expire: the scheduled renewal runs as the page opens
+		jest.setSystemTime(Date.now() + 24 * HOUR_MS - 4 * MINUTE_MS);
+
+		const { unmount } = renderHook(() => useProactiveTokenRefresh());
+		await act(async () => jest.advanceTimersByTimeAsync(2 * MINUTE_MS));
+
+		expect(page.isSignedOut()).toBe(false);
+		expect(page.renewals()).toBe(1);
+		unmount();
+	});
+
+	it('ends once the API refuses one of its requests, without asking for a renewal again', async () => {
+		signInThenLoseRenewal();
+		const lostRenewal = failureOf(authService.refreshToken());
+		await jest.advanceTimersByTimeAsync(11_000);
+		await lostRenewal;
+
+		// The access token has expired: the next request is refused, and nothing can renew the session
+		jest.setSystemTime(Date.now() + 25 * HOUR_MS);
+		const refused = await failureOf(timerService.getTimerStatus());
+
+		expect(refused.statusCode).toBe(401);
+		expect(page.sentToSignIn).toHaveBeenCalledTimes(1);
+		expect(page.renewals()).toBe(1);
 	});
 });
 

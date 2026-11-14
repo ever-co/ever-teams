@@ -5,6 +5,7 @@ import {
 	setRefreshTokenCookie
 } from '@/core/lib/helpers/cookies';
 import { logInDev } from '@/core/lib/helpers/error-message';
+import { isTokenExpired } from '@/core/lib/auth/jwt-utils';
 import { delay, isUnauthorizedError } from '@/core/lib/auth/retry-logic';
 import { isRotatedRefreshTokenRefusal } from '@/core/lib/auth/rotated-refresh-token';
 
@@ -12,14 +13,16 @@ import { isRotatedRefreshTokenRefusal } from '@/core/lib/auth/rotated-refresh-to
  * How a renewal of the session ended:
  * - `renewed`: the cookies hold an access token the API accepts, a request refused with the old one can be sent again;
  * - `ended`: there is no refresh token (`hadRefreshToken` false), or the API refuses it. Only a new sign-in opens a
- *   session again;
+ *   session again. `rotatedElsewhere` tells one refusal apart: another request rotated the refresh token and its pair
+ *   never reached this browser (its answer was lost on the way). Nothing can renew that session anymore, but its
+ *   access token works until it expires: a caller that still holds a working one may keep the session until then;
  * - `unavailable`: no new pair now, and nothing is known about the session. Either the renewal failed for a reason of
  *   its own (no network, a timeout, a server error: `error`), or the refused token was itself renewed moments ago, and
  *   renewing again would not change the API's answer.
  */
 type SessionRenewal =
 	| { outcome: 'renewed' }
-	| { outcome: 'ended'; hadRefreshToken: boolean }
+	| { outcome: 'ended'; hadRefreshToken: boolean; rotatedElsewhere?: boolean }
 	| { outcome: 'unavailable'; error?: unknown };
 
 /**
@@ -44,6 +47,8 @@ const OTHER_PAIR_POLL_MS = 100;
 
 let renewalInFlight: Promise<SessionRenewal> | null = null;
 let lastRenewal: { accessToken: string; at: number } | null = null;
+/** A refresh token another request rotated, whose pair never came: asking again with it changes nothing. */
+let spentRefreshToken: string | null = null;
 
 function isJustRenewed(accessToken: string): boolean {
 	return lastRenewal?.accessToken === accessToken && Date.now() - lastRenewal.at < RENEWED_TOKEN_GRACE_MS;
@@ -82,7 +87,9 @@ async function takePairOfOtherRenewal(sentRefreshToken: string, refusal: unknown
 			return ended;
 		}
 	}
-	return ended;
+	// The pair of that renewal never came: its answer was lost, and this refresh token is spent for good
+	spentRefreshToken = sentRefreshToken;
+	return { ...ended, rotatedElsewhere: true };
 }
 
 /**
@@ -94,6 +101,9 @@ async function requestNewPair(refreshTokenAtCall: string | undefined): Promise<S
 	const refreshToken = getRefreshTokenCookie();
 	if (!refreshToken) {
 		return { outcome: 'ended', hadRefreshToken: false };
+	}
+	if (refreshToken === spentRefreshToken) {
+		return { outcome: 'ended', hadRefreshToken: true, rotatedElsewhere: true };
 	}
 	if (refreshTokenAtCall && refreshToken !== refreshTokenAtCall) {
 		// Another tab renewed the session while this one waited for its turn: its pair is the session's
@@ -191,8 +201,26 @@ export function renewSession(refusedToken?: string | null): Promise<SessionRenew
 	return renewalInFlight;
 }
 
+/**
+ * Whether a renewal leaves the session to end now, when the person did not ask for one of its requests. A refresh
+ * token the API refuses ends it. One lost to a rotation (`rotatedElsewhere`) can no longer renew the session, but
+ * the session works until its access token expires: ending it earlier would take that time away from the person,
+ * with whatever they are doing. It then ends when the API refuses one of its requests.
+ */
+export function isSessionOver(renewal: SessionRenewal): boolean {
+	if (renewal.outcome !== 'ended') {
+		return false;
+	}
+	if (!renewal.rotatedElsewhere) {
+		return true;
+	}
+	const accessToken = getAccessTokenCookie();
+	return !accessToken || isTokenExpired(accessToken, 0);
+}
+
 /** Test-only: forget the renewal under way and the last one made. */
 export function resetSessionRenewal(): void {
 	renewalInFlight = null;
 	lastRenewal = null;
+	spentRefreshToken = null;
 }

@@ -1,6 +1,6 @@
 import { APIService, getFallbackAPI } from '../../api.service';
 import { getRefreshTokenCookie } from '@/core/lib/helpers/cookies';
-import { renewSession } from '@/core/lib/auth/session-renewal';
+import { isSessionOver, renewSession } from '@/core/lib/auth/session-renewal';
 import {
 	APP_LOGO_URL,
 	APP_NAME,
@@ -95,11 +95,15 @@ class AuthService extends APIService {
 
 		try {
 			const renewal = await renewSession();
-			if (renewal.outcome === 'ended') {
+			if (isSessionOver(renewal)) {
 				throw Object.assign(new Error('The API refuses the refresh token'), { status: 401 });
 			}
 			if (renewal.outcome === 'unavailable') {
 				throw renewal.error ?? new Error('The session could not be renewed now');
+			}
+			if (renewal.outcome === 'ended') {
+				// Its refresh token was lost to a rotation: the session works until its access token expires
+				throw new Error('The session can no longer be renewed');
 			}
 
 			logInDev('[AuthService] Token refreshed successfully');
