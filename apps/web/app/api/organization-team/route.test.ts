@@ -83,6 +83,18 @@ describe('GET /api/organization-team', () => {
 		expect(response.status).toBe(500);
 	});
 
+	it('reads each organization keeping the answer status, so a refusal without one in its body is still known', async () => {
+		mockGetAllOrganizationTeams.mockResolvedValue({ data: { items: [], total: 0 } });
+
+		await GET(new Request('https://app.example.test/api/organization-team'));
+
+		expect(mockGetAllOrganizationTeams).toHaveBeenCalledWith(
+			{ tenantId: 'tenant-1', organizationId: 'labs' },
+			'token-studio',
+			{ keepsStatusOnError: true }
+		);
+	});
+
 	it('fails the list when another organization fails for a reason other than a refusal', async () => {
 		mockGetAllOrganizationTeams.mockImplementation(async ({ organizationId }: { organizationId: string }) => {
 			if (organizationId === 'labs') {

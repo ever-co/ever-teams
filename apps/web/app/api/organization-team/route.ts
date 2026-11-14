@@ -72,7 +72,9 @@ export async function GET(req: Request) {
 		const call_teams = filteredOrganization.map((item) =>
 			getAllOrganizationTeamRequest(
 				{ tenantId: tenantId || '', organizationId: item.organizationId || '' },
-				access_token || ''
+				access_token || '',
+				// A refusal whose body carries no status still gives its HTTP status
+				{ keepsStatusOnError: true }
 			).catch(async (error: unknown) => {
 				const isOtherOrganization = item.organizationId !== organizationId;
 				const answerStatus = apiErrorStatusOf(await unwrapRejection(error));
