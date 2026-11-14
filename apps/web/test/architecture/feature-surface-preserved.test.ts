@@ -2052,10 +2052,11 @@ describe('Ever Teams feature surface preservation', () => {
 		// (/api/invoices/[id] GET; #5158).
 		// 357 files and 455 verbs with the proxies that update one invoice and replace its lines (/api/invoices/[id]
 		// PUT, /api/invoice-item/bulk/[invoiceId] POST; #5159). Its read of one invoice is #5158's.
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(357);
+		// 358 files and 456 verbs with the discard of the running timer (/api/timer/discard POST; #5219).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(358);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(455);
+		).toHaveLength(456);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of the platform's incoming webhook management of a channel (ever-gauzy #11799)
@@ -2194,6 +2195,7 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/task-estimation/route.ts::POST',
 				'apps/web/app/api/task-statuses/reorder/route.ts::PATCH',
 				'apps/web/app/api/timer/status/worked/route.ts::GET',
+				'apps/web/app/api/timer/discard/route.ts::POST',
 				'apps/web/app/api/timer/toggle/route.ts::POST',
 				'apps/web/app/api/timer/toogle/route.ts::POST',
 				'apps/web/app/api/timesheet/status/route.ts::PUT',
