@@ -7,7 +7,7 @@ export const WORK_DIARY_PATH = '/work-diary';
 /** The signed-in person's own week: their tracked time against their weekly limit, by day and by project. */
 export const MY_WEEK_PATH = '/my-week';
 
-/** The signed-in person's time goals, and those of the members of the team she manages. */
+/** The signed-in person's time goals, and those of the members of the team they manage. */
 export const GOALS_PATH = '/goals';
 
 /**

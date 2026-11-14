@@ -49,7 +49,7 @@ function pickablesOf(entities: ReadonlyArray<PickableEntity>) {
 }
 
 /**
- * `/goals`: the signed-in person's goals with where she stands today, for the period picked; for someone who manages
+ * `/goals`: the signed-in person's goals with where they stand today, for the period picked; for someone who manages
  * the active team, where each of its members stands, grouped by member; and the archived goals.
  */
 export function useGoalsPage() {

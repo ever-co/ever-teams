@@ -170,7 +170,7 @@ describe('GoalsPage', () => {
 		expect(screen.getByRole('dialog').textContent).toBe('create:');
 	});
 
-	it('shows a manager her members’ progress, grouped by member', () => {
+	it('shows a manager their members’ progress, grouped by member', () => {
 		const paulRow = rowOf(
 			goalOf({ id: 'support', name: 'Support', employeeId: 'paul' }),
 			3 * HOUR,

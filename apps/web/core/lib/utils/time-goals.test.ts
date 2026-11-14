@@ -104,7 +104,7 @@ describe('whose progress', () => {
 		{ employeeId: 'paul', name: 'Paul', imageUrl: null }
 	];
 
-	it('keeps the caller’s own rows for her list', () => {
+	it('keeps the caller’s own rows for their list', () => {
 		expect(ownProgressOf([own, paul, anaTeamGoal], 'marie')).toEqual([own]);
 	});
 
@@ -115,7 +115,7 @@ describe('whose progress', () => {
 		expect(groups[1].rows).toEqual([paul]);
 	});
 
-	it('names a member the team list does not hold by an empty name rather than dropping her rows', () => {
+	it('names a member the team list does not hold by an empty name rather than dropping their rows', () => {
 		const stranger = progressOf(goalOf({ id: 'goal-5' }), { employeeId: 'zoe' });
 
 		const groups = memberGoalGroupsOf([stranger], members, 'marie');
@@ -159,7 +159,7 @@ describe('the goal form', () => {
 		expect(goalDraftErrorsOf({ ...draft, hours: '169' }).hours).toBe('dashboard.goals.form.HOURS_TOO_MANY');
 	});
 
-	it('creates the caller’s own goal without naming her', () => {
+	it('creates the caller’s own goal without naming them', () => {
 		const draft = {
 			...EMPTY_GOAL_DRAFT,
 			name: ' Client A ',
@@ -224,13 +224,13 @@ describe('mayChangeGoal', () => {
 	const member = { employeeId: 'marie', managedTeamId: null, managedMemberIds: [], actsForEveryone: false };
 	const manager = { employeeId: 'lea', managedTeamId: 'team-1', managedMemberIds: ['marie'], actsForEveryone: false };
 
-	it('lets a member change her own goals only', () => {
+	it('lets a member change their own goals only', () => {
 		expect(mayChangeGoal(goalOf(), member)).toBe(true);
 		expect(mayChangeGoal(goalOf({ employeeId: 'paul' }), member)).toBe(false);
 		expect(mayChangeGoal(goalOf({ scope: ETimeGoalScope.TEAM, organizationTeamId: 'team-1' }), member)).toBe(false);
 	});
 
-	it('lets a manager change the goals of her members and of her team', () => {
+	it('lets a manager change the goals of their members and of their team', () => {
 		expect(mayChangeGoal(goalOf(), manager)).toBe(true);
 		expect(mayChangeGoal(goalOf({ scope: ETimeGoalScope.TEAM, organizationTeamId: 'team-1' }), manager)).toBe(true);
 		expect(mayChangeGoal(goalOf({ scope: ETimeGoalScope.ORGANIZATION, employeeId: null }), manager)).toBe(false);

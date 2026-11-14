@@ -455,7 +455,7 @@ export const queryKeys = {
 		) => ['notifications', 'settings', tenantId ?? null, organizationId ?? null, employeeId ?? null] as const
 	},
 
-	// Goals: the goals a person may read, and where she (or each member of a team she manages) stands against them.
+	// Goals: the goals a person may read, and where they (or each member of a team they manage) stand against them.
 	// The user is part of every key: what one sign-in may read never shows for the next one.
 	timeGoals: {
 		all: ['time-goals'] as const,

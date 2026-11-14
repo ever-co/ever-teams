@@ -88,9 +88,9 @@ export function useTimeGoals({ enabled = true }: { enabled?: boolean } = {}) {
 }
 
 /**
- * Where the signed-in person stands today against every goal that counts her (hers, her teams', the organization's)
- * or, with a team, where each member of it she may read stands. The platform counts each member's period in her own
- * time zone.
+ * Where the signed-in person stands today against every goal that counts them (their own, their teams', the
+ * organization's) or, with a team, where each member of it they may read stands. The platform counts each member's
+ * period in their own time zone.
  */
 export function useTimeGoalProgress({ teamId = null, enabled = true }: { teamId?: string | null; enabled?: boolean }) {
 	const { tenantId, organizationId, userId, hasScope } = useGoalScope();

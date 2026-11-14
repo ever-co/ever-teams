@@ -98,7 +98,7 @@ export function goalCountsByPeriodOf(rows: ReadonlyArray<Pick<ITimeGoalProgress,
 	return counts;
 }
 
-/** The rows of the signed-in member herself. */
+/** The rows of the signed-in member themselves. */
 export function ownProgressOf(rows: ReadonlyArray<ITimeGoalProgress>, employeeId: string | null): ITimeGoalProgress[] {
 	if (!employeeId) {
 		return [];
@@ -113,7 +113,7 @@ export interface MemberGoalGroup {
 
 /**
  * The rows of every other member, one group per member, by name. A member the team list does not hold (yet) keeps
- * her rows, under an empty name.
+ * their rows, under an empty name.
  */
 export function memberGoalGroupsOf(
 	rows: ReadonlyArray<ITimeGoalProgress>,
@@ -141,7 +141,7 @@ export function memberGoalGroupsOf(
 
 // ---------------------------------------------------------------- form
 
-/** Whom a new goal counts: the person herself, one member she manages, or every member of the active team. */
+/** Whom a new goal counts: the person themselves, one member they manage, or every member of the active team. */
 export type GoalOwnerChoice = 'self' | 'member' | 'team';
 
 export interface GoalDraft {
@@ -289,12 +289,12 @@ export interface GoalWriter {
 	managedTeamId: string | null;
 	/** The members of that team. */
 	managedMemberIds: ReadonlyArray<string>;
-	/** `CHANGE_SELECTED_EMPLOYEE`: the platform lets her act for every member. */
+	/** `CHANGE_SELECTED_EMPLOYEE`: the platform lets them act for every member. */
 	actsForEveryone: boolean;
 }
 
 /**
- * Whether the page offers to change a goal: her own, those of the members and of the team she manages, or any for
+ * Whether the page offers to change a goal: their own, those of the members and of the team they manage, or any for
  * someone who acts for everyone. The platform has the last word and refuses anything else.
  */
 export function mayChangeGoal(goal: ITimeGoal, writer: GoalWriter): boolean {

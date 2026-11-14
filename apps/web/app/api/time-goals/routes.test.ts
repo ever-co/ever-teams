@@ -1,7 +1,7 @@
 /**
  * Proxy mode twins of the platform's time goal routes (ever-co/ever-gauzy#11918). The platform decides who reads and
- * changes which goal (a member hers, a manager her members' and her team's), so each route hands the request on with
- * the session and answers the platform's own status, a refusal included.
+ * changes which goal (a member their own, a manager those of their members and of their team), so each route hands
+ * the request on with the session and answers the platform's own status, a refusal included.
  */
 import {
 	gauzyAnswers,

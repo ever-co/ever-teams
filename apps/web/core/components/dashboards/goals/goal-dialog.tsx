@@ -41,9 +41,9 @@ export interface GoalPickable {
 	imageUrl?: string | null;
 }
 
-/** Whom the person may set goals for, besides herself. */
+/** Whom the person may set goals for, besides themselves. */
 export interface GoalOwnerOptions {
-	/** She manages the active team (or acts for everyone): she may pick one of its members, or all of it. */
+	/** They manage the active team (or act for everyone): they may pick one of its members, or all of it. */
 	canPickOthers: boolean;
 	members: ReadonlyArray<TeamPerson>;
 	teamId: string | null;

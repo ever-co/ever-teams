@@ -6,7 +6,7 @@ import { useTimeGoalProgress, useTimeGoals } from '@/core/hooks/time-goals/use-t
 import { GOAL_PERIODS, ownProgressOf } from '@/core/lib/utils/time-goals';
 
 /**
- * The Goals block of My week: where the signed-in person stands today against each of her goals (today for a goal
+ * The Goals block of My week: where the signed-in person stands today against each of their goals (today for a goal
  * per day, this week, this month), from the same reads as the Goals page. Shown only where the platform has goals
  * and the person has at least one.
  */

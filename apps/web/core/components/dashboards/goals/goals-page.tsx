@@ -311,8 +311,8 @@ function rangeTextOf(range: GoalsPageState['shownRange'], locale: string) {
 }
 
 /**
- * `/goals`, under My work: the signed-in person's time goals and where she stands against each today, this week or
- * this month; the members of the team she manages, grouped by member; New goal, Edit, Archive and Restore.
+ * `/goals`, under My work: the signed-in person's time goals and where they stand against each today, this week or
+ * this month; the members of the team they manage, grouped by member; New goal, Edit, Archive and Restore.
  */
 export function GoalsPage() {
 	const t = useTranslations();

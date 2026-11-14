@@ -25,14 +25,14 @@ class TimeGoalService extends APIService {
 		return { organizationId: this.organizationId, tenantId: this.tenantId };
 	}
 
-	/** The goals the caller may read in the organization: hers, her teams', those of the members she manages. */
+	/** The goals the caller may read in the organization: their own, their teams', those of the members they manage. */
 	list = async ({ includeArchived = false }: { includeArchived?: boolean } = {}, signal?: AbortSignal) => {
 		const search = qs.stringify({ ...this.scope(), includeArchived }, { skipNulls: true });
 		const response = await this.get<ITimeGoalList>(`${GOALS}?${search}`, { signal });
 		return response.data;
 	};
 
-	/** Where the caller, or each member of a team she may read, stands today against every goal that counts her. */
+	/** Where the caller, or each member of a team they may read, stands today against every goal that counts them. */
 	progress = async (query: ITimeGoalProgressQuery = {}, signal?: AbortSignal) => {
 		const search = qs.stringify({ ...this.scope(), ...query }, { skipNulls: true });
 		const response = await this.get<ITimeGoalProgress[]>(`${GOALS}/progress?${search}`, { signal });
