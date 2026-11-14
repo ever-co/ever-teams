@@ -4,9 +4,9 @@ import { z } from 'zod';
 export const USER_API_TOKEN_NAME_MAX_LENGTH = 100;
 
 /** The lifetimes Gauzy offers a personal API token (`UserApiTokenExpiryEnum`). */
-export const USER_API_TOKEN_EXPIRIES = ['90d', '1y', 'never'] as const;
+const USER_API_TOKEN_EXPIRIES = ['90d', '1y', 'never'] as const;
 
-export const userApiTokenExpirySchema = z.enum(USER_API_TOKEN_EXPIRIES);
+const userApiTokenExpirySchema = z.enum(USER_API_TOKEN_EXPIRIES);
 
 /** `GET /user-api-tokens/config`: whether this server has personal API tokens on. */
 export const userApiTokenConfigSchema = z.object({
@@ -14,7 +14,7 @@ export const userApiTokenConfigSchema = z.object({
 });
 
 /** A token as the settings page shows it. Gauzy never lists the secret; the owner's ids are not kept either. */
-export const userApiTokenSchema = z.object({
+const userApiTokenSchema = z.object({
 	id: z.string().min(1),
 	name: z.string(),
 	createdAt: z.string(),
@@ -42,6 +42,5 @@ export const createUserApiTokenInputSchema = z.object({
 export type TUserApiTokenExpiry = z.infer<typeof userApiTokenExpirySchema>;
 export type TUserApiTokenConfig = z.infer<typeof userApiTokenConfigSchema>;
 export type TUserApiToken = z.infer<typeof userApiTokenSchema>;
-export type TUserApiTokenList = z.infer<typeof userApiTokenListSchema>;
 export type TCreatedUserApiToken = z.infer<typeof createdUserApiTokenSchema>;
 export type TCreateUserApiTokenInput = z.infer<typeof createUserApiTokenInputSchema>;
