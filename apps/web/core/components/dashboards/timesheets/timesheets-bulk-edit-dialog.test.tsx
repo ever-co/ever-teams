@@ -9,6 +9,9 @@ import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 const mockGetTimeLogConflicts = jest.fn();
 const mockUpdateTimeLog = jest.fn();
+const mockGetTimeLogs = jest.fn();
+/** The entries as the API holds them: the ones the dialog was opened with. */
+let mockStoredLogs: ITimeLog[] = [];
 const mockToastSuccess = jest.fn();
 const mockToastWarning = jest.fn();
 const mockAtomValues: Record<string, unknown> = {};
@@ -61,6 +64,7 @@ jest.mock('@/core/hooks/organizations/projects/use-organization-projects-query',
 jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
 	timeLogService: {
 		getTimeLogConflicts: (params: unknown) => mockGetTimeLogConflicts(params),
+		getTimeLogs: (params: unknown) => mockGetTimeLogs(params),
 		updateTimeLog: (payload: unknown) => mockUpdateTimeLog(payload)
 	}
 }));
@@ -144,6 +148,7 @@ function logOf(id: string, overrides: Partial<ITimeLog> = {}): ITimeLog {
 }
 
 function renderDialog(logs: ITimeLog[]) {
+	mockStoredLogs = logs;
 	const closeModal = jest.fn();
 	const onFinished = jest.fn<void, [BulkEditResult]>();
 	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -182,6 +187,7 @@ describe('TimesheetsBulkEditDialog', () => {
 			{ id: 'task-site', projectId: 'project-site' },
 			{ id: 'task-mobile', projectId: 'project-mobile' }
 		];
+		mockGetTimeLogs.mockImplementation(async () => mockStoredLogs);
 		mockGetTimeLogConflicts.mockResolvedValue([]);
 		mockUpdateTimeLog.mockResolvedValue({});
 	});
