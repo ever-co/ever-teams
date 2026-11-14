@@ -12,9 +12,13 @@ import { currentOrganizationState } from '@/core/stores/user/user-organizations'
 const mockDiscardTimer = jest.fn();
 const mockToastSuccess = jest.fn();
 const mockReadOrganization = jest.fn();
+const mockTrackTimerCommand = jest.fn();
 
 jest.mock('@/core/services/client/api/timers/timer.service', () => ({
 	timerService: { discardTimer: (...args: unknown[]) => mockDiscardTimer(...args) }
+}));
+jest.mock('@/core/hooks/timer/use-timer-api', () => ({
+	trackTimerCommand: (request: Promise<unknown>) => mockTrackTimerCommand(request)
 }));
 jest.mock('@/core/hooks/auth/use-current-organization', () => ({
 	useGetCurrentOrganization: (...args: unknown[]) => mockReadOrganization(...args)
@@ -57,6 +61,8 @@ beforeEach(() => {
 	mockToastSuccess.mockReset();
 	mockReadOrganization.mockReset();
 	mockReadOrganization.mockReturnValue({ isError: false, refetch: jest.fn() });
+	mockTrackTimerCommand.mockReset();
+	mockTrackTimerCommand.mockImplementation((request: Promise<unknown>) => request);
 });
 
 afterEach(() => {
@@ -107,6 +113,18 @@ describe('useTimerDiscard', () => {
 		expect(discarded).toBe(false);
 		expect(result.current.failure).toBe('TOO_LATE');
 		expect(store.get(timerStatusState)).toEqual(RUNNING);
+	});
+
+	it('sends the discard as a timer command, so a status read sent before it cannot show the run again', async () => {
+		mockDiscardTimer.mockResolvedValue({ data: STOPPED });
+		const { result } = renderDiscard({ id: 'organization-1', allowDiscardTimer: null });
+
+		await act(async () => {
+			await result.current.discard('log-1');
+		});
+
+		expect(mockTrackTimerCommand).toHaveBeenCalledTimes(1);
+		expect(mockTrackTimerCommand).toHaveBeenCalledWith(mockDiscardTimer.mock.results[0].value);
 	});
 
 	it('takes the offer away once the run is older than the organization allows', async () => {
