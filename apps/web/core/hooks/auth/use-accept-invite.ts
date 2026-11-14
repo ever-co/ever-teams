@@ -5,8 +5,12 @@ import { userOrganizationService } from '@/core/services/client/api/users/user-o
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams/team.service';
 import { CookiesDataType, setAuthCookies } from '@/core/lib/helpers/cookies';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { SECOND_FACTOR_ASKED, twoFactorChallengeOf } from '@/core/lib/auth/two-factor';
+import { useTwoFactorSignIn } from './use-two-factor-sign-in';
 
 export function useAcceptInvite() {
+	const twoFactor = useTwoFactorSignIn();
+	const { ask: askForSecondFactor } = twoFactor;
 	const [invitationState, setInvitationState] = useState<TInvitationState>({
 		state: EInvitationState.IDLE,
 		data: null,
@@ -31,12 +35,24 @@ export function useAcceptInvite() {
 			if (invitationState?.state !== EInvitationState.VALIDATED) return;
 
 			// A refused invitation rejects, so the form shows its error instead of opening the app
-			const res = await acceptInvitation({
-				user,
-				password,
-				code,
-				email
-			});
+			let res: Awaited<ReturnType<typeof acceptInvitation>>;
+			try {
+				res = await acceptInvitation({
+					user,
+					password,
+					code,
+					email
+				});
+			} catch (error) {
+				// An existing account with two-factor authentication on: the page asks for its code. The validation
+				// answers no team, so the session opens with none picked, as a sign-in without a team choice does.
+				const challenge = twoFactorChallengeOf(error);
+				if (challenge) {
+					askForSecondFactor(challenge, '');
+					return SECOND_FACTOR_ASKED;
+				}
+				throw error;
+			}
 
 			// Proxy mode: the /api/invite/accept route has read the organization and team and set the session
 			// cookies itself. The reads below hand the new token to Gauzy, which only direct mode supports.
@@ -88,7 +104,7 @@ export function useAcceptInvite() {
 				console.error('Accept invitation error:', error);
 			}
 		},
-		[acceptInvitation, invitationState.state, invitationState.data]
+		[acceptInvitation, invitationState.state, invitationState.data, askForSecondFactor]
 	);
 
 	const validateInvitation = useCallback(
@@ -127,6 +143,7 @@ export function useAcceptInvite() {
 		handleAcceptInvitation,
 		acceptInvitationLoading,
 		invitationState,
-		setInvitationState
+		setInvitationState,
+		twoFactor
 	};
 }

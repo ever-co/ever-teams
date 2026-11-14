@@ -92,3 +92,52 @@ describe('useAcceptInvite → validateInvitation', () => {
 		expect(RENDERS.length).toBeGreaterThan(5); // it did re-render — the point is that it did not re-validate
 	});
 });
+
+describe('useAcceptInvite → an existing account with two-factor authentication', () => {
+	it('asks for the code instead of opening a session', async () => {
+		const { setAuthCookies } = jest.requireMock('@/core/lib/helpers/cookies') as { setAuthCookies: jest.Mock };
+		mockValidate.mockResolvedValue({
+			email: 'ada@example.org',
+			organization: { name: 'o' },
+			teams: [{ id: 'team-1' }]
+		});
+		mockAccept.mockRejectedValue({
+			isApiError: true,
+			statusCode: 403,
+			errorCode: 'TWO_FACTOR_REQUIRED',
+			message: 'Two-factor authentication is on for this account.',
+			details: { challenge: 'signed.challenge', expiresAt: '2026-11-14T12:05:00.000Z' }
+		});
+		let hook: ReturnType<typeof useAcceptInvite> | null = null;
+		function Capture() {
+			hook = useAcceptInvite();
+			return null;
+		}
+		const qc = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+		render(
+			<QueryClientProvider client={qc}>
+				<Capture />
+			</QueryClientProvider>
+		);
+		await act(async () => {
+			await hook!.validateInvitation({ code: 'CODE', email: 'ada@example.org' });
+		});
+
+		let outcome: unknown;
+		await act(async () => {
+			outcome = await hook!.handleAcceptInvitation({
+				password: 'long enough',
+				user: { firstName: 'Ada', lastName: 'L', email: 'ada@example.org' },
+				code: 'CODE',
+				email: 'ada@example.org'
+			});
+		});
+
+		expect(outcome).toBe('second-factor');
+		expect(hook!.twoFactor.pending).toEqual({
+			challenge: expect.objectContaining({ challenge: 'signed.challenge' }),
+			selectedTeam: ''
+		});
+		expect(setAuthCookies).not.toHaveBeenCalled();
+	});
+});
