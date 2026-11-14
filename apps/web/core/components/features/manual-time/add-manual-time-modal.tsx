@@ -96,10 +96,10 @@ function dateLabelOf(date: Date | undefined, locale: string, placeholder: string
 	return formatter.format(date);
 }
 
-/** Whether the listed task belongs to the team, so time is never saved with a team and a task of another team. */
 /** What an entry added by hand records: work, or a break where the organization allows breaks (#5216). */
 type TManualEntryType = 'work' | 'break';
 
+/** Whether the listed task belongs to the team, so time is never saved with a team and a task of another team. */
 function isTaskOfTeam(tasks: TTask[], taskId: string, teamId: string | undefined): boolean {
 	if (!teamId) {
 		return false;
