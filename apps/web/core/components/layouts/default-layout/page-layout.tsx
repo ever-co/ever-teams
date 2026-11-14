@@ -12,6 +12,7 @@ import { pathCarriesItsOwnTimer } from './timer-paths';
 import GlobalHeader from './global-header';
 import { DemoBanner } from './demo-banner';
 import { PageContentScroller } from './page-content-scroller';
+import { TimeZoneNotice } from './time-zone-notice';
 
 type PageLayoutProps = PropsWithChildren<{
 	/** Updates the browser tab title ("title | APP_NAME"). */
@@ -101,6 +102,8 @@ export function PageLayout({
 	const headerShowsTimer = headerCarriesTimer && isTrackingEnabled;
 	// In its place, a member whose tracking is turned off reads why
 	const headerShowsTrackingOff = headerCarriesTimer && isOwnTrackingOff;
+	// A pane surface is exactly as tall as the space under the top bar: nothing may sit above it
+	const showsTimeZoneNotice = !fill && !publicTeam && !notFound;
 
 	return (
 		<div className="flex h-full min-h-0 w-full flex-col overflow-clip" data-pane-surface={fill ? 'true' : undefined}>
@@ -118,6 +121,7 @@ export function PageLayout({
 			/>
 			<PageContentScroller contentClassName={fill ? 'h-full' : undefined}>
 				<main className={cn('relative flex min-h-full w-full flex-col p-4', fill && 'h-full min-h-0', className)}>
+					{showsTimeZoneNotice && <TimeZoneNotice className="mb-4" />}
 					{/* `clip`, not `hidden`: overflow-x hidden makes this a scroll container of its own. PageContentScroller owns scrolling. */}
 					<div
 						className={cn(
