@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTaskStatusesQuery } from './use-task-statuses-query';
 import { useEditTaskStatus } from './use-edit-task-status';
 import { useUpdateTask } from '../organizations';
+import { createLatestWriteQueue } from './latest-write-queue';
 import type { TTaskStatus } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import {
@@ -111,6 +112,17 @@ export function useKanbanLanes(tasks: TTask[], options?: { keepsLaneOrder?: bool
 	// changes what shows, as it would put back a value a newer change replaced.
 	const saveCountRef = useRef(0);
 	const latestSaveRef = useRef(new Map<string, number>());
+	// One write of each field of each status at a time, the latest value chosen meanwhile going next: two writes sent
+	// at once could land out of order, the older one overwriting the newer, and a reload would show the older value.
+	const [writeQueue] = useState(createLatestWriteQueue);
+	// A board left while its writes are on their way still sends the latest value chosen, but changes no state.
+	const isMountedRef = useRef(true);
+	useEffect(() => {
+		isMountedRef.current = true;
+		return () => {
+			isMountedRef.current = false;
+		};
+	}, []);
 	// The statuses this board shows now: a save that succeeded keeps its value shown until they change.
 	const shownStatusesRef = useRef(taskStatuses);
 	useEffect(() => {
@@ -147,7 +159,7 @@ export function useKanbanLanes(tasks: TTask[], options?: { keepsLaneOrder?: bool
 
 	/** Shows `value` for one field of a status at once and saves it; the latest save of that field decides what stays. */
 	const saveStatusField = useCallback(
-		async <F extends StatusField>(statusId: string, field: F, value: NonNullable<StatusOverride[F]>) => {
+		<F extends StatusField>(statusId: string, field: F, value: NonNullable<StatusOverride[F]>) => {
 			saveCountRef.current += 1;
 			const save = saveCountRef.current;
 			const key = `${statusId}:${field}`;
@@ -156,32 +168,34 @@ export function useKanbanLanes(tasks: TTask[], options?: { keepsLaneOrder?: bool
 				...current,
 				[statusId]: { ...current[statusId], [field]: { value, save } }
 			}));
-			let saved = false;
-			try {
-				saved = hasChanged(await editTaskStatus(statusId, { [field]: value }));
-			} catch (error) {
-				console.error('Kanban: could not save the status column', error);
-			}
-			if (latestSaveRef.current.get(key) !== save) {
-				return;
-			}
-			if (saved) {
-				const savedOn = shownStatusesRef.current;
-				setTaskStatuses((current) =>
-					current.map((status) => (status.id === statusId ? { ...status, [field]: value } : status))
-				);
-				setStatusOverrides((current) => settledOverrides(current, statusId, field, save, savedOn));
-				return;
-			}
-			// Refused or failed: the lane shows what the statuses hold (the last value saved), never an unsaved one.
-			setStatusOverrides((current) => settledOverrides(current, statusId, field, save, null));
+			writeQueue.enqueue(key, async () => {
+				let saved = false;
+				try {
+					saved = hasChanged(await editTaskStatus(statusId, { [field]: value }));
+				} catch (error) {
+					console.error('Kanban: could not save the status column', error);
+				}
+				if (!isMountedRef.current || latestSaveRef.current.get(key) !== save) {
+					return;
+				}
+				if (saved) {
+					const savedOn = shownStatusesRef.current;
+					setTaskStatuses((current) =>
+						current.map((status) => (status.id === statusId ? { ...status, [field]: value } : status))
+					);
+					setStatusOverrides((current) => settledOverrides(current, statusId, field, save, savedOn));
+					return;
+				}
+				// Refused or failed: the lane shows what the statuses hold (the last value saved), never an unsaved one.
+				setStatusOverrides((current) => settledOverrides(current, statusId, field, save, null));
+			});
 		},
-		[editTaskStatus, setTaskStatuses]
+		[editTaskStatus, setTaskStatuses, writeQueue]
 	);
 
 	const setLaneCollapsed = useCallback(
 		(status: TTaskStatus, isCollapsed: boolean) => {
-			void saveStatusField(status.id, 'isCollapsed', isCollapsed);
+			saveStatusField(status.id, 'isCollapsed', isCollapsed);
 		},
 		[saveStatusField]
 	);
@@ -194,7 +208,7 @@ export function useKanbanLanes(tasks: TTask[], options?: { keepsLaneOrder?: bool
 				.map((id, index) => ({ id, index }))
 				.filter(({ id, index }) => currentIds[index] !== id);
 			for (const { id, index } of changed) {
-				void saveStatusField(id, 'order', index);
+				saveStatusField(id, 'order', index);
 			}
 		},
 		[saveStatusField, statuses]
