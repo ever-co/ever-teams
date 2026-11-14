@@ -37,6 +37,10 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
 
 	const selectOption = (option: IOption) => {
 		setHidden(true);
+		// Locked while the menu was open: the choice no longer applies
+		if (disabled) {
+			return;
+		}
 		onOptionSelect(option);
 	};
 
@@ -46,6 +50,7 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
 			<li key={option.id} role="option" aria-selected={isSelected}>
 				<button
 					type="button"
+					disabled={disabled}
 					onClick={() => selectOption(option)}
 					className={classNames(
 						'block w-full rounded-md px-2 py-1.5 text-start text-sm hover:bg-zinc-900/5 focus-visible:bg-zinc-900/5 focus-visible:outline-none dark:hover:bg-white/10 dark:focus-visible:bg-white/10',
