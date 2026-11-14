@@ -14,7 +14,7 @@ const STORED = 0;
 const DEFLATED = 8;
 const INFLATE_CHUNK_BYTES = 64 * 1024;
 
-export interface ZipEntry {
+interface ZipEntry {
 	/** The path inside the archive, with forward slashes. */
 	name: string;
 	bytes: Uint8Array;
@@ -22,7 +22,7 @@ export interface ZipEntry {
 
 export type ZipProblem = 'notZip' | 'encrypted' | 'unsupported' | 'tooLarge';
 
-export type ZipReading = { entries: ZipEntry[]; problem: null } | { entries: null; problem: ZipProblem };
+type ZipReading = { entries: ZipEntry[]; problem: null } | { entries: null; problem: ZipProblem };
 
 class ZipRefusal extends Error {
 	constructor(readonly problem: ZipProblem) {

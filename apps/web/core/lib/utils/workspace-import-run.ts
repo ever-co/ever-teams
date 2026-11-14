@@ -4,7 +4,7 @@ export type WorkspaceStep = 'clients' | 'projects' | 'labels';
 
 export const WORKSPACE_STEPS: ReadonlyArray<WorkspaceStep> = ['clients', 'projects', 'labels'];
 
-export interface WorkspaceStepTally {
+interface WorkspaceStepTally {
 	created: number;
 	reused: number;
 	failed: number;
@@ -25,7 +25,7 @@ export interface WorkspaceCreators {
 	onProgress?: (tallies: WorkspaceTallies) => void;
 }
 
-export interface WorkspaceCreation {
+interface WorkspaceCreation {
 	tallies: WorkspaceTallies;
 	/** The step that failed and the name it failed on: nothing after it was sent, and the entries are not saved. */
 	failure: { step: WorkspaceStep; name: string; error: unknown } | null;
@@ -132,7 +132,7 @@ export async function runWorkspaceCreation(
 export type WorkspaceStepStatus = 'waiting' | 'running' | 'done' | 'failed';
 
 /** Where a creation stands, as the screen holds it. */
-export interface WorkspaceCreationProgress {
+interface WorkspaceCreationProgress {
 	status: 'idle' | 'creating' | 'created' | 'failed';
 	tallies: WorkspaceTallies | null;
 	failure: { step: WorkspaceStep } | null;

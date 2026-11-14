@@ -51,13 +51,13 @@ import type { ITagCreate } from '@/core/types/interfaces/tag/tag';
 import type { TCreateProjectRequest } from '@/core/types/schemas';
 
 /** The permissions the API asks for to add a project, and to add a label; any one of each is enough. */
-export const PROJECT_CREATE_PERMISSIONS = ['ALL_ORG_EDIT', 'ORG_PROJECT_ADD'] as const;
-export const LABEL_CREATE_PERMISSIONS = ['ALL_ORG_EDIT', 'ORG_TAGS_ADD'] as const;
+const PROJECT_CREATE_PERMISSIONS = ['ALL_ORG_EDIT', 'ORG_PROJECT_ADD'] as const;
+const LABEL_CREATE_PERMISSIONS = ['ALL_ORG_EDIT', 'ORG_TAGS_ADD'] as const;
 const CLIENT_VIEW_PERMISSIONS = ['ORG_CONTACT_VIEW'] as const;
 
 const MEMBER_UNKNOWN = 'memberUnknown';
 
-export type WorkspaceCreationStatus = 'idle' | 'creating' | 'created' | 'failed';
+type WorkspaceCreationStatus = 'idle' | 'creating' | 'created' | 'failed';
 
 export interface WorkspaceCreationState {
 	status: WorkspaceCreationStatus;
@@ -491,5 +491,3 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 		reset
 	};
 }
-
-export type WorkspaceImport = ReturnType<typeof useWorkspaceImport>;

@@ -37,7 +37,7 @@ export interface WorkspaceEntryRow {
 	isMemberUnknown: boolean;
 }
 
-export interface WorkspaceMember {
+interface WorkspaceMember {
 	employeeId: string;
 	name: string;
 }
@@ -79,10 +79,6 @@ export function nameKeyOf(name: string): string {
 /** The id a project the import will create stands under until it exists. */
 export function plannedProjectIdOf(name: string): string {
 	return `${PLANNED_PROJECT_PREFIX}${nameKeyOf(name)}`;
-}
-
-export function isPlannedProjectId(id: string): boolean {
-	return id.startsWith(PLANNED_PROJECT_PREFIX);
 }
 
 /** Splits a labels cell: commas or semicolons between the names. */
