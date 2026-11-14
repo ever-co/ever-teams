@@ -73,6 +73,25 @@ export function pickTokenOrganization<T extends { organizationId?: string | null
 }
 
 /**
+ * Whether two access tokens are of the same session scope: the same user, tenant and organization. A request pinned
+ * to one of them (api-request-scope.ts) may then be sent with the other, which a token of another workspace, or of
+ * someone else who signed in meanwhile in another tab, may never be.
+ */
+export function tokensShareScope(firstToken: string, secondToken: string): boolean {
+	const first = decodeJWT(firstToken) as (JWTPayload & { sub?: string }) | null;
+	const second = decodeJWT(secondToken) as (JWTPayload & { sub?: string }) | null;
+	if (!first || !second) {
+		return false;
+	}
+	const userId = first.id ?? first.sub;
+	const isSameUser = !!userId && userId === (second.id ?? second.sub);
+	const isSameTenant = (first.tenantId ?? null) === (second.tenantId ?? null);
+	const isSameOrganization = (first.organizationId ?? null) === (second.organizationId ?? null);
+
+	return isSameUser && isSameTenant && isSameOrganization;
+}
+
+/**
  * Check if a token NEEDS to be refreshed
  *
  * KEY LOGIC:
