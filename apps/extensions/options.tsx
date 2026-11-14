@@ -17,17 +17,23 @@ function Options() {
 	const [appUrl, setAppUrl] = useState(DEFAULT_APP_URL);
 	const [savedApiUrl, setSavedApiUrl] = useState(DEFAULT_API_URL);
 	const [state, setState] = useState<SaveState>('idle');
+	// Saved before the stored settings are read, the defaults would replace them
+	const [isLoaded, setIsLoaded] = useState(false);
 
 	useEffect(() => {
 		void loadSettings().then((settings) => {
 			setApiUrl(settings.apiUrl);
 			setAppUrl(settings.appUrl);
 			setSavedApiUrl(settings.apiUrl);
+			setIsLoaded(true);
 		});
 	}, []);
 
 	const onSubmit = async (event: FormEvent) => {
 		event.preventDefault();
+		if (!isLoaded) {
+			return;
+		}
 		const bothAllowed = isAllowedAddress(apiUrl) && isAllowedAddress(appUrl);
 		if (!bothAllowed) {
 			setState('invalid');
@@ -84,7 +90,7 @@ function Options() {
 				<p className="text-xs text-zinc-500 dark:text-zinc-400">{t('optionsSignedOutNote')}</p>
 				{state === 'invalid' && <Notice tone="error">{t('optionsInvalidUrl')}</Notice>}
 				{state === 'saved' && <Notice tone="info">{t('optionsSaved')}</Notice>}
-				<button type="submit" className={`${primaryButton} self-start`}>
+				<button type="submit" className={`${primaryButton} self-start`} disabled={!isLoaded}>
 					{t('optionsSave')}
 				</button>
 			</form>
