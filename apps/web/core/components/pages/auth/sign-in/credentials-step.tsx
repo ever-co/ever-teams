@@ -19,6 +19,7 @@ import { AUTH_TEXT_LINK } from '@/core/components/auth/kit/auth-recipes';
 import { AuthReveal, AuthSwap } from '@/core/components/auth/kit/auth-reveal';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { cn } from '@/core/lib/helpers';
+import { SessionEndedNotice } from './session-ended-notice';
 
 const FORM_ID = 'sign-in-credentials';
 
@@ -171,6 +172,7 @@ export function CredentialsStep({
 
 	const form = (
 		<div className="flex min-w-0 flex-1 flex-col">
+			<SessionEndedNotice className="mb-6" />
 			<AuthMethodSwitch method={method} onMethodChange={switchMethod} />
 			<AuthHeading
 				mark={mark}

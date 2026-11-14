@@ -112,10 +112,14 @@ export function useTimerStorage({ firstLoad, activeTeamId }: UseTimerStoragePara
 			setLocalTimerStatus(localStatus);
 		}
 
-		const timerStatusDate = timerStatusRef.current?.lastLog?.createdAt
-			? moment(timerStatusRef.current.lastLog.createdAt).unix() * 1000 -
-				(timerStatusRef.current.lastLog.duration ?? 0)
+		// The clock counts from the start of the run, which can be moved while it runs (#5203); a log without a start
+		// keeps the time it was created.
+		const lastLog = timerStatusRef.current?.lastLog;
+		const runStartDate = lastLog?.startedAt ? new Date(lastLog.startedAt).getTime() : Number.NaN;
+		const createdAtDate = lastLog?.createdAt
+			? moment(lastLog.createdAt).unix() * 1000 - (lastLog.duration ?? 0)
 			: 0;
+		const timerStatusDate = Number.isFinite(runStartDate) ? runStartDate : createdAtDate;
 
 		if (timerStatusRef.current) {
 			updateLocalTimerStatus({

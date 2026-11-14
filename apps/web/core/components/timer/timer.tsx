@@ -10,6 +10,8 @@ import { Text } from '@/core/components/common/typography';
 import { useTranslations } from 'next-intl';
 import { TimerButton } from './timer-button';
 import { TimerEntryToggles } from './timer-entry-toggles';
+import { TimerStartPopover } from './timer-start-popover';
+import { TimerRunMenu } from './timer-run-menu';
 import { Transition } from '@headlessui/react';
 
 import { ArrowTurnUp, Desktop, Globe, Lifebuoy, Smartphone } from '@/core/components/icons';
@@ -80,6 +82,18 @@ function timerButtonClassNameOf(compact: boolean) {
 	return 'size-11';
 }
 
+/**
+ * The run's menu, beside the start button. The home timer's row has no room for a fourth round control on a phone:
+ * the block under the timer carries the menu there (`TaskTimerSection`). The profile's compact row keeps it.
+ */
+function runMenuClassNameOf(compact: boolean) {
+	const diameter = timerButtonClassNameOf(compact);
+	if (compact) {
+		return diameter;
+	}
+	return clsxm(diameter, 'max-sm:hidden');
+}
+
 export function Timer({ className, showTimerButton = true, compact = false }: IClassName<{ compact?: boolean }>) {
 	const t = useTranslations();
 	const hydrated = useHydrated();
@@ -148,6 +162,7 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 	const clockClassName = clockClassNameOf(compact);
 	const runningFractionClassName = runningFractionClassNameOf(compact);
 	const timerButtonClassName = timerButtonClassNameOf(compact);
+	const runMenuClassName = runMenuClassNameOf(compact);
 
 	return (
 		<div className={clsxm('flex min-w-[260px] flex-row items-center justify-between gap-4 p-2', className)}>
@@ -177,7 +192,9 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 								className={clsxm(clockClassName, isTrackedElsewhere && 'text-muted-foreground')}
 							>
 								{isTimerRunning ? (
-									<RunningClock className={runningFractionClassName} />
+									<TimerStartPopover>
+										<RunningClock className={runningFractionClassName} />
+									</TimerStartPopover>
 								) : (
 									`${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`
 								)}
@@ -206,6 +223,7 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 			{showTimerButton && (
 				<div className="flex h-fit shrink-0 items-center justify-center">
 					<div className="flex items-center gap-3">
+						<TimerRunMenu className={runMenuClassName} />
 						<Tooltip
 							label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
 							placement="top-start"
@@ -242,6 +260,9 @@ const MIN_TIMER_FRAME =
 const MIN_TIMER_TOGGLES = 'hidden sm:flex';
 
 const MIN_TIMER_TOGGLE = 'size-6';
+
+/** The run's menu follows the toggles: from sm up in the pill, the main timer carries it on a phone. */
+const MIN_TIMER_RUN_MENU = 'max-sm:hidden';
 
 export function MinTimerFrame({ className }: IClassName) {
 	const hydrated = useHydrated();
@@ -285,7 +306,11 @@ export function MinTimerFrame({ className }: IClassName) {
 				key={timerStatus?.running ? 'running' : 'stopped'}
 			>
 				<Text className="w-[5.5rem] shrink-0 whitespace-nowrap text-[13px] font-medium tabular-nums">
-					{isTimerRunning && <RunningClock className="text-muted-foreground" />}
+					{isTimerRunning && (
+						<TimerStartPopover>
+							<RunningClock className="text-muted-foreground" />
+						</TimerStartPopover>
+					)}
 					{!isTimerRunning && todayWorkedLabel}
 				</Text>
 			</Transition>
@@ -303,6 +328,8 @@ export function MinTimerFrame({ className }: IClassName) {
 					<TimerRunningSourceIcon source={timerStatus?.lastLog?.source || ETimeLogSource.TEAMS} />
 				</Tooltip>
 			)}
+
+			<TimerRunMenu className={clsxm(MIN_TIMER_TOGGLE, MIN_TIMER_RUN_MENU)} />
 
 			<div className="z-[50] flex">
 				<TimerButton
