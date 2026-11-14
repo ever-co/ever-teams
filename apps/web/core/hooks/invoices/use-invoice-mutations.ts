@@ -631,7 +631,8 @@ async function changeStatusInItsWorkspace(request: InvoiceStatusChangeRequest): 
 		return request.change;
 	}
 	const change = await currentPaymentChangeOf(request.invoiceId, request.payment, workspace);
-	// Another tab may have switched the workspace while the invoice was read
+	// Checked again against the cookies, which another tab may have switched while the invoice was read: it throws
+	// then, and returns the same read workspace otherwise, so the read and the write never go to two workspaces
 	const changeScope = workspaceToActIn(request.scope);
 	await invoiceService.changeInvoiceStatus(request.invoiceId, change, changeScope);
 	return change;

@@ -46,6 +46,23 @@ function saveOf(id: string, overrides: Partial<ITimeLog> = {}): BulkEditSave {
 	return { log, fields: { isBillable: true } };
 }
 
+interface TimeLogsRead {
+	startDate: Date;
+	endDate: Date;
+	employeeIds: string[];
+}
+
+/** The API lists the member's entries that start within the days read: the test reads whole days in UTC. */
+function isReadBy({ startDate, endDate, employeeIds }: TimeLogsRead) {
+	const from = new Date(startDate).setUTCHours(0, 0, 0, 0);
+	const to = new Date(endDate).setUTCHours(23, 59, 59, 999);
+	return (log: ITimeLog) => {
+		const start = new Date(log.startedAt ?? 0).getTime();
+		const isOfMember = employeeIds.includes(log.employeeId ?? '');
+		return isOfMember && start >= from && start <= to;
+	};
+}
+
 function storedLog(id: string): ITimeLog {
 	const log = mockStoredLogs.find((candidate) => candidate.id === id);
 	if (!log) {
@@ -91,7 +108,7 @@ describe('useBulkEditRun', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		mockStoredLogs = [];
-		mockGetTimeLogs.mockImplementation(async () => mockStoredLogs);
+		mockGetTimeLogs.mockImplementation(async (params: TimeLogsRead) => mockStoredLogs.filter(isReadBy(params)));
 		mockGetTimeLogConflicts.mockResolvedValue([]);
 		mockUpdateTimeLog.mockResolvedValue({});
 	});
@@ -141,6 +158,21 @@ describe('useBulkEditRun', () => {
 		]);
 		expect(mockUpdateTimeLog).toHaveBeenCalledTimes(1);
 		expect(mockUpdateTimeLog).toHaveBeenCalledWith(expect.objectContaining({ timeLogId: 'b' }));
+	});
+
+	it('saves nothing for an entry moved to another day since the dialog read it', async () => {
+		const save = saveOf('a');
+		storedLog('a').startedAt = new Date('2026-11-12T09:00:00.000Z');
+		storedLog('a').stoppedAt = new Date('2026-11-12T10:00:00.000Z');
+		const { result } = renderRun();
+
+		let outcomes: BulkEditOutcome[] | null = null;
+		await act(async () => {
+			outcomes = await result.current.run([save]);
+		});
+
+		expect(outcomes).toEqual([{ logId: 'a', status: 'failed' }]);
+		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
 	});
 
 	it('saves nothing for an entry that cannot be read again', async () => {
