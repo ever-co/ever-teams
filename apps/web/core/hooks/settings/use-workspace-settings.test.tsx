@@ -7,6 +7,7 @@ import type { PropsWithChildren } from 'react';
 
 import { queryKeys } from '@/core/query/keys';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
+import { EWeekDays } from '@/core/types/generics/enums/date';
 
 const mockUpdateOrganization = jest.fn();
 const mockRenameTenant = jest.fn();
@@ -209,6 +210,46 @@ describe('saving the currency and the formats', () => {
 			dateFormat: null,
 			numberFormat: '1 234,56'
 		});
+	});
+
+	it('saves the week start, the clock and the side of the currency sign, and says each one changed', async () => {
+		const { view, client } = renderSettings();
+
+		await act(async () => {
+			await view.result.current.saveWeekStart(EWeekDays.SUNDAY);
+			await view.result.current.saveClock(24);
+			await view.result.current.saveCurrencyPosition('RIGHT');
+		});
+
+		expect(mockUpdateOrganization).toHaveBeenCalledWith(expect.anything(), { startWeekOn: EWeekDays.SUNDAY });
+		expect(mockUpdateOrganization).toHaveBeenCalledWith(expect.anything(), { timeFormat: 24 });
+		expect(mockUpdateOrganization).toHaveBeenCalledWith(expect.anything(), { currencyPosition: 'RIGHT' });
+		expect(client.getQueryData(ORGANIZATION_KEY)).toEqual({
+			...organization,
+			startWeekOn: EWeekDays.SUNDAY,
+			timeFormat: 24,
+			currencyPosition: 'RIGHT'
+		});
+		expect(mockToast.success).toHaveBeenCalledWith('settings.workspace.WEEK_START_SAVED', {
+			description: 'settings.workspace.EVERY_PAGE_OUTCOME'
+		});
+		expect(mockToast.success).toHaveBeenCalledWith('settings.workspace.CLOCK_SAVED', {
+			description: 'settings.workspace.EVERY_PAGE_OUTCOME'
+		});
+		expect(mockToast.success).toHaveBeenCalledWith('settings.workspace.CURRENCY_POSITION_SAVED', {
+			description: 'settings.workspace.EVERY_PAGE_OUTCOME'
+		});
+	});
+
+	it('says why a week start was not saved, and puts the row back', async () => {
+		mockUpdateOrganization.mockRejectedValueOnce(new Error('refused'));
+		const { view } = renderSettings();
+
+		await act(async () => {
+			await expect(view.result.current.saveWeekStart(EWeekDays.SATURDAY)).rejects.toThrow('refused');
+		});
+
+		expect(mockToast.error).toHaveBeenCalledWith('settings.workspace.WEEK_START_NOT_SAVED', expect.anything());
 	});
 
 	it('keeps the organization as the API stored it, with what another admin changed since the page read it', async () => {

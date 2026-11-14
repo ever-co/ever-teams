@@ -20,11 +20,7 @@ import { useManualTimeEditsReport } from '@/core/hooks/dashboards/manual-time-ed
 import { useTimesheetDialogs } from '@/core/hooks/dashboards/timesheets/use-timesheet-dialogs';
 import { useTimesheetLogActions } from '@/core/hooks/dashboards/timesheets/use-timesheet-log-actions';
 import { formatPeriod } from '@/core/lib/utils/dashboard-period';
-import {
-	type EditsFigures,
-	MANUAL_EDITS_WEEK_START,
-	type ManualTimeEntry
-} from '@/core/lib/utils/dashboards/manual-time-edits';
+import { type EditsFigures, type ManualTimeEntry } from '@/core/lib/utils/dashboards/manual-time-edits';
 import { isTrackingEnabledState } from '@/core/stores';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
@@ -41,6 +37,7 @@ import {
 	EditsGroupingControl,
 	useEditsFilterCategories
 } from './manual-time-edits-toolbar';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 
 const PAGE_PATH = '/reports/manual-time-edits';
 
@@ -56,6 +53,7 @@ function noop() {
 
 export function ManualTimeEditsPage() {
 	const t = useTranslations();
+	const weekStart = useWorkspaceWeekStart();
 	const locale = useWorkspaceLocale();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const report = useManualTimeEditsReport({ unnamedLabel: t('timeActivity.UNNAMED_EMPLOYEE') });
@@ -154,7 +152,7 @@ export function ManualTimeEditsPage() {
 							<PeriodPicker
 								value={report.period}
 								onChange={report.setPeriod}
-								weekStartsOn={MANUAL_EDITS_WEEK_START}
+								weekStartsOn={weekStart}
 								locale={locale}
 							/>
 							<EditsFilterMenu

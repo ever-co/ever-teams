@@ -13,7 +13,7 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { Invoice } from '@/core/components/icons';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { PageLayout } from '@/core/components/layouts/default-layout';
-import { INVOICE_WEEK_START, useNewInvoice, type NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
+import { useNewInvoice, type NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
 import { formatPeriod, shiftPeriod } from '@/core/lib/utils/dashboard-period';
 import type { InvoiceGrouping } from '@/core/lib/utils/invoices';
 import { isTrackingEnabledState } from '@/core/stores';
@@ -24,6 +24,8 @@ import { GROUPING_SWITCH } from './new-invoice-recipes';
 import { InvoiceSheetSkeleton, MessageLink, NewInvoiceMessage, NewInvoicePageSkeleton } from './new-invoice-states';
 import { ReplacementInvoiceContent } from './replacement-invoice';
 import { SaveInvoiceDialog } from './save-invoice-dialog';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
+import { useCurrentOrganizationOwner } from '@/core/hooks/bootstrap/use-feature-data';
 
 function ClientMenu({ invoice, className }: Readonly<{ invoice: NewInvoiceState; className?: string }>) {
 	return (
@@ -131,6 +133,7 @@ function NewInvoiceBody({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 /** Mounted once the role may create invoices: nothing of an invoice is read for anyone else. */
 function NewInvoiceContent() {
 	const t = useTranslations();
+	const weekStart = useWorkspaceWeekStart();
 	const locale = useLocale();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const invoice = useNewInvoice();
@@ -168,7 +171,7 @@ function NewInvoiceContent() {
 							<PeriodPicker
 								value={invoice.period}
 								onChange={invoice.changePeriod}
-								weekStartsOn={INVOICE_WEEK_START}
+								weekStartsOn={weekStart}
 							/>
 							<SegmentedControl<InvoiceGrouping>
 								items={groupingItems}
@@ -197,7 +200,9 @@ function NewInvoiceRoute() {
 	return <NewInvoiceContent />;
 }
 
+/** The workspace's week start, clock and formats come with the organisation, loaded here on a direct visit. */
 function NewInvoicePage() {
+	useCurrentOrganizationOwner();
 	return (
 		<InvoiceAccessGuard need="create" fallback={<NewInvoicePageSkeleton />}>
 			<NewInvoiceRoute />

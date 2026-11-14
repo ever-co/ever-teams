@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import Image from 'next/image';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useModal } from '@/core/hooks';
 import { useTimeSlots } from '@/core/hooks/activities/use-time-slots';
 import { IScreenShootItem } from '@/core/types/interfaces/timer/screenshoot/screenshoot';
@@ -25,6 +25,8 @@ import {
 	slotRangeTextOf,
 	useScreenshotSlotActions
 } from './screenshot-slots';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 
 type ScreenshotItemProps = IScreenShootItem & {
 	/** How many screenshots the slot holds; the badge shows from two. */
@@ -187,8 +189,8 @@ function ScreenshotTile({
 	slotActions
 }: Readonly<ScreenshotItemProps & { slotActions: ScreenshotSlotActions }>) {
 	const t = useTranslations();
-	const locale = useLocale();
-	const timeFormat = useMemo(() => new Intl.DateTimeFormat(locale, TIME_OPTIONS), [locale]);
+	const locale = useWorkspaceLocale();
+	const timeFormat = useMemo(() => dateFormatOf(locale, TIME_OPTIONS), [locale]);
 	const rangeText = slotRangeTextOf(timeFormat, startTime, endTime);
 	const startText = slotRangeTextOf(timeFormat, startTime);
 	const alt = t('profile.activity.SCREENSHOT_ALT', { time: startText });

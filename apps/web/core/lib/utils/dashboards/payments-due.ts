@@ -1,6 +1,7 @@
 import { isSameYear, isToday, isYesterday, startOfWeek } from 'date-fns';
 import type { DayBarDatum } from '@/core/components/dashboards/kit/day-bars-chart';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
+import type { WeekStart } from '@/core/lib/utils/dashboard-period';
 import { formatAmount } from '@/core/lib/utils/daily-report-figures';
 import type { TOwedReportDay, TOwedReportEmployee } from '@/core/types/schemas/timer/time-log-reports.schema';
 import { dateFormatOf, numberFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
@@ -13,7 +14,7 @@ export type OwedRateSource = 'pay' | 'billing';
 /** What a line priced at the billing rate says: that no pay rate is set, or only that it is the billing rate. */
 export type OwedRateNote = 'payRateNotSet' | 'billingRate';
 
-export const PAYMENTS_WEEK_START = 1;
+export const PAYMENTS_WEEK_START: WeekStart = 1;
 
 const SECONDS_PER_HOUR = 3600;
 
@@ -800,24 +801,24 @@ interface ColumnSlot {
 	isFuture: boolean;
 }
 
-function columnStartOf(day: Date, isWeekly: boolean) {
+function columnStartOf(day: Date, isWeekly: boolean, weekStartsOn: WeekStart) {
 	if (!isWeekly) {
 		return day;
 	}
-	return startOfWeek(day, { weekStartsOn: PAYMENTS_WEEK_START });
+	return startOfWeek(day, { weekStartsOn });
 }
 
-function columnKeyOf(day: Date, isWeekly: boolean) {
-	const start = columnStartOf(day, isWeekly);
+function columnKeyOf(day: Date, isWeekly: boolean, weekStartsOn: WeekStart) {
+	const start = columnStartOf(day, isWeekly, weekStartsOn);
 	return localDayKeyOf(start);
 }
 
-function columnSlotsOf(days: ReadonlyArray<Date>, isWeekly: boolean, now: Date): ColumnSlot[] {
-	const todayKey = columnKeyOf(now, isWeekly);
+function columnSlotsOf(days: ReadonlyArray<Date>, isWeekly: boolean, now: Date, weekStartsOn: WeekStart): ColumnSlot[] {
+	const todayKey = columnKeyOf(now, isWeekly, weekStartsOn);
 	const seenKeys = new Set<string>();
 	const slots: ColumnSlot[] = [];
 	for (const day of days) {
-		const key = columnKeyOf(day, isWeekly);
+		const key = columnKeyOf(day, isWeekly, weekStartsOn);
 		if (seenKeys.has(key)) {
 			continue;
 		}
@@ -829,14 +830,14 @@ function columnSlotsOf(days: ReadonlyArray<Date>, isWeekly: boolean, now: Date):
 	return slots;
 }
 
-function amountsByCurrencyOf(lines: ReadonlyArray<OwedLine>, isWeekly: boolean) {
+function amountsByCurrencyOf(lines: ReadonlyArray<OwedLine>, isWeekly: boolean, weekStartsOn: WeekStart) {
 	const byCurrency = new Map<string, AmountsByColumn>();
 	for (const line of lines) {
 		if (line.amount === null) {
 			continue;
 		}
 		const currencyKey = currencyKeyOf(line.currency);
-		const columnKey = columnKeyOf(line.day, isWeekly);
+		const columnKey = columnKeyOf(line.day, isWeekly, weekStartsOn);
 		const byColumn = byCurrency.get(currencyKey) ?? new Map<string, number>();
 		const current = byColumn.get(columnKey) ?? 0;
 		byColumn.set(columnKey, current + line.amount);
@@ -874,16 +875,19 @@ export function owedTilesOf({
 	currencies,
 	lines,
 	days,
-	now = new Date()
+	now = new Date(),
+	weekStartsOn = PAYMENTS_WEEK_START
 }: Readonly<{
 	currencies: ReadonlyArray<OwedCurrencyTotal>;
 	lines: ReadonlyArray<OwedLine>;
 	days: ReadonlyArray<Date>;
 	now?: Date;
+	/** The first day of the weekly columns, when the period is too long for one column a day. */
+	weekStartsOn?: WeekStart;
 }>): OwedTile[] {
 	const isWeekly = days.length > MAX_DAY_COLUMNS;
-	const slots = columnSlotsOf(days, isWeekly, now);
-	const amountsByCurrency = amountsByCurrencyOf(lines, isWeekly);
+	const slots = columnSlotsOf(days, isWeekly, now, weekStartsOn);
+	const amountsByCurrency = amountsByCurrencyOf(lines, isWeekly, weekStartsOn);
 	return currencies.map((total) => {
 		const byColumn = amountsByCurrency.get(total.key);
 		return tileOf(total, slots, byColumn, isWeekly);

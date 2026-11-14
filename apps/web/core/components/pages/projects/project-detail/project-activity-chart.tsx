@@ -4,7 +4,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { useFormatter, useTranslations } from 'next-intl';
 import { startOfWeek } from 'date-fns';
 import { cn } from '@/core/lib/helpers';
-import { activityBarPercentOf, projectActivityOf, type ProjectActivity } from '@/core/lib/utils/project-activity';
+import {
+	activityBarPercentOf,
+	DEFAULT_ACTIVITY_WEEKS,
+	projectActivityOf,
+	type ProjectActivity
+} from '@/core/lib/utils/project-activity';
+import type { WeekStart } from '@/core/lib/utils/dashboard-period';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import type { TTaskStatus } from '@/core/types/schemas/task/task-status.schema';
 
@@ -12,25 +19,25 @@ const SQUARE = 'size-2 shrink-0 rounded-[2px]';
 const CHART_HEIGHT_CLASS = 'h-16';
 const WEEK_CHECK_INTERVAL_MS = 5 * 60 * 1000;
 
-/** Whether two dates fall in the same Monday-based week. */
-function sameWeek(first: Date, second: Date) {
-	const firstStart = startOfWeek(first, { weekStartsOn: 1 });
-	const secondStart = startOfWeek(second, { weekStartsOn: 1 });
+/** Whether two dates fall in the same week. */
+function sameWeek(first: Date, second: Date, weekStartsOn: WeekStart) {
+	const firstStart = startOfWeek(first, { weekStartsOn });
+	const secondStart = startOfWeek(second, { weekStartsOn });
 	return firstStart.getTime() === secondStart.getTime();
 }
 
 /** The current time, replaced only when a new week begins, so a tab left open keeps the window moving. */
-function useNowByWeek(): Date {
+function useNowByWeek(weekStartsOn: WeekStart): Date {
 	const [now, setNow] = useState(() => new Date());
 	useEffect(() => {
 		const timer = setInterval(() => {
 			setNow((previous) => {
 				const current = new Date();
-				return sameWeek(previous, current) ? previous : current;
+				return sameWeek(previous, current, weekStartsOn) ? previous : current;
 			});
 		}, WEEK_CHECK_INTERVAL_MS);
 		return () => clearInterval(timer);
-	}, []);
+	}, [weekStartsOn]);
 	return now;
 }
 
@@ -85,8 +92,12 @@ export function ProjectActivityChart({
 	statuses
 }: Readonly<{ tasks: ReadonlyArray<TTask>; statuses: TTaskStatus[] }>) {
 	const t = useTranslations();
-	const now = useNowByWeek();
-	const activity = useMemo(() => projectActivityOf(tasks, statuses, now), [now, statuses, tasks]);
+	const weekStart = useWorkspaceWeekStart();
+	const now = useNowByWeek(weekStart);
+	const activity = useMemo(
+		() => projectActivityOf(tasks, statuses, now, DEFAULT_ACTIVITY_WEEKS, weekStart),
+		[now, statuses, tasks, weekStart]
+	);
 	const hasActivity = activity.created > 0 || activity.completed > 0;
 	const hasUndated = activity.undatedDone > 0;
 
