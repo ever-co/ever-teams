@@ -5435,7 +5435,7 @@
 			"TURN_OFF_PROOF": "Para a desativar, introduza um código da aplicação ou um código de recuperação",
 			"NEW_CODES_PROOF": "Para obter novos códigos de recuperação, introduza um código da aplicação ou um código de recuperação. Os códigos atuais deixam de funcionar.",
 			"PROOF_HINT": "Um código de 6 dígitos da sua aplicação de autenticação, ou um dos seus códigos de recuperação.",
-			"PROOF_PLACEHOLDER": "123456 ou XXXXX-XXXXX",
+			"PROOF_PLACEHOLDER": "123456 ou XXXX-XXXX-XXXX-XXXX",
 			"PROOF_INCOMPLETE": "Introduza um código de 6 dígitos ou um código de recuperação completo.",
 			"WRONG_CODE": "Este código não está correto. Introduza o código que a aplicação mostra agora, ou um código de recuperação.",
 			"TOO_MANY": "Demasiados códigos errados. Tente novamente dentro de {minutes, plural, one {# minuto} other {# minutos}}.",

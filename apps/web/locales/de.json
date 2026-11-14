@@ -5435,7 +5435,7 @@
 			"TURN_OFF_PROOF": "Zum Ausschalten gib einen Code aus deiner App oder einen Wiederherstellungscode ein",
 			"NEW_CODES_PROOF": "Für neue Wiederherstellungscodes gib einen Code aus deiner App oder einen Wiederherstellungscode ein. Die bisherigen Codes gelten dann nicht mehr.",
 			"PROOF_HINT": "Ein 6-stelliger Code aus deiner Authenticator-App oder einer deiner Wiederherstellungscodes.",
-			"PROOF_PLACEHOLDER": "123456 oder XXXXX-XXXXX",
+			"PROOF_PLACEHOLDER": "123456 oder XXXX-XXXX-XXXX-XXXX",
 			"PROOF_INCOMPLETE": "Gib einen 6-stelligen Code oder einen vollständigen Wiederherstellungscode ein.",
 			"WRONG_CODE": "Dieser Code stimmt nicht. Gib den Code ein, den deine App jetzt anzeigt, oder einen Wiederherstellungscode.",
 			"TOO_MANY": "Zu viele falsche Codes. Versuche es in {minutes, plural, one {# Minute} other {# Minuten}} erneut.",

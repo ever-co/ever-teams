@@ -5435,7 +5435,7 @@
 			"TURN_OFF_PROOF": "To turn it off, enter a code from your app or a recovery code",
 			"NEW_CODES_PROOF": "To get new recovery codes, enter a code from your app or a recovery code. The current codes stop working.",
 			"PROOF_HINT": "A 6-digit code from your authenticator app, or one of your recovery codes.",
-			"PROOF_PLACEHOLDER": "123456 or XXXXX-XXXXX",
+			"PROOF_PLACEHOLDER": "123456 or XXXX-XXXX-XXXX-XXXX",
 			"PROOF_INCOMPLETE": "Enter a 6-digit code or a whole recovery code.",
 			"WRONG_CODE": "This code is not right. Enter the code your app shows now, or a recovery code.",
 			"TOO_MANY": "Too many wrong codes. Try again in {minutes, plural, one {# minute} other {# minutes}}.",

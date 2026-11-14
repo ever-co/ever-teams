@@ -5435,7 +5435,7 @@
 			"TURN_OFF_PROOF": "Pour la désactiver, saisissez un code de votre application ou un code de récupération",
 			"NEW_CODES_PROOF": "Pour obtenir de nouveaux codes de récupération, saisissez un code de votre application ou un code de récupération. Les codes actuels cesseront de fonctionner.",
 			"PROOF_HINT": "Un code à 6 chiffres de votre application d’authentification, ou l’un de vos codes de récupération.",
-			"PROOF_PLACEHOLDER": "123456 ou XXXXX-XXXXX",
+			"PROOF_PLACEHOLDER": "123456 ou XXXX-XXXX-XXXX-XXXX",
 			"PROOF_INCOMPLETE": "Saisissez un code à 6 chiffres ou un code de récupération complet.",
 			"WRONG_CODE": "Ce code n’est pas le bon. Saisissez le code affiché maintenant par votre application, ou un code de récupération.",
 			"TOO_MANY": "Trop de codes erronés. Réessayez dans {minutes, plural, one {# minute} other {# minutes}}.",

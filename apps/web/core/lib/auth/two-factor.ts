@@ -3,7 +3,7 @@ import { TWO_FACTOR_REQUIRED_CODE, type ITwoFactorChallenge } from '@/core/types
 /** The length of a code from an authenticator app (RFC 6238). */
 export const TWO_FACTOR_CODE_LENGTH = 6;
 
-/** The fewest letters and digits a recovery code has (the API writes them `XXXXX-XXXXX`). */
+/** The fewest letters and digits a recovery code has (the API writes them `XXXX-XXXX-XXXX-XXXX`). */
 const RECOVERY_CODE_MIN_CHARACTERS = 8;
 
 type UnknownRecord = Record<string, unknown>;

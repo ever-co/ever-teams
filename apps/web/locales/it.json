@@ -5435,7 +5435,7 @@
 			"TURN_OFF_PROOF": "Per disattivarla, inserisci un codice dell’app o un codice di recupero",
 			"NEW_CODES_PROOF": "Per avere nuovi codici di recupero, inserisci un codice dell’app o un codice di recupero. I codici attuali smetteranno di funzionare.",
 			"PROOF_HINT": "Un codice di 6 cifre dall’app di autenticazione, o uno dei tuoi codici di recupero.",
-			"PROOF_PLACEHOLDER": "123456 o XXXXX-XXXXX",
+			"PROOF_PLACEHOLDER": "123456 o XXXX-XXXX-XXXX-XXXX",
 			"PROOF_INCOMPLETE": "Inserisci un codice di 6 cifre o un codice di recupero completo.",
 			"WRONG_CODE": "Questo codice non è corretto. Inserisci il codice che l’app mostra ora, o un codice di recupero.",
 			"TOO_MANY": "Troppi codici errati. Riprova tra {minutes, plural, one {# minuto} other {# minuti}}.",

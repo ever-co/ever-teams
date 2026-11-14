@@ -5435,7 +5435,7 @@
 			"TURN_OFF_PROOF": "Voer om uit te zetten een code uit je app of een herstelcode in",
 			"NEW_CODES_PROOF": "Voer voor nieuwe herstelcodes een code uit je app of een herstelcode in. De huidige codes werken dan niet meer.",
 			"PROOF_HINT": "Een 6-cijferige code uit je authenticator-app, of een van je herstelcodes.",
-			"PROOF_PLACEHOLDER": "123456 of XXXXX-XXXXX",
+			"PROOF_PLACEHOLDER": "123456 of XXXX-XXXX-XXXX-XXXX",
 			"PROOF_INCOMPLETE": "Voer een 6-cijferige code of een volledige herstelcode in.",
 			"WRONG_CODE": "Deze code klopt niet. Voer de code in die je app nu toont, of een herstelcode.",
 			"TOO_MANY": "Te veel verkeerde codes. Probeer het over {minutes, plural, one {# minuut} other {# minuten}} opnieuw.",

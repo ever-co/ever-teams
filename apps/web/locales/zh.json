@@ -5435,7 +5435,7 @@
 			"TURN_OFF_PROOF": "如需关闭，请输入应用中的验证码或恢复码",
 			"NEW_CODES_PROOF": "如需获取新的恢复码，请输入应用中的验证码或恢复码。当前的恢复码将失效。",
 			"PROOF_HINT": "身份验证器应用中的 6 位验证码，或您的某个恢复码。",
-			"PROOF_PLACEHOLDER": "123456 或 XXXXX-XXXXX",
+			"PROOF_PLACEHOLDER": "123456 或 XXXX-XXXX-XXXX-XXXX",
 			"PROOF_INCOMPLETE": "请输入 6 位验证码或完整的恢复码。",
 			"WRONG_CODE": "验证码不正确。请输入应用当前显示的验证码或恢复码。",
 			"TOO_MANY": "错误验证码过多。请在 {minutes} 分钟后重试。",

@@ -159,7 +159,7 @@ export function TwoFactorStep({ twoFactor, email, onRestart }: Readonly<TwoFacto
 						id="two-factor-recovery-code"
 						name="recoveryCode"
 						label={t('auth.twoFactor.RECOVERY_LABEL')}
-						placeholder="XXXXX-XXXXX"
+						placeholder="XXXX-XXXX-XXXX-XXXX"
 						icon={<Key />}
 						value={recoveryCode}
 						onChange={(event) => setRecoveryCode(recoveryCodeOf(event.target.value))}
