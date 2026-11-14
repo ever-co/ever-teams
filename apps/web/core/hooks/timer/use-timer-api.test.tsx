@@ -457,7 +457,7 @@ describe('Start while another organization of the workspace is opening', () => {
 			return billableRead;
 		});
 
-		let started: Promise<unknown> = Promise.resolve();
+		let started: Promise<unknown> | undefined;
 		act(() => {
 			started = tab.result.current.startTimer(TASK);
 		});
