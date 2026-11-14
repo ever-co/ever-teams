@@ -69,9 +69,12 @@ const PLANNED_PROJECT_PREFIX = 'planned:';
 const TRUE_WORDS = ['yes', 'true', '1', 'billable', 'y'];
 const FALSE_WORDS = ['no', 'false', '0', 'non billable', 'not billable', 'n'];
 
-/** How two names are compared: letter case, outer spaces and repeated spaces aside. */
+/**
+ * How two names are compared: letter case and outer spaces aside, as the time import compares the project of an
+ * entry, so that a project the plan reuses is the one the entry is filed under.
+ */
 export function nameKeyOf(name: string): string {
-	return name.normalize('NFC').trim().replace(/\s+/gu, ' ').toLowerCase();
+	return name.normalize('NFC').trim().toLowerCase();
 }
 
 /** The id a project the import will create stands under until it exists. */

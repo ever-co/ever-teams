@@ -133,7 +133,8 @@ describe('cell readers', () => {
 	});
 
 	it('gives a project still to create a stand-in id from its name', () => {
-		expect(nameKeyOf('  My   Project ')).toBe('my project');
+		// Compared as the time import compares the project of an entry: spaces inside a name count
+		expect(nameKeyOf('  My   Project ')).toBe('my   project');
 		expect(plannedProjectIdOf('My Project')).toBe('planned:my project');
 	});
 });
