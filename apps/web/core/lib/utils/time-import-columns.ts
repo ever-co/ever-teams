@@ -162,6 +162,9 @@ const FIELD_BY_HEADER: ReadonlyMap<string, TimeImportField> = fieldByHeaderOf();
 /** The fields whose cells can hold a date: the date and the end date, and a start or an end written with its date. */
 const DATE_FIELDS: ReadonlyArray<TimeImportField> = ['date', 'startTime', 'endDate', 'endTime'];
 
+/** The fields read for a day only. */
+const DAY_FIELDS: ReadonlyArray<TimeImportField> = ['date', 'endDate'];
+
 function isLeftOutWithoutAsking(words: string): boolean {
 	const isBlank = words === '';
 	const isReportColumn = REPORT_ONLY_HEADERS.has(words);
@@ -326,12 +329,32 @@ function dateColumnsOf(mapping: TimeImportMapping): number[] {
 	return [...columns];
 }
 
+/** The columns read for a day: the date and the end date, whatever else a start or an end column holds. */
+function dayColumnsOf(mapping: TimeImportMapping): Set<number> {
+	const columns = new Set<number>();
+	for (const field of DAY_FIELDS) {
+		const columnIndex = mapping[field];
+		if (columnIndex !== null) {
+			columns.add(columnIndex);
+		}
+	}
+	return columns;
+}
+
 function datedValuesOf(table: TimeImportTable, mapping: TimeImportMapping): DatedValue[] {
 	const columns = dateColumnsOf(mapping);
+	const dayColumns = dayColumnsOf(mapping);
 	const values: DatedValue[] = [];
 	for (const record of table.records) {
 		for (const columnIndex of columns) {
 			const cell = record.cells[columnIndex] ?? '';
+			// A column read for its times tells the date order only through a date and time it can read: a bare date
+			// there is no time, and leaves its own row out instead of the whole file
+			const isTimeColumn = !dayColumns.has(columnIndex);
+			const isUnreadTime = isTimeColumn && !holdsDateAndTime(cell);
+			if (isUnreadTime) {
+				continue;
+			}
 			const value = datePartOf(cell);
 			if (value !== '') {
 				values.push({ row: record.row, value });

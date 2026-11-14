@@ -308,6 +308,14 @@ describe('timeImportReadingOf for a file from another tool', () => {
 	});
 });
 
+describe('timeImportReadingOf, cells a column cannot read', () => {
+	it('takes no date order from a bare date in a column read for its times, and keeps the rows it can read', () => {
+		const reading = timeImportReadingOf('Date,From,To\n2026-11-03,09:00,10:00\n2026-11-04,09:00,25/10/2026\n');
+
+		expect(reading.kind).toBe('sheet');
+	});
+});
+
 describe('timeImportReadingOf, the Columns step', () => {
 	const UNKNOWN = 'Datum,Beginn,Ende,Kunde\n03/11/2026,09:00,10:30,Acme\n05/11/2026,13:00,14:00,Acme\n';
 
