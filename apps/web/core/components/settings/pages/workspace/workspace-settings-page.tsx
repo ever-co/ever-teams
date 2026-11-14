@@ -50,6 +50,7 @@ export function WorkspaceSettingsPage() {
 				saveCurrency={settings.saveCurrency}
 				saveDateFormat={settings.saveDateFormat}
 				saveNumberFormat={settings.saveNumberFormat}
+				saveDurationRounding={settings.saveDurationRounding}
 			/>
 		</SettingsPage>
 	);
