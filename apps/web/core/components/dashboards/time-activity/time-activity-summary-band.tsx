@@ -164,10 +164,29 @@ function membersFigureOf(figures: TimeActivityFigures, t: Translate): BandFigure
 	};
 }
 
+/** The breaks of the period beside the worked time, never counted in it (#5216); none without a break. */
+function breaksFigureOf(figures: TimeActivityFigures, t: Translate): BandFigure | null {
+	const breakSeconds = figures.breakSeconds ?? 0;
+	if (breakSeconds <= 0) {
+		return null;
+	}
+	return {
+		key: 'breaks',
+		label: t('breaks.FIGURE_LABEL'),
+		value: formatDurationShort(breakSeconds),
+		hint: t('breaks.FIGURE_HINT')
+	};
+}
+
 function bandFiguresOf(figures: TimeActivityFigures, isManager: boolean, locale: FormatLocale, t: Translate) {
 	const total = totalFigureOf(figures, t);
 	const activity = activityFigureOf(figures, locale, t);
-	const list: BandFigure[] = [total, activity];
+	const list: BandFigure[] = [total];
+	const breaks = breaksFigureOf(figures, t);
+	if (breaks) {
+		list.push(breaks);
+	}
+	list.push(activity);
 	if (isManager) {
 		const earnings = earningsFigureOf(figures, locale, t);
 		list.push(earnings);

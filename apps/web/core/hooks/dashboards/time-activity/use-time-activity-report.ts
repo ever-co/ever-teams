@@ -44,9 +44,11 @@ import { currentOrganizationState } from '@/core/stores/user/user-organizations'
 import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import {
 	type TimeActivityRequest,
+	useTimeActivityBreaksQuery,
 	useTimeActivityCountsQuery,
 	useTimeActivityDailyQuery
 } from './use-time-activity-queries';
+import { useBreaksAllowed } from '@/core/hooks/timer/use-breaks-allowed';
 import { useTimeActivitySettings } from './use-time-activity-settings';
 import type { WeekDailySource } from './use-time-activity-week';
 
@@ -174,6 +176,8 @@ function chartLabelsOf(locale: FormatLocale, dayCount: number): ChartDayLabels {
 export interface TimeActivityFigures {
 	/** `null` when the figure could not be read: the strip writes "–". */
 	trackedSeconds: number | null;
+	/** The time on breaks (#5216), beside the worked time; absent where breaks are off or not read. */
+	breakSeconds?: number | null;
 	/** Every log type, from the daily report the chart and the breakdown read; `null` until it is loaded. */
 	reportSeconds: number | null;
 	activityPercent: number | null;
@@ -290,6 +294,11 @@ export function useTimeActivityReport() {
 	const hasTaskFilter = settings.filters.taskIds.length > 0;
 	const hasClientFilter = pickedClients.length > 0;
 	const billableOnly = isBillableOnly(settings.filters.billable);
+	// A break has no client and is never billable: with either filter on, there are no breaks to show
+	const allowsBreaks = useBreaksAllowed();
+	const readsBreaks = allowsBreaks && !billableOnly && !hasClientFilter;
+	const breaksQuery = useTimeActivityBreaksQuery(request, readsBreaks);
+	const breakSeconds = readsBreaks ? (breaksQuery.data ?? null) : null;
 	const sumsFiguresFromRows = hasTaskFilter || hasClientFilter || billableOnly;
 	const isClientGrouping = settings.grouping === 'client';
 	const needsProjectClients = hasClientFilter || isClientGrouping;
@@ -355,8 +364,8 @@ export function useTimeActivityReport() {
 	const groups = useMemo(() => reportGroupsOf(rows, tableGrouping), [rows, tableGrouping]);
 
 	const figures = useMemo(
-		() => figuresOf(totals, countsQuery.data, sumsFiguresFromRows, hasDailyReport),
-		[countsQuery.data, hasDailyReport, sumsFiguresFromRows, totals]
+		() => ({ ...figuresOf(totals, countsQuery.data, sumsFiguresFromRows, hasDailyReport), breakSeconds }),
+		[breakSeconds, countsQuery.data, hasDailyReport, sumsFiguresFromRows, totals]
 	);
 
 	const isDailyFailure = dailyQuery.isError && !hasDailyData;

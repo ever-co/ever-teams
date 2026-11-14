@@ -84,6 +84,8 @@ let mockGrouping: TimeActivityGrouping = 'project';
 let mockAccess: ClientGroupingAccess = 'granted';
 let mockClientsList: ClientsList = CLIENTS_READ;
 
+// Breaks (#5216) off, as in a workspace that never turned them on
+jest.mock('@/core/hooks/timer/use-breaks-allowed', () => ({ useBreaksAllowed: () => false }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, useLocale: () => 'en' }));
 jest.mock('@/core/hooks/auth', () => ({
 	useAuthenticateUser: () => ({
@@ -119,6 +121,8 @@ jest.mock('@/core/hooks/clients/use-clients-query', () => ({
 	}
 }));
 jest.mock('./use-time-activity-queries', () => ({
+	// Breaks (#5216) are off in these tests: their figure is never read
+	useTimeActivityBreaksQuery: () => ({ data: undefined }),
 	useTimeActivityDailyQuery: () => ({
 		data: DAILY_REPORT,
 		isPending: false,

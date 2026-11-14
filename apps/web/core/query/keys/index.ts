@@ -584,6 +584,8 @@ export const queryKeys = {
 		daily: (params: Record<string, any>) => ['activities', 'daily-activity-report', params] as const,
 		weekly: (params: Record<string, any>) => ['activities', 'weekly-activity-report', params] as const,
 		statisticsCounts: (params: Record<string, any>) => ['activities', 'statistics-counts', params] as const,
+		/** The time on breaks of a Time & Activity period (#5216). */
+		breaks: (params: Record<string, any>) => ['activities', 'breaks', params] as const,
 		activityReport: (params: Record<string, any>) => ['activities', 'activity-report', params] as const
 	},
 

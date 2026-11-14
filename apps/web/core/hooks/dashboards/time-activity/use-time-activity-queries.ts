@@ -8,6 +8,7 @@ import { shouldRetryQuery } from '@/core/lib/helpers/retry-utils';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import { isLiveDayRange, liveQueryOptionsOf } from '@/core/lib/utils/dashboard-live';
+import { breakSecondsOf } from '@/core/lib/utils/timer/timer-break';
 
 /**
  * Everything a Time & Activity read sends, ids included, so the cache key of a block always names the organization,
@@ -122,6 +123,59 @@ export function useTimeActivityCountsQuery(request: TimeActivityRequest | null) 
 		retryDelay: retryDelayOf,
 		...liveQueryOptionsOf(isLive)
 	});
+}
+
+const BREAK_LOG_TYPES = [ETimeLogType.BREAK];
+
+async function fetchBreakSeconds(request: TimeActivityRequest): Promise<number> {
+	const logs = await timeLogService.getTimeLogs({
+		startDate: request.startDate,
+		endDate: request.endDate,
+		timeZone: request.timeZone,
+		employeeIds: request.employeeIds,
+		projectIds: request.projectIds,
+		taskIds: request.taskIds,
+		teamIds: request.teamIds,
+		includeTimeWithoutTeam: request.includeTimeWithoutTeam,
+		includeBreaks: true,
+		logTypes: BREAK_LOG_TYPES
+	});
+	return breakSecondsOf(logs ?? []);
+}
+
+/**
+ * The time on breaks of the period, the figure beside the worked time (#5216): the breaks alone, read where the
+ * organization allows breaks. A billable-only report has none to show, a break never being billable.
+ */
+export function useTimeActivityBreaksQuery(request: TimeActivityRequest | null, isEnabled: boolean) {
+	const isLive = isLiveDayRange(request?.startDate, request?.endDate);
+	const breaksRequest = breaksKeyOf(request);
+	return useQuery({
+		queryKey: queryKeys.activities.breaks(breaksRequest),
+		queryFn: () => fetchBreakSeconds(requiredRequest(request)),
+		enabled: request !== null && isEnabled,
+		placeholderData: keepPreviousData,
+		staleTime: REPORT_STALE_TIME,
+		gcTime: REPORT_GC_TIME,
+		retry: shouldRetryQuery,
+		retryDelay: retryDelayOf,
+		...liveQueryOptionsOf(isLive)
+	});
+}
+
+function breaksKeyOf(request: TimeActivityRequest | null) {
+	return {
+		tenantId: request?.tenantId,
+		organizationId: request?.organizationId,
+		startDate: request?.startDate,
+		endDate: request?.endDate,
+		timeZone: request?.timeZone,
+		employeeIds: request?.employeeIds,
+		teamIds: request?.teamIds,
+		projectIds: request?.projectIds,
+		taskIds: request?.taskIds,
+		includeTimeWithoutTeam: request?.includeTimeWithoutTeam
+	};
 }
 
 function countsKeyOf(request: TimeActivityRequest | null) {
