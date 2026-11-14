@@ -95,16 +95,23 @@ function compareLargestFirst(first: CurrencyTotal, second: CurrencyTotal) {
 	return second.amount - first.amount;
 }
 
-/** What a month's invoices add up to, one total per currency, largest first; a void invoice bills nothing. */
+/** The statuses whose invoice bills nothing: a draft was never sent, a void invoice was taken back. */
+const UNBILLED_STATUSES: ReadonlySet<string> = new Set(['DRAFT', 'VOID']);
+
+/**
+ * What a month's invoices billed, one total per currency, largest first: drafts and void invoices are left out, and
+ * a currency is one however its code is written.
+ */
 function billedTotalsOf(invoices: ReadonlyArray<TInvoice>) {
 	const amountByCurrency = new Map<string, number>();
 	for (const invoice of invoices) {
-		const isVoid = invoiceStatusOf(invoice.status) === 'VOID';
+		const status = invoiceStatusOf(invoice.status);
+		const billsNothing = status !== null && UNBILLED_STATUSES.has(status);
 		const total = invoice.totalValue;
-		if (isVoid || typeof total !== 'number') {
+		if (billsNothing || typeof total !== 'number') {
 			continue;
 		}
-		const currency = invoice.currency ?? '';
+		const currency = invoice.currency?.trim().toUpperCase() ?? '';
 		const sum = amountByCurrency.get(currency) ?? 0;
 		amountByCurrency.set(currency, sum + total);
 	}
