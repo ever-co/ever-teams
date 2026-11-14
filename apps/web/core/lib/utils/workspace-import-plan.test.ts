@@ -29,7 +29,6 @@ function entry(row: number, patch: Partial<WorkspaceEntryRow>): WorkspaceEntryRo
 		billable: null,
 		readyEmployeeId: 'emp-marie',
 		isMemberUnknown: false,
-		billable: null,
 		...patch
 	};
 }

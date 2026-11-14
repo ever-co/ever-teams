@@ -117,8 +117,7 @@ describe('workspaceEntryRowsOf', () => {
 				memberEmail: 'marie@studio.io',
 				billable: true,
 				readyEmployeeId: 'emp-marie',
-				isMemberUnknown: false,
-				billable: true
+				isMemberUnknown: false
 			},
 			{
 				row: 3,
@@ -128,8 +127,7 @@ describe('workspaceEntryRowsOf', () => {
 				memberEmail: 'amina@agency.io',
 				billable: null,
 				readyEmployeeId: null,
-				isMemberUnknown: true,
-				billable: null
+				isMemberUnknown: true
 			}
 		]);
 	});
