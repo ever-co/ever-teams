@@ -57,6 +57,7 @@ describe('SecuritySettingsPage', () => {
 		});
 
 		expect(screen.getByText('JBSW Y3DP EHPK 3PXP')).toBeTruthy();
+		expect(screen.getByPlaceholderText('000000').getAttribute('aria-required')).toBe('true');
 		expect(screen.getByRole('link', { name: 'settings.security.OPEN_IN_APP' }).getAttribute('href')).toContain(
 			'otpauth://totp/'
 		);

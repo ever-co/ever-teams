@@ -160,6 +160,7 @@ export function SetupPanel({
 							aria-invalid={Boolean(message)}
 							aria-describedby={message ? errorId : undefined}
 							className="w-36 font-mono tracking-[0.3em]"
+							aria-required="true"
 							autoFocus
 						/>
 						<Button type="submit" disabled={confirming}>
@@ -276,6 +277,7 @@ export function ProofForm({
 					aria-invalid={Boolean(message)}
 					aria-describedby={message ? errorId : undefined}
 					className="w-48 font-mono tracking-wider"
+					aria-required="true"
 					autoFocus
 				/>
 				<Button type="submit" variant={destructive ? 'destructive' : 'default'} disabled={busy}>
