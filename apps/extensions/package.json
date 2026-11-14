@@ -59,8 +59,15 @@
 		]
 	},
 	"manifest": {
+		"default_locale": "en",
+		"permissions": [
+			"storage",
+			"alarms"
+		],
 		"host_permissions": [
-			"https://*/*"
+			"https://*/*",
+			"http://localhost/*",
+			"http://127.0.0.1/*"
 		]
 	},
 	"resolutions": {
