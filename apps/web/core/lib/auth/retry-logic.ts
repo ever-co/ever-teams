@@ -16,7 +16,7 @@ import { AxiosError } from 'axios';
  * @param error - The error to check
  * @returns true if the error is retryable, false otherwise
  */
-export function isRetryableError(error: unknown): boolean {
+function isRetryableError(error: unknown): boolean {
 	// First check: if it's a 401 error, NEVER retry
 	if (isUnauthorizedError(error)) {
 		return false;
