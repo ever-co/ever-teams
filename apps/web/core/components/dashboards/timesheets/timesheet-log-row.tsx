@@ -282,7 +282,7 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 							<TaskPropertyIcon kind="size" name={taskSize} className="size-3.5" />
 						</span>
 					)}
-					<LogChangeChips log={log} formatters={formatters} className={WIDE_ONLY} />
+					<LogChangeChips log={log} formatters={formatters} opensHistory className={WIDE_ONLY} />
 				</span>
 				<EntryNotesLine log={log} />
 				<ManualReasonLine log={log} />
@@ -300,7 +300,7 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 					)}
 				>
 					<TimesheetStatusChip status={status} className="h-5 px-1.5" />
-					<LogChangeChips log={log} formatters={formatters} />
+					<LogChangeChips log={log} formatters={formatters} opensHistory />
 					<span className="shrink-0 tabular-nums">{timeRange}</span>
 					{showsMember && <span className="truncate">{memberName}</span>}
 				</span>

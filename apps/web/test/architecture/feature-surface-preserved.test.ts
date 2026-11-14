@@ -2061,10 +2061,12 @@ describe('Ever Teams feature surface preservation', () => {
 		// 364 files and 463 verbs with the export of all of the workspace's data (/api/export GET; #5208).
 		// 371 files and 470 verbs with the two-factor authentication proxies (/api/auth/two-factor GET, enroll, confirm,
 		// disable, recovery-codes and verify POST, users/[userId] DELETE; #5210).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(371);
+		// 373 files and 472 verbs with the history of a time entry and the changes of a period
+		// (GET /api/timesheet/time-log/[id]/history, GET /api/timesheet/time-log/history; #5222).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(373);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(470);
+		).toHaveLength(472);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's personal API token routes (#5209)
@@ -2227,6 +2229,8 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/timer/toogle/route.ts::POST',
 				'apps/web/app/api/timesheet/status/route.ts::PUT',
 				'apps/web/app/api/timesheet/time-log/[id]/route.ts::PUT',
+				'apps/web/app/api/timesheet/time-log/[id]/history/route.ts::GET',
+				'apps/web/app/api/timesheet/time-log/history/route.ts::GET',
 				'apps/web/app/api/timesheet/time-log/report/weekly/route.ts::GET',
 				'apps/web/app/api/timesheet/time-log/route.ts::DELETE',
 				'apps/web/app/api/timesheet/time-log/route.ts::GET',
