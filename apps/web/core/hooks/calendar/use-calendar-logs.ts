@@ -20,6 +20,8 @@ export interface CalendarLogsRequest {
 	startDate: string;
 	endDate: string;
 	timeZone: string;
+	/** The breaks among the entries (#5216), asked only where the organization turned breaks on. */
+	includeBreaks: boolean;
 	/** Tenant, organisation and member: the previous days stay on screen only while these do not change. */
 	scopeKey: string;
 }
@@ -37,6 +39,8 @@ export interface CalendarLogsScope {
 	anchor: Date;
 	range: Period;
 	timeZone: string;
+	/** Lists the breaks too (#5216): the Calendar and the Work diary show them where the organization allows them. */
+	includeBreaks?: boolean;
 	isEnabled: boolean;
 }
 
@@ -60,7 +64,8 @@ async function fetchCalendarLogs(request: CalendarLogsRequest): Promise<Calendar
 		startDate: request.startDate,
 		endDate: request.endDate,
 		timeZone: request.timeZone,
-		employeeIds: [request.employeeId]
+		employeeIds: [request.employeeId],
+		...(request.includeBreaks ? { includeBreaks: true } : {})
 	});
 	return { request, logs: logs ?? [] };
 }
@@ -82,6 +87,7 @@ export function useCalendarLogs(scope: CalendarLogsScope) {
 		startDate,
 		endDate,
 		timeZone: scope.timeZone,
+		includeBreaks: scope.includeBreaks === true,
 		scopeKey
 	};
 	const hasTenant = Boolean(scope.tenantId);
@@ -94,7 +100,7 @@ export function useCalendarLogs(scope: CalendarLogsScope) {
 	const logsKey = queryKeys.timesheet.logs(scope.tenantId, scope.organizationId, startDate, endDate, [employeeId]);
 
 	return useQuery({
-		queryKey: [...logsKey, 'calendar', { timeZone: scope.timeZone }],
+		queryKey: [...logsKey, 'calendar', { timeZone: scope.timeZone, includeBreaks: request.includeBreaks }],
 		queryFn: () => fetchCalendarLogs(request),
 		enabled: isReady && scope.isEnabled,
 		placeholderData: (previous) => previousOfSameScope(previous, scopeKey),

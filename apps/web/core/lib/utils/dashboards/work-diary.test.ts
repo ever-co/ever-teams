@@ -24,6 +24,7 @@ function entry(
 		durationSeconds: daySeconds,
 		daySeconds,
 		isManual: false,
+		isBreak: false,
 		isRunning: false,
 		isBillable: false,
 		taskTitle: taskId ? `Task ${taskId}` : null,
@@ -127,6 +128,18 @@ describe('diaryTasksOf, a task whose first log came without its title', () => {
 		expect(task.log.task?.title).toBe('Task task-1');
 		expect(task.seconds).toBe(900);
 		expect(task.projectName).toBe('Website');
+	});
+});
+
+describe('diaryTasksOf, a day with a break (#5216)', () => {
+	it('lists the work by task, the break on the task it paused left out', () => {
+		const tasks = diaryTasksOf([
+			entry('morning', 'a', 3 * 3600),
+			entry('lunch', 'a', 3600, { isBreak: true }),
+			entry('afternoon', 'a', 4 * 3600)
+		]);
+
+		expect(tasks.map((task) => [task.key, task.seconds])).toEqual([['a', 7 * 3600]]);
 	});
 });
 

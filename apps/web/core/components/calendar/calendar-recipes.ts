@@ -42,6 +42,9 @@ export const ENTRY_SOLID = 'bg-[color-mix(in_oklab,var(--entry)_18%,hsl(var(--ca
 export const ENTRY_HATCHED =
 	'bg-[repeating-linear-gradient(135deg,color-mix(in_oklab,var(--entry)_26%,hsl(var(--card)))_0_4px,color-mix(in_oklab,var(--entry)_10%,hsl(var(--card)))_4px_8px)]';
 
+/** A break (#5216): a neutral fill whatever task it paused, apart from work's project tints. */
+export const ENTRY_BREAK = 'bg-[color-mix(in_oklab,hsl(var(--foreground))_7%,hsl(var(--card)))]';
+
 /** Planned work has no hour of its own: it is drawn as an outline, the dashed line of what is not there yet. */
 export const PLANNED_OUTLINE = 'hairline-border border-dashed border-foreground/25';
 
@@ -74,7 +77,10 @@ export function entryToneStyle(color: string | null, projectKey: string | null =
 	return variables as CSSProperties;
 }
 
-export function entryFillOf(isManual: boolean) {
+export function entryFillOf(isManual: boolean, isBreak = false) {
+	if (isBreak) {
+		return ENTRY_BREAK;
+	}
 	if (isManual) {
 		return ENTRY_HATCHED;
 	}

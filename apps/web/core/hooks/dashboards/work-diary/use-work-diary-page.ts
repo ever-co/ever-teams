@@ -34,6 +34,7 @@ import {
 	diaryViewOfParam
 } from '@/core/lib/utils/dashboards/work-diary';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
+import { useBreaksAllowed } from '@/core/hooks/timer/use-breaks-allowed';
 import type { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { useWorkDiaryDay } from './use-work-diary-day';
 import { useWorkDiaryWeek } from './use-work-diary-week';
@@ -63,7 +64,15 @@ function readTimeOf(dataUpdatedAt: number) {
 }
 
 function emptyDayOf(date: Date): CalendarDay {
-	return { key: localDayKeyOf(date), date, entries: [], trackedSeconds: 0, manualSeconds: 0, plan: null };
+	return {
+		key: localDayKeyOf(date),
+		date,
+		entries: [],
+		trackedSeconds: 0,
+		manualSeconds: 0,
+		breakSeconds: 0,
+		plan: null
+	};
 }
 
 /**
@@ -98,6 +107,7 @@ export function useWorkDiaryPage() {
 
 	const employeeId = user?.employee?.id ?? null;
 	const isUserReady = user !== undefined;
+	const allowsBreaks = useBreaksAllowed();
 	const logsQuery = useCalendarLogs({
 		tenantId,
 		organizationId,
@@ -106,6 +116,7 @@ export function useWorkDiaryPage() {
 		anchor: day,
 		range: week,
 		timeZone,
+		includeBreaks: allowsBreaks,
 		isEnabled: isUserReady
 	});
 	const logsResult = logsQuery.data;

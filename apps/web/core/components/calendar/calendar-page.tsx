@@ -94,11 +94,11 @@ function emptyTitleOf(view: CalendarView, rangeName: string, t: Translate) {
 }
 
 /** The quiet bar on top of the grid: what an empty range means and how to add time, the legend on the right. */
-function CalendarSurfaceHeader({ notice }: Readonly<{ notice: ReactNode }>) {
+function CalendarSurfaceHeader({ notice, showsBreaks }: Readonly<{ notice: ReactNode; showsBreaks: boolean }>) {
 	return (
 		<div className="flex min-h-11 flex-wrap items-center justify-between gap-x-4 gap-y-2 hairline-b border-border px-4 py-2">
 			<div className="min-w-0">{notice}</div>
-			<CalendarLegend />
+			<CalendarLegend showsBreaks={showsBreaks} />
 		</div>
 	);
 }
@@ -171,7 +171,7 @@ function CalendarBody({
 
 	return (
 		<section aria-label={rangeName} className={DASHBOARD_SURFACE}>
-			<CalendarSurfaceHeader notice={notice} />
+			<CalendarSurfaceHeader notice={notice} showsBreaks={page.allowsBreaks} />
 			{showsProjects && <CalendarProjectLegend totals={projectTotals} />}
 			{isMonth && (
 				<>

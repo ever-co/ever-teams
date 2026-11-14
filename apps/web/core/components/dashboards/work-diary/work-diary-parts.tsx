@@ -6,6 +6,7 @@ import { useReachText } from '@/core/components/calendar/calendar-month-view';
 import { type MetricItem, MetricStrip } from '@/core/components/dashboards/kit/metric-strip';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { ShareRows } from '@/core/components/dashboards/kit/share-rows';
+import { BreakChip } from '@/core/components/dashboards/timesheets/timesheet-log-changes';
 import { TaskTitle } from '@/core/components/dashboards/timesheets/timesheet-log-row';
 import { cn } from '@/core/lib/helpers';
 import type { CalendarDay } from '@/core/lib/utils/calendar-view';
@@ -140,6 +141,28 @@ export function DiaryTaskRows({
 			className="py-1.5"
 			density="narrow"
 		/>
+	);
+}
+
+/**
+ * The day's breaks under its tasks (#5216): labelled Break, their time apart from the day's worked time. Nothing on a
+ * day without a break.
+ */
+export function DiaryBreaksLine({ day }: Readonly<{ day: CalendarDay }>) {
+	const t = useTranslations();
+	if (day.breakSeconds <= 0) {
+		return null;
+	}
+	return (
+		<div className="flex items-center justify-between gap-3 hairline-t border-border px-4 py-2.5">
+			<span className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
+				<BreakChip />
+				<span className="truncate">{t('breaks.FIGURE_HINT')}</span>
+			</span>
+			<span className="shrink-0 text-[13px] tabular-nums text-muted-foreground">
+				{formatDurationShort(day.breakSeconds)}
+			</span>
+		</div>
 	);
 }
 

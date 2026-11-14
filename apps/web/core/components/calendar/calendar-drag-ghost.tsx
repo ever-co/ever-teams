@@ -99,7 +99,7 @@ function EntryGhost({
 	const isCompact = isCompactRange(ghost.range);
 	const box = ghostBoxOf(ghost.range);
 	const toneStyle = entryToneStyle(entry.projectColor, entry.projectKey);
-	const fill = entryFillOf(entry.isManual);
+	const fill = entryFillOf(entry.isManual, entry.isBreak);
 	return (
 		<div
 			aria-hidden="true"

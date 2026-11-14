@@ -33,6 +33,7 @@ import {
 } from '@/core/lib/utils/calendar-view';
 import { logsWithMovedWindows } from '@/core/lib/utils/calendar-drag';
 import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
+import { useBreaksAllowed } from '@/core/hooks/timer/use-breaks-allowed';
 import type { TDailyPlan } from '@/core/types/schemas';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { type CalendarLogsRequest, useCalendarLogs } from './use-calendar-logs';
@@ -189,6 +190,7 @@ export function useCalendarPage() {
 	);
 
 	const isUserReady = user !== undefined;
+	const allowsBreaks = useBreaksAllowed();
 	const logsQuery = useCalendarLogs({
 		tenantId,
 		organizationId,
@@ -197,6 +199,7 @@ export function useCalendarPage() {
 		anchor,
 		range,
 		timeZone,
+		includeBreaks: allowsBreaks,
 		isEnabled: isUserReady
 	});
 
@@ -334,6 +337,7 @@ export function useCalendarPage() {
 
 	return {
 		teamName: activeTeam?.name ?? '',
+		allowsBreaks,
 		isTeamReady,
 		view,
 		changeView,

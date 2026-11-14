@@ -95,6 +95,7 @@ function entryOf(log: ITimeLog, daySeconds: number): CalendarEntry {
 		durationSeconds: daySeconds,
 		daySeconds,
 		isManual: false,
+		isBreak: false,
 		isRunning: false,
 		isBillable: false,
 		taskTitle: log.task?.title ?? null,
