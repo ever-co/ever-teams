@@ -72,9 +72,15 @@ export async function GET(req: Request) {
 			)
 		);
 
-		const teams = await Promise.all(call_teams).then((tms) =>
-			tms.reduce(
-				(acc, { data }) => {
+		// Gauzy keeps a member (not a workspace admin) inside the organization of their session, so it refuses the
+		// teams of their other organizations: those are left out instead of failing the whole list (#5204).
+		const teams = await Promise.allSettled(call_teams).then((reads) =>
+			reads.reduce(
+				(acc, read) => {
+					if (read.status !== 'fulfilled') {
+						return acc;
+					}
+					const { data } = read.value;
 					if (data?.items) {
 						acc.items.push(...data.items);
 						acc.total += data.total;
