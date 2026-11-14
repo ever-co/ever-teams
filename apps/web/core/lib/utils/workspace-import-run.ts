@@ -128,3 +128,52 @@ export async function runWorkspaceCreation(
 	}
 	return result(null);
 }
+
+export type WorkspaceStepStatus = 'waiting' | 'running' | 'done' | 'failed';
+
+/** Where a creation stands, as the screen holds it. */
+export interface WorkspaceCreationProgress {
+	status: 'idle' | 'creating' | 'created' | 'failed';
+	tallies: WorkspaceTallies | null;
+	failure: { step: WorkspaceStep } | null;
+}
+
+function plannedCountOf(plan: WorkspaceImportPlan, step: WorkspaceStep): number {
+	return plan[step].create.length;
+}
+
+function isStepThrough(plan: WorkspaceImportPlan, step: WorkspaceStep, tallies: WorkspaceTallies | null): boolean {
+	const tally = tallies?.[step];
+	const handled = (tally?.created ?? 0) + (tally?.skipped ?? 0);
+	return handled >= plannedCountOf(plan, step);
+}
+
+/** Each step of a creation: done, running, failed or still waiting, in the order the steps run. */
+export function workspaceStepStatusesOf(
+	plan: WorkspaceImportPlan,
+	progress: WorkspaceCreationProgress
+): Record<WorkspaceStep, WorkspaceStepStatus> {
+	const statuses: Record<WorkspaceStep, WorkspaceStepStatus> = { clients: 'waiting', projects: 'waiting', labels: 'waiting' };
+	if (progress.status === 'idle') {
+		return statuses;
+	}
+	if (progress.status === 'created') {
+		return { clients: 'done', projects: 'done', labels: 'done' };
+	}
+	const failedStep = progress.failure?.step ?? null;
+	for (const step of WORKSPACE_STEPS) {
+		if (step === failedStep) {
+			statuses[step] = 'failed';
+			return statuses;
+		}
+		if (!isStepThrough(plan, step, progress.tallies)) {
+			const isRunning = progress.status === 'creating';
+			if (isRunning) {
+				statuses[step] = 'running';
+			}
+			return statuses;
+		}
+		statuses[step] = 'done';
+	}
+	return statuses;
+}

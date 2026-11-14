@@ -1,5 +1,10 @@
 import type { WorkspaceImportPlan } from './workspace-import-plan';
-import { runWorkspaceCreation, type WorkspaceCreators, type WorkspaceTallies } from './workspace-import-run';
+import {
+	runWorkspaceCreation,
+	workspaceStepStatusesOf,
+	type WorkspaceCreators,
+	type WorkspaceTallies
+} from './workspace-import-run';
 
 const PLAN: WorkspaceImportPlan = {
 	clients: { create: ['Acme', 'Globex'], reuse: [{ id: 'client-initech', name: 'Initech' }] },
@@ -132,5 +137,47 @@ describe('runWorkspaceCreation', () => {
 		expect(reports[0].clients.created).toBe(1);
 		expect(reports[0].projects.created).toBe(0);
 		expect(creation.tallies).not.toBe(reports.at(-1));
+	});
+});
+
+describe('workspaceStepStatusesOf', () => {
+	const tally = (created: number, reused = 0, failed = 0, skipped = 0) => ({ created, reused, failed, skipped });
+
+	it('runs the first step with something left to create and keeps the next ones waiting', () => {
+		const tallies = { clients: tally(2, 1), projects: tally(1, 1), labels: tally(0) };
+
+		expect(workspaceStepStatusesOf(PLAN, { status: 'creating', tallies, failure: null })).toEqual({
+			clients: 'done',
+			projects: 'running',
+			labels: 'waiting'
+		});
+		expect(workspaceStepStatusesOf(PLAN, { status: 'creating', tallies: null, failure: null })).toEqual({
+			clients: 'running',
+			projects: 'waiting',
+			labels: 'waiting'
+		});
+	});
+
+	it('marks the step that failed, the ones before it done and the ones after it waiting', () => {
+		const tallies = { clients: tally(2, 1), projects: tally(1, 1, 1), labels: tally(0) };
+		const failure = { step: 'projects' as const };
+
+		expect(workspaceStepStatusesOf(PLAN, { status: 'failed', tallies, failure })).toEqual({
+			clients: 'done',
+			projects: 'failed',
+			labels: 'waiting'
+		});
+	});
+
+	it('counts a step with nothing to create, or labels the role cannot add, as done', () => {
+		const plan = { ...PLAN, clients: { create: [], reuse: PLAN.clients.reuse } };
+		const tallies = { clients: tally(0, 1), projects: tally(3, 1), labels: tally(0, 0, 0, 1) };
+
+		expect(workspaceStepStatusesOf(plan, { status: 'creating', tallies, failure: null })).toEqual({
+			clients: 'done',
+			projects: 'done',
+			labels: 'done'
+		});
+		expect(workspaceStepStatusesOf(plan, { status: 'created', tallies, failure: null }).labels).toBe('done');
 	});
 });
