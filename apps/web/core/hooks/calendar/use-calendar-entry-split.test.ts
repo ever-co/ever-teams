@@ -118,12 +118,22 @@ describe('splitCalendarEntry', () => {
 		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'first-part-kept' }));
 	});
 
-	it('adds nothing when the entry cannot be shortened', async () => {
-		mockUpdateTimeLog.mockRejectedValueOnce(new Error('refused'));
+	it('adds nothing when the entry cannot be shortened, and sets it back in case the answer was only lost', async () => {
+		mockUpdateTimeLog.mockRejectedValueOnce(new Error('timeout'));
 
-		await expect(
-			splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' })
-		).rejects.toThrow('refused');
+		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'restored' }));
+		expect(calls).toEqual(['update 9-13']);
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+
+	it('says the outcome is not known when the entry can be neither shortened nor set back', async () => {
+		mockUpdateTimeLog.mockRejectedValueOnce(new Error('timeout')).mockRejectedValueOnce(new Error('offline'));
+
+		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'unknown' }));
 		expect(mockAddManualTime).not.toHaveBeenCalled();
 	});
 	it('changes nothing when the server holds another entry on the time, since the API would delete it', async () => {
@@ -143,12 +153,28 @@ describe('splitCalendarEntry', () => {
 		expect(calls).toEqual(['update 9-11']);
 	});
 
-	it('never stretches the entry over a second part the server holds after a lost answer', async () => {
+	it('counts the split as done when the server holds the very part a lost answer was about', async () => {
+		const savedPart = {
+			id: 'log-3',
+			startedAt: at(11).toISOString(),
+			stoppedAt: at(13).toISOString(),
+			taskId: 'task-1'
+		};
 		mockAddManualTime.mockRejectedValueOnce(new Error('timeout'));
-		mockGetTimeLogConflicts.mockResolvedValueOnce([]).mockResolvedValueOnce([OTHER_ENTRY]);
+		mockGetTimeLogConflicts.mockResolvedValueOnce([]).mockResolvedValueOnce([savedPart]);
 
 		await splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
 
+		expect(calls).toEqual(['update 9-11']);
+	});
+
+	it('never stretches the entry over another entry found on the second part, and keeps the first part', async () => {
+		mockAddManualTime.mockRejectedValueOnce(new Error('timeout'));
+		mockGetTimeLogConflicts.mockResolvedValueOnce([]).mockResolvedValueOnce([OTHER_ENTRY]);
+
+		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'first-part-kept' }));
 		expect(calls).toEqual(['update 9-11']);
 	});
 

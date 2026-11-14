@@ -11,13 +11,13 @@ import { ETimeLogSource, ETimeLogType } from '@/core/types/generics/enums/timer'
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ZodValidationError } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
-import { isTakenOnServer } from './time-taken-on-server';
+import { isTakenOnServer, type PartOnServer, partOnServer } from './time-taken-on-server';
 
 /**
  * How a split ended when it did not: refused before any change because another entry now covers the time, put back
- * as it was, or the first part kept and the rest to add by hand.
+ * as it was, the first part kept and the rest to add by hand, or an outcome the server could not confirm.
  */
-export type CalendarSplitFailure = 'overlap' | 'restored' | 'first-part-kept';
+export type CalendarSplitFailure = 'overlap' | 'restored' | 'first-part-kept' | 'unknown';
 
 export class CalendarSplitError extends Error {
 	constructor(
@@ -59,9 +59,9 @@ function textOrUndefined(value: string | null | undefined) {
 /**
  * Splits an entry added by hand in two, with the routes the Timesheets page already uses: the entry is shortened to
  * the split time, then the rest is added as a new entry with the same fields (another task, with its project, when
- * one is picked). The order matters: the API deletes whatever new manual time overlaps, so the new part is added only once the
- * entry no longer covers it. When the new part fails, the entry gets its old end back; when that fails too, the
- * error says the first part was kept so the person adds the rest.
+ * one is picked). The order matters: the API deletes whatever new manual time overlaps, so the new part is added
+ * only once the entry no longer covers it. A write whose answer is lost may still have been saved: the server is
+ * read before anything is undone, and the error says when the outcome is not known.
  */
 export async function splitCalendarEntry(request: CalendarSplitRequest) {
 	const { log, splitAt, secondTask, tenantId } = request;
@@ -76,18 +76,23 @@ export async function splitCalendarEntry(request: CalendarSplitRequest) {
 	if (isTaken) {
 		throw new CalendarSplitError('overlap', null);
 	}
-	await timeLogService.updateTimeLog({
-		timeLogId: log.id,
-		startedAt: parts.first.start,
-		stoppedAt: parts.first.end,
-		employeeId
-	});
+	try {
+		await timeLogService.updateTimeLog({
+			timeLogId: log.id,
+			startedAt: parts.first.start,
+			stoppedAt: parts.first.end,
+			employeeId
+		});
+	} catch (shortenError) {
+		await restoreAfterFailedShortening(log, window, shortenError);
+	}
+	const secondTaskId = secondTask?.id ?? textOrUndefined(log.taskId);
 	try {
 		await timeLogService.addManualTime({
 			tenantId,
 			employeeId: employeeId ?? '',
 			projectId: textOrUndefined(secondTask?.projectId ?? log.projectId),
-			taskId: secondTask?.id ?? textOrUndefined(log.taskId),
+			taskId: secondTaskId,
 			organizationContactId: textOrUndefined(log.organizationContactId),
 			organizationTeamId: textOrUndefined(log.organizationTeamId),
 			description: textOrUndefined(log.description),
@@ -103,32 +108,57 @@ export async function splitCalendarEntry(request: CalendarSplitRequest) {
 		if (addError instanceof ZodValidationError) {
 			return;
 		}
-		await restoreAfterFailedAdd(log, window, parts.second, addError);
+		await restoreAfterFailedAdd(log, window, { part: parts.second, taskId: secondTaskId ?? null }, addError);
 	}
 }
 
+function restoreWindow(log: ITimeLog, window: TimeWindow) {
+	return timeLogService.updateTimeLog({
+		timeLogId: log.id,
+		startedAt: window.start,
+		stoppedAt: window.end,
+		employeeId: memberIdOfLog(log) ?? undefined
+	});
+}
+
 /**
- * Puts the entry back over its whole time once the second part could not be added, unless that part is on the
- * server after all (a lost answer): the entry is never stretched over it. When the server cannot say, nothing is
- * undone and the error says the first part was kept.
+ * The shortening failed, yet its answer may only have been lost: the entry is set back to its whole time, which no
+ * other entry covers, so it ends as it was either way. When that fails too, the outcome is not known.
  */
-async function restoreAfterFailedAdd(log: ITimeLog, window: TimeWindow, second: TimeWindow, addError: unknown) {
-	let isSecondPartSaved: boolean;
+async function restoreAfterFailedShortening(log: ITimeLog, window: TimeWindow, shortenError: unknown): Promise<never> {
 	try {
-		isSecondPartSaved = await isTakenOnServer(log, second);
+		await restoreWindow(log, window);
+	} catch {
+		throw new CalendarSplitError('unknown', shortenError);
+	}
+	throw new CalendarSplitError('restored', shortenError);
+}
+
+/**
+ * The second part could not be added. The server is read first: when it holds that very part (a lost answer), the
+ * split is done; when another entry covers the time, nothing is stretched over it and the first part is kept; when
+ * the time is free, the entry gets its whole time back. When the server cannot be read, the first part is kept.
+ */
+async function restoreAfterFailedAdd(
+	log: ITimeLog,
+	window: TimeWindow,
+	second: { part: TimeWindow; taskId: string | null },
+	addError: unknown
+) {
+	let state: PartOnServer;
+	try {
+		state = await partOnServer(log, second.part, second.taskId);
 	} catch {
 		throw new CalendarSplitError('first-part-kept', addError);
 	}
-	if (isSecondPartSaved) {
+	if (state === 'saved') {
 		return;
 	}
+	if (state === 'taken') {
+		throw new CalendarSplitError('first-part-kept', addError);
+	}
 	try {
-		await timeLogService.updateTimeLog({
-			timeLogId: log.id,
-			startedAt: window.start,
-			stoppedAt: window.end,
-			employeeId: memberIdOfLog(log) ?? undefined
-		});
+		await restoreWindow(log, window);
 	} catch {
 		throw new CalendarSplitError('first-part-kept', addError);
 	}

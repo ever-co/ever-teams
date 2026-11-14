@@ -155,6 +155,9 @@ function SplitForm({
 	if (split.failure === 'overlap') {
 		failure = <FailureNotice text={t('dashboard.calendar.DRAG.OVERLAP')} />;
 	}
+	if (split.failure === 'unknown') {
+		failure = <FailureNotice text={t('dashboard.calendar.SPLIT.FAILED_UNKNOWN')} />;
+	}
 	if (split.failure === 'restored') {
 		failure = <FailureNotice text={t('dashboard.calendar.SPLIT.FAILED_RESTORED')} />;
 	}
@@ -168,7 +171,8 @@ function SplitForm({
 			/>
 		);
 	}
-	const isRestLeft = split.failure === 'first-part-kept';
+	// After a partial or unconfirmed split, trying again could write over what was saved: the dialog only closes
+	const isRestLeft = split.failure === 'first-part-kept' || split.failure === 'unknown';
 
 	return (
 		<>
