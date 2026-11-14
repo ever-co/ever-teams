@@ -316,6 +316,10 @@ describe('WorkspaceSettingsPage', () => {
 		expect(mockSaveDurationRounding).toHaveBeenCalledWith(null);
 	});
 
+	// The translations mock writes a string's values after its key: these strings carry a sample
+	const CLOCK_24 = /^settings\.workspace\.CLOCK_24\b/;
+	const SYMBOL_AFTER = /^settings\.workspace\.CURRENCY_POSITION_AFTER\b/;
+
 	it('shows a member the week start, the clock and the currency symbol side as text', () => {
 		mockSettings = settingsOf({
 			canEdit: false,
@@ -324,12 +328,8 @@ describe('WorkspaceSettingsPage', () => {
 		render(<WorkspaceSettingsPage />);
 
 		expect(within(rowOf('settings.workspace.WEEK_START_LABEL')).getByText('Sunday')).toBeTruthy();
-		expect(within(rowOf('settings.workspace.CLOCK_LABEL')).getByText('settings.workspace.CLOCK_24')).toBeTruthy();
-		expect(
-			within(rowOf('settings.workspace.CURRENCY_POSITION_LABEL')).getByText(
-				'settings.workspace.CURRENCY_POSITION_AFTER'
-			)
-		).toBeTruthy();
+		expect(within(rowOf('settings.workspace.CLOCK_LABEL')).getByText(CLOCK_24)).toBeTruthy();
+		expect(within(rowOf('settings.workspace.CURRENCY_POSITION_LABEL')).getByText(SYMBOL_AFTER)).toBeTruthy();
 	});
 
 	it('saves the week start, the clock and the currency symbol side an admin picks', async () => {
@@ -341,17 +341,11 @@ describe('WorkspaceSettingsPage', () => {
 			);
 		});
 		await act(async () => {
-			fireEvent.click(
-				within(rowOf('settings.workspace.CLOCK_LABEL')).getByRole('button', {
-					name: 'settings.workspace.CLOCK_24'
-				})
-			);
+			fireEvent.click(within(rowOf('settings.workspace.CLOCK_LABEL')).getByRole('button', { name: CLOCK_24 }));
 		});
 		await act(async () => {
 			const sideRow = rowOf('settings.workspace.CURRENCY_POSITION_LABEL');
-			fireEvent.click(
-				within(sideRow).getByRole('button', { name: 'settings.workspace.CURRENCY_POSITION_AFTER' })
-			);
+			fireEvent.click(within(sideRow).getByRole('button', { name: SYMBOL_AFTER }));
 		});
 
 		expect(mockSaveWeekStart).toHaveBeenCalledWith('SUNDAY');
