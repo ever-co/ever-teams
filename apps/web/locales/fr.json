@@ -5243,6 +5243,8 @@
 			"TO_STATUSES": "Vers les statuts",
 			"FROM_STATUSES": "Depuis les statuts",
 			"ANY_STATUS": "N’en choisissez aucun pour tous les statuts.",
+			"MERGED_ONLY": "Pull requests fusionnées uniquement",
+			"MERGED_ONLY_HINT": "Une pull request fermée sans fusion ne déclenche pas la règle ; sa fusion après réouverture, si. La fermeture d’un ticket la déclenche comme avant.",
 			"NO_CONDITIONS": "Aucune condition : la règle s’exécute à chaque fois.",
 			"ADD_CONDITION": "Ajouter une condition",
 			"ADD_ACTION": "Ajouter une action",
