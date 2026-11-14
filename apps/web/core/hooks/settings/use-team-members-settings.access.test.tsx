@@ -331,3 +331,31 @@ describe('changing the workspace role of a member', () => {
 		expect(mockAssignWorkspaceRole).not.toHaveBeenCalled();
 	});
 });
+
+describe("resetting a member's two-factor authentication", () => {
+	it('is offered to a holder of ORG_USERS_EDIT for anyone but themself and a super admin', () => {
+		const { rowOf } = renderMembers();
+
+		expect(rowOf('ana').canResetTwoFactor).toBe(true);
+		expect(rowOf('bo').canResetTwoFactor).toBe(true);
+		expect(rowOf('dee').canResetTwoFactor).toBe(true);
+		expect(rowOf('admin').canResetTwoFactor).toBe(false);
+		expect(rowOf('cy').canResetTwoFactor).toBe(false);
+		expect(rowOf('ana').userId).toBe('user-ana');
+	});
+
+	it("reads the member's own role when the viewer's roles list holds only the roles they may assign", () => {
+		mockUseRolesQuery.mockReturnValue({ roles: [{ id: 'role-employee', name: 'EMPLOYEE' }] });
+		const adminWithRoleInData = member('eve', 'role-admin');
+		const user = adminWithRoleInData.employee.user as Record<string, unknown>;
+		user.role = { name: 'ADMIN' };
+		TEAM.members.push(adminWithRoleInData);
+		try {
+			const { rowOf } = renderMembers();
+
+			expect(rowOf('eve').canResetTwoFactor).toBe(true);
+		} finally {
+			TEAM.members.pop();
+		}
+	});
+});

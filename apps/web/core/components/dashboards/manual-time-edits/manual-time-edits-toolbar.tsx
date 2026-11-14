@@ -5,7 +5,7 @@ import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { SegmentedControl } from '@/core/components/common/segmented-control';
 import { TOOLBAR_SEPARATOR } from '@/core/components/dashboards/kit/recipes';
-import { DollarCircle, Folder, Users, X } from '@/core/components/icons';
+import { Clock, DollarCircle, Folder, History, Task, Trash, Users, X } from '@/core/components/icons';
 import {
 	PropertyFilterMenu,
 	type PropertyFilterCategory,
@@ -15,6 +15,7 @@ import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/project
 import { imgTitle } from '@/core/lib/helpers/index';
 import { cn } from '@/core/lib/helpers';
 import { NO_PROJECT_VALUE } from '@/core/lib/utils/dashboards/timesheets';
+import { CHANGE_KIND_VALUES, type ChangeKindValue } from '@/core/lib/utils/time-log-history';
 import type {
 	BillableValue,
 	ChangeAction,
@@ -92,11 +93,30 @@ function billableOptionsOf(t: Translate): PropertyFilterOption[] {
 	];
 }
 
-export function useEditsFilterCategories(members: ReadonlyArray<EditsMember>) {
+const KIND_LABEL_KEYS: Record<ChangeKindValue, DottedLanguageObjectStringPaths> = {
+	time: 'dashboard.manualTimeEdits.KIND_TIME',
+	'task-project': 'dashboard.manualTimeEdits.KIND_TASK_PROJECT',
+	billable: 'dashboard.manualTimeEdits.BILLABLE',
+	deleted: 'dashboard.manualTimeEdits.DELETED'
+};
+
+const KIND_ICONS: Record<ChangeKindValue, PropertyFilterOption['icon']> = {
+	time: <Clock />,
+	'task-project': <Task />,
+	billable: <DollarCircle />,
+	deleted: <Trash />
+};
+
+function kindOptionsOf(t: Translate): PropertyFilterOption[] {
+	return CHANGE_KIND_VALUES.map((kind) => ({ value: kind, name: t(KIND_LABEL_KEYS[kind]), icon: KIND_ICONS[kind] }));
+}
+
+/** The kinds of change are offered only when the API keeps the history they are read from. */
+export function useEditsFilterCategories(members: ReadonlyArray<EditsMember>, hasChangeKinds: boolean) {
 	const t = useTranslations();
 	const { organizationProjects } = useOrganizationProjectsQuery();
-	return useMemo<PropertyFilterCategory<EditsFilterField>[]>(
-		() => [
+	return useMemo<PropertyFilterCategory<EditsFilterField>[]>(() => {
+		const categories: PropertyFilterCategory<EditsFilterField>[] = [
 			{
 				field: 'members',
 				keepsCase: true,
@@ -118,9 +138,18 @@ export function useEditsFilterCategories(members: ReadonlyArray<EditsMember>) {
 				label: t('dashboard.timesheets.BILLABLE'),
 				options: billableOptionsOf(t)
 			}
-		],
-		[members, organizationProjects, t]
-	);
+		];
+		if (hasChangeKinds) {
+			categories.push({
+				field: 'kinds',
+				keepsCase: true,
+				icon: <History />,
+				label: t('dashboard.manualTimeEdits.KIND_LABEL'),
+				options: kindOptionsOf(t)
+			});
+		}
+		return categories;
+	}, [hasChangeKinds, members, organizationProjects, t]);
 }
 
 export function EditsFilterMenu({
@@ -222,8 +251,12 @@ export function EditsActionControl({
 	onActionChange: (action: ChangeAction) => void;
 }>) {
 	const t = useTranslations();
+	let allCount: number | undefined;
+	if (figures) {
+		allCount = figures.entryCount + figures.deletedCount;
+	}
 	const actionItems = [
-		{ value: 'all' as const, label: t('dashboard.manualTimeEdits.ACTION_ALL'), count: figures?.entryCount },
+		{ value: 'all' as const, label: t('dashboard.manualTimeEdits.ACTION_ALL'), count: allCount },
 		{ value: 'added' as const, label: t('dashboard.manualTimeEdits.ADDED'), count: figures?.addedCount },
 		{ value: 'edited' as const, label: t('dashboard.manualTimeEdits.EDITED'), count: figures?.editedCount }
 	];

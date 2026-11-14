@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { useHasBeenOpen } from '@/core/hooks/common/use-has-been-open';
-import type { TimesheetDialogsState } from '@/core/hooks/dashboards/timesheets/use-timesheet-dialogs';
+import type { RejectTarget, TimesheetDialogsState } from '@/core/hooks/dashboards/timesheets/use-timesheet-dialogs';
 import type { TimeEntryDuplicateState } from '@/core/hooks/timesheet/use-time-entry-duplicate';
 import type { FixedMember } from '@/core/lib/utils/dashboards/manual-time-entry';
 
@@ -46,9 +46,10 @@ export function TimesheetsDeleteDialog({
 }>) {
 	const t = useTranslations();
 	const hasOpenedDelete = useHasBeenOpen(dialogs.isDeleteOpen);
-	const isBulkDelete = dialogs.deleteTarget.source === 'bulk';
+	// One entry is deleted from its row; the selection and a group say how many entries go
+	const isSeveralDelete = dialogs.deleteTarget.source !== 'row';
 	let deleteCount = 0;
-	if (isBulkDelete) {
+	if (isSeveralDelete) {
 		deleteCount = dialogs.deleteTarget.logIds.length;
 	}
 	if (!hasOpenedDelete) {
@@ -98,6 +99,22 @@ function DuplicateDialog({
 
 const ANY_MEMBER_KEY = 'any-member';
 
+/** A group's reject says how many entries it rejects; any other keeps the dialog's own sentence. */
+function rejectDescriptionOf(target: RejectTarget, t: ReturnType<typeof useTranslations>): string | undefined {
+	if (target.source !== 'group') {
+		return undefined;
+	}
+	return t('dashboard.timesheets.SIMILAR.REJECT_COUNT', { count: target.entryCount });
+}
+
+/** Gauzy rejects whole timesheets, so a group's reject also says that the other entries of its timesheets change. */
+function rejectNoteOf(target: RejectTarget, t: ReturnType<typeof useTranslations>): string | undefined {
+	if (target.source !== 'group') {
+		return undefined;
+	}
+	return t('dashboard.timesheets.SHEET.WHOLE_TIMESHEETS');
+}
+
 /**
  * The existing timesheet dialogs, each mounted once for the whole page and loaded on its first opening, so the
  * page carries none of them until one is needed.
@@ -119,9 +136,12 @@ export function TimesheetsDialogs({
 	onDeleteConfirmed: () => Promise<void>;
 	duplicate?: TimeEntryDuplicateState;
 }>) {
+	const t = useTranslations();
 	const hasOpenedAddTime = useHasBeenOpen(dialogs.isAddTimeOpen);
 	const hasOpenedEdit = useHasBeenOpen(dialogs.isEditOpen);
 	const hasOpenedReject = useHasBeenOpen(dialogs.isRejectOpen);
+	const rejectDescription = rejectDescriptionOf(dialogs.rejectTarget, t);
+	const rejectNote = rejectNoteOf(dialogs.rejectTarget, t);
 	const showsAddTime = canAddTime && hasOpenedAddTime;
 	// The form starts over when the member it is fixed to changes
 	const addTimeFormKey = addTimeMember?.employeeId ?? ANY_MEMBER_KEY;
@@ -155,6 +175,8 @@ export function TimesheetsDialogs({
 					isOpen={dialogs.isRejectOpen}
 					closeModal={dialogs.closeReject}
 					selectTimesheetId={dialogs.rejectTarget.timesheetIds}
+					description={rejectDescription}
+					note={rejectNote}
 					onReject={onRejected}
 					maxReasonLength={REASON_MAX_LENGTH}
 					minReasonLength={0}

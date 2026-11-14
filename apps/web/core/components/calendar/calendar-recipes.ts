@@ -17,12 +17,12 @@ export const RESIZABLE_BLOCK_HEIGHT_PX = 24;
 
 const MINUTES_PER_HOUR = 60;
 
-export function pixelsOfMinutes(minutes: number) {
-	return (minutes / MINUTES_PER_HOUR) * HOUR_HEIGHT_PX;
+function pixelsOfMinutes(minutes: number, hourHeightPx = HOUR_HEIGHT_PX) {
+	return (minutes / MINUTES_PER_HOUR) * hourHeightPx;
 }
 
-export function blockHeightOfMinutes(minutes: number) {
-	const naturalHeight = pixelsOfMinutes(minutes);
+export function blockHeightOfMinutes(minutes: number, hourHeightPx = HOUR_HEIGHT_PX) {
+	const naturalHeight = pixelsOfMinutes(minutes, hourHeightPx);
 	return Math.max(naturalHeight, MIN_BLOCK_HEIGHT_PX);
 }
 
@@ -49,10 +49,13 @@ export const ENTRY_BAR = 'absolute inset-y-0 left-0 w-[3px] bg-(--entry)';
 
 export const WEEKEND_TINT = 'bg-foreground/[0.02]';
 
-export const HOUR_LINES_STYLE: CSSProperties = {
-	backgroundImage: 'linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px)',
-	backgroundSize: `100% ${HOUR_HEIGHT_PX}px`
-};
+/** One line per hour, at the chosen row height: the window always starts on a whole hour. */
+export function hourLinesStyleOf(hourHeightPx: number): CSSProperties {
+	return {
+		backgroundImage: 'linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px)',
+		backgroundSize: `100% ${hourHeightPx}px`
+	};
+}
 
 /**
  * The colour a project is drawn in: its own when it has one, otherwise the hue the Team dashboard derives from its

@@ -60,7 +60,7 @@ export function startTimerRequest(params: IUpdateTimerStatusParams, bearer_token
 }
 
 export function stopTimerRequest(
-	params: IUpdateTimerStatusParams & { startedAt?: string; stoppedAt?: string },
+	params: IUpdateTimerStatusParams & { startedAt?: string; stoppedAt?: string; timeLogId?: string },
 	bearer_token: string
 ) {
 	return serverFetch<ITimeLog | null>({
@@ -69,6 +69,22 @@ export function stopTimerRequest(
 		bearer_token,
 		body: params,
 		tenantId: params.tenantId
+	});
+}
+
+/** Discards the caller's running timer (ever-co/ever-gauzy#11935). Gauzy answers 204, or refuses with its status. */
+export function discardTimerRequest(
+	params: { tenantId: string; organizationId: string; timeLogId?: string },
+	bearer_token: string
+) {
+	return serverFetch<void>({
+		path: '/timesheet/timer/discard',
+		method: 'POST',
+		bearer_token,
+		body: params,
+		tenantId: params.tenantId,
+		// Gauzy's coded refusals (403 { code, message }) carry no status in their body: the route passes the HTTP one on
+		keepsStatusOnError: true
 	});
 }
 
