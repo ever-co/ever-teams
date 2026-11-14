@@ -21,6 +21,7 @@ import {
 	ISigninEmailConfirmResponse,
 	IUserSigninWorkspaceResponse
 } from '@/core/types/interfaces/auth/auth';
+import type { ITwoFactorVerifyInput } from '@/core/types/interfaces/auth/two-factor';
 import { ISuccessResponse } from '@/core/types/interfaces/common/data-response';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { TUser } from '@/core/types/schemas';
@@ -256,6 +257,25 @@ class AuthService extends APIService {
 			teamId: params.selectedTeam,
 			lastTeamId: params.lastTeamId
 		});
+	};
+
+	/**
+	 * The code step of a sign-in that asked for a second factor: the challenge it answered and the code of the
+	 * authenticator app (or a recovery code) start the session of the chosen team. A wrong code is a 401 the caller
+	 * shows, never a sign-out.
+	 */
+	verifyTwoFactor = async (params: ITwoFactorVerifyInput & { selectedTeam: string }) => {
+		const { selectedTeam, ...input } = params;
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			return signinService.verifyTwoFactorGauzy({ ...input, teamId: selectedTeam });
+		}
+		const api = await getFallbackAPI();
+		return api.post<{ loginResponse: IAuthResponse }>(
+			'/auth/two-factor/verify',
+			{ ...input, teamId: selectedTeam || undefined },
+			{ expectedUnauthorized: true },
+			false
+		);
 	};
 
 	registerUserTeam = async (data: IRegisterDataAPI) => {

@@ -25,6 +25,7 @@ jest.mock('../../api.service', () => ({
 
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { authService } from './auth.service';
+import { signinService } from './signin.service';
 
 const PAGE_ORIGIN = 'https://teams.example.org';
 
@@ -101,5 +102,37 @@ describe('authService, asking for a password reset link', () => {
 		expect(mockFallbackPost).toHaveBeenCalledTimes(1);
 		expect(mockFallbackPost).toHaveBeenCalledWith('/auth/request-password', { email: 'ada@example.org' });
 		expect(post).not.toHaveBeenCalled();
+	});
+});
+
+describe('authService, the code step of a sign-in that asks for a second factor', () => {
+	const proof = { challenge: 'signed.challenge', code: '123456' };
+
+	it("completes it at this app's route in proxy mode, with the team to open", async () => {
+		publishApiUrl('');
+		mockFallbackPost.mockResolvedValue({ data: { loginResponse: {} } });
+
+		await authService.verifyTwoFactor({ ...proof, selectedTeam: 'team-1' });
+
+		expect(mockFallbackPost).toHaveBeenCalledWith(
+			'/auth/two-factor/verify',
+			{ ...proof, teamId: 'team-1' },
+			{ expectedUnauthorized: true },
+			false
+		);
+	});
+
+	it('completes it at Gauzy in direct mode', async () => {
+		publishApiUrl('https://api.example.org');
+		const verify = jest.spyOn(signinService, 'verifyTwoFactorGauzy').mockResolvedValue({} as never);
+
+		await authService.verifyTwoFactor({
+			challenge: 'signed.challenge',
+			recoveryCode: 'ABCDE-FGHIJ',
+			selectedTeam: ''
+		});
+
+		expect(verify).toHaveBeenCalledWith({ challenge: 'signed.challenge', recoveryCode: 'ABCDE-FGHIJ', teamId: '' });
+		expect(mockFallbackPost).not.toHaveBeenCalled();
 	});
 });
