@@ -85,6 +85,14 @@ function hasChanged(result: { affected?: number } | undefined) {
 }
 
 /**
+ * The writes of the lanes' fields (`statusId:field`), one at a time per field of each status, the latest value chosen
+ * meanwhile going next: two writes sent at once could land out of order, the older one overwriting the newer, and a
+ * reload would show the older value. Shared by every board, open or left: a board left with a write waiting must not
+ * send it after a board opened since saved a newer value.
+ */
+const laneFieldWrites = createLatestWriteQueue();
+
+/**
  * The lanes of a board, one per status, for the tasks given (the Kanban page's, or a view shown as a board), and
  * every lane mutation. A task dropped on another lane is saved at once through `updateTask`, whose optimistic cache
  * update moves it before the server answers; the order inside a lane is kept for the session only, because Gauzy
@@ -112,9 +120,6 @@ export function useKanbanLanes(tasks: TTask[], options?: { keepsLaneOrder?: bool
 	// changes what shows, as it would put back a value a newer change replaced.
 	const saveCountRef = useRef(0);
 	const latestSaveRef = useRef(new Map<string, number>());
-	// One write of each field of each status at a time, the latest value chosen meanwhile going next: two writes sent
-	// at once could land out of order, the older one overwriting the newer, and a reload would show the older value.
-	const [writeQueue] = useState(createLatestWriteQueue);
 	// A board left while its writes are on their way still sends the latest value chosen, but changes no state.
 	const isMountedRef = useRef(true);
 	useEffect(() => {
@@ -168,7 +173,7 @@ export function useKanbanLanes(tasks: TTask[], options?: { keepsLaneOrder?: bool
 				...current,
 				[statusId]: { ...current[statusId], [field]: { value, save } }
 			}));
-			writeQueue.enqueue(key, async () => {
+			laneFieldWrites.enqueue(key, async () => {
 				let saved = false;
 				try {
 					saved = hasChanged(await editTaskStatus(statusId, { [field]: value }));
@@ -190,7 +195,7 @@ export function useKanbanLanes(tasks: TTask[], options?: { keepsLaneOrder?: bool
 				setStatusOverrides((current) => settledOverrides(current, statusId, field, save, null));
 			});
 		},
-		[editTaskStatus, setTaskStatuses, writeQueue]
+		[editTaskStatus, setTaskStatuses]
 	);
 
 	const setLaneCollapsed = useCallback(

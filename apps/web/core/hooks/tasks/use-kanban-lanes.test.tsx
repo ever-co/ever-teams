@@ -99,9 +99,12 @@ async function answer(request: Request, outcome: { affected: 0 } | Error) {
 	});
 }
 
+function openRequests() {
+	return mockRequests.filter((request) => !request.ended);
+}
+
 /** Lands every write on its way, the newest first, then the writes that were waiting for them, until none is left. */
 async function landNewestFirst() {
-	const openRequests = () => mockRequests.filter((request) => !request.ended);
 	for (let open = openRequests(); open.length > 0; open = openRequests()) {
 		await land(open[open.length - 1]);
 	}
@@ -115,7 +118,13 @@ describe('the saves of a board lane', () => {
 		mockOverlaps.length = 0;
 		jest.spyOn(console, 'error').mockImplementation(() => undefined);
 	});
-	afterEach(() => jest.restoreAllMocks());
+	afterEach(async () => {
+		// Every board shares the queue of writes: none of a test may stay on its way, or the next test's would wait.
+		for (let open = openRequests(); open.length > 0; open = openRequests()) {
+			await answer(open[0], { affected: 0 });
+		}
+		jest.restoreAllMocks();
+	});
 
 	it('ends with the latest value on the server when the older write would land after the newer one', async () => {
 		const { result, rerender } = renderHook(() => useKanbanLanes([]));
@@ -247,6 +256,28 @@ describe('the saves of a board lane', () => {
 			expect(sentValues('a', 'order')).toEqual([1, 3]);
 			expect(serverOrder()).toEqual(['b', 'c', 'd', 'a']);
 			expect(shownOrder(result)).toEqual(['b', 'c', 'd', 'a']);
+		});
+
+		it('ends with the place chosen on a board opened again, not the one a board left meanwhile had waiting', async () => {
+			mockStatuses = [A, B, C, D];
+			serverStatuses = [A, B, C, D];
+			const left = renderHook(() => useKanbanLanes([]));
+			act(() => left.result.current.moveLane('a', 1));
+			act(() => left.result.current.moveLane('a', 2));
+			left.unmount();
+
+			// Opened again before any write landed: the board reads the statuses as they were, and moves the lane last.
+			const { result, rerender } = renderHook(() => useKanbanLanes([]));
+			act(() => result.current.moveLane('a', 3));
+			expect(shownOrder(result)).toEqual(['b', 'c', 'd', 'a']);
+
+			await landNewestFirst();
+			rerender();
+
+			expect(serverOrder()).toEqual(['b', 'c', 'd', 'a']);
+			expect(shownOrder(result)).toEqual(['b', 'c', 'd', 'a']);
+			expect(sentValues('a', 'order')).toEqual([1, 3]);
+			expect(mockOverlaps).toEqual([]);
 		});
 
 		it('keeps the lane order the latest move saved when the older move fails', async () => {
