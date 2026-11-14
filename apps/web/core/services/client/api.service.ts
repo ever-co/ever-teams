@@ -266,6 +266,9 @@ export class APIService {
 	 *   tells the caller more than the 401 would, and the session is kept.
 	 * - The request is refused again once the session is renewed: that 401 is its answer. Nothing is renewed a
 	 *   second time, and nobody is signed out.
+	 * - The cookies hold a token of another user, tenant or organization by then (another sign-in took the place
+	 *   of the refused session), or none: the request fails with its 401 and is never sent with that other token,
+	 *   pinned or not.
 	 *
 	 * Sign-in pages and public team pages are open without a session: a 401 there is the request's answer.
 	 *
@@ -305,15 +308,14 @@ export class APIService {
 		}
 
 		request.sentAgainAfterRenewal = true;
-		if (request.pinnedAuthorization) {
-			// Pinned to the session it was built for: only a token of that same user, tenant and organization
-			// takes the place of the refused one
-			const renewedToken = getAccessTokenCookie();
-			if (!refusedToken || !renewedToken || !tokensShareScope(refusedToken, renewedToken)) {
-				throw error;
-			}
-			request.headers.set('Authorization', `Bearer ${renewedToken}`);
+		// Every request was built for the session that sent it, pinned or not: only a token of that same user, tenant
+		// and organization takes the place of the refused one. When the cookies meanwhile hold another person's
+		// session (a sign-in in another tab while the renewal waited), the request is not sent as that person.
+		const renewedToken = getAccessTokenCookie();
+		if (!refusedToken || !renewedToken || !tokensShareScope(refusedToken, renewedToken)) {
+			throw error;
 		}
+		request.headers.set('Authorization', `Bearer ${renewedToken}`);
 		return this.axiosInstance.request(request);
 	}
 

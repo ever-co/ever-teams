@@ -45,4 +45,36 @@ describe('proxy mode: a timer stop made with an expired access token, while the 
 		expect(gauzy.acceptsAccessToken(getAccessTokenCookie())).toBe(true);
 		expect(gauzy.acceptsRefreshToken(getRefreshTokenCookie())).toBe(true);
 	});
+
+	it('never sends the stop again as the session another sign-in wrote to the cookies meanwhile', async () => {
+		const { gauzy } = page;
+		page.signIn();
+		gauzy.runTimer();
+		page.wait(25 * HOUR_MS);
+		gauzy.holdAnswers();
+		// A's stop leaves with A's expired token; B (another organization) signs in while it is on its way
+		const stopOfA = timerService.stopTimer({ source: ETimeLogSource.TEAMS }).then(
+			() => null,
+			(error: { statusCode?: number }) => error
+		);
+		for (let attempt = 0; attempt < 200 && gauzy.heldCount() < 1; attempt += 1) {
+			await new Promise((resolve) => setTimeout(resolve, 5));
+		}
+		expect(gauzy.heldCount()).toBe(1);
+		const pairOfB = gauzy.signIn({ organizationId: '55555555-5555-4555-8555-555555555555' });
+		page.keepInCookies(pairOfB);
+		gauzy.answerAll();
+
+		const error = await stopOfA;
+
+		expect(error?.statusCode).toBe(401);
+		expect(gauzy.count('POST', '/timer/stop')).toBe(1);
+		expect(gauzy.sentTo('POST', '/timer/stop').map((request) => request.accessToken)).not.toContain(
+			pairOfB.token
+		);
+		expect(gauzy.timeLog()?.isRunning).toBe(true);
+		expect(gauzy.count('POST', '/auth/refresh')).toBe(0);
+		expect(page.sentToSignIn).not.toHaveBeenCalled();
+		expect(getAccessTokenCookie()).toBe(pairOfB.token);
+	});
 });

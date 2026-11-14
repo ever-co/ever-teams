@@ -194,6 +194,35 @@ describe('a route that answers 401 for a reason of its own', () => {
 	});
 });
 
+describe('a request refused while another sign-in took the place of its session', () => {
+	it('fails with its own 401 and is never sent again as that other session', async () => {
+		// A's stop leaves with A's expired token and is still on its way when another sign-in (B, another
+		// organization) writes its pair to the cookies every tab shares
+		page.signIn();
+		gauzy.runTimer();
+		page.wait(25 * HOUR_MS);
+		gauzy.holdAnswers();
+		const stopOfA = failureOf(timerService.stopTimer({ source: ETimeLogSource.TEAMS }));
+		await waitFor(() => gauzy.heldCount() === 1);
+		const pairOfB = gauzy.signIn({ organizationId: '55555555-5555-4555-8555-555555555555' });
+		page.keepInCookies(pairOfB);
+		gauzy.answerAll();
+
+		const error = await stopOfA;
+
+		// A's stop fails with its own 401, and B's session never sends it
+		expect(error.statusCode).toBe(401);
+		expect(gauzy.count('POST', '/timesheet/timer/stop')).toBe(1);
+		expect(gauzy.sentTo('POST', '/timesheet/timer/stop').map((request) => request.accessToken)).not.toContain(
+			pairOfB.token
+		);
+		expect(gauzy.timeLog()?.isRunning).toBe(true);
+		expect(page.renewals()).toBe(0);
+		expect(page.sentToSignIn).not.toHaveBeenCalled();
+		expect(getAccessTokenCookie()).toBe(pairOfB.token);
+	});
+});
+
 describe('a request pinned to the token of the scope it was built for', () => {
 	const scopeOf = (accessToken: string) => ({
 		tenantId: FAKE_USER.tenantId,
