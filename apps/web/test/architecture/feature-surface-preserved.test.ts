@@ -2061,12 +2061,14 @@ describe('Ever Teams feature surface preservation', () => {
 		// 364 files and 463 verbs with the export of all of the workspace's data (/api/export GET; #5208).
 		// 371 files and 470 verbs with the two-factor authentication proxies (/api/auth/two-factor GET, enroll, confirm,
 		// disable, recovery-codes and verify POST, users/[userId] DELETE; #5210).
-		// 376 files and 476 verbs with the time goals proxies (/api/time-goals GET and POST, progress GET, [id] PUT,
+		// 373 files and 472 verbs with the history of a time entry and the changes of a period
+		// (GET /api/timesheet/time-log/[id]/history, GET /api/timesheet/time-log/history; #5222).
+		// 378 files and 478 verbs with the time goals proxies (/api/time-goals GET and POST, progress GET, [id] PUT,
 		// [id]/archive PUT, [id]/restore PUT; #5213).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(376);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(378);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(476);
+		).toHaveLength(478);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of the platform's time goal routes (#5213, ever-co/ever-gauzy#11918)
@@ -2236,6 +2238,8 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/timer/toogle/route.ts::POST',
 				'apps/web/app/api/timesheet/status/route.ts::PUT',
 				'apps/web/app/api/timesheet/time-log/[id]/route.ts::PUT',
+				'apps/web/app/api/timesheet/time-log/[id]/history/route.ts::GET',
+				'apps/web/app/api/timesheet/time-log/history/route.ts::GET',
 				'apps/web/app/api/timesheet/time-log/report/weekly/route.ts::GET',
 				'apps/web/app/api/timesheet/time-log/route.ts::DELETE',
 				'apps/web/app/api/timesheet/time-log/route.ts::GET',
