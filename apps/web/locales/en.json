@@ -5443,7 +5443,7 @@
 			"CHANGED": "Two-factor authentication changed meanwhile. Check it and try again.",
 			"FAILED": "It could not be changed. Try again in a moment.",
 			"UNAVAILABLE_TITLE": "Not available on this server yet",
-			"UNAVAILABLE_DESCRIPTION": "This server cannot keep authenticator keys yet. Ask your administrator to set it up.",
+			"UNAVAILABLE_DESCRIPTION": "Two-factor authentication is not turned on for this server. Ask your administrator to turn it on.",
 			"UNSUPPORTED_TITLE": "Two-factor authentication is not available",
 			"UNSUPPORTED_DESCRIPTION": "This server does not offer two-factor authentication.",
 			"READ_FAILED": "Two-factor authentication could not be read",

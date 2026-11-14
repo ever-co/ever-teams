@@ -5443,7 +5443,7 @@
 			"CHANGED": "Die Zwei-Faktor-Authentifizierung wurde inzwischen geändert. Prüfe sie und versuche es erneut.",
 			"FAILED": "Die Änderung war nicht möglich. Versuche es gleich noch einmal.",
 			"UNAVAILABLE_TITLE": "Auf diesem Server noch nicht verfügbar",
-			"UNAVAILABLE_DESCRIPTION": "Dieser Server kann noch keine Authenticator-Schlüssel speichern. Bitte deinen Administrator, es einzurichten.",
+			"UNAVAILABLE_DESCRIPTION": "Die Zwei-Faktor-Authentifizierung ist auf diesem Server nicht eingeschaltet. Bitte deinen Administrator, sie einzuschalten.",
 			"UNSUPPORTED_TITLE": "Zwei-Faktor-Authentifizierung ist nicht verfügbar",
 			"UNSUPPORTED_DESCRIPTION": "Dieser Server bietet keine Zwei-Faktor-Authentifizierung an.",
 			"READ_FAILED": "Die Zwei-Faktor-Authentifizierung konnte nicht gelesen werden",

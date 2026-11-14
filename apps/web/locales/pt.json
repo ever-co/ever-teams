@@ -5443,7 +5443,7 @@
 			"CHANGED": "A autenticação de dois fatores mudou entretanto. Verifique-a e tente novamente.",
 			"FAILED": "Não foi possível alterar. Tente novamente daqui a pouco.",
 			"UNAVAILABLE_TITLE": "Ainda não disponível neste servidor",
-			"UNAVAILABLE_DESCRIPTION": "Este servidor ainda não pode guardar chaves de autenticação. Peça ao seu administrador para o configurar.",
+			"UNAVAILABLE_DESCRIPTION": "A autenticação de dois fatores não está ativada neste servidor. Peça ao seu administrador para a ativar.",
 			"UNSUPPORTED_TITLE": "A autenticação de dois fatores não está disponível",
 			"UNSUPPORTED_DESCRIPTION": "Este servidor não oferece autenticação de dois fatores.",
 			"READ_FAILED": "Não foi possível ler a autenticação de dois fatores",

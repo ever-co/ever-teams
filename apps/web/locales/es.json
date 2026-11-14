@@ -5443,7 +5443,7 @@
 			"CHANGED": "La autenticación en dos pasos cambió mientras tanto. Revísala y vuelve a intentarlo.",
 			"FAILED": "No se pudo cambiar. Vuelve a intentarlo en un momento.",
 			"UNAVAILABLE_TITLE": "Aún no disponible en este servidor",
-			"UNAVAILABLE_DESCRIPTION": "Este servidor aún no puede guardar claves de autenticación. Pide a tu administrador que lo configure.",
+			"UNAVAILABLE_DESCRIPTION": "La autenticación en dos pasos no está activada en este servidor. Pide a tu administrador que la active.",
 			"UNSUPPORTED_TITLE": "La autenticación en dos pasos no está disponible",
 			"UNSUPPORTED_DESCRIPTION": "Este servidor no ofrece autenticación en dos pasos.",
 			"READ_FAILED": "No se pudo leer la autenticación en dos pasos",

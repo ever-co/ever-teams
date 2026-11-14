@@ -5443,7 +5443,7 @@
 			"CHANGED": "双重身份验证在此期间已更改。请检查后重试。",
 			"FAILED": "无法更改。请稍后重试。",
 			"UNAVAILABLE_TITLE": "此服务器暂不可用",
-			"UNAVAILABLE_DESCRIPTION": "此服务器暂时无法保存身份验证密钥。请联系管理员进行设置。",
+			"UNAVAILABLE_DESCRIPTION": "此服务器未开启双重身份验证。请联系管理员开启。",
 			"UNSUPPORTED_TITLE": "双重身份验证不可用",
 			"UNSUPPORTED_DESCRIPTION": "此服务器不提供双重身份验证。",
 			"READ_FAILED": "无法读取双重身份验证状态",

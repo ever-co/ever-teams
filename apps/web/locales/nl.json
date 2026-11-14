@@ -5443,7 +5443,7 @@
 			"CHANGED": "Tweestapsverificatie is intussen gewijzigd. Controleer het en probeer het opnieuw.",
 			"FAILED": "Het kon niet worden gewijzigd. Probeer het zo opnieuw.",
 			"UNAVAILABLE_TITLE": "Nog niet beschikbaar op deze server",
-			"UNAVAILABLE_DESCRIPTION": "Deze server kan nog geen authenticatorsleutels bewaren. Vraag je beheerder om het in te stellen.",
+			"UNAVAILABLE_DESCRIPTION": "Tweestapsverificatie staat niet aan op deze server. Vraag je beheerder om het aan te zetten.",
 			"UNSUPPORTED_TITLE": "Tweestapsverificatie is niet beschikbaar",
 			"UNSUPPORTED_DESCRIPTION": "Deze server biedt geen tweestapsverificatie aan.",
 			"READ_FAILED": "Tweestapsverificatie kon niet worden gelezen",

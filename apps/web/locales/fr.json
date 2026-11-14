@@ -5443,7 +5443,7 @@
 			"CHANGED": "L’authentification à deux facteurs a changé entre-temps. Vérifiez-la et réessayez.",
 			"FAILED": "La modification n’a pas pu être faite. Réessayez dans un instant.",
 			"UNAVAILABLE_TITLE": "Pas encore disponible sur ce serveur",
-			"UNAVAILABLE_DESCRIPTION": "Ce serveur ne peut pas encore conserver de clés d’authentification. Demandez à votre administrateur de le configurer.",
+			"UNAVAILABLE_DESCRIPTION": "L’authentification à deux facteurs n’est pas activée sur ce serveur. Demandez à votre administrateur de l’activer.",
 			"UNSUPPORTED_TITLE": "L’authentification à deux facteurs n’est pas disponible",
 			"UNSUPPORTED_DESCRIPTION": "Ce serveur ne propose pas l’authentification à deux facteurs.",
 			"READ_FAILED": "L’authentification à deux facteurs n’a pas pu être lue",

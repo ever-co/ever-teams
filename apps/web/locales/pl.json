@@ -5443,7 +5443,7 @@
 			"CHANGED": "Uwierzytelnianie dwuskładnikowe zmieniło się w międzyczasie. Sprawdź je i spróbuj ponownie.",
 			"FAILED": "Nie udało się tego zmienić. Spróbuj ponownie za chwilę.",
 			"UNAVAILABLE_TITLE": "Jeszcze niedostępne na tym serwerze",
-			"UNAVAILABLE_DESCRIPTION": "Ten serwer nie może jeszcze przechowywać kluczy uwierzytelniających. Poproś administratora o konfigurację.",
+			"UNAVAILABLE_DESCRIPTION": "Uwierzytelnianie dwuskładnikowe nie jest włączone na tym serwerze. Poproś administratora o jego włączenie.",
 			"UNSUPPORTED_TITLE": "Uwierzytelnianie dwuskładnikowe jest niedostępne",
 			"UNSUPPORTED_DESCRIPTION": "Ten serwer nie oferuje uwierzytelniania dwuskładnikowego.",
 			"READ_FAILED": "Nie udało się odczytać uwierzytelniania dwuskładnikowego",

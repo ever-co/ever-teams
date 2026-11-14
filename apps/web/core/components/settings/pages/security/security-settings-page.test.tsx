@@ -111,7 +111,7 @@ describe('SecuritySettingsPage', () => {
 		expect(settings.disable.mutateAsync).toHaveBeenCalledWith({ code: '654321' });
 	});
 
-	it('offers nothing to turn on where the server cannot keep secrets', () => {
+	it('says the server does not offer it, and offers nothing to turn on, while the status reads unavailable', () => {
 		mockSettings.mockReturnValue(settingsOf({ status: { ...OFF, available: false } }));
 		render(<SecuritySettingsPage />);
 
