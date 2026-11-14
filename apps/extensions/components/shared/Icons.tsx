@@ -31,9 +31,10 @@ export const SearchIcon: FC<IconProps> = ({ className }) => (
 	</svg>
 );
 
+// The whole icon turns: a transform on a <path> turns around the SVG's own origin, not the arc's centre
 export const SpinnerIcon: FC<IconProps> = ({ className }) => (
-	<svg className={className} viewBox="0 0 24 24" aria-hidden="true" {...stroke}>
-		<path d="M12 3a9 9 0 1 0 9 9" className="origin-center animate-spin" />
+	<svg className={`animate-spin ${className ?? ''}`.trim()} viewBox="0 0 24 24" aria-hidden="true" {...stroke}>
+		<path d="M12 3a9 9 0 1 0 9 9" />
 	</svg>
 );
 
