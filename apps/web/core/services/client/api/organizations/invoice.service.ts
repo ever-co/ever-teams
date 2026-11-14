@@ -20,6 +20,29 @@ const INVOICES_PAGE_SIZE = 50;
 /** The API serves at most 100 invoices a page. */
 const FULL_READ_PAGE_SIZE = 100;
 
+function updatedTimeOf(invoice: TInvoice) {
+	if (!invoice.updatedAt) {
+		return 0;
+	}
+	return new Date(invoice.updatedAt).getTime();
+}
+
+/**
+ * One copy of each invoice, its latest: a read per status can meet an invoice twice when its status changes between two
+ * of those reads, and every sum drawn from the list would then count it twice.
+ */
+function latestOfEachInvoice(invoices: ReadonlyArray<TInvoice>): TInvoice[] {
+	const byId = new Map<string, TInvoice>();
+	for (const invoice of invoices) {
+		const kept = byId.get(invoice.id);
+		const isLatest = !kept || updatedTimeOf(invoice) > updatedTimeOf(kept);
+		if (isLatest) {
+			byId.set(invoice.id, invoice);
+		}
+	}
+	return [...byId.values()];
+}
+
 const invoiceStatusSchema = invoiceSchema.pick({ status: true });
 
 export interface InvoicesPage {
@@ -197,7 +220,7 @@ class InvoiceService extends APIService {
 			const scope = keyScope ?? this.currentScope();
 			const reads = statuses.map((status) => this.readEveryPage({ status, hidesArchived: true, scope }, signal));
 			const lists = await Promise.all(reads);
-			return lists.flat();
+			return latestOfEachInvoice(lists.flat());
 		} catch (error) {
 			this.logValidationError(error, 'Invoices by status validation failed:');
 			throw error;
