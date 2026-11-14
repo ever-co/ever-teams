@@ -6837,6 +6837,9 @@
 			"NO_PRICED_LINES": "לאף זמן בתקופה הזו אין תעריף במטבע הזה.",
 			"ALL_LINES_REMOVED": "כל השורות הוסרו. שחזרו אותן כדי לחייב על הזמן הזה.",
 			"LINES_AND_HOURS": "{count, plural, one {שורה אחת} two {שתי שורות} other {# שורות}} · {hours} ש׳",
+			"ROUNDED_UP": "כל רשומה מעוגלת כלפי מעלה ל-{minutes} דק׳",
+			"ROUNDED_DOWN": "כל רשומה מעוגלת כלפי מטה ל-{minutes} דק׳",
+			"ROUNDED_NEAREST": "כל רשומה מעוגלת ל-{minutes} הדק׳ הקרובות",
 			"LINE_COUNT": "{count, plural, one {שורה אחת} two {שתי שורות} other {# שורות}}",
 			"TOTAL": "סה״כ",
 			"details": {

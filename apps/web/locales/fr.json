@@ -6837,6 +6837,9 @@
 			"NO_PRICED_LINES": "Aucun temps de cette période n’a de tarif dans cette devise.",
 			"ALL_LINES_REMOVED": "Toutes les lignes ont été retirées. Rétablissez-les pour facturer ce temps.",
 			"LINES_AND_HOURS": "{count, plural, one {# ligne} other {# lignes}} · {hours} h",
+			"ROUNDED_UP": "Chaque entrée arrondie au-dessus à {minutes} min",
+			"ROUNDED_DOWN": "Chaque entrée arrondie au-dessous à {minutes} min",
+			"ROUNDED_NEAREST": "Chaque entrée arrondie aux {minutes} min les plus proches",
 			"LINE_COUNT": "{count, plural, one {# ligne} other {# lignes}}",
 			"TOTAL": "Total",
 			"details": {

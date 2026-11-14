@@ -6837,6 +6837,9 @@
 			"NO_PRICED_LINES": "Нито едно време от този период няма ставка в тази валута.",
 			"ALL_LINES_REMOVED": "Всички редове са премахнати. Възстановете ги, за да фактурирате това време.",
 			"LINES_AND_HOURS": "{count, plural, one {# ред} other {# реда}} · {hours} ч",
+			"ROUNDED_UP": "Всеки запис е закръглен нагоре до {minutes} мин",
+			"ROUNDED_DOWN": "Всеки запис е закръглен надолу до {minutes} мин",
+			"ROUNDED_NEAREST": "Всеки запис е закръглен до най-близките {minutes} мин",
 			"LINE_COUNT": "{count, plural, one {# ред} other {# реда}}",
 			"TOTAL": "Общо",
 			"details": {

@@ -6837,6 +6837,9 @@
 			"NO_PRICED_LINES": "No time of this period has a rate in this currency.",
 			"ALL_LINES_REMOVED": "Every line was removed. Restore them to bill this time.",
 			"LINES_AND_HOURS": "{count, plural, one {# line} other {# lines}} · {hours} h",
+			"ROUNDED_UP": "Each entry rounded up to {minutes} min",
+			"ROUNDED_DOWN": "Each entry rounded down to {minutes} min",
+			"ROUNDED_NEAREST": "Each entry rounded to the nearest {minutes} min",
 			"LINE_COUNT": "{count, plural, one {# line} other {# lines}}",
 			"TOTAL": "Total",
 			"details": {

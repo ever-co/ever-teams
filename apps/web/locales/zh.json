@@ -6837,6 +6837,9 @@
 			"NO_PRICED_LINES": "此期间没有以该币种计价的时间。",
 			"ALL_LINES_REMOVED": "所有明细行都已移除。恢复后才能为这些时间开具发票。",
 			"LINES_AND_HOURS": "{count, plural, other {# 行}} · {hours} 小时",
+			"ROUNDED_UP": "每条记录向上取整到 {minutes} 分钟",
+			"ROUNDED_DOWN": "每条记录向下取整到 {minutes} 分钟",
+			"ROUNDED_NEAREST": "每条记录四舍五入到 {minutes} 分钟",
 			"LINE_COUNT": "{count, plural, other {# 行}}",
 			"TOTAL": "合计",
 			"details": {

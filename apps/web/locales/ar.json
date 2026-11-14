@@ -6837,6 +6837,9 @@
 			"NO_PRICED_LINES": "لا وقت في هذه الفترة له سعر بهذه العملة.",
 			"ALL_LINES_REMOVED": "أُزيلت كل البنود. استعدها لفوترة هذا الوقت.",
 			"LINES_AND_HOURS": "{count, plural, zero {لا بنود} one {بند واحد} two {بندان} few {# بنود} many {# بندًا} other {# بند}} · {hours} س",
+			"ROUNDED_UP": "كل إدخال مقرّب إلى الأعلى إلى {minutes} دقيقة",
+			"ROUNDED_DOWN": "كل إدخال مقرّب إلى الأدنى إلى {minutes} دقيقة",
+			"ROUNDED_NEAREST": "كل إدخال مقرّب إلى أقرب {minutes} دقيقة",
 			"LINE_COUNT": "{count, plural, zero {لا بنود} one {بند واحد} two {بندان} few {# بنود} many {# بندًا} other {# بند}}",
 			"TOTAL": "الإجمالي",
 			"details": {

@@ -6837,6 +6837,9 @@
 			"NO_PRICED_LINES": "Ни у какого времени за этот период нет ставки в этой валюте.",
 			"ALL_LINES_REMOVED": "Все строки убраны. Верните их, чтобы выставить счёт за это время.",
 			"LINES_AND_HOURS": "{count, plural, one {# строка} few {# строки} many {# строк} other {# строки}} · {hours} ч",
+			"ROUNDED_UP": "Каждая запись округлена вверх до {minutes} мин",
+			"ROUNDED_DOWN": "Каждая запись округлена вниз до {minutes} мин",
+			"ROUNDED_NEAREST": "Каждая запись округлена до ближайших {minutes} мин",
 			"LINE_COUNT": "{count, plural, one {# строка} few {# строки} many {# строк} other {# строки}}",
 			"TOTAL": "Итого",
 			"details": {
