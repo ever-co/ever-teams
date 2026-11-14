@@ -128,7 +128,7 @@ function showListedStatus(queryClient: QueryClient, scope: ReadWorkspace, invoic
 	patchListedInvoices(queryClient, scope, (pages) => pagesWithInvoiceChanged(pages, invoiceId, { status }));
 }
 
-export interface InvoiceToSend extends InvoiceToEmail {
+interface InvoiceToSend extends InvoiceToEmail {
 	/** Only a draft becomes Sent: an invoice sent again keeps the status it reached since. */
 	marksSent: boolean;
 	scope: ReadWorkspace;
@@ -201,7 +201,7 @@ export function useSendInvoice() {
 
 export type SaveAndSendOutcome = InvoiceSendOutcome | 'notSent';
 
-export interface SavedAndSentInvoice {
+interface SavedAndSentInvoice {
 	invoice: TInvoice;
 	outcome: SaveAndSendOutcome;
 }
@@ -474,15 +474,15 @@ async function checkInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditCheck> {
 }
 
 /** Where an edited invoice goes once saved: whether it becomes Sent is decided by the status the save finds. */
-export type InvoiceEditSending = Omit<InvoiceToSend, 'marksSent'>;
+type InvoiceEditSending = Omit<InvoiceToSend, 'marksSent'>;
 
-export interface InvoiceEditToSave {
+interface InvoiceEditToSave {
 	edit: InvoiceEdit;
 	/** Where the invoice goes once saved; null saves it only. */
 	sending: InvoiceEditSending | null;
 }
 
-export interface SavedInvoiceEdit {
+interface SavedInvoiceEdit {
 	outcome: InvoiceEditOutcome;
 	/** What the sending did, when the edit was saved and was to be sent. */
 	sending: SaveAndSendOutcome | null;
@@ -533,7 +533,7 @@ export function useSaveInvoiceEdit() {
 	return { saveInvoiceEdit: mutation.mutateAsync, isSavingEdit: mutation.isPending };
 }
 
-export interface InvoiceStatusChangeRequest {
+interface InvoiceStatusChangeRequest {
 	invoiceId: string;
 	change: InvoiceStatusChange;
 	scope: ReadWorkspace;

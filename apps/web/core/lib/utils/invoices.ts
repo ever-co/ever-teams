@@ -533,7 +533,7 @@ export function namedLinesOf(
 	return named;
 }
 
-export interface InvoiceLineParts {
+interface InvoiceLineParts {
 	projectId: string;
 	employeeId: string | null;
 	taskId: string | null;
@@ -710,7 +710,7 @@ export function todayDayKey(timeZone: string | null | undefined, now = new Date(
 
 export type InvoiceDueTermSource = 'client' | 'organization' | 'standard';
 
-export interface InvoiceDueTerm {
+interface InvoiceDueTerm {
 	source: InvoiceDueTermSource;
 	days: number;
 }
