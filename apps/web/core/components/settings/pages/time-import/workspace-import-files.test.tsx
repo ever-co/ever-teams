@@ -99,3 +99,13 @@ describe('WorkspaceImportFiles', () => {
 		expect(onChooseOther).toHaveBeenCalled();
 	});
 });
+
+describe('WorkspaceImportFiles while the import saves', () => {
+	it('offers no other files', () => {
+		const clients = tableOf('clients.csv', 'clients', 1);
+		render(<WorkspaceImportFiles files={{ ...NOTHING, clients, read: [clients] }} />);
+
+		expect(screen.getByText('clients.csv')).toBeTruthy();
+		expect(screen.queryByRole('button', { name: 'timeImport.workspace.CHOOSE_OTHER' })).toBeNull();
+	});
+});

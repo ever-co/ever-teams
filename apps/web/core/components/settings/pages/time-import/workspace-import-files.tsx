@@ -43,7 +43,8 @@ function ProblemList({
 
 interface WorkspaceImportFilesProps {
 	files: WorkspaceFiles;
-	onChooseOther: () => void;
+	/** Left out while the import saves: other files then would cut it short. */
+	onChooseOther?: () => void;
 }
 
 /** The files of the export as they were read: what each one holds, and every file left out with the reason. */
@@ -79,9 +80,11 @@ export function WorkspaceImportFiles({ files, onChooseOther }: Readonly<Workspac
 			id="workspace-import-files"
 			title={t('timeImport.workspace.FILES_TITLE')}
 			actions={
-				<Button type="button" variant="ghost" size="sm" onClick={onChooseOther}>
-					{t('timeImport.workspace.CHOOSE_OTHER')}
-				</Button>
+				onChooseOther && (
+					<Button type="button" variant="ghost" size="sm" onClick={onChooseOther}>
+						{t('timeImport.workspace.CHOOSE_OTHER')}
+					</Button>
+				)
 			}
 		>
 			<SettingsSurface>
