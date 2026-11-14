@@ -17,12 +17,13 @@ import { TeamHourHeatmap } from './team-hour-heatmap';
 import { TeamMembersTable } from './team-members-table';
 import { TeamTasksByStatus } from './team-tasks-status';
 import { TeamTimeByDay } from './team-time-by-day';
+import { TeamTimeSplit } from './team-time-split';
 import { TeamToolbar } from './team-toolbar';
 import { useTeamExportOptions } from './use-team-export-options';
 
 /**
  * The team at a glance: the figures, the period by day beside the hours of work, today hour by hour, the tasks by
- * status, then every member with time. Each subject appears once.
+ * status beside where the time went, then every member with time. Each subject appears once.
  */
 export function TeamDashboardPage() {
 	const t = useTranslations();
@@ -68,6 +69,7 @@ export function TeamDashboardPage() {
 					onRetry={dayBoard.refetch}
 				/>
 				<TeamTasksByStatus dashboard={dashboard} />
+				<TeamTimeSplit dashboard={dashboard} />
 				<TeamMembersTable dashboard={dashboard} />
 			</div>
 		</PageLayout>

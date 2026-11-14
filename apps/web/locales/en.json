@@ -794,7 +794,12 @@
 				"NONE": "No project",
 				"COUNT": "{count, plural, one {# project} other {# projects}}",
 				"OTHER": "{count, plural, one {# other project} other {# other projects}}",
-				"EMPTY": "Projects show here once time is tracked in the period."
+				"EMPTY": "Projects show here once time is tracked in the period.",
+				"SPLIT": "Split the time by",
+				"BY_CLIENT": "By client",
+				"OTHER_CLIENTS": "{count, plural, one {# other client} other {# other clients}}",
+				"CLIENTS_EMPTY": "Clients show here once time is tracked in the period.",
+				"CLIENTS_ERROR": "The clients of the projects could not be read."
 			},
 			"table": {
 				"VIEW": "Group the rows",

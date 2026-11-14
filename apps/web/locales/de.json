@@ -794,7 +794,12 @@
 				"NONE": "Kein Projekt",
 				"COUNT": "{count, plural, one {# Projekt} other {# Projekte}}",
 				"OTHER": "{count, plural, one {# weiteres Projekt} other {# weitere Projekte}}",
-				"EMPTY": "Projekte erscheinen hier, sobald im Zeitraum Zeit erfasst wurde."
+				"EMPTY": "Projekte erscheinen hier, sobald im Zeitraum Zeit erfasst wurde.",
+				"SPLIT": "Zeit aufteilen nach",
+				"BY_CLIENT": "Nach Kunde",
+				"OTHER_CLIENTS": "{count, plural, one {# weiterer Kunde} other {# weitere Kunden}}",
+				"CLIENTS_EMPTY": "Kunden erscheinen hier, sobald im Zeitraum Zeit erfasst wurde.",
+				"CLIENTS_ERROR": "Die Kunden der Projekte konnten nicht gelesen werden."
 			},
 			"table": {
 				"VIEW": "Zeilen gruppieren",
