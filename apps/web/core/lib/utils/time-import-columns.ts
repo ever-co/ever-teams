@@ -575,8 +575,8 @@ export function timeImportReadingOf(
 	if (needsChoice) {
 		return { kind: 'columns', table, choice };
 	}
-	const infersColumns = infersFields(header.mapping, suggested);
-	const isReadByItself = !infersColumns && !hasStoredChoice;
+	// A kept choice that maps the columns as the headers say still reads the file by itself
+	const isReadByItself = !infersFields(header.mapping, mapping);
 	const readsTemplateHeaders = header.readsAsTemplate && isReadByItself;
 	if (dates.kind === 'mixed' && !readsTemplateHeaders) {
 		const { firstRow, firstValue, row, value } = dates;
