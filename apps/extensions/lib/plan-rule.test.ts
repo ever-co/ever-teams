@@ -37,3 +37,19 @@ describe('planRefusalOf', () => {
 		);
 	});
 });
+
+describe('planRefusalOf, the day of a plan', () => {
+	it('reads a plan stored at UTC midnight as that day, wherever the person is', () => {
+		const plans = [{ date: '2026-11-14T00:00:00.000Z', tasks: [{ id: 't1' }] }];
+		assert.equal(planRefusalOf({ teamRequiresPlan: true, plans, taskId: 't1', planDay: '2026-11-14' }), null);
+	});
+
+	it("reads an older plan, stored at the instant it was made, in the person's own day, as the web does", () => {
+		// An instant whose day here differs from its UTC day: just after UTC midnight west of UTC, just before east of it
+		const isWestOfUtc = new Date('2026-11-14T12:00:00.000Z').getTimezoneOffset() > 0;
+		const madeAt = isWestOfUtc ? '2026-11-15T01:00:00.000Z' : '2026-11-14T23:30:00.000Z';
+		const localDay = new Date(madeAt).toLocaleDateString('en-CA');
+		const plans = [{ date: madeAt, tasks: [{ id: 't1' }] }];
+		assert.equal(planRefusalOf({ teamRequiresPlan: true, plans, taskId: 't1', planDay: localDay }), null);
+	});
+});
