@@ -57,8 +57,14 @@ function projectIdsOfInvoices(invoices: ReadonlyArray<TSavedInvoice>) {
 function invoiceLinesReadOf(results: ReadonlyArray<UseQueryResult<TSavedInvoice>>): InvoiceLinesRead {
 	const invoices: TSavedInvoice[] = [];
 	for (const result of results) {
-		if (result.data) {
-			invoices.push(result.data);
+		const invoice = result.data;
+		if (!invoice) {
+			continue;
+		}
+		// An invoice whose line list did not come is not read: with no line, it would count as recording its time
+		const hasLineList = Array.isArray(invoice.invoiceItems);
+		if (hasLineList) {
+			invoices.push(invoice);
 		}
 	}
 	return {
