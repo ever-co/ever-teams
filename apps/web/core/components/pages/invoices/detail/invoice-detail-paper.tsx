@@ -41,6 +41,14 @@ function moneyOf(amount: number | null, currency: string | null, locale: string)
 	return formatOwed(amount, currency, locale);
 }
 
+/** A tax reads "of" its base only when its amount is known: a tax that spares a line was not taken of that whole base. */
+function shownBaseOf(adjustment: PaperAdjustment, baseText: string | null) {
+	if (adjustment.amount === null) {
+		return null;
+	}
+	return baseText;
+}
+
 function adjustmentLabelOf(adjustment: PaperAdjustment, baseText: string | null, locale: string, t: Translate) {
 	if (adjustment.percent === null) {
 		if (adjustment.kind === 'discount') {
@@ -58,8 +66,9 @@ function adjustmentLabelOf(adjustment: PaperAdjustment, baseText: string | null,
 	if (adjustment.kind === 'tax2') {
 		return t('invoices.detail.TAX2_PERCENT', { percent });
 	}
-	if (baseText) {
-		return t('invoices.new.adjustments.TAX_ROW', { percent, base: baseText });
+	const base = shownBaseOf(adjustment, baseText);
+	if (base) {
+		return t('invoices.new.adjustments.TAX_ROW', { percent, base });
 	}
 	return t('invoices.detail.TAX_PERCENT', { percent });
 }
