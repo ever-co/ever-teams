@@ -63,15 +63,15 @@ function statusCellOf(entry: ManualTimeEntry, t: Translate) {
 
 type EntryText = (entry: ManualTimeEntry) => string;
 
-/** The values of the last edit, written like the other cells: a 24-hour clock and hours:minutes. */
-function fileValueFormatOf(t: Translate, memberNameOf: MemberNameOf): HistoryValueFormat {
-	const format = historyValueFormatOf(t, clockTimeOf, memberNameOf);
+/** The values of the last edit, written like the other cells: a start or an end with its day, and hours:minutes. */
+function fileValueFormatOf(t: Translate, memberNameOf: MemberNameOf, moment: DateText): HistoryValueFormat {
+	const format = historyValueFormatOf(t, moment, memberNameOf);
 	return { ...format, duration: hoursMinutesOf };
 }
 
 /** Before and after of the entry's last edit; a deleted entry is the row itself, then "Deleted". */
-function changeCellsOf(t: Translate, memberNameOf: MemberNameOf) {
-	const format = fileValueFormatOf(t, memberNameOf);
+function changeCellsOf(t: Translate, memberNameOf: MemberNameOf, moment: DateText) {
+	const format = fileValueFormatOf(t, memberNameOf, moment);
 	const labelOf = (field: keyof typeof HISTORY_FIELD_LABEL_KEYS) => t(HISTORY_FIELD_LABEL_KEYS[field]);
 	const updateOf = (entry: ManualTimeEntry) => {
 		const change = entry.lastChange;
@@ -102,26 +102,32 @@ function changeCellsOf(t: Translate, memberNameOf: MemberNameOf) {
 	};
 }
 
+type DateText = (date: Date) => string;
+
 interface DateCells {
 	day: EntryText;
 	editedAt: EntryText;
+	/** A start or an end in the Before and After cells: an edit can move an entry to another day. */
+	moment: DateText;
 }
 
 /** A file read by a spreadsheet keeps both as data it can sort, whatever the workspace's date format. */
 const FILE_DATE_CELLS: DateCells = {
 	day: (entry) => entry.dayKey,
-	editedAt: (entry) => clockDateTimeOf(entry.editedAt)
+	editedAt: (entry) => clockDateTimeOf(entry.editedAt),
+	moment: (date) => clockDateTimeOf(date)
 };
 
 function pdfDateCellsOf(locale: FormatLocale): DateCells {
 	return {
 		day: (entry) => pdfDayOf(entry.day, locale),
-		editedAt: (entry) => pdfDateTimeOf(entry.editedAt, locale)
+		editedAt: (entry) => pdfDateTimeOf(entry.editedAt, locale),
+		moment: (date) => pdfDateTimeOf(date, locale)
 	};
 }
 
 function columnsOf(t: Translate, dates: DateCells, memberNameOf: MemberNameOf): CsvColumn<ManualTimeEntry>[] {
-	const changeCells = changeCellsOf(t, memberNameOf);
+	const changeCells = changeCellsOf(t, memberNameOf, dates.moment);
 	return [
 		{ header: t('dashboard.timesheets.COLUMNS.DATE'), valueOf: dates.day },
 		{ header: t('common.MEMBER'), valueOf: (entry) => entry.memberName },

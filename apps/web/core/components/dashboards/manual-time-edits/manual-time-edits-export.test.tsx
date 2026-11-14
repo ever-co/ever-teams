@@ -129,17 +129,17 @@ describe('the before and after of a line of the Manual time edit exports', () =>
 		]
 	};
 
-	it('carry the values of the last edit', async () => {
+	it('carry the values of the last edit, a start or an end with its day', async () => {
 		await runExport('csv');
 
 		const columns = mockDownloadCsv.mock.calls[0][1] as CsvColumn<ManualTimeEntry>[];
 		const edited = { ...entry, lastChange };
 		expect(columns[BEFORE_COLUMN].header).toBe('dashboard.manualTimeEdits.COLUMN_BEFORE');
 		expect(columns[BEFORE_COLUMN].valueOf(edited)).toBe(
-			'dashboard.timesheets.COLUMNS.END 10:00; dashboard.timesheets.COLUMNS.DURATION 1:00'
+			'dashboard.timesheets.COLUMNS.END 2026-11-04 10:00; dashboard.timesheets.COLUMNS.DURATION 1:00'
 		);
 		expect(columns[AFTER_COLUMN].valueOf(edited)).toBe(
-			'dashboard.timesheets.COLUMNS.END 10:30; dashboard.timesheets.COLUMNS.DURATION 1:30'
+			'dashboard.timesheets.COLUMNS.END 2026-11-04 10:30; dashboard.timesheets.COLUMNS.DURATION 1:30'
 		);
 	});
 
