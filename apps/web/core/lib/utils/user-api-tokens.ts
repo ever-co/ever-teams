@@ -1,4 +1,8 @@
-import { USER_API_TOKEN_NAME_MAX_LENGTH, type TUserApiToken } from '@/core/types/schemas/user/user-api-token.schema';
+import {
+	USER_API_TOKEN_NAME_MAX_LENGTH,
+	type TUserApiToken,
+	type TUserApiTokenExpiry
+} from '@/core/types/schemas/user/user-api-token.schema';
 
 /** Gauzy refuses a new token while the person holds this many working ones (`MAX_ACTIVE_USER_API_TOKENS`). */
 export const MAX_ACTIVE_USER_API_TOKENS = 10;
@@ -89,4 +93,17 @@ export function sortUserApiTokens(tokens: ReadonlyArray<TUserApiToken>, now: Dat
 export function exchangeUrlOf(apiOrigin: string | undefined): string {
 	const origin = (apiOrigin ?? '').replace(/\/+$/, '');
 	return `${origin}${EXCHANGE_PATH}`;
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** The end Gauzy gives a new token (`resolveUserApiTokenExpiry`): 90 or 365 days from now, or none. */
+export function expiryDateOf(expiry: TUserApiTokenExpiry, now: Date): Date | null {
+	if (expiry === '90d') {
+		return new Date(now.getTime() + 90 * DAY_MS);
+	}
+	if (expiry === '1y') {
+		return new Date(now.getTime() + 365 * DAY_MS);
+	}
+	return null;
 }

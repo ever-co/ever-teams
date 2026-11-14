@@ -3,6 +3,7 @@ import {
 	activeUserApiTokenCount,
 	canCreateUserApiToken,
 	exchangeUrlOf,
+	expiryDateOf,
 	formatUserApiTokenDate,
 	MAX_ACTIVE_USER_API_TOKENS,
 	sortUserApiTokens,
@@ -125,5 +126,13 @@ describe('the exchange address a script calls', () => {
 	it('is the route alone when the app calls the API through its own server', () => {
 		expect(exchangeUrlOf(undefined)).toBe('/api/auth/api-token/exchange');
 		expect(exchangeUrlOf('')).toBe('/api/auth/api-token/exchange');
+	});
+});
+
+describe('the end a new token gets', () => {
+	it('is 90 or 365 days from now, as Gauzy counts it, or none', () => {
+		expect(expiryDateOf('90d', NOW)?.toISOString()).toBe('2027-02-12T12:00:00.000Z');
+		expect(expiryDateOf('1y', NOW)?.toISOString()).toBe('2027-11-14T12:00:00.000Z');
+		expect(expiryDateOf('never', NOW)).toBeNull();
 	});
 });
