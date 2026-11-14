@@ -239,6 +239,7 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 	const { organizationProjects, isOrganizationProjectsLoaded, isOrganizationProjectsError } =
 		useOrganizationProjectsQuery({ enabled: rights.canStart });
 	const labelsQuery = useTaskLabelsQuery();
+	const { refetch: refetchLabels } = labelsQuery;
 	const { invalidateTaskLabelsData } = useInvalidateTaskLabels();
 
 	const [files, setFiles] = useState<WorkspaceFiles | null>(null);
@@ -411,10 +412,15 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 			projects: [...current.projects, ...createdNow.projects],
 			labels: [...current.labels, ...createdNow.labels]
 		}));
-		void queryClient.invalidateQueries({ queryKey: queryKeys.clients.all });
-		void queryClient.invalidateQueries({ queryKey: queryKeys.organizationProjects.all });
-		void queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
 		invalidateTaskLabelsData();
+		// The lists are read again before anything is reported: a creation the API made but answered with an error
+		// (a lost answer, a timeout) is then in the plan the next run starts from, and is not made a second time
+		await Promise.allSettled([
+			queryClient.invalidateQueries({ queryKey: queryKeys.clients.all }),
+			queryClient.invalidateQueries({ queryKey: queryKeys.organizationProjects.all }),
+			queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all }),
+			refetchLabels()
+		]);
 		// A run cut short (the files changed, or the page was left) has no screen left to report to
 		if (!isRunGoing()) {
 			return;
@@ -434,6 +440,7 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 		invalidateTaskLabelsData,
 		plan,
 		queryClient,
+		refetchLabels,
 		rights.canCreateLabels,
 		savesEntries,
 		saveScope.organizationId,
