@@ -19,7 +19,7 @@ import { cn } from '@/core/lib/helpers';
 import { clientPagePathOf, isArchivedClient, type ClientAccess } from '@/core/lib/utils/clients';
 import type { TClient } from '@/core/types/schemas';
 
-export type ClientMenuRow = 'newInvoice' | 'edit' | 'copyLink' | 'archive';
+type ClientMenuRow = 'newInvoice' | 'edit' | 'copyLink' | 'archive';
 
 const LIST_ROWS: ReadonlyArray<ClientMenuRow> = ['newInvoice', 'edit', 'archive'];
 

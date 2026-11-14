@@ -7,7 +7,7 @@ import { invoiceStandingOf, type InvoiceStanding, type StandingInvoice } from '@
 import { invoiceStatusOf, type InvoiceStatus } from '@/core/lib/utils/invoices';
 
 /** One look per way an invoice can stand: a partly paid invoice is open, but draws its paid share. */
-export type StandingLook = 'draft' | 'sent' | 'partlyPaid' | 'overdue' | 'paid' | 'void' | 'unknown';
+type StandingLook = 'draft' | 'sent' | 'partlyPaid' | 'overdue' | 'paid' | 'void' | 'unknown';
 
 const LOOK_TEXT: Record<StandingLook, string> = {
 	draft: 'text-muted-foreground',
@@ -39,7 +39,7 @@ const STATUS_LABEL_KEYS: Record<InvoiceStatus, DottedLanguageObjectStringPaths> 
 	VOID: 'invoices.status.VOID'
 };
 
-export interface StandingFacts {
+interface StandingFacts {
 	standing: InvoiceStanding | null;
 	status: InvoiceStatus | null;
 	look: StandingLook;
@@ -76,7 +76,7 @@ function lookOf(standing: InvoiceStanding | null, status: InvoiceStatus | null):
 	return standing;
 }
 
-export function standingFactsOf(
+function standingFactsOf(
 	invoice: LookedInvoice,
 	todayKey: string,
 	timeZone: string | null | undefined
@@ -161,7 +161,7 @@ function GlyphShape({ look, paidShare }: Readonly<{ look: StandingLook; paidShar
  * The invoice's standing as a 14px glyph of the status family (dashed for a draft, an empty ring while owed, a pie
  * filled by the paid share, a check once paid, a slash once void), in its tone.
  */
-export function InvoiceStandingGlyph({
+function InvoiceStandingGlyph({
 	look,
 	paidShare,
 	className

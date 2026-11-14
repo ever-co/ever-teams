@@ -79,7 +79,7 @@ export function useInvoiceActionFlow(scope: InvoicesScope | null) {
 	return { takeAction, changingIds, dialog, isDialogOpen, closeDialog };
 }
 
-export type InvoiceActionFlow = ReturnType<typeof useInvoiceActionFlow>;
+type InvoiceActionFlow = ReturnType<typeof useInvoiceActionFlow>;
 
 interface InvoiceActionDialogsProps {
 	flow: InvoiceActionFlow;

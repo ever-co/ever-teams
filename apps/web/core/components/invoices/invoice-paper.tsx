@@ -54,7 +54,7 @@ export function PaperHead({
 	);
 }
 
-export interface PaperParty {
+interface PaperParty {
 	key: string;
 	label: ReactNode;
 	name: ReactNode;
@@ -80,12 +80,12 @@ export function PaperParties({ parties }: Readonly<{ parties: ReadonlyArray<Pape
 }
 
 /** Description, hours, rate and amount: the head, the group bands and every line share these columns. */
-export const PAPER_LINE_GRID =
+const PAPER_LINE_GRID =
 	'grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 sm:grid-cols-[minmax(0,1fr)_4.5rem_7rem_7.5rem] sm:items-baseline';
 
 const FIGURE_CELL = 'text-right text-[13px] tabular-nums';
 
-export interface PaperColumnLabels {
+interface PaperColumnLabels {
 	description: ReactNode;
 	hours: ReactNode;
 	rate: ReactNode;

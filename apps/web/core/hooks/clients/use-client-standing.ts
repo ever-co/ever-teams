@@ -39,5 +39,3 @@ export function useClientStanding(clientId: string | null, isOrganizationFailed:
 		refetch: read.refetch
 	};
 }
-
-export type ClientStanding = ReturnType<typeof useClientStanding>;

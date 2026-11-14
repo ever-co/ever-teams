@@ -15,7 +15,7 @@ import { ClientActionsMenu } from './client-actions-menu';
 import { clientSinceTextOf } from './client-format';
 import { ownTermsTextOf } from './client-terms-text';
 
-export type ClientHeaderSize = 'page' | 'sheet';
+type ClientHeaderSize = 'page' | 'sheet';
 
 const NAME_SIZE: Record<ClientHeaderSize, string> = {
 	page: 'text-2xl',

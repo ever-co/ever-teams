@@ -18,7 +18,7 @@ export type LedgerFilter = 'all' | InvoiceStanding;
 /** The standings of the live invoices, read whole: their counts and lists never depend on the pages loaded. */
 const WHOLE_STANDINGS: ReadonlySet<LedgerFilter> = new Set<LedgerFilter>(['draft', 'open', 'overdue']);
 
-export function isWholeStanding(filter: LedgerFilter) {
+function isWholeStanding(filter: LedgerFilter) {
 	return WHOLE_STANDINGS.has(filter);
 }
 
@@ -141,5 +141,3 @@ export function useInvoicesOverview({ enabled, filter }: Readonly<{ enabled: boo
 		timeZone
 	};
 }
-
-export type InvoicesOverview = ReturnType<typeof useInvoicesOverview>;

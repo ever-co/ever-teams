@@ -24,7 +24,7 @@ export interface StandingInvoice {
 	amountDue?: number | null;
 }
 
-export function isOwedStatus(status: InvoiceStatus | null) {
+function isOwedStatus(status: InvoiceStatus | null) {
 	if (!status) {
 		return false;
 	}
@@ -106,7 +106,7 @@ function roundedToCents(amount: number) {
  * part payment the API did not state cannot be read, so its invoice has no amount owed (null) rather than its whole
  * total.
  */
-export function owedAmountOf(invoice: StandingInvoice): number | null {
+function owedAmountOf(invoice: StandingInvoice): number | null {
 	const status = invoiceStatusOf(invoice.status);
 	if (!isOwedStatus(status)) {
 		return null;

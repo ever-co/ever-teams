@@ -1,7 +1,7 @@
 import type { MouseEvent } from 'react';
 
 /** A modified click asks for a new tab, as it would on any link. */
-export function asksForNewTab(event: MouseEvent) {
+function asksForNewTab(event: MouseEvent) {
 	const hasModifier = [event.metaKey, event.ctrlKey, event.shiftKey].some(Boolean);
 	return hasModifier;
 }

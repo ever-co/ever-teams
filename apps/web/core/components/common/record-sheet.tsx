@@ -13,7 +13,7 @@ const SHEET_WIDTHS = {
 	lg: 'w-[min(50rem,calc(100vw-1rem))]'
 } as const;
 
-export type RecordSheetWidth = keyof typeof SHEET_WIDTHS;
+type RecordSheetWidth = keyof typeof SHEET_WIDTHS;
 
 /** Marks the sheet's own popup, so its keys can be told apart from those of a dialog opened over it. */
 const RECORD_SHEET_ATTRIBUTE = 'data-record-sheet';

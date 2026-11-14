@@ -5,7 +5,7 @@ const PERCENT_TYPE = 'PERCENT';
 
 const CENTS_PER_UNIT = 100;
 
-export interface PaperLineFigures {
+interface PaperLineFigures {
 	id: string;
 	description: string | null;
 	hours: number | null;
@@ -13,7 +13,7 @@ export interface PaperLineFigures {
 	amount: number | null;
 }
 
-export type PaperAdjustmentKind = 'discount' | 'tax' | 'tax2';
+type PaperAdjustmentKind = 'discount' | 'tax' | 'tax2';
 
 /** A discount or a tax as the invoice states it: a percent, an amount, or a percent with the amount it makes. */
 export interface PaperAdjustment {

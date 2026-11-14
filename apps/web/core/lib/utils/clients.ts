@@ -170,7 +170,7 @@ export interface ClientDraft {
 	paymentTermsDays?: number | null;
 }
 
-export type ClientDraftErrorKey = 'name' | 'primaryEmail' | 'paymentTermsDays';
+type ClientDraftErrorKey = 'name' | 'primaryEmail' | 'paymentTermsDays';
 
 export type ClientDraftError = 'nameRequired' | 'emailInvalid' | 'termsInvalid';
 
@@ -456,7 +456,7 @@ export function customTermsDaysOf(text: string): number | null {
 }
 
 /** The days a choice stands for; null asks for the workspace's terms. */
-export function paymentTermsDaysOf(input: PaymentTermsInput): number | null {
+function paymentTermsDaysOf(input: PaymentTermsInput): number | null {
 	if (input.choice === 'workspace') {
 		return null;
 	}
