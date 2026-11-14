@@ -8,6 +8,8 @@ const mockWeekRead = jest.fn();
 let mockSearch = '';
 let mockWeekSheet = { hasLogs: true, isError: false, isUpdating: false };
 
+// Breaks (#5216) off, as in a workspace that never turned them on
+jest.mock('@/core/hooks/timer/use-breaks-allowed', () => ({ useBreaksAllowed: () => false }));
 jest.mock('next/navigation', () => ({
 	useRouter: () => ({ replace: mockReplace }),
 	useSearchParams: () => new URLSearchParams(mockSearch)

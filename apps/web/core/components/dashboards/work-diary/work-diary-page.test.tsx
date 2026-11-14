@@ -81,6 +81,7 @@ function entryOf(id: string, log: ITimeLog, daySeconds: number, projectName: str
 		durationSeconds: daySeconds,
 		daySeconds,
 		isManual: false,
+		isBreak: false,
 		isRunning: false,
 		isBillable: false,
 		taskTitle: log.task?.title ?? null,
@@ -139,6 +140,7 @@ function dayWith(entries: CalendarEntry[]): CalendarDay {
 		entries,
 		trackedSeconds,
 		manualSeconds: 0,
+		breakSeconds: 0,
 		plan: {
 			expectedSeconds: 8 * 3600,
 			isFromEstimates: false,
