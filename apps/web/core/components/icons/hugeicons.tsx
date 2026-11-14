@@ -400,6 +400,8 @@ export const Timeline = /*#__PURE__*/ icon(ChartGanttIcon, 'Timeline');
 export const Timer = /*#__PURE__*/ icon(Timer02Icon, 'Timer');
 export const TimerOff = /*#__PURE__*/ icon(TimerOffIcon, 'TimerOff');
 export const Idle = /*#__PURE__*/ icon(Coffee02Icon, 'Idle');
+/** A break from work, on the timer and its entries (#5216). */
+export const Break = /*#__PURE__*/ icon(Coffee02Icon, 'Break');
 export const Task = /*#__PURE__*/ icon(Task01Icon, 'Task');
 export const TaskDone = /*#__PURE__*/ icon(TaskDone01Icon, 'TaskDone');
 export const TaskDaily = /*#__PURE__*/ icon(TaskDaily01Icon, 'TaskDaily');

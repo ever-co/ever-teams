@@ -9,12 +9,15 @@ import { clsxm } from '@/core/lib/utils/clsxm';
 import { Text } from '@/core/components/common/typography';
 import { useTranslations } from 'next-intl';
 import { TimerButton } from './timer-button';
+import { BreakClock, TimerBreakButton } from './timer-break-controls';
 import { TimerEntryToggles } from './timer-entry-toggles';
 import { Transition } from '@headlessui/react';
 
-import { ArrowTurnUp, Desktop, Globe, Lifebuoy, Smartphone } from '@/core/components/icons';
+import { ArrowTurnUp, Break, Desktop, Globe, Lifebuoy, Smartphone } from '@/core/components/icons';
+import { useTimerBreak } from '@/core/hooks/timer/use-timer-break';
+import type { TimerBreakState } from '@/core/lib/utils/timer/timer-break';
 import { HotkeysEvent } from 'hotkeys-js';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { TimerPlanDialogs } from '@/core/components/features/daily-plan/timer-plan-dialogs';
 import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
@@ -80,6 +83,47 @@ function timerButtonClassNameOf(compact: boolean) {
 	return 'size-11';
 }
 
+/**
+ * A phone's timer row has no room for the break button beside Billable: the button takes Billable's place while it
+ * shows. Billable is locked while work runs, and the start after a break keeps the choice made before it.
+ */
+function phoneBillableClassNameOf(showsBreakButton: boolean) {
+	if (showsBreakButton) {
+		return 'max-sm:hidden';
+	}
+	return undefined;
+}
+
+/** Which face the clock shows, so it fades in again when work starts, stops or pauses for a break. */
+function clockStateKeyOf(isRunning: boolean, isOnBreak: boolean) {
+	if (isOnBreak) {
+		return 'break';
+	}
+	if (isRunning) {
+		return 'running';
+	}
+	return 'stopped';
+}
+
+/** A break's start in milliseconds, so the break clock keeps ticking from it across status reads. */
+function breakStartedAtMsOf(breakState: TimerBreakState): number | null {
+	return breakState.startedAt?.getTime() ?? null;
+}
+
+/**
+ * Under the clock during a break, in the room of the task's progress bar (which a break does not move), so the timer
+ * row keeps its height: "On break", or "On break on another device" for a break another app started.
+ */
+function BreakCaption({ isFromThisApp }: Readonly<{ isFromThisApp: boolean }>) {
+	const t = useTranslations();
+	const caption = isFromThisApp ? t('breaks.ON_BREAK') : t('breaks.ON_BREAK_ELSEWHERE');
+	return (
+		<p className="mt-1 truncate text-xs leading-3 text-muted-foreground" title={caption}>
+			{caption}
+		</p>
+	);
+}
+
 export function Timer({ className, showTimerButton = true, compact = false }: IClassName<{ compact?: boolean }>) {
 	const t = useTranslations();
 	const hydrated = useHydrated();
@@ -109,6 +153,12 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 	const hasRunningSource = Boolean(runningSource);
 	const isOtherSource = runningSource !== ETimeLogSource.TEAMS;
 	const isTrackedElsewhere = isTimerRunning && hasRunningSource && isOtherSource;
+
+	const { allowsBreaks, breakState, pendingAction, takeBreak, endBreak } = useTimerBreak(timerStatus, stopTimer);
+	const isOnBreak = breakState.isOnBreak;
+	// "End break" stays offered for a break taken before the organization turned breaks off
+	const showsBreakButton = isOnBreak || (allowsBreaks && isTimerRunning);
+	const isBreakPending = pendingAction !== null;
 
 	const osSpecificTimerTooltipLabel = useMemo(() => {
 		if (os === 'Mac') {
@@ -149,6 +199,20 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 	const runningFractionClassName = runningFractionClassNameOf(compact);
 	const timerButtonClassName = timerButtonClassNameOf(compact);
 
+	let clockFace: ReactNode = `${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`;
+	if (isOnBreak) {
+		clockFace = <BreakClock startedAtMs={breakStartedAtMsOf(breakState)} />;
+	}
+	if (isTimerRunning) {
+		clockFace = <RunningClock className={runningFractionClassName} />;
+	}
+	let startTooltipLabel = osSpecificTimerTooltipLabel;
+	if (!canRunTimer) {
+		startTooltipLabel = t('timer.START_TIMER');
+	}
+	// During a break the start is "Back to work": it ends the break where the work starts again
+	const backToWorkLabel = isOnBreak ? t('breaks.BACK_TO_WORK') : undefined;
+
 	return (
 		<div className={clsxm('flex min-w-[260px] flex-row items-center justify-between gap-4 p-2', className)}>
 			<div className="flex min-w-0 items-center gap-2 lg:gap-4">
@@ -157,6 +221,7 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 						locked={isBillableLocked}
 						className="gap-2"
 						toggleClassName={timerButtonClassName}
+						billableClassName={phoneBillableClassNameOf(showsBreakButton)}
 					/>
 				)}
 				<div className="flex min-w-0 items-start gap-2">
@@ -170,23 +235,31 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 							leave="transition-opacity duration-200 ease-in-out"
 							leaveFrom="opacity-100"
 							leaveTo="opacity-0"
-							key={timerStatus?.running ? 'running' : 'stopped'}
+							key={clockStateKeyOf(isTimerRunning, isOnBreak)}
 						>
 							<Text.Heading
 								as="h3"
-								className={clsxm(clockClassName, isTrackedElsewhere && 'text-muted-foreground')}
-							>
-								{isTimerRunning ? (
-									<RunningClock className={runningFractionClassName} />
-								) : (
-									`${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`
+								className={clsxm(
+									clockClassName,
+									(isTrackedElsewhere || isOnBreak) && 'text-muted-foreground'
 								)}
+							>
+								{clockFace}
 							</Text.Heading>
 						</Transition>
 
-						<ActiveTaskProgressBar />
+						{isOnBreak ? (
+							<BreakCaption isFromThisApp={breakState.isFromThisApp} />
+						) : (
+							<ActiveTaskProgressBar />
+						)}
 					</div>
 					<div>
+						{isOnBreak && !breakState.isFromThisApp && (
+							<Tooltip label={t('breaks.ON_BREAK_ELSEWHERE')} placement="bottom-start">
+								<TimerRunningSourceIcon source={timerStatus?.lastLog?.source || ETimeLogSource.TEAMS} />
+							</Tooltip>
+						)}
 						{timerStatus && timerStatus.running && (
 							<Tooltip
 								label={`The time tracker is already running in the ${(
@@ -206,8 +279,18 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 			{showTimerButton && (
 				<div className="flex h-fit shrink-0 items-center justify-center">
 					<div className="flex items-center gap-3">
+						{showsBreakButton && (
+							<TimerBreakButton
+								isOnBreak={isOnBreak}
+								pending={isBreakPending}
+								disabled={!hydrated || actionDisabled}
+								onTakeBreak={takeBreak}
+								onEndBreak={endBreak}
+								className={timerButtonClassName}
+							/>
+						)}
 						<Tooltip
-							label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
+							label={backToWorkLabel ?? startTooltipLabel}
 							placement="top-start"
 							// If timer is running at some other source and user may or may not have selected the task
 							// enabled={
@@ -217,7 +300,8 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 							<TimerButton
 								onClick={startStopTimerHandler}
 								running={displayRunning}
-								disabled={!hydrated || actionDisabled}
+								disabled={!hydrated || actionDisabled || isBreakPending}
+								label={backToWorkLabel}
 								className={timerButtonClassName}
 								emphasized
 							/>
@@ -243,7 +327,11 @@ const MIN_TIMER_TOGGLES = 'hidden sm:flex';
 
 const MIN_TIMER_TOGGLE = 'size-6';
 
+/** From sm up, as the toggles: on a phone the main timer carries the break button. */
+const MIN_TIMER_BREAK_BUTTON = 'flex max-sm:hidden';
+
 export function MinTimerFrame({ className }: IClassName) {
+	const t = useTranslations();
 	const hydrated = useHydrated();
 	const { timerStatus, startTimer, stopTimer } = useTimerView();
 	const isTimerRunning = Boolean(timerStatus?.running);
@@ -265,6 +353,26 @@ export function MinTimerFrame({ className }: IClassName) {
 	const isBillableLocked = Boolean(displayRunning);
 	const todayWorkedLabel = `${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`;
 
+	const { allowsBreaks, breakState, pendingAction, takeBreak, endBreak } = useTimerBreak(timerStatus, stopTimer);
+	const isOnBreak = breakState.isOnBreak;
+	const showsBreakButton = isOnBreak || (allowsBreaks && isTimerRunning);
+	const isBreakPending = pendingAction !== null;
+	const onBreakLabel = breakState.isFromThisApp ? t('breaks.ON_BREAK') : t('breaks.ON_BREAK_ELSEWHERE');
+	const backToWorkLabel = isOnBreak ? t('breaks.BACK_TO_WORK') : undefined;
+
+	let clockFace: ReactNode = todayWorkedLabel;
+	if (isOnBreak) {
+		clockFace = (
+			<>
+				<span className="sr-only">{onBreakLabel} </span>
+				<BreakClock startedAtMs={breakStartedAtMsOf(breakState)} />
+			</>
+		);
+	}
+	if (isTimerRunning) {
+		clockFace = <RunningClock className="text-muted-foreground" />;
+	}
+
 	return (
 		<div data-timer-surface="" className={clsxm(MIN_TIMER_FRAME, className)}>
 			<TimerEntryToggles
@@ -282,13 +390,23 @@ export function MinTimerFrame({ className }: IClassName) {
 				leave="transition-opacity duration-200 ease-in-out"
 				leaveFrom="opacity-100"
 				leaveTo="opacity-0"
-				key={timerStatus?.running ? 'running' : 'stopped'}
+				key={clockStateKeyOf(isTimerRunning, isOnBreak)}
 			>
-				<Text className="w-[5.5rem] shrink-0 whitespace-nowrap text-[13px] font-medium tabular-nums">
-					{isTimerRunning && <RunningClock className="text-muted-foreground" />}
-					{!isTimerRunning && todayWorkedLabel}
+				<Text
+					className={clsxm(
+						'w-[5.5rem] shrink-0 whitespace-nowrap text-[13px] font-medium tabular-nums',
+						isOnBreak && 'text-muted-foreground'
+					)}
+				>
+					{clockFace}
 				</Text>
 			</Transition>
+
+			{isOnBreak && (
+				<Tooltip label={onBreakLabel} placement="bottom-start">
+					<Break aria-hidden="true" className="size-4 text-muted-foreground" />
+				</Tooltip>
+			)}
 
 			{timerStatus && timerStatus.running && (
 				<Tooltip
@@ -304,11 +422,25 @@ export function MinTimerFrame({ className }: IClassName) {
 				</Tooltip>
 			)}
 
+			{showsBreakButton && (
+				<div className={MIN_TIMER_BREAK_BUTTON}>
+					<TimerBreakButton
+						isOnBreak={isOnBreak}
+						pending={isBreakPending}
+						disabled={!hydrated || actionDisabled}
+						onTakeBreak={takeBreak}
+						onEndBreak={endBreak}
+						className={MIN_TIMER_TOGGLE}
+					/>
+				</div>
+			)}
+
 			<div className="z-[50] flex">
 				<TimerButton
 					onClick={startStopTimerHandler}
 					running={displayRunning}
-					disabled={!hydrated || actionDisabled}
+					disabled={!hydrated || actionDisabled || isBreakPending}
+					label={backToWorkLabel}
 					className="size-6 shadow-none"
 				/>
 			</div>
