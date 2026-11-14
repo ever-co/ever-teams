@@ -47,7 +47,12 @@ beforeEach(() => {
 
 /** What the timer rule decided: PageLayout hands setActiveTimer an updater of the previous value. */
 function timerActivatedFromOff(): boolean {
-	const updater = mockSetActiveTimer.mock.calls.at(-1)?.[0] as (previous: boolean) => boolean;
+	const calls = mockSetActiveTimer.mock.calls;
+	const lastCall = calls[calls.length - 1];
+	if (!lastCall) {
+		throw new Error('PageLayout never ran its timer rule');
+	}
+	const updater = lastCall[0] as (previous: boolean) => boolean;
 	return updater(false);
 }
 
