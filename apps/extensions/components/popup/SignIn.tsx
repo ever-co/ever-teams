@@ -129,6 +129,7 @@ export const SignIn: FC<SignInProps> = ({ apiUrl, onSignedIn, onOpenSettings }) 
 						required
 						autoComplete="email"
 						autoFocus
+						readOnly={busy}
 						className={roundInput}
 						placeholder={t('signInEmailPlaceholder')}
 						value={email}
@@ -188,7 +189,12 @@ export const SignIn: FC<SignInProps> = ({ apiUrl, onSignedIn, onOpenSettings }) 
 					</span>
 				)}
 				{step !== 'email' && (
-					<button type="button" className="underline underline-offset-2 hover:no-underline" onClick={restart}>
+					<button
+						type="button"
+						className="underline underline-offset-2 hover:no-underline disabled:opacity-50"
+						disabled={busy}
+						onClick={restart}
+					>
 						{t('signInOtherEmail')}
 					</button>
 				)}
