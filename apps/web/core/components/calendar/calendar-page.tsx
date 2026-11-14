@@ -15,6 +15,7 @@ import { AddManualTimeModalSkeleton } from '@/core/components/common/skeleton/ca
 import { LazyAddManualTimeModal } from '@/core/components/optimized-components/calendar';
 import { useModal } from '@/core/hooks/common/use-modal';
 import { type CalendarEntryMoves, useCalendarEntryMoves } from '@/core/hooks/calendar/use-calendar-entry-moves';
+import { useCalendarMenu } from '@/core/hooks/calendar/use-calendar-menu';
 import { useCalendarPage, type CalendarPageState } from '@/core/hooks/calendar/use-calendar-page';
 import { useTimesheetDialogs } from '@/core/hooks/dashboards/timesheets/use-timesheet-dialogs';
 import { useTimesheetLogActions } from '@/core/hooks/dashboards/timesheets/use-timesheet-log-actions';
@@ -32,10 +33,14 @@ import {
 } from '@/core/lib/utils/calendar-view';
 import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import { type TimesheetFormatters, timesheetFormattersOf } from '@/core/lib/utils/dashboards/timesheets';
+import { calendarGridSettingsState } from '@/core/stores/calendar/calendar-grid-settings';
 import { isTrackingEnabledState } from '@/core/stores/timer/active-timer';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { EntryHandlers } from './calendar-entry-parts';
+import { CalendarContextMenu, type CalendarMenuTarget, CalendarTimerStop } from './calendar-context-menu';
 import { CalendarDayPanel } from './calendar-day-panel';
+import { CalendarGridSettingsMenu } from './calendar-grid-settings-menu';
+import { CalendarSplitDialog } from './calendar-split-dialog';
 import { CalendarPageSkeleton } from './calendar-page-skeleton';
 import { DayPlanBlock, DaySummary } from './calendar-day-details';
 import { CalendarMonthView } from './calendar-month-view';
@@ -138,7 +143,8 @@ function CalendarBody({
 	rangeName,
 	onAddTime,
 	onAddTimeRange,
-	onAddTimeNow
+	onAddTimeNow,
+	onOpenMenu
 }: Readonly<{
 	page: CalendarPageState;
 	formatters: TimesheetFormatters;
@@ -149,6 +155,7 @@ function CalendarBody({
 	onAddTime: (start: Date) => void;
 	onAddTimeRange: (range: TimeWindow) => void;
 	onAddTimeNow: () => void;
+	onOpenMenu: (target: CalendarMenuTarget) => void;
 }>) {
 	const t = useTranslations();
 	const shownView = page.shownView;
@@ -168,6 +175,7 @@ function CalendarBody({
 		return projectTotalsOf(countedDays);
 	}, [days, shownAnchor, shownView]);
 	const showsProjects = !page.isLoading;
+	const gridSettings = useAtomValue(calendarGridSettingsState);
 
 	return (
 		<section aria-label={rangeName} className={DASHBOARD_SURFACE}>
@@ -206,9 +214,11 @@ function CalendarBody({
 					timeZone={page.timeZone}
 					isLoading={page.isLoading}
 					moves={moves}
+					settings={gridSettings}
 					onAddTime={onAddTime}
 					onAddTimeRange={onAddTimeRange}
 					onOpenDay={page.openDayView}
+					onOpenMenu={onOpenMenu}
 				/>
 			)}
 			{isDay && (
@@ -220,8 +230,10 @@ function CalendarBody({
 						timeZone={page.timeZone}
 						isLoading={page.isLoading}
 						moves={moves}
+						settings={gridSettings}
 						onAddTime={onAddTime}
 						onAddTimeRange={onAddTimeRange}
+						onOpenMenu={onOpenMenu}
 					/>
 					{!page.isLoading && <DayAside day={page.days[0]} />}
 				</div>
@@ -306,6 +318,8 @@ export function CalendarPage() {
 	);
 
 	const moves = useCalendarEntryMoves(page, handlers.canEdit);
+	const calendarMenu = useCalendarMenu({ page, handlers, moves, onAddTime: openAddTimeAt });
+	const { menu, split, stop } = calendarMenu;
 
 	const handleDeleteConfirmed = useCallback(async () => {
 		await deleteLogs(dialogs.deleteTarget.logIds, true);
@@ -376,7 +390,12 @@ export function CalendarPage() {
 							)}
 						</>
 					}
-					trailingControls={<CalendarViewSwitch view={page.view} onChange={page.changeView} />}
+					trailingControls={
+						<>
+							<CalendarGridSettingsMenu formatters={formatters} />
+							<CalendarViewSwitch view={page.view} onChange={page.changeView} />
+						</>
+					}
 				/>
 			}
 		>
@@ -401,6 +420,7 @@ export function CalendarPage() {
 						onAddTime={openAddTimeAt}
 						onAddTimeRange={openAddTimeIn}
 						onAddTimeNow={openAddTimeNow}
+						onOpenMenu={menu.open}
 					/>
 				)}
 			</div>
@@ -416,12 +436,31 @@ export function CalendarPage() {
 					/>
 				</Suspense>
 			)}
+			<CalendarContextMenu
+				target={menu.target}
+				isOpen={menu.isOpen}
+				formatters={formatters}
+				actions={calendarMenu.actions}
+				onOpenChange={menu.setIsOpen}
+				onClosed={menu.clearTarget}
+			/>
+			<CalendarSplitDialog
+				entry={split.entry}
+				isOpen={split.isOpen}
+				refusal={split.refusal}
+				formatters={formatters}
+				onClose={split.close}
+				onAddTime={openAddTimeIn}
+			/>
+			{stop.isAsked && <CalendarTimerStop onDone={stop.finish} />}
 			<TimesheetsDialogs
 				dialogs={dialogs}
 				canAddTime={false}
+				addTimeMember={calendarMenu.addTimeMember}
 				isDeleting={isDeleting}
 				onRejected={handleRejected}
 				onDeleteConfirmed={handleDeleteConfirmed}
+				duplicate={calendarMenu.duplicate}
 			/>
 		</PageLayout>
 	);

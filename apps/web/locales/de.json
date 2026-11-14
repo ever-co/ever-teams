@@ -1515,6 +1515,52 @@
 				"FUTURE": "Ihre Organisation erlaubt keine Zeit nach der aktuellen Uhrzeit.",
 				"APPROVED": "Dieser Tag gehört zu einem genehmigten Stundenzettel, daher kann seine Zeit nicht geändert werden.",
 				"SAVE_FAILED": "Änderung nicht gespeichert"
+			},
+			"MENU": {
+				"STOP": "Timer stoppen",
+				"ADD_TIME_HERE": "Hier Zeit hinzufügen",
+				"SPLIT": "Teilen",
+				"NO_ACTIONS": "Du kannst diesen Eintrag nicht ändern."
+			},
+			"SPLIT": {
+				"TITLE": "Eintrag teilen",
+				"REFUSED_TITLE": "Dieser Eintrag kann nicht geteilt werden",
+				"TIME_LABEL": "Teilen um",
+				"TIME_OUTSIDE": "Wähle eine Uhrzeit innerhalb des Eintrags, mindestens eine Minute nach Beginn und vor dem Ende.",
+				"PARTS_LABEL": "Die zwei Einträge",
+				"FIRST_PART": "Erster Teil",
+				"SECOND_PART": "Zweiter Teil",
+				"TASK_LABEL": "Aufgabe des zweiten Teils: {task}",
+				"TASK_SEARCH": "Aufgaben suchen",
+				"ACTION": "Teilen",
+				"SAVING": "Wird geteilt…",
+				"SAVED": "Eintrag in zwei geteilt",
+				"FAILED_RESTORED": "Der Eintrag konnte nicht geteilt werden und ist wieder wie vorher. Versuche es erneut.",
+				"FAILED_FIRST_PART_KEPT": "Der erste Teil wurde gespeichert, aber der zweite Teil ({range}) konnte nicht hinzugefügt werden. Füge ihn mit „Zeit hinzufügen“ hinzu.",
+				"FAILED_UNKNOWN": "Die Teilung konnte nicht bestätigt werden. Lade den Kalender neu und prüfe diesen Eintrag, bevor du es erneut versuchst.",
+				"ADD_REST": "Zweiten Teil hinzufügen",
+				"REFUSED": {
+					"TRACKED": "Erfasste Zeit trägt ihre Aktivität und Screenshots, die nur der Server auf zwei Einträge aufteilen kann. Vorerst lässt sich nur manuell hinzugefügte Zeit teilen.",
+					"RUNNING": "Der Timer läuft noch. Stoppe ihn und teile dann den Eintrag.",
+					"TOO_SHORT": "Dieser Eintrag ist zu kurz: Jeder Teil muss mindestens eine Minute dauern.",
+					"APPROVED": "Dieser Tag gehört zu einem genehmigten Stundenzettel, daher kann seine Zeit nicht geändert werden.",
+					"PERMISSION": "Deine Rolle oder deine Organisation erlaubt weder das Ändern von Zeit noch das manuelle Hinzufügen."
+				}
+			},
+			"SETTINGS": {
+				"LABEL": "Rastereinstellungen",
+				"SNAP": "Einrasten auf",
+				"SNAP_OPTION": "{minutes, plural, =60 {1 Stunde} one {# Minute} other {# Minuten}}",
+				"FIRST_HOUR": "Erste Stunde",
+				"LAST_HOUR": "Letzte Stunde",
+				"END_OF_DAY": "Tagesende",
+				"HOURS_HINT": "Einträge außerhalb dieser Stunden bleiben sichtbar: Das Raster erweitert sich bis zu ihnen.",
+				"ROW_HEIGHT": "Zeilenhöhe",
+				"ROW_COMPACT": "Kompakt",
+				"ROW_DEFAULT": "Standard",
+				"ROW_TALL": "Hoch",
+				"KEPT_HERE": "In diesem Browser gespeichert",
+				"RESET": "Zurücksetzen"
 			}
 		},
 		"manualTimeEdits": {

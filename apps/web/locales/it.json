@@ -1515,6 +1515,52 @@
 				"FUTURE": "La tua organizzazione non consente tempo successivo all'ora attuale.",
 				"APPROVED": "Questo giorno appartiene a un foglio ore approvato, quindi il suo tempo non può essere modificato.",
 				"SAVE_FAILED": "Modifica non salvata"
+			},
+			"MENU": {
+				"STOP": "Ferma il timer",
+				"ADD_TIME_HERE": "Aggiungi tempo qui",
+				"SPLIT": "Dividi",
+				"NO_ACTIONS": "Non puoi modificare questa voce."
+			},
+			"SPLIT": {
+				"TITLE": "Dividi voce",
+				"REFUSED_TITLE": "Questa voce non può essere divisa",
+				"TIME_LABEL": "Dividi alle",
+				"TIME_OUTSIDE": "Scegli un orario all'interno della voce, almeno un minuto dopo l'inizio e prima della fine.",
+				"PARTS_LABEL": "Le due voci",
+				"FIRST_PART": "Prima parte",
+				"SECOND_PART": "Seconda parte",
+				"TASK_LABEL": "Attività della seconda parte: {task}",
+				"TASK_SEARCH": "Cerca attività",
+				"ACTION": "Dividi",
+				"SAVING": "Divisione…",
+				"SAVED": "Voce divisa in due",
+				"FAILED_RESTORED": "Non è stato possibile dividere la voce, che è tornata com’era. Riprova.",
+				"FAILED_FIRST_PART_KEPT": "La prima parte è stata salvata, ma la seconda ({range}) non è stata aggiunta. Aggiungila con Aggiungi tempo.",
+				"FAILED_UNKNOWN": "Non è stato possibile confermare la divisione. Ricarica il calendario e controlla questa voce prima di riprovare.",
+				"ADD_REST": "Aggiungi la seconda parte",
+				"REFUSED": {
+					"TRACKED": "Il tempo tracciato porta con sé attività e screenshot, che solo il server può ripartire tra due voci. Per ora si può dividere solo il tempo aggiunto a mano.",
+					"RUNNING": "Il timer è ancora in corso. Fermalo, poi dividi la voce.",
+					"TOO_SHORT": "Questa voce è troppo breve: ogni parte deve durare almeno un minuto.",
+					"APPROVED": "Questo giorno appartiene a un foglio ore approvato, quindi il suo tempo non può cambiare.",
+					"PERMISSION": "Il tuo ruolo o la tua organizzazione non consente di modificare il tempo né di aggiungerlo a mano."
+				}
+			},
+			"SETTINGS": {
+				"LABEL": "Impostazioni della griglia",
+				"SNAP": "Aggancia a",
+				"SNAP_OPTION": "{minutes, plural, =60 {1 ora} one {# minuto} other {# minuti}}",
+				"FIRST_HOUR": "Prima ora",
+				"LAST_HOUR": "Ultima ora",
+				"END_OF_DAY": "Fine giornata",
+				"HOURS_HINT": "Le voci fuori da queste ore restano visibili: la griglia si allarga fino a loro.",
+				"ROW_HEIGHT": "Altezza righe",
+				"ROW_COMPACT": "Compatta",
+				"ROW_DEFAULT": "Normale",
+				"ROW_TALL": "Alta",
+				"KEPT_HERE": "Salvato in questo browser",
+				"RESET": "Ripristina"
 			}
 		},
 		"manualTimeEdits": {

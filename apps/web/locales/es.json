@@ -1515,6 +1515,52 @@
 				"FUTURE": "Tu organización no permite tiempo posterior a la hora actual.",
 				"APPROVED": "Este día pertenece a una hoja de horas aprobada, por lo que su tiempo no se puede cambiar.",
 				"SAVE_FAILED": "Cambio no guardado"
+			},
+			"MENU": {
+				"STOP": "Detener temporizador",
+				"ADD_TIME_HERE": "Añadir tiempo aquí",
+				"SPLIT": "Dividir",
+				"NO_ACTIONS": "No puedes cambiar esta entrada."
+			},
+			"SPLIT": {
+				"TITLE": "Dividir entrada",
+				"REFUSED_TITLE": "Esta entrada no se puede dividir",
+				"TIME_LABEL": "Dividir a las",
+				"TIME_OUTSIDE": "Elige una hora dentro de la entrada, al menos un minuto después de su inicio y antes de su fin.",
+				"PARTS_LABEL": "Las dos entradas",
+				"FIRST_PART": "Primera parte",
+				"SECOND_PART": "Segunda parte",
+				"TASK_LABEL": "Tarea de la segunda parte: {task}",
+				"TASK_SEARCH": "Buscar tareas",
+				"ACTION": "Dividir",
+				"SAVING": "Dividiendo…",
+				"SAVED": "Entrada dividida en dos",
+				"FAILED_RESTORED": "No se pudo dividir la entrada y quedó como estaba. Inténtalo de nuevo.",
+				"FAILED_FIRST_PART_KEPT": "La primera parte se guardó, pero la segunda ({range}) no se pudo añadir. Añádela con Añadir tiempo.",
+				"FAILED_UNKNOWN": "No se pudo confirmar la división. Recarga el calendario y revisa esta entrada antes de volver a intentarlo.",
+				"ADD_REST": "Añadir la segunda parte",
+				"REFUSED": {
+					"TRACKED": "El tiempo registrado lleva su actividad y capturas de pantalla, que solo el servidor puede repartir entre dos entradas. Por ahora solo se puede dividir el tiempo añadido a mano.",
+					"RUNNING": "El temporizador sigue en marcha. Detenlo y luego divide la entrada.",
+					"TOO_SHORT": "Esta entrada es demasiado corta: cada parte debe durar al menos un minuto.",
+					"APPROVED": "Este día pertenece a una hoja de horas aprobada, así que su tiempo no se puede cambiar.",
+					"PERMISSION": "Tu rol o tu organización no permite cambiar el tiempo ni añadirlo a mano."
+				}
+			},
+			"SETTINGS": {
+				"LABEL": "Ajustes de la cuadrícula",
+				"SNAP": "Ajustar a",
+				"SNAP_OPTION": "{minutes, plural, =60 {1 hora} one {# minuto} other {# minutos}}",
+				"FIRST_HOUR": "Primera hora",
+				"LAST_HOUR": "Última hora",
+				"END_OF_DAY": "Fin del día",
+				"HOURS_HINT": "Las entradas fuera de estas horas siguen visibles: la cuadrícula se amplía hasta ellas.",
+				"ROW_HEIGHT": "Altura de fila",
+				"ROW_COMPACT": "Compacta",
+				"ROW_DEFAULT": "Normal",
+				"ROW_TALL": "Alta",
+				"KEPT_HERE": "Guardado en este navegador",
+				"RESET": "Restablecer"
 			}
 		},
 		"manualTimeEdits": {
