@@ -131,12 +131,16 @@ export function useUserApiTokens(enabled: boolean) {
 	};
 }
 
-/** Creates a token; the list is read again so that the new token shows, without its secret. */
+/**
+ * Creates a token; the list is read again so that the new token shows, without its secret. The answer, which holds the
+ * secret, is dropped from React Query's cache as soon as nothing shows it.
+ */
 export function useCreateUserApiToken() {
 	const queryClient = useQueryClient();
 	const scope = useUserApiTokensScope();
 	return useMutation<TCreatedUserApiToken, unknown, TCreateUserApiTokenInput>({
 		mutationFn: (input) => userApiTokensService.create(input),
+		gcTime: 0,
 		onSettled: () =>
 			queryClient.invalidateQueries({ queryKey: queryKeys.userApiTokens.list(scope?.tenantId, scope?.userId) })
 	});
