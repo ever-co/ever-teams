@@ -46,10 +46,11 @@ function readUntilOf(periodEnd: Date) {
 	return endOfToday;
 }
 
-async function readPeriodHistory(request: PeriodHistoryRequest, until: Date): Promise<PeriodHistoryResult> {
+/** The cutoff is taken when the read runs: a refetch made after midnight, with no render before it, reads the new day. */
+async function readPeriodHistory(request: PeriodHistoryRequest): Promise<PeriodHistoryResult> {
 	const read = await timeLogHistoryService.getPeriodHistory({
 		from: request.from,
-		to: until,
+		to: readUntilOf(request.to),
 		employeeIds: request.employeeIds
 	});
 	if (read.kind === 'unsupported') {
@@ -87,7 +88,7 @@ export function useTimeLogPeriodHistory(
 ): PeriodHistoryState & {
 	refetch: () => void;
 } {
-	// Read again on each render: a report left open overnight reads up to the new day.
+	// The day is in the key, so a render on a new day reads again; the read itself takes the cutoff when it runs.
 	const until = readUntilOf(request.to);
 	const keyParams = {
 		tenantId: request.tenantId,
@@ -98,7 +99,7 @@ export function useTimeLogPeriodHistory(
 	};
 	const query = useQuery({
 		queryKey: queryKeys.timesheet.history.period(keyParams),
-		queryFn: () => readPeriodHistory(request, until),
+		queryFn: () => readPeriodHistory(request),
 		enabled: isEnabled,
 		staleTime: HISTORY_STALE_MS,
 		retry: false
