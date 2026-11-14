@@ -148,7 +148,13 @@ interface TimerStartFormProps {
 }
 
 /** The new start, the reason the organization may ask for, and Save. */
-function TimerStartForm({ runStart, earlierAllowed, reasonRequired, formatTime, onClose }: TimerStartFormProps) {
+function TimerStartForm({
+	runStart,
+	earlierAllowed,
+	reasonRequired,
+	formatTime,
+	onClose
+}: Readonly<TimerStartFormProps>) {
 	const t = useTranslations();
 	const timeId = useId();
 	const reasonId = useId();
