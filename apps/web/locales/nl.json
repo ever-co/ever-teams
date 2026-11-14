@@ -3416,7 +3416,13 @@
 		"EVER_APPS": "Ever-apps",
 		"CURRENT_APP": "{app}, de app waarin je bent",
 		"OPENS_IN_NEW_TAB": "(opent in een nieuw tabblad)",
-		"APP_OPENS_IN_NEW_TAB": "{app} (opent in een nieuw tabblad)"
+		"APP_OPENS_IN_NEW_TAB": "{app} (opent in een nieuw tabblad)",
+		"OTHER_ORGANIZATIONS_LOADING": "Je andere organisaties worden geladen",
+		"OTHER_ORGANIZATIONS_FAILED": "Je andere organisaties konden niet worden geladen.",
+		"TRY_AGAIN": "Opnieuw proberen",
+		"UNNAMED_ORGANIZATION": "Organisatie zonder naam",
+		"OPEN_ORGANIZATION": "Je teams daar openen",
+		"ORGANIZATION_SWITCH_FAILED": "Deze organisatie kon niet worden geopend. Probeer het opnieuw."
 	},
 	"workspaceCreation": {
 		"TITLE": "Werkruimte maken",

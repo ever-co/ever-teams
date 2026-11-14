@@ -3416,7 +3416,13 @@
 		"EVER_APPS": "Applications Ever",
 		"CURRENT_APP": "{app}, l'application où vous êtes",
 		"OPENS_IN_NEW_TAB": "(s'ouvre dans un nouvel onglet)",
-		"APP_OPENS_IN_NEW_TAB": "{app} (s'ouvre dans un nouvel onglet)"
+		"APP_OPENS_IN_NEW_TAB": "{app} (s'ouvre dans un nouvel onglet)",
+		"OTHER_ORGANIZATIONS_LOADING": "Chargement de vos autres organisations",
+		"OTHER_ORGANIZATIONS_FAILED": "Vos autres organisations n'ont pas pu être chargées.",
+		"TRY_AGAIN": "Réessayer",
+		"UNNAMED_ORGANIZATION": "Organisation sans nom",
+		"OPEN_ORGANIZATION": "Ouvrir vos équipes ici",
+		"ORGANIZATION_SWITCH_FAILED": "Cette organisation n'a pas pu être ouverte. Réessayez."
 	},
 	"workspaceCreation": {
 		"TITLE": "Créer un espace de travail",

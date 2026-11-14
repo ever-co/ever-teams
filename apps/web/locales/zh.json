@@ -3416,7 +3416,13 @@
 		"EVER_APPS": "Ever 应用",
 		"CURRENT_APP": "{app}，你当前所在的应用",
 		"OPENS_IN_NEW_TAB": "（在新标签页中打开）",
-		"APP_OPENS_IN_NEW_TAB": "{app}（在新标签页中打开）"
+		"APP_OPENS_IN_NEW_TAB": "{app}（在新标签页中打开）",
+		"OTHER_ORGANIZATIONS_LOADING": "正在加载你的其他组织",
+		"OTHER_ORGANIZATIONS_FAILED": "无法加载你的其他组织。",
+		"TRY_AGAIN": "重试",
+		"UNNAMED_ORGANIZATION": "未命名的组织",
+		"OPEN_ORGANIZATION": "打开你在那里的团队",
+		"ORGANIZATION_SWITCH_FAILED": "无法打开此组织。请重试。"
 	},
 	"workspaceCreation": {
 		"TITLE": "创建工作区",

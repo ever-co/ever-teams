@@ -3416,7 +3416,13 @@
 		"EVER_APPS": "تطبيقات Ever",
 		"CURRENT_APP": "{app}، التطبيق الذي تستخدمه",
 		"OPENS_IN_NEW_TAB": "(يُفتح في علامة تبويب جديدة)",
-		"APP_OPENS_IN_NEW_TAB": "{app} (يُفتح في علامة تبويب جديدة)"
+		"APP_OPENS_IN_NEW_TAB": "{app} (يُفتح في علامة تبويب جديدة)",
+		"OTHER_ORGANIZATIONS_LOADING": "جارٍ تحميل مؤسساتك الأخرى",
+		"OTHER_ORGANIZATIONS_FAILED": "تعذّر تحميل مؤسساتك الأخرى.",
+		"TRY_AGAIN": "أعد المحاولة",
+		"UNNAMED_ORGANIZATION": "مؤسسة بلا اسم",
+		"OPEN_ORGANIZATION": "افتح فرقك هناك",
+		"ORGANIZATION_SWITCH_FAILED": "تعذّر فتح هذه المؤسسة. أعد المحاولة."
 	},
 	"workspaceCreation": {
 		"TITLE": "إنشاء مساحة عمل",

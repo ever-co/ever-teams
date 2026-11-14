@@ -3416,7 +3416,13 @@
 		"EVER_APPS": "Приложения Ever",
 		"CURRENT_APP": "{app}, приложение, в котором вы находитесь",
 		"OPENS_IN_NEW_TAB": "(откроется в новой вкладке)",
-		"APP_OPENS_IN_NEW_TAB": "{app} (откроется в новой вкладке)"
+		"APP_OPENS_IN_NEW_TAB": "{app} (откроется в новой вкладке)",
+		"OTHER_ORGANIZATIONS_LOADING": "Загрузка других ваших организаций",
+		"OTHER_ORGANIZATIONS_FAILED": "Не удалось загрузить другие ваши организации.",
+		"TRY_AGAIN": "Повторить",
+		"UNNAMED_ORGANIZATION": "Организация без названия",
+		"OPEN_ORGANIZATION": "Открыть ваши команды там",
+		"ORGANIZATION_SWITCH_FAILED": "Не удалось открыть эту организацию. Повторите попытку."
 	},
 	"workspaceCreation": {
 		"TITLE": "Создать рабочее пространство",
