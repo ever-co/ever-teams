@@ -91,6 +91,17 @@ describe('timerStartMoveAccessOf', () => {
 		expect(access).toEqual({ kind: 'view', why: 'not-allowed' });
 	});
 
+	it('shows the start without the field to a role that may change tracked time but does not run the timer', () => {
+		const access = timerStartMoveAccessOf({
+			source: ETimeLogSource.TEAMS,
+			support: 'supported',
+			permissions: ['ALLOW_MODIFY_TIME', 'ALLOW_MANUAL_TIME'],
+			organization: OPEN_ORGANIZATION
+		});
+
+		expect(access).toEqual({ kind: 'view', why: 'not-allowed' });
+	});
+
 	it('sends a run of the desktop app back to that app, whatever the rules', () => {
 		const access = timerStartMoveAccessOf({
 			source: ETimeLogSource.DESKTOP,

@@ -56,7 +56,7 @@ export function timerStartMoveAccessOf(input: TimerStartMoveAccessInput): TimerS
 		return { kind: 'view', why: 'checking' };
 	}
 
-	const roleMayModifyTime = input.permissions.includes(MODIFY_TIME_PERMISSION);
+	const roleMayModifyTime = holdsTimerStartMovePermissions(input.permissions);
 	const organizationMayModifyTime = input.organization?.allowModifyTime === true;
 	const mayModifyTime = roleMayModifyTime && organizationMayModifyTime;
 	if (!mayModifyTime) {
