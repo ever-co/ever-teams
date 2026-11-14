@@ -12,6 +12,8 @@ export const HOUR_MS = 60 * 60 * 1000;
 
 type RefreshTokenRecord = { status: 'active' | 'rotated' | 'revoked'; expiresAt: number };
 type FakeRequest = { method: string; path: string; accessToken: string | null; status: number };
+/** How a request the API does not answer fails: on the network, or with a 5xx for a reason of the API's own. */
+type Failure = 'network' | 'server';
 
 const encodePart = (value: unknown) => Buffer.from(JSON.stringify(value)).toString('base64url');
 
@@ -28,8 +30,8 @@ export function createFakeGauzy({
 	const refreshTokens = new Map<string, RefreshTokenRecord>();
 	const requests: FakeRequest[] = [];
 	let sequence = 0;
-	let brokenRenewals: 'network' | 'server' | null = null;
-	let brokenStop: 'server' | 'network' | null = null;
+	let brokenRenewals: Failure | null = null;
+	let brokenStop: Failure | null = null;
 	let timer: { id: string; isRunning: boolean; duration: number; source: string } | null = null;
 
 	const mintPair = () => {
@@ -68,6 +70,14 @@ export function createFakeGauzy({
 		return answer(200, mintPair());
 	};
 
+	const stop = () => {
+		if (brokenStop === 'network') throw new TypeError('Network request failed');
+		if (brokenStop === 'server') return answer(500, { statusCode: 500, message: 'Internal server error' });
+		if (!timer?.isRunning) return answer(406, { statusCode: 406, message: 'No running log found.' });
+		timer = { ...timer, isRunning: false, duration: 1800 };
+		return answer(200, timer);
+	};
+
 	const route = (method: string, path: string, accessToken: string | null, body: Record<string, unknown>) => {
 		if (method === 'POST' && path === '/auth/refresh-token') return renew(body);
 
@@ -80,20 +90,20 @@ export function createFakeGauzy({
 		if (method === 'GET' && path === '/timesheet/timer/status') {
 			return answer(200, { duration: timer?.duration ?? 0, running: !!timer?.isRunning, lastLog: timer });
 		}
-		if (method === 'POST' && path === '/timesheet/timer/stop') {
-			if (brokenStop === 'network') throw new TypeError('Network request failed');
-			if (brokenStop === 'server') return answer(500, { statusCode: 500, message: 'Internal server error' });
-			if (!timer?.isRunning) return answer(406, { statusCode: 406, message: 'No running log found.' });
-			timer = { ...timer, isRunning: false, duration: 1800 };
-			return answer(200, timer);
-		}
+		if (method === 'POST' && path === '/timesheet/timer/stop') return stop();
 		return answer(404, { statusCode: 404, message: `Cannot ${method} ${path}` });
 	};
 
-	const fetch = jest.fn(async (input: RequestInfo | URL, init: RequestInit = {}) => {
+	/** The address a request is sent to, in whichever form `fetch` is given it. */
+	const addressOf = (input: RequestInfo | URL) => {
+		if (typeof input === 'string') return input;
+		return input instanceof URL ? input.href : input.url;
+	};
+
+	const send = (input: RequestInfo | URL, init: RequestInit) => {
 		const method = String(init.method ?? 'GET').toUpperCase();
 		// The app's API address comes first (`<origin>/api`), whatever the configuration of the test run gives it
-		const address = String(input);
+		const address = addressOf(input);
 		const afterApi = address.indexOf('/api/');
 		const path = (afterApi < 0 ? address : address.slice(afterApi + '/api'.length)).split('?')[0];
 		const headers = (init.headers ?? {}) as Record<string, string>;
@@ -105,7 +115,13 @@ export function createFakeGauzy({
 		const response = route(method, path, accessToken, body);
 		request.status = response.status;
 		return response;
-	});
+	};
+
+	// A route that fails on the network throws: the promise then rejects, as `fetch` does
+	const fetch = jest.fn(
+		(input: RequestInfo | URL, init: RequestInit = {}) =>
+			new Promise<Response>((resolve) => resolve(send(input, init)))
+	);
 
 	return {
 		/** What the app's `fetch` is replaced with. */
@@ -126,11 +142,11 @@ export function createFakeGauzy({
 			accessTokens.clear();
 		},
 		/** The renewal alone cannot be made: its request fails on the network, or the API answers it 503. */
-		breakRenewals: (failure: 'network' | 'server' | null) => {
+		breakRenewals: (failure: Failure | null) => {
 			brokenRenewals = failure;
 		},
 		/** Every stop fails: the API answers 500 for a reason of its own, or the request never reaches it. */
-		breakStop: (failure: 'server' | 'network' = 'server') => {
+		breakStop: (failure: Failure = 'server') => {
 			brokenStop = failure;
 		},
 		/** The requests the API received, optionally of one route. */
