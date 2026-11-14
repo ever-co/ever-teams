@@ -3,6 +3,7 @@
 import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
 import { useAcceptInvite } from '@/core/hooks/auth/use-accept-invite';
 import { CompleteInvitationRegistrationForm } from './complete-invitation-registration-form';
+import { TwoFactorStep } from '@/core/components/pages/auth/sign-in/two-factor-step';
 import { EInvitationState, TInviteVerified } from '@/core/types/schemas/user/invite.schema';
 import { InvitationExpiredMessageCard } from './invitation-expired-message-card';
 import { AcceptInviteSkeleton } from '@/core/components/layouts/skeletons/accept-invite-skeleton';
@@ -25,7 +26,7 @@ function ValidatedInvitation({
 	onNameChange
 }: Readonly<{
 	invitation: TInviteVerified;
-	onCompleteRegistration: (data: { fullName: string; password: string }) => Promise<void>;
+	onCompleteRegistration: (data: { fullName: string; password: string }) => Promise<unknown>;
 	acceptInvitationLoading: boolean;
 	onNameChange: (fullName: string) => void;
 }>) {
@@ -63,8 +64,14 @@ export function AcceptInvitePageComponent() {
 	const email = searchParams?.get('email');
 	const [typedName, setTypedName] = useState<string | null>(null);
 
-	const { invitationState, handleAcceptInvitation, acceptInvitationLoading, validateInvitation, setInvitationState } =
-		useAcceptInvite();
+	const {
+		invitationState,
+		handleAcceptInvitation,
+		acceptInvitationLoading,
+		validateInvitation,
+		setInvitationState,
+		twoFactor
+	} = useAcceptInvite();
 
 	const onCompleteRegistration = useCallback(
 		async ({ fullName, password }: { fullName: string; password: string }) => {
@@ -73,7 +80,7 @@ export function AcceptInvitePageComponent() {
 				return;
 			}
 
-			await handleAcceptInvitation({
+			return await handleAcceptInvitation({
 				password,
 				user: {
 					firstName: fullName ? fullName.split(' ').slice(0, -1).join(' ') : null,
@@ -130,6 +137,10 @@ export function AcceptInvitePageComponent() {
 				onNameChange={setTypedName}
 			/>
 		);
+		// An existing account with two-factor authentication on: the same code step as the sign-in
+		if (twoFactor.pending) {
+			content = <TwoFactorStep twoFactor={twoFactor} email={invitation.email} onRestart={twoFactor.cancel} />;
+		}
 		scene = (
 			<InviteScene
 				title={t('auth.scene.INVITE_TITLE')}

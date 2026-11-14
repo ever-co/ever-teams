@@ -1023,7 +1023,10 @@
 		"Amina",
 		"Diallo",
 		"Équipe",
-		"RRGGBB"
+		"RRGGBB",
+		"otpauth",
+		"qrcode",
+		"totp"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

@@ -11,6 +11,7 @@ import { PreferencesSettingsSkeleton } from './pages/preferences/preferences-set
 import { WorkingHoursSettingsSkeleton } from './pages/working-hours/working-hours-settings-skeleton';
 import { NotificationsSettingsSkeleton } from './pages/notifications/notifications-settings-skeleton';
 import { ApiTokensSettingsSkeleton } from './pages/api-tokens/api-tokens-settings-skeleton';
+import { SecuritySettingsSkeleton } from './pages/security/security-settings-skeleton';
 import { WorkspaceSettingsSkeleton } from './pages/workspace/workspace-settings-skeleton';
 import { TeamGeneralSettingsSkeleton } from './pages/team-general/team-general-settings-skeleton';
 import { MembersSettingsSkeleton } from './pages/members/members-settings-skeleton';
@@ -37,6 +38,7 @@ const PAGE_SKELETONS: Readonly<Record<SettingsPageId, ComponentType>> = {
 	workingHours: WorkingHoursSettingsSkeleton,
 	notifications: NotificationsSettingsSkeleton,
 	apiTokens: ApiTokensSettingsSkeleton,
+	security: SecuritySettingsSkeleton,
 	workspaceGeneral: WorkspaceSettingsSkeleton,
 	teamGeneral: TeamGeneralSettingsSkeleton,
 	members: MembersSettingsSkeleton,

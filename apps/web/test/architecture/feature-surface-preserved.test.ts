@@ -2059,10 +2059,12 @@ describe('Ever Teams feature surface preservation', () => {
 		// 362 files and 461 verbs with the correction of the running timer's start (/api/timer/started-at PUT, #5203).
 		// 363 files and 462 verbs with the discard of the running timer (/api/timer/discard POST; #5219).
 		// 364 files and 463 verbs with the export of all of the workspace's data (/api/export GET; #5208).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(364);
+		// 371 files and 470 verbs with the two-factor authentication proxies (/api/auth/two-factor GET, enroll, confirm,
+		// disable, recovery-codes and verify POST, users/[userId] DELETE; #5210).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(371);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(463);
+		).toHaveLength(470);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's personal API token routes (#5209)
@@ -2076,6 +2078,14 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/timer/started-at/route.ts::PUT',
 				// Proxy mode twin of Gauzy's export of every table of the workspace (#5208)
 				'apps/web/app/api/export/route.ts::GET',
+				// Proxy mode twins of Gauzy's two-factor authentication routes (ever-gauzy #11916, #5210)
+				'apps/web/app/api/auth/two-factor/route.ts::GET',
+				'apps/web/app/api/auth/two-factor/enroll/route.ts::POST',
+				'apps/web/app/api/auth/two-factor/confirm/route.ts::POST',
+				'apps/web/app/api/auth/two-factor/disable/route.ts::POST',
+				'apps/web/app/api/auth/two-factor/recovery-codes/route.ts::POST',
+				'apps/web/app/api/auth/two-factor/verify/route.ts::POST',
+				'apps/web/app/api/auth/two-factor/users/[userId]/route.ts::DELETE',
 				// Proxy mode twins of the platform's incoming webhook management of a channel (ever-gauzy #11799)
 				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::GET',
 				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::POST',

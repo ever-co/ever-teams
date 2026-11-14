@@ -214,7 +214,10 @@ export class APIService {
 				// Log errors using robust WeakMap-based deduplication
 				this.logError(error);
 
-				if (error.response && error.response.status === 401) {
+				// A 401 the call expected (a wrong two-factor code, `expectedUnauthorized`) is its answer: nothing is renewed
+				const isUnauthorized = error.response?.status === 401;
+				const isExpectedRefusal = (error.config as APIConfig | undefined)?.expectedUnauthorized === true;
+				if (isUnauthorized && !isExpectedRefusal) {
 					return this.handleUnauthorized(error);
 				}
 				return Promise.reject(error);

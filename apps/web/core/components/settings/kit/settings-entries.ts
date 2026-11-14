@@ -8,6 +8,7 @@ import {
 	Integration,
 	Key,
 	Layers,
+	Lock,
 	Preferences,
 	Ruler,
 	Settings,
@@ -29,6 +30,7 @@ export type SettingsEntryId =
 	| 'workingHours'
 	| 'notifications'
 	| 'apiTokens'
+	| 'security'
 	| 'workspaceGeneral'
 	| 'teamGeneral'
 	| 'members'
@@ -62,6 +64,8 @@ export const SETTINGS_ENTRIES: ReadonlyArray<SettingsEntry> = [
 	{ id: 'preferences', group: 'account', href: '/settings/personal/preferences', icon: Preferences },
 	{ id: 'workingHours', group: 'account', href: '/settings/personal/working-hours', icon: Clock },
 	{ id: 'notifications', group: 'account', href: '/settings/personal/notifications', icon: Bell },
+	// Shown once the platform answers the two-factor state: `useHiddenSettingsEntries` hides it on an API without it.
+	{ id: 'security', group: 'account', href: '/settings/personal/security', icon: Lock },
 	// Offered only while the server has personal API tokens on: `useHiddenSettingsEntries` hides it otherwise.
 	{ id: 'apiTokens', group: 'account', href: '/settings/personal/api-tokens', icon: Key },
 	{ id: 'workspaceGeneral', group: 'workspace', href: '/settings/workspace', icon: Building },

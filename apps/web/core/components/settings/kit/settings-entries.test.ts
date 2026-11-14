@@ -30,7 +30,14 @@ describe('the API tokens entry of Settings (#5209)', () => {
 		const forMembers = entriesOfGroup('account', false).map((entry) => entry.id);
 		const forManagers = entriesOfGroup('account', true).map((entry) => entry.id);
 
-		expect(forMembers).toEqual(['profile', 'preferences', 'workingHours', 'notifications', 'apiTokens']);
+		expect(forMembers).toEqual([
+			'profile',
+			'preferences',
+			'workingHours',
+			'notifications',
+			'security',
+			'apiTokens'
+		]);
 		expect(forManagers).toEqual(forMembers);
 	});
 
@@ -51,7 +58,14 @@ describe('the Import page in the settings navigation', () => {
 	});
 
 	it('follows Integrations for a manager', () => {
-		expect(teamEntryIds(true)).toEqual(['teamGeneral', 'members', 'integrations', 'import', 'automations', 'permissions']);
+		expect(teamEntryIds(true)).toEqual([
+			'teamGeneral',
+			'members',
+			'integrations',
+			'import',
+			'automations',
+			'permissions'
+		]);
 	});
 
 	it('is the active entry on its own address, not the team page above it', () => {

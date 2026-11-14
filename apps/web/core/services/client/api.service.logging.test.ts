@@ -1,3 +1,4 @@
+// cspell:ignore IJKL MNOP
 import { AxiosAdapter, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 const mockDebug = jest.fn();
@@ -124,6 +125,16 @@ describe('requestBodyForLog', () => {
 		expect(requestBodyForLog({ refresh_token: 'r', organizationId: 'o' })).toEqual({
 			refresh_token: '[hidden]',
 			organizationId: 'o'
+		});
+	});
+
+	it('hides the proofs of a second factor and the challenge of its sign-in', () => {
+		const proof = { challenge: 'signed', code: '123456', recoveryCode: 'ABCD-EFGH-IJKL-MNOP' };
+
+		expect(requestBodyForLog(proof)).toEqual({
+			challenge: '[hidden]',
+			code: '[hidden]',
+			recoveryCode: '[hidden]'
 		});
 	});
 
