@@ -1,11 +1,18 @@
 import type { TOrganizationTeam } from '@/core/types/schemas';
 
+/** The part of a team the menu rules read; the client's and the server's team types both have it. */
+export interface ITeamMenuTeam {
+	id?: string;
+	name?: string;
+	organizationId?: string | null;
+}
+
 /** An organization of the workspace as the team menu shows it. */
-export interface ITeamMenuOrganization {
+export interface ITeamMenuOrganization<TTeam extends ITeamMenuTeam = TOrganizationTeam> {
 	id: string;
 	name: string;
 	/** The person's teams there, when the API lists them to this person (see `teamsListed`). */
-	teams: TOrganizationTeam[];
+	teams: TTeam[];
 	/**
 	 * False when Gauzy keeps the person inside the organization of their session (every role but the workspace's
 	 * admins): its teams are read once the person has switched to it.
@@ -14,9 +21,9 @@ export interface ITeamMenuOrganization {
 }
 
 /** The person's organizations of the workspace, the current one apart, as the team menu groups them. */
-export interface ITeamMenuOrganizations {
+export interface ITeamMenuOrganizations<TTeam extends ITeamMenuTeam = TOrganizationTeam> {
 	current: { id: string; name: string } | null;
-	others: ITeamMenuOrganization[];
+	others: ITeamMenuOrganization<TTeam>[];
 }
 
 /** The part of a membership (`/user-organization` with its `organization` relation) the menu reads. */
@@ -83,10 +90,10 @@ function byNameThenUnnamedLast(left: { name: string }, right: { name: string }):
  * The other organizations with their teams. `teamsByOrganization` holds the teams read for an organization; one
  * missing from it (not read, or refused) is shown without its teams, to be opened by a switch.
  */
-export function withTeams(
+export function withTeams<TTeam extends ITeamMenuTeam>(
 	others: readonly { id: string; name: string }[],
-	teamsByOrganization: ReadonlyMap<string, readonly TOrganizationTeam[]> | null
-): ITeamMenuOrganization[] {
+	teamsByOrganization: ReadonlyMap<string, readonly TTeam[]> | null
+): ITeamMenuOrganization<TTeam>[] {
 	return others.map((organization) => {
 		const teams = teamsByOrganization?.get(organization.id);
 		if (!teams) {
@@ -103,7 +110,7 @@ export function withTeams(
  * read every organization's teams (`listsTeams`), each other organization's teams through `readTeams`. An organization
  * whose teams could not be read is offered as one to switch to instead of failing the whole menu.
  */
-export async function readTeamMenuOrganizations({
+export async function readTeamMenuOrganizations<TTeam extends ITeamMenuTeam>({
 	memberships,
 	currentOrganizationId,
 	listsTeams,
@@ -112,15 +119,15 @@ export async function readTeamMenuOrganizations({
 	memberships: readonly ITeamMenuMembership[];
 	currentOrganizationId: string | null | undefined;
 	listsTeams: boolean;
-	readTeams: (organizationId: string) => Promise<readonly TOrganizationTeam[]>;
-}): Promise<ITeamMenuOrganizations> {
+	readTeams: (organizationId: string) => Promise<readonly TTeam[]>;
+}): Promise<ITeamMenuOrganizations<TTeam>> {
 	const { current, others } = teamMenuOrganizationsOf(memberships, currentOrganizationId);
 	const hasOthersToRead = listsTeams && others.length > 0;
 	if (!hasOthersToRead) {
 		return { current, others: withTeams(others, null) };
 	}
 	const reads = await Promise.allSettled(others.map((organization) => readTeams(organization.id)));
-	const teamsByOrganization = new Map<string, readonly TOrganizationTeam[]>();
+	const teamsByOrganization = new Map<string, readonly TTeam[]>();
 	reads.forEach((read, index) => {
 		if (read.status === 'fulfilled') {
 			teamsByOrganization.set(others[index].id, read.value);
@@ -133,10 +140,10 @@ export async function readTeamMenuOrganizations({
  * The team to open in an organization just switched to: the first of `preferredTeamIds` that is one of its teams
  * (the team last opened there, then the person's last team), else its first team; null when it has none.
  */
-export function teamToOpenAfterSwitch(
-	teams: readonly TOrganizationTeam[],
+export function teamToOpenAfterSwitch<TTeam extends ITeamMenuTeam>(
+	teams: readonly TTeam[],
 	preferredTeamIds: readonly (string | null | undefined)[]
-): TOrganizationTeam | null {
+): TTeam | null {
 	for (const preferredTeamId of preferredTeamIds) {
 		const preferred = preferredTeamId ? teams.find((team) => team.id === preferredTeamId) : undefined;
 		if (preferred) {
