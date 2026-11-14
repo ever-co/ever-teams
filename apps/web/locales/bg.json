@@ -599,6 +599,21 @@
 				"EDITED_AT": "Редактирано на {date}, {time}",
 				"REASON_PREFIX": "Причина:"
 			},
+			"SIMILAR": {
+				"ENTRY_COUNT": "{count, plural, one {# запис} other {# записа}}",
+				"SHOW_ENTRIES": "Показване на записите за {task}",
+				"HIDE_ENTRIES": "Скриване на записите за {task}",
+				"SELECT_GROUP": "{count, plural, one {Избиране на # запис за {task}} other {Избиране на # записа за {task}}}",
+				"CONFIRM_BILLABLE": "{count, plural, one {Да се маркира ли # запис като таксуем?} other {Да се маркират ли # записа като таксуеми?}}",
+				"CONFIRM_NOT_BILLABLE": "{count, plural, one {Да се маркира ли # запис като нетаксуем?} other {Да се маркират ли # записа като нетаксуеми?}}",
+				"CONFIRM_STATUS": "{count, plural, one {Да се смени ли статусът на # запис на „{status}“?} other {Да се смени ли статусът на # записа на „{status}“?}}",
+				"CONFIRM_SCOPE": "Променят се всички записи за {task} на този ред.",
+				"CHANGED": "{count, plural, one {# запис е променен} other {# записа са променени}}",
+				"PARTLY_CHANGED": "Променени са {changed} от {count} записа. Останалите запазват стойността си.",
+				"REJECT_COUNT": "{count, plural, one {Ще отхвърлите # запис. Искате ли да продължите?} other {Ще отхвърлите # записа. Искате ли да продължите?}}",
+				"VIEW_GROUP": "Групиране на сходни записи",
+				"VIEW_GROUP_HELP": "Записите от един ден със същата задача, проект, бележки и таксуемост се показват на един ред."
+			},
 			"STATUS_CARDS": {
 				"PENDING": "Чака одобрение",
 				"LOG_UNIT": "{count, plural, one {запис} other {записа}}"

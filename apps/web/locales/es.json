@@ -599,6 +599,21 @@
 				"EDITED_AT": "Editado el {date}, {time}",
 				"REASON_PREFIX": "Motivo:"
 			},
+			"SIMILAR": {
+				"ENTRY_COUNT": "{count, plural, one {# registro} other {# registros}}",
+				"SHOW_ENTRIES": "Mostrar los registros de {task}",
+				"HIDE_ENTRIES": "Ocultar los registros de {task}",
+				"SELECT_GROUP": "{count, plural, one {Seleccionar # registro de {task}} other {Seleccionar los # registros de {task}}}",
+				"CONFIRM_BILLABLE": "{count, plural, one {¿Marcar # registro como facturable?} other {¿Marcar # registros como facturables?}}",
+				"CONFIRM_NOT_BILLABLE": "{count, plural, one {¿Marcar # registro como no facturable?} other {¿Marcar # registros como no facturables?}}",
+				"CONFIRM_STATUS": "{count, plural, one {¿Pasar # registro a «{status}»?} other {¿Pasar # registros a «{status}»?}}",
+				"CONFIRM_SCOPE": "Cambian todos los registros de {task} de esta fila.",
+				"CHANGED": "{count, plural, one {# registro cambiado} other {# registros cambiados}}",
+				"PARTLY_CHANGED": "{changed} de {count} registros cambiados. Los demás conservan su valor.",
+				"REJECT_COUNT": "{count, plural, one {Va a rechazar # registro. ¿Desea continuar?} other {Va a rechazar # registros. ¿Desea continuar?}}",
+				"VIEW_GROUP": "Agrupar registros similares",
+				"VIEW_GROUP_HELP": "Los registros de un día con la misma tarea, el mismo proyecto, las mismas notas y el mismo estado facturable se muestran en una sola fila."
+			},
 			"STATUS_CARDS": {
 				"PENDING": "Pendiente de aprobación",
 				"LOG_UNIT": "{count, plural, one {registro} other {registros}}"

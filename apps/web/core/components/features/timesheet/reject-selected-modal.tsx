@@ -14,6 +14,10 @@ export interface IRejectSelectedModalProps {
 	minReasonLength?: number;
 	maxReasonLength?: number;
 	selectTimesheetId?: string[];
+	/** What the dialog says above the reason; the selected entry by default. */
+	description?: string;
+	/** A smaller line under the description, such as what else the rejection changes. */
+	note?: string;
 }
 function submitLabelOf(isSubmitting: boolean, t: TranslationHooks) {
 	if (isSubmitting) {
@@ -40,7 +44,9 @@ export function RejectSelectedModal({
 	maxReasonLength,
 	onReject,
 	minReasonLength,
-	selectTimesheetId
+	selectTimesheetId,
+	description,
+	note
 }: IRejectSelectedModalProps) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [reason, setReason] = useState('');
@@ -83,7 +89,8 @@ export function RejectSelectedModal({
 			<form onSubmit={handleSubmit}>
 				<div className="flex flex-col gap-4">
 					<span className="text-sm text-muted-foreground">
-						{t('pages.timesheet.YOU_ARE_ABOUT_TO_REJECT_ENTRY')}
+						{description ?? t('pages.timesheet.YOU_ARE_ABOUT_TO_REJECT_ENTRY')}
+						{note && <span className="mt-1 block text-xs text-pretty">{note}</span>}
 					</span>
 					<textarea
 						value={reason}
@@ -102,13 +109,7 @@ export function RejectSelectedModal({
 						{reason.length}/{maxReasonLength}
 					</div>
 					<div className="flex gap-x-2 justify-end items-center">
-						<Button
-							variant="outline"
-							size="lg"
-							onClick={handleClose}
-							type="button"
-							disabled={isSubmitting}
-						>
+						<Button variant="outline" size="lg" onClick={handleClose} type="button" disabled={isSubmitting}>
 							{t('common.CANCEL')}
 						</Button>
 						<Button

@@ -14,7 +14,9 @@ import { Clock, Plus } from '@/core/components/icons';
 import { TimerTaskStartLayer } from '@/core/components/timer/timer-task-start';
 import { useAddTimeAccess } from '@/core/hooks/dashboards/timesheets/use-add-time-access';
 import { useBulkEditDialog } from '@/core/hooks/dashboards/timesheets/use-bulk-edit-dialog';
+import { useSimilarEntryGrouping } from '@/core/hooks/dashboards/timesheets/use-similar-entry-grouping';
 import { useTimesheetDialogs } from '@/core/hooks/dashboards/timesheets/use-timesheet-dialogs';
+import { useTimesheetGroupChange } from '@/core/hooks/dashboards/timesheets/use-timesheet-group-change';
 import { useTimesheetLogActions } from '@/core/hooks/dashboards/timesheets/use-timesheet-log-actions';
 import { useSheetEditing } from '@/core/hooks/dashboards/timesheets/use-sheet-editing';
 import { useSheetEmptyMembers } from '@/core/hooks/dashboards/timesheets/use-sheet-empty-members';
@@ -46,6 +48,7 @@ import type { TimesheetRowHandlers } from './timesheet-log-row';
 import { TimesheetsBulkEdit } from './timesheets-bulk-edit';
 import { TimesheetsMonthView, TimesheetsWeekView } from './timesheets-calendar';
 import { TimesheetsDialogs } from './timesheets-dialogs';
+import { TimesheetsGroupChangeDialog } from './timesheets-group-change-dialog';
 import { useTimesheetExportOptions } from './timesheets-export';
 import { useTimesheetFilterCategories, useTimesheetFilterControls } from './timesheets-filters';
 import { TimesheetsList } from './timesheets-list';
@@ -55,6 +58,7 @@ import { TimesheetsSheetView } from './timesheets-sheet-view';
 import { TimesheetsSelectionBar } from './timesheets-states';
 import { TimesheetsStatusCards } from './timesheets-status-cards';
 import { TimesheetsToolbar } from './timesheets-toolbar';
+import { TimesheetsViewMenu } from './timesheets-view-menu';
 
 const NO_MEMBERS: TOrganizationTeamEmployee[] = [];
 
@@ -182,8 +186,10 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 		t
 	);
 
-	const { changeStatus, setBillable, deleteLogs, isChangingStatus, isDeleting } = actions;
+	const { changeStatus, setBillable, setBillableOf, deleteLogs, isChangingStatus, isDeleting } = actions;
 	const { openReject, openEdit, openDelete } = dialogs;
+	const grouping = useSimilarEntryGrouping();
+	const groupChange = useTimesheetGroupChange({ setBillableOf, changeStatus, openReject, openDelete });
 
 	const timerStart = useTimerTaskStart();
 	const { canContinue, continueLog } = useTimeEntryContinue(timerStart.startOn);
@@ -239,6 +245,13 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 	const canEditSelection = selectedLogs.some((log) => canEditLog(log, permissions));
 	const selectedSeconds = useMemo(() => totalDurationOf(selectedLogs), [selectedLogs]);
 	const isSheetView = page.view === 'sheet';
+	const isListView = page.view === 'list';
+	let listViewMenu: ReactNode = null;
+	if (isListView) {
+		listViewMenu = (
+			<TimesheetsViewMenu isGrouping={grouping.isGrouping} onGroupingChange={grouping.setIsGrouping} />
+		);
+	}
 	const isScreenshotsView = page.view === 'screenshots';
 	const isSelectableView = !isSheetView && !isScreenshotsView;
 	const showsSelectionBar = hasSelection && isSelectableView;
@@ -436,6 +449,8 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 				sort={page.sort}
 				onSort={page.sortBy}
 				emptyContent={emptyMessage}
+				grouping={grouping}
+				groupHandlers={groupChange.handlers}
 			/>
 		);
 	}
@@ -493,6 +508,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 					filterMenu={filterControls.menu}
 					appliedFilters={filterControls.chips}
 					actions={actionsNode}
+					viewMenu={listViewMenu}
 				/>
 			}
 		>
@@ -521,6 +537,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 				onDeleteConfirmed={handleDeleteConfirmed}
 				duplicate={duplicate}
 			/>
+			<TimesheetsGroupChangeDialog state={groupChange} />
 			<TimerTaskStartLayer request={timerStart.request} />
 		</PageLayout>
 	);
