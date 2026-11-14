@@ -815,6 +815,25 @@ describe('saving an edit to an invoice', () => {
 		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
 	});
 
+	it.each([
+		['paid', 'FULLY_PAID'],
+		['voided', 'VOID']
+	])('never puts back an invoice %s while its lines were refused', async (_reached, status) => {
+		mockGetInvoice
+			.mockResolvedValueOnce(invoiceRead('SENT'))
+			.mockResolvedValue({ ...invoiceRead(status, []), totalValue: 960 });
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockRejectedValue(serverFailure());
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		// Its fields hold the status the save was written under: written back, they would take the payment back
+		expect(saved).toEqual({ outcome: { status: 'notPutBack', lineCount: 0 }, sending: null });
+		expect(mockReplaceInvoiceLines).toHaveBeenCalledTimes(1);
+		expect(mockUpdateInvoice).toHaveBeenCalledTimes(1);
+	});
+
 	it('leaves lines saved from elsewhere as they are once its own lines were refused', async () => {
 		const linesSavedElsewhere = [{ id: 'item-3', ...editedLine, quantity: 9, totalValue: 720 }];
 		mockGetInvoice
