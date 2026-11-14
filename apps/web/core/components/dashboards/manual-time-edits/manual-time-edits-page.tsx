@@ -59,7 +59,7 @@ export function ManualTimeEditsPage() {
 	const report = useManualTimeEditsReport({ unnamedLabel: t('timeActivity.UNNAMED_EMPLOYEE') });
 	const dialogs = useTimesheetDialogs();
 	const { deleteLogs, isDeleting } = useTimesheetLogActions();
-	const categories = useEditsFilterCategories(report.members);
+	const categories = useEditsFilterCategories(report.members, report.hasChangeKinds);
 	const [isAddTimeOpen, setIsAddTimeOpen] = useState(false);
 	const hasOpenedAddTime = useHasBeenOpen(isAddTimeOpen);
 
@@ -104,7 +104,8 @@ export function ManualTimeEditsPage() {
 		groups: report.groups,
 		figures: report.figures,
 		period: report.shownPeriod,
-		teamName: report.teamName
+		teamName: report.teamName,
+		members: report.members
 	});
 
 	const title = t('dashboard.manualTimeEdits.TITLE');
@@ -112,7 +113,7 @@ export function ManualTimeEditsPage() {
 	const membersText = t('dashboard.weeklyLimit.MEMBERS_COUNT', { count: report.populationCount });
 	const meta = [periodText, membersText].join(META_SEPARATOR);
 	const hasShownEntries = report.shownEntries.length > 0;
-	const isExportDisabled = !hasShownEntries || report.isLoading;
+	const isExportDisabled = !hasShownEntries || report.isLoading || report.isHistoryLoading;
 	const showsReport = !report.showsError && !report.showsNoMembers;
 	let actionFigures: EditsFigures | null = report.figures;
 	if (report.isLoading) {
@@ -200,6 +201,7 @@ export function ManualTimeEditsPage() {
 							members={report.members}
 							selectedIdSet={report.selectedIdSet}
 							permissions={report.permissions}
+							historyStatus={report.historyStatus}
 							formatters={formatters}
 							handlers={handlers}
 							isLoading={report.isLoading}

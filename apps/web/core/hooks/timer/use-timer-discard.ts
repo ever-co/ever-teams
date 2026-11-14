@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useReducer, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
@@ -11,6 +11,7 @@ import { trackTimerCommand } from '@/core/hooks/timer/use-timer-api';
 import { queryKeys } from '@/core/query/keys';
 import { timerService } from '@/core/services/client/api/timers/timer.service';
 import { timerStatusState } from '@/core/stores';
+import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import {
 	type TimerDiscardFailure,
@@ -24,6 +25,14 @@ const CURRENT_ORGANIZATION_QUERY_PREFIX = ['workspaces', 'current-organization-s
 /** Failures that mean the timer, or the organization's settings, are no longer what this tab shows. */
 const STALE_TIMER_FAILURES: ReadonlySet<string> = new Set<TimerDiscardFailure>(['NOT_RUNNING', 'CHANGED']);
 const STALE_SETTINGS_FAILURES: ReadonlySet<string> = new Set<TimerDiscardFailure>(['DISABLED', 'TOO_LATE']);
+
+/** The status after a discard whose status read failed: the run is gone, so the timer reads stopped until read again. */
+function stoppedStatusOf(status: ITimerStatus | null): ITimerStatus | null {
+	if (!status) {
+		return status;
+	}
+	return { ...status, running: false };
+}
 
 function startedAtOf(startedAt: Date | string | undefined): number | null {
 	if (!startedAt) {
@@ -39,8 +48,10 @@ function startedAtOf(startedAt: Date | string | undefined): number | null {
 /**
  * The Discard of the running timer (#5219): whether the running timer offers it (the organization's switch and age
  * limit, an API that knows the discard), and the discard itself. A discard names the run the confirmation was opened
- * for (`runningLogId` then), so a run started meanwhile elsewhere is never removed; without one it is refused. On success the timer reads the stopped status the API answers, and
- * every view that counts time reads again; on a refusal the timer stays as it is and `failure` names the reason.
+ * for (`runningLogId` then), so a run started meanwhile elsewhere is never removed; without one it is refused. On
+ * success the timer reads the stopped status the API answers (stopped too when that read failed: the run is
+ * discarded all the same), and every view that counts time reads again; on a refusal the timer stays as it is and
+ * `failure` names the reason.
  */
 export function useTimerDiscard() {
 	const t = useTranslations();
@@ -53,7 +64,7 @@ export function useTimerDiscard() {
 	const [discarding, setDiscarding] = useState(false);
 	const [failure, setFailure] = useState<TimerDiscardFailure | null>(null);
 	// Bumped when the organization's age limit closes the offer, so the availability is read again then.
-	const [, setLimitPassed] = useState(0);
+	const [, readAvailabilityAgain] = useReducer((count: number) => count + 1, 0);
 
 	const runningLog = timerStatus?.lastLog;
 	const startedAt = startedAtOf(runningLog?.startedAt);
@@ -70,7 +81,7 @@ export function useTimerDiscard() {
 		if (closesAt === null) {
 			return undefined;
 		}
-		const timeout = setTimeout(() => setLimitPassed((count) => count + 1), Math.max(0, closesAt - Date.now()));
+		const timeout = setTimeout(readAvailabilityAgain, Math.max(0, closesAt - Date.now()));
 		return () => clearTimeout(timeout);
 	}, [closesAt]);
 
@@ -109,6 +120,8 @@ export function useTimerDiscard() {
 				const { data } = await trackTimerCommand(timerService.discardTimer({ timeLogId }));
 				if (data) {
 					setTimerStatus(data);
+				} else {
+					setTimerStatus(stoppedStatusOf);
 				}
 				refreshAfter('DISCARDED');
 				toast.success(t('timer.discard.DISCARDED'), { description: t('timer.discard.DISCARDED_HINT') });

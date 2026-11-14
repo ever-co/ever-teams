@@ -45,6 +45,9 @@ const FAILURE_KEYS = {
 	GENERIC: 'timer.discard.failures.GENERIC'
 } as const satisfies Record<TimerDiscardFailure, string>;
 
+/** The run a confirmation was opened for: it is the one discarded, whatever the timer shows meanwhile. */
+type ConfirmedRun = { id?: string; source?: ETimeLogSource };
+
 /** The app a run started from, when it is not this web app: the confirmation says it stops there too. */
 function sourceKeyOf(source: ETimeLogSource | undefined) {
 	if (!source || source === ETimeLogSource.TEAMS) {
@@ -72,13 +75,13 @@ export function TimerRunMenu({ className }: Readonly<{ className?: string }>) {
 	const { availability, runningLogId, runningSource, discard, discarding, failure, resetFailure } = useTimerDiscard();
 	const [confirming, setConfirming] = useState(false);
 	// The run the confirmation was opened for: a run started meanwhile elsewhere is never the one discarded
-	const [confirmedRunId, setConfirmedRunId] = useState<string | undefined>(undefined);
+	const [confirmedRun, setConfirmedRun] = useState<ConfirmedRun | null>(null);
 
 	const openConfirmation = useCallback(() => {
 		resetFailure();
-		setConfirmedRunId(runningLogId);
+		setConfirmedRun({ id: runningLogId, source: runningSource });
 		setConfirming(true);
-	}, [resetFailure, runningLogId]);
+	}, [resetFailure, runningLogId, runningSource]);
 
 	const changeConfirmation = useCallback(
 		(open: boolean) => {
@@ -92,13 +95,13 @@ export function TimerRunMenu({ className }: Readonly<{ className?: string }>) {
 	);
 
 	const confirmDiscard = useCallback(async () => {
-		const discarded = await discard(confirmedRunId);
+		const discarded = await discard(confirmedRun?.id);
 		if (discarded) {
 			setConfirming(false);
 		}
-	}, [confirmedRunId, discard]);
+	}, [confirmedRun?.id, discard]);
 
-	const sourceKey = sourceKeyOf(runningSource);
+	const sourceKey = sourceKeyOf(confirmedRun?.source ?? runningSource);
 	let description = t('timer.discard.DESCRIPTION');
 	if (sourceKey) {
 		description = t('timer.discard.DESCRIPTION_ELSEWHERE', { source: t(sourceKey) });

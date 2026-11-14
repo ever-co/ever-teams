@@ -17,6 +17,7 @@ import {
 import { dateFormatOf, hasDateFormat, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
+import type { ChangeKindValue, TimeLogHistoryChange } from '@/core/lib/utils/time-log-history';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { TOrganizationTeam } from '@/core/types/schemas';
 
@@ -32,11 +33,13 @@ export interface EditsFilters {
 	members: string[];
 	projects: string[];
 	billable: string[];
+	/** The kinds of change (time, task or project, billable, deleted), read from the entries' history. */
+	kinds: string[];
 }
 
 export type EditsFilterField = keyof EditsFilters;
 
-export const EMPTY_EDITS_FILTERS: EditsFilters = { members: [], projects: [], billable: [] };
+export const EMPTY_EDITS_FILTERS: EditsFilters = { members: [], projects: [], billable: [], kinds: [] };
 
 export interface EditsMember {
 	employeeId: string;
@@ -44,7 +47,7 @@ export interface EditsMember {
 	imageUrl: string | null;
 }
 
-/** One log changed by hand: added (the MANUAL log type), edited after it was recorded, or both. */
+/** One log changed by hand: added (the MANUAL log type), edited after it was recorded, or both; or deleted. */
 export interface ManualTimeEntry {
 	key: string;
 	log: ITimeLog;
@@ -66,6 +69,12 @@ export interface ManualTimeEntry {
 	isBillable: boolean;
 	status: ETimesheetStatus | null;
 	reason: string | null;
+	/** Deleted: listed with what it was, never counted, never edited. */
+	isDeleted: boolean;
+	/** The kinds of its changes, from its history (empty when none was kept). */
+	changeKinds: ChangeKindValue[];
+	/** Its last edit or its deletion, from its history. */
+	lastChange: TimeLogHistoryChange | null;
 }
 
 type TeamMember = NonNullable<TOrganizationTeam['members']>[number];
@@ -218,7 +227,10 @@ function entryOf(
 		editedAt,
 		isBillable: Boolean(log.isBillable),
 		status: statusOfLog(log),
-		reason: reasonOf(log)
+		reason: reasonOf(log),
+		isDeleted: false,
+		changeKinds: [],
+		lastChange: null
 	};
 }
 
@@ -270,11 +282,22 @@ function billableValueOf(entry: ManualTimeEntry): BillableValue {
 	return 'non-billable';
 }
 
-/** Projects and billable narrow the loaded entries (logs without a project cannot be asked of Gauzy by id). */
+function matchesAnyPicked(values: ReadonlyArray<string>, picked: ReadonlyArray<string>) {
+	if (picked.length === 0) {
+		return true;
+	}
+	return values.some((value) => picked.includes(value));
+}
+
+/**
+ * Projects, billable and kinds of change narrow the loaded entries (logs without a project cannot be asked of Gauzy
+ * by id, and the kinds come from the history read beside them).
+ */
 export function entryMatchesFilters(entry: ManualTimeEntry, filters: EditsFilters) {
 	const matchesProject = matchesPicked(entry.projectValue, filters.projects);
 	const matchesBillable = matchesPicked(billableValueOf(entry), filters.billable);
-	return matchesProject && matchesBillable;
+	const matchesKind = matchesAnyPicked(entry.changeKinds, filters.kinds);
+	return matchesProject && matchesBillable && matchesKind;
 }
 
 export function entryMatchesAction(entry: ManualTimeEntry, action: ChangeAction) {
@@ -288,6 +311,7 @@ export function entryMatchesAction(entry: ManualTimeEntry, action: ChangeAction)
 }
 
 export interface EditsFigures {
+	/** The entries that still hold time; deleted ones are counted apart. */
 	entryCount: number;
 	manualSeconds: number;
 	addedCount: number;
@@ -295,9 +319,13 @@ export interface EditsFigures {
 	editedCount: number;
 	editedSeconds: number;
 	memberCount: number;
+	deletedCount: number;
 }
 
-/** Added and edited are counted apart and never netted: an entry that is both counts in each. */
+/**
+ * Added and edited are counted apart and never netted: an entry that is both counts in each. A deleted entry holds
+ * no time any more: it is only counted as deleted.
+ */
 export function editsFiguresOf(entries: ReadonlyArray<ManualTimeEntry>): EditsFigures {
 	const figures: EditsFigures = {
 		entryCount: 0,
@@ -306,10 +334,15 @@ export function editsFiguresOf(entries: ReadonlyArray<ManualTimeEntry>): EditsFi
 		addedSeconds: 0,
 		editedCount: 0,
 		editedSeconds: 0,
-		memberCount: 0
+		memberCount: 0,
+		deletedCount: 0
 	};
 	const members = new Set<string>();
 	for (const entry of entries) {
+		if (entry.isDeleted) {
+			figures.deletedCount += 1;
+			continue;
+		}
 		figures.entryCount += 1;
 		figures.manualSeconds += entry.seconds;
 		members.add(entry.employeeId);
@@ -326,9 +359,13 @@ export function editsFiguresOf(entries: ReadonlyArray<ManualTimeEntry>): EditsFi
 	return figures;
 }
 
+/** The time the entries hold: a deleted entry holds none. */
 export function totalSecondsOfEntries(entries: ReadonlyArray<ManualTimeEntry>) {
 	let total = 0;
 	for (const entry of entries) {
+		if (entry.isDeleted) {
+			continue;
+		}
 		total += entry.seconds;
 	}
 	return total;
@@ -567,13 +604,38 @@ export function pdfDayOf(day: Date, locale: FormatLocale) {
 	return format.format(day);
 }
 
-/** The same for a moment of a line of the PDF: its day, then the local 24-hour time the files write. */
+/** Latin digits, as the files write them, whatever the reader's language. */
+const PDF_TIME_OPTIONS: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' };
+
+function isTwelveHourClock(locale: FormatLocale) {
+	if (typeof locale === 'string') {
+		return false;
+	}
+	return locale.clock === 12;
+}
+
+/**
+ * The time of day of a line of the PDF: `6:00 PM` on a workspace that chose the 12-hour clock, else the local 24-hour
+ * time the files write (`18:00`).
+ */
+export function pdfTimeOf(date: Date | null, locale: FormatLocale) {
+	if (!date) {
+		return '';
+	}
+	if (!isTwelveHourClock(locale)) {
+		return clockTimeOf(date);
+	}
+	const format = dateFormatOf(locale, PDF_TIME_OPTIONS);
+	return format.format(date);
+}
+
+/** The same for a moment of a line of the PDF: its day, then its time on the workspace's clock. */
 export function pdfDateTimeOf(date: Date | null, locale: FormatLocale) {
 	if (!date) {
 		return '';
 	}
 	const day = pdfDayOf(date, locale);
-	const time = clockTimeOf(date);
+	const time = pdfTimeOf(date, locale);
 	return `${day} ${time}`;
 }
 
