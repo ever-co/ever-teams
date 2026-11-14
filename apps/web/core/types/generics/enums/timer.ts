@@ -2,7 +2,9 @@ export enum ETimeLogType {
 	TRACKED = 'TRACKED',
 	MANUAL = 'MANUAL',
 	IDLE = 'IDLE',
-	RESUMED = 'RESUMED'
+	RESUMED = 'RESUMED',
+	// Time away from work: never counted as worked, billable or invoiced time (Gauzy has it from #11940)
+	BREAK = 'BREAK'
 }
 
 export enum ETimeLogSource {

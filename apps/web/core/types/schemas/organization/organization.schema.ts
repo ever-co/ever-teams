@@ -82,6 +82,8 @@ export const organizationSchema = z
 		requireTeam: z.boolean().optional().nullable(),
 		// Whether only someone of a higher role turns a person's time tracking on or off (#5015); absent before Gauzy has it
 		restrictTrackingSwitchToHigherRoles: z.boolean().optional().nullable(),
+		// Whether members may take breaks from the timer, off by default; absent before Gauzy has it (#11940)
+		allowBreaks: z.boolean().optional().nullable(),
 		timeFormat: timeFormatSchema.optional().nullable(),
 		defaultStartTime: z.string().optional().nullable(),
 		defaultEndTime: z.string().optional().nullable(),
