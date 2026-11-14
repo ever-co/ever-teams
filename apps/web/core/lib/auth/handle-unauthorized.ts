@@ -4,106 +4,27 @@ import { DEFAULT_APP_PATH } from '@/core/constants/config/constants';
 import { globalQueryClient } from '@/core/query/config';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
-import { isUnauthorizedError, isRetryableError } from '@/core/lib/auth/retry-logic';
-import { logInDev } from '@/core/lib/helpers/error-message';
 import { isPasswordRecoveryPage } from '@/core/lib/auth/signed-in-auth-paths';
 import { runSignOutCleanups } from '@/core/lib/auth/sign-out-cleanups';
 
-let isHandling401 = false;
 let isRedirecting = false;
 
-// Stack of callbacks to attempt token refresh when 401 occurs
-// Using a Set to maintain multiple callbacks from different hook instances
-// This prevents the race condition where unmounting one component clears the callback for others
-const refreshTokenCallbacks: Set<() => Promise<unknown>> = new Set();
-
 /**
- * Register a callback to attempt token refresh when 401 occurs
- * This is called by useAuthenticateUser hook to enable automatic recovery
+ * Ends the session in this browser and sends the person to the sign-in page.
  *
- * Multiple components can register callbacks simultaneously.
- * When a 401 occurs, we try each callback until one succeeds.
+ * A session ends here when it cannot go on: the API refuses the refresh token, or there is none left
+ * (session-renewal.ts answers `ended`). A request the API refused with 401 does not end it by itself: api.service.ts
+ * renews the session first and sends the request again, and a renewal that could not be made (no network, a server
+ * error) keeps the session.
  *
- * @param callback - The refresh callback function
- * @returns A function to unregister this specific callback
- */
-export function registerRefreshTokenCallback(callback: () => Promise<unknown>) {
-	refreshTokenCallbacks.add(callback);
-
-	// Return an unregister function that removes THIS specific callback
-	return () => {
-		refreshTokenCallbacks.delete(callback);
-	};
-}
-
-/**
- * Centralized handler for 401 Unauthorized errors
- *
- * STRATEGY:
- * 1. Prevent multiple simultaneous handlers (avoid race conditions)
- * 2. If 401 + callback registered → Try refresh immediately
- * 3. Distinguish between 401 (token invalid) and network errors
- * 4. If refresh succeeds → User stays logged in
- * 5. If refresh fails with 401 → Disconnect user
- * 6. If refresh fails with network error → Log but don't disconnect immediately
- *
- * @param reason - The reason for the unauthorized error (default: UNAUTHORIZED_401)
+ * @param reason - Why the session ends, for the disconnection log
  * @param details - Additional details about the error
  */
 export async function handleUnauthorized(
 	reason: DisconnectionReason = DisconnectionReason.UNAUTHORIZED_401,
 	details?: Record<string, unknown>
 ) {
-	// Prevent multiple simultaneous 401 handlers
-	if (isHandling401 || isRedirecting) {
-		console.warn('[Auth] Already handling 401, ignoring duplicate call');
-		return;
-	}
-
-	isHandling401 = true;
-
-	try {
-		// Attempt token refresh immediately if callbacks are registered
-		if (reason === DisconnectionReason.UNAUTHORIZED_401 && refreshTokenCallbacks.size > 0) {
-			logInDev(
-				`[Auth] Attempting automatic token refresh on 401 (${refreshTokenCallbacks.size} callback(s) registered)...`
-			);
-
-			// Try each registered callback until one succeeds
-			for (const callback of refreshTokenCallbacks) {
-				try {
-					await callback();
-					logInDev('[Auth] ✅ Token refresh succeeded, user stays logged in');
-					// Success! User stays logged in, no redirect
-					return;
-				} catch (error) {
-					// Distinguish between 401 and network errors
-					if (isUnauthorizedError(error)) {
-						logInDev('[Auth] ⚠️ Token refresh returned 401 (refresh token invalid)');
-						// Don't try more callbacks - the refresh token itself is invalid
-						break;
-					} else if (isRetryableError(error)) {
-						logInDev('[Auth] ⚠️ Token refresh failed (network error), trying next callback:', (error as Error)?.message);
-						// Network error - try next callback
-						continue;
-					} else {
-						logInDev('[Auth] ⚠️ Token refresh failed (unknown error):', (error as Error)?.message);
-						continue;
-					}
-				}
-			}
-
-			// All callbacks failed
-			logInDev('[Auth] ❌ All token refresh attempts failed, proceeding with logout');
-		} else if (reason === DisconnectionReason.UNAUTHORIZED_401) {
-			console.warn('[Auth] No refresh callback registered, proceeding with logout');
-		}
-
-		// If we reach here, we need to disconnect the user
-		await performLogout(reason, details);
-	} finally {
-		isHandling401 = false;
-	}
+	await performLogout(reason, details);
 }
 
 /**
@@ -154,7 +75,5 @@ async function performLogout(reason: DisconnectionReason, details?: Record<strin
  * This should only be used in tests
  */
 export function resetUnauthorizedHandler() {
-	isHandling401 = false;
 	isRedirecting = false;
-	refreshTokenCallbacks.clear();
 }

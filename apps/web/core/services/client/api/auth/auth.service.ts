@@ -35,6 +35,12 @@ function signInCodeRequestBody(email: string) {
 	return { email, ...appEmailBranding(), appMagicSignUrl: `${location.origin}${SIGN_IN_CALLBACK_PATH}` };
 }
 
+/**
+ * The request that renews the session answers for itself: its 401 says the refresh token is refused, and must not
+ * start the renewal a refused request starts (api.service.ts handleUnauthorized).
+ */
+const RENEWAL_REQUEST = { noSessionRenewal: true };
+
 class AuthService extends APIService {
 	/**
 	 * Exchange a refresh token for a new access (+ rotated refresh) token — raw, no cookie side-effects.
@@ -47,10 +53,14 @@ class AuthService extends APIService {
 	 */
 	refreshTokenRaw = async (refresh_token: string) => {
 		if (GAUZY_API_BASE_SERVER_URL.value) {
-			return this.post<{ token: string; refresh_token: string }>('/auth/refresh-token', { refresh_token });
+			return this.post<{ token: string; refresh_token: string }>(
+				'/auth/refresh-token',
+				{ refresh_token },
+				RENEWAL_REQUEST
+			);
 		}
 		const api = await getFallbackAPI();
-		return api.post<{ token: string; refresh_token: string }>('/auth/refresh', { refresh_token });
+		return api.post<{ token: string; refresh_token: string }>('/auth/refresh', { refresh_token }, RENEWAL_REQUEST);
 	};
 
 	/**
@@ -78,9 +88,11 @@ class AuthService extends APIService {
 		try {
 			if (GAUZY_API_BASE_SERVER_URL.value) {
 				logInDev('[AuthService] Using direct Gauzy API for token refresh');
-				const { data } = await this.post<{ token: string; refresh_token: string }>('/auth/refresh-token', {
-					refresh_token
-				});
+				const { data } = await this.post<{ token: string; refresh_token: string }>(
+					'/auth/refresh-token',
+					{ refresh_token },
+					RENEWAL_REQUEST
+				);
 
 				if (!data?.token) {
 					throw new Error('No token received from refresh endpoint');
@@ -103,9 +115,7 @@ class AuthService extends APIService {
 
 			logInDev('[AuthService] Using Next.js API route for token refresh');
 			const api = await getFallbackAPI();
-			const result = await api.post<IAuthResponse>(`/auth/refresh`, {
-				refresh_token
-			});
+			const result = await api.post<IAuthResponse>(`/auth/refresh`, { refresh_token }, RENEWAL_REQUEST);
 
 			// Store the tokens client-side (the API route returns them in the body)
 			// This is necessary because the API route's Set-Cookie header is lost
@@ -123,15 +133,18 @@ class AuthService extends APIService {
 			logInDev('[AuthService] Token refreshed successfully via API route');
 			return result;
 		} catch (error: any) {
+			// The API service rejects with an ApiErrorService, which keeps the HTTP status in `statusCode`: without it a
+			// refused refresh token (401) was not told apart from a renewal that could not be made
+			const status = error?.response?.status || error?.status || error?.statusCode;
 			console.error('[AuthService] Token refresh failed:', {
-				status: error?.response?.status || error?.status,
+				status,
 				message: error?.message,
 				hasRefreshToken: !!refresh_token
 			});
 
 			// Re-throw with more context
 			const enhancedError = new Error(`Token refresh failed: ${error?.message || 'Unknown error'}`);
-			(enhancedError as any).status = error?.response?.status || error?.status;
+			(enhancedError as any).status = status;
 			(enhancedError as any).response = error?.response;
 			throw enhancedError;
 		}
