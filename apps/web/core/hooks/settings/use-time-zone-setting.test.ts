@@ -5,6 +5,7 @@ import { act, renderHook } from '@testing-library/react';
 import { useTimeZoneSetting } from './use-time-zone-setting';
 
 const mockUpdateAvatar = jest.fn();
+const mockSetActiveTimezone = jest.fn();
 
 jest.mock('@/core/hooks/queries/user-user.query', () => ({
 	useUserQuery: () => ({ data: { id: 'user-1', timeZone: 'Africa/Kinshasa (UTC +01:00)' } })
@@ -13,11 +14,12 @@ jest.mock('@/core/hooks/users/use-settings', () => ({
 	useSettings: () => ({ updateAvatar: mockUpdateAvatar })
 }));
 jest.mock('@/core/hooks/common/use-timezone-settings', () => ({
-	useTimezoneSettings: () => ({ setActiveTimezone: jest.fn() })
+	useTimezoneSettings: () => ({ setActiveTimezone: mockSetActiveTimezone })
 }));
 
 beforeEach(() => {
 	mockUpdateAvatar.mockReset();
+	mockSetActiveTimezone.mockReset();
 });
 
 async function save(zone: string): Promise<boolean> {
@@ -34,6 +36,8 @@ describe('useTimeZoneSetting saveZone', () => {
 		mockUpdateAvatar.mockImplementation(async ({ timeZone }: { timeZone: string }) => ({ id: 'user-1', timeZone }));
 
 		expect(await save('America/New_York')).toBe(true);
+		expect(mockSetActiveTimezone).toHaveBeenCalledTimes(1);
+		expect(mockSetActiveTimezone).toHaveBeenCalledWith(expect.stringMatching(/^America\/New_York /));
 	});
 
 	it('does not count a save the API answered while keeping the old zone', async () => {
@@ -41,11 +45,36 @@ describe('useTimeZoneSetting saveZone', () => {
 		mockUpdateAvatar.mockResolvedValue({ id: 'user-1', timeZone: 'Africa/Kinshasa (UTC +01:00)' });
 
 		expect(await save('America/New_York')).toBe(false);
+		expect(mockSetActiveTimezone).not.toHaveBeenCalled();
 	});
 
 	it('does not count a refused save', async () => {
 		mockUpdateAvatar.mockRejectedValue(new Error('500'));
 
 		expect(await save('America/New_York')).toBe(false);
+		expect(mockSetActiveTimezone).not.toHaveBeenCalled();
+	});
+
+	it("changes the app's zone only once the save has succeeded", async () => {
+		let answer: () => void = () => undefined;
+		mockUpdateAvatar.mockImplementation(
+			({ timeZone }: { timeZone: string }) =>
+				new Promise((resolve) => {
+					answer = () => resolve({ id: 'user-1', timeZone });
+				})
+		);
+		const { result } = renderHook(() => useTimeZoneSetting());
+
+		let saving: Promise<boolean> = Promise.resolve(false);
+		act(() => {
+			saving = result.current.saveZone('America/New_York');
+		});
+		expect(mockSetActiveTimezone).not.toHaveBeenCalled();
+
+		await act(async () => {
+			answer();
+			await saving;
+		});
+		expect(mockSetActiveTimezone).toHaveBeenCalledTimes(1);
 	});
 });
