@@ -53,6 +53,7 @@ function postToken(body: unknown) {
 }
 
 beforeEach(() => {
+	mockAuthenticatedGuard.mockReset();
 	mockAuthenticatedGuard.mockResolvedValue(SIGNED_IN);
 	mockGetTokens.mockReset();
 	mockCreateToken.mockReset();
@@ -150,6 +151,24 @@ describe('POST /api/user-api-tokens', () => {
 
 		expect(response.status).toBe(400);
 		await expect(response.json()).resolves.toEqual(tooMany);
+	});
+
+	it.each([
+		['text/plain', { 'content-type': 'text/plain' }],
+		['form data', { 'content-type': 'application/x-www-form-urlencoded' }],
+		['no type', {}]
+	])('refuses a body sent as %s with 415, before it reads the session', async (_case, headers) => {
+		const response = await POST(
+			new Request('http://localhost/api/user-api-tokens', {
+				method: 'POST',
+				headers,
+				body: JSON.stringify({ name: 'Another site', expiry: 'never' })
+			})
+		);
+
+		expect(response.status).toBe(415);
+		expect(mockAuthenticatedGuard).not.toHaveBeenCalled();
+		expect(mockCreateToken).not.toHaveBeenCalled();
 	});
 
 	it('answers a 502 rather than a token without its secret', async () => {

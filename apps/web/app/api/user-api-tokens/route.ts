@@ -11,6 +11,16 @@ import {
 const UNREADABLE_LIST_MESSAGE = 'Your API tokens could not be read.';
 const NOT_CREATED_MESSAGE = 'The API token could not be created.';
 
+/**
+ * Whether the request says it carries JSON. The session comes from a cookie, which a browser attaches to a request
+ * another site makes: such a site can post text, form data or an untyped body without a CORS preflight, but not JSON
+ * (as forwardToGauzy refuses them).
+ */
+function isJsonRequest(req: Request): boolean {
+	const mediaType = req.headers.get('content-type')?.split(';')[0].trim().toLowerCase();
+	return mediaType === 'application/json';
+}
+
 /** A token's secret is answered once: no cache on the way may keep it. */
 const NO_STORE_HEADERS = { 'Cache-Control': 'no-store', Pragma: 'no-cache' };
 
@@ -39,6 +49,10 @@ export async function GET(req: Request) {
  * answers its secret this once. Gauzy refuses an eleventh working token with a 400 that says so.
  */
 export async function POST(req: Request) {
+	// Before the session is read: another site's post never gets as far as creating a token
+	if (!isJsonRequest(req)) {
+		return NextResponse.json({ statusCode: 415, message: 'Unsupported Media Type' }, { status: 415 });
+	}
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, new NextResponse());
 	if (!user) return $res('Unauthorized');
 
