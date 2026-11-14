@@ -5,7 +5,7 @@ import type { APIConfig } from '../../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import type { InvoiceStatusChange } from '@/core/lib/utils/invoice-actions';
 import type { InvoiceUpdate } from '@/core/lib/utils/invoice-edit';
-import type { InvoiceItemRequest, InvoiceRequest } from '@/core/lib/utils/invoices';
+import type { InvoiceItemRequest, InvoiceRequest, InvoiceStatus } from '@/core/lib/utils/invoices';
 import { validateApiResponse, validatePaginationResponse, ZodValidationError } from '@/core/types/schemas';
 import {
 	highestInvoiceNumberSchema,
@@ -18,10 +18,30 @@ import {
 const INVOICES_PAGE_SIZE = 50;
 
 /** The API serves at most 100 invoices a page. */
-const CLIENT_INVOICES_PAGE_SIZE = 100;
+const FULL_READ_PAGE_SIZE = 100;
 
-/** A client past this many invoices has its latest ones compared with a new period; the list has every one. */
-const CLIENT_INVOICES_MAX_PAGES = 10;
+function updatedTimeOf(invoice: TInvoice) {
+	if (!invoice.updatedAt) {
+		return 0;
+	}
+	return new Date(invoice.updatedAt).getTime();
+}
+
+/**
+ * One copy of each invoice, its latest: a read per status can meet an invoice twice when its status changes between two
+ * of those reads, and every sum drawn from the list would then count it twice.
+ */
+function latestOfEachInvoice(invoices: ReadonlyArray<TInvoice>): TInvoice[] {
+	const byId = new Map<string, TInvoice>();
+	for (const invoice of invoices) {
+		const kept = byId.get(invoice.id);
+		const isLatest = !kept || updatedTimeOf(invoice) > updatedTimeOf(kept);
+		if (isLatest) {
+			byId.set(invoice.id, invoice);
+		}
+	}
+	return [...byId.values()];
+}
 
 const invoiceStatusSchema = invoiceSchema.pick({ status: true });
 
@@ -85,10 +105,14 @@ interface InvoicesQueryOptions {
 	page: number;
 	pageSize: number;
 	clientId?: string;
+	/** Only the invoices in this status, as the API writes it. */
+	status?: InvoiceStatus;
 	/** The API's own screen hides the invoices it archived unless asked. */
 	hidesArchived: boolean;
 	scope: InvoicesScope;
 }
+
+type InvoicesListOptions = Omit<InvoicesQueryOptions, 'page' | 'pageSize'>;
 
 class InvoiceService extends APIService {
 	private logValidationError(error: unknown, message: string) {
@@ -101,7 +125,7 @@ class InvoiceService extends APIService {
 		return { organizationId: this.organizationId, tenantId: this.tenantId };
 	}
 
-	private invoicesQuery({ page, pageSize, clientId, hidesArchived, scope }: InvoicesQueryOptions) {
+	private invoicesQuery({ page, pageSize, clientId, status, hidesArchived, scope }: InvoicesQueryOptions) {
 		const params: Record<string, string> = {
 			'where[organizationId]': scope.organizationId,
 			'where[tenantId]': scope.tenantId,
@@ -119,6 +143,9 @@ class InvoiceService extends APIService {
 		}
 		if (clientId) {
 			params['where[toContactId]'] = clientId;
+		}
+		if (status) {
+			params['where[status]'] = status;
 		}
 		return qs.stringify(params);
 	}
@@ -143,6 +170,26 @@ class InvoiceService extends APIService {
 		}
 	};
 
+	/** Reads page after page until the API has given every invoice it counts, or the page cap is reached. */
+	private readonly readEveryPage = async (list: InvoicesListOptions, signal?: AbortSignal): Promise<TInvoice[]> => {
+		const invoices: TInvoice[] = [];
+		let page = 1;
+		let pageCount = 1;
+		// Bounded by the total the API reports on each page: the sums drawn from this read must be whole
+		while (page <= pageCount) {
+			const options = { ...list, page, pageSize: FULL_READ_PAGE_SIZE };
+			const { items, total } = await this.readInvoicesPage(options, signal);
+			invoices.push(...items);
+			pageCount = Math.ceil(total / FULL_READ_PAGE_SIZE);
+			const isLastPage = items.length < FULL_READ_PAGE_SIZE;
+			if (isLastPage) {
+				break;
+			}
+			page += 1;
+		}
+		return invoices;
+	};
+
 	/** Every invoice saved for a client, archived ones included: each one billed the client. */
 	getClientInvoices = async (
 		clientId: string,
@@ -153,20 +200,29 @@ class InvoiceService extends APIService {
 			// Choosing a team of another organization changes the cookies between two pages: every page keeps the
 			// organization the read started in, the one the caller's cache key holds when it names one.
 			const scope = keyScope ?? this.currentScope();
-			const invoices: TInvoice[] = [];
-			for (let page = 1; page <= CLIENT_INVOICES_MAX_PAGES; page += 1) {
-				const options = { page, pageSize: CLIENT_INVOICES_PAGE_SIZE, clientId, hidesArchived: false, scope };
-				const { items, total } = await this.readInvoicesPage(options, signal);
-				invoices.push(...items);
-				const isLastPage = items.length < CLIENT_INVOICES_PAGE_SIZE;
-				const hasEverything = invoices.length >= total;
-				if (isLastPage || hasEverything) {
-					break;
-				}
-			}
-			return invoices;
+			return await this.readEveryPage({ clientId, hidesArchived: false, scope }, signal);
 		} catch (error) {
 			this.logValidationError(error, 'Client invoices validation failed:');
+			throw error;
+		}
+	};
+
+	/**
+	 * Every invoice of the workspace in the given statuses, one status after the other. Meant for the drafts and the
+	 * invoices still owed: they are few, and the sums drawn from them must be whole.
+	 */
+	getInvoicesInStatuses = async (
+		statuses: ReadonlyArray<InvoiceStatus>,
+		signal?: AbortSignal,
+		keyScope?: InvoicesScope
+	): Promise<TInvoice[]> => {
+		try {
+			const scope = keyScope ?? this.currentScope();
+			const reads = statuses.map((status) => this.readEveryPage({ status, hidesArchived: true, scope }, signal));
+			const lists = await Promise.all(reads);
+			return latestOfEachInvoice(lists.flat());
+		} catch (error) {
+			this.logValidationError(error, 'Invoices by status validation failed:');
 			throw error;
 		}
 	};

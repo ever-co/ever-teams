@@ -22,7 +22,11 @@ const mockSendDialog: { props: MockDialogProps | null } = { props: null };
 const mockChangeStatus = jest.fn();
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
-jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn() }) }));
+jest.mock('next/navigation', () => ({
+	useRouter: () => ({ push: jest.fn() }),
+	usePathname: () => '/invoices',
+	useSearchParams: () => new URLSearchParams()
+}));
 jest.mock('jotai', () => ({ ...jest.requireActual('jotai'), useAtomValue: () => null }));
 jest.mock('sonner', () => ({ toast: { success: jest.fn(), error: jest.fn() } }));
 jest.mock('@/core/stores', () => ({ activeTeamState: {}, isTrackingEnabledState: {} }));
@@ -46,6 +50,14 @@ jest.mock('@/core/hooks/invoices/use-invoice-mutations', () => ({
 	useInvoicePdf: () => ({ downloadPdf: jest.fn(), pendingId: null })
 }));
 jest.mock('@/core/hooks/invoices/use-invoices-query', () => ({ useInvoicesQuery: () => mockList.current }));
+jest.mock('@/core/hooks/invoices/use-live-invoices', () => ({
+	LIVE_INVOICE_STATUSES: ['DRAFT', 'SENT', 'VIEWED', 'PARTIALLY_PAID'],
+	useLiveInvoices: () => ({ invoices: [], isLoading: false, isError: false, refetch: jest.fn() })
+}));
+jest.mock('@/core/components/invoices/invoice-money-band', () => ({
+	InvoiceMoneyBand: () => null,
+	InvoiceMoneyBandSkeleton: () => null
+}));
 jest.mock('./invoice-access-guard', () => ({
 	INVOICES_PATH: '/invoices',
 	InvoiceAccessGuard: ({ children }: Readonly<{ children: React.ReactNode }>) => <>{children}</>
@@ -70,6 +82,9 @@ jest.mock('./invoices-ledger', () => ({
 				<button type="button" onClick={() => onAction(target, 'markPaid')}>
 					mark 42 paid
 				</button>
+				<button type="button" onClick={() => onAction(target, 'markUnpaid')}>
+					mark 42 unpaid
+				</button>
 			</>
 		);
 	}
@@ -77,6 +92,7 @@ jest.mock('./invoices-ledger', () => ({
 jest.mock('./invoices-states', () => ({
 	InvoicesEmptyState: () => null,
 	InvoicesErrorState: () => null,
+	InvoicesFilterEmptyState: () => null,
 	InvoicesLedgerSkeleton: () => null,
 	InvoicesPageSkeleton: () => null,
 	InvoicesToolbar: () => null
@@ -132,5 +148,34 @@ describe('the workspace an action on a listed invoice is made in', () => {
 		expect(mockChangeStatus).toHaveBeenCalledWith(
 			expect.objectContaining({ invoiceId: 'inv-42', scope: WORKSPACE_A })
 		);
+	});
+});
+
+describe('marking a listed invoice paid', () => {
+	it('asks for the payment action, and never sends the list’s copy of the total as the amount paid', async () => {
+		mockList.current = listIn(WORKSPACE_A);
+		render(<InvoicesPage />);
+
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'mark 42 paid' }));
+		});
+
+		// The amounts come from the invoice read when the change is made: the list's total may be outdated
+		expect(mockChangeStatus).toHaveBeenCalledWith({ invoiceId: 'inv-42', payment: 'markPaid', scope: WORKSPACE_A });
+	});
+
+	it('asks for the unpaid action the same way', async () => {
+		mockList.current = listIn(WORKSPACE_A);
+		render(<InvoicesPage />);
+
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'mark 42 unpaid' }));
+		});
+
+		expect(mockChangeStatus).toHaveBeenCalledWith({
+			invoiceId: 'inv-42',
+			payment: 'markUnpaid',
+			scope: WORKSPACE_A
+		});
 	});
 });

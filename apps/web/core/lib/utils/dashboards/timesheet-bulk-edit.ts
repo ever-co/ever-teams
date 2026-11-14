@@ -173,6 +173,27 @@ export function bulkEditPlanOf(
 	return plan;
 }
 
+/**
+ * Whether the entry still has the task, project and billable choice its saved fields were worked out from, and is
+ * still not approved. The plan sends only what differs from them, so after a change made elsewhere (the entry moved
+ * to another project, say) it would leave a task on a project that is not its own; and approved time is left out of a
+ * bulk edit, as the plan does with the entries approved when the dialog opened.
+ */
+export function keepsPlannedFields(planned: ITimeLog, current: ITimeLog): boolean {
+	const isApprovedNow = statusOfLog(current) === ETimesheetStatus.APPROVED;
+	// A running entry has no final end yet: the stop it holds is the timer's last beat
+	const isRunningNow = current.isRunning === true;
+	if (isApprovedNow || isRunningNow) {
+		return false;
+	}
+	const hasSameTask = ownTaskIdOf(planned) === ownTaskIdOf(current);
+	const hasSameProject = ownProjectIdOf(planned) === ownProjectIdOf(current);
+	const hasSameBillable = Boolean(planned.isBillable) === Boolean(current.isBillable);
+	// The plan let a task change through only for an entry of the listed team: one moved to another team is not its own
+	const hasSameTeam = (planned.organizationTeamId ?? null) === (current.organizationTeamId ?? null);
+	return hasSameTask && hasSameProject && hasSameBillable && hasSameTeam;
+}
+
 export type BulkEditPayload = ITimeLogUpdatePayload & { startedAt: Date; stoppedAt: Date; employeeId: string };
 
 /**

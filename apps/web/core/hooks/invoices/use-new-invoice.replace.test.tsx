@@ -18,7 +18,9 @@ const mockTime = {
 	isLoading: false,
 	isError: false,
 	isUpdating: false,
-	refetch: jest.fn()
+	refetch: jest.fn(),
+	recordsBilledTime: null as boolean | null,
+	billedTimeByLine: new Map<string, ReadonlyArray<string>>()
 };
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
@@ -40,13 +42,28 @@ jest.mock('./use-invoice-time', () => ({
 		return mockTime;
 	}
 }));
+const mockEarlierRead = {
+	invoices: [] as Array<{ id: string; terms: string }>,
+	isLoading: false,
+	isRefreshing: false,
+	isError: false,
+	refetch: jest.fn()
+};
 jest.mock('./use-invoices-query', () => ({
 	useNextInvoiceNumber: () => ({ nextNumber: 7, isLoading: false, isError: false, refetch: jest.fn() }),
-	useClientInvoices: () => ({ invoices: [], isLoading: false, isError: false, refetch: jest.fn() })
+	useClientInvoices: () => mockEarlierRead
 }));
 jest.mock('./use-invoice-mutations', () => ({
 	useCreateInvoice: () => ({ createInvoice: mockCreateInvoice, isSaving: false }),
 	useSaveAndSendInvoice: () => ({ saveAndSendInvoice: jest.fn(), isSavingAndSending: false })
+}));
+const mockRecording = { recordedIds: new Set<string>(), isLoading: false, isError: false };
+const mockRecordingCalls: boolean[] = [];
+jest.mock('./use-invoices-recording-time', () => ({
+	useInvoicesRecordingTime: (_invoices: unknown, enabled: boolean) => {
+		mockRecordingCalls.push(enabled);
+		return mockRecording;
+	}
 }));
 
 import { useNewInvoice } from './use-new-invoice';
@@ -194,5 +211,77 @@ describe('a new invoice that replaces a void one', () => {
 
 		expect(saved).toBeNull();
 		expect(mockCreateInvoice).not.toHaveBeenCalled();
+	});
+});
+
+describe('the time a replacement bills', () => {
+	beforeEach(() => {
+		mockCreateInvoice.mockReset();
+		mockCreateInvoice.mockResolvedValue({ id: 'invoice-43' });
+		mockCookieScope.organizationId = 'organization-1';
+		mockCookieScope.tenantId = 'tenant-1';
+	});
+
+	afterEach(() => {
+		mockTime.recordsBilledTime = null;
+		mockTime.billedTimeByLine = new Map();
+	});
+
+	it('is the time the void invoice billed, named on the lines it copies', async () => {
+		mockTime.recordsBilledTime = true;
+		mockTime.billedTimeByLine = new Map([
+			['item-1', ['log-1']],
+			['item-2', ['log-2', 'log-3']]
+		]);
+		const { result } = renderReplacement(replacedInvoice());
+
+		await act(async () => {
+			await result.current.save();
+		});
+
+		const request = mockCreateInvoice.mock.calls[0][0];
+		const billed = request.invoiceItems.map((item: { employeeId: string; timeLogIds?: string[] }) => [
+			item.employeeId,
+			item.timeLogIds
+		]);
+		expect(billed).toEqual([
+			['ana', ['log-1']],
+			['bo', ['log-2', 'log-3']]
+		]);
+	});
+});
+
+describe('the earlier invoices of a replacement’s period', () => {
+	const overlapping = { id: 'invoice-9', terms: invoiceTermsOf({ fromDay: '2026-10-15', toDay: '2026-11-15' }) };
+
+	beforeEach(() => {
+		mockCookieScope.organizationId = 'organization-1';
+		mockCookieScope.tenantId = 'tenant-1';
+		mockEarlierRead.invoices = [overlapping];
+		mockRecordingCalls.length = 0;
+	});
+
+	afterEach(() => {
+		mockEarlierRead.invoices = [];
+		mockTime.recordsBilledTime = null;
+		mockRecording.recordedIds = new Set();
+	});
+
+	it('stay a warning while its saved lines are shown, and leave their hours out once the time is taken again', () => {
+		mockTime.recordsBilledTime = true;
+		mockRecording.recordedIds = new Set(['invoice-9']);
+
+		const { result } = renderReplacement(replacedInvoice());
+
+		expect(result.current.linesSource).toBe('saved');
+		expect(result.current.overlapNotice).toEqual({ kind: 'mayBillTwice', count: 1, isUnrecorded: false });
+		expect(result.current.overlapsAtRisk).toEqual(['invoice-9']);
+		expect(mockRecordingCalls.at(-1)).toBe(false);
+
+		act(() => result.current.takeTimeAgain());
+
+		expect(result.current.overlapNotice).toEqual({ kind: 'leftOut', count: 1 });
+		expect(result.current.overlapsAtRisk).toEqual([]);
+		expect(mockRecordingCalls.at(-1)).toBe(true);
 	});
 });

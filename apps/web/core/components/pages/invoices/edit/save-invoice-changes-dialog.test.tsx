@@ -92,7 +92,8 @@ const NO_CHANGES: InvoiceChanges = {
 	discount: null,
 	tax: null,
 	currency: null,
-	isNoteRewritten: false
+	isNoteRewritten: false,
+	recordsBilledTime: false
 };
 
 const SAVE = 'invoices.edit.SAVE';
@@ -148,6 +149,13 @@ describe('the confirmation of an edit', () => {
 		expect(screen.queryByRole('button', { name: SAVE_AND_SEND_AGAIN })).toBeNull();
 	});
 
+	it('says the save records the hours its lines bill when that is its only change', () => {
+		const changes = { ...NO_CHANGES, recordsBilledTime: true };
+		render(<SaveInvoiceChangesDialog open invoice={invoiceOf({ changes })} onClose={jest.fn()} />);
+
+		expect(rowTexts()).toContain('invoices.edit.confirm.RECORDS_TIME');
+	});
+
 	it('says the client has the earlier version of an invoice sent, and offers to send this one again', () => {
 		render(
 			<SaveInvoiceChangesDialog
@@ -198,36 +206,29 @@ describe('an edit that could not be saved', () => {
 		return message;
 	}
 
-	it('says nothing changed when the API refused it', async () => {
-		const message = await failingWith({ status: 'notSaved' });
+	it.each([
+		['nothing changed when the API refused it', { status: 'notSaved' }, 'NOT_SAVED'],
+		[
+			'the connection failed and nothing changed when its first write never reached the API',
+			{ status: 'notReached' },
+			'NOT_REACHED'
+		],
+		['the invoice was put back as it was', { status: 'putBack' }, 'PUT_BACK'],
+		[
+			'how many lines it holds when it could not be put back',
+			{ status: 'notPutBack', lineCount: 0 },
+			'NOT_PUT_BACK_LINES'
+		],
+		[
+			'nothing was saved when something was paid on it, or it was voided, since it was opened',
+			{ status: 'locked' },
+			'LOCKED_NOW'
+		]
+	])('says %s, and stays on the invoice', async (_says, outcome, messageKey) => {
+		const message = await failingWith(outcome);
 
-		expect(message.textContent).toBe('invoices.edit.confirm.NOT_SAVED');
+		expect(message.textContent).toBe(`invoices.edit.confirm.${messageKey}`);
 		expect(mockPush).not.toHaveBeenCalled();
-	});
-
-	it('says the connection failed and nothing changed when its first write never reached the API', async () => {
-		const message = await failingWith({ status: 'notReached' });
-
-		expect(message.textContent).toBe('invoices.edit.confirm.NOT_REACHED');
-		expect(mockPush).not.toHaveBeenCalled();
-	});
-
-	it('says the invoice was put back as it was', async () => {
-		const message = await failingWith({ status: 'putBack' });
-
-		expect(message.textContent).toBe('invoices.edit.confirm.PUT_BACK');
-	});
-
-	it('says how many lines it holds when it could not be put back', async () => {
-		const message = await failingWith({ status: 'notPutBack', lineCount: 0 });
-
-		expect(message.textContent).toBe('invoices.edit.confirm.NOT_PUT_BACK_LINES');
-	});
-
-	it('says nothing was saved when something was paid on it, or it was voided, since it was opened', async () => {
-		const message = await failingWith({ status: 'locked' });
-
-		expect(message.textContent).toBe('invoices.edit.confirm.LOCKED_NOW');
 	});
 
 	it('keeps the refusal on screen and reports it when something was paid on it since it was opened', async () => {
@@ -249,6 +250,49 @@ describe('an edit that could not be saved', () => {
 		expect(onLockedRefusal).toHaveBeenCalledTimes(1);
 		expect(mockPush).not.toHaveBeenCalled();
 	});
+
+	it('tells the page when nothing could be sent, the workspace having been switched in another tab', async () => {
+		const save = jest.fn().mockResolvedValue(null);
+		const onSaveFailed = jest.fn();
+		render(
+			<SaveInvoiceChangesDialog
+				open
+				invoice={invoiceOf({ save })}
+				onClose={jest.fn()}
+				onSaveFailed={onSaveFailed}
+			/>
+		);
+
+		fireEvent.click(screen.getByRole('button', { name: SAVE }));
+
+		await screen.findByRole('alert');
+		expect(onSaveFailed).toHaveBeenCalledTimes(1);
+	});
+
+	it.each([
+		['not put back', { status: 'notPutBack', lineCount: 0 }, 1],
+		['refused by the API', { status: 'notSaved' }, 1],
+		['saved', { status: 'saved' }, 0]
+	])(
+		'tells the page when a save did not go through (%s), so it reads the invoice once closed',
+		async (_case, outcome, calls) => {
+			const save = jest.fn().mockResolvedValue({ outcome, sending: null });
+			const onSaveFailed = jest.fn();
+			render(
+				<SaveInvoiceChangesDialog
+					open
+					invoice={invoiceOf({ save })}
+					onClose={jest.fn()}
+					onSaveFailed={onSaveFailed}
+				/>
+			);
+
+			fireEvent.click(screen.getByRole('button', { name: SAVE }));
+
+			await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
+			await waitFor(() => expect(onSaveFailed).toHaveBeenCalledTimes(calls));
+		}
+	);
 
 	it('reports no refusal of that kind when the API refused the edit', async () => {
 		const save = jest.fn().mockResolvedValue({ outcome: { status: 'notSaved' }, sending: null });
@@ -285,6 +329,13 @@ describe('an edit that could not be saved', () => {
 		const message = await failingWith({ status: 'notPutBack', lineCount: null });
 
 		expect(message.textContent).toBe('invoices.edit.confirm.NOT_PUT_BACK');
+	});
+
+	it('says part of its time was billed elsewhere meanwhile, the invoice as it was', async () => {
+		const message = await failingWith({ status: 'timeBilled' });
+
+		expect(message.textContent).toBe('invoices.billedTime.EDIT_REFUSED');
+		expect(mockPush).not.toHaveBeenCalled();
 	});
 });
 

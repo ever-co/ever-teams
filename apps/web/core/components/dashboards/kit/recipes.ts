@@ -16,3 +16,10 @@ export const NUMBER_CELL = 'text-right text-[13px] tabular-nums';
 export const DASHBOARD_STACK = 'flex flex-col gap-4 pb-6';
 
 export const TOOLBAR_SEPARATOR = 'h-4 w-px shrink-0 bg-border max-sm:hidden';
+
+/** A pill control of a toolbar: the period picker and the pickers beside it share its frame and its trigger. */
+export const PILL_GROUP =
+	'inline-flex h-8 shrink-0 items-center rounded-full bg-card p-0.5 hairline-ring ring-foreground/10 shadow-[0_1px_2px_rgb(0_0_0/0.06)] dark:bg-foreground/5';
+
+export const PILL_TRIGGER =
+	'inline-flex h-7 min-w-0 items-center gap-1.5 rounded-full px-2 text-[13px] font-medium text-foreground outline-none transition-colors hover:bg-foreground/5 focus-visible:ring-[3px] focus-visible:ring-ring/25 data-[state=open]:bg-foreground/5 data-popup-open:bg-foreground/5 [&_svg]:size-4 [&_svg]:text-muted-foreground';

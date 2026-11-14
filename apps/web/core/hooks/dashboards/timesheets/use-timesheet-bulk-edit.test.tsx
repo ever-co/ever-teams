@@ -9,6 +9,9 @@ import type { TimesheetPermissions } from './use-timesheets-page';
 
 const mockGetTimeLogConflicts = jest.fn();
 const mockUpdateTimeLog = jest.fn();
+const mockGetTimeLogs = jest.fn();
+/** The entries as the API holds them: the ones the page shows. */
+let mockStoredLogs: ITimeLog[] = [];
 const mockToastSuccess = jest.fn();
 const mockToastWarning = jest.fn();
 const mockToastError = jest.fn();
@@ -44,6 +47,7 @@ jest.mock('next-intl', () => ({
 jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
 	timeLogService: {
 		getTimeLogConflicts: (params: unknown) => mockGetTimeLogConflicts(params),
+		getTimeLogs: (params: unknown) => mockGetTimeLogs(params),
 		updateTimeLog: (payload: unknown) => mockUpdateTimeLog(payload)
 	}
 }));
@@ -101,6 +105,7 @@ function logOf(id: string, overrides: Partial<ITimeLog> = {}): ITimeLog {
 }
 
 function renderBulkEdit(logs: ITimeLog[], permissions: TimesheetPermissions = admin) {
+	mockStoredLogs = logs;
 	const onFinished = jest.fn<void, [BulkEditResult]>();
 	const onClose = jest.fn();
 	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -129,6 +134,7 @@ describe('useTimesheetBulkEdit', () => {
 		jest.clearAllMocks();
 		mockAtomValues.activeTeamState = { id: 'team' };
 		mockAtomValues.tasksByTeamState = [taskOfSite, taskOfMobile];
+		mockGetTimeLogs.mockImplementation(async () => mockStoredLogs);
 		mockGetTimeLogConflicts.mockResolvedValue([]);
 		mockUpdateTimeLog.mockResolvedValue({});
 	});
