@@ -2052,12 +2052,14 @@ describe('Ever Teams feature surface preservation', () => {
 		// (/api/invoices/[id] GET; #5158).
 		// 357 files and 455 verbs with the proxies that update one invoice and replace its lines (/api/invoices/[id]
 		// PUT, /api/invoice-item/bulk/[invoiceId] POST; #5159). Its read of one invoice is #5158's.
-		// 362 files and 461 verbs with the time goals proxies (/api/time-goals GET and POST, progress GET, [id] PUT,
+		// 364 files and 462 verbs with the two-factor authentication proxies (/api/auth/two-factor GET, enroll, confirm,
+		// disable, recovery-codes and verify POST, users/[userId] DELETE; #5210).
+		// 369 files and 468 verbs with the time goals proxies (/api/time-goals GET and POST, progress GET, [id] PUT,
 		// [id]/archive PUT, [id]/restore PUT; #5213).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(362);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(369);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(461);
+		).toHaveLength(468);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of the platform's time goal routes (#5213, ever-co/ever-gauzy#11918)
@@ -2067,6 +2069,14 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/time-goals/[id]/route.ts::PUT',
 				'apps/web/app/api/time-goals/[id]/archive/route.ts::PUT',
 				'apps/web/app/api/time-goals/[id]/restore/route.ts::PUT',
+				// Proxy mode twins of Gauzy's two-factor authentication routes (ever-gauzy #11916, #5210)
+				'apps/web/app/api/auth/two-factor/route.ts::GET',
+				'apps/web/app/api/auth/two-factor/enroll/route.ts::POST',
+				'apps/web/app/api/auth/two-factor/confirm/route.ts::POST',
+				'apps/web/app/api/auth/two-factor/disable/route.ts::POST',
+				'apps/web/app/api/auth/two-factor/recovery-codes/route.ts::POST',
+				'apps/web/app/api/auth/two-factor/verify/route.ts::POST',
+				'apps/web/app/api/auth/two-factor/users/[userId]/route.ts::DELETE',
 				// Proxy mode twins of the platform's incoming webhook management of a channel (ever-gauzy #11799)
 				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::GET',
 				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::POST',

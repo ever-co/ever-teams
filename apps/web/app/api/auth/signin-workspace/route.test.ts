@@ -169,3 +169,28 @@ describe('Pages-style workspace sign-in handler (signin-workspace.ts) — server
 		expectInviteLoggedByIdOnly();
 	}, 15_000);
 });
+
+describe('POST /api/auth/signin-workspace — two-factor authentication', () => {
+	it('passes the challenge of an account that asks for a second factor to the browser, with no session', async () => {
+		tolerateServerFetchRejections();
+		const challengeBody = {
+			statusCode: 403,
+			error: 'Forbidden',
+			code: 'TWO_FACTOR_REQUIRED',
+			message: 'Two-factor authentication is on for this account.',
+			challenge: 'signed.challenge',
+			expiresAt: '2026-11-14T12:05:00.000Z'
+		};
+		gauzy.on('POST', '/api/auth/signin.workspace', { status: 403, body: challengeBody });
+
+		const res = await postToRoute({
+			email: 'person@example.test',
+			token: `workspace-token-${INVITED.userId}`,
+			teamId: INVITED.teamId
+		});
+
+		expect(res.status).toBe(403);
+		expect(await res.json()).toEqual(challengeBody);
+		expect(res.headers.get('set-cookie') ?? '').not.toContain('auth-token=');
+	}, 15_000);
+});
