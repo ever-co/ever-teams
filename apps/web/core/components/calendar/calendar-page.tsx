@@ -48,6 +48,7 @@ import { CalendarProjectLegend } from './calendar-project-legend';
 import { CalendarTimeGrid } from './calendar-time-grid';
 import { CalendarLegend, CalendarMemberSwitch, CalendarRangeStepper, CalendarViewSwitch } from './calendar-toolbar';
 import { CalendarWeekStrip } from './calendar-week-strip';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 
 type Translate = ReturnType<typeof useTranslations>;
 
@@ -257,13 +258,14 @@ function CalendarBody({
 export function CalendarPage() {
 	const t = useTranslations();
 	const locale = useLocale();
+	const workspaceLocale = useWorkspaceLocale();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const page = useCalendarPage();
 	const dialogs = useTimesheetDialogs();
 	const { deleteLogs, isDeleting } = useTimesheetLogActions();
 	const { isOpen: isAddTimeOpen, openModal: openAddTime, closeModal: closeAddTime } = useModal();
 	const [addTimeRange, setAddTimeRange] = useState<AddTimeRange | null>(null);
-	const formatters = useMemo(() => timesheetFormattersOf(locale), [locale]);
+	const formatters = useMemo(() => timesheetFormattersOf(workspaceLocale), [workspaceLocale]);
 
 	const { permissions, closeDayPanel } = page;
 	const { openEdit, openDelete } = dialogs;

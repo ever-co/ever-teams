@@ -2,7 +2,7 @@
 
 import { type ReactNode, useState } from 'react';
 import { useAtomValue } from 'jotai';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
 import {
 	SETTINGS_SURFACE,
@@ -22,6 +22,7 @@ import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rate
 import { MemberRateEditor, type RateEditorSubject } from '../members/member-rate-editor';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { RateChangeRequestForm } from './rate-change-request-form';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 
 interface OwnEmployeeRates {
 	id?: string;
@@ -43,7 +44,7 @@ function RateValueText({ text, emptyLabel }: Readonly<{ text: string | null; emp
 /** What the employee is paid, read only. A Gauzy without pay rates (404) or a refusal (403) shows nothing. */
 function OwnPayRateRow({ employeeId }: Readonly<{ employeeId: string | undefined }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const payRate = useEmployeePayRate(employeeId, true);
 	const payRateData = payRate.data;
 	const hasPayRate = Boolean(payRateData);
@@ -60,7 +61,11 @@ function OwnPayRateRow({ employeeId }: Readonly<{ employeeId: string | undefined
 	if (!payRateData) {
 		return null;
 	}
-	const amount = rateAmountTextOf(payRateData.payRateValue, payRateData.payRateCurrency || payRateData.currency, locale);
+	const amount = rateAmountTextOf(
+		payRateData.payRateValue,
+		payRateData.payRateCurrency || payRateData.currency,
+		locale
+	);
 	let text: string | null = null;
 	if (amount !== null) {
 		text = t('rates.PER_HOUR', { amount });
@@ -89,7 +94,7 @@ export function ProfileRatesSection({
 	imageUrl
 }: Readonly<{ employee: OwnEmployeeRates; name: string; imageUrl: string | null }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const [isRequesting, setIsRequesting] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
 	const { myPermissions } = useMyRolePermissionsQuery();
@@ -103,7 +108,11 @@ export function ProfileRatesSection({
 	const organization = useAtomValue(currentOrganizationState);
 	// Shown in the organization's currency when the member has none of their own; saves keep it unset
 	const currency = employee.billRateCurrency || null;
-	const rateAmount = rateAmountTextOf(employeeRateValueOf(employee.billRateValue), currency || organization?.currency || null, locale);
+	const rateAmount = rateAmountTextOf(
+		employeeRateValueOf(employee.billRateValue),
+		currency || organization?.currency || null,
+		locale
+	);
 	let rateText: string | null = null;
 	if (rateAmount !== null) {
 		rateText = t('rates.PER_HOUR', { amount: rateAmount });

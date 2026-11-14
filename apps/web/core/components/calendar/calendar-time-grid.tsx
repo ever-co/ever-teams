@@ -68,6 +68,7 @@ import { type CalendarMenuAnchor, type CalendarMenuTarget, pointAnchor } from '.
 import { type DayGhost, dayGhostOf, DragGhost, type GridGeometry } from './calendar-drag-ghost';
 import { type EntryHandlers, entryRangeTextOf, useEntryTitle } from './calendar-entry-parts';
 import { EntryDetails } from './calendar-entry-details';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 
 const GUTTER_WIDTH = '3.5rem';
 
@@ -501,6 +502,7 @@ export function CalendarTimeGrid({
 }>) {
 	const t = useTranslations();
 	const locale = useLocale();
+	const workspaceLocale = useWorkspaceLocale();
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const bodyRef = useRef<HTMLDivElement>(null);
 	const geometry = useMemo<GridGeometry>(
@@ -551,9 +553,9 @@ export function CalendarTimeGrid({
 	const { window: gridWindow, hourHeightPx } = geometry;
 	const hourLabels = useMemo(() => {
 		const labelDay = firstDate ?? new Date();
-		const texts = new Map(hourLabelsOf(locale, labelDay).map((item) => [item.hour, item.label]));
+		const texts = new Map(hourLabelsOf(workspaceLocale, labelDay).map((item) => [item.hour, item.label]));
 		return gridHourLabelsOf(gridWindow).map((item) => ({ ...item, label: texts.get(item.hour) ?? '' }));
-	}, [firstDate, gridWindow, locale]);
+	}, [firstDate, gridWindow, workspaceLocale]);
 	const zoneName = useMemo(() => shortTimeZoneNameOf(locale, timeZone, new Date()), [locale, timeZone]);
 	const hasToday = days.some((day) => isToday(day.date));
 	const firstKey = firstDay?.key ?? '';

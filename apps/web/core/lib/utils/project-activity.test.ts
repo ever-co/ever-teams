@@ -190,3 +190,17 @@ describe('activityBarPercentOf', () => {
 		expect(activityBarPercentOf(12, 10)).toBe(100);
 	});
 });
+
+describe('projectActivityOf on the workspace week start', () => {
+	it('cuts Sunday weeks and counts a task created on Sunday 8 November in the week it opens', () => {
+		const tasks = [
+			taskOf({ createdAt: new Date(2026, 10, 7, 10) }),
+			taskOf({ createdAt: new Date(2026, 10, 8, 10) })
+		];
+
+		const activity = projectActivityOf(tasks, STATUSES, NOW, 2, 0);
+
+		expect(activity.weeks.map((week) => week.weekStart)).toEqual([new Date(2026, 10, 1), new Date(2026, 10, 8)]);
+		expect(activity.weeks.map((week) => week.created)).toEqual([1, 1]);
+	});
+});

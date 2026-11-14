@@ -28,10 +28,10 @@ import {
 	plansByDayOf,
 	shiftedAnchorOf,
 	trackedTotalOf,
-	visibleRangeOf,
-	weekStartOf
+	visibleRangeOf
 } from '@/core/lib/utils/calendar-view';
 import { logsWithMovedWindows } from '@/core/lib/utils/calendar-drag';
+import { weekStartOf } from '@/core/lib/utils/dashboard-period';
 import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import type { TDailyPlan } from '@/core/types/schemas';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';

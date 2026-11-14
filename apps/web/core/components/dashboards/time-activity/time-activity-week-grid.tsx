@@ -1,7 +1,6 @@
 'use client';
 
 import { memo, useMemo } from 'react';
-import { getISOWeek } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import { DashboardSection, ReportHeaderRow, ReportTotalsRow } from '@/core/components/dashboards/kit/dashboard-layout';
 import {
@@ -20,7 +19,7 @@ import {
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort, formatHoursLabel } from '@/core/lib/utils/dashboard-figures';
 import { formatPeriod, type Period } from '@/core/lib/utils/dashboard-period';
-import type { WeekGridRow } from '@/core/lib/utils/dashboards/time-activity';
+import { weekNumberOf, type WeekGridRow } from '@/core/lib/utils/dashboards/time-activity';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 
@@ -127,7 +126,7 @@ export function TimeActivityWeekGrid({
 	const showsTaskFilterNote = hasTaskFilter && readsWeeklyReport;
 	const dayFormat = useMemo(() => dateFormatOf(locale, { weekday: 'short', day: 'numeric' }), [locale]);
 	const windowText = formatPeriod(week.window, locale);
-	const weekNumber = getISOWeek(week.weekStart);
+	const weekNumber = weekNumberOf(week.weekStart);
 	const unnamed = t('timeActivity.UNNAMED_EMPLOYEE');
 	const outsideLabel = t('dashboard.timeActivity.week.OUTSIDE_PERIOD');
 	const hasRows = week.rows.length > 0;

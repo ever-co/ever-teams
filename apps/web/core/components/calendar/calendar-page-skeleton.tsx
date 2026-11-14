@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { PageSkeletonFrame, ToolbarBandSkeleton } from '@/core/components/layouts/page-skeleton';
 import { DASHBOARD_STACK, DASHBOARD_SURFACE } from '@/core/components/dashboards/kit/recipes';
 import { useHasMounted } from '@/core/hooks/common/use-has-mounted';
@@ -10,14 +10,15 @@ import {
 	calendarDaysOf,
 	type CalendarDayPlan,
 	DEFAULT_CALENDAR_VIEW,
-	visibleRangeOf,
-	weekStartOf
+	visibleRangeOf
 } from '@/core/lib/utils/calendar-view';
+import { weekStartOf } from '@/core/lib/utils/dashboard-period';
 import { timesheetFormattersOf } from '@/core/lib/utils/dashboards/timesheets';
 import { CalendarMonthView } from './calendar-month-view';
 import { CalendarLegend } from './calendar-toolbar';
 import { CalendarWeekStrip } from './calendar-week-strip';
 import type { EntryHandlers } from './calendar-entry-parts';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 
 const ACTION_WIDTHS = ['w-24'];
 
@@ -69,7 +70,7 @@ function NeutralMonthGrid() {
 
 /** Today depends on the reader's time zone, which the server does not know: the dated grid waits for the browser. */
 function DatedCalendarSkeleton() {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const formatters = useMemo(() => timesheetFormattersOf(locale), [locale]);
 	const anchor = useMemo(() => new Date(), []);
 	const weekStartsOn = weekStartOf(null);

@@ -9,7 +9,7 @@ import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-stat
 import { useReportClientChoices, useReportProjectClients } from '@/core/hooks/dashboards/use-report-clients';
 import { useReportUrlFilters } from '@/core/hooks/dashboards/use-report-url-filters';
 import { activeTeamState } from '@/core/stores/teams/organization-team';
-import { formatPeriod, type Period, periodOfPreset } from '@/core/lib/utils/dashboard-period';
+import { formatPeriod, type Period, periodOfPreset, type WeekStart } from '@/core/lib/utils/dashboard-period';
 import {
 	isReportUrlFilterField,
 	logMatchesReportFilters,
@@ -30,7 +30,6 @@ import {
 	periodForView,
 	sortedWithinDays,
 	statusSummaryOf,
-	TIMESHEET_WEEK_START,
 	timesheetFormattersOf,
 	type TimesheetSort,
 	type TimesheetSortKey,
@@ -41,6 +40,8 @@ import {
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { SheetEditingSource } from './use-sheet-editing';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { useWorkspaceWeekPeriod } from '@/core/hooks/common/use-workspace-week-period';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import { useTimesheetPageLogs } from './use-timesheet-page-logs';
 
 /** Members, projects and tasks last as long as the page; clients, billable and labels live in the page link. */
@@ -99,9 +100,9 @@ function scopeEmployeeIdsOf(isManage: boolean, pickedMembers: string[], ownEmplo
 }
 
 /** Today, as the old page opened, or the week or month around it when the page opens on the sheet or a calendar. */
-function initialPeriodFor(view: TimesheetView): Period {
-	const today = periodOfPreset('today', TIMESHEET_WEEK_START);
-	return periodForView(today, view);
+function initialPeriodFor(view: TimesheetView, weekStart: WeekStart): Period {
+	const today = periodOfPreset('today', weekStart);
+	return periodForView(today, view, weekStart);
 }
 
 function withValuesToggled(current: string[], values: string[], shouldSelect: boolean) {
@@ -126,7 +127,10 @@ export function useTimesheetsPage() {
 	const { myPermissions } = useMyRolePermissionsQuery();
 
 	const [storedView, setStoredView] = useLocalStorageState<string>(VIEW_STORAGE_KEY, 'sheet');
-	const [period, setPeriod] = useState<Period>(() => initialPeriodFor(viewOf(storedView)));
+	const weekStart = useWorkspaceWeekStart();
+	const openingView = viewOf(storedView);
+	const defaultPeriodOf = useCallback((start: WeekStart) => initialPeriodFor(openingView, start), [openingView]);
+	const [period, setPeriod] = useWorkspaceWeekPeriod(defaultPeriodOf);
 	const [statusFilter, setStatusFilter] = useState<TimesheetStatusFilter>(ALL_STATUSES);
 	const [search, setSearch] = useState('');
 	const [pageFilters, setPageFilters] = useState<PageFilterSelection>(EMPTY_FILTERS);
@@ -261,9 +265,9 @@ export function useTimesheetsPage() {
 	const changeView = useCallback(
 		(nextView: TimesheetView) => {
 			setStoredView(nextView);
-			setPeriod((current) => periodForView(current, nextView));
+			setPeriod((current) => periodForView(current, nextView, weekStart));
 		},
-		[setStoredView]
+		[setPeriod, setStoredView, weekStart]
 	);
 
 	const setFilter = useCallback(

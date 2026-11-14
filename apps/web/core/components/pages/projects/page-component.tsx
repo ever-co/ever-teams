@@ -45,6 +45,7 @@ import {
 	ProjectsSelectionBar
 } from './list/projects-list-states';
 import { ProjectsPageSkeleton } from './projects-page-skeleton';
+import { useCurrentOrganizationOwner } from '@/core/hooks/bootstrap/use-feature-data';
 
 const ALL_PROJECTS_GROUP = 'all';
 
@@ -75,6 +76,7 @@ function groupsOf(
 }
 
 function ProjectsPage() {
+	useCurrentOrganizationOwner();
 	const t = useTranslations();
 	const activeTeam = useAtomValue(activeTeamState);
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);

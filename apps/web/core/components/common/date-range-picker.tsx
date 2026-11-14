@@ -26,6 +26,7 @@ import { DateRange } from 'react-day-picker';
 import { useTranslations } from 'next-intl';
 import { SettingsIcon } from './team-icon';
 import { TranslationHooks } from 'next-intl';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 
 interface DateRangePickerProps {
 	className?: string;
@@ -195,7 +196,8 @@ const createRangeHelper = (handleDateRangeChange: (range: DateRange | undefined)
 };
 
 const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: PredefinedRangeProps) => {
-	const weekOptions = { weekStartsOn: 1 as const };
+	const weekStart = useWorkspaceWeekStart();
+	const weekOptions = { weekStartsOn: weekStart };
 
 	const createRange = React.useMemo(() => createRangeHelper(handleDateRangeChange), [handleDateRangeChange]);
 
@@ -257,7 +259,7 @@ const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: PredefinedRan
 			}
 		],
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[createRange, t]
+		[createRange, t, weekStart]
 	);
 
 	return (

@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -15,6 +15,8 @@ import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerService } from '@/core/services/client/api/timers';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { TEmployee } from '@/core/types/schemas/organization/employee.schema';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 
 /**
  * Stops a TEAMS timer that a closed tab left running, at its last heartbeat rather than now, so the time
@@ -22,7 +24,7 @@ import { TEmployee } from '@/core/types/schemas/organization/employee.schema';
  */
 export function useStopStaleTeamsTimer() {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const queryClient = useQueryClient();
 
 	return useCallback(
@@ -46,10 +48,10 @@ export function useStopStaleTeamsTimer() {
 				if (!(ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(406))) throw error;
 			}
 
-			const stoppedAt = new Date(lastLog.stoppedAt).toLocaleString(locale, {
+			const stoppedAt = dateFormatOf(locale, {
 				dateStyle: 'medium',
 				timeStyle: 'short'
-			});
+			}).format(new Date(lastLog.stoppedAt));
 			toast.info(t('toasts.timer.STALE_STOPPED', { stoppedAt }), {
 				id: 'timer-stale-stopped',
 				description: t('toasts.timer.STALE_STOPPED_HINT')
@@ -74,7 +76,7 @@ export function useStopStaleTeamsTimer() {
  */
 function useApplySavedStop() {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const queryClient = useQueryClient();
 
 	return useCallback(
@@ -121,10 +123,10 @@ function useApplySavedStop() {
 			}
 
 			forgetSavedStop(savedStop.timeLogId);
-			const shownStoppedAt = new Date(stoppedAt).toLocaleString(locale, {
+			const shownStoppedAt = dateFormatOf(locale, {
 				dateStyle: 'medium',
 				timeStyle: 'short'
-			});
+			}).format(new Date(stoppedAt));
 			toast.info(t('toasts.timer.STALE_STOPPED', { stoppedAt: shownStoppedAt }), {
 				id: 'timer-saved-stop-applied',
 				description: t('toasts.timer.SAVED_STOP_HINT')
