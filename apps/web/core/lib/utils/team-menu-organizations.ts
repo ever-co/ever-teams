@@ -99,6 +99,37 @@ export function withTeams(
 }
 
 /**
+ * The organizations of the team menu, read the same way in both API modes: the memberships, then, when the person may
+ * read every organization's teams (`listsTeams`), each other organization's teams through `readTeams`. An organization
+ * whose teams could not be read is offered as one to switch to instead of failing the whole menu.
+ */
+export async function readTeamMenuOrganizations({
+	memberships,
+	currentOrganizationId,
+	listsTeams,
+	readTeams
+}: {
+	memberships: readonly ITeamMenuMembership[];
+	currentOrganizationId: string | null | undefined;
+	listsTeams: boolean;
+	readTeams: (organizationId: string) => Promise<readonly TOrganizationTeam[]>;
+}): Promise<ITeamMenuOrganizations> {
+	const { current, others } = teamMenuOrganizationsOf(memberships, currentOrganizationId);
+	const hasOthersToRead = listsTeams && others.length > 0;
+	if (!hasOthersToRead) {
+		return { current, others: withTeams(others, null) };
+	}
+	const reads = await Promise.allSettled(others.map((organization) => readTeams(organization.id)));
+	const teamsByOrganization = new Map<string, readonly TOrganizationTeam[]>();
+	reads.forEach((read, index) => {
+		if (read.status === 'fulfilled') {
+			teamsByOrganization.set(others[index].id, read.value);
+		}
+	});
+	return { current, others: withTeams(others, teamsByOrganization) };
+}
+
+/**
  * The team to open in an organization just switched to: the first of `preferredTeamIds` that is one of its teams
  * (the team last opened there, then the person's last team), else its first team; null when it has none.
  */

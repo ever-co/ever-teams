@@ -1,5 +1,10 @@
 import type { TOrganizationTeam } from '@/core/types/schemas';
-import { teamMenuOrganizationsOf, teamToOpenAfterSwitch, withTeams } from './team-menu-organizations';
+import {
+	readTeamMenuOrganizations,
+	teamMenuOrganizationsOf,
+	teamToOpenAfterSwitch,
+	withTeams
+} from './team-menu-organizations';
 
 const team = (id: string, organizationId: string, name = `Team ${id}`) =>
 	({ id, name, organizationId }) as unknown as TOrganizationTeam;
@@ -65,6 +70,49 @@ describe('withTeams', () => {
 		expect(withTeams([{ id: 'labs', name: 'Labs' }], null)).toEqual([
 			{ id: 'labs', name: 'Labs', teams: [], teamsListed: false }
 		]);
+	});
+});
+
+describe('readTeamMenuOrganizations', () => {
+	const memberships = [
+		{ organizationId: 'studio', organization: { name: 'Studio' } },
+		{ organizationId: 'labs', organization: { name: 'Labs' } },
+		{ organizationId: 'agency', organization: { name: 'Agency' } }
+	];
+
+	it("reads each other organization's teams for someone who may, and offers a refused one as a switch", async () => {
+		const readTeams = jest.fn(async (organizationId: string) => {
+			if (organizationId === 'agency') throw new Error('400 not associated');
+			return [team('t1', organizationId)];
+		});
+
+		const result = await readTeamMenuOrganizations({
+			memberships,
+			currentOrganizationId: 'studio',
+			listsTeams: true,
+			readTeams
+		});
+
+		expect(readTeams.mock.calls.map(([organizationId]) => organizationId)).toEqual(['agency', 'labs']);
+		expect(result.current).toEqual({ id: 'studio', name: 'Studio' });
+		expect(result.others).toEqual([
+			{ id: 'agency', name: 'Agency', teams: [], teamsListed: false },
+			{ id: 'labs', name: 'Labs', teams: [team('t1', 'labs')], teamsListed: true }
+		]);
+	});
+
+	it('reads no team for someone kept in the organization of their session', async () => {
+		const readTeams = jest.fn();
+
+		const result = await readTeamMenuOrganizations({
+			memberships,
+			currentOrganizationId: 'studio',
+			listsTeams: false,
+			readTeams
+		});
+
+		expect(readTeams).not.toHaveBeenCalled();
+		expect(result.others.every((organization) => !organization.teamsListed)).toBe(true);
 	});
 });
 
