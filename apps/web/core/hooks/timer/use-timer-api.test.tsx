@@ -17,7 +17,7 @@ import {
 	organizationOpeningState,
 	organizationTeamsState,
 	timerNotesState,
-	timerStartingState,
+	timerStartsInFlightState,
 	timerStatusState
 } from '@/core/stores';
 import { timerStartNotesState } from '@/core/stores/timer/timer-start-notes';
@@ -472,14 +472,71 @@ describe('Start while another organization of the workspace is opening', () => {
 		await act(async () => {
 			await Promise.resolve();
 		});
-		const whileSent = tab.store.get(timerStartingState);
+		const whileSent = tab.store.get(timerStartsInFlightState);
 		await act(async () => {
 			answerStart();
 			await started;
 		});
 
-		expect(whileSent).toBe(true);
-		expect(tab.store.get(timerStartingState)).toBe(false);
+		expect(whileSent).toBe(1);
+		expect(tab.store.get(timerStartsInFlightState)).toBe(0);
+	});
+
+	it("keeps saying a start is on its way while a later start is unanswered, when an earlier start's bookkeeping ends", async () => {
+		const tab = renderTab();
+		act(() => {
+			tab.store.set(organizationTeamsState, [
+				{
+					id: 'team-1',
+					name: 'Team',
+					members: [{ id: 'member-1', employee: { userId: 'user-1' } }],
+					projects: []
+				}
+			] as never);
+		});
+		// Start A lands at once, then saves the active task, which waits
+		let finishActiveTaskOfA: () => void = () => undefined;
+		mockUpdateActiveTask.mockImplementationOnce(
+			() =>
+				new Promise<undefined>((resolve) => {
+					finishActiveTaskOfA = () => resolve(undefined);
+				})
+		);
+		let startA: Promise<unknown> | undefined;
+		await act(async () => {
+			startA = tab.result.current.startTimer(TASK);
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+		// The timer is stopped elsewhere meanwhile, and start B is sent; Gauzy has not answered it yet
+		mockGauzy.lastLog = null;
+		mockGauzy.isTrackingTime = false;
+		act(() => tab.store.set(timerStatusState, { running: false, lastLog: null } as never));
+		let answerB: () => void = () => undefined;
+		mockStartTimer.mockImplementationOnce(
+			() =>
+				new Promise((resolve) => {
+					answerB = () => resolve({ data: { running: false, lastLog: null } } as never);
+				})
+		);
+		let startB: Promise<unknown> | undefined;
+		await act(async () => {
+			startB = tab.result.current.startTimer(TASK);
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+		expect(mockStartTimer).toHaveBeenCalledTimes(2);
+
+		await act(async () => {
+			finishActiveTaskOfA();
+			await startA;
+		});
+		const whileBUnanswered = tab.store.get(timerStartsInFlightState) > 0;
+		await act(async () => {
+			answerB();
+			await startB;
+		});
+
+		expect(whileBUnanswered).toBe(true);
+		expect(tab.store.get(timerStartsInFlightState)).toBe(0);
 	});
 
 	it('refuses the start when the switch begins during its checks', async () => {

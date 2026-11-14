@@ -100,7 +100,7 @@ import {
 	activeTeamIdState,
 	localTimerStatusState,
 	organizationTeamsState,
-	timerStartingState,
+	timerStartsInFlightState,
 	timerStatusState
 } from '@/core/stores';
 import { TeamsDropDown } from './teams-dropdown';
@@ -111,15 +111,15 @@ const studioTeams = [
 ];
 
 function renderDropdown({
-	isTimerStarting = false,
+	startsInFlight = 0,
 	isLocalTimerRunning = false,
 	queryClient = new QueryClient()
-}: { isTimerStarting?: boolean; isLocalTimerRunning?: boolean; queryClient?: QueryClient } = {}) {
+}: { startsInFlight?: number; isLocalTimerRunning?: boolean; queryClient?: QueryClient } = {}) {
 	const store = createStore();
 	store.set(organizationTeamsState, studioTeams as never);
 	store.set(activeTeamIdState, 'studio-design');
 	store.set(timerStatusState, { running: false } as never);
-	store.set(timerStartingState, isTimerStarting);
+	store.set(timerStartsInFlightState, startsInFlight);
 	store.set(localTimerStatusState, { lastTaskId: 'task-1', runnedDateTime: 0, running: isLocalTimerRunning });
 	render(
 		<QueryClientProvider client={queryClient}>
@@ -170,7 +170,7 @@ describe('TeamsDropDown while another organization opens', () => {
 	});
 
 	it('refuses to open another organization while a timer start is on its way', () => {
-		renderDropdown({ isTimerStarting: true });
+		renderDropdown({ startsInFlight: 1 });
 
 		fireEvent.click(screen.getByRole('menuitem', { name: /Labs Design/ }));
 

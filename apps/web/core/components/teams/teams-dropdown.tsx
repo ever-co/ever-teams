@@ -20,7 +20,7 @@ import {
 	detailedTaskState,
 	localTimerStatusState,
 	organizationTeamsState,
-	timerStartingState,
+	timerStartsInFlightState,
 	timerStatusState
 } from '@/core/stores';
 import { useAtomValue, useAtom } from 'jotai';
@@ -140,7 +140,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const showsAllTeams = managesSeveralTeams || isAllTeamsPage;
 	const orderedTeams = useMemo(() => activeTeamFirst(teams, activeTeam?.id), [teams, activeTeam?.id]);
 	// A start sent but not answered yet: the status still says stopped, and a switch would leave that timer behind
-	const isTimerStarting = useAtomValue(timerStartingState);
+	const isTimerStarting = useAtomValue(timerStartsInFlightState) > 0;
 
 	// The person's other organizations of the workspace, read once the session is known so the menu opens on them
 	const menuOrganizations = useTeamMenuOrganizations();
