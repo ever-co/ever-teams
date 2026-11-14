@@ -54,4 +54,18 @@ describe('useWorkspaceWeekPeriod', () => {
 		expect(view.result.current[0].from).toEqual(picked.from);
 		expect(view.result.current[0].to.getDate()).toBe(2);
 	});
+
+	it('updates from the period on screen through a setter kept from before the week start arrived', () => {
+		const { view, store } = renderWeekPeriod(null);
+		const setterKeptByACallback = view.result.current[1];
+
+		act(() => {
+			store.set(currentOrganizationState, { id: 'organization-a', startWeekOn: 'SUNDAY' } as never);
+		});
+		act(() => {
+			setterKeptByACallback((shown) => shown);
+		});
+
+		expect(view.result.current[0].from.getDate()).toBe(1);
+	});
 });
