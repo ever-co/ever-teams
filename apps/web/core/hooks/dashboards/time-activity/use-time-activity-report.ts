@@ -42,6 +42,8 @@ import type { TOrganizationTeam, TUser } from '@/core/types/schemas';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
+import { durationRoundingRuleOf } from '@/core/lib/utils/duration-rounding';
+import { roundedDailyReportOf } from '@/core/lib/utils/dashboards/time-activity-rounding';
 import {
 	type TimeActivityRequest,
 	useTimeActivityBreaksQuery,
@@ -290,6 +292,10 @@ export function useTimeActivityReport() {
 
 	const dailyQuery = useTimeActivityDailyQuery(request);
 	const countsQuery = useTimeActivityCountsQuery(request);
+	const organization = useAtomValue(currentOrganizationState);
+	// The workspace rounds each entry: its rows, figures, chart, table and exports all show rounded time
+	const roundingRule = useMemo(() => durationRoundingRuleOf(organization), [organization]);
+	const isRounding = roundingRule !== null;
 	const pickedClients = settings.filters.clientIds;
 	const hasTaskFilter = settings.filters.taskIds.length > 0;
 	const hasClientFilter = pickedClients.length > 0;
@@ -299,7 +305,7 @@ export function useTimeActivityReport() {
 	const readsBreaks = allowsBreaks && !billableOnly && !hasClientFilter;
 	const breaksQuery = useTimeActivityBreaksQuery(request, readsBreaks);
 	const breakSeconds = readsBreaks ? (breaksQuery.data ?? null) : null;
-	const sumsFiguresFromRows = hasTaskFilter || hasClientFilter || billableOnly;
+	const sumsFiguresFromRows = hasTaskFilter || hasClientFilter || billableOnly || isRounding;
 	const isClientGrouping = settings.grouping === 'client';
 	const needsProjectClients = hasClientFilter || isClientGrouping;
 	const projectClients = useReportProjectClients({ includesArchived: false, isEnabled: needsProjectClients });
@@ -345,11 +351,13 @@ export function useTimeActivityReport() {
 	}, [canTellRowClients, clientNames, isClientGrouping, projectClientIds]);
 
 	const withoutTeamLabel = t('dashboard.NO_TEAM_GROUP');
-	const workspaceCurrency = useAtomValue(currentOrganizationState)?.currency ?? null;
+	const workspaceCurrency = organization?.currency ?? null;
+	// The rows, the totals and the exports all come from this report: with a rule, each entry in it is rounded
+	const roundedReport = useMemo(() => roundedDailyReportOf(report, roundingRule), [report, roundingRule]);
 	const rows = useMemo(() => {
-		const allRows = rowsOfReport(report, withoutTeamLabel, workspaceCurrency, clientOfProjectLog);
+		const allRows = rowsOfReport(roundedReport, withoutTeamLabel, workspaceCurrency, clientOfProjectLog);
 		return visibleRowsOf(allRows, isManager, ownEmployeeId);
-	}, [clientOfProjectLog, isManager, ownEmployeeId, report, withoutTeamLabel, workspaceCurrency]);
+	}, [clientOfProjectLog, isManager, ownEmployeeId, roundedReport, withoutTeamLabel, workspaceCurrency]);
 
 	const totals = useMemo(() => reportTotalsOf(rows), [rows]);
 
@@ -398,13 +406,15 @@ export function useTimeActivityReport() {
 		}
 	}, [isClientNamesError, isProjectLookupError, refetchClientNames, refetchDailyReport, refetchProjectClients]);
 	const retryClientNames = useCallback(() => void refetchClientNames(), [refetchClientNames]);
-	// The weekly report has no project in its rows: with a client picked, the week grid is built from these rows
+	// The weekly report has no project in its rows and rounds nothing: with a client picked or a rounding rule, the
+	// week grid is built from these rows
 	const weekDailySource = useMemo<WeekDailySource | null>(() => {
-		if (!hasClientFilter) {
+		const readsRows = hasClientFilter || isRounding;
+		if (!readsRows) {
 			return null;
 		}
 		return { rows, isLoading: isDailyPending, isError: isDailyError, refetch: () => void refetchDaily() };
-	}, [hasClientFilter, isDailyError, isDailyPending, refetchDaily, rows]);
+	}, [hasClientFilter, isDailyError, isDailyPending, isRounding, refetchDaily, rows]);
 
 	return {
 		user,
@@ -414,7 +424,7 @@ export function useTimeActivityReport() {
 		period,
 		setPeriod,
 		request,
-		report,
+		report: roundedReport,
 		clientOfProjectLog,
 		rows,
 		totals,
@@ -424,6 +434,7 @@ export function useTimeActivityReport() {
 		groups,
 		figures,
 		hasTaskFilter,
+		roundingRule,
 		weekDailySource,
 		isDailyPending,
 		isFiguresLoading,

@@ -56,6 +56,7 @@ export function WorkspaceSettingsPage() {
 				saveWeekStart={settings.saveWeekStart}
 				saveClock={settings.saveClock}
 				saveCurrencyPosition={settings.saveCurrencyPosition}
+				saveDurationRounding={settings.saveDurationRounding}
 			/>
 			<WorkspaceBreaksSection
 				key={`breaks-${organization.id}`}

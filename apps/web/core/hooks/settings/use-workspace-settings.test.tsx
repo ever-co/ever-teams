@@ -333,6 +333,67 @@ describe('saving the currency and the formats', () => {
 	});
 });
 
+describe('saving the duration rounding', () => {
+	const notRounding = { ...organization, durationRoundingInterval: null, durationRoundingDirection: null };
+
+	it('saves the interval and the direction together, keeps them for every reader and confirms it', async () => {
+		const { view, client } = renderSettings(notRounding);
+
+		await act(async () => {
+			await view.result.current.saveDurationRounding({ intervalMinutes: 15, direction: 'UP' });
+		});
+
+		expect(mockUpdateOrganization).toHaveBeenCalledWith(notRounding, {
+			durationRoundingInterval: 15,
+			durationRoundingDirection: 'UP'
+		});
+		expect(client.getQueryData(ORGANIZATION_KEY)).toEqual({
+			...notRounding,
+			durationRoundingInterval: 15,
+			durationRoundingDirection: 'UP'
+		});
+		expect(mockToast.success).toHaveBeenCalledWith('settings.workspace.ROUNDING_SAVED', {
+			description: 'settings.workspace.ROUNDING_OUTCOME'
+		});
+	});
+
+	it('turns rounding off by clearing both, and says the reports show the time as tracked', async () => {
+		const rounding = { ...organization, durationRoundingInterval: 15, durationRoundingDirection: 'UP' };
+		const { view, client } = renderSettings(rounding);
+
+		await act(async () => {
+			await view.result.current.saveDurationRounding(null);
+		});
+
+		expect(mockUpdateOrganization).toHaveBeenCalledWith(rounding, {
+			durationRoundingInterval: null,
+			durationRoundingDirection: null
+		});
+		expect(client.getQueryData(ORGANIZATION_KEY)).toEqual(notRounding);
+		expect(mockToast.success).toHaveBeenCalledWith('settings.workspace.ROUNDING_OFF_SAVED', {
+			description: 'settings.workspace.ROUNDING_OFF_OUTCOME'
+		});
+	});
+
+	it('tells why a refused rule was not saved and throws so the control goes back', async () => {
+		mockUpdateOrganization.mockRejectedValue(Object.assign(new Error('Forbidden'), { statusCode: 403 }));
+		const { view } = renderSettings(notRounding);
+
+		let failure: unknown;
+		await act(async () => {
+			failure = await view.result.current
+				.saveDurationRounding({ intervalMinutes: 6, direction: 'NEAREST' })
+				.catch((error) => error);
+		});
+
+		expect(failure).toBeInstanceOf(Error);
+		expect(mockToast.error).toHaveBeenCalledWith('settings.workspace.ROUNDING_NOT_SAVED', {
+			description: 'toasts.REASONS.PERMISSION'
+		});
+		expect(mockToast.success).not.toHaveBeenCalled();
+	});
+});
+
 describe('renaming the workspace', () => {
 	it('renames the organization, then the tenant, and shows the name in the workspace list at once', async () => {
 		const calls: string[] = [];

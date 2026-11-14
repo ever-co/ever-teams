@@ -21,6 +21,7 @@ import {
 	workspaceOfTenant,
 	workspacesAfterRename
 } from '@/core/lib/utils/settings-workspace';
+import type { DurationRoundingRule } from '@/core/lib/utils/duration-rounding';
 import type {
 	WorkspaceClock,
 	WorkspaceCurrencyPosition,
@@ -37,7 +38,15 @@ import type { TWorkspace } from '@/core/types/schemas/team/organization-team.sch
 
 type WorkspaceChanges = Pick<
 	TOrganizationChanges,
-	'name' | 'currency' | 'dateFormat' | 'numberFormat' | 'startWeekOn' | 'timeFormat' | 'currencyPosition'
+	| 'name'
+	| 'currency'
+	| 'dateFormat'
+	| 'numberFormat'
+	| 'startWeekOn'
+	| 'timeFormat'
+	| 'currencyPosition'
+	| 'durationRoundingInterval'
+	| 'durationRoundingDirection'
 >;
 
 /**
@@ -94,7 +103,7 @@ function workspaceNameOf(workspace: TWorkspace | null, organization: TOrganizati
 }
 
 /**
- * The current workspace's name, currency and formats, who may change them, and their saves. A save says what it
+ * The current workspace's name, currency, formats and duration rounding, who may change them, and their saves. A save says what it
  * changed, or why it failed, and a failed one throws so its control goes back to the stored value.
  */
 export function useWorkspaceSettings() {
@@ -267,6 +276,31 @@ export function useWorkspaceSettings() {
 		[reportedSave, saveOrganization, scopeOfSave, t]
 	);
 
+	// Gauzy stores the interval and the direction together: a rule is saved, or cleared, as a pair
+	const saveDurationRounding = useCallback(
+		async (rule: DurationRoundingRule | null) => {
+			const scope = scopeOfSave();
+			const changes: WorkspaceChanges = {
+				durationRoundingInterval: rule?.intervalMinutes ?? null,
+				durationRoundingDirection: rule?.direction ?? null
+			};
+			let text: SaveText = {
+				failureKey: 'settings.workspace.ROUNDING_NOT_SAVED',
+				saved: t('settings.workspace.ROUNDING_OFF_SAVED'),
+				outcome: t('settings.workspace.ROUNDING_OFF_OUTCOME')
+			};
+			if (rule) {
+				text = {
+					failureKey: 'settings.workspace.ROUNDING_NOT_SAVED',
+					saved: t('settings.workspace.ROUNDING_SAVED'),
+					outcome: t('settings.workspace.ROUNDING_OUTCOME')
+				};
+			}
+			await reportedSave(() => saveOrganization(scope, changes), text);
+		},
+		[reportedSave, saveOrganization, scopeOfSave, t]
+	);
+
 	const saveWeekStart = useCallback(
 		async (startWeekOn: EWeekDays) => {
 			const scope = scopeOfSave();
@@ -317,6 +351,7 @@ export function useWorkspaceSettings() {
 		saveNumberFormat,
 		saveWeekStart,
 		saveClock,
-		saveCurrencyPosition
+		saveCurrencyPosition,
+		saveDurationRounding
 	};
 }
