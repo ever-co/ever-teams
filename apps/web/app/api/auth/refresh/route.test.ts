@@ -11,7 +11,7 @@ jest.mock('@/core/services/server/client-ip', () => ({ clientIpHeaders: async ()
 
 import { POST } from './route';
 
-type GauzyAnswer = { status: number; body: unknown } | 'unreachable';
+type GauzyAnswer = { status: number; body: unknown } | 'unreachable' | 'hangs';
 
 let gauzyAnswers: Record<string, GauzyAnswer>;
 
@@ -29,9 +29,15 @@ beforeEach(() => {
 	gauzyAnswers = {};
 	jest.spyOn(console, 'error').mockImplementation(() => undefined);
 	// Gauzy, as the server-side requests reach it
-	jest.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+	jest.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
 		const path = new URL(String(input)).pathname.replace(/^\/api/, '');
 		const gauzyAnswer = gauzyAnswers[path];
+		if (gauzyAnswer === 'hangs') {
+			// No answer ever comes: only the caller's signal ends the wait
+			return new Promise<Response>((_resolve, reject) => {
+				init?.signal?.addEventListener('abort', () => reject(init.signal?.reason));
+			});
+		}
 		if (!gauzyAnswer || gauzyAnswer === 'unreachable') {
 			throw new TypeError('fetch failed');
 		}
@@ -85,5 +91,52 @@ describe('POST /api/auth/refresh', () => {
 
 		expect(res.status).toBe(200);
 		expect(await res.json()).toEqual(expect.objectContaining({ token: 'access-2', refresh_token: 'refresh-2' }));
+	});
+
+
+	it('answers the new pair when the profile read never answers: the read gives up at its deadline', async () => {
+		const deadlines: number[] = [];
+		// The deadline passes at once, so the test does not wait five seconds
+		jest.spyOn(AbortSignal, 'timeout').mockImplementation((milliseconds) => {
+			deadlines.push(milliseconds);
+			const controller = new AbortController();
+			setTimeout(() => controller.abort(new DOMException('The read took too long', 'TimeoutError')), 10);
+			return controller.signal;
+		});
+		gauzyAnswers['/auth/refresh-token'] = { status: 200, body: { token: 'access-2', refresh_token: 'refresh-2' } };
+		gauzyAnswers['/user/me'] = 'hangs';
+
+		const answer = await Promise.race([
+			renew(),
+			new Promise<'still waiting'>((resolve) => setTimeout(() => resolve('still waiting'), 1_000))
+		]);
+
+		expect(answer).not.toBe('still waiting');
+		const res = answer as Response;
+		expect(res.status).toBe(200);
+		expect(await res.json()).toEqual({ token: 'access-2', refresh_token: 'refresh-2' });
+		expect(deadlines).toEqual([5_000]);
+	});
+
+	it('answers 502, not a refusal, when Gauzy says yes without a pair', async () => {
+		gauzyAnswers['/auth/refresh-token'] = { status: 200, body: {} };
+
+		const res = await renew();
+
+		expect(res.status).toBe(502);
+		expect(await res.json()).toEqual(expect.objectContaining({ statusCode: 502 }));
+	});
+
+	it.each([
+		['a status that is no HTTP error status', { statusCode: 200, message: 'odd' }],
+		['a status that is not a number', { statusCode: 'Unauthorized', message: 'odd' }],
+		['no status, only a status text', { status: 'error', message: 'odd' }]
+	])('answers 500 when the refusal body of Gauzy carries %s', async (_case, body) => {
+		gauzyAnswers['/auth/refresh-token'] = { status: 503, body };
+
+		const res = await renew();
+
+		expect(res.status).toBe(500);
+		expect(await res.json()).toEqual(expect.objectContaining({ statusCode: 500 }));
 	});
 });
