@@ -7292,7 +7292,9 @@
 				"csv": "Il CSV non è leggibile: una virgoletta non viene mai chiusa, oppure il file è vuoto.",
 				"unknownContent": "Né clienti, né progetti, né tag, né voci di tempo.",
 				"entriesColumnsDiffer": "Voci di tempo con colonne diverse dal primo file di voci.",
-				"repeatedKind": "{kind}: già letti da un altro file. Viene usato solo il primo."
+				"repeatedKind": "{kind}: già letti da un altro file. Viene usato solo il primo.",
+				"tableTooLarge": "Più colonne o celle di quante l'importazione ne legga (al massimo {columns} colonne).",
+				"unreadable": "Il browser non è riuscito a leggere il file: sceglilo di nuovo."
 			},
 			"NOTHING_READ": "Nessun file dell'esportazione è utilizzabile. Scegli di nuovo l'esportazione.",
 			"CHOOSE_OTHER": "Scegli altri file",

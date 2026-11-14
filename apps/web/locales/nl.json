@@ -7292,7 +7292,9 @@
 				"csv": "De CSV kan niet gelezen worden: een aanhalingsteken wordt nooit gesloten, of het bestand is leeg.",
 				"unknownContent": "Geen klanten, projecten, tags of tijdregistraties.",
 				"entriesColumnsDiffer": "Tijdregistraties met andere kolommen dan het eerste registratiebestand.",
-				"repeatedKind": "{kind}: al uit een ander bestand gelezen. Alleen het eerste wordt gebruikt."
+				"repeatedKind": "{kind}: al uit een ander bestand gelezen. Alleen het eerste wordt gebruikt.",
+				"tableTooLarge": "Meer kolommen of cellen dan de import leest (hoogstens {columns} kolommen).",
+				"unreadable": "De browser kon het bestand niet lezen: kies het opnieuw."
 			},
 			"NOTHING_READ": "Geen enkel bestand van de export kon gebruikt worden. Kies de export opnieuw.",
 			"CHOOSE_OTHER": "Andere bestanden kiezen",

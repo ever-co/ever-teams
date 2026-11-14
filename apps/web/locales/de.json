@@ -7292,7 +7292,9 @@
 				"csv": "Die CSV kann nicht gelesen werden: Ein Anführungszeichen wird nie geschlossen, oder die Datei ist leer.",
 				"unknownContent": "Weder Kunden, Projekte, Tags noch Zeiteinträge.",
 				"entriesColumnsDiffer": "Zeiteinträge mit anderen Spalten als die erste Datei mit Einträgen.",
-				"repeatedKind": "{kind}: schon aus einer anderen Datei gelesen. Nur die erste wird verwendet."
+				"repeatedKind": "{kind}: schon aus einer anderen Datei gelesen. Nur die erste wird verwendet.",
+				"tableTooLarge": "Mehr Spalten oder Zellen, als der Import liest (höchstens {columns} Spalten).",
+				"unreadable": "Der Browser konnte die Datei nicht lesen: Wählen Sie sie erneut."
 			},
 			"NOTHING_READ": "Keine Datei des Exports konnte verwendet werden. Wählen Sie den Export erneut.",
 			"CHOOSE_OTHER": "Andere Dateien wählen",

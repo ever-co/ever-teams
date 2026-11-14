@@ -104,7 +104,7 @@ describe('tableOfRecords', () => {
 			{ description: 'Call', billable: true }
 		]);
 
-		expect(table.headers).toEqual([
+		expect(table?.headers).toEqual([
 			'description',
 			'project',
 			'tags',
@@ -112,7 +112,7 @@ describe('tableOfRecords', () => {
 			'timeInterval end',
 			'billable'
 		]);
-		expect(table.records[0].cells).toEqual([
+		expect(table?.records[0].cells).toEqual([
 			'Kick-off',
 			'Website',
 			'Design, Meeting',
@@ -120,7 +120,7 @@ describe('tableOfRecords', () => {
 			'2026-10-01T10:00:00Z',
 			''
 		]);
-		expect(table.records[1]).toEqual({ row: 3, cells: ['Call', '', '', '', '', 'true'] });
+		expect(table?.records[1]).toEqual({ row: 3, cells: ['Call', '', '', '', '', 'true'] });
 	});
 });
 
@@ -206,5 +206,28 @@ describe('readWorkspaceFiles', () => {
 
 		expect(files.clients?.table.records).toHaveLength(1);
 		expect(files.problems).toEqual([{ code: 'repeatedKind', fileName: 'clients (1).csv', kind: 'clients' }]);
+	});
+});
+
+describe('readWorkspaceFiles on files it must not expand', () => {
+	it('leaves out a JSON list with more columns than the import reads, before laying it out', async () => {
+		const items = Array.from({ length: 300 }, (_, index) => ({ [`field ${index}`]: 'x' }));
+
+		const files = await readWorkspaceFiles([fileOf('time.json', JSON.stringify(items))]);
+
+		expect(files.problems).toEqual([{ code: 'tableTooLarge', fileName: 'time.json' }]);
+	});
+
+	it('lists a file the browser cannot read instead of stopping', async () => {
+		const broken: WorkspacePickedFile = {
+			name: 'clients.csv',
+			size: 10,
+			arrayBuffer: () => Promise.reject(new Error('NotReadableError'))
+		};
+
+		const files = await readWorkspaceFiles([broken, fileOf('tags.csv', 'Name\nDesign\n')]);
+
+		expect(files.problems).toEqual([{ code: 'unreadable', fileName: 'clients.csv' }]);
+		expect(files.tags?.table.records).toHaveLength(1);
 	});
 });

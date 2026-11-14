@@ -320,11 +320,18 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 			setCreationPlan(null);
 			setCreationSavesEntries(false);
 			setIsReading(true);
-			const read = await readWorkspaceFiles(picked);
+			let read: WorkspaceFiles | null = null;
+			try {
+				read = await readWorkspaceFiles(picked);
+			} finally {
+				// A later choice owns the reading state; this one only ends its own
+				if (runRef.current === run) {
+					setIsReading(false);
+				}
+			}
 			if (runRef.current !== run) {
 				return;
 			}
-			setIsReading(false);
 			setFiles(read);
 			if (read.entries) {
 				const csv = pickedFileOfCsv(read.entries.fileName, csvTextOf(read.entries.table));

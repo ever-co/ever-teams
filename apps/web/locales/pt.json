@@ -7292,7 +7292,9 @@
 				"csv": "O CSV não pode ser lido: uma aspa nunca é fechada, ou o ficheiro está vazio.",
 				"unknownContent": "Nem clientes, nem projetos, nem tags, nem registos de tempo.",
 				"entriesColumnsDiffer": "Registos de tempo com colunas diferentes do primeiro ficheiro de registos.",
-				"repeatedKind": "{kind}: já lidos noutro ficheiro. Só o primeiro é usado."
+				"repeatedKind": "{kind}: já lidos noutro ficheiro. Só o primeiro é usado.",
+				"tableTooLarge": "Mais colunas ou células do que a importação lê (no máximo {columns} colunas).",
+				"unreadable": "O navegador não conseguiu ler o ficheiro: escolha-o de novo."
 			},
 			"NOTHING_READ": "Nenhum ficheiro da exportação pôde ser usado. Escolha a exportação de novo.",
 			"CHOOSE_OTHER": "Escolher outros ficheiros",

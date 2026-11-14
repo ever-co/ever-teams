@@ -10,6 +10,10 @@ import { zipEntriesOf, type ZipProblem } from './workspace-import-zip';
 /** What one dropped file may weigh: an archive of a team's export, or one of its files. */
 export const WORKSPACE_IMPORT_MAX_FILE_BYTES = 10 * 1024 * 1024;
 
+/** What a JSON list may lay out as a table: a list of records with a new key each would fill memory as a grid. */
+export const WORKSPACE_TABLE_MAX_COLUMNS = 200;
+const WORKSPACE_TABLE_MAX_CELLS = 2_000_000;
+
 /** What a file of the export holds, told by its name or, failing that, by its columns. */
 export type WorkspaceFileKind = 'entries' | 'clients' | 'projects' | 'tags';
 
@@ -29,7 +33,9 @@ export type WorkspaceFileProblem =
 	| { code: 'csv'; fileName: string; problem: TimeImportSheetProblem }
 	| { code: 'unknownContent'; fileName: string }
 	| { code: 'entriesColumnsDiffer'; fileName: string }
-	| { code: 'repeatedKind'; fileName: string; kind: WorkspaceFileKind };
+	| { code: 'repeatedKind'; fileName: string; kind: WorkspaceFileKind }
+	| { code: 'tableTooLarge'; fileName: string }
+	| { code: 'unreadable'; fileName: string };
 
 export interface WorkspaceFiles {
 	clients: WorkspaceTable | null;
@@ -162,16 +168,28 @@ function isRecordList(value: unknown): value is Array<Record<string, unknown>> {
 	return isList && value.every((item) => typeof item === 'object' && item !== null && !Array.isArray(item));
 }
 
-/** A JSON list of records as a table; the first record's keys come first, then any new key in order. */
-export function tableOfRecords(items: ReadonlyArray<Record<string, unknown>>): TimeImportTable {
+/**
+ * A JSON list of records as a table; the first record's keys come first, then any new key in order. Null when it
+ * would lay out more columns or cells than the import reads.
+ */
+export function tableOfRecords(items: ReadonlyArray<Record<string, unknown>>): TimeImportTable | null {
 	const rows = items.map(flatRowOf);
+	const seen = new Set<string>();
 	const headers: string[] = [];
 	for (const row of rows) {
 		for (const key of row.keys()) {
-			if (!headers.includes(key)) {
-				headers.push(key);
+			if (seen.has(key)) {
+				continue;
+			}
+			seen.add(key);
+			headers.push(key);
+			if (headers.length > WORKSPACE_TABLE_MAX_COLUMNS) {
+				return null;
 			}
 		}
+	}
+	if (rows.length * headers.length > WORKSPACE_TABLE_MAX_CELLS) {
+		return null;
 	}
 	const records: TimeImportRecord[] = rows.map((row, index) => ({
 		row: index + 2,
@@ -250,6 +268,15 @@ function decode(bytes: ArrayBuffer | Uint8Array): string | null {
 
 type NamedText = { fileName: string; text: string };
 
+/** The bytes of a file, or null when the browser cannot read it (moved, deleted or locked since it was chosen). */
+async function bufferOf(file: WorkspacePickedFile): Promise<ArrayBuffer | null> {
+	try {
+		return await file.arrayBuffer();
+	} catch {
+		return null;
+	}
+}
+
 /** Every CSV or JSON text of the dropped files, archives opened; what cannot be read becomes a problem. */
 async function textsOf(files: ReadonlyArray<WorkspacePickedFile>, problems: WorkspaceFileProblem[]) {
 	const texts: NamedText[] = [];
@@ -264,7 +291,11 @@ async function textsOf(files: ReadonlyArray<WorkspacePickedFile>, problems: Work
 			problems.push({ code: 'tooLarge', fileName: file.name });
 			continue;
 		}
-		const buffer = await file.arrayBuffer();
+		const buffer = await bufferOf(file);
+		if (!buffer) {
+			problems.push({ code: 'unreadable', fileName: file.name });
+			continue;
+		}
 		if (extension !== 'zip') {
 			const text = decode(buffer);
 			if (text === null) {
@@ -307,7 +338,16 @@ function tablesOf(
 			problems.push({ code: 'json', fileName: named.fileName });
 			return [];
 		}
-		return lists.map((list) => ({ fileName: list.name, table: tableOfRecords(list.items) }));
+		const tables: Array<{ fileName: string; table: TimeImportTable }> = [];
+		for (const list of lists) {
+			const table = tableOfRecords(list.items);
+			if (!table) {
+				problems.push({ code: 'tableTooLarge', fileName: list.name });
+				continue;
+			}
+			tables.push({ fileName: list.name, table });
+		}
+		return tables;
 	}
 	const reading = timeImportTableOf(named.text);
 	if (!reading.table) {

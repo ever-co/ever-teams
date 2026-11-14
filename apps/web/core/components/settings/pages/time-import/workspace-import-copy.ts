@@ -4,6 +4,7 @@ import { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import {
 	WORKSPACE_IMPORT_MAX_FILE_BYTES,
+	WORKSPACE_TABLE_MAX_COLUMNS,
 	type WorkspaceFileKind,
 	type WorkspaceFileProblem
 } from '@/core/lib/utils/workspace-import-files';
@@ -68,6 +69,10 @@ export function useWorkspaceImportCopy() {
 					return t('timeImport.workspace.problems.entriesColumnsDiffer');
 				case 'repeatedKind':
 					return t('timeImport.workspace.problems.repeatedKind', { kind: kindLabel(problem.kind) });
+				case 'tableTooLarge':
+					return t('timeImport.workspace.problems.tableTooLarge', { columns: WORKSPACE_TABLE_MAX_COLUMNS });
+				case 'unreadable':
+					return t('timeImport.workspace.problems.unreadable');
 			}
 		},
 		[kindLabel, t, zipProblemText]

@@ -7292,7 +7292,9 @@
 				"csv": "无法读取 CSV：有引号未闭合，或文件为空。",
 				"unknownContent": "既不是客户、项目、标签，也不是时间记录。",
 				"entriesColumnsDiffer": "时间记录的列与第一个时间记录文件不同。",
-				"repeatedKind": "{kind}：已从另一个文件读取，仅使用第一个。"
+				"repeatedKind": "{kind}：已从另一个文件读取，仅使用第一个。",
+				"tableTooLarge": "列或单元格超出导入可读取的范围（最多 {columns} 列）。",
+				"unreadable": "浏览器无法读取该文件：请重新选择。"
 			},
 			"NOTHING_READ": "导出中没有可用的文件。请重新选择导出文件。",
 			"CHOOSE_OTHER": "选择其他文件",

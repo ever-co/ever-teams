@@ -7292,7 +7292,9 @@
 				"csv": "The CSV cannot be read: a quote is never closed, or the file is empty.",
 				"unknownContent": "Neither clients, projects, tags nor time entries.",
 				"entriesColumnsDiffer": "Time entries with other columns than the first file of entries.",
-				"repeatedKind": "{kind}: already read from another file. Only the first one is used."
+				"repeatedKind": "{kind}: already read from another file. Only the first one is used.",
+				"tableTooLarge": "More columns or cells than the import reads ({columns} columns at most).",
+				"unreadable": "The browser could not read the file: choose it again."
 			},
 			"NOTHING_READ": "No file of the export could be used. Choose the export again.",
 			"CHOOSE_OTHER": "Choose other files",

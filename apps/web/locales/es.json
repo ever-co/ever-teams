@@ -7292,7 +7292,9 @@
 				"csv": "El CSV no se puede leer: hay una comilla sin cerrar o el archivo está vacío.",
 				"unknownContent": "Ni clientes, ni proyectos, ni etiquetas, ni entradas de tiempo.",
 				"entriesColumnsDiffer": "Entradas de tiempo con columnas distintas a las del primer archivo de entradas.",
-				"repeatedKind": "{kind}: ya se leyeron de otro archivo. Solo se usa el primero."
+				"repeatedKind": "{kind}: ya se leyeron de otro archivo. Solo se usa el primero.",
+				"tableTooLarge": "Más columnas o celdas de las que lee la importación ({columns} columnas como máximo).",
+				"unreadable": "El navegador no pudo leer el archivo: vuelve a elegirlo."
 			},
 			"NOTHING_READ": "No se pudo usar ningún archivo de la exportación. Vuelve a elegirla.",
 			"CHOOSE_OTHER": "Elegir otros archivos",

@@ -7292,7 +7292,9 @@
 				"csv": "Nie można odczytać CSV: cudzysłów nie jest zamknięty albo plik jest pusty.",
 				"unknownContent": "Ani klienci, ani projekty, ani tagi, ani wpisy czasu.",
 				"entriesColumnsDiffer": "Wpisy czasu z innymi kolumnami niż w pierwszym pliku wpisów.",
-				"repeatedKind": "{kind}: już odczytane z innego pliku. Używany jest tylko pierwszy."
+				"repeatedKind": "{kind}: już odczytane z innego pliku. Używany jest tylko pierwszy.",
+				"tableTooLarge": "Więcej kolumn lub komórek, niż import odczytuje (najwyżej {columns} kolumn).",
+				"unreadable": "Przeglądarka nie mogła odczytać pliku: wybierz go ponownie."
 			},
 			"NOTHING_READ": "Żadnego pliku eksportu nie można użyć. Wybierz eksport ponownie.",
 			"CHOOSE_OTHER": "Wybierz inne pliki",

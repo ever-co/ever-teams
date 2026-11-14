@@ -7292,7 +7292,9 @@
 				"csv": "Le CSV est illisible : un guillemet n'est jamais fermé, ou le fichier est vide.",
 				"unknownContent": "Ni clients, ni projets, ni tags, ni entrées de temps.",
 				"entriesColumnsDiffer": "Des entrées de temps avec d'autres colonnes que le premier fichier d'entrées.",
-				"repeatedKind": "{kind} : déjà lus dans un autre fichier. Seul le premier est utilisé."
+				"repeatedKind": "{kind} : déjà lus dans un autre fichier. Seul le premier est utilisé.",
+				"tableTooLarge": "Plus de colonnes ou de cellules que l'import n'en lit ({columns} colonnes au plus).",
+				"unreadable": "Le navigateur n'a pas pu lire le fichier : choisissez-le de nouveau."
 			},
 			"NOTHING_READ": "Aucun fichier de l'export n'a pu être utilisé. Choisissez de nouveau l'export.",
 			"CHOOSE_OTHER": "Choisir d'autres fichiers",
