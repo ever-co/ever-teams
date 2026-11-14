@@ -2,12 +2,12 @@
 import { DEFAULT_APP_PATH, LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { removeAuthCookies } from '@/core/lib/helpers/cookies';
 import { forgetThisBrowserPush } from '@/core/hooks/inbox/use-inbox-web-push';
-import { handleUnauthorized, registerRefreshTokenCallback } from '@/core/lib/auth/handle-unauthorized';
+import { handleUnauthorized } from '@/core/lib/auth/handle-unauthorized';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
 import { isUnauthorizedError } from '@/core/lib/auth/retry-logic';
 import { activeTeamState, timerStatusState, userDetailAccordion, userState } from '@/core/stores';
-import { useCallback, useMemo, useRef, useEffect } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useSetAtom, useAtomValue, useStore } from 'jotai';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
@@ -108,13 +108,10 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	}, [userDataQuery.isFetching, refreshTokenMutation.isPending]);
 
 	/**
-	 * Manually refresh user data with graceful token recovery
+	 * Reads the user again from the API.
 	 *
-	 * Pattern: "Optimistic Recovery with Cancellation"
-	 * 1. Try to fetch user data
-	 * 2. If 401, attempt token refresh within the debounce window
-	 * 3. If refresh succeeds, cancel pending logout and retry fetch
-	 * 4. If refresh fails, logout proceeds normally
+	 * An expired access token is no concern of this read: the API service renews the session and sends a refused
+	 * request again (api.service.ts handleUnauthorized), this one like any other.
 	 */
 	const refreshUserData = useCallback(async () => {
 		const result = await userDataQuery.refetch();
@@ -123,35 +120,9 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 			return result.data;
 		}
 		if (result.isError && result.error) {
-			const error = result.error as any;
-			if (error?.response?.status === 401 || error?.status === 401) {
-				try {
-					await refreshTokenMutateAsync();
-					const retryResult = await userDataQuery.refetch();
-					if (retryResult.data) {
-						setUser(retryResult.data);
-						return retryResult.data;
-					}
-				} catch (refreshError) {
-					logErrorInDev('Failed to refresh token:', refreshError);
-					throw refreshError;
-				}
-			}
-			throw error;
+			throw result.error;
 		}
-	}, [userDataQuery, setUser, refreshTokenMutateAsync]);
-
-	// Register the refresh callback so handleUnauthorized can attempt token refresh on 401
-	// The registerRefreshTokenCallback returns an unregister function that removes THIS specific callback
-	// This prevents the race condition where unmounting one component clears callbacks for others
-	useEffect(() => {
-		const unregister = registerRefreshTokenCallback(refreshUserData);
-
-		return () => {
-			// Call the returned unregister function to remove THIS specific callback
-			unregister();
-		};
-	}, [refreshUserData]);
+	}, [userDataQuery, setUser]);
 
 	$user.current = useMemo(() => {
 		return user || $user.current;
