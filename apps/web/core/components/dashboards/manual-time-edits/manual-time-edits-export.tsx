@@ -23,7 +23,8 @@ import {
 	type EditsMember,
 	type ManualTimeEntry,
 	pdfDateTimeOf,
-	pdfDayOf
+	pdfDayOf,
+	pdfTimeOf
 } from '@/core/lib/utils/dashboards/manual-time-edits';
 import { changeSideTextOf, type HistoryValueFormat } from '@/core/lib/utils/time-log-history';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
@@ -106,6 +107,8 @@ type DateText = (date: Date) => string;
 
 interface DateCells {
 	day: EntryText;
+	/** The start and the end of the entry, on the same clock as the Before and After cells. */
+	time: (date: Date | null) => string;
 	editedAt: EntryText;
 	/** A start or an end in the Before and After cells: an edit can move an entry to another day. */
 	moment: DateText;
@@ -114,13 +117,16 @@ interface DateCells {
 /** A file read by a spreadsheet keeps both as data it can sort, whatever the workspace's date format. */
 const FILE_DATE_CELLS: DateCells = {
 	day: (entry) => entry.dayKey,
+	time: clockTimeOf,
 	editedAt: (entry) => clockDateTimeOf(entry.editedAt),
 	moment: (date) => clockDateTimeOf(date)
 };
 
+/** The PDF is read by people: its days take the workspace's date format, its times the workspace's clock. */
 function pdfDateCellsOf(locale: FormatLocale): DateCells {
 	return {
 		day: (entry) => pdfDayOf(entry.day, locale),
+		time: (date) => pdfTimeOf(date, locale),
 		editedAt: (entry) => pdfDateTimeOf(entry.editedAt, locale),
 		moment: (date) => pdfDateTimeOf(date, locale)
 	};
@@ -133,8 +139,8 @@ function columnsOf(t: Translate, dates: DateCells, memberNameOf: MemberNameOf): 
 		{ header: t('common.MEMBER'), valueOf: (entry) => entry.memberName },
 		{ header: t('dashboard.timesheets.COLUMNS.PROJECT'), valueOf: (entry) => projectCellOf(entry, t) },
 		{ header: t('dashboard.timesheets.COLUMNS.TASK'), valueOf: (entry) => taskCellOf(entry, t) },
-		{ header: t('dashboard.timesheets.COLUMNS.START'), valueOf: (entry) => clockTimeOf(entry.start) },
-		{ header: t('dashboard.timesheets.COLUMNS.END'), valueOf: (entry) => clockTimeOf(entry.end) },
+		{ header: t('dashboard.timesheets.COLUMNS.START'), valueOf: (entry) => dates.time(entry.start) },
+		{ header: t('dashboard.timesheets.COLUMNS.END'), valueOf: (entry) => dates.time(entry.end) },
 		{ header: t('dashboard.timesheets.COLUMNS.DURATION'), valueOf: (entry) => hoursMinutesOf(entry.seconds) },
 		{ header: t('dashboard.manualTimeEdits.ADDED'), valueOf: (entry) => yesNoOf(entry.isAdded, t) },
 		{ header: t('dashboard.manualTimeEdits.COLUMN_EDITED_AT'), valueOf: dates.editedAt },

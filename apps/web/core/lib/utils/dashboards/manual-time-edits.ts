@@ -604,13 +604,38 @@ export function pdfDayOf(day: Date, locale: FormatLocale) {
 	return format.format(day);
 }
 
-/** The same for a moment of a line of the PDF: its day, then the local 24-hour time the files write. */
+/** Latin digits, as the files write them, whatever the reader's language. */
+const PDF_TIME_OPTIONS: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' };
+
+function isTwelveHourClock(locale: FormatLocale) {
+	if (typeof locale === 'string') {
+		return false;
+	}
+	return locale.clock === 12;
+}
+
+/**
+ * The time of day of a line of the PDF: `6:00 PM` on a workspace that chose the 12-hour clock, else the local 24-hour
+ * time the files write (`18:00`).
+ */
+export function pdfTimeOf(date: Date | null, locale: FormatLocale) {
+	if (!date) {
+		return '';
+	}
+	if (!isTwelveHourClock(locale)) {
+		return clockTimeOf(date);
+	}
+	const format = dateFormatOf(locale, PDF_TIME_OPTIONS);
+	return format.format(date);
+}
+
+/** The same for a moment of a line of the PDF: its day, then its time on the workspace's clock. */
 export function pdfDateTimeOf(date: Date | null, locale: FormatLocale) {
 	if (!date) {
 		return '';
 	}
 	const day = pdfDayOf(date, locale);
-	const time = clockTimeOf(date);
+	const time = pdfTimeOf(date, locale);
 	return `${day} ${time}`;
 }
 

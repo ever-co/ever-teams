@@ -28,6 +28,8 @@ jest.mock('@/core/components/dashboards/kit/entries-pdf', () => ({
 import { useManualTimeEditsExportOptions } from './manual-time-edits-export';
 
 const DATE_COLUMN = 0;
+const START_COLUMN = 4;
+const END_COLUMN = 5;
 const EDITED_AT_COLUMN = 8;
 const BEFORE_COLUMN = 9;
 const AFTER_COLUMN = 10;
@@ -70,16 +72,16 @@ const figures: EditsFigures = {
 
 const period = { from: NOVEMBER_4, to: new Date(2026, 10, 10) };
 
-async function runExport(key: 'pdf' | 'csv') {
+async function runExport(key: 'pdf' | 'csv', exported: EditsGroup[] = groups) {
 	const { result } = renderHook(() =>
-		useManualTimeEditsExportOptions({ groups, figures, period, teamName: 'Core', members: [] })
+		useManualTimeEditsExportOptions({ groups: exported, figures, period, teamName: 'Core', members: [] })
 	);
 	const option = result.current.find((candidate) => candidate.key === key);
 	await option?.run();
 }
 
-async function pdfRowCells(): Promise<string[]> {
-	await runExport('pdf');
+async function pdfRowCells(exported: EditsGroup[] = groups): Promise<string[]> {
+	await runExport('pdf', exported);
 	const content = mockBuildPdf.mock.calls[0][0] as EntriesPdfContent;
 	return content.groups[0].rows[0].cells;
 }
@@ -151,6 +153,40 @@ describe('the before and after of a line of the Manual time edit exports', () =>
 		expect(columns[AFTER_COLUMN].valueOf(deleted)).toBe('dashboard.manualTimeEdits.DELETED');
 		expect(columns[BEFORE_COLUMN].valueOf(entry)).toBe('');
 		expect(columns[AFTER_COLUMN].valueOf(entry)).toBe('');
+	});
+
+	it("follow the workspace's 12-hour clock in the PDF, as the start and the end do", async () => {
+		mockLocale = { tag: 'en', dateFormat: null, numberFormat: null, clock: 12 };
+		const edited = { ...entry, lastChange };
+
+		const cells = await pdfRowCells([{ ...groups[0], entries: [edited] }]);
+
+		expect(cells[START_COLUMN]).toMatch(/^9:00\sAM$/);
+		expect(cells[END_COLUMN]).toMatch(/^10:30\sAM$/);
+		expect(cells[EDITED_AT_COLUMN]).toMatch(/^2026-11-05 9:07\sAM$/);
+		expect(cells[BEFORE_COLUMN]).toMatch(
+			/^dashboard\.timesheets\.COLUMNS\.END 2026-11-04 10:00\sAM; dashboard\.timesheets\.COLUMNS\.DURATION 1:00$/
+		);
+		expect(cells[AFTER_COLUMN]).toMatch(/^dashboard\.timesheets\.COLUMNS\.END 2026-11-04 10:30\sAM; /);
+	});
+
+	it('keep the 24-hour time in the PDF on a 24-hour workspace, and in the CSV whatever the clock', async () => {
+		mockLocale = { tag: 'en', dateFormat: null, numberFormat: null, clock: 24 };
+		const edited = { ...entry, lastChange };
+
+		const cells = await pdfRowCells([{ ...groups[0], entries: [edited] }]);
+		expect(cells[START_COLUMN]).toBe('09:00');
+		expect(cells[BEFORE_COLUMN]).toBe(
+			'dashboard.timesheets.COLUMNS.END 2026-11-04 10:00; dashboard.timesheets.COLUMNS.DURATION 1:00'
+		);
+
+		mockLocale = { tag: 'en', dateFormat: null, numberFormat: null, clock: 12 };
+		await runExport('csv');
+		const columns = mockDownloadCsv.mock.calls[0][1] as CsvColumn<ManualTimeEntry>[];
+		expect(columns[START_COLUMN].valueOf(edited)).toBe('09:00');
+		expect(columns[BEFORE_COLUMN].valueOf(edited)).toBe(
+			'dashboard.timesheets.COLUMNS.END 2026-11-04 10:00; dashboard.timesheets.COLUMNS.DURATION 1:00'
+		);
 	});
 
 	it('fit the PDF page: one width a column', async () => {
