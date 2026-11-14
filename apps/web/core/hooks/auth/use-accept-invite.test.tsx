@@ -134,5 +134,58 @@ describe('useAcceptInvite → an existing account with two-factor authentication
 			selectedTeam: ''
 		});
 		expect(setAuthCookies).not.toHaveBeenCalled();
+
+		// Another invitation opened on the same page: the earlier account's code step is not carried over to it
+		mockValidate.mockResolvedValue({ email: 'grace@example.org', organization: { name: 'o2' }, teams: [] });
+		await act(async () => {
+			await result.current.validateInvitation({ code: 'OTHER', email: 'grace@example.org' });
+		});
+
+		expect(result.current.twoFactor.pending).toBeNull();
+	});
+
+	it('does not ask for the code of an invitation answered after another one was opened', async () => {
+		mockValidate.mockResolvedValue({ email: 'ada@example.org', organization: { name: 'o' }, teams: [] });
+		let refuse: (reason: unknown) => void = () => undefined;
+		mockAccept.mockReturnValue(
+			new Promise((_, onReject) => {
+				refuse = onReject;
+			})
+		);
+		const qc = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+		const { result } = renderHook(() => useAcceptInvite(), {
+			wrapper: ({ children }: { children: ReactNode }) => (
+				<QueryClientProvider client={qc}>{children}</QueryClientProvider>
+			)
+		});
+		await act(async () => {
+			await result.current.validateInvitation({ code: 'CODE', email: 'ada@example.org' });
+		});
+
+		let accepting: Promise<unknown> = Promise.resolve();
+		act(() => {
+			accepting = result.current.handleAcceptInvitation({
+				password: 'long enough',
+				user: { firstName: 'Ada', lastName: 'L', email: 'ada@example.org' },
+				code: 'CODE',
+				email: 'ada@example.org'
+			});
+		});
+		mockValidate.mockResolvedValue({ email: 'grace@example.org', organization: { name: 'o2' }, teams: [] });
+		await act(async () => {
+			await result.current.validateInvitation({ code: 'OTHER', email: 'grace@example.org' });
+		});
+		await act(async () => {
+			refuse({
+				isApiError: true,
+				statusCode: 403,
+				errorCode: 'TWO_FACTOR_REQUIRED',
+				message: 'Two-factor authentication is on for this account.',
+				details: { challenge: 'old.challenge', expiresAt: '2026-11-14T12:05:00.000Z' }
+			});
+			await expect(accepting).rejects.toEqual(expect.objectContaining({ errorCode: 'TWO_FACTOR_REQUIRED' }));
+		});
+
+		expect(result.current.twoFactor.pending).toBeNull();
 	});
 });

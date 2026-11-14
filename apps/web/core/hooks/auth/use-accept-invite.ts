@@ -1,5 +1,5 @@
 import { EInvitationState, TInvitationState } from '@/core/types/schemas/user/invite.schema';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useInviteValidation } from '../invitations/use-invite-validation';
 import { userOrganizationService } from '@/core/services/client/api/users/user-organization.service';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams/team.service';
@@ -10,7 +10,9 @@ import { useTwoFactorSignIn } from './use-two-factor-sign-in';
 
 export function useAcceptInvite() {
 	const twoFactor = useTwoFactorSignIn();
-	const { ask: askForSecondFactor } = twoFactor;
+	const { ask: askForSecondFactor, cancel: forgetSecondFactor } = twoFactor;
+	// Counts the invitations this page validated: an answer that arrives after another one was opened is discarded
+	const invitationRound = useRef(0);
 	const [invitationState, setInvitationState] = useState<TInvitationState>({
 		state: EInvitationState.IDLE,
 		data: null,
@@ -33,6 +35,7 @@ export function useAcceptInvite() {
 			email: string;
 		}) => {
 			if (invitationState?.state !== EInvitationState.VALIDATED) return;
+			const round = invitationRound.current;
 
 			// A refused invitation rejects, so the form shows its error instead of opening the app
 			let res: Awaited<ReturnType<typeof acceptInvitation>>;
@@ -47,6 +50,11 @@ export function useAcceptInvite() {
 				// An existing account with two-factor authentication on: the page asks for its code. The validation
 				// answers no team, so the session opens with none picked, as a sign-in without a team choice does.
 				const challenge = twoFactorChallengeOf(error);
+				// The challenge of an invitation opened before this one is not asked for: its acceptance did not happen
+				const isStale = round !== invitationRound.current;
+				if (challenge && isStale) {
+					throw error;
+				}
 				if (challenge) {
 					askForSecondFactor(challenge, '');
 					return SECOND_FACTOR_ASKED;
@@ -109,6 +117,9 @@ export function useAcceptInvite() {
 
 	const validateInvitation = useCallback(
 		async ({ code, email }: { code: string; email: string }) => {
+			// Another invitation: a code step still open belongs to the one before, and its challenge is not this one's
+			invitationRound.current += 1;
+			forgetSecondFactor();
 			setInvitationState({
 				state: EInvitationState.LOADING,
 				loading: true,
@@ -135,7 +146,7 @@ export function useAcceptInvite() {
 				console.error('Failed to validate invitation:', error);
 			}
 		},
-		[validateInviteByCode]
+		[validateInviteByCode, forgetSecondFactor]
 	);
 
 	return {
