@@ -180,4 +180,14 @@ describe('readWorkspaceFiles', () => {
 			['entriesColumnsDiffer', 'time-other.csv']
 		]);
 	});
+
+	it('reads the first file of a list and says the next one of the same kind is not used', async () => {
+		const files = await readWorkspaceFiles([
+			fileOf('clients.csv', 'Name\nAcme\n'),
+			fileOf('clients (1).csv', 'Name\nGlobex\n')
+		]);
+
+		expect(files.clients?.table.records).toHaveLength(1);
+		expect(files.problems).toEqual([{ code: 'repeatedKind', fileName: 'clients (1).csv', kind: 'clients' }]);
+	});
 });

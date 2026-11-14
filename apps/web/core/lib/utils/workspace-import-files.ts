@@ -28,7 +28,8 @@ export type WorkspaceFileProblem =
 	| { code: 'json'; fileName: string }
 	| { code: 'csv'; fileName: string; problem: TimeImportSheetProblem }
 	| { code: 'unknownContent'; fileName: string }
-	| { code: 'entriesColumnsDiffer'; fileName: string };
+	| { code: 'entriesColumnsDiffer'; fileName: string }
+	| { code: 'repeatedKind'; fileName: string; kind: WorkspaceFileKind };
 
 export interface WorkspaceFiles {
 	clients: WorkspaceTable | null;
@@ -340,7 +341,7 @@ export async function readWorkspaceFiles(files: ReadonlyArray<WorkspacePickedFil
 				problems.push({ code: 'entriesColumnsDiffer', fileName });
 				continue;
 			}
-			problems.push({ code: 'unknownContent', fileName });
+			problems.push({ code: 'repeatedKind', fileName, kind });
 		}
 	}
 	return result;
