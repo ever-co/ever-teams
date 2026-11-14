@@ -10,6 +10,14 @@ export function isBillableByDefault(project: BillableProject | null | undefined)
 	return project?.billable === true;
 }
 
+/** Whether a new entry is billable: as the person set it, or else as its project starts its time. */
+export function entryBillableOf(choice: boolean | null, project: BillableProject | null | undefined): boolean {
+	if (choice !== null) {
+		return choice;
+	}
+	return isBillableByDefault(project);
+}
+
 /**
  * The part of a project save that names the billable setting. Without a choice the field is left out: the API
  * gives the saved time of a task the setting of the project the task moves to, when that project has one, so a
