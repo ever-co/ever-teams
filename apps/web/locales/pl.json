@@ -5415,7 +5415,7 @@
 			"CODES_LEFT": "{count, plural, =0 {Brak niewykorzystanych kodów} one {Pozostał # niewykorzystany kod} few {Pozostały # niewykorzystane kody} many {Pozostało # niewykorzystanych kodów} other {Pozostało # niewykorzystanego kodu}}",
 			"NEW_CODES": "Nowe kody odzyskiwania",
 			"SETUP_STEP_KEY": "1. Dodaj to konto do aplikacji uwierzytelniającej",
-			"SETUP_STEP_KEY_TEXT": "Na tym urządzeniu otwórz link. Na innym urządzeniu dodaj konto w aplikacji i wpisz ten klucz.",
+			"SETUP_STEP_KEY_TEXT": "Zeskanuj kod QR aplikacją uwierzytelniającą. Na tym urządzeniu otwórz zamiast tego link lub wpisz klucz.",
 			"SETUP_KEY_LABEL": "Klucz konfiguracji",
 			"COPY_KEY": "Kopiuj klucz",
 			"OPEN_IN_APP": "Otwórz w aplikacji uwierzytelniającej",
@@ -5448,7 +5448,8 @@
 			"UNSUPPORTED_DESCRIPTION": "Ten serwer nie oferuje uwierzytelniania dwuskładnikowego.",
 			"READ_FAILED": "Nie udało się odczytać uwierzytelniania dwuskładnikowego",
 			"REQUIRED_TITLE": "Twoja organizacja prosi o włączenie",
-			"REQUIRED_DESCRIPTION": "Jej członkowie logują się też kodem z aplikacji uwierzytelniającej."
+			"REQUIRED_DESCRIPTION": "Jej członkowie logują się też kodem z aplikacji uwierzytelniającej.",
+			"QR_ALT": "Kod QR tego konta dla aplikacji uwierzytelniającej"
 		}
 	},
 	"taskDetail": {

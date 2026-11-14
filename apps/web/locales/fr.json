@@ -5415,7 +5415,7 @@
 			"CODES_LEFT": "{count, plural, =0 {Plus aucun code inutilisé} one {# code inutilisé restant} other {# codes inutilisés restants}}",
 			"NEW_CODES": "Nouveaux codes de récupération",
 			"SETUP_STEP_KEY": "1. Ajoutez ce compte à votre application d’authentification",
-			"SETUP_STEP_KEY_TEXT": "Sur cet appareil, ouvrez le lien. Sur un autre appareil, ajoutez un compte dans l’application et saisissez cette clé.",
+			"SETUP_STEP_KEY_TEXT": "Scannez le QR code avec votre application d’authentification. Sur cet appareil, ouvrez plutôt le lien, ou saisissez la clé.",
 			"SETUP_KEY_LABEL": "Clé de configuration",
 			"COPY_KEY": "Copier la clé",
 			"OPEN_IN_APP": "Ouvrir dans l’application d’authentification",
@@ -5448,7 +5448,8 @@
 			"UNSUPPORTED_DESCRIPTION": "Ce serveur ne propose pas l’authentification à deux facteurs.",
 			"READ_FAILED": "L’authentification à deux facteurs n’a pas pu être lue",
 			"REQUIRED_TITLE": "Votre organisation vous demande de l’activer",
-			"REQUIRED_DESCRIPTION": "Ses membres se connectent aussi avec un code d’une application d’authentification."
+			"REQUIRED_DESCRIPTION": "Ses membres se connectent aussi avec un code d’une application d’authentification.",
+			"QR_ALT": "QR code de ce compte pour votre application d’authentification"
 		}
 	},
 	"taskDetail": {

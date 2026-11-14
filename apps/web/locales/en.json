@@ -5415,7 +5415,7 @@
 			"CODES_LEFT": "{count, plural, =0 {No unused code left} one {# unused code left} other {# unused codes left}}",
 			"NEW_CODES": "New recovery codes",
 			"SETUP_STEP_KEY": "1. Add this account to your authenticator app",
-			"SETUP_STEP_KEY_TEXT": "On this device, open the link. On another device, add an account in the app and type this key.",
+			"SETUP_STEP_KEY_TEXT": "Scan the QR code with your authenticator app. On this device, open the link instead, or type the key.",
 			"SETUP_KEY_LABEL": "Setup key",
 			"COPY_KEY": "Copy key",
 			"OPEN_IN_APP": "Open in authenticator app",
@@ -5448,7 +5448,8 @@
 			"UNSUPPORTED_DESCRIPTION": "This server does not offer two-factor authentication.",
 			"READ_FAILED": "Two-factor authentication could not be read",
 			"REQUIRED_TITLE": "Your organization asks you to turn this on",
-			"REQUIRED_DESCRIPTION": "Its members sign in with a code from an authenticator app as well."
+			"REQUIRED_DESCRIPTION": "Its members sign in with a code from an authenticator app as well.",
+			"QR_ALT": "QR code of this account for your authenticator app"
 		}
 	},
 	"taskDetail": {
