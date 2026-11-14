@@ -1,7 +1,8 @@
 jest.mock('@/core/hooks/task-automations/use-task-automations', () => ({ useTaskAutomationsAvailability: jest.fn() }));
+jest.mock('@/core/hooks/settings/use-user-api-tokens', () => ({ useUserApiTokensAvailability: jest.fn() }));
 
-import { entriesOfGroup } from '@/core/components/settings/kit/settings-entries';
-import { showsAutomationsEntry } from './use-hidden-settings-entries';
+import { entriesOfGroup, type SettingsEntryId } from '@/core/components/settings/kit/settings-entries';
+import { hiddenSettingsEntriesOf, showsApiTokensEntry, showsAutomationsEntry } from './use-hidden-settings-entries';
 
 describe('the Automations settings entry', () => {
 	it('shows only while the platform says it has the automations', () => {
@@ -21,5 +22,28 @@ describe('the Automations settings entry', () => {
 		expect(ids(false)).not.toContain('automations');
 		expect(ids(true, new Set(['automations']))).not.toContain('automations');
 		expect(ids(true, new Set(['automations']))).toContain('integrations');
+	});
+});
+
+describe('the API tokens settings entry (#5209)', () => {
+	it('shows only once the server says it has personal API tokens on', () => {
+		expect(showsApiTokensEntry('enabled')).toBe(true);
+		expect(showsApiTokensEntry('disabled')).toBe(false);
+		expect(showsApiTokensEntry('loading')).toBe(false);
+		expect(showsApiTokensEntry('error')).toBe(false);
+	});
+
+	it('hides each optional entry on its own answer', () => {
+		const accountIds = (hidden: ReadonlySet<SettingsEntryId>) =>
+			entriesOfGroup('account', true, hidden).map((entry) => entry.id);
+		const bothShown = hiddenSettingsEntriesOf({ showsAutomations: true, showsApiTokens: true });
+		const tokensHidden = hiddenSettingsEntriesOf({ showsAutomations: true, showsApiTokens: false });
+		const automationsHidden = hiddenSettingsEntriesOf({ showsAutomations: false, showsApiTokens: true });
+
+		expect([...bothShown]).toEqual([]);
+		expect(accountIds(bothShown)).toContain('apiTokens');
+		expect(accountIds(tokensHidden)).not.toContain('apiTokens');
+		expect([...automationsHidden]).toEqual(['automations']);
+		expect(accountIds(automationsHidden)).toContain('apiTokens');
 	});
 });
