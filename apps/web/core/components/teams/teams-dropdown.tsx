@@ -34,9 +34,14 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { TOrganizationTeam } from '@/core/types/schemas';
 import { useActiveTeamSnapshot } from '@/core/hooks/organizations/teams/use-active-team-snapshot';
+import { useTeamMenuOrganizations } from '@/core/hooks/organizations/teams/use-team-menu-organizations';
+import { useSwitchOrganization } from '@/core/hooks/organizations/teams/use-switch-organization';
+import type { ITeamMenuOrganization } from '@/core/lib/utils/team-menu-organizations';
+import { TeamMenuOrganizations, teamImageOf } from './team-menu-organizations';
 
 const TEAM_SWITCH_BLOCKED_TOAST_ID = 'team-switch-blocked-timer-running';
 const CREATE_BLOCKED_TOAST_ID = 'create-blocked-timer-running';
+const ORGANIZATION_SWITCH_FAILED_TOAST_ID = 'organization-switch-failed';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { data: user } = useUserQuery();
@@ -142,6 +147,39 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 		[selectTeam]
 	);
 
+	// The person's other organizations of the workspace, read once the session is known so the menu opens on them
+	const menuOrganizations = useTeamMenuOrganizations();
+	const switchOrganization = useSwitchOrganization();
+	const [failedOrganizationId, setFailedOrganizationId] = useState<string | null>(null);
+	const otherOrganizations = menuOrganizations.data?.others ?? [];
+	const currentOrganizationName = menuOrganizations.data?.current?.name;
+	const hasOtherOrganizations = otherOrganizations.length > 0;
+	const labelsCurrentOrganization = hasOtherOrganizations && Boolean(currentOrganizationName);
+	const switchingOrganizationId = organizationBeingOpened(switchOrganization);
+	const isSwitchingOrganization = switchingOrganizationId !== null;
+
+	const openOtherOrganization = useCallback(
+		(organization: ITeamMenuOrganization, team?: TOrganizationTeam) => {
+			if (timerRunningStatus) {
+				toast.warning(t('common.TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'), {
+					id: TEAM_SWITCH_BLOCKED_TOAST_ID
+				});
+				return;
+			}
+			setFailedOrganizationId(null);
+			switchOrganization.mutate(
+				{ organizationId: organization.id, team },
+				{
+					onError: () => {
+						setFailedOrganizationId(organization.id);
+						toast.error(t('switchers.ORGANIZATION_SWITCH_FAILED'), { id: ORGANIZATION_SWITCH_FAILED_TOAST_ID });
+					}
+				}
+			);
+		},
+		[switchOrganization, t, timerRunningStatus]
+	);
+
 	const startTeamCreation = useCallback(() => {
 		if (timerRunningStatus) {
 			toast.warning(t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'), { id: CREATE_BLOCKED_TOAST_ID });
@@ -185,7 +223,12 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 					</DropdownMenuTrigger>
 
 					<DropdownMenuContent align="end" sideOffset={6} className="w-72">
-						<DropdownMenuLabel>{t('common.TEAMS')}</DropdownMenuLabel>
+						{labelsCurrentOrganization && (
+							<DropdownMenuLabel className="truncate" title={currentOrganizationName}>
+								{currentOrganizationName}
+							</DropdownMenuLabel>
+						)}
+						{!labelsCurrentOrganization && <DropdownMenuLabel>{t('common.TEAMS')}</DropdownMenuLabel>}
 
 						{timerRunningStatus && (
 							<div className="mx-1 mb-1 flex items-start gap-2 rounded-md bg-warning/10 px-2 py-1.5 text-xs text-warning-foreground">
@@ -222,6 +265,19 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 								</DropdownMenuItem>
 							);
 						})}
+
+						<TeamMenuOrganizations
+							organizations={otherOrganizations}
+							isLoading={menuOrganizations.isLoading}
+							isError={menuOrganizations.isError}
+							onRetry={() => void menuOrganizations.refetch()}
+							isDisabled={timerRunningStatus || isSwitchingOrganization}
+							switchingOrganizationId={switchingOrganizationId}
+							failedOrganizationId={failedOrganizationId}
+							onPickTeam={openOtherOrganization}
+							onPickOrganization={(organization) => openOtherOrganization(organization)}
+							countClassName={COUNT_KEYCAP}
+						/>
 
 						<DropdownMenuSeparator />
 
@@ -272,12 +328,12 @@ const COUNT_KEYCAP = cn(commandKeycapClass, 'tabular-nums');
 const TEAM_SETTINGS_BUTTON =
 	'flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground/70 outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25';
 
-function teamImageOf(team: TOrganizationTeam | null | undefined) {
-	const thumbUrl = team?.image?.thumbUrl;
-	if (thumbUrl) {
-		return thumbUrl;
+/** The organization a switch under way is opening, or null when none runs. */
+function organizationBeingOpened(switching: ReturnType<typeof useSwitchOrganization>): string | null {
+	if (!switching.isPending) {
+		return null;
 	}
-	return team?.image?.fullUrl ?? '';
+	return switching.variables?.organizationId ?? null;
 }
 
 function activeTeamFirst(teams: TOrganizationTeam[], activeTeamId: string | undefined) {
