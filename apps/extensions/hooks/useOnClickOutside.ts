@@ -1,6 +1,6 @@
-import { RefObject, useEffect } from 'react';
+import { useEffect, type RefObject } from 'react';
 
-const useOnClickOutside = (ref: RefObject<HTMLElement>, handler: Function) => {
+const useOnClickOutside = (ref: RefObject<HTMLElement | null>, handler: Function) => {
 	useEffect(
 		() => {
 			const listener = (event: any) => {

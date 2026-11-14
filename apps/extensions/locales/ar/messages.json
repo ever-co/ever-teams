@@ -1,0 +1,206 @@
+{
+	"signInTitle": {
+		"message": "تسجيل الدخول إلى Ever Teams"
+	},
+	"signInEmailLabel": {
+		"message": "البريد الإلكتروني"
+	},
+	"signInEmailPlaceholder": {
+		"message": "you@company.com"
+	},
+	"signInSendCode": {
+		"message": "أرسل لي رمزًا"
+	},
+	"signInSending": {
+		"message": "جارٍ الإرسال…"
+	},
+	"signInCodeSent": {
+		"message": "أرسلنا رمزًا إلى $EMAIL$. أدخله أدناه.",
+		"placeholders": {
+			"email": {
+				"content": "$1",
+				"example": "marie@example.com"
+			}
+		}
+	},
+	"signInCodeLabel": {
+		"message": "الرمز"
+	},
+	"signInConfirm": {
+		"message": "تسجيل الدخول"
+	},
+	"signInConfirming": {
+		"message": "جارٍ تسجيل الدخول…"
+	},
+	"signInOtherEmail": {
+		"message": "استخدام بريد آخر"
+	},
+	"signInWrongCode": {
+		"message": "هذا الرمز غير صالح أو منتهي الصلاحية."
+	},
+	"signInNoWorkspace": {
+		"message": "لا توجد مساحة عمل متاحة لهذا البريد."
+	},
+	"signInChooseWorkspace": {
+		"message": "اختر مساحة عمل"
+	},
+	"headerTeam": {
+		"message": "الفريق"
+	},
+	"headerAccount": {
+		"message": "الحساب"
+	},
+	"headerSettings": {
+		"message": "الإعدادات"
+	},
+	"headerSignOut": {
+		"message": "تسجيل الخروج"
+	},
+	"timerRegion": {
+		"message": "المؤقت"
+	},
+	"timerLoading": {
+		"message": "جارٍ تحميل المؤقت…"
+	},
+	"timerStart": {
+		"message": "ابدأ"
+	},
+	"timerStop": {
+		"message": "إيقاف"
+	},
+	"timerStarting": {
+		"message": "جارٍ البدء…"
+	},
+	"timerStopping": {
+		"message": "جارٍ الإيقاف…"
+	},
+	"timerNoTask": {
+		"message": "اختر مهمة أدناه لبدء المؤقت."
+	},
+	"timerStartedElsewhere": {
+		"message": "بدأ في تطبيق آخر أو على جهاز آخر."
+	},
+	"timerTotalToday": {
+		"message": "إجمالي العمل اليوم:"
+	},
+	"timerCheckTeam": {
+		"message": "عرض الفريق"
+	},
+	"tasksAll": {
+		"message": "مهامك"
+	},
+	"tasksSearch": {
+		"message": "ابحث في مهامك"
+	},
+	"tasksRecent": {
+		"message": "حديثة"
+	},
+	"tasksLoading": {
+		"message": "جارٍ تحميل مهامك…"
+	},
+	"tasksLoadFailed": {
+		"message": "تعذر تحميل مهامك."
+	},
+	"tasksEmpty": {
+		"message": "لا توجد مهام مسندة إليك في هذا الفريق."
+	},
+	"tasksNoMatch": {
+		"message": "لا توجد مهمة مطابقة لبحثك."
+	},
+	"tasksNewTaskLabel": {
+		"message": "مهمة جديدة"
+	},
+	"tasksNewTaskPlaceholder": {
+		"message": "مثال: إضافة Ever Teams"
+	},
+	"tasksEstimated": {
+		"message": "التقدير:"
+	},
+	"tasksEstimateHours": {
+		"message": "الساعات المقدرة"
+	},
+	"tasksEstimateMinutes": {
+		"message": "الدقائق المقدرة"
+	},
+	"tasksHoursShort": {
+		"message": "س"
+	},
+	"tasksMinutesShort": {
+		"message": "د"
+	},
+	"tasksAddTask": {
+		"message": "إضافة مهمة"
+	},
+	"tasksAddFailed": {
+		"message": "تعذر إنشاء المهمة."
+	},
+	"refusalPlanRequired": {
+		"message": "يتطلب فريقك خطة يومية قبل تسجيل الوقت. خطط ليومك أولًا."
+	},
+	"refusalTaskNotPlanned": {
+		"message": "أضف هذه المهمة إلى خطة اليوم قبل تسجيل الوقت عليها."
+	},
+	"refusalTrackingOff": {
+		"message": "تتبع الوقت متوقف لك. اطلب من أحد المسؤولين تشغيله."
+	},
+	"errorOffline": {
+		"message": "تعذر الوصول إلى Ever Teams. تحقق من الاتصال ثم أعد المحاولة."
+	},
+	"errorSessionExpired": {
+		"message": "انتهت جلستك. سجّل الدخول مرة أخرى."
+	},
+	"errorTimerChangedElsewhere": {
+		"message": "تغير المؤقت في تطبيق آخر. يعرض الآن ما يعمل."
+	},
+	"errorWithReason": {
+		"message": "$REASON$",
+		"placeholders": {
+			"reason": {
+				"content": "$1",
+				"example": "Task is archived"
+			}
+		}
+	},
+	"errorGeneric": {
+		"message": "حدث خطأ ما. أعد المحاولة."
+	},
+	"actionRetry": {
+		"message": "إعادة المحاولة"
+	},
+	"optionsTitle": {
+		"message": "إعدادات إضافة Ever Teams"
+	},
+	"optionsApiUrl": {
+		"message": "عنوان واجهة البرمجة"
+	},
+	"optionsApiUrlHint": {
+		"message": "واجهة Ever Teams التي تسجل الدخول إليها: https://api.ever.team للخدمة المستضافة، أو خادمك الخاص."
+	},
+	"optionsAppUrl": {
+		"message": "عنوان تطبيق الويب"
+	},
+	"optionsSignedOutNote": {
+		"message": "تغيير عنوان واجهة البرمجة يسجل خروجك من الإضافة."
+	},
+	"optionsInvalidUrl": {
+		"message": "أدخل عنوانًا كاملًا يبدأ بـ https:// (أو http://localhost لخادم محلي)."
+	},
+	"optionsSave": {
+		"message": "حفظ"
+	},
+	"optionsSaved": {
+		"message": "تم الحفظ."
+	},
+	"refusalRequiredTeamAndProject": {
+		"message": "تشترط مؤسستك فريقًا ومشروعًا لكل مؤقت. افتح أحد فرقك وضع المهمة في مشروع، ثم ابدأ من جديد."
+	},
+	"refusalRequiredTeam": {
+		"message": "تشترط مؤسستك فريقًا لكل مؤقت. افتح أحد فرقك ثم ابدأ من جديد."
+	},
+	"refusalRequiredProject": {
+		"message": "تشترط مؤسستك مشروعًا لكل مؤقت. ضع المهمة في مشروع أو حدد مشروعًا افتراضيًا للفريق، ثم ابدأ من جديد."
+	},
+	"refusalRequiredDetails": {
+		"message": "تشترط مؤسستك بيانات لا يحملها هذا المؤقت. اسأل مسؤولًا عنها."
+	}
+}

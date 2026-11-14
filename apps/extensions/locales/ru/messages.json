@@ -1,0 +1,206 @@
+{
+	"signInTitle": {
+		"message": "Вход в Ever Teams"
+	},
+	"signInEmailLabel": {
+		"message": "Электронная почта"
+	},
+	"signInEmailPlaceholder": {
+		"message": "vy@kompaniya.ru"
+	},
+	"signInSendCode": {
+		"message": "Отправить код"
+	},
+	"signInSending": {
+		"message": "Отправка…"
+	},
+	"signInCodeSent": {
+		"message": "Мы отправили код на $EMAIL$. Введите его ниже.",
+		"placeholders": {
+			"email": {
+				"content": "$1",
+				"example": "marie@example.com"
+			}
+		}
+	},
+	"signInCodeLabel": {
+		"message": "Код"
+	},
+	"signInConfirm": {
+		"message": "Войти"
+	},
+	"signInConfirming": {
+		"message": "Вход…"
+	},
+	"signInOtherEmail": {
+		"message": "Другой адрес"
+	},
+	"signInWrongCode": {
+		"message": "Код неверный или устарел."
+	},
+	"signInNoWorkspace": {
+		"message": "Для этого адреса нет доступного рабочего пространства."
+	},
+	"signInChooseWorkspace": {
+		"message": "Выберите рабочее пространство"
+	},
+	"headerTeam": {
+		"message": "Команда"
+	},
+	"headerAccount": {
+		"message": "Аккаунт"
+	},
+	"headerSettings": {
+		"message": "Настройки"
+	},
+	"headerSignOut": {
+		"message": "Выйти"
+	},
+	"timerRegion": {
+		"message": "Таймер"
+	},
+	"timerLoading": {
+		"message": "Загрузка таймера…"
+	},
+	"timerStart": {
+		"message": "Старт"
+	},
+	"timerStop": {
+		"message": "Стоп"
+	},
+	"timerStarting": {
+		"message": "Запуск…"
+	},
+	"timerStopping": {
+		"message": "Остановка…"
+	},
+	"timerNoTask": {
+		"message": "Выберите задачу ниже, чтобы запустить таймер."
+	},
+	"timerStartedElsewhere": {
+		"message": "Запущен в другом приложении или на другом устройстве."
+	},
+	"timerTotalToday": {
+		"message": "Всего сегодня:"
+	},
+	"timerCheckTeam": {
+		"message": "Открыть команду"
+	},
+	"tasksAll": {
+		"message": "Ваши задачи"
+	},
+	"tasksSearch": {
+		"message": "Поиск задач"
+	},
+	"tasksRecent": {
+		"message": "Недавняя"
+	},
+	"tasksLoading": {
+		"message": "Загрузка задач…"
+	},
+	"tasksLoadFailed": {
+		"message": "Не удалось загрузить задачи."
+	},
+	"tasksEmpty": {
+		"message": "В этой команде вам не назначено задач."
+	},
+	"tasksNoMatch": {
+		"message": "Нет задач по вашему запросу."
+	},
+	"tasksNewTaskLabel": {
+		"message": "Новая задача"
+	},
+	"tasksNewTaskPlaceholder": {
+		"message": "напр. Расширение Ever Teams"
+	},
+	"tasksEstimated": {
+		"message": "Оценка:"
+	},
+	"tasksEstimateHours": {
+		"message": "Оценка в часах"
+	},
+	"tasksEstimateMinutes": {
+		"message": "Оценка в минутах"
+	},
+	"tasksHoursShort": {
+		"message": "ч"
+	},
+	"tasksMinutesShort": {
+		"message": "мин"
+	},
+	"tasksAddTask": {
+		"message": "Добавить задачу"
+	},
+	"tasksAddFailed": {
+		"message": "Не удалось создать задачу."
+	},
+	"refusalPlanRequired": {
+		"message": "Ваша команда требует план на день перед учётом времени. Сначала спланируйте день."
+	},
+	"refusalTaskNotPlanned": {
+		"message": "Добавьте эту задачу в план на сегодня перед учётом времени."
+	},
+	"refusalTrackingOff": {
+		"message": "Учёт времени для вас отключён. Попросите администратора включить его."
+	},
+	"errorOffline": {
+		"message": "Ever Teams недоступен. Проверьте соединение и повторите попытку."
+	},
+	"errorSessionExpired": {
+		"message": "Сеанс завершён. Войдите снова."
+	},
+	"errorTimerChangedElsewhere": {
+		"message": "Таймер изменился в другом приложении. Теперь показано текущее."
+	},
+	"errorWithReason": {
+		"message": "$REASON$",
+		"placeholders": {
+			"reason": {
+				"content": "$1",
+				"example": "Task is archived"
+			}
+		}
+	},
+	"errorGeneric": {
+		"message": "Что-то пошло не так. Повторите попытку."
+	},
+	"actionRetry": {
+		"message": "Повторить"
+	},
+	"optionsTitle": {
+		"message": "Настройки расширения Ever Teams"
+	},
+	"optionsApiUrl": {
+		"message": "Адрес API"
+	},
+	"optionsApiUrlHint": {
+		"message": "API Ever Teams для входа: https://api.ever.team для облачного сервиса или ваш сервер."
+	},
+	"optionsAppUrl": {
+		"message": "Адрес веб-приложения"
+	},
+	"optionsSignedOutNote": {
+		"message": "При смене адреса API вы выйдете из расширения."
+	},
+	"optionsInvalidUrl": {
+		"message": "Введите полный адрес, начинающийся с https:// (или http://localhost для локального сервера)."
+	},
+	"optionsSave": {
+		"message": "Сохранить"
+	},
+	"optionsSaved": {
+		"message": "Сохранено."
+	},
+	"refusalRequiredTeamAndProject": {
+		"message": "Ваша организация требует указывать команду и проект для каждого таймера. Откройте одну из своих команд, добавьте задачу в проект и запустите снова."
+	},
+	"refusalRequiredTeam": {
+		"message": "Ваша организация требует указывать команду для каждого таймера. Откройте одну из своих команд и запустите снова."
+	},
+	"refusalRequiredProject": {
+		"message": "Ваша организация требует указывать проект для каждого таймера. Добавьте задачу в проект или задайте команде проект по умолчанию и запустите снова."
+	},
+	"refusalRequiredDetails": {
+		"message": "Ваша организация требует данные, которых у этого таймера нет. Спросите администратора, какие."
+	}
+}

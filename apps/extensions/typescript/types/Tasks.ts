@@ -1,10 +1,6 @@
+/** A task's estimate as the estimate fields show it, "hh:mm". */
 export interface ITask {
-	id: number;
+	id: string;
 	title: string;
 	estimated: string;
-}
-
-export interface ITimerTask {
-	id: number;
-	timer: number;
 }

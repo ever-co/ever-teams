@@ -1,0 +1,206 @@
+{
+	"signInTitle": {
+		"message": "登录 Ever Teams"
+	},
+	"signInEmailLabel": {
+		"message": "邮箱"
+	},
+	"signInEmailPlaceholder": {
+		"message": "you@company.com"
+	},
+	"signInSendCode": {
+		"message": "发送验证码"
+	},
+	"signInSending": {
+		"message": "正在发送…"
+	},
+	"signInCodeSent": {
+		"message": "我们已向 $EMAIL$ 发送验证码，请在下方输入。",
+		"placeholders": {
+			"email": {
+				"content": "$1",
+				"example": "marie@example.com"
+			}
+		}
+	},
+	"signInCodeLabel": {
+		"message": "验证码"
+	},
+	"signInConfirm": {
+		"message": "登录"
+	},
+	"signInConfirming": {
+		"message": "正在登录…"
+	},
+	"signInOtherEmail": {
+		"message": "使用其他邮箱"
+	},
+	"signInWrongCode": {
+		"message": "验证码无效或已过期。"
+	},
+	"signInNoWorkspace": {
+		"message": "此邮箱没有可用的工作区。"
+	},
+	"signInChooseWorkspace": {
+		"message": "选择工作区"
+	},
+	"headerTeam": {
+		"message": "团队"
+	},
+	"headerAccount": {
+		"message": "账户"
+	},
+	"headerSettings": {
+		"message": "设置"
+	},
+	"headerSignOut": {
+		"message": "退出登录"
+	},
+	"timerRegion": {
+		"message": "计时器"
+	},
+	"timerLoading": {
+		"message": "正在加载计时器…"
+	},
+	"timerStart": {
+		"message": "开始"
+	},
+	"timerStop": {
+		"message": "停止"
+	},
+	"timerStarting": {
+		"message": "正在开始…"
+	},
+	"timerStopping": {
+		"message": "正在停止…"
+	},
+	"timerNoTask": {
+		"message": "在下方选择一个任务以开始计时。"
+	},
+	"timerStartedElsewhere": {
+		"message": "已在其他应用或设备上开始。"
+	},
+	"timerTotalToday": {
+		"message": "今日工作总计："
+	},
+	"timerCheckTeam": {
+		"message": "查看团队"
+	},
+	"tasksAll": {
+		"message": "你的任务"
+	},
+	"tasksSearch": {
+		"message": "搜索你的任务"
+	},
+	"tasksRecent": {
+		"message": "最近"
+	},
+	"tasksLoading": {
+		"message": "正在加载任务…"
+	},
+	"tasksLoadFailed": {
+		"message": "无法加载你的任务。"
+	},
+	"tasksEmpty": {
+		"message": "你在此团队中没有分配的任务。"
+	},
+	"tasksNoMatch": {
+		"message": "没有与搜索匹配的任务。"
+	},
+	"tasksNewTaskLabel": {
+		"message": "新任务"
+	},
+	"tasksNewTaskPlaceholder": {
+		"message": "例如：Ever Teams 扩展"
+	},
+	"tasksEstimated": {
+		"message": "预估："
+	},
+	"tasksEstimateHours": {
+		"message": "预估小时"
+	},
+	"tasksEstimateMinutes": {
+		"message": "预估分钟"
+	},
+	"tasksHoursShort": {
+		"message": "时"
+	},
+	"tasksMinutesShort": {
+		"message": "分"
+	},
+	"tasksAddTask": {
+		"message": "添加任务"
+	},
+	"tasksAddFailed": {
+		"message": "无法创建任务。"
+	},
+	"refusalPlanRequired": {
+		"message": "你的团队要求先制定每日计划才能计时。请先规划今天。"
+	},
+	"refusalTaskNotPlanned": {
+		"message": "请先将此任务加入今天的计划再计时。"
+	},
+	"refusalTrackingOff": {
+		"message": "你的计时功能已关闭。请联系管理员开启。"
+	},
+	"errorOffline": {
+		"message": "无法连接 Ever Teams。请检查网络后重试。"
+	},
+	"errorSessionExpired": {
+		"message": "会话已结束，请重新登录。"
+	},
+	"errorTimerChangedElsewhere": {
+		"message": "计时器已在其他应用中更改，现在显示正在进行的计时。"
+	},
+	"errorWithReason": {
+		"message": "$REASON$",
+		"placeholders": {
+			"reason": {
+				"content": "$1",
+				"example": "Task is archived"
+			}
+		}
+	},
+	"errorGeneric": {
+		"message": "出了点问题，请重试。"
+	},
+	"actionRetry": {
+		"message": "重试"
+	},
+	"optionsTitle": {
+		"message": "Ever Teams 扩展设置"
+	},
+	"optionsApiUrl": {
+		"message": "API 地址"
+	},
+	"optionsApiUrlHint": {
+		"message": "你登录的 Ever Teams API：托管服务为 https://api.ever.team，或你自己的服务器。"
+	},
+	"optionsAppUrl": {
+		"message": "Web 应用地址"
+	},
+	"optionsSignedOutNote": {
+		"message": "更改 API 地址会让你退出扩展。"
+	},
+	"optionsInvalidUrl": {
+		"message": "请输入以 https:// 开头的完整地址（本地服务器可用 http://localhost）。"
+	},
+	"optionsSave": {
+		"message": "保存"
+	},
+	"optionsSaved": {
+		"message": "已保存。"
+	},
+	"refusalRequiredTeamAndProject": {
+		"message": "你的组织要求每个计时器都带有团队和项目。请打开你的一个团队并把任务放进一个项目，然后重新开始。"
+	},
+	"refusalRequiredTeam": {
+		"message": "你的组织要求每个计时器都带有团队。请打开你的一个团队，然后重新开始。"
+	},
+	"refusalRequiredProject": {
+		"message": "你的组织要求每个计时器都带有项目。请把任务放进一个项目，或为团队设置默认项目，然后重新开始。"
+	},
+	"refusalRequiredDetails": {
+		"message": "你的组织要求的信息这个计时器没有。请询问管理员需要哪些。"
+	}
+}

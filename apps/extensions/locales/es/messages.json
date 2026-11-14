@@ -1,0 +1,206 @@
+{
+	"signInTitle": {
+		"message": "Iniciar sesión en Ever Teams"
+	},
+	"signInEmailLabel": {
+		"message": "Correo electrónico"
+	},
+	"signInEmailPlaceholder": {
+		"message": "tu@empresa.com"
+	},
+	"signInSendCode": {
+		"message": "Enviarme un código"
+	},
+	"signInSending": {
+		"message": "Enviando…"
+	},
+	"signInCodeSent": {
+		"message": "Enviamos un código a $EMAIL$. Escríbelo abajo.",
+		"placeholders": {
+			"email": {
+				"content": "$1",
+				"example": "marie@example.com"
+			}
+		}
+	},
+	"signInCodeLabel": {
+		"message": "Código"
+	},
+	"signInConfirm": {
+		"message": "Iniciar sesión"
+	},
+	"signInConfirming": {
+		"message": "Iniciando sesión…"
+	},
+	"signInOtherEmail": {
+		"message": "Usar otro correo"
+	},
+	"signInWrongCode": {
+		"message": "Este código no es válido o ha caducado."
+	},
+	"signInNoWorkspace": {
+		"message": "Ningún espacio de trabajo está abierto a este correo."
+	},
+	"signInChooseWorkspace": {
+		"message": "Elige un espacio de trabajo"
+	},
+	"headerTeam": {
+		"message": "Equipo"
+	},
+	"headerAccount": {
+		"message": "Cuenta"
+	},
+	"headerSettings": {
+		"message": "Ajustes"
+	},
+	"headerSignOut": {
+		"message": "Cerrar sesión"
+	},
+	"timerRegion": {
+		"message": "Temporizador"
+	},
+	"timerLoading": {
+		"message": "Cargando el temporizador…"
+	},
+	"timerStart": {
+		"message": "Iniciar"
+	},
+	"timerStop": {
+		"message": "Detener"
+	},
+	"timerStarting": {
+		"message": "Iniciando…"
+	},
+	"timerStopping": {
+		"message": "Deteniendo…"
+	},
+	"timerNoTask": {
+		"message": "Elige una tarea abajo para iniciar el temporizador."
+	},
+	"timerStartedElsewhere": {
+		"message": "Iniciado en otra aplicación o en otro dispositivo."
+	},
+	"timerTotalToday": {
+		"message": "Total trabajado hoy:"
+	},
+	"timerCheckTeam": {
+		"message": "Ver el equipo"
+	},
+	"tasksAll": {
+		"message": "Tus tareas"
+	},
+	"tasksSearch": {
+		"message": "Buscar tus tareas"
+	},
+	"tasksRecent": {
+		"message": "Reciente"
+	},
+	"tasksLoading": {
+		"message": "Cargando tus tareas…"
+	},
+	"tasksLoadFailed": {
+		"message": "No se pudieron cargar tus tareas."
+	},
+	"tasksEmpty": {
+		"message": "No tienes tareas asignadas en este equipo."
+	},
+	"tasksNoMatch": {
+		"message": "Ninguna tarea coincide con tu búsqueda."
+	},
+	"tasksNewTaskLabel": {
+		"message": "Nueva tarea"
+	},
+	"tasksNewTaskPlaceholder": {
+		"message": "ej. Extensión de Ever Teams"
+	},
+	"tasksEstimated": {
+		"message": "Estimado:"
+	},
+	"tasksEstimateHours": {
+		"message": "Horas estimadas"
+	},
+	"tasksEstimateMinutes": {
+		"message": "Minutos estimados"
+	},
+	"tasksHoursShort": {
+		"message": "hh"
+	},
+	"tasksMinutesShort": {
+		"message": "mm"
+	},
+	"tasksAddTask": {
+		"message": "Añadir tarea"
+	},
+	"tasksAddFailed": {
+		"message": "No se pudo crear la tarea."
+	},
+	"refusalPlanRequired": {
+		"message": "Tu equipo exige un plan diario antes de registrar tiempo. Planifica tu día primero."
+	},
+	"refusalTaskNotPlanned": {
+		"message": "Añade esta tarea al plan de hoy antes de registrar tiempo en ella."
+	},
+	"refusalTrackingOff": {
+		"message": "El registro de tiempo está desactivado para ti. Pide a un administrador que lo active."
+	},
+	"errorOffline": {
+		"message": "No se puede acceder a Ever Teams. Revisa la conexión e inténtalo de nuevo."
+	},
+	"errorSessionExpired": {
+		"message": "Tu sesión ha terminado. Vuelve a iniciar sesión."
+	},
+	"errorTimerChangedElsewhere": {
+		"message": "El temporizador cambió en otra aplicación. Ahora muestra lo que está en marcha."
+	},
+	"errorWithReason": {
+		"message": "$REASON$",
+		"placeholders": {
+			"reason": {
+				"content": "$1",
+				"example": "Task is archived"
+			}
+		}
+	},
+	"errorGeneric": {
+		"message": "Algo salió mal. Inténtalo de nuevo."
+	},
+	"actionRetry": {
+		"message": "Reintentar"
+	},
+	"optionsTitle": {
+		"message": "Ajustes de la extensión de Ever Teams"
+	},
+	"optionsApiUrl": {
+		"message": "Dirección de la API"
+	},
+	"optionsApiUrlHint": {
+		"message": "La API de Ever Teams en la que inicias sesión: https://api.ever.team para el servicio alojado, o tu propio servidor."
+	},
+	"optionsAppUrl": {
+		"message": "Dirección de la aplicación web"
+	},
+	"optionsSignedOutNote": {
+		"message": "Cambiar la dirección de la API cierra tu sesión en la extensión."
+	},
+	"optionsInvalidUrl": {
+		"message": "Escribe una dirección completa que empiece por https:// (o http://localhost para un servidor local)."
+	},
+	"optionsSave": {
+		"message": "Guardar"
+	},
+	"optionsSaved": {
+		"message": "Guardado."
+	},
+	"refusalRequiredTeamAndProject": {
+		"message": "Tu organización exige un equipo y un proyecto en cada temporizador. Abre uno de tus equipos, pon la tarea en un proyecto y vuelve a iniciarlo."
+	},
+	"refusalRequiredTeam": {
+		"message": "Tu organización exige un equipo en cada temporizador. Abre uno de tus equipos y vuelve a iniciarlo."
+	},
+	"refusalRequiredProject": {
+		"message": "Tu organización exige un proyecto en cada temporizador. Pon la tarea en un proyecto o da al equipo un proyecto predeterminado y vuelve a iniciarlo."
+	},
+	"refusalRequiredDetails": {
+		"message": "Tu organización exige datos que este temporizador no tiene. Pregunta a un administrador cuáles."
+	}
+}
