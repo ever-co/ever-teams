@@ -2793,7 +2793,32 @@
 			"HINT_RUNNING": "Zmiany wprowadzone podczas działania timera nie są jeszcze zapisywane. Aby zmienić notatki, edytuj wpis w kartach czasu pracy po zatrzymaniu timera.",
 			"HINT_OTHER_TEAM": "Te notatki należą do timera działającego w innym zespole, więc nie można ich tutaj zmienić."
 		},
-		"NOT_BILLABLE": "Niefakturowane"
+		"NOT_BILLABLE": "Niefakturowane",
+		"startMove": {
+			"TITLE": "Początek działającego timera",
+			"STARTED_AT": "Rozpoczęto o {time}",
+			"OPEN": "Rozpoczęto o {time}. Zmień początek",
+			"NEW_START": "Nowy początek",
+			"REASON": "Powód",
+			"REASON_PLACEHOLDER": "Dlaczego początek się zmienia",
+			"LATER_ONLY": "Nie możesz dodawać czasu ręcznie, więc początek można tylko przesunąć później.",
+			"SAVING": "Zapisywanie…",
+			"SAVED": "Timer zaczyna się teraz o {time}.",
+			"CHECKING": "Sprawdzanie, czy początek można zmienić…",
+			"VIEW_TRACKER": "Ten timer działa w aplikacji desktopowej. Zmień jego początek tam.",
+			"VIEW_NOT_ALLOWED": "Nie możesz zmieniać zarejestrowanego czasu w tej organizacji.",
+			"UNSUPPORTED": "Na tym serwerze nie można jeszcze zmienić początku działającego timera.",
+			"NOT_RUNNING": "Timer już nie działa.",
+			"TRACKER_RUN": "Ten timer działa w aplikacji desktopowej lub agencie, które same rejestrują jego czas. Zmień jego początek tam.",
+			"IN_FUTURE": "Początek nie może być późniejszy niż teraz.",
+			"EDIT_NOT_ALLOWED": "Nie możesz zmieniać zarejestrowanego czasu.",
+			"MANUAL_NOT_ALLOWED": "Wcześniejszy początek dodaje czas ręcznie, czego nie możesz robić. Wybierz późniejszy początek.",
+			"REASON_REQUIRED": "Twoja organizacja wymaga podania powodu.",
+			"REASON_TOO_LONG": "Powód jest za długi: najwyżej 255 znaków.",
+			"OVERLAP": "Inny twój wpis obejmuje ten czas. Wybierz początek po jego zakończeniu.",
+			"CHANGED": "Początek właśnie zmienił się gdzie indziej. Sprawdź go i spróbuj ponownie.",
+			"SAVE_FAILED": "Nie udało się zapisać początku. Spróbuj ponownie."
+		}
 	},
 	"task": {
 		"TITLE": "Zadanie",

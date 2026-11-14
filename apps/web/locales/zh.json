@@ -2793,7 +2793,32 @@
 			"HINT_RUNNING": "计时器运行期间所做的更改暂不保存。如需更改备注，请在停止计时器后于工时表中编辑该记录。",
 			"HINT_OTHER_TEAM": "这些备注属于另一个团队中正在运行的计时器，因此无法在此处更改。"
 		},
-		"NOT_BILLABLE": "不可计费"
+		"NOT_BILLABLE": "不可计费",
+		"startMove": {
+			"TITLE": "正在运行的计时器的开始时间",
+			"STARTED_AT": "开始于 {time}",
+			"OPEN": "开始于 {time}。更改开始时间",
+			"NEW_START": "新的开始时间",
+			"REASON": "原因",
+			"REASON_PLACEHOLDER": "开始时间为何更改",
+			"LATER_ONLY": "你无权手动添加时间，因此开始时间只能往后移。",
+			"SAVING": "正在保存…",
+			"SAVED": "计时器现在从 {time} 开始。",
+			"CHECKING": "正在检查能否更改开始时间…",
+			"VIEW_TRACKER": "此计时器在桌面应用中运行。请在那里更改开始时间。",
+			"VIEW_NOT_ALLOWED": "在此组织中你无权更改已记录的时间。",
+			"UNSUPPORTED": "此服务器暂时无法更改正在运行的计时器的开始时间。",
+			"NOT_RUNNING": "计时器已不再运行。",
+			"TRACKER_RUN": "此计时器在桌面应用或代理程序中运行，它们会自行记录时间。请在那里更改开始时间。",
+			"IN_FUTURE": "开始时间不能晚于现在。",
+			"EDIT_NOT_ALLOWED": "你无权更改已记录的时间。",
+			"MANUAL_NOT_ALLOWED": "更早的开始时间会手动添加时间，而你无权这样做。请选择更晚的开始时间。",
+			"REASON_REQUIRED": "你的组织要求填写原因。",
+			"REASON_TOO_LONG": "原因太长：最多 255 个字符。",
+			"OVERLAP": "你的另一条记录覆盖了这段时间。请选择在它结束之后的开始时间。",
+			"CHANGED": "开始时间刚刚在别处被更改。请检查后重试。",
+			"SAVE_FAILED": "无法保存开始时间。请重试。"
+		}
 	},
 	"task": {
 		"TITLE": "任务",
