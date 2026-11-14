@@ -9,10 +9,14 @@ import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 const mockGetTimeLogConflicts = jest.fn();
 const mockUpdateTimeLog = jest.fn();
+const mockGetTimeLogs = jest.fn();
+/** The entries as the API holds them now; a test changes one here to play an edit made in another tab. */
+let mockStoredLogs: ITimeLog[] = [];
 
 jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
 	timeLogService: {
 		getTimeLogConflicts: (params: unknown) => mockGetTimeLogConflicts(params),
+		getTimeLogs: (params: unknown) => mockGetTimeLogs(params),
 		updateTimeLog: (payload: unknown) => mockUpdateTimeLog(payload)
 	}
 }));
@@ -38,7 +42,16 @@ function saveOf(id: string, overrides: Partial<ITimeLog> = {}): BulkEditSave {
 		stoppedAt,
 		...overrides
 	};
+	mockStoredLogs.push({ ...log });
 	return { log, fields: { isBillable: true } };
+}
+
+function storedLog(id: string): ITimeLog {
+	const log = mockStoredLogs.find((candidate) => candidate.id === id);
+	if (!log) {
+		throw new Error(`No stored entry ${id}`);
+	}
+	return log;
 }
 
 /** Another entry of the member, recorded over the same hour. */
@@ -77,8 +90,71 @@ async function flushPromises() {
 describe('useBulkEditRun', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
+		mockStoredLogs = [];
+		mockGetTimeLogs.mockImplementation(async () => mockStoredLogs);
 		mockGetTimeLogConflicts.mockResolvedValue([]);
 		mockUpdateTimeLog.mockResolvedValue({});
+	});
+
+	it('saves an entry with the start and end it has now, not the ones read when the dialog opened', async () => {
+		const save = saveOf('a');
+		// Another tab shortens the entry to 09:00-09:30 while the dialog is open
+		const shortenedEnd = new Date('2026-11-10T09:30:00.000Z');
+		storedLog('a').stoppedAt = shortenedEnd;
+		const { result } = renderRun();
+
+		let outcomes: BulkEditOutcome[] | null = null;
+		await act(async () => {
+			outcomes = await result.current.run([save]);
+		});
+
+		expect(outcomes).toEqual([{ logId: 'a', status: 'updated' }]);
+		expect(mockGetTimeLogs).toHaveBeenCalledWith({
+			startDate: startedAt,
+			endDate: stoppedAt,
+			employeeIds: ['member']
+		});
+		expect(mockGetTimeLogConflicts).toHaveBeenCalledWith(expect.objectContaining({ endDate: shortenedEnd }));
+		expect(mockUpdateTimeLog).toHaveBeenCalledWith({
+			timeLogId: 'a',
+			startedAt,
+			stoppedAt: shortenedEnd,
+			employeeId: 'member',
+			isBillable: true
+		});
+	});
+
+	it('saves nothing for an entry that is gone since the dialog read it, and goes on with the next', async () => {
+		const removed = saveOf('a');
+		const kept = saveOf('b');
+		mockStoredLogs = mockStoredLogs.filter((log) => log.id !== 'a');
+		const { result } = renderRun();
+
+		let outcomes: BulkEditOutcome[] | null = null;
+		await act(async () => {
+			outcomes = await result.current.run([removed, kept]);
+		});
+
+		expect(outcomes).toEqual([
+			{ logId: 'a', status: 'failed' },
+			{ logId: 'b', status: 'updated' }
+		]);
+		expect(mockUpdateTimeLog).toHaveBeenCalledTimes(1);
+		expect(mockUpdateTimeLog).toHaveBeenCalledWith(expect.objectContaining({ timeLogId: 'b' }));
+	});
+
+	it('saves nothing for an entry that cannot be read again', async () => {
+		mockGetTimeLogs.mockRejectedValueOnce(new Error('The API is unreachable'));
+		const { result } = renderRun();
+
+		let outcomes: BulkEditOutcome[] | null = null;
+		await act(async () => {
+			outcomes = await result.current.run([saveOf('a')]);
+		});
+
+		expect(outcomes).toEqual([{ logId: 'a', status: 'failed' }]);
+		expect(mockGetTimeLogConflicts).not.toHaveBeenCalled();
+		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
 	});
 
 	it('saves each entry with its own interval and member, and the changed fields only', async () => {
