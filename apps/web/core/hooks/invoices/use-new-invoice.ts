@@ -321,9 +321,16 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 		() => overlappingInvoicesOf(earlierInvoices, periodDays),
 		[earlierInvoices, periodDays]
 	);
-	const overlapRecording = useInvoicesRecordingTime(overlappingInvoices, recordsBilledTime);
+	// Only the time read leaves out what a live invoice bills: saved lines may still bill hours an overlapping invoice
+	// bills, so they keep the warning until the time is taken again.
+	const leavesBilledTimeOut = recordsBilledTime && readsTime;
+	const overlapRecording = useInvoicesRecordingTime(overlappingInvoices, leavesBilledTimeOut);
 	const overlappingIds = useMemo(() => overlappingInvoices.map((saved) => saved.id), [overlappingInvoices]);
-	const overlapFacts: OverlapFacts = { overlappingIds, recordsBilledTime, recording: overlapRecording };
+	const overlapFacts: OverlapFacts = {
+		overlappingIds,
+		recordsBilledTime: leavesBilledTimeOut,
+		recording: overlapRecording
+	};
 	const overlapNotice = overlapNoticeOf(overlapFacts);
 	const overlapsAtRisk = overlapsAtRiskOf(overlapFacts);
 	// The earlier invoices are checked for the time they record before the overlap can be stated
