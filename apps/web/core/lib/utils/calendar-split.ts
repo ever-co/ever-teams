@@ -17,7 +17,7 @@ const SMALLEST_PART_MINUTES = 1;
 export type SplitRefusal = 'none' | 'tracked' | 'running' | 'too-short' | 'approved' | 'permission';
 
 /** What the page knows of the entry's days and of the viewer. */
-export interface SplitRules {
+interface SplitRules {
 	isOnApprovedDay: boolean;
 	/** The viewer may change recorded time and add time by hand. */
 	mayChangeTime: boolean;
@@ -25,7 +25,7 @@ export interface SplitRules {
 
 const NO_LIMITS: SplitRules = { isOnApprovedDay: false, mayChangeTime: true };
 
-export interface SplitParts {
+interface SplitParts {
 	first: TimeWindow;
 	second: TimeWindow;
 }

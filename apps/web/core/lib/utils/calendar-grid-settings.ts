@@ -5,7 +5,7 @@ const MINUTES_PER_HOUR = 60;
 /** The steps a drag in the week and day grids snaps to, in minutes. */
 export const SNAP_STEP_OPTIONS = [1, 5, 10, 15, 30, 60] as const;
 
-export type SnapStepMinutes = (typeof SNAP_STEP_OPTIONS)[number];
+type SnapStepMinutes = (typeof SNAP_STEP_OPTIONS)[number];
 
 export const ROW_HEIGHT_OPTIONS = ['compact', 'default', 'tall'] as const;
 
@@ -42,7 +42,7 @@ export interface GridWindow {
 
 export type GridHourEdge = 'top' | 'inside' | 'bottom';
 
-export interface GridHourLabel {
+interface GridHourLabel {
 	hour: number;
 	edge: GridHourEdge;
 }

@@ -17,7 +17,7 @@ export const RESIZABLE_BLOCK_HEIGHT_PX = 24;
 
 const MINUTES_PER_HOUR = 60;
 
-export function pixelsOfMinutes(minutes: number, hourHeightPx = HOUR_HEIGHT_PX) {
+function pixelsOfMinutes(minutes: number, hourHeightPx = HOUR_HEIGHT_PX) {
 	return (minutes / MINUTES_PER_HOUR) * hourHeightPx;
 }
 
@@ -56,8 +56,6 @@ export function hourLinesStyleOf(hourHeightPx: number): CSSProperties {
 		backgroundSize: `100% ${hourHeightPx}px`
 	};
 }
-
-export const HOUR_LINES_STYLE: CSSProperties = hourLinesStyleOf(HOUR_HEIGHT_PX);
 
 /**
  * The colour a project is drawn in: its own when it has one, otherwise the hue the Team dashboard derives from its

@@ -21,7 +21,7 @@ import { isTakenOnServer, type PartOnServer, partOnServer } from './time-taken-o
  * because the entry is no longer the one the dialog split (`changed`), put back as it was, the first part kept and
  * the rest to add by hand, or an outcome the server could not confirm.
  */
-export type CalendarSplitFailure = 'overlap' | 'changed' | 'restored' | 'first-part-kept' | 'unknown';
+type CalendarSplitFailure = 'overlap' | 'changed' | 'restored' | 'first-part-kept' | 'unknown';
 
 export class CalendarSplitError extends Error {
 	constructor(
@@ -36,7 +36,7 @@ export class CalendarSplitError extends Error {
 /** A task picked for the second part. */
 export type SplitTask = Pick<TTask, 'id' | 'projectId'>;
 
-export interface CalendarSplitRequest {
+interface CalendarSplitRequest {
 	log: ITimeLog;
 	splitAt: Date;
 	/** The task the second part goes to, with its project when it has one; the entry's own task when null. */
