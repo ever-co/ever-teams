@@ -36,6 +36,7 @@ import {
 	detailedTaskState,
 	leftActiveTaskIdState,
 	localTimerStatusState,
+	organizationOpeningState,
 	timerNotesState,
 	timerStatusFetchingState,
 	timerStatusState,
@@ -256,6 +257,7 @@ export function useTimerApi({
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const isWorkspaceOpeningRef = useSyncRef(useAtomValue(workspaceOpeningState));
+	const isOrganizationOpeningRef = useSyncRef(useAtomValue(organizationOpeningState));
 	const { taskStatuses } = useTaskStatusesQuery({ enabled });
 	const detailedTask = useAtomValue(detailedTaskState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
@@ -645,12 +647,19 @@ export function useTimerApi({
 		}
 	}, [activeTeamRef, keepRunOrClearStuckFlag, queryClient, refreshUserData, stopStaleTeamsTimer, t, timerStatusRef]);
 
-	/** A new workspace is opening (#5025): says so and tells the start to stop. */
+	/**
+	 * A new workspace (#5025), or another organization of this one (#5204), is opening: says so and tells the start to
+	 * stop.
+	 */
 	const warnIfWorkspaceOpening = useCallback((): boolean => {
+		if (isOrganizationOpeningRef.current) {
+			toast.warning(t('toasts.timer.ORGANIZATION_OPENING'), { id: 'timer-organization-opening' });
+			return true;
+		}
 		if (!isWorkspaceOpeningRef.current) return false;
 		toast.warning(t('toasts.timer.WORKSPACE_OPENING'), { id: 'timer-workspace-opening' });
 		return true;
-	}, [isWorkspaceOpeningRef, t]);
+	}, [isOrganizationOpeningRef, isWorkspaceOpeningRef, t]);
 
 	const runStartTimer = useCallback(
 		async (explicitTask?: TTask, onRequestLanded?: () => void): Promise<TimerStartOutcome> => {

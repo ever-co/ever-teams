@@ -1,7 +1,9 @@
 'use client';
 
 import { useMutation } from '@tanstack/react-query';
+import { useSetAtom } from 'jotai';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { organizationOpeningState } from '@/core/stores';
 import {
 	getTenantIdCookie,
 	setAccessTokenCookie,
@@ -49,8 +51,13 @@ function rememberOpenedTeam(teamId: string) {
  */
 export function useSwitchOrganization() {
 	const { data: user } = useUserQuery();
+	const setOrganizationOpening = useSetAtom(organizationOpeningState);
 
 	return useMutation({
+		// A timer started during the switch would keep running in the organization left behind
+		onMutate: () => setOrganizationOpening(true),
+		// On success the page is replaced, which ends the hold
+		onError: () => setOrganizationOpening(false),
 		mutationFn: async ({ organizationId, team }: ISwitchOrganizationInput) => {
 			const { data: session } = await authService.switchOrganizationRaw(organizationId);
 			if (!session?.token) {

@@ -12,7 +12,13 @@ import { createStore, Provider } from 'jotai';
 import type { PropsWithChildren } from 'react';
 
 import { queryKeys } from '@/core/query/keys';
-import { activeTeamIdState, organizationTeamsState, timerNotesState, timerStatusState } from '@/core/stores';
+import {
+	activeTeamIdState,
+	organizationOpeningState,
+	organizationTeamsState,
+	timerNotesState,
+	timerStatusState
+} from '@/core/stores';
 import { timerStartNotesState } from '@/core/stores/timer/timer-start-notes';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
@@ -404,5 +410,69 @@ describe("Start with a notes draft and a continued entry's notes", () => {
 		expect(outcome).toBe('started');
 		expect(mockStartBodies).toEqual([expect.objectContaining({ description: 'Typed in the timer' })]);
 		expect(tab.store.get(timerNotesState)).toEqual({ text: 'Typed in the timer', timeLogId: 'log-new' });
+	});
+});
+
+/**
+ * #5204: picking a team of another organization in the team menu moves the session there once Gauzy answers. A timer
+ * started meanwhile would keep running in the organization left behind, so the start is refused until the page is
+ * replaced, whether the switch began before the start or during its checks.
+ */
+describe('Start while another organization of the workspace is opening', () => {
+	beforeEach(() => {
+		mockGauzy.lastLog = null;
+		mockGauzy.isTrackingTime = false;
+		mockGauzy.statusReadFails = false;
+		mockGauzy.lastLogReadFails = false;
+		mockStartBodies.length = 0;
+		mockToastWarning.mockClear();
+		mockStartTimer.mockClear();
+	});
+
+	it('refuses the start and says another organization is opening', async () => {
+		const tab = renderTab();
+		act(() => tab.store.set(organizationOpeningState, true));
+
+		const outcome = await tab.pressStart();
+
+		expect(outcome).toBe('blocked');
+		expect(mockStartTimer).not.toHaveBeenCalled();
+		expect(mockToastWarning).toHaveBeenCalledWith('toasts.timer.ORGANIZATION_OPENING', {
+			id: 'timer-organization-opening'
+		});
+	});
+
+	it('refuses the start when the switch begins during its checks', async () => {
+		const tab = renderTab();
+		let answerBillable: (isBillable: boolean) => void = () => undefined;
+		const billableRead = new Promise<boolean>((resolve) => {
+			answerBillable = resolve;
+		});
+		let billableAsked: () => void = () => undefined;
+		const isBillableAsked = new Promise<void>((resolve) => {
+			billableAsked = resolve;
+		});
+		mockResolveBillable.mockImplementationOnce(() => {
+			billableAsked();
+			return billableRead;
+		});
+
+		let started: Promise<unknown> = Promise.resolve();
+		act(() => {
+			started = tab.result.current.startTimer(TASK);
+		});
+		await act(async () => {
+			await isBillableAsked;
+		});
+		// The person picks another organization while the start reads the task's project
+		act(() => tab.store.set(organizationOpeningState, true));
+		let outcome: unknown;
+		await act(async () => {
+			answerBillable(false);
+			outcome = await started;
+		});
+
+		expect(outcome).toBe('blocked');
+		expect(mockStartTimer).not.toHaveBeenCalled();
 	});
 });

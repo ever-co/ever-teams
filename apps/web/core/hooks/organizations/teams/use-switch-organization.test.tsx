@@ -38,7 +38,9 @@ jest.mock('@/core/lib/helpers/cookies', () => ({
 	setActiveTeamIdCookie: (value: string) => mockCookies.setActiveTeamIdCookie(value)
 }));
 
+import { getDefaultStore } from 'jotai';
 import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
+import { organizationOpeningState } from '@/core/stores';
 import type { TOrganizationTeam } from '@/core/types/schemas';
 import { useSwitchOrganization } from './use-switch-organization';
 
@@ -59,6 +61,7 @@ describe('useSwitchOrganization', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		window.localStorage.clear();
+		getDefaultStore().set(organizationOpeningState, false);
 		mockSwitchOrganizationRaw.mockResolvedValue({ data: { token: 'token-labs', refresh_token: 'refresh-labs' } });
 	});
 
@@ -128,6 +131,37 @@ describe('useSwitchOrganization', () => {
 		expect(mockCookies.setOrganizationIdCookie).not.toHaveBeenCalled();
 		expect(mockCookies.setActiveTeamIdCookie).not.toHaveBeenCalled();
 		expect(assign).not.toHaveBeenCalled();
+	});
+
+	it('holds timer starts while the switch runs and releases them when it fails', async () => {
+		let refuse: (error: Error) => void = () => undefined;
+		mockSwitchOrganizationRaw.mockReturnValue(
+			new Promise((_resolve, reject) => {
+				refuse = reject;
+			})
+		);
+		const store = getDefaultStore();
+		const { result } = renderHook(() => useSwitchOrganization(), { wrapper });
+
+		act(() => {
+			result.current.mutate({ organizationId: 'labs', team: labsTeam('labs-design') });
+		});
+		await waitFor(() => expect(store.get(organizationOpeningState)).toBe(true));
+
+		await act(async () => {
+			refuse(new Error('503'));
+		});
+		await waitFor(() => expect(store.get(organizationOpeningState)).toBe(false));
+	});
+
+	it('keeps holding timer starts once the switch is done, until the page is replaced', async () => {
+		const { result } = renderHook(() => useSwitchOrganization(), { wrapper });
+
+		await act(async () => {
+			await result.current.mutateAsync({ organizationId: 'labs', team: labsTeam('labs-design') });
+		});
+
+		expect(getDefaultStore().get(organizationOpeningState)).toBe(true);
 	});
 
 	it('changes nothing when Gauzy answers without a session', async () => {
