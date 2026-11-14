@@ -1,14 +1,23 @@
 /** @jest-environment jsdom */
 import type { ReactNode } from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import type { MyWeekPageState } from '@/core/hooks/dashboards/my-week/use-my-week-page';
 import type { MyWeekDay, MyWeekEntry, MyWeekTarget } from '@/core/lib/utils/dashboards/my-week';
 import type { ProjectShareItem } from '@/core/lib/utils/dashboards/team';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import {
+	ETimeGoalComparison,
+	ETimeGoalPeriod,
+	ETimeGoalScope,
+	ETimeGoalState,
+	type ITimeGoalProgress
+} from '@/core/types/interfaces/timesheet/time-goal';
 
 let mockState: MyWeekPageState;
 let mockCanTrackTime = true;
 let mockTeamTasks: Array<{ id: string; title: string }> = [];
+let mockGoals: { rows: ITimeGoalProgress[]; isShown: boolean } = { rows: [], isShown: false };
+let mockGoalsEnabled = false;
 
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: Record<string, unknown>) =>
@@ -74,6 +83,12 @@ jest.mock('@/core/hooks/dashboards/my-week/use-my-week-page', () => ({
 	useMyWeekPage: () => mockState
 }));
 jest.mock('@/core/hooks/queries/user-user.query', () => ({ useUserQuery: () => ({ data: { id: 'user-1' } }) }));
+jest.mock('@/core/hooks/time-goals/use-my-week-goals', () => ({
+	useMyWeekGoals: (enabled: boolean) => {
+		mockGoalsEnabled = enabled;
+		return mockGoals;
+	}
+}));
 jest.mock('@/core/hooks/organizations/teams/use-active-team-member', () => ({
 	useIsTrackingEnabledFor: () => mockCanTrackTime
 }));
@@ -355,5 +370,91 @@ describe('MyWeekPage', () => {
 
 		expect(screen.queryByRole('combobox')).toBeNull();
 		expect(screen.getAllByRole('tablist')).toHaveLength(1);
+	});
+});
+
+function goalRowOf(
+	name: string,
+	comparison: ETimeGoalComparison,
+	period: ETimeGoalPeriod,
+	trackedSeconds: number,
+	targetHours: number,
+	state: ETimeGoalState
+): ITimeGoalProgress {
+	const goal = {
+		id: name,
+		name,
+		comparison,
+		targetHours,
+		period,
+		scope: ETimeGoalScope.EMPLOYEE,
+		employeeId: 'marie'
+	};
+	return {
+		goalId: goal.id,
+		goal,
+		employeeId: 'marie',
+		period,
+		startDate: '2026-11-09',
+		endDate: '2026-11-15',
+		timeZone: 'Europe/Paris',
+		trackedSeconds,
+		targetSeconds: targetHours * HOUR,
+		state
+	};
+}
+
+describe('MyWeekPage goals', () => {
+	const clientA = goalRowOf(
+		'Client A',
+		ETimeGoalComparison.AT_LEAST,
+		ETimeGoalPeriod.WEEK,
+		12 * HOUR,
+		20,
+		ETimeGoalState.IN_PROGRESS
+	);
+	const meetings = goalRowOf(
+		'Meetings',
+		ETimeGoalComparison.AT_MOST,
+		ETimeGoalPeriod.DAY,
+		2.5 * HOUR,
+		2,
+		ETimeGoalState.EXCEEDED
+	);
+
+	beforeEach(() => {
+		mockState = stateOf();
+		mockGoals = { rows: [], isShown: false };
+	});
+
+	it('shows this week\u2019s goals with the hours counted against each target and their state', () => {
+		mockGoals = { rows: [meetings, clientA], isShown: true };
+		render(<MyWeekPage />);
+
+		const block = screen.getByRole('region', { name: 'dashboard.goals.TITLE' });
+		expect(within(block).getByText('Client A')).toBeTruthy();
+		expect(within(block).getByText('dashboard.goals.FIGURE:{"tracked":"12h 0m","target":"20h"}')).toBeTruthy();
+		expect(within(block).getByText('dashboard.goals.state.IN_PROGRESS')).toBeTruthy();
+		expect(within(block).getByText('dashboard.goals.FIGURE:{"tracked":"2h 30m","target":"2h"}')).toBeTruthy();
+		expect(within(block).getByText('dashboard.goals.state.EXCEEDED')).toBeTruthy();
+		const allGoals = within(block).getByRole('link', { name: 'dashboard.goals.ALL_GOALS' });
+		expect(allGoals.getAttribute('href')).toBe('/goals');
+	});
+
+	it('adds no block for a person without goals, or where the platform has none', () => {
+		render(<MyWeekPage />);
+
+		expect(screen.queryByRole('region', { name: 'dashboard.goals.TITLE' })).toBeNull();
+	});
+
+	it('reads goals for this week only', () => {
+		mockGoals = { rows: [clientA], isShown: true };
+		render(<MyWeekPage />);
+		expect(mockGoalsEnabled).toBe(true);
+		cleanup();
+
+		mockState = stateOf({ periodKey: 'lastWeek', shownKey: 'lastWeek' });
+		render(<MyWeekPage />);
+		expect(mockGoalsEnabled).toBe(false);
 	});
 });
