@@ -25,9 +25,9 @@ export type TimerStartMoveAccess =
 
 /** The organization's rules on tracked time, as the organization record carries them. */
 export interface TimePolicy {
-	allowManualTime?: boolean;
-	allowModifyTime?: boolean;
-	requireReason?: boolean;
+	allowManualTime?: boolean | null;
+	allowModifyTime?: boolean | null;
+	requireReason?: boolean | null;
 }
 
 interface TimerStartMoveAccessInput {
@@ -147,4 +147,46 @@ export function holdsTimerStartMovePermissions(held: readonly string[]): boolean
 	const runsTheTimer = held.includes(TIME_TRACKER_PERMISSION);
 	const mayModifyTime = held.includes(MODIFY_TIME_PERMISSION);
 	return runsTheTimer && mayModifyTime;
+}
+
+/** The minute a date falls in. */
+function minuteOf(date: Date): number {
+	const minute = new Date(date);
+	minute.setSeconds(0, 0);
+	return minute.getTime();
+}
+
+/** Whether a start typed in a time field is the minute the run started: no change, its seconds left aside. */
+export function isSameStartMinute(start: Date, runStart: Date): boolean {
+	return minuteOf(start) === minuteOf(runStart);
+}
+
+interface LocalStartMoveCheck {
+	start: Date;
+	runStart: Date;
+	now: Date;
+	earlierAllowed: boolean;
+	reasonRequired: boolean;
+	reason: string;
+}
+
+/**
+ * The refusal the panel can tell before it asks the API (a start later than now, an earlier start not allowed, a
+ * missing reason), or null.
+ */
+export function localStartMoveRefusalKeyOf(check: LocalStartMoveCheck): string | null {
+	const startsInTheFuture = check.start.getTime() > check.now.getTime();
+	if (startsInTheFuture) {
+		return REFUSAL_KEYS.TIMER_START_IN_FUTURE;
+	}
+	const movesEarlier = check.start.getTime() < minuteOf(check.runStart);
+	const refusesEarlierStart = movesEarlier && !check.earlierAllowed;
+	if (refusesEarlierStart) {
+		return REFUSAL_KEYS.TIMER_START_MANUAL_NOT_ALLOWED;
+	}
+	const reasonIsMissing = check.reasonRequired && check.reason.trim() === '';
+	if (reasonIsMissing) {
+		return REFUSAL_KEYS.TIMER_START_REASON_REQUIRED;
+	}
+	return null;
 }

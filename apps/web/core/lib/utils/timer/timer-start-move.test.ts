@@ -1,5 +1,7 @@
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import {
+	isSameStartMinute,
+	localStartMoveRefusalKeyOf,
 	holdsTimerStartMovePermissions,
 	startFromTimeText,
 	timeTextOf,
@@ -208,5 +210,51 @@ describe('holdsTimerStartMovePermissions', () => {
 		expect(holdsTimerStartMovePermissions(['TIME_TRACKER'])).toBe(false);
 		expect(holdsTimerStartMovePermissions(['ALLOW_MODIFY_TIME'])).toBe(false);
 		expect(holdsTimerStartMovePermissions([])).toBe(false);
+	});
+});
+
+describe('localStartMoveRefusalKeyOf', () => {
+	const runStart = new Date(2026, 10, 16, 9, 25, 12);
+	const now = new Date(2026, 10, 16, 10, 0, 0);
+	const editable = { runStart, now, earlierAllowed: true, reasonRequired: false, reason: '' };
+
+	it('lets an earlier start through where adding time by hand is allowed', () => {
+		const start = new Date(2026, 10, 16, 9, 0);
+
+		expect(localStartMoveRefusalKeyOf({ ...editable, start })).toBeNull();
+	});
+
+	it('refuses a start later than now before asking the API', () => {
+		const start = new Date(2026, 10, 16, 10, 5);
+
+		expect(localStartMoveRefusalKeyOf({ ...editable, start })).toBe('timer.startMove.IN_FUTURE');
+	});
+
+	it('refuses an earlier start where only a later one is allowed, and lets a later one through', () => {
+		const earlier = new Date(2026, 10, 16, 9, 0);
+		const later = new Date(2026, 10, 16, 9, 40);
+
+		expect(localStartMoveRefusalKeyOf({ ...editable, earlierAllowed: false, start: earlier })).toBe(
+			'timer.startMove.MANUAL_NOT_ALLOWED'
+		);
+		expect(localStartMoveRefusalKeyOf({ ...editable, earlierAllowed: false, start: later })).toBeNull();
+	});
+
+	it('asks for the reason the organization requires', () => {
+		const start = new Date(2026, 10, 16, 9, 0);
+
+		expect(localStartMoveRefusalKeyOf({ ...editable, reasonRequired: true, reason: '  ', start })).toBe(
+			'timer.startMove.REASON_REQUIRED'
+		);
+		expect(localStartMoveRefusalKeyOf({ ...editable, reasonRequired: true, reason: 'Late', start })).toBeNull();
+	});
+});
+
+describe('isSameStartMinute', () => {
+	it('reads the minute the run started as no change, its seconds left aside', () => {
+		const runStart = new Date(2026, 10, 16, 9, 25, 12);
+
+		expect(isSameStartMinute(new Date(2026, 10, 16, 9, 25), runStart)).toBe(true);
+		expect(isSameStartMinute(new Date(2026, 10, 16, 9, 24), runStart)).toBe(false);
 	});
 });
