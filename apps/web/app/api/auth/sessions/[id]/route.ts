@@ -10,8 +10,8 @@ async function gauzyPathOf({ params }: RouteContext): Promise<string> {
 
 /**
  * Proxy mode twin of Gauzy's `/auth/sessions/{id}` (DELETE): signs out one session of the signed-in user. Gauzy
- * refuses another user's session and the request's own one.
+ * refuses another user's session and the request's own one. The log of an unreachable Gauzy never names the session.
  */
 export async function DELETE(req: Request, context: RouteContext) {
-	return forwardToGauzy(req, await gauzyPathOf(context));
+	return forwardToGauzy(req, await gauzyPathOf(context), { logPath: '/auth/sessions/:id' });
 }

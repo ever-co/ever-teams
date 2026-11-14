@@ -17,13 +17,13 @@ describe('userSessionService', () => {
 		jest.restoreAllMocks();
 	});
 
-	it("lists the signed-in user's sessions from GET /auth/sessions", async () => {
+	it("lists the signed-in user's sessions from GET /auth/sessions, kept out of the development log", async () => {
 		const get = jest.spyOn(userSessionService, 'get').mockResolvedValue({ data: [SESSION] } as never);
 		const controller = new AbortController();
 
 		const sessions = await userSessionService.list(controller.signal);
 
-		expect(get).toHaveBeenCalledWith('/auth/sessions', { signal: controller.signal });
+		expect(get).toHaveBeenCalledWith('/auth/sessions', { signal: controller.signal, secretResponse: true });
 		expect(sessions).toEqual([SESSION]);
 	});
 

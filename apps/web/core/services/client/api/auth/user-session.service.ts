@@ -12,8 +12,9 @@ import type {
  * app's `/api/auth/sessions` routes, which forward with the session's token.
  */
 class UserSessionService extends APIService {
+	/** The answer names each session's id, address and device: the development log leaves it out. */
 	list = async (signal?: AbortSignal): Promise<IUserSession[]> => {
-		const { data } = await this.get<IUserSession[]>('/auth/sessions', { signal });
+		const { data } = await this.get<IUserSession[]>('/auth/sessions', { signal, secretResponse: true });
 		return data;
 	};
 

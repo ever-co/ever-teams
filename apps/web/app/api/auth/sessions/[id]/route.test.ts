@@ -46,6 +46,20 @@ describe('DELETE /api/auth/sessions/:id', () => {
 		expect(sentToGauzy(fetchMock).url).toBe(gauzyUrl('/auth/sessions/..%2Fx'));
 	});
 
+	it("never names the session's id in the log of an unreachable Gauzy", async () => {
+		global.fetch = jest.fn().mockRejectedValue(new TypeError('fetch failed'));
+		const log = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		const response = await DELETE(signedInRequest(URL, 'DELETE'), idParams('session-2'));
+
+		expect(response.status).toBe(502);
+		expect(log).toHaveBeenCalledTimes(1);
+		const logged = log.mock.calls.flat().map(String).join(' ');
+		log.mockRestore();
+		expect(logged).toContain('DELETE /auth/sessions/:id');
+		expect(logged).not.toContain('session-2');
+	});
+
 	it('sends nothing for a browser without a session', async () => {
 		const fetchMock = gauzyAnswers(new Response(null, { status: 204 }));
 
