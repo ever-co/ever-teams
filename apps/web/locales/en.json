@@ -1229,7 +1229,10 @@
 				"SUMMARY": "Summary of the period",
 				"NO_ACTIVITY": "No activity recorded in this period",
 				"CHART_LABEL": "Tracked time and activity per day",
-				"BY_TIMER": "{duration} by timer"
+				"BY_TIMER": "{duration} by timer",
+				"ROUNDED_UP": "Rounded up to {minutes} min per entry",
+				"ROUNDED_DOWN": "Rounded down to {minutes} min per entry",
+				"ROUNDED_NEAREST": "Rounded to the nearest {minutes} min per entry"
 			},
 			"breakdown": {
 				"RANK": "Rank",
@@ -5206,6 +5209,23 @@
 			"NUMBER_FORMAT_NOT_SAVED": "The number format was not saved",
 			"FORMAT_OUTCOME": "Reports and their exports now use it.",
 			"FORMAT_AUTOMATIC": "Automatic",
+			"ROUNDING_LABEL": "Round durations",
+			"ROUNDING_DESCRIPTION": "Time & activity, its exports and invoices built from time round each entry. Timesheets keep the time as tracked.",
+			"ROUNDING_OFF": "Off",
+			"ROUNDING_INTERVAL": "{minutes} min",
+			"ROUNDING_DIRECTION_LABEL": "Rounding direction",
+			"ROUNDING_UP": "Up",
+			"ROUNDING_DOWN": "Down",
+			"ROUNDING_NEAREST": "Nearest",
+			"ROUNDING_RULE_UP": "Up to {minutes} min",
+			"ROUNDING_RULE_DOWN": "Down to {minutes} min",
+			"ROUNDING_RULE_NEAREST": "Nearest {minutes} min",
+			"ROUNDING_EXAMPLE": "An entry of {tracked} shows as {rounded}.",
+			"ROUNDING_SAVED": "Duration rounding saved",
+			"ROUNDING_OUTCOME": "Time & activity, its exports and new invoices built from time round each entry now.",
+			"ROUNDING_OFF_SAVED": "Duration rounding turned off",
+			"ROUNDING_OFF_OUTCOME": "Reports show the time as tracked again.",
+			"ROUNDING_NOT_SAVED": "Duration rounding was not saved",
 			"WEEK_START_LABEL": "Week starts on",
 			"WEEK_START_DESCRIPTION": "The first day of every week view, week picker, report and export.",
 			"WEEK_START_SAVED": "Week start saved",
@@ -6922,6 +6942,9 @@
 			"NO_PRICED_LINES": "No time of this period has a rate in this currency.",
 			"ALL_LINES_REMOVED": "Every line was removed. Restore them to bill this time.",
 			"LINES_AND_HOURS": "{count, plural, one {# line} other {# lines}} · {hours} h",
+			"ROUNDED_UP": "Each entry rounded up to {minutes} min",
+			"ROUNDED_DOWN": "Each entry rounded down to {minutes} min",
+			"ROUNDED_NEAREST": "Each entry rounded to the nearest {minutes} min",
 			"LINE_COUNT": "{count, plural, one {# line} other {# lines}}",
 			"TOTAL": "Total",
 			"details": {
@@ -7380,5 +7403,17 @@
 		"CLIENTS": "{count, plural, one {# client} other {# clients}}",
 		"NAMES_ERROR_TITLE": "The clients list could not load",
 		"NAMES_ERROR_MESSAGE": "Archived clients show without their names until it does."
+	},
+	"timeZoneNotice": {
+		"TITLE": "Your profile uses {profileZone} ({profileOffset}). This browser is in {browserZone} ({browserOffset}).",
+		"DESCRIPTION": "Timesheets count your days in your profile's zone and the other reports in this browser's, so an entry near midnight can land on a different day.",
+		"TITLE_NO_PROFILE_ZONE": "Your profile has no time zone. This browser is in {browserZone} ({browserOffset}).",
+		"DESCRIPTION_NO_PROFILE_ZONE": "Until you choose one, Timesheets count your days in UTC and the other reports in this browser's zone.",
+		"USE": "Use {zone}",
+		"KEEP": "Keep {zone}",
+		"SAVING": "Saving…",
+		"SAVE_FAILED": "Your time zone could not be saved.",
+		"SAVE_FAILED_DESCRIPTION": "Your profile has not changed. Check your connection and try again.",
+		"TRY_AGAIN": "Try again"
 	}
 }

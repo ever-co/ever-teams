@@ -1229,7 +1229,10 @@
 				"SUMMARY": "本期汇总",
 				"NO_ACTIVITY": "本期没有活跃度记录",
 				"CHART_LABEL": "每天的已记录时间和活跃度",
-				"BY_TIMER": "计时器 {duration}"
+				"BY_TIMER": "计时器 {duration}",
+				"ROUNDED_UP": "每条记录向上取整到 {minutes} 分钟",
+				"ROUNDED_DOWN": "每条记录向下取整到 {minutes} 分钟",
+				"ROUNDED_NEAREST": "每条记录四舍五入到 {minutes} 分钟"
 			},
 			"breakdown": {
 				"RANK": "排名",
@@ -5206,6 +5209,23 @@
 			"NUMBER_FORMAT_NOT_SAVED": "数字格式未保存",
 			"FORMAT_OUTCOME": "报告及其导出文件现已使用该格式。",
 			"FORMAT_AUTOMATIC": "自动",
+			"ROUNDING_LABEL": "时长取整",
+			"ROUNDING_DESCRIPTION": "时间和活动、其导出文件以及根据时间生成的发票会对每条记录取整。时间表保留记录的原始时间。",
+			"ROUNDING_OFF": "关闭",
+			"ROUNDING_INTERVAL": "{minutes} 分钟",
+			"ROUNDING_DIRECTION_LABEL": "取整方向",
+			"ROUNDING_UP": "向上",
+			"ROUNDING_DOWN": "向下",
+			"ROUNDING_NEAREST": "四舍五入",
+			"ROUNDING_RULE_UP": "向上取整到 {minutes} 分钟",
+			"ROUNDING_RULE_DOWN": "向下取整到 {minutes} 分钟",
+			"ROUNDING_RULE_NEAREST": "四舍五入到 {minutes} 分钟",
+			"ROUNDING_EXAMPLE": "{tracked} 的记录显示为 {rounded}。",
+			"ROUNDING_SAVED": "时长取整已保存",
+			"ROUNDING_OUTCOME": "时间和活动、其导出文件以及新的根据时间生成的发票现在会对每条记录取整。",
+			"ROUNDING_OFF_SAVED": "时长取整已关闭",
+			"ROUNDING_OFF_OUTCOME": "报告重新显示记录的原始时间。",
+			"ROUNDING_NOT_SAVED": "时长取整未保存",
 			"WEEK_START_LABEL": "每周开始于",
 			"WEEK_START_DESCRIPTION": "每个周视图、周选择器、报告和导出的第一天。",
 			"WEEK_START_SAVED": "已保存每周开始日",
@@ -6922,6 +6942,9 @@
 			"NO_PRICED_LINES": "此期间没有以该币种计价的时间。",
 			"ALL_LINES_REMOVED": "所有明细行都已移除。恢复后才能为这些时间开具发票。",
 			"LINES_AND_HOURS": "{count, plural, other {# 行}} · {hours} 小时",
+			"ROUNDED_UP": "每条记录向上取整到 {minutes} 分钟",
+			"ROUNDED_DOWN": "每条记录向下取整到 {minutes} 分钟",
+			"ROUNDED_NEAREST": "每条记录四舍五入到 {minutes} 分钟",
 			"LINE_COUNT": "{count, plural, other {# 行}}",
 			"TOTAL": "合计",
 			"details": {
@@ -7380,5 +7403,17 @@
 		"CLIENTS": "{count, plural, other {# 个客户}}",
 		"NAMES_ERROR_TITLE": "无法加载客户列表",
 		"NAMES_ERROR_MESSAGE": "在此之前，已归档的客户不显示名称。"
+	},
+	"timeZoneNotice": {
+		"TITLE": "你的个人资料使用 {profileZone}（{profileOffset}）。此浏览器位于 {browserZone}（{browserOffset}）。",
+		"DESCRIPTION": "时间表按你个人资料的时区计算每一天，其他报告按此浏览器的时区计算，因此接近午夜的记录可能落在另一天。",
+		"TITLE_NO_PROFILE_ZONE": "你的个人资料没有设置时区。此浏览器位于 {browserZone}（{browserOffset}）。",
+		"DESCRIPTION_NO_PROFILE_ZONE": "在你选择时区之前，时间表按 UTC 计算你的每一天，其他报告按此浏览器的时区计算。",
+		"USE": "使用 {zone}",
+		"KEEP": "保留 {zone}",
+		"SAVING": "正在保存…",
+		"SAVE_FAILED": "无法保存你的时区。",
+		"SAVE_FAILED_DESCRIPTION": "你的个人资料没有更改。请检查网络连接后重试。",
+		"TRY_AGAIN": "重试"
 	}
 }

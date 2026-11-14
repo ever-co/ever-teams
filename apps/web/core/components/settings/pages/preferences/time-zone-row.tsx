@@ -3,6 +3,7 @@
 import { useId, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { controlRecipe } from '@/core/components/common/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -38,21 +39,31 @@ export function TimeZoneRow() {
 		setStatus(message);
 	};
 
+	/** The profile and the app keep their zone when the save fails: say so, rather than nothing. */
+	const reportFailure = () => {
+		const message = t('timeZoneNotice.SAVE_FAILED');
+		toast.error(message);
+	};
+
 	const pick = async (zone: string) => {
 		setIsOpen(false);
 		setStatus('');
 		const isSaved = await saveZone(zone);
-		if (isSaved) {
-			announce(zone);
+		if (!isSaved) {
+			reportFailure();
+			return;
 		}
+		announce(zone);
 	};
 
 	const detectZone = async () => {
 		setStatus('');
 		const zone = await detect();
-		if (zone) {
-			announce(zone);
+		if (!zone) {
+			reportFailure();
+			return;
 		}
+		announce(zone);
 	};
 
 	return (

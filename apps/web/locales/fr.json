@@ -1229,7 +1229,10 @@
 				"SUMMARY": "Résumé de la période",
 				"NO_ACTIVITY": "Aucune activité enregistrée sur cette période",
 				"CHART_LABEL": "Temps suivi et activité par jour",
-				"BY_TIMER": "{duration} au minuteur"
+				"BY_TIMER": "{duration} au minuteur",
+				"ROUNDED_UP": "Arrondi au-dessus à {minutes} min par entrée",
+				"ROUNDED_DOWN": "Arrondi au-dessous à {minutes} min par entrée",
+				"ROUNDED_NEAREST": "Arrondi aux {minutes} min les plus proches par entrée"
 			},
 			"breakdown": {
 				"RANK": "Rang",
@@ -5206,6 +5209,23 @@
 			"NUMBER_FORMAT_NOT_SAVED": "Le format des nombres n'a pas été enregistré",
 			"FORMAT_OUTCOME": "Les rapports et leurs exports l'utilisent désormais.",
 			"FORMAT_AUTOMATIC": "Automatique",
+			"ROUNDING_LABEL": "Arrondir les durées",
+			"ROUNDING_DESCRIPTION": "Temps & Activité, ses exports et les factures créées à partir du temps arrondissent chaque entrée. Les feuilles de temps gardent le temps tel que suivi.",
+			"ROUNDING_OFF": "Désactivé",
+			"ROUNDING_INTERVAL": "{minutes} min",
+			"ROUNDING_DIRECTION_LABEL": "Sens de l'arrondi",
+			"ROUNDING_UP": "Au-dessus",
+			"ROUNDING_DOWN": "Au-dessous",
+			"ROUNDING_NEAREST": "Au plus proche",
+			"ROUNDING_RULE_UP": "Au-dessus à {minutes} min",
+			"ROUNDING_RULE_DOWN": "Au-dessous à {minutes} min",
+			"ROUNDING_RULE_NEAREST": "Aux {minutes} min les plus proches",
+			"ROUNDING_EXAMPLE": "Une entrée de {tracked} s'affiche comme {rounded}.",
+			"ROUNDING_SAVED": "Arrondi des durées enregistré",
+			"ROUNDING_OUTCOME": "Temps & Activité, ses exports et les nouvelles factures créées à partir du temps arrondissent désormais chaque entrée.",
+			"ROUNDING_OFF_SAVED": "Arrondi des durées désactivé",
+			"ROUNDING_OFF_OUTCOME": "Les rapports montrent de nouveau le temps tel que suivi.",
+			"ROUNDING_NOT_SAVED": "L'arrondi des durées n'a pas été enregistré",
 			"WEEK_START_LABEL": "La semaine commence le",
 			"WEEK_START_DESCRIPTION": "Le premier jour de chaque vue de semaine, sélecteur de semaine, rapport et export.",
 			"WEEK_START_SAVED": "Début de semaine enregistré",
@@ -6922,6 +6942,9 @@
 			"NO_PRICED_LINES": "Aucun temps de cette période n’a de tarif dans cette devise.",
 			"ALL_LINES_REMOVED": "Toutes les lignes ont été retirées. Rétablissez-les pour facturer ce temps.",
 			"LINES_AND_HOURS": "{count, plural, one {# ligne} other {# lignes}} · {hours} h",
+			"ROUNDED_UP": "Chaque entrée arrondie au-dessus à {minutes} min",
+			"ROUNDED_DOWN": "Chaque entrée arrondie au-dessous à {minutes} min",
+			"ROUNDED_NEAREST": "Chaque entrée arrondie aux {minutes} min les plus proches",
 			"LINE_COUNT": "{count, plural, one {# ligne} other {# lignes}}",
 			"TOTAL": "Total",
 			"details": {
@@ -7380,5 +7403,17 @@
 		"CLIENTS": "{count, plural, one {# client} other {# clients}}",
 		"NAMES_ERROR_TITLE": "La liste des clients n'a pas pu se charger",
 		"NAMES_ERROR_MESSAGE": "Les clients archivés s'affichent sans leur nom en attendant."
+	},
+	"timeZoneNotice": {
+		"TITLE": "Votre profil utilise {profileZone} ({profileOffset}). Ce navigateur est sur {browserZone} ({browserOffset}).",
+		"DESCRIPTION": "Les feuilles de temps comptent vos journées dans le fuseau de votre profil et les autres rapports dans celui de ce navigateur : une entrée proche de minuit peut tomber un autre jour.",
+		"TITLE_NO_PROFILE_ZONE": "Votre profil n'a pas de fuseau horaire. Ce navigateur est sur {browserZone} ({browserOffset}).",
+		"DESCRIPTION_NO_PROFILE_ZONE": "Tant que vous n'en choisissez pas, les feuilles de temps comptent vos journées en UTC et les autres rapports dans le fuseau de ce navigateur.",
+		"USE": "Utiliser {zone}",
+		"KEEP": "Garder {zone}",
+		"SAVING": "Enregistrement…",
+		"SAVE_FAILED": "Votre fuseau horaire n'a pas pu être enregistré.",
+		"SAVE_FAILED_DESCRIPTION": "Votre profil n'a pas changé. Vérifiez votre connexion et réessayez.",
+		"TRY_AGAIN": "Réessayer"
 	}
 }

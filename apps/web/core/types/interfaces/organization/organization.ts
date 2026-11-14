@@ -38,6 +38,9 @@ export interface IOrganization
 	startWeekOn?: EWeekDays;
 	taxId?: string;
 	numberFormat?: string;
+	/** Minutes the reports round each entry to (1, 5, 6, 10, 15, 30 or 60); null rounds nothing. */
+	durationRoundingInterval?: number | null;
+	durationRoundingDirection?: 'UP' | 'DOWN' | 'NEAREST' | null;
 	// bonusType?: BonusTypeEnum;
 	bonusPercentage?: number;
 	employees?: IEmployee[];

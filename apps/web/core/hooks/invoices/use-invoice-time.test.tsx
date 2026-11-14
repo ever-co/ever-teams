@@ -66,10 +66,12 @@ const ada = { id: 'member-ada', billRateValue: 80, billRateCurrency: 'USD', user
 const owedReport = [{ employees: [{ employee: ada }] }];
 const siteRates = { id: 'project-site', billRateValue: null, currency: 'USD', members: [] };
 
-function renderInvoiceTime() {
+const organization = { id: 'organization-1', currency: 'USD' } as TOrganization;
+
+function renderInvoiceTime(currentOrganization: TOrganization = organization) {
 	const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 	const store = createStore();
-	store.set(currentOrganizationState, { id: 'organization-1', currency: 'USD' } as TOrganization);
+	store.set(currentOrganizationState, currentOrganization);
 	const wrapper = ({ children }: Readonly<{ children: React.ReactNode }>) => (
 		<QueryClientProvider client={queryClient}>
 			<Provider store={store}>{children}</Provider>
@@ -152,6 +154,34 @@ describe('the projects whose time a new invoice bills', () => {
 
 		expect(result.current.hasProjects).toBe(true);
 		expect(result.current.lines).toHaveLength(1);
+	});
+});
+
+describe('the billable time of a workspace that rounds durations', () => {
+	const minutesOfAda = (minutes: number) => ({ ...adaTime, duration: minutes * 60 });
+
+	beforeEach(() => {
+		mockReports.getBillableTimeLogs.mockResolvedValue([minutesOfAda(7), minutesOfAda(8), minutesOfAda(22)]);
+		mockReports.getOwedAmountReport.mockResolvedValue(owedReport);
+		mockRates.getProjectRates.mockResolvedValue(siteRates);
+	});
+
+	it('bills each entry rounded: 7, 8 and 22 min make 1.00 h at 15 min up', async () => {
+		const rounding = { ...organization, durationRoundingInterval: 15, durationRoundingDirection: 'UP' as const };
+
+		const { result } = renderInvoiceTime(rounding);
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		expect(result.current.lines.map((line) => line.hours)).toEqual([1]);
+		expect(result.current.roundingRule).toEqual({ intervalMinutes: 15, direction: 'UP' });
+	});
+
+	it('bills the time as tracked without a rule: 0.62 h', async () => {
+		const { result } = renderInvoiceTime();
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		expect(result.current.lines.map((line) => line.hours)).toEqual([0.62]);
+		expect(result.current.roundingRule).toBeNull();
 	});
 });
 
