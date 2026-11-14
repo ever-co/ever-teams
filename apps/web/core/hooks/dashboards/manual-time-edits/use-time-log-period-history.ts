@@ -87,7 +87,8 @@ export function useTimeLogPeriodHistory(
 ): PeriodHistoryState & {
 	refetch: () => void;
 } {
-	const until = useMemo(() => readUntilOf(request.to), [request.to]);
+	// Read again on each render: a report left open overnight reads up to the new day.
+	const until = readUntilOf(request.to);
 	const keyParams = {
 		tenantId: request.tenantId,
 		organizationId: request.organizationId,
