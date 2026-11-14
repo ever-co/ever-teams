@@ -101,26 +101,25 @@ function roundedToCents(amount: number) {
 }
 
 /**
- * What is still owed on an invoice: the amount the API says is due, else its total less what was paid on it. A part
- * payment the API did not state cannot be read, so its invoice has no amount owed (null) rather than its whole total.
+ * What is still owed on an invoice: its total less what was paid on it when the API states both, since the amount due
+ * it stores is not kept in step with a total changed by an edit; else the amount due it states; else its total. A
+ * part payment the API did not state cannot be read, so its invoice has no amount owed (null) rather than its whole
+ * total.
  */
 export function owedAmountOf(invoice: StandingInvoice): number | null {
 	const status = invoiceStatusOf(invoice.status);
 	if (!isOwedStatus(status)) {
 		return null;
 	}
+	const total = amountOf(invoice.totalValue);
+	const alreadyPaid = amountOf(invoice.alreadyPaid);
+	if (total !== null && alreadyPaid !== null) {
+		const left = total - alreadyPaid;
+		return roundedToCents(left);
+	}
 	const amountDue = amountOf(invoice.amountDue);
 	if (amountDue !== null) {
 		return amountDue;
-	}
-	const total = amountOf(invoice.totalValue);
-	if (total === null) {
-		return null;
-	}
-	const alreadyPaid = amountOf(invoice.alreadyPaid);
-	if (alreadyPaid !== null) {
-		const left = total - alreadyPaid;
-		return roundedToCents(left);
 	}
 	const isPartlyPaid = status === 'PARTIALLY_PAID';
 	if (isPartlyPaid) {
