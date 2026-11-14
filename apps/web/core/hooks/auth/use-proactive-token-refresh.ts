@@ -1,13 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import {
-	getRefreshTokenCookie,
-	getAccessTokenCookie,
-	setAccessTokenCookie,
-	setRefreshTokenCookie
-} from '@/core/lib/helpers/cookies';
-import { authService } from '@/core/services/client/api/auth/auth.service';
+import { getRefreshTokenCookie, getAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import {
 	shouldRefreshToken,
 	getTokenRemainingTime,
@@ -16,8 +10,9 @@ import {
 	calculateRefreshInterval
 } from '@/core/lib/auth/jwt-utils';
 import { handleUnauthorized } from '@/core/lib/auth/handle-unauthorized';
+import { renewSession } from '@/core/lib/auth/session-renewal';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
-import { retryWithBackoff, isUnauthorizedError } from '@/core/lib/auth/retry-logic';
+import { retryWithBackoff } from '@/core/lib/auth/retry-logic';
 import { logErrorInDev, logInDev } from '@/core/lib/helpers/error-message';
 import { INIT_DELAY_MS } from '@/core/constants/config/constants';
 import { usePathname } from 'next/navigation';
@@ -95,28 +90,40 @@ export function useProactiveTokenRefresh() {
 			try {
 				logInDev('[ProactiveTokenRefresh] Token expired/expiring, refreshing now...');
 
-				// Use retry logic with exponential backoff for network errors
-				// Client-side call → runtime API base URL. The server-only refreshTokenRequest (serverFetch) resolves
-				// to the hard-coded production host inside the browser bundle — see authService.refreshTokenRaw.
-				const { data } = await retryWithBackoff(() => authService.refreshTokenRaw(refresh_token), 3, 1000);
+				// The browser's one renewal (session-renewal.ts): shared with a request the API refused, and made one
+				// tab at a time. It keeps the new pair itself, whatever becomes of this page meanwhile: the pair of a
+				// renewal still under way when the page changed used to be dropped, with the only refresh token Gauzy
+				// would accept next. A renewal that cannot be made is tried again with exponential backoff.
+				const renewal = await retryWithBackoff(
+					async () => {
+						const attempt = await renewSession();
+						if (attempt.outcome === 'unavailable') {
+							throw attempt.error ?? new Error('The session could not be renewed now');
+						}
+						return attempt;
+					},
+					3,
+					1000
+				);
 				if (!active) return false;
 
-				if (!data?.token) {
-					logErrorInDev('[ProactiveTokenRefresh] No token received from refresh endpoint', data);
+				if (renewal.outcome === 'ended') {
+					// Without a refresh token there is no session to end here: the person signed out in another tab
+					if (renewal.hadRefreshToken) {
+						const details = { source: 'useProactiveTokenRefresh' };
+						logErrorInDev(
+							'[ProactiveTokenRefresh] ❌ Refresh token rejected (401) - forcing logout',
+							details
+						);
+						// Refresh token is invalid → force logout immediately
+						// This is critical: don't let the app hang with invalid tokens
+						handleUnauthorized(DisconnectionReason.REFRESH_TOKEN_EXPIRED, details);
+					}
 					return false;
 				}
 
-				// Update the access token cookie
-				setAccessTokenCookie(data.token);
-
-				// Update refresh token if a new one is provided (token rotation)
-				if (data.refresh_token) {
-					setRefreshTokenCookie(data.refresh_token);
-					logInDev('[ProactiveTokenRefresh] Refresh token rotated successfully');
-				}
-
 				// Log success with next check timing
-				const newRemaining = getTokenRemainingTime(data.token);
+				const newRemaining = getTokenRemainingTime(getAccessTokenCookie() ?? '');
 				logInDev(
 					`[ProactiveTokenRefresh] ✅ Token refreshed! New expiration in ${formatRemainingTime(newRemaining)}`
 				);
@@ -124,20 +131,11 @@ export function useProactiveTokenRefresh() {
 			} catch (error) {
 				if (!active) return false;
 
-				const details = {
+				// Network error - will be retried on next interval
+				logErrorInDev('[ProactiveTokenRefresh] ❌ Token refresh failed (network error)', {
 					source: 'useProactiveTokenRefresh',
 					error: String(error)
-				};
-				// Distinguish between 401 (session invalid) and network errors
-				if (isUnauthorizedError(error)) {
-					logErrorInDev('[ProactiveTokenRefresh] ❌ Refresh token rejected (401) - forcing logout', details);
-					// Refresh token is invalid → force logout immediately
-					// This is critical: don't let the app hang with invalid tokens
-					handleUnauthorized(DisconnectionReason.REFRESH_TOKEN_EXPIRED, details);
-				} else {
-					logErrorInDev('[ProactiveTokenRefresh] ❌ Token refresh failed (network error)', details);
-					// Network error - will be retried on next interval
-				}
+				});
 				return false;
 			} finally {
 				isRefreshingRef.current = false;
