@@ -21,7 +21,7 @@ export const MY_WEEK_PERIODS: ReadonlyArray<MyWeekPeriodKey> = ['thisWeek', 'las
 export const DEFAULT_MY_WEEK_PERIOD: MyWeekPeriodKey = 'thisWeek';
 
 /** The weeks Gauzy measures a weekly limit on, which are also the weeks of Timesheets. */
-export const MY_WEEK_STARTS_ON: WeekStart = LIMIT_WEEK_START;
+const MY_WEEK_STARTS_ON: WeekStart = LIMIT_WEEK_START;
 
 /** The entries the page lists under its figures; the Work diary holds every entry of a day. */
 export const RECENT_ENTRY_COUNT = 8;

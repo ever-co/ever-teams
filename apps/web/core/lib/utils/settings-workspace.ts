@@ -219,8 +219,17 @@ export function currencyPositionChoiceOf(stored: unknown): WorkspaceCurrencyPosi
 const SAMPLE_CURRENCY = 'USD';
 
 /** Twelve of the organization's currency with the sign on one side: €12.00 or 12.00 €. */
-export function currencyPositionSampleOf(position: WorkspaceCurrencyPosition, currency: string, locale: string): string {
-	const workspace: WorkspaceLocale = { tag: locale, dateFormat: null, numberFormat: null, currencyPosition: position };
+export function currencyPositionSampleOf(
+	position: WorkspaceCurrencyPosition,
+	currency: string,
+	locale: string
+): string {
+	const workspace: WorkspaceLocale = {
+		tag: locale,
+		dateFormat: null,
+		numberFormat: null,
+		currencyPosition: position
+	};
 	const shownCurrency = currency || SAMPLE_CURRENCY;
 	return numberFormatOf(workspace, { style: 'currency', currency: shownCurrency }).format(12);
 }

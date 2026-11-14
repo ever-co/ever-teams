@@ -215,11 +215,7 @@ export function TeamToolbar({
 			actions={<ExportMenu options={exportOptions} isDisabled={!hasRows} />}
 			controls={
 				<>
-					<PeriodPicker
-						value={dashboard.period}
-						onChange={dashboard.setPeriod}
-						weekStartsOn={weekStart}
-					/>
+					<PeriodPicker value={dashboard.period} onChange={dashboard.setPeriod} weekStartsOn={weekStart} />
 					{showsFilterSlot && <span aria-hidden="true" className={TOOLBAR_SEPARATOR} />}
 					{filterMenu}
 				</>

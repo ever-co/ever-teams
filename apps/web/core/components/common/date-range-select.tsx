@@ -147,7 +147,13 @@ const PresetDates = ({
 		() => [
 			{ label: t('common.TODAY'), range: { from: new Date(), to: new Date() } },
 			{ label: t('common.YESTERDAY'), range: { from: subDays(new Date(), 1), to: subDays(new Date(), 1) } },
-			{ label: t('common.THIS_WEEK'), range: { from: startOfWeek(new Date(), { weekStartsOn: weekStart }), to: endOfWeek(new Date(), { weekStartsOn: weekStart }) } },
+			{
+				label: t('common.THIS_WEEK'),
+				range: {
+					from: startOfWeek(new Date(), { weekStartsOn: weekStart }),
+					to: endOfWeek(new Date(), { weekStartsOn: weekStart })
+				}
+			},
 			{
 				label: t('common.LAST_WEEK'),
 				range: {

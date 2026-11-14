@@ -1,3 +1,4 @@
+// cspell:ignore samedi
 import {
 	AUTOMATIC_FORMAT,
 	DATE_FORMAT_CHOICES,
@@ -219,7 +220,7 @@ describe('the week start, clock and currency side rows', () => {
 		expect(weekdayNameOf(EWeekDays.SATURDAY, 'fr')).toBe('samedi');
 	});
 
-	it("shows the 12-hour clock Gauzy gives a new organization when it stores none, and a sample of each clock", () => {
+	it('shows the 12-hour clock Gauzy gives a new organization when it stores none, and a sample of each clock', () => {
 		expect(clockChoiceOf(null)).toBe(12);
 		expect(clockChoiceOf(24)).toBe(24);
 		expect(clockSampleOf(24, 'en')).toBe('14:30');

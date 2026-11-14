@@ -20,10 +20,7 @@ import { useManualTimeEditsReport } from '@/core/hooks/dashboards/manual-time-ed
 import { useTimesheetDialogs } from '@/core/hooks/dashboards/timesheets/use-timesheet-dialogs';
 import { useTimesheetLogActions } from '@/core/hooks/dashboards/timesheets/use-timesheet-log-actions';
 import { formatPeriod } from '@/core/lib/utils/dashboard-period';
-import {
-	type EditsFigures,
-	type ManualTimeEntry
-} from '@/core/lib/utils/dashboards/manual-time-edits';
+import { type EditsFigures, type ManualTimeEntry } from '@/core/lib/utils/dashboards/manual-time-edits';
 import { isTrackingEnabledState } from '@/core/stores';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';

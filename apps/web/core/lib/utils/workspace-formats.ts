@@ -27,12 +27,12 @@ export function workspaceNumberFormatOf(stored: StoredFormat): WorkspaceNumberFo
 }
 
 /** The clocks Gauzy stores on the organization (`timeFormat`), and the 12-hour one it gives a new organization. */
-export const WORKSPACE_CLOCKS = [24, 12] as const;
+const WORKSPACE_CLOCKS = [24, 12] as const;
 
 export type WorkspaceClock = (typeof WORKSPACE_CLOCKS)[number];
 
 /** The sides of an amount Gauzy stores for the currency sign (`currencyPosition`), `LEFT` for a new organization. */
-export const WORKSPACE_CURRENCY_POSITIONS = ['LEFT', 'RIGHT'] as const;
+const WORKSPACE_CURRENCY_POSITIONS = ['LEFT', 'RIGHT'] as const;
 
 export type WorkspaceCurrencyPosition = (typeof WORKSPACE_CURRENCY_POSITIONS)[number];
 
@@ -178,7 +178,7 @@ function isNumberPart(part: { type: string }): boolean {
 
 /** A literal holding nothing but spaces and direction marks: the gap a language leaves between a sign and a number. */
 function isGapPart(part: { type: string; value: string } | undefined): boolean {
-	if (!part || part.type !== 'literal') {
+	if (part?.type !== 'literal') {
 		return false;
 	}
 	const visible = part.value.replace(BIDI_MARKS, '');
@@ -540,7 +540,10 @@ export function dateFormatOf(locale: FormatLocale, options: Intl.DateTimeFormatO
  * The options with the workspace's clock when they ask for a time: it wins over a clock the caller asked for, so every
  * time of day of every page reads alike. A 12-hour time drops the leading zero (2:05 PM, not 02:05 PM).
  */
-function clockedOptionsOf(clock: WorkspaceClock | null, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormatOptions {
+function clockedOptionsOf(
+	clock: WorkspaceClock | null,
+	options: Intl.DateTimeFormatOptions
+): Intl.DateTimeFormatOptions {
 	const asksTime = options.hour !== undefined || options.timeStyle !== undefined;
 	if (clock === null || !asksTime) {
 		return options;

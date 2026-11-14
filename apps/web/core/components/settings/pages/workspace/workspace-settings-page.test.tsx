@@ -251,16 +251,22 @@ describe('WorkspaceSettingsPage', () => {
 		render(<WorkspaceSettingsPage />);
 
 		await act(async () => {
-			fireEvent.click(within(rowOf('settings.workspace.WEEK_START_LABEL')).getByRole('button', { name: 'Sunday' }));
+			fireEvent.click(
+				within(rowOf('settings.workspace.WEEK_START_LABEL')).getByRole('button', { name: 'Sunday' })
+			);
 		});
 		await act(async () => {
 			fireEvent.click(
-				within(rowOf('settings.workspace.CLOCK_LABEL')).getByRole('button', { name: 'settings.workspace.CLOCK_24' })
+				within(rowOf('settings.workspace.CLOCK_LABEL')).getByRole('button', {
+					name: 'settings.workspace.CLOCK_24'
+				})
 			);
 		});
 		await act(async () => {
 			const sideRow = rowOf('settings.workspace.CURRENCY_POSITION_LABEL');
-			fireEvent.click(within(sideRow).getByRole('button', { name: 'settings.workspace.CURRENCY_POSITION_AFTER' }));
+			fireEvent.click(
+				within(sideRow).getByRole('button', { name: 'settings.workspace.CURRENCY_POSITION_AFTER' })
+			);
 		});
 
 		expect(mockSaveWeekStart).toHaveBeenCalledWith('SUNDAY');

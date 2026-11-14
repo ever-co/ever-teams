@@ -14,7 +14,13 @@ import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { flattenDailyReport } from '@/core/lib/utils/daily-report-figures';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { percentOf } from '@/core/lib/utils/dashboard-figures';
-import { periodLengthInDays, periodOfPreset, type Period, shiftPeriod, type WeekStart } from '@/core/lib/utils/dashboard-period';
+import {
+	periodLengthInDays,
+	periodOfPreset,
+	type Period,
+	shiftPeriod,
+	type WeekStart
+} from '@/core/lib/utils/dashboard-period';
 import { isOrganizationRole, timesheetFormattersOf } from '@/core/lib/utils/dashboards/timesheets';
 import {
 	type ChangeAction,
@@ -325,7 +331,7 @@ export function useManualTimeEditsReport({ unnamedLabel }: Readonly<{ unnamedLab
 
 	const showPreviousPeriod = useCallback(() => {
 		setPeriod((current) => shiftPeriod(current, -1));
-	}, []);
+	}, [setPeriod]);
 
 	const toggleEntry = useCallback((entryId: string) => {
 		setSelectedIds((current) => withToggled(current, entryId));
