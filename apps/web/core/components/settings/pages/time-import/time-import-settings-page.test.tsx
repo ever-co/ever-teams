@@ -5,6 +5,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import type { TimeImport } from '@/core/hooks/timesheet/use-time-import';
 import type { TimeImportAccess } from '@/core/hooks/timesheet/use-time-import-access';
 import type { CsvColumn } from '@/core/lib/utils/dashboard-export';
+import { timeImportColumnsStepOf } from '@/core/lib/utils/time-import-columns';
 import type { TimeImportReportLine } from '@/core/lib/utils/time-import-report';
 import {
 	checkedRowsOf,
@@ -16,9 +17,16 @@ import {
 	type TimeImportRow,
 	type TimeImportRun
 } from '@/core/lib/utils/time-import-rows';
-import type { TimeImportCells, TimeImportSheetRow } from '@/core/lib/utils/time-import-sheet';
+import {
+	NO_TIME_IMPORT_COLUMNS,
+	timeImportTableOf,
+	type TimeImportCells,
+	type TimeImportSheetRow
+} from '@/core/lib/utils/time-import-sheet';
 
 type MockNoticeProps = { title: React.ReactNode; description?: React.ReactNode; actions?: React.ReactNode };
+
+type MockSelectValueProps = { children?: React.ReactNode; placeholder?: React.ReactNode };
 
 const mockAccess = jest.fn();
 const mockTimeImport = jest.fn();
@@ -43,6 +51,7 @@ jest.mock('@/core/components/icons', () => ({
 	FileCsv: () => null,
 	Lock: () => null,
 	Spinner: () => null,
+	Table: () => null,
 	Upload: () => null
 }));
 jest.mock('@/core/components/common/notice', () => ({
@@ -56,6 +65,17 @@ jest.mock('@/core/components/common/notice', () => ({
 }));
 jest.mock('@/core/components/dashboards/kit/metric-strip', () => ({ MetricStrip: () => null }));
 jest.mock('@/core/components/common/segmented-control', () => ({ SegmentedControl: () => null }));
+jest.mock('@/core/components/common/select', () => ({
+	Select: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+	SelectTrigger: ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+		<button type="button" {...props}>
+			{children}
+		</button>
+	),
+	SelectValue: ({ children, placeholder }: MockSelectValueProps) => <span>{children || placeholder}</span>,
+	SelectContent: () => null,
+	SelectItem: () => null
+}));
 jest.mock('@/core/components/settings/kit/team-settings-gate', () => ({
 	TeamSettingsGate: ({ children }: { children: React.ReactNode }) => <>{children}</>
 }));
@@ -110,6 +130,7 @@ function sheetRowOf(row: number, cells: Partial<TimeImportCells>): TimeImportShe
 		cells: {
 			date: '2026-11-03',
 			startTime: '09:00',
+			endDate: '',
 			endTime: '10:00',
 			duration: '',
 			project: '',
@@ -136,6 +157,8 @@ function timeImportOf(overrides: Partial<TimeImport> = {}): TimeImport {
 		fileProblem: null,
 		ignoredHeaders: [],
 		fileRowCount: rows.length,
+		columnsStep: null,
+		canEditColumns: false,
 		rows,
 		summary: timeImportSummaryOf(rows),
 		run: null,
@@ -144,6 +167,10 @@ function timeImportOf(overrides: Partial<TimeImport> = {}): TimeImport {
 		hasPreviewChanged: false,
 		chooseFile: jest.fn(),
 		retryCheck: jest.fn(),
+		chooseColumn: jest.fn(),
+		chooseDateOrder: jest.fn(),
+		confirmColumns: jest.fn(),
+		editColumns: jest.fn(),
 		confirm: jest.fn(),
 		reset: jest.fn(),
 		...overrides
@@ -278,6 +305,27 @@ describe('TimeImportSettingsPage', () => {
 		expect(chooseFile).toHaveBeenCalledWith(file);
 	});
 
+	it('stops on the Columns step of a file the import cannot read by itself, and checks its rows on request', () => {
+		const { table } = timeImportTableOf('Datum,Beginn,Ende\n2026-11-03,09:00,10:30\n');
+		if (!table) {
+			throw new Error('The file was refused');
+		}
+		const mapping = { ...NO_TIME_IMPORT_COLUMNS, date: 0, startTime: 1, endTime: 2 };
+		const columnsStep = timeImportColumnsStepOf(table, { mapping, dateOrder: null });
+		const confirmColumns = jest.fn();
+		mockTimeImport.mockReturnValue(
+			timeImportOf({ stage: 'columns', fileName: 'export.csv', columnsStep, confirmColumns })
+		);
+		render(<TimeImportSettingsPage />);
+
+		expect(screen.getByRole('heading', { name: 'timeImport.COLUMNS_TITLE' })).toBeTruthy();
+		expect(screen.queryByRole('button', { name: 'timeImport.DROP_TITLE' })).toBeNull();
+		expect(screen.queryAllByRole('listitem')).toHaveLength(0);
+		fireEvent.click(screen.getByRole('button', { name: 'timeImport.mapping.CONTINUE {"count":1}' }));
+
+		expect(confirmColumns).toHaveBeenCalledTimes(1);
+	});
+
 	it('shows the file being checked, then its rows', () => {
 		mockTimeImport.mockReturnValue(timeImportOf({ stage: 'checking', fileName: 'october.csv', fileRowCount: 12 }));
 		const { rerender } = render(<TimeImportSettingsPage />);
@@ -370,5 +418,19 @@ describe('TimeImportSettingsPage', () => {
 		expect(leftOutLine).toMatchObject({ row: 5, status: 'timeImport.status.LEFT_OUT' });
 		expect(leftOutLine.reason).toContain('timeImport.problems.DATE_UNREADABLE');
 		expect(savedLine.cells.notes).toBe('=cmd');
+	});
+
+	it('keeps an end date column in the report of a file that gave end dates', () => {
+		const rows = rowsOf([sheetRowOf(2, { endDate: '04.11.26', endTime: '', duration: '1:00' })]);
+		const run: TimeImportRun = { outcomes: new Map(), isFinished: true };
+		const report = timeImportReportOf(rows, run);
+		mockTimeImport.mockReturnValue(timeImportOf({ stage: 'done', fileName: 'export.csv', rows, run, report }));
+		render(<TimeImportSettingsPage />);
+
+		fireEvent.click(screen.getByRole('button', { name: 'timeImport.DOWNLOAD_REPORT' }));
+
+		const [lines, columns] = mockDownloadCsv.mock.calls[0] as [TimeImportReportLine[], CsvColumn<never>[]];
+		expect(headersOf(columns)).toContain('end date');
+		expect(lines[0].cells.endDate).toBe('04.11.26');
 	});
 });

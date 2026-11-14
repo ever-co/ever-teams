@@ -6,7 +6,7 @@ import { Notice } from '@/core/components/common/notice';
 import { SegmentedControl, type SegmentedControlItem } from '@/core/components/common/segmented-control';
 import { MetricStrip, type MetricItem, type MetricTone } from '@/core/components/dashboards/kit/metric-strip';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { Download, Spinner } from '@/core/components/icons';
+import { Download, Spinner, Table } from '@/core/components/icons';
 import { SettingsReadOnlyNote, SettingsSection, SettingsSurface } from '@/core/components/settings/kit/settings-page';
 import type { TimeImport } from '@/core/hooks/timesheet/use-time-import';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
@@ -15,6 +15,10 @@ import { FILE_NAME_TEXT, type TimeImportCopy } from './time-import-copy';
 import { TimeImportRowItem } from './time-import-row';
 
 const ROWS_SHOWN_PER_STEP = 50;
+
+/** The section's header row stacks below `sm`: Change columns gets its own line, the description the full width. */
+const HEADER_STACKED_ON_PHONES =
+	'max-sm:[&>div:first-child]:flex-col max-sm:[&>div:first-child]:items-start max-sm:[&>div:first-child]:gap-2';
 
 const ALL_ROWS = 'all';
 
@@ -190,12 +194,26 @@ export function TimeImportResult({ timeImport, copy, onDownloadReport }: Readonl
 	const hasReadyRows = summary.readyCount > 0;
 	const showsFilter = isPreview || isDone;
 	const showsIgnoredHeaders = isPreview && ignoredHeaders.length > 0;
+	const offersColumns = isPreview && timeImport.canEditColumns;
+	let sectionClassName: string | undefined = undefined;
+	if (offersColumns) {
+		sectionClassName = HEADER_STACKED_ON_PHONES;
+	}
 
 	return (
 		<SettingsSection
 			id="time-import"
 			title={title}
 			description={<span className={FILE_NAME_TEXT}>{description}</span>}
+			className={sectionClassName}
+			actions={
+				offersColumns && (
+					<Button type="button" variant="ghost" size="sm" onClick={timeImport.editColumns}>
+						<Table aria-hidden="true" />
+						{t('timeImport.mapping.EDIT')}
+					</Button>
+				)
+			}
 		>
 			{isPreview && timeImport.hasPreviewChanged && (
 				<Notice
