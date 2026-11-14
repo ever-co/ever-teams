@@ -145,6 +145,21 @@ function hasAnyFilter(filters: EditsFilters) {
 	return hasMembers || hasProjects || hasBillable || hasKinds;
 }
 
+/**
+ * The history is read for the rows on screen: while a new period loads, the page still shows the previous one's rows,
+ * and their history must not mix with the new period's deletions.
+ */
+function historyRequestOf(shown: ChangedLogsRequest): PeriodHistoryRequest {
+	const { range, keyParams } = shown;
+	return {
+		tenantId: keyParams.tenantId,
+		organizationId: keyParams.organizationId,
+		employeeIds: range.employeeIds ?? [],
+		from: range.from,
+		to: range.to
+	};
+}
+
 /** The history read for the period, or nothing while it is loading, refused or not kept by the API. */
 function historyOf(state: PeriodHistoryState) {
 	if (state.status !== 'ready') {
@@ -254,15 +269,13 @@ export function useManualTimeEditsReport({ unnamedLabel }: Readonly<{ unnamedLab
 	const request = useMemo(() => changedLogsRequestOf(requestInput), [requestInput]);
 	const trackedRequest = useMemo(() => trackedRequestOf(requestInput, isEnabled), [isEnabled, requestInput]);
 
-	const historyRequest = useMemo<PeriodHistoryRequest>(
-		() => ({ tenantId, organizationId, employeeIds: reportedEmployeeIds, from: period.from, to: period.to }),
-		[organizationId, period, reportedEmployeeIds, tenantId]
-	);
-
 	const changed = useChangedTimeLogs(request, isEnabled);
 	const dailyQuery = useTimeActivityDailyQuery(trackedRequest);
-	const periodHistory = useTimeLogPeriodHistory(historyRequest, isEnabled);
 	const pair = changed.pair;
+	const shownRequest = pair?.request ?? request;
+	const historyRequest = useMemo(() => historyRequestOf(shownRequest), [shownRequest]);
+	const hasShownRows = pair !== null;
+	const periodHistory = useTimeLogPeriodHistory(historyRequest, isEnabled && hasShownRows);
 	const historyStatus = periodHistory.status;
 	const hasChangeKinds = historyStatus === 'ready';
 	const { byEntry, deleted } = historyOf(periodHistory);
