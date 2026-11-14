@@ -5243,6 +5243,8 @@
 			"TO_STATUSES": "A los estados",
 			"FROM_STATUSES": "Desde los estados",
 			"ANY_STATUS": "No elija ninguno para cualquier estado.",
+			"MERGED_ONLY": "Solo pull requests fusionados",
+			"MERGED_ONLY_HINT": "Un pull request cerrado sin fusionar no ejecuta la regla; su fusión después de reabrirlo, sí. El cierre de una incidencia la ejecuta como antes.",
 			"NO_CONDITIONS": "Sin condiciones: la regla se ejecuta siempre.",
 			"ADD_CONDITION": "Añadir una condición",
 			"ADD_ACTION": "Añadir una acción",

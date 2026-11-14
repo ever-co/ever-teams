@@ -5243,6 +5243,8 @@
 			"TO_STATUSES": "Na statusy",
 			"FROM_STATUSES": "Ze statusów",
 			"ANY_STATUS": "Nie wybieraj żadnego dla dowolnego statusu.",
+			"MERGED_ONLY": "Tylko scalone pull requesty",
+			"MERGED_ONLY_HINT": "Pull request zamknięty bez scalenia nie uruchamia reguły; jego scalenie po ponownym otwarciu – tak. Zamknięcie zgłoszenia uruchamia ją jak dotąd.",
 			"NO_CONDITIONS": "Brak warunków: reguła działa za każdym razem.",
 			"ADD_CONDITION": "Dodaj warunek",
 			"ADD_ACTION": "Dodaj akcję",

@@ -4,6 +4,7 @@ import { useId, useMemo, useState } from 'react';
 import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { APP_DIALOG_BODY, APP_DIALOG_FOOTER, AppDialog, AppDialogHeader } from '@/core/components/common/app-dialog';
+import { Checkbox } from '@/core/components/common/checkbox';
 import { Input } from '@/core/components/common/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -274,7 +275,15 @@ export function AutomationRuleEditor({
 	onSave: (form: TaskAutomationForm) => Promise<void>;
 }>) {
 	const t = useTranslations();
-	const ids = { name: useId(), description: useId(), project: useId(), team: useId(), trigger: useId(), enabled: useId() };
+	const ids = {
+		name: useId(),
+		description: useId(),
+		project: useId(),
+		team: useId(),
+		trigger: useId(),
+		enabled: useId(),
+		mergedOnly: useId()
+	};
 	const [form, setForm] = useState<TaskAutomationForm>(initial);
 	const [showErrors, setShowErrors] = useState(false);
 	const [seenInitial, setSeenInitial] = useState(initial);
@@ -398,7 +407,23 @@ export function AutomationRuleEditor({
 							onChange={(trigger: ETaskAutomationTrigger) => patch({ trigger })}
 						/>
 						{form.trigger === ETaskAutomationTrigger.LINK_CLOSED && (
-							<p className="text-xs text-muted-foreground">{t('settings.automations.NEEDS_INTEGRATION')}</p>
+							<div className="flex flex-col gap-2">
+								<p className="text-xs text-muted-foreground">
+									{t('settings.automations.NEEDS_INTEGRATION')}
+								</p>
+								<label className="flex items-center gap-2 text-[13px] text-foreground">
+									<Checkbox
+										checked={form.mergedOnly}
+										onCheckedChange={(checked) => patch({ mergedOnly: checked === true })}
+										aria-describedby={ids.mergedOnly}
+										data-testid="automation-merged-only"
+									/>
+									{t('settings.automations.MERGED_ONLY')}
+								</label>
+								<p id={ids.mergedOnly} className="text-xs text-muted-foreground">
+									{t('settings.automations.MERGED_ONLY_HINT')}
+								</p>
+							</div>
 						)}
 						{form.trigger === ETaskAutomationTrigger.STATUS_CHANGED && (
 							<div className="flex flex-col gap-2">
