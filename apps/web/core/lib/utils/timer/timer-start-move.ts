@@ -143,14 +143,16 @@ export function startFromTimeText(runStart: Date, timeText: string, now: Date): 
 	const nextDay = new Date(runStart);
 	nextDay.setDate(nextDay.getDate() + 1);
 	const onNextDay = atTimeOn(nextDay, hours, minutes);
-	const notLaterThanNow = [onRunDay, onNextDay].filter((candidate) => candidate.getTime() <= now.getTime());
-	if (notLaterThanNow.length === 0) {
-		return onRunDay;
-	}
 	const distanceToRunStart = (candidate: Date) => Math.abs(candidate.getTime() - runStart.getTime());
-	return notLaterThanNow.reduce((nearest, candidate) =>
-		distanceToRunStart(candidate) < distanceToRunStart(nearest) ? candidate : nearest
-	);
+	let nearest: Date | null = null;
+	for (const candidate of [onRunDay, onNextDay]) {
+		const isLaterThanNow = candidate.getTime() > now.getTime();
+		const isNearer = nearest === null || distanceToRunStart(candidate) < distanceToRunStart(nearest);
+		if (!isLaterThanNow && isNearer) {
+			nearest = candidate;
+		}
+	}
+	return nearest ?? onRunDay;
 }
 
 function twoDigits(value: number): string {
