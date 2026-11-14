@@ -26,20 +26,23 @@ import { useFocusOnMount } from '@/core/hooks/common/use-focus-on-mount';
 import { type GoalComposer, type GoalComposerMode, useGoalComposer } from '@/core/hooks/time-goals/use-goal-composer';
 import { cn } from '@/core/lib/helpers';
 import type { TeamPerson } from '@/core/lib/utils/dashboards/team';
-import { GOAL_NAME_MAX_LENGTH, GOAL_PERIODS, type GoalOwnerChoice } from '@/core/lib/utils/time-goals';
-import { ETimeGoalComparison, type ETimeGoalPeriod, type ITimeGoal } from '@/core/types/interfaces/timesheet/time-goal';
+import {
+	GOAL_NAME_MAX_LENGTH,
+	GOAL_PERIODS,
+	type GoalOwnerChoice,
+	type GoalPickable,
+	pickedItemsOf
+} from '@/core/lib/utils/time-goals';
+import {
+	ETimeGoalComparison,
+	type ETimeGoalPeriod,
+	type ITimeGoal,
+	type ITimeGoalLinkedItem
+} from '@/core/types/interfaces/timesheet/time-goal';
 import { GOAL_FORM_PERIOD_KEYS } from './goal-labels';
 
 const NAME_FIELD =
 	'w-full min-w-0 border-0 bg-transparent p-0 text-xl font-semibold text-foreground outline-none placeholder:font-semibold placeholder:text-muted-foreground/50';
-
-/** A project or a client the goal may count. */
-export interface GoalPickable {
-	id: string;
-	name: string;
-	color?: string | null;
-	imageUrl?: string | null;
-}
 
 /** Whom the person may set goals for, besides themselves. */
 export interface GoalOwnerOptions {
@@ -74,9 +77,13 @@ function keepPlainEnterInField(event: KeyboardEvent<HTMLInputElement>) {
 	}
 }
 
-/** Chips of what is picked, and a dashed round button to add more; "Any project" while nothing is. */
+/**
+ * Chips of what is picked, and a dashed round button to add more; "Any project" while nothing is. A project or client
+ * the goal already counts stays a chip, removable, even once the picker no longer offers it (an archived client).
+ */
 function PickedChips({
 	items,
+	linked,
 	pickedIds,
 	emptyLabel,
 	addLabel,
@@ -84,6 +91,8 @@ function PickedChips({
 	onToggle
 }: Readonly<{
 	items: ReadonlyArray<GoalPickable>;
+	/** What the edited goal counts, as the platform answered it. */
+	linked?: ReadonlyArray<ITimeGoalLinkedItem>;
 	pickedIds: ReadonlyArray<string>;
 	emptyLabel: string;
 	addLabel: string;
@@ -108,7 +117,7 @@ function PickedChips({
 			})),
 		[items]
 	);
-	const picked = items.filter((item) => pickedIds.includes(item.id));
+	const picked = pickedItemsOf(pickedIds, items, linked, t('common.UNKNOWN'));
 	const hasPicked = picked.length > 0;
 	const canAdd = items.length > 0;
 	return (
@@ -381,6 +390,7 @@ function GoalComposerForm({
 					<PropertyRow icon={<Folder />} label={t('dashboard.goals.form.PROJECTS')}>
 						<PickedChips
 							items={projects}
+							linked={goal?.projects}
 							pickedIds={draft.projectIds}
 							emptyLabel={t('dashboard.goals.form.ANY_PROJECT')}
 							addLabel={t('dashboard.goals.form.ADD_PROJECTS')}
@@ -391,6 +401,7 @@ function GoalComposerForm({
 					<PropertyRow icon={<Building />} label={t('dashboard.goals.form.CLIENTS')}>
 						<PickedChips
 							items={clients}
+							linked={goal?.organizationContacts}
 							pickedIds={draft.clientIds}
 							emptyLabel={t('dashboard.goals.form.ANY_CLIENT')}
 							addLabel={t('dashboard.goals.form.ADD_CLIENTS')}

@@ -46,6 +46,10 @@ export interface ITimeGoal {
 	organizationTeamId?: string | null;
 	projects?: ITimeGoalLinkedItem[];
 	organizationContacts?: ITimeGoalLinkedItem[];
+	/** Set by the platform: the goal counts its listed projects only, so a list emptied by deletions counts nothing. */
+	listedProjectsOnly?: boolean;
+	/** The same for its listed clients. */
+	listedClientsOnly?: boolean;
 	isArchived?: boolean;
 	archivedAt?: string | null;
 	createdAt?: string;

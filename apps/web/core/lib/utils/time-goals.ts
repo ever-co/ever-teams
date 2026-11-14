@@ -7,6 +7,7 @@ import {
 	ETimeGoalScope,
 	type ITimeGoal,
 	type ITimeGoalCreateInput,
+	type ITimeGoalLinkedItem,
 	type ITimeGoalProgress,
 	type ITimeGoalUpdateInput
 } from '@/core/types/interfaces/timesheet/time-goal';
@@ -246,18 +247,34 @@ export function createInputOf(draft: GoalDraft, activeTeamId: string | null): IT
 	};
 }
 
-/** What an edit sends: everything a goal asks for; whom it counts stays as it was set. */
-export function updateInputOf(draft: GoalDraft): ITimeGoalUpdateInput {
-	return {
-		...ruleOf(draft),
-		billableOnly: draft.billableOnly,
-		projectIds: draft.projectIds,
-		organizationContactIds: draft.clientIds
-	};
-}
-
 function idsOf(items: ITimeGoal['projects']) {
 	return (items ?? []).map((item) => item.id);
+}
+
+function holdsSameIds(first: ReadonlyArray<string>, second: ReadonlyArray<string>) {
+	return first.length === second.length && first.every((id) => second.includes(id));
+}
+
+/**
+ * What an edit sends: what the goal asks for, and its projects and clients only when the draft changed them; whom it
+ * counts stays as it was set. A list sent replaces the goal's, and an empty one counts everything: sending the lists
+ * back unchanged would turn a goal whose listed projects (or clients) are all deleted, which counts nothing, into one
+ * that counts every project.
+ *
+ * @param goal - The goal edited; without it both lists are sent.
+ */
+export function updateInputOf(
+	draft: GoalDraft,
+	goal?: Pick<ITimeGoal, 'projects' | 'organizationContacts'>
+): ITimeGoalUpdateInput {
+	const input: ITimeGoalUpdateInput = { ...ruleOf(draft), billableOnly: draft.billableOnly };
+	if (!goal || !holdsSameIds(draft.projectIds, idsOf(goal.projects))) {
+		input.projectIds = draft.projectIds;
+	}
+	if (!goal || !holdsSameIds(draft.clientIds, idsOf(goal.organizationContacts))) {
+		input.organizationContactIds = draft.clientIds;
+	}
+	return input;
 }
 
 function ownerChoiceOf(goal: ITimeGoal): GoalOwnerChoice {
@@ -279,6 +296,40 @@ export function draftOfGoal(goal: ITimeGoal): GoalDraft {
 		clientIds: idsOf(goal.organizationContacts),
 		billableOnly: goal.billableOnly === true
 	};
+}
+
+/** A project or a client the goal dialog offers. */
+export interface GoalPickable {
+	id: string;
+	name: string;
+	color?: string | null;
+	imageUrl?: string | null;
+}
+
+/**
+ * The projects or clients a draft counts, as the dialog shows them: those its picker offers, in the picker's order,
+ * then those the goal already counts that the picker no longer offers (an archived client, a list not read yet), so
+ * they stay visible and can be removed. Only the picker's items can be added.
+ *
+ * @param unnamed - The name of a linked item the platform answers without one.
+ */
+export function pickedItemsOf(
+	pickedIds: ReadonlyArray<string>,
+	items: ReadonlyArray<GoalPickable>,
+	linked: ReadonlyArray<ITimeGoalLinkedItem> | undefined,
+	unnamed: string
+): GoalPickable[] {
+	const picked = items.filter((item) => pickedIds.includes(item.id));
+	const shownIds = new Set(picked.map((item) => item.id));
+	for (const id of pickedIds) {
+		if (shownIds.has(id)) {
+			continue;
+		}
+		const name = linked?.find((item) => item.id === id)?.name?.trim() ?? '';
+		picked.push({ id, name: name.length > 0 ? name : unnamed });
+		shownIds.add(id);
+	}
+	return picked;
 }
 
 // ---------------------------------------------------------------- access

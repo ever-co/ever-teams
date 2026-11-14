@@ -11,6 +11,7 @@ import {
 	memberGoalGroupsOf,
 	ownProgressOf,
 	parseGoalHours,
+	pickedItemsOf,
 	progressOfPeriod,
 	updateInputOf
 } from './time-goals';
@@ -217,6 +218,47 @@ describe('the goal form', () => {
 			projectIds: ['project-1'],
 			organizationContactIds: ['client-a']
 		});
+	});
+
+	it('leaves the projects and clients out of an edit that did not change them', () => {
+		// Its only listed project was deleted: the goal counts nothing, and an empty list sent would count every project
+		const goal = goalOf({
+			projects: [],
+			listedProjectsOnly: true,
+			organizationContacts: [{ id: 'client-a', name: 'Client A' }]
+		});
+		const draft = draftOfGoal(goal);
+
+		const input = updateInputOf({ ...draft, hours: '25' }, goal);
+
+		expect(input).toEqual({
+			name: 'Client A',
+			comparison: ETimeGoalComparison.AT_LEAST,
+			targetHours: 25,
+			period: ETimeGoalPeriod.WEEK,
+			billableOnly: false
+		});
+		expect(updateInputOf({ ...draft, projectIds: ['project-1'], clientIds: [] }, goal)).toMatchObject({
+			projectIds: ['project-1'],
+			organizationContactIds: []
+		});
+	});
+
+	it('keeps a client the goal counts as a chip once the active list no longer holds it', () => {
+		const active = [{ id: 'client-a', name: 'Client A' }];
+		const linked = [
+			{ id: 'client-old', name: ' Old client ' },
+			{ id: 'client-a', name: 'Client A' }
+		];
+
+		expect(pickedItemsOf(['client-old', 'client-a'], active, linked, 'Unknown')).toEqual([
+			{ id: 'client-a', name: 'Client A' },
+			{ id: 'client-old', name: 'Old client' }
+		]);
+		expect(pickedItemsOf(['client-x'], active, [{ id: 'client-x', name: null }], 'Unknown')).toEqual([
+			{ id: 'client-x', name: 'Unknown' }
+		]);
+		expect(pickedItemsOf([], active, linked, 'Unknown')).toEqual([]);
 	});
 });
 

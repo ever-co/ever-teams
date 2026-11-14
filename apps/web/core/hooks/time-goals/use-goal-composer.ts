@@ -84,7 +84,7 @@ export function useGoalComposer({ mode, goal, activeTeamId, onDone }: GoalCompos
 		try {
 			let saved: ITimeGoal;
 			if (isEdit && goal) {
-				saved = await write({ kind: 'update', goalId: goal.id, input: updateInputOf(draft) });
+				saved = await write({ kind: 'update', goalId: goal.id, input: updateInputOf(draft, goal) });
 			} else {
 				saved = await write({ kind: 'create', input: createInputOf(draft, activeTeamId) });
 			}
