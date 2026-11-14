@@ -115,7 +115,7 @@ export function ManualTimeEditsPage() {
 	const membersText = t('dashboard.weeklyLimit.MEMBERS_COUNT', { count: report.populationCount });
 	const meta = [periodText, membersText].join(META_SEPARATOR);
 	const hasShownEntries = report.shownEntries.length > 0;
-	const isExportDisabled = !hasShownEntries || report.isLoading;
+	const isExportDisabled = !hasShownEntries || report.isLoading || report.isHistoryLoading;
 	const showsReport = !report.showsError && !report.showsNoMembers;
 	let actionFigures: EditsFigures | null = report.figures;
 	if (report.isLoading) {
