@@ -76,11 +76,7 @@ function lookOf(standing: InvoiceStanding | null, status: InvoiceStatus | null):
 	return standing;
 }
 
-function standingFactsOf(
-	invoice: LookedInvoice,
-	todayKey: string,
-	timeZone: string | null | undefined
-): StandingFacts {
+function standingFactsOf(invoice: LookedInvoice, todayKey: string, timeZone: string | null | undefined): StandingFacts {
 	const standing = invoiceStandingOf(invoice, todayKey, timeZone);
 	const status = invoiceStatusOf(invoice.status);
 	const look = lookOf(standing, status);

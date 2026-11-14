@@ -4,7 +4,11 @@ const TODAY = '2026-11-14';
 const TIME_ZONE = 'UTC';
 
 function owedOf(invoice: StandingInvoice) {
-	return invoiceStandingSummaryOf([{ dueDate: '2026-12-01T00:00:00.000Z', currency: 'USD', ...invoice }], TODAY, TIME_ZONE);
+	return invoiceStandingSummaryOf(
+		[{ dueDate: '2026-12-01T00:00:00.000Z', currency: 'USD', ...invoice }],
+		TODAY,
+		TIME_ZONE
+	);
 }
 
 describe('what is still owed on an invoice', () => {

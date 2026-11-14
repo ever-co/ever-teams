@@ -118,8 +118,22 @@ describe('the months of the invoices list', () => {
 	});
 
 	it('totals what a month billed: its drafts left out, one total per currency however its code is written', () => {
-		const sent = { ...invoice, id: 'invoice-43', invoiceNumber: 43, status: 'SENT', totalValue: 100, currency: 'usd' };
-		const paid = { ...sent, id: 'invoice-44', invoiceNumber: 44, status: 'FULLY_PAID', totalValue: 50, currency: 'USD ' };
+		const sent = {
+			...invoice,
+			id: 'invoice-43',
+			invoiceNumber: 43,
+			status: 'SENT',
+			totalValue: 100,
+			currency: 'usd'
+		};
+		const paid = {
+			...sent,
+			id: 'invoice-44',
+			invoiceNumber: 44,
+			status: 'FULLY_PAID',
+			totalValue: 50,
+			currency: 'USD '
+		};
 		render(
 			<InvoicesLedger
 				invoices={[invoice, sent as TInvoice, paid as TInvoice]}
