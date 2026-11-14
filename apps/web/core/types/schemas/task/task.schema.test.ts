@@ -114,3 +114,35 @@ describe('createTaskSchema issueType (direct-mode creation body)', () => {
 		expect(result.success).toBe(false);
 	});
 });
+
+/**
+ * Priorities and sizes are per-organization rows in Gauzy too. The platform writes a team's own one as the record's
+ * value (the bulk update names it from its record), and the task page writes it the same way. The strict enums made
+ * one such task fail the whole team task list, and refused the update of a single task before it was sent.
+ */
+describe('a team’s own priority and size', () => {
+	it('is taken as it is written, on a task read and on an update', () => {
+		const read = taskSchema.safeParse({ ...minimalTask, priority: 'p0', size: 'huge' });
+		expect(read.success).toBe(true);
+		expect(read.success && [read.data.priority, read.data.size]).toEqual(['p0', 'huge']);
+		const update = taskSchema.partial().safeParse({ priority: 'Blocker 1', size: 'XXL' });
+		expect(update.success && [update.data.priority, update.data.size]).toEqual(['Blocker 1', 'XXL']);
+		const list = zodStrictPaginationResponseValidate(
+			taskSchema,
+			{ items: [{ ...minimalTask, priority: 'p0' }], total: 1 },
+			'list'
+		);
+		expect(list.items[0].priority).toBe('p0');
+	});
+
+	it('still reads the platform’s values, the title-case ones as lower case', () => {
+		const parsed = taskSchema.safeParse({ ...minimalTask, priority: 'High', size: 'x-large' });
+		expect(parsed.success && [parsed.data.priority, parsed.data.size]).toEqual(['high', 'x-large']);
+		expect(taskSchema.safeParse({ ...minimalTask, priority: 'urgent', size: null }).success).toBe(true);
+	});
+
+	it('control: still rejects a priority or size that is not text', () => {
+		expect(taskSchema.safeParse({ ...minimalTask, priority: 3 }).success).toBe(false);
+		expect(taskSchema.safeParse({ ...minimalTask, size: { value: 'huge' } }).success).toBe(false);
+	});
+});

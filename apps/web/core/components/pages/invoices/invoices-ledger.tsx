@@ -6,6 +6,7 @@ import { Badge } from '@/core/components/common/badge';
 import { EntityTile } from '@/core/components/common/entity-tile';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Download, Loader } from '@/core/components/icons';
+import { useMediaQuery } from '@/core/hooks/common/use-media-query';
 import type { InvoiceToDownload } from '@/core/hooks/invoices/use-invoice-mutations';
 import { cn } from '@/core/lib/helpers';
 import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
@@ -21,8 +22,11 @@ import {
 	type InvoiceStatus,
 	type InvoiceStatusTone
 } from '@/core/lib/utils/invoices';
+import { invoiceActionsOf, type InvoiceMenuAction } from '@/core/lib/utils/invoice-actions';
 import type { TInvoice } from '@/core/types/schemas/organization/invoice.schema';
-import { LEDGER_ROW_DETAILS, LEDGER_ROW_GRID, LEDGER_SURFACE } from './invoices-ledger-recipes';
+import type { InvoiceActionTarget } from './invoice-action-dialogs';
+import { InvoiceActionsMenu, type InvoiceMenuDownload } from './invoice-actions-menu';
+import { COMPACT_LEDGER_QUERY, LEDGER_ROW_DETAILS, LEDGER_ROW_GRID, LEDGER_SURFACE } from './invoices-ledger-recipes';
 
 const STATUS_LABEL_KEYS: Record<InvoiceStatus, DottedLanguageObjectStringPaths> = {
 	DRAFT: 'invoices.status.DRAFT',
@@ -103,12 +107,29 @@ function clientNameOf(invoice: TInvoice, clientNames: ReadonlyMap<string, string
 	return clientNames.get(clientId) ?? null;
 }
 
+type InvoiceActionHandler = (target: InvoiceActionTarget, action: InvoiceMenuAction) => void;
+
 interface InvoiceRowProps {
 	invoice: TInvoice;
 	clientNames: ReadonlyMap<string, string>;
 	timeZone: string | null | undefined;
 	isDownloading: boolean;
 	onDownload: (invoice: InvoiceToDownload) => void;
+	canEdit: boolean;
+	isChanging: boolean;
+	onAction: InvoiceActionHandler;
+	/** The row has room for one button only: its menu then holds the PDF too. */
+	isCompact: boolean;
+	canRevise: boolean;
+}
+
+function hasActionsMenu(invoice: TInvoice, canEdit: boolean) {
+	if (!canEdit) {
+		return false;
+	}
+	const status = invoiceStatusOf(invoice.status);
+	const actions = invoiceActionsOf(status);
+	return actions.length > 0;
 }
 
 const InvoiceRow = memo(function InvoiceRow({
@@ -116,12 +137,32 @@ const InvoiceRow = memo(function InvoiceRow({
 	clientNames,
 	timeZone,
 	isDownloading,
-	onDownload
+	onDownload,
+	canEdit,
+	isChanging,
+	onAction,
+	isCompact,
+	canRevise
 }: InvoiceRowProps) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const clientName = clientNameOf(invoice, clientNames) ?? t('invoices.NO_CLIENT');
 	const numberText = numberTextOf(invoice);
+	const fileName = pdfFileNameOf(numberText);
+	const toDownload: InvoiceToDownload = { id: invoice.id, fileName };
+	const hasMenu = hasActionsMenu(invoice, canEdit);
+	const downloadsFromMenu = isCompact && hasMenu;
+	const showsDownloadButton = !downloadsFromMenu;
+	// Wide, an invoice without actions keeps its empty slot so the download buttons stay in one column.
+	const keepsMenuSlot = canEdit && !isCompact;
+	const showsMenu = keepsMenuSlot || downloadsFromMenu;
+	let menuDownload: InvoiceMenuDownload | undefined;
+	if (downloadsFromMenu) {
+		menuDownload = { isPending: isDownloading, onSelect: () => onDownload(toDownload) };
+	}
+	const pickAction = (picked: TInvoice, action: InvoiceMenuAction) => {
+		onAction({ invoice: picked, numberText: numberText ?? '', clientName }, action);
+	};
 	const issuedText = invoiceDayTextOf(invoiceDayOf(invoice.invoiceDate, timeZone), locale);
 	const dueText = invoiceDayTextOf(invoiceDayOf(invoice.dueDate, timeZone), locale);
 	const statedPeriod = invoicePeriodOfTerms(invoice.terms);
@@ -166,20 +207,34 @@ const InvoiceRow = memo(function InvoiceRow({
 				</span>
 				<InvoiceTotal invoice={invoice} />
 			</span>
-			<span className="flex justify-center">
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					aria-label={downloadLabel}
-					title={downloadLabel}
-					disabled={isDownloading}
-					onClick={() => onDownload({ id: invoice.id, fileName: pdfFileNameOf(numberText) })}
-					className="text-muted-foreground"
-				>
-					{isDownloading && <Loader className="animate-spin" />}
-					{!isDownloading && <Download />}
-				</Button>
+			<span className="flex items-center justify-end gap-0.5">
+				{showsDownloadButton && (
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon"
+						aria-label={downloadLabel}
+						title={downloadLabel}
+						disabled={isDownloading}
+						onClick={() => onDownload(toDownload)}
+						className="text-muted-foreground"
+					>
+						{isDownloading && <Loader className="animate-spin" />}
+						{!isDownloading && <Download />}
+					</Button>
+				)}
+				{showsMenu && (
+					<span className="flex size-8 items-center justify-center">
+						<InvoiceActionsMenu
+							invoice={invoice}
+							numberText={numberText ?? ''}
+							isChanging={isChanging}
+							onAction={pickAction}
+							download={menuDownload}
+							canRevise={canRevise}
+						/>
+					</span>
+				)}
 			</span>
 			<span className={cn(LEDGER_ROW_DETAILS, 'text-xs tabular-nums text-muted-foreground')}>
 				{periodLabel} · {dueLabel}
@@ -193,7 +248,11 @@ export function InvoicesLedger({
 	clientNames,
 	timeZone,
 	pendingPdfId,
-	onDownload
+	onDownload,
+	canEdit,
+	changingIds,
+	onAction,
+	canRevise = false
 }: Readonly<{
 	invoices: ReadonlyArray<TInvoice>;
 	/** Every client's name by id, archived ones included. */
@@ -201,9 +260,15 @@ export function InvoicesLedger({
 	timeZone: string | null | undefined;
 	pendingPdfId: string | null;
 	onDownload: (invoice: InvoiceToDownload) => void;
+	canEdit: boolean;
+	changingIds: ReadonlySet<string>;
+	onAction: InvoiceActionHandler;
+	/** The role may edit an invoice, or void and replace it: it may create invoices. */
+	canRevise?: boolean;
 }>) {
 	const t = useTranslations();
 	const locale = useLocale();
+	const isCompact = useMediaQuery(COMPACT_LEDGER_QUERY);
 	const groups = useMemo(() => invoiceMonthGroupsOf(invoices, timeZone), [invoices, timeZone]);
 
 	return (
@@ -224,6 +289,11 @@ export function InvoicesLedger({
 									timeZone={timeZone}
 									isDownloading={pendingPdfId === invoice.id}
 									onDownload={onDownload}
+									canEdit={canEdit}
+									isChanging={changingIds.has(invoice.id)}
+									onAction={onAction}
+									isCompact={isCompact}
+									canRevise={canRevise}
 								/>
 							))}
 						</ul>

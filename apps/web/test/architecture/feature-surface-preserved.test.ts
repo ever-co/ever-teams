@@ -2043,12 +2043,35 @@ describe('Ever Teams feature surface preservation', () => {
 		// [id]/mappings GET and POST, [id]/mappings/[mappingId] PUT and DELETE, [id]/mappings/[mappingId]/import POST,
 		// [id]/webhook POST, [id]/runs GET, [id]/conflicts GET, [id]/conflicts/[conflictId]/resolve POST).
 		// 350 files and 444 verbs: the 9 / 9 of the clients and invoices with the 341 / 435 of develop and its Jira proxies.
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(350);
+		// 353 files and 449 verbs with the management of a channel's incoming webhooks
+		// (/api/chat/conversations/[id]/webhooks GET and POST, /api/chat/webhooks/[id] PATCH and DELETE,
+		// /api/chat/webhooks/[id]/secret POST).
+		// 356 files and 452 verbs with the proxies that e-mail, settle and delete an invoice (/api/invoices/email/[email]
+		// PUT, [id]/action PUT, [id] DELETE; #5158).
+		// 356 files and 453 verbs with the read of one invoice, which a sending checks before marking it Sent
+		// (/api/invoices/[id] GET; #5158).
+		// 357 files and 455 verbs with the proxies that update one invoice and replace its lines (/api/invoices/[id]
+		// PUT, /api/invoice-item/bulk/[invoiceId] POST; #5159). Its read of one invoice is #5158's.
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(357);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(444);
+		).toHaveLength(455);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of the platform's incoming webhook management of a channel (ever-gauzy #11799)
+				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::GET',
+				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::POST',
+				'apps/web/app/api/chat/webhooks/[id]/route.ts::PATCH',
+				'apps/web/app/api/chat/webhooks/[id]/route.ts::DELETE',
+				'apps/web/app/api/chat/webhooks/[id]/secret/route.ts::POST',
+				// Proxy mode twins of Gauzy's routes that update one invoice and replace its lines (#5159)
+				'apps/web/app/api/invoices/[id]/route.ts::PUT',
+				'apps/web/app/api/invoice-item/bulk/[invoiceId]/route.ts::POST',
+				// Proxy mode twins of Gauzy's routes that e-mail, read, settle and delete an invoice (#5158)
+				'apps/web/app/api/invoices/email/[email]/route.ts::PUT',
+				'apps/web/app/api/invoices/[id]/action/route.ts::PUT',
+				'apps/web/app/api/invoices/[id]/route.ts::DELETE',
+				'apps/web/app/api/invoices/[id]/route.ts::GET',
 				// Proxy mode twins of Gauzy's invoice routes (#5088)
 				'apps/web/app/api/invoices/route.ts::POST',
 				'apps/web/app/api/invoices/pagination/route.ts::GET',

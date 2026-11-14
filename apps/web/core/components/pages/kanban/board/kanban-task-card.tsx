@@ -20,6 +20,7 @@ import {
 import { cn } from '@/core/lib/helpers';
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { getTaskEstimation } from '@/core/lib/utils/task.utils';
+import { strayStatusOf } from '@/core/lib/utils/kanban-board';
 import { dataColorChipStyle, isPaintableColor } from '@/core/components/tasks/task-data-color';
 import { TaskPropertyIcon, type TaskPropertyKind } from '@/core/components/tasks/task-property-icon';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
@@ -87,14 +88,16 @@ function PropertyChip({
 }
 
 function TaskProperties({ task, hasCheck }: Readonly<{ task: TTask; hasCheck: boolean }>) {
-	const { priorityItems, sizeItems } = useKanbanBoardContext();
+	const { statuses, priorityItems, sizeItems } = useKanbanBoardContext();
+	// A task whose status no lane has (another team's) sits in the first lane: its card names its own status.
+	const strayStatus = strayStatusOf(task, statuses);
 	const priority = task.priority as string | null | undefined;
 	const size = task.size as string | null | undefined;
 	const labels = task.tags ?? [];
 	const shownLabels = labels.slice(0, VISIBLE_LABEL_COUNT);
 	const hiddenLabelCount = labels.length - shownLabels.length;
 	const hasHiddenLabels = hiddenLabelCount > 0;
-	const hasProperties = [Boolean(priority), Boolean(size), labels.length > 0].some(Boolean);
+	const hasProperties = [Boolean(strayStatus), Boolean(priority), Boolean(size), labels.length > 0].some(Boolean);
 
 	if (!hasProperties) {
 		return null;
@@ -102,6 +105,7 @@ function TaskProperties({ task, hasCheck }: Readonly<{ task: TTask; hasCheck: bo
 
 	return (
 		<div className={cn('flex min-w-0 flex-wrap items-center gap-1', hasCheck ? 'pr-14' : 'pr-7')}>
+			{strayStatus && <PropertyChip kind="status" name={strayStatus} color={null} />}
 			{priority && <PropertyChip kind="priority" name={priority} color={priorityItems.get(priority)?.bgColor} />}
 			{size && <PropertyChip kind="size" name={size} color={sizeItems.get(size)?.bgColor} />}
 			{shownLabels.map((label) => (

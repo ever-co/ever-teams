@@ -31,6 +31,7 @@ import {
 } from '@/core/components/projects/project-cells';
 import { FavoriteMark } from '@/core/components/favorites/favorite-parts';
 import { ProjectActionsMenu } from '@/core/components/projects/project-actions-menu';
+import { ProjectBillableMark } from '@/core/components/projects/project-billable-mark';
 import {
 	ProjectBudgetRiskMark,
 	ProjectBudgetUseCell,
@@ -482,6 +483,7 @@ function ProjectRow({
 							{project.name}
 						</span>
 						<FavoriteMark entity={EBaseEntityEnum.OrganizationProject} id={project.id} />
+						<ProjectBillableMark project={project} hidesBelowSm />
 					</span>
 					<ProjectSubline project={project} clientName={clientName} hasClientColumn={hasClientColumn} />
 				</span>

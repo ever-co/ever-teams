@@ -687,6 +687,33 @@
 				"NO_APPS": "No app or site recorded in these ten minutes.",
 				"OPEN_FULL": "Open the full-size screenshot",
 				"SHOT_OF": "Screenshot {index} of {count}"
+			},
+			"BULK_EDIT": {
+				"TITLE": "{count, plural, one {Edit # entry} other {Edit # entries}}",
+				"DESCRIPTION": "Only the fields you change are saved. Each entry keeps its own date, times, notes and member.",
+				"KEEP": "Keep as is",
+				"PROJECT_FOLLOWS": "Time on this task goes to its project: {project}.",
+				"PROJECT_FOLLOWS_UNNAMED": "Time on this task goes to the task's own project.",
+				"TASKS_OF_PROJECT": "Tasks of {project} and tasks without a project.",
+				"PROJECTS_LOADING": "Loading projects",
+				"PROJECTS_FAILED": "The projects could not load.",
+				"NOTHING_CHOSEN": "Every field is on Keep as is, so nothing changes yet.",
+				"WILL_UPDATE": "{count, plural, =0 {No entry will be updated} one {# entry will be updated} other {# entries will be updated}}",
+				"UPDATE": "{count, plural, =0 {Update entries} one {Update # entry} other {Update # entries}}",
+				"PROGRESS": "Updating entries: {done} of {total}",
+				"UPDATED": "{count, plural, one {# entry updated} other {# entries updated}}",
+				"UPDATED_PARTLY": "{updated, plural, =0 {No entry updated} one {# entry updated} other {# entries updated}}, {notUpdated, plural, one {# not updated} other {# not updated}}",
+				"STILL_SELECTED": "The entries that were not updated are still selected.",
+				"REASON": {
+					"NOT_ALLOWED": "{count, plural, one {# entry is not yours: only its member or an admin can edit it.} other {# entries are not yours: only their member or an admin can edit them.}}",
+					"RUNNING": "{count, plural, one {# entry of a running timer: stop the timer first.} other {# entries of running timers: stop the timers first.}}",
+					"APPROVED": "{count, plural, one {# entry is approved: change its status first.} other {# entries are approved: change their status first.}}",
+					"OTHER_TEAM": "{count, plural, one {# entry of another team: switch to that team to change its task.} other {# entries of another team: switch to that team to change their task.}}",
+					"UNCHANGED": "{count, plural, one {# entry already has these values.} other {# entries already have these values.}}",
+					"OVERLAP": "{count, plural, one {# entry overlaps other recorded time: saving it would remove that time.} other {# entries overlap other recorded time: saving them would remove that time.}}",
+					"CHECK_FAILED": "{count, plural, one {# entry could not be checked for overlapping time, so it was not saved.} other {# entries could not be checked for overlapping time, so they were not saved.}}",
+					"FAILED": "{count, plural, one {# entry could not be saved.} other {# entries could not be saved.}}"
+				}
 			}
 		},
 		"workDiary": {
@@ -1782,6 +1809,10 @@
 				"title": "Restore project",
 				"description": "Are you sure you want to restore {projectName}?"
 			},
+			"billable": {
+				"LABEL": "Billable by default",
+				"HELP": "Applies to new entries; saved ones keep their value."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archive {projectsCount} projects",
@@ -2761,7 +2792,8 @@
 			"HINT_BEFORE_START": "Optional. Saved on the entry when the timer starts.",
 			"HINT_RUNNING": "Changes made while the timer runs are not saved yet. To change the notes, edit the entry in Timesheets after you stop the timer.",
 			"HINT_OTHER_TEAM": "These notes belong to the timer running in another team, so they cannot be changed here."
-		}
+		},
+		"NOT_BILLABLE": "Not billable"
 	},
 	"task": {
 		"TITLE": "Task",
@@ -3818,6 +3850,7 @@
 			"PERMISSION": "Your role does not allow this change.",
 			"NOT_FOUND": "This item no longer exists. Refresh the page.",
 			"CONFLICT": "Someone changed this at the same time. Refresh and try again.",
+			"NAME_TAKEN": "This name is already used here. Choose another one.",
 			"INVALID": "Some values were not accepted. Check them and try again.",
 			"TOO_MANY": "Too many attempts. Wait a moment, then try again.",
 			"SERVER": "The server could not complete it. Try again in a moment.",
@@ -4874,6 +4907,10 @@
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "Checked by the Gauzy desktop and web apps only.",
 			"REQUIREMENT_NOT_SAVED": "The requirement was not saved.",
 			"REQUIREMENTS_LOAD_FAILED": "The requirements could not load.",
+			"TRACKING_SWITCH_SECTION": "Who switches time tracking",
+			"RESTRICT_TRACKING_SWITCH_LABEL": "Only a higher role switches time tracking",
+			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Admins turn anyone's time tracking on or off, managers only their team members', never their own or another manager's. When off, admins and team managers switch it for anyone in their teams, and for those who may also edit employees the switch also sets the person's own tracking, which counts in every team.",
+			"TRACKING_SWITCH_RULE_NOT_SAVED": "The setting was not saved.",
 			"ON": "On",
 			"OFF": "Off",
 			"DANGER_SECTION": "Danger zone",
@@ -5206,6 +5243,8 @@
 			"TO_STATUSES": "To the statuses",
 			"FROM_STATUSES": "From the statuses",
 			"ANY_STATUS": "Choose none for any status.",
+			"MERGED_ONLY": "Merged pull requests only",
+			"MERGED_ONLY_HINT": "A pull request closed without merging does not run the rule; its merge after a reopen still does. An issue’s close runs it as before.",
 			"NO_CONDITIONS": "No conditions: the rule runs every time.",
 			"ADD_CONDITION": "Add a condition",
 			"ADD_ACTION": "Add an action",
@@ -5869,7 +5908,8 @@
 			"searchProjects": "Search the projects",
 			"searchTeams": "Search the teams",
 			"themeToggle": "Switch between light and dark",
-			"taskProject": "Change the project"
+			"taskProject": "Change the project",
+			"taskAssignee": "Change the assignees"
 		},
 		"CHAT_SINGLE_KEY": "A chat key is one key, not a sequence.",
 		"CHAT_TAKEN": "The chat already uses that key (formatting, sending, moving or scrolling)."
@@ -6151,7 +6191,48 @@
 		"APP_GONE": "This button is no longer available.",
 		"APP_NO_ANSWER_YET": "The app has not answered yet. You can click again.",
 		"LINK_PREVIEW_LABEL": "{title} ({site}, opens in a new tab)",
-		"LINK_PREVIEW_SITE_LABEL": "{site} (opens in a new tab)"
+		"LINK_PREVIEW_SITE_LABEL": "{site} (opens in a new tab)",
+		"WEBHOOKS": {
+			"TITLE": "Integrations",
+			"DIALOG_TITLE": "Integrations of #{name}",
+			"INTRO": "Incoming webhooks let automation post into this channel. Each one has its own URL; its posts show its name with an App badge.",
+			"NEW": "New webhook",
+			"CREATE": "Create webhook",
+			"EMPTY": "No webhooks yet.",
+			"FULL": "A channel has at most {max} webhooks; revoke one to add another.",
+			"NAME": "Name",
+			"ICON_URL": "Icon URL (optional, https)",
+			"INTERACTION_URL": "Interaction URL (optional, https)",
+			"INTERACTION_HINT": "Button clicks are posted here, signed with the signing secret. Public addresses only.",
+			"BROADCAST": "Its @channel and @here notify everyone in the channel",
+			"SHOWN_ONCE": "Copy these now for “{name}”: they are shown only this once.",
+			"URL": "Webhook URL",
+			"SIGNING_SECRET": "Signing secret",
+			"COPY": "Copy",
+			"COPIED": "Copied",
+			"COPY_URL": "Copy the webhook URL",
+			"COPY_SECRET": "Copy the signing secret",
+			"COPY_FAILED": "Copying did not work; select the text and copy it by hand.",
+			"LOAD_FAILED": "The webhooks of this channel could not be loaded.",
+			"DONE": "I have copied them",
+			"CREATED_BY": "By {name} on {date}",
+			"LAST_USED": "last used {date}",
+			"NEVER_USED": "never used",
+			"COUNTS": "{accepted} posted · {rejected} rejected · {limited} rate-limited · {failures} failed callbacks",
+			"REVOKED": "Revoked",
+			"EDIT": "Edit",
+			"EDIT_NAMED": "Edit {name}",
+			"ROTATE": "New signing secret",
+			"ROTATE_NAMED": "New signing secret for {name}",
+			"ROTATE_CONFIRM": "Make a new signing secret for “{name}”? The app must use the new one from now on.",
+			"REVOKE": "Revoke",
+			"REVOKE_NAMED": "Revoke {name}",
+			"REVOKE_CONFIRM": "Revoke “{name}”? Its URL stops working at once, and this cannot be undone.",
+			"FORBIDDEN": "Only a manager of this channel can manage its webhooks.",
+			"GONE": "This webhook or its channel is no longer available.",
+			"INVALID": "The server refused these values. Check the name and the addresses (https, public hosts only).",
+			"OFF": "Incoming webhooks are not available on this server."
+		}
 	},
 	"docs": {
 		"TITLE": "Docs",
@@ -6690,7 +6771,138 @@
 				"FAILED": "The invoice was not saved and nothing was created. Check that its number is free, then try again.",
 				"UNCHECKED": "The invoices already saved for {client} could not be read, so this period was not checked against them.",
 				"UNCONFIRMED": "The save could not be confirmed, so the invoice may have been saved. Check the invoices already saved for {client} before saving again."
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "By project",
+				"AVERAGE_RATE": "average rate",
+				"AVERAGE_RATE_HINT": "The members of this project have different rates: this is their average, weighted by their hours."
+			},
+			"terms": {
+				"CLIENT": "Client's terms: {days, plural, =0 {due on receipt} one {# day} other {# days}}",
+				"ORGANIZATION": "Workspace terms: {days, plural, one {# day} other {# days}}",
+				"STANDARD": "Default terms: {days, plural, one {# day} other {# days}}",
+				"NOTE": "Note to the client",
+				"NOTE_HINT": "Printed on the invoice, under its period."
+			},
+			"adjustments": {
+				"DISCOUNT": "Discount (%)",
+				"TAX": "Tax (%)",
+				"SUBTOTAL": "Subtotal",
+				"DISCOUNT_ROW": "Discount ({percent})",
+				"TAX_ROW": "Tax ({percent} of {base})"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "Save and send",
+				"DRAFT_OR_SEND_NOTE": "Next, save it as a draft, or save it and send it to {email}.",
+				"SEND_CONSEQUENCE": "Save and send also e-mails it with the PDF attached, then marks it Sent.",
+				"SAVED_NOT_SENT": "Invoice {number} was saved as a draft but not sent",
+				"SEND_FROM_LIST": "Send it again from its menu in the list."
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "Actions for invoice {number}",
+			"SEND": "Send to the client",
+			"SEND_AGAIN": "Send again",
+			"MARK_PAID": "Mark as paid",
+			"MARK_UNPAID": "Mark as unpaid",
+			"VOID": "Void",
+			"DELETE": "Delete",
+			"MARKED_PAID": "Invoice {number} is marked paid",
+			"MARKED_UNPAID": "Invoice {number} is back to Sent, unpaid",
+			"CHANGE_FAILED": "Invoice {number} was not changed",
+			"DOWNLOAD": "Download PDF"
+		},
+		"send": {
+			"TITLE": "Send invoice {number}?",
+			"ATTACHED": "It goes by e-mail, with the invoice attached as a PDF.",
+			"MARKS_SENT": "It is then marked Sent.",
+			"RECIPIENT": "Send to",
+			"RECIPIENT_INVALID": "Enter the e-mail address the invoice goes to.",
+			"CONFIRM": "Send invoice",
+			"SENT": "Invoice {number} sent to {email}",
+			"NOT_MARKED": "Its status could not be changed to Sent.",
+			"FAILED": "Invoice {number} was not sent. Check the address, then try again."
+		},
+		"void": {
+			"TITLE": "Void invoice {number}?",
+			"STAYS_LISTED": "It stays in the list as Void, and its PDF can still be downloaded.",
+			"FINAL": "A void invoice can no longer be sent or marked paid.",
+			"CONFIRM": "Void invoice",
+			"DONE": "Invoice {number} is void",
+			"FAILED": "The invoice was not changed. Try again."
+		},
+		"delete": {
+			"TITLE": "Delete invoice {number}?",
+			"FOR_GOOD": "The draft is deleted for good and leaves the list.",
+			"NUMBER_FREE": "Its number can be given to another invoice.",
+			"CONFIRM": "Delete invoice",
+			"DONE": "Invoice {number} was deleted",
+			"FAILED": "The invoice was not deleted. Try again."
+		},
+		"edit": {
+			"TITLE": "Edit invoice {number}",
+			"LOADING_TITLE": "Edit invoice",
+			"SAVE": "Save changes",
+			"TAKE_TIME_AGAIN": "Take the time again",
+			"TIME_LINES": "Lines rebuilt from the time as it is now.",
+			"BACK_TO_SAVED": "Back to the saved lines",
+			"RATE_SOURCE_SAVED": "The rate saved on the invoice",
+			"DRAFT_NOTE": "It stays a draft. Nothing is sent to the client.",
+			"SENT_NOTE": "{client} has the earlier version until it is sent again.",
+			"UNCHANGED": "Nothing has changed yet.",
+			"TIME_ERROR_MESSAGE": "Try again, or go back to the lines as saved.",
+			"LOAD_ERROR_TITLE": "The invoice could not be loaded",
+			"NOT_FOUND_TITLE": "This invoice no longer exists",
+			"NOT_FOUND_MESSAGE": "It may have been deleted. The list shows the invoices that remain.",
+			"BACK_TO_LIST": "Open Invoices",
+			"LOCKED_TITLE": "Invoice {number} cannot be edited",
+			"LOCKED_PAID": "Something was paid on it. Void and replace it from its menu in the list.",
+			"LOCKED_VOID": "It is void, and a void invoice never changes.",
+			"NOT_FROM_TIME_TITLE": "Invoice {number} cannot be opened here",
+			"NOT_FROM_TIME_MESSAGE": "It was not made from a client's billable time. Change it where it was made.",
+			"OTHER_WORKSPACE_TITLE": "Invoice {number} is in another workspace",
+			"OTHER_WORKSPACE_MESSAGE": "Choose its workspace, then open it again from the invoice list.",
+			"SAVED_NOT_SENT": "Invoice {number} was saved but not sent",
+			"confirm": {
+				"TITLE": "Save the changes to invoice {number}?",
+				"LINES_ADDED": "{count, plural, one {# line added} other {# lines added}}.",
+				"LINES_REMOVED": "{count, plural, one {# line removed} other {# lines removed}}.",
+				"LINES_CHANGED": "{count, plural, one {# line has new hours or a new rate} other {# lines have new hours or a new rate}}.",
+				"DESCRIPTIONS": "{count, plural, one {# description rewritten} other {# descriptions rewritten}}.",
+				"TOTAL": "Total {total}, instead of {before}.",
+				"ISSUE_DATE": "Issued {date}, instead of {before}.",
+				"DUE_DATE": "Due {date}, instead of {before}.",
+				"NUMBER": "Number {number}, instead of {before}.",
+				"DISCOUNT": "Discount {percent}, instead of {before}.",
+				"TAX": "Tax {percent}, instead of {before}.",
+				"CURRENCY": "Billed in {currency}, instead of {before}.",
+				"NOTE": "The note to the client is rewritten.",
+				"EARLIER_VERSION": "{client} has the earlier version.",
+				"STAYS_DRAFT": "It stays a draft.",
+				"SEND_AGAIN": "Save and send again also e-mails this version to the client, with the PDF attached.",
+				"SAVE_AND_SEND_AGAIN": "Save and send again",
+				"NOT_SAVED": "The changes were not saved and the invoice is as it was. Check that its number is free, then try again.",
+				"PUT_BACK": "The changes could not be saved, so the invoice was put back as it was. Try again.",
+				"NOT_PUT_BACK": "The changes could not be saved, and the invoice could not be put back as it was. Open it again and check its lines and total before sending it.",
+				"NOT_PUT_BACK_LINES": "The changes could not be saved, and the invoice could not be put back as it was: it now has {count, plural, =0 {no line} one {# line} other {# lines}}. Check it before sending it.",
+				"LOCKED_NOW": "Since it was opened, invoice {number} was paid or voided: nothing was saved, and it can no longer be edited.",
+				"NOT_CHECKED": "The invoice could not be read again before saving, so nothing was saved. Try again.",
+				"NOT_REACHED": "The connection failed: the changes were not saved and the invoice is as it was. Check your connection, then try again.",
+				"CHANGED": "Since it was opened, invoice {number} was changed: nothing was saved. Open it again from the invoice list to start from its current version."
+			}
+		},
+		"replace": {
+			"ACTION": "Void and replace",
+			"TITLE": "Void invoice {number} and replace it?",
+			"VOIDS": "It stays in the list as Void, with what was paid on it.",
+			"OPENS": "A new invoice opens for {client}, with the same period and lines, to adjust and save under a new number.",
+			"STAYS_VOID": "If that new invoice is never saved, invoice {number} stays void.",
+			"CONFIRM": "Void and replace",
+			"NOTICE_TITLE": "Replacing invoice {number}",
+			"NOTICE_MESSAGE": "Same client, period and lines. Adjust them, then save it under a new number.",
+			"NOT_REBUILDABLE": "Invoice {number} was not voided: it cannot be rebuilt here from billable time. Void and replace it where it was made.",
+			"NOT_VOID_TITLE": "Invoice {number} is not void",
+			"NOT_VOID_MESSAGE": "Only a void invoice is replaced here. Open it from the invoice list to edit it, or to void and replace it."
 		}
 	},
 	"timeReports": {
@@ -6841,5 +7053,11 @@
 			"ROW_DESCRIPTION": "Add time entries from a CSV file.",
 			"OPEN": "Import from CSV"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "Time by client",
+		"CLIENTS": "{count, plural, one {# client} other {# clients}}",
+		"NAMES_ERROR_TITLE": "The clients list could not load",
+		"NAMES_ERROR_MESSAGE": "Archived clients show without their names until it does."
 	}
 }

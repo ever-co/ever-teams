@@ -221,3 +221,40 @@ describe('TeamTasksList project and due date keys (T10)', () => {
 		expect(commands.openPicker).not.toHaveBeenCalled();
 	});
 });
+
+describe('TeamTasksList assignee key', () => {
+	beforeEach(() => {
+		mockSequencePending = false;
+	});
+
+	/** Presses the letter on each row in turn; answers the pickers each press opened, in order. */
+	function pickersOpenedBy(list: ReturnType<typeof renderList>, letter: string, rowIds: string[]) {
+		const opened: unknown[][] = [];
+		for (const id of rowIds) {
+			const before = jest.mocked(list.commands.openPicker).mock.calls.length;
+			fireEvent.keyDown(list.row(id), key(`Key${letter.toUpperCase()}`, letter));
+			opened.push(...jest.mocked(list.commands.openPicker).mock.calls.slice(before));
+		}
+		return opened;
+	}
+
+	it('opens the assignees picker with A for the selection the focused row is in, with the registry on', () => {
+		const list = renderList({ canRebind: true, selected: ['t1', 't2'] });
+		// t3 is outside the selection: that row alone.
+		expect(pickersOpenedBy(list, 'a', ['t1', 't3'])).toEqual([
+			['assignees', ['t1', 't2'], list.row('t1'), 'A'],
+			['assignees', ['t3'], list.row('t3'), 'A']
+		]);
+	});
+
+	it('follows the key the person gave it, and no longer answers A', () => {
+		const list = renderList({ canRebind: true, overrides: { taskAssignee: 'i' } });
+		expect(pickersOpenedBy(list, 'a', ['t1'])).toEqual([]);
+		expect(pickersOpenedBy(list, 'i', ['t1'])).toEqual([['assignees', ['t1'], list.row('t1'), 'I']]);
+	});
+
+	it('leaves A alone with the registry off: the list keeps the keys it had', () => {
+		const list = renderList({ canRebind: false });
+		expect(pickersOpenedBy(list, 'a', ['t1'])).toEqual([]);
+	});
+});

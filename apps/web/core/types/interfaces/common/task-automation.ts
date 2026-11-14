@@ -73,6 +73,11 @@ export interface ITaskAutomationTrigger {
 	toStatuses?: string[];
 	/** `STATUS_CHANGED`: only from these statuses; empty: any. */
 	fromStatuses?: string[];
+	/**
+	 * `LINK_CLOSED`: a pull request runs the rule only when merged (also when the merge follows a reopen); an issue's
+	 * close as without it. False or absent: any close.
+	 */
+	mergedOnly?: boolean;
 }
 
 export interface ITaskAutomationCondition {

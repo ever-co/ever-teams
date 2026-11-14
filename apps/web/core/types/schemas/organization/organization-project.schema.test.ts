@@ -3,7 +3,11 @@
  * dates. The schema coerced that null into 1970-01-01, so the projects list, grid, export and View info
  * showed 1970 for such projects, and the edit wizard opened on 1970 instead of its default dates.
  */
-import { organizationProjectSchema } from './organization-project.schema';
+import {
+	createProjectRequestSchema,
+	editProjectRequestSchema,
+	organizationProjectSchema
+} from './organization-project.schema';
 
 const minimalProject = {
 	id: '5f0b6f7e-2c1d-4a8e-9b3f-7d6c5e4a3b21',
@@ -44,5 +48,33 @@ describe('organizationProjectSchema (project dates)', () => {
 
 		expect(project.startDate).toBeUndefined();
 		expect(project.endDate).toBeUndefined();
+	});
+});
+
+describe('project request schemas (billable setting)', () => {
+	// The create call validates a partial body, as the project service does.
+	const createRequestSchema = createProjectRequestSchema.partial();
+
+	it.each([true, false])('keeps billable %s in the body a create and an edit send', (billable) => {
+		const createBody = createRequestSchema.parse({ name: 'Website', billable });
+		const editBody = editProjectRequestSchema.parse({ billable });
+
+		expect(createBody.billable).toBe(billable);
+		expect(editBody.billable).toBe(billable);
+	});
+
+	it('adds no billable value to a body that names none', () => {
+		const createBody = createRequestSchema.parse({ name: 'Website' });
+		const editBody = editProjectRequestSchema.parse({ name: 'Website' });
+
+		expect('billable' in createBody).toBe(false);
+		expect('billable' in editBody).toBe(false);
+	});
+
+	it('refuses a billable value that is not a boolean', () => {
+		const body = { name: 'Website', billable: 'yes' };
+
+		expect(() => createRequestSchema.parse(body)).toThrow();
+		expect(() => editProjectRequestSchema.parse(body)).toThrow();
 	});
 });

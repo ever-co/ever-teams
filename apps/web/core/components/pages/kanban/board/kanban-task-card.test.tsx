@@ -32,6 +32,7 @@ jest.mock('./kanban-board-context', () => ({
 	useKanbanBoardContext: () => ({
 		liveTaskId: null,
 		openTask: mockOpenTask,
+		statuses: [{ id: 'open', name: 'open' }],
 		priorityItems: new Map(),
 		sizeItems: new Map()
 	}),
@@ -109,6 +110,12 @@ describe('a Kanban card with a selection', () => {
 		expect(selection.openPicker).toHaveBeenLastCalledWith('labels', ['t2'], card);
 	});
 
+	it('opens the assignees picker with A for the whole selection the card is in', () => {
+		const { selection, title, card } = renderCard(['t1', 't2']);
+		fireEvent.keyDown(title, { code: 'KeyA', key: 'a' });
+		expect(selection.openPicker).toHaveBeenLastCalledWith('assignees', ['t1', 't2'], card);
+	});
+
 	it('leaves the second key of a registry sequence to the registry', () => {
 		const { selection, title } = renderCard([]);
 		mockPending = true;
@@ -116,5 +123,33 @@ describe('a Kanban card with a selection', () => {
 		title.dispatchEvent(event);
 		expect(selection.toggleSelected).not.toHaveBeenCalled();
 		expect(event.defaultPrevented).toBe(false);
+	});
+});
+
+describe('the status a Kanban card names', () => {
+	beforeEach(() => {
+		mockSelection = null;
+	});
+
+	function renderTask(fields: Record<string, unknown>) {
+		const shown = { id: 't3', title: 'Third', members: [], tags: [], ...fields } as unknown as Parameters<
+			typeof KanbanTaskCard
+		>[0]['task'];
+		return render(<KanbanTaskCard task={shown} statusId="open" index={0} />).container;
+	}
+
+	it('names its own status when no lane has it (a task of another team, shown in the first lane)', () => {
+		renderTask({ status: 'qa-review', taskStatusId: 'status-of-another-team' });
+		expect(screen.getByText('qa review')).toBeTruthy();
+	});
+
+	it('names no status in the lane of its status, by relation or by name', () => {
+		renderTask({ status: 'open', taskStatusId: 'open' });
+		expect(screen.queryByText('open')).toBeNull();
+	});
+
+	it('names no status when the task has none', () => {
+		const container = renderTask({ status: null, taskStatusId: null });
+		expect(container.querySelectorAll('.chip-3d')).toHaveLength(0);
 	});
 });

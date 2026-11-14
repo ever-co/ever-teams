@@ -15,6 +15,7 @@ jest.mock('../logs/logger-adapter.service', () => ({
 }));
 
 import { APIService } from './api.service';
+import type { APIConfig } from './axios';
 import { requestBodyForLog } from './request-log-body';
 
 function captureAdapter(capture: (config: InternalAxiosRequestConfig) => void): AxiosAdapter {
@@ -40,6 +41,35 @@ describe('development request log', () => {
 		const requestLog = mockDebug.mock.calls.find(([message]) => String(message).includes('Request'));
 		expect(requestLog?.[1].data).toEqual({ hash: '[hidden]', firstName: 'Marie' });
 		expect(JSON.stringify(mockDebug.mock.calls)).not.toContain('secret-password');
+	});
+
+	it('leaves out the answer of a request that holds a secret shown once, and logs the others', async () => {
+		const service = new APIService('https://api.example.test', { enableLogging: true });
+		service.axiosInstance.defaults.adapter = async (config) =>
+			({
+				config,
+				data: { url: 'https://api.example.test/hook/url-secret', signingSecret: 'signing-secret-1' },
+				headers: {},
+				status: 201,
+				statusText: 'Created'
+			}) as AxiosResponse;
+
+		await service.axiosInstance.post('/chat/conversations/c1/webhooks', { name: 'Alerts' }, {
+			secretResponse: true
+		} as APIConfig);
+
+		const hidden = mockDebug.mock.calls.find(([message]) => String(message).includes('Response'));
+		expect(hidden?.[1].data).toBe('[not logged]');
+		expect(JSON.stringify(mockDebug.mock.calls)).not.toContain('signing-secret-1');
+		expect(JSON.stringify(mockDebug.mock.calls)).not.toContain('url-secret');
+
+		mockDebug.mockReset();
+		await service.axiosInstance.get('/chat/conversations/c1/webhooks');
+		const shown = mockDebug.mock.calls.find(([message]) => String(message).includes('Response'));
+		expect(shown?.[1].data).toEqual({
+			url: 'https://api.example.test/hook/url-secret',
+			signingSecret: 'signing-secret-1'
+		});
 	});
 });
 

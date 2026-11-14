@@ -113,6 +113,31 @@ describe('task automations form', () => {
 		});
 	});
 
+	it('reads and writes “merged pull requests only” for a closed link alone, off for a rule saved without it', () => {
+		const merged = formFromRule(rule({ trigger: { type: ETaskAutomationTrigger.LINK_CLOSED, mergedOnly: true } }));
+		expect(merged).toMatchObject({ trigger: ETaskAutomationTrigger.LINK_CLOSED, mergedOnly: true });
+		expect(ruleInputFromForm(merged).trigger).toEqual({
+			type: ETaskAutomationTrigger.LINK_CLOSED,
+			mergedOnly: true
+		});
+
+		const older = formFromRule(rule({ trigger: { type: ETaskAutomationTrigger.LINK_CLOSED } }));
+		expect(older.mergedOnly).toBe(false);
+		expect(ruleInputFromForm(older).trigger).toEqual({
+			type: ETaskAutomationTrigger.LINK_CLOSED,
+			mergedOnly: false
+		});
+		expect(emptyTaskAutomationForm().mergedOnly).toBe(false);
+
+		// Another trigger never sends it.
+		expect(ruleInputFromForm({ ...merged, trigger: ETaskAutomationTrigger.TASK_CREATED }).trigger).toEqual({
+			type: ETaskAutomationTrigger.TASK_CREATED
+		});
+		expect(
+			ruleInputFromForm({ ...merged, trigger: ETaskAutomationTrigger.STATUS_CHANGED }).trigger
+		).not.toHaveProperty('mergedOnly');
+	});
+
 	it('makes a template a new rule; one that needs the organization’s values starts off', () => {
 		const template: ITaskAutomationTemplate = {
 			key: 'status-sets-fields',

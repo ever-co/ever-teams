@@ -1,11 +1,12 @@
 import {
 	billableEntriesOf,
 	buildInvoiceRequest,
-	defaultDueDayOf,
+	dueDayAfter,
 	hoursOfLines,
 	invoiceCurrenciesOf,
 	invoiceCurrencyKeyOf,
 	invoiceDayOf,
+	invoiceDueTermOf,
 	invoiceMonthGroupsOf,
 	invoicePeriodOfTerms,
 	invoiceProblemsOf,
@@ -26,11 +27,13 @@ import {
 	periodsOverlap,
 	projectGroupsOf,
 	removedLineCountOf,
+	STANDARD_DUE_DAYS,
 	type BillableEntry,
 	type BillableLogLike,
 	type InvoiceLineNames,
 	type LinePrice
 } from './invoices';
+import { invoiceTotalsOf } from './invoice-totals';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 
 const HOUR = 3600;
@@ -250,6 +253,146 @@ describe('invoiceTimeOf', () => {
 	});
 });
 
+describe('lines by project', () => {
+	function priceByMember(rates: Record<string, number>, currency = 'USD') {
+		return (_projectId: string, employeeId: string): LinePrice => {
+			const rate = rates[employeeId] ?? null;
+			if (rate === null) {
+				return { rate: null, currency: null, source: null };
+			}
+			return { rate, currency, source: 'member' };
+		};
+	}
+
+	it('gives 10 h at 80 and 6 h at 40 one line of 16 h at 65.00, an average rate, for 1,040.00', () => {
+		const entries: BillableEntry[] = [
+			{ projectId: 'p1', employeeId: 'ana', taskId: 't1', seconds: 6 * HOUR },
+			{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 4 * HOUR },
+			{ projectId: 'p1', employeeId: 'bo', taskId: null, seconds: 6 * HOUR }
+		];
+
+		const { lines } = invoiceTimeOf({ entries, grouping: 'project', priceOf: priceByMember({ ana: 80, bo: 40 }) });
+
+		expect(lines).toHaveLength(1);
+		expect(lines[0]).toMatchObject({
+			projectId: 'p1',
+			employeeId: null,
+			taskId: null,
+			hours: 16,
+			rate: 65,
+			amount: 1040,
+			isAverageRate: true
+		});
+	});
+
+	it('rounds the average rate to the cent and bills the hours at that rate', () => {
+		const entries: BillableEntry[] = [
+			{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 10 * HOUR },
+			{ projectId: 'p1', employeeId: 'bo', taskId: null, seconds: 5 * HOUR }
+		];
+
+		const [line] = invoiceTimeOf({
+			entries,
+			grouping: 'project',
+			priceOf: priceByMember({ ana: 80, bo: 45 })
+		}).lines;
+
+		expect(line).toMatchObject({ hours: 15, rate: 68.33, amount: 1024.95 });
+	});
+
+	it('rounds a half-cent average rate up and bills the hours at it (an hour at 10.00 and one at 10.01)', () => {
+		const entries: BillableEntry[] = [
+			{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: HOUR },
+			{ projectId: 'p1', employeeId: 'bo', taskId: null, seconds: HOUR }
+		];
+		const priceOf = priceByMember({ ana: 10, bo: 10.01 });
+
+		const [line] = invoiceTimeOf({ entries, grouping: 'project', priceOf }).lines;
+
+		expect(line).toMatchObject({ hours: 2, rate: 10.01, amount: 20.02, isAverageRate: true });
+	});
+
+	it('rounds a project line’s amount half a cent up, as a member’s line does (1.15 h at 12.50 is 14.38)', () => {
+		const entries: BillableEntry[] = [{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 4140 }];
+
+		const [line] = invoiceTimeOf({ entries, grouping: 'project', priceOf: priceByMember({ ana: 12.5 }) }).lines;
+
+		expect(line).toMatchObject({ hours: 1.15, rate: 12.5, amount: 14.38 });
+	});
+
+	it('states the members’ own rate, not an average, when they are all billed the same', () => {
+		const entries: BillableEntry[] = [
+			{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 1200 },
+			{ projectId: 'p1', employeeId: 'bo', taskId: null, seconds: 1200 }
+		];
+
+		const [line] = invoiceTimeOf({
+			entries,
+			grouping: 'project',
+			priceOf: priceByMember({ ana: 90, bo: 90 })
+		}).lines;
+
+		expect(line).toMatchObject({ hours: 0.67, rate: 90, amount: 60.3, isAverageRate: false, rateSource: 'member' });
+	});
+
+	it('puts the time of one project priced in two currencies on two lines', () => {
+		const entries: BillableEntry[] = [
+			{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 2 * HOUR },
+			{ projectId: 'p1', employeeId: 'bo', taskId: null, seconds: 3 * HOUR }
+		];
+		function priceInTwoCurrencies(_projectId: string, employeeId: string): LinePrice {
+			if (employeeId === 'ana') {
+				return { rate: 100, currency: 'USD', source: 'member' };
+			}
+			return { rate: 50, currency: 'EUR', source: 'employee' };
+		}
+
+		const { lines } = invoiceTimeOf({ entries, grouping: 'project', priceOf: priceInTwoCurrencies });
+
+		expect(lines.map((line) => [line.currency, line.hours, line.amount, line.isAverageRate])).toEqual([
+			['USD', 2, 200, false],
+			['EUR', 3, 150, false]
+		]);
+	});
+
+	it('lists the time without a rate apart, per member, and leaves it out of the project’s line', () => {
+		const entries: BillableEntry[] = [
+			{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 2 * HOUR },
+			{ projectId: 'p1', employeeId: 'bo', taskId: null, seconds: HOUR }
+		];
+
+		const time = invoiceTimeOf({ entries, grouping: 'project', priceOf: priceByMember({ ana: 80 }) });
+
+		expect(time.lines.map((line) => [line.hours, line.amount])).toEqual([[2, 160]]);
+		expect(time.unpriced).toEqual([{ key: 'p1|bo', projectId: 'p1', employeeId: 'bo', seconds: HOUR }]);
+	});
+
+	it('names a project line after its project, and saves it without a member', () => {
+		const entries: BillableEntry[] = [{ projectId: 'p2', employeeId: 'ana', taskId: null, seconds: HOUR }];
+		const { lines } = invoiceTimeOf({ entries, grouping: 'project', priceOf: priceByMember({ ana: 80 }) });
+		const named = namedLinesOf(lines, 'project', names);
+
+		const request = buildInvoiceRequest({
+			id: 'inv-1',
+			organizationId: 'org-1',
+			tenantId: 'tenant-1',
+			clientId: 'c1',
+			invoiceNumber: 7,
+			issueDay: '2026-11-02',
+			dueDay: '2026-12-02',
+			currency: 'USD',
+			period: { fromDay: '2026-10-01', toDay: '2026-10-31' },
+			timeZone: 'UTC',
+			lines: named,
+			descriptions: new Map()
+		});
+
+		expect(named.map((line) => [line.label, line.memberName])).toEqual([['App', '']]);
+		expect(request.invoiceItems[0]).toMatchObject({ description: 'App', projectId: 'p2', quantity: 1, price: 80 });
+		expect(request.invoiceItems[0]).not.toHaveProperty('employeeId');
+	});
+});
+
 describe('invoice currencies', () => {
 	const mixed: BillableEntry[] = [
 		{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 2 * HOUR },
@@ -451,6 +594,34 @@ describe('buildInvoiceRequest', () => {
 			}
 		]);
 	});
+
+	it('saves a 10 % discount and a 20 % tax on 1,000.00 with the total shown, 1,080.00', () => {
+		const tenHours: BillableEntry[] = [{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 10 * HOUR }];
+		const priced = invoiceTimeOf({ entries: tenHours, grouping: 'member', priceOf: flatPrice(100, 'EUR') });
+		const subtotal = invoiceCurrenciesOf(priced.lines)[0].amount;
+		const adjustments = { discountPercent: 10, taxPercent: 20 };
+
+		const adjusted = buildInvoiceRequest({
+			id: 'inv-2',
+			organizationId: 'org-1',
+			tenantId: 'tenant-1',
+			clientId: 'c1',
+			invoiceNumber: 14,
+			issueDay: '2026-11-02',
+			dueDay: '2026-12-02',
+			currency: 'EUR',
+			period: { fromDay: '2026-10-01', toDay: '2026-10-31' },
+			timeZone: 'Europe/Paris',
+			lines: namedLinesOf(priced.lines, 'member', names),
+			descriptions: new Map(),
+			adjustments
+		});
+
+		expect(adjusted).toMatchObject({ discountValue: 10, discountType: 'PERCENT', tax: 20, taxType: 'PERCENT' });
+		expect(adjusted.totalValue).toBe(1080);
+		expect(adjusted.totalValue).toBe(invoiceTotalsOf(subtotal, adjustments).total);
+		expect(adjusted.invoiceItems[0]).toMatchObject({ totalValue: 1000, applyTax: true, applyDiscount: true });
+	});
 });
 
 describe('the period an invoice states', () => {
@@ -459,6 +630,34 @@ describe('the period an invoice states', () => {
 	it('reads back the period written in the terms', () => {
 		expect(invoicePeriodOfTerms(invoiceTermsOf(october))).toEqual(october);
 		expect(invoicePeriodOfTerms(`${invoiceTermsOf(october)}\nNet 30`)).toEqual(october);
+	});
+
+	it('writes the note to the client after the period, which stays first and is still read back', () => {
+		const terms = invoiceTermsOf(october, '  Payment by bank transfer.\nThank you.  ');
+
+		expect(terms).toBe('Billable time from 2026-10-01 to 2026-10-31\n\nPayment by bank transfer.\nThank you.');
+		expect(invoicePeriodOfTerms(terms)).toEqual(october);
+		expect(invoiceTermsOf(october, '   ')).toBe('Billable time from 2026-10-01 to 2026-10-31');
+	});
+
+	it('saves the note in the invoice’s terms', () => {
+		const request = buildInvoiceRequest({
+			id: 'inv-3',
+			organizationId: 'org-1',
+			tenantId: 'tenant-1',
+			clientId: 'c1',
+			invoiceNumber: 15,
+			issueDay: '2026-11-02',
+			dueDay: '2026-12-02',
+			currency: 'USD',
+			period: october,
+			timeZone: 'UTC',
+			lines: [],
+			descriptions: new Map(),
+			note: 'Net 14'
+		});
+
+		expect(request.terms).toBe('Billable time from 2026-10-01 to 2026-10-31\n\nNet 14');
 	});
 
 	it('states no period for terms written elsewhere, or for days that do not exist', () => {
@@ -517,11 +716,31 @@ describe('invoice number and dates', () => {
 		expect(nextInvoiceNumberOf('abc')).toBeNull();
 	});
 
-	it('takes the due day from the organization’s setting, and leaves it to the user without one', () => {
-		expect(defaultDueDayOf('2026-11-02', 30)).toBe('2026-12-02');
-		expect(defaultDueDayOf('2026-11-02', null)).toBe('');
-		expect(defaultDueDayOf('2026-11-02', 0)).toBe('');
-		expect(defaultDueDayOf('', 30)).toBe('');
+	it('dues the invoice of a client with 14-day terms 14 days after its issue', () => {
+		const term = invoiceDueTermOf(14, 30);
+
+		expect(term).toEqual({ source: 'client', days: 14 });
+		expect(dueDayAfter('2026-11-02', term.days)).toBe('2026-11-16');
+	});
+
+	it('reads a client’s terms of zero days as due on receipt', () => {
+		const term = invoiceDueTermOf(0, 30);
+
+		expect(term).toEqual({ source: 'client', days: 0 });
+		expect(dueDayAfter('2026-11-02', term.days)).toBe('2026-11-02');
+	});
+
+	it('falls back on the organization’s setting, then on thirty days', () => {
+		expect(invoiceDueTermOf(null, 45)).toEqual({ source: 'organization', days: 45 });
+		expect(invoiceDueTermOf(-3, 10)).toEqual({ source: 'organization', days: 10 });
+		expect(invoiceDueTermOf(undefined, 0)).toEqual({ source: 'standard', days: STANDARD_DUE_DAYS });
+		expect(invoiceDueTermOf(14.5, null)).toEqual({ source: 'standard', days: 30 });
+	});
+
+	it('counts the due day across months and years, and none from an issue day that is not a day', () => {
+		expect(dueDayAfter('2026-12-15', 30)).toBe('2027-01-14');
+		expect(dueDayAfter('', 14)).toBe('');
+		expect(dueDayAfter('2026-02-30', 14)).toBe('');
 	});
 
 	it('names what keeps an invoice from being saved', () => {

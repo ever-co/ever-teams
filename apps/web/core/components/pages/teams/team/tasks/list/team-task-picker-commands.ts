@@ -13,7 +13,8 @@ const PICKER_COMMANDS: ReadonlyMap<string, PickerCommand> = new Map<string, Pick
 	['taskPriority', { kind: 'priority', appliesToSelection: true }],
 	['taskLabels', { kind: 'labels', appliesToSelection: false }],
 	['taskDueDate', { kind: 'dueDate', appliesToSelection: false, withRegistry: 'selection' }],
-	['taskProject', { kind: 'project', appliesToSelection: true, withRegistry: 'command' }]
+	['taskProject', { kind: 'project', appliesToSelection: true, withRegistry: 'command' }],
+	['taskAssignee', { kind: 'assignees', appliesToSelection: true, withRegistry: 'command' }]
 ]);
 
 /** The picker a command opens with the registry on or off: `null` when the command is not there without it. */

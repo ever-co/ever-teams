@@ -1,6 +1,7 @@
 import moment from 'moment';
 import { getDailyPlanDay } from '@/core/lib/helpers/daily-plan-day';
 import { isTaskFinished } from '@/core/lib/helpers/task';
+import { dateOnlyOf, dayNumberOf, dayOfStoredDate } from '@/core/lib/utils/date-only';
 import { EIssueType } from '@/core/types/generics/enums/task';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
@@ -257,27 +258,54 @@ export function relationCandidatesOf(task: TTask, teamTasks: TTask[]) {
 
 type StoredDate = Date | string | null | undefined;
 
+/** Which date of a task its page sets: when work starts, or when it is due. */
+export type TaskDateKind = 'start' | 'due';
+
+/**
+ * The change a day picked for a task's start or due date makes. Both name a calendar day: the picked day (a day of the
+ * reader's calendar, usually its local midnight) is saved in the platform's date-only form, midnight UTC of that day,
+ * so every reader sees the day that was picked, whatever their zone. `null` removes the date.
+ */
+export function taskDateChangesOf(
+	kind: TaskDateKind,
+	picked: Date | null
+): Pick<TTask, 'startDate'> | Pick<TTask, 'dueDate'> {
+	const day = picked ? dateOnlyOf(picked) : null;
+	if (kind === 'start') {
+		return { startDate: day };
+	}
+	return { dueDate: day };
+}
+
+/**
+ * Whether a picked start day (a day of the reader's calendar) may go with the task's due date: not after its day.
+ * Compared as days, so a due date stored in the date-only form (midnight UTC, the evening before west of UTC) still
+ * takes a start on the same day.
+ */
 export function acceptsStartDate(date: Date, dueDate: StoredDate) {
-	if (!dueDate) {
+	const dueDay = dayOfStoredDate(dueDate);
+	if (dueDay === null) {
 		return true;
 	}
-	return date <= new Date(dueDate);
+	return dayNumberOf(date) <= dueDay;
 }
 
+/** Whether a picked due day may go with the task's start date: not before its day. Compared as days, as above. */
 export function acceptsDueDate(date: Date, startDate: StoredDate) {
-	if (!startDate) {
+	const startDay = dayOfStoredDate(startDate);
+	if (startDay === null) {
 		return true;
 	}
-	return date >= new Date(startDate);
+	return dayNumberOf(date) >= startDay;
 }
 
+/** Whole days from the reader's today to the day the due date names (negative once it has passed). */
 export function daysUntilDue(dueDate: StoredDate, now: Date = new Date()) {
-	if (!dueDate) {
+	const dueDay = dayOfStoredDate(dueDate);
+	if (dueDay === null) {
 		return null;
 	}
-	const due = moment(dueDate).startOf('day');
-	const today = moment(now).startOf('day');
-	return due.diff(today, 'days');
+	return dueDay - dayNumberOf(now);
 }
 
 export function neighboursIn(sequence: string[], taskId: string) {

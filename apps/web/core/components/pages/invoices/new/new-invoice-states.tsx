@@ -50,12 +50,13 @@ export function InvoiceSheetSkeleton() {
 	);
 }
 
-function NewInvoiceToolbarSkeleton() {
+function NewInvoiceToolbarSkeleton({ title }: Readonly<{ title?: string }>) {
 	const t = useTranslations();
+	const shownTitle = title ?? t('invoices.new.TITLE');
 	return (
 		<div className="px-4" aria-hidden="true">
 			<div className="flex min-h-14 flex-wrap items-center justify-between gap-3 py-2.5">
-				<h1 className="truncate text-lg font-semibold text-foreground">{t('invoices.new.TITLE')}</h1>
+				<h1 className="truncate text-lg font-semibold text-foreground">{shownTitle}</h1>
 			</div>
 			<div className="flex flex-wrap items-center gap-2 pb-3">
 				<ToolbarPills widths={CONTROL_WIDTHS} />
@@ -64,9 +65,10 @@ function NewInvoiceToolbarSkeleton() {
 	);
 }
 
-export function NewInvoicePageSkeleton() {
+/** The invoice screen while it loads; an edited invoice's says so in its title. */
+export function NewInvoicePageSkeleton({ title }: Readonly<{ title?: string }>) {
 	return (
-		<PageSkeletonFrame toolbar={<NewInvoiceToolbarSkeleton />}>
+		<PageSkeletonFrame toolbar={<NewInvoiceToolbarSkeleton title={title} />}>
 			<InvoiceSheetSkeleton />
 		</PageSkeletonFrame>
 	);

@@ -687,6 +687,33 @@
 				"NO_APPS": "这十分钟内没有记录任何应用或网站。",
 				"OPEN_FULL": "打开原尺寸截图",
 				"SHOT_OF": "第 {index} 张截图，共 {count} 张"
+			},
+			"BULK_EDIT": {
+				"TITLE": "{count, plural, other {编辑 # 条记录}}",
+				"DESCRIPTION": "只保存你更改的字段。每条记录保留自己的日期、时间、备注和成员。",
+				"KEEP": "保持不变",
+				"PROJECT_FOLLOWS": "该任务的时间归入任务所属的项目：{project}。",
+				"PROJECT_FOLLOWS_UNNAMED": "该任务的时间归入任务自己的项目。",
+				"TASKS_OF_PROJECT": "{project} 的任务，以及没有项目的任务。",
+				"PROJECTS_LOADING": "正在加载项目",
+				"PROJECTS_FAILED": "无法加载项目。",
+				"NOTHING_CHOSEN": "所有字段都是“保持不变”，所以暂时不会有任何更改。",
+				"WILL_UPDATE": "{count, plural, =0 {不会更新任何记录} other {将更新 # 条记录}}",
+				"UPDATE": "{count, plural, =0 {更新记录} other {更新 # 条记录}}",
+				"PROGRESS": "正在更新记录：{done} / {total}",
+				"UPDATED": "{count, plural, other {已更新 # 条记录}}",
+				"UPDATED_PARTLY": "{updated, plural, =0 {没有记录被更新} other {已更新 # 条记录}}，{notUpdated, plural, other {# 条未更新}}",
+				"STILL_SELECTED": "未更新的记录仍处于选中状态。",
+				"REASON": {
+					"NOT_ALLOWED": "{count, plural, other {# 条记录不属于你：只有记录的成员或管理员可以编辑。}}",
+					"RUNNING": "{count, plural, other {# 条记录的计时器正在运行：请先停止计时器。}}",
+					"APPROVED": "{count, plural, other {# 条记录已批准：请先更改其状态。}}",
+					"OTHER_TEAM": "{count, plural, other {# 条记录属于另一个团队：请切换到该团队再更改任务。}}",
+					"UNCHANGED": "{count, plural, other {# 条记录已经是这些值。}}",
+					"OVERLAP": "{count, plural, other {# 条记录与其他已记录的时间重叠：保存会删除那些时间。}}",
+					"CHECK_FAILED": "{count, plural, other {无法检查 # 条记录是否与其他时间重叠，因此未保存。}}",
+					"FAILED": "{count, plural, other {# 条记录无法保存。}}"
+				}
 			}
 		},
 		"workDiary": {
@@ -1801,6 +1828,10 @@
 				"title": "恢复项目",
 				"description": "您确定要恢复 {projectName} 吗？"
 			},
+			"billable": {
+				"LABEL": "默认可计费",
+				"HELP": "仅适用于新记录；已保存的记录保持不变。"
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "归档 {projectsCount} 个项目",
@@ -2761,7 +2792,8 @@
 			"HINT_BEFORE_START": "可选。计时器启动时保存到记录中。",
 			"HINT_RUNNING": "计时器运行期间所做的更改暂不保存。如需更改备注，请在停止计时器后于工时表中编辑该记录。",
 			"HINT_OTHER_TEAM": "这些备注属于另一个团队中正在运行的计时器，因此无法在此处更改。"
-		}
+		},
+		"NOT_BILLABLE": "不可计费"
 	},
 	"task": {
 		"TITLE": "任务",
@@ -3818,6 +3850,7 @@
 			"PERMISSION": "你的角色不允许进行此更改。",
 			"NOT_FOUND": "该项目已不存在，请刷新页面。",
 			"CONFLICT": "有人同时修改了它，请刷新后重试。",
+			"NAME_TAKEN": "此名称在这里已被使用，请换一个。",
 			"INVALID": "部分值未被接受，请检查后重试。",
 			"TOO_MANY": "尝试次数过多，请稍候再试。",
 			"SERVER": "服务器无法完成此操作，请稍后重试。",
@@ -4874,6 +4907,10 @@
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "仅由 Gauzy 桌面版和网页版应用检查。",
 			"REQUIREMENT_NOT_SAVED": "要求未保存。",
 			"REQUIREMENTS_LOAD_FAILED": "无法加载这些要求。",
+			"TRACKING_SWITCH_SECTION": "谁可以切换时间跟踪",
+			"RESTRICT_TRACKING_SWITCH_LABEL": "仅更高角色可开关时间跟踪",
+			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "管理员可开关任何人的时间跟踪，经理只能开关其团队成员的，不能开关自己或其他经理的。关闭时，管理员和团队经理可为其团队中的任何人切换；对还能编辑员工的人而言，该开关也会设置此人自己的时间跟踪，它在所有团队中生效。",
+			"TRACKING_SWITCH_RULE_NOT_SAVED": "设置未保存。",
 			"ON": "开",
 			"OFF": "关",
 			"DANGER_SECTION": "危险区域",
@@ -5206,6 +5243,8 @@
 			"TO_STATUSES": "变为以下状态",
 			"FROM_STATUSES": "从以下状态",
 			"ANY_STATUS": "不选则表示任意状态。",
+			"MERGED_ONLY": "仅已合并的拉取请求",
+			"MERGED_ONLY_HINT": "未合并就关闭的拉取请求不会运行此规则；重新打开后合并仍会运行。问题关闭时照常运行。",
 			"NO_CONDITIONS": "没有条件：规则每次都会运行。",
 			"ADD_CONDITION": "添加条件",
 			"ADD_ACTION": "添加操作",
@@ -5869,7 +5908,8 @@
 			"searchProjects": "搜索项目",
 			"searchTeams": "搜索团队",
 			"themeToggle": "在浅色与深色之间切换",
-			"taskProject": "更改项目"
+			"taskProject": "更改项目",
+			"taskAssignee": "更改负责人"
 		},
 		"CHAT_SINGLE_KEY": "聊天的快捷键只能是一个按键，不能是按键序列。",
 		"CHAT_TAKEN": "聊天已在使用此按键（格式、发送、移动或滚动）。"
@@ -6151,7 +6191,48 @@
 		"APP_GONE": "此按钮已不可用。",
 		"APP_NO_ANSWER_YET": "应用尚未回应。你可以再次点击。",
 		"LINK_PREVIEW_LABEL": "{title}（{site}，在新标签页中打开）",
-		"LINK_PREVIEW_SITE_LABEL": "{site}（在新标签页中打开）"
+		"LINK_PREVIEW_SITE_LABEL": "{site}（在新标签页中打开）",
+		"WEBHOOKS": {
+			"TITLE": "集成",
+			"DIALOG_TITLE": "#{name} 的集成",
+			"INTRO": "传入 Webhook 让自动化程序可以在此频道发帖。每个 Webhook 都有自己的 URL；它的帖子会显示其名称和“应用”标记。",
+			"NEW": "新建 Webhook",
+			"CREATE": "创建 Webhook",
+			"EMPTY": "还没有 Webhook。",
+			"FULL": "一个频道最多有 {max} 个 Webhook；请撤销一个后再添加。",
+			"NAME": "名称",
+			"ICON_URL": "图标 URL（可选，https）",
+			"INTERACTION_URL": "交互 URL（可选，https）",
+			"INTERACTION_HINT": "按钮点击会发送到这里，并用签名密钥签名。仅限公共地址。",
+			"BROADCAST": "它的 @channel 和 @here 会通知频道里的所有人",
+			"SHOWN_ONCE": "请立即为“{name}”复制它们：它们只会显示这一次。",
+			"URL": "Webhook URL",
+			"SIGNING_SECRET": "签名密钥",
+			"COPY": "复制",
+			"COPIED": "已复制",
+			"COPY_URL": "复制 Webhook URL",
+			"COPY_SECRET": "复制签名密钥",
+			"COPY_FAILED": "复制失败；请选中文本并手动复制。",
+			"LOAD_FAILED": "无法加载此频道的 Webhook。",
+			"DONE": "我已复制",
+			"CREATED_BY": "由 {name} 于 {date} 创建",
+			"LAST_USED": "上次使用于 {date}",
+			"NEVER_USED": "从未使用",
+			"COUNTS": "已发布：{accepted} · 已拒绝：{rejected} · 已限流：{limited} · 回调失败：{failures}",
+			"REVOKED": "已撤销",
+			"EDIT": "编辑",
+			"EDIT_NAMED": "编辑 {name}",
+			"ROTATE": "新的签名密钥",
+			"ROTATE_NAMED": "为 {name} 生成新的签名密钥",
+			"ROTATE_CONFIRM": "要为“{name}”生成新的签名密钥吗？从现在起应用必须使用新的密钥。",
+			"REVOKE": "撤销",
+			"REVOKE_NAMED": "撤销 {name}",
+			"REVOKE_CONFIRM": "要撤销“{name}”吗？它的 URL 会立即失效，且无法恢复。",
+			"FORBIDDEN": "只有此频道的管理员才能管理它的 Webhook。",
+			"GONE": "此 Webhook 或其频道已不可用。",
+			"INVALID": "服务器拒绝了这些值。请检查名称和地址（https，仅限公共主机）。",
+			"OFF": "此服务器上不提供传入 Webhook。"
+		}
 	},
 	"docs": {
 		"TITLE": "文档",
@@ -6690,7 +6771,138 @@
 				"FAILED": "发票未保存，也未创建任何内容。请确认编号未被占用，然后重试。",
 				"UNCHECKED": "无法读取已为 {client} 保存的发票，因此本期间未与它们核对。",
 				"UNCONFIRMED": "无法确认是否已保存，因此发票可能已经保存。再次保存前，请先查看已为 {client} 保存的发票。"
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "按项目",
+				"AVERAGE_RATE": "平均费率",
+				"AVERAGE_RATE_HINT": "此项目成员的费率各不相同：这是按各自工时加权的平均值。"
+			},
+			"terms": {
+				"CLIENT": "客户条款：{days, plural, =0 {收到即付} other {# 天}}",
+				"ORGANIZATION": "工作区条款：{days, plural, other {# 天}}",
+				"STANDARD": "默认条款：{days, plural, other {# 天}}",
+				"NOTE": "给客户的备注",
+				"NOTE_HINT": "打印在发票上，位于期间下方。"
+			},
+			"adjustments": {
+				"DISCOUNT": "折扣 (%)",
+				"TAX": "税 (%)",
+				"SUBTOTAL": "小计",
+				"DISCOUNT_ROW": "折扣（{percent}）",
+				"TAX_ROW": "税（{base} 的 {percent}）"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "保存并发送",
+				"DRAFT_OR_SEND_NOTE": "下一步可保存为草稿，或保存并发送至 {email}。",
+				"SEND_CONSEQUENCE": "“保存并发送”还会通过电子邮件发送发票并附上 PDF，然后将其标记为已发送。",
+				"SAVED_NOT_SENT": "第 {number} 号发票已保存为草稿，但未发送",
+				"SEND_FROM_LIST": "请从列表中该发票的菜单再次发送。"
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "第 {number} 号发票的操作",
+			"SEND": "发送给客户",
+			"SEND_AGAIN": "再次发送",
+			"MARK_PAID": "标记为已付清",
+			"MARK_UNPAID": "标记为未付",
+			"VOID": "作废",
+			"DELETE": "删除",
+			"MARKED_PAID": "第 {number} 号发票已标记为已付清",
+			"MARKED_UNPAID": "第 {number} 号发票已回到已发送，未付",
+			"CHANGE_FAILED": "第 {number} 号发票未更改",
+			"DOWNLOAD": "下载 PDF"
+		},
+		"send": {
+			"TITLE": "发送第 {number} 号发票？",
+			"ATTACHED": "将通过电子邮件发送，发票以 PDF 附件形式附上。",
+			"MARKS_SENT": "随后标记为已发送。",
+			"RECIPIENT": "发送至",
+			"RECIPIENT_INVALID": "请输入接收发票的电子邮箱地址。",
+			"CONFIRM": "发送发票",
+			"SENT": "第 {number} 号发票已发送至 {email}",
+			"NOT_MARKED": "无法将其状态改为已发送。",
+			"FAILED": "第 {number} 号发票未发送。请检查地址，然后重试。"
+		},
+		"void": {
+			"TITLE": "作废第 {number} 号发票？",
+			"STAYS_LISTED": "它仍留在列表中，状态为已作废，其 PDF 仍可下载。",
+			"FINAL": "已作废的发票不能再发送或标记为已付清。",
+			"CONFIRM": "作废发票",
+			"DONE": "第 {number} 号发票已作废",
+			"FAILED": "发票未更改。请重试。"
+		},
+		"delete": {
+			"TITLE": "删除第 {number} 号发票？",
+			"FOR_GOOD": "草稿将被永久删除，并从列表中移除。",
+			"NUMBER_FREE": "其编号可以给另一张发票使用。",
+			"CONFIRM": "删除发票",
+			"DONE": "第 {number} 号发票已删除",
+			"FAILED": "发票未删除。请重试。"
+		},
+		"edit": {
+			"TITLE": "编辑第 {number} 号发票",
+			"LOADING_TITLE": "编辑发票",
+			"SAVE": "保存更改",
+			"TAKE_TIME_AGAIN": "重新读取时间",
+			"TIME_LINES": "已按当前的时间重建明细行。",
+			"BACK_TO_SAVED": "恢复已保存的明细行",
+			"RATE_SOURCE_SAVED": "发票上保存的费率",
+			"DRAFT_NOTE": "它仍是草稿，不会向客户发送任何内容。",
+			"SENT_NOTE": "在重新发送之前，{client} 手中的是之前的版本。",
+			"UNCHANGED": "尚未做任何更改。",
+			"TIME_ERROR_MESSAGE": "请重试，或恢复已保存的明细行。",
+			"LOAD_ERROR_TITLE": "无法加载发票",
+			"NOT_FOUND_TITLE": "此发票已不存在",
+			"NOT_FOUND_MESSAGE": "它可能已被删除。列表中显示剩余的发票。",
+			"BACK_TO_LIST": "打开发票",
+			"LOCKED_TITLE": "第 {number} 号发票无法编辑",
+			"LOCKED_PAID": "它已有付款记录。请在列表中通过它的菜单作废并替换它。",
+			"LOCKED_VOID": "它已作废，作废的发票不会再更改。",
+			"NOT_FROM_TIME_TITLE": "第 {number} 号发票无法在此打开",
+			"NOT_FROM_TIME_MESSAGE": "它不是根据客户的计费时间创建的。请在创建它的地方修改。",
+			"OTHER_WORKSPACE_TITLE": "第 {number} 号发票属于另一个工作区",
+			"OTHER_WORKSPACE_MESSAGE": "请选择它所在的工作区，然后从发票列表中重新打开它。",
+			"SAVED_NOT_SENT": "第 {number} 号发票已保存，但未发送",
+			"confirm": {
+				"TITLE": "保存对第 {number} 号发票的更改？",
+				"LINES_ADDED": "{count, plural, other {新增 # 行}}。",
+				"LINES_REMOVED": "{count, plural, other {移除 # 行}}。",
+				"LINES_CHANGED": "{count, plural, other {# 行的工时或费率有变化}}。",
+				"DESCRIPTIONS": "{count, plural, other {改写了 # 条描述}}。",
+				"TOTAL": "总计 {total}，原为 {before}。",
+				"ISSUE_DATE": "开具日期 {date}，原为 {before}。",
+				"DUE_DATE": "到期日 {date}，原为 {before}。",
+				"NUMBER": "编号 {number}，原为 {before}。",
+				"DISCOUNT": "折扣 {percent}，原为 {before}。",
+				"TAX": "税率 {percent}，原为 {before}。",
+				"CURRENCY": "以 {currency} 计费，原为 {before}。",
+				"NOTE": "给客户的备注已改写。",
+				"EARLIER_VERSION": "{client} 手中的是之前的版本。",
+				"STAYS_DRAFT": "它仍是草稿。",
+				"SEND_AGAIN": "“保存并重新发送”还会通过电子邮件将此版本发送给客户，并附上 PDF。",
+				"SAVE_AND_SEND_AGAIN": "保存并重新发送",
+				"NOT_SAVED": "更改未保存，发票保持原样。请确认其编号未被占用，然后重试。",
+				"PUT_BACK": "无法保存更改，因此发票已恢复原样。请重试。",
+				"NOT_PUT_BACK": "无法保存更改，也无法将发票恢复原样。请重新打开它，并在发送前检查其明细行和总额。",
+				"NOT_PUT_BACK_LINES": "无法保存更改，也无法将发票恢复原样：它现在有 {count, plural, =0 {0 行} other {# 行}}。请在发送前检查。",
+				"LOCKED_NOW": "自打开以来，第 {number} 号发票已付款或已作废：未保存任何内容，且无法再编辑。",
+				"NOT_CHECKED": "保存前无法重新读取发票，因此未保存任何内容。请重试。",
+				"NOT_REACHED": "连接失败：更改未保存，发票保持原样。请检查网络连接，然后重试。",
+				"CHANGED": "自打开以来，第 {number} 号发票已被修改：未保存任何内容。请从发票列表重新打开它，从其当前版本开始。"
+			}
+		},
+		"replace": {
+			"ACTION": "作废并替换",
+			"TITLE": "作废第 {number} 号发票并替换？",
+			"VOIDS": "它仍留在列表中，状态为已作废，其上的付款保持不变。",
+			"OPENS": "将为 {client} 打开一张新发票，期间和明细行相同，可调整后以新编号保存。",
+			"STAYS_VOID": "如果这张新发票始终未保存，第 {number} 号发票仍保持作废。",
+			"CONFIRM": "作废并替换",
+			"NOTICE_TITLE": "正在替换第 {number} 号发票",
+			"NOTICE_MESSAGE": "客户、期间和明细行相同。调整后，以新编号保存。",
+			"NOT_REBUILDABLE": "第 {number} 号发票未作废：无法在此根据计费时间重新生成。请在创建它的地方作废并替换。",
+			"NOT_VOID_TITLE": "第 {number} 号发票未作废",
+			"NOT_VOID_MESSAGE": "此处只替换已作废的发票。请从发票列表打开它进行编辑，或将其作废并替换。"
 		}
 	},
 	"timeReports": {
@@ -6841,5 +7053,11 @@
 			"ROW_DESCRIPTION": "从 CSV 文件添加时间条目。",
 			"OPEN": "从 CSV 导入"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "按客户统计时间",
+		"CLIENTS": "{count, plural, other {# 个客户}}",
+		"NAMES_ERROR_TITLE": "无法加载客户列表",
+		"NAMES_ERROR_MESSAGE": "在此之前，已归档的客户不显示名称。"
 	}
 }

@@ -68,8 +68,10 @@ background; this page only manages them.
 - **FR-3** Creating MUST offer a blank rule and every platform template (translated names; the link-closed template
   says it needs an integration).
 - **FR-4** The editor MUST edit name, description, scope (project, team), the trigger (with to / from statuses for a
-  status change), up to 10 conditions and up to 10 actions, picking from the team's statuses, priorities, labels and
-  members; it MUST send for each type exactly the fields the platform reads.
+  status change, and "Merged pull requests only" for a closed link: the platform's `mergedOnly`, ever-gauzy spec
+  FR-21), up to 10 conditions and up to 10 actions, picking from the team's statuses, priorities, labels and
+  members; it MUST send for each type exactly the fields the platform reads. The list names the option after the
+  trigger.
 - **FR-5** The dry run MUST call `POST /task-automations/:id/test` and show the trigger, the conditions, the changes
   and the outcome; it MUST change nothing.
 - **FR-6** The history MUST show the last 50 runs (`GET /task-automations/:id/runs`).

@@ -687,6 +687,33 @@
 				"NO_APPS": "Nessuna app né sito registrato in questi dieci minuti.",
 				"OPEN_FULL": "Apri lo screenshot a grandezza piena",
 				"SHOT_OF": "Screenshot {index} di {count}"
+			},
+			"BULK_EDIT": {
+				"TITLE": "{count, plural, one {Modifica # voce} other {Modifica # voci}}",
+				"DESCRIPTION": "Vengono salvati solo i campi che cambi. Ogni voce mantiene data, orari, note e membro.",
+				"KEEP": "Lascia com'è",
+				"PROJECT_FOLLOWS": "Il tempo su questa attività va al suo progetto: {project}.",
+				"PROJECT_FOLLOWS_UNNAMED": "Il tempo su questa attività va al progetto dell'attività.",
+				"TASKS_OF_PROJECT": "Attività di {project} e attività senza progetto.",
+				"PROJECTS_LOADING": "Caricamento dei progetti",
+				"PROJECTS_FAILED": "Impossibile caricare i progetti.",
+				"NOTHING_CHOSEN": "Tutti i campi sono su «Lascia com'è», quindi per ora non cambia nulla.",
+				"WILL_UPDATE": "{count, plural, =0 {Nessuna voce verrà aggiornata} one {# voce verrà aggiornata} other {# voci verranno aggiornate}}",
+				"UPDATE": "{count, plural, =0 {Aggiorna le voci} one {Aggiorna # voce} other {Aggiorna # voci}}",
+				"PROGRESS": "Aggiornamento delle voci: {done} di {total}",
+				"UPDATED": "{count, plural, one {# voce aggiornata} other {# voci aggiornate}}",
+				"UPDATED_PARTLY": "{updated, plural, =0 {Nessuna voce aggiornata} one {# voce aggiornata} other {# voci aggiornate}}, {notUpdated, plural, one {# non aggiornata} other {# non aggiornate}}",
+				"STILL_SELECTED": "Le voci non aggiornate restano selezionate.",
+				"REASON": {
+					"NOT_ALLOWED": "{count, plural, one {# voce non è tua: solo il suo membro o un amministratore può modificarla.} other {# voci non sono tue: solo il loro membro o un amministratore può modificarle.}}",
+					"RUNNING": "{count, plural, one {# voce di un timer attivo: ferma prima il timer.} other {# voci di timer attivi: ferma prima i timer.}}",
+					"APPROVED": "{count, plural, one {# voce è approvata: cambia prima il suo stato.} other {# voci sono approvate: cambia prima il loro stato.}}",
+					"OTHER_TEAM": "{count, plural, one {# voce di un altro team: passa a quel team per cambiare la sua attività.} other {# voci di un altro team: passa a quel team per cambiare la loro attività.}}",
+					"UNCHANGED": "{count, plural, one {# voce ha già questi valori.} other {# voci hanno già questi valori.}}",
+					"OVERLAP": "{count, plural, one {# voce si sovrappone ad altro tempo registrato: salvarla rimuoverebbe quel tempo.} other {# voci si sovrappongono ad altro tempo registrato: salvarle rimuoverebbe quel tempo.}}",
+					"CHECK_FAILED": "{count, plural, one {Non è stato possibile verificare la sovrapposizione di # voce, quindi non è stata salvata.} other {Non è stato possibile verificare la sovrapposizione di # voci, quindi non sono state salvate.}}",
+					"FAILED": "{count, plural, one {Non è stato possibile salvare # voce.} other {Non è stato possibile salvare # voci.}}"
+				}
 			}
 		},
 		"workDiary": {
@@ -1821,6 +1848,10 @@
 				"title": "Ripristina progetto",
 				"description": "Sei sicuro di voler ripristinare {projectName}?"
 			},
+			"billable": {
+				"LABEL": "Fatturabile per impostazione predefinita",
+				"HELP": "Vale per le nuove voci; quelle salvate non cambiano."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archivia {projectsCount} progetti",
@@ -2761,7 +2792,8 @@
 			"HINT_BEFORE_START": "Facoltativo. Salvate nella voce all'avvio del timer.",
 			"HINT_RUNNING": "Le modifiche fatte mentre il timer è in corso non vengono ancora salvate. Per cambiare le note, modifica la voce nei fogli presenze dopo aver fermato il timer.",
 			"HINT_OTHER_TEAM": "Queste note appartengono al timer in corso in un altro team, quindi non si possono modificare qui."
-		}
+		},
+		"NOT_BILLABLE": "Non fatturabile"
 	},
 	"task": {
 		"TITLE": "Compito",
@@ -3818,6 +3850,7 @@
 			"PERMISSION": "Il tuo ruolo non consente questa modifica.",
 			"NOT_FOUND": "Questo elemento non esiste più. Ricarica la pagina.",
 			"CONFLICT": "Qualcuno l'ha modificato nello stesso momento. Ricarica e riprova.",
+			"NAME_TAKEN": "Questo nome è già in uso qui. Scegline un altro.",
 			"INVALID": "Alcuni valori non sono stati accettati. Controllali e riprova.",
 			"TOO_MANY": "Troppi tentativi. Attendi un momento e riprova.",
 			"SERVER": "Il server non è riuscito a completare l'operazione. Riprova tra poco.",
@@ -4874,6 +4907,10 @@
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "Verificato solo dalle app Gauzy desktop e web.",
 			"REQUIREMENT_NOT_SAVED": "Il requisito non è stato salvato.",
 			"REQUIREMENTS_LOAD_FAILED": "Non è stato possibile caricare i requisiti.",
+			"TRACKING_SWITCH_SECTION": "Chi attiva il tracciamento del tempo",
+			"RESTRICT_TRACKING_SWITCH_LABEL": "Solo un ruolo superiore attiva o disattiva il tracciamento del tempo",
+			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Gli admin attivano o disattivano il tracciamento del tempo di chiunque, i manager solo quello dei membri del loro team, mai il proprio né quello di un altro manager. Se disattivato, admin e manager di team lo cambiano per chiunque nei loro team, e per chi può anche modificare i dipendenti l'interruttore imposta anche il tracciamento proprio della persona, che vale in tutti i team.",
+			"TRACKING_SWITCH_RULE_NOT_SAVED": "L'impostazione non è stata salvata.",
 			"ON": "Attivo",
 			"OFF": "Disattivo",
 			"DANGER_SECTION": "Zona pericolosa",
@@ -5206,6 +5243,8 @@
 			"TO_STATUSES": "Agli stati",
 			"FROM_STATUSES": "Dagli stati",
 			"ANY_STATUS": "Non sceglierne nessuno per qualsiasi stato.",
+			"MERGED_ONLY": "Solo pull request con merge",
+			"MERGED_ONLY_HINT": "Una pull request chiusa senza merge non esegue la regola; il suo merge dopo una riapertura sì. La chiusura di una issue la esegue come prima.",
 			"NO_CONDITIONS": "Nessuna condizione: la regola viene eseguita ogni volta.",
 			"ADD_CONDITION": "Aggiungi una condizione",
 			"ADD_ACTION": "Aggiungi un’azione",
@@ -5869,7 +5908,8 @@
 			"searchProjects": "Cerca nei progetti",
 			"searchTeams": "Cerca nei team",
 			"themeToggle": "Passa da chiaro a scuro",
-			"taskProject": "Cambia il progetto"
+			"taskProject": "Cambia il progetto",
+			"taskAssignee": "Cambia gli assegnatari"
 		},
 		"CHAT_SINGLE_KEY": "Un tasto della chat è un solo tasto, non una sequenza.",
 		"CHAT_TAKEN": "La chat usa già quel tasto (formattazione, invio, spostamento o scorrimento)."
@@ -6151,7 +6191,48 @@
 		"APP_GONE": "Questo pulsante non è più disponibile.",
 		"APP_NO_ANSWER_YET": "L’app non ha ancora risposto. Puoi fare di nuovo clic.",
 		"LINK_PREVIEW_LABEL": "{title} ({site}, si apre in una nuova scheda)",
-		"LINK_PREVIEW_SITE_LABEL": "{site} (si apre in una nuova scheda)"
+		"LINK_PREVIEW_SITE_LABEL": "{site} (si apre in una nuova scheda)",
+		"WEBHOOKS": {
+			"TITLE": "Integrazioni",
+			"DIALOG_TITLE": "Integrazioni di #{name}",
+			"INTRO": "I webhook in entrata permettono alle automazioni di pubblicare in questo canale. Ognuno ha il proprio URL; i suoi messaggi mostrano il suo nome con un badge App.",
+			"NEW": "Nuovo webhook",
+			"CREATE": "Crea webhook",
+			"EMPTY": "Ancora nessun webhook.",
+			"FULL": "Un canale ha al massimo {max} webhook; revocane uno per aggiungerne un altro.",
+			"NAME": "Nome",
+			"ICON_URL": "URL dell’icona (facoltativo, https)",
+			"INTERACTION_URL": "URL di interazione (facoltativo, https)",
+			"INTERACTION_HINT": "I clic sui pulsanti vengono inviati qui, firmati con il segreto di firma. Solo indirizzi pubblici.",
+			"BROADCAST": "I suoi @channel e @here avvisano tutto il canale",
+			"SHOWN_ONCE": "Copiali ora per «{name}»: vengono mostrati solo questa volta.",
+			"URL": "URL del webhook",
+			"SIGNING_SECRET": "Segreto di firma",
+			"COPY": "Copia",
+			"COPIED": "Copiato",
+			"COPY_URL": "Copia l’URL del webhook",
+			"COPY_SECRET": "Copia il segreto di firma",
+			"COPY_FAILED": "La copia non è riuscita; seleziona il testo e copialo a mano.",
+			"LOAD_FAILED": "Non è stato possibile caricare i webhook di questo canale.",
+			"DONE": "Li ho copiati",
+			"CREATED_BY": "Da {name} il {date}",
+			"LAST_USED": "ultimo uso {date}",
+			"NEVER_USED": "mai usato",
+			"COUNTS": "Pubblicati: {accepted} · Rifiutati: {rejected} · Limitati: {limited} · Callback non riuscite: {failures}",
+			"REVOKED": "Revocato",
+			"EDIT": "Modifica",
+			"EDIT_NAMED": "Modifica {name}",
+			"ROTATE": "Nuovo segreto di firma",
+			"ROTATE_NAMED": "Nuovo segreto di firma per {name}",
+			"ROTATE_CONFIRM": "Creare un nuovo segreto di firma per «{name}»? L’app dovrà usare quello nuovo da ora in poi.",
+			"REVOKE": "Revoca",
+			"REVOKE_NAMED": "Revoca {name}",
+			"REVOKE_CONFIRM": "Revocare «{name}»? Il suo URL smette subito di funzionare e l’operazione non si può annullare.",
+			"FORBIDDEN": "Solo un responsabile di questo canale può gestirne i webhook.",
+			"GONE": "Questo webhook o il suo canale non è più disponibile.",
+			"INVALID": "Il server ha rifiutato questi valori. Controlla il nome e gli indirizzi (https, solo host pubblici).",
+			"OFF": "I webhook in entrata non sono disponibili su questo server."
+		}
 	},
 	"docs": {
 		"TITLE": "Documenti",
@@ -6690,7 +6771,138 @@
 				"FAILED": "La fattura non è stata salvata e non è stato creato nulla. Controlla che il numero sia libero, poi riprova.",
 				"UNCHECKED": "Impossibile leggere le fatture già salvate per {client}, quindi questo periodo non è stato confrontato con esse.",
 				"UNCONFIRMED": "Non è stato possibile confermare il salvataggio, quindi la fattura potrebbe essere stata salvata. Controlla le fatture già salvate per {client} prima di salvare di nuovo."
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "Per progetto",
+				"AVERAGE_RATE": "tariffa media",
+				"AVERAGE_RATE_HINT": "I membri di questo progetto hanno tariffe diverse: questa è la loro media, ponderata sulle loro ore."
+			},
+			"terms": {
+				"CLIENT": "Termini del cliente: {days, plural, =0 {pagamento a vista} one {# giorno} other {# giorni}}",
+				"ORGANIZATION": "Termini dello spazio di lavoro: {days, plural, one {# giorno} other {# giorni}}",
+				"STANDARD": "Termini predefiniti: {days, plural, one {# giorno} other {# giorni}}",
+				"NOTE": "Nota per il cliente",
+				"NOTE_HINT": "Stampata sulla fattura, sotto il suo periodo."
+			},
+			"adjustments": {
+				"DISCOUNT": "Sconto (%)",
+				"TAX": "Imposta (%)",
+				"SUBTOTAL": "Subtotale",
+				"DISCOUNT_ROW": "Sconto ({percent})",
+				"TAX_ROW": "Imposta ({percent} di {base})"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "Salva e invia",
+				"DRAFT_OR_SEND_NOTE": "Poi salvala come bozza, oppure salvala e inviala a {email}.",
+				"SEND_CONSEQUENCE": "Salva e invia la manda anche via email con il PDF allegato, poi la segna come Inviata.",
+				"SAVED_NOT_SENT": "La fattura {number} è stata salvata come bozza ma non inviata",
+				"SEND_FROM_LIST": "Inviala di nuovo dal suo menu nell’elenco."
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "Azioni per la fattura {number}",
+			"SEND": "Invia al cliente",
+			"SEND_AGAIN": "Invia di nuovo",
+			"MARK_PAID": "Segna come pagata",
+			"MARK_UNPAID": "Segna come non pagata",
+			"VOID": "Annulla la fattura",
+			"DELETE": "Elimina",
+			"MARKED_PAID": "La fattura {number} è segnata come pagata",
+			"MARKED_UNPAID": "La fattura {number} torna a Inviata, non pagata",
+			"CHANGE_FAILED": "La fattura {number} non è stata modificata",
+			"DOWNLOAD": "Scarica in PDF"
+		},
+		"send": {
+			"TITLE": "Inviare la fattura {number}?",
+			"ATTACHED": "Parte via email, con la fattura allegata in PDF.",
+			"MARKS_SENT": "Poi viene segnata come Inviata.",
+			"RECIPIENT": "Invia a",
+			"RECIPIENT_INVALID": "Inserisci l’indirizzo email a cui inviare la fattura.",
+			"CONFIRM": "Invia la fattura",
+			"SENT": "Fattura {number} inviata a {email}",
+			"NOT_MARKED": "Non è stato possibile cambiare il suo stato in Inviata.",
+			"FAILED": "La fattura {number} non è stata inviata. Controlla l’indirizzo, poi riprova."
+		},
+		"void": {
+			"TITLE": "Annullare la fattura {number}?",
+			"STAYS_LISTED": "Resta nell’elenco come Annullata e il suo PDF si può ancora scaricare.",
+			"FINAL": "Una fattura annullata non può più essere inviata né segnata come pagata.",
+			"CONFIRM": "Annulla la fattura",
+			"DONE": "La fattura {number} è annullata",
+			"FAILED": "La fattura non è stata modificata. Riprova."
+		},
+		"delete": {
+			"TITLE": "Eliminare la fattura {number}?",
+			"FOR_GOOD": "La bozza viene eliminata definitivamente ed esce dall’elenco.",
+			"NUMBER_FREE": "Il suo numero potrà essere dato a un’altra fattura.",
+			"CONFIRM": "Elimina la fattura",
+			"DONE": "La fattura {number} è stata eliminata",
+			"FAILED": "La fattura non è stata eliminata. Riprova."
+		},
+		"edit": {
+			"TITLE": "Modifica la fattura {number}",
+			"LOADING_TITLE": "Modifica la fattura",
+			"SAVE": "Salva le modifiche",
+			"TAKE_TIME_AGAIN": "Riprendi il tempo",
+			"TIME_LINES": "Righe rifatte dal tempo così com’è ora.",
+			"BACK_TO_SAVED": "Torna alle righe salvate",
+			"RATE_SOURCE_SAVED": "La tariffa salvata sulla fattura",
+			"DRAFT_NOTE": "Resta una bozza. Al cliente non viene inviato nulla.",
+			"SENT_NOTE": "{client} ha la versione precedente finché non viene inviata di nuovo.",
+			"UNCHANGED": "Non è ancora cambiato nulla.",
+			"TIME_ERROR_MESSAGE": "Riprova, oppure torna alle righe salvate.",
+			"LOAD_ERROR_TITLE": "Impossibile caricare la fattura",
+			"NOT_FOUND_TITLE": "Questa fattura non esiste più",
+			"NOT_FOUND_MESSAGE": "Forse è stata eliminata. L’elenco mostra le fatture rimaste.",
+			"BACK_TO_LIST": "Apri Fatture",
+			"LOCKED_TITLE": "La fattura {number} non si può modificare",
+			"LOCKED_PAID": "Su di essa è già stato pagato qualcosa. Annullala e sostituiscila dal suo menu nell’elenco.",
+			"LOCKED_VOID": "È annullata, e una fattura annullata non cambia più.",
+			"NOT_FROM_TIME_TITLE": "La fattura {number} non si può aprire qui",
+			"NOT_FROM_TIME_MESSAGE": "Non è stata creata dal tempo fatturabile di un cliente. Modificala dove è stata creata.",
+			"OTHER_WORKSPACE_TITLE": "La fattura {number} è in un altro spazio di lavoro",
+			"OTHER_WORKSPACE_MESSAGE": "Scegli il suo spazio di lavoro, poi riaprila dall’elenco delle fatture.",
+			"SAVED_NOT_SENT": "La fattura {number} è stata salvata ma non inviata",
+			"confirm": {
+				"TITLE": "Salvare le modifiche alla fattura {number}?",
+				"LINES_ADDED": "{count, plural, one {# riga aggiunta} other {# righe aggiunte}}.",
+				"LINES_REMOVED": "{count, plural, one {# riga rimossa} other {# righe rimosse}}.",
+				"LINES_CHANGED": "{count, plural, one {# riga con altre ore o un’altra tariffa} other {# righe con altre ore o un’altra tariffa}}.",
+				"DESCRIPTIONS": "{count, plural, one {# descrizione riscritta} other {# descrizioni riscritte}}.",
+				"TOTAL": "Totale {total}, invece di {before}.",
+				"ISSUE_DATE": "Emessa il {date}, invece del {before}.",
+				"DUE_DATE": "Scade il {date}, invece del {before}.",
+				"NUMBER": "Numero {number}, invece di {before}.",
+				"DISCOUNT": "Sconto {percent}, invece di {before}.",
+				"TAX": "Imposta {percent}, invece di {before}.",
+				"CURRENCY": "Fatturata in {currency}, invece che in {before}.",
+				"NOTE": "La nota per il cliente viene riscritta.",
+				"EARLIER_VERSION": "{client} ha la versione precedente.",
+				"STAYS_DRAFT": "Resta una bozza.",
+				"SEND_AGAIN": "Salva e invia di nuovo manda anche questa versione al cliente via e-mail, con il PDF allegato.",
+				"SAVE_AND_SEND_AGAIN": "Salva e invia di nuovo",
+				"NOT_SAVED": "Le modifiche non sono state salvate e la fattura è rimasta com’era. Controlla che il numero sia libero, poi riprova.",
+				"PUT_BACK": "Non è stato possibile salvare le modifiche, quindi la fattura è stata riportata com’era. Riprova.",
+				"NOT_PUT_BACK": "Non è stato possibile salvare le modifiche, né riportare la fattura com’era. Riaprila e controlla righe e totale prima di inviarla.",
+				"NOT_PUT_BACK_LINES": "Non è stato possibile salvare le modifiche, né riportare la fattura com’era: ora ha {count, plural, =0 {nessuna riga} one {# riga} other {# righe}}. Controllala prima di inviarla.",
+				"LOCKED_NOW": "Da quando è stata aperta, la fattura {number} è stata pagata o annullata: non è stato salvato nulla e non si può più modificare.",
+				"NOT_CHECKED": "Non è stato possibile rileggere la fattura prima di salvare, quindi non è stato salvato nulla. Riprova.",
+				"NOT_REACHED": "La connessione non è riuscita: le modifiche non sono state salvate e la fattura è rimasta com’era. Controlla la connessione e riprova.",
+				"CHANGED": "Da quando è stata aperta, la fattura {number} è stata modificata: non è stato salvato nulla. Riaprila dall’elenco delle fatture per partire dalla sua versione attuale."
+			}
+		},
+		"replace": {
+			"ACTION": "Annulla e sostituisci",
+			"TITLE": "Annullare la fattura {number} e sostituirla?",
+			"VOIDS": "Resta nell’elenco come Annullata, con quanto è stato pagato su di essa.",
+			"OPENS": "Si apre una nuova fattura per {client}, con lo stesso periodo e le stesse righe, da sistemare e salvare con un nuovo numero.",
+			"STAYS_VOID": "Se quella nuova fattura non viene mai salvata, la fattura {number} resta annullata.",
+			"CONFIRM": "Annulla e sostituisci",
+			"NOTICE_TITLE": "Sostituzione della fattura {number}",
+			"NOTICE_MESSAGE": "Stesso cliente, stesso periodo, stesse righe. Sistemale, poi salvala con un nuovo numero.",
+			"NOT_REBUILDABLE": "La fattura {number} non è stata annullata: qui non si può ricreare dal tempo fatturabile. Annullala e sostituiscila dove è stata creata.",
+			"NOT_VOID_TITLE": "La fattura {number} non è annullata",
+			"NOT_VOID_MESSAGE": "Qui si sostituisce solo una fattura annullata. Aprila dall’elenco delle fatture per modificarla, oppure per annullarla e sostituirla."
 		}
 	},
 	"timeReports": {
@@ -6841,5 +7053,11 @@
 			"ROW_DESCRIPTION": "Aggiungi voci di tempo da un file CSV.",
 			"OPEN": "Importa da CSV"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "Tempo per cliente",
+		"CLIENTS": "{count, plural, one {# cliente} other {# clienti}}",
+		"NAMES_ERROR_TITLE": "Impossibile caricare l'elenco dei clienti",
+		"NAMES_ERROR_MESSAGE": "I clienti archiviati compaiono senza il loro nome fino ad allora."
 	}
 }
