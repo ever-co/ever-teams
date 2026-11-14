@@ -3,14 +3,9 @@
 import { useCallback, useState } from 'react';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { toast } from 'sonner';
-import { useChangeInvoiceStatus } from '@/core/hooks/invoices/use-invoice-mutations';
+import { useChangeInvoiceStatus, type InvoicePaymentAction } from '@/core/hooks/invoices/use-invoice-mutations';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
-import {
-	paidChangeOf,
-	unpaidChangeOf,
-	type InvoiceMenuAction,
-	type InvoiceStatusChange
-} from '@/core/lib/utils/invoice-actions';
+import type { InvoiceMenuAction } from '@/core/lib/utils/invoice-actions';
 import type { InvoicesScope } from '@/core/services/client/api/organizations/invoice.service';
 import {
 	DeleteInvoiceDialog,
@@ -31,7 +26,8 @@ interface InvoiceDialog {
 
 /**
  * What a click on an invoice action does, wherever the invoice is shown (a row of the list, its peek, its page):
- * marking it paid or unpaid needs no confirmation and the toast says the outcome; the other actions open their
+ * marking it paid or unpaid needs no confirmation and the toast says the outcome; the amounts paid and due come from
+ * the invoice read when the change is made, never from the copy of its total shown here. The other actions open their
  * dialog, which keeps its invoice while it fades out.
  */
 export function useInvoiceActionFlow(scope: InvoicesScope | null) {
@@ -41,10 +37,14 @@ export function useInvoiceActionFlow(scope: InvoicesScope | null) {
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 
 	const changeTo = useCallback(
-		async (target: InvoiceActionTarget, change: InvoiceStatusChange, doneKey: DottedLanguageObjectStringPaths) => {
+		async (
+			target: InvoiceActionTarget,
+			payment: InvoicePaymentAction,
+			doneKey: DottedLanguageObjectStringPaths
+		) => {
 			const number = target.numberText;
 			try {
-				await changeStatus({ invoiceId: target.invoice.id, change, scope });
+				await changeStatus({ invoiceId: target.invoice.id, payment, scope });
 				toast.success(t(doneKey, { number }));
 			} catch (error) {
 				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
@@ -56,17 +56,16 @@ export function useInvoiceActionFlow(scope: InvoicesScope | null) {
 
 	const takeAction = useCallback(
 		(target: InvoiceActionTarget, action: InvoiceMenuAction) => {
-			const total = target.invoice.totalValue;
 			// Edit is a link of the menu: it never comes here.
 			if (action === 'edit') {
 				return;
 			}
 			if (action === 'markPaid') {
-				void changeTo(target, paidChangeOf(total), 'invoices.actions.MARKED_PAID');
+				void changeTo(target, action, 'invoices.actions.MARKED_PAID');
 				return;
 			}
 			if (action === 'markUnpaid') {
-				void changeTo(target, unpaidChangeOf(total), 'invoices.actions.MARKED_UNPAID');
+				void changeTo(target, action, 'invoices.actions.MARKED_UNPAID');
 				return;
 			}
 			setDialog({ kind: action, target, scope });
