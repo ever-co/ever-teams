@@ -33,11 +33,15 @@ function countsOf(status: TimerStatus | null, isRunning: boolean, now: number, r
 /**
  * The person's timer as the API answers it, read when the popup opens and every 30 seconds, with the running clock
  * ticking each second in between. `notifyBackground` asks the background to read it again for the toolbar badge.
+ *
+ * A start or a stop the API refused keeps its reason (`refusal`) until the next action: the read that follows it
+ * succeeds and must not hide it. A failed read (e.g. offline) clears at the next good read.
  */
 export function useTimerStatus(session: Session | null) {
 	const [status, setStatusState] = useState<TimerStatus | null>(null);
 	const [readAt, setReadAt] = useState(() => Date.now());
-	const [error, setError] = useState<Refusal | null>(null);
+	const [readError, setReadError] = useState<Refusal | null>(null);
+	const [refusal, setRefusal] = useState<Refusal | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [now, setNow] = useState(() => Date.now());
 	const portRef = useRef<chrome.runtime.Port | null>(null);
@@ -54,10 +58,10 @@ export function useTimerStatus(session: Session | null) {
 		try {
 			const next = await getTimerStatus(session);
 			setStatus(next);
-			setError(null);
+			setReadError(null);
 			return next;
 		} catch (failure) {
-			setError(failureOf(failure));
+			setReadError(failureOf(failure));
 			return null;
 		} finally {
 			setLoading(false);
@@ -96,6 +100,7 @@ export function useTimerStatus(session: Session | null) {
 	}, []);
 
 	const { runSeconds, todaySeconds } = countsOf(status, isRunning, now, readAt);
+	const error = refusal ?? readError;
 
-	return { status, error, loading, isRunning, runSeconds, todaySeconds, refresh, notifyBackground, setError };
+	return { status, error, loading, isRunning, runSeconds, todaySeconds, refresh, notifyBackground, setRefusal };
 }

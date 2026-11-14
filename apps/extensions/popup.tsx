@@ -61,11 +61,11 @@ function SignedIn({ session, settings, onSignOut, onTeamSelect }: {
 	const act = useCallback(
 		async (work: () => Promise<void>) => {
 			setBusy(true);
-			timer.setError(null);
+			timer.setRefusal(null);
 			try {
 				await work();
 			} catch (error) {
-				timer.setError(refusalFrom(error));
+				timer.setRefusal(refusalFrom(error));
 			} finally {
 				await timer.refresh();
 				timer.notifyBackground();
@@ -90,7 +90,7 @@ function SignedIn({ session, settings, onSignOut, onTeamSelect }: {
 					planDay: todayPlanDay()
 				});
 				if (refusalCode) {
-					timer.setError(refusalOf({ status: 422, code: refusalCode }));
+					timer.setRefusal(refusalOf({ status: 422, code: refusalCode }));
 					return;
 				}
 			}
