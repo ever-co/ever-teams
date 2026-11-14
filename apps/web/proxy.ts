@@ -22,6 +22,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import createMiddleware from 'next-intl/middleware';
 import { delay } from './core/lib/auth/retry-logic';
+import { isRotatedRefreshTokenRefusal } from './core/lib/auth/rotated-refresh-token';
 import { sendsSignedInVisitToApp } from './core/lib/auth/signed-in-auth-paths';
 import { BOARD_RETURN_PARAM, boardReturnUrl } from './core/lib/board/board-app';
 
@@ -77,13 +78,6 @@ function setUserHeader(response: NextResponse, user: unknown): void {
 	}
 	response.headers.set('x-user', serialized);
 }
-
-// The 401 messages Gauzy answers when the refresh token was rotated (or is being rotated) by another request.
-const ROTATED_REFRESH_TOKEN_MESSAGES = new Set([
-	'Token is rotated',
-	'Token is not active',
-	'Failed to rotate token - concurrent modification'
-]);
 
 // serverFetch rejects with a promise holding Gauzy's body: unwrap it so a refused refresh token is recognized.
 async function requestTokenRefresh(refreshToken: string) {
@@ -289,7 +283,7 @@ export async function proxy(request: NextRequest) {
 
 			// Another request already rotated this refresh token and its response may have given the browser the
 			// new pair: a redirect would clear those cookies, and a retry with this token fails the same way.
-			if (isExpired && ROTATED_REFRESH_TOKEN_MESSAGES.has(error?.message)) {
+			if (isExpired && isRotatedRefreshTokenRefusal(error?.message)) {
 				return {
 					success: false,
 					error: `Refresh token already rotated: ${errorMsg}`,

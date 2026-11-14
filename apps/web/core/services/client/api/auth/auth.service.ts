@@ -1,5 +1,6 @@
 import { APIService, getFallbackAPI } from '../../api.service';
-import { getRefreshTokenCookie, setAccessTokenCookie, setRefreshTokenCookie } from '@/core/lib/helpers/cookies';
+import { getRefreshTokenCookie } from '@/core/lib/helpers/cookies';
+import { isSessionOver, renewSession } from '@/core/lib/auth/session-renewal';
 import {
 	APP_LOGO_URL,
 	APP_NAME,
@@ -76,6 +77,13 @@ class AuthService extends APIService {
 		return api.post<IAuthResponse | null>('/auth/switch-organization', { organizationId });
 	};
 
+	/**
+	 * Renews the session for a page that needs a fresh token (new permissions after a team is created or left, an
+	 * invitation accepted), then reads the user again in direct mode.
+	 *
+	 * The renewal itself is the browser's one renewal (session-renewal.ts): it is shared with a request the API
+	 * refused and with the renewal ahead of time, so the refresh token, which Gauzy accepts once, is never sent twice.
+	 */
 	refreshToken = async () => {
 		const refresh_token = getRefreshTokenCookie();
 
@@ -86,52 +94,24 @@ class AuthService extends APIService {
 		logInDev('[AuthService] Attempting token refresh...');
 
 		try {
+			const renewal = await renewSession();
+			if (isSessionOver(renewal)) {
+				throw Object.assign(new Error('The API refuses the refresh token'), { status: 401 });
+			}
+			if (renewal.outcome === 'unavailable') {
+				throw renewal.error ?? new Error('The session could not be renewed now');
+			}
+			if (renewal.outcome === 'ended') {
+				// Its refresh token was lost to a rotation: the session works until its access token expires
+				throw new Error('The session can no longer be renewed');
+			}
+
+			logInDev('[AuthService] Token refreshed successfully');
 			if (GAUZY_API_BASE_SERVER_URL.value) {
-				logInDev('[AuthService] Using direct Gauzy API for token refresh');
-				const { data } = await this.post<{ token: string; refresh_token: string }>(
-					'/auth/refresh-token',
-					{ refresh_token },
-					RENEWAL_REQUEST
-				);
-
-				if (!data?.token) {
-					throw new Error('No token received from refresh endpoint');
-				}
-
-				// Update both access token and refresh token
-				setAccessTokenCookie(data.token);
-
-				// Update refresh token if a new one is provided (token rotation)
-				if (data.refresh_token) {
-					setRefreshTokenCookie(data.refresh_token);
-					logInDev('[AuthService] Refresh token rotated successfully');
-				}
-
-				logInDev('[AuthService] Token refreshed successfully via direct API');
-
 				// Get fresh user data with the new token
 				return userService.getAuthenticatedUserData();
 			}
-
-			logInDev('[AuthService] Using Next.js API route for token refresh');
-			const api = await getFallbackAPI();
-			const result = await api.post<IAuthResponse>(`/auth/refresh`, { refresh_token }, RENEWAL_REQUEST);
-
-			// Store the tokens client-side (the API route returns them in the body)
-			// This is necessary because the API route's Set-Cookie header is lost
-			// when returning NextResponse.json() instead of the modified response object
-			if (result.data?.token) {
-				setAccessTokenCookie(result.data.token);
-			}
-
-			// Update refresh token if a new one is provided (token rotation)
-			if (result.data?.refresh_token) {
-				setRefreshTokenCookie(result.data.refresh_token);
-				logInDev('[AuthService] Refresh token rotated successfully via API route');
-			}
-
-			logInDev('[AuthService] Token refreshed successfully via API route');
-			return result;
+			return undefined;
 		} catch (error: any) {
 			// The API service rejects with an ApiErrorService, which keeps the HTTP status in `statusCode`: without it a
 			// refused refresh token (401) was not told apart from a renewal that could not be made
