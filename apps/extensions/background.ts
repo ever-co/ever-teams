@@ -76,12 +76,14 @@ browser.storage.onChanged.addListener((changes, area) => {
 	}
 });
 
+// The popup read the timer (after a start or a stop, or a run stopped elsewhere): the badge shows what it shows
 browser.runtime.onConnect.addListener((port) => {
 	ports.add(port);
 	port.onDisconnect.addListener(() => ports.delete(port));
-	port.onMessage.addListener((message: IPostMessage) => {
-		if (message.type === MessageTypesToBackgroundEnum.refreshStatus) {
-			void refresh();
+	port.onMessage.addListener((message: IPostMessage<TimerStatus>) => {
+		const isStatusRead = message.type === MessageTypesToBackgroundEnum.statusRead && message.payload;
+		if (isStatusRead) {
+			void showBadge(message.payload ?? null);
 		}
 	});
 });

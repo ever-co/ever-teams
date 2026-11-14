@@ -68,7 +68,6 @@ function SignedIn({ session, settings, onSignOut, onTeamSelect }: {
 				timer.setRefusal(refusalFrom(error));
 			} finally {
 				await timer.refresh();
-				timer.notifyBackground();
 				setBusy(false);
 			}
 		},

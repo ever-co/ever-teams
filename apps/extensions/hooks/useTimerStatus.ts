@@ -32,7 +32,7 @@ function countsOf(status: TimerStatus | null, isRunning: boolean, now: number, r
 
 /**
  * The person's timer as the API answers it, read when the popup opens and every 30 seconds, with the running clock
- * ticking each second in between. `notifyBackground` asks the background to read it again for the toolbar badge.
+ * ticking each second in between. Each read goes to the background too, so the toolbar badge shows the same.
  *
  * A start or a stop the API refused keeps its reason (`refusal`) until the next action: the read that follows it
  * succeeds and must not hide it. A failed read (e.g. offline) clears at the next good read.
@@ -59,6 +59,7 @@ export function useTimerStatus(session: Session | null) {
 			const next = await getTimerStatus(session);
 			setStatus(next);
 			setReadError(null);
+			portRef.current?.postMessage({ type: MessageTypesToBackgroundEnum.statusRead, payload: next });
 			return next;
 		} catch (failure) {
 			setReadError(failureOf(failure));
@@ -95,12 +96,8 @@ export function useTimerStatus(session: Session | null) {
 		return () => clearInterval(tick);
 	}, [isRunning]);
 
-	const notifyBackground = useCallback(() => {
-		portRef.current?.postMessage({ type: MessageTypesToBackgroundEnum.refreshStatus });
-	}, []);
-
 	const { runSeconds, todaySeconds } = countsOf(status, isRunning, now, readAt);
 	const error = refusal ?? readError;
 
-	return { status, error, loading, isRunning, runSeconds, todaySeconds, refresh, notifyBackground, setRefusal };
+	return { status, error, loading, isRunning, runSeconds, todaySeconds, refresh, setRefusal };
 }

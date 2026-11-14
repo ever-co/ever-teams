@@ -1,6 +1,6 @@
-/** What the popup tells the background: something changed the timer or the session, read the API again. */
+/** What the popup tells the background: the timer as the popup just read it, for the toolbar badge. */
 export enum MessageTypesToBackgroundEnum {
-	refreshStatus = 'refreshStatus'
+	statusRead = 'statusRead'
 }
 
 /** What the background tells an open popup: the timer as the API answered it last. */
