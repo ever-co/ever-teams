@@ -7,6 +7,7 @@ import { SettingsPage } from '@/core/components/settings/kit/settings-page';
 import { useWorkspaceSettings } from '@/core/hooks/settings/use-workspace-settings';
 import { WorkspaceFormatsSection } from './workspace-formats-section';
 import { WorkspaceIdentitySection } from './workspace-identity-section';
+import { WorkspaceRatesSection } from './workspace-rates-section';
 import { WorkspaceSettingsSkeleton } from './workspace-settings-skeleton';
 
 export function WorkspaceSettingsPage() {
@@ -50,6 +51,12 @@ export function WorkspaceSettingsPage() {
 				saveCurrency={settings.saveCurrency}
 				saveDateFormat={settings.saveDateFormat}
 				saveNumberFormat={settings.saveNumberFormat}
+			/>
+			<WorkspaceRatesSection
+				key={`rates-${organization.id}`}
+				organization={organization}
+				canEdit={settings.canEdit}
+				saveTimeLogsKeepTheirRates={settings.saveTimeLogsKeepTheirRates}
 			/>
 		</SettingsPage>
 	);

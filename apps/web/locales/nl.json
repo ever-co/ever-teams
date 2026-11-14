@@ -5194,7 +5194,16 @@
 			"FORMAT_OUTCOME": "Rapporten en hun exports gebruiken die nu.",
 			"FORMAT_AUTOMATIC": "Automatisch",
 			"READ_ONLY_NOTE": "Alleen beheerders van de werkruimte kunnen deze instellingen wijzigen.",
-			"LOAD_FAILED": "De instellingen van de werkruimte konden niet worden geladen."
+			"LOAD_FAILED": "De instellingen van de werkruimte konden niet worden geladen.",
+			"RATES_SECTION": "Tarieven",
+			"RATES_DESCRIPTION": "Wat een tariefwijziging doet met de al geregistreerde tijd.",
+			"KEEP_RATES_LABEL": "Eerdere tijd houdt zijn tarief",
+			"KEEP_RATES_DESCRIPTION": "Aan: een nieuw tarief prijst alleen de tijd die vanaf dan wordt geregistreerd, tenzij bij het opslaan een dag wordt gekozen. Uit: het prijst alle al geregistreerde tijd, zoals voorheen.",
+			"KEEP_RATES_ON": "Aan",
+			"KEEP_RATES_OFF": "Uit",
+			"KEEP_RATES_SAVED_ON": "Eerdere tijd houdt nu zijn tarief",
+			"KEEP_RATES_SAVED_OFF": "Een nieuw tarief prijst nu alle al geregistreerde tijd",
+			"KEEP_RATES_NOT_SAVED": "De tariefinstelling is niet opgeslagen"
 		},
 		"automations": {
 			"NEW_RULE": "Nieuwe regel",

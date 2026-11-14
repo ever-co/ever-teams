@@ -29,7 +29,10 @@ import { currentOrganizationState } from '@/core/stores/user/user-organizations'
 import type { TOrganization } from '@/core/types/schemas';
 import type { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 
-type WorkspaceChanges = Pick<TOrganizationChanges, 'name' | 'currency' | 'dateFormat' | 'numberFormat'>;
+type WorkspaceChanges = Pick<
+	TOrganizationChanges,
+	'name' | 'currency' | 'dateFormat' | 'numberFormat' | 'timeLogsKeepTheirRates'
+>;
 
 /**
  * The workspace a save belongs to, read when the save is asked: another tab may switch workspace before it runs. Its
@@ -258,6 +261,21 @@ export function useWorkspaceSettings() {
 		[reportedSave, saveOrganization, scopeOfSave, t]
 	);
 
+	const saveTimeLogsKeepTheirRates = useCallback(
+		async (timeLogsKeepTheirRates: boolean) => {
+			const scope = scopeOfSave();
+			let savedKey: DottedLanguageObjectStringPaths = 'settings.workspace.KEEP_RATES_SAVED_OFF';
+			if (timeLogsKeepTheirRates) {
+				savedKey = 'settings.workspace.KEEP_RATES_SAVED_ON';
+			}
+			await reportedSave(() => saveOrganization(scope, { timeLogsKeepTheirRates }), {
+				failureKey: 'settings.workspace.KEEP_RATES_NOT_SAVED',
+				saved: t(savedKey)
+			});
+		},
+		[reportedSave, saveOrganization, scopeOfSave, t]
+	);
+
 	return {
 		organization,
 		name,
@@ -269,6 +287,7 @@ export function useWorkspaceSettings() {
 		saveName,
 		saveCurrency,
 		saveDateFormat,
-		saveNumberFormat
+		saveNumberFormat,
+		saveTimeLogsKeepTheirRates
 	};
 }

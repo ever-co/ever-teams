@@ -5194,7 +5194,16 @@
 			"FORMAT_OUTCOME": "Les rapports et leurs exports l'utilisent désormais.",
 			"FORMAT_AUTOMATIC": "Automatique",
 			"READ_ONLY_NOTE": "Seuls les administrateurs de l'espace de travail peuvent modifier ces réglages.",
-			"LOAD_FAILED": "Les réglages de l'espace de travail n'ont pas pu être chargés."
+			"LOAD_FAILED": "Les réglages de l'espace de travail n'ont pas pu être chargés.",
+			"RATES_SECTION": "Taux",
+			"RATES_DESCRIPTION": "Ce qu’un changement de taux fait au temps déjà suivi.",
+			"KEEP_RATES_LABEL": "Le temps passé garde son taux",
+			"KEEP_RATES_DESCRIPTION": "Activé, un nouveau taux ne valorise que le temps suivi à partir de là, sauf si un jour est choisi à l’enregistrement. Désactivé, il valorise tout le temps déjà suivi, comme avant.",
+			"KEEP_RATES_ON": "Activé",
+			"KEEP_RATES_OFF": "Désactivé",
+			"KEEP_RATES_SAVED_ON": "Le temps passé garde désormais son taux",
+			"KEEP_RATES_SAVED_OFF": "Un nouveau taux valorise désormais tout le temps déjà suivi",
+			"KEEP_RATES_NOT_SAVED": "Le réglage des taux n’a pas été enregistré"
 		},
 		"automations": {
 			"NEW_RULE": "Nouvelle règle",

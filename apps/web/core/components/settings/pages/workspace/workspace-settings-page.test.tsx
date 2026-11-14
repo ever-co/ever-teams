@@ -7,6 +7,7 @@ const mockSaveName = jest.fn(async () => undefined);
 const mockSaveCurrency = jest.fn(async () => undefined);
 const mockSaveDateFormat = jest.fn(async () => undefined);
 const mockSaveNumberFormat = jest.fn(async () => undefined);
+const mockSaveTimeLogsKeepTheirRates = jest.fn(async () => undefined);
 const mockRetryLoad = jest.fn();
 
 const ORGANIZATION = { id: 'organization-a', name: 'Acme', currency: 'USD', dateFormat: null, numberFormat: null };
@@ -26,6 +27,7 @@ function settingsOf(overrides: Record<string, unknown> = {}) {
 		saveCurrency: mockSaveCurrency,
 		saveDateFormat: mockSaveDateFormat,
 		saveNumberFormat: mockSaveNumberFormat,
+		saveTimeLogsKeepTheirRates: mockSaveTimeLogsKeepTheirRates,
 		...overrides
 	};
 }
@@ -224,5 +226,42 @@ describe('WorkspaceSettingsPage', () => {
 		});
 
 		expect(mockSaveDateFormat).not.toHaveBeenCalled();
+	});
+
+	describe('whether past time keeps its rate', () => {
+		const KEEP_RATES = 'settings.workspace.KEEP_RATES_LABEL';
+
+		it('is not offered by a Gauzy that does not store rates on time entries', () => {
+			render(<WorkspaceSettingsPage />);
+
+			expect(screen.queryByText(KEEP_RATES)).toBeNull();
+		});
+
+		it('lets an admin turn it on, off by default', async () => {
+			mockSettings = settingsOf({ organization: { ...ORGANIZATION, timeLogsKeepTheirRates: null } });
+			render(<WorkspaceSettingsPage />);
+			const toggle = screen.getByRole('switch');
+
+			expect(screen.getByText(KEEP_RATES)).toBeTruthy();
+			expect(toggle.getAttribute('aria-checked')).toBe('false');
+
+			await act(async () => {
+				fireEvent.click(toggle);
+			});
+
+			expect(mockSaveTimeLogsKeepTheirRates).toHaveBeenCalledWith(true);
+		});
+
+		it('shows a member whether it is on, with nothing to change', () => {
+			mockSettings = settingsOf({
+				canEdit: false,
+				canRename: false,
+				organization: { ...ORGANIZATION, timeLogsKeepTheirRates: true }
+			});
+			render(<WorkspaceSettingsPage />);
+
+			expect(within(rowOf(KEEP_RATES)).getByText('settings.workspace.KEEP_RATES_ON')).toBeTruthy();
+			expect(screen.queryByRole('switch')).toBeNull();
+		});
 	});
 });

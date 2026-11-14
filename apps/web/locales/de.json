@@ -5194,7 +5194,16 @@
 			"FORMAT_OUTCOME": "Berichte und ihre Exporte verwenden es jetzt.",
 			"FORMAT_AUTOMATIC": "Automatisch",
 			"READ_ONLY_NOTE": "Nur Administratoren des Arbeitsbereichs können diese Einstellungen ändern.",
-			"LOAD_FAILED": "Die Einstellungen des Arbeitsbereichs konnten nicht geladen werden."
+			"LOAD_FAILED": "Die Einstellungen des Arbeitsbereichs konnten nicht geladen werden.",
+			"RATES_SECTION": "Sätze",
+			"RATES_DESCRIPTION": "Was eine Satzänderung mit der bereits erfassten Zeit macht.",
+			"KEEP_RATES_LABEL": "Vergangene Zeit behält ihren Satz",
+			"KEEP_RATES_DESCRIPTION": "An: Ein neuer Satz bewertet nur die ab dann erfasste Zeit, außer beim Speichern wird ein Tag gewählt. Aus: Er bewertet die gesamte bereits erfasste Zeit, wie bisher.",
+			"KEEP_RATES_ON": "An",
+			"KEEP_RATES_OFF": "Aus",
+			"KEEP_RATES_SAVED_ON": "Vergangene Zeit behält jetzt ihren Satz",
+			"KEEP_RATES_SAVED_OFF": "Ein neuer Satz bewertet jetzt die gesamte bereits erfasste Zeit",
+			"KEEP_RATES_NOT_SAVED": "Die Satzeinstellung wurde nicht gespeichert"
 		},
 		"automations": {
 			"NEW_RULE": "Neue Regel",
