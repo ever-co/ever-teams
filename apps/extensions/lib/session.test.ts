@@ -125,6 +125,43 @@ describe('renewing the session, one view at a time', () => {
 	});
 });
 
+describe('a renewal the API never answers', () => {
+	it('gives up at its deadline, so the session lock is free again and a sign-out goes through', async () => {
+		installFakeChrome({ session: SESSION });
+		const deadlines: number[] = [];
+		const originalTimeout = AbortSignal.timeout;
+		// The deadline passes at once, so the test does not wait for it
+		AbortSignal.timeout = (milliseconds: number) => {
+			deadlines.push(milliseconds);
+			const controller = new AbortController();
+			setTimeout(() => controller.abort(new DOMException('The renewal took too long', 'TimeoutError')), 10);
+			return controller.signal;
+		};
+		installFakeFetch((url, init) => {
+			if (url.endsWith('/api/auth/refresh-token')) {
+				return new Promise((_resolve, reject) => {
+					init.signal?.addEventListener('abort', () => reject(init.signal?.reason));
+				});
+			}
+			return { status: 401, body: { statusCode: 401, message: 'Unauthorized' } };
+		});
+		const stillWaiting = new Promise<'still waiting'>((resolve) => setTimeout(() => resolve('still waiting'), 1_000));
+		try {
+			const request = sessionRequest(SESSION, '/timesheet/timer/status').then(
+				() => 'answered',
+				(error: { status?: number }) => error.status
+			);
+
+			assert.equal(await Promise.race([request, stillWaiting]), 0);
+			assert.deepEqual(deadlines, [15_000]);
+			assert.notEqual(await Promise.race([takeSessionOut(), stillWaiting]), 'still waiting');
+			assert.equal(await loadSession(), null);
+		} finally {
+			AbortSignal.timeout = originalTimeout;
+		}
+	});
+});
+
 describe('picking another team', () => {
 	it('patches the stored session, which holds the newest tokens, not the copy the popup shows', async () => {
 		const browser = installFakeChrome({

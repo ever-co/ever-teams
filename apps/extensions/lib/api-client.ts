@@ -75,8 +75,23 @@ async function failureOf(response: Response): Promise<ApiError> {
 	return new ApiError(response.status, messageOf(body, response.status), code, fields);
 }
 
-async function send(url: string, method: Method, body: unknown, headers: Record<string, string>): Promise<Response> {
+/**
+ * How long a renewal may take. It holds the session lock, which a sign-out also takes: an API that never answers
+ * would otherwise keep the person signed in for as long as the extension runs.
+ */
+const RENEWAL_TIMEOUT_MS = 15_000;
+
+async function send(
+	url: string,
+	method: Method,
+	body: unknown,
+	headers: Record<string, string>,
+	signal?: AbortSignal
+): Promise<Response> {
 	const init: RequestInit = { method, headers: { accept: 'application/json', ...headers } };
+	if (signal) {
+		init.signal = signal;
+	}
 	const hasBody = body !== undefined;
 	if (hasBody) {
 		init.headers = { ...init.headers, 'content-type': 'application/json' };
@@ -145,11 +160,14 @@ function renewed(refused: Session): Promise<Session | null> {
 }
 
 async function renewedNow(session: Session): Promise<Session | null> {
+	// The answer is read within the same deadline: the signal also ends a body that never arrives
+	const deadline = AbortSignal.timeout(RENEWAL_TIMEOUT_MS);
 	const response = await send(
 		urlOf(session.apiUrl, '/auth/refresh-token'),
 		'POST',
 		{ refresh_token: session.refreshToken },
-		{}
+		{},
+		deadline
 	);
 	if (isSessionRefused(response.status)) {
 		return null;
@@ -158,7 +176,9 @@ async function renewedNow(session: Session): Promise<Session | null> {
 	if (!response.ok) {
 		throw await failureOf(response);
 	}
-	const answer = await readJson<unknown>(response);
+	const answer = await readJson<unknown>(response).catch(() => {
+		throw new ApiError(0, 'offline');
+	});
 	const next = renewedSessionOf(await loadSession(), session, answer);
 	if (!next) {
 		return null;
