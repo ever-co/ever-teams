@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { currentLogOf } from '@/core/hooks/dashboards/timesheets/use-bulk-edit-run';
 import { splitPartsOf } from '@/core/lib/utils/calendar-split';
+import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import { endOfLog, memberIdOfLog, startOfLog, statusOfLog } from '@/core/lib/utils/dashboards/timesheets';
 import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import { queryKeys } from '@/core/query/keys';
@@ -158,9 +159,15 @@ function restoreWindow(log: ITimeLog, window: TimeWindow) {
 
 /**
  * The shortening failed, yet its answer may only have been lost: the entry is set back to its whole time, which no
- * other entry covers, so it ends as it was either way. When that fails too, the outcome is not known.
+ * other entry covers, so it ends as it was either way. When that fails too, the outcome is not known. A refusal of
+ * the API (a 4xx) changed nothing: the entry is as it was, and nothing more is written.
  */
 async function restoreAfterFailedShortening(log: ITimeLog, window: TimeWindow, shortenError: unknown): Promise<never> {
+	const status = errorStatusOf(shortenError);
+	const isRefusal = status !== null && status >= 400 && status < 500;
+	if (isRefusal) {
+		throw new CalendarSplitError('restored', shortenError);
+	}
 	try {
 		await restoreWindow(log, window);
 	} catch {

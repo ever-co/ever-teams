@@ -98,6 +98,18 @@ describe('splitCalendarEntry, an entry without its member', () => {
 	});
 });
 
+describe('splitCalendarEntry, a shortening the API refuses', () => {
+	it.each([400, 403, 409, 422])('writes nothing more after a %s: the entry was never changed', async (status) => {
+		mockUpdateTimeLog.mockRejectedValueOnce(Object.assign(new Error('refused'), { statusCode: status }));
+
+		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'restored' }));
+		expect(mockUpdateTimeLog).toHaveBeenCalledTimes(1);
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+});
+
 describe('splitCalendarEntry', () => {
 	it('shortens the entry first, then adds the rest, since the API deletes whatever new manual time overlaps', async () => {
 		await splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
