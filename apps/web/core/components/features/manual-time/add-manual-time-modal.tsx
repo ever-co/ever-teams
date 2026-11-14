@@ -177,10 +177,21 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	}, [isOtherTeamPicked, pickedTeamTaskItems, activeTeamTaskList]);
 	// The entry goes to its task's project, else to the project picked; read among the organization's projects, as the
 	// timesheet's dialog reads them, since a task's project need not be one of its team's
-	const { organizationProjects } = useOrganizationProjectsQuery();
+	const {
+		organizationProjects,
+		getOrganizationProjectsLoading,
+		isOrganizationProjectsError,
+		refetchOrganizationProjects
+	} = useOrganizationProjectsQuery();
 	const pickedTask = tasks.find((task) => task.id === taskId);
 	const entryProjectId = entryProjectIdOf(pickedTask, projectId);
-	const isBillable = entryBillableOf(billableChoice, findProject(entryProjectId, organizationProjects ?? []));
+	const entryProject = findProject(entryProjectId, organizationProjects ?? []);
+	const isBillable = entryBillableOf(billableChoice, entryProject);
+	// A Billable nobody set follows the entry's project, unknown until the projects have loaded: Save waits for them
+	const hasUnknownBillableDefault = billableChoice === null && Boolean(entryProjectId) && !entryProject;
+	const waitsForProjects = hasUnknownBillableDefault && getOrganizationProjectsLoading;
+	const hasFailedProjects = hasUnknownBillableDefault && isOrganizationProjectsError;
+	const blocksSaveOnProjects = waitsForProjects || hasFailedProjects;
 
 	const {
 		addManualTime,
@@ -389,8 +400,10 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 
 	// While the duration field refuses its text the start and the end are still the earlier ones: they are not saved
 	// in place of the duration it reports. Enter in another field submits the form too, hence the check here as well.
+	// The same holds while a Billable nobody set waits for the entry's project.
+	const blocksSave = durationEntry.blocksSave || blocksSaveOnProjects;
 	const submitUnlessDurationRefused = (event: FormEvent<HTMLFormElement>) => {
-		if (durationEntry.blocksSave) {
+		if (blocksSave) {
 			event.preventDefault();
 			return;
 		}
@@ -801,6 +814,23 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 					</p>
 				)}
 				<TimeOverlapCheckError guard={overlapGuard} />
+				{waitsForProjects && (
+					<p role="status" className="text-[13px] text-muted-foreground">
+						{t('dashboard.timesheets.BULK_EDIT.PROJECTS_LOADING')}
+					</p>
+				)}
+				{hasFailedProjects && (
+					<div
+						role="alert"
+						className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-destructive-ink"
+					>
+						<CircleAlert className="size-3.5 shrink-0" aria-hidden="true" />
+						<span>{t('dashboard.timesheets.BULK_EDIT.PROJECTS_FAILED')}</span>
+						<Button variant="ghost" size="sm" type="button" onClick={() => refetchOrganizationProjects()}>
+							{t('manualTime.DURATION.RETRY')}
+						</Button>
+					</div>
+				)}
 				<div className="flex flex-wrap items-center justify-between gap-3 pt-1">
 					<BillableSwitch
 						isBillable={isBillable}
@@ -815,7 +845,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 						)}
 						<Button
 							loading={isSaving}
-							disabled={isSaving || durationEntry.blocksSave}
+							disabled={isSaving || blocksSave}
 							type="submit"
 							size="default"
 							className={modalPrimaryActionClass}
