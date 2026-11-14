@@ -80,7 +80,7 @@ export function AcceptInvitePageComponent() {
 				return;
 			}
 
-			return handleAcceptInvitation({
+			return await handleAcceptInvitation({
 				password,
 				user: {
 					firstName: fullName ? fullName.split(' ').slice(0, -1).join(' ') : null,
