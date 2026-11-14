@@ -86,6 +86,11 @@ function inflateWithin(packed: Uint8Array, budget: number): Uint8Array {
 
 function contentOf(bytes: Uint8Array, method: number, size: number, budget: number): Uint8Array {
 	if (method === STORED) {
+		// A stored entry is its own size: one that claims another (several entries can point at one payload and
+		// claim nothing) would get past the archive's limit
+		if (bytes.byteLength !== size) {
+			throw new ZipRefusal('notZip');
+		}
 		return bytes;
 	}
 	if (method === DEFLATED) {

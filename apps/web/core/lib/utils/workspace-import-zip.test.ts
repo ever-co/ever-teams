@@ -67,6 +67,45 @@ function zipOf(files: ReadonlyArray<FileSpec>): ArrayBuffer {
 	return out.buffer;
 }
 
+/** An archive whose directory lists every name at the one stored payload, each claiming `declaredSize`. */
+function sharedPayloadZipOf(names: ReadonlyArray<string>, payload: Uint8Array, declaredSize: number): ArrayBuffer {
+	const encoder = new TextEncoder();
+	const localName = encoder.encode(names[0]);
+	const local = new DataView(new ArrayBuffer(30));
+	local.setUint32(0, 0x04034b50, true);
+	local.setUint32(18, payload.byteLength, true);
+	local.setUint32(22, declaredSize, true);
+	local.setUint16(26, localName.byteLength, true);
+	const chunks: Uint8Array[] = [new Uint8Array(local.buffer), localName, payload];
+	const directoryStart = 30 + localName.byteLength + payload.byteLength;
+	let directorySize = 0;
+	for (const name of names) {
+		const encodedName = encoder.encode(name);
+		const central = new DataView(new ArrayBuffer(46));
+		central.setUint32(0, 0x02014b50, true);
+		central.setUint32(20, payload.byteLength, true);
+		central.setUint32(24, declaredSize, true);
+		central.setUint16(28, encodedName.byteLength, true);
+		central.setUint32(42, 0, true);
+		chunks.push(new Uint8Array(central.buffer), encodedName);
+		directorySize += 46 + encodedName.byteLength;
+	}
+	const end = new DataView(new ArrayBuffer(22));
+	end.setUint32(0, 0x06054b50, true);
+	end.setUint16(8, names.length, true);
+	end.setUint16(10, names.length, true);
+	end.setUint32(12, directorySize, true);
+	end.setUint32(16, directoryStart, true);
+	chunks.push(new Uint8Array(end.buffer));
+	const out = new Uint8Array(chunks.reduce((sum, chunk) => sum + chunk.byteLength, 0));
+	let position = 0;
+	for (const chunk of chunks) {
+		out.set(chunk, position);
+		position += chunk.byteLength;
+	}
+	return out.buffer;
+}
+
 function textsOf(buffer: ArrayBuffer) {
 	const reading = zipEntriesOf(buffer);
 	return reading.entries?.map((entry) => [entry.name, new TextDecoder().decode(entry.bytes)]) ?? reading.problem;
@@ -106,5 +145,16 @@ describe('zipEntriesOf', () => {
 		const flood = 'a'.repeat(21 * 1024 * 1024);
 
 		expect(textsOf(zipOf([{ name: 'time.csv', text: flood, deflate: true, declaredSize: 10 }]))).toBe('tooLarge');
+	});
+
+	it('refuses stored entries that claim a size other than their own: three names at one 8 MiB payload', () => {
+		const payload = new TextEncoder().encode('a'.repeat(8 * 1024 * 1024));
+		const names = ['clients.csv', 'projects.csv', 'time entries.csv'];
+
+		// Each claims nothing: unpacked, they would hold 24 MiB past the archive's 20
+		expect(textsOf(sharedPayloadZipOf(names, payload, 0))).toBe('notZip');
+		// Each claims its own size: the archive's limit counts them all
+		expect(textsOf(sharedPayloadZipOf(names, payload, payload.byteLength))).toBe('tooLarge');
+		expect(textsOf(zipOf([{ name: 'a.csv', text: 'name,Acme', declaredSize: 4 }]))).toBe('notZip');
 	});
 });
