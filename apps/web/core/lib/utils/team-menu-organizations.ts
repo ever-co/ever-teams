@@ -1,7 +1,7 @@
 import type { TOrganizationTeam } from '@/core/types/schemas';
 
 /** The part of a team the menu rules read; the client's and the server's team types both have it. */
-export interface ITeamMenuTeam {
+interface ITeamMenuTeam {
 	id?: string;
 	name?: string;
 	organizationId?: string | null;
@@ -27,7 +27,7 @@ export interface ITeamMenuOrganizations<TTeam extends ITeamMenuTeam = TOrganizat
 }
 
 /** The part of a membership (`/user-organization` with its `organization` relation) the menu reads. */
-export interface ITeamMenuMembership {
+interface ITeamMenuMembership {
 	organizationId?: string | null;
 	isActive?: boolean | null;
 	isArchived?: boolean | null;

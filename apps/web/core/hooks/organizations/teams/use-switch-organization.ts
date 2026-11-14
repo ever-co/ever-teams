@@ -17,7 +17,7 @@ import { authService } from '@/core/services/client/api/auth/auth.service';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams/team.service';
 import type { TOrganizationTeam } from '@/core/types/schemas';
 
-export interface ISwitchOrganizationInput {
+interface ISwitchOrganizationInput {
 	organizationId: string;
 	/** The team picked in the menu; without one, the person's team there is opened. */
 	team?: TOrganizationTeam;
