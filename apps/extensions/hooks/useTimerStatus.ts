@@ -45,6 +45,7 @@ export function useTimerStatus(session: Session | null) {
 	const [loading, setLoading] = useState(true);
 	const [now, setNow] = useState(() => Date.now());
 	const portRef = useRef<chrome.runtime.Port | null>(null);
+	const latestRead = useRef(0);
 
 	const setStatus = useCallback((next: TimerStatus) => {
 		setStatusState(next);
@@ -55,17 +56,28 @@ export function useTimerStatus(session: Session | null) {
 		if (!session) {
 			return null;
 		}
+		// Only the latest read may show its answer: a poll sent before a stop can land after the stop's own read
+		latestRead.current += 1;
+		const thisRead = latestRead.current;
+		const isLatest = () => thisRead === latestRead.current;
 		try {
 			const next = await getTimerStatus(session);
+			if (!isLatest()) {
+				return null;
+			}
 			setStatus(next);
 			setReadError(null);
 			portRef.current?.postMessage({ type: MessageTypesToBackgroundEnum.statusRead, payload: next });
 			return next;
 		} catch (failure) {
-			setReadError(failureOf(failure));
+			if (isLatest()) {
+				setReadError(failureOf(failure));
+			}
 			return null;
 		} finally {
-			setLoading(false);
+			if (isLatest()) {
+				setLoading(false);
+			}
 		}
 	}, [session, setStatus]);
 
