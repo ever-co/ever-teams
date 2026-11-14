@@ -101,7 +101,14 @@ export function percentOfText(text: string): number | null {
 	return value;
 }
 
+const PERCENT_FORMATS = new Map<string, Intl.NumberFormat>();
+
 export function formatPercent(percent: number, locale: string) {
-	const format = new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 4 });
-	return format.format(percent / PERCENT_BASE);
+	let format = PERCENT_FORMATS.get(locale);
+	if (!format) {
+		format = new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 4 });
+		PERCENT_FORMATS.set(locale, format);
+	}
+	const share = percent / PERCENT_BASE;
+	return format.format(share);
 }

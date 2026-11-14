@@ -44,3 +44,48 @@ describe('the invoices already saved for the client of a new invoice', () => {
 		expect(screen.queryByRole('button', { name: 'pages.unauthorized.TRY_AGAIN' })).toBeNull();
 	});
 });
+
+describe('the earlier invoices of a client whose time the API records', () => {
+	const october = { id: 'invoice-a', invoiceNumber: 41, terms: 'Billable time from 2026-10-01 to 2026-10-31' };
+	const lateSeptember = { id: 'invoice-b', invoiceNumber: 40, terms: 'Billable time from 2026-09-15 to 2026-10-14' };
+
+	function badgesOfRows() {
+		return screen.getAllByRole('listitem').map((row) => row.querySelector('[data-slot="badge"]')?.className ?? '');
+	}
+
+	it('say the hours already on an invoice are left out of this one', () => {
+		render(<EarlierInvoices invoice={invoiceWhoseEarlierRead({ recordsBilledTime: true })} />);
+
+		expect(screen.getByText('invoices.billedTime.EARLIER_NOTE')).toBeTruthy();
+		expect(screen.queryByText('invoices.new.earlier.NOTE')).toBeNull();
+	});
+
+	it('mark as a warning only the overlapping invoice whose hours may be billed twice', () => {
+		const invoice = invoiceWhoseEarlierRead({
+			recordsBilledTime: true,
+			earlierInvoices: [october, lateSeptember],
+			overlappingInvoices: [october, lateSeptember],
+			overlapsAtRisk: ['invoice-b']
+		});
+
+		render(<EarlierInvoices invoice={invoice} />);
+
+		const [octoberBadge, septemberBadge] = badgesOfRows();
+		expect(octoberBadge).toContain('text-muted-foreground');
+		expect(septemberBadge).toContain('text-warning-foreground');
+	});
+
+	it('keep the warning on every overlapping invoice when the API does not record billed time', () => {
+		const invoice = invoiceWhoseEarlierRead({
+			recordsBilledTime: false,
+			earlierInvoices: [october],
+			overlappingInvoices: [october],
+			overlapsAtRisk: ['invoice-a']
+		});
+
+		render(<EarlierInvoices invoice={invoice} />);
+
+		expect(screen.getByText('invoices.new.earlier.NOTE')).toBeTruthy();
+		expect(badgesOfRows()[0]).toContain('text-warning-foreground');
+	});
+});

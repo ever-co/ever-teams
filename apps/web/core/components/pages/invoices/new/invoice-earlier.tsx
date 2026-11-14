@@ -16,7 +16,14 @@ import type { TInvoice } from '@/core/types/schemas/organization/invoice.schema'
 
 const VISIBLE_INVOICES = 4;
 
-function EarlierInvoiceRow({ invoice, overlaps }: Readonly<{ invoice: TInvoice; overlaps: boolean }>) {
+interface EarlierInvoiceRowProps {
+	invoice: TInvoice;
+	overlaps: boolean;
+	/** Its hours may be offered here again: it does not say which hours it bills. */
+	isAtRisk: boolean;
+}
+
+function EarlierInvoiceRow({ invoice, overlaps, isAtRisk }: Readonly<EarlierInvoiceRowProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const statedPeriod = invoicePeriodOfTerms(invoice.terms);
@@ -28,6 +35,10 @@ function EarlierInvoiceRow({ invoice, overlaps }: Readonly<{ invoice: TInvoice; 
 	const hasNumber = typeof number === 'number';
 	const total = invoice.totalValue;
 	const hasTotal = typeof total === 'number';
+	let overlapTone: 'warning' | 'secondary' = 'secondary';
+	if (isAtRisk) {
+		overlapTone = 'warning';
+	}
 	return (
 		<li className="flex items-start justify-between gap-3 py-1.5">
 			<span className="flex min-w-0 flex-col gap-0.5">
@@ -36,7 +47,7 @@ function EarlierInvoiceRow({ invoice, overlaps }: Readonly<{ invoice: TInvoice; 
 					{!hasNumber && t('invoices.NO_NUMBER')}
 				</span>
 				<span className="truncate text-xs tabular-nums text-muted-foreground">{periodText}</span>
-				{overlaps && <Badge variant="warning">{t('invoices.new.earlier.OVERLAPS')}</Badge>}
+				{overlaps && <Badge variant={overlapTone}>{t('invoices.new.earlier.OVERLAPS')}</Badge>}
 			</span>
 			{hasTotal && (
 				<span className="shrink-0 text-[13px] tabular-nums text-foreground">
@@ -57,9 +68,9 @@ function EarlierSkeleton() {
 }
 
 /**
- * What was already invoiced to the client, beside the invoice being prepared. The API records neither the period of
- * an invoice nor the time it covers, so nothing is taken off the lines: the list says so and marks the saved
- * invoices whose stated period shares a day with this one.
+ * What was already invoiced to the client, beside the invoice being prepared, the ones whose stated period shares a
+ * day with this one first. An API that records billed time leaves their hours out of the lines, except for an invoice
+ * that does not say which hours it bills: only those are marked as a warning.
  */
 export function EarlierInvoices({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
 	const t = useTranslations();
@@ -69,6 +80,7 @@ export function EarlierInvoices({ invoice }: Readonly<{ invoice: InvoiceDraftSta
 		() => new Set(invoice.overlappingInvoices.map((saved) => saved.id)),
 		[invoice.overlappingInvoices]
 	);
+	const atRiskIds = invoice.overlapsAtRisk;
 	const orderedInvoices = useMemo(() => {
 		const others = invoice.earlierInvoices.filter((saved) => !overlappingIds.has(saved.id));
 		return [...invoice.overlappingInvoices, ...others];
@@ -80,6 +92,10 @@ export function EarlierInvoices({ invoice }: Readonly<{ invoice: InvoiceDraftSta
 	const hasInvoices = orderedInvoices.length > 0;
 	const isSettled = !invoice.areEarlierLoading && !invoice.haveEarlierFailed;
 	const showsNone = isSettled && !hasInvoices;
+	let note = t('invoices.new.earlier.NOTE');
+	if (invoice.recordsBilledTime) {
+		note = t('invoices.billedTime.EARLIER_NOTE');
+	}
 	let toggleLabel = t('invoices.new.earlier.SHOW_MORE', { count: foldedInvoices.length });
 	if (isExpanded) {
 		toggleLabel = t('invoices.new.earlier.SHOW_FEWER');
@@ -90,7 +106,7 @@ export function EarlierInvoices({ invoice }: Readonly<{ invoice: InvoiceDraftSta
 			title={t('invoices.new.earlier.TITLE', { client: clientName })}
 			bodyClassName="flex flex-col gap-2 px-4 pb-4"
 		>
-			<p className="text-xs text-muted-foreground text-pretty">{t('invoices.new.earlier.NOTE')}</p>
+			<p className="text-xs text-muted-foreground text-pretty">{note}</p>
 			{invoice.areEarlierLoading && <EarlierSkeleton />}
 			{invoice.haveEarlierFailed && (
 				<div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
@@ -106,7 +122,12 @@ export function EarlierInvoices({ invoice }: Readonly<{ invoice: InvoiceDraftSta
 			{hasInvoices && (
 				<ul className="flex flex-col">
 					{visibleInvoices.map((saved) => (
-						<EarlierInvoiceRow key={saved.id} invoice={saved} overlaps={overlappingIds.has(saved.id)} />
+						<EarlierInvoiceRow
+							key={saved.id}
+							invoice={saved}
+							overlaps={overlappingIds.has(saved.id)}
+							isAtRisk={atRiskIds.includes(saved.id)}
+						/>
 					))}
 				</ul>
 			)}
@@ -120,6 +141,7 @@ export function EarlierInvoices({ invoice }: Readonly<{ invoice: InvoiceDraftSta
 										key={saved.id}
 										invoice={saved}
 										overlaps={overlappingIds.has(saved.id)}
+										isAtRisk={atRiskIds.includes(saved.id)}
 									/>
 								))}
 							</ul>

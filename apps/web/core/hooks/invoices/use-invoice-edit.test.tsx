@@ -11,7 +11,7 @@ import type { TSavedInvoice, TSavedInvoiceItem } from '@/core/types/schemas/orga
 
 const mockSaveInvoiceEdit = jest.fn();
 const mockNextNumberCalls: boolean[] = [];
-const mockTimeCalls: Array<{ enabled?: boolean }> = [];
+const mockTimeCalls: Array<{ enabled?: boolean; billedLines?: { lineIds: ReadonlySet<string> } }> = [];
 const mockTime = {
 	hasProjects: true,
 	lines: [] as NamedInvoiceLine[],
@@ -19,7 +19,9 @@ const mockTime = {
 	isLoading: false,
 	isError: false,
 	isUpdating: false,
-	refetch: jest.fn()
+	refetch: jest.fn(),
+	recordsBilledTime: null as boolean | null,
+	billedTimeByLine: new Map<string, ReadonlyArray<string>>()
 };
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
@@ -55,6 +57,14 @@ jest.mock('./use-invoices-query', () => ({
 }));
 jest.mock('./use-invoice-mutations', () => ({
 	useSaveInvoiceEdit: () => ({ saveInvoiceEdit: mockSaveInvoiceEdit, isSavingEdit: false })
+}));
+const mockRecording = { recordedIds: new Set<string>(), isLoading: false, isError: false };
+const mockRecordingCalls: boolean[] = [];
+jest.mock('./use-invoices-recording-time', () => ({
+	useInvoicesRecordingTime: (_invoices: unknown, enabled: boolean) => {
+		mockRecordingCalls.push(enabled);
+		return mockRecording;
+	}
 }));
 
 import { useInvoiceEdit } from './use-invoice-edit';
@@ -237,6 +247,19 @@ describe('an invoice opened to be edited', () => {
 		expect(draftCall).toEqual(sendingOfInvoice42);
 	});
 
+	it('carries the ids of the lines it opened, so a save refuses lines written back under new ones', async () => {
+		const saved = savedOf(sentInvoice());
+		const { result } = renderEdit(saved);
+		act(() => result.current.setDueDay('2026-12-15'));
+
+		await act(async () => {
+			await result.current.save();
+		});
+
+		const { edit } = mockSaveInvoiceEdit.mock.calls[0][0];
+		expect(edit.previousLineIds).toEqual(saved.previousLineIds);
+	});
+
 	it('takes the time again, keeping what was written on a line still there', () => {
 		mockTime.lines = [
 			timeLine({}),
@@ -324,5 +347,83 @@ describe('an edit and the workspace its invoice belongs to', () => {
 
 		expect(saved).toBeNull();
 		expect(mockSaveInvoiceEdit).not.toHaveBeenCalled();
+	});
+});
+
+describe('the time an edited invoice bills', () => {
+	type WrittenLine = { employeeId?: string; timeLogIds?: string[] };
+
+	function billedTimeOf(lines: ReadonlyArray<WrittenLine>) {
+		return lines.map((line) => [line.employeeId, line.timeLogIds]);
+	}
+
+	afterEach(() => {
+		mockTime.recordsBilledTime = null;
+		mockTime.billedTimeByLine = new Map();
+	});
+
+	it('counts as a change the hours its lines bill that the invoice does not record yet', () => {
+		mockTime.recordsBilledTime = true;
+		mockTime.lines = [timeLine({ timeLogIds: ['log-9'] })];
+		const { result } = renderEdit(savedOf(sentInvoice()));
+
+		act(() => result.current.takeTimeAgain());
+
+		expect(result.current.changes.recordsBilledTime).toBe(true);
+	});
+
+	it('is read for its saved lines, whatever lines are shown', () => {
+		renderEdit(savedOf(sentInvoice()));
+
+		const billedLines = mockTimeCalls.at(-1)?.billedLines;
+		expect([...(billedLines?.lineIds ?? [])]).toEqual(['item-1', 'item-2']);
+	});
+
+	it('is named on each saved line, and on the lines written back when the save fails half way', async () => {
+		mockTime.recordsBilledTime = true;
+		mockTime.billedTimeByLine = new Map([['item-1', ['log-1', 'log-2']]]);
+		const { result } = renderEdit(savedOf(sentInvoice()));
+		act(() => result.current.setDueDay('2026-12-15'));
+
+		await act(async () => {
+			await result.current.save();
+		});
+
+		const { edit } = mockSaveInvoiceEdit.mock.calls[0][0];
+		const billed = [
+			['ana', ['log-1', 'log-2']],
+			['bo', undefined]
+		];
+		expect(billedTimeOf(edit.revision.lines)).toEqual(billed);
+		expect(billedTimeOf(edit.previous.lines)).toEqual(billed);
+	});
+
+	it('is read again once the dialog is closed when part of it was billed elsewhere meanwhile', async () => {
+		mockSaveInvoiceEdit.mockResolvedValue({ outcome: { status: 'timeBilled' }, sending: null });
+		mockTime.refetch.mockClear();
+		const { result } = renderEdit(savedOf(sentInvoice()));
+		act(() => result.current.setDueDay('2026-12-15'));
+
+		await act(async () => {
+			await result.current.save();
+		});
+
+		expect(mockTime.refetch).not.toHaveBeenCalled();
+		act(() => result.current.readDeferredTime());
+		expect(mockTime.refetch).toHaveBeenCalledTimes(1);
+	});
+
+	it('is read again once the dialog is closed after an edit the API refused', async () => {
+		mockSaveInvoiceEdit.mockResolvedValue({ outcome: { status: 'notSaved' }, sending: null });
+		mockTime.refetch.mockClear();
+		const { result } = renderEdit(savedOf(sentInvoice()));
+		act(() => result.current.setDueDay('2026-12-15'));
+
+		await act(async () => {
+			await result.current.save();
+		});
+		act(() => result.current.readDeferredTime());
+
+		expect(mockTime.refetch).toHaveBeenCalledTimes(1);
 	});
 });

@@ -2,6 +2,8 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import {
+	billedPreviousOf,
+	billsUnrecordedTimeOf,
 	hasInvoiceChanges,
 	invoiceChangesOf,
 	invoiceRevisionOf,
@@ -9,8 +11,20 @@ import {
 	type SavedInvoice
 } from '@/core/lib/utils/invoice-edit';
 import { parseInvoiceNumber, type InvoiceProblem } from '@/core/lib/utils/invoices';
-import { useSaveInvoiceEdit, type InvoiceEdit } from './use-invoice-mutations';
+import {
+	useSaveInvoiceEdit,
+	type InvoiceEdit,
+	type InvoiceEditOutcome,
+	type InvoiceEditToSave
+} from './use-invoice-mutations';
 import { useInvoiceDraft, type InvoiceDraftStart } from './use-new-invoice';
+
+/** The API refused the edit and saved nothing: another invoice saved meanwhile may bill part of this time. */
+function isRefusedEdit(outcome: InvoiceEditOutcome) {
+	const isRefusedBeforeWriting = outcome.status === 'notSaved';
+	const isTimeBilledElsewhere = outcome.status === 'timeBilled';
+	return isRefusedBeforeWriting || isTimeBilledElsewhere;
+}
 
 function problemsOfEdit(draftProblems: InvoiceProblem[], isUnchanged: boolean): InvoiceProblem[] {
 	if (!isUnchanged) {
@@ -28,6 +42,12 @@ export function useInvoiceEdit(read: SavedInvoice) {
 	const { invoiceRequest, keptLines, descriptions, numberText, issueDay, dueDay, currency, adjustments, note } =
 		draft;
 	const total = draft.total;
+	const billedTimeByLine = draft.time.billedTimeByLine;
+	const recordsBilledTime = draft.recordsBilledTime;
+	const billsUnrecordedTime = useMemo(
+		() => recordsBilledTime && billsUnrecordedTimeOf(keptLines, billedTimeByLine),
+		[billedTimeByLine, keptLines, recordsBilledTime]
+	);
 	const changes = useMemo(
 		() =>
 			invoiceChangesOf(saved, {
@@ -39,13 +59,38 @@ export function useInvoiceEdit(read: SavedInvoice) {
 				discountPercent: adjustments.discountPercent,
 				taxPercent: adjustments.taxPercent,
 				note,
-				total
+				total,
+				billsUnrecordedTime
 			}),
-		[adjustments, currency, descriptions, dueDay, issueDay, keptLines, note, numberText, saved, total]
+		[
+			adjustments,
+			billsUnrecordedTime,
+			currency,
+			descriptions,
+			dueDay,
+			issueDay,
+			keptLines,
+			note,
+			numberText,
+			saved,
+			total
+		]
 	);
 	const isUnchanged = !hasInvoiceChanges(changes);
 	const problems = problemsOfEdit(draft.problems, isUnchanged);
 	const { saveInvoiceEdit, isSavingEdit } = useSaveInvoiceEdit();
+	const deferTimeRead = draft.deferTimeRead;
+
+	const saveEdit = useCallback(
+		async (toSave: InvoiceEditToSave) => {
+			const savedEdit = await saveInvoiceEdit(toSave);
+			if (isRefusedEdit(savedEdit.outcome)) {
+				deferTimeRead();
+			}
+			return savedEdit;
+		},
+		[deferTimeRead, saveInvoiceEdit]
+	);
 
 	const editOf = useCallback((): InvoiceEdit | null => {
 		if (isUnchanged) {
@@ -56,16 +101,23 @@ export function useInvoiceEdit(read: SavedInvoice) {
 			return null;
 		}
 		const revision = invoiceRevisionOf(request, saved);
-		return { invoiceId: saved.id, scope: saved.workspace, revision, previous: saved.previous };
-	}, [invoiceRequest, isUnchanged, saved]);
+		const previous = billedPreviousOf(saved, billedTimeByLine, recordsBilledTime);
+		return {
+			invoiceId: saved.id,
+			scope: saved.workspace,
+			revision,
+			previous,
+			previousLineIds: saved.previousLineIds
+		};
+	}, [billedTimeByLine, invoiceRequest, isUnchanged, recordsBilledTime, saved]);
 
 	const save = useCallback(() => {
 		const edit = editOf();
 		if (!edit) {
 			return Promise.resolve(null);
 		}
-		return saveInvoiceEdit({ edit, sending: null });
-	}, [editOf, saveInvoiceEdit]);
+		return saveEdit({ edit, sending: null });
+	}, [editOf, saveEdit]);
 
 	/** A draft becomes Sent once it goes out; an invoice already sent keeps the status it reached. */
 	const saveAndSend = useCallback(
@@ -77,9 +129,9 @@ export function useInvoiceEdit(read: SavedInvoice) {
 			const invoiceNumber = edit.revision.update.invoiceNumber;
 			// Sent from the invoice's workspace: a switch in another tab meanwhile sends nothing
 			const sending = { invoiceId: saved.id, invoiceNumber, email, scope: edit.scope };
-			return saveInvoiceEdit({ edit, sending });
+			return saveEdit({ edit, sending });
 		},
-		[editOf, saveInvoiceEdit, saved]
+		[editOf, saveEdit, saved]
 	);
 
 	return { ...draft, problems, changes, save, saveAndSend, isSaving: isSavingEdit };

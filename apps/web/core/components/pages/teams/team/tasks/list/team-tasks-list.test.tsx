@@ -2,7 +2,9 @@
 
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
+import { getDefaultStore } from 'jotai';
 import { effectiveBindings, SHORTCUT_COMMANDS } from '@/core/lib/keyboard/shortcuts';
+import { answeredKeysAtom } from '@/core/stores/common/shortcuts';
 
 let mockPreferences: { bindings: ReturnType<typeof effectiveBindings>; canRebind: boolean };
 let mockSequencePending = false;
@@ -103,7 +105,7 @@ function renderList({
 	);
 	const row = (id: string) => utils.container.querySelector<HTMLElement>(`[data-task-id="${id}"]`)!;
 	const focused = () => utils.container.querySelector<HTMLElement>('[data-focused="true"]')?.dataset.taskId ?? null;
-	return { view, commands, row, focused };
+	return { view, commands, row, focused, unmount: utils.unmount };
 }
 
 const key = (
@@ -119,6 +121,24 @@ const key = (
 describe('TeamTasksList keys', () => {
 	beforeEach(() => {
 		mockSequencePending = false;
+	});
+
+	it('tells the shortcuts sheet the keys its rows answer, the project and assignee pickers with the registry', () => {
+		const rowKeys = ['listDown', 'listUp', 'listOpen', 'listSelect', 'listClear'];
+		const pickerKeys = ['taskStatus', 'taskPriority', 'taskLabels', 'taskDueDate'];
+		const withoutRegistry = renderList({ canRebind: false });
+		expect(getDefaultStore().get(answeredKeysAtom)).toEqual([...rowKeys, ...pickerKeys]);
+
+		withoutRegistry.unmount();
+		expect(getDefaultStore().get(answeredKeysAtom)).toEqual([]);
+
+		renderList({ canRebind: true });
+		expect(getDefaultStore().get(answeredKeysAtom)).toEqual([
+			...rowKeys,
+			...pickerKeys,
+			'taskProject',
+			'taskAssignee'
+		]);
 	});
 
 	it('with the registry off, keeps the keys it always had, by the character typed', () => {

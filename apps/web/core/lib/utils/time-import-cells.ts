@@ -17,11 +17,16 @@ export interface ClockTime {
 	seconds: number;
 }
 
-/**
- * Year first only: `03/11/2026` reads as two different days depending on who wrote it, and a guess would put the
- * time on the wrong day without anyone noticing.
- */
-const DATE_PATTERN = /^(\d{4})([-/])(\d{1,2})\2(\d{1,2})$/;
+export type DateOrder = 'yearFirst' | 'dayFirst' | 'monthFirst';
+
+export const DATE_ORDERS: ReadonlyArray<DateOrder> = ['yearFirst', 'dayFirst', 'monthFirst'];
+
+const YEAR_FIRST_PATTERN = /^(\d{4})([-/])(\d{1,2})\2(\d{1,2})$/;
+
+const YEAR_LAST_PATTERN = /^(\d{1,2})([-/.])(\d{1,2})\2(\d{4})$/;
+
+/** A date, then a `T` or spaces, then a time; a comma may follow the date. */
+const DATE_AND_TIME_PATTERN = /^(\S+?),?(?:T|\s+)(\S.*)$/;
 
 const CLOCK_PATTERN = /^(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\s*([ap])\.?m\.?)?$/i;
 
@@ -50,16 +55,52 @@ function existsInCalendar({ year, month, day }: CalendarDay): boolean {
 	return isSameYear && isSameMonth && isSameDay;
 }
 
-export function calendarDayOf(text: string): CalendarDay | null {
-	const match = DATE_PATTERN.exec(text.trim());
-	if (!match) {
-		return null;
-	}
-	const calendarDay: CalendarDay = { year: Number(match[1]), month: Number(match[3]), day: Number(match[4]) };
+function dayInCalendarOf(calendarDay: CalendarDay): CalendarDay | null {
 	if (!existsInCalendar(calendarDay)) {
 		return null;
 	}
 	return calendarDay;
+}
+
+function yearFirstDayOf(text: string): CalendarDay | null {
+	const match = YEAR_FIRST_PATTERN.exec(text);
+	if (!match) {
+		return null;
+	}
+	return dayInCalendarOf({ year: Number(match[1]), month: Number(match[3]), day: Number(match[4]) });
+}
+
+function yearLastDayOf(text: string, isDayFirst: boolean): CalendarDay | null {
+	const match = YEAR_LAST_PATTERN.exec(text);
+	if (!match) {
+		return null;
+	}
+	const first = Number(match[1]);
+	const second = Number(match[3]);
+	const year = Number(match[4]);
+	if (isDayFirst) {
+		return dayInCalendarOf({ year, month: second, day: first });
+	}
+	return dayInCalendarOf({ year, month: first, day: second });
+}
+
+/**
+ * A day written in the order of its file. The order is told by the file or chosen by the member, never guessed:
+ * `03/11/2026` is 3 November read day first and 11 March read month first, and a guess would put the time on the
+ * wrong day without anyone noticing.
+ */
+export function calendarDayOf(text: string, order: DateOrder = 'yearFirst'): CalendarDay | null {
+	const typed = text.trim();
+	if (order === 'yearFirst') {
+		return yearFirstDayOf(typed);
+	}
+	const isDayFirst = order === 'dayFirst';
+	return yearLastDayOf(typed, isDayFirst);
+}
+
+/** The orders a date reads as a real day in: one when the date settles it (a year first, a day above 12), else two. */
+export function dateOrdersOf(text: string): DateOrder[] {
+	return DATE_ORDERS.filter((order) => calendarDayOf(text, order) !== null);
 }
 
 /** The hour of a 12-hour clock on the 24-hour one: 12 AM is 0, 12 PM stays 12. */
@@ -102,6 +143,86 @@ export function clockTimeOf(text: string): ClockTime | null {
 		return null;
 	}
 	return { hours: typedHours, minutes, seconds };
+}
+
+export interface CellMoment {
+	/** Null for a time written alone: its day is in another cell. */
+	day: CalendarDay | null;
+	clock: ClockTime;
+}
+
+interface DateAndTimeText {
+	date: string;
+	time: string;
+}
+
+function dateAndTimeTextOf(text: string): DateAndTimeText | null {
+	const match = DATE_AND_TIME_PATTERN.exec(text);
+	if (!match) {
+		return null;
+	}
+	return { date: match[1], time: match[2] };
+}
+
+/**
+ * A time alone, or a date and a time in one cell: `09:30`, `2026-11-03 09:30`, `03/11/2026 9:30 AM`,
+ * `2026-11-03T09:30:00`. The date is read in the order of the file.
+ */
+export function cellMomentOf(text: string, order: DateOrder = 'yearFirst'): CellMoment | null {
+	const typed = text.trim();
+	const clock = clockTimeOf(typed);
+	if (clock) {
+		return { day: null, clock };
+	}
+	const parts = dateAndTimeTextOf(typed);
+	if (!parts) {
+		return null;
+	}
+	const day = calendarDayOf(parts.date, order);
+	const partClock = clockTimeOf(parts.time);
+	if (!day || !partClock) {
+		return null;
+	}
+	return { day, clock: partClock };
+}
+
+export function cellDayOf(text: string, order: DateOrder = 'yearFirst'): CalendarDay | null {
+	const day = calendarDayOf(text, order);
+	if (day) {
+		return day;
+	}
+	const moment = cellMomentOf(text, order);
+	return moment?.day ?? null;
+}
+
+export function datePartOf(text: string): string {
+	const typed = text.trim();
+	const parts = dateAndTimeTextOf(typed);
+	const hasTime = parts !== null && clockTimeOf(parts.time) !== null;
+	if (hasTime) {
+		return parts.date;
+	}
+	return typed;
+}
+
+/** Whether a cell holds a date and a time, whichever order its date is written in. */
+export function holdsDateAndTime(text: string): boolean {
+	const parts = dateAndTimeTextOf(text.trim());
+	if (!parts) {
+		return false;
+	}
+	const hasTime = clockTimeOf(parts.time) !== null;
+	const hasDate = dateOrdersOf(parts.date).length > 0;
+	return hasTime && hasDate;
+}
+
+/** Whether a cell holds a date followed by more text, a time the import can read or not: `2026-11-03 9h30`. */
+export function holdsDateAndMore(text: string): boolean {
+	const parts = dateAndTimeTextOf(text.trim());
+	if (!parts) {
+		return false;
+	}
+	return dateOrdersOf(parts.date).length > 0;
 }
 
 function clockDurationOf(text: string): number | null {
