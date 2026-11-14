@@ -81,9 +81,10 @@ describe('useTimerDiscard', () => {
 		const { result, store, invalidate } = renderDiscard({ id: 'organization-1', allowDiscardTimer: null });
 
 		expect(result.current.availability).toEqual({ available: true, closesAt: null });
+		expect(result.current.runningLogId).toBe('log-1');
 		let discarded = false;
 		await act(async () => {
-			discarded = await result.current.discard();
+			discarded = await result.current.discard('log-1');
 		});
 
 		expect(discarded).toBe(true);
@@ -100,7 +101,7 @@ describe('useTimerDiscard', () => {
 
 		let discarded = true;
 		await act(async () => {
-			discarded = await result.current.discard();
+			discarded = await result.current.discard('log-1');
 		});
 
 		expect(discarded).toBe(false);

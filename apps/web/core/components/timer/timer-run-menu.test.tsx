@@ -35,6 +35,7 @@ function stateOf(overrides: Record<string, unknown> = {}) {
 	return {
 		availability: { available: true, closesAt: null },
 		runningSource: 'TEAMS',
+		runningLogId: 'log-a',
 		discard: mockDiscard,
 		discarding: false,
 		failure: null,
@@ -73,6 +74,22 @@ describe('TimerRunMenu', () => {
 
 		expect(mockDiscard).toHaveBeenCalledTimes(1);
 		expect(screen.queryByText('timer.discard.TITLE')).toBeNull();
+	});
+
+	it('discards the run the confirmation was opened for, even when another run shows meanwhile', async () => {
+		mockDiscard.mockResolvedValue(false);
+		const { rerender } = render(<TimerRunMenu />);
+		fireEvent.click(screen.getByRole('menuitem', { name: 'timer.discard.ACTION' }));
+		await screen.findByText('timer.discard.TITLE');
+
+		// Another device stopped that run and started one: the status refresh shows it
+		mockDiscardState = stateOf({ runningLogId: 'log-b' });
+		rerender(<TimerRunMenu />);
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'timer.discard.CONFIRM' }));
+		});
+
+		expect(mockDiscard).toHaveBeenCalledWith('log-a');
 	});
 
 	it('keeps the confirmation open with the reason when the discard is refused', async () => {
