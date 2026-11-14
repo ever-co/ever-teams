@@ -198,36 +198,29 @@ describe('an edit that could not be saved', () => {
 		return message;
 	}
 
-	it('says nothing changed when the API refused it', async () => {
-		const message = await failingWith({ status: 'notSaved' });
+	it.each([
+		['nothing changed when the API refused it', { status: 'notSaved' }, 'NOT_SAVED'],
+		[
+			'the connection failed and nothing changed when its first write never reached the API',
+			{ status: 'notReached' },
+			'NOT_REACHED'
+		],
+		['the invoice was put back as it was', { status: 'putBack' }, 'PUT_BACK'],
+		[
+			'how many lines it holds when it could not be put back',
+			{ status: 'notPutBack', lineCount: 0 },
+			'NOT_PUT_BACK_LINES'
+		],
+		[
+			'nothing was saved when something was paid on it, or it was voided, since it was opened',
+			{ status: 'locked' },
+			'LOCKED_NOW'
+		]
+	])('says %s, and stays on the invoice', async (_says, outcome, messageKey) => {
+		const message = await failingWith(outcome);
 
-		expect(message.textContent).toBe('invoices.edit.confirm.NOT_SAVED');
+		expect(message.textContent).toBe(`invoices.edit.confirm.${messageKey}`);
 		expect(mockPush).not.toHaveBeenCalled();
-	});
-
-	it('says the connection failed and nothing changed when its first write never reached the API', async () => {
-		const message = await failingWith({ status: 'notReached' });
-
-		expect(message.textContent).toBe('invoices.edit.confirm.NOT_REACHED');
-		expect(mockPush).not.toHaveBeenCalled();
-	});
-
-	it('says the invoice was put back as it was', async () => {
-		const message = await failingWith({ status: 'putBack' });
-
-		expect(message.textContent).toBe('invoices.edit.confirm.PUT_BACK');
-	});
-
-	it('says how many lines it holds when it could not be put back', async () => {
-		const message = await failingWith({ status: 'notPutBack', lineCount: 0 });
-
-		expect(message.textContent).toBe('invoices.edit.confirm.NOT_PUT_BACK_LINES');
-	});
-
-	it('says nothing was saved when something was paid on it, or it was voided, since it was opened', async () => {
-		const message = await failingWith({ status: 'locked' });
-
-		expect(message.textContent).toBe('invoices.edit.confirm.LOCKED_NOW');
 	});
 
 	it('keeps the refusal on screen and reports it when something was paid on it since it was opened', async () => {
