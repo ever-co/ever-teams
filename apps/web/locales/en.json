@@ -599,6 +599,21 @@
 				"EDITED_AT": "Edited {date}, {time}",
 				"REASON_PREFIX": "Reason:"
 			},
+			"SIMILAR": {
+				"ENTRY_COUNT": "{count, plural, one {# entry} other {# entries}}",
+				"SHOW_ENTRIES": "Show the entries of {task}",
+				"HIDE_ENTRIES": "Hide the entries of {task}",
+				"SELECT_GROUP": "{count, plural, one {Select # entry of {task}} other {Select the # entries of {task}}}",
+				"CONFIRM_BILLABLE": "{count, plural, one {Mark # entry billable?} other {Mark # entries billable?}}",
+				"CONFIRM_NOT_BILLABLE": "{count, plural, one {Mark # entry not billable?} other {Mark # entries not billable?}}",
+				"CONFIRM_STATUS": "{count, plural, one {Set # entry to {status}?} other {Set # entries to {status}?}}",
+				"CONFIRM_SCOPE": "Every entry of {task} in this row changes.",
+				"CHANGED": "{count, plural, one {# entry changed} other {# entries changed}}",
+				"PARTLY_CHANGED": "{changed} of {count} entries changed. The others kept their value.",
+				"REJECT_COUNT": "{count, plural, one {You are about to reject # entry, would you like to proceed?} other {You are about to reject # entries, would you like to proceed?}}",
+				"VIEW_GROUP": "Group similar entries",
+				"VIEW_GROUP_HELP": "Entries of a day with the same task, project, notes and billable state show as one row."
+			},
 			"STATUS_CARDS": {
 				"PENDING": "Pending approval",
 				"LOG_UNIT": "{count, plural, one {log} other {logs}}"

@@ -599,6 +599,21 @@
 				"EDITED_AT": "Edytowano {date}, {time}",
 				"REASON_PREFIX": "Powód:"
 			},
+			"SIMILAR": {
+				"ENTRY_COUNT": "{count, plural, one {# wpis} few {# wpisy} many {# wpisów} other {# wpisu}}",
+				"SHOW_ENTRIES": "Pokaż wpisy zadania {task}",
+				"HIDE_ENTRIES": "Ukryj wpisy zadania {task}",
+				"SELECT_GROUP": "{count, plural, one {Zaznacz # wpis zadania {task}} few {Zaznacz # wpisy zadania {task}} many {Zaznacz # wpisów zadania {task}} other {Zaznacz # wpisu zadania {task}}}",
+				"CONFIRM_BILLABLE": "{count, plural, one {Oznaczyć # wpis jako do rozliczenia?} few {Oznaczyć # wpisy jako do rozliczenia?} many {Oznaczyć # wpisów jako do rozliczenia?} other {Oznaczyć # wpisu jako do rozliczenia?}}",
+				"CONFIRM_NOT_BILLABLE": "{count, plural, one {Oznaczyć # wpis jako nie do rozliczenia?} few {Oznaczyć # wpisy jako nie do rozliczenia?} many {Oznaczyć # wpisów jako nie do rozliczenia?} other {Oznaczyć # wpisu jako nie do rozliczenia?}}",
+				"CONFIRM_STATUS": "{count, plural, one {Zmienić status # wpisu na „{status}”?} few {Zmienić status # wpisów na „{status}”?} many {Zmienić status # wpisów na „{status}”?} other {Zmienić status # wpisu na „{status}”?}}",
+				"CONFIRM_SCOPE": "Zmienią się wszystkie wpisy zadania {task} w tym wierszu.",
+				"CHANGED": "{count, plural, one {Zmieniono # wpis} few {Zmieniono # wpisy} many {Zmieniono # wpisów} other {Zmieniono # wpisu}}",
+				"PARTLY_CHANGED": "Zmieniono {changed} z {count} wpisów. Pozostałe zachowały swoją wartość.",
+				"REJECT_COUNT": "{count, plural, one {Zamierzasz odrzucić # wpis. Czy chcesz kontynuować?} few {Zamierzasz odrzucić # wpisy. Czy chcesz kontynuować?} many {Zamierzasz odrzucić # wpisów. Czy chcesz kontynuować?} other {Zamierzasz odrzucić # wpisu. Czy chcesz kontynuować?}}",
+				"VIEW_GROUP": "Grupuj podobne wpisy",
+				"VIEW_GROUP_HELP": "Wpisy z jednego dnia z tym samym zadaniem, projektem, notatkami i stanem rozliczenia są pokazane w jednym wierszu."
+			},
 			"STATUS_CARDS": {
 				"PENDING": "Czeka na zatwierdzenie",
 				"LOG_UNIT": "{count, plural, one {wpis} few {wpisy} many {wpisów} other {wpisu}}"

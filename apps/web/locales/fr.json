@@ -599,6 +599,21 @@
 				"EDITED_AT": "Modifié le {date} à {time}",
 				"REASON_PREFIX": "Raison :"
 			},
+			"SIMILAR": {
+				"ENTRY_COUNT": "{count, plural, one {# saisie} other {# saisies}}",
+				"SHOW_ENTRIES": "Afficher les saisies de {task}",
+				"HIDE_ENTRIES": "Masquer les saisies de {task}",
+				"SELECT_GROUP": "{count, plural, one {Sélectionner # saisie de {task}} other {Sélectionner les # saisies de {task}}}",
+				"CONFIRM_BILLABLE": "{count, plural, one {Marquer # saisie comme facturable ?} other {Marquer # saisies comme facturables ?}}",
+				"CONFIRM_NOT_BILLABLE": "{count, plural, one {Marquer # saisie comme non facturable ?} other {Marquer # saisies comme non facturables ?}}",
+				"CONFIRM_STATUS": "{count, plural, one {Passer # saisie à « {status} » ?} other {Passer # saisies à « {status} » ?}}",
+				"CONFIRM_SCOPE": "Toutes les saisies de {task} de cette ligne changent.",
+				"CHANGED": "{count, plural, one {# saisie modifiée} other {# saisies modifiées}}",
+				"PARTLY_CHANGED": "{changed} saisies modifiées sur {count}. Les autres gardent leur valeur.",
+				"REJECT_COUNT": "{count, plural, one {Vous allez refuser # saisie. Voulez-vous continuer ?} other {Vous allez refuser # saisies. Voulez-vous continuer ?}}",
+				"VIEW_GROUP": "Regrouper les saisies semblables",
+				"VIEW_GROUP_HELP": "Les saisies d'un jour avec la même tâche, le même projet, les mêmes notes et le même état facturable forment une seule ligne."
+			},
 			"STATUS_CARDS": {
 				"PENDING": "En attente d'approbation",
 				"LOG_UNIT": "{count, plural, one {saisie} other {saisies}}"

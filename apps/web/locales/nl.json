@@ -599,6 +599,21 @@
 				"EDITED_AT": "Bewerkt op {date}, {time}",
 				"REASON_PREFIX": "Reden:"
 			},
+			"SIMILAR": {
+				"ENTRY_COUNT": "{count, plural, one {# registratie} other {# registraties}}",
+				"SHOW_ENTRIES": "Registraties van {task} tonen",
+				"HIDE_ENTRIES": "Registraties van {task} verbergen",
+				"SELECT_GROUP": "{count, plural, one {# registratie van {task} selecteren} other {De # registraties van {task} selecteren}}",
+				"CONFIRM_BILLABLE": "{count, plural, one {# registratie als factureerbaar markeren?} other {# registraties als factureerbaar markeren?}}",
+				"CONFIRM_NOT_BILLABLE": "{count, plural, one {# registratie als niet factureerbaar markeren?} other {# registraties als niet factureerbaar markeren?}}",
+				"CONFIRM_STATUS": "{count, plural, one {# registratie op ‘{status}’ zetten?} other {# registraties op ‘{status}’ zetten?}}",
+				"CONFIRM_SCOPE": "Alle registraties van {task} in deze rij veranderen.",
+				"CHANGED": "{count, plural, one {# registratie gewijzigd} other {# registraties gewijzigd}}",
+				"PARTLY_CHANGED": "{changed} van {count} registraties gewijzigd. De andere houden hun waarde.",
+				"REJECT_COUNT": "{count, plural, one {U staat op het punt # registratie af te wijzen. Wilt u doorgaan?} other {U staat op het punt # registraties af te wijzen. Wilt u doorgaan?}}",
+				"VIEW_GROUP": "Vergelijkbare registraties groeperen",
+				"VIEW_GROUP_HELP": "Registraties van een dag met dezelfde taak, hetzelfde project, dezelfde notities en dezelfde factureerbaarheid staan op één rij."
+			},
 			"STATUS_CARDS": {
 				"PENDING": "Wacht op goedkeuring",
 				"LOG_UNIT": "{count, plural, one {registratie} other {registraties}}"

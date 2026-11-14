@@ -599,6 +599,21 @@
 				"EDITED_AT": "编辑于 {date} {time}",
 				"REASON_PREFIX": "原因："
 			},
+			"SIMILAR": {
+				"ENTRY_COUNT": "{count, plural, other {# 条记录}}",
+				"SHOW_ENTRIES": "显示 {task} 的记录",
+				"HIDE_ENTRIES": "隐藏 {task} 的记录",
+				"SELECT_GROUP": "{count, plural, other {选择 {task} 的 # 条记录}}",
+				"CONFIRM_BILLABLE": "{count, plural, other {将 # 条记录标记为可计费？}}",
+				"CONFIRM_NOT_BILLABLE": "{count, plural, other {将 # 条记录标记为不可计费？}}",
+				"CONFIRM_STATUS": "{count, plural, other {将 # 条记录设为“{status}”？}}",
+				"CONFIRM_SCOPE": "此行中 {task} 的所有记录都会更改。",
+				"CHANGED": "{count, plural, other {已更改 # 条记录}}",
+				"PARTLY_CHANGED": "已更改 {changed}/{count} 条记录，其余记录保持原值。",
+				"REJECT_COUNT": "{count, plural, other {您即将拒绝 # 条记录，是否继续？}}",
+				"VIEW_GROUP": "合并相似记录",
+				"VIEW_GROUP_HELP": "同一天中任务、项目、备注和计费状态都相同的记录显示为一行。"
+			},
 			"STATUS_CARDS": {
 				"PENDING": "待审批",
 				"LOG_UNIT": "{count, plural, other {条记录}}"
