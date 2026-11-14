@@ -17,7 +17,7 @@ export interface TimeSplitItem {
 }
 
 /** The projects or clients named before the smallest ones are gathered into "N other ...". */
-export const SPLIT_LEADING_COUNT = 4;
+const SPLIT_LEADING_COUNT = 4;
 
 const OTHER_KEY = 'other';
 
