@@ -138,6 +138,21 @@ describe('useTimeSplit', () => {
 		expect(result.current.totalSeconds).toBe(32 * HOUR);
 	});
 
+	it.each([
+		['every row', undefined],
+		['the rows of one member', (row: { employeeId: string }) => row.employeeId === 'marie']
+	])('counts the same time by project and by client, for %s', (_case, keepRow) => {
+		const rows = keepRow ? ROWS.filter(keepRow) : ROWS;
+		const { result } = renderHook(() => useTimeSplit({ rows, report: DAILY_REPORT, keepRow }));
+		const byProject = result.current.totalSeconds;
+
+		act(() => result.current.setMode('client'));
+
+		expect(result.current.mode).toBe('client');
+		expect(result.current.totalSeconds).toBe(byProject);
+		expect(byProject).toBeGreaterThan(0);
+	});
+
 	it('offers no split by client to someone who may not read clients', () => {
 		mockPermissions = [];
 		const { result } = renderHook(() => useTimeSplit({ rows: ROWS, report: DAILY_REPORT }));
