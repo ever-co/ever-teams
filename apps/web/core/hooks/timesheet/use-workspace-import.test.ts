@@ -2,8 +2,10 @@ import type { TimeImportRow } from '@/core/lib/utils/time-import-rows';
 import type { TimeImportSheet } from '@/core/lib/utils/time-import-sheet';
 import type { WorkspaceTable } from '@/core/lib/utils/workspace-import-files';
 import {
+	existingListsStateOf,
 	extraProjectsOfSheet,
 	labelRequestOf,
+	recordsWithCreated,
 	workspaceEntryRowsOf,
 	workspaceImportRightsOf
 } from './use-workspace-import';
@@ -143,5 +145,33 @@ describe('labelRequestOf', () => {
 			organizationTeamId: 'team-a'
 		});
 		expect(labelRequestOf('Design', scope).color).toBe(request.color);
+	});
+});
+
+describe('existingListsStateOf', () => {
+	it('plans only once the clients, the projects and the labels are all read, and says when one failed', () => {
+		const read = { isLoaded: true, isError: false };
+		const reading = { isLoaded: false, isError: false };
+		const failed = { isLoaded: false, isError: true };
+
+		expect(existingListsStateOf([read, read, reading])).toEqual({ areLoaded: false, haveFailed: false });
+		expect(existingListsStateOf([read, read, failed])).toEqual({ areLoaded: false, haveFailed: true });
+		expect(existingListsStateOf([read, read, read])).toEqual({ areLoaded: true, haveFailed: false });
+	});
+});
+
+describe('recordsWithCreated', () => {
+	it('adds what an earlier run created to the lists read, until they come back with it', () => {
+		const read = [{ id: 'client-initech', name: 'Initech' }];
+		const created = [
+			{ id: 'client-acme', name: 'Acme' },
+			{ id: 'client-initech', name: 'Initech' }
+		];
+
+		expect(recordsWithCreated(read, created)).toEqual([
+			{ id: 'client-initech', name: 'Initech' },
+			{ id: 'client-acme', name: 'Acme' }
+		]);
+		expect(recordsWithCreated(read, [])).toBe(read);
 	});
 });

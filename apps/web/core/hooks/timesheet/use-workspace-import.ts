@@ -61,6 +61,38 @@ export interface WorkspaceCreationState {
 
 const NO_CREATION: WorkspaceCreationState = { status: 'idle', tallies: null, failure: null };
 
+/** What the runs of this page created: in the workspace now, whether or not the lists read came back with it. */
+interface CreatedRecords {
+	clients: ExistingRecord[];
+	projects: ExistingRecord[];
+	labels: ExistingRecord[];
+}
+
+const NOTHING_CREATED: CreatedRecords = { clients: [], projects: [], labels: [] };
+
+/** Whether the workspace's lists the plan compares with are all read, and whether one could not be read. */
+export function existingListsStateOf(lists: ReadonlyArray<{ isLoaded: boolean; isError: boolean }>) {
+	const areLoaded = lists.every((list) => list.isLoaded);
+	const haveFailed = lists.some((list) => list.isError);
+	return { areLoaded, haveFailed };
+}
+
+/**
+ * A list read from the API with what an earlier run created and the list does not hold yet: its refresh is not
+ * awaited, and a plan made before it comes back must not create the same records again.
+ */
+export function recordsWithCreated(
+	read: ReadonlyArray<ExistingRecord>,
+	created: ReadonlyArray<ExistingRecord>
+): ReadonlyArray<ExistingRecord> {
+	const readIds = new Set(read.map((record) => record.id));
+	const missing = created.filter((record) => !readIds.has(record.id));
+	if (missing.length === 0) {
+		return read;
+	}
+	return [...read, ...missing];
+}
+
 /** Who may start a workspace import: the API refuses clients and projects to anyone else. */
 export function workspaceImportRightsOf(permissions: ReadonlyArray<string>) {
 	const canCreateClients = holdsAnyPermission(permissions, CLIENT_CREATE_PERMISSIONS);
@@ -206,12 +238,12 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 	const clientsQuery = useClientsQuery({ enabled: rights.canStart });
 	const { organizationProjects, isOrganizationProjectsLoaded, isOrganizationProjectsError } =
 		useOrganizationProjectsQuery({ enabled: rights.canStart });
-	const { taskLabels } = useTaskLabelsQuery();
+	const labelsQuery = useTaskLabelsQuery();
 	const { invalidateTaskLabelsData } = useInvalidateTaskLabels();
 
 	const [files, setFiles] = useState<WorkspaceFiles | null>(null);
 	const [isReading, setIsReading] = useState(false);
-	const [createdProjects, setCreatedProjects] = useState<ExistingRecord[]>([]);
+	const [created, setCreated] = useState<CreatedRecords>(NOTHING_CREATED);
 	const [creation, setCreation] = useState<WorkspaceCreationState>(NO_CREATION);
 	// The plan a creation started from: the live one follows the workspace as the created records load back
 	const [creationPlan, setCreationPlan] = useState<WorkspaceImportPlan | null>(null);
@@ -226,15 +258,23 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 		};
 	}, []);
 
-	const existingProjects = useMemo<ExistingRecord[]>(
-		() => organizationProjects.map((project) => ({ id: project.id, name: project.name ?? '' })),
-		[organizationProjects]
+	const existingClients = useMemo(
+		() => recordsWithCreated(clientsQuery.activeClients, created.clients),
+		[clientsQuery.activeClients, created.clients]
 	);
-	const knownProjects = useMemo(() => [...existingProjects, ...createdProjects], [createdProjects, existingProjects]);
+	const existingProjects = useMemo(() => {
+		const read = organizationProjects.map((project) => ({ id: project.id, name: project.name ?? '' }));
+		return recordsWithCreated(read, created.projects);
+	}, [created.projects, organizationProjects]);
+	const { taskLabels } = labelsQuery;
+	const existingLabels = useMemo(() => {
+		const read = taskLabels.map((label) => ({ id: label.id, name: label.name ?? '' }));
+		return recordsWithCreated(read, created.labels);
+	}, [created.labels, taskLabels]);
 	const extraProjectsOf = useCallback(
 		(sheet: TimeImportSheet, context: { projects: ReadonlyArray<TimeImportProject> }) =>
-			extraProjectsOfSheet(sheet, context.projects, knownProjects),
-		[knownProjects]
+			extraProjectsOfSheet(sheet, context.projects, existingProjects),
+		[existingProjects]
 	);
 	const timeImport = useTimeImport({ contextAt: access.contextAt, saveScope: access.saveScope, extraProjectsOf });
 	const { contextAt } = access;
@@ -246,24 +286,28 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 	const hasEntries = files?.entries !== null && files?.entries !== undefined;
 	const savesEntries = hasEntries && timeImport.summary.readyCount > 0;
 	const isEntriesJudged = timeImport.stage === 'preview' || timeImport.stage === 'done';
-	const areExistingLoaded = clientsQuery.isLoaded && isOrganizationProjectsLoaded;
-	const hasExistingFailed = clientsQuery.isError || isOrganizationProjectsError;
+	const existingLists = existingListsStateOf([
+		{ isLoaded: clientsQuery.isLoaded, isError: clientsQuery.isError },
+		{ isLoaded: isOrganizationProjectsLoaded, isError: isOrganizationProjectsError },
+		{ isLoaded: !labelsQuery.loading, isError: labelsQuery.isError }
+	]);
+	const areExistingLoaded = existingLists.areLoaded;
+	const hasExistingFailed = existingLists.haveFailed;
 	const canPlan = files !== null && areExistingLoaded && (!hasEntries || isEntriesJudged);
 
 	const plan = useMemo<WorkspaceImportPlan | null>(() => {
 		if (!canPlan || !files) {
 			return null;
 		}
-		const labels = taskLabels.map((label) => ({ id: label.id, name: label.name ?? '' }));
 		return workspaceImportPlanOf({
 			clientsFile: files.clients,
 			projectsFile: files.projects,
 			tagsFile: files.tags,
 			entryRows: workspaceEntryRowsOf(timeImport.rows, files.entries),
-			existing: { clients: clientsQuery.activeClients, projects: existingProjects, labels },
+			existing: { clients: existingClients, projects: existingProjects, labels: existingLabels },
 			members
 		});
-	}, [canPlan, clientsQuery.activeClients, existingProjects, files, members, taskLabels, timeImport.rows]);
+	}, [canPlan, existingClients, existingLabels, existingProjects, files, members, timeImport.rows]);
 
 	const chooseFiles = useCallback(
 		async (picked: ReadonlyArray<WorkspacePickedFile>) => {
@@ -273,7 +317,6 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 			setCreation(NO_CREATION);
 			setCreationPlan(null);
 			setCreationSavesEntries(false);
-			setCreatedProjects([]);
 			setIsReading(true);
 			const read = await readWorkspaceFiles(picked);
 			if (runRef.current !== run) {
@@ -297,7 +340,6 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 		setCreation(NO_CREATION);
 		setCreationPlan(null);
 		setCreationSavesEntries(false);
-		setCreatedProjects([]);
 		setShouldSaveEntries(false);
 	}, [timeImport]);
 
@@ -322,6 +364,7 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 		setCreationSavesEntries(savesEntries);
 		setCreation({ status: 'creating', tallies: null, failure: null });
 		const organizationId = saveScope.organizationId ?? '';
+		const createdNow: CreatedRecords = { clients: [], projects: [], labels: [] };
 		const result = await runWorkspaceCreation(plan, {
 			createClient: async (name) => {
 				const client = await organizationContactService.createClient({
@@ -333,12 +376,20 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 					organizationId,
 					tenantId: saveScope.tenantId
 				});
-				return { id: client.id, name: client.name };
+				const record = { id: client.id, name: client.name };
+				createdNow.clients.push(record);
+				return record;
 			},
-			createProject,
+			createProject: async (project, clientId) => {
+				const record = await createProject(project, clientId);
+				createdNow.projects.push(record);
+				return record;
+			},
 			createLabel: async (name) => {
 				const response = await taskLabelService.createTaskLabels(labelRequestOf(name, saveScope));
-				return { id: response.data.id, name };
+				const record = { id: response.data.id, name };
+				createdNow.labels.push(record);
+				return record;
 			},
 			canCreateLabels: rights.canCreateLabels,
 			isRunGoing,
@@ -348,6 +399,11 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 				}
 			}
 		});
+		setCreated((current) => ({
+			clients: [...current.clients, ...createdNow.clients],
+			projects: [...current.projects, ...createdNow.projects],
+			labels: [...current.labels, ...createdNow.labels]
+		}));
 		void queryClient.invalidateQueries({ queryKey: queryKeys.clients.all });
 		void queryClient.invalidateQueries({ queryKey: queryKeys.organizationProjects.all });
 		void queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
@@ -364,7 +420,6 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 			return;
 		}
 		setCreation({ status: 'created', tallies: result.tallies, failure: null });
-		setCreatedProjects(result.projects);
 		setShouldSaveEntries(savesEntries);
 	}, [
 		createProject,
@@ -400,6 +455,7 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 		hasExistingFailed,
 		retryExisting: () => {
 			void clientsQuery.refetch();
+			void labelsQuery.refetch();
 			void queryClient.invalidateQueries({ queryKey: queryKeys.organizationProjects.all });
 		},
 		plan,
