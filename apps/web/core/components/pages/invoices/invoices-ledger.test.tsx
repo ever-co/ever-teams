@@ -93,6 +93,27 @@ describe('a row of the invoices list', () => {
 	});
 });
 
+describe('a row of an invoice without a number', () => {
+	it('still opens the invoice page, its link saying it has no number', () => {
+		render(
+			<InvoicesLedger
+				invoices={[{ ...invoice, invoiceNumber: null } as unknown as TInvoice]}
+				clientNames={new Map()}
+				timeZone="UTC"
+				pendingPdfId={null}
+				onDownload={jest.fn()}
+				canEdit={false}
+				changingIds={new Set()}
+				onAction={jest.fn()}
+			/>
+		);
+
+		const link = screen.getByRole('link', { name: 'invoices.NO_NUMBER' });
+
+		expect(link.getAttribute('href')).toContain('invoice-42');
+	});
+});
+
 describe('the buttons of a row of the invoices list', () => {
 	afterEach(() => {
 		mockIsCompact = false;

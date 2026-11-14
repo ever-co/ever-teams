@@ -186,7 +186,11 @@ const InvoiceRow = memo(function InvoiceRow({
 	if (statedPeriod) {
 		periodText = invoicePeriodTextOf(statedPeriod, locale);
 	}
-	const numberLabel = t('invoices.NUMBER', { number: numberText ?? '' });
+	// An invoice without a number still opens from its row: the link reads that it has none
+	let numberLabel = t('invoices.NO_NUMBER');
+	if (numberText) {
+		numberLabel = t('invoices.NUMBER', { number: numberText });
+	}
 	const downloadLabel = t('invoices.DOWNLOAD_PDF_OF', { number: numberText ?? '' });
 	const periodLabel = periodText ?? t('invoices.NO_PERIOD');
 	let dueLabel = t('invoices.NO_DUE_DATE');
@@ -205,15 +209,12 @@ const InvoiceRow = memo(function InvoiceRow({
 				<span className="flex min-w-0 flex-col">
 					<span className="truncate text-[13px] font-medium text-foreground">{clientName}</span>
 					<span className="truncate text-xs tabular-nums text-muted-foreground">
-						{numberText && (
-							<Link
-								href={invoicePagePathOf(invoice.id)}
-								className="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-							>
-								{numberLabel}
-							</Link>
-						)}
-						{!numberText && t('invoices.NO_NUMBER')}
+						<Link
+							href={invoicePagePathOf(invoice.id)}
+							className="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+						>
+							{numberLabel}
+						</Link>
 						{issuedText && ` · ${t('invoices.ISSUED_ON', { date: issuedText })}`}
 					</span>
 				</span>
