@@ -1515,6 +1515,51 @@
 				"FUTURE": "Twoja organizacja nie zezwala na czas po bieżącej godzinie.",
 				"APPROVED": "Ten dzień należy do zatwierdzonej karty czasu pracy, więc jego czasu nie można zmienić.",
 				"SAVE_FAILED": "Zmiana nie została zapisana"
+			},
+			"MENU": {
+				"STOP": "Zatrzymaj licznik",
+				"ADD_TIME_HERE": "Dodaj czas tutaj",
+				"SPLIT": "Podziel",
+				"NO_ACTIONS": "Nie możesz zmienić tego wpisu."
+			},
+			"SPLIT": {
+				"TITLE": "Podziel wpis",
+				"REFUSED_TITLE": "Tego wpisu nie można podzielić",
+				"TIME_LABEL": "Podziel o",
+				"TIME_OUTSIDE": "Wybierz godzinę wewnątrz wpisu, co najmniej minutę po jego początku i przed końcem.",
+				"PARTS_LABEL": "Dwa wpisy",
+				"FIRST_PART": "Pierwsza część",
+				"SECOND_PART": "Druga część",
+				"TASK_LABEL": "Zadanie drugiej części: {task}",
+				"TASK_SEARCH": "Szukaj zadań",
+				"ACTION": "Podziel",
+				"SAVING": "Dzielenie…",
+				"SAVED": "Wpis podzielony na dwa",
+				"FAILED_RESTORED": "Nie udało się podzielić wpisu i wrócił do poprzedniego stanu. Spróbuj ponownie.",
+				"FAILED_FIRST_PART_KEPT": "Pierwsza część została zapisana, ale drugiej ({range}) nie udało się dodać. Dodaj ją przez Dodaj czas.",
+				"ADD_REST": "Dodaj drugą część",
+				"REFUSED": {
+					"TRACKED": "Śledzony czas niesie swoją aktywność i zrzuty ekranu, które tylko serwer może rozdzielić między dwa wpisy. Na razie można dzielić tylko czas dodany ręcznie.",
+					"RUNNING": "Licznik nadal działa. Zatrzymaj go, a potem podziel wpis.",
+					"TOO_SHORT": "Ten wpis jest za krótki: każda część musi trwać co najmniej minutę.",
+					"APPROVED": "Ten dzień należy do zatwierdzonej karty czasu pracy, więc jego czasu nie można zmienić.",
+					"PERMISSION": "Twoja rola lub organizacja nie pozwala zmieniać czasu ani dodawać go ręcznie."
+				}
+			},
+			"SETTINGS": {
+				"LABEL": "Ustawienia siatki",
+				"SNAP": "Przyciągaj do",
+				"SNAP_OPTION": "{minutes, plural, =60 {1 godzina} one {# minuta} few {# minuty} many {# minut} other {# minuty}}",
+				"FIRST_HOUR": "Pierwsza godzina",
+				"LAST_HOUR": "Ostatnia godzina",
+				"END_OF_DAY": "Koniec dnia",
+				"HOURS_HINT": "Wpisy poza tymi godzinami nadal są widoczne: siatka poszerza się do nich.",
+				"ROW_HEIGHT": "Wysokość wierszy",
+				"ROW_COMPACT": "Zwarta",
+				"ROW_DEFAULT": "Domyślna",
+				"ROW_TALL": "Wysoka",
+				"KEPT_HERE": "Zapisane w tej przeglądarce",
+				"RESET": "Resetuj"
 			}
 		},
 		"manualTimeEdits": {

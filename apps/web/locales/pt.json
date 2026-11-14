@@ -1515,6 +1515,51 @@
 				"FUTURE": "A sua organização não permite tempo depois da hora atual.",
 				"APPROVED": "Este dia pertence a uma folha de horas aprovada, por isso o seu tempo não pode ser alterado.",
 				"SAVE_FAILED": "Alteração não guardada"
+			},
+			"MENU": {
+				"STOP": "Parar temporizador",
+				"ADD_TIME_HERE": "Adicionar tempo aqui",
+				"SPLIT": "Dividir",
+				"NO_ACTIONS": "Você não pode alterar este registro."
+			},
+			"SPLIT": {
+				"TITLE": "Dividir registro",
+				"REFUSED_TITLE": "Este registro não pode ser dividido",
+				"TIME_LABEL": "Dividir às",
+				"TIME_OUTSIDE": "Escolha um horário dentro do registro, pelo menos um minuto após o início e antes do fim.",
+				"PARTS_LABEL": "Os dois registros",
+				"FIRST_PART": "Primeira parte",
+				"SECOND_PART": "Segunda parte",
+				"TASK_LABEL": "Tarefa da segunda parte: {task}",
+				"TASK_SEARCH": "Pesquisar tarefas",
+				"ACTION": "Dividir",
+				"SAVING": "Dividindo…",
+				"SAVED": "Registro dividido em dois",
+				"FAILED_RESTORED": "Não foi possível dividir o registro, que voltou a ser como era. Tente novamente.",
+				"FAILED_FIRST_PART_KEPT": "A primeira parte foi salva, mas a segunda ({range}) não pôde ser adicionada. Adicione-a com Adicionar tempo.",
+				"ADD_REST": "Adicionar a segunda parte",
+				"REFUSED": {
+					"TRACKED": "O tempo rastreado carrega sua atividade e capturas de tela, que só o servidor pode repartir entre dois registros. Por enquanto, só o tempo adicionado à mão pode ser dividido.",
+					"RUNNING": "O temporizador ainda está em execução. Pare-o e depois divida o registro.",
+					"TOO_SHORT": "Este registro é curto demais: cada parte deve durar pelo menos um minuto.",
+					"APPROVED": "Este dia pertence a uma folha de horas aprovada, então seu tempo não pode ser alterado.",
+					"PERMISSION": "Sua função ou sua organização não permite alterar o tempo nem adicioná-lo à mão."
+				}
+			},
+			"SETTINGS": {
+				"LABEL": "Configurações da grade",
+				"SNAP": "Ajustar a",
+				"SNAP_OPTION": "{minutes, plural, =60 {1 hora} one {# minuto} other {# minutos}}",
+				"FIRST_HOUR": "Primeira hora",
+				"LAST_HOUR": "Última hora",
+				"END_OF_DAY": "Fim do dia",
+				"HOURS_HINT": "Registros fora destas horas continuam visíveis: a grade se amplia até eles.",
+				"ROW_HEIGHT": "Altura das linhas",
+				"ROW_COMPACT": "Compacta",
+				"ROW_DEFAULT": "Padrão",
+				"ROW_TALL": "Alta",
+				"KEPT_HERE": "Salvo neste navegador",
+				"RESET": "Redefinir"
 			}
 		},
 		"manualTimeEdits": {

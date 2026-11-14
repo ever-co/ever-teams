@@ -1515,6 +1515,51 @@
 				"FUTURE": "Votre organisation n'autorise pas de temps après l'heure actuelle.",
 				"APPROVED": "Ce jour fait partie d'une feuille de temps approuvée, son temps ne peut donc pas être modifié.",
 				"SAVE_FAILED": "Modification non enregistrée"
+			},
+			"MENU": {
+				"STOP": "Arrêter le minuteur",
+				"ADD_TIME_HERE": "Ajouter du temps ici",
+				"SPLIT": "Scinder",
+				"NO_ACTIONS": "Vous ne pouvez pas modifier cette entrée."
+			},
+			"SPLIT": {
+				"TITLE": "Scinder l'entrée",
+				"REFUSED_TITLE": "Cette entrée ne peut pas être scindée",
+				"TIME_LABEL": "Scinder à",
+				"TIME_OUTSIDE": "Choisissez une heure dans l'entrée, au moins une minute après son début et avant sa fin.",
+				"PARTS_LABEL": "Les deux entrées",
+				"FIRST_PART": "Première partie",
+				"SECOND_PART": "Seconde partie",
+				"TASK_LABEL": "Tâche de la seconde partie : {task}",
+				"TASK_SEARCH": "Rechercher des tâches",
+				"ACTION": "Scinder",
+				"SAVING": "Scission…",
+				"SAVED": "Entrée scindée en deux",
+				"FAILED_RESTORED": "L'entrée n'a pas pu être scindée et a été remise comme avant. Réessayez.",
+				"FAILED_FIRST_PART_KEPT": "La première partie est enregistrée, mais la seconde ({range}) n'a pas pu être ajoutée. Ajoutez-la avec Ajouter du temps.",
+				"ADD_REST": "Ajouter la seconde partie",
+				"REFUSED": {
+					"TRACKED": "Le temps suivi porte son activité et ses captures d'écran, que seul le serveur peut répartir entre deux entrées. Pour l'instant, seul le temps ajouté à la main peut être scindé.",
+					"RUNNING": "Le minuteur tourne encore. Arrêtez-le, puis scindez l'entrée.",
+					"TOO_SHORT": "Cette entrée est trop courte : chaque partie doit durer au moins une minute.",
+					"APPROVED": "Ce jour appartient à une feuille de temps approuvée, son temps ne peut donc pas changer.",
+					"PERMISSION": "Votre rôle ou votre organisation ne permet pas de modifier le temps ni d'en ajouter à la main."
+				}
+			},
+			"SETTINGS": {
+				"LABEL": "Réglages de la grille",
+				"SNAP": "Pas",
+				"SNAP_OPTION": "{minutes, plural, =60 {1 heure} one {# minute} other {# minutes}}",
+				"FIRST_HOUR": "Première heure",
+				"LAST_HOUR": "Dernière heure",
+				"END_OF_DAY": "Fin de journée",
+				"HOURS_HINT": "Les entrées hors de ces heures restent visibles : la grille s'élargit jusqu'à elles.",
+				"ROW_HEIGHT": "Hauteur des lignes",
+				"ROW_COMPACT": "Compacte",
+				"ROW_DEFAULT": "Normale",
+				"ROW_TALL": "Haute",
+				"KEPT_HERE": "Enregistré dans ce navigateur",
+				"RESET": "Réinitialiser"
 			}
 		},
 		"manualTimeEdits": {

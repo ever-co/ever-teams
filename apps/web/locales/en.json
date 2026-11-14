@@ -1515,6 +1515,51 @@
 				"FUTURE": "Your organization doesn't allow time after the current time.",
 				"APPROVED": "This day belongs to an approved timesheet, so its time can't be changed.",
 				"SAVE_FAILED": "Change not saved"
+			},
+			"MENU": {
+				"STOP": "Stop timer",
+				"ADD_TIME_HERE": "Add time here",
+				"SPLIT": "Split",
+				"NO_ACTIONS": "You can't change this entry."
+			},
+			"SPLIT": {
+				"TITLE": "Split entry",
+				"REFUSED_TITLE": "This entry can't be split",
+				"TIME_LABEL": "Split at",
+				"TIME_OUTSIDE": "Pick a time inside the entry, at least a minute after its start and before its end.",
+				"PARTS_LABEL": "The two entries",
+				"FIRST_PART": "First part",
+				"SECOND_PART": "Second part",
+				"TASK_LABEL": "Task of the second part: {task}",
+				"TASK_SEARCH": "Search tasks",
+				"ACTION": "Split",
+				"SAVING": "Splitting…",
+				"SAVED": "Entry split in two",
+				"FAILED_RESTORED": "The entry could not be split and is back as it was. Try again.",
+				"FAILED_FIRST_PART_KEPT": "The first part was saved, but the second part ({range}) could not be added. Add it with Add time.",
+				"ADD_REST": "Add the second part",
+				"REFUSED": {
+					"TRACKED": "Tracked time carries its activity and screenshots, which only the server can share between two entries. Only time added by hand can be split for now.",
+					"RUNNING": "The timer is still running. Stop it, then split the entry.",
+					"TOO_SHORT": "This entry is too short: each part must last at least a minute.",
+					"APPROVED": "This day belongs to an approved timesheet, so its time can't be changed.",
+					"PERMISSION": "Your role or your organization doesn't allow changing time or adding time by hand."
+				}
+			},
+			"SETTINGS": {
+				"LABEL": "Grid settings",
+				"SNAP": "Snap to",
+				"SNAP_OPTION": "{minutes, plural, =60 {1 hour} one {# minute} other {# minutes}}",
+				"FIRST_HOUR": "First hour",
+				"LAST_HOUR": "Last hour",
+				"END_OF_DAY": "End of day",
+				"HOURS_HINT": "Entries outside these hours still show: the grid widens to them.",
+				"ROW_HEIGHT": "Row height",
+				"ROW_COMPACT": "Compact",
+				"ROW_DEFAULT": "Default",
+				"ROW_TALL": "Tall",
+				"KEPT_HERE": "Saved in this browser",
+				"RESET": "Reset"
 			}
 		},
 		"manualTimeEdits": {

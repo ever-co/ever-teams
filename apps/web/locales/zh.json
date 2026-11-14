@@ -1515,6 +1515,51 @@
 				"FUTURE": "您的组织不允许添加当前时间之后的时间。",
 				"APPROVED": "这一天属于已批准的工时表，因此无法更改其时间。",
 				"SAVE_FAILED": "更改未保存"
+			},
+			"MENU": {
+				"STOP": "停止计时器",
+				"ADD_TIME_HERE": "在此添加时间",
+				"SPLIT": "拆分",
+				"NO_ACTIONS": "你无法更改此条目。"
+			},
+			"SPLIT": {
+				"TITLE": "拆分条目",
+				"REFUSED_TITLE": "此条目无法拆分",
+				"TIME_LABEL": "拆分时间",
+				"TIME_OUTSIDE": "请选择条目内的时间，距开始和结束至少一分钟。",
+				"PARTS_LABEL": "两个条目",
+				"FIRST_PART": "第一部分",
+				"SECOND_PART": "第二部分",
+				"TASK_LABEL": "第二部分的任务：{task}",
+				"TASK_SEARCH": "搜索任务",
+				"ACTION": "拆分",
+				"SAVING": "正在拆分…",
+				"SAVED": "条目已拆分为两个",
+				"FAILED_RESTORED": "条目无法拆分，已恢复原样。请重试。",
+				"FAILED_FIRST_PART_KEPT": "第一部分已保存，但第二部分（{range}）无法添加。请通过“添加时间”添加。",
+				"ADD_REST": "添加第二部分",
+				"REFUSED": {
+					"TRACKED": "跟踪的时间带有其活动和截图，只有服务器能在两个条目之间分配。目前只能拆分手动添加的时间。",
+					"RUNNING": "计时器仍在运行。请先停止，再拆分条目。",
+					"TOO_SHORT": "此条目太短：每部分至少要持续一分钟。",
+					"APPROVED": "这一天属于已批准的工时表，因此其时间无法更改。",
+					"PERMISSION": "你的角色或组织不允许更改时间或手动添加时间。"
+				}
+			},
+			"SETTINGS": {
+				"LABEL": "网格设置",
+				"SNAP": "对齐间隔",
+				"SNAP_OPTION": "{minutes, plural, =60 {1 小时} other {# 分钟}}",
+				"FIRST_HOUR": "起始小时",
+				"LAST_HOUR": "结束小时",
+				"END_OF_DAY": "一天结束",
+				"HOURS_HINT": "这些小时之外的条目仍会显示：网格会扩展到它们。",
+				"ROW_HEIGHT": "行高",
+				"ROW_COMPACT": "紧凑",
+				"ROW_DEFAULT": "默认",
+				"ROW_TALL": "较高",
+				"KEPT_HERE": "保存在此浏览器中",
+				"RESET": "重置"
 			}
 		},
 		"manualTimeEdits": {
