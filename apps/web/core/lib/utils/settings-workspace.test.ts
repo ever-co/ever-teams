@@ -13,8 +13,16 @@ import {
 	numberFormatSampleOf,
 	organizationAfterSave,
 	workspaceOfTenant,
-	workspacesAfterRename
+	workspacesAfterRename,
+	clockChoiceOf,
+	clockSampleOf,
+	currencyPositionChoiceOf,
+	currencyPositionSampleOf,
+	weekStartChoiceOf,
+	weekStartChoicesOf,
+	weekdayNameOf
 } from './settings-workspace';
+import { EWeekDays } from '@/core/types/generics/enums/date';
 import type { TOrganization } from '@/core/types/schemas/organization/organization.schema';
 import type { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 
@@ -184,5 +192,48 @@ describe('the format choices of the settings page', () => {
 		expect(numberFormatSampleOf('1.234,56')).toBe('1.234,56');
 		expect(numberFormatSampleOf('1 234,56')).toBe('1\u00A0234,56');
 		expect(numberFormatSampleOf("1'234.56")).toBe('1\u2019234.56');
+	});
+});
+
+describe('the week start, clock and currency side rows', () => {
+	/** ICU versions differ on the space before AM and PM: compare with plain spaces. */
+	const withPlainSpaces = (text: string) => text.replace(/\s/gu, ' ');
+
+	it('offers Monday, Sunday and Saturday, and keeps a day another app stored', () => {
+		expect(weekStartChoicesOf(EWeekDays.MONDAY)).toEqual([EWeekDays.MONDAY, EWeekDays.SUNDAY, EWeekDays.SATURDAY]);
+		expect(weekStartChoicesOf(EWeekDays.WEDNESDAY)).toEqual([
+			EWeekDays.MONDAY,
+			EWeekDays.SUNDAY,
+			EWeekDays.SATURDAY,
+			EWeekDays.WEDNESDAY
+		]);
+	});
+
+	it('shows Monday for an organization that stores no week start', () => {
+		expect(weekStartChoiceOf(null)).toBe(EWeekDays.MONDAY);
+		expect(weekStartChoiceOf(EWeekDays.SUNDAY)).toBe(EWeekDays.SUNDAY);
+	});
+
+	it("names each day in the reader's language", () => {
+		expect(weekdayNameOf(EWeekDays.SUNDAY, 'en')).toBe('Sunday');
+		expect(weekdayNameOf(EWeekDays.SATURDAY, 'fr')).toBe('samedi');
+	});
+
+	it("shows the 12-hour clock Gauzy gives a new organization when it stores none, and a sample of each clock", () => {
+		expect(clockChoiceOf(null)).toBe(12);
+		expect(clockChoiceOf(24)).toBe(24);
+		expect(clockSampleOf(24, 'en')).toBe('14:30');
+		expect(withPlainSpaces(clockSampleOf(12, 'en'))).toBe('2:30 PM');
+	});
+
+	it('shows the left side Gauzy gives a new organization when it stores none, and a sample of each side', () => {
+		expect(currencyPositionChoiceOf(null)).toBe('LEFT');
+		expect(currencyPositionChoiceOf('RIGHT')).toBe('RIGHT');
+		expect(currencyPositionSampleOf('LEFT', 'EUR', 'en')).toBe('€12.00');
+		expect(currencyPositionSampleOf('RIGHT', 'EUR', 'en')).toBe('12.00 €');
+	});
+
+	it('writes the sample in dollars when the organization has no currency yet', () => {
+		expect(currencyPositionSampleOf('LEFT', '', 'en')).toBe('$12.00');
 	});
 });

@@ -5,12 +5,17 @@ import {
 	WORKSPACE_NUMBER_FORMATS,
 	dateFormatOf,
 	numberFormatOf,
+	workspaceClockOf,
+	workspaceCurrencyPositionOf,
 	workspaceDateFormatOf,
 	workspaceNumberFormatOf,
+	type WorkspaceClock,
+	type WorkspaceCurrencyPosition,
 	type WorkspaceDateFormat,
 	type WorkspaceLocale,
 	type WorkspaceNumberFormat
 } from '@/core/lib/utils/workspace-formats';
+import { EWeekDays } from '@/core/types/generics/enums/date';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { organizationSchema, type TOrganization } from '@/core/types/schemas/organization/organization.schema';
 import type { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
@@ -150,4 +155,72 @@ export function numberFormatSampleOf(format: WorkspaceNumberFormat): string {
 	const locale: WorkspaceLocale = { tag: SAMPLE_LANGUAGE, dateFormat: null, numberFormat: format };
 	const sample = numberFormatOf(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 	return sample.format(SAMPLE_AMOUNT);
+}
+
+/** The days the week-start row offers, and a day another app stored, so the row still shows what is stored. */
+const WEEK_START_DAYS: ReadonlyArray<EWeekDays> = [EWeekDays.MONDAY, EWeekDays.SUNDAY, EWeekDays.SATURDAY];
+
+export function weekStartChoicesOf(stored: EWeekDays | null | undefined): EWeekDays[] {
+	if (!stored || WEEK_START_DAYS.includes(stored)) {
+		return [...WEEK_START_DAYS];
+	}
+	return [...WEEK_START_DAYS, stored];
+}
+
+/** The day the row shows: Monday for an organization that stores none, as every page then counts from Monday. */
+export function weekStartChoiceOf(stored: EWeekDays | null | undefined): EWeekDays {
+	return stored ?? EWeekDays.MONDAY;
+}
+
+/** Sunday 1 November 2026: each weekday's name is read from this day plus its index. */
+const SAMPLE_SUNDAY_DAY = 1;
+
+const WEEKDAY_INDEX: Readonly<Record<EWeekDays, number>> = {
+	[EWeekDays.SUNDAY]: 0,
+	[EWeekDays.MONDAY]: 1,
+	[EWeekDays.TUESDAY]: 2,
+	[EWeekDays.WEDNESDAY]: 3,
+	[EWeekDays.THURSDAY]: 4,
+	[EWeekDays.FRIDAY]: 5,
+	[EWeekDays.SATURDAY]: 6
+};
+
+export function weekdayNameOf(day: EWeekDays, locale: string): string {
+	const sample = new Date(2026, 10, SAMPLE_SUNDAY_DAY + WEEKDAY_INDEX[day]);
+	return new Intl.DateTimeFormat(locale, { weekday: 'long' }).format(sample);
+}
+
+export const CLOCK_CHOICES: ReadonlyArray<WorkspaceClock> = [24, 12];
+
+/** Gauzy gives a new organization the 12-hour clock: the row shows it when nothing else is stored. */
+const GAUZY_DEFAULT_CLOCK: WorkspaceClock = 12;
+
+export function clockChoiceOf(stored: unknown): WorkspaceClock {
+	return workspaceClockOf(stored) ?? GAUZY_DEFAULT_CLOCK;
+}
+
+/** Half past two in the afternoon on each clock: 14:30 or 2:30 PM. */
+export function clockSampleOf(clock: WorkspaceClock, locale: string): string {
+	const workspace: WorkspaceLocale = { tag: locale, dateFormat: null, numberFormat: null, clock };
+	const sample = new Date(2026, 10, 2, 14, 30);
+	return dateFormatOf(workspace, { hour: '2-digit', minute: '2-digit' }).format(sample);
+}
+
+export const CURRENCY_POSITION_CHOICES: ReadonlyArray<WorkspaceCurrencyPosition> = ['LEFT', 'RIGHT'];
+
+/** Gauzy writes a new organization's currency sign on the left: the row shows it when nothing else is stored. */
+const GAUZY_DEFAULT_CURRENCY_POSITION: WorkspaceCurrencyPosition = 'LEFT';
+
+export function currencyPositionChoiceOf(stored: unknown): WorkspaceCurrencyPosition {
+	return workspaceCurrencyPositionOf(stored) ?? GAUZY_DEFAULT_CURRENCY_POSITION;
+}
+
+/** The currency of the sample while the organization has none yet. */
+const SAMPLE_CURRENCY = 'USD';
+
+/** Twelve of the organization's currency with the sign on one side: €12.00 or 12.00 €. */
+export function currencyPositionSampleOf(position: WorkspaceCurrencyPosition, currency: string, locale: string): string {
+	const workspace: WorkspaceLocale = { tag: locale, dateFormat: null, numberFormat: null, currencyPosition: position };
+	const shownCurrency = currency || SAMPLE_CURRENCY;
+	return numberFormatOf(workspace, { style: 'currency', currency: shownCurrency }).format(12);
 }
