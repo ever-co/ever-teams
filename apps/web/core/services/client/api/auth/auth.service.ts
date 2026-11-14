@@ -273,7 +273,7 @@ class AuthService extends APIService {
 		return api.post<{ loginResponse: IAuthResponse }>(
 			'/auth/two-factor/verify',
 			{ ...input, teamId: selectedTeam || undefined },
-			{ expectedUnauthorized: true },
+			{ expectedUnauthorized: true, secretResponse: true },
 			false
 		);
 	};

@@ -117,7 +117,7 @@ describe('authService, the code step of a sign-in that asks for a second factor'
 		expect(mockFallbackPost).toHaveBeenCalledWith(
 			'/auth/two-factor/verify',
 			{ ...proof, teamId: 'team-1' },
-			{ expectedUnauthorized: true },
+			{ expectedUnauthorized: true, secretResponse: true },
 			false
 		);
 	});

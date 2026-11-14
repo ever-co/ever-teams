@@ -218,7 +218,7 @@ class SigninService extends APIService {
 		const { data } = await this.post<IAuthResponse>(
 			'/auth/two-factor/verify',
 			{ ...input },
-			{ expectedUnauthorized: true },
+			{ expectedUnauthorized: true, secretResponse: true },
 			false
 		);
 

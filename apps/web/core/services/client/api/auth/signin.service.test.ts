@@ -43,7 +43,7 @@ describe('signinService.verifyTwoFactorGauzy', () => {
 		expect(post).toHaveBeenCalledWith(
 			'/auth/two-factor/verify',
 			{ challenge: 'signed.challenge', code: '123456' },
-			{ expectedUnauthorized: true },
+			{ expectedUnauthorized: true, secretResponse: true },
 			false
 		);
 		expect(mockSetAuthCookies).toHaveBeenCalledWith(
