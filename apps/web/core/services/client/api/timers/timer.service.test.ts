@@ -218,6 +218,14 @@ describe('TimerService.discardTimer', () => {
 		expect(answer.data).toEqual({ running: false });
 	});
 
+	it('reports a discard as done when the status read after it fails', async () => {
+		publishedApiOrigin.value = 'https://api.example.test';
+		jest.spyOn(timerService, 'post').mockResolvedValue({ data: undefined } as never);
+		jest.spyOn(timerService, 'getTimerStatus').mockRejectedValue(new Error('Network Error'));
+
+		await expect(timerService.discardTimer({ timeLogId: 'log-1' })).resolves.toEqual({ data: undefined });
+	});
+
 	it('sends no log id for a discard that saw none', async () => {
 		publishedApiOrigin.value = 'https://api.example.test';
 		const post = jest.spyOn(timerService, 'post').mockResolvedValue({ data: undefined } as never);

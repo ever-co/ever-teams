@@ -226,7 +226,7 @@ class TimerService extends APIService {
 	 * started. `timeLogId` names the run the member saw, so a run started meanwhile elsewhere is never removed (409).
 	 * Answers the timer status after the discard.
 	 */
-	discardTimer = async ({ timeLogId }: { timeLogId?: string }) => {
+	discardTimer = async ({ timeLogId }: { timeLogId?: string }): Promise<{ data: ITimerStatus | null | undefined }> => {
 		const timeLogField = timeLogId ? { timeLogId } : {};
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
@@ -236,7 +236,12 @@ class TimerService extends APIService {
 				organizationId: this.organizationId
 			});
 
-			return this.getTimerStatus();
+			// The run is discarded: a status read that fails says nothing of it, and the timer reads its status again
+			try {
+				return await this.getTimerStatus();
+			} catch {
+				return { data: undefined };
+			}
 		}
 
 		const api = await getFallbackAPI();

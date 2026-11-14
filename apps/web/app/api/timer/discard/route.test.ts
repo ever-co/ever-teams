@@ -57,6 +57,15 @@ it("discards the session's running timer, naming the run the member saw, and ans
 	);
 });
 
+it('answers the discard as done when the status read after it fails, with no status', async () => {
+	mockTimerStatus.mockRejectedValue(new TypeError('fetch failed'));
+
+	const response = await discardWith({ timeLogId: 'log-1' });
+
+	expect(response.status).toBe(200);
+	expect(await response.json()).toBeNull();
+});
+
 it('sends no log id when the member saw none', async () => {
 	await discardWith({});
 
