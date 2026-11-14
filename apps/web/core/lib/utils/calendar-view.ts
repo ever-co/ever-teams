@@ -15,6 +15,7 @@ import {
 } from 'date-fns';
 import { daysOfPeriod, type Period, type WeekStart } from '@/core/lib/utils/dashboard-period';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import {
 	endOfLog,
 	isManualLog,
@@ -711,9 +712,9 @@ export function shortTimeZoneNameOf(locale: string, timeZone: string, date: Date
 	return zonePart?.value ?? timeZone;
 }
 
-/** The labels of the hour gutter, in the reader's locale ("9 AM", "09"), one per hour from 1 to 23. */
-export function hourLabelsOf(locale: string, day: Date) {
-	const format = new Intl.DateTimeFormat(locale, { hour: 'numeric' });
+/** The labels of the hour gutter, on the workspace's clock ("9 AM", "09"), one per hour from 1 to 23. */
+export function hourLabelsOf(locale: FormatLocale, day: Date) {
+	const format = dateFormatOf(locale, { hour: 'numeric' });
 	const labels: { hour: number; label: string }[] = [];
 	for (let hour = 1; hour < HOURS_IN_DAY; hour++) {
 		const time = new Date(day);
