@@ -478,7 +478,15 @@ export const queryKeys = {
 			organizationId: string | undefined | null,
 			userId: string | undefined | null,
 			teamId: string | undefined | null
-		) => ['time-goals', 'progress', tenantId ?? null, organizationId ?? null, userId ?? null, teamId ?? null] as const
+		) =>
+			[
+				'time-goals',
+				'progress',
+				tenantId ?? null,
+				organizationId ?? null,
+				userId ?? null,
+				teamId ?? null
+			] as const
 	},
 
 	// Settings → Automations: the organization's rules, the templates and a rule's run history. The user is part of
