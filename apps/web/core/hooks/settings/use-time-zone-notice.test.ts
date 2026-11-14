@@ -74,6 +74,20 @@ describe('useTimeZoneNotice', () => {
 		expect(result.current.hasFailed).toBe(false);
 	});
 
+	it('stays gone on the next page while the profile still reads the old zone', async () => {
+		mockSaveZone.mockResolvedValue(true);
+		const useNotice = freshHook();
+		const firstPage = renderHook(() => useNotice());
+		await waitFor(() => expect(firstPage.result.current.notice).not.toBeNull());
+
+		await act(() => firstPage.result.current.adoptBrowserZone());
+		firstPage.unmount();
+		// The user query has not refetched yet: the profile still holds Kinshasa
+		const nextPage = renderHook(() => useNotice());
+
+		expect(nextPage.result.current.notice).toBeNull();
+	});
+
 	it('keeps the notice, saying the save failed, when the profile was not saved', async () => {
 		mockSaveZone.mockResolvedValue(false);
 		const { result } = await renderNotice();

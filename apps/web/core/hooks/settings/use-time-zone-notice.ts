@@ -18,10 +18,12 @@ interface BrowserSide {
 	zone: string | null;
 	keptPair: string | null;
 	dismissedPair: string | null;
+	/** The pair whose browser zone was saved: the profile reads the old zone until the user query refreshes. */
+	adoptedPair: string | null;
 }
 
 /** On the server, and in the first client render, the browser is unknown: no notice, so both renders agree. */
-const UNKNOWN_BROWSER: BrowserSide = { zone: null, keptPair: null, dismissedPair: null };
+const UNKNOWN_BROWSER: BrowserSide = { zone: null, keptPair: null, dismissedPair: null, adoptedPair: null };
 
 /**
  * What this browser says and remembers, read once per page load and shared by every page of it, so an answer given
@@ -46,7 +48,8 @@ function readBrowserSide(): BrowserSide {
 	browserSide = {
 		zone: detectTimeZone(),
 		keptPair: readStoredPair(storageOf('localStorage'), KEPT_TIME_ZONE_PAIR_STORAGE_KEY),
-		dismissedPair: readStoredPair(storageOf('sessionStorage'), DISMISSED_TIME_ZONE_PAIR_STORAGE_KEY)
+		dismissedPair: readStoredPair(storageOf('sessionStorage'), DISMISSED_TIME_ZONE_PAIR_STORAGE_KEY),
+		adoptedPair: null
 	};
 	return browserSide;
 }
@@ -96,7 +99,6 @@ export function useTimeZoneNotice() {
 	const { data: user } = useUserQuery();
 	const { saveZone, isSaving } = useTimeZoneSetting();
 	const browser = useSyncExternalStore(subscribe, readBrowserSide, serverBrowserSide);
-	const [adoptedPair, setAdoptedPair] = useState<string | null>(null);
 	const [hasFailed, setHasFailed] = useState(false);
 	const profileValue = user?.timeZone ?? null;
 	const hasUser = Boolean(user);
@@ -112,13 +114,14 @@ export function useTimeZoneNotice() {
 			dismissedPair: browser.dismissedPair,
 			now: new Date()
 		});
-		// Saved: the profile reads the old zone until the user query refreshes, which must not bring the notice back
-		const isAdopted = found !== null && found.pairKey === adoptedPair;
+		// Saved: the profile reads the old zone until the user query refreshes, which must not bring the notice back,
+		// on this page or the next one of the same load
+		const isAdopted = found !== null && found.pairKey === browser.adoptedPair;
 		if (isAdopted) {
 			return null;
 		}
 		return found;
-	}, [adoptedPair, browser, hasUser, profileValue]);
+	}, [browser, hasUser, profileValue]);
 
 	const adoptBrowserZone = useCallback(async () => {
 		if (!notice) {
@@ -130,7 +133,7 @@ export function useTimeZoneNotice() {
 			setHasFailed(true);
 			return;
 		}
-		setAdoptedPair(notice.pairKey);
+		remember({ adoptedPair: notice.pairKey });
 	}, [notice, saveZone]);
 
 	const keepProfileZone = useCallback(() => {

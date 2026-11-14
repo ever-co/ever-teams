@@ -20,7 +20,7 @@ export interface TimeZoneNotice {
 	pairKey: string;
 }
 
-export interface TimeZoneNoticeInput {
+interface TimeZoneNoticeInput {
 	/** `user.timeZone` as stored, e.g. "Africa/Kinshasa (UTC +01:00)". */
 	profileValue: string | null | undefined;
 	browserZone: string | null;
