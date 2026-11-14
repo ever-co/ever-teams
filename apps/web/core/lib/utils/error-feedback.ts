@@ -88,6 +88,22 @@ function errorCodeOf(error: Record<string, unknown>): unknown {
 	return bodyOf(error).code;
 }
 
+/**
+ * Gauzy's refusal code of a failed call (`{ code, message }` bodies, such as `SESSION_CONFIRMATION_INVALID`), from a
+ * direct call's `ApiErrorService` or an Axios error's body; null when the failure carries none.
+ */
+export function gauzyErrorCodeOf(error: unknown): string | null {
+	if (!isRecord(error)) {
+		return null;
+	}
+	const code = errorCodeOf(error);
+	if (typeof code !== 'string') {
+		return null;
+	}
+
+	return code;
+}
+
 function refusedFieldOf(error: Record<string, unknown>): unknown {
 	const details = bodyOf(error).details;
 	if (!isRecord(details)) {

@@ -1,5 +1,5 @@
 import { ApiErrorService } from '@/core/services/client/api-error.service';
-import { errorReasonKeyOf, errorReasonOf, isNameTakenError } from './error-feedback';
+import { errorReasonKeyOf, errorReasonOf, gauzyErrorCodeOf, isNameTakenError } from './error-feedback';
 
 /** Gauzy's answer to a team label named like another label of the team (ever-co/ever-gauzy#11782). */
 const NAME_TAKEN_BODY = {
@@ -58,5 +58,31 @@ describe('errorReasonOf, for a name Gauzy finds taken', () => {
 		);
 
 		expect(errorReasonOf(error)).toBe('conflict');
+	});
+});
+
+describe('gauzyErrorCodeOf', () => {
+	/** Gauzy's refusal of a wrong password when other sessions are signed out (ever-co/ever-gauzy#11943). */
+	const REFUSAL_BODY = {
+		code: 'SESSION_CONFIRMATION_INVALID',
+		message: 'The password or the code is not right. No session was signed out.'
+	};
+
+	it("reads Gauzy's code from the ApiErrorService a direct call throws", () => {
+		const error = new ApiErrorService(REFUSAL_BODY.message, 400, REFUSAL_BODY.code);
+
+		expect(gauzyErrorCodeOf(error)).toBe('SESSION_CONFIRMATION_INVALID');
+	});
+
+	it("reads Gauzy's code from an Axios error's body, not Axios's own code", () => {
+		const error = axiosErrorOf(400, REFUSAL_BODY);
+
+		expect(gauzyErrorCodeOf(error)).toBe('SESSION_CONFIRMATION_INVALID');
+	});
+
+	it('answers null when the error carries no code of Gauzy', () => {
+		expect(gauzyErrorCodeOf(axiosErrorOf(500, { message: 'Internal server error' }))).toBeNull();
+		expect(gauzyErrorCodeOf(new Error('offline'))).toBeNull();
+		expect(gauzyErrorCodeOf(null)).toBeNull();
 	});
 });
