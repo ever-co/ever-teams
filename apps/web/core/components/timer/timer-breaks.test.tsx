@@ -2,7 +2,7 @@
 
 /**
  * The timers during a break (#5216). "Back to work" starts again the task the break paused, never a task page opened
- * or another active task picked during the break.
+ * or another active task picked during the break. "End break" only stops the break, so it needs no task to start.
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
@@ -129,5 +129,17 @@ describe.each([
 		expect(mockStartTimer).toHaveBeenCalledTimes(1);
 		expect(mockStartTimer).toHaveBeenCalledWith(pausedTask);
 		expect(mockStopTimer).not.toHaveBeenCalled();
+	});
+
+	it('ends the break without an active task, which a reload or a closed task leaves empty', () => {
+		renderOnBreak(timer(), null);
+
+		const endBreak = screen.getByRole('button', { name: 'breaks.END_BREAK' });
+		expect(endBreak.getAttribute('aria-disabled')).toBe('false');
+
+		fireEvent.click(endBreak);
+
+		expect(mockEndBreak).toHaveBeenCalledTimes(1);
+		expect(mockStartTimer).not.toHaveBeenCalled();
 	});
 });

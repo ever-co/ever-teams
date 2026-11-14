@@ -97,6 +97,20 @@ function phoneBillableClassNameOf(showsBreakButton: boolean) {
 	return undefined;
 }
 
+/**
+ * Whether the break button is unavailable. "End break" only stops the break, so it needs no task the timer could
+ * start: a break whose task was closed meanwhile, or is not loaded after a reload, still ends (#5216).
+ */
+function breakButtonDisabledOf(hydrated: boolean, isOnBreak: boolean, actionDisabled: boolean) {
+	if (!hydrated) {
+		return true;
+	}
+	if (isOnBreak) {
+		return false;
+	}
+	return actionDisabled;
+}
+
 /** Which face the clock shows, so it fades in again when work starts, stops or pauses for a break. */
 function clockStateKeyOf(isRunning: boolean, isOnBreak: boolean) {
 	if (isOnBreak) {
@@ -301,7 +315,7 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 							<TimerBreakButton
 								isOnBreak={isOnBreak}
 								pending={isBreakPending}
-								disabled={!hydrated || actionDisabled}
+								disabled={breakButtonDisabledOf(hydrated, isOnBreak, actionDisabled)}
 								onTakeBreak={takeBreak}
 								onEndBreak={endBreak}
 								className={timerButtonClassName}
@@ -449,7 +463,7 @@ export function MinTimerFrame({ className }: IClassName) {
 					<TimerBreakButton
 						isOnBreak={isOnBreak}
 						pending={isBreakPending}
-						disabled={!hydrated || actionDisabled}
+						disabled={breakButtonDisabledOf(hydrated, isOnBreak, actionDisabled)}
 						onTakeBreak={takeBreak}
 						onEndBreak={endBreak}
 						className={MIN_TIMER_TOGGLE}
