@@ -50,14 +50,17 @@ export function useManualTime() {
 		(
 			data: Omit<TAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'> & {
 				employeeId?: string;
+				// Time worked by hand unless a break is added (Gauzy #11940)
+				logType?: ETimeLogType.MANUAL | ETimeLogType.BREAK;
 			}
 		) => {
+			const { logType = ETimeLogType.MANUAL, ...fields } = data;
 			const requestData: TAddManualTimeRequest = {
 				tenantId: user?.tenantId ?? '',
 				employeeId: user?.employee?.id ?? '',
-				logType: ETimeLogType.MANUAL,
+				logType,
 				source: ETimeLogSource.BROWSER,
-				...data
+				...fields
 			};
 
 			addManualTimeMutate(requestData);
