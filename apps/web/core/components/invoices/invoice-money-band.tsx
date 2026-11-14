@@ -114,6 +114,10 @@ export const InvoiceMoneyBand = memo(function InvoiceMoneyBand({ summary, picked
 	const notYetDueShare = shareOf(notYetDueAmount, owedAmount);
 	const owedCount = summary.counts.open + summary.counts.overdue;
 	const isNothingOwed = owedCount === 0;
+	// Owed invoices whose balances the API never stated leave no amount to show: their count stands alone
+	const isOwedAmountKnown = main !== null;
+	const showsSplit = !isNothingOwed && isOwedAmountKnown;
+	const showsFigureAmounts = isNothingOwed || isOwedAmountKnown;
 	const draftCount = summary.counts.draft;
 
 	return (
@@ -126,12 +130,14 @@ export const InvoiceMoneyBand = memo(function InvoiceMoneyBand({ summary, picked
 					)}
 					{!isNothingOwed && (
 						<span className="flex items-baseline gap-2">
-							<MoneyFigure
-								amount={owedAmount}
-								currency={currency}
-								quietCents
-								className="text-2xl font-semibold text-foreground"
-							/>
+							{isOwedAmountKnown && (
+								<MoneyFigure
+									amount={owedAmount}
+									currency={currency}
+									quietCents
+									className="text-2xl font-semibold text-foreground"
+								/>
+							)}
 							<span className="text-xs tabular-nums text-muted-foreground">
 								{t('invoices.money.INVOICE_COUNT', { count: owedCount })}
 							</span>
@@ -141,7 +147,7 @@ export const InvoiceMoneyBand = memo(function InvoiceMoneyBand({ summary, picked
 				<OtherCurrencies owed={summary.owed} mainCurrency={currency} />
 			</div>
 
-			{!isNothingOwed && (
+			{showsSplit && (
 				<div
 					role="img"
 					aria-label={t('invoices.money.SPLIT_LABEL')}
@@ -161,7 +167,7 @@ export const InvoiceMoneyBand = memo(function InvoiceMoneyBand({ summary, picked
 						{t('invoices.money.NOT_YET_DUE')}
 					</span>
 					<span className="flex items-baseline gap-1.5 text-sm font-medium text-foreground">
-						<MoneyFigure amount={notYetDueAmount} currency={currency} />
+						{showsFigureAmounts && <MoneyFigure amount={notYetDueAmount} currency={currency} />}
 						<span className="text-xs font-normal text-muted-foreground">{summary.counts.open}</span>
 					</span>
 				</BandFigure>
@@ -171,7 +177,7 @@ export const InvoiceMoneyBand = memo(function InvoiceMoneyBand({ summary, picked
 						{t('invoices.money.OVERDUE')}
 					</span>
 					<span className="flex items-baseline gap-1.5 text-sm font-medium text-foreground">
-						<MoneyFigure amount={overdueAmount} currency={currency} />
+						{showsFigureAmounts && <MoneyFigure amount={overdueAmount} currency={currency} />}
 						<span className="text-xs font-normal text-muted-foreground">{summary.counts.overdue}</span>
 					</span>
 				</BandFigure>
