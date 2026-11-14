@@ -96,6 +96,7 @@ export function useTimesheetGroupChange(actions: TimesheetGroupActions) {
 			return;
 		}
 		setIsSaving(true);
+		let isDone = true;
 		try {
 			const { logs } = change.group;
 			if (change.kind === 'billable') {
@@ -103,10 +104,13 @@ export function useTimesheetGroupChange(actions: TimesheetGroupActions) {
 				announceBillableChange(changedCount, logs.length, t);
 				return;
 			}
-			await changeStatus(logs, change.status, true);
+			// A failed change has already said so; the confirmation stays open to try again or cancel.
+			isDone = await changeStatus(logs, change.status, true);
 		} finally {
 			setIsSaving(false);
-			setIsOpen(false);
+			if (isDone) {
+				setIsOpen(false);
+			}
 		}
 	}, [change, changeStatus, setBillableOf, t]);
 

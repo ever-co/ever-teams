@@ -122,6 +122,20 @@ describe('useTimesheetGroupChange', () => {
 		});
 
 		expect(actions.changeStatus).toHaveBeenCalledWith(LOGS, ETimesheetStatus.APPROVED, true);
+		expect(hook.result.current.isOpen).toBe(false);
+	});
+
+	it('keeps the confirmation open when the status change fails, so it can be tried again', async () => {
+		const { actions, hook } = renderChange();
+		actions.changeStatus.mockResolvedValue(false);
+
+		act(() => hook.result.current.handlers.changeStatus(GROUP, ETimesheetStatus.APPROVED));
+		await act(async () => {
+			await hook.result.current.confirm();
+		});
+
+		expect(hook.result.current.isOpen).toBe(true);
+		expect(hook.result.current.isSaving).toBe(false);
 	});
 
 	it('opens the reject dialog, which asks for the reason, for every entry of the group', () => {
