@@ -2052,12 +2052,18 @@ describe('Ever Teams feature surface preservation', () => {
 		// (/api/invoices/[id] GET; #5158).
 		// 357 files and 455 verbs with the proxies that update one invoice and replace its lines (/api/invoices/[id]
 		// PUT, /api/invoice-item/bulk/[invoiceId] POST; #5159). Its read of one invoice is #5158's.
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(357);
+		// 360 files and 458 verbs with the signed-in user's sessions (/api/auth/sessions GET, sign-out-others POST, [id]
+		// DELETE; #5220, ever-gauzy #11943).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(360);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(455);
+		).toHaveLength(458);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of Gauzy's routes of the signed-in user's own sessions (#5220, ever-gauzy #11943)
+				'apps/web/app/api/auth/sessions/route.ts::GET',
+				'apps/web/app/api/auth/sessions/sign-out-others/route.ts::POST',
+				'apps/web/app/api/auth/sessions/[id]/route.ts::DELETE',
 				// Proxy mode twins of the platform's incoming webhook management of a channel (ever-gauzy #11799)
 				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::GET',
 				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::POST',
