@@ -185,6 +185,10 @@ async function restoreAfterFailedAdd(
 	if (state === 'saved') {
 		return;
 	}
+	// Whether the part was saved cannot be told: offering to add it by hand could add it twice
+	if (state === 'unclear') {
+		throw new CalendarSplitError('unknown', addError);
+	}
 	if (state === 'taken') {
 		throw new CalendarSplitError('first-part-kept', addError);
 	}

@@ -143,14 +143,15 @@ describe('splitCalendarEntry', () => {
 		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'unknown' }));
 	});
 
-	it('takes an entry the server answers with an unreadable time for one covering the second part', async () => {
+	it('says the outcome is not known when an entry on the second part has a time that does not read', async () => {
+		// It may be the part itself: offering to add the part by hand could add it twice
 		const unreadable = { id: 'log-4', startedAt: 'not a date', stoppedAt: 'not a date', taskId: 'task-1' };
 		mockAddManualTime.mockRejectedValueOnce(new Error('timeout'));
 		mockGetTimeLogConflicts.mockResolvedValueOnce([]).mockResolvedValueOnce([unreadable]);
 
 		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
 
-		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'first-part-kept' }));
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'unknown' }));
 		expect(calls).toEqual(['update 9-11']);
 	});
 
