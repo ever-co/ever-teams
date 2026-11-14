@@ -24,6 +24,11 @@ export function useTasks(session: Session | null) {
 
 	// Only the latest load may show its answer: a team picked and then another, the first answer can land last
 	const latestLoad = useRef(0);
+	// The team active now, read by a task creation that was answered after a team change
+	const activeTeamId = useRef(session?.teamId ?? null);
+	useEffect(() => {
+		activeTeamId.current = session?.teamId ?? null;
+	}, [session?.teamId]);
 
 	const load = useCallback(async () => {
 		if (!session) {
@@ -71,9 +76,12 @@ export function useTasks(session: Session | null) {
 		await saveRecentTaskIds(next);
 	}, []);
 
-	/** Adds a task the person just created to the list, and picks it. */
+	/** Adds a task the person just created to the list, and picks it, unless another team became active meanwhile. */
 	const addCreated = useCallback(
-		async (task: TaskItem) => {
+		async (task: TaskItem, teamId: string | null) => {
+			if (teamId !== activeTeamId.current) {
+				return;
+			}
 			setTasks((current) => [task, ...current.filter((existing) => existing.id !== task.id)]);
 			await selectTask(task.id);
 		},

@@ -186,7 +186,7 @@ function SignedIn({
 				selectedTaskId={tasks.selectedTask?.id ?? null}
 				locked={timer.isRunning || busy}
 				onSelect={(taskId) => void tasks.selectTask(taskId)}
-				onCreated={(task) => void tasks.addCreated(task)}
+				onCreated={(task, teamId) => void tasks.addCreated(task, teamId)}
 				onRetry={() => void tasks.reload()}
 			/>
 		</>

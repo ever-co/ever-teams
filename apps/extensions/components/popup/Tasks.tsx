@@ -23,7 +23,8 @@ interface Props {
 	/** While a run goes on, picking another task waits for the stop. */
 	locked: boolean;
 	onSelect: (taskId: string) => void;
-	onCreated: (task: TaskItem) => void;
+	/** The team the task was created in, which may no longer be the active one when it is answered. */
+	onCreated: (task: TaskItem, teamId: string | null) => void;
 	onRetry: () => void;
 }
 
@@ -124,8 +125,9 @@ const Tasks: FC<Props> = ({
 		setAdding(true);
 		setAddError(null);
 		try {
+			const teamId = session.teamId;
 			const created = await createTask(session, title, estimateSecondsOf(newEstimate));
-			onCreated(created);
+			onCreated(created, teamId);
 			setNewTitle('');
 			setNewEstimate('');
 			setEstimateFieldsKey((key) => key + 1);
