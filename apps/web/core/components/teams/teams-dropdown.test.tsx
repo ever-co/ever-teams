@@ -7,7 +7,6 @@
  * organization's teams wait, with their settings, until the page is replaced.
  */
 import type { MouseEvent, ReactNode } from 'react';
-import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
 
@@ -141,7 +140,7 @@ describe('TeamsDropDown while another organization opens', () => {
 		mockSwitch.variables = { organizationId: 'labs' };
 		renderDropdown();
 
-		expect(studioOps()).toHaveAttribute('aria-disabled', 'true');
+		expect(studioOps().getAttribute('aria-disabled')).toBe('true');
 		const settingsClick = fireEvent.click(studioOpsSettings());
 
 		expect(settingsClick).toBe(false);
@@ -153,7 +152,7 @@ describe('TeamsDropDown while another organization opens', () => {
 		mockSwitch.variables = { organizationId: 'labs' };
 		renderDropdown();
 
-		expect(screen.getByRole('menuitem', { name: /common.CREATE_TEAM/ })).toHaveAttribute('aria-disabled', 'true');
+		expect(screen.getByRole('menuitem', { name: /common.CREATE_TEAM/ }).getAttribute('aria-disabled')).toBe('true');
 	});
 
 	it('refuses to open another organization while a timer start is on its way', () => {
@@ -169,7 +168,7 @@ describe('TeamsDropDown while another organization opens', () => {
 		mockSwitch.variables = { organizationId: 'labs' };
 		renderDropdown();
 
-		expect(studioOps()).toHaveAttribute('aria-disabled', 'true');
+		expect(studioOps().getAttribute('aria-disabled')).toBe('true');
 		fireEvent.click(studioOpsSettings());
 
 		expect(mockSetActiveTeam).not.toHaveBeenCalled();

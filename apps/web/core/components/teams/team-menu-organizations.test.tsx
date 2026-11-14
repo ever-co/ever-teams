@@ -6,7 +6,6 @@
  * one to open by a switch, the switch under way and a failed switch.
  */
 import type { ReactNode } from 'react';
-import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 
 jest.mock('next-intl', () => ({
@@ -70,7 +69,7 @@ describe('TeamMenuOrganizations', () => {
 		fireEvent.click(screen.getByRole('menuitem', { name: /Labs Design/ }));
 
 		expect(props.onPickTeam).toHaveBeenCalledWith(labs, labsDesign);
-		expect(screen.getByRole('menuitem', { name: /Labs Design/ })).toHaveTextContent('2');
+		expect(screen.getByRole('menuitem', { name: /Labs Design/ }).textContent).toContain('2');
 	});
 
 	it('offers an organization whose teams are not listed as one to open', () => {
@@ -85,23 +84,23 @@ describe('TeamMenuOrganizations', () => {
 		renderMenu({ isDisabled: true });
 
 		for (const row of screen.getAllByRole('menuitem')) {
-			expect(row).toBeDisabled();
+			expect((row as HTMLButtonElement).disabled).toBe(true);
 		}
 	});
 
 	it('says why an organization could not be opened', () => {
 		renderMenu({ failedOrganizationId: 'agency' });
 
-		expect(screen.getByRole('alert')).toHaveTextContent('switchers.ORGANIZATION_SWITCH_FAILED');
+		expect(screen.getByRole('alert').textContent).toContain('switchers.ORGANIZATION_SWITCH_FAILED');
 	});
 
 	it('shows the loading state, then nothing more for someone in one organization', () => {
 		const { rerender } = render(<TeamMenuOrganizations {...renderProps({ isLoading: true })} />);
-		expect(screen.getByRole('status', { name: 'switchers.OTHER_ORGANIZATIONS_LOADING' })).toBeInTheDocument();
+		expect(screen.getByRole('status', { name: 'switchers.OTHER_ORGANIZATIONS_LOADING' })).not.toBeNull();
 
 		rerender(<TeamMenuOrganizations {...renderProps({ organizations: [] })} />);
 
-		expect(screen.queryByRole('status')).not.toBeInTheDocument();
+		expect(screen.queryByRole('status')).toBeNull();
 		expect(screen.queryAllByRole('menuitem')).toHaveLength(0);
 	});
 
@@ -110,7 +109,7 @@ describe('TeamMenuOrganizations', () => {
 
 		fireEvent.click(screen.getByRole('button', { name: 'switchers.TRY_AGAIN' }));
 
-		expect(screen.getByRole('alert')).toHaveTextContent('switchers.OTHER_ORGANIZATIONS_FAILED');
+		expect(screen.getByRole('alert').textContent).toContain('switchers.OTHER_ORGANIZATIONS_FAILED');
 		expect(props.onRetry).toHaveBeenCalled();
 	});
 });
