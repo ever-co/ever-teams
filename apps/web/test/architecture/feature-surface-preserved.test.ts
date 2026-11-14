@@ -2054,10 +2054,12 @@ describe('Ever Teams feature surface preservation', () => {
 		// PUT, /api/invoice-item/bulk/[invoiceId] POST; #5159). Its read of one invoice is #5158's.
 		// 360 files and 459 verbs with the personal API token proxies (/api/user-api-tokens/config GET,
 		// /api/user-api-tokens GET and POST, /api/user-api-tokens/[id] DELETE; #5209).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(360);
+		// 361 files and 460 verbs with the team menu's organizations of the workspace in proxy mode
+		// (/api/organization-team/organizations GET; #5204).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(361);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(459);
+		).toHaveLength(460);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's personal API token routes (#5209)
@@ -2065,6 +2067,8 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/user-api-tokens/route.ts::GET',
 				'apps/web/app/api/user-api-tokens/route.ts::POST',
 				'apps/web/app/api/user-api-tokens/[id]/route.ts::DELETE',
+				// The team menu's organizations of the workspace in proxy mode (#5204)
+				'apps/web/app/api/organization-team/organizations/route.ts::GET',
 				// Proxy mode twins of the platform's incoming webhook management of a channel (ever-gauzy #11799)
 				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::GET',
 				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::POST',

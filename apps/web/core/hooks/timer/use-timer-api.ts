@@ -38,7 +38,9 @@ import {
 	detailedTaskState,
 	leftActiveTaskIdState,
 	localTimerStatusState,
+	organizationOpeningState,
 	timerNotesState,
+	timerStartingState,
 	timerStatusFetchingState,
 	timerStatusState,
 	workspaceOpeningState
@@ -258,6 +260,7 @@ export function useTimerApi({
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const isWorkspaceOpeningRef = useSyncRef(useAtomValue(workspaceOpeningState));
+	const isOrganizationOpeningRef = useSyncRef(useAtomValue(organizationOpeningState));
 	const { taskStatuses } = useTaskStatusesQuery({ enabled });
 	const detailedTask = useAtomValue(detailedTaskState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
@@ -647,12 +650,19 @@ export function useTimerApi({
 		}
 	}, [activeTeamRef, keepRunOrClearStuckFlag, queryClient, refreshUserData, stopStaleTeamsTimer, t, timerStatusRef]);
 
-	/** A new workspace is opening (#5025): says so and tells the start to stop. */
+	/**
+	 * A new workspace (#5025), or another organization of this one (#5204), is opening: says so and tells the start to
+	 * stop.
+	 */
 	const warnIfWorkspaceOpening = useCallback((): boolean => {
+		if (isOrganizationOpeningRef.current) {
+			toast.warning(t('toasts.timer.ORGANIZATION_OPENING'), { id: 'timer-organization-opening' });
+			return true;
+		}
 		if (!isWorkspaceOpeningRef.current) return false;
 		toast.warning(t('toasts.timer.WORKSPACE_OPENING'), { id: 'timer-workspace-opening' });
 		return true;
-	}, [isWorkspaceOpeningRef, t]);
+	}, [isOrganizationOpeningRef, isWorkspaceOpeningRef, t]);
 
 	const runStartTimer = useCallback(
 		async (explicitTask?: TTask, onRequestLanded?: () => void): Promise<TimerStartOutcome> => {
@@ -724,6 +734,8 @@ export function useTimerApi({
 			// timer, and become the timer's notes once it runs (#5131 with #5113)
 			const continuedNotes = notesForStartOf(pendingNotes, taskIdToUse);
 			const notesToUse = continuedNotes ?? notesToSendAtStart(store.get(timerNotesState));
+			// Until Gauzy answers, the status still says stopped: the team menu reads this instead (#5204)
+			store.set(timerStartingState, true);
 			const startRequest = startTimerMutate({
 				taskId: taskIdToUse,
 				projectId: projectIdToUse,
@@ -820,6 +832,7 @@ export function useTimerApi({
 					});
 				})
 				.finally(() => {
+					store.set(timerStartingState, false);
 					if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
 				});
 			// Updating the task status to "In Progress" when the timer is started

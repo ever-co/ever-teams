@@ -3416,7 +3416,13 @@
 		"EVER_APPS": "Aplikacje Ever",
 		"CURRENT_APP": "{app}, aplikacja, w której jesteś",
 		"OPENS_IN_NEW_TAB": "(otwiera się w nowej karcie)",
-		"APP_OPENS_IN_NEW_TAB": "{app} (otwiera się w nowej karcie)"
+		"APP_OPENS_IN_NEW_TAB": "{app} (otwiera się w nowej karcie)",
+		"OTHER_ORGANIZATIONS_LOADING": "Wczytywanie Twoich innych organizacji",
+		"OTHER_ORGANIZATIONS_FAILED": "Nie udało się wczytać Twoich innych organizacji.",
+		"TRY_AGAIN": "Spróbuj ponownie",
+		"UNNAMED_ORGANIZATION": "Organizacja bez nazwy",
+		"OPEN_ORGANIZATION": "Otwórz tam swoje zespoły",
+		"ORGANIZATION_SWITCH_FAILED": "Nie udało się otworzyć tej organizacji. Spróbuj ponownie."
 	},
 	"workspaceCreation": {
 		"TITLE": "Utwórz obszar roboczy",
@@ -3956,6 +3962,7 @@
 			"NO_TASK": "Wybierz zadanie, aby uruchomić timer",
 			"START_IN_PROGRESS": "Timer wciąż uruchamia się dla innego zadania",
 			"WORKSPACE_OPENING": "Nowa przestrzeń robocza się otwiera: uruchom licznik czasu, gdy będzie otwarta.",
+			"ORGANIZATION_OPENING": "Otwiera się inna organizacja: uruchom licznik czasu, gdy będzie otwarta.",
 			"STOPPED_TEAM_SWITCH": "Timer zatrzymany po zmianie zespołu",
 			"STOPPED_TASK_SWITCH": "Timer zatrzymany, bo zmieniło się aktywne zadanie",
 			"STALE_STOPPED": "Timer zatrzymany: {stoppedAt}",

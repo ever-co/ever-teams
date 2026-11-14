@@ -3416,7 +3416,13 @@
 		"EVER_APPS": "Aplicaciones de Ever",
 		"CURRENT_APP": "{app}, la aplicación en la que estás",
 		"OPENS_IN_NEW_TAB": "(se abre en una pestaña nueva)",
-		"APP_OPENS_IN_NEW_TAB": "{app} (se abre en una pestaña nueva)"
+		"APP_OPENS_IN_NEW_TAB": "{app} (se abre en una pestaña nueva)",
+		"OTHER_ORGANIZATIONS_LOADING": "Cargando tus otras organizaciones",
+		"OTHER_ORGANIZATIONS_FAILED": "No se pudieron cargar tus otras organizaciones.",
+		"TRY_AGAIN": "Reintentar",
+		"UNNAMED_ORGANIZATION": "Organización sin nombre",
+		"OPEN_ORGANIZATION": "Abrir tus equipos allí",
+		"ORGANIZATION_SWITCH_FAILED": "No se pudo abrir esta organización. Inténtalo de nuevo."
 	},
 	"workspaceCreation": {
 		"TITLE": "Crear un espacio de trabajo",
@@ -3956,6 +3962,7 @@
 			"NO_TASK": "Elige una tarea para iniciar el temporizador",
 			"START_IN_PROGRESS": "El temporizador aún se está iniciando en otra tarea",
 			"WORKSPACE_OPENING": "Tu nuevo espacio de trabajo se está abriendo: inicia el temporizador cuando esté abierto.",
+			"ORGANIZATION_OPENING": "Se está abriendo otra organización: inicia el temporizador cuando esté abierta.",
 			"STOPPED_TEAM_SWITCH": "Temporizador detenido porque cambiaste de equipo",
 			"STOPPED_TASK_SWITCH": "Temporizador detenido porque cambió tu tarea activa",
 			"STALE_STOPPED": "Temporizador detenido: {stoppedAt}",
