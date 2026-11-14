@@ -10,8 +10,17 @@ interface MockSaved {
 	version: string;
 }
 
-const mockRead: { current: { status: string; saved: MockSaved | null; isRefreshing: boolean; number: number } } = {
-	current: { status: 'loading', saved: null, isRefreshing: false, number: 42 }
+interface MockRead {
+	status: string;
+	saved: MockSaved | null;
+	isRefreshing: boolean;
+	readAt: number;
+	hasReadFailed: boolean;
+	number: number;
+}
+
+const mockRead: { current: MockRead } = {
+	current: { status: 'loading', saved: null, isRefreshing: false, readAt: 0, hasReadFailed: false, number: 42 }
 };
 
 jest.mock('next/navigation', () => ({ useParams: () => ({ id: 'inv-42' }) }));
@@ -52,15 +61,17 @@ jest.mock('./saved-invoice-states', () => ({
 
 import EditInvoicePage from './page-component';
 
-function readOf(version: string, isRefreshing: boolean) {
+/** Read during this visit, or kept from an earlier one (read at 1). */
+function readOf(version: string, isRefreshing: boolean, { isKept = false, hasReadFailed = false } = {}): MockRead {
 	const saved = { id: 'inv-42', number: 42, status: 'SENT', version };
-	return { status: 'ready', saved, isRefreshing, number: 42 };
+	const readAt = isKept ? 1 : Date.now() + 60_000;
+	return { status: 'ready', saved, isRefreshing, readAt, hasReadFailed, number: 42 };
 }
 
 describe('the invoice editor', () => {
 	it('opens on this visit’s read, never on details kept from an earlier visit', () => {
 		// Kept from an earlier visit, the details show at once while the invoice is read again
-		mockRead.current = readOf('cached', true);
+		mockRead.current = readOf('cached', true, { isKept: true });
 		const { rerender } = render(<EditInvoicePage />);
 
 		expect(screen.getByText('skeleton')).toBeTruthy();
@@ -81,5 +92,23 @@ describe('the invoice editor', () => {
 
 		expect(screen.queryByText('skeleton')).toBeNull();
 		expect(screen.getByText('editor of the fresh invoice')).toBeTruthy();
+	});
+
+	it('offers to read again, instead of opening the kept details, when this visit’s read failed', () => {
+		mockRead.current = readOf('cached', false, { isKept: true, hasReadFailed: true });
+
+		render(<EditInvoicePage />);
+
+		expect(screen.getByText('message')).toBeTruthy();
+		expect(screen.queryByText(/editor of/)).toBeNull();
+	});
+
+	it('keeps the kept details closed while it waits for the connection to read', () => {
+		mockRead.current = readOf('cached', false, { isKept: true });
+
+		render(<EditInvoicePage />);
+
+		expect(screen.getByText('skeleton')).toBeTruthy();
+		expect(screen.queryByText(/editor of/)).toBeNull();
 	});
 });

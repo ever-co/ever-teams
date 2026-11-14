@@ -94,15 +94,18 @@ function EditInvoiceContent() {
 		readAgain();
 	}, [readAgain, readsAfterDialog, wasSaveRefused]);
 	// Details kept from an earlier visit may be older than the invoice, and the editor keeps the invoice it opens on:
-	// it waits for this visit's read. Once that read is in, a later one (a refresh) never reopens the editor.
+	// it opens only on an invoice read during this visit. Once that read is in, a later one (a refresh, failed or
+	// not) never reopens the editor.
+	const [visitStartedAt] = useState(() => Date.now());
+	const hasThisVisitsRead = read.readAt >= visitStartedAt;
 	const [hasOpeningRead, setHasOpeningRead] = useState(false);
-	const isOpeningReadDone = read.status !== 'loading' && !read.isRefreshing;
-	if (isOpeningReadDone && !hasOpeningRead) {
+	if (hasThisVisitsRead && !hasOpeningRead) {
 		setHasOpeningRead(true);
 	}
+	const isEditorOpen = hasOpeningRead || hasThisVisitsRead;
 	const loadingTitle = t('invoices.edit.LOADING_TITLE');
 	const editPath = editInvoicePathOf(invoiceId);
-	if (read.status === 'loading' || !(hasOpeningRead || isOpeningReadDone)) {
+	if (read.status === 'loading') {
 		return <EditInvoicePageSkeleton />;
 	}
 	if (read.status !== 'ready') {
@@ -112,8 +115,17 @@ function EditInvoiceContent() {
 			</InvoiceScreenFrame>
 		);
 	}
+	// This visit's read failed: the details kept from an earlier one are not opened, the read is offered again
+	if (!isEditorOpen && read.hasReadFailed) {
+		return (
+			<InvoiceScreenFrame title={loadingTitle} href={editPath}>
+				<SavedInvoiceMessage status="error" number={read.number} onRetry={read.retry} />
+			</InvoiceScreenFrame>
+		);
+	}
 	const saved = read.saved;
-	if (!saved) {
+	// Still reading, or waiting for the connection to read
+	if (!saved || !isEditorOpen) {
 		return <EditInvoicePageSkeleton />;
 	}
 	const isEditable = invoiceRevisionsOf(saved.status).includes('edit');
