@@ -836,6 +836,12 @@ export const queryKeys = {
 				...(endDate ? [endDate] : [])
 			] as const,
 		timeLog: (logId: string | null | undefined) => ['timesheet', 'time-log', ...(logId ? [logId] : [])] as const,
+		// Under `timesheet` so an edit, a deletion or a status change refreshes the history it adds a row to.
+		history: {
+			entry: (scope: { tenantId: string; organizationId: string; entryId: string }) =>
+				['timesheet', 'history', 'entry', scope] as const,
+			period: (params: Record<string, unknown>) => ['timesheet', 'history', 'period', params] as const
+		},
 		// Under `timesheet` so a saved or removed entry never leaves a stale overlap answer behind.
 		conflicts: (params: {
 			tenantId: string | null;
