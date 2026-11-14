@@ -1,4 +1,5 @@
 /** @jest-environment jsdom */
+import { createRef } from 'react';
 import { render, screen } from '@testing-library/react';
 import GlobalHeader from './global-header';
 
@@ -28,6 +29,18 @@ describe('GlobalHeader notice', () => {
 		const band = screen.getByTestId('toolbar-band');
 		expect(isBefore(bar, notice)).toBe(true);
 		expect(isBefore(notice, band)).toBe(true);
+	});
+
+	it('measures a notice box without padding of its own, so the whole notice leaves the header height', () => {
+		const noticeRef = createRef<HTMLDivElement>();
+
+		render(<GlobalHeader mainHeaderSlot={null} notice={<div data-testid="page-notice" />} noticeRef={noticeRef} />);
+
+		const measured = noticeRef.current;
+		expect(measured).not.toBeNull();
+		// ResizeObserver's contentRect leaves padding out: padding on the measured box would stay in the header
+		expect(measured?.className ?? '').not.toMatch(/(^|\s)p[trblxy]?-/);
+		expect(measured?.contains(screen.getByTestId('page-notice'))).toBe(true);
 	});
 
 	it('adds nothing without a notice', () => {

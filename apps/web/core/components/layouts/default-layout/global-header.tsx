@@ -56,9 +56,10 @@ const GlobalHeader = forwardRef<HTMLDivElement, GlobalHeaderProps>(function Glob
 				/>
 			</header>
 			{hasNotice && (
-				// `empty:hidden`: a notice that has nothing to say renders nothing, and leaves no gap
-				<div ref={noticeRef} data-slot="header-notice" className="w-full px-4 pt-3 empty:hidden">
-					{notice}
+				// No padding on the measured box: ResizeObserver's contentRect would leave it out of the notice's height
+				<div ref={noticeRef} data-slot="header-notice">
+					{/* `empty:hidden`: a notice that has nothing to say renders nothing, and leaves no gap */}
+					<div className="w-full px-4 pt-3 empty:hidden">{notice}</div>
 				</div>
 			)}
 			{hasToolbar && (
