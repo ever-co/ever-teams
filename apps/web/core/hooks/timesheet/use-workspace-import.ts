@@ -10,6 +10,7 @@ import { useInvalidateTaskLabels } from '@/core/hooks/tasks/use-invalidate-task-
 import { useTaskLabelsQuery } from '@/core/hooks/tasks/use-task-labels-query';
 import { type TimeImportAccess } from '@/core/hooks/timesheet/use-time-import-access';
 import { useTimeImport } from '@/core/hooks/timesheet/use-time-import';
+import { generateDefaultColor } from '@/core/lib/helpers/colors';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { CLIENT_CONTACT_TYPE, CLIENT_CREATE_PERMISSIONS, holdsAnyPermission } from '@/core/lib/utils/clients';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
@@ -40,6 +41,7 @@ import { queryKeys } from '@/core/query/keys';
 import { organizationContactService, organizationProjectService } from '@/core/services/client/api/organizations';
 import { taskLabelService } from '@/core/services/client/api/tasks/task-label.service';
 import { activeTeamState } from '@/core/stores/teams/organization-team';
+import type { ITagCreate } from '@/core/types/interfaces/tag/tag';
 import type { TCreateProjectRequest } from '@/core/types/schemas';
 
 /** The permissions the API asks for to add a project, and to add a label; any one of each is enough. */
@@ -148,6 +150,17 @@ function pickedFileOfCsv(fileName: string, text: string): WorkspacePickedFile {
 	const bytes = new TextEncoder().encode(text);
 	const name = `${fileName.replace(/\.[^.]+$/u, '')}.csv`;
 	return { name, size: bytes.byteLength, arrayBuffer: async () => bytes.buffer as ArrayBuffer };
+}
+
+/** A label of the team, in the color the app gives that name: the API refuses a label without a color. */
+export function labelRequestOf(name: string, scope: TimeImportAccess['saveScope']): ITagCreate {
+	return {
+		name,
+		color: generateDefaultColor(name),
+		organizationId: scope.organizationId ?? '',
+		tenantId: scope.tenantId,
+		organizationTeamId: scope.organizationTeamId
+	};
 }
 
 /** A project to create, filed with the active team, with only the settings the file gives. */
@@ -324,12 +337,7 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 			},
 			createProject,
 			createLabel: async (name) => {
-				const response = await taskLabelService.createTaskLabels({
-					name,
-					organizationId,
-					tenantId: saveScope.tenantId,
-					organizationTeamId: saveScope.organizationTeamId
-				});
+				const response = await taskLabelService.createTaskLabels(labelRequestOf(name, saveScope));
 				return { id: response.data.id, name };
 			},
 			canCreateLabels: rights.canCreateLabels,

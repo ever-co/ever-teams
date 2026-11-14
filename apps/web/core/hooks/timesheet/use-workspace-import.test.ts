@@ -1,7 +1,12 @@
 import type { TimeImportRow } from '@/core/lib/utils/time-import-rows';
 import type { TimeImportSheet } from '@/core/lib/utils/time-import-sheet';
 import type { WorkspaceTable } from '@/core/lib/utils/workspace-import-files';
-import { extraProjectsOfSheet, workspaceEntryRowsOf, workspaceImportRightsOf } from './use-workspace-import';
+import {
+	extraProjectsOfSheet,
+	labelRequestOf,
+	workspaceEntryRowsOf,
+	workspaceImportRightsOf
+} from './use-workspace-import';
 
 jest.mock('@/core/hooks/clients/use-clients-query', () => ({ useClientsQuery: jest.fn() }));
 jest.mock('@/core/hooks/organizations/projects/use-organization-projects-query', () => ({
@@ -121,5 +126,22 @@ describe('workspaceEntryRowsOf', () => {
 				isMemberUnknown: true
 			}
 		]);
+	});
+});
+
+describe('labelRequestOf', () => {
+	it('files a label with the team and the color the app gives that name, which the API requires', () => {
+		const scope = { tenantId: 'tenant-a', organizationId: 'organization-a', organizationTeamId: 'team-a' };
+
+		const request = labelRequestOf('Design', scope);
+
+		expect(request).toEqual({
+			name: 'Design',
+			color: expect.stringMatching(/^#[0-9a-f]{6}$/i),
+			organizationId: 'organization-a',
+			tenantId: 'tenant-a',
+			organizationTeamId: 'team-a'
+		});
+		expect(labelRequestOf('Design', scope).color).toBe(request.color);
 	});
 });
