@@ -6,6 +6,12 @@ export const timerStatusState = atom<ITimerStatus | null>(null);
 
 export const timerStatusFetchingState = atom<boolean>(false);
 
+/**
+ * A start request of this tab is on its way to Gauzy (#5204): the timer status says stopped until it lands, so the team
+ * menu reads this to refuse opening another organization meanwhile, where the started timer would be out of sight.
+ */
+export const timerStartingState = atom<boolean>(false);
+
 export const timeCounterState = atom<number>(0);
 
 export const timerSecondsState = atom<number>(0);

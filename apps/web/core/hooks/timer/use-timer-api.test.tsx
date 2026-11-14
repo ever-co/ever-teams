@@ -17,6 +17,7 @@ import {
 	organizationOpeningState,
 	organizationTeamsState,
 	timerNotesState,
+	timerStartingState,
 	timerStatusState
 } from '@/core/stores';
 import { timerStartNotesState } from '@/core/stores/timer/timer-start-notes';
@@ -440,6 +441,36 @@ describe('Start while another organization of the workspace is opening', () => {
 		expect(mockToastWarning).toHaveBeenCalledWith('toasts.timer.ORGANIZATION_OPENING', {
 			id: 'timer-organization-opening'
 		});
+	});
+
+	it('says a start is on its way until Gauzy answers it, so the team menu can refuse a switch meanwhile', async () => {
+		const tab = renderTab();
+		let answerStart: () => void = () => undefined;
+		mockStartTimer.mockImplementationOnce(
+			() =>
+				new Promise((resolve) => {
+					answerStart = () => resolve({ data: { running: true, lastLog: null } });
+				})
+		);
+
+		let started: Promise<unknown> | undefined;
+		act(() => {
+			started = tab.result.current.startTimer(TASK);
+		});
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+		await act(async () => {
+			await Promise.resolve();
+		});
+		const whileSent = tab.store.get(timerStartingState);
+		await act(async () => {
+			answerStart();
+			await started;
+		});
+
+		expect(whileSent).toBe(true);
+		expect(tab.store.get(timerStartingState)).toBe(false);
 	});
 
 	it('refuses the start when the switch begins during its checks', async () => {

@@ -15,7 +15,13 @@ import { LazyCreateTeamModal } from '@/core/components/optimized-components/team
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { activeTeamState, detailedTaskState, organizationTeamsState, timerStatusState } from '@/core/stores';
+import {
+	activeTeamState,
+	detailedTaskState,
+	organizationTeamsState,
+	timerStartingState,
+	timerStatusState
+} from '@/core/stores';
 import { useAtomValue, useAtom } from 'jotai';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/core/lib/helpers';
@@ -129,6 +135,8 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const managesSeveralTeams = userManagedTeams.length > 1;
 	const showsAllTeams = managesSeveralTeams || isAllTeamsPage;
 	const orderedTeams = useMemo(() => activeTeamFirst(teams, activeTeam?.id), [teams, activeTeam?.id]);
+	// A start sent but not answered yet: the status still says stopped, and a switch would leave that timer behind
+	const isTimerStarting = useAtomValue(timerStartingState);
 
 	// The person's other organizations of the workspace, read once the session is known so the menu opens on them
 	const menuOrganizations = useTeamMenuOrganizations();
@@ -141,6 +149,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const switchingOrganizationId = organizationBeingOpened(switchOrganization);
 	const isSwitchingOrganization = switchingOrganizationId !== null;
 	const blocksTeamChange = timerRunningStatus || isSwitchingOrganization;
+	const blocksOrganizationSwitch = blocksTeamChange || isTimerStarting;
 	const cannotCreateTeam = !user?.isEmailVerified || blocksTeamChange;
 
 	const selectTeam = useCallback(
@@ -174,7 +183,8 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 
 	const openOtherOrganization = useCallback(
 		(organization: ITeamMenuOrganization, team?: TOrganizationTeam) => {
-			if (timerRunningStatus) {
+			const isTimerOn = timerRunningStatus || isTimerStarting;
+			if (isTimerOn) {
 				toast.warning(t('common.TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'), {
 					id: TEAM_SWITCH_BLOCKED_TOAST_ID
 				});
@@ -196,7 +206,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				}
 			);
 		},
-		[isSwitchingOrganization, switchOrganization, t, timerRunningStatus]
+		[isSwitchingOrganization, isTimerStarting, switchOrganization, t, timerRunningStatus]
 	);
 
 	const startTeamCreation = useCallback(() => {
@@ -294,7 +304,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 							isLoading={menuOrganizations.isLoading}
 							isError={menuOrganizations.isError}
 							onRetry={() => void menuOrganizations.refetch()}
-							isDisabled={blocksTeamChange}
+							isDisabled={blocksOrganizationSwitch}
 							switchingOrganizationId={switchingOrganizationId}
 							failedOrganizationId={failedOrganizationId}
 							onPickTeam={openOtherOrganization}
