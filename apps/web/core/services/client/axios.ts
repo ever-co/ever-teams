@@ -18,6 +18,9 @@ const isPublicTeamPage = () => {
 	);
 };
 
+/** A 401 the call expected (a wrong two-factor code, see `APIConfig.expectedUnauthorized`) is not a lost session. */
+const isExpectedRefusal = (config: unknown) => (config as APIConfig | undefined)?.expectedUnauthorized === true;
+
 export const getAPI = async (): Promise<APIService> => {
 	if (!api) {
 		api = await buildAPIService();
@@ -40,7 +43,7 @@ export const getAPI = async (): Promise<APIService> => {
 		api.axiosInstance.interceptors.response.use(
 			(response: AxiosResponse) => response,
 			async (error: { response: AxiosResponse; config?: any }) => {
-				if (error.response?.status === 401 && !isPublicTeamPage()) {
+				if (error.response?.status === 401 && !isExpectedRefusal(error.config) && !isPublicTeamPage()) {
 					// Let handleUnauthorized() attempt token refresh before logging out
 					handleUnauthorized(DisconnectionReason.UNAUTHORIZED_401, {
 						status: 401,
@@ -79,7 +82,7 @@ export const getAPIDirect = async (): Promise<APIService> => {
 			(response: AxiosResponse) => response,
 			async (error: { response: AxiosResponse; config?: any }) => {
 				const statusCode = error.response?.status;
-				if (statusCode === 401) {
+				if (statusCode === 401 && !isExpectedRefusal(error.config)) {
 					if (isPublicTeamPage()) {
 						return error.response;
 					}
