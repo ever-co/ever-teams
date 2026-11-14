@@ -110,6 +110,28 @@ describe('billableEntriesOf', () => {
 
 		expect(billableEntriesOf(logs, clientProjects)).toEqual([]);
 	});
+
+	it('rounds each log with the workspace rule before adding: 7, 8 and 22 min bill 1.00 h at 15 min up', () => {
+		const logs = [log({ duration: 7 * 60 }), log({ duration: 8 * 60 }), log({ duration: 22 * 60 })];
+
+		const entries = billableEntriesOf(logs, clientProjects, { intervalMinutes: 15, direction: 'UP' });
+
+		expect(entries).toEqual([{ projectId: 'p1', employeeId: 'ana', taskId: 't1', seconds: HOUR }]);
+	});
+
+	it('bills the time as tracked without a rule', () => {
+		const logs = [log({ duration: 7 * 60 }), log({ duration: 8 * 60 }), log({ duration: 22 * 60 })];
+
+		expect(billableEntriesOf(logs, clientProjects, null)[0].seconds).toBe(37 * 60);
+	});
+
+	it('drops a log the rule rounds down to nothing', () => {
+		const logs = [log({ duration: 7 * 60 }), log({ taskId: null, duration: 20 * 60 })];
+
+		const entries = billableEntriesOf(logs, clientProjects, { intervalMinutes: 15, direction: 'DOWN' });
+
+		expect(entries).toEqual([{ projectId: 'p1', employeeId: 'ana', taskId: null, seconds: 15 * 60 }]);
+	});
 });
 
 describe('linePriceOf', () => {

@@ -143,6 +143,9 @@ jest.mock('@/core/hooks/dashboards/use-report-clients', () => ({
 	})
 }));
 
+import { getDefaultStore } from 'jotai';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
+import type { TOrganization } from '@/core/types/schemas';
 import { useTimeActivityReport } from './use-time-activity-report';
 
 function reportUnder(clientIds: string[], lookup: ClientLookup) {
@@ -323,5 +326,62 @@ describe('useTimeActivityReport grouped by client', () => {
 		expect(report.isBreakdownPending).toBe(false);
 		expect(report.isClientNamesError).toBe(false);
 		expect(mockClientsQueryOptions).toHaveBeenLastCalledWith(READS_NO_NAMES);
+	});
+});
+
+describe('useTimeActivityReport with a duration rounding rule', () => {
+	const QUARTER_UP = { id: 'organization-a', durationRoundingInterval: 15, durationRoundingDirection: 'UP' };
+	const ROWS_READ = { isPending: false, isError: false };
+
+	function useRule(organization: object | null) {
+		getDefaultStore().set(currentOrganizationState, organization as TOrganization | null);
+	}
+
+	beforeEach(() => {
+		resetMocks('project');
+	});
+
+	afterEach(() => {
+		useRule(null);
+	});
+
+	it('rounds each row and sums the figures from the rounded rows', () => {
+		useRule(QUARTER_UP);
+
+		const report = reportUnder([], ROWS_READ);
+
+		// Two rows of 10 minutes listed without their entries: each is rounded as one entry
+		expect(report.rows.map((row) => row.seconds)).toEqual([900, 900]);
+		expect(report.totals.seconds).toBe(1800);
+		expect(report.figures.trackedSeconds).toBe(1800);
+		expect(report.roundingRule).toEqual({ intervalMinutes: 15, direction: 'UP' });
+	});
+
+	it('gives the exports the report with each entry rounded, as the rows show it', () => {
+		useRule(QUARTER_UP);
+
+		const report = reportUnder([], ROWS_READ);
+
+		const sums = report.report.flatMap((day) =>
+			day.logs.flatMap((projectLog) => projectLog.employeeLogs.map((employeeLog) => employeeLog.sum))
+		);
+		expect(sums).toEqual([900, 900]);
+	});
+
+	it('builds the week grid from the rounded rows', () => {
+		useRule(QUARTER_UP);
+
+		const report = reportUnder([], ROWS_READ);
+
+		expect(report.weekDailySource?.rows.map((row) => row.seconds)).toEqual([900, 900]);
+	});
+
+	it('shows the time as tracked without a rule', () => {
+		const report = reportUnder([], ROWS_READ);
+
+		expect(report.rows.map((row) => row.seconds)).toEqual([600, 600]);
+		expect(report.roundingRule).toBeNull();
+		expect(report.isDailyPending).toBe(false);
+		expect(report.weekDailySource).toBeNull();
 	});
 });

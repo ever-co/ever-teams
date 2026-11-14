@@ -19,6 +19,7 @@ import {
 } from '@/core/components/invoices/invoice-paper';
 import type { InvoiceDraftState } from '@/core/hooks/invoices/use-new-invoice';
 import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
+import type { DurationRoundingDirection, DurationRoundingRule } from '@/core/lib/utils/duration-rounding';
 import { formatPercent } from '@/core/lib/utils/invoice-totals';
 import {
 	formatInvoiceHours,
@@ -38,6 +39,25 @@ const RATE_SOURCE_KEYS: Record<InvoiceLineRateSource, DottedLanguageObjectString
 	employee: 'invoices.new.RATE_SOURCE_EMPLOYEE',
 	saved: 'invoices.edit.RATE_SOURCE_SAVED'
 };
+
+const ROUNDING_NOTE_KEYS: Record<DurationRoundingDirection, DottedLanguageObjectStringPaths> = {
+	UP: 'invoices.new.ROUNDED_UP',
+	DOWN: 'invoices.new.ROUNDED_DOWN',
+	NEAREST: 'invoices.new.ROUNDED_NEAREST'
+};
+
+/** Lines built from time say the workspace rounded each entry, and how; saved lines are what was saved. */
+function RoundingNote({ rule }: Readonly<{ rule: DurationRoundingRule | null }>) {
+	const t = useTranslations();
+	if (!rule) {
+		return null;
+	}
+	return (
+		<p className="text-xs tabular-nums text-muted-foreground">
+			{t(ROUNDING_NOTE_KEYS[rule.direction], { minutes: rule.intervalMinutes })}
+		</p>
+	);
+}
 
 interface LineRowProps {
 	line: NamedInvoiceLine;
@@ -231,6 +251,10 @@ export function InvoiceSheet({ invoice }: Readonly<{ invoice: InvoiceDraftState 
 	const isSavedInvoice = invoice.savedInvoice !== null;
 	const showsTimeLines = isSavedInvoice && invoice.linesSource === 'time';
 	const totalHours = formatInvoiceHours(invoice.keptHours, locale);
+	let roundingRule: DurationRoundingRule | null = null;
+	if (invoice.linesSource === 'time') {
+		roundingRule = invoice.time.roundingRule;
+	}
 	const note = invoice.note.trim();
 	let numberText = '';
 	if (invoice.numberText) {
@@ -286,9 +310,15 @@ export function InvoiceSheet({ invoice }: Readonly<{ invoice: InvoiceDraftState 
 				)}
 				{hasLines && (
 					<div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-						<p className="text-xs tabular-nums text-muted-foreground">
-							{t('invoices.new.LINES_AND_HOURS', { count: invoice.keptLines.length, hours: totalHours })}
-						</p>
+						<div className="flex flex-col gap-0.5">
+							<p className="text-xs tabular-nums text-muted-foreground">
+								{t('invoices.new.LINES_AND_HOURS', {
+									count: invoice.keptLines.length,
+									hours: totalHours
+								})}
+							</p>
+							<RoundingNote rule={roundingRule} />
+						</div>
 						<PaperTotals rows={totalRowsOf(invoice, locale, t)} />
 					</div>
 				)}
