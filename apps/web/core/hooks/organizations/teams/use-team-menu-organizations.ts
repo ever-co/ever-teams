@@ -17,7 +17,8 @@ export function useTeamMenuOrganizations() {
 	const { data: user } = useUserQuery();
 	const accessToken = useReactiveAccessTokenCookie();
 	const tenantId = user?.employee?.tenantId ?? user?.tenantId ?? null;
-	const organizationId = user?.employee?.organizationId ?? getOrganizationIdCookie() ?? null;
+	// The organization the app acts in now: the cookie follows a switch, the employee record stays on its own one
+	const organizationId = getOrganizationIdCookie() ?? user?.employee?.organizationId ?? null;
 	const userId = user?.id ?? null;
 	const listsTeams = isTenantAdminRole(user?.role?.name);
 	const isReady = Boolean(tenantId && organizationId && userId && accessToken);
