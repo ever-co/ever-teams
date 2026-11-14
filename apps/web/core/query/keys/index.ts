@@ -839,6 +839,18 @@ export const queryKeys = {
 			['organization-projects', 'pagination-scope', tenantId ?? null, organizationId ?? null, pagination] as const
 	},
 
+	// The signed-in member's saved reports (a report's period, filters and grouping, and its read-only link)
+	savedReports: {
+		all: ['saved-reports'] as const,
+		list: (
+			tenantId: string | null | undefined,
+			organizationId: string | null | undefined,
+			userId: string | null | undefined
+		) => ['saved-reports', 'list', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		// A shared report read through its link, without a session
+		shared: (token: string | null | undefined) => ['saved-reports', 'shared', token ?? null] as const
+	},
+
 	// Keys related to the Timesheet / Timer
 	timesheet: {
 		all: ['timesheet'] as const,
