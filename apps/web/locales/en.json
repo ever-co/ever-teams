@@ -3854,7 +3854,8 @@
 			"INVALID": "Some values were not accepted. Check them and try again.",
 			"TOO_MANY": "Too many attempts. Wait a moment, then try again.",
 			"SERVER": "The server could not complete it. Try again in a moment.",
-			"UNKNOWN": "Try again in a moment."
+			"UNKNOWN": "Try again in a moment.",
+			"TWO_FACTOR": "This account asks for a code from an authenticator app. Sign in with your email address or your password to enter it."
 		},
 		"common": {
 			"NEWSLETTER_SUBSCRIBED": "You are subscribed to the newsletter",
@@ -5750,6 +5751,28 @@
 			"TEXT": "The sign-in did not complete. Try again, or sign in with your e-mail.",
 			"RETRY": "Back to sign in",
 			"CODE": "Error code: {code}"
+		},
+		"twoFactor": {
+			"TITLE": "Enter your authentication code",
+			"DESCRIPTION": "Open your authenticator app and enter the {length}-digit code it shows for <address>{email}</address>.",
+			"RECOVERY_DESCRIPTION": "Enter one of the recovery codes you saved when you turned on two-factor authentication. Each code works once.",
+			"CODE_LABEL": "Authentication code",
+			"RECOVERY_LABEL": "Recovery code",
+			"USE_RECOVERY": "Use a recovery code instead",
+			"USE_APP": "Use your authenticator app instead",
+			"SUBMIT": "Verify and sign in",
+			"BACK": "Back to sign in",
+			"WRONG_CODE": "This code is not right. Enter the code your authenticator app shows now.",
+			"WRONG_RECOVERY_CODE": "This recovery code is not right, or it was already used.",
+			"CODE_INCOMPLETE": "Enter all {length} digits of the code.",
+			"RECOVERY_INCOMPLETE": "Enter the whole recovery code.",
+			"EXPIRED": "This sign-in waited too long for its code. Sign in again.",
+			"SIGN_IN_AGAIN": "Sign in again",
+			"TOO_MANY": "Too many wrong codes. Try again in {minutes, plural, one {# minute} other {# minutes}}.",
+			"TOO_MANY_LATER": "Too many wrong codes. Wait a few minutes, then try again.",
+			"FAILED": "The code could not be checked. Try again in a moment.",
+			"SCENE_TITLE": "One more step",
+			"SCENE_TEXT": "This account is protected by two-factor authentication."
 		}
 	},
 	"taskViews": {

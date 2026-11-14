@@ -3854,7 +3854,8 @@
 			"INVALID": "Alguns valores não foram aceitos. Verifique-os e tente de novo.",
 			"TOO_MANY": "Tentativas demais. Aguarde um momento e tente de novo.",
 			"SERVER": "O servidor não conseguiu concluir. Tente de novo em instantes.",
-			"UNKNOWN": "Tente de novo em instantes."
+			"UNKNOWN": "Tente de novo em instantes.",
+			"TWO_FACTOR": "Esta conta pede um código de uma aplicação de autenticação. Inicie sessão com o seu email ou a sua palavra-passe para o introduzir."
 		},
 		"common": {
 			"NEWSLETTER_SUBSCRIBED": "Você assinou a newsletter",
@@ -5750,6 +5751,28 @@
 			"TEXT": "O início de sessão não foi concluído. Tente novamente ou entre com o seu e-mail.",
 			"RETRY": "Voltar ao início de sessão",
 			"CODE": "Código de erro: {code}"
+		},
+		"twoFactor": {
+			"TITLE": "Introduza o seu código de autenticação",
+			"DESCRIPTION": "Abra a sua aplicação de autenticação e introduza o código de {length} dígitos que ela mostra para <address>{email}</address>.",
+			"RECOVERY_DESCRIPTION": "Introduza um dos códigos de recuperação guardados quando ativou a autenticação de dois fatores. Cada código só serve uma vez.",
+			"CODE_LABEL": "Código de autenticação",
+			"RECOVERY_LABEL": "Código de recuperação",
+			"USE_RECOVERY": "Usar um código de recuperação",
+			"USE_APP": "Usar a aplicação de autenticação",
+			"SUBMIT": "Verificar e entrar",
+			"BACK": "Voltar ao início de sessão",
+			"WRONG_CODE": "Este código não está correto. Introduza o código que a sua aplicação de autenticação mostra agora.",
+			"WRONG_RECOVERY_CODE": "Este código de recuperação não está correto ou já foi usado.",
+			"CODE_INCOMPLETE": "Introduza os {length} dígitos do código.",
+			"RECOVERY_INCOMPLETE": "Introduza o código de recuperação completo.",
+			"EXPIRED": "Este início de sessão esperou demasiado pelo código. Inicie sessão novamente.",
+			"SIGN_IN_AGAIN": "Iniciar sessão novamente",
+			"TOO_MANY": "Demasiados códigos errados. Tente novamente dentro de {minutes, plural, one {# minuto} other {# minutos}}.",
+			"TOO_MANY_LATER": "Demasiados códigos errados. Aguarde alguns minutos e tente novamente.",
+			"FAILED": "Não foi possível verificar o código. Tente novamente daqui a pouco.",
+			"SCENE_TITLE": "Só mais um passo",
+			"SCENE_TEXT": "Esta conta está protegida pela autenticação de dois fatores."
 		}
 	},
 	"taskViews": {

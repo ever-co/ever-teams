@@ -3854,7 +3854,8 @@
 			"INVALID": "Algunos valores no se aceptaron. Revísalos e inténtalo de nuevo.",
 			"TOO_MANY": "Demasiados intentos. Espera un momento y vuelve a intentarlo.",
 			"SERVER": "El servidor no pudo completarlo. Inténtalo de nuevo en un momento.",
-			"UNKNOWN": "Inténtalo de nuevo en un momento."
+			"UNKNOWN": "Inténtalo de nuevo en un momento.",
+			"TWO_FACTOR": "Esta cuenta pide un código de una aplicación de autenticación. Inicia sesión con tu correo electrónico o tu contraseña para introducirlo."
 		},
 		"common": {
 			"NEWSLETTER_SUBSCRIBED": "Te has suscrito al boletín",
@@ -5750,6 +5751,28 @@
 			"TEXT": "El inicio de sesión no se completó. Vuelve a intentarlo o inicia sesión con tu correo.",
 			"RETRY": "Volver al inicio de sesión",
 			"CODE": "Código de error: {code}"
+		},
+		"twoFactor": {
+			"TITLE": "Introduce tu código de autenticación",
+			"DESCRIPTION": "Abre tu aplicación de autenticación e introduce el código de {length} dígitos que muestra para <address>{email}</address>.",
+			"RECOVERY_DESCRIPTION": "Introduce uno de los códigos de recuperación que guardaste al activar la autenticación en dos pasos. Cada código sirve una sola vez.",
+			"CODE_LABEL": "Código de autenticación",
+			"RECOVERY_LABEL": "Código de recuperación",
+			"USE_RECOVERY": "Usar un código de recuperación",
+			"USE_APP": "Usar la aplicación de autenticación",
+			"SUBMIT": "Verificar e iniciar sesión",
+			"BACK": "Volver al inicio de sesión",
+			"WRONG_CODE": "Este código no es correcto. Introduce el código que muestra ahora tu aplicación de autenticación.",
+			"WRONG_RECOVERY_CODE": "Este código de recuperación no es correcto o ya se usó.",
+			"CODE_INCOMPLETE": "Introduce los {length} dígitos del código.",
+			"RECOVERY_INCOMPLETE": "Introduce el código de recuperación completo.",
+			"EXPIRED": "Este inicio de sesión esperó demasiado su código. Inicia sesión de nuevo.",
+			"SIGN_IN_AGAIN": "Iniciar sesión de nuevo",
+			"TOO_MANY": "Demasiados códigos incorrectos. Vuelve a intentarlo en {minutes, plural, one {# minuto} other {# minutos}}.",
+			"TOO_MANY_LATER": "Demasiados códigos incorrectos. Espera unos minutos y vuelve a intentarlo.",
+			"FAILED": "No se pudo comprobar el código. Vuelve a intentarlo en un momento.",
+			"SCENE_TITLE": "Un paso más",
+			"SCENE_TEXT": "Esta cuenta está protegida con la autenticación en dos pasos."
 		}
 	},
 	"taskViews": {

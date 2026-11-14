@@ -3854,7 +3854,8 @@
 			"INVALID": "部分值未被接受，请检查后重试。",
 			"TOO_MANY": "尝试次数过多，请稍候再试。",
 			"SERVER": "服务器无法完成此操作，请稍后重试。",
-			"UNKNOWN": "请稍后重试。"
+			"UNKNOWN": "请稍后重试。",
+			"TWO_FACTOR": "此账户需要身份验证器应用中的验证码。请使用电子邮件地址或密码登录以输入验证码。"
 		},
 		"common": {
 			"NEWSLETTER_SUBSCRIBED": "你已订阅新闻通讯",
@@ -5750,6 +5751,28 @@
 			"TEXT": "登录未完成。请重试，或使用电子邮件登录。",
 			"RETRY": "返回登录",
 			"CODE": "错误代码：{code}"
+		},
+		"twoFactor": {
+			"TITLE": "输入验证码",
+			"DESCRIPTION": "打开身份验证器应用，输入它为 <address>{email}</address> 显示的 {length} 位验证码。",
+			"RECOVERY_DESCRIPTION": "输入开启双重身份验证时保存的恢复码之一。每个恢复码只能使用一次。",
+			"CODE_LABEL": "验证码",
+			"RECOVERY_LABEL": "恢复码",
+			"USE_RECOVERY": "改用恢复码",
+			"USE_APP": "改用身份验证器应用",
+			"SUBMIT": "验证并登录",
+			"BACK": "返回登录",
+			"WRONG_CODE": "验证码不正确。请输入身份验证器应用当前显示的验证码。",
+			"WRONG_RECOVERY_CODE": "此恢复码不正确或已被使用。",
+			"CODE_INCOMPLETE": "请输入完整的 {length} 位验证码。",
+			"RECOVERY_INCOMPLETE": "请输入完整的恢复码。",
+			"EXPIRED": "此次登录等待验证码的时间过长。请重新登录。",
+			"SIGN_IN_AGAIN": "重新登录",
+			"TOO_MANY": "错误验证码过多。请在 {minutes} 分钟后重试。",
+			"TOO_MANY_LATER": "错误验证码过多。请等待几分钟后重试。",
+			"FAILED": "无法验证此验证码。请稍后重试。",
+			"SCENE_TITLE": "还差一步",
+			"SCENE_TEXT": "此账户受双重身份验证保护。"
 		}
 	},
 	"taskViews": {

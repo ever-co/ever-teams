@@ -140,3 +140,37 @@ export function twoFactorStatusFailureOf(error: unknown): 'unsupported' | 'error
 	}
 	return 'error';
 }
+
+/** Why the code step of a sign-in failed, for the message it shows. */
+export type TwoFactorSignInFailure =
+	| { kind: 'wrong-code' }
+	| { kind: 'expired' }
+	| { kind: 'too-many'; minutes: number | null }
+	| { kind: 'failed' };
+
+/**
+ * Why the code step of a sign-in failed. The API answers a wrong code and a sign-in that waited too long alike (401):
+ * a 401 while the challenge lasts is a wrong code, and one after it ended asks to sign in again.
+ */
+export function twoFactorSignInFailureOf(error: unknown, expiresAt: string, now: number): TwoFactorSignInFailure {
+	const status = httpStatusOf(error);
+	if (status === 429) {
+		const seconds = retryAfterSecondsOf(error);
+		if (seconds === null) {
+			return { kind: 'too-many', minutes: null };
+		}
+		return { kind: 'too-many', minutes: retryMinutesOf(seconds) };
+	}
+	if (status === 401) {
+		const expiry = Date.parse(expiresAt);
+		const hasEnded = Number.isFinite(expiry) && now >= expiry;
+		if (hasEnded) {
+			return { kind: 'expired' };
+		}
+		return { kind: 'wrong-code' };
+	}
+	if (status === 400) {
+		return { kind: 'wrong-code' };
+	}
+	return { kind: 'failed' };
+}

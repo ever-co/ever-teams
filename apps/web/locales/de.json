@@ -3854,7 +3854,8 @@
 			"INVALID": "Einige Werte wurden nicht akzeptiert. Prüfe sie und versuche es erneut.",
 			"TOO_MANY": "Zu viele Versuche. Warte einen Moment und versuche es dann erneut.",
 			"SERVER": "Der Server konnte es nicht abschließen. Versuche es gleich noch einmal.",
-			"UNKNOWN": "Versuche es gleich noch einmal."
+			"UNKNOWN": "Versuche es gleich noch einmal.",
+			"TWO_FACTOR": "Dieses Konto verlangt einen Code aus einer Authenticator-App. Melde dich mit deiner E-Mail-Adresse oder deinem Passwort an, um ihn einzugeben."
 		},
 		"common": {
 			"NEWSLETTER_SUBSCRIBED": "Sie haben den Newsletter abonniert",
@@ -5750,6 +5751,28 @@
 			"TEXT": "Die Anmeldung wurde nicht abgeschlossen. Versuch es erneut oder melde dich mit deiner E-Mail an.",
 			"RETRY": "Zurück zur Anmeldung",
 			"CODE": "Fehlercode: {code}"
+		},
+		"twoFactor": {
+			"TITLE": "Authentifizierungscode eingeben",
+			"DESCRIPTION": "Öffne deine Authenticator-App und gib den {length}-stelligen Code ein, den sie für <address>{email}</address> anzeigt.",
+			"RECOVERY_DESCRIPTION": "Gib einen der Wiederherstellungscodes ein, die du beim Einschalten der Zwei-Faktor-Authentifizierung gespeichert hast. Jeder Code gilt nur einmal.",
+			"CODE_LABEL": "Authentifizierungscode",
+			"RECOVERY_LABEL": "Wiederherstellungscode",
+			"USE_RECOVERY": "Stattdessen einen Wiederherstellungscode verwenden",
+			"USE_APP": "Stattdessen die Authenticator-App verwenden",
+			"SUBMIT": "Bestätigen und anmelden",
+			"BACK": "Zurück zur Anmeldung",
+			"WRONG_CODE": "Dieser Code stimmt nicht. Gib den Code ein, den deine Authenticator-App jetzt anzeigt.",
+			"WRONG_RECOVERY_CODE": "Dieser Wiederherstellungscode stimmt nicht oder wurde schon verwendet.",
+			"CODE_INCOMPLETE": "Gib alle {length} Ziffern des Codes ein.",
+			"RECOVERY_INCOMPLETE": "Gib den vollständigen Wiederherstellungscode ein.",
+			"EXPIRED": "Diese Anmeldung hat zu lange auf ihren Code gewartet. Melde dich erneut an.",
+			"SIGN_IN_AGAIN": "Erneut anmelden",
+			"TOO_MANY": "Zu viele falsche Codes. Versuche es in {minutes, plural, one {# Minute} other {# Minuten}} erneut.",
+			"TOO_MANY_LATER": "Zu viele falsche Codes. Warte ein paar Minuten und versuche es dann erneut.",
+			"FAILED": "Der Code konnte nicht geprüft werden. Versuche es gleich noch einmal.",
+			"SCENE_TITLE": "Noch ein Schritt",
+			"SCENE_TEXT": "Dieses Konto ist durch Zwei-Faktor-Authentifizierung geschützt."
 		}
 	},
 	"taskViews": {

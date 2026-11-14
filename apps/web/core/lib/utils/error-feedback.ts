@@ -1,3 +1,5 @@
+import { twoFactorChallengeOf } from '@/core/lib/auth/two-factor';
+
 /**
  * Why a request failed, in words a user can act on. Server and exception texts are never shown: they are English,
  * often technical, and sometimes carry ids or payloads.
@@ -11,6 +13,7 @@ export type ErrorReason =
 	| 'nameTaken'
 	| 'invalid'
 	| 'tooMany'
+	| 'twoFactor'
 	| 'server'
 	| 'unknown';
 
@@ -23,6 +26,7 @@ export const ERROR_REASON_KEYS: Record<ErrorReason, string> = {
 	nameTaken: 'toasts.REASONS.NAME_TAKEN',
 	invalid: 'toasts.REASONS.INVALID',
 	tooMany: 'toasts.REASONS.TOO_MANY',
+	twoFactor: 'toasts.REASONS.TWO_FACTOR',
 	server: 'toasts.REASONS.SERVER',
 	unknown: 'toasts.REASONS.UNKNOWN'
 };
@@ -168,6 +172,10 @@ export function errorReasonOf(error: unknown): ErrorReason {
 	if (status !== null) {
 		if (isNameTakenError(error)) {
 			return 'nameTaken';
+		}
+		// A sign-in whose account asks for a second factor (403 TWO_FACTOR_REQUIRED) on a page that cannot ask for it
+		if (twoFactorChallengeOf(error)) {
+			return 'twoFactor';
 		}
 		return reasonOfStatus(status);
 	}

@@ -8,6 +8,7 @@ import {
 	retryMinutesOf,
 	secretGroupsOf,
 	twoFactorChallengeOf,
+	twoFactorSignInFailureOf,
 	twoFactorStatusFailureOf
 } from './two-factor';
 
@@ -108,5 +109,39 @@ describe('setup helpers', () => {
 		expect(twoFactorStatusFailureOf({ isApiError: true, statusCode: 404 })).toBe('unsupported');
 		expect(twoFactorStatusFailureOf({ response: { status: 500 } })).toBe('error');
 		expect(twoFactorStatusFailureOf(new Error('offline'))).toBe('error');
+	});
+});
+
+describe('twoFactorSignInFailureOf', () => {
+	const expiresAt = '2026-11-14T12:05:00.000Z';
+	const beforeExpiry = Date.parse('2026-11-14T12:03:00.000Z');
+	const afterExpiry = Date.parse('2026-11-14T12:06:00.000Z');
+
+	it('reads a 401 while the challenge lasts as a wrong code', () => {
+		expect(twoFactorSignInFailureOf({ isApiError: true, statusCode: 401 }, expiresAt, beforeExpiry)).toEqual({
+			kind: 'wrong-code'
+		});
+	});
+
+	it('reads a 401 after the challenge ended as a sign-in to start again', () => {
+		expect(twoFactorSignInFailureOf({ isApiError: true, statusCode: 401 }, expiresAt, afterExpiry)).toEqual({
+			kind: 'expired'
+		});
+	});
+
+	it('says how long a 429 asks to wait', () => {
+		const error = { isApiError: true, statusCode: 429, details: { retryAfter: 840 } };
+
+		expect(twoFactorSignInFailureOf(error, expiresAt, beforeExpiry)).toEqual({ kind: 'too-many', minutes: 14 });
+		expect(twoFactorSignInFailureOf({ statusCode: 429 }, expiresAt, beforeExpiry)).toEqual({
+			kind: 'too-many',
+			minutes: null
+		});
+	});
+
+	it('reads a refused format as a wrong code and anything else as a failure', () => {
+		expect(twoFactorSignInFailureOf({ statusCode: 400 }, expiresAt, beforeExpiry)).toEqual({ kind: 'wrong-code' });
+		expect(twoFactorSignInFailureOf({ statusCode: 502 }, expiresAt, beforeExpiry)).toEqual({ kind: 'failed' });
+		expect(twoFactorSignInFailureOf(new Error('offline'), expiresAt, beforeExpiry)).toEqual({ kind: 'failed' });
 	});
 });

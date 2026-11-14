@@ -3854,7 +3854,8 @@
 			"INVALID": "Certaines valeurs n'ont pas été acceptées. Vérifiez-les et réessayez.",
 			"TOO_MANY": "Trop de tentatives. Patientez un instant, puis réessayez.",
 			"SERVER": "Le serveur n'a pas pu terminer. Réessayez dans un instant.",
-			"UNKNOWN": "Réessayez dans un instant."
+			"UNKNOWN": "Réessayez dans un instant.",
+			"TWO_FACTOR": "Ce compte demande un code d’application d’authentification. Connectez-vous avec votre adresse e-mail ou votre mot de passe pour le saisir."
 		},
 		"common": {
 			"NEWSLETTER_SUBSCRIBED": "Vous êtes abonné à la newsletter",
@@ -5750,6 +5751,28 @@
 			"TEXT": "La connexion n'a pas abouti. Réessayez, ou connectez-vous avec votre e-mail.",
 			"RETRY": "Retour à la connexion",
 			"CODE": "Code d'erreur : {code}"
+		},
+		"twoFactor": {
+			"TITLE": "Saisissez votre code d’authentification",
+			"DESCRIPTION": "Ouvrez votre application d’authentification et saisissez le code à {length} chiffres qu’elle affiche pour <address>{email}</address>.",
+			"RECOVERY_DESCRIPTION": "Saisissez l’un des codes de récupération enregistrés lors de l’activation de l’authentification à deux facteurs. Chaque code ne sert qu’une fois.",
+			"CODE_LABEL": "Code d’authentification",
+			"RECOVERY_LABEL": "Code de récupération",
+			"USE_RECOVERY": "Utiliser un code de récupération",
+			"USE_APP": "Utiliser l’application d’authentification",
+			"SUBMIT": "Vérifier et se connecter",
+			"BACK": "Retour à la connexion",
+			"WRONG_CODE": "Ce code n’est pas le bon. Saisissez le code affiché maintenant par votre application d’authentification.",
+			"WRONG_RECOVERY_CODE": "Ce code de récupération n’est pas le bon, ou il a déjà servi.",
+			"CODE_INCOMPLETE": "Saisissez les {length} chiffres du code.",
+			"RECOVERY_INCOMPLETE": "Saisissez le code de récupération en entier.",
+			"EXPIRED": "Cette connexion a trop attendu son code. Connectez-vous à nouveau.",
+			"SIGN_IN_AGAIN": "Se reconnecter",
+			"TOO_MANY": "Trop de codes erronés. Réessayez dans {minutes, plural, one {# minute} other {# minutes}}.",
+			"TOO_MANY_LATER": "Trop de codes erronés. Patientez quelques minutes, puis réessayez.",
+			"FAILED": "Le code n’a pas pu être vérifié. Réessayez dans un instant.",
+			"SCENE_TITLE": "Encore une étape",
+			"SCENE_TEXT": "Ce compte est protégé par l’authentification à deux facteurs."
 		}
 	},
 	"taskViews": {

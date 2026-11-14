@@ -3854,7 +3854,8 @@
 			"INVALID": "Sommige waarden zijn niet geaccepteerd. Controleer ze en probeer het opnieuw.",
 			"TOO_MANY": "Te veel pogingen. Wacht even en probeer het dan opnieuw.",
 			"SERVER": "De server kon het niet afronden. Probeer het zo opnieuw.",
-			"UNKNOWN": "Probeer het zo opnieuw."
+			"UNKNOWN": "Probeer het zo opnieuw.",
+			"TWO_FACTOR": "Dit account vraagt om een code uit een authenticator-app. Log in met je e-mailadres of je wachtwoord om die in te voeren."
 		},
 		"common": {
 			"NEWSLETTER_SUBSCRIBED": "Je bent geabonneerd op de nieuwsbrief",
@@ -5750,6 +5751,28 @@
 			"TEXT": "Het aanmelden is niet voltooid. Probeer het opnieuw of meld je aan met je e-mail.",
 			"RETRY": "Terug naar aanmelden",
 			"CODE": "Foutcode: {code}"
+		},
+		"twoFactor": {
+			"TITLE": "Voer je authenticatiecode in",
+			"DESCRIPTION": "Open je authenticator-app en voer de {length}-cijferige code in die ze toont voor <address>{email}</address>.",
+			"RECOVERY_DESCRIPTION": "Voer een van de herstelcodes in die je bewaarde toen je tweestapsverificatie aanzette. Elke code werkt één keer.",
+			"CODE_LABEL": "Authenticatiecode",
+			"RECOVERY_LABEL": "Herstelcode",
+			"USE_RECOVERY": "Gebruik in plaats daarvan een herstelcode",
+			"USE_APP": "Gebruik in plaats daarvan je authenticator-app",
+			"SUBMIT": "Controleren en inloggen",
+			"BACK": "Terug naar inloggen",
+			"WRONG_CODE": "Deze code klopt niet. Voer de code in die je authenticator-app nu toont.",
+			"WRONG_RECOVERY_CODE": "Deze herstelcode klopt niet of is al gebruikt.",
+			"CODE_INCOMPLETE": "Voer alle {length} cijfers van de code in.",
+			"RECOVERY_INCOMPLETE": "Voer de volledige herstelcode in.",
+			"EXPIRED": "Deze aanmelding heeft te lang op haar code gewacht. Log opnieuw in.",
+			"SIGN_IN_AGAIN": "Opnieuw inloggen",
+			"TOO_MANY": "Te veel verkeerde codes. Probeer het over {minutes, plural, one {# minuut} other {# minuten}} opnieuw.",
+			"TOO_MANY_LATER": "Te veel verkeerde codes. Wacht een paar minuten en probeer het dan opnieuw.",
+			"FAILED": "De code kon niet worden gecontroleerd. Probeer het zo opnieuw.",
+			"SCENE_TITLE": "Nog één stap",
+			"SCENE_TEXT": "Dit account is beveiligd met tweestapsverificatie."
 		}
 	},
 	"taskViews": {

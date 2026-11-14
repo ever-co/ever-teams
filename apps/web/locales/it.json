@@ -3854,7 +3854,8 @@
 			"INVALID": "Alcuni valori non sono stati accettati. Controllali e riprova.",
 			"TOO_MANY": "Troppi tentativi. Attendi un momento e riprova.",
 			"SERVER": "Il server non è riuscito a completare l'operazione. Riprova tra poco.",
-			"UNKNOWN": "Riprova tra poco."
+			"UNKNOWN": "Riprova tra poco.",
+			"TWO_FACTOR": "Questo account richiede un codice da un’app di autenticazione. Accedi con il tuo indirizzo email o la tua password per inserirlo."
 		},
 		"common": {
 			"NEWSLETTER_SUBSCRIBED": "Ti sei iscritto alla newsletter",
@@ -5750,6 +5751,28 @@
 			"TEXT": "L'accesso non è stato completato. Riprova oppure accedi con la tua e-mail.",
 			"RETRY": "Torna all'accesso",
 			"CODE": "Codice di errore: {code}"
+		},
+		"twoFactor": {
+			"TITLE": "Inserisci il codice di autenticazione",
+			"DESCRIPTION": "Apri l’app di autenticazione e inserisci il codice di {length} cifre che mostra per <address>{email}</address>.",
+			"RECOVERY_DESCRIPTION": "Inserisci uno dei codici di recupero salvati quando hai attivato l’autenticazione a due fattori. Ogni codice vale una sola volta.",
+			"CODE_LABEL": "Codice di autenticazione",
+			"RECOVERY_LABEL": "Codice di recupero",
+			"USE_RECOVERY": "Usa invece un codice di recupero",
+			"USE_APP": "Usa invece l’app di autenticazione",
+			"SUBMIT": "Verifica e accedi",
+			"BACK": "Torna all’accesso",
+			"WRONG_CODE": "Questo codice non è corretto. Inserisci il codice che l’app di autenticazione mostra ora.",
+			"WRONG_RECOVERY_CODE": "Questo codice di recupero non è corretto o è già stato usato.",
+			"CODE_INCOMPLETE": "Inserisci tutte le {length} cifre del codice.",
+			"RECOVERY_INCOMPLETE": "Inserisci il codice di recupero completo.",
+			"EXPIRED": "Questo accesso ha atteso troppo il suo codice. Accedi di nuovo.",
+			"SIGN_IN_AGAIN": "Accedi di nuovo",
+			"TOO_MANY": "Troppi codici errati. Riprova tra {minutes, plural, one {# minuto} other {# minuti}}.",
+			"TOO_MANY_LATER": "Troppi codici errati. Attendi qualche minuto, poi riprova.",
+			"FAILED": "Non è stato possibile verificare il codice. Riprova tra un momento.",
+			"SCENE_TITLE": "Ancora un passaggio",
+			"SCENE_TEXT": "Questo account è protetto dall’autenticazione a due fattori."
 		}
 	},
 	"taskViews": {

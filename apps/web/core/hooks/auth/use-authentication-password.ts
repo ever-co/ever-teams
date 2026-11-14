@@ -10,6 +10,8 @@ import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-tea
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
 import { navigateAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
+import { twoFactorChallengeOf } from '@/core/lib/auth/two-factor';
+import { useTwoFactorSignIn } from './use-two-factor-sign-in';
 
 type AuthCodeRef = {
 	focus: () => void;
@@ -38,6 +40,9 @@ export function useAuthenticationPassword() {
 		loading: signInWorkspaceLoading,
 		infiniteLoading
 	} = useQueryCall(authService.signInWorkspace);
+
+	const twoFactor = useTwoFactorSignIn();
+	const { ask: askForSecondFactor } = twoFactor;
 
 	const handleChange = (e: any) => {
 		const { name, value } = e.target;
@@ -109,6 +114,12 @@ export function useAuthenticationPassword() {
 				.catch((err: AxiosError) => {
 					// Reset infinite loading on error to stop the loading state
 					infiniteLoading.current = false;
+					// The account asks for a second factor: the page asks for its code, nothing failed
+					const challenge = twoFactorChallengeOf(err);
+					if (challenge) {
+						askForSecondFactor(challenge, params.selectedTeam);
+						return;
+					}
 					if (err.response?.status === 400) {
 						setErrors((err.response?.data as any)?.errors || {});
 					}
@@ -117,7 +128,7 @@ export function useAuthenticationPassword() {
 					onError?.(err);
 				});
 		},
-		[signInWorkspaceQueryCall, infiniteLoading]
+		[signInWorkspaceQueryCall, infiniteLoading, askForSecondFactor]
 	);
 
 	const handleWorkspaceSubmit = (e: any, token: string, selectedTeam: string, onError?: (error: unknown) => void) => {
@@ -170,7 +181,8 @@ export function useAuthenticationPassword() {
 		signInLoading,
 		signInWorkspaceLoading,
 		authenticated,
-		getLastTeamIdWithRecentLogout
+		getLastTeamIdWithRecentLogout,
+		twoFactor
 	};
 }
 
