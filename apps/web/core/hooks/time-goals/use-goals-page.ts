@@ -31,21 +31,21 @@ interface PickableEntity {
 	image?: { fullUrl?: string | null } | null;
 }
 
-function pickablesOf(entities: ReadonlyArray<PickableEntity>) {
-	const pickables = [];
+function pickerItemsOf(entities: ReadonlyArray<PickableEntity>) {
+	const items = [];
 	for (const entity of entities) {
 		const name = entity.name?.trim();
 		if (!entity.id || !name) {
 			continue;
 		}
-		pickables.push({
+		items.push({
 			id: entity.id,
 			name,
 			color: entity.color ?? null,
 			imageUrl: entity.image?.fullUrl ?? entity.imageUrl ?? null
 		});
 	}
-	return pickables;
+	return items;
 }
 
 /**
@@ -124,8 +124,8 @@ export function useGoalsPage() {
 	// The pickers of the goal dialog: read once a dialog may open, where the platform has goals
 	const { organizationProjects } = useOrganizationProjectsQuery({ enabled: isAvailable });
 	const { clients } = useActiveClients({ enabled: isAvailable });
-	const projects = useMemo(() => pickablesOf(organizationProjects ?? []), [organizationProjects]);
-	const pickableClients = useMemo(() => pickablesOf(clients), [clients]);
+	const projects = useMemo(() => pickerItemsOf(organizationProjects ?? []), [organizationProjects]);
+	const pickableClients = useMemo(() => pickerItemsOf(clients), [clients]);
 
 	const shownRange = useMemo(() => {
 		const first = shownOwnRows[0];
