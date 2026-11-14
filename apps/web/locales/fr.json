@@ -6886,7 +6886,8 @@
 				"LOCKED_NOW": "Depuis son ouverture, la facture {number} a été payée ou annulée : rien n’a été enregistré, et elle ne peut plus être modifiée.",
 				"NOT_CHECKED": "La facture n’a pas pu être relue avant l’enregistrement, donc rien n’a été enregistré. Réessayez.",
 				"NOT_REACHED": "La connexion a échoué : les modifications n’ont pas été enregistrées et la facture est restée telle quelle. Vérifiez votre connexion, puis réessayez.",
-				"CHANGED": "Depuis son ouverture, la facture {number} a été modifiée : rien n’a été enregistré. Rouvrez-la depuis la liste des factures pour partir de sa version actuelle."
+				"CHANGED": "Depuis son ouverture, la facture {number} a été modifiée : rien n’a été enregistré. Rouvrez-la depuis la liste des factures pour partir de sa version actuelle.",
+				"RECORDS_TIME": "Enregistre les heures que facturent ses lignes : aucune autre facture ne pourra les facturer."
 			}
 		},
 		"replace": {
@@ -6901,6 +6902,16 @@
 			"NOT_REBUILDABLE": "La facture {number} n’a pas été annulée : elle ne peut pas être refaite ici à partir du temps facturable. Annulez-la et remplacez-la là où elle a été faite.",
 			"NOT_VOID_TITLE": "La facture {number} n’est pas annulée",
 			"NOT_VOID_MESSAGE": "Seule une facture annulée est remplacée ici. Ouvrez-la depuis la liste des factures pour la modifier, ou pour l’annuler et la remplacer."
+		},
+		"billedTime": {
+			"LEFT_OUT_TITLE": "Les heures déjà sur une facture sont écartées",
+			"LEFT_OUT_MESSAGE": "{count, plural, one {Une facture de {client} facture déjà une partie de cette période. Ces heures ne sont pas listées ici.} other {# factures de {client} facturent déjà une partie de cette période. Ces heures ne sont pas listées ici.}}",
+			"UNRECORDED_MESSAGE": "{count, plural, one {Cette facture n’indique pas quelles heures elle facture, elles sont donc encore listées ici.} other {Ces factures n’indiquent pas quelles heures elles facturent, ces heures sont donc encore listées ici.}} Retirez les lignes déjà facturées avant d’enregistrer.",
+			"EARLIER_NOTE": "Les heures déjà sur une facture ne sont pas listées sur celle-ci, sauf si cette facture n’indique pas quelles heures elle facture.",
+			"ALL_INVOICED_TITLE": "Le temps facturable de {client} sur cette période est déjà facturé",
+			"ALL_INVOICED_MESSAGE": "Chaque heure facturable de cette période est sur une facture. Pour en facturer de nouveau, retirez sa ligne de cette facture ou annulez la facture.",
+			"NEW_REFUSED": "Une partie de ce temps est passée sur une autre facture ou a été supprimée depuis sa lecture, rien n’a donc été enregistré. Fermez cette fenêtre pour voir le temps qui reste à facturer, puis enregistrez de nouveau.",
+			"EDIT_REFUSED": "Une partie de ce temps est passée sur une autre facture ou a été supprimée depuis sa lecture, les modifications n’ont donc pas été enregistrées et la facture est restée comme avant. Fermez cette fenêtre pour voir le temps qui reste à facturer, puis enregistrez de nouveau."
 		}
 	},
 	"timeReports": {

@@ -6886,7 +6886,8 @@
 				"LOCKED_NOW": "Desde que se abrió, la factura {number} se pagó o se anuló: no se guardó nada y ya no se puede editar.",
 				"NOT_CHECKED": "No se pudo volver a leer la factura antes de guardar, así que no se guardó nada. Vuelve a intentarlo.",
 				"NOT_REACHED": "La conexión falló: los cambios no se guardaron y la factura sigue como estaba. Comprueba tu conexión y vuelve a intentarlo.",
-				"CHANGED": "Desde que se abrió, la factura {number} cambió: no se guardó nada. Ábrela de nuevo desde la lista de facturas para partir de su versión actual."
+				"CHANGED": "Desde que se abrió, la factura {number} cambió: no se guardó nada. Ábrela de nuevo desde la lista de facturas para partir de su versión actual.",
+				"RECORDS_TIME": "Registra las horas que facturan sus líneas, para que ninguna otra factura vuelva a facturarlas."
 			}
 		},
 		"replace": {
@@ -6901,6 +6902,16 @@
 			"NOT_REBUILDABLE": "La factura {number} no se anuló: no se puede rehacer aquí a partir del tiempo facturable. Anúlala y reemplázala donde se hizo.",
 			"NOT_VOID_TITLE": "La factura {number} no está anulada",
 			"NOT_VOID_MESSAGE": "Aquí solo se reemplaza una factura anulada. Ábrela desde la lista de facturas para editarla, o para anularla y reemplazarla."
+		},
+		"billedTime": {
+			"LEFT_OUT_TITLE": "Las horas que ya están en una factura se dejan fuera",
+			"LEFT_OUT_MESSAGE": "{count, plural, one {Una factura de {client} ya factura parte de este periodo. Esas horas no aparecen aquí.} other {# facturas de {client} ya facturan parte de este periodo. Esas horas no aparecen aquí.}}",
+			"UNRECORDED_MESSAGE": "{count, plural, one {Esa factura no indica qué horas factura, así que siguen apareciendo aquí.} other {Esas facturas no indican qué horas facturan, así que esas horas siguen apareciendo aquí.}} Quita las líneas ya facturadas antes de guardar.",
+			"EARLIER_NOTE": "Las horas que ya están en una factura no aparecen en esta, salvo cuando esa factura no indica qué horas factura.",
+			"ALL_INVOICED_TITLE": "El tiempo facturable de {client} en este periodo ya está facturado",
+			"ALL_INVOICED_MESSAGE": "Cada hora facturable de este periodo está en una factura. Para volver a facturar parte de ella, quita su línea de esa factura o anula la factura.",
+			"NEW_REFUSED": "Parte de este tiempo pasó a otra factura o se eliminó desde que se leyó, así que no se guardó nada. Cierra esta ventana para ver el tiempo que queda por facturar y luego guarda de nuevo.",
+			"EDIT_REFUSED": "Parte de este tiempo pasó a otra factura o se eliminó desde que se leyó, así que los cambios no se guardaron y la factura quedó como estaba. Cierra esta ventana para ver el tiempo que queda por facturar y luego guarda de nuevo."
 		}
 	},
 	"timeReports": {

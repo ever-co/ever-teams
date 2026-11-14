@@ -110,6 +110,16 @@ function NewInvoiceBody({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 			/>
 		);
 	}
+	const isAllInvoiced = !hasBillableTime && time.isAllInvoiced;
+	if (isAllInvoiced) {
+		return (
+			<NewInvoiceMessage
+				title={t('invoices.billedTime.ALL_INVOICED_TITLE', { client: clientName })}
+				message={t('invoices.billedTime.ALL_INVOICED_MESSAGE')}
+				action={<MessageLink href={INVOICES_PATH}>{t('invoices.edit.BACK_TO_LIST')}</MessageLink>}
+			/>
+		);
+	}
 	if (!hasBillableTime) {
 		return (
 			<NewInvoiceMessage
