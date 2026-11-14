@@ -8,26 +8,21 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuSeparator,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 import { EntityTile } from '@/core/components/common/entity-tile';
-import { SelectedMark } from '@/core/components/common/selected-mark';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/core/components/common/tooltip';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { MemberCell } from '@/core/components/dashboards/kit/member-cell';
 import { TaskDrawerLink } from '@/core/components/tasks/drawer/task-drawer-link';
 import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
-import { Check, CheckCircle2, DollarCircle, MoreHorizontal, Pencil, Trash, X } from '@/core/components/icons';
+import { Check, MoreHorizontal, Pencil, Trash, X } from '@/core/components/icons';
 import { canEditLog, type TimesheetPermissions } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import {
 	logDurationSeconds,
 	statusOfLog,
-	TIMESHEET_STATUS_ORDER,
 	type TimesheetFormatters,
 	timeRangeTextOf
 } from '@/core/lib/utils/dashboards/timesheets';
@@ -36,7 +31,8 @@ import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { type TimeEntryReuseHandlers, TimeEntryReuseMenuItems } from './time-entry-reuse';
 import { EntryNotesLine, LogChangeChips, ManualReasonLine } from './timesheet-log-changes';
-import { STATUS_LABEL_KEYS, TimesheetStatusChip, TimesheetStatusDot } from './timesheet-status';
+import { BillableSubmenu, StatusSubmenu } from './timesheet-menu-parts';
+import { TimesheetStatusChip } from './timesheet-status';
 import { DEFERRED_ROW, logGridOf, NARROW_ONLY, NESTED_ROW, NESTED_TASK_INDENT, WIDE_ONLY } from './timesheets-grid';
 
 export interface TimesheetRowHandlers {
@@ -124,7 +120,6 @@ function LogMenu({
 	const t = useTranslations();
 	const canEdit = canEditLog(log, permissions);
 	const isBillable = Boolean(log.isBillable);
-	const isNotBillable = !isBillable;
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -147,40 +142,9 @@ function LogMenu({
 					</DropdownMenuItem>
 				)}
 				{permissions.canApprove && (
-					<DropdownMenuSub>
-						<DropdownMenuSubTrigger>
-							<CheckCircle2 />
-							<span>{t('common.CHANGE_STATUS')}</span>
-						</DropdownMenuSubTrigger>
-						<DropdownMenuSubContent className="min-w-44">
-							{TIMESHEET_STATUS_ORDER.map((option) => (
-								<DropdownMenuItem key={option} onClick={() => handlers.changeStatus(log, option)}>
-									<TimesheetStatusDot status={option} />
-									<span className="flex-1">{t(STATUS_LABEL_KEYS[option])}</span>
-									{option === status && <SelectedMark />}
-								</DropdownMenuItem>
-							))}
-						</DropdownMenuSubContent>
-					</DropdownMenuSub>
+					<StatusSubmenu status={status} onChange={(option) => handlers.changeStatus(log, option)} />
 				)}
-				<DropdownMenuSub>
-					<DropdownMenuSubTrigger>
-						<DollarCircle />
-						<span>{t('dashboard.timesheets.BILLABLE')}</span>
-					</DropdownMenuSubTrigger>
-					<DropdownMenuSubContent className="min-w-36">
-						<DropdownMenuItem onClick={() => handlers.setBillable(log, true)}>
-							<Check />
-							<span className="flex-1">{t('pages.timesheet.BILLABLE.YES')}</span>
-							{isBillable && <SelectedMark />}
-						</DropdownMenuItem>
-						<DropdownMenuItem onClick={() => handlers.setBillable(log, false)}>
-							<X />
-							<span className="flex-1">{t('pages.timesheet.BILLABLE.NO')}</span>
-							{isNotBillable && <SelectedMark />}
-						</DropdownMenuItem>
-					</DropdownMenuSubContent>
-				</DropdownMenuSub>
+				<BillableSubmenu isBillable={isBillable} onChange={(value) => handlers.setBillable(log, value)} />
 				{canEdit && (
 					<>
 						<DropdownMenuSeparator />
