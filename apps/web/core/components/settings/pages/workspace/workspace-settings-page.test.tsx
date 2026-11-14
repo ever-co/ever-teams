@@ -30,6 +30,10 @@ function settingsOf(overrides: Record<string, unknown> = {}) {
 	};
 }
 
+// The Breaks section (#5216) reads the organization through its own hook, which these tests leave out
+jest.mock('@/core/hooks/settings/use-organization-tracking-requirements', () => ({
+	useOrganizationBreaksSwitch: () => ({ organization: null, saveAllowBreaks: jest.fn() })
+}));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, useLocale: () => 'en' }));
 jest.mock('@/core/hooks/settings/use-workspace-settings', () => ({
 	useWorkspaceSettings: () => mockSettings

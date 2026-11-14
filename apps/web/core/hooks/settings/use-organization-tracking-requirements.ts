@@ -30,7 +30,7 @@ export const TRACKING_REQUIREMENTS: ReadonlyArray<TTrackingRequirement> = [
 ];
 
 /** An organization switch its admins turn on or off from the settings. */
-type TOrganizationSwitch = TTrackingRequirement | 'restrictTrackingSwitchToHigherRoles';
+type TOrganizationSwitch = TTrackingRequirement | 'restrictTrackingSwitchToHigherRoles' | 'allowBreaks';
 
 /**
  * The current organization and the save of one of its switches. A failed save shows `notSavedKey` with its reason and
@@ -85,6 +85,16 @@ export function useOrganizationTrackingRequirements() {
 	const { saveSwitch, ...organizationState } = useOrganizationSwitch('settings.teamGeneral.REQUIREMENT_NOT_SAVED');
 	const saveRequirement: (requirement: TTrackingRequirement, isRequired: boolean) => Promise<void> = saveSwitch;
 	return { ...organizationState, saveRequirement };
+}
+
+/**
+ * Whether the current organization lets its members take breaks (`allowBreaks`, Gauzy #11940), and its save. A failed
+ * save shows its reason and throws, so the switch goes back to the stored value.
+ */
+export function useOrganizationBreaksSwitch() {
+	const { organization, saveSwitch } = useOrganizationSwitch('breaks.SETTINGS_NOT_SAVED');
+	const saveAllowBreaks = useCallback((allows: boolean) => saveSwitch('allowBreaks', allows), [saveSwitch]);
+	return { organization, saveAllowBreaks };
 }
 
 /**

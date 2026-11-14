@@ -5,6 +5,8 @@ import { Notice } from '@/core/components/common/notice';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { SettingsPage } from '@/core/components/settings/kit/settings-page';
 import { useWorkspaceSettings } from '@/core/hooks/settings/use-workspace-settings';
+import { useOrganizationBreaksSwitch } from '@/core/hooks/settings/use-organization-tracking-requirements';
+import { WorkspaceBreaksSection } from './workspace-breaks-section';
 import { WorkspaceFormatsSection } from './workspace-formats-section';
 import { WorkspaceIdentitySection } from './workspace-identity-section';
 import { WorkspaceSettingsSkeleton } from './workspace-settings-skeleton';
@@ -12,6 +14,7 @@ import { WorkspaceSettingsSkeleton } from './workspace-settings-skeleton';
 export function WorkspaceSettingsPage() {
 	const t = useTranslations();
 	const settings = useWorkspaceSettings();
+	const { saveAllowBreaks } = useOrganizationBreaksSwitch();
 	const title = t('settings.entries.workspaceGeneral.TITLE');
 	const description = t('settings.entries.workspaceGeneral.DESCRIPTION');
 
@@ -50,6 +53,12 @@ export function WorkspaceSettingsPage() {
 				saveCurrency={settings.saveCurrency}
 				saveDateFormat={settings.saveDateFormat}
 				saveNumberFormat={settings.saveNumberFormat}
+			/>
+			<WorkspaceBreaksSection
+				key={`breaks-${organization.id}`}
+				organization={organization}
+				canEdit={settings.canEdit}
+				saveAllowBreaks={saveAllowBreaks}
 			/>
 		</SettingsPage>
 	);
