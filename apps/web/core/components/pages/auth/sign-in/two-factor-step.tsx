@@ -143,7 +143,13 @@ export function TwoFactorStep({ twoFactor, email, onRestart }: Readonly<TwoFacto
 
 	return (
 		<div className="flex flex-col">
-			<button type="button" onClick={onRestart} className={cn(AUTH_QUIET_LINK, 'self-start')}>
+			{/* Disabled while the code is checked: an accepted code sets the session, and Back would not stop it */}
+			<button
+				type="button"
+				onClick={onRestart}
+				disabled={isBusy}
+				className={cn(AUTH_QUIET_LINK, 'self-start disabled:pointer-events-none disabled:opacity-50')}
+			>
 				<ArrowLeft aria-hidden="true" />
 				{t('auth.twoFactor.BACK')}
 			</button>
@@ -194,7 +200,12 @@ export function TwoFactorStep({ twoFactor, email, onRestart }: Readonly<TwoFacto
 					{submitLabel}
 				</Button>
 			</form>
-			<button type="button" onClick={switchProof} className={cn(AUTH_QUIET_LINK, 'mt-5 self-center')}>
+			<button
+				type="button"
+				onClick={switchProof}
+				disabled={isBusy}
+				className={cn(AUTH_QUIET_LINK, 'mt-5 self-center disabled:pointer-events-none disabled:opacity-50')}
+			>
 				{usesRecoveryCode ? t('auth.twoFactor.USE_APP') : t('auth.twoFactor.USE_RECOVERY')}
 			</button>
 		</div>

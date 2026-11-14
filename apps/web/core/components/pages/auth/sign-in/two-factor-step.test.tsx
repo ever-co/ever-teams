@@ -117,3 +117,18 @@ describe('TwoFactorStep', () => {
 		expect(onRestart).toHaveBeenCalled();
 	});
 });
+
+describe('TwoFactorStep while the code is checked', () => {
+	it('keeps Back until the answer: an accepted code sets the session, which Back would not stop', () => {
+		const onRestart = jest.fn();
+		render(
+			<TwoFactorStep twoFactor={twoFactorOf({ verifying: true })} email="ada@example.org" onRestart={onRestart} />
+		);
+
+		const back = screen.getByRole('button', { name: 'auth.twoFactor.BACK' }) as HTMLButtonElement;
+		fireEvent.click(back);
+
+		expect(back.disabled).toBe(true);
+		expect(onRestart).not.toHaveBeenCalled();
+	});
+});
