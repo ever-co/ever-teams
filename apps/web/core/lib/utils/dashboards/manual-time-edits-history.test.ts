@@ -17,6 +17,11 @@ import { deletedEntriesOf, withHistoryOf } from './manual-time-edits-history';
 
 const PAUL = 'paul';
 
+/** Built from local date parts, so the entry's day is November 11 in every time zone. */
+const DELETED_START = new Date(2026, 10, 11, 9, 0);
+
+const DELETED_END = new Date(2026, 10, 11, 10, 30);
+
 const MEMBERS = new Map([[PAUL, { employeeId: PAUL, name: 'Paul', imageUrl: null }]]);
 
 function row(overrides: Partial<ITimeLogHistoryRow>): ITimeLogHistoryRow {
@@ -64,8 +69,8 @@ const DELETION = row({
 	action: 'Deleted',
 	updatedFields: ['startedAt', 'stoppedAt', 'employeeId', 'projectId', 'taskId', 'isBillable'],
 	previousValues: [
-		{ startedAt: '2026-11-11T09:00:00.000Z' },
-		{ stoppedAt: '2026-11-11T10:30:00.000Z' },
+		{ startedAt: DELETED_START.toISOString() },
+		{ stoppedAt: DELETED_END.toISOString() },
 		{ employeeId: PAUL },
 		{ projectId: 'p1' },
 		{ taskId: 't1' },
@@ -81,8 +86,8 @@ function deletedOf(change: TimeLogHistoryChange): DeletedEntry {
 	return {
 		entryId: change.entryId,
 		deletedAt: change.at,
-		startedAt: new Date('2026-11-11T09:00:00.000Z'),
-		stoppedAt: new Date('2026-11-11T10:30:00.000Z'),
+		startedAt: DELETED_START,
+		stoppedAt: DELETED_END,
 		employeeId: PAUL,
 		projectId: 'p1',
 		projectName: 'Website',
