@@ -2,6 +2,7 @@ import { AxiosError } from 'axios';
 
 import { extractHttpCode } from '@/core/lib/utils';
 import { ApiErrorResponse } from '@/core/types/generics';
+import { TWO_FACTOR_REQUIRED_CODE } from '@/core/types/interfaces/auth/two-factor';
 
 type AxiosErrorInfo = {
 	label: string;
@@ -88,12 +89,30 @@ export const AxiosErrorDetails: Record<string, AxiosErrorInfo> = {
 	}
 };
 
+/** The challenge of a two-factor sign-in answer (`TWO_FACTOR_REQUIRED`) and the wait of a 429 (`retryAfter`). */
+function twoFactorFieldsOf(data: ApiErrorResponse | undefined): Record<string, unknown> {
+	const body = data as { challenge?: unknown; expiresAt?: unknown; retryAfter?: unknown } | undefined;
+	const fields: Record<string, unknown> = {};
+	const isChallenge = data?.code === TWO_FACTOR_REQUIRED_CODE && typeof body?.challenge === 'string';
+	if (isChallenge) {
+		fields.challenge = body?.challenge;
+		fields.expiresAt = body?.expiresAt;
+	}
+	if (typeof body?.retryAfter === 'number') {
+		fields.retryAfter = body.retryAfter;
+	}
+	return fields;
+}
+
 // Gauzy names the request fields a refusal is about (`fields`) next to its code rather than under `details`
 function detailsOf(data: ApiErrorResponse | undefined): ApiErrorResponse['details'] {
 	// A failure that still made something names it (chat create-task: the task exists, the message could not be linked);
 	// the id is kept so the caller offers to open it instead of creating it again.
 	const madeTaskId = (data as { taskId?: unknown } | undefined)?.taskId;
-	const kept = typeof madeTaskId === 'string' && madeTaskId ? { taskId: madeTaskId } : {};
+	const kept: Record<string, unknown> = typeof madeTaskId === 'string' && madeTaskId ? { taskId: madeTaskId } : {};
+	// A sign-in that asks for a second factor answers its challenge, and a refusal for too many codes says how long
+	// to wait: both are kept so the sign-in can ask for the code, or say when to try again.
+	Object.assign(kept, twoFactorFieldsOf(data));
 	const details = data?.details;
 	if (details) {
 		return { ...details, ...kept };

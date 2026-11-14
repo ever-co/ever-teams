@@ -12,6 +12,7 @@ import { minLengthRuleOf, PasswordChecks } from '@/core/components/auth/kit/pass
 import { meetsPasswordMinLength } from '@/core/lib/utils/password-strength';
 import { AUTH_TEXT_LINK } from '@/core/components/auth/kit/auth-recipes';
 import { navigateAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
+import { SECOND_FACTOR_ASKED } from '@/core/lib/auth/two-factor';
 
 const NO_ERRORS = {
 	password: '',
@@ -21,7 +22,7 @@ const NO_ERRORS = {
 
 export function CompleteInvitationRegistrationForm(props: {
 	invitationData: TInviteVerified;
-	onCompleteRegistration: (data: { fullName: string; password: string }) => Promise<void>;
+	onCompleteRegistration: (data: { fullName: string; password: string }) => Promise<unknown>;
 	acceptInvitationLoading: boolean;
 	/** The name as it is typed, for the preview beside the form. */
 	onNameChange?: (fullName: string) => void;
@@ -57,7 +58,11 @@ export function CompleteInvitationRegistrationForm(props: {
 			}
 
 			try {
-				await onCompleteRegistration(userDetails);
+				const outcome = await onCompleteRegistration(userDetails);
+				// The account asks for its two-factor code: the page shows that step, the app opens after it
+				if (outcome === SECOND_FACTOR_ASKED) {
+					return;
+				}
 				setLoadingWorkspace(true);
 				navigateAfterSignIn();
 			} catch (error) {

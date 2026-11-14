@@ -53,3 +53,38 @@ describe('AuthCodeField', () => {
 		expect(animate.mock.contexts).toEqual([slots[2]]);
 	});
 });
+
+describe('AuthCodeField, its length', () => {
+	it('shows the slots it is asked for, digits only for an authenticator code', () => {
+		render(
+			<AuthCodeField
+				id="code"
+				label="Authentication code"
+				status="idle"
+				autoFocus={false}
+				length={6}
+				allowedCharacters="numeric"
+				onChange={jest.fn()}
+			/>
+		);
+		const slots = screen.getAllByRole('textbox') as HTMLInputElement[];
+
+		expect(slots).toHaveLength(6);
+		fireEvent.change(slots[0], { target: { value: 'a' } });
+		expect(slots[0].value).toBe('');
+	});
+
+	it('does not focus a field that is already gone', () => {
+		jest.useFakeTimers();
+		try {
+			const { unmount } = render(
+				<AuthCodeField id="code" label="Sign-in code" status="idle" onChange={jest.fn()} />
+			);
+			unmount();
+
+			expect(() => jest.advanceTimersByTime(200)).not.toThrow();
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+});

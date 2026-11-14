@@ -17,6 +17,7 @@ import {
 	memberLastNameOf,
 	memberNameOf,
 	memberUserIdOf,
+	memberRoleNameOf,
 	memberWorkspaceRoleIdOf,
 	rosterWithout,
 	rosterWithRole,
@@ -28,6 +29,7 @@ import {
 	assignableWorkspaceRolesOf,
 	canChangeWorkspaceRole,
 	canDeactivateMember,
+	canResetMemberTwoFactor,
 	readsWorkspaceRoles,
 	workspaceRoleNameOf,
 	type WorkspaceRole
@@ -79,6 +81,9 @@ export interface MemberRowModel {
 	canChangeWorkspaceRole: boolean;
 	isWorkspaceRolePending: boolean;
 	canDeactivate: boolean;
+	/** The member's user, for the account-level actions (the two-factor reset). */
+	userId: string | null;
+	canResetTwoFactor: boolean;
 }
 
 type Overrides<T> = Readonly<Record<string, T>>;
@@ -300,7 +305,17 @@ export function useTeamMembersSettings() {
 				workspaceRoleName: workspaceRoleNameOf(workspaceRoles, workspaceRoleId),
 				canChangeWorkspaceRole: access.canChangeWorkspaceRole,
 				isWorkspaceRolePending: pendingWorkspaceRoles.has(rowId),
-				canDeactivate: access.canDeactivate
+				canDeactivate: access.canDeactivate,
+				userId: memberUserId ?? null,
+				canResetTwoFactor: canResetMemberTwoFactor({
+					permissions: myPermissions,
+					isYou,
+					hasUser: Boolean(memberUserId),
+					// The member's own role as the team data carries it: the roles list a viewer reads may hold only
+					// the roles they can assign, and would hide the reset of an admin's account
+					workspaceRoleName:
+						memberRoleNameOf(member) ?? workspaceRoleNameOf(workspaceRoles, memberWorkspaceRoleIdOf(member))
+				})
 			});
 		}
 		return models;

@@ -119,3 +119,14 @@ describe('CompleteInvitationRegistrationForm', () => {
 		expect(mockNavigateAfterSignIn).not.toHaveBeenCalled();
 	});
 });
+
+describe('CompleteInvitationRegistrationForm, an account with two-factor authentication', () => {
+	it('leaves the page to its code step instead of opening the app', async () => {
+		renderForm(jest.fn().mockResolvedValue('second-factor'));
+		typePasswords('long enough', 'long enough');
+		await join();
+
+		expect(mockNavigateAfterSignIn).not.toHaveBeenCalled();
+		expect(screen.queryByRole('alert')).toBeNull();
+	});
+});
