@@ -1,0 +1,206 @@
+{
+	"signInTitle": {
+		"message": "Zaloguj się do Ever Teams"
+	},
+	"signInEmailLabel": {
+		"message": "E-mail"
+	},
+	"signInEmailPlaceholder": {
+		"message": "ty@firma.pl"
+	},
+	"signInSendCode": {
+		"message": "Wyślij mi kod"
+	},
+	"signInSending": {
+		"message": "Wysyłanie…"
+	},
+	"signInCodeSent": {
+		"message": "Wysłaliśmy kod na adres $EMAIL$. Wpisz go poniżej.",
+		"placeholders": {
+			"email": {
+				"content": "$1",
+				"example": "marie@example.com"
+			}
+		}
+	},
+	"signInCodeLabel": {
+		"message": "Kod"
+	},
+	"signInConfirm": {
+		"message": "Zaloguj się"
+	},
+	"signInConfirming": {
+		"message": "Logowanie…"
+	},
+	"signInOtherEmail": {
+		"message": "Użyj innego adresu"
+	},
+	"signInWrongCode": {
+		"message": "Ten kod jest nieprawidłowy lub wygasł."
+	},
+	"signInNoWorkspace": {
+		"message": "Żaden obszar roboczy nie jest dostępny dla tego adresu."
+	},
+	"signInChooseWorkspace": {
+		"message": "Wybierz obszar roboczy"
+	},
+	"headerTeam": {
+		"message": "Zespół"
+	},
+	"headerAccount": {
+		"message": "Konto"
+	},
+	"headerSettings": {
+		"message": "Ustawienia"
+	},
+	"headerSignOut": {
+		"message": "Wyloguj się"
+	},
+	"timerRegion": {
+		"message": "Licznik czasu"
+	},
+	"timerLoading": {
+		"message": "Wczytywanie licznika…"
+	},
+	"timerStart": {
+		"message": "Start"
+	},
+	"timerStop": {
+		"message": "Stop"
+	},
+	"timerStarting": {
+		"message": "Uruchamianie…"
+	},
+	"timerStopping": {
+		"message": "Zatrzymywanie…"
+	},
+	"timerNoTask": {
+		"message": "Wybierz zadanie poniżej, aby uruchomić licznik."
+	},
+	"timerStartedElsewhere": {
+		"message": "Uruchomiono w innej aplikacji lub na innym urządzeniu."
+	},
+	"timerTotalToday": {
+		"message": "Łącznie dzisiaj:"
+	},
+	"timerCheckTeam": {
+		"message": "Zobacz zespół"
+	},
+	"tasksAll": {
+		"message": "Twoje zadania"
+	},
+	"tasksSearch": {
+		"message": "Szukaj zadań"
+	},
+	"tasksRecent": {
+		"message": "Ostatnie"
+	},
+	"tasksLoading": {
+		"message": "Wczytywanie zadań…"
+	},
+	"tasksLoadFailed": {
+		"message": "Nie udało się wczytać zadań."
+	},
+	"tasksEmpty": {
+		"message": "Nie masz przypisanych zadań w tym zespole."
+	},
+	"tasksNoMatch": {
+		"message": "Żadne zadanie nie pasuje do wyszukiwania."
+	},
+	"tasksNewTaskLabel": {
+		"message": "Nowe zadanie"
+	},
+	"tasksNewTaskPlaceholder": {
+		"message": "np. Rozszerzenie Ever Teams"
+	},
+	"tasksEstimated": {
+		"message": "Szacunek:"
+	},
+	"tasksEstimateHours": {
+		"message": "Szacowane godziny"
+	},
+	"tasksEstimateMinutes": {
+		"message": "Szacowane minuty"
+	},
+	"tasksHoursShort": {
+		"message": "gg"
+	},
+	"tasksMinutesShort": {
+		"message": "mm"
+	},
+	"tasksAddTask": {
+		"message": "Dodaj zadanie"
+	},
+	"tasksAddFailed": {
+		"message": "Nie udało się utworzyć zadania."
+	},
+	"refusalPlanRequired": {
+		"message": "Twój zespół wymaga planu dnia przed rejestrowaniem czasu. Najpierw zaplanuj dzień."
+	},
+	"refusalTaskNotPlanned": {
+		"message": "Dodaj to zadanie do dzisiejszego planu przed rejestrowaniem czasu."
+	},
+	"refusalTrackingOff": {
+		"message": "Rejestrowanie czasu jest dla Ciebie wyłączone. Poproś administratora o włączenie."
+	},
+	"errorOffline": {
+		"message": "Brak połączenia z Ever Teams. Sprawdź połączenie i spróbuj ponownie."
+	},
+	"errorSessionExpired": {
+		"message": "Sesja wygasła. Zaloguj się ponownie."
+	},
+	"errorTimerChangedElsewhere": {
+		"message": "Licznik zmienił się w innej aplikacji. Teraz pokazuje to, co trwa."
+	},
+	"errorWithReason": {
+		"message": "$REASON$",
+		"placeholders": {
+			"reason": {
+				"content": "$1",
+				"example": "Task is archived"
+			}
+		}
+	},
+	"errorGeneric": {
+		"message": "Coś poszło nie tak. Spróbuj ponownie."
+	},
+	"actionRetry": {
+		"message": "Spróbuj ponownie"
+	},
+	"optionsTitle": {
+		"message": "Ustawienia rozszerzenia Ever Teams"
+	},
+	"optionsApiUrl": {
+		"message": "Adres API"
+	},
+	"optionsApiUrlHint": {
+		"message": "API Ever Teams, do którego się logujesz: https://api.ever.team dla usługi hostowanej lub Twój serwer."
+	},
+	"optionsAppUrl": {
+		"message": "Adres aplikacji webowej"
+	},
+	"optionsSignedOutNote": {
+		"message": "Zmiana adresu API wyloguje Cię z rozszerzenia."
+	},
+	"optionsInvalidUrl": {
+		"message": "Wpisz pełny adres zaczynający się od https:// (lub http://localhost dla serwera lokalnego)."
+	},
+	"optionsSave": {
+		"message": "Zapisz"
+	},
+	"optionsSaved": {
+		"message": "Zapisano."
+	},
+	"refusalRequiredTeamAndProject": {
+		"message": "Twoja organizacja wymaga zespołu i projektu przy każdym timerze. Otwórz jeden ze swoich zespołów, przypisz zadanie do projektu i uruchom ponownie."
+	},
+	"refusalRequiredTeam": {
+		"message": "Twoja organizacja wymaga zespołu przy każdym timerze. Otwórz jeden ze swoich zespołów i uruchom ponownie."
+	},
+	"refusalRequiredProject": {
+		"message": "Twoja organizacja wymaga projektu przy każdym timerze. Przypisz zadanie do projektu albo nadaj zespołowi domyślny projekt i uruchom ponownie."
+	},
+	"refusalRequiredDetails": {
+		"message": "Twoja organizacja wymaga danych, których ten timer nie ma. Zapytaj administratora, jakich."
+	}
+}

@@ -1,0 +1,206 @@
+{
+	"signInTitle": {
+		"message": "Sign in to Ever Teams"
+	},
+	"signInEmailLabel": {
+		"message": "Email"
+	},
+	"signInEmailPlaceholder": {
+		"message": "you@company.com"
+	},
+	"signInSendCode": {
+		"message": "Send me a code"
+	},
+	"signInSending": {
+		"message": "Sending…"
+	},
+	"signInCodeSent": {
+		"message": "We sent a code to $EMAIL$. Enter it below.",
+		"placeholders": {
+			"email": {
+				"content": "$1",
+				"example": "marie@example.com"
+			}
+		}
+	},
+	"signInCodeLabel": {
+		"message": "Code"
+	},
+	"signInConfirm": {
+		"message": "Sign in"
+	},
+	"signInConfirming": {
+		"message": "Signing in…"
+	},
+	"signInOtherEmail": {
+		"message": "Use another email"
+	},
+	"signInWrongCode": {
+		"message": "This code is not valid or has expired."
+	},
+	"signInNoWorkspace": {
+		"message": "No workspace is open to this email."
+	},
+	"signInChooseWorkspace": {
+		"message": "Choose a workspace"
+	},
+	"headerTeam": {
+		"message": "Team"
+	},
+	"headerAccount": {
+		"message": "Account"
+	},
+	"headerSettings": {
+		"message": "Settings"
+	},
+	"headerSignOut": {
+		"message": "Sign out"
+	},
+	"timerRegion": {
+		"message": "Timer"
+	},
+	"timerLoading": {
+		"message": "Loading your timer…"
+	},
+	"timerStart": {
+		"message": "Start"
+	},
+	"timerStop": {
+		"message": "Stop"
+	},
+	"timerStarting": {
+		"message": "Starting…"
+	},
+	"timerStopping": {
+		"message": "Stopping…"
+	},
+	"timerNoTask": {
+		"message": "Pick a task below to start the timer."
+	},
+	"timerStartedElsewhere": {
+		"message": "Started in another app or on another device."
+	},
+	"timerTotalToday": {
+		"message": "Total worked today:"
+	},
+	"timerCheckTeam": {
+		"message": "Check team"
+	},
+	"tasksAll": {
+		"message": "Your tasks"
+	},
+	"tasksSearch": {
+		"message": "Search your tasks"
+	},
+	"tasksRecent": {
+		"message": "Recent"
+	},
+	"tasksLoading": {
+		"message": "Loading your tasks…"
+	},
+	"tasksLoadFailed": {
+		"message": "Your tasks could not be loaded."
+	},
+	"tasksEmpty": {
+		"message": "No task is assigned to you in this team."
+	},
+	"tasksNoMatch": {
+		"message": "No task matches your search."
+	},
+	"tasksNewTaskLabel": {
+		"message": "New task"
+	},
+	"tasksNewTaskPlaceholder": {
+		"message": "ex. Ever Teams Extension"
+	},
+	"tasksEstimated": {
+		"message": "Estimated:"
+	},
+	"tasksEstimateHours": {
+		"message": "Estimated hours"
+	},
+	"tasksEstimateMinutes": {
+		"message": "Estimated minutes"
+	},
+	"tasksHoursShort": {
+		"message": "hh"
+	},
+	"tasksMinutesShort": {
+		"message": "mm"
+	},
+	"tasksAddTask": {
+		"message": "Add Task"
+	},
+	"tasksAddFailed": {
+		"message": "The task could not be created."
+	},
+	"refusalPlanRequired": {
+		"message": "Your team requires a daily plan before you track time. Plan your day first."
+	},
+	"refusalTaskNotPlanned": {
+		"message": "Add this task to today’s plan before you track time on it."
+	},
+	"refusalTrackingOff": {
+		"message": "Time tracking is turned off for you. Ask an admin of your team to turn it on."
+	},
+	"errorOffline": {
+		"message": "Ever Teams cannot be reached. Check the connection, then try again."
+	},
+	"errorSessionExpired": {
+		"message": "Your session has ended. Sign in again."
+	},
+	"errorTimerChangedElsewhere": {
+		"message": "The timer changed in another app. It now shows what runs."
+	},
+	"errorWithReason": {
+		"message": "$REASON$",
+		"placeholders": {
+			"reason": {
+				"content": "$1",
+				"example": "Task is archived"
+			}
+		}
+	},
+	"errorGeneric": {
+		"message": "Something went wrong. Try again."
+	},
+	"actionRetry": {
+		"message": "Try again"
+	},
+	"optionsTitle": {
+		"message": "Ever Teams extension settings"
+	},
+	"optionsApiUrl": {
+		"message": "API address"
+	},
+	"optionsApiUrlHint": {
+		"message": "The Ever Teams API you sign in to: https://api.ever.team for the hosted service, or your own server."
+	},
+	"optionsAppUrl": {
+		"message": "Web app address"
+	},
+	"optionsSignedOutNote": {
+		"message": "Changing the API address signs you out of the extension."
+	},
+	"optionsInvalidUrl": {
+		"message": "Enter a full address starting with https:// (or http://localhost for a local server)."
+	},
+	"optionsSave": {
+		"message": "Save"
+	},
+	"optionsSaved": {
+		"message": "Saved."
+	},
+	"refusalRequiredTeamAndProject": {
+		"message": "Your organization requires a team and a project on every timer. Open one of your teams and put the task in a project, then start again."
+	},
+	"refusalRequiredTeam": {
+		"message": "Your organization requires a team on every timer. Open one of your teams, then start again."
+	},
+	"refusalRequiredProject": {
+		"message": "Your organization requires a project on every timer. Put the task in a project, or give the team a default project, then start again."
+	},
+	"refusalRequiredDetails": {
+		"message": "Your organization requires details this timer does not have. Ask an admin which ones."
+	}
+}
