@@ -30,9 +30,17 @@ export async function POST(req: Request) {
 			);
 		}
 
-		const { data: user } = await currentAuthenticatedUserRequest({
+		// Gauzy has rotated the refresh token by now: the new pair is the only one it accepts from here on, so it is
+		// answered whatever the profile read gives. Dropped, it left the browser with a refresh token Gauzy refuses.
+		const user = await currentAuthenticatedUserRequest({
 			bearer_token: refreshResult.data.token
-		});
+		}).then(
+			({ data }) => data,
+			async (error: unknown) => {
+				logErrorInDev('API /auth/refresh Profile read failed after the renewal:', await unwrapRejection(error));
+				return undefined;
+			}
+		);
 
 		// NOTE: We don't set cookies server-side here because:
 		// 1. NextResponse.json() creates a new response object, losing any headers set on `res`

@@ -1,9 +1,11 @@
 /**
  * The proxy-mode route the browser renews its session through: it gives Gauzy the refresh token and answers the new
  * pair. The browser must be able to tell a refresh token Gauzy refuses (the session ended, or another tab rotated the
- * token first) from a renewal that could not be made (Gauzy down).
+ * token first) from a renewal that could not be made (Gauzy down). And a pair Gauzy has already rotated must reach the
+ * browser, whatever happens next: its refresh token is the only one Gauzy accepts from then on.
  *
- * The route answered 500 "Token refresh failed" to every refusal.
+ * The route answered 500 "Token refresh failed" to every refusal, and dropped the new pair when the profile read
+ * that follows the renewal failed.
  */
 jest.mock('@/core/services/server/client-ip', () => ({ clientIpHeaders: async () => ({}) }));
 
@@ -73,5 +75,15 @@ describe('POST /api/auth/refresh', () => {
 		const res = await renew();
 
 		expect(res.status).toBeGreaterThanOrEqual(500);
+	});
+
+	it('answers the new pair even when the profile read that follows fails: Gauzy has already rotated the token', async () => {
+		gauzyAnswers['/auth/refresh-token'] = { status: 200, body: { token: 'access-2', refresh_token: 'refresh-2' } };
+		gauzyAnswers['/user/me'] = { status: 503, body: { statusCode: 503, message: 'Service Unavailable' } };
+
+		const res = await renew();
+
+		expect(res.status).toBe(200);
+		expect(await res.json()).toEqual(expect.objectContaining({ token: 'access-2', refresh_token: 'refresh-2' }));
 	});
 });
