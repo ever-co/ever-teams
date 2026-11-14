@@ -7,6 +7,8 @@ import { controlGroupRecipe } from '@/core/components/common/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { EMPTY_FIELD_RECIPE, VALUE_FIELD_RECIPE } from '@/core/components/common/surface-recipes';
 import { Pencil, Plus, Spinner } from '@/core/components/icons';
+import { RateApplyQuestion } from '@/core/components/rates/rate-apply-question';
+import { useRateApplyQuestion } from '@/core/hooks/organizations/rates/use-rate-apply-question';
 import { cn } from '@/core/lib/helpers';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import {
@@ -16,6 +18,7 @@ import {
 	rateValueOf,
 	type RateInputProblem
 } from '@/core/lib/utils/rates';
+import type { RateSaveOutcome } from '@/core/types/schemas/organization/rates.schema';
 
 const PENCIL = 'text-muted-foreground/70 transition-colors group-hover/field:text-foreground';
 
@@ -34,7 +37,12 @@ type RateValueFieldProps = {
 	currency: string | null | undefined;
 	hint?: string;
 	readOnly?: boolean;
-	onSave: (value: number | null) => Promise<unknown>;
+	/**
+	 * Asks whether the time already tracked takes the new rate (#5212), on a Gauzy that stores rates on time entries:
+	 * the day picked goes to `onSave`, which answers how many entries changed price.
+	 */
+	asksAboutPastTime?: boolean;
+	onSave: (value: number | null, applyFrom?: string) => Promise<RateSaveOutcome | void>;
 };
 
 export function RateValueField({
@@ -43,6 +51,7 @@ export function RateValueField({
 	currency,
 	hint,
 	readOnly = false,
+	asksAboutPastTime = false,
 	onSave
 }: Readonly<RateValueFieldProps>) {
 	const t = useTranslations();
@@ -53,6 +62,8 @@ export function RateValueField({
 	const [draft, setDraft] = useState('');
 	const [error, setError] = useState<string | null>(null);
 	const [isSaving, setIsSaving] = useState(false);
+	const applyQuestion = useRateApplyQuestion();
+	const asksQuestion = asksAboutPastTime && applyQuestion.rule !== null && applyQuestion.choice !== null;
 
 	const amount = rateAmountTextOf(value, currency, locale);
 	const hasRate = amount !== null;
@@ -82,9 +93,20 @@ export function RateValueField({
 	};
 
 	const save = async (nextValue: number | null) => {
+		let applyFrom: string | undefined = undefined;
+		if (asksQuestion) {
+			const answer = applyQuestion.applyFromOfSave();
+			if (answer.isDayMissing) {
+				return;
+			}
+			applyFrom = answer.applyFrom;
+		}
 		setIsSaving(true);
 		try {
-			await onSave(nextValue);
+			const outcome = await onSave(nextValue, applyFrom);
+			if (asksQuestion) {
+				applyQuestion.confirmSaved(outcome);
+			}
 			setIsOpen(false);
 		} catch (saveError) {
 			const reasonKey = errorReasonKeyOf(saveError) as DottedLanguageObjectStringPaths;
@@ -133,7 +155,10 @@ export function RateValueField({
 				{isSaving && <Spinner aria-hidden="true" className="size-3.5 animate-spin text-muted-foreground" />}
 				{hasRate && !isSaving && <Pencil aria-hidden="true" className={PENCIL} />}
 			</PopoverTrigger>
-			<PopoverContent align="end" className="w-64 p-3">
+			<PopoverContent
+				align="end"
+				className={cn('p-3', asksQuestion && 'w-80 max-w-[calc(100vw-2rem)]', !asksQuestion && 'w-64')}
+			>
 				<form onSubmit={submit}>
 					<label htmlFor={inputId} className="text-[13px] font-semibold text-foreground">
 						{label}
@@ -161,6 +186,19 @@ export function RateValueField({
 						<p id={errorId} role="alert" className="mt-1.5 text-xs text-destructive-ink">
 							{error}
 						</p>
+					)}
+					{asksQuestion && applyQuestion.rule && applyQuestion.choice && (
+						<div className="mt-3">
+							<RateApplyQuestion
+								rule={applyQuestion.rule}
+								choice={applyQuestion.choice}
+								onChoiceChange={applyQuestion.pickChoice}
+								day={applyQuestion.day}
+								onDayChange={applyQuestion.setDay}
+								isDayMissing={applyQuestion.isDayMissing}
+								disabled={isSaving}
+							/>
+						</div>
 					)}
 					<div className="-mx-3 mt-3 flex items-center gap-2 hairline-t border-border px-3 pt-3">
 						{hasSavedRate && (
