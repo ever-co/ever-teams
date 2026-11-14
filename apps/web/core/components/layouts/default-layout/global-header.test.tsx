@@ -39,6 +39,7 @@ describe('GlobalHeader notice', () => {
 		const measured = noticeRef.current;
 		expect(measured).not.toBeNull();
 		// ResizeObserver's contentRect leaves padding out: padding on the measured box would stay in the header
+		// cspell:disable-next-line -- the padding utilities p, pt, pr, pb, pl, px and py
 		expect(measured?.className ?? '').not.toMatch(/(^|\s)p[trblxy]?-/);
 		expect(measured?.contains(screen.getByTestId('page-notice'))).toBe(true);
 	});

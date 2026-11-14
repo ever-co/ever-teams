@@ -114,7 +114,10 @@ export function PageLayout({
 	}
 
 	return (
-		<div className="flex h-full min-h-0 w-full flex-col overflow-clip" data-pane-surface={fill ? 'true' : undefined}>
+		<div
+			className="flex h-full min-h-0 w-full flex-col overflow-clip"
+			data-pane-surface={fill ? 'true' : undefined}
+		>
 			{/* Outside headerRef: the strip must not count towards the header height the timer logic measures. */}
 			<DemoBanner />
 			<GlobalHeader
@@ -130,7 +133,9 @@ export function PageLayout({
 				noticeRef={noticeRef}
 			/>
 			<PageContentScroller contentClassName={fill ? 'h-full' : undefined}>
-				<main className={cn('relative flex min-h-full w-full flex-col p-4', fill && 'h-full min-h-0', className)}>
+				<main
+					className={cn('relative flex min-h-full w-full flex-col p-4', fill && 'h-full min-h-0', className)}
+				>
 					{/* `clip`, not `hidden`: overflow-x hidden makes this a scroll container of its own. PageContentScroller owns scrolling. */}
 					<div
 						className={cn(
