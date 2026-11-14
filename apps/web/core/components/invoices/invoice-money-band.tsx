@@ -119,6 +119,15 @@ export const InvoiceMoneyBand = memo(function InvoiceMoneyBand({ summary, picked
 	const showsSplit = !isNothingOwed && isOwedAmountKnown;
 	const showsFigureAmounts = isNothingOwed || isOwedAmountKnown;
 	const draftCount = summary.counts.draft;
+	// The figures count the invoices of the currency their amounts are in: the other currencies are listed apart
+	let shownOwedCount = owedCount;
+	let notYetDueCount = summary.counts.open;
+	let overdueCount = summary.counts.overdue;
+	if (main) {
+		overdueCount = overdue?.count ?? 0;
+		notYetDueCount = main.count - overdueCount;
+		shownOwedCount = main.count;
+	}
 
 	return (
 		<section aria-label={t('invoices.money.LABEL')} className={cn(BAND_SURFACE, 'flex flex-col gap-3')}>
@@ -139,7 +148,7 @@ export const InvoiceMoneyBand = memo(function InvoiceMoneyBand({ summary, picked
 								/>
 							)}
 							<span className="text-xs tabular-nums text-muted-foreground">
-								{t('invoices.money.INVOICE_COUNT', { count: owedCount })}
+								{t('invoices.money.INVOICE_COUNT', { count: shownOwedCount })}
 							</span>
 						</span>
 					)}
@@ -168,7 +177,7 @@ export const InvoiceMoneyBand = memo(function InvoiceMoneyBand({ summary, picked
 					</span>
 					<span className="flex items-baseline gap-1.5 text-sm font-medium text-foreground">
 						{showsFigureAmounts && <MoneyFigure amount={notYetDueAmount} currency={currency} />}
-						<span className="text-xs font-normal text-muted-foreground">{summary.counts.open}</span>
+						<span className="text-xs font-normal text-muted-foreground">{notYetDueCount}</span>
 					</span>
 				</BandFigure>
 				<BandFigure filter="overdue" picked={picked} onPick={onPick}>
@@ -178,7 +187,7 @@ export const InvoiceMoneyBand = memo(function InvoiceMoneyBand({ summary, picked
 					</span>
 					<span className="flex items-baseline gap-1.5 text-sm font-medium text-foreground">
 						{showsFigureAmounts && <MoneyFigure amount={overdueAmount} currency={currency} />}
-						<span className="text-xs font-normal text-muted-foreground">{summary.counts.overdue}</span>
+						<span className="text-xs font-normal text-muted-foreground">{overdueCount}</span>
 					</span>
 				</BandFigure>
 				<BandFigure filter="draft" picked={picked} onPick={onPick}>

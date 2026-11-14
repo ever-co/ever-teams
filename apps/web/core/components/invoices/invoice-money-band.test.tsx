@@ -54,4 +54,23 @@ describe('InvoiceMoneyBand', () => {
 		expect(screen.queryAllByTestId('money')).toHaveLength(0);
 		expect(screen.getByText('invoices.money.INVOICE_COUNT {"count":2}')).toBeTruthy();
 	});
+
+	it('counts the invoices of the currency its amounts are in', () => {
+		const summary = summaryOf({
+			counts: { ...NO_COUNTS, open: 1, overdue: 1 },
+			owed: [
+				{ currency: 'USD', amount: 1000, count: 1 },
+				{ currency: 'EUR', amount: 900, count: 1 }
+			],
+			overdue: [{ currency: 'EUR', amount: 900, count: 1 }]
+		});
+
+		render(<InvoiceMoneyBand summary={summary} picked="all" onPick={jest.fn()} />);
+
+		const overdue = figureOf('invoices.money.OVERDUE');
+		expect(within(overdue).getByTestId('money').textContent).toBe('0 USD');
+		expect(within(overdue).getByText('0')).toBeTruthy();
+		expect(within(figureOf('invoices.money.NOT_YET_DUE')).getByText('1')).toBeTruthy();
+		expect(screen.getByText('invoices.money.INVOICE_COUNT {"count":1}')).toBeTruthy();
+	});
 });
