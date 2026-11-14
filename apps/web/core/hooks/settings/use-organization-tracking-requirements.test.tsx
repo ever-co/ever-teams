@@ -22,13 +22,16 @@ jest.mock('@/core/services/client/api/organizations', () => ({
 	organizationService: { updateOrganization: (...args: unknown[]) => mockUpdateOrganization(...args) }
 }));
 
-import { useOrganizationTrackingRequirements } from './use-organization-tracking-requirements';
+import {
+	useOrganizationTrackingRequirements,
+	useOrganizationTrackingSwitchRule
+} from './use-organization-tracking-requirements';
 
 const mockToastError = jest.mocked((jest.requireMock('sonner') as { toast: { error: jest.Mock } }).toast.error);
 
 const organization = { id: 'organization-a', name: 'Acme', currency: 'USD', requireTeam: false, requireProject: false };
 
-function renderRequirements() {
+function renderInOrganization<Result>(useSettings: () => Result) {
 	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 	const store = createStore();
 	store.set(currentOrganizationState, organization as never);
@@ -37,9 +40,11 @@ function renderRequirements() {
 			<Provider store={store}>{children}</Provider>
 		</QueryClientProvider>
 	);
-	const view = renderHook(() => useOrganizationTrackingRequirements(), { wrapper });
+	const view = renderHook(useSettings, { wrapper });
 	return { view, client };
 }
+
+const renderRequirements = () => renderInOrganization(() => useOrganizationTrackingRequirements());
 
 const cachedOrganization = (client: QueryClient) =>
 	client.getQueryData(queryKeys.workspaces.currentOrganizationByScope('tenant-a', 'organization-a'));
@@ -95,5 +100,44 @@ describe('saving an organization tracking requirement', () => {
 		expect(failure).toBeInstanceOf(Error);
 		expect(mockToastError).toHaveBeenCalledWith('settings.teamGeneral.REQUIREMENT_NOT_SAVED', expect.anything());
 		expect(cachedOrganization(client)).toBeUndefined();
+	});
+});
+
+/** #5015: whether only someone of a higher role turns a person's time tracking on or off in the organization. */
+describe('saving who switches time tracking in the organization', () => {
+	const renderRule = () => renderInOrganization(() => useOrganizationTrackingSwitchRule());
+
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
+	it('saves the setting and keeps the saved organization for every reader', async () => {
+		mockUpdateOrganization.mockResolvedValue({});
+		const { view, client } = renderRule();
+
+		await act(async () => {
+			await view.result.current.saveRestriction(true);
+		});
+
+		expect(mockUpdateOrganization).toHaveBeenCalledWith(organization, {
+			restrictTrackingSwitchToHigherRoles: true
+		});
+		expect(cachedOrganization(client)).toEqual({ ...organization, restrictTrackingSwitchToHigherRoles: true });
+	});
+
+	it('tells that the setting was not saved, and throws so the switch goes back', async () => {
+		mockUpdateOrganization.mockRejectedValue(new Error('Forbidden'));
+		const { view } = renderRule();
+
+		let failure: unknown;
+		await act(async () => {
+			failure = await view.result.current.saveRestriction(true).catch((error) => error);
+		});
+
+		expect(failure).toBeInstanceOf(Error);
+		expect(mockToastError).toHaveBeenCalledWith(
+			'settings.teamGeneral.TRACKING_SWITCH_RULE_NOT_SAVED',
+			expect.anything()
+		);
 	});
 });

@@ -10,7 +10,8 @@ const WEB_ROOT = resolve(__dirname, '../..');
  */
 const FILES_THAT_READ_THE_ORGANISATION = [
 	'core/components/pages/invoices/page-component.tsx',
-	'core/hooks/invoices/use-new-invoice.ts'
+	'core/hooks/invoices/use-new-invoice.ts',
+	'core/hooks/invoices/use-saved-invoice.ts'
 ];
 
 describe('invoice pages', () => {

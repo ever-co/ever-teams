@@ -3,8 +3,10 @@ import {
 	archivedClientsOf,
 	buildClientRequest,
 	buildClientUpdateRequest,
+	canReadClients,
 	clientAccessOf,
 	clientMatchesSearch,
+	clientNamesOf,
 	clientsInScope,
 	draftFromClient,
 	emptyClientDraft,
@@ -48,6 +50,23 @@ describe('client permissions', () => {
 		const nothing = { canCreate: false, canEdit: false, canArchive: false };
 		expect(clientAccessOf(['ORG_CONTACT_VIEW', 'ORG_PROJECT_VIEW'])).toEqual(nothing);
 		expect(clientAccessOf([])).toEqual(nothing);
+	});
+
+	it('lets only the holders of the view permission read the clients list, as the API does', () => {
+		expect(canReadClients(['ORG_CONTACT_VIEW'])).toBe(true);
+		expect(canReadClients(['ORG_CONTACT_EDIT', 'ORG_CONTACT_ADD'])).toBe(false);
+		expect(canReadClients([])).toBe(false);
+	});
+});
+
+describe('client names', () => {
+	it('names every client by id, archived ones included', () => {
+		const names = clientNamesOf([acme, zenith]);
+
+		expect([...names.entries()]).toEqual([
+			['c1', 'Acme'],
+			['c2', 'zenith']
+		]);
 	});
 });
 

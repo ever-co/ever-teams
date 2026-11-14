@@ -16,6 +16,23 @@ export const INVOICES_PATH = '/invoices';
 
 export const NEW_INVOICE_PATH = '/invoices/new';
 
+export function newInvoicePathOf(clientId: string) {
+	const query = new URLSearchParams({ client: clientId });
+	return `${NEW_INVOICE_PATH}?${query.toString()}`;
+}
+
+/** The search parameter of a new invoice that starts from a saved one, to replace it. */
+export const REPLACES_PARAM = 'replaces';
+
+export function editInvoicePathOf(invoiceId: string) {
+	return `${INVOICES_PATH}/${encodeURIComponent(invoiceId)}/edit`;
+}
+
+export function replacementInvoicePathOf(invoiceId: string) {
+	const query = new URLSearchParams({ [REPLACES_PARAM]: invoiceId });
+	return `${NEW_INVOICE_PATH}?${query.toString()}`;
+}
+
 const HOME_PATH = '/';
 
 interface AccessFlags {

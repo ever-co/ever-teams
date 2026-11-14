@@ -17,6 +17,7 @@ import { useTaskWorkedSeconds } from '@/core/hooks/tasks/use-task-worked-seconds
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { cn } from '@/core/lib/helpers';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
+import { dateOfDayNumber, dayNumberOf, dayOfStoredDate } from '@/core/lib/utils/date-only';
 import {
 	dueDateToneOf,
 	isDoneStatus,
@@ -32,7 +33,6 @@ import { useTeamTaskRowDrag } from './team-task-row-dnd';
 
 const VISIBLE_LABEL_COUNT = 2;
 const VISIBLE_PEOPLE_COUNT = 3;
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** A cell that opens a picker: a quiet button the size of its cell, its empty state revealed on row hover. */
 const CELL_BUTTON =
@@ -95,16 +95,9 @@ function formatDuration(seconds: number) {
 	return `${hours}h ${minutes}m`;
 }
 
-function startOfDay(time: number) {
-	const day = new Date(time);
-	day.setHours(0, 0, 0, 0);
-	return day.getTime();
-}
-
-function daysFromToday(value: Date | string, now: number) {
-	const dayTime = startOfDay(new Date(value).getTime());
-	const today = startOfDay(now);
-	return Math.round((dayTime - today) / DAY_MS);
+/** Whole days from the reader's today to a day number. */
+function daysFromToday(day: number, now: number) {
+	return day - dayNumberOf(new Date(now));
 }
 
 /** Clicks on the row's own controls are theirs; anywhere else on the row opens the task. */
@@ -400,7 +393,9 @@ function DueDateCell({ task, isDone }: Readonly<{ task: TTask; isDone: boolean }
 	const t = useTranslations();
 	const { formatDay, formatRelativeDay, now } = useTeamTasksList();
 	const dueDate = task.dueDate;
-	if (!dueDate) {
+	// The day the due date names (a date-only one is its own day in every zone); one that cannot be read shows as none.
+	const dueDay = dayOfStoredDate(dueDate);
+	if (!dueDate || dueDay === null) {
 		return (
 			<PickerCell kind="dueDate" taskId={task.id} label={t('pages.taskDetails.DUE_DATE')} className={CELL_BUTTON}>
 				<Calendar className={cn('size-4 text-muted-foreground', ON_ROW_HOVER)} aria-hidden="true" />
@@ -408,9 +403,9 @@ function DueDateCell({ task, isDone }: Readonly<{ task: TTask; isDone: boolean }
 		);
 	}
 	const tone = dueDateToneOf(dueDate, isDone, now);
-	const days = daysFromToday(dueDate, now);
+	const days = daysFromToday(dueDay, now);
 	const isNear = Math.abs(days) <= 1;
-	let text = formatDay(dueDate);
+	let text = formatDay(dateOfDayNumber(dueDay));
 	if (isNear) {
 		text = formatRelativeDay(days);
 	}

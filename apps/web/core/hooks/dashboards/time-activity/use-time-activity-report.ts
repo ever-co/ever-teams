@@ -5,9 +5,11 @@ import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { getReportMemberIds, managesEveryTeam } from '@/core/hooks/activities/use-activity-filters';
+import { useClientsQuery } from '@/core/hooks/clients/use-clients-query';
 import { useReportProjectClients } from '@/core/hooks/dashboards/use-report-clients';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
+import { clientNamesOf } from '@/core/lib/utils/clients';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { daysOfPeriod, type Period, periodOfPreset } from '@/core/lib/utils/dashboard-period';
 import {
@@ -19,11 +21,15 @@ import {
 import { filterDailyReportByClients, isBillableOnly } from '@/core/lib/utils/dashboards/report-filters';
 import {
 	type ChartDayLabels,
+	type ClientOfProjectLog,
 	type ReportTotals,
 	TIME_ACTIVITY_WEEK_START,
 	type TimeActivityFilters,
+	type TimeActivityRow,
 	breakdownGroupingOf,
 	chartDaysOf,
+	clientOfProjectLogOf,
+	clientRowsOf,
 	reportGroupsOf,
 	reportTotalsOf,
 	tableGroupingOf,
@@ -130,11 +136,23 @@ function requestOf(
 	};
 }
 
-function visibleRowsOf(rows: DailyReportRow[], isManager: boolean, ownEmployeeId: string | undefined) {
+function visibleRowsOf<T extends DailyReportRow>(rows: T[], isManager: boolean, ownEmployeeId: string | undefined) {
 	if (isManager) {
 		return rows;
 	}
 	return rows.filter((row) => row.employeeId === ownEmployeeId);
+}
+
+function rowsOfReport(
+	report: ReadonlyArray<ITimeLogGroupedDailyReport>,
+	withoutTeamLabel: string,
+	workspaceCurrency: string | null,
+	clientOf: ClientOfProjectLog | null
+): TimeActivityRow[] {
+	if (!clientOf) {
+		return flattenDailyReport(report, withoutTeamLabel, workspaceCurrency);
+	}
+	return clientRowsOf(report, clientOf, withoutTeamLabel, workspaceCurrency);
 }
 
 function axisFormatOptionsOf(dayCount: number): Intl.DateTimeFormatOptions {
@@ -209,6 +227,47 @@ function figuresFromRows(totals: ReportTotals, hasDailyReport: boolean): Counted
 	return { trackedSeconds: totals.seconds, activityPercent: activityPercentOf(totals), totals };
 }
 
+interface ClientLookupInput {
+	hasClientFilter: boolean;
+	isClientGrouping: boolean;
+	needsProjectClients: boolean;
+	readsClientNames: boolean;
+	isClientAccessUnknown: boolean;
+	projects: { isPending: boolean; isError: boolean };
+	names: { isLoaded: boolean; isError: boolean };
+}
+
+/**
+ * The daily report names no client beside a project whose client is archived: only the listed projects tell that
+ * time from the time without a client, so a report filtered by client is not shown before they are read. Grouped by
+ * client, only the table needs them: it waits for the projects and the clients' names, the band and the chart do
+ * not, and a client the clients list could not name keeps the name the report gives it.
+ */
+function clientLookupStateOf(input: ClientLookupInput) {
+	const { hasClientFilter, isClientGrouping, needsProjectClients, readsClientNames, projects, names } = input;
+	const isProjectLookupPending = needsProjectClients && projects.isPending;
+	const isProjectLookupError = needsProjectClients && projects.isError;
+	const isClientAccessPending = isClientGrouping && input.isClientAccessUnknown;
+	const isClientNamesFailure = names.isError && !names.isLoaded;
+	const isClientNamesMissing = !names.isLoaded && !names.isError;
+	const isClientNamesPending = readsClientNames && isClientNamesMissing;
+	const isFilterLookupPending = hasClientFilter && isProjectLookupPending;
+	const isFilterLookupError = hasClientFilter && isProjectLookupError;
+	const isClientLookupPending = isProjectLookupPending || isClientAccessPending || isClientNamesPending;
+	const isClientRowsPending = isClientGrouping && isClientLookupPending;
+	const isClientRowsError = isClientGrouping && isProjectLookupError;
+	return {
+		isProjectLookupError,
+		isClientNamesError: readsClientNames && isClientNamesFailure,
+		isFilterLookupPending,
+		isFilterLookupError,
+		canFilterByClients: !isFilterLookupPending && !isFilterLookupError,
+		isClientRowsPending,
+		isClientRowsError,
+		canTellRowClients: !isClientRowsPending && !isClientRowsError
+	};
+}
+
 export function useTimeActivityReport() {
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
@@ -232,29 +291,56 @@ export function useTimeActivityReport() {
 	const hasClientFilter = pickedClients.length > 0;
 	const billableOnly = isBillableOnly(settings.filters.billable);
 	const sumsFiguresFromRows = hasTaskFilter || hasClientFilter || billableOnly;
-	const projectClients = useReportProjectClients({ includesArchived: false, isEnabled: hasClientFilter });
+	const isClientGrouping = settings.grouping === 'client';
+	const needsProjectClients = hasClientFilter || isClientGrouping;
+	const projectClients = useReportProjectClients({ includesArchived: false, isEnabled: needsProjectClients });
 	const projectClientIds = projectClients.clientIds;
-	// The daily report names no client beside a project whose client is archived: only the listed projects tell that
-	// time from the time without a client, so a report filtered by client is not shown before they are read
-	const isClientLookupPending = hasClientFilter && projectClients.isPending;
-	const isClientLookupError = hasClientFilter && projectClients.isError;
-	const canTellClients = !isClientLookupPending && !isClientLookupError;
+	const isClientGroupingGranted = settings.clientGroupingAccess === 'granted';
+	const readsClientNames = isClientGrouping && isClientGroupingGranted;
+	const clientsQuery = useClientsQuery({ includeArchived: true, enabled: readsClientNames });
+	const clientNames = useMemo(() => clientNamesOf(clientsQuery.clients), [clientsQuery.clients]);
+	const {
+		isProjectLookupError,
+		isClientNamesError,
+		isFilterLookupPending,
+		isFilterLookupError,
+		canFilterByClients,
+		isClientRowsPending,
+		isClientRowsError,
+		canTellRowClients
+	} = clientLookupStateOf({
+		hasClientFilter,
+		isClientGrouping,
+		needsProjectClients,
+		readsClientNames,
+		isClientAccessUnknown: settings.clientGroupingAccess === 'unknown',
+		projects: projectClients,
+		names: clientsQuery
+	});
 	const loadedReport = dailyQuery.data ?? EMPTY_REPORT;
 	const report = useMemo(() => {
-		if (!canTellClients) {
+		if (!canFilterByClients) {
 			return EMPTY_REPORT;
 		}
 		return filterDailyReportByClients(loadedReport, pickedClients, projectClientIds);
-	}, [canTellClients, loadedReport, pickedClients, projectClientIds]);
+	}, [canFilterByClients, loadedReport, pickedClients, projectClientIds]);
 	const hasDailyData = dailyQuery.data !== undefined;
-	const hasDailyReport = hasDailyData && canTellClients;
+	const hasDailyReport = hasDailyData && canFilterByClients;
+
+	const clientOfProjectLog = useMemo<ClientOfProjectLog | null>(() => {
+		const tellsClients = isClientGrouping && canTellRowClients;
+		if (!tellsClients) {
+			return null;
+		}
+		return clientOfProjectLogOf(projectClientIds, clientNames);
+	}, [canTellRowClients, clientNames, isClientGrouping, projectClientIds]);
 
 	const withoutTeamLabel = t('dashboard.NO_TEAM_GROUP');
 	const workspaceCurrency = useAtomValue(currentOrganizationState)?.currency ?? null;
 	const rows = useMemo(() => {
-		const allRows = flattenDailyReport(report, withoutTeamLabel, workspaceCurrency);
+		const allRows = rowsOfReport(report, withoutTeamLabel, workspaceCurrency, clientOfProjectLog);
 		return visibleRowsOf(allRows, isManager, ownEmployeeId);
-	}, [isManager, ownEmployeeId, report, withoutTeamLabel, workspaceCurrency]);
+	}, [clientOfProjectLog, isManager, ownEmployeeId, report, withoutTeamLabel, workspaceCurrency]);
 
 	const totals = useMemo(() => reportTotalsOf(rows), [rows]);
 
@@ -274,9 +360,12 @@ export function useTimeActivityReport() {
 	);
 
 	const isDailyFailure = dailyQuery.isError && !hasDailyData;
-	const isDailyError = isDailyFailure || isClientLookupError;
-	const isWaitingForDaily = dailyQuery.isPending || isClientLookupPending;
+	const isDailyError = isDailyFailure || isFilterLookupError;
+	const isWaitingForDaily = dailyQuery.isPending || isFilterLookupPending;
 	const isDailyPending = isWaitingForDaily && !isDailyError;
+	const isBreakdownError = isDailyError || isClientRowsError;
+	const isWaitingForBreakdown = isDailyPending || isClientRowsPending;
+	const isBreakdownPending = isWaitingForBreakdown && !isBreakdownError;
 	const needsCounts = !sumsFiguresFromRows;
 	const isCountsPending = needsCounts && countsQuery.isPending;
 	const isFiguresLoading = isDailyPending || isCountsPending;
@@ -289,12 +378,17 @@ export function useTimeActivityReport() {
 
 	const { refetch: refetchDailyReport } = dailyQuery;
 	const { refetch: refetchProjectClients } = projectClients;
+	const { refetch: refetchClientNames } = clientsQuery;
 	const refetchDaily = useCallback(() => {
 		void refetchDailyReport();
-		if (isClientLookupError) {
+		if (isProjectLookupError) {
 			refetchProjectClients();
 		}
-	}, [isClientLookupError, refetchDailyReport, refetchProjectClients]);
+		if (isClientNamesError) {
+			void refetchClientNames();
+		}
+	}, [isClientNamesError, isProjectLookupError, refetchClientNames, refetchDailyReport, refetchProjectClients]);
+	const retryClientNames = useCallback(() => void refetchClientNames(), [refetchClientNames]);
 	// The weekly report has no project in its rows: with a client picked, the week grid is built from these rows
 	const weekDailySource = useMemo<WeekDailySource | null>(() => {
 		if (!hasClientFilter) {
@@ -312,6 +406,7 @@ export function useTimeActivityReport() {
 		setPeriod,
 		request,
 		report,
+		clientOfProjectLog,
 		rows,
 		totals,
 		chartDays,
@@ -324,9 +419,13 @@ export function useTimeActivityReport() {
 		isDailyPending,
 		isFiguresLoading,
 		isDailyError,
+		isBreakdownPending,
+		isBreakdownError,
+		isClientNamesError,
 		isCountsError,
 		isUpdating,
 		refetchDaily,
+		retryClientNames,
 		refetchCounts: countsQuery.refetch
 	};
 }

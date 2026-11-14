@@ -94,6 +94,11 @@ jest.mock('@/core/stores/teams/team-tasks', () => {
 jest.mock('./chat-markdown', () => ({ ChatMarkdown: ({ body }: { body: string }) => <div>{body}</div> }));
 jest.mock('./emoji-popover', () => ({ EmojiPopover: ({ label }: { label: string }) => <button type="button" aria-label={label} /> }));
 jest.mock('./create-task-dialog', () => ({ CreateTaskFromMessageDialog: () => null }));
+// A channel's webhooks (its Integrations) have tests of their own (use-chat-webhooks.test.tsx, chat-webhooks-dialog.test.tsx).
+jest.mock('@/core/hooks/chat/use-chat-webhooks', () => ({
+	useChatWebhooks: () => ({ webhooks: [], availability: 'unknown', canOpen: false, isListed: false, isLoading: false, refresh: () => undefined })
+}));
+jest.mock('./chat-webhooks-dialog', () => ({ ChatWebhooksDialog: () => null }));
 
 const at = (day: number, hour: number, minute = 0) => new Date(2026, 10, day, hour, minute).toISOString();
 

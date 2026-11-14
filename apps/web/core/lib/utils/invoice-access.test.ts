@@ -1,4 +1,4 @@
-import { canCreateInvoices, canViewInvoices, invoiceAccessOf } from './invoice-access';
+import { canCreateInvoices, canEditInvoices, canViewInvoices, invoiceAccessOf } from './invoice-access';
 
 const ADMIN_PERMISSIONS = ['INVOICES_VIEW', 'INVOICES_EDIT', 'ORG_EMPLOYEES_EDIT', 'CHANGE_SELECTED_EMPLOYEE'];
 
@@ -29,5 +29,24 @@ describe('invoiceAccessOf', () => {
 		const permissions = ['INVOICES_VIEW', 'CHANGE_SELECTED_EMPLOYEE'];
 
 		expect(invoiceAccessOf(permissions)).toEqual({ canView: true, canCreate: false });
+	});
+});
+
+describe('canEditInvoices', () => {
+	it('lets an administrator send, settle and delete invoices', () => {
+		expect(canEditInvoices(ADMIN_PERMISSIONS)).toBe(true);
+	});
+
+	it('lets a role that edits invoices change them without reading everyone’s time', () => {
+		expect(canEditInvoices(['INVOICES_VIEW', 'INVOICES_EDIT', 'ORG_EMPLOYEES_EDIT'])).toBe(true);
+	});
+
+	it('keeps out a member, a role that only reads invoices, and a role that reads none', () => {
+		const member = ['INVOICES_VIEW', 'INVOICES_EDIT', 'TIME_TRACKER', 'ORG_CONTACT_VIEW'];
+		const reader = ['INVOICES_VIEW', 'CHANGE_SELECTED_EMPLOYEE'];
+
+		expect(canEditInvoices(member)).toBe(false);
+		expect(canEditInvoices(reader)).toBe(false);
+		expect(canEditInvoices(['INVOICES_EDIT', 'ORG_EMPLOYEES_EDIT'])).toBe(false);
 	});
 });

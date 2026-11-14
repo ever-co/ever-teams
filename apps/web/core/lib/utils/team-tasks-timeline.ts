@@ -6,6 +6,11 @@
  * subtract to a whole number of days whatever the daylight-saving changes in between.
  */
 
+import { dateOfDayNumber, dateOnlyOfDayNumber, dayNumberOf, dayOfStoredDate } from './date-only';
+
+// The day helpers live with the date-only rules; the callers of this module keep importing them from here.
+export { dateOfDayNumber, dayNumberOf, dayOfStoredDate } from './date-only';
+
 /** How wide one day is drawn, per zoom. */
 export type TeamTasksTimelineZoom = 'week' | 'month';
 
@@ -68,49 +73,6 @@ export interface TeamTasksTimelineTick {
 	date: Date;
 	/** The first day of a week (Monday) in the week zoom, of a month in the month zoom: labelled. */
 	isMajor: boolean;
-}
-
-const DAY_MS = 86_400_000;
-
-/** A calendar day of the reader, as a whole number of days. */
-export function dayNumberOf(date: Date): number {
-	return Math.round(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / DAY_MS);
-}
-
-/** The local midnight of a day number. */
-export function dateOfDayNumber(day: number): Date {
-	const utc = new Date(day * DAY_MS);
-	return new Date(utc.getUTCFullYear(), utc.getUTCMonth(), utc.getUTCDate());
-}
-
-/**
- * A stored date as a day number. A bare `YYYY-MM-DD` and a date at midnight UTC name a day (the way a due date is
- * stored): that day, whatever the reader's zone. Any other moment is the reader's calendar day of that moment.
- */
-export function dayOfStoredDate(value: Date | string | null | undefined): number | null {
-	if (value === null || value === undefined || value === '') {
-		return null;
-	}
-	if (typeof value === 'string') {
-		const bare = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-		if (bare) {
-			return Math.round(Date.UTC(Number(bare[1]), Number(bare[2]) - 1, Number(bare[3])) / DAY_MS);
-		}
-	}
-	const date = value instanceof Date ? value : new Date(value);
-	const time = date.getTime();
-	if (Number.isNaN(time)) {
-		return null;
-	}
-	const isUtcMidnight =
-		date.getUTCHours() === 0 &&
-		date.getUTCMinutes() === 0 &&
-		date.getUTCSeconds() === 0 &&
-		date.getUTCMilliseconds() === 0;
-	if (isUtcMidnight) {
-		return Math.round(time / DAY_MS);
-	}
-	return dayNumberOf(date);
 }
 
 interface DatedTask {
@@ -294,8 +256,9 @@ export function draggedDatesOf(
 
 /**
  * The dates a drag of `deltaDays` gives a task, read from the task's stored dates by the timeline's day rules (a bare
- * date and midnight UTC are that day) and written as local midnights, as the due-date picker writes them. Null when
- * the drag changes nothing (no movement, an end of a single date, an end already at the other).
+ * date and midnight UTC are that day). Both are written in the platform's date-only form (midnight UTC of the day), as
+ * the date pickers write them, so every reader sees those days. Null when the drag changes nothing (no movement, an
+ * end of a single date, an end already at the other).
  */
 export function draggedTaskDatesOf(
 	task: { startDate?: Date | string | null; dueDate?: Date | string | null },
@@ -317,8 +280,8 @@ export function draggedTaskDatesOf(
 		return null;
 	}
 	return {
-		...(next.startDay === undefined ? {} : { startDate: dateOfDayNumber(next.startDay) }),
-		...(next.dueDay === undefined ? {} : { dueDate: dateOfDayNumber(next.dueDay) })
+		...(next.startDay === undefined ? {} : { startDate: dateOnlyOfDayNumber(next.startDay) }),
+		...(next.dueDay === undefined ? {} : { dueDate: dateOnlyOfDayNumber(next.dueDay) })
 	};
 }
 

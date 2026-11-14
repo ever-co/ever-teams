@@ -4,7 +4,9 @@ import { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { PageLayout } from '@/core/components/layouts/default-layout';
+import { Notice } from '@/core/components/common/notice';
 import { DashboardBreadcrumb } from '@/core/components/dashboards/kit/dashboard-breadcrumb';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { DASHBOARD_STACK } from '@/core/components/dashboards/kit/recipes';
 import { Chart } from '@/core/components/icons';
 import { useTimeActivityReport } from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
@@ -18,6 +20,24 @@ import { TimeActivityWeekGrid } from './time-activity-week-grid';
 
 function periodKeyOf(from: Date, to: Date) {
 	return `${from.getTime()}:${to.getTime()}`;
+}
+
+/** Grouped by client, a clients list that could not load leaves archived clients unnamed: said quietly, with a retry. */
+function ClientNamesNotice({ onRetry }: Readonly<{ onRetry: () => void }>) {
+	const t = useTranslations();
+	return (
+		<Notice
+			tone="warning"
+			title={t('clientGrouping.NAMES_ERROR_TITLE')}
+			description={t('clientGrouping.NAMES_ERROR_MESSAGE')}
+			actions={
+				<Button type="button" variant="outline" size="sm" onClick={onRetry}>
+					{t('pages.unauthorized.TRY_AGAIN')}
+				</Button>
+			}
+			className="mx-3 mt-3"
+		/>
+	);
 }
 
 export function TimeActivityPage() {
@@ -83,8 +103,9 @@ export function TimeActivityPage() {
 						rows={report.rows}
 						columns={columns}
 						period={period}
-						isLoading={report.isDailyPending}
-						isError={report.isDailyError}
+						isLoading={report.isBreakdownPending}
+						isError={report.isBreakdownError}
+						notice={report.isClientNamesError && <ClientNamesNotice onRetry={report.retryClientNames} />}
 						hasFilters={hasFilters}
 						onRetry={retryDaily}
 						onClearFilters={settings.clearFilters}

@@ -137,7 +137,8 @@ describe('a change made from Team tasks on a built-in view', () => {
 		act(() => result.current.moveDates('a', 'move', 3));
 		await waitFor(() => expect(mockUpdateTask).toHaveBeenCalledTimes(1));
 
-		const moved = { startDate: new Date(2026, 10, 13), dueDate: new Date(2026, 10, 17) };
+		// Both dates in the platform's date-only form (midnight UTC of the day).
+		const moved = { startDate: new Date(Date.UTC(2026, 10, 13)), dueDate: new Date(Date.UTC(2026, 10, 17)) };
 		expect(listedTask(queryClient, 'a')).toMatchObject(moved);
 	});
 
@@ -146,7 +147,7 @@ describe('a change made from Team tasks on a built-in view', () => {
 		mockUpdateTask.mockReturnValue(save.promise);
 		const { result } = renderUpdates(queryClient);
 
-		act(() => result.current.setPriority(['a'], 'high'));
+		act(() => result.current.setPriority(['a'], { value: 'high', id: 'p-high' }));
 		await waitFor(() => expect(mockUpdateTask).toHaveBeenCalledTimes(1));
 		expect(listedTask(queryClient, 'a')).toMatchObject({ priority: 'high' });
 		save.refuse(new Error('refused'));
@@ -167,12 +168,18 @@ describe('a change made from Team tasks on a built-in view', () => {
 		await waitFor(() => expect(mockUpdateTask).toHaveBeenCalledTimes(1));
 		// The page copies the cached view into the open view's tasks once it renders, as it does between two changes.
 		mockViewTasks = tasksInView(queryClient);
-		act(() => result.current.setPriority(['a'], 'high'));
+		act(() => result.current.setPriority(['a'], { value: 'high', id: 'p-high' }));
 		firstSave.refuse(new Error('refused'));
 		await queuedChangesSettled();
 
 		expect(mockUpdateTask).toHaveBeenCalledTimes(2);
-		const queuedChange = expect.objectContaining({ id: 'a', status: 'todo', taskStatusId: 's1', priority: 'high' });
+		const queuedChange = expect.objectContaining({
+			id: 'a',
+			status: 'todo',
+			taskStatusId: 's1',
+			priority: 'high',
+			taskPriorityId: 'p-high'
+		});
 		expect(mockUpdateTask).toHaveBeenLastCalledWith(queuedChange, undefined);
 	});
 

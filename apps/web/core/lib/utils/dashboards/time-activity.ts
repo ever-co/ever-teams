@@ -10,23 +10,100 @@ import {
 	type DayFigures,
 	earningsByCurrencyOf,
 	earningsOfRow,
-	projectKeyOf
+	flattenDailyReport,
+	projectKeyOf,
+	taskKeyOf
 } from '@/core/lib/utils/daily-report-figures';
+import {
+	type ProjectClientIds,
+	type ReportProjectLog,
+	clientIdOfProjectLog
+} from '@/core/lib/utils/dashboards/report-filters';
+import { NO_CLIENT_FILTER_VALUE } from '@/core/lib/utils/project-list';
 
-export type TimeActivityGrouping = 'date' | 'member' | 'project' | 'task' | 'week';
+export type TimeActivityGrouping = 'date' | 'member' | 'project' | 'task' | 'week' | 'client';
 
 /** The groupings of the first table of this page, whose components stay in the folder. */
 export type TableGrouping = 'date' | 'member' | 'project';
 
 export type BreakdownGrouping = Exclude<TimeActivityGrouping, 'week'>;
 
-export const TIME_ACTIVITY_GROUPINGS: ReadonlyArray<TimeActivityGrouping> = [
-	'date',
-	'member',
-	'project',
-	'task',
-	'week'
-];
+/** The groupings every reader gets; the client grouping joins them for a reader who may read the clients. */
+const TIME_ACTIVITY_GROUPINGS: ReadonlyArray<TimeActivityGrouping> = ['date', 'member', 'project', 'task', 'week'];
+
+/** The page link's parameter for its grouping; the date grouping, the default, leaves it out. */
+export const TIME_ACTIVITY_GROUPING_PARAM = 'groupBy';
+
+const DEFAULT_GROUPING: TimeActivityGrouping = 'date';
+
+function isTimeActivityGrouping(value: string): value is TimeActivityGrouping {
+	const isClient = value === 'client';
+	const groupings: ReadonlyArray<string> = TIME_ACTIVITY_GROUPINGS;
+	const isAlwaysOffered = groupings.includes(value);
+	return isClient || isAlwaysOffered;
+}
+
+export function groupingOfParam(value: string | null | undefined): TimeActivityGrouping {
+	if (!value) {
+		return DEFAULT_GROUPING;
+	}
+	if (!isTimeActivityGrouping(value)) {
+		return DEFAULT_GROUPING;
+	}
+	return value;
+}
+
+export function groupingParamOf(grouping: TimeActivityGrouping): string | null {
+	if (grouping === DEFAULT_GROUPING) {
+		return null;
+	}
+	return grouping;
+}
+
+/**
+ * Grouping by client names every client, archived ones included, and only the clients list does: a reader who may
+ * not read it does not get the grouping. `unknown` while the reader's permissions are still being read.
+ */
+export type ClientGroupingAccess = 'granted' | 'refused' | 'unknown';
+
+export function clientGroupingAccessOf(mayReadClients: boolean, arePermissionsPending: boolean): ClientGroupingAccess {
+	if (mayReadClients) {
+		return 'granted';
+	}
+	if (arePermissionsPending) {
+		return 'unknown';
+	}
+	return 'refused';
+}
+
+/** A link on the client grouping opens on the date grouping for a reader who does not get the client grouping. */
+export function effectiveGroupingOf(linked: TimeActivityGrouping, access: ClientGroupingAccess): TimeActivityGrouping {
+	const asksClient = linked === 'client';
+	const isRefused = access === 'refused';
+	const fallsBack = asksClient && isRefused;
+	if (fallsBack) {
+		return DEFAULT_GROUPING;
+	}
+	return linked;
+}
+
+function offersClientGrouping(access: ClientGroupingAccess, linked: TimeActivityGrouping) {
+	if (access === 'granted') {
+		return true;
+	}
+	const isWaiting = access === 'unknown';
+	const asksClient = linked === 'client';
+	return isWaiting && asksClient;
+}
+
+/** The switch offers Client last, so the other groupings keep their places; a link on it shows it while it waits. */
+export function offeredGroupingsOf(access: ClientGroupingAccess, linked: TimeActivityGrouping): TimeActivityGrouping[] {
+	const groupings = [...TIME_ACTIVITY_GROUPINGS];
+	if (offersClientGrouping(access, linked)) {
+		groupings.push('client');
+	}
+	return groupings;
+}
 
 export type TimeActivityColumn = 'project' | 'tracked' | 'earnings' | 'activity';
 
@@ -398,6 +475,91 @@ export function reportTotalsOf(rows: ReadonlyArray<DailyReportRow>): ReportTotal
 	};
 }
 
+/** The time without a client: the key of the client filter's "No client", so a group and its filter value match. */
+const NO_CLIENT_KEY = NO_CLIENT_FILTER_VALUE;
+
+/** A client of the report. `name` is null for the time without a client, and for a client no list names. */
+export interface ReportClientRef {
+	key: string;
+	name: string | null;
+}
+
+export const NO_CLIENT: ReportClientRef = { key: NO_CLIENT_KEY, name: null };
+
+export function hasClient(client: ReportClientRef) {
+	return client.key !== NO_CLIENT_KEY;
+}
+
+export interface ClientLabels {
+	noClient: string;
+	/** For a client no list names, as the projects list writes it. */
+	unnamedClient: string;
+}
+
+export function clientLabelOf(client: ReportClientRef, labels: ClientLabels) {
+	if (!hasClient(client)) {
+		return labels.noClient;
+	}
+	return client.name ?? labels.unnamedClient;
+}
+
+/** A row of the daily report, with the client of its project once the page groups by client. */
+export type TimeActivityRow = DailyReportRow & { client?: ReportClientRef };
+
+export type ClientOfProjectLog = (projectLog: ReportProjectLog) => ReportClientRef;
+
+function statedClientNameOf(projectLog: ReportProjectLog, clientId: string) {
+	const statedClient = projectLog?.project?.organizationContact;
+	const isSameClient = statedClient?.id === clientId;
+	if (!isSameClient) {
+		return null;
+	}
+	return statedClient?.name ?? null;
+}
+
+/**
+ * The client of a project's time, by the client filter's rule. The clients list names it, archived clients included;
+ * the report names a client the list does not hold yet.
+ */
+export function clientOfProjectLogOf(
+	clientIds: ProjectClientIds,
+	clientNames: ReadonlyMap<string, string>
+): ClientOfProjectLog {
+	return (projectLog) => {
+		const clientId = clientIdOfProjectLog(projectLog, clientIds);
+		if (!clientId) {
+			return NO_CLIENT;
+		}
+		const listedName = clientNames.get(clientId);
+		const name = listedName ?? statedClientNameOf(projectLog, clientId);
+		return { key: clientId, name };
+	};
+}
+
+/**
+ * The page's rows, in the same order, each with the client of its project. Time logged without a team keeps the
+ * client of the project it was logged on, as the client filter keeps or drops a project's time whole.
+ */
+export function clientRowsOf(
+	report: ReadonlyArray<ITimeLogGroupedDailyReport>,
+	clientOf: ClientOfProjectLog,
+	withoutTeamLabel: string | null,
+	workspaceCurrency: string | null = null
+): TimeActivityRow[] {
+	const rows: TimeActivityRow[] = [];
+	for (const day of report) {
+		for (const projectLog of day?.logs ?? []) {
+			const client = clientOf(projectLog);
+			const dayOfProject = { ...day, logs: [projectLog] };
+			const projectRows = flattenDailyReport([dayOfProject], withoutTeamLabel, workspaceCurrency);
+			for (const row of projectRows) {
+				rows.push({ ...row, client });
+			}
+		}
+	}
+	return rows;
+}
+
 export function lineCountOf(groups: ReadonlyArray<ReportGroup>) {
 	let count = 0;
 	for (const group of groups) {
@@ -447,7 +609,11 @@ export interface TimeActivityExportRow {
 	employeeId: string;
 	member: string;
 	project: string | null;
+	projectKey: string;
+	/** Only in an export of the client grouping. */
+	client: ReportClientRef | null;
 	task: string | null;
+	taskKey: string;
 	status: string | null;
 	seconds: number;
 	earnings: number | null;
@@ -528,24 +694,35 @@ interface ExportRowContext {
 	employeeId: string;
 	member: string;
 	project: string | null;
+	projectId: string | null;
+	isWithoutTeam: boolean;
+	client: ReportClientRef | null;
 	activity: number;
 	memberRate: MemberRate;
 	withoutTeamLabel: string | null;
 }
 
-function exportRowOf(
-	context: ExportRowContext,
-	task: string | null,
-	status: string | null,
-	seconds: number
-): TimeActivityExportRow {
+interface ExportTask {
+	key: string;
+	title: string | null;
+	status: string | null;
+}
+
+function exportTaskOf(taskLog: TaskLog): ExportTask {
+	return { key: taskKeyOf(taskLog), title: taskTitleOf(taskLog), status: taskStatusOf(taskLog) };
+}
+
+function exportRowOf(context: ExportRowContext, task: ExportTask, seconds: number): TimeActivityExportRow {
 	return {
 		dateKey: context.dateKey,
 		employeeId: context.employeeId,
 		member: context.member,
 		project: context.project,
-		task,
-		status,
+		projectKey: projectKeyOf(context),
+		client: context.client,
+		task: task.title,
+		taskKey: task.key,
+		status: task.status,
 		seconds,
 		earnings: earningsFor(seconds, context.memberRate.rate),
 		currency: context.memberRate.currency,
@@ -559,19 +736,20 @@ function contextOfTask(context: ExportRowContext, taskLog: TaskLog): ExportRowCo
 	if (!isWithoutTeam) {
 		return context;
 	}
-	return { ...context, project: context.withoutTeamLabel };
+	return { ...context, project: context.withoutTeamLabel, isWithoutTeam: true };
 }
 
 function exportRowsOfEmployeeLog(context: ExportRowContext, employeeLog: EmployeeLog): TimeActivityExportRow[] {
 	const tasks = employeeLog.tasks ?? [];
 	if (tasks.length === 0) {
 		const seconds = finiteOrZero(employeeLog.sum);
-		return [exportRowOf(context, null, null, seconds)];
+		const noTask: ExportTask = { key: NO_TASK_KEY, title: null, status: null };
+		return [exportRowOf(context, noTask, seconds)];
 	}
 	return tasks.map((taskLog) => {
 		const seconds = finiteOrZero(taskLog?.duration);
 		const taskContext = contextOfTask(context, taskLog);
-		return exportRowOf(taskContext, taskTitleOf(taskLog), taskStatusOf(taskLog), seconds);
+		return exportRowOf(taskContext, exportTaskOf(taskLog), seconds);
 	});
 }
 
@@ -587,15 +765,24 @@ function compareExportRows(first: TimeActivityExportRow, second: TimeActivityExp
 	return second.seconds - first.seconds;
 }
 
+function exportClientOf(projectLog: ReportProjectLog, clientOf: ClientOfProjectLog | null) {
+	if (!clientOf) {
+		return null;
+	}
+	return clientOf(projectLog);
+}
+
 /**
  * Export rows built from the raw daily report on the click. `onlyEmployeeId` keeps a member's own rows when the
- * reader does not manage the others. A rate without a currency of its own is in the workspace's.
+ * reader does not manage the others. A rate without a currency of its own is in the workspace's. `clientOf` gives
+ * each row the client of its project.
  */
 export function exportRowsOf(
 	report: ReadonlyArray<ITimeLogGroupedDailyReport>,
 	onlyEmployeeId: string | null,
 	withoutTeamLabel: string | null = null,
-	workspaceCurrency: string | null = null
+	workspaceCurrency: string | null = null,
+	clientOf: ClientOfProjectLog | null = null
 ): TimeActivityExportRow[] {
 	const rows: TimeActivityExportRow[] = [];
 	for (const day of report) {
@@ -603,6 +790,8 @@ export function exportRowsOf(
 		const dateKey = rawDate.slice(0, 10);
 		for (const projectLog of day?.logs ?? []) {
 			const project = projectLog?.project?.name ?? null;
+			const projectId = projectLog?.project?.id ?? null;
+			const client = exportClientOf(projectLog, clientOf);
 			for (const employeeLog of projectLog?.employeeLogs ?? []) {
 				const employeeId = employeeLog?.employee?.id;
 				if (!employeeId) {
@@ -617,6 +806,9 @@ export function exportRowsOf(
 					employeeId,
 					member: memberNameOf(employeeLog),
 					project,
+					projectId,
+					isWithoutTeam: false,
+					client,
 					activity: finiteOrZero(employeeLog.activity),
 					memberRate: rateOf(employeeLog, workspaceCurrency),
 					withoutTeamLabel
@@ -763,12 +955,15 @@ export function todayKeyOf(now = new Date()) {
 	return localDayKeyOf(now);
 }
 
-/** The first table had no task grouping: tasks sit under their project there. */
+/** The first table had no task or client grouping: tasks sit under their project there, and so do clients. */
 export function tableGroupingOf(grouping: TimeActivityGrouping): TableGrouping {
 	if (grouping === 'week') {
 		return 'date';
 	}
 	if (grouping === 'task') {
+		return 'project';
+	}
+	if (grouping === 'client') {
 		return 'project';
 	}
 	return grouping;
@@ -812,6 +1007,9 @@ function exportGroupKeyOf(row: TimeActivityExportRow, grouping: BreakdownGroupin
 	if (grouping === 'task') {
 		return row.task ?? '';
 	}
+	if (grouping === 'client') {
+		return row.client?.key ?? NO_CLIENT_KEY;
+	}
 	return row.project ?? '';
 }
 
@@ -846,6 +1044,10 @@ function compareExportGroups(grouping: BreakdownGrouping) {
 	if (grouping === 'date') {
 		return (first: ExportGroup, second: ExportGroup) => second.key.localeCompare(first.key);
 	}
+	if (grouping === 'client') {
+		// The order of the breakdown's top rows, equal times included, so an export lists the client groups as the screen
+		return compareNodes;
+	}
 	return bySecondsDescending;
 }
 
@@ -864,13 +1066,113 @@ export function exportGroupsOf(rows: ReadonlyArray<TimeActivityExportRow>, group
 	return groups.sort(compareExportGroups(grouping));
 }
 
-export type BreakdownDimension = 'day' | 'member' | 'project' | 'task';
+/** The rows of an export in the order of their groups, each group keeping the order of its rows. */
+export function exportRowsInGroupOrderOf(
+	rows: ReadonlyArray<TimeActivityExportRow>,
+	grouping: BreakdownGrouping
+): TimeActivityExportRow[] {
+	const groups = exportGroupsOf(rows, grouping);
+	return groups.flatMap((group) => group.rows);
+}
+
+/** A client's time on one task of one member on one project over the whole period: a row of the client's PDF. */
+export interface ClientExportLine {
+	key: string;
+	member: string;
+	project: string | null;
+	projectKey: string;
+	task: string | null;
+	seconds: number;
+	activeSeconds: number;
+	earnings: number | null;
+	currency: string | null;
+}
+
+function clientLineKeyOf(row: TimeActivityExportRow) {
+	const parts = [row.projectKey, row.employeeId, row.taskKey];
+	return JSON.stringify(parts);
+}
+
+function emptyClientLineOf(row: TimeActivityExportRow, key: string): ClientExportLine {
+	return {
+		key,
+		member: row.member,
+		project: row.project,
+		projectKey: row.projectKey,
+		task: row.task,
+		seconds: 0,
+		activeSeconds: 0,
+		earnings: null,
+		currency: row.currency
+	};
+}
+
+function addedEarnings(total: number | null, earnings: number | null) {
+	if (earnings === null) {
+		return total;
+	}
+	const base = total ?? 0;
+	return base + earnings;
+}
+
+function projectSecondsOf(lines: ReadonlyArray<ClientExportLine>) {
+	const seconds = new Map<string, number>();
+	for (const line of lines) {
+		const previous = seconds.get(line.projectKey) ?? 0;
+		seconds.set(line.projectKey, previous + line.seconds);
+	}
+	return seconds;
+}
+
+function compareClientLines(projectSeconds: ReadonlyMap<string, number>) {
+	return (first: ClientExportLine, second: ClientExportLine) => {
+		const firstProject = first.project ?? '';
+		const secondProject = second.project ?? '';
+		const firstProjectSeconds = projectSeconds.get(first.projectKey) ?? 0;
+		const secondProjectSeconds = projectSeconds.get(second.projectKey) ?? 0;
+		const byProjectTime = secondProjectSeconds - firstProjectSeconds;
+		if (byProjectTime !== 0) {
+			return byProjectTime;
+		}
+		const byProject = firstProject.localeCompare(secondProject);
+		if (byProject !== 0) {
+			return byProject;
+		}
+		const byProjectKey = first.projectKey.localeCompare(second.projectKey);
+		if (byProjectKey !== 0) {
+			return byProjectKey;
+		}
+		return second.seconds - first.seconds;
+	};
+}
+
+/**
+ * A client group of a PDF holds one line per project, member and task, the days added up: its columns name no day,
+ * and a row per day would repeat the same three names. Projects come largest first, as on screen.
+ */
+export function clientExportLinesOf(rows: ReadonlyArray<TimeActivityExportRow>): ClientExportLine[] {
+	const lines = new Map<string, ClientExportLine>();
+	for (const row of rows) {
+		const key = clientLineKeyOf(row);
+		const line = lines.get(key) ?? emptyClientLineOf(row, key);
+		line.seconds += row.seconds;
+		line.activeSeconds += (row.seconds * row.activity) / 100;
+		line.earnings = addedEarnings(line.earnings, row.earnings);
+		lines.set(key, line);
+	}
+	const merged = [...lines.values()];
+	const projectSeconds = projectSecondsOf(merged);
+	return merged.sort(compareClientLines(projectSeconds));
+}
+
+export type BreakdownDimension = 'day' | 'member' | 'project' | 'task' | 'client';
 
 export const BREAKDOWN_PATHS: Record<BreakdownGrouping, ReadonlyArray<BreakdownDimension>> = {
 	date: ['day', 'member', 'project'],
 	member: ['member', 'project', 'task'],
 	project: ['project', 'task', 'member'],
-	task: ['task', 'member', 'day']
+	task: ['task', 'member', 'day'],
+	client: ['client', 'project', 'member']
 };
 
 const NO_TASK_KEY = 'no-task';
@@ -882,6 +1184,7 @@ export interface BreakdownFact {
 	employeeName: string;
 	employeeImageUrl: string | null;
 	project: ReportProjectRef;
+	client: ReportClientRef;
 	taskKey: string;
 	/** `null` for time logged without a task. */
 	taskTitle: string | null;
@@ -911,7 +1214,7 @@ function rateOfRow(row: DailyReportRow): MemberRate {
  * Gauzy measures activity per member, project and day. A task gets its time's share of it, so every level that
  * gathers whole rows adds up exactly; the task levels themselves never show it (`hasExactActivity`).
  */
-function factOf(row: DailyReportRow, taskKey: string, taskTitle: string | null, seconds: number): BreakdownFact {
+function factOf(row: TimeActivityRow, taskKey: string, taskTitle: string | null, seconds: number): BreakdownFact {
 	const share = shareOfRow(seconds, row);
 	const memberRate = rateOfRow(row);
 	return {
@@ -920,6 +1223,7 @@ function factOf(row: DailyReportRow, taskKey: string, taskTitle: string | null, 
 		employeeName: row.employeeName,
 		employeeImageUrl: row.employeeImageUrl,
 		project: projectRefOf(row, 0),
+		client: row.client ?? NO_CLIENT,
 		taskKey,
 		taskTitle,
 		seconds,
@@ -938,7 +1242,7 @@ function taskTitleOrNull(title: string) {
 }
 
 /** Time of a row that no task accounts for stays under "No task", so the tasks of a row add up to the row. */
-function factsOfRow(row: DailyReportRow): BreakdownFact[] {
+function factsOfRow(row: TimeActivityRow): BreakdownFact[] {
 	const facts: BreakdownFact[] = [];
 	let taskSeconds = 0;
 	for (const task of row.tasks) {
@@ -962,7 +1266,7 @@ function factsOfRow(row: DailyReportRow): BreakdownFact[] {
 	return facts;
 }
 
-export function breakdownFactsOf(rows: ReadonlyArray<DailyReportRow>): BreakdownFact[] {
+export function breakdownFactsOf(rows: ReadonlyArray<TimeActivityRow>): BreakdownFact[] {
 	const facts: BreakdownFact[] = [];
 	for (const row of rows) {
 		const rowFacts = factsOfRow(row);
@@ -975,7 +1279,8 @@ export type BreakdownSubject =
 	| { kind: 'day'; dateKey: string }
 	| { kind: 'member'; employeeId: string; name: string; imageUrl: string | null }
 	| { kind: 'project'; project: ReportProjectRef }
-	| { kind: 'task'; title: string | null };
+	| { kind: 'task'; title: string | null }
+	| { kind: 'client'; client: ReportClientRef };
 
 export interface BreakdownNode {
 	/** The keys from the top row down, so a row keeps its open state while the period changes. */
@@ -1015,6 +1320,9 @@ function bucketKeyOf(fact: BreakdownFact, dimension: BreakdownDimension) {
 	if (dimension === 'project') {
 		return fact.project.key;
 	}
+	if (dimension === 'client') {
+		return fact.client.key;
+	}
 	return fact.taskKey;
 }
 
@@ -1032,6 +1340,9 @@ function subjectOfFact(fact: BreakdownFact, dimension: BreakdownDimension): Brea
 	}
 	if (dimension === 'project') {
 		return { kind: 'project', project: fact.project };
+	}
+	if (dimension === 'client') {
+		return { kind: 'client', client: fact.client };
 	}
 	return { kind: 'task', title: fact.taskTitle };
 }
@@ -1082,7 +1393,7 @@ function factProjectsOf(facts: ReadonlyArray<BreakdownFact>): ReportProjectRef[]
 }
 
 /** Largest first; equal times keep a stable order, the latest day first. */
-function compareNodes(first: BreakdownNode, second: BreakdownNode) {
+function compareNodes(first: Pick<BreakdownNode, 'key' | 'seconds'>, second: Pick<BreakdownNode, 'key' | 'seconds'>) {
 	const bySeconds = second.seconds - first.seconds;
 	if (bySeconds !== 0) {
 		return bySeconds;

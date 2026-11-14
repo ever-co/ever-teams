@@ -687,6 +687,33 @@
 				"NO_APPS": "In diesen zehn Minuten wurde keine App und keine Website erfasst.",
 				"OPEN_FULL": "Screenshot in voller Größe öffnen",
 				"SHOT_OF": "Screenshot {index} von {count}"
+			},
+			"BULK_EDIT": {
+				"TITLE": "{count, plural, one {# Eintrag bearbeiten} other {# Einträge bearbeiten}}",
+				"DESCRIPTION": "Nur die Felder, die Sie ändern, werden gespeichert. Jeder Eintrag behält sein Datum, seine Zeiten, seine Notizen und sein Mitglied.",
+				"KEEP": "Unverändert lassen",
+				"PROJECT_FOLLOWS": "Die Zeit dieser Aufgabe geht in ihr Projekt: {project}.",
+				"PROJECT_FOLLOWS_UNNAMED": "Die Zeit dieser Aufgabe geht in das Projekt der Aufgabe.",
+				"TASKS_OF_PROJECT": "Aufgaben von {project} und Aufgaben ohne Projekt.",
+				"PROJECTS_LOADING": "Projekte werden geladen",
+				"PROJECTS_FAILED": "Die Projekte konnten nicht geladen werden.",
+				"NOTHING_CHOSEN": "Alle Felder stehen auf „Unverändert lassen“, es ändert sich also noch nichts.",
+				"WILL_UPDATE": "{count, plural, =0 {Kein Eintrag wird geändert} one {# Eintrag wird geändert} other {# Einträge werden geändert}}",
+				"UPDATE": "{count, plural, =0 {Einträge ändern} one {# Eintrag ändern} other {# Einträge ändern}}",
+				"PROGRESS": "Einträge werden geändert: {done} von {total}",
+				"UPDATED": "{count, plural, one {# Eintrag geändert} other {# Einträge geändert}}",
+				"UPDATED_PARTLY": "{updated, plural, =0 {Kein Eintrag geändert} one {# Eintrag geändert} other {# Einträge geändert}}, {notUpdated, plural, one {# nicht geändert} other {# nicht geändert}}",
+				"STILL_SELECTED": "Die nicht geänderten Einträge bleiben ausgewählt.",
+				"REASON": {
+					"NOT_ALLOWED": "{count, plural, one {# Eintrag gehört Ihnen nicht: Nur sein Mitglied oder ein Admin kann ihn bearbeiten.} other {# Einträge gehören Ihnen nicht: Nur ihr Mitglied oder ein Admin kann sie bearbeiten.}}",
+					"RUNNING": "{count, plural, one {# Eintrag eines laufenden Timers: Stoppen Sie zuerst den Timer.} other {# Einträge laufender Timer: Stoppen Sie zuerst die Timer.}}",
+					"APPROVED": "{count, plural, one {# Eintrag ist genehmigt: Ändern Sie zuerst seinen Status.} other {# Einträge sind genehmigt: Ändern Sie zuerst ihren Status.}}",
+					"OTHER_TEAM": "{count, plural, one {# Eintrag eines anderen Teams: Wechseln Sie zu diesem Team, um seine Aufgabe zu ändern.} other {# Einträge eines anderen Teams: Wechseln Sie zu diesem Team, um ihre Aufgabe zu ändern.}}",
+					"UNCHANGED": "{count, plural, one {# Eintrag hat diese Werte bereits.} other {# Einträge haben diese Werte bereits.}}",
+					"OVERLAP": "{count, plural, one {# Eintrag überschneidet sich mit anderer erfasster Zeit: Beim Speichern würde diese Zeit entfernt.} other {# Einträge überschneiden sich mit anderer erfasster Zeit: Beim Speichern würde diese Zeit entfernt.}}",
+					"CHECK_FAILED": "{count, plural, one {Bei # Eintrag konnte die Überschneidung nicht geprüft werden, er wurde daher nicht gespeichert.} other {Bei # Einträgen konnte die Überschneidung nicht geprüft werden, sie wurden daher nicht gespeichert.}}",
+					"FAILED": "{count, plural, one {# Eintrag konnte nicht gespeichert werden.} other {# Einträge konnten nicht gespeichert werden.}}"
+				}
 			}
 		},
 		"workDiary": {
@@ -1865,6 +1892,10 @@
 				"title": "Projekt wiederherstellen",
 				"description": "Sind Sie sicher, dass Sie {projectName} wiederherstellen möchten?"
 			},
+			"billable": {
+				"LABEL": "Standardmäßig abrechenbar",
+				"HELP": "Gilt für neue Einträge; gespeicherte bleiben gleich."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archivieren {projectsCount} Projekte",
@@ -2761,7 +2792,8 @@
 			"HINT_BEFORE_START": "Optional. Wird beim Start des Timers im Eintrag gespeichert.",
 			"HINT_RUNNING": "Änderungen bei laufendem Timer werden noch nicht gespeichert. Um die Notizen zu ändern, bearbeiten Sie den Eintrag nach dem Stoppen des Timers in den Stundenzetteln.",
 			"HINT_OTHER_TEAM": "Diese Notizen gehören zum Timer, der in einem anderen Team läuft, und können hier nicht geändert werden."
-		}
+		},
+		"NOT_BILLABLE": "Nicht abrechenbar"
 	},
 	"task": {
 		"TITLE": "Aufgabe",
@@ -3818,6 +3850,7 @@
 			"PERMISSION": "Deine Rolle erlaubt diese Änderung nicht.",
 			"NOT_FOUND": "Dieses Element gibt es nicht mehr. Lade die Seite neu.",
 			"CONFLICT": "Jemand hat es gleichzeitig geändert. Lade neu und versuche es erneut.",
+			"NAME_TAKEN": "Dieser Name wird hier schon verwendet. Wähle einen anderen.",
 			"INVALID": "Einige Werte wurden nicht akzeptiert. Prüfe sie und versuche es erneut.",
 			"TOO_MANY": "Zu viele Versuche. Warte einen Moment und versuche es dann erneut.",
 			"SERVER": "Der Server konnte es nicht abschließen. Versuche es gleich noch einmal.",
@@ -4874,6 +4907,10 @@
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "Wird nur von den Gauzy-Apps für Desktop und Web geprüft.",
 			"REQUIREMENT_NOT_SAVED": "Die Anforderung wurde nicht gespeichert.",
 			"REQUIREMENTS_LOAD_FAILED": "Die Anforderungen konnten nicht geladen werden.",
+			"TRACKING_SWITCH_SECTION": "Wer die Zeiterfassung schaltet",
+			"RESTRICT_TRACKING_SWITCH_LABEL": "Nur eine höhere Rolle schaltet die Zeiterfassung",
+			"RESTRICT_TRACKING_SWITCH_DESCRIPTION": "Admins schalten die Zeiterfassung aller ein oder aus, Manager nur die ihrer Teammitglieder, nie ihre eigene oder die eines anderen Managers. Ausgeschaltet schalten Admins und Teammanager sie für alle in ihren Teams, und wer zudem Mitarbeitende bearbeiten darf, stellt damit auch die eigene Zeiterfassung der Person ein, die in allen Teams gilt.",
+			"TRACKING_SWITCH_RULE_NOT_SAVED": "Die Einstellung wurde nicht gespeichert.",
 			"ON": "An",
 			"OFF": "Aus",
 			"DANGER_SECTION": "Gefahrenbereich",
@@ -5206,6 +5243,8 @@
 			"TO_STATUSES": "Zu den Status",
 			"FROM_STATUSES": "Von den Status",
 			"ANY_STATUS": "Wählen Sie keinen für jeden Status.",
+			"MERGED_ONLY": "Nur gemergte Pull-Requests",
+			"MERGED_ONLY_HINT": "Ein ohne Merge geschlossener Pull-Request startet die Regel nicht; sein Merge nach dem erneuten Öffnen schon. Das Schließen eines Issues startet sie wie bisher.",
 			"NO_CONDITIONS": "Keine Bedingungen: Die Regel läuft jedes Mal.",
 			"ADD_CONDITION": "Bedingung hinzufügen",
 			"ADD_ACTION": "Aktion hinzufügen",
@@ -6152,7 +6191,48 @@
 		"APP_GONE": "Diese Schaltfläche ist nicht mehr verfügbar.",
 		"APP_NO_ANSWER_YET": "Die App hat noch nicht geantwortet. Sie können erneut klicken.",
 		"LINK_PREVIEW_LABEL": "{title} ({site}, öffnet sich in einem neuen Tab)",
-		"LINK_PREVIEW_SITE_LABEL": "{site} (öffnet sich in einem neuen Tab)"
+		"LINK_PREVIEW_SITE_LABEL": "{site} (öffnet sich in einem neuen Tab)",
+		"WEBHOOKS": {
+			"TITLE": "Integrationen",
+			"DIALOG_TITLE": "Integrationen von #{name}",
+			"INTRO": "Mit eingehenden Webhooks können Automatisierungen in diesem Kanal posten. Jeder hat seine eigene URL; seine Beiträge zeigen seinen Namen mit einem App-Abzeichen.",
+			"NEW": "Neuer Webhook",
+			"CREATE": "Webhook erstellen",
+			"EMPTY": "Noch keine Webhooks.",
+			"FULL": "Ein Kanal hat höchstens {max} Webhooks; widerrufen Sie einen, um einen weiteren hinzuzufügen.",
+			"NAME": "Name",
+			"ICON_URL": "Symbol-URL (optional, https)",
+			"INTERACTION_URL": "Interaktions-URL (optional, https)",
+			"INTERACTION_HINT": "Klicks auf Schaltflächen werden hierhin gesendet, signiert mit dem Signaturgeheimnis. Nur öffentliche Adressen.",
+			"BROADCAST": "Sein @channel und @here benachrichtigen alle im Kanal",
+			"SHOWN_ONCE": "Kopieren Sie diese jetzt für „{name}“: Sie werden nur dieses eine Mal angezeigt.",
+			"URL": "Webhook-URL",
+			"SIGNING_SECRET": "Signaturgeheimnis",
+			"COPY": "Kopieren",
+			"COPIED": "Kopiert",
+			"COPY_URL": "Webhook-URL kopieren",
+			"COPY_SECRET": "Signaturgeheimnis kopieren",
+			"COPY_FAILED": "Kopieren hat nicht funktioniert; markieren Sie den Text und kopieren Sie ihn von Hand.",
+			"LOAD_FAILED": "Die Webhooks dieses Kanals konnten nicht geladen werden.",
+			"DONE": "Ich habe sie kopiert",
+			"CREATED_BY": "Von {name} am {date}",
+			"LAST_USED": "zuletzt verwendet {date}",
+			"NEVER_USED": "nie verwendet",
+			"COUNTS": "Gepostet: {accepted} · Abgelehnt: {rejected} · Gedrosselt: {limited} · Fehlgeschlagene Rückrufe: {failures}",
+			"REVOKED": "Widerrufen",
+			"EDIT": "Bearbeiten",
+			"EDIT_NAMED": "{name} bearbeiten",
+			"ROTATE": "Neues Signaturgeheimnis",
+			"ROTATE_NAMED": "Neues Signaturgeheimnis für {name}",
+			"ROTATE_CONFIRM": "Ein neues Signaturgeheimnis für „{name}“ erstellen? Die App muss ab sofort das neue verwenden.",
+			"REVOKE": "Widerrufen",
+			"REVOKE_NAMED": "{name} widerrufen",
+			"REVOKE_CONFIRM": "„{name}“ widerrufen? Seine URL funktioniert sofort nicht mehr, und das lässt sich nicht rückgängig machen.",
+			"FORBIDDEN": "Nur ein Manager dieses Kanals kann seine Webhooks verwalten.",
+			"GONE": "Dieser Webhook oder sein Kanal ist nicht mehr verfügbar.",
+			"INVALID": "Der Server hat diese Werte abgelehnt. Prüfen Sie den Namen und die Adressen (https, nur öffentliche Hosts).",
+			"OFF": "Eingehende Webhooks sind auf diesem Server nicht verfügbar."
+		}
 	},
 	"docs": {
 		"TITLE": "Dokumente",
@@ -6691,7 +6771,138 @@
 				"FAILED": "Die Rechnung wurde nicht gespeichert, und es wurde nichts angelegt. Prüfen Sie, ob die Nummer frei ist, und versuchen Sie es erneut.",
 				"UNCHECKED": "Die bereits gespeicherten Rechnungen für {client} konnten nicht gelesen werden, daher wurde dieser Zeitraum nicht mit ihnen abgeglichen.",
 				"UNCONFIRMED": "Das Speichern konnte nicht bestätigt werden, die Rechnung wurde also vielleicht gespeichert. Prüfen Sie die bereits gespeicherten Rechnungen für {client}, bevor Sie erneut speichern."
+			},
+			"byProject": {
+				"GROUP_BY_PROJECT": "Nach Projekt",
+				"AVERAGE_RATE": "Durchschnittssatz",
+				"AVERAGE_RATE_HINT": "Die Mitglieder dieses Projekts haben unterschiedliche Sätze: Dies ist ihr Durchschnitt, gewichtet nach ihren Stunden."
+			},
+			"terms": {
+				"CLIENT": "Zahlungsziel des Kunden: {days, plural, =0 {sofort fällig} one {# Tag} other {# Tage}}",
+				"ORGANIZATION": "Zahlungsziel des Arbeitsbereichs: {days, plural, one {# Tag} other {# Tage}}",
+				"STANDARD": "Standard-Zahlungsziel: {days, plural, one {# Tag} other {# Tage}}",
+				"NOTE": "Hinweis für den Kunden",
+				"NOTE_HINT": "Wird auf der Rechnung unter ihrem Zeitraum gedruckt."
+			},
+			"adjustments": {
+				"DISCOUNT": "Rabatt (%)",
+				"TAX": "Steuer (%)",
+				"SUBTOTAL": "Zwischensumme",
+				"DISCOUNT_ROW": "Rabatt ({percent})",
+				"TAX_ROW": "Steuer ({percent} von {base})"
+			},
+			"sending": {
+				"SAVE_AND_SEND": "Speichern und senden",
+				"DRAFT_OR_SEND_NOTE": "Im nächsten Schritt speichern Sie sie als Entwurf oder speichern sie und senden sie an {email}.",
+				"SEND_CONSEQUENCE": "„Speichern und senden“ schickt sie außerdem per E-Mail mit dem PDF im Anhang und setzt sie dann auf Gesendet.",
+				"SAVED_NOT_SENT": "Rechnung {number} wurde als Entwurf gespeichert, aber nicht gesendet",
+				"SEND_FROM_LIST": "Senden Sie sie über ihr Menü in der Liste erneut."
 			}
+		},
+		"actions": {
+			"MENU_LABEL": "Aktionen für Rechnung {number}",
+			"SEND": "An den Kunden senden",
+			"SEND_AGAIN": "Erneut senden",
+			"MARK_PAID": "Als bezahlt markieren",
+			"MARK_UNPAID": "Als unbezahlt markieren",
+			"VOID": "Stornieren",
+			"DELETE": "Löschen",
+			"MARKED_PAID": "Rechnung {number} ist als bezahlt markiert",
+			"MARKED_UNPAID": "Rechnung {number} steht wieder auf Gesendet, unbezahlt",
+			"CHANGE_FAILED": "Rechnung {number} wurde nicht geändert",
+			"DOWNLOAD": "Als PDF herunterladen"
+		},
+		"send": {
+			"TITLE": "Rechnung {number} senden?",
+			"ATTACHED": "Sie geht per E-Mail hinaus, mit der Rechnung als PDF im Anhang.",
+			"MARKS_SENT": "Danach steht sie auf Gesendet.",
+			"RECIPIENT": "Senden an",
+			"RECIPIENT_INVALID": "Geben Sie die E-Mail-Adresse ein, an die die Rechnung geht.",
+			"CONFIRM": "Rechnung senden",
+			"SENT": "Rechnung {number} an {email} gesendet",
+			"NOT_MARKED": "Ihr Status konnte nicht auf Gesendet gesetzt werden.",
+			"FAILED": "Rechnung {number} wurde nicht gesendet. Prüfen Sie die Adresse und versuchen Sie es erneut."
+		},
+		"void": {
+			"TITLE": "Rechnung {number} stornieren?",
+			"STAYS_LISTED": "Sie bleibt als Storniert in der Liste, und ihr PDF lässt sich weiterhin herunterladen.",
+			"FINAL": "Eine stornierte Rechnung kann nicht mehr gesendet oder als bezahlt markiert werden.",
+			"CONFIRM": "Rechnung stornieren",
+			"DONE": "Rechnung {number} ist storniert",
+			"FAILED": "Die Rechnung wurde nicht geändert. Versuchen Sie es erneut."
+		},
+		"delete": {
+			"TITLE": "Rechnung {number} löschen?",
+			"FOR_GOOD": "Der Entwurf wird endgültig gelöscht und verschwindet aus der Liste.",
+			"NUMBER_FREE": "Seine Nummer kann einer anderen Rechnung gegeben werden.",
+			"CONFIRM": "Rechnung löschen",
+			"DONE": "Rechnung {number} wurde gelöscht",
+			"FAILED": "Die Rechnung wurde nicht gelöscht. Versuchen Sie es erneut."
+		},
+		"edit": {
+			"TITLE": "Rechnung {number} bearbeiten",
+			"LOADING_TITLE": "Rechnung bearbeiten",
+			"SAVE": "Änderungen speichern",
+			"TAKE_TIME_AGAIN": "Zeit neu übernehmen",
+			"TIME_LINES": "Positionen neu aus der Zeit, wie sie jetzt ist.",
+			"BACK_TO_SAVED": "Zurück zu den gespeicherten Positionen",
+			"RATE_SOURCE_SAVED": "Der auf der Rechnung gespeicherte Satz",
+			"DRAFT_NOTE": "Sie bleibt ein Entwurf. An den Kunden wird nichts gesendet.",
+			"SENT_NOTE": "{client} hat die frühere Fassung, bis sie erneut gesendet wird.",
+			"UNCHANGED": "Noch hat sich nichts geändert.",
+			"TIME_ERROR_MESSAGE": "Versuchen Sie es erneut oder kehren Sie zu den gespeicherten Positionen zurück.",
+			"LOAD_ERROR_TITLE": "Die Rechnung konnte nicht geladen werden",
+			"NOT_FOUND_TITLE": "Diese Rechnung gibt es nicht mehr",
+			"NOT_FOUND_MESSAGE": "Sie wurde vielleicht gelöscht. Die Liste zeigt die verbleibenden Rechnungen.",
+			"BACK_TO_LIST": "Rechnungen öffnen",
+			"LOCKED_TITLE": "Rechnung {number} kann nicht bearbeitet werden",
+			"LOCKED_PAID": "Auf sie wurde bereits etwas gezahlt. Stornieren und ersetzen Sie sie über ihr Menü in der Liste.",
+			"LOCKED_VOID": "Sie ist storniert, und eine stornierte Rechnung ändert sich nicht mehr.",
+			"NOT_FROM_TIME_TITLE": "Rechnung {number} lässt sich hier nicht öffnen",
+			"NOT_FROM_TIME_MESSAGE": "Sie wurde nicht aus der abrechenbaren Zeit eines Kunden erstellt. Ändern Sie sie dort, wo sie erstellt wurde.",
+			"OTHER_WORKSPACE_TITLE": "Rechnung {number} liegt in einem anderen Arbeitsbereich",
+			"OTHER_WORKSPACE_MESSAGE": "Wählen Sie ihren Arbeitsbereich und öffnen Sie sie dann erneut aus der Rechnungsliste.",
+			"SAVED_NOT_SENT": "Rechnung {number} wurde gespeichert, aber nicht gesendet",
+			"confirm": {
+				"TITLE": "Änderungen an Rechnung {number} speichern?",
+				"LINES_ADDED": "{count, plural, one {# Position hinzugefügt} other {# Positionen hinzugefügt}}.",
+				"LINES_REMOVED": "{count, plural, one {# Position entfernt} other {# Positionen entfernt}}.",
+				"LINES_CHANGED": "{count, plural, one {# Position mit anderen Stunden oder anderem Satz} other {# Positionen mit anderen Stunden oder anderem Satz}}.",
+				"DESCRIPTIONS": "{count, plural, one {# Beschreibung neu geschrieben} other {# Beschreibungen neu geschrieben}}.",
+				"TOTAL": "Gesamt {total} statt {before}.",
+				"ISSUE_DATE": "Ausgestellt am {date} statt am {before}.",
+				"DUE_DATE": "Fällig am {date} statt am {before}.",
+				"NUMBER": "Nummer {number} statt {before}.",
+				"DISCOUNT": "Rabatt {percent} statt {before}.",
+				"TAX": "Steuer {percent} statt {before}.",
+				"CURRENCY": "In {currency} statt in {before} abgerechnet.",
+				"NOTE": "Der Hinweis für den Kunden wird neu geschrieben.",
+				"EARLIER_VERSION": "{client} hat die frühere Fassung.",
+				"STAYS_DRAFT": "Sie bleibt ein Entwurf.",
+				"SEND_AGAIN": "Speichern und erneut senden schickt diese Fassung dem Kunden auch per E-Mail, mit dem PDF im Anhang.",
+				"SAVE_AND_SEND_AGAIN": "Speichern und erneut senden",
+				"NOT_SAVED": "Die Änderungen wurden nicht gespeichert, die Rechnung ist unverändert. Prüfen Sie, ob ihre Nummer frei ist, und versuchen Sie es erneut.",
+				"PUT_BACK": "Die Änderungen konnten nicht gespeichert werden, deshalb wurde die Rechnung auf ihren früheren Stand zurückgesetzt. Versuchen Sie es erneut.",
+				"NOT_PUT_BACK": "Die Änderungen konnten nicht gespeichert werden, und die Rechnung ließ sich nicht auf ihren früheren Stand zurücksetzen. Öffnen Sie sie erneut und prüfen Sie Positionen und Gesamtbetrag, bevor Sie sie senden.",
+				"NOT_PUT_BACK_LINES": "Die Änderungen konnten nicht gespeichert werden, und die Rechnung ließ sich nicht auf ihren früheren Stand zurücksetzen: Sie hat jetzt {count, plural, =0 {keine Position} one {# Position} other {# Positionen}}. Prüfen Sie sie, bevor Sie sie senden.",
+				"LOCKED_NOW": "Seit dem Öffnen wurde Rechnung {number} bezahlt oder storniert: Es wurde nichts gespeichert, und sie lässt sich nicht mehr bearbeiten.",
+				"NOT_CHECKED": "Die Rechnung konnte vor dem Speichern nicht erneut gelesen werden, deshalb wurde nichts gespeichert. Versuchen Sie es erneut.",
+				"NOT_REACHED": "Die Verbindung ist fehlgeschlagen: Die Änderungen wurden nicht gespeichert, die Rechnung ist unverändert. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+				"CHANGED": "Seit dem Öffnen wurde Rechnung {number} geändert: Es wurde nichts gespeichert. Öffnen Sie sie erneut aus der Rechnungsliste, um von ihrer aktuellen Fassung auszugehen."
+			}
+		},
+		"replace": {
+			"ACTION": "Stornieren und ersetzen",
+			"TITLE": "Rechnung {number} stornieren und ersetzen?",
+			"VOIDS": "Sie bleibt als Storniert in der Liste, mit dem, was auf sie gezahlt wurde.",
+			"OPENS": "Eine neue Rechnung für {client} öffnet sich, mit demselben Zeitraum und denselben Positionen, zum Anpassen und Speichern unter einer neuen Nummer.",
+			"STAYS_VOID": "Wird diese neue Rechnung nie gespeichert, bleibt Rechnung {number} trotzdem storniert.",
+			"CONFIRM": "Stornieren und ersetzen",
+			"NOTICE_TITLE": "Ersatz für Rechnung {number}",
+			"NOTICE_MESSAGE": "Derselbe Kunde, derselbe Zeitraum, dieselben Positionen. Passen Sie sie an und speichern Sie sie unter einer neuen Nummer.",
+			"NOT_REBUILDABLE": "Rechnung {number} wurde nicht storniert: Sie lässt sich hier nicht aus abrechenbarer Zeit neu erstellen. Stornieren und ersetzen Sie sie dort, wo sie erstellt wurde.",
+			"NOT_VOID_TITLE": "Rechnung {number} ist nicht storniert",
+			"NOT_VOID_MESSAGE": "Hier wird nur eine stornierte Rechnung ersetzt. Öffnen Sie sie aus der Rechnungsliste, um sie zu bearbeiten oder um sie zu stornieren und zu ersetzen."
 		}
 	},
 	"timeReports": {
@@ -6842,5 +7053,11 @@
 			"ROW_DESCRIPTION": "Füge Zeiteinträge aus einer CSV-Datei hinzu.",
 			"OPEN": "Aus CSV importieren"
 		}
+	},
+	"clientGrouping": {
+		"TITLE": "Zeit nach Kunde",
+		"CLIENTS": "{count, plural, one {# Kunde} other {# Kunden}}",
+		"NAMES_ERROR_TITLE": "Die Kundenliste konnte nicht geladen werden",
+		"NAMES_ERROR_MESSAGE": "Archivierte Kunden erscheinen bis dahin ohne ihren Namen."
 	}
 }

@@ -3,6 +3,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { EIssueType } from '@/core/types/generics/enums/task';
 import { sortStatusesByOrder, statusIdOf } from './kanban-board';
 import { sortByManualOrder } from './task-view-order';
+import { dayNumberOf, dayOfStoredDate } from './date-only';
 
 /** Which part of the team's work the page shows, from the statuses' own workflow flags. */
 export type TeamTasksScope = 'active' | 'done' | 'all';
@@ -421,9 +422,12 @@ function compareTasks(first: TTask, second: TTask, ordering: TeamTasksOrdering, 
 		return compareNullable(numberOf(first), numberOf(second), direction);
 	}
 	if (ordering === 'dueDate') {
-		const firstDue = timeOf(first.dueDate);
-		const secondDue = timeOf(second.dueDate);
-		return compareNullable(firstDue, secondDue, direction);
+		// By the day each due date names (a date-only one is its own day in every zone), then by the moment.
+		const byDay = compareNullable(dayOfStoredDate(first.dueDate), dayOfStoredDate(second.dueDate), direction);
+		if (byDay !== 0) {
+			return byDay;
+		}
+		return compareNullable(timeOf(first.dueDate), timeOf(second.dueDate), direction);
 	}
 	const field = dateFieldOf(ordering);
 	const newestFirst = -direction;
@@ -710,29 +714,23 @@ export type DueDateTone = 'overdue' | 'soon' | 'later';
 
 const SOON_DAYS = 2;
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-function startOfDay(time: number) {
-	const day = new Date(time);
-	day.setHours(0, 0, 0, 0);
-	return day.getTime();
-}
-
-/** Overdue before today, soon within two days; a finished task is never late. */
+/**
+ * Overdue before today, soon within two days; a finished task is never late. Days are the reader's: a date-only due
+ * date (midnight UTC, the evening before west of UTC) is late only once its own day has passed.
+ */
 export function dueDateToneOf(dueDate: Date | string | null | undefined, isDone: boolean, now: number): DueDateTone {
-	const dueTime = timeOf(dueDate);
-	if (dueTime === null) {
+	const dueDay = dayOfStoredDate(dueDate);
+	if (dueDay === null) {
 		return 'later';
 	}
 	if (isDone) {
 		return 'later';
 	}
-	const today = startOfDay(now);
-	const dueDay = startOfDay(dueTime);
+	const today = dayNumberOf(new Date(now));
 	if (dueDay < today) {
 		return 'overdue';
 	}
-	const daysLeft = (dueDay - today) / DAY_MS;
+	const daysLeft = dueDay - today;
 	if (daysLeft <= SOON_DAYS) {
 		return 'soon';
 	}

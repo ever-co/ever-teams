@@ -23,7 +23,7 @@ jest.mock('@/core/stores/user/user-organizations', () => ({ currentOrganizationS
 jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
 	useMyRolePermissionsQuery: () => ({ myPermissions: ['ALLOW_MODIFY_TIME'] })
 }));
-jest.mock('@/core/hooks/dashboards/timesheets/use-sheet-cell-writes', () => ({
+jest.mock('@/core/lib/utils/dashboards/time-write-error', () => ({
 	writeErrorKeyOf: () => 'dashboard.timesheets.SHEET.EDIT.SAVE_FAILED'
 }));
 jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
