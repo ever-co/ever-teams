@@ -2,7 +2,7 @@ import { getTimerStatus, sendHeartbeat, type TimerStatus } from '~lib/gauzy';
 import { sendsHeartbeat } from '~lib/run-policy';
 import { clearSession, loadSession } from '~lib/session-store';
 import { badgeText, secondsSince } from '~lib/time-format';
-import type { Session } from '~lib/workspaces';
+import { isSameSignIn, type Session } from '~lib/workspaces';
 import browser from '~misc/browser';
 import { MessageTypesFromBackgroundEnum, MessageTypesToBackgroundEnum } from '~typescript/enums/MessageTypesEnum';
 import type { IPostMessage } from '~typescript/interfaces/PostMessage';
@@ -67,7 +67,9 @@ async function refresh(heartbeat = false): Promise<void> {
 		}
 	} catch (error) {
 		const isSignedOutElsewhere = (error as { status?: number }).status === 401;
-		if (isSignedOutElsewhere) {
+		// A sign-in made while this read was out is not the one that failed, and stays
+		const isStillThisSignIn = isSignedOutElsewhere && isSameSignIn(await loadSession(), session);
+		if (isStillThisSignIn) {
 			await clearSession();
 			await showBadge(null);
 			broadcast(null);

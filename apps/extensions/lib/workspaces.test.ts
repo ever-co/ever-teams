@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { renewedSessionOf, sessionFrom, workspacesOf, type Session } from './workspaces.ts';
+import { isSameSignIn, isSessionRefused, renewedSessionOf, sessionFrom, workspacesOf, type Session } from './workspaces.ts';
 
 const confirmAnswer = {
 	workspaces: [
@@ -125,5 +125,34 @@ describe('renewedSessionOf', () => {
 
 	it('keeps nothing when the answer holds no access token', () => {
 		assert.equal(renewedSessionOf(signedIn, signedIn, { message: 'Unauthorized' }), null);
+	});
+});
+
+describe('isSameSignIn', () => {
+	const session = { apiUrl: 'https://api.ever.team', refreshToken: 'refresh-1', userId: 'user-1' } as Session;
+
+	it('knows the stored session of the same sign-in, whatever changed in it since', () => {
+		assert.equal(isSameSignIn({ ...session, teamId: 'team-2' }, session), true);
+	});
+
+	it('tells a sign-out, a new sign-in, another person or another API apart', () => {
+		assert.equal(isSameSignIn(null, session), false);
+		assert.equal(isSameSignIn({ ...session, refreshToken: 'refresh-9' }, session), false);
+		assert.equal(isSameSignIn({ ...session, userId: 'user-2' }, session), false);
+		assert.equal(isSameSignIn({ ...session, apiUrl: 'http://localhost:3000' }, session), false);
+	});
+});
+
+describe('isSessionRefused', () => {
+	it('ends the session when the API refuses its refresh token', () => {
+		assert.equal(isSessionRefused(400), true);
+		assert.equal(isSessionRefused(401), true);
+		assert.equal(isSessionRefused(403), true);
+	});
+
+	it('keeps the session through a busy or failing server', () => {
+		assert.equal(isSessionRefused(429), false);
+		assert.equal(isSessionRefused(500), false);
+		assert.equal(isSessionRefused(503), false);
 	});
 });

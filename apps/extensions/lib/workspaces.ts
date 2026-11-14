@@ -117,14 +117,31 @@ export function sessionFrom(answer: unknown, workspace: WorkspaceChoice, apiUrl:
 }
 
 /**
+ * Whether the stored session is still the sign-in `session` came from: not signed out, not signed in again (a new
+ * refresh token), not another person or API. What changed in it since (the active team) does not count.
+ */
+export function isSameSignIn(stored: Session | null, session: Session): stored is Session {
+	if (!stored) {
+		return false;
+	}
+	const isSameRefreshToken = stored.refreshToken === session.refreshToken;
+	const isSamePerson = stored.userId === session.userId && stored.apiUrl === session.apiUrl;
+	return isSameRefreshToken && isSamePerson;
+}
+
+/** A refresh token the API refused ends the session; a busy or failing server (429, 5xx) does not. */
+export function isSessionRefused(status: number): boolean {
+	return status === 400 || status === 401 || status === 403;
+}
+
+/**
  * The session to keep after a token renewal: the stored one with the new access token and the refresh token the API
  * rotated (the one sent is revoked). Null when the stored session is no longer the one renewed: the person signed
  * out, signed in again or changed the API address meanwhile, and that must not be undone.
  */
 export function renewedSessionOf(stored: Session | null, renewedFrom: Session, answer: unknown): Session | null {
 	const token = textOf(fieldOf(answer, 'token'));
-	const isSameSignIn = stored !== null && stored.refreshToken === renewedFrom.refreshToken;
-	if (!token || !isSameSignIn) {
+	if (!token || !isSameSignIn(stored, renewedFrom)) {
 		return null;
 	}
 	const refreshToken = textOf(fieldOf(answer, 'refresh_token')) || stored.refreshToken;
