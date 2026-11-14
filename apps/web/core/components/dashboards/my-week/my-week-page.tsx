@@ -19,6 +19,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { formatPeriod } from '@/core/lib/utils/dashboard-period';
 import { MY_WEEK_PERIODS, type MyWeekPeriodKey } from '@/core/lib/utils/dashboards/my-week';
 import { isTrackingEnabledState } from '@/core/stores/timer/active-timer';
+import { MyWeekGoals } from './my-week-goals';
 import { MyWeekBodySkeleton } from './my-week-page-skeleton';
 import { MyWeekProjects } from './my-week-projects';
 import { MyWeekRecentEntries } from './my-week-recent-entries';
@@ -140,6 +141,8 @@ export function MyWeekPage() {
 	const canTrackTime = useIsTrackingEnabledFor(user?.id);
 	const page = useMyWeekPage();
 	const title = t('dashboard.myWeek.TITLE');
+	// The goals are read for today: they show beside this week only
+	const showsGoals = page.shownKey === 'thisWeek' && !page.isMemberUnknown;
 
 	return (
 		<PageLayout
@@ -164,6 +167,7 @@ export function MyWeekPage() {
 		>
 			<div className={DASHBOARD_STACK} aria-busy={page.isLoading}>
 				<MyWeekBody page={page} canTrackTime={canTrackTime} />
+				<MyWeekGoals enabled={showsGoals} />
 			</div>
 		</PageLayout>
 	);

@@ -10,7 +10,8 @@ describe('getMyWorkNavigation', () => {
 		expect(getMyWorkNavigation()).toEqual({
 			timeAndActivity: '/reports/time-and-activity',
 			workDiary: '/work-diary',
-			myWeek: '/my-week'
+			myWeek: '/my-week',
+			goals: '/goals'
 		});
 	});
 
@@ -29,6 +30,17 @@ describe('getMyWorkNavigation', () => {
 	it('keeps My week behind the sign-in, in every language', () => {
 		expect(isProtectedPath('/my-week')).toBe(true);
 		expect(isProtectedPath('/fr/my-week')).toBe(true);
+	});
+	it('links Goals to its own page, outside the reports only team managers may open', () => {
+		const goals = getMyWorkNavigation().goals;
+
+		expect(goals).toBe('/goals');
+		expect(goals.startsWith('/reports')).toBe(false);
+	});
+
+	it('keeps Goals behind the sign-in, in every language', () => {
+		expect(isProtectedPath('/goals')).toBe(true);
+		expect(isProtectedPath('/fr/goals')).toBe(true);
 	});
 });
 
