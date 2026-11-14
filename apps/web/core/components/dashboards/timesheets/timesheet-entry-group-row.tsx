@@ -137,7 +137,10 @@ export function TimesheetEntryGroupRow({
 					</span>
 				)}
 				<span
-					className={cn('flex min-w-0 items-center gap-2 pl-6.5 text-xs text-muted-foreground', NARROW_ONLY)}
+					className={cn(
+						'flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 pl-6.5 text-xs text-muted-foreground',
+						NARROW_ONLY
+					)}
 				>
 					<TimesheetStatusChip status={status} className="h-5 px-1.5" />
 					<span className={COUNT_CHIP}>{countText}</span>
