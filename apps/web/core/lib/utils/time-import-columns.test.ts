@@ -281,6 +281,26 @@ describe('timeImportReadingOf for a file from another tool', () => {
 		expect(rowProblemsOf(noYearFirst)).toEqual([unreadable, unreadable]);
 	});
 
+	it('keeps reading year first a template whose kept choice maps its columns as its headers say', () => {
+		const template = 'date,start time,end time\n2026-11-03,09:00,10:00\n';
+		const clean = timeImportReadingOf(template);
+		if (clean.kind !== 'sheet') {
+			throw new Error(`The template was not read straight: ${clean.kind}`);
+		}
+		const kept = { mapping: clean.choice.mapping, dateOrder: 'dayFirst' } as const;
+		const twoWays = `${template}25/10/2026,11:00,12:00\n`;
+
+		const reading = timeImportReadingOf(twoWays, () => kept);
+
+		expect(reading.kind).toBe('sheet');
+		if (reading.kind !== 'sheet') {
+			return;
+		}
+		const rows = draftRowsOf(reading.sheet.rows, CONTEXT, reading.sheet.dateOrder);
+		expect(reading.sheet.dateOrder).toBe('yearFirst');
+		expect(rows.map((row) => row.problems)).toEqual([[], [{ code: 'dateUnreadable', order: 'yearFirst' }]]);
+	});
+
 	it('refuses a file whose dates are written two ways, with the row that shows it', () => {
 		expect(problemOf('Date,From,To\n25/10/2026,09:00,10:00\n10/25/2026,09:00,10:00\n')).toEqual({
 			code: 'mixedDates',

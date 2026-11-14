@@ -2,6 +2,7 @@
  * @jest-environment jsdom
  */
 import { fireEvent, renderHook } from '@testing-library/react';
+import { Provider } from 'jotai';
 
 let mockOverrides: Record<string, string> = {};
 jest.mock('@/core/hooks/keyboard/use-keyboard-preferences', () => {
@@ -18,6 +19,7 @@ jest.mock('@/core/hooks/keyboard/use-keyboard-preferences', () => {
 	};
 });
 
+import { useAnsweredKeySet } from '@/core/hooks/keyboard/use-answered-keys';
 import { useChatShortcuts } from './use-chat-shortcuts';
 
 function handlers() {
@@ -37,6 +39,20 @@ afterEach(() => {
 });
 
 describe('useChatShortcuts', () => {
+	it('tells the shortcuts sheet the keys it answers, only while it listens', () => {
+		const { result, rerender } = renderHook(
+			({ enabled }: { enabled: boolean }) => {
+				useChatShortcuts({ chatNext: jest.fn(), chatUnreads: jest.fn() }, enabled);
+				return useAnsweredKeySet();
+			},
+			{ initialProps: { enabled: true }, wrapper: Provider }
+		);
+		expect([...result.current]).toEqual(['chatNext', 'chatUnreads']);
+
+		rerender({ enabled: false });
+		expect([...result.current]).toEqual([]);
+	});
+
 	it('runs the command of each key of the chat page', () => {
 		const run = handlers();
 		renderHook(() => useChatShortcuts(run));

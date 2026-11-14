@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { FC, useCallback, useMemo, useState } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { commandPaletteOpenAtom } from '@/core/stores/common/command-palette';
 import { useRouter } from 'next/navigation';
 
@@ -23,6 +23,7 @@ import {
 	AddTeamIcon,
 	AddUserIcon,
 	DashboardIcon,
+	Keyboard,
 	MoonIcon,
 	ProfileIcon,
 	SettingsIcon,
@@ -47,8 +48,18 @@ import { usePaletteRecent } from '@/core/hooks/keyboard/use-palette-recent';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
 import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
+import {
+	GO_TO_GROUP_ID,
+	openablePageHandlers,
+	paletteListedGroups,
+	SECTION_SEPARATOR,
+	shownKeysOf,
+	withGoToPreview,
+	type GoToPreview
+} from '@/core/lib/utils/palette-go-to';
+import type { SidebarPage } from '@/core/lib/utils/sidebar-pages';
 import type { PaletteItem } from '@/core/lib/utils/palette-items';
-import type { ShortcutHandler } from '@/core/stores/common/shortcuts';
+import { shortcutsHelpOpenAtom, type ShortcutHandler } from '@/core/stores/common/shortcuts';
 import { InviteFormModal } from '../../../features/teams/invite-form-modal';
 import { CreateProjectModal } from '../../../features/projects/create-project-modal';
 import { CreateTeamModal } from '@/core/components/features/teams/create-team-modal';
@@ -86,6 +97,9 @@ const PALETTE_SHORTCUT_KEYS = ['⌘', 'K'];
 const paletteGroupClass =
 	'p-0 pt-1 [&_[cmdk-group-heading]]:h-8 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:text-[13px]';
 const paletteActionRowClass = 'min-h-10 gap-3 rounded-lg px-2 text-sm';
+/** A link in the brand ink, starting where the labels of the rows above start (padding, icon tile, gap). */
+const paletteShowMoreRowClass =
+	'min-h-8 rounded-lg pl-12 text-sm text-primary-ink data-[selected=true]:text-primary-ink';
 
 function groupsForTab(groups: CommandGroupConfig[], tab: string) {
 	if (tab === ALL_GROUPS_TAB) {
@@ -106,8 +120,8 @@ function showsResultsIn(tab: string, resultsTab: string) {
 	return tab === ALL_GROUPS_TAB || tab === resultsTab;
 }
 
-function shortcutKeysOf(command: Pick<CommandShortcutConfig, 'shortcutDisplay' | 'shortcutKeys'>) {
-	return command.shortcutKeys ?? Array.from(command.shortcutDisplay);
+function hasKeySequence(command: Pick<CommandShortcutConfig, 'sequence'>) {
+	return command.sequence.length > 0;
 }
 
 const navigationIcon = <ArrowUpRight aria-hidden="true" />;
@@ -117,6 +131,7 @@ const ClickableCommandItem: FC<{
 	action: ShortcutAction;
 	className?: string;
 	keywords?: string[];
+	value?: string;
 }> = ({ children, action, ...props }) => {
 	const handleClick = React.useCallback(
 		(event: React.MouseEvent<HTMLDivElement>) => {
@@ -154,12 +169,15 @@ const ClickableCommandItem: FC<{
  * `variant="sidebar"` renders the original full-width input as its trigger; `variant="none"` renders no
  * trigger: the shell mounts it once that way (app-sidebar.tsx) so its shortcuts work on every page, and
  * the header's CommandPaletteTrigger opens it through `commandPaletteOpenAtom`.
+ * `pages` are the pages the sidebar lists for this person: the rows of "Go to".
  */
-export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' | 'none' }> = ({
-	publicTeam,
-	variant = 'sidebar'
-}) => {
+export const SidebarCommandModal: FC<{
+	publicTeam: boolean;
+	variant?: 'sidebar' | 'none';
+	pages?: readonly SidebarPage[];
+}> = ({ publicTeam, variant = 'sidebar', pages }) => {
 	const [open, setOpen] = useAtom(commandPaletteOpenAtom);
+	const setShortcutsSheetOpen = useSetAtom(shortcutsHelpOpenAtom);
 
 	const t = useTranslations();
 	const [activeTab, setActiveTab] = useState(ALL_GROUPS_TAB);
@@ -215,9 +233,20 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 			inviteUser: () => inviteModal.openModal(),
 			toggleTheme: () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark'),
 			// The chat page opens its "New message" dialog for `?new=message`.
-			newChatMessage: () => router.push('/chat?new=message')
+			newChatMessage: () => router.push('/chat?new=message'),
+			openShortcutsSheet: () => setShortcutsSheetOpen(true)
 		}),
-		[router, profileLink, createTaskModal, teamModal, createProjectModal, inviteModal, setTheme, resolvedTheme]
+		[
+			router,
+			profileLink,
+			createTaskModal,
+			teamModal,
+			createProjectModal,
+			inviteModal,
+			setTheme,
+			resolvedTheme,
+			setShortcutsSheetOpen
+		]
 	);
 
 	// The palette opened on one tab, its field empty (the registry's "search" commands).
@@ -250,14 +279,16 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 		};
 		if (canInvite) handlers['inviteUser'] = actions.inviteUser;
 		if (!publicTeam) handlers['teamCreate'] = actions.createTeam;
-		return handlers;
-	}, [actions, canInvite, openOnTab, publicTeam]);
+		// A "go to" whose page the sidebar does not list for this person (a report for managers) gets no handler.
+		return openablePageHandlers(handlers, pages);
+	}, [actions, canInvite, openOnTab, pages, publicTeam]);
 	const paletteShortcuts = usePaletteShortcuts(paletteHandlers);
 	const { keysOf, searchWordsOf, handlerOfTypedSequence } = paletteShortcuts;
 	const registryOn = paletteShortcuts.isOn;
 
-	// The registry's "go to" commands (saved-views feature): their keys are the registry's, not this palette's.
-	const goToCommands = useGoToCommands(navigationIcon);
+	// The pages the sidebar lists, then the registry's "go to" commands (saved-views feature) no row leads to: their
+	// keys are the registry's, not this palette's.
+	const goToCommands = useGoToCommands(navigationIcon, pages);
 	// The chat's entries (its conversations, the people to write to, "New message") where the chat is on.
 	const chatOn = isChatEnabled();
 
@@ -515,6 +546,14 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 						shortcutDisplay: '⌘S',
 						action: actions.navigateToSettings,
 						icon: <SettingsIcon />
+					},
+					{
+						sequence: [],
+						commandId: PALETTE_COMMAND_IDS.keyboardShortcuts,
+						description: t('shortcuts.TITLE'),
+						shortcutDisplay: '?',
+						action: actions.openShortcutsSheet,
+						icon: <Keyboard />
 					}
 				]
 			}
@@ -558,7 +597,12 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 
 	// Use our global keyboard shortcut hook (the registry opens the palette itself while it is on)
 	const registryOwnsPalette = isTaskViewsEnabled();
-	useKeyboardShortcuts(allShortcuts, registryOwnsPalette ? undefined : setOpen);
+	const keyedShortcuts = useMemo(() => allShortcuts.filter(hasKeySequence), [allShortcuts]);
+	let openPaletteByKeys: typeof setOpen | undefined;
+	if (!registryOwnsPalette) {
+		openPaletteByKeys = setOpen;
+	}
+	useKeyboardShortcuts(keyedShortcuts, openPaletteByKeys);
 
 	// Keyboard shortcut in current component only for Ctrl+K
 	React.useEffect(() => {
@@ -588,22 +632,33 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 	const showsPeople = registryOn;
 	const showsPages = registryOn && isDocsEnabled();
 
+	// With the sidebar's pages, the hard-coded links of the navigation group are rows of "Go to": that group is not
+	// listed any more (its keys stay), and no page shows for someone the sidebar hides it from.
+	const listedGroups = useMemo(() => paletteListedGroups(shownGroups, pages), [pages, shownGroups]);
+
 	const tabs = useMemo(() => {
 		const result: Array<{ value: string; label: string }> = [
 			{ value: ALL_GROUPS_TAB, label: t('commandPalette.tabs.all') },
-			...commandGroups.map((group) => ({ value: group.id, label: group.heading }))
+			...listedGroups.map((group) => ({ value: group.id, label: group.heading }))
 		];
 		if (showsPeople) result.push({ value: PEOPLE_TAB, label: t('commandPalette.results.people') });
 		if (showsPages) result.push({ value: PAGES_TAB, label: t('commandPalette.results.pages') });
 		return result;
-	}, [commandGroups, showsPages, showsPeople, t]);
+	}, [listedGroups, showsPages, showsPeople, t]);
 
-	const visibleGroups = groupsForTab(shownGroups, activeTab);
+	const visibleGroups = groupsForTab(listedGroups, activeTab);
 	const showsTaskResults = showsTaskResultsIn(activeTab);
 	// Read only while the palette is open: the conversations are not polled on every page.
 	const showsChatResults = chatOn && open && showsChatResultsIn(activeTab);
 	const closePalette = useCallback(() => setOpen(false), [setOpen]);
 	const hasSearch = search.trim().length > 0;
+	const isAllTab = activeTab === ALL_GROUPS_TAB;
+	const showsPagePreview = isAllTab && !hasSearch;
+	let renderedGroups: Array<CommandGroupConfig & GoToPreview> = visibleGroups;
+	if (showsPagePreview) {
+		renderedGroups = withGoToPreview(visibleGroups);
+	}
+	const showAllPages = useCallback(() => setActiveTab(GO_TO_GROUP_ID), []);
 
 	const { items: recentItems, remember } = usePaletteRecent();
 	// A page opened while Docs was on leads nowhere once it is off: not listed then (it stays remembered).
@@ -666,21 +721,30 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 
 	// Rendering of command groups from the configuration
 	const renderCommandGroups = () => {
-		return visibleGroups.map((group) => (
+		return renderedGroups.map((group) => (
 			<CommandGroup key={group.id} heading={group.heading} className={paletteGroupClass}>
 				{group.commands.map((command, commandIndex) => (
 					<ClickableCommandItem
 						key={`${group.id}-${commandIndex}`}
 						className={paletteActionRowClass}
 						keywords={command.keywords}
+						value={command.value}
 						action={() => {
 							executeAction(command.action);
 						}}
 					>
 						<span className={commandIconTileClass}>{command.icon}</span>
-						<span className="min-w-0 flex-1 truncate">{command.description}</span>
+						<span className="min-w-0 flex-1 truncate">
+							{command.section && (
+								<span className="text-muted-foreground">
+									{command.section}
+									{SECTION_SEPARATOR}
+								</span>
+							)}
+							{command.description}
+						</span>
 						<CommandShortcut>
-							{shortcutKeysOf(command).map((key, keyIndex) => (
+							{shownKeysOf(command).map((key, keyIndex) => (
 								<kbd key={`${command.shortcutDisplay}-${keyIndex}`} className={commandKeycapClass}>
 									{key}
 								</kbd>
@@ -688,6 +752,11 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 						</CommandShortcut>
 					</ClickableCommandItem>
 				))}
+				{group.hasMorePages && (
+					<ClickableCommandItem className={paletteShowMoreRowClass} action={showAllPages}>
+						{t('common.SHOW_MORE')}
+					</ClickableCommandItem>
+				)}
 			</CommandGroup>
 		));
 	};

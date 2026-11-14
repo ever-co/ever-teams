@@ -196,6 +196,20 @@ describe('a save of a new invoice that failed', () => {
 		expect(message.textContent).toBe('invoices.new.confirm.UNCONFIRMED');
 		expect(mockPush).not.toHaveBeenCalled();
 	});
+
+	it('says part of its time was billed elsewhere meanwhile and nothing was saved', async () => {
+		const message = 'INVOICE_TIME_LOG_NOT_BILLABLE: a line names a time log it cannot bill.';
+		const billedElsewhere = ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code 400',
+			status: 400,
+			response: { data: { statusCode: 400, message }, headers: {}, status: 400, statusText: 'Bad Request' }
+		});
+
+		const alert = await confirmFailingWith(billedElsewhere);
+
+		expect(alert.textContent).toBe('invoices.billedTime.NEW_REFUSED');
+		expect(mockPush).not.toHaveBeenCalled();
+	});
 });
 
 describe('the confirmation of a new invoice and the invoices already saved for its client', () => {

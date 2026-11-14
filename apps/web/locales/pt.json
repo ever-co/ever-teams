@@ -5844,7 +5844,7 @@
 	},
 	"shortcuts": {
 		"TITLE": "Atalhos de teclado",
-		"DESCRIPTION": "As teclas de cada área. As letras seguem a tecla física, por isso funcionam em qualquer disposição.",
+		"DESCRIPTION": "As teclas que funcionam no app, por área.",
 		"DESCRIPTION_REBIND": "As teclas de cada área. Altere uma gravando novas teclas; a alteração segue-o em todos os dispositivos.",
 		"NONE": "Nenhum",
 		"THEN": "depois",
@@ -5909,10 +5909,20 @@
 			"searchTeams": "Pesquisar nas equipas",
 			"themeToggle": "Alternar entre claro e escuro",
 			"taskProject": "Alterar o projeto",
-			"taskAssignee": "Alterar os responsáveis"
+			"taskAssignee": "Alterar os responsáveis",
+			"sidebarToggle": "Mostrar ou ocultar a barra lateral",
+			"taskSearchFocus": "Pesquisar na lista"
 		},
 		"CHAT_SINGLE_KEY": "Uma tecla do chat é uma só tecla, não uma sequência.",
-		"CHAT_TAKEN": "O chat já usa essa tecla (formatação, envio, movimento ou rolagem)."
+		"CHAT_TAKEN": "O chat já usa essa tecla (formatação, envio, movimento ou rolagem).",
+		"OR": "ou",
+		"groups": {
+			"general": "Geral",
+			"timer": "Temporizador",
+			"tasks": "Tarefas",
+			"navigation": "Navegação",
+			"chat": "Chat"
+		}
 	},
 	"realtime": {
 		"RECONNECTING": "Reconectando…"
@@ -6617,7 +6627,13 @@
 			"NAME_REQUIRED": "Introduza o nome do cliente.",
 			"EMAIL_INVALID": "Introduza um endereço de e-mail válido ou deixe o campo vazio.",
 			"CREATE": "Criar cliente",
-			"SAVE_FAILED": "Não foi possível guardar o cliente. Tente novamente."
+			"SAVE_FAILED": "Não foi possível guardar o cliente. Tente novamente.",
+			"BILLING": "Faturação",
+			"CUSTOM_DAYS_LABEL": "Dias para pagar, de 0 a {max}",
+			"DAYS_UNIT": "{count, plural, one {dia} other {dias}}",
+			"PAYMENT_TERMS": "Condições de pagamento",
+			"TERMS_HINT": "Define a data de vencimento das faturas feitas para este cliente.",
+			"TERMS_INVALID": "Introduza um número de dias entre 0 e 365."
 		},
 		"toasts": {
 			"CREATED": "{name} foi adicionado aos clientes",
@@ -6631,13 +6647,15 @@
 			"LEAVES_PICKER": "Deixa de ser proposto como cliente de um projeto.",
 			"CAN_RESTORE": "Pode restaurá-lo a partir da lista Arquivados.",
 			"CONFIRM": "Arquivar cliente",
-			"FAILED": "Não foi possível arquivar o cliente. Tente novamente."
+			"FAILED": "Não foi possível arquivar o cliente. Tente novamente.",
+			"KEEPS_INVOICES": "As faturas mantêm-se e ainda podem ser enviadas, pagas ou anuladas."
 		},
 		"restore": {
 			"TITLE": "Restaurar {name}?",
 			"BACK_IN_PICKER": "Volta a ser proposto como cliente de um projeto.",
 			"CONFIRM": "Restaurar cliente",
-			"FAILED": "Não foi possível restaurar o cliente. Tente novamente."
+			"FAILED": "Não foi possível restaurar o cliente. Tente novamente.",
+			"KEEPS_EVERYTHING": "Os projetos, o tempo e as faturas estão como os deixou."
 		},
 		"picker": {
 			"ADD": "Adicionar cliente",
@@ -6645,6 +6663,86 @@
 			"CREATE": "Criar o cliente “{name}”",
 			"NO_CLIENT": "Sem cliente",
 			"CREATE_FAILED": "Não foi possível criar o cliente. Tente novamente."
+		},
+		"COLUMN_SINCE": "Desde",
+		"FOOT_PROJECTS": "{count, plural, one {# projeto} other {# projetos}}",
+		"LINK_COPIED": "Ligação para {name} copiada",
+		"LINK_NOT_COPIED": "Não foi possível copiar a ligação. Copie-a a partir da barra de endereço.",
+		"NO_ACCESS_TITLE": "Os clientes não estão abertos à sua função",
+		"NO_ACCESS_MESSAGE": "Peça a um responsável do espaço de trabalho que dê à sua função acesso aos clientes.",
+		"OPEN_CLIENT": "Abrir",
+		"contact": {
+			"ADD": "Adicionar contacto",
+			"ADD_EMAIL": "Adicionar e-mail",
+			"ADD_FOR": "Adicionar contactos de {name}",
+			"ADD_PHONE": "Adicionar telefone",
+			"COPY": "Copiar {value}",
+			"NOT_COPIED": "Não foi possível copiar. Selecione o texto para o copiar.",
+			"NO_EMAIL": "Sem e-mail",
+			"NO_PHONE": "Sem telefone"
+		},
+		"facts": {
+			"ADDED": "Adicionado",
+			"EDIT_CONTACT": "Editar contacto",
+			"EDIT_NOTES": "Editar notas",
+			"EDIT_TERMS": "Editar condições de pagamento",
+			"SINCE": "Cliente desde {date}",
+			"TERMS": "Condições"
+		},
+		"invoices": {
+			"ALL": "Todas",
+			"OPEN": "Em aberto",
+			"EMPTY_TITLE": "Ainda não há faturas",
+			"EMPTY_MESSAGE": "As faturas feitas para este cliente aparecem aqui.",
+			"FILTER_LABEL": "Faturas a mostrar",
+			"NONE_IN_FILTER": "Nenhuma fatura com este estado",
+			"SUMMARY_OPEN": "{count} em aberto",
+			"SUMMARY_OVERDUE": "{count, plural, one {# vencida} other {# vencidas}}",
+			"SUMMARY_PAID": "{count, plural, one {# paga} other {# pagas}}",
+			"SUMMARY_DRAFTS": "{count, plural, one {# rascunho} other {# rascunhos}}",
+			"SUMMARY_VOID": "{count, plural, one {# anulada} other {# anuladas}}"
+		},
+		"notes": {
+			"ADD": "Adicionar uma nota",
+			"NONE": "Sem notas",
+			"READ_MORE": "Ler mais",
+			"SHOW_LESS": "Mostrar menos"
+		},
+		"order": {
+			"TRIGGER": "Ordenado por {order}",
+			"NEWEST": "Mais recentes",
+			"MOST_PROJECTS": "Mais projetos"
+		},
+		"projects": {
+			"EMPTY_TITLE": "Nenhum projeto para este cliente",
+			"EMPTY_MESSAGE": "Escolha este cliente nas definições de um projeto para o ver aqui."
+		},
+		"sheet": {
+			"POSITION": "{position} de {total}"
+		},
+		"standing": {
+			"ALSO": "Também {amounts}",
+			"BILLED": "Faturado",
+			"LABEL": "Faturação de {name}",
+			"LAST_INVOICE": "Última fatura",
+			"NOTHING": "Nada",
+			"NO_INVOICE_TITLE": "Ainda não há faturas para {name}",
+			"NO_INVOICE_MESSAGE": "Fature o tempo registado para este cliente para ver aqui o que deve."
+		},
+		"terms": {
+			"CUSTOM": "Outro",
+			"DAYS": "{days, plural, one {# dia} other {# dias}}",
+			"DUE_ON_RECEIPT": "Pronto pagamento",
+			"NET_DAYS": "Pagamento a {days, plural, one {# dia} other {# dias}}",
+			"RECEIPT": "Na receção",
+			"WORKSPACE": "Espaço de trabalho",
+			"WORKSPACE_DAYS": "Espaço de trabalho ({days, plural, one {# dia} other {# dias}})",
+			"WORKSPACE_SHORT": "Predefinido"
+		},
+		"detail": {
+			"NOT_FOUND_TITLE": "Este cliente não está no espaço de trabalho",
+			"NOT_FOUND_MESSAGE": "Pode ter sido eliminado, ou a ligação vem de outro espaço de trabalho.",
+			"ALL_CLIENTS": "Todos os clientes"
 		}
 	},
 	"invoices": {
@@ -6888,7 +6986,8 @@
 				"LOCKED_NOW": "Desde que foi aberta, a fatura {number} foi paga ou anulada: nada foi guardado e já não pode ser editada.",
 				"NOT_CHECKED": "Não foi possível voltar a ler a fatura antes de guardar, por isso nada foi guardado. Tente novamente.",
 				"NOT_REACHED": "A ligação falhou: as alterações não foram guardadas e a fatura ficou como estava. Verifique a sua ligação e tente novamente.",
-				"CHANGED": "Desde que foi aberta, a fatura {number} foi alterada: nada foi guardado. Abra-a de novo na lista de faturas para começar pela versão atual."
+				"CHANGED": "Desde que foi aberta, a fatura {number} foi alterada: nada foi guardado. Abra-a de novo na lista de faturas para começar pela versão atual.",
+				"RECORDS_TIME": "Regista as horas que as suas linhas faturam, para que nenhuma outra fatura as volte a faturar."
 			}
 		},
 		"replace": {
@@ -6903,6 +7002,73 @@
 			"NOT_REBUILDABLE": "A fatura {number} não foi anulada: não pode ser refeita aqui a partir do tempo faturável. Anule-a e substitua-a onde foi feita.",
 			"NOT_VOID_TITLE": "A fatura {number} não está anulada",
 			"NOT_VOID_MESSAGE": "Aqui só se substitui uma fatura anulada. Abra-a na lista de faturas para a editar, ou para a anular e substituir."
+		},
+		"billedTime": {
+			"LEFT_OUT_TITLE": "As horas que já estão numa fatura ficam de fora",
+			"LEFT_OUT_MESSAGE": "{count, plural, one {Uma fatura de {client} já fatura parte deste período. Essas horas não aparecem aqui.} other {# faturas de {client} já faturam parte deste período. Essas horas não aparecem aqui.}}",
+			"UNRECORDED_MESSAGE": "{count, plural, one {Essa fatura não indica que horas fatura, por isso ainda aparecem aqui.} other {Essas faturas não indicam que horas faturam, por isso essas horas ainda aparecem aqui.}} Remova as linhas já faturadas antes de guardar.",
+			"EARLIER_NOTE": "As horas que já estão numa fatura não aparecem nesta, exceto quando essa fatura não indica que horas fatura.",
+			"ALL_INVOICED_TITLE": "O tempo faturável de {client} neste período já está faturado",
+			"ALL_INVOICED_MESSAGE": "Cada hora faturável deste período está numa fatura. Para voltar a faturar parte dele, remova a linha dessa fatura ou anule a fatura.",
+			"NEW_REFUSED": "Parte deste tempo passou para outra fatura ou foi eliminada desde que foi lida, por isso nada foi guardado. Feche esta janela para ver o tempo que falta faturar e depois guarde novamente.",
+			"EDIT_REFUSED": "Parte deste tempo passou para outra fatura ou foi eliminada desde que foi lida, por isso as alterações não foram guardadas e a fatura ficou como estava. Feche esta janela para ver o tempo que falta faturar e depois guarde novamente."
+		},
+		"standing": {
+			"OVERDUE": "Vencida",
+			"UNKNOWN": "Estado desconhecido"
+		},
+		"due": {
+			"IN_DAYS": "Vence em {count, plural, one {# dia} other {# dias}}",
+			"TODAY": "Vence hoje",
+			"TOMORROW": "Vence amanhã",
+			"LATE": "{count, plural, one {# dia de atraso} other {# dias de atraso}}"
+		},
+		"money": {
+			"LABEL": "Valores devidos ao espaço de trabalho",
+			"OWED": "A receber",
+			"NOTHING_OWED": "Nada a receber no momento",
+			"INVOICE_COUNT": "{count, plural, one {# fatura} other {# faturas}}",
+			"ALSO_OWED": "Também a receber: {amounts}",
+			"SPLIT_LABEL": "Valores a receber, divididos entre ainda não vencidos e vencidos",
+			"NOT_YET_DUE": "Ainda não vencido",
+			"OVERDUE": "Vencido",
+			"DRAFTS": "Rascunhos",
+			"DRAFT_COUNT": "{count, plural, =0 {Nenhum} one {# por enviar} other {# por enviar}}",
+			"WITHOUT_BALANCE": "{count, plural, one {# fatura paga em parte não indica o saldo e fica de fora} other {# faturas pagas em parte não indicam o saldo e ficam de fora}}",
+			"ERROR": "Não foi possível ler os montantes em dívida"
+		},
+		"filter": {
+			"LABEL": "Faturas a mostrar",
+			"ALL": "Todas",
+			"OPEN": "Em aberto",
+			"NONE_DRAFT": "Não há rascunhos por enviar",
+			"NONE_OPEN": "Nenhuma fatura aguarda pagamento",
+			"NONE_OVERDUE": "Nada está vencido",
+			"NONE_PAID": "Nenhuma fatura paga",
+			"NONE_VOID": "Nenhuma fatura anulada",
+			"SHOW_ALL": "Mostrar todas as faturas",
+			"LOADED_ONLY": "Entre {count, plural, one {a última fatura} other {as # últimas faturas}}. Mostre mais para recuar mais."
+		},
+		"detail": {
+			"HEADING": "Fatura {number}",
+			"PAPER_TITLE": "Fatura",
+			"COLUMN_DESCRIPTION": "Descrição",
+			"COLUMN_HOURS": "Horas",
+			"COLUMN_RATE": "Taxa",
+			"COLUMN_AMOUNT": "Montante",
+			"NO_DESCRIPTION": "Sem descrição",
+			"NO_LINES": "Esta fatura não tem linhas.",
+			"DISCOUNT": "Desconto",
+			"TAX": "Imposto",
+			"TAX_PERCENT": "Imposto ({percent})",
+			"TAX2": "Segundo imposto",
+			"TAX2_PERCENT": "Segundo imposto ({percent})",
+			"PAID": "Pago",
+			"LEFT_TO_PAY": "Por pagar",
+			"NOT_FOUND_TITLE": "Esta fatura não está no espaço de trabalho",
+			"NOT_FOUND_MESSAGE": "Pode ter sido eliminada, ou a ligação vem de outro espaço de trabalho.",
+			"ALL_INVOICES": "Todas as faturas",
+			"ERROR_TITLE": "Não foi possível carregar a fatura"
 		}
 	},
 	"timeReports": {
@@ -7091,7 +7257,7 @@
 				"DATE_UNREADABLE_MONTH_FIRST": "Não foi possível ler a data. Escreva-a com o mês primeiro, como {monthFirst}.",
 				"END_DATE_UNREADABLE": "Não foi possível ler a data de fim. Escreva-a como a data.",
 				"START_DAY_MISMATCH": "A data e a hora de início dão dois dias diferentes. Mantenha uma das duas.",
-				"END_DAY_MISMATCH": "A data de fim e a hora de fim dão dois dias diferentes. Mantenha uma das duas.",
+				"END_DAY_MISMATCH": "A data de fim não é o dia em que esta entrada termina. Corrija a data de fim ou as horas.",
 				"MEMBER_NAME_UNKNOWN": "Nenhum membro desta equipe tem este nome.",
 				"MEMBER_AMBIGUOUS": "{count, plural, one {# membro desta equipe tem este nome.} other {# membros desta equipe têm este nome. Indique o membro pelo e-mail.}}"
 			}
@@ -7171,6 +7337,13 @@
 			"CREATED_TITLE": "Os clientes, projetos e etiquetas estão no espaço de trabalho",
 			"PAGE_DESCRIPTION": "Clientes, projetos, etiquetas e registos de tempo de outra ferramenta de registo de tempo."
 		}
+	},
+	"recordSheet": {
+		"PREVIOUS": "Anterior",
+		"PREVIOUS_HINT": "Anterior (K)",
+		"NEXT": "Seguinte",
+		"NEXT_HINT": "Seguinte (J)",
+		"OPEN_PAGE": "Abrir em página inteira"
 	},
 	"clientGrouping": {
 		"TITLE": "Tempo por cliente",

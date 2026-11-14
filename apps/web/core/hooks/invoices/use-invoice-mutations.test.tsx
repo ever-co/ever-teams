@@ -287,9 +287,20 @@ describe('sending an invoice to its client', () => {
 		expect(listedStatusOf(queryClient)).toBe('DRAFT');
 	});
 
+	it('sends nothing when the invoice cannot be read before the e-mail', async () => {
+		mockGetInvoiceStatus.mockRejectedValue(new Error('Network Error'));
+		const { result } = renderWith(clientWithDraftListed(), () => useSendInvoice());
+
+		await act(async () => {
+			await expect(result.current.sendInvoice(draftToSend)).rejects.toThrow();
+		});
+
+		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
+	});
+
 	it('marks nothing when the invoice cannot be read again after the e-mail, and says so', async () => {
 		mockSendInvoiceByEmail.mockResolvedValue(undefined);
-		mockGetInvoiceStatus.mockRejectedValue(new Error('Network Error'));
+		mockGetInvoiceStatus.mockResolvedValueOnce('DRAFT').mockRejectedValue(new Error('Network Error'));
 		const queryClient = clientWithDraftListed();
 		const { result } = renderWith(queryClient, () => useSendInvoice());
 
@@ -349,6 +360,20 @@ describe('settling and deleting an invoice', () => {
 
 		act(() => answers[0]());
 		await waitFor(() => expect(result.current.changingIds.size).toBe(0));
+	});
+
+	it('e-mails nothing once the invoice was voided while its dialog was open', async () => {
+		mockGetInvoiceStatus.mockResolvedValue('VOID');
+		const queryClient = clientWithDraftListed();
+		const { result } = renderWith(queryClient, () => useSendInvoice());
+
+		await act(async () => {
+			await expect(result.current.sendInvoice(draftToSend)).rejects.toMatchObject({ status: 409 });
+		});
+
+		// An e-mail cannot be taken back: the status is read before anything is sent
+		expect(mockGetInvoiceStatus).toHaveBeenCalledWith('inv-1', LIST_SCOPE);
+		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
 	});
 
 	it('takes a deleted draft out of the list at once', async () => {
@@ -528,6 +553,23 @@ describe('voiding a paid invoice to replace it', () => {
 		]
 	};
 
+	it.each(['SENT', 'VOID'])('voids nothing once the invoice became %s while its dialog was open', async (status) => {
+		mockGetInvoice.mockResolvedValue({ ...paidInvoice, status });
+		const queryClient = clientWithDraftListed();
+		const { result } = renderWith(queryClient, () => useVoidToReplace());
+
+		await act(async () => {
+			await expect(result.current.voidToReplace({ invoiceId: 'inv-1', scope: LIST_SCOPE })).rejects.toMatchObject(
+				{
+					status: 409
+				}
+			);
+		});
+
+		expect(mockChangeInvoiceStatus).not.toHaveBeenCalled();
+		expect(listedStatusOf(queryClient)).toBe('DRAFT');
+	});
+
 	it('reads it whole, then voids it, and the list shows it at once', async () => {
 		mockGetInvoice.mockResolvedValue(paidInvoice);
 		mockChangeInvoiceStatus.mockResolvedValue(undefined);
@@ -581,7 +623,8 @@ describe('saving an edit to an invoice', () => {
 		invoiceId: 'inv-42',
 		scope: workspace,
 		revision: { update: { ...fields, totalValue: 960 }, lines: [editedLine] },
-		previous: { update: { ...fields, totalValue: 800 }, lines: [previousLine] }
+		previous: { update: { ...fields, totalValue: 800 }, lines: [previousLine] },
+		previousLineIds: ['item-1']
 	} as unknown as InvoiceEdit;
 	const sending = {
 		invoiceId: 'inv-42',
@@ -647,6 +690,17 @@ describe('saving an edit to an invoice', () => {
 		expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['invoices'] });
 	});
 
+	it('writes nothing once its lines were written back under new ids since it was opened', async () => {
+		mockGetInvoice.mockResolvedValue(invoiceRead('SENT', [{ id: 'item-9', ...previousLine }]));
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'changed' }, sending: null });
+		expect(mockUpdateInvoice).not.toHaveBeenCalled();
+		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
+	});
+
 	it('writes no lines for an edit that leaves them as they were, since the API deletes them before saving new ones', async () => {
 		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
 		mockUpdateInvoice.mockResolvedValue(undefined);
@@ -667,6 +721,32 @@ describe('saving an edit to an invoice', () => {
 		expect(saved).toEqual({ outcome: { status: 'saved' }, sending: null });
 		expect(mockUpdateInvoice).toHaveBeenCalledWith('inv-42', dueDateOnly.revision.update, workspace);
 		expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
+	});
+
+	it('writes the lines of an edit that only records the time they bill, since the API marks it billed with them', async () => {
+		mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockResolvedValue(undefined);
+		const recordsBilledTime = {
+			...edit,
+			revision: {
+				update: { ...fields, totalValue: 800 },
+				lines: [{ ...previousLine, timeLogIds: ['log-1'] }]
+			}
+		} as unknown as InvoiceEdit;
+		const { result } = renderSaveEdit();
+
+		let saved: unknown = null;
+		await act(async () => {
+			saved = await result.current.saveInvoiceEdit({ edit: recordsBilledTime, sending: null });
+		});
+
+		expect(saved).toEqual({ outcome: { status: 'saved' }, sending: null });
+		expect(mockReplaceInvoiceLines).toHaveBeenCalledWith(
+			'inv-42',
+			[expect.objectContaining({ timeLogIds: ['log-1'] })],
+			workspace
+		);
 	});
 
 	it('keeps a status the invoice reached since it was opened', async () => {
@@ -1064,6 +1144,44 @@ describe('saving an edit to an invoice', () => {
 		expect(mockUpdateInvoice).toHaveBeenCalledTimes(1);
 		expect(mockReplaceInvoiceLines).toHaveBeenCalledTimes(1);
 		expect(mockGetInvoice).toHaveBeenCalledTimes(1);
+	});
+
+	function timeBilledElsewhere() {
+		const message = 'INVOICE_TIME_LOG_NOT_BILLABLE: a line names a time log it cannot bill.';
+		return ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code 400',
+			status: 400,
+			response: { data: { statusCode: 400, message }, headers: {}, status: 400, statusText: 'Bad Request' }
+		});
+	}
+
+	it('puts its fields back and says its time was billed elsewhere when its lines are refused for that', async () => {
+		mockGetInvoice
+			.mockResolvedValueOnce(invoiceRead('SENT'))
+			.mockResolvedValue({ ...invoiceRead('SENT'), totalValue: 960 });
+		mockUpdateInvoice.mockResolvedValue(undefined);
+		mockReplaceInvoiceLines.mockRejectedValue(timeBilledElsewhere());
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result, sending);
+
+		expect(saved).toEqual({ outcome: { status: 'timeBilled' }, sending: null });
+		expect(mockReplaceInvoiceLines).toHaveBeenCalledTimes(1);
+		expect(mockUpdateInvoice).toHaveBeenLastCalledWith('inv-42', edit.previous.update, workspace);
+		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
+	});
+
+	it('says how many lines the invoice holds when, refused that way, it could not be put back', async () => {
+		mockGetInvoice
+			.mockResolvedValueOnce(invoiceRead('SENT'))
+			.mockResolvedValue({ ...invoiceRead('SENT'), totalValue: 960 });
+		mockUpdateInvoice.mockResolvedValueOnce(undefined).mockRejectedValue(serverFailure());
+		mockReplaceInvoiceLines.mockRejectedValue(timeBilledElsewhere());
+		const { result } = renderSaveEdit();
+
+		const saved = await saveWith(result);
+
+		expect(saved).toEqual({ outcome: { status: 'notPutBack', lineCount: 1 }, sending: null });
 	});
 
 	describe('in direct mode', () => {
