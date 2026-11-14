@@ -10,9 +10,9 @@ import {
 	calendarDaysOf,
 	type CalendarDayPlan,
 	DEFAULT_CALENDAR_VIEW,
-	visibleRangeOf,
-	weekStartOf
+	visibleRangeOf
 } from '@/core/lib/utils/calendar-view';
+import { weekStartOf } from '@/core/lib/utils/dashboard-period';
 import { timesheetFormattersOf } from '@/core/lib/utils/dashboards/timesheets';
 import { CalendarMonthView } from './calendar-month-view';
 import { CalendarLegend } from './calendar-toolbar';
