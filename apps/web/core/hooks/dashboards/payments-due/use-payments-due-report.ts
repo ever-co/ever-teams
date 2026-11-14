@@ -47,6 +47,7 @@ import {
 import type { TOrganizationTeam } from '@/core/types/schemas';
 import type { TOwedReportDay } from '@/core/types/schemas/timer/time-log-reports.schema';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 interface PaymentsDueRequest {
@@ -211,6 +212,7 @@ function chartCurrencyOf(key: PaymentsChartKey, currencies: ReadonlyArray<OwedCu
 /** Everything shown derives from the data's own request, so a period kept on screen is never drawn as the next. */
 export function usePaymentsDueReport({ unnamedLabel }: Readonly<{ unnamedLabel: string }>) {
 	const locale = useWorkspaceLocale();
+	const weekStart = useWorkspaceWeekStart();
 	const activeTeam = useAtomValue(activeTeamState);
 	const organization = useAtomValue(currentOrganizationState);
 	const organizationId = getOrganizationIdCookie();
@@ -325,8 +327,13 @@ export function usePaymentsDueReport({ unnamedLabel }: Readonly<{ unnamedLabel: 
 			return [];
 		}
 		const days = daysOfPeriod(shown.period);
-		return owedTilesOf({ currencies: shown.figures.currencies, lines: shown.lines, days });
-	}, [shown]);
+		return owedTilesOf({
+			currencies: shown.figures.currencies,
+			lines: shown.lines,
+			days,
+			weekStartsOn: weekStart
+		});
+	}, [shown, weekStart]);
 
 	const isTeamReady = activeTeam !== null;
 	const isOrganizationReady = organization !== null;

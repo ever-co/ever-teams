@@ -10,7 +10,8 @@ import { Search, X } from '@/core/components/icons';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { cn } from '@/core/lib/helpers';
 import type { Period, PeriodPresetKey } from '@/core/lib/utils/dashboard-period';
-import { TIMESHEET_WEEK_START, type TimesheetView } from '@/core/lib/utils/dashboards/timesheets';
+import type { TimesheetView } from '@/core/lib/utils/dashboards/timesheets';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 
 const SEARCH_DEBOUNCE_MS = 150;
 
@@ -107,6 +108,7 @@ export function TimesheetsToolbar({
 	actions: ReactNode;
 }>) {
 	const t = useTranslations();
+	const weekStart = useWorkspaceWeekStart();
 	const locale = useWorkspaceLocale();
 	const viewItems = [
 		{ value: 'sheet' as const, label: t('dashboard.timesheets.VIEWS.SHEET') },
@@ -130,7 +132,7 @@ export function TimesheetsToolbar({
 						value={period}
 						onChange={onPeriodChange}
 						presets={TIMESHEET_PRESETS}
-						weekStartsOn={TIMESHEET_WEEK_START}
+						weekStartsOn={weekStart}
 						locale={locale}
 					/>
 					{filterMenu}

@@ -1,4 +1,4 @@
-import { addDays, addWeeks, endOfDay, endOfWeek, max, min, startOfDay, startOfWeek } from 'date-fns';
+import { addDays, addWeeks, endOfDay, endOfWeek, getISOWeek, max, min, startOfDay, startOfWeek } from 'date-fns';
 import type { DayBarDatum } from '@/core/components/dashboards/kit/day-bars-chart';
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import type { TTimeLogReportWeekly } from '@/core/types/schemas/timer/time-log.schema';
@@ -13,6 +13,8 @@ import {
 	flattenDailyReport,
 	projectKeyOf,
 	statedRateOf,
+	shownActiveSecondsOf,
+	trackedSecondsOf,
 	taskKeyOf
 } from '@/core/lib/utils/daily-report-figures';
 import {
@@ -289,6 +291,8 @@ export interface ReportLine {
 	subject: ReportSubject;
 	seconds: number;
 	activeSeconds: number;
+	/** The time as tracked, which the activity is a share of: `seconds` unless the workspace rounds them. */
+	trackedSeconds: number;
 	earnings: CurrencyAmount[];
 	projects: ReportProjectRef[];
 	dayCount: number;
@@ -398,15 +402,18 @@ function withSeconds(subject: ReportSubject, seconds: number): ReportSubject {
 function lineOf(key: string, subject: ReportSubject, rows: ReadonlyArray<DailyReportRow>): ReportLine {
 	let seconds = 0;
 	let activeSeconds = 0;
+	let trackedSeconds = 0;
 	for (const row of rows) {
 		seconds += row.seconds;
 		activeSeconds += row.activeSeconds;
+		trackedSeconds += trackedSecondsOf(row);
 	}
 	return {
 		key,
 		subject: withSeconds(subject, seconds),
 		seconds,
 		activeSeconds,
+		trackedSeconds,
 		earnings: earningsByCurrencyOf(rows),
 		projects: projectRefsOf(rows),
 		dayCount: distinctCount(rows, dateKeyOfRow),
@@ -445,6 +452,7 @@ export function reportGroupsOf(rows: ReadonlyArray<DailyReportRow>, grouping: Ta
 export interface ReportTotals {
 	seconds: number;
 	activeSeconds: number;
+	trackedSeconds: number;
 	earnings: CurrencyAmount[];
 	dayCount: number;
 	memberCount: number;
@@ -468,6 +476,7 @@ export function reportTotalsOf(rows: ReadonlyArray<DailyReportRow>): ReportTotal
 	return {
 		seconds: line.seconds,
 		activeSeconds: line.activeSeconds,
+		trackedSeconds: line.trackedSeconds,
 		earnings: line.earnings,
 		dayCount: line.dayCount,
 		memberCount: line.memberCount,
@@ -589,7 +598,7 @@ export function chartDaysOf(
 			label: labels.label(day),
 			axisLabel: labels.axisLabel(day),
 			value: figure?.seconds ?? 0,
-			part: figure?.activeSeconds ?? 0,
+			part: figure ? shownActiveSecondsOf(figure) : 0,
 			isToday: key === todayKey,
 			isFuture
 		};
@@ -617,6 +626,8 @@ export interface TimeActivityExportRow {
 	taskKey: string;
 	status: string | null;
 	seconds: number;
+	/** Only when the workspace's rule rounded `seconds`: the time as tracked, which `activity` is measured on. */
+	trackedSeconds?: number;
 	earnings: number | null;
 	currency: string | null;
 	activity: number;
@@ -727,7 +738,21 @@ function exportTaskOf(taskLog: TaskLog): ExportTask {
 	return { key: taskKeyOf(taskLog), title: taskTitleOf(taskLog), status: taskStatusOf(taskLog) };
 }
 
-function exportRowOf(context: ExportRowContext, task: ExportTask, seconds: number): TimeActivityExportRow {
+/** The time of an export row, rounded or as tracked; a row of time as tracked keeps the shape it always had. */
+interface ExportSeconds {
+	seconds: number;
+	trackedSeconds: number;
+}
+
+function trackedExportFieldOf(time: ExportSeconds): Pick<TimeActivityExportRow, 'trackedSeconds'> {
+	if (time.trackedSeconds === time.seconds) {
+		return {};
+	}
+	return { trackedSeconds: time.trackedSeconds };
+}
+
+function exportRowOf(context: ExportRowContext, task: ExportTask, time: ExportSeconds): TimeActivityExportRow {
+	const { seconds } = time;
 	return {
 		dateKey: context.dateKey,
 		employeeId: context.employeeId,
@@ -739,6 +764,7 @@ function exportRowOf(context: ExportRowContext, task: ExportTask, seconds: numbe
 		taskKey: task.key,
 		status: task.status,
 		seconds,
+		...trackedExportFieldOf(time),
 		earnings: earningsFor(seconds, context.memberRate.rate),
 		currency: context.memberRate.currency,
 		activity: context.activity
@@ -758,13 +784,15 @@ function exportRowsOfEmployeeLog(context: ExportRowContext, employeeLog: Employe
 	const tasks = employeeLog.tasks ?? [];
 	if (tasks.length === 0) {
 		const seconds = finiteOrZero(employeeLog.sum);
+		const trackedSeconds = finiteOrZero(employeeLog.trackedSum ?? employeeLog.sum);
 		const noTask: ExportTask = { key: NO_TASK_KEY, title: null, status: null };
-		return [exportRowOf(context, noTask, seconds)];
+		return [exportRowOf(context, noTask, { seconds, trackedSeconds })];
 	}
 	return tasks.map((taskLog) => {
 		const seconds = finiteOrZero(taskLog?.duration);
+		const trackedSeconds = finiteOrZero(taskLog?.trackedDuration ?? taskLog?.duration);
 		const taskContext = { ...contextOfTask(context, taskLog), memberRate: rateOfTask(taskLog, context) };
-		return exportRowOf(taskContext, exportTaskOf(taskLog), seconds);
+		return exportRowOf(taskContext, exportTaskOf(taskLog), { seconds, trackedSeconds });
 	});
 }
 
@@ -853,6 +881,15 @@ export function initialWeekIndexOf(weekStarts: ReadonlyArray<Date>, now = new Da
 		index -= 1;
 	}
 	return Math.max(index, 0);
+}
+
+/** Days from a week's start to its fourth day: Thursday for a Monday week, the day ISO weeks are numbered by. */
+const DAYS_TO_NUMBERED_DAY = 3;
+
+/** The number of the ISO week the week mostly covers, so a Sunday or Saturday week keeps the number of its days. */
+export function weekNumberOf(weekStart: Date) {
+	const numberedDay = addDays(weekStart, DAYS_TO_NUMBERED_DAY);
+	return getISOWeek(numberedDay);
 }
 
 export function weekDaysOf(weekStart: Date): Date[] {
@@ -964,7 +1001,7 @@ export function weekColumnTotalsOf(rows: ReadonlyArray<WeekGridRow>, dayCount: n
 	return totals;
 }
 
-/** Weeks of this report start on Monday, as the previous date picker and week grid did. */
+/** Weeks of this report start on Monday until the workspace picks another day. */
 export const TIME_ACTIVITY_WEEK_START: WeekStart = 1;
 
 export function todayKeyOf(now = new Date()) {
@@ -1010,7 +1047,13 @@ export interface ExportGroup {
 	rows: TimeActivityExportRow[];
 	seconds: number;
 	activeSeconds: number;
+	trackedSeconds: number;
 	earnings: CurrencyAmount[];
+}
+
+/** Seconds of activity of an export row: its activity is measured on the time as tracked, never on rounded time. */
+function activeSecondsOfExportRow(row: TimeActivityExportRow) {
+	return (trackedSecondsOf(row) * row.activity) / 100;
 }
 
 function exportGroupKeyOf(row: TimeActivityExportRow, grouping: BreakdownGrouping) {
@@ -1049,11 +1092,13 @@ function earningsTotalsOf(rows: ReadonlyArray<TimeActivityExportRow>): CurrencyA
 function exportGroupOf(key: string, rows: TimeActivityExportRow[]): ExportGroup {
 	let seconds = 0;
 	let activeSeconds = 0;
+	let trackedSeconds = 0;
 	for (const row of rows) {
 		seconds += row.seconds;
-		activeSeconds += (row.seconds * row.activity) / 100;
+		activeSeconds += activeSecondsOfExportRow(row);
+		trackedSeconds += trackedSecondsOf(row);
 	}
-	return { key, rows, seconds, activeSeconds, earnings: earningsTotalsOf(rows) };
+	return { key, rows, seconds, activeSeconds, trackedSeconds, earnings: earningsTotalsOf(rows) };
 }
 
 function compareExportGroups(grouping: BreakdownGrouping) {
@@ -1100,6 +1145,7 @@ export interface ClientExportLine {
 	task: string | null;
 	seconds: number;
 	activeSeconds: number;
+	trackedSeconds: number;
 	earnings: number | null;
 	currency: string | null;
 }
@@ -1118,6 +1164,7 @@ function emptyClientLineOf(row: TimeActivityExportRow, key: string): ClientExpor
 		task: row.task,
 		seconds: 0,
 		activeSeconds: 0,
+		trackedSeconds: 0,
 		earnings: null,
 		currency: row.currency
 	};
@@ -1172,7 +1219,8 @@ export function clientExportLinesOf(rows: ReadonlyArray<TimeActivityExportRow>):
 		const key = clientLineKeyOf(row);
 		const line = lines.get(key) ?? emptyClientLineOf(row, key);
 		line.seconds += row.seconds;
-		line.activeSeconds += (row.seconds * row.activity) / 100;
+		line.activeSeconds += activeSecondsOfExportRow(row);
+		line.trackedSeconds += trackedSecondsOf(row);
 		line.earnings = addedEarnings(line.earnings, row.earnings);
 		lines.set(key, line);
 	}
@@ -1206,13 +1254,16 @@ export interface BreakdownFact {
 	taskTitle: string | null;
 	seconds: number;
 	activeSeconds: number;
+	/** The time as tracked, which the activity is a share of: `seconds` unless the workspace rounds them. */
+	trackedSeconds: number;
 	rate: number | null;
 	currency: string | null;
 }
 
+// A row without time shown has one fact, which carries the row whole: a rule can round tracked time down to nothing
 function shareOfRow(seconds: number, row: DailyReportRow) {
 	if (row.seconds <= 0) {
-		return 0;
+		return 1;
 	}
 	return seconds / row.seconds;
 }
@@ -1244,6 +1295,7 @@ function factOf(row: TimeActivityRow, taskKey: string, taskTitle: string | null,
 		taskTitle,
 		seconds,
 		activeSeconds: row.activeSeconds * share,
+		trackedSeconds: trackedSecondsOf(row) * share,
 		rate: memberRate.rate,
 		currency: memberRate.currency
 	};
@@ -1306,6 +1358,7 @@ export interface BreakdownNode {
 	depth: number;
 	seconds: number;
 	activeSeconds: number;
+	trackedSeconds: number;
 	/** False at a task level and under it: there the activity would be an estimate. */
 	hasExactActivity: boolean;
 	earnings: CurrencyAmount[];
@@ -1318,6 +1371,7 @@ export interface BreakdownNode {
 export interface BreakdownTotals {
 	seconds: number;
 	activeSeconds: number;
+	trackedSeconds: number;
 	earnings: CurrencyAmount[];
 }
 
@@ -1377,11 +1431,13 @@ function factBucketsOf(facts: ReadonlyArray<BreakdownFact>, dimension: Breakdown
 function figuresOfFacts(facts: ReadonlyArray<BreakdownFact>) {
 	let seconds = 0;
 	let activeSeconds = 0;
+	let trackedSeconds = 0;
 	for (const fact of facts) {
 		seconds += fact.seconds;
 		activeSeconds += fact.activeSeconds;
+		trackedSeconds += fact.trackedSeconds;
 	}
-	return { seconds, activeSeconds };
+	return { seconds, activeSeconds, trackedSeconds };
 }
 
 function factEarningsOf(facts: ReadonlyArray<BreakdownFact>): CurrencyAmount[] {
@@ -1457,6 +1513,7 @@ function nodesOf(facts: ReadonlyArray<BreakdownFact>, level: NodeLevel): Breakdo
 			depth: level.depth,
 			seconds: figures.seconds,
 			activeSeconds: figures.activeSeconds,
+			trackedSeconds: figures.trackedSeconds,
 			hasExactActivity,
 			earnings: factEarningsOf(bucket),
 			projects: factProjectsOf(bucket),
@@ -1478,7 +1535,7 @@ export function breakdownTreeOf(facts: ReadonlyArray<BreakdownFact>, grouping: B
 	});
 	return {
 		nodes,
-		totals: { seconds: figures.seconds, activeSeconds: figures.activeSeconds, earnings: factEarningsOf(facts) }
+		totals: { ...figures, earnings: factEarningsOf(facts) }
 	};
 }
 

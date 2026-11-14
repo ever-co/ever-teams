@@ -14,6 +14,7 @@ import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/project
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import type { Period } from '@/core/lib/utils/dashboard-period';
+import { durationRoundingRuleOf } from '@/core/lib/utils/duration-rounding';
 import {
 	logsStartedWithin,
 	offeredLogsOf,
@@ -297,6 +298,7 @@ export function useInvoiceTime({
 	const queryClient = useQueryClient();
 	const organization = useAtomValue(currentOrganizationState);
 	const organizationCurrency = organization?.currency ?? null;
+	const roundingRule = useMemo(() => durationRoundingRuleOf(organization), [organization]);
 	const timeZone = useMemo(() => getDefaultTimezone(), []);
 	const projectsQuery = useOrganizationProjectsQuery();
 	const organizationProjects = projectsQuery.organizationProjects;
@@ -436,7 +438,11 @@ export function useInvoiceTime({
 		() => offeredProjectsOf(organizationProjects, offeredProjectIdSet),
 		[offeredProjectIdSet, organizationProjects]
 	);
-	const entries = useMemo(() => billableEntriesOf(logs, offeredProjectIdSet), [logs, offeredProjectIdSet]);
+	// The lines bill each entry rounded with the workspace's rule, as Time & activity shows it
+	const entries = useMemo(
+		() => billableEntriesOf(logs, offeredProjectIdSet, roundingRule),
+		[logs, offeredProjectIdSet, roundingRule]
+	);
 	const pricedProjectIds = useMemo(() => sortedIdsOf(entries.map((entry) => entry.projectId)), [entries]);
 
 	const ratesStates = useQueries({
@@ -543,6 +549,8 @@ export function useInvoiceTime({
 		hasProjects,
 		lines,
 		unpriced,
+		/** The workspace's rule each entry of the lines is rounded with, or null. */
+		roundingRule,
 		isLoading,
 		isError,
 		isUpdating,

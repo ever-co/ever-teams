@@ -38,6 +38,7 @@ jest.mock('jotai', () => ({
 		return mockTeamTasks;
 	}
 }));
+jest.mock('@/core/hooks/common/use-workspace-locale', () => ({ useWorkspaceLocale: () => 'en' }));
 jest.mock('@/core/stores/timer/active-timer', () => ({ isTrackingEnabledState: 'tracking-enabled-atom' }));
 jest.mock('@/core/stores/teams/team-tasks', () => ({ teamTasksState: 'team-tasks-atom' }));
 jest.mock('@/core/components/layouts/default-layout', () => ({

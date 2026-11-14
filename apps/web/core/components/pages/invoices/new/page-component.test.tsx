@@ -27,8 +27,9 @@ jest.mock('@/core/components/duplicated-components/_button', () => ({
 	Button: ({ children }: Readonly<{ children: React.ReactNode }>) => <button type="button">{children}</button>
 }));
 jest.mock('@/core/components/icons', () => ({ Invoice: () => null }));
+jest.mock('@/core/hooks/bootstrap/use-feature-data', () => ({ useCurrentOrganizationOwner: () => ({}) }));
+jest.mock('@/core/hooks/common/use-workspace-week-start', () => ({ useWorkspaceWeekStart: () => 1 }));
 jest.mock('@/core/hooks/invoices/use-new-invoice', () => ({
-	INVOICE_WEEK_START: 1,
 	useNewInvoice: () => mockInvoice.current
 }));
 jest.mock('../invoice-access-guard', () => ({

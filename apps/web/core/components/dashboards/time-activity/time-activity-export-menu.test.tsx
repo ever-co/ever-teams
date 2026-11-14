@@ -6,6 +6,7 @@ import type { TimeActivityFilterOptions } from '@/core/hooks/dashboards/time-act
 import type { CsvColumn } from '@/core/lib/utils/dashboard-export';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import type { Period } from '@/core/lib/utils/dashboard-period';
+import type { DurationRoundingRule } from '@/core/lib/utils/duration-rounding';
 import {
 	type BreakdownGrouping,
 	type ClientOfProjectLog,
@@ -116,7 +117,11 @@ const FIGURES: TimeActivityFigures = {
 	totals: reportTotalsOf([])
 };
 
-function optionsUnder(grouping: BreakdownGrouping, clientOfProjectLog: ClientOfProjectLog | null) {
+function optionsUnder(
+	grouping: BreakdownGrouping,
+	clientOfProjectLog: ClientOfProjectLog | null,
+	roundingRule: DurationRoundingRule | null = null
+) {
 	mockExportMenuProps.mockClear();
 	render(
 		<TimeActivityExportMenu
@@ -129,6 +134,7 @@ function optionsUnder(grouping: BreakdownGrouping, clientOfProjectLog: ClientOfP
 			figures={FIGURES}
 			filters={{ teamIds: [], employeeIds: [], projectIds: [], taskIds: [], clientIds: [], billable: [] }}
 			filterOptions={NO_OPTIONS}
+			roundingRule={roundingRule}
 			isDisabled={false}
 		/>
 	);
@@ -219,6 +225,15 @@ describe('Time & Activity exports grouped by client', () => {
 		expect(groups.map((group) => group[0])).toEqual(['Acme', 'Globex', 'common.NO_CLIENT']);
 		const acmeRows = content.groups[0].rows.map((row) => [row.first, row.second, row.task, row.tracked]);
 		expect(acmeRows).toEqual([['Website', 'Ada Lovelace', 'Home', formatDurationShort(1800)]]);
+	});
+
+	it('says under the date of the PDF that each entry is rounded, with the rule', async () => {
+		await run(optionsUnder('client', clientOf, { intervalMinutes: 15, direction: 'UP' }), 'pdf');
+
+		const content = await pdfContentOf();
+		expect(content.generatedOn).toBe(
+			'dashboard.timeActivity.export.GENERATED_ON · dashboard.timeActivity.sheet.ROUNDED_UP'
+		);
 	});
 
 	it('keeps the exports of the other groupings without a client column', async () => {

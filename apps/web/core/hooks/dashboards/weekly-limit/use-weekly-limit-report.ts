@@ -10,19 +10,23 @@ import { currentOrganizationState } from '@/core/stores/user/user-organizations'
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { DEFAULT_WORK_HOURS_PER_DAY } from '@/core/constants/config/constants';
-import { periodOfPreset, type Period } from '@/core/lib/utils/dashboard-period';
+import { periodOfPreset, type Period, type WeekStart } from '@/core/lib/utils/dashboard-period';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import {
 	emptyPastPeriodCountOf,
 	groupsByMemberOf,
 	groupsByPeriodOf,
 	LIMIT_WEEK_START,
 	limitAttentionOf,
+	limitCacheParamsOf,
 	limitEntriesOf,
 	limitFiguresOf,
 	limitMatrixRowsOf,
 	membersWithoutTimeCountOf,
 	membersWithoutTimeOf,
 	requestPeriodOf,
+	apiLimitDurationOf,
+	weeklyReportsOfDays,
 	serviceDayOf,
 	standardLimitOf,
 	type LimitDuration,
@@ -40,6 +44,8 @@ interface WeeklyLimitRequest {
 	params: TGetTimeLimitReport;
 	period: Period;
 	duration: LimitDuration;
+	/** The first day of the weeks shown: Gauzy's days are added up into them when it is not Monday. */
+	weekStartsOn: WeekStart;
 	/** Tenant, organisation and team: the previous figures stay on screen only while these do not change. */
 	scopeKey: string;
 }
@@ -63,6 +69,10 @@ type TeamMember = NonNullable<TOrganizationTeam['members']>[number];
 
 async function fetchWeeklyLimit(request: WeeklyLimitRequest): Promise<WeeklyLimitResult> {
 	const reports = await timeLogService.getTimeLimitsReport(request.params);
+	const asksDaysForWeeks = request.params.duration !== request.duration;
+	if (asksDaysForWeeks) {
+		return { request, reports: weeklyReportsOfDays(reports, request.weekStartsOn) };
+	}
 	return { request, reports };
 }
 
@@ -167,7 +177,8 @@ export function useWeeklyLimitReport({ unnamedLabel }: Readonly<{ unnamedLabel: 
 		[appliedEmployeeIds, members]
 	);
 
-	const requestPeriod = useMemo(() => requestPeriodOf(period, duration), [duration, period]);
+	const weekStart = useWorkspaceWeekStart();
+	const requestPeriod = useMemo(() => requestPeriodOf(period, duration, weekStart), [duration, period, weekStart]);
 	const teamId = activeTeam?.id ?? '';
 
 	const request = useMemo<WeeklyLimitRequest>(() => {
@@ -177,14 +188,15 @@ export function useWeeklyLimitReport({ unnamedLabel }: Readonly<{ unnamedLabel: 
 				employeeIds,
 				startDate: serviceDayOf(requestPeriod.from),
 				endDate: serviceDayOf(requestPeriod.to),
-				duration,
+				duration: apiLimitDurationOf(duration, weekStart),
 				timeZone
 			},
 			period: requestPeriod,
 			duration,
+			weekStartsOn: weekStart,
 			scopeKey: scopeKeyOf(tenantId, organizationId, teamId)
 		};
-	}, [duration, organizationId, reportedEmployeeIds, requestPeriod, teamId, tenantId, timeZone]);
+	}, [duration, organizationId, reportedEmployeeIds, requestPeriod, teamId, tenantId, timeZone, weekStart]);
 
 	const hasScope = Boolean(organizationId) && Boolean(tenantId);
 	const hasMembers = reportedEmployeeIds.length > 0;
@@ -192,7 +204,9 @@ export function useWeeklyLimitReport({ unnamedLabel }: Readonly<{ unnamedLabel: 
 
 	const isLive = isLiveDayRange(localDayKeyOf(requestPeriod.from), localDayKeyOf(requestPeriod.to));
 	const query = useQuery({
-		queryKey: queryKeys.timer.timeLimits.byParams({ ...request.params, organizationId, tenantId }),
+		queryKey: queryKeys.timer.timeLimits.byParams(
+			limitCacheParamsOf({ ...request.params, organizationId, tenantId }, request.duration, request.weekStartsOn)
+		),
 		queryFn: () => fetchWeeklyLimit(request),
 		enabled: isEnabled,
 		placeholderData: (previous) => previousOfSameScope(previous, request.scopeKey),
@@ -215,7 +229,8 @@ export function useWeeklyLimitReport({ unnamedLabel }: Readonly<{ unnamedLabel: 
 			period: shownPeriod,
 			standardLimit,
 			members: membersById,
-			unnamedLabel
+			unnamedLabel,
+			weekStartsOn: result.request.weekStartsOn
 		});
 		const requestedEmployeeIds = result.request.params.employeeIds ?? [];
 		return {

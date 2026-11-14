@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useId, useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import { Spinner } from '@/core/components/icons';
 import { CurrencySelect } from '@/core/components/rates/currency-select';
@@ -13,24 +13,47 @@ import {
 } from '@/core/components/settings/kit/settings-page';
 import { useOptimisticSetting } from '@/core/hooks/settings/use-optimistic-setting';
 import { cn } from '@/core/lib/helpers';
+import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
+import {
+	DURATION_ROUNDING_DIRECTIONS,
+	DURATION_ROUNDING_INTERVALS,
+	durationRoundingRuleOf,
+	roundedSecondsOf,
+	type DurationRoundingDirection,
+	type DurationRoundingRule
+} from '@/core/lib/utils/duration-rounding';
 import { currencyLabelOf } from '@/core/lib/utils/rates';
 import {
 	AUTOMATIC_FORMAT,
+	CLOCK_CHOICES,
+	CURRENCY_POSITION_CHOICES,
 	DATE_FORMAT_CHOICES,
 	NUMBER_FORMAT_CHOICES,
+	clockChoiceOf,
+	clockSampleOf,
+	currencyPositionChoiceOf,
+	currencyPositionSampleOf,
 	dateFormatChoiceOf,
 	dateFormatSampleOf,
 	numberFormatChoiceOf,
 	numberFormatSampleOf,
+	weekStartChoiceOf,
+	weekStartChoicesOf,
+	weekdayNameOf,
 	type DateFormatChoice,
 	type NumberFormatChoice
 } from '@/core/lib/utils/settings-workspace';
 import {
+	workspaceClockOf,
+	workspaceCurrencyPositionOf,
 	workspaceDateFormatOf,
 	workspaceNumberFormatOf,
+	type WorkspaceClock,
+	type WorkspaceCurrencyPosition,
 	type WorkspaceDateFormat,
 	type WorkspaceNumberFormat
 } from '@/core/lib/utils/workspace-formats';
+import { EWeekDays } from '@/core/types/generics/enums/date';
 import type { TOrganization } from '@/core/types/schemas';
 
 const CONTROL_WIDTH = 'w-full sm:w-56';
@@ -173,6 +196,195 @@ function ChoiceRow({ label, description, value, options, canEdit, onSave }: Read
 	);
 }
 
+type SaveRounding = (rule: DurationRoundingRule | null) => Promise<void>;
+
+const ROUNDING_OFF = 'off';
+
+const DEFAULT_ROUNDING_DIRECTION: DurationRoundingDirection = 'UP';
+
+/** The entry the row's example rounds: 1 h 07 min. */
+const ROUNDING_EXAMPLE_SECONDS = 67 * 60;
+
+const ROUNDING_DIRECTION_KEYS: Record<DurationRoundingDirection, DottedLanguageObjectStringPaths> = {
+	UP: 'settings.workspace.ROUNDING_UP',
+	DOWN: 'settings.workspace.ROUNDING_DOWN',
+	NEAREST: 'settings.workspace.ROUNDING_NEAREST'
+};
+
+const ROUNDING_RULE_KEYS: Record<DurationRoundingDirection, DottedLanguageObjectStringPaths> = {
+	UP: 'settings.workspace.ROUNDING_RULE_UP',
+	DOWN: 'settings.workspace.ROUNDING_RULE_DOWN',
+	NEAREST: 'settings.workspace.ROUNDING_RULE_NEAREST'
+};
+
+/** A rule as one value, so the interval and the direction change, and go back, together. */
+function roundingKeyOf(rule: DurationRoundingRule | null): string {
+	if (!rule) {
+		return ROUNDING_OFF;
+	}
+	return `${rule.intervalMinutes}:${rule.direction}`;
+}
+
+function roundingRuleOfKey(key: string): DurationRoundingRule | null {
+	const [interval, direction] = key.split(':');
+	return durationRoundingRuleOf({ durationRoundingInterval: Number(interval), durationRoundingDirection: direction });
+}
+
+/** An API without the rule sends neither field: the workspace then has no rounding to show or change. */
+function storesDurationRounding(organization: TOrganization): boolean {
+	return organization.durationRoundingInterval !== undefined;
+}
+
+function useRoundingOptions() {
+	const t = useTranslations();
+	return useMemo(() => {
+		const intervalOptions: ChoiceOption[] = [
+			{ value: ROUNDING_OFF, label: t('settings.workspace.ROUNDING_OFF') },
+			...DURATION_ROUNDING_INTERVALS.map((minutes) => ({
+				value: String(minutes),
+				label: t('settings.workspace.ROUNDING_INTERVAL', { minutes })
+			}))
+		];
+		const directionOptions: ChoiceOption[] = DURATION_ROUNDING_DIRECTIONS.map((direction) => ({
+			value: direction,
+			label: t(ROUNDING_DIRECTION_KEYS[direction])
+		}));
+		return { intervalOptions, directionOptions };
+	}, [t]);
+}
+
+function RoundingDescription({ rule }: Readonly<{ rule: DurationRoundingRule | null }>) {
+	const t = useTranslations();
+	const description = t('settings.workspace.ROUNDING_DESCRIPTION');
+	if (!rule) {
+		return description;
+	}
+	const example = t('settings.workspace.ROUNDING_EXAMPLE', {
+		tracked: formatDurationShort(ROUNDING_EXAMPLE_SECONDS),
+		rounded: formatDurationShort(roundedSecondsOf(ROUNDING_EXAMPLE_SECONDS, rule))
+	});
+	return (
+		<>
+			{description}
+			<span className="mt-0.5 block tabular-nums">{example}</span>
+		</>
+	);
+}
+
+function RoundingValue({ rule }: Readonly<{ rule: DurationRoundingRule | null }>) {
+	const t = useTranslations();
+	if (!rule) {
+		return <span className={VALUE_TEXT}>{t('settings.workspace.ROUNDING_OFF')}</span>;
+	}
+	return (
+		<span className={cn(VALUE_TEXT, 'tabular-nums')}>
+			{t(ROUNDING_RULE_KEYS[rule.direction], { minutes: rule.intervalMinutes })}
+		</span>
+	);
+}
+
+interface RoundingControlProps {
+	id: string;
+	rule: DurationRoundingRule | null;
+	isPending: boolean;
+	onChange: (key: string) => void;
+}
+
+/** The interval turns rounding on or off; the direction shows once it is on. */
+function RoundingControl({ id, rule, isPending, onChange }: Readonly<RoundingControlProps>) {
+	const t = useTranslations();
+	const { intervalOptions, directionOptions } = useRoundingOptions();
+	let interval = ROUNDING_OFF;
+	if (rule) {
+		interval = String(rule.intervalMinutes);
+	}
+
+	const pickInterval = (next: string) => {
+		if (!next || next === interval) {
+			return;
+		}
+		if (next === ROUNDING_OFF) {
+			onChange(ROUNDING_OFF);
+			return;
+		}
+		const direction = rule?.direction ?? DEFAULT_ROUNDING_DIRECTION;
+		onChange(`${next}:${direction}`);
+	};
+	const pickDirection = (next: string) => {
+		if (!rule || !next || next === rule.direction) {
+			return;
+		}
+		onChange(`${rule.intervalMinutes}:${next}`);
+	};
+
+	return (
+		<div className="flex w-full items-center gap-2 sm:w-auto">
+			<PendingMark isPending={isPending} />
+			<Select value={interval} onValueChange={pickInterval} disabled={isPending}>
+				<SelectTrigger id={id} className="h-8 w-full text-[13px] sm:w-28">
+					<SelectValue>{labelOfChoice(intervalOptions, interval)}</SelectValue>
+				</SelectTrigger>
+				<SelectContent align="end">
+					{intervalOptions.map((option) => (
+						<SelectItem key={option.value} value={option.value} className="text-[13px]">
+							{option.label}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
+			{rule && (
+				<Select value={rule.direction} onValueChange={pickDirection} disabled={isPending}>
+					<SelectTrigger
+						aria-label={t('settings.workspace.ROUNDING_DIRECTION_LABEL')}
+						className="h-8 w-full text-[13px] sm:w-32"
+					>
+						<SelectValue>{labelOfChoice(directionOptions, rule.direction)}</SelectValue>
+					</SelectTrigger>
+					<SelectContent align="end">
+						{directionOptions.map((option) => (
+							<SelectItem key={option.value} value={option.value} className="text-[13px]">
+								{option.label}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			)}
+		</div>
+	);
+}
+
+/**
+ * How reports round each entry. The rule saves as soon as it is picked, its interval and direction together, and the
+ * example says what it does to an entry of 1 h 07 min.
+ */
+function DurationRoundingRow({
+	organization,
+	canEdit,
+	onSave
+}: Readonly<{ organization: TOrganization; canEdit: boolean; onSave: SaveRounding }>) {
+	const t = useTranslations();
+	const selectId = useId();
+	const stored = roundingKeyOf(durationRoundingRuleOf(organization));
+	const saveKey = useCallback((key: string) => onSave(roundingRuleOfKey(key)), [onSave]);
+	const { value, isPending, change } = useOptimisticSetting<string>(stored, saveKey);
+	const rule = roundingRuleOfKey(value);
+	const label = t('settings.workspace.ROUNDING_LABEL');
+	const description = <RoundingDescription rule={rule} />;
+
+	if (!canEdit) {
+		return (
+			<SettingsRow label={label} description={description}>
+				<RoundingValue rule={rule} />
+			</SettingsRow>
+		);
+	}
+	return (
+		<SettingsRow label={label} description={description} htmlFor={selectId}>
+			<RoundingControl id={selectId} rule={rule} isPending={isPending} onChange={(key) => void change(key)} />
+		</SettingsRow>
+	);
+}
+
 function dateChoiceLabelOf(choice: DateFormatChoice, year: number, automaticLabel: string): string {
 	if (choice === AUTOMATIC_FORMAT) {
 		return automaticLabel;
@@ -204,12 +416,60 @@ function useFormatOptions() {
 	}, [t]);
 }
 
+/** The week start, clock and currency symbol options, each labelled in the reader's language with a sample. */
+function useCalendarAndMoneyOptions(organization: TOrganization) {
+	const t = useTranslations();
+	const locale = useLocale();
+	const storedWeekStart = organization.startWeekOn;
+	const currency = organization.currency ?? '';
+	return useMemo(() => {
+		const weekStartOptions: ChoiceOption[] = weekStartChoicesOf(storedWeekStart).map((day) => ({
+			value: day,
+			label: weekdayNameOf(day, locale)
+		}));
+		const clockOptions: ChoiceOption[] = CLOCK_CHOICES.map((clock) => ({
+			value: String(clock),
+			label: clockLabelOf(clock, clockSampleOf(clock, locale), t)
+		}));
+		const currencyPositionOptions: ChoiceOption[] = CURRENCY_POSITION_CHOICES.map((position) => ({
+			value: position,
+			label: currencyPositionLabelOf(position, currencyPositionSampleOf(position, currency, locale), t)
+		}));
+		return { weekStartOptions, clockOptions, currencyPositionOptions };
+	}, [currency, locale, storedWeekStart, t]);
+}
+
+type Translate = ReturnType<typeof useTranslations>;
+
+function clockLabelOf(clock: WorkspaceClock, sample: string, t: Translate): string {
+	if (clock === 24) {
+		return t('settings.workspace.CLOCK_24', { sample });
+	}
+	return t('settings.workspace.CLOCK_12', { sample });
+}
+
+function currencyPositionLabelOf(position: WorkspaceCurrencyPosition, sample: string, t: Translate): string {
+	if (position === 'LEFT') {
+		return t('settings.workspace.CURRENCY_POSITION_BEFORE', { sample });
+	}
+	return t('settings.workspace.CURRENCY_POSITION_AFTER', { sample });
+}
+
+function weekDayOf(choice: string): EWeekDays | null {
+	const day = Object.values(EWeekDays).find((known) => known === choice);
+	return day ?? null;
+}
+
 interface WorkspaceFormatsSectionProps {
 	organization: TOrganization;
 	canEdit: boolean;
 	saveCurrency: (currency: string) => Promise<void>;
 	saveDateFormat: (dateFormat: WorkspaceDateFormat | null) => Promise<void>;
 	saveNumberFormat: (numberFormat: WorkspaceNumberFormat | null) => Promise<void>;
+	saveWeekStart: (startWeekOn: EWeekDays) => Promise<void>;
+	saveClock: (clock: WorkspaceClock) => Promise<void>;
+	saveCurrencyPosition: (position: WorkspaceCurrencyPosition) => Promise<void>;
+	saveDurationRounding: SaveRounding;
 }
 
 export function WorkspaceFormatsSection({
@@ -217,10 +477,15 @@ export function WorkspaceFormatsSection({
 	canEdit,
 	saveCurrency,
 	saveDateFormat,
-	saveNumberFormat
+	saveNumberFormat,
+	saveWeekStart,
+	saveClock,
+	saveCurrencyPosition,
+	saveDurationRounding
 }: Readonly<WorkspaceFormatsSectionProps>) {
 	const t = useTranslations();
 	const { dateOptions, numberOptions } = useFormatOptions();
+	const { weekStartOptions, clockOptions, currencyPositionOptions } = useCalendarAndMoneyOptions(organization);
 
 	const saveDateChoice = useCallback(
 		(choice: string) => saveDateFormat(workspaceDateFormatOf(choice)),
@@ -229,6 +494,36 @@ export function WorkspaceFormatsSection({
 	const saveNumberChoice = useCallback(
 		(choice: string) => saveNumberFormat(workspaceNumberFormatOf(choice)),
 		[saveNumberFormat]
+	);
+	const saveWeekStartChoice = useCallback(
+		async (choice: string) => {
+			const day = weekDayOf(choice);
+			if (day === null) {
+				return;
+			}
+			await saveWeekStart(day);
+		},
+		[saveWeekStart]
+	);
+	const saveClockChoice = useCallback(
+		async (choice: string) => {
+			const clock = workspaceClockOf(choice);
+			if (clock === null) {
+				return;
+			}
+			await saveClock(clock);
+		},
+		[saveClock]
+	);
+	const saveCurrencyPositionChoice = useCallback(
+		async (choice: string) => {
+			const position = workspaceCurrencyPositionOf(choice);
+			if (position === null) {
+				return;
+			}
+			await saveCurrencyPosition(position);
+		},
+		[saveCurrencyPosition]
 	);
 
 	return (
@@ -255,6 +550,33 @@ export function WorkspaceFormatsSection({
 					canEdit={canEdit}
 					onSave={saveNumberChoice}
 				/>
+				<ChoiceRow
+					label={t('settings.workspace.WEEK_START_LABEL')}
+					description={t('settings.workspace.WEEK_START_DESCRIPTION')}
+					value={weekStartChoiceOf(organization.startWeekOn)}
+					options={weekStartOptions}
+					canEdit={canEdit}
+					onSave={saveWeekStartChoice}
+				/>
+				<ChoiceRow
+					label={t('settings.workspace.CLOCK_LABEL')}
+					description={t('settings.workspace.CLOCK_DESCRIPTION')}
+					value={String(clockChoiceOf(organization.timeFormat))}
+					options={clockOptions}
+					canEdit={canEdit}
+					onSave={saveClockChoice}
+				/>
+				<ChoiceRow
+					label={t('settings.workspace.CURRENCY_POSITION_LABEL')}
+					description={t('settings.workspace.CURRENCY_POSITION_DESCRIPTION')}
+					value={currencyPositionChoiceOf(organization.currencyPosition)}
+					options={currencyPositionOptions}
+					canEdit={canEdit}
+					onSave={saveCurrencyPositionChoice}
+				/>
+				{storesDurationRounding(organization) && (
+					<DurationRoundingRow organization={organization} canEdit={canEdit} onSave={saveDurationRounding} />
+				)}
 			</SettingsSurface>
 			{!canEdit && <SettingsReadOnlyNote>{t('settings.workspace.READ_ONLY_NOTE')}</SettingsReadOnlyNote>}
 		</SettingsSection>
