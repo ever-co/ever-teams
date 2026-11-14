@@ -14,7 +14,18 @@ function hasModifier(event: KeyboardEvent) {
 	return [event.metaKey, event.ctrlKey, event.altKey].some(Boolean);
 }
 
-/** "/" pressed outside a field jumps into the search field held by the given box, as on the team's tasks. */
+/** A dialog, or the sheet of a client, holds the keys pressed in it: the list's search behind it is not theirs. */
+function isInDialog(target: EventTarget | null) {
+	if (!(target instanceof Element)) {
+		return false;
+	}
+	return target.closest('[role="dialog"],[role="alertdialog"]') !== null;
+}
+
+/**
+ * "/" pressed outside a field jumps into the search field held by the given box, as on the team's tasks. A key
+ * something else already answered, or pressed in a dialog, is left alone.
+ */
 export function useClientsSearchKey(boxRef: RefObject<HTMLElement | null>) {
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
@@ -22,10 +33,10 @@ export function useClientsSearchKey(boxRef: RefObject<HTMLElement | null>) {
 			if (!isSlash) {
 				return;
 			}
-			if (hasModifier(event)) {
+			if (event.defaultPrevented || hasModifier(event)) {
 				return;
 			}
-			if (isTypingTarget(event.target)) {
+			if (isTypingTarget(event.target) || isInDialog(event.target)) {
 				return;
 			}
 			const field = boxRef.current?.querySelector('input');
