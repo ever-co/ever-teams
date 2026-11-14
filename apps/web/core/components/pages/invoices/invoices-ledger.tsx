@@ -107,7 +107,7 @@ function clientNameOf(invoice: TInvoice, clientNames: ReadonlyMap<string, string
 	return clientNames.get(clientId) ?? null;
 }
 
-export type InvoiceActionHandler = (target: InvoiceActionTarget, action: InvoiceMenuAction) => void;
+type InvoiceActionHandler = (target: InvoiceActionTarget, action: InvoiceMenuAction) => void;
 
 interface InvoiceRowProps {
 	invoice: TInvoice;

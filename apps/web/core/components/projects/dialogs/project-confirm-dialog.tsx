@@ -126,7 +126,7 @@ function ConsequenceList({ consequences }: Readonly<{ consequences: ProjectConse
 	);
 }
 
-export interface ProjectConfirmSecondaryAction {
+interface ProjectConfirmSecondaryAction {
 	label: string;
 	isPending: boolean;
 	onClick: () => void;
