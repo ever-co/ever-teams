@@ -2793,7 +2793,32 @@
 			"HINT_RUNNING": "Los cambios hechos mientras el temporizador está en marcha aún no se guardan. Para cambiar las notas, edita la entrada en las hojas de tiempo después de detener el temporizador.",
 			"HINT_OTHER_TEAM": "Estas notas pertenecen al temporizador en marcha en otro equipo, por lo que no se pueden cambiar aquí."
 		},
-		"NOT_BILLABLE": "No facturable"
+		"NOT_BILLABLE": "No facturable",
+		"startMove": {
+			"TITLE": "Inicio del temporizador en curso",
+			"STARTED_AT": "Iniciado a las {time}",
+			"OPEN": "Iniciado a las {time}. Cambiar el inicio",
+			"NEW_START": "Nuevo inicio",
+			"REASON": "Motivo",
+			"REASON_PLACEHOLDER": "Por qué cambia el inicio",
+			"LATER_ONLY": "No tienes permitido añadir tiempo a mano, así que el inicio solo puede moverse más tarde.",
+			"SAVING": "Guardando…",
+			"SAVED": "El temporizador empieza ahora a las {time}.",
+			"CHECKING": "Comprobando si el inicio puede cambiar…",
+			"VIEW_TRACKER": "Este temporizador corre en la aplicación de escritorio. Cambia su inicio allí.",
+			"VIEW_NOT_ALLOWED": "No tienes permitido cambiar el tiempo registrado en esta organización.",
+			"UNSUPPORTED": "El inicio de un temporizador en curso aún no se puede cambiar en este servidor.",
+			"NOT_RUNNING": "El temporizador ya no está en marcha.",
+			"TRACKER_RUN": "Este temporizador corre en la aplicación de escritorio o el agente, que registran su tiempo ellos mismos. Cambia su inicio allí.",
+			"IN_FUTURE": "El inicio no puede ser posterior a ahora.",
+			"EDIT_NOT_ALLOWED": "No tienes permitido cambiar el tiempo registrado.",
+			"MANUAL_NOT_ALLOWED": "Un inicio más temprano añade tiempo a mano, lo que no tienes permitido. Elige un inicio más tarde.",
+			"REASON_REQUIRED": "Tu organización pide un motivo.",
+			"REASON_TOO_LONG": "El motivo es demasiado largo: 255 caracteres como máximo.",
+			"OVERLAP": "Otra de tus entradas cubre ese momento. Elige un inicio después de que termine.",
+			"CHANGED": "El inicio acaba de cambiar en otro lugar. Revísalo e inténtalo de nuevo.",
+			"SAVE_FAILED": "No se pudo guardar el inicio. Inténtalo de nuevo."
+		}
 	},
 	"task": {
 		"TITLE": "Tarea",

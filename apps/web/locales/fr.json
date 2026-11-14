@@ -2793,7 +2793,32 @@
 			"HINT_RUNNING": "Les changements faits pendant que le chronomètre tourne ne sont pas encore enregistrés. Pour changer les notes, modifiez l'entrée dans les feuilles de temps après l'arrêt du chronomètre.",
 			"HINT_OTHER_TEAM": "Ces notes appartiennent au chronomètre en cours dans une autre équipe : elles ne peuvent pas être modifiées ici."
 		},
-		"NOT_BILLABLE": "Non facturable"
+		"NOT_BILLABLE": "Non facturable",
+		"startMove": {
+			"TITLE": "Début du chronomètre en cours",
+			"STARTED_AT": "Commencé à {time}",
+			"OPEN": "Commencé à {time}. Modifier le début",
+			"NEW_START": "Nouveau début",
+			"REASON": "Motif",
+			"REASON_PLACEHOLDER": "Pourquoi le début change",
+			"LATER_ONLY": "L'ajout de temps à la main ne vous est pas permis : le début ne peut être déplacé que plus tard.",
+			"SAVING": "Enregistrement…",
+			"SAVED": "Le chronomètre commence maintenant à {time}.",
+			"CHECKING": "Vérification que le début peut changer…",
+			"VIEW_TRACKER": "Ce chronomètre tourne dans l'application de bureau. Modifiez son début là-bas.",
+			"VIEW_NOT_ALLOWED": "La modification du temps suivi ne vous est pas permise dans cette organisation.",
+			"UNSUPPORTED": "Le début d'un chronomètre en cours ne peut pas encore être modifié sur ce serveur.",
+			"NOT_RUNNING": "Le chronomètre ne tourne plus.",
+			"TRACKER_RUN": "Ce chronomètre tourne dans l'application de bureau ou l'agent, qui enregistrent eux-mêmes son temps. Modifiez son début là-bas.",
+			"IN_FUTURE": "Le début ne peut pas être plus tard que maintenant.",
+			"EDIT_NOT_ALLOWED": "La modification du temps suivi ne vous est pas permise.",
+			"MANUAL_NOT_ALLOWED": "Un début plus tôt ajoute du temps à la main, ce qui ne vous est pas permis. Choisissez un début plus tard.",
+			"REASON_REQUIRED": "Votre organisation demande un motif.",
+			"REASON_TOO_LONG": "Le motif est trop long : 255 caractères au plus.",
+			"OVERLAP": "Une autre de vos entrées couvre ce moment. Choisissez un début après sa fin.",
+			"CHANGED": "Le début vient de changer ailleurs. Vérifiez-le et réessayez.",
+			"SAVE_FAILED": "Le début n'a pas pu être enregistré. Réessayez."
+		}
 	},
 	"task": {
 		"TITLE": "Tâche",

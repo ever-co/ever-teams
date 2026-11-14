@@ -2793,7 +2793,32 @@
 			"HINT_RUNNING": "Changes made while the timer runs are not saved yet. To change the notes, edit the entry in Timesheets after you stop the timer.",
 			"HINT_OTHER_TEAM": "These notes belong to the timer running in another team, so they cannot be changed here."
 		},
-		"NOT_BILLABLE": "Not billable"
+		"NOT_BILLABLE": "Not billable",
+		"startMove": {
+			"TITLE": "Start of the running timer",
+			"STARTED_AT": "Started at {time}",
+			"OPEN": "Started at {time}. Change the start",
+			"NEW_START": "New start",
+			"REASON": "Reason",
+			"REASON_PLACEHOLDER": "Why the start changes",
+			"LATER_ONLY": "Adding time by hand is not allowed for you, so the start can only move later.",
+			"SAVING": "Saving…",
+			"SAVED": "The timer now starts at {time}.",
+			"CHECKING": "Checking whether the start can change…",
+			"VIEW_TRACKER": "This timer runs in the desktop app. Change its start there.",
+			"VIEW_NOT_ALLOWED": "Changing tracked time is not allowed for you in this organization.",
+			"UNSUPPORTED": "The start of a running timer cannot be changed on this server yet.",
+			"NOT_RUNNING": "The timer is no longer running.",
+			"TRACKER_RUN": "This timer runs in the desktop app or the agent, which record its time themselves. Change its start there.",
+			"IN_FUTURE": "The start cannot be later than now.",
+			"EDIT_NOT_ALLOWED": "Changing tracked time is not allowed for you.",
+			"MANUAL_NOT_ALLOWED": "An earlier start adds time by hand, which is not allowed for you. Choose a later start.",
+			"REASON_REQUIRED": "Your organization asks for a reason.",
+			"REASON_TOO_LONG": "The reason is too long: 255 characters at most.",
+			"OVERLAP": "Another of your entries covers that time. Choose a start after it ends.",
+			"CHANGED": "The start just changed elsewhere. Check it and try again.",
+			"SAVE_FAILED": "The start could not be saved. Try again."
+		}
 	},
 	"task": {
 		"TITLE": "Task",

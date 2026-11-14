@@ -10,6 +10,7 @@ import { Text } from '@/core/components/common/typography';
 import { useTranslations } from 'next-intl';
 import { TimerButton } from './timer-button';
 import { TimerEntryToggles } from './timer-entry-toggles';
+import { TimerStartPopover } from './timer-start-popover';
 import { Transition } from '@headlessui/react';
 
 import { ArrowTurnUp, Desktop, Globe, Lifebuoy, Smartphone } from '@/core/components/icons';
@@ -177,7 +178,9 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 								className={clsxm(clockClassName, isTrackedElsewhere && 'text-muted-foreground')}
 							>
 								{isTimerRunning ? (
-									<RunningClock className={runningFractionClassName} />
+									<TimerStartPopover>
+										<RunningClock className={runningFractionClassName} />
+									</TimerStartPopover>
 								) : (
 									`${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`
 								)}
@@ -285,7 +288,11 @@ export function MinTimerFrame({ className }: IClassName) {
 				key={timerStatus?.running ? 'running' : 'stopped'}
 			>
 				<Text className="w-[5.5rem] shrink-0 whitespace-nowrap text-[13px] font-medium tabular-nums">
-					{isTimerRunning && <RunningClock className="text-muted-foreground" />}
+					{isTimerRunning && (
+						<TimerStartPopover>
+							<RunningClock className="text-muted-foreground" />
+						</TimerStartPopover>
+					)}
 					{!isTimerRunning && todayWorkedLabel}
 				</Text>
 			</Transition>
