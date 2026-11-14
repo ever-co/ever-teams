@@ -541,7 +541,7 @@ async function checkInvoiceEdit(edit: InvoiceEdit): Promise<InvoiceEditCheck> {
 /** Where an edited invoice goes once saved: whether it becomes Sent is decided by the status the save finds. */
 type InvoiceEditSending = Omit<InvoiceToSend, 'marksSent'>;
 
-interface InvoiceEditToSave {
+export interface InvoiceEditToSave {
 	edit: InvoiceEdit;
 	/** Where the invoice goes once saved; null saves it only. */
 	sending: InvoiceEditSending | null;
