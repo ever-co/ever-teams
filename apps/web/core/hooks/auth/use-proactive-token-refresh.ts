@@ -6,8 +6,8 @@ import {
 	shouldRefreshToken,
 	getTokenRemainingTime,
 	getTokenLifetime,
-	formatRemainingTime,
-	calculateRefreshInterval
+	getTokenRenewalTime,
+	formatRemainingTime
 } from '@/core/lib/auth/jwt-utils';
 import { handleUnauthorized } from '@/core/lib/auth/handle-unauthorized';
 import { isSessionOver, renewSession } from '@/core/lib/auth/session-renewal';
@@ -18,24 +18,72 @@ import { INIT_DELAY_MS } from '@/core/constants/config/constants';
 import { usePathname } from 'next/navigation';
 
 /**
+ * How often the token is looked at: a tenth of its lifetime, within these bounds. A look reads the cookie and
+ * compares two times: no request leaves unless a renewal is due.
+ */
+const MAX_CHECK_INTERVAL_MS = 60_000;
+const MIN_CHECK_INTERVAL_MS = 5_000;
+
+/**
+ * At least a quarter of the token's lifetime, within these bounds, separates two renewals ahead of time. A computer
+ * clock running far ahead makes every new token look due: without it, each look would renew.
+ */
+const MAX_RENEWAL_GAP_MS = 10 * 60_000;
+const MIN_RENEWAL_GAP_MS = 30_000;
+
+/** A renewal that could not be made is not asked again sooner than this. */
+const ATTEMPT_GAP_MS = 10_000;
+
+function within(value: number, minimum: number, maximum: number): number {
+	return Math.max(minimum, Math.min(value, maximum));
+}
+
+/** The token's lifetime in milliseconds, or null when it cannot be read. */
+function lifetimeOf(accessToken: string | null): number | null {
+	const lifetimeSeconds = accessToken ? getTokenLifetime(accessToken) : null;
+	return lifetimeSeconds ? lifetimeSeconds * 1000 : null;
+}
+
+function checkIntervalOf(accessToken: string | null): number {
+	const lifetime = lifetimeOf(accessToken);
+	return lifetime ? within(lifetime / 10, MIN_CHECK_INTERVAL_MS, MAX_CHECK_INTERVAL_MS) : MAX_CHECK_INTERVAL_MS;
+}
+
+function renewalGapOf(accessToken: string | null): number {
+	const lifetime = lifetimeOf(accessToken);
+	return lifetime ? within(lifetime / 4, MIN_RENEWAL_GAP_MS, MAX_RENEWAL_GAP_MS) : MIN_RENEWAL_GAP_MS;
+}
+
+/**
+ * Whether the renewal ahead of time is due: the token is past half of its lifetime, counted from the time it was
+ * issued, or it expires within five minutes. A session left with its refresh token alone is due too.
+ */
+function isRenewalDue(accessToken: string | null): boolean {
+	if (!accessToken) return true;
+	const renewalTime = getTokenRenewalTime(accessToken);
+	return renewalTime === null || Date.now() >= renewalTime || shouldRefreshToken(accessToken, 300);
+}
+
+/**
  * Hook for proactive token refresh
  *
  * KEY PRINCIPLE:
- * - Refresh at 50% of token lifetime (e.g., 12h for 24h token)
- * - ONLY refresh if token has ≤50% of its lifetime remaining
- * - Avoid unnecessary API calls if token was refreshed elsewhere (e.g., proxy.ts)
+ * - Refresh at 50% of token lifetime (e.g., 12h for 24h token), so that no request leaves with an expired token
+ * - The 50% point is the TOKEN's: its issue time plus half of its lifetime. It does not move with page changes, and a
+ *   token already past it is renewed at once
+ * - Avoid unnecessary API calls if token was refreshed elsewhere (another tab, proxy.ts): the token is read again at
+ *   each look, and a fresh one is not due
  *
  * Strategy:
- * 1. On mount: Check if token expires within 5 min → immediate refresh if needed
- * 2. Use recursive setTimeout (not setInterval) to recalculate interval after each refresh
- * 3. At each timeout: Check if remaining time ≤ 50% lifetime before making API call
- * 4. Use retry logic with exponential backoff for network errors
- * 5. Force logout immediately on 401 errors (refresh token invalid)
+ * 1. Look at the token on mount and on each page change, then about once a minute (recursive setTimeout)
+ * 2. At each look: renew only if the token is due
+ * 3. Use retry logic with exponential backoff for network errors, and try again at the next look for as long as
+ *    there is a refresh token: a failure never ends the schedule
+ * 4. Force logout on 401 errors (refresh token invalid)
  *
- * Why recursive setTimeout instead of setInterval?
- * - The interval is recalculated based on the CURRENT token after each refresh
- * - Protects against race conditions when proxy.ts refreshes the token concurrently
- * - More resilient: if refresh fails, next attempt uses updated token state
+ * Why looking every minute instead of one long timer?
+ * - A timer planned for twelve hours later does not fire while the computer sleeps, and resumes late on some systems
+ * - The look is a cookie read: it costs nothing, and it sees a token another tab renewed
  *
  */
 export function useProactiveTokenRefresh() {
@@ -43,6 +91,9 @@ export function useProactiveTokenRefresh() {
 	// Use number type for browser setTimeout (not NodeJS.Timeout)
 	const timeoutRef = useRef<number | null>(null);
 	const isRefreshingRef = useRef(false);
+	// When this tab last renewed ahead of time, and when it last tried: kept across page changes
+	const lastRenewalAtRef = useRef(0);
+	const lastAttemptAtRef = useRef(0);
 
 	useEffect(() => {
 		let active = true;
@@ -68,23 +119,22 @@ export function useProactiveTokenRefresh() {
 				return false;
 			}
 
-			// KEY CHECK: Only refresh if token has less than 50% of its lifetime remaining
-			// This is consistent with the 50% refresh strategy used in calculateRefreshInterval
-			if (accessToken) {
-				const remainingSeconds = getTokenRemainingTime(accessToken);
-				const lifetimeSeconds = getTokenLifetime(accessToken);
-				// Default to 12h (43200s) if lifetime can't be determined
-				const halfLifeSeconds = lifetimeSeconds ? lifetimeSeconds / 2 : 12 * 60 * 60;
-
-				if (remainingSeconds > halfLifeSeconds) {
-					// Token has more than 50% life remaining - no need to refresh yet
-					logInDev(
-						`[ProactiveTokenRefresh] Token still valid (${formatRemainingTime(remainingSeconds)} remaining > 50% lifetime), skipping refresh`
-					);
-					return false;
-				}
+			// KEY CHECK: Only refresh once the token is past 50% of its lifetime (or about to expire)
+			if (!isRenewalDue(accessToken)) {
+				const remaining = formatRemainingTime(getTokenRemainingTime(accessToken ?? ''));
+				logInDev(`[ProactiveTokenRefresh] Token still valid (${remaining} remaining), skipping refresh`);
+				return false;
 			}
 
+			const now = Date.now();
+			const isTooSoon =
+				now - lastAttemptAtRef.current < ATTEMPT_GAP_MS ||
+				now - lastRenewalAtRef.current < renewalGapOf(accessToken);
+			if (isTooSoon) {
+				return false;
+			}
+
+			lastAttemptAtRef.current = now;
 			isRefreshingRef.current = true;
 
 			try {
@@ -105,7 +155,6 @@ export function useProactiveTokenRefresh() {
 					3,
 					1000
 				);
-				if (!active) return false;
 
 				if (renewal.outcome === 'ended') {
 					// Without a refresh token there is no session to end here: the person signed out in another tab.
@@ -124,6 +173,7 @@ export function useProactiveTokenRefresh() {
 					return false;
 				}
 
+				lastRenewalAtRef.current = Date.now();
 				// Log success with next check timing
 				const newRemaining = getTokenRemainingTime(getAccessTokenCookie() ?? '');
 				logInDev(
@@ -131,9 +181,7 @@ export function useProactiveTokenRefresh() {
 				);
 				return true;
 			} catch (error) {
-				if (!active) return false;
-
-				// Network error - will be retried on next interval
+				// Network error - will be retried at the next look
 				logErrorInDev('[ProactiveTokenRefresh] ❌ Token refresh failed (network error)', {
 					source: 'useProactiveTokenRefresh',
 					error: String(error)
@@ -145,10 +193,10 @@ export function useProactiveTokenRefresh() {
 		};
 
 		/**
-		 * Schedule the next refresh using recursive setTimeout
-		 * This ensures the interval is recalculated based on the CURRENT token after each refresh
+		 * Schedule the next look using recursive setTimeout
+		 * This ensures the interval follows the CURRENT token after each refresh
 		 */
-		const scheduleNextRefresh = () => {
+		const scheduleNextCheck = () => {
 			if (!active) return;
 
 			const currentToken = getAccessTokenCookie();
@@ -157,84 +205,35 @@ export function useProactiveTokenRefresh() {
 				return;
 			}
 
-			// Calculate optimal refresh interval based on CURRENT token,
-			// but never schedule a check after the token is expected to expire
-			const remainingTimeSeconds = getTokenRemainingTime(currentToken);
-			if (remainingTimeSeconds <= 0) {
-				logInDev('[ProactiveTokenRefresh] Token already expired, not scheduling further checks');
-				return;
-			}
-
-			const rawInterval = calculateRefreshInterval(currentToken);
-			const interval = Math.min(rawInterval, remainingTimeSeconds * 1000);
-
-			logInDev(
-				`[ProactiveTokenRefresh] Token remaining: ${formatRemainingTime(remainingTimeSeconds)}, ` +
-					`Next check in: ${formatRemainingTime(interval / 1000)}`
-			);
-
+			// A look at the token costs nothing, so the schedule goes on for as long as the session has a token: an
+			// expired one, or a renewal that failed during an outage, no longer ends it
+			const interval = checkIntervalOf(currentToken);
 			timeoutRef.current =
 				typeof window !== 'undefined'
 					? window.setTimeout(async () => {
 							if (!active) return;
-							logInDev('[ProactiveTokenRefresh] Scheduled check triggered...');
 							await performRefreshIfNeeded();
 							if (!active) return;
 							// Always reschedule (whether refresh happened or was skipped)
-							// The interval will be recalculated based on the current token
-							scheduleNextRefresh();
+							scheduleNextCheck();
 						}, interval)
 					: null;
 		};
 
 		/**
-		 * Initial setup: check if immediate refresh is needed, then start scheduler
+		 * Initial setup: check if a refresh is due, then start the scheduler
 		 */
 		const setupRefreshSchedule = async () => {
 			if (!active) return;
 
-			const accessToken = getAccessTokenCookie();
-
-			if (!accessToken) {
+			if (!getAccessTokenCookie()) {
 				logInDev('[ProactiveTokenRefresh] No access token, waiting for login');
 				return;
 			}
 
-			// Check if we need to refresh immediately (token expiring within 5 min)
-			if (shouldRefreshToken(accessToken, 300)) {
-				logInDev('[ProactiveTokenRefresh] Token needs refresh, doing it now...');
-				const success = await performRefreshIfNeeded();
-				if (!active) return;
-
-				if (!success) {
-					// Refresh failed - performRefreshIfNeeded already handled 401 (logout)
-					// For network errors, schedule a quick retry instead of normal 12h interval
-					// This prevents waiting 12h while token expires in minutes
-					const refreshToken = getRefreshTokenCookie();
-					if (refreshToken) {
-						// Still have refresh token = network error, not 401
-						console.warn('[ProactiveTokenRefresh] Immediate refresh failed, scheduling quick retry in 30s');
-						timeoutRef.current =
-							typeof window !== 'undefined'
-								? window.setTimeout(async () => {
-										if (!active) return;
-										await performRefreshIfNeeded();
-										if (!active) return;
-										scheduleNextRefresh();
-									}, 30000)
-								: null;
-					}
-					// If no refresh token, handleUnauthorized was called - don't schedule anything
-					return;
-				}
-				// Success - continue to start scheduler with new token
-			} else {
-				const remainingTime = getTokenRemainingTime(accessToken);
-				logInDev(`[ProactiveTokenRefresh] Token valid, remaining: ${formatRemainingTime(remainingTime)}`);
-			}
-
-			// Start the recursive scheduler (only if refresh succeeded or wasn't needed)
-			scheduleNextRefresh();
+			await performRefreshIfNeeded();
+			if (!active) return;
+			scheduleNextCheck();
 		};
 
 		// Initial setup after a short delay to let app fully initialize

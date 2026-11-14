@@ -172,7 +172,7 @@ export function getTokenRemainingTime(token: string): number {
  * @param token - The JWT token string
  * @returns Refresh interval in milliseconds
  */
-export function calculateRefreshInterval(token: string): number {
+function calculateRefreshInterval(token: string): number {
 	const lifetime = getTokenLifetime(token);
 
 	// Default to 12 hours if we can't determine lifetime
@@ -194,6 +194,21 @@ export function calculateRefreshInterval(token: string): number {
 	logInDev(`[JWT] Token lifetime: ${lifetime}s, Refresh interval: ${interval / 1000 / 60}min`);
 
 	return interval;
+}
+
+/**
+ * When the renewal ahead of time of a token is due, as a time of this computer's clock: the token's own issue time
+ * plus the interval calculateRefreshInterval gives (half of its lifetime). It is a fixed point of the token, so a
+ * check made earlier or later, or from another page, finds the same one.
+ *
+ * @param token - The JWT token string
+ * @returns The time in milliseconds, or null for a token that cannot be read (which is due at once)
+ */
+export function getTokenRenewalTime(token: string): number | null {
+	const payload = decodeJWT(token);
+	if (!payload) return null;
+
+	return payload.iat * 1000 + calculateRefreshInterval(token);
 }
 
 /**

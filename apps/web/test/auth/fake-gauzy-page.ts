@@ -12,7 +12,7 @@ import {
 	setAccessTokenCookie,
 	setRefreshTokenCookie
 } from '@/core/lib/helpers/cookies';
-import { createFakeGauzy } from './fake-gauzy-session';
+import { createFakeGauzy, type FakeGauzyOptions } from './fake-gauzy-session';
 
 const START = Date.parse('2026-11-14T09:00:00.000Z');
 const originalLocation = window.location;
@@ -25,6 +25,8 @@ interface FakeGauzyPageOptions {
 	 * `jest timers`: the test installed Jest's fake timers, and moves time with them.
 	 */
 	clock?: 'moved by wait()' | 'jest timers';
+	/** The stand-in Gauzy's token lifetimes and clock. */
+	gauzy?: FakeGauzyOptions;
 }
 
 /**
@@ -34,7 +36,7 @@ interface FakeGauzyPageOptions {
  */
 export function openFakeGauzyPage(
 	clients: Array<{ axiosInstance: AxiosInstance }>,
-	{ clock = 'moved by wait()' }: FakeGauzyPageOptions = {}
+	{ clock = 'moved by wait()', gauzy: gauzyOptions }: FakeGauzyPageOptions = {}
 ) {
 	let now = START;
 	if (clock === 'moved by wait()') {
@@ -53,7 +55,7 @@ export function openFakeGauzyPage(
 	};
 	openAt('/');
 
-	const gauzy = createFakeGauzy();
+	const gauzy = createFakeGauzy(gauzyOptions);
 	for (const client of clients) {
 		client.axiosInstance.defaults.adapter = gauzy.adapter;
 	}
