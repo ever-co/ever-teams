@@ -433,7 +433,7 @@ export function resolvedDateOrderOf(dates: DateOrderReading, chosen: DateOrder |
 
 const FIRST_ROWS_SHOWN = 3;
 
-export type TimeImportColumnsBlocker = 'missing' | 'mixedDates' | 'dateOrder';
+type TimeImportColumnsBlocker = 'missing' | 'mixedDates' | 'dateOrder';
 
 export interface TimeImportColumnsStepField {
 	field: TimeImportField;
@@ -496,7 +496,7 @@ export function timeImportColumnsStepOf(
 	};
 }
 
-export type TimeImportReading =
+type TimeImportReading =
 	| { kind: 'refused'; problem: TimeImportSheetProblem }
 	| { kind: 'columns'; table: TimeImportTable; choice: TimeImportColumnsChoice }
 	| {

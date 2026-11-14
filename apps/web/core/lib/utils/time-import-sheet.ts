@@ -7,7 +7,7 @@ export const TIME_IMPORT_MAX_ROWS = 500;
 
 const CSV_EXTENSION = '.csv';
 
-export const TIME_IMPORT_COLUMNS = [
+const TIME_IMPORT_COLUMNS = [
 	'date',
 	'startTime',
 	'endTime',
