@@ -79,6 +79,13 @@ describe('workspace data export rules', () => {
 			expect(name).toBe(`${'x'.repeat(80)}-data-2026-11-14.zip`);
 		});
 
+		it('drops the dots and dashes at both ends of the name, and keeps those inside it', () => {
+			expect(workspaceExportFileName('..-Acme.Labs-Ops.-.', day)).toBe('Acme.Labs-Ops-data-2026-11-14.zip');
+			expect(workspaceExportFileName('.-.-', day)).toBe('workspace-data-2026-11-14.zip');
+			// Cut at 80 characters, the stem does not end on a dot either
+			expect(workspaceExportFileName(`${'x'.repeat(79)}.yz`, day)).toBe(`${'x'.repeat(79)}-data-2026-11-14.zip`);
+		});
+
 		it('falls back to "workspace" when nothing of the name can be kept', () => {
 			expect(workspaceExportFileName(' /:*? ', day)).toBe('workspace-data-2026-11-14.zip');
 			expect(workspaceExportFileName('', day)).toBe('workspace-data-2026-11-14.zip');

@@ -10,7 +10,6 @@ const MAX_FILE_NAME_STEM = 80;
 const UNSAFE_FILE_NAME_CHARACTERS = /[\\/:*?"<>|]+/g;
 const SPACES = /\s+/g;
 const REPEATED_DASHES = /-{2,}/g;
-const EDGE_DOTS_AND_DASHES = /^[.-]+|[.-]+$/g;
 
 /** Signatures of a ZIP archive, little-endian as they are written. */
 const LOCAL_FILE_HEADER = [0x50, 0x4b, 0x03, 0x04];
@@ -58,13 +57,30 @@ function printableCharacterOf(character: string): string {
 	return character;
 }
 
+function isDotOrDash(character: string | undefined): boolean {
+	return character === '.' || character === '-';
+}
+
+/** The text without the dots and dashes at its two ends, read once from each end (no backtracking pattern). */
+function withoutEdgeDotsAndDashes(text: string): string {
+	let start = 0;
+	let end = text.length;
+	while (start < end && isDotOrDash(text[start])) {
+		start += 1;
+	}
+	while (end > start && isDotOrDash(text[end - 1])) {
+		end -= 1;
+	}
+	return text.slice(start, end);
+}
+
 /** The workspace's name as a file name stem: what file systems refuse dropped, words joined by dashes. */
 function fileNameStemOf(workspaceName: string): string {
 	const printable = Array.from(workspaceName).map(printableCharacterOf).join('');
 	const safe = printable.replace(UNSAFE_FILE_NAME_CHARACTERS, ' ').trim().replace(SPACES, '-');
-	const joined = safe.replace(REPEATED_DASHES, '-').replace(EDGE_DOTS_AND_DASHES, '');
+	const joined = withoutEdgeDotsAndDashes(safe.replace(REPEATED_DASHES, '-'));
 	const shortened = Array.from(joined).slice(0, MAX_FILE_NAME_STEM).join('');
-	return shortened.replace(EDGE_DOTS_AND_DASHES, '') || 'workspace';
+	return withoutEdgeDotsAndDashes(shortened) || 'workspace';
 }
 
 /** The name of the downloaded archive: the workspace and the day of the export, e.g. `Acme-data-2026-11-14.zip`. */
