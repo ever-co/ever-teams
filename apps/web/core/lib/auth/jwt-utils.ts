@@ -73,6 +73,25 @@ export function pickTokenOrganization<T extends { organizationId?: string | null
 }
 
 /**
+ * Whether two access tokens are of the same session scope: the same user, tenant and organization. A request pinned
+ * to one of them (api-request-scope.ts) may then be sent with the other, which a token of another workspace, or of
+ * someone else who signed in meanwhile in another tab, may never be.
+ */
+export function tokensShareScope(firstToken: string, secondToken: string): boolean {
+	const first = decodeJWT(firstToken) as (JWTPayload & { sub?: string }) | null;
+	const second = decodeJWT(secondToken) as (JWTPayload & { sub?: string }) | null;
+	if (!first || !second) {
+		return false;
+	}
+	const userId = first.id ?? first.sub;
+	const isSameUser = !!userId && userId === (second.id ?? second.sub);
+	const isSameTenant = (first.tenantId ?? null) === (second.tenantId ?? null);
+	const isSameOrganization = (first.organizationId ?? null) === (second.organizationId ?? null);
+
+	return isSameUser && isSameTenant && isSameOrganization;
+}
+
+/**
  * Check if a token NEEDS to be refreshed
  *
  * KEY LOGIC:
@@ -153,7 +172,7 @@ export function getTokenRemainingTime(token: string): number {
  * @param token - The JWT token string
  * @returns Refresh interval in milliseconds
  */
-export function calculateRefreshInterval(token: string): number {
+function calculateRefreshInterval(token: string): number {
 	const lifetime = getTokenLifetime(token);
 
 	// Default to 12 hours if we can't determine lifetime
@@ -175,6 +194,21 @@ export function calculateRefreshInterval(token: string): number {
 	logInDev(`[JWT] Token lifetime: ${lifetime}s, Refresh interval: ${interval / 1000 / 60}min`);
 
 	return interval;
+}
+
+/**
+ * When the renewal ahead of time of a token is due, as a time of this computer's clock: the token's own issue time
+ * plus the interval calculateRefreshInterval gives (half of its lifetime). It is a fixed point of the token, so a
+ * check made earlier or later, or from another page, finds the same one.
+ *
+ * @param token - The JWT token string
+ * @returns The time in milliseconds, or null for a token that cannot be read (which is due at once)
+ */
+export function getTokenRenewalTime(token: string): number | null {
+	const payload = decodeJWT(token);
+	if (!payload) return null;
+
+	return payload.iat * 1000 + calculateRefreshInterval(token);
 }
 
 /**
