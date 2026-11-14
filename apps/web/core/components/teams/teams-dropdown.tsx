@@ -128,7 +128,6 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const showsTeamSkeleton = isTeamUnknown && !activeTeamSnapshot;
 	const managesSeveralTeams = userManagedTeams.length > 1;
 	const showsAllTeams = managesSeveralTeams || isAllTeamsPage;
-	const cannotCreateTeam = !user?.isEmailVerified || timerRunningStatus;
 	const orderedTeams = useMemo(() => activeTeamFirst(teams, activeTeam?.id), [teams, activeTeam?.id]);
 
 	// The person's other organizations of the workspace, read once the session is known so the menu opens on them
@@ -142,6 +141,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const switchingOrganizationId = organizationBeingOpened(switchOrganization);
 	const isSwitchingOrganization = switchingOrganizationId !== null;
 	const blocksTeamChange = timerRunningStatus || isSwitchingOrganization;
+	const cannotCreateTeam = !user?.isEmailVerified || blocksTeamChange;
 
 	const selectTeam = useCallback(
 		(team: TOrganizationTeam) => {
@@ -180,6 +180,9 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				});
 				return;
 			}
+			if (isSwitchingOrganization) {
+				return;
+			}
 			setFailedOrganizationId(null);
 			switchOrganization.mutate(
 				{ organizationId: organization.id, team },
@@ -193,7 +196,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				}
 			);
 		},
-		[switchOrganization, t, timerRunningStatus]
+		[isSwitchingOrganization, switchOrganization, t, timerRunningStatus]
 	);
 
 	const startTeamCreation = useCallback(() => {
@@ -201,8 +204,12 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 			toast.warning(t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'), { id: CREATE_BLOCKED_TOAST_ID });
 			return;
 		}
+		// Another organization is opening: a team created here would become the active one over the switch's
+		if (isSwitchingOrganization) {
+			return;
+		}
 		openModal();
-	}, [timerRunningStatus, t, openModal]);
+	}, [isSwitchingOrganization, timerRunningStatus, t, openModal]);
 
 	return (
 		<div>

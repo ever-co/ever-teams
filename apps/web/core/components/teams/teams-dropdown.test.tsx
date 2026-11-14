@@ -147,6 +147,14 @@ describe('TeamsDropDown while another organization opens', () => {
 		expect(mockSetActiveTeam).not.toHaveBeenCalled();
 	});
 
+	it('keeps team creation unavailable during the switch', () => {
+		mockSwitch.isPending = true;
+		mockSwitch.variables = { organizationId: 'labs' };
+		renderDropdown();
+
+		expect(screen.getByRole('menuitem', { name: /common.CREATE_TEAM/ })).toHaveAttribute('aria-disabled', 'true');
+	});
+
 	it('keeps them unavailable once the switch is done, until the page is replaced', () => {
 		mockSwitch.isSuccess = true;
 		mockSwitch.variables = { organizationId: 'labs' };
