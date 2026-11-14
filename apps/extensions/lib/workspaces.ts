@@ -115,3 +115,18 @@ export function sessionFrom(answer: unknown, workspace: WorkspaceChoice, apiUrl:
 		teamId
 	};
 }
+
+/**
+ * The session to keep after a token renewal: the stored one with the new access token and the refresh token the API
+ * rotated (the one sent is revoked). Null when the stored session is no longer the one renewed: the person signed
+ * out, signed in again or changed the API address meanwhile, and that must not be undone.
+ */
+export function renewedSessionOf(stored: Session | null, renewedFrom: Session, answer: unknown): Session | null {
+	const token = textOf(fieldOf(answer, 'token'));
+	const isSameSignIn = stored !== null && stored.refreshToken === renewedFrom.refreshToken;
+	if (!token || !isSameSignIn) {
+		return null;
+	}
+	const refreshToken = textOf(fieldOf(answer, 'refresh_token')) || stored.refreshToken;
+	return { ...stored, token, refreshToken };
+}

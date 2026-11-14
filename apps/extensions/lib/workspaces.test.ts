@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { sessionFrom, workspacesOf } from './workspaces.ts';
+import { renewedSessionOf, sessionFrom, workspacesOf, type Session } from './workspaces.ts';
 
 const confirmAnswer = {
 	workspaces: [
@@ -83,5 +83,47 @@ describe('sessionFrom', () => {
 
 	it('refuses an answer without an access token', () => {
 		assert.equal(sessionFrom({ user: signIn.user }, workspace, 'https://api.example.com'), null);
+	});
+});
+
+describe('renewedSessionOf', () => {
+	const signedIn: Session = {
+		apiUrl: 'https://api.ever.team',
+		token: 'access-1',
+		refreshToken: 'refresh-1',
+		userId: 'user-1',
+		email: 'marie@ever.co',
+		name: 'Marie Curie',
+		tenantId: 'tenant-1',
+		organizationId: 'org-1',
+		employeeId: 'employee-1',
+		teams: [],
+		teamId: 'team-1'
+	};
+
+	it('keeps the new access token and the refresh token the API rotated', () => {
+		const answer = { token: 'access-2', refresh_token: 'refresh-2' };
+		const next = renewedSessionOf(signedIn, signedIn, answer);
+		assert.equal(next?.token, 'access-2');
+		assert.equal(next?.refreshToken, 'refresh-2');
+	});
+
+	it('keeps the refresh token it had when the API sends none', () => {
+		assert.equal(renewedSessionOf(signedIn, signedIn, { token: 'access-2' })?.refreshToken, 'refresh-1');
+	});
+
+	it('keeps what changed in the stored session meanwhile, such as the active team', () => {
+		const stored = { ...signedIn, teamId: 'team-2' };
+		assert.equal(renewedSessionOf(stored, signedIn, { token: 'access-2' })?.teamId, 'team-2');
+	});
+
+	it('keeps nothing once the person signed out or signed in again meanwhile', () => {
+		assert.equal(renewedSessionOf(null, signedIn, { token: 'access-2' }), null);
+		const signedInAgain = { ...signedIn, refreshToken: 'refresh-9' };
+		assert.equal(renewedSessionOf(signedInAgain, signedIn, { token: 'access-2' }), null);
+	});
+
+	it('keeps nothing when the answer holds no access token', () => {
+		assert.equal(renewedSessionOf(signedIn, signedIn, { message: 'Unauthorized' }), null);
 	});
 });

@@ -1,6 +1,6 @@
 import type { ApiFailure } from '~lib/refusal';
-import { saveSession } from '~lib/session-store';
-import type { Session } from '~lib/workspaces';
+import { loadSession, saveSession } from '~lib/session-store';
+import { renewedSessionOf, type Session } from '~lib/workspaces';
 
 /** A failed call to the API; status 0 when the API could not be reached at all. */
 export class ApiError extends Error implements ApiFailure {
@@ -127,11 +127,11 @@ async function renewed(session: Session): Promise<Session | null> {
 	if (!response.ok) {
 		return null;
 	}
-	const answer = await readJson<{ token?: unknown }>(response);
-	if (typeof answer?.token !== 'string') {
+	const answer = await readJson<unknown>(response);
+	const next = renewedSessionOf(await loadSession(), session, answer);
+	if (!next) {
 		return null;
 	}
-	const next: Session = { ...session, token: answer.token };
 	await saveSession(next);
 	return next;
 }
