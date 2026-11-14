@@ -13,6 +13,8 @@ import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { finishSignupWorkspace } from '@/core/services/server/finish-signup';
 import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
+import { twoFactorChallengeOf } from '@/core/lib/auth/two-factor';
+import { unwrapRejection } from '@/core/services/server/fetch';
 import { respondWithWorkspaceSession } from '@/core/services/server/workspace-session';
 
 export async function POST(req: Request) {
@@ -184,6 +186,12 @@ export async function POST(req: Request) {
 			{ status: 400 }
 		);
 	} catch (err) {
+		// The account asks for a second factor: its challenge goes to the browser, which asks for the code and
+		// completes the sign-in at `POST /api/auth/two-factor/verify`. Any other failure is answered as before.
+		const answer = await unwrapRejection(err);
+		if (twoFactorChallengeOf(answer)) {
+			return NextResponse.json(answer, { status: 403 });
+		}
 		console.log({ err });
 		return NextResponse.json(
 			{
