@@ -37,7 +37,7 @@ import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { type TimeEntryReuseHandlers, TimeEntryReuseMenuItems } from './time-entry-reuse';
 import { EntryNotesLine, LogChangeChips, ManualReasonLine } from './timesheet-log-changes';
 import { STATUS_LABEL_KEYS, TimesheetStatusChip, TimesheetStatusDot } from './timesheet-status';
-import { DEFERRED_ROW, logGridOf, NARROW_ONLY, WIDE_ONLY } from './timesheets-grid';
+import { DEFERRED_ROW, logGridOf, NARROW_ONLY, NESTED_ROW, NESTED_TASK_INDENT, WIDE_ONLY } from './timesheets-grid';
 
 export interface TimesheetRowHandlers {
 	toggleLog: (logId: string) => void;
@@ -59,7 +59,7 @@ export const LOG_TYPE_LABEL_KEYS: Partial<Record<ETimeLogType, DottedLanguageObj
 
 const QUICK_ACTION = 'size-7 text-muted-foreground';
 
-function taskNumberOf(log: ITimeLog) {
+export function taskNumberOf(log: ITimeLog) {
 	const taskNumber = log.task?.taskNumber;
 	if (taskNumber) {
 		return taskNumber;
@@ -89,7 +89,7 @@ export function TaskTitle({ log }: Readonly<{ log: ITimeLog }>) {
 	);
 }
 
-function ProjectName({ log }: Readonly<{ log: ITimeLog }>) {
+export function ProjectName({ log }: Readonly<{ log: ITimeLog }>) {
 	const t = useTranslations();
 	const project = log.project;
 	if (!project?.name) {
@@ -247,7 +247,8 @@ export function rejectionReasonOf(log: ITimeLog, status: ETimesheetStatus | null
 /**
  * One time log: the checkbox, its status, the task (opening in the task drawer), project, member, the time it ran
  * and its duration, then the quick approve and reject of a pending log and the row menu. Added and Edited chips
- * follow the task; a log added by hand quotes its reason under it, and a rejected log says why.
+ * follow the task; a log added by hand quotes its reason under it, and a rejected log says why. Under the row of a
+ * group of similar entries, a log is drawn nested in it.
  */
 export const TimesheetLogRow = memo(function TimesheetLogRow({
 	log,
@@ -255,7 +256,8 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 	showsMember,
 	permissions,
 	formatters,
-	handlers
+	handlers,
+	isNested = false
 }: Readonly<{
 	log: ITimeLog;
 	isSelected: boolean;
@@ -263,6 +265,7 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 	permissions: TimesheetPermissions;
 	formatters: TimesheetFormatters;
 	handlers: TimesheetRowHandlers;
+	isNested?: boolean;
 }>) {
 	const t = useTranslations();
 	const status = statusOfLog(log);
@@ -289,6 +292,7 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 				logGridOf(showsMember),
 				DEFERRED_ROW,
 				'min-h-11 py-1.5',
+				isNested && NESTED_ROW,
 				isSelected && 'bg-foreground/[0.03]'
 			)}
 		>
@@ -302,7 +306,7 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 			<span role="cell" className={cn('min-w-0', WIDE_ONLY)}>
 				<TimesheetStatusChip status={status} />
 			</span>
-			<span role="cell" className="flex min-w-0 flex-col gap-0.5 py-0.5">
+			<span role="cell" className={cn('flex min-w-0 flex-col gap-0.5 py-0.5', isNested && NESTED_TASK_INDENT)}>
 				<span className="flex min-w-0 items-center gap-1.5 text-[13px]">
 					{hasTask && <TaskPropertyIcon kind="issueType" name={log.task?.issueType} />}
 					{taskNumber && (
