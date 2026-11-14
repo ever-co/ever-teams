@@ -26,6 +26,7 @@ function entry(row: number, patch: Partial<WorkspaceEntryRow>): WorkspaceEntryRo
 		clientName: '',
 		tagNames: [],
 		memberEmail: 'marie@studio.io',
+		billable: null,
 		readyEmployeeId: 'emp-marie',
 		isMemberUnknown: false,
 		...patch
@@ -103,6 +104,42 @@ describe('workspaceImportPlanOf', () => {
 		expect(plan.projects.reuse).toEqual([{ id: 'project-website', name: 'Website' }]);
 		expect(plan.projects.create).toEqual([{ name: 'Roadmap', clientName: 'Acme', color: null, billable: null }]);
 		expect(plan.labels).toEqual({ create: ['Urgent', 'meeting'], reuse: [{ id: 'label-design', name: 'Design' }] });
+	});
+
+	it('gives a project the billable default its entries agree on, unless the projects file gives one', () => {
+		const plan = workspaceImportPlanOf({
+			clientsFile: null,
+			projectsFile: tableOf(
+				'projects.csv',
+				'projects',
+				['Name', 'Billable'],
+				[
+					['Website', ''],
+					['App', 'No']
+				]
+			),
+			tagsFile: null,
+			entryRows: [
+				entry(2, { projectName: 'Website', billable: false }),
+				entry(3, { projectName: 'App', billable: true }),
+				entry(4, { projectName: 'Roadmap', billable: true }),
+				entry(5, { projectName: 'roadmap', billable: null }),
+				entry(6, { projectName: 'Roadmap', billable: true }),
+				entry(7, { projectName: 'Audit', billable: true }),
+				entry(8, { projectName: 'Audit', billable: false }),
+				entry(9, { projectName: 'Training' })
+			],
+			existing: NONE,
+			members: MEMBERS
+		});
+
+		expect(plan.projects.create.map((project) => [project.name, project.billable])).toEqual([
+			['Website', false],
+			['App', false],
+			['Roadmap', true],
+			['Audit', null],
+			['Training', null]
+		]);
 	});
 
 	it('lists the emails no member has apart, with their rows, and files none of them', () => {

@@ -14,6 +14,7 @@ import { generateDefaultColor } from '@/core/lib/helpers/colors';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { CLIENT_CONTACT_TYPE, CLIENT_CREATE_PERMISSIONS, holdsAnyPermission } from '@/core/lib/utils/clients';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { yesNoOf } from '@/core/lib/utils/time-import-cells';
 import {
 	comparableOf,
 	isReadyRow,
@@ -146,6 +147,7 @@ export function workspaceEntryRowsOf(
 			clientName: cellAt(cells, clientIndex),
 			tagNames: tagNamesOf(cellAt(cells, tagsIndex)),
 			memberEmail: row.cells.memberEmail,
+			billable: yesNoOf(row.cells.billable),
 			readyEmployeeId: readyEmployeeIdOf(row),
 			isMemberUnknown: row.problems.some((problem) => problem.code === MEMBER_UNKNOWN)
 		};

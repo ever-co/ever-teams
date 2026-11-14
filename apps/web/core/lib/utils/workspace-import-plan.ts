@@ -30,6 +30,8 @@ export interface WorkspaceEntryRow {
 	clientName: string;
 	tagNames: ReadonlyArray<string>;
 	memberEmail: string;
+	/** The row's billable cell as the time import reads it (yes or no), or null when it does not say. */
+	billable: boolean | null;
 	/** The member the row is filed under when the time import accepts it, else null. */
 	readyEmployeeId: string | null;
 	isMemberUnknown: boolean;
@@ -191,10 +193,16 @@ function plannedProjectsOf(input: WorkspacePlanInput): PlannedProject[] {
 			byKey.set(key, project);
 		}
 	}
+	const entryBillables = new Map<string, Set<boolean>>();
 	for (const row of input.entryRows) {
 		const key = nameKeyOf(row.projectName);
 		if (key === '') {
 			continue;
+		}
+		if (row.billable !== null) {
+			const billables = entryBillables.get(key) ?? new Set<boolean>();
+			billables.add(row.billable);
+			entryBillables.set(key, billables);
 		}
 		const known = byKey.get(key);
 		const clientName = row.clientName || null;
@@ -206,7 +214,16 @@ function plannedProjectsOf(input: WorkspacePlanInput): PlannedProject[] {
 			byKey.set(key, { ...known, clientName });
 		}
 	}
-	return [...byKey.values()];
+	// A project the projects file gives no billable default takes the one its entries agree on: none when they
+	// differ, or when none of them says
+	return [...byKey.entries()].map(([key, project]) => {
+		const billables = entryBillables.get(key);
+		const isAgreed = project.billable === null && billables?.size === 1;
+		if (!isAgreed) {
+			return project;
+		}
+		return { ...project, billable: [...billables][0] };
+	});
 }
 
 function entriesByMemberOf(input: WorkspacePlanInput) {
