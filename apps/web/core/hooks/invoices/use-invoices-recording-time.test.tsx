@@ -100,6 +100,16 @@ describe('the earlier invoices that record the time they bill', () => {
 		expect(result.current.recordedIds.size).toBe(0);
 	});
 
+	it('leave out an invoice read without its line list, as if it were not read', async () => {
+		mockInvoices.getInvoice.mockImplementation(async (invoiceId: string) => ({ id: invoiceId }));
+		mockReports.getBillableTimeLogs.mockResolvedValue([]);
+
+		const { result } = renderRecording([octoberInvoice], true);
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		expect(result.current.recordedIds.has('invoice-a')).toBe(false);
+	});
+
 	it('could not be checked when one of them could not be read', async () => {
 		mockInvoices.getInvoice.mockRejectedValue(new Error('not found'));
 

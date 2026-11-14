@@ -262,6 +262,23 @@ describe('the time a new invoice offers', () => {
 		expect(result.current.isAllInvoiced).toBe(false);
 	});
 
+	it('says the time could not be read when the check for an invoiced period fails', async () => {
+		mockReports.getBillableTimeLogs.mockImplementation(
+			async (_range: unknown, _relations: unknown, options: BillableReadOptions) => {
+				if (options.notInvoiced) {
+					return [];
+				}
+				throw new Error('offline');
+			}
+		);
+
+		const { result } = renderTimeOf({});
+		await waitFor(() => expect(readOptionsOfCalls()).toHaveLength(2));
+
+		await waitFor(() => expect(result.current.isError).toBe(true));
+		expect(result.current.isAllInvoiced).toBe(false);
+	});
+
 	it('comes from an API that does not record billed time when the logs name no line', async () => {
 		answerTimeReads([adaTime], [adaTime]);
 
@@ -377,6 +394,18 @@ describe('the time of a saved invoice', () => {
 		expect(result.current.lines).toHaveLength(1);
 		expect(result.current.lines[0].timeLogIds).toEqual(['log-free', 'log-own']);
 		expect(result.current.lines[0].hours).toBe(12);
+	});
+
+	it('reads its members and their rates over the same wider days as the time its lines bill', async () => {
+		answerTimeReads([], [ownAda]);
+
+		const { result } = renderTimeOf({ billedLines });
+		await waitFor(() => expect(result.current.isReadingBilledTime).toBe(false));
+		await waitFor(() => expect(mockReports.getOwedAmountReport).toHaveBeenCalled());
+
+		const range = mockReports.getOwedAmountReport.mock.calls[0][0] as { from: Date; to: Date };
+		expect(range.from).toEqual(new Date(2026, 8, 30));
+		expect(range.to).toEqual(new Date(2026, 10, 1, 23, 59, 59, 999));
 	});
 
 	it('is waited for while the time its lines bill is read', async () => {
