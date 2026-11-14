@@ -21,7 +21,7 @@ import { useInvoiceAccess } from '@/core/hooks/invoices/use-invoice-access';
 import { clientMatchesSearch, clientsInScope, projectCountByClient, sortClients } from '@/core/lib/utils/clients';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import type { TClient } from '@/core/types/schemas';
-import { ClientsCards } from './clients-cards';
+import { ClientsCards, ClientsCardsSkeleton } from './clients-cards';
 import { ClientsList } from './clients-list';
 import {
 	ClientsEmptyState,
@@ -112,7 +112,8 @@ function ClientsPage() {
 			}
 		>
 			{isRefused && <ClientsNoAccessState />}
-			{!isRefused && isLoading && <ClientsListSkeleton />}
+			{!isRefused && isLoading && showsCards && <ClientsCardsSkeleton />}
+			{!isRefused && isLoading && !showsCards && <ClientsListSkeleton />}
 			{showsError && <ClientsErrorState onRetry={() => void refetch()} />}
 			{showsEmpty && (
 				<ClientsEmptyState
