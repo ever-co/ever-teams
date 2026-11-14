@@ -9,6 +9,7 @@ import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useSyncExternalStore } from 'react';
 import { useCheckAPI } from '@/core/hooks/common/use-check-api';
+import { useNotificationEmailLink } from '@/core/hooks/inbox/use-notification-email-link';
 import { useRuntimeEnvHtmlProps } from '@/core/components/providers/runtime-env-provider';
 
 import { isPostHogConfigured } from './(main)/integration/posthog/posthog-config';
@@ -51,6 +52,8 @@ const LocaleLayoutComponent = (props: Props) => {
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const { isApiWork, loading } = useCheckAPI();
+	// A link of a Gauzy notification e-mail lands on any page with its route in the fragment: this opens its page.
+	useNotificationEmailLink();
 	// Publishes this request's runtime env on <html>, before any bundle module is evaluated.
 	const runtimeEnvHtmlProps = useRuntimeEnvHtmlProps();
 	// The zone next-intl formats every date in (it was pinned to Asia/Kolkata for everyone): the browser's, the one

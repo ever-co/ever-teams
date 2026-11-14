@@ -599,6 +599,21 @@
 				"EDITED_AT": "Modifié le {date} à {time}",
 				"REASON_PREFIX": "Raison :"
 			},
+			"SIMILAR": {
+				"ENTRY_COUNT": "{count, plural, one {# saisie} other {# saisies}}",
+				"SHOW_ENTRIES": "Afficher les saisies de {task}",
+				"HIDE_ENTRIES": "Masquer les saisies de {task}",
+				"SELECT_GROUP": "{count, plural, one {Sélectionner # saisie de {task}} other {Sélectionner les # saisies de {task}}}",
+				"CONFIRM_BILLABLE": "{count, plural, one {Marquer # saisie comme facturable ?} other {Marquer # saisies comme facturables ?}}",
+				"CONFIRM_NOT_BILLABLE": "{count, plural, one {Marquer # saisie comme non facturable ?} other {Marquer # saisies comme non facturables ?}}",
+				"CONFIRM_STATUS": "{count, plural, one {Passer # saisie à « {status} » ?} other {Passer # saisies à « {status} » ?}}",
+				"CONFIRM_SCOPE": "Toutes les saisies de {task} de cette ligne changent.",
+				"CHANGED": "{count, plural, one {# saisie modifiée} other {# saisies modifiées}}",
+				"PARTLY_CHANGED": "{changed} saisies modifiées sur {count}. Les autres gardent leur valeur.",
+				"REJECT_COUNT": "{count, plural, one {Vous allez refuser # saisie. Voulez-vous continuer ?} other {Vous allez refuser # saisies. Voulez-vous continuer ?}}",
+				"VIEW_GROUP": "Regrouper les saisies semblables",
+				"VIEW_GROUP_HELP": "Les saisies d'un jour avec la même tâche, le même projet, les mêmes notes et le même état facturable forment une seule ligne."
+			},
 			"STATUS_CARDS": {
 				"PENDING": "En attente d'approbation",
 				"LOG_UNIT": "{count, plural, one {saisie} other {saisies}}"
@@ -714,6 +729,23 @@
 					"CHECK_FAILED": "{count, plural, one {Le chevauchement de # entrée n'a pas pu être vérifié, elle n'a donc pas été enregistrée.} other {Le chevauchement de # entrées n'a pas pu être vérifié, elles n'ont donc pas été enregistrées.}}",
 					"FAILED": "{count, plural, one {# entrée n'a pas pu être enregistrée.} other {# entrées n'ont pas pu être enregistrées.}}"
 				}
+			},
+			"HISTORY": {
+				"TITLE": "Historique de l’entrée",
+				"OPEN": "{edited}. Voir l’historique",
+				"ADDED_BY": "Ajouté par {name}",
+				"EDITED_BY": "Modifié par {name}",
+				"DELETED_BY": "Supprimé par {name}",
+				"DELETED": "Supprimé",
+				"WHEN": "{date} à {time}",
+				"FIELD_CHANGED": "modifié de {before} à {after}",
+				"NONE": "Aucun",
+				"LOADING": "Chargement de l’historique",
+				"ERROR": "L’historique de cette entrée n’a pas pu être chargé.",
+				"RETRY": "Réessayer",
+				"FORBIDDEN": "Vous ne pouvez pas voir l’historique de cette entrée.",
+				"UNSUPPORTED": "Ce serveur ne conserve pas l’historique des entrées de temps.",
+				"NOT_KEPT": "Les valeurs précédentes n’ont pas été conservées : cette entrée a été modifiée avant l’enregistrement de son historique."
 			}
 		},
 		"workDiary": {
@@ -794,7 +826,12 @@
 				"NONE": "Sans projet",
 				"COUNT": "{count, plural, one {# projet} other {# projets}}",
 				"OTHER": "{count, plural, one {# autre projet} other {# autres projets}}",
-				"EMPTY": "Les projets s'affichent ici dès que du temps est suivi sur la période."
+				"EMPTY": "Les projets s'affichent ici dès que du temps est suivi sur la période.",
+				"SPLIT": "Répartir le temps par",
+				"BY_CLIENT": "Par client",
+				"OTHER_CLIENTS": "{count, plural, one {# autre client} other {# autres clients}}",
+				"CLIENTS_EMPTY": "Les clients s'affichent ici dès que du temps est suivi sur la période.",
+				"CLIENTS_ERROR": "Les clients des projets n'ont pas pu être lus."
 			},
 			"table": {
 				"VIEW": "Regrouper les lignes",
@@ -1229,7 +1266,10 @@
 				"SUMMARY": "Résumé de la période",
 				"NO_ACTIVITY": "Aucune activité enregistrée sur cette période",
 				"CHART_LABEL": "Temps suivi et activité par jour",
-				"BY_TIMER": "{duration} au minuteur"
+				"BY_TIMER": "{duration} au minuteur",
+				"ROUNDED_UP": "Arrondi au-dessus à {minutes} min par entrée",
+				"ROUNDED_DOWN": "Arrondi au-dessous à {minutes} min par entrée",
+				"ROUNDED_NEAREST": "Arrondi aux {minutes} min les plus proches par entrée"
 			},
 			"breakdown": {
 				"RANK": "Rang",
@@ -1515,6 +1555,53 @@
 				"FUTURE": "Votre organisation n'autorise pas de temps après l'heure actuelle.",
 				"APPROVED": "Ce jour fait partie d'une feuille de temps approuvée, son temps ne peut donc pas être modifié.",
 				"SAVE_FAILED": "Modification non enregistrée"
+			},
+			"MENU": {
+				"STOP": "Arrêter le minuteur",
+				"ADD_TIME_HERE": "Ajouter du temps ici",
+				"SPLIT": "Scinder",
+				"NO_ACTIONS": "Vous ne pouvez pas modifier cette entrée."
+			},
+			"SPLIT": {
+				"TITLE": "Scinder l'entrée",
+				"REFUSED_TITLE": "Cette entrée ne peut pas être scindée",
+				"TIME_LABEL": "Scinder à",
+				"TIME_OUTSIDE": "Choisissez une heure dans l'entrée, au moins une minute après son début et avant sa fin.",
+				"PARTS_LABEL": "Les deux entrées",
+				"FIRST_PART": "Première partie",
+				"SECOND_PART": "Seconde partie",
+				"TASK_LABEL": "Tâche de la seconde partie : {task}",
+				"TASK_SEARCH": "Rechercher des tâches",
+				"ACTION": "Scinder",
+				"SAVING": "Scission…",
+				"SAVED": "Entrée scindée en deux",
+				"FAILED_RESTORED": "L'entrée n'a pas pu être scindée et a été remise comme avant. Réessayez.",
+				"FAILED_CHANGED": "Cette entrée a changé depuis que le calendrier l'a chargée : rien n'a été scindé. Vérifiez-la, puis réessayez.",
+				"FAILED_FIRST_PART_KEPT": "La première partie est enregistrée, mais la seconde ({range}) n'a pas pu être ajoutée. Ajoutez-la avec Ajouter du temps.",
+				"FAILED_UNKNOWN": "La scission n'a pas pu être confirmée. Rechargez le calendrier et vérifiez cette entrée avant de réessayer.",
+				"ADD_REST": "Ajouter la seconde partie",
+				"REFUSED": {
+					"TRACKED": "Le temps suivi porte son activité et ses captures d'écran, que seul le serveur peut répartir entre deux entrées. Pour l'instant, seul le temps ajouté à la main peut être scindé.",
+					"RUNNING": "Le minuteur tourne encore. Arrêtez-le, puis scindez l'entrée.",
+					"TOO_SHORT": "Cette entrée est trop courte : chaque partie doit durer au moins une minute.",
+					"APPROVED": "Ce jour appartient à une feuille de temps approuvée, son temps ne peut donc pas changer.",
+					"PERMISSION": "Votre rôle ou votre organisation ne permet pas de modifier le temps ni d'en ajouter à la main."
+				}
+			},
+			"SETTINGS": {
+				"LABEL": "Réglages de la grille",
+				"SNAP": "Pas",
+				"SNAP_OPTION": "{minutes, plural, =60 {1 heure} one {# minute} other {# minutes}}",
+				"FIRST_HOUR": "Première heure",
+				"LAST_HOUR": "Dernière heure",
+				"END_OF_DAY": "Fin de journée",
+				"HOURS_HINT": "Les entrées hors de ces heures restent visibles : la grille s'élargit jusqu'à elles.",
+				"ROW_HEIGHT": "Hauteur des lignes",
+				"ROW_COMPACT": "Compacte",
+				"ROW_DEFAULT": "Normale",
+				"ROW_TALL": "Haute",
+				"KEPT_HERE": "Enregistré dans ce navigateur",
+				"RESET": "Réinitialiser"
 			}
 		},
 		"manualTimeEdits": {
@@ -1575,7 +1662,19 @@
 			"LEGEND_TRACKED": "Suivi",
 			"RANK_MEMBERS_TITLE": "Qui ajoute du temps à la main",
 			"RANK_OTHER_MEMBERS": "{count, plural, one {# autre membre} other {# autres membres}}",
-			"RANK_OTHER_PROJECTS": "{count, plural, one {# autre projet} other {# autres projets}}"
+			"RANK_OTHER_PROJECTS": "{count, plural, one {# autre projet} other {# autres projets}}",
+			"DELETED": "Supprimé",
+			"DELETED_AT": "Supprimé le {when}",
+			"FEED_DELETED": "Le temps de <actor>{name}</actor> sur <link>{task}</link> a été supprimé : <figure>{duration}</figure>",
+			"FEED_DELETED_NO_TASK": "Le temps de <actor>{name}</actor> sans tâche a été supprimé : <figure>{duration}</figure>",
+			"KIND_LABEL": "Type de modification",
+			"KIND_TIME": "Temps",
+			"KIND_TASK_PROJECT": "Tâche ou projet",
+			"SHOW_HISTORY": "Historique",
+			"HIDE_HISTORY": "Masquer l’historique",
+			"NOT_KEPT": "Les valeurs précédentes n’ont pas été conservées",
+			"COLUMN_BEFORE": "Avant",
+			"COLUMN_AFTER": "Après"
 		}
 	},
 	"timeActivity": {
@@ -2793,7 +2892,59 @@
 			"HINT_RUNNING": "Les changements faits pendant que le chronomètre tourne ne sont pas encore enregistrés. Pour changer les notes, modifiez l'entrée dans les feuilles de temps après l'arrêt du chronomètre.",
 			"HINT_OTHER_TEAM": "Ces notes appartiennent au chronomètre en cours dans une autre équipe : elles ne peuvent pas être modifiées ici."
 		},
-		"NOT_BILLABLE": "Non facturable"
+		"NOT_BILLABLE": "Non facturable",
+		"startMove": {
+			"TITLE": "Début du chronomètre en cours",
+			"STARTED_AT": "Commencé à {time}",
+			"OPEN": "Commencé à {time}. Modifier le début",
+			"NEW_START": "Nouveau début",
+			"REASON": "Motif",
+			"REASON_PLACEHOLDER": "Pourquoi le début change",
+			"LATER_ONLY": "L'ajout de temps à la main ne vous est pas permis : le début ne peut être déplacé que plus tard.",
+			"SAVING": "Enregistrement…",
+			"SAVED": "Le chronomètre commence maintenant à {time}.",
+			"CHECKING": "Vérification que le début peut changer…",
+			"VIEW_TRACKER": "Ce chronomètre tourne dans l'application de bureau. Modifiez son début là-bas.",
+			"VIEW_NOT_ALLOWED": "La modification du temps suivi ne vous est pas permise dans cette organisation.",
+			"UNSUPPORTED": "Le début d'un chronomètre en cours ne peut pas encore être modifié sur ce serveur.",
+			"NOT_RUNNING": "Le chronomètre ne tourne plus.",
+			"TRACKER_RUN": "Ce chronomètre tourne dans l'application de bureau ou l'agent, qui enregistrent eux-mêmes son temps. Modifiez son début là-bas.",
+			"IN_FUTURE": "Le début ne peut pas être plus tard que maintenant.",
+			"EDIT_NOT_ALLOWED": "La modification du temps suivi ne vous est pas permise.",
+			"MANUAL_NOT_ALLOWED": "Un début plus tôt ajoute du temps à la main, ce qui ne vous est pas permis. Choisissez un début plus tard.",
+			"REASON_REQUIRED": "Votre organisation demande un motif.",
+			"REASON_TOO_LONG": "Le motif est trop long : 255 caractères au plus.",
+			"OVERLAP": "Une autre de vos entrées couvre ce moment. Choisissez un début après sa fin.",
+			"CHANGED": "Le début vient de changer ailleurs. Vérifiez-le et réessayez.",
+			"SAVE_FAILED": "Le début n'a pas pu être enregistré. Réessayez."
+		},
+		"discard": {
+			"MENU": "Autres actions du chronomètre",
+			"ACTION": "Abandonner cette session",
+			"TITLE": "Abandonner cette session ?",
+			"DESCRIPTION": "Rien n'est enregistré.",
+			"DESCRIPTION_ELSEWHERE": "Cette session a été lancée depuis {source} et s'y arrête aussi. Rien n'est enregistré.",
+			"CONFIRM": "Abandonner",
+			"DISCARDING": "Abandon en cours…",
+			"DISCARDED": "Session abandonnée",
+			"DISCARDED_HINT": "Le chronomètre est arrêté et rien n'a été enregistré.",
+			"sources": {
+				"DESKTOP": "l'application de bureau",
+				"MOBILE": "l'application mobile",
+				"BROWSER_EXTENSION": "l'extension du navigateur",
+				"OTHER": "une autre application"
+			},
+			"failures": {
+				"NOT_RUNNING": "Aucun chronomètre ne tourne plus : rien n'a été abandonné.",
+				"DISABLED": "Votre organisation ne permet pas d'abandonner une session.",
+				"TOO_LATE": "Cette session a commencé il y a trop longtemps pour être abandonnée. Arrêtez-la, puis modifiez l'entrée dans Feuilles de temps.",
+				"FORBIDDEN": "Votre rôle ne permet pas d'abandonner cette session.",
+				"NOT_SUPPORTED": "Ce serveur ne permet pas encore d'abandonner une session.",
+				"CHANGED": "Une autre session a commencé entre-temps : rien n'a été abandonné.",
+				"TRACKER_RUN": "Cette session est enregistrée par l'application de bureau ou l'agent, qui tiennent eux-mêmes son temps : elle ne peut pas être abandonnée ici.",
+				"GENERIC": "La session n'a pas pu être abandonnée. Vérifiez votre connexion, puis réessayez."
+			}
+		}
 	},
 	"task": {
 		"TITLE": "Tâche",
@@ -3416,7 +3567,13 @@
 		"EVER_APPS": "Applications Ever",
 		"CURRENT_APP": "{app}, l'application où vous êtes",
 		"OPENS_IN_NEW_TAB": "(s'ouvre dans un nouvel onglet)",
-		"APP_OPENS_IN_NEW_TAB": "{app} (s'ouvre dans un nouvel onglet)"
+		"APP_OPENS_IN_NEW_TAB": "{app} (s'ouvre dans un nouvel onglet)",
+		"OTHER_ORGANIZATIONS_LOADING": "Chargement de vos autres organisations",
+		"OTHER_ORGANIZATIONS_FAILED": "Vos autres organisations n'ont pas pu être chargées.",
+		"TRY_AGAIN": "Réessayer",
+		"UNNAMED_ORGANIZATION": "Organisation sans nom",
+		"OPEN_ORGANIZATION": "Ouvrir vos équipes ici",
+		"ORGANIZATION_SWITCH_FAILED": "Cette organisation n'a pas pu être ouverte. Réessayez."
 	},
 	"workspaceCreation": {
 		"TITLE": "Créer un espace de travail",
@@ -3854,7 +4011,8 @@
 			"INVALID": "Certaines valeurs n'ont pas été acceptées. Vérifiez-les et réessayez.",
 			"TOO_MANY": "Trop de tentatives. Patientez un instant, puis réessayez.",
 			"SERVER": "Le serveur n'a pas pu terminer. Réessayez dans un instant.",
-			"UNKNOWN": "Réessayez dans un instant."
+			"UNKNOWN": "Réessayez dans un instant.",
+			"TWO_FACTOR": "Ce compte demande un code d’application d’authentification. Connectez-vous avec votre adresse e-mail ou votre mot de passe pour le saisir."
 		},
 		"common": {
 			"NEWSLETTER_SUBSCRIBED": "Vous êtes abonné à la newsletter",
@@ -3956,6 +4114,7 @@
 			"NO_TASK": "Choisissez une tâche pour démarrer le chronomètre",
 			"START_IN_PROGRESS": "Le chronomètre démarre encore sur une autre tâche",
 			"WORKSPACE_OPENING": "Votre nouvel espace de travail s’ouvre : lancez le chronomètre une fois qu’il est ouvert.",
+			"ORGANIZATION_OPENING": "Une autre organisation s’ouvre : lancez le chronomètre une fois qu’elle est ouverte.",
 			"STOPPED_TEAM_SWITCH": "Chronomètre arrêté, car vous avez changé d'équipe",
 			"STOPPED_TASK_SWITCH": "Chronomètre arrêté, car votre tâche active a changé",
 			"STALE_STOPPED": "Chronomètre arrêté : {stoppedAt}",
@@ -3963,7 +4122,8 @@
 			"TASK_CLOSED_HINT": "Rouvrez la tâche pour y suivre du temps.",
 			"NOTES_NOT_SAVED": "Les notes modifiées pendant que le chronomètre tournait n'ont pas été enregistrées",
 			"NOTES_NOT_SAVED_HINT": "L'entrée a gardé les notes du démarrage. Modifiez l'entrée dans les feuilles de temps pour les changer.",
-			"ALREADY_RUNNING_ON_TASK": "Le chronomètre tourne déjà sur cette tâche"
+			"ALREADY_RUNNING_ON_TASK": "Le chronomètre tourne déjà sur cette tâche",
+			"SAVED_STOP_HINT": "C'est l'arrêt que vous aviez demandé avant la fin de votre session."
 		},
 		"plans": {
 			"CREATE_FAILED": "Le plan n'a pas été créé",
@@ -4213,6 +4373,10 @@
 				"TITLE": "Notifications",
 				"DESCRIPTION": "Les événements qui vous préviennent."
 			},
+			"apiTokens": {
+				"TITLE": "Jetons d’API",
+				"DESCRIPTION": "Les clés que vos scripts utilisent pour appeler l’API en votre nom."
+			},
 			"teamGeneral": {
 				"TITLE": "Général",
 				"DESCRIPTION": "Le nom, l'apparence, la visibilité et les règles de suivi de l'équipe."
@@ -4264,6 +4428,10 @@
 			"automations": {
 				"TITLE": "Automatisations",
 				"DESCRIPTION": "Des règles qui font avancer les tâches de l’organisation pour vous."
+			},
+			"security": {
+				"TITLE": "Sécurité",
+				"DESCRIPTION": "Votre façon de vous connecter : l’authentification à deux facteurs."
 			}
 		},
 		"index": {
@@ -5030,7 +5198,15 @@
 			"WORKSPACE_ROLE_VIEWER": "Lecteur",
 			"WORKSPACE_ROLE_CANDIDATE": "Candidat",
 			"WORKSPACE_ROLE_INTERVIEWER": "Recruteur",
-			"WORKSPACE_ROLE_NOT_SAVED": "Le rôle de {name} dans l'espace de travail n'a pas été changé"
+			"WORKSPACE_ROLE_NOT_SAVED": "Le rôle de {name} dans l'espace de travail n'a pas été changé",
+			"RESET_TWO_FACTOR": "Réinitialiser l’authentification à deux facteurs",
+			"RESET_TWO_FACTOR_TITLE": "Réinitialiser l’authentification à deux facteurs de {name} ?",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "Si {name} l’a activée, elle est désactivée : sa prochaine connexion ne demandera que son code e-mail ou son mot de passe.",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} pourra la réactiver depuis ses paramètres de sécurité. La réinitialisation est enregistrée.",
+			"RESET_TWO_FACTOR_CONFIRM": "Réinitialiser",
+			"RESET_TWO_FACTOR_DONE": "L’authentification à deux facteurs de {name} est réinitialisée",
+			"RESET_TWO_FACTOR_NOTHING": "{name} n’avait pas d’authentification à deux facteurs à réinitialiser",
+			"RESET_TWO_FACTOR_FAILED": "L’authentification à deux facteurs de {name} n’a pas pu être réinitialisée"
 		},
 		"sessions": {
 			"TITLE": "Sessions",
@@ -5210,6 +5386,60 @@
 			"UNAVAILABLE_TITLE": "Rien à régler dans cet espace de travail pour l'instant",
 			"UNAVAILABLE_TEXT": "Les notifications dépendent de votre profil de membre dans un espace de travail, et ce compte n'en a pas ici. Rejoignez ou créez d'abord une équipe."
 		},
+		"apiTokens": {
+			"PAGE_DESCRIPTION": "Chaque jeton permet à un script d’appeler l’API en votre nom. Révoquez un jeton et il cesse aussitôt de fonctionner.",
+			"SECTION_TOKENS": "Vos jetons",
+			"COUNT": "{count} sur {max} jetons actifs",
+			"CREATE": "Créer un jeton",
+			"LIMIT_REACHED": "Vous détenez {max} jetons actifs, le maximum autorisé. Révoquez-en un dont vous n’avez plus besoin pour en créer un autre.",
+			"EMPTY_TITLE": "Aucun jeton d’API pour l’instant",
+			"EMPTY_TEXT": "Créez un jeton par script, pour pouvoir en révoquer un sans toucher aux autres.",
+			"LIST_FAILED_TITLE": "Vos jetons d’API n’ont pas pu être lus",
+			"LIST_FAILED_TEXT": "Vérifiez votre connexion, puis réessayez.",
+			"RETRY": "Réessayer",
+			"CREATED_ON": "Créé le {date}",
+			"LAST_USED_ON": "Dernière utilisation le {date}",
+			"NEVER_USED": "Jamais utilisé",
+			"EXPIRES_ON": "Expire le {date}",
+			"EXPIRED_ON": "Expiré le {date}",
+			"NEVER_EXPIRES": "N’expire jamais",
+			"EXPIRED": "Expiré",
+			"REVOKE": "Révoquer",
+			"REVOKE_TITLE": "Révoquer « {name} » ?",
+			"REVOKE_DESCRIPTION": "Les scripts ne peuvent plus échanger ce jeton contre un accès ; l'accès qu'ils détiennent déjà prend fin dans l'heure. Cette action est définitive.",
+			"REVOKE_CONFIRM": "Révoquer le jeton",
+			"REVOKE_FAILED": "Le jeton n’a pas pu être révoqué. Réessayez.",
+			"CREATE_TITLE": "Créer un jeton d’API",
+			"NAME_LABEL": "Nom",
+			"NAME_HINT": "À quoi sert le jeton, par exemple « Rapport du vendredi ».",
+			"NAME_REQUIRED": "Donnez un nom au jeton.",
+			"NAME_TOO_LONG": "Le nom ne doit pas dépasser {max} caractères.",
+			"EXPIRY_LEGEND": "Expiration",
+			"EXPIRY_90D": "Dans 90 jours",
+			"EXPIRY_1Y": "Dans 1 an",
+			"EXPIRY_NEVER": "Jamais",
+			"EXPIRY_ON_DATE": "Le {date}",
+			"EXPIRY_NEVER_DETAIL": "Fonctionne jusqu’à ce que vous le révoquiez.",
+			"CREATING": "Création…",
+			"CREATE_FAILED": "Le jeton n’a pas pu être créé. Réessayez.",
+			"CREATE_LIMIT": "Vous détenez déjà {max} jetons actifs. Révoquez-en un pour en créer un autre.",
+			"CREATE_DISABLED": "Ce serveur ne propose plus les jetons d’API.",
+			"SECRET_TITLE": "Copiez votre jeton maintenant",
+			"SECRET_TEXT": "« {name} » est prêt. Son secret n’est affiché qu’une fois : gardez-le en lieu sûr avant de fermer cette fenêtre.",
+			"SECRET_LABEL": "Jeton",
+			"COPY": "Copier",
+			"COPY_TOKEN": "Copier le jeton",
+			"COPIED": "Copié",
+			"COPY_DONE": "Le jeton est copié.",
+			"COPY_FAILED": "La copie a échoué : sélectionnez le jeton et copiez-le.",
+			"DONE": "Terminé",
+			"USAGE_TITLE": "Utiliser un jeton dans un script",
+			"USAGE_EXCHANGE": "Échangez le jeton contre un jeton d’accès de courte durée :",
+			"USAGE_CALL": "Appelez ensuite l’API comme d’habitude, avec le jeton d’accès dans l’en-tête « Authorization: Bearer », et échangez de nouveau le jeton quand le jeton d’accès expire.",
+			"UNAVAILABLE_TITLE": "Les jetons d’API ne sont pas proposés ici",
+			"UNAVAILABLE_TEXT": "Ce serveur n’active pas les jetons d’API personnels. Demandez à votre administrateur si vous en avez besoin.",
+			"AVAILABILITY_FAILED_TITLE": "Impossible de savoir si ce serveur propose les jetons d’API"
+		},
 		"workspace": {
 			"IDENTITY_SECTION": "Espace de travail",
 			"NAME_LABEL": "Nom de l'espace de travail",
@@ -5238,8 +5468,50 @@
 			"NUMBER_FORMAT_NOT_SAVED": "Le format des nombres n'a pas été enregistré",
 			"FORMAT_OUTCOME": "Les rapports et leurs exports l'utilisent désormais.",
 			"FORMAT_AUTOMATIC": "Automatique",
+			"ROUNDING_LABEL": "Arrondir les durées",
+			"ROUNDING_DESCRIPTION": "Temps & Activité, ses exports et les factures créées à partir du temps arrondissent chaque entrée. Les feuilles de temps gardent le temps tel que suivi.",
+			"ROUNDING_OFF": "Désactivé",
+			"ROUNDING_INTERVAL": "{minutes} min",
+			"ROUNDING_DIRECTION_LABEL": "Sens de l'arrondi",
+			"ROUNDING_UP": "Au-dessus",
+			"ROUNDING_DOWN": "Au-dessous",
+			"ROUNDING_NEAREST": "Au plus proche",
+			"ROUNDING_RULE_UP": "Au-dessus à {minutes} min",
+			"ROUNDING_RULE_DOWN": "Au-dessous à {minutes} min",
+			"ROUNDING_RULE_NEAREST": "Aux {minutes} min les plus proches",
+			"ROUNDING_EXAMPLE": "Une entrée de {tracked} s'affiche comme {rounded}.",
+			"ROUNDING_SAVED": "Arrondi des durées enregistré",
+			"ROUNDING_OUTCOME": "Temps & Activité, ses exports et les nouvelles factures créées à partir du temps arrondissent désormais chaque entrée.",
+			"ROUNDING_OFF_SAVED": "Arrondi des durées désactivé",
+			"ROUNDING_OFF_OUTCOME": "Les rapports montrent de nouveau le temps tel que suivi.",
+			"ROUNDING_NOT_SAVED": "L'arrondi des durées n'a pas été enregistré",
+			"WEEK_START_LABEL": "La semaine commence le",
+			"WEEK_START_DESCRIPTION": "Le premier jour de chaque vue de semaine, sélecteur de semaine, rapport et export.",
+			"WEEK_START_SAVED": "Début de semaine enregistré",
+			"WEEK_START_NOT_SAVED": "Le début de semaine n'a pas été enregistré",
+			"CLOCK_LABEL": "Horloge",
+			"CLOCK_DESCRIPTION": "Comment chaque page et chaque export écrivent une heure.",
+			"CLOCK_24": "24 heures ({sample})",
+			"CLOCK_12": "12 heures ({sample})",
+			"CLOCK_SAVED": "Horloge enregistrée",
+			"CLOCK_NOT_SAVED": "L'horloge n'a pas été enregistrée",
+			"CURRENCY_POSITION_LABEL": "Symbole monétaire",
+			"CURRENCY_POSITION_DESCRIPTION": "Où chaque montant place son symbole monétaire.",
+			"CURRENCY_POSITION_BEFORE": "Avant le montant ({sample})",
+			"CURRENCY_POSITION_AFTER": "Après le montant ({sample})",
+			"CURRENCY_POSITION_SAVED": "Position du symbole monétaire enregistrée",
+			"CURRENCY_POSITION_NOT_SAVED": "La position du symbole monétaire n'a pas été enregistrée",
+			"EVERY_PAGE_OUTCOME": "Chaque page et chaque export l'utilisent désormais.",
 			"READ_ONLY_NOTE": "Seuls les administrateurs de l'espace de travail peuvent modifier ces réglages.",
-			"LOAD_FAILED": "Les réglages de l'espace de travail n'ont pas pu être chargés."
+			"LOAD_FAILED": "Les réglages de l'espace de travail n'ont pas pu être chargés.",
+			"DATA_SECTION": "Données",
+			"EXPORT_LABEL": "Exporter toutes les données",
+			"EXPORT_DESCRIPTION": "Un ZIP de fichiers CSV, un par table : toutes les organisations de l'espace de travail, au format que l'import relit.",
+			"EXPORT_ACTION": "Exporter",
+			"EXPORTING": "Export en cours…",
+			"EXPORT_DONE": "Données de l'espace de travail exportées",
+			"EXPORT_FAILED": "L'export n'est pas allé jusqu'au bout",
+			"EXPORT_FAILED_DESCRIPTION": "Rien n'a été enregistré. Un grand espace de travail prend du temps : réessayez dans un instant."
 		},
 		"automations": {
 			"NEW_RULE": "Nouvelle règle",
@@ -5429,6 +5701,59 @@
 					"DESCRIPTION": "Quand une pull request ou un ticket lié à une tâche ouverte est fermé, la tâche passe à terminé."
 				}
 			}
+		},
+		"security": {
+			"SECTION_TITLE": "Authentification à deux facteurs",
+			"SECTION_DESCRIPTION": "Les connexions demandent aussi un code d’une application d’authentification sur votre téléphone.",
+			"APP_LABEL": "Application d’authentification",
+			"ON": "Activée",
+			"OFF": "Désactivée",
+			"OFF_DESCRIPTION": "Les connexions ne demandent que votre code e-mail ou votre mot de passe.",
+			"ON_DESCRIPTION": "Les connexions demandent un code de votre application d’authentification.",
+			"ON_SINCE": "Les connexions demandent un code de votre application d’authentification. Activée depuis le {date}.",
+			"TURN_ON": "Activer",
+			"TURN_OFF": "Désactiver",
+			"CANCEL": "Annuler",
+			"RETRY": "Réessayer",
+			"CODES_LABEL": "Codes de récupération",
+			"CODES_LEFT": "{count, plural, =0 {Plus aucun code inutilisé} one {# code inutilisé restant} other {# codes inutilisés restants}}",
+			"NEW_CODES": "Nouveaux codes de récupération",
+			"SETUP_STEP_KEY": "1. Ajoutez ce compte à votre application d’authentification",
+			"SETUP_STEP_KEY_TEXT": "Scannez le QR code avec votre application d’authentification. Sur cet appareil, ouvrez plutôt le lien, ou saisissez la clé.",
+			"SETUP_KEY_LABEL": "Clé de configuration",
+			"COPY_KEY": "Copier la clé",
+			"OPEN_IN_APP": "Ouvrir dans l’application d’authentification",
+			"SETUP_STEP_CODE": "2. Saisissez le code à {length} chiffres affiché par l’application",
+			"CODE_INCOMPLETE": "Saisissez les {length} chiffres du code.",
+			"SETUP_FAILED": "L’authentification à deux facteurs n’a pas pu être configurée",
+			"TURNED_ON": "L’authentification à deux facteurs est activée",
+			"TURNED_OFF": "L’authentification à deux facteurs est désactivée",
+			"CODES_TITLE": "Vos codes de récupération",
+			"CODES_TEXT": "Chaque code vous connecte une fois si vous perdez votre téléphone. Enregistrez-les en lieu sûr maintenant : ils ne seront plus affichés.",
+			"COPY_CODES": "Copier les codes",
+			"DOWNLOAD_CODES": "Télécharger",
+			"CODES_DONE": "J’ai enregistré mes codes",
+			"CODES_FILE_HEADING": "Codes de récupération {appName}",
+			"COPIED": "Copié",
+			"COPY_FAILED": "Copie impossible. Sélectionnez le texte et copiez-le.",
+			"TURN_OFF_PROOF": "Pour la désactiver, saisissez un code de votre application ou un code de récupération",
+			"NEW_CODES_PROOF": "Pour obtenir de nouveaux codes de récupération, saisissez un code de votre application ou un code de récupération. Les codes actuels cesseront de fonctionner.",
+			"PROOF_HINT": "Un code à 6 chiffres de votre application d’authentification, ou l’un de vos codes de récupération.",
+			"PROOF_PLACEHOLDER": "123456 ou XXXX-XXXX-XXXX-XXXX",
+			"PROOF_INCOMPLETE": "Saisissez un code à 6 chiffres ou un code de récupération complet.",
+			"WRONG_CODE": "Ce code n’est pas le bon. Saisissez le code affiché maintenant par votre application, ou un code de récupération.",
+			"TOO_MANY": "Trop de codes erronés. Réessayez dans {minutes, plural, one {# minute} other {# minutes}}.",
+			"TOO_MANY_LATER": "Trop de codes erronés. Patientez quelques minutes, puis réessayez.",
+			"CHANGED": "L’authentification à deux facteurs a changé entre-temps. Vérifiez-la et réessayez.",
+			"FAILED": "La modification n’a pas pu être faite. Réessayez dans un instant.",
+			"UNAVAILABLE_TITLE": "Pas encore disponible sur ce serveur",
+			"UNAVAILABLE_DESCRIPTION": "L’authentification à deux facteurs n’est pas activée sur ce serveur. Demandez à votre administrateur de l’activer.",
+			"UNSUPPORTED_TITLE": "L’authentification à deux facteurs n’est pas disponible",
+			"UNSUPPORTED_DESCRIPTION": "Ce serveur ne propose pas l’authentification à deux facteurs.",
+			"READ_FAILED": "L’authentification à deux facteurs n’a pas pu être lue",
+			"REQUIRED_TITLE": "Votre organisation vous demande de l’activer",
+			"REQUIRED_DESCRIPTION": "Ses membres se connectent aussi avec un code d’une application d’authentification.",
+			"QR_ALT": "QR code de ce compte pour votre application d’authentification"
 		}
 	},
 	"taskDetail": {
@@ -5795,6 +6120,35 @@
 			"TEXT": "La connexion n'a pas abouti. Réessayez, ou connectez-vous avec votre e-mail.",
 			"RETRY": "Retour à la connexion",
 			"CODE": "Code d'erreur : {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Votre session a expiré",
+			"TEXT": "Reconnectez-vous pour continuer.",
+			"TIMER_RUNNING": "Votre chronomètre tournait. Reconnectez-vous avant {deadline} et il continue de tourner. Passé ce délai, il est arrêté à son dernier enregistrement : {savedUntil}.",
+			"TIMER_STILL_RUNNING": "Votre chronomètre tourne toujours. Reconnectez-vous pour l'arrêter.",
+			"STOP_SAVED": "L'arrêt du chronomètre que vous avez demandé est enregistré : {time}. Il sera appliqué dès votre reconnexion."
+		},
+		"twoFactor": {
+			"TITLE": "Saisissez votre code d’authentification",
+			"DESCRIPTION": "Ouvrez votre application d’authentification et saisissez le code à {length} chiffres qu’elle affiche pour <address>{email}</address>.",
+			"RECOVERY_DESCRIPTION": "Saisissez l’un des codes de récupération enregistrés lors de l’activation de l’authentification à deux facteurs. Chaque code ne sert qu’une fois.",
+			"CODE_LABEL": "Code d’authentification",
+			"RECOVERY_LABEL": "Code de récupération",
+			"USE_RECOVERY": "Utiliser un code de récupération",
+			"USE_APP": "Utiliser l’application d’authentification",
+			"SUBMIT": "Vérifier et se connecter",
+			"BACK": "Retour à la connexion",
+			"WRONG_CODE": "Ce code n’est pas le bon. Saisissez le code affiché maintenant par votre application d’authentification.",
+			"WRONG_RECOVERY_CODE": "Ce code de récupération n’est pas le bon, ou il a déjà servi.",
+			"CODE_INCOMPLETE": "Saisissez les {length} chiffres du code.",
+			"RECOVERY_INCOMPLETE": "Saisissez le code de récupération en entier.",
+			"EXPIRED": "Cette connexion a trop attendu son code. Connectez-vous à nouveau.",
+			"SIGN_IN_AGAIN": "Se reconnecter",
+			"TOO_MANY": "Trop de codes erronés. Réessayez dans {minutes, plural, one {# minute} other {# minutes}}.",
+			"TOO_MANY_LATER": "Trop de codes erronés. Patientez quelques minutes, puis réessayez.",
+			"FAILED": "Le code n’a pas pu être vérifié. Réessayez dans un instant.",
+			"SCENE_TITLE": "Encore une étape",
+			"SCENE_TEXT": "Ce compte est protégé par l’authentification à deux facteurs."
 		}
 	},
 	"taskViews": {
@@ -5889,7 +6243,7 @@
 	},
 	"shortcuts": {
 		"TITLE": "Raccourcis clavier",
-		"DESCRIPTION": "Les touches de chaque zone. Les lettres suivent la touche physique, elles fonctionnent donc sur toute disposition.",
+		"DESCRIPTION": "Les touches qui fonctionnent dans l'application, par zone.",
 		"DESCRIPTION_REBIND": "Les touches de chaque zone. Changez-en une en enregistrant de nouvelles touches ; le changement vous suit sur tous vos appareils.",
 		"NONE": "Aucun",
 		"THEN": "puis",
@@ -5954,10 +6308,20 @@
 			"searchTeams": "Rechercher dans les équipes",
 			"themeToggle": "Basculer entre clair et sombre",
 			"taskProject": "Changer le projet",
-			"taskAssignee": "Changer les personnes assignées"
+			"taskAssignee": "Changer les personnes assignées",
+			"sidebarToggle": "Afficher ou masquer la barre latérale",
+			"taskSearchFocus": "Rechercher dans la liste"
 		},
 		"CHAT_SINGLE_KEY": "Une touche du chat est une seule touche, pas une séquence.",
-		"CHAT_TAKEN": "Le chat utilise déjà cette touche (mise en forme, envoi, déplacement ou défilement)."
+		"CHAT_TAKEN": "Le chat utilise déjà cette touche (mise en forme, envoi, déplacement ou défilement).",
+		"OR": "ou",
+		"groups": {
+			"general": "Général",
+			"timer": "Chronomètre",
+			"tasks": "Tâches",
+			"navigation": "Navigation",
+			"chat": "Chat"
+		}
 	},
 	"realtime": {
 		"RECONNECTING": "Reconnexion…"
@@ -6662,7 +7026,13 @@
 			"NAME_REQUIRED": "Saisissez le nom du client.",
 			"EMAIL_INVALID": "Saisissez une adresse e-mail valide ou laissez le champ vide.",
 			"CREATE": "Créer le client",
-			"SAVE_FAILED": "Le client n'a pas pu être enregistré. Réessayez."
+			"SAVE_FAILED": "Le client n'a pas pu être enregistré. Réessayez.",
+			"BILLING": "Facturation",
+			"CUSTOM_DAYS_LABEL": "Jours pour payer, de 0 à {max}",
+			"DAYS_UNIT": "{count, plural, one {jour} other {jours}}",
+			"PAYMENT_TERMS": "Conditions de paiement",
+			"TERMS_HINT": "Fixe la date d’échéance des factures faites pour ce client.",
+			"TERMS_INVALID": "Saisissez un nombre de jours entre 0 et 365."
 		},
 		"toasts": {
 			"CREATED": "{name} a été ajouté aux clients",
@@ -6676,13 +7046,15 @@
 			"LEAVES_PICKER": "Il n'est plus proposé comme client d'un projet.",
 			"CAN_RESTORE": "Vous pouvez le restaurer depuis la liste Archivés.",
 			"CONFIRM": "Archiver le client",
-			"FAILED": "Le client n'a pas pu être archivé. Réessayez."
+			"FAILED": "Le client n'a pas pu être archivé. Réessayez.",
+			"KEEPS_INVOICES": "Ses factures restent, et peuvent encore être envoyées, payées ou annulées."
 		},
 		"restore": {
 			"TITLE": "Restaurer {name} ?",
 			"BACK_IN_PICKER": "Il est de nouveau proposé comme client d'un projet.",
 			"CONFIRM": "Restaurer le client",
-			"FAILED": "Le client n'a pas pu être restauré. Réessayez."
+			"FAILED": "Le client n'a pas pu être restauré. Réessayez.",
+			"KEEPS_EVERYTHING": "Ses projets, son temps et ses factures sont tels que vous les avez laissés."
 		},
 		"picker": {
 			"ADD": "Ajouter un client",
@@ -6690,6 +7062,86 @@
 			"CREATE": "Créer le client « {name} »",
 			"NO_CLIENT": "Aucun client",
 			"CREATE_FAILED": "Le client n'a pas pu être créé. Réessayez."
+		},
+		"COLUMN_SINCE": "Depuis",
+		"FOOT_PROJECTS": "{count, plural, one {# projet} other {# projets}}",
+		"LINK_COPIED": "Lien vers {name} copié",
+		"LINK_NOT_COPIED": "Le lien n’a pas pu être copié. Copiez-le depuis la barre d’adresse.",
+		"NO_ACCESS_TITLE": "Les clients ne sont pas ouverts à votre rôle",
+		"NO_ACCESS_MESSAGE": "Demandez à un responsable de l’espace de travail de donner à votre rôle l’accès aux clients.",
+		"OPEN_CLIENT": "Ouvrir",
+		"contact": {
+			"ADD": "Ajouter un contact",
+			"ADD_EMAIL": "Ajouter un e-mail",
+			"ADD_FOR": "Ajouter les coordonnées de {name}",
+			"ADD_PHONE": "Ajouter un téléphone",
+			"COPY": "Copier {value}",
+			"NOT_COPIED": "La copie a échoué. Sélectionnez le texte pour le copier.",
+			"NO_EMAIL": "Pas d’e-mail",
+			"NO_PHONE": "Pas de téléphone"
+		},
+		"facts": {
+			"ADDED": "Ajouté",
+			"EDIT_CONTACT": "Modifier le contact",
+			"EDIT_NOTES": "Modifier les notes",
+			"EDIT_TERMS": "Modifier les conditions de paiement",
+			"SINCE": "Client depuis {date}",
+			"TERMS": "Conditions"
+		},
+		"invoices": {
+			"ALL": "Toutes",
+			"OPEN": "Ouvertes",
+			"EMPTY_TITLE": "Aucune facture pour l’instant",
+			"EMPTY_MESSAGE": "Les factures faites pour ce client s’affichent ici.",
+			"FILTER_LABEL": "Factures à afficher",
+			"NONE_IN_FILTER": "Aucune facture avec ce statut",
+			"SUMMARY_OPEN": "{count, plural, one {# ouverte} other {# ouvertes}}",
+			"SUMMARY_OVERDUE": "{count} en retard",
+			"SUMMARY_PAID": "{count, plural, one {# payée} other {# payées}}",
+			"SUMMARY_DRAFTS": "{count, plural, one {# brouillon} other {# brouillons}}",
+			"SUMMARY_VOID": "{count, plural, one {# annulée} other {# annulées}}"
+		},
+		"notes": {
+			"ADD": "Ajouter une note",
+			"NONE": "Aucune note",
+			"READ_MORE": "Lire la suite",
+			"SHOW_LESS": "Réduire"
+		},
+		"order": {
+			"TRIGGER": "Trié par {order}",
+			"NEWEST": "Plus récents",
+			"MOST_PROJECTS": "Plus de projets"
+		},
+		"projects": {
+			"EMPTY_TITLE": "Aucun projet pour ce client",
+			"EMPTY_MESSAGE": "Choisissez ce client dans les réglages d’un projet pour le voir ici."
+		},
+		"sheet": {
+			"POSITION": "{position} sur {total}"
+		},
+		"standing": {
+			"ALSO": "Aussi {amounts}",
+			"BILLED": "Facturé",
+			"LABEL": "Facturation de {name}",
+			"LAST_INVOICE": "Dernière facture",
+			"NOTHING": "Rien",
+			"NO_INVOICE_TITLE": "Pas encore de facture pour {name}",
+			"NO_INVOICE_MESSAGE": "Facturez le temps suivi pour ce client pour voir ici ce qu’il doit."
+		},
+		"terms": {
+			"CUSTOM": "Autre",
+			"DAYS": "{days, plural, one {# jour} other {# jours}}",
+			"DUE_ON_RECEIPT": "Payable à réception",
+			"NET_DAYS": "Paiement à {days, plural, one {# jour} other {# jours}}",
+			"RECEIPT": "À réception",
+			"WORKSPACE": "Espace de travail",
+			"WORKSPACE_DAYS": "Espace de travail ({days, plural, one {# jour} other {# jours}})",
+			"WORKSPACE_SHORT": "Par défaut"
+		},
+		"detail": {
+			"NOT_FOUND_TITLE": "Ce client n’est pas dans l’espace de travail",
+			"NOT_FOUND_MESSAGE": "Il a peut-être été supprimé, ou le lien vient d’un autre espace de travail.",
+			"ALL_CLIENTS": "Tous les clients"
 		}
 	},
 	"invoices": {
@@ -6764,6 +7216,9 @@
 			"NO_PRICED_LINES": "Aucun temps de cette période n’a de tarif dans cette devise.",
 			"ALL_LINES_REMOVED": "Toutes les lignes ont été retirées. Rétablissez-les pour facturer ce temps.",
 			"LINES_AND_HOURS": "{count, plural, one {# ligne} other {# lignes}} · {hours} h",
+			"ROUNDED_UP": "Chaque entrée arrondie au-dessus à {minutes} min",
+			"ROUNDED_DOWN": "Chaque entrée arrondie au-dessous à {minutes} min",
+			"ROUNDED_NEAREST": "Chaque entrée arrondie aux {minutes} min les plus proches",
 			"LINE_COUNT": "{count, plural, one {# ligne} other {# lignes}}",
 			"TOTAL": "Total",
 			"details": {
@@ -6933,7 +7388,8 @@
 				"LOCKED_NOW": "Depuis son ouverture, la facture {number} a été payée ou annulée : rien n’a été enregistré, et elle ne peut plus être modifiée.",
 				"NOT_CHECKED": "La facture n’a pas pu être relue avant l’enregistrement, donc rien n’a été enregistré. Réessayez.",
 				"NOT_REACHED": "La connexion a échoué : les modifications n’ont pas été enregistrées et la facture est restée telle quelle. Vérifiez votre connexion, puis réessayez.",
-				"CHANGED": "Depuis son ouverture, la facture {number} a été modifiée : rien n’a été enregistré. Rouvrez-la depuis la liste des factures pour partir de sa version actuelle."
+				"CHANGED": "Depuis son ouverture, la facture {number} a été modifiée : rien n’a été enregistré. Rouvrez-la depuis la liste des factures pour partir de sa version actuelle.",
+				"RECORDS_TIME": "Enregistre les heures que facturent ses lignes : aucune autre facture ne pourra les facturer."
 			}
 		},
 		"replace": {
@@ -6948,6 +7404,73 @@
 			"NOT_REBUILDABLE": "La facture {number} n’a pas été annulée : elle ne peut pas être refaite ici à partir du temps facturable. Annulez-la et remplacez-la là où elle a été faite.",
 			"NOT_VOID_TITLE": "La facture {number} n’est pas annulée",
 			"NOT_VOID_MESSAGE": "Seule une facture annulée est remplacée ici. Ouvrez-la depuis la liste des factures pour la modifier, ou pour l’annuler et la remplacer."
+		},
+		"billedTime": {
+			"LEFT_OUT_TITLE": "Les heures déjà sur une facture sont écartées",
+			"LEFT_OUT_MESSAGE": "{count, plural, one {Une facture de {client} facture déjà une partie de cette période. Ces heures ne sont pas listées ici.} other {# factures de {client} facturent déjà une partie de cette période. Ces heures ne sont pas listées ici.}}",
+			"UNRECORDED_MESSAGE": "{count, plural, one {Cette facture n’indique pas quelles heures elle facture, elles sont donc encore listées ici.} other {Ces factures n’indiquent pas quelles heures elles facturent, ces heures sont donc encore listées ici.}} Retirez les lignes déjà facturées avant d’enregistrer.",
+			"EARLIER_NOTE": "Les heures déjà sur une facture ne sont pas listées sur celle-ci, sauf si cette facture n’indique pas quelles heures elle facture.",
+			"ALL_INVOICED_TITLE": "Le temps facturable de {client} sur cette période est déjà facturé",
+			"ALL_INVOICED_MESSAGE": "Chaque heure facturable de cette période est sur une facture. Pour en facturer de nouveau, retirez sa ligne de cette facture ou annulez la facture.",
+			"NEW_REFUSED": "Une partie de ce temps est passée sur une autre facture ou a été supprimée depuis sa lecture, rien n’a donc été enregistré. Fermez cette fenêtre pour voir le temps qui reste à facturer, puis enregistrez de nouveau.",
+			"EDIT_REFUSED": "Une partie de ce temps est passée sur une autre facture ou a été supprimée depuis sa lecture, les modifications n’ont donc pas été enregistrées et la facture est restée comme avant. Fermez cette fenêtre pour voir le temps qui reste à facturer, puis enregistrez de nouveau."
+		},
+		"standing": {
+			"OVERDUE": "En retard",
+			"UNKNOWN": "Statut inconnu"
+		},
+		"due": {
+			"IN_DAYS": "Échéance dans {count, plural, one {# jour} other {# jours}}",
+			"TODAY": "Échéance aujourd’hui",
+			"TOMORROW": "Échéance demain",
+			"LATE": "{count, plural, one {# jour de retard} other {# jours de retard}}"
+		},
+		"money": {
+			"LABEL": "Sommes dues à l’espace de travail",
+			"OWED": "Dû",
+			"NOTHING_OWED": "Rien n’est dû pour l’instant",
+			"INVOICE_COUNT": "{count, plural, one {# facture} other {# factures}}",
+			"ALSO_OWED": "Aussi dû : {amounts}",
+			"SPLIT_LABEL": "Sommes dues, réparties entre pas encore échues et en retard",
+			"NOT_YET_DUE": "Pas encore échu",
+			"OVERDUE": "En retard",
+			"DRAFTS": "Brouillons",
+			"DRAFT_COUNT": "{count, plural, =0 {Aucun} one {# à envoyer} other {# à envoyer}}",
+			"WITHOUT_BALANCE": "{count, plural, one {# facture payée en partie n’indique pas son solde et n’est pas comptée} other {# factures payées en partie n’indiquent pas leur solde et ne sont pas comptées}}",
+			"ERROR": "Les montants dus n’ont pas pu être lus"
+		},
+		"filter": {
+			"LABEL": "Factures à afficher",
+			"ALL": "Toutes",
+			"OPEN": "Ouvertes",
+			"NONE_DRAFT": "Aucun brouillon à envoyer",
+			"NONE_OPEN": "Aucune facture n’attend de paiement",
+			"NONE_OVERDUE": "Rien n’est en retard",
+			"NONE_PAID": "Aucune facture payée",
+			"NONE_VOID": "Aucune facture annulée",
+			"SHOW_ALL": "Afficher toutes les factures",
+			"LOADED_ONLY": "Parmi {count, plural, one {la dernière facture} other {les # dernières factures}}. Affichez-en plus pour remonter plus loin."
+		},
+		"detail": {
+			"HEADING": "Facture {number}",
+			"PAPER_TITLE": "Facture",
+			"COLUMN_DESCRIPTION": "Description",
+			"COLUMN_HOURS": "Heures",
+			"COLUMN_RATE": "Taux",
+			"COLUMN_AMOUNT": "Montant",
+			"NO_DESCRIPTION": "Sans description",
+			"NO_LINES": "Cette facture n’a aucune ligne.",
+			"DISCOUNT": "Remise",
+			"TAX": "Taxe",
+			"TAX_PERCENT": "Taxe ({percent})",
+			"TAX2": "Seconde taxe",
+			"TAX2_PERCENT": "Seconde taxe ({percent})",
+			"PAID": "Payé",
+			"LEFT_TO_PAY": "Reste à payer",
+			"NOT_FOUND_TITLE": "Cette facture n’est pas dans l’espace de travail",
+			"NOT_FOUND_MESSAGE": "Elle a peut-être été supprimée, ou le lien vient d’un autre espace de travail.",
+			"ALL_INVOICES": "Toutes les factures",
+			"ERROR_TITLE": "La facture n’a pas pu être chargée"
 		}
 	},
 	"timeReports": {
@@ -7097,12 +7620,151 @@
 			"ROW_LABEL": "Données de suivi du temps",
 			"ROW_DESCRIPTION": "Ajoutez des entrées de temps depuis un fichier CSV.",
 			"OPEN": "Importer depuis un CSV"
+		},
+		"mapping": {
+			"DESCRIPTION": "Choisissez la colonne de {fileName} qui contient chaque partie d'une entrée. Rien n'est enregistré avant l'import.",
+			"HEADER_PART": "Partie d'une entrée",
+			"HEADER_COLUMN": "Colonne du fichier",
+			"HEADER_SAMPLE": "Première valeur",
+			"NOT_IN_FILE": "Pas dans ce fichier",
+			"CHOOSE_COLUMN": "Choisir une colonne",
+			"DATE_FORMAT": "Format de date",
+			"CHOOSE_DATE_FORMAT": "Choisir un format",
+			"MISSING": "Pour continuer, choisissez une colonne pour {parts}.",
+			"DATE_FORMAT_MISSING": "Pour continuer, choisissez comment les dates de ce fichier sont écrites.",
+			"MIXED_DATES": "Les dates de ce fichier sont écrites de deux façons : {firstValue} à la ligne {firstRow}, {value} à la ligne {row}. Écrivez toutes les dates de la même façon.",
+			"CONTINUE": "{count, plural, one {Vérifier # ligne} other {Vérifier # lignes}}",
+			"FIRST_ROWS": "Premières lignes du fichier",
+			"EDIT": "Changer les colonnes",
+			"UNNAMED_COLUMN": "Colonne {position}",
+			"fields": {
+				"DATE": "Date",
+				"START_TIME": "Heure de début",
+				"END_DATE": "Date de fin",
+				"END_TIME": "Heure de fin",
+				"DURATION": "Durée",
+				"PROJECT": "Projet",
+				"TASK": "Tâche",
+				"NOTES": "Notes",
+				"BILLABLE": "Facturable",
+				"MEMBER": "Membre"
+			},
+			"orders": {
+				"YEAR_FIRST": "Année en premier",
+				"DAY_FIRST": "Jour en premier",
+				"MONTH_FIRST": "Mois en premier"
+			},
+			"problems": {
+				"DATE_UNREADABLE_DAY_FIRST": "La date est illisible. Écrivez-la avec le jour en premier, comme {dayFirst}.",
+				"DATE_UNREADABLE_MONTH_FIRST": "La date est illisible. Écrivez-la avec le mois en premier, comme {monthFirst}.",
+				"END_DATE_UNREADABLE": "La date de fin est illisible. Écrivez-la comme la date.",
+				"START_DAY_MISMATCH": "La date et l'heure de début donnent deux jours différents. Gardez l'une des deux.",
+				"END_DAY_MISMATCH": "La date de fin n'est pas le jour où cette entrée se termine. Corrigez la date de fin ou les heures.",
+				"MEMBER_NAME_UNKNOWN": "Aucun membre de cette équipe ne porte ce nom.",
+				"MEMBER_AMBIGUOUS": "{count, plural, one {# membre de cette équipe porte ce nom.} other {# membres de cette équipe portent ce nom. Indiquez le membre par son e-mail.}}"
+			}
+		},
+		"workspace": {
+			"MODE_LEGEND": "Que faut-il importer",
+			"MODE_ENTRIES": "Entrées de temps (CSV)",
+			"MODE_WORKSPACE": "Espace de travail complet",
+			"SECTION_TITLE": "Importer depuis un autre outil de suivi du temps",
+			"SECTION_DESCRIPTION": "Déposez l'export de l'espace de travail de votre autre outil : ses clients, projets, étiquettes et entrées de temps arrivent dans {team}. Rien n'est enregistré avant votre confirmation.",
+			"DROP_TITLE": "Déposez ici les fichiers de l'export, ou choisissez-les",
+			"DROP_ACTIVE": "Déposez les fichiers pour les lire",
+			"DROP_HINT": "Fichiers CSV ou JSON, ou un ZIP de ces fichiers, jusqu'à {megabytes} Mo chacun.",
+			"FILES_NOTE": "Chaque fichier est reconnu par son nom (clients, projets, tags, entrées de temps) ou par ses colonnes. Les projets prennent leur client, leur couleur et leur facturable par défaut dans un fichier de projets, sinon dans les entrées.",
+			"READING": "Lecture des fichiers…",
+			"FILES_TITLE": "Fichiers lus",
+			"KIND_entries": "Entrées de temps",
+			"KIND_clients": "Clients",
+			"KIND_projects": "Projets",
+			"KIND_tags": "Tags",
+			"FILE_ROWS": "{count, plural, one {# ligne} other {# lignes}}",
+			"LEFT_OUT_TITLE": "{count, plural, one {# fichier écarté} other {# fichiers écartés}}",
+			"problems": {
+				"notSupported": "Ce n'est pas un fichier CSV, JSON ou ZIP.",
+				"tooLarge": "Plus de {megabytes} Mo.",
+				"notText": "Ce n'est pas du texte UTF-8.",
+				"zip_notZip": "Ce n'est pas une archive ZIP lisible.",
+				"zip_encrypted": "L'archive est protégée par un mot de passe.",
+				"zip_unsupported": "L'archive utilise un format que l'import ne lit pas.",
+				"zip_tooLarge": "L'archive dépasse {megabytes} Mo une fois ouverte.",
+				"json": "Le JSON ne contient aucune liste d’enregistrements.",
+				"csv": "Le CSV est illisible : un guillemet n'est jamais fermé, ou le fichier est vide.",
+				"unknownContent": "Ni clients, ni projets, ni tags, ni entrées de temps.",
+				"entriesColumnsDiffer": "Des entrées de temps avec d'autres colonnes que le premier fichier d'entrées.",
+				"repeatedKind": "{kind} : déjà lus dans un autre fichier. Seul le premier est utilisé.",
+				"tableTooLarge": "Plus de colonnes ou de cellules que l'import n'en lit ({columns} colonnes au plus).",
+				"unreadable": "Le navigateur n'a pas pu lire le fichier : choisissez-le de nouveau."
+			},
+			"NOTHING_READ": "Aucun fichier de l'export n'a pu être utilisé. Choisissez de nouveau l'export.",
+			"CHOOSE_OTHER": "Choisir d'autres fichiers",
+			"NO_RIGHTS_TITLE": "Votre rôle ne permet pas d’importer un espace de travail",
+			"NO_RIGHTS_DESCRIPTION": "Importer un espace de travail crée des clients et des projets. Demandez à un administrateur les droits d'ajouter des clients et des projets, ou importez des entrées de temps depuis un fichier CSV.",
+			"EXISTING_LOADING": "Lecture des clients et des projets de l'espace de travail…",
+			"EXISTING_FAILED_TITLE": "Les clients et les projets de l'espace de travail n'ont pas pu être lus",
+			"EXISTING_FAILED_DESCRIPTION": "Sans eux, l'import ne peut pas savoir ce qui existe déjà.",
+			"PLAN_TITLE": "Ce que fait l'import",
+			"PLAN_DESCRIPTION": "D'abord les clients, puis les projets, puis les étiquettes, puis les entrées de temps ci-dessous. Ce qui existe déjà est réutilisé, sans tenir compte des majuscules.",
+			"figures": {
+				"LABEL": "Ce que l'import crée",
+				"CLIENTS": "Clients",
+				"PROJECTS": "Projets",
+				"LABELS": "Étiquettes"
+			},
+			"NEW_AND_REUSED": "{created} nouveaux · {reused} réutilisés",
+			"TO_CREATE": "À créer",
+			"TO_REUSE": "Déjà dans l'espace de travail",
+			"NO_CLIENT": "Sans client",
+			"BILLABLE": "Facturable",
+			"NOT_BILLABLE": "Non facturable",
+			"MEMBERS_TITLE": "Entrées par membre",
+			"MEMBER_ENTRIES": "{count, plural, one {# entrée} other {# entrées}}",
+			"UNKNOWN_EMAILS_TITLE": "{count, plural, one {# e-mail qu'aucun membre n'a} other {# e-mails qu'aucun membre n'a}}",
+			"UNKNOWN_EMAILS_DESCRIPTION": "Leurs lignes sont écartées et jamais rangées au nom de quelqu'un d'autre. Invitez ces personnes dans l'équipe, puis importez de nouveau les mêmes fichiers : rien n'est créé deux fois.",
+			"TAGGED_ENTRIES_NOTE": "{count, plural, one {# entrée porte des étiquettes} other {# entrées portent des étiquettes}}. Les étiquettes sont créées pour l'équipe, mais les entrées de temps n'en portent pas : elles ne leur sont pas attachées.",
+			"LABELS_SKIPPED_NOTE": "Votre rôle ne permet pas d'ajouter des étiquettes : elles sont listées mais pas créées.",
+			"NOTHING_TO_DO": "Tout ce que contiennent ces fichiers existe déjà, et aucune entrée n'est prête à importer.",
+			"IMPORT_LISTS_ACTION": "Importer les clients, projets et étiquettes",
+			"PROGRESS_TITLE": "Avancement de l'import",
+			"STEP_COUNTS": "{created} créés · {reused} réutilisés · {failed} en échec",
+			"STEP_SKIPPED": "{count} non créés",
+			"status": {
+				"waiting": "En attente",
+				"running": "En cours",
+				"done": "Terminé",
+				"failed": "Échec"
+			},
+			"FAILED_TITLE": "L'import s'est arrêté sur « {name} »",
+			"FAILED_DESCRIPTION": "Aucune entrée de temps n'a été enregistrée. Ce qui a été créé avant reste dans l'espace de travail et est réutilisé quand vous importez de nouveau les mêmes fichiers.",
+			"CREATED_TITLE": "Les clients, projets et étiquettes sont dans l'espace de travail",
+			"PAGE_DESCRIPTION": "Clients, projets, étiquettes et entrées de temps depuis un autre outil de suivi du temps."
 		}
+	},
+	"recordSheet": {
+		"PREVIOUS": "Précédent",
+		"PREVIOUS_HINT": "Précédent (K)",
+		"NEXT": "Suivant",
+		"NEXT_HINT": "Suivant (J)",
+		"OPEN_PAGE": "Ouvrir en pleine page"
 	},
 	"clientGrouping": {
 		"TITLE": "Temps par client",
 		"CLIENTS": "{count, plural, one {# client} other {# clients}}",
 		"NAMES_ERROR_TITLE": "La liste des clients n'a pas pu se charger",
 		"NAMES_ERROR_MESSAGE": "Les clients archivés s'affichent sans leur nom en attendant."
+	},
+	"timeZoneNotice": {
+		"TITLE": "Votre profil utilise {profileZone} ({profileOffset}). Ce navigateur est sur {browserZone} ({browserOffset}).",
+		"DESCRIPTION": "Les feuilles de temps comptent vos journées dans le fuseau de votre profil et les autres rapports dans celui de ce navigateur : une entrée proche de minuit peut tomber un autre jour.",
+		"TITLE_NO_PROFILE_ZONE": "Votre profil n'a pas de fuseau horaire. Ce navigateur est sur {browserZone} ({browserOffset}).",
+		"DESCRIPTION_NO_PROFILE_ZONE": "Tant que vous n'en choisissez pas, les feuilles de temps comptent vos journées en UTC et les autres rapports dans le fuseau de ce navigateur.",
+		"USE": "Utiliser {zone}",
+		"KEEP": "Garder {zone}",
+		"SAVING": "Enregistrement…",
+		"SAVE_FAILED": "Votre fuseau horaire n'a pas pu être enregistré.",
+		"SAVE_FAILED_DESCRIPTION": "Votre profil n'a pas changé. Vérifiez votre connexion et réessayez.",
+		"TRY_AGAIN": "Réessayer"
 	}
 }

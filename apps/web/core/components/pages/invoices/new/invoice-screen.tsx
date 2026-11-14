@@ -26,17 +26,32 @@ export interface SaveDialogControl {
 	onClose: () => void;
 }
 
+/** Earlier invoices of the same period: a note when the hours they bill are left out, else a warning. */
 export function OverlapNotice({ invoice }: Readonly<{ invoice: InvoiceDraftState }>) {
 	const t = useTranslations();
-	const count = invoice.overlappingInvoices.length;
-	if (count === 0) {
+	const notice = invoice.overlapNotice;
+	const client = invoice.client?.name ?? '';
+	if (notice.kind === 'none') {
 		return null;
+	}
+	if (notice.kind === 'leftOut') {
+		return (
+			<Notice
+				tone="info"
+				title={t('invoices.billedTime.LEFT_OUT_TITLE')}
+				description={t('invoices.billedTime.LEFT_OUT_MESSAGE', { count: notice.count, client })}
+			/>
+		);
+	}
+	let description = t('invoices.new.earlier.OVERLAP_MESSAGE');
+	if (notice.isUnrecorded) {
+		description = t('invoices.billedTime.UNRECORDED_MESSAGE', { count: notice.count });
 	}
 	return (
 		<Notice
 			tone="warning"
-			title={t('invoices.new.earlier.OVERLAP_TITLE', { count, client: invoice.client?.name ?? '' })}
-			description={t('invoices.new.earlier.OVERLAP_MESSAGE')}
+			title={t('invoices.new.earlier.OVERLAP_TITLE', { count: notice.count, client })}
+			description={description}
 		/>
 	);
 }
@@ -54,6 +69,11 @@ export function PreparedInvoice({
 }>) {
 	const [showsProblems, setShowsProblems] = useState(false);
 	const [isConfirming, setIsConfirming] = useState(false);
+
+	const closeSaveDialog = () => {
+		setIsConfirming(false);
+		invoice.readDeferredTime();
+	};
 
 	const askToSave = () => {
 		setShowsProblems(true);
@@ -76,7 +96,7 @@ export function PreparedInvoice({
 				<InvoiceDetails invoice={invoice} showsProblems={showsProblems} onSave={askToSave} />
 				<EarlierInvoices invoice={invoice} />
 			</div>
-			{renderSaveDialog({ open: isConfirming, onClose: () => setIsConfirming(false) })}
+			{renderSaveDialog({ open: isConfirming, onClose: closeSaveDialog })}
 		</div>
 	);
 }
@@ -138,6 +158,9 @@ export function RevisedInvoiceBody({
 	const readsTime = invoice.linesSource === 'time';
 	const isReadingTime = readsTime && time.isLoading;
 	const hasTimeFailed = readsTime && time.isError;
+	// The saved lines are saved again with the time they bill: they wait for it
+	const isReadingLinesTime = isReadingTime || time.isReadingBilledTime;
+	const hasBilledTimeFailed = !readsTime && time.hasBilledTimeFailed;
 	const isWaiting = invoice.areClientsLoading || invoice.isOrganizationLoading;
 	if (isWaiting) {
 		return <InvoiceSheetSkeleton />;
@@ -153,11 +176,14 @@ export function RevisedInvoiceBody({
 			/>
 		);
 	}
-	if (isReadingTime) {
+	if (isReadingLinesTime) {
 		return <InvoiceSheetSkeleton />;
 	}
 	if (hasTimeFailed) {
 		return <TimeReadFailure invoice={invoice} />;
+	}
+	if (hasBilledTimeFailed) {
+		return <DashboardErrorNotice title={t('invoices.new.TIME_ERROR_TITLE')} onRetry={time.refetch} />;
 	}
 	return <PreparedInvoice invoice={invoice} notice={notice} renderSaveDialog={renderSaveDialog} />;
 }

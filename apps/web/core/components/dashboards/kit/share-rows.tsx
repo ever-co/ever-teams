@@ -34,9 +34,15 @@ const ROW_GRID =
 const NARROW_ROW_GRID =
 	'grid min-h-10 grid-cols-[2.75rem_minmax(0,1fr)_minmax(2.5rem,4.5rem)_4.5rem] items-center gap-x-3 px-4 py-1.5';
 
-type ShareRowsDensity = 'regular' | 'narrow';
+/** For a narrow card that has the share bar above its rows: no meter, the name takes the room. */
+const COMPACT_ROW_GRID = 'grid min-h-10 grid-cols-[2.75rem_minmax(0,1fr)_5.5rem] items-center gap-x-3 px-4 py-1.5';
+
+type ShareRowsDensity = 'regular' | 'narrow' | 'compact';
 
 function rowGridOf(density: ShareRowsDensity) {
+	if (density === 'compact') {
+		return COMPACT_ROW_GRID;
+	}
 	if (density === 'narrow') {
 		return NARROW_ROW_GRID;
 	}
@@ -72,6 +78,7 @@ export function ShareRows<T>({
 	const locale = useLocale();
 	const rowGrid = rowGridOf(density);
 	const meterClass = meterClassOf(density);
+	const showsMeter = density !== 'compact';
 	return (
 		<ul className={cn('flex flex-col', className)}>
 			{rows.map((row) => (
@@ -85,7 +92,7 @@ export function ShareRows<T>({
 							<span className="truncate text-muted-foreground">{otherLabel(row.otherCount)}</span>
 						)}
 					</span>
-					<ShareMeter share={row.share} className={meterClass} />
+					{showsMeter && <ShareMeter share={row.share} className={meterClass} />}
 					<span className="text-right text-[13px] font-medium tabular-nums text-foreground">
 						{formatValue(row.value)}
 					</span>

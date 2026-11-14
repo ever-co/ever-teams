@@ -14,6 +14,7 @@ import {
 	type TimeImportRecordedLog,
 	type TimeImportRow
 } from './time-import-rows';
+import type { DateOrder } from './time-import-cells';
 import type { TimeImportCells, TimeImportSheetRow } from './time-import-sheet';
 
 const HOUR = 3600;
@@ -64,6 +65,7 @@ function sheetRowOf(cells: Partial<TimeImportCells>, row = 2): TimeImportSheetRo
 		cells: {
 			date: '2026-11-03',
 			startTime: '09:00',
+			endDate: '',
 			endTime: '10:30',
 			duration: '',
 			project: '',
@@ -276,6 +278,42 @@ describe('draftRowsOf', () => {
 		it('is left out when the viewer has no employee record to hold their own time', () => {
 			expect(problemCodesOf(draftOf({}, { viewerEmployeeId: null }))).toEqual(['noOwnMember']);
 		});
+
+		it('is the viewer own when the row names the viewer by name, as a file from another tool does', () => {
+			expect(draftOf({ memberEmail: ' vera VIEWER ' }).entry?.employeeId).toBe(VIEWER.employeeId);
+		});
+
+		it('never becomes the viewer own time when the row names someone else by name', () => {
+			expect(problemCodesOf(draftOf({ memberEmail: ADA.name }))).toEqual(['memberNotAllowed']);
+		});
+
+		it('is the member named by name for a viewer the API lets add time for others', () => {
+			const row = draftOf({ memberEmail: 'ada lovelace', task: 'Write docs' }, { canImportForOthers: true });
+
+			expect(row.entry).toMatchObject({ employeeId: ADA.employeeId, memberName: 'Ada Lovelace' });
+		});
+
+		it('is left out when the name matches no member, or more than one', () => {
+			const twin = { ...ADA, employeeId: 'employee-ada-2', email: 'ada.2@ever.co' };
+			const others = { canImportForOthers: true };
+
+			expect(problemCodesOf(draftOf({ memberEmail: 'Grace Hopper' }, others))).toEqual(['memberNameUnknown']);
+			expect(draftOf({ memberEmail: ADA.name }, { ...others, members: [VIEWER, ADA, twin] }).problems).toEqual([
+				{ code: 'memberAmbiguous', count: 2 }
+			]);
+		});
+
+		it('is left out when the viewer shares their name with another member, and stays theirs by email', () => {
+			const namesake = { employeeId: 'employee-vera-2', email: 'vera.2@ever.co', name: VIEWER.name };
+			const members = [VIEWER, ADA, namesake];
+			const ambiguous = [{ code: 'memberAmbiguous', count: 2 }];
+
+			expect(draftOf({ memberEmail: VIEWER.name }, { members }).problems).toEqual(ambiguous);
+			expect(draftOf({ memberEmail: VIEWER.name }, { members, canImportForOthers: true }).problems).toEqual(
+				ambiguous
+			);
+			expect(draftOf({ memberEmail: VIEWER.email }, { members }).entry?.employeeId).toBe(VIEWER.employeeId);
+		});
 	});
 
 	it('judges nothing else on a row with more cells than the header', () => {
@@ -283,6 +321,90 @@ describe('draftRowsOf', () => {
 		const [row] = draftRowsOf([sheetRow], contextOf());
 
 		expect(row.problems).toEqual([{ code: 'extraCells' }]);
+	});
+});
+
+describe('draftRowsOf for a file from another tool', () => {
+	const draftIn = (cells: Partial<TimeImportCells>, order: DateOrder) =>
+		draftRowsOf([sheetRowOf(cells)], contextOf(), order)[0];
+
+	it('reads 03/11/2026 as 3 November day first and as 11 March month first', () => {
+		expect(draftIn({ date: '03/11/2026' }, 'dayFirst').entry?.start).toEqual(at(9));
+		expect(draftIn({ date: '03/11/2026' }, 'monthFirst').entry?.start).toEqual(new Date(2026, 2, 11, 9, 0));
+	});
+
+	it('says how to write a date it cannot read, in the order of the file', () => {
+		expect(draftIn({ date: '2026-11-03' }, 'dayFirst').problems).toEqual([
+			{ code: 'dateUnreadable', order: 'dayFirst' }
+		]);
+	});
+
+	it('reads the day of a start that holds its own date, with no date column', () => {
+		const row = draftIn({ date: '', startTime: '03/11/2026 09:00' }, 'dayFirst');
+
+		expect(row.entry).toMatchObject({ start: at(9), end: at(10, 30) });
+	});
+
+	it('reads the date and the start time from one column read for both', () => {
+		const dateAndTime = '2026-11-03 09:00';
+
+		expect(draftIn({ date: dateAndTime, startTime: dateAndTime }, 'yearFirst').entry?.start).toEqual(at(9));
+	});
+
+	it('ends an entry on its end date, the next day as for time that runs past midnight', () => {
+		const row = draftIn(
+			{ date: '03/11/2026', startTime: '22:00', endDate: '04/11/2026', endTime: '01:30' },
+			'dayFirst'
+		);
+
+		expect(row.entry).toMatchObject({ start: at(22), end: at(1, 30, 4), seconds: 3.5 * HOUR });
+		expect(timeImportLookupsOf([row]).map((lookup) => lookup.key)).toEqual([
+			'employee-viewer:2026-11-03',
+			'employee-viewer:2026-11-04'
+		]);
+	});
+
+	it('reads an end that holds its own date and time', () => {
+		expect(draftIn({ startTime: '22:00', endTime: '2026-11-04 01:30' }, 'yearFirst').entry?.end).toEqual(
+			at(1, 30, 4)
+		);
+	});
+
+	it('ends an end time without an end date on the day the entry starts', () => {
+		expect(draftIn({ endDate: '', endTime: '10:30' }, 'yearFirst').entry?.end).toEqual(at(10, 30));
+	});
+
+	it('leaves out an entry whose end date puts it before its start or more than a day after it', () => {
+		const backwards = draftIn({ date: '2026-11-03', endDate: '2026-11-02' }, 'yearFirst');
+		const twoDays = draftIn({ date: '2026-10-20', endDate: '2026-10-22' }, 'yearFirst');
+
+		expect(problemCodesOf(backwards)).toEqual(['endNotAfterStart']);
+		expect(problemCodesOf(twoDays)).toEqual(['tooLong']);
+	});
+
+	it('leaves out an end date it cannot read', () => {
+		expect(problemCodesOf(draftIn({ endDate: 'tomorrow' }, 'yearFirst'))).toEqual(['endDateUnreadable']);
+	});
+
+	it('leaves out a row whose cells name two different days for its start or for its end', () => {
+		const start = draftIn({ date: '2026-11-03', startTime: '2026-11-04 09:00' }, 'yearFirst');
+		const end = draftIn({ endDate: '2026-11-03', endTime: '2026-11-04 10:30' }, 'yearFirst');
+
+		expect(problemCodesOf(start)).toEqual(['startDayMismatch']);
+		expect(problemCodesOf(end)).toEqual(['endDayMismatch']);
+	});
+
+	it('leaves out a row whose duration ends on another day than its end date', () => {
+		const byDuration = { startTime: '23:00', endTime: '' };
+		const sameDay = draftIn({ ...byDuration, endDate: '2026-11-03', duration: '2:00' }, 'yearFirst');
+		const nextDay = draftIn({ ...byDuration, endDate: '2026-11-04', duration: '2:00' }, 'yearFirst');
+		const atMidnight = draftIn({ ...byDuration, endDate: '2026-11-04', duration: '1:00' }, 'yearFirst');
+		const withinDay = draftIn({ endDate: '2026-11-03', endTime: '', duration: '1:30' }, 'yearFirst');
+
+		expect(problemCodesOf(sameDay)).toEqual(['endDayMismatch']);
+		expect(nextDay.entry?.end).toEqual(at(1, 0, 4));
+		expect(atMidnight.entry?.end).toEqual(at(0, 0, 4));
+		expect(withinDay.entry?.end).toEqual(at(10, 30));
 	});
 });
 

@@ -20,11 +20,7 @@ import { useManualTimeEditsReport } from '@/core/hooks/dashboards/manual-time-ed
 import { useTimesheetDialogs } from '@/core/hooks/dashboards/timesheets/use-timesheet-dialogs';
 import { useTimesheetLogActions } from '@/core/hooks/dashboards/timesheets/use-timesheet-log-actions';
 import { formatPeriod } from '@/core/lib/utils/dashboard-period';
-import {
-	type EditsFigures,
-	MANUAL_EDITS_WEEK_START,
-	type ManualTimeEntry
-} from '@/core/lib/utils/dashboards/manual-time-edits';
+import { type EditsFigures, type ManualTimeEntry } from '@/core/lib/utils/dashboards/manual-time-edits';
 import { isTrackingEnabledState } from '@/core/stores';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
@@ -41,6 +37,7 @@ import {
 	EditsGroupingControl,
 	useEditsFilterCategories
 } from './manual-time-edits-toolbar';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 
 const PAGE_PATH = '/reports/manual-time-edits';
 
@@ -56,12 +53,13 @@ function noop() {
 
 export function ManualTimeEditsPage() {
 	const t = useTranslations();
+	const weekStart = useWorkspaceWeekStart();
 	const locale = useWorkspaceLocale();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const report = useManualTimeEditsReport({ unnamedLabel: t('timeActivity.UNNAMED_EMPLOYEE') });
 	const dialogs = useTimesheetDialogs();
 	const { deleteLogs, isDeleting } = useTimesheetLogActions();
-	const categories = useEditsFilterCategories(report.members);
+	const categories = useEditsFilterCategories(report.members, report.hasChangeKinds);
 	const [isAddTimeOpen, setIsAddTimeOpen] = useState(false);
 	const hasOpenedAddTime = useHasBeenOpen(isAddTimeOpen);
 
@@ -106,7 +104,8 @@ export function ManualTimeEditsPage() {
 		groups: report.groups,
 		figures: report.figures,
 		period: report.shownPeriod,
-		teamName: report.teamName
+		teamName: report.teamName,
+		members: report.members
 	});
 
 	const title = t('dashboard.manualTimeEdits.TITLE');
@@ -114,7 +113,7 @@ export function ManualTimeEditsPage() {
 	const membersText = t('dashboard.weeklyLimit.MEMBERS_COUNT', { count: report.populationCount });
 	const meta = [periodText, membersText].join(META_SEPARATOR);
 	const hasShownEntries = report.shownEntries.length > 0;
-	const isExportDisabled = !hasShownEntries || report.isLoading;
+	const isExportDisabled = !hasShownEntries || report.isLoading || report.isHistoryLoading;
 	const showsReport = !report.showsError && !report.showsNoMembers;
 	let actionFigures: EditsFigures | null = report.figures;
 	if (report.isLoading) {
@@ -154,7 +153,7 @@ export function ManualTimeEditsPage() {
 							<PeriodPicker
 								value={report.period}
 								onChange={report.setPeriod}
-								weekStartsOn={MANUAL_EDITS_WEEK_START}
+								weekStartsOn={weekStart}
 								locale={locale}
 							/>
 							<EditsFilterMenu
@@ -202,6 +201,7 @@ export function ManualTimeEditsPage() {
 							members={report.members}
 							selectedIdSet={report.selectedIdSet}
 							permissions={report.permissions}
+							historyStatus={report.historyStatus}
 							formatters={formatters}
 							handlers={handlers}
 							isLoading={report.isLoading}

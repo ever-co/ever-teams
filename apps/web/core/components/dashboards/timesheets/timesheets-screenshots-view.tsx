@@ -20,6 +20,7 @@ import {
 import type { SheetMember } from '@/core/lib/utils/dashboards/timesheets';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import {
 	memberNameOrFallback,
 	TimesheetsMemberPicker,
@@ -136,7 +137,8 @@ export function TimesheetsScreenshotsView({
 	const isOwn = employeeId === ownEmployeeId;
 	const wantedDay = wantedDayOf(pickedDay, member, period);
 	const day = clampedDayOfPeriod(wantedDay, period);
-	const days = diaryStripDaysOf(period, day);
+	const weekStart = useWorkspaceWeekStart();
+	const days = diaryStripDaysOf(period, day, weekStart);
 	const memberLogs = member?.logs ?? [];
 	const trackedKeys = trackedDayKeysOf(memberLogs, employeeId);
 	const state = useWorkDiaryDay({ employeeId, isOwn, teamId, day });

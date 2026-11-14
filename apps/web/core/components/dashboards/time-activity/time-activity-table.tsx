@@ -151,7 +151,7 @@ function FigureCells({
 	context,
 	className
 }: Readonly<{
-	figures: Pick<ReportLine, 'seconds' | 'activeSeconds' | 'earnings'>;
+	figures: Pick<ReportLine, 'seconds' | 'activeSeconds' | 'trackedSeconds' | 'earnings'>;
 	context: RowContext;
 	className?: string;
 }>) {
@@ -173,6 +173,7 @@ function FigureCells({
 					<ActivityText
 						seconds={figures.seconds}
 						activeSeconds={figures.activeSeconds}
+						trackedSeconds={figures.trackedSeconds}
 						noActivityLabel={text.noActivity}
 					/>
 				</span>

@@ -460,6 +460,8 @@ function ChildCount({ node, context }: Readonly<{ node: BreakdownNode; context: 
 interface ActivityFigures {
 	seconds: number;
 	activeSeconds: number;
+	/** The time as tracked, which the activity is a share of. */
+	trackedSeconds: number;
 	hasExactActivity: boolean;
 }
 

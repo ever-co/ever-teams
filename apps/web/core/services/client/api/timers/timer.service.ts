@@ -10,6 +10,7 @@ import { toTimeSlotDuration } from '@/core/lib/helpers/timer';
 import { ITimerStatus, IToggleTimerStatusParams } from '@/core/types/interfaces/timer/timer-status';
 import { TUser } from '@/core/types/schemas';
 import { scopedReadConfig, type ScopedReadOptions } from '../../api-request-scope';
+import { type TimerStartMoveSupport, timerStartMoveSupportOf } from '@/core/lib/utils/timer/timer-start-move';
 
 // Without these bounds Gauzy counts "today" from the API server's midnight, not the user's.
 // One clock read for both bounds, so a call at midnight cannot span two days.
@@ -36,6 +37,15 @@ const notesFieldOf = (description?: string): { description?: string } => {
 		return {};
 	}
 	return { description };
+};
+
+// A reason travels only when one was typed: Gauzy keeps none that is empty.
+const reasonFieldOf = (reason?: string): { reason?: string } => {
+	const typedReason = reason?.trim();
+	if (!typedReason) {
+		return {};
+	}
+	return { reason: typedReason };
 };
 
 class TimerService extends APIService {
@@ -132,16 +142,23 @@ class TimerService extends APIService {
 		source,
 		startedAt,
 		stoppedAt,
-		description
+		description,
+		timeLogId
 	}: {
 		source: ETimeLogSource;
 		startedAt?: Date | string;
 		stoppedAt?: Date | string;
 		description?: string;
+		/**
+		 * The running time log the stop is for, when it must end that run and no other: Gauzy refuses the stop (409)
+		 * when another log is the running one by then. A stop that names none ends whatever runs, as before.
+		 */
+		timeLogId?: string;
 	}) => {
 		const taskId = getActiveTaskIdCookie();
 		const notesField = notesFieldOf(description);
 		const range = { ...(startedAt ? { startedAt } : {}), ...(stoppedAt ? { stoppedAt } : {}) };
+		const namedLog = timeLogId ? { timeLogId } : {};
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			await this.post('/timesheet/timer/stop', {
@@ -149,6 +166,7 @@ class TimerService extends APIService {
 				logType: 'TRACKED',
 				...(taskId ? { taskId } : {}),
 				...range,
+				...namedLog,
 				...notesField,
 				tenantId: this.tenantId,
 				organizationId: this.organizationId
@@ -161,8 +179,77 @@ class TimerService extends APIService {
 		return api.post<ITimerStatus>(`/timer/stop?${getTodayRangeQuery()}`, {
 			source,
 			...range,
+			...namedLog,
 			...notesField
 		});
+	};
+
+	/** The route that moves the running timer's start: Gauzy's in direct mode, this app's proxy otherwise. */
+	private readonly timerStartMovePath = () => {
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			return '/timesheet/timer/started-at';
+		}
+		return '/timer/started-at';
+	};
+
+	// Moves the start of the caller's running timer, which keeps running; the clock follows the status read after it.
+	moveTimerStart = async ({
+		startedAt,
+		reason
+	}: {
+		startedAt: Date;
+		reason?: string;
+	}): Promise<{ data: ITimerStatus | undefined }> => {
+		await this.put(this.timerStartMovePath(), { startedAt: startedAt.toISOString(), ...reasonFieldOf(reason) });
+
+		// The move is saved: a status read that fails says nothing of it, and the clock follows the next read
+		try {
+			return await this.getTimerStatus();
+		} catch {
+			return { data: undefined };
+		}
+	};
+
+	// Whether the API can move a running start. An empty body changes nothing: an API that has the route refuses it
+	// (400), and one without the route answers 404.
+	getTimerStartMoveSupport = async (): Promise<TimerStartMoveSupport> => {
+		try {
+			await this.put(this.timerStartMovePath(), {});
+			return 'supported';
+		} catch (error) {
+			return timerStartMoveSupportOf((error as { statusCode?: number } | null)?.statusCode);
+		}
+	};
+
+	/**
+	 * Discards the caller's running timer: the API removes the run, its time slots and screenshots, as if it never
+	 * started. `timeLogId` names the run the member saw, so a run started meanwhile elsewhere is never removed (409).
+	 * Answers the timer status after the discard.
+	 */
+	discardTimer = async ({
+		timeLogId
+	}: {
+		timeLogId?: string;
+	}): Promise<{ data: ITimerStatus | null | undefined }> => {
+		const timeLogField = timeLogId ? { timeLogId } : {};
+
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			await this.post('/timesheet/timer/discard', {
+				...timeLogField,
+				tenantId: this.tenantId,
+				organizationId: this.organizationId
+			});
+
+			// The run is discarded: a status read that fails says nothing of it, and the timer reads its status again
+			try {
+				return await this.getTimerStatus();
+			} catch {
+				return { data: undefined };
+			}
+		}
+
+		const api = await getFallbackAPI();
+		return api.post<ITimerStatus>(`/timer/discard?${getTodayRangeQuery()}`, timeLogField);
 	};
 
 	// /timesheet/timer/status only sees logs started today; this returns the employee's last log of any day.
