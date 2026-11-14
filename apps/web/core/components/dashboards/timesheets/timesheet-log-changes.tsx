@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { badgeVariants } from '@/core/components/common/badge';
-import { Pencil, Plus } from '@/core/components/icons';
+import { Break, Pencil, Plus } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import {
 	editedAtOfLog,
@@ -10,10 +10,24 @@ import {
 	manualReasonOf,
 	type TimesheetFormatters
 } from '@/core/lib/utils/dashboards/timesheets';
+import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import { entryNotesOf } from '@/core/lib/utils/timer/timer-notes';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 const CHANGE_CHIP = cn(badgeVariants({ variant: 'outline' }), 'h-5 px-1.5 text-muted-foreground');
+
+/** A break's own neutral tint, apart from work's entries and from the brand colour (#5216). */
+const BREAK_CHIP = cn(CHANGE_CHIP, 'border-transparent bg-muted text-foreground/70');
+
+export function BreakChip() {
+	const t = useTranslations();
+	return (
+		<span className={BREAK_CHIP}>
+			<Break aria-hidden="true" />
+			<span>{t('breaks.BREAK')}</span>
+		</span>
+	);
+}
 
 function AddedChip() {
 	const t = useTranslations();
@@ -39,21 +53,26 @@ function EditedChip({ editedAt, formatters }: Readonly<{ editedAt: Date; formatt
 	);
 }
 
-/** "Added" for time entered by hand, "Edited" for time changed after it was recorded; one log can carry both. */
+/**
+ * "Break" for a break (#5216), "Added" for time entered by hand, "Edited" for time changed after it was recorded; one
+ * log can carry several.
+ */
 export function LogChangeChips({
 	log,
 	formatters,
 	className
 }: Readonly<{ log: ITimeLog; formatters: TimesheetFormatters; className?: string }>) {
+	const isBreak = isBreakLog(log);
 	const isAdded = isManualLog(log);
 	const editedAt = editedAtOfLog(log);
 	const isEdited = Boolean(editedAt);
-	const hasChange = isAdded || isEdited;
+	const hasChange = isBreak || isAdded || isEdited;
 	if (!hasChange) {
 		return null;
 	}
 	return (
 		<span className={cn('flex shrink-0 items-center gap-1', className)}>
+			{isBreak && <BreakChip />}
 			{isAdded && <AddedChip />}
 			{editedAt && <EditedChip editedAt={editedAt} formatters={formatters} />}
 		</span>

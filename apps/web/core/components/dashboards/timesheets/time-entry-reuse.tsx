@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { DropdownMenuItem, DropdownMenuSeparator } from '@/core/components/common/dropdown-menu';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Copy, Play } from '@/core/components/icons';
+import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 /**
@@ -17,14 +18,21 @@ export interface TimeEntryReuseHandlers {
 	duplicate: (log: ITimeLog) => void;
 }
 
+/** A break is no work to go on with or to copy (#5216): it offers neither. */
+function reuseOffersOf(log: ITimeLog, reuse: TimeEntryReuseHandlers) {
+	if (isBreakLog(log)) {
+		return { showsContinue: false, showsDuplicate: false };
+	}
+	return { showsContinue: reuse.canContinue(log), showsDuplicate: reuse.canDuplicate(log) };
+}
+
 export function TimeEntryReuseMenuItems({
 	log,
 	reuse,
 	isFollowed = false
 }: Readonly<{ log: ITimeLog; reuse: TimeEntryReuseHandlers; isFollowed?: boolean }>) {
 	const t = useTranslations();
-	const showsContinue = reuse.canContinue(log);
-	const showsDuplicate = reuse.canDuplicate(log);
+	const { showsContinue, showsDuplicate } = reuseOffersOf(log, reuse);
 	const showsAny = showsContinue || showsDuplicate;
 	if (!showsAny) {
 		return null;
@@ -54,8 +62,7 @@ export function TimeEntryReuseButtons({
 	onAct
 }: Readonly<{ log: ITimeLog; reuse: TimeEntryReuseHandlers; onAct: () => void }>) {
 	const t = useTranslations();
-	const showsContinue = reuse.canContinue(log);
-	const showsDuplicate = reuse.canDuplicate(log);
+	const { showsContinue, showsDuplicate } = reuseOffersOf(log, reuse);
 
 	const continueLog = () => {
 		onAct();

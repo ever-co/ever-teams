@@ -43,9 +43,12 @@ import { ITimeLogUpdatePayload } from '@/core/types/interfaces/timesheet/time-lo
 const TASK_LABELS_RELATION = 'task.tags';
 
 interface ITimeLogsRelationOptions {
+	/** Lists the breaks too (Gauzy #11940); asked only where the organization turned breaks on. */
+	includeBreaks?: boolean;
 	/** Each log's task comes with its labels, which a report that filters by label reads from the logs themselves. */
 	withTaskLabels?: boolean;
 }
+
 
 class TimeLogService extends APIService {
 	getTimeLimitsReport = async (params: TGetTimeLimitReport): Promise<TTimeLimitReportList[]> => {
@@ -223,7 +226,8 @@ class TimeLogService extends APIService {
 		employeeIds = [],
 		taskIds = [],
 		status = [],
-		withTaskLabels = false
+		withTaskLabels = false,
+		includeBreaks = false
 	}: TGetTimerLogsDailyReportRequest & ITimeLogsRelationOptions) => {
 		if (!startDate || !endDate) {
 			throw new Error('Required parameters missing: startDate, and endDate are required');
@@ -260,6 +264,10 @@ class TimeLogService extends APIService {
 		addArrayParam('employeeIds', employeeIds);
 		addArrayParam('taskIds', taskIds);
 		addArrayParam('status', status);
+		// Never sent otherwise: an API without breaks has no such filter
+		if (includeBreaks) {
+			params.append('includeBreaks', 'true');
+		}
 
 		const response = await this.get<ITimeLog[]>(`/timesheet/time-log?${params.toString()}`, {
 			tenantId: this.tenantId

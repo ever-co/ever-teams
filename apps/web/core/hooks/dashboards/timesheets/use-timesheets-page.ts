@@ -8,6 +8,7 @@ import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permis
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
 import { useReportClientChoices, useReportProjectClients } from '@/core/hooks/dashboards/use-report-clients';
 import { useReportUrlFilters } from '@/core/hooks/dashboards/use-report-url-filters';
+import { useBreaksAllowed } from '@/core/hooks/timer/use-breaks-allowed';
 import { activeTeamState } from '@/core/stores/teams/organization-team';
 import { formatPeriod, type Period, periodOfPreset } from '@/core/lib/utils/dashboard-period';
 import {
@@ -38,6 +39,7 @@ import {
 	type TimesheetView,
 	totalDurationOf
 } from '@/core/lib/utils/dashboards/timesheets';
+import { breakSecondsOf, isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { SheetEditingSource } from './use-sheet-editing';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
@@ -118,6 +120,14 @@ function withValuesToggled(current: string[], values: string[], shouldSelect: bo
  * logs, which hold every log of the period), the figures of the toolbar and of the status strip, the days of the
  * list, the selection and who may do what.
  */
+/** The breaks are asked only where they are on, so the read stays the one sent before breaks otherwise. */
+function breaksReadOf(allowsBreaks: boolean): { withBreaks?: true } {
+	if (allowsBreaks) {
+		return { withBreaks: true };
+	}
+	return {};
+}
+
 export function useTimesheetsPage() {
 	const locale = useWorkspaceLocale();
 	const { data: user } = useUserQuery();
@@ -166,6 +176,8 @@ export function useTimesheetsPage() {
 
 	const isTeamKnown = hasOrganizationRole || Boolean(activeTeam);
 	const hasScope = isManage || Boolean(ownEmployeeId);
+	// Breaks are listed among the entries only where the organization turned them on (#5216)
+	const allowsBreaks = useBreaksAllowed();
 	const logsQuery = useTimesheetPageLogs(
 		period,
 		{
@@ -175,7 +187,7 @@ export function useTimesheetsPage() {
 			employeeIds,
 			isEnabled: isTeamKnown && hasScope
 		},
-		{ withTaskLabels: true }
+		{ withTaskLabels: true, ...breaksReadOf(allowsBreaks) }
 	);
 
 	// A log names its project and nothing about that project's client, so the client filter waits for the projects
@@ -229,11 +241,14 @@ export function useTimesheetsPage() {
 		return sortedWithinDays(workDays, sort);
 	}, [shownLogs, sort]);
 
-	// The total beside the title follows the filter menu, so it always matches the rows the filters keep
+	// The total beside the title follows the filter menu, so it always matches the rows the filters keep. It is worked
+	// time: the breaks have a figure of their own, and a member who only took breaks did not work
 	const periodFigures = useMemo(() => {
 		const totalSeconds = totalDurationOf(filteredLogs);
-		const memberCount = distinctMemberCountOf(filteredLogs);
-		return { totalSeconds, memberCount };
+		const workLogs = filteredLogs.filter((log) => !isBreakLog(log));
+		const memberCount = distinctMemberCountOf(workLogs);
+		const breakSeconds = breakSecondsOf(filteredLogs);
+		return { totalSeconds, memberCount, breakSeconds };
 	}, [filteredLogs]);
 
 	const shownIdSet = useMemo(() => {

@@ -28,6 +28,7 @@ import { useTimeEntryContinue } from '@/core/hooks/timer/use-time-entry-continue
 import { useTimerTaskStart } from '@/core/hooks/timer/use-timer-task-start';
 import { useTimeEntryDuplicate } from '@/core/hooks/timesheet/use-time-entry-duplicate';
 import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
+import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import type { BulkEditResult } from '@/core/lib/utils/dashboards/timesheet-bulk-edit';
 import { ADD_TIME_ENTRY_STEP_MINUTES, canDuplicateLog } from '@/core/lib/utils/time-entry-reuse';
@@ -74,11 +75,20 @@ function isTrackingEnabledFor(team: TOrganizationTeam | null | undefined, userId
 }
 
 /** The sheet groups the logs by member and task only while it is the view on screen. */
+/** The sheet adds up work per task and day: a break is no work, so it never reaches a cell (#5216). */
 function sheetLogsOf(view: TimesheetView, logs: ITimeLog[]) {
 	if (view === 'sheet') {
-		return logs;
+		return workLogsOf(logs);
 	}
 	return NO_LOGS;
+}
+
+function workLogsOf(logs: ITimeLog[]) {
+	const hasBreak = logs.some((log) => isBreakLog(log));
+	if (!hasBreak) {
+		return logs;
+	}
+	return logs.filter((log) => !isBreakLog(log));
 }
 
 /** The screenshots open on the one member the filter holds, when it holds one. */
@@ -93,7 +103,7 @@ function filteredMemberIdOf(filteredMembers: ReadonlyArray<string>) {
 /** The screenshots list the members with time in the period only while they are the view on screen. */
 function diaryLogsOf(view: TimesheetView, logs: ITimeLog[]) {
 	if (view === 'screenshots') {
-		return logs;
+		return workLogsOf(logs);
 	}
 	return NO_LOGS;
 }
@@ -111,6 +121,8 @@ interface PageMetaFacts {
 	showsError: boolean;
 	showsMember: boolean;
 	totalSeconds: number;
+	/** The time on breaks, never in the total (#5216). */
+	breakSeconds: number;
 	memberCount: number;
 }
 
@@ -119,6 +131,12 @@ function pageMetaOf(facts: PageMetaFacts, t: ReturnType<typeof useTranslations>)
 	if (!facts.showsError) {
 		const totalText = formatDurationShort(facts.totalSeconds);
 		metaParts.push(totalText);
+	}
+	// The breaks of the period beside the worked time, once there are some (#5216)
+	const showsBreaks = facts.breakSeconds > 0 && !facts.showsError;
+	if (showsBreaks) {
+		const breaksText = t('breaks.FIGURE', { duration: formatDurationShort(facts.breakSeconds) });
+		metaParts.push(breaksText);
 	}
 	const showsMemberCount = facts.showsMember && !facts.showsError;
 	if (showsMemberCount) {
@@ -177,6 +195,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 			showsError: page.showsError,
 			showsMember,
 			totalSeconds: page.periodFigures.totalSeconds,
+			breakSeconds: page.periodFigures.breakSeconds,
 			memberCount: page.periodFigures.memberCount
 		},
 		t

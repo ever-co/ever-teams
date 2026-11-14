@@ -279,3 +279,25 @@ describe('TimeLogService time logs with the labels of their tasks', () => {
 		expect(relationsOf(sentQueryOf(get))).not.toContain('task.tags');
 	});
 });
+
+describe('TimeLogService time logs with the breaks (#5216)', () => {
+	afterEach(() => jest.restoreAllMocks());
+
+	const period = { startDate: '2026-11-10', endDate: '2026-11-10', timeZone: 'UTC' };
+
+	it('asks Gauzy for the breaks among the entries when told', async () => {
+		const get = spyOnServiceGet();
+
+		await timeLogService.getTimeLogs({ ...period, includeBreaks: true });
+
+		expect(sentQueryOf(get).get('includeBreaks')).toBe('true');
+	});
+
+	it('sends no break filter otherwise, which a Gauzy without breaks does not know', async () => {
+		const get = spyOnServiceGet();
+
+		await timeLogService.getTimeLogs(period);
+
+		expect(sentQueryOf(get).has('includeBreaks')).toBe(false);
+	});
+});

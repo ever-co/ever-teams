@@ -14,6 +14,7 @@ import {
 	subDays
 } from 'date-fns';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
+import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import type { Period, WeekStart } from '@/core/lib/utils/dashboard-period';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
@@ -177,9 +178,13 @@ function statusesPresentIn(logs: ReadonlyArray<ITimeLog>): ETimesheetStatus[] {
 	return TIMESHEET_STATUS_ORDER.filter((status) => present.has(status));
 }
 
+// The worked time: a break is listed among the entries but is never worked time (#5216)
 function totalSecondsOf(logs: ReadonlyArray<ITimeLog>) {
 	let total = 0;
 	for (const log of logs) {
+		if (isBreakLog(log)) {
+			continue;
+		}
 		total += logDurationSeconds(log);
 	}
 	return total;

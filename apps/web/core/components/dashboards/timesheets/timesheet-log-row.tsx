@@ -31,6 +31,7 @@ import {
 	type TimesheetFormatters,
 	timeRangeTextOf
 } from '@/core/lib/utils/dashboards/timesheets';
+import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
@@ -51,7 +52,7 @@ export interface TimesheetRowHandlers {
 	reuse?: TimeEntryReuseHandlers;
 }
 
-/** Manual time is said by its Added chip, so the time column names only the other log types. */
+/** Manual time and breaks are said by their chips, so the time column names only the other log types. */
 export const LOG_TYPE_LABEL_KEYS: Partial<Record<ETimeLogType, DottedLanguageObjectStringPaths>> = {
 	[ETimeLogType.IDLE]: 'dashboard.timesheets.LOG_TYPE.IDLE',
 	[ETimeLogType.RESUMED]: 'dashboard.timesheets.LOG_TYPE.RESUMED'
@@ -125,6 +126,8 @@ function LogMenu({
 	const canEdit = canEditLog(log, permissions);
 	const isBillable = Boolean(log.isBillable);
 	const isNotBillable = !isBillable;
+	// A break is never billable: Gauzy keeps it so whatever is sent (#5216)
+	const offersBillable = !isBreakLog(log);
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -163,24 +166,26 @@ function LogMenu({
 						</DropdownMenuSubContent>
 					</DropdownMenuSub>
 				)}
-				<DropdownMenuSub>
-					<DropdownMenuSubTrigger>
-						<DollarCircle />
-						<span>{t('dashboard.timesheets.BILLABLE')}</span>
-					</DropdownMenuSubTrigger>
-					<DropdownMenuSubContent className="min-w-36">
-						<DropdownMenuItem onClick={() => handlers.setBillable(log, true)}>
-							<Check />
-							<span className="flex-1">{t('pages.timesheet.BILLABLE.YES')}</span>
-							{isBillable && <SelectedMark />}
-						</DropdownMenuItem>
-						<DropdownMenuItem onClick={() => handlers.setBillable(log, false)}>
-							<X />
-							<span className="flex-1">{t('pages.timesheet.BILLABLE.NO')}</span>
-							{isNotBillable && <SelectedMark />}
-						</DropdownMenuItem>
-					</DropdownMenuSubContent>
-				</DropdownMenuSub>
+				{offersBillable && (
+					<DropdownMenuSub>
+						<DropdownMenuSubTrigger>
+							<DollarCircle />
+							<span>{t('dashboard.timesheets.BILLABLE')}</span>
+						</DropdownMenuSubTrigger>
+						<DropdownMenuSubContent className="min-w-36">
+							<DropdownMenuItem onClick={() => handlers.setBillable(log, true)}>
+								<Check />
+								<span className="flex-1">{t('pages.timesheet.BILLABLE.YES')}</span>
+								{isBillable && <SelectedMark />}
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => handlers.setBillable(log, false)}>
+								<X />
+								<span className="flex-1">{t('pages.timesheet.BILLABLE.NO')}</span>
+								{isNotBillable && <SelectedMark />}
+							</DropdownMenuItem>
+						</DropdownMenuSubContent>
+					</DropdownMenuSub>
+				)}
 				{canEdit && (
 					<>
 						<DropdownMenuSeparator />
@@ -342,7 +347,14 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 				<span className="truncate text-[13px] tabular-nums text-foreground">{timeRange}</span>
 				{logTypeKey && <span className="truncate text-[11px] text-muted-foreground">{t(logTypeKey)}</span>}
 			</span>
-			<span role="cell" className="text-right text-[13px] font-medium tabular-nums text-foreground">
+			<span
+				role="cell"
+				className={cn(
+					'text-right text-[13px] font-medium tabular-nums text-foreground',
+					// A break's time is listed, never counted as worked
+					isBreakLog(log) && 'font-normal text-muted-foreground'
+				)}
+			>
 				{duration}
 			</span>
 			<span role="cell" className="flex items-center justify-end gap-1">

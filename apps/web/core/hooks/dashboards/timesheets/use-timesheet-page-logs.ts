@@ -28,6 +28,11 @@ interface TimesheetPageLogsOptions {
 	 * sharing their cache entry.
 	 */
 	withTaskLabels?: boolean;
+	/**
+	 * The breaks among the entries (#5216), read only where the organization turned breaks on. Left out, the key and
+	 * the request stay those of a read without breaks.
+	 */
+	withBreaks?: boolean;
 }
 
 function timeZoneNameOf(userTimeZone: string | null | undefined) {
@@ -38,9 +43,16 @@ function timeZoneNameOf(userTimeZone: string | null | undefined) {
 	return 'UTC';
 }
 
-function taskLabelsPartOf(options: TimesheetPageLogsOptions): TimesheetPageLogsOptions {
+function taskLabelsPartOf(options: TimesheetPageLogsOptions): { withTaskLabels?: boolean } {
 	if (options.withTaskLabels) {
 		return { withTaskLabels: true };
+	}
+	return {};
+}
+
+function breaksPartOf(options: TimesheetPageLogsOptions): { includeBreaks?: boolean } {
+	if (options.withBreaks) {
+		return { includeBreaks: true };
 	}
 	return {};
 }
@@ -87,6 +99,7 @@ export function timesheetPageLogsRequestOf(
 	const timeZone = timeZoneNameOf(scope.userTimeZone);
 	const employeeIds = [...scope.employeeIds].sort((first, second) => first.localeCompare(second));
 	const taskLabels = taskLabelsPartOf(options);
+	const breaks = breaksPartOf(options);
 	const queryKey = [
 		...queryKeys.timesheet.all,
 		'page-logs',
@@ -97,11 +110,19 @@ export function timesheetPageLogsRequestOf(
 			endDate,
 			timeZone,
 			employeeIds,
-			...taskLabels
+			...taskLabels,
+			...breaks
 		}
 	];
 	const queryFn = async (): Promise<ITimeLog[]> => {
-		const logs = await timeLogService.getTimeLogs({ startDate, endDate, timeZone, employeeIds, ...taskLabels });
+		const logs = await timeLogService.getTimeLogs({
+			startDate,
+			endDate,
+			timeZone,
+			employeeIds,
+			...taskLabels,
+			...breaks
+		});
 		return logs ?? [];
 	};
 	return { startDate, endDate, queryKey, queryFn, staleTime: STALE_TIME, gcTime: GC_TIME };
