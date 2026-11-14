@@ -1385,7 +1385,8 @@
 			"LANE_SHOW_MORE": "{count, plural, one {Pokaż jeszcze # projekt} few {Pokaż jeszcze # projekty} many {Pokaż jeszcze # projektów} other {Pokaż jeszcze # projektu}}",
 			"LANE_SHOW_FEWER": "Pokaż mniej",
 			"PORTFOLIO_OTHERS": "{count, plural, one {# inny projekt} few {# inne projekty} many {# innych projektów} other {# innego projektu}}",
-			"UNBUDGETED_NOTE": "Ustaw budżet tych projektów, aby umieścić je na tablicy."
+			"UNBUDGETED_NOTE": "Ustaw budżet tych projektów, aby umieścić je na tablicy.",
+			"COST_NOTE_STORED_RATES": "Koszt to zarejestrowany czas według stawki każdego wpisu z chwili, gdy został zarejestrowany, w walucie projektu, bez przeliczania."
 		},
 		"actualExpected": {
 			"TITLE": "Godziny rzeczywiste i planowane",

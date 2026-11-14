@@ -1385,7 +1385,8 @@
 			"LANE_SHOW_MORE": "{count, plural, other {再显示 # 个项目}}",
 			"LANE_SHOW_FEWER": "收起",
 			"PORTFOLIO_OTHERS": "{count, plural, other {其他 # 个项目}}",
-			"UNBUDGETED_NOTE": "为这些项目设置预算后，它们会出现在看板上。"
+			"UNBUDGETED_NOTE": "为这些项目设置预算后，它们会出现在看板上。",
+			"COST_NOTE_STORED_RATES": "成本按每条记录在记录时的费率计算记录的时间，以项目货币计，不做换算。"
 		},
 		"actualExpected": {
 			"TITLE": "实际与预期工时",

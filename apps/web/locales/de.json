@@ -1385,7 +1385,8 @@
 			"LANE_SHOW_MORE": "{count, plural, one {# weiteres Projekt anzeigen} other {# weitere Projekte anzeigen}}",
 			"LANE_SHOW_FEWER": "Weniger anzeigen",
 			"PORTFOLIO_OTHERS": "{count, plural, one {# weiteres Projekt} other {# weitere Projekte}}",
-			"UNBUDGETED_NOTE": "Lege für diese Projekte ein Budget fest, um sie auf das Board zu bringen."
+			"UNBUDGETED_NOTE": "Lege für diese Projekte ein Budget fest, um sie auf das Board zu bringen.",
+			"COST_NOTE_STORED_RATES": "Kosten sind die erfasste Zeit zum Satz jedes Eintrags zum Zeitpunkt seiner Erfassung, in der Währung des Projekts und ohne Umrechnung."
 		},
 		"actualExpected": {
 			"TITLE": "Ist- und Sollstunden",

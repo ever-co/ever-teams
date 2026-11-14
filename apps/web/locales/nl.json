@@ -1385,7 +1385,8 @@
 			"LANE_SHOW_MORE": "{count, plural, one {Nog # project tonen} other {Nog # projecten tonen}}",
 			"LANE_SHOW_FEWER": "Minder tonen",
 			"PORTFOLIO_OTHERS": "{count, plural, one {# ander project} other {# andere projecten}}",
-			"UNBUDGETED_NOTE": "Stel een budget in op deze projecten om ze op het bord te zetten."
+			"UNBUDGETED_NOTE": "Stel een budget in op deze projecten om ze op het bord te zetten.",
+			"COST_NOTE_STORED_RATES": "Kosten zijn de geregistreerde tijd tegen het tarief van elke registratie op het moment dat die werd geregistreerd, in de valuta van het project, zonder omrekening."
 		},
 		"actualExpected": {
 			"TITLE": "Werkelijke en verwachte uren",

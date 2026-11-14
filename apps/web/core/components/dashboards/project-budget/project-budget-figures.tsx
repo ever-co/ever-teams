@@ -1,5 +1,6 @@
 'use client';
 
+import { usePastTimeRule } from '@/core/hooks/organizations/rates/use-past-time-rule';
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { MetricStrip, type MetricItem, type MetricTone } from '@/core/components/dashboards/kit/metric-strip';
@@ -11,7 +12,8 @@ import {
 	MAX_COST_FIGURES,
 	type BudgetFigures,
 	type BudgetScope,
-	type BudgetTotal
+	type BudgetTotal,
+	costNoteKeyOf
 } from '@/core/lib/utils/dashboards/project-budget';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import type { FormatLocale } from '@/core/lib/utils/workspace-formats';
@@ -132,7 +134,8 @@ export function ProjectBudgetFigures({
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
 	const items = useMemo(() => figureItemsOf(figures, locale, t), [figures, locale, t]);
-	const notes = budgetNotesOf(figures, scope, t);
+	const costNoteKey = costNoteKeyOf(usePastTimeRule());
+	const notes = budgetNotesOf(figures, scope, t, costNoteKey);
 	const hasNotes = notes.length > 0;
 	const label = t('dashboard.projectBudget.FIGURES_LABEL');
 	if (isLoading) {

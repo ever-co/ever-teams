@@ -1385,7 +1385,8 @@
 			"LANE_SHOW_MORE": "{count, plural, one {Mostra # altro progetto} other {Mostra altri # progetti}}",
 			"LANE_SHOW_FEWER": "Mostra meno",
 			"PORTFOLIO_OTHERS": "{count, plural, one {# altro progetto} other {altri # progetti}}",
-			"UNBUDGETED_NOTE": "Imposta un budget su questi progetti per inserirli nella bacheca."
+			"UNBUDGETED_NOTE": "Imposta un budget su questi progetti per inserirli nella bacheca.",
+			"COST_NOTE_STORED_RATES": "Un costo è il tempo registrato alla tariffa di ogni voce al momento in cui è stata registrata, nella valuta del progetto e senza conversione."
 		},
 		"actualExpected": {
 			"TITLE": "Ore effettive e previste",
