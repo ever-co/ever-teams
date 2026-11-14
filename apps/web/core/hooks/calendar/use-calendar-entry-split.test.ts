@@ -7,6 +7,7 @@ const mockUpdateTimeLog = jest.fn(async (payload: { startedAt?: Date; stoppedAt?
 	calls.push(`update ${payload.startedAt?.getHours()}-${payload.stoppedAt?.getHours()}`);
 	return {};
 });
+const mockGetTimeLogConflicts = jest.fn<Promise<unknown[]>, [unknown]>(async () => []);
 const mockAddManualTime = jest.fn(async (request: { startedAt: Date; stoppedAt: Date }) => {
 	calls.push(`add ${request.startedAt.getHours()}-${request.stoppedAt.getHours()}`);
 	return {};
@@ -15,10 +16,12 @@ const mockAddManualTime = jest.fn(async (request: { startedAt: Date; stoppedAt: 
 jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
 	timeLogService: {
 		updateTimeLog: (payload: never) => mockUpdateTimeLog(payload),
-		addManualTime: (request: never) => mockAddManualTime(request)
+		addManualTime: (request: never) => mockAddManualTime(request),
+		getTimeLogConflicts: (query: never) => mockGetTimeLogConflicts(query)
 	}
 }));
 
+import { ZodValidationError } from '@/core/types/schemas';
 import { CalendarSplitError, splitCalendarEntry } from './use-calendar-entry-split';
 
 function at(hour: number) {
@@ -45,7 +48,17 @@ beforeEach(() => {
 	calls.length = 0;
 	mockUpdateTimeLog.mockClear();
 	mockAddManualTime.mockClear();
+	mockGetTimeLogConflicts.mockReset();
+	mockGetTimeLogConflicts.mockResolvedValue([]);
 });
+
+const OTHER_ENTRY = {
+	id: 'log-2',
+	logType: ETimeLogType.MANUAL,
+	isRunning: false,
+	startedAt: at(11),
+	stoppedAt: at(12)
+};
 
 describe('splitCalendarEntry', () => {
 	it('shortens the entry first, then adds the rest, since the API deletes whatever new manual time overlaps', async () => {
@@ -112,5 +125,40 @@ describe('splitCalendarEntry', () => {
 			splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' })
 		).rejects.toThrow('refused');
 		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+	it('changes nothing when the server holds another entry on the time, since the API would delete it', async () => {
+		mockGetTimeLogConflicts.mockResolvedValueOnce([OTHER_ENTRY]);
+
+		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'overlap' }));
+		expect(calls).toEqual([]);
+	});
+
+	it('keeps both parts when the API saved the second one but answered in another shape', async () => {
+		mockAddManualTime.mockRejectedValueOnce(new ZodValidationError('unexpected answer', []));
+
+		await splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		expect(calls).toEqual(['update 9-11']);
+	});
+
+	it('never stretches the entry over a second part the server holds after a lost answer', async () => {
+		mockAddManualTime.mockRejectedValueOnce(new Error('timeout'));
+		mockGetTimeLogConflicts.mockResolvedValueOnce([]).mockResolvedValueOnce([OTHER_ENTRY]);
+
+		await splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		expect(calls).toEqual(['update 9-11']);
+	});
+
+	it('says the first part was kept when the server cannot say whether the second part was saved', async () => {
+		mockAddManualTime.mockRejectedValueOnce(new Error('timeout'));
+		mockGetTimeLogConflicts.mockResolvedValueOnce([]).mockRejectedValueOnce(new Error('offline'));
+
+		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'first-part-kept' }));
+		expect(calls).toEqual(['update 9-11']);
 	});
 });
