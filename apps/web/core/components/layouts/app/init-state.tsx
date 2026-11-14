@@ -10,6 +10,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useAutoAssignTask } from '@/core/hooks/tasks/use-auto-assign-task';
 import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
 import { useStaleTimerGuard, useTimerRunningPastMidnight } from '@/core/hooks/timer/use-stale-timer-guard';
+import { useTimerSessionEndWitness } from '@/core/hooks/timer/use-timer-session-end-witness';
 import { DISABLE_AUTO_REFRESH, TEAM_PRESENCE_REFRESH_INTERVAL } from '@/core/constants/config/constants';
 import { teamDetailRefreshOf } from '@/core/lib/utils/team-detail-refresh';
 import { realtimeStatusAtom } from '@/core/stores/common/realtime';
@@ -47,6 +48,8 @@ export function InitState() {
 	useEffect(() => {
 		clearSessionEndedNotice();
 	}, []);
+	// And should the app end this one, the sign-in page says what became of the timer
+	useTimerSessionEndWitness();
 	const tenantId = user?.employee?.tenantId ?? user?.tenantId ?? null;
 	const organizationId = user?.employee?.organizationId ?? null;
 	const workspaceReady = !!(

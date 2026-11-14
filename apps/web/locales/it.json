@@ -5753,7 +5753,9 @@
 		},
 		"sessionEnded": {
 			"TITLE": "La sessione è scaduta",
-			"TEXT": "Accedi di nuovo per continuare."
+			"TEXT": "Accedi di nuovo per continuare.",
+			"TIMER_RUNNING": "Il tuo timer era in esecuzione. Accedi di nuovo prima di {deadline} e continuerà. Dopo, viene fermato all'ultimo salvataggio: {savedUntil}.",
+			"TIMER_STILL_RUNNING": "Il tuo timer è ancora in esecuzione. Accedi di nuovo per fermarlo."
 		}
 	},
 	"taskViews": {

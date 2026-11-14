@@ -5753,7 +5753,9 @@
 		},
 		"sessionEnded": {
 			"TITLE": "Tu sesión terminó",
-			"TEXT": "Vuelve a iniciar sesión para continuar."
+			"TEXT": "Vuelve a iniciar sesión para continuar.",
+			"TIMER_RUNNING": "Tu temporizador estaba en marcha. Vuelve a iniciar sesión antes de {deadline} y seguirá en marcha. Después, se detiene en su último guardado: {savedUntil}.",
+			"TIMER_STILL_RUNNING": "Tu temporizador sigue en marcha. Vuelve a iniciar sesión para detenerlo."
 		}
 	},
 	"taskViews": {

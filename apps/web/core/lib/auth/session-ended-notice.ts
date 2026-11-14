@@ -6,12 +6,54 @@
  * It is kept in the tab's own storage: it follows the tab to the sign-in page, each tab the session ended in has its
  * own, and it goes with the tab. A sign-out the person asked for leaves none, and the note is removed once someone is
  * signed in again in the tab.
+ *
+ * The note also says what the tab's timer was doing: a run goes on in the API after the session ended, and the
+ * person is told what becomes of it. Nothing here imports the timer: the app's timer says it when asked
+ * (witnessTimerAtSessionEnd).
  */
 const NOTICE_KEY = 'ever-teams.session-ended';
+
+/** The timer run a tab showed as its session ended. */
+interface TimerAtSessionEnd {
+	/**
+	 * The time the run is saved up to in the API: its last heartbeat, as the tab last read it. Null for a run that
+	 * has had no heartbeat yet.
+	 */
+	savedUntil: string | null;
+}
 
 export interface SessionEndedNotice {
 	/** When the app ended the session, on the computer's clock. */
 	at: number;
+	/** The timer the tab showed running then, when one was. */
+	timer?: TimerAtSessionEnd;
+}
+
+type TimerWitness = () => TimerAtSessionEnd | null;
+
+let timerWitness: TimerWitness | null = null;
+
+/**
+ * The signed-in app's timer, asked as a session ends whether it shows a run going on. One app per tab says it.
+ *
+ * @returns The function that withdraws the witness, once that app is no longer in the tab.
+ */
+export function witnessTimerAtSessionEnd(witness: TimerWitness): () => void {
+	timerWitness = witness;
+	return () => {
+		if (timerWitness === witness) {
+			timerWitness = null;
+		}
+	};
+}
+
+function timerAtSessionEnd(): TimerAtSessionEnd | null {
+	try {
+		return timerWitness?.() ?? null;
+	} catch {
+		// The session ends whatever the timer could say
+		return null;
+	}
 }
 
 /** The tab's storage, or null where there is none (the server's render) or the browser blocks it. */
@@ -25,7 +67,8 @@ function tabStorage(): Storage | null {
 
 /** Leaves the note, as the app ends the session. */
 export function leaveSessionEndedNotice(): void {
-	const notice: SessionEndedNotice = { at: Date.now() };
+	const timer = timerAtSessionEnd();
+	const notice: SessionEndedNotice = { at: Date.now(), ...(timer ? { timer } : {}) };
 	try {
 		tabStorage()?.setItem(NOTICE_KEY, JSON.stringify(notice));
 	} catch {
@@ -52,7 +95,11 @@ export function parseSessionEndedNotice(stored: string | null): SessionEndedNoti
 		if (typeof notice?.at !== 'number') {
 			return null;
 		}
-		return { at: notice.at };
+		if (!notice.timer) {
+			return { at: notice.at };
+		}
+		const { savedUntil } = notice.timer;
+		return { at: notice.at, timer: { savedUntil: typeof savedUntil === 'string' ? savedUntil : null } };
 	} catch {
 		return null;
 	}

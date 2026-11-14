@@ -5753,7 +5753,9 @@
 		},
 		"sessionEnded": {
 			"TITLE": "Twoja sesja wygasła",
-			"TEXT": "Zaloguj się ponownie, aby kontynuować."
+			"TEXT": "Zaloguj się ponownie, aby kontynuować.",
+			"TIMER_RUNNING": "Twój timer był uruchomiony. Zaloguj się ponownie przed {deadline}, a będzie działał dalej. Później zostanie zatrzymany w chwili ostatniego zapisu: {savedUntil}.",
+			"TIMER_STILL_RUNNING": "Twój timer nadal działa. Zaloguj się ponownie, aby go zatrzymać."
 		}
 	},
 	"taskViews": {

@@ -5753,7 +5753,9 @@
 		},
 		"sessionEnded": {
 			"TITLE": "Je sessie is verlopen",
-			"TEXT": "Log opnieuw in om verder te gaan."
+			"TEXT": "Log opnieuw in om verder te gaan.",
+			"TIMER_RUNNING": "Je timer liep. Log opnieuw in vóór {deadline} en hij loopt door. Daarna wordt hij gestopt op het laatst opgeslagen moment: {savedUntil}.",
+			"TIMER_STILL_RUNNING": "Je timer loopt nog. Log opnieuw in om hem te stoppen."
 		}
 	},
 	"taskViews": {

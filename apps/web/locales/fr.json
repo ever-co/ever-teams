@@ -5753,7 +5753,9 @@
 		},
 		"sessionEnded": {
 			"TITLE": "Votre session a expiré",
-			"TEXT": "Reconnectez-vous pour continuer."
+			"TEXT": "Reconnectez-vous pour continuer.",
+			"TIMER_RUNNING": "Votre chronomètre tournait. Reconnectez-vous avant {deadline} et il continue de tourner. Passé ce délai, il est arrêté à son dernier enregistrement : {savedUntil}.",
+			"TIMER_STILL_RUNNING": "Votre chronomètre tourne toujours. Reconnectez-vous pour l'arrêter."
 		}
 	},
 	"taskViews": {
