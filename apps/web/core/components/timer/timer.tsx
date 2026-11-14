@@ -148,7 +148,7 @@ function BreakCaption({ isFromThisApp }: Readonly<{ isFromThisApp: boolean }>) {
  * or another active task picked during the break never takes its place (#5216). Any other start picks its task as
  * before.
  */
-function useWorkStart(breakState: TimerBreakState, startTimer: (task?: TTask) => unknown) {
+function useWorkStart(breakState: TimerBreakState, startTimer: (task?: TTask) => void | Promise<unknown>) {
 	const teamTasks = useAtomValue(tasksByTeamState);
 	const resumeTask = breakResumeTaskOf(breakState, teamTasks);
 	return useCallback(() => startTimer(resumeTask ?? undefined), [resumeTask, startTimer]);

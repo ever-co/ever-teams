@@ -602,7 +602,7 @@ describe('Start while a break is being taken', () => {
 		// A task card's start of a task: refused, as during any other start
 		let refusal: unknown;
 		await act(async () => {
-			await tab.result.current.startTimer(TASK).catch((error: unknown) => {
+			await Promise.resolve(tab.result.current.startTimer(TASK)).catch((error: unknown) => {
 				refusal = error;
 			});
 		});
