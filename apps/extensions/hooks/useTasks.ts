@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ApiError } from '~lib/api-client';
 import { listTasks, type TaskItem } from '~lib/gauzy';
@@ -22,18 +22,31 @@ export function useTasks(session: Session | null) {
 	const [recentIds, setRecentIds] = useState<string[]>([]);
 	const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
+	// Only the latest load may show its answer: a team picked and then another, the first answer can land last
+	const latestLoad = useRef(0);
+
 	const load = useCallback(async () => {
 		if (!session) {
 			return;
 		}
+		latestLoad.current += 1;
+		const thisLoad = latestLoad.current;
+		const isLatest = () => thisLoad === latestLoad.current;
 		setLoading(true);
 		try {
-			setTasks(await listTasks(session));
-			setError(null);
+			const loaded = await listTasks(session);
+			if (isLatest()) {
+				setTasks(loaded);
+				setError(null);
+			}
 		} catch (failure) {
-			setError(refusalFrom(failure));
+			if (isLatest()) {
+				setError(refusalFrom(failure));
+			}
 		} finally {
-			setLoading(false);
+			if (isLatest()) {
+				setLoading(false);
+			}
 		}
 	}, [session]);
 
