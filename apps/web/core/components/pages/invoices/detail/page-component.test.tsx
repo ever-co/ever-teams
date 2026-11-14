@@ -4,13 +4,19 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 
 const mockOrganizationRead = { isError: false, refetch: jest.fn() };
+/** The organization of the session: null while it is still being read. */
+const mockOrganization: { current: unknown } = { current: null };
 
 jest.mock('next/navigation', () => ({
 	useParams: () => ({ id: 'invoice-9' }),
 	useRouter: () => ({ push: jest.fn() })
 }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
-jest.mock('jotai', () => ({ ...jest.requireActual('jotai'), useAtomValue: () => null }));
+jest.mock('@/core/stores/user/user-organizations', () => ({ currentOrganizationState: 'currentOrganizationState' }));
+jest.mock('jotai', () => ({
+	...jest.requireActual('jotai'),
+	useAtomValue: (atom: unknown) => (atom === 'currentOrganizationState' ? mockOrganization.current : null)
+}));
 jest.mock('@/core/components/common/empty-state', () => ({
 	AnimatedEmptyState: ({
 		title,
@@ -77,6 +83,22 @@ jest.mock('./invoice-detail-skeleton', () => ({
 import { InvoiceDetailPageComponent } from './page-component';
 
 describe('the invoice page', () => {
+	beforeEach(() => {
+		mockOrganizationRead.isError = false;
+		mockOrganization.current = null;
+	});
+
+	it('keeps the document back while the organization is read, so its sender and days never change under the eye', () => {
+		const { rerender } = render(<InvoiceDetailPageComponent />);
+
+		expect(screen.queryByText('document')).toBeNull();
+
+		mockOrganization.current = { id: 'org-1', name: 'Acme', timeZone: 'Europe/Paris' };
+		rerender(<InvoiceDetailPageComponent />);
+
+		expect(screen.getByText('document')).toBeTruthy();
+	});
+
 	it('offers to read the organization again instead of showing the document without its sender and zone', () => {
 		mockOrganizationRead.isError = true;
 

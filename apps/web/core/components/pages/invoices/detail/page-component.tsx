@@ -126,7 +126,8 @@ function InvoiceDetailContent({ organizationRead }: Readonly<{ organizationRead:
 				minHeight="420px"
 			/>
 		);
-	} else if (shownInvoice) {
+	} else if (shownInvoice && organization) {
+		// Without its organization the paper has no sender and its days would follow the browser's zone: the skeleton stays
 		const clientName = invoiceClientNameOf(shownInvoice, clientNames) ?? t('invoices.NO_CLIENT');
 		const target: InvoiceActionTarget = { invoice: shownInvoice, numberText: numberText ?? '', clientName };
 		const takeAction = (action: InvoiceMenuAction) => actionFlow.takeAction(target, action);
