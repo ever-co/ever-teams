@@ -1,68 +1,83 @@
 import classNames from 'classnames';
-import React, { FC, useRef, useState } from 'react';
+import React, { useRef, useState, type FC } from 'react';
 
 import useOnClickOutside from '~hooks/useOnClickOutside';
 import { textEllipsis } from '~misc/tailwindClasses';
 
-interface IOption {
-	id: number;
+export interface IOption {
+	id: string;
 	title: string;
 }
 
 interface IAppDropdownProps {
 	buttonClassNames: string;
 	buttonTitle: string;
+	buttonLabel?: string;
 	options: IOption[];
+	selectedId?: string | null;
 	onOptionSelect: (option: IOption) => void;
 	optionContainerClassNames?: string;
+	disabled?: boolean;
 }
 
 export const AppDropdown: FC<IAppDropdownProps> = ({
 	buttonClassNames,
 	buttonTitle,
+	buttonLabel,
 	options,
+	selectedId,
 	onOptionSelect,
-	optionContainerClassNames = ''
+	optionContainerClassNames = '',
+	disabled = false
 }) => {
-	const ref = useRef();
+	const ref = useRef<HTMLDivElement>(null);
 	const [dropdownHidden, setHidden] = useState<boolean>(true);
 
 	useOnClickOutside(ref, () => setHidden(true));
 
-	const selectOption = (option: any) => {
+	const selectOption = (option: IOption) => {
 		setHidden(true);
 		onOptionSelect(option);
 	};
 
 	const optionElements = options.map((option) => {
+		const isSelected = option.id === selectedId;
 		return (
-			<li key={option.id} onClick={() => selectOption(option)}>
-				<a href="#" className="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+			<li key={option.id} role="option" aria-selected={isSelected}>
+				<button
+					type="button"
+					onClick={() => selectOption(option)}
+					className={classNames(
+						'block w-full rounded-md px-2 py-1.5 text-start text-sm hover:bg-zinc-900/5 focus-visible:bg-zinc-900/5 focus-visible:outline-none dark:hover:bg-white/10 dark:focus-visible:bg-white/10',
+						textEllipsis,
+						isSelected && 'font-medium'
+					)}>
 					{option.title}
-				</a>
+				</button>
 			</li>
 		);
 	});
 
 	return (
-		<div ref={ref}>
+		<div ref={ref} className="relative">
 			<button
-				id="dropdownDefault"
-				data-dropdown-toggle="dropdown"
-				className={classNames('inline-flex items-center justify-between', buttonClassNames)}
 				type="button"
+				aria-haspopup="listbox"
+				aria-expanded={!dropdownHidden}
+				aria-label={buttonLabel}
+				disabled={disabled}
+				className={classNames('inline-flex items-center justify-between', buttonClassNames)}
 				onClick={() => setHidden((prev) => !prev)}>
 				<span className={classNames(textEllipsis)}>{buttonTitle}</span>
 				{svgCaret}
 			</button>
 			<div
-				id="dropdown"
 				className={classNames(
-					'scrollbar absolute overflow-auto max-h-64 mt-1.5 z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700',
+					'scrollbar absolute right-0 z-10 mt-1.5 max-h-64 w-48 overflow-auto rounded-xl bg-white p-1 shadow-md shadow-black/10 ring-1 ring-zinc-900/10 dark:bg-zinc-800 dark:ring-white/10',
 					dropdownHidden && 'hidden',
 					optionContainerClassNames
 				)}>
-				<ul className="py-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefault">
+				<ul role="listbox" className="text-zinc-700 dark:text-zinc-200">
 					{optionElements}
 				</ul>
 			</div>
@@ -72,7 +87,7 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
 
 const svgCaret = (
 	<svg
-		className="ml-2 w-4 h-4 min-w-[16px]"
+		className="ml-2 h-4 w-4 min-w-[16px] opacity-60"
 		aria-hidden="true"
 		fill="none"
 		stroke="currentColor"
