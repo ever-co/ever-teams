@@ -280,7 +280,8 @@ export function InvoicesLedger({
 	changingIds,
 	onAction,
 	canRevise = false,
-	todayKey
+	todayKey,
+	mayHoldMore = false
 }: Readonly<{
 	invoices: ReadonlyArray<TInvoice>;
 	/** Every client's name by id, archived ones included. */
@@ -295,6 +296,8 @@ export function InvoicesLedger({
 	onAction: InvoiceActionHandler;
 	/** The role may edit an invoice, or void and replace it: it may create invoices. */
 	canRevise?: boolean;
+	/** More invoices may follow on pages not read yet, so the last month listed may go on there. */
+	mayHoldMore?: boolean;
 }>) {
 	const t = useTranslations();
 	const locale = useLocale();
@@ -304,19 +307,27 @@ export function InvoicesLedger({
 
 	return (
 		<div className="flex flex-col gap-5">
-			{groups.map((group) => {
+			{groups.map((group, index) => {
 				const monthText = invoiceMonthTextOf(group.key, locale) ?? t('invoices.UNDATED');
 				const totalsText = totalsTextOf(billedTotalsOf(group.invoices), locale);
+				// The list reads newest first: only its last month can go on in a page not read yet, so its count and
+				// total would be part of the month's
+				const isLastGroup = index === groups.length - 1;
+				const mayGoOn = mayHoldMore && isLastGroup;
+				const showsCount = !mayGoOn;
+				const showsTotals = Boolean(totalsText) && !mayGoOn;
 				return (
 					<section key={group.key} aria-label={monthText} className="flex flex-col gap-2">
 						<div className="flex min-h-6 items-baseline justify-between gap-3 px-1">
 							<h2 className="flex min-w-0 items-baseline gap-2 text-[13px] font-medium text-foreground">
 								<span className="truncate first-letter:uppercase">{monthText}</span>
-								<span className="shrink-0 text-xs font-normal tabular-nums text-muted-foreground">
-									{t('invoices.COUNT', { count: group.invoices.length })}
-								</span>
+								{showsCount && (
+									<span className="shrink-0 text-xs font-normal tabular-nums text-muted-foreground">
+										{t('invoices.COUNT', { count: group.invoices.length })}
+									</span>
+								)}
 							</h2>
-							{totalsText && (
+							{showsTotals && (
 								<span className="truncate text-xs tabular-nums text-muted-foreground">
 									{totalsText}
 								</span>

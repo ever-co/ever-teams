@@ -125,6 +125,7 @@ function InvoicesContent() {
 							changingIds={actionFlow.changingIds}
 							onAction={actionFlow.takeAction}
 							canRevise={access.canCreate}
+							mayHoldMore={overview.mayHoldMore}
 						/>
 					)}
 					{showsFilterEmpty && <InvoicesFilterEmptyState filter={filter} onShowAll={showAll} />}
