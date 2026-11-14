@@ -7,6 +7,8 @@ import { ILocalTimerStatus, ITimerParams, ITimerStatus, TimerSource } from '../i
 import { useFirstLoad } from './use-first-load';
 import isEqual from 'lodash/isEqual';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { showMessage } from 'react-native-flash-message';
+import { translate } from '../../i18n/translate';
 import { useStores } from '../../models';
 import { ITeamTask } from '../interfaces/ITask';
 import { useTeamTasks } from './features/use-team-tasks';
@@ -141,6 +143,8 @@ export function useTimer() {
 		teamStore: { activeTeamId, activeTeam },
 		TimerStore: { timerStatus, setTimerStatusFetching, timerStatusFetchingState, setTimerStatus }
 	} = useStores();
+	// Read as they are when Stop is pressed, not as they were at a render
+	const { authenticationStore: session, TimerStore: timerStore } = useStores();
 
 	const [stopTimerLoading, setStopTimerLoading] = useState(false);
 
@@ -170,7 +174,7 @@ export function useTimer() {
 			employeeId: user?.employee?.id
 		},
 		timerStatus?.running,
-		timerStatusRef.current?.lastLog?.source
+		timerStatusRef.current?.lastLog?.source ?? TimerSource.MOBILE
 	);
 
 	const toggleTimer = useCallback(async (taskId: string) => {
@@ -184,7 +188,7 @@ export function useTimer() {
 				organizationId,
 				...(activeTeamIdRef.current ? { organizationTeamId: activeTeamIdRef.current } : {})
 			},
-			authToken
+			authToken as string
 		);
 		const status: ITimerStatus = {
 			duration: response?.data.duration,
@@ -221,7 +225,7 @@ export function useTimer() {
 			...(activeTeamIdRef.current ? { organizationTeamId: activeTeamIdRef.current } : {})
 		};
 
-		const { data } = await startTimerRequest(params, authToken);
+		const { data } = await startTimerRequest(params, authToken as string);
 
 		const status: ITimerStatus = {
 			duration: data?.duration,
@@ -249,6 +253,10 @@ export function useTimer() {
 
 	// Stop timer
 	const stopTimer = useCallback(async () => {
+		// What the screen shows until now, put back if the API does not stop the timer
+		const shownAsRunning: ILocalTimerStatus | null = timerStore.localTimerStatus?.running
+			? timerStore.localTimerStatus
+			: null;
 		updateLocalTimerStatus({
 			lastTaskId: taskId.current || null,
 			runnedDateTime: 0,
@@ -260,15 +268,38 @@ export function useTimer() {
 			tenantId,
 			taskId: activeTask?.id,
 			logType: 'TRACKED',
-			source: timerStatusRef.current.lastLog.source || TimerSource.MOBILE,
+			source: timerStatusRef.current?.lastLog?.source || TimerSource.MOBILE,
 			tags: []
 		};
 
 		setStopTimerLoading(true);
 
-		const { data } = await stopTimerRequest(params, authToken);
+		const { data, response } = await stopTimerRequest(params, authToken as string);
 
 		setStopTimerLoading(false);
+
+		// Nothing was running anymore: the timer was stopped from another device. The screen is right to show it
+		// stopped, and the next read of the status says the same.
+		if (response.status === 406) {
+			return;
+		}
+		// The API did not stop the timer, which goes on there. The body of a refusal is not a timer: read as one, it
+		// showed the timer stopped. The screen shows it running again instead, and the person is told.
+		if (!response.ok) {
+			// Unless the session ended with this request: the person is signed out, and was told that
+			if (!session.isAuthenticated) {
+				return;
+			}
+			if (shownAsRunning) {
+				updateLocalTimerStatus(shownAsRunning);
+			}
+			showMessage({
+				message: translate('timer.stopFailedTitle'),
+				description: translate('timer.stopFailedMessage'),
+				type: 'danger'
+			});
+			return;
+		}
 
 		const status: ITimerStatus = {
 			duration: data.duration,

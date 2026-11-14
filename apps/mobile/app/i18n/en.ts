@@ -14,6 +14,10 @@ const en = {
 		endedTitle: 'Your session has ended',
 		endedMessage: 'Sign in again to continue.'
 	},
+	timer: {
+		stopFailedTitle: 'The timer could not stop',
+		stopFailedMessage: 'It is still running. Try again in a moment.'
+	},
 	welcomeScreen: {
 		postscript:
 			"psst  — This probably isn't what your app looks like. (Unless your designer handed you these screens, and in that case, ship it!)",

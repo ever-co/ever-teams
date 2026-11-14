@@ -29,6 +29,7 @@ export function createFakeGauzy({
 	const requests: FakeRequest[] = [];
 	let sequence = 0;
 	let brokenRenewals: 'network' | 'server' | null = null;
+	let brokenStop = false;
 	let timer: { id: string; isRunning: boolean; duration: number; source: string } | null = null;
 
 	const mintPair = () => {
@@ -80,6 +81,7 @@ export function createFakeGauzy({
 			return answer(200, { duration: timer?.duration ?? 0, running: !!timer?.isRunning, lastLog: timer });
 		}
 		if (method === 'POST' && path === '/timesheet/timer/stop') {
+			if (brokenStop) return answer(500, { statusCode: 500, message: 'Internal server error' });
 			if (!timer?.isRunning) return answer(406, { statusCode: 406, message: 'No running log found.' });
 			timer = { ...timer, isRunning: false, duration: 1800 };
 			return answer(200, timer);
@@ -125,6 +127,10 @@ export function createFakeGauzy({
 		/** The renewal alone cannot be made: its request fails on the network, or the API answers it 503. */
 		breakRenewals: (failure: 'network' | 'server' | null) => {
 			brokenRenewals = failure;
+		},
+		/** The API fails every stop with a 500, for a reason of its own. */
+		breakStop: () => {
+			brokenStop = true;
 		},
 		/** The requests the API received, optionally of one route. */
 		sentTo: (method?: string, path?: string) =>

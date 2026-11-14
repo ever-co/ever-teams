@@ -14,6 +14,10 @@ const fr = {
 		endedTitle: 'Votre session a expiré',
 		endedMessage: 'Reconnectez-vous pour continuer.'
 	},
+	timer: {
+		stopFailedTitle: "Le chronomètre n'a pas pu s'arrêter",
+		stopFailedMessage: 'Il tourne toujours. Réessayez dans un instant.'
+	},
 	welcomeScreen: {
 		postscript:
 			"psst  — This probably isn't what your app looks like. (Unless your designer handed you these screens, and in that case, ship it!)",

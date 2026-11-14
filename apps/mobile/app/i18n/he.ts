@@ -14,6 +14,10 @@ const he = {
 		endedTitle: 'פג תוקף ההתחברות',
 		endedMessage: 'התחברו שוב כדי להמשיך.'
 	},
+	timer: {
+		stopFailedTitle: 'לא ניתן היה לעצור את הטיימר',
+		stopFailedMessage: 'הוא עדיין רץ. נסו שוב בעוד רגע.'
+	},
 	welcomeScreen: {
 		postscript:
 			"psst  — This probably isn't what your app looks like. (Unless your designer handed you these screens, and in that case, ship it!)",

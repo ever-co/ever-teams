@@ -17,6 +17,10 @@ const ar: Translations = {
 		endedTitle: 'انتهت جلستك',
 		endedMessage: 'سجّل الدخول مرة أخرى للمتابعة.'
 	},
+	timer: {
+		stopFailedTitle: 'تعذّر إيقاف المؤقت',
+		stopFailedMessage: 'ما زال يعمل. حاول مرة أخرى بعد قليل.'
+	},
 	welcomeScreen: {
 		postscript:
 			'ربما لا يكون هذا هو الشكل الذي يبدو عليه تطبيقك مالم يمنحك المصمم هذه الشاشات وشحنها في هذه الحالة',

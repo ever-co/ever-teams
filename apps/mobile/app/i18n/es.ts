@@ -14,6 +14,10 @@ const es = {
 		endedTitle: 'Tu sesión terminó',
 		endedMessage: 'Vuelve a iniciar sesión para continuar.'
 	},
+	timer: {
+		stopFailedTitle: 'El temporizador no pudo detenerse',
+		stopFailedMessage: 'Sigue en marcha. Inténtalo de nuevo en un momento.'
+	},
 	welcomeScreen: {
 		postscript:
 			"psst  — This probably isn't what your app looks like. (Unless your designer handed you these screens, and in that case, ship it!)",
