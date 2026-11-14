@@ -7059,5 +7059,29 @@
 		"CLIENTS": "{count, plural, one {# cliente} other {# clientes}}",
 		"NAMES_ERROR_TITLE": "No se pudo cargar la lista de clientes",
 		"NAMES_ERROR_MESSAGE": "Los clientes archivados aparecen sin su nombre hasta entonces."
+	},
+	"breaks": {
+		"TAKE_BREAK": "Tomar un descanso",
+		"END_BREAK": "Terminar el descanso",
+		"BACK_TO_WORK": "Volver al trabajo",
+		"ON_BREAK": "En descanso",
+		"ON_BREAK_ELSEWHERE": "En descanso en otro dispositivo",
+		"REFUSED": "No se pudo iniciar el descanso",
+		"NOT_ENDED": "No se pudo terminar el descanso",
+		"NOT_ALLOWED": "Los descansos están desactivados en este espacio de trabajo.",
+		"OVERLAP": "Este descanso se superpone con otra entrada. Elige una hora fuera de ella.",
+		"WORK_OVERLAP": "Esta entrada se superpone con un descanso. Elige una hora fuera de él.",
+		"BREAK": "Descanso",
+		"FIGURE": "Descansos {duration}",
+		"FIGURE_LABEL": "Descansos",
+		"FIGURE_HINT": "Nunca cuentan como tiempo trabajado",
+		"SETTINGS_SECTION": "Descansos",
+		"SETTINGS_LABEL": "Permitir descansos a los miembros",
+		"SETTINGS_DESCRIPTION": "Los miembros toman un descanso desde el temporizador o lo añaden a mano. Los descansos se registran aparte y nunca cuentan como tiempo trabajado ni facturable.",
+		"SETTINGS_NOT_SAVED": "El ajuste no se guardó.",
+		"TYPE_LABEL": "Tipo",
+		"TYPE_WORK": "Trabajo",
+		"TYPE_BREAK": "Descanso",
+		"BREAK_HINT": "Un descanso nunca es facturable ni cuenta como tiempo trabajado."
 	}
 }

@@ -7059,5 +7059,29 @@
 		"CLIENTS": "{count, plural, one {# klient} few {# klientów} many {# klientów} other {# klienta}}",
 		"NAMES_ERROR_TITLE": "Nie udało się wczytać listy klientów",
 		"NAMES_ERROR_MESSAGE": "Zarchiwizowani klienci są do tego czasu widoczni bez nazw."
+	},
+	"breaks": {
+		"TAKE_BREAK": "Zrób przerwę",
+		"END_BREAK": "Zakończ przerwę",
+		"BACK_TO_WORK": "Wróć do pracy",
+		"ON_BREAK": "Na przerwie",
+		"ON_BREAK_ELSEWHERE": "Na przerwie na innym urządzeniu",
+		"REFUSED": "Nie udało się rozpocząć przerwy",
+		"NOT_ENDED": "Nie udało się zakończyć przerwy",
+		"NOT_ALLOWED": "Przerwy są wyłączone w tym obszarze roboczym.",
+		"OVERLAP": "Ta przerwa nakłada się na inny wpis. Wybierz czas poza nim.",
+		"WORK_OVERLAP": "Ten wpis nakłada się na przerwę. Wybierz czas poza nią.",
+		"BREAK": "Przerwa",
+		"FIGURE": "Przerwy {duration}",
+		"FIGURE_LABEL": "Przerwy",
+		"FIGURE_HINT": "Nigdy nie liczone jako czas pracy",
+		"SETTINGS_SECTION": "Przerwy",
+		"SETTINGS_LABEL": "Pozwól członkom robić przerwy",
+		"SETTINGS_DESCRIPTION": "Członkowie robią przerwę z poziomu timera lub dodają ją ręcznie. Przerwy są zapisywane osobno i nigdy nie liczą się jako czas pracy ani czas rozliczany.",
+		"SETTINGS_NOT_SAVED": "Ustawienie nie zostało zapisane.",
+		"TYPE_LABEL": "Typ",
+		"TYPE_WORK": "Praca",
+		"TYPE_BREAK": "Przerwa",
+		"BREAK_HINT": "Przerwa nigdy nie jest rozliczana i nigdy nie liczy się jako czas pracy."
 	}
 }

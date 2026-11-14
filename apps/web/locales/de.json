@@ -7059,5 +7059,29 @@
 		"CLIENTS": "{count, plural, one {# Kunde} other {# Kunden}}",
 		"NAMES_ERROR_TITLE": "Die Kundenliste konnte nicht geladen werden",
 		"NAMES_ERROR_MESSAGE": "Archivierte Kunden erscheinen bis dahin ohne ihren Namen."
+	},
+	"breaks": {
+		"TAKE_BREAK": "Pause machen",
+		"END_BREAK": "Pause beenden",
+		"BACK_TO_WORK": "Zurück an die Arbeit",
+		"ON_BREAK": "In der Pause",
+		"ON_BREAK_ELSEWHERE": "In der Pause auf einem anderen Gerät",
+		"REFUSED": "Die Pause konnte nicht beginnen",
+		"NOT_ENDED": "Die Pause konnte nicht enden",
+		"NOT_ALLOWED": "Pausen sind in diesem Arbeitsbereich ausgeschaltet.",
+		"OVERLAP": "Diese Pause überschneidet sich mit einem anderen Eintrag. Wähle eine Zeit außerhalb davon.",
+		"WORK_OVERLAP": "Dieser Eintrag überschneidet sich mit einer Pause. Wähle eine Zeit außerhalb davon.",
+		"BREAK": "Pause",
+		"FIGURE": "Pausen {duration}",
+		"FIGURE_LABEL": "Pausen",
+		"FIGURE_HINT": "Nie als Arbeitszeit gezählt",
+		"SETTINGS_SECTION": "Pausen",
+		"SETTINGS_LABEL": "Mitgliedern Pausen erlauben",
+		"SETTINGS_DESCRIPTION": "Mitglieder machen eine Pause über den Timer oder tragen sie von Hand ein. Pausen werden getrennt geführt und nie als Arbeits- oder abrechenbare Zeit gezählt.",
+		"SETTINGS_NOT_SAVED": "Die Einstellung wurde nicht gespeichert.",
+		"TYPE_LABEL": "Art",
+		"TYPE_WORK": "Arbeit",
+		"TYPE_BREAK": "Pause",
+		"BREAK_HINT": "Eine Pause ist nie abrechenbar und zählt nie als Arbeitszeit."
 	}
 }

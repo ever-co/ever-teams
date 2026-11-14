@@ -7059,5 +7059,29 @@
 		"CLIENTS": "{count, plural, other {# 个客户}}",
 		"NAMES_ERROR_TITLE": "无法加载客户列表",
 		"NAMES_ERROR_MESSAGE": "在此之前，已归档的客户不显示名称。"
+	},
+	"breaks": {
+		"TAKE_BREAK": "休息一下",
+		"END_BREAK": "结束休息",
+		"BACK_TO_WORK": "回到工作",
+		"ON_BREAK": "休息中",
+		"ON_BREAK_ELSEWHERE": "在其他设备上休息中",
+		"REFUSED": "无法开始休息",
+		"NOT_ENDED": "无法结束休息",
+		"NOT_ALLOWED": "此工作区已关闭休息。",
+		"OVERLAP": "此休息与另一条记录重叠。请选择其外的时间。",
+		"WORK_OVERLAP": "此记录与一次休息重叠。请选择其外的时间。",
+		"BREAK": "休息",
+		"FIGURE": "休息 {duration}",
+		"FIGURE_LABEL": "休息",
+		"FIGURE_HINT": "从不计入工作时间",
+		"SETTINGS_SECTION": "休息",
+		"SETTINGS_LABEL": "允许成员休息",
+		"SETTINGS_DESCRIPTION": "成员可从计时器开始休息，或手动添加休息。休息单独记录，从不计入工作时间或可计费时间。",
+		"SETTINGS_NOT_SAVED": "设置未保存。",
+		"TYPE_LABEL": "类型",
+		"TYPE_WORK": "工作",
+		"TYPE_BREAK": "休息",
+		"BREAK_HINT": "休息从不计费，也从不计入工作时间。"
 	}
 }

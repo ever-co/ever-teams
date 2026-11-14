@@ -7059,5 +7059,29 @@
 		"CLIENTS": "{count, plural, one {# cliente} other {# clienti}}",
 		"NAMES_ERROR_TITLE": "Impossibile caricare l'elenco dei clienti",
 		"NAMES_ERROR_MESSAGE": "I clienti archiviati compaiono senza il loro nome fino ad allora."
+	},
+	"breaks": {
+		"TAKE_BREAK": "Fai una pausa",
+		"END_BREAK": "Termina la pausa",
+		"BACK_TO_WORK": "Torna al lavoro",
+		"ON_BREAK": "In pausa",
+		"ON_BREAK_ELSEWHERE": "In pausa su un altro dispositivo",
+		"REFUSED": "Non è stato possibile iniziare la pausa",
+		"NOT_ENDED": "Non è stato possibile terminare la pausa",
+		"NOT_ALLOWED": "Le pause sono disattivate in questo spazio di lavoro.",
+		"OVERLAP": "Questa pausa si sovrappone a un'altra voce. Scegli un orario al di fuori.",
+		"WORK_OVERLAP": "Questa voce si sovrappone a una pausa. Scegli un orario al di fuori.",
+		"BREAK": "Pausa",
+		"FIGURE": "Pause {duration}",
+		"FIGURE_LABEL": "Pause",
+		"FIGURE_HINT": "Mai contate come tempo lavorato",
+		"SETTINGS_SECTION": "Pause",
+		"SETTINGS_LABEL": "Consenti le pause ai membri",
+		"SETTINGS_DESCRIPTION": "I membri fanno una pausa dal timer o la aggiungono a mano. Le pause sono tenute a parte e non contano mai come tempo lavorato o fatturabile.",
+		"SETTINGS_NOT_SAVED": "L'impostazione non è stata salvata.",
+		"TYPE_LABEL": "Tipo",
+		"TYPE_WORK": "Lavoro",
+		"TYPE_BREAK": "Pausa",
+		"BREAK_HINT": "Una pausa non è mai fatturabile e non conta mai come tempo lavorato."
 	}
 }

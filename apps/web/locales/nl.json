@@ -7059,5 +7059,29 @@
 		"CLIENTS": "{count, plural, one {# klant} other {# klanten}}",
 		"NAMES_ERROR_TITLE": "De klantenlijst kon niet worden geladen",
 		"NAMES_ERROR_MESSAGE": "Gearchiveerde klanten staan tot dan zonder hun naam."
+	},
+	"breaks": {
+		"TAKE_BREAK": "Pauze nemen",
+		"END_BREAK": "Pauze beëindigen",
+		"BACK_TO_WORK": "Weer aan het werk",
+		"ON_BREAK": "Met pauze",
+		"ON_BREAK_ELSEWHERE": "Met pauze op een ander apparaat",
+		"REFUSED": "De pauze kon niet beginnen",
+		"NOT_ENDED": "De pauze kon niet eindigen",
+		"NOT_ALLOWED": "Pauzes staan uit in deze werkruimte.",
+		"OVERLAP": "Deze pauze overlapt een andere invoer. Kies een tijd daarbuiten.",
+		"WORK_OVERLAP": "Deze invoer overlapt een pauze. Kies een tijd daarbuiten.",
+		"BREAK": "Pauze",
+		"FIGURE": "Pauzes {duration}",
+		"FIGURE_LABEL": "Pauzes",
+		"FIGURE_HINT": "Nooit als gewerkte tijd geteld",
+		"SETTINGS_SECTION": "Pauzes",
+		"SETTINGS_LABEL": "Leden pauzes laten nemen",
+		"SETTINGS_DESCRIPTION": "Leden nemen pauze vanuit de timer of voegen er een met de hand toe. Pauzes worden apart bijgehouden en tellen nooit als gewerkte of factureerbare tijd.",
+		"SETTINGS_NOT_SAVED": "De instelling is niet opgeslagen.",
+		"TYPE_LABEL": "Type",
+		"TYPE_WORK": "Werk",
+		"TYPE_BREAK": "Pauze",
+		"BREAK_HINT": "Een pauze is nooit factureerbaar en telt nooit als gewerkte tijd."
 	}
 }

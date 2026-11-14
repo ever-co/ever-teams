@@ -7059,5 +7059,29 @@
 		"CLIENTS": "{count, plural, one {# client} other {# clients}}",
 		"NAMES_ERROR_TITLE": "La liste des clients n'a pas pu se charger",
 		"NAMES_ERROR_MESSAGE": "Les clients archivés s'affichent sans leur nom en attendant."
+	},
+	"breaks": {
+		"TAKE_BREAK": "Faire une pause",
+		"END_BREAK": "Terminer la pause",
+		"BACK_TO_WORK": "Reprendre le travail",
+		"ON_BREAK": "En pause",
+		"ON_BREAK_ELSEWHERE": "En pause sur un autre appareil",
+		"REFUSED": "La pause n'a pas pu commencer",
+		"NOT_ENDED": "La pause n'a pas pu se terminer",
+		"NOT_ALLOWED": "Les pauses sont désactivées dans cet espace de travail.",
+		"OVERLAP": "Cette pause chevauche une autre entrée. Choisissez un horaire en dehors.",
+		"WORK_OVERLAP": "Cette entrée chevauche une pause. Choisissez un horaire en dehors.",
+		"BREAK": "Pause",
+		"FIGURE": "Pauses {duration}",
+		"FIGURE_LABEL": "Pauses",
+		"FIGURE_HINT": "Jamais comptées comme temps travaillé",
+		"SETTINGS_SECTION": "Pauses",
+		"SETTINGS_LABEL": "Autoriser les pauses",
+		"SETTINGS_DESCRIPTION": "Les membres prennent une pause depuis le chronomètre ou en ajoutent une à la main. Les pauses sont tenues à part et ne comptent jamais comme temps travaillé ou facturable.",
+		"SETTINGS_NOT_SAVED": "Le réglage n'a pas été enregistré.",
+		"TYPE_LABEL": "Type",
+		"TYPE_WORK": "Travail",
+		"TYPE_BREAK": "Pause",
+		"BREAK_HINT": "Une pause n'est jamais facturable et ne compte jamais comme temps travaillé."
 	}
 }

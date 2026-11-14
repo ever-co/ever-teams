@@ -7059,5 +7059,29 @@
 		"CLIENTS": "{count, plural, one {# cliente} other {# clientes}}",
 		"NAMES_ERROR_TITLE": "Não foi possível carregar a lista de clientes",
 		"NAMES_ERROR_MESSAGE": "Os clientes arquivados aparecem sem o nome até lá."
+	},
+	"breaks": {
+		"TAKE_BREAK": "Fazer uma pausa",
+		"END_BREAK": "Terminar a pausa",
+		"BACK_TO_WORK": "Voltar ao trabalho",
+		"ON_BREAK": "Em pausa",
+		"ON_BREAK_ELSEWHERE": "Em pausa noutro dispositivo",
+		"REFUSED": "Não foi possível iniciar a pausa",
+		"NOT_ENDED": "Não foi possível terminar a pausa",
+		"NOT_ALLOWED": "As pausas estão desativadas neste espaço de trabalho.",
+		"OVERLAP": "Esta pausa sobrepõe-se a outra entrada. Escolha um horário fora dela.",
+		"WORK_OVERLAP": "Esta entrada sobrepõe-se a uma pausa. Escolha um horário fora dela.",
+		"BREAK": "Pausa",
+		"FIGURE": "Pausas {duration}",
+		"FIGURE_LABEL": "Pausas",
+		"FIGURE_HINT": "Nunca contam como tempo trabalhado",
+		"SETTINGS_SECTION": "Pausas",
+		"SETTINGS_LABEL": "Permitir pausas aos membros",
+		"SETTINGS_DESCRIPTION": "Os membros fazem uma pausa a partir do temporizador ou adicionam-na à mão. As pausas ficam à parte e nunca contam como tempo trabalhado ou faturável.",
+		"SETTINGS_NOT_SAVED": "A definição não foi guardada.",
+		"TYPE_LABEL": "Tipo",
+		"TYPE_WORK": "Trabalho",
+		"TYPE_BREAK": "Pausa",
+		"BREAK_HINT": "Uma pausa nunca é faturável e nunca conta como tempo trabalhado."
 	}
 }

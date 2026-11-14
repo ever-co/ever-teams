@@ -7059,5 +7059,29 @@
 		"CLIENTS": "{count, plural, one {# client} other {# clients}}",
 		"NAMES_ERROR_TITLE": "The clients list could not load",
 		"NAMES_ERROR_MESSAGE": "Archived clients show without their names until it does."
+	},
+	"breaks": {
+		"TAKE_BREAK": "Take a break",
+		"END_BREAK": "End break",
+		"BACK_TO_WORK": "Back to work",
+		"ON_BREAK": "On break",
+		"ON_BREAK_ELSEWHERE": "On break on another device",
+		"REFUSED": "The break could not start",
+		"NOT_ENDED": "The break could not end",
+		"NOT_ALLOWED": "Breaks are turned off in this workspace.",
+		"OVERLAP": "This break overlaps another entry. Choose a time outside it.",
+		"WORK_OVERLAP": "This entry overlaps a break. Choose a time outside it.",
+		"BREAK": "Break",
+		"FIGURE": "Breaks {duration}",
+		"FIGURE_LABEL": "Breaks",
+		"FIGURE_HINT": "Never counted as worked time",
+		"SETTINGS_SECTION": "Breaks",
+		"SETTINGS_LABEL": "Let members take breaks",
+		"SETTINGS_DESCRIPTION": "Members take a break from the timer or add one by hand. Breaks are kept apart and never count as worked or billable time.",
+		"SETTINGS_NOT_SAVED": "The setting was not saved.",
+		"TYPE_LABEL": "Type",
+		"TYPE_WORK": "Work",
+		"TYPE_BREAK": "Break",
+		"BREAK_HINT": "A break is never billable and never counts as worked time."
 	}
 }
