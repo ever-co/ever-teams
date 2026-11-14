@@ -83,6 +83,16 @@ describe('requestBodyForLog', () => {
 		});
 	});
 
+	it('hides the proofs of a second factor and the challenge of its sign-in', () => {
+		const proof = { challenge: 'signed', code: '123456', recoveryCode: 'ABCD-EFGH-IJKL-MNOP' };
+
+		expect(requestBodyForLog(proof)).toEqual({
+			challenge: '[hidden]',
+			code: '[hidden]',
+			recoveryCode: '[hidden]'
+		});
+	});
+
 	it('hides password fields at any depth, inside objects and lists', () => {
 		const body = {
 			user: { email: 'a@b.co', password: 'p' },
