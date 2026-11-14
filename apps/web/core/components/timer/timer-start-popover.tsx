@@ -35,8 +35,12 @@ const VIEW_MESSAGE_KEYS: Record<Extract<TimerStartMoveAccess, { kind: 'view' }>[
 	checking: 'timer.startMove.CHECKING'
 };
 
-/** An organization that could not be read: the field is offered, and the API refuses a move with its reason. */
+/**
+ * Rules that could not be read (the organization's switches, the role's permissions): the field is offered, and the
+ * API refuses a move with its reason, so the panel never waits on a read that failed.
+ */
 const UNREAD_ORGANIZATION: TimePolicy = { allowModifyTime: true, allowManualTime: true, requireReason: false };
+const UNREAD_PERMISSIONS = ['TIME_TRACKER', 'ALLOW_MODIFY_TIME', 'ALLOW_MANUAL_TIME'];
 
 const REASON_REQUIRED_KEY = 'timer.startMove.REASON_REQUIRED';
 
@@ -75,7 +79,7 @@ function RunningTimerStartPopover({
 }: Readonly<RunningTimerStartPopoverProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
-	const { myPermissions, isLoaded: permissionsLoaded } = useMyRolePermissionsQuery();
+	const { myPermissions, isLoaded: permissionsLoaded, isLoading: permissionsLoading } = useMyRolePermissionsQuery();
 	const [open, setOpen] = useState(false);
 	const probedSupport = useTimerStartMoveSupport(open);
 	// Most pages never read the organization: the panel reads its rules when it opens
@@ -85,12 +89,14 @@ function RunningTimerStartPopover({
 	const runStart = new Date(runStartValue);
 	const formatTime = (date: Date) => date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' });
 	const startLabel = formatTime(runStart);
+	const permissionsFailed = !permissionsLoaded && !permissionsLoading;
+	const permissionsKnown = permissionsLoaded || permissionsFailed;
 	const organizationKnown = organization !== null || organizationRead.isError;
-	const support = permissionsLoaded && organizationKnown ? probedSupport : 'checking';
+	const support = permissionsKnown && organizationKnown ? probedSupport : 'checking';
 	const access = timerStartMoveAccessOf({
 		source,
 		support,
-		permissions: myPermissions,
+		permissions: permissionsFailed ? UNREAD_PERMISSIONS : myPermissions,
 		organization: organization ?? UNREAD_ORGANIZATION
 	});
 

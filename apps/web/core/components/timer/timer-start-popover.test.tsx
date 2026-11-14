@@ -8,6 +8,7 @@ import { currentOrganizationState } from '@/core/stores/user/user-organizations'
 const mockMoveStart = jest.fn();
 let mockSupport = 'supported';
 let mockPermissions: string[] = [];
+let mockPermissionsLoaded = true;
 const mockToastSuccess = jest.fn();
 
 jest.mock('next-intl', () => ({
@@ -17,7 +18,11 @@ jest.mock('next-intl', () => ({
 }));
 jest.mock('sonner', () => ({ toast: { success: (...args: unknown[]) => mockToastSuccess(...args) } }));
 jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
-	useMyRolePermissionsQuery: () => ({ myPermissions: mockPermissions, isLoaded: true })
+	useMyRolePermissionsQuery: () => ({
+		myPermissions: mockPermissions,
+		isLoaded: mockPermissionsLoaded,
+		isLoading: false
+	})
 }));
 jest.mock('@/core/hooks/timer/use-timer-start-move', () => ({
 	useTimerStartMoveSupport: () => mockSupport,
@@ -68,6 +73,7 @@ beforeEach(() => {
 	mockSupport = 'supported';
 	mockPermissions = EDITOR;
 	mockOrganizationReadFailed = false;
+	mockPermissionsLoaded = true;
 });
 
 afterEach(() => {
@@ -186,6 +192,15 @@ describe('TimerStartPopover', () => {
 		expect(mockGetCurrentOrganization).toHaveBeenLastCalledWith({ enabled: true });
 		expect(screen.getByText('timer.startMove.CHECKING')).toBeTruthy();
 		expect(screen.queryByLabelText(/timer\.startMove\.NEW_START/)).toBeNull();
+	});
+
+	it('leaves the rules to the API when the permissions cannot be read', () => {
+		mockPermissionsLoaded = false;
+		mockPermissions = [];
+		renderTimer();
+		openPanel();
+
+		expect(screen.getByLabelText(/timer.startMove.NEW_START/)).toBeTruthy();
 	});
 
 	it('leaves the rules to the API when the organization cannot be read', () => {
