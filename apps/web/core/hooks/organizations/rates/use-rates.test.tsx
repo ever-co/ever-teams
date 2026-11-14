@@ -108,3 +108,33 @@ describe('useOwnRatesMutation', () => {
 		expect(mockUpdateEmployeeRates).not.toHaveBeenCalled();
 	});
 });
+
+describe('the day a rate change applies from', () => {
+	it('goes through the own profile with the rates it prices', async () => {
+		const { result } = renderOwnRatesMutation(false);
+
+		await act(async () => {
+			await result.current.saveOwnRates({
+				employeeId: 'employee-ana',
+				rates: { billRateValue: 60, ratesApplyFrom: '2026-10-01T00:00:00Z' }
+			});
+		});
+
+		expect(mockUpdateOwnProfileRates).toHaveBeenCalledWith('employee-ana', {
+			billRateValue: 60,
+			ratesApplyFrom: '2026-10-01T00:00:00Z'
+		});
+	});
+
+	it('answers how many entries changed price, as Gauzy states it', async () => {
+		mockUpdateEmployeeRates.mockResolvedValue({ repricedTimeLogs: 7 });
+		const { result } = renderMutation();
+
+		let outcome: unknown;
+		await act(async () => {
+			outcome = await result.current.saveEmployeeRates({ employeeId: 'employee-ana', rates: RATES });
+		});
+
+		expect(outcome).toEqual({ repricedTimeLogs: 7 });
+	});
+});
