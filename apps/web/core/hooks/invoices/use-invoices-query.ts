@@ -172,6 +172,8 @@ export function useInvoiceQuery(invoiceId: string | null) {
 		isError: query.isError,
 		/** Read again over an answer kept from an earlier read. */
 		isRefreshing: query.isFetching && !query.isLoading,
+		/** When the invoice held was read (0 before any read): an answer kept from an earlier visit is older. */
+		readAt: query.dataUpdatedAt,
 		refetch: query.refetch
 	};
 }
