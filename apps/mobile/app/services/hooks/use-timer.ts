@@ -7,6 +7,8 @@ import { ILocalTimerStatus, ITimerParams, ITimerStatus, TimerSource } from '../i
 import { useFirstLoad } from './use-first-load';
 import isEqual from 'lodash/isEqual';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { showMessage } from 'react-native-flash-message';
+import { translate } from '../../i18n/translate';
 import { useStores } from '../../models';
 import { ITeamTask } from '../interfaces/ITask';
 import { useTeamTasks } from './features/use-team-tasks';
@@ -134,6 +136,9 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 	};
 }
 
+/** The stops under way together, and what the screen showed running before the first of them. */
+type StopsUnderWay = { count: number; stopped: boolean; failed: boolean; shownAsRunning: ILocalTimerStatus | null };
+
 export function useTimer() {
 	const {
 		authenticationStore: { tenantId, authToken, organizationId, user },
@@ -141,6 +146,8 @@ export function useTimer() {
 		teamStore: { activeTeamId, activeTeam },
 		TimerStore: { timerStatus, setTimerStatusFetching, timerStatusFetchingState, setTimerStatus }
 	} = useStores();
+	// Read as they are when Stop is pressed, not as they were at a render
+	const { authenticationStore: session, TimerStore: timerStore } = useStores();
 
 	const [stopTimerLoading, setStopTimerLoading] = useState(false);
 
@@ -170,7 +177,7 @@ export function useTimer() {
 			employeeId: user?.employee?.id
 		},
 		timerStatus?.running,
-		timerStatusRef.current?.lastLog?.source
+		timerStatusRef.current?.lastLog?.source ?? TimerSource.MOBILE
 	);
 
 	const toggleTimer = useCallback(async (taskId: string) => {
@@ -184,7 +191,7 @@ export function useTimer() {
 				organizationId,
 				...(activeTeamIdRef.current ? { organizationTeamId: activeTeamIdRef.current } : {})
 			},
-			authToken
+			authToken as string
 		);
 		const status: ITimerStatus = {
 			duration: response?.data.duration,
@@ -221,7 +228,7 @@ export function useTimer() {
 			...(activeTeamIdRef.current ? { organizationTeamId: activeTeamIdRef.current } : {})
 		};
 
-		const { data } = await startTimerRequest(params, authToken);
+		const { data } = await startTimerRequest(params, authToken as string);
 
 		const status: ITimerStatus = {
 			duration: data?.duration,
@@ -247,8 +254,41 @@ export function useTimer() {
 		return data;
 	}, [taskId.current]);
 
+	// The stops under way together (the team and the task changed at once) settle as one: the screen shows the timer
+	// running again only when none of them stopped it, with what it showed before the first
+	const stopsUnderWay = useRef<StopsUnderWay>({ count: 0, stopped: false, failed: false, shownAsRunning: null });
+
+	/** The last of the stops under way has settled: when none of them stopped the timer, it is shown running again. */
+	const settleStops = (stops: StopsUnderWay) => {
+		setStopTimerLoading(false);
+		// Unless the session ended with a stop: the person is signed out, and was told that
+		if (!stops.failed || stops.stopped || !session.isAuthenticated) {
+			return;
+		}
+		if (stops.shownAsRunning) {
+			updateLocalTimerStatus(stops.shownAsRunning);
+		}
+		showMessage({
+			message: translate('timer.stopFailedTitle'),
+			description: translate('timer.stopFailedMessage'),
+			type: 'danger'
+		});
+	};
+
 	// Stop timer
 	const stopTimer = useCallback(async () => {
+		if (stopsUnderWay.current.count === 0) {
+			// What the screen shows until now, put back if the API does not stop the timer
+			const shown: ILocalTimerStatus | null = timerStore.localTimerStatus;
+			stopsUnderWay.current = {
+				count: 0,
+				stopped: false,
+				failed: false,
+				shownAsRunning: shown?.running ? shown : null
+			};
+		}
+		const stops = stopsUnderWay.current;
+		stops.count += 1;
 		updateLocalTimerStatus({
 			lastTaskId: taskId.current || null,
 			runnedDateTime: 0,
@@ -260,22 +300,45 @@ export function useTimer() {
 			tenantId,
 			taskId: activeTask?.id,
 			logType: 'TRACKED',
-			source: timerStatusRef.current.lastLog.source || TimerSource.MOBILE,
+			source: timerStatusRef.current?.lastLog?.source || TimerSource.MOBILE,
 			tags: []
 		};
 
 		setStopTimerLoading(true);
 
-		const { data } = await stopTimerRequest(params, authToken);
+		try {
+			const { data, response } = await stopTimerRequest(params, authToken as string);
 
-		setStopTimerLoading(false);
+			// Nothing was running anymore: the timer was stopped from another device. The screen is right to show it
+			// stopped, and its status says the same until the next read
+			if (response.status === 406) {
+				stops.stopped = true;
+				setTimerStatus({ ...timerStore.timerStatus, running: false });
+				return;
+			}
+			// The API did not stop the timer, which goes on there. The body of a refusal is not a timer: read as one,
+			// it showed the timer stopped. The screen shows it running again instead, and the person is told (below).
+			if (!response.ok) {
+				stops.failed = true;
+				return;
+			}
 
-		const status: ITimerStatus = {
-			duration: data.duration,
-			running: data.isRunning,
-			lastLog: data
-		};
-		setTimerStatus(status);
+			stops.stopped = true;
+			const status: ITimerStatus = {
+				duration: data.duration,
+				running: data.isRunning,
+				lastLog: data
+			};
+			setTimerStatus(status);
+		} catch {
+			// The stop never reached the API (no network): the timer goes on there, as for a refusal
+			stops.failed = true;
+		} finally {
+			stops.count -= 1;
+			if (stops.count === 0) {
+				settleStops(stops);
+			}
+		}
 	}, [taskId.current]);
 
 	// If active team changes then stop the timer

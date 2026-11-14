@@ -10,6 +10,14 @@ const ru = {
 		discard: 'Discard',
 		logOut: 'Log Out' // @demo remove-current-line
 	},
+	session: {
+		endedTitle: 'Сеанс истёк',
+		endedMessage: 'Войдите снова, чтобы продолжить.'
+	},
+	timer: {
+		stopFailedTitle: 'Не удалось остановить таймер',
+		stopFailedMessage: 'Он всё ещё идёт. Повторите попытку чуть позже.'
+	},
 	welcomeScreen: {
 		postscript:
 			"psst  — This probably isn't what your app looks like. (Unless your designer handed you these screens, and in that case, ship it!)",
