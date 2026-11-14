@@ -5035,7 +5035,15 @@
 			"WORKSPACE_ROLE_VIEWER": "Kijker",
 			"WORKSPACE_ROLE_CANDIDATE": "Kandidaat",
 			"WORKSPACE_ROLE_INTERVIEWER": "Interviewer",
-			"WORKSPACE_ROLE_NOT_SAVED": "De rol van {name} in de werkruimte is niet gewijzigd"
+			"WORKSPACE_ROLE_NOT_SAVED": "De rol van {name} in de werkruimte is niet gewijzigd",
+			"RESET_TWO_FACTOR": "Tweestapsverificatie resetten",
+			"RESET_TWO_FACTOR_TITLE": "Tweestapsverificatie van {name} resetten?",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "Als {name} het heeft aangezet, gaat het uit: bij de volgende aanmelding wordt alleen om de e-mailcode of het wachtwoord gevraagd.",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} kan het opnieuw aanzetten in de beveiligingsinstellingen. De reset wordt vastgelegd.",
+			"RESET_TWO_FACTOR_CONFIRM": "Resetten",
+			"RESET_TWO_FACTOR_DONE": "Tweestapsverificatie van {name} is gereset",
+			"RESET_TWO_FACTOR_NOTHING": "{name} had geen tweestapsverificatie om te resetten",
+			"RESET_TWO_FACTOR_FAILED": "Tweestapsverificatie van {name} kon niet worden gereset"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profiel",

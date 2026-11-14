@@ -5035,7 +5035,15 @@
 			"WORKSPACE_ROLE_VIEWER": "Betrachter",
 			"WORKSPACE_ROLE_CANDIDATE": "Kandidat",
 			"WORKSPACE_ROLE_INTERVIEWER": "Interviewer",
-			"WORKSPACE_ROLE_NOT_SAVED": "Die Rolle von {name} im Arbeitsbereich wurde nicht geändert"
+			"WORKSPACE_ROLE_NOT_SAVED": "Die Rolle von {name} im Arbeitsbereich wurde nicht geändert",
+			"RESET_TWO_FACTOR": "Zwei-Faktor-Authentifizierung zurücksetzen",
+			"RESET_TWO_FACTOR_TITLE": "Zwei-Faktor-Authentifizierung von {name} zurücksetzen?",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "Falls {name} sie eingeschaltet hat, wird sie ausgeschaltet: Die nächste Anmeldung verlangt nur den E-Mail-Code oder das Passwort.",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} kann sie in den Sicherheitseinstellungen wieder einschalten. Das Zurücksetzen wird protokolliert.",
+			"RESET_TWO_FACTOR_CONFIRM": "Zurücksetzen",
+			"RESET_TWO_FACTOR_DONE": "Die Zwei-Faktor-Authentifizierung von {name} ist zurückgesetzt",
+			"RESET_TWO_FACTOR_NOTHING": "{name} hatte keine Zwei-Faktor-Authentifizierung zum Zurücksetzen",
+			"RESET_TWO_FACTOR_FAILED": "Die Zwei-Faktor-Authentifizierung von {name} konnte nicht zurückgesetzt werden"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profil",

@@ -28,6 +28,7 @@ import {
 	assignableWorkspaceRolesOf,
 	canChangeWorkspaceRole,
 	canDeactivateMember,
+	canResetMemberTwoFactor,
 	readsWorkspaceRoles,
 	workspaceRoleNameOf,
 	type WorkspaceRole
@@ -79,6 +80,9 @@ export interface MemberRowModel {
 	canChangeWorkspaceRole: boolean;
 	isWorkspaceRolePending: boolean;
 	canDeactivate: boolean;
+	/** The member's user, for the account-level actions (the two-factor reset). */
+	userId: string | null;
+	canResetTwoFactor: boolean;
 }
 
 type Overrides<T> = Readonly<Record<string, T>>;
@@ -300,7 +304,14 @@ export function useTeamMembersSettings() {
 				workspaceRoleName: workspaceRoleNameOf(workspaceRoles, workspaceRoleId),
 				canChangeWorkspaceRole: access.canChangeWorkspaceRole,
 				isWorkspaceRolePending: pendingWorkspaceRoles.has(rowId),
-				canDeactivate: access.canDeactivate
+				canDeactivate: access.canDeactivate,
+				userId: memberUserId ?? null,
+				canResetTwoFactor: canResetMemberTwoFactor({
+					permissions: myPermissions,
+					isYou,
+					hasUser: Boolean(memberUserId),
+					workspaceRoleName: workspaceRoleNameOf(workspaceRoles, memberWorkspaceRoleIdOf(member))
+				})
 			});
 		}
 		return models;

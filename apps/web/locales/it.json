@@ -5035,7 +5035,15 @@
 			"WORKSPACE_ROLE_VIEWER": "Visualizzatore",
 			"WORKSPACE_ROLE_CANDIDATE": "Candidato",
 			"WORKSPACE_ROLE_INTERVIEWER": "Intervistatore",
-			"WORKSPACE_ROLE_NOT_SAVED": "Il ruolo di {name} nello spazio di lavoro non è stato cambiato"
+			"WORKSPACE_ROLE_NOT_SAVED": "Il ruolo di {name} nello spazio di lavoro non è stato cambiato",
+			"RESET_TWO_FACTOR": "Reimposta l’autenticazione a due fattori",
+			"RESET_TWO_FACTOR_TITLE": "Reimpostare l’autenticazione a due fattori di {name}?",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "Se {name} l’ha attivata, viene disattivata: il prossimo accesso chiederà solo il codice via email o la password.",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} può riattivarla dalle impostazioni di sicurezza. La reimpostazione viene registrata.",
+			"RESET_TWO_FACTOR_CONFIRM": "Reimposta",
+			"RESET_TWO_FACTOR_DONE": "L’autenticazione a due fattori di {name} è stata reimpostata",
+			"RESET_TWO_FACTOR_NOTHING": "{name} non aveva un’autenticazione a due fattori da reimpostare",
+			"RESET_TWO_FACTOR_FAILED": "Non è stato possibile reimpostare l’autenticazione a due fattori di {name}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profilo",

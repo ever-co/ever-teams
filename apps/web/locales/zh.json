@@ -5035,7 +5035,15 @@
 			"WORKSPACE_ROLE_VIEWER": "查看者",
 			"WORKSPACE_ROLE_CANDIDATE": "候选人",
 			"WORKSPACE_ROLE_INTERVIEWER": "面试官",
-			"WORKSPACE_ROLE_NOT_SAVED": "{name} 的工作区角色未更改"
+			"WORKSPACE_ROLE_NOT_SAVED": "{name} 的工作区角色未更改",
+			"RESET_TWO_FACTOR": "重置双重身份验证",
+			"RESET_TWO_FACTOR_TITLE": "要重置 {name} 的双重身份验证吗？",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "如果 {name} 已开启，它将被关闭：下次登录只需电子邮件验证码或密码。",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} 可以在安全设置中重新开启。此次重置会被记录。",
+			"RESET_TWO_FACTOR_CONFIRM": "重置",
+			"RESET_TWO_FACTOR_DONE": "已重置 {name} 的双重身份验证",
+			"RESET_TWO_FACTOR_NOTHING": "{name} 没有需要重置的双重身份验证",
+			"RESET_TWO_FACTOR_FAILED": "无法重置 {name} 的双重身份验证"
 		},
 		"profile": {
 			"SECTION_PROFILE": "个人资料",

@@ -5035,7 +5035,15 @@
 			"WORKSPACE_ROLE_VIEWER": "Lector",
 			"WORKSPACE_ROLE_CANDIDATE": "Candidato",
 			"WORKSPACE_ROLE_INTERVIEWER": "Entrevistador",
-			"WORKSPACE_ROLE_NOT_SAVED": "El rol de {name} en el espacio de trabajo no cambió"
+			"WORKSPACE_ROLE_NOT_SAVED": "El rol de {name} en el espacio de trabajo no cambió",
+			"RESET_TWO_FACTOR": "Restablecer la autenticación en dos pasos",
+			"RESET_TWO_FACTOR_TITLE": "¿Restablecer la autenticación en dos pasos de {name}?",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "Si {name} la activó, se desactiva: su próximo inicio de sesión solo pedirá su código por correo o su contraseña.",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} puede volver a activarla desde su configuración de seguridad. El restablecimiento queda registrado.",
+			"RESET_TWO_FACTOR_CONFIRM": "Restablecer",
+			"RESET_TWO_FACTOR_DONE": "Se restableció la autenticación en dos pasos de {name}",
+			"RESET_TWO_FACTOR_NOTHING": "{name} no tenía autenticación en dos pasos que restablecer",
+			"RESET_TWO_FACTOR_FAILED": "No se pudo restablecer la autenticación en dos pasos de {name}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Perfil",

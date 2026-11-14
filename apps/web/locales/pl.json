@@ -5035,7 +5035,15 @@
 			"WORKSPACE_ROLE_VIEWER": "Przeglądający",
 			"WORKSPACE_ROLE_CANDIDATE": "Kandydat",
 			"WORKSPACE_ROLE_INTERVIEWER": "Rekruter",
-			"WORKSPACE_ROLE_NOT_SAVED": "Rola osoby {name} w obszarze roboczym nie została zmieniona"
+			"WORKSPACE_ROLE_NOT_SAVED": "Rola osoby {name} w obszarze roboczym nie została zmieniona",
+			"RESET_TWO_FACTOR": "Zresetuj uwierzytelnianie dwuskładnikowe",
+			"RESET_TWO_FACTOR_TITLE": "Zresetować uwierzytelnianie dwuskładnikowe użytkownika {name}?",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "Jeśli {name} je włączył(a), zostanie wyłączone: przy następnym logowaniu wystarczy kod z e-maila lub hasło.",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} może je ponownie włączyć w ustawieniach bezpieczeństwa. Reset zostaje zapisany.",
+			"RESET_TWO_FACTOR_CONFIRM": "Zresetuj",
+			"RESET_TWO_FACTOR_DONE": "Uwierzytelnianie dwuskładnikowe użytkownika {name} zostało zresetowane",
+			"RESET_TWO_FACTOR_NOTHING": "{name} nie ma uwierzytelniania dwuskładnikowego do zresetowania",
+			"RESET_TWO_FACTOR_FAILED": "Nie udało się zresetować uwierzytelniania dwuskładnikowego użytkownika {name}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profil",

@@ -5035,7 +5035,15 @@
 			"WORKSPACE_ROLE_VIEWER": "Lecteur",
 			"WORKSPACE_ROLE_CANDIDATE": "Candidat",
 			"WORKSPACE_ROLE_INTERVIEWER": "Recruteur",
-			"WORKSPACE_ROLE_NOT_SAVED": "Le rôle de {name} dans l'espace de travail n'a pas été changé"
+			"WORKSPACE_ROLE_NOT_SAVED": "Le rôle de {name} dans l'espace de travail n'a pas été changé",
+			"RESET_TWO_FACTOR": "Réinitialiser l’authentification à deux facteurs",
+			"RESET_TWO_FACTOR_TITLE": "Réinitialiser l’authentification à deux facteurs de {name} ?",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "Si {name} l’a activée, elle est désactivée : sa prochaine connexion ne demandera que son code e-mail ou son mot de passe.",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} pourra la réactiver depuis ses paramètres de sécurité. La réinitialisation est enregistrée.",
+			"RESET_TWO_FACTOR_CONFIRM": "Réinitialiser",
+			"RESET_TWO_FACTOR_DONE": "L’authentification à deux facteurs de {name} est réinitialisée",
+			"RESET_TWO_FACTOR_NOTHING": "{name} n’avait pas d’authentification à deux facteurs à réinitialiser",
+			"RESET_TWO_FACTOR_FAILED": "L’authentification à deux facteurs de {name} n’a pas pu être réinitialisée"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profil",

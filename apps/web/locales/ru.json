@@ -5035,7 +5035,15 @@
 			"WORKSPACE_ROLE_VIEWER": "Наблюдатель",
 			"WORKSPACE_ROLE_CANDIDATE": "Кандидат",
 			"WORKSPACE_ROLE_INTERVIEWER": "Интервьюер",
-			"WORKSPACE_ROLE_NOT_SAVED": "Роль пользователя {name} в рабочем пространстве не изменена"
+			"WORKSPACE_ROLE_NOT_SAVED": "Роль пользователя {name} в рабочем пространстве не изменена",
+			"RESET_TWO_FACTOR": "Сбросить двухфакторную аутентификацию",
+			"RESET_TWO_FACTOR_TITLE": "Сбросить двухфакторную аутентификацию для {name}?",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "Если {name} её включал(а), она будет выключена: при следующем входе запросят только код из письма или пароль.",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} может снова включить её в настройках безопасности. Сброс записывается в журнал.",
+			"RESET_TWO_FACTOR_CONFIRM": "Сбросить",
+			"RESET_TWO_FACTOR_DONE": "Двухфакторная аутентификация для {name} сброшена",
+			"RESET_TWO_FACTOR_NOTHING": "У {name} не было двухфакторной аутентификации для сброса",
+			"RESET_TWO_FACTOR_FAILED": "Не удалось сбросить двухфакторную аутентификацию для {name}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Профиль",

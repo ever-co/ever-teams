@@ -5035,7 +5035,15 @@
 			"WORKSPACE_ROLE_VIEWER": "צופה",
 			"WORKSPACE_ROLE_CANDIDATE": "מועמד",
 			"WORKSPACE_ROLE_INTERVIEWER": "מראיין",
-			"WORKSPACE_ROLE_NOT_SAVED": "התפקיד של {name} בסביבת העבודה לא שונה"
+			"WORKSPACE_ROLE_NOT_SAVED": "התפקיד של {name} בסביבת העבודה לא שונה",
+			"RESET_TWO_FACTOR": "איפוס אימות דו-שלבי",
+			"RESET_TWO_FACTOR_TITLE": "לאפס את האימות הדו-שלבי של {name}?",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "אם {name} הפעיל/ה אותו, הוא יכובה: בכניסה הבאה יתבקשו רק קוד האימייל או הסיסמה.",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} יכול/ה להפעיל אותו שוב מהגדרות האבטחה. האיפוס נרשם.",
+			"RESET_TWO_FACTOR_CONFIRM": "איפוס",
+			"RESET_TWO_FACTOR_DONE": "האימות הדו-שלבי של {name} אופס",
+			"RESET_TWO_FACTOR_NOTHING": "ל-{name} לא היה אימות דו-שלבי לאפס",
+			"RESET_TWO_FACTOR_FAILED": "לא ניתן היה לאפס את האימות הדו-שלבי של {name}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "פרופיל",

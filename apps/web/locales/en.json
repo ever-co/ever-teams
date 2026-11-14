@@ -5035,7 +5035,15 @@
 			"WORKSPACE_ROLE_VIEWER": "Viewer",
 			"WORKSPACE_ROLE_CANDIDATE": "Candidate",
 			"WORKSPACE_ROLE_INTERVIEWER": "Interviewer",
-			"WORKSPACE_ROLE_NOT_SAVED": "The workspace role of {name} was not changed"
+			"WORKSPACE_ROLE_NOT_SAVED": "The workspace role of {name} was not changed",
+			"RESET_TWO_FACTOR": "Reset two-factor authentication",
+			"RESET_TWO_FACTOR_TITLE": "Reset two-factor authentication for {name}?",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "If {name} turned it on, it is turned off: their next sign-in asks only for their email code or password.",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} can turn it on again from their Security settings. The reset is recorded.",
+			"RESET_TWO_FACTOR_CONFIRM": "Reset",
+			"RESET_TWO_FACTOR_DONE": "Two-factor authentication of {name} is reset",
+			"RESET_TWO_FACTOR_NOTHING": "{name} had no two-factor authentication to reset",
+			"RESET_TWO_FACTOR_FAILED": "Two-factor authentication of {name} could not be reset"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profile",

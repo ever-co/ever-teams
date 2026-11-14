@@ -5,11 +5,23 @@ import { useFormatter, useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { controlGroupRecipe } from '@/core/components/common/input';
 import { SegmentedControl, type SegmentedControlItem } from '@/core/components/common/segmented-control';
-import { History, Lock, Search, Task, Undo, UserAdd, UserRemove, Users } from '@/core/components/icons';
+import {
+	History,
+	Key,
+	Lock,
+	Search,
+	ShieldCheck,
+	Task,
+	Undo,
+	UserAdd,
+	UserRemove,
+	Users
+} from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import type { WorkspaceRole } from '@/core/lib/utils/member-access';
 import { useHasBeenOpen } from '@/core/hooks/common/use-has-been-open';
 import { useInactiveMembers } from '@/core/hooks/settings/use-inactive-members';
+import { useMemberTwoFactorReset } from '@/core/hooks/settings/use-member-two-factor-reset';
 import { useTeamMembersSettings, type MemberRowModel } from '@/core/hooks/settings/use-team-members-settings';
 import { SETTINGS_SURFACE, SettingsSection } from '@/core/components/settings/kit/settings-page';
 import { ConfirmMemberDialog } from './confirm-member-dialog';
@@ -75,6 +87,39 @@ function RemoveMemberDialog({
 			confirmLabel={t('settings.members.REMOVE_CONFIRM')}
 			onClose={onClose}
 			onConfirm={onRemove}
+		/>
+	);
+}
+
+function ResetTwoFactorDialog({
+	member,
+	onClose,
+	onReset
+}: Readonly<{
+	member: MemberRowModel | null;
+	onClose: () => void;
+	onReset: (rowId: string) => Promise<void>;
+}>) {
+	const t = useTranslations();
+	return (
+		<ConfirmMemberDialog
+			member={member}
+			titleOf={(name) => t('settings.members.RESET_TWO_FACTOR_TITLE', { name })}
+			consequencesOf={(name) => [
+				{
+					key: 'off',
+					icon: <ShieldCheck />,
+					text: t('settings.members.RESET_TWO_FACTOR_CONSEQUENCE_OFF', { name })
+				},
+				{
+					key: 'again',
+					icon: <Key />,
+					text: t('settings.members.RESET_TWO_FACTOR_CONSEQUENCE_AGAIN', { name })
+				}
+			]}
+			confirmLabel={t('settings.members.RESET_TWO_FACTOR_CONFIRM')}
+			onClose={onClose}
+			onConfirm={onReset}
 		/>
 	);
 }
@@ -213,6 +258,9 @@ export function MembersSection({ onInvite, canInvite }: Readonly<{ onInvite: () 
 	const [deactivating, setDeactivating] = useState<MemberRowModel | null>(null);
 	const mountsRemoveDialog = useHasBeenOpen(Boolean(removing));
 	const mountsDeactivateDialog = useHasBeenOpen(Boolean(deactivating));
+	const twoFactorReset = useMemberTwoFactorReset();
+	const [resettingTwoFactor, setResettingTwoFactor] = useState<MemberRowModel | null>(null);
+	const mountsResetTwoFactorDialog = useHasBeenOpen(Boolean(resettingTwoFactor));
 	const wantsInactive = filter === 'inactive';
 	const inactive = useInactiveMembers(wantsInactive);
 
@@ -269,10 +317,23 @@ export function MembersSection({ onInvite, canInvite }: Readonly<{ onInvite: () 
 			},
 			onRequestRemove: setRemoving,
 			onRequestDeactivate: setDeactivating,
+			onRequestResetTwoFactor: twoFactorReset.isOffered ? setResettingTwoFactor : undefined,
 			onRename: renameMember,
 			onSaveRates: saveMemberRates
 		}),
-		[changeRole, changeWorkspaceRole, renameMember, saveMemberRates, setMemberTracking]
+		[changeRole, changeWorkspaceRole, renameMember, saveMemberRates, setMemberTracking, twoFactorReset.isOffered]
+	);
+
+	const { resetMember: resetMemberTwoFactor } = twoFactorReset;
+	const resetTwoFactor = useCallback(
+		async (rowId: string) => {
+			const row = rows.find((candidate) => candidate.id === rowId);
+			if (!row) {
+				return;
+			}
+			await resetMemberTwoFactor(row);
+		},
+		[resetMemberTwoFactor, rows]
 	);
 
 	const search = showsSearch && <MemberSearch value={query} onChange={setQuery} />;
@@ -334,6 +395,13 @@ export function MembersSection({ onInvite, canInvite }: Readonly<{ onInvite: () 
 					teamName={teamName}
 					onClose={() => setRemoving(null)}
 					onRemove={removeMember}
+				/>
+			)}
+			{mountsResetTwoFactorDialog && (
+				<ResetTwoFactorDialog
+					member={resettingTwoFactor}
+					onClose={() => setResettingTwoFactor(null)}
+					onReset={resetTwoFactor}
 				/>
 			)}
 			{mountsDeactivateDialog && (

@@ -5035,7 +5035,15 @@
 			"WORKSPACE_ROLE_VIEWER": "مشاهد",
 			"WORKSPACE_ROLE_CANDIDATE": "مرشح",
 			"WORKSPACE_ROLE_INTERVIEWER": "محاور",
-			"WORKSPACE_ROLE_NOT_SAVED": "لم يتغير دور {name} في مساحة العمل"
+			"WORKSPACE_ROLE_NOT_SAVED": "لم يتغير دور {name} في مساحة العمل",
+			"RESET_TWO_FACTOR": "إعادة تعيين المصادقة الثنائية",
+			"RESET_TWO_FACTOR_TITLE": "إعادة تعيين المصادقة الثنائية لـ {name}؟",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "إن كان {name} قد فعّلها، فستتوقف: سيطلب تسجيل الدخول التالي رمز البريد الإلكتروني أو كلمة المرور فقط.",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "يمكن لـ {name} تفعيلها من جديد من إعدادات الأمان. تُسجَّل إعادة التعيين.",
+			"RESET_TWO_FACTOR_CONFIRM": "إعادة تعيين",
+			"RESET_TWO_FACTOR_DONE": "أُعيد تعيين المصادقة الثنائية لـ {name}",
+			"RESET_TWO_FACTOR_NOTHING": "لم تكن لدى {name} مصادقة ثنائية لإعادة تعيينها",
+			"RESET_TWO_FACTOR_FAILED": "تعذّرت إعادة تعيين المصادقة الثنائية لـ {name}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "الملف الشخصي",

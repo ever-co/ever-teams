@@ -5035,7 +5035,15 @@
 			"WORKSPACE_ROLE_VIEWER": "Visualizador",
 			"WORKSPACE_ROLE_CANDIDATE": "Candidato",
 			"WORKSPACE_ROLE_INTERVIEWER": "Entrevistador",
-			"WORKSPACE_ROLE_NOT_SAVED": "A função de {name} no espaço de trabalho não foi alterada"
+			"WORKSPACE_ROLE_NOT_SAVED": "A função de {name} no espaço de trabalho não foi alterada",
+			"RESET_TWO_FACTOR": "Repor a autenticação de dois fatores",
+			"RESET_TWO_FACTOR_TITLE": "Repor a autenticação de dois fatores de {name}?",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "Se {name} a ativou, fica desativada: o próximo início de sessão pede apenas o código por email ou a palavra-passe.",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} pode voltar a ativá-la nas definições de segurança. A reposição fica registada.",
+			"RESET_TWO_FACTOR_CONFIRM": "Repor",
+			"RESET_TWO_FACTOR_DONE": "A autenticação de dois fatores de {name} foi reposta",
+			"RESET_TWO_FACTOR_NOTHING": "{name} não tinha autenticação de dois fatores para repor",
+			"RESET_TWO_FACTOR_FAILED": "Não foi possível repor a autenticação de dois fatores de {name}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Perfil",

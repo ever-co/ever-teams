@@ -5035,7 +5035,15 @@
 			"WORKSPACE_ROLE_VIEWER": "Наблюдател",
 			"WORKSPACE_ROLE_CANDIDATE": "Кандидат",
 			"WORKSPACE_ROLE_INTERVIEWER": "Интервюиращ",
-			"WORKSPACE_ROLE_NOT_SAVED": "Ролята на {name} в работното пространство не е променена"
+			"WORKSPACE_ROLE_NOT_SAVED": "Ролята на {name} в работното пространство не е променена",
+			"RESET_TWO_FACTOR": "Нулиране на двуфакторното удостоверяване",
+			"RESET_TWO_FACTOR_TITLE": "Да се нулира ли двуфакторното удостоверяване на {name}?",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "Ако {name} го е включил(а), то се изключва: при следващото вписване се иска само кодът от имейла или паролата.",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} може да го включи отново от настройките за сигурност. Нулирането се записва.",
+			"RESET_TWO_FACTOR_CONFIRM": "Нулирай",
+			"RESET_TWO_FACTOR_DONE": "Двуфакторното удостоверяване на {name} е нулирано",
+			"RESET_TWO_FACTOR_NOTHING": "{name} нямаше двуфакторно удостоверяване за нулиране",
+			"RESET_TWO_FACTOR_FAILED": "Двуфакторното удостоверяване на {name} не можа да бъде нулирано"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Профил",
