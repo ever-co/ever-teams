@@ -119,18 +119,38 @@ export function timerStartMoveRefusalKeyOf(error: unknown): string {
 
 const TIME_TEXT = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
+/** The time of a field on the day of `day`, in local time. */
+function atTimeOn(day: Date, hours: number, minutes: number): Date {
+	const moment = new Date(day);
+	moment.setHours(hours, minutes, 0, 0);
+	return moment;
+}
+
 /**
- * The start a time field asks for: the time on the day the run started, in local time, or null when the field does
- * not hold a time.
+ * The start a time field asks for, in local time, or null when the field does not hold a time. A run that started
+ * before midnight and still runs spans two days: the time is read on the day the run started or on the next one,
+ * leaving out a moment later than `now`, and the one nearest the run's start is taken. A time later than now on both
+ * days stays on the run's day, for the panel to refuse as a start in the future.
  */
-export function startFromTimeText(runStart: Date, timeText: string): Date | null {
+export function startFromTimeText(runStart: Date, timeText: string, now: Date): Date | null {
 	const match = TIME_TEXT.exec(timeText);
 	if (!match) {
 		return null;
 	}
-	const start = new Date(runStart);
-	start.setHours(Number(match[1]), Number(match[2]), 0, 0);
-	return start;
+	const hours = Number(match[1]);
+	const minutes = Number(match[2]);
+	const onRunDay = atTimeOn(runStart, hours, minutes);
+	const nextDay = new Date(runStart);
+	nextDay.setDate(nextDay.getDate() + 1);
+	const onNextDay = atTimeOn(nextDay, hours, minutes);
+	const notLaterThanNow = [onRunDay, onNextDay].filter((candidate) => candidate.getTime() <= now.getTime());
+	if (notLaterThanNow.length === 0) {
+		return onRunDay;
+	}
+	const distanceToRunStart = (candidate: Date) => Math.abs(candidate.getTime() - runStart.getTime());
+	return notLaterThanNow.reduce((nearest, candidate) =>
+		distanceToRunStart(candidate) < distanceToRunStart(nearest) ? candidate : nearest
+	);
 }
 
 function twoDigits(value: number): string {

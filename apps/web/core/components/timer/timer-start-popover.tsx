@@ -167,7 +167,7 @@ function TimerStartForm({
 	const { moveStart, saving } = useMoveTimerStart();
 	const asksReason = reasonRequired || apiAsksReason;
 
-	const start = startFromTimeText(runStart, timeText);
+	const start = startFromTimeText(runStart, timeText, new Date());
 	const isUnchanged = start === null || isSameStartMinute(start, runStart);
 	const saveDisabled = isUnchanged || saving;
 

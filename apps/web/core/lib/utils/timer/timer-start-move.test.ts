@@ -191,17 +191,34 @@ describe('startFromTimeText', () => {
 	it('places the time on the day the run started, in local time', () => {
 		const runStart = new Date(2026, 10, 16, 9, 25, 12);
 
-		const start = startFromTimeText(runStart, '09:00');
+		const start = startFromTimeText(runStart, '09:00', new Date(2026, 10, 16, 10, 0));
 
 		expect(start).toEqual(new Date(2026, 10, 16, 9, 0, 0, 0));
+	});
+
+	it('reads a time on the day the run started or the next, for a run that went past midnight', () => {
+		// Started at 23:30 the day before; it is 00:30 now
+		const runStart = new Date(2026, 10, 15, 23, 30);
+		const now = new Date(2026, 10, 16, 0, 30);
+
+		expect(startFromTimeText(runStart, '00:05', now)).toEqual(new Date(2026, 10, 16, 0, 5));
+		expect(startFromTimeText(runStart, '22:00', now)).toEqual(new Date(2026, 10, 15, 22, 0));
+	});
+
+	it('keeps a time later than now on the run day, for the panel to refuse', () => {
+		const runStart = new Date(2026, 10, 16, 9, 0);
+
+		expect(startFromTimeText(runStart, '11:00', new Date(2026, 10, 16, 10, 0))).toEqual(new Date(2026, 10, 16, 11, 0));
 	});
 
 	it('refuses a time that is not one', () => {
 		const runStart = new Date(2026, 10, 16, 9, 25, 12);
 
-		expect(startFromTimeText(runStart, '')).toBeNull();
-		expect(startFromTimeText(runStart, '25:00')).toBeNull();
-		expect(startFromTimeText(runStart, '9h')).toBeNull();
+		const now = new Date(2026, 10, 16, 10, 0);
+
+		expect(startFromTimeText(runStart, '', now)).toBeNull();
+		expect(startFromTimeText(runStart, '25:00', now)).toBeNull();
+		expect(startFromTimeText(runStart, '9h', now)).toBeNull();
 	});
 });
 
