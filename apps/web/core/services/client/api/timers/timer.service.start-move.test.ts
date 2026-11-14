@@ -58,6 +58,13 @@ describe('TimerService.moveTimerStart', () => {
 		expect(put).toHaveBeenCalledWith('/timer/started-at', { startedAt: '2026-11-16T08:00:00.000Z' });
 	});
 
+	it('reports a saved move as saved when the status read after it fails', async () => {
+		jest.spyOn(timerService, 'put').mockResolvedValue({ data: {} } as never);
+		jest.spyOn(timerService, 'getTimerStatus').mockRejectedValue(new ApiErrorService('Bad Gateway', 502));
+
+		await expect(timerService.moveTimerStart({ startedAt: newStart })).resolves.toEqual({ data: undefined });
+	});
+
 	it('lets a refusal through to the caller, with its reason code, and reads no status', async () => {
 		const refusal = new ApiErrorService('The new start overlaps another entry.', 409, 'TIMER_START_OVERLAP');
 		jest.spyOn(timerService, 'put').mockRejectedValue(refusal);

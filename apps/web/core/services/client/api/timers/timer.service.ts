@@ -193,10 +193,21 @@ class TimerService extends APIService {
 	};
 
 	// Moves the start of the caller's running timer, which keeps running; the clock follows the status read after it.
-	moveTimerStart = async ({ startedAt, reason }: { startedAt: Date; reason?: string }) => {
+	moveTimerStart = async ({
+		startedAt,
+		reason
+	}: {
+		startedAt: Date;
+		reason?: string;
+	}): Promise<{ data: ITimerStatus | undefined }> => {
 		await this.put(this.timerStartMovePath(), { startedAt: startedAt.toISOString(), ...reasonFieldOf(reason) });
 
-		return this.getTimerStatus();
+		// The move is saved: a status read that fails says nothing of it, and the clock follows the next read
+		try {
+			return await this.getTimerStatus();
+		} catch {
+			return { data: undefined };
+		}
 	};
 
 	// Whether the API can move a running start. An empty body changes nothing: an API that has the route refuses it
