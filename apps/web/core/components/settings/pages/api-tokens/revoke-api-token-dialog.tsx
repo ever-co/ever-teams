@@ -11,13 +11,19 @@ type RevokeApiTokenDialogProps = {
 	onClose: () => void;
 };
 
-/** "Revoke this token?" with the app's confirmation; a failure keeps the question open and says so. */
+/**
+ * "Revoke this token?" with the app's confirmation; a failure keeps the question open and says so. While the
+ * revocation runs nothing closes it, so its answer never closes or marks the question about another token.
+ */
 export function RevokeApiTokenDialog({ token, onClose }: Readonly<RevokeApiTokenDialogProps>) {
 	const t = useTranslations();
 	const revoke = useRevokeUserApiToken();
 	const [hasFailed, setHasFailed] = useState(false);
 
 	const close = () => {
+		if (revoke.isPending) {
+			return;
+		}
 		setHasFailed(false);
 		onClose();
 	};
@@ -28,7 +34,10 @@ export function RevokeApiTokenDialog({ token, onClose }: Readonly<RevokeApiToken
 		}
 		setHasFailed(false);
 		revoke.mutate(token.id, {
-			onSuccess: close,
+			onSuccess: () => {
+				setHasFailed(false);
+				onClose();
+			},
 			onError: () => setHasFailed(true)
 		});
 	};
