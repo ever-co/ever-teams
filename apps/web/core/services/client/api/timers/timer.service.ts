@@ -132,16 +132,23 @@ class TimerService extends APIService {
 		source,
 		startedAt,
 		stoppedAt,
-		description
+		description,
+		timeLogId
 	}: {
 		source: ETimeLogSource;
 		startedAt?: Date | string;
 		stoppedAt?: Date | string;
 		description?: string;
+		/**
+		 * The running time log the stop is for, when it must end that run and no other: Gauzy refuses the stop (409)
+		 * when another log is the running one by then. A stop that names none ends whatever runs, as before.
+		 */
+		timeLogId?: string;
 	}) => {
 		const taskId = getActiveTaskIdCookie();
 		const notesField = notesFieldOf(description);
 		const range = { ...(startedAt ? { startedAt } : {}), ...(stoppedAt ? { stoppedAt } : {}) };
+		const namedLog = timeLogId ? { timeLogId } : {};
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			await this.post('/timesheet/timer/stop', {
@@ -149,6 +156,7 @@ class TimerService extends APIService {
 				logType: 'TRACKED',
 				...(taskId ? { taskId } : {}),
 				...range,
+				...namedLog,
 				...notesField,
 				tenantId: this.tenantId,
 				organizationId: this.organizationId
@@ -161,6 +169,7 @@ class TimerService extends APIService {
 		return api.post<ITimerStatus>(`/timer/stop?${getTodayRangeQuery()}`, {
 			source,
 			...range,
+			...namedLog,
 			...notesField
 		});
 	};

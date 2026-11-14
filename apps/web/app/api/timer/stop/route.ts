@@ -22,6 +22,7 @@ export async function POST(req: Request) {
 		startedAt?: unknown;
 		stoppedAt?: unknown;
 		description?: unknown;
+		timeLogId?: unknown;
 	};
 	const { source } = body;
 	const startedAt = toIsoDate(body.startedAt);
@@ -34,6 +35,14 @@ export async function POST(req: Request) {
 	if (stoppedAt && Date.parse(stoppedAt) > Date.now() + 60_000) {
 		return NextResponse.json({ message: 'stoppedAt cannot be in the future' }, { status: 400 });
 	}
+
+	// The time log the stop is for, when it names one. A stop that names one badly is refused: sent without it, it
+	// would end whatever runs, which is what naming the log is there to prevent
+	const namesTimeLog = body.timeLogId !== undefined && body.timeLogId !== null;
+	if (namesTimeLog && (typeof body.timeLogId !== 'string' || !body.timeLogId)) {
+		return NextResponse.json({ message: 'timeLogId must be the id of a time log' }, { status: 400 });
+	}
+	const timeLogField = namesTimeLog ? { timeLogId: body.timeLogId as string } : {};
 
 	const notes = readTimerNotes(body.description);
 	if (!notes.isValid) {
@@ -60,6 +69,7 @@ export async function POST(req: Request) {
 					: {}),
 				...(startedAt ? { startedAt } : {}),
 				...(stoppedAt ? { stoppedAt } : {}),
+				...timeLogField,
 				...notesField
 			},
 			access_token
@@ -72,6 +82,8 @@ export async function POST(req: Request) {
 			(gauzyError) => gauzyError
 		);
 		if (rejection?.statusCode === 406) return NextResponse.json(rejection, { status: 406 });
+		// And a 409: the stop names a time log that is not the running one, and nothing was stopped
+		if (rejection?.statusCode === 409) return NextResponse.json(rejection, { status: 409 });
 		throw error;
 	}
 
