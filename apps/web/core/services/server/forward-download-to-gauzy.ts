@@ -14,7 +14,7 @@ const PASSED_HEADERS = [
 	'x-content-type-options'
 ];
 
-export interface ForwardDownloadOptions {
+interface ForwardDownloadOptions {
 	/** How long the whole answer may take, the file's transfer included (two minutes unless set). */
 	timeoutMs?: number;
 }

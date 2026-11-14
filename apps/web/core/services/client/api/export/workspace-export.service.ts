@@ -5,7 +5,7 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 /** Gauzy writes every table of the workspace and zips them before sending anything: a usual request's minute is short. */
 export const WORKSPACE_EXPORT_TIMEOUT_MS = 15 * 60_000;
 
-export interface WorkspaceExportScope extends ApiRequestScope {
+interface WorkspaceExportScope extends ApiRequestScope {
 	organizationId: string;
 }
 
