@@ -30,6 +30,7 @@ export interface WorkspaceTable {
 export type WorkspaceFileProblem =
 	| { code: 'notSupported'; fileName: string }
 	| { code: 'tooLarge'; fileName: string }
+	| { code: 'unreadable'; fileName: string }
 	| { code: 'notText'; fileName: string }
 	| { code: 'zip'; fileName: string; problem: ZipProblem }
 	| { code: 'json'; fileName: string }
@@ -292,7 +293,14 @@ async function textsOf(files: ReadonlyArray<WorkspacePickedFile>, problems: Work
 			problems.push({ code: 'tooLarge', fileName: file.name });
 			continue;
 		}
-		const buffer = await file.arrayBuffer();
+		let buffer: ArrayBuffer;
+		try {
+			buffer = await file.arrayBuffer();
+		} catch {
+			// The browser could not read it: moved, deleted or changed since it was picked
+			problems.push({ code: 'unreadable', fileName: file.name });
+			continue;
+		}
 		if (extension !== 'zip') {
 			const text = decode(buffer);
 			if (text === null) {

@@ -7481,6 +7481,7 @@
 			"problems": {
 				"notSupported": "Это не файл CSV, JSON или ZIP.",
 				"tooLarge": "Больше {megabytes} МБ.",
+				"unreadable": "Не удалось прочитать файл. Выберите его снова.",
 				"notText": "Это не текст в UTF-8.",
 				"zip_notZip": "Это не ZIP-архив, который можно открыть.",
 				"zip_encrypted": "Архив защищён паролем.",

@@ -7481,6 +7481,7 @@
 			"problems": {
 				"notSupported": "不是 CSV、JSON 或 ZIP 文件。",
 				"tooLarge": "大于 {megabytes} MB。",
+				"unreadable": "无法读取该文件。请重新选择。",
 				"notText": "不是 UTF-8 文本。",
 				"zip_notZip": "不是可以打开的 ZIP 压缩包。",
 				"zip_encrypted": "压缩包受密码保护。",

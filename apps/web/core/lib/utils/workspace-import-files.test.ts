@@ -204,6 +204,21 @@ describe('readWorkspaceFiles', () => {
 		expect(files.tags?.table.records).toHaveLength(10_000);
 	});
 
+	it('lists a file the browser cannot read, and reads the others', async () => {
+		const gone: WorkspacePickedFile = {
+			name: 'projects.csv',
+			size: 10,
+			arrayBuffer: async () => {
+				throw new DOMException('The file was moved since it was picked', 'NotReadableError');
+			}
+		};
+
+		const files = await readWorkspaceFiles([gone, fileOf('clients.csv', 'Name\nAcme\n')]);
+
+		expect(files.problems).toEqual([{ code: 'unreadable', fileName: 'projects.csv' }]);
+		expect(files.clients?.table.records).toHaveLength(1);
+	});
+
 	it('reads the first file of a list and says the next one of the same kind is not used', async () => {
 		const files = await readWorkspaceFiles([
 			fileOf('clients.csv', 'Name\nAcme\n'),

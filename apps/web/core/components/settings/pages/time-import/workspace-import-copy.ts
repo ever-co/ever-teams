@@ -56,6 +56,8 @@ export function useWorkspaceImportCopy() {
 					return t('timeImport.workspace.problems.notSupported');
 				case 'tooLarge':
 					return t('timeImport.workspace.problems.tooLarge', { megabytes: WORKSPACE_IMPORT_MAX_MEGABYTES });
+				case 'unreadable':
+					return t('timeImport.workspace.problems.unreadable');
 				case 'notText':
 					return t('timeImport.workspace.problems.notText');
 				case 'zip':

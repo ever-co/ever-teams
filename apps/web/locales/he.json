@@ -7481,6 +7481,7 @@
 			"problems": {
 				"notSupported": "זה לא קובץ CSV,‏ JSON או ZIP.",
 				"tooLarge": "גדול מ-{megabytes} MB.",
+				"unreadable": "לא ניתן היה לקרוא את הקובץ. בחרו אותו שוב.",
 				"notText": "זה לא טקסט UTF-8.",
 				"zip_notZip": "זה לא ארכיון ZIP שאפשר לפתוח.",
 				"zip_encrypted": "הארכיון מוגן בסיסמה.",

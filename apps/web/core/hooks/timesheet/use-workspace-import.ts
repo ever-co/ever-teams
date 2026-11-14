@@ -318,11 +318,18 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 			setCreationPlan(null);
 			setCreationSavesEntries(false);
 			setIsReading(true);
-			const read = await readWorkspaceFiles(picked);
+			let read: WorkspaceFiles;
+			try {
+				read = await readWorkspaceFiles(picked);
+			} finally {
+				// Whatever the reading gave, the page leaves its reading screen; a newer reading keeps its own
+				if (runRef.current === run) {
+					setIsReading(false);
+				}
+			}
 			if (runRef.current !== run) {
 				return;
 			}
-			setIsReading(false);
 			setFiles(read);
 			if (read.entries) {
 				const csv = pickedFileOfCsv(read.entries.fileName, csvTextOf(read.entries.table));
