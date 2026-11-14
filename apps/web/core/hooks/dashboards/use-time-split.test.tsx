@@ -45,11 +45,16 @@ jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
 jest.mock('@/core/hooks/dashboards/use-report-clients', () => ({
 	useReportProjectClients: (options: { includesArchived: boolean; isEnabled: boolean }) => {
 		mockLookupOptions(options);
+		const clientIds = new Map<string, string | null>([
+			['a', 'acme'],
+			['b', null]
+		]);
+		// An archived project is listed only when the archived projects are read
+		if (options.includesArchived) {
+			clientIds.set('old', 'old-client');
+		}
 		return {
-			clientIds: new Map<string, string | null>([
-				['a', 'acme'],
-				['b', null]
-			]),
+			clientIds,
 			isPending: mockProjectsLookup.isPending,
 			isError: mockProjectsLookup.isError,
 			refetch: mockRefetchProjects
@@ -95,7 +100,10 @@ describe('useTimeSplit', () => {
 			['no-project', 5]
 		]);
 		expect(result.current.totalSeconds).toBe(42 * HOUR);
-		expect(mockLookupOptions).toHaveBeenLastCalledWith({ includesArchived: false, isEnabled: false });
+		expect(mockLookupOptions).toHaveBeenLastCalledWith({
+			includesArchived: true,
+			isEnabled: false
+		});
 		expect(mockClientsOptions).toHaveBeenLastCalledWith({ includeArchived: true, enabled: false });
 	});
 
@@ -110,7 +118,10 @@ describe('useTimeSplit', () => {
 			['none', 29]
 		]);
 		expect(result.current.totalSeconds).toBe(42 * HOUR);
-		expect(mockLookupOptions).toHaveBeenLastCalledWith({ includesArchived: false, isEnabled: true });
+		expect(mockLookupOptions).toHaveBeenLastCalledWith({
+			includesArchived: true,
+			isEnabled: true
+		});
 	});
 
 	it('keeps to the rows the page shows when it splits by client', () => {
@@ -133,7 +144,30 @@ describe('useTimeSplit', () => {
 
 		expect(result.current.canSplitByClient).toBe(false);
 		expect(result.current.mode).toBe('project');
-		expect(mockLookupOptions).toHaveBeenLastCalledWith({ includesArchived: false, isEnabled: false });
+		expect(mockLookupOptions).toHaveBeenLastCalledWith({
+			includesArchived: true,
+			isEnabled: false
+		});
+	});
+
+	it('keeps the client of an archived project, which only the archived projects name', () => {
+		const archivedReport = [
+			{
+				date: '2026-11-10',
+				logs: [
+					{
+						project: { id: 'old', name: 'Old site', organizationContact: null },
+						employeeLogs: [{ employee: { id: 'marie' }, sum: 5 * HOUR, activity: 0, tasks: [] }]
+					}
+				]
+			}
+		] as unknown as ITimeLogGroupedDailyReport[];
+		const rows = flattenDailyReport(archivedReport, 'No team');
+		const { result } = renderHook(() => useTimeSplit({ rows, report: archivedReport }));
+
+		act(() => result.current.setMode('client'));
+
+		expect(result.current.rows.map((row) => row.key)).toEqual(['old-client']);
 	});
 
 	it('waits for the projects before it tells the clients, and says when they cannot be read', () => {
