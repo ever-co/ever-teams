@@ -2,9 +2,16 @@ import React, { useEffect, useState, type FormEvent } from 'react';
 
 import Notice from '~components/shared/Notice';
 import { isAllowedAddress } from '~lib/address';
-import { apiOriginOf } from '~lib/api-client';
+import { apiOriginOf, revokeSession } from '~lib/api-client';
 import { t } from '~lib/i18n';
-import { clearSession, DEFAULT_API_URL, DEFAULT_APP_URL, loadSettings, saveSettings } from '~lib/session-store';
+import {
+	clearSession,
+	DEFAULT_API_URL,
+	DEFAULT_APP_URL,
+	loadSession,
+	loadSettings,
+	saveSettings
+} from '~lib/session-store';
 import { primaryButton, roundInput } from '~misc/tailwindClasses';
 
 import './style.css';
@@ -42,9 +49,13 @@ function Options() {
 		const nextApiUrl = apiOriginOf(apiUrl);
 		const apiChanged = nextApiUrl !== apiOriginOf(savedApiUrl);
 		await saveSettings({ apiUrl: nextApiUrl, appUrl: appUrl.trim().replace(/\/+$/, '') });
-		// A session belongs to the API that opened it
+		// A session belongs to the API that opened it: it is signed out, and that API revokes it
 		if (apiChanged) {
+			const stored = await loadSession();
 			await clearSession();
+			if (stored) {
+				await revokeSession(stored);
+			}
 		}
 		setApiUrl(nextApiUrl);
 		setSavedApiUrl(nextApiUrl);

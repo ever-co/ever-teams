@@ -9,7 +9,7 @@
 		"dev": "yarn plasmo dev",
 		"start": "yarn dev",
 		"build": "yarn plasmo build",
-		"test": "node --test lib/"
+		"test": "node --import ./test/register-aliases.mjs --test \"lib/**/*.test.ts\""
 	},
 	"dependencies": {
 		"@tailwindcss/forms": "^0.5.3",

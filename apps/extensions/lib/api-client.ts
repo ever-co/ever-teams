@@ -111,6 +111,20 @@ function sessionHeaders(session: Session): Record<string, string> {
 }
 
 /**
+ * Ends a session on the API too: Gauzy revokes its refresh token (`POST /auth/logout`), so a copy of the stored
+ * session can no longer be renewed. Best effort: offline, or an access token that already expired, the browser
+ * forgets the session all the same.
+ */
+export async function revokeSession(session: Session): Promise<void> {
+	const body = session.refreshToken ? { refresh_token: session.refreshToken } : {};
+	try {
+		await send(urlOf(session.apiUrl, '/auth/logout'), 'POST', body, sessionHeaders(session));
+	} catch {
+		// Nothing left to do: the session is gone from this browser
+	}
+}
+
+/**
  * Trades the refresh token for a new access token and keeps it. Returns the renewed session, or null when the session
  * cannot be renewed (signed out elsewhere, expired).
  */

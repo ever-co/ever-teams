@@ -36,9 +36,9 @@ export async function saveSession(session: Session): Promise<void> {
 	await write(KEYS.session, session);
 }
 
-/** Signs out on this browser: the session and what was picked with it go, the settings stay. */
+/** Signs out on this browser: the session and what was picked or started with it go, the settings stay. */
 export async function clearSession(): Promise<void> {
-	await browser.storage.local.remove([KEYS.session, KEYS.selectedTaskId]);
+	await browser.storage.local.remove([KEYS.session, KEYS.selectedTaskId, KEYS.recentTaskIds]);
 }
 
 export async function loadSettings(): Promise<Settings> {

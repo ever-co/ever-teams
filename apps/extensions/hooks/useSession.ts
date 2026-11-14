@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { revokeSession } from '~lib/api-client';
 import { clearSession, loadSession, saveSession, saveSelectedTaskId } from '~lib/session-store';
 import type { Session } from '~lib/workspaces';
 import browser from '~misc/browser';
@@ -41,9 +42,14 @@ export function useSession() {
 		setSession(next);
 	}, []);
 
+	/** Signs out here, then has the API revoke the session's refresh token. */
 	const signOut = useCallback(async () => {
+		const stored = await loadSession();
 		await clearSession();
 		setSession(null);
+		if (stored) {
+			await revokeSession(stored);
+		}
 	}, []);
 
 	/** Makes another of the person's teams the active one; the picked task belonged to the previous team. */
