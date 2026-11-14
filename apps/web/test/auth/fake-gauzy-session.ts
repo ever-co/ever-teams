@@ -302,6 +302,11 @@ export function createFakeGauzy(options: FakeGauzyOptions = {}) {
 			});
 			accessTokens.clear();
 		},
+		/** The running timer is stopped from another device. */
+		stopTimerElsewhere: () => {
+			if (timeLog?.isRunning)
+				timeLog = { ...timeLog, isRunning: false, stoppedAt: new Date(serverNow()).toISOString() };
+		},
 		/** A timer the person started earlier, still running. */
 		runTimer: (startedMsAgo = 30 * 60 * 1000): FakeTimeLog => {
 			const startedAt = new Date(Date.now() - startedMsAgo).toISOString();
