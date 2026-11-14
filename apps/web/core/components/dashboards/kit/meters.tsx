@@ -47,6 +47,33 @@ export function LimitMeter({ used, limit, className }: Readonly<{ used: number; 
 	);
 }
 
+/**
+ * Tracked time against a time goal. "At most" is a limit and reads as the limit meter; "at least" fills its ticks up
+ * to the time tracked and turns to the success tone once the target is reached, the scale growing past it.
+ */
+export function GoalMeter({
+	tracked,
+	target,
+	isAtMost,
+	className
+}: Readonly<{ tracked: number; target: number; isAtMost: boolean; className?: string }>) {
+	if (isAtMost) {
+		return <LimitMeter used={tracked} limit={target} className={className} />;
+	}
+	const scale = Math.max(target, tracked, 1);
+	const trackedEnd = (tracked / scale) * 100;
+	const isReached = tracked >= target;
+	const tone = isReached ? SUCCESS : PRIMARY;
+	const background = `linear-gradient(to right, ${tone} 0 ${trackedEnd}%, ${TRACK} ${trackedEnd}% 100%)`;
+	return (
+		<span
+			aria-hidden="true"
+			className={cn('block h-3 w-full min-w-16 rounded-[2px]', className)}
+			style={{ background, ...tickMaskOf(3, 2) }}
+		/>
+	);
+}
+
 const VERDICT_TEXT: Record<LimitVerdict, string> = {
 	within: 'text-muted-foreground',
 	near: 'text-warning-foreground',
