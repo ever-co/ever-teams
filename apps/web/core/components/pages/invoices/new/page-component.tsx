@@ -27,6 +27,7 @@ import { InvoiceSheetSkeleton, MessageLink, NewInvoiceMessage, NewInvoicePageSke
 import { ReplacementInvoiceContent } from './replacement-invoice';
 import { SaveInvoiceDialog } from './save-invoice-dialog';
 import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
+import { useCurrentOrganizationOwner } from '@/core/hooks/bootstrap/use-feature-data';
 
 function ClientSelect({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 	const t = useTranslations();
@@ -207,7 +208,9 @@ function NewInvoiceRoute() {
 	return <NewInvoiceContent />;
 }
 
+/** The workspace's week start, clock and formats come with the organisation, loaded here on a direct visit. */
 function NewInvoicePage() {
+	useCurrentOrganizationOwner();
 	return (
 		<InvoiceAccessGuard need="create" fallback={<NewInvoicePageSkeleton />}>
 			<NewInvoiceRoute />
