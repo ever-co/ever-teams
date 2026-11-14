@@ -30,8 +30,8 @@ const SECONDS_PER_HOUR = 3600;
 const SECONDS_PER_MINUTE = 60;
 const MILLISECONDS_PER_SECOND = 1000;
 
-export function myWeekPeriodOf(key: MyWeekPeriodKey, now: Date): Period {
-	return periodOfPreset(key, MY_WEEK_STARTS_ON, now);
+export function myWeekPeriodOf(key: MyWeekPeriodKey, now: Date, weekStartsOn: WeekStart = MY_WEEK_STARTS_ON): Period {
+	return periodOfPreset(key, weekStartsOn, now);
 }
 
 export function isWeekPeriod(key: MyWeekPeriodKey) {
