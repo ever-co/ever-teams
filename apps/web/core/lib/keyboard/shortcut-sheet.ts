@@ -16,7 +16,7 @@ import {
 export type ShortcutSheetGroup = 'general' | 'timer' | 'tasks' | 'navigation' | 'chat';
 
 /** The groups in the order the sheet lists them. */
-export const SHORTCUT_SHEET_GROUPS: readonly ShortcutSheetGroup[] = ['general', 'timer', 'tasks', 'navigation', 'chat'];
+const SHORTCUT_SHEET_GROUPS: readonly ShortcutSheetGroup[] = ['general', 'timer', 'tasks', 'navigation', 'chat'];
 
 /** One way to press a shortcut: its chords in order, each as its key caps (`[['G'], ['T']]`, `[['⌘', 'K']]`). */
 export type ShortcutKeys = string[][];
@@ -38,7 +38,7 @@ export interface ShortcutSheetSection {
 }
 
 /** A legacy hotkey, as `use-hotkeys.ts` declares it. */
-export interface HotkeyLine {
+interface HotkeyLine {
 	/** Its name: a key of the `hotkeys` messages. */
 	label: string;
 	/** The hotkeys-js declaration that presses it (`shift+h,h`). */

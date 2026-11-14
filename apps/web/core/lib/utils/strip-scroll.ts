@@ -5,7 +5,7 @@ export interface StripBox {
 	scrollWidth: number;
 }
 
-export interface StripItemBox {
+interface StripItemBox {
 	left: number;
 	width: number;
 }

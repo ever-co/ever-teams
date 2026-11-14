@@ -5,10 +5,10 @@ import type { SidebarPage } from './sidebar-pages';
  * command that leads to the same page, so the row shows that command's keys. Pure.
  */
 
-export type GoToFlag = 'NEXT_PUBLIC_DOCS_ENABLED' | 'NEXT_PUBLIC_CHAT_ENABLED' | 'NEXT_PUBLIC_INBOX_ENABLED';
+type GoToFlag = 'NEXT_PUBLIC_DOCS_ENABLED' | 'NEXT_PUBLIC_CHAT_ENABLED' | 'NEXT_PUBLIC_INBOX_ENABLED';
 
 /** A "go to" command of the shortcut registry and the page it leads to. */
-export interface GoToCommandPath {
+interface GoToCommandPath {
 	id: string;
 	path: string;
 	/** Leads to a page under the path, whichever it is: the signed-in person's profile, their timesheet. */
@@ -68,7 +68,7 @@ export function goToCommandIdOf(url: string): string | undefined {
 	return command?.id;
 }
 
-export interface GoToRow {
+interface GoToRow {
 	label: string;
 	title: string;
 	/** Written muted before the title, like the ancestors of a breadcrumb. */

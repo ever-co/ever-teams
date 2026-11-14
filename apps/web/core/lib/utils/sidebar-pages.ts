@@ -17,7 +17,7 @@ export interface SidebarLink {
 }
 
 /** A row under a group. */
-export interface SidebarRow extends SidebarLink {
+interface SidebarRow extends SidebarLink {
 	/** Drawn by its own component (a caption, an empty note, a "create" row): not a link to a page. */
 	component?: unknown;
 	/** Carries its own menu or button: a record of the workspace (a project, a favourite), not a page of the app. */
