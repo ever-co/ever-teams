@@ -1,4 +1,5 @@
 import { getTimerStatus, sendHeartbeat, type TimerStatus } from '~lib/gauzy';
+import { isOwnPagePort } from '~lib/ports';
 import { sendsHeartbeat } from '~lib/run-policy';
 import { loadSession, takeSessionOut } from '~lib/session-store';
 import { badgeText, secondsSince } from '~lib/time-format';
@@ -101,6 +102,11 @@ browser.storage.onChanged.addListener((changes, area) => {
 
 // The popup read the timer (after a start or a stop, or a run stopped elsewhere): the badge shows what it shows
 browser.runtime.onConnect.addListener((port) => {
+	// A port a web page opened (a content script names its tab) neither sets the badge nor hears the timer
+	if (!isOwnPagePort(port)) {
+		port.disconnect();
+		return;
+	}
 	ports.add(port);
 	port.onDisconnect.addListener(() => ports.delete(port));
 	port.onMessage.addListener((message: IPostMessage<TimerStatus>) => {
