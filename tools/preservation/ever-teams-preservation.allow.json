@@ -470,5 +470,25 @@
 	{
 		"id": "removed:overlayComponents:apps/web/core/components/common/keyboard-shortcuts.tsx::openModal",
 		"reason": "The keyboard button's own shortcut dialog was folded into the app's one shortcuts sheet (#5227): the button now sets shortcutsHelpOpenAtom, and ShortcutsDialog, mounted once by KeyboardShortcutsMount, opens; the H keys still open it."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/components/pages/invoices/edit/save-invoice-changes-dialog.test.tsx::says nothing changed when the API refused it::#1",
+		"reason": "Kept, not removed (#5234, Sonar S5976 on #5230): the case is a row of the it.each \"says %s, and stays on the invoice\" in the same file, with the same outcome and message."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/components/pages/invoices/edit/save-invoice-changes-dialog.test.tsx::says the connection failed and nothing changed when its first write never reached the API::#1",
+		"reason": "Kept, not removed (#5234, Sonar S5976 on #5230): the case is a row of the it.each \"says %s, and stays on the invoice\" in the same file, with the same outcome and message."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/components/pages/invoices/edit/save-invoice-changes-dialog.test.tsx::says the invoice was put back as it was::#1",
+		"reason": "Kept, not removed (#5234, Sonar S5976 on #5230): the case is a row of the it.each \"says %s, and stays on the invoice\" in the same file, with the same outcome and message."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/components/pages/invoices/edit/save-invoice-changes-dialog.test.tsx::says how many lines it holds when it could not be put back::#1",
+		"reason": "Kept, not removed (#5234, Sonar S5976 on #5230): the case is a row of the it.each \"says %s, and stays on the invoice\" in the same file, with the same outcome and message."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/components/pages/invoices/edit/save-invoice-changes-dialog.test.tsx::says nothing was saved when something was paid on it, or it was voided, since it was opened::#1",
+		"reason": "Kept, not removed (#5234, Sonar S5976 on #5230): the case is a row of the it.each \"says %s, and stays on the invoice\" in the same file, with the same outcome and message."
 	}
 ]
