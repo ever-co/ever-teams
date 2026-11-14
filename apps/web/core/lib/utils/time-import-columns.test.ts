@@ -314,6 +314,12 @@ describe('timeImportReadingOf, cells a column cannot read', () => {
 
 		expect(reading.kind).toBe('sheet');
 	});
+
+	it('asks about a column without a name that holds values, so it can be read as the duration', () => {
+		const reading = timeImportReadingOf('date,start time,\n2026-11-03,09:00,1h\n');
+
+		expect(reading.kind).toBe('columns');
+	});
 });
 
 describe('timeImportReadingOf, the Columns step', () => {

@@ -181,7 +181,11 @@ interface HeaderReading {
 	readsAsTemplate: boolean;
 }
 
-function readHeaders(headers: ReadonlyArray<string>): HeaderReading {
+function columnHoldsValues(table: TimeImportTable, columnIndex: number): boolean {
+	return table.records.some((record) => (record.cells[columnIndex] ?? '').trim() !== '');
+}
+
+function readHeaders(table: TimeImportTable): HeaderReading {
 	const reading: HeaderReading = {
 		mapping: { ...NO_TIME_IMPORT_COLUMNS },
 		duplicateHeader: null,
@@ -189,11 +193,15 @@ function readHeaders(headers: ReadonlyArray<string>): HeaderReading {
 		readsAsTemplate: true
 	};
 	const wordsByField = new Map<TimeImportField, string>();
-	headers.forEach((header, index) => {
+	table.headers.forEach((header, index) => {
 		const words = headerWordsOf(header);
 		const field = FIELD_BY_HEADER.get(words);
 		if (!field) {
-			if (!isLeftOutWithoutAsking(words)) {
+			// A column without a name is left out while it is empty; one that holds values is asked about, since it may
+			// be the end or the duration the file needs
+			const isUnnamedWithValues = words === '' && columnHoldsValues(table, index);
+			const isLeftOut = isLeftOutWithoutAsking(words) && !isUnnamedWithValues;
+			if (!isLeftOut) {
 				reading.unknownHeaders.push(header);
 			}
 			return;
@@ -537,7 +545,7 @@ export function timeImportReadingOf(
 		return { kind: 'refused', problem: tableReading.problem };
 	}
 	const { table } = tableReading;
-	const header = readHeaders(table.headers);
+	const header = readHeaders(table);
 	if (header.duplicateHeader) {
 		return { kind: 'refused', problem: { code: 'duplicateColumn', header: header.duplicateHeader } };
 	}
