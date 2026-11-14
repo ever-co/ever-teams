@@ -13,9 +13,8 @@ import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { cn } from '@/core/lib/helpers';
 import { UseReportActivityProps } from '@/core/hooks/activities/use-activity-filters';
 import { useActivityWeeklyReportQuery } from '@/core/hooks/activities/queries/use-activity-weekly-report-query';
-
-// Weeks start on Monday, as in the date range picker of this page
-const WEEK_OPTIONS = { weekStartsOn: 1 } as const;
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
+import type { WeekStart } from '@/core/lib/utils/dashboard-period';
 
 // Same duration format as the daily table of this page
 const formatDuration = (seconds: number) => {
@@ -31,23 +30,26 @@ interface WeeklyReportTableProps {
 }
 
 // The week of the page's range start, or the current week when there is none or it lies ahead
-const initialWeekStart = (initialDate?: Date) => {
+const initialWeekStart = (weekOptions: { weekStartsOn: WeekStart }, initialDate?: Date) => {
 	const today = new Date();
-	return startOfWeek(initialDate && initialDate < today ? initialDate : today, WEEK_OPTIONS);
+	return startOfWeek(initialDate && initialDate < today ? initialDate : today, weekOptions);
 };
 
 export function WeeklyReportTable({ mergedProps, enabled, initialDate }: Readonly<WeeklyReportTableProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
-	const [weekStart, setWeekStart] = useState(() => initialWeekStart(initialDate));
-	// A new date range picked on the page moves the table to its week; prev/next still browse from there
+	const weekStartsOn = useWorkspaceWeekStart();
+	const weekOptions = useMemo(() => ({ weekStartsOn }), [weekStartsOn]);
+	const [weekStart, setWeekStart] = useState(() => initialWeekStart(weekOptions, initialDate));
+	// A new date range picked on the page, or the workspace's week start read later, moves the table to its week;
+	// prev/next still browse from there
 	const initialTime = initialDate?.getTime();
 	useEffect(() => {
-		setWeekStart(initialWeekStart(initialTime === undefined ? undefined : new Date(initialTime)));
-	}, [initialTime]);
-	const weekEnd = useMemo(() => endOfWeek(weekStart, WEEK_OPTIONS), [weekStart]);
+		setWeekStart(initialWeekStart(weekOptions, initialTime === undefined ? undefined : new Date(initialTime)));
+	}, [initialTime, weekOptions]);
+	const weekEnd = useMemo(() => endOfWeek(weekStart, weekOptions), [weekStart, weekOptions]);
 	const days = useMemo(() => Array.from({ length: 7 }, (_, index) => addDays(weekStart, index)), [weekStart]);
-	const isCurrentWeek = isSameWeek(weekStart, new Date(), WEEK_OPTIONS);
+	const isCurrentWeek = isSameWeek(weekStart, new Date(), weekOptions);
 
 	const { weeklyReport, isLoading, isError, refetch } = useActivityWeeklyReportQuery({
 		mergedProps,
