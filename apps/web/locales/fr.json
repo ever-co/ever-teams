@@ -1314,7 +1314,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, one {Afficher # membre de plus} other {Afficher # membres de plus}}",
 				"SHOW_FEWER": "Afficher moins",
 				"UNPRICED_TITLE": "{count, plural, one {# membre a suivi} other {# membres ont suivi}} {duration} sans taux."
-			}
+			},
+			"NOTE_STORED_RATES": "Montants dus au taux de chaque entrée au moment où elle a été suivie. Les paiements ne sont pas enregistrés dans Ever Teams.",
+			"SEVERAL_RATES": "Plusieurs taux"
 		},
 		"projectBudget": {
 			"TITLE": "Budget des projets",

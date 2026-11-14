@@ -1314,7 +1314,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, one {Mostrar mais # membro} other {Mostrar mais # membros}}",
 				"SHOW_FEWER": "Mostrar menos",
 				"UNPRICED_TITLE": "{count, plural, one {# membro registrou} other {# membros registraram}} {duration} sem taxa."
-			}
+			},
+			"NOTE_STORED_RATES": "Valores devidos à taxa de cada registro no momento em que foi registrado. O Ever Teams não registra pagamentos.",
+			"SEVERAL_RATES": "Várias taxas"
 		},
 		"projectBudget": {
 			"TITLE": "Orçamento de projetos",

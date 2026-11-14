@@ -1314,7 +1314,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, one {Покажи още # член} other {Покажи още # членове}}",
 				"SHOW_FEWER": "Покажи по-малко",
 				"UNPRICED_TITLE": "{count, plural, one {# член отчете} other {# членове отчетоха}} {duration} без ставка."
-			}
+			},
+			"NOTE_STORED_RATES": "Дължими суми по ставката на всеки запис към момента на отчитането му. Плащанията не се записват в Ever Teams.",
+			"SEVERAL_RATES": "Няколко ставки"
 		},
 		"projectBudget": {
 			"TITLE": "Бюджет на проектите",

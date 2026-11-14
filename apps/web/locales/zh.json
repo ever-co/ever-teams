@@ -1314,7 +1314,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, other {再显示 # 位成员}}",
 				"SHOW_FEWER": "收起",
 				"UNPRICED_TITLE": "{count, plural, other {# 位成员}}在没有费率的情况下记录了 {duration}。"
-			}
+			},
+			"NOTE_STORED_RATES": "按每条记录在记录时的费率计算的应付金额。Ever Teams 不记录付款。",
+			"SEVERAL_RATES": "多个费率"
 		},
 		"projectBudget": {
 			"TITLE": "项目预算",

@@ -1314,7 +1314,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, one {# weiteres Mitglied anzeigen} other {# weitere Mitglieder anzeigen}}",
 				"SHOW_FEWER": "Weniger anzeigen",
 				"UNPRICED_TITLE": "{count, plural, one {# Mitglied hat} other {# Mitglieder haben}} {duration} ohne Satz erfasst."
-			}
+			},
+			"NOTE_STORED_RATES": "Geschuldete Beträge zum Satz jedes Eintrags zum Zeitpunkt seiner Erfassung. Zahlungen werden in Ever Teams nicht erfasst.",
+			"SEVERAL_RATES": "Mehrere Sätze"
 		},
 		"projectBudget": {
 			"TITLE": "Projektbudget",

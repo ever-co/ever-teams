@@ -1314,7 +1314,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, one {Pokaż jeszcze # członka} few {Pokaż jeszcze # członków} many {Pokaż jeszcze # członków} other {Pokaż jeszcze # członka}}",
 				"SHOW_FEWER": "Pokaż mniej",
 				"UNPRICED_TITLE": "{count, plural, one {# członek zarejestrował} few {# członków zarejestrowało} many {# członków zarejestrowało} other {# członka zarejestrowało}} {duration} bez stawki."
-			}
+			},
+			"NOTE_STORED_RATES": "Kwoty należne według stawki każdego wpisu z chwili, gdy został zarejestrowany. Płatności nie są rejestrowane w Ever Teams.",
+			"SEVERAL_RATES": "Kilka stawek"
 		},
 		"projectBudget": {
 			"TITLE": "Budżet projektów",

@@ -1314,7 +1314,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, one {Nog # lid tonen} other {Nog # leden tonen}}",
 				"SHOW_FEWER": "Minder tonen",
 				"UNPRICED_TITLE": "{count, plural, one {# lid registreerde} other {# leden registreerden}} {duration} zonder tarief."
-			}
+			},
+			"NOTE_STORED_RATES": "Verschuldigde bedragen tegen het tarief van elke registratie op het moment dat die werd geregistreerd. Betalingen worden niet vastgelegd in Ever Teams.",
+			"SEVERAL_RATES": "Meerdere tarieven"
 		},
 		"projectBudget": {
 			"TITLE": "Projectbudget",

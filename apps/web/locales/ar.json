@@ -1249,7 +1249,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, one {عرض عضو آخر} two {عرض عضوين آخرين} few {عرض # أعضاء آخرين} many {عرض # عضوًا آخر} other {عرض # عضو آخر}}",
 				"SHOW_FEWER": "عرض أقل",
 				"UNPRICED_TITLE": "{count, plural, one {سجّل عضو واحد} two {سجّل عضوان} few {سجّل # أعضاء} many {سجّل # عضوًا} other {سجّل # عضو}} {duration} دون سعر."
-			}
+			},
+			"NOTE_STORED_RATES": "مبالغ مستحقة وفق سعر كل إدخال وقت تسجيله. لا يسجّل Ever Teams المدفوعات.",
+			"SEVERAL_RATES": "عدة أسعار"
 		},
 		"projectBudget": {
 			"TITLE": "ميزانية المشاريع",

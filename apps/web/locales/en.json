@@ -1314,7 +1314,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, one {Show # more member} other {Show # more members}}",
 				"SHOW_FEWER": "Show fewer",
 				"UNPRICED_TITLE": "{count, plural, one {# member} other {# members}} tracked {duration} without a rate."
-			}
+			},
+			"NOTE_STORED_RATES": "Amounts owed at the rate of each entry when it was tracked. Payments are not recorded in Ever Teams.",
+			"SEVERAL_RATES": "Several rates"
 		},
 		"projectBudget": {
 			"TITLE": "Project budget",

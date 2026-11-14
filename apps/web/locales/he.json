@@ -1314,7 +1314,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, one {הצגת חבר נוסף} two {הצגת שני חברים נוספים} other {הצגת # חברים נוספים}}",
 				"SHOW_FEWER": "הצגת פחות",
 				"UNPRICED_TITLE": "{count, plural, one {חבר אחד רשם} two {שני חברים רשמו} other {# חברים רשמו}} {duration} ללא תעריף."
-			}
+			},
+			"NOTE_STORED_RATES": "סכומים לתשלום לפי התעריף של כל רישום בזמן שנרשם. Ever Teams לא רושם תשלומים.",
+			"SEVERAL_RATES": "כמה תעריפים"
 		},
 		"projectBudget": {
 			"TITLE": "תקציב פרויקטים",
