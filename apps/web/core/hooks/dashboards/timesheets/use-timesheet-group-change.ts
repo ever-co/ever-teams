@@ -83,7 +83,13 @@ export function useTimesheetGroupChange(actions: TimesheetGroupActions) {
 		[openDelete, openReject]
 	);
 
-	const close = useCallback(() => setIsOpen(false), []);
+	// Dismissed while its entries are written, the end of that save would close the next confirmation opened.
+	const close = useCallback(() => {
+		if (isSaving) {
+			return;
+		}
+		setIsOpen(false);
+	}, [isSaving]);
 
 	const confirm = useCallback(async () => {
 		if (!change) {

@@ -150,6 +150,30 @@ describe('useTimesheetGroupChange', () => {
 		expect(actions.openDelete).toHaveBeenCalledWith(LOGS, 'group');
 	});
 
+	it('cannot be dismissed while its entries are written', async () => {
+		const { actions, hook } = renderChange();
+		let finishWrites: (count: number) => void = () => undefined;
+		actions.setBillableOf.mockReturnValue(
+			new Promise<number>((resolve) => {
+				finishWrites = resolve;
+			})
+		);
+
+		act(() => hook.result.current.handlers.setBillable(GROUP, false));
+		let saving: Promise<void> = Promise.resolve();
+		act(() => {
+			saving = hook.result.current.confirm();
+		});
+		act(() => hook.result.current.close());
+
+		expect(hook.result.current.isOpen).toBe(true);
+		await act(async () => {
+			finishWrites(LOGS.length);
+			await saving;
+		});
+		expect(hook.result.current.isOpen).toBe(false);
+	});
+
 	it('writes nothing when the confirmation is closed', () => {
 		const { actions, hook } = renderChange();
 
