@@ -4,6 +4,7 @@ import { renderHook } from '@testing-library/react';
 
 import type { CsvColumn } from '@/core/lib/utils/dashboard-export';
 import type { EditsFigures, EditsGroup, ManualTimeEntry } from '@/core/lib/utils/dashboards/manual-time-edits';
+import type { TimeLogHistoryChange } from '@/core/lib/utils/time-log-history';
 import type { WorkspaceLocale } from '@/core/lib/utils/workspace-formats';
 import type { EntriesPdfContent } from '@/core/components/dashboards/kit/entries-pdf';
 
@@ -28,6 +29,8 @@ import { useManualTimeEditsExportOptions } from './manual-time-edits-export';
 
 const DATE_COLUMN = 0;
 const EDITED_AT_COLUMN = 8;
+const BEFORE_COLUMN = 9;
+const AFTER_COLUMN = 10;
 
 const NOVEMBER_4 = new Date(2026, 10, 4);
 
@@ -46,7 +49,10 @@ const entry = {
 	editedAt: new Date(2026, 10, 5, 9, 7),
 	isBillable: true,
 	status: null,
-	reason: 'Forgot the timer'
+	reason: 'Forgot the timer',
+	isDeleted: false,
+	changeKinds: [],
+	lastChange: null
 } as unknown as ManualTimeEntry;
 
 const groups: EditsGroup[] = [{ key: '2026-11-04', day: NOVEMBER_4, member: null, entries: [entry], seconds: 5400 }];
@@ -58,13 +64,16 @@ const figures: EditsFigures = {
 	addedSeconds: 5400,
 	editedCount: 1,
 	editedSeconds: 5400,
-	memberCount: 1
+	memberCount: 1,
+	deletedCount: 0
 };
 
 const period = { from: NOVEMBER_4, to: new Date(2026, 10, 10) };
 
 async function runExport(key: 'pdf' | 'csv') {
-	const { result } = renderHook(() => useManualTimeEditsExportOptions({ groups, figures, period, teamName: 'Core' }));
+	const { result } = renderHook(() =>
+		useManualTimeEditsExportOptions({ groups, figures, period, teamName: 'Core', members: [] })
+	);
 	const option = result.current.find((candidate) => candidate.key === key);
 	await option?.run();
 }
@@ -95,6 +104,60 @@ describe('the dates of a line of the Manual time edit PDF', () => {
 
 		expect(cells[DATE_COLUMN]).toBe('2026-11-04');
 		expect(cells[EDITED_AT_COLUMN]).toBe('2026-11-05 09:07');
+	});
+});
+
+describe('the before and after of a line of the Manual time edit exports', () => {
+	const lastChange: TimeLogHistoryChange = {
+		id: 'change',
+		entryId: 'log-a',
+		at: new Date(2026, 10, 5, 9, 7),
+		action: 'updated',
+		authorEmployeeId: null,
+		authorUserId: null,
+		ownerEmployeeId: null,
+		reason: 'Forgot to stop',
+		fields: [
+			{
+				field: 'stoppedAt',
+				before: new Date(2026, 10, 4, 10, 0).toISOString(),
+				after: new Date(2026, 10, 4, 10, 30).toISOString(),
+				beforeName: null,
+				afterName: null
+			},
+			{ field: 'duration', before: 3600, after: 5400, beforeName: null, afterName: null }
+		]
+	};
+
+	it('carry the values of the last edit', async () => {
+		await runExport('csv');
+
+		const columns = mockDownloadCsv.mock.calls[0][1] as CsvColumn<ManualTimeEntry>[];
+		const edited = { ...entry, lastChange };
+		expect(columns[BEFORE_COLUMN].header).toBe('dashboard.manualTimeEdits.COLUMN_BEFORE');
+		expect(columns[BEFORE_COLUMN].valueOf(edited)).toBe(
+			'dashboard.timesheets.COLUMNS.END 10:00; dashboard.timesheets.COLUMNS.DURATION 1:00'
+		);
+		expect(columns[AFTER_COLUMN].valueOf(edited)).toBe(
+			'dashboard.timesheets.COLUMNS.END 10:30; dashboard.timesheets.COLUMNS.DURATION 1:30'
+		);
+	});
+
+	it('say a deleted entry was deleted, and nothing for an entry without kept values', async () => {
+		await runExport('csv');
+
+		const columns = mockDownloadCsv.mock.calls[0][1] as CsvColumn<ManualTimeEntry>[];
+		const deleted = { ...entry, isDeleted: true, lastChange: { ...lastChange, action: 'deleted' as const } };
+		expect(columns[AFTER_COLUMN].valueOf(deleted)).toBe('dashboard.manualTimeEdits.DELETED');
+		expect(columns[BEFORE_COLUMN].valueOf(entry)).toBe('');
+		expect(columns[AFTER_COLUMN].valueOf(entry)).toBe('');
+	});
+
+	it('fit the PDF page: one width a column', async () => {
+		await runExport('pdf');
+
+		const content = mockBuildPdf.mock.calls[0][0] as EntriesPdfContent;
+		expect(content.columnWidths).toHaveLength(content.columns.length);
 	});
 });
 

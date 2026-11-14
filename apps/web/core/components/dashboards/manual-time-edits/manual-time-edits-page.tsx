@@ -106,7 +106,8 @@ export function ManualTimeEditsPage() {
 		groups: report.groups,
 		figures: report.figures,
 		period: report.shownPeriod,
-		teamName: report.teamName
+		teamName: report.teamName,
+		members: report.members
 	});
 
 	const title = t('dashboard.manualTimeEdits.TITLE');
