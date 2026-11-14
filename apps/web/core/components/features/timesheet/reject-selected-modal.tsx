@@ -14,6 +14,8 @@ export interface IRejectSelectedModalProps {
 	minReasonLength?: number;
 	maxReasonLength?: number;
 	selectTimesheetId?: string[];
+	/** What the dialog says above the reason; the selected entry by default. */
+	description?: string;
 }
 function submitLabelOf(isSubmitting: boolean, t: TranslationHooks) {
 	if (isSubmitting) {
@@ -40,7 +42,8 @@ export function RejectSelectedModal({
 	maxReasonLength,
 	onReject,
 	minReasonLength,
-	selectTimesheetId
+	selectTimesheetId,
+	description
 }: IRejectSelectedModalProps) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [reason, setReason] = useState('');
@@ -83,7 +86,7 @@ export function RejectSelectedModal({
 			<form onSubmit={handleSubmit}>
 				<div className="flex flex-col gap-4">
 					<span className="text-sm text-muted-foreground">
-						{t('pages.timesheet.YOU_ARE_ABOUT_TO_REJECT_ENTRY')}
+						{description ?? t('pages.timesheet.YOU_ARE_ABOUT_TO_REJECT_ENTRY')}
 					</span>
 					<textarea
 						value={reason}
