@@ -109,6 +109,11 @@ export type APIConfig = AxiosRequestConfig<any> & {
 	 * `APIService` leaves its body out, in direct and in proxy mode alike.
 	 */
 	secretResponse?: boolean;
+	/**
+	 * A 401 of this call refuses a proof the person typed (a wrong two-factor code), not their session: the session
+	 * handler (refresh, then sign-out) is not called, and the caller shows the refusal.
+	 */
+	expectedUnauthorized?: boolean;
 };
 
 async function apiConfig(config?: APIConfig) {
