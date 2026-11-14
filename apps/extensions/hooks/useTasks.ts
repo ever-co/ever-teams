@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { ApiError } from '~lib/api-client';
 import { listTasks, type TaskItem } from '~lib/gauzy';
@@ -26,7 +26,8 @@ export function useTasks(session: Session | null) {
 	const latestLoad = useRef(0);
 	// The team active now, read by a task creation that was answered after a team change
 	const activeTeamId = useRef(session?.teamId ?? null);
-	useEffect(() => {
+	// Updated before the browser paints the new team, so no answer can land while the ref still names the old one
+	useLayoutEffect(() => {
 		activeTeamId.current = session?.teamId ?? null;
 	}, [session?.teamId]);
 
