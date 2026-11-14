@@ -69,6 +69,26 @@ function hasOrganizationWideRole(user: TUser | null | undefined) {
 	return MANAGING_ROLES.has(roleName);
 }
 
+/**
+ * The breaks figure from its read: none where breaks are not read or while the read loads, `null` once it failed, so a
+ * failed read never looks like a period without breaks.
+ */
+function breakSecondsShownOf(
+	readsBreaks: boolean,
+	query: { data?: number; isError: boolean }
+): number | null | undefined {
+	if (!readsBreaks) {
+		return undefined;
+	}
+	if (query.data !== undefined) {
+		return query.data;
+	}
+	if (query.isError) {
+		return null;
+	}
+	return undefined;
+}
+
 /** The rule of the previous page: organisation roles, or a manager of a team, see everyone's figures and earnings. */
 function canManageReport(user: TUser | null | undefined, isTeamManager: boolean) {
 	const hasManagingRole = hasOrganizationWideRole(user);
@@ -178,7 +198,10 @@ function chartLabelsOf(locale: FormatLocale, dayCount: number): ChartDayLabels {
 export interface TimeActivityFigures {
 	/** `null` when the figure could not be read: the strip writes "–". */
 	trackedSeconds: number | null;
-	/** The time on breaks (#5216), beside the worked time; absent where breaks are off or not read. */
+	/**
+	 * The time on breaks (#5216), beside the worked time: absent where breaks are off, not read or still loading, `null`
+	 * when the read failed (the band writes "–" then, never a period without breaks).
+	 */
 	breakSeconds?: number | null;
 	/** Every log type, from the daily report the chart and the breakdown read; `null` until it is loaded. */
 	reportSeconds: number | null;
@@ -304,7 +327,7 @@ export function useTimeActivityReport() {
 	const allowsBreaks = useBreaksAllowed();
 	const readsBreaks = allowsBreaks && !billableOnly && !hasClientFilter;
 	const breaksQuery = useTimeActivityBreaksQuery(request, readsBreaks);
-	const breakSeconds = readsBreaks ? (breaksQuery.data ?? null) : null;
+	const breakSeconds = breakSecondsShownOf(readsBreaks, breaksQuery);
 	const sumsFiguresFromRows = hasTaskFilter || hasClientFilter || billableOnly || isRounding;
 	const isClientGrouping = settings.grouping === 'client';
 	const needsProjectClients = hasClientFilter || isClientGrouping;

@@ -174,15 +174,23 @@ function membersFigureOf(figures: TimeActivityFigures, t: Translate): BandFigure
 	};
 }
 
-/** The breaks of the period beside the worked time, never counted in it (#5216); none without a break. */
+/**
+ * The breaks of the period beside the worked time, never counted in it (#5216): none without a break, "–" when they
+ * could not be read, so a failed read never passes for a period without breaks.
+ */
 function breaksFigureOf(figures: TimeActivityFigures, t: Translate): BandFigure | null {
+	const label = t('breaks.FIGURE_LABEL');
+	if (figures.breakSeconds === null) {
+		const reason = t('dashboard.timeActivity.figures.UNAVAILABLE');
+		return { key: 'breaks', label, value: <MissingValue reason={reason} />, hint: reason };
+	}
 	const breakSeconds = figures.breakSeconds ?? 0;
 	if (breakSeconds <= 0) {
 		return null;
 	}
 	return {
 		key: 'breaks',
-		label: t('breaks.FIGURE_LABEL'),
+		label,
 		value: formatDurationShort(breakSeconds),
 		hint: t('breaks.FIGURE_HINT')
 	};

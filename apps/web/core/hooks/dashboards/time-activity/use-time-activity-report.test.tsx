@@ -84,8 +84,10 @@ let mockGrouping: TimeActivityGrouping = 'project';
 let mockAccess: ClientGroupingAccess = 'granted';
 let mockClientsList: ClientsList = CLIENTS_READ;
 
-// Breaks (#5216) off, as in a workspace that never turned them on
-jest.mock('@/core/hooks/timer/use-breaks-allowed', () => ({ useBreaksAllowed: () => false }));
+// Breaks (#5216) off, as in a workspace that never turned them on, unless a test turns them on
+let mockAllowsBreaks = false;
+let mockBreaksQuery: { data?: number; isError: boolean } = { data: undefined, isError: false };
+jest.mock('@/core/hooks/timer/use-breaks-allowed', () => ({ useBreaksAllowed: () => mockAllowsBreaks }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, useLocale: () => 'en' }));
 jest.mock('@/core/hooks/auth', () => ({
 	useAuthenticateUser: () => ({
@@ -121,8 +123,8 @@ jest.mock('@/core/hooks/clients/use-clients-query', () => ({
 	}
 }));
 jest.mock('./use-time-activity-queries', () => ({
-	// Breaks (#5216) are off in these tests: their figure is never read
-	useTimeActivityBreaksQuery: () => ({ data: undefined }),
+	// Breaks (#5216): their figure's read, off unless a test turns breaks on
+	useTimeActivityBreaksQuery: () => mockBreaksQuery,
 	useTimeActivityDailyQuery: () => ({
 		data: DAILY_REPORT,
 		isPending: false,
@@ -387,5 +389,42 @@ describe('useTimeActivityReport with a duration rounding rule', () => {
 		expect(report.roundingRule).toBeNull();
 		expect(report.isDailyPending).toBe(false);
 		expect(report.weekDailySource).toBeNull();
+	});
+});
+
+describe('useTimeActivityReport with breaks on (#5216)', () => {
+	beforeEach(() => {
+		resetMocks('project');
+		mockFilters = NO_FILTERS;
+		mockAllowsBreaks = true;
+	});
+
+	afterEach(() => {
+		mockAllowsBreaks = false;
+		mockBreaksQuery = { data: undefined, isError: false };
+	});
+
+	it('gives the time on breaks the read found', () => {
+		mockBreaksQuery = { data: 3600, isError: false };
+
+		const { figures } = renderHook(() => useTimeActivityReport()).result.current;
+
+		expect(figures.breakSeconds).toBe(3600);
+	});
+
+	it('shows no figure while the read loads', () => {
+		mockBreaksQuery = { data: undefined, isError: false };
+
+		const { figures } = renderHook(() => useTimeActivityReport()).result.current;
+
+		expect(figures.breakSeconds).toBeUndefined();
+	});
+
+	it('says the figure is unavailable once the read failed, never a period without breaks', () => {
+		mockBreaksQuery = { data: undefined, isError: true };
+
+		const { figures } = renderHook(() => useTimeActivityReport()).result.current;
+
+		expect(figures.breakSeconds).toBeNull();
 	});
 });

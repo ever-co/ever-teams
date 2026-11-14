@@ -75,3 +75,39 @@ describe('TimeActivitySummaryBand', () => {
 		expect(screen.queryByText(/ROUNDED_/)).toBeNull();
 	});
 });
+
+describe('TimeActivitySummaryBand breaks figure (#5216)', () => {
+	it('shows the time on breaks beside the worked time', () => {
+		render(
+			<TimeActivitySummaryBand
+				figures={{ ...FIGURES, breakSeconds: HOUR }}
+				isManager={false}
+				isLoading={false}
+				actions={null}
+			/>
+		);
+
+		expect(screen.getByText('breaks.FIGURE_LABEL')).toBeTruthy();
+		expect(screen.getByTitle('breaks.FIGURE_HINT')).toBeTruthy();
+	});
+
+	it('shows none where breaks are not read', () => {
+		render(<TimeActivitySummaryBand figures={FIGURES} isManager={false} isLoading={false} actions={null} />);
+
+		expect(screen.queryByText('breaks.FIGURE_LABEL')).toBeNull();
+	});
+
+	it('says the figure is unavailable when the breaks could not be read', () => {
+		render(
+			<TimeActivitySummaryBand
+				figures={{ ...FIGURES, breakSeconds: null }}
+				isManager={false}
+				isLoading={false}
+				actions={null}
+			/>
+		);
+
+		expect(screen.getByText('breaks.FIGURE_LABEL')).toBeTruthy();
+		expect(screen.getAllByText('dashboard.timeActivity.figures.UNAVAILABLE').length).toBeGreaterThan(0);
+	});
+});
