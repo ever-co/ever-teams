@@ -131,22 +131,6 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const cannotCreateTeam = !user?.isEmailVerified || timerRunningStatus;
 	const orderedTeams = useMemo(() => activeTeamFirst(teams, activeTeam?.id), [teams, activeTeam?.id]);
 
-	const selectTeam = useCallback(
-		(team: TOrganizationTeam) => {
-			onChangeActiveTeam({ key: team.id, data: team } as TeamItem);
-		},
-		[onChangeActiveTeam]
-	);
-
-	const openTeamSettings = useCallback(
-		(event: MouseEvent<HTMLAnchorElement>, team: TOrganizationTeam) => {
-			event.stopPropagation();
-			selectTeam(team);
-			setMenuOpen(false);
-		},
-		[selectTeam]
-	);
-
 	// The person's other organizations of the workspace, read once the session is known so the menu opens on them
 	const menuOrganizations = useTeamMenuOrganizations();
 	const switchOrganization = useSwitchOrganization();
@@ -157,6 +141,32 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const labelsCurrentOrganization = hasOtherOrganizations && Boolean(currentOrganizationName);
 	const switchingOrganizationId = organizationBeingOpened(switchOrganization);
 	const isSwitchingOrganization = switchingOrganizationId !== null;
+	const blocksTeamChange = timerRunningStatus || isSwitchingOrganization;
+
+	const selectTeam = useCallback(
+		(team: TOrganizationTeam) => {
+			// Another organization is opening: a team picked here would undo the switch's team and organization
+			if (isSwitchingOrganization) {
+				return;
+			}
+			onChangeActiveTeam({ key: team.id, data: team } as TeamItem);
+		},
+		[isSwitchingOrganization, onChangeActiveTeam]
+	);
+
+	const openTeamSettings = useCallback(
+		(event: MouseEvent<HTMLAnchorElement>, team: TOrganizationTeam) => {
+			event.stopPropagation();
+			if (isSwitchingOrganization) {
+				event.preventDefault();
+				return;
+			}
+			selectTeam(team);
+			setMenuOpen(false);
+		},
+		[isSwitchingOrganization, selectTeam]
+	);
+
 	const teamsOfThisOrganization = useMemo(
 		() => teamsOutsideOtherOrganizations(orderedTeams, otherOrganizations),
 		[orderedTeams, otherOrganizations]
@@ -248,7 +258,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 							return (
 								<DropdownMenuItem
 									key={team.id}
-									disabled={timerRunningStatus}
+									disabled={blocksTeamChange}
 									onClick={() => selectTeam(team)}
 									className="group/team h-9 gap-2.5"
 								>
@@ -277,7 +287,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 							isLoading={menuOrganizations.isLoading}
 							isError={menuOrganizations.isError}
 							onRetry={() => void menuOrganizations.refetch()}
-							isDisabled={timerRunningStatus || isSwitchingOrganization}
+							isDisabled={blocksTeamChange}
 							switchingOrganizationId={switchingOrganizationId}
 							failedOrganizationId={failedOrganizationId}
 							onPickTeam={openOtherOrganization}
@@ -334,9 +344,13 @@ const COUNT_KEYCAP = cn(commandKeycapClass, 'tabular-nums');
 const TEAM_SETTINGS_BUTTON =
 	'flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground/70 outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25';
 
-/** The organization a switch under way is opening, or null when none runs. */
+/**
+ * The organization a switch under way is opening, or null when none runs. A switch that succeeded is still under way:
+ * the page is being replaced.
+ */
 function organizationBeingOpened(switching: ReturnType<typeof useSwitchOrganization>): string | null {
-	if (!switching.isPending) {
+	const isUnderWay = switching.isPending || switching.isSuccess;
+	if (!isUnderWay) {
 		return null;
 	}
 	return switching.variables?.organizationId ?? null;
