@@ -1,3 +1,4 @@
+import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { timesheetExportDaysOf, timesheetExportRowsOf, timesheetExportTotalsOf } from './timesheet-export';
@@ -104,5 +105,32 @@ describe('the totals of a Timesheets export', () => {
 
 	it('is zero for no log', () => {
 		expect(timesheetExportTotalsOf([])).toEqual({ seconds: 0, logCount: 0, memberCount: 0 });
+	});
+});
+
+describe('breaks in a Timesheets export (#5216)', () => {
+	// Ada's day: work 9:00-12:00, a break 12:00-13:00 on the task she paused, then work 13:00-17:00
+	const morning = logOf('morning', new Date(2026, 10, 4, 9, 0), 180, { employee: ada, task: { id: 't1', title: 'Header' } });
+	const lunch = logOf('lunch', new Date(2026, 10, 4, 12, 0), 60, {
+		employee: ada,
+		task: { id: 't1', title: 'Header' },
+		logType: ETimeLogType.BREAK
+	});
+	const afternoon = logOf('afternoon', new Date(2026, 10, 4, 13, 0), 240, { employee: ada });
+	// Grace only took a break that day
+	const graceBreak = logOf('grace-break', new Date(2026, 10, 4, 15, 0), 30, {
+		employee: grace,
+		logType: ETimeLogType.BREAK
+	});
+	const day = [morning, lunch, afternoon, graceBreak];
+
+	it('writes no row for a break, which a file would read as work', () => {
+		expect(timesheetExportRowsOf(day).map((row) => row.id)).toEqual(['morning', 'afternoon']);
+		expect(timesheetExportDaysOf(day)[0].rows.map((row) => row.id)).toEqual(['morning', 'afternoon']);
+	});
+
+	it('closes on the worked time, the entries of work and the members who worked', () => {
+		expect(timesheetExportTotalsOf(day)).toEqual({ seconds: 7 * 3600, logCount: 2, memberCount: 1 });
+		expect(secondsOf(timesheetExportRowsOf(day))).toBe(7 * 3600);
 	});
 });
