@@ -146,6 +146,36 @@ describe('listItemsOf', () => {
 		expect(monday.group.key).not.toBe(tuesday.group.key);
 	});
 
+	it('places a group by its total when the list is sorted by duration', () => {
+		const grouped = [logOf('a', 9, 10), logOf('b', 11, 12), logOf('c', 13, 14)];
+		const single = logOf('other-task', 15, 17, { taskId: 'write-docs' });
+		const sortedByDuration = [...grouped, single];
+
+		const items = listItemsOf(sortedByDuration, {
+			dayKey: DAY_KEY,
+			isGrouping: true,
+			sort: { key: 'duration', direction: 'asc' }
+		});
+
+		expect(items.map(idsOf)).toEqual([['other-task'], ['a', 'b', 'c']]);
+	});
+
+	it('places a group by its first start when the list is sorted by time, latest first', () => {
+		const sortedLatestFirst = [
+			logOf('late', 15, 16),
+			logOf('other-task', 12, 13, { taskId: 'write-docs' }),
+			logOf('early', 9, 10)
+		];
+
+		const items = listItemsOf(sortedLatestFirst, {
+			dayKey: DAY_KEY,
+			isGrouping: true,
+			sort: { key: 'time', direction: 'desc' }
+		});
+
+		expect(items.map(idsOf)).toEqual([['other-task'], ['late', 'early']]);
+	});
+
 	it('lists every entry on its own row when grouping is off', () => {
 		const logs = [logOf('a', 9, 10), logOf('b', 10, 11), logOf('c', 11, 12)];
 

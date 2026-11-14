@@ -225,19 +225,21 @@ const TimesheetDayGroup = memo(function TimesheetDayGroup({
 	formatters,
 	handlers,
 	grouping,
-	groupHandlers
+	groupHandlers,
+	sort
 }: Readonly<
 	DayRowsProps & {
 		day: TimesheetDay;
 		isOpen: boolean;
 		onToggleDay: (dayKey: string) => void;
+		sort: TimesheetSort | null;
 	}
 >) {
 	const t = useTranslations();
 	const { isGrouping } = grouping;
 	const items = useMemo(
-		() => listItemsOf(day.logs, { dayKey: day.key, isGrouping }),
-		[day.key, day.logs, isGrouping]
+		() => listItemsOf(day.logs, { dayKey: day.key, isGrouping, sort }),
+		[day.key, day.logs, isGrouping, sort]
 	);
 	const rows: DayRowsProps = {
 		onSelectDay,
@@ -379,6 +381,7 @@ export function TimesheetsList({
 							handlers={handlers}
 							grouping={grouping}
 							groupHandlers={groupHandlers}
+							sort={sort}
 						/>
 					))}
 				</div>

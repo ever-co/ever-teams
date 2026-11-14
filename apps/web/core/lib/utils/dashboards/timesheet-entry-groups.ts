@@ -1,6 +1,13 @@
 import { entryNotesOf } from '@/core/lib/utils/timer/timer-notes';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
-import { endOfLog, logDurationSeconds, startOfLog, statusOfLog } from './timesheets';
+import {
+	endOfLog,
+	logDurationSeconds,
+	startOfLog,
+	statusOfLog,
+	type TimesheetSort,
+	type TimesheetSortKey
+} from './timesheets';
 
 /**
  * Entries of one day that record the same work: same member, task, project, notes and billable state. They also
@@ -82,14 +89,47 @@ function groupOf(key: string, logs: ITimeLog[]): TimesheetEntryGroup {
 	return { key, logs, firstStart: earliestStartOf(logs), lastEnd, isRunning, totalSeconds };
 }
 
+type GroupFigureKey = Extract<TimesheetSortKey, 'duration' | 'time'>;
+
+function isGroupFigureKey(key: TimesheetSortKey): key is GroupFigureKey {
+	return key === 'duration' || key === 'time';
+}
+
+/** What a row shows in the duration or time column: a group shows its total and its first start. */
+function figureOf(item: TimesheetListItem, key: GroupFigureKey): number {
+	if (key === 'duration') {
+		if (item.kind === 'group') {
+			return item.group.totalSeconds;
+		}
+		return logDurationSeconds(item.log);
+	}
+	const start = item.kind === 'group' ? item.group.firstStart : startOfLog(item.log);
+	return start?.getTime() ?? 0;
+}
+
+/**
+ * The logs come sorted by the picked column. Status, task, project and member hold one value for a whole group, so
+ * the group already stands where that value puts it; duration and time show the group's own total and first
+ * start, so the rows are sorted again by what they show. The entries of a group keep the order of the logs.
+ */
+function sortedByFigures(items: TimesheetListItem[], sort: TimesheetSort | null | undefined): TimesheetListItem[] {
+	if (!sort || !isGroupFigureKey(sort.key)) {
+		return items;
+	}
+	const key = sort.key;
+	const factor = sort.direction === 'asc' ? 1 : -1;
+	return [...items].sort((first, second) => (figureOf(first, key) - figureOf(second, key)) * factor);
+}
+
 /**
  * The rows of one day in the list: an entry recorded once stays an entry; entries that record the same work become
  * one group, shown where the first of them stands, its entries in the order of the list. Without grouping, one row
- * per entry, as the list always showed them.
+ * per entry, as the list always showed them. Sorted by duration or time, a group stands where its total or its
+ * first start puts it.
  */
 export function listItemsOf(
 	logs: ReadonlyArray<ITimeLog>,
-	options: Readonly<{ dayKey: string; isGrouping: boolean }>
+	options: Readonly<{ dayKey: string; isGrouping: boolean; sort?: TimesheetSort | null }>
 ): TimesheetListItem[] {
 	if (!options.isGrouping) {
 		return logs.map((log) => ({ kind: 'entry', log }));
@@ -121,5 +161,5 @@ export function listItemsOf(
 		const groupKey = `${options.dayKey}${KEY_SEPARATOR}${key}`;
 		items.push({ kind: 'group', group: groupOf(groupKey, similar) });
 	}
-	return items;
+	return sortedByFigures(items, options.sort);
 }
