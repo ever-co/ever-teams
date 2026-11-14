@@ -2063,12 +2063,22 @@ describe('Ever Teams feature surface preservation', () => {
 		// disable, recovery-codes and verify POST, users/[userId] DELETE; #5210).
 		// 373 files and 472 verbs with the history of a time entry and the changes of a period
 		// (GET /api/timesheet/time-log/[id]/history, GET /api/timesheet/time-log/history; #5222).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(373);
+		// 377 files and 479 verbs with the saved reports proxies (/api/saved-reports GET and POST, [id] PUT and DELETE,
+		// [id]/share POST and DELETE, /api/public/saved-reports/[token] GET; #5200).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(377);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(472);
+		).toHaveLength(479);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of Gauzy's saved reports routes and the read of a shared report (ever-gauzy #11912, #5200)
+				'apps/web/app/api/saved-reports/route.ts::GET',
+				'apps/web/app/api/saved-reports/route.ts::POST',
+				'apps/web/app/api/saved-reports/[id]/route.ts::PUT',
+				'apps/web/app/api/saved-reports/[id]/route.ts::DELETE',
+				'apps/web/app/api/saved-reports/[id]/share/route.ts::POST',
+				'apps/web/app/api/saved-reports/[id]/share/route.ts::DELETE',
+				'apps/web/app/api/public/saved-reports/[token]/route.ts::GET',
 				// Proxy mode twins of Gauzy's personal API token routes (#5209)
 				'apps/web/app/api/user-api-tokens/config/route.ts::GET',
 				'apps/web/app/api/user-api-tokens/route.ts::GET',
