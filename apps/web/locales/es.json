@@ -7168,7 +7168,6 @@
 			},
 			"FAILED_TITLE": "La importación se detuvo en «{name}»",
 			"FAILED_DESCRIPTION": "No se guardó ninguna entrada de tiempo. Lo creado antes se queda en el espacio de trabajo y se reutiliza cuando vuelvas a importar los mismos archivos.",
-			"INTERRUPTED": "Se salió de la página: la importación se detuvo. Lo creado se queda y se reutiliza la próxima vez.",
 			"CREATED_TITLE": "Los clientes, proyectos y etiquetas están en el espacio de trabajo"
 		}
 	},

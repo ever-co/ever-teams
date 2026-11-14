@@ -7168,7 +7168,6 @@
 			},
 			"FAILED_TITLE": "L'importazione si è fermata su «{name}»",
 			"FAILED_DESCRIPTION": "Nessuna voce di tempo è stata salvata. Ciò che è stato creato prima resta nello spazio di lavoro e viene riutilizzato quando importi di nuovo gli stessi file.",
-			"INTERRUPTED": "La pagina è stata lasciata: l'importazione si è fermata. Ciò che è stato creato resta e viene riutilizzato la prossima volta.",
 			"CREATED_TITLE": "Clienti, progetti ed etichette sono nello spazio di lavoro"
 		}
 	},

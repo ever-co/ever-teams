@@ -7168,7 +7168,6 @@
 			},
 			"FAILED_TITLE": "Import zatrzymał się na „{name}”",
 			"FAILED_DESCRIPTION": "Żaden wpis czasu nie został zapisany. To, co utworzono wcześniej, zostaje w przestrzeni roboczej i jest używane ponownie przy kolejnym imporcie tych samych plików.",
-			"INTERRUPTED": "Strona została opuszczona: import się zatrzymał. To, co utworzono, zostaje i zostanie użyte następnym razem.",
 			"CREATED_TITLE": "Klienci, projekty i etykiety są w przestrzeni roboczej"
 		}
 	},

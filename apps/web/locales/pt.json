@@ -7168,7 +7168,6 @@
 			},
 			"FAILED_TITLE": "A importação parou em «{name}»",
 			"FAILED_DESCRIPTION": "Nenhum registo de tempo foi guardado. O que foi criado antes fica no espaço de trabalho e é reutilizado quando importar de novo os mesmos ficheiros.",
-			"INTERRUPTED": "A página foi deixada: a importação parou. O que foi criado fica e é reutilizado da próxima vez.",
 			"CREATED_TITLE": "Os clientes, projetos e etiquetas estão no espaço de trabalho"
 		}
 	},

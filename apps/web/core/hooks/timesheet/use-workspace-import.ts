@@ -53,7 +53,7 @@ const CLIENT_VIEW_PERMISSIONS = ['ORG_CONTACT_VIEW'] as const;
 
 const MEMBER_UNKNOWN = 'memberUnknown';
 
-export type WorkspaceCreationStatus = 'idle' | 'creating' | 'created' | 'failed' | 'interrupted';
+export type WorkspaceCreationStatus = 'idle' | 'creating' | 'created' | 'failed';
 
 export interface WorkspaceCreationState {
 	status: WorkspaceCreationStatus;
@@ -338,17 +338,15 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 		void queryClient.invalidateQueries({ queryKey: queryKeys.organizationProjects.all });
 		void queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
 		invalidateTaskLabelsData();
+		// A run cut short (the files changed, or the page was left) has no screen left to report to
 		if (!isRunGoing()) {
 			return;
 		}
 		if (result.failure) {
 			logErrorInDev('Workspace import step refused', result.failure.error);
 			const { step, name, error } = result.failure;
-			setCreation({ status: 'failed', tallies: result.tallies, failure: { step, name, reasonKey: errorReasonKeyOf(error) } });
-			return;
-		}
-		if (result.isInterrupted) {
-			setCreation({ status: 'interrupted', tallies: result.tallies, failure: null });
+			const failure = { step, name, reasonKey: errorReasonKeyOf(error) };
+			setCreation({ status: 'failed', tallies: result.tallies, failure });
 			return;
 		}
 		setCreation({ status: 'created', tallies: result.tallies, failure: null });

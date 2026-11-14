@@ -7168,7 +7168,6 @@
 			},
 			"FAILED_TITLE": "De import is gestopt bij “{name}”",
 			"FAILED_DESCRIPTION": "Er is geen tijdregistratie opgeslagen. Wat eerder is aangemaakt blijft in de workspace en wordt hergebruikt als je dezelfde bestanden opnieuw importeert.",
-			"INTERRUPTED": "De pagina is verlaten: de import is gestopt. Wat is aangemaakt blijft en wordt de volgende keer hergebruikt.",
 			"CREATED_TITLE": "De klanten, projecten en labels staan in de workspace"
 		}
 	},

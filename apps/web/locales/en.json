@@ -7168,7 +7168,6 @@
 			},
 			"FAILED_TITLE": "The import stopped on “{name}”",
 			"FAILED_DESCRIPTION": "No time entry was saved. What was created before stays in the workspace and is reused when you import the same files again.",
-			"INTERRUPTED": "The page was left: the import stopped. What was created stays and is reused next time.",
 			"CREATED_TITLE": "Clients, projects and labels are in the workspace"
 		}
 	},
