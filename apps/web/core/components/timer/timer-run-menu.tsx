@@ -41,6 +41,7 @@ const FAILURE_KEYS = {
 	FORBIDDEN: 'timer.discard.failures.FORBIDDEN',
 	NOT_SUPPORTED: 'timer.discard.failures.NOT_SUPPORTED',
 	CHANGED: 'timer.discard.failures.CHANGED',
+	TRACKER_RUN: 'timer.discard.failures.TRACKER_RUN',
 	GENERIC: 'timer.discard.failures.GENERIC'
 } as const satisfies Record<TimerDiscardFailure, string>;
 
@@ -73,6 +74,7 @@ export function TimerRunMenu({ className }: Readonly<{ className?: string }>) {
 	const t = useTranslations();
 	const { availability, runningLogId, runningSource, discard, discarding, failure, resetFailure } = useTimerDiscard();
 	const [confirming, setConfirming] = useState(false);
+	// The run the confirmation was opened for: a run started meanwhile elsewhere is never the one discarded
 	const [confirmedRun, setConfirmedRun] = useState<ConfirmedRun | null>(null);
 
 	const openConfirmation = useCallback(() => {

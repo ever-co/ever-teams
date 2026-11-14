@@ -1,10 +1,12 @@
 'use client';
 
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { CircleAlert, Clock } from '@/core/components/icons';
 import { ConfirmDestructiveDialog, type DangerConsequence } from '@/core/components/settings/kit/danger';
 import type { TimeOverlapGuard } from '@/core/hooks/timesheet/use-time-overlap-guard';
 import { formatOverlapDuration, type OverlappedEntry } from '@/core/lib/utils/time-log-overlap';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 
 const LISTED_ENTRIES = 5;
 
@@ -22,10 +24,10 @@ export function TimeOverlapConfirmDialog({
 	confirmLabel
 }: Readonly<{ guard: TimeOverlapGuard; confirmLabel: string }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const { summary } = guard;
-	const startFormatter = new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' });
-	const rangeFormatter = new Intl.DateTimeFormat(locale, {
+	const startFormatter = dateFormatOf(locale, { dateStyle: 'medium', timeStyle: 'short' });
+	const rangeFormatter = dateFormatOf(locale, {
 		month: 'short',
 		day: 'numeric',
 		hour: 'numeric',

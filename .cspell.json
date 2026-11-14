@@ -1014,7 +1014,19 @@
 		"Femployee",
 		"globex",
 		"unbilled",
-		"initech"
+		"Beginn",
+		"Dauer",
+		"Ende",
+		"Kunde",
+		"Notiz",
+		"initech",
+		"Amina",
+		"Diallo",
+		"Équipe",
+		"RRGGBB",
+		"otpauth",
+		"qrcode",
+		"totp"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

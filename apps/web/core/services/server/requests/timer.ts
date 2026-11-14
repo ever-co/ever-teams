@@ -60,7 +60,7 @@ export function startTimerRequest(params: IUpdateTimerStatusParams, bearer_token
 }
 
 export function stopTimerRequest(
-	params: IUpdateTimerStatusParams & { startedAt?: string; stoppedAt?: string },
+	params: IUpdateTimerStatusParams & { startedAt?: string; stoppedAt?: string; timeLogId?: string },
 	bearer_token: string
 ) {
 	return serverFetch<ITimeLog | null>({

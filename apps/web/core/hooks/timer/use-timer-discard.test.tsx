@@ -13,13 +13,13 @@ import { currentOrganizationState } from '@/core/stores/user/user-organizations'
 const mockDiscardTimer = jest.fn();
 const mockToastSuccess = jest.fn();
 const mockReadOrganization = jest.fn();
-const mockTrackTimerCommand = jest.fn();
 
 jest.mock('@/core/services/client/api/timers/timer.service', () => ({
 	timerService: { discardTimer: (...args: unknown[]) => mockDiscardTimer(...args) }
 }));
+const mockTrackTimerCommand = jest.fn(<T,>(request: Promise<T>) => request);
 jest.mock('@/core/hooks/timer/use-timer-api', () => ({
-	trackTimerCommand: (request: Promise<unknown>) => mockTrackTimerCommand(request)
+	trackTimerCommand: <T,>(request: Promise<T>) => mockTrackTimerCommand(request)
 }));
 jest.mock('@/core/hooks/auth/use-current-organization', () => ({
 	useGetCurrentOrganization: (...args: unknown[]) => mockReadOrganization(...args)
@@ -59,11 +59,10 @@ function renderDiscard(organization: Record<string, unknown> | null) {
 beforeEach(() => {
 	jest.useFakeTimers({ now: START + 60_000, doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask'] });
 	mockDiscardTimer.mockReset();
+	mockTrackTimerCommand.mockClear();
 	mockToastSuccess.mockReset();
 	mockReadOrganization.mockReset();
 	mockReadOrganization.mockReturnValue({ isError: false, refetch: jest.fn() });
-	mockTrackTimerCommand.mockReset();
-	mockTrackTimerCommand.mockImplementation((request: Promise<unknown>) => request);
 });
 
 afterEach(() => {
@@ -83,6 +82,19 @@ describe('useTimerDiscard', () => {
 		expect(result.current.availability).toEqual({ available: false, reason: 'NOT_SUPPORTED' });
 	});
 
+	it('refuses a discard that names no run, and asks the API nothing', async () => {
+		const { result } = renderDiscard({ id: 'organization-1', allowDiscardTimer: null });
+
+		let discarded = true;
+		await act(async () => {
+			discarded = await result.current.discard(undefined);
+		});
+
+		expect(discarded).toBe(false);
+		expect(result.current.failure).toBe('CHANGED');
+		expect(mockDiscardTimer).not.toHaveBeenCalled();
+	});
+
 	it('discards the run the member sees, then shows the stopped status the API answers', async () => {
 		mockDiscardTimer.mockResolvedValue({ data: STOPPED });
 		const { result, store, invalidate } = renderDiscard({ id: 'organization-1', allowDiscardTimer: null });
@@ -96,6 +108,9 @@ describe('useTimerDiscard', () => {
 
 		expect(discarded).toBe(true);
 		expect(mockDiscardTimer).toHaveBeenCalledWith({ timeLogId: 'log-1' });
+		// Tracked as a timer command, so an older status read cannot put the run back
+		expect(mockTrackTimerCommand).toHaveBeenCalledTimes(1);
+		expect(mockTrackTimerCommand).toHaveBeenCalledWith(mockDiscardTimer.mock.results[0].value);
 		expect(store.get(timerStatusState)).toEqual(STOPPED);
 		expect(result.current.failure).toBeNull();
 		expect(mockToastSuccess).toHaveBeenCalled();
@@ -114,18 +129,6 @@ describe('useTimerDiscard', () => {
 		expect(discarded).toBe(false);
 		expect(result.current.failure).toBe('TOO_LATE');
 		expect(store.get(timerStatusState)).toEqual(RUNNING);
-	});
-
-	it('sends the discard as a timer command, so a status read sent before it cannot show the run again', async () => {
-		mockDiscardTimer.mockResolvedValue({ data: STOPPED });
-		const { result } = renderDiscard({ id: 'organization-1', allowDiscardTimer: null });
-
-		await act(async () => {
-			await result.current.discard('log-1');
-		});
-
-		expect(mockTrackTimerCommand).toHaveBeenCalledTimes(1);
-		expect(mockTrackTimerCommand).toHaveBeenCalledWith(mockDiscardTimer.mock.results[0].value);
 	});
 
 	it('counts a discard whose status read failed as done: the timer reads stopped and the views read again', async () => {

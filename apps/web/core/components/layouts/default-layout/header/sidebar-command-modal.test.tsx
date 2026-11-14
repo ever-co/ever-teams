@@ -9,6 +9,7 @@ let mockRegistered = new Map<string, () => void>();
 const mockUseKeyboardShortcuts = jest.fn();
 const mockRegisterHandlers = jest.fn();
 const mockSetOpen = jest.fn();
+const mockSetShortcutsSheetOpen = jest.fn();
 
 jest.mock('@/core/hooks/invitations/use-can-invite-to-active-team', () => ({
 	useCanInviteToActiveTeam: () => mockCanInvite
@@ -27,7 +28,10 @@ jest.mock('@/core/hooks/keyboard/use-keyboard-preferences', () => {
 jest.mock('@/core/hooks/keyboard/use-shortcuts', () => ({
 	useShortcutHandlers: (handlers: Record<string, () => void>) => mockRegisterHandlers(handlers)
 }));
-jest.mock('@/core/stores/common/shortcuts', () => ({ shortcutHandlersAtom: Symbol('shortcut-handlers') }));
+jest.mock('@/core/stores/common/shortcuts', () => ({
+	shortcutHandlersAtom: Symbol('shortcut-handlers'),
+	shortcutsHelpOpenAtom: Symbol('shortcuts-help')
+}));
 jest.mock('@/core/lib/utils/task-views-enabled', () => ({ isTaskViewsEnabled: () => mockRegistryOn }));
 const mockRecent = [
 	{ kind: 'task', id: 'task-1', title: 'A task', href: '/task/task-1' },
@@ -45,7 +49,8 @@ jest.mock('../../../../hooks', () => ({
 }));
 jest.mock('jotai', () => ({
 	useAtom: () => [true, mockSetOpen],
-	useAtomValue: () => mockRegistered
+	useAtomValue: () => mockRegistered,
+	useSetAtom: () => mockSetShortcutsSheetOpen
 }));
 jest.mock('@/core/stores/common/command-palette', () => ({ commandPaletteOpenAtom: Symbol('command-palette') }));
 const mockPush = jest.fn();
@@ -66,7 +71,9 @@ jest.mock('@/core/components/common/command', () => {
 		CommandInput: ({ value, onValueChange }: { value: string; onValueChange: (value: string) => void }) => (
 			<input aria-label="search" value={value} onChange={(event) => onValueChange(event.target.value)} />
 		),
-		CommandItem: Pass,
+		CommandItem: ({ children, value }: { children?: React.ReactNode; value?: string }) => (
+			<div data-value={value}>{children}</div>
+		),
 		CommandList: Pass,
 		CommandShortcut: Pass
 	};
@@ -81,6 +88,7 @@ jest.mock('../../../icons', () => {
 		AddTeamIcon: Icon,
 		AddUserIcon: Icon,
 		DashboardIcon: Icon,
+		Keyboard: Icon,
 		MoonIcon: Icon,
 		ProfileIcon: Icon,
 		SettingsIcon: Icon,
@@ -165,10 +173,37 @@ describe('SidebarCommandModal invite command', () => {
 	});
 });
 
-/** The key caps an entry shows, read next to its description. */
-function keyCapsOf(descriptionKey: string): string[] {
-	const row = screen.getByText(descriptionKey).parentElement as HTMLElement;
+/** The key caps an entry shows, read next to its label. */
+function keyCapsIn(label: HTMLElement): string[] {
+	const row = label.parentElement as HTMLElement;
 	return Array.from(row.querySelectorAll('kbd')).map((cap) => cap.textContent ?? '');
+}
+
+function keyCapsOf(descriptionKey: string): string[] {
+	return keyCapsIn(screen.getByText(descriptionKey));
+}
+
+function readsAsRow(element: Element | null, label: string): boolean {
+	const isLabel = element?.tagName === 'SPAN';
+	const readsLabel = element?.textContent === label;
+	return isLabel && readsLabel;
+}
+
+/** A "Go to" row by what it reads: its group sits in a muted span of its own, before the page's name. */
+function pageRow(label: string): HTMLElement {
+	return screen.getByText((_, element) => readsAsRow(element, label));
+}
+
+function queryPageRow(label: string): HTMLElement | null {
+	return screen.queryByText((_, element) => readsAsRow(element, label));
+}
+
+function pageKeyCapsOf(label: string): string[] {
+	return keyCapsIn(pageRow(label));
+}
+
+function mutedGroupOf(row: HTMLElement): string | null | undefined {
+	return row.querySelector('.text-muted-foreground')?.textContent;
 }
 
 describe('SidebarCommandModal with the shortcut registry', () => {
@@ -255,6 +290,180 @@ describe('SidebarCommandModal with the shortcut registry', () => {
 		fireEvent.change(field, { target: { value: 'gk' } });
 		expect(goKanban).toHaveBeenCalledTimes(1);
 		expect(field.value).toBe('gk');
+	});
+});
+
+/** The pages a plain member's sidebar lists, and the ones a manager's adds. */
+const MEMBER_PAGES = [
+	{ title: 'Home', url: '/' },
+	{ title: 'Kanban', url: '/kanban', section: 'Tasks' },
+	{ title: 'Time & activity', url: '/reports/time-and-activity', section: 'My work' }
+];
+const MANAGER_PAGES = [
+	...MEMBER_PAGES,
+	{ title: 'Timesheets', url: '/reports/timesheet/user-1?name=User', section: 'Reports' },
+	{ title: 'Weekly limit', url: '/reports/weekly-limit', section: 'Reports' }
+];
+
+/** The handlers the palette registered with the registry on its last render, by command. */
+function registeredHandlerIds(): string[] {
+	const handlers = mockRegisterHandlers.mock.calls[mockRegisterHandlers.mock.calls.length - 1][0];
+	return Object.keys(handlers);
+}
+
+describe('SidebarCommandModal with the pages of the sidebar', () => {
+	beforeEach(() => {
+		mockUseKeyboardShortcuts.mockClear();
+		mockRegisterHandlers.mockClear();
+		mockSetOpen.mockClear();
+		mockPush.mockClear();
+	});
+
+	afterEach(() => {
+		mockRegistryOn = false;
+		mockRegistered = new Map();
+	});
+
+	it('lists each page it is handed under "Go to", a page of a group read with the group first', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MANAGER_PAGES} />);
+
+		expect(screen.getByText('Home')).toBeTruthy();
+		expect(pageRow('Tasks › Kanban')).toBeTruthy();
+		expect(pageRow('Reports › Timesheets')).toBeTruthy();
+	});
+
+	it('writes the group of a page muted, as the ancestors of a breadcrumb, and a first-level page alone', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MANAGER_PAGES} />);
+
+		expect(mutedGroupOf(pageRow('Reports › Timesheets'))).toBe('Reports › ');
+		expect(mutedGroupOf(pageRow('Home'))).toBeUndefined();
+	});
+
+	it('opens the page of the row chosen and closes the palette', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MANAGER_PAGES} />);
+
+		fireEvent.click(pageRow('Reports › Timesheets'));
+
+		expect(mockSetOpen).toHaveBeenCalledWith(false);
+		expect(mockPush).toHaveBeenCalledWith('/reports/timesheet/user-1?name=User');
+	});
+
+	it('lists no page the sidebar does not hand it: a member sees no report for managers', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MEMBER_PAGES} />);
+
+		expect(queryPageRow('Reports › Timesheets')).toBeNull();
+		expect(screen.queryByText('commandPalette.commands.goToTimesheets')).toBeNull();
+		expect(screen.queryByText('commandPalette.commands.goToWeeklyLimit')).toBeNull();
+		expect(pageRow('My work › Time & activity')).toBeTruthy();
+	});
+
+	it('lists a page once: its hard-coded link gives way to the row, which keeps the keys of the link', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MEMBER_PAGES} />);
+
+		expect(screen.queryByText('commandPalette.commands.goToKanban')).toBeNull();
+		expect(pageKeyCapsOf('Tasks › Kanban')).toEqual(['⌘', 'K']);
+		// The keys of the link are still the palette's: only its row moved.
+		expect(registeredSequences()).toContain('k');
+	});
+
+	it('lists the pages that have keys before anything is typed, and the others behind "Show more"', () => {
+		const pages = [...MEMBER_PAGES, { title: 'Calendar', url: '/calendar' }];
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={pages} />);
+
+		expect(pageRow('Tasks › Kanban')).toBeTruthy();
+		expect(screen.queryByText('Calendar')).toBeNull();
+		fireEvent.click(screen.getByText('common.SHOW_MORE'));
+
+		expect(screen.getByText('Calendar')).toBeTruthy();
+		expect(screen.queryByText('common.SHOW_MORE')).toBeNull();
+		// "Show more" opens the "Go to" tab: the palette stays open.
+		expect(mockSetOpen).not.toHaveBeenCalledWith(false);
+	});
+
+	it('lists two pages that read the same, the second with a value of its own for the palette to tell them apart', () => {
+		const sprint = { title: 'Sprint', section: 'Views' };
+		const pages = [...MEMBER_PAGES, { ...sprint, url: '/views/v-1' }, { ...sprint, url: '/views/v-2' }];
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={pages} />);
+		fireEvent.click(screen.getByText('common.SHOW_MORE'));
+
+		const rows = screen.getAllByText((_, element) => readsAsRow(element, 'Views › Sprint'));
+		const values = rows.map((row) => row.parentElement?.getAttribute('data-value'));
+		expect(values).toEqual([null, 'Views › Sprint\u200B']);
+	});
+
+	it('lists every page once something is typed', () => {
+		const pages = [...MEMBER_PAGES, { title: 'Calendar', url: '/calendar' }];
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={pages} />);
+
+		fireEvent.change(screen.getByLabelText('search'), { target: { value: 'cal' } });
+
+		expect(screen.getByText('Calendar')).toBeTruthy();
+		expect(screen.queryByText('common.SHOW_MORE')).toBeNull();
+	});
+
+	it('gives the registry no handler for a "go to" whose page it is not handed', () => {
+		mockRegistryOn = true;
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MEMBER_PAGES} />);
+
+		expect(registeredHandlerIds()).not.toContain('goTimesheets');
+		expect(registeredHandlerIds()).not.toContain('goWeeklyLimit');
+		expect(registeredHandlerIds()).toContain('goTimeActivity');
+		expect(registeredHandlerIds()).toContain('themeToggle');
+	});
+
+	it('gives it the handlers of the reports for a manager, and shows on a row the keys of its command', () => {
+		mockRegistryOn = true;
+		mockRegistered = new Map([['goKanban', jest.fn()]]);
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MANAGER_PAGES} />);
+
+		expect(registeredHandlerIds()).toContain('goTimesheets');
+		expect(registeredHandlerIds()).toContain('goWeeklyLimit');
+		expect(pageKeyCapsOf('Tasks › Kanban')).toEqual(['G', 'K']);
+		// No handler is registered for it in this test: no key that would do nothing, so it waits behind "Show more".
+		expect(queryPageRow('Reports › Timesheets')).toBeNull();
+		fireEvent.click(screen.getByText('common.SHOW_MORE'));
+		expect(pageKeyCapsOf('Reports › Timesheets')).toEqual([]);
+	});
+});
+
+describe('SidebarCommandModal keyboard shortcuts entry', () => {
+	beforeEach(() => {
+		mockUseKeyboardShortcuts.mockClear();
+		mockSetOpen.mockClear();
+		mockSetShortcutsSheetOpen.mockClear();
+	});
+
+	afterEach(() => {
+		mockRegistryOn = false;
+		mockRegistered = new Map();
+	});
+
+	it('opens the shortcuts sheet from the Settings group and closes the palette, showing the help key', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" />);
+
+		expect(keyCapsOf('shortcuts.TITLE')).toEqual(['?']);
+		fireEvent.click(screen.getByText('shortcuts.TITLE'));
+
+		expect(mockSetOpen).toHaveBeenCalledWith(false);
+		expect(mockSetShortcutsSheetOpen).toHaveBeenCalledWith(true);
+	});
+
+	it('shows the binding in force of the help with the registry, and still opens the sheet', () => {
+		mockRegistryOn = true;
+		mockRegistered = new Map([['helpOpen', jest.fn()]]);
+		render(<SidebarCommandModal publicTeam={false} variant="none" />);
+
+		expect(keyCapsOf('shortcuts.TITLE')).toEqual(['?']);
+		fireEvent.click(screen.getByText('shortcuts.TITLE'));
+
+		expect(mockSetShortcutsSheetOpen).toHaveBeenCalledWith(true);
+	});
+
+	it('hands its own key listener only the entries that have keys: no page row, no key-less entry', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MEMBER_PAGES} />);
+
+		expect(registeredSequences()).not.toContain('');
+		expect(registeredSequences()).toContain('k');
 	});
 });
 

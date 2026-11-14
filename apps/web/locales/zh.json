@@ -599,6 +599,21 @@
 				"EDITED_AT": "编辑于 {date} {time}",
 				"REASON_PREFIX": "原因："
 			},
+			"SIMILAR": {
+				"ENTRY_COUNT": "{count, plural, other {# 条记录}}",
+				"SHOW_ENTRIES": "显示 {task} 的记录",
+				"HIDE_ENTRIES": "隐藏 {task} 的记录",
+				"SELECT_GROUP": "{count, plural, other {选择 {task} 的 # 条记录}}",
+				"CONFIRM_BILLABLE": "{count, plural, other {将 # 条记录标记为可计费？}}",
+				"CONFIRM_NOT_BILLABLE": "{count, plural, other {将 # 条记录标记为不可计费？}}",
+				"CONFIRM_STATUS": "{count, plural, other {将 # 条记录设为“{status}”？}}",
+				"CONFIRM_SCOPE": "此行中 {task} 的所有记录都会更改。",
+				"CHANGED": "{count, plural, other {已更改 # 条记录}}",
+				"PARTLY_CHANGED": "已更改 {changed}/{count} 条记录，其余记录保持原值。",
+				"REJECT_COUNT": "{count, plural, other {您即将拒绝 # 条记录，是否继续？}}",
+				"VIEW_GROUP": "合并相似记录",
+				"VIEW_GROUP_HELP": "同一天中任务、项目、备注和计费状态都相同的记录显示为一行。"
+			},
 			"STATUS_CARDS": {
 				"PENDING": "待审批",
 				"LOG_UNIT": "{count, plural, other {条记录}}"
@@ -794,7 +809,12 @@
 				"NONE": "无项目",
 				"COUNT": "{count, plural, one {# 个项目} other {# 个项目}}",
 				"OTHER": "{count, plural, one {其他 # 个项目} other {其他 # 个项目}}",
-				"EMPTY": "本期记录时间后，项目会显示在这里。"
+				"EMPTY": "本期记录时间后，项目会显示在这里。",
+				"SPLIT": "时间划分方式",
+				"BY_CLIENT": "按客户",
+				"OTHER_CLIENTS": "{count, plural, one {其他 # 个客户} other {其他 # 个客户}}",
+				"CLIENTS_EMPTY": "本期记录时间后，客户会显示在这里。",
+				"CLIENTS_ERROR": "无法读取项目的客户。"
 			},
 			"table": {
 				"VIEW": "行的分组方式",
@@ -1229,7 +1249,10 @@
 				"SUMMARY": "本期汇总",
 				"NO_ACTIVITY": "本期没有活跃度记录",
 				"CHART_LABEL": "每天的已记录时间和活跃度",
-				"BY_TIMER": "计时器 {duration}"
+				"BY_TIMER": "计时器 {duration}",
+				"ROUNDED_UP": "每条记录向上取整到 {minutes} 分钟",
+				"ROUNDED_DOWN": "每条记录向下取整到 {minutes} 分钟",
+				"ROUNDED_NEAREST": "每条记录四舍五入到 {minutes} 分钟"
 			},
 			"breakdown": {
 				"RANK": "排名",
@@ -1515,6 +1538,53 @@
 				"FUTURE": "您的组织不允许添加当前时间之后的时间。",
 				"APPROVED": "这一天属于已批准的工时表，因此无法更改其时间。",
 				"SAVE_FAILED": "更改未保存"
+			},
+			"MENU": {
+				"STOP": "停止计时器",
+				"ADD_TIME_HERE": "在此添加时间",
+				"SPLIT": "拆分",
+				"NO_ACTIONS": "你无法更改此条目。"
+			},
+			"SPLIT": {
+				"TITLE": "拆分条目",
+				"REFUSED_TITLE": "此条目无法拆分",
+				"TIME_LABEL": "拆分时间",
+				"TIME_OUTSIDE": "请选择条目内的时间，距开始和结束至少一分钟。",
+				"PARTS_LABEL": "两个条目",
+				"FIRST_PART": "第一部分",
+				"SECOND_PART": "第二部分",
+				"TASK_LABEL": "第二部分的任务：{task}",
+				"TASK_SEARCH": "搜索任务",
+				"ACTION": "拆分",
+				"SAVING": "正在拆分…",
+				"SAVED": "条目已拆分为两个",
+				"FAILED_RESTORED": "条目无法拆分，已恢复原样。请重试。",
+				"FAILED_CHANGED": "自日历加载以来，此条目已发生变化，因此未进行拆分。请检查后重试。",
+				"FAILED_FIRST_PART_KEPT": "第一部分已保存，但第二部分（{range}）无法添加。请通过“添加时间”添加。",
+				"FAILED_UNKNOWN": "无法确认拆分结果。请重新加载日历并检查此条目后再试。",
+				"ADD_REST": "添加第二部分",
+				"REFUSED": {
+					"TRACKED": "跟踪的时间带有其活动和截图，只有服务器能在两个条目之间分配。目前只能拆分手动添加的时间。",
+					"RUNNING": "计时器仍在运行。请先停止，再拆分条目。",
+					"TOO_SHORT": "此条目太短：每部分至少要持续一分钟。",
+					"APPROVED": "这一天属于已批准的工时表，因此其时间无法更改。",
+					"PERMISSION": "你的角色或组织不允许更改时间或手动添加时间。"
+				}
+			},
+			"SETTINGS": {
+				"LABEL": "网格设置",
+				"SNAP": "对齐间隔",
+				"SNAP_OPTION": "{minutes, plural, =60 {1 小时} other {# 分钟}}",
+				"FIRST_HOUR": "起始小时",
+				"LAST_HOUR": "结束小时",
+				"END_OF_DAY": "一天结束",
+				"HOURS_HINT": "这些小时之外的条目仍会显示：网格会扩展到它们。",
+				"ROW_HEIGHT": "行高",
+				"ROW_COMPACT": "紧凑",
+				"ROW_DEFAULT": "默认",
+				"ROW_TALL": "较高",
+				"KEPT_HERE": "保存在此浏览器中",
+				"RESET": "重置"
 			}
 		},
 		"manualTimeEdits": {
@@ -2793,6 +2863,32 @@
 			"HINT_RUNNING": "计时器运行期间所做的更改暂不保存。如需更改备注，请在停止计时器后于工时表中编辑该记录。",
 			"HINT_OTHER_TEAM": "这些备注属于另一个团队中正在运行的计时器，因此无法在此处更改。"
 		},
+		"NOT_BILLABLE": "不可计费",
+		"startMove": {
+			"TITLE": "正在运行的计时器的开始时间",
+			"STARTED_AT": "开始于 {time}",
+			"OPEN": "开始于 {time}。更改开始时间",
+			"NEW_START": "新的开始时间",
+			"REASON": "原因",
+			"REASON_PLACEHOLDER": "开始时间为何更改",
+			"LATER_ONLY": "你无权手动添加时间，因此开始时间只能往后移。",
+			"SAVING": "正在保存…",
+			"SAVED": "计时器现在从 {time} 开始。",
+			"CHECKING": "正在检查能否更改开始时间…",
+			"VIEW_TRACKER": "此计时器在桌面应用中运行。请在那里更改开始时间。",
+			"VIEW_NOT_ALLOWED": "在此组织中你无权更改已记录的时间。",
+			"UNSUPPORTED": "此服务器暂时无法更改正在运行的计时器的开始时间。",
+			"NOT_RUNNING": "计时器已不再运行。",
+			"TRACKER_RUN": "此计时器在桌面应用或代理程序中运行，它们会自行记录时间。请在那里更改开始时间。",
+			"IN_FUTURE": "开始时间不能晚于现在。",
+			"EDIT_NOT_ALLOWED": "你无权更改已记录的时间。",
+			"MANUAL_NOT_ALLOWED": "更早的开始时间会手动添加时间，而你无权这样做。请选择更晚的开始时间。",
+			"REASON_REQUIRED": "你的组织要求填写原因。",
+			"REASON_TOO_LONG": "原因太长：最多 255 个字符。",
+			"OVERLAP": "你的另一条记录覆盖了这段时间。请选择在它结束之后的开始时间。",
+			"CHANGED": "开始时间刚刚在别处被更改。请检查后重试。",
+			"SAVE_FAILED": "无法保存开始时间。请重试。"
+		},
 		"discard": {
 			"MENU": "更多计时器操作",
 			"ACTION": "放弃本次计时",
@@ -2816,10 +2912,10 @@
 				"FORBIDDEN": "你的角色不允许放弃本次计时。",
 				"NOT_SUPPORTED": "此服务器暂不支持放弃计时。",
 				"CHANGED": "期间已开始另一次计时，因此没有放弃任何内容。",
+				"TRACKER_RUN": "此次计时由桌面应用或代理程序记录，它们会自行保存时间，因此无法在此放弃。",
 				"GENERIC": "无法放弃本次计时。请检查网络连接后重试。"
 			}
-		},
-		"NOT_BILLABLE": "不可计费"
+		}
 	},
 	"task": {
 		"TITLE": "任务",
@@ -3442,7 +3538,13 @@
 		"EVER_APPS": "Ever 应用",
 		"CURRENT_APP": "{app}，你当前所在的应用",
 		"OPENS_IN_NEW_TAB": "（在新标签页中打开）",
-		"APP_OPENS_IN_NEW_TAB": "{app}（在新标签页中打开）"
+		"APP_OPENS_IN_NEW_TAB": "{app}（在新标签页中打开）",
+		"OTHER_ORGANIZATIONS_LOADING": "正在加载你的其他组织",
+		"OTHER_ORGANIZATIONS_FAILED": "无法加载你的其他组织。",
+		"TRY_AGAIN": "重试",
+		"UNNAMED_ORGANIZATION": "未命名的组织",
+		"OPEN_ORGANIZATION": "打开你在那里的团队",
+		"ORGANIZATION_SWITCH_FAILED": "无法打开此组织。请重试。"
 	},
 	"workspaceCreation": {
 		"TITLE": "创建工作区",
@@ -3880,7 +3982,8 @@
 			"INVALID": "部分值未被接受，请检查后重试。",
 			"TOO_MANY": "尝试次数过多，请稍候再试。",
 			"SERVER": "服务器无法完成此操作，请稍后重试。",
-			"UNKNOWN": "请稍后重试。"
+			"UNKNOWN": "请稍后重试。",
+			"TWO_FACTOR": "此账户需要身份验证器应用中的验证码。请使用电子邮件地址或密码登录以输入验证码。"
 		},
 		"common": {
 			"NEWSLETTER_SUBSCRIBED": "你已订阅新闻通讯",
@@ -3982,6 +4085,7 @@
 			"NO_TASK": "请选择一个任务来启动计时器",
 			"START_IN_PROGRESS": "计时器仍在为另一个任务启动",
 			"WORKSPACE_OPENING": "新工作区正在打开：请在它打开后再启动计时器。",
+			"ORGANIZATION_OPENING": "另一个组织正在打开：请在它打开后再启动计时器。",
 			"STOPPED_TEAM_SWITCH": "您切换了团队，计时器已停止",
 			"STOPPED_TASK_SWITCH": "您的当前任务已变更，计时器已停止",
 			"STALE_STOPPED": "计时器已停止：{stoppedAt}",
@@ -3989,7 +4093,8 @@
 			"TASK_CLOSED_HINT": "重新打开该任务即可为其记录时间。",
 			"NOTES_NOT_SAVED": "计时器运行期间修改的备注未保存",
 			"NOTES_NOT_SAVED_HINT": "该记录保留了启动时的备注。请在工时表中编辑该记录以进行更改。",
-			"ALREADY_RUNNING_ON_TASK": "计时器已在此任务上运行"
+			"ALREADY_RUNNING_ON_TASK": "计时器已在此任务上运行",
+			"SAVED_STOP_HINT": "这是你在会话结束前要求的停止。"
 		},
 		"plans": {
 			"CREATE_FAILED": "计划未创建",
@@ -4239,6 +4344,10 @@
 				"TITLE": "通知",
 				"DESCRIPTION": "哪些事件会通知你。"
 			},
+			"apiTokens": {
+				"TITLE": "API 令牌",
+				"DESCRIPTION": "脚本以您的身份调用 API 时使用的密钥。"
+			},
 			"teamGeneral": {
 				"TITLE": "常规",
 				"DESCRIPTION": "团队的名称、外观、可见性和计时规则。"
@@ -4290,6 +4399,10 @@
 			"automations": {
 				"TITLE": "自动化",
 				"DESCRIPTION": "替你推进组织任务的规则。"
+			},
+			"security": {
+				"TITLE": "安全",
+				"DESCRIPTION": "登录方式：双重身份验证。"
 			}
 		},
 		"index": {
@@ -5056,7 +5169,15 @@
 			"WORKSPACE_ROLE_VIEWER": "查看者",
 			"WORKSPACE_ROLE_CANDIDATE": "候选人",
 			"WORKSPACE_ROLE_INTERVIEWER": "面试官",
-			"WORKSPACE_ROLE_NOT_SAVED": "{name} 的工作区角色未更改"
+			"WORKSPACE_ROLE_NOT_SAVED": "{name} 的工作区角色未更改",
+			"RESET_TWO_FACTOR": "重置双重身份验证",
+			"RESET_TWO_FACTOR_TITLE": "要重置 {name} 的双重身份验证吗？",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "如果 {name} 已开启，它将被关闭：下次登录只需电子邮件验证码或密码。",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} 可以在安全设置中重新开启。此次重置会被记录。",
+			"RESET_TWO_FACTOR_CONFIRM": "重置",
+			"RESET_TWO_FACTOR_DONE": "已重置 {name} 的双重身份验证",
+			"RESET_TWO_FACTOR_NOTHING": "{name} 没有需要重置的双重身份验证",
+			"RESET_TWO_FACTOR_FAILED": "无法重置 {name} 的双重身份验证"
 		},
 		"profile": {
 			"SECTION_PROFILE": "个人资料",
@@ -5191,6 +5312,60 @@
 			"UNAVAILABLE_TITLE": "此工作区暂时没有可设置的内容",
 			"UNAVAILABLE_TEXT": "通知属于你在工作区中的成员资料，而此账户在这里还没有成员资料。请先加入或创建一个团队。"
 		},
+		"apiTokens": {
+			"PAGE_DESCRIPTION": "每个令牌都能让脚本以您的身份调用 API。令牌一经撤销，立即失效。",
+			"SECTION_TOKENS": "您的令牌",
+			"COUNT": "有效令牌 {count}/{max}",
+			"CREATE": "创建令牌",
+			"LIMIT_REACHED": "您已有 {max} 个有效令牌，已达上限。请撤销一个不再使用的令牌后再创建新的。",
+			"EMPTY_TITLE": "还没有 API 令牌",
+			"EMPTY_TEXT": "为每个脚本单独创建一个令牌，这样撤销其中一个不会影响其他脚本。",
+			"LIST_FAILED_TITLE": "无法读取您的 API 令牌",
+			"LIST_FAILED_TEXT": "请检查网络连接后重试。",
+			"RETRY": "重试",
+			"CREATED_ON": "创建于 {date}",
+			"LAST_USED_ON": "上次使用于 {date}",
+			"NEVER_USED": "从未使用",
+			"EXPIRES_ON": "{date} 过期",
+			"EXPIRED_ON": "已于 {date} 过期",
+			"NEVER_EXPIRES": "永不过期",
+			"EXPIRED": "已过期",
+			"REVOKE": "撤销",
+			"REVOKE_TITLE": "撤销“{name}”？",
+			"REVOKE_DESCRIPTION": "脚本将无法再用此令牌换取访问权限；它们已获得的访问权限将在一小时内失效。此操作无法撤回。",
+			"REVOKE_CONFIRM": "撤销令牌",
+			"REVOKE_FAILED": "无法撤销令牌，请重试。",
+			"CREATE_TITLE": "创建 API 令牌",
+			"NAME_LABEL": "名称",
+			"NAME_HINT": "令牌的用途，例如“周五报告”。",
+			"NAME_REQUIRED": "请为令牌命名。",
+			"NAME_TOO_LONG": "名称最多 {max} 个字符。",
+			"EXPIRY_LEGEND": "有效期",
+			"EXPIRY_90D": "90 天",
+			"EXPIRY_1Y": "1 年",
+			"EXPIRY_NEVER": "永不过期",
+			"EXPIRY_ON_DATE": "至 {date}",
+			"EXPIRY_NEVER_DETAIL": "在您撤销之前一直有效。",
+			"CREATING": "正在创建…",
+			"CREATE_FAILED": "无法创建令牌，请重试。",
+			"CREATE_LIMIT": "您已有 {max} 个有效令牌。请先撤销一个再创建新的。",
+			"CREATE_DISABLED": "此服务器已不再提供 API 令牌。",
+			"SECRET_TITLE": "立即复制您的令牌",
+			"SECRET_TEXT": "“{name}”已就绪。其密钥仅显示这一次：请在关闭此窗口前妥善保存。",
+			"SECRET_LABEL": "令牌",
+			"COPY": "复制",
+			"COPY_TOKEN": "复制令牌",
+			"COPIED": "已复制",
+			"COPY_DONE": "令牌已复制。",
+			"COPY_FAILED": "复制失败：请选中令牌后手动复制。",
+			"DONE": "完成",
+			"USAGE_TITLE": "在脚本中使用令牌",
+			"USAGE_EXCHANGE": "用令牌换取一个短期访问令牌：",
+			"USAGE_CALL": "然后像往常一样调用 API，在“Authorization: Bearer”请求头中带上访问令牌；访问令牌过期后再重新换取。",
+			"UNAVAILABLE_TITLE": "此处不提供 API 令牌",
+			"UNAVAILABLE_TEXT": "此服务器未开启个人 API 令牌。如需令牌，请联系管理员。",
+			"AVAILABILITY_FAILED_TITLE": "无法确认此服务器是否提供 API 令牌"
+		},
 		"workspace": {
 			"IDENTITY_SECTION": "工作区",
 			"NAME_LABEL": "工作区名称",
@@ -5219,8 +5394,50 @@
 			"NUMBER_FORMAT_NOT_SAVED": "数字格式未保存",
 			"FORMAT_OUTCOME": "报告及其导出文件现已使用该格式。",
 			"FORMAT_AUTOMATIC": "自动",
+			"ROUNDING_LABEL": "时长取整",
+			"ROUNDING_DESCRIPTION": "时间和活动、其导出文件以及根据时间生成的发票会对每条记录取整。时间表保留记录的原始时间。",
+			"ROUNDING_OFF": "关闭",
+			"ROUNDING_INTERVAL": "{minutes} 分钟",
+			"ROUNDING_DIRECTION_LABEL": "取整方向",
+			"ROUNDING_UP": "向上",
+			"ROUNDING_DOWN": "向下",
+			"ROUNDING_NEAREST": "四舍五入",
+			"ROUNDING_RULE_UP": "向上取整到 {minutes} 分钟",
+			"ROUNDING_RULE_DOWN": "向下取整到 {minutes} 分钟",
+			"ROUNDING_RULE_NEAREST": "四舍五入到 {minutes} 分钟",
+			"ROUNDING_EXAMPLE": "{tracked} 的记录显示为 {rounded}。",
+			"ROUNDING_SAVED": "时长取整已保存",
+			"ROUNDING_OUTCOME": "时间和活动、其导出文件以及新的根据时间生成的发票现在会对每条记录取整。",
+			"ROUNDING_OFF_SAVED": "时长取整已关闭",
+			"ROUNDING_OFF_OUTCOME": "报告重新显示记录的原始时间。",
+			"ROUNDING_NOT_SAVED": "时长取整未保存",
+			"WEEK_START_LABEL": "每周开始于",
+			"WEEK_START_DESCRIPTION": "每个周视图、周选择器、报告和导出的第一天。",
+			"WEEK_START_SAVED": "已保存每周开始日",
+			"WEEK_START_NOT_SAVED": "每周开始日未保存",
+			"CLOCK_LABEL": "时钟",
+			"CLOCK_DESCRIPTION": "每个页面和导出显示时间的方式。",
+			"CLOCK_24": "24 小时制（{sample}）",
+			"CLOCK_12": "12 小时制（{sample}）",
+			"CLOCK_SAVED": "已保存时钟",
+			"CLOCK_NOT_SAVED": "时钟未保存",
+			"CURRENCY_POSITION_LABEL": "货币符号",
+			"CURRENCY_POSITION_DESCRIPTION": "每个金额显示货币符号的位置。",
+			"CURRENCY_POSITION_BEFORE": "金额之前（{sample}）",
+			"CURRENCY_POSITION_AFTER": "金额之后（{sample}）",
+			"CURRENCY_POSITION_SAVED": "已保存货币符号位置",
+			"CURRENCY_POSITION_NOT_SAVED": "货币符号位置未保存",
+			"EVERY_PAGE_OUTCOME": "现在每个页面和导出都使用它。",
 			"READ_ONLY_NOTE": "只有工作区管理员可以更改这些设置。",
-			"LOAD_FAILED": "无法加载工作区设置。"
+			"LOAD_FAILED": "无法加载工作区设置。",
+			"DATA_SECTION": "数据",
+			"EXPORT_LABEL": "导出全部数据",
+			"EXPORT_DESCRIPTION": "由 CSV 文件组成的 ZIP，每张表一个文件：包含工作区的所有组织，采用导入功能可以读回的格式。",
+			"EXPORT_ACTION": "导出",
+			"EXPORTING": "正在导出…",
+			"EXPORT_DONE": "工作区数据已导出",
+			"EXPORT_FAILED": "导出未完成",
+			"EXPORT_FAILED_DESCRIPTION": "没有保存任何内容。较大的工作区需要一些时间：请稍后重试。"
 		},
 		"automations": {
 			"NEW_RULE": "新建规则",
@@ -5410,6 +5627,59 @@
 					"DESCRIPTION": "与未完成任务关联的拉取请求或问题关闭时，任务转为已完成。"
 				}
 			}
+		},
+		"security": {
+			"SECTION_TITLE": "双重身份验证",
+			"SECTION_DESCRIPTION": "登录时还需输入手机上身份验证器应用中的验证码。",
+			"APP_LABEL": "身份验证器应用",
+			"ON": "已开启",
+			"OFF": "已关闭",
+			"OFF_DESCRIPTION": "登录时只需电子邮件验证码或密码。",
+			"ON_DESCRIPTION": "登录时需要身份验证器应用中的验证码。",
+			"ON_SINCE": "登录时需要身份验证器应用中的验证码。自 {date} 起开启。",
+			"TURN_ON": "开启",
+			"TURN_OFF": "关闭",
+			"CANCEL": "取消",
+			"RETRY": "重试",
+			"CODES_LABEL": "恢复码",
+			"CODES_LEFT": "{count, plural, =0 {没有未使用的恢复码} other {剩余 # 个未使用的恢复码}}",
+			"NEW_CODES": "新的恢复码",
+			"SETUP_STEP_KEY": "1. 将此账户添加到身份验证器应用",
+			"SETUP_STEP_KEY_TEXT": "使用身份验证器应用扫描二维码。在此设备上，也可以打开链接或输入密钥。",
+			"SETUP_KEY_LABEL": "设置密钥",
+			"COPY_KEY": "复制密钥",
+			"OPEN_IN_APP": "在身份验证器应用中打开",
+			"SETUP_STEP_CODE": "2. 输入应用显示的 {length} 位验证码",
+			"CODE_INCOMPLETE": "请输入完整的 {length} 位验证码。",
+			"SETUP_FAILED": "无法设置双重身份验证",
+			"TURNED_ON": "双重身份验证已开启",
+			"TURNED_OFF": "双重身份验证已关闭",
+			"CODES_TITLE": "您的恢复码",
+			"CODES_TEXT": "如果手机丢失，每个恢复码可让您登录一次。请立即将其保存在安全的地方：它们不会再次显示。",
+			"COPY_CODES": "复制恢复码",
+			"DOWNLOAD_CODES": "下载",
+			"CODES_DONE": "我已保存恢复码",
+			"CODES_FILE_HEADING": "{appName} 恢复码",
+			"COPIED": "已复制",
+			"COPY_FAILED": "无法复制。请选中文本后复制。",
+			"TURN_OFF_PROOF": "如需关闭，请输入应用中的验证码或恢复码",
+			"NEW_CODES_PROOF": "如需获取新的恢复码，请输入应用中的验证码或恢复码。当前的恢复码将失效。",
+			"PROOF_HINT": "身份验证器应用中的 6 位验证码，或您的某个恢复码。",
+			"PROOF_PLACEHOLDER": "123456 或 XXXX-XXXX-XXXX-XXXX",
+			"PROOF_INCOMPLETE": "请输入 6 位验证码或完整的恢复码。",
+			"WRONG_CODE": "验证码不正确。请输入应用当前显示的验证码或恢复码。",
+			"TOO_MANY": "错误验证码过多。请在 {minutes} 分钟后重试。",
+			"TOO_MANY_LATER": "错误验证码过多。请等待几分钟后重试。",
+			"CHANGED": "双重身份验证在此期间已更改。请检查后重试。",
+			"FAILED": "无法更改。请稍后重试。",
+			"UNAVAILABLE_TITLE": "此服务器暂不可用",
+			"UNAVAILABLE_DESCRIPTION": "此服务器未开启双重身份验证。请联系管理员开启。",
+			"UNSUPPORTED_TITLE": "双重身份验证不可用",
+			"UNSUPPORTED_DESCRIPTION": "此服务器不提供双重身份验证。",
+			"READ_FAILED": "无法读取双重身份验证状态",
+			"REQUIRED_TITLE": "您的组织要求您开启此功能",
+			"REQUIRED_DESCRIPTION": "其成员登录时还需输入身份验证器应用中的验证码。",
+			"QR_ALT": "此账户用于身份验证器应用的二维码"
 		}
 	},
 	"taskDetail": {
@@ -5776,6 +6046,35 @@
 			"TEXT": "登录未完成。请重试，或使用电子邮件登录。",
 			"RETRY": "返回登录",
 			"CODE": "错误代码：{code}"
+		},
+		"sessionEnded": {
+			"TITLE": "你的会话已结束",
+			"TEXT": "请重新登录后继续。",
+			"TIMER_RUNNING": "你的计时器当时正在运行。请在 {deadline} 之前重新登录，它会继续运行。之后它将停在最后一次保存的时间：{savedUntil}。",
+			"TIMER_STILL_RUNNING": "你的计时器仍在运行。请重新登录后将其停止。",
+			"STOP_SAVED": "你要求的计时器停止已保存：{time}。重新登录后将立即生效。"
+		},
+		"twoFactor": {
+			"TITLE": "输入验证码",
+			"DESCRIPTION": "打开身份验证器应用，输入它为 <address>{email}</address> 显示的 {length} 位验证码。",
+			"RECOVERY_DESCRIPTION": "输入开启双重身份验证时保存的恢复码之一。每个恢复码只能使用一次。",
+			"CODE_LABEL": "验证码",
+			"RECOVERY_LABEL": "恢复码",
+			"USE_RECOVERY": "改用恢复码",
+			"USE_APP": "改用身份验证器应用",
+			"SUBMIT": "验证并登录",
+			"BACK": "返回登录",
+			"WRONG_CODE": "验证码不正确。请输入身份验证器应用当前显示的验证码。",
+			"WRONG_RECOVERY_CODE": "此恢复码不正确或已被使用。",
+			"CODE_INCOMPLETE": "请输入完整的 {length} 位验证码。",
+			"RECOVERY_INCOMPLETE": "请输入完整的恢复码。",
+			"EXPIRED": "此次登录等待验证码的时间过长。请重新登录。",
+			"SIGN_IN_AGAIN": "重新登录",
+			"TOO_MANY": "错误验证码过多。请在 {minutes} 分钟后重试。",
+			"TOO_MANY_LATER": "错误验证码过多。请等待几分钟后重试。",
+			"FAILED": "无法验证此验证码。请稍后重试。",
+			"SCENE_TITLE": "还差一步",
+			"SCENE_TEXT": "此账户受双重身份验证保护。"
 		}
 	},
 	"taskViews": {
@@ -5870,7 +6169,7 @@
 	},
 	"shortcuts": {
 		"TITLE": "键盘快捷键",
-		"DESCRIPTION": "各区域的按键。字母按物理键位匹配，因此在任何布局下都可用。",
+		"DESCRIPTION": "应用中可用的按键，按区域列出。",
 		"DESCRIPTION_REBIND": "各区域的按键。录入新按键即可更改；更改会在你的所有设备间同步。",
 		"NONE": "无",
 		"THEN": "然后",
@@ -5935,10 +6234,20 @@
 			"searchTeams": "搜索团队",
 			"themeToggle": "在浅色与深色之间切换",
 			"taskProject": "更改项目",
-			"taskAssignee": "更改负责人"
+			"taskAssignee": "更改负责人",
+			"sidebarToggle": "显示或隐藏侧边栏",
+			"taskSearchFocus": "在列表中搜索"
 		},
 		"CHAT_SINGLE_KEY": "聊天的快捷键只能是一个按键，不能是按键序列。",
-		"CHAT_TAKEN": "聊天已在使用此按键（格式、发送、移动或滚动）。"
+		"CHAT_TAKEN": "聊天已在使用此按键（格式、发送、移动或滚动）。",
+		"OR": "或",
+		"groups": {
+			"general": "常规",
+			"timer": "计时器",
+			"tasks": "任务",
+			"navigation": "导航",
+			"chat": "聊天"
+		}
 	},
 	"realtime": {
 		"RECONNECTING": "正在重新连接…"
@@ -6643,7 +6952,13 @@
 			"NAME_REQUIRED": "请输入客户名称。",
 			"EMAIL_INVALID": "请输入有效的电子邮件地址，或将此项留空。",
 			"CREATE": "创建客户",
-			"SAVE_FAILED": "无法保存客户，请重试。"
+			"SAVE_FAILED": "无法保存客户，请重试。",
+			"BILLING": "账单",
+			"CUSTOM_DAYS_LABEL": "付款天数，0 到 {max}",
+			"DAYS_UNIT": "{count, plural, other {天}}",
+			"PAYMENT_TERMS": "付款条款",
+			"TERMS_HINT": "决定为该客户开具的发票的到期日。",
+			"TERMS_INVALID": "请输入 0 到 365 之间的天数。"
 		},
 		"toasts": {
 			"CREATED": "已将 {name} 添加到客户",
@@ -6657,13 +6972,15 @@
 			"LEAVES_PICKER": "它不再作为项目的客户选项出现。",
 			"CAN_RESTORE": "您可以在“已归档”列表中恢复它。",
 			"CONFIRM": "归档客户",
-			"FAILED": "无法归档客户，请重试。"
+			"FAILED": "无法归档客户，请重试。",
+			"KEEPS_INVOICES": "其发票会保留，仍可发送、收款或作废。"
 		},
 		"restore": {
 			"TITLE": "恢复 {name}？",
 			"BACK_IN_PICKER": "它会重新作为项目的客户选项出现。",
 			"CONFIRM": "恢复客户",
-			"FAILED": "无法恢复客户，请重试。"
+			"FAILED": "无法恢复客户，请重试。",
+			"KEEPS_EVERYTHING": "其项目、时间和发票保持原样。"
 		},
 		"picker": {
 			"ADD": "添加客户",
@@ -6671,6 +6988,86 @@
 			"CREATE": "创建客户“{name}”",
 			"NO_CLIENT": "无客户",
 			"CREATE_FAILED": "无法创建客户，请重试。"
+		},
+		"COLUMN_SINCE": "合作起始",
+		"FOOT_PROJECTS": "{count, plural, other {# 个项目}}",
+		"LINK_COPIED": "已复制 {name} 的链接",
+		"LINK_NOT_COPIED": "无法复制链接。请从地址栏复制。",
+		"NO_ACCESS_TITLE": "你的角色无权查看客户",
+		"NO_ACCESS_MESSAGE": "请工作区管理员为你的角色开通客户访问权限。",
+		"OPEN_CLIENT": "打开",
+		"contact": {
+			"ADD": "添加联系方式",
+			"ADD_EMAIL": "添加邮箱",
+			"ADD_FOR": "为 {name} 添加联系方式",
+			"ADD_PHONE": "添加电话",
+			"COPY": "复制 {value}",
+			"NOT_COPIED": "无法复制。请选中文本后复制。",
+			"NO_EMAIL": "无邮箱",
+			"NO_PHONE": "无电话"
+		},
+		"facts": {
+			"ADDED": "添加于",
+			"EDIT_CONTACT": "编辑联系方式",
+			"EDIT_NOTES": "编辑备注",
+			"EDIT_TERMS": "编辑付款条款",
+			"SINCE": "客户始于 {date}",
+			"TERMS": "条款"
+		},
+		"invoices": {
+			"ALL": "全部",
+			"OPEN": "未结",
+			"EMPTY_TITLE": "暂无发票",
+			"EMPTY_MESSAGE": "为该客户开具的发票会显示在这里。",
+			"FILTER_LABEL": "显示的发票",
+			"NONE_IN_FILTER": "没有该状态的发票",
+			"SUMMARY_OPEN": "{count} 张未结",
+			"SUMMARY_OVERDUE": "{count} 张逾期",
+			"SUMMARY_PAID": "{count} 张已付",
+			"SUMMARY_DRAFTS": "{count} 份草稿",
+			"SUMMARY_VOID": "{count} 张作废"
+		},
+		"notes": {
+			"ADD": "添加备注",
+			"NONE": "暂无备注",
+			"READ_MORE": "展开",
+			"SHOW_LESS": "收起"
+		},
+		"order": {
+			"TRIGGER": "排序：{order}",
+			"NEWEST": "最新优先",
+			"MOST_PROJECTS": "项目最多"
+		},
+		"projects": {
+			"EMPTY_TITLE": "该客户暂无项目",
+			"EMPTY_MESSAGE": "在项目设置中选择该客户，项目就会显示在这里。"
+		},
+		"sheet": {
+			"POSITION": "第 {position} / {total} 个"
+		},
+		"standing": {
+			"ALSO": "另有 {amounts}",
+			"BILLED": "已开票",
+			"LABEL": "{name} 的账单",
+			"LAST_INVOICE": "最近发票",
+			"NOTHING": "无",
+			"NO_INVOICE_TITLE": "{name} 暂无发票",
+			"NO_INVOICE_MESSAGE": "为该客户记录的时间开票后，这里会显示待收金额。"
+		},
+		"terms": {
+			"CUSTOM": "自定义",
+			"DAYS": "{days, plural, other {# 天}}",
+			"DUE_ON_RECEIPT": "收到即付",
+			"NET_DAYS": "{days, plural, other {# 天内付款}}",
+			"RECEIPT": "收到即付",
+			"WORKSPACE": "工作区默认",
+			"WORKSPACE_DAYS": "工作区默认（{days, plural, other {# 天}}）",
+			"WORKSPACE_SHORT": "默认"
+		},
+		"detail": {
+			"NOT_FOUND_TITLE": "该客户不在此工作区",
+			"NOT_FOUND_MESSAGE": "它可能已被删除，或者链接来自另一个工作区。",
+			"ALL_CLIENTS": "全部客户"
 		}
 	},
 	"invoices": {
@@ -6745,6 +7142,9 @@
 			"NO_PRICED_LINES": "此期间没有以该币种计价的时间。",
 			"ALL_LINES_REMOVED": "所有明细行都已移除。恢复后才能为这些时间开具发票。",
 			"LINES_AND_HOURS": "{count, plural, other {# 行}} · {hours} 小时",
+			"ROUNDED_UP": "每条记录向上取整到 {minutes} 分钟",
+			"ROUNDED_DOWN": "每条记录向下取整到 {minutes} 分钟",
+			"ROUNDED_NEAREST": "每条记录四舍五入到 {minutes} 分钟",
 			"LINE_COUNT": "{count, plural, other {# 行}}",
 			"TOTAL": "合计",
 			"details": {
@@ -6914,7 +7314,8 @@
 				"LOCKED_NOW": "自打开以来，第 {number} 号发票已付款或已作废：未保存任何内容，且无法再编辑。",
 				"NOT_CHECKED": "保存前无法重新读取发票，因此未保存任何内容。请重试。",
 				"NOT_REACHED": "连接失败：更改未保存，发票保持原样。请检查网络连接，然后重试。",
-				"CHANGED": "自打开以来，第 {number} 号发票已被修改：未保存任何内容。请从发票列表重新打开它，从其当前版本开始。"
+				"CHANGED": "自打开以来，第 {number} 号发票已被修改：未保存任何内容。请从发票列表重新打开它，从其当前版本开始。",
+				"RECORDS_TIME": "记录其明细行所开票的工时，其他发票不会再次为这些工时开票。"
 			}
 		},
 		"replace": {
@@ -6929,6 +7330,73 @@
 			"NOT_REBUILDABLE": "第 {number} 号发票未作废：无法在此根据计费时间重新生成。请在创建它的地方作废并替换。",
 			"NOT_VOID_TITLE": "第 {number} 号发票未作废",
 			"NOT_VOID_MESSAGE": "此处只替换已作废的发票。请从发票列表打开它进行编辑，或将其作废并替换。"
+		},
+		"billedTime": {
+			"LEFT_OUT_TITLE": "已在发票上的工时已排除",
+			"LEFT_OUT_MESSAGE": "{count, plural, other {{client} 已有 # 张发票计费了此期间的一部分。这些工时不会列在这里。}}",
+			"UNRECORDED_MESSAGE": "{count, plural, other {# 张发票未注明计费的是哪些工时，因此这些工时仍列在这里。}}保存前请移除已开票的明细行。",
+			"EARLIER_NOTE": "已在发票上的工时不会列在这张发票上，除非那张发票未注明计费的是哪些工时。",
+			"ALL_INVOICED_TITLE": "{client} 在此期间的可计费时间已全部开票",
+			"ALL_INVOICED_MESSAGE": "此期间的每个可计费工时都已在发票上。要重新计费其中一部分，请从该发票移除其明细行，或作废该发票。",
+			"NEW_REFUSED": "自读取以来，部分时间已计入另一张发票或已被删除，因此未保存任何内容。关闭此窗口即可查看尚待开票的时间，然后再次保存。",
+			"EDIT_REFUSED": "自读取以来，部分时间已计入另一张发票或已被删除，因此更改未保存，发票保持原样。关闭此窗口即可查看尚待开票的时间，然后再次保存。"
+		},
+		"standing": {
+			"OVERDUE": "已逾期",
+			"UNKNOWN": "未知状态"
+		},
+		"due": {
+			"IN_DAYS": "{count, plural, other {# 天后到期}}",
+			"TODAY": "今天到期",
+			"TOMORROW": "明天到期",
+			"LATE": "{count, plural, other {逾期 # 天}}"
+		},
+		"money": {
+			"LABEL": "工作区的应收金额",
+			"OWED": "应收",
+			"NOTHING_OWED": "目前没有应收款项",
+			"INVOICE_COUNT": "{count, plural, other {# 张发票}}",
+			"ALSO_OWED": "其他应收：{amounts}",
+			"SPLIT_LABEL": "应收金额，分为未到期和已逾期",
+			"NOT_YET_DUE": "未到期",
+			"OVERDUE": "已逾期",
+			"DRAFTS": "草稿",
+			"DRAFT_COUNT": "{count, plural, =0 {无} other {# 张待发送}}",
+			"WITHOUT_BALANCE": "{count, plural, other {# 张部分付款的发票未注明余额，未计入}}",
+			"ERROR": "无法读取待收金额"
+		},
+		"filter": {
+			"LABEL": "显示的发票",
+			"ALL": "全部",
+			"OPEN": "未结",
+			"NONE_DRAFT": "没有待发送的草稿",
+			"NONE_OPEN": "没有待付款的发票",
+			"NONE_OVERDUE": "没有逾期发票",
+			"NONE_PAID": "没有已付发票",
+			"NONE_VOID": "没有作废发票",
+			"SHOW_ALL": "显示全部发票",
+			"LOADED_ONLY": "仅在最近的 {count} 张发票中查找。显示更多可往前查看。"
+		},
+		"detail": {
+			"HEADING": "发票 {number}",
+			"PAPER_TITLE": "发票",
+			"COLUMN_DESCRIPTION": "描述",
+			"COLUMN_HOURS": "工时",
+			"COLUMN_RATE": "费率",
+			"COLUMN_AMOUNT": "金额",
+			"NO_DESCRIPTION": "无描述",
+			"NO_LINES": "此发票没有明细行。",
+			"DISCOUNT": "折扣",
+			"TAX": "税",
+			"TAX_PERCENT": "税（{percent}）",
+			"TAX2": "第二税",
+			"TAX2_PERCENT": "第二税（{percent}）",
+			"PAID": "已付",
+			"LEFT_TO_PAY": "待付",
+			"NOT_FOUND_TITLE": "该发票不在此工作区",
+			"NOT_FOUND_MESSAGE": "它可能已被删除，或者链接来自另一个工作区。",
+			"ALL_INVOICES": "全部发票",
+			"ERROR_TITLE": "无法加载发票"
 		}
 	},
 	"timeReports": {
@@ -7078,12 +7546,151 @@
 			"ROW_LABEL": "时间跟踪数据",
 			"ROW_DESCRIPTION": "从 CSV 文件添加时间条目。",
 			"OPEN": "从 CSV 导入"
+		},
+		"mapping": {
+			"DESCRIPTION": "为条目的每个部分选择 {fileName} 中对应的列。导入前不会保存任何内容。",
+			"HEADER_PART": "条目部分",
+			"HEADER_COLUMN": "文件中的列",
+			"HEADER_SAMPLE": "第一个值",
+			"NOT_IN_FILE": "不在此文件中",
+			"CHOOSE_COLUMN": "选择一列",
+			"DATE_FORMAT": "日期格式",
+			"CHOOSE_DATE_FORMAT": "选择格式",
+			"MISSING": "要继续，请为 {parts} 选择一列。",
+			"DATE_FORMAT_MISSING": "要继续，请选择此文件中日期的书写方式。",
+			"MIXED_DATES": "此文件中的日期有两种写法：第 {firstRow} 行为 {firstValue}，第 {row} 行为 {value}。请用同一种方式书写所有日期。",
+			"CONTINUE": "{count, plural, other {检查 # 行}}",
+			"FIRST_ROWS": "文件的前几行",
+			"EDIT": "更改列",
+			"UNNAMED_COLUMN": "第 {position} 列",
+			"fields": {
+				"DATE": "日期",
+				"START_TIME": "开始时间",
+				"END_DATE": "结束日期",
+				"END_TIME": "结束时间",
+				"DURATION": "时长",
+				"PROJECT": "项目",
+				"TASK": "任务",
+				"NOTES": "备注",
+				"BILLABLE": "可计费",
+				"MEMBER": "成员"
+			},
+			"orders": {
+				"YEAR_FIRST": "年份在前",
+				"DAY_FIRST": "日在前",
+				"MONTH_FIRST": "月份在前"
+			},
+			"problems": {
+				"DATE_UNREADABLE_DAY_FIRST": "无法读取日期。请按日在前的格式填写，例如 {dayFirst}。",
+				"DATE_UNREADABLE_MONTH_FIRST": "无法读取日期。请按月份在前的格式填写，例如 {monthFirst}。",
+				"END_DATE_UNREADABLE": "无法读取结束日期。请按与日期相同的格式填写。",
+				"START_DAY_MISMATCH": "日期和开始时间给出了两个不同的日子。请只保留其中一个。",
+				"END_DAY_MISMATCH": "结束日期不是该条目结束的那一天。请更正结束日期或时间。",
+				"MEMBER_NAME_UNKNOWN": "此团队中没有成员使用这个名字。",
+				"MEMBER_AMBIGUOUS": "{count, plural, other {此团队中有 # 名成员使用这个名字。请用邮箱指定成员。}}"
+			}
+		},
+		"workspace": {
+			"MODE_LEGEND": "导入内容",
+			"MODE_ENTRIES": "时间记录（CSV）",
+			"MODE_WORKSPACE": "整个工作区",
+			"SECTION_TITLE": "从其他时间跟踪工具导入",
+			"SECTION_DESCRIPTION": "拖入其他工具的工作区导出文件：其中的客户、项目、标签和时间记录将进入 {team}。确认之前不会保存任何内容。",
+			"DROP_TITLE": "将导出文件拖到此处，或选择文件",
+			"DROP_ACTIVE": "松开以读取文件",
+			"DROP_HINT": "CSV 或 JSON 文件，或包含它们的 ZIP，每个最大 {megabytes} MB。",
+			"FILES_NOTE": "每个文件根据其名称（客户、项目、标签、时间记录）或其列来识别。项目的客户、颜色和默认可计费设置取自项目文件，否则取自时间记录。",
+			"READING": "正在读取文件…",
+			"FILES_TITLE": "已读取的文件",
+			"KIND_entries": "时间记录",
+			"KIND_clients": "客户",
+			"KIND_projects": "项目",
+			"KIND_tags": "标签",
+			"FILE_ROWS": "{count, plural, other {# 行}}",
+			"LEFT_OUT_TITLE": "{count, plural, other {已排除 # 个文件}}",
+			"problems": {
+				"notSupported": "不是 CSV、JSON 或 ZIP 文件。",
+				"tooLarge": "大于 {megabytes} MB。",
+				"notText": "不是 UTF-8 文本。",
+				"zip_notZip": "不是可以打开的 ZIP 压缩包。",
+				"zip_encrypted": "压缩包受密码保护。",
+				"zip_unsupported": "压缩包使用了导入无法读取的格式。",
+				"zip_tooLarge": "压缩包解压后超过 {megabytes} MB。",
+				"json": "JSON 中没有记录列表。",
+				"csv": "无法读取 CSV：有引号未闭合，或文件为空。",
+				"unknownContent": "既不是客户、项目、标签，也不是时间记录。",
+				"entriesColumnsDiffer": "时间记录的列与第一个时间记录文件不同。",
+				"repeatedKind": "{kind}：已从另一个文件读取，仅使用第一个。",
+				"tableTooLarge": "列或单元格超出导入可读取的范围（最多 {columns} 列）。",
+				"unreadable": "浏览器无法读取该文件：请重新选择。"
+			},
+			"NOTHING_READ": "导出中没有可用的文件。请重新选择导出文件。",
+			"CHOOSE_OTHER": "选择其他文件",
+			"NO_RIGHTS_TITLE": "你的角色无法导入工作区",
+			"NO_RIGHTS_DESCRIPTION": "导入工作区会创建客户和项目。请向管理员申请添加客户和项目的权限，或从 CSV 文件导入时间记录。",
+			"EXISTING_LOADING": "正在读取工作区的客户和项目…",
+			"EXISTING_FAILED_TITLE": "无法读取工作区的客户和项目",
+			"EXISTING_FAILED_DESCRIPTION": "没有这些信息，导入无法判断哪些已存在。",
+			"PLAN_TITLE": "导入将执行的操作",
+			"PLAN_DESCRIPTION": "先客户，再项目，然后标签，最后是下方的时间记录。已存在的内容会被重复使用，不区分大小写。",
+			"figures": {
+				"LABEL": "导入将创建的内容",
+				"CLIENTS": "客户",
+				"PROJECTS": "项目",
+				"LABELS": "标签"
+			},
+			"NEW_AND_REUSED": "新建 {created} · 复用 {reused}",
+			"TO_CREATE": "待创建",
+			"TO_REUSE": "工作区中已有",
+			"NO_CLIENT": "无客户",
+			"BILLABLE": "可计费",
+			"NOT_BILLABLE": "不可计费",
+			"MEMBERS_TITLE": "每位成员的记录",
+			"MEMBER_ENTRIES": "{count, plural, other {# 条记录}}",
+			"UNKNOWN_EMAILS_TITLE": "{count, plural, other {# 个没有成员使用的邮箱}}",
+			"UNKNOWN_EMAILS_DESCRIPTION": "这些行会被排除，绝不会记在其他人名下。请先邀请这些人加入团队，然后再次导入相同的文件：不会重复创建任何内容。",
+			"TAGGED_ENTRIES_NOTE": "{count, plural, other {# 条记录带有标签}}。标签会为团队创建，但时间记录本身没有标签：不会附加到记录上。",
+			"LABELS_SKIPPED_NOTE": "你的角色无法添加标签：标签会列出但不会创建。",
+			"NOTHING_TO_DO": "这些文件中的内容都已存在，且没有可导入的记录。",
+			"IMPORT_LISTS_ACTION": "导入客户、项目和标签",
+			"PROGRESS_TITLE": "导入进度",
+			"STEP_COUNTS": "已创建 {created} · 已复用 {reused} · 失败 {failed}",
+			"STEP_SKIPPED": "未创建 {count}",
+			"status": {
+				"waiting": "等待中",
+				"running": "进行中",
+				"done": "完成",
+				"failed": "失败"
+			},
+			"FAILED_TITLE": "导入在“{name}”处停止",
+			"FAILED_DESCRIPTION": "没有保存任何时间记录。之前已创建的内容会保留在工作区中，再次导入相同文件时会被复用。",
+			"CREATED_TITLE": "客户、项目和标签已在工作区中",
+			"PAGE_DESCRIPTION": "来自其他时间跟踪工具的客户、项目、标签和时间记录。"
 		}
+	},
+	"recordSheet": {
+		"PREVIOUS": "上一个",
+		"PREVIOUS_HINT": "上一个 (K)",
+		"NEXT": "下一个",
+		"NEXT_HINT": "下一个 (J)",
+		"OPEN_PAGE": "在完整页面中打开"
 	},
 	"clientGrouping": {
 		"TITLE": "按客户统计时间",
 		"CLIENTS": "{count, plural, other {# 个客户}}",
 		"NAMES_ERROR_TITLE": "无法加载客户列表",
 		"NAMES_ERROR_MESSAGE": "在此之前，已归档的客户不显示名称。"
+	},
+	"timeZoneNotice": {
+		"TITLE": "你的个人资料使用 {profileZone}（{profileOffset}）。此浏览器位于 {browserZone}（{browserOffset}）。",
+		"DESCRIPTION": "时间表按你个人资料的时区计算每一天，其他报告按此浏览器的时区计算，因此接近午夜的记录可能落在另一天。",
+		"TITLE_NO_PROFILE_ZONE": "你的个人资料没有设置时区。此浏览器位于 {browserZone}（{browserOffset}）。",
+		"DESCRIPTION_NO_PROFILE_ZONE": "在你选择时区之前，时间表按 UTC 计算你的每一天，其他报告按此浏览器的时区计算。",
+		"USE": "使用 {zone}",
+		"KEEP": "保留 {zone}",
+		"SAVING": "正在保存…",
+		"SAVE_FAILED": "无法保存你的时区。",
+		"SAVE_FAILED_DESCRIPTION": "你的个人资料没有更改。请检查网络连接后重试。",
+		"TRY_AGAIN": "重试"
 	}
 }

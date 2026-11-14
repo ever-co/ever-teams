@@ -1,7 +1,7 @@
 'use client';
 
 import { type CSSProperties, memo, useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
 import { HourAxis } from '@/core/components/dashboards/kit/hour-axis';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
@@ -21,6 +21,8 @@ import { FULL_SPAN } from './team-grid';
 import { FaceStack, memberNameOf } from './team-live-parts';
 import { MemberFace } from './team-marks';
 import { memberToneOf } from './team-series-tone';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 
 type Translate = ReturnType<typeof useTranslations>;
 
@@ -144,7 +146,7 @@ const LaneLabel = memo(function LaneLabel({ lane }: Readonly<{ lane: TimelineLan
 
 function ProjectLegend({ projects }: Readonly<{ projects: ReadonlyArray<TimelineProject> }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	if (projects.length === 0) {
 		return null;
 	}
@@ -216,10 +218,10 @@ export function TeamDayTimeline({
 	onRetry: () => void;
 }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const timeFormat = useClockFormat();
 	const dayFormat = useMemo(
-		() => new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric' }),
+		() => dateFormatOf(locale, { weekday: 'short', month: 'short', day: 'numeric' }),
 		[locale]
 	);
 
@@ -271,8 +273,8 @@ export function TeamDayTimeline({
 }
 
 function useClockFormat() {
-	const locale = useLocale();
-	return useMemo(() => new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }), [locale]);
+	const locale = useWorkspaceLocale();
+	return useMemo(() => dateFormatOf(locale, { hour: 'numeric', minute: '2-digit' }), [locale]);
 }
 
 function nowLabelOf(timeline: DayTimeline, timeFormat: Intl.DateTimeFormat) {

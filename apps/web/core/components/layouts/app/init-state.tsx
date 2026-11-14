@@ -10,6 +10,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useAutoAssignTask } from '@/core/hooks/tasks/use-auto-assign-task';
 import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
 import { useStaleTimerGuard, useTimerRunningPastMidnight } from '@/core/hooks/timer/use-stale-timer-guard';
+import { useTimerSessionEndWitness } from '@/core/hooks/timer/use-timer-session-end-witness';
 import { DISABLE_AUTO_REFRESH, TEAM_PRESENCE_REFRESH_INTERVAL } from '@/core/constants/config/constants';
 import { teamDetailRefreshOf } from '@/core/lib/utils/team-detail-refresh';
 import { realtimeStatusAtom } from '@/core/stores/common/realtime';
@@ -23,6 +24,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useMemo, useRef } from 'react';
 import { reownActiveQueriesAfterTokenRefresh } from './token-refresh-query-ownership';
 import { syncTokenOrganization } from '@/core/lib/auth/token-organization';
+import { clearSessionEndedNotice } from '@/core/lib/auth/session-ended-notice';
 import { rememberTeam } from '@/core/lib/auth/remembered-team';
 import { queryKeys } from '@/core/query/keys';
 import { getShellCriticalQueryKeys, useScopeTransitionGuard } from './use-scope-transition-guard';
@@ -42,6 +44,12 @@ export function InitState() {
 	useRefreshWorkspacesOnAddressConfirmed(user?.isEmailVerified);
 	const accessToken = useReactiveAccessTokenCookie();
 	const queryClient = useQueryClient();
+	// Someone is signed in: what the sign-in page said about a session the app ended in this tab is over
+	useEffect(() => {
+		clearSessionEndedNotice();
+	}, []);
+	// And should the app end this one, the sign-in page says what became of the timer
+	useTimerSessionEndWitness();
 	const tenantId = user?.employee?.tenantId ?? user?.tenantId ?? null;
 	const organizationId = user?.employee?.organizationId ?? null;
 	const workspaceReady = !!(

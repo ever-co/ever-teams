@@ -216,3 +216,42 @@ describe('ApiErrorService HTTP response provenance', () => {
 		expect(error.details).toEqual({ fields: ['projectId'] });
 	});
 });
+
+describe('ApiErrorService keeps what a two-factor answer needs', () => {
+	it('keeps the challenge of a sign-in that asks for a second factor', () => {
+		const error = ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code 403',
+			status: 403,
+			response: {
+				data: {
+					statusCode: 403,
+					code: 'TWO_FACTOR_REQUIRED',
+					message: 'Two-factor authentication is on for this account.',
+					challenge: 'signed.challenge',
+					expiresAt: '2026-11-14T12:05:00.000Z'
+				},
+				headers: {},
+				status: 403,
+				statusText: 'Forbidden'
+			}
+		});
+
+		expect(error.errorCode).toBe('TWO_FACTOR_REQUIRED');
+		expect(error.details).toEqual({ challenge: 'signed.challenge', expiresAt: '2026-11-14T12:05:00.000Z' });
+	});
+
+	it('keeps the wait a refusal for too many codes asks for', () => {
+		const error = ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code 429',
+			status: 429,
+			response: {
+				data: { statusCode: 429, message: 'Too many failed attempts.', retryAfter: 900 },
+				headers: {},
+				status: 429,
+				statusText: 'Too Many Requests'
+			}
+		});
+
+		expect(error.details).toEqual({ retryAfter: 900 });
+	});
+});

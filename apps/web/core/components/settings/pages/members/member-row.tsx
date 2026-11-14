@@ -15,7 +15,16 @@ import {
 import { SelectedMark } from '@/core/components/common/selected-mark';
 import { Input } from '@/core/components/common/input';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { ChevronDown, MoreHorizontal, Pencil, Spinner, UserBlock, UserRemove, Wallet } from '@/core/components/icons';
+import {
+	ChevronDown,
+	MoreHorizontal,
+	Pencil,
+	ShieldCheck,
+	Spinner,
+	UserBlock,
+	UserRemove,
+	Wallet
+} from '@/core/components/icons';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { isTenantAdminRole } from '@/core/lib/utils/roles';
 import { PROFILE_NAME_MAX_LENGTH } from '@/core/lib/utils/settings-profile';
@@ -66,6 +75,8 @@ export interface MemberRowActions {
 	onToggleTracking: (rowId: string, enabled: boolean) => void;
 	onRequestRemove: (row: MemberRowModel) => void;
 	onRequestDeactivate: (row: MemberRowModel) => void;
+	/** Set where the platform offers two-factor authentication. */
+	onRequestResetTwoFactor?: (row: MemberRowModel) => void;
 	onRename: (rowId: string, firstName: string, lastName: string) => Promise<void>;
 	onSaveRates: (rowId: string, rates: IEmployeeRatesInput) => Promise<void>;
 }
@@ -190,8 +201,8 @@ function hasExitActions(row: MemberRowModel): boolean {
 	return row.canDeactivate || row.canRemove;
 }
 
-function hasMenuActions(row: MemberRowModel): boolean {
-	return hasEditActions(row) || hasExitActions(row);
+function hasMenuActions(row: MemberRowModel, showsTwoFactorReset: boolean): boolean {
+	return hasEditActions(row) || hasExitActions(row) || showsTwoFactorReset;
 }
 
 function RowMenu({
@@ -200,7 +211,8 @@ function RowMenu({
 	onEditRate,
 	onToggleTracking,
 	onRequestRemove,
-	onRequestDeactivate
+	onRequestDeactivate,
+	onRequestResetTwoFactor
 }: Readonly<{
 	row: MemberRowModel;
 	onEditName: () => void;
@@ -208,9 +220,11 @@ function RowMenu({
 	onToggleTracking: MemberRowActions['onToggleTracking'];
 	onRequestRemove: MemberRowActions['onRequestRemove'];
 	onRequestDeactivate: MemberRowActions['onRequestDeactivate'];
+	onRequestResetTwoFactor: MemberRowActions['onRequestResetTwoFactor'];
 }>) {
 	const t = useTranslations();
-	if (!hasMenuActions(row)) {
+	const showsTwoFactorReset = row.canResetTwoFactor && Boolean(onRequestResetTwoFactor);
+	if (!hasMenuActions(row, showsTwoFactorReset)) {
 		return <span aria-hidden="true" className="size-7 shrink-0" />;
 	}
 
@@ -255,6 +269,15 @@ function RowMenu({
 							)}
 						</span>
 					</DropdownMenuCheckboxItem>
+				)}
+				{showsTwoFactorReset && (
+					<>
+						{hasEditActions(row) && <DropdownMenuSeparator />}
+						<DropdownMenuItem onSelect={() => onRequestResetTwoFactor?.(row)}>
+							<ShieldCheck />
+							{t('settings.members.RESET_TWO_FACTOR')}
+						</DropdownMenuItem>
+					</>
 				)}
 				{hasExitActions(row) && <DropdownMenuSeparator />}
 				{row.canDeactivate && (
@@ -455,6 +478,7 @@ export function MemberRow({
 				onToggleTracking={actions.onToggleTracking}
 				onRequestRemove={actions.onRequestRemove}
 				onRequestDeactivate={actions.onRequestDeactivate}
+				onRequestResetTwoFactor={actions.onRequestResetTwoFactor}
 			/>
 		</li>
 	);

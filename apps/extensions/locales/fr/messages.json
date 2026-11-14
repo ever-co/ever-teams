@@ -1,0 +1,206 @@
+{
+	"signInTitle": {
+		"message": "Se connecter à Ever Teams"
+	},
+	"signInEmailLabel": {
+		"message": "E-mail"
+	},
+	"signInEmailPlaceholder": {
+		"message": "vous@entreprise.com"
+	},
+	"signInSendCode": {
+		"message": "M’envoyer un code"
+	},
+	"signInSending": {
+		"message": "Envoi…"
+	},
+	"signInCodeSent": {
+		"message": "Nous avons envoyé un code à $EMAIL$. Saisissez-le ci-dessous.",
+		"placeholders": {
+			"email": {
+				"content": "$1",
+				"example": "marie@example.com"
+			}
+		}
+	},
+	"signInCodeLabel": {
+		"message": "Code"
+	},
+	"signInConfirm": {
+		"message": "Se connecter"
+	},
+	"signInConfirming": {
+		"message": "Connexion…"
+	},
+	"signInOtherEmail": {
+		"message": "Utiliser un autre e-mail"
+	},
+	"signInWrongCode": {
+		"message": "Ce code n’est pas valide ou a expiré."
+	},
+	"signInNoWorkspace": {
+		"message": "Aucun espace de travail n’est ouvert à cet e-mail."
+	},
+	"signInChooseWorkspace": {
+		"message": "Choisissez un espace de travail"
+	},
+	"headerTeam": {
+		"message": "Équipe"
+	},
+	"headerAccount": {
+		"message": "Compte"
+	},
+	"headerSettings": {
+		"message": "Paramètres"
+	},
+	"headerSignOut": {
+		"message": "Se déconnecter"
+	},
+	"timerRegion": {
+		"message": "Minuteur"
+	},
+	"timerLoading": {
+		"message": "Chargement du minuteur…"
+	},
+	"timerStart": {
+		"message": "Démarrer"
+	},
+	"timerStop": {
+		"message": "Arrêter"
+	},
+	"timerStarting": {
+		"message": "Démarrage…"
+	},
+	"timerStopping": {
+		"message": "Arrêt…"
+	},
+	"timerNoTask": {
+		"message": "Choisissez une tâche ci-dessous pour démarrer le minuteur."
+	},
+	"timerStartedElsewhere": {
+		"message": "Démarré dans une autre application ou sur un autre appareil."
+	},
+	"timerTotalToday": {
+		"message": "Total travaillé aujourd’hui :"
+	},
+	"timerCheckTeam": {
+		"message": "Voir l’équipe"
+	},
+	"tasksAll": {
+		"message": "Vos tâches"
+	},
+	"tasksSearch": {
+		"message": "Rechercher vos tâches"
+	},
+	"tasksRecent": {
+		"message": "Récent"
+	},
+	"tasksLoading": {
+		"message": "Chargement de vos tâches…"
+	},
+	"tasksLoadFailed": {
+		"message": "Vos tâches n’ont pas pu être chargées."
+	},
+	"tasksEmpty": {
+		"message": "Aucune tâche ne vous est assignée dans cette équipe."
+	},
+	"tasksNoMatch": {
+		"message": "Aucune tâche ne correspond à votre recherche."
+	},
+	"tasksNewTaskLabel": {
+		"message": "Nouvelle tâche"
+	},
+	"tasksNewTaskPlaceholder": {
+		"message": "ex. Extension Ever Teams"
+	},
+	"tasksEstimated": {
+		"message": "Estimé :"
+	},
+	"tasksEstimateHours": {
+		"message": "Heures estimées"
+	},
+	"tasksEstimateMinutes": {
+		"message": "Minutes estimées"
+	},
+	"tasksHoursShort": {
+		"message": "hh"
+	},
+	"tasksMinutesShort": {
+		"message": "mm"
+	},
+	"tasksAddTask": {
+		"message": "Ajouter la tâche"
+	},
+	"tasksAddFailed": {
+		"message": "La tâche n’a pas pu être créée."
+	},
+	"refusalPlanRequired": {
+		"message": "Votre équipe exige un plan du jour avant de suivre le temps. Planifiez d’abord votre journée."
+	},
+	"refusalTaskNotPlanned": {
+		"message": "Ajoutez cette tâche au plan du jour avant de suivre son temps."
+	},
+	"refusalTrackingOff": {
+		"message": "Le suivi du temps est désactivé pour vous. Demandez à un administrateur de l’activer."
+	},
+	"errorOffline": {
+		"message": "Ever Teams est injoignable. Vérifiez la connexion, puis réessayez."
+	},
+	"errorSessionExpired": {
+		"message": "Votre session a pris fin. Reconnectez-vous."
+	},
+	"errorTimerChangedElsewhere": {
+		"message": "Le minuteur a changé dans une autre application. Il montre maintenant ce qui tourne."
+	},
+	"errorWithReason": {
+		"message": "$REASON$",
+		"placeholders": {
+			"reason": {
+				"content": "$1",
+				"example": "Task is archived"
+			}
+		}
+	},
+	"errorGeneric": {
+		"message": "Une erreur est survenue. Réessayez."
+	},
+	"actionRetry": {
+		"message": "Réessayer"
+	},
+	"optionsTitle": {
+		"message": "Paramètres de l’extension Ever Teams"
+	},
+	"optionsApiUrl": {
+		"message": "Adresse de l’API"
+	},
+	"optionsApiUrlHint": {
+		"message": "L’API Ever Teams à laquelle vous vous connectez : https://api.ever.team pour le service hébergé, ou votre propre serveur."
+	},
+	"optionsAppUrl": {
+		"message": "Adresse de l’application web"
+	},
+	"optionsSignedOutNote": {
+		"message": "Changer l’adresse de l’API vous déconnecte de l’extension."
+	},
+	"optionsInvalidUrl": {
+		"message": "Saisissez une adresse complète commençant par https:// (ou http://localhost pour un serveur local)."
+	},
+	"optionsSave": {
+		"message": "Enregistrer"
+	},
+	"optionsSaved": {
+		"message": "Enregistré."
+	},
+	"refusalRequiredTeamAndProject": {
+		"message": "Votre organisation exige une équipe et un projet pour chaque minuteur. Ouvrez l'une de vos équipes et placez la tâche dans un projet, puis relancez."
+	},
+	"refusalRequiredTeam": {
+		"message": "Votre organisation exige une équipe pour chaque minuteur. Ouvrez l'une de vos équipes, puis relancez."
+	},
+	"refusalRequiredProject": {
+		"message": "Votre organisation exige un projet pour chaque minuteur. Placez la tâche dans un projet ou donnez un projet par défaut à l'équipe, puis relancez."
+	},
+	"refusalRequiredDetails": {
+		"message": "Votre organisation exige des informations que ce minuteur n'a pas. Demandez à un administrateur lesquelles."
+	}
+}

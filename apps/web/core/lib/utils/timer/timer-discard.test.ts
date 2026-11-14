@@ -106,6 +106,20 @@ describe('timerDiscardAvailabilityOf', () => {
 	});
 });
 
+describe('timerDiscardAvailabilityOf, a run the desktop app records', () => {
+	it('offers no Discard: the desktop app keeps its own time, which the API never discards', () => {
+		const availability = timerDiscardAvailabilityOf({
+			organization: { allowDiscardTimer: true },
+			running: true,
+			source: 'DESKTOP',
+			startedAt: 0,
+			now: 60_000
+		});
+
+		expect(availability).toEqual({ available: false, reason: 'TRACKER_RUN' });
+	});
+});
+
 describe('timerDiscardFailureOf', () => {
 	it('names the refusal of each answer the discard route gives', () => {
 		expect(timerDiscardFailureOf(apiErrorOf(400))).toBe('NOT_RUNNING');
@@ -114,6 +128,7 @@ describe('timerDiscardFailureOf', () => {
 		expect(timerDiscardFailureOf(apiErrorOf(403))).toBe('FORBIDDEN');
 		expect(timerDiscardFailureOf(apiErrorOf(404))).toBe('NOT_SUPPORTED');
 		expect(timerDiscardFailureOf(apiErrorOf(409))).toBe('CHANGED');
+		expect(timerDiscardFailureOf(apiErrorOf(409, 'TIMER_DISCARD_TRACKER_RUN'))).toBe('TRACKER_RUN');
 	});
 
 	it('reads any other failure as one to try again', () => {

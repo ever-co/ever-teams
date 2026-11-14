@@ -16,6 +16,7 @@ import { useTranslations } from 'next-intl';
 import { defaultRangeExtractor, useVirtualizer, type Range } from '@tanstack/react-virtual';
 import { cn } from '@/core/lib/helpers';
 import { useDetectOS } from '@/core/hooks/common/use-detect-os';
+import { useAnsweredKeys } from '@/core/hooks/keyboard/use-answered-keys';
 import { useKeyboardPreferences } from '@/core/hooks/keyboard/use-keyboard-preferences';
 import { isShortcutSequencePending } from '@/core/hooks/keyboard/use-shortcuts';
 import {
@@ -34,7 +35,7 @@ import { TeamTasksListProvider, type TeamTaskPickerKind, type TeamTasksListActio
 import { TeamTaskRow } from './team-task-row';
 import { TeamTasksBoard } from './team-tasks-board';
 import { TeamTasksTimelineView } from './team-tasks-timeline';
-import { cellAppliesToSelection, pickerOf } from './team-task-picker-commands';
+import { cellAppliesToSelection, pickerCommandIdsOf, pickerOf } from './team-task-picker-commands';
 import { shownTeamTasksLayout } from '@/core/lib/utils/team-tasks-layouts';
 import { TeamTasksGroupHeader } from './team-tasks-group-header';
 import { TeamTasksColumnHeader } from './team-tasks-column-header';
@@ -46,6 +47,9 @@ const OVERSCAN = 10;
 
 /** The list's keys with the saved-views feature off: the defaults, as they always were. */
 const DEFAULT_BINDINGS = effectiveBindings(SHORTCUT_COMMANDS, null);
+
+/** The list commands a focused row runs itself (`handleKeyDown`), besides the keys that open a picker. */
+const ROW_LIST_COMMAND_IDS: readonly string[] = ['listDown', 'listUp', 'listOpen', 'listSelect', 'listClear'];
 
 /** The key cap a picker shows for the binding that opened it (`S`, `⇧S`, `Alt+S`). */
 function keyCapOf(binding: ShortcutBinding | null | undefined, isMac: boolean) {
@@ -232,6 +236,8 @@ function TeamTasksRows({
 	// The person's bindings with the saved-views feature on (letters by their physical key, as the registry reads
 	// them); without it, the keys the list always had, by the character typed.
 	const bindings = canRebind ? preferredBindings : DEFAULT_BINDINGS;
+	const rowKeyIds = useMemo(() => [...ROW_LIST_COMMAND_IDS, ...pickerCommandIdsOf(canRebind)], [canRebind]);
+	useAnsweredKeys(rowKeyIds);
 	const canReorder = view.canReorder && commands.moveTask !== undefined;
 	useTeamTaskListReorder(scrollRef, canReorder, commands.moveTask);
 

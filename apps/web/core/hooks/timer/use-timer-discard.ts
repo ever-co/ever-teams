@@ -47,11 +47,11 @@ function startedAtOf(startedAt: Date | string | undefined): number | null {
 
 /**
  * The Discard of the running timer (#5219): whether the running timer offers it (the organization's switch and age
- * limit, an API that knows the discard), and the discard itself. A discard names the run the member confirmed
- * (`runningLogId` when the confirmation opened), so a run started meanwhile elsewhere is never removed. On success
- * the timer reads the stopped status the API answers (stopped too when that read failed: the run is discarded all
- * the same), and every view that counts time reads again; on a refusal the timer stays as it is and `failure` names
- * the reason.
+ * limit, an API that knows the discard), and the discard itself. A discard names the run the confirmation was opened
+ * for (`runningLogId` then), so a run started meanwhile elsewhere is never removed; without one it is refused. On
+ * success the timer reads the stopped status the API answers (stopped too when that read failed: the run is
+ * discarded all the same), and every view that counts time reads again; on a refusal the timer stays as it is and
+ * `failure` names the reason.
  */
 export function useTimerDiscard() {
 	const t = useTranslations();
@@ -68,7 +68,13 @@ export function useTimerDiscard() {
 
 	const runningLog = timerStatus?.lastLog;
 	const startedAt = startedAtOf(runningLog?.startedAt);
-	const availability = timerDiscardAvailabilityOf({ organization, running, startedAt, now: Date.now() });
+	const availability = timerDiscardAvailabilityOf({
+		organization,
+		running,
+		source: runningLog?.source,
+		startedAt,
+		now: Date.now()
+	});
 	const closesAt = availability.available ? availability.closesAt : null;
 
 	useEffect(() => {
@@ -98,14 +104,19 @@ export function useTimerDiscard() {
 	);
 
 	const discard = useCallback(
-		async (timeLogId: string | undefined): Promise<boolean> => {
+		async (timeLogId?: string): Promise<boolean> => {
 			if (discarding) {
+				return false;
+			}
+			// Without the run the member confirmed, the API would remove whichever runs now
+			if (!timeLogId) {
+				setFailure('CHANGED');
 				return false;
 			}
 			setDiscarding(true);
 			setFailure(null);
 			try {
-				// A timer command: a status read sent before the discard lands cannot show the discarded run again
+				// A timer command: a status read sent before it (a heartbeat) cannot put the discarded run back on screen
 				const { data } = await trackTimerCommand(timerService.discardTimer({ timeLogId }));
 				if (data) {
 					setTimerStatus(data);

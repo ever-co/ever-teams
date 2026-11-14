@@ -5,7 +5,12 @@ import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useCurrentOrganizationOwner } from '@/core/hooks/bootstrap/use-feature-data';
 import { useClientNames } from '@/core/hooks/clients/use-client-names';
-import { isInvoiceOfWorkspace, savedInvoiceOf, savedInvoiceStatusOf } from '@/core/lib/utils/invoice-edit';
+import {
+	isInvoiceOfWorkspace,
+	organizationOfWorkspace,
+	savedInvoiceOf,
+	savedInvoiceStatusOf
+} from '@/core/lib/utils/invoice-edit';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { useInvoiceQuery } from './use-invoices-query';
 
@@ -13,19 +18,22 @@ import { useInvoiceQuery } from './use-invoices-query';
 export function useSavedInvoice(invoiceId: string | null) {
 	const t = useTranslations();
 	const organizationRead = useCurrentOrganizationOwner();
-	const organization = useAtomValue(currentOrganizationState);
+	const currentOrganization = useAtomValue(currentOrganizationState);
 	const clientNames = useClientNames();
 	const read = useInvoiceQuery(invoiceId);
 	const invoice = read.invoice;
+	// The organization the invoice is read in, never the previous one a workspace switch leaves for a render
+	const organization = organizationOfWorkspace(currentOrganization, read.scope);
 	const timeZone = organization?.timeZone;
 	const unnamedProject = t('invoices.new.UNNAMED_PROJECT');
 
 	const saved = useMemo(() => {
-		if (!invoice) {
+		// No reading before the organization of the workspace is known: its time zone reads the dates
+		if (!invoice || !organization) {
 			return null;
 		}
 		return savedInvoiceOf(invoice, { timeZone, unnamedProject, clientNames });
-	}, [clientNames, invoice, timeZone, unnamedProject]);
+	}, [clientNames, invoice, organization, timeZone, unnamedProject]);
 
 	const status = savedInvoiceStatusOf({
 		hasOrganization: organization !== null,
@@ -45,5 +53,15 @@ export function useSavedInvoice(invoiceId: string | null) {
 		void refetchInvoice();
 	}, [refetchInvoice, refetchOrganization]);
 
-	return { status, saved, number: invoice?.invoiceNumber ?? null, isRefreshing: read.isRefreshing, retry };
+	return {
+		status,
+		saved,
+		number: invoice?.invoiceNumber ?? null,
+		isRefreshing: read.isRefreshing,
+		/** When the invoice held was read; one kept from an earlier visit was read before this one began. */
+		readAt: read.readAt,
+		/** The last read failed, though the invoice of an earlier one may still be held. */
+		hasReadFailed: read.isError,
+		retry
+	};
 }

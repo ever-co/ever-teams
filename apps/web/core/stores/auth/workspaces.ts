@@ -37,6 +37,13 @@ export const workspaceSwitchingState = atom<boolean>(false);
 export const workspaceOpeningState = atom<boolean>(false);
 
 /**
+ * Another organization of the workspace is being opened from the team menu (#5204). Its answer moves the session
+ * there, so a timer started meanwhile would keep running in the organization left behind: the timer refuses to start
+ * until then. Set while the switch is in flight and cleared when it fails; on success the page is replaced.
+ */
+export const organizationOpeningState = atom<boolean>(false);
+
+/**
  * Store for errors related to workspaces
  */
 export const workspacesErrorState = atom<string | null>(null);
