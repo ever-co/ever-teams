@@ -124,7 +124,7 @@ export function useGoalsPage() {
 	// The pickers of the goal dialog: read once a dialog may open, where the platform has goals
 	const { organizationProjects } = useOrganizationProjectsQuery({ enabled: isAvailable });
 	const { clients } = useActiveClients({ enabled: isAvailable });
-	const projects = useMemo(() => pickerItemsOf(organizationProjects ?? []), [organizationProjects]);
+	const projects = useMemo(() => pickerItemsOf(organizationProjects), [organizationProjects]);
 	const pickableClients = useMemo(() => pickerItemsOf(clients), [clients]);
 
 	const shownRange = useMemo(() => {
