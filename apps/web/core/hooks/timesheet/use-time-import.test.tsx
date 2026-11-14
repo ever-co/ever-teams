@@ -533,3 +533,38 @@ describe('useTimeImport for a file from another tool', () => {
 		});
 	});
 });
+
+describe('useTimeImport with the projects a workspace import plans', () => {
+	const PROJECT_FILE = 'date,start time,end time,project\n2024-03-05,09:00,10:00,Website\n';
+
+	function renderWith(extraProjectsOf?: Parameters<typeof useTimeImport>[0]['extraProjectsOf']) {
+		const client = new QueryClient();
+		const wrapper = ({ children }: PropsWithChildren) => (
+			<QueryClientProvider client={client}>{children}</QueryClientProvider>
+		);
+		return renderHook(() => useTimeImport({ contextAt, saveScope, extraProjectsOf }), { wrapper });
+	}
+
+	it('files a row under a project the team does not have yet when the caller adds it', async () => {
+		const extraProjectsOf = jest.fn(() => [{ id: 'planned:website', name: 'Website' }]);
+		const { result } = renderWith(extraProjectsOf);
+
+		await act(() => result.current.chooseFile(textFile(PROJECT_FILE)));
+
+		expect(result.current.summary.readyCount).toBe(1);
+		expect(result.current.rows[0].entry?.projectId).toBe('planned:website');
+		expect(extraProjectsOf).toHaveBeenCalledWith(
+			expect.objectContaining({ rows: [expect.objectContaining({ row: 2 })] }),
+			expect.objectContaining({ viewerEmployeeId: VIEWER_ID })
+		);
+	});
+
+	it('leaves the same row out for its unknown project when nothing is added, as the plain import does', async () => {
+		const { result } = renderWith();
+
+		await act(() => result.current.chooseFile(textFile(PROJECT_FILE)));
+
+		expect(result.current.summary.readyCount).toBe(0);
+		expect(result.current.rows[0].problems).toEqual([{ code: 'projectUnknown' }]);
+	});
+});
