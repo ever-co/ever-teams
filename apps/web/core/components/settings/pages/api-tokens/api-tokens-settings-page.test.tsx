@@ -25,16 +25,19 @@ jest.mock('@/core/constants/config/constants', () => ({
 	}
 }));
 jest.mock('@/core/hooks/settings/use-user-api-tokens', () => ({
+	// The real clock, read once the test runs: its module reads the mocked API address above.
+	useUserApiTokensClock: (tokens: TUserApiToken[]) =>
+		jest.requireActual('@/core/hooks/settings/use-user-api-tokens').useUserApiTokensClock(tokens),
 	useUserApiTokensAvailability: () => mockUseAvailability(),
 	useUserApiTokens: (enabled: boolean) => mockUseTokens(enabled),
 	useRevokeUserApiToken: () => ({ mutate: mockRevoke, isPending: false, reset: jest.fn() })
 }));
 jest.mock('./create-api-token-dialog', () => ({
-	CreateApiTokenDialog: ({ open }: { open: boolean }) => {
+	CreateApiTokenDialog: ({ open, now }: { open: boolean; now: Date }) => {
 		if (!open) {
 			return null;
 		}
-		return <p>create dialog</p>;
+		return <p>create dialog from {now.toISOString()}</p>;
 	}
 }));
 jest.mock('@/core/components/common/notice', () => ({
@@ -124,7 +127,7 @@ describe('the list of tokens', () => {
 
 		expect(screen.getByText('settings.apiTokens.EMPTY_TITLE')).toBeTruthy();
 		fireEvent.click(screen.getAllByRole('button', { name: /settings.apiTokens.CREATE/ })[0]);
-		expect(screen.getByText('create dialog')).toBeTruthy();
+		expect(screen.getByText(/create dialog/)).toBeTruthy();
 	});
 
 	it('says the list could not be read, and reads it again on Try again', () => {
@@ -208,5 +211,43 @@ describe('the note on scripts', () => {
 		render(<ApiTokensSettingsPage />);
 
 		expect(screen.getByText(/API_URL\/api\/auth\/api-token\/exchange/)).toBeTruthy();
+	});
+});
+
+describe('the time the page counts at', () => {
+	const OPENED = new Date('2026-11-14T12:00:00.000Z');
+
+	afterEach(() => {
+		jest.useRealTimers();
+	});
+
+	it('stops counting a token the moment it ends, and offers Create again', () => {
+		jest.useFakeTimers({ now: OPENED });
+		listed([
+			...Array.from({ length: 9 }, (_, index) => token(`t${index}`)),
+			token('ending', { expiresAt: '2026-11-14T12:01:00.000Z' })
+		]);
+		render(<ApiTokensSettingsPage />);
+		const create = () => screen.getByRole('button', { name: /settings.apiTokens.CREATE/ }) as HTMLButtonElement;
+		expect(create().disabled).toBe(true);
+
+		act(() => {
+			jest.advanceTimersByTime(60_000);
+		});
+
+		expect(create().disabled).toBe(false);
+		expect(screen.getByText('settings.apiTokens.COUNT 9 10')).toBeTruthy();
+	});
+
+	it('dates the expiry choices from when the create dialog opens', () => {
+		jest.useFakeTimers({ now: OPENED });
+		render(<ApiTokensSettingsPage />);
+
+		act(() => {
+			jest.advanceTimersByTime(2 * 60 * 60_000);
+		});
+		fireEvent.click(screen.getAllByRole('button', { name: /settings.apiTokens.CREATE/ })[0]);
+
+		expect(screen.getByText('create dialog from 2026-11-14T14:00:00.000Z')).toBeTruthy();
 	});
 });

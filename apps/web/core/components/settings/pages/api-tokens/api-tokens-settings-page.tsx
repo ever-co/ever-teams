@@ -17,6 +17,7 @@ import {
 import {
 	useUserApiTokens,
 	useUserApiTokensAvailability,
+	useUserApiTokensClock,
 	type UserApiTokensAvailability
 } from '@/core/hooks/settings/use-user-api-tokens';
 import {
@@ -70,8 +71,9 @@ function EmptyTokens({ onCreate }: Readonly<{ onCreate: () => void }>) {
 function ApiTokensSection() {
 	const t = useTranslations();
 	const { tokens, isLoading, isError, refetch } = useUserApiTokens(true);
-	const [now] = useState(() => new Date());
-	const [isCreateOpen, setIsCreateOpen] = useState(false);
+	const now = useUserApiTokensClock(tokens);
+	// The expiry choices are dated from when the dialog opens, not from when the page did.
+	const [createOpenedAt, setCreateOpenedAt] = useState<Date | null>(null);
 	const [revoking, setRevoking] = useState<TUserApiToken | null>(null);
 	const sortedTokens = useMemo(() => sortUserApiTokens(tokens, now), [tokens, now]);
 
@@ -89,7 +91,7 @@ function ApiTokensSection() {
 		});
 	}
 
-	const openCreate = () => setIsCreateOpen(true);
+	const openCreate = () => setCreateOpenedAt(new Date());
 
 	return (
 		<SettingsSection
@@ -129,7 +131,11 @@ function ApiTokensSection() {
 					{t('settings.apiTokens.LIMIT_REACHED', { max: MAX_ACTIVE_USER_API_TOKENS })}
 				</SettingsReadOnlyNote>
 			)}
-			<CreateApiTokenDialog open={isCreateOpen} onClose={() => setIsCreateOpen(false)} now={now} />
+			<CreateApiTokenDialog
+				open={createOpenedAt !== null}
+				onClose={() => setCreateOpenedAt(null)}
+				now={createOpenedAt ?? now}
+			/>
 			<RevokeApiTokenDialog token={revoking} onClose={() => setRevoking(null)} />
 		</SettingsSection>
 	);

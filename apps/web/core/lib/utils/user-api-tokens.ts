@@ -39,6 +39,24 @@ export function canCreateUserApiToken(tokens: ReadonlyArray<TUserApiToken>, now:
 	return activeUserApiTokenCount(tokens, now) < MAX_ACTIVE_USER_API_TOKENS;
 }
 
+/** The soonest end still to come among the working tokens: the moment their count drops by itself. None without one. */
+export function nextUserApiTokenExpiry(tokens: ReadonlyArray<TUserApiToken>, now: Date): Date | null {
+	let next: number | null = null;
+	for (const token of tokens) {
+		if (!token.expiresAt || isExpired(token, now)) {
+			continue;
+		}
+		const end = timeOf(token.expiresAt);
+		if (Number.isFinite(end) && (next === null || end < next)) {
+			next = end;
+		}
+	}
+	if (next === null) {
+		return null;
+	}
+	return new Date(next);
+}
+
 export function userApiTokenNameProblem(name: string): UserApiTokenNameProblem | null {
 	const trimmed = name.trim();
 	if (!trimmed) {

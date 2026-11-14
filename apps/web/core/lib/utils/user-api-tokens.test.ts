@@ -6,6 +6,7 @@ import {
 	expiryDateOf,
 	formatUserApiTokenDate,
 	MAX_ACTIVE_USER_API_TOKENS,
+	nextUserApiTokenExpiry,
 	sortUserApiTokens,
 	userApiTokenExpiryState,
 	userApiTokenLastUseState,
@@ -134,5 +135,24 @@ describe('the end a new token gets', () => {
 		expect(expiryDateOf('90d', NOW)?.toISOString()).toBe('2027-02-12T12:00:00.000Z');
 		expect(expiryDateOf('1y', NOW)?.toISOString()).toBe('2027-11-14T12:00:00.000Z');
 		expect(expiryDateOf('never', NOW)).toBeNull();
+	});
+});
+
+describe('the next end among the working tokens', () => {
+	it('is the soonest end still to come', () => {
+		const tokens = [
+			token('never'),
+			token('ended', { expiresAt: '2026-11-13T12:00:00.000Z' }),
+			token('later', { expiresAt: '2026-11-16T12:00:00.000Z' }),
+			token('sooner', { expiresAt: '2026-11-15T12:00:00.000Z' })
+		];
+
+		expect(nextUserApiTokenExpiry(tokens, NOW)?.toISOString()).toBe('2026-11-15T12:00:00.000Z');
+	});
+
+	it('is none when no working token has an end', () => {
+		const tokens = [token('never'), token('ended', { expiresAt: '2026-11-14T12:00:00.000Z' })];
+
+		expect(nextUserApiTokenExpiry(tokens, NOW)).toBeNull();
 	});
 });

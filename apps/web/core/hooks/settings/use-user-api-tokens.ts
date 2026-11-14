@@ -1,11 +1,12 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { userApiTokensService } from '@/core/services/client/api/users/user-api-tokens.service';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
+import { nextUserApiTokenExpiry } from '@/core/lib/utils/user-api-tokens';
 import { userState } from '@/core/stores/user/user';
 import type {
 	TCreatedUserApiToken,
@@ -129,6 +130,27 @@ export function useUserApiTokens(enabled: boolean) {
 		isError: query.isError,
 		refetch: query.refetch
 	};
+}
+
+/** The longest delay a browser timer keeps (about 24.8 days): a later end is waited for in steps. */
+const MAX_TIMER_DELAY_MS = 2_147_483_647;
+
+/**
+ * The time the tokens are counted at: when the page opened, moved on each time a working token reaches its end, so
+ * that an expired token stops counting toward the ten (and Create comes back) without a reload.
+ */
+export function useUserApiTokensClock(tokens: ReadonlyArray<TUserApiToken>): Date {
+	const [now, setNow] = useState(() => new Date());
+	const nextEnd = nextUserApiTokenExpiry(tokens, now)?.getTime() ?? null;
+	useEffect(() => {
+		if (nextEnd === null) {
+			return undefined;
+		}
+		const delay = Math.min(Math.max(nextEnd - Date.now(), 0), MAX_TIMER_DELAY_MS);
+		const timer = setTimeout(() => setNow(new Date()), delay);
+		return () => clearTimeout(timer);
+	}, [nextEnd, now]);
+	return now;
 }
 
 /**
