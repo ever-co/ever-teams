@@ -6,9 +6,18 @@ interface IUserApiTokenCall {
 	tenantId: string;
 }
 
-/** Gauzy's `GET /user-api-tokens/config`: whether the server has personal API tokens on. */
+/**
+ * Gauzy's `GET /user-api-tokens/config`: whether the server has personal API tokens on. A refusal keeps its HTTP status
+ * even without a body, so that an API without the route (its 404) still reads as tokens off.
+ */
 export function getUserApiTokenConfigRequest({ bearer_token, tenantId }: IUserApiTokenCall) {
-	return serverFetch<unknown>({ path: '/user-api-tokens/config', method: 'GET', bearer_token, tenantId });
+	return serverFetch<unknown>({
+		path: '/user-api-tokens/config',
+		method: 'GET',
+		bearer_token,
+		tenantId,
+		keepsStatusOnError: true
+	});
 }
 
 /** Gauzy's `GET /user-api-tokens`: the caller's own tokens that are not revoked, never their secrets. */
