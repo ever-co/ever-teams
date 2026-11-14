@@ -455,6 +455,16 @@ export const queryKeys = {
 		) => ['notifications', 'settings', tenantId ?? null, organizationId ?? null, employeeId ?? null] as const
 	},
 
+	// Settings → API tokens: whether the server offers them, and the person's own tokens. The tenant and the user are
+	// part of every key: one sign-in's tokens never show for the next one.
+	userApiTokens: {
+		all: ['user-api-tokens'] as const,
+		config: (tenantId: string | undefined | null, userId: string | undefined | null) =>
+			['user-api-tokens', 'config', tenantId ?? null, userId ?? null] as const,
+		list: (tenantId: string | undefined | null, userId: string | undefined | null) =>
+			['user-api-tokens', 'list', tenantId ?? null, userId ?? null] as const
+	},
+
 	// Settings → Automations: the organization's rules, the templates and a rule's run history. The user is part of
 	// every key: what one sign-in read (or was refused) never shows for the next one.
 	taskAutomations: {
