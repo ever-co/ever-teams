@@ -22,6 +22,8 @@ export type TimesheetGroupChange =
 
 /** What the menu of a group row of similar entries does to every entry of the group. */
 export interface TimesheetGroupHandlers {
+	/** Whether a billable change of the group would save any entry: the menu offers Billable only then. */
+	hasBillableChange: (group: TimesheetEntryGroup) => boolean;
 	setBillable: (group: TimesheetEntryGroup, isBillable: boolean) => void;
 	changeStatus: (group: TimesheetEntryGroup, status: ETimesheetStatus) => void;
 	remove: (group: TimesheetEntryGroup) => void;
@@ -83,6 +85,10 @@ export function useTimesheetGroupChange(actions: TimesheetGroupActions) {
 
 	const handlers = useMemo<TimesheetGroupHandlers>(
 		() => ({
+			hasBillableChange: (group) =>
+				[true, false].some(
+					(isBillable) => groupBillablePlanOf(group, isBillable, permissions).saves.length > 0
+				),
 			setBillable: (group, isBillable) => {
 				const hasNothingToSave = groupBillablePlanOf(group, isBillable, permissions).saves.length === 0;
 				if (hasNothingToSave) {

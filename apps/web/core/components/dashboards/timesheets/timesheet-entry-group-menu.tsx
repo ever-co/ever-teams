@@ -52,7 +52,9 @@ export function TimesheetEntryGroupMenu({
 				{permissions.canApprove && (
 					<StatusSubmenu status={status} onChange={(option) => handlers.changeStatus(group, option)} />
 				)}
-				<BillableSubmenu isBillable={isBillable} onChange={(value) => handlers.setBillable(group, value)} />
+				{handlers.hasBillableChange(group) && (
+					<BillableSubmenu isBillable={isBillable} onChange={(value) => handlers.setBillable(group, value)} />
+				)}
 				{canDelete && (
 					<>
 						<DropdownMenuSeparator />

@@ -59,8 +59,17 @@ function groupOf(logs: ITimeLog[]): TimesheetEntryGroup {
 	return { key: 'day|work', logs, firstStart: null, lastEnd: null, isRunning: false, totalSeconds: 0 };
 }
 
-function renderMenu(permissions: TimesheetPermissions, group = groupOf([logOf('a'), logOf('b')])) {
-	const handlers = { setBillable: jest.fn(), changeStatus: jest.fn(), remove: jest.fn() };
+function renderMenu(
+	permissions: TimesheetPermissions,
+	group = groupOf([logOf('a'), logOf('b')]),
+	hasBillableChange = true
+) {
+	const handlers = {
+		hasBillableChange: jest.fn(() => hasBillableChange),
+		setBillable: jest.fn(),
+		changeStatus: jest.fn(),
+		remove: jest.fn()
+	};
 	render(<TimesheetEntryGroupMenu group={group} permissions={permissions} handlers={handlers} />);
 	return { handlers, group };
 }
@@ -92,6 +101,13 @@ describe('TimesheetEntryGroupMenu', () => {
 		fireEvent.click(menuItemNamed('pages.timesheet.BILLABLE.NO') as HTMLElement);
 
 		expect(handlers.setBillable).toHaveBeenCalledWith(group, false);
+	});
+
+	it('offers no Billable when no entry of the group could be changed', () => {
+		renderMenu(MEMBER, undefined, false);
+
+		expect(screen.queryByText('dashboard.timesheets.BILLABLE')).toBeNull();
+		expect(menuItemNamed('pages.timesheet.BILLABLE.NO')).toBeUndefined();
 	});
 
 	it('deletes every entry when each of them may be deleted', () => {

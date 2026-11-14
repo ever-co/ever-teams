@@ -216,6 +216,17 @@ describe('useTimesheetGroupChange', () => {
 		expect(writtenIds()).toEqual(['own']);
 	});
 
+	it('says whether a billable change of the group would save any entry', () => {
+		const { hook } = renderChange();
+		const running = logOf('running', { isRunning: true, isBillable: false });
+		const approved = logOf('approved', {
+			timesheet: { id: 'sheet', status: ETimesheetStatus.APPROVED } as ITimeLog['timesheet']
+		});
+
+		expect(hook.result.current.handlers.hasBillableChange(GROUP)).toBe(true);
+		expect(hook.result.current.handlers.hasBillableChange(groupOf([running, approved]))).toBe(false);
+	});
+
 	it('asks before changing the status of a group, then changes it for every entry', async () => {
 		const { actions, hook } = renderChange();
 

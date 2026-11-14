@@ -36,7 +36,7 @@ const GROUP: TimesheetEntryGroup = {
 
 function stateOf(overrides: Partial<TimesheetGroupChangeState>): TimesheetGroupChangeState {
 	return {
-		handlers: { setBillable: jest.fn(), changeStatus: jest.fn(), remove: jest.fn() },
+		handlers: { hasBillableChange: () => true, setBillable: jest.fn(), changeStatus: jest.fn(), remove: jest.fn() },
 		change: null,
 		isOpen: true,
 		isSaving: false,

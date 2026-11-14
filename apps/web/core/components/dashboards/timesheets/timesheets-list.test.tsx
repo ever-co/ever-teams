@@ -106,7 +106,7 @@ function renderList(grouping: SimilarEntryGrouping) {
 			onSort={jest.fn()}
 			emptyContent={null}
 			grouping={grouping}
-			groupHandlers={{ setBillable: jest.fn(), changeStatus: jest.fn(), remove: jest.fn() }}
+			groupHandlers={{ hasBillableChange: () => true, setBillable: jest.fn(), changeStatus: jest.fn(), remove: jest.fn() }}
 		/>
 	);
 }
