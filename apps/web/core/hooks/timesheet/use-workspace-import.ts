@@ -206,6 +206,7 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 	const [creation, setCreation] = useState<WorkspaceCreationState>(NO_CREATION);
 	// The plan a creation started from: the live one follows the workspace as the created records load back
 	const [creationPlan, setCreationPlan] = useState<WorkspaceImportPlan | null>(null);
+	const [creationSavesEntries, setCreationSavesEntries] = useState(false);
 	const [shouldSaveEntries, setShouldSaveEntries] = useState(false);
 	// Counts the files and the runs started: an older one that answers late changes nothing
 	const runRef = useRef(0);
@@ -262,6 +263,7 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 			timeImport.reset();
 			setCreation(NO_CREATION);
 			setCreationPlan(null);
+			setCreationSavesEntries(false);
 			setCreatedProjects([]);
 			setIsReading(true);
 			const read = await readWorkspaceFiles(picked);
@@ -285,6 +287,7 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 		setIsReading(false);
 		setCreation(NO_CREATION);
 		setCreationPlan(null);
+		setCreationSavesEntries(false);
 		setCreatedProjects([]);
 		setShouldSaveEntries(false);
 	}, [timeImport]);
@@ -307,6 +310,7 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 		const run = runRef.current;
 		const isRunGoing = () => runRef.current === run;
 		setCreationPlan(plan);
+		setCreationSavesEntries(savesEntries);
 		setCreation({ status: 'creating', tallies: null, failure: null });
 		const organizationId = saveScope.organizationId ?? '';
 		const result = await runWorkspaceCreation(plan, {
@@ -386,8 +390,8 @@ export function useWorkspaceImport(access: TimeImportAccess) {
 		files,
 		isReading,
 		hasEntries,
-		/** Whether entries are saved once the lists exist: some are ready. */
-		savesEntries,
+		/** Whether the creation under way saves entries once the lists exist: some were ready when it started. */
+		creationSavesEntries,
 		isLoadingExisting: rights.canStart && !areExistingLoaded && !hasExistingFailed,
 		hasExistingFailed,
 		retryExisting: () => {
