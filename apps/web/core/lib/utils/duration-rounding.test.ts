@@ -68,6 +68,31 @@ describe('roundedSecondsOf', () => {
 	it('rounds a few seconds up to a whole interval', () => {
 		expect(roundedSecondsOf(1, { intervalMinutes: 6, direction: 'UP' })).toBe(6 * MINUTE);
 	});
+
+	it('keeps nothing as nothing in every direction', () => {
+		expect(roundedSecondsOf(0, QUARTER_DOWN)).toBe(0);
+		expect(roundedSecondsOf(0, QUARTER_NEAREST)).toBe(0);
+	});
+
+	it('keeps a duration on the interval in every direction, one second either side going its way', () => {
+		expect(roundedSecondsOf(15 * MINUTE, QUARTER_NEAREST)).toBe(15 * MINUTE);
+		expect(roundedSecondsOf(15 * MINUTE + 1, QUARTER_UP)).toBe(30 * MINUTE);
+		expect(roundedSecondsOf(15 * MINUTE - 1, QUARTER_DOWN)).toBe(0);
+		expect(roundedSecondsOf(15 * MINUTE + 1, QUARTER_NEAREST)).toBe(15 * MINUTE);
+	});
+
+	it('leaves a negative or unreadable duration as it came, for its reader to discard', () => {
+		expect(roundedSecondsOf(-7 * MINUTE, QUARTER_UP)).toBe(-7 * MINUTE);
+		expect(roundedSecondsOf(Number.NaN, QUARTER_UP)).toBeNaN();
+		expect(roundedSecondsOf(Number.POSITIVE_INFINITY, QUARTER_UP)).toBe(Number.POSITIVE_INFINITY);
+	});
+
+	it('rounds a very large duration to a whole interval', () => {
+		const tenThousandHours = 10_000 * 60 * MINUTE;
+
+		expect(roundedSecondsOf(tenThousandHours + 7 * MINUTE, QUARTER_UP)).toBe(tenThousandHours + 15 * MINUTE);
+		expect(roundedSecondsOf(tenThousandHours + 7 * MINUTE, QUARTER_DOWN)).toBe(tenThousandHours);
+	});
 });
 
 describe('roundedTotalOf', () => {
