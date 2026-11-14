@@ -462,5 +462,13 @@
 	{
 		"id": "removed:overlayComponents:apps/web/core/components/pages/invoices/page-component.tsx::setIsDialogOpen",
 		"reason": "Moved unchanged into useInvoiceActionFlow (pages/invoices/invoice-action-flow.tsx, #5199), which the invoice list, its peek and the invoice's own page share."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/common/keyboard-shortcuts.tsx::closeModal",
+		"reason": "The keyboard button's own shortcut dialog was folded into the app's one shortcuts sheet (#5227): ShortcutsDialog, mounted once by KeyboardShortcutsMount, opens from the button and from the H keys through shortcutsHelpOpenAtom, and closes there."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/common/keyboard-shortcuts.tsx::openModal",
+		"reason": "The keyboard button's own shortcut dialog was folded into the app's one shortcuts sheet (#5227): the button now sets shortcutsHelpOpenAtom, and ShortcutsDialog, mounted once by KeyboardShortcutsMount, opens; the H keys still open it."
 	}
 ]
