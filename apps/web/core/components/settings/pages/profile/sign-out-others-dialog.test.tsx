@@ -234,4 +234,25 @@ describe('SignOutOthersDialog', () => {
 			/^settings\.sessions\.SIGN_OUT_OTHERS_FAILED .*toasts\.REASONS\.SERVER/
 		);
 	});
+
+	it('keeps the proof it sent while the sign-out is pending, so a refusal lands under that field', async () => {
+		let refuse: (reason: unknown) => void = () => undefined;
+		mockSignOut.mockReturnValue(
+			new Promise<number>((_, reject) => {
+				refuse = reject;
+			})
+		);
+		renderDialog();
+		typePassword('wrong-1');
+
+		await confirm();
+		fireEvent.click(screen.getByRole('button', { name: 'settings.sessions.USE_CODE' }));
+		await act(async () => {
+			refuse(failure(400, 'SESSION_CONFIRMATION_INVALID'));
+		});
+
+		expect(screen.getByLabelText('settings.sessions.PASSWORD_LABEL')).toBeTruthy();
+		expect(screen.queryByLabelText('settings.sessions.CODE_LABEL')).toBeNull();
+		expect(screen.getByRole('alert').textContent).toBe('settings.sessions.WRONG_PASSWORD');
+	});
 });

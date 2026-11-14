@@ -298,10 +298,12 @@ export function SignOutOthersDialog({
 						{error}
 					</p>
 				)}
+				{/* Kept while a sign-out is pending: its refusal names the proof it sent, under that proof's field */}
 				<Button
 					type="button"
 					variant="link"
 					size="sm"
+					disabled={isPending}
 					onClick={() => switchTo(otherProofOf(proof), null)}
 					className="h-auto self-start px-0 text-xs"
 				>
