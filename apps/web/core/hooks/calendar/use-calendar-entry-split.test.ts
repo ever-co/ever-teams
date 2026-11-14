@@ -85,6 +85,19 @@ describe('splitCalendarEntry, the entry read again before any write', () => {
 	});
 });
 
+describe('splitCalendarEntry, an entry without its member', () => {
+	it('writes nothing and says the entry is as it was, not that it changed', async () => {
+		const withoutMember = { ...LOG, employeeId: undefined, employee: undefined } as unknown as ITimeLog;
+
+		const split = splitCalendarEntry({ log: withoutMember, splitAt: at(11), secondTask: null, tenantId: 't' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'restored' }));
+		expect(mockGetTimeLogs).not.toHaveBeenCalled();
+		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+});
+
 describe('splitCalendarEntry', () => {
 	it('shortens the entry first, then adds the rest, since the API deletes whatever new manual time overlaps', async () => {
 		await splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });

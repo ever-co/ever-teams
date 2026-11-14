@@ -95,7 +95,12 @@ export async function splitCalendarEntry(request: CalendarSplitRequest) {
 		throw new Error('An entry without a start and an end cannot be split');
 	}
 	const parts = splitPartsOf(window, splitAt);
-	const employeeId = memberIdOfLog(log) ?? undefined;
+	// Both writes name the member: without one, the new part would be filed under nobody, or under the viewer. The
+	// entry is left as it was, which the dialog says; it did not change on the server
+	const employeeId = memberIdOfLog(log);
+	if (!employeeId) {
+		throw new CalendarSplitError('restored', new Error('An entry without its member cannot be split'));
+	}
 	// The entry is read again first: nothing is written from a copy the server no longer holds
 	const current = await currentLogOf(log);
 	if (!isStillTheSplitEntry(log, current, window)) {
@@ -120,7 +125,7 @@ export async function splitCalendarEntry(request: CalendarSplitRequest) {
 	try {
 		await timeLogService.addManualTime({
 			tenantId,
-			employeeId: employeeId ?? '',
+			employeeId,
 			projectId: textOrUndefined(secondTask?.projectId ?? log.projectId),
 			taskId: secondTaskId,
 			organizationContactId: textOrUndefined(log.organizationContactId),
