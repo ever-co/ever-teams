@@ -1,13 +1,13 @@
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 
 /** The permission the timer's routes ask for. */
-export const TIME_TRACKER_PERMISSION = 'TIME_TRACKER';
+const TIME_TRACKER_PERMISSION = 'TIME_TRACKER';
 
 /** The permission Gauzy asks for any move of a running timer's start. */
-export const MODIFY_TIME_PERMISSION = 'ALLOW_MODIFY_TIME';
+const MODIFY_TIME_PERMISSION = 'ALLOW_MODIFY_TIME';
 
 /** The permission Gauzy asks for an earlier start, whose added minutes count as time added by hand. */
-export const MANUAL_TIME_PERMISSION = 'ALLOW_MANUAL_TIME';
+const MANUAL_TIME_PERMISSION = 'ALLOW_MANUAL_TIME';
 
 /** The longest reason a time log keeps (its `reason` column is a 255-character string on MySQL). */
 export const TIMER_START_REASON_MAX_LENGTH = 255;

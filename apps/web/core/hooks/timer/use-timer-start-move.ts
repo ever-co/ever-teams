@@ -11,7 +11,7 @@ import { timerStatusState } from '@/core/stores/timer/timer';
 import type { TimerStartMoveSupport } from '@/core/lib/utils/timer/timer-start-move';
 
 /** Whether the API behind the app can move a running start: asked once per session. */
-export const TIMER_START_MOVE_SUPPORT_KEY = ['timer-start-move-support'] as const;
+const TIMER_START_MOVE_SUPPORT_KEY = ['timer-start-move-support'] as const;
 
 /**
  * Whether the API can move the start of a running timer. It is asked the first time `enabled` is true (the panel
