@@ -11,6 +11,7 @@ import { useTimerStatus } from '~hooks/useTimerStatus';
 import { ApiError } from '~lib/api-client';
 import {
 	EXTENSION_SOURCE,
+	getTimerStatus,
 	type RunningLog,
 	myPlans,
 	sendHeartbeat,
@@ -34,6 +35,20 @@ function refusalFrom(error: unknown): Refusal {
 		return refusalOf(error);
 	}
 	return { key: 'errorGeneric' };
+}
+
+/**
+ * Credits a run's last seconds before its stop, from a fresh read: the popup's copy of the run can predate the
+ * background's last heartbeat, and would credit that minute again. A failed credit must not keep the timer running.
+ */
+async function creditLastSeconds(session: Session, run: RunningLog): Promise<void> {
+	const fresh = await getTimerStatus(session).catch(() => null);
+	const freshRun = fresh?.lastLog;
+	const isSameRun = freshRun?.id === run.id;
+	if (!isSameRun || !freshRun) {
+		return;
+	}
+	await sendHeartbeat(session, freshRun).catch(() => undefined);
 }
 
 /** The run the clock counts: the last log while the timer runs, none otherwise. */
@@ -120,8 +135,7 @@ function SignedIn({
 		}
 		void act(async () => {
 			if (sendsHeartbeat(running)) {
-				// The last seconds since the minute heartbeat; a failed credit must not keep the timer running
-				await sendHeartbeat(session, running).catch(() => undefined);
+				await creditLastSeconds(session, running);
 			}
 			await stopTimer(session, running);
 		});
