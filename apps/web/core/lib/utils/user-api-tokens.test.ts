@@ -122,6 +122,7 @@ describe('the order of the list', () => {
 describe('the exchange address a script calls', () => {
 	it('is the API address the app calls directly, without a trailing slash', () => {
 		expect(exchangeUrlOf('https://api.example.com/')).toBe('https://api.example.com/api/auth/api-token/exchange');
+		expect(exchangeUrlOf('https://api.example.com///')).toBe('https://api.example.com/api/auth/api-token/exchange');
 	});
 
 	it('is the route alone when the app calls the API through its own server', () => {

@@ -109,7 +109,10 @@ export function sortUserApiTokens(tokens: ReadonlyArray<TUserApiToken>, now: Dat
  * else the route alone, on whatever address the deployment gives its API.
  */
 export function exchangeUrlOf(apiOrigin: string | undefined): string {
-	const origin = (apiOrigin ?? '').replace(/\/+$/, '');
+	let origin = apiOrigin ?? '';
+	while (origin.endsWith('/')) {
+		origin = origin.slice(0, -1);
+	}
 	return `${origin}${EXCHANGE_PATH}`;
 }
 
