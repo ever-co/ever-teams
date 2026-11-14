@@ -64,7 +64,28 @@ jest.mock('@/core/components/common/notice', () => ({
 	)
 }));
 jest.mock('@/core/components/dashboards/kit/metric-strip', () => ({ MetricStrip: () => null }));
-jest.mock('@/core/components/common/segmented-control', () => ({ SegmentedControl: () => null }));
+type MockSegmentedControlProps = {
+	items: Array<{ value: string; label?: React.ReactNode }>;
+	onValueChange: (value: string) => void;
+	ariaLabel: string;
+};
+
+jest.mock('@/core/components/common/segmented-control', () => ({
+	SegmentedControl: ({ items, onValueChange, ariaLabel }: MockSegmentedControlProps) => (
+		<div role="tablist" aria-label={ariaLabel}>
+			{items.map((item) => (
+				<button key={item.value} type="button" role="tab" onClick={() => onValueChange(item.value)}>
+					{item.label}
+				</button>
+			))}
+		</div>
+	)
+}));
+jest.mock('./workspace-import-flow', () => ({
+	WorkspaceImportFlow: ({ modeSwitch }: { modeSwitch: React.ReactNode }) => (
+		<section aria-label="workspace import">{modeSwitch}</section>
+	)
+}));
 jest.mock('@/core/components/common/select', () => ({
 	Select: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 	SelectTrigger: ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
@@ -432,5 +453,26 @@ describe('TimeImportSettingsPage', () => {
 		const [lines, columns] = mockDownloadCsv.mock.calls[0] as [TimeImportReportLine[], CsvColumn<never>[]];
 		expect(headersOf(columns)).toContain('end date');
 		expect(lines[0].cells.endDate).toBe('04.11.26');
+	});
+	it('offers to import a whole workspace from another tool instead, and back', () => {
+		render(<TimeImportSettingsPage />);
+
+		fireEvent.click(screen.getByRole('tab', { name: 'timeImport.workspace.MODE_WORKSPACE' }));
+
+		expect(screen.getByRole('region', { name: 'workspace import' })).toBeTruthy();
+		expect(screen.queryByRole('button', { name: 'timeImport.DROP_TITLE' })).toBeNull();
+		fireEvent.click(screen.getByRole('tab', { name: 'timeImport.workspace.MODE_ENTRIES' }));
+		expect(screen.getByRole('button', { name: 'timeImport.DROP_TITLE' })).toBeTruthy();
+	});
+
+	it('offers the choice of import while no file is chosen, and takes it away once one is on its way', () => {
+		const { unmount } = render(<TimeImportSettingsPage />);
+		expect(screen.getByRole('tablist', { name: 'timeImport.workspace.MODE_LEGEND' })).toBeTruthy();
+		unmount();
+
+		mockTimeImport.mockReturnValue(timeImportOf({ stage: 'checking', fileName: 'october.csv' }));
+		render(<TimeImportSettingsPage />);
+
+		expect(screen.queryByRole('tablist', { name: 'timeImport.workspace.MODE_LEGEND' })).toBeNull();
 	});
 });

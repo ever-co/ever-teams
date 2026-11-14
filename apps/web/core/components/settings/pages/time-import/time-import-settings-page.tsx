@@ -1,8 +1,9 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { type ReactNode, useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Notice } from '@/core/components/common/notice';
+import { SegmentedControl, type SegmentedControlItem } from '@/core/components/common/segmented-control';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Lock } from '@/core/components/icons';
 import { SettingsPage } from '@/core/components/settings/kit/settings-page';
@@ -19,8 +20,35 @@ import { TimeImportResult } from './time-import-result';
 import { TimeImportSettingsSkeleton } from './time-import-settings-skeleton';
 import { TimeImportUpload } from './time-import-upload';
 import { useTimeImportReportDownload } from './use-time-import-report-download';
+import { WorkspaceImportFlow } from './workspace-import-flow';
 
-function TimeImportFlow({ access }: Readonly<{ access: TimeImportAccess }>) {
+type ImportMode = 'entries' | 'workspace';
+
+function ImportModeSwitch({ mode, onChange }: Readonly<{ mode: ImportMode; onChange: (mode: ImportMode) => void }>) {
+	const t = useTranslations();
+	const items: SegmentedControlItem<ImportMode>[] = [
+		{ value: 'entries', label: t('timeImport.workspace.MODE_ENTRIES') },
+		{ value: 'workspace', label: t('timeImport.workspace.MODE_WORKSPACE') }
+	];
+	return (
+		<div className="flex max-w-full overflow-x-auto [scrollbar-width:none]">
+			<SegmentedControl
+				items={items}
+				value={mode}
+				onValueChange={onChange}
+				ariaLabel={t('timeImport.workspace.MODE_LEGEND')}
+			/>
+		</div>
+	);
+}
+
+interface ImportFlowProps {
+	access: TimeImportAccess;
+	/** The choice between the two imports, shown while nothing is chosen yet. */
+	modeSwitch: ReactNode;
+}
+
+function TimeImportFlow({ access, modeSwitch }: Readonly<ImportFlowProps>) {
 	const copy = useTimeImportCopy();
 	const timeImport = useTimeImport({ contextAt: access.contextAt, saveScope: access.saveScope });
 	const { canImportForOthers } = access;
@@ -40,6 +68,7 @@ function TimeImportFlow({ access }: Readonly<{ access: TimeImportAccess }>) {
 
 	return (
 		<>
+			{isIdle && modeSwitch}
 			{isIdle && (
 				<TimeImportUpload
 					teamName={access.teamName}
@@ -128,6 +157,7 @@ function TimeImportGate() {
 	// The team whose import is on screen. Once shown it stays, whatever reloads behind it: a refresh of the team's
 	// tasks must neither drop a staged file nor stop an import that is saving
 	const [openedTeamId, setOpenedTeamId] = useState<string | null>(null);
+	const [mode, setMode] = useState<ImportMode>('entries');
 	const isOpened = openedTeamId === teamId;
 	const isLoaded = !access.isLoading && !access.hasLoadFailed;
 	const isAllowed = access.refusal === null;
@@ -142,13 +172,17 @@ function TimeImportGate() {
 		setOpenedTeamId(null);
 	}
 	const showsFlow = isOpened || isOpenable;
+	const showsEntriesImport = showsFlow && mode === 'entries';
+	const showsWorkspaceImport = showsFlow && mode === 'workspace';
+	const modeSwitch = <ImportModeSwitch mode={mode} onChange={setMode} />;
 
 	if (access.isLoading && !showsFlow) {
 		return <TimeImportSettingsSkeleton />;
 	}
 	return (
 		<SettingsPage title={t('settings.entries.import.TITLE')} description={t('settings.entries.import.DESCRIPTION')}>
-			{showsFlow && <TimeImportFlow key={teamId} access={access} />}
+			{showsEntriesImport && <TimeImportFlow key={teamId} access={access} modeSwitch={modeSwitch} />}
+			{showsWorkspaceImport && <WorkspaceImportFlow key={teamId} access={access} modeSwitch={modeSwitch} />}
 			{!showsFlow && <TimeImportBlocked access={access} />}
 		</SettingsPage>
 	);
