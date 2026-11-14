@@ -3,6 +3,7 @@
 import { type ReactNode, useMemo } from 'react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { Sheet, SheetContent, SheetTitle, floatingSheetSurface } from '@/core/components/common/sheet';
 import { ShareRows } from '@/core/components/dashboards/kit/share-rows';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -71,7 +72,7 @@ function Fact({ label, children }: Readonly<{ label: string; children: ReactNode
 
 function RateValue({ member }: Readonly<{ member: LiveMember }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const { billRateValue, billRateCurrency } = member.profile;
 	const hasRate = billRateValue !== null && billRateValue > 0;
 	if (!hasRate || !billRateCurrency) {

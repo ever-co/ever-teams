@@ -7,6 +7,7 @@ import type { PropsWithChildren } from 'react';
 
 import { queryKeys } from '@/core/query/keys';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
+import { EWeekDays } from '@/core/types/generics/enums/date';
 
 const mockUpdateOrganization = jest.fn();
 const mockRenameTenant = jest.fn();
@@ -211,6 +212,46 @@ describe('saving the currency and the formats', () => {
 		});
 	});
 
+	it('saves the week start, the clock and the side of the currency sign, and says each one changed', async () => {
+		const { view, client } = renderSettings();
+
+		await act(async () => {
+			await view.result.current.saveWeekStart(EWeekDays.SUNDAY);
+			await view.result.current.saveClock(24);
+			await view.result.current.saveCurrencyPosition('RIGHT');
+		});
+
+		expect(mockUpdateOrganization).toHaveBeenCalledWith(expect.anything(), { startWeekOn: EWeekDays.SUNDAY });
+		expect(mockUpdateOrganization).toHaveBeenCalledWith(expect.anything(), { timeFormat: 24 });
+		expect(mockUpdateOrganization).toHaveBeenCalledWith(expect.anything(), { currencyPosition: 'RIGHT' });
+		expect(client.getQueryData(ORGANIZATION_KEY)).toEqual({
+			...organization,
+			startWeekOn: EWeekDays.SUNDAY,
+			timeFormat: 24,
+			currencyPosition: 'RIGHT'
+		});
+		expect(mockToast.success).toHaveBeenCalledWith('settings.workspace.WEEK_START_SAVED', {
+			description: 'settings.workspace.EVERY_PAGE_OUTCOME'
+		});
+		expect(mockToast.success).toHaveBeenCalledWith('settings.workspace.CLOCK_SAVED', {
+			description: 'settings.workspace.EVERY_PAGE_OUTCOME'
+		});
+		expect(mockToast.success).toHaveBeenCalledWith('settings.workspace.CURRENCY_POSITION_SAVED', {
+			description: 'settings.workspace.EVERY_PAGE_OUTCOME'
+		});
+	});
+
+	it('says why a week start was not saved, and puts the row back', async () => {
+		mockUpdateOrganization.mockRejectedValueOnce(new Error('refused'));
+		const { view } = renderSettings();
+
+		await act(async () => {
+			await expect(view.result.current.saveWeekStart(EWeekDays.SATURDAY)).rejects.toThrow('refused');
+		});
+
+		expect(mockToast.error).toHaveBeenCalledWith('settings.workspace.WEEK_START_NOT_SAVED', expect.anything());
+	});
+
 	it('keeps the organization as the API stored it, with what another admin changed since the page read it', async () => {
 		const pageCopy = {
 			id: 'c9bf9e57-1685-4c89-bafb-ff5af830be8a',
@@ -289,6 +330,67 @@ describe('saving the currency and the formats', () => {
 		});
 
 		expect(client.getQueryData(ORGANIZATION_KEY)).toEqual({ ...organization, currency: 'GBP' });
+	});
+});
+
+describe('saving the duration rounding', () => {
+	const notRounding = { ...organization, durationRoundingInterval: null, durationRoundingDirection: null };
+
+	it('saves the interval and the direction together, keeps them for every reader and confirms it', async () => {
+		const { view, client } = renderSettings(notRounding);
+
+		await act(async () => {
+			await view.result.current.saveDurationRounding({ intervalMinutes: 15, direction: 'UP' });
+		});
+
+		expect(mockUpdateOrganization).toHaveBeenCalledWith(notRounding, {
+			durationRoundingInterval: 15,
+			durationRoundingDirection: 'UP'
+		});
+		expect(client.getQueryData(ORGANIZATION_KEY)).toEqual({
+			...notRounding,
+			durationRoundingInterval: 15,
+			durationRoundingDirection: 'UP'
+		});
+		expect(mockToast.success).toHaveBeenCalledWith('settings.workspace.ROUNDING_SAVED', {
+			description: 'settings.workspace.ROUNDING_OUTCOME'
+		});
+	});
+
+	it('turns rounding off by clearing both, and says the reports show the time as tracked', async () => {
+		const rounding = { ...organization, durationRoundingInterval: 15, durationRoundingDirection: 'UP' };
+		const { view, client } = renderSettings(rounding);
+
+		await act(async () => {
+			await view.result.current.saveDurationRounding(null);
+		});
+
+		expect(mockUpdateOrganization).toHaveBeenCalledWith(rounding, {
+			durationRoundingInterval: null,
+			durationRoundingDirection: null
+		});
+		expect(client.getQueryData(ORGANIZATION_KEY)).toEqual(notRounding);
+		expect(mockToast.success).toHaveBeenCalledWith('settings.workspace.ROUNDING_OFF_SAVED', {
+			description: 'settings.workspace.ROUNDING_OFF_OUTCOME'
+		});
+	});
+
+	it('tells why a refused rule was not saved and throws so the control goes back', async () => {
+		mockUpdateOrganization.mockRejectedValue(Object.assign(new Error('Forbidden'), { statusCode: 403 }));
+		const { view } = renderSettings(notRounding);
+
+		let failure: unknown;
+		await act(async () => {
+			failure = await view.result.current
+				.saveDurationRounding({ intervalMinutes: 6, direction: 'NEAREST' })
+				.catch((error) => error);
+		});
+
+		expect(failure).toBeInstanceOf(Error);
+		expect(mockToast.error).toHaveBeenCalledWith('settings.workspace.ROUNDING_NOT_SAVED', {
+			description: 'toasts.REASONS.PERMISSION'
+		});
+		expect(mockToast.success).not.toHaveBeenCalled();
 	});
 });
 

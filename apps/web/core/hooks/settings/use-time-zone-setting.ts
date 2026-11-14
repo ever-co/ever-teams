@@ -27,18 +27,24 @@ export function useTimeZoneSetting() {
 	const saveZone = useCallback(
 		async (zone: string) => {
 			const value = formatStoredTimeZone(zone);
-			setActiveTimezone(value);
 			if (!userId) {
 				return false;
 			}
 			const isUnchanged = value === storedValue;
 			if (isUnchanged) {
+				setActiveTimezone(value);
 				return true;
 			}
 			setPendingZone(zone);
 			try {
-				await updateAvatar({ timeZone: value, id: userId });
-				return true;
+				const saved = await updateAvatar({ timeZone: value, id: userId });
+				// An API whose update does not take the zone answers success and keeps the old one: what it holds counts
+				const isSaved = saved?.timeZone === value;
+				// The app's zone changes only with the profile's: a failed save leaves the zone the app shows
+				if (isSaved) {
+					setActiveTimezone(value);
+				}
+				return isSaved;
 			} catch {
 				return false;
 			} finally {

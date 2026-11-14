@@ -7,6 +7,10 @@ const mockSaveName = jest.fn(async () => undefined);
 const mockSaveCurrency = jest.fn(async () => undefined);
 const mockSaveDateFormat = jest.fn(async () => undefined);
 const mockSaveNumberFormat = jest.fn(async () => undefined);
+const mockSaveWeekStart = jest.fn(async () => undefined);
+const mockSaveClock = jest.fn(async () => undefined);
+const mockSaveCurrencyPosition = jest.fn(async () => undefined);
+const mockSaveDurationRounding = jest.fn(async () => undefined);
 const mockRetryLoad = jest.fn();
 
 const ORGANIZATION = { id: 'organization-a', name: 'Acme', currency: 'USD', dateFormat: null, numberFormat: null };
@@ -26,11 +30,23 @@ function settingsOf(overrides: Record<string, unknown> = {}) {
 		saveCurrency: mockSaveCurrency,
 		saveDateFormat: mockSaveDateFormat,
 		saveNumberFormat: mockSaveNumberFormat,
+		saveWeekStart: mockSaveWeekStart,
+		saveClock: mockSaveClock,
+		saveCurrencyPosition: mockSaveCurrencyPosition,
+		saveDurationRounding: mockSaveDurationRounding,
 		...overrides
 	};
 }
 
-jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, useLocale: () => 'en' }));
+jest.mock('next-intl', () => ({
+	useTranslations: () => (key: string, values?: Record<string, unknown>) => {
+		if (!values) {
+			return key;
+		}
+		return `${key} ${JSON.stringify(values)}`;
+	},
+	useLocale: () => 'en'
+}));
 jest.mock('@/core/hooks/settings/use-workspace-settings', () => ({
 	useWorkspaceSettings: () => mockSettings
 }));
@@ -63,7 +79,10 @@ jest.mock('@/core/components/common/select', () => {
 import { WorkspaceSettingsPage } from './workspace-settings-page';
 
 const AUTOMATIC = 'settings.workspace.FORMAT_AUTOMATIC';
-const EDIT_NAME = 'settings.common.EDIT_FIELD';
+const ROUNDING = 'settings.workspace.ROUNDING_LABEL';
+const NOT_ROUNDING = { ...ORGANIZATION, durationRoundingInterval: null, durationRoundingDirection: null };
+const ROUNDING_UP_15 = { ...ORGANIZATION, durationRoundingInterval: 15, durationRoundingDirection: 'UP' };
+const EDIT_NAME = /^settings.common.EDIT_FIELD/;
 const YEAR = new Date().getFullYear();
 
 function rowOf(label: string): HTMLElement {
@@ -148,7 +167,7 @@ describe('WorkspaceSettingsPage', () => {
 		expect(screen.getByText('settings.workspace.NAME_SUPER_ADMIN_ONLY')).toBeTruthy();
 		expect(screen.queryByRole('button', { name: EDIT_NAME })).toBeNull();
 		expect(screen.getByRole('combobox')).toBeTruthy();
-		expect(screen.getAllByTestId('format-select')).toHaveLength(2);
+		expect(screen.getAllByTestId('format-select')).toHaveLength(5);
 		expect(screen.queryByText('settings.workspace.READ_ONLY_NOTE')).toBeNull();
 	});
 
@@ -224,5 +243,113 @@ describe('WorkspaceSettingsPage', () => {
 		});
 
 		expect(mockSaveDateFormat).not.toHaveBeenCalled();
+	});
+
+	it('shows no duration rounding for a workspace whose API does not store it', () => {
+		render(<WorkspaceSettingsPage />);
+
+		expect(screen.queryByText(ROUNDING)).toBeNull();
+	});
+
+	it('shows a member the rounding rule as text, with what it does to an entry', () => {
+		mockSettings = settingsOf({ canEdit: false, canRename: false, organization: ROUNDING_UP_15 });
+
+		render(<WorkspaceSettingsPage />);
+		const roundingRow = rowOf(ROUNDING);
+
+		expect(within(roundingRow).getByText('settings.workspace.ROUNDING_RULE_UP {"minutes":15}')).toBeTruthy();
+		expect(
+			within(roundingRow).getByText('settings.workspace.ROUNDING_EXAMPLE {"tracked":"1h 7m","rounded":"1h 15m"}')
+		).toBeTruthy();
+		expect(screen.queryByRole('button')).toBeNull();
+	});
+
+	it('shows Off and no direction for a workspace that does not round', () => {
+		mockSettings = settingsOf({ organization: NOT_ROUNDING });
+
+		render(<WorkspaceSettingsPage />);
+		const roundingRow = rowOf(ROUNDING);
+
+		expect(
+			within(roundingRow)
+				.getAllByTestId('shown-format')
+				.map((shown) => shown.textContent)
+		).toEqual(['settings.workspace.ROUNDING_OFF']);
+		expect(within(roundingRow).queryByText(/ROUNDING_EXAMPLE/)).toBeNull();
+	});
+
+	it('turns rounding on at the interval an admin picks, rounding up', async () => {
+		mockSettings = settingsOf({ organization: NOT_ROUNDING });
+		render(<WorkspaceSettingsPage />);
+		const roundingRow = rowOf(ROUNDING);
+
+		await act(async () => {
+			fireEvent.click(
+				within(roundingRow).getByRole('button', { name: 'settings.workspace.ROUNDING_INTERVAL {"minutes":15}' })
+			);
+		});
+
+		expect(mockSaveDurationRounding).toHaveBeenCalledWith({ intervalMinutes: 15, direction: 'UP' });
+	});
+
+	it('changes the direction of the rule and keeps its interval', async () => {
+		mockSettings = settingsOf({ organization: ROUNDING_UP_15 });
+		render(<WorkspaceSettingsPage />);
+		const roundingRow = rowOf(ROUNDING);
+
+		await act(async () => {
+			fireEvent.click(within(roundingRow).getByRole('button', { name: 'settings.workspace.ROUNDING_NEAREST' }));
+		});
+
+		expect(mockSaveDurationRounding).toHaveBeenCalledWith({ intervalMinutes: 15, direction: 'NEAREST' });
+	});
+
+	it('turns rounding off as no rule', async () => {
+		mockSettings = settingsOf({ organization: ROUNDING_UP_15 });
+		render(<WorkspaceSettingsPage />);
+		const roundingRow = rowOf(ROUNDING);
+
+		await act(async () => {
+			fireEvent.click(within(roundingRow).getByRole('button', { name: 'settings.workspace.ROUNDING_OFF' }));
+		});
+
+		expect(mockSaveDurationRounding).toHaveBeenCalledWith(null);
+	});
+
+	// The translations mock writes a string's values after its key: these strings carry a sample
+	const CLOCK_24 = /^settings\.workspace\.CLOCK_24\b/;
+	const SYMBOL_AFTER = /^settings\.workspace\.CURRENCY_POSITION_AFTER\b/;
+
+	it('shows a member the week start, the clock and the currency symbol side as text', () => {
+		mockSettings = settingsOf({
+			canEdit: false,
+			organization: { ...ORGANIZATION, startWeekOn: 'SUNDAY', timeFormat: 24, currencyPosition: 'RIGHT' }
+		});
+		render(<WorkspaceSettingsPage />);
+
+		expect(within(rowOf('settings.workspace.WEEK_START_LABEL')).getByText('Sunday')).toBeTruthy();
+		expect(within(rowOf('settings.workspace.CLOCK_LABEL')).getByText(CLOCK_24)).toBeTruthy();
+		expect(within(rowOf('settings.workspace.CURRENCY_POSITION_LABEL')).getByText(SYMBOL_AFTER)).toBeTruthy();
+	});
+
+	it('saves the week start, the clock and the currency symbol side an admin picks', async () => {
+		render(<WorkspaceSettingsPage />);
+
+		await act(async () => {
+			fireEvent.click(
+				within(rowOf('settings.workspace.WEEK_START_LABEL')).getByRole('button', { name: 'Sunday' })
+			);
+		});
+		await act(async () => {
+			fireEvent.click(within(rowOf('settings.workspace.CLOCK_LABEL')).getByRole('button', { name: CLOCK_24 }));
+		});
+		await act(async () => {
+			const sideRow = rowOf('settings.workspace.CURRENCY_POSITION_LABEL');
+			fireEvent.click(within(sideRow).getByRole('button', { name: SYMBOL_AFTER }));
+		});
+
+		expect(mockSaveWeekStart).toHaveBeenCalledWith('SUNDAY');
+		expect(mockSaveClock).toHaveBeenCalledWith(24);
+		expect(mockSaveCurrencyPosition).toHaveBeenCalledWith('RIGHT');
 	});
 });

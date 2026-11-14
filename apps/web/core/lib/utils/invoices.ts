@@ -13,6 +13,7 @@ import {
 	type OwedCurrencyTotal
 } from '@/core/lib/utils/dashboards/payments-due';
 import { isTimeBilledElsewhere } from '@/core/lib/utils/invoice-billed-time';
+import { roundedSecondsOf, type DurationRoundingRule } from '@/core/lib/utils/duration-rounding';
 import { invoiceTotalsOf, NO_ADJUSTMENTS, type InvoiceAdjustments } from '@/core/lib/utils/invoice-totals';
 import { effectiveBillRate, employeeRateValueOf, rateValueOf } from '@/core/lib/utils/rates';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
@@ -113,11 +114,13 @@ function entryKeyOf(projectId: string, employeeId: string, taskId: string | null
 
 /**
  * The billable time of the given projects, per project, member and task. A log counts only when the API states it is
- * billable: the filter the request also asks for is not trusted alone, an older API ignores it.
+ * billable: the filter the request also asks for is not trusted alone, an older API ignores it. With the workspace's
+ * rounding rule, each log is rounded before the time adds up, as Time & activity shows it.
  */
 export function billableEntriesOf(
 	logs: ReadonlyArray<BillableLogLike>,
-	projectIds: ReadonlySet<string>
+	projectIds: ReadonlySet<string>,
+	roundingRule: DurationRoundingRule | null = null
 ): BillableEntry[] {
 	const byKey = new Map<string, BillableEntry>();
 	const logIdsByKey = new Map<string, string[]>();
@@ -133,7 +136,7 @@ export function billableEntriesOf(
 		if (!projectIds.has(projectId)) {
 			continue;
 		}
-		const seconds = secondsOfLog(log);
+		const seconds = roundedSecondsOf(secondsOfLog(log), roundingRule);
 		if (seconds <= 0) {
 			continue;
 		}

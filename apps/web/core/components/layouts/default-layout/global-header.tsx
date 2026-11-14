@@ -13,6 +13,10 @@ export interface GlobalHeaderProps {
 	breadcrumb?: React.ReactNode;
 	mainHeaderSlot: React.ReactNode;
 	mainHeaderSlotClassName?: string;
+	/** A notice for the whole page, between the bar and the toolbar band, so it never splits the band from its rows. */
+	notice?: React.ReactNode;
+	/** The notice's box, measured apart: the page's timer rule reads the header without it. */
+	noticeRef?: React.Ref<HTMLDivElement>;
 }
 
 /**
@@ -20,10 +24,21 @@ export interface GlobalHeaderProps {
  * controls at its end, then the page's own toolbar band when it has one.
  */
 const GlobalHeader = forwardRef<HTMLDivElement, GlobalHeaderProps>(function GlobalHeader(
-	{ showTimer, showTrackingOff, publicTeam, notFound, breadcrumb, mainHeaderSlot, mainHeaderSlotClassName },
+	{
+		showTimer,
+		showTrackingOff,
+		publicTeam,
+		notFound,
+		breadcrumb,
+		mainHeaderSlot,
+		mainHeaderSlotClassName,
+		notice,
+		noticeRef
+	},
 	ref
 ) {
 	const hasToolbar = Boolean(mainHeaderSlot);
+	const hasNotice = Boolean(notice);
 
 	return (
 		<div ref={ref} className="relative z-40 flex w-full shrink-0 flex-col bg-background">
@@ -40,6 +55,13 @@ const GlobalHeader = forwardRef<HTMLDivElement, GlobalHeaderProps>(function Glob
 					notFound={notFound || false}
 				/>
 			</header>
+			{hasNotice && (
+				// No padding on the measured box: ResizeObserver's contentRect would leave it out of the notice's height
+				<div ref={noticeRef} data-slot="header-notice">
+					{/* `empty:hidden`: a notice that has nothing to say renders nothing, and leaves no gap */}
+					<div className="w-full px-4 pt-3 empty:hidden">{notice}</div>
+				</div>
+			)}
 			{hasToolbar && (
 				<div className={cn('w-full hairline-b border-border', mainHeaderSlotClassName)}>{mainHeaderSlot}</div>
 			)}

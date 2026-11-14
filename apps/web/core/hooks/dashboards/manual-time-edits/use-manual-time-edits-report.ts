@@ -14,7 +14,13 @@ import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { flattenDailyReport } from '@/core/lib/utils/daily-report-figures';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { percentOf } from '@/core/lib/utils/dashboard-figures';
-import { periodLengthInDays, periodOfPreset, type Period, shiftPeriod } from '@/core/lib/utils/dashboard-period';
+import {
+	periodLengthInDays,
+	periodOfPreset,
+	type Period,
+	shiftPeriod,
+	type WeekStart
+} from '@/core/lib/utils/dashboard-period';
 import { isOrganizationRole, timesheetFormattersOf } from '@/core/lib/utils/dashboards/timesheets';
 import {
 	type ChangeAction,
@@ -29,7 +35,6 @@ import {
 	entryMatchesAction,
 	entryMatchesFilters,
 	groupsOf,
-	MANUAL_EDITS_WEEK_START,
 	manualRankingsOf,
 	type ManualTimeEntry,
 	membersByIdOf,
@@ -41,6 +46,12 @@ import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activit
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { type ChangedLogsRequest, useChangedTimeLogs } from './use-changed-time-logs';
+import { useWorkspaceWeekPeriod } from '@/core/hooks/common/use-workspace-week-period';
+
+/** This week, counted from the workspace's first day. */
+function thisWeekOf(weekStart: WeekStart): Period {
+	return periodOfPreset('thisWeek', weekStart);
+}
 
 const NO_ENTRIES: ManualTimeEntry[] = [];
 
@@ -190,7 +201,7 @@ export function useManualTimeEditsReport({ unnamedLabel }: Readonly<{ unnamedLab
 	const tenantId = getTenantIdCookie() ?? '';
 	const timeZone = useMemo(() => getDefaultTimezone(), []);
 
-	const [period, setPeriod] = useState<Period>(() => periodOfPreset('thisWeek', MANUAL_EDITS_WEEK_START));
+	const [period, setPeriod] = useWorkspaceWeekPeriod(thisWeekOf);
 	const [filters, setFilters] = useState<EditsFilters>(EMPTY_EDITS_FILTERS);
 	const [action, setAction] = useState<ChangeAction>('all');
 	const [grouping, setGrouping] = useState<EditsGrouping>('day');
@@ -320,7 +331,7 @@ export function useManualTimeEditsReport({ unnamedLabel }: Readonly<{ unnamedLab
 
 	const showPreviousPeriod = useCallback(() => {
 		setPeriod((current) => shiftPeriod(current, -1));
-	}, []);
+	}, [setPeriod]);
 
 	const toggleEntry = useCallback((entryId: string) => {
 		setSelectedIds((current) => withToggled(current, entryId));
