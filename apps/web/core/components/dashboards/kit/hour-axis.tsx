@@ -2,8 +2,9 @@
 
 import { memo, useMemo } from 'react';
 import { useParentSize } from '@visx/responsive';
-import { useLocale } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 
 /** The hours a day strip spans and where the present moment sits on it, in percent, when the day is today. */
 export interface HourWindow {
@@ -138,8 +139,8 @@ export const HourAxis = memo(function HourAxis({
 	nowLabel,
 	isCompact = false
 }: Readonly<{ timeline: HourWindow; nowLabel: string | null; isCompact?: boolean }>) {
-	const locale = useLocale();
-	const hourFormat = useMemo(() => new Intl.DateTimeFormat(locale, { hour: 'numeric' }), [locale]);
+	const locale = useWorkspaceLocale();
+	const hourFormat = useMemo(() => dateFormatOf(locale, { hour: 'numeric' }), [locale]);
 	const { parentRef, width } = useParentSize<HTMLDivElement>({ debounceTime: 50 });
 	const hourCount = timeline.hours.length;
 	const nowPercent = timeline.nowPercent ?? 0;

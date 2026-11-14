@@ -3,15 +3,12 @@ import type { DayBarDatum } from '@/core/components/dashboards/kit/day-bars-char
 import { getDailyPlanDay } from '@/core/lib/helpers/daily-plan-day';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { durationPartsOf, formatHoursLabel, percentOf } from '@/core/lib/utils/dashboard-figures';
-import { daysOfPeriod, type Period, type WeekStart } from '@/core/lib/utils/dashboard-period';
+import { daysOfPeriod, type Period } from '@/core/lib/utils/dashboard-period';
 import type { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import type { TTimeLogReportWeekly } from '@/core/types/schemas/timer/time-log.schema';
 import { dateFormatOf, localeKeyOf, localeTagOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 export type PlanGrouping = 'member' | 'day';
-
-/** Gauzy starts its weeks on Monday, as the other reports do. */
-export const PLAN_WEEK_START: WeekStart = 1;
 
 const SECONDS_PER_HOUR = 3600;
 

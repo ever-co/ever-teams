@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useId, useState } from 'react';
-import { useLocale, useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { Button } from '@/core/components/common/button';
 import { controlGroupRecipe } from '@/core/components/common/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
@@ -16,6 +16,7 @@ import {
 	rateValueOf,
 	type RateInputProblem
 } from '@/core/lib/utils/rates';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 
 const PENCIL = 'text-muted-foreground/70 transition-colors group-hover/field:text-foreground';
 
@@ -46,7 +47,7 @@ export function RateValueField({
 	onSave
 }: Readonly<RateValueFieldProps>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const inputId = useId();
 	const errorId = useId();
 	const [isOpen, setIsOpen] = useState(false);

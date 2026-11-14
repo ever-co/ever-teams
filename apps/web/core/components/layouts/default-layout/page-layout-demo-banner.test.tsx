@@ -20,6 +20,8 @@ jest.mock('./global-header', () => ({
 	__esModule: true,
 	default: () => <div data-testid="global-header" />
 }));
+// The time zone notice reads the signed-in user: its own test covers it
+jest.mock('./time-zone-notice', () => ({ TimeZoneNotice: () => null }));
 jest.mock('./page-content-scroller', () => ({
 	PageContentScroller: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
 }));

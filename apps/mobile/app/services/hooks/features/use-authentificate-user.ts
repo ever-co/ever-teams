@@ -7,7 +7,7 @@ import { useFetchCurrentUserData } from "../../client/queries/user/user"
 
 const useAuthenticateUser = (defaultUser?: IUser) => {
 	const {
-		authenticationStore: { user, setUser, refreshToken, setAuthToken, logout, authToken },
+		authenticationStore: { user, setUser, logout, authToken },
 		teamStore: { activeTeam, clearStoredTeamData },
 		TaskStore: { resetTeamTasksData },
 	} = useStores()
@@ -24,14 +24,19 @@ const useAuthenticateUser = (defaultUser?: IUser) => {
 	} = useFetchCurrentUserData({ authToken })
 
 	const updateUserFromAPI = useCallback(async () => {
-		const { user: authUser, access_token } = await refresh(refreshToken)
+		// The renewal sends the refresh token the app holds now and keeps both tokens of the answer itself
+		// (services/client/session.ts). One the API refuses, or that cannot be made, has no profile to show.
+		const { status, user: authUser } = await refresh()
+		if (status !== 200 || !authUser) {
+			return undefined
+		}
 		setUser(authUser)
-		setAuthToken(access_token)
 		return authUser
 	}, [])
 
 	$user.current = useMemo(() => {
-		return user || $user.current
+		// The store's user and this hook's are two declarations of the same profile
+		return (user as unknown as IUser) || $user.current
 	}, [user])
 
 	useEffect(() => {
@@ -65,8 +70,10 @@ const useAuthenticateUser = (defaultUser?: IUser) => {
 
 	useEffect(() => {
 		if (isSuccess) {
+			// A refused read is not a profile, and no longer signs the person out by itself: the HTTP client has
+			// tried to renew the session, and ends it only when the API refuses the refresh token
+			// (services/client/session.ts). Until then the profile stays as it is, and is read again.
 			if ((userData as any)?.statusCode === 401) {
-				logOut()
 				return
 			}
 			setUser(userData)

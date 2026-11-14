@@ -14,9 +14,15 @@ export interface DailyReportRow {
 	projectName: string | null;
 	projectImageUrl: string | null;
 	projectColor: string | null;
+	/** The time shown: rounded by the workspace's rule when it has one. */
 	seconds: number;
-	/** Seconds of activity, so averages can be weighted by time: `seconds * activity% / 100`. */
+	/**
+	 * Seconds of activity in the tracked time, so averages are weighted by it: `trackedSeconds * activity% / 100`.
+	 * Gauzy measures activity on the time as tracked, so a rounding rule never changes it.
+	 */
 	activeSeconds: number;
+	/** Only when the workspace's rule rounded `seconds`: the time as tracked, which the activity is a share of. */
+	trackedSeconds?: number;
 	tasks: DailyReportTask[];
 	/** Time a team member logged without a team, which a team report gathers in its own "No team" group. */
 	isWithoutTeam?: boolean;
@@ -40,6 +46,8 @@ type TaskLog = EmployeeLog['tasks'][number];
 interface EmployeeLogPart {
 	tasks: TaskLog[];
 	seconds: number;
+	/** The time as tracked: `seconds` until the workspace's rule rounds them. */
+	trackedSeconds: number;
 	isWithoutTeam: boolean;
 }
 
@@ -96,20 +104,33 @@ function secondsOfTasks(tasks: ReadonlyArray<TaskLog>) {
 	return seconds;
 }
 
+function trackedSecondsOfTasks(tasks: ReadonlyArray<TaskLog>) {
+	let seconds = 0;
+	for (const task of tasks) {
+		seconds += numberOrZero(task?.trackedDuration ?? task?.duration);
+	}
+	return seconds;
+}
+
+function partOfTasks(tasks: TaskLog[], isWithoutTeam: boolean): EmployeeLogPart {
+	return { tasks, seconds: secondsOfTasks(tasks), trackedSeconds: trackedSecondsOfTasks(tasks), isWithoutTeam };
+}
+
 /** A member's project row as Gauzy sends it, or split in two when part of its time was logged without a team. */
 function partsOf(employeeLog: EmployeeLog): EmployeeLogPart[] {
 	const tasks = employeeLog.tasks ?? [];
 	const tasksWithoutTeam = tasks.filter(isWithoutTeamTask);
 	if (tasksWithoutTeam.length === 0) {
-		return [{ tasks, seconds: numberOrZero(employeeLog.sum), isWithoutTeam: false }];
+		const seconds = numberOrZero(employeeLog.sum);
+		const trackedSeconds = numberOrZero(employeeLog.trackedSum ?? employeeLog.sum);
+		return [{ tasks, seconds, trackedSeconds, isWithoutTeam: false }];
 	}
-	const withoutTeamPart = { tasks: tasksWithoutTeam, seconds: secondsOfTasks(tasksWithoutTeam), isWithoutTeam: true };
+	const withoutTeamPart = partOfTasks(tasksWithoutTeam, true);
 	const teamTasks = tasks.filter(isTeamTask);
 	if (teamTasks.length === 0) {
 		return [withoutTeamPart];
 	}
-	const teamPart = { tasks: teamTasks, seconds: secondsOfTasks(teamTasks), isWithoutTeam: false };
-	return [teamPart, withoutTeamPart];
+	return [partOfTasks(teamTasks, false), withoutTeamPart];
 }
 
 function reportTaskOf(task: TaskLog): DailyReportTask {
@@ -161,6 +182,14 @@ function withoutTeamFlagOf(part: EmployeeLogPart): Pick<DailyReportRow, 'isWitho
 	return { isWithoutTeam: true };
 }
 
+// Rows of time as tracked keep the shape they had before the workspace could round durations
+function trackedFieldOf(part: EmployeeLogPart): Pick<DailyReportRow, 'trackedSeconds'> {
+	if (part.trackedSeconds === part.seconds) {
+		return {};
+	}
+	return { trackedSeconds: part.trackedSeconds };
+}
+
 function rowOf(context: RowContext, part: EmployeeLogPart): DailyReportRow {
 	const employee = context.employeeLog.employee;
 	const activity = numberOrZero(context.employeeLog.activity);
@@ -175,7 +204,8 @@ function rowOf(context: RowContext, part: EmployeeLogPart): DailyReportRow {
 		billRateCurrency: ownCurrency || context.workspaceCurrency,
 		...projectFieldsOf(context, part),
 		seconds: part.seconds,
-		activeSeconds: (part.seconds * activity) / 100,
+		activeSeconds: (part.trackedSeconds * activity) / 100,
+		...trackedFieldOf(part),
 		tasks: part.tasks.map(reportTaskOf),
 		...withoutTeamFlagOf(part)
 	};
@@ -220,16 +250,35 @@ export function flattenDailyReport(
 export interface FigureTotals {
 	seconds: number;
 	activeSeconds: number;
+	/** The time as tracked when `seconds` is rounded by the workspace's rule; `seconds` otherwise. */
+	trackedSeconds?: number;
 }
 
+/** The time a figure's activity is a share of: the time as tracked, whatever rounding the shown time has. */
+export function trackedSecondsOf(figure: Pick<FigureTotals, 'seconds' | 'trackedSeconds'>): number {
+	return figure.trackedSeconds ?? figure.seconds;
+}
+
+/** The share of the tracked time that was active: a rounding rule changes the time shown, never the activity. */
 export function activityPercentOf(totals: FigureTotals) {
-	if (totals.seconds <= 0) {
+	const trackedSeconds = trackedSecondsOf(totals);
+	if (trackedSeconds <= 0) {
 		return 0;
 	}
-	return (totals.activeSeconds / totals.seconds) * 100;
+	return (totals.activeSeconds / trackedSeconds) * 100;
+}
+
+/** The active part of the time shown, for a chart that draws it inside the shown time. */
+export function shownActiveSecondsOf(figure: FigureTotals): number {
+	const trackedSeconds = trackedSecondsOf(figure);
+	if (trackedSeconds === figure.seconds) {
+		return figure.activeSeconds;
+	}
+	return (figure.seconds * activityPercentOf(figure)) / 100;
 }
 
 export interface DayFigures extends FigureTotals {
+	trackedSeconds: number;
 	dateKey: string;
 	memberCount: number;
 	projectCount: number;
@@ -242,6 +291,7 @@ export function dayFiguresOf(rows: ReadonlyArray<DailyReportRow>): Map<string, D
 			dateKey: row.dateKey,
 			seconds: 0,
 			activeSeconds: 0,
+			trackedSeconds: 0,
 			memberCount: 0,
 			projectCount: 0,
 			members: new Set<string>(),
@@ -249,6 +299,7 @@ export function dayFiguresOf(rows: ReadonlyArray<DailyReportRow>): Map<string, D
 		};
 		current.seconds += row.seconds;
 		current.activeSeconds += row.activeSeconds;
+		current.trackedSeconds += trackedSecondsOf(row);
 		current.members.add(row.employeeId);
 		current.projects.add(row.projectId ?? NO_PROJECT_KEY);
 		days.set(row.dateKey, current);
@@ -259,6 +310,7 @@ export function dayFiguresOf(rows: ReadonlyArray<DailyReportRow>): Map<string, D
 			dateKey,
 			seconds: day.seconds,
 			activeSeconds: day.activeSeconds,
+			trackedSeconds: day.trackedSeconds,
 			memberCount: day.members.size,
 			projectCount: day.projects.size
 		});

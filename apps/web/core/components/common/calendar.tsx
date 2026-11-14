@@ -4,6 +4,7 @@ import { DayPicker, CaptionProps, useNavigation } from 'react-day-picker';
 
 import { cn } from '@/core/lib/helpers';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 
 const MONTH_INDEXES = Array.from({ length: 12 }, (_, index) => index);
 
@@ -265,12 +266,13 @@ function Calendar({
 	...props
 }: CalendarProps & { onMonthChange?: (date: Date) => void }) {
 	const locale = pageLocale();
+	const weekStart = useWorkspaceWeekStart();
 	const weekdayFormat = React.useMemo(() => new Intl.DateTimeFormat(locale, { weekday: 'short' }), [locale]);
 	const formatWeekdayName = React.useCallback((day: Date) => weekdayFormat.format(day), [weekdayFormat]);
 	return (
 		<CalendarMonthChangeContext.Provider value={onMonthChange}>
 			<DayPicker
-				weekStartsOn={1} // Start week on Monday
+				weekStartsOn={weekStart}
 				showOutsideDays={showOutsideDays}
 				captionLayout={captionLayout}
 				className={cn('p-3 bg-card rounded-lg', className)}

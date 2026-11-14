@@ -103,8 +103,11 @@ export async function register(params: IRegisterDataAPI) {
 
 	const createdTeam = teams.items.find((t) => t.id === team.id);
 
-	const { data: refreshToken } = await refreshTokenRequest(loginRes.refresh_token);
-	loginRes.token = refreshToken.token;
+	// A token minted before the tenant existed names none: renew it. Gauzy rotates the refresh token, and refuses the
+	// one sent from now on: the session keeps the one answered, or its first renewal would end it.
+	const { data: renewed } = await refreshTokenRequest(loginRes.refresh_token);
+	loginRes.token = renewed.token;
+	loginRes.refresh_token = renewed.refresh_token || loginRes.refresh_token;
 
 	return {
 		response: {

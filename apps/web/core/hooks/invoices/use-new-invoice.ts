@@ -59,7 +59,7 @@ import { useInvoiceTime, type InvoiceTimeLabels } from './use-invoice-time';
 import { useClientInvoices, useNextInvoiceNumber } from './use-invoices-query';
 import { useInvoicesRecordingTime } from './use-invoices-recording-time';
 
-export const INVOICE_WEEK_START = 1;
+const INVOICE_WEEK_START = 1;
 
 const NO_KEYS: ReadonlySet<string> = new Set();
 

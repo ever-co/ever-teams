@@ -3,7 +3,7 @@ import type { DayBarDatum } from '@/core/components/dashboards/kit/day-bars-char
 import type { DailyReportRow } from '@/core/lib/utils/daily-report-figures';
 import { formatPercent, type ShareRow, shareRowsOf } from '@/core/lib/utils/dashboard-figures';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
-import { daysOfPeriod, type Period, type WeekStart } from '@/core/lib/utils/dashboard-period';
+import { daysOfPeriod, type Period } from '@/core/lib/utils/dashboard-period';
 import {
 	clockTimeOf,
 	endOfLog,
@@ -19,8 +19,6 @@ import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { TOrganizationTeam } from '@/core/types/schemas';
-
-export const MANUAL_EDITS_WEEK_START: WeekStart = 1;
 
 export type ChangeAction = 'all' | 'added' | 'edited';
 
