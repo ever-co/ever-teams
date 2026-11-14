@@ -30,6 +30,18 @@ export function pickerOf(commandId: string, isRegistryOn: boolean) {
 	return { kind: picker.kind, appliesToSelection };
 }
 
+/** The commands whose key opens a picker on a focused row, with the registry on or off. */
+export function pickerCommandIdsOf(isRegistryOn: boolean): string[] {
+	const ids: string[] = [];
+	for (const commandId of PICKER_COMMANDS.keys()) {
+		const picker = pickerOf(commandId, isRegistryOn);
+		if (picker) {
+			ids.push(commandId);
+		}
+	}
+	return ids;
+}
+
 /** Whether a picker opened from a cell or the row menu applies to the selection the row is in. */
 export function cellAppliesToSelection(kind: TeamTaskPickerKind, isRegistryOn: boolean) {
 	if (kind === 'labels' || kind === 'issueType') {

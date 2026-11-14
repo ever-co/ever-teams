@@ -681,5 +681,6 @@ export {
 	SidebarRail,
 	SidebarTrigger,
 	SidebarTriggerButton,
+	SIDEBAR_KEYBOARD_SHORTCUT,
 	useSidebar
 };

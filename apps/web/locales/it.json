@@ -5842,7 +5842,7 @@
 	},
 	"shortcuts": {
 		"TITLE": "Scorciatoie da tastiera",
-		"DESCRIPTION": "I tasti di ogni area. Le lettere seguono il tasto fisico, quindi funzionano con qualsiasi layout.",
+		"DESCRIPTION": "I tasti che funzionano nell'app, per area.",
 		"DESCRIPTION_REBIND": "I tasti di ogni area. Cambiane uno registrando nuovi tasti; la modifica ti segue su tutti i dispositivi.",
 		"NONE": "Nessuno",
 		"THEN": "poi",
@@ -5907,10 +5907,20 @@
 			"searchTeams": "Cerca nei team",
 			"themeToggle": "Passa da chiaro a scuro",
 			"taskProject": "Cambia il progetto",
-			"taskAssignee": "Cambia gli assegnatari"
+			"taskAssignee": "Cambia gli assegnatari",
+			"sidebarToggle": "Mostra o nascondi la barra laterale",
+			"taskSearchFocus": "Cerca nell'elenco"
 		},
 		"CHAT_SINGLE_KEY": "Un tasto della chat è un solo tasto, non una sequenza.",
-		"CHAT_TAKEN": "La chat usa già quel tasto (formattazione, invio, spostamento o scorrimento)."
+		"CHAT_TAKEN": "La chat usa già quel tasto (formattazione, invio, spostamento o scorrimento).",
+		"OR": "o",
+		"groups": {
+			"general": "Generale",
+			"timer": "Timer",
+			"tasks": "Attività",
+			"navigation": "Navigazione",
+			"chat": "Chat"
+		}
 	},
 	"realtime": {
 		"RECONNECTING": "Riconnessione…"

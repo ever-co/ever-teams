@@ -5842,7 +5842,7 @@
 	},
 	"shortcuts": {
 		"TITLE": "Skróty klawiszowe",
-		"DESCRIPTION": "Klawisze każdego obszaru. Litery odpowiadają klawiszowi fizycznemu, więc działają na każdym układzie.",
+		"DESCRIPTION": "Klawisze, które działają w aplikacji, według obszaru.",
 		"DESCRIPTION_REBIND": "Klawisze każdego obszaru. Zmień skrót, nagrywając nowe klawisze; zmiana podąża za tobą na wszystkich urządzeniach.",
 		"NONE": "Brak",
 		"THEN": "potem",
@@ -5907,10 +5907,20 @@
 			"searchTeams": "Szukaj w zespołach",
 			"themeToggle": "Przełącz między jasnym a ciemnym",
 			"taskProject": "Zmień projekt",
-			"taskAssignee": "Zmień przypisane osoby"
+			"taskAssignee": "Zmień przypisane osoby",
+			"sidebarToggle": "Pokaż lub ukryj pasek boczny",
+			"taskSearchFocus": "Szukaj na liście"
 		},
 		"CHAT_SINGLE_KEY": "Klawisz czatu to jeden klawisz, nie sekwencja.",
-		"CHAT_TAKEN": "Czat już używa tego klawisza (formatowanie, wysyłanie, przechodzenie lub przewijanie)."
+		"CHAT_TAKEN": "Czat już używa tego klawisza (formatowanie, wysyłanie, przechodzenie lub przewijanie).",
+		"OR": "lub",
+		"groups": {
+			"general": "Ogólne",
+			"timer": "Timer",
+			"tasks": "Zadania",
+			"navigation": "Nawigacja",
+			"chat": "Czat"
+		}
 	},
 	"realtime": {
 		"RECONNECTING": "Ponowne łączenie…"
