@@ -21,7 +21,7 @@ export const MY_WEEK_PERIODS: ReadonlyArray<MyWeekPeriodKey> = ['thisWeek', 'las
 export const DEFAULT_MY_WEEK_PERIOD: MyWeekPeriodKey = 'thisWeek';
 
 /** The weeks Gauzy measures a weekly limit on, which are also the weeks of Timesheets. */
-export const MY_WEEK_STARTS_ON: WeekStart = LIMIT_WEEK_START;
+const MY_WEEK_STARTS_ON: WeekStart = LIMIT_WEEK_START;
 
 /** The entries the page lists under its figures; the Work diary holds every entry of a day. */
 export const RECENT_ENTRY_COUNT = 8;
@@ -30,8 +30,8 @@ const SECONDS_PER_HOUR = 3600;
 const SECONDS_PER_MINUTE = 60;
 const MILLISECONDS_PER_SECOND = 1000;
 
-export function myWeekPeriodOf(key: MyWeekPeriodKey, now: Date): Period {
-	return periodOfPreset(key, MY_WEEK_STARTS_ON, now);
+export function myWeekPeriodOf(key: MyWeekPeriodKey, now: Date, weekStartsOn: WeekStart = MY_WEEK_STARTS_ON): Period {
+	return periodOfPreset(key, weekStartsOn, now);
 }
 
 export function isWeekPeriod(key: MyWeekPeriodKey) {

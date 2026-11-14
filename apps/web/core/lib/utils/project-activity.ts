@@ -2,16 +2,17 @@ import { differenceInCalendarWeeks, startOfWeek, subWeeks } from 'date-fns';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import type { TTaskStatus } from '@/core/types/schemas/task/task-status.schema';
 import { realDateOf, statusCategoryOf } from '@/core/lib/utils/project-list';
+import type { WeekStart } from '@/core/lib/utils/dashboard-period';
 
 /** Weeks shown by default: long enough to see a trend, short enough to stay readable in a narrow side panel. */
 export const DEFAULT_ACTIVITY_WEEKS = 8;
 export const MIN_ACTIVITY_WEEKS = 1;
 export const MAX_ACTIVITY_WEEKS = 26;
 
-const WEEK_STARTS_ON_MONDAY = 1;
+const WEEK_STARTS_ON_MONDAY: WeekStart = 1;
 
 export interface WeeklyActivity {
-	/** Monday, 00:00 local time, of the week the counts belong to. */
+	/** The first day, 00:00 local time, of the week the counts belong to. */
 	weekStart: Date;
 	created: number;
 	completed: number;
@@ -36,9 +37,9 @@ export function activityWeeksCountOf(requested: number | undefined): number {
 	return Math.min(MAX_ACTIVITY_WEEKS, Math.max(MIN_ACTIVITY_WEEKS, whole));
 }
 
-/** `count` empty weeks, oldest first, ending with the Monday-based week of `now`. */
-function emptyWeeksOf(now: Date, count: number): WeeklyActivity[] {
-	const currentWeekStart = startOfWeek(now, { weekStartsOn: WEEK_STARTS_ON_MONDAY });
+/** `count` empty weeks, oldest first, ending with the week of `now`. */
+function emptyWeeksOf(now: Date, count: number, weekStartsOn: WeekStart): WeeklyActivity[] {
+	const currentWeekStart = startOfWeek(now, { weekStartsOn });
 	const weeks: WeeklyActivity[] = [];
 	for (let back = count - 1; back >= 0; back -= 1) {
 		weeks.push({ weekStart: subWeeks(currentWeekStart, back), created: 0, completed: 0 });
@@ -51,11 +52,15 @@ function emptyWeeksOf(now: Date, count: number): WeeklyActivity[] {
  * in the current week than `now` still counts: the chart keeps one `now` for the whole week, so a task created or
  * completed after the page was opened (or stamped by a server whose clock runs ahead) lands in this week's bars.
  */
-function weekOf(weeks: ReadonlyArray<WeeklyActivity>, date: Date | null): WeeklyActivity | null {
+function weekOf(
+	weeks: ReadonlyArray<WeeklyActivity>,
+	date: Date | null,
+	weekStartsOn: WeekStart
+): WeeklyActivity | null {
 	if (!date) {
 		return null;
 	}
-	const index = differenceInCalendarWeeks(date, weeks[0].weekStart, { weekStartsOn: WEEK_STARTS_ON_MONDAY });
+	const index = differenceInCalendarWeeks(date, weeks[0].weekStart, { weekStartsOn });
 	return weeks[index] ?? null;
 }
 
@@ -68,12 +73,13 @@ export function projectActivityOf(
 	tasks: ReadonlyArray<TTask>,
 	statuses: TTaskStatus[],
 	now: Date,
-	weeksCount?: number
+	weeksCount?: number,
+	weekStartsOn: WeekStart = WEEK_STARTS_ON_MONDAY
 ): ProjectActivity {
-	const weeks = emptyWeeksOf(now, activityWeeksCountOf(weeksCount));
+	const weeks = emptyWeeksOf(now, activityWeeksCountOf(weeksCount), weekStartsOn);
 	let undatedDone = 0;
 	for (const task of tasks) {
-		const createdWeek = weekOf(weeks, realDateOf(task.createdAt));
+		const createdWeek = weekOf(weeks, realDateOf(task.createdAt), weekStartsOn);
 		if (createdWeek) {
 			createdWeek.created += 1;
 		}
@@ -85,7 +91,7 @@ export function projectActivityOf(
 			undatedDone += 1;
 			continue;
 		}
-		const resolvedWeek = weekOf(weeks, resolvedAt);
+		const resolvedWeek = weekOf(weeks, resolvedAt, weekStartsOn);
 		if (resolvedWeek) {
 			resolvedWeek.completed += 1;
 		}

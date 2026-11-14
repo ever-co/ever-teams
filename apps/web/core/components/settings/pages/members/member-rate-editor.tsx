@@ -2,7 +2,7 @@
 
 import { FormEvent, KeyboardEvent, useId, useState } from 'react';
 import { useAtomValue } from 'jotai';
-import { useLocale, useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { Input } from '@/core/components/common/input';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Spinner } from '@/core/components/icons';
@@ -26,6 +26,7 @@ import { currentOrganizationState } from '@/core/stores/user/user-organizations'
 import type { MemberRate, MemberRowModel } from '@/core/hooks/settings/use-team-members-settings';
 import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rates.schema';
 import { MemberAvatar } from './people-parts';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 
 const PROBLEM_KEYS: Record<RateInputProblem, DottedLanguageObjectStringPaths> = {
 	invalid: 'rates.NUMBER_INVALID',
@@ -36,7 +37,7 @@ const FIELD_LABEL = 'text-xs text-muted-foreground';
 
 export function MemberRateText({ rate }: Readonly<{ rate: MemberRate }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const amount = rateAmountTextOf(rate.value, rate.currency, locale);
 	if (amount === null) {
 		return null;

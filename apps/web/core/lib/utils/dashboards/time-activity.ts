@@ -1,4 +1,4 @@
-import { addDays, addWeeks, endOfDay, endOfWeek, max, min, startOfDay, startOfWeek } from 'date-fns';
+import { addDays, addWeeks, endOfDay, endOfWeek, getISOWeek, max, min, startOfDay, startOfWeek } from 'date-fns';
 import type { DayBarDatum } from '@/core/components/dashboards/kit/day-bars-chart';
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import type { TTimeLogReportWeekly } from '@/core/types/schemas/timer/time-log.schema';
@@ -867,6 +867,15 @@ export function initialWeekIndexOf(weekStarts: ReadonlyArray<Date>, now = new Da
 	return Math.max(index, 0);
 }
 
+/** Days from a week's start to its fourth day: Thursday for a Monday week, the day ISO weeks are numbered by. */
+const DAYS_TO_NUMBERED_DAY = 3;
+
+/** The number of the ISO week the week mostly covers, so a Sunday or Saturday week keeps the number of its days. */
+export function weekNumberOf(weekStart: Date) {
+	const numberedDay = addDays(weekStart, DAYS_TO_NUMBERED_DAY);
+	return getISOWeek(numberedDay);
+}
+
 export function weekDaysOf(weekStart: Date): Date[] {
 	return Array.from({ length: 7 }, (_, index) => addDays(weekStart, index));
 }
@@ -976,7 +985,7 @@ export function weekColumnTotalsOf(rows: ReadonlyArray<WeekGridRow>, dayCount: n
 	return totals;
 }
 
-/** Weeks of this report start on Monday, as the previous date picker and week grid did. */
+/** Weeks of this report start on Monday until the workspace picks another day. */
 export const TIME_ACTIVITY_WEEK_START: WeekStart = 1;
 
 export function todayKeyOf(now = new Date()) {

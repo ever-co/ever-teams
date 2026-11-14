@@ -7,6 +7,9 @@ const mockSaveName = jest.fn(async () => undefined);
 const mockSaveCurrency = jest.fn(async () => undefined);
 const mockSaveDateFormat = jest.fn(async () => undefined);
 const mockSaveNumberFormat = jest.fn(async () => undefined);
+const mockSaveWeekStart = jest.fn(async () => undefined);
+const mockSaveClock = jest.fn(async () => undefined);
+const mockSaveCurrencyPosition = jest.fn(async () => undefined);
 const mockSaveDurationRounding = jest.fn(async () => undefined);
 const mockRetryLoad = jest.fn();
 
@@ -27,6 +30,9 @@ function settingsOf(overrides: Record<string, unknown> = {}) {
 		saveCurrency: mockSaveCurrency,
 		saveDateFormat: mockSaveDateFormat,
 		saveNumberFormat: mockSaveNumberFormat,
+		saveWeekStart: mockSaveWeekStart,
+		saveClock: mockSaveClock,
+		saveCurrencyPosition: mockSaveCurrencyPosition,
 		saveDurationRounding: mockSaveDurationRounding,
 		...overrides
 	};
@@ -161,7 +167,7 @@ describe('WorkspaceSettingsPage', () => {
 		expect(screen.getByText('settings.workspace.NAME_SUPER_ADMIN_ONLY')).toBeTruthy();
 		expect(screen.queryByRole('button', { name: EDIT_NAME })).toBeNull();
 		expect(screen.getByRole('combobox')).toBeTruthy();
-		expect(screen.getAllByTestId('format-select')).toHaveLength(2);
+		expect(screen.getAllByTestId('format-select')).toHaveLength(5);
 		expect(screen.queryByText('settings.workspace.READ_ONLY_NOTE')).toBeNull();
 	});
 
@@ -308,5 +314,48 @@ describe('WorkspaceSettingsPage', () => {
 		});
 
 		expect(mockSaveDurationRounding).toHaveBeenCalledWith(null);
+	});
+
+	it('shows a member the week start, the clock and the currency symbol side as text', () => {
+		mockSettings = settingsOf({
+			canEdit: false,
+			organization: { ...ORGANIZATION, startWeekOn: 'SUNDAY', timeFormat: 24, currencyPosition: 'RIGHT' }
+		});
+		render(<WorkspaceSettingsPage />);
+
+		expect(within(rowOf('settings.workspace.WEEK_START_LABEL')).getByText('Sunday')).toBeTruthy();
+		expect(within(rowOf('settings.workspace.CLOCK_LABEL')).getByText('settings.workspace.CLOCK_24')).toBeTruthy();
+		expect(
+			within(rowOf('settings.workspace.CURRENCY_POSITION_LABEL')).getByText(
+				'settings.workspace.CURRENCY_POSITION_AFTER'
+			)
+		).toBeTruthy();
+	});
+
+	it('saves the week start, the clock and the currency symbol side an admin picks', async () => {
+		render(<WorkspaceSettingsPage />);
+
+		await act(async () => {
+			fireEvent.click(
+				within(rowOf('settings.workspace.WEEK_START_LABEL')).getByRole('button', { name: 'Sunday' })
+			);
+		});
+		await act(async () => {
+			fireEvent.click(
+				within(rowOf('settings.workspace.CLOCK_LABEL')).getByRole('button', {
+					name: 'settings.workspace.CLOCK_24'
+				})
+			);
+		});
+		await act(async () => {
+			const sideRow = rowOf('settings.workspace.CURRENCY_POSITION_LABEL');
+			fireEvent.click(
+				within(sideRow).getByRole('button', { name: 'settings.workspace.CURRENCY_POSITION_AFTER' })
+			);
+		});
+
+		expect(mockSaveWeekStart).toHaveBeenCalledWith('SUNDAY');
+		expect(mockSaveClock).toHaveBeenCalledWith(24);
+		expect(mockSaveCurrencyPosition).toHaveBeenCalledWith('RIGHT');
 	});
 });
