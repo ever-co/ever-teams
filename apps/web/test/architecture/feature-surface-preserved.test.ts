@@ -2052,10 +2052,12 @@ describe('Ever Teams feature surface preservation', () => {
 		// (/api/invoices/[id] GET; #5158).
 		// 357 files and 455 verbs with the proxies that update one invoice and replace its lines (/api/invoices/[id]
 		// PUT, /api/invoice-item/bulk/[invoiceId] POST; #5159). Its read of one invoice is #5158's.
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(357);
+		// 359 files and 457 verbs with the history of a time entry and the changes of a period
+		// (GET /api/timesheet/time-log/[id]/history, GET /api/timesheet/time-log/history; #5222).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(359);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(455);
+		).toHaveLength(457);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of the platform's incoming webhook management of a channel (ever-gauzy #11799)
@@ -2198,6 +2200,8 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/timer/toogle/route.ts::POST',
 				'apps/web/app/api/timesheet/status/route.ts::PUT',
 				'apps/web/app/api/timesheet/time-log/[id]/route.ts::PUT',
+				'apps/web/app/api/timesheet/time-log/[id]/history/route.ts::GET',
+				'apps/web/app/api/timesheet/time-log/history/route.ts::GET',
 				'apps/web/app/api/timesheet/time-log/report/weekly/route.ts::GET',
 				'apps/web/app/api/timesheet/time-log/route.ts::DELETE',
 				'apps/web/app/api/timesheet/time-log/route.ts::GET',
