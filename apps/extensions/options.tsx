@@ -1,19 +1,13 @@
 import React, { useEffect, useState, type FormEvent } from 'react';
 
 import Notice from '~components/shared/Notice';
+import { isAllowedAddress } from '~lib/address';
 import { apiOriginOf } from '~lib/api-client';
 import { t } from '~lib/i18n';
 import { clearSession, DEFAULT_API_URL, DEFAULT_APP_URL, loadSettings, saveSettings } from '~lib/session-store';
 import { primaryButton, roundInput } from '~misc/tailwindClasses';
 
 import './style.css';
-
-// A local server may be plain http; every other address must be https
-const ALLOWED_ADDRESS = /^(https:\/\/[^\s/]+|http:\/\/(localhost|127\.0\.0\.1)(:\d+)?)(\/\S*)?$/i;
-
-function isAllowedAddress(value: string): boolean {
-	return ALLOWED_ADDRESS.test(value.trim());
-}
 
 type SaveState = 'idle' | 'saved' | 'invalid';
 
