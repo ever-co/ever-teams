@@ -186,7 +186,9 @@ export class APIService {
 				// Log errors using robust WeakMap-based deduplication
 				this.logError(error);
 
-				if (error.response && error.response.status === 401) {
+				const isUnauthorized = error.response?.status === 401;
+				const isExpectedRefusal = (error.config as APIConfig | undefined)?.expectedUnauthorized === true;
+				if (isUnauthorized && !isExpectedRefusal) {
 					this.handleUnauthorized(error);
 				}
 				return Promise.reject(error);

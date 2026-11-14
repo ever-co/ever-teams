@@ -5,6 +5,7 @@ import {
 	assignableWorkspaceRolesOf,
 	canChangeWorkspaceRole,
 	canDeactivateMember,
+	canResetMemberTwoFactor,
 	enabledPermissionsOf,
 	holdsInactiveMembersPermission,
 	holdsMemberDeactivationPermission,
@@ -386,5 +387,32 @@ describe('inactiveMembersOfTeam', () => {
 
 		expect(inactiveMembersOfTeam([withoutTeams], 'team-a')).toEqual([]);
 		expect(inactiveMembersOfTeam([ana], null)).toEqual([]);
+	});
+});
+
+describe('canResetMemberTwoFactor', () => {
+	const member = { permissions: ['ORG_USERS_EDIT'], isYou: false, hasUser: true, workspaceRoleName: 'EMPLOYEE' };
+
+	it("lets a holder of ORG_USERS_EDIT reset another member's second factor", () => {
+		expect(canResetMemberTwoFactor(member)).toBe(true);
+		expect(canResetMemberTwoFactor({ ...member, workspaceRoleName: 'ADMIN' })).toBe(true);
+	});
+
+	it('refuses one’s own account, a member without a user, and a viewer without the permission', () => {
+		expect(canResetMemberTwoFactor({ ...member, isYou: true })).toBe(false);
+		expect(canResetMemberTwoFactor({ ...member, hasUser: false })).toBe(false);
+		expect(canResetMemberTwoFactor({ ...member, workspaceRoleName: null })).toBe(false);
+		expect(canResetMemberTwoFactor({ ...member, permissions: ['ORG_EMPLOYEES_EDIT'] })).toBe(false);
+	});
+
+	it("resets a super admin's only for a holder of SUPER_ADMIN_EDIT", () => {
+		expect(canResetMemberTwoFactor({ ...member, workspaceRoleName: 'SUPER_ADMIN' })).toBe(false);
+		expect(
+			canResetMemberTwoFactor({
+				...member,
+				workspaceRoleName: 'SUPER_ADMIN',
+				permissions: ['ORG_USERS_EDIT', 'SUPER_ADMIN_EDIT']
+			})
+		).toBe(true);
 	});
 });

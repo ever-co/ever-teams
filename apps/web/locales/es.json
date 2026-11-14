@@ -3857,7 +3857,8 @@
 			"INVALID": "Algunos valores no se aceptaron. Revísalos e inténtalo de nuevo.",
 			"TOO_MANY": "Demasiados intentos. Espera un momento y vuelve a intentarlo.",
 			"SERVER": "El servidor no pudo completarlo. Inténtalo de nuevo en un momento.",
-			"UNKNOWN": "Inténtalo de nuevo en un momento."
+			"UNKNOWN": "Inténtalo de nuevo en un momento.",
+			"TWO_FACTOR": "Esta cuenta pide un código de una aplicación de autenticación. Inicia sesión con tu correo electrónico o tu contraseña para introducirlo."
 		},
 		"common": {
 			"NEWSLETTER_SUBSCRIBED": "Te has suscrito al boletín",
@@ -4267,6 +4268,10 @@
 			"automations": {
 				"TITLE": "Automatizaciones",
 				"DESCRIPTION": "Reglas que hacen avanzar las tareas de la organización por usted."
+			},
+			"security": {
+				"TITLE": "Seguridad",
+				"DESCRIPTION": "Cómo inicias sesión: la autenticación en dos pasos."
 			}
 		},
 		"index": {
@@ -5033,7 +5038,15 @@
 			"WORKSPACE_ROLE_VIEWER": "Lector",
 			"WORKSPACE_ROLE_CANDIDATE": "Candidato",
 			"WORKSPACE_ROLE_INTERVIEWER": "Entrevistador",
-			"WORKSPACE_ROLE_NOT_SAVED": "El rol de {name} en el espacio de trabajo no cambió"
+			"WORKSPACE_ROLE_NOT_SAVED": "El rol de {name} en el espacio de trabajo no cambió",
+			"RESET_TWO_FACTOR": "Restablecer la autenticación en dos pasos",
+			"RESET_TWO_FACTOR_TITLE": "¿Restablecer la autenticación en dos pasos de {name}?",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "Si {name} la activó, se desactiva: su próximo inicio de sesión solo pedirá su código por correo o su contraseña.",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} puede volver a activarla desde su configuración de seguridad. El restablecimiento queda registrado.",
+			"RESET_TWO_FACTOR_CONFIRM": "Restablecer",
+			"RESET_TWO_FACTOR_DONE": "Se restableció la autenticación en dos pasos de {name}",
+			"RESET_TWO_FACTOR_NOTHING": "{name} no tenía autenticación en dos pasos que restablecer",
+			"RESET_TWO_FACTOR_FAILED": "No se pudo restablecer la autenticación en dos pasos de {name}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Perfil",
@@ -5421,6 +5434,59 @@
 					"DESCRIPTION": "Cuando se cierra un pull request o una incidencia vinculados a una tarea abierta, la tarea pasa a hecha."
 				}
 			}
+		},
+		"security": {
+			"SECTION_TITLE": "Autenticación en dos pasos",
+			"SECTION_DESCRIPTION": "Los inicios de sesión también piden un código de una aplicación de autenticación en tu teléfono.",
+			"APP_LABEL": "Aplicación de autenticación",
+			"ON": "Activada",
+			"OFF": "Desactivada",
+			"OFF_DESCRIPTION": "Los inicios de sesión solo piden tu código por correo o tu contraseña.",
+			"ON_DESCRIPTION": "Los inicios de sesión piden un código de tu aplicación de autenticación.",
+			"ON_SINCE": "Los inicios de sesión piden un código de tu aplicación de autenticación. Activada desde el {date}.",
+			"TURN_ON": "Activar",
+			"TURN_OFF": "Desactivar",
+			"CANCEL": "Cancelar",
+			"RETRY": "Reintentar",
+			"CODES_LABEL": "Códigos de recuperación",
+			"CODES_LEFT": "{count, plural, =0 {No queda ningún código sin usar} one {Queda # código sin usar} other {Quedan # códigos sin usar}}",
+			"NEW_CODES": "Nuevos códigos de recuperación",
+			"SETUP_STEP_KEY": "1. Añade esta cuenta a tu aplicación de autenticación",
+			"SETUP_STEP_KEY_TEXT": "Escanea el código QR con tu aplicación de autenticación. En este dispositivo, abre el enlace o escribe la clave.",
+			"SETUP_KEY_LABEL": "Clave de configuración",
+			"COPY_KEY": "Copiar clave",
+			"OPEN_IN_APP": "Abrir en la aplicación de autenticación",
+			"SETUP_STEP_CODE": "2. Introduce el código de {length} dígitos que muestra la aplicación",
+			"CODE_INCOMPLETE": "Introduce los {length} dígitos del código.",
+			"SETUP_FAILED": "No se pudo configurar la autenticación en dos pasos",
+			"TURNED_ON": "La autenticación en dos pasos está activada",
+			"TURNED_OFF": "La autenticación en dos pasos está desactivada",
+			"CODES_TITLE": "Tus códigos de recuperación",
+			"CODES_TEXT": "Cada código te permite iniciar sesión una vez si pierdes el teléfono. Guárdalos ahora en un lugar seguro: no se volverán a mostrar.",
+			"COPY_CODES": "Copiar códigos",
+			"DOWNLOAD_CODES": "Descargar",
+			"CODES_DONE": "Ya guardé mis códigos",
+			"CODES_FILE_HEADING": "Códigos de recuperación de {appName}",
+			"COPIED": "Copiado",
+			"COPY_FAILED": "No se pudo copiar. Selecciona el texto y cópialo.",
+			"TURN_OFF_PROOF": "Para desactivarla, introduce un código de tu aplicación o un código de recuperación",
+			"NEW_CODES_PROOF": "Para obtener nuevos códigos de recuperación, introduce un código de tu aplicación o un código de recuperación. Los códigos actuales dejarán de funcionar.",
+			"PROOF_HINT": "Un código de 6 dígitos de tu aplicación de autenticación o uno de tus códigos de recuperación.",
+			"PROOF_PLACEHOLDER": "123456 o XXXX-XXXX-XXXX-XXXX",
+			"PROOF_INCOMPLETE": "Introduce un código de 6 dígitos o un código de recuperación completo.",
+			"WRONG_CODE": "Este código no es correcto. Introduce el código que muestra ahora tu aplicación o un código de recuperación.",
+			"TOO_MANY": "Demasiados códigos incorrectos. Vuelve a intentarlo en {minutes, plural, one {# minuto} other {# minutos}}.",
+			"TOO_MANY_LATER": "Demasiados códigos incorrectos. Espera unos minutos y vuelve a intentarlo.",
+			"CHANGED": "La autenticación en dos pasos cambió mientras tanto. Revísala y vuelve a intentarlo.",
+			"FAILED": "No se pudo cambiar. Vuelve a intentarlo en un momento.",
+			"UNAVAILABLE_TITLE": "Aún no disponible en este servidor",
+			"UNAVAILABLE_DESCRIPTION": "La autenticación en dos pasos no está activada en este servidor. Pide a tu administrador que la active.",
+			"UNSUPPORTED_TITLE": "La autenticación en dos pasos no está disponible",
+			"UNSUPPORTED_DESCRIPTION": "Este servidor no ofrece autenticación en dos pasos.",
+			"READ_FAILED": "No se pudo leer la autenticación en dos pasos",
+			"REQUIRED_TITLE": "Tu organización te pide activarla",
+			"REQUIRED_DESCRIPTION": "Sus miembros también inician sesión con un código de una aplicación de autenticación.",
+			"QR_ALT": "Código QR de esta cuenta para tu aplicación de autenticación"
 		}
 	},
 	"taskDetail": {
@@ -5787,6 +5853,28 @@
 			"TEXT": "El inicio de sesión no se completó. Vuelve a intentarlo o inicia sesión con tu correo.",
 			"RETRY": "Volver al inicio de sesión",
 			"CODE": "Código de error: {code}"
+		},
+		"twoFactor": {
+			"TITLE": "Introduce tu código de autenticación",
+			"DESCRIPTION": "Abre tu aplicación de autenticación e introduce el código de {length} dígitos que muestra para <address>{email}</address>.",
+			"RECOVERY_DESCRIPTION": "Introduce uno de los códigos de recuperación que guardaste al activar la autenticación en dos pasos. Cada código sirve una sola vez.",
+			"CODE_LABEL": "Código de autenticación",
+			"RECOVERY_LABEL": "Código de recuperación",
+			"USE_RECOVERY": "Usar un código de recuperación",
+			"USE_APP": "Usar la aplicación de autenticación",
+			"SUBMIT": "Verificar e iniciar sesión",
+			"BACK": "Volver al inicio de sesión",
+			"WRONG_CODE": "Este código no es correcto. Introduce el código que muestra ahora tu aplicación de autenticación.",
+			"WRONG_RECOVERY_CODE": "Este código de recuperación no es correcto o ya se usó.",
+			"CODE_INCOMPLETE": "Introduce los {length} dígitos del código.",
+			"RECOVERY_INCOMPLETE": "Introduce el código de recuperación completo.",
+			"EXPIRED": "Este inicio de sesión esperó demasiado su código. Inicia sesión de nuevo.",
+			"SIGN_IN_AGAIN": "Iniciar sesión de nuevo",
+			"TOO_MANY": "Demasiados códigos incorrectos. Vuelve a intentarlo en {minutes, plural, one {# minuto} other {# minutos}}.",
+			"TOO_MANY_LATER": "Demasiados códigos incorrectos. Espera unos minutos y vuelve a intentarlo.",
+			"FAILED": "No se pudo comprobar el código. Vuelve a intentarlo en un momento.",
+			"SCENE_TITLE": "Un paso más",
+			"SCENE_TEXT": "Esta cuenta está protegida con la autenticación en dos pasos."
 		}
 	},
 	"taskViews": {

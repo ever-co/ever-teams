@@ -7,6 +7,7 @@ import {
 	FlagPriority,
 	Integration,
 	Layers,
+	Lock,
 	Preferences,
 	Ruler,
 	Settings,
@@ -27,6 +28,7 @@ export type SettingsEntryId =
 	| 'preferences'
 	| 'workingHours'
 	| 'notifications'
+	| 'security'
 	| 'workspaceGeneral'
 	| 'teamGeneral'
 	| 'members'
@@ -60,6 +62,8 @@ export const SETTINGS_ENTRIES: ReadonlyArray<SettingsEntry> = [
 	{ id: 'preferences', group: 'account', href: '/settings/personal/preferences', icon: Preferences },
 	{ id: 'workingHours', group: 'account', href: '/settings/personal/working-hours', icon: Clock },
 	{ id: 'notifications', group: 'account', href: '/settings/personal/notifications', icon: Bell },
+	// Shown once the platform answers the two-factor state: `useHiddenSettingsEntries` hides it on an API without it.
+	{ id: 'security', group: 'account', href: '/settings/personal/security', icon: Lock },
 	{ id: 'workspaceGeneral', group: 'workspace', href: '/settings/workspace', icon: Building },
 	{ id: 'teamGeneral', group: 'team', href: '/settings/team', icon: Settings },
 	{ id: 'members', group: 'team', href: '/settings/team/members', icon: Users, managerOnly: true },

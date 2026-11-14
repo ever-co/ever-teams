@@ -372,3 +372,36 @@ export function inactiveMembersOfTeam(
 	}
 	return members.sort(compareInactiveMembers);
 }
+
+/**
+ * Whether the viewer may reset a member's two-factor authentication (for a member who lost their phone and their
+ * recovery codes), as Gauzy's `DELETE /auth/two-factor/users/:userId` decides: `ORG_USERS_EDIT`, never one's own
+ * account (that takes a code), and a super admin's only with `SUPER_ADMIN_EDIT`.
+ */
+export function canResetMemberTwoFactor({
+	permissions,
+	isYou,
+	hasUser,
+	workspaceRoleName
+}: Readonly<{
+	permissions: ReadonlyArray<string>;
+	isYou: boolean;
+	hasUser: boolean;
+	workspaceRoleName: string | null;
+}>): boolean {
+	if (!permissions.includes(USERS_EDIT_PERMISSION)) {
+		return false;
+	}
+	if (isYou || !hasUser) {
+		return false;
+	}
+	// Until the roles are read a super admin is not told apart: nothing is offered yet
+	if (!workspaceRoleName) {
+		return false;
+	}
+	const isSuperAdmin = workspaceRoleName === ERoleName.SUPER_ADMIN;
+	if (isSuperAdmin) {
+		return permissions.includes(SUPER_ADMIN_EDIT_PERMISSION);
+	}
+	return true;
+}

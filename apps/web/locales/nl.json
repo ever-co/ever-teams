@@ -3857,7 +3857,8 @@
 			"INVALID": "Sommige waarden zijn niet geaccepteerd. Controleer ze en probeer het opnieuw.",
 			"TOO_MANY": "Te veel pogingen. Wacht even en probeer het dan opnieuw.",
 			"SERVER": "De server kon het niet afronden. Probeer het zo opnieuw.",
-			"UNKNOWN": "Probeer het zo opnieuw."
+			"UNKNOWN": "Probeer het zo opnieuw.",
+			"TWO_FACTOR": "Dit account vraagt om een code uit een authenticator-app. Log in met je e-mailadres of je wachtwoord om die in te voeren."
 		},
 		"common": {
 			"NEWSLETTER_SUBSCRIBED": "Je bent geabonneerd op de nieuwsbrief",
@@ -4267,6 +4268,10 @@
 			"automations": {
 				"TITLE": "Automatiseringen",
 				"DESCRIPTION": "Regels die de taken van de organisatie voor u verplaatsen."
+			},
+			"security": {
+				"TITLE": "Beveiliging",
+				"DESCRIPTION": "Hoe je inlogt: tweestapsverificatie."
 			}
 		},
 		"index": {
@@ -5033,7 +5038,15 @@
 			"WORKSPACE_ROLE_VIEWER": "Kijker",
 			"WORKSPACE_ROLE_CANDIDATE": "Kandidaat",
 			"WORKSPACE_ROLE_INTERVIEWER": "Interviewer",
-			"WORKSPACE_ROLE_NOT_SAVED": "De rol van {name} in de werkruimte is niet gewijzigd"
+			"WORKSPACE_ROLE_NOT_SAVED": "De rol van {name} in de werkruimte is niet gewijzigd",
+			"RESET_TWO_FACTOR": "Tweestapsverificatie resetten",
+			"RESET_TWO_FACTOR_TITLE": "Tweestapsverificatie van {name} resetten?",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "Als {name} het heeft aangezet, gaat het uit: bij de volgende aanmelding wordt alleen om de e-mailcode of het wachtwoord gevraagd.",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} kan het opnieuw aanzetten in de beveiligingsinstellingen. De reset wordt vastgelegd.",
+			"RESET_TWO_FACTOR_CONFIRM": "Resetten",
+			"RESET_TWO_FACTOR_DONE": "Tweestapsverificatie van {name} is gereset",
+			"RESET_TWO_FACTOR_NOTHING": "{name} had geen tweestapsverificatie om te resetten",
+			"RESET_TWO_FACTOR_FAILED": "Tweestapsverificatie van {name} kon niet worden gereset"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profiel",
@@ -5421,6 +5434,59 @@
 					"DESCRIPTION": "Als een pull request of issue die aan een open taak is gekoppeld wordt gesloten, gaat de taak naar klaar."
 				}
 			}
+		},
+		"security": {
+			"SECTION_TITLE": "Tweestapsverificatie",
+			"SECTION_DESCRIPTION": "Bij het inloggen wordt ook om een code uit een authenticator-app op je telefoon gevraagd.",
+			"APP_LABEL": "Authenticator-app",
+			"ON": "Aan",
+			"OFF": "Uit",
+			"OFF_DESCRIPTION": "Bij het inloggen wordt alleen om je e-mailcode of wachtwoord gevraagd.",
+			"ON_DESCRIPTION": "Bij het inloggen wordt om een code uit je authenticator-app gevraagd.",
+			"ON_SINCE": "Bij het inloggen wordt om een code uit je authenticator-app gevraagd. Aan sinds {date}.",
+			"TURN_ON": "Aanzetten",
+			"TURN_OFF": "Uitzetten",
+			"CANCEL": "Annuleren",
+			"RETRY": "Opnieuw proberen",
+			"CODES_LABEL": "Herstelcodes",
+			"CODES_LEFT": "{count, plural, =0 {Geen ongebruikte code meer} one {# ongebruikte code over} other {# ongebruikte codes over}}",
+			"NEW_CODES": "Nieuwe herstelcodes",
+			"SETUP_STEP_KEY": "1. Voeg dit account toe aan je authenticator-app",
+			"SETUP_STEP_KEY_TEXT": "Scan de QR-code met je authenticator-app. Op dit apparaat open je in plaats daarvan de link, of typ je de sleutel.",
+			"SETUP_KEY_LABEL": "Instelsleutel",
+			"COPY_KEY": "Sleutel kopiëren",
+			"OPEN_IN_APP": "Openen in authenticator-app",
+			"SETUP_STEP_CODE": "2. Voer de {length}-cijferige code in die de app toont",
+			"CODE_INCOMPLETE": "Voer alle {length} cijfers van de code in.",
+			"SETUP_FAILED": "Tweestapsverificatie kon niet worden ingesteld",
+			"TURNED_ON": "Tweestapsverificatie staat aan",
+			"TURNED_OFF": "Tweestapsverificatie staat uit",
+			"CODES_TITLE": "Je herstelcodes",
+			"CODES_TEXT": "Met elke code log je één keer in als je je telefoon kwijt bent. Bewaar ze nu op een veilige plek: ze worden niet opnieuw getoond.",
+			"COPY_CODES": "Codes kopiëren",
+			"DOWNLOAD_CODES": "Downloaden",
+			"CODES_DONE": "Ik heb mijn codes bewaard",
+			"CODES_FILE_HEADING": "{appName}-herstelcodes",
+			"COPIED": "Gekopieerd",
+			"COPY_FAILED": "Kopiëren lukte niet. Selecteer de tekst en kopieer die.",
+			"TURN_OFF_PROOF": "Voer om uit te zetten een code uit je app of een herstelcode in",
+			"NEW_CODES_PROOF": "Voer voor nieuwe herstelcodes een code uit je app of een herstelcode in. De huidige codes werken dan niet meer.",
+			"PROOF_HINT": "Een 6-cijferige code uit je authenticator-app, of een van je herstelcodes.",
+			"PROOF_PLACEHOLDER": "123456 of XXXX-XXXX-XXXX-XXXX",
+			"PROOF_INCOMPLETE": "Voer een 6-cijferige code of een volledige herstelcode in.",
+			"WRONG_CODE": "Deze code klopt niet. Voer de code in die je app nu toont, of een herstelcode.",
+			"TOO_MANY": "Te veel verkeerde codes. Probeer het over {minutes, plural, one {# minuut} other {# minuten}} opnieuw.",
+			"TOO_MANY_LATER": "Te veel verkeerde codes. Wacht een paar minuten en probeer het dan opnieuw.",
+			"CHANGED": "Tweestapsverificatie is intussen gewijzigd. Controleer het en probeer het opnieuw.",
+			"FAILED": "Het kon niet worden gewijzigd. Probeer het zo opnieuw.",
+			"UNAVAILABLE_TITLE": "Nog niet beschikbaar op deze server",
+			"UNAVAILABLE_DESCRIPTION": "Tweestapsverificatie staat niet aan op deze server. Vraag je beheerder om het aan te zetten.",
+			"UNSUPPORTED_TITLE": "Tweestapsverificatie is niet beschikbaar",
+			"UNSUPPORTED_DESCRIPTION": "Deze server biedt geen tweestapsverificatie aan.",
+			"READ_FAILED": "Tweestapsverificatie kon niet worden gelezen",
+			"REQUIRED_TITLE": "Je organisatie vraagt je dit aan te zetten",
+			"REQUIRED_DESCRIPTION": "Haar leden loggen ook in met een code uit een authenticator-app.",
+			"QR_ALT": "QR-code van dit account voor je authenticator-app"
 		}
 	},
 	"taskDetail": {
@@ -5787,6 +5853,28 @@
 			"TEXT": "Het aanmelden is niet voltooid. Probeer het opnieuw of meld je aan met je e-mail.",
 			"RETRY": "Terug naar aanmelden",
 			"CODE": "Foutcode: {code}"
+		},
+		"twoFactor": {
+			"TITLE": "Voer je authenticatiecode in",
+			"DESCRIPTION": "Open je authenticator-app en voer de {length}-cijferige code in die ze toont voor <address>{email}</address>.",
+			"RECOVERY_DESCRIPTION": "Voer een van de herstelcodes in die je bewaarde toen je tweestapsverificatie aanzette. Elke code werkt één keer.",
+			"CODE_LABEL": "Authenticatiecode",
+			"RECOVERY_LABEL": "Herstelcode",
+			"USE_RECOVERY": "Gebruik in plaats daarvan een herstelcode",
+			"USE_APP": "Gebruik in plaats daarvan je authenticator-app",
+			"SUBMIT": "Controleren en inloggen",
+			"BACK": "Terug naar inloggen",
+			"WRONG_CODE": "Deze code klopt niet. Voer de code in die je authenticator-app nu toont.",
+			"WRONG_RECOVERY_CODE": "Deze herstelcode klopt niet of is al gebruikt.",
+			"CODE_INCOMPLETE": "Voer alle {length} cijfers van de code in.",
+			"RECOVERY_INCOMPLETE": "Voer de volledige herstelcode in.",
+			"EXPIRED": "Deze aanmelding heeft te lang op haar code gewacht. Log opnieuw in.",
+			"SIGN_IN_AGAIN": "Opnieuw inloggen",
+			"TOO_MANY": "Te veel verkeerde codes. Probeer het over {minutes, plural, one {# minuut} other {# minuten}} opnieuw.",
+			"TOO_MANY_LATER": "Te veel verkeerde codes. Wacht een paar minuten en probeer het dan opnieuw.",
+			"FAILED": "De code kon niet worden gecontroleerd. Probeer het zo opnieuw.",
+			"SCENE_TITLE": "Nog één stap",
+			"SCENE_TEXT": "Dit account is beveiligd met tweestapsverificatie."
 		}
 	},
 	"taskViews": {

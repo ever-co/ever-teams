@@ -3857,7 +3857,8 @@
 			"INVALID": "Certaines valeurs n'ont pas été acceptées. Vérifiez-les et réessayez.",
 			"TOO_MANY": "Trop de tentatives. Patientez un instant, puis réessayez.",
 			"SERVER": "Le serveur n'a pas pu terminer. Réessayez dans un instant.",
-			"UNKNOWN": "Réessayez dans un instant."
+			"UNKNOWN": "Réessayez dans un instant.",
+			"TWO_FACTOR": "Ce compte demande un code d’application d’authentification. Connectez-vous avec votre adresse e-mail ou votre mot de passe pour le saisir."
 		},
 		"common": {
 			"NEWSLETTER_SUBSCRIBED": "Vous êtes abonné à la newsletter",
@@ -4267,6 +4268,10 @@
 			"automations": {
 				"TITLE": "Automatisations",
 				"DESCRIPTION": "Des règles qui font avancer les tâches de l’organisation pour vous."
+			},
+			"security": {
+				"TITLE": "Sécurité",
+				"DESCRIPTION": "Votre façon de vous connecter : l’authentification à deux facteurs."
 			}
 		},
 		"index": {
@@ -5033,7 +5038,15 @@
 			"WORKSPACE_ROLE_VIEWER": "Lecteur",
 			"WORKSPACE_ROLE_CANDIDATE": "Candidat",
 			"WORKSPACE_ROLE_INTERVIEWER": "Recruteur",
-			"WORKSPACE_ROLE_NOT_SAVED": "Le rôle de {name} dans l'espace de travail n'a pas été changé"
+			"WORKSPACE_ROLE_NOT_SAVED": "Le rôle de {name} dans l'espace de travail n'a pas été changé",
+			"RESET_TWO_FACTOR": "Réinitialiser l’authentification à deux facteurs",
+			"RESET_TWO_FACTOR_TITLE": "Réinitialiser l’authentification à deux facteurs de {name} ?",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "Si {name} l’a activée, elle est désactivée : sa prochaine connexion ne demandera que son code e-mail ou son mot de passe.",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} pourra la réactiver depuis ses paramètres de sécurité. La réinitialisation est enregistrée.",
+			"RESET_TWO_FACTOR_CONFIRM": "Réinitialiser",
+			"RESET_TWO_FACTOR_DONE": "L’authentification à deux facteurs de {name} est réinitialisée",
+			"RESET_TWO_FACTOR_NOTHING": "{name} n’avait pas d’authentification à deux facteurs à réinitialiser",
+			"RESET_TWO_FACTOR_FAILED": "L’authentification à deux facteurs de {name} n’a pas pu être réinitialisée"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profil",
@@ -5421,6 +5434,59 @@
 					"DESCRIPTION": "Quand une pull request ou un ticket lié à une tâche ouverte est fermé, la tâche passe à terminé."
 				}
 			}
+		},
+		"security": {
+			"SECTION_TITLE": "Authentification à deux facteurs",
+			"SECTION_DESCRIPTION": "Les connexions demandent aussi un code d’une application d’authentification sur votre téléphone.",
+			"APP_LABEL": "Application d’authentification",
+			"ON": "Activée",
+			"OFF": "Désactivée",
+			"OFF_DESCRIPTION": "Les connexions ne demandent que votre code e-mail ou votre mot de passe.",
+			"ON_DESCRIPTION": "Les connexions demandent un code de votre application d’authentification.",
+			"ON_SINCE": "Les connexions demandent un code de votre application d’authentification. Activée depuis le {date}.",
+			"TURN_ON": "Activer",
+			"TURN_OFF": "Désactiver",
+			"CANCEL": "Annuler",
+			"RETRY": "Réessayer",
+			"CODES_LABEL": "Codes de récupération",
+			"CODES_LEFT": "{count, plural, =0 {Plus aucun code inutilisé} one {# code inutilisé restant} other {# codes inutilisés restants}}",
+			"NEW_CODES": "Nouveaux codes de récupération",
+			"SETUP_STEP_KEY": "1. Ajoutez ce compte à votre application d’authentification",
+			"SETUP_STEP_KEY_TEXT": "Scannez le QR code avec votre application d’authentification. Sur cet appareil, ouvrez plutôt le lien, ou saisissez la clé.",
+			"SETUP_KEY_LABEL": "Clé de configuration",
+			"COPY_KEY": "Copier la clé",
+			"OPEN_IN_APP": "Ouvrir dans l’application d’authentification",
+			"SETUP_STEP_CODE": "2. Saisissez le code à {length} chiffres affiché par l’application",
+			"CODE_INCOMPLETE": "Saisissez les {length} chiffres du code.",
+			"SETUP_FAILED": "L’authentification à deux facteurs n’a pas pu être configurée",
+			"TURNED_ON": "L’authentification à deux facteurs est activée",
+			"TURNED_OFF": "L’authentification à deux facteurs est désactivée",
+			"CODES_TITLE": "Vos codes de récupération",
+			"CODES_TEXT": "Chaque code vous connecte une fois si vous perdez votre téléphone. Enregistrez-les en lieu sûr maintenant : ils ne seront plus affichés.",
+			"COPY_CODES": "Copier les codes",
+			"DOWNLOAD_CODES": "Télécharger",
+			"CODES_DONE": "J’ai enregistré mes codes",
+			"CODES_FILE_HEADING": "Codes de récupération {appName}",
+			"COPIED": "Copié",
+			"COPY_FAILED": "Copie impossible. Sélectionnez le texte et copiez-le.",
+			"TURN_OFF_PROOF": "Pour la désactiver, saisissez un code de votre application ou un code de récupération",
+			"NEW_CODES_PROOF": "Pour obtenir de nouveaux codes de récupération, saisissez un code de votre application ou un code de récupération. Les codes actuels cesseront de fonctionner.",
+			"PROOF_HINT": "Un code à 6 chiffres de votre application d’authentification, ou l’un de vos codes de récupération.",
+			"PROOF_PLACEHOLDER": "123456 ou XXXX-XXXX-XXXX-XXXX",
+			"PROOF_INCOMPLETE": "Saisissez un code à 6 chiffres ou un code de récupération complet.",
+			"WRONG_CODE": "Ce code n’est pas le bon. Saisissez le code affiché maintenant par votre application, ou un code de récupération.",
+			"TOO_MANY": "Trop de codes erronés. Réessayez dans {minutes, plural, one {# minute} other {# minutes}}.",
+			"TOO_MANY_LATER": "Trop de codes erronés. Patientez quelques minutes, puis réessayez.",
+			"CHANGED": "L’authentification à deux facteurs a changé entre-temps. Vérifiez-la et réessayez.",
+			"FAILED": "La modification n’a pas pu être faite. Réessayez dans un instant.",
+			"UNAVAILABLE_TITLE": "Pas encore disponible sur ce serveur",
+			"UNAVAILABLE_DESCRIPTION": "L’authentification à deux facteurs n’est pas activée sur ce serveur. Demandez à votre administrateur de l’activer.",
+			"UNSUPPORTED_TITLE": "L’authentification à deux facteurs n’est pas disponible",
+			"UNSUPPORTED_DESCRIPTION": "Ce serveur ne propose pas l’authentification à deux facteurs.",
+			"READ_FAILED": "L’authentification à deux facteurs n’a pas pu être lue",
+			"REQUIRED_TITLE": "Votre organisation vous demande de l’activer",
+			"REQUIRED_DESCRIPTION": "Ses membres se connectent aussi avec un code d’une application d’authentification.",
+			"QR_ALT": "QR code de ce compte pour votre application d’authentification"
 		}
 	},
 	"taskDetail": {
@@ -5787,6 +5853,28 @@
 			"TEXT": "La connexion n'a pas abouti. Réessayez, ou connectez-vous avec votre e-mail.",
 			"RETRY": "Retour à la connexion",
 			"CODE": "Code d'erreur : {code}"
+		},
+		"twoFactor": {
+			"TITLE": "Saisissez votre code d’authentification",
+			"DESCRIPTION": "Ouvrez votre application d’authentification et saisissez le code à {length} chiffres qu’elle affiche pour <address>{email}</address>.",
+			"RECOVERY_DESCRIPTION": "Saisissez l’un des codes de récupération enregistrés lors de l’activation de l’authentification à deux facteurs. Chaque code ne sert qu’une fois.",
+			"CODE_LABEL": "Code d’authentification",
+			"RECOVERY_LABEL": "Code de récupération",
+			"USE_RECOVERY": "Utiliser un code de récupération",
+			"USE_APP": "Utiliser l’application d’authentification",
+			"SUBMIT": "Vérifier et se connecter",
+			"BACK": "Retour à la connexion",
+			"WRONG_CODE": "Ce code n’est pas le bon. Saisissez le code affiché maintenant par votre application d’authentification.",
+			"WRONG_RECOVERY_CODE": "Ce code de récupération n’est pas le bon, ou il a déjà servi.",
+			"CODE_INCOMPLETE": "Saisissez les {length} chiffres du code.",
+			"RECOVERY_INCOMPLETE": "Saisissez le code de récupération en entier.",
+			"EXPIRED": "Cette connexion a trop attendu son code. Connectez-vous à nouveau.",
+			"SIGN_IN_AGAIN": "Se reconnecter",
+			"TOO_MANY": "Trop de codes erronés. Réessayez dans {minutes, plural, one {# minute} other {# minutes}}.",
+			"TOO_MANY_LATER": "Trop de codes erronés. Patientez quelques minutes, puis réessayez.",
+			"FAILED": "Le code n’a pas pu être vérifié. Réessayez dans un instant.",
+			"SCENE_TITLE": "Encore une étape",
+			"SCENE_TEXT": "Ce compte est protégé par l’authentification à deux facteurs."
 		}
 	},
 	"taskViews": {
