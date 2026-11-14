@@ -18,6 +18,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import {
 	activeTeamState,
 	detailedTaskState,
+	localTimerStatusState,
 	organizationTeamsState,
 	timerStartingState,
 	timerStatusState
@@ -58,12 +59,14 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { setActiveTeam } = useCreateOrganizationTeam();
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const timerStatus = useAtomValue(timerStatusState);
+	// This tab's own status says running as soon as Start is pressed, before the server's status does
+	const localTimerStatus = useAtomValue(localTimerStatusState);
 	const t = useTranslations();
 
 	// Timer running status check - similar to task-input.tsx
 	const timerRunningStatus = useMemo(() => {
-		return Boolean(timerStatus?.running);
-	}, [timerStatus]);
+		return Boolean(timerStatus?.running) || Boolean(localTimerStatus?.running);
+	}, [localTimerStatus, timerStatus]);
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
 	const path = usePathname();
 	const router = useRouter();

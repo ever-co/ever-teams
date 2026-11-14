@@ -95,7 +95,13 @@ jest.mock('@/core/hooks/organizations/teams/use-switch-organization', () => ({
 	useSwitchOrganization: () => mockSwitch
 }));
 
-import { activeTeamIdState, organizationTeamsState, timerStartingState, timerStatusState } from '@/core/stores';
+import {
+	activeTeamIdState,
+	localTimerStatusState,
+	organizationTeamsState,
+	timerStartingState,
+	timerStatusState
+} from '@/core/stores';
 import { TeamsDropDown } from './teams-dropdown';
 
 const studioTeams = [
@@ -103,12 +109,16 @@ const studioTeams = [
 	{ id: 'studio-ops', name: 'Studio Ops', organizationId: 'studio', members: [] }
 ];
 
-function renderDropdown({ isTimerStarting = false }: { isTimerStarting?: boolean } = {}) {
+function renderDropdown({
+	isTimerStarting = false,
+	isLocalTimerRunning = false
+}: { isTimerStarting?: boolean; isLocalTimerRunning?: boolean } = {}) {
 	const store = createStore();
 	store.set(organizationTeamsState, studioTeams as never);
 	store.set(activeTeamIdState, 'studio-design');
 	store.set(timerStatusState, { running: false } as never);
 	store.set(timerStartingState, isTimerStarting);
+	store.set(localTimerStatusState, { lastTaskId: 'task-1', runnedDateTime: 0, running: isLocalTimerRunning });
 	render(
 		<Provider store={store}>
 			<TeamsDropDown />
@@ -161,6 +171,15 @@ describe('TeamsDropDown while another organization opens', () => {
 		fireEvent.click(screen.getByRole('menuitem', { name: /Labs Design/ }));
 
 		expect(mockSwitch.mutate).not.toHaveBeenCalled();
+	});
+
+	it("refuses to open another organization or team while this tab's timer runs, before the server says so", () => {
+		renderDropdown({ isLocalTimerRunning: true });
+
+		fireEvent.click(screen.getByRole('menuitem', { name: /Labs Design/ }));
+
+		expect(mockSwitch.mutate).not.toHaveBeenCalled();
+		expect(studioOps().getAttribute('aria-disabled')).toBe('true');
 	});
 
 	it('keeps them unavailable once the switch is done, until the page is replaced', () => {
