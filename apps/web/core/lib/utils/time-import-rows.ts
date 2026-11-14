@@ -137,7 +137,8 @@ interface Reading<Value> {
 	problems: TimeImportProblem[];
 }
 
-function comparableOf(text: string): string {
+/** How the rows compare a name of the file with one of the workspace: letter case and outer spaces aside. */
+export function comparableOf(text: string): string {
 	const composed = text.normalize('NFC');
 	const trimmed = composed.trim();
 	return trimmed.toLowerCase();

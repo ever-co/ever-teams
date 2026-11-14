@@ -14,7 +14,12 @@ import { generateDefaultColor } from '@/core/lib/helpers/colors';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { CLIENT_CONTACT_TYPE, CLIENT_CREATE_PERMISSIONS, holdsAnyPermission } from '@/core/lib/utils/clients';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
-import { isReadyRow, type TimeImportProject, type TimeImportRow } from '@/core/lib/utils/time-import-rows';
+import {
+	comparableOf,
+	isReadyRow,
+	type TimeImportProject,
+	type TimeImportRow
+} from '@/core/lib/utils/time-import-rows';
 import type { TimeImportSheet } from '@/core/lib/utils/time-import-sheet';
 import {
 	CLIENT_HEADERS,
@@ -156,21 +161,24 @@ export function extraProjectsOfSheet(
 	teamProjects: ReadonlyArray<TimeImportProject>,
 	known: ReadonlyArray<ExistingRecord>
 ): TimeImportProject[] {
-	const teamKeys = new Set(teamProjects.map((project) => nameKeyOf(project.name)));
+	// The rows find a project by their own comparison (comparableOf); the plan reuses or creates one by nameKeyOf,
+	// which also sets repeated spaces aside. Each name is added as the file spells it, so the rows find it, under the
+	// id the plan gives that name: the project it reuses, or the one it creates.
+	const teamRowKeys = new Set(teamProjects.map((project) => comparableOf(project.name)));
 	const knownByKey = new Map(known.map((project) => [nameKeyOf(project.name), project]));
 	const seen = new Set<string>();
 	const extra: TimeImportProject[] = [];
 	for (const row of sheet.rows) {
 		const name = row.cells.project.trim();
-		const key = nameKeyOf(name);
-		const isNew = key !== '' && !teamKeys.has(key) && !seen.has(key);
+		const rowKey = comparableOf(name);
+		const isNew = rowKey !== '' && !teamRowKeys.has(rowKey) && !seen.has(rowKey);
 		if (!isNew) {
 			continue;
 		}
-		seen.add(key);
-		const found = knownByKey.get(key);
+		seen.add(rowKey);
+		const found = knownByKey.get(nameKeyOf(name));
 		if (found) {
-			extra.push({ id: found.id, name: found.name });
+			extra.push({ id: found.id, name });
 			continue;
 		}
 		extra.push({ id: plannedProjectIdOf(name), name });

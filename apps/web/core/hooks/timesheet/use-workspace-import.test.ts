@@ -1,4 +1,4 @@
-import type { TimeImportRow } from '@/core/lib/utils/time-import-rows';
+import { comparableOf, type TimeImportRow } from '@/core/lib/utils/time-import-rows';
 import type { TimeImportSheet } from '@/core/lib/utils/time-import-sheet';
 import type { WorkspaceTable } from '@/core/lib/utils/workspace-import-files';
 import {
@@ -77,6 +77,26 @@ describe('extraProjectsOfSheet', () => {
 			{ id: 'org-website', name: 'Website' },
 			{ id: 'planned:roadmap', name: 'Roadmap' }
 		]);
+	});
+
+	it('names a project as the file spells it, under the project the plan reuses for that name', () => {
+		// The plan sets repeated spaces aside; the rows compare names with them, so they must find the file's spelling
+		const myProject = { id: 'org-my-project', name: 'My  Project' };
+		const sheet = sheetOf(['My Project', 'Road  map', 'Road map']);
+
+		const extra = extraProjectsOfSheet(sheet, [myProject], [myProject]);
+
+		expect(extra).toEqual([
+			{ id: 'org-my-project', name: 'My Project' },
+			{ id: 'planned:road map', name: 'Road  map' },
+			{ id: 'planned:road map', name: 'Road map' }
+		]);
+		// Every row then finds exactly one project, as the rows compare names
+		const projects = [myProject, ...extra];
+		for (const row of sheet.rows) {
+			const found = projects.filter((project) => comparableOf(project.name) === comparableOf(row.cells.project));
+			expect(found).toHaveLength(1);
+		}
 	});
 });
 
