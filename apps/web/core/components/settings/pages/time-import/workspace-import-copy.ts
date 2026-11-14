@@ -4,8 +4,7 @@ import { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import {
 	WORKSPACE_IMPORT_MAX_FILE_BYTES,
-	WORKSPACE_JSON_MAX_COLUMNS,
-	WORKSPACE_JSON_MAX_RECORDS,
+	WORKSPACE_TABLE_MAX_COLUMNS,
 	type WorkspaceFileKind,
 	type WorkspaceFileProblem
 } from '@/core/lib/utils/workspace-import-files';
@@ -56,19 +55,12 @@ export function useWorkspaceImportCopy() {
 					return t('timeImport.workspace.problems.notSupported');
 				case 'tooLarge':
 					return t('timeImport.workspace.problems.tooLarge', { megabytes: WORKSPACE_IMPORT_MAX_MEGABYTES });
-				case 'unreadable':
-					return t('timeImport.workspace.problems.unreadable');
 				case 'notText':
 					return t('timeImport.workspace.problems.notText');
 				case 'zip':
 					return zipProblemText(problem.problem);
 				case 'json':
 					return t('timeImport.workspace.problems.json');
-				case 'jsonTooLarge':
-					return t('timeImport.workspace.problems.jsonTooLarge', {
-						records: WORKSPACE_JSON_MAX_RECORDS,
-						columns: WORKSPACE_JSON_MAX_COLUMNS
-					});
 				case 'csv':
 					return t('timeImport.workspace.problems.csv');
 				case 'unknownContent':
@@ -77,6 +69,10 @@ export function useWorkspaceImportCopy() {
 					return t('timeImport.workspace.problems.entriesColumnsDiffer');
 				case 'repeatedKind':
 					return t('timeImport.workspace.problems.repeatedKind', { kind: kindLabel(problem.kind) });
+				case 'tableTooLarge':
+					return t('timeImport.workspace.problems.tableTooLarge', { columns: WORKSPACE_TABLE_MAX_COLUMNS });
+				case 'unreadable':
+					return t('timeImport.workspace.problems.unreadable');
 			}
 		},
 		[kindLabel, t, zipProblemText]

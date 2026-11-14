@@ -76,12 +76,16 @@ describe('WorkspaceImportFiles', () => {
 			problems: [
 				{ code: 'zip', fileName: 'secret.zip', problem: 'encrypted' },
 				{ code: 'tooLarge', fileName: 'huge.csv' },
-				{ code: 'repeatedKind', fileName: 'clients (1).csv', kind: 'clients' }
+				{ code: 'repeatedKind', fileName: 'clients (1).csv', kind: 'clients' },
+				{ code: 'tableTooLarge', fileName: 'time.json' },
+				{ code: 'unreadable', fileName: 'moved.csv' }
 			]
 		};
 		render(<WorkspaceImportFiles files={files} onChooseOther={jest.fn()} />);
 
-		expect(screen.getByText('timeImport.workspace.LEFT_OUT_TITLE {"count":3}')).toBeTruthy();
+		expect(screen.getByText('timeImport.workspace.LEFT_OUT_TITLE {"count":5}')).toBeTruthy();
+		expect(screen.getByText('timeImport.workspace.problems.tableTooLarge {"columns":200}')).toBeTruthy();
+		expect(screen.getByText('timeImport.workspace.problems.unreadable')).toBeTruthy();
 		expect(screen.getByText('timeImport.workspace.problems.zip_encrypted')).toBeTruthy();
 		expect(screen.getByText('timeImport.workspace.problems.tooLarge {"megabytes":10}')).toBeTruthy();
 		expect(

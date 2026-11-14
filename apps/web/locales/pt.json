@@ -7483,18 +7483,18 @@
 			"problems": {
 				"notSupported": "Não é um ficheiro CSV, JSON ou ZIP.",
 				"tooLarge": "Maior do que {megabytes} MB.",
-				"unreadable": "Não foi possível ler o ficheiro. Escolha-o de novo.",
 				"notText": "Não é texto UTF-8.",
 				"zip_notZip": "Não é um arquivo ZIP que se possa abrir.",
 				"zip_encrypted": "O arquivo está protegido por palavra-passe.",
 				"zip_unsupported": "O arquivo usa um formato que a importação não consegue ler.",
 				"zip_tooLarge": "O arquivo ultrapassa {megabytes} MB depois de aberto.",
 				"json": "O JSON não contém nenhuma lista de registos.",
-				"jsonTooLarge": "Mais de {records} registos ou {columns} colunas numa só lista.",
 				"csv": "O CSV não pode ser lido: uma aspa nunca é fechada, ou o ficheiro está vazio.",
 				"unknownContent": "Nem clientes, nem projetos, nem tags, nem registos de tempo.",
 				"entriesColumnsDiffer": "Registos de tempo com colunas diferentes do primeiro ficheiro de registos.",
-				"repeatedKind": "{kind}: já lidos noutro ficheiro. Só o primeiro é usado."
+				"repeatedKind": "{kind}: já lidos noutro ficheiro. Só o primeiro é usado.",
+				"tableTooLarge": "Mais colunas ou células do que a importação lê (no máximo {columns} colunas).",
+				"unreadable": "O navegador não conseguiu ler o ficheiro: escolha-o de novo."
 			},
 			"NOTHING_READ": "Nenhum ficheiro da exportação pôde ser usado. Escolha a exportação de novo.",
 			"CHOOSE_OTHER": "Escolher outros ficheiros",

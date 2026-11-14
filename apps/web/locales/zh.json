@@ -7483,18 +7483,18 @@
 			"problems": {
 				"notSupported": "不是 CSV、JSON 或 ZIP 文件。",
 				"tooLarge": "大于 {megabytes} MB。",
-				"unreadable": "无法读取该文件。请重新选择。",
 				"notText": "不是 UTF-8 文本。",
 				"zip_notZip": "不是可以打开的 ZIP 压缩包。",
 				"zip_encrypted": "压缩包受密码保护。",
 				"zip_unsupported": "压缩包使用了导入无法读取的格式。",
 				"zip_tooLarge": "压缩包解压后超过 {megabytes} MB。",
 				"json": "JSON 中没有记录列表。",
-				"jsonTooLarge": "一个列表中超过 {records} 条记录或 {columns} 列。",
 				"csv": "无法读取 CSV：有引号未闭合，或文件为空。",
 				"unknownContent": "既不是客户、项目、标签，也不是时间记录。",
 				"entriesColumnsDiffer": "时间记录的列与第一个时间记录文件不同。",
-				"repeatedKind": "{kind}：已从另一个文件读取，仅使用第一个。"
+				"repeatedKind": "{kind}：已从另一个文件读取，仅使用第一个。",
+				"tableTooLarge": "列或单元格超出导入可读取的范围（最多 {columns} 列）。",
+				"unreadable": "浏览器无法读取该文件：请重新选择。"
 			},
 			"NOTHING_READ": "导出中没有可用的文件。请重新选择导出文件。",
 			"CHOOSE_OTHER": "选择其他文件",

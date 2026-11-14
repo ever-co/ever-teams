@@ -9,9 +9,22 @@ interface FileSpec {
 	method?: number;
 	/** The unpacked size the archive claims, when it lies about it. */
 	declaredSize?: number;
+	/** The checksum the archive claims, when it does not match the content. */
+	crc?: number;
 }
 
-/** A minimal archive writer for the tests: local headers, central directory, end record (CRC left at 0). */
+function crc32Of(bytes: Uint8Array): number {
+	let crc = 0xffffffff;
+	for (const byte of bytes) {
+		crc ^= byte;
+		for (let bit = 0; bit < 8; bit += 1) {
+			crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+		}
+	}
+	return (crc ^ 0xffffffff) >>> 0;
+}
+
+/** A minimal archive writer for the tests: local headers, central directory, end record. */
 function zipOf(files: ReadonlyArray<FileSpec>): ArrayBuffer {
 	const encoder = new TextEncoder();
 	const chunks: Uint8Array[] = [];
@@ -30,10 +43,12 @@ function zipOf(files: ReadonlyArray<FileSpec>): ArrayBuffer {
 		const method = file.method ?? defaultMethod;
 		const flags = file.flags ?? 0;
 		const declaredSize = file.declaredSize ?? content.byteLength;
+		const crc = file.crc ?? crc32Of(content);
 		const local = new DataView(new ArrayBuffer(30));
 		local.setUint32(0, 0x04034b50, true);
 		local.setUint16(6, flags, true);
 		local.setUint16(8, method, true);
+		local.setUint32(14, crc, true);
 		local.setUint32(18, packed.byteLength, true);
 		local.setUint32(22, declaredSize, true);
 		local.setUint16(26, name.byteLength, true);
@@ -41,6 +56,7 @@ function zipOf(files: ReadonlyArray<FileSpec>): ArrayBuffer {
 		central.setUint32(0, 0x02014b50, true);
 		central.setUint16(8, flags, true);
 		central.setUint16(10, method, true);
+		central.setUint32(16, crc, true);
 		central.setUint32(20, packed.byteLength, true);
 		central.setUint32(24, declaredSize, true);
 		central.setUint16(28, name.byteLength, true);
@@ -71,8 +87,10 @@ function zipOf(files: ReadonlyArray<FileSpec>): ArrayBuffer {
 function sharedPayloadZipOf(names: ReadonlyArray<string>, payload: Uint8Array, declaredSize: number): ArrayBuffer {
 	const encoder = new TextEncoder();
 	const localName = encoder.encode(names[0]);
+	const crc = crc32Of(payload);
 	const local = new DataView(new ArrayBuffer(30));
 	local.setUint32(0, 0x04034b50, true);
+	local.setUint32(14, crc, true);
 	local.setUint32(18, payload.byteLength, true);
 	local.setUint32(22, declaredSize, true);
 	local.setUint16(26, localName.byteLength, true);
@@ -83,6 +101,7 @@ function sharedPayloadZipOf(names: ReadonlyArray<string>, payload: Uint8Array, d
 		const encodedName = encoder.encode(name);
 		const central = new DataView(new ArrayBuffer(46));
 		central.setUint32(0, 0x02014b50, true);
+		central.setUint32(16, crc, true);
 		central.setUint32(20, payload.byteLength, true);
 		central.setUint32(24, declaredSize, true);
 		central.setUint16(28, encodedName.byteLength, true);
@@ -156,5 +175,18 @@ describe('zipEntriesOf', () => {
 		// Each claims its own size: the archive's limit counts them all
 		expect(textsOf(sharedPayloadZipOf(names, payload, payload.byteLength))).toBe('tooLarge');
 		expect(textsOf(zipOf([{ name: 'a.csv', text: 'name,Acme', declaredSize: 4 }]))).toBe('notZip');
+	});
+
+	it('refuses a stored entry that holds more than it declares', () => {
+		const text = 'date,start\n2026-10-01,09:00\n';
+
+		expect(textsOf(zipOf([{ name: 'time.csv', text, declaredSize: 0 }]))).toBe('notZip');
+	});
+
+	it('refuses an entry whose content does not match its checksum', () => {
+		const text = 'duration\n9\n';
+
+		expect(textsOf(zipOf([{ name: 'time.csv', text, crc: 1 }]))).toBe('notZip');
+		expect(textsOf(zipOf([{ name: 'time.csv', text, deflate: true, crc: 1 }]))).toBe('notZip');
 	});
 });

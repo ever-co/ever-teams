@@ -7483,18 +7483,18 @@
 			"problems": {
 				"notSupported": "Ce n'est pas un fichier CSV, JSON ou ZIP.",
 				"tooLarge": "Plus de {megabytes} Mo.",
-				"unreadable": "Le fichier n'a pas pu être lu. Choisissez-le à nouveau.",
 				"notText": "Ce n'est pas du texte UTF-8.",
 				"zip_notZip": "Ce n'est pas une archive ZIP lisible.",
 				"zip_encrypted": "L'archive est protégée par un mot de passe.",
 				"zip_unsupported": "L'archive utilise un format que l'import ne lit pas.",
 				"zip_tooLarge": "L'archive dépasse {megabytes} Mo une fois ouverte.",
 				"json": "Le JSON ne contient aucune liste d’enregistrements.",
-				"jsonTooLarge": "Plus de {records} enregistrements ou {columns} colonnes dans une même liste.",
 				"csv": "Le CSV est illisible : un guillemet n'est jamais fermé, ou le fichier est vide.",
 				"unknownContent": "Ni clients, ni projets, ni tags, ni entrées de temps.",
 				"entriesColumnsDiffer": "Des entrées de temps avec d'autres colonnes que le premier fichier d'entrées.",
-				"repeatedKind": "{kind} : déjà lus dans un autre fichier. Seul le premier est utilisé."
+				"repeatedKind": "{kind} : déjà lus dans un autre fichier. Seul le premier est utilisé.",
+				"tableTooLarge": "Plus de colonnes ou de cellules que l'import n'en lit ({columns} colonnes au plus).",
+				"unreadable": "Le navigateur n'a pas pu lire le fichier : choisissez-le de nouveau."
 			},
 			"NOTHING_READ": "Aucun fichier de l'export n'a pu être utilisé. Choisissez de nouveau l'export.",
 			"CHOOSE_OTHER": "Choisir d'autres fichiers",

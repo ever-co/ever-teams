@@ -7483,18 +7483,18 @@
 			"problems": {
 				"notSupported": "Not a CSV, JSON or ZIP file.",
 				"tooLarge": "Larger than {megabytes} MB.",
-				"unreadable": "The file could not be read. Pick it again.",
 				"notText": "Not UTF-8 text.",
 				"zip_notZip": "Not a ZIP archive that can be opened.",
 				"zip_encrypted": "The archive is protected by a password.",
 				"zip_unsupported": "The archive uses a format the import cannot read.",
 				"zip_tooLarge": "The archive unpacks to more than {megabytes} MB.",
 				"json": "The JSON holds no list of records.",
-				"jsonTooLarge": "More than {records} records or {columns} columns in one list.",
 				"csv": "The CSV cannot be read: a quote is never closed, or the file is empty.",
 				"unknownContent": "Neither clients, projects, tags nor time entries.",
 				"entriesColumnsDiffer": "Time entries with other columns than the first file of entries.",
-				"repeatedKind": "{kind}: already read from another file. Only the first one is used."
+				"repeatedKind": "{kind}: already read from another file. Only the first one is used.",
+				"tableTooLarge": "More columns or cells than the import reads ({columns} columns at most).",
+				"unreadable": "The browser could not read the file: choose it again."
 			},
 			"NOTHING_READ": "No file of the export could be used. Choose the export again.",
 			"CHOOSE_OTHER": "Choose other files",

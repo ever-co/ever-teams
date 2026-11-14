@@ -7483,18 +7483,18 @@
 			"problems": {
 				"notSupported": "Keine CSV-, JSON- oder ZIP-Datei.",
 				"tooLarge": "Größer als {megabytes} MB.",
-				"unreadable": "Die Datei konnte nicht gelesen werden. Wählen Sie sie erneut aus.",
 				"notText": "Kein UTF-8-Text.",
 				"zip_notZip": "Kein ZIP-Archiv, das sich öffnen lässt.",
 				"zip_encrypted": "Das Archiv ist mit einem Passwort geschützt.",
 				"zip_unsupported": "Das Archiv nutzt ein Format, das der Import nicht lesen kann.",
 				"zip_tooLarge": "Das Archiv wird entpackt größer als {megabytes} MB.",
 				"json": "Das JSON enthält keine Liste von Datensätzen.",
-				"jsonTooLarge": "Mehr als {records} Datensätze oder {columns} Spalten in einer Liste.",
 				"csv": "Die CSV kann nicht gelesen werden: Ein Anführungszeichen wird nie geschlossen, oder die Datei ist leer.",
 				"unknownContent": "Weder Kunden, Projekte, Tags noch Zeiteinträge.",
 				"entriesColumnsDiffer": "Zeiteinträge mit anderen Spalten als die erste Datei mit Einträgen.",
-				"repeatedKind": "{kind}: schon aus einer anderen Datei gelesen. Nur die erste wird verwendet."
+				"repeatedKind": "{kind}: schon aus einer anderen Datei gelesen. Nur die erste wird verwendet.",
+				"tableTooLarge": "Mehr Spalten oder Zellen, als der Import liest (höchstens {columns} Spalten).",
+				"unreadable": "Der Browser konnte die Datei nicht lesen: Wählen Sie sie erneut."
 			},
 			"NOTHING_READ": "Keine Datei des Exports konnte verwendet werden. Wählen Sie den Export erneut.",
 			"CHOOSE_OTHER": "Andere Dateien wählen",

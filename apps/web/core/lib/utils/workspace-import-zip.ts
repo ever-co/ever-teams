@@ -84,10 +84,26 @@ function inflateWithin(packed: Uint8Array, budget: number): Uint8Array {
 	return content;
 }
 
+const CRC_TABLE = Array.from({ length: 256 }, (_, index) => {
+	let value = index;
+	for (let bit = 0; bit < 8; bit += 1) {
+		value = (value >>> 1) ^ (0xedb88320 & -(value & 1));
+	}
+	return value >>> 0;
+});
+
+/** The CRC-32 an archive records for each file. */
+function crc32Of(bytes: Uint8Array): number {
+	let crc = 0xffffffff;
+	for (const byte of bytes) {
+		crc = CRC_TABLE[(crc ^ byte) & 0xff] ^ (crc >>> 8);
+	}
+	return (crc ^ 0xffffffff) >>> 0;
+}
+
 function contentOf(bytes: Uint8Array, method: number, size: number, budget: number): Uint8Array {
 	if (method === STORED) {
-		// A stored entry is its own size: one that claims another (several entries can point at one payload and
-		// claim nothing) would get past the archive's limit
+		// The same bytes can be listed several times under small claimed sizes: each one must hold what it claims
 		if (bytes.byteLength !== size) {
 			throw new ZipRefusal('notZip');
 		}
@@ -137,6 +153,7 @@ function readEntries(buffer: ArrayBuffer): ZipEntry[] {
 		const method = view.getUint16(offset + 10, true);
 		const packedSize = view.getUint32(offset + 20, true);
 		const size = view.getUint32(offset + 24, true);
+		const crc = view.getUint32(offset + 16, true);
 		const nameLength = view.getUint16(offset + 28, true);
 		const extraLength = view.getUint16(offset + 30, true);
 		const commentLength = view.getUint16(offset + 32, true);
@@ -165,7 +182,11 @@ function readEntries(buffer: ArrayBuffer): ZipEntry[] {
 		const dataStart = localOffset + 30 + localNameLength + localExtraLength;
 		const packed = bytes.subarray(dataStart, dataStart + packedSize);
 		const budget = WORKSPACE_ZIP_MAX_BYTES - (unpackedBytes - size);
-		entries.push({ name, bytes: contentOf(packed, method, size, budget) });
+		const content = contentOf(packed, method, size, budget);
+		if (crc32Of(content) !== crc) {
+			throw new ZipRefusal('notZip');
+		}
+		entries.push({ name, bytes: content });
 	}
 	return entries;
 }

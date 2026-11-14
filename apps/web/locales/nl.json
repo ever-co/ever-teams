@@ -7483,18 +7483,18 @@
 			"problems": {
 				"notSupported": "Geen CSV-, JSON- of ZIP-bestand.",
 				"tooLarge": "Groter dan {megabytes} MB.",
-				"unreadable": "Het bestand kon niet worden gelezen. Kies het opnieuw.",
 				"notText": "Geen UTF-8-tekst.",
 				"zip_notZip": "Geen ZIP-archief dat geopend kan worden.",
 				"zip_encrypted": "Het archief is met een wachtwoord beveiligd.",
 				"zip_unsupported": "Het archief gebruikt een indeling die de import niet kan lezen.",
 				"zip_tooLarge": "Het archief wordt uitgepakt groter dan {megabytes} MB.",
 				"json": "De JSON bevat geen lijst met records.",
-				"jsonTooLarge": "Meer dan {records} records of {columns} kolommen in één lijst.",
 				"csv": "De CSV kan niet gelezen worden: een aanhalingsteken wordt nooit gesloten, of het bestand is leeg.",
 				"unknownContent": "Geen klanten, projecten, tags of tijdregistraties.",
 				"entriesColumnsDiffer": "Tijdregistraties met andere kolommen dan het eerste registratiebestand.",
-				"repeatedKind": "{kind}: al uit een ander bestand gelezen. Alleen het eerste wordt gebruikt."
+				"repeatedKind": "{kind}: al uit een ander bestand gelezen. Alleen het eerste wordt gebruikt.",
+				"tableTooLarge": "Meer kolommen of cellen dan de import leest (hoogstens {columns} kolommen).",
+				"unreadable": "De browser kon het bestand niet lezen: kies het opnieuw."
 			},
 			"NOTHING_READ": "Geen enkel bestand van de export kon gebruikt worden. Kies de export opnieuw.",
 			"CHOOSE_OTHER": "Andere bestanden kiezen",
