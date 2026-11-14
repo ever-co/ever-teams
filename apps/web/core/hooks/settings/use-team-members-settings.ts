@@ -17,6 +17,7 @@ import {
 	memberLastNameOf,
 	memberNameOf,
 	memberUserIdOf,
+	memberRoleNameOf,
 	memberWorkspaceRoleIdOf,
 	rosterWithout,
 	rosterWithRole,
@@ -310,7 +311,10 @@ export function useTeamMembersSettings() {
 					permissions: myPermissions,
 					isYou,
 					hasUser: Boolean(memberUserId),
-					workspaceRoleName: workspaceRoleNameOf(workspaceRoles, memberWorkspaceRoleIdOf(member))
+					// The member's own role as the team data carries it: the roles list a viewer reads may hold only
+					// the roles they can assign, and would hide the reset of an admin's account
+					workspaceRoleName:
+						memberRoleNameOf(member) ?? workspaceRoleNameOf(workspaceRoles, memberWorkspaceRoleIdOf(member))
 				})
 			});
 		}

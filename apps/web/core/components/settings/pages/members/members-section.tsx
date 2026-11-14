@@ -327,8 +327,9 @@ export function MembersSection({ onInvite, canInvite }: Readonly<{ onInvite: () 
 	const { resetMember: resetMemberTwoFactor } = twoFactorReset;
 	const resetTwoFactor = useCallback(
 		async (rowId: string) => {
+			// Checked again on the data of the moment: the member's role may have changed while the dialog was open
 			const row = rows.find((candidate) => candidate.id === rowId);
-			if (!row) {
+			if (!row?.canResetTwoFactor) {
 				return;
 			}
 			await resetMemberTwoFactor(row);
