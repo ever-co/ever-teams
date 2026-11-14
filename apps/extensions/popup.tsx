@@ -9,10 +9,20 @@ import { useSession } from '~hooks/useSession';
 import { useTasks } from '~hooks/useTasks';
 import { useTimerStatus } from '~hooks/useTimerStatus';
 import { ApiError } from '~lib/api-client';
-import { EXTENSION_SOURCE, type RunningLog, myPlans, startTimer, stopTimer, teamRequiresPlan, todayPlanDay } from '~lib/gauzy';
+import {
+	EXTENSION_SOURCE,
+	type RunningLog,
+	myPlans,
+	sendHeartbeat,
+	startTimer,
+	stopTimer,
+	teamRequiresPlan,
+	todayPlanDay
+} from '~lib/gauzy';
 import { t } from '~lib/i18n';
 import { planRefusalOf } from '~lib/plan-rule';
 import { refusalOf, type Refusal } from '~lib/refusal';
+import { sendsHeartbeat } from '~lib/run-policy';
 import { loadSettings, type Settings } from '~lib/session-store';
 import type { Session } from '~lib/workspaces';
 import browser from '~misc/browser';
@@ -99,11 +109,16 @@ function SignedIn({ session, settings, onSignOut, onTeamSelect }: {
 	};
 
 	const onStop = () => {
-		const runId = running?.id;
-		if (!runId) {
+		if (!running) {
 			return;
 		}
-		void act(() => stopTimer(session, runId));
+		void act(async () => {
+			if (sendsHeartbeat(running)) {
+				// The last seconds since the minute heartbeat; a failed credit must not keep the timer running
+				await sendHeartbeat(session, running).catch(() => undefined);
+			}
+			await stopTimer(session, running.id);
+		});
 	};
 
 	const onCheckTeam = () => {

@@ -1,10 +1,10 @@
 import { publicRequest, sessionRequest } from '~lib/api-client';
 import { idListOf, optionalField } from '~lib/optional';
 import type { PlanLike } from '~lib/plan-rule';
+import { EXTENSION_SOURCE, heartbeatSecondsOf } from '~lib/run-policy';
 import { sessionFrom, workspacesOf, type Session, type WorkspaceChoice } from '~lib/workspaces';
 
-/** The time log source the API records for runs started here. */
-export const EXTENSION_SOURCE = 'BROWSER_EXTENSION';
+export { EXTENSION_SOURCE };
 
 export interface TaskItem {
 	id: string;
@@ -19,6 +19,7 @@ export interface TaskItem {
 export interface RunningLog {
 	id: string;
 	startedAt: string;
+	stoppedAt?: string | null;
 	taskId?: string | null;
 	source?: string | null;
 	task?: { title?: string | null } | null;
@@ -100,6 +101,29 @@ export async function startTimer(session: Session, task: TaskItem): Promise<void
 			source: EXTENSION_SOURCE,
 			tags: [],
 			planDay: todayPlanDay()
+		}
+	});
+}
+
+/**
+ * Credits the run's time since its last heartbeat as a time slot, as the web does each minute: worked-time totals,
+ * reports and the Work diary count a run's time from its slots.
+ */
+export async function sendHeartbeat(session: Session, run: RunningLog, now = Date.now()): Promise<void> {
+	const duration = heartbeatSecondsOf(run, now);
+	if (duration === 0) {
+		return;
+	}
+	await sessionRequest(session, '/timesheet/time-slot', {
+		method: 'POST',
+		body: {
+			tenantId: session.tenantId,
+			organizationId: session.organizationId,
+			...optionalField('employeeId', session.employeeId),
+			timeLogId: run.id,
+			logType: 'TRACKED',
+			source: EXTENSION_SOURCE,
+			duration
 		}
 	});
 }
