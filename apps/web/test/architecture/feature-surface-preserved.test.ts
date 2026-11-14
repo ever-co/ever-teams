@@ -2052,12 +2052,15 @@ describe('Ever Teams feature surface preservation', () => {
 		// (/api/invoices/[id] GET; #5158).
 		// 357 files and 455 verbs with the proxies that update one invoice and replace its lines (/api/invoices/[id]
 		// PUT, /api/invoice-item/bulk/[invoiceId] POST; #5159). Its read of one invoice is #5158's.
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(357);
+		// 358 files and 456 verbs with the export of all of the workspace's data (/api/export GET; #5208).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(358);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(455);
+		).toHaveLength(456);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twin of Gauzy's export of every table of the workspace (#5208)
+				'apps/web/app/api/export/route.ts::GET',
 				// Proxy mode twins of the platform's incoming webhook management of a channel (ever-gauzy #11799)
 				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::GET',
 				'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts::POST',

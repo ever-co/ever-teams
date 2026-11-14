@@ -5194,7 +5194,15 @@
 			"FORMAT_OUTCOME": "Rapporten en hun exports gebruiken die nu.",
 			"FORMAT_AUTOMATIC": "Automatisch",
 			"READ_ONLY_NOTE": "Alleen beheerders van de werkruimte kunnen deze instellingen wijzigen.",
-			"LOAD_FAILED": "De instellingen van de werkruimte konden niet worden geladen."
+			"LOAD_FAILED": "De instellingen van de werkruimte konden niet worden geladen.",
+			"DATA_SECTION": "Gegevens",
+			"EXPORT_LABEL": "Alle gegevens exporteren",
+			"EXPORT_DESCRIPTION": "Een ZIP met CSV-bestanden, één per tabel: elke organisatie van de werkruimte, in het formaat dat de import weer inleest.",
+			"EXPORT_ACTION": "Exporteren",
+			"EXPORTING": "Bezig met exporteren…",
+			"EXPORT_DONE": "Gegevens van de werkruimte geëxporteerd",
+			"EXPORT_FAILED": "De export is niet voltooid",
+			"EXPORT_FAILED_DESCRIPTION": "Er is niets opgeslagen. Een grote werkruimte kost tijd: probeer het zo opnieuw."
 		},
 		"automations": {
 			"NEW_RULE": "Nieuwe regel",

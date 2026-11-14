@@ -5194,7 +5194,15 @@
 			"FORMAT_OUTCOME": "Raporty i ich eksporty już go używają.",
 			"FORMAT_AUTOMATIC": "Automatyczny",
 			"READ_ONLY_NOTE": "Tylko administratorzy obszaru roboczego mogą zmieniać te ustawienia.",
-			"LOAD_FAILED": "Nie udało się wczytać ustawień obszaru roboczego."
+			"LOAD_FAILED": "Nie udało się wczytać ustawień obszaru roboczego.",
+			"DATA_SECTION": "Dane",
+			"EXPORT_LABEL": "Eksportuj wszystkie dane",
+			"EXPORT_DESCRIPTION": "Archiwum ZIP z plikami CSV, po jednym na tabelę: wszystkie organizacje obszaru roboczego, w formacie, który import odczyta z powrotem.",
+			"EXPORT_ACTION": "Eksportuj",
+			"EXPORTING": "Eksportowanie…",
+			"EXPORT_DONE": "Dane obszaru roboczego wyeksportowane",
+			"EXPORT_FAILED": "Eksport nie został ukończony",
+			"EXPORT_FAILED_DESCRIPTION": "Nic nie zostało zapisane. Duży obszar roboczy wymaga czasu: spróbuj ponownie za chwilę."
 		},
 		"automations": {
 			"NEW_RULE": "Nowa reguła",
