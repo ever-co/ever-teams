@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
+import { Menu, MenuButton, MenuItem, MenuItems, MenuSeparator } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Archive, Invoice, Link as LinkGlyph, MoreHorizontal, Pencil, RotateLeft } from '@/core/components/icons';
@@ -124,7 +124,7 @@ function ClientActionsMenuBody({
 						</button>
 					</MenuItem>
 				)}
-				{separatesLink && <div role="separator" className={MENU_SEPARATOR} />}
+				{separatesLink && <MenuSeparator className={MENU_SEPARATOR} />}
 				{showsCopyLink && (
 					<MenuItem>
 						<button type="button" onClick={() => void copyLink()} className={MENU_ROW}>
@@ -133,7 +133,7 @@ function ClientActionsMenuBody({
 						</button>
 					</MenuItem>
 				)}
-				{separatesState && <div role="separator" className={MENU_SEPARATOR} />}
+				{separatesState && <MenuSeparator className={MENU_SEPARATOR} />}
 				{showsArchive && (
 					<MenuItem>
 						<button type="button" onClick={() => onArchive?.(client)} className={MENU_ROW}>
