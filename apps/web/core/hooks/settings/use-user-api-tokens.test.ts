@@ -28,6 +28,18 @@ describe('whether the API tokens page exists here', () => {
 		);
 	});
 
+	it('keeps the answer the server gave when a later read fails', () => {
+		expect(userApiTokensAvailabilityOf({ status: 'error', data: { enabled: true }, error: failure(503) })).toBe(
+			'enabled'
+		);
+		expect(userApiTokensAvailabilityOf({ status: 'error', data: { enabled: true }, error: failure(404) })).toBe(
+			'enabled'
+		);
+		expect(userApiTokensAvailabilityOf({ status: 'error', data: { enabled: false }, error: failure(503) })).toBe(
+			'disabled'
+		);
+	});
+
 	it('asks again only after a temporary failure, twice at most', () => {
 		expect(shouldRetryConfig(0, failure(503))).toBe(true);
 		expect(shouldRetryConfig(2, failure(503))).toBe(false);

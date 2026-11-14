@@ -45,10 +45,15 @@ function messageOf(error: unknown): string {
 }
 
 export function userApiTokensAvailabilityOf(read: ConfigRead): UserApiTokensAvailability {
-	if (read.status === 'success') {
-		if (read.data?.enabled) {
+	// An answer the server gave stands: a later read that failed (offline a moment, a 5xx, a 404 from a proxy on the
+	// way) keeps React Query's last data beside its error, and must not hide a page the server has on
+	if (read.data) {
+		if (read.data.enabled) {
 			return 'enabled';
 		}
+		return 'disabled';
+	}
+	if (read.status === 'success') {
 		return 'disabled';
 	}
 	if (read.status === 'error') {
