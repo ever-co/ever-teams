@@ -58,10 +58,12 @@ export function useTimeSplit({ rows, report, keepRow = keepEveryRow }: TimeSplit
 	const mode = effectiveModeOf(pickedMode, mayReadClients);
 	const isClientMode = mode === 'client';
 
-	// The archived projects too: the report names no archived client beside its project
+	// The archived projects too: the report names no archived client beside its project. And nothing is read before
+	// the split by client is picked, so the block adds no projects read to the page load.
 	const projectClients = useReportProjectClients({
 		includesArchived: true,
-		isEnabled: isClientMode
+		isEnabled: isClientMode,
+		readsListOnlyWhenEnabled: true
 	});
 	const clientsQuery = useClientsQuery({ includeArchived: true, enabled: isClientMode });
 	const { clientIds } = projectClients;

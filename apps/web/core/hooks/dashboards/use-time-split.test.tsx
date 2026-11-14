@@ -102,7 +102,8 @@ describe('useTimeSplit', () => {
 		expect(result.current.totalSeconds).toBe(42 * HOUR);
 		expect(mockLookupOptions).toHaveBeenLastCalledWith({
 			includesArchived: true,
-			isEnabled: false
+			isEnabled: false,
+			readsListOnlyWhenEnabled: true
 		});
 		expect(mockClientsOptions).toHaveBeenLastCalledWith({ includeArchived: true, enabled: false });
 	});
@@ -120,7 +121,8 @@ describe('useTimeSplit', () => {
 		expect(result.current.totalSeconds).toBe(42 * HOUR);
 		expect(mockLookupOptions).toHaveBeenLastCalledWith({
 			includesArchived: true,
-			isEnabled: true
+			isEnabled: true,
+			readsListOnlyWhenEnabled: true
 		});
 	});
 
@@ -146,7 +148,8 @@ describe('useTimeSplit', () => {
 		expect(result.current.mode).toBe('project');
 		expect(mockLookupOptions).toHaveBeenLastCalledWith({
 			includesArchived: true,
-			isEnabled: false
+			isEnabled: false,
+			readsListOnlyWhenEnabled: true
 		});
 	});
 
