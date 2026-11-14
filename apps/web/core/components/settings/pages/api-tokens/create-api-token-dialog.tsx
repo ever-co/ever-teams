@@ -66,17 +66,17 @@ function expiryOptionsOf(now: Date, t: Translate, locale: string): ChoiceCardOpt
 }
 
 type CreateTokenFormProps = {
+	create: ReturnType<typeof useCreateUserApiToken>;
 	now: Date;
 	onCancel: () => void;
 	onCreated: (created: TCreatedUserApiToken) => void;
 };
 
-function CreateTokenForm({ now, onCancel, onCreated }: Readonly<CreateTokenFormProps>) {
+function CreateTokenForm({ create, now, onCancel, onCreated }: Readonly<CreateTokenFormProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const nameId = useId();
 	const nameNoteId = useId();
-	const create = useCreateUserApiToken();
 	const [name, setName] = useState('');
 	const [expiry, setExpiry] = useState<TUserApiTokenExpiry>(DEFAULT_EXPIRY);
 	const [nameProblem, setNameProblem] = useState<UserApiTokenNameProblem | null>(null);
@@ -202,21 +202,34 @@ type CreateApiTokenDialogProps = {
 /**
  * Creates a token from a name and an expiry, then shows its secret this once. While the secret is on screen, only
  * Done closes the dialog, so a stray Escape or click outside never loses it; a half-filled form is never lost to a
- * click outside either.
+ * click outside either. While the token is being made nothing closes it: the secret the server answers would be lost,
+ * with a token that counts toward the ten. Closing forgets the request's answer.
  */
 export function CreateApiTokenDialog({ open, onClose, now }: Readonly<CreateApiTokenDialogProps>) {
+	const create = useCreateUserApiToken();
 	const [created, setCreated] = useState<TCreatedUserApiToken | null>(null);
 	const isSecretShown = created !== null;
+	const isCreating = create.isPending;
 
 	const close = () => {
+		if (isCreating) {
+			return;
+		}
 		setCreated(null);
+		create.reset();
 		onClose();
 	};
 
 	return (
-		<AppDialog open={open} onClose={close} width="sm" keepOpenOnOutsideClick dismissible={!isSecretShown}>
+		<AppDialog
+			open={open}
+			onClose={close}
+			width="sm"
+			keepOpenOnOutsideClick
+			dismissible={!isSecretShown && !isCreating}
+		>
 			{created && <CreatedTokenStep created={created} onDone={close} />}
-			{!created && <CreateTokenForm now={now} onCancel={close} onCreated={setCreated} />}
+			{!created && <CreateTokenForm create={create} now={now} onCancel={close} onCreated={setCreated} />}
 		</AppDialog>
 	);
 }

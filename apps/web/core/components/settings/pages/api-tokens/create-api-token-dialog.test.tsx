@@ -27,13 +27,41 @@ jest.mock('@/core/components/common/notice', () => ({
 jest.mock('@/core/components/common/app-dialog', () => ({
 	APP_DIALOG_BODY: 'body',
 	APP_DIALOG_FOOTER: 'footer',
-	AppDialog: ({ open, children }: { open: boolean; children: React.ReactNode }) => {
+	AppDialog: ({
+		open,
+		children,
+		onClose,
+		dismissible = true
+	}: {
+		open: boolean;
+		children: React.ReactNode;
+		onClose: () => void;
+		dismissible?: boolean;
+	}) => {
 		if (!open) {
 			return null;
 		}
-		return <div role="dialog">{children}</div>;
+		return (
+			<div role="dialog">
+				{dismissible && (
+					<button type="button" onClick={onClose}>
+						press Escape
+					</button>
+				)}
+				{children}
+			</div>
+		);
 	},
-	AppDialogHeader: ({ title }: { title: string }) => <h2>{title}</h2>
+	AppDialogHeader: ({ title, onClose }: { title: string; onClose?: () => void }) => (
+		<div>
+			<h2>{title}</h2>
+			{onClose && (
+				<button type="button" onClick={onClose}>
+					close from the header
+				</button>
+			)}
+		</div>
+	)
 }));
 
 const NOW = new Date('2026-11-14T12:00:00.000Z');
@@ -145,4 +173,32 @@ it('says it is creating, and does not send twice, while the request runs', () =>
 	const button = screen.getByRole('button', { name: 'settings.apiTokens.CREATING' }) as HTMLButtonElement;
 
 	expect(button.disabled).toBe(true);
+});
+
+it('cannot be closed while the token is being made, so its secret is never lost', () => {
+	mockIsPending = true;
+	const onClose = renderDialog();
+
+	fireEvent.click(screen.getByRole('button', { name: 'close from the header' }));
+	const escape = screen.queryByRole('button', { name: 'press Escape' });
+	if (escape) {
+		fireEvent.click(escape);
+	}
+
+	expect(onClose).not.toHaveBeenCalled();
+	expect(screen.getByRole('dialog')).toBeTruthy();
+});
+
+it('forgets the answer of the request when the person is done', () => {
+	renderDialog();
+	typeName('Friday report');
+	submit();
+	const options = mockMutate.mock.calls[0][1] as MutateOptions;
+	act(() => {
+		options.onSuccess?.(CREATED);
+	});
+
+	fireEvent.click(screen.getByRole('button', { name: 'settings.apiTokens.DONE' }));
+
+	expect(mockReset).toHaveBeenCalled();
 });
