@@ -272,11 +272,32 @@ export function useTimer() {
 			tags: []
 		};
 
+		const tellStopFailed = () => {
+			if (shownAsRunning) {
+				updateLocalTimerStatus(shownAsRunning);
+			}
+			showMessage({
+				message: translate('timer.stopFailedTitle'),
+				description: translate('timer.stopFailedMessage'),
+				type: 'danger'
+			});
+		};
+
 		setStopTimerLoading(true);
 
-		const { data, response } = await stopTimerRequest(params, authToken as string);
-
-		setStopTimerLoading(false);
+		let answer: Awaited<ReturnType<typeof stopTimerRequest>>;
+		try {
+			answer = await stopTimerRequest(params, authToken as string);
+		} catch {
+			// The stop never reached the API (no network): the timer goes on there, as for a refusal below
+			if (session.isAuthenticated) {
+				tellStopFailed();
+			}
+			return;
+		} finally {
+			setStopTimerLoading(false);
+		}
+		const { data, response } = answer;
 
 		// Nothing was running anymore: the timer was stopped from another device. The screen is right to show it
 		// stopped, and the next read of the status says the same.
@@ -290,14 +311,7 @@ export function useTimer() {
 			if (!session.isAuthenticated) {
 				return;
 			}
-			if (shownAsRunning) {
-				updateLocalTimerStatus(shownAsRunning);
-			}
-			showMessage({
-				message: translate('timer.stopFailedTitle'),
-				description: translate('timer.stopFailedMessage'),
-				type: 'danger'
-			});
+			tellStopFailed();
 			return;
 		}
 

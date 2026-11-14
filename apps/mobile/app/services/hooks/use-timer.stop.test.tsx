@@ -107,6 +107,24 @@ describe('Stop pressed on the timer screen', () => {
 		);
 	});
 
+	it('leaves the timer shown as running, and tells the person, when the stop cannot reach the API', async () => {
+		const screen = await openTimerScreen();
+		// The phone lost its connection: the request fails before any answer
+		gauzy.breakStop('network');
+
+		await screen.pressStop();
+
+		expect(gauzy.timer()?.isRunning).toBe(true);
+		expect(timerStore.localTimerStatus.running).toBe(true);
+		expect(timerStore.localTimerStatus.runnedDateTime).toBeGreaterThan(0);
+		// And the stop is no longer shown as under way
+		expect(timerStore.timerStatusFetchingState).toBe(false);
+		expect(showMessage).toHaveBeenCalledTimes(1);
+		expect(showMessage).toHaveBeenCalledWith(
+			expect.objectContaining({ message: expect.stringContaining('timer.stopFailedTitle'), type: 'danger' })
+		);
+	});
+
 	it('says the session ended, not that the stop failed, when the API no longer renews the session', async () => {
 		const screen = await openTimerScreen();
 		gauzy.endSession();
