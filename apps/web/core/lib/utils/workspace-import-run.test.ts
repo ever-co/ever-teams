@@ -1,5 +1,5 @@
 import type { WorkspaceImportPlan } from './workspace-import-plan';
-import { runWorkspaceCreation, type WorkspaceCreators } from './workspace-import-run';
+import { runWorkspaceCreation, type WorkspaceCreators, type WorkspaceTallies } from './workspace-import-run';
 
 const PLAN: WorkspaceImportPlan = {
 	clients: { create: ['Acme', 'Globex'], reuse: [{ id: 'client-initech', name: 'Initech' }] },
@@ -121,5 +121,16 @@ describe('runWorkspaceCreation', () => {
 		await runWorkspaceCreation(PLAN, creators);
 
 		expect(progress.slice(0, 2)).toEqual([1, 2]);
+	});
+
+	it('reports counts that the next steps leave as they were', async () => {
+		const reports: WorkspaceTallies[] = [];
+		const { creators } = creatorsWith({ onProgress: (tallies) => reports.push(tallies) });
+
+		const creation = await runWorkspaceCreation(PLAN, creators);
+
+		expect(reports[0].clients.created).toBe(1);
+		expect(reports[0].projects.created).toBe(0);
+		expect(creation.tallies).not.toBe(reports.at(-1));
 	});
 });

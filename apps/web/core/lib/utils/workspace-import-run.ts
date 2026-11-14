@@ -46,6 +46,10 @@ function emptyTally(reused: number): WorkspaceStepTally {
 	return { created: 0, reused, failed: 0, skipped: 0 };
 }
 
+function snapshotOf(tallies: WorkspaceTallies): WorkspaceTallies {
+	return { clients: { ...tallies.clients }, projects: { ...tallies.projects }, labels: { ...tallies.labels } };
+}
+
 /**
  * Creates what the plan says, in order: clients, then projects with their client, then labels. A failure stops the
  * run where it is, so that no entry is saved without the project it names; what was created before it is kept and
@@ -60,11 +64,11 @@ export async function runWorkspaceCreation(
 		projects: emptyTally(plan.projects.reuse.length),
 		labels: emptyTally(plan.labels.reuse.length)
 	};
-	const report = () => creators.onProgress?.({ ...tallies });
+	const report = () => creators.onProgress?.(snapshotOf(tallies));
 	const clientIds = new Map(plan.clients.reuse.map((client) => [nameKeyOf(client.name), client.id]));
 	const projects: ExistingRecord[] = [...plan.projects.reuse];
 	const result = (failure: WorkspaceCreation['failure'], isInterrupted = false): WorkspaceCreation => ({
-		tallies: { ...tallies },
+		tallies: snapshotOf(tallies),
 		failure,
 		isInterrupted,
 		projects
