@@ -85,8 +85,16 @@ export function TimeSplitBody({
 	split,
 	isLoading,
 	isError,
-	onRetry
-}: Readonly<{ split: TimeSplitState; isLoading: boolean; isError: boolean; onRetry: () => void }>) {
+	onRetry,
+	density = 'regular'
+}: Readonly<{
+	split: TimeSplitState;
+	isLoading: boolean;
+	isError: boolean;
+	onRetry: () => void;
+	/** `compact` for a narrow card: the rows drop their meter, the share bar above already draws the split. */
+	density?: 'regular' | 'compact';
+}>) {
 	const t = useTranslations();
 	const { mode, rows } = split;
 	const isWaiting = isLoading || split.isClientLookupPending;
@@ -126,6 +134,7 @@ export function TimeSplitBody({
 				)}
 				formatValue={formatDurationShort}
 				otherLabel={(count) => otherLabelOf(mode, count, t)}
+				density={density}
 				className="hairline-t border-border"
 			/>
 			<div className="mx-4 flex min-h-9 items-center justify-between gap-3 hairline-t border-border text-[13px]">

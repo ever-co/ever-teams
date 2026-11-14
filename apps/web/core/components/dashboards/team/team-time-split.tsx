@@ -30,6 +30,7 @@ export function TeamTimeSplit({ dashboard }: Readonly<{ dashboard: TeamDashboard
 				isLoading={isLoading}
 				isError={dashboard.isReportError}
 				onRetry={dashboard.refetchReport}
+				density="compact"
 			/>
 		</TeamCard>
 	);

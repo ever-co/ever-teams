@@ -64,6 +64,12 @@ describe('TeamTimeSplit', () => {
 		expect(container.querySelector('section')?.className).toContain('xl:col-span-4');
 	});
 
+	it('gives the names the room of the narrow card: no meter on the rows', () => {
+		const { container } = render(<TeamTimeSplit dashboard={dashboardOf()} />);
+
+		expect(container.querySelectorAll('li > span[aria-hidden="true"]')).toHaveLength(0);
+	});
+
 	it('shows no rows while the team report loads', () => {
 		render(<TeamTimeSplit dashboard={dashboardOf({ isReportLoading: true })} />);
 
