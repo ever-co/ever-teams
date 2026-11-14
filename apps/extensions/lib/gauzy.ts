@@ -23,6 +23,7 @@ export interface RunningLog {
 	taskId?: string | null;
 	source?: string | null;
 	task?: { title?: string | null } | null;
+	isRunning?: boolean | null;
 }
 
 /** The timer as `GET /timesheet/timer/status` answers it: whether a run goes on, and today's worked seconds. */
@@ -79,8 +80,14 @@ export function todayPlanDay(now = new Date()): string {
 	return `${now.getFullYear()}-${month}-${day}`;
 }
 
+/**
+ * The person's timer. The day's status of a Gauzy older than its past-midnight fix leaves out a run started before
+ * midnight: as the web's timer does (readRunGoingOn), the person's last log of any day is read then, and a run it
+ * shows still going is put in the day's status. Without it the run vanished at midnight: Start showed, the badge
+ * cleared and the heartbeats stopped. A failed read of the last log leaves the day's status as it is.
+ */
 export async function getTimerStatus(session: Session): Promise<TimerStatus> {
-	return sessionRequest<TimerStatus>(session, '/timesheet/timer/status', {
+	const status = await sessionRequest<TimerStatus>(session, '/timesheet/timer/status', {
 		query: {
 			tenantId: session.tenantId,
 			organizationId: session.organizationId,
@@ -88,6 +95,24 @@ export async function getTimerStatus(session: Session): Promise<TimerStatus> {
 			...todayRange()
 		}
 	});
+	if (status?.running || !session.employeeId) {
+		return status;
+	}
+	const lastLog = await lastLogOf(session, session.employeeId).catch(() => null);
+	if (!lastLog?.isRunning) {
+		return status;
+	}
+	return { ...status, running: true, lastLog };
+}
+
+/** The person's last log of any day (`GET /timesheet/timer/status/worked`), or null when Gauzy names none. */
+async function lastLogOf(session: Session, employeeId: string): Promise<RunningLog | null> {
+	const statuses = await sessionRequest<Array<{ lastLog?: RunningLog | null }>>(
+		session,
+		'/timesheet/timer/status/worked',
+		{ query: { tenantId: session.tenantId, organizationId: session.organizationId, employeeId } }
+	);
+	return statuses?.[0]?.lastLog ?? null;
 }
 
 /** Starts the real timer on a task, as the web does, with the browser extension as its source. */
