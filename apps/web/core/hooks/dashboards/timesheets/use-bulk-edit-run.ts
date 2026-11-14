@@ -12,8 +12,10 @@ import {
 	bulkEditPayloadOf,
 	type BulkEditSave
 } from '@/core/lib/utils/dashboards/timesheet-bulk-edit';
+import { endOfLog, startOfLog } from '@/core/lib/utils/dashboards/timesheets';
 import { queryKeys } from '@/core/query/keys';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
+import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 export interface BulkEditProgress {
 	/** The entries gone through so far, saved or not. */
@@ -63,7 +65,43 @@ function mayHaveChangedEntry(outcome: BulkEditOutcome): boolean {
 	return isUpdated || isFailed;
 }
 
-/** Null when the page was left during the overlap lookup: the entry is never sent. */
+/**
+ * The entry as the API holds it now, read over the days of its interval for its member. Null when it is no longer
+ * there (deleted, or moved to another day or member) or when it cannot be read.
+ */
+async function currentLogOf(log: ITimeLog): Promise<ITimeLog | null> {
+	const startedAt = startOfLog(log);
+	const stoppedAt = endOfLog(log);
+	const employeeId = log.employeeId ?? log.employee?.id;
+	if (!startedAt || !stoppedAt || !employeeId) {
+		return null;
+	}
+	try {
+		const logs = await timeLogService.getTimeLogs({
+			startDate: startedAt,
+			endDate: stoppedAt,
+			employeeIds: [employeeId]
+		});
+		return logs.find((candidate) => candidate.id === log.id) ?? null;
+	} catch (error) {
+		logErrorInDev('Time entry read before a bulk edit failed', error);
+		return null;
+	}
+}
+
+/**
+ * The update of the entry built from what the API holds now: the dialog's copy may be older, and its start and end
+ * sent back would undo a change made since (a shortened entry would get its removed time back).
+ */
+async function currentPayloadOf(save: BulkEditSave): Promise<BulkEditPayload | null> {
+	const currentLog = await currentLogOf(save.log);
+	if (!currentLog) {
+		return null;
+	}
+	return bulkEditPayloadOf({ log: currentLog, fields: save.fields });
+}
+
+/** Null when the page was left during the lookups: the entry is never sent. */
 async function outcomeOfSave(
 	queryClient: QueryClient,
 	save: BulkEditSave,
@@ -71,9 +109,12 @@ async function outcomeOfSave(
 	workspaceAtStart: Workspace
 ): Promise<BulkEditOutcome | null> {
 	const logId = save.log.id;
-	const payload = bulkEditPayloadOf(save);
-	// An entry of another workspace than the one requests now go to is neither looked up nor written
-	if (!payload || !isInCurrentWorkspace(save, workspaceAtStart)) {
+	// An entry of another workspace than the one requests now go to is neither read, looked up nor written
+	if (!isInCurrentWorkspace(save, workspaceAtStart)) {
+		return { logId, status: 'failed' };
+	}
+	const payload = await currentPayloadOf(save);
+	if (!payload) {
 		return { logId, status: 'failed' };
 	}
 	const removesTime = await removesRecordedTime(queryClient, payload);
