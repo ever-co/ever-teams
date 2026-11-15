@@ -26,8 +26,13 @@ import type { TSharedInvoice } from '@/core/types/schemas/organization/shared-in
 
 /** How often the page reads the invoice again after the client came back from paying, until it shows paid. */
 const CONFIRMATION_POLL_MS = 5_000;
-/** How long it keeps reading: the provider's confirmation usually lands within seconds. */
+/** How long it reads that often: the provider's confirmation usually lands within seconds. */
 const CONFIRMATION_POLL_LIMIT_MS = 2 * 60_000;
+/**
+ * How often it reads it afterwards, while the page is shown, so it still shows paid a confirmation that comes late, as
+ * the notice says it will.
+ */
+const LATE_CONFIRMATION_POLL_MS = 30_000;
 
 const PAID_STATUSES = new Set(['FULLY_PAID', 'OVERPAID']);
 
@@ -48,9 +53,12 @@ function useSharedInvoice(id: string, token: string, isReturn: boolean) {
 				return false;
 			}
 			const status = query.state.data?.status ?? '';
-			const isWaiting =
-				isReturn && !PAID_STATUSES.has(status) && Date.now() - returnedAt < CONFIRMATION_POLL_LIMIT_MS;
-			return isWaiting ? CONFIRMATION_POLL_MS : false;
+			if (!isReturn || PAID_STATUSES.has(status)) {
+				return false;
+			}
+			return Date.now() - returnedAt < CONFIRMATION_POLL_LIMIT_MS
+				? CONFIRMATION_POLL_MS
+				: LATE_CONFIRMATION_POLL_MS;
 		}
 	});
 	const payOption = useQuery({
@@ -214,6 +222,9 @@ function SharedInvoiceView({ id, token, isReturn }: Readonly<{ id: string; token
 	const isPaid = PAID_STATUSES.has(shown.status ?? '');
 	const option = payOption.data;
 	const canPay = Boolean(option?.payable) && typeof option?.amountDue === 'number' && !isPaid;
+	// Whether Pay is offered could not be read: said, with a retry. An API without online payments answers 404, which
+	// is no failure: the page offers no Pay there.
+	const hasPayOptionFailed = payOption.isError && errorStatusOf(payOption.error) !== 404 && !isPaid;
 	const payLabel = canPay
 		? t('invoices.shared.PAY', {
 				amount: formatOwed(option.amountDue as number, option.currency ?? shown.currency ?? null, locale)
@@ -241,6 +252,21 @@ function SharedInvoiceView({ id, token, isReturn }: Readonly<{ id: string; token
 				<div className="flex flex-col gap-2 sm:flex-row sm:items-start">
 					<DownloadButton id={id} token={token} numberText={numberText} />
 					{canPay && <PayButton id={id} token={token} label={payLabel} />}
+					{hasPayOptionFailed && (
+						<div className="flex flex-col items-stretch gap-2 sm:items-end">
+							<Button
+								type="button"
+								onClick={() => void payOption.refetch()}
+								disabled={payOption.isFetching}
+								className="min-w-40"
+							>
+								{t('pages.unauthorized.TRY_AGAIN')}
+							</Button>
+							<p role="alert" className="text-xs text-destructive">
+								{t('invoices.shared.PAY_FAILED')}
+							</p>
+						</div>
+					)}
 				</div>
 			</header>
 			{isReturn && !isPaid && (

@@ -163,6 +163,49 @@ describe('SharedInvoicePage (ever-co/ever-gauzy#11856)', () => {
 		}
 	});
 
+	it('back from the provider, still shows paid a confirmation that comes after the first two minutes', async () => {
+		jest.useFakeTimers();
+		try {
+			search.set('paid', '1');
+			show();
+			expect(await screen.findByText('invoices.shared.RETURNED_TITLE')).toBeTruthy();
+
+			await act(async () => {
+				jest.advanceTimersByTime(2 * 60_000 + 5_000);
+			});
+			service.getSharedInvoice.mockResolvedValue({ ...INVOICE, status: 'FULLY_PAID' } as never);
+			await act(async () => {
+				jest.advanceTimersByTime(35_000);
+			});
+
+			expect(await screen.findByText('invoices.shared.PAID_TITLE')).toBeTruthy();
+			expect(screen.queryByText('invoices.shared.RETURNED_TITLE')).toBeNull();
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
+	it('says whether Pay is offered could not be read, and reads it again on request', async () => {
+		service.getPayOption.mockRejectedValueOnce({ response: { status: 502 }, status: 502 });
+		show();
+
+		expect(await screen.findByRole('alert')).toHaveProperty('textContent', 'invoices.shared.PAY_FAILED');
+		fireEvent.click(screen.getByRole('button', { name: 'pages.unauthorized.TRY_AGAIN' }));
+
+		expect(await screen.findByRole('button', { name: /invoices\.shared\.PAY/ })).toBeTruthy();
+		expect(screen.queryByRole('alert')).toBeNull();
+	});
+
+	it('offers no Pay and says nothing failed where the API does not serve online payments', async () => {
+		service.getPayOption.mockRejectedValue({ response: { status: 404 }, status: 404 });
+		show();
+
+		await screen.findByTestId('paper');
+		await waitFor(() => expect(service.getPayOption).toHaveBeenCalled());
+		expect(screen.queryByRole('alert')).toBeNull();
+		expect(screen.queryByRole('button', { name: /invoices\.shared\.PAY/ })).toBeNull();
+	});
+
 	it('says an address without a link opens nothing, and asks nothing of the API', () => {
 		mockLink.current = null;
 		show();
