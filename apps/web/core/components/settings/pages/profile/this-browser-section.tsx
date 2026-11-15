@@ -9,10 +9,18 @@ import { sessionEndsWithBrowser, setSessionEndsWithBrowser } from '@/core/lib/he
 /** The switches showing the choice, told when it changes: the cookie that holds it sends no event of its own. */
 const listeners = new Set<() => void>();
 
+/**
+ * Told of a change made here, and asked to read the cookie again when the tab comes back: another tab of the browser
+ * may have changed the choice meanwhile.
+ */
 function subscribe(listener: () => void): () => void {
 	listeners.add(listener);
+	window.addEventListener('focus', listener);
+	document.addEventListener('visibilitychange', listener);
 	return () => {
 		listeners.delete(listener);
+		window.removeEventListener('focus', listener);
+		document.removeEventListener('visibilitychange', listener);
 	};
 }
 

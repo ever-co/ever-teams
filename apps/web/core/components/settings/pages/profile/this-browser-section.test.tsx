@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 
 let mockEndsWithBrowser = false;
 const mockSetSessionEndsWithBrowser = jest.fn((endsWithBrowser: boolean) => {
@@ -53,6 +53,26 @@ describe('Settings > Profile > This browser (#5315)', () => {
 		fireEvent.click(toggle);
 
 		expect(mockSetSessionEndsWithBrowser).toHaveBeenLastCalledWith(false);
+		expect(toggle.getAttribute('aria-checked')).toBe('false');
+	});
+
+	it('shows the choice another tab made once this tab comes back (Greptile on #5316)', () => {
+		render(<ThisBrowserSection />);
+		const toggle = screen.getByRole('switch');
+
+		// Another tab of the browser turns it on: the cookie changes, and this tab is told nothing
+		mockEndsWithBrowser = true;
+		act(() => {
+			window.dispatchEvent(new Event('focus'));
+		});
+
+		expect(toggle.getAttribute('aria-checked')).toBe('true');
+
+		mockEndsWithBrowser = false;
+		act(() => {
+			document.dispatchEvent(new Event('visibilitychange'));
+		});
+
 		expect(toggle.getAttribute('aria-checked')).toBe('false');
 	});
 });
