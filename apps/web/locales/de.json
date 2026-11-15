@@ -5499,7 +5499,8 @@
 			"SIGN_OUT_INCOMPLETE": "Eine Sitzung hat sich während der Abmeldung erneuert. Versuche es erneut.",
 			"SIGN_OUT_OTHERS_FAILED": "Das Abmelden der anderen Sitzungen wurde nicht abgeschlossen. {reason}",
 			"SIGN_OUT_OTHERS_CONFIRM": "{count, plural, one {# Sitzung abmelden} other {# Sitzungen abmelden}}",
-			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Keine andere Sitzung war angemeldet.} one {# weitere Sitzung wurde abgemeldet.} other {# weitere Sitzungen wurden abgemeldet.}}"
+			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Keine andere Sitzung war angemeldet.} one {# weitere Sitzung wurde abgemeldet.} other {# weitere Sitzungen wurden abgemeldet.}}",
+			"APP_ON_DEVICE": "{app} · {device}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profil",

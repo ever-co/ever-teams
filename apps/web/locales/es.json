@@ -5499,7 +5499,8 @@
 			"SIGN_OUT_INCOMPLETE": "Una sesión se renovó mientras se cerraba. Vuelve a intentarlo.",
 			"SIGN_OUT_OTHERS_FAILED": "El cierre de las otras sesiones no terminó. {reason}",
 			"SIGN_OUT_OTHERS_CONFIRM": "{count, plural, one {Cerrar # sesión} other {Cerrar # sesiones}}",
-			"SIGNED_OUT_OTHERS": "{count, plural, =0 {No había otra sesión abierta.} one {Se cerró # sesión más.} other {Se cerraron # sesiones más.}}"
+			"SIGNED_OUT_OTHERS": "{count, plural, =0 {No había otra sesión abierta.} one {Se cerró # sesión más.} other {Se cerraron # sesiones más.}}",
+			"APP_ON_DEVICE": "{app} · {device}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Perfil",
