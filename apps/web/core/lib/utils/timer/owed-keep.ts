@@ -62,18 +62,28 @@ function parsedOwedKeep(stored: string | null): OwedKeep | null {
 	}
 }
 
-/** Records the Keep, or where its writing stands, for every tab of the browser and the next load of the page. */
+/**
+ * Records the Keep, or where its writing stands, for every tab of the browser and the next load of the page.
+ *
+ * A storage that refuses it leaves this page alone to owe it. A record it holds from before goes: it would tell
+ * another tab, or the next load, to write again slots written since, and Gauzy adds every slot it is sent. Time the
+ * person kept may then be lost with this page, but never counted twice.
+ */
 export function oweKeep(keep: OwedKeep): void {
 	const key = keyOf(keep);
+	const storage = browserStorage();
 	try {
-		const storage = browserStorage();
 		if (storage) {
 			storage.setItem(key, JSON.stringify(keep));
 			inThisPage.delete(key);
 			return;
 		}
 	} catch {
-		// A full or blocked storage: this page keeps it
+		try {
+			storage?.removeItem(key);
+		} catch {
+			// A storage that can be neither written nor cleared cannot be read either
+		}
 	}
 	inThisPage.set(key, { ...keep });
 }
@@ -110,7 +120,8 @@ export function owedKeepsOf(employeeId: string, now: number = Date.now()): OwedK
 			const key = storage.key(index);
 			if (!key?.startsWith(KEY_PREFIX)) continue;
 			const keep = parsedOwedKeep(storage.getItem(key));
-			if (keep) keeps.set(key, keep);
+			// What this page owes, it alone writes: its own record is the one that stands
+			if (keep && !keeps.has(key)) keeps.set(key, keep);
 		}
 	} catch {
 		// A storage that cannot be read owes nothing

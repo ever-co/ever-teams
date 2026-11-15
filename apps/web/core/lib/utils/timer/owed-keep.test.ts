@@ -77,6 +77,24 @@ describe('a Keep whose writing is not over', () => {
 		expect(owedKeepsOf('employee-1', KEPT_AT)).toEqual([]);
 	});
 
+	it('leaves no stale record for another tab when the storage refuses where its writing stands', () => {
+		const keep = owedKeep();
+		oweKeep(keep);
+		jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+			throw new Error('QuotaExceededError');
+		});
+		const written = { ...keep, fromMs: keep.fromMs + 3 * 60_000 };
+
+		oweKeep(written);
+
+		// Read from the record left before, another tab or the next load would write that slot again
+		jest.restoreAllMocks();
+		expect(window.localStorage.getItem(`ever-teams.timer.owed-keep.log-1@${keep.heartbeat}`)).toBeNull();
+		expect(owedKeepNow(keep)).toEqual(written);
+		expect(owedKeepsOf('employee-1', KEPT_AT)).toEqual([written]);
+		forgetOwedKeep(keep);
+	});
+
 	it('stays in the page when the browser blocks its storage', () => {
 		jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
 			throw new Error('QuotaExceededError');
