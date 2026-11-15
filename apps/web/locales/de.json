@@ -3982,7 +3982,9 @@
 			"BROADCAST": "<b>{name}</b> hat eine Ankündigung veröffentlicht",
 			"PAYMENT": "Eine Zahlung wurde für dich erfasst",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> hat eine Satzänderung angefragt",
-			"TIMER_REMINDER": "Dein Timer läuft noch immer"
+			"TIMER_REMINDER": "Dein Timer läuft noch immer",
+			"TASK_UPDATE": "<b>{name}</b> hat etwas geändert",
+			"TASK_DUE_REMINDER": "Eine Aufgabe ist bald fällig"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Zuweisung",
@@ -3993,7 +3995,9 @@
 			"BROADCAST": "Ankündigung",
 			"PAYMENT": "Zahlung",
 			"RATE_CHANGE_REQUEST": "Anfrage zur Satzänderung",
-			"TIMER_REMINDER": "Timer-Erinnerung"
+			"TIMER_REMINDER": "Timer-Erinnerung",
+			"TASK_UPDATE": "Änderung",
+			"TASK_DUE_REMINDER": "Fälligkeitserinnerung"
 		},
 		"SOMEONE": "Jemand",
 		"MARK_READ": "Als gelesen markieren",
@@ -4070,6 +4074,14 @@
 				"OFF": "Aus",
 				"AFTER_HOURS": "Nach {hours, plural, one {# Stunde} other {# Stunden}}"
 			},
+			"TASK_DUE": {
+				"TITLE": "Fälligkeiten",
+				"INTRO": "Eine Erinnerung, bevor eine dir zugewiesene Aufgabe fällig wird, solange sie nicht erledigt ist.",
+				"LABEL": "Fälligkeitserinnerung",
+				"TEXT": "Immer in deinem Posteingang. Per E-Mail und auf deinen Geräten nach deiner Wahl.",
+				"OFF": "Aus",
+				"BEFORE_HOURS": "{hours, plural, one {# Stunde} other {# Stunden}} vorher"
+			},
 			"INTRO": "Wähle, was in deinem Posteingang ankommt. Wenn du einen Typ ausschaltest, kommen keine neuen Benachrichtigungen dieses Typs mehr; vorhandene bleiben.",
 			"LOAD_ERROR": "Deine Benachrichtigungseinstellungen konnten nicht geladen werden.",
 			"SAVE_FAILED": "Diese Einstellung wurde nicht gespeichert. Versuche es erneut.",
@@ -4120,6 +4132,10 @@
 			"FORGOTTEN_DESCRIPTION": "Hast du ihn vergessen? Stoppe ihn und korrigiere die Zeit bei Bedarf in deinem Stundenzettel.",
 			"STOP": "Timer stoppen",
 			"OPEN": "Timer öffnen"
+		},
+		"TASK_DUE": {
+			"BY_END_OF_DAY": "Fällig bis Ende {date}",
+			"AT": "Fällig am {date}"
 		}
 	},
 	"toasts": {

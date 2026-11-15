@@ -3982,7 +3982,9 @@
 			"BROADCAST": "<b>{name}</b> publicó un anuncio",
 			"PAYMENT": "Se registró un pago para ti",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> pidió un cambio de tarifa",
-			"TIMER_REMINDER": "Tu temporizador sigue en marcha"
+			"TIMER_REMINDER": "Tu temporizador sigue en marcha",
+			"TASK_UPDATE": "<b>{name}</b> hizo un cambio",
+			"TASK_DUE_REMINDER": "Una tarea vence pronto"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Asignación",
@@ -3993,7 +3995,9 @@
 			"BROADCAST": "Anuncio",
 			"PAYMENT": "Pago",
 			"RATE_CHANGE_REQUEST": "Solicitud de cambio de tarifa",
-			"TIMER_REMINDER": "Recordatorio de temporizador"
+			"TIMER_REMINDER": "Recordatorio de temporizador",
+			"TASK_UPDATE": "Cambio",
+			"TASK_DUE_REMINDER": "Recordatorio de vencimiento"
 		},
 		"SOMEONE": "Alguien",
 		"MARK_READ": "Marcar como leída",
@@ -4070,6 +4074,14 @@
 				"OFF": "Desactivado",
 				"AFTER_HOURS": "Después de {hours, plural, one {# hora} other {# horas}}"
 			},
+			"TASK_DUE": {
+				"TITLE": "Vencimientos",
+				"INTRO": "Un recordatorio antes de que venza una tarea que tienes asignada, mientras no esté terminada.",
+				"LABEL": "Recordatorio de vencimiento",
+				"TEXT": "Siempre en tu bandeja de entrada. Por correo y en tus dispositivos, como elijas.",
+				"OFF": "Desactivado",
+				"BEFORE_HOURS": "{hours, plural, one {# hora} other {# horas}} antes"
+			},
 			"INTRO": "Elige qué llega a tu bandeja. Al desactivar un tipo se detienen las notificaciones nuevas de ese tipo; las que ya tienes se quedan.",
 			"LOAD_ERROR": "No se pudieron cargar tus ajustes de notificaciones.",
 			"SAVE_FAILED": "Ese ajuste no se guardó. Inténtalo de nuevo.",
@@ -4120,6 +4132,10 @@
 			"FORGOTTEN_DESCRIPTION": "¿Lo olvidaste? Detenlo y corrige el tiempo en tu hoja de horas si hace falta.",
 			"STOP": "Detener temporizador",
 			"OPEN": "Abrir temporizador"
+		},
+		"TASK_DUE": {
+			"BY_END_OF_DAY": "Vence al final del {date}",
+			"AT": "Vence el {date}"
 		}
 	},
 	"toasts": {

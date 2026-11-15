@@ -440,3 +440,83 @@ describe('opening an entry on a phone and on a large screen', () => {
 		expect(showsInboxSheet(taskQuestion, true)).toBe(true);
 	});
 });
+
+describe('a project its member hears of (#5022)', () => {
+	it('opens the project an assignment added the member to, in the work family', () => {
+		const entry = toInboxEntry(
+			item({
+				title: 'Ana Assigned you to the Project "Website"',
+				entity: 'OrganizationProject',
+				entityId: 'project-1',
+				taskId: null,
+				metadata: { notificationType: 'Assignment' }
+			})
+		);
+		expect(entry.type).toBe('Assignment');
+		expect(entry.href).toBe('/projects/project-1');
+		expect(entry.taskId).toBeNull();
+		expect(entry.subject).toBe('Website');
+		expect(entry.senderName).toBe('Ana');
+		expect(entry.sourceGroup).toBe('tasks');
+		expect(hasInboxTarget(entry)).toBe(true);
+	});
+
+	it('opens the project whose state or dates changed, with what changed as its text and the editor as sender', () => {
+		const entry = toInboxEntry(
+			item({
+				title: 'Ana Lima Updated the Project "Website"',
+				body: 'Status: in progress → completed.',
+				entity: 'OrganizationProject',
+				entityId: 'project-1',
+				taskId: null,
+				metadata: { notificationType: 'TaskUpdate' }
+			})
+		);
+		expect(entry.type).toBe('TaskUpdate');
+		expect(entry.href).toBe('/projects/project-1');
+		expect(entry.senderName).toBe('Ana Lima');
+		expect(entry.message).toBe('Status: in progress → completed.');
+	});
+});
+
+describe('a due date reminder (#5022)', () => {
+	it('opens its task', () => {
+		const entry = toInboxEntry(
+			item({
+				title: 'The Task "Login" is due in 3 hours',
+				body: 'Due by the end of 2026-11-20.',
+				metadata: { notificationType: 'TaskDueReminder' }
+			})
+		);
+		expect(entry.type).toBe('TaskDueReminder');
+		expect(entry.taskId).toBe('t1');
+		expect(entry.subject).toBe('Login');
+		expect(entry.senderName).toBeNull();
+		expect(entry.sourceGroup).toBe('tasks');
+	});
+});
+
+describe("a project's entry where the platform has no inbox extension (#5022)", () => {
+	it('keeps the project, so it opens it and stays in the work family', () => {
+		const entry = fromNotificationEntry({
+			id: 'n2',
+			type: 'TaskUpdate' as never,
+			isUnread: true,
+			senderName: 'Ana',
+			senderImageUrl: null,
+			subject: 'Website',
+			rawTitle: 'Ana Updated the Project "Website"',
+			message: 'The project was archived.',
+			taskId: null,
+			entity: 'OrganizationProject',
+			entityId: 'project-1',
+			href: '/projects/project-1',
+			timerReminder: null,
+			createdAt: new Date('2026-11-07T10:00:00.000Z')
+		});
+		expect(entry.entity).toBe('OrganizationProject');
+		expect(entry.entityId).toBe('project-1');
+		expect(entry.sourceGroup).toBe('tasks');
+		expect(entry.href).toBe('/projects/project-1');
+	});
+});
