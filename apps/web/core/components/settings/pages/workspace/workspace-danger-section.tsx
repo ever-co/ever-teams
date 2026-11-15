@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { Notice } from '@/core/components/common/notice';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { ArrowRight, Folder, Invoice, Users, UsersGroup } from '@/core/components/icons';
+import { ArrowRight, Download, Folder, Invoice, Spinner, Users, UsersGroup } from '@/core/components/icons';
 import { ConfirmDestructiveDialog, DangerRow, type DangerConsequence } from '@/core/components/settings/kit/danger';
 import { SettingsSection, SettingsSurface } from '@/core/components/settings/kit/settings-page';
 import { useHasBeenOpen } from '@/core/hooks/common/use-has-been-open';
@@ -14,6 +14,12 @@ import { ACCOUNT_DELETION_PATH } from '@/core/lib/auth/account-deletion';
 import { deletionErrorKeyOf, trackedHoursOf, type DeletableOrganization } from '@/core/lib/utils/organization-deletion';
 
 type Translate = ReturnType<typeof useTranslations>;
+
+/** The workspace export (#5240), offered in the confirmation to a person who may run it. */
+interface WorkspaceExportOffer {
+	isExporting: boolean;
+	onExport: () => void;
+}
 
 function consequencesOf(deletion: OrganizationDeletion, t: Translate): DangerConsequence[] {
 	const { counts, landing } = deletion;
@@ -126,16 +132,48 @@ function DeletionNotice({ deletion }: Readonly<{ deletion: OrganizationDeletion 
 	return null;
 }
 
+/** The export, offered before anything goes: once deleted, the organization's data no longer comes with it. */
+function ExportFirst({ dataExport }: Readonly<{ dataExport: WorkspaceExportOffer }>) {
+	const t = useTranslations();
+	let actionIcon = <Download />;
+	let actionLabel = t('settings.workspace.EXPORT_ACTION');
+	if (dataExport.isExporting) {
+		actionIcon = <Spinner className="size-3.5 animate-spin" />;
+		actionLabel = t('settings.workspace.EXPORTING');
+	}
+	return (
+		<div className="flex items-center justify-between gap-3 rounded-xl bg-foreground/[0.03] px-3.5 py-3">
+			<p className="text-[13px] leading-5 text-muted-foreground">
+				{t('settings.workspace.deletion.EXPORT_FIRST')}
+			</p>
+			<Button
+				type="button"
+				variant="outline"
+				size="sm"
+				onClick={dataExport.onExport}
+				disabled={dataExport.isExporting}
+				aria-busy={dataExport.isExporting || undefined}
+				className="shrink-0"
+			>
+				{actionIcon}
+				{actionLabel}
+			</Button>
+		</div>
+	);
+}
+
 function DeleteOrganizationDialog({
 	open,
 	onClose,
 	organization,
-	deletion
+	deletion,
+	dataExport
 }: Readonly<{
 	open: boolean;
 	onClose: () => void;
 	organization: DeletableOrganization;
 	deletion: OrganizationDeletion;
+	dataExport?: WorkspaceExportOffer;
 }>) {
 	const t = useTranslations();
 	const [isPending, setIsPending] = useState(false);
@@ -175,6 +213,7 @@ function DeleteOrganizationDialog({
 				void confirm();
 			}}
 		>
+			{dataExport && <ExportFirst dataExport={dataExport} />}
 			<DeletionNotice deletion={deletion} />
 		</ConfirmDestructiveDialog>
 	);
@@ -182,9 +221,13 @@ function DeleteOrganizationDialog({
 
 /**
  * The end of Settings > Workspace: deleting the current organization (ever-co/ever-teams#5207), shown to the roles
- * Gauzy lets delete it (ALL_ORG_EDIT). The confirmation lists what goes with Gauzy's own counts.
+ * Gauzy lets delete it (ALL_ORG_EDIT). The confirmation lists what goes with Gauzy's own counts, and offers the
+ * workspace export first when the person may run it.
  */
-export function WorkspaceDangerSection({ organization }: Readonly<{ organization: DeletableOrganization }>) {
+export function WorkspaceDangerSection({
+	organization,
+	dataExport
+}: Readonly<{ organization: DeletableOrganization; dataExport?: WorkspaceExportOffer }>) {
 	const t = useTranslations();
 	const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 	const deletion = useOrganizationDeletion(organization, isConfirmOpen);
@@ -211,6 +254,7 @@ export function WorkspaceDangerSection({ organization }: Readonly<{ organization
 					onClose={() => setIsConfirmOpen(false)}
 					organization={organization}
 					deletion={deletion}
+					dataExport={dataExport}
 				/>
 			)}
 		</SettingsSection>

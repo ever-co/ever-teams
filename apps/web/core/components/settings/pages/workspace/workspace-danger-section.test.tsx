@@ -207,6 +207,24 @@ it("keeps the delete off while the person's timer runs, and says to stop it firs
 	expect((confirmButton() as HTMLButtonElement).disabled).toBe(true);
 });
 
+it('offers the workspace export before the delete, to a person who may run it', () => {
+	const onExport = jest.fn();
+	render(<WorkspaceDangerSection organization={ORGANIZATION} dataExport={{ isExporting: false, onExport }} />);
+	fireEvent.click(screen.getByRole('button', { name: 'settings.workspace.deletion.DELETE_ACTION' }));
+
+	expect(screen.getByRole('dialog').textContent).toContain('settings.workspace.deletion.EXPORT_FIRST');
+	fireEvent.click(screen.getByRole('button', { name: 'settings.workspace.EXPORT_ACTION' }));
+
+	expect(onExport).toHaveBeenCalledTimes(1);
+	expect(mockDelete).not.toHaveBeenCalled();
+});
+
+it('offers no export to a person who may not run it', () => {
+	const dialog = openConfirmation();
+
+	expect(dialog.textContent).not.toContain('settings.workspace.deletion.EXPORT_FIRST');
+});
+
 it('deletes the organization once confirmed', async () => {
 	openConfirmation();
 

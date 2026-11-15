@@ -5713,7 +5713,8 @@
 				"LAST_ORGANIZATION_ACTION": "前往删除账户",
 				"LAST_ORGANIZATION_REFUSED": "这现在是工作区的最后一个组织，因此会保留。删除您的账户也会删除该工作区，但仅当您是其最后一名成员时。",
 				"TIMER_RUNNING": "请先停止计时器",
-				"TIMER_RUNNING_DESCRIPTION": "您的计时器正在运行。请先停止它，再删除该组织：留在已删除组织中的计时器会继续计时，且无人能够停止。"
+				"TIMER_RUNNING_DESCRIPTION": "您的计时器正在运行。请先停止它，再删除该组织：留在已删除组织中的计时器会继续计时，且无人能够停止。",
+				"EXPORT_FIRST": "请先保留一份副本：在删除此组织之前导出工作区的数据。"
 			}
 		},
 		"automations": {

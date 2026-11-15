@@ -90,6 +90,11 @@ export function WorkspaceSettingsPage() {
 			<WorkspaceDangerSection
 				key={`danger-${organization.id}`}
 				organization={{ id: organization.id, name: organization.name }}
+				dataExport={
+					dataExport.canExport
+						? { isExporting: dataExport.isExporting, onExport: () => void dataExport.exportAll() }
+						: undefined
+				}
 			/>
 		</SettingsPage>
 	);

@@ -5713,7 +5713,8 @@
 				"LAST_ORGANIZATION_ACTION": "Naar accountverwijdering",
 				"LAST_ORGANIZATION_REFUSED": "Dit is nu de laatste organisatie van de werkruimte, dus ze blijft. Je account verwijderen verwijdert ook de werkruimte, maar alleen als je er het laatste lid van bent.",
 				"TIMER_RUNNING": "Stop eerst je timer",
-				"TIMER_RUNNING_DESCRIPTION": "Je timer loopt. Stop hem en verwijder daarna de organisatie: een timer die in een verwijderde organisatie achterblijft, blijft tellen zonder dat iemand hem kan stoppen."
+				"TIMER_RUNNING_DESCRIPTION": "Je timer loopt. Stop hem en verwijder daarna de organisatie: een timer die in een verwijderde organisatie achterblijft, blijft tellen zonder dat iemand hem kan stoppen.",
+				"EXPORT_FIRST": "Bewaar eerst een kopie: exporteer de gegevens van de werkruimte voordat je deze organisatie verwijdert."
 			}
 		},
 		"automations": {

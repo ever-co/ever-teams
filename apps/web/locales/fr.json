@@ -5713,7 +5713,8 @@
 				"LAST_ORGANIZATION_ACTION": "Aller à la suppression du compte",
 				"LAST_ORGANIZATION_REFUSED": "C'est désormais la dernière organisation de l'espace de travail, elle reste donc. Supprimer votre compte supprime aussi l'espace de travail, mais seulement si vous en êtes le dernier membre.",
 				"TIMER_RUNNING": "Arrêtez d'abord la minuterie",
-				"TIMER_RUNNING_DESCRIPTION": "Votre minuterie tourne. Arrêtez-la, puis supprimez l'organisation : une minuterie laissée dans une organisation supprimée continue de compter sans que personne ne puisse l'arrêter."
+				"TIMER_RUNNING_DESCRIPTION": "Votre minuterie tourne. Arrêtez-la, puis supprimez l'organisation : une minuterie laissée dans une organisation supprimée continue de compter sans que personne ne puisse l'arrêter.",
+				"EXPORT_FIRST": "Gardez d'abord une copie : exportez les données de l'espace de travail avant de supprimer cette organisation."
 			}
 		},
 		"automations": {

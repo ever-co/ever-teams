@@ -5713,7 +5713,8 @@
 				"LAST_ORGANIZATION_ACTION": "Przejdź do usuwania konta",
 				"LAST_ORGANIZATION_REFUSED": "To teraz ostatnia organizacja obszaru roboczego, więc zostaje. Usunięcie konta usuwa też obszar roboczy, ale tylko wtedy, gdy jesteś jego ostatnim członkiem.",
 				"TIMER_RUNNING": "Najpierw zatrzymaj timer",
-				"TIMER_RUNNING_DESCRIPTION": "Twój timer działa. Zatrzymaj go, a potem usuń organizację: timer pozostawiony w usuniętej organizacji liczy dalej i nikt nie może go zatrzymać."
+				"TIMER_RUNNING_DESCRIPTION": "Twój timer działa. Zatrzymaj go, a potem usuń organizację: timer pozostawiony w usuniętej organizacji liczy dalej i nikt nie może go zatrzymać.",
+				"EXPORT_FIRST": "Najpierw zachowaj kopię: wyeksportuj dane obszaru roboczego, zanim usuniesz tę organizację."
 			}
 		},
 		"automations": {

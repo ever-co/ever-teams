@@ -5713,7 +5713,8 @@
 				"LAST_ORGANIZATION_ACTION": "Go to account deletion",
 				"LAST_ORGANIZATION_REFUSED": "This is now the workspace's last organization, so it stays. Deleting your account removes the workspace too, but only when you are its last member.",
 				"TIMER_RUNNING": "Stop your timer first",
-				"TIMER_RUNNING_DESCRIPTION": "Your timer is running. Stop it, then delete the organization: a timer left in a deleted organization keeps counting where nobody can stop it."
+				"TIMER_RUNNING_DESCRIPTION": "Your timer is running. Stop it, then delete the organization: a timer left in a deleted organization keeps counting where nobody can stop it.",
+				"EXPORT_FIRST": "Keep a copy first: export the workspace's data before you delete this organization."
 			}
 		},
 		"automations": {
