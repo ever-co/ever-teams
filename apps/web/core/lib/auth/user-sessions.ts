@@ -70,6 +70,7 @@ export type TSessionDeviceKind = 'phone' | 'computer' | 'unknown';
 
 const NOT_FOUND = 404;
 
+// cspell:ignore ipados
 const PHONE_SYSTEMS = /^(ios|ipados|android)\b/i;
 
 function timeOf(value: string): number {
