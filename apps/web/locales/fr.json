@@ -4200,6 +4200,9 @@
 		"TASK_DUE": {
 			"BY_END_OF_DAY": "À rendre au plus tard le {date}",
 			"AT": "À rendre le {date}"
+		},
+		"BOARD_INVITATION": {
+			"TEXT": "Vous invite sur un tableau : ouvrez-le pour les rejoindre."
 		}
 	},
 	"toasts": {

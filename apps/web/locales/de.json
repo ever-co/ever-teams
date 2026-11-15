@@ -4200,6 +4200,9 @@
 		"TASK_DUE": {
 			"BY_END_OF_DAY": "Fällig bis Ende {date}",
 			"AT": "Fällig am {date}"
+		},
+		"BOARD_INVITATION": {
+			"TEXT": "Hat dich zu einem Board eingeladen: öffne es, um mitzumachen."
 		}
 	},
 	"toasts": {

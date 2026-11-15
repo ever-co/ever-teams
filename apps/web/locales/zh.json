@@ -4200,6 +4200,9 @@
 		"TASK_DUE": {
 			"BY_END_OF_DAY": "截止到 {date} 结束",
 			"AT": "截止时间：{date}"
+		},
+		"BOARD_INVITATION": {
+			"TEXT": "邀请你加入一个白板：打开它即可加入。"
 		}
 	},
 	"toasts": {

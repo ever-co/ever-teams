@@ -1,5 +1,6 @@
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { EEmployeeNotificationType, IEmployeeNotification } from '@/core/types/interfaces/common/employee-notification';
+import { boardInvitationHref } from '@/core/lib/notifications/board-invitations';
 import { toNotificationEntry } from './notification-inbox';
 
 function notification(overrides: Partial<IEmployeeNotification>): IEmployeeNotification {
@@ -122,5 +123,23 @@ describe('senderNameFromTitle and a quoted subject (#5022)', () => {
 	it('still reads the sender before the subject', () => {
 		const entry = toNotificationEntry(notification({ title: 'Ana Lima Updated the Task "Assigned to nobody"' }));
 		expect(entry.senderName).toBe('Ana Lima');
+	});
+});
+
+describe('toNotificationEntry for a Board invitation (#5022)', () => {
+	it('opens the Board app this deployment is set up with, else the in-app board', () => {
+		const entry = toNotificationEntry(
+			notification({
+				title: 'Ana Lima Invited you to a Board with the Team "Design"',
+				message: null,
+				type: EEmployeeNotificationType.Invitation,
+				entity: EBaseEntityEnum.OrganizationTeam,
+				entityId: 'team-1'
+			})
+		);
+		expect(entry.href).toBe(boardInvitationHref());
+		expect(entry.href).not.toBeNull();
+		expect(entry.senderName).toBe('Ana Lima');
+		expect(entry.subject).toBe('Design');
 	});
 });

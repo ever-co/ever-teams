@@ -4200,6 +4200,9 @@
 		"TASK_DUE": {
 			"BY_END_OF_DAY": "Vence no fim de {date}",
 			"AT": "Vence em {date}"
+		},
+		"BOARD_INVITATION": {
+			"TEXT": "Convidou você para um quadro: abra-o para participar."
 		}
 	},
 	"toasts": {

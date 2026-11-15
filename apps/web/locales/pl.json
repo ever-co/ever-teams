@@ -4200,6 +4200,9 @@
 		"TASK_DUE": {
 			"BY_END_OF_DAY": "Termin: do końca {date}",
 			"AT": "Termin: {date}"
+		},
+		"BOARD_INVITATION": {
+			"TEXT": "Zaprasza Cię do tablicy: otwórz ją, aby dołączyć."
 		}
 	},
 	"toasts": {

@@ -4200,6 +4200,9 @@
 		"TASK_DUE": {
 			"BY_END_OF_DAY": "Uiterlijk eind {date}",
 			"AT": "Vervalt op {date}"
+		},
+		"BOARD_INVITATION": {
+			"TEXT": "Heeft je uitgenodigd voor een bord: open het om mee te doen."
 		}
 	},
 	"toasts": {

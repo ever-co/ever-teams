@@ -9,6 +9,7 @@ import {
 } from '@/core/types/interfaces/common/inbox-item';
 import { readRuntimeEnv } from '@/env-config';
 import { timerReminderNoticeOf, type TimerReminderNotice } from '@/core/lib/notifications/timer-reminders';
+import { boardInvitationHref, isBoardInvitation } from '@/core/lib/notifications/board-invitations';
 import { docsInboxHrefOf, isDocsInboxEntry } from './docs-links';
 import { isDocsEnabled } from './docs-enabled';
 import {
@@ -151,8 +152,9 @@ export function showsInboxSheet(entry: Pick<InboxEntry, 'taskId' | 'href' | 'cha
 	return !!entry.decision || !hasInboxTarget(entry, chatPages);
 }
 
-function hrefOf(type: EEmployeeNotificationType | null, entry: Pick<InboxEntry, 'entity' | 'entityId'>, metadata: Record<string, unknown> | null = null): string | null {
+function hrefOf(type: EEmployeeNotificationType | null, entry: Pick<InboxEntry, 'entity' | 'entityId' | 'rawTitle'>, metadata: Record<string, unknown> | null = null): string | null {
 	if (type === EEmployeeNotificationType.RateChangeRequest) return RATE_CHANGE_REQUEST_HREF;
+	if (isBoardInvitation({ type, entity: entry.entity, rawTitle: entry.rawTitle })) return boardInvitationHref();
 	if (type === EEmployeeNotificationType.TimerReminder) return TIMER_REMINDER_HREF;
 	const projectHref = projectHrefOf(entry.entity, entry.entityId);
 	if (projectHref) return projectHref;
