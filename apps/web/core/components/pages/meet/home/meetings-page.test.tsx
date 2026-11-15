@@ -199,7 +199,8 @@ describe('MeetingsPage', () => {
 
 			fireEvent.click(screen.getByTestId('meetings-schedule'));
 
-			expect(((await screen.findByLabelText('meetings.FIELD_TIME')) as HTMLInputElement).value).toBe('12:00');
+			// The field writes the time on the reader's clock: English, so a 12-hour one
+			expect(((await screen.findByLabelText('meetings.FIELD_TIME')) as HTMLInputElement).value).toBe('12:00 PM');
 		} finally {
 			jest.useRealTimers();
 		}
@@ -528,8 +529,8 @@ describe('MeetingsPage', () => {
 			const title = (await screen.findByLabelText('meetings.FIELD_TITLE')) as HTMLInputElement;
 			expect(screen.getByRole('dialog', { name: 'meetings.EDIT_TITLE' })).toBeTruthy();
 			expect(title.value).toBe('Retro');
-			expect((screen.getByLabelText('meetings.FIELD_DATE') as HTMLInputElement).value).toBe('2026-11-12');
-			expect((screen.getByLabelText('meetings.FIELD_TIME') as HTMLInputElement).value).toBe('16:00');
+			expect((screen.getByLabelText('meetings.FIELD_DATE') as HTMLInputElement).value).toBe('11/12/2026');
+			expect((screen.getByLabelText('meetings.FIELD_TIME') as HTMLInputElement).value).toBe('4:00 PM');
 			// The description stays as it is: Gauzy's update cannot empty it
 			expect(screen.queryByLabelText('meetings.FIELD_DESCRIPTION')).toBeNull();
 			fireEvent.change(title, { target: { value: 'Sprint retro' } });
@@ -673,7 +674,7 @@ describe('MeetingsPage', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'meetings.SCHEDULE_ON_DAY' }));
 
 		const date = (await screen.findByLabelText('meetings.FIELD_DATE')) as HTMLInputElement;
-		expect(date.value).toBe(`${tomorrow.getFullYear()}-${pad(tomorrow.getMonth() + 1)}-${pad(tomorrow.getDate())}`);
+		expect(date.value).toBe(`${pad(tomorrow.getMonth() + 1)}/${pad(tomorrow.getDate())}/${tomorrow.getFullYear()}`);
 		fireEvent.click(screen.getByRole('button', { name: 'common.CANCEL' }));
 
 		fireEvent.click(screen.getByRole('button', { name: 'meetings.TODAY' }));

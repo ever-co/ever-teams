@@ -3,6 +3,7 @@
 import { useId } from 'react';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { Button } from '@/core/components/common/button';
+import { DateField } from '@/core/components/common/date-field';
 import { Input, controlRecipe } from '@/core/components/common/input';
 import { DashboardSection } from '@/core/components/dashboards/kit/dashboard-layout';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
@@ -30,8 +31,6 @@ const DUE_TERM_KEYS: Record<InvoiceDueTermSource, DottedLanguageObjectStringPath
 	organization: 'invoices.new.terms.ORGANIZATION',
 	standard: 'invoices.new.terms.STANDARD'
 };
-
-const DATE_FIELD = cn(controlRecipe, 'h-9 px-2.5');
 
 const NOTE_FIELD = cn(controlRecipe, 'field-sizing-content max-h-[6lh] min-h-16 resize-none px-2.5 py-2');
 
@@ -228,28 +227,24 @@ export function InvoiceDetails({
 					<label htmlFor={issueId} className={FIELD_LABEL}>
 						{t('invoices.new.details.ISSUE_DATE')}
 					</label>
-					<input
+					<DateField
 						id={issueId}
-						type="date"
 						value={invoice.issueDay}
 						aria-invalid={isIssueInvalid || undefined}
-						onChange={(event) => invoice.setIssueDay(event.target.value)}
-						className={DATE_FIELD}
+						onChange={invoice.setIssueDay}
 					/>
 				</div>
 				<div className="flex min-w-0 flex-col gap-1.5">
 					<label htmlFor={dueId} className={FIELD_LABEL}>
 						{t('invoices.new.details.DUE_DATE')}
 					</label>
-					<input
+					<DateField
 						id={dueId}
-						type="date"
 						value={invoice.dueDay}
 						min={invoice.issueDay}
 						aria-invalid={isDueInvalid || undefined}
 						aria-describedby={dueDescription}
-						onChange={(event) => invoice.setDueDay(event.target.value)}
-						className={DATE_FIELD}
+						onChange={invoice.setDueDay}
 					/>
 					<DueTermHint invoice={invoice} id={dueTermId} />
 				</div>

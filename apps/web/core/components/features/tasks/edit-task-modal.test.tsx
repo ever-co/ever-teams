@@ -71,6 +71,16 @@ jest.mock('@/core/components', () => ({
 }));
 jest.mock('@/core/components/icons', () => ({ Clock: () => null, Spinner: () => null }));
 jest.mock('@/core/components/common/input', () => ({ controlRecipe: '' }));
+// The start and the end are the app's time fields, tested on their own (common/time-field.test.tsx): a text field
+// that sends the time it holds, as `HH:mm`, stands in for them
+jest.mock('@/core/components/common/time-field', () => ({
+	TimeField: ({
+		onChange,
+		...props
+	}: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> & { onChange: (time: string) => void }) => (
+		<input {...props} onChange={(event) => onChange(event.target.value)} />
+	)
+}));
 jest.mock('@/core/components/duplicated-components/_button', () => ({
 	Button: (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />
 }));

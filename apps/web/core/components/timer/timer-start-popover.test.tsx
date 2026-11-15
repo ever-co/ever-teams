@@ -1,5 +1,5 @@
 /** @jest-environment jsdom */
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 
 import { timerStatusState } from '@/core/stores/timer/timer';
@@ -45,13 +45,19 @@ const OPEN_ORGANIZATION = { id: 'org-1', allowModifyTime: true, allowManualTime:
 function renderTimer({
 	source = 'TEAMS',
 	running = true,
-	organization = OPEN_ORGANIZATION
-}: { source?: string; running?: boolean; organization?: Record<string, unknown> | null } = {}) {
+	organization = OPEN_ORGANIZATION,
+	startedAt = new Date(2026, 10, 16, 9, 25, 12)
+}: {
+	source?: string;
+	running?: boolean;
+	organization?: Record<string, unknown> | null;
+	startedAt?: Date;
+} = {}) {
 	const store = createStore();
 	store.set(timerStatusState, {
 		running,
 		duration: 600,
-		lastLog: { id: 'log-1', source, startedAt: new Date(2026, 10, 16, 9, 25, 12).toISOString() }
+		lastLog: { id: 'log-1', source, startedAt: startedAt.toISOString() }
 	} as never);
 	store.set(currentOrganizationState, organization as never);
 	render(
@@ -151,6 +157,31 @@ describe('TimerStartPopover', () => {
 		});
 		expect(screen.getByRole('alert').textContent).toBe('timer.startMove.MANUAL_NOT_ALLOWED');
 		expect(mockMoveStart).not.toHaveBeenCalled();
+	});
+
+	it('lists the later times of the next day for a run started before midnight', () => {
+		jest.setSystemTime(new Date(2026, 10, 17, 0, 20));
+		renderTimer({
+			organization: { ...OPEN_ORGANIZATION, allowManualTime: false },
+			startedAt: new Date(2026, 10, 16, 23, 50)
+		});
+		openPanel();
+
+		fireEvent.click(screen.getByRole('button', { name: 'common.PICK_A_TIME' }));
+		const list = screen.getByRole('listbox', { name: 'common.PICK_A_TIME' });
+
+		expect(within(list).getByRole<HTMLButtonElement>('option', { name: '00:15' }).disabled).toBe(false);
+	});
+
+	it('keeps the times before the start out of the list for a run started today', () => {
+		renderTimer({ organization: { ...OPEN_ORGANIZATION, allowManualTime: false } });
+		openPanel();
+
+		fireEvent.click(screen.getByRole('button', { name: 'common.PICK_A_TIME' }));
+		const list = screen.getByRole('listbox', { name: 'common.PICK_A_TIME' });
+
+		expect(within(list).getByRole<HTMLButtonElement>('option', { name: '09:15' }).disabled).toBe(true);
+		expect(within(list).getByRole<HTMLButtonElement>('option', { name: '09:30' }).disabled).toBe(false);
 	});
 
 	it('asks for the reason the organization requires', () => {

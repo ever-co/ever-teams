@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { AppDialog, AppDialogHeader, APP_DIALOG_BODY, APP_DIALOG_FOOTER } from '@/core/components/common/app-dialog';
 import { Button } from '@/core/components/common/button';
 import { EntityTile } from '@/core/components/common/entity-tile';
-import { controlRecipe } from '@/core/components/common/input';
+import { DateField } from '@/core/components/common/date-field';
 import { SegmentedControl, type SegmentedControlItem } from '@/core/components/common/segmented-control';
 import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import type { InvoiceScheduleChange } from '@/core/hooks/invoices/use-invoice-schedules';
@@ -30,8 +30,6 @@ import {
 } from '@/core/types/schemas/organization/invoice-schedule.schema';
 
 const FIELD_LABEL = 'text-sm font-medium text-foreground';
-
-const DATE_FIELD = cn(controlRecipe, 'h-9 w-full max-w-48 px-2.5');
 
 type Delivery = 'draft' | 'send';
 
@@ -231,14 +229,14 @@ function InvoiceScheduleForm({
 						</div>
 					</Field>
 					<Field label={t('invoices.schedule.form.START_DAY')} htmlFor={startId}>
-						<input
+						<DateField
 							id={startId}
-							type="date"
 							value={input.startDay}
 							aria-invalid={showsStartError || undefined}
 							aria-describedby={startHintId}
-							onChange={(event) => pickStartDay(event.target.value)}
-							className={DATE_FIELD}
+							onChange={pickStartDay}
+							className="max-w-48"
+							inputClassName="h-9"
 						/>
 						{showsStartError && (
 							<p role="alert" className="text-xs text-destructive-ink">
