@@ -367,7 +367,7 @@ export class APIService {
 	 * Log request details for debugging
 	 */
 	private logRequest(config: AxiosRequestConfig) {
-		if (this.config.enableLogging) {
+		if (this.config.enableLogging && !this.staysOutOfLogs(config)) {
 			this.logger.debug(`🚀 Request: ${config.method?.toUpperCase()} ${config.url}`, {
 				headers: config.headers,
 				params: config.params,
@@ -380,7 +380,7 @@ export class APIService {
 	 * Log response details for debugging
 	 */
 	private logResponse(response: AxiosResponse) {
-		if (this.config.enableLogging) {
+		if (this.config.enableLogging && !this.staysOutOfLogs(response.config)) {
 			// A request that asked for it keeps its answer out of the log: the answer holds a secret shown once.
 			const hidesBody = (response.config as APIConfig).secretResponse === true;
 			this.logger.debug(
@@ -391,6 +391,14 @@ export class APIService {
 				}
 			);
 		}
+	}
+
+	/**
+	 * Whether a request asked to stay out of every log (`APIConfig.secretAddress`: its address holds a secret, such as
+	 * the token of a shared link). The flag travels with the request, so the proxy mode client honours it too.
+	 */
+	private staysOutOfLogs(config: AxiosRequestConfig | undefined): boolean {
+		return (config as APIConfig | undefined)?.secretAddress === true;
 	}
 
 	/**
@@ -413,6 +421,10 @@ export class APIService {
 	private logError(error: any) {
 		if (axios.isCancel(error)) {
 			console.debug(`⚠️ Request canceled: ${error.message}`);
+			return;
+		}
+
+		if (this.staysOutOfLogs(error?.config)) {
 			return;
 		}
 

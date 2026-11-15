@@ -90,6 +90,11 @@ export type APIConfig = AxiosRequestConfig<any> & {
 	 */
 	secretResponse?: boolean;
 	/**
+	 * The address holds a secret (the token of a shared report's link): `APIService` writes neither this request, its
+	 * answer nor its error to any log, in direct and in proxy mode alike.
+	 */
+	secretAddress?: boolean;
+	/**
 	 * A 401 of this call refuses a proof the person typed (a wrong two-factor code), not their session: the session
 	 * handler (refresh, then sign-out) is not called, and the caller shows the refusal.
 	 */

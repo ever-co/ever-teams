@@ -364,6 +364,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/shared-report",
+      "file": "apps/web/app/[locale]/shared-report/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/task/:id",
       "file": "apps/web/app/[locale]/(main)/task/[id]/page.tsx",
       "source": "router"
