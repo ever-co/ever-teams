@@ -67,11 +67,13 @@ describe('forwardToGauzy, a tab working in its own organization', () => {
 		const payload = { id: userId, tenantId: 'tenant-1', organizationId, iat: issuedAt, exp: issuedAt + 3600 };
 		return `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode(payload)}.sig-${organizationId}-${userId}`;
 	};
+	// Made once: a token made again after a second boundary has other dates (CodeRabbit on #5321)
+	const sharedToken = jwt('org-b');
 	const tabRequest = (authorization: string) =>
 		new Request('https://app.ever.team/api/timer/started-at', {
 			method: 'PUT',
 			headers: {
-				cookie: `auth-token=${jwt('org-b')}; auth-tenant-id=tenant-1; auth-organization-id=org-b`,
+				cookie: `auth-token=${sharedToken}; auth-tenant-id=tenant-1; auth-organization-id=org-b`,
 				authorization: `Bearer ${authorization}`,
 				'content-type': 'application/json'
 			},
@@ -92,6 +94,6 @@ describe('forwardToGauzy, a tab working in its own organization', () => {
 
 		await forwardToGauzy(tabRequest(jwt('org-a', 'user-2')), '/timesheet/timer/started-at');
 
-		expect(sentHeaders(fetchMock).authorization).toBe(`Bearer ${jwt('org-b')}`);
+		expect(sentHeaders(fetchMock).authorization).toBe(`Bearer ${sharedToken}`);
 	});
 });
