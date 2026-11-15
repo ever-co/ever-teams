@@ -188,11 +188,12 @@ browser.storage.onChanged.addListener((changes, area) => {
 	}
 	const before = changes.session.oldValue as Session | undefined;
 	const after = changes.session.newValue as Session | undefined;
-	// Another person or API now: a read still out answers for the one before. A renewed token or another team is the
-	// same person, whose read stays good (and keeps its heartbeat); a sign-out is handled by requestRefresh.
+	// Another person or API now: the session before ended, as at a sign-out. Its badge and status go at once, whatever
+	// the new person's first read answers, and a read still out for it is dropped. A renewed token or another team is
+	// the same person, whose read stays good (and keeps its heartbeat); a sign-out is handled by requestRefresh.
 	const isAnotherPerson = Boolean(before && after && !isSamePerson(before, after));
 	if (isAnotherPerson) {
-		statusOrder.sessionEnded();
+		void showSignedOut().catch(reportRefreshFailure);
 	}
 	void requestRefresh();
 });

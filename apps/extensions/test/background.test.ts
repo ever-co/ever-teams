@@ -44,6 +44,8 @@ interface HeldCall {
 	url: string;
 	body: unknown;
 	answer: (status: number, body?: unknown) => void;
+	/** The network fails, as offline. */
+	fail: () => void;
 }
 
 /** Every request waits until the test answers it, as a slow network would; an aborted one fails, as fetch does. */
@@ -62,6 +64,10 @@ function holdRequests() {
 					answer: (status, body) => {
 						open.splice(open.indexOf(call), 1);
 						resolve({ status, body });
+					},
+					fail: () => {
+						open.splice(open.indexOf(call), 1);
+						reject(new TypeError('Failed to fetch'));
 					}
 				};
 				open.push(call);
@@ -188,15 +194,37 @@ describe('the background timer', () => {
 		await settle();
 
 		assert.notEqual(extension.badge.text, '0:05', "the first person's run is not shown");
-		assert.equal(popup.received.length, 0);
+		// The popups hear the first person's status cleared, never the answer of the read made for them
+		assert.deepEqual(popup.received, [{ type: 'statusUpdate', payload: null }]);
 		assert.equal(server.sentTo(SLOT_PATH).length, 0);
 		(await server.next(STATUS_PATH)).answer(200, { running: false, duration: 0, lastLog: null });
 		(await server.next('/status/worked')).answer(200, []);
-		await until(() => popup.received.length > 0, "the second person's status told");
+		await until(() => popup.received.length > 1, "the second person's status told");
 		assert.deepEqual(popup.received.at(-1), {
 			type: 'statusUpdate',
 			payload: { running: false, duration: 0, lastLog: null }
 		});
+	});
+
+	it("clears the first person's badge once another person's session is stored, though the new read fails", async () => {
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		const { status } = runningServer();
+		await startBackground();
+		const popup = extension.connect();
+
+		extension.runtime.onStartup.emit();
+		(await server.next(STATUS_PATH)).answer(200, status());
+		await until(() => extension.badge.text === '0:05', "the first person's run shown");
+
+		const other = { ...SESSION, userId: 'user-2', email: 'pierre@example.test', token: 'access-2' };
+		await (globalThis as unknown as { chrome: typeof chrome }).chrome.storage.local.set({ session: other });
+		await until(() => extension.storageEvents.told > 0, 'the session change told');
+		(await server.next(STATUS_PATH)).fail();
+		await settle();
+
+		assert.equal(extension.badge.text, '');
+		assert.deepEqual(popup.received.at(-1), { type: 'statusUpdate', payload: null });
 	});
 
 	it('keeps a read when the session changes for the same person (a renewed token, another team)', async () => {
