@@ -5983,6 +5983,12 @@
 			"REQUIRED_TITLE": "Tu organización te pide activarla",
 			"REQUIRED_DESCRIPTION": "Sus miembros también inician sesión con un código de una aplicación de autenticación.",
 			"QR_ALT": "Código QR de esta cuenta para tu aplicación de autenticación"
+		},
+		"thisBrowser": {
+			"TITLE": "Este navegador",
+			"DESCRIPTION": "Cuánto tiempo sigues con la sesión abierta en este navegador. Tus otros navegadores y aplicaciones mantienen sus propias sesiones.",
+			"SIGN_OUT_ON_CLOSE": "Cerrar la sesión al cerrar este navegador",
+			"SIGN_OUT_ON_CLOSE_HINT": "Para un ordenador compartido. Si está desactivado, sigues con la sesión abierta después de cerrar el navegador, hasta que tu sesión caduque."
 		}
 	},
 	"taskDetail": {

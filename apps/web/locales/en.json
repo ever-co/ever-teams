@@ -5983,6 +5983,12 @@
 			"REQUIRED_TITLE": "Your organization asks you to turn this on",
 			"REQUIRED_DESCRIPTION": "Its members sign in with a code from an authenticator app as well.",
 			"QR_ALT": "QR code of this account for your authenticator app"
+		},
+		"thisBrowser": {
+			"TITLE": "This browser",
+			"DESCRIPTION": "How long you stay signed in on this browser. Your other browsers and apps keep their own sessions.",
+			"SIGN_OUT_ON_CLOSE": "Sign out when this browser closes",
+			"SIGN_OUT_ON_CLOSE_HINT": "For a shared computer. When it is off, you stay signed in after the browser closes, until your session expires."
 		}
 	},
 	"taskDetail": {

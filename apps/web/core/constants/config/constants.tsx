@@ -145,6 +145,8 @@ export const ACTIVE_LANGUAGE_COOKIE_NAME = 'auth-active-language';
 export const ACTIVE_TIMEZONE_COOKIE_NAME = 'auth-timezone';
 export const NO_TEAM_POPUP_SHOW_COOKIE_NAME = 'no-team-popup-show';
 export const ACTIVE_PROJECT_COOKIE_NAME = 'auth-active-project';
+/** Set ('1') on a browser that forgets the session when it closes: a choice of the browser, kept through sign-outs. */
+export const SESSION_ENDS_WITH_BROWSER_COOKIE_NAME = 'session-ends-with-browser';
 
 export const IS_DESKTOP_APP = process.env.IS_DESKTOP_APP === 'true';
 

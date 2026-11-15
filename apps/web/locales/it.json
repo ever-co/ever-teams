@@ -5983,6 +5983,12 @@
 			"REQUIRED_TITLE": "La tua organizzazione ti chiede di attivarla",
 			"REQUIRED_DESCRIPTION": "I suoi membri accedono anche con un codice da un’app di autenticazione.",
 			"QR_ALT": "Codice QR di questo account per l’app di autenticazione"
+		},
+		"thisBrowser": {
+			"TITLE": "Questo browser",
+			"DESCRIPTION": "Per quanto tempo resti connesso su questo browser. Gli altri browser e le altre app mantengono le proprie sessioni.",
+			"SIGN_OUT_ON_CLOSE": "Esci quando chiudi questo browser",
+			"SIGN_OUT_ON_CLOSE_HINT": "Per un computer condiviso. Se è disattivato, resti connesso dopo la chiusura del browser, finché la sessione non scade."
 		}
 	},
 	"taskDetail": {
