@@ -1,8 +1,17 @@
 /**
  * Body fields that carry a secret in clear text: a password (`hash` is the new password of `PUT /user/:id`), a sign-in
- * code or a two-factor proof (`code`, `recoveryCode`), and the challenge a two-factor sign-in sends back.
+ * code or a two-factor proof (`code`, `recoveryCode`), the challenge a two-factor sign-in sends back, and the refresh
+ * token that renews a session.
  */
-const SECRET_BODY_FIELDS = new Set(['hash', 'password', 'confirmPassword', 'code', 'recoveryCode', 'challenge']);
+const SECRET_BODY_FIELDS = new Set([
+	'hash',
+	'password',
+	'confirmPassword',
+	'code',
+	'recoveryCode',
+	'challenge',
+	'refresh_token'
+]);
 
 const HIDDEN = '[hidden]';
 

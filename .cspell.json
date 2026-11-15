@@ -4,6 +4,7 @@
 	"caseSensitive": false,
 	"$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
 	"words": [
+		"Greptile",
 		"VAPID",
 		"treeitem",
 		"blockid",
@@ -1020,6 +1021,10 @@
 		"Kunde",
 		"Notiz",
 		"initech",
+		"Amina",
+		"Diallo",
+		"Équipe",
+		"RRGGBB",
 		"otpauth",
 		"qrcode",
 		"totp"

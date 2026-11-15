@@ -22,10 +22,14 @@ describe('shell timer task-status ownership', () => {
 		expect(handlerSource).toMatch(/const actionDisabled = timerStatusFetching \|\| !canRunTimer/);
 		expect(handlerSource).toMatch(/actionDisabled,\s*startStopTimerHandler/);
 		expect(timerSource).toMatch(/function useHydrated\(\)/);
-		expect(timerSource.match(/disabled=\{!hydrated \|\| actionDisabled\}/g)).toHaveLength(2);
+		// The start button of both timers; a break being taken (#5216) holds it too, and End break needs no task to start
+		const startButtonGates = timerSource.match(
+			/disabled=\{!hydrated \|\| actionDisabled(?: \|\| isBreakPending)?\}/g
+		);
+		expect(startButtonGates).toHaveLength(2);
 	});
 
-	it('does not let idle mutation owners clear another owner\'s timer loading state', () => {
+	it("does not let idle mutation owners clear another owner's timer loading state", () => {
 		const source = readFileSync(TIMER_API, 'utf8');
 
 		expect(source).not.toMatch(/setTimerStatusFetching\(stopTimerMutation\.isPending\)/);

@@ -7,7 +7,8 @@ import { MemberCell } from '@/core/components/dashboards/kit/member-cell';
 import { DASHBOARD_SURFACE, SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { ChevronDown, ChevronUp, Trash } from '@/core/components/icons';
 import type { TrackedShare } from '@/core/hooks/dashboards/manual-time-edits/use-manual-time-edits-report';
-import { canEditLog, type TimesheetPermissions } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
+import type { PeriodHistoryStatus } from '@/core/hooks/dashboards/manual-time-edits/use-time-log-period-history';
+import type { TimesheetPermissions } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import {
@@ -24,7 +25,12 @@ import { ManualTimeEditEntry, ManualTimeEditEntrySkeleton } from './manual-time-
 import { DayName, type EditsFormatters } from './manual-time-edit-row';
 import { FEED_COLUMN, GROUP_HEADER } from './manual-time-edits-feed-layout';
 import { ManualTimeEditsFeedHead, ManualTimeEditsFeedHeadSkeleton } from './manual-time-edits-feed-head';
-import { type EditsTableHandlers, type GroupSelection, groupSelectionOf } from './manual-time-edits-table';
+import {
+	canEditEntry,
+	type EditsTableHandlers,
+	type GroupSelection,
+	groupSelectionOf
+} from './manual-time-edits-table';
 
 type Translate = ReturnType<typeof useTranslations>;
 
@@ -155,6 +161,7 @@ const FeedGroup = memo(function FeedGroup({
 	isSelecting,
 	selectedIdSet,
 	permissions,
+	historyStatus,
 	formatters,
 	handlers
 }: Readonly<{
@@ -165,6 +172,7 @@ const FeedGroup = memo(function FeedGroup({
 	isSelecting: boolean;
 	selectedIdSet: ReadonlySet<string>;
 	permissions: TimesheetPermissions;
+	historyStatus: PeriodHistoryStatus;
 	formatters: EditsFormatters;
 	handlers: EditsTableHandlers;
 }>) {
@@ -216,7 +224,8 @@ const FeedGroup = memo(function FeedGroup({
 							railPosition={railPositionOf(index, shownCount)}
 							isSelected={selectedIdSet.has(entry.key)}
 							isSelecting={isSelecting}
-							canEdit={canEditLog(entry.log, permissions)}
+							canEdit={canEditEntry(entry, permissions)}
+							historyStatus={historyStatus}
 							formatters={formatters}
 							handlers={handlers}
 						/>
@@ -253,6 +262,7 @@ export interface ManualTimeEditsFeedProps {
 	members: ReadonlyArray<EditsMember>;
 	selectedIdSet: ReadonlySet<string>;
 	permissions: TimesheetPermissions;
+	historyStatus: PeriodHistoryStatus;
 	formatters: EditsFormatters;
 	handlers: EditsTableHandlers;
 	isLoading: boolean;
@@ -271,6 +281,7 @@ export function ManualTimeEditsFeed({
 	members,
 	selectedIdSet,
 	permissions,
+	historyStatus,
 	formatters,
 	handlers,
 	isLoading,
@@ -306,6 +317,7 @@ export function ManualTimeEditsFeed({
 					isSelecting={isSelecting}
 					selectedIdSet={selectedIdSet}
 					permissions={permissions}
+					historyStatus={historyStatus}
 					formatters={formatters}
 					handlers={handlers}
 				/>

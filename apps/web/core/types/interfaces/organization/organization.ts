@@ -62,6 +62,8 @@ export interface IOrganization
 	requireClient?: boolean;
 	requireTeam?: boolean;
 	restrictTrackingSwitchToHigherRoles?: boolean;
+	timeLogsKeepTheirRates?: boolean | null;
+	allowBreaks?: boolean;
 	timeFormat?: ETimeFormat;
 	defaultStartTime?: string;
 	defaultEndTime?: string;

@@ -31,7 +31,7 @@ import { PROFILE_NAME_MAX_LENGTH } from '@/core/lib/utils/settings-profile';
 import type { TeamRole } from '@/core/lib/utils/settings-team';
 import type { WorkspaceRole } from '@/core/lib/utils/member-access';
 import type { MemberRowModel } from '@/core/hooks/settings/use-team-members-settings';
-import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rates.schema';
+import type { IEmployeeRatesInput, RateSaveOutcome } from '@/core/types/schemas/organization/rates.schema';
 import { MemberRateEditor, MemberRateText } from './member-rate-editor';
 import { MemberAvatar, PERSON_ROW, PersonChip, PersonLines } from './people-parts';
 
@@ -78,7 +78,7 @@ export interface MemberRowActions {
 	/** Set where the platform offers two-factor authentication. */
 	onRequestResetTwoFactor?: (row: MemberRowModel) => void;
 	onRename: (rowId: string, firstName: string, lastName: string) => Promise<void>;
-	onSaveRates: (rowId: string, rates: IEmployeeRatesInput) => Promise<void>;
+	onSaveRates: (rowId: string, rates: IEmployeeRatesInput) => Promise<RateSaveOutcome | void>;
 }
 
 function TeamRoleItems({

@@ -10,6 +10,7 @@ import {
 	totalDurationOf,
 	workDayOfLog
 } from '@/core/lib/utils/dashboards/timesheets';
+import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import { entryNotesOf } from '@/core/lib/utils/timer/timer-notes';
 import type { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
@@ -64,9 +65,17 @@ function timesheetExportRowOf(log: ITimeLog): TimesheetExportRow {
 	};
 }
 
-/** The rows of a flat file (CSV, XLSX): one per log, in the order the logs started. */
+/**
+ * The logs an export writes: the work. A break is listed on the page but never worked time (#5216), and a row of it
+ * would read as work in a file, so the files leave breaks out, rows and totals alike.
+ */
+function exportedLogsOf(logs: ReadonlyArray<ITimeLog>): ITimeLog[] {
+	return logs.filter((log) => !isBreakLog(log));
+}
+
+/** The rows of a flat file (CSV, XLSX): one per log of work, in the order the logs started. */
 export function timesheetExportRowsOf(logs: ReadonlyArray<ITimeLog>): TimesheetExportRow[] {
-	const sorted = [...logs].sort((first, second) => startTimeValueOf(first) - startTimeValueOf(second));
+	const sorted = exportedLogsOf(logs).sort((first, second) => startTimeValueOf(first) - startTimeValueOf(second));
 	return sorted.map(timesheetExportRowOf);
 }
 
@@ -79,7 +88,7 @@ export interface TimesheetExportDay {
 
 /** The rows of a printed file, grouped as the list shows them: one group per day worked, the latest day first. */
 export function timesheetExportDaysOf(logs: ReadonlyArray<ITimeLog>): TimesheetExportDay[] {
-	const days = groupLogsByWorkDay(logs);
+	const days = groupLogsByWorkDay(exportedLogsOf(logs));
 	return days.map((day) => ({
 		key: day.key,
 		date: day.date,
@@ -96,9 +105,10 @@ interface TimesheetExportTotals {
 
 /** The totals every export closes on: the figures of the status card picked on the page, for the same logs. */
 export function timesheetExportTotalsOf(logs: ReadonlyArray<ITimeLog>): TimesheetExportTotals {
+	const workLogs = exportedLogsOf(logs);
 	return {
-		seconds: totalDurationOf(logs),
-		logCount: logs.length,
-		memberCount: distinctMemberCountOf(logs)
+		seconds: totalDurationOf(workLogs),
+		logCount: workLogs.length,
+		memberCount: distinctMemberCountOf(workLogs)
 	};
 }

@@ -17,14 +17,12 @@ import { useClientViewAccess } from '@/core/hooks/clients/use-client-view-access
 import { useClientsQuery } from '@/core/hooks/clients/use-clients-query';
 import { useListedProjects } from '@/core/hooks/clients/use-listed-projects';
 import { useInvoiceAccess } from '@/core/hooks/invoices/use-invoice-access';
-import { clientPagePathOf, type ClientAccess } from '@/core/lib/utils/clients';
+import { CLIENTS_PATH, clientPagePathOf, type ClientAccess } from '@/core/lib/utils/clients';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import type { TClient } from '@/core/types/schemas';
 import { ClientsNoAccessState } from '../clients-list-states';
 import { ClientDetailBody } from './client-detail-body';
 import { ClientDetailBodySkeleton, ClientDetailHeaderSkeleton } from './client-detail-skeleton';
-
-const CLIENTS_PATH = '/clients';
 
 interface ClientRecordViewProps {
 	client: TClient;

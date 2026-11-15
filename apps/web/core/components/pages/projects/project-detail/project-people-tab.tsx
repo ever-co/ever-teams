@@ -129,6 +129,7 @@ function ProjectRatesSection({ rates }: Readonly<{ rates: ProjectPeopleRates }>)
 							value={rates.projectRate}
 							currency={rates.currency}
 							hint={t('rates.PROJECT_RATE_HINT')}
+							asksAboutPastTime
 							onSave={rates.saveProjectRate}
 						/>
 					)}
@@ -174,7 +175,8 @@ export function ProjectPeopleTab({ project }: Readonly<{ project: TOrganizationP
 				currency={rates.currency}
 				hint={t('rates.MEMBER_RATE_HINT')}
 				readOnly={!rates.canEditMemberRate(person.id)}
-				onSave={(billRateValue) => rates.saveMemberRateOf(person.id, billRateValue)}
+				asksAboutPastTime
+				onSave={(billRateValue, applyFrom) => rates.saveMemberRateOf(person.id, billRateValue, applyFrom)}
 			/>
 		);
 	}

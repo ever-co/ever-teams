@@ -6,6 +6,7 @@ import { durationPartsOf, type LimitVerdict, limitVerdictOf, percentOf } from '@
 import { formatAmount } from '@/core/lib/utils/daily-report-figures';
 import type { Period } from '@/core/lib/utils/dashboard-period';
 import { numberFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
+import type { PastTimeRule } from '@/core/lib/utils/rate-apply';
 
 export type BudgetScope = 'whole' | 'period';
 
@@ -114,6 +115,16 @@ export function wholeProjectPeriodOf(todayKey: string): Period {
 	const today = parseISO(todayKey);
 	const to = endOfDay(today);
 	return { from, to };
+}
+
+export type CostNoteKey = 'dashboard.projectBudget.COST_NOTE' | 'dashboard.projectBudget.COST_NOTE_STORED_RATES';
+
+/** Where time keeps its rate (#5212) a cost is each entry at its own rate; elsewhere at each member's current rate. */
+export function costNoteKeyOf(rule: PastTimeRule | null): CostNoteKey {
+	if (rule === 'keepsItsRate') {
+		return 'dashboard.projectBudget.COST_NOTE_STORED_RATES';
+	}
+	return 'dashboard.projectBudget.COST_NOTE';
 }
 
 /** Gauzy prices the logs of every project whose budget type is not hours, so anything else reads as a cost. */

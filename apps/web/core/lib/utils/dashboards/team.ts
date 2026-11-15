@@ -1799,15 +1799,17 @@ function recentLinesOfRow(row: DailyReportRow, tasksById: ReadonlyMap<string, TT
 		imageUrl: row.employeeImageUrl,
 		project
 	};
+	// A member's project day split by rate (#5212) is one piece of recent work: its rows add up under one key
+	const rowKey = row.keyAcrossRates ?? row.key;
 	const workedTasks = row.tasks.filter((task) => task.seconds > 0);
 	if (workedTasks.length === 0) {
-		return [{ ...base, key: row.key, seconds: row.seconds, taskId: null, taskTitle: '', taskNumberLabel: '' }];
+		return [{ ...base, key: rowKey, seconds: row.seconds, taskId: null, taskTitle: '', taskNumberLabel: '' }];
 	}
 	return workedTasks.map((task) => {
 		const taskId = taskIdOfReportTask(task);
 		return {
 			...base,
-			key: `${row.key}:${task.key}`,
+			key: `${rowKey}:${task.key}`,
 			seconds: task.seconds,
 			taskId,
 			taskTitle: task.title,

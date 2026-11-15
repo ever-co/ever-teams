@@ -48,6 +48,7 @@ type WorkspaceChanges = Pick<
 	| 'durationRoundingInterval'
 	| 'durationRoundingDirection'
 	| 'defaultBillRateValue'
+	| 'timeLogsKeepTheirRates'
 >;
 
 /**
@@ -277,6 +278,21 @@ export function useWorkspaceSettings() {
 		[reportedSave, saveOrganization, scopeOfSave, t]
 	);
 
+	const saveTimeLogsKeepTheirRates = useCallback(
+		async (timeLogsKeepTheirRates: boolean) => {
+			const scope = scopeOfSave();
+			let savedKey: DottedLanguageObjectStringPaths = 'settings.workspace.KEEP_RATES_SAVED_OFF';
+			if (timeLogsKeepTheirRates) {
+				savedKey = 'settings.workspace.KEEP_RATES_SAVED_ON';
+			}
+			await reportedSave(() => saveOrganization(scope, { timeLogsKeepTheirRates }), {
+				failureKey: 'settings.workspace.KEEP_RATES_NOT_SAVED',
+				saved: t(savedKey)
+			});
+		},
+		[reportedSave, saveOrganization, scopeOfSave, t]
+	);
+
 	// Gauzy stores the interval and the direction together: a rule is saved, or cleared, as a pair
 	const saveDurationRounding = useCallback(
 		async (rule: DurationRoundingRule | null) => {
@@ -375,6 +391,7 @@ export function useWorkspaceSettings() {
 		saveClock,
 		saveCurrencyPosition,
 		saveDurationRounding,
-		saveDefaultBillRate
+		saveDefaultBillRate,
+		saveTimeLogsKeepTheirRates
 	};
 }

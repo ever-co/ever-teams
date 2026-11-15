@@ -12,7 +12,7 @@ import {
 	type OwedRateSource
 } from '@/core/lib/utils/dashboards/payments-due';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
-import { HiddenRate, NoRateChip, RatePlaceholder } from './payments-due-cells';
+import { HiddenRate, NoRateChip, RatePlaceholder, SeveralRates } from './payments-due-cells';
 
 const NEUTRAL_CHIP_STYLE = hueStyle('neutral');
 
@@ -62,16 +62,21 @@ export const RateChip = memo(function RateChip({
 	rate,
 	currency,
 	rateSource = null,
-	ratePending = false
+	ratePending = false,
+	hasSeveralRates = false
 }: Readonly<{
 	rate: number | null;
 	currency: string | null;
 	rateSource?: OwedRateSource | null;
 	ratePending?: boolean;
+	hasSeveralRates?: boolean;
 }>) {
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
-	const shown = rateShownOf({ rate, rateSource, ratePending });
+	const shown = rateShownOf({ rate, rateSource, ratePending, hasSeveralRates });
+	if (shown === 'several') {
+		return <SeveralRates className="flex-none" />;
+	}
 	if (shown === 'loading') {
 		return <RatePlaceholder className="ml-0" />;
 	}
