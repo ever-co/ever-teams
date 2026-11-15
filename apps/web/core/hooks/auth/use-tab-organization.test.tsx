@@ -4,7 +4,7 @@
  * its tasks, its active task and the project it chose stay as they are (CodeRabbit on #5321).
  */
 import type { ReactNode } from 'react';
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -94,6 +94,22 @@ describe('useTabOrganization, bringing this tab organization back to every tab',
 		expect(document.cookie).toContain(`${ACTIVE_TEAM_COOKIE_NAME}=team-a`);
 		expect(document.cookie).toContain(`${ACTIVE_PROJECT_COOKIE_NAME}=project-a2`);
 		expect(mockSyncTokenOrganization).toHaveBeenCalledWith('org-a');
+	});
+
+	it("puts the other tab's cookies back when Gauzy refuses the switch, and the tab says again where it works", async () => {
+		twoTabsInTwoOrganizations();
+		mockSyncTokenOrganization.mockResolvedValue(false);
+		const { result } = renderTab();
+
+		await act(async () => {
+			result.current.bringOwnOrganizationBack();
+		});
+
+		// The session stays in organization B, and so do the cookies: never organization A with organization B's token
+		expect(getSharedOrganizationIdCookie()).toBe('org-b');
+		expect(document.cookie).toContain(`${ACTIVE_TEAM_COOKIE_NAME}=team-b`);
+		expect(document.cookie).toContain(`${ACTIVE_PROJECT_COOKIE_NAME}=project-b`);
+		await waitFor(() => expect(result.current.state).toBe('own'));
 	});
 
 	it('does nothing while no other tab has another organization open', () => {
