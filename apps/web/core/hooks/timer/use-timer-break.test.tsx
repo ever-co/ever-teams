@@ -252,7 +252,7 @@ describe('A break in the organization switch guard', () => {
 
 	it('counts a break end until its stop settles, a refused one too', async () => {
 		mockGetTimerStatus.mockResolvedValue({ data: breakRunning });
-		let refuseStop = (_error: unknown) => {};
+		let refuseStop: (error: unknown) => void = () => {};
 		mockStopTimer.mockImplementation(
 			() =>
 				new Promise((_resolve, reject) => {
