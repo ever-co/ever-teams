@@ -56,12 +56,14 @@ function DoneMeter({ done, total }: Readonly<{ done: number; total: number }>) {
 /** Time logged on the plan's tasks that day; mounted only while the group is open, since it is one read per plan. */
 function PlanWorkedFigure({ plan }: Readonly<{ plan: TDailyPlan }>) {
 	const t = useTranslations();
-	// A task added to or removed from the plan changes the parameters: the last total stays until the new one comes
+	// A task added to or removed from the plan changes the parameters: the last total stays until the new one comes.
+	// The ids are sorted: the total does not depend on their order, so a reorder of the plan reads nothing again.
+	const taskIds = useMemo(() => (plan.tasks ?? []).map((task) => task.id).sort(), [plan.tasks]);
 	const timeLogsQuery = useGetTimeLogs(
 		{
 			startDate: plan.date,
 			endDate: plan.date,
-			taskIds: plan.tasks?.map((task) => task.id) || []
+			taskIds
 		},
 		{ keepsPreviousData: true }
 	);
