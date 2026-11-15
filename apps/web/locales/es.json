@@ -439,6 +439,9 @@
 		"NO_TEAM_MEMBERS_FOUND": "No se encontraron miembros del equipo",
 		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Intenta ajustar tu búsqueda o filtro para encontrar lo que buscas.",
 		"PICK_A_DATE": "Selecciona una fecha",
+		"PICK_A_TIME": "Selecciona una hora",
+		"PICK_THIS_OR_LATER": "Selecciona {value} o después.",
+		"PICK_THIS_OR_EARLIER": "Selecciona {value} o antes.",
 		"THIS_WEEK": "Esta semana",
 		"LAST_WEEK": "La semana pasada",
 		"THIS_MONTH": "Este mes",
@@ -7880,6 +7883,41 @@
 				"DELETED": "Se eliminó la facturación programada de {name}",
 				"FAILED": "No se pudo guardar el cambio. Inténtelo de nuevo."
 			}
+		},
+		"shared": {
+			"PAY": "Pagar {amount}",
+			"PAYING": "Abriendo el pago…",
+			"PAY_FAILED": "No se pudo iniciar el pago. Inténtelo de nuevo en un momento.",
+			"DOWNLOAD_FAILED": "No se pudo descargar el PDF. Inténtelo de nuevo.",
+			"FROM_SENDER": "De {name}",
+			"RETURNED_TITLE": "Gracias por su pago",
+			"RETURNED_MESSAGE": "Se está confirmando. Esta página mostrará la factura como pagada en cuanto el proveedor de pagos lo confirme.",
+			"PAID_TITLE": "Esta factura está pagada",
+			"PAID_MESSAGE": "No queda nada por pagar. Gracias.",
+			"CLOSED_TITLE": "Este enlace ya no abre ninguna factura",
+			"CLOSED_MESSAGE": "El enlace se revocó o la factura se anuló. Pida un nuevo enlace al remitente.",
+			"FOOTER": "Enviado con {app}"
+		},
+		"payments": {
+			"TITLE": "Pago de facturas en línea",
+			"DESCRIPTION": "Permita que los clientes paguen una factura desde su página, a través del conector de pagos de su espacio de trabajo. Las claves de su proveedor de pagos se quedan en el conector.",
+			"ENDPOINT": "Dirección de pago",
+			"ENDPOINT_HINT": "La dirección HTTPS de su conector que abre un pago.",
+			"ENABLED": "Ofrecer el pago en línea en las páginas de las facturas",
+			"TEST_MODE": "Modo de prueba: los pagos se registran en el historial, nunca en las facturas",
+			"CONNECT": "Conectar",
+			"SAVE": "Guardar",
+			"SAVED": "Guardado",
+			"SAVE_FAILED": "No se pudo guardar la conexión. Compruebe la dirección e inténtelo de nuevo.",
+			"LOAD_FAILED": "No se pudo cargar la conexión.",
+			"NOTIFICATION_URL": "Dirección de notificación",
+			"NOTIFICATION_URL_HINT": "Su conector envía aquí cada pago que confirma el proveedor.",
+			"SECRET": "Secreto de firma",
+			"SECRET_ONCE": "Cópielo ahora en su conector: solo se muestra esta vez.",
+			"ROTATE": "Nuevo secreto de firma",
+			"ROTATE_HINT": "El secreto actual deja de funcionar de inmediato.",
+			"COPY": "Copiar",
+			"COPIED": "Copiado"
 		}
 	},
 	"timeReports": {

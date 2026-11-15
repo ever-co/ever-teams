@@ -6,6 +6,7 @@ import React, { useMemo } from 'react';
 import { JitsuAnalytics } from '@/core/components/analytics/jitsu-analytics';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { isAccountDeletionPath } from '@/core/lib/auth/account-deletion';
+import { isSharedInvoiceAddress } from '@/core/lib/utils/shared-invoice';
 import { isSharedReportPath } from '@/core/lib/utils/shared-report-path';
 
 type MyAppProps = {
@@ -44,7 +45,10 @@ export function JitsuRoot({ pageProps, children }: MyAppProps) {
 			typeof window !== 'undefined' && isAccountDeletionPath(window.location.pathname);
 		// The same for a shared report, whose link carries the token that opens it (isSharedReportPath).
 		const startsOnSharedReport = typeof window !== 'undefined' && isSharedReportPath(window.location.pathname);
-		const startsOnTokenPage = startsOnAccountDeletion || startsOnSharedReport;
+		// And for an invoice's public page, or the email link that opens it (isSharedInvoiceAddress).
+		const startsOnSharedInvoice =
+			typeof window !== 'undefined' && isSharedInvoiceAddress(window.location.pathname, window.location.hash);
+		const startsOnTokenPage = startsOnAccountDeletion || startsOnSharedReport || startsOnSharedInvoice;
 		const isJitsuEnvs: boolean = !!jitsuConf.host && !!jitsuConf.writeKey && !startsOnTokenPage;
 
 		console.log(`Jitsu Enabled: ${isJitsuEnvs}`);

@@ -433,6 +433,9 @@
 		"NO_TEAM_MEMBERS_FOUND": "Nie znaleziono członków zespołu",
 		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Spróbuj dostosować wyszukiwanie lub filtr, aby znaleźć to, czego szukasz.",
 		"PICK_A_DATE": "Wybierz datę",
+		"PICK_A_TIME": "Wybierz godzinę",
+		"PICK_THIS_OR_LATER": "Wybierz {value} lub później.",
+		"PICK_THIS_OR_EARLIER": "Wybierz {value} lub wcześniej.",
 		"THIS_WEEK": "Ten tydzień",
 		"LAST_WEEK": "Ostatni tydzień",
 		"COST_BASED": "Na podstawie kosztów",
@@ -7880,6 +7883,41 @@
 				"DELETED": "Usunięto harmonogram fakturowania: {name}",
 				"FAILED": "Nie udało się zapisać zmiany. Spróbuj ponownie."
 			}
+		},
+		"shared": {
+			"PAY": "Zapłać {amount}",
+			"PAYING": "Otwieranie płatności…",
+			"PAY_FAILED": "Nie udało się rozpocząć płatności. Spróbuj ponownie za chwilę.",
+			"DOWNLOAD_FAILED": "Nie udało się pobrać pliku PDF. Spróbuj ponownie.",
+			"FROM_SENDER": "Od {name}",
+			"RETURNED_TITLE": "Dziękujemy za płatność",
+			"RETURNED_MESSAGE": "Trwa jej potwierdzanie. Ta strona pokaże fakturę jako opłaconą, gdy tylko dostawca płatności to potwierdzi.",
+			"PAID_TITLE": "Ta faktura jest opłacona",
+			"PAID_MESSAGE": "Nie ma już nic do zapłaty. Dziękujemy.",
+			"CLOSED_TITLE": "Ten link nie otwiera już faktury",
+			"CLOSED_MESSAGE": "Link został unieważniony albo faktura została anulowana. Poproś nadawcę o nowy link.",
+			"FOOTER": "Wysłano przez {app}"
+		},
+		"payments": {
+			"TITLE": "Płatności online za faktury",
+			"DESCRIPTION": "Pozwól klientom opłacić fakturę z jej strony przez łącznik płatności Twojej przestrzeni roboczej. Klucze dostawcy płatności pozostają w łączniku.",
+			"ENDPOINT": "Adres płatności",
+			"ENDPOINT_HINT": "Adres HTTPS Twojego łącznika, który otwiera płatność.",
+			"ENABLED": "Oferuj płatność online na stronach faktur",
+			"TEST_MODE": "Tryb testowy: płatności są zapisywane w dzienniku, nigdy na fakturach",
+			"CONNECT": "Połącz",
+			"SAVE": "Zapisz",
+			"SAVED": "Zapisano",
+			"SAVE_FAILED": "Nie udało się zapisać połączenia. Sprawdź adres i spróbuj ponownie.",
+			"LOAD_FAILED": "Nie udało się wczytać połączenia.",
+			"NOTIFICATION_URL": "Adres powiadomień",
+			"NOTIFICATION_URL_HINT": "Twój łącznik wysyła tu każdą płatność potwierdzoną przez dostawcę.",
+			"SECRET": "Sekret podpisu",
+			"SECRET_ONCE": "Skopiuj go teraz do łącznika: jest pokazywany tylko ten jeden raz.",
+			"ROTATE": "Nowy sekret podpisu",
+			"ROTATE_HINT": "Obecny sekret od razu przestaje działać.",
+			"COPY": "Kopiuj",
+			"COPIED": "Skopiowano"
 		}
 	},
 	"timeReports": {

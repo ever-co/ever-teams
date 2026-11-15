@@ -439,6 +439,9 @@
 		"NO_TEAM_MEMBERS_FOUND": "Geen teamleden gevonden",
 		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Probeer je zoekopdracht of filter aan te passen om te vinden wat je zoekt.",
 		"PICK_A_DATE": "Kies een datum",
+		"PICK_A_TIME": "Kies een tijd",
+		"PICK_THIS_OR_LATER": "Kies {value} of later.",
+		"PICK_THIS_OR_EARLIER": "Kies {value} of eerder.",
 		"THIS_WEEK": "Deze week",
 		"LAST_WEEK": "Vorige week",
 		"THIS_MONTH": "Deze maand",
@@ -7880,6 +7883,41 @@
 				"DELETED": "De geplande facturering van {name} is verwijderd",
 				"FAILED": "De wijziging kon niet worden opgeslagen. Probeer het opnieuw."
 			}
+		},
+		"shared": {
+			"PAY": "{amount} betalen",
+			"PAYING": "Betaling wordt geopend…",
+			"PAY_FAILED": "De betaling kon niet worden gestart. Probeer het zo opnieuw.",
+			"DOWNLOAD_FAILED": "De pdf kon niet worden gedownload. Probeer het opnieuw.",
+			"FROM_SENDER": "Van {name}",
+			"RETURNED_TITLE": "Bedankt voor uw betaling",
+			"RETURNED_MESSAGE": "Deze wordt bevestigd. Deze pagina toont de factuur als betaald zodra de betaalprovider dat bevestigt.",
+			"PAID_TITLE": "Deze factuur is betaald",
+			"PAID_MESSAGE": "Er hoeft niets meer betaald te worden. Bedankt.",
+			"CLOSED_TITLE": "Deze link opent geen factuur meer",
+			"CLOSED_MESSAGE": "De link is ingetrokken of de factuur is geannuleerd. Vraag de afzender om een nieuwe link.",
+			"FOOTER": "Verzonden met {app}"
+		},
+		"payments": {
+			"TITLE": "Online betaling van facturen",
+			"DESCRIPTION": "Laat klanten een factuur op de pagina ervan betalen, via de betaalconnector van uw werkruimte. De sleutels van uw betaalprovider blijven bij de connector.",
+			"ENDPOINT": "Betaaladres",
+			"ENDPOINT_HINT": "Het HTTPS-adres van uw connector dat een betaling opent.",
+			"ENABLED": "Online betalen aanbieden op factuurpagina’s",
+			"TEST_MODE": "Testmodus: betalingen worden gelogd, nooit op facturen geboekt",
+			"CONNECT": "Verbinden",
+			"SAVE": "Opslaan",
+			"SAVED": "Opgeslagen",
+			"SAVE_FAILED": "De verbinding kon niet worden opgeslagen. Controleer het adres en probeer het opnieuw.",
+			"LOAD_FAILED": "De verbinding kon niet worden geladen.",
+			"NOTIFICATION_URL": "Meldingsadres",
+			"NOTIFICATION_URL_HINT": "Uw connector stuurt hierheen elke betaling die de provider bevestigt.",
+			"SECRET": "Ondertekeningsgeheim",
+			"SECRET_ONCE": "Kopieer het nu naar uw connector: het wordt maar één keer getoond.",
+			"ROTATE": "Nieuw ondertekeningsgeheim",
+			"ROTATE_HINT": "Het huidige geheim werkt meteen niet meer.",
+			"COPY": "Kopiëren",
+			"COPIED": "Gekopieerd"
 		}
 	},
 	"timeReports": {

@@ -22,7 +22,7 @@ jest.mock('@/core/hooks/organizations/rates/use-rates', () => ({
 jest.mock('@/core/hooks/auth/use-current-organization', () => ({
 	useGetCurrentOrganization: (options: { enabled?: boolean }) => mockUseGetCurrentOrganization(options)
 }));
-jest.mock('@/core/components/icons', () => ({ Spinner: () => null }));
+jest.mock('@/core/components/icons', () => ({ Calendar: () => null, Spinner: () => null }));
 jest.mock('./people-parts', () => ({ MemberAvatar: () => null }));
 jest.mock('sonner', () => ({ toast: { success: (...args: unknown[]) => mockToastSuccess(...args) } }));
 

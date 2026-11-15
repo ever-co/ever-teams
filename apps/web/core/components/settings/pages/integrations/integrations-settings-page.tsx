@@ -15,6 +15,7 @@ import { canManageActiveTeamState } from '@/core/stores';
 import { AsanaProviderSection } from './asana-provider';
 import { GithubProviderSection } from './github-provider';
 import { ImportSection } from './import-section';
+import { InvoicePaymentsSection } from './invoice-payments-section';
 import { IntegrationsSettingsSkeleton } from './integrations-settings-skeleton';
 import { JiraProviderSection } from './jira-provider';
 import { LinearProviderSection } from './linear-provider';
@@ -57,6 +58,7 @@ function IntegrationsSettingsContent() {
 			<TrelloProviderSection trello={trello} />
 			<JiraProviderSection jira={jira} />
 			<ImportSection />
+			<InvoicePaymentsSection />
 			<EverPlatformSettings isTeamManager={canManageTeam} frame={frameEverPlatform} />
 		</SettingsPage>
 	);

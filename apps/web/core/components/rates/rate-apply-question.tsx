@@ -2,7 +2,7 @@
 
 import { useId } from 'react';
 import { useTranslations } from 'next-intl';
-import { Input } from '@/core/components/common/input';
+import { DateField } from '@/core/components/common/date-field';
 import { ChoiceCards, type ChoiceCardOption } from '@/core/components/settings/kit/choice-cards';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { rateApplyChoicesOf, type PastTimeRule, type RateApplyChoice } from '@/core/lib/utils/rate-apply';
@@ -45,16 +45,16 @@ function DayField({
 			<label htmlFor={dayId} className={FIELD_LABEL}>
 				{t('rates.APPLY_DAY')}
 			</label>
-			<Input
+			<DateField
 				id={dayId}
-				type="date"
 				value={day}
 				max={localDayKeyOf(new Date())}
 				disabled={disabled}
 				aria-invalid={isDayMissing || undefined}
 				aria-describedby={describedBy}
-				onChange={(event) => onDayChange(event.target.value)}
-				className="h-8 w-full tabular-nums sm:w-44"
+				onChange={onDayChange}
+				className="sm:w-44"
+				inputClassName="h-8"
 			/>
 			{isDayMissing && (
 				<p id={errorId} role="alert" className="text-xs text-destructive-ink">

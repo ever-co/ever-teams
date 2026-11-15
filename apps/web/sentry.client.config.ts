@@ -6,6 +6,7 @@
 import type * as SentrySdk from '@sentry/nextjs';
 import { readRuntimeEnv } from '@/env-config';
 import { isAccountDeletionPath } from '@/core/lib/auth/account-deletion';
+import { isSharedInvoiceAddress } from '@/core/lib/utils/shared-invoice';
 import { isSharedReportPath } from '@/core/lib/utils/shared-report-path';
 
 type Sentry = typeof SentrySdk;
@@ -116,6 +117,8 @@ async function loadSentryClient(): Promise<Sentry | undefined> {
 	if (isAccountDeletionPath(window.location.pathname)) return undefined;
 	// The same for a shared report: its link carries the token that opens it.
 	if (isSharedReportPath(window.location.pathname)) return undefined;
+	// And for an invoice's public page, or the email link that opens it: both carry the token that opens the invoice.
+	if (isSharedInvoiceAddress(window.location.pathname, window.location.hash)) return undefined;
 
 	// Registered synchronously, before the first await: nothing thrown from here on is missed.
 	const takeEarlyErrors = bufferEarlyErrors();

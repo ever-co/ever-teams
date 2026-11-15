@@ -14,6 +14,10 @@ jest.mock('sonner', () => ({ toast: { success: jest.fn(), error: jest.fn() } }))
 jest.mock('@/core/hooks/common/use-workspace-week-start', () => ({
 	useWorkspaceWeekStart: () => mockWeekStart.current
 }));
+// A workspace that writes its days year first, so the start day reads as the value it holds
+jest.mock('@/core/hooks/common/use-workspace-locale', () => ({
+	useWorkspaceLocale: () => ({ tag: 'en', dateFormat: 'YYYY-MM-DD', numberFormat: null, clock: null })
+}));
 jest.mock('@/core/components/common/app-dialog', () => ({
 	APP_DIALOG_BODY: '',
 	APP_DIALOG_FOOTER: '',

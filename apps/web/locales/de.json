@@ -433,6 +433,9 @@
 		"NO_TEAM_MEMBERS_FOUND": "Keine Teammitglieder gefunden",
 		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Versuchen Sie, Ihre Suche oder Filter anzupassen, um zu finden, wonach Sie suchen.",
 		"PICK_A_DATE": "Datum auswählen",
+		"PICK_A_TIME": "Uhrzeit auswählen",
+		"PICK_THIS_OR_LATER": "Wählen Sie {value} oder später.",
+		"PICK_THIS_OR_EARLIER": "Wählen Sie {value} oder früher.",
 		"THIS_WEEK": "Diese Woche",
 		"LAST_WEEK": "Letzte Woche",
 		"THIS_MONTH": "Diesen Monat",
@@ -7880,6 +7883,41 @@
 				"DELETED": "Die geplante Abrechnung von {name} ist gelöscht",
 				"FAILED": "Die Änderung konnte nicht gespeichert werden. Versuchen Sie es erneut."
 			}
+		},
+		"shared": {
+			"PAY": "{amount} bezahlen",
+			"PAYING": "Zahlung wird geöffnet…",
+			"PAY_FAILED": "Die Zahlung konnte nicht gestartet werden. Versuchen Sie es gleich noch einmal.",
+			"DOWNLOAD_FAILED": "Das PDF konnte nicht heruntergeladen werden. Versuchen Sie es erneut.",
+			"FROM_SENDER": "Von {name}",
+			"RETURNED_TITLE": "Vielen Dank für Ihre Zahlung",
+			"RETURNED_MESSAGE": "Sie wird gerade bestätigt. Diese Seite zeigt die Rechnung als bezahlt, sobald der Zahlungsanbieter es bestätigt.",
+			"PAID_TITLE": "Diese Rechnung ist bezahlt",
+			"PAID_MESSAGE": "Es ist nichts mehr zu zahlen. Vielen Dank.",
+			"CLOSED_TITLE": "Dieser Link öffnet keine Rechnung mehr",
+			"CLOSED_MESSAGE": "Der Link wurde widerrufen oder die Rechnung storniert. Bitten Sie den Absender um einen neuen Link.",
+			"FOOTER": "Gesendet mit {app}"
+		},
+		"payments": {
+			"TITLE": "Online-Zahlung von Rechnungen",
+			"DESCRIPTION": "Lassen Sie Kunden eine Rechnung auf ihrer Seite bezahlen, über den Zahlungskonnektor Ihres Arbeitsbereichs. Die Schlüssel Ihres Zahlungsanbieters bleiben beim Konnektor.",
+			"ENDPOINT": "Checkout-Adresse",
+			"ENDPOINT_HINT": "Die HTTPS-Adresse Ihres Konnektors, die einen Bezahlvorgang öffnet.",
+			"ENABLED": "Online-Zahlung auf Rechnungsseiten anbieten",
+			"TEST_MODE": "Testmodus: Zahlungen werden protokolliert, nie auf Rechnungen verbucht",
+			"CONNECT": "Verbinden",
+			"SAVE": "Speichern",
+			"SAVED": "Gespeichert",
+			"SAVE_FAILED": "Die Verbindung konnte nicht gespeichert werden. Prüfen Sie die Adresse und versuchen Sie es erneut.",
+			"LOAD_FAILED": "Die Verbindung konnte nicht geladen werden.",
+			"NOTIFICATION_URL": "Benachrichtigungsadresse",
+			"NOTIFICATION_URL_HINT": "Ihr Konnektor sendet hierher jede Zahlung, die der Anbieter bestätigt.",
+			"SECRET": "Signaturgeheimnis",
+			"SECRET_ONCE": "Kopieren Sie es jetzt in Ihren Konnektor: Es wird nur dieses eine Mal angezeigt.",
+			"ROTATE": "Neues Signaturgeheimnis",
+			"ROTATE_HINT": "Das aktuelle Geheimnis funktioniert sofort nicht mehr.",
+			"COPY": "Kopieren",
+			"COPIED": "Kopiert"
 		}
 	},
 	"timeReports": {

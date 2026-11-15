@@ -15,18 +15,34 @@ jest.mock('next-intl', () => ({
 }));
 jest.mock('sonner', () => ({ toast: { success: (...args: unknown[]) => mockToastSuccess(...args) } }));
 jest.mock('@/core/hooks/auth/use-current-organization', () => ({ useGetCurrentOrganization: () => undefined }));
-jest.mock('@/core/components/icons', () => ({ Pencil: () => null, Plus: () => null, Spinner: () => null }));
+jest.mock('@/core/components/icons', () => ({
+	Calendar: () => null,
+	Pencil: () => null,
+	Plus: () => null,
+	Spinner: () => null
+}));
+// The day of "from a date" is typed here: the calendar of its field, drawn open below with every popover, stays empty
+jest.mock('@/core/components/common/calendar', () => ({ Calendar: () => null }));
 // The popover's content is drawn open, so the form can be filled as the person sees it once the field is clicked;
 // clicking the field opens it again, as the popover does
 jest.mock('@/core/components/common/popover', () => {
-	const { createContext, useContext } = jest.requireActual<typeof React>('react');
+	const { cloneElement, createContext, useContext } = jest.requireActual<typeof React>('react');
 	const OpenContext = createContext<(isOpen: boolean) => void>(() => undefined);
 	return {
 		Popover: ({ children, onOpenChange }: React.PropsWithChildren<{ onOpenChange: (isOpen: boolean) => void }>) => (
 			<OpenContext.Provider value={onOpenChange}>{children}</OpenContext.Provider>
 		),
-		PopoverTrigger: ({ children, 'aria-label': label }: React.PropsWithChildren<{ 'aria-label'?: string }>) => {
+		PopoverTrigger: ({
+			children,
+			asChild,
+			'aria-label': label
+		}: React.PropsWithChildren<{ asChild?: boolean; 'aria-label'?: string }>) => {
 			const open = useContext(OpenContext);
+			if (asChild) {
+				return cloneElement(children as React.ReactElement<{ onClick: () => void }>, {
+					onClick: () => open(true)
+				});
+			}
 			return (
 				<button type="button" aria-label={label} onClick={() => open(true)}>
 					{children}

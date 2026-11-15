@@ -660,11 +660,14 @@ export class APIService {
 	 * @param {string} url - Endpoint path.
 	 * @param {object} [data={}] - Request payload.
 	 * @param {object} [config={}] - Additional config.
+	 * @param {boolean} [includeTenantAndOrganizationIds=true] - Add `tenantId` / `organizationId` to the body (as `post`
+	 * does); `false` for a route whose body takes neither (one that refuses a field it does not know).
 	 */
 	async put<T = any>(
 		url: string,
 		data?: Record<string, any> | FormData,
-		config?: APIConfig
+		config?: APIConfig,
+		includeTenantAndOrganizationIds = true
 	): Promise<AxiosResponse<T>> {
 		const { baseURL, headers, tenantId, organizationId } = await this.getApiConfig(config);
 		const { directAPI = true } = config || {};
@@ -677,7 +680,7 @@ export class APIService {
 		this.cancelSources.set(requestId, controller);
 		try {
 			return await this.executeRequest<T>(() => {
-				if (data && !(data instanceof FormData)) {
+				if (data && !(data instanceof FormData) && includeTenantAndOrganizationIds) {
 					if (!('tenantId' in data)) {
 						(data as any).tenantId = tenantId;
 					}

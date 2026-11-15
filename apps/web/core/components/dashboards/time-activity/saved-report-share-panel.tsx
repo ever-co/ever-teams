@@ -4,6 +4,7 @@ import { useId, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Input } from '@/core/components/common/input';
 import { BillableSwitch } from '@/core/components/common/billable-switch';
+import { DateField } from '@/core/components/common/date-field';
 import { Spinner } from '@/core/components/common/spinner';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Copy, Link } from '@/core/components/icons';
@@ -99,14 +100,13 @@ function EndDayField({ value, onChange }: Readonly<{ value: string; onChange: (v
 			<label htmlFor={inputId} className="text-xs font-medium text-muted-foreground">
 				{t('dashboard.savedReports.ENDS_ON')}
 			</label>
-			<Input
+			<DateField
 				id={inputId}
-				type="date"
 				min={today}
 				value={value}
 				aria-describedby={hintId}
-				className="h-8"
-				onChange={(event) => onChange(event.target.value)}
+				inputClassName="h-8"
+				onChange={onChange}
 			/>
 			<p id={hintId} className="text-xs text-muted-foreground">
 				{t('dashboard.savedReports.ENDS_ON_HINT')}
