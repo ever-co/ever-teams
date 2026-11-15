@@ -1,6 +1,5 @@
 import {
 	isSharedInvoiceLink,
-	isSharedInvoicePath,
 	paymentReturnUrlOf,
 	sharedInvoicePageOfHash,
 	sharedInvoicePathOf
@@ -34,11 +33,8 @@ describe('shared invoice links', () => {
 		expect(isSharedInvoiceLink(undefined, TOKEN)).toBe(false);
 	});
 
-	it('names the public page, and tells it apart from other pages', () => {
+	it('names the public page', () => {
 		expect(sharedInvoicePathOf(ID, TOKEN)).toBe(`/shared-invoice/${ID}/${TOKEN}`);
-		expect(isSharedInvoicePath(`/shared-invoice/${ID}/${TOKEN}`)).toBe(true);
-		expect(isSharedInvoicePath('/shared-invoices')).toBe(false);
-		expect(isSharedInvoicePath('/invoices')).toBe(false);
 	});
 
 	it('sends the client back to the page itself, marked as a return', () => {

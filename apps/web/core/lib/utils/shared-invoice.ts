@@ -8,7 +8,7 @@
  */
 
 /** The page of an invoice read through its link, in this app. */
-export const SHARED_INVOICE_PAGE = '/shared-invoice';
+const SHARED_INVOICE_PAGE = '/shared-invoice';
 
 /** What the public read of an invoice joins: who sent it, to whom, and its lines. */
 export const SHARED_INVOICE_RELATIONS = 'fromOrganization,organization,toContact,invoiceItems';
@@ -45,11 +45,6 @@ export function sharedInvoicePageOfHash(hash: string): string | null {
 		return null;
 	}
 	return sharedInvoicePathOf(id, token);
-}
-
-/** Whether a page path (without its locale prefix) is an invoice's public page. */
-export function isSharedInvoicePath(path: string): boolean {
-	return path === SHARED_INVOICE_PAGE || path.startsWith(`${SHARED_INVOICE_PAGE}/`);
 }
 
 /** The query a provider adds to the page it sends the client back to, once they paid or gave up. */
