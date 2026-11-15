@@ -79,8 +79,9 @@ jest.mock('@/core/components/common/dropdown-menu', () => {
 });
 
 const labsDesign = { id: 'labs-design', name: 'Labs Design', organizationId: 'labs', members: [] };
-jest.mock('@/core/hooks/organizations/teams/use-team-menu-organizations', () => ({
-	useTeamMenuOrganizations: () => ({
+const mockUseTeamMenuOrganizations = jest.fn((options: { enabled?: boolean }) => {
+	void options;
+	return {
 		data: {
 			current: { id: 'studio', name: 'Studio' },
 			others: [{ id: 'labs', name: 'Labs', teams: [labsDesign], teamsListed: true }]
@@ -88,7 +89,10 @@ jest.mock('@/core/hooks/organizations/teams/use-team-menu-organizations', () => 
 		isLoading: false,
 		isError: false,
 		refetch: jest.fn()
-	})
+	};
+});
+jest.mock('@/core/hooks/organizations/teams/use-team-menu-organizations', () => ({
+	useTeamMenuOrganizations: (options: { enabled?: boolean }) => mockUseTeamMenuOrganizations(options)
 }));
 
 const mockSwitch = { isPending: false, isSuccess: false, variables: undefined as unknown, mutate: jest.fn() };
@@ -211,5 +215,29 @@ describe('TeamsDropDown while another organization opens', () => {
 		fireEvent.click(studioOpsSettings());
 
 		expect(mockSetActiveTeam).not.toHaveBeenCalled();
+	});
+});
+
+describe('TeamsDropDown reading the other organizations', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
+	// The menu is on every page: a page load must not read them (startup-performance.cy.ts)
+	it('asks for them only once the person reaches for the menu', () => {
+		renderDropdown();
+		expect(mockUseTeamMenuOrganizations).toHaveBeenLastCalledWith({ enabled: false });
+
+		fireEvent.pointerEnter(screen.getByRole('button', { name: /Studio Design/ }));
+
+		expect(mockUseTeamMenuOrganizations).toHaveBeenLastCalledWith({ enabled: true });
+	});
+
+	it('asks for them when the menu takes the keyboard focus', () => {
+		renderDropdown();
+
+		fireEvent.focus(screen.getByRole('button', { name: /Studio Design/ }));
+
+		expect(mockUseTeamMenuOrganizations).toHaveBeenLastCalledWith({ enabled: true });
 	});
 });

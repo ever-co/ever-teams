@@ -1,13 +1,20 @@
+/** @jest-environment jsdom */
+
 jest.mock('@/core/hooks/task-automations/use-task-automations', () => ({ useTaskAutomationsAvailability: jest.fn() }));
 jest.mock('@/core/hooks/settings/use-user-api-tokens', () => ({ useUserApiTokensAvailability: jest.fn() }));
 jest.mock('@/core/hooks/auth/use-two-factor-settings', () => ({ useTwoFactorStatus: jest.fn() }));
 
+import { renderHook } from '@testing-library/react';
 import { entriesOfGroup, type SettingsEntryId } from '@/core/components/settings/kit/settings-entries';
+import { useTwoFactorStatus } from '@/core/hooks/auth/use-two-factor-settings';
+import { useUserApiTokensAvailability } from '@/core/hooks/settings/use-user-api-tokens';
+import { useTaskAutomationsAvailability } from '@/core/hooks/task-automations/use-task-automations';
 import {
 	hiddenSettingsEntriesOf,
 	showsApiTokensEntry,
 	showsAutomationsEntry,
-	showsSecurityEntry
+	showsSecurityEntry,
+	useHiddenSettingsEntries
 } from './use-hidden-settings-entries';
 
 describe('the Automations settings entry', () => {
@@ -80,5 +87,45 @@ describe('the Security settings entry', () => {
 		expect(ids()).toContain('security');
 		expect(ids(new Set(['security']))).not.toContain('security');
 		expect(ids(new Set(['security']))).toContain('notifications');
+	});
+});
+
+describe('useHiddenSettingsEntries', () => {
+	beforeEach(() => {
+		jest.mocked(useTaskAutomationsAvailability)
+			.mockReset()
+			.mockReturnValue({ availability: 'loading' } as never);
+		jest.mocked(useUserApiTokensAvailability)
+			.mockReset()
+			.mockReturnValue({ availability: 'loading' } as never);
+		jest.mocked(useTwoFactorStatus)
+			.mockReset()
+			.mockReturnValue({ availability: 'loading' } as never);
+	});
+
+	// The command palette lists the settings pages on every page: a page load must not ask (startup-performance.cy.ts)
+	it('asks the platform nothing while it is not asked to, and hides the optional entries meanwhile', () => {
+		const { result } = renderHook(() => useHiddenSettingsEntries(true, false));
+
+		expect(useTaskAutomationsAvailability).toHaveBeenLastCalledWith(false);
+		expect(useUserApiTokensAvailability).toHaveBeenLastCalledWith(false);
+		expect(useTwoFactorStatus).toHaveBeenLastCalledWith(false);
+		expect([...result.current].sort((a, b) => a.localeCompare(b))).toEqual([
+			'apiTokens',
+			'automations',
+			'security'
+		]);
+	});
+
+	it('asks every probe once asked, the automations only of a manager', () => {
+		renderHook(() => useHiddenSettingsEntries(true, true));
+		expect(useTaskAutomationsAvailability).toHaveBeenLastCalledWith(true);
+		expect(useUserApiTokensAvailability).toHaveBeenLastCalledWith(true);
+		expect(useTwoFactorStatus).toHaveBeenLastCalledWith(true);
+
+		renderHook(() => useHiddenSettingsEntries(false));
+		expect(useTaskAutomationsAvailability).toHaveBeenLastCalledWith(false);
+		expect(useUserApiTokensAvailability).toHaveBeenLastCalledWith(true);
+		expect(useTwoFactorStatus).toHaveBeenLastCalledWith(true);
 	});
 });

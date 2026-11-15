@@ -142,8 +142,11 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	// A start sent but not answered yet: the status still says stopped, and a switch would leave that timer behind
 	const isTimerStarting = useAtomValue(timerStartsInFlightState) > 0;
 
-	// The person's other organizations of the workspace, read once the session is known so the menu opens on them
-	const menuOrganizations = useTeamMenuOrganizations();
+	// The person's other organizations of the workspace, read once they reach for the menu (the pointer comes over it,
+	// it takes the focus, or it opens), never on a page load (startup-performance.cy.ts): the menu still opens on them
+	const [reachedForMenu, setReachedForMenu] = useState(false);
+	const reachForMenu = useCallback(() => setReachedForMenu(true), []);
+	const menuOrganizations = useTeamMenuOrganizations({ enabled: reachedForMenu || menuOpen });
 	const switchOrganization = useSwitchOrganization();
 	const [failedOrganizationId, setFailedOrganizationId] = useState<string | null>(null);
 	const otherOrganizations = useMemo(() => menuOrganizations.data?.others ?? [], [menuOrganizations.data?.others]);
@@ -237,7 +240,12 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 			>
 				<DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
 					<DropdownMenuTrigger asChild disabled={publicTeam}>
-						<button type="button" className={cn(TEAM_TRIGGER, timerRunningStatus && 'opacity-60')}>
+						<button
+							type="button"
+							className={cn(TEAM_TRIGGER, timerRunningStatus && 'opacity-60')}
+							onPointerEnter={reachForMenu}
+							onFocus={reachForMenu}
+						>
 							{isAllTeamsPage && (
 								<TeamTriggerContent title={t('common.ALL_TEAMS')} count={userManagedTeams.length} />
 							)}

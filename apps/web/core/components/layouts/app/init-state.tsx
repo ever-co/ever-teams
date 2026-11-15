@@ -14,6 +14,7 @@ import { useTimerSessionEndWitness } from '@/core/hooks/timer/use-timer-session-
 import { DISABLE_AUTO_REFRESH, TEAM_PRESENCE_REFRESH_INTERVAL } from '@/core/constants/config/constants';
 import { teamDetailRefreshOf } from '@/core/lib/utils/team-detail-refresh';
 import { realtimeStatusAtom } from '@/core/stores/common/realtime';
+import { shellSettledState } from '@/core/stores/common/shell';
 import {
 	activeTeamDetailLoadingState,
 	activeTeamState,
@@ -33,6 +34,15 @@ import { TimerReminders } from './timer-reminders';
 import { UnfollowedTimeQuestion } from '@/core/components/timer/unfollowed-time-question';
 
 const SHELL_REFRESH_INTERVAL = 60_000;
+
+/**
+ * How long after the shell is ready it counts as settled (shell.ts), so a read that waits for it starts well after
+ * the ready mark, never in a race with it.
+ */
+const SHELL_SETTLE_DELAY_MS = 2_000;
+
+/** When the shell is never ready (a critical read keeps failing), the reads that wait for it still go after this. */
+const SHELL_SETTLE_FALLBACK_MS = 20_000;
 
 export function AppState() {
 	const { data: user } = useUserQuery();
@@ -272,6 +282,16 @@ export function InitState() {
 			performance.mark('ever-teams:shell-ready');
 		}
 	}, [criticalReady, readyScope]);
+
+	// The reads nothing on the first screen waits for go once the shell has settled (shell.ts). Ready once is ready:
+	// a later scope (another team) does not hold them back again
+	const setShellSettled = useSetAtom(shellSettledState);
+	useEffect(() => {
+		const wasReady = criticalReady || markedReadyScopeRef.current !== null;
+		const delay = wasReady ? SHELL_SETTLE_DELAY_MS : SHELL_SETTLE_FALLBACK_MS;
+		const timer = window.setTimeout(() => setShellSettled(true), delay);
+		return () => window.clearTimeout(timer);
+	}, [criticalReady, setShellSettled]);
 
 	// A timer left running is worth a reminder, on every page (#5022). And time it ran without the app following
 	// it is put to the person wherever they are (#5123)

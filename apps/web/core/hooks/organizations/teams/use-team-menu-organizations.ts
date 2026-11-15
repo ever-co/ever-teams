@@ -12,8 +12,11 @@ import { teamMenuOrganizationsService } from '@/core/services/client/api/organiz
  * The person's organizations of the workspace for the team menu (ever-co/ever-teams#5204): the current one, and the
  * others with their teams for a workspace admin. Read once per session scope and kept for ten minutes, so the menu
  * opens on it at once.
+ *
+ * @param enabled Whether it is asked now: the team menu asks as the person reaches for it, not on a page load
+ * (startup-performance.cy.ts). Its last answer stands meanwhile.
  */
-export function useTeamMenuOrganizations() {
+export function useTeamMenuOrganizations({ enabled = true }: { enabled?: boolean } = {}) {
 	const { data: user } = useUserQuery();
 	const accessToken = useReactiveAccessTokenCookie();
 	const tenantId = user?.employee?.tenantId ?? user?.tenantId ?? null;
@@ -31,7 +34,7 @@ export function useTeamMenuOrganizations() {
 				signal,
 				listsTeams
 			}),
-		enabled: isReady,
+		enabled: enabled && isReady,
 		staleTime: 1000 * 60 * 10,
 		gcTime: 1000 * 60 * 30,
 		refetchOnWindowFocus: false,

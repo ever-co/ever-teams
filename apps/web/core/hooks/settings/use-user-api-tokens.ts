@@ -104,13 +104,16 @@ function useUserApiTokensScope(): UserApiTokensScope | null {
 	}, [tenantId, userId]);
 }
 
-/** Asks the server whether it has the tokens on (`GET /user-api-tokens/config`), again at most every five minutes. */
-export function useUserApiTokensAvailability() {
+/**
+ * Asks the server whether it has the tokens on (`GET /user-api-tokens/config`), again at most every five minutes.
+ * Not while `enabled` is false (the command palette is closed): its last answer, when there is one, still stands.
+ */
+export function useUserApiTokensAvailability(enabled = true) {
 	const scope = useUserApiTokensScope();
 	const query = useQuery({
 		queryKey: queryKeys.userApiTokens.config(scope?.tenantId, scope?.userId),
 		queryFn: ({ signal }) => userApiTokensService.readConfig(signal),
-		enabled: scope !== null,
+		enabled: enabled && scope !== null,
 		staleTime: 5 * 60_000,
 		retry: shouldRetryConfig
 	});

@@ -17,10 +17,10 @@ import { commandPaletteOpenAtom } from '@/core/stores/common/command-palette';
 export function useSidebarPages(links: readonly SidebarLink[], groups: readonly SidebarGroup[]): SidebarPage[] {
 	const t = useTranslations();
 	const canManageTeam = useAtomValue(canManageActiveTeamState);
-	// The optional settings pages are asked of the platform once the palette is open, never on a page load.
+	// The optional settings pages (automations, API tokens, security) are asked of the platform once the palette is
+	// open, never on a page load: the sidebar is on every page, and these reads are no part of it.
 	const isPaletteOpen = useAtomValue(commandPaletteOpenAtom);
-	const asksOptionalSettings = canManageTeam && isPaletteOpen;
-	const hiddenSettings = useHiddenSettingsEntries(asksOptionalSettings);
+	const hiddenSettings = useHiddenSettingsEntries(canManageTeam, isPaletteOpen);
 
 	return useMemo(() => {
 		const pages = sidebarPagesOf(links, groups);
