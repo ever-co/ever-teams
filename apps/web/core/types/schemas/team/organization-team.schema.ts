@@ -18,6 +18,18 @@ import { imageAssetSchema } from '../common/image-asset.schema';
  * Zod schemas for Organization Team-related interfaces
  */
 
+/** A team's defaults for its members' notifications (#5022); see `TTeamNotificationDefaults`. */
+const emailModeSchema = z.enum(['immediate', 'digest', 'off']);
+export const teamNotificationDefaultsSchema = z.object({
+	email: z.union([emailModeSchema, z.boolean()]).optional(),
+	emailByType: z.record(z.string(), emailModeSchema.optional()).optional(),
+	push: z.boolean().optional(),
+	pushByType: z.record(z.string(), z.boolean().optional()).optional(),
+	taskUpdate: z.boolean().optional(),
+	timerReminderHours: z.number().nullable().optional(),
+	taskDueReminderHours: z.number().nullable().optional()
+});
+
 // Base team properties schema
 export const baseTeamPropertiesSchema = basePerTenantAndOrganizationEntitySchema
 	.extend({
@@ -33,7 +45,8 @@ export const baseTeamPropertiesSchema = basePerTenantAndOrganizationEntitySchema
 		profile_link: z.string().optional().nullable(),
 		image: imageAssetSchema.optional().nullable(),
 		imageId: z.string().optional().nullable(),
-		defaultProjectId: z.string().optional().nullable()
+		defaultProjectId: z.string().optional().nullable(),
+		notificationDefaults: teamNotificationDefaultsSchema.nullable().optional()
 	})
 	.merge(taggableSchema);
 
@@ -123,6 +136,7 @@ export const organizationTeamUpdateSchema = z.object({
 	teamSize: z.string().nullable().optional(),
 	projects: z.array(organizationProjectSchema).optional().nullable(),
 	defaultProjectId: z.string().optional().nullable(),
+	notificationDefaults: teamNotificationDefaultsSchema.nullable().optional(),
 	id: z.string().optional(),
 	name: z.string().optional()
 });
