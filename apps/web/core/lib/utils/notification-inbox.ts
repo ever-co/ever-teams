@@ -40,7 +40,9 @@ export const TIMER_REMINDER_HREF = '/';
 
 /** A project's page, for a notification about one (its member was added to it, or its state or dates changed). */
 export function projectHrefOf(entity: string | null | undefined, entityId: string | null | undefined): string | null {
-	return entity === EBaseEntityEnum.OrganizationProject && entityId ? `/projects/${encodeURIComponent(entityId)}` : null;
+	return entity === EBaseEntityEnum.OrganizationProject && entityId
+		? `/projects/${encodeURIComponent(entityId)}`
+		: null;
 }
 
 /** The verbs of Gauzy's title templates (`employee-notification.helper.ts`), in the order they are tried. */

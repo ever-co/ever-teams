@@ -5986,6 +5986,12 @@
 			"REQUIRED_TITLE": "Deine Organisation bittet dich, sie einzuschalten",
 			"REQUIRED_DESCRIPTION": "Ihre Mitglieder melden sich zusätzlich mit einem Code aus einer Authenticator-App an.",
 			"QR_ALT": "QR-Code dieses Kontos für deine Authenticator-App"
+		},
+		"thisBrowser": {
+			"TITLE": "Dieser Browser",
+			"DESCRIPTION": "Wie lange du in diesem Browser angemeldet bleibst. Deine anderen Browser und Apps behalten ihre eigenen Sitzungen.",
+			"SIGN_OUT_ON_CLOSE": "Abmelden, wenn dieser Browser geschlossen wird",
+			"SIGN_OUT_ON_CLOSE_HINT": "Für einen gemeinsam genutzten Computer. Wenn es aus ist, bleibst du nach dem Schließen des Browsers angemeldet, bis deine Sitzung abläuft."
 		}
 	},
 	"taskDetail": {
