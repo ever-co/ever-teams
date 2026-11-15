@@ -31,6 +31,23 @@ describe('projectRatesStatesOf', () => {
 		expect(states.map((state) => state.hasFailed)).toEqual([false, false]);
 	});
 
+	it('counts a first read paused while offline as loading, so no fallback price shows meanwhile', () => {
+		const paused = {
+			data: undefined,
+			error: null,
+			isError: false,
+			isLoading: false,
+			isPending: true,
+			isFetching: false,
+			fetchStatus: 'paused'
+		} as unknown as UseQueryResult<TProjectRates>;
+
+		const [state] = projectRatesStatesOf([paused]);
+
+		expect(state.isLoading).toBe(true);
+		expect(state.rates).toBeNull();
+	});
+
 	it('keeps the last rates through another failure, which it reports', () => {
 		const outage = Object.assign(new Error('Bad Gateway'), { statusCode: 502 });
 

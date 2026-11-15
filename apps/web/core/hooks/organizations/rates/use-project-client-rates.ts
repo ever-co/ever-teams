@@ -35,9 +35,11 @@ export function projectRatesStatesOf(results: ReadonlyArray<UseQueryResult<TProj
 		if (isUnavailable) {
 			rates = null;
 		}
+		// A first read paused while offline has not answered yet: it waits, it does not price at a fallback
+		const isPausedFirstRead = result.isPending === true && result.fetchStatus === 'paused';
 		return {
 			rates,
-			isLoading: result.isLoading,
+			isLoading: result.isLoading || isPausedFirstRead,
 			isRefreshing: result.isFetching && !result.isLoading,
 			hasFailed: result.isError && !isUnavailable
 		};
