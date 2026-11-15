@@ -184,6 +184,21 @@ describe('End break', () => {
 		expect(result.current.pendingAction).toBeNull();
 	});
 
+	it('stops nothing for a break shown without its id, which it could not tell from another', async () => {
+		const breakWithoutId = { ...breakRunning, lastLog: { ...breakRunning.lastLog, id: undefined } } as ITimerStatus;
+		mockGetTimerStatus.mockResolvedValue({ data: breakRunning });
+		const { result } = renderBreak(
+			breakWithoutId,
+			jest.fn(async () => undefined)
+		);
+
+		await act(async () => {
+			await result.current.endBreak();
+		});
+
+		expect(mockStopTimer).not.toHaveBeenCalled();
+	});
+
 	it('stops nothing when the fresh status shows another break than the one on screen', async () => {
 		const otherBreak = { ...breakRunning, lastLog: { ...breakRunning.lastLog, id: 'break-2' } } as ITimerStatus;
 		mockGetTimerStatus.mockResolvedValue({ data: otherBreak });

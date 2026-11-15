@@ -27,16 +27,13 @@ const RUN_CHANGED_STATUS = 409;
  * 409 to a stop that reached it after the run changed, means the run changed: nothing is stopped, and the display
  * follows the run that goes on.
  *
- * @param shownBreakId The break this tab shows, null when it does not know its id.
+ * @param shownBreakId The break this tab shows; null when it does not know its id, and nothing is stopped then.
  * @param source The app the break was started with, which the stop names.
  */
 async function endShownBreak(shownBreakId: string | null, source: ETimeLogSource): Promise<void> {
 	const { data: status } = await timerService.getTimerStatus();
 	const freshBreakId = timerBreakStateOf(status).isOnBreak ? status?.lastLog?.id : undefined;
-	if (!freshBreakId) {
-		return;
-	}
-	const isShownBreak = shownBreakId === null || freshBreakId === shownBreakId;
+	const isShownBreak = Boolean(freshBreakId) && freshBreakId === shownBreakId;
 	if (!isShownBreak) {
 		return;
 	}
