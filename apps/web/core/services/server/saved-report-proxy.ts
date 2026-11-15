@@ -20,7 +20,7 @@ import {
  */
 
 /** Gauzy reads saved reports with the permissions of the time log reports they describe: one of these is needed. */
-export const SAVED_REPORT_PERMISSIONS: ReadonlyArray<string> = ['TIME_TRACKER', 'ALL_ORG_EDIT', 'ALL_ORG_VIEW'];
+const SAVED_REPORT_PERMISSIONS: ReadonlyArray<string> = ['TIME_TRACKER', 'ALL_ORG_EDIT', 'ALL_ORG_VIEW'];
 
 /** The token of a link, and the report it opens, are never cached on the way. */
 const NO_STORE = { 'Cache-Control': 'no-store' };

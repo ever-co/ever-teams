@@ -10,7 +10,7 @@ import { SAVED_REPORT_NAME_MAX_LENGTH } from '@/core/lib/utils/dashboards/saved-
 type NameProblem = 'required' | 'tooLong' | null;
 
 /** A name Gauzy keeps: not blank once trimmed, 100 characters at most. */
-export function savedReportNameProblemOf(name: string): NameProblem {
+function savedReportNameProblemOf(name: string): NameProblem {
 	const trimmed = name.trim();
 	if (!trimmed) {
 		return 'required';

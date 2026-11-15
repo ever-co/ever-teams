@@ -4,10 +4,10 @@
  * the report without signing in (`GET /api/public/saved-reports/:token`), computed when the link is opened.
  */
 
-export type SavedReportKind = 'TIME_AND_ACTIVITY';
+type SavedReportKind = 'TIME_AND_ACTIVITY';
 
 /** A period stated as a rule, evaluated on the day the report is read: the period presets of the report pages. */
-export type SavedReportPeriodRule =
+type SavedReportPeriodRule =
 	| 'today'
 	| 'yesterday'
 	| 'thisWeek'
@@ -17,10 +17,7 @@ export type SavedReportPeriodRule =
 	| 'thisMonth'
 	| 'lastMonth';
 
-export type SavedReportGrouping = 'date' | 'member' | 'project' | 'client' | 'task' | 'week';
-
-/** The value of the clients filter that keeps the time without a client. */
-export const SAVED_REPORT_NO_CLIENT = 'none';
+type SavedReportGrouping = 'date' | 'member' | 'project' | 'client' | 'task' | 'week';
 
 export interface ISavedReportFilters {
 	teamIds?: string[];
@@ -93,12 +90,12 @@ export interface ISavedReportShareResponse {
 	shareExpiresAt: string | null;
 }
 
-export interface IPublicSavedReportNamed {
+interface IPublicSavedReportNamed {
 	id: string;
 	name: string;
 }
 
-export interface IPublicSavedReportMember {
+interface IPublicSavedReportMember {
 	id: string;
 	fullName: string;
 	user: { firstName: string | null; lastName: string | null; name: string | null };
@@ -113,7 +110,7 @@ export interface IPublicSavedReportTask {
 	organizationTeamId?: string | null;
 }
 
-export interface IPublicSavedReportMemberLog {
+interface IPublicSavedReportMemberLog {
 	employee: IPublicSavedReportMember;
 	/** Seconds. */
 	sum: number;
@@ -121,7 +118,7 @@ export interface IPublicSavedReportMemberLog {
 	amount?: number | null;
 }
 
-export interface IPublicSavedReportDay {
+interface IPublicSavedReportDay {
 	date: string;
 	/** Seconds. */
 	sum: number;
@@ -136,7 +133,7 @@ export interface IPublicSavedReportDay {
 	}[];
 }
 
-export interface IPublicSavedReportAmount {
+interface IPublicSavedReportAmount {
 	currency: string;
 	amount: number;
 }
