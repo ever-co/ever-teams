@@ -214,7 +214,7 @@ export function MeetingAgenda({
 			}
 		>
 			{isError && <DashboardErrorNotice onRetry={onRetry} />}
-			{!isError && !isLoading && isInvitationsError && onRetryInvitations && (
+			{!isLoading && isInvitationsError && onRetryInvitations && (
 				<DashboardErrorNotice onRetry={onRetryInvitations} className="mx-4 mt-4" />
 			)}
 			{!isError && isLoading && (
@@ -223,9 +223,11 @@ export function MeetingAgenda({
 					<span className={cn(SKELETON_BAR, 'h-3 w-64')} />
 				</div>
 			)}
-			{!isError && !isLoading && (
+			{/* One list failing hides none of the other's meetings (#5022): each failure is said above them */}
+			{!isLoading && (!isError || meetings.length > 0) && (
 				<div className="flex flex-col gap-2 p-4" data-testid="meetings-agenda-day">
-					{dayMeetings.length === 0 && (
+					{/* A day is said to have no meeting only when both lists answered */}
+					{dayMeetings.length === 0 && !isError && !isInvitationsError && (
 						<BlockEmptyMessage
 							title={isToday ? t('meetings.NO_MEETINGS_TODAY') : t('meetings.NO_MEETINGS_DAY')}
 							message={t('meetings.NO_MEETINGS_TODAY_HINT')}

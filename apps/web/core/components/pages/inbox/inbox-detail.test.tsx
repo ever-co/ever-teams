@@ -189,6 +189,28 @@ describe('InboxDetail of a meeting notification (#5022)', () => {
 		expect(screen.queryByRole('button', { name: /meetings\.JOIN_MEETING_OF/ })).toBeNull();
 	});
 
+	it('offers Join once the meeting opens while the detail stays open, and joins nothing once it is over', () => {
+		jest.useFakeTimers({ advanceTimers: true });
+		try {
+			mockInvited = [invitedTo(15 * MINUTE)];
+			mount(meeting('You are invited to "Planning"'), null);
+			expect(screen.queryByRole('button', { name: /meetings\.JOIN_MEETING_OF/ })).toBeNull();
+
+			// Six minutes on, the meeting opens to join, nine minutes before its start
+			act(() => {
+				jest.advanceTimersByTime(6 * MINUTE);
+			});
+			const join = screen.getByRole('button', { name: 'meetings.JOIN_MEETING_OF {"title":"Planning"}' });
+
+			// Clicked once the meeting is over, before the detail's clock moved on: nothing opens
+			jest.setSystemTime(Date.now() + 60 * MINUTE);
+			fireEvent.click(join);
+			expect(mockPush).not.toHaveBeenCalled();
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
 	it('offers no way to join a meeting days ahead: the meetings page opens it', () => {
 		mockInvited = [invitedTo(3 * 24 * 60 * MINUTE)];
 		mount(meeting('You are invited to "Planning"'), null);

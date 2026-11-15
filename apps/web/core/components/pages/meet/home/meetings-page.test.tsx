@@ -66,7 +66,7 @@ jest.mock('@/core/hooks/meetings/use-scheduled-meetings', () => ({
 		...mockScheduled,
 		hostName: 'Ruslan Konviser',
 		isLoading: false,
-		isError: false,
+		isError: mockScheduledError,
 		refetch: mockRefetchScheduled,
 		scheduleMeeting: mockScheduleMeeting,
 		isScheduling: false,
@@ -81,6 +81,7 @@ jest.mock('@/core/hooks/meetings/use-scheduled-meetings', () => ({
 let mockInvited: ScheduledMeeting[] = [];
 let mockInvitedError = false;
 let mockInvitedLoading = false;
+let mockScheduledError = false;
 const mockRefetchInvited = jest.fn();
 const mockRefetchScheduled = jest.fn();
 jest.mock('@/core/hooks/meetings/use-invited-meetings', () => ({
@@ -122,6 +123,7 @@ describe('MeetingsPage', () => {
 		mockInvited = [];
 		mockInvitedError = false;
 		mockInvitedLoading = false;
+		mockScheduledError = false;
 		mockRefetchInvited.mockReset();
 		mockRefetchScheduled.mockReset();
 		// The notices' orb asks whether motion is reduced; jsdom has no matchMedia
@@ -333,6 +335,32 @@ describe('MeetingsPage', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'pages.unauthorized.TRY_AGAIN' }));
 		expect(mockRefetchInvited).toHaveBeenCalledTimes(1);
 		expect(mockRefetchScheduled).not.toHaveBeenCalled();
+	});
+
+	it("keeps the meetings one is invited to when one's own fail to load, and says so (#5022)", () => {
+		mockScheduledError = true;
+		mockInvited = [
+			{
+				id: 'appointment-9',
+				title: 'Planning',
+				description: null,
+				start: new Date(Date.now() + 60 * 60 * 1000),
+				end: new Date(Date.now() + 90 * 60 * 1000),
+				link: null,
+				isInvited: true,
+				hostName: 'Ana Silva'
+			}
+		];
+		render(<MeetingsPage />);
+
+		expect(screen.getByText('dashboard.states.ERROR_TITLE')).toBeTruthy();
+		if (!screen.queryByText('Planning')) fireEvent.click(screen.getByRole('button', { name: 'meetings.NEXT_DAY' }));
+		expect(screen.getByText('Planning')).toBeTruthy();
+		expect(screen.queryByText('meetings.NO_MEETINGS_TODAY')).toBeNull();
+
+		fireEvent.click(screen.getByRole('button', { name: 'pages.unauthorized.TRY_AGAIN' }));
+		expect(mockRefetchScheduled).toHaveBeenCalledTimes(1);
+		expect(mockRefetchInvited).not.toHaveBeenCalled();
 	});
 
 	it('waits for the meetings one is invited to before saying the day has none (#5022)', () => {
