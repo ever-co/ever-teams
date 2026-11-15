@@ -83,6 +83,7 @@ function TimeList({ value, min, max, step, label, textOf, onPick }: Readonly<Tim
 			ref={listRef}
 			role="listbox"
 			aria-label={label}
+			tabIndex={-1}
 			onKeyDown={moveFocus}
 			className="relative flex max-h-60 w-32 flex-col overflow-y-auto overscroll-contain"
 		>
