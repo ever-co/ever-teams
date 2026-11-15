@@ -1,5 +1,6 @@
 'use client';
 
+import { ClientBillingScheduleSection } from '@/core/components/clients/client-billing-schedule-section';
 import { ClientFacts } from '@/core/components/clients/client-facts';
 import type { ClientFormField } from '@/core/components/clients/client-form-dialog';
 import { ClientInvoicesSection } from '@/core/components/clients/client-invoices-section';
@@ -16,6 +17,8 @@ interface ClientDetailBodyProps {
 	onRetryProjects: () => void;
 	access: ClientAccess;
 	canViewInvoices: boolean;
+	/** Whether the viewer may set the client's billing schedule: it makes invoices from everyone's time. */
+	canManageSchedule: boolean;
 	onEdit: (client: TClient, field?: ClientFormField) => void;
 }
 
@@ -30,6 +33,7 @@ export function ClientDetailBody({
 	onRetryProjects,
 	access,
 	canViewInvoices,
+	canManageSchedule,
 	onEdit
 }: Readonly<ClientDetailBodyProps>) {
 	const { standing } = record;
@@ -50,6 +54,16 @@ export function ClientDetailBody({
 			)}
 			<aside className="min-w-0 self-start lg:col-start-2 lg:row-span-2 lg:row-start-1">
 				<ClientFacts client={client} terms={record.terms} canEdit={access.canEdit} onEdit={onEdit} framed />
+				{canViewInvoices && (
+					<div className="mt-6 empty:hidden">
+						<ClientBillingScheduleSection
+							key={client.id}
+							client={client}
+							todayKey={standing.todayKey}
+							canManage={canManageSchedule}
+						/>
+					</div>
+				)}
 			</aside>
 			<div className="flex min-w-0 flex-col gap-6 self-start lg:col-start-1">
 				{canViewInvoices && (

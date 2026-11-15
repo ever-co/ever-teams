@@ -23,6 +23,7 @@ import {
 	ownEmailModeOf,
 	quietHoursOf
 } from '@/core/lib/notifications/notification-preferences';
+import { taskDueReminderHoursOf } from '@/core/lib/notifications/task-due-reminders';
 import { timerReminderHoursOf } from '@/core/lib/notifications/timer-reminders';
 import { userState } from '@/core/stores/user/user';
 import {
@@ -36,6 +37,7 @@ import { DigestHourRow, EmailDefaultRow, EmailModeChoice, EmailModeSelect, Quiet
 import { BrowserPushSection, SoundSection } from './notification-push-section';
 import { TYPE_COPY } from './notification-type-copy';
 import { NotificationGroupsSkeleton } from './notifications-settings-skeleton';
+import { TaskDueReminderRow } from './task-due-reminder-row';
 import { TimerReminderRow } from './timer-reminder-row';
 
 /** Gauzy keeps one flag per notification type, with no channel. */
@@ -158,6 +160,7 @@ export function NotificationsSettingsPage() {
 	const onQuietHours = (window: INotificationQuietHours | null) => onPreferences({ dnd: window });
 	const preferences = setting?.preferences;
 	const timerReminderHours = timerReminderHoursOf(preferences);
+	const taskDueReminderHours = taskDueReminderHoursOf(preferences);
 	const quietHours = quietHoursOf(preferences);
 	const quietHoursKey = quietHours ? `${quietHours.start}-${quietHours.end}` : 'off';
 
@@ -230,6 +233,23 @@ export function NotificationsSettingsPage() {
 						</SettingsSurface>
 					</SettingsSection>
 					<SettingsSection
+						id="notification-task-due"
+						title={t('notifications.SETTINGS_PAGE.TASK_DUE.TITLE')}
+						description={t('notifications.SETTINGS_PAGE.TASK_DUE.INTRO')}
+					>
+						<SettingsSurface>
+							<TaskDueReminderRow
+								value={taskDueReminderHours}
+								disabled={isSavingPreferences}
+								onChange={(hours) => onPreferences({ taskDueReminderHours: hours })}
+								emailMode={
+									ownEmailModeOf(preferences, EEmployeeNotificationType.TaskDueReminder) ?? 'default'
+								}
+								onEmailMode={(mode) => onEmailMode(EEmployeeNotificationType.TaskDueReminder, mode)}
+							/>
+						</SettingsSurface>
+					</SettingsSection>
+					<SettingsSection
 						id="notification-email"
 						title={t('notifications.SETTINGS_PAGE.CHANNELS.EMAIL_TITLE')}
 						description={t('notifications.SETTINGS_PAGE.CHANNELS.EMAIL_INTRO')}
@@ -257,6 +277,7 @@ export function NotificationsSettingsPage() {
 					<BrowserPushSection
 						isKindOn={(key) => isTypeShownOn(setting, key, pending)}
 						isTimerReminderOn={timerReminderHours !== null}
+						isTaskDueReminderOn={taskDueReminderHours !== null}
 						preferences={preferences}
 						isSavingPreferences={isSavingPreferences}
 						onPreferences={onPreferences}

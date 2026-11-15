@@ -13,7 +13,14 @@ export enum EEmployeeNotificationType {
 	Broadcast = 'Broadcast',
 	RateChangeRequest = 'RateChangeRequest',
 	/** A timer left running, at the employee's threshold, then at twice it (#5022): about the run's time log. */
-	TimerReminder = 'TimerReminder'
+	TimerReminder = 'TimerReminder',
+	/**
+	 * A record the employee follows changed (#5022): a task's status, priority, due date or members, or a project's
+	 * status, dates or archiving (its members follow it). The message says what changed.
+	 */
+	TaskUpdate = 'TaskUpdate',
+	/** A task the employee is assigned to is due soon, at their threshold before its due date (#5022): about the task. */
+	TaskDueReminder = 'TaskDueReminder'
 }
 
 export interface IEmployeeNotification {
@@ -91,6 +98,11 @@ export interface INotificationPreferences {
 	 * A second one follows at twice that.
 	 */
 	timerReminderHours?: number | null;
+	/**
+	 * How many hours before a task's due date its assignees are reminded of it (#5022); 24 when unset, `null` (or 0) for
+	 * no reminder.
+	 */
+	taskDueReminderHours?: number | null;
 }
 
 export type TEmployeeNotificationSettingKey =

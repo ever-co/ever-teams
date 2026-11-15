@@ -824,6 +824,22 @@ export const queryKeys = {
 		) => ['invoices', 'detail', tenantId ?? null, organizationId ?? null, invoiceId ?? null] as const
 	},
 
+	// Keys related to the billing schedules of clients
+	invoiceSchedules: {
+		all: ['invoice-schedules'] as const,
+		/** The workspace's schedules; with a client, that client's, which holds one at most. */
+		list: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			clientId: string | undefined | null
+		) => ['invoice-schedules', 'list', tenantId ?? null, organizationId ?? null, clientId ?? null] as const,
+		runs: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			scheduleId: string | undefined | null
+		) => ['invoice-schedules', 'runs', tenantId ?? null, organizationId ?? null, scheduleId ?? null] as const
+	},
+
 	// Keys related to organization projects
 	organizationProjects: {
 		all: ['organization-projects'] as const,
@@ -870,6 +886,18 @@ export const queryKeys = {
 			pagination: { skip?: number; take?: number }
 		) =>
 			['organization-projects', 'pagination-scope', tenantId ?? null, organizationId ?? null, pagination] as const
+	},
+
+	// The signed-in member's saved reports (a report's period, filters and grouping, and its read-only link)
+	savedReports: {
+		all: ['saved-reports'] as const,
+		list: (
+			tenantId: string | null | undefined,
+			organizationId: string | null | undefined,
+			userId: string | null | undefined
+		) => ['saved-reports', 'list', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		// A shared report read through its link, without a session
+		shared: (token: string | null | undefined) => ['saved-reports', 'shared', token ?? null] as const
 	},
 
 	// Keys related to the Timesheet / Timer

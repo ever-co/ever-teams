@@ -3,6 +3,7 @@
 import { POSTHOG_HOST, POSTHOG_KEY } from '@/core/constants/config/constants';
 import { redactCaptureResult } from '@/core/lib/helpers/analytics-redaction';
 import { isAccountDeletionPath } from '@/core/lib/auth/account-deletion';
+import { isSharedReportPath } from '@/core/lib/utils/shared-report-path';
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
 import { POSTHOG_LANDING_PATHNAME } from './posthog-config';
@@ -11,8 +12,11 @@ const key = POSTHOG_KEY.value;
 const host = POSTHOG_HOST.value;
 
 // A page load that starts on the account deletion pages leaves PostHog off (uninitialized, every call a no-op): it
-// records the address it starts on, and the e-mailed link carries a deletion token in it (isAccountDeletionPath).
-if (typeof window !== 'undefined' && key && host && !isAccountDeletionPath(POSTHOG_LANDING_PATHNAME)) {
+// records the address it starts on, and the e-mailed link carries a deletion token in it (isAccountDeletionPath). The
+// same for a shared report, whose link carries the token that opens it (isSharedReportPath).
+const startsOnTokenPage =
+	isAccountDeletionPath(POSTHOG_LANDING_PATHNAME) || isSharedReportPath(POSTHOG_LANDING_PATHNAME);
+if (typeof window !== 'undefined' && key && host && !startsOnTokenPage) {
 	posthog.init(key, {
 		api_host: host,
 		person_profiles: 'identified_only',

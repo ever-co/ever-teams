@@ -161,4 +161,23 @@ describe('useReportUrlFilters', () => {
 		expect(mockRouter.replace).toHaveBeenCalledWith('/reports/time-and-activity?groupBy=client', NOT_SCROLLING);
 		expect(result.current.params.get('groupBy')).toBe('client');
 	});
+
+	it('changes several values of the link in one move', () => {
+		linkMovesTo('groupBy=client');
+		const { result } = renderHook(() => useReportUrlFilters());
+
+		act(() =>
+			result.current.setParams((next) => {
+				next.set('period', 'lastMonth');
+				next.set('clients', 'acme');
+			})
+		);
+
+		expect(mockRouter.replace).toHaveBeenCalledTimes(1);
+		expect(mockRouter.replace).toHaveBeenLastCalledWith(
+			'/reports/time-and-activity?groupBy=client&period=lastMonth&clients=acme',
+			NOT_SCROLLING
+		);
+		expect(result.current.filters.clients).toEqual(['acme']);
+	});
 });
