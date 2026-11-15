@@ -366,6 +366,37 @@ function lineCurrencyOf(entry: OwedReportEntry, employee: TOwedReportEmployee, o
 	return currencyOf(employee.billRateCurrency, organizationCurrency);
 }
 
+interface LinePrice {
+	rate: number | null;
+	amount: number | null;
+	ratePending: boolean;
+}
+
+/**
+ * A line's rate and amount. A billing line states the rate that gives its amount (see {@link lineRateOf}), and no
+ * amount without a rate. A pay line states the amount Gauzy reports, and its stored pay rate once it is read: pending
+ * while that read has not answered.
+ */
+function linePriceOf(
+	entry: OwedReportEntry,
+	employee: TOwedReportEmployee,
+	currency: string | null,
+	payRates: Readonly<{ known: ReadonlyMap<string, number>; pending: ReadonlySet<string> }>
+): LinePrice {
+	const seconds = finiteOrZero(entry.duration);
+	const reportedAmount = finiteOrZero(entry.amount);
+	if (!isPaidAtPayRate(entry)) {
+		const rate = lineRateOf(rateOf(employee.billRateValue), reportedAmount, seconds, currency);
+		return { rate, amount: amountOf(rate, reportedAmount), ratePending: false };
+	}
+	const knownPayRate = payRates.known.get(employee.id) ?? null;
+	if (knownPayRate === null) {
+		return { rate: null, amount: reportedAmount, ratePending: payRates.pending.has(employee.id) };
+	}
+	const rate = lineRateOf(knownPayRate, reportedAmount, seconds, currency);
+	return { rate, amount: reportedAmount, ratePending: false };
+}
+
 export function owedLinesOf({
 	report,
 	members,
@@ -401,21 +432,11 @@ export function owedLinesOf({
 			const member = members.get(employee.id);
 			const rateSource = rateSourceOf(entry.rateSource);
 			const seconds = finiteOrZero(entry.duration);
-			const reportedAmount = finiteOrZero(entry.amount);
 			const currency = lineCurrencyOf(entry, employee, organizationCurrency);
-			let rate = lineRateOf(rateOf(employee.billRateValue), reportedAmount, seconds, currency);
-			let amount = amountOf(rate, reportedAmount);
-			let ratePending = false;
-			if (rateSource === 'pay') {
-				const knownPayRate = knownPayRates.get(employee.id) ?? null;
-				rate = null;
-				if (knownPayRate !== null) {
-					rate = lineRateOf(knownPayRate, reportedAmount, seconds, currency);
-				}
-				amount = reportedAmount;
-				const isUnknown = knownPayRate === null;
-				ratePending = isUnknown && pendingPayRates.has(employee.id);
-			}
+			const { rate, amount, ratePending } = linePriceOf(entry, employee, currency, {
+				known: knownPayRates,
+				pending: pendingPayRates
+			});
 			lines.push({
 				// A member's day priced in two currencies is two lines (Gauzy never adds currencies)
 				key: [dateKey, employee.id, rateSource ?? '', currency ?? ''].join(':'),

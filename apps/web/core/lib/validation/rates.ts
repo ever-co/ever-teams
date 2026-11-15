@@ -3,10 +3,23 @@ import { RATE_REASON_MAX_LENGTH } from '@/core/lib/utils/rates';
 
 const rateValueSchema = z.number().min(0);
 
-/** The day a rate change prices tracked time from, as Gauzy reads it: a date, or a date-time with its offset. */
-const APPLY_FROM_PATTERN = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2}))?$/;
+const APPLY_FROM_DAY = /^\d{4}-\d{2}-\d{2}$/;
+const APPLY_FROM_TIME = /^\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/;
 
-const applyFromSchema = z.string().regex(APPLY_FROM_PATTERN);
+/**
+ * The day a rate change prices tracked time from, as Gauzy reads it: a date, or a date-time with its offset
+ * (`2026-10-01`, `2026-10-01T00:00:00+02:00`). A date-time without one would be read in the server's own time zone.
+ */
+function isApplyFromText(text: string): boolean {
+	const [day, time, ...rest] = text.split('T');
+	const isOneDateTime = rest.length === 0 && APPLY_FROM_DAY.test(day);
+	if (!isOneDateTime) {
+		return false;
+	}
+	return time === undefined || APPLY_FROM_TIME.test(time);
+}
+
+const applyFromSchema = z.string().refine(isApplyFromText);
 
 /**
  * A project rate or a member's rate on a project: a value, or `null` to clear it, and the day it prices tracked time

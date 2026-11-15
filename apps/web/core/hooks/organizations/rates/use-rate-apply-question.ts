@@ -30,7 +30,7 @@ export function useRateApplyQuestion() {
 	const organization = useAtomValue(currentOrganizationState);
 	const rule = pastTimeRuleOf(organization);
 	const [pickedChoice, setPickedChoice] = useState<RateApplyChoice | null>(null);
-	const [day, setDayText] = useState('');
+	const [dayText, setDayText] = useState('');
 	const [isDayMissing, setIsDayMissing] = useState(false);
 	const choice = rateApplyChoiceOf(rule, pickedChoice);
 
@@ -56,7 +56,7 @@ export function useRateApplyQuestion() {
 		if (!choice) {
 			return { isDayMissing: false };
 		}
-		const answer = applyFromOfChoice(choice, day);
+		const answer = applyFromOfChoice(choice, dayText);
 		setIsDayMissing(answer.isDayMissing);
 		return answer;
 	};
@@ -74,7 +74,7 @@ export function useRateApplyQuestion() {
 		toast.success(t('rates.RATE_SAVED'), { description: t(description.key, { count: description.count }) });
 	};
 
-	return { rule, choice, pickChoice, day, setDay, isDayMissing, reset, applyFromOfSave, confirmSaved };
+	return { rule, choice, pickChoice, day: dayText, setDay, isDayMissing, reset, applyFromOfSave, confirmSaved };
 }
 
 export type RateApplyQuestionState = ReturnType<typeof useRateApplyQuestion>;

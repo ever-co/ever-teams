@@ -100,3 +100,17 @@ it('passes the day the new rate applies from on, and refuses one Gauzy would not
 	expect((await putRate({ billRateValue: 80, applyFrom: '01/10/2026' })).status).toBe(400);
 	expect(mockUpdateProjectRate).toHaveBeenCalledTimes(1);
 });
+
+it('takes a date-time only with its offset, as Gauzy reads it', async () => {
+	mockUpdateProjectRate.mockResolvedValue({ data: { id: PROJECT_ID, billRateValue: 80 } });
+	const accepted = ['1970-01-01T00:00:00Z', '2026-10-01T09:30+02:00', '2026-10-01T09:30:15.250-05:00'];
+	const refused = ['2026-10-01T09:30', '2026-10-01T', '2026-10-01T09:30ZT', '2026-10-01 09:30Z', '20261001'];
+
+	for (const applyFrom of accepted) {
+		expect((await putRate({ billRateValue: 80, applyFrom })).status).toBe(200);
+	}
+	for (const applyFrom of refused) {
+		expect((await putRate({ billRateValue: 80, applyFrom })).status).toBe(400);
+	}
+	expect(mockUpdateProjectRate).toHaveBeenCalledTimes(accepted.length);
+});
