@@ -21,6 +21,9 @@ export interface NotificationEntry {
 	rawTitle: string;
 	message: string | null;
 	taskId: string | null;
+	/** The record the notification is about (a task, a project), as Gauzy names it. */
+	entity: string | null;
+	entityId: string | null;
 	/** Where opening the notification leads when it is not about a task. */
 	href: string | null;
 	/** A reminder of a timer left running: its level, the hours it names and its run, read in the reader's language. */
@@ -172,6 +175,8 @@ export function toNotificationEntry(notification: IEmployeeNotification): Notifi
 		rawTitle,
 		message: distinctMessageOf(notification, subject),
 		taskId: taskIdOf(notification),
+		entity: notification.entity ?? null,
+		entityId: notification.entityId ?? null,
 		href: hrefOf(type, notification),
 		timerReminder: timerReminderNoticeOf(notification),
 		createdAt: new Date(notification.createdAt)

@@ -495,3 +495,28 @@ describe('a due date reminder (#5022)', () => {
 		expect(entry.sourceGroup).toBe('tasks');
 	});
 });
+
+describe("a project's entry where the platform has no inbox extension (#5022)", () => {
+	it('keeps the project, so it opens it and stays in the work family', () => {
+		const entry = fromNotificationEntry({
+			id: 'n2',
+			type: 'TaskUpdate' as never,
+			isUnread: true,
+			senderName: 'Ana',
+			senderImageUrl: null,
+			subject: 'Website',
+			rawTitle: 'Ana Updated the Project "Website"',
+			message: 'The project was archived.',
+			taskId: null,
+			entity: 'OrganizationProject',
+			entityId: 'project-1',
+			href: '/projects/project-1',
+			timerReminder: null,
+			createdAt: new Date('2026-11-07T10:00:00.000Z')
+		});
+		expect(entry.entity).toBe('OrganizationProject');
+		expect(entry.entityId).toBe('project-1');
+		expect(entry.sourceGroup).toBe('tasks');
+		expect(entry.href).toBe('/projects/project-1');
+	});
+});
