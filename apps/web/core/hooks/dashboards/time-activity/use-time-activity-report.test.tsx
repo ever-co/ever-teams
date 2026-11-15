@@ -85,6 +85,8 @@ let mockAccess: ClientGroupingAccess = 'granted';
 let mockClientsList: ClientsList = CLIENTS_READ;
 /** A role that may read client rates, unless a test takes it away. */
 let mockPermissions: string[] = ['CHANGE_SELECTED_EMPLOYEE'];
+/** The daily reads still show the previous period or filters while the next ones load. */
+let mockShowsPreviousRead = false;
 const mockRatesByProject = new Map([['website', { id: 'website', billRateValue: 90, currency: 'EUR', members: [] }]]);
 
 // Breaks (#5216) off, as in a workspace that never turned them on, unless a test turns them on
@@ -130,6 +132,7 @@ jest.mock('./use-time-activity-queries', () => ({
 	useTimeActivityBreaksQuery: () => mockBreaksQuery,
 	useTimeActivityDailyQuery: () => ({
 		data: DAILY_REPORT,
+		isPlaceholderData: mockShowsPreviousRead,
 		isPending: false,
 		isError: false,
 		isFetching: false,
@@ -437,6 +440,16 @@ describe('useTimeActivityReport billable amounts', () => {
 
 		expect(report.billable.figures.amounts).toEqual([{ currency: 'EUR', amount: 25 }]);
 		expect(report.billable.figures.unpricedSeconds).toBe(0);
+	});
+
+	it('waits instead of pricing a previous read beside the time now shown', () => {
+		mockShowsPreviousRead = true;
+
+		const report = reportUnder([], PROJECTS_READ);
+		mockShowsPreviousRead = false;
+
+		expect(report.billable.isPending).toBe(true);
+		expect(report.billable.facts).toEqual([]);
 	});
 
 	it('gives no billable amount to a role that may not read client rates', () => {

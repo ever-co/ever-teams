@@ -71,6 +71,8 @@ const MANAGING_ROLES: ReadonlySet<string> = new Set([ERoleName.SUPER_ADMIN, ERol
 
 const EMPTY_REPORT: ITimeLogGroupedDailyReport[] = [];
 
+const NO_BILLABLE_FACTS: BreakdownFact[] = [];
+
 interface ReportAccess {
 	isManager: boolean;
 	isOrganizationWide: boolean;
@@ -472,8 +474,17 @@ export function useTimeActivityReport() {
 	const isBillableReadFailure = billableQuery.isError && !hasBillableData;
 	const isBillableFailure = isBillableReadFailure || projectRates.hasFailed || isFilterLookupError;
 	const isBillableError = readsBillable && isBillableFailure;
-	const isWaitingForBillable = billableQuery.isPending || projectRates.isLoading || isFilterLookupPending;
+	// A read still showing the previous period or filters would price old time beside the new: it waits instead
+	const isShowingPreviousRead = billableQuery.isPlaceholderData || dailyQuery.isPlaceholderData;
+	const isReadingBillable = billableQuery.isPending || isShowingPreviousRead;
+	const isWaitingForBillable = isReadingBillable || projectRates.isLoading || isFilterLookupPending;
 	const isBillablePending = readsBillable && isWaitingForBillable && !isBillableError;
+	const shownBillableFacts = useMemo(() => {
+		if (isBillablePending) {
+			return NO_BILLABLE_FACTS;
+		}
+		return billableFacts;
+	}, [billableFacts, isBillablePending]);
 	const storesDefault = organization !== null && storesDefaultBillRate(organization);
 	const canSetDefaultRate = storesDefault && canEditWorkspace(myPermissions);
 	const { refetch: refetchBillableReport } = billableQuery;
@@ -485,7 +496,7 @@ export function useTimeActivityReport() {
 	const billable = useMemo<TimeActivityBillable>(
 		() => ({
 			isOffered: readsBillable,
-			facts: billableFacts,
+			facts: shownBillableFacts,
 			figures: billableFigures,
 			isPending: isBillablePending,
 			isError: isBillableError,
@@ -493,13 +504,13 @@ export function useTimeActivityReport() {
 			refetch: refetchBillable
 		}),
 		[
-			billableFacts,
 			billableFigures,
 			canSetDefaultRate,
 			isBillableError,
 			isBillablePending,
 			readsBillable,
-			refetchBillable
+			refetchBillable,
+			shownBillableFacts
 		]
 	);
 
