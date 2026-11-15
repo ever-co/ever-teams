@@ -88,6 +88,7 @@ describe('a tab whose cookies another tab moved to another organization', () => 
 
 		expect(tabScope()).toEqual({
 			held: true,
+			isOtherOrganizationOpen: true,
 			organizationId: 'org-a',
 			teamId: 'team-a',
 			projectId: null,
@@ -99,6 +100,39 @@ describe('a tab whose cookies another tab moved to another organization', () => 
 		expect(mockTabReader?.()).toEqual({ organizationId: 'org-a', teamId: 'team-a', projectId: null });
 		expect(isTabAccessToken(TOKEN_A)).toBe(true);
 		expect(isTabAccessToken(tokenB)).toBe(false);
+	});
+
+	it('keeps its own token while it brings its organization back, until the session follows', () => {
+		rememberTabTeam({ id: 'team-a', organizationId: 'org-a' });
+		const tokenB = token('org-b');
+		anotherTabSwitchesTo('org-b', tokenB);
+		// "Use … in every tab": the organization cookie names this tab's again, the session's token is still the other's
+		mockCookies.organizationId = 'org-a';
+		document.cookie = 'bringing-back=1';
+
+		const scope = tabScope();
+		expect(scope).toMatchObject({ held: true, isOtherOrganizationOpen: false, accessToken: TOKEN_A });
+		expect(requestAccessToken()).toBe(TOKEN_A);
+		// The cookies are this tab's own again: their readers answer them
+		expect(mockTabReader?.()).toBeNull();
+
+		// The switch answered: the session is this tab's organization's again
+		const tokenA2 = token('org-a', { expiresIn: 7200 });
+		anotherTabSwitchesTo('org-a', tokenA2);
+		expect(tabScope()).toEqual({ held: false });
+		expect(requestAccessToken()).toBe(tokenA2);
+	});
+
+	it('acts with the cookies, as before, when its own switch is on its way and it has no token for its organization', () => {
+		mockCookies.token = token('org-b');
+		mockCookies.organizationId = 'org-b';
+		rememberTabTeam({ id: 'team-a', organizationId: 'org-a' });
+		// setActiveTeam wrote the organization cookie; syncTokenOrganization has not answered yet
+		mockCookies.organizationId = 'org-a';
+		document.cookie = 'own-switch=1';
+
+		expect(tabScope()).toEqual({ held: false });
+		expect(requestAccessToken()).toBe(mockCookies.token);
 	});
 
 	it("keeps its team's project, and the one it chooses meanwhile, not the other tab's", () => {

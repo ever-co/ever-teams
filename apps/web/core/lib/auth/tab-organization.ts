@@ -30,8 +30,13 @@ interface TabTeam {
 export type TabScope =
 	| { held: false }
 	| {
-			/** The cookies name another organization of the session than this tab shows. */
+			/** The session in the cookies is in another organization than this tab shows. */
 			held: true;
+			/**
+			 * The organization cookie names another organization: another tab opened it. False while this tab's own switch
+			 * back to its organization is on its way (the cookie already names it, the session's token not yet).
+			 */
+			isOtherOrganizationOpen: boolean;
 			/** This tab's own organization, team and project. */
 			organizationId: string;
 			teamId: string | null;
@@ -104,7 +109,7 @@ function noteSharedToken(token: string): boolean {
 
 function announceIfChanged(scope: TabScope): void {
 	const key = scope.held
-		? `held:${scope.organizationId}:${scope.sharedOrganizationId}:${scope.accessToken ? 'token' : 'none'}`
+		? `held:${scope.organizationId}:${scope.sharedOrganizationId}:${scope.isOtherOrganizationOpen}:${scope.accessToken ? 'token' : 'none'}`
 		: 'shared';
 	if (key === lastScopeKey) return;
 	lastScopeKey = key;
@@ -147,17 +152,37 @@ function computeTabScope(): TabScope {
 	// Signed out, or another person or workspace signed in meanwhile: the session code decides, not this tab
 	if (!sharedToken || !noteSharedToken(sharedToken) || !tabTeam) return SHARED;
 	const sharedOrganizationId = getSharedOrganizationIdCookie() || null;
-	if (!sharedOrganizationId || sharedOrganizationId === tabTeam.organizationId) return SHARED;
+	if (!sharedOrganizationId) return SHARED;
+	const sharedTokenOrganizationId = ownerOf(sharedToken)?.organizationId ?? null;
+	const isOtherOrganizationOpen = sharedOrganizationId !== tabTeam.organizationId;
+	const isSessionElsewhere = !!sharedTokenOrganizationId && sharedTokenOrganizationId !== tabTeam.organizationId;
+	if (!isOtherOrganizationOpen && !isSessionElsewhere) return SHARED;
 
 	const known = tokensByOrganization.get(tabTeam.organizationId);
 	const isUsable = !!known && known.expiresAt - EXPIRY_MARGIN_SECONDS > Date.now() / 1000;
+	const accessToken = isUsable && known ? known.token : null;
+	// The organization cookie is already this tab's, and the session's switch to it is on its way (or was refused): the
+	// tab's own token meanwhile, else the cookies, as before. Nothing for the person to choose.
+	if (!isOtherOrganizationOpen) {
+		if (!accessToken) return SHARED;
+		return {
+			held: true,
+			isOtherOrganizationOpen: false,
+			organizationId: tabTeam.organizationId,
+			teamId: tabTeam.teamId,
+			projectId: tabTeam.projectId,
+			sharedOrganizationId,
+			accessToken
+		};
+	}
 	return {
 		held: true,
+		isOtherOrganizationOpen: true,
 		organizationId: tabTeam.organizationId,
 		teamId: tabTeam.teamId,
 		projectId: tabTeam.projectId,
 		sharedOrganizationId,
-		accessToken: isUsable && known ? known.token : null
+		accessToken
 	};
 }
 
@@ -255,7 +280,8 @@ export function resetTabOrganizationState(): void {
 registerTabWorkScope?.(
 	() => {
 		const scope = tabScope();
-		return scope.held
+		// Only while another tab has the cookies on another organization: the cookies are this tab's own otherwise
+		return scope.held && scope.isOtherOrganizationOpen
 			? { organizationId: scope.organizationId, teamId: scope.teamId, projectId: scope.projectId }
 			: null;
 	},
