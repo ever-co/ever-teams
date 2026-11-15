@@ -115,8 +115,7 @@ export function useOrganizationDeletion(
 			openOrganization: async (id) => {
 				await switchOrganization.mutateAsync({ organizationId: id });
 			},
-			openWorkspacePicker: () => logOut(),
-			restartApp: () => globalThis.window?.location.assign('/')
+			openWorkspacePicker: () => logOut()
 		});
 	};
 

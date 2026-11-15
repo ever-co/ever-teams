@@ -98,9 +98,6 @@ describe('deleteOrganizationAndLand', () => {
 			openWorkspacePicker: jest.fn(async () => {
 				calls.push('picker');
 			}),
-			restartApp: jest.fn(() => {
-				calls.push('restart');
-			}),
 			...overrides
 		};
 		return { steps, calls };
@@ -131,12 +128,23 @@ describe('deleteOrganizationAndLand', () => {
 		expect(calls).toEqual([]);
 	});
 
-	it('restarts the app once the organization is gone, when opening the next one fails', async () => {
+	it('signs out to the workspace picker once the organization is gone, when the session cannot be renewed', async () => {
 		const { steps, calls } = stepsOf({ renewSession: jest.fn(async () => Promise.reject(new Error('offline'))) });
 
 		await deleteOrganizationAndLand(labs, steps);
 
-		expect(calls).toEqual(['delete', 'restart']);
+		// A restart would start again from the cookies that still name the deleted organization
+		expect(calls).toEqual(['delete', 'picker']);
+	});
+
+	it('signs out to the workspace picker once the organization is gone, when opening the next one fails', async () => {
+		const { steps, calls } = stepsOf({
+			openOrganization: jest.fn(async () => Promise.reject(new Error('refused')))
+		});
+
+		await deleteOrganizationAndLand(labs, steps);
+
+		expect(calls).toEqual(['delete', 'renew', 'picker']);
 	});
 });
 
