@@ -4078,7 +4078,7 @@
 				"LABEL": "Przypomnienie o spotkaniu",
 				"TEXT": "Gdy zostaniesz zaproszony, gdy spotkanie się zmieni lub zostanie odwołane, przed jego rozpoczęciem i gdy się zaczyna. W Twojej skrzynce, e-mailem i na Twoich urządzeniach, zgodnie z Twoim wyborem.",
 				"OFF": "Tylko na początku",
-				"BEFORE_MINUTES": "{minutes, plural, one {# minutę} few {# minuty} many {# minut} other {# minuty}} wcześniej"
+				"BEFORE_MINUTES": "{minutes} min wcześniej"
 			},
 			"INTRO": "Wybierz, co trafia do Twojej skrzynki. Wyłączenie typu zatrzymuje nowe powiadomienia tego typu; te, które już masz, zostają.",
 			"LOAD_ERROR": "Nie udało się wczytać ustawień powiadomień.",
@@ -4399,7 +4399,7 @@
 		"ADD_TO_CALENDAR": "Dodaj do kalendarza",
 		"DONE": "Gotowe",
 		"AGENDA": "Agenda",
-		"AGENDA_HINT": "Spotkania zaplanowane przez ciebie",
+		"AGENDA_HINT": "Spotkania zaplanowane przez ciebie lub na które cię zaproszono",
 		"TODAY": "Dzisiaj",
 		"TOMORROW": "Jutro",
 		"YESTERDAY": "Wczoraj",

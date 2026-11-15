@@ -4078,7 +4078,7 @@
 				"LABEL": "Meeting reminder",
 				"TEXT": "When you are invited, when a meeting changes or is cancelled, before it starts and when it is starting. In your inbox, by email and on your devices as you choose.",
 				"OFF": "Only when it starts",
-				"BEFORE_MINUTES": "{minutes, plural, one {# minute} other {# minutes}} before"
+				"BEFORE_MINUTES": "{minutes} min before"
 			},
 			"INTRO": "Choose what reaches your inbox. Turning a type off stops new notifications of that type; the ones already there stay.",
 			"LOAD_ERROR": "Your notification settings could not load.",
@@ -4399,7 +4399,7 @@
 		"ADD_TO_CALENDAR": "Add to calendar",
 		"DONE": "Done",
 		"AGENDA": "Agenda",
-		"AGENDA_HINT": "Meetings you scheduled",
+		"AGENDA_HINT": "Meetings you scheduled or are invited to",
 		"TODAY": "Today",
 		"TOMORROW": "Tomorrow",
 		"YESTERDAY": "Yesterday",

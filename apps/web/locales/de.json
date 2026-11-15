@@ -4078,7 +4078,7 @@
 				"LABEL": "Meeting-Erinnerung",
 				"TEXT": "Wenn Sie eingeladen werden, wenn ein Meeting geändert oder abgesagt wird, vor dem Beginn und wenn es beginnt. In Ihrem Posteingang, per E-Mail und auf Ihren Geräten nach Ihrer Wahl.",
 				"OFF": "Nur zu Beginn",
-				"BEFORE_MINUTES": "{minutes, plural, one {# Minute} other {# Minuten}} vorher"
+				"BEFORE_MINUTES": "{minutes} Min. vorher"
 			},
 			"INTRO": "Wähle, was in deinem Posteingang ankommt. Wenn du einen Typ ausschaltest, kommen keine neuen Benachrichtigungen dieses Typs mehr; vorhandene bleiben.",
 			"LOAD_ERROR": "Deine Benachrichtigungseinstellungen konnten nicht geladen werden.",
@@ -4399,7 +4399,7 @@
 		"ADD_TO_CALENDAR": "Zum Kalender hinzufügen",
 		"DONE": "Fertig",
 		"AGENDA": "Agenda",
-		"AGENDA_HINT": "Von dir geplante Besprechungen",
+		"AGENDA_HINT": "Von dir geplante Besprechungen und solche, zu denen du eingeladen bist",
 		"TODAY": "Heute",
 		"TOMORROW": "Morgen",
 		"YESTERDAY": "Gestern",

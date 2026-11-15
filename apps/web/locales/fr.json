@@ -4078,7 +4078,7 @@
 				"LABEL": "Rappel de réunion",
 				"TEXT": "Quand vous êtes invité, quand une réunion change ou est annulée, avant son début et quand elle commence. Dans votre boîte de réception, par e-mail et sur vos appareils selon vos choix.",
 				"OFF": "Seulement au début",
-				"BEFORE_MINUTES": "{minutes, plural, one {# minute} other {# minutes}} avant"
+				"BEFORE_MINUTES": "{minutes} min avant"
 			},
 			"INTRO": "Choisissez ce qui arrive dans votre boîte. Désactiver un type arrête les nouvelles notifications de ce type ; celles déjà reçues restent.",
 			"LOAD_ERROR": "Vos réglages de notifications n'ont pas pu être chargés.",
@@ -4399,7 +4399,7 @@
 		"ADD_TO_CALENDAR": "Ajouter à l’agenda",
 		"DONE": "Terminé",
 		"AGENDA": "Agenda",
-		"AGENDA_HINT": "Les réunions que vous avez planifiées",
+		"AGENDA_HINT": "Les réunions que vous avez planifiées ou auxquelles vous êtes invité",
 		"TODAY": "Aujourd’hui",
 		"TOMORROW": "Demain",
 		"YESTERDAY": "Hier",

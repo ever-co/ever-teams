@@ -4078,7 +4078,7 @@
 				"LABEL": "Vergaderherinnering",
 				"TEXT": "Als je wordt uitgenodigd, als een vergadering wijzigt of wordt geannuleerd, voordat ze begint en als ze begint. In je inbox, per e-mail en op je apparaten, zoals je kiest.",
 				"OFF": "Alleen bij de start",
-				"BEFORE_MINUTES": "{minutes, plural, one {# minuut} other {# minuten}} van tevoren"
+				"BEFORE_MINUTES": "{minutes} min vooraf"
 			},
 			"INTRO": "Kies wat er in je inbox binnenkomt. Als je een type uitzet, komen er geen nieuwe meldingen van dat type meer; bestaande blijven staan.",
 			"LOAD_ERROR": "Je meldingsinstellingen konden niet worden geladen.",
@@ -4399,7 +4399,7 @@
 		"ADD_TO_CALENDAR": "Aan agenda toevoegen",
 		"DONE": "Klaar",
 		"AGENDA": "Agenda",
-		"AGENDA_HINT": "Vergaderingen die je plande",
+		"AGENDA_HINT": "Vergaderingen die je plande of waarvoor je bent uitgenodigd",
 		"TODAY": "Vandaag",
 		"TOMORROW": "Morgen",
 		"YESTERDAY": "Gisteren",

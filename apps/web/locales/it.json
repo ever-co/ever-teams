@@ -4078,7 +4078,7 @@
 				"LABEL": "Promemoria riunione",
 				"TEXT": "Quando sei invitato, quando una riunione cambia o viene annullata, prima che inizi e quando inizia. Nella tua posta in arrivo, via email e sui tuoi dispositivi, come preferisci.",
 				"OFF": "Solo all’inizio",
-				"BEFORE_MINUTES": "{minutes, plural, one {# minuto} other {# minuti}} prima"
+				"BEFORE_MINUTES": "{minutes} min prima"
 			},
 			"INTRO": "Scegli cosa arriva nella tua posta. Disattivando un tipo si fermano le nuove notifiche di quel tipo; quelle già ricevute restano.",
 			"LOAD_ERROR": "Non è stato possibile caricare le impostazioni delle notifiche.",
@@ -4399,7 +4399,7 @@
 		"ADD_TO_CALENDAR": "Aggiungi al calendario",
 		"DONE": "Fatto",
 		"AGENDA": "Agenda",
-		"AGENDA_HINT": "Riunioni che hai pianificato",
+		"AGENDA_HINT": "Riunioni che hai pianificato o a cui sei invitato",
 		"TODAY": "Oggi",
 		"TOMORROW": "Domani",
 		"YESTERDAY": "Ieri",

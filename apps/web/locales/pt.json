@@ -4078,7 +4078,7 @@
 				"LABEL": "Lembrete de reunião",
 				"TEXT": "Quando você é convidado, quando uma reunião muda ou é cancelada, antes de começar e quando está começando. Na sua caixa de entrada, por e-mail e nos seus dispositivos, como preferir.",
 				"OFF": "Só no início",
-				"BEFORE_MINUTES": "{minutes, plural, one {# minuto} other {# minutos}} antes"
+				"BEFORE_MINUTES": "{minutes} min antes"
 			},
 			"INTRO": "Escolha o que chega à sua caixa de entrada. Desativar um tipo interrompe as novas notificações desse tipo; as que já chegaram continuam lá.",
 			"LOAD_ERROR": "Não foi possível carregar suas configurações de notificações.",
@@ -4399,7 +4399,7 @@
 		"ADD_TO_CALENDAR": "Adicionar à agenda",
 		"DONE": "Concluído",
 		"AGENDA": "Agenda",
-		"AGENDA_HINT": "Reuniões que você agendou",
+		"AGENDA_HINT": "Reuniões que você agendou ou para as quais foi convidado",
 		"TODAY": "Hoje",
 		"TOMORROW": "Amanhã",
 		"YESTERDAY": "Ontem",
