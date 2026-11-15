@@ -7700,6 +7700,86 @@
 			"NOT_FOUND_MESSAGE": "它可能已被删除，或者链接来自另一个工作区。",
 			"ALL_INVOICES": "全部发票",
 			"ERROR_TITLE": "无法加载发票"
+		},
+		"schedule": {
+			"TITLE": "定期开票",
+			"NONE_HINT": "每周、每两周或每月自动为该客户开具发票，依据尚未开票的可计费时间。",
+			"SET_UP": "设置计划",
+			"EDIT": "编辑",
+			"PAUSE": "暂停",
+			"RESUME": "恢复",
+			"PAUSED": "已暂停",
+			"ACTIVE": "进行中",
+			"SUMMARY": "{frequency}，自 {day} 起",
+			"DELIVERY_DRAFT": "保留为草稿",
+			"DELIVERY_SEND": "发送至 {email}",
+			"DELIVERY_SEND_NO_EMAIL": "发送至客户的电子邮箱",
+			"NEXT": "下一张发票于 {day} 开具，涵盖 {period}",
+			"NEXT_PAUSED": "暂停期间不开具发票",
+			"RUNS": "最近运行",
+			"NO_RUNS": "暂无运行",
+			"RUNS_ERROR": "无法加载最近运行",
+			"ERROR": "无法加载定期开票",
+			"OPEN_INVOICE": "打开发票",
+			"LEFT_OUT": "该期间有 {hours} 小时未计入：无费率或使用其他货币",
+			"LIST_TITLE": "按计划开票",
+			"LIST_NEXT": "下一次 {day}",
+			"LIST_PAUSED": "已暂停",
+			"frequency": {
+				"WEEKLY": "每周",
+				"BIWEEKLY": "每两周",
+				"MONTHLY": "每月"
+			},
+			"grouping": {
+				"PROJECT": "按项目",
+				"MEMBER": "按成员",
+				"TASK": "按任务"
+			},
+			"run": {
+				"CLAIMED": "进行中",
+				"DRAFTED": "已创建草稿",
+				"SENT": "已发送",
+				"NOT_SENT": "已创建，未发送",
+				"NO_TIME": "无可开票内容",
+				"FAILED": "未创建"
+			},
+			"reason": {
+				"NO_BILLABLE_TIME": "该期间没有剩余的可计费时间。",
+				"NO_PRICED_TIME": "该期间的时间没有可用于开票的费率。一周内每小时重试一次。",
+				"AUTHOR_CANNOT_INVOICE": "最后保存该计划的人已无法开具发票。保存计划即可接手；一周内每小时重试一次。",
+				"CLIENT_HAS_NO_EMAIL": "客户没有电子邮箱：发票保留为草稿。",
+				"EMAIL_NOT_SENT": "邮件发送失败：发票保留为草稿。",
+				"INVOICE_NOT_SAVED": "发票保存失败。一周内每小时重试一次。"
+			},
+			"form": {
+				"CREATE_TITLE": "按计划开票",
+				"EDIT_TITLE": "编辑定期开票",
+				"FREQUENCY": "频率",
+				"START_DAY": "第一个期间的第一天",
+				"START_HINT": "每张发票在其期间结束后的第二天开具，按工作区时区计算。今天之前已结束的期间不会开票。",
+				"START_INVALID": "请选择日期。",
+				"GROUPING": "明细行",
+				"DELIVERY": "开具后",
+				"DRAFT": "保留为草稿",
+				"SEND": "发送给客户",
+				"DRAFT_HINT": "每张发票保留为草稿，等待你检查并发送。",
+				"SEND_HINT": "每张发票连同 PDF 发送至 {email}，并标记为已发送。",
+				"SEND_NO_EMAIL": "该客户没有电子邮箱：在添加邮箱之前，其发票将保留为草稿。",
+				"SAVE": "保存",
+				"SAVE_FAILED": "计划保存失败，请重试。",
+				"EXISTS": "该客户已有计划。请关闭后重新打开以修改。"
+			},
+			"delete": {
+				"TITLE": "删除此定期开票？",
+				"BODY": "将不再自动为 {name} 开具发票。已开具的发票会保留。"
+			},
+			"toasts": {
+				"SAVED": "{name} 的定期开票已保存",
+				"PAUSED": "{name} 的定期开票已暂停",
+				"RESUMED": "{name} 的定期开票已恢复：下一张发票于 {day} 开具",
+				"DELETED": "{name} 的定期开票已删除",
+				"FAILED": "更改保存失败，请重试。"
+			}
 		}
 	},
 	"timeReports": {

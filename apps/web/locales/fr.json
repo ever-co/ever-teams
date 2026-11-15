@@ -7700,6 +7700,86 @@
 			"NOT_FOUND_MESSAGE": "Elle a peut-être été supprimée, ou le lien vient d’un autre espace de travail.",
 			"ALL_INVOICES": "Toutes les factures",
 			"ERROR_TITLE": "La facture n’a pas pu être chargée"
+		},
+		"schedule": {
+			"TITLE": "Facturation planifiée",
+			"NONE_HINT": "Faire la facture de ce client toute seule chaque semaine, toutes les deux semaines ou chaque mois, à partir du temps facturable pas encore facturé.",
+			"SET_UP": "Planifier la facturation",
+			"EDIT": "Modifier",
+			"PAUSE": "Suspendre",
+			"RESUME": "Reprendre",
+			"PAUSED": "Suspendue",
+			"ACTIVE": "Active",
+			"SUMMARY": "{frequency} à partir du {day}",
+			"DELIVERY_DRAFT": "Gardée en brouillon",
+			"DELIVERY_SEND": "Envoyée à {email}",
+			"DELIVERY_SEND_NO_EMAIL": "Envoyée à l’e-mail du client",
+			"NEXT": "Prochaine facture le {day}, pour {period}",
+			"NEXT_PAUSED": "Aucune facture tant qu’elle est suspendue",
+			"RUNS": "Dernières exécutions",
+			"NO_RUNS": "Aucune exécution pour l’instant",
+			"RUNS_ERROR": "Les dernières exécutions n’ont pas pu être chargées",
+			"ERROR": "La facturation planifiée n’a pas pu être chargée",
+			"OPEN_INVOICE": "Ouvrir la facture",
+			"LEFT_OUT": "{hours} h de la période laissées de côté : sans taux, ou dans une autre devise",
+			"LIST_TITLE": "Facturés selon un calendrier",
+			"LIST_NEXT": "prochaine le {day}",
+			"LIST_PAUSED": "suspendue",
+			"frequency": {
+				"WEEKLY": "Chaque semaine",
+				"BIWEEKLY": "Toutes les deux semaines",
+				"MONTHLY": "Chaque mois"
+			},
+			"grouping": {
+				"PROJECT": "Par projet",
+				"MEMBER": "Par membre",
+				"TASK": "Par tâche"
+			},
+			"run": {
+				"CLAIMED": "En cours",
+				"DRAFTED": "Brouillon créé",
+				"SENT": "Envoyée",
+				"NOT_SENT": "Créée, non envoyée",
+				"NO_TIME": "Rien à facturer",
+				"FAILED": "Non créée"
+			},
+			"reason": {
+				"NO_BILLABLE_TIME": "La période n’avait plus de temps facturable à facturer.",
+				"NO_PRICED_TIME": "Le temps de la période n’a aucun taux auquel le facturer. Nouvel essai chaque heure pendant une semaine.",
+				"AUTHOR_CANNOT_INVOICE": "La personne qui a enregistré le calendrier en dernier ne peut plus créer de factures. Enregistrez-le pour le reprendre ; nouvel essai chaque heure pendant une semaine.",
+				"CLIENT_HAS_NO_EMAIL": "Le client n’a pas d’adresse e-mail : la facture est restée en brouillon.",
+				"EMAIL_NOT_SENT": "L’e-mail n’a pas pu être envoyé : la facture est restée en brouillon.",
+				"INVOICE_NOT_SAVED": "La facture n’a pas pu être enregistrée. Nouvel essai chaque heure pendant une semaine."
+			},
+			"form": {
+				"CREATE_TITLE": "Facturer selon un calendrier",
+				"EDIT_TITLE": "Modifier la facturation planifiée",
+				"FREQUENCY": "Fréquence",
+				"START_DAY": "Premier jour de la première période",
+				"START_HINT": "Chaque facture est créée le lendemain de la fin de sa période, dans le fuseau horaire de l’espace de travail. Aucune période terminée avant aujourd’hui n’est facturée.",
+				"START_INVALID": "Choisissez un jour.",
+				"GROUPING": "Lignes",
+				"DELIVERY": "Une fois créée",
+				"DRAFT": "Garder en brouillon",
+				"SEND": "Envoyer au client",
+				"DRAFT_HINT": "Chaque facture attend en brouillon que vous la vérifiiez et l’envoyiez.",
+				"SEND_HINT": "Chaque facture part à {email} avec son PDF et passe à Envoyée.",
+				"SEND_NO_EMAIL": "Ce client n’a pas d’adresse e-mail : ses factures resteront en brouillon tant qu’il n’en a pas.",
+				"SAVE": "Enregistrer",
+				"SAVE_FAILED": "Le calendrier n’a pas pu être enregistré. Réessayez.",
+				"EXISTS": "Ce client a déjà un calendrier. Fermez et rouvrez-le pour le modifier."
+			},
+			"delete": {
+				"TITLE": "Supprimer cette facturation planifiée ?",
+				"BODY": "Plus aucune facture ne sera créée toute seule pour {name}. Les factures déjà créées restent."
+			},
+			"toasts": {
+				"SAVED": "La facturation planifiée de {name} est enregistrée",
+				"PAUSED": "La facturation planifiée de {name} est suspendue",
+				"RESUMED": "La facturation planifiée de {name} reprend : prochaine facture le {day}",
+				"DELETED": "La facturation planifiée de {name} est supprimée",
+				"FAILED": "La modification n’a pas pu être enregistrée. Réessayez."
+			}
 		}
 	},
 	"timeReports": {
