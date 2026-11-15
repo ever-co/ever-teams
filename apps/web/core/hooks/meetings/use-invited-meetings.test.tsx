@@ -67,6 +67,16 @@ describe('useInvitedMeetings (#5022)', () => {
 		expect(mockGetInvitedMeetings).toHaveBeenCalledTimes(1);
 	});
 
+	it("says nothing failed on an older platform, whose appointment-by-id route refuses 'invited' as no UUID (406)", async () => {
+		mockGetInvitedMeetings.mockRejectedValue(apiError(406));
+		const { result } = renderInvitedMeetings();
+
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+		expect(result.current.isError).toBe(false);
+		expect(result.current.meetings).toEqual([]);
+		expect(mockGetInvitedMeetings).toHaveBeenCalledTimes(1);
+	});
+
 	it('says so when the invitations fail to load for another reason, after asking again, and loads them on retry', async () => {
 		mockGetInvitedMeetings.mockRejectedValue(apiError(500));
 		const { result } = renderInvitedMeetings();

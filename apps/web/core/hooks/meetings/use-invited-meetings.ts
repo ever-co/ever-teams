@@ -9,7 +9,7 @@ import { invitedMeetingOf, type ScheduledMeeting } from '@/core/lib/utils/meetin
 import { useUserQuery } from '../queries/user-user.query';
 
 /** How far back the agenda can show a meeting one was invited to. */
-const INVITED_LOOKBACK_MS = 31 * 24 * 60 * 60 * 1000;
+const INVITED_HISTORY_MS = 31 * 24 * 60 * 60 * 1000;
 
 /**
  * How often an open agenda reads the invitations again: a host moves, cancels or adds a meeting at any time, and the
@@ -19,16 +19,23 @@ export const INVITED_MEETINGS_REFRESH_MS = 60 * 1000;
 
 const isMeeting = (meeting: ScheduledMeeting | null): meeting is ScheduledMeeting => meeting !== null;
 
-/** A platform without the route (an older Ever Gauzy) answers 404: it lists no invitations, which is no failure. */
-export function isInvitationsRouteMissing(error: unknown): boolean {
-	return errorStatusOf(error) === 404;
+/**
+ * A platform without the route lists no invitations, which is no failure. An older Ever Gauzy reads `invited` as the
+ * id of `GET /employee-appointment/:id`, whose UUID check answers 406 (`NotAcceptableException`); a platform with
+ * neither route answers 404.
+ */
+const MISSING_ROUTE_STATUSES: ReadonlySet<number> = new Set([404, 406]);
+
+function isInvitationsRouteMissing(error: unknown): boolean {
+	const status = errorStatusOf(error);
+	return status !== null && MISSING_ROUTE_STATUSES.has(status);
 }
 
 /**
  * The meetings others host that the signed-in member is invited to (#5022), from a month ago on, read again every
  * minute while the page is open and when it comes back to the front. A platform that does not list them yet answers
- * 404: the member then sees their own meetings only, as before, and nothing says it failed. Any other failure is one,
- * which the agenda shows with a way to try again.
+ * 404 or 406: the member then sees their own meetings only, as before, and nothing says it failed. Any other failure
+ * is one, which the agenda shows with a way to try again.
  */
 export function useInvitedMeetings() {
 	const { data: user } = useUserQuery();
@@ -36,7 +43,7 @@ export function useInvitedMeetings() {
 
 	const query = useQuery({
 		queryKey: queryKeys.meetings.invited(employeeId),
-		queryFn: () => scheduledMeetingService.getInvitedMeetings(new Date(Date.now() - INVITED_LOOKBACK_MS)),
+		queryFn: () => scheduledMeetingService.getInvitedMeetings(new Date(Date.now() - INVITED_HISTORY_MS)),
 		enabled: Boolean(employeeId),
 		staleTime: 30 * 1000,
 		refetchInterval: INVITED_MEETINGS_REFRESH_MS,
