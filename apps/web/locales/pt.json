@@ -7706,6 +7706,87 @@
 			"NOT_FOUND_MESSAGE": "Pode ter sido eliminada, ou a ligação vem de outro espaço de trabalho.",
 			"ALL_INVOICES": "Todas as faturas",
 			"ERROR_TITLE": "Não foi possível carregar a fatura"
+		},
+		"schedule": {
+			"TITLE": "Faturação programada",
+			"NONE_HINT": "Fazer a fatura deste cliente sozinha todas as semanas, a cada duas semanas ou todos os meses, a partir do tempo faturável ainda não faturado.",
+			"SET_UP": "Programar a faturação",
+			"EDIT": "Editar",
+			"PAUSE": "Pausar",
+			"RESUME": "Retomar",
+			"PAUSED": "Em pausa",
+			"ACTIVE": "Ativa",
+			"SUMMARY": "{frequency} a partir de {day}",
+			"DELIVERY_DRAFT": "Fica como rascunho",
+			"DELIVERY_SEND": "Enviada para {email}",
+			"DELIVERY_SEND_NO_EMAIL": "Enviada para o e-mail do cliente",
+			"NEXT": "Próxima fatura em {day}, referente a {period}",
+			"NEXT_PAUSED": "Nenhuma fatura é feita enquanto está em pausa",
+			"RUNS": "Últimas execuções",
+			"NO_RUNS": "Ainda sem execuções",
+			"RUNS_ERROR": "Não foi possível carregar as últimas execuções",
+			"ERROR": "Não foi possível carregar a faturação programada",
+			"OPEN_INVOICE": "Abrir a fatura",
+			"LEFT_OUT": "{hours} h do período ficaram de fora: sem tarifa ou noutra moeda",
+			"LIST_TITLE": "Faturados segundo um calendário",
+			"LIST_NEXT": "próxima em {day}",
+			"LIST_PAUSED": "em pausa",
+			"frequency": {
+				"WEEKLY": "Todas as semanas",
+				"BIWEEKLY": "A cada duas semanas",
+				"MONTHLY": "Todos os meses"
+			},
+			"grouping": {
+				"PROJECT": "Por projeto",
+				"MEMBER": "Por membro",
+				"TASK": "Por tarefa"
+			},
+			"run": {
+				"CLAIMED": "Em curso",
+				"DRAFTED": "Rascunho criado",
+				"SENT": "Enviada",
+				"NOT_SENT": "Criada, não enviada",
+				"NO_TIME": "Nada a faturar",
+				"FAILED": "Não criada"
+			},
+			"reason": {
+				"NO_BILLABLE_TIME": "O período não tinha tempo faturável por faturar.",
+				"NO_PRICED_TIME": "O tempo do período não tem tarifa para o faturar. Nova tentativa a cada hora durante uma semana.",
+				"AUTHOR_CANNOT_INVOICE": "A pessoa que guardou o calendário por último já não pode criar faturas. Guarde-o para o assumir; nova tentativa a cada hora durante uma semana.",
+				"CLIENT_HAS_NO_EMAIL": "O cliente não tem endereço de e-mail: a fatura ficou como rascunho.",
+				"EMAIL_NOT_SENT": "Não foi possível enviar o e-mail: a fatura ficou como rascunho.",
+				"INVOICE_NOT_SAVED": "Não foi possível guardar a fatura. Nova tentativa a cada hora durante uma semana."
+			},
+			"form": {
+				"CREATE_TITLE": "Faturar segundo um calendário",
+				"EDIT_TITLE": "Editar a faturação programada",
+				"FREQUENCY": "Frequência",
+				"START_DAY": "Primeiro dia do primeiro período",
+				"START_HINT": "Cada fatura é criada no dia seguinte ao fim do seu período, no fuso horário do espaço de trabalho. Nenhum período terminado antes de hoje é faturado.",
+				"START_INVALID": "Escolha um dia.",
+				"GROUPING": "Linhas",
+				"DELIVERY": "Depois de criada",
+				"DRAFT": "Manter como rascunho",
+				"SEND": "Enviar ao cliente",
+				"DRAFT_HINT": "Cada fatura fica como rascunho até a verificar e enviar.",
+				"SEND_HINT": "Cada fatura vai para {email} com o seu PDF e fica marcada como Enviada.",
+				"SEND_NO_EMAIL": "Este cliente não tem endereço de e-mail: as suas faturas ficarão como rascunhos até ter um.",
+				"SAVE": "Guardar",
+				"SAVE_FAILED": "Não foi possível guardar o calendário. Tente novamente.",
+				"EXISTS": "Este cliente já tem um calendário. Feche e volte a abri-lo para o alterar.",
+				"START_AFTER_BILLED": "Este calendário já faturou períodos: o novo calendário tem de começar depois do último período faturado, {day}."
+			},
+			"delete": {
+				"TITLE": "Eliminar esta faturação programada?",
+				"BODY": "Nenhuma fatura será feita sozinha para {name}. As faturas já feitas ficam."
+			},
+			"toasts": {
+				"SAVED": "A faturação programada de {name} foi guardada",
+				"PAUSED": "A faturação programada de {name} foi pausada",
+				"RESUMED": "A faturação programada de {name} foi retomada: próxima fatura em {day}",
+				"DELETED": "A faturação programada de {name} foi eliminada",
+				"FAILED": "Não foi possível guardar a alteração. Tente novamente."
+			}
 		}
 	},
 	"timeReports": {
