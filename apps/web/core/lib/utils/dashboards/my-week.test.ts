@@ -304,6 +304,18 @@ describe('myWeekBillableOf', () => {
 		);
 	});
 
+	it('prices an entry by the project it was logged on, even one without a readable name', () => {
+		const unnamedProject = log('thursday-api', new Date(2026, 10, 12, 9, 0), new Date(2026, 10, 12, 10, 0), {
+			projectId: 'project-web',
+			projectName: null,
+			isBillable: true
+		});
+		const { entries } = weekOf([unnamedProject]);
+
+		expect(myWeekBillableOf(entries, priceOf).amounts).toEqual([{ currency: 'EUR', amount: 80 }]);
+		expect(billableProjectIdsOfEntries(entries)).toEqual(['project-web']);
+	});
+
 	it('names the projects whose client rates price the billable time, once each', () => {
 		const { entries } = weekOf([...WEEK_LOGS, billableWithoutProject]);
 

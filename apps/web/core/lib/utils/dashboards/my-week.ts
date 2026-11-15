@@ -252,7 +252,8 @@ export function billableSecondsByProjectOf(entries: ReadonlyArray<MyWeekEntry>):
 		if (!entry.isBillable) {
 			continue;
 		}
-		const key = entry.project?.id ?? NO_PROJECT_KEY;
+		// The project the time was logged on prices it, whether or not it came with a readable name
+		const key = entry.log.projectId ?? entry.log.project?.id ?? NO_PROJECT_KEY;
 		const seconds = byProject.get(key) ?? 0;
 		byProject.set(key, seconds + entry.seconds);
 	}
