@@ -116,8 +116,14 @@ export function defaultBillRateOf(organization: DefaultBillRateSource | null | u
 	if (!isSet) {
 		return null;
 	}
-	const currency = organization?.defaultBillRateCurrency || organization?.currency || null;
-	return { value, currency };
+	return { value, currency: defaultBillRateCurrencyOf(organization) };
+}
+
+/** The currency the default is priced in, set or not: the one stored with it, else the workspace's. */
+export function defaultBillRateCurrencyOf(
+	organization: Pick<DefaultBillRateSource, 'currency' | 'defaultBillRateCurrency'> | null | undefined
+): string | null {
+	return organization?.defaultBillRateCurrency || organization?.currency || null;
 }
 
 /** An API without the default sends no field for it: the workspace then has no default to show or set. */

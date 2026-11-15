@@ -5,6 +5,7 @@ import {
 	changedPayRateOf,
 	currencyCodesOf,
 	currencyLabelOf,
+	defaultBillRateCurrencyOf,
 	defaultBillRateOf,
 	canEditMemberRates,
 	holdsEmployeeRatesPermission,
@@ -270,6 +271,14 @@ describe('defaultBillRateOf', () => {
 
 	it('has no currency when neither the default nor the workspace states one', () => {
 		expect(defaultBillRateOf({ currency: null, defaultBillRateValue: 80 })).toEqual({ value: 80, currency: null });
+	});
+});
+
+describe('defaultBillRateCurrencyOf', () => {
+	it('is the currency stored with the default, set or cleared, else the workspace currency', () => {
+		expect(defaultBillRateCurrencyOf({ currency: 'USD', defaultBillRateCurrency: 'EUR' })).toBe('EUR');
+		expect(defaultBillRateCurrencyOf({ currency: 'USD', defaultBillRateCurrency: null })).toBe('USD');
+		expect(defaultBillRateCurrencyOf({ currency: null })).toBeNull();
 	});
 });
 

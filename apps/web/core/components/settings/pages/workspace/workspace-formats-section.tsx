@@ -23,7 +23,12 @@ import {
 	type DurationRoundingDirection,
 	type DurationRoundingRule
 } from '@/core/lib/utils/duration-rounding';
-import { currencyLabelOf, defaultBillRateOf, storesDefaultBillRate } from '@/core/lib/utils/rates';
+import {
+	currencyLabelOf,
+	defaultBillRateCurrencyOf,
+	defaultBillRateOf,
+	storesDefaultBillRate
+} from '@/core/lib/utils/rates';
 import {
 	AUTOMATIC_FORMAT,
 	CLOCK_CHOICES,
@@ -154,7 +159,8 @@ function DefaultRateRow({
 	// A stored value that prices nothing (zero) reads as no default, as the reports read it
 	const defaultRate = defaultBillRateOf(organization);
 	const value = defaultRate?.value ?? null;
-	const currency = defaultRate?.currency ?? organization.currency;
+	// A cleared default keeps its currency, which the next rate saved is priced in
+	const currency = defaultBillRateCurrencyOf(organization);
 	const isSet = defaultRate !== null;
 	const showsNotSet = !canEdit && !isSet;
 

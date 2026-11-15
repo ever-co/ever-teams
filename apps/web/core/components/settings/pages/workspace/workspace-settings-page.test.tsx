@@ -456,6 +456,15 @@ describe('WorkspaceSettingsPage', () => {
 		expect(within(defaultRateRow()).getByText('rates.ADD_RATE')).toBeTruthy();
 	});
 
+	it('names the currency a cleared default keeps, which a new rate is priced in', () => {
+		const clearedInEuros = { ...ORGANIZATION, defaultBillRateValue: null, defaultBillRateCurrency: 'EUR' };
+		mockSettings = settingsOf({ organization: clearedInEuros });
+		render(<WorkspaceSettingsPage />);
+
+		expect(within(defaultRateRow()).getByText('EUR')).toBeTruthy();
+		expect(within(defaultRateRow()).queryByText('USD')).toBeNull();
+	});
+
 	it('shows a member the default billing rate, or that none is set, as text', () => {
 		mockSettings = settingsOf({ canEdit: false, organization: { ...ORGANIZATION, defaultBillRateValue: null } });
 		const { unmount } = render(<WorkspaceSettingsPage />);
