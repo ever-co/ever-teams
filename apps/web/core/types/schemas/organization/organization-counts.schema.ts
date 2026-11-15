@@ -13,3 +13,6 @@ export const organizationCountsSchema = z.object({
 });
 
 export type TOrganizationCounts = z.infer<typeof organizationCountsSchema>;
+
+/** What Gauzy's `GET /organization/count` answers: the live organizations of the workspace. */
+export const organizationCountSchema = countSchema;

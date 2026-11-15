@@ -105,3 +105,17 @@ describe('OrganizationService.softDeleteOrganization', () => {
 		expect(remove).toHaveBeenCalledWith('/organization/organization-a/soft', expect.anything());
 	});
 });
+
+describe('OrganizationService.countWorkspaceOrganizations', () => {
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it("counts the workspace's live organizations with Gauzy's GET /organization/count", async () => {
+		const get = jest.spyOn(organizationService, 'get').mockResolvedValue({ data: 2 } as never);
+
+		await expect(organizationService.countWorkspaceOrganizations()).resolves.toBe(2);
+
+		expect(get).toHaveBeenCalledWith('/organization/count', expect.anything());
+	});
+});
