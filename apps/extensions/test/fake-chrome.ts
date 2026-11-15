@@ -99,6 +99,8 @@ export function installFakeExtension(initial: Record<string, unknown> = {}) {
 	const badge = {
 		text: '',
 		history: [] as string[],
+		/** The next text call fails, as a browser API call can. */
+		failNextText: false,
 		/** Holds the next color calls until the returned function is called, as a slow browser would. */
 		holdColor: () => {
 			let release = () => undefined as void;
@@ -113,6 +115,10 @@ export function installFakeExtension(initial: Record<string, unknown> = {}) {
 	};
 	chromeLike.action = {
 		setBadgeText: ({ text }: { text: string }) => {
+			if (badge.failNextText) {
+				badge.failNextText = false;
+				return Promise.reject(new Error('The badge cannot be set'));
+			}
 			badge.text = text;
 			badge.history.push(text);
 			return Promise.resolve();

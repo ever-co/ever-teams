@@ -307,6 +307,24 @@ describe('the background timer', () => {
 		assert.equal(extension.badge.text, '0:05');
 	});
 
+	it('reports a badge that could not be set, and sets it at the next alarm', async () => {
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		const { status } = runningServer();
+		const warn = mock.method(console, 'warn', () => undefined);
+		await startBackground();
+
+		extension.badge.failNextText = true;
+		extension.runtime.onStartup.emit();
+		(await server.next(STATUS_PATH)).answer(200, status());
+		await until(() => warn.mock.callCount() > 0, 'the failed badge reported');
+		assert.match(String(warn.mock.calls[0].arguments[0]), /badge/i);
+
+		extension.runtime.onStartup.emit();
+		(await server.next(STATUS_PATH)).answer(200, status());
+		await until(() => extension.badge.text === '0:05', 'the badge set at the next refresh');
+	});
+
 	it('reports a failed heartbeat as such, and keeps the badge on the run and the person signed in', async () => {
 		const extension = installFakeExtension({ session: SESSION });
 		server = holdRequests();

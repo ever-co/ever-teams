@@ -137,13 +137,21 @@ async function refresh(heartbeat: boolean): Promise<void> {
 	}
 }
 
+/** The storage or the badge failed (not the API, whose failures a refresh handles): the next alarm tries again. */
+function reportRefreshFailure(error: unknown): void {
+	console.warn('Ever Teams: the timer badge could not be refreshed.', error);
+}
+
 /**
  * One refresh at a time, its heartbeat included: an alarm while a read (or its heartbeat) is on its way waits for it,
  * and the refreshes asked for meanwhile run once after it, with a heartbeat when one of them asked for it. Two
  * heartbeats on their way at once would credit the same seconds twice: both read the run's last heartbeat before
- * either landed.
+ * either landed. The runner ends a failed run silently, so a refresh reports its own failure.
  */
-const refreshOneAtATime = createCoalescedRunner(refresh, (waiting: boolean, next: boolean) => waiting || next);
+const refreshOneAtATime = createCoalescedRunner(
+	(heartbeat: boolean) => refresh(heartbeat).catch(reportRefreshFailure),
+	(waiting: boolean, next: boolean) => waiting || next
+);
 
 async function requestRefresh(heartbeat = false): Promise<void> {
 	try {
@@ -154,8 +162,7 @@ async function requestRefresh(heartbeat = false): Promise<void> {
 		}
 		await refreshOneAtATime(heartbeat);
 	} catch (error) {
-		// The storage or the badge failed (not the API, whose failures a refresh handles): the next alarm tries again
-		console.warn('Ever Teams: the timer badge could not be refreshed.', error);
+		reportRefreshFailure(error);
 	}
 }
 
