@@ -30,6 +30,7 @@ import {
 	formatProjectDay
 } from '@/core/components/projects/project-cells';
 import { FavoriteMark } from '@/core/components/favorites/favorite-parts';
+import { PrivateProjectMark } from '@/core/components/projects/private-project-mark';
 import { ProjectActionsMenu } from '@/core/components/projects/project-actions-menu';
 import { ProjectBillableMark } from '@/core/components/projects/project-billable-mark';
 import {
@@ -482,6 +483,7 @@ function ProjectRow({
 						<span className="truncate text-[13px] font-medium text-foreground transition-colors group-hover/link:text-primary-ink">
 							{project.name}
 						</span>
+						<PrivateProjectMark project={project} isFocusable={false} />
 						<FavoriteMark entity={EBaseEntityEnum.OrganizationProject} id={project.id} />
 						<ProjectBillableMark project={project} hidesBelowSm />
 					</span>

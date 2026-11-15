@@ -18,6 +18,7 @@ import {
 } from '@/core/components/projects/project-cells';
 import { ProjectBillableMark } from '@/core/components/projects/project-billable-mark';
 import { FavoriteMark } from '@/core/components/favorites/favorite-parts';
+import { PrivateProjectMark } from '@/core/components/projects/private-project-mark';
 import { ProjectActionsMenu } from '@/core/components/projects/project-actions-menu';
 import { ProjectBudgetUseCell } from '@/core/components/projects/project-consumption-cells';
 import type { ProjectConsumptionState } from '@/core/hooks/projects/use-project-consumption';
@@ -266,6 +267,7 @@ function ProjectCard({
 						>
 							{project.name}
 						</Link>
+						<PrivateProjectMark project={project} />
 						<FavoriteMark entity={EBaseEntityEnum.OrganizationProject} id={project.id} />
 					</span>
 				</div>

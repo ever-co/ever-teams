@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
+import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
 import { EntityTile } from '@/core/components/common/entity-tile';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -10,8 +11,10 @@ import {
 	CircleCheck,
 	Copy,
 	ExternalLink,
+	Eye,
 	Globe,
 	Link as LinkIcon,
+	Lock,
 	Tag,
 	UserCheck,
 	Users,
@@ -33,6 +36,8 @@ import { AvatarStack } from '@/core/components/teams/people-avatars';
 import { useClientNames } from '@/core/hooks/clients/use-client-names';
 import { cn } from '@/core/lib/helpers';
 import { isBillableByDefault } from '@/core/lib/utils/project-billable';
+import { isPrivateProject } from '@/core/lib/utils/project-visibility';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import {
 	clientNameOf,
 	contributorsOf,
@@ -149,6 +154,33 @@ function BudgetValue({ project }: Readonly<{ project: TOrganizationProject }>) {
 	);
 }
 
+/**
+ * Who sees the project, read only (CORE-08): changed from the Edit project dialog by those who may edit projects.
+ * Shown only by a Gauzy that keeps private projects private; an older one stores the flag and applies nothing.
+ */
+function ProjectVisibilityProperty({ project }: Readonly<{ project: TOrganizationProject }>) {
+	const t = useTranslations();
+	const organization = useAtomValue(currentOrganizationState);
+	const hasPrivateProjects = Boolean(organization && 'enforcePrivateProjects' in organization);
+	if (!hasPrivateProjects) {
+		return null;
+	}
+	let glyph = <Globe />;
+	let label = t('pages.projects.visibility.EVERYONE_TITLE');
+	if (isPrivateProject(project)) {
+		glyph = <Lock />;
+		label = t('pages.projects.visibility.PRIVATE_TITLE');
+	}
+	return (
+		<PropertyRow icon={<Eye />} label={t('pages.projects.visibility.LABEL')}>
+			<span className="inline-flex min-w-0 items-center gap-1.5 text-[13px] text-foreground [&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:text-muted-foreground">
+				{glyph}
+				<span className="truncate">{label}</span>
+			</span>
+		</PropertyRow>
+	);
+}
+
 export function ProjectProperties({
 	project,
 	statuses
@@ -173,6 +205,7 @@ export function ProjectProperties({
 				<PropertyRow icon={<Users />} label={t('common.MEMBERS')}>
 					<PeopleChips people={members} max={3} />
 				</PropertyRow>
+				<ProjectVisibilityProperty project={project} />
 				<PropertyRow icon={<Calendar />} label={t('pages.projects.list.COLUMN_DATES')}>
 					<ProjectDatesCell startDate={project.startDate} endDate={project.endDate} />
 				</PropertyRow>
