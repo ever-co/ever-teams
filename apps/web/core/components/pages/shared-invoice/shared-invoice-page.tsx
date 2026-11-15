@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useLocale, useTranslations } from 'next-intl';
@@ -184,11 +184,29 @@ export function SharedInvoicePage() {
 	return <SharedInvoiceView id={link.id} token={link.token} isReturn={isReturn} />;
 }
 
+/**
+ * Whether the page, back from the payment provider, is in the first two minutes of waiting for the provider's
+ * confirmation, when the payment just made is the one on its way. Past them Pay is offered again, for a payment the
+ * client cancelled at the provider (which returns to the same address).
+ */
+function useIsConfirmingPayment(isReturn: boolean) {
+	const [isWindowOver, setIsWindowOver] = useState(false);
+	useEffect(() => {
+		if (!isReturn) {
+			return;
+		}
+		const timer = window.setTimeout(() => setIsWindowOver(true), CONFIRMATION_POLL_LIMIT_MS);
+		return () => window.clearTimeout(timer);
+	}, [isReturn]);
+	return isReturn && !isWindowOver;
+}
+
 /** The invoice a link opens. */
 function SharedInvoiceView({ id, token, isReturn }: Readonly<{ id: string; token: string; isReturn: boolean }>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const { invoice, payOption } = useSharedInvoice(id, token, isReturn);
+	const isConfirmingPayment = useIsConfirmingPayment(isReturn);
 	const timeZone = null;
 	const todayKey = todayDayKey(timeZone);
 
@@ -221,10 +239,13 @@ function SharedInvoiceView({ id, token, isReturn }: Readonly<{ id: string; token
 	const senderName = senderNameOf(shown);
 	const isPaid = PAID_STATUSES.has(shown.status ?? '');
 	const option = payOption.data;
-	const canPay = Boolean(option?.payable) && typeof option?.amountDue === 'number' && !isPaid;
+	// Back from the provider, a second Pay would ask the client to pay again while the first payment is confirmed
+	const canPay = Boolean(option?.payable) && typeof option?.amountDue === 'number' && !isPaid && !isConfirmingPayment;
 	// Whether Pay is offered could not be read: said, with a retry. An API without online payments answers 404, which
-	// is no failure: the page offers no Pay there.
-	const hasPayOptionFailed = payOption.isError && errorStatusOf(payOption.error) !== 404 && !isPaid;
+	// is no failure: the page offers no Pay there. Back from the provider it is not said while the payment just made is
+	// confirmed: the client would read that their payment could not be started, next to the thanks for it.
+	const hasPayOptionFailed =
+		payOption.isError && errorStatusOf(payOption.error) !== 404 && !isPaid && !isConfirmingPayment;
 	const payLabel = canPay
 		? t('invoices.shared.PAY', {
 				amount: formatOwed(option.amountDue as number, option.currency ?? shown.currency ?? null, locale)
