@@ -24,7 +24,11 @@ describe('notificationMessageOf (#5022)', () => {
 			type: EEmployeeNotificationType.TaskDueReminder,
 			message: 'Due at 2026-11-19 17:00 (Europe/Paris).'
 		});
-		expect(message).toMatch(/^notifications\.TASK_DUE\.AT \{"date":"Nov 19, 2026, .+"\}$/);
+		// In the reader's own zone, whatever zone the test runs in
+		const date = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(
+			new Date('2026-11-19T16:00:00.000Z')
+		);
+		expect(message).toBe(`notifications.TASK_DUE.AT ${JSON.stringify({ date })}`);
 	});
 
 	it("keeps the platform's text of any other kind, or of a message it cannot read", () => {
