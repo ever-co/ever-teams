@@ -8169,6 +8169,15 @@
 		"TYPE_BREAK": "Break",
 		"BREAK_HINT": "A break is never billable and never counts as worked time."
 	},
+	"tabOrganizationNotice": {
+		"TITLE": "Another organization is open in another tab",
+		"KEEPS_WORKING": "This tab keeps working in {organization}, with its timer and its pages.",
+		"CANNOT_WORK_TITLE": "This tab can no longer work in {organization}",
+		"CANNOT_WORK": "Another organization is open in another tab. Choose where this tab works.",
+		"STOP_TIMER_FIRST": "Its timer runs in {organization}: stop it before you open the other organization here.",
+		"OPEN_HERE": "Open the other organization here",
+		"BRING_BACK": "Use {organization} in every tab"
+	},
 	"timeZoneNotice": {
 		"TITLE": "Your profile uses {profileZone} ({profileOffset}). This browser is in {browserZone} ({browserOffset}).",
 		"DESCRIPTION": "Timesheets count your days in your profile's zone and the other reports in this browser's, so an entry near midnight can land on a different day.",
