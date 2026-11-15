@@ -1795,6 +1795,55 @@
 			"NOT_KEPT": "Earlier values were not kept",
 			"COLUMN_BEFORE": "Before",
 			"COLUMN_AFTER": "After"
+		},
+		"savedReports": {
+			"MENU": "Saved reports",
+			"LOADING": "Reading saved reports…",
+			"LOAD_ERROR": "Saved reports could not be read.",
+			"TRY_AGAIN": "Try again",
+			"EMPTY": "No saved report yet. Save this view to reopen it in one click.",
+			"UPDATE": "Update with this view",
+			"RENAME": "Rename",
+			"RENAME_TITLE": "Rename the report",
+			"DELETE": "Delete",
+			"SAVE": "Save",
+			"SAVE_TITLE": "Save this report",
+			"SAVE_HINT": "Keeps the period, the filters and the grouping. Reopen it from Saved reports.",
+			"NAME": "Name",
+			"NAME_PLACEHOLDER": "Client A, last month",
+			"NAME_REQUIRED": "Give the report a name.",
+			"NAME_TOO_LONG": "100 characters at most.",
+			"SAVED": "“{name}” saved",
+			"UPDATED": "“{name}” updated",
+			"RENAMED": "Report renamed",
+			"DELETED": "“{name}” deleted",
+			"DELETE_TITLE": "Delete “{name}”?",
+			"DELETE_DESCRIPTION": "The saved report is removed and its link stops working. The time it shows stays.",
+			"SAVE_FAILED": "The report could not be saved.",
+			"DELETE_FAILED": "The report could not be deleted.",
+			"SHARE": "Share",
+			"SHARE_TITLE": "Share a read-only link",
+			"SHARE_NEEDS_SAVE": "A link shares a saved report. Name this view to save it, then turn its link on.",
+			"SHARE_HINT": "Anyone with the link sees the report name, its period, the figures, the chart and the table, without an account. Nothing can be changed, and it shows only what you may see.",
+			"LINK_ADDRESS": "Link address",
+			"COPY": "Copy",
+			"COPIED": "Link copied",
+			"COPY_FAILED": "The link could not be copied. Select it and copy it yourself.",
+			"LINK_OFF": "No link is on.",
+			"LINK_ENDED": "The link ended on {date}.",
+			"LINK_HIDDEN": "The link is on. Its address is shown only when it is made: Replace link gives a new one to copy, and the old one stops working.",
+			"EXPIRES": "Stops working after {date}.",
+			"ENDS_ON": "Ends on",
+			"ENDS_ON_HINT": "Optional. Used when the link is turned on or replaced.",
+			"TURN_ON": "Turn link on",
+			"TURN_OFF": "Turn off",
+			"REPLACE": "Replace link",
+			"REPLACE_HINT": "Replacing or turning off stops the current address at once.",
+			"INCLUDE_AMOUNTS": "Include amounts",
+			"INCLUDE_AMOUNTS_HINT": "Rates and what the time is worth. Off: durations only.",
+			"SHARE_FAILED": "The link could not be changed.",
+			"SHARE_REFUSED": "A link can only be turned on from your own sign-in, not from a session started with an API token.",
+			"TURNED_OFF": "Link turned off: its address no longer works."
 		}
 	},
 	"timeActivity": {
@@ -2031,6 +2080,18 @@
 			"billable": {
 				"LABEL": "Billable by default",
 				"HELP": "Applies to new entries; saved ones keep their value."
+			},
+			"visibility": {
+				"LABEL": "Visibility",
+				"EVERYONE_TITLE": "Everyone in the organization",
+				"EVERYONE_DETAIL": "Listed to everyone who sees projects.",
+				"PRIVATE_TITLE": "Members and managers only",
+				"PRIVATE_DETAIL": "Listed only to its members and managers, and to admins.",
+				"NOT_ENFORCED": "Everyone still sees it until an admin turns on Private projects in the workspace settings.",
+				"SETTING_SECTION": "Private projects",
+				"SETTING_LABEL": "Keep private projects to their people",
+				"SETTING_DESCRIPTION": "A project set to Members and managers only is listed only to them and to admins. Off, everyone sees every project.",
+				"SETTING_NOT_SAVED": "The setting was not saved."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {
@@ -3985,7 +4046,9 @@
 			"BROADCAST": "<b>{name}</b> published an announcement",
 			"PAYMENT": "A payment was recorded for you",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> asked for a rate change",
-			"TIMER_REMINDER": "Your timer is still running"
+			"TIMER_REMINDER": "Your timer is still running",
+			"TASK_UPDATE": "<b>{name}</b> made a change",
+			"TASK_DUE_REMINDER": "A task is due soon"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Assignment",
@@ -3996,7 +4059,9 @@
 			"BROADCAST": "Announcement",
 			"PAYMENT": "Payment",
 			"RATE_CHANGE_REQUEST": "Rate change request",
-			"TIMER_REMINDER": "Timer reminder"
+			"TIMER_REMINDER": "Timer reminder",
+			"TASK_UPDATE": "Update",
+			"TASK_DUE_REMINDER": "Due date reminder"
 		},
 		"SOMEONE": "Someone",
 		"MARK_READ": "Mark as read",
@@ -4073,7 +4138,18 @@
 				"OFF": "Off",
 				"AFTER_HOURS": "After {hours, plural, one {# hour} other {# hours}}"
 			},
+			"TASK_DUE": {
+				"TITLE": "Due dates",
+				"INTRO": "A reminder before a task you are assigned to is due, as long as it is not done.",
+				"LABEL": "Due date reminder",
+				"TEXT": "Always in your inbox. By email and on your devices as you choose.",
+				"OFF": "Off",
+				"BEFORE_HOURS": "{hours, plural, one {# hour} other {# hours}} before"
+			},
 			"INTRO": "Choose what reaches your inbox. Turning a type off stops new notifications of that type; the ones already there stay.",
+			"TEAM_DEFAULTS_TITLE": "Your team {team} sets notification defaults",
+			"TEAM_DEFAULTS_TEXT": "What you leave unset here follows them. Your own choices always win.",
+			"TASK_UPDATE_TEXT": "A status, date or member change of a task or project you follow. Off, it still reaches your inbox; it is not emailed or pushed.",
 			"LOAD_ERROR": "Your notification settings could not load.",
 			"SAVE_FAILED": "That setting was not saved. Try again.",
 			"ROWS": {
@@ -4123,6 +4199,10 @@
 			"FORGOTTEN_DESCRIPTION": "Did you forget it? Stop it, then correct the time in your timesheet if needed.",
 			"STOP": "Stop timer",
 			"OPEN": "Open timer"
+		},
+		"TASK_DUE": {
+			"BY_END_OF_DAY": "Due by the end of {date}",
+			"AT": "Due {date}"
 		}
 	},
 	"toasts": {
@@ -5190,6 +5270,15 @@
 			"SHARE_PROFILES_DESCRIPTION": "Members see each other's daily plans and statistics on profile pages.",
 			"REQUIRE_PLAN_LABEL": "Require a daily plan to track",
 			"REQUIRE_PLAN_DESCRIPTION": "The timer starts only once a member has planned the day.",
+			"NOTIFICATIONS_SECTION": "Notification defaults",
+			"NOTIFICATIONS_DESCRIPTION": "What a member who has not chosen in their own notification settings gets. Their own choices always win.",
+			"MEMBERS_CHOOSE": "Members choose",
+			"EMAIL_DEFAULT_DESCRIPTION": "How each kind reaches members by email.",
+			"PUSH_DEFAULT_DESCRIPTION": "On the devices where members turned them on.",
+			"TASK_UPDATE_DEFAULT_LABEL": "Updates of followed tasks and projects",
+			"TASK_UPDATE_DEFAULT_DESCRIPTION": "A status, date or member change of a task or project a member follows.",
+			"TIMER_DEFAULT_DESCRIPTION": "After how long a running timer is worth a reminder.",
+			"TASK_DUE_DEFAULT_DESCRIPTION": "How long before a task is due its assignees are reminded.",
 			"ORGANIZATION_TRACKING_SECTION": "Time entry requirements",
 			"ORGANIZATION_TRACKING_DESCRIPTION": "Applies to every team of {organization}.",
 			"REQUIRE_TEAM_LABEL": "Require a team",
@@ -5425,7 +5514,8 @@
 			"SIGN_OUT_INCOMPLETE": "A session renewed itself while it was being signed out. Try again.",
 			"SIGN_OUT_OTHERS_FAILED": "Signing out the other sessions did not finish. {reason}",
 			"SIGN_OUT_OTHERS_CONFIRM": "{count, plural, one {Sign out # session} other {Sign out # sessions}}",
-			"SIGNED_OUT_OTHERS": "{count, plural, =0 {No other session was signed in.} one {# other session was signed out.} other {# other sessions were signed out.}}"
+			"SIGNED_OUT_OTHERS": "{count, plural, =0 {No other session was signed in.} one {# other session was signed out.} other {# other sessions were signed out.}}",
+			"APP_ON_DEVICE": "{app} · {device}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profile",
@@ -5970,6 +6060,12 @@
 			"REQUIRED_TITLE": "Your organization asks you to turn this on",
 			"REQUIRED_DESCRIPTION": "Its members sign in with a code from an authenticator app as well.",
 			"QR_ALT": "QR code of this account for your authenticator app"
+		},
+		"thisBrowser": {
+			"TITLE": "This browser",
+			"DESCRIPTION": "How long you stay signed in on this browser. Your other browsers and apps keep their own sessions.",
+			"SIGN_OUT_ON_CLOSE": "Sign out when this browser closes",
+			"SIGN_OUT_ON_CLOSE_HINT": "For a shared computer. When it is off, you stay signed in after the browser closes, until your session expires."
 		}
 	},
 	"taskDetail": {
@@ -7703,6 +7799,87 @@
 			"NOT_FOUND_MESSAGE": "It may have been deleted, or the link comes from another workspace.",
 			"ALL_INVOICES": "All invoices",
 			"ERROR_TITLE": "The invoice could not be loaded"
+		},
+		"schedule": {
+			"TITLE": "Billing schedule",
+			"NONE_HINT": "Make this client's invoice by itself every week, two weeks or month, from the billable time not billed yet.",
+			"SET_UP": "Set up a schedule",
+			"EDIT": "Edit",
+			"PAUSE": "Pause",
+			"RESUME": "Resume",
+			"PAUSED": "Paused",
+			"ACTIVE": "Active",
+			"SUMMARY": "{frequency} from {day}",
+			"DELIVERY_DRAFT": "Kept as a draft",
+			"DELIVERY_SEND": "Sent to {email}",
+			"DELIVERY_SEND_NO_EMAIL": "Sent to the client's email",
+			"NEXT": "Next invoice on {day}, for {period}",
+			"NEXT_PAUSED": "No invoice is made while it is paused",
+			"RUNS": "Last runs",
+			"NO_RUNS": "No run yet",
+			"RUNS_ERROR": "The last runs could not be loaded",
+			"ERROR": "The billing schedule could not be loaded",
+			"OPEN_INVOICE": "Open the invoice",
+			"LEFT_OUT": "{hours} h of the period left out: no rate, or another currency",
+			"LIST_TITLE": "Billed on a schedule",
+			"LIST_NEXT": "next on {day}",
+			"LIST_PAUSED": "paused",
+			"frequency": {
+				"WEEKLY": "Every week",
+				"BIWEEKLY": "Every two weeks",
+				"MONTHLY": "Every month"
+			},
+			"grouping": {
+				"PROJECT": "By project",
+				"MEMBER": "By member",
+				"TASK": "By task"
+			},
+			"run": {
+				"CLAIMED": "In progress",
+				"DRAFTED": "Draft made",
+				"SENT": "Sent",
+				"NOT_SENT": "Made, not sent",
+				"NO_TIME": "Nothing to bill",
+				"FAILED": "Not made"
+			},
+			"reason": {
+				"NO_BILLABLE_TIME": "The period had no billable time left to bill.",
+				"NO_PRICED_TIME": "The period's time has no rate to bill it at. It is tried again every hour for a week.",
+				"AUTHOR_CANNOT_INVOICE": "The person who last saved the schedule can no longer make invoices. Save it to take it over; it is tried again every hour for a week.",
+				"CLIENT_HAS_NO_EMAIL": "The client has no email address: the invoice was kept as a draft.",
+				"EMAIL_NOT_SENT": "The email could not be sent: the invoice was kept as a draft.",
+				"INVOICE_NOT_SAVED": "The invoice could not be saved. It is tried again every hour for a week."
+			},
+			"form": {
+				"CREATE_TITLE": "Bill on a schedule",
+				"EDIT_TITLE": "Edit the billing schedule",
+				"FREQUENCY": "How often",
+				"START_DAY": "First day of the first period",
+				"START_HINT": "Each invoice is made the day after its period ends, in the workspace's time zone. No period that ended before today is billed.",
+				"START_INVALID": "Pick a day.",
+				"GROUPING": "Lines",
+				"DELIVERY": "Once made",
+				"DRAFT": "Keep as a draft",
+				"SEND": "Email to the client",
+				"DRAFT_HINT": "Each invoice waits as a draft for you to check and send.",
+				"SEND_HINT": "Each invoice goes to {email} with its PDF and is marked Sent.",
+				"SEND_NO_EMAIL": "This client has no email address: its invoices will be kept as drafts until it has one.",
+				"SAVE": "Save schedule",
+				"SAVE_FAILED": "The schedule could not be saved. Try again.",
+				"EXISTS": "This client already has a schedule. Close and open it again to change it.",
+				"START_AFTER_BILLED": "This schedule already billed periods: its new timeline must start after the last period billed, {day}."
+			},
+			"delete": {
+				"TITLE": "Delete this billing schedule?",
+				"BODY": "No more invoice will be made by itself for {name}. The invoices it made stay."
+			},
+			"toasts": {
+				"SAVED": "{name}'s billing schedule is saved",
+				"PAUSED": "{name}'s billing schedule is paused",
+				"RESUMED": "{name}'s billing schedule is resumed: next invoice on {day}",
+				"DELETED": "{name}'s billing schedule is deleted",
+				"FAILED": "The change could not be saved. Try again."
+			}
 		}
 	},
 	"timeReports": {
@@ -8020,6 +8197,15 @@
 		"TYPE_BREAK": "Break",
 		"BREAK_HINT": "A break is never billable and never counts as worked time."
 	},
+	"tabOrganizationNotice": {
+		"TITLE": "Another organization is open in another tab",
+		"KEEPS_WORKING": "This tab keeps working in {organization}, with its timer and its pages.",
+		"CANNOT_WORK_TITLE": "This tab can no longer work in {organization}",
+		"CANNOT_WORK": "Another organization is open in another tab. Choose where this tab works.",
+		"STOP_TIMER_FIRST": "Its timer runs in {organization}: stop it before you open the other organization here.",
+		"OPEN_HERE": "Open the other organization here",
+		"BRING_BACK": "Use {organization} in every tab"
+	},
 	"timeZoneNotice": {
 		"TITLE": "Your profile uses {profileZone} ({profileOffset}). This browser is in {browserZone} ({browserOffset}).",
 		"DESCRIPTION": "Timesheets count your days in your profile's zone and the other reports in this browser's, so an entry near midnight can land on a different day.",
@@ -8031,5 +8217,15 @@
 		"SAVE_FAILED": "Your time zone could not be saved.",
 		"SAVE_FAILED_DESCRIPTION": "Your profile has not changed. Check your connection and try again.",
 		"TRY_AGAIN": "Try again"
+	},
+	"sharedReport": {
+		"READ_ONLY_BADGE": "Read only",
+		"READ_ONLY": "A read-only report shared from {app}. Figures as of {time}.",
+		"NOT_WORKING_TITLE": "This link no longer works",
+		"NOT_WORKING_MESSAGE": "Its author turned it off, replaced it or let it end. Ask them for a new link.",
+		"ERROR_TITLE": "The report could not be read",
+		"ERROR_MESSAGE": "Check your connection and try again.",
+		"LOADING": "Loading the report…",
+		"EMPTY": "No time was tracked in this period."
 	}
 }

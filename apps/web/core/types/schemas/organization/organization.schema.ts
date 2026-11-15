@@ -101,6 +101,8 @@ export const organizationSchema = z
 		timeLogsKeepTheirRates: z.boolean().optional().nullable(),
 		// Whether members may take breaks from the timer, off by default; absent before Gauzy has it (#11940)
 		allowBreaks: z.boolean().optional().nullable(),
+		// Whether a project marked private is listed only to its members and managers, off by default; absent before Gauzy has it (ever-gauzy#11465)
+		enforcePrivateProjects: z.boolean().optional().nullable(),
 		// Whether a member may discard their own running timer, null meaning allowed (#5219); absent before Gauzy has it
 		allowDiscardTimer: z.boolean().optional().nullable(),
 		// When set, a running timer may be discarded only within this many minutes of its start; null: no limit

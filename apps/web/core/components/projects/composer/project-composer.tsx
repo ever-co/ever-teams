@@ -2,6 +2,7 @@
 
 import { useCallback, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAtomValue } from 'jotai';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { toast } from 'sonner';
 import {
@@ -54,8 +55,10 @@ import {
 	ProjectTeamsPicker
 } from './project-property-pickers';
 import { ProjectTilePicker } from './project-tile-picker';
+import { ProjectVisibilityRow } from './project-visibility-row';
 import { toastMoment } from '@/core/components/common/toast-moment';
 import { useFocusOnMount } from '@/core/hooks/common/use-focus-on-mount';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 
 const DESCRIPTION_WORD_LIMIT = 5000;
 
@@ -113,6 +116,9 @@ export function ProjectComposer({ mode, project, context, onClose }: Readonly<Pr
 	const router = useRouter();
 	const mentions = useTeamMentionCandidates();
 	const { taskStatuses } = useTaskStatusesQuery();
+	const organization = useAtomValue(currentOrganizationState);
+	// Offered only by a Gauzy that keeps private projects private: an older one stores the flag and applies nothing
+	const hasPrivateProjects = Boolean(organization && 'enforcePrivateProjects' in organization);
 	const isEdit = mode === 'edit';
 
 	const handleDone = useCallback(
@@ -319,6 +325,14 @@ export function ProjectComposer({ mode, project, context, onClose }: Readonly<Pr
 							onToggle={(employeeId) => composer.togglePerson(employeeId, 'member')}
 						/>
 					</PropertyRow>
+					{hasPrivateProjects && (
+						<ProjectVisibilityRow
+							visibility={draft.visibility}
+							isEnforced={organization?.enforcePrivateProjects === true}
+							disabled={composer.isSubmitting}
+							onChange={composer.setVisibility}
+						/>
+					)}
 					<PropertyRow
 						icon={<Wallet />}
 						label={t('pages.projects.list.COLUMN_BUDGET')}

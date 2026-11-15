@@ -21,7 +21,10 @@ import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
 
 export const TEAM_AVATAR_FOLDER = 'organization_teams_avatars';
 
-type TeamRule = Pick<TOrganizationTeamUpdate, 'shareProfileView'> | Pick<TOrganizationTeamUpdate, 'requirePlanToTrack'>;
+type TeamRule =
+	| Pick<TOrganizationTeamUpdate, 'shareProfileView'>
+	| Pick<TOrganizationTeamUpdate, 'requirePlanToTrack'>
+	| Pick<TOrganizationTeamUpdate, 'notificationDefaults'>;
 
 export function useTeamGeneralSettings() {
 	const t = useTranslations();
@@ -179,6 +182,12 @@ export function useTeamGeneralSettings() {
 		[saveTeamRule]
 	);
 
+	// The defaults of the members' notifications (#5022), sent whole: Gauzy keeps their known keys
+	const saveNotificationDefaults = useCallback(
+		(defaults: TOrganizationTeamUpdate['notificationDefaults']) => saveTeamRule({ notificationDefaults: defaults }),
+		[saveTeamRule]
+	);
+
 	// The user's own row as a manager of the team. Only an admin may switch their own tracking: a manager waits for one
 	const canTurnOwnTracking = activeManager ? mayTurnTracking(activeManager) : false;
 
@@ -213,6 +222,7 @@ export function useTeamGeneralSettings() {
 		removeAvatar,
 		setShareProfileView,
 		setRequirePlanToTrack,
+		saveNotificationDefaults,
 		setOwnTracking
 	};
 }

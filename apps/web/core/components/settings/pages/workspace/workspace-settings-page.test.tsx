@@ -43,9 +43,10 @@ function settingsOf(overrides: Record<string, unknown> = {}) {
 	};
 }
 
-// The Breaks section (#5216) reads the organization through its own hook, which these tests leave out
+// The Breaks (#5216) and Private projects (CORE-08) sections save through their own hooks, which these tests leave out
 jest.mock('@/core/hooks/settings/use-organization-tracking-requirements', () => ({
-	useOrganizationBreaksSwitch: () => ({ organization: null, saveAllowBreaks: jest.fn() })
+	useOrganizationBreaksSwitch: () => ({ organization: null, saveAllowBreaks: jest.fn() }),
+	useOrganizationPrivateProjectsSwitch: () => ({ organization: null, saveEnforcePrivateProjects: jest.fn() })
 }));
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: Record<string, unknown>) => {

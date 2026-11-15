@@ -13,6 +13,7 @@ import GlobalHeader from './global-header';
 import { DemoBanner } from './demo-banner';
 import { PageContentScroller } from './page-content-scroller';
 import { TimeZoneNotice } from './time-zone-notice';
+import { TabOrganizationNotice } from './tab-organization-notice';
 
 type PageLayoutProps = PropsWithChildren<{
 	/** Updates the browser tab title ("title | APP_NAME"). */
@@ -42,6 +43,9 @@ type PageLayoutProps = PropsWithChildren<{
 
 /** The header height under which a page that carries its own timer still shows the compact one. */
 const SHORT_HEADER_HEIGHT = 100;
+
+/** Two notices of the header stack with a gap; one alone sits as before. */
+const STACKED_NOTICE = '[&:not(:first-child)]:mt-2';
 
 /**
  * The per-page chrome inside the shell panel: a top bar, an optional toolbar band, then the single
@@ -106,11 +110,17 @@ export function PageLayout({
 	const headerShowsTimer = headerCarriesTimer && isTrackingEnabled;
 	// In its place, a member whose tracking is turned off reads why
 	const headerShowsTrackingOff = headerCarriesTimer && isOwnTrackingOff;
-	// About the signed-in member's own profile: nothing to say on a public team page or the not-found page
+	// About the signed-in member's own profile and session: nothing to say on a public team page or the not-found page
 	const showsTimeZoneNotice = !publicTeam && !notFound;
 	let timeZoneNotice: ReactNode = null;
 	if (showsTimeZoneNotice) {
-		timeZoneNotice = <TimeZoneNotice />;
+		// Siblings, so that the header's notice box stays empty, and hidden, while neither has anything to say
+		timeZoneNotice = (
+			<>
+				<TabOrganizationNotice className={STACKED_NOTICE} />
+				<TimeZoneNotice className={STACKED_NOTICE} />
+			</>
+		);
 	}
 
 	return (

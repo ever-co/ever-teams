@@ -14,6 +14,7 @@ import { shiftPeriod } from '@/core/lib/utils/dashboard-period';
 import { isTrackingEnabledState } from '@/core/stores';
 import { TimeActivityBreakdown, breakdownColumnsOf } from './time-activity-breakdown';
 import { TimeActivityReportSheet } from './time-activity-report-sheet';
+import { TimeActivitySavedReports } from './time-activity-saved-reports';
 import { TimeActivityBandExport } from './time-activity-summary-band';
 import { TimeActivityTimeSplit } from './time-activity-time-split';
 import { TimeActivityToolbar } from './time-activity-toolbar';
@@ -91,7 +92,12 @@ export function TimeActivityPage() {
 					isCountsError={report.isCountsError}
 					onRetryDaily={retryDaily}
 					onRetryCounts={retryCounts}
-					exportSlot={<TimeActivityBandExport report={report} />}
+					exportSlot={
+						<div className="flex flex-wrap items-center justify-end gap-2">
+							<TimeActivitySavedReports report={report} />
+							<TimeActivityBandExport report={report} />
+						</div>
+					}
 					roundingRule={report.roundingRule}
 					billable={report.billable}
 				/>

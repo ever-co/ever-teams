@@ -49,6 +49,7 @@ jest.mock('@/core/hooks/invoices/use-invoice-mutations', () => ({
 	useChangeInvoiceStatus: () => ({ changeStatus: mockChangeStatus, changingIds: new Set() }),
 	useInvoicePdf: () => ({ downloadPdf: jest.fn(), pendingId: null })
 }));
+jest.mock('./invoice-schedules-strip', () => ({ InvoiceSchedulesStrip: () => null }));
 jest.mock('@/core/hooks/invoices/use-invoices-query', () => ({ useInvoicesQuery: () => mockList.current }));
 jest.mock('@/core/hooks/invoices/use-live-invoices', () => ({
 	LIVE_INVOICE_STATUSES: ['DRAFT', 'SENT', 'VIEWED', 'PARTIALLY_PAID'],
