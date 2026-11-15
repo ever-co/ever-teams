@@ -24,7 +24,7 @@ describe("serverFetch and the browser's user agent (ever-co/ever-gauzy#11983)", 
 		'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
 	let sent: jest.Mock<Promise<Response>, [string, RequestInit?]>;
 
-	const userAgentSent = () => (sent.mock.calls[0][1]?.headers as Record<string, string>)['User-Agent'];
+	const userAgentSent = () => (sent.mock.calls[0][1]?.headers as Record<string, string> | undefined)?.['User-Agent'];
 
 	beforeEach(() => {
 		sent = jest.fn<Promise<Response>, [string, RequestInit?]>(async () => new Response('{}', { status: 200 }));
@@ -62,10 +62,9 @@ describe("serverFetch and the browser's user agent (ever-co/ever-gauzy#11983)", 
 		await serverFetch({ path: '/auth/refresh-token', method: 'POST', body: {}, browserUserAgent: true });
 		await serverFetch({ path: '/auth/refresh-token', method: 'POST', body: {}, browserUserAgent: 'Browser 漢字' });
 
-		expect(sent.mock.calls.map(([, init]) => (init?.headers as Record<string, string>)['User-Agent'])).toEqual([
-			undefined,
-			undefined
-		]);
+		expect(
+			sent.mock.calls.map(([, init]) => (init?.headers as Record<string, string> | undefined)?.['User-Agent'])
+		).toEqual([undefined, undefined]);
 	});
 });
 

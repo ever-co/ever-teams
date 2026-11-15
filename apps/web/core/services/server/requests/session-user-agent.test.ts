@@ -78,7 +78,7 @@ it.each([
 ])("sends the browser's user agent with %s", async (_case, call) => {
 	await call();
 
-	expect((sent.mock.calls[0][1]?.headers as Record<string, string>)['User-Agent']).toBe(CHROME);
+	expect((sent.mock.calls[0][1]?.headers as Record<string, string> | undefined)?.['User-Agent']).toBe(CHROME);
 });
 
 it('names this app on the Ever ID calls too', async () => {
