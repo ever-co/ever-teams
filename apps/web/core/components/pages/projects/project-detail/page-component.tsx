@@ -15,8 +15,9 @@ import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/project
 import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 import { useProjectTaskStats } from '@/core/hooks/projects/use-project-task-stats';
 import { isValidProjectForDisplay } from '@/core/lib/helpers/type-guards';
-import { isProjectVisibleInTeam, sortProjects, urlWithParams } from '@/core/lib/utils/project-list';
+import { isProjectOpenTo, isProjectVisibleInTeam, sortProjects, urlWithParams } from '@/core/lib/utils/project-list';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
+import { userState } from '@/core/stores/user/user';
 import type { TOrganizationProject } from '@/core/types/schemas';
 import { ProjectDetailHeader, type ProjectDetailTab, type ProjectNeighbours } from './project-detail-header';
 import { ProjectOverview } from './project-overview';
@@ -72,11 +73,15 @@ function neighboursOf(projects: TOrganizationProject[], project: TOrganizationPr
 	};
 }
 
-function isHiddenFromTeam(project: TOrganizationProject | undefined, activeTeamId: string | undefined) {
+function isHiddenFromTeam(
+	project: TOrganizationProject | undefined,
+	activeTeamId: string | undefined,
+	employeeId: string | undefined
+) {
 	if (!project) {
 		return false;
 	}
-	return !isProjectVisibleInTeam(project, activeTeamId);
+	return !isProjectOpenTo(project, activeTeamId, employeeId);
 }
 
 export default function ProjectDetailPageComponent() {
@@ -90,6 +95,7 @@ export default function ProjectDetailPageComponent() {
 
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const activeTeam = useAtomValue(activeTeamState);
+	const user = useAtomValue(userState);
 	const { taskStatuses } = useTaskStatusesQuery();
 	const taskStats = useProjectTaskStats();
 	const { organizationProjects } = useOrganizationProjectsQuery();
@@ -130,7 +136,7 @@ export default function ProjectDetailPageComponent() {
 		[pathname, router, searchParams]
 	);
 
-	const isDenied = isHiddenFromTeam(project, activeTeam?.id);
+	const isDenied = isHiddenFromTeam(project, activeTeam?.id, user?.employee?.id ?? user?.employeeId ?? undefined);
 	const taskCount = taskStatsCountOf(taskStats, project?.id);
 
 	const projectsTitle = t('pages.projects.projectTitle.PLURAL');

@@ -1,5 +1,6 @@
 import type { TOrganizationProject } from '@/core/types/schemas';
 import {
+	isProjectOpenTo,
 	compareWithUnsetLast,
 	isConsumptionColumn,
 	isConsumptionOrderField,
@@ -75,5 +76,19 @@ describe('columns and orderings read from the budget report', () => {
 		expect(isConsumptionOrderField('budgetUsed')).toBe(true);
 		expect(isConsumptionOrderField('name')).toBe(false);
 		expect(isConsumptionOrderField('startDate')).toBe(false);
+	});
+});
+
+describe('isProjectOpenTo (#5022)', () => {
+	const ofTeamB = { id: 'p1', name: 'Website', teams: [{ id: 'team-b' }], members: [{ employeeId: 'employee-1' }] } as never;
+
+	it("opens a project of another team to its member, as a notification about it leads there", () => {
+		expect(isProjectOpenTo(ofTeamB, 'team-a', 'employee-1')).toBe(true);
+	});
+
+	it('keeps it closed to someone who is not its member, and open in its own team', () => {
+		expect(isProjectOpenTo(ofTeamB, 'team-a', 'employee-2')).toBe(false);
+		expect(isProjectOpenTo(ofTeamB, 'team-a', undefined)).toBe(false);
+		expect(isProjectOpenTo(ofTeamB, 'team-b', 'employee-2')).toBe(true);
 	});
 });
