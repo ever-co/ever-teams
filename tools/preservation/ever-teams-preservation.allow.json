@@ -514,5 +514,13 @@
 	{
 		"id": "removed:testNames:apps/web/core/hooks/tasks/use-kanban-lanes.test.tsx::keeps the lane order the latest move saved when an older move fails after it::#1",
 		"reason": "Kept, renamed (Greptile on #5276): the second move's saves now wait for the first move's, so they cannot succeed before it fails; the case is 'keeps the lane order the latest move saved when the older move fails' in the same file."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/hooks/timer/use-stale-timer-guard.test.tsx::keeps the time when the person says so: a heartbeat goes at once, and the run goes on::#1",
+		"reason": "Keep no longer sends an ordinary heartbeat, which wrote one minute on a page that had just opened (Greptile P1 on #5310). Replaced by \"keeps the whole time since the last heartbeat when the person says so, on a page that just opened\", which checks the whole time written."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/hooks/timer/use-stale-timer-guard.test.tsx::keeps the time even when that heartbeat fails: the one the app sends each minute takes over::#1",
+		"reason": "The minute heartbeat no longer stands in for a failed Keep: it would write one minute of the time kept. Replaced by \"keeps the time at the next try when its write fails, without asking again, a stop that waits held meanwhile\"."
 	}
 ]
