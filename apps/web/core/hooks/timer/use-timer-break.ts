@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useStore } from 'jotai';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
@@ -12,7 +12,7 @@ import { breakElapsedSecondsOf, breakRefusalKeyOf, timerBreakStateOf } from '@/c
 import { queryKeys } from '@/core/query/keys';
 import { timerService } from '@/core/services/client/api/timers/timer.service';
 import { startUnderTimerGuard } from '@/core/hooks/timer/use-timer-api';
-import { activeTeamIdState } from '@/core/stores';
+import { activeTeamIdState, timerStartsInFlightState } from '@/core/stores';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 
@@ -51,6 +51,22 @@ async function endShownBreak(shownBreakId: string | null, source: ETimeLogSource
 	}
 }
 
+type TStore = ReturnType<typeof useStore>;
+
+/**
+ * Runs a break's requests counted among the timer requests the organization switch waits for (#5204, #5263). They are
+ * plain service calls, outside the mutations the switch also waits for, and the timer shows stopped meanwhile: a switch
+ * then would leave the break running, or not ended, in the organization left behind.
+ */
+async function countedInSwitchGuard<T>(store: TStore, run: () => Promise<T>): Promise<T> {
+	store.set(timerStartsInFlightState, (count) => count + 1);
+	try {
+		return await run();
+	} finally {
+		store.set(timerStartsInFlightState, (count) => Math.max(0, count - 1));
+	}
+}
+
 /** The break request on its way, which disables the timer's buttons until its answer. */
 export type TPendingBreakAction = 'take' | 'end' | null;
 
@@ -66,6 +82,7 @@ export type TPendingBreakAction = 'take' | 'end' | null;
 export function useTimerBreak(timerStatus: ITimerStatus | null | undefined, stopWork: () => Promise<unknown> | void) {
 	const t = useTranslations();
 	const queryClient = useQueryClient();
+	const store = useStore();
 	const allowsBreaks = useBreaksAllowed();
 	const organizationTeamId = useAtomValue(activeTeamIdState);
 	const breakState = timerBreakStateOf(timerStatus);
@@ -106,7 +123,7 @@ export function useTimerBreak(timerStatus: ITimerStatus | null | undefined, stop
 		// Under the start guard every timer shares, from the stop to the break's start: a start asked meanwhile (the
 		// other timer, a task card, the start key) cannot land beside the break and be ended by it, or end it
 		const breakStart = startUnderTimerGuard(async () => {
-			asksBreak = await stopWorkThenStartBreak();
+			asksBreak = await countedInSwitchGuard(store, stopWorkThenStartBreak);
 		});
 		if (!breakStart) {
 			toast.warning(t('toasts.timer.START_IN_PROGRESS'), { id: 'timer-start-in-progress' });
@@ -121,13 +138,13 @@ export function useTimerBreak(timerStatus: ITimerStatus | null | undefined, stop
 		if (asksBreak) {
 			await refreshAfterBreak();
 		}
-	}, [refreshAfterBreak, stopWorkThenStartBreak, t]);
+	}, [refreshAfterBreak, stopWorkThenStartBreak, store, t]);
 
 	// Ends the break without starting work, the end of the day for one: Gauzy's stop ends a running break
 	const endBreak = useCallback(async () => {
 		setPendingAction('end');
 		try {
-			await endShownBreak(shownBreakId, breakSource);
+			await countedInSwitchGuard(store, () => endShownBreak(shownBreakId, breakSource));
 		} catch (error) {
 			// 406: another tab or device ended it first
 			const isAlreadyEnded = ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(406);
@@ -139,7 +156,7 @@ export function useTimerBreak(timerStatus: ITimerStatus | null | undefined, stop
 			setPendingAction(null);
 			await refreshAfterBreak();
 		}
-	}, [breakSource, refreshAfterBreak, shownBreakId, t]);
+	}, [breakSource, refreshAfterBreak, shownBreakId, store, t]);
 
 	return { allowsBreaks, breakState, pendingAction, takeBreak, endBreak };
 }

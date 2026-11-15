@@ -12,7 +12,7 @@ import type { PropsWithChildren } from 'react';
 
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
-import { activeTeamIdState } from '@/core/stores';
+import { activeTeamIdState, timerStartsInFlightState } from '@/core/stores';
 import { ETimeLogSource, ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import { pendingTimerStart, startUnderTimerGuard } from './use-timer-api';
@@ -214,5 +214,69 @@ describe('End break', () => {
 		expect(mockStopTimer).not.toHaveBeenCalled();
 		expect(mockToastError).not.toHaveBeenCalled();
 		expect(result.current.pendingAction).toBeNull();
+	});
+});
+
+/**
+ * The organization switch waits for the timer's requests (#5204, #5263): the timer shows stopped while a break starts
+ * or ends, and a switch then would leave the break running, or not ended, in the organization left behind.
+ */
+describe('A break in the organization switch guard', () => {
+	it('counts a break start until its request settles', async () => {
+		let landBreak = () => {};
+		mockStartBreak.mockImplementation(
+			() =>
+				new Promise<void>((resolve) => {
+					landBreak = resolve;
+				})
+		);
+		const { result, store } = renderBreak(
+			workRunning,
+			jest.fn(async () => undefined)
+		);
+
+		let taking: Promise<void> = Promise.resolve();
+		act(() => {
+			taking = result.current.takeBreak();
+		});
+		await waitFor(() => expect(mockStartBreak).toHaveBeenCalledTimes(1));
+		expect(store.get(timerStartsInFlightState)).toBe(1);
+
+		await act(async () => {
+			landBreak();
+			await taking;
+		});
+
+		expect(store.get(timerStartsInFlightState)).toBe(0);
+	});
+
+	it('counts a break end until its stop settles, a refused one too', async () => {
+		mockGetTimerStatus.mockResolvedValue({ data: breakRunning });
+		let refuseStop = (_error: unknown) => {};
+		mockStopTimer.mockImplementation(
+			() =>
+				new Promise((_resolve, reject) => {
+					refuseStop = reject;
+				})
+		);
+		const { result, store } = renderBreak(
+			breakRunning,
+			jest.fn(async () => undefined)
+		);
+
+		let ending: Promise<void> = Promise.resolve();
+		act(() => {
+			ending = result.current.endBreak();
+		});
+		await waitFor(() => expect(mockStopTimer).toHaveBeenCalledTimes(1));
+		expect(store.get(timerStartsInFlightState)).toBe(1);
+
+		await act(async () => {
+			refuseStop(gauzyRefusalOf(500, 'Internal server error'));
+			await ending;
+		});
+
+		expect(store.get(timerStartsInFlightState)).toBe(0);
+		expect(mockToastError).toHaveBeenCalledTimes(1);
 	});
 });
