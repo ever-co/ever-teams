@@ -135,7 +135,9 @@ jest.mock('@/core/lib/auth/token-organization', () => ({
 	syncTokenOrganization: () => mockSyncTokenOrganization()
 }));
 
+import { getDefaultStore } from 'jotai';
 import { leaveSessionEndedNotice, storedSessionEndedNotice } from '@/core/lib/auth/session-ended-notice';
+import { shellSettledState } from '@/core/stores/common/shell';
 import { InitState } from './init-state';
 
 function resetState() {
@@ -447,5 +449,47 @@ describe('InitState, once someone is signed in', () => {
 		render(<InitState />);
 
 		expect(storedSessionEndedNotice()).toBeNull();
+	});
+});
+
+// The reads nothing on the first screen waits for (the sidebar's Goals entry) wait for the shell to settle, well after
+// its ready mark: startup-performance.cy.ts counts every Gauzy read that starts before it
+describe('InitState settling the shell', () => {
+	beforeEach(() => {
+		resetState();
+		getDefaultStore().set(shellSettledState, false);
+		// The ready mark is spied on the real `performance`, which the fake timers would replace
+		jest.useFakeTimers({ doNotFake: ['performance'] });
+		if (!performance.mark) Object.defineProperty(performance, 'mark', { configurable: true, value: jest.fn() });
+		jest.spyOn(performance, 'mark').mockImplementation(() => ({}) as PerformanceMark);
+	});
+
+	afterEach(() => {
+		jest.useRealTimers();
+		jest.restoreAllMocks();
+	});
+
+	it('settles two seconds after the shell is ready, not at its ready mark', () => {
+		resolveWorkspace();
+		resolveTeam(false);
+		tasksSuccess = true;
+		timerSuccess = true;
+		render(<InitState />);
+
+		expect(performance.mark).toHaveBeenCalledWith('ever-teams:shell-ready');
+		expect(getDefaultStore().get(shellSettledState)).toBe(false);
+		act(() => jest.advanceTimersByTime(1_999));
+		expect(getDefaultStore().get(shellSettledState)).toBe(false);
+		act(() => jest.advanceTimersByTime(1));
+		expect(getDefaultStore().get(shellSettledState)).toBe(true);
+	});
+
+	it('still settles, much later, when the shell is never ready', () => {
+		render(<InitState />);
+
+		act(() => jest.advanceTimersByTime(19_999));
+		expect(getDefaultStore().get(shellSettledState)).toBe(false);
+		act(() => jest.advanceTimersByTime(1));
+		expect(getDefaultStore().get(shellSettledState)).toBe(true);
 	});
 });
