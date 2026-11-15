@@ -5967,6 +5967,12 @@
 			"REQUIRED_TITLE": "Twoja organizacja prosi o włączenie",
 			"REQUIRED_DESCRIPTION": "Jej członkowie logują się też kodem z aplikacji uwierzytelniającej.",
 			"QR_ALT": "Kod QR tego konta dla aplikacji uwierzytelniającej"
+		},
+		"thisBrowser": {
+			"TITLE": "Ta przeglądarka",
+			"DESCRIPTION": "Jak długo pozostajesz zalogowany w tej przeglądarce. Twoje inne przeglądarki i aplikacje mają własne sesje.",
+			"SIGN_OUT_ON_CLOSE": "Wyloguj po zamknięciu tej przeglądarki",
+			"SIGN_OUT_ON_CLOSE_HINT": "Na współdzielony komputer. Gdy jest wyłączone, pozostajesz zalogowany po zamknięciu przeglądarki, aż sesja wygaśnie."
 		}
 	},
 	"taskDetail": {
