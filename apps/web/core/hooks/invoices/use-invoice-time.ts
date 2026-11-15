@@ -40,6 +40,7 @@ import {
 	type UnpricedTime
 } from '@/core/lib/utils/invoices';
 import { clientIdOf } from '@/core/lib/utils/project-list';
+import { defaultBillRateOf } from '@/core/lib/utils/rates';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { TOrganizationProject } from '@/core/types/schemas';
 import type { TBillableTimeLog } from '@/core/types/schemas/organization/invoice.schema';
@@ -272,6 +273,8 @@ export function useInvoiceTime({
 	const queryClient = useQueryClient();
 	const organization = useAtomValue(currentOrganizationState);
 	const organizationCurrency = organization?.currency ?? null;
+	// Time no other rate prices is billed at the workspace's default, as the API's reports price it
+	const defaultRate = useMemo(() => defaultBillRateOf(organization), [organization]);
 	const roundingRule = useMemo(() => durationRoundingRuleOf(organization), [organization]);
 	const timeZone = useMemo(() => getDefaultTimezone(), []);
 	const projectsQuery = useOrganizationProjectsQuery();
@@ -444,9 +447,10 @@ export function useInvoiceTime({
 				projectRates: ratesByProject.get(projectId),
 				projectCurrency: offeredProjectsById.get(projectId)?.currency,
 				employeeRate: employees.get(employeeId),
-				organizationCurrency
+				organizationCurrency,
+				defaultRate
 			}),
-		[employees, offeredProjectsById, organizationCurrency, ratesByProject]
+		[defaultRate, employees, offeredProjectsById, organizationCurrency, ratesByProject]
 	);
 
 	const names = useMemo<InvoiceLineNames>(

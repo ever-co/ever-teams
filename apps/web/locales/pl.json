@@ -6934,6 +6934,7 @@
 			"RATE_SOURCE_MEMBER": "Stawka klienta tej osoby w tym projekcie",
 			"RATE_SOURCE_PROJECT": "Stawka klienta projektu",
 			"RATE_SOURCE_EMPLOYEE": "Własna stawka rozliczeniowa tej osoby",
+			"RATE_SOURCE_DEFAULT": "Domyślna stawka rozliczeniowa obszaru roboczego",
 			"DESCRIPTION_OF": "Opis pozycji {name}",
 			"REMOVE_LINE": "Usuń pozycję {name}",
 			"REMOVED_LINES": "{count, plural, one {# pozycja usunięta} few {# pozycje usunięte} many {# pozycji usuniętych} other {# pozycji usuniętych}}",

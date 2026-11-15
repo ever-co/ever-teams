@@ -6934,6 +6934,7 @@
 			"RATE_SOURCE_MEMBER": "该成员在此项目上的客户费率",
 			"RATE_SOURCE_PROJECT": "项目的客户费率",
 			"RATE_SOURCE_EMPLOYEE": "该成员自己的计费费率",
+			"RATE_SOURCE_DEFAULT": "工作区的默认计费费率",
 			"DESCRIPTION_OF": "明细行“{name}”的说明",
 			"REMOVE_LINE": "移除明细行“{name}”",
 			"REMOVED_LINES": "{count, plural, other {已移除 # 行}}",

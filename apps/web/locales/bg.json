@@ -6934,6 +6934,7 @@
 			"RATE_SOURCE_MEMBER": "Клиентска ставка на члена по този проект",
 			"RATE_SOURCE_PROJECT": "Клиентска ставка на проекта",
 			"RATE_SOURCE_EMPLOYEE": "Собствена ставка за фактуриране на члена",
+			"RATE_SOURCE_DEFAULT": "Ставката за фактуриране по подразбиране на работното пространство",
 			"DESCRIPTION_OF": "Описание на реда {name}",
 			"REMOVE_LINE": "Премахване на реда {name}",
 			"REMOVED_LINES": "{count, plural, one {# ред е премахнат} other {# реда са премахнати}}",

@@ -6934,6 +6934,7 @@
 			"RATE_SOURCE_MEMBER": "Tarifa de cliente del miembro en este proyecto",
 			"RATE_SOURCE_PROJECT": "Tarifa de cliente del proyecto",
 			"RATE_SOURCE_EMPLOYEE": "Tarifa de facturación propia del miembro",
+			"RATE_SOURCE_DEFAULT": "La tarifa de facturación predeterminada del espacio de trabajo",
 			"DESCRIPTION_OF": "Descripción de la línea {name}",
 			"REMOVE_LINE": "Quitar la línea {name}",
 			"REMOVED_LINES": "{count, plural, one {# línea quitada} other {# líneas quitadas}}",

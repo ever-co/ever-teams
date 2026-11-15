@@ -6934,6 +6934,7 @@
 			"RATE_SOURCE_MEMBER": "The member's client rate on this project",
 			"RATE_SOURCE_PROJECT": "The project's client rate",
 			"RATE_SOURCE_EMPLOYEE": "The member's own billing rate",
+			"RATE_SOURCE_DEFAULT": "The workspace's default billing rate",
 			"DESCRIPTION_OF": "Description of the line {name}",
 			"REMOVE_LINE": "Remove the line {name}",
 			"REMOVED_LINES": "{count, plural, one {# line removed} other {# lines removed}}",
