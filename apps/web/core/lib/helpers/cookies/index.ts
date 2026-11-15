@@ -441,7 +441,7 @@ export function getActiveTeamIdCookie(ctx?: NextCtx) {
 }
 
 /** The team cookie, shared by every tab of the browser. */
-function getSharedActiveTeamIdCookie(ctx?: NextCtx) {
+export function getSharedActiveTeamIdCookie(ctx?: NextCtx) {
 	return getCookie(ACTIVE_TEAM_COOKIE_NAME, ctx) as string;
 }
 
@@ -458,6 +458,16 @@ export function getActiveProjectIdCookie(ctx?: NextCtx) {
 	const tab = tabWorkScope(ctx);
 	if (tab) return tab.projectId ?? '';
 	return getCookie(ACTIVE_PROJECT_COOKIE_NAME, ctx) as string;
+}
+
+/** The project cookie, shared by every tab of the browser. */
+export function getSharedActiveProjectIdCookie(ctx?: NextCtx) {
+	return getCookie(ACTIVE_PROJECT_COOKIE_NAME, ctx) as string;
+}
+
+/** Writes the project cookie, shared by every tab, as it is: no tab takes it as the project it chose. */
+export function setSharedActiveProjectIdCookie(projectId: string, ctx?: NextCtx) {
+	return setCookie(ACTIVE_PROJECT_COOKIE_NAME, projectId, ctx);
 }
 
 export function setActiveProjectIdCookie(teamIds: string, ctx?: NextCtx) {

@@ -108,6 +108,12 @@ export interface IPublicSavedReportTask {
 	duration: number;
 	client: IPublicSavedReportNamed | null;
 	organizationTeamId?: string | null;
+	/**
+	 * The rate that prices the entry and its currency, as the report page prices its row: the rate the entry stores,
+	 * else the member's current one (ever-gauzy#12001). Absent from an API that states only the member's rate.
+	 */
+	billRateValue?: number | null;
+	billRateCurrency?: string | null;
 }
 
 interface IPublicSavedReportMemberLog {
@@ -115,6 +121,8 @@ interface IPublicSavedReportMemberLog {
 	/** Seconds. */
 	sum: number;
 	tasks: IPublicSavedReportTask[];
+	/** Per currency, each entry at the rate that prices it (ever-gauzy#12001). */
+	amounts?: IPublicSavedReportAmount[];
 	amount?: number | null;
 }
 
