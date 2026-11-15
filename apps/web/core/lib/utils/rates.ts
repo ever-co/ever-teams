@@ -93,6 +93,44 @@ export function effectiveBillRate({
 	return null;
 }
 
+/** The workspace's default billing rate: the last link of the price chain, for time no other rate prices. */
+export interface DefaultBillRate {
+	value: number;
+	/** The default's own currency, else the workspace's; null when neither is stated. */
+	currency: string | null;
+}
+
+type DefaultBillRateSource = {
+	currency?: string | null;
+	defaultBillRateValue?: unknown;
+	defaultBillRateCurrency?: string | null;
+};
+
+/**
+ * The workspace's default billing rate, read as the API reads it: only a positive value sets one, so an empty, zero
+ * or negative value leaves time without any other rate unpriced.
+ */
+export function defaultBillRateOf(organization: DefaultBillRateSource | null | undefined): DefaultBillRate | null {
+	const value = rateValueOf(organization?.defaultBillRateValue);
+	const isSet = value !== null && value > 0;
+	if (!isSet) {
+		return null;
+	}
+	return { value, currency: defaultBillRateCurrencyOf(organization) };
+}
+
+/** The currency the default is priced in, set or not: the one stored with it, else the workspace's. */
+export function defaultBillRateCurrencyOf(
+	organization: Pick<DefaultBillRateSource, 'currency' | 'defaultBillRateCurrency'> | null | undefined
+): string | null {
+	return organization?.defaultBillRateCurrency || organization?.currency || null;
+}
+
+/** An API without the default sends no field for it: the workspace then has no default to show or set. */
+export function storesDefaultBillRate(organization: Pick<DefaultBillRateSource, 'defaultBillRateValue'>): boolean {
+	return organization.defaultBillRateValue !== undefined;
+}
+
 /** A comma is a decimal mark with at most two places, so "1,000" and "1.000" are refused instead of read as 1. */
 const RATE_INPUT_PATTERN = /^\d*\.?\d{0,2}$/;
 

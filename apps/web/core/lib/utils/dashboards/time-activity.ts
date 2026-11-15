@@ -108,9 +108,15 @@ export function offeredGroupingsOf(access: ClientGroupingAccess, linked: TimeAct
 	return groupings;
 }
 
-export type TimeActivityColumn = 'project' | 'tracked' | 'earnings' | 'activity';
+export type TimeActivityColumn = 'project' | 'tracked' | 'earnings' | 'billable' | 'activity';
 
-export const TIME_ACTIVITY_COLUMNS: ReadonlyArray<TimeActivityColumn> = ['project', 'tracked', 'earnings', 'activity'];
+export const TIME_ACTIVITY_COLUMNS: ReadonlyArray<TimeActivityColumn> = [
+	'project',
+	'tracked',
+	'earnings',
+	'billable',
+	'activity'
+];
 
 export interface TimeActivityFilters {
 	teamIds: string[];
@@ -1258,6 +1264,47 @@ export interface BreakdownFact {
 	trackedSeconds: number;
 	rate: number | null;
 	currency: string | null;
+	/** Only on a fact of the billable time, which carries no time of its own: what that time bills. */
+	billable?: FactBillable;
+}
+
+/** Billable time of a fact and what it bills at the price chain's rate. */
+interface FactBillable {
+	seconds: number;
+	/** Null when no rate prices the time. */
+	amount: number | null;
+	currency: string | null;
+}
+
+/** What billable time bills, per currency and never added across currencies, and the part no rate prices. */
+export interface BillableFigures {
+	amounts: CurrencyAmount[];
+	seconds: number;
+	unpricedSeconds: number;
+}
+
+export const NO_BILLABLE_FIGURES: BillableFigures = { amounts: [], seconds: 0, unpricedSeconds: 0 };
+
+export function billableFiguresOfFacts(facts: ReadonlyArray<Pick<BreakdownFact, 'billable'>>): BillableFigures {
+	const totals = new Map<string, number>();
+	let seconds = 0;
+	let unpricedSeconds = 0;
+	for (const fact of facts) {
+		const billable = fact.billable;
+		if (!billable) {
+			continue;
+		}
+		seconds += billable.seconds;
+		if (billable.amount === null) {
+			unpricedSeconds += billable.seconds;
+			continue;
+		}
+		const currency = billable.currency ?? DEFAULT_CURRENCY;
+		const previous = totals.get(currency) ?? 0;
+		totals.set(currency, previous + billable.amount);
+	}
+	const amounts = [...totals.entries()].map(([currency, amount]) => ({ currency, amount }));
+	return { amounts, seconds, unpricedSeconds };
 }
 
 // A row without time shown has one fact, which carries the row whole: a rule can round tracked time down to nothing
@@ -1362,6 +1409,8 @@ export interface BreakdownNode {
 	/** False at a task level and under it: there the activity would be an estimate. */
 	hasExactActivity: boolean;
 	earnings: CurrencyAmount[];
+	/** What the billable time under the row bills; empty without the billable time's facts. */
+	billable: BillableFigures;
 	projects: ReportProjectRef[];
 	/** Share of the parent row, or of the whole period for a top row. */
 	share: number;
@@ -1373,6 +1422,7 @@ export interface BreakdownTotals {
 	activeSeconds: number;
 	trackedSeconds: number;
 	earnings: CurrencyAmount[];
+	billable: BillableFigures;
 }
 
 export interface BreakdownTree {
@@ -1516,6 +1566,7 @@ function nodesOf(facts: ReadonlyArray<BreakdownFact>, level: NodeLevel): Breakdo
 			trackedSeconds: figures.trackedSeconds,
 			hasExactActivity,
 			earnings: factEarningsOf(bucket),
+			billable: billableFiguresOfFacts(bucket),
 			projects: factProjectsOf(bucket),
 			share: shareOfParent(figures.seconds, level.parentSeconds),
 			children: nodesOf(bucket, childLevel)
@@ -1535,7 +1586,7 @@ export function breakdownTreeOf(facts: ReadonlyArray<BreakdownFact>, grouping: B
 	});
 	return {
 		nodes,
-		totals: { ...figures, earnings: factEarningsOf(facts) }
+		totals: { ...figures, earnings: factEarningsOf(facts), billable: billableFiguresOfFacts(facts) }
 	};
 }
 

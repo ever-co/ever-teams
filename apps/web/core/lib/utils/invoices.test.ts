@@ -213,6 +213,45 @@ describe('linePriceOf', () => {
 
 		expect(price).toEqual({ rate: 0, currency: 'EUR', source: 'project' });
 	});
+
+	it('prices time no other rate prices at the workspace default last, in its currency', () => {
+		const price = linePriceOf({
+			employeeId: 'bo',
+			projectRates: { billRateValue: null, currency: 'EUR', members: [] },
+			projectCurrency: 'EUR',
+			employeeRate: { billRateValue: 0, billRateCurrency: 'USD' },
+			organizationCurrency: 'GBP',
+			defaultRate: { value: 80, currency: 'GBP' }
+		});
+
+		expect(price).toEqual({ rate: 80, currency: 'GBP', source: 'default' });
+	});
+
+	it('never lets the default replace a rate that exists', () => {
+		const price = linePriceOf({
+			employeeId: 'bo',
+			projectRates: null,
+			projectCurrency: null,
+			employeeRate,
+			organizationCurrency: 'GBP',
+			defaultRate: { value: 80, currency: 'GBP' }
+		});
+
+		expect(price).toEqual({ rate: 40, currency: 'USD', source: 'employee' });
+	});
+
+	it('prices a default without a currency of its own in the workspace currency', () => {
+		const price = linePriceOf({
+			employeeId: 'bo',
+			projectRates: null,
+			projectCurrency: null,
+			employeeRate: null,
+			organizationCurrency: 'GBP',
+			defaultRate: { value: 80, currency: null }
+		});
+
+		expect(price).toEqual({ rate: 80, currency: 'GBP', source: 'default' });
+	});
 });
 
 describe('invoiceTimeOf', () => {

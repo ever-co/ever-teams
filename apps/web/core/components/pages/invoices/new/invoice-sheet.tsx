@@ -37,6 +37,7 @@ const RATE_SOURCE_KEYS: Record<InvoiceLineRateSource, DottedLanguageObjectString
 	member: 'invoices.new.RATE_SOURCE_MEMBER',
 	project: 'invoices.new.RATE_SOURCE_PROJECT',
 	employee: 'invoices.new.RATE_SOURCE_EMPLOYEE',
+	default: 'invoices.new.RATE_SOURCE_DEFAULT',
 	saved: 'invoices.edit.RATE_SOURCE_SAVED'
 };
 

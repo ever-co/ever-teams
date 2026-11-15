@@ -82,6 +82,15 @@ describe('flattenDailyReport', () => {
 		expect(withoutTeamRow.tasks.map((reportTask) => reportTask.title)).toEqual(['desktop', 'agent']);
 	});
 
+	it('keeps the project time without a team was logged on, which its client rates price it by', () => {
+		const report = reportOf([task('home', 600, 'team-a'), task('desktop', 900, null)], 1500);
+
+		const [teamRow, withoutTeamRow] = flattenDailyReport(report, 'No team');
+
+		expect(withoutTeamRow.loggedProjectId).toBe('project-a');
+		expect(teamRow).not.toHaveProperty('loggedProjectId');
+	});
+
 	it('gives a member with only time without a team that row alone', () => {
 		const rows = flattenDailyReport(reportOf([task('desktop', 1200, null)], 1200, null), 'No team');
 

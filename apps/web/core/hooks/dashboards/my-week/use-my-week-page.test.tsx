@@ -18,6 +18,10 @@ jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
 	timeLogService: { getTimeLogs: (...args: unknown[]) => mockGetTimeLogs(...args) }
 }));
 jest.mock('@/core/hooks/queries/user-user.query', () => ({ useUserQuery: () => ({ data: mockUser }) }));
+// A role that may not read client rates: the page reads no rates and shows no amount
+jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
+	useMyRolePermissionsQuery: () => ({ myPermissions: [], isLoaded: true })
+}));
 jest.mock('@/core/lib/helpers/cookies', () => ({
 	getTenantIdCookie: () => 'tenant-1',
 	getOrganizationIdCookie: () => 'organization-1'

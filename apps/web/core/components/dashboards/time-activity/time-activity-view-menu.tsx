@@ -15,11 +15,19 @@ const COLUMN_LABEL_KEYS: Record<TimeActivityColumn, DottedLanguageObjectStringPa
 	project: 'dashboard.timeActivity.columns.PROJECTS',
 	tracked: 'dashboard.timeActivity.columns.TRACKED',
 	earnings: 'dashboard.timeActivity.columns.EARNINGS',
+	billable: 'dashboard.timeActivity.columns.BILLABLE',
 	activity: 'dashboard.timeActivity.columns.ACTIVITY'
 };
 
-/** Earnings are a manager's column; projects are a column only where they are not rows of the breakdown. */
-function columnsOfferedFor(grouping: TimeActivityGrouping, isManager: boolean): TimeActivityColumn[] {
+/**
+ * Earnings are a manager's column, the billable amount the column of a role that may read client rates; projects are a
+ * column only where they are not rows of the breakdown.
+ */
+function columnsOfferedFor(
+	grouping: TimeActivityGrouping,
+	isManager: boolean,
+	readsBillable: boolean
+): TimeActivityColumn[] {
 	const offered: TimeActivityColumn[] = [];
 	if (offersProjectsColumn(grouping)) {
 		offered.push('project');
@@ -27,6 +35,9 @@ function columnsOfferedFor(grouping: TimeActivityGrouping, isManager: boolean): 
 	offered.push('tracked');
 	if (isManager) {
 		offered.push('earnings');
+	}
+	if (readsBillable) {
+		offered.push('billable');
 	}
 	offered.push('activity');
 	return offered;
@@ -58,17 +69,19 @@ function ColumnToggle({
 export function TimeActivityViewMenu({
 	grouping,
 	isManager,
+	readsBillable = false,
 	hiddenColumns,
 	onToggleColumn
 }: Readonly<{
 	grouping: TimeActivityGrouping;
 	isManager: boolean;
+	readsBillable?: boolean;
 	hiddenColumns: ReadonlyArray<TimeActivityColumn>;
 	onToggleColumn: (column: TimeActivityColumn) => void;
 }>) {
 	const t = useTranslations();
 	const isWeekGrid = grouping === 'week';
-	const offered = columnsOfferedFor(grouping, isManager);
+	const offered = columnsOfferedFor(grouping, isManager, readsBillable);
 	const viewLabel = t('common.VIEW');
 
 	return (
