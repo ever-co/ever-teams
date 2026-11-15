@@ -125,9 +125,42 @@ type PushKindRowsProps = {
 	onPreferences: (patch: Partial<INotificationPreferences>) => void;
 };
 
+type PushKindRowProps = {
+	type: EEmployeeNotificationType;
+	label: string;
+	switchId: string;
+	/** Whether the kind is filed at all: a kind switched off has nothing to push. */
+	isFiled: boolean;
+	preferences: INotificationPreferences | null | undefined;
+	disabled: boolean;
+	onPreferences: (patch: Partial<INotificationPreferences>) => void;
+};
+
+/** One kind's switch: whether it reaches the devices, saved as the kind's own choice. */
+function PushKindRow({ type, label, switchId, isFiled, preferences, disabled, onPreferences }: Readonly<PushKindRowProps>) {
+	const t = useTranslations();
+	return (
+		<SettingsRow
+			label={label}
+			description={isFiled ? undefined : t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_KIND_OFF')}
+			leading={<NotificationTypeBadge type={type} size="md" />}
+			htmlFor={switchId}
+		>
+			<SettingsSwitch
+				id={switchId}
+				checked={isFiled && pushOnFor(preferences, type)}
+				disabled={!isFiled}
+				pending={disabled}
+				ariaLabel={`${t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_TITLE')}: ${label}`}
+				onCheckedChange={(isOn) => onPreferences({ pushByType: { [type]: isOn } })}
+			/>
+		</SettingsRow>
+	);
+}
+
 /**
- * Which kinds reach the devices: one switch per kind, saved as the kind's own choice. The timer reminders are the last
- * kind: their threshold, in Time tracking, is what turns them on or off.
+ * Which kinds reach the devices: one switch per kind, saved as the kind's own choice. The timer reminders follow: their
+ * threshold, in Time tracking, is what turns them on or off. The meetings come last: they are always filed (#5022).
  */
 function PushKindRows({
 	isKindOn,
@@ -137,54 +170,35 @@ function PushKindRows({
 	onPreferences
 }: Readonly<PushKindRowsProps>) {
 	const t = useTranslations();
-	const timerLabel = t('notifications.SETTINGS_PAGE.TIMER.LABEL');
-	const timerSwitchId = 'notification-push-timer-reminder';
+	const shared = { preferences, disabled, onPreferences };
 	return (
 		<>
 			<h3 className={SUBHEADING}>{t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_KINDS_TITLE')}</h3>
 			<SettingsSurface>
-				{NOTIFICATION_SETTING_KEYS.map((key) => {
-					const copy = TYPE_COPY[key];
-					const switchId = `notification-push-${key}`;
-					const isFiled = isKindOn(key);
-					return (
-						<SettingsRow
-							key={key}
-							label={t(copy.titleKey)}
-							description={isFiled ? undefined : t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_KIND_OFF')}
-							leading={<NotificationTypeBadge type={copy.type} size="md" />}
-							htmlFor={switchId}
-						>
-							<SettingsSwitch
-								id={switchId}
-								checked={isFiled && pushOnFor(preferences, copy.type)}
-								disabled={!isFiled}
-								pending={disabled}
-								ariaLabel={`${t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_TITLE')}: ${t(copy.titleKey)}`}
-								onCheckedChange={(isOn) => onPreferences({ pushByType: { [copy.type]: isOn } })}
-							/>
-						</SettingsRow>
-					);
-				})}
-				<SettingsRow
-					label={timerLabel}
-					description={
-						isTimerReminderOn ? undefined : t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_KIND_OFF')
-					}
-					leading={<NotificationTypeBadge type={EEmployeeNotificationType.TimerReminder} size="md" />}
-					htmlFor={timerSwitchId}
-				>
-					<SettingsSwitch
-						id={timerSwitchId}
-						checked={isTimerReminderOn && pushOnFor(preferences, EEmployeeNotificationType.TimerReminder)}
-						disabled={!isTimerReminderOn}
-						pending={disabled}
-						ariaLabel={`${t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_TITLE')}: ${timerLabel}`}
-						onCheckedChange={(isOn) =>
-							onPreferences({ pushByType: { [EEmployeeNotificationType.TimerReminder]: isOn } })
-						}
+				{NOTIFICATION_SETTING_KEYS.map((key) => (
+					<PushKindRow
+						key={key}
+						type={TYPE_COPY[key].type}
+						label={t(TYPE_COPY[key].titleKey)}
+						switchId={`notification-push-${key}`}
+						isFiled={isKindOn(key)}
+						{...shared}
 					/>
-				</SettingsRow>
+				))}
+				<PushKindRow
+					type={EEmployeeNotificationType.TimerReminder}
+					label={t('notifications.SETTINGS_PAGE.TIMER.LABEL')}
+					switchId="notification-push-timer-reminder"
+					isFiled={isTimerReminderOn}
+					{...shared}
+				/>
+				<PushKindRow
+					type={EEmployeeNotificationType.Meeting}
+					label={t('notifications.SETTINGS_PAGE.MEETINGS.LABEL')}
+					switchId="notification-push-meeting"
+					isFiled
+					{...shared}
+				/>
 			</SettingsSurface>
 		</>
 	);

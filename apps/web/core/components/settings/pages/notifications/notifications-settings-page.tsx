@@ -24,6 +24,7 @@ import {
 	quietHoursOf
 } from '@/core/lib/notifications/notification-preferences';
 import { timerReminderHoursOf } from '@/core/lib/notifications/timer-reminders';
+import { meetingReminderMinutesOf } from '@/core/lib/notifications/meeting-notices';
 import { userState } from '@/core/stores/user/user';
 import {
 	EEmployeeNotificationType,
@@ -37,6 +38,7 @@ import { BrowserPushSection, SoundSection } from './notification-push-section';
 import { TYPE_COPY } from './notification-type-copy';
 import { NotificationGroupsSkeleton } from './notifications-settings-skeleton';
 import { TimerReminderRow } from './timer-reminder-row';
+import { MeetingReminderRow } from './meeting-reminder-row';
 
 /** Gauzy keeps one flag per notification type, with no channel. */
 const WORK_TYPES: readonly TEmployeeNotificationSettingKey[] = ['assignment', 'mention', 'comment'];
@@ -226,6 +228,21 @@ export function NotificationsSettingsPage() {
 									ownEmailModeOf(preferences, EEmployeeNotificationType.TimerReminder) ?? 'default'
 								}
 								onEmailMode={(mode) => onEmailMode(EEmployeeNotificationType.TimerReminder, mode)}
+							/>
+						</SettingsSurface>
+					</SettingsSection>
+					<SettingsSection
+						id="notification-meetings"
+						title={t('notifications.SETTINGS_PAGE.MEETINGS.TITLE')}
+						description={t('notifications.SETTINGS_PAGE.MEETINGS.INTRO')}
+					>
+						<SettingsSurface>
+							<MeetingReminderRow
+								value={meetingReminderMinutesOf(preferences)}
+								disabled={isSavingPreferences}
+								onChange={(minutes) => onPreferences({ meetingReminderMinutes: minutes })}
+								emailMode={ownEmailModeOf(preferences, EEmployeeNotificationType.Meeting) ?? 'default'}
+								onEmailMode={(mode) => onEmailMode(EEmployeeNotificationType.Meeting, mode)}
 							/>
 						</SettingsSurface>
 					</SettingsSection>
