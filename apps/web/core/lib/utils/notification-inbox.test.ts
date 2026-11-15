@@ -175,6 +175,8 @@ describe('toNotificationEntry for a meeting (#5022)', () => {
 		);
 
 		expect(entry.senderName).toBe('Ana Silva');
+	});
+});
 
 describe('toNotificationEntry for a Board shared or a mention in one (#5022)', () => {
 	const configured = process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN;
