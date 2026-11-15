@@ -153,12 +153,20 @@ export function MergePlaceholderDialog({
 		void readPreview(nextTargetId);
 	};
 
+	// The dialog stays mounted: the next opening, of this member too, starts from no choice and no preview
+	const resetAndClose = () => {
+		requestRef.current += 1;
+		setTargetId('');
+		setPreview(NO_PREVIEW);
+		setFailure(null);
+		onClose();
+	};
+
 	const close = () => {
 		if (isMerging) {
 			return;
 		}
-		requestRef.current += 1;
-		onClose();
+		resetAndClose();
 	};
 
 	const confirm = async () => {
@@ -171,7 +179,7 @@ export function MergePlaceholderDialog({
 		try {
 			await onMerge(employeeId, targetId);
 			toastMoment(t('settings.members.placeholder.MERGED', { name, target: targetName }), <Users />);
-			onClose();
+			resetAndClose();
 		} catch (error) {
 			setFailure(placeholderFailureOf(error, 'merge'));
 		} finally {
