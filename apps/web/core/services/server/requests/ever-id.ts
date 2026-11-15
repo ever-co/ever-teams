@@ -1,5 +1,6 @@
 import { GAUZY_API_SERVER_URL } from '@/core/constants/config/constants';
 import { clientIpHeaders } from '../client-ip';
+import { browserUserAgentHeaders, clientAppHeaders } from '../fetch';
 import type {
 	IEverIdEmailBranding,
 	IEverIdSignupDetails,
@@ -61,9 +62,12 @@ function retryAfterOf(header: string | null, data: unknown): number | undefined 
 }
 
 async function everIdApiFetch<T>(path: string, request: EverIdApiRequest): Promise<EverIdApiResult<T>> {
-	// The Ever ID exchange is anonymous: Gauzy limits it per client IP (client-ip.ts)
+	// The Ever ID exchange is anonymous: Gauzy limits it per client IP (client-ip.ts). It signs the person in, so the
+	// app's name and the browser's user agent go along for the session it opens (ever-co/ever-gauzy#11983).
 	const headers: Record<string, string> = {
 		Accept: 'application/json',
+		...clientAppHeaders(),
+		...(await browserUserAgentHeaders(true)),
 		...(await clientIpHeaders()),
 		...request.headers
 	};
