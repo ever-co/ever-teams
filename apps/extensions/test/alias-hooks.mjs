@@ -26,7 +26,8 @@ export async function resolve(specifier, context, nextResolve) {
 	return nextResolve(specifier, context);
 }
 
-const ENUM = /^\s*(?:export\s+)?(?:declare\s+)?(?:const\s+)?enum\s/m;
+// Any file that names an enum (compiling one more file than needed is harmless): a plain pattern, no backtracking
+const ENUM = /\benum\s/;
 
 export async function load(url, context, nextLoad) {
 	if (!url.startsWith('file:')) {
