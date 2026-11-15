@@ -1377,6 +1377,7 @@
 				"NO_ACTIVITY": "Aucune activité enregistrée sur cette période",
 				"UNPRICED_NOTE": "{duration} de temps facturable n’ont aucun taux et sont exclues du montant facturable.",
 				"SET_DEFAULT_RATE": "Définir un taux par défaut",
+				"BILLABLE_FAILED": "Le montant facturable n’a pas pu être chargé.",
 				"CHART_LABEL": "Temps suivi et activité par jour",
 				"BY_TIMER": "{duration} au minuteur",
 				"ROUNDED_UP": "Arrondi au-dessus à {minutes} min par entrée",

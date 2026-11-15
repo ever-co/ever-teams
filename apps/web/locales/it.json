@@ -1377,6 +1377,7 @@
 				"NO_ACTIVITY": "Nessuna attività registrata in questo periodo",
 				"UNPRICED_NOTE": "{duration} di tempo fatturabile non hanno tariffa e restano fuori dall’importo fatturabile.",
 				"SET_DEFAULT_RATE": "Imposta una tariffa predefinita",
+				"BILLABLE_FAILED": "Non è stato possibile caricare l’importo fatturabile.",
 				"CHART_LABEL": "Tempo registrato e attività al giorno",
 				"BY_TIMER": "{duration} con il timer",
 				"ROUNDED_UP": "Arrotondato per eccesso a {minutes} min per voce",

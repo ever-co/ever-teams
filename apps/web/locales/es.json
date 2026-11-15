@@ -1377,6 +1377,7 @@
 				"NO_ACTIVITY": "No se registró actividad en este período",
 				"UNPRICED_NOTE": "{duration} de tiempo facturable no tienen tarifa y quedan fuera del importe facturable.",
 				"SET_DEFAULT_RATE": "Definir una tarifa predeterminada",
+				"BILLABLE_FAILED": "No se pudo cargar el importe facturable.",
 				"CHART_LABEL": "Tiempo registrado y actividad por día",
 				"BY_TIMER": "{duration} con el temporizador",
 				"ROUNDED_UP": "Redondeado hacia arriba a {minutes} min por entrada",

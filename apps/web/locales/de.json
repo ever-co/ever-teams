@@ -1377,6 +1377,7 @@
 				"NO_ACTIVITY": "In diesem Zeitraum wurde keine Aktivität erfasst",
 				"UNPRICED_NOTE": "{duration} abrechenbare Zeit haben keinen Satz und fehlen im abrechenbaren Betrag.",
 				"SET_DEFAULT_RATE": "Standardsatz festlegen",
+				"BILLABLE_FAILED": "Der abrechenbare Betrag konnte nicht geladen werden.",
 				"CHART_LABEL": "Erfasste Zeit und Aktivität pro Tag",
 				"BY_TIMER": "{duration} per Timer",
 				"ROUNDED_UP": "Pro Eintrag auf {minutes} Min. aufgerundet",

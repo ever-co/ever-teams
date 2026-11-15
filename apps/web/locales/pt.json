@@ -1377,6 +1377,7 @@
 				"NO_ACTIVITY": "Nenhuma atividade registrada neste período",
 				"UNPRICED_NOTE": "{duration} de tempo faturável não têm taxa e ficam fora do valor faturável.",
 				"SET_DEFAULT_RATE": "Definir uma taxa padrão",
+				"BILLABLE_FAILED": "Não foi possível carregar o valor faturável.",
 				"CHART_LABEL": "Tempo registrado e atividade por dia",
 				"BY_TIMER": "{duration} pelo timer",
 				"ROUNDED_UP": "Arredondado para cima em {minutes} min por registro",

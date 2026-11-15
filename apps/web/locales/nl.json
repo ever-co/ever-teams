@@ -1377,6 +1377,7 @@
 				"NO_ACTIVITY": "Geen activiteit vastgelegd in deze periode",
 				"UNPRICED_NOTE": "{duration} factureerbare tijd heeft geen tarief en telt niet mee in het factureerbare bedrag.",
 				"SET_DEFAULT_RATE": "Standaardtarief instellen",
+				"BILLABLE_FAILED": "Het factureerbare bedrag kon niet worden geladen.",
 				"CHART_LABEL": "Geregistreerde tijd en activiteit per dag",
 				"BY_TIMER": "{duration} via de timer",
 				"ROUNDED_UP": "Per registratie naar boven afgerond op {minutes} min",

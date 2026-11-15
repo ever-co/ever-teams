@@ -113,6 +113,7 @@ export function TimeActivityPage() {
 						rows={report.rows}
 						billableFacts={report.billable.facts}
 						isBillablePending={report.billable.isPending}
+						isBillableError={report.billable.isError}
 						columns={columns}
 						period={period}
 						isLoading={report.isBreakdownPending}

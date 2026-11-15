@@ -11,6 +11,7 @@ import type {
 	TimeActivityFigures
 } from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { hasActivityIn } from '@/core/lib/utils/dashboards/time-activity';
 import type { DurationRoundingRule } from '@/core/lib/utils/duration-rounding';
 import { type AreaChartLabels, TimeActivityAreaChart, TimeActivityAreaChartSkeleton } from './time-activity-area-chart';
@@ -80,6 +81,17 @@ export const DEFAULT_RATE_SETTINGS_PATH = '/settings/workspace#formats';
  */
 export function UnpricedBillableNote({ billable }: Readonly<{ billable: TimeActivityBillable | null }>) {
 	const t = useTranslations();
+	const isFailed = billable !== null && billable.isOffered && billable.isError;
+	if (isFailed) {
+		return (
+			<p className="mx-4 mb-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+				<span>{t('dashboard.timeActivity.sheet.BILLABLE_FAILED')}</span>
+				<Button type="button" variant="ghost" size="sm" onClick={billable.refetch} className="h-6 px-2">
+					{t('pages.unauthorized.TRY_AGAIN')}
+				</Button>
+			</p>
+		);
+	}
 	const unpricedSeconds = billable?.figures.unpricedSeconds ?? 0;
 	const isSettled = billable !== null && !billable.isPending && !billable.isError;
 	const showsNote = isSettled && billable.isOffered && unpricedSeconds > 0;

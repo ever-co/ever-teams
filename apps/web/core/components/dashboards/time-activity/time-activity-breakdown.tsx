@@ -206,6 +206,7 @@ interface BreakdownText {
 	noTask: string;
 	noRate: string;
 	noBillable: string;
+	unavailable: string;
 	noTime: string;
 	noActivity: string;
 	noTaskActivity: string;
@@ -221,6 +222,8 @@ interface RowContext {
 	onToggle: (key: string) => void;
 	/** The billable amounts are still read: their cells wait while every other figure shows. */
 	isBillablePending: boolean;
+	/** The billable amounts could not be read: their cells show none. */
+	isBillableError: boolean;
 }
 
 type Translate = ReturnType<typeof useTranslations>;
@@ -261,6 +264,7 @@ function useBreakdownText(): BreakdownText {
 			noTask: t('dashboard.timeActivity.export.NO_TASK'),
 			noRate: t('dashboard.timeActivity.table.NO_RATE'),
 			noBillable: t('dashboard.timeActivity.figures.BILLABLE_NONE'),
+			unavailable: t('dashboard.timeActivity.figures.UNAVAILABLE'),
 			noTime: t('dashboard.timeActivity.figures.NO_TIME'),
 			noActivity: t('dashboard.timeActivity.table.NO_ACTIVITY'),
 			noTaskActivity: t('dashboard.timeActivity.breakdown.TASK_ACTIVITY'),
@@ -603,9 +607,11 @@ function BreakdownRow({
 					<BillableText
 						figures={node.billable}
 						isPending={context.isBillablePending}
+						isError={context.isBillableError}
 						locale={text.locale}
 						noRateLabel={text.noRate}
 						noBillableLabel={text.noBillable}
+						unavailableLabel={text.unavailable}
 					/>
 				</span>
 			)}
@@ -757,7 +763,8 @@ function TotalsCells({
 	projectCount,
 	columns,
 	text,
-	isBillablePending
+	isBillablePending,
+	isBillableError
 }: Readonly<{
 	totals: BreakdownTotals;
 	topDimension: BreakdownDimension;
@@ -766,6 +773,7 @@ function TotalsCells({
 	columns: BreakdownColumns;
 	text: BreakdownText;
 	isBillablePending: boolean;
+	isBillableError: boolean;
 }>) {
 	const t = useTranslations();
 	const activityFigures = useMemo<ActivityFigures>(() => ({ ...totals, hasExactActivity: true }), [totals]);
@@ -800,9 +808,11 @@ function TotalsCells({
 					<BillableText
 						figures={totals.billable}
 						isPending={isBillablePending}
+						isError={isBillableError}
 						locale={text.locale}
 						noRateLabel={text.noRate}
 						noBillableLabel={text.noBillable}
+						unavailableLabel={text.unavailable}
 					/>
 				</span>
 			)}
@@ -942,6 +952,7 @@ interface TimeActivityBreakdownProps {
 	/** The facts of the billable time, priced: each row adds up what its billable time bills. */
 	billableFacts?: ReadonlyArray<BreakdownFact>;
 	isBillablePending?: boolean;
+	isBillableError?: boolean;
 	columns: BreakdownColumns;
 	period: Period;
 	isLoading: boolean;
@@ -960,6 +971,7 @@ export function TimeActivityBreakdown({
 	rows,
 	billableFacts = NO_FACTS,
 	isBillablePending = false,
+	isBillableError = false,
 	columns,
 	period,
 	isLoading,
@@ -977,8 +989,8 @@ export function TimeActivityBreakdown({
 	const path = BREAKDOWN_PATHS[grouping];
 	const gridStyle = useMemo(() => gridStyleOf(columns), [columns]);
 	const context = useMemo<RowContext>(
-		() => ({ path, columns, text, openKeys, onToggle: toggle, isBillablePending }),
-		[columns, isBillablePending, openKeys, path, text, toggle]
+		() => ({ path, columns, text, openKeys, onToggle: toggle, isBillablePending, isBillableError }),
+		[columns, isBillableError, isBillablePending, openKeys, path, text, toggle]
 	);
 	const projectCount = useMemo(() => distinctProjectCountOf(tree.nodes), [tree.nodes]);
 
@@ -1061,6 +1073,7 @@ export function TimeActivityBreakdown({
 								columns={columns}
 								text={text}
 								isBillablePending={isBillablePending}
+								isBillableError={isBillableError}
 							/>
 						</ReportTotalsRow>
 					</>

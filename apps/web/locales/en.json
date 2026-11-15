@@ -1377,6 +1377,7 @@
 				"NO_ACTIVITY": "No activity recorded in this period",
 				"UNPRICED_NOTE": "{duration} of billable time has no rate and is left out of the billable amount.",
 				"SET_DEFAULT_RATE": "Set a default rate",
+				"BILLABLE_FAILED": "The billable amount could not load.",
 				"CHART_LABEL": "Tracked time and activity per day",
 				"BY_TIMER": "{duration} by timer",
 				"ROUNDED_UP": "Rounded up to {minutes} min per entry",

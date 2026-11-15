@@ -1,5 +1,5 @@
 /** @jest-environment jsdom */
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import type {
 	TimeActivityBillable,
 	TimeActivityFigures
@@ -138,6 +138,15 @@ describe('TimeActivitySummaryBand', () => {
 		expect(
 			screen.getByRole('link', { name: 'dashboard.timeActivity.sheet.SET_DEFAULT_RATE' }).getAttribute('href')
 		).toBe('/settings/workspace#formats');
+	});
+
+	it('says the billable amount could not load, and reads it again on retry', () => {
+		const refetch = jest.fn();
+		render(<UnpricedBillableNote billable={{ ...BILLABLE, isError: true, refetch }} />);
+
+		expect(screen.getByText('dashboard.timeActivity.sheet.BILLABLE_FAILED')).toBeTruthy();
+		fireEvent.click(screen.getByRole('button', { name: 'pages.unauthorized.TRY_AGAIN' }));
+		expect(refetch).toHaveBeenCalledTimes(1);
 	});
 
 	it('offers no link to a reader who may not set the default rate', () => {

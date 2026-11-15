@@ -1377,6 +1377,7 @@
 				"NO_ACTIVITY": "W tym okresie nie zarejestrowano aktywności",
 				"UNPRICED_NOTE": "{duration} czasu do zafakturowania nie ma stawki i nie wchodzi do kwoty.",
 				"SET_DEFAULT_RATE": "Ustaw domyślną stawkę",
+				"BILLABLE_FAILED": "Nie udało się wczytać kwoty do zafakturowania.",
 				"CHART_LABEL": "Zarejestrowany czas i aktywność dziennie",
 				"BY_TIMER": "{duration} z timera",
 				"ROUNDED_UP": "Zaokrąglone w górę do {minutes} min na wpis",

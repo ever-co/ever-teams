@@ -201,18 +201,26 @@ export function DurationText({ seconds, className }: Readonly<{ seconds: number;
 export function BillableText({
 	figures,
 	isPending,
+	isError = false,
 	locale,
 	noRateLabel,
-	noBillableLabel
+	noBillableLabel,
+	unavailableLabel
 }: Readonly<{
 	figures: BillableFigures;
 	isPending: boolean;
+	/** The billable time or its rates could not be read: a fallback price would look settled, so none is shown. */
+	isError?: boolean;
 	locale: FormatLocale;
 	noRateLabel: string;
 	noBillableLabel: string;
+	unavailableLabel: string;
 }>) {
 	if (isPending) {
 		return <span aria-hidden="true" className={cn('ml-auto block h-2.5 w-14', SKELETON_BAR)} />;
+	}
+	if (isError) {
+		return <EarningsText amounts={[]} locale={locale} noRateLabel={unavailableLabel} />;
 	}
 	const hasBillableTime = figures.seconds > 0;
 	let missingLabel = noBillableLabel;

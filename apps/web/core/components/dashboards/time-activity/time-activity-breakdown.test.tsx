@@ -83,6 +83,29 @@ describe('TimeActivityBreakdown grouped by client', () => {
 		expect(screen.getAllByText('€15.00').length).toBeGreaterThanOrEqual(2);
 	});
 
+	it('writes no amount when the billable time could not be read: a fallback rate would look settled', () => {
+		const priceAt90 = () => ({ rate: 90, currency: 'EUR', source: 'project' as const });
+		render(
+			<TimeActivityBreakdown
+				grouping="project"
+				rows={ROWS_WITHOUT_CLIENTS}
+				billableFacts={billableFactsOf(ROWS_WITHOUT_CLIENTS, priceAt90)}
+				isBillableError
+				columns={breakdownColumnsOf('project', [], true, true)}
+				period={PERIOD}
+				isLoading={false}
+				isError={false}
+				hasFilters={false}
+				onRetry={jest.fn()}
+				onClearFilters={jest.fn()}
+				onPreviousPeriod={jest.fn()}
+			/>
+		);
+
+		expect(screen.queryByText('€15.00')).toBeNull();
+		expect(screen.getAllByTitle('dashboard.timeActivity.figures.UNAVAILABLE').length).toBeGreaterThanOrEqual(2);
+	});
+
 	it('offers no billable column to a role that may not read client rates', () => {
 		expect(breakdownColumnsOf('project', [], true, false).billable).toBe(false);
 		expect(breakdownColumnsOf('project', ['billable'], true, true).billable).toBe(false);

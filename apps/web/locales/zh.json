@@ -1377,6 +1377,7 @@
 				"NO_ACTIVITY": "本期没有活跃度记录",
 				"UNPRICED_NOTE": "{duration} 可计费时间没有费率，未计入可计费金额。",
 				"SET_DEFAULT_RATE": "设置默认费率",
+				"BILLABLE_FAILED": "无法加载可计费金额。",
 				"CHART_LABEL": "每天的已记录时间和活跃度",
 				"BY_TIMER": "计时器 {duration}",
 				"ROUNDED_UP": "每条记录向上取整到 {minutes} 分钟",
