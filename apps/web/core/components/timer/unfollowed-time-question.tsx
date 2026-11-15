@@ -54,10 +54,17 @@ export function UnfollowedTimeQuestion() {
 		return null;
 	}
 
-	// The two times are minutes apart: the hour says it all
-	const time = dateFormatOf(locale, { timeStyle: 'short' });
-	const from = time.format(new Date(question.from));
-	const until = time.format(new Date(question.until));
+	// The two times are minutes apart: the hour says it all, unless a midnight lies between them
+	const fromDate = new Date(question.from);
+	const untilDate = new Date(question.until);
+	const day = dateFormatOf(locale, { dateStyle: 'medium' });
+	const spansMidnight = day.format(fromDate) !== day.format(untilDate);
+	const time = dateFormatOf(
+		locale,
+		spansMidnight ? { dateStyle: 'medium', timeStyle: 'short' } : { timeStyle: 'short' }
+	);
+	const from = time.format(fromDate);
+	const until = time.format(untilDate);
 
 	return (
 		<AlertDialog open onOpenChange={stayOpen}>

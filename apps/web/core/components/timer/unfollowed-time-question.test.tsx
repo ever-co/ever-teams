@@ -21,16 +21,16 @@ const MINUTE = 60_000;
 /** Five past two in the afternoon, on the computer's clock. */
 const LAST_HEARTBEAT = new Date(2026, 10, 14, 14, 5).getTime();
 
-/** The app asks about a run whose last heartbeat was at 14:05, seven minutes ago. */
-function ask() {
+/** The app asks about a run whose last heartbeat was at 14:05 (or `lastHeartbeat`), seven minutes ago. */
+function ask(lastHeartbeat: number = LAST_HEARTBEAT) {
 	let ended: UnfollowedTimeAnswer | undefined;
 	act(() => {
 		void askAboutUnfollowedTime(
 			{
 				employeeId: 'employee-1',
 				timeLogId: 'log-1',
-				from: new Date(LAST_HEARTBEAT).toISOString(),
-				until: LAST_HEARTBEAT + 7 * MINUTE
+				from: new Date(lastHeartbeat).toISOString(),
+				until: lastHeartbeat + 7 * MINUTE
 			},
 			3 * MINUTE
 		).then((answer) => {
@@ -67,6 +67,17 @@ describe('UnfollowedTimeQuestion', () => {
 		expect(screen.getByText('timer.unfollowed.TEXT(14:05,14:12)')).toBeTruthy();
 		expect(screen.getByRole('button', { name: 'timer.unfollowed.KEEP' })).toBeTruthy();
 		expect(screen.getByRole('button', { name: 'timer.unfollowed.STOP(14:05)' })).toBeTruthy();
+	});
+
+	it('says the day of each time when a midnight lies between them', async () => {
+		render(<UnfollowedTimeQuestion />);
+
+		// Three minutes to midnight, on the computer's clock: the timer ran without the app until four past
+		ask(new Date(2026, 10, 14, 23, 57).getTime());
+
+		await screen.findByRole('alertdialog');
+		const text = screen.getByText(/^timer\.unfollowed\.TEXT/).textContent ?? '';
+		expect(text).toMatch(/^timer\.unfollowed\.TEXT\(.*14.*23:57,.*15.*00:04\)$/);
 	});
 
 	it('keeps the time when the person says so, and closes', async () => {
