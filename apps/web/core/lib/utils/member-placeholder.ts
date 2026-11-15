@@ -180,9 +180,11 @@ function clipped(text: string): string {
 
 /**
  * The member a cell names. An email gives no name: the part before the "@" stands for it until someone renames the
- * member. A name is split at its first space, the rest kept whole as the last name.
+ * member (the file then finds them by email). A name is split at its first space, the rest kept whole as the last
+ * name. A name longer than Gauzy keeps is not offered: the member would be named otherwise than the file, and its
+ * rows would stay unknown.
  */
-function memberOfCell(cell: string): IEmployeePlaceholderMemberInput {
+function memberOfCell(cell: string): IEmployeePlaceholderMemberInput | null {
 	const text = cell.trim();
 	if (text.includes('@')) {
 		const email = text.toLowerCase();
@@ -191,9 +193,14 @@ function memberOfCell(cell: string): IEmployeePlaceholderMemberInput {
 	}
 	const words = text.split(/\s+/);
 	const [firstName, ...rest] = words;
-	const member: IEmployeePlaceholderMemberInput = { firstName: clipped(firstName) };
-	if (rest.length > 0) {
-		member.lastName = clipped(rest.join(' '));
+	const lastName = rest.join(' ');
+	const isTooLong = firstName.length > NAME_MAX_LENGTH || lastName.length > NAME_MAX_LENGTH;
+	if (isTooLong) {
+		return null;
+	}
+	const member: IEmployeePlaceholderMemberInput = { firstName };
+	if (lastName) {
+		member.lastName = lastName;
 	}
 	return member;
 }
@@ -252,7 +259,11 @@ export function importPlaceholderCandidatesOf(rows: ReadonlyArray<ImportedRow>):
 			known.rowCount += 1;
 			continue;
 		}
-		candidates.set(key, { key, member: memberOfCell(cell), rowCount: 1 });
+		const member = memberOfCell(cell);
+		if (!member) {
+			continue;
+		}
+		candidates.set(key, { key, member, rowCount: 1 });
 	}
 	return [...candidates.values()];
 }

@@ -293,6 +293,12 @@ describe('draftRowsOf', () => {
 			expect(row.entry).toMatchObject({ employeeId: ADA.employeeId, memberName: 'Ada Lovelace' });
 		});
 
+		it('is the member named by name whatever the spacing of the file, as the offer to add them groups it', () => {
+			const row = draftOf({ memberEmail: '  ada   Lovelace ' }, { canImportForOthers: true });
+
+			expect(row.entry).toMatchObject({ employeeId: ADA.employeeId, memberName: 'Ada Lovelace' });
+		});
+
 		it('is left out when the name matches no member, or more than one', () => {
 			const twin = { ...ADA, employeeId: 'employee-ada-2', email: 'ada.2@ever.co' };
 			const others = { canImportForOthers: true };
