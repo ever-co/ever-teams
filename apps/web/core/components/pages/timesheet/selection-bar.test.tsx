@@ -15,7 +15,10 @@ import { SelectedTimesheet } from './selection-bar';
 
 const mockPermissions: { current: string[] } = { current: [] };
 
-jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+jest.mock('next-intl', () => ({
+	useTranslations: () => (key: string, values?: Record<string, unknown>) =>
+		values ? `${key}:${JSON.stringify(values)}` : key
+}));
 jest.mock('@/core/hooks', () => ({
 	useModal: () => ({ isOpen: false, openModal: jest.fn(), closeModal: jest.fn() })
 }));
@@ -65,6 +68,26 @@ function renderSelectionBar(selection: ITimeLog[], teams: TOrganizationTeam[]) {
 		</Provider>
 	);
 }
+
+describe('SelectedTimesheet labels', () => {
+	beforeEach(() => {
+		mockPermissions.current = ['TIME_TRACKER'];
+	});
+
+	it('announces the selected count from a translated message, not a hard-coded word', () => {
+		renderSelectionBar([MEMBER_LOG, OWN_LOG], [UNMANAGED_TEAM]);
+
+		const status = screen.getByRole('status');
+		expect(status.textContent).toBe('dashboard.timesheets.SELECTED:{"count":2}');
+	});
+
+	it('names the clear button from a translated message', () => {
+		renderSelectionBar([MEMBER_LOG], [UNMANAGED_TEAM]);
+
+		const clear = screen.getByRole('button', { name: 'dashboard.timesheets.CLEAR_SELECTION' });
+		expect(clear.textContent).toBe('dashboard.timesheets.CLEAR_SELECTION');
+	});
+});
 
 describe('SelectedTimesheet approve and reject', () => {
 	beforeEach(() => {

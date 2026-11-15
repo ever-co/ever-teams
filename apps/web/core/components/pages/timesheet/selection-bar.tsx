@@ -34,11 +34,11 @@ export const SelectionBar = ({ selectedCount, onApprove, onReject, onDelete, onC
 	return (
 		<div className="fixed bottom-5 left-1/2 z-50 flex h-14 -translate-x-1/2 items-center justify-between gap-x-4 rounded-xl bg-popover px-3 text-popover-foreground hairline-ring ring-border shadow-md shadow-black/6.5">
 			<div className="flex gap-x-2 justify-start items-center">
-				<div className="flex items-center justify-center gap-x-2 pr-2 text-sm text-muted-foreground">
-					<div className="flex h-6 min-w-6 items-center justify-center rounded-full bg-primary/10 px-1.5 text-xs font-semibold tabular-nums text-primary-ink">
-						<span>{selectedCount}</span>
-					</div>
-					<span>selected</span>
+				<div
+						role="status"
+						className="flex items-center justify-center pr-2 text-sm font-medium tabular-nums text-muted-foreground"
+					>
+					{t('dashboard.timesheets.SELECTED', { count: selectedCount })}
 				</div>
 				{onApprove && (
 					<ActionButton label={t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED')} onClick={onApprove} />
@@ -53,9 +53,8 @@ export const SelectionBar = ({ selectedCount, onApprove, onReject, onDelete, onC
 				size="default"
 				onClick={onClearSelection}
 				className="text-primary-ink hover:text-primary-ink"
-				aria-label="Clear Selection"
 			>
-				Clear Selection
+				{t('dashboard.timesheets.CLEAR_SELECTION')}
 			</Button>
 		</div>
 	);
