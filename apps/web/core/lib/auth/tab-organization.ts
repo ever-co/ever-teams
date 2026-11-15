@@ -114,10 +114,14 @@ function noteSharedToken(token: string): boolean {
 	return true;
 }
 
+function scopeKey(scope: TabScope): string {
+	if (!scope.held) return 'shared';
+	const token = scope.accessToken ? 'token' : 'none';
+	return `held:${scope.organizationId}:${scope.sharedOrganizationId}:${scope.isOtherOrganizationOpen}:${token}`;
+}
+
 function announceIfChanged(scope: TabScope): void {
-	const key = scope.held
-		? `held:${scope.organizationId}:${scope.sharedOrganizationId}:${scope.isOtherOrganizationOpen}:${scope.accessToken ? 'token' : 'none'}`
-		: 'shared';
+	const key = scopeKey(scope);
 	if (key === lastScopeKey) return;
 	lastScopeKey = key;
 	if (typeof window === 'undefined') return;
@@ -135,8 +139,7 @@ export function tabScope(): TabScope {
 	const cookies = typeof document === 'undefined' ? '' : document.cookie;
 	const now = Date.now();
 	const isFresh =
-		memo &&
-		memo.cookies === cookies &&
+		memo?.cookies === cookies &&
 		memo.tabTeam === tabTeam &&
 		memo.refused === refusedTokens.size &&
 		now - memo.at < SCOPE_MEMO_MS;

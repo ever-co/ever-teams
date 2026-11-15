@@ -60,7 +60,7 @@ function startListening(): () => void {
 function subscribe(onChange: () => void): () => void {
 	if (typeof window === 'undefined') return () => undefined;
 	subscribers.add(onChange);
-	if (!stopListening) stopListening = startListening();
+	stopListening ??= startListening();
 	recheck();
 	return () => {
 		subscribers.delete(onChange);
