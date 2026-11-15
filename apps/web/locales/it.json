@@ -4083,6 +4083,8 @@
 				"BEFORE_HOURS": "{hours, plural, one {# ora} other {# ore}} prima"
 			},
 			"INTRO": "Scegli cosa arriva nella tua posta. Disattivando un tipo si fermano le nuove notifiche di quel tipo; quelle già ricevute restano.",
+			"TEAM_DEFAULTS_TITLE": "Il tuo team {team} imposta notifiche predefinite",
+			"TEAM_DEFAULTS_TEXT": "Ciò che lasci senza scelta qui le segue. Le tue scelte prevalgono sempre.",
 			"LOAD_ERROR": "Non è stato possibile caricare le impostazioni delle notifiche.",
 			"SAVE_FAILED": "L'impostazione non è stata salvata. Riprova.",
 			"ROWS": {

@@ -4083,6 +4083,8 @@
 				"BEFORE_HOURS": "提前 {hours, plural, other {# 小时}}"
 			},
 			"INTRO": "选择哪些内容进入你的收件箱。关闭某一类型后，不再收到该类型的新通知；已有的通知会保留。",
+			"TEAM_DEFAULTS_TITLE": "你的团队 {team} 设置了默认通知",
+			"TEAM_DEFAULTS_TEXT": "你在此处未选择的项将遵循这些默认值。你自己的选择始终优先。",
 			"LOAD_ERROR": "无法加载你的通知设置。",
 			"SAVE_FAILED": "该设置未保存，请重试。",
 			"ROWS": {
