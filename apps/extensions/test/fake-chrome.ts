@@ -27,6 +27,133 @@ export function installFakeChrome(initial: Record<string, unknown> = {}) {
 	return { stored };
 }
 
+type Listener = (...args: never[]) => unknown;
+
+/** An event of the extension API: listeners added by the code under test, called by the test. */
+function fakeEvent() {
+	const listeners: Listener[] = [];
+	return {
+		addListener: (listener: Listener) => {
+			listeners.push(listener);
+		},
+		removeListener: (listener: Listener) => {
+			listeners.splice(listeners.indexOf(listener) >>> 0, 1);
+		},
+		emit: (...args: unknown[]) => {
+			// A copy: a listener may remove itself while the event is told
+			for (const listener of listeners.slice()) {
+				(listener as (...values: unknown[]) => unknown)(...args);
+			}
+		}
+	};
+}
+
+/** A port the popup opens to the background: what the background posts to it, or a port already gone. */
+export interface FakePort {
+	sender: { id: string; tab?: unknown };
+	received: unknown[];
+	postMessage: (message: unknown) => void;
+	disconnect: () => void;
+	onDisconnect: ReturnType<typeof fakeEvent>;
+	onMessage: ReturnType<typeof fakeEvent>;
+}
+
+/**
+ * Test-only: the part of the extension API the background uses, on top of installFakeChrome: the storage change
+ * events (sent after the change, as the browser does), the alarms, the ports the popup opens and the toolbar badge.
+ */
+export function installFakeExtension(initial: Record<string, unknown> = {}) {
+	const { stored } = installFakeChrome(initial);
+	const chromeLike = (globalThis as unknown as { chrome: Record<string, any> }).chrome;
+	const local = chromeLike.storage.local;
+	const onChanged = fakeEvent();
+	const changesOf = (keys: string[], next: Record<string, unknown>) => {
+		const changes: Record<string, { oldValue?: unknown; newValue?: unknown }> = {};
+		for (const key of keys) {
+			changes[key] = { oldValue: stored.get(key), newValue: next[key] };
+		}
+		return changes;
+	};
+	const set = local.set;
+	const remove = local.remove;
+	const storageEvents = { told: 0 };
+	const tell = (changes: Record<string, unknown>) =>
+		setTimeout(() => {
+			onChanged.emit(changes, 'local');
+			storageEvents.told += 1;
+		}, 0);
+	local.set = async (items: Record<string, unknown>) => {
+		const changes = changesOf(Object.keys(items), items);
+		await set(items);
+		tell(changes);
+	};
+	local.remove = async (keys: string | string[]) => {
+		const list = (Array.isArray(keys) ? keys : [keys]).filter((key) => stored.has(key));
+		const changes = changesOf(list, {});
+		await remove(keys);
+		tell(changes);
+	};
+	chromeLike.storage.onChanged = onChanged;
+
+	let colorSet: Promise<void> | null = null;
+	const badge = {
+		text: '',
+		history: [] as string[],
+		/** The next text call fails, as a browser API call can. */
+		failNextText: false,
+		/** Holds the next color calls until the returned function is called, as a slow browser would. */
+		holdColor: () => {
+			let release = () => undefined as void;
+			colorSet = new Promise<void>((resolve) => {
+				release = () => {
+					colorSet = null;
+					resolve();
+				};
+			});
+			return release;
+		}
+	};
+	chromeLike.action = {
+		setBadgeText: ({ text }: { text: string }) => {
+			if (badge.failNextText) {
+				badge.failNextText = false;
+				return Promise.reject(new Error('The badge cannot be set'));
+			}
+			badge.text = text;
+			badge.history.push(text);
+			return Promise.resolve();
+		},
+		setBadgeBackgroundColor: async () => {
+			await colorSet;
+		}
+	};
+	const alarms = { created: [] as string[], onAlarm: fakeEvent() };
+	chromeLike.alarms = { create: (name: string) => alarms.created.push(name), onAlarm: alarms.onAlarm };
+	const runtime = { onInstalled: fakeEvent(), onStartup: fakeEvent(), onConnect: fakeEvent() };
+	chromeLike.runtime = runtime;
+
+	/** The popup opens a port; a port already gone throws on each post, as the browser's does. */
+	const connect = ({ gone = false } = {}): FakePort => {
+		const port: FakePort = {
+			sender: { id: 'extension-id' },
+			received: [],
+			postMessage: (message: unknown) => {
+				if (gone) {
+					throw new Error('Attempting to use a disconnected port object');
+				}
+				port.received.push(message);
+			},
+			disconnect: () => undefined,
+			onDisconnect: fakeEvent(),
+			onMessage: fakeEvent()
+		};
+		runtime.onConnect.emit(port);
+		return port;
+	};
+
+	return { stored, badge, alarms, runtime, connect, storageEvents };
+}
+
 type FetchAnswer = { status: number; body?: unknown };
 
 /** Replaces fetch: each call is recorded and answered by `answer`, or fails as offline when it throws. */

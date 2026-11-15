@@ -8,9 +8,10 @@ import { useTranslations } from 'next-intl';
 import { activeTeamIdState } from '@/core/stores';
 import { Notice } from '@/core/components/common/notice';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { Mail, UserAdd } from '@/core/components/icons';
+import { Mail, User, UserAdd } from '@/core/components/icons';
 import { useHasBeenOpen } from '@/core/hooks/common/use-has-been-open';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useMemberPlaceholders } from '@/core/hooks/settings/use-member-placeholders';
 import { SettingsPage } from '@/core/components/settings/kit/settings-page';
 import { TeamSettingsGate } from '@/core/components/settings/kit/team-settings-gate';
 import { MembersSettingsSkeleton } from './members-settings-skeleton';
@@ -20,6 +21,11 @@ import { JoinRequestsSection } from './join-requests-section';
 
 const InviteFormModal = dynamic(
 	() => import('@/core/components/features/teams/invite-form-modal').then((module) => module.InviteFormModal),
+	{ ssr: false }
+);
+
+const AddPlaceholderDialog = dynamic(
+	() => import('./add-placeholder-dialog').then((module) => module.AddPlaceholderDialog),
 	{ ssr: false }
 );
 
@@ -48,16 +54,27 @@ function MembersContent() {
 	const mountsInvite = useHasBeenOpen(isInviteOpen);
 	const canInvite = Boolean(user?.isEmailVerified);
 	const openInvite = () => setIsInviteOpen(true);
+	const placeholders = useMemberPlaceholders();
+	const [isAddingPlaceholder, setIsAddingPlaceholder] = useState(false);
+	const mountsAddPlaceholder = useHasBeenOpen(isAddingPlaceholder);
 
 	return (
 		<SettingsPage
 			title={t('settings.entries.members.TITLE')}
 			description={t('settings.entries.members.DESCRIPTION')}
 			actions={
-				<Button type="button" onClick={openInvite} disabled={!canInvite}>
-					<UserAdd />
-					{t('common.INVITE')}
-				</Button>
+				<div className="flex flex-wrap items-center justify-end gap-2">
+					{placeholders.isOffered && (
+						<Button type="button" variant="outline" onClick={() => setIsAddingPlaceholder(true)}>
+							<User />
+							{t('settings.members.placeholder.ADD')}
+						</Button>
+					)}
+					<Button type="button" onClick={openInvite} disabled={!canInvite}>
+						<UserAdd />
+						{t('common.INVITE')}
+					</Button>
+				</div>
 			}
 		>
 			{!canInvite && <UnverifiedNotice />}
@@ -66,6 +83,13 @@ function MembersContent() {
 			<JoinRequestsSection />
 			{mountsInvite && (
 				<InviteFormModal open={isInviteOpen && canInvite} closeModal={() => setIsInviteOpen(false)} />
+			)}
+			{mountsAddPlaceholder && (
+				<AddPlaceholderDialog
+					open={isAddingPlaceholder && placeholders.isOffered}
+					onClose={() => setIsAddingPlaceholder(false)}
+					onAdd={placeholders.addPlaceholder}
+				/>
 			)}
 		</SettingsPage>
 	);

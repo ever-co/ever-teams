@@ -771,6 +771,8 @@
 			"LIMIT_SHARE": "{percent} del tuo limite settimanale",
 			"NO_LIMIT": "Nel tuo profilo non è impostato alcun limite settimanale.",
 			"LIMIT_BY_WEEK": "Il tuo limite settimanale di {limit} si misura settimana per settimana.",
+			"BILLABLE_UNPRICED": "{duration} senza tariffa",
+			"BILLABLE_RATES_HINT": "Valorizzato alle tariffe di oggi: la tua tariffa cliente sul progetto, altrimenti quella del progetto, altrimenti la tua tariffa di fatturazione, altrimenti quella predefinita dello spazio di lavoro.",
 			"DAILY_LIMIT_LINE": "{limit} al giorno",
 			"DAILY_LIMIT_HINT": "La linea tratteggiata è un quinto del tuo limite settimanale",
 			"PROJECTS_TITLE": "Tempo per progetto",
@@ -1288,6 +1290,7 @@
 				"PROJECTS": "Progetti",
 				"TRACKED": "Registrato",
 				"EARNINGS": "Guadagni",
+				"BILLABLE": "Importo fatturabile",
 				"ACTIVITY": "Attività",
 				"SHARE": "Quota"
 			},
@@ -1312,6 +1315,10 @@
 				"NO_TIME": "Nessun tempo registrato",
 				"EARNINGS": "Guadagni",
 				"EARNINGS_FROM_RATES": "Dalle tariffe orarie",
+				"BILLABLE_TIME": "{duration} fatturabili",
+				"BILLABLE_NONE": "Nessun tempo fatturabile",
+				"BILLABLE_NO_RATES": "Nessuna tariffa valorizza questo tempo fatturabile",
+				"BILLABLE_HINT": "Tempo fatturabile valorizzato come una riga di fattura: la tariffa cliente del membro sul progetto, altrimenti quella del progetto, altrimenti la tariffa di fatturazione del membro, altrimenti quella predefinita dello spazio di lavoro. Le tariffe cliente e quella predefinita valgono al loro valore di oggi; la tariffa di fatturazione del membro a quella che ogni voce conserva.",
 				"EARNINGS_MISSING_RATES": "{count, plural, one {# membro non ha una tariffa oraria} other {# membri non hanno una tariffa oraria}}",
 				"EARNINGS_NO_RATES": "Nessun membro ha una tariffa oraria",
 				"MEMBERS": "Membri",
@@ -1369,6 +1376,9 @@
 				"LABEL": "Report del periodo",
 				"SUMMARY": "Riepilogo del periodo",
 				"NO_ACTIVITY": "Nessuna attività registrata in questo periodo",
+				"UNPRICED_NOTE": "{duration} di tempo fatturabile non hanno tariffa e restano fuori dall’importo fatturabile.",
+				"SET_DEFAULT_RATE": "Imposta una tariffa predefinita",
+				"BILLABLE_FAILED": "Non è stato possibile caricare l’importo fatturabile.",
 				"CHART_LABEL": "Tempo registrato e attività al giorno",
 				"BY_TIMER": "{duration} con il timer",
 				"ROUNDED_UP": "Arrotondato per eccesso a {minutes} min per voce",
@@ -3051,6 +3061,12 @@
 				"TRACKER_RUN": "Questa sessione è registrata dall'app desktop o dall'agente, che tengono da soli il suo tempo, quindi non può essere scartata qui.",
 				"GENERIC": "Non è stato possibile scartare la sessione. Controlla la connessione e riprova."
 			}
+		},
+		"unfollowed": {
+			"TITLE": "Il tuo timer è rimasto in esecuzione senza l'app",
+			"TEXT": "Dalle {from} alle {until} l'app non seguiva il tuo timer. Tenere questo tempo o fermare il timer alle {from}?",
+			"KEEP": "Tieni questo tempo",
+			"STOP": "Ferma alle {from}"
 		}
 	},
 	"task": {
@@ -4230,7 +4246,9 @@
 			"NOTES_NOT_SAVED": "Le note modificate mentre il timer era attivo non sono state salvate",
 			"NOTES_NOT_SAVED_HINT": "La voce ha mantenuto le note dell'avvio. Modifica la voce nei fogli presenze per cambiarle.",
 			"ALREADY_RUNNING_ON_TASK": "Il timer è già attivo su questa attività",
-			"SAVED_STOP_HINT": "È l'arresto che avevi richiesto prima della fine della sessione."
+			"SAVED_STOP_HINT": "È l'arresto che avevi richiesto prima della fine della sessione.",
+			"UNFOLLOWED_STOPPED_HINT": "Dopo, l'app non ha potuto seguirlo: il computer era in sospensione o il browser ha messo in pausa questa scheda. Aggiungi il lavoro successivo come tempo manuale.",
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "Hai scelto di non tenere il tempo successivo."
 		},
 		"plans": {
 			"CREATE_FAILED": "Il piano non è stato creato",
@@ -5313,7 +5331,52 @@
 			"RESET_TWO_FACTOR_CONFIRM": "Reimposta",
 			"RESET_TWO_FACTOR_DONE": "L’autenticazione a due fattori di {name} è stata reimpostata",
 			"RESET_TWO_FACTOR_NOTHING": "{name} non aveva un’autenticazione a due fattori da reimpostare",
-			"RESET_TWO_FACTOR_FAILED": "Non è stato possibile reimpostare l’autenticazione a due fattori di {name}"
+			"RESET_TWO_FACTOR_FAILED": "Non è stato possibile reimpostare l’autenticazione a due fattori di {name}",
+			"placeholder": {
+				"ADD": "Aggiungi senza account",
+				"ADD_TITLE": "Aggiungi una persona senza account",
+				"ADD_DESCRIPTION": "Per chi ha lavorato con il team e non ha un account. Non riceve email, non può accedere e non avvia mai un timer. Il suo tempo conta in report, fogli ore, budget e fatture come quello di ogni membro.",
+				"EMAIL": "Email",
+				"OPTIONAL": "facoltativa",
+				"EMAIL_HINT": "Conservata per invitarla più avanti a rivendicare il suo tempo. Ora non viene inviato nulla.",
+				"EMAIL_INVALID": "Inserisci un'email valida o lascia il campo vuoto.",
+				"ADD_CONFIRM": "Aggiungi membro",
+				"ADD_FAILED": "Il membro non è stato aggiunto.",
+				"ADDED": "{name} è stato aggiunto senza account.",
+				"NO_ACCOUNT": "Senza account",
+				"NO_EMAIL": "Nessuna email",
+				"CLAIM": "Invita a rivendicare",
+				"CLAIM_TITLE": "Invita {name} a rivendicare il suo tempo",
+				"CLAIM_DESCRIPTION": "{name} riceve un invito via email. Quando lo accetta, il suo tempo, i suoi team e le sue tariffe passano al suo account.",
+				"CLAIM_CONFIRM": "Invia invito",
+				"CLAIM_FAILED": "L'invito non è stato inviato.",
+				"CLAIM_SENT": "Invito inviato a {email}. Il tempo di {name} passa al suo account quando accetta.",
+				"CLAIM_PENDING": "Invito inviato",
+				"CLAIM_PENDING_TO": "Invito a rivendicare inviato a {email}",
+				"MERGE": "Unisci a un membro",
+				"MERGE_TITLE": "Unisci {name} a un membro",
+				"MERGE_DESCRIPTION": "Tutto ciò che appartiene a questo membro senza account passa al membro scelto. Un'unione non si può annullare.",
+				"MERGE_INTO": "Unisci a",
+				"MERGE_PICK": "Scegli un membro",
+				"MERGE_NO_TARGET": "Nessuno in questo team ha ancora un account a cui unire.",
+				"MERGE_READING": "Lettura di ciò che verrebbe spostato…",
+				"MERGE_PREVIEW_FAILED": "Non è stato possibile leggere ciò che verrebbe spostato.",
+				"RETRY": "Riprova",
+				"MERGE_MOVES_TIME": "{target} riceve {count, plural, one {# voce} other {# voci}} ({duration}).",
+				"MERGE_MOVES_WORK": "{timesheets, plural, one {# foglio ore} other {# fogli ore}} e {tasks, plural, one {# assegnazione di attività} other {# assegnazioni di attività}} passano con esse.",
+				"MERGE_MOVES_TEAMS": "{target} entra nei suoi team: {teams}.",
+				"MERGE_OVERLAPS": "{count, plural, one {# di queste voci si sovrappone} other {# di queste voci si sovrappongono}} al tempo di {target}.",
+				"MERGE_REMOVES": "{name} viene rimosso dai membri.",
+				"MERGE_CONFIRM": "Unisci",
+				"MERGE_FAILED": "I membri non sono stati uniti.",
+				"MERGED": "{name} unito a {target}",
+				"errors": {
+					"EMAIL_TAKEN": "Un membro di questa organizzazione ha già quest'email.",
+					"CLAIM_HAS_ACCOUNT": "Quest'email ha già un account. Unisci invece il membro al membro di quella persona.",
+					"MERGE_TIME_OFF": "Entrambi i membri hanno un saldo di assenze per la stessa regola e lo stesso anno ({years}). Sistemalo su uno dei due, poi unisci di nuovo. Non è stato spostato nulla.",
+					"MERGE_TIME_OFF_ANY": "Entrambi i membri hanno un saldo di assenze per la stessa regola e lo stesso anno. Sistemalo su uno dei due, poi unisci di nuovo. Non è stato spostato nulla."
+				}
+			}
 		},
 		"sessions": {
 			"TITLE": "Sessioni",
@@ -5565,6 +5628,13 @@
 			"CURRENCY_OUTCOME": "Le nuove tariffe e i nuovi budget partono da questa valuta.",
 			"CURRENCY_NOT_SAVED": "La valuta non è stata salvata",
 			"CURRENCY_NOT_SET": "Non indicata",
+			"DEFAULT_RATE_LABEL": "Tariffa di fatturazione predefinita",
+			"DEFAULT_RATE_DESCRIPTION": "Fattura il tempo di un membro senza tariffa di fatturazione né tariffa cliente sul progetto. Vuota, quel tempo resta senza prezzo.",
+			"DEFAULT_RATE_SAVED": "Tariffa di fatturazione predefinita salvata",
+			"DEFAULT_RATE_OUTCOME": "Report e nuove fatture valorizzano a questa tariffa il tempo senza altra tariffa.",
+			"DEFAULT_RATE_CLEARED": "Tariffa di fatturazione predefinita rimossa",
+			"DEFAULT_RATE_CLEARED_OUTCOME": "Il tempo senza altra tariffa torna a essere mostrato a parte.",
+			"DEFAULT_RATE_NOT_SAVED": "La tariffa di fatturazione predefinita non è stata salvata",
 			"DATE_FORMAT_LABEL": "Formato della data",
 			"DATE_FORMAT_DESCRIPTION": "Come i report e le loro esportazioni scrivono le date. Automatico segue la lingua di ogni membro.",
 			"DATE_FORMAT_SAVED": "Formato della data salvato",
@@ -5627,7 +5697,33 @@
 			"EXPORTING": "Esportazione…",
 			"EXPORT_DONE": "Dati dello spazio di lavoro esportati",
 			"EXPORT_FAILED": "L'esportazione non è stata completata",
-			"EXPORT_FAILED_DESCRIPTION": "Non è stato salvato nulla. Uno spazio di lavoro grande richiede tempo: riprova tra un momento."
+			"EXPORT_FAILED_DESCRIPTION": "Non è stato salvato nulla. Uno spazio di lavoro grande richiede tempo: riprova tra un momento.",
+			"deletion": {
+				"DANGER_SECTION": "Zona pericolosa",
+				"DELETE_LABEL": "Elimina questa organizzazione",
+				"DELETE_CONSEQUENCE": "I suoi team, le iscrizioni e gli inviti spariscono per tutti. L'ultima organizzazione dello spazio di lavoro resta.",
+				"DELETE_ACTION": "Elimina organizzazione",
+				"DELETE_TITLE": "Eliminare {organization}?",
+				"DELETE_DESCRIPTION": "I suoi team, membri e inviti lasciano Ever Teams con essa. I suoi progetti, il tempo registrato e le fatture restano sul server ma non sono più raggiungibili qui.",
+				"CONSEQUENCE_TEAMS": "{count, plural, one {# team viene rimosso} other {# team vengono rimossi}}, con il posto di ciascuno",
+				"CONSEQUENCE_MEMBERS": "{count, plural, one {# membro perde} other {# membri perdono}} l'accesso a questa organizzazione",
+				"CONSEQUENCE_WORK": "{projects, plural, one {# progetto} other {# progetti}} e {hours, number} ore registrate non sono più raggiungibili",
+				"CONSEQUENCE_INVOICES": "{count, plural, one {# fattura non è più raggiungibile} other {# fatture non sono più raggiungibili}}",
+				"CONSEQUENCE_LANDING": "Continui in {organization}",
+				"CONSEQUENCE_PICKER": "Non hai altre organizzazioni in questo spazio di lavoro: accedi di nuovo per scegliere uno spazio di lavoro",
+				"COUNTS_LOADING": "Conteggio del contenuto di questa organizzazione…",
+				"COUNTS_FAILED": "Il contenuto di questa organizzazione non è stato contato",
+				"COUNTS_FAILED_DESCRIPTION": "L'eliminazione resta disattivata finché i conteggi non vengono caricati.",
+				"UNSUPPORTED": "Questo server non può ancora eliminare le organizzazioni",
+				"UNSUPPORTED_DESCRIPTION": "Eliminare un'organizzazione in sicurezza richiede un'API Ever Gauzy più recente. Chiedi a chi gestisce il server di aggiornarla.",
+				"LAST_ORGANIZATION": "Questa è l'ultima organizzazione dello spazio di lavoro",
+				"LAST_ORGANIZATION_DESCRIPTION": "Uno spazio di lavoro mantiene almeno un'organizzazione. Eliminare il tuo account rimuove anche lo spazio di lavoro, ma solo se ne sei l'ultimo membro.",
+				"LAST_ORGANIZATION_ACTION": "Vai all'eliminazione dell'account",
+				"LAST_ORGANIZATION_REFUSED": "Ora è l'ultima organizzazione dello spazio di lavoro, quindi resta. Eliminare il tuo account rimuove anche lo spazio di lavoro, ma solo se ne sei l'ultimo membro.",
+				"TIMER_RUNNING": "Ferma prima il timer",
+				"TIMER_RUNNING_DESCRIPTION": "Il tuo timer è in esecuzione. Fermalo, poi elimina l'organizzazione: un timer lasciato in un'organizzazione eliminata continua a contare e nessuno può più fermarlo.",
+				"EXPORT_FIRST": "Conserva prima una copia: esporta i dati dello spazio di lavoro prima di eliminare questa organizzazione."
+			}
 		},
 		"automations": {
 			"NEW_RULE": "Nuova regola",
@@ -7339,6 +7435,7 @@
 			"RATE_SOURCE_MEMBER": "Tariffa cliente del membro su questo progetto",
 			"RATE_SOURCE_PROJECT": "Tariffa cliente del progetto",
 			"RATE_SOURCE_EMPLOYEE": "Tariffa di fatturazione propria del membro",
+			"RATE_SOURCE_DEFAULT": "La tariffa di fatturazione predefinita dello spazio di lavoro",
 			"DESCRIPTION_OF": "Descrizione della riga {name}",
 			"REMOVE_LINE": "Rimuovi la riga {name}",
 			"REMOVED_LINES": "{count, plural, one {# riga rimossa} other {# righe rimosse}}",
@@ -7871,6 +7968,15 @@
 			"FAILED_DESCRIPTION": "Nessuna voce di tempo è stata salvata. Ciò che è stato creato prima resta nello spazio di lavoro e viene riutilizzato quando importi di nuovo gli stessi file.",
 			"CREATED_TITLE": "Clienti, progetti ed etichette sono nello spazio di lavoro",
 			"PAGE_DESCRIPTION": "Clienti, progetti, etichette e voci di tempo da un altro strumento di monitoraggio del tempo."
+		},
+		"placeholders": {
+			"TITLE": "{count, plural, one {# persona di questo file non è} other {# persone di questo file non sono}} in questo team ({rows, plural, one {# riga} other {# righe}})",
+			"DESCRIPTION": "Aggiungile come membri senza account: non ricevono email e non possono accedere. Le loro righe vengono poi ricontrollate e importate come quelle di ogni membro.",
+			"NAMES": "{names}{more, plural, =0 {} other { e altri #}}",
+			"ADD": "Aggiungi {count, plural, one {# membro} other {# membri}} senza account",
+			"FAILED": "Non sono stati aggiunti.",
+			"OUTSIDE_TEAM_TITLE": "{count, plural, one {# persona fa già parte} other {# persone fanno già parte}} dell'organizzazione, non di questo team",
+			"OUTSIDE_TEAM_DESCRIPTION": "{names}: aggiungile a questo team in Impostazioni > Membri, poi scegli di nuovo il file."
 		}
 	},
 	"recordSheet": {

@@ -32,12 +32,15 @@ jest.mock('@/core/services/client/api/organizations/teams/team-menu-organization
 
 import { useTeamMenuOrganizations } from './use-team-menu-organizations';
 
-function readMenuOrganizations() {
+function readMenuOrganizations(options?: { enabled?: boolean }) {
 	const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 	const wrapper = ({ children }: PropsWithChildren) => (
 		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 	);
-	return renderHook(() => useTeamMenuOrganizations(), { wrapper });
+	return renderHook(({ enabled }) => useTeamMenuOrganizations({ enabled }), {
+		wrapper,
+		initialProps: { enabled: options?.enabled }
+	});
 }
 
 beforeEach(() => {
@@ -61,4 +64,16 @@ it('falls back on the employee record when no cookie names one', async () => {
 
 	await waitFor(() => expect(mockGetTeamMenuOrganizations).toHaveBeenCalledTimes(1));
 	expect(mockGetTeamMenuOrganizations.mock.calls[0][0].scope.organizationId).toBe('studio');
+});
+
+// The team menu asks once the person reaches for it, never on a page load (startup-performance.cy.ts)
+it('reads nothing until it is asked to, then reads them', async () => {
+	mockOrganizationCookie = 'studio';
+
+	const { rerender } = readMenuOrganizations({ enabled: false });
+	await new Promise((resolve) => setTimeout(resolve, 0));
+	expect(mockGetTeamMenuOrganizations).not.toHaveBeenCalled();
+
+	rerender({ enabled: true });
+	await waitFor(() => expect(mockGetTeamMenuOrganizations).toHaveBeenCalledTimes(1));
 });

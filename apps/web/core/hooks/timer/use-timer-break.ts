@@ -80,7 +80,8 @@ export function useTimerBreak(timerStatus: ITimerStatus | null | undefined, stop
 	const t = useTranslations();
 	const queryClient = useQueryClient();
 	const store = useStore();
-	const allowsBreaks = useBreaksAllowed();
+	// Take a break shows only while the timer runs (and End break whatever the setting): the organization is read then
+	const allowsBreaks = useBreaksAllowed(Boolean(timerStatus?.running));
 	const organizationTeamId = useAtomValue(activeTeamIdState);
 	const breakState = timerBreakStateOf(timerStatus);
 	const [pendingAction, setPendingAction] = useState<TPendingBreakAction>(null);

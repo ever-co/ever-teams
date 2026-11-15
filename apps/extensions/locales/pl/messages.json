@@ -44,6 +44,24 @@
 	"signInChooseWorkspace": {
 		"message": "Wybierz obszar roboczy"
 	},
+	"signInTwoFactorLabel": {
+		"message": "Kod uwierzytelniający"
+	},
+	"signInTwoFactorHint": {
+		"message": "6-cyfrowy kod z aplikacji uwierzytelniającej lub jeden z kodów odzyskiwania."
+	},
+	"signInTwoFactorIncomplete": {
+		"message": "Wpisz 6-cyfrowy kod lub cały kod odzyskiwania."
+	},
+	"signInTwoFactorWrongCode": {
+		"message": "Ten kod jest nieprawidłowy. Wpisz kod, który aplikacja pokazuje teraz, lub kod odzyskiwania."
+	},
+	"signInTwoFactorExpired": {
+		"message": "To logowanie zbyt długo czekało na kod. Zaloguj się ponownie."
+	},
+	"signInTwoFactorTooMany": {
+		"message": "Zbyt wiele błędnych kodów. Odczekaj kilka minut i spróbuj ponownie."
+	},
 	"headerTeam": {
 		"message": "Zespół"
 	},
@@ -133,6 +151,9 @@
 	},
 	"tasksAddFailed": {
 		"message": "Nie udało się utworzyć zadania."
+	},
+	"tasksEstimateInvalid": {
+		"message": "Wpisz szacunek w pełnych godzinach (do 999) i minutach (od 0 do 59)."
 	},
 	"refusalPlanRequired": {
 		"message": "Twój zespół wymaga planu dnia przed rejestrowaniem czasu. Najpierw zaplanuj dzień."

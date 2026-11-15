@@ -8,6 +8,7 @@ import { useWorkspaceDataExport } from '@/core/hooks/settings/use-workspace-data
 import { useWorkspaceSettings } from '@/core/hooks/settings/use-workspace-settings';
 import { useOrganizationBreaksSwitch } from '@/core/hooks/settings/use-organization-tracking-requirements';
 import { WorkspaceBreaksSection } from './workspace-breaks-section';
+import { WorkspaceDangerSection } from './workspace-danger-section';
 import { WorkspaceDataSection } from './workspace-data-section';
 import { WorkspaceFormatsSection } from './workspace-formats-section';
 import { WorkspaceIdentitySection } from './workspace-identity-section';
@@ -57,6 +58,7 @@ export function WorkspaceSettingsPage() {
 				key={`formats-${organization.id}`}
 				organization={organization}
 				canEdit={settings.canEdit}
+				canReadRates={settings.canReadRates}
 				saveCurrency={settings.saveCurrency}
 				saveDateFormat={settings.saveDateFormat}
 				saveNumberFormat={settings.saveNumberFormat}
@@ -64,6 +66,7 @@ export function WorkspaceSettingsPage() {
 				saveClock={settings.saveClock}
 				saveCurrencyPosition={settings.saveCurrencyPosition}
 				saveDurationRounding={settings.saveDurationRounding}
+				saveDefaultBillRate={settings.saveDefaultBillRate}
 			/>
 			<WorkspaceRatesSection
 				key={`rates-${organization.id}`}
@@ -84,6 +87,15 @@ export function WorkspaceSettingsPage() {
 					onExport={() => void dataExport.exportAll()}
 				/>
 			)}
+			<WorkspaceDangerSection
+				key={`danger-${organization.id}`}
+				organization={{ id: organization.id, name: organization.name }}
+				dataExport={
+					dataExport.canExport
+						? { isExporting: dataExport.isExporting, onExport: () => void dataExport.exportAll() }
+						: undefined
+				}
+			/>
 		</SettingsPage>
 	);
 }

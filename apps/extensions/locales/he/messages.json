@@ -44,6 +44,24 @@
 	"signInChooseWorkspace": {
 		"message": "בחרו סביבת עבודה"
 	},
+	"signInTwoFactorLabel": {
+		"message": "קוד אימות"
+	},
+	"signInTwoFactorHint": {
+		"message": "קוד בן 6 ספרות מאפליקציית האימות, או אחד מקודי השחזור."
+	},
+	"signInTwoFactorIncomplete": {
+		"message": "הזינו קוד בן 6 ספרות או קוד שחזור מלא."
+	},
+	"signInTwoFactorWrongCode": {
+		"message": "הקוד הזה שגוי. הזינו את הקוד שהאפליקציה מציגה עכשיו, או קוד שחזור."
+	},
+	"signInTwoFactorExpired": {
+		"message": "הכניסה הזו חיכתה לקוד זמן רב מדי. היכנסו שוב."
+	},
+	"signInTwoFactorTooMany": {
+		"message": "יותר מדי קודים שגויים. המתינו כמה דקות ונסו שוב."
+	},
 	"headerTeam": {
 		"message": "צוות"
 	},
@@ -133,6 +151,9 @@
 	},
 	"tasksAddFailed": {
 		"message": "לא ניתן ליצור את המשימה."
+	},
+	"tasksEstimateInvalid": {
+		"message": "הזינו את ההערכה בשעות שלמות (עד 999) ובדקות (0 עד 59)."
 	},
 	"refusalPlanRequired": {
 		"message": "הצוות שלך דורש תוכנית יומית לפני מעקב זמן. תכננו קודם את היום."

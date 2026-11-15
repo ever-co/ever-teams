@@ -44,6 +44,24 @@
 	"signInChooseWorkspace": {
 		"message": "Arbeitsbereich wählen"
 	},
+	"signInTwoFactorLabel": {
+		"message": "Authentifizierungscode"
+	},
+	"signInTwoFactorHint": {
+		"message": "Ein 6-stelliger Code aus deiner Authenticator-App oder einer deiner Wiederherstellungscodes."
+	},
+	"signInTwoFactorIncomplete": {
+		"message": "Gib einen 6-stelligen Code oder einen vollständigen Wiederherstellungscode ein."
+	},
+	"signInTwoFactorWrongCode": {
+		"message": "Dieser Code stimmt nicht. Gib den Code ein, den deine App jetzt anzeigt, oder einen Wiederherstellungscode."
+	},
+	"signInTwoFactorExpired": {
+		"message": "Diese Anmeldung hat zu lange auf ihren Code gewartet. Melde dich erneut an."
+	},
+	"signInTwoFactorTooMany": {
+		"message": "Zu viele falsche Codes. Warte ein paar Minuten und versuche es dann erneut."
+	},
 	"headerTeam": {
 		"message": "Team"
 	},
@@ -133,6 +151,9 @@
 	},
 	"tasksAddFailed": {
 		"message": "Die Aufgabe konnte nicht erstellt werden."
+	},
+	"tasksEstimateInvalid": {
+		"message": "Geben Sie die Schätzung in ganzen Stunden (bis 999) und Minuten (0 bis 59) ein."
 	},
 	"refusalPlanRequired": {
 		"message": "Ihr Team verlangt einen Tagesplan, bevor Sie Zeit erfassen. Planen Sie zuerst Ihren Tag."

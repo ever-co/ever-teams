@@ -21,12 +21,15 @@ import { cn } from '@/core/lib/helpers';
 import type { WorkspaceRole } from '@/core/lib/utils/member-access';
 import { useHasBeenOpen } from '@/core/hooks/common/use-has-been-open';
 import { useInactiveMembers } from '@/core/hooks/settings/use-inactive-members';
+import { useMemberPlaceholders } from '@/core/hooks/settings/use-member-placeholders';
 import { useMemberTwoFactorReset } from '@/core/hooks/settings/use-member-two-factor-reset';
 import { useTeamMembersSettings, type MemberRowModel } from '@/core/hooks/settings/use-team-members-settings';
 import { SETTINGS_SURFACE, SettingsSection } from '@/core/components/settings/kit/settings-page';
+import { ClaimPlaceholderDialog } from './claim-placeholder-dialog';
 import { ConfirmMemberDialog } from './confirm-member-dialog';
 import { InactiveMembersList } from './inactive-members-list';
 import { MemberRow, type MemberRowActions } from './member-row';
+import { MergePlaceholderDialog } from './merge-placeholder-dialog';
 
 const MIN_ROWS_FOR_SEARCH = 8;
 
@@ -179,12 +182,20 @@ function NoMembers({ onInvite, canInvite }: Readonly<{ onInvite: () => void; can
 	);
 }
 
+function claimSentToOf(row: MemberRowModel, claimsSent: Readonly<Record<string, string>>): string | null {
+	if (!row.employeeId) {
+		return null;
+	}
+	return claimsSent[row.employeeId] ?? null;
+}
+
 function ActiveMembersList({
 	rows,
 	visibleRows,
 	query,
 	assignableRoles,
 	actions,
+	claimsSent,
 	canInvite,
 	onInvite,
 	onClearQuery
@@ -194,6 +205,7 @@ function ActiveMembersList({
 	query: string;
 	assignableRoles: ReadonlyArray<WorkspaceRole>;
 	actions: MemberRowActions;
+	claimsSent: Readonly<Record<string, string>>;
 	canInvite: boolean;
 	onInvite: () => void;
 	onClearQuery: () => void;
@@ -231,6 +243,7 @@ function ActiveMembersList({
 					assignableRoles={assignableRoles}
 					formatJoined={formatJoined}
 					actions={actions}
+					claimSentTo={claimSentToOf(row, claimsSent)}
 				/>
 			))}
 		</ul>
@@ -261,6 +274,11 @@ export function MembersSection({ onInvite, canInvite }: Readonly<{ onInvite: () 
 	const twoFactorReset = useMemberTwoFactorReset();
 	const [resettingTwoFactor, setResettingTwoFactor] = useState<MemberRowModel | null>(null);
 	const mountsResetTwoFactorDialog = useHasBeenOpen(Boolean(resettingTwoFactor));
+	const placeholders = useMemberPlaceholders();
+	const [claiming, setClaiming] = useState<MemberRowModel | null>(null);
+	const [merging, setMerging] = useState<MemberRowModel | null>(null);
+	const mountsClaimDialog = useHasBeenOpen(Boolean(claiming));
+	const mountsMergeDialog = useHasBeenOpen(Boolean(merging));
 	const wantsInactive = filter === 'inactive';
 	const inactive = useInactiveMembers(wantsInactive);
 
@@ -319,10 +337,22 @@ export function MembersSection({ onInvite, canInvite }: Readonly<{ onInvite: () 
 			onRequestDeactivate: setDeactivating,
 			onRequestResetTwoFactor: twoFactorReset.isOffered ? setResettingTwoFactor : undefined,
 			onRename: renameMember,
-			onSaveRates: saveMemberRates
+			onSaveRates: saveMemberRates,
+			onRequestClaim: placeholders.isOffered ? setClaiming : undefined,
+			onRequestMerge: placeholders.isOffered ? setMerging : undefined
 		}),
-		[changeRole, changeWorkspaceRole, renameMember, saveMemberRates, setMemberTracking, twoFactorReset.isOffered]
+		[
+			changeRole,
+			changeWorkspaceRole,
+			placeholders.isOffered,
+			renameMember,
+			saveMemberRates,
+			setMemberTracking,
+			twoFactorReset.isOffered
+		]
 	);
+	// A member without an account merges into a member of the team who has one
+	const mergeTargets = useMemo(() => rows.filter((row) => !row.isPlaceholder && Boolean(row.employeeId)), [rows]);
 
 	const { resetMember: resetMemberTwoFactor } = twoFactorReset;
 	const resetTwoFactor = useCallback(
@@ -364,6 +394,7 @@ export function MembersSection({ onInvite, canInvite }: Readonly<{ onInvite: () 
 					query={query}
 					assignableRoles={assignableRoles}
 					actions={actions}
+					claimsSent={placeholders.claimsSent}
 					canInvite={canInvite}
 					onInvite={onInvite}
 					onClearQuery={clearQuery}
@@ -403,6 +434,22 @@ export function MembersSection({ onInvite, canInvite }: Readonly<{ onInvite: () 
 					member={resettingTwoFactor}
 					onClose={() => setResettingTwoFactor(null)}
 					onReset={resetTwoFactor}
+				/>
+			)}
+			{mountsClaimDialog && (
+				<ClaimPlaceholderDialog
+					member={claiming}
+					onClose={() => setClaiming(null)}
+					onSend={placeholders.sendClaim}
+				/>
+			)}
+			{mountsMergeDialog && (
+				<MergePlaceholderDialog
+					member={merging}
+					targets={mergeTargets}
+					onClose={() => setMerging(null)}
+					onPreview={placeholders.previewMerge}
+					onMerge={placeholders.merge}
 				/>
 			)}
 			{mountsDeactivateDialog && (

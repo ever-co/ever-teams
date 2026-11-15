@@ -1,11 +1,17 @@
 'use client';
 
 import { type ReactNode, useMemo } from 'react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
 import type { DayBarDatum } from '@/core/components/dashboards/kit/day-bars-chart';
 import { DASHBOARD_SURFACE, SECTION_TITLE } from '@/core/components/dashboards/kit/recipes';
-import type { TimeActivityFigures } from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
+import type {
+	TimeActivityBillable,
+	TimeActivityFigures
+} from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
+import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { hasActivityIn } from '@/core/lib/utils/dashboards/time-activity';
 import type { DurationRoundingRule } from '@/core/lib/utils/duration-rounding';
 import { type AreaChartLabels, TimeActivityAreaChart, TimeActivityAreaChartSkeleton } from './time-activity-area-chart';
@@ -66,6 +72,49 @@ function useChartLabels(): AreaChartLabels {
 
 const CHART_PART = 'px-4 pt-1 pb-4';
 
+/** Where an admin sets the rate that prices time no other rate prices. */
+const DEFAULT_RATE_SETTINGS_PATH = '/settings/workspace#formats';
+
+/**
+ * Billable time no rate prices is left out of the billable amount and counted here, apart, with the way to price it
+ * when the reader may set the workspace's default rate.
+ */
+export function UnpricedBillableNote({ billable }: Readonly<{ billable: TimeActivityBillable | null }>) {
+	const t = useTranslations();
+	const isFailed = billable !== null && billable.isOffered && billable.isError;
+	if (isFailed) {
+		return (
+			<p className="mx-4 mb-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+				<span>{t('dashboard.timeActivity.sheet.BILLABLE_FAILED')}</span>
+				<Button type="button" variant="ghost" size="sm" onClick={billable.refetch} className="h-6 px-2">
+					{t('pages.unauthorized.TRY_AGAIN')}
+				</Button>
+			</p>
+		);
+	}
+	const unpricedSeconds = billable?.figures.unpricedSeconds ?? 0;
+	const isSettled = billable !== null && !billable.isPending && !billable.isError;
+	const showsNote = isSettled && billable.isOffered && unpricedSeconds > 0;
+	if (!showsNote) {
+		return null;
+	}
+	return (
+		<p className="mx-4 mb-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+			<span>
+				{t('dashboard.timeActivity.sheet.UNPRICED_NOTE', { duration: formatDurationShort(unpricedSeconds) })}
+			</span>
+			{billable.canSetDefaultRate && (
+				<Link
+					href={DEFAULT_RATE_SETTINGS_PATH}
+					className="font-medium text-foreground underline-offset-4 outline-none hover:underline focus-visible:underline"
+				>
+					{t('dashboard.timeActivity.sheet.SET_DEFAULT_RATE')}
+				</Link>
+			)}
+		</p>
+	);
+}
+
 /** Drawn by the route skeleton and by the page on its first load: one picture from the route to the data. */
 export function TimeActivityReportSheetSkeleton({ isManager = true }: Readonly<{ isManager?: boolean }>) {
 	const t = useTranslations();
@@ -91,7 +140,8 @@ export function TimeActivityReportSheet({
 	onRetryDaily,
 	onRetryCounts,
 	exportSlot,
-	roundingRule = null
+	roundingRule = null,
+	billable = null
 }: Readonly<{
 	figures: TimeActivityFigures;
 	chartDays: DayBarDatum[];
@@ -104,6 +154,8 @@ export function TimeActivityReportSheet({
 	onRetryCounts: () => void;
 	exportSlot: ReactNode;
 	roundingRule?: DurationRoundingRule | null;
+	/** What the billable time bills, for a role that may read client rates. */
+	billable?: TimeActivityBillable | null;
 }>) {
 	const t = useTranslations();
 	const labels = useChartLabels();
@@ -123,7 +175,9 @@ export function TimeActivityReportSheet({
 				isLoading={isLoading}
 				actions={exportSlot}
 				roundingRule={roundingRule}
+				billable={billable}
 			/>
+			<UnpricedBillableNote billable={billable} />
 			{isCountsError && <DashboardErrorNotice onRetry={onRetryCounts} className="mx-2 mb-2" />}
 			<div className={CHART_PART}>
 				<ChartHeader legend={showsChart && <ChartLegend days={chartDays} />} />

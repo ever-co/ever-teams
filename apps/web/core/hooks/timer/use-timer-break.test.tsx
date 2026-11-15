@@ -32,7 +32,13 @@ jest.mock('sonner', () => ({
 		info: jest.fn()
 	}
 }));
-jest.mock('@/core/hooks/timer/use-breaks-allowed', () => ({ useBreaksAllowed: () => true }));
+const mockUseBreaksAllowed = jest.fn((enabled: boolean) => {
+	void enabled;
+	return true;
+});
+jest.mock('@/core/hooks/timer/use-breaks-allowed', () => ({
+	useBreaksAllowed: (enabled: boolean) => mockUseBreaksAllowed(enabled)
+}));
 jest.mock('@/core/services/client/api/timers/timer.service', () => ({
 	timerService: {
 		startBreak: (...args: unknown[]) => mockStartBreak(...args),
@@ -397,5 +403,20 @@ describe('A break holds the switch guard through the status read after it', () =
 
 		expect(store.get(timerStartsInFlightState)).toBe(0);
 		expect(result.current.pendingAction).toBeNull();
+	});
+});
+
+describe('whether the organization allows breaks', () => {
+	// The break button shows only while the timer runs: a page load with the timer stopped must not read the
+	// organization for it (startup-performance.cy.ts)
+	it('is asked only while the timer runs', () => {
+		const stopWork = jest.fn(async () => undefined);
+		const stopped = { running: false, lastLog: null } as unknown as ITimerStatus;
+
+		renderBreak(stopped, stopWork);
+		expect(mockUseBreaksAllowed).toHaveBeenLastCalledWith(false);
+
+		renderBreak(workRunning, stopWork);
+		expect(mockUseBreaksAllowed).toHaveBeenLastCalledWith(true);
 	});
 });

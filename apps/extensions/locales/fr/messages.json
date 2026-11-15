@@ -44,6 +44,24 @@
 	"signInChooseWorkspace": {
 		"message": "Choisissez un espace de travail"
 	},
+	"signInTwoFactorLabel": {
+		"message": "Code d’authentification"
+	},
+	"signInTwoFactorHint": {
+		"message": "Un code à 6 chiffres de votre application d’authentification, ou l’un de vos codes de récupération."
+	},
+	"signInTwoFactorIncomplete": {
+		"message": "Saisissez un code à 6 chiffres ou un code de récupération complet."
+	},
+	"signInTwoFactorWrongCode": {
+		"message": "Ce code n’est pas le bon. Saisissez le code affiché maintenant par votre application, ou un code de récupération."
+	},
+	"signInTwoFactorExpired": {
+		"message": "Cette connexion a trop attendu son code. Connectez-vous à nouveau."
+	},
+	"signInTwoFactorTooMany": {
+		"message": "Trop de codes erronés. Patientez quelques minutes, puis réessayez."
+	},
 	"headerTeam": {
 		"message": "Équipe"
 	},
@@ -133,6 +151,9 @@
 	},
 	"tasksAddFailed": {
 		"message": "La tâche n’a pas pu être créée."
+	},
+	"tasksEstimateInvalid": {
+		"message": "Saisissez l’estimation en heures entières (jusqu’à 999) et en minutes (de 0 à 59)."
 	},
 	"refusalPlanRequired": {
 		"message": "Votre équipe exige un plan du jour avant de suivre le temps. Planifiez d’abord votre journée."

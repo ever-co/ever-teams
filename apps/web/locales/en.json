@@ -771,6 +771,8 @@
 			"LIMIT_SHARE": "{percent} of your weekly limit",
 			"NO_LIMIT": "No weekly limit is set on your profile.",
 			"LIMIT_BY_WEEK": "Your weekly limit of {limit} is measured week by week.",
+			"BILLABLE_UNPRICED": "{duration} without a rate",
+			"BILLABLE_RATES_HINT": "Priced at today's rates: your client rate on the project, else the project's, else your billing rate, else the workspace's default.",
 			"DAILY_LIMIT_LINE": "{limit} a day",
 			"DAILY_LIMIT_HINT": "The dashed line is a fifth of your weekly limit",
 			"PROJECTS_TITLE": "Time by project",
@@ -1288,6 +1290,7 @@
 				"PROJECTS": "Projects",
 				"TRACKED": "Tracked",
 				"EARNINGS": "Earnings",
+				"BILLABLE": "Billable amount",
 				"ACTIVITY": "Activity",
 				"SHARE": "Share"
 			},
@@ -1312,6 +1315,10 @@
 				"NO_TIME": "No tracked time",
 				"EARNINGS": "Earnings",
 				"EARNINGS_FROM_RATES": "From hourly rates",
+				"BILLABLE_TIME": "{duration} billable",
+				"BILLABLE_NONE": "No billable time",
+				"BILLABLE_NO_RATES": "No rate prices this billable time",
+				"BILLABLE_HINT": "Billable time priced like an invoice line: the member's client rate on the project, else the project's, else the member's billing rate, else the workspace's default. Client rates and the default are priced at today's values; a member's billing rate at the one each entry keeps.",
 				"EARNINGS_MISSING_RATES": "{count, plural, one {# member has no hourly rate} other {# members have no hourly rate}}",
 				"EARNINGS_NO_RATES": "No member has an hourly rate",
 				"MEMBERS": "Members",
@@ -1369,6 +1376,9 @@
 				"LABEL": "Report of the period",
 				"SUMMARY": "Summary of the period",
 				"NO_ACTIVITY": "No activity recorded in this period",
+				"UNPRICED_NOTE": "{duration} of billable time has no rate and is left out of the billable amount.",
+				"SET_DEFAULT_RATE": "Set a default rate",
+				"BILLABLE_FAILED": "The billable amount could not load.",
 				"CHART_LABEL": "Tracked time and activity per day",
 				"BY_TIMER": "{duration} by timer",
 				"ROUNDED_UP": "Rounded up to {minutes} min per entry",
@@ -3051,6 +3061,12 @@
 				"TRACKER_RUN": "This run is recorded by the desktop app or the agent, which keep its time themselves, so it cannot be discarded here.",
 				"GENERIC": "The run could not be discarded. Check your connection, then try again."
 			}
+		},
+		"unfollowed": {
+			"TITLE": "Your timer ran without the app",
+			"TEXT": "From {from} to {until}, the app was not following your timer. Keep this time, or stop the timer at {from}?",
+			"KEEP": "Keep this time",
+			"STOP": "Stop at {from}"
 		}
 	},
 	"task": {
@@ -4230,7 +4246,9 @@
 			"NOTES_NOT_SAVED": "The notes changed while the timer ran were not saved",
 			"NOTES_NOT_SAVED_HINT": "The entry kept the notes it started with. Edit the entry in Timesheets to change them.",
 			"ALREADY_RUNNING_ON_TASK": "The timer is already running on this task",
-			"SAVED_STOP_HINT": "This is the stop you asked for before your session ended."
+			"SAVED_STOP_HINT": "This is the stop you asked for before your session ended.",
+			"UNFOLLOWED_STOPPED_HINT": "The app could not follow it after that: the computer slept or the browser paused this tab. Add any later work as manual time.",
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "You chose not to keep the time after that."
 		},
 		"plans": {
 			"CREATE_FAILED": "The plan was not created",
@@ -5313,7 +5331,52 @@
 			"RESET_TWO_FACTOR_CONFIRM": "Reset",
 			"RESET_TWO_FACTOR_DONE": "Two-factor authentication of {name} is reset",
 			"RESET_TWO_FACTOR_NOTHING": "{name} had no two-factor authentication to reset",
-			"RESET_TWO_FACTOR_FAILED": "Two-factor authentication of {name} could not be reset"
+			"RESET_TWO_FACTOR_FAILED": "Two-factor authentication of {name} could not be reset",
+			"placeholder": {
+				"ADD": "Add without an account",
+				"ADD_TITLE": "Add someone without an account",
+				"ADD_DESCRIPTION": "For someone who worked with the team and has no account. They get no email, cannot sign in and never run a timer. Their time counts in reports, timesheets, budgets and invoices like any member's.",
+				"EMAIL": "Email",
+				"OPTIONAL": "optional",
+				"EMAIL_HINT": "Kept to invite them to claim their time later. Nothing is sent now.",
+				"EMAIL_INVALID": "Enter a valid email, or leave it empty.",
+				"ADD_CONFIRM": "Add member",
+				"ADD_FAILED": "The member was not added.",
+				"ADDED": "{name} was added without an account.",
+				"NO_ACCOUNT": "No account",
+				"NO_EMAIL": "No email",
+				"CLAIM": "Invite to claim",
+				"CLAIM_TITLE": "Invite {name} to claim their time",
+				"CLAIM_DESCRIPTION": "{name} gets an invitation by email. When they accept, their time, teams and rates move to their own account.",
+				"CLAIM_CONFIRM": "Send invitation",
+				"CLAIM_FAILED": "The invitation was not sent.",
+				"CLAIM_SENT": "Invitation sent to {email}. {name}'s time moves to their account when they accept.",
+				"CLAIM_PENDING": "Claim sent",
+				"CLAIM_PENDING_TO": "Invitation to claim sent to {email}",
+				"MERGE": "Merge into a member",
+				"MERGE_TITLE": "Merge {name} into a member",
+				"MERGE_DESCRIPTION": "Everything of this member without an account moves to the member you pick. A merge cannot be undone.",
+				"MERGE_INTO": "Merge into",
+				"MERGE_PICK": "Pick a member",
+				"MERGE_NO_TARGET": "Nobody in this team has an account to merge into yet.",
+				"MERGE_READING": "Reading what would move…",
+				"MERGE_PREVIEW_FAILED": "What would move could not be read.",
+				"RETRY": "Retry",
+				"MERGE_MOVES_TIME": "{target} receives {count, plural, one {# entry} other {# entries}} ({duration}).",
+				"MERGE_MOVES_WORK": "{timesheets, plural, one {# timesheet} other {# timesheets}} and {tasks, plural, one {# task assignment} other {# task assignments}} move with them.",
+				"MERGE_MOVES_TEAMS": "{target} joins their teams: {teams}.",
+				"MERGE_OVERLAPS": "{count, plural, one {# of these entries overlaps} other {# of these entries overlap}} {target}'s own time.",
+				"MERGE_REMOVES": "{name} is removed from the members.",
+				"MERGE_CONFIRM": "Merge",
+				"MERGE_FAILED": "The members were not merged.",
+				"MERGED": "{name} merged into {target}",
+				"errors": {
+					"EMAIL_TAKEN": "A member of this organization already has this email.",
+					"CLAIM_HAS_ACCOUNT": "This email already has an account. Merge the member into that person's member instead.",
+					"MERGE_TIME_OFF": "Both members have a time off balance for the same policy and year ({years}). Settle it on one of them, then merge again. Nothing was moved.",
+					"MERGE_TIME_OFF_ANY": "Both members have a time off balance for the same policy and year. Settle it on one of them, then merge again. Nothing was moved."
+				}
+			}
 		},
 		"sessions": {
 			"TITLE": "Sessions",
@@ -5565,6 +5628,13 @@
 			"CURRENCY_OUTCOME": "New rates and budgets start in this currency.",
 			"CURRENCY_NOT_SAVED": "The currency was not saved",
 			"CURRENCY_NOT_SET": "Not set",
+			"DEFAULT_RATE_LABEL": "Default billing rate",
+			"DEFAULT_RATE_DESCRIPTION": "Bills the time of a member with no billing rate and no client rate on the project. Empty leaves that time without a price.",
+			"DEFAULT_RATE_SAVED": "Default billing rate saved",
+			"DEFAULT_RATE_OUTCOME": "Reports and new invoices price time without any other rate at it.",
+			"DEFAULT_RATE_CLEARED": "Default billing rate cleared",
+			"DEFAULT_RATE_CLEARED_OUTCOME": "Time without any other rate is shown apart again.",
+			"DEFAULT_RATE_NOT_SAVED": "The default billing rate was not saved",
 			"DATE_FORMAT_LABEL": "Date format",
 			"DATE_FORMAT_DESCRIPTION": "How reports and their exports write dates. Automatic follows each member's language.",
 			"DATE_FORMAT_SAVED": "Date format saved",
@@ -5627,7 +5697,33 @@
 			"EXPORTING": "Exporting…",
 			"EXPORT_DONE": "Workspace data exported",
 			"EXPORT_FAILED": "The export did not finish",
-			"EXPORT_FAILED_DESCRIPTION": "Nothing was saved. A large workspace takes a while: try again in a moment."
+			"EXPORT_FAILED_DESCRIPTION": "Nothing was saved. A large workspace takes a while: try again in a moment.",
+			"deletion": {
+				"DANGER_SECTION": "Danger zone",
+				"DELETE_LABEL": "Delete this organization",
+				"DELETE_CONSEQUENCE": "Its teams, memberships and invitations go for everyone. The workspace's last organization stays.",
+				"DELETE_ACTION": "Delete organization",
+				"DELETE_TITLE": "Delete {organization}?",
+				"DELETE_DESCRIPTION": "Its teams, members and invitations leave Ever Teams with it. Its projects, tracked time and invoices stay on the server but can no longer be reached here.",
+				"CONSEQUENCE_TEAMS": "{count, plural, one {# team is removed, with everyone's place in it} other {# teams are removed, with everyone's place in them}}",
+				"CONSEQUENCE_MEMBERS": "{count, plural, one {# member loses} other {# members lose}} access to this organization",
+				"CONSEQUENCE_WORK": "{projects, plural, one {# project} other {# projects}} and {hours, number} tracked hours can no longer be reached",
+				"CONSEQUENCE_INVOICES": "{count, plural, one {# invoice} other {# invoices}} can no longer be reached",
+				"CONSEQUENCE_LANDING": "You continue in {organization}",
+				"CONSEQUENCE_PICKER": "You have no other organization in this workspace: you sign in again to pick a workspace",
+				"COUNTS_LOADING": "Counting what this organization holds…",
+				"COUNTS_FAILED": "What this organization holds could not be counted",
+				"COUNTS_FAILED_DESCRIPTION": "The delete stays off until the counts load.",
+				"UNSUPPORTED": "This server cannot delete organizations yet",
+				"UNSUPPORTED_DESCRIPTION": "Deleting an organization safely needs a newer Ever Gauzy API. Ask the person who runs your server to update it.",
+				"LAST_ORGANIZATION": "This is the workspace's last organization",
+				"LAST_ORGANIZATION_DESCRIPTION": "A workspace keeps at least one organization. Deleting your account removes the workspace too, but only when you are its last member.",
+				"LAST_ORGANIZATION_ACTION": "Go to account deletion",
+				"LAST_ORGANIZATION_REFUSED": "This is now the workspace's last organization, so it stays. Deleting your account removes the workspace too, but only when you are its last member.",
+				"TIMER_RUNNING": "Stop your timer first",
+				"TIMER_RUNNING_DESCRIPTION": "Your timer is running. Stop it, then delete the organization: a timer left in a deleted organization keeps counting where nobody can stop it.",
+				"EXPORT_FIRST": "Keep a copy first: export the workspace's data before you delete this organization."
+			}
 		},
 		"automations": {
 			"NEW_RULE": "New rule",
@@ -7339,6 +7435,7 @@
 			"RATE_SOURCE_MEMBER": "The member's client rate on this project",
 			"RATE_SOURCE_PROJECT": "The project's client rate",
 			"RATE_SOURCE_EMPLOYEE": "The member's own billing rate",
+			"RATE_SOURCE_DEFAULT": "The workspace's default billing rate",
 			"DESCRIPTION_OF": "Description of the line {name}",
 			"REMOVE_LINE": "Remove the line {name}",
 			"REMOVED_LINES": "{count, plural, one {# line removed} other {# lines removed}}",
@@ -7871,6 +7968,15 @@
 			"FAILED_DESCRIPTION": "No time entry was saved. What was created before stays in the workspace and is reused when you import the same files again.",
 			"CREATED_TITLE": "Clients, projects and labels are in the workspace",
 			"PAGE_DESCRIPTION": "Clients, projects, labels and time entries from another time tracking tool."
+		},
+		"placeholders": {
+			"TITLE": "{count, plural, one {# person in this file is} other {# people in this file are}} not in this team ({rows, plural, one {# row} other {# rows}})",
+			"DESCRIPTION": "Add them as members without an account: they get no email and cannot sign in. Their rows are then checked again and imported like any member's.",
+			"NAMES": "{names}{more, plural, =0 {} other { and # more}}",
+			"ADD": "Add {count, plural, one {# member} other {# members}} without an account",
+			"FAILED": "They were not added.",
+			"OUTSIDE_TEAM_TITLE": "{count, plural, one {# person already belongs} other {# people already belong}} to the organization, not to this team",
+			"OUTSIDE_TEAM_DESCRIPTION": "{names}: add them to this team in Settings > Members, then choose the file again."
 		}
 	},
 	"recordSheet": {

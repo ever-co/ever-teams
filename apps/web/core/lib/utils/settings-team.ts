@@ -1,4 +1,5 @@
 import type { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { isPlaceholderEmployee, placeholderEmailOf } from './member-placeholder';
 
 export type TeamRole = 'manager' | 'member';
 
@@ -20,6 +21,10 @@ interface MemberEmployee {
 	billRateValue?: number | string | null;
 	billRateCurrency?: string | null;
 	reWeeklyLimit?: number | string | null;
+	/** A member without an account (ever-gauzy #11913): its user has no email and no password. */
+	isPlaceholder?: boolean | null;
+	/** The email given when that member was created, if any: never a login. */
+	placeholderEmail?: string | null;
 	user?: {
 		id?: string | null;
 		name?: string | null;
@@ -80,9 +85,18 @@ function joinedName(firstName: string | null | undefined, lastName: string | nul
 	return parts.join(' ').trim();
 }
 
+/** The account's email, or for a member without an account the email given when it was created. */
 export function memberEmailOf(member: TOrganizationTeamEmployee): string {
-	const email = memberEmployeeOf(member)?.user?.email;
-	return email ?? '';
+	const employee = memberEmployeeOf(member);
+	const email = employee?.user?.email;
+	if (email) {
+		return email;
+	}
+	return placeholderEmailOf(employee);
+}
+
+export function memberIsPlaceholderOf(member: TOrganizationTeamEmployee): boolean {
+	return isPlaceholderEmployee(memberEmployeeOf(member));
 }
 
 export function memberNameOf(member: TOrganizationTeamEmployee): string {

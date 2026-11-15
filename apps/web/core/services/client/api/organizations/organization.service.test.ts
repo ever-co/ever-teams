@@ -70,3 +70,52 @@ describe('OrganizationService.updateOrganization', () => {
 		);
 	});
 });
+
+describe('OrganizationService.getOrganizationCounts', () => {
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it("reads what the organization holds from Gauzy's GET /organization/:id/counts", async () => {
+		const counts = { teams: 2, projects: 3, members: 4, trackedSeconds: 7200, invoices: 5, estimates: 1 };
+		const get = jest.spyOn(organizationService, 'get').mockResolvedValue({ data: counts } as never);
+
+		await expect(organizationService.getOrganizationCounts('organization-a')).resolves.toEqual(counts);
+
+		expect(get).toHaveBeenCalledWith('/organization/organization-a/counts', expect.anything());
+	});
+
+	it('refuses an answer that is not the counts, so the confirmation never shows numbers it made up', async () => {
+		jest.spyOn(organizationService, 'get').mockResolvedValue({ data: { id: 'organization-a' } } as never);
+
+		await expect(organizationService.getOrganizationCounts('organization-a')).rejects.toThrow();
+	});
+});
+
+describe('OrganizationService.softDeleteOrganization', () => {
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it("deletes the organization with Gauzy's soft delete, which hides it with its teams and memberships", async () => {
+		const remove = jest.spyOn(organizationService, 'delete').mockResolvedValue({ data: {} } as never);
+
+		await organizationService.softDeleteOrganization('organization-a');
+
+		expect(remove).toHaveBeenCalledWith('/organization/organization-a/soft', expect.anything());
+	});
+});
+
+describe('OrganizationService.countWorkspaceOrganizations', () => {
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it("counts the workspace's live organizations with Gauzy's GET /organization/count", async () => {
+		const get = jest.spyOn(organizationService, 'get').mockResolvedValue({ data: 2 } as never);
+
+		await expect(organizationService.countWorkspaceOrganizations()).resolves.toBe(2);
+
+		expect(get).toHaveBeenCalledWith('/organization/count', expect.anything());
+	});
+});
