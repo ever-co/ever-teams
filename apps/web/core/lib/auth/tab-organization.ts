@@ -264,6 +264,7 @@ export function bringTabOrganizationBack(): string | null {
 	// What the other tab left in the cookies, put back if the session cannot follow (putBackLeftCookies)
 	leftCookies = {
 		broughtBack: organizationId,
+		session: sessionOwner,
 		organizationId: scope.sharedOrganizationId,
 		teamId: getSharedActiveTeamIdCookie() || null,
 		projectId: getSharedActiveProjectIdCookie() || null
@@ -279,6 +280,8 @@ export function bringTabOrganizationBack(): string | null {
 /** The cookies another tab left when this tab brought its own organization back, until the session follows. */
 let leftCookies: {
 	broughtBack: string;
+	/** The person and workspace whose session the cookies were: only theirs gets them back. */
+	session: { userId: string; tenantId: string | null } | null;
 	organizationId: string;
 	teamId: string | null;
 	projectId: string | null;
@@ -288,15 +291,18 @@ let leftCookies: {
  * The session could not follow this tab's organization back: Gauzy refused the switch, or did not answer. The cookies
  * another tab left come back (its project, its team, then its organization), so the cookies never name one
  * organization while they carry another's token, and this tab works in its own organization again, or says it can no
- * longer (CodeRabbit on #5321). An organization chosen since, in this tab or another, stands.
+ * longer (CodeRabbit on #5321). An organization chosen since, in this tab or another, stands, and so does a session
+ * another person or workspace signed in to since: it never gets the cookies of the session this tab brought back.
  */
 export function putBackLeftCookies(broughtBack: string): void {
 	const left = leftCookies;
 	leftCookies = null;
-	if (!left || left.broughtBack !== broughtBack) return;
-	const isStillBroughtBack = getSharedOrganizationIdCookie() === broughtBack;
+	if (left?.broughtBack !== broughtBack || !left.session) return;
 	const sharedToken = getAccessTokenCookie();
-	const isSessionElsewhere = !!sharedToken && ownerOf(sharedToken)?.organizationId !== broughtBack;
+	const session = sharedToken ? ownerOf(sharedToken) : null;
+	if (session?.userId !== left.session.userId || session.tenantId !== left.session.tenantId) return;
+	const isStillBroughtBack = getSharedOrganizationIdCookie() === broughtBack;
+	const isSessionElsewhere = session.organizationId !== broughtBack;
 	if (!isStillBroughtBack || !isSessionElsewhere) return;
 	// The project as the other tab left it: this tab does not take it as the project it chose
 	// Even none: the cookies then hold no project or team of this tab's organization next to the other one

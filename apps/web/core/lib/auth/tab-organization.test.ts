@@ -306,6 +306,25 @@ describe('bringing the tab organization back, when the session cannot follow', (
 		expect(mockCookieWrites).toEqual([]);
 	});
 
+	it('leaves the cookies of a session another person signed in to since, in another tab', () => {
+		bringBackFromB();
+		// Someone else signs in in another tab, in this organization, with a token that names no organization
+		mockCookies.token = token('', { userId: 'user-2' });
+
+		putBackLeftCookies('org-a');
+
+		expect(mockCookieWrites).toEqual([]);
+	});
+
+	it('leaves the cookies of a session of another workspace signed in to since', () => {
+		bringBackFromB();
+		mockCookies.token = token('org-b', { tenantId: 'tenant-2' });
+
+		putBackLeftCookies('org-a');
+
+		expect(mockCookieWrites).toEqual([]);
+	});
+
 	it('leaves the cookies when the session followed after all', () => {
 		bringBackFromB();
 		mockCookies.token = token('org-a', { expiresIn: 7200 });
