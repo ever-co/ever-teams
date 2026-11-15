@@ -34,9 +34,7 @@ export const SelectionBar = ({ selectedCount, onApprove, onReject, onDelete, onC
 	return (
 		<div className="fixed bottom-5 left-1/2 z-50 flex h-14 -translate-x-1/2 items-center justify-between gap-x-4 rounded-xl bg-popover px-3 text-popover-foreground hairline-ring ring-border shadow-md shadow-black/6.5">
 			<div className="flex gap-x-2 justify-start items-center">
-				<div
-					className="flex items-center justify-center pr-2 text-sm font-medium tabular-nums text-muted-foreground"
-				>
+				<div className="flex items-center justify-center pr-2 text-sm font-medium tabular-nums text-muted-foreground">
 					{t('dashboard.timesheets.SELECTED', { count: selectedCount })}
 				</div>
 				{onApprove && (
