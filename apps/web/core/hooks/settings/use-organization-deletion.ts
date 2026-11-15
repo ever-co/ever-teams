@@ -101,8 +101,8 @@ export function useOrganizationDeletion(
 	});
 
 	// The team menu keeps the person's organizations for ten minutes: one they joined since would be missed as the
-	// organization to land in, and the delete would sign them out instead of opening it. Without cancelling: the read
-	// the confirmation's opening just started (nothing cached yet) is joined, not started twice
+	// organization to land in, and the delete would sign them out instead of opening it. Without cancelling: when the
+	// opening itself starts a read (a cached answer gone stale), the refetch joins it rather than sending a second one
 	const refetchMemberships = menuOrganizations.refetch;
 	useEffect(() => {
 		if (readsMemberships) {
