@@ -5635,7 +5635,7 @@
 				"DELETE_ACTION": "Delete organization",
 				"DELETE_TITLE": "Delete {organization}?",
 				"DELETE_DESCRIPTION": "Its teams, members and invitations leave Ever Teams with it. Its projects, tracked time and invoices stay on the server but can no longer be reached here.",
-				"CONSEQUENCE_TEAMS": "{count, plural, one {# team is removed} other {# teams are removed}}, with everyone's place in them",
+				"CONSEQUENCE_TEAMS": "{count, plural, one {# team is removed, with everyone's place in it} other {# teams are removed, with everyone's place in them}}",
 				"CONSEQUENCE_MEMBERS": "{count, plural, one {# member loses} other {# members lose}} access to this organization",
 				"CONSEQUENCE_WORK": "{projects, plural, one {# project} other {# projects}} and {hours, number} tracked hours can no longer be reached",
 				"CONSEQUENCE_INVOICES": "{count, plural, one {# invoice} other {# invoices}} can no longer be reached",
