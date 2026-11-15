@@ -713,6 +713,79 @@ describe('useStaleTimerGuard, with time the run went on without the app', () => 
 		expect(reopenedOwner.result.current).toBe(true);
 	});
 
+	it('writes the rest of a Keep for a run stopped since, though no timer runs when the app opens again', async () => {
+		jest.useFakeTimers();
+		const heartbeat = Date.parse(LAST_HEARTBEAT);
+		const { page, owner } = openAppAfter(7);
+		await page.settle();
+		mockCatchUpTimeSlots.mockImplementationOnce(async ({ onWritten }) => {
+			onWritten(heartbeat + 3 * MINUTE);
+			throw new Error('Network Error');
+		});
+		await page.answer('keep');
+		await page.settle();
+		owner.unmount();
+
+		// Stopped from another device before the app opens again: the employee tracks no time any more
+		const stopped = answerAfterLaterHeartbeat(30);
+		stopped.data[0].lastLog.isRunning = false;
+		mockGetLastTimerLog.mockResolvedValue(stopped);
+		const reopened = loadPage();
+		const reopenedOwner = reopened.mountOwner({ ...EMPLOYEE, isTrackingTime: false });
+		await reopened.settle();
+
+		// The rest of the time kept goes to that run, and its end does not move
+		expect(mockCatchUpTimeSlots).toHaveBeenCalledTimes(2);
+		expect(mockCatchUpTimeSlots).toHaveBeenLastCalledWith(
+			expect.objectContaining({ fromMs: heartbeat + 3 * MINUTE, toMs: heartbeat + 7 * MINUTE })
+		);
+		expect(mockStopTimer).not.toHaveBeenCalled();
+		expect(reopenedOwner.result.current).toBe(true);
+	});
+
+	it('waits to write a Keep owed to a run another device followed since, until the time after its heartbeat is settled', async () => {
+		jest.useFakeTimers();
+		const heartbeat = Date.parse(LAST_HEARTBEAT);
+		const { page, owner } = openAppAfter(7);
+		await page.settle();
+		mockCatchUpTimeSlots.mockRejectedValueOnce(new Error('Network Error'));
+		await page.answer('keep');
+		await page.settle();
+		owner.unmount();
+
+		// Another device sent a heartbeat at 09:09, then closed: the app opens again at 10:00
+		let isRunning = true;
+		mockGetLastTimerLog.mockImplementation(async () => {
+			const answered = lastLogAnswer(60);
+			Object.assign(answered.data[0].lastLog, { stoppedAt: '2026-11-12T09:09:00.000Z', isRunning });
+			return answered;
+		});
+		mockStopTimer.mockImplementation(async () => {
+			isRunning = false;
+			return { data: { running: false } };
+		});
+		const reopened = loadPage();
+		const reopenedOwner = reopened.mountOwner();
+		await reopened.settle();
+
+		// The 51 minutes after that heartbeat are not counted: the run is stopped there first, as a closed tab's is
+		expect(mockStopTimer).toHaveBeenCalledWith({
+			source: ETimeLogSource.TEAMS,
+			startedAt: STARTED_AT,
+			stoppedAt: '2026-11-12T09:09:00.000Z',
+			timeLogId: 'log-1'
+		});
+		// Then the time kept is written to the stopped run, whose end does not move
+		expect(mockCatchUpTimeSlots).toHaveBeenCalledTimes(2);
+		expect(mockCatchUpTimeSlots).toHaveBeenLastCalledWith(
+			expect.objectContaining({ fromMs: heartbeat, toMs: heartbeat + 7 * MINUTE })
+		);
+		expect(mockStopTimer.mock.invocationCallOrder[0]).toBeLessThan(
+			mockCatchUpTimeSlots.mock.invocationCallOrder[1]
+		);
+		expect(reopenedOwner.result.current).toBe(true);
+	});
+
 	it('writes a Keep whose write failed at the next try even past the closed-tab delay, rather than stop the run', async () => {
 		jest.useFakeTimers();
 		const page = loadPage();
@@ -1210,6 +1283,33 @@ describe('useStaleTimerGuard, with time the run went on without the app', () => 
 			expect(
 				window.localStorage.getItem(`ever-teams.timer.owed-keep.log-1@${Date.parse(LAST_HEARTBEAT)}`)
 			).toBeNull();
+		});
+
+		it('writes in the waiting tab the rest of a Keep the asking tab wrote in part, though the run reads as followed', async () => {
+			shareLocksBetweenTabs();
+			const heartbeat = Date.parse(LAST_HEARTBEAT);
+			mockGetLastTimerLog.mockResolvedValue(lastLogAnswer(7));
+			const first = loadPage();
+			first.mountOwner();
+			await first.waitFor(() => expect(first.question()).not.toBeNull());
+			const second = loadPage();
+			const secondOwner = second.mountOwner();
+			await second.settle();
+			// The first slot is written, which moves the run's heartbeat to the present, then the next write fails
+			mockCatchUpTimeSlots.mockImplementationOnce(async ({ onWritten }) => {
+				onWritten(heartbeat + 3 * MINUTE);
+				mockGetLastTimerLog.mockResolvedValue(answerAfterLaterHeartbeat(8));
+				throw new Error('Network Error');
+			});
+
+			await first.answer('keep');
+
+			await second.waitFor(() => expect(secondOwner.result.current).toBe(true));
+			expect(second.question()).toBeNull();
+			expect(mockCatchUpTimeSlots).toHaveBeenCalledTimes(2);
+			expect(mockCatchUpTimeSlots).toHaveBeenLastCalledWith(
+				expect.objectContaining({ fromMs: heartbeat + 3 * MINUTE })
+			);
 		});
 
 		it('asks in one tab only: the other finds the time settled, and a stop that waited there sends nothing', async () => {

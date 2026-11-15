@@ -132,6 +132,9 @@ function isRunAsItWas(log: ITimeLog | null | undefined, timeLogId: string, heart
  */
 let owedStop: { timeLogId: string; heartbeat: number; hint: StoppedAtHeartbeatHint } | null = null;
 
+/** What resuming an owed Keep did (resumeOwedKeep). */
+type OwedKeepOutcome = 'settled' | 'waiting' | 'none';
+
 /**
  * How far past this browser's last write a run's heartbeat may be and still be that write's: the API's clock and the
  * computer's, as a Keep measured them, are a request apart. Later, another tab or device followed the run.
@@ -237,84 +240,100 @@ async function writeOwedKeep(employeeId: string, owed: OwedKeep, untilMs: number
  * - Another run is the newest: Gauzy would write the slots to it, so nothing more is written.
  * - The run was stopped: the rest of the time kept is written to it, and its end does not move.
  * - Another tab or device followed the run after this Keep's writes: the rest of the time kept is written, and the
- *   time after it is theirs.
+ *   time after it is theirs. Not while the time since their last heartbeat is still to be settled (they may have
+ *   closed long ago): a write moves the end of a running run to the present. It waits for that time to be settled
+ *   as any is (the question, the closed-tab rule), and is written after.
  * - Else the run's heartbeat is this Keep's. When the page followed the run since (a retry, a reload a moment later),
  *   the rest is written on to the present, as a heartbeat would. When it did not, for longer than the app's ordinary
  *   pace, the run is stopped where the person last kept it, and only the time kept is written: writing to a running
  *   run moves its end to the present, which would count time nobody followed.
  *
- * Resolves to whether the run's time is settled by it: false when nothing was owed any more, or another run is the
- * newest, whose time is still to be looked at.
+ * Resolves `settled` when it settled the run's time (written to the present, or the run stopped), `waiting` when
+ * the run's own time is to be settled first, and `none` when nothing was owed any more, or another run is the newest.
  */
 async function resumeOwedKeep(
 	stopAtLastHeartbeat: StopAtLastHeartbeat,
 	employeeId: string,
 	listed: OwedKeep
-): Promise<boolean> {
+): Promise<OwedKeepOutcome> {
 	const owed = owedKeepNow(listed);
-	if (!owed) return false;
+	if (!owed) return 'none';
 	const facts = await readLastLog(employeeId);
 	const latest = facts.lastLog;
 	if (latest?.id !== owed.timeLogId) {
 		forgetOwedKeep(owed);
 		// A stop that waited has nothing left to end
 		runsEndedWhileUnsettled += 1;
-		return false;
+		return 'none';
 	}
 	if (!isRunningTeamsLog(latest)) {
 		await writeOwedKeep(employeeId, owed, owed.toMs);
-		return true;
+		return 'settled';
 	}
 	const readHeartbeat = new Date(latest.stoppedAt ?? Number.NaN).getTime();
 	const heartbeat = Number.isNaN(readHeartbeat) ? owed.heartbeat : readHeartbeat;
+	const apiNow = facts.serverNow ?? Date.now() + owed.apiOffsetMs;
 	if (heartbeat > Math.max(owed.writtenAtMs, owed.toMs) + OWN_WRITE_LEEWAY_MS) {
+		if (apiNow - heartbeat > UNFOLLOWED_TIME_FLOOR_MS) return 'waiting';
 		await writeOwedKeep(employeeId, owed, owed.toMs);
-		return true;
+		return 'settled';
 	}
 	const followedUntil = Math.max(heartbeat, owed.toMs);
-	const apiNow = facts.serverNow ?? Date.now() + owed.apiOffsetMs;
 	if (apiNow - followedUntil <= UNFOLLOWED_TIME_FLOOR_MS) {
 		await writeOwedKeep(employeeId, owed, apiNow);
-		return true;
+		return 'settled';
 	}
 	await stopAtLastHeartbeat({ ...latest, stoppedAt: new Date(followedUntil) }, 'UNFOLLOWED_STOPPED_HINT', latest.id);
 	// Stopped there, unless another run took its place meanwhile, which the slots would then go to
 	if ((await readLastLog(employeeId)).lastLog?.id !== owed.timeLogId) {
 		forgetOwedKeep(owed);
-		return true;
+		return 'settled';
 	}
 	await writeOwedKeep(employeeId, owed, owed.toMs);
-	return true;
+	return 'settled';
 }
 
-/** Writes the rest of an owed Keep as the Keep went: a timer command under the start guard. */
-async function resumeOwedKeepUnderGuard(
-	stopAtLastHeartbeat: StopAtLastHeartbeat,
-	employeeId: string,
-	owed: OwedKeep
-): Promise<boolean> {
-	let isSettled = false;
-	const resume = async () => {
-		isSettled = await resumeOwedKeep(stopAtLastHeartbeat, employeeId, owed);
-	};
-	await (startUnderTimerGuard(resume) ?? trackTimerCommand(resume()));
-	return isSettled;
+/** What the Keeps owed to the employee's runs left: whether one settled the run's time, and whether one waits. */
+interface OwedKeepsOutcome {
+	isSettled: boolean;
+	isWaiting: boolean;
 }
 
 /**
- * Writes the rest of every Keep owed to the employee's runs, one tab at a time. Resolves to whether one of them
- * settled the time of the run.
+ * Writes the rest of every Keep owed to the employee's runs (owed-keep.ts), each as the Keep went: a timer command
+ * under the start guard. Found by the employee, whatever the run's heartbeat is now: the slots written moved it.
+ * The caller holds the tab lock (inOneTabAtATime).
  */
-async function resumeOwedKeeps(stopAtLastHeartbeat: StopAtLastHeartbeat, employeeId: string): Promise<boolean> {
-	let isSettled = false;
+async function resumeOwedKeepsHere(
+	stopAtLastHeartbeat: StopAtLastHeartbeat,
+	employeeId: string
+): Promise<OwedKeepsOutcome> {
+	const outcomes: OwedKeepOutcome[] = [];
 	// One after the other: each reads the run, which the one before may have stopped
 	for (const owed of owedKeepsOf(employeeId)) {
-		const isOwedSettled = await inOneTabAtATime(() =>
-			resumeOwedKeepUnderGuard(stopAtLastHeartbeat, employeeId, owed)
-		);
-		isSettled = isOwedSettled || isSettled;
+		const resume = async () => {
+			outcomes.push(await resumeOwedKeep(stopAtLastHeartbeat, employeeId, owed));
+		};
+		await (startUnderTimerGuard(resume) ?? trackTimerCommand(resume()));
 	}
-	return isSettled;
+	return { isSettled: outcomes.includes('settled'), isWaiting: outcomes.includes('waiting') };
+}
+
+/**
+ * Writes the rest of every Keep owed to the employee's runs, in one tab at a time. The check does it first, whether
+ * a timer runs or not (a run stopped since is still owed its slots), and once more after the run's own time is
+ * settled, for a Keep that waited for it.
+ */
+function useResumeOwedKeeps() {
+	const stopAtLastHeartbeat = useStopAtLastHeartbeat();
+
+	return useCallback(
+		async (employeeId: string): Promise<OwedKeepsOutcome> => {
+			if (owedKeepsOf(employeeId).length === 0) return { isSettled: false, isWaiting: false };
+			return inOneTabAtATime(() => resumeOwedKeepsHere(stopAtLastHeartbeat, employeeId));
+		},
+		[stopAtLastHeartbeat]
+	);
 }
 
 /** What the settling of a run's time does that needs the page: the stop at the last heartbeat, and a word. */
@@ -422,6 +441,8 @@ async function settleInThisTab(
 	runId: string,
 	unansweredHint: StoppedAtHeartbeatHint
 ): Promise<'settled' | 'hidden'> {
+	// A Keep another tab could not finish while this one waited is written here first, before anything is decided
+	if ((await resumeOwedKeepsHere(actions.stopAtLastHeartbeat, employeeId)).isSettled) return 'settled';
 	const facts = await readLastLog(employeeId);
 	const { lastLog } = facts;
 	if (!isRunningTeamsLog(lastLog) || lastLog.id !== runId) {
@@ -434,12 +455,6 @@ async function settleInThisTab(
 
 	const run = lastLog as ITimeLog & { stoppedAt: Date };
 	const heartbeat = new Date(run.stoppedAt).getTime();
-	// Kept in another tab, whose write failed while this one waited to ask: the rest of it is written here
-	const owedKeep = owedKeepNow({ timeLogId: runId, heartbeat });
-	if (owedKeep) {
-		await resumeOwedKeepUnderGuard(actions.stopAtLastHeartbeat, employeeId, owedKeep);
-		return 'settled';
-	}
 	const owed = stopOwedWithoutAsking(decision, runId, heartbeat, unansweredHint);
 	// Kept in another tab, whose write failed: the answer stands
 	if (!owed && isUnfollowedTimeKept(runId, new Date(heartbeat).toISOString())) return 'settled';
@@ -472,10 +487,6 @@ function useSettleUnfollowedTime() {
 	return useCallback(
 		/** @param wasAsleep Whether the page's scripts had stopped running, rather than the app being opened. */
 		async (employeeId: string, wasAsleep: boolean) => {
-			// A Keep whose writing is not over is written first, whichever tab or load of the page owes it: the slots
-			// written moved the run's heartbeat, so nothing else shows the rest is missing, and the closed-tab delay may
-			// be reached by now, whose stop would end the run before the time the person kept
-			if (await resumeOwedKeeps(stopAtLastHeartbeat, employeeId)) return;
 			const facts = await readLastLog(employeeId);
 			const { lastLog } = facts;
 			const decision = decideUnfollowedTime({ ...facts, remembered: rememberedHeartbeat() });
@@ -733,6 +744,7 @@ export function useStaleTimerGuard(
 ): boolean {
 	const settleUnfollowedTime = useSettleUnfollowedTime();
 	const applySavedStop = useApplySavedStop();
+	const resumeOwedKeeps = useResumeOwedKeeps();
 	const employeeId = employee?.id;
 	const isTrackingTime = !!employee?.isTrackingTime;
 	const pageSleeps = useSyncExternalStore(
@@ -771,11 +783,17 @@ export function useStaleTimerGuard(
 		const wasAsleep = hasSleptSinceCheck || (!hasCheckedOnce && wasPageDiscarded());
 		// The stop the employee asked for comes first: the closed-tab rule would end its run at the last heartbeat.
 		// An employee who is not tracking time has no run left behind
+		// A Keep whose writing is not over comes next, whichever tab or load of the page owes it, and whether a timer
+		// runs or not: the slots written moved the run's heartbeat, so nothing else shows the rest is missing, and the
+		// closed-tab delay may be reached by now, whose stop would end the run before the time the person kept
 		const check = async () => {
 			const isStoppedAsAsked = await applySavedStop(employeeId, isTrackingTime);
-			if (!isStoppedAsAsked && isTrackingTime) {
+			const owed = await resumeOwedKeeps(employeeId);
+			if (!isStoppedAsAsked && isTrackingTime && !owed.isSettled) {
 				await settleUnfollowedTime(employeeId, wasAsleep);
 			}
+			// A Keep that waited for the run's own time to be settled is written now
+			if (owed.isWaiting) await resumeOwedKeeps(employeeId);
 		};
 		void checkOncePerPage(employeeId, check).then(
 			() => {
@@ -807,7 +825,16 @@ export function useStaleTimerGuard(
 			window.clearTimeout(retryTimer);
 			if (retry && retryCheckNow === retry) retryCheckNow = null;
 		};
-	}, [applySavedStop, attempt, enabled, employeeId, isTrackingTime, pageSleeps, settleUnfollowedTime]);
+	}, [
+		applySavedStop,
+		attempt,
+		enabled,
+		employeeId,
+		isTrackingTime,
+		pageSleeps,
+		resumeOwedKeeps,
+		settleUnfollowedTime
+	]);
 
 	return !employeeId || (settled?.employeeId === employeeId && settled.sleeps === pageSleeps);
 }
