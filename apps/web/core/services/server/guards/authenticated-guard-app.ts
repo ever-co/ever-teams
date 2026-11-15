@@ -59,7 +59,7 @@ export async function authenticatedGuard(req: Request, res: NextResponse<unknown
 	const tenantId = cookies.get(TENANT_ID_COOKIE_NAME) as string;
 	const sharedOrganizationId = cookies.get(ORGANIZATION_ID_COOKIE_NAME) as string;
 	// A tab working in its own organization while the session in the cookies is in another one acts in its own (#5134)
-	const tabSession = tabSessionOf(req, sharedAccessToken);
+	const tabSession = tabSessionOf(req, sharedAccessToken, sharedOrganizationId);
 	const access_token = tabSession?.accessToken ?? sharedAccessToken;
 	const organizationId = tabSession?.organizationId ?? sharedOrganizationId;
 	const teamId = (tabSession ? tabSession.teamId : cookies.get(ACTIVE_TEAM_COOKIE_NAME)) as string;
