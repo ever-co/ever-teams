@@ -2,8 +2,8 @@
 
 import { useId, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Input } from '@/core/components/common/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
+import { TimeField } from '@/core/components/common/time-field';
 import { SettingsRow, SettingsSurface } from '@/core/components/settings/kit/settings-page';
 import { SettingsSwitch } from '@/core/components/settings/kit/settings-switch';
 import { cn } from '@/core/lib/helpers';
@@ -134,23 +134,23 @@ export function QuietHoursRow({ window, disabled, onChange }: Readonly<QuietHour
 			{isOn && (
 				<span className="flex items-center gap-2 text-xs text-muted-foreground">
 					<label htmlFor={fromId}>{t('notifications.SETTINGS_PAGE.CHANNELS.QUIET_FROM')}</label>
-					<Input
+					<TimeField
 						id={fromId}
-						type="time"
 						value={start}
 						disabled={disabled}
-						className="h-8 w-28 text-[13px]"
-						onChange={(event) => setStart(event.target.value)}
+						className="w-32"
+						inputClassName="h-8 text-[13px]"
+						onChange={setStart}
 						onBlur={() => save({ start, end })}
 					/>
 					<label htmlFor={toId}>{t('notifications.SETTINGS_PAGE.CHANNELS.QUIET_TO')}</label>
-					<Input
+					<TimeField
 						id={toId}
-						type="time"
 						value={end}
 						disabled={disabled}
-						className="h-8 w-28 text-[13px]"
-						onChange={(event) => setEnd(event.target.value)}
+						className="w-32"
+						inputClassName="h-8 text-[13px]"
+						onChange={setEnd}
 						onBlur={() => save({ start, end })}
 					/>
 				</span>
