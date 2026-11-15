@@ -3,6 +3,7 @@ import {
 	countsFailureOf,
 	deleteOrganizationAndLand,
 	deletionErrorKeyOf,
+	isRunGoingOn,
 	organizationDeletionBlock,
 	organizationDeletionStatusOf,
 	organizationToLandInAfterDeletion,
@@ -101,6 +102,7 @@ describe('deleteOrganizationAndLand', () => {
 	function stepsOf(overrides: Partial<Parameters<typeof deleteOrganizationAndLand>[1]> = {}) {
 		const calls: string[] = [];
 		const steps = {
+			isRunGoingOn: jest.fn(async () => false),
 			softDelete: jest.fn(async () => {
 				calls.push('delete');
 			}),
@@ -159,6 +161,68 @@ describe('deleteOrganizationAndLand', () => {
 		await deleteOrganizationAndLand(labs, steps);
 
 		expect(calls).toEqual(['delete', 'renew', 'picker']);
+	});
+});
+
+describe('deleteOrganizationAndLand, a run of the person going on', () => {
+	const steps = () => ({
+		isRunGoingOn: jest.fn(async () => true),
+		softDelete: jest.fn(async () => undefined),
+		renewSession: jest.fn(async () => undefined),
+		openOrganization: jest.fn(async () => undefined),
+		openWorkspacePicker: jest.fn(async () => undefined)
+	});
+
+	it('sends no delete while a timer or a break of the person runs, read right before it, and says to stop it', async () => {
+		const run = steps();
+
+		const refusal = await deleteOrganizationAndLand(labs, run).catch((error: unknown) => error);
+
+		expect(run.softDelete).not.toHaveBeenCalled();
+		expect(run.openWorkspacePicker).not.toHaveBeenCalled();
+		expect(deletionErrorKeyOf(refusal)).toBe('settings.workspace.deletion.TIMER_RUNNING');
+	});
+
+	it('sends no delete when the run cannot be read, as one may still go on', async () => {
+		const run = { ...steps(), isRunGoingOn: jest.fn(async () => Promise.reject(new Error('offline'))) };
+
+		await expect(deleteOrganizationAndLand(labs, run)).rejects.toThrow('offline');
+
+		expect(run.softDelete).not.toHaveBeenCalled();
+	});
+});
+
+describe('isRunGoingOn', () => {
+	function readsOf(status: object | null, lastLog: object | null = null) {
+		return {
+			readStatus: jest.fn(async () => status),
+			readLastLog: jest.fn(async () => lastLog)
+		};
+	}
+
+	it('finds a running break, which Gauzy answers as a stopped timer with the break still running', async () => {
+		const reads = readsOf({ running: false, lastLog: { isRunning: true, logType: 'BREAK' } });
+
+		await expect(isRunGoingOn(reads)).resolves.toBe(true);
+	});
+
+	it('finds work started before midnight, which only the last log of any day shows', async () => {
+		const reads = readsOf({ running: false, lastLog: null }, { isRunning: true });
+
+		await expect(isRunGoingOn(reads)).resolves.toBe(true);
+	});
+
+	it('finds the timer running from the day’s status alone', async () => {
+		const reads = readsOf({ running: true });
+
+		await expect(isRunGoingOn(reads)).resolves.toBe(true);
+		expect(reads.readLastLog).not.toHaveBeenCalled();
+	});
+
+	it('finds none when the day’s status and the last log are both stopped', async () => {
+		const reads = readsOf({ running: false, lastLog: { isRunning: false } }, { isRunning: false });
+
+		await expect(isRunGoingOn(reads)).resolves.toBe(false);
 	});
 });
 

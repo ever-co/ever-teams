@@ -1,4 +1,6 @@
 import { errorReasonKeyOf, errorStatusOf, gauzyErrorCodeOf } from '@/core/lib/utils/error-feedback';
+import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 
 /** Gauzy guards the organization routes, its delete and its counts included, with this permission. */
 const ORGANIZATION_DELETE_PERMISSION = 'ALL_ORG_EDIT';
@@ -115,8 +117,42 @@ export function organizationDeletionStatusOf(reads: OrganizationDeletionReads): 
 	return 'loading';
 }
 
-/** What a failed delete says: the refusal of the workspace's last organization has its own reason. */
+/** The person's own run, found going on by the read the delete makes first. */
+class RunGoingOnError extends Error {
+	constructor() {
+		super('A timer or a break of the person goes on in the organization');
+		this.name = 'RunGoingOnError';
+	}
+}
+
+/** The reads that tell whether a run of the person goes on in the organization, made afresh. */
+interface RunReads {
+	/** The day's status. During a break Gauzy answers `running: false`, with the break as its last log, still running. */
+	readStatus: () => Promise<Pick<ITimerStatus, 'running' | 'lastLog'> | null | undefined>;
+	/** The person's last log of any day: the day's status leaves out a run started before midnight. */
+	readLastLog: () => Promise<Pick<ITimeLog, 'isRunning'> | null | undefined>;
+}
+
+/**
+ * Whether a run of the person goes on, work or a break, read afresh as the timer reads a run before a start: the day's
+ * status first, then the last log of any day. This tab's own timer state misses a break (its running flag is off) and
+ * a run started before midnight on a page opened since, both of which Gauzy would leave running in the deleted
+ * organization, where no page can stop them any more.
+ */
+export async function isRunGoingOn(reads: RunReads): Promise<boolean> {
+	const status = await reads.readStatus();
+	if (status?.running || status?.lastLog?.isRunning) {
+		return true;
+	}
+	const lastLog = await reads.readLastLog();
+	return lastLog?.isRunning === true;
+}
+
+/** What a failed delete says: the refusal of the workspace's last organization, and a run going on, have their own. */
 export function deletionErrorKeyOf(error: unknown): string {
+	if (error instanceof RunGoingOnError) {
+		return 'settings.workspace.deletion.TIMER_RUNNING';
+	}
 	if (gauzyErrorCodeOf(error) === LAST_OF_WORKSPACE_CODE) {
 		return 'settings.workspace.deletion.LAST_ORGANIZATION_REFUSED';
 	}
@@ -129,6 +165,8 @@ export function trackedHoursOf(trackedSeconds: number): number {
 }
 
 interface OrganizationDeletionSteps {
+	/** Read afresh right before the delete: a run started since the confirmation opened holds it too. */
+	isRunGoingOn: () => Promise<boolean>;
 	softDelete: () => Promise<void>;
 	renewSession: () => Promise<void>;
 	openOrganization: (organizationId: string) => Promise<void>;
@@ -138,7 +176,8 @@ interface OrganizationDeletionSteps {
 /**
  * Deletes the organization, then opens the one to land in. Gauzy refuses the session's token from the delete on, as
  * it names the deleted organization, so the session is renewed first: the renewed token names the organization Gauzy
- * moved the person to. A failed delete changes nothing and is the caller's to show.
+ * moved the person to. A failed delete changes nothing and is the caller's to show, and so does a run of the person
+ * still going on, read first: the delete is not sent then.
  *
  * Once the organization is gone, a failed renewal or switch sends the person to sign in, where they pick a workspace.
  * Restarting the app instead would keep the deleted organization in the session's cookies, with a token Gauzy refuses
@@ -148,6 +187,9 @@ export async function deleteOrganizationAndLand(
 	landing: DeletableOrganization | null,
 	steps: OrganizationDeletionSteps
 ): Promise<void> {
+	if (await steps.isRunGoingOn()) {
+		throw new RunGoingOnError();
+	}
 	await steps.softDelete();
 	if (!landing) {
 		await steps.openWorkspacePicker();
