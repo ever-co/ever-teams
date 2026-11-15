@@ -24,6 +24,8 @@ jest.mock('@/core/hooks/auth/use-tab-organization', () => ({
 }));
 
 beforeEach(() => {
+	// The notice's status orb asks whether the person prefers reduced motion
+	window.matchMedia = jest.fn().mockReturnValue({ matches: true }) as unknown as typeof window.matchMedia;
 	mockTabOrganization.state = 'shared';
 	mockTabOrganization.isTimerRunning = false;
 	mockTabOrganization.canBringOwnOrganizationBack = true;
