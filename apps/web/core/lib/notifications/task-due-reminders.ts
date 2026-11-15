@@ -27,7 +27,7 @@ export function taskDueReminderHoursOf(preferences: INotificationPreferences | n
 }
 
 /** When a reminded task is due, read off the message Gauzy files with the reminder. */
-export type TaskDueNotice =
+type TaskDueNotice =
 	/** A due date that names a day: due once that day is over (`YYYY-MM-DD`). */
 	| { kind: 'day'; day: string }
 	/** A due date that names a moment, in the zone Gauzy told it in. */
