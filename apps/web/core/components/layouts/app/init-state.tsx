@@ -284,7 +284,8 @@ export function InitState() {
 	}, [criticalReady, readyScope]);
 
 	// The reads nothing on the first screen waits for go once the shell has settled (shell.ts). Ready once is ready:
-	// a later scope (another team) does not hold them back again
+	// a later scope (another team) does not hold them back again. The ref is no dependency: it is set by the mark just
+	// above, in the same commit as `criticalReady` turns true, which already picks the short delay
 	const setShellSettled = useSetAtom(shellSettledState);
 	useEffect(() => {
 		const wasReady = criticalReady || markedReadyScopeRef.current !== null;
