@@ -1,7 +1,8 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
-import { ACCESS_TOKEN_REFRESHED_EVENT, getAccessTokenCookie } from '@/core/lib/helpers/cookies';
+import { ACCESS_TOKEN_REFRESHED_EVENT } from '@/core/lib/helpers/cookies';
+import { TAB_SCOPE_CHANGED_EVENT, requestAccessToken } from '@/core/lib/auth/tab-organization';
 
 const RECONCILIATION_INTERVAL_MS = 1_000;
 const subscribers = new Set<() => void>();
@@ -11,7 +12,9 @@ let scheduledReconciliation: number | null = null;
 
 type CookieStoreTarget = Pick<EventTarget, 'addEventListener' | 'removeEventListener'>;
 
-const readSnapshot = () => getAccessTokenCookie() ?? null;
+// The token this tab's requests go out with: the cookie's, or this tab's own while another tab has the cookies on another
+// organization of the session (tab-organization.ts, #5134)
+const readSnapshot = () => requestAccessToken() ?? null;
 
 const reconcileSnapshot = () => {
 	const nextSnapshot = readSnapshot();
@@ -38,6 +41,7 @@ const getCookieStore = (): CookieStoreTarget | undefined =>
 const startReconciliation = () => {
 	lastBroadcastSnapshot = readSnapshot();
 	window.addEventListener(ACCESS_TOKEN_REFRESHED_EVENT, reconcileSnapshot);
+	window.addEventListener(TAB_SCOPE_CHANGED_EVENT, reconcileSnapshot);
 	window.addEventListener('focus', reconcileSnapshot);
 	window.addEventListener('pageshow', reconcileSnapshot);
 	document.addEventListener('visibilitychange', reconcileWhenVisible);
@@ -47,6 +51,7 @@ const startReconciliation = () => {
 
 const stopReconciliation = () => {
 	window.removeEventListener(ACCESS_TOKEN_REFRESHED_EVENT, reconcileSnapshot);
+	window.removeEventListener(TAB_SCOPE_CHANGED_EVENT, reconcileSnapshot);
 	window.removeEventListener('focus', reconcileSnapshot);
 	window.removeEventListener('pageshow', reconcileSnapshot);
 	document.removeEventListener('visibilitychange', reconcileWhenVisible);

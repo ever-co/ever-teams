@@ -1,6 +1,7 @@
 import { GAUZY_API_SERVER_URL, TENANT_ID_COOKIE_NAME } from '@/core/constants/config/constants';
 import { NextResponse } from 'next/server';
 import { requestAccessToken, requestCookies } from './request-cookies';
+import { tabSessionOf } from './tab-session';
 
 // The browser client gives up after 60 seconds (api.service.ts): past that, nobody is waiting for the answer.
 const UPSTREAM_TIMEOUT_MS = 60_000;
@@ -78,7 +79,9 @@ export async function forwardToGauzy(
 	options: ForwardToGauzyOptions = {}
 ): Promise<Response> {
 	const cookies = requestCookies(req);
-	const access_token = requestAccessToken(cookies);
+	const sharedAccessToken = requestAccessToken(cookies);
+	// A tab working in its own organization while the session in the cookies is in another one acts in its own (#5134)
+	const access_token = tabSessionOf(req, sharedAccessToken)?.accessToken ?? sharedAccessToken;
 	if (!access_token) return NextResponse.json({ statusCode: 401, message: 'Unauthorized' }, { status: 401 });
 	const tenantId = cookies.get(TENANT_ID_COOKIE_NAME);
 
