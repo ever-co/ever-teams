@@ -28,7 +28,10 @@ interface RealtimeTypingInput {
 }
 
 /** Body of `POST /realtime/presence`: the status, and the tab's connection when it has one. */
-function presenceBody(status: RealtimePresenceStatus, connectionId?: string): { status: RealtimePresenceStatus; connectionId?: string } {
+function presenceBody(
+	status: RealtimePresenceStatus,
+	connectionId?: string
+): { status: RealtimePresenceStatus; connectionId?: string } {
 	return connectionId ? { status, connectionId } : { status };
 }
 
@@ -57,7 +60,12 @@ class RealtimeService extends APIService {
 	 */
 	presence = async (status: RealtimePresenceStatus, connectionId?: string): Promise<unknown> => {
 		// The platform's own DTOs: no tenant or organization members in the body (the token and headers say them).
-		const response = await this.post<unknown>('/realtime/presence', presenceBody(status, connectionId), undefined, false);
+		const response = await this.post<unknown>(
+			'/realtime/presence',
+			presenceBody(status, connectionId),
+			undefined,
+			false
+		);
 		return response.data;
 	};
 
@@ -74,7 +82,10 @@ class RealtimeService extends APIService {
 		if (!token) return;
 		const tenantId = getTenantIdCookie();
 		const organizationId = getOrganizationIdCookie();
-		const headers: Record<string, string> = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+		const headers: Record<string, string> = {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`
+		};
 		if (tenantId) headers['tenant-id'] = tenantId;
 		if (organizationId) headers['organization-id'] = organizationId;
 		void fetch(`${base}/realtime/presence`, {

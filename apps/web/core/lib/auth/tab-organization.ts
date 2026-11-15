@@ -34,7 +34,7 @@ interface TabTeam {
 }
 
 /** What a tab acts in now. */
-export type TabScope =
+type TabScope =
 	| { held: false }
 	| {
 			/** The session in the cookies is in another organization than this tab shows. */
@@ -138,12 +138,13 @@ export function tabScope(): TabScope {
 	if (typeof window === 'undefined' || !tabTeam) return SHARED;
 	const cookies = typeof document === 'undefined' ? '' : document.cookie;
 	const now = Date.now();
+	const last = memo;
 	const isFresh =
-		memo?.cookies === cookies &&
-		memo.tabTeam === tabTeam &&
-		memo.refused === refusedTokens.size &&
-		now - memo.at < SCOPE_MEMO_MS;
-	if (isFresh && memo) return memo.scope;
+		last?.cookies === cookies &&
+		last.tabTeam === tabTeam &&
+		last.refused === refusedTokens.size &&
+		now - last.at < SCOPE_MEMO_MS;
+	if (isFresh) return last.scope;
 	let scope: TabScope = SHARED;
 	try {
 		scope = computeTabScope();

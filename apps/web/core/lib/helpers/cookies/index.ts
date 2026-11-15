@@ -284,7 +284,7 @@ export function setAccessTokenCookie(accessToken: string, ctx?: NextCtx) {
  * The organization and team a tab works in while the cookies, shared by every tab, name another organization of the
  * session (another tab switched to it): read from tab-organization.ts, which registers itself here, in the browser only.
  */
-export interface TabWorkScope {
+interface TabWorkScope {
 	organizationId: string;
 	teamId: string | null;
 	projectId: string | null;
@@ -329,7 +329,7 @@ export function getActiveTeamIdCookie(ctx?: NextCtx) {
 }
 
 /** The team cookie, shared by every tab of the browser. */
-export function getSharedActiveTeamIdCookie(ctx?: NextCtx) {
+function getSharedActiveTeamIdCookie(ctx?: NextCtx) {
 	return getCookie(ACTIVE_TEAM_COOKIE_NAME, ctx) as string;
 }
 

@@ -240,7 +240,7 @@ describe('a tab whose shared cookies another tab moved to another organization',
 		const renewedToken = token('org-a', 'user-1', 7200);
 		mockRenewSession.mockResolvedValue({ outcome: 'renewed' });
 		const service = new APIService('http://127.0.0.1:3311', { enableLogging: false });
-		const { sent, adapter } = network((config) => {
+		const { sent, adapter } = network(() => {
 			if (sent.length > 1) return undefined;
 			// Another tab renews the session while this request is on its way, and the API refuses the old token
 			setAccessTokenCookie(renewedToken);

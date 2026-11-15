@@ -7,7 +7,7 @@ const TEAM_ID_PATTERN = /^[\w-]{1,64}$/;
 type Claims = (ReturnType<typeof decodeJWT> & { sub?: string }) | null;
 
 /** What a proxied request of a tab working in its own organization acts with. */
-export interface TabSession {
+interface TabSession {
 	accessToken: string;
 	organizationId: string;
 	/** The tab's own team; the team cookie names the other tab's, of the other organization. */

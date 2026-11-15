@@ -17,7 +17,7 @@ import { currentOrganizationState } from '@/core/stores/user/user-organizations'
 const RECHECK_MS = 2_000;
 
 /** Where this tab works while another tab has the shared cookies on another organization (#5134). */
-export type TabOrganizationState = 'shared' | 'own' | 'lost';
+type TabOrganizationState = 'shared' | 'own' | 'lost';
 
 let snapshot: TabOrganizationState = 'shared';
 const subscribers = new Set<() => void>();
