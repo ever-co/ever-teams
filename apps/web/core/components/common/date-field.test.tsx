@@ -15,8 +15,10 @@ jest.mock('@/core/hooks/common/use-workspace-locale', () => ({
 	useWorkspaceLocale: () => mockLocale
 }));
 
+let mockWeekStart = 1;
+
 jest.mock('@/core/hooks/common/use-workspace-week-start', () => ({
-	useWorkspaceWeekStart: () => 1
+	useWorkspaceWeekStart: () => mockWeekStart
 }));
 
 type HarnessProps = Omit<DateFieldProps, 'value' | 'onChange'> & {
@@ -57,6 +59,7 @@ function openCalendar() {
 
 beforeEach(() => {
 	mockLocale = { tag: 'en', dateFormat: null, numberFormat: null, clock: null };
+	mockWeekStart = 1;
 });
 
 describe('DateField', () => {
@@ -122,6 +125,18 @@ describe('DateField', () => {
 		expect(valueSent()).toBe('2026-11-12');
 		expect(field().validationMessage).toBe('');
 		await waitFor(() => expect(document.activeElement).toBe(field()));
+	});
+
+	it("starts the calendar's weeks on the workspace's first day", async () => {
+		const { unmount } = render(<Harness initial="2026-11-03" />);
+		openCalendar();
+		expect((await screen.findAllByRole('columnheader'))[0].textContent).toBe('Mon');
+		unmount();
+
+		mockWeekStart = 0;
+		render(<Harness initial="2026-11-03" />);
+		openCalendar();
+		expect((await screen.findAllByRole('columnheader'))[0].textContent).toBe('Sun');
 	});
 
 	it('opens the calendar from the keyboard', async () => {
