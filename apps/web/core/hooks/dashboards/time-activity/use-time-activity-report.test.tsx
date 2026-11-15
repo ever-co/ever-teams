@@ -433,6 +433,10 @@ describe('useTimeActivityReport and the period of the page link', () => {
 		mockLinkedPeriod = LINKED_PERIOD;
 	});
 
+	afterEach(() => {
+		mockShowsPreviousRead = false;
+	});
+
 	afterAll(() => {
 		mockLinkedPeriod = LINKED_PERIOD;
 	});
@@ -454,6 +458,29 @@ describe('useTimeActivityReport and the period of the page link', () => {
 		expect(mockSetPeriod).toHaveBeenCalledTimes(1);
 		expect(mockSetPeriod).toHaveBeenCalledWith(report.period);
 		expect(report.request?.endDate).toBe(localDayKeyOf(new Date()));
+	});
+
+	it('keeps the chart on the days of the rows it shows while another period is read (#5342)', () => {
+		const nextDay = { from: new Date(2026, 10, 4), to: new Date(2026, 10, 4, 23, 59, 59) };
+		const { result, rerender } = renderHook(() => useTimeActivityReport());
+		const shownKeys = result.current.chartDays.map((day) => day.key);
+		const isTimeShown = (report: typeof result.current) => report.chartDays.some((day) => day.value > 0);
+		expect(isTimeShown(result.current)).toBe(true);
+
+		// The next period is asked for: its read is on the way, the previous rows stay on screen
+		mockLinkedPeriod = nextDay;
+		mockShowsPreviousRead = true;
+		rerender();
+
+		expect(result.current.period).toBe(nextDay);
+		expect(result.current.chartDays.map((day) => day.key)).toEqual(shownKeys);
+		expect(isTimeShown(result.current)).toBe(true);
+
+		// Its own rows came: the chart draws the new period
+		mockShowsPreviousRead = false;
+		rerender();
+
+		expect(result.current.chartDays.map((day) => day.key)).not.toEqual(shownKeys);
 	});
 
 	it('writes a picked period into the link', () => {

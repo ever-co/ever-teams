@@ -14,7 +14,7 @@ import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permis
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { clientNamesOf } from '@/core/lib/utils/clients';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
-import { daysOfPeriod, type Period, periodOfPreset } from '@/core/lib/utils/dashboard-period';
+import { daysOfPeriod, isSamePeriod, type Period, periodOfPreset } from '@/core/lib/utils/dashboard-period';
 import {
 	activityPercentOf,
 	type DailyReportRow,
@@ -337,6 +337,23 @@ function clientLookupStateOf(input: ClientLookupInput) {
 	};
 }
 
+/**
+ * The period the daily rows on screen were read for. While another period is read, the previous rows stay on screen
+ * (placeholder data): drawn on the next period's days, none of them would fall on a day and the chart would say no
+ * time was tracked (#5342). The requested period once its own rows are there.
+ */
+function useShownPeriod(period: Period, isShowingPreviousRows: boolean): Period {
+	const [settledPeriod, setSettledPeriod] = useState(period);
+	const isSettled = !isShowingPreviousRows;
+	if (isSettled && !isSamePeriod(settledPeriod, period)) {
+		setSettledPeriod(period);
+	}
+	if (isShowingPreviousRows) {
+		return settledPeriod;
+	}
+	return period;
+}
+
 export function useTimeActivityReport() {
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
@@ -544,11 +561,12 @@ export function useTimeActivityReport() {
 		]
 	);
 
+	const chartPeriod = useShownPeriod(period, dailyQuery.isPlaceholderData);
 	const chartDays = useMemo(() => {
-		const days = daysOfPeriod(period);
+		const days = daysOfPeriod(chartPeriod);
 		const labels = chartLabelsOf(locale, days.length);
 		return chartDaysOf(days, dayFiguresOf(rows), todayKeyOf(), labels);
-	}, [locale, period, rows]);
+	}, [locale, chartPeriod, rows]);
 
 	const tableGrouping = tableGroupingOf(settings.grouping);
 	const breakdownGrouping = breakdownGroupingOf(settings.grouping);
