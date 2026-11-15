@@ -122,7 +122,9 @@ describe('employee-placeholder proxy routes', () => {
 			statusCode: 409,
 			message: 'Both members have a time off balance with the same year (year 2026).'
 		};
-		mockMerge.mockReturnValue(gauzyRefusal(refusal));
+		mockMerge.mockImplementation(async () => {
+			throw gauzyRefusal(refusal);
+		});
 
 		const response = await proxyMergeEmployeePlaceholder(
 			postJson(`/api/employee-placeholder/${PLACEHOLDER_ID}/merge`, { targetEmployeeId: 'employee-ada' }),
