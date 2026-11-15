@@ -10,8 +10,7 @@ import { currentAuthenticatedUserRequest } from '../requests/auth';
 import { unwrapRejection } from '../fetch';
 import { NextResponse } from 'next/server';
 import { resolveSessionCheckMemoTtl, SessionCheckMemo } from './session-check-memo';
-import { decodeJWT } from '@/core/lib/auth/jwt-utils';
-import { TAB_TEAM_HEADER } from '@/core/lib/auth/tab-team-header';
+import { tabSessionOf } from '../tab-session';
 
 type SessionCheck = Awaited<ReturnType<typeof currentAuthenticatedUserRequest>>;
 
@@ -30,43 +29,6 @@ const authenticated = (check: SessionCheck | void): check is SessionCheck =>
 export const sessionChecks = new SessionCheckMemo<SessionCheck>(
 	resolveSessionCheckMemoTtl(process.env.SESSION_CHECK_MEMO_TTL_MS)
 );
-
-/** A team id as the header may carry it: anything else is ignored. */
-const TEAM_ID_PATTERN = /^[\w-]{1,64}$/;
-
-/**
- * A tab that works in its own organization while another tab has the cookies, shared by every tab, on another one
- * (tab-organization.ts, #5134) sends its own access token in the Authorization header, and names its team in
- * `x-tab-team-id`. Its request acts with that token, its organization and that team when the token is of the same person
- * in the same workspace as the cookies' and names another organization; the check below still asks Gauzy whether the
- * token is valid. Any other request acts with the cookies, as before.
- */
-function tabSessionOf(
-	req: Request,
-	sharedToken: string | null,
-	sharedOrganizationId: string | undefined
-): { accessToken: string; organizationId: string; teamId: string | undefined } | null {
-	const authorization = req.headers.get('authorization') ?? '';
-	const token = authorization.startsWith('Bearer ') ? authorization.slice('Bearer '.length).trim() : '';
-	if (!token || !sharedToken || token === sharedToken) return null;
-	const tab = decodeJWT(token) as (ReturnType<typeof decodeJWT> & { sub?: string }) | null;
-	const shared = decodeJWT(sharedToken) as (ReturnType<typeof decodeJWT> & { sub?: string }) | null;
-	const tabUserId = tab?.id ?? tab?.sub;
-	const isSameSession =
-		!!tab &&
-		!!shared &&
-		!!tabUserId &&
-		tabUserId === (shared.id ?? shared.sub) &&
-		(tab.tenantId ?? null) === (shared.tenantId ?? null);
-	if (!isSameSession || !tab?.organizationId || tab.organizationId === sharedOrganizationId) return null;
-	const team = req.headers.get(TAB_TEAM_HEADER) ?? '';
-	return {
-		accessToken: token,
-		organizationId: tab.organizationId,
-		// The team cookie names the other tab's team, of the other organization: never this tab's
-		teamId: TEAM_ID_PATTERN.test(team) ? team : undefined
-	};
-}
 
 interface AuthenticatedGuardOptions {
 	/**
@@ -96,8 +58,8 @@ export async function authenticatedGuard(req: Request, res: NextResponse<unknown
 	const sharedAccessToken = requestAccessToken(cookies);
 	const tenantId = cookies.get(TENANT_ID_COOKIE_NAME) as string;
 	const sharedOrganizationId = cookies.get(ORGANIZATION_ID_COOKIE_NAME) as string;
-	// A tab working in its own organization while the cookies name another one acts in its own (#5134)
-	const tabSession = tabSessionOf(req, sharedAccessToken, sharedOrganizationId);
+	// A tab working in its own organization while the session in the cookies is in another one acts in its own (#5134)
+	const tabSession = tabSessionOf(req, sharedAccessToken);
 	const access_token = tabSession?.accessToken ?? sharedAccessToken;
 	const organizationId = tabSession?.organizationId ?? sharedOrganizationId;
 	const teamId = (tabSession ? tabSession.teamId : cookies.get(ACTIVE_TEAM_COOKIE_NAME)) as string;

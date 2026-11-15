@@ -178,3 +178,36 @@ describe('authenticatedGuard, a tab working in its own organization', () => {
 		expect(guard.teamId).toBeUndefined();
 	});
 });
+
+describe('authenticatedGuard, a tab bringing its organization back', () => {
+	const jwt = (organizationId: string) => {
+		const encode = (part: object) => Buffer.from(JSON.stringify(part)).toString('base64url');
+		const issuedAt = Math.floor(Date.now() / 1000);
+		const payload = { id: 'user-1', tenantId: 'tenant-1', organizationId, iat: issuedAt, exp: issuedAt + 3600 };
+		return `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode(payload)}.sig-${organizationId}`;
+	};
+
+	beforeEach(() => {
+		sessionChecks.clear();
+		mockCurrentAuthenticatedUserRequest.mockReset();
+		mockCurrentAuthenticatedUserRequest.mockResolvedValue({ data: user });
+	});
+
+	it("acts with the tab's token while the session's switch back to its organization is on its way", async () => {
+		const tabToken = jwt('org-a');
+		// The organization cookie already names the tab's organization; the session's token is still the other's
+		const request = new Request('http://localhost:3030/api/timer/sync', {
+			headers: {
+				cookie: `${TOKEN_COOKIE_NAME}=${jwt('org-b')}; ${TENANT_ID_COOKIE_NAME}=tenant-1; ${ORGANIZATION_ID_COOKIE_NAME}=org-a`,
+				authorization: `Bearer ${tabToken}`,
+				[TAB_TEAM_HEADER]: 'team-a'
+			}
+		});
+
+		const guard = await authenticatedGuard(request, new NextResponse());
+
+		expect(guard.access_token).toBe(tabToken);
+		expect(guard.organizationId).toBe('org-a');
+		expect(guard.teamId).toBe('team-a');
+	});
+});
