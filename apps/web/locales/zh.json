@@ -8181,6 +8181,15 @@
 		"TYPE_BREAK": "休息",
 		"BREAK_HINT": "休息从不计费，也从不计入工作时间。"
 	},
+	"tabOrganizationNotice": {
+		"TITLE": "另一个标签页打开了另一个组织",
+		"KEEPS_WORKING": "此标签页继续在 {organization} 中工作，保留其计时器和页面。",
+		"CANNOT_WORK_TITLE": "此标签页无法再在 {organization} 中工作",
+		"CANNOT_WORK": "另一个标签页打开了另一个组织。请选择此标签页在哪里工作。",
+		"STOP_TIMER_FIRST": "它的计时器正在 {organization} 中运行：请先停止，再在此处打开另一个组织。",
+		"OPEN_HERE": "在此处打开另一个组织",
+		"BRING_BACK": "在所有标签页中使用 {organization}"
+	},
 	"timeZoneNotice": {
 		"TITLE": "你的个人资料使用 {profileZone}（{profileOffset}）。此浏览器位于 {browserZone}（{browserOffset}）。",
 		"DESCRIPTION": "时间表按你个人资料的时区计算每一天，其他报告按此浏览器的时区计算，因此接近午夜的记录可能落在另一天。",

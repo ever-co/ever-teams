@@ -8181,6 +8181,15 @@
 		"TYPE_BREAK": "Pausa",
 		"BREAK_HINT": "Una pausa non è mai fatturabile e non conta mai come tempo lavorato."
 	},
+	"tabOrganizationNotice": {
+		"TITLE": "Un’altra organizzazione è aperta in un’altra scheda",
+		"KEEPS_WORKING": "Questa scheda continua a lavorare in {organization}, con il suo timer e le sue pagine.",
+		"CANNOT_WORK_TITLE": "Questa scheda non può più lavorare in {organization}",
+		"CANNOT_WORK": "Un’altra organizzazione è aperta in un’altra scheda. Scegli dove lavora questa scheda.",
+		"STOP_TIMER_FIRST": "Il suo timer è in corso in {organization}: fermalo prima di aprire qui l’altra organizzazione.",
+		"OPEN_HERE": "Apri qui l’altra organizzazione",
+		"BRING_BACK": "Usa {organization} in tutte le schede"
+	},
 	"timeZoneNotice": {
 		"TITLE": "Il tuo profilo usa {profileZone} ({profileOffset}). Questo browser è in {browserZone} ({browserOffset}).",
 		"DESCRIPTION": "I fogli di presenza contano le tue giornate nel fuso del tuo profilo e gli altri report in quello di questo browser: una voce vicina alla mezzanotte può cadere in un altro giorno.",

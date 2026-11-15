@@ -8181,6 +8181,15 @@
 		"TYPE_BREAK": "Pausa",
 		"BREAK_HINT": "Uma pausa nunca é faturável e nunca conta como tempo trabalhado."
 	},
+	"tabOrganizationNotice": {
+		"TITLE": "Outra organização está aberta em outra aba",
+		"KEEPS_WORKING": "Esta aba continua trabalhando em {organization}, com seu cronômetro e suas páginas.",
+		"CANNOT_WORK_TITLE": "Esta aba não pode mais trabalhar em {organization}",
+		"CANNOT_WORK": "Outra organização está aberta em outra aba. Escolha onde esta aba trabalha.",
+		"STOP_TIMER_FIRST": "O cronômetro está rodando em {organization}: pare-o antes de abrir a outra organização aqui.",
+		"OPEN_HERE": "Abrir a outra organização aqui",
+		"BRING_BACK": "Usar {organization} em todas as abas"
+	},
 	"timeZoneNotice": {
 		"TITLE": "Seu perfil usa {profileZone} ({profileOffset}). Este navegador está em {browserZone} ({browserOffset}).",
 		"DESCRIPTION": "As folhas de ponto contam seus dias no fuso do seu perfil e os outros relatórios no deste navegador, então um registro perto da meia-noite pode cair em outro dia.",
