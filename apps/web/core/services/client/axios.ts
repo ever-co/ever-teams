@@ -1,7 +1,7 @@
 import { APPLICATION_LANGUAGES_CODE, GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { APIService } from './api.service';
+import { APIService, authorizeRequest } from './api.service';
 import { buildAPIService, buildDirectAPIService } from './api-factory';
 
 let api: APIService;
@@ -25,11 +25,9 @@ export const getAPI = async (): Promise<APIService> => {
 
 		api.axiosInstance.interceptors.request.use(
 			async (config: any) => {
-				const cookie = getAccessTokenCookie();
 				const tenantId = getTenantIdCookie();
-				if (cookie && !config.pinnedAuthorization) {
-					config.headers['Authorization'] = `Bearer ${cookie}`;
-				}
+				// The cookie's token, or this tab's own for its organization (#5134)
+				authorizeRequest(config);
 				if (tenantId && !config.headers.has('tenant-id')) {
 					config.headers.set('tenant-id', tenantId);
 				}
@@ -50,11 +48,9 @@ export const getAPIDirect = async (): Promise<APIService> => {
 
 		apiDirect.axiosInstance.interceptors.request.use(
 			async (config: any) => {
-				const cookie = getAccessTokenCookie();
 				const tenantId = getTenantIdCookie();
-				if (cookie && !config.pinnedAuthorization) {
-					config.headers['Authorization'] = `Bearer ${cookie}`;
-				}
+				// The cookie's token, or this tab's own for its organization (#5134)
+				authorizeRequest(config);
 				if (tenantId && !config.headers.has('tenant-id')) {
 					config.headers.set('tenant-id', tenantId);
 				}

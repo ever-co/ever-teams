@@ -1,7 +1,7 @@
 import { APIService, getFallbackAPI } from '@/core/services/client/api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
+import { requestAccessToken } from '@/core/lib/auth/tab-organization';
 import moment from 'moment';
 import { organizationProjectService } from '../organization-project.service';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
@@ -149,7 +149,8 @@ class OrganizationTeamService extends APIService {
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			const tenantId = this.tenantId;
 			const organizationId = this.organizationId;
-			const access_token = getAccessTokenCookie() || '';
+			// The token of this tab's organization (#5134), as the organization above
+			const access_token = requestAccessToken() || '';
 
 			await this.createOrganizationTeamGauzy({
 				data: {

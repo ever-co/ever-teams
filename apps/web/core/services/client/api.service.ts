@@ -17,6 +17,14 @@ import {
 	getTenantIdCookie
 } from '@/core/lib/helpers/cookies';
 import { handleUnauthorized } from '@/core/lib/auth/handle-unauthorized';
+import {
+	TAB_TEAM_HEADER,
+	TabOrganizationChangedError,
+	forgetTabAccessToken,
+	isSessionRequest,
+	isTabAccessToken,
+	tabScope
+} from '@/core/lib/auth/tab-organization';
 import { tokensShareScope } from '@/core/lib/auth/jwt-utils';
 import { renewSession } from '@/core/lib/auth/session-renewal';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
@@ -40,6 +48,36 @@ type RefusedRequest = InternalAxiosRequestConfig &
 		/** The request was sent again once the session was renewed: a 401 it gets now is its answer. */
 		sentAgainAfterRenewal?: boolean;
 	};
+
+/** Whether a request goes to this app's own routes (proxy mode), not to the API on another origin. */
+function isSameOriginRequest(config: { baseURL?: string; url?: string }): boolean {
+	const target = `${config.baseURL ?? ''}${config.url ?? ''}`;
+	if (!/^[a-z][a-z\d+.-]*:/i.test(target)) return true;
+	return typeof window !== 'undefined' && target.startsWith(`${window.location.origin}/`);
+}
+
+/**
+ * Gives a request of this tab its Authorization (#5134): the access token cookie's, or this tab's own token while
+ * another tab has the cookies on another organization of the session (tab-organization.ts). A proxied request then also
+ * names this tab's team, which the team cookie no longer does. A request the tab can no longer send with a token of its
+ * own organization is refused here, before it leaves; the session's own requests (renewal, sign-out, organization
+ * switch) always go out with the cookie's. A pinned request keeps the token its owner gave it.
+ */
+export function authorizeRequest(config: any): void {
+	const scope = tabScope();
+	const isSessionCall = isSessionRequest(config.url);
+	if (scope.held && !scope.accessToken && !isSessionCall) {
+		throw new TabOrganizationChangedError();
+	}
+	if (scope.held && !isSessionCall && scope.teamId && isSameOriginRequest(config)) {
+		config.headers.set(TAB_TEAM_HEADER, scope.teamId);
+	}
+	if (config.pinnedAuthorization) return;
+	const token = scope.held && !isSessionCall ? scope.accessToken : getAccessTokenCookie();
+	if (token) {
+		config.headers['Authorization'] = `Bearer ${token}`;
+	}
+}
 
 function bearerTokenOf(request: RefusedRequest): string | null {
 	const authorization = AxiosHeaders.from(request.headers).get('Authorization');
@@ -234,11 +272,8 @@ export class APIService {
 		this.axiosInstance.interceptors.request.use(
 			async (config: any) => {
 				const tenantId = getTenantIdCookie();
-				const cookie = getAccessTokenCookie();
 
-				if (cookie && !config.pinnedAuthorization) {
-					config.headers['Authorization'] = `Bearer ${cookie}`;
-				}
+				authorizeRequest(config);
 
 				if (tenantId && !config.headers.has('tenant-id')) {
 					config.headers.set('tenant-id', tenantId);
@@ -291,6 +326,12 @@ export class APIService {
 		}
 
 		const refusedToken = bearerTokenOf(request);
+		// This tab's own token for its organization (tab-organization.ts) is never renewed: renewing it would replace the
+		// session another tab works with. The tab stops using it and asks the person where it works.
+		if (isTabAccessToken(refusedToken)) {
+			forgetTabAccessToken(refusedToken);
+			throw error;
+		}
 		const renewal = await renewSession(refusedToken);
 
 		if (renewal.outcome === 'ended') {

@@ -1,6 +1,7 @@
 import { APIService } from '@/core/services/client/api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { requestAccessToken } from '@/core/lib/auth/tab-organization';
 import type { RealtimeCatchUp, RealtimeCatchUpQuery, RealtimePresenceStatus } from '@/core/lib/realtime/events';
 import type { RealtimeDelivery } from '@/core/lib/realtime/delivery';
 
@@ -67,7 +68,8 @@ class RealtimeService extends APIService {
 	presenceOnUnload = (status: RealtimePresenceStatus, connectionId?: string): void => {
 		if (typeof fetch !== 'function') return;
 		const base = String(this.axiosInstance.defaults.baseURL ?? this.baseURL ?? '').replace(/\/+$/, '');
-		const token = getAccessTokenCookie();
+		// This tab's token and organization: its own while another tab has another organization open (#5134)
+		const token = requestAccessToken();
 		const tenantId = getTenantIdCookie();
 		const organizationId = getOrganizationIdCookie();
 		const headers: Record<string, string> = { 'Content-Type': 'application/json' };
