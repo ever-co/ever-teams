@@ -93,6 +93,16 @@ describe('InvoiceScheduleDialog', () => {
 		expect(onUpdate).toHaveBeenCalledWith({});
 	});
 
+	it('sends only the fields that changed', async () => {
+		const { onUpdate } = renderDialog(monthly);
+
+		fireEvent.click(screen.getByRole('button', { name: 'invoices.schedule.grouping.TASK' }));
+		fireEvent.click(screen.getByRole('button', { name: 'invoices.schedule.form.SEND' }));
+		fireEvent.click(screen.getByRole('button', { name: 'invoices.schedule.form.SAVE' }));
+
+		await waitFor(() => expect(onUpdate).toHaveBeenCalledWith({ grouping: 'TASK', sendInvoice: true }));
+	});
+
 	it('starts a new weekly schedule on the first day of this week, as the workspace counts weeks', async () => {
 		const { onCreate } = renderDialog();
 		expect(startDayField().value).toBe('2026-11-01');
