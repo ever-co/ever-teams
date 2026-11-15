@@ -12,11 +12,18 @@ type ServerRequest = {
 	tenantId?: string;
 };
 
+/**
+ * The name this app gives itself to the API (ever-co/ever-gauzy#11983), which records it with a session it signs in or
+ * renews: the sessions list then tells this phone's session from the person's other apps.
+ */
+const CLIENT_APP = 'Ever Teams';
+
 /** Sends the request once and answers whatever the API answers. */
 function send<T>({ path, method, body, init, bearer_token, tenantId }: ServerRequest) {
 	const headers: HeadersInit = {
 		'Content-Type': 'application/json',
-		Accept: 'application/json'
+		Accept: 'application/json',
+		'X-Client-App': CLIENT_APP
 	};
 
 	if (bearer_token) {
