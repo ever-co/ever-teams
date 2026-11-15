@@ -1,3 +1,4 @@
+import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { periodOfPreset } from '@/core/lib/utils/dashboard-period';
 import type { TimeActivityFilters } from '@/core/lib/utils/dashboards/time-activity';
 import type { IPublicSavedReport, ISavedReport } from '@/core/types/interfaces/timesheet/saved-report';
@@ -124,6 +125,20 @@ describe('showsSavedView', () => {
 		expect(showsSavedView(saved, otherMembers, MONDAY)).toBe(false);
 		expect(showsSavedView(saved, allTime, MONDAY)).toBe(false);
 		expect(showsSavedView(saved, byMember, MONDAY)).toBe(false);
+	});
+
+	it('compares a report saved with fixed days with the days shown, even on days a preset also covers', () => {
+		const lastMonth = periodOfPreset('lastMonth', MONDAY);
+		const fixedDays = savedReportOf({
+			...saved,
+			periodRule: null,
+			startDate: localDayKeyOf(lastMonth.from),
+			endDate: localDayKeyOf(lastMonth.to)
+		});
+		const thisMonth = { ...CLIENT_A_LAST_MONTH, period: periodOfPreset('thisMonth', MONDAY) };
+
+		expect(showsSavedView(fixedDays, CLIENT_A_LAST_MONTH, MONDAY)).toBe(true);
+		expect(showsSavedView(fixedDays, thisMonth, MONDAY)).toBe(false);
 	});
 });
 

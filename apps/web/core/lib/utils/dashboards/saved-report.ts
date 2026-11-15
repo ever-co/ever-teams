@@ -139,13 +139,23 @@ function sameFilters(saved: ISavedReportFilters, shown: ISavedReportFilters) {
 	return sameTeams && sameMembers && sameProjects && sameTasks && sameClients && sameBillable;
 }
 
+/**
+ * Whether the page shows the period of a report: its rule for a report saved as a rule, its very days for one saved as
+ * fixed days, even on days a preset also covers (a fixed report is never read as a rule).
+ */
+function showsSavedPeriod(report: ISavedReport, period: Period, weekStartsOn: WeekStart): boolean {
+	if (!report.periodRule) {
+		const sameStart = (report.startDate ?? null) === localDayKeyOf(period.from);
+		const sameEnd = (report.endDate ?? null) === localDayKeyOf(period.to);
+		return sameStart && sameEnd;
+	}
+	return report.periodRule === savedPeriodOf(period, weekStartsOn).periodRule;
+}
+
 /** Whether the view shown is the one the report saved: when it is not, the menu offers to update the report. */
 export function showsSavedView(report: ISavedReport, view: TimeActivityView, weekStartsOn: WeekStart): boolean {
 	const shown = savedReportInputOf(view, weekStartsOn, report.timeZone ?? '');
-	const sameRule = (report.periodRule ?? null) === (shown.periodRule ?? null);
-	const sameStart = (report.startDate ?? null) === (shown.startDate ?? null);
-	const sameEnd = (report.endDate ?? null) === (shown.endDate ?? null);
-	const samePeriod = sameRule && sameStart && sameEnd;
+	const samePeriod = showsSavedPeriod(report, view.period, weekStartsOn);
 	const sameGrouping = (report.grouping ?? 'date') === shown.grouping;
 	return samePeriod && sameGrouping && sameFilters(report.filters ?? {}, shown.filters ?? {});
 }
