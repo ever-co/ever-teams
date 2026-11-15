@@ -258,6 +258,17 @@ describe('TimeActivitySavedReports', () => {
 		fireEvent.click(screen.getByText('dashboard.savedReports.TURN_ON'));
 
 		await waitFor(() => expect(mockShare).toHaveBeenCalledTimes(1));
+	it('offers no second update while one is still waiting for its answer', () => {
+		mockSearchParams = new URLSearchParams('report=r1');
+		mockUpdatePending = true;
+		render(<TimeActivitySavedReports report={reportProps({ ...NO_FILTERS, clientIds: ['client-b'] })} />);
+
+		const update = screen.getByText('dashboard.savedReports.UPDATE').closest('button') as HTMLButtonElement;
+		expect(update.disabled).toBe(true);
+		fireEvent.click(update);
+		expect(mockUpdate).not.toHaveBeenCalled();
+	});
+
 		expect(mockShare).toHaveBeenCalledWith({
 			id: 'r1',
 			expiresAt: new Date(2099, 11, 31, 23, 59, 59, 999).toISOString()

@@ -210,6 +210,10 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 		},
 		[saved.update, t, view, weekStart]
 	);
+			// One change at a time: a second one could reach the API first and be overwritten by the earlier view
+			if (saved.update.isPending) {
+				return;
+			}
 
 	const renameReport = useCallback(
 		async (name: string) => {
@@ -332,6 +336,7 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 				isSaving={saved.create.isPending}
 				shareActionsOf={shareActionsOf}
 				urlOf={urlOf}
+				isUpdating={saved.update.isPending}
 			/>
 			<Dialog open={renaming !== null} onOpenChange={(isOpen) => !isOpen && setRenaming(null)}>
 				<DialogContent className="sm:max-w-sm">

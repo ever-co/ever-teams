@@ -88,12 +88,14 @@ function MenuState({
 function ActiveReportActions({
 	report,
 	showsSavedView,
+	isUpdating,
 	onUpdate,
 	onRename,
 	onDelete
 }: Readonly<{
 	report: ISavedReport;
 	showsSavedView: boolean;
+	isUpdating: boolean;
 	onUpdate: (report: ISavedReport) => void;
 	onRename: (report: ISavedReport) => void;
 	onDelete: (report: ISavedReport) => void;
@@ -105,7 +107,7 @@ function ActiveReportActions({
 			<DropdownMenuLabel className="truncate text-xs font-normal text-muted-foreground" title={report.name}>
 				{report.name}
 			</DropdownMenuLabel>
-			<DropdownMenuItem disabled={showsSavedView} onClick={() => onUpdate(report)}>
+			<DropdownMenuItem disabled={showsSavedView || isUpdating} onClick={() => onUpdate(report)}>
 				<Check />
 				<span>{t('dashboard.savedReports.UPDATE')}</span>
 			</DropdownMenuItem>
@@ -131,6 +133,7 @@ export function SavedReportsMenu({
 	activeReport,
 	availability,
 	showsSavedView,
+	isUpdating,
 	onOpen,
 	onUpdate,
 	onRename,
@@ -141,6 +144,8 @@ export function SavedReportsMenu({
 	activeReport: ISavedReport | null;
 	availability: SavedReportsAvailability;
 	showsSavedView: boolean;
+	/** A change of a saved report is waiting for its answer: Update waits for it. */
+	isUpdating: boolean;
 	onOpen: (report: ISavedReport) => void;
 	onUpdate: (report: ISavedReport) => void;
 	onRename: (report: ISavedReport) => void;
@@ -180,6 +185,7 @@ export function SavedReportsMenu({
 					<ActiveReportActions
 						report={activeReport}
 						showsSavedView={showsSavedView}
+						isUpdating={isUpdating}
 						onUpdate={onUpdate}
 						onRename={onRename}
 						onDelete={onDelete}
