@@ -95,7 +95,9 @@ export function useInvoiceScheduleMutations(workspace: InvoicesScope | null) {
 	const createMutation = useMutation({
 		mutationFn: ({ clientId, input }: { clientId: string; input: InvoiceScheduleInput }) =>
 			invoiceScheduleService.createSchedule(clientId, input, scope),
-		onSuccess: refresh
+		// A failed create is read again too: when another tab set the client's schedule meanwhile, the page then shows that
+		// one, and the dialog opens on it instead of a second create
+		onSettled: refresh
 	});
 	const updateMutation = useMutation({
 		mutationFn: ({ scheduleId, change }: { scheduleId: string; change: InvoiceScheduleChange }) =>
