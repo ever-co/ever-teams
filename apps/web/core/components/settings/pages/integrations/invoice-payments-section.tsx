@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useState, type FormEvent } from 'react';
+import { useId, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -21,10 +21,14 @@ import type { TInvoicePaymentConnection } from '@/core/types/schemas/organizatio
 
 const CONNECTION_QUERY_KEY = ['invoice-payment-connection'] as const;
 
-/** A refusal for want of the payment permissions: the section is not the member's to see. */
-const isRefused = (error: unknown) => {
+/**
+ * An answer that hides the section: a refusal for want of the payment permissions (not the member's to see), or a 404
+ * from an API that does not serve online invoice payments (a Gauzy without ever-co/ever-gauzy#11856, or without its
+ * payment plugin), where there is nothing to connect.
+ */
+const hidesSection = (error: unknown) => {
 	const status = errorStatusOf(error);
-	return status === 401 || status === 403;
+	return status === 401 || status === 403 || status === 404;
 };
 
 function CopyRow({ label, hint, value }: Readonly<{ label: string; hint?: string; value: string }>) {
@@ -72,22 +76,22 @@ export function InvoicePaymentsSection() {
 	const connection = useQuery({
 		queryKey: CONNECTION_QUERY_KEY,
 		queryFn: invoicePaymentConnectionService.getConnection,
-		retry: (count, error) => !isRefused(error) && count < 2
+		retry: (count, error) => !hidesSection(error) && count < 2
 	});
 	const [endpoint, setEndpoint] = useState('');
 	const [isEnabled, setIsEnabled] = useState(true);
 	const [isTestMode, setIsTestMode] = useState(false);
 	const [secret, setSecret] = useState<string | null>(null);
-
-	useEffect(() => {
-		const data = connection.data;
-		if (!data?.connected) {
-			return;
+	// The form shows the connection as the API last answered it: read anew, or written by this form
+	const [shownConnection, setShownConnection] = useState<TInvoicePaymentConnection | undefined>(undefined);
+	if (connection.data !== shownConnection) {
+		setShownConnection(connection.data);
+		if (connection.data?.connected) {
+			setEndpoint(connection.data.checkoutEndpoint ?? '');
+			setIsEnabled(connection.data.isEnabled);
+			setIsTestMode(connection.data.isTestMode);
 		}
-		setEndpoint(data.checkoutEndpoint ?? '');
-		setIsEnabled(data.isEnabled);
-		setIsTestMode(data.isTestMode);
-	}, [connection.data]);
+	}
 
 	const remember = (answer: TInvoicePaymentConnection) => {
 		const { signingSecret, ...shown } = answer;
@@ -111,7 +115,7 @@ export function InvoicePaymentsSection() {
 		onError: () => toast.error(t('invoices.payments.SAVE_FAILED'))
 	});
 
-	if (connection.isError && isRefused(connection.error)) {
+	if (connection.isError && hidesSection(connection.error)) {
 		return null;
 	}
 
