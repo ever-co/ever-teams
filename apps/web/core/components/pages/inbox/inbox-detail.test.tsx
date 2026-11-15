@@ -1,12 +1,28 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
+import { TextDecoder, TextEncoder } from 'node:util';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 import { toInboxEntry } from '@/core/lib/utils/inbox-entry';
 import { timerReminderTargetState } from '@/core/stores/timer/timer-reminder';
 import { EInboxItemKind, EInboxItemSource, IInboxItem } from '@/core/types/interfaces/common/inbox-item';
+import { isJitsiMeeting, meetPathFor } from '@/core/lib/utils/collaboration';
+import { meetingPathOfInput, type ScheduledMeeting } from '@/core/lib/utils/meetings';
 import { InboxDetail } from './inbox-detail';
+
+// Room names are base64 of their UTF-8 bytes; jsdom has no TextEncoder of its own
+Object.assign(globalThis, { TextEncoder, TextDecoder });
+
+const mockPush = jest.fn();
+let mockInvited: ScheduledMeeting[] = [];
+jest.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }));
+jest.mock('@/core/hooks/meetings/use-invited-meetings', () => ({
+	useInvitedMeetings: () => ({ meetings: mockInvited, isLoading: false })
+}));
+jest.mock('@/core/hooks/meetings/use-scheduled-meetings', () => ({
+	useScheduledMeetings: () => ({ meetings: [] })
+}));
 
 jest.mock('next-intl', () => {
 	const t = Object.assign(
@@ -121,5 +137,52 @@ describe('InboxDetail of a timer reminder', () => {
 		act(() => store.set(timerReminderTargetState, null));
 		expect(screen.queryByRole('button', { name: 'notifications.TIMER_REMINDER.STOP' })).toBeNull();
 		expect(screen.getByRole('button', { name: 'notifications.TIMER_REMINDER.OPEN' })).toBeTruthy();
+	});
+});
+
+describe('InboxDetail of a meeting notification (#5022)', () => {
+	const link = `https://app.ever.team${meetPathFor('Ever-Planning-AbCdEfGhIj', true)}`;
+	const meeting = (title: string) =>
+		reminder({
+			title,
+			body: 'Thursday, November 12, 2099, 2:00 – 2:30 PM (Europe/Paris)',
+			entity: 'EmployeeAppointment',
+			entityId: 'appointment-9',
+			metadata: { notificationType: 'Meeting', sentByEmployeeId: 'employee-1' }
+		});
+
+	beforeEach(() => {
+		mockPush.mockReset();
+		mockInvited = [
+			{
+				id: 'appointment-9',
+				title: 'Planning',
+				description: null,
+				start: new Date('2099-11-12T13:00:00.000Z'),
+				end: new Date('2099-11-12T13:30:00.000Z'),
+				link,
+				isInvited: true,
+				hostName: 'Ana Silva'
+			}
+		];
+	});
+
+	it("says who invited, in the reader's language, with the meeting's time, and joins it", () => {
+		const { onOpenTarget, entry } = mount(meeting('You are invited to "Planning"'), null);
+
+		expect(screen.getByText('notifications.MEETING.INVITED')).toBeTruthy();
+		expect(screen.getByText('Planning')).toBeTruthy();
+		expect(screen.getByText('Thursday, November 12, 2099, 2:00 – 2:30 PM (Europe/Paris)')).toBeTruthy();
+		fireEvent.click(screen.getByRole('button', { name: 'notifications.MEETING.OPEN' }));
+		expect(onOpenTarget).toHaveBeenCalledWith(entry);
+
+		fireEvent.click(screen.getByRole('button', { name: 'meetings.JOIN_MEETING_OF {"title":"Planning"}' }));
+		expect(mockPush).toHaveBeenCalledWith(meetingPathOfInput(link, isJitsiMeeting()));
+	});
+
+	it('offers no way to join a meeting cancelled, or one the person was removed from', () => {
+		mount(meeting('"Planning" was cancelled'), null);
+		expect(screen.getByText('notifications.MEETING.CANCELLED')).toBeTruthy();
+		expect(screen.queryByRole('button', { name: /meetings\.JOIN_MEETING_OF/ })).toBeNull();
 	});
 });
