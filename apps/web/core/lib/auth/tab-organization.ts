@@ -225,13 +225,15 @@ export function requestAccessToken(): string | null {
 	return getAccessTokenCookie();
 }
 
-/** Whether `token` is the one this tab acts with in its own organization, not the cookie's. */
+/**
+ * Whether `token` is the one this tab acts with in its own organization now. The cookies are read again: another tab
+ * may have renewed the session since the request left, and a token of the session's own organization is then the
+ * session's, which the renewal answers.
+ */
 export function isTabAccessToken(token: string | null | undefined): boolean {
-	if (!token || token === getAccessTokenCookie()) return false;
-	for (const known of tokensByOrganization.values()) {
-		if (known.token === token) return true;
-	}
-	return false;
+	if (!token) return false;
+	const scope = tabScope();
+	return scope.held && scope.accessToken === token;
 }
 
 /** The API refused this tab's own token: it is not sent again, and the tab asks the person where it works. */

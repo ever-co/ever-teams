@@ -43,11 +43,11 @@ import {
 import { APIService } from './api.service';
 
 /** An access token that decodes (only its payload is read). */
-function token(organizationId: string, userId = 'user-1') {
+function token(organizationId: string, userId = 'user-1', expiresIn = 3600) {
 	const encode = (part: object) => Buffer.from(JSON.stringify(part)).toString('base64url');
 	const issuedAt = Math.floor(Date.now() / 1000);
-	const payload = { id: userId, tenantId: 'tenant-1', organizationId, iat: issuedAt, exp: issuedAt + 3600 };
-	return `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode(payload)}.signature-${organizationId}`;
+	const payload = { id: userId, tenantId: 'tenant-1', organizationId, iat: issuedAt, exp: issuedAt + expiresIn };
+	return `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode(payload)}.signature-${organizationId}-${expiresIn}`;
 }
 
 const TOKEN_A = token('org-a');
@@ -223,6 +223,35 @@ describe('a tab whose shared cookies another tab moved to another organization',
 			TabOrganizationChangedError
 		);
 		expect(sent).toHaveLength(1);
+	});
+
+	it('sends a refused request again with the token another tab renewed meanwhile, in the same organization', async () => {
+		setAuthCookies({
+			access_token: TOKEN_A,
+			refresh_token: { token: 'refresh-a' },
+			tenantId: 'tenant-1',
+			teamId: 'team-a',
+			organizationId: 'org-a',
+			languageId: 'en',
+			noTeamPopup: true,
+			userId: 'user-1'
+		} as never);
+		rememberTabTeam({ id: 'team-a', organizationId: 'org-a' });
+		const renewedToken = token('org-a', 'user-1', 7200);
+		mockRenewSession.mockResolvedValue({ outcome: 'renewed' });
+		const service = new APIService('http://127.0.0.1:3311', { enableLogging: false });
+		const { sent, adapter } = network((config) => {
+			if (sent.length > 1) return undefined;
+			// Another tab renews the session while this request is on its way, and the API refuses the old token
+			setAccessTokenCookie(renewedToken);
+			return 401;
+		});
+		service.axiosInstance.defaults.adapter = adapter;
+
+		await service.axiosInstance.get('/timesheet/timer/status');
+
+		expect(sent).toHaveLength(2);
+		expect(header(sent[1], 'Authorization')).toBe(`Bearer ${renewedToken}`);
 	});
 
 	it('acts with the cookies as before while they name its own organization', async () => {
