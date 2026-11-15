@@ -106,7 +106,7 @@ function EntryGhost({
 	const isCompact = isCompactRange(ghost.range, geometry);
 	const box = ghostBoxOf(ghost.range, geometry);
 	const toneStyle = entryToneStyle(entry.projectColor, entry.projectKey);
-	const fill = entryFillOf(entry.isManual);
+	const fill = entryFillOf(entry.isManual, entry.isBreak);
 	return (
 		<div
 			aria-hidden="true"

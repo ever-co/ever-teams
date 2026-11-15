@@ -5,6 +5,7 @@ import { endOfDay, startOfDay } from 'date-fns';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { GAUZY_API_BASE_SERVER_URL, TIMESHEET_RELATIONS } from '@/core/constants/config/constants';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import {
 	TAddManualTimeRequest,
 	timeLogSchema,
@@ -43,8 +44,19 @@ import { ITimeLogUpdatePayload } from '@/core/types/interfaces/timesheet/time-lo
 const TASK_LABELS_RELATION = 'task.tags';
 
 interface ITimeLogsRelationOptions {
+	/** Lists the breaks too (Gauzy #11940); asked only where the organization turned breaks on. */
+	includeBreaks?: boolean;
 	/** Each log's task comes with its labels, which a report that filters by label reads from the logs themselves. */
 	withTaskLabels?: boolean;
+}
+
+/** The report filters a list of entries shares with the reports, sent only when given. */
+interface ITimeLogsReportFilters {
+	/** The types to list, the breaks alone for the figure beside the worked time (#5216). */
+	logTypes?: ETimeLogType[];
+	teamIds?: string[];
+	/** With `teamIds`, the time the teams' members logged without a team too, as the daily report counts it. */
+	includeTimeWithoutTeam?: boolean;
 }
 
 class TimeLogService extends APIService {
@@ -223,8 +235,12 @@ class TimeLogService extends APIService {
 		employeeIds = [],
 		taskIds = [],
 		status = [],
-		withTaskLabels = false
-	}: TGetTimerLogsDailyReportRequest & ITimeLogsRelationOptions) => {
+		withTaskLabels = false,
+		includeBreaks = false,
+		logTypes = [],
+		teamIds = [],
+		includeTimeWithoutTeam = false
+	}: TGetTimerLogsDailyReportRequest & ITimeLogsRelationOptions & ITimeLogsReportFilters) => {
 		if (!startDate || !endDate) {
 			throw new Error('Required parameters missing: startDate, and endDate are required');
 		}
@@ -260,6 +276,15 @@ class TimeLogService extends APIService {
 		addArrayParam('employeeIds', employeeIds);
 		addArrayParam('taskIds', taskIds);
 		addArrayParam('status', status);
+		addArrayParam('logType', logTypes);
+		addArrayParam('teamIds', teamIds);
+		if (includeTimeWithoutTeam) {
+			params.append('includeTimeWithoutTeam', 'true');
+		}
+		// Never sent otherwise: an API without breaks has no such filter
+		if (includeBreaks) {
+			params.append('includeBreaks', 'true');
+		}
 
 		const response = await this.get<ITimeLog[]>(`/timesheet/time-log?${params.toString()}`, {
 			tenantId: this.tenantId

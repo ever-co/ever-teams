@@ -7,6 +7,7 @@ import type { CalendarEntry } from '@/core/lib/utils/calendar-view';
 import type { TimesheetFormatters } from '@/core/lib/utils/dashboards/timesheets';
 import {
 	BillableLine,
+	BreakEntryChip,
 	EntryActions,
 	type EntryHandlers,
 	entryRangeTextOf,
@@ -16,8 +17,11 @@ import {
 	useEntryTitle
 } from './calendar-entry-parts';
 
-function KindLabel({ isManual }: Readonly<{ isManual: boolean }>) {
+function KindLabel({ isManual, isBreak }: Readonly<{ isManual: boolean; isBreak: boolean }>) {
 	const t = useTranslations();
+	if (isBreak) {
+		return <BreakEntryChip />;
+	}
 	if (isManual) {
 		return <ManualChip />;
 	}
@@ -61,8 +65,8 @@ export function EntryDetails({
 				<span className="font-medium text-foreground">{duration}</span>
 			</div>
 			<div className="flex flex-wrap items-center gap-2">
-				<KindLabel isManual={entry.isManual} />
-				<BillableLine isBillable={entry.isBillable} />
+				<KindLabel isManual={entry.isManual} isBreak={entry.isBreak} />
+				{!entry.isBreak && <BillableLine isBillable={entry.isBillable} />}
 			</div>
 			<ReasonQuote reason={entry.reason} />
 			{canEdit && (

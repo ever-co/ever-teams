@@ -31,6 +31,17 @@ const mockStopTimer = jest.fn();
 
 type TChildrenProps = { children?: ReactNode };
 
+// Breaks (#5216) off: the timer shows no break control
+jest.mock('@/core/hooks/timer/use-timer-break', () => ({
+	useTimerBreak: () => ({
+		allowsBreaks: false,
+		breakState: { isOnBreak: false, startedAt: null, taskId: null, isFromThisApp: false },
+		pendingAction: null,
+		takeBreak: jest.fn(),
+		endBreak: jest.fn()
+	}),
+	useBreakElapsedSeconds: () => 0
+}));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('sonner', () => ({ toast: { warning: jest.fn(), info: jest.fn(), error: jest.fn() } }));
 jest.mock('assets/svg', () => ({ TimerPlayIcon: () => null, TimerStopIcon: () => null }), { virtual: true });

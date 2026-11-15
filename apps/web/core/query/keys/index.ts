@@ -480,6 +480,31 @@ export const queryKeys = {
 		) => ['notifications', 'settings', tenantId ?? null, organizationId ?? null, employeeId ?? null] as const
 	},
 
+	// Goals: the goals a person may read, and where they (or each member of a team they manage) stand against them.
+	// The user is part of every key: what one sign-in may read never shows for the next one.
+	timeGoals: {
+		all: ['time-goals'] as const,
+		list: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null
+		) => ['time-goals', 'list', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		progress: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null,
+			teamId: string | undefined | null
+		) =>
+			[
+				'time-goals',
+				'progress',
+				tenantId ?? null,
+				organizationId ?? null,
+				userId ?? null,
+				teamId ?? null
+			] as const
+	},
+
 	// Settings → API tokens: whether the server offers them, and the person's own tokens. The tenant and the user are
 	// part of every key: one sign-in's tokens never show for the next one.
 	userApiTokens: {
@@ -619,6 +644,8 @@ export const queryKeys = {
 		daily: (params: Record<string, any>) => ['activities', 'daily-activity-report', params] as const,
 		weekly: (params: Record<string, any>) => ['activities', 'weekly-activity-report', params] as const,
 		statisticsCounts: (params: Record<string, any>) => ['activities', 'statistics-counts', params] as const,
+		/** The time on breaks of a Time & Activity period (#5216). */
+		breaks: (params: Record<string, unknown>) => ['activities', 'breaks', params] as const,
 		activityReport: (params: Record<string, any>) => ['activities', 'activity-report', params] as const
 	},
 

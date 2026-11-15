@@ -4,6 +4,7 @@
  * day differ from the local one, and restored once the file is done.
  */
 import { runInThisContext } from 'node:vm';
+import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { timeLogService } from './time-log.service';
 
 const NEW_YORK = 'America/New_York';
@@ -277,5 +278,44 @@ describe('TimeLogService time logs with the labels of their tasks', () => {
 		await timeLogService.getTimeLogs(period);
 
 		expect(relationsOf(sentQueryOf(get))).not.toContain('task.tags');
+	});
+});
+
+describe('TimeLogService time logs with the breaks (#5216)', () => {
+	afterEach(() => jest.restoreAllMocks());
+
+	const period = { startDate: '2026-11-10', endDate: '2026-11-10', timeZone: 'UTC' };
+
+	it('asks Gauzy for the breaks among the entries when told', async () => {
+		const get = spyOnServiceGet();
+
+		await timeLogService.getTimeLogs({ ...period, includeBreaks: true });
+
+		expect(sentQueryOf(get).get('includeBreaks')).toBe('true');
+	});
+
+	it('reads the breaks alone, in the teams of a report, for the figure beside the worked time', async () => {
+		const get = spyOnServiceGet();
+
+		await timeLogService.getTimeLogs({
+			...period,
+			includeBreaks: true,
+			logTypes: [ETimeLogType.BREAK],
+			teamIds: ['team-1'],
+			includeTimeWithoutTeam: true
+		});
+
+		const query = sentQueryOf(get);
+		expect(query.get('logType[0]')).toBe('BREAK');
+		expect(query.get('teamIds[0]')).toBe('team-1');
+		expect(query.get('includeTimeWithoutTeam')).toBe('true');
+	});
+
+	it('sends no break filter otherwise, which a Gauzy without breaks does not know', async () => {
+		const get = spyOnServiceGet();
+
+		await timeLogService.getTimeLogs(period);
+
+		expect(sentQueryOf(get).has('includeBreaks')).toBe(false);
 	});
 });

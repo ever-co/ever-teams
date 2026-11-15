@@ -26,12 +26,15 @@ export type IGetTimerStatusParams = {
 	todayStart?: string;
 	todayEnd?: string;
 };
+/** What a timer start records: work, or a break when the organization allows breaks (Gauzy #11940). */
+export type TTimerStartLogType = 'TRACKED' | 'BREAK';
+
 export type IUpdateTimerStatusParams = {
 	organizationId: string;
 	tenantId: string;
 	taskId?: string;
 	projectId?: string;
-	logType: 'TRACKED';
+	logType: TTimerStartLogType;
 	source: ETimeLogSource;
 	tags: any[];
 	organizationTeamId?: string;
