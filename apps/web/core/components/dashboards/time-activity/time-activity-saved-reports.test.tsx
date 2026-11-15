@@ -211,7 +211,9 @@ describe('TimeActivitySavedReports', () => {
 		// The member picks client B while the save is pending: the page's link moved on
 		const setLaterLinkParams = jest.fn();
 		rerender(
-			<TimeActivitySavedReports report={reportProps({ ...NO_FILTERS, clientIds: ['client-b'] }, setLaterLinkParams)} />
+			<TimeActivitySavedReports
+				report={reportProps({ ...NO_FILTERS, clientIds: ['client-b'] }, setLaterLinkParams)}
+			/>
 		);
 		await act(async () => answerSave({ ...CLIENT_A, id: 'r2' }));
 
