@@ -739,6 +739,7 @@
 			"LIMIT_SHARE": "{percent} מהמגבלה השבועית שלך",
 			"NO_LIMIT": "לא הוגדרה מגבלה שבועית בפרופיל שלך.",
 			"LIMIT_BY_WEEK": "המגבלה השבועית שלך, {limit}, נמדדת שבוע אחר שבוע.",
+			"BILLABLE_UNPRICED": "{duration} ללא תעריף",
 			"DAILY_LIMIT_LINE": "{limit} ביום",
 			"DAILY_LIMIT_HINT": "הקו המקווקו הוא חמישית מהמגבלה השבועית שלך",
 			"PROJECTS_TITLE": "זמן לפי פרויקט",

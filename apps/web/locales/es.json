@@ -739,6 +739,7 @@
 			"LIMIT_SHARE": "{percent} de tu límite semanal",
 			"NO_LIMIT": "No hay un límite semanal definido en tu perfil.",
 			"LIMIT_BY_WEEK": "Tu límite semanal de {limit} se mide semana a semana.",
+			"BILLABLE_UNPRICED": "{duration} sin tarifa",
 			"DAILY_LIMIT_LINE": "{limit} al día",
 			"DAILY_LIMIT_HINT": "La línea discontinua es una quinta parte de tu límite semanal",
 			"PROJECTS_TITLE": "Tiempo por proyecto",

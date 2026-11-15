@@ -674,6 +674,7 @@
 			"LIMIT_SHARE": "{percent} من حدك الأسبوعي",
 			"NO_LIMIT": "لا يوجد حد أسبوعي محدد في ملفك الشخصي.",
 			"LIMIT_BY_WEEK": "يُقاس حدك الأسبوعي البالغ {limit} أسبوعًا بأسبوع.",
+			"BILLABLE_UNPRICED": "{duration} بلا سعر",
 			"DAILY_LIMIT_LINE": "{limit} في اليوم",
 			"DAILY_LIMIT_HINT": "الخط المتقطع هو خُمس حدك الأسبوعي",
 			"PROJECTS_TITLE": "الوقت حسب المشروع",

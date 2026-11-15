@@ -739,6 +739,7 @@
 			"LIMIT_SHARE": "每周限额的 {percent}",
 			"NO_LIMIT": "你的个人资料中未设置每周限额。",
 			"LIMIT_BY_WEEK": "你的每周限额 {limit} 按周计算。",
+			"BILLABLE_UNPRICED": "{duration} 无费率",
 			"DAILY_LIMIT_LINE": "每天 {limit}",
 			"DAILY_LIMIT_HINT": "虚线为每周限额的五分之一",
 			"PROJECTS_TITLE": "按项目统计时间",

@@ -739,6 +739,7 @@
 			"LIMIT_SHARE": "{percent} вашего недельного лимита",
 			"NO_LIMIT": "В вашем профиле не задан недельный лимит.",
 			"LIMIT_BY_WEEK": "Ваш недельный лимит {limit} считается по неделям.",
+			"BILLABLE_UNPRICED": "{duration} без ставки",
 			"DAILY_LIMIT_LINE": "{limit} в день",
 			"DAILY_LIMIT_HINT": "Пунктирная линия: пятая часть вашего недельного лимита",
 			"PROJECTS_TITLE": "Время по проектам",

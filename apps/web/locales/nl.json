@@ -739,6 +739,7 @@
 			"LIMIT_SHARE": "{percent} van je weeklimiet",
 			"NO_LIMIT": "In je profiel is geen weeklimiet ingesteld.",
 			"LIMIT_BY_WEEK": "Je weeklimiet van {limit} wordt week voor week gemeten.",
+			"BILLABLE_UNPRICED": "{duration} zonder tarief",
 			"DAILY_LIMIT_LINE": "{limit} per dag",
 			"DAILY_LIMIT_HINT": "De stippellijn is een vijfde van je weeklimiet",
 			"PROJECTS_TITLE": "Tijd per project",

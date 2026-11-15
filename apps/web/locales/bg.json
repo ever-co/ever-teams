@@ -739,6 +739,7 @@
 			"LIMIT_SHARE": "{percent} от седмичния ви лимит",
 			"NO_LIMIT": "В профила ви няма зададен седмичен лимит.",
 			"LIMIT_BY_WEEK": "Седмичният ви лимит от {limit} се измерва седмица по седмица.",
+			"BILLABLE_UNPRICED": "{duration} без ставка",
 			"DAILY_LIMIT_LINE": "{limit} на ден",
 			"DAILY_LIMIT_HINT": "Пунктираната линия е една пета от седмичния ви лимит",
 			"PROJECTS_TITLE": "Време по проекти",

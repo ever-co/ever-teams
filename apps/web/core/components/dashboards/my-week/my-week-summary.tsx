@@ -6,8 +6,9 @@ import { LimitMeter, limitVerdictTextClassOf } from '@/core/components/dashboard
 import { DASHBOARD_SURFACE } from '@/core/components/dashboards/kit/recipes';
 import { DurationValue } from '@/core/components/dashboards/team/team-duration-value';
 import { VERDICT_LABEL_KEYS } from '@/core/components/dashboards/weekly-limit/limit-cells';
-import type { MyWeekPageState } from '@/core/hooks/dashboards/my-week/use-my-week-page';
+import type { MyWeekBillable, MyWeekPageState } from '@/core/hooks/dashboards/my-week/use-my-week-page';
 import { cn } from '@/core/lib/helpers';
+import { formatAmounts } from '@/core/lib/utils/daily-report-figures';
 import {
 	formatDurationShort,
 	formatHoursLabel,
@@ -16,6 +17,8 @@ import {
 } from '@/core/lib/utils/dashboard-figures';
 import type { MyWeekPeriodKey, MyWeekTarget } from '@/core/lib/utils/dashboards/my-week';
 import { leftOf, limitShareLabelOf, overrunOf } from '@/core/lib/utils/dashboards/weekly-limit';
+import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { MyWeekDays } from './my-week-days';
 import { MY_WEEK_FIGURE_PANE, MY_WEEK_SUMMARY_GRID } from './my-week-recipes';
 
@@ -142,12 +145,44 @@ function SupportingFigure({ label, value, hint }: Readonly<{ label: string; valu
 	);
 }
 
+/** The hours the amount comes from, or the part of them no rate prices. */
+function billableHintOf(billable: MyWeekBillable, t: Translate) {
+	const { seconds, unpricedSeconds } = billable.figures;
+	if (unpricedSeconds > 0) {
+		return t('dashboard.myWeek.BILLABLE_UNPRICED', { duration: formatDurationShort(unpricedSeconds) });
+	}
+	return t('dashboard.timeActivity.figures.BILLABLE_TIME', { duration: formatDurationShort(seconds) });
+}
+
+/** What the person's billable time bills: "2 480 € · 31h billable", amounts of each currency apart. */
+function BillableAmountFigure({ billable }: Readonly<{ billable: MyWeekBillable }>) {
+	const t = useTranslations();
+	const locale = useWorkspaceLocale();
+	const label = t('dashboard.timeActivity.columns.BILLABLE');
+	if (billable.isPending) {
+		return <SupportingFigure label={label} value={<span className={cn('block h-4 w-20', SKELETON_BAR)} />} />;
+	}
+	if (billable.isError) {
+		return <SupportingFigure label={label} value="–" hint={t('dashboard.timeActivity.figures.UNAVAILABLE')} />;
+	}
+	const { amounts } = billable.figures;
+	let value = '–';
+	if (amounts.length > 0) {
+		value = formatAmounts(amounts, locale);
+	}
+	return (
+		<SupportingFigure label={label} value={<span title={value}>{value}</span>} hint={billableHintOf(billable, t)} />
+	);
+}
+
 function SupportingFigures({ page }: Readonly<{ page: MyWeekPageState }>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const { todaySeconds, billableShare, billableSeconds } = page.figures;
 	const showsToday = todaySeconds !== null;
 	const showsBillable = billableShare !== null;
+	const hasBillableTime = billableSeconds > 0;
+	const showsAmount = page.billable.isOffered && hasBillableTime;
 	if (!showsToday && !showsBillable) {
 		return null;
 	}
@@ -161,6 +196,7 @@ function SupportingFigures({ page }: Readonly<{ page: MyWeekPageState }>) {
 					hint={formatDurationShort(billableSeconds)}
 				/>
 			)}
+			{showsAmount && <BillableAmountFigure billable={page.billable} />}
 		</dl>
 	);
 }
