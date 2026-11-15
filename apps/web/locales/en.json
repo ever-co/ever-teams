@@ -2078,6 +2078,18 @@
 				"LABEL": "Billable by default",
 				"HELP": "Applies to new entries; saved ones keep their value."
 			},
+			"visibility": {
+				"LABEL": "Visibility",
+				"EVERYONE_TITLE": "Everyone in the organization",
+				"EVERYONE_DETAIL": "Listed to everyone who sees projects.",
+				"PRIVATE_TITLE": "Members and managers only",
+				"PRIVATE_DETAIL": "Listed only to its members and managers, and to admins.",
+				"NOT_ENFORCED": "Everyone still sees it until an admin turns on Private projects in the workspace settings.",
+				"SETTING_SECTION": "Private projects",
+				"SETTING_LABEL": "Keep private projects to their people",
+				"SETTING_DESCRIPTION": "A project set to Members and managers only is listed only to them and to admins. Off, everyone sees every project.",
+				"SETTING_NOT_SAVED": "The setting was not saved."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archive {projectsCount} projects",

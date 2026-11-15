@@ -2161,6 +2161,18 @@
 				"LABEL": "Standardmäßig abrechenbar",
 				"HELP": "Gilt für neue Einträge; gespeicherte bleiben gleich."
 			},
+			"visibility": {
+				"LABEL": "Sichtbarkeit",
+				"EVERYONE_TITLE": "Alle in der Organisation",
+				"EVERYONE_DETAIL": "Für alle sichtbar, die Projekte sehen.",
+				"PRIVATE_TITLE": "Nur Mitglieder und Manager",
+				"PRIVATE_DETAIL": "Nur für seine Mitglieder und Manager sowie für Admins sichtbar.",
+				"NOT_ENFORCED": "Noch sehen es alle, bis ein Admin „Private Projekte“ in den Einstellungen des Arbeitsbereichs einschaltet.",
+				"SETTING_SECTION": "Private Projekte",
+				"SETTING_LABEL": "Private Projekte nur ihren Leuten zeigen",
+				"SETTING_DESCRIPTION": "Ein Projekt mit „Nur Mitglieder und Manager“ sehen nur diese und die Admins. Aus: Alle sehen alle Projekte.",
+				"SETTING_NOT_SAVED": "Die Einstellung wurde nicht gespeichert."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archivieren {projectsCount} Projekte",

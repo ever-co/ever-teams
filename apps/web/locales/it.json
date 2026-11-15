@@ -2117,6 +2117,18 @@
 				"LABEL": "Fatturabile per impostazione predefinita",
 				"HELP": "Vale per le nuove voci; quelle salvate non cambiano."
 			},
+			"visibility": {
+				"LABEL": "Visibilità",
+				"EVERYONE_TITLE": "Tutta l'organizzazione",
+				"EVERYONE_DETAIL": "Visibile a chiunque veda i progetti.",
+				"PRIVATE_TITLE": "Solo membri e manager",
+				"PRIVATE_DETAIL": "Visibile solo ai suoi membri e manager, e agli amministratori.",
+				"NOT_ENFORCED": "Tutti lo vedono ancora finché un amministratore non attiva Progetti privati nelle impostazioni dell'area di lavoro.",
+				"SETTING_SECTION": "Progetti privati",
+				"SETTING_LABEL": "Riservare i progetti privati alle loro persone",
+				"SETTING_DESCRIPTION": "Un progetto impostato su Solo membri e manager è visibile solo a loro e agli amministratori. Disattivato, tutti vedono tutti i progetti.",
+				"SETTING_NOT_SAVED": "L'impostazione non è stata salvata."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archivia {projectsCount} progetti",

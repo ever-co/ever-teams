@@ -2158,6 +2158,18 @@
 				"LABEL": "Facturable par défaut",
 				"HELP": "S'applique aux nouvelles saisies ; les autres ne changent pas."
 			},
+			"visibility": {
+				"LABEL": "Visibilité",
+				"EVERYONE_TITLE": "Toute l'organisation",
+				"EVERYONE_DETAIL": "Visible par toute personne qui voit les projets.",
+				"PRIVATE_TITLE": "Membres et gestionnaires seulement",
+				"PRIVATE_DETAIL": "Visible seulement par ses membres, ses gestionnaires et les administrateurs.",
+				"NOT_ENFORCED": "Tout le monde le voit encore tant qu'un administrateur n'active pas Projets privés dans les paramètres de l'espace de travail.",
+				"SETTING_SECTION": "Projets privés",
+				"SETTING_LABEL": "Réserver les projets privés à leurs membres",
+				"SETTING_DESCRIPTION": "Un projet réglé sur Membres et gestionnaires seulement n'est visible que par eux et par les administrateurs. Désactivé, tout le monde voit tous les projets.",
+				"SETTING_NOT_SAVED": "Le réglage n'a pas été enregistré."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archiver {projectsCount} projets",

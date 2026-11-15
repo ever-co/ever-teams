@@ -2097,6 +2097,18 @@
 				"LABEL": "默认可计费",
 				"HELP": "仅适用于新记录；已保存的记录保持不变。"
 			},
+			"visibility": {
+				"LABEL": "可见性",
+				"EVERYONE_TITLE": "组织内所有人",
+				"EVERYONE_DETAIL": "所有能查看项目的人都能看到。",
+				"PRIVATE_TITLE": "仅成员和管理员",
+				"PRIVATE_DETAIL": "只有它的成员和管理员，以及工作区管理员能看到。",
+				"NOT_ENFORCED": "在工作区管理员于工作区设置中开启“私有项目”之前，所有人仍能看到它。",
+				"SETTING_SECTION": "私有项目",
+				"SETTING_LABEL": "私有项目仅对其成员可见",
+				"SETTING_DESCRIPTION": "设为“仅成员和管理员”的项目只对他们和工作区管理员可见。关闭时，所有人都能看到所有项目。",
+				"SETTING_NOT_SAVED": "设置未保存。"
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "归档 {projectsCount} 个项目",

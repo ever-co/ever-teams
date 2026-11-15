@@ -2158,6 +2158,18 @@
 				"LABEL": "Standaard factureerbaar",
 				"HELP": "Geldt voor nieuwe registraties; oude blijven gelijk."
 			},
+			"visibility": {
+				"LABEL": "Zichtbaarheid",
+				"EVERYONE_TITLE": "Iedereen in de organisatie",
+				"EVERYONE_DETAIL": "Zichtbaar voor iedereen die projecten ziet.",
+				"PRIVATE_TITLE": "Alleen leden en managers",
+				"PRIVATE_DETAIL": "Alleen zichtbaar voor de leden en managers, en voor beheerders.",
+				"NOT_ENFORCED": "Iedereen ziet het nog tot een beheerder Privéprojecten aanzet in de instellingen van de werkruimte.",
+				"SETTING_SECTION": "Privéprojecten",
+				"SETTING_LABEL": "Privéprojecten alleen aan hun mensen tonen",
+				"SETTING_DESCRIPTION": "Een project op Alleen leden en managers zien alleen zij en de beheerders. Uit: iedereen ziet alle projecten.",
+				"SETTING_NOT_SAVED": "De instelling is niet opgeslagen."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archiveer {projectsCount} projecten",
