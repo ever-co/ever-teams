@@ -317,7 +317,8 @@ export function SharedReportPage({ token }: Readonly<{ token: string }>) {
 						<ReadError onRetry={() => void query.refetch()} />
 					</div>
 				)}
-				{query.data && <SharedReport report={query.data} />}
+				{/* A later read that failed hides the report read before: a link turned off shows no figures */}
+				{query.data && !query.isError && <SharedReport report={query.data} />}
 			</main>
 		</div>
 	);

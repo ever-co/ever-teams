@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 import React, { type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import type { IPublicSavedReport } from '@/core/types/interfaces/timesheet/saved-report';
 
 const mockReadShared = jest.fn();
@@ -137,6 +137,25 @@ describe('SharedReportPage', () => {
 		renderPage();
 
 		expect(await screen.findByText('sharedReport.NOT_WORKING_TITLE')).toBeTruthy();
+		expect(screen.queryByTestId('table')).toBeNull();
+	});
+
+	it('hides a report read before once a later read finds its link no longer works', async () => {
+		mockReadShared
+			.mockResolvedValueOnce(sharedReport())
+			.mockRejectedValue({ statusCode: 404, message: 'This report link does not work.' });
+		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		render(
+			<QueryClientProvider client={queryClient}>
+				<SharedReportPage token="tok-1" />
+			</QueryClientProvider>
+		);
+		expect(await screen.findByRole('heading', { name: 'Client A, last month' })).toBeTruthy();
+
+		await act(() => queryClient.refetchQueries());
+
+		expect(await screen.findByText('sharedReport.NOT_WORKING_TITLE')).toBeTruthy();
+		expect(screen.queryByRole('heading', { name: 'Client A, last month' })).toBeNull();
 		expect(screen.queryByTestId('table')).toBeNull();
 	});
 
