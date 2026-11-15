@@ -256,6 +256,19 @@ describe('splitCalendarEntry', () => {
 		expect(mockAddManualTime).not.toHaveBeenCalled();
 	});
 
+	it('reads the entry after it looks at the freed time, so that no wait comes between that read and the write', async () => {
+		mockUpdateTimeLog.mockRejectedValueOnce(new Error('timeout'));
+		mockGetTimeLogs.mockResolvedValueOnce([LOG]).mockResolvedValueOnce([{ ...LOG, stoppedAt: at(11) }]);
+
+		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'restored' }));
+		const [, freedTimeLookup] = mockGetTimeLogConflicts.mock.invocationCallOrder;
+		const [, entryRead] = mockGetTimeLogs.mock.invocationCallOrder;
+		expect(freedTimeLookup).toBeLessThan(entryRead);
+		expect(calls).toEqual(['update 9-13']);
+	});
+
 	it('says the outcome is not known when the entry can be neither shortened nor set back', async () => {
 		mockUpdateTimeLog.mockRejectedValueOnce(new Error('timeout')).mockRejectedValueOnce(new Error('offline'));
 		mockGetTimeLogs.mockResolvedValueOnce([LOG]).mockResolvedValueOnce([{ ...LOG, stoppedAt: at(11) }]);

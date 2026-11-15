@@ -173,10 +173,10 @@ function isSameWindow(first: TimeWindow | null, second: TimeWindow): boolean {
 
 /**
  * The shortening failed, yet its answer may only have been lost. A refusal of the API (a 4xx) changed nothing: the
- * entry is as it was, and nothing more is written. Otherwise the entry is read again first: still whole, nothing is
- * written; shortened as asked, it is set back to its whole time while the time it freed is still free; in any other
- * state (changed meanwhile, gone, not readable, or another entry saved on the freed time since) nothing is written
- * over it, and the outcome is to be checked.
+ * entry is as it was, and nothing more is written. Otherwise the time the shortening freed is looked at, then the
+ * entry is read again, right before any write: still whole, nothing is written; shortened as asked, it is set back to
+ * its whole time while the freed time is still free; in any other state (changed meanwhile, gone, not readable, or
+ * another entry saved on the freed time since) nothing is written over it, and the outcome is to be checked.
  */
 async function restoreAfterFailedShortening(
 	log: ITimeLog,
@@ -188,18 +188,17 @@ async function restoreAfterFailedShortening(
 	if (isRefusal) {
 		throw new CalendarSplitError('restored', shortenError);
 	}
+	// Another tab may have saved an entry on the freed time since: stretched back over it, the entry would overlap it.
+	// A server that cannot be read counts as taken. Looked at before the entry is read, so that no wait comes between
+	// that read and the write
+	const isFreedTimeTaken = await isTakenOnServer(log, windows.freed).catch(() => true);
 	const current = await currentLogOf(log);
 	const currentWindow = current ? windowOfLog(current) : null;
 	if (isSameWindow(currentWindow, windows.whole)) {
 		throw new CalendarSplitError('restored', shortenError);
 	}
-	if (!isSameWindow(currentWindow, windows.shortened)) {
-		throw new CalendarSplitError('unknown', shortenError);
-	}
-	// Another tab may have saved an entry on the freed time since: stretched back over it, the entry would overlap it.
-	// A server that cannot be read counts as taken
-	const isFreedTimeTaken = await isTakenOnServer(log, windows.freed).catch(() => true);
-	if (isFreedTimeTaken) {
+	const canRestore = isSameWindow(currentWindow, windows.shortened) && !isFreedTimeTaken;
+	if (!canRestore) {
 		throw new CalendarSplitError('unknown', shortenError);
 	}
 	try {
