@@ -2065,12 +2065,18 @@ describe('Ever Teams feature surface preservation', () => {
 		// (GET /api/timesheet/time-log/[id]/history, GET /api/timesheet/time-log/history; #5222).
 		// 378 files and 478 verbs with the time goals proxies (/api/time-goals GET and POST, progress GET, [id] PUT,
 		// [id]/archive PUT, [id]/restore PUT; #5213).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(378);
+		// 381 files and 481 verbs with the signed-in user's sessions (/api/auth/sessions GET, sign-out-others POST, [id]
+		// DELETE; #5220, ever-gauzy #11943).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(381);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(478);
+		).toHaveLength(481);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of Gauzy's routes of the signed-in user's own sessions (#5220, ever-gauzy #11943)
+				'apps/web/app/api/auth/sessions/route.ts::GET',
+				'apps/web/app/api/auth/sessions/sign-out-others/route.ts::POST',
+				'apps/web/app/api/auth/sessions/[id]/route.ts::DELETE',
 				// Proxy mode twins of the platform's time goal routes (#5213, ever-co/ever-gauzy#11918)
 				'apps/web/app/api/time-goals/route.ts::GET',
 				'apps/web/app/api/time-goals/route.ts::POST',

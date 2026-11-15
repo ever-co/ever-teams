@@ -20,7 +20,10 @@ export const queryKeys = {
 			signOut: ['auth', 'sign-out'] as const,
 			refreshToken: ['auth', 'refresh-token'] as const,
 			verifyEmail: ['auth', 'verify-email'] as const,
-			resetPassword: ['auth', 'reset-password'] as const
+			resetPassword: ['auth', 'reset-password'] as const,
+			// Where the signed-in user is signed in (Gauzy /auth/sessions): kept out of ['users'], which every saved
+			// profile field refreshes, while the sessions do not depend on the profile
+			sessions: (userId: string | undefined | null) => ['auth', 'sessions', ...(userId ? [userId] : [])] as const
 		},
 		emailReset: {
 			all: ['users', 'email-reset'] as const,
