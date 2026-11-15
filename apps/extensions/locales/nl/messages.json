@@ -44,6 +44,24 @@
 	"signInChooseWorkspace": {
 		"message": "Kies een werkruimte"
 	},
+	"signInTwoFactorLabel": {
+		"message": "Authenticatiecode"
+	},
+	"signInTwoFactorHint": {
+		"message": "Een 6-cijferige code uit je authenticator-app, of een van je herstelcodes."
+	},
+	"signInTwoFactorIncomplete": {
+		"message": "Voer een 6-cijferige code of een volledige herstelcode in."
+	},
+	"signInTwoFactorWrongCode": {
+		"message": "Deze code klopt niet. Voer de code in die je app nu toont, of een herstelcode."
+	},
+	"signInTwoFactorExpired": {
+		"message": "Deze aanmelding heeft te lang op haar code gewacht. Log opnieuw in."
+	},
+	"signInTwoFactorTooMany": {
+		"message": "Te veel verkeerde codes. Wacht een paar minuten en probeer het dan opnieuw."
+	},
 	"headerTeam": {
 		"message": "Team"
 	},

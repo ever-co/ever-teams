@@ -2,6 +2,7 @@ import { publicRequest, sessionRequest } from '~lib/api-client';
 import { idListOf, optionalField } from '~lib/optional';
 import type { PlanLike } from '~lib/plan-rule';
 import { EXTENSION_SOURCE, heartbeatSecondsOf, stopSourceOf } from '~lib/run-policy';
+import type { TwoFactorProof } from '~lib/two-factor';
 import { sessionFrom, workspacesOf, type Session, type WorkspaceChoice } from '~lib/workspaces';
 
 export { EXTENSION_SOURCE };
@@ -58,6 +59,23 @@ export async function enterWorkspace(
 	const answer = await publicRequest<unknown>(apiUrl, '/auth/signin.workspace', {
 		method: 'POST',
 		body: { email, token: workspace.token, ...optionalField('teamId', workspace.lastTeamId) }
+	});
+	return sessionFrom(answer, workspace, apiUrl);
+}
+
+/**
+ * Completes a workspace sign-in that asked for the two-factor code: the challenge it answered and the code (or a
+ * recovery code) are traded for the session (`POST /auth/two-factor/verify`); null when the API answered no session.
+ */
+export async function verifySignInCode(
+	apiUrl: string,
+	challenge: string,
+	proof: TwoFactorProof,
+	workspace: WorkspaceChoice
+): Promise<Session | null> {
+	const answer = await publicRequest<unknown>(apiUrl, '/auth/two-factor/verify', {
+		method: 'POST',
+		body: { challenge, ...proof }
 	});
 	return sessionFrom(answer, workspace, apiUrl);
 }

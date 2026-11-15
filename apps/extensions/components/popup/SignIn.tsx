@@ -4,9 +4,10 @@ import React, { useState, type FC, type FormEvent } from 'react';
 import Notice from '~components/shared/Notice';
 import { SpinnerIcon } from '~components/shared/Icons';
 import { ApiError } from '~lib/api-client';
-import { confirmSignInCode, enterWorkspace, sendSignInCode } from '~lib/gauzy';
+import { confirmSignInCode, enterWorkspace, sendSignInCode, verifySignInCode } from '~lib/gauzy';
 import { t } from '~lib/i18n';
 import { refusalOf } from '~lib/refusal';
+import { twoFactorProofOf, twoFactorRefusalOf, type TwoFactorChallenge } from '~lib/two-factor';
 import type { Session, WorkspaceChoice } from '~lib/workspaces';
 import { inheritTextSize, primaryButton, roundInput } from '~misc/tailwindClasses';
 
@@ -16,11 +17,21 @@ interface SignInProps {
 	onOpenSettings: () => void;
 }
 
-type Step = 'email' | 'code' | 'workspace';
+type Step = 'email' | 'code' | 'workspace' | 'two-factor';
+
+/** A workspace sign-in that asked for the two-factor code: its challenge, and the workspace the code opens. */
+interface PendingTwoFactor {
+	challenge: TwoFactorChallenge;
+	workspace: WorkspaceChoice;
+}
 
 /** The words for a failed sign-in step: a refused code says so, anything else as everywhere in the popup. */
-function signInErrorOf(error: unknown, step: Step): string {
+function signInErrorOf(error: unknown, step: Step, pending: PendingTwoFactor | null): string {
 	if (error instanceof ApiError) {
+		if (step === 'two-factor' && pending) {
+			const refusal = twoFactorRefusalOf(error, pending.challenge.expiresAt, Date.now());
+			return t(refusal.key, refusal.reason);
+		}
 		const isRefusedCode = step === 'code' && (error.status === 400 || error.status === 401);
 		if (isRefusedCode) {
 			return t('signInWrongCode');
@@ -39,22 +50,74 @@ function labelWhile(busy: boolean, busyKey: string, idleKey: string): string {
 	return t(idleKey);
 }
 
-/** Sign-in with the email code of the web: email, then the code sent to it, then the workspace when there are several. */
+/** The code step of an account with two-factor authentication: a code of the authenticator app, or a recovery code. */
+const TwoFactorForm: FC<{ busy: boolean; onProof: (value: string) => void }> = ({ busy, onProof }) => {
+	const [value, setValue] = useState('');
+
+	const onSubmit = (event: FormEvent) => {
+		event.preventDefault();
+		onProof(value);
+	};
+
+	return (
+		<form className="flex flex-col gap-2" onSubmit={onSubmit}>
+			<label className="text-sm font-medium" htmlFor="sign-in-two-factor">
+				{t('signInTwoFactorLabel')}
+			</label>
+			<input
+				id="sign-in-two-factor"
+				required
+				autoComplete="one-time-code"
+				autoFocus
+				aria-describedby="sign-in-two-factor-hint"
+				className={roundInput}
+				value={value}
+				onChange={(event) => setValue(event.target.value)}
+			/>
+			<p id="sign-in-two-factor-hint" className="text-xs text-zinc-500 dark:text-zinc-400">
+				{t('signInTwoFactorHint')}
+			</p>
+			<button type="submit" className={primaryButton} disabled={busy || !value.trim()}>
+				{busy && <SpinnerIcon className="h-4 w-4" />}
+				{labelWhile(busy, 'signInConfirming', 'signInConfirm')}
+			</button>
+		</form>
+	);
+};
+
+/**
+ * Sign-in with the email code of the web: email, then the code sent to it, then the workspace when there are several,
+ * then the code of the authenticator app when the account asks for it.
+ */
 export const SignIn: FC<SignInProps> = ({ apiUrl, onSignedIn, onOpenSettings }) => {
 	const [step, setStep] = useState<Step>('email');
 	const [email, setEmail] = useState('');
 	const [code, setCode] = useState('');
 	const [workspaces, setWorkspaces] = useState<WorkspaceChoice[]>([]);
+	const [pending, setPending] = useState<PendingTwoFactor | null>(null);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
-	const enter = async (workspace: WorkspaceChoice) => {
-		const session = await enterWorkspace(apiUrl, email.trim(), workspace);
+	const signedInWith = async (session: Session | null) => {
 		if (!session) {
 			setError(t('errorGeneric'));
 			return;
 		}
 		await onSignedIn(session);
+	};
+
+	const enter = async (workspace: WorkspaceChoice) => {
+		try {
+			await signedInWith(await enterWorkspace(apiUrl, email.trim(), workspace));
+		} catch (failure) {
+			// The account asks for its two-factor code: the sign-in waits for it instead of ending
+			const challenge = failure instanceof ApiError ? failure.twoFactor : undefined;
+			if (!challenge) {
+				throw failure;
+			}
+			setPending({ challenge, workspace });
+			setStep('two-factor');
+		}
 	};
 
 	const run = async (work: () => Promise<void>) => {
@@ -63,7 +126,7 @@ export const SignIn: FC<SignInProps> = ({ apiUrl, onSignedIn, onOpenSettings }) 
 		try {
 			await work();
 		} catch (failure) {
-			setError(signInErrorOf(failure, step));
+			setError(signInErrorOf(failure, step, pending));
 		} finally {
 			setBusy(false);
 		}
@@ -98,10 +161,22 @@ export const SignIn: FC<SignInProps> = ({ apiUrl, onSignedIn, onOpenSettings }) 
 		void run(() => enter(workspace));
 	};
 
+	const onSubmitProof = (value: string) => {
+		const proof = twoFactorProofOf(value);
+		if (!pending || !proof) {
+			setError(t('signInTwoFactorIncomplete'));
+			return;
+		}
+		void run(async () => {
+			await signedInWith(await verifySignInCode(apiUrl, pending.challenge.challenge, proof, pending.workspace));
+		});
+	};
+
 	const restart = () => {
 		setStep('email');
 		setCode('');
 		setWorkspaces([]);
+		setPending(null);
 		setError(null);
 	};
 
@@ -179,6 +254,8 @@ export const SignIn: FC<SignInProps> = ({ apiUrl, onSignedIn, onOpenSettings }) 
 					))}
 				</ul>
 			)}
+
+			{step === 'two-factor' && <TwoFactorForm busy={busy} onProof={onSubmitProof} />}
 
 			{error && <Notice tone="error">{error}</Notice>}
 

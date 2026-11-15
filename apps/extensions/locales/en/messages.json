@@ -44,6 +44,24 @@
 	"signInChooseWorkspace": {
 		"message": "Choose a workspace"
 	},
+	"signInTwoFactorLabel": {
+		"message": "Authentication code"
+	},
+	"signInTwoFactorHint": {
+		"message": "A 6-digit code from your authenticator app, or one of your recovery codes."
+	},
+	"signInTwoFactorIncomplete": {
+		"message": "Enter a 6-digit code or a whole recovery code."
+	},
+	"signInTwoFactorWrongCode": {
+		"message": "This code is not right. Enter the code your app shows now, or a recovery code."
+	},
+	"signInTwoFactorExpired": {
+		"message": "This sign-in waited too long for its code. Sign in again."
+	},
+	"signInTwoFactorTooMany": {
+		"message": "Too many wrong codes. Wait a few minutes, then try again."
+	},
 	"headerTeam": {
 		"message": "Team"
 	},
