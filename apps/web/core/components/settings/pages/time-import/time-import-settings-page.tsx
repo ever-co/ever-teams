@@ -8,6 +8,7 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { Lock } from '@/core/components/icons';
 import { SettingsPage } from '@/core/components/settings/kit/settings-page';
 import { TeamSettingsGate } from '@/core/components/settings/kit/team-settings-gate';
+import { useMemberPlaceholders } from '@/core/hooks/settings/use-member-placeholders';
 import { useTimeImport } from '@/core/hooks/timesheet/use-time-import';
 import { type TimeImportAccess, useTimeImportAccess } from '@/core/hooks/timesheet/use-time-import-access';
 import { downloadCsv } from '@/core/lib/utils/dashboard-export';
@@ -16,6 +17,7 @@ import { TimeImportChecking } from './time-import-checking';
 import { TimeImportColumnsGuide } from './time-import-columns-guide';
 import { TimeImportColumnsStep } from './time-import-columns-step';
 import { useTimeImportCopy } from './time-import-copy';
+import { TimeImportPlaceholderOffer } from './time-import-placeholder-offer';
 import { TimeImportResult } from './time-import-result';
 import { TimeImportSettingsSkeleton } from './time-import-settings-skeleton';
 import { TimeImportUpload } from './time-import-upload';
@@ -51,8 +53,11 @@ interface ImportFlowProps {
 function TimeImportFlow({ access, modeSwitch }: Readonly<ImportFlowProps>) {
 	const copy = useTimeImportCopy();
 	const timeImport = useTimeImport({ contextAt: access.contextAt, saveScope: access.saveScope });
+	const placeholders = useMemberPlaceholders();
 	const { canImportForOthers } = access;
 	const { stage, chooseFile, columnsStep } = timeImport;
+	// Only who may book time for others meets rows of people outside the team, and only who may add members adds them
+	const offersPlaceholders = canImportForOthers && placeholders.isOffered;
 
 	const downloadTemplate = useCallback(() => {
 		const columns = timeImportTemplateCsvColumnsOf(canImportForOthers);
@@ -100,7 +105,24 @@ function TimeImportFlow({ access, modeSwitch }: Readonly<ImportFlowProps>) {
 					onChooseAnother={timeImport.reset}
 				/>
 			)}
-			{showsRows && <TimeImportResult timeImport={timeImport} copy={copy} onDownloadReport={downloadReport} />}
+			{showsRows && (
+				<TimeImportResult
+					timeImport={timeImport}
+					copy={copy}
+					onDownloadReport={downloadReport}
+					offer={
+						offersPlaceholders && (
+							<TimeImportPlaceholderOffer
+								rows={timeImport.rows}
+								previewRun={timeImport.previewRun}
+								outsideTeamKeys={timeImport.outsideTeamKeys}
+								onAdd={placeholders.addPlaceholders}
+								onAdded={timeImport.recheckWithMembers}
+							/>
+						)
+					}
+				/>
+			)}
 			{isIdle && (
 				<TimeImportColumnsGuide
 					canImportForOthers={canImportForOthers}
