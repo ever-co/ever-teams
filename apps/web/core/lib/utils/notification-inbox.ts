@@ -84,10 +84,10 @@ export function quotedSubjectOf(title: string): string | null {
 
 /** The actor's name, read off the platform's English title (`Ana Assigned you …`). */
 export function senderNameFromTitle(title: string): string | null {
-	// A chat title quotes the message after `: `, and its text can hold any of the verbs: only the head is searched,
-	// and the verb that comes first in it is the one after the name.
-	const colon = title.indexOf(': ');
-	const head = colon >= 0 ? title.slice(0, colon) : title;
+	// A chat title quotes the message after `: `, and a quoted subject (a task's title) can hold any of the verbs too:
+	// only the head before either is searched, and the verb that comes first in it is the one after the name.
+	const ends = [title.indexOf(': '), title.indexOf('"')].filter((index) => index >= 0);
+	const head = ends.length ? title.slice(0, Math.min(...ends)) : title;
 	let first = -1;
 	for (const word of TITLE_ACTION_WORDS) {
 		const position = head.indexOf(word);

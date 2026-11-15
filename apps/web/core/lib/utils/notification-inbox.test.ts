@@ -104,3 +104,23 @@ describe('toNotificationEntry for a due date reminder (#5022)', () => {
 		expect(entry.senderName).toBeNull();
 	});
 });
+
+describe('senderNameFromTitle and a quoted subject (#5022)', () => {
+	it('reads no sender from a verb inside the quoted subject', () => {
+		const entry = toNotificationEntry(
+			notification({
+				title: 'The Task "Review Updated API" is due in 3 hours',
+				type: EEmployeeNotificationType.TaskDueReminder,
+				entity: EBaseEntityEnum.Task,
+				entityId: 'task-1'
+			})
+		);
+		expect(entry.senderName).toBeNull();
+		expect(entry.subject).toBe('Review Updated API');
+	});
+
+	it('still reads the sender before the subject', () => {
+		const entry = toNotificationEntry(notification({ title: 'Ana Lima Updated the Task "Assigned to nobody"' }));
+		expect(entry.senderName).toBe('Ana Lima');
+	});
+});
