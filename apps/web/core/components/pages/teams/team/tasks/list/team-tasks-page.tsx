@@ -16,6 +16,7 @@ import { useTeamTasksLoadState } from '@/core/hooks/tasks/use-team-tasks-load-st
 import { useTeamTaskUpdates } from '@/core/hooks/tasks/use-team-task-updates';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useAnsweredKeys } from '@/core/hooks/keyboard/use-answered-keys';
 import { useShortcutHandlers } from '@/core/hooks/keyboard/use-shortcuts';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import { viewTasksState } from '@/core/stores/tasks/task-views';
@@ -57,6 +58,9 @@ import { useNewViewRequest } from '../views/use-new-view-request';
 import { TaskViewToolbarActions } from '../views/task-view-toolbar-actions';
 import { useSavedViewCommands } from '../views/use-saved-view-commands';
 import { builtInViewLabelKey } from '@/core/lib/utils/task-views-index';
+
+/** The key the page's Esc answers while it has a selection, as the shortcuts sheet names it. */
+const SELECTION_CLEAR_KEY_IDS: readonly string[] = ['listClear'];
 
 interface PendingEdit {
 	kind: TeamTaskPickerKind;
@@ -339,6 +343,8 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 			? t('taskViews.SHOWING_OF', { shown: viewContext.tasks.length, total: viewContext.total })
 			: undefined;
 
+	const clearsSelectionByKey = hasSelection && !hasLayerOpen;
+	useAnsweredKeys(SELECTION_CLEAR_KEY_IDS, clearsSelectionByKey);
 	useEffect(() => {
 		const isListening = hasSelection && !hasLayerOpen;
 		if (!isListening) {

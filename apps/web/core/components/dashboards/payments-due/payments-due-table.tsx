@@ -100,6 +100,7 @@ const MemberGroupBlock = memo(function MemberGroupBlock({
 					currency={group.currency}
 					rateSource={group.rateSource}
 					ratePending={group.ratePending}
+					hasSeveralRates={group.hasSeveralRates}
 				/>
 			</span>
 			<span role="cell" className={TRACKED_CELL}>

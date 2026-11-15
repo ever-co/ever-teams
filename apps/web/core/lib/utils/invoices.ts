@@ -12,11 +12,14 @@ import {
 	roundedAmountOf,
 	type OwedCurrencyTotal
 } from '@/core/lib/utils/dashboards/payments-due';
+import { isTimeBilledElsewhere } from '@/core/lib/utils/invoice-billed-time';
+import { roundedSecondsOf, type DurationRoundingRule } from '@/core/lib/utils/duration-rounding';
 import { invoiceTotalsOf, NO_ADJUSTMENTS, type InvoiceAdjustments } from '@/core/lib/utils/invoice-totals';
 import { effectiveBillRate, employeeRateValueOf, rateValueOf } from '@/core/lib/utils/rates';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 
 export interface BillableLogLike {
+	id?: string | null;
 	projectId?: string | null;
 	employeeId?: string | null;
 	taskId?: string | null;
@@ -31,6 +34,8 @@ export interface BillableEntry {
 	employeeId: string;
 	taskId: string | null;
 	seconds: number;
+	/** The time logs it adds up, as far as they state their id. */
+	timeLogIds?: ReadonlyArray<string>;
 }
 
 const MILLISECONDS_PER_SECOND = 1000;
@@ -61,19 +66,64 @@ function secondsOfLog(log: BillableLogLike) {
 	return Math.max(seconds, 0);
 }
 
+/**
+ * A group's log ids with an entry's appended. The first list a group takes is a copy, so an entry's own list is never
+ * changed; after that the group's list grows in place, since a copy per entry would grow with the square of the logs
+ * on a large invoice.
+ */
+function joinedTimeLogIds(current: ReadonlyArray<string> | undefined, added: ReadonlyArray<string> | undefined) {
+	if (!added?.length) {
+		return current;
+	}
+	if (!current) {
+		return [...added];
+	}
+	const groupLogIds = current as string[];
+	for (const logId of added) {
+		groupLogIds.push(logId);
+	}
+	return groupLogIds;
+}
+
+/** A log's id joins its entry's own list in place: a copy per log would grow with the square of the logs. */
+function appendLogId(logIdsByKey: Map<string, string[]>, key: string, logId: string) {
+	const logIds = logIdsByKey.get(key);
+	if (logIds) {
+		logIds.push(logId);
+		return;
+	}
+	logIdsByKey.set(key, [logId]);
+}
+
+function entriesWithLogIds(byKey: ReadonlyMap<string, BillableEntry>, logIdsByKey: ReadonlyMap<string, string[]>) {
+	const entries: BillableEntry[] = [];
+	for (const [key, entry] of byKey) {
+		const timeLogIds = logIdsByKey.get(key);
+		if (timeLogIds) {
+			entries.push({ ...entry, timeLogIds });
+			continue;
+		}
+		entries.push(entry);
+	}
+	return entries;
+}
+
 function entryKeyOf(projectId: string, employeeId: string, taskId: string | null) {
 	return [projectId, employeeId, taskId ?? ''].join('|');
 }
 
 /**
  * The billable time of the given projects, per project, member and task. A log counts only when the API states it is
- * billable: the filter the request also asks for is not trusted alone, an older API ignores it.
+ * billable: the filter the request also asks for is not trusted alone, an older API ignores it. With the workspace's
+ * rounding rule, each log is rounded before the time adds up, as Time & activity shows it.
  */
 export function billableEntriesOf(
 	logs: ReadonlyArray<BillableLogLike>,
-	projectIds: ReadonlySet<string>
+	projectIds: ReadonlySet<string>,
+	roundingRule: DurationRoundingRule | null = null
 ): BillableEntry[] {
 	const byKey = new Map<string, BillableEntry>();
+	const logIdsByKey = new Map<string, string[]>();
 	for (const log of logs) {
 		const projectId = log.projectId;
 		const employeeId = log.employeeId;
@@ -86,7 +136,7 @@ export function billableEntriesOf(
 		if (!projectIds.has(projectId)) {
 			continue;
 		}
-		const seconds = secondsOfLog(log);
+		const seconds = roundedSecondsOf(secondsOfLog(log), roundingRule);
 		if (seconds <= 0) {
 			continue;
 		}
@@ -94,9 +144,13 @@ export function billableEntriesOf(
 		const key = entryKeyOf(projectId, employeeId, taskId);
 		const entry = byKey.get(key) ?? { projectId, employeeId, taskId, seconds: 0 };
 		entry.seconds += seconds;
+		const logId = log.id;
+		if (logId) {
+			appendLogId(logIdsByKey, key, logId);
+		}
 		byKey.set(key, entry);
 	}
-	return [...byKey.values()];
+	return entriesWithLogIds(byKey, logIdsByKey);
 }
 
 export interface ProjectClientRates {
@@ -191,6 +245,11 @@ export interface InvoiceLine {
 	rateSource: InvoiceLineRateSource;
 	/** The members of the project are billed different rates: the line states their average, weighted by time. */
 	isAverageRate: boolean;
+	/**
+	 * The time logs the line bills, when known: a line built from time names them, a saved line once its time is
+	 * read.
+	 */
+	timeLogIds?: ReadonlyArray<string>;
 }
 
 export interface UnpricedTime {
@@ -216,8 +275,9 @@ function groupedEntriesOf(entries: ReadonlyArray<BillableEntry>, grouping: Invoi
 	const byMember = new Map<string, BillableEntry>();
 	for (const entry of entries) {
 		const key = memberKeyOf(entry.projectId, entry.employeeId);
-		const current = byMember.get(key) ?? { ...entry, taskId: null, seconds: 0 };
+		const current = byMember.get(key) ?? { ...entry, taskId: null, seconds: 0, timeLogIds: undefined };
 		current.seconds += entry.seconds;
+		current.timeLogIds = joinedTimeLogIds(current.timeLogIds, entry.timeLogIds);
 		byMember.set(key, current);
 	}
 	return [...byMember.values()];
@@ -269,6 +329,7 @@ interface ProjectWorth {
 	worth: number;
 	rates: Set<number>;
 	secondsBySource: Map<InvoiceRateSource, number>;
+	timeLogIds?: ReadonlyArray<string>;
 }
 
 function projectWorthKeyOf(projectId: string, currency: string | null) {
@@ -297,6 +358,7 @@ function addProjectWorth(byProject: Map<string, ProjectWorth>, entry: BillableEn
 	current.rates.add(price.rate);
 	const sourceSeconds = current.secondsBySource.get(price.source) ?? 0;
 	current.secondsBySource.set(price.source, sourceSeconds + entry.seconds);
+	current.timeLogIds = joinedTimeLogIds(current.timeLogIds, entry.timeLogIds);
 	byProject.set(key, current);
 }
 
@@ -336,7 +398,8 @@ function projectLineOf(project: ProjectWorth): InvoiceLine | null {
 		currency: project.currency,
 		amount: lineAmountOf(hours, rate),
 		rateSource: mainRateSourceOf(project.secondsBySource),
-		isAverageRate: project.rates.size > 1
+		isAverageRate: project.rates.size > 1,
+		timeLogIds: project.timeLogIds
 	};
 }
 
@@ -401,7 +464,8 @@ export function invoiceTimeOf({
 			currency,
 			amount: lineAmountOf(hours, rate),
 			rateSource: source,
-			isAverageRate: false
+			isAverageRate: false,
+			timeLogIds: entry.timeLogIds
 		});
 	}
 	return { lines, unpriced: [...unpricedByMember.values()] };
@@ -803,7 +867,8 @@ export function invoiceProblemsOf(facts: InvoiceDraftFacts): InvoiceProblem[] {
 	return problems;
 }
 
-export type InvoiceSaveFailure = 'refused' | 'unconfirmed';
+/** `timeBilled`: refused because part of its time was billed by another invoice, or deleted, since it was read. */
+export type InvoiceSaveFailure = 'refused' | 'unconfirmed' | 'timeBilled';
 
 function isRefusalStatus(status: number) {
 	return status >= 400 && status < 500;
@@ -815,6 +880,9 @@ function isRefusalStatus(status: number) {
  * server failure, or with an answer that could not be read, the invoice may have been saved all the same.
  */
 export function invoiceSaveFailureOf(error: unknown): InvoiceSaveFailure {
+	if (isTimeBilledElsewhere(error)) {
+		return 'timeBilled';
+	}
 	if (!ApiErrorService.isApiError(error)) {
 		return 'unconfirmed';
 	}
@@ -865,6 +933,25 @@ function dayEndOf(dayKey: string, timeZone: string | null | undefined) {
 	return endOfDay(day).toISOString();
 }
 
+const DAY_KEY_FORMATS = new Map<string, Intl.DateTimeFormat>();
+
+/** One formatter per zone, kept: a list dates three days per invoice and must not build one each time. */
+function dayKeyFormatOf(timeZone: string | null | undefined) {
+	const zone = timeZone?.trim() ?? '';
+	const cached = DAY_KEY_FORMATS.get(zone);
+	if (cached) {
+		return cached;
+	}
+	const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
+	if (zone) {
+		options.timeZone = zone;
+	}
+	// The Canadian English form of a date is the day key itself: 2026-10-05.
+	const format = new Intl.DateTimeFormat('en-CA', options);
+	DAY_KEY_FORMATS.set(zone, format);
+	return format;
+}
+
 /** The calendar day an invoice date stands for in the organization's zone, the one the API's PDF prints it in. */
 export function invoiceDayOf(date: string | null | undefined, timeZone: string | null | undefined): string | null {
 	if (!date) {
@@ -874,15 +961,8 @@ export function invoiceDayOf(date: string | null | undefined, timeZone: string |
 	if (Number.isNaN(instant.getTime())) {
 		return null;
 	}
-	const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
-	const zone = timeZone?.trim();
-	if (zone) {
-		options.timeZone = zone;
-	}
 	try {
-		// The Canadian English form of a date is the day key itself: 2026-10-05.
-		const format = new Intl.DateTimeFormat('en-CA', options);
-		return format.format(instant);
+		return dayKeyFormatOf(timeZone).format(instant);
 	} catch {
 		return localDayKeyOf(instant);
 	}
@@ -901,6 +981,8 @@ export interface InvoiceItemRequest {
 	applyDiscount: boolean;
 	organizationId: string;
 	tenantId: string;
+	/** The time logs the line bills, which the API marks as billed by it in the save. */
+	timeLogIds?: string[];
 }
 
 export interface InvoiceRequest {
@@ -946,6 +1028,8 @@ export interface InvoiceRequestInput {
 	descriptions: ReadonlyMap<string, string>;
 	adjustments?: InvoiceAdjustments;
 	note?: string;
+	/** The API records the time each line bills: the lines name their time logs. An older API is sent none. */
+	recordsBilledTime?: boolean;
 }
 
 function isAboveZero(percent: number | null) {
@@ -976,6 +1060,12 @@ function itemRequestOf(
 	}
 	if (line.taskId) {
 		item.taskId = line.taskId;
+	}
+	const timeLogIds = line.timeLogIds ?? [];
+	const recordsTime = input.recordsBilledTime === true;
+	const namesTimeLogs = timeLogIds.length > 0;
+	if (recordsTime && namesTimeLogs) {
+		item.timeLogIds = [...timeLogIds];
 	}
 	return item;
 }
@@ -1091,8 +1181,14 @@ export function invoiceMonthTextOf(monthKey: string, locale: string): string | n
 }
 
 /** Hours as the invoice states them, always to the hundredth: 10.50, never 10.5. */
+const HOURS_FORMATS = new Map<string, Intl.NumberFormat>();
+
 export function formatInvoiceHours(hours: number, locale: string) {
-	const format = new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+	let format = HOURS_FORMATS.get(locale);
+	if (!format) {
+		format = new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+		HOURS_FORMATS.set(locale, format);
+	}
 	return format.format(hours);
 }
 

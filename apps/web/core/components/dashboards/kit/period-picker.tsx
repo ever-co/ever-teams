@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/commo
 import { SelectedMark } from '@/core/components/common/selected-mark';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
+import { PILL_GROUP, PILL_TRIGGER } from './recipes';
 import {
 	DEFAULT_PERIOD_PRESETS,
 	formatPeriod,
@@ -33,14 +34,8 @@ const PRESET_LABEL_KEYS: Record<PeriodPresetKey, DottedLanguageObjectStringPaths
 	lastMonth: 'common.LAST_MONTH'
 };
 
-const GROUP =
-	'inline-flex h-8 shrink-0 items-center rounded-full bg-card p-0.5 hairline-ring ring-foreground/10 shadow-[0_1px_2px_rgb(0_0_0/0.06)] dark:bg-foreground/5';
-
 const STEP_BUTTON =
 	'inline-flex size-7 items-center justify-center rounded-full text-muted-foreground outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 [&_svg]:size-4';
-
-const TRIGGER =
-	'inline-flex h-7 min-w-0 items-center gap-1.5 rounded-full px-2 text-[13px] font-medium text-foreground outline-none transition-colors hover:bg-foreground/5 focus-visible:ring-[3px] focus-visible:ring-ring/25 data-[state=open]:bg-foreground/5 [&_svg]:size-4 [&_svg]:text-muted-foreground';
 
 function completedPeriodOf(range: DateRange | undefined): Period | null {
 	const from = range?.from;
@@ -119,7 +114,7 @@ export function PeriodPicker({
 	const shownRange = draft ?? { from: value.from, to: value.to };
 
 	return (
-		<div className={cn(GROUP, className)} role="group" aria-label={t('dashboard.period.LABEL')}>
+		<div className={cn(PILL_GROUP, className)} role="group" aria-label={t('dashboard.period.LABEL')}>
 			<button
 				type="button"
 				className={STEP_BUTTON}
@@ -130,7 +125,7 @@ export function PeriodPicker({
 			</button>
 			<Popover open={isOpen} onOpenChange={handleOpenChange}>
 				<PopoverTrigger asChild>
-					<button type="button" className={TRIGGER} title={periodText}>
+					<button type="button" className={PILL_TRIGGER} title={periodText}>
 						<CalendarIcon />
 						<span className="truncate">{triggerLabel}</span>
 					</button>

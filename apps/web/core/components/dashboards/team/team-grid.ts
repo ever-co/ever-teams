@@ -11,3 +11,8 @@ export const WIDE_SPAN = 'col-span-2 lg:col-span-8';
 export const NARROW_SPAN = 'col-span-2 lg:col-span-4';
 
 export const FULL_SPAN = 'col-span-2 lg:col-span-12';
+
+/** Two cards that share a row from xl (8 + 4 columns), each on its own row below, where 8 columns are too narrow. */
+export const PAIRED_WIDE_SPAN = 'col-span-2 lg:col-span-12 xl:col-span-8';
+
+export const PAIRED_NARROW_SPAN = 'col-span-2 lg:col-span-12 xl:col-span-4';

@@ -1,5 +1,6 @@
 'use client';
 
+import { usePastTimeRule } from '@/core/hooks/organizations/rates/use-past-time-rule';
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import type { ExportOption } from '@/core/components/dashboards/kit/export-menu';
@@ -22,7 +23,9 @@ import {
 	type BudgetGroup,
 	type BudgetRow,
 	type BudgetScope,
-	type BudgetTotal
+	type BudgetTotal,
+	type CostNoteKey,
+	costNoteKeyOf
 } from '@/core/lib/utils/dashboards/project-budget';
 import type { Period } from '@/core/lib/utils/dashboard-period';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
@@ -191,9 +194,19 @@ interface PdfInput {
 	figures: BudgetFigures;
 	locale: FormatLocale;
 	t: Translate;
+	costNoteKey: CostNoteKey;
 }
 
-function pdfContentOf({ scope, period, groups, totals, figures, locale, t }: PdfInput): ProjectBudgetPdfContent {
+function pdfContentOf({
+	scope,
+	period,
+	groups,
+	totals,
+	figures,
+	locale,
+	t,
+	costNoteKey
+}: PdfInput): ProjectBudgetPdfContent {
 	const generatedFormat = dateFormatOf(locale, { dateStyle: 'medium', timeStyle: 'short' });
 	const generatedAt = generatedFormat.format(new Date());
 	return {
@@ -201,7 +214,7 @@ function pdfContentOf({ scope, period, groups, totals, figures, locale, t }: Pdf
 		scope: scopeTextOf(scope, period, locale, t),
 		generatedOn: t('dashboard.projectBudget.PDF_GENERATED', { date: generatedAt }),
 		summary: summaryOf(figures, locale, t),
-		notes: budgetNotesOf(figures, scope, t),
+		notes: budgetNotesOf(figures, scope, t, costNoteKey),
 		columns: {
 			project: t('dashboard.projectBudget.COLUMN_PROJECT'),
 			type: t('dashboard.projectBudget.COLUMN_TYPE'),
@@ -231,10 +244,11 @@ export function useProjectBudgetExportOptions({
 	figures: BudgetFigures;
 }>): ExportOption[] {
 	const t = useTranslations();
+	const costNoteKey = costNoteKeyOf(usePastTimeRule());
 	const locale = useWorkspaceLocale();
 
 	return useMemo(() => {
-		const pdfInput: PdfInput = { scope, period, groups, totals, figures, locale, t };
+		const pdfInput: PdfInput = { scope, period, groups, totals, figures, locale, t, costNoteKey };
 		const pdfFileName = fileNameOf(scope, period, 'pdf');
 		const csvFileName = fileNameOf(scope, period, 'csv');
 		return [
@@ -260,5 +274,5 @@ export function useProjectBudgetExportOptions({
 				}
 			}
 		];
-	}, [figures, groups, locale, period, scope, t, totals]);
+	}, [costNoteKey, figures, groups, locale, period, scope, t, totals]);
 }

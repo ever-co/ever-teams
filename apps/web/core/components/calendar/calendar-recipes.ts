@@ -5,7 +5,7 @@ import { dataColorHue, isPaintableColor } from '@/core/components/tasks/task-dat
 /** Time without a project is drawn in a neutral tone. */
 const NEUTRAL_ENTRY_TONE = 'hsl(var(--foreground) / 0.42)';
 
-export const HOUR_HEIGHT_PX = 48;
+const HOUR_HEIGHT_PX = 48;
 
 /** Below this height a block keeps its title and duration on one line. */
 export const COMPACT_BLOCK_HEIGHT_PX = 40;
@@ -17,12 +17,12 @@ export const RESIZABLE_BLOCK_HEIGHT_PX = 24;
 
 const MINUTES_PER_HOUR = 60;
 
-export function pixelsOfMinutes(minutes: number) {
-	return (minutes / MINUTES_PER_HOUR) * HOUR_HEIGHT_PX;
+function pixelsOfMinutes(minutes: number, hourHeightPx = HOUR_HEIGHT_PX) {
+	return (minutes / MINUTES_PER_HOUR) * hourHeightPx;
 }
 
-export function blockHeightOfMinutes(minutes: number) {
-	const naturalHeight = pixelsOfMinutes(minutes);
+export function blockHeightOfMinutes(minutes: number, hourHeightPx = HOUR_HEIGHT_PX) {
+	const naturalHeight = pixelsOfMinutes(minutes, hourHeightPx);
 	return Math.max(naturalHeight, MIN_BLOCK_HEIGHT_PX);
 }
 
@@ -42,6 +42,9 @@ export const ENTRY_SOLID = 'bg-[color-mix(in_oklab,var(--entry)_18%,hsl(var(--ca
 export const ENTRY_HATCHED =
 	'bg-[repeating-linear-gradient(135deg,color-mix(in_oklab,var(--entry)_26%,hsl(var(--card)))_0_4px,color-mix(in_oklab,var(--entry)_10%,hsl(var(--card)))_4px_8px)]';
 
+/** A break (#5216): a neutral fill whatever task it paused, apart from work's project tints. */
+export const ENTRY_BREAK = 'bg-[color-mix(in_oklab,hsl(var(--foreground))_7%,hsl(var(--card)))]';
+
 /** Planned work has no hour of its own: it is drawn as an outline, the dashed line of what is not there yet. */
 export const PLANNED_OUTLINE = 'hairline-border border-dashed border-foreground/25';
 
@@ -49,10 +52,13 @@ export const ENTRY_BAR = 'absolute inset-y-0 left-0 w-[3px] bg-(--entry)';
 
 export const WEEKEND_TINT = 'bg-foreground/[0.02]';
 
-export const HOUR_LINES_STYLE: CSSProperties = {
-	backgroundImage: 'linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px)',
-	backgroundSize: `100% ${HOUR_HEIGHT_PX}px`
-};
+/** One line per hour, at the chosen row height: the window always starts on a whole hour. */
+export function hourLinesStyleOf(hourHeightPx: number): CSSProperties {
+	return {
+		backgroundImage: 'linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px)',
+		backgroundSize: `100% ${hourHeightPx}px`
+	};
+}
 
 /**
  * The colour a project is drawn in: its own when it has one, otherwise the hue the Team dashboard derives from its
@@ -74,7 +80,10 @@ export function entryToneStyle(color: string | null, projectKey: string | null =
 	return variables as CSSProperties;
 }
 
-export function entryFillOf(isManual: boolean) {
+export function entryFillOf(isManual: boolean, isBreak = false) {
+	if (isBreak) {
+		return ENTRY_BREAK;
+	}
 	if (isManual) {
 		return ENTRY_HATCHED;
 	}

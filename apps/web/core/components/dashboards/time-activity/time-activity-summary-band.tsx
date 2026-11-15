@@ -20,6 +20,8 @@ import { formatAmounts } from '@/core/lib/utils/daily-report-figures';
 import { recordedActivityOf } from '@/core/lib/utils/dashboards/time-activity';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import type { FormatLocale } from '@/core/lib/utils/workspace-formats';
+import { ROUNDING_NOTE_KEYS } from '@/core/lib/utils/dashboards/time-activity-rounding';
+import type { DurationRoundingRule } from '@/core/lib/utils/duration-rounding';
 import { TimeActivityExportMenu } from './time-activity-export-menu';
 
 const MISSING_VALUE = '–';
@@ -75,7 +77,15 @@ function timerNoteOf(figures: TimeActivityFigures, reportText: string, t: Transl
 	return t('dashboard.timeActivity.sheet.BY_TIMER', { duration: timerText });
 }
 
-function totalFigureOf(figures: TimeActivityFigures, t: Translate): BandFigure {
+/** A page that shows rounded time says so beside its total, with the rule. */
+function roundingNoteOf(rule: DurationRoundingRule | null, t: Translate): string | null {
+	if (!rule) {
+		return null;
+	}
+	return t(ROUNDING_NOTE_KEYS[rule.direction], { minutes: rule.intervalMinutes });
+}
+
+function totalFigureOf(figures: TimeActivityFigures, t: Translate, roundingNote: string | null): BandFigure {
 	const label = t('dashboard.timeActivity.figures.TRACKED');
 	if (figures.reportSeconds === null) {
 		const reason = t('dashboard.timeActivity.figures.UNAVAILABLE');
@@ -86,7 +96,7 @@ function totalFigureOf(figures: TimeActivityFigures, t: Translate): BandFigure {
 		key: 'total',
 		label,
 		value: reportText,
-		note: timerNoteOf(figures, reportText, t),
+		note: roundingNote ?? timerNoteOf(figures, reportText, t),
 		hint: t('dashboard.timeActivity.figures.TRACKED_DAYS', { count: figures.totals.dayCount })
 	};
 }
@@ -164,10 +174,43 @@ function membersFigureOf(figures: TimeActivityFigures, t: Translate): BandFigure
 	};
 }
 
-function bandFiguresOf(figures: TimeActivityFigures, isManager: boolean, locale: FormatLocale, t: Translate) {
-	const total = totalFigureOf(figures, t);
+/**
+ * The breaks of the period beside the worked time, never counted in it (#5216): none without a break, "–" when they
+ * could not be read, so a failed read never passes for a period without breaks.
+ */
+function breaksFigureOf(figures: TimeActivityFigures, t: Translate): BandFigure | null {
+	const label = t('breaks.FIGURE_LABEL');
+	if (figures.breakSeconds === null) {
+		const reason = t('dashboard.timeActivity.figures.UNAVAILABLE');
+		return { key: 'breaks', label, value: <MissingValue reason={reason} />, hint: reason };
+	}
+	const breakSeconds = figures.breakSeconds ?? 0;
+	if (breakSeconds <= 0) {
+		return null;
+	}
+	return {
+		key: 'breaks',
+		label,
+		value: formatDurationShort(breakSeconds),
+		hint: t('breaks.FIGURE_HINT')
+	};
+}
+
+interface BandInput {
+	figures: TimeActivityFigures;
+	isManager: boolean;
+	roundingRule: DurationRoundingRule | null;
+}
+
+function bandFiguresOf({ figures, isManager, roundingRule }: BandInput, locale: FormatLocale, t: Translate) {
+	const total = totalFigureOf(figures, t, roundingNoteOf(roundingRule, t));
 	const activity = activityFigureOf(figures, locale, t);
-	const list: BandFigure[] = [total, activity];
+	const list: BandFigure[] = [total];
+	const breaks = breaksFigureOf(figures, t);
+	if (breaks) {
+		list.push(breaks);
+	}
+	list.push(activity);
 	if (isManager) {
 		const earnings = earningsFigureOf(figures, locale, t);
 		list.push(earnings);
@@ -233,11 +276,22 @@ export function TimeActivitySummaryBand({
 	figures,
 	isManager,
 	isLoading,
-	actions
-}: Readonly<{ figures: TimeActivityFigures; isManager: boolean; isLoading: boolean; actions: ReactNode }>) {
+	actions,
+	roundingRule = null
+}: Readonly<{
+	figures: TimeActivityFigures;
+	isManager: boolean;
+	isLoading: boolean;
+	actions: ReactNode;
+	/** The workspace rounds each entry: the total says so. */
+	roundingRule?: DurationRoundingRule | null;
+}>) {
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
-	const items = useMemo(() => bandFiguresOf(figures, isManager, locale, t), [figures, isManager, locale, t]);
+	const items = useMemo(
+		() => bandFiguresOf({ figures, isManager, roundingRule }, locale, t),
+		[figures, isManager, locale, roundingRule, t]
+	);
 	return <BandFrame figures={items} isLoading={isLoading} actions={actions} />;
 }
 
@@ -266,6 +320,7 @@ export function TimeActivityBandExport({ report }: Readonly<{ report: TimeActivi
 			figures={report.figures}
 			filters={report.settings.filters}
 			filterOptions={filterOptions}
+			roundingRule={report.roundingRule}
 			isDisabled={!canExport}
 		/>
 	);

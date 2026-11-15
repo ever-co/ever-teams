@@ -1,146 +1,233 @@
 import classNames from 'classnames';
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useState, type FC, type FormEvent } from 'react';
 
-import AppDropdown from '~components/shared/AppDropdown';
-import { roundInput, textEllipsis } from '~misc/tailwindClasses';
-import { MessageTypesFromBackgroundEnum, MessageTypesToBackgroundEnum } from '~typescript/enums/MessageTypesEnum';
-import type { IPostMessage } from '~typescript/interfaces/PostMessage';
-import type { ITimerUpdate } from '~typescript/interfaces/TimerUpdate';
-import type { ITask } from '~typescript/types/Tasks';
+import { SearchIcon, SpinnerIcon } from '~components/shared/Icons';
+import Notice from '~components/shared/Notice';
+import { ApiError } from '~lib/api-client';
+import { createTask, type TaskItem } from '~lib/gauzy';
+import { t } from '~lib/i18n';
+import { refusalOf, type Refusal } from '~lib/refusal';
+import { orderTasks } from '~lib/task-order';
+import type { Session } from '~lib/workspaces';
+import { ghostButton, inheritTextSize, roundInput, textEllipsis } from '~misc/tailwindClasses';
 
 import TasksEstimatedInputs from './TasksEstimatedInputs';
 
-const fakeTasks: ITask[] = [
-	{
-		id: 1,
-		title: 'Build a chrome extension for Ever Teams',
-		estimated: '12:00'
-	},
-	{ id: 2, title: 'Fix bug #2', estimated: '00:25' }
-];
-
 interface Props {
-	port: chrome.runtime.Port | null;
+	session: Session;
+	tasks: TaskItem[];
+	loading: boolean;
+	error: Refusal | null;
+	recentIds: string[];
+	selectedTaskId: string | null;
+	/** While a run goes on, picking another task waits for the stop. */
+	locked: boolean;
+	onSelect: (taskId: string) => void;
+	/** The team the task was created in, which may no longer be the active one when it is answered. */
+	onCreated: (task: TaskItem, teamId: string | null) => void;
+	onRetry: () => void;
 }
-const Tasks: React.FC<Props> = ({ port }) => {
-	const [tasks, setTasks] = useState<ITask[]>(fakeTasks);
-	const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
-	const [activeTaskTitle, setActiveTaskTitle] = useState<string>('');
-	const [activeTaskEstimate, setActiveTaskEstimate] = useState<string>('');
 
-	useEffect(() => {
-		if (port) {
-			port.onMessage.addListener((msg: IPostMessage<ITimerUpdate>) => {
-				if (msg.type === MessageTypesFromBackgroundEnum.taskUpdate) {
-					const task = tasks.find((x) => x.id === msg.payload.id);
+/** "#12" for a task with a number; nothing for one without. */
+function numberOf(task: TaskItem): string {
+	if (!task.taskNumber) {
+		return '';
+	}
+	return `#${task.taskNumber}`;
+}
 
-					if (task) {
-						setSelectedTask(task);
-						setActiveTaskTitle(task.title);
-					}
-				}
-			});
+/** Seconds from the estimate fields, "hh:mm". */
+function estimateSecondsOf(estimate: string): number {
+	const [hours, minutes] = estimate.split(':').map((part) => Number(part) || 0);
+	return hours * 3600 + minutes * 60;
+}
+
+function ListState({
+	loading,
+	error,
+	isEmpty,
+	hasSearch,
+	onRetry
+}: {
+	loading: boolean;
+	error: Refusal | null;
+	isEmpty: boolean;
+	hasSearch: boolean;
+	onRetry: () => void;
+}) {
+	if (loading) {
+		return (
+			<p className="flex items-center gap-2 px-1 py-3 text-xs text-zinc-500 dark:text-zinc-400" role="status">
+				<SpinnerIcon className="h-4 w-4" />
+				{t('tasksLoading')}
+			</p>
+		);
+	}
+	if (error) {
+		return (
+			<Notice tone="error" action={{ label: t('actionRetry'), onClick: onRetry }}>
+				{t('tasksLoadFailed')} {t(error.key, error.reason)}
+			</Notice>
+		);
+	}
+	if (isEmpty && hasSearch) {
+		return <p className="px-1 py-3 text-xs text-zinc-500 dark:text-zinc-400">{t('tasksNoMatch')}</p>;
+	}
+	if (isEmpty) {
+		return <p className="px-1 py-3 text-xs text-zinc-500 dark:text-zinc-400">{t('tasksEmpty')}</p>;
+	}
+	return null;
+}
+
+function refusalFrom(failure: unknown): Refusal {
+	if (failure instanceof ApiError) {
+		return refusalOf(failure);
+	}
+	return { key: 'errorGeneric' };
+}
+
+const Tasks: FC<Props> = ({
+	session,
+	tasks,
+	loading,
+	error,
+	recentIds,
+	selectedTaskId,
+	locked,
+	onSelect,
+	onCreated,
+	onRetry
+}) => {
+	const [search, setSearch] = useState('');
+	const [newTitle, setNewTitle] = useState('');
+	const [newEstimate, setNewEstimate] = useState('');
+	// The estimate fields keep their own hours and minutes: a new key empties them with the value sent
+	const [estimateFieldsKey, setEstimateFieldsKey] = useState(0);
+	const [adding, setAdding] = useState(false);
+	const [addError, setAddError] = useState<Refusal | null>(null);
+
+	const shown = useMemo(() => orderTasks(tasks, recentIds, search), [tasks, recentIds, search]);
+	const recentSet = useMemo(() => new Set(recentIds), [recentIds]);
+	const hasSearch = search.trim().length > 0;
+	const isEmpty = shown.length === 0;
+	const showList = !loading && !error && !isEmpty;
+
+	const onEstimateChange = (hours: string, minutes: string) => {
+		setNewEstimate(`${hours || '00'}:${minutes || '00'}`);
+	};
+
+	const onAddTask = async (event: FormEvent) => {
+		event.preventDefault();
+		const title = newTitle.trim();
+		if (!title) {
+			return;
 		}
-	}, [port]);
-
-	useEffect(() => {
-		if (port && tasks) {
-			port.postMessage({
-				type: MessageTypesToBackgroundEnum.updateTasks,
-				payload: tasks
-			});
+		setAdding(true);
+		setAddError(null);
+		try {
+			const teamId = session.teamId;
+			const created = await createTask(session, title, estimateSecondsOf(newEstimate));
+			onCreated(created, teamId);
+			setNewTitle('');
+			setNewEstimate('');
+			setEstimateFieldsKey((key) => key + 1);
+		} catch (failure) {
+			setAddError(refusalFrom(failure));
+		} finally {
+			setAdding(false);
 		}
-	}, [port, tasks]);
-
-	useEffect(() => {
-		if (selectedTask) {
-			port.postMessage({
-				type: MessageTypesToBackgroundEnum.updateActiveTaskIndex,
-				payload: selectedTask
-			});
-		}
-	}, [selectedTask]);
-
-	const onTaskSelect = (task: ITask) => {
-		setActiveTaskTitle(task.title);
-		setSelectedTask(task);
 	};
-
-	const onActiveTaskChange = (event) => {
-		setActiveTaskTitle(event.target.value);
-		setSelectedTask(null);
-	};
-
-	const onActiveEstimateChange = (hoursEstimate: string, minutesEstimate: string) => {
-		const hours = hoursEstimate ? hoursEstimate : '00';
-		const mins = minutesEstimate ? minutesEstimate : '00';
-		const newEstimate = `${hours}:${mins}`;
-		setActiveTaskEstimate(newEstimate);
-	};
-
-	const addNewTask = () => {
-		if (isEmptyEstimate()) return;
-
-		const newId = tasks[tasks.length - 1].id + 1;
-		const newTask = {
-			id: newId,
-			title: activeTaskTitle,
-			estimated: activeTaskEstimate
-		};
-		const newTasks = [...tasks, newTask];
-		setTasks(newTasks);
-		setSelectedTask(newTask);
-		setActiveTaskEstimate('');
-	};
-
-	const isNewTask = !!activeTaskTitle && selectedTask === null;
-	const isEmptyEstimate = () => activeTaskEstimate === '00:00' || activeTaskEstimate === '';
 
 	return (
-		<div className="p-2 rounded bg-zinc-100">
-			<div className="flex flex-col mb-2">
-				<div className="flex items-center pb-2 mb-2 border-b-2">
-					<span className="w-24">All Tasks:</span>
-					<div className="relative">
-						<AppDropdown
-							buttonClassNames={classNames(
-								roundInput,
-								textEllipsis,
-								'min-w-[207px] max-w-[207px] text-start'
-							)}
-							buttonTitle={selectedTask ? selectedTask.title : 'Select a task'}
-							options={tasks}
-							onOptionSelect={onTaskSelect}
-							optionContainerClassNames="min-w-[207px] max-w-[207px]"
-						/>
+		<section aria-label={t('tasksAll')} className="flex flex-col gap-2">
+			<div className="relative">
+				<SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+				<input
+					type="search"
+					aria-label={t('tasksSearch')}
+					placeholder={t('tasksSearch')}
+					className={classNames(roundInput, 'pl-8')}
+					value={search}
+					onChange={(event) => setSearch(event.target.value)}
+				/>
+			</div>
+
+			<ListState loading={loading} error={error} isEmpty={isEmpty} hasSearch={hasSearch} onRetry={onRetry} />
+
+			{showList && (
+				<ul
+					className="scrollbar flex max-h-52 flex-col gap-1 overflow-y-auto pr-0.5"
+					role="listbox"
+					aria-label={t('tasksAll')}
+				>
+					{shown.map((task) => {
+						const isSelected = task.id === selectedTaskId;
+						const isRecent = recentSet.has(task.id);
+						return (
+							<li key={task.id} role="option" aria-selected={isSelected}>
+								<button
+									type="button"
+									disabled={locked}
+									onClick={() => onSelect(task.id)}
+									className={classNames(
+										'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-start text-sm ring-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 disabled:cursor-not-allowed',
+										{
+											'bg-zinc-900 text-white ring-zinc-900 dark:bg-white dark:text-zinc-900 dark:ring-white':
+												isSelected,
+											'ring-zinc-900/10 hover:bg-zinc-900/5 dark:ring-white/10 dark:hover:bg-white/5':
+												!isSelected,
+											'disabled:opacity-60': !isSelected
+										}
+									)}
+								>
+									<span
+										className={classNames('min-w-0 flex-1', textEllipsis, inheritTextSize)}
+										title={task.title}
+									>
+										{task.title}
+									</span>
+									{isRecent && (
+										<span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium bg-indigo-500/10 text-indigo-600 dark:text-indigo-300">
+											{t('tasksRecent')}
+										</span>
+									)}
+									<span className="shrink-0 text-xs tabular-nums opacity-60">{numberOf(task)}</span>
+								</button>
+							</li>
+						);
+					})}
+				</ul>
+			)}
+
+			<form
+				className="flex flex-col gap-2 rounded-lg p-2 ring-1 ring-zinc-900/10 dark:ring-white/10"
+				onSubmit={onAddTask}
+				aria-label={t('tasksNewTaskLabel')}
+			>
+				<input
+					type="text"
+					className={roundInput}
+					aria-label={t('tasksNewTaskLabel')}
+					placeholder={t('tasksNewTaskPlaceholder')}
+					value={newTitle}
+					onChange={(event) => setNewTitle(event.target.value)}
+				/>
+				<div className="flex items-center justify-between gap-2 text-sm">
+					<div className="flex items-center">
+						<TasksEstimatedInputs key={estimateFieldsKey} task={null} onEstimateChange={onEstimateChange} />
 					</div>
-				</div>
-				<div className="flex items-center">
-					<span className="w-24">Active Task:</span>
-					<input
-						type="text"
-						className={roundInput}
-						placeholder="ex. Ever Teams Extension"
-						value={activeTaskTitle}
-						onChange={onActiveTaskChange}
-					/>
-				</div>
-			</div>
-			<div className="flex items-center">
-				<TasksEstimatedInputs task={selectedTask} onEstimateChange={onActiveEstimateChange} />
-				{isNewTask && (
-					<button
-						className={classNames(
-							'ml-2 bg-slate-900 text-white rounded p-2',
-							isEmptyEstimate() && 'bg-slate-600'
-						)}
-						onClick={addNewTask}
-					>
-						Add Task
+					<button type="submit" className={ghostButton} disabled={adding || !newTitle.trim()}>
+						{adding && <SpinnerIcon className="h-4 w-4" />}
+						{t('tasksAddTask')}
 					</button>
+				</div>
+				{addError && (
+					<Notice tone="error">
+						{t('tasksAddFailed')} {t(addError.key, addError.reason)}
+					</Notice>
 				)}
-			</div>
-		</div>
+			</form>
+		</section>
 	);
 };
 

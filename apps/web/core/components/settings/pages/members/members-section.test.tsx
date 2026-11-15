@@ -17,6 +17,9 @@ jest.mock('next-intl', () => ({
 jest.mock('@/core/hooks/settings/use-team-members-settings', () => ({
 	useTeamMembersSettings: () => mockUseTeamMembersSettings()
 }));
+jest.mock('@/core/hooks/settings/use-member-two-factor-reset', () => ({
+	useMemberTwoFactorReset: () => ({ isOffered: false, resetMember: jest.fn() })
+}));
 jest.mock('@/core/hooks/settings/use-inactive-members', () => ({
 	useInactiveMembers: (isShown: boolean) => mockUseInactiveMembers(isShown)
 }));

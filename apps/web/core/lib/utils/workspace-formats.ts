@@ -26,11 +26,37 @@ export function workspaceNumberFormatOf(stored: StoredFormat): WorkspaceNumberFo
 	return knownFormatOf(WORKSPACE_NUMBER_FORMATS, stored);
 }
 
-/** The reader's language with the workspace's formats: what a report writes its dates and numbers with. */
+/** The clocks Gauzy stores on the organization (`timeFormat`), and the 12-hour one it gives a new organization. */
+const WORKSPACE_CLOCKS = [24, 12] as const;
+
+export type WorkspaceClock = (typeof WORKSPACE_CLOCKS)[number];
+
+/** The sides of an amount Gauzy stores for the currency sign (`currencyPosition`), `LEFT` for a new organization. */
+const WORKSPACE_CURRENCY_POSITIONS = ['LEFT', 'RIGHT'] as const;
+
+export type WorkspaceCurrencyPosition = (typeof WORKSPACE_CURRENCY_POSITIONS)[number];
+
+export function workspaceClockOf(stored: unknown): WorkspaceClock | null {
+	const hours = Number(stored);
+	const clock = WORKSPACE_CLOCKS.find((known) => known === hours);
+	return clock ?? null;
+}
+
+export function workspaceCurrencyPositionOf(stored: unknown): WorkspaceCurrencyPosition | null {
+	const position = WORKSPACE_CURRENCY_POSITIONS.find((known) => known === stored);
+	return position ?? null;
+}
+
+/**
+ * The reader's language with the workspace's formats: what a report writes its dates, times and numbers with. A
+ * missing clock or currency side leaves them to the reader's language.
+ */
 export interface WorkspaceLocale {
 	tag: string;
 	dateFormat: WorkspaceDateFormat | null;
 	numberFormat: WorkspaceNumberFormat | null;
+	clock?: WorkspaceClock | null;
+	currencyPosition?: WorkspaceCurrencyPosition | null;
 }
 
 /** A bare language tag writes dates and numbers the way that language does. */
@@ -50,7 +76,23 @@ export function localeKeyOf(locale: FormatLocale): string {
 	}
 	const dateFormat = locale.dateFormat ?? '';
 	const numberFormat = locale.numberFormat ?? '';
-	return [locale.tag, dateFormat, numberFormat].join('|');
+	const clock = locale.clock ?? '';
+	const currencyPosition = locale.currencyPosition ?? '';
+	return [locale.tag, dateFormat, numberFormat, clock, currencyPosition].join('|');
+}
+
+function clockChoiceOf(locale: FormatLocale): WorkspaceClock | null {
+	if (typeof locale === 'string') {
+		return null;
+	}
+	return locale.clock ?? null;
+}
+
+function currencyPositionChoiceOf(locale: FormatLocale): WorkspaceCurrencyPosition | null {
+	if (typeof locale === 'string') {
+		return null;
+	}
+	return locale.currencyPosition ?? null;
 }
 
 function dateFormatChoiceOf(locale: FormatLocale): WorkspaceDateFormat | null {
@@ -115,28 +157,139 @@ function basePartsOf(base: Intl.NumberFormat, value: NumberValue | undefined): I
 	return base.formatToParts(value);
 }
 
+const NUMBER_PART_TYPES: ReadonlySet<string> = new Set([
+	'integer',
+	'group',
+	'decimal',
+	'fraction',
+	'compact',
+	'exponentSeparator',
+	'exponentMinusSign',
+	'exponentInteger',
+	'infinity',
+	'nan'
+]);
+
+const BIDI_MARKS = /[‎‏؜]/g;
+
+function isNumberPart(part: { type: string }): boolean {
+	return NUMBER_PART_TYPES.has(part.type);
+}
+
+/** A literal holding nothing but spaces and direction marks: the gap a language leaves between a sign and a number. */
+function isGapPart(part: { type: string; value: string } | undefined): boolean {
+	if (part?.type !== 'literal') {
+		return false;
+	}
+	const visible = part.value.replace(BIDI_MARKS, '');
+	return visible.trim() === '';
+}
+
+/** The parts without the currency sign and the gap that tied it to the number. */
+function partsWithoutCurrencyOf<Part extends { type: string; value: string }>(
+	parts: ReadonlyArray<Part>,
+	currencyIndex: number
+): Part[] {
+	let from = currencyIndex;
+	let to = currencyIndex;
+	if (isGapPart(parts[currencyIndex - 1])) {
+		from = currencyIndex - 1;
+	} else if (isGapPart(parts[currencyIndex + 1])) {
+		to = currencyIndex + 1;
+	}
+	return [...parts.slice(0, from), ...parts.slice(to + 1)];
+}
+
+/** A currency written as letters (a code such as USD) keeps a space before the number it leads; a symbol does not. */
+function gapAfterLeadingCurrencyOf(currency: { value: string }): ReadonlyArray<Intl.NumberFormatPart> {
+	const isWrittenAsLetters = /^\p{L}+$/u.test(currency.value);
+	if (!isWrittenAsLetters) {
+		return [];
+	}
+	return [{ type: 'literal', value: NO_BREAK_SPACE }];
+}
+
+/** The parts with the currency sign moved to the side the workspace chose; already there, they stay as they are. */
+function placedCurrencyPartsOf(
+	parts: ReadonlyArray<Intl.NumberFormatPart>,
+	position: WorkspaceCurrencyPosition
+): Intl.NumberFormatPart[] {
+	const currencyIndex = parts.findIndex((part) => part.type === 'currency');
+	const firstNumberIndex = parts.findIndex(isNumberPart);
+	const hasCurrencyAndNumber = currencyIndex >= 0 && firstNumberIndex >= 0;
+	if (!hasCurrencyAndNumber) {
+		return [...parts];
+	}
+	const isCurrencyBefore = currencyIndex < firstNumberIndex;
+	const wantsCurrencyBefore = position === 'LEFT';
+	if (isCurrencyBefore === wantsCurrencyBefore) {
+		return [...parts];
+	}
+	const currency = parts[currencyIndex];
+	const rest = partsWithoutCurrencyOf(parts, currencyIndex);
+	if (wantsCurrencyBefore) {
+		// The minus sign and any direction mark stay ahead of the sign: -€12, not €-12
+		const numberStart = rest.findIndex(isNumberPart);
+		return [
+			...rest.slice(0, numberStart),
+			currency,
+			...gapAfterLeadingCurrencyOf(currency),
+			...rest.slice(numberStart)
+		];
+	}
+	return [...rest, { type: 'literal', value: NO_BREAK_SPACE }, currency];
+}
+
+function separatedPartsOf<Part extends { type: string; value: string }>(
+	parts: ReadonlyArray<Part>,
+	choice: WorkspaceNumberFormat | null
+): Part[] {
+	if (choice === null) {
+		return [...parts];
+	}
+	const separators = NUMBER_SEPARATORS[choice];
+	return parts.map((part) => separatedPartOf(part, separators));
+}
+
+function baseNumberFormatOf(
+	tag: string,
+	choice: WorkspaceNumberFormat | null,
+	options: Intl.NumberFormatOptions
+): Intl.NumberFormat {
+	if (choice === null) {
+		return new Intl.NumberFormat(tag, options);
+	}
+	// Spanish, Italian, Polish and Bulgarian leave a four-digit number ungrouped: no separator would be there to replace
+	const useGrouping = options.useGrouping ?? 'always';
+	// A chosen format reads the same for every member, so it is written in Western digits whatever the language
+	return new Intl.NumberFormat(tag, { ...options, useGrouping, numberingSystem: 'latn' });
+}
+
 /**
- * A number format of the reader's language that groups thousands and marks decimals the workspace's way. The currency
- * sign, its side and the percent sign stay the reader's.
+ * A number format of the reader's language that groups thousands and marks decimals the workspace's way, and puts a
+ * currency sign on the side the workspace chose. The sign itself and the percent sign stay the reader's.
  */
 export function numberFormatOf(locale: FormatLocale, options: Intl.NumberFormatOptions = {}): Intl.NumberFormat {
 	const tag = localeTagOf(locale);
 	const choice = numberFormatChoiceOf(locale);
-	if (choice === null) {
+	const position = currencyPositionChoiceOf(locale);
+	const isCurrency = options.style === 'currency';
+	const placesCurrency = isCurrency && position !== null;
+	const keepsLanguageWay = choice === null && !placesCurrency;
+	if (keepsLanguageWay) {
 		return new Intl.NumberFormat(tag, options);
 	}
-	const separators = NUMBER_SEPARATORS[choice];
-	// Spanish, Italian, Polish and Bulgarian leave a four-digit number ungrouped: no separator would be there to replace
-	const useGrouping = options.useGrouping ?? 'always';
-	// A chosen format reads the same for every member, so it is written in Western digits whatever the language
-	const base = new Intl.NumberFormat(tag, { ...options, useGrouping, numberingSystem: 'latn' });
+	const base = baseNumberFormatOf(tag, choice, options);
 	const partsOf = (value?: NumberValue) => {
-		const parts = basePartsOf(base, value);
-		return parts.map((part) => separatedPartOf(part, separators));
+		const separated = separatedPartsOf(basePartsOf(base, value), choice);
+		if (placesCurrency && position !== null) {
+			return placedCurrencyPartsOf(separated, position);
+		}
+		return separated;
 	};
 	const rangePartsOf = (start: NumberValue, end: NumberValue) => {
 		const parts = base.formatRangeToParts(start, end);
-		return parts.map((part) => separatedPartOf(part, separators));
+		return separatedPartsOf(parts, choice);
 	};
 	return {
 		format: (value: NumberValue) => textOf(partsOf(value)),
@@ -371,13 +524,39 @@ function patternedDateFormatOf(
  */
 export function dateFormatOf(locale: FormatLocale, options: Intl.DateTimeFormatOptions = {}): Intl.DateTimeFormat {
 	const tag = localeTagOf(locale);
+	const clocked = clockedOptionsOf(clockChoiceOf(locale), options);
 	const choice = dateFormatChoiceOf(locale);
 	if (choice === null) {
-		return new Intl.DateTimeFormat(tag, options);
+		return new Intl.DateTimeFormat(tag, clocked);
 	}
-	const written = writtenDateOf(options);
+	const written = writtenDateOf(clocked);
 	if (written === null) {
-		return new Intl.DateTimeFormat(tag, options);
+		return new Intl.DateTimeFormat(tag, clocked);
 	}
-	return patternedDateFormatOf(tag, DATE_PATTERNS[choice], written, options);
+	return patternedDateFormatOf(tag, DATE_PATTERNS[choice], written, clocked);
+}
+
+/**
+ * The options with the workspace's clock when they ask for a time: it wins over a clock the caller asked for, so every
+ * time of day of every page reads alike. A 12-hour time drops the leading zero (2:05 PM, not 02:05 PM).
+ */
+function clockedOptionsOf(
+	clock: WorkspaceClock | null,
+	options: Intl.DateTimeFormatOptions
+): Intl.DateTimeFormatOptions {
+	const asksTime = options.hour !== undefined || options.timeStyle !== undefined;
+	if (clock === null || !asksTime) {
+		return options;
+	}
+	const clocked: Intl.DateTimeFormatOptions = { ...options };
+	delete clocked.hour12;
+	if (clock === 24) {
+		clocked.hourCycle = 'h23';
+		return clocked;
+	}
+	clocked.hourCycle = 'h12';
+	if (clocked.hour === '2-digit') {
+		clocked.hour = 'numeric';
+	}
+	return clocked;
 }

@@ -127,6 +127,7 @@ import {
 	QrCodeIcon,
 	RotateLeft01Icon,
 	RulerIcon,
+	ScissorIcon,
 	Search01Icon,
 	Sent02Icon,
 	Settings01Icon,
@@ -366,6 +367,7 @@ export const Plus = /*#__PURE__*/ icon(PlusSignIcon, 'Plus');
 export const PlusCircle = /*#__PURE__*/ icon(AddCircleIcon, 'PlusCircle');
 export const RotateLeft = /*#__PURE__*/ icon(RotateLeft01Icon, 'RotateLeft');
 export const Ruler = /*#__PURE__*/ icon(RulerIcon, 'Ruler');
+export const Scissors = /*#__PURE__*/ icon(ScissorIcon, 'Scissors');
 export const Trash = /*#__PURE__*/ icon(Delete02Icon, 'Trash');
 export const Upload = /*#__PURE__*/ icon(Upload01Icon, 'Upload');
 export const Video = /*#__PURE__*/ icon(Video01Icon, 'Video');
@@ -400,6 +402,8 @@ export const Timeline = /*#__PURE__*/ icon(ChartGanttIcon, 'Timeline');
 export const Timer = /*#__PURE__*/ icon(Timer02Icon, 'Timer');
 export const TimerOff = /*#__PURE__*/ icon(TimerOffIcon, 'TimerOff');
 export const Idle = /*#__PURE__*/ icon(Coffee02Icon, 'Idle');
+/** A break from work, on the timer and its entries (#5216). */
+export const Break = /*#__PURE__*/ icon(Coffee02Icon, 'Break');
 export const Task = /*#__PURE__*/ icon(Task01Icon, 'Task');
 export const TaskDone = /*#__PURE__*/ icon(TaskDone01Icon, 'TaskDone');
 export const TaskDaily = /*#__PURE__*/ icon(TaskDaily01Icon, 'TaskDaily');

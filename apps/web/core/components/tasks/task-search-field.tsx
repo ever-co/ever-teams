@@ -5,9 +5,16 @@ import { useTranslations } from 'next-intl';
 import { controlGroupRecipe } from '@/core/components/common/input';
 import { commandKeycapClass } from '@/core/components/common/command';
 import { Search, X } from '@/core/components/icons';
+import { useAnsweredKeys } from '@/core/hooks/keyboard/use-answered-keys';
 import { cn } from '@/core/lib/helpers';
 
 const SEARCH_DEBOUNCE_MS = 200;
+
+/** The key that jumps into the search from anywhere outside a field; the shortcuts sheet lists it. */
+export const TASK_SEARCH_FOCUS_KEY = '/';
+/** That key's line in the shortcuts sheet, listed on the pages whose search answers it. */
+export const TASK_SEARCH_FOCUS_ID = 'taskSearchFocus';
+const SEARCH_FOCUS_KEY_IDS: readonly string[] = [TASK_SEARCH_FOCUS_ID];
 
 function isTypingTarget(target: EventTarget | null) {
 	if (!(target instanceof HTMLElement)) {
@@ -37,6 +44,7 @@ export function TaskSearchField({
 	const t = useTranslations();
 	const [draft, setDraft] = useState(value);
 	const inputRef = useRef<HTMLInputElement>(null);
+	useAnsweredKeys(SEARCH_FOCUS_KEY_IDS, focusKey);
 
 	useEffect(() => {
 		setDraft(value);
@@ -56,9 +64,9 @@ export function TaskSearchField({
 			return;
 		}
 		const handleKeyDown = (event: globalThis.KeyboardEvent) => {
-			const isSlash = event.key === '/';
+			const isFocusKey = event.key === TASK_SEARCH_FOCUS_KEY;
 			const hasModifier = [event.metaKey, event.ctrlKey, event.altKey].some(Boolean);
-			if (!isSlash || hasModifier) {
+			if (!isFocusKey || hasModifier) {
 				return;
 			}
 			if (isTypingTarget(event.target)) {
@@ -100,7 +108,7 @@ export function TaskSearchField({
 			/>
 			{showsKeycap && (
 				<kbd className={commandKeycapClass} aria-hidden="true">
-					/
+					{TASK_SEARCH_FOCUS_KEY}
 				</kbd>
 			)}
 			{hasDraft && (

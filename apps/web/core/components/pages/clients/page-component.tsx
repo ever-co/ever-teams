@@ -1,40 +1,37 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Building } from '@/core/components/icons';
-import { ClientFormDialog } from '@/core/components/clients/client-form-dialog';
-import { ArchiveClientDialog, RestoreClientDialog } from '@/core/components/clients/client-confirm-dialogs';
+import { ClientDialogs } from '@/core/components/clients/client-dialogs';
+import { ClientSheet } from '@/core/components/clients/client-sheet';
 import { useClientAccess } from '@/core/hooks/clients/use-client-access';
+import { useClientDialogs } from '@/core/hooks/clients/use-client-dialogs';
+import { useClientPeek } from '@/core/hooks/clients/use-client-peek';
+import { useClientViewAccess } from '@/core/hooks/clients/use-client-view-access';
+import { useClientsDisplay } from '@/core/hooks/clients/use-clients-display';
 import { useClientsListState } from '@/core/hooks/clients/use-clients-list-state';
 import { useClientsQuery } from '@/core/hooks/clients/use-clients-query';
-import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
-import { isSavedTeamLoading } from '@/core/lib/helpers/saved-team';
-import { clientMatchesSearch, clientsInScope, listReadStateOf, projectCountByClient } from '@/core/lib/utils/clients';
-import { projectsListedForTeam } from '@/core/lib/utils/project-list';
+import { useListedProjects } from '@/core/hooks/clients/use-listed-projects';
+import { useInvoiceAccess } from '@/core/hooks/invoices/use-invoice-access';
+import { clientMatchesSearch, clientsInScope, projectCountByClient, sortClients } from '@/core/lib/utils/clients';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import type { TClient } from '@/core/types/schemas';
+import { ClientsCards, ClientsCardsSkeleton } from './clients-cards';
 import { ClientsList } from './clients-list';
-import { ClientsEmptyState, ClientsErrorState, ClientsListSkeleton, ProjectCountsNotice } from './clients-list-states';
+import {
+	ClientsEmptyState,
+	ClientsErrorState,
+	ClientsListSkeleton,
+	ClientsNoAccessState,
+	ProjectCountsNotice
+} from './clients-list-states';
 import { ClientsPageSkeleton } from './clients-page-skeleton';
 import { ClientsToolbar } from './clients-toolbar';
-
-type ClientDialog =
-	| { kind: 'create' }
-	| { kind: 'edit'; client: TClient }
-	| { kind: 'archive'; client: TClient }
-	| { kind: 'restore'; client: TClient };
-
-function clientOf(dialog: ClientDialog | null, kind: 'edit' | 'archive' | 'restore') {
-	if (dialog?.kind === kind) {
-		return dialog.client;
-	}
-	return null;
-}
 
 function ClientsPage() {
 	const t = useTranslations();
@@ -43,56 +40,54 @@ function ClientsPage() {
 	const { clients, activeClients, archivedClients, isLoaded, isLoading, isError, refetch } = useClientsQuery({
 		includeArchived: true
 	});
-	const {
-		organizationProjects,
-		isOrganizationProjectsLoaded,
-		isOrganizationProjectsError,
-		refetchOrganizationProjects
-	} = useOrganizationProjectsQuery();
+	const projects = useListedProjects();
 	const access = useClientAccess();
+	const viewAccess = useClientViewAccess();
+	const invoiceAccess = useInvoiceAccess();
 	const list = useClientsListState();
-	const [dialog, setDialog] = useState<ClientDialog | null>(null);
+	const display = useClientsDisplay();
+	const dialogs = useClientDialogs();
 
-	const activeTeamId = activeTeam?.id;
-	const projectCounts = useMemo(() => {
-		const listedProjects = projectsListedForTeam(organizationProjects, activeTeamId);
-		return projectCountByClient(listedProjects);
-	}, [activeTeamId, organizationProjects]);
-
-	// The counts are the active team's: while the saved team loads they would be every team's, then narrow.
-	const isTeamLoading = isSavedTeamLoading(Boolean(activeTeam));
-	const hasProjects = organizationProjects.length > 0;
-	const haveProjectsArrived = isOrganizationProjectsLoaded || hasProjects;
-	const haveProjectsFailed = isOrganizationProjectsError && !haveProjectsArrived;
-	const areProjectsRead = haveProjectsArrived && !isTeamLoading;
-	const projectCountsState = listReadStateOf(areProjectsRead, haveProjectsFailed);
-	const haveProjectCountsFailed = projectCountsState === 'failed';
+	const projectCounts = useMemo(() => projectCountByClient(projects.listedProjects), [projects.listedProjects]);
+	const haveProjectCountsFailed = projects.state === 'failed';
 
 	const shownClients = useMemo(() => {
 		const scoped = clientsInScope(clients, list.scope);
-		return scoped.filter((client) => clientMatchesSearch(client, list.search));
-	}, [clients, list.scope, list.search]);
+		const matching = scoped.filter((client) => clientMatchesSearch(client, list.search));
+		return sortClients(matching, display.order, projectCounts);
+	}, [clients, display.order, list.scope, list.search, projectCounts]);
+
+	const peek = useClientPeek(shownClients, clients);
+	const { open: openPeek } = peek;
+	const openClient = useCallback((client: TClient) => openPeek(client.id), [openPeek]);
 
 	const counts = { active: activeClients.length, archived: archivedClients.length };
 	const isSearching = list.search.trim().length > 0;
 	const hasClients = shownClients.length > 0;
+	const isRefused = viewAccess.isKnown && !viewAccess.canView;
 	// A failed read again keeps the list already read on screen: only a failed first read has nothing to show
-	const showsError = isError && !isLoading && !isLoaded;
-	const showsEmpty = !isLoading && !showsError && !hasClients;
-	const showsList = !isLoading && !showsError && hasClients;
-
-	const closeDialog = () => setDialog(null);
-	const openCreate = () => setDialog({ kind: 'create' });
-	const isFormOpen = dialog?.kind === 'create' || dialog?.kind === 'edit';
-	const editedClient = clientOf(dialog, 'edit');
-	const archivedClient = clientOf(dialog, 'archive');
-	const restoredClient = clientOf(dialog, 'restore');
+	const isFirstReadFailed = isError && !isLoading && !isLoaded;
+	const showsError = isFirstReadFailed && !isRefused;
+	const isSettled = !isLoading && !isRefused && !showsError;
+	const showsEmpty = isSettled && !hasClients;
+	const showsList = isSettled && hasClients;
+	const showsCards = display.view === 'cards';
 
 	const pageTitle = t('clients.TITLE');
 	const breadcrumbPaths = [
 		{ title: activeTeam?.name || t('common.ALL_TEAMS'), href: '/' },
 		{ title: pageTitle, href: '/clients' }
 	];
+	const rowProps = {
+		projectCounts,
+		projectCountsState: projects.state,
+		access,
+		canCreateInvoice: invoiceAccess.canCreate,
+		onEdit: dialogs.edit,
+		onArchive: dialogs.archive,
+		onRestore: dialogs.restore,
+		onOpenClient: openClient
+	};
 
 	return (
 		<PageLayout
@@ -111,11 +106,14 @@ function ClientsPage() {
 					shownCount={shownClients.length}
 					isLoading={isLoading}
 					canCreate={access.canCreate}
-					onCreate={openCreate}
+					onCreate={dialogs.create}
+					display={display}
 				/>
 			}
 		>
-			{isLoading && <ClientsListSkeleton />}
+			{isRefused && <ClientsNoAccessState />}
+			{!isRefused && isLoading && showsCards && <ClientsCardsSkeleton />}
+			{!isRefused && isLoading && !showsCards && <ClientsListSkeleton />}
 			{showsError && <ClientsErrorState onRetry={() => void refetch()} />}
 			{showsEmpty && (
 				<ClientsEmptyState
@@ -123,27 +121,31 @@ function ClientsPage() {
 					isSearching={isSearching}
 					canCreate={access.canCreate}
 					onClearSearch={() => list.setSearch('')}
-					onCreate={openCreate}
+					onCreate={dialogs.create}
 				/>
 			)}
-			{showsList && haveProjectCountsFailed && (
-				<ProjectCountsNotice onRetry={() => void refetchOrganizationProjects()} />
-			)}
-			{showsList && (
-				<ClientsList
-					clients={shownClients}
-					projectCounts={projectCounts}
-					projectCountsState={projectCountsState}
-					access={access}
-					onEdit={(client) => setDialog({ kind: 'edit', client })}
-					onArchive={(client) => setDialog({ kind: 'archive', client })}
-					onRestore={(client) => setDialog({ kind: 'restore', client })}
-				/>
-			)}
+			{showsList && haveProjectCountsFailed && <ProjectCountsNotice onRetry={projects.retry} />}
+			{showsList && showsCards && <ClientsCards clients={shownClients} {...rowProps} />}
+			{showsList && !showsCards && <ClientsList clients={shownClients} {...rowProps} />}
 
-			<ClientFormDialog open={isFormOpen} client={editedClient} onClose={closeDialog} />
-			<ArchiveClientDialog open={Boolean(archivedClient)} client={archivedClient} onClose={closeDialog} />
-			<RestoreClientDialog open={Boolean(restoredClient)} client={restoredClient} onClose={closeDialog} />
+			<ClientSheet
+				client={peek.client}
+				isOpen={peek.isOpen}
+				neighbours={peek.neighbours}
+				onClose={peek.close}
+				onPrevious={peek.showPrevious}
+				onNext={peek.showNext}
+				listedProjects={projects.listedProjects}
+				projectsState={projects.state}
+				onRetryProjects={projects.retry}
+				access={access}
+				canCreateInvoice={invoiceAccess.canCreate}
+				canViewInvoices={invoiceAccess.canView}
+				onEdit={dialogs.edit}
+				onArchive={dialogs.archive}
+				onRestore={dialogs.restore}
+			/>
+			<ClientDialogs dialogs={dialogs} onOpenClient={openClient} />
 		</PageLayout>
 	);
 }

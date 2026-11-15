@@ -235,6 +235,7 @@ export const MemberStatementCard = memo(function MemberStatementCard({
 					currency={group.currency}
 					rateSource={group.rateSource}
 					ratePending={group.ratePending}
+					hasSeveralRates={group.hasSeveralRates}
 				/>
 			</header>
 			<FoldedLines
