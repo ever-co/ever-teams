@@ -172,6 +172,36 @@ describe('authenticatedGuard, a tab working in its own organization', () => {
 		expect(otherWorkspace.organizationId).toBe('org-b');
 	});
 
+	/** Another tab's switch wrote its organization and team, and its token is still on its way (CodeRabbit on #5321). */
+	const midSwitchRequest = (authorization: string, tabTeamId?: string) =>
+		new Request('http://localhost:3030/api/timer/stop', {
+			headers: {
+				cookie: `${TOKEN_COOKIE_NAME}=${jwt('org-a')}; ${TENANT_ID_COOKIE_NAME}=tenant-1; ${ORGANIZATION_ID_COOKIE_NAME}=org-b; ${ACTIVE_TEAM_COOKIE_NAME}=team-b`,
+				authorization: `Bearer ${authorization}`,
+				...(tabTeamId ? { [TAB_TEAM_HEADER]: tabTeamId } : {})
+			}
+		});
+
+	it("acts in the tab's organization and team while another tab's switch moved the cookies ahead of the token", async () => {
+		const sameToken = await authenticatedGuard(midSwitchRequest(jwt('org-a'), 'team-a'), new NextResponse());
+		const olderToken = jwt('org-a').replace(/\.sig$/, '.older-sig');
+		const ownOlderToken = await authenticatedGuard(midSwitchRequest(olderToken, 'team-a'), new NextResponse());
+
+		expect(sameToken.organizationId).toBe('org-a');
+		expect(sameToken.teamId).toBe('team-a');
+		expect(sameToken.projectId).toBeUndefined();
+		expect(ownOlderToken.access_token).toBe(olderToken);
+		expect(ownOlderToken.organizationId).toBe('org-a');
+		expect(ownOlderToken.teamId).toBe('team-a');
+	});
+
+	it('leaves the tab making the switch, which names no team of its own, on the cookies meanwhile', async () => {
+		const guard = await authenticatedGuard(midSwitchRequest(jwt('org-a')), new NextResponse());
+
+		expect(guard.organizationId).toBe('org-b');
+		expect(guard.teamId).toBe('team-b');
+	});
+
 	it('ignores a team header that is not an id', async () => {
 		const guard = await authenticatedGuard(tabRequest(jwt('org-a'), 'team a; drop'), new NextResponse());
 

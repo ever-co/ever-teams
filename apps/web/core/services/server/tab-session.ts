@@ -20,16 +20,28 @@ export interface TabSession {
  * #5134) sends its own access token in the Authorization header and names its team in `x-tab-team-id`.
  *
  * Its request acts with that token, its organization and that team when the token is of the same person in the same
- * workspace as the cookies' token and names another organization than it. Gauzy still checks the token, as for any
- * request. Any other request (no header, the cookies' own token, another person's or workspace's token, a token of the
- * same organization) acts with the cookies, as before.
+ * workspace as the cookies' token and names another organization than it. Another tab's switch writes the organization
+ * and team cookies before its token comes back: meanwhile a request that names its tab's team acts in its token's
+ * organization too, when the organization cookie names another one, even with the cookies' own token. Gauzy still
+ * checks the token, as for any request. Any other request (no header and the cookies' own token, another person's or
+ * workspace's token, a token of the cookies' organization) acts with the cookies, as before.
+ *
+ * @param sharedOrganizationId The organization cookie, when the caller reads the organization from the cookies.
  */
-export function tabSessionOf(req: Request, sharedToken: string | null): TabSession | null {
+export function tabSessionOf(
+	req: Request,
+	sharedToken: string | null,
+	sharedOrganizationId?: string | null
+): TabSession | null {
 	const authorization = req.headers.get('authorization') ?? '';
 	const token = authorization.startsWith('Bearer ') ? authorization.slice('Bearer '.length).trim() : '';
-	if (!token || !sharedToken || token === sharedToken) return null;
+	if (!token || !sharedToken) return null;
+	const team = req.headers.get(TAB_TEAM_HEADER) ?? '';
+	// Only a tab working in its own organization names its team: the session's own requests never do
+	const namesTabTeam = team.length > 0;
+	if (token === sharedToken && !namesTabTeam) return null;
 	const tab = decodeJWT(token) as Claims;
-	const shared = decodeJWT(sharedToken) as Claims;
+	const shared = token === sharedToken ? tab : (decodeJWT(sharedToken) as Claims);
 	const tabUserId = tab?.id ?? tab?.sub;
 	const isSameSession =
 		!!tab &&
@@ -38,8 +50,10 @@ export function tabSessionOf(req: Request, sharedToken: string | null): TabSessi
 		tabUserId === (shared.id ?? shared.sub) &&
 		(tab.tenantId ?? null) === (shared.tenantId ?? null);
 	const tabOrganizationId = tab?.organizationId;
-	if (!isSameSession || !tabOrganizationId || tabOrganizationId === (shared?.organizationId ?? null)) return null;
-	const team = req.headers.get(TAB_TEAM_HEADER) ?? '';
+	if (!isSameSession || !tabOrganizationId) return null;
+	const isOtherThanSession = tabOrganizationId !== (shared?.organizationId ?? null);
+	const isOtherThanCookie = namesTabTeam && !!sharedOrganizationId && tabOrganizationId !== sharedOrganizationId;
+	if (!isOtherThanSession && !isOtherThanCookie) return null;
 	return {
 		accessToken: token,
 		organizationId: tabOrganizationId,
