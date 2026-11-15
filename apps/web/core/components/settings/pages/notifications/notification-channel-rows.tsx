@@ -40,12 +40,26 @@ type EmailModeSelectProps = {
 };
 
 /** At once, in the daily digest, never — and, for a kind, the default of every kind. */
-export function EmailModeSelect({ id, value, disabled, ariaLabel, className, allowDefault, onChange }: Readonly<EmailModeSelectProps>) {
+export function EmailModeSelect({
+	id,
+	value,
+	disabled,
+	ariaLabel,
+	className,
+	allowDefault,
+	onChange
+}: Readonly<EmailModeSelectProps>) {
 	const t = useTranslations();
-	const choices: readonly EmailModeChoice[] = allowDefault ? ['default', ...NOTIFICATION_EMAIL_MODES] : NOTIFICATION_EMAIL_MODES;
+	const choices: readonly EmailModeChoice[] = allowDefault
+		? ['default', ...NOTIFICATION_EMAIL_MODES]
+		: NOTIFICATION_EMAIL_MODES;
 	return (
 		<Select value={value} onValueChange={(next) => onChange(next as EmailModeChoice)} disabled={disabled}>
-			<SelectTrigger id={id} aria-label={ariaLabel} className={cn('h-8 text-[13px]', className ?? 'w-full sm:w-44')}>
+			<SelectTrigger
+				id={id}
+				aria-label={ariaLabel}
+				className={cn('h-8 text-[13px]', className ?? 'w-full sm:w-44')}
+			>
 				<SelectValue>{t(MODE_KEYS[value])}</SelectValue>
 			</SelectTrigger>
 			<SelectContent>
@@ -76,7 +90,12 @@ export function EmailDefaultRow({ value, disabled, onChange }: Readonly<EmailDef
 				description={t('notifications.SETTINGS_PAGE.CHANNELS.DEFAULT_TEXT')}
 				htmlFor={triggerId}
 			>
-				<EmailModeSelect id={triggerId} value={value} disabled={disabled} onChange={(mode) => onChange(mode as TNotificationEmailMode)} />
+				<EmailModeSelect
+					id={triggerId}
+					value={value}
+					disabled={disabled}
+					onChange={(mode) => onChange(mode as TNotificationEmailMode)}
+				/>
 			</SettingsRow>
 		</SettingsSurface>
 	);
@@ -159,7 +178,9 @@ export function QuietHoursRow({ window, disabled, onChange }: Readonly<QuietHour
 				id={switchId}
 				checked={isOn}
 				pending={disabled}
-				onCheckedChange={(next) => onChange(next ? { ...DEFAULT_QUIET_HOURS, timeZone: browserTimeZone() } : null)}
+				onCheckedChange={(next) =>
+					onChange(next ? { ...DEFAULT_QUIET_HOURS, timeZone: browserTimeZone() } : null)
+				}
 			/>
 		</SettingsRow>
 	);
