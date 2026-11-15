@@ -10,6 +10,8 @@ export interface ApiFailure {
 export interface Refusal {
 	key: string;
 	reason?: string;
+	/** The same call may pass when tried again: offline, a timeout, too many requests, a server error. */
+	retryable?: true;
 }
 
 // Gauzy refuses a start when tracking is off for the employee with a 403 that names it
@@ -47,8 +49,23 @@ function requiredFieldsKey(fields: unknown): string {
 	return 'refusalRequiredDetails';
 }
 
-/** The words to show for a failed call of the timer or the task list. */
+// What says nothing against the request itself: the API was not reached, timed out, was busy or failed
+const RETRYABLE_STATUSES: ReadonlySet<number> = new Set([0, 408, 429]);
+
+function isRetryable(status: number): boolean {
+	return RETRYABLE_STATUSES.has(status) || status >= 500;
+}
+
+/** The words to show for a failed call of the timer or the task list, and whether trying again may help. */
 export function refusalOf(failure: ApiFailure): Refusal {
+	const refusal = wordsOf(failure);
+	if (isRetryable(failure.status)) {
+		return { ...refusal, retryable: true };
+	}
+	return refusal;
+}
+
+function wordsOf(failure: ApiFailure): Refusal {
 	if (failure.code === 'TRACKING_FIELD_REQUIRED') {
 		return { key: requiredFieldsKey(failure.details?.fields) };
 	}

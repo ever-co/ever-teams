@@ -45,9 +45,9 @@ function pressActionOf(isRunning: boolean, onStart: () => void, onStop: () => vo
 	return onStart;
 }
 
-/** Offline, the notice offers to read the timer again. */
-function retryActionOf(isOffline: boolean, onRetry: () => void) {
-	if (!isOffline) {
+/** Offline, after a timeout or a server error, the notice offers to try again; a refusal of the request itself, not. */
+function retryActionOf(refusal: Refusal | null, onRetry: () => void) {
+	if (!refusal?.retryable) {
 		return undefined;
 	}
 	return { label: t('actionRetry'), onClick: onRetry };
@@ -96,9 +96,8 @@ export const Timer: FC<TimerProps> = ({
 }) => {
 	const isDisabled = busy || (!isRunning && !canStart);
 	const label = buttonLabelOf(isRunning, busy);
-	const isOffline = refusal?.key === 'errorOffline';
 	const onPress = pressActionOf(isRunning, onStart, onStop);
-	const retryAction = retryActionOf(isOffline, onRetry);
+	const retryAction = retryActionOf(refusal, onRetry);
 
 	return (
 		<section

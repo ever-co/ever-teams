@@ -108,8 +108,18 @@ export function useTimerStatus(session: Session | null) {
 		return () => clearInterval(tick);
 	}, [isRunning]);
 
+	/**
+	 * "Try again" after a failed read, or a start or a stop the server failed: the notice goes and the timer is read
+	 * again, so the popup shows whether the run started or stopped before the person presses the button again. The
+	 * action itself is not sent again: a start the server failed may have started the run all the same.
+	 */
+	const retry = useCallback(() => {
+		setRefusal(null);
+		return refresh();
+	}, [refresh]);
+
 	const { runSeconds, todaySeconds } = countsOf(status, isRunning, now, readAt);
 	const error = refusal ?? readError;
 
-	return { status, error, loading, isRunning, runSeconds, todaySeconds, refresh, setRefusal };
+	return { status, error, loading, isRunning, runSeconds, todaySeconds, refresh, retry, setRefusal };
 }

@@ -28,7 +28,7 @@ describe('refusalOf', () => {
 	});
 
 	it('tells offline, an expired session and a timer changed elsewhere apart', () => {
-		assert.deepEqual(refusalOf({ status: 0 }), { key: 'errorOffline' });
+		assert.deepEqual(refusalOf({ status: 0 }), { key: 'errorOffline', retryable: true });
 		assert.deepEqual(refusalOf({ status: 401 }), { key: 'errorSessionExpired' });
 		assert.deepEqual(refusalOf({ status: 409 }), { key: 'errorTimerChangedElsewhere' });
 	});
@@ -38,6 +38,19 @@ describe('refusalOf', () => {
 			key: 'errorWithReason',
 			reason: 'Task is archived'
 		});
-		assert.deepEqual(refusalOf({ status: 500 }), { key: 'errorGeneric' });
+		assert.deepEqual(refusalOf({ status: 500 }), { key: 'errorGeneric', retryable: true });
+	});
+
+	it('marks what may pass when tried again: offline, a timeout, too many requests, a server error', () => {
+		for (const status of [0, 408, 429, 500, 502, 503, 504, 524]) {
+			assert.equal(refusalOf({ status, message: 'Busy' }).retryable, true, `status ${status}`);
+		}
+	});
+
+	it('marks no refusal of the request itself as worth trying again unchanged', () => {
+		for (const status of [400, 401, 403, 404, 409, 422]) {
+			assert.equal(refusalOf({ status, message: 'Refused' }).retryable, undefined, `status ${status}`);
+		}
+		assert.equal(refusalOf({ status: 422, code: 'DAILY_PLAN_REQUIRED' }).retryable, undefined);
 	});
 });

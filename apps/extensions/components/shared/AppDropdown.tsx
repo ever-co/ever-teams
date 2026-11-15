@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useRef, useState, type FC } from 'react';
+import React, { useEffect, useRef, useState, type FC, type KeyboardEvent } from 'react';
 
 import useOnClickOutside from '~hooks/useOnClickOutside';
 import { inheritTextSize, textEllipsis } from '~misc/tailwindClasses';
@@ -31,9 +31,28 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
 	disabled = false
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
+	const toggleRef = useRef<HTMLButtonElement>(null);
 	const [dropdownHidden, setHidden] = useState<boolean>(true);
+	// Disabled while the menu was open (a run started meanwhile): the menu closes, and its options, disabled, go with it
+	const isOpen = !dropdownHidden && !disabled;
 
 	useOnClickOutside(ref, () => setHidden(true));
+
+	useEffect(() => {
+		if (disabled) {
+			setHidden(true);
+		}
+	}, [disabled]);
+
+	// Escape closes the menu and gives the focus back to the button that opened it
+	const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+		if (event.key !== 'Escape' || !isOpen) {
+			return;
+		}
+		event.stopPropagation();
+		setHidden(true);
+		toggleRef.current?.focus();
+	};
 
 	const selectOption = (option: IOption) => {
 		setHidden(true);
@@ -47,7 +66,8 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
 	const optionElements = options.map((option) => {
 		const isSelected = option.id === selectedId;
 		return (
-			<li key={option.id} role="option" aria-selected={isSelected}>
+			<li key={option.id} role="option" aria-selected={isSelected} aria-disabled={disabled || undefined}>
+				{/* Disabled, the button leaves the tab order and ignores Enter and Space */}
 				<button
 					type="button"
 					disabled={disabled}
@@ -65,11 +85,12 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
 	});
 
 	return (
-		<div ref={ref} className="relative">
+		<div ref={ref} className="relative" onKeyDown={onKeyDown}>
 			<button
+				ref={toggleRef}
 				type="button"
 				aria-haspopup="listbox"
-				aria-expanded={!dropdownHidden}
+				aria-expanded={isOpen}
 				aria-label={buttonLabel}
 				disabled={disabled}
 				className={classNames('inline-flex items-center justify-between', buttonClassNames)}
@@ -81,7 +102,7 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
 			<div
 				className={classNames(
 					'scrollbar absolute right-0 z-10 mt-1.5 max-h-64 w-48 overflow-auto rounded-xl bg-white p-1 shadow-md shadow-black/10 ring-1 ring-zinc-900/10 dark:bg-zinc-800 dark:ring-white/10',
-					dropdownHidden && 'hidden',
+					!isOpen && 'hidden',
 					optionContainerClassNames
 				)}
 			>
