@@ -255,6 +255,34 @@ describe('the background timer', () => {
 		await until(() => extension.badge.text === '0:05', 'the badge shows the run');
 	});
 
+	it('gives up a renewal still waiting for the session lock at the deadline, so the alarms after it read', async () => {
+		mock.timers.enable({ apis: ['setTimeout'] });
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		const { status } = runningServer();
+		await startBackground();
+		// Another view holds the session lock (its own renewal) for longer than the read may take
+		let releaseLock = () => undefined as void;
+		const lockHeld = new Promise<void>((resolve) => {
+			releaseLock = resolve;
+		});
+		void navigator.locks.request('ever-teams-session', () => lockHeld);
+
+		extension.alarms.onAlarm.emit(REFRESH_ALARM);
+		(await server.next(STATUS_PATH)).answer(401, { message: 'Unauthorized' });
+		extension.alarms.onAlarm.emit(REFRESH_ALARM);
+		await settle();
+		assert.equal(server.sentTo(STATUS_PATH).length, 1);
+
+		mock.timers.tick(60_000);
+		await until(() => server!.sentTo(STATUS_PATH).length === 2, 'the read of the alarm that waited');
+		releaseLock();
+		await settle();
+		(await server.next(STATUS_PATH)).answer(200, status());
+		await until(() => extension.badge.text === '0:05', 'the badge shows the run');
+		assert.ok(extension.stored.has('session'), 'a renewal given up signs nobody out');
+	});
+
 	it('still tells the other popups when the port of one is gone, and posts no more to that one', async () => {
 		const extension = installFakeExtension({ session: SESSION });
 		server = holdRequests();
