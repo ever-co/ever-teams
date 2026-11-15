@@ -94,11 +94,7 @@ describe('the offer to add the people of a file that nobody in the team is', () 
 
 	it('shows nothing for a file whose people are all in the team', () => {
 		const { container } = render(
-			<Offer
-				rows={[rowOf(2, 'x@example.com', 'projectUnknown')]}
-				onAdd={jest.fn()}
-				onAdded={jest.fn()}
-			/>
+			<Offer rows={[rowOf(2, 'x@example.com', 'projectUnknown')]} onAdd={jest.fn()} onAdded={jest.fn()} />
 		);
 		expect(container.textContent).toBe('');
 	});

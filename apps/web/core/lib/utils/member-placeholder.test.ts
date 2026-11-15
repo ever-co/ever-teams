@@ -240,9 +240,9 @@ describe('member-placeholder', () => {
 
 			// Before the team reads the member back, then as the team lists it
 			expect(memberCodesOf(cell, withImportMembersAdded(context, added).members)).toEqual([]);
-			expect(memberCodesOf(cell, [{ employeeId: 'employee-maria', email: '', name: 'María de la Cruz' }])).toEqual(
-				[]
-			);
+			expect(
+				memberCodesOf(cell, [{ employeeId: 'employee-maria', email: '', name: 'María de la Cruz' }])
+			).toEqual([]);
 		});
 	});
 
