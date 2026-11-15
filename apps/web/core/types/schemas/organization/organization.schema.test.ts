@@ -34,3 +34,26 @@ describe('organizationSchema (duration rounding)', () => {
 		expect(direction.parse('SIDEWAYS')).toBeNull();
 	});
 });
+
+describe('organizationSchema (default billing rate)', () => {
+	const value = organizationSchema.shape.defaultBillRateValue;
+	const currency = organizationSchema.shape.defaultBillRateCurrency;
+
+	it('reads a rate sent as text, as a numeric column comes, as its number', () => {
+		expect(value.parse('80.00')).toBe(80);
+		expect(value.parse(80)).toBe(80);
+	});
+
+	it('keeps a cleared rate as null, and reads text that is no number as no rate', () => {
+		expect(value.parse(null)).toBeNull();
+		expect(value.parse('eighty')).toBeNull();
+		expect(currency.parse(null)).toBeNull();
+		expect(currency.parse('EUR')).toBe('EUR');
+	});
+
+	it('leaves both fields out against an API without them, so the settings row stays hidden', () => {
+		const shape = organizationSchema.pick({ defaultBillRateValue: true, defaultBillRateCurrency: true });
+
+		expect(shape.parse({})).toEqual({});
+	});
+});

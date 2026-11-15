@@ -77,6 +77,9 @@ export const organizationSchema = z
 		// The workspace's rule for rounding durations in reports; an API without it sends neither field
 		durationRoundingInterval: z.preprocess(numberOfText, z.number().optional().nullable()).catch(null),
 		durationRoundingDirection: z.enum(['UP', 'DOWN', 'NEAREST']).optional().nullable().catch(null),
+		// The hourly rate billed for time no other rate prices (#5214); an API without it sends neither field
+		defaultBillRateValue: z.preprocess(numberOfText, z.number().optional().nullable()).catch(null),
+		defaultBillRateCurrency: z.string().optional().nullable().catch(null),
 		bonusPercentage: z.number().optional().nullable(),
 		employees: z.array(z.any()).optional(), // Will be properly typed when employee schema is created
 		invitesAllowed: z.boolean().optional().nullable(),
