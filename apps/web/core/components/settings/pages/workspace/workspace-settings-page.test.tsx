@@ -53,6 +53,8 @@ jest.mock('next-intl', () => ({
 	},
 	useLocale: () => 'en'
 }));
+// The danger zone (#5207) reads its own hook, which these tests leave out
+jest.mock('./workspace-danger-section', () => ({ WorkspaceDangerSection: () => null }));
 jest.mock('@/core/hooks/settings/use-workspace-settings', () => ({
 	useWorkspaceSettings: () => mockSettings
 }));
