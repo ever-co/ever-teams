@@ -1,9 +1,10 @@
 'use client';
 
 import { useCallback, useMemo } from 'react';
-import { atom, useAtom } from 'jotai';
+import { useAtom } from 'jotai';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
+import { sharedReportLinkTokensState } from '@/core/stores/timer/saved-report-links';
 import { savedReportService } from '@/core/services/client/api/timesheets/saved-report.service';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import type {
@@ -42,13 +43,6 @@ function shouldRetryList(failureCount: number, error: unknown) {
 	return failureCount < 2;
 }
 
-/**
- * The address of a link is answered once, when it is turned on or replaced (only its digest is stored). It is kept
- * here for the rest of the visit, so the author can copy it again until the page is reloaded; never in the browser's
- * storage.
- */
-const sharedLinkTokensState = atom<Readonly<Record<string, string>>>({});
-
 export interface SavedReportsScope {
 	tenantId: string | null | undefined;
 	organizationId: string | null | undefined;
@@ -68,7 +62,7 @@ export function useSavedReports(scope: SavedReportsScope) {
 		staleTime: 60_000,
 		retry: shouldRetryList
 	});
-	const [linkTokens, setLinkTokens] = useAtom(sharedLinkTokensState);
+	const [linkTokens, setLinkTokens] = useAtom(sharedReportLinkTokensState);
 
 	const reports = useMemo<ISavedReport[]>(() => query.data?.items ?? [], [query.data]);
 	const availability = availabilityOf(query.isSuccess, query.isError, query.error);
