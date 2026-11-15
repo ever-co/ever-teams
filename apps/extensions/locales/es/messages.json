@@ -152,6 +152,9 @@
 	"tasksAddFailed": {
 		"message": "No se pudo crear la tarea."
 	},
+	"tasksEstimateInvalid": {
+		"message": "Escribe la estimación en horas enteras (hasta 999) y minutos (de 0 a 59)."
+	},
 	"refusalPlanRequired": {
 		"message": "Tu equipo exige un plan diario antes de registrar tiempo. Planifica tu día primero."
 	},

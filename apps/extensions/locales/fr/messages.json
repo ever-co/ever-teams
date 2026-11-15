@@ -152,6 +152,9 @@
 	"tasksAddFailed": {
 		"message": "La tâche n’a pas pu être créée."
 	},
+	"tasksEstimateInvalid": {
+		"message": "Saisissez l’estimation en heures entières (jusqu’à 999) et en minutes (de 0 à 59)."
+	},
 	"refusalPlanRequired": {
 		"message": "Votre équipe exige un plan du jour avant de suivre le temps. Planifiez d’abord votre journée."
 	},

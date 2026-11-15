@@ -152,6 +152,9 @@
 	"tasksAddFailed": {
 		"message": "The task could not be created."
 	},
+	"tasksEstimateInvalid": {
+		"message": "Enter the estimate in whole hours (up to 999) and minutes (0 to 59)."
+	},
 	"refusalPlanRequired": {
 		"message": "Your team requires a daily plan before you track time. Plan your day first."
 	},

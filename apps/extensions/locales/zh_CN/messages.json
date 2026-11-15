@@ -152,6 +152,9 @@
 	"tasksAddFailed": {
 		"message": "无法创建任务。"
 	},
+	"tasksEstimateInvalid": {
+		"message": "请以整小时（最多 999）和分钟（0 到 59）输入预估。"
+	},
 	"refusalPlanRequired": {
 		"message": "你的团队要求先制定每日计划才能计时。请先规划今天。"
 	},

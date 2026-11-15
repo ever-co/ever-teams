@@ -152,6 +152,9 @@
 	"tasksAddFailed": {
 		"message": "تعذر إنشاء المهمة."
 	},
+	"tasksEstimateInvalid": {
+		"message": "أدخل التقدير بساعات كاملة (حتى 999) ودقائق (من 0 إلى 59)."
+	},
 	"refusalPlanRequired": {
 		"message": "يتطلب فريقك خطة يومية قبل تسجيل الوقت. خطط ليومك أولًا."
 	},

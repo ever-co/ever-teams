@@ -152,6 +152,9 @@
 	"tasksAddFailed": {
 		"message": "Impossibile creare l’attività."
 	},
+	"tasksEstimateInvalid": {
+		"message": "Inserisci la stima in ore intere (fino a 999) e minuti (da 0 a 59)."
+	},
 	"refusalPlanRequired": {
 		"message": "Il tuo team richiede un piano giornaliero prima di registrare il tempo. Pianifica prima la giornata."
 	},
