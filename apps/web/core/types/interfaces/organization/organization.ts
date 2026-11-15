@@ -41,6 +41,10 @@ export interface IOrganization
 	/** Minutes the reports round each entry to (1, 5, 6, 10, 15, 30 or 60); null rounds nothing. */
 	durationRoundingInterval?: number | null;
 	durationRoundingDirection?: 'UP' | 'DOWN' | 'NEAREST' | null;
+	/** The hourly rate billed for time no other rate prices; null leaves such time without a price. */
+	defaultBillRateValue?: number | null;
+	/** The currency of the default billing rate; null prices it in the workspace's currency. */
+	defaultBillRateCurrency?: string | null;
 	// bonusType?: BonusTypeEnum;
 	bonusPercentage?: number;
 	employees?: IEmployee[];

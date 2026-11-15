@@ -161,6 +161,12 @@ function stateOf(overrides: Partial<MyWeekPageState> = {}): MyWeekPageState {
 			billableShare: 78.2,
 			todaySeconds: 3 * HOUR + 1200
 		},
+		billable: {
+			isOffered: false,
+			figures: { amounts: [], seconds: 0, unpricedSeconds: 0 },
+			isPending: false,
+			isError: false
+		},
 		target: WITHIN_TARGET,
 		weeklyLimitSeconds: 40 * HOUR,
 		dailyLimitSeconds: 8 * HOUR,
@@ -208,6 +214,37 @@ describe('MyWeekPage', () => {
 		expect(within(days).getAllByRole('listitem')).toHaveLength(8);
 		expect(within(days).getByText('Tue:28800')).toBeTruthy();
 		expect(within(days).getByText('dashboard.myWeek.DAILY_LIMIT_LINE:{"limit":"8h"}')).toBeTruthy();
+	});
+
+	it('shows what the billable time bills to a role that may read client rates, with the time no rate prices', () => {
+		mockState = stateOf({
+			billable: {
+				isOffered: true,
+				figures: {
+					amounts: [{ currency: 'EUR', amount: 1480 }],
+					seconds: 18 * HOUR + 1800,
+					unpricedSeconds: 2 * HOUR
+				},
+				isPending: false,
+				isError: false
+			}
+		});
+		render(<MyWeekPage />);
+
+		const figures = summary();
+		expect(within(figures).getByText('dashboard.timeActivity.columns.BILLABLE')).toBeTruthy();
+		expect(within(figures).getByText(/1,480/)).toBeTruthy();
+		// The amount says it is priced at today's rates, not at those of each entry's time
+		expect(within(figures).getByText(/1,480/).getAttribute('title')).toContain(
+			'dashboard.myWeek.BILLABLE_RATES_HINT'
+		);
+		expect(within(figures).getByText('dashboard.myWeek.BILLABLE_UNPRICED:{"duration":"2h 0m"}')).toBeTruthy();
+	});
+
+	it('shows no billable amount to a role that may not read client rates', () => {
+		render(<MyWeekPage />);
+
+		expect(within(summary()).queryByText('dashboard.timeActivity.columns.BILLABLE')).toBeNull();
 	});
 
 	it('splits the time by project and lists the latest entries', () => {

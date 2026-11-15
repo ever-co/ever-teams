@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { Notice } from '@/core/components/common/notice';
 import { SegmentedControl, type SegmentedControlItem } from '@/core/components/common/segmented-control';
@@ -106,13 +106,15 @@ interface TimeImportResultProps {
 	timeImport: TimeImport;
 	copy: TimeImportCopy;
 	onDownloadReport: () => void;
+	/** Shown on the preview only: what the page offers for rows it cannot import yet (people nobody in the team is). */
+	offer?: ReactNode;
 }
 
 /**
  * The rows of a checked file, each with what becomes of it. The same list is the preview before the import, its
  * progress while the rows are saved, and its report afterwards.
  */
-export function TimeImportResult({ timeImport, copy, onDownloadReport }: Readonly<TimeImportResultProps>) {
+export function TimeImportResult({ timeImport, copy, onDownloadReport, offer }: Readonly<TimeImportResultProps>) {
 	const t = useTranslations();
 	const { stage, fileName, rows, summary, run, report, ignoredHeaders } = timeImport;
 	const [filter, setFilter] = useState<RowFilter>(ALL_ROWS);
@@ -230,6 +232,7 @@ export function TimeImportResult({ timeImport, copy, onDownloadReport }: Readonl
 				/>
 			)}
 			{isDone && report && <RunNotice report={report} />}
+			{isPreview && offer}
 			<SettingsSurface>
 				<MetricStrip items={figures} ariaLabel={t('timeImport.figures.LABEL')} />
 				{isPreview && (

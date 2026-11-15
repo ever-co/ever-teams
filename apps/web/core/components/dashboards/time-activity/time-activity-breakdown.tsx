@@ -22,6 +22,7 @@ import { activityPercentOf } from '@/core/lib/utils/daily-report-figures';
 import {
 	BREAKDOWN_PATHS,
 	type BreakdownDimension,
+	type BreakdownFact,
 	type BreakdownGrouping,
 	type BreakdownNode,
 	type BreakdownSubject,
@@ -39,6 +40,7 @@ import {
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import {
+	BillableText,
 	ClientGlyph,
 	DurationText,
 	EarningsText,
@@ -69,22 +71,27 @@ export interface BreakdownColumns {
 	projects: boolean;
 	tracked: boolean;
 	earnings: boolean;
+	billable: boolean;
 	activity: boolean;
 }
 
 export function breakdownColumnsOf(
 	grouping: BreakdownGrouping,
 	hiddenColumns: ReadonlyArray<TimeActivityColumn>,
-	isManager: boolean
+	isManager: boolean,
+	readsBillable = false
 ): BreakdownColumns {
 	const isProjectsHidden = hiddenColumns.includes('project');
 	const showsProjects = offersProjectsColumn(grouping) && !isProjectsHidden;
 	const isEarningsHidden = hiddenColumns.includes('earnings');
 	const showsEarnings = isManager && !isEarningsHidden;
+	const isBillableHidden = hiddenColumns.includes('billable');
+	const showsBillable = readsBillable && !isBillableHidden;
 	return {
 		projects: showsProjects,
 		tracked: !hiddenColumns.includes('tracked'),
 		earnings: showsEarnings,
+		billable: showsBillable,
 		activity: !hiddenColumns.includes('activity')
 	};
 }
@@ -100,6 +107,7 @@ const TRACKS = {
 	tracked: '4.5rem',
 	trackedWide: '5.25rem',
 	earnings: 'minmax(6rem,9rem)',
+	billable: 'minmax(6rem,9rem)',
 	activity: '6.75rem'
 };
 
@@ -131,6 +139,10 @@ function wideTracksOf(columns: BreakdownColumns, wide: WideTracks) {
 	if (addsEarnings) {
 		tracks.push(TRACKS.earnings);
 	}
+	const addsBillable = wide.withEarnings && columns.billable;
+	if (addsBillable) {
+		tracks.push(TRACKS.billable);
+	}
 	if (columns.activity) {
 		tracks.push(TRACKS.activity);
 	}
@@ -156,6 +168,7 @@ const METER_CELL = 'max-sm:hidden';
 const SHARE_CELL = 'text-right';
 const TRACKED_CELL = 'text-right';
 const EARNINGS_CELL = 'min-w-0 text-right max-lg:hidden';
+const BILLABLE_CELL = 'min-w-0 text-right max-lg:hidden';
 const ACTIVITY_CELL = 'flex justify-end max-sm:hidden';
 
 const RANK_CAP =
@@ -177,6 +190,8 @@ const HORIZONTAL_GUIDE = 'absolute top-1/2 h-(--hairline) bg-border';
 
 const EMPTY_LINEAGE: ReadonlyArray<boolean> = [];
 
+const NO_FACTS: ReadonlyArray<BreakdownFact> = [];
+
 interface BreakdownText {
 	locale: FormatLocale;
 	todayKey: string;
@@ -190,6 +205,8 @@ interface BreakdownText {
 	clientLabels: ClientLabels;
 	noTask: string;
 	noRate: string;
+	noBillable: string;
+	unavailable: string;
 	noTime: string;
 	noActivity: string;
 	noTaskActivity: string;
@@ -203,6 +220,10 @@ interface RowContext {
 	text: BreakdownText;
 	openKeys: ReadonlySet<string>;
 	onToggle: (key: string) => void;
+	/** The billable amounts are still read: their cells wait while every other figure shows. */
+	isBillablePending: boolean;
+	/** The billable amounts could not be read: their cells show none. */
+	isBillableError: boolean;
 }
 
 type Translate = ReturnType<typeof useTranslations>;
@@ -242,6 +263,8 @@ function useBreakdownText(): BreakdownText {
 			clientLabels: { noClient: t('common.NO_CLIENT'), unnamedClient: t('common.CLIENT') },
 			noTask: t('dashboard.timeActivity.export.NO_TASK'),
 			noRate: t('dashboard.timeActivity.table.NO_RATE'),
+			noBillable: t('dashboard.timeActivity.figures.BILLABLE_NONE'),
+			unavailable: t('dashboard.timeActivity.figures.UNAVAILABLE'),
 			noTime: t('dashboard.timeActivity.figures.NO_TIME'),
 			noActivity: t('dashboard.timeActivity.table.NO_ACTIVITY'),
 			noTaskActivity: t('dashboard.timeActivity.breakdown.TASK_ACTIVITY'),
@@ -579,6 +602,19 @@ function BreakdownRow({
 					<EarningsText amounts={node.earnings} locale={text.locale} noRateLabel={text.noRate} />
 				</span>
 			)}
+			{columns.billable && (
+				<span role="cell" className={BILLABLE_CELL}>
+					<BillableText
+						figures={node.billable}
+						isPending={context.isBillablePending}
+						isError={context.isBillableError}
+						locale={text.locale}
+						noRateLabel={text.noRate}
+						noBillableLabel={text.noBillable}
+						unavailableLabel={text.unavailable}
+					/>
+				</span>
+			)}
 			{columns.activity && (
 				<span role="cell" className={ACTIVITY_CELL}>
 					<ActivityCell figures={node} text={text} />
@@ -706,6 +742,11 @@ function HeaderCells({
 					{t('dashboard.timeActivity.columns.EARNINGS')}
 				</span>
 			)}
+			{columns.billable && (
+				<span role="columnheader" className={BILLABLE_CELL}>
+					{t('dashboard.timeActivity.columns.BILLABLE')}
+				</span>
+			)}
 			{columns.activity && (
 				<span role="columnheader" className={ACTIVITY_CELL}>
 					{t('dashboard.timeActivity.columns.ACTIVITY')}
@@ -721,7 +762,9 @@ function TotalsCells({
 	topCount,
 	projectCount,
 	columns,
-	text
+	text,
+	isBillablePending,
+	isBillableError
 }: Readonly<{
 	totals: BreakdownTotals;
 	topDimension: BreakdownDimension;
@@ -729,6 +772,8 @@ function TotalsCells({
 	projectCount: number;
 	columns: BreakdownColumns;
 	text: BreakdownText;
+	isBillablePending: boolean;
+	isBillableError: boolean;
 }>) {
 	const t = useTranslations();
 	const activityFigures = useMemo<ActivityFigures>(() => ({ ...totals, hasExactActivity: true }), [totals]);
@@ -756,6 +801,19 @@ function TotalsCells({
 			{columns.earnings && (
 				<span role="cell" className={EARNINGS_CELL}>
 					<EarningsText amounts={totals.earnings} locale={text.locale} noRateLabel={text.noRate} />
+				</span>
+			)}
+			{columns.billable && (
+				<span role="cell" className={BILLABLE_CELL}>
+					<BillableText
+						figures={totals.billable}
+						isPending={isBillablePending}
+						isError={isBillableError}
+						locale={text.locale}
+						noRateLabel={text.noRate}
+						noBillableLabel={text.noBillable}
+						unavailableLabel={text.unavailable}
+					/>
 				</span>
 			)}
 			{columns.activity && (
@@ -831,6 +889,7 @@ function SkeletonRow({ index, columns }: Readonly<{ index: number; columns: Brea
 			<span className={cn('ml-auto h-2.5 w-7', SKELETON_BAR)} />
 			{columns.tracked && <span className={cn('ml-auto h-2.5 w-12', SKELETON_BAR)} />}
 			{columns.earnings && <span className={cn(EARNINGS_CELL, 'ml-auto h-2.5 w-14', SKELETON_BAR)} />}
+			{columns.billable && <span className={cn(BILLABLE_CELL, 'ml-auto h-2.5 w-14', SKELETON_BAR)} />}
 			{columns.activity && <span className={cn(ACTIVITY_CELL, 'ml-auto h-2.5 w-16', SKELETON_BAR)} />}
 		</div>
 	);
@@ -890,6 +949,10 @@ function hasOpenableRows(nodes: ReadonlyArray<BreakdownNode>) {
 interface TimeActivityBreakdownProps {
 	grouping: BreakdownGrouping;
 	rows: ReadonlyArray<TimeActivityRow>;
+	/** The facts of the billable time, priced: each row adds up what its billable time bills. */
+	billableFacts?: ReadonlyArray<BreakdownFact>;
+	isBillablePending?: boolean;
+	isBillableError?: boolean;
 	columns: BreakdownColumns;
 	period: Period;
 	isLoading: boolean;
@@ -906,6 +969,9 @@ interface TimeActivityBreakdownProps {
 export function TimeActivityBreakdown({
 	grouping,
 	rows,
+	billableFacts = NO_FACTS,
+	isBillablePending = false,
+	isBillableError = false,
 	columns,
 	period,
 	isLoading,
@@ -918,13 +984,13 @@ export function TimeActivityBreakdown({
 }: Readonly<TimeActivityBreakdownProps>) {
 	const t = useTranslations();
 	const text = useBreakdownText();
-	const tree = useTimeActivityBreakdown(rows, grouping);
+	const tree = useTimeActivityBreakdown(rows, grouping, billableFacts);
 	const { openKeys, isAnyOpen, toggle, toggleAll } = useBreakdownOpenState(tree.nodes);
 	const path = BREAKDOWN_PATHS[grouping];
 	const gridStyle = useMemo(() => gridStyleOf(columns), [columns]);
 	const context = useMemo<RowContext>(
-		() => ({ path, columns, text, openKeys, onToggle: toggle }),
-		[columns, openKeys, path, text, toggle]
+		() => ({ path, columns, text, openKeys, onToggle: toggle, isBillablePending, isBillableError }),
+		[columns, isBillableError, isBillablePending, openKeys, path, text, toggle]
 	);
 	const projectCount = useMemo(() => distinctProjectCountOf(tree.nodes), [tree.nodes]);
 
@@ -1006,6 +1072,8 @@ export function TimeActivityBreakdown({
 								projectCount={projectCount}
 								columns={columns}
 								text={text}
+								isBillablePending={isBillablePending}
+								isBillableError={isBillableError}
 							/>
 						</ReportTotalsRow>
 					</>

@@ -83,6 +83,11 @@ let mockLookup: ClientLookup = PROJECTS_READ;
 let mockGrouping: TimeActivityGrouping = 'project';
 let mockAccess: ClientGroupingAccess = 'granted';
 let mockClientsList: ClientsList = CLIENTS_READ;
+/** A role that may read client rates, unless a test takes it away. */
+let mockPermissions: string[] = ['CHANGE_SELECTED_EMPLOYEE'];
+/** The daily reads still show the previous period or filters while the next ones load. */
+let mockShowsPreviousRead = false;
+const mockRatesByProject = new Map([['website', { id: 'website', billRateValue: 90, currency: 'EUR', members: [] }]]);
 
 // Breaks (#5216) off, as in a workspace that never turned them on, unless a test turns them on
 let mockAllowsBreaks = false;
@@ -127,6 +132,7 @@ jest.mock('./use-time-activity-queries', () => ({
 	useTimeActivityBreaksQuery: () => mockBreaksQuery,
 	useTimeActivityDailyQuery: () => ({
 		data: DAILY_REPORT,
+		isPlaceholderData: mockShowsPreviousRead,
 		isPending: false,
 		isError: false,
 		isFetching: false,
@@ -137,6 +143,17 @@ jest.mock('./use-time-activity-queries', () => ({
 		isPending: true,
 		isError: false,
 		isFetching: false,
+		refetch: jest.fn()
+	})
+}));
+jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
+	useMyRolePermissionsQuery: () => ({ myPermissions: mockPermissions, isLoaded: true })
+}));
+jest.mock('@/core/hooks/organizations/rates/use-project-client-rates', () => ({
+	useProjectClientRates: () => ({
+		ratesByProject: mockRatesByProject,
+		isLoading: false,
+		hasFailed: false,
 		refetch: jest.fn()
 	})
 }));
@@ -389,6 +406,68 @@ describe('useTimeActivityReport with a duration rounding rule', () => {
 		expect(report.roundingRule).toBeNull();
 		expect(report.isDailyPending).toBe(false);
 		expect(report.weekDailySource).toBeNull();
+	});
+});
+
+describe('useTimeActivityReport billable amounts', () => {
+	beforeEach(() => {
+		resetMocks('project');
+		mockPermissions = ['CHANGE_SELECTED_EMPLOYEE'];
+		getDefaultStore().set(currentOrganizationState, null);
+	});
+
+	it('prices the billable time at the client rate, and counts the time no rate prices apart', () => {
+		const report = reportUnder([], PROJECTS_READ);
+
+		expect(report.billable.isOffered).toBe(true);
+		expect(report.billable.isPending).toBe(false);
+		expect(report.billable.figures).toEqual({
+			amounts: [{ currency: 'EUR', amount: 15 }],
+			seconds: 1200,
+			unpricedSeconds: 600
+		});
+	});
+
+	it('prices the time no other rate prices at the workspace default', () => {
+		const organization = {
+			id: 'organization',
+			currency: 'EUR',
+			defaultBillRateValue: 60
+		} as unknown as TOrganization;
+		getDefaultStore().set(currentOrganizationState, organization);
+
+		const report = reportUnder([], PROJECTS_READ);
+
+		expect(report.billable.figures.amounts).toEqual([{ currency: 'EUR', amount: 25 }]);
+		expect(report.billable.figures.unpricedSeconds).toBe(0);
+	});
+
+	it('waits instead of pricing a previous read beside the time now shown', () => {
+		mockShowsPreviousRead = true;
+
+		const report = reportUnder([], PROJECTS_READ);
+		mockShowsPreviousRead = false;
+
+		expect(report.billable.isPending).toBe(true);
+		expect(report.billable.facts).toEqual([]);
+	});
+
+	it('reads the projects again from the billable retry when their lookup failed under a client filter', () => {
+		const report = reportUnder([NO_CLIENT_FILTER_VALUE], { isPending: false, isError: true });
+
+		expect(report.billable.isError).toBe(true);
+		report.billable.refetch();
+		expect(mockRefetchProjectClients).toHaveBeenCalledTimes(1);
+	});
+
+	it('gives no billable amount to a role that may not read client rates', () => {
+		mockPermissions = ['ORG_TIME_TRACKING'];
+
+		const report = reportUnder([], PROJECTS_READ);
+
+		expect(report.billable.isOffered).toBe(false);
+		expect(report.billable.facts).toEqual([]);
+		expect(report.billable.figures.amounts).toEqual([]);
 	});
 });
 

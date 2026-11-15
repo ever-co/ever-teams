@@ -1,4 +1,6 @@
 import { isStaleTeamsTimer } from '@/core/lib/helpers/timer-policy';
+import type { LinePrice } from '@/core/lib/utils/invoices';
+import type { BillableFigures } from '@/core/lib/utils/dashboards/time-activity';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { type LimitVerdict, limitVerdictOf, percentOf } from '@/core/lib/utils/dashboard-figures';
 import {
@@ -12,6 +14,8 @@ import type { ProjectShareItem } from '@/core/lib/utils/dashboards/team';
 import { logDurationSeconds, NO_PROJECT_VALUE, startOfLog } from '@/core/lib/utils/dashboards/timesheets';
 import { LIMIT_WEEK_START, WORK_DAYS_PER_WEEK } from '@/core/lib/utils/dashboards/weekly-limit';
 import { employeeRateValueOf } from '@/core/lib/utils/rates';
+import { type DurationRoundingRule, roundedSecondsOf } from '@/core/lib/utils/duration-rounding';
+import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 export type MyWeekPeriodKey = Extract<PeriodPresetKey, 'thisWeek' | 'lastWeek' | 'thisMonth'>;
@@ -234,6 +238,80 @@ export function myWeekFiguresOf(entries: ReadonlyArray<MyWeekEntry>, days: Reado
 		billableShare: billableShareOf(billableSeconds, trackedSeconds),
 		todaySeconds: todaySecondsOf(days)
 	};
+}
+
+/** The price of an hour of the person's own time on a project, or on no project, through an invoice line's chain. */
+type PriceOfProject = (projectId: string | null) => LinePrice;
+
+const NO_PROJECT_KEY = '';
+
+const DEFAULT_AMOUNT_CURRENCY = 'USD';
+
+/** A break is never billed (#5216), whatever its billable flag says. */
+function isBilledEntry(entry: MyWeekEntry): boolean {
+	return entry.isBillable && !isBreakLog(entry.log);
+}
+
+/**
+ * The person's billable seconds per project, each entry rounded by the workspace's rule (#5279) as an invoice and Time
+ * & activity bill it; time without a project is kept under its own key.
+ */
+function billableSecondsByProjectOf(
+	entries: ReadonlyArray<MyWeekEntry>,
+	roundingRule: DurationRoundingRule | null = null
+): Map<string, number> {
+	const byProject = new Map<string, number>();
+	for (const entry of entries) {
+		if (!isBilledEntry(entry)) {
+			continue;
+		}
+		// The project the time was logged on prices it, whether or not it came with a readable name
+		const key = entry.log.projectId ?? entry.log.project?.id ?? NO_PROJECT_KEY;
+		const seconds = byProject.get(key) ?? 0;
+		byProject.set(key, seconds + roundedSecondsOf(entry.seconds, roundingRule));
+	}
+	return byProject;
+}
+
+/** The projects whose client rates price the person's billable time, each once and in a stable order. */
+export function billableProjectIdsOfEntries(entries: ReadonlyArray<MyWeekEntry>): string[] {
+	const keys = [...billableSecondsByProjectOf(entries).keys()];
+	const projectIds = keys.filter((key) => key !== NO_PROJECT_KEY);
+	return projectIds.sort((first, second) => first.localeCompare(second));
+}
+
+/**
+ * What the person's billable time of the period bills, each project's time at its price, per currency and never
+ * added across currencies; time no rate prices is counted apart. With a rounding rule each entry is billed rounded, as
+ * an invoice bills it, while the page shows the time as tracked. Breaks are never billed.
+ */
+export function myWeekBillableOf(
+	entries: ReadonlyArray<MyWeekEntry>,
+	priceOf: PriceOfProject,
+	roundingRule: DurationRoundingRule | null = null
+): BillableFigures {
+	const totals = new Map<string, number>();
+	let seconds = 0;
+	let unpricedSeconds = 0;
+	for (const [key, projectSeconds] of billableSecondsByProjectOf(entries, roundingRule)) {
+		seconds += projectSeconds;
+		let projectId: string | null = key;
+		if (key === NO_PROJECT_KEY) {
+			projectId = null;
+		}
+		const { rate, currency } = priceOf(projectId);
+		if (rate === null) {
+			unpricedSeconds += projectSeconds;
+			continue;
+		}
+		// As Time & activity writes an amount whose currency nothing states
+		const shownCurrency = currency ?? DEFAULT_AMOUNT_CURRENCY;
+		const amount = (projectSeconds / SECONDS_PER_HOUR) * rate;
+		const previous = totals.get(shownCurrency) ?? 0;
+		totals.set(shownCurrency, previous + amount);
+	}
+	const amounts = [...totals.entries()].map(([currency, amount]) => ({ currency, amount }));
+	return { amounts, seconds, unpricedSeconds };
 }
 
 /** The weekly limit of a member in seconds, from the hours on their employee profile; null when none is set. */

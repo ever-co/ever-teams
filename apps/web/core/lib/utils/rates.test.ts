@@ -5,6 +5,8 @@ import {
 	changedPayRateOf,
 	currencyCodesOf,
 	currencyLabelOf,
+	defaultBillRateCurrencyOf,
+	defaultBillRateOf,
 	canEditMemberRates,
 	holdsEmployeeRatesPermission,
 	holdsOwnRatesPermission,
@@ -14,7 +16,8 @@ import {
 	isRatesReadUnavailable,
 	parseRateInput,
 	rateInputTextOf,
-	rateValueOf
+	rateValueOf,
+	storesDefaultBillRate
 } from './rates';
 
 describe('rateValueOf', () => {
@@ -246,5 +249,43 @@ describe('holdsOwnRatesPermission', () => {
 	it("is CHANGE_OWN_RATES, which Gauzy asks for to change one's own rates", () => {
 		expect(holdsOwnRatesPermission(['CHANGE_OWN_RATES'])).toBe(true);
 		expect(holdsOwnRatesPermission(['ORG_EMPLOYEES_EDIT'])).toBe(false);
+	});
+});
+
+describe('defaultBillRateOf', () => {
+	it('prices at the default in its own currency, else in the workspace currency', () => {
+		const ownCurrency = { currency: 'USD', defaultBillRateValue: 80, defaultBillRateCurrency: 'EUR' };
+		const workspaceCurrency = { currency: 'USD', defaultBillRateValue: 80, defaultBillRateCurrency: null };
+
+		expect(defaultBillRateOf(ownCurrency)).toEqual({ value: 80, currency: 'EUR' });
+		expect(defaultBillRateOf(workspaceCurrency)).toEqual({ value: 80, currency: 'USD' });
+	});
+
+	it('sets no default for an empty, zero or negative value, as the API reads it', () => {
+		expect(defaultBillRateOf({ currency: 'USD', defaultBillRateValue: null })).toBeNull();
+		expect(defaultBillRateOf({ currency: 'USD', defaultBillRateValue: 0 })).toBeNull();
+		expect(defaultBillRateOf({ currency: 'USD', defaultBillRateValue: -5 })).toBeNull();
+		expect(defaultBillRateOf({ currency: 'USD' })).toBeNull();
+		expect(defaultBillRateOf(null)).toBeNull();
+	});
+
+	it('has no currency when neither the default nor the workspace states one', () => {
+		expect(defaultBillRateOf({ currency: null, defaultBillRateValue: 80 })).toEqual({ value: 80, currency: null });
+	});
+});
+
+describe('defaultBillRateCurrencyOf', () => {
+	it('is the currency stored with the default, set or cleared, else the workspace currency', () => {
+		expect(defaultBillRateCurrencyOf({ currency: 'USD', defaultBillRateCurrency: 'EUR' })).toBe('EUR');
+		expect(defaultBillRateCurrencyOf({ currency: 'USD', defaultBillRateCurrency: null })).toBe('USD');
+		expect(defaultBillRateCurrencyOf({ currency: null })).toBeNull();
+	});
+});
+
+describe('storesDefaultBillRate', () => {
+	it('tells an API that stores the default, set or not, from one without it', () => {
+		expect(storesDefaultBillRate({ defaultBillRateValue: null })).toBe(true);
+		expect(storesDefaultBillRate({ defaultBillRateValue: 80 })).toBe(true);
+		expect(storesDefaultBillRate({})).toBe(false);
 	});
 });

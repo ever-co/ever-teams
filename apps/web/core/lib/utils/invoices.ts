@@ -15,7 +15,7 @@ import {
 import { isTimeBilledElsewhere } from '@/core/lib/utils/invoice-billed-time';
 import { roundedSecondsOf, type DurationRoundingRule } from '@/core/lib/utils/duration-rounding';
 import { invoiceTotalsOf, NO_ADJUSTMENTS, type InvoiceAdjustments } from '@/core/lib/utils/invoice-totals';
-import { effectiveBillRate, employeeRateValueOf, rateValueOf } from '@/core/lib/utils/rates';
+import { effectiveBillRate, employeeRateValueOf, rateValueOf, type DefaultBillRate } from '@/core/lib/utils/rates';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 
 export interface BillableLogLike {
@@ -164,7 +164,7 @@ export interface EmployeeBillingRate {
 	billRateCurrency?: string | null;
 }
 
-export type InvoiceRateSource = 'member' | 'project' | 'employee';
+export type InvoiceRateSource = 'member' | 'project' | 'employee' | 'default';
 
 /** A line read back from a saved invoice states the rate it was saved with, whatever priced it then. */
 export type InvoiceLineRateSource = InvoiceRateSource | 'saved';
@@ -193,30 +193,48 @@ function rateSourceOf(memberRate: number | null, projectRate: number | null): In
 	return 'employee';
 }
 
+/** Time no client rate and no billing rate prices is billed at the workspace's default, when it sets one. */
+function defaultPriceOf(
+	defaultRate: DefaultBillRate | null | undefined,
+	organizationCurrency: string | null
+): LinePrice {
+	if (!defaultRate) {
+		return NO_PRICE;
+	}
+	return {
+		rate: defaultRate.value,
+		source: 'default',
+		currency: currencyOf(defaultRate.currency, organizationCurrency)
+	};
+}
+
 /**
  * What an hour of a member's time on a project is billed: their client rate on the project, else the project's, else
- * their own billing rate. Client rates are in the project's currency, a member's own rate in theirs; each falls back
- * on the organization's.
+ * their own billing rate, else the workspace's default. Client rates are in the project's currency, a member's own
+ * rate in theirs, the default in its own; each falls back on the organization's.
  */
 export function linePriceOf({
 	employeeId,
 	projectRates,
 	projectCurrency,
 	employeeRate,
-	organizationCurrency
+	organizationCurrency,
+	defaultRate = null
 }: Readonly<{
 	employeeId: string;
 	projectRates: ProjectClientRates | null | undefined;
 	projectCurrency: string | null | undefined;
 	employeeRate: EmployeeBillingRate | null | undefined;
 	organizationCurrency: string | null;
+	/** The workspace's default billing rate, which prices only time no other rate prices. */
+	defaultRate?: DefaultBillRate | null;
 }>): LinePrice {
 	const memberRate = memberClientRateOf(projectRates, employeeId);
 	const projectRate = rateValueOf(projectRates?.billRateValue);
 	const ownRate = employeeRateValueOf(employeeRate?.billRateValue);
 	const rate = effectiveBillRate({ memberRate, projectRate, employeeRate: ownRate });
 	if (rate === null) {
-		return NO_PRICE;
+		return defaultPriceOf(defaultRate, organizationCurrency);
 	}
 	const source = rateSourceOf(memberRate, projectRate);
 	if (source === 'employee') {
@@ -317,7 +335,7 @@ type LinePriceOf = (projectId: string, employeeId: string) => LinePrice;
 
 const SECONDS_PER_HOUR = 3600;
 
-const RATE_SOURCE_ORDER: ReadonlyArray<InvoiceRateSource> = ['member', 'project', 'employee'];
+const RATE_SOURCE_ORDER: ReadonlyArray<InvoiceRateSource> = ['member', 'project', 'employee', 'default'];
 
 /** The time of one project priced in one currency, at each member's own rate. */
 interface ProjectWorth {

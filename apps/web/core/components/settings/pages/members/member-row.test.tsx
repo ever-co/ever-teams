@@ -73,6 +73,7 @@ function rowOf(overrides: Partial<MemberRowModel> = {}): MemberRowModel {
 		canDeactivate: false,
 		userId: 'user-ana',
 		canResetTwoFactor: false,
+		isPlaceholder: false,
 		...overrides
 	};
 }
@@ -211,5 +212,83 @@ describe("a member's two-factor reset", () => {
 	it('is not offered where the platform has none, nor to a viewer who may not reset', () => {
 		renderRow(rowOf({ canResetTwoFactor: true, canRemove: true }));
 		expect(itemNames()).not.toContain('settings.members.RESET_TWO_FACTOR');
+	});
+});
+
+describe('a member without an account', () => {
+	const placeholder = () =>
+		rowOf({
+			isPlaceholder: true,
+			email: '',
+			canEditName: false,
+			canRemove: false,
+			userId: null,
+			workspaceRoleId: null,
+			workspaceRoleName: null
+		});
+
+	it('reads "No account" and says it has no email', () => {
+		renderRow(placeholder());
+
+		expect(screen.getByText('settings.members.placeholder.NO_ACCOUNT')).toBeTruthy();
+		expect(screen.getAllByText(/settings\.members\.placeholder\.NO_EMAIL$/).length).toBeGreaterThan(0);
+	});
+
+	it('says it on the detail line on a phone, where the chips beside the name are hidden', () => {
+		const { container } = render(
+			<ul>
+				<MemberRow
+					row={placeholder()}
+					assignableRoles={[]}
+					formatJoined={() => ''}
+					actions={actionsOf()}
+					claimSentTo="amina@acme.com"
+				/>
+			</ul>
+		);
+
+		const phoneLine = container.querySelector('.sm\\:hidden');
+		expect(phoneLine?.textContent).toBe(
+			'settings.members.placeholder.NO_ACCOUNT · settings.members.placeholder.CLAIM_PENDING · '
+		);
+		const chip = screen.getByText('settings.members.placeholder.NO_ACCOUNT');
+		expect(chip.closest('.sm\\:inline-flex')).not.toBeNull();
+	});
+
+	it('offers to invite the person to claim, and to merge, to a viewer who may add members', () => {
+		const row = placeholder();
+		const actions = { ...actionsOf(), onRequestClaim: jest.fn(), onRequestMerge: jest.fn() };
+		renderRow(row, [], actions);
+
+		fireEvent.click(screen.getByRole('menuitem', { name: 'settings.members.placeholder.CLAIM' }));
+		fireEvent.click(screen.getByRole('menuitem', { name: 'settings.members.placeholder.MERGE' }));
+
+		expect(actions.onRequestClaim).toHaveBeenCalledWith(row);
+		expect(actions.onRequestMerge).toHaveBeenCalledWith(row);
+	});
+
+	it('offers neither to a viewer who may not add members, nor on a member with an account', () => {
+		renderRow(placeholder());
+		expect(screen.queryByRole('menuitem', { name: 'settings.members.placeholder.CLAIM' })).toBeNull();
+
+		const actions = { ...actionsOf(), onRequestClaim: jest.fn(), onRequestMerge: jest.fn() };
+		renderRow(rowOf(), [], actions);
+		expect(itemNames()).not.toContain('settings.members.placeholder.MERGE');
+	});
+
+	it('shows the claim sent from the page', () => {
+		render(
+			<ul>
+				<MemberRow
+					row={placeholder()}
+					assignableRoles={[]}
+					formatJoined={() => ''}
+					actions={actionsOf()}
+					claimSentTo="amina@acme.com"
+				/>
+			</ul>
+		);
+
+		expect(screen.getByText('settings.members.placeholder.CLAIM_PENDING')).toBeTruthy();
 	});
 });

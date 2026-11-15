@@ -57,6 +57,7 @@ export function WorkspaceSettingsPage() {
 				key={`formats-${organization.id}`}
 				organization={organization}
 				canEdit={settings.canEdit}
+				canReadRates={settings.canReadRates}
 				saveCurrency={settings.saveCurrency}
 				saveDateFormat={settings.saveDateFormat}
 				saveNumberFormat={settings.saveNumberFormat}
@@ -64,6 +65,7 @@ export function WorkspaceSettingsPage() {
 				saveClock={settings.saveClock}
 				saveCurrencyPosition={settings.saveCurrencyPosition}
 				saveDurationRounding={settings.saveDurationRounding}
+				saveDefaultBillRate={settings.saveDefaultBillRate}
 			/>
 			<WorkspaceRatesSection
 				key={`rates-${organization.id}`}
