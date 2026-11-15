@@ -123,8 +123,8 @@ export function linkParamsOfSavedReport(report: ISavedReport): URLSearchParams {
 }
 
 function sameIds(first: ReadonlyArray<string> | null | undefined, second: ReadonlyArray<string> | null | undefined) {
-	const firstSorted = idsOf(first).sort();
-	const secondSorted = idsOf(second).sort();
+	const firstSorted = idsOf(first).sort((a, b) => a.localeCompare(b));
+	const secondSorted = idsOf(second).sort((a, b) => a.localeCompare(b));
 	const sameLength = firstSorted.length === secondSorted.length;
 	return sameLength && firstSorted.every((value, index) => value === secondSorted[index]);
 }

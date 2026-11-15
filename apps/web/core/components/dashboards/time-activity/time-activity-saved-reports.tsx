@@ -56,7 +56,8 @@ function isShowingSavedView(
 /** Replaces the whole view of the page link with the one of the report, in one move. */
 function openReportIn(setLinkParams: TimeActivityReport['settings']['setLinkParams'], report: ISavedReport) {
 	setLinkParams((next) => {
-		for (const key of [...next.keys()]) {
+		// A copy of the names: deleting from the live list while walking it would skip the name after each one deleted
+		for (const key of new Set(next.keys())) {
 			next.delete(key);
 		}
 		for (const [key, value] of linkParamsOfSavedReport(report)) {
