@@ -225,10 +225,10 @@ export function MergePlaceholderDialog({
 				)}
 			</div>
 			{preview.kind === 'loading' && (
-				<p className="flex items-center gap-2 text-[13px] text-muted-foreground" role="status">
+				<output className="flex items-center gap-2 text-[13px] text-muted-foreground">
 					<Spinner aria-hidden="true" className="size-3.5 animate-spin" />
 					{t('settings.members.placeholder.MERGE_READING')}
-				</p>
+				</output>
 			)}
 			{preview.kind === 'failed' && (
 				<div className="flex flex-wrap items-center justify-between gap-2" role="alert">
