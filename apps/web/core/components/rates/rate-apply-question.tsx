@@ -68,7 +68,8 @@ function DayField({
 /**
  * "Apply to time already tracked?", asked under the fields of a rate being changed (#5212). The first answer is what a
  * save without a day does in this organization: keep the price of the time already tracked where its time keeps its
- * rate, else give all of it the new rate, as before. "From a date" re-prices the time tracked on or after a day.
+ * rate, else give all of it the new rate, as before. "From a date" re-prices the time tracked on or after a day. Time
+ * an invoice or an estimate already bills keeps its price whatever the answer (`ALL_TIME_APPLY_FROM`).
  */
 export function RateApplyQuestion({
 	rule,
@@ -106,6 +107,9 @@ export function RateApplyQuestion({
 				disabled={disabled}
 				renderBelow={renderBelow}
 			/>
+			{choice !== 'fromNow' && (
+				<p className="text-xs text-pretty text-muted-foreground">{t('rates.APPLY_BILLED_KEPT')}</p>
+			)}
 			{rule === 'takesNewRate' && (
 				<p className="text-xs text-pretty text-muted-foreground">{t('rates.APPLY_WORKSPACE_HINT')}</p>
 			)}

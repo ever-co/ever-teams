@@ -6043,7 +6043,8 @@
 		"APPLY_WORKSPACE_HINT": "Bereits erfasste Zeit behält standardmäßig ihren Preis, wenn „Vergangene Zeit behält ihren Satz“ unter Einstellungen > Arbeitsbereich aktiviert ist.",
 		"RATE_SAVED": "Satz gespeichert",
 		"ENTRIES_REPRICED": "{count, plural, =0 {Kein Zeiteintrag hat seinen Preis geändert.} one {# Zeiteintrag hat seinen Preis geändert.} other {# Zeiteinträge haben ihren Preis geändert.}}",
-		"PAST_TIME_KEPT": "Bereits erfasste Zeit behält ihren Preis."
+		"PAST_TIME_KEPT": "Bereits erfasste Zeit behält ihren Preis.",
+		"APPLY_BILLED_KEPT": "Zeit, die bereits auf einer Rechnung oder einem Angebot steht, behält den abgerechneten Preis."
 	},
 	"auth": {
 		"code": {

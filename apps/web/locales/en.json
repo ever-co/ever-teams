@@ -6043,7 +6043,8 @@
 		"APPLY_WORKSPACE_HINT": "Time already tracked keeps its price by default when “Past time keeps its rate” is on in Settings > Workspace.",
 		"RATE_SAVED": "Rate saved",
 		"ENTRIES_REPRICED": "{count, plural, =0 {No time entry changed price.} one {# time entry changed price.} other {# time entries changed price.}}",
-		"PAST_TIME_KEPT": "Time already tracked keeps its price."
+		"PAST_TIME_KEPT": "Time already tracked keeps its price.",
+		"APPLY_BILLED_KEPT": "Time already on an invoice or an estimate keeps the price it was billed at."
 	},
 	"auth": {
 		"code": {

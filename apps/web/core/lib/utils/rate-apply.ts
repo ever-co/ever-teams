@@ -75,16 +75,26 @@ export function startOfPickedDayOf(day: string): string | null {
 	return formatISO(start);
 }
 
+/**
+ * The day "Yes, all of it" sends: before any time entry. Gauzy re-prices a change without a day on invoiced time too,
+ * while a change with one leaves the time a live invoice (or an estimate that is neither void nor rejected) bills at
+ * the price it was billed at: time already billed never takes a new rate.
+ */
+export const ALL_TIME_APPLY_FROM = '1970-01-01T00:00:00Z';
+
 export interface RateApplyFrom {
-	/** Sent only for "from a date": without it Gauzy applies the organization's rule. */
+	/** Sent for "all of it" and "from a date": without it, "from now on", Gauzy applies the organization's rule. */
 	applyFrom?: string;
 	/** "From a date" is picked without a day: nothing is saved until one is. */
 	isDayMissing: boolean;
 }
 
 export function applyFromOfChoice(choice: RateApplyChoice, day: string): RateApplyFrom {
-	if (choice !== 'fromDay') {
+	if (choice === 'fromNow') {
 		return { isDayMissing: false };
+	}
+	if (choice === 'allTime') {
+		return { isDayMissing: false, applyFrom: ALL_TIME_APPLY_FROM };
 	}
 	const applyFrom = startOfPickedDayOf(day);
 	if (!applyFrom) {

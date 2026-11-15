@@ -6043,7 +6043,8 @@
 		"APPLY_WORKSPACE_HINT": "在“设置 > 工作区”中开启“过去的时间保留其费率”后，已记录的时间默认保留其价格。",
 		"RATE_SAVED": "费率已保存",
 		"ENTRIES_REPRICED": "{count, plural, =0 {没有时间记录改变价格。} other {# 条时间记录改变了价格。}}",
-		"PAST_TIME_KEPT": "已记录的时间保留其价格。"
+		"PAST_TIME_KEPT": "已记录的时间保留其价格。",
+		"APPLY_BILLED_KEPT": "已列入发票或报价单的时间保留其开票时的价格。"
 	},
 	"auth": {
 		"code": {

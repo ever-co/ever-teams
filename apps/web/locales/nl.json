@@ -6043,7 +6043,8 @@
 		"APPLY_WORKSPACE_HINT": "Al geregistreerde tijd houdt standaard zijn prijs wanneer „Eerdere tijd houdt zijn tarief” aan staat in Instellingen > Werkruimte.",
 		"RATE_SAVED": "Tarief opgeslagen",
 		"ENTRIES_REPRICED": "{count, plural, =0 {Geen tijdregistratie is van prijs veranderd.} one {# tijdregistratie is van prijs veranderd.} other {# tijdregistraties zijn van prijs veranderd.}}",
-		"PAST_TIME_KEPT": "Al geregistreerde tijd houdt zijn prijs."
+		"PAST_TIME_KEPT": "Al geregistreerde tijd houdt zijn prijs.",
+		"APPLY_BILLED_KEPT": "Tijd die al op een factuur of offerte staat, behoudt de prijs waartegen die is gefactureerd."
 	},
 	"auth": {
 		"code": {

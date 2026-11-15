@@ -1,4 +1,5 @@
 import {
+	ALL_TIME_APPLY_FROM,
 	applyFromOfChoice,
 	changesRateIn,
 	pastTimeRuleOf,
@@ -53,9 +54,21 @@ describe('startOfPickedDayOf', () => {
 });
 
 describe('applyFromOfChoice', () => {
-	it('sends a day only for "from a date"; otherwise the organization\'s rule applies', () => {
+	it('sends no day for "from now on", where the organization\'s rule keeps the price of past time', () => {
 		expect(applyFromOfChoice('fromNow', '2026-10-01')).toEqual({ isDayMissing: false });
-		expect(applyFromOfChoice('allTime', '2026-10-01')).toEqual({ isDayMissing: false });
+	});
+
+	it('sends a day before any entry for "all of it", so time an invoice already bills keeps its price', () => {
+		// Without a day Gauzy re-prices invoiced time too; with one it leaves the time a live invoice bills
+		expect(applyFromOfChoice('allTime', '')).toEqual({ isDayMissing: false, applyFrom: ALL_TIME_APPLY_FROM });
+		expect(applyFromOfChoice('allTime', '2026-10-01')).toEqual({
+			isDayMissing: false,
+			applyFrom: ALL_TIME_APPLY_FROM
+		});
+		expect(new Date(ALL_TIME_APPLY_FROM).getTime()).toBe(0);
+	});
+
+	it('sends the start of the picked day for "from a date"', () => {
 		expect(applyFromOfChoice('fromDay', '2026-10-01')).toEqual({
 			isDayMissing: false,
 			applyFrom: startOfPickedDayOf('2026-10-01')

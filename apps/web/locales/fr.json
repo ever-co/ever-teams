@@ -6043,7 +6043,8 @@
 		"APPLY_WORKSPACE_HINT": "Le temps déjà suivi garde son prix par défaut quand « Le temps passé garde son taux » est activé dans Paramètres > Espace de travail.",
 		"RATE_SAVED": "Taux enregistré",
 		"ENTRIES_REPRICED": "{count, plural, =0 {Aucune entrée de temps n’a changé de prix.} one {# entrée de temps a changé de prix.} other {# entrées de temps ont changé de prix.}}",
-		"PAST_TIME_KEPT": "Le temps déjà suivi garde son prix."
+		"PAST_TIME_KEPT": "Le temps déjà suivi garde son prix.",
+		"APPLY_BILLED_KEPT": "Le temps déjà sur une facture ou un devis garde le prix auquel il a été facturé."
 	},
 	"auth": {
 		"code": {

@@ -6043,7 +6043,8 @@
 		"APPLY_WORKSPACE_HINT": "El tiempo ya registrado conserva su precio por defecto cuando «El tiempo pasado conserva su tarifa» está activado en Ajustes > Espacio de trabajo.",
 		"RATE_SAVED": "Tarifa guardada",
 		"ENTRIES_REPRICED": "{count, plural, =0 {Ningún registro de tiempo cambió de precio.} one {# registro de tiempo cambió de precio.} other {# registros de tiempo cambiaron de precio.}}",
-		"PAST_TIME_KEPT": "El tiempo ya registrado conserva su precio."
+		"PAST_TIME_KEPT": "El tiempo ya registrado conserva su precio.",
+		"APPLY_BILLED_KEPT": "El tiempo que ya figura en una factura o un presupuesto conserva el precio al que se facturó."
 	},
 	"auth": {
 		"code": {

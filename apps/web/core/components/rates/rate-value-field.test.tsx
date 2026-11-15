@@ -3,6 +3,7 @@
 import React from 'react';
 import { getDefaultStore } from 'jotai';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { ALL_TIME_APPLY_FROM } from '@/core/lib/utils/rate-apply';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { RateValueField } from './rate-value-field';
 
@@ -75,6 +76,16 @@ it('leaves the price of time already tracked as it is with "No, from now on", an
 
 	expect(onSave).toHaveBeenCalledWith(80, undefined);
 	expect(mockToastSuccess).toHaveBeenCalledWith('rates.RATE_SAVED', { description: 'rates.PAST_TIME_KEPT' });
+});
+
+it('re-prices all of the time with "Yes, all of it" but the time an invoice already bills', async () => {
+	const onSave = renderField({ id: 'organization-1', timeLogsKeepTheirRates: false });
+
+	expect(screen.getByText('rates.APPLY_BILLED_KEPT')).toBeTruthy();
+	await save();
+
+	// Without a day Gauzy would re-price invoiced time too; with one it leaves the time a live invoice bills
+	expect(onSave).toHaveBeenCalledWith(80, ALL_TIME_APPLY_FROM);
 });
 
 it('sends the day a client rate applies from, and says how many entries changed price', async () => {

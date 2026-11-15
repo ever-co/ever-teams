@@ -4,6 +4,7 @@ import React from 'react';
 import { getDefaultStore } from 'jotai';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { MemberRowModel } from '@/core/hooks/settings/use-team-members-settings';
+import { ALL_TIME_APPLY_FROM } from '@/core/lib/utils/rate-apply';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { MemberRateEditor, MemberRateText } from './member-rate-editor';
 
@@ -166,10 +167,21 @@ describe('the question about the time already tracked', () => {
 		expect(screen.getByRole('radio', { name: /rates.APPLY_ALL_TIME/ })).toHaveProperty('checked', true);
 		expect(screen.queryByRole('radio', { name: /rates.APPLY_FROM_NOW/ })).toBeNull();
 		expect(screen.getByText('rates.APPLY_WORKSPACE_HINT')).toBeTruthy();
+		expect(screen.getByText('rates.APPLY_BILLED_KEPT')).toBeTruthy();
 		raiseRateTo('50');
 		await save();
 
-		expect(onSaveRates).toHaveBeenCalledWith('row-ana', { billRateValue: 50 });
+		// A day before any entry: without one Gauzy would re-price the time an invoice already bills
+		expect(onSaveRates).toHaveBeenCalledWith('row-ana', {
+			billRateValue: 50,
+			ratesApplyFrom: ALL_TIME_APPLY_FROM
+		});
+	});
+
+	it('does not say "from now on" leaves billed time aside, as it re-prices nothing', () => {
+		openWith({ id: 'organization-1', currency: 'EUR', timeLogsKeepTheirRates: true });
+
+		expect(screen.queryByText('rates.APPLY_BILLED_KEPT')).toBeNull();
 	});
 
 	it('asks no day for a weekly limit alone', async () => {

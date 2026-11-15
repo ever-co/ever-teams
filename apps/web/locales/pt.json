@@ -6043,7 +6043,8 @@
 		"APPLY_WORKSPACE_HINT": "O tempo já registrado mantém seu preço por padrão quando “O tempo passado mantém sua taxa” está ativado em Configurações > Espaço de trabalho.",
 		"RATE_SAVED": "Taxa salva",
 		"ENTRIES_REPRICED": "{count, plural, =0 {Nenhum registro de tempo mudou de preço.} one {# registro de tempo mudou de preço.} other {# registros de tempo mudaram de preço.}}",
-		"PAST_TIME_KEPT": "O tempo já registrado mantém seu preço."
+		"PAST_TIME_KEPT": "O tempo já registrado mantém seu preço.",
+		"APPLY_BILLED_KEPT": "O tempo que já consta numa fatura ou num orçamento mantém o preço a que foi faturado."
 	},
 	"auth": {
 		"code": {
