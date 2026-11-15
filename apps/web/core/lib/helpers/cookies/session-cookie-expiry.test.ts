@@ -8,16 +8,20 @@ import {
 	NO_TEAM_POPUP_SHOW_COOKIE_NAME,
 	ORGANIZATION_ID_COOKIE_NAME,
 	REFRESH_TOKEN_COOKIE_NAME,
+	SESSION_ENDS_WITH_BROWSER_COOKIE_NAME,
 	TENANT_ID_COOKIE_NAME,
 	TOKEN_COOKIE_NAME
 } from '@/core/constants/config/constants';
 import { deleteCookie, deleteCookieCrossSite, getCookie, setCookie } from './helpers';
 import {
+	removeAuthCookies,
+	sessionEndsWithBrowser,
 	setAccessTokenCookie,
 	setActiveTaskIdCookie,
 	setActiveTeamIdCookie,
 	setAuthCookies,
-	setRefreshTokenCookie
+	setRefreshTokenCookie,
+	setSessionEndsWithBrowser
 } from './index';
 
 jest.mock('./helpers', () => ({
@@ -174,5 +178,41 @@ describe('The cookies of a session last until its refresh token expires (#5315)'
 		signIn(refreshToken());
 
 		expect(optionsOf(SIGN_IN_COOKIES)).toEqual(withoutExpiry(SIGN_IN_COOKIES));
+	});
+});
+
+describe('A browser can be set to forget the session when it closes (#5315)', () => {
+	it('writes the cookies of a sign-in without expiry in a browser set so', () => {
+		jar.set(SESSION_ENDS_WITH_BROWSER_COOKIE_NAME, { value: '1', options: undefined });
+
+		signIn(refreshTokenExpiringAt(nowS() + DAY_S));
+
+		expect(optionsOf(SIGN_IN_COOKIES)).toEqual(withoutExpiry(SIGN_IN_COOKIES));
+	});
+
+	it('applies the choice to the session already open, and gives the expiry back when it is undone', () => {
+		const exp = nowS() + DAY_S;
+		signIn(refreshTokenExpiringAt(exp));
+
+		setSessionEndsWithBrowser(true);
+
+		expect(sessionEndsWithBrowser()).toBe(true);
+		expect(optionsOf(SIGN_IN_COOKIES)).toEqual(withoutExpiry(SIGN_IN_COOKIES));
+
+		setSessionEndsWithBrowser(false);
+
+		expect(sessionEndsWithBrowser()).toBe(false);
+		expect(optionsOf(SIGN_IN_COOKIES)).toEqual(expiringAt(SIGN_IN_COOKIES, exp));
+	});
+
+	it('remembers the choice beyond the browser session, and through a sign-out', () => {
+		signIn(refreshTokenExpiringAt(nowS() + DAY_S));
+
+		setSessionEndsWithBrowser(true);
+		removeAuthCookies();
+
+		expect(jar.get(SESSION_ENDS_WITH_BROWSER_COOKIE_NAME)?.options).toEqual({ maxAge: expect.any(Number) });
+		expect(sessionEndsWithBrowser()).toBe(true);
+		expect(jar.has(REFRESH_TOKEN_COOKIE_NAME)).toBe(false);
 	});
 });

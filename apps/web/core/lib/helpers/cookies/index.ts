@@ -11,7 +11,8 @@ import {
 	NO_TEAM_POPUP_SHOW_COOKIE_NAME,
 	ACTIVE_USER_ID_COOKIE_NAME,
 	MEET_JWT_TOKEN_COOKIE_NAME,
-	ACTIVE_PROJECT_COOKIE_NAME
+	ACTIVE_PROJECT_COOKIE_NAME,
+	SESSION_ENDS_WITH_BROWSER_COOKIE_NAME
 } from '@/core/constants/config/constants';
 import { jwtDecode } from 'jwt-decode';
 import { IDecodedRefreshToken } from '@/core/types/interfaces/auth/auth';
@@ -49,19 +50,48 @@ function sessionExpiryOf(refreshToken: string | null | undefined): Date | undefi
 	}
 }
 
+/** How long a browser remembers that it forgets the session when it closes: a year, from each time it is chosen. */
+const SESSION_ENDS_WITH_BROWSER_MAX_AGE_S = 365 * 24 * 60 * 60;
+
+/**
+ * Whether this browser forgets the session when it closes (Settings > Profile > This browser), for a shared computer:
+ * the cookies of the session are then written without expiry, as the browser's own session.
+ */
+export function sessionEndsWithBrowser(ctx?: NextCtx): boolean {
+	return getCookie(SESSION_ENDS_WITH_BROWSER_COOKIE_NAME, ctx) === '1';
+}
+
 /**
  * The options a cookie of the session is written with: its context, and the expiry of the refresh token given, else
- * of the one the cookies hold. The context alone, the same object, when there is no expiry to give.
+ * of the one the cookies hold. The context alone, the same object, when there is no expiry to give or when this
+ * browser forgets the session when it closes.
  */
 function sessionWrite(
 	ctx: NextCtx | undefined,
 	refreshToken: string | null | undefined = getRefreshTokenCookie(ctx)
 ): CookieWrite {
-	const expires = sessionExpiryOf(refreshToken);
+	const expires = sessionEndsWithBrowser(ctx) ? undefined : sessionExpiryOf(refreshToken);
 	if (!expires) {
 		return ctx;
 	}
 	return { ...ctx, expires };
+}
+
+/**
+ * Makes this browser forget the session when it closes, or keep it until its refresh token expires, and writes the
+ * cookies of the session open again so that the choice holds for it at once. The choice belongs to the browser, not to
+ * whoever signs in on it: a sign-out keeps it.
+ */
+export function setSessionEndsWithBrowser(endsWithBrowser: boolean): void {
+	if (endsWithBrowser) {
+		setCookie(SESSION_ENDS_WITH_BROWSER_COOKIE_NAME, '1', { maxAge: SESSION_ENDS_WITH_BROWSER_MAX_AGE_S });
+	} else {
+		deleteCookie(SESSION_ENDS_WITH_BROWSER_COOKIE_NAME);
+	}
+	const refreshToken = getRefreshTokenCookie();
+	if (refreshToken) {
+		setRefreshTokenCookie(refreshToken);
+	}
 }
 
 /**
