@@ -6,6 +6,7 @@ import { parseISO } from 'date-fns';
 import { useCalendarLogs } from '@/core/hooks/calendar/use-calendar-logs';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useProjectClientRates } from '@/core/hooks/organizations/rates/use-project-client-rates';
+import { useBillingOrganization } from '@/core/hooks/organizations/rates/use-billing-organization';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { linePriceOf } from '@/core/lib/utils/invoices';
 import { defaultBillRateOf, holdsRateAdminPermission } from '@/core/lib/utils/rates';
@@ -72,6 +73,8 @@ export interface MyWeekBillable {
 	figures: BillableFigures;
 	isPending: boolean;
 	isError: boolean;
+	/** Reads again what failed: the project rates, and the organization once its read failed. */
+	retry: () => void;
 }
 
 function isPeriodKey(value: string | null): value is MyWeekPeriodKey {
@@ -151,6 +154,8 @@ export function useMyWeekPage() {
 	const billableProjectIds = useMemo(() => billableProjectIdsOfEntries(entries), [entries]);
 	const projectRates = useProjectClientRates(billableProjectIds, readsBillable);
 	const { ratesByProject } = projectRates;
+	// The default rate, the currency and the rounding rule price the amount too: it waits for them
+	const billingOrganization = useBillingOrganization(readsBillable);
 	const organization = useAtomValue(currentOrganizationState);
 	const ownRate = user?.employee;
 	const billableFigures = useMemo(() => {
@@ -172,14 +177,29 @@ export function useMyWeekPage() {
 			});
 		return myWeekBillableOf(entries, priceOf, roundingRule);
 	}, [employeeId, entries, organization, ownRate, ratesByProject, readsBillable]);
+	const { refetch: refetchProjectRates } = projectRates;
+	const { retry: retryBillingOrganization } = billingOrganization;
+	const retryBillable = useCallback(() => {
+		refetchProjectRates();
+		retryBillingOrganization();
+	}, [refetchProjectRates, retryBillingOrganization]);
 	const billable = useMemo<MyWeekBillable>(
 		() => ({
 			isOffered: readsBillable,
 			figures: billableFigures,
-			isPending: projectRates.isLoading,
-			isError: projectRates.hasFailed
+			isPending: projectRates.isLoading || billingOrganization.isPending,
+			isError: projectRates.hasFailed || billingOrganization.isError,
+			retry: retryBillable
 		}),
-		[billableFigures, projectRates.hasFailed, projectRates.isLoading, readsBillable]
+		[
+			billableFigures,
+			billingOrganization.isError,
+			billingOrganization.isPending,
+			projectRates.hasFailed,
+			projectRates.isLoading,
+			readsBillable,
+			retryBillable
+		]
 	);
 
 	const weeklyLimitSeconds = weeklyLimitSecondsOf(user?.employee?.reWeeklyLimit);

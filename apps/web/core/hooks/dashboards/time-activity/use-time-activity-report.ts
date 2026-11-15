@@ -9,6 +9,7 @@ import { useClientsQuery } from '@/core/hooks/clients/use-clients-query';
 import { useReportProjectClients } from '@/core/hooks/dashboards/use-report-clients';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { useProjectClientRates } from '@/core/hooks/organizations/rates/use-project-client-rates';
+import { useBillingOrganization } from '@/core/hooks/organizations/rates/use-billing-organization';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { clientNamesOf } from '@/core/lib/utils/clients';
@@ -472,31 +473,44 @@ export function useTimeActivityReport() {
 	const billableFigures = useMemo(() => billableFiguresOfFacts(billableFacts), [billableFacts]);
 	const hasBillableData = billableQuery.data !== undefined;
 	const isBillableReadFailure = billableQuery.isError && !hasBillableData;
-	const isBillableFailure = isBillableReadFailure || projectRates.hasFailed || isFilterLookupError;
+	// The default rate, the currency and the rounding rule price the amounts too: they wait for the organization
+	const billingOrganization = useBillingOrganization(readsBillable);
+	const isBillableFailure =
+		isBillableReadFailure || projectRates.hasFailed || isFilterLookupError || billingOrganization.isError;
 	const isBillableError = readsBillable && isBillableFailure;
 	// A read still showing the previous period or filters would price old time beside the new: it waits instead
 	const isShowingPreviousRead = billableQuery.isPlaceholderData || dailyQuery.isPlaceholderData;
 	const isReadingBillable = billableQuery.isPending || isShowingPreviousRead;
-	const isWaitingForBillable = isReadingBillable || projectRates.isLoading || isFilterLookupPending;
+	const isWaitingForBillable =
+		isReadingBillable || projectRates.isLoading || isFilterLookupPending || billingOrganization.isPending;
 	const isBillablePending = readsBillable && isWaitingForBillable && !isBillableError;
+	// Facts priced while a read is missing or failed would carry fallback prices: none are given then
 	const shownBillableFacts = useMemo(() => {
-		if (isBillablePending) {
+		if (isBillablePending || isBillableError) {
 			return NO_BILLABLE_FACTS;
 		}
 		return billableFacts;
-	}, [billableFacts, isBillablePending]);
+	}, [billableFacts, isBillableError, isBillablePending]);
 	const storesDefault = organization !== null && storesDefaultBillRate(organization);
 	const canSetDefaultRate = storesDefault && canEditWorkspace(myPermissions);
 	const { refetch: refetchBillableReport } = billableQuery;
 	const { refetch: refetchProjectRates } = projectRates;
 	const refetchClientLookup = projectClients.refetch;
+	const { retry: retryBillingOrganization } = billingOrganization;
 	const refetchBillable = useCallback(() => {
 		void refetchBillableReport();
 		refetchProjectRates();
+		retryBillingOrganization();
 		if (isFilterLookupError) {
 			refetchClientLookup();
 		}
-	}, [isFilterLookupError, refetchBillableReport, refetchClientLookup, refetchProjectRates]);
+	}, [
+		isFilterLookupError,
+		refetchBillableReport,
+		refetchClientLookup,
+		refetchProjectRates,
+		retryBillingOrganization
+	]);
 	const billable = useMemo<TimeActivityBillable>(
 		() => ({
 			isOffered: readsBillable,

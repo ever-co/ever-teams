@@ -4248,7 +4248,8 @@
 			"ALREADY_RUNNING_ON_TASK": "Il timer è già attivo su questa attività",
 			"SAVED_STOP_HINT": "È l'arresto che avevi richiesto prima della fine della sessione.",
 			"UNFOLLOWED_STOPPED_HINT": "Dopo, l'app non ha potuto seguirlo: il computer era in sospensione o il browser ha messo in pausa questa scheda. Aggiungi il lavoro successivo come tempo manuale.",
-			"UNFOLLOWED_STOP_CHOSEN_HINT": "Hai scelto di non tenere il tempo successivo."
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "Hai scelto di non tenere il tempo successivo.",
+			"UNFOLLOWED_KEEP_CHANGED": "Nessun tempo è stato tenuto: il timer è cambiato altrove nel frattempo. Controllalo, poi aggiungi il tempo manualmente se serve."
 		},
 		"plans": {
 			"CREATE_FAILED": "Il piano non è stato creato",

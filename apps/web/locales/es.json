@@ -4248,7 +4248,8 @@
 			"ALREADY_RUNNING_ON_TASK": "El temporizador ya está en marcha en esta tarea",
 			"SAVED_STOP_HINT": "Es la detención que pediste antes de que terminara tu sesión.",
 			"UNFOLLOWED_STOPPED_HINT": "La aplicación no pudo seguirlo después: el ordenador estaba en reposo o el navegador pausó esta pestaña. Añade el trabajo posterior como tiempo manual.",
-			"UNFOLLOWED_STOP_CHOSEN_HINT": "Elegiste no conservar el tiempo posterior."
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "Elegiste no conservar el tiempo posterior.",
+			"UNFOLLOWED_KEEP_CHANGED": "No se conservó tiempo: el temporizador cambió en otro lugar mientras tanto. Revísalo y añade el tiempo manualmente si hace falta."
 		},
 		"plans": {
 			"CREATE_FAILED": "El plan no se creó",
