@@ -5,7 +5,7 @@ import { dataColorHue, isPaintableColor } from '@/core/components/tasks/task-dat
 /** Time without a project is drawn in a neutral tone. */
 const NEUTRAL_ENTRY_TONE = 'hsl(var(--foreground) / 0.42)';
 
-export const HOUR_HEIGHT_PX = 48;
+const HOUR_HEIGHT_PX = 48;
 
 /** Below this height a block keeps its title and duration on one line. */
 export const COMPACT_BLOCK_HEIGHT_PX = 40;

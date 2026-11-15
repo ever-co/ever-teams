@@ -172,6 +172,8 @@ describe('splitCalendarEntry', () => {
 
 	it('puts the entry back as it was when the new part cannot be added', async () => {
 		mockAddManualTime.mockRejectedValueOnce(new Error('refused'));
+		// Read again before it is set back: the server holds the first part this split saved
+		mockGetTimeLogs.mockResolvedValueOnce([LOG]).mockResolvedValueOnce([{ ...LOG, stoppedAt: at(11) }]);
 
 		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
 
@@ -182,6 +184,7 @@ describe('splitCalendarEntry', () => {
 	it('says the outcome is not known when the entry cannot be put back either, since that write may have landed', async () => {
 		mockAddManualTime.mockRejectedValueOnce(new Error('refused'));
 		mockUpdateTimeLog.mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('offline'));
+		mockGetTimeLogs.mockResolvedValueOnce([LOG]).mockResolvedValueOnce([{ ...LOG, stoppedAt: at(11) }]);
 
 		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
 
@@ -275,6 +278,24 @@ describe('splitCalendarEntry', () => {
 
 		await splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
 
+		expect(calls).toEqual(['update 9-11']);
+	});
+
+	it.each([
+		[
+			'was changed in another tab while the second part was being added',
+			[{ ...LOG, stoppedAt: at(12) }],
+			'unknown'
+		],
+		['is gone', [], 'unknown'],
+		['already holds its whole time again', [LOG], 'restored']
+	])('writes nothing over the entry when it %s', async (_case, onServer, failure) => {
+		mockAddManualTime.mockRejectedValueOnce(new Error('refused'));
+		mockGetTimeLogs.mockResolvedValueOnce([LOG]).mockResolvedValueOnce(onServer);
+
+		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure }));
 		expect(calls).toEqual(['update 9-11']);
 	});
 
