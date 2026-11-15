@@ -320,14 +320,20 @@ export function useWorkspaceSettings() {
 
 	// Only the value is sent: a currency another app stored with the default stays, and none prices it in the workspace's
 	const saveDefaultBillRate = useCallback(
-		async (defaultBillRateValue: number | null) => {
+		async (typedValue: number | null) => {
 			const scope = scopeOfSave();
+			// A default of zero prices nothing, as the API reads it: it is saved as no default, and said so
+			const isRate = typedValue !== null && typedValue > 0;
+			let defaultBillRateValue: number | null = null;
+			if (isRate) {
+				defaultBillRateValue = typedValue;
+			}
 			let text: SaveText = {
 				failureKey: 'settings.workspace.DEFAULT_RATE_NOT_SAVED',
 				saved: t('settings.workspace.DEFAULT_RATE_CLEARED'),
 				outcome: t('settings.workspace.DEFAULT_RATE_CLEARED_OUTCOME')
 			};
-			if (defaultBillRateValue !== null) {
+			if (isRate) {
 				text = {
 					failureKey: 'settings.workspace.DEFAULT_RATE_NOT_SAVED',
 					saved: t('settings.workspace.DEFAULT_RATE_SAVED'),

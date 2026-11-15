@@ -441,6 +441,13 @@ describe('WorkspaceSettingsPage', () => {
 		expect(mockSaveDefaultBillRate.mock.calls[0][0]).toBe(80);
 	});
 
+	it('shows a default of zero, which prices nothing, as no default', () => {
+		mockSettings = settingsOf({ organization: { ...ORGANIZATION, defaultBillRateValue: 0 } });
+		render(<WorkspaceSettingsPage />);
+
+		expect(within(defaultRateRow()).getByText('rates.ADD_RATE')).toBeTruthy();
+	});
+
 	it('shows a member the default billing rate, or that none is set, as text', () => {
 		mockSettings = settingsOf({ canEdit: false, organization: { ...ORGANIZATION, defaultBillRateValue: null } });
 		const { unmount } = render(<WorkspaceSettingsPage />);
