@@ -5,6 +5,7 @@ import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import { Spinner } from '@/core/components/icons';
 import { CurrencySelect } from '@/core/components/rates/currency-select';
+import { RateValueField } from '@/core/components/rates/rate-value-field';
 import {
 	SettingsReadOnlyNote,
 	SettingsRow,
@@ -22,7 +23,7 @@ import {
 	type DurationRoundingDirection,
 	type DurationRoundingRule
 } from '@/core/lib/utils/duration-rounding';
-import { currencyLabelOf } from '@/core/lib/utils/rates';
+import { currencyLabelOf, rateValueOf, storesDefaultBillRate } from '@/core/lib/utils/rates';
 import {
 	AUTOMATIC_FORMAT,
 	CLOCK_CHOICES,
@@ -132,6 +133,40 @@ function CurrencyRow({
 	return (
 		<SettingsRow label={label} description={description} htmlFor={selectId}>
 			<CurrencyControl id={selectId} currency={currency} onSave={onSave} />
+		</SettingsRow>
+	);
+}
+
+type SaveDefaultRate = (value: number | null) => Promise<void>;
+
+/**
+ * The rate that bills time no client rate and no billing rate prices, empty until an admin sets one. It is in its own
+ * currency when another app stored one, else in the workspace's.
+ */
+function DefaultRateRow({
+	organization,
+	canEdit,
+	onSave
+}: Readonly<{ organization: TOrganization; canEdit: boolean; onSave: SaveDefaultRate }>) {
+	const t = useTranslations();
+	const label = t('settings.workspace.DEFAULT_RATE_LABEL');
+	const description = t('settings.workspace.DEFAULT_RATE_DESCRIPTION');
+	const value = organization.defaultBillRateValue;
+	const currency = organization.defaultBillRateCurrency || organization.currency;
+	const isSet = rateValueOf(value) !== null;
+	const showsNotSet = !canEdit && !isSet;
+
+	return (
+		<SettingsRow label={label} description={description}>
+			{showsNotSet && <span className="text-[13px] text-muted-foreground">{t('rates.NOT_SET')}</span>}
+			<RateValueField
+				label={label}
+				value={value}
+				currency={currency}
+				hint={description}
+				readOnly={!canEdit}
+				onSave={onSave}
+			/>
 		</SettingsRow>
 	);
 }
@@ -470,6 +505,7 @@ interface WorkspaceFormatsSectionProps {
 	saveClock: (clock: WorkspaceClock) => Promise<void>;
 	saveCurrencyPosition: (position: WorkspaceCurrencyPosition) => Promise<void>;
 	saveDurationRounding: SaveRounding;
+	saveDefaultBillRate: SaveDefaultRate;
 }
 
 export function WorkspaceFormatsSection({
@@ -481,7 +517,8 @@ export function WorkspaceFormatsSection({
 	saveWeekStart,
 	saveClock,
 	saveCurrencyPosition,
-	saveDurationRounding
+	saveDurationRounding,
+	saveDefaultBillRate
 }: Readonly<WorkspaceFormatsSectionProps>) {
 	const t = useTranslations();
 	const { dateOptions, numberOptions } = useFormatOptions();
@@ -534,6 +571,9 @@ export function WorkspaceFormatsSection({
 		>
 			<SettingsSurface>
 				<CurrencyRow currency={organization.currency ?? ''} canEdit={canEdit} onSave={saveCurrency} />
+				{storesDefaultBillRate(organization) && (
+					<DefaultRateRow organization={organization} canEdit={canEdit} onSave={saveDefaultBillRate} />
+				)}
 				<ChoiceRow
 					label={t('settings.workspace.DATE_FORMAT_LABEL')}
 					description={t('settings.workspace.DATE_FORMAT_DESCRIPTION')}

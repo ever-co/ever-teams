@@ -54,6 +54,7 @@ export function WorkspaceSettingsPage() {
 				saveClock={settings.saveClock}
 				saveCurrencyPosition={settings.saveCurrencyPosition}
 				saveDurationRounding={settings.saveDurationRounding}
+				saveDefaultBillRate={settings.saveDefaultBillRate}
 			/>
 		</SettingsPage>
 	);

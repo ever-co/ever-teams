@@ -47,6 +47,7 @@ type WorkspaceChanges = Pick<
 	| 'currencyPosition'
 	| 'durationRoundingInterval'
 	| 'durationRoundingDirection'
+	| 'defaultBillRateValue'
 >;
 
 /**
@@ -301,6 +302,27 @@ export function useWorkspaceSettings() {
 		[reportedSave, saveOrganization, scopeOfSave, t]
 	);
 
+	// Only the value is sent: a currency another app stored with the default stays, and none prices it in the workspace's
+	const saveDefaultBillRate = useCallback(
+		async (defaultBillRateValue: number | null) => {
+			const scope = scopeOfSave();
+			let text: SaveText = {
+				failureKey: 'settings.workspace.DEFAULT_RATE_NOT_SAVED',
+				saved: t('settings.workspace.DEFAULT_RATE_CLEARED'),
+				outcome: t('settings.workspace.DEFAULT_RATE_CLEARED_OUTCOME')
+			};
+			if (defaultBillRateValue !== null) {
+				text = {
+					failureKey: 'settings.workspace.DEFAULT_RATE_NOT_SAVED',
+					saved: t('settings.workspace.DEFAULT_RATE_SAVED'),
+					outcome: t('settings.workspace.DEFAULT_RATE_OUTCOME')
+				};
+			}
+			await reportedSave(() => saveOrganization(scope, { defaultBillRateValue }), text);
+		},
+		[reportedSave, saveOrganization, scopeOfSave, t]
+	);
+
 	const saveWeekStart = useCallback(
 		async (startWeekOn: EWeekDays) => {
 			const scope = scopeOfSave();
@@ -352,6 +374,7 @@ export function useWorkspaceSettings() {
 		saveWeekStart,
 		saveClock,
 		saveCurrencyPosition,
-		saveDurationRounding
+		saveDurationRounding,
+		saveDefaultBillRate
 	};
 }
