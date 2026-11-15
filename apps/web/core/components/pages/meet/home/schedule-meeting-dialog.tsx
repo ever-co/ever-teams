@@ -185,7 +185,8 @@ export function ScheduleMeetingDialog({
 		}
 		const link = linkFor(title.trim());
 		try {
-			const draft = { title, description, start, durationMinutes: duration, link, participantEmails };
+			// The team members among the participants are invited as members: Gauzy tells and reminds them (#5022)
+			const draft = { title, description, start, durationMinutes: duration, link, participantEmails, invitees };
 			const appointment = (await onSchedule(draft)) as { id?: string };
 			setScheduled({
 				id: appointment?.id ?? link,

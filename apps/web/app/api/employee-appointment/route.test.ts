@@ -11,6 +11,7 @@ jest.mock('@/core/services/server/guards/authenticated-guard-app', () => ({
 
 import { GET, POST } from './route';
 import { DELETE, PUT } from './[id]/route';
+import { GET as GET_INVITED } from './invited/route';
 
 const originalFetch = global.fetch;
 let fetchMock: jest.Mock;
@@ -168,6 +169,37 @@ describe('/api/employee-appointment', () => {
 		const response = await GET(new Request('https://app.ever.team/api/employee-appointment'));
 
 		expect(response.status).toBe(401);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+});
+
+describe('/api/employee-appointment/invited (#5022)', () => {
+	const invitation = { ...appointment, host: { employeeId: 'employee-9', name: 'Ruslan K' } };
+
+	it('lists the meetings the member is invited to, with the range the client sent', async () => {
+		fetchMock.mockResolvedValue(Response.json([invitation], { status: 200 }));
+
+		const response = await GET_INVITED(
+			new Request('https://app.ever.team/api/employee-appointment/invited?startDate=2026-11-01T00%3A00%3A00.000Z')
+		);
+
+		expect(await response.json()).toEqual([invitation]);
+		const [upstreamUrl, init] = fetchMock.mock.calls[0];
+		const upstream = new URL(String(upstreamUrl));
+		expect(upstream.pathname).toMatch(/\/employee-appointment\/invited$/);
+		expect(upstream.searchParams.get('startDate')).toBe('2026-11-01T00:00:00.000Z');
+		expect(init.method).toBe('GET');
+	});
+
+	it("keeps the status of a platform that has no such route, and answers 401 without a session", async () => {
+		const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		fetchMock.mockResolvedValue(Response.json({ statusCode: 404, message: 'Not Found' }, { status: 404 }));
+		expect((await GET_INVITED(new Request('https://app.ever.team/api/employee-appointment/invited'))).status).toBe(404);
+		consoleError.mockRestore();
+
+		fetchMock.mockClear();
+		mockAuthenticatedGuard.mockResolvedValue({ $res: jest.fn(), user: null, status: 401 });
+		expect((await GET_INVITED(new Request('https://app.ever.team/api/employee-appointment/invited'))).status).toBe(401);
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
 });

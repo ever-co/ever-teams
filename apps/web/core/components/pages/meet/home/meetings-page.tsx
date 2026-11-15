@@ -12,10 +12,16 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { CalendarPlus, LogIn, Plus, ScreenShare, Settings, VideoCall } from '@/core/components/icons';
 import { preloadLiveKit } from '@/core/components/optimized-components/meet';
 import { useScheduledMeetings } from '@/core/hooks/meetings/use-scheduled-meetings';
+import { useInvitedMeetings } from '@/core/hooks/meetings/use-invited-meetings';
 import { activeTeamNameState } from '@/core/stores';
 import { cn } from '@/core/lib/helpers';
 import { isJitsiMeeting, meetRoomNameFor } from '@/core/lib/utils/collaboration';
-import { meetingPathFor, sharingScreenPathOf, type ScheduledMeeting } from '@/core/lib/utils/meetings';
+import {
+	meetingPathFor,
+	sharingScreenPathOf,
+	withInvitedMeetings,
+	type ScheduledMeeting
+} from '@/core/lib/utils/meetings';
 import { JoinMeetingDialog } from './join-meeting-dialog';
 import { MeetingAgenda } from './meeting-agenda';
 import { ScheduleMeetingDialog } from './schedule-meeting-dialog';
@@ -96,6 +102,12 @@ export function MeetingsPage() {
 	const isJitsi = useMemo(() => isJitsiMeeting(), []);
 	const teamName = useAtomValue(activeTeamNameState);
 	const scheduled = useScheduledMeetings();
+	// The meetings others host that the person is invited to share the agenda with their own (#5022)
+	const invited = useInvitedMeetings();
+	const agendaMeetings = useMemo(
+		() => withInvitedMeetings(scheduled.meetings, invited.meetings),
+		[scheduled.meetings, invited.meetings]
+	);
 	const [openDialog, setOpenDialog] = useState<'join' | 'schedule' | 'settings' | null>(null);
 	// Each opening starts a new dialog: the time it proposes is the next slot from now, and the answer of a request
 	// made by a dialog closed before it came back never shows in the next one
@@ -206,7 +218,7 @@ export function MeetingsPage() {
 
 				{scheduled.canSchedule && (
 					<MeetingAgenda
-						meetings={scheduled.meetings}
+						meetings={agendaMeetings}
 						isLoading={scheduled.isLoading}
 						isError={scheduled.isError}
 						onRetry={() => void scheduled.refetch()}

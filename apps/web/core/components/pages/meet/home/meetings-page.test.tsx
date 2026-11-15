@@ -77,10 +77,16 @@ jest.mock('@/core/hooks/meetings/use-scheduled-meetings', () => ({
 	})
 }));
 
+// The meetings others host that the person is invited to (#5022)
+let mockInvited: ScheduledMeeting[] = [];
+jest.mock('@/core/hooks/meetings/use-invited-meetings', () => ({
+	useInvitedMeetings: () => ({ meetings: mockInvited, isLoading: false })
+}));
+
 jest.mock('@/core/hooks/meetings/use-meeting-invitees', () => ({
 	useMeetingInvitees: () => [
-		{ email: 'ana@acme.com', name: 'Ana Silva' },
-		{ email: 'bob@acme.com', name: 'Bob Stone' }
+		{ email: 'ana@acme.com', name: 'Ana Silva', employeeId: 'employee-ana' },
+		{ email: 'bob@acme.com', name: 'Bob Stone', employeeId: 'employee-bob' }
 	]
 }));
 
@@ -104,6 +110,7 @@ describe('MeetingsPage', () => {
 		mockCancelMeeting.mockReset().mockResolvedValue(undefined);
 		mockRescheduleMeeting.mockReset().mockResolvedValue(undefined);
 		mockScheduled = { meetings: [], canSchedule: true };
+		mockInvited = [];
 		// The notices' orb asks whether motion is reduced; jsdom has no matchMedia
 		window.matchMedia = jest.fn().mockReturnValue({ matches: true }) as unknown as typeof window.matchMedia;
 	});
@@ -282,7 +289,52 @@ describe('MeetingsPage', () => {
 			'guest@example.org',
 			'bob@acme.com'
 		]);
+		// The team members the list offers go with the draft, so they are invited as members (#5022)
+		expect(mockScheduleMeeting.mock.calls[0][0].invitees).toEqual([
+			{ email: 'ana@acme.com', name: 'Ana Silva', employeeId: 'employee-ana' },
+			{ email: 'bob@acme.com', name: 'Bob Stone', employeeId: 'employee-bob' }
+		]);
 		expect(await screen.findByText('meetings.INVITE_HINT_PARTICIPANTS')).toBeTruthy();
+	});
+
+	it('lists the meetings others host that the person is invited to: its host, a way to join, and no edit (#5022)', async () => {
+		jest.useFakeTimers({ advanceTimers: true });
+		try {
+			jest.setSystemTime(new Date(2026, 10, 12, 10, 0));
+			const link = `https://app.ever.team${meetPathFor('Ever-Planning-AbCdEfGhIj', true)}`;
+			mockInvited = [
+				{
+					id: 'appointment-9',
+					title: 'Planning',
+					description: null,
+					start: new Date(2026, 10, 12, 15, 0),
+					end: new Date(2026, 10, 12, 15, 30),
+					link,
+					isInvited: true,
+					hostName: 'Ana Silva'
+				}
+			];
+			render(<MeetingsPage />);
+
+			const card = screen.getByTestId('scheduled-meeting');
+			expect(within(card).getByText('Planning')).toBeTruthy();
+			expect(within(card).getByText('meetings.HOST:{"name":"Ana Silva"}')).toBeTruthy();
+			expect(within(card).getByText('meetings.INVITED')).toBeTruthy();
+			const join = within(card).getByRole('button', { name: 'meetings.JOIN_MEETING_OF:{"title":"Planning"}' });
+			expect(join.textContent).toBe('meetings.JOIN');
+			fireEvent.click(join);
+			expect(mockPush).toHaveBeenCalledWith(meetPathFor('Ever-Planning-AbCdEfGhIj', true));
+
+			fireEvent.click(within(card).getByRole('button', { name: 'meetings.MEETING_ACTIONS_OF:{"title":"Planning"}' }));
+			const menu = await screen.findByRole('menu');
+			expect(
+				within(menu)
+					.getAllByRole('menuitem')
+					.map((item) => item.textContent)
+			).toEqual(['meetings.JOIN_MEETING', 'meetings.COPY_INVITATION', 'meetings.COPY_LINK', 'meetings.ADD_TO_CALENDAR']);
+		} finally {
+			jest.useRealTimers();
+		}
 	});
 
 	it('reads the date and time typed on the clocks of the time zone picked, and says the time where one is', async () => {
