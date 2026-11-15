@@ -4,11 +4,21 @@
  * for a tab still showing a team of the first organization, whose timer requests then went out for the other one
  * (#5134). A tab now keeps working in the organization of its own team.
  */
-const mockCookies = { token: '', organizationId: '' };
+const mockCookies = { token: '', organizationId: '', teamId: '', projectId: '' };
+const mockCookieWrites: string[] = [];
 
 jest.mock('@/core/lib/helpers/cookies', () => ({
 	getAccessTokenCookie: () => mockCookies.token || null,
 	getSharedOrganizationIdCookie: () => mockCookies.organizationId,
+	getSharedActiveTeamIdCookie: () => mockCookies.teamId,
+	getSharedActiveProjectIdCookie: () => mockCookies.projectId,
+	setOrganizationIdCookie: (id: string) => {
+		mockCookies.organizationId = id;
+		mockCookieWrites.push(`organization=${id}`);
+	},
+	setActiveTeamIdCookie: (id: string) => mockCookieWrites.push(`team=${id}`),
+	setActiveProjectIdCookie: (id: string) => mockCookieWrites.push(`project=${id}`),
+	setSharedActiveProjectIdCookie: (id: string) => mockCookieWrites.push(`shared-project=${id}`),
 	// tab-organization.ts registers its readers here when it loads
 	registerTabWorkScope: jest.fn()
 }));
@@ -16,9 +26,11 @@ jest.mock('@/core/lib/helpers/cookies', () => ({
 import { registerTabWorkScope } from '@/core/lib/helpers/cookies';
 import {
 	TAB_SCOPE_CHANGED_EVENT,
+	bringTabOrganizationBack,
 	forgetTabAccessToken,
 	isSessionRequest,
 	isTabAccessToken,
+	putBackLeftCookies,
 	rememberTabTeam,
 	requestAccessToken,
 	resetTabOrganizationState,
@@ -240,6 +252,55 @@ describe('a tab whose cookies another tab moved to another organization', () => 
 		await nextTask();
 		expect(changes).toHaveBeenCalledTimes(2);
 		window.removeEventListener(TAB_SCOPE_CHANGED_EVENT, changes);
+	});
+});
+
+describe('bringing the tab organization back, when the session cannot follow', () => {
+	/** Tab A on team A; tab B opened organization B, its team and its project; then tab A brings organization A back. */
+	function bringBackFromB() {
+		rememberTabTeam({ id: 'team-a', organizationId: 'org-a', defaultProjectId: 'project-a' });
+		mockCookies.teamId = 'team-b';
+		mockCookies.projectId = 'project-b';
+		anotherTabSwitchesTo('org-b');
+		mockCookieWrites.length = 0;
+		expect(bringTabOrganizationBack()).toBe('org-a');
+		expect(mockCookieWrites).toEqual(['organization=org-a', 'team=team-a', 'project=project-a']);
+		mockCookieWrites.length = 0;
+		document.cookie = `brought-back=${Math.random()}`;
+	}
+
+	beforeEach(() => {
+		mockCookieWrites.length = 0;
+		mockCookies.teamId = '';
+		mockCookies.projectId = '';
+	});
+
+	it("puts the other tab's cookies back when the switch is refused, organization last, and the tab says where it works", () => {
+		bringBackFromB();
+
+		// The session's token is still organization B's: Gauzy refused the switch
+		putBackLeftCookies('org-a');
+
+		expect(mockCookieWrites).toEqual(['shared-project=project-b', 'team=team-b', 'organization=org-b']);
+		expect(tabScope()).toMatchObject({ held: true, isOtherOrganizationOpen: true, accessToken: TOKEN_A });
+	});
+
+	it('leaves an organization chosen since as it is', () => {
+		bringBackFromB();
+		mockCookies.organizationId = 'org-c';
+
+		putBackLeftCookies('org-a');
+
+		expect(mockCookieWrites).toEqual([]);
+	});
+
+	it('leaves the cookies when the session followed after all', () => {
+		bringBackFromB();
+		mockCookies.token = token('org-a', { expiresIn: 7200 });
+
+		putBackLeftCookies('org-a');
+
+		expect(mockCookieWrites).toEqual([]);
 	});
 });
 

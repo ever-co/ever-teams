@@ -2,11 +2,14 @@ import { decodeJWT } from '@/core/lib/auth/jwt-utils';
 import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
 import {
 	getAccessTokenCookie,
+	getSharedActiveProjectIdCookie,
+	getSharedActiveTeamIdCookie,
 	getSharedOrganizationIdCookie,
 	registerTabWorkScope,
 	setActiveProjectIdCookie,
 	setActiveTeamIdCookie,
-	setOrganizationIdCookie
+	setOrganizationIdCookie,
+	setSharedActiveProjectIdCookie
 } from '@/core/lib/helpers/cookies';
 
 /**
@@ -258,12 +261,49 @@ export function bringTabOrganizationBack(): string | null {
 	// Nothing to bring back while the organization cookie is this tab's already (its switch back is on its way)
 	if (!scope.held || !scope.isOtherOrganizationOpen) return null;
 	const { organizationId, teamId, projectId } = scope;
+	// What the other tab left in the cookies, put back if the session cannot follow (putBackLeftCookies)
+	leftCookies = {
+		broughtBack: organizationId,
+		organizationId: scope.sharedOrganizationId,
+		teamId: getSharedActiveTeamIdCookie() || null,
+		projectId: getSharedActiveProjectIdCookie() || null
+	};
 	// The organization first: the cookie readers then answer the cookies again, and the project goes to its cookie
 	setOrganizationIdCookie(organizationId);
 	if (teamId) setActiveTeamIdCookie(teamId);
 	// Even none: the project cookie names one of the other organization
 	setActiveProjectIdCookie(projectId ?? '');
 	return organizationId;
+}
+
+/** The cookies another tab left when this tab brought its own organization back, until the session follows. */
+let leftCookies: {
+	broughtBack: string;
+	organizationId: string;
+	teamId: string | null;
+	projectId: string | null;
+} | null = null;
+
+/**
+ * The session could not follow this tab's organization back: Gauzy refused the switch, or did not answer. The cookies
+ * another tab left come back (its project, its team, then its organization), so the cookies never name one
+ * organization while they carry another's token, and this tab works in its own organization again, or says it can no
+ * longer (CodeRabbit on #5321). An organization chosen since, in this tab or another, stands.
+ */
+export function putBackLeftCookies(broughtBack: string): void {
+	const left = leftCookies;
+	leftCookies = null;
+	if (!left || left.broughtBack !== broughtBack) return;
+	const isStillBroughtBack = getSharedOrganizationIdCookie() === broughtBack;
+	const sharedToken = getAccessTokenCookie();
+	const isSessionElsewhere = !!sharedToken && ownerOf(sharedToken)?.organizationId !== broughtBack;
+	if (!isStillBroughtBack || !isSessionElsewhere) return;
+	// The project as the other tab left it: this tab does not take it as the project it chose
+	if (left.projectId) setSharedActiveProjectIdCookie(left.projectId);
+	if (left.teamId) setActiveTeamIdCookie(left.teamId);
+	setOrganizationIdCookie(left.organizationId);
+	memo = null;
+	tabScope();
 }
 
 /** The API refused this tab's own token: it is not sent again, and the tab asks the person where it works. */
@@ -302,6 +342,7 @@ export function isSessionRequest(url: string | undefined): boolean {
 /** Test-only: forget this tab's team and tokens. */
 export function resetTabOrganizationState(): void {
 	forgetSession();
+	leftCookies = null;
 	memo = null;
 	lastScopeKey = 'shared';
 }
