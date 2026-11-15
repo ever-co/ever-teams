@@ -4,7 +4,8 @@ import { useAtom, useAtomValue, useStore } from 'jotai';
 import { useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { requestAccessToken } from '@/core/lib/auth/tab-organization';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { findTaskProject, pickedBillableOf, timerBillableOf } from '@/core/lib/helpers/timer-billable';
 import { taskOnStartProject } from '@/core/lib/helpers/team-default-project';
@@ -23,7 +24,8 @@ const NO_PROJECTS: TOrganizationProject[] = [];
 
 /** One read of a project for the start and the switch alike, so both land in the same cache entry. */
 function projectQueryOptions(projectId: string, tenantId: string, organizationId: string) {
-	const accessToken = getAccessTokenCookie();
+	// This tab's token: the cookie's, or its own for its organization while another tab has another one open (#5134)
+	const accessToken = requestAccessToken();
 	const scope = { tenantId, organizationId, accessToken };
 	return {
 		queryKey: queryKeys.organizationProjects.detailByScope(tenantId, organizationId, projectId),

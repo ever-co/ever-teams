@@ -13,6 +13,7 @@ import {
 } from '@/core/lib/helpers/cookies';
 import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { teamToOpenAfterSwitch } from '@/core/lib/utils/team-menu-organizations';
+import { rememberTabTeam } from '@/core/lib/auth/tab-organization';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams/team.service';
 import type { TOrganizationTeam } from '@/core/types/schemas';
@@ -68,10 +69,13 @@ export function useSwitchOrganization() {
 				setRefreshTokenCookie(session.refresh_token);
 			}
 			setOrganizationIdCookie(organizationId);
+			// This tab now works in that organization; the page opens on it right after (#5134)
+			rememberTabTeam({ id: null, organizationId });
 
 			const teamToOpen = team ?? (await personsTeamIn(organizationId, session.token, user?.id, user?.lastTeamId));
 			if (teamToOpen) {
 				setActiveTeamIdCookie(teamToOpen.id);
+				rememberTabTeam(teamToOpen);
 				rememberOpenedTeam(teamToOpen.id);
 			}
 			return { organizationId, teamId: teamToOpen?.id ?? null };

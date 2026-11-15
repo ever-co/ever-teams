@@ -8170,6 +8170,15 @@
 		"TYPE_BREAK": "Pause",
 		"BREAK_HINT": "Une pause n'est jamais facturable et ne compte jamais comme temps travaillé."
 	},
+	"tabOrganizationNotice": {
+		"TITLE": "Une autre organisation est ouverte dans un autre onglet",
+		"KEEPS_WORKING": "Cet onglet continue de travailler dans {organization}, avec son minuteur et ses pages.",
+		"CANNOT_WORK_TITLE": "Cet onglet ne peut plus travailler dans {organization}",
+		"CANNOT_WORK": "Une autre organisation est ouverte dans un autre onglet. Choisissez où cet onglet travaille.",
+		"STOP_TIMER_FIRST": "Son minuteur tourne dans {organization} : arrêtez-le avant d’ouvrir l’autre organisation ici.",
+		"OPEN_HERE": "Ouvrir l’autre organisation ici",
+		"BRING_BACK": "Utiliser {organization} dans tous les onglets"
+	},
 	"timeZoneNotice": {
 		"TITLE": "Votre profil utilise {profileZone} ({profileOffset}). Ce navigateur est sur {browserZone} ({browserOffset}).",
 		"DESCRIPTION": "Les feuilles de temps comptent vos journées dans le fuseau de votre profil et les autres rapports dans celui de ce navigateur : une entrée proche de minuit peut tomber un autre jour.",

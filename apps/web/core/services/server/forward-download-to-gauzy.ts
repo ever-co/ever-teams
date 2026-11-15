@@ -1,6 +1,7 @@
 import { GAUZY_API_SERVER_URL, TENANT_ID_COOKIE_NAME } from '@/core/constants/config/constants';
 import { NextResponse } from 'next/server';
 import { requestAccessToken, requestCookies } from './request-cookies';
+import { tabSessionOf } from './tab-session';
 
 /** A PDF of a large subtree takes a while to render; past this nobody is waiting for it any more. */
 const UPSTREAM_TIMEOUT_MS = 120_000;
@@ -33,7 +34,9 @@ export async function forwardDownloadToGauzy(
 ): Promise<Response> {
 	const timeoutMs = options.timeoutMs ?? UPSTREAM_TIMEOUT_MS;
 	const cookies = requestCookies(req);
-	const access_token = requestAccessToken(cookies);
+	const sharedAccessToken = requestAccessToken(cookies);
+	// A tab working in its own organization while the session in the cookies is in another one acts in its own (#5134)
+	const access_token = tabSessionOf(req, sharedAccessToken)?.accessToken ?? sharedAccessToken;
 	if (!access_token) return NextResponse.json({ statusCode: 401, message: 'Unauthorized' }, { status: 401 });
 	const tenantId = cookies.get(TENANT_ID_COOKIE_NAME);
 
