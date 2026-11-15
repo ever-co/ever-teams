@@ -24,9 +24,12 @@ import {
 	quietHoursOf
 } from '@/core/lib/notifications/notification-preferences';
 import { taskDueReminderHoursOf } from '@/core/lib/notifications/task-due-reminders';
-import { withTeamNotificationDefaults } from '@/core/lib/notifications/team-notification-defaults';
+import {
+	teamOfNotificationDefaults,
+	withTeamNotificationDefaults
+} from '@/core/lib/notifications/team-notification-defaults';
 import { timerReminderHoursOf } from '@/core/lib/notifications/timer-reminders';
-import { activeTeamState } from '@/core/stores/teams/organization-team';
+import { activeTeamState, organizationTeamsState } from '@/core/stores/teams/organization-team';
 import { userState } from '@/core/stores/user/user';
 import {
 	EEmployeeNotificationType,
@@ -121,6 +124,7 @@ export function NotificationsSettingsPage() {
 	const t = useTranslations();
 	const user = useAtomValue(userState);
 	const activeTeam = useAtomValue(activeTeamState);
+	const teams = useAtomValue(organizationTeamsState);
 	const { setting, isAvailable, isLoading, isError, retry, toggle, savePreferences, isSavingPreferences } = useNotificationSettings();
 	const [pending, setPending] = useState<PendingSwitches>({});
 	// The choices stay editable and are kept: the notice only says why no email arrives for now.
@@ -162,8 +166,10 @@ export function NotificationsSettingsPage() {
 		onPreferences({ emailByType: { [type]: mode === 'default' ? undefined : mode } });
 	const onQuietHours = (window: INotificationQuietHours | null) => onPreferences({ dnd: window });
 	const preferences = setting?.preferences;
-	// What the platform applies: the member's own choices, and their team's defaults (#5022) for what they left unset
-	const teamDefaults = activeTeam?.notificationDefaults ?? null;
+	// What the platform applies: the member's own choices, and their team's defaults (#5022) for what they left unset.
+	// The team is the one Gauzy reads: the active team when the user is a member of it, else their only team.
+	const defaultsTeam = teamOfNotificationDefaults(teams, activeTeam?.id, user?.employee?.id);
+	const teamDefaults = defaultsTeam?.notificationDefaults ?? null;
 	const applied = withTeamNotificationDefaults(preferences, teamDefaults);
 	const timerReminderHours = timerReminderHoursOf(applied);
 	const taskDueReminderHours = taskDueReminderHoursOf(applied);
@@ -205,7 +211,7 @@ export function NotificationsSettingsPage() {
 						{teamDefaults && (
 							<Notice
 								tone="info"
-								title={t('notifications.SETTINGS_PAGE.TEAM_DEFAULTS_TITLE', { team: activeTeam?.name ?? '' })}
+								title={t('notifications.SETTINGS_PAGE.TEAM_DEFAULTS_TITLE', { team: defaultsTeam?.name ?? '' })}
 								description={t('notifications.SETTINGS_PAGE.TEAM_DEFAULTS_TEXT')}
 							/>
 						)}
