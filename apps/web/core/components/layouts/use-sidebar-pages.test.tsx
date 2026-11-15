@@ -5,7 +5,8 @@ import { renderHook } from '@testing-library/react';
 let mockCanManageTeam = false;
 let mockIsPaletteOpen = false;
 let mockHidden = new Set<string>(['automations']);
-const mockUseHiddenSettingsEntries = jest.fn((asks: boolean) => {
+const mockUseHiddenSettingsEntries = jest.fn((canManageTeam: boolean, asks: boolean) => {
+	void canManageTeam;
 	void asks;
 	return mockHidden;
 });
@@ -16,7 +17,8 @@ jest.mock('jotai', () => ({
 	useAtomValue: (atom: string) => (atom === 'can-manage-team' ? mockCanManageTeam : mockIsPaletteOpen)
 }));
 jest.mock('@/core/hooks/settings/use-hidden-settings-entries', () => ({
-	useHiddenSettingsEntries: (asks: boolean) => mockUseHiddenSettingsEntries(asks)
+	useHiddenSettingsEntries: (canManageTeam: boolean, asks: boolean) =>
+		mockUseHiddenSettingsEntries(canManageTeam, asks)
 }));
 const mockT = (key: string) => key;
 jest.mock('next-intl', () => ({ useTranslations: () => mockT }));
@@ -78,14 +80,20 @@ describe('useSidebarPages', () => {
 	it('asks the platform for the optional pages only once a manager has the palette open', () => {
 		mockCanManageTeam = true;
 		renderHook(() => useSidebarPages(LINKS, GROUPS));
-		expect(mockUseHiddenSettingsEntries).toHaveBeenLastCalledWith(false);
+		expect(mockUseHiddenSettingsEntries).toHaveBeenLastCalledWith(true, false);
 
 		mockIsPaletteOpen = true;
 		renderHook(() => useSidebarPages(LINKS, GROUPS));
-		expect(mockUseHiddenSettingsEntries).toHaveBeenLastCalledWith(true);
+		expect(mockUseHiddenSettingsEntries).toHaveBeenLastCalledWith(true, true);
+	});
 
-		mockCanManageTeam = false;
+	// The automations are a manager's; API tokens and security are everyone's Account pages
+	it("asks a member's optional pages once the palette is open too, never on a page load", () => {
 		renderHook(() => useSidebarPages(LINKS, GROUPS));
-		expect(mockUseHiddenSettingsEntries).toHaveBeenLastCalledWith(false);
+		expect(mockUseHiddenSettingsEntries).toHaveBeenLastCalledWith(false, false);
+
+		mockIsPaletteOpen = true;
+		renderHook(() => useSidebarPages(LINKS, GROUPS));
+		expect(mockUseHiddenSettingsEntries).toHaveBeenLastCalledWith(false, true);
 	});
 });

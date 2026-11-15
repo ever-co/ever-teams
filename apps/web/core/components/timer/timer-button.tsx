@@ -10,6 +10,8 @@ type Props = {
 	running: boolean | undefined;
 	disabled: boolean;
 	'aria-describedby'?: string;
+	/** What the button does when it is not the plain start or stop, such as "Back to work" during a break. */
+	label?: string;
 	/** The page's main timer: its button carries a shadow tinted with its own colour. */
 	emphasized?: boolean;
 	ref?: Ref<HTMLButtonElement>;
@@ -43,10 +45,12 @@ export function TimerButton({
 	disabled,
 	className,
 	'aria-describedby': ariaDescribedBy,
+	label,
 	ref,
 	emphasized = false
 }: Props) {
 	const variant = timerButtonVariant(running);
+	const defaultLabel = running ? 'Stop timer' : 'Start timer';
 
 	return (
 		<Button
@@ -54,7 +58,7 @@ export function TimerButton({
 			variant={variant}
 			size="icon"
 			onClick={onClick}
-			aria-label={running ? 'Stop timer' : 'Start timer'}
+			aria-label={label ?? defaultLabel}
 			aria-disabled={disabled}
 			aria-describedby={ariaDescribedBy}
 			className={clsxm('min-w-0', emphasized && timerButtonGlow(running), className)}

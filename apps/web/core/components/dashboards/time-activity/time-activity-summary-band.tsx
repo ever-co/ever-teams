@@ -6,6 +6,7 @@ import { ActivityMeter } from '@/core/components/dashboards/kit/meters';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { useTimeActivityFilterOptions } from '@/core/hooks/dashboards/time-activity/use-time-activity-filter-options';
 import type {
+	TimeActivityBillable,
 	TimeActivityFigures,
 	TimeActivityReport
 } from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
@@ -29,7 +30,8 @@ const MISSING_VALUE = '–';
 const BAND =
 	'm-2 grid grid-cols-1 gap-2 rounded-lg bg-foreground/[0.03] py-2 ps-3 pe-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center';
 
-const FIGURES = 'grid grid-cols-2 gap-x-4 gap-y-1.5 sm:flex sm:flex-wrap sm:items-center sm:gap-x-6';
+const FIGURES =
+	'grid grid-flow-row-dense grid-cols-2 gap-x-4 gap-y-1.5 sm:flex sm:flex-wrap sm:items-center sm:gap-x-6';
 
 const FIGURE = 'flex min-h-8 min-w-0 items-center gap-1.5';
 
@@ -49,6 +51,10 @@ interface BandFigure {
 	hint?: string;
 	/** A second reading of the same figure, written muted beside its value. */
 	note?: string | null;
+	/** This figure alone is still read: it waits while the others show. */
+	isLoading?: boolean;
+	/** Where the figure sits in the band, when it needs more room than a cell. */
+	className?: string;
 }
 
 function MissingValue({ reason }: Readonly<{ reason: string }>) {
@@ -164,6 +170,49 @@ function earningsFigureOf(figures: TimeActivityFigures, locale: FormatLocale, t:
 	return { key: 'earnings', label, value: <span className="truncate">{text}</span>, hint };
 }
 
+/** Why the billable amount reads "–": no billable time in the period, or none of it has a rate. */
+function missingBillableReasonOf(billable: TimeActivityBillable, t: Translate) {
+	const hasBillableTime = billable.figures.seconds > 0;
+	if (!hasBillableTime) {
+		return t('dashboard.timeActivity.figures.BILLABLE_NONE');
+	}
+	return t('dashboard.timeActivity.figures.BILLABLE_NO_RATES');
+}
+
+/** On a phone the amounts take the band's whole width: written apart per currency, they never fit half of it. */
+const BILLABLE_FIGURE_CLASS = 'max-sm:col-span-2';
+
+/**
+ * What the period's billable time bills, priced like an invoice line, beside that time. Amounts in different
+ * currencies are written apart, never added.
+ */
+function billableFigureOf(billable: TimeActivityBillable, locale: FormatLocale, t: Translate): BandFigure {
+	const key = 'billable';
+	const label = t('dashboard.timeActivity.columns.BILLABLE');
+	if (billable.isPending) {
+		return { key, label, value: null, isLoading: true };
+	}
+	if (billable.isError) {
+		const reason = t('dashboard.timeActivity.figures.UNAVAILABLE');
+		return { key, label, value: <MissingValue reason={reason} />, hint: reason };
+	}
+	const { amounts, seconds } = billable.figures;
+	const hasAmounts = amounts.length > 0;
+	if (!hasAmounts) {
+		const reason = missingBillableReasonOf(billable, t);
+		return { key, label, value: <MissingValue reason={reason} />, hint: reason };
+	}
+	const text = formatAmounts(amounts, locale);
+	return {
+		key,
+		label,
+		value: <span className="truncate">{text}</span>,
+		className: BILLABLE_FIGURE_CLASS,
+		note: t('dashboard.timeActivity.figures.BILLABLE_TIME', { duration: formatDurationShort(seconds) }),
+		hint: t('dashboard.timeActivity.figures.BILLABLE_HINT')
+	};
+}
+
 function membersFigureOf(figures: TimeActivityFigures, t: Translate): BandFigure {
 	const { totals } = figures;
 	return {
@@ -174,19 +223,50 @@ function membersFigureOf(figures: TimeActivityFigures, t: Translate): BandFigure
 	};
 }
 
+/**
+ * The breaks of the period beside the worked time, never counted in it (#5216): none without a break, "–" when they
+ * could not be read, so a failed read never passes for a period without breaks.
+ */
+function breaksFigureOf(figures: TimeActivityFigures, t: Translate): BandFigure | null {
+	const label = t('breaks.FIGURE_LABEL');
+	if (figures.breakSeconds === null) {
+		const reason = t('dashboard.timeActivity.figures.UNAVAILABLE');
+		return { key: 'breaks', label, value: <MissingValue reason={reason} />, hint: reason };
+	}
+	const breakSeconds = figures.breakSeconds ?? 0;
+	if (breakSeconds <= 0) {
+		return null;
+	}
+	return {
+		key: 'breaks',
+		label,
+		value: formatDurationShort(breakSeconds),
+		hint: t('breaks.FIGURE_HINT')
+	};
+}
+
 interface BandInput {
 	figures: TimeActivityFigures;
 	isManager: boolean;
 	roundingRule: DurationRoundingRule | null;
+	billable: TimeActivityBillable | null;
 }
 
-function bandFiguresOf({ figures, isManager, roundingRule }: BandInput, locale: FormatLocale, t: Translate) {
+function bandFiguresOf({ figures, isManager, roundingRule, billable }: BandInput, locale: FormatLocale, t: Translate) {
 	const total = totalFigureOf(figures, t, roundingNoteOf(roundingRule, t));
 	const activity = activityFigureOf(figures, locale, t);
-	const list: BandFigure[] = [total, activity];
+	const list: BandFigure[] = [total];
+	const breaks = breaksFigureOf(figures, t);
+	if (breaks) {
+		list.push(breaks);
+	}
+	list.push(activity);
 	if (isManager) {
 		const earnings = earningsFigureOf(figures, locale, t);
 		list.push(earnings);
+	}
+	if (billable?.isOffered) {
+		list.push(billableFigureOf(billable, locale, t));
 	}
 	const members = membersFigureOf(figures, t);
 	list.push(members);
@@ -209,11 +289,12 @@ const FigureItem = memo(function FigureItem({
 	figure,
 	isLoading
 }: Readonly<{ figure: BandFigure; isLoading: boolean }>) {
+	const showsSkeleton = isLoading || figure.isLoading === true;
 	return (
-		<div className={FIGURE} title={figure.hint}>
+		<div className={cn(FIGURE, figure.className)} title={figure.hint}>
 			<dt className="shrink-0 text-xs text-muted-foreground">{figure.label}</dt>
-			{isLoading && <dd className={cn('h-2.5 w-12', SKELETON_BAR)} />}
-			{!isLoading && (
+			{showsSkeleton && <dd className={cn('h-2.5 w-12', SKELETON_BAR)} />}
+			{!showsSkeleton && (
 				<dd className="flex min-w-0 items-baseline gap-1.5 text-[13px] font-semibold tabular-nums text-foreground">
 					{figure.value}
 					{figure.note && (
@@ -250,7 +331,8 @@ export function TimeActivitySummaryBand({
 	isManager,
 	isLoading,
 	actions,
-	roundingRule = null
+	roundingRule = null,
+	billable = null
 }: Readonly<{
 	figures: TimeActivityFigures;
 	isManager: boolean;
@@ -258,12 +340,14 @@ export function TimeActivitySummaryBand({
 	actions: ReactNode;
 	/** The workspace rounds each entry: the total says so. */
 	roundingRule?: DurationRoundingRule | null;
+	/** What the billable time bills, for a role that may read client rates. */
+	billable?: TimeActivityBillable | null;
 }>) {
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
 	const items = useMemo(
-		() => bandFiguresOf({ figures, isManager, roundingRule }, locale, t),
-		[figures, isManager, locale, roundingRule, t]
+		() => bandFiguresOf({ figures, isManager, roundingRule, billable }, locale, t),
+		[billable, figures, isManager, locale, roundingRule, t]
 	);
 	return <BandFrame figures={items} isLoading={isLoading} actions={actions} />;
 }

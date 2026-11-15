@@ -121,7 +121,11 @@ export async function splitCalendarEntry(request: CalendarSplitRequest) {
 			employeeId
 		});
 	} catch (shortenError) {
-		await restoreAfterFailedShortening(log, { whole: window, shortened: parts.first }, shortenError);
+		await restoreAfterFailedShortening(
+			log,
+			{ whole: window, shortened: parts.first, freed: parts.second },
+			shortenError
+		);
 	}
 	const secondTaskId = secondTask?.id ?? textOrUndefined(current.taskId);
 	try {
@@ -145,7 +149,12 @@ export async function splitCalendarEntry(request: CalendarSplitRequest) {
 		if (addError instanceof ZodValidationError) {
 			return;
 		}
-		await restoreAfterFailedAdd(log, window, { part: parts.second, taskId: secondTaskId ?? null }, addError);
+		await restoreAfterFailedAdd(
+			log,
+			{ whole: window, first: parts.first },
+			{ part: parts.second, taskId: secondTaskId ?? null },
+			addError
+		);
 	}
 }
 
@@ -164,13 +173,14 @@ function isSameWindow(first: TimeWindow | null, second: TimeWindow): boolean {
 
 /**
  * The shortening failed, yet its answer may only have been lost. A refusal of the API (a 4xx) changed nothing: the
- * entry is as it was, and nothing more is written. Otherwise the entry is read again first: still whole, nothing is
- * written; shortened as asked, it is set back to its whole time; in any other state (changed meanwhile, gone, or not
- * readable) nothing is written over it, and the outcome is to be checked.
+ * entry is as it was, and nothing more is written. Otherwise the time the shortening freed is looked at, then the
+ * entry is read again, right before any write: still whole, nothing is written; shortened as asked, it is set back to
+ * its whole time while the freed time is still free; in any other state (changed meanwhile, gone, not readable, or
+ * another entry saved on the freed time since) nothing is written over it, and the outcome is to be checked.
  */
 async function restoreAfterFailedShortening(
 	log: ITimeLog,
-	windows: { whole: TimeWindow; shortened: TimeWindow },
+	windows: { whole: TimeWindow; shortened: TimeWindow; freed: TimeWindow },
 	shortenError: unknown
 ): Promise<never> {
 	const status = errorStatusOf(shortenError);
@@ -178,12 +188,17 @@ async function restoreAfterFailedShortening(
 	if (isRefusal) {
 		throw new CalendarSplitError('restored', shortenError);
 	}
+	// Another tab may have saved an entry on the freed time since: stretched back over it, the entry would overlap it.
+	// A server that cannot be read counts as taken. Looked at before the entry is read, so that no wait comes between
+	// that read and the write
+	const isFreedTimeTaken = await isTakenOnServer(log, windows.freed).catch(() => true);
 	const current = await currentLogOf(log);
 	const currentWindow = current ? windowOfLog(current) : null;
 	if (isSameWindow(currentWindow, windows.whole)) {
 		throw new CalendarSplitError('restored', shortenError);
 	}
-	if (!isSameWindow(currentWindow, windows.shortened)) {
+	const canRestore = isSameWindow(currentWindow, windows.shortened) && !isFreedTimeTaken;
+	if (!canRestore) {
 		throw new CalendarSplitError('unknown', shortenError);
 	}
 	try {
@@ -197,12 +212,14 @@ async function restoreAfterFailedShortening(
 /**
  * The second part could not be added. The server is read first: when it holds that very part (a lost answer), the
  * split is done; when another entry covers the time, nothing is stretched over it and the first part is kept; when
- * the time is free, the entry gets its whole time back. When the server cannot be read, or the restoring write fails
- * (it may still have landed), the outcome is not known: nothing more is offered that could write over saved time.
+ * the time is free, the entry is read again and gets its whole time back only while it still holds the first part
+ * this split saved (already whole, nothing is written; changed meanwhile in another tab, or gone, nothing is
+ * written over it). When the server cannot be read, or the restoring write fails (it may still have landed), the
+ * outcome is not known: nothing more is offered that could write over saved time.
  */
 async function restoreAfterFailedAdd(
 	log: ITimeLog,
-	window: TimeWindow,
+	windows: { whole: TimeWindow; first: TimeWindow },
 	second: { part: TimeWindow; taskId: string | null },
 	addError: unknown
 ) {
@@ -222,8 +239,16 @@ async function restoreAfterFailedAdd(
 	if (state === 'taken') {
 		throw new CalendarSplitError('first-part-kept', addError);
 	}
+	const current = await currentLogOf(log);
+	const currentWindow = current ? windowOfLog(current) : null;
+	if (isSameWindow(currentWindow, windows.whole)) {
+		throw new CalendarSplitError('restored', addError);
+	}
+	if (!isSameWindow(currentWindow, windows.first)) {
+		throw new CalendarSplitError('unknown', addError);
+	}
 	try {
-		await restoreWindow(log, window);
+		await restoreWindow(log, windows.whole);
 	} catch {
 		throw new CalendarSplitError('unknown', addError);
 	}

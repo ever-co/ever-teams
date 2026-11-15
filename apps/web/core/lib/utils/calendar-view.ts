@@ -23,6 +23,7 @@ import {
 	manualReasonOf,
 	startOfLog
 } from '@/core/lib/utils/dashboards/timesheets';
+import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import { getDailyPlanDay } from '@/core/lib/helpers/daily-plan-day';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { TDailyPlan, TOrganizationTeam } from '@/core/types/schemas';
@@ -116,6 +117,8 @@ export interface CalendarEntry {
 	/** The part of the log inside `dayKey`, the one the day's totals count. */
 	daySeconds: number;
 	isManual: boolean;
+	/** A break (#5216): drawn with its own label, never in the day's worked time nor in a project's. */
+	isBreak: boolean;
 	isRunning: boolean;
 	isBillable: boolean;
 	taskTitle: string | null;
@@ -156,6 +159,8 @@ export interface CalendarDay {
 	entries: CalendarEntry[];
 	trackedSeconds: number;
 	manualSeconds: number;
+	/** The day's time on breaks, apart from its worked time (#5216). */
+	breakSeconds: number;
 	plan: CalendarDayPlan | null;
 }
 
@@ -315,6 +320,9 @@ function entryOf(log: ITimeLog, start: Date, now: Date): CalendarEntry {
 		end = runningEndOf(start, now);
 		durationSeconds = secondsBetween(start, end);
 	}
+	// A break keeps the task it paused, never its project: its time is no project's
+	const isBreak = isBreakLog(log);
+	const project = isBreak ? null : log.project;
 	return {
 		id: log.id,
 		log,
@@ -324,12 +332,13 @@ function entryOf(log: ITimeLog, start: Date, now: Date): CalendarEntry {
 		durationSeconds,
 		daySeconds: durationSeconds,
 		isManual: isManualLog(log),
+		isBreak,
 		isRunning,
 		isBillable: log.isBillable === true,
 		taskTitle: trimmedOrNull(log.task?.title),
-		projectKey: log.project?.id || null,
-		projectName: trimmedOrNull(log.project?.name),
-		projectColor: trimmedOrNull(log.project?.color),
+		projectKey: project?.id || null,
+		projectName: trimmedOrNull(project?.name),
+		projectColor: trimmedOrNull(project?.color),
 		reason: manualReasonOf(log)
 	};
 }
@@ -511,13 +520,18 @@ function entriesByDayOf(entries: ReadonlyArray<CalendarEntry>) {
 function totalsOf(entries: ReadonlyArray<CalendarEntry>) {
 	let trackedSeconds = 0;
 	let manualSeconds = 0;
+	let breakSeconds = 0;
 	for (const entry of entries) {
+		if (entry.isBreak) {
+			breakSeconds += entry.daySeconds;
+			continue;
+		}
 		trackedSeconds += entry.daySeconds;
 		if (entry.isManual) {
 			manualSeconds += entry.daySeconds;
 		}
 	}
-	return { trackedSeconds, manualSeconds };
+	return { trackedSeconds, manualSeconds, breakSeconds };
 }
 
 export function calendarDaysOf(
@@ -529,13 +543,14 @@ export function calendarDaysOf(
 	return daysOfPeriod(range).map((date) => {
 		const key = localDayKeyOf(date);
 		const dayEntries = entriesByDay.get(key) ?? [];
-		const { trackedSeconds, manualSeconds } = totalsOf(dayEntries);
+		const { trackedSeconds, manualSeconds, breakSeconds } = totalsOf(dayEntries);
 		return {
 			key,
 			date,
 			entries: dayEntries,
 			trackedSeconds,
 			manualSeconds,
+			breakSeconds,
 			plan: plansByDay.get(key) ?? null
 		};
 	});
@@ -581,6 +596,9 @@ export function projectTotalsOf(days: ReadonlyArray<CalendarDay>): CalendarProje
 	const byProject = new Map<string, CalendarProjectTotal>();
 	for (const day of days) {
 		for (const entry of day.entries) {
+			if (entry.isBreak) {
+				continue;
+			}
 			const projectKey = entry.projectKey;
 			const mapKey = projectKey ?? WITHOUT_PROJECT;
 			const existing = byProject.get(mapKey);

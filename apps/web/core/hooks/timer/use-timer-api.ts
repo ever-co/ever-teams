@@ -26,6 +26,7 @@ import {
 } from '@/core/lib/helpers/timer-errors';
 import { notesToSendAtStart, notesToSendAtStop, timerNotesAfterStart } from '@/core/lib/utils/timer/timer-notes';
 import { forgetSavedStop, saveStop } from '@/core/lib/utils/timer/saved-stop';
+import { rememberHeartbeat } from '@/core/lib/utils/timer/unfollowed-time';
 import { notesForStartOf } from '@/core/lib/utils/timer/timer-start-notes';
 import { startTaskOf } from '@/core/lib/utils/timer/timer-start-task';
 import { queryKeys } from '@/core/query/keys';
@@ -65,7 +66,21 @@ import { useUpdateTask } from '../organizations/teams/use-update-task';
 import { useTaskStatusesQuery } from '../tasks/use-task-statuses-query';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../bootstrap/use-scope-guard';
-import { useStopStaleTeamsTimer } from './use-stale-timer-guard';
+import {
+	isUnfollowedTimeUnsettled,
+	useStopStaleTeamsTimer,
+	whenUnfollowedTimeIsSettled
+} from './use-stale-timer-guard';
+import {
+	holdStartGuard,
+	isTimerCommandMarkCurrent,
+	pendingTimerStart,
+	pendingTimerStartTaskId,
+	releaseStartGuard,
+	timerCommandMark,
+	trackTimerCommand,
+	type TimerStartOutcome
+} from './timer-command-guard';
 import { useStopNotesWarning } from './use-stop-notes-warning';
 import { useResolveTimerBillable } from './use-timer-billable';
 import { takePendingTimerStartNotes } from './use-timer-start-notes';
@@ -125,8 +140,9 @@ export interface UseTimerApiReturn {
 	plansResolved: boolean;
 }
 
-/** `blocked`: nothing was sent, and a toast already told the user why. A failed request rejects instead. */
-export type TimerStartOutcome = 'started' | 'blocked';
+// The guards every timer command shares live in timer-command-guard.ts; these are the names other files import
+export type { TimerStartOutcome } from './timer-command-guard';
+export { pendingTimerStart, startUnderTimerGuard, trackTimerCommand } from './timer-command-guard';
 
 /** Shared by every place that refuses a start because time is tracked elsewhere, so repeated tries replace it. */
 export const ALREADY_TRACKING_TOAST_ID = 'timer-already-tracking';
@@ -145,44 +161,10 @@ const AUTOMATIC_STOP_TOAST_ID = 'timer-automatic-stop';
 
 // ==================== SHARED REQUEST GUARDS ====================
 
-// Module scope on purpose: every task card, the timer and the shell mount their own useTimerApi, and a ref
-// only guards the instance that owns it. A guard is held until its timer request lands, not through the
-// bookkeeping that follows (active task update, invalidations), so it never swallows a later start or stop.
-let pendingStartTimer: Promise<TimerStartOutcome> | null = null;
-let pendingStartTaskId: string | null = null;
+// The stop guard: module scope, as the start guard (timer-command-guard.ts). Held until its request lands.
 let pendingStopTimer: Promise<void> | null = null;
 /** Track last stopTimer call to prevent duplicate calls within short time window */
 let lastStopTimerTimestamp = 0;
-// Bumped when a start, stop, toggle or discard is sent and again when it lands. A sync reads the status back after its
-// time slot, so that read may predate such a command: it only updates the status when none was in flight when
-// the sync started and none happened meanwhile.
-let timerCommandSeq = 0;
-let timerCommandsInFlight = 0;
-
-export function trackTimerCommand<T>(request: Promise<T>): Promise<T> {
-	timerCommandSeq += 1;
-	timerCommandsInFlight += 1;
-	return request.finally(() => {
-		timerCommandSeq += 1;
-		timerCommandsInFlight -= 1;
-	});
-}
-
-/**
- * The timer start in flight, from the click through its request, or null (#5025). Creating a workspace waits for it:
- * the creation signs the browser in to the new workspace, and a start landing afterwards would leave a timer running
- * in the workspace left behind, out of sight.
- */
-export function pendingTimerStart(): Promise<TimerStartOutcome> | null {
-	return pendingStartTimer;
-}
-
-// Identity check: an older flow settling late must not clear the guard of a newer request
-function releaseStartGuard(request: Promise<TimerStartOutcome>) {
-	if (pendingStartTimer !== request) return;
-	pendingStartTimer = null;
-	pendingStartTaskId = null;
-}
 
 function releaseStopGuard(request: Promise<void>) {
 	if (pendingStopTimer === request) pendingStopTimer = null;
@@ -506,8 +488,13 @@ export function useTimerApi({
 		if (syncTimerPending) {
 			return;
 		}
+		// The app did not follow this run for a while (the computer slept, the browser paused the tab): a heartbeat
+		// would put that time in the run before the person has said what becomes of it (#5123)
+		if (isUnfollowedTimeUnsettled()) {
+			return;
+		}
 		// No status update from a sync that starts while a command is pending, e.g. a slow stop from another instance
-		const commandSeq = timerCommandsInFlight === 0 ? timerCommandSeq : null;
+		const commandSeq = timerCommandMark();
 		return syncTimerMutate({
 			source: timerStatus?.lastLog?.source || ETimeLogSource.TEAMS,
 			user: $user.current,
@@ -516,9 +503,11 @@ export function useTimerApi({
 			// A hidden tab, or one without auto refresh, never refetches the status: this is how its heartbeat
 			// learns that the timer was stopped elsewhere. The proxy route answers null when its status read fails.
 			const status = res?.data;
+			// The browser remembers the heartbeat it sent: the time without one is counted from it (unfollowed-time.ts)
+			rememberHeartbeat(status?.lastLog);
 			if (
 				typeof status?.running === 'boolean' &&
-				commandSeq === timerCommandSeq &&
+				isTimerCommandMarkCurrent(commandSeq) &&
 				(!statusEnabled || isCurrentScope()) &&
 				!isEqual(timerStatusRef.current, status)
 			) {
@@ -541,7 +530,7 @@ export function useTimerApi({
 	 */
 	const keepRunOrClearStuckFlag = useCallback(
 		async (employeeId: string): Promise<boolean> => {
-			const commandSeq = timerCommandsInFlight === 0 ? timerCommandSeq : null;
+			const commandSeq = timerCommandMark();
 			let runGoingOn: RunGoingOn | null;
 			try {
 				runGoingOn = await readRunGoingOn(employeeId);
@@ -562,7 +551,7 @@ export function useTimerApi({
 			// Shown now, so this tab's Stop reaches the run: a default instance never reads its status again. Not after
 			// a command sent meanwhile, which the read may predate.
 			if (
-				commandSeq === timerCommandSeq &&
+				isTimerCommandMarkCurrent(commandSeq) &&
 				(!statusEnabled || isCurrentScope()) &&
 				!isEqual(timerStatusRef.current, runGoingOn.status)
 			) {
@@ -905,9 +894,10 @@ export function useTimerApi({
 	// for that start instead of sending a second POST /timer/start.
 	const startTimer = useCallback(
 		(explicitTask?: TTask) => {
-			if (pendingStartTimer) {
+			const pendingStart = pendingTimerStart();
+			if (pendingStart) {
 				// No task named, or the same one: the start in flight is the one asked for
-				if (!explicitTask || explicitTask.id === pendingStartTaskId) return pendingStartTimer;
+				if (!explicitTask || explicitTask.id === pendingTimerStartTaskId()) return pendingStart;
 				// Another task: fail, so the caller does not report the first task's start as its own
 				toast.warning(t('toasts.timer.START_IN_PROGRESS'), { id: 'timer-start-in-progress' });
 				return Promise.reject(new Error('A timer start for another task is already in progress'));
@@ -916,13 +906,14 @@ export function useTimerApi({
 			const request: Promise<TimerStartOutcome> = runStartTimer(explicitTask, () =>
 				releaseStartGuard(request)
 			).finally(() => releaseStartGuard(request));
-			pendingStartTimer = request;
 			// The task runStartTimer will start: explicit, else the page's task on /task/*, else the active one
-			pendingStartTaskId =
+			holdStartGuard(
+				request,
 				explicitTask?.id ??
-				(pathname?.startsWith('/task/') ? detailedTask?.id : undefined) ??
-				activeTeamTaskRef.current?.id ??
-				null;
+					(pathname?.startsWith('/task/') ? detailedTask?.id : undefined) ??
+					activeTeamTaskRef.current?.id ??
+					null
+			);
 			return request;
 		},
 		[runStartTimer, activeTeamTaskRef, pathname, detailedTask, t]
@@ -931,7 +922,7 @@ export function useTimerApi({
 	// ==================== STOP TIMER ====================
 
 	const stopTimerMutate = stopTimerMutation.mutateAsync;
-	const stopTimer = useCallback(() => {
+	const stopTimerNow = useCallback(() => {
 		const previousLocalTimerStatus = localTimerStatusRef.current;
 		updateLocalTimerStatus({
 			lastTaskId: taskId.current || null,
@@ -1094,6 +1085,18 @@ export function useTimerApi({
 		store,
 		warnWhenStopLostNotes
 	]);
+
+	// What becomes of the time the app did not follow is settled first (#5123): sent at once, the stop would end the
+	// run at the present, with that time in it. When the run is stopped at its last heartbeat there, the stop that
+	// waited has nothing left to end.
+	const stopTimerNowRef = useSyncRef(stopTimerNow);
+	const stopTimer = useCallback((): Promise<void> => {
+		const settled = whenUnfollowedTimeIsSettled();
+		if (!settled) {
+			return stopTimerNow();
+		}
+		return settled.then((wasStoppedThere) => (wasStoppedThere ? undefined : stopTimerNowRef.current()));
+	}, [stopTimerNow, stopTimerNowRef]);
 
 	// ==================== SIDE EFFECTS ====================
 

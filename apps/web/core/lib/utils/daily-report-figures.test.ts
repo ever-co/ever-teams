@@ -82,6 +82,15 @@ describe('flattenDailyReport', () => {
 		expect(withoutTeamRow.tasks.map((reportTask) => reportTask.title)).toEqual(['desktop', 'agent']);
 	});
 
+	it('keeps the project time without a team was logged on, which its client rates price it by', () => {
+		const report = reportOf([task('home', 600, 'team-a'), task('desktop', 900, null)], 1500);
+
+		const [teamRow, withoutTeamRow] = flattenDailyReport(report, 'No team');
+
+		expect(withoutTeamRow.loggedProjectId).toBe('project-a');
+		expect(teamRow).not.toHaveProperty('loggedProjectId');
+	});
+
 	it('gives a member with only time without a team that row alone', () => {
 		const rows = flattenDailyReport(reportOf([task('desktop', 1200, null)], 1200, null), 'No team');
 
@@ -128,5 +137,55 @@ describe('a billing rate without a currency of its own (#5087)', () => {
 
 		expect(rows[0].billRateCurrency).toBeNull();
 		expect(earningsByCurrencyOf(rows)).toEqual([{ currency: 'USD', amount: 10 }]);
+	});
+});
+
+describe('the rate each time entry stores (#5212)', () => {
+	const currentRateEmployee = { ...employee, billRateValue: 50, billRateCurrency: 'EUR' };
+	const statedTask = (title: string, duration: number, billRateValue: number | null) => ({
+		...task(title, duration),
+		billRateValue,
+		billRateCurrency: 'EUR'
+	});
+
+	it('prices each entry at the rate it states, in a row of its own per rate', () => {
+		const tasks = [statedTask('october', 3600, 40), statedTask('november', 3600, 50)];
+		const report = reportOf(tasks as ReturnType<typeof task>[], 7200, project, currentRateEmployee);
+
+		const rows = flattenDailyReport(report);
+
+		expect(rows.map((row) => [row.billRateValue, row.seconds])).toEqual([
+			[40, 3600],
+			[50, 3600]
+		]);
+		expect(new Set(rows.map((row) => row.key)).size).toBe(2);
+		expect(rows.map((row) => row.keyAcrossRates)).toEqual([
+			'2026-11-05:project-a:employee-a',
+			'2026-11-05:project-a:employee-a'
+		]);
+		expect(earningsByCurrencyOf(rows)).toEqual([{ currency: 'EUR', amount: 90 }]);
+	});
+
+	it('keeps one row, under the key it always had, when the entries share a rate', () => {
+		const tasks = [statedTask('home', 1800, 40), statedTask('blog', 1800, 40)];
+		const report = reportOf(tasks as ReturnType<typeof task>[], 3600, project, currentRateEmployee);
+
+		const rows = flattenDailyReport(report);
+
+		expect(rows).toHaveLength(1);
+		expect(rows[0]).toEqual(
+			expect.objectContaining({ key: '2026-11-05:project-a:employee-a', billRateValue: 40, seconds: 3600 })
+		);
+	});
+
+	it('leaves unpriced the time an entry states no rate for, whatever the current rate', () => {
+		const report = reportOf(
+			[statedTask('before', 3600, null)] as ReturnType<typeof task>[],
+			3600,
+			project,
+			currentRateEmployee
+		);
+
+		expect(earningsByCurrencyOf(flattenDailyReport(report))).toEqual([]);
 	});
 });

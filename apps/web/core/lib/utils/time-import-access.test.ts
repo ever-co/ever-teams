@@ -4,8 +4,10 @@ import {
 	timeImportMembersOf,
 	timeImportProjectsOf,
 	timeImportRefusalOf,
-	timeImportTasksOf
+	timeImportTasksOf,
+	withImportMembersAdded
 } from './time-import-access';
+import type { TimeImportContext } from './time-import-rows';
 
 function teamMember(overrides: Record<string, unknown>): TOrganizationTeamEmployee {
 	return overrides as TOrganizationTeamEmployee;
@@ -67,9 +69,56 @@ describe('timeImportMembersOf', () => {
 		expect(timeImportMembersOf(team)).toEqual([]);
 	});
 
+	it('names a member without an account by the email given at creation, or by name alone without one', () => {
+		const team = teamOf({
+			members: [
+				teamMember({
+					employee: {
+						id: 'employee-amina',
+						isPlaceholder: true,
+						placeholderEmail: 'amina@acme.com',
+						user: { email: null, firstName: 'Amina', lastName: 'Diallo' }
+					}
+				}),
+				teamMember({
+					employee: {
+						id: 'employee-paul',
+						isPlaceholder: true,
+						placeholderEmail: null,
+						user: { email: null, firstName: 'Paul', lastName: 'Martin' }
+					}
+				})
+			]
+		});
+
+		expect(timeImportMembersOf(team)).toEqual([
+			{ employeeId: 'employee-amina', email: 'amina@acme.com', name: 'Amina Diallo' },
+			{ employeeId: 'employee-paul', email: '', name: 'Paul Martin' }
+		]);
+	});
+
 	it('answers an empty list before the team is known', () => {
 		expect(timeImportMembersOf(null)).toEqual([]);
 		expect(timeImportMembersOf(teamOf({ members: null }))).toEqual([]);
+	});
+});
+
+describe('withImportMembersAdded', () => {
+	const context = {
+		members: [{ employeeId: 'employee-ada', email: 'ada@ever.co', name: 'Ada Lovelace' }]
+	} as unknown as TimeImportContext;
+
+	it('names the members added for the file before the team reads them back, once each', () => {
+		const amina = { employeeId: 'employee-amina', email: 'amina@acme.com', name: 'amina' };
+		const twiceAda = { employeeId: 'employee-ada', email: 'ada@ever.co', name: 'Ada Lovelace' };
+
+		const next = withImportMembersAdded(context, [amina, twiceAda]);
+
+		expect(next.members).toEqual([...context.members, amina]);
+	});
+
+	it('leaves the context as it is when nobody was added', () => {
+		expect(withImportMembersAdded(context, [])).toBe(context);
 	});
 });
 

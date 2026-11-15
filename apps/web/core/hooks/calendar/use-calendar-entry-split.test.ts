@@ -172,6 +172,8 @@ describe('splitCalendarEntry', () => {
 
 	it('puts the entry back as it was when the new part cannot be added', async () => {
 		mockAddManualTime.mockRejectedValueOnce(new Error('refused'));
+		// Read again before it is set back: the server holds the first part this split saved
+		mockGetTimeLogs.mockResolvedValueOnce([LOG]).mockResolvedValueOnce([{ ...LOG, stoppedAt: at(11) }]);
 
 		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
 
@@ -182,6 +184,7 @@ describe('splitCalendarEntry', () => {
 	it('says the outcome is not known when the entry cannot be put back either, since that write may have landed', async () => {
 		mockAddManualTime.mockRejectedValueOnce(new Error('refused'));
 		mockUpdateTimeLog.mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('offline'));
+		mockGetTimeLogs.mockResolvedValueOnce([LOG]).mockResolvedValueOnce([{ ...LOG, stoppedAt: at(11) }]);
 
 		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
 
@@ -237,6 +240,35 @@ describe('splitCalendarEntry', () => {
 		expect(mockAddManualTime).not.toHaveBeenCalled();
 	});
 
+	it.each([
+		['another tab saved an entry on the time it freed', async () => [OTHER_ENTRY]],
+		['the time it freed cannot be read', async (): Promise<unknown[]> => Promise.reject(new Error('offline'))]
+	])('leaves the entry shortened after a lost answer when %s, and says to check it', async (_case, freedTime) => {
+		// The shortening went through, then another tab added 11-12: set back to 9-13, the entry would overlap it
+		mockUpdateTimeLog.mockRejectedValueOnce(new Error('timeout'));
+		mockGetTimeLogs.mockResolvedValueOnce([LOG]).mockResolvedValueOnce([{ ...LOG, stoppedAt: at(11) }]);
+		mockGetTimeLogConflicts.mockResolvedValueOnce([]).mockImplementationOnce(freedTime);
+
+		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'unknown' }));
+		expect(mockUpdateTimeLog).toHaveBeenCalledTimes(1);
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+
+	it('reads the entry after it looks at the freed time, so that no wait comes between that read and the write', async () => {
+		mockUpdateTimeLog.mockRejectedValueOnce(new Error('timeout'));
+		mockGetTimeLogs.mockResolvedValueOnce([LOG]).mockResolvedValueOnce([{ ...LOG, stoppedAt: at(11) }]);
+
+		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'restored' }));
+		const [, freedTimeLookup] = mockGetTimeLogConflicts.mock.invocationCallOrder;
+		const [, entryRead] = mockGetTimeLogs.mock.invocationCallOrder;
+		expect(freedTimeLookup).toBeLessThan(entryRead);
+		expect(calls).toEqual(['update 9-13']);
+	});
+
 	it('says the outcome is not known when the entry can be neither shortened nor set back', async () => {
 		mockUpdateTimeLog.mockRejectedValueOnce(new Error('timeout')).mockRejectedValueOnce(new Error('offline'));
 		mockGetTimeLogs.mockResolvedValueOnce([LOG]).mockResolvedValueOnce([{ ...LOG, stoppedAt: at(11) }]);
@@ -275,6 +307,24 @@ describe('splitCalendarEntry', () => {
 
 		await splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
 
+		expect(calls).toEqual(['update 9-11']);
+	});
+
+	it.each([
+		[
+			'was changed in another tab while the second part was being added',
+			[{ ...LOG, stoppedAt: at(12) }],
+			'unknown'
+		],
+		['is gone', [], 'unknown'],
+		['already holds its whole time again', [LOG], 'restored']
+	])('writes nothing over the entry when it %s', async (_case, onServer, failure) => {
+		mockAddManualTime.mockRejectedValueOnce(new Error('refused'));
+		mockGetTimeLogs.mockResolvedValueOnce([LOG]).mockResolvedValueOnce(onServer);
+
+		const split = splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure }));
 		expect(calls).toEqual(['update 9-11']);
 	});
 

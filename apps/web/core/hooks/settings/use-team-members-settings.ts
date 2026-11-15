@@ -13,6 +13,7 @@ import {
 	memberEmployeeOf,
 	memberFirstNameOf,
 	memberImageUrlOf,
+	memberIsPlaceholderOf,
 	memberJoinedAtOf,
 	memberLastNameOf,
 	memberNameOf,
@@ -84,6 +85,8 @@ export interface MemberRowModel {
 	/** The member's user, for the account-level actions (the two-factor reset). */
 	userId: string | null;
 	canResetTwoFactor: boolean;
+	/** A member without an account: no sign-in, no timer, no workspace role of their own (ever-gauzy #11913). */
+	isPlaceholder: boolean;
 }
 
 type Overrides<T> = Readonly<Record<string, T>>;
@@ -279,6 +282,9 @@ export function useTeamMembersSettings() {
 			const waitsForPermissions = !isTrackingRuleKnown;
 			const workspaceRoleId = workspaceRoleOverrides[rowId] ?? memberWorkspaceRoleIdOf(member);
 			const access = memberAccessOf(member, accessContext);
+			// A member without an account never signs in nor runs a timer: nothing of an account is offered on the row
+			const isPlaceholder = memberIsPlaceholderOf(member);
+			const hasAccount = !isPlaceholder;
 			models.push({
 				id: rowId,
 				name: memberNameOf(member),
@@ -293,7 +299,7 @@ export function useTeamMembersSettings() {
 				canRemove: hasEmployee && !isYou,
 				canEditName: Boolean(memberUserId),
 				// Only a higher rank switches a member's tracking, an admin also an admin's (see useMemberTrackingSwitch)
-				showsTracking: hasEmployee && mayTurnTracking(member),
+				showsTracking: hasEmployee && hasAccount && mayTurnTracking(member),
 				isTrackingEnabled,
 				isTrackingLocked: isTrackingLockedFor(member, writesEmployeeTracking(member)),
 				isRolePending: pendingRoles.has(rowId),
@@ -303,19 +309,23 @@ export function useTeamMembersSettings() {
 				employeeId,
 				workspaceRoleId,
 				workspaceRoleName: workspaceRoleNameOf(workspaceRoles, workspaceRoleId),
-				canChangeWorkspaceRole: access.canChangeWorkspaceRole,
+				canChangeWorkspaceRole: hasAccount && access.canChangeWorkspaceRole,
 				isWorkspaceRolePending: pendingWorkspaceRoles.has(rowId),
 				canDeactivate: access.canDeactivate,
 				userId: memberUserId ?? null,
-				canResetTwoFactor: canResetMemberTwoFactor({
-					permissions: myPermissions,
-					isYou,
-					hasUser: Boolean(memberUserId),
-					// The member's own role as the team data carries it: the roles list a viewer reads may hold only
-					// the roles they can assign, and would hide the reset of an admin's account
-					workspaceRoleName:
-						memberRoleNameOf(member) ?? workspaceRoleNameOf(workspaceRoles, memberWorkspaceRoleIdOf(member))
-				})
+				isPlaceholder,
+				canResetTwoFactor:
+					hasAccount &&
+					canResetMemberTwoFactor({
+						permissions: myPermissions,
+						isYou,
+						hasUser: Boolean(memberUserId),
+						// The member's own role as the team data carries it: the roles list a viewer reads may hold only
+						// the roles they can assign, and would hide the reset of an admin's account
+						workspaceRoleName:
+							memberRoleNameOf(member) ??
+							workspaceRoleNameOf(workspaceRoles, memberWorkspaceRoleIdOf(member))
+					})
 			});
 		}
 		return models;
@@ -448,7 +458,7 @@ export function useTeamMembersSettings() {
 	const saveMemberRates = useCallback(
 		async (rowId: string, rates: IEmployeeRatesInput) => {
 			const { employeeId } = findMember(rowId);
-			await saveEmployeeRates({ employeeId, rates });
+			return await saveEmployeeRates({ employeeId, rates });
 		},
 		[findMember, saveEmployeeRates]
 	);

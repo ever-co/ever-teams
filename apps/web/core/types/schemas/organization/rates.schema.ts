@@ -29,6 +29,13 @@ export const employeePayRateSchema = z
 	})
 	.passthrough();
 
+/** What a rate save answers beside the saved rates: how many time entries took the new rate, when it re-priced any. */
+export const rateSaveAnswerSchema = z
+	.object({
+		repricedTimeLogs: z.number().int().min(0).optional()
+	})
+	.passthrough();
+
 export const rateChangeRequestResultSchema = z
 	.object({
 		notified: z.number().optional()
@@ -40,6 +47,7 @@ export type TProjectMemberRate = z.infer<typeof projectMemberRateSchema>;
 export type TProjectRates = z.infer<typeof projectRatesSchema>;
 export type TRateChangeRequestResult = z.infer<typeof rateChangeRequestResultSchema>;
 export type TEmployeePayRate = z.infer<typeof employeePayRateSchema>;
+export type TRateSaveAnswer = z.infer<typeof rateSaveAnswerSchema>;
 
 export interface IEmployeeRatesInput {
 	billRateValue?: number | null;
@@ -47,10 +55,23 @@ export interface IEmployeeRatesInput {
 	reWeeklyLimit?: number | null;
 	payRateValue?: number | null;
 	payRateCurrency?: string | null;
+	/**
+	 * The day the changed rates price tracked time from (a date, or a date-time with its offset): the entries started
+	 * on or after it take them. Without it Gauzy applies the organization's rule (`timeLogsKeepTheirRates`).
+	 */
+	ratesApplyFrom?: string;
 }
 
 /** The rates one changes on one's own profile (`PUT /employee/:id/profile`), which never takes a pay rate. */
-export type IOwnProfileRatesInput = Pick<IEmployeeRatesInput, 'billRateValue' | 'billRateCurrency' | 'reWeeklyLimit'>;
+export type IOwnProfileRatesInput = Pick<
+	IEmployeeRatesInput,
+	'billRateValue' | 'billRateCurrency' | 'reWeeklyLimit' | 'ratesApplyFrom'
+>;
+
+/** How many time entries a rate save gave the new rate; null when Gauzy re-priced none or does not say. */
+export interface RateSaveOutcome {
+	repricedTimeLogs: number | null;
+}
 
 export interface IRateChangeRequestInput {
 	billRateValue: number;

@@ -157,7 +157,9 @@ describe('zipEntriesOf', () => {
 	it('refuses an encrypted entry, another compression method, and a file that is not an archive', () => {
 		expect(textsOf(zipOf([{ name: 'a.csv', text: 'x', flags: 1 }]))).toBe('encrypted');
 		expect(textsOf(zipOf([{ name: 'a.csv', text: 'x', method: 12 }]))).toBe('unsupported');
-		expect(textsOf(new TextEncoder().encode('date,start\n2026-10-01,09:00\n').buffer)).toBe('notZip');
+		expect(textsOf(new TextEncoder().encode('date,start\n2026-10-01,09:00\n').buffer as ArrayBuffer)).toBe(
+			'notZip'
+		);
 	});
 
 	it('stops unpacking an entry that unpacks past what the archive may hold, whatever size it claims', () => {

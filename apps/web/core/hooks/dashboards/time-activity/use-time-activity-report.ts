@@ -8,6 +8,9 @@ import { getReportMemberIds, managesEveryTeam } from '@/core/hooks/activities/us
 import { useClientsQuery } from '@/core/hooks/clients/use-clients-query';
 import { useReportProjectClients } from '@/core/hooks/dashboards/use-report-clients';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
+import { useProjectClientRates } from '@/core/hooks/organizations/rates/use-project-client-rates';
+import { useBillingOrganization } from '@/core/hooks/organizations/rates/use-billing-organization';
+import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { clientNamesOf } from '@/core/lib/utils/clients';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
@@ -21,11 +24,14 @@ import {
 import { filterDailyReportByClients, isBillableOnly } from '@/core/lib/utils/dashboards/report-filters';
 import {
 	type ChartDayLabels,
+	type BillableFigures,
+	type BreakdownFact,
 	type ClientOfProjectLog,
 	type ReportTotals,
 	TIME_ACTIVITY_WEEK_START,
 	type TimeActivityFilters,
 	type TimeActivityRow,
+	billableFiguresOfFacts,
 	breakdownGroupingOf,
 	chartDaysOf,
 	clientOfProjectLogOf,
@@ -45,16 +51,28 @@ import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-form
 import { durationRoundingRuleOf } from '@/core/lib/utils/duration-rounding';
 import { roundedDailyReportOf } from '@/core/lib/utils/dashboards/time-activity-rounding';
 import {
+	billableFactsOf,
+	billableProjectIdsOf,
+	pricedProjectIdOf
+} from '@/core/lib/utils/dashboards/time-activity-billable';
+import { linePriceOf } from '@/core/lib/utils/invoices';
+import { defaultBillRateOf, holdsRateAdminPermission, storesDefaultBillRate } from '@/core/lib/utils/rates';
+import { canEditWorkspace } from '@/core/lib/utils/settings-workspace';
+import {
 	type TimeActivityRequest,
+	useTimeActivityBreaksQuery,
 	useTimeActivityCountsQuery,
 	useTimeActivityDailyQuery
 } from './use-time-activity-queries';
+import { useBreaksAllowed } from '@/core/hooks/timer/use-breaks-allowed';
 import { useTimeActivitySettings } from './use-time-activity-settings';
 import type { WeekDailySource } from './use-time-activity-week';
 
 const MANAGING_ROLES: ReadonlySet<string> = new Set([ERoleName.SUPER_ADMIN, ERoleName.MANAGER, ERoleName.ADMIN]);
 
 const EMPTY_REPORT: ITimeLogGroupedDailyReport[] = [];
+
+const NO_BILLABLE_FACTS: BreakdownFact[] = [];
 
 interface ReportAccess {
 	isManager: boolean;
@@ -65,6 +83,26 @@ interface ReportAccess {
 function hasOrganizationWideRole(user: TUser | null | undefined) {
 	const roleName = user?.role?.name ?? '';
 	return MANAGING_ROLES.has(roleName);
+}
+
+/**
+ * The breaks figure from its read: none where breaks are not read or while the read loads, `null` once it failed, so a
+ * failed read never looks like a period without breaks.
+ */
+function breakSecondsShownOf(
+	readsBreaks: boolean,
+	query: { data?: number; isError: boolean }
+): number | null | undefined {
+	if (!readsBreaks) {
+		return undefined;
+	}
+	if (query.data !== undefined) {
+		return query.data;
+	}
+	if (query.isError) {
+		return null;
+	}
+	return undefined;
 }
 
 /** The rule of the previous page: organisation roles, or a manager of a team, see everyone's figures and earnings. */
@@ -157,6 +195,30 @@ function rowsOfReport(
 	return clientRowsOf(report, clientOf, withoutTeamLabel, workspaceCurrency);
 }
 
+/** The same read, of billable time only: none for a role that may not read client rates, which price it. */
+function billableRequestOf(request: TimeActivityRequest | null, readsBillable: boolean): TimeActivityRequest | null {
+	if (!request) {
+		return null;
+	}
+	if (!readsBillable) {
+		return null;
+	}
+	return { ...request, billableOnly: true };
+}
+
+/** What the billable time of the period bills, the facts each breakdown row adds up, and how far they are read. */
+export interface TimeActivityBillable {
+	/** Only a role that may read client rates sees amounts priced at them. */
+	isOffered: boolean;
+	facts: BreakdownFact[];
+	figures: BillableFigures;
+	isPending: boolean;
+	isError: boolean;
+	/** Time no rate prices can be priced at the workspace's default, which this reader may set. */
+	canSetDefaultRate: boolean;
+	refetch: () => void;
+}
+
 function axisFormatOptionsOf(dayCount: number): Intl.DateTimeFormatOptions {
 	if (dayCount <= 7) {
 		return { weekday: 'short' };
@@ -176,6 +238,11 @@ function chartLabelsOf(locale: FormatLocale, dayCount: number): ChartDayLabels {
 export interface TimeActivityFigures {
 	/** `null` when the figure could not be read: the strip writes "–". */
 	trackedSeconds: number | null;
+	/**
+	 * The time on breaks (#5216), beside the worked time: absent where breaks are off, not read or still loading, `null`
+	 * when the read failed (the band writes "–" then, never a period without breaks).
+	 */
+	breakSeconds?: number | null;
 	/** Every log type, from the daily report the chart and the breakdown read; `null` until it is loaded. */
 	reportSeconds: number | null;
 	activityPercent: number | null;
@@ -308,6 +375,11 @@ export function useTimeActivityReport() {
 	const hasTaskFilter = settings.filters.taskIds.length > 0;
 	const hasClientFilter = pickedClients.length > 0;
 	const billableOnly = isBillableOnly(settings.filters.billable);
+	// A break has no client and is never billable: with either filter on, there are no breaks to show
+	const allowsBreaks = useBreaksAllowed();
+	const readsBreaks = allowsBreaks && !billableOnly && !hasClientFilter;
+	const breaksQuery = useTimeActivityBreaksQuery(request, readsBreaks);
+	const breakSeconds = breakSecondsShownOf(readsBreaks, breaksQuery);
 	const sumsFiguresFromRows = hasTaskFilter || hasClientFilter || billableOnly || isRounding;
 	const isClientGrouping = settings.grouping === 'client';
 	const needsProjectClients = hasClientFilter || isClientGrouping;
@@ -364,6 +436,114 @@ export function useTimeActivityReport() {
 
 	const totals = useMemo(() => reportTotalsOf(rows), [rows]);
 
+	const { myPermissions, isLoaded: arePermissionsLoaded } = useMyRolePermissionsQuery();
+	// Billable amounts are priced at client rates: only a role that may read them gets them, and its own read
+	const readsBillable = arePermissionsLoaded && holdsRateAdminPermission(myPermissions);
+	const billableRequest = useMemo(() => billableRequestOf(request, readsBillable), [readsBillable, request]);
+	const billableQuery = useTimeActivityDailyQuery(billableRequest);
+	const loadedBillableReport = billableQuery.data ?? EMPTY_REPORT;
+	// The billable time goes through the client filter, the rounding and the visibility the shown rows go through
+	const billableRows = useMemo(() => {
+		const canPriceRows = readsBillable && canFilterByClients;
+		if (!canPriceRows) {
+			return [];
+		}
+		const filtered = filterDailyReportByClients(loadedBillableReport, pickedClients, projectClientIds);
+		const rounded = roundedDailyReportOf(filtered, roundingRule);
+		const allRows = rowsOfReport(rounded, withoutTeamLabel, workspaceCurrency, clientOfProjectLog);
+		return visibleRowsOf(allRows, isManager, ownEmployeeId);
+	}, [
+		canFilterByClients,
+		clientOfProjectLog,
+		isManager,
+		loadedBillableReport,
+		ownEmployeeId,
+		pickedClients,
+		projectClientIds,
+		readsBillable,
+		roundingRule,
+		withoutTeamLabel,
+		workspaceCurrency
+	]);
+	const billableProjectIds = useMemo(() => billableProjectIdsOf(billableRows), [billableRows]);
+	const projectRates = useProjectClientRates(billableProjectIds, readsBillable);
+	const { ratesByProject } = projectRates;
+	const defaultRate = useMemo(() => defaultBillRateOf(organization), [organization]);
+	// Each row is priced as an invoice line: client rate of the member on the project, of the project, own rate, default
+	const billableFacts = useMemo(() => {
+		const priceOf = (row: DailyReportRow) =>
+			linePriceOf({
+				employeeId: row.employeeId,
+				projectRates: ratesByProject.get(pricedProjectIdOf(row) ?? ''),
+				projectCurrency: null,
+				employeeRate: row,
+				organizationCurrency: workspaceCurrency,
+				defaultRate
+			});
+		return billableFactsOf(billableRows, priceOf);
+	}, [billableRows, defaultRate, ratesByProject, workspaceCurrency]);
+	const billableFigures = useMemo(() => billableFiguresOfFacts(billableFacts), [billableFacts]);
+	const hasBillableData = billableQuery.data !== undefined;
+	const isBillableReadFailure = billableQuery.isError && !hasBillableData;
+	// The default rate, the currency and the rounding rule price the amounts too: they wait for the organization
+	const billingOrganization = useBillingOrganization(readsBillable);
+	const isBillableFailure =
+		isBillableReadFailure || projectRates.hasFailed || isFilterLookupError || billingOrganization.isError;
+	const isBillableError = readsBillable && isBillableFailure;
+	// A read still showing the previous period or filters would price old time beside the new: it waits instead
+	const isShowingPreviousRead = billableQuery.isPlaceholderData || dailyQuery.isPlaceholderData;
+	const isReadingBillable = billableQuery.isPending || isShowingPreviousRead;
+	const isWaitingForBillable =
+		isReadingBillable || projectRates.isLoading || isFilterLookupPending || billingOrganization.isPending;
+	const isBillablePending = readsBillable && isWaitingForBillable && !isBillableError;
+	// Facts priced while a read is missing or failed would carry fallback prices: none are given then
+	const shownBillableFacts = useMemo(() => {
+		if (isBillablePending || isBillableError) {
+			return NO_BILLABLE_FACTS;
+		}
+		return billableFacts;
+	}, [billableFacts, isBillableError, isBillablePending]);
+	const storesDefault = organization !== null && storesDefaultBillRate(organization);
+	const canSetDefaultRate = storesDefault && canEditWorkspace(myPermissions);
+	const { refetch: refetchBillableReport } = billableQuery;
+	const { refetch: refetchProjectRates } = projectRates;
+	const refetchClientLookup = projectClients.refetch;
+	const { retry: retryBillingOrganization } = billingOrganization;
+	const refetchBillable = useCallback(() => {
+		void refetchBillableReport();
+		refetchProjectRates();
+		retryBillingOrganization();
+		if (isFilterLookupError) {
+			refetchClientLookup();
+		}
+	}, [
+		isFilterLookupError,
+		refetchBillableReport,
+		refetchClientLookup,
+		refetchProjectRates,
+		retryBillingOrganization
+	]);
+	const billable = useMemo<TimeActivityBillable>(
+		() => ({
+			isOffered: readsBillable,
+			facts: shownBillableFacts,
+			figures: billableFigures,
+			isPending: isBillablePending,
+			isError: isBillableError,
+			canSetDefaultRate,
+			refetch: refetchBillable
+		}),
+		[
+			billableFigures,
+			canSetDefaultRate,
+			isBillableError,
+			isBillablePending,
+			readsBillable,
+			refetchBillable,
+			shownBillableFacts
+		]
+	);
+
 	const chartDays = useMemo(() => {
 		const days = daysOfPeriod(period);
 		const labels = chartLabelsOf(locale, days.length);
@@ -375,8 +555,8 @@ export function useTimeActivityReport() {
 	const groups = useMemo(() => reportGroupsOf(rows, tableGrouping), [rows, tableGrouping]);
 
 	const figures = useMemo(
-		() => figuresOf(totals, countsQuery.data, sumsFiguresFromRows, hasDailyReport),
-		[countsQuery.data, hasDailyReport, sumsFiguresFromRows, totals]
+		() => ({ ...figuresOf(totals, countsQuery.data, sumsFiguresFromRows, hasDailyReport), breakSeconds }),
+		[breakSeconds, countsQuery.data, hasDailyReport, sumsFiguresFromRows, totals]
 	);
 
 	const isDailyFailure = dailyQuery.isError && !hasDailyData;
@@ -431,6 +611,7 @@ export function useTimeActivityReport() {
 		clientOfProjectLog,
 		rows,
 		totals,
+		billable,
 		chartDays,
 		tableGrouping,
 		breakdownGrouping,

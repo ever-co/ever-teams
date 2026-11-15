@@ -392,6 +392,49 @@ describe('saving the duration rounding', () => {
 		});
 		expect(mockToast.success).not.toHaveBeenCalled();
 	});
+
+	it('saves the default billing rate alone, keeps it for every reader and says what it prices', async () => {
+		const withoutDefault = { ...organization, defaultBillRateValue: null };
+		const { view, client } = renderSettings(withoutDefault);
+
+		await act(async () => {
+			await view.result.current.saveDefaultBillRate(80);
+		});
+
+		expect(mockUpdateOrganization).toHaveBeenCalledWith(withoutDefault, { defaultBillRateValue: 80 });
+		expect(client.getQueryData(ORGANIZATION_KEY)).toEqual({ ...withoutDefault, defaultBillRateValue: 80 });
+		expect(mockToast.success).toHaveBeenCalledWith('settings.workspace.DEFAULT_RATE_SAVED', {
+			description: 'settings.workspace.DEFAULT_RATE_OUTCOME'
+		});
+	});
+
+	it('saves a default of zero as no default, which is what it prices', async () => {
+		const withoutDefault = { ...organization, defaultBillRateValue: null };
+		const { view } = renderSettings(withoutDefault);
+
+		await act(async () => {
+			await view.result.current.saveDefaultBillRate(0);
+		});
+
+		expect(mockUpdateOrganization).toHaveBeenCalledWith(withoutDefault, { defaultBillRateValue: null });
+		expect(mockToast.success).toHaveBeenCalledWith('settings.workspace.DEFAULT_RATE_CLEARED', {
+			description: 'settings.workspace.DEFAULT_RATE_CLEARED_OUTCOME'
+		});
+	});
+
+	it('clears the default billing rate and says time without a rate shows apart again', async () => {
+		const withDefault = { ...organization, defaultBillRateValue: 80 };
+		const { view } = renderSettings(withDefault);
+
+		await act(async () => {
+			await view.result.current.saveDefaultBillRate(null);
+		});
+
+		expect(mockUpdateOrganization).toHaveBeenCalledWith(withDefault, { defaultBillRateValue: null });
+		expect(mockToast.success).toHaveBeenCalledWith('settings.workspace.DEFAULT_RATE_CLEARED', {
+			description: 'settings.workspace.DEFAULT_RATE_CLEARED_OUTCOME'
+		});
+	});
 });
 
 describe('renaming the workspace', () => {

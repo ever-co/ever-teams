@@ -54,11 +54,14 @@ export function hiddenSettingsEntriesOf({
  * (nothing is asked then), or while the platform has not said it serves them (asked once, and only for a person who
  * could see the entry: a manager); API tokens while the server has not said it has them on (its answer is kept for
  * five minutes); Security on a platform without two-factor authentication (asked once a sign-in).
+ *
+ * Nothing is asked while `asks` is false: the command palette lists the settings pages on every page, and asks for
+ * them only once it is open, so a page load never waits behind these reads (startup-performance.cy.ts).
  */
-export function useHiddenSettingsEntries(canManageTeam: boolean): ReadonlySet<SettingsEntryId> {
-	const { availability } = useTaskAutomationsAvailability(canManageTeam);
-	const { availability: apiTokensAvailability } = useUserApiTokensAvailability();
-	const { availability: twoFactorAvailability } = useTwoFactorStatus();
+export function useHiddenSettingsEntries(canManageTeam: boolean, asks = true): ReadonlySet<SettingsEntryId> {
+	const { availability } = useTaskAutomationsAvailability(canManageTeam && asks);
+	const { availability: apiTokensAvailability } = useUserApiTokensAvailability(asks);
+	const { availability: twoFactorAvailability } = useTwoFactorStatus(asks);
 	const showsAutomations = showsAutomationsEntry(availability);
 	const showsApiTokens = showsApiTokensEntry(apiTokensAvailability);
 	const showsSecurity = showsSecurityEntry(twoFactorAvailability);

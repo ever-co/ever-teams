@@ -11,6 +11,8 @@ const mockSaveWeekStart = jest.fn(async () => undefined);
 const mockSaveClock = jest.fn(async () => undefined);
 const mockSaveCurrencyPosition = jest.fn(async () => undefined);
 const mockSaveDurationRounding = jest.fn(async () => undefined);
+const mockSaveDefaultBillRate = jest.fn<Promise<void>, [number | null]>(async () => undefined);
+const mockSaveTimeLogsKeepTheirRates = jest.fn(async () => undefined);
 const mockRetryLoad = jest.fn();
 
 const ORGANIZATION = { id: 'organization-a', name: 'Acme', currency: 'USD', dateFormat: null, numberFormat: null };
@@ -22,6 +24,7 @@ function settingsOf(overrides: Record<string, unknown> = {}) {
 		organization: ORGANIZATION,
 		name: 'Acme',
 		canEdit: true,
+		canReadRates: true,
 		canRename: true,
 		isLoading: false,
 		isLoadFailed: false,
@@ -34,10 +37,16 @@ function settingsOf(overrides: Record<string, unknown> = {}) {
 		saveClock: mockSaveClock,
 		saveCurrencyPosition: mockSaveCurrencyPosition,
 		saveDurationRounding: mockSaveDurationRounding,
+		saveDefaultBillRate: mockSaveDefaultBillRate,
+		saveTimeLogsKeepTheirRates: mockSaveTimeLogsKeepTheirRates,
 		...overrides
 	};
 }
 
+// The Breaks section (#5216) reads the organization through its own hook, which these tests leave out
+jest.mock('@/core/hooks/settings/use-organization-tracking-requirements', () => ({
+	useOrganizationBreaksSwitch: () => ({ organization: null, saveAllowBreaks: jest.fn() })
+}));
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: Record<string, unknown>) => {
 		if (!values) {
@@ -47,8 +56,30 @@ jest.mock('next-intl', () => ({
 	},
 	useLocale: () => 'en'
 }));
+// The danger zone (#5207) reads its own hook, which these tests leave out
+jest.mock('./workspace-danger-section', () => ({ WorkspaceDangerSection: () => null }));
 jest.mock('@/core/hooks/settings/use-workspace-settings', () => ({
 	useWorkspaceSettings: () => mockSettings
+}));
+// The rate field asks nothing about past time here: the default billing rate prices reports, not entries
+jest.mock('@/core/hooks/organizations/rates/use-rate-apply-question', () => ({
+	useRateApplyQuestion: () => ({
+		rule: null,
+		choice: null,
+		reset: jest.fn(),
+		applyFromOfSave: jest.fn(),
+		confirmSaved: jest.fn()
+	})
+}));
+// The rate field's popover always shows its form here, so a test types and saves without a pointer
+jest.mock('@/core/components/common/popover', () => ({
+	Popover: ({ children }: React.PropsWithChildren) => <div>{children}</div>,
+	PopoverTrigger: ({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) => (
+		<button type="button" aria-label={String(props['aria-label'] ?? '')}>
+			{children}
+		</button>
+	),
+	PopoverContent: ({ children }: React.PropsWithChildren) => <div>{children}</div>
 }));
 const mockExportAll = jest.fn(async () => undefined);
 const NO_EXPORT = { canExport: false, isExporting: false, isFailed: false, exportAll: mockExportAll };
@@ -377,5 +408,113 @@ describe('WorkspaceSettingsPage', () => {
 		expect(mockSaveWeekStart).toHaveBeenCalledWith('SUNDAY');
 		expect(mockSaveClock).toHaveBeenCalledWith(24);
 		expect(mockSaveCurrencyPosition).toHaveBeenCalledWith('RIGHT');
+	});
+
+	const DEFAULT_RATE = 'settings.workspace.DEFAULT_RATE_LABEL';
+	const isPerHourText = (content: string) => content.startsWith('rates.PER_HOUR');
+
+	// The rate field's form names the rate too: the row is found from its own label
+	function defaultRateRow(): HTMLElement {
+		const rowLabel = screen.getAllByText(DEFAULT_RATE).find((element) => element.tagName === 'SPAN');
+		const row = rowLabel?.closest('div[class*="min-h-14"]');
+		if (!(row instanceof HTMLElement)) {
+			throw new Error('No default billing rate row');
+		}
+		return row;
+	}
+
+	it('shows the default billing rate only to a role that may read rates', () => {
+		mockSettings = settingsOf({ canReadRates: false, organization: { ...ORGANIZATION, defaultBillRateValue: 80 } });
+		render(<WorkspaceSettingsPage />);
+
+		expect(screen.queryByText(DEFAULT_RATE)).toBeNull();
+	});
+
+	it('offers no default billing rate against an API that does not store one', () => {
+		render(<WorkspaceSettingsPage />);
+
+		expect(screen.queryByText(DEFAULT_RATE)).toBeNull();
+	});
+
+	it('starts the default billing rate empty and saves the rate an admin types', async () => {
+		mockSettings = settingsOf({ organization: { ...ORGANIZATION, defaultBillRateValue: null } });
+		render(<WorkspaceSettingsPage />);
+		const row = defaultRateRow();
+
+		expect(within(row).getByText('rates.ADD_RATE')).toBeTruthy();
+
+		fireEvent.change(within(row).getByRole('textbox'), { target: { value: '80' } });
+		await act(async () => {
+			fireEvent.click(within(row).getByRole('button', { name: 'common.SAVE' }));
+		});
+
+		expect(mockSaveDefaultBillRate.mock.calls[0][0]).toBe(80);
+	});
+
+	it('shows a default of zero, which prices nothing, as no default', () => {
+		mockSettings = settingsOf({ organization: { ...ORGANIZATION, defaultBillRateValue: 0 } });
+		render(<WorkspaceSettingsPage />);
+
+		expect(within(defaultRateRow()).getByText('rates.ADD_RATE')).toBeTruthy();
+	});
+
+	it('names the currency a cleared default keeps, which a new rate is priced in', () => {
+		const clearedInEuros = { ...ORGANIZATION, defaultBillRateValue: null, defaultBillRateCurrency: 'EUR' };
+		mockSettings = settingsOf({ organization: clearedInEuros });
+		render(<WorkspaceSettingsPage />);
+
+		expect(within(defaultRateRow()).getByText('EUR')).toBeTruthy();
+		expect(within(defaultRateRow()).queryByText('USD')).toBeNull();
+	});
+
+	it('shows a member the default billing rate, or that none is set, as text', () => {
+		mockSettings = settingsOf({ canEdit: false, organization: { ...ORGANIZATION, defaultBillRateValue: null } });
+		const { unmount } = render(<WorkspaceSettingsPage />);
+
+		expect(within(rowOf(DEFAULT_RATE)).getByText('rates.NOT_SET')).toBeTruthy();
+		unmount();
+
+		mockSettings = settingsOf({ canEdit: false, organization: { ...ORGANIZATION, defaultBillRateValue: 80 } });
+		render(<WorkspaceSettingsPage />);
+
+		expect(within(rowOf(DEFAULT_RATE)).getByText(isPerHourText)).toBeTruthy();
+		expect(within(rowOf(DEFAULT_RATE)).queryByRole('textbox')).toBeNull();
+	});
+
+	describe('whether past time keeps its rate', () => {
+		const KEEP_RATES = 'settings.workspace.KEEP_RATES_LABEL';
+
+		it('is not offered by a Gauzy that does not store rates on time entries', () => {
+			render(<WorkspaceSettingsPage />);
+
+			expect(screen.queryByText(KEEP_RATES)).toBeNull();
+		});
+
+		it('lets an admin turn it on, off by default', async () => {
+			mockSettings = settingsOf({ organization: { ...ORGANIZATION, timeLogsKeepTheirRates: null } });
+			render(<WorkspaceSettingsPage />);
+			const toggle = screen.getByRole('switch');
+
+			expect(screen.getByText(KEEP_RATES)).toBeTruthy();
+			expect(toggle.getAttribute('aria-checked')).toBe('false');
+
+			await act(async () => {
+				fireEvent.click(toggle);
+			});
+
+			expect(mockSaveTimeLogsKeepTheirRates).toHaveBeenCalledWith(true);
+		});
+
+		it('shows a member whether it is on, with nothing to change', () => {
+			mockSettings = settingsOf({
+				canEdit: false,
+				canRename: false,
+				organization: { ...ORGANIZATION, timeLogsKeepTheirRates: true }
+			});
+			render(<WorkspaceSettingsPage />);
+
+			expect(within(rowOf(KEEP_RATES)).getByText('settings.workspace.KEEP_RATES_ON')).toBeTruthy();
+			expect(screen.queryByRole('switch')).toBeNull();
+		});
 	});
 });

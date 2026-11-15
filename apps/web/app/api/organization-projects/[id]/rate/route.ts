@@ -23,6 +23,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 		const { data } = await updateProjectRateRequest({
 			projectId: parsedId.data,
 			billRateValue: parsedBody.data.billRateValue,
+			applyFrom: parsedBody.data.applyFrom,
 			organizationId,
 			bearer_token: access_token,
 			tenantId

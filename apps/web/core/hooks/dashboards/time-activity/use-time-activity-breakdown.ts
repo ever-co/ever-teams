@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import {
+	type BreakdownFact,
 	type BreakdownGrouping,
 	type BreakdownNode,
 	type TimeActivityRow,
@@ -10,8 +11,15 @@ import {
 	openableKeysOf
 } from '@/core/lib/utils/dashboards/time-activity';
 
-export function useTimeActivityBreakdown(rows: ReadonlyArray<TimeActivityRow>, grouping: BreakdownGrouping) {
-	const facts = useMemo(() => breakdownFactsOf(rows), [rows]);
+const NO_FACTS: ReadonlyArray<BreakdownFact> = [];
+
+/** The facts of the billable time carry no time: added to the rows' facts, each row adds up what it bills. */
+export function useTimeActivityBreakdown(
+	rows: ReadonlyArray<TimeActivityRow>,
+	grouping: BreakdownGrouping,
+	billableFacts: ReadonlyArray<BreakdownFact> = NO_FACTS
+) {
+	const facts = useMemo(() => [...breakdownFactsOf(rows), ...billableFacts], [billableFacts, rows]);
 	return useMemo(() => breakdownTreeOf(facts, grouping), [facts, grouping]);
 }
 

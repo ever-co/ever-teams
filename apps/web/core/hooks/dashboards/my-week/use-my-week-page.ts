@@ -1,9 +1,18 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { useAtomValue } from 'jotai';
 import { parseISO } from 'date-fns';
 import { useCalendarLogs } from '@/core/hooks/calendar/use-calendar-logs';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useProjectClientRates } from '@/core/hooks/organizations/rates/use-project-client-rates';
+import { useBillingOrganization } from '@/core/hooks/organizations/rates/use-billing-organization';
+import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
+import { linePriceOf } from '@/core/lib/utils/invoices';
+import { defaultBillRateOf, holdsRateAdminPermission } from '@/core/lib/utils/rates';
+import { durationRoundingRuleOf } from '@/core/lib/utils/duration-rounding';
+import { NO_BILLABLE_FIGURES, type BillableFigures } from '@/core/lib/utils/dashboards/time-activity';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import type { CalendarView } from '@/core/lib/utils/calendar-view';
@@ -11,6 +20,7 @@ import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { type Period, presetOfPeriod, type WeekStart } from '@/core/lib/utils/dashboard-period';
 import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import {
+	billableProjectIdsOfEntries,
 	dailyLimitSecondsOf,
 	DEFAULT_MY_WEEK_PERIOD,
 	isWeekPeriod,
@@ -18,6 +28,7 @@ import {
 	type MyWeekEntry,
 	type MyWeekPeriodKey,
 	myWeekDaysOf,
+	myWeekBillableOf,
 	myWeekEntriesOf,
 	myWeekFiguresOf,
 	myWeekPeriodOf,
@@ -54,6 +65,16 @@ function shownPeriodOf(picked: Period, loaded: Period | undefined, isPlaceholder
 		return picked;
 	}
 	return loaded;
+}
+
+/** What the person's own billable time bills, for a role that may read the client rates it is priced at. */
+export interface MyWeekBillable {
+	isOffered: boolean;
+	figures: BillableFigures;
+	isPending: boolean;
+	isError: boolean;
+	/** Reads again what failed: the project rates, and the organization once its read failed. */
+	retry: () => void;
 }
 
 function isPeriodKey(value: string | null): value is MyWeekPeriodKey {
@@ -127,6 +148,60 @@ export function useMyWeekPage() {
 	}, [entries]);
 	const recentEntries = useMemo(() => entries.slice(0, RECENT_ENTRY_COUNT), [entries]);
 
+	const { myPermissions, isLoaded: arePermissionsLoaded } = useMyRolePermissionsQuery();
+	// The amount is priced at client rates: only a role that may read them sees it, as on Time & activity
+	const readsBillable = arePermissionsLoaded && holdsRateAdminPermission(myPermissions);
+	const billableProjectIds = useMemo(() => billableProjectIdsOfEntries(entries), [entries]);
+	const projectRates = useProjectClientRates(billableProjectIds, readsBillable);
+	const { ratesByProject } = projectRates;
+	// The default rate, the currency and the rounding rule price the amount too: it waits for them
+	const billingOrganization = useBillingOrganization(readsBillable);
+	const organization = useAtomValue(currentOrganizationState);
+	const ownRate = user?.employee;
+	const billableFigures = useMemo(() => {
+		if (!readsBillable) {
+			return NO_BILLABLE_FIGURES;
+		}
+		const defaultRate = defaultBillRateOf(organization);
+		// Billed as an invoice bills it: each entry rounded by the workspace's rule (#5279)
+		const roundingRule = durationRoundingRuleOf(organization);
+		const organizationCurrency = organization?.currency ?? null;
+		const priceOf = (projectId: string | null) =>
+			linePriceOf({
+				employeeId: employeeId ?? '',
+				projectRates: ratesByProject.get(projectId ?? ''),
+				projectCurrency: null,
+				employeeRate: ownRate,
+				organizationCurrency,
+				defaultRate
+			});
+		return myWeekBillableOf(entries, priceOf, roundingRule);
+	}, [employeeId, entries, organization, ownRate, ratesByProject, readsBillable]);
+	const { refetch: refetchProjectRates } = projectRates;
+	const { retry: retryBillingOrganization } = billingOrganization;
+	const retryBillable = useCallback(() => {
+		refetchProjectRates();
+		retryBillingOrganization();
+	}, [refetchProjectRates, retryBillingOrganization]);
+	const billable = useMemo<MyWeekBillable>(
+		() => ({
+			isOffered: readsBillable,
+			figures: billableFigures,
+			isPending: projectRates.isLoading || billingOrganization.isPending,
+			isError: projectRates.hasFailed || billingOrganization.isError,
+			retry: retryBillable
+		}),
+		[
+			billableFigures,
+			billingOrganization.isError,
+			billingOrganization.isPending,
+			projectRates.hasFailed,
+			projectRates.isLoading,
+			readsBillable,
+			retryBillable
+		]
+	);
+
 	const weeklyLimitSeconds = weeklyLimitSecondsOf(user?.employee?.reWeeklyLimit);
 	const dailyLimitSeconds = dailyLimitSecondsOf(weeklyLimitSeconds);
 	const trackedSeconds = figures.trackedSeconds;
@@ -156,6 +231,7 @@ export function useMyWeekPage() {
 		shownPeriod,
 		days,
 		figures,
+		billable,
 		target,
 		weeklyLimitSeconds,
 		dailyLimitSeconds,

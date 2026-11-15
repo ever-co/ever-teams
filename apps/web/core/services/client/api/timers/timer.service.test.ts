@@ -41,6 +41,7 @@ jest.mock('../../api.service', () => ({
 }));
 
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { timeSlotsBetween } from '@/core/lib/helpers/timer';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { timerService } from './timer.service';
 
@@ -245,5 +246,116 @@ describe('TimerService.discardTimer', () => {
 			timeLogId: 'log-1'
 		});
 		expect(answer.data).toEqual({ running: false });
+	});
+});
+
+describe('TimerService.catchUpTimeSlots', () => {
+	// Seven minutes the run went on without a heartbeat, across the 22:20 window of Gauzy's slots
+	const kept = {
+		source: ETimeLogSource.TEAMS,
+		employeeId: 'employee-1',
+		timeLogId: 'log-1',
+		fromMs: Date.parse('2026-11-04T22:17:30.000Z'),
+		toMs: Date.parse('2026-11-04T22:24:30.000Z')
+	};
+
+	it('writes the whole time to Gauzy in direct mode, one slot per window, starting at the last heartbeat', async () => {
+		publishedApiOrigin.value = 'https://api.example.test';
+		const post = jest.spyOn(timerService, 'post').mockResolvedValue({ data: {} } as never);
+		jest.spyOn(timerService, 'getTimerStatus').mockResolvedValue({ data: { running: true } } as never);
+
+		await timerService.catchUpTimeSlots(kept);
+
+		expect(post.mock.calls).toEqual([
+			[
+				'/timesheet/time-slot',
+				expect.objectContaining({
+					logType: 'TRACKED',
+					source: ETimeLogSource.TEAMS,
+					employeeId: 'employee-1',
+					timeLogId: 'log-1',
+					startedAt: '2026-11-04T22:17:30.000Z',
+					duration: 150
+				})
+			],
+			[
+				'/timesheet/time-slot',
+				expect.objectContaining({ timeLogId: 'log-1', startedAt: '2026-11-04T22:20:00.000Z', duration: 270 })
+			]
+		]);
+	});
+
+	it('writes the whole time through the sync route in proxy mode', async () => {
+		mockFallbackPost.mockResolvedValue({ data: { running: true } });
+
+		const answer = await timerService.catchUpTimeSlots(kept);
+
+		expect(mockFallbackPost.mock.calls).toEqual([
+			[
+				expect.stringMatching(/^\/timer\/sync\?/),
+				{
+					source: ETimeLogSource.TEAMS,
+					timeLogId: 'log-1',
+					startedAt: '2026-11-04T22:17:30.000Z',
+					duration: 150
+				}
+			],
+			[
+				expect.stringMatching(/^\/timer\/sync\?/),
+				{
+					source: ETimeLogSource.TEAMS,
+					timeLogId: 'log-1',
+					startedAt: '2026-11-04T22:20:00.000Z',
+					duration: 270
+				}
+			]
+		]);
+		expect(answer?.data).toEqual({ running: true });
+	});
+
+	it('tells how far it wrote when a write fails part way, so the rest is written from there', async () => {
+		mockFallbackPost.mockResolvedValueOnce({ data: {} }).mockRejectedValueOnce(new Error('Network Error'));
+		const onWritten = jest.fn();
+
+		await expect(timerService.catchUpTimeSlots({ ...kept, onWritten })).rejects.toThrow('Network Error');
+
+		expect(onWritten.mock.calls).toEqual([[Date.parse('2026-11-04T22:20:00.000Z')]]);
+	});
+
+	it('leaves the next heartbeat to write the minute after it, not the time it wrote again', async () => {
+		await timerService.catchUpTimeSlots(kept);
+		mockFallbackPost.mockClear();
+		jest.advanceTimersByTime(60_000);
+
+		await timerService.syncTimer({ source: ETimeLogSource.TEAMS, timeLogId: 'log-1' });
+
+		expect(mockFallbackPost).toHaveBeenCalledWith(expect.stringMatching(/^\/timer\/sync\?/), {
+			source: ETimeLogSource.TEAMS,
+			duration: 60
+		});
+	});
+});
+
+describe('timeSlotsBetween', () => {
+	const at = (time: string) => Date.parse(`2026-11-04T${time}.000Z`);
+
+	it('holds the time in one slot within a window', () => {
+		expect(timeSlotsBetween(at('22:21:00'), at('22:28:00'))).toEqual([
+			{ startedAt: '2026-11-04T22:21:00.000Z', duration: 420, untilMs: at('22:28:00') }
+		]);
+	});
+
+	it('splits a longer time at each window, a slot holding 600 seconds at most, across midnight too', () => {
+		expect(timeSlotsBetween(at('23:55:00'), Date.parse('2026-11-05T00:17:00.000Z'))).toEqual([
+			{ startedAt: '2026-11-04T23:55:00.000Z', duration: 300, untilMs: Date.parse('2026-11-05T00:00:00.000Z') },
+			{ startedAt: '2026-11-05T00:00:00.000Z', duration: 600, untilMs: Date.parse('2026-11-05T00:10:00.000Z') },
+			{ startedAt: '2026-11-05T00:10:00.000Z', duration: 420, untilMs: Date.parse('2026-11-05T00:17:00.000Z') }
+		]);
+	});
+
+	it('holds nothing for no time, or a time that ends before it starts', () => {
+		expect(timeSlotsBetween(at('22:21:00'), at('22:21:00'))).toEqual([]);
+		expect(timeSlotsBetween(at('22:21:00'), at('22:20:00'))).toEqual([]);
+		expect(timeSlotsBetween(Number.NaN, at('22:20:00'))).toEqual([]);
 	});
 });

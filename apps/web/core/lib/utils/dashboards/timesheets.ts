@@ -14,6 +14,7 @@ import {
 	subDays
 } from 'date-fns';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
+import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import type { Period, WeekStart } from '@/core/lib/utils/dashboard-period';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
@@ -177,9 +178,13 @@ function statusesPresentIn(logs: ReadonlyArray<ITimeLog>): ETimesheetStatus[] {
 	return TIMESHEET_STATUS_ORDER.filter((status) => present.has(status));
 }
 
+// The worked time: a break is listed among the entries but is never worked time (#5216)
 function totalSecondsOf(logs: ReadonlyArray<ITimeLog>) {
 	let total = 0;
 	for (const log of logs) {
+		if (isBreakLog(log)) {
+			continue;
+		}
 		total += logDurationSeconds(log);
 	}
 	return total;
@@ -234,11 +239,14 @@ function emptySummary(): StatusSummary {
 	};
 }
 
-/** The number of logs and the time per status, over every log given (never a page of them). */
+/**
+ * The number of logs and the time per status, over every log given (never a page of them). A break counts among the
+ * entries the card lists, never in its time, which is worked time like the totals of the page (#5216).
+ */
 export function statusSummaryOf(logs: ReadonlyArray<ITimeLog>): StatusSummary {
 	const summary = emptySummary();
 	for (const log of logs) {
-		const seconds = logDurationSeconds(log);
+		const seconds = isBreakLog(log) ? 0 : logDurationSeconds(log);
 		summary[ALL_STATUSES].count += 1;
 		summary[ALL_STATUSES].seconds += seconds;
 		const status = statusOfLog(log);

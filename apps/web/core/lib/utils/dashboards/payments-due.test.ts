@@ -1,5 +1,14 @@
 import type { TOwedReportDay } from '@/core/types/schemas/timer/time-log-reports.schema';
-import { owedFiguresOf, owedLinesOf, payLineEmployeeIdsOf, rateShownOf, type PaymentsMember } from './payments-due';
+import {
+	currencyRankOf,
+	memberGroupsOf,
+	owedFiguresOf,
+	owedLinesOf,
+	owedNoteKeyOf,
+	payLineEmployeeIdsOf,
+	rateShownOf,
+	type PaymentsMember
+} from './payments-due';
 
 type Entry = TOwedReportDay['employees'][number];
 
@@ -171,5 +180,87 @@ describe('payLineEmployeeIdsOf', () => {
 		];
 
 		expect(payLineEmployeeIdsOf(report)).toEqual(['ana']);
+	});
+});
+
+describe('the rate each entry stores (#5212)', () => {
+	function storedEntry(seconds: number, amount: number, currentRate: number | null, extra: Partial<Entry> = {}) {
+		return entry('ana', seconds, amount, {
+			employee: { id: 'ana', billRateValue: currentRate, billRateCurrency: 'USD', user: { name: 'ana' } },
+			...extra
+		});
+	}
+
+	it('shows the rate that priced a day when it is not the current one', () => {
+		const [line] = linesOf([{ date: '2026-10-05', employees: [storedEntry(7.5 * 3600, 300, 50)] }]);
+
+		expect(line.rate).toBe(40);
+		expect(line.amount).toBe(300);
+	});
+
+	it('works out the plainest rate that gives a short entry its rounded amount', () => {
+		const [line] = linesOf([{ date: '2026-10-05', employees: [storedEntry(60, 0.67, 50)] }]);
+
+		expect(line.rate).toBe(40);
+	});
+
+	it('prices time tracked at a rate the member no longer has', () => {
+		const [line] = linesOf([{ date: '2026-10-05', employees: [storedEntry(3600, 40, null)] }]);
+
+		expect(line.rate).toBe(40);
+		expect(line.amount).toBe(40);
+	});
+
+	it('leaves unpriced the time tracked before the member had a rate', () => {
+		const [line] = linesOf([{ date: '2026-10-05', employees: [storedEntry(3600, 0, 50)] }]);
+
+		expect(line.rate).toBeNull();
+		expect(line.amount).toBeNull();
+	});
+
+	it('shows the stored pay rate of a day the current pay rate did not price', () => {
+		const payDay = storedEntry(3600, 25, 50, { rateSource: 'pay', currency: 'EUR' });
+
+		const [line] = linesOf([{ date: '2026-10-05', employees: [payDay] }], true, new Map([['ana', 30]]));
+
+		expect(line.rate).toBe(25);
+	});
+
+	it('gives each currency of a member’s day a line of its own', () => {
+		const lines = linesOf([
+			{
+				date: '2026-10-05',
+				employees: [
+					storedEntry(3600, 40, 40, { currency: 'USD' }),
+					storedEntry(3600, 35, 40, { currency: 'EUR' })
+				]
+			}
+		]);
+
+		expect(new Set(lines.map((line) => line.key)).size).toBe(2);
+	});
+
+	it('says a member’s period at two rates has several, and one at a single rate states it', () => {
+		const lines = linesOf([
+			{ date: '2026-10-30', employees: [storedEntry(3600, 40, 50)] },
+			{ date: '2026-11-02', employees: [storedEntry(3600, 50, 50)] }
+		]);
+		const rankOf = currencyRankOf(owedFiguresOf(lines).currencies);
+
+		const [mixed] = memberGroupsOf(lines, rankOf);
+		const [single] = memberGroupsOf(lines.slice(1), rankOf);
+
+		expect(mixed.hasSeveralRates).toBe(true);
+		expect(mixed.rate).toBeNull();
+		expect(mixed.amount).toBe(90);
+		expect(rateShownOf(mixed)).toBe('several');
+		expect(single.hasSeveralRates).toBe(false);
+		expect(single.rate).toBe(50);
+	});
+
+	it('notes the rate of each entry where time keeps its rate, else each member’s current rate', () => {
+		expect(owedNoteKeyOf('keepsItsRate')).toBe('dashboard.paymentsDue.NOTE_STORED_RATES');
+		expect(owedNoteKeyOf('takesNewRate')).toBe('dashboard.paymentsDue.NOTE');
+		expect(owedNoteKeyOf(null)).toBe('dashboard.paymentsDue.NOTE');
 	});
 });

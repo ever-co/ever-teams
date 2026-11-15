@@ -1,5 +1,6 @@
 'use client';
 
+import { usePastTimeRule } from '@/core/hooks/organizations/rates/use-past-time-rule';
 import { type CSSProperties, memo } from 'react';
 import { useTranslations } from 'next-intl';
 import { limitVerdictTextClassOf } from '@/core/components/dashboards/kit/meters';
@@ -13,7 +14,8 @@ import {
 	type BudgetScope,
 	type BudgetTotal,
 	type PortfolioMeter,
-	type PortfolioSegment
+	type PortfolioSegment,
+	costNoteKeyOf
 } from '@/core/lib/utils/dashboards/project-budget';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { budgetNotesOf, costBudgetsLabelOf, MISSING_FIGURE, remainingLabelOf, shareTextOf } from './budget-cells';
@@ -193,13 +195,14 @@ export interface ProjectBudgetPortfolioProps {
 /** The portfolio: one meter per unit, hours first, then each currency on its own; they are never added together. */
 export function ProjectBudgetPortfolio({ meters, figures, scope, isLoading }: Readonly<ProjectBudgetPortfolioProps>) {
 	const t = useTranslations();
+	const costNoteKey = costNoteKeyOf(usePastTimeRule());
 	if (isLoading) {
 		return <ProjectBudgetPortfolioSkeleton />;
 	}
 	const hoursMeter = meters.find((meter) => isHoursBudget(meter.total));
 	const costMeters = meters.filter((meter) => !isHoursBudget(meter.total));
 	const hasCostMeters = costMeters.length > 0;
-	const notes = budgetNotesOf(figures, scope, t);
+	const notes = budgetNotesOf(figures, scope, t, costNoteKey);
 	const hasNotes = notes.length > 0;
 	const label = t('dashboard.projectBudget.FIGURES_LABEL');
 

@@ -5,6 +5,7 @@ import type {
 	IRateChangeRequestInput,
 	TEmployeePayRate,
 	TProjectRates,
+	TRateSaveAnswer,
 	TRateChangeRequestResult
 } from '@/core/types/schemas/organization/rates.schema';
 
@@ -32,14 +33,15 @@ export function getProjectRatesRequest({
 export function updateProjectRateRequest({
 	projectId,
 	billRateValue,
+	applyFrom,
 	organizationId,
 	bearer_token,
 	tenantId
-}: IGauzyCall & { projectId: string; billRateValue: number | null }) {
-	return serverFetch<TProjectRates>({
+}: IGauzyCall & { projectId: string; billRateValue: number | null; applyFrom?: string }) {
+	return serverFetch<TProjectRates & TRateSaveAnswer>({
 		path: `/organization-projects/${encodeURIComponent(projectId)}/rate`,
 		method: 'PUT',
-		body: { organizationId, tenantId, billRateValue },
+		body: { organizationId, tenantId, billRateValue, applyFrom },
 		bearer_token,
 		tenantId
 	});
@@ -49,16 +51,19 @@ export function updateProjectMemberRateRequest({
 	projectId,
 	employeeId,
 	billRateValue,
+	applyFrom,
 	organizationId,
 	bearer_token,
 	tenantId
-}: IGauzyCall & { projectId: string; employeeId: string; billRateValue: number | null }) {
+}: IGauzyCall & { projectId: string; employeeId: string; billRateValue: number | null; applyFrom?: string }) {
 	const projectSegment = encodeURIComponent(projectId);
 	const employeeSegment = encodeURIComponent(employeeId);
-	return serverFetch<{ organizationProjectId: string; employeeId: string; billRateValue: number | string | null }>({
+	return serverFetch<
+		{ organizationProjectId: string; employeeId: string; billRateValue: number | string | null } & TRateSaveAnswer
+	>({
 		path: `/organization-projects/${projectSegment}/members/${employeeSegment}/rate`,
 		method: 'PUT',
-		body: { organizationId, tenantId, billRateValue },
+		body: { organizationId, tenantId, billRateValue, applyFrom },
 		bearer_token,
 		tenantId
 	});

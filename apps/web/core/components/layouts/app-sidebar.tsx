@@ -97,6 +97,8 @@ import { useInboxAvailability } from '@/core/hooks/inbox/use-inbox-availability'
 import { useInboxCounts } from '@/core/hooks/inbox/use-inbox-items';
 import { useUnreadNotificationCount } from '@/core/hooks/notifications/use-notification-inbox';
 import { useInvoiceAccess } from '@/core/hooks/invoices/use-invoice-access';
+import { useTimeGoals } from '@/core/hooks/time-goals/use-time-goals';
+import { shellSettledState } from '@/core/stores/common/shell';
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 
@@ -135,6 +137,11 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const activeTeam = useAtomValue(activeTeamState);
 	const pathname = usePathname();
 	const myWorkNavigation = getMyWorkNavigation();
+	// Goals is listed where the platform has time goals (ever-co/ever-gauzy#11918); an older one answers 404. Asked
+	// once the shell has settled: the entry is no part of the first screen (startup-performance.cy.ts)
+	const shellSettled = useAtomValue(shellSettledState);
+	const { availability: goalsAvailability } = useTimeGoals({ enabled: shellSettled });
+	const showsGoals = goalsAvailability === 'available';
 
 	// The sidebar lists the projects of the team picked in the header. "All teams" is the
 	// /all-teams page (the header entry links there), not a cleared team: activeTeamState falls
@@ -460,7 +467,10 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 						title: t('dashboard.myWeek.TITLE'),
 						label: 'my-week',
 						url: myWorkNavigation.myWeek
-					}
+					},
+					...(showsGoals
+						? [{ title: t('dashboard.goals.TITLE'), label: 'goals', url: myWorkNavigation.goals }]
+						: [])
 				]
 			},
 			...(isTeamManager ? [reportsEntry] : [])
@@ -480,6 +490,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		myWorkNavigation.timeAndActivity,
 		myWorkNavigation.workDiary,
 		myWorkNavigation.myWeek,
+		myWorkNavigation.goals,
+		showsGoals,
 		isTeamManager,
 		canViewInvoices,
 		savedViews

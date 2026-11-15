@@ -2063,12 +2063,18 @@ describe('Ever Teams feature surface preservation', () => {
 		// disable, recovery-codes and verify POST, users/[userId] DELETE; #5210).
 		// 373 files and 472 verbs with the history of a time entry and the changes of a period
 		// (GET /api/timesheet/time-log/[id]/history, GET /api/timesheet/time-log/history; #5222).
-		// 377 files and 479 verbs with the saved reports proxies (/api/saved-reports GET and POST, [id] PUT and DELETE,
+		// 378 files and 478 verbs with the time goals proxies (/api/time-goals GET and POST, progress GET, [id] PUT,
+		// [id]/archive PUT, [id]/restore PUT; #5213).
+		// 381 files and 481 verbs with the signed-in user's sessions (/api/auth/sessions GET, sign-out-others POST, [id]
+		// DELETE; #5220, ever-gauzy #11943).
+		// 388 files and 488 verbs with the deletion of an organization (/api/organization/[id]/counts GET,
+		// [id]/soft DELETE; #5207, ever-gauzy #11970).
+		// 392 files and 495 verbs with the saved reports proxies (/api/saved-reports GET and POST, [id] PUT and DELETE,
 		// [id]/share POST and DELETE, /api/public/saved-reports/[token] GET; #5200).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(377);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(392);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(479);
+		).toHaveLength(495);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's saved reports routes and the read of a shared report (ever-gauzy #11912, #5200)
@@ -2079,6 +2085,26 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/saved-reports/[id]/share/route.ts::POST',
 				'apps/web/app/api/saved-reports/[id]/share/route.ts::DELETE',
 				'apps/web/app/api/public/saved-reports/[token]/route.ts::GET',
+				// Proxy mode twins of Gauzy's routes of an organization's deletion (#5207, ever-gauzy #11970)
+				'apps/web/app/api/organization/[id]/counts/route.ts::GET',
+				'apps/web/app/api/organization/[id]/soft/route.ts::DELETE',
+				// Proxy mode twins of Gauzy's members without an account (ever-gauzy #11913, #5202)
+				'apps/web/app/api/employee-placeholder/route.ts::POST',
+				'apps/web/app/api/employee-placeholder/bulk/route.ts::POST',
+				'apps/web/app/api/employee-placeholder/[id]/claim/route.ts::POST',
+				'apps/web/app/api/employee-placeholder/[id]/merge-preview/route.ts::GET',
+				'apps/web/app/api/employee-placeholder/[id]/merge/route.ts::POST',
+				// Proxy mode twins of Gauzy's routes of the signed-in user's own sessions (#5220, ever-gauzy #11943)
+				'apps/web/app/api/auth/sessions/route.ts::GET',
+				'apps/web/app/api/auth/sessions/sign-out-others/route.ts::POST',
+				'apps/web/app/api/auth/sessions/[id]/route.ts::DELETE',
+				// Proxy mode twins of the platform's time goal routes (#5213, ever-co/ever-gauzy#11918)
+				'apps/web/app/api/time-goals/route.ts::GET',
+				'apps/web/app/api/time-goals/route.ts::POST',
+				'apps/web/app/api/time-goals/progress/route.ts::GET',
+				'apps/web/app/api/time-goals/[id]/route.ts::PUT',
+				'apps/web/app/api/time-goals/[id]/archive/route.ts::PUT',
+				'apps/web/app/api/time-goals/[id]/restore/route.ts::PUT',
 				// Proxy mode twins of Gauzy's personal API token routes (#5209)
 				'apps/web/app/api/user-api-tokens/config/route.ts::GET',
 				'apps/web/app/api/user-api-tokens/route.ts::GET',

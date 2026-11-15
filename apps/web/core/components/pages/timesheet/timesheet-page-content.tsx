@@ -356,6 +356,12 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 									loading={loadingTimesheet}
 									key={`calendarview-${dateRange.from?.getTime()}-${dateRange.to?.getTime()}`}
 								/>
+								{/* Always mounted: a live region that appears together with its text is often not announced */}
+								<div role="status" className="sr-only">
+									{selectTimesheetId.length > 0
+										? t('dashboard.timesheets.SELECTED', { count: selectTimesheetId.length })
+										: ''}
+								</div>
 								{selectTimesheetId.length > 0 && (
 									<SelectedTimesheet
 										selectTimesheetId={selectTimesheetId}

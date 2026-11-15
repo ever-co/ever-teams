@@ -24,7 +24,7 @@ export function useProjectPeopleRates(project: TOrganizationProject) {
 	const canManage = canManageProjectRates({ permissions: myPermissions, members: project.members, employeeId });
 	const readsRates = permissionsLoaded && canManage;
 	const { data, isLoading, isError, isUnavailable, refetch } = useProjectRates(project.id, readsRates);
-	const { saveProjectRate, saveMemberRate } = useProjectRateMutations(project.id);
+	const { saveProjectRate: saveProjectRateOf, saveMemberRate } = useProjectRateMutations(project.id);
 
 	const memberRates = useMemo(() => {
 		const rates = new Map<string, number | null>();
@@ -39,9 +39,14 @@ export function useProjectPeopleRates(project: TOrganizationProject) {
 		[memberRates]
 	);
 
+	const saveProjectRate = useCallback(
+		(billRateValue: number | null, applyFrom?: string) => saveProjectRateOf({ billRateValue, applyFrom }),
+		[saveProjectRateOf]
+	);
+
 	const saveMemberRateOf = useCallback(
-		(memberEmployeeId: string, billRateValue: number | null) =>
-			saveMemberRate({ employeeId: memberEmployeeId, billRateValue }),
+		(memberEmployeeId: string, billRateValue: number | null, applyFrom?: string) =>
+			saveMemberRate({ employeeId: memberEmployeeId, billRateValue, applyFrom }),
 		[saveMemberRate]
 	);
 
