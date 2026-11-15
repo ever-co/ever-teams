@@ -4,13 +4,14 @@
  * agent of the request that renews a session, and names the session's device with it in Settings > Profile >
  * Sessions: the renewal carries the browser's, not this server's own ("node", an unknown device). ever-co/ever-gauzy#11983.
  */
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { currentAuthenticatedUserRequest, refreshTokenRequest } from '@/core/services/server/requests/auth';
 import { proxy } from '@/proxy';
 
 jest.mock('next-intl/middleware', () => ({
 	__esModule: true,
-	default: jest.fn(() => jest.fn(() => new Response(null)))
+	// A Next response: the proxy writes the renewed tokens to its cookie store
+	default: jest.fn(() => jest.fn(() => NextResponse.next()))
 }));
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/core/services/server/requests/auth', () => ({
