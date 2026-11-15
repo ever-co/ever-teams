@@ -4,6 +4,10 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { organizationSchema, validateApiResponse, ZodValidationError, type TOrganization } from '@/core/types/schemas';
 import { scopedReadConfig, ScopedReadOptions } from '../../api-request-scope';
 import { withNewOrganizationTrackingRequirements } from '@/core/constants/config/organization-creation';
+import {
+	organizationCountSchema,
+	organizationCountsSchema
+} from '@/core/types/schemas/organization/organization-counts.schema';
 
 /** What a save changes. A format saved as null leaves every reader with their own language's way again. */
 export type TOrganizationChanges = Partial<Omit<IOrganization, 'dateFormat' | 'numberFormat'>> & {
@@ -55,6 +59,26 @@ class OrganizationService extends APIService {
 			}
 			throw error;
 		}
+	};
+
+	/** What the organization holds (teams, projects, members, tracked seconds, invoices), before it is deleted. */
+	getOrganizationCounts = async (id: string) => {
+		const response = await this.get(`/organization/${id}/counts`, { tenantId: this.tenantId });
+		return validateApiResponse(organizationCountsSchema, response.data, 'getOrganizationCounts API response');
+	};
+
+	/**
+	 * Gauzy's soft delete: the organization leaves sign-in and every list with its teams, memberships and invitations,
+	 * its members move to another of their organizations, and the last organization of a workspace is refused (409).
+	 */
+	softDeleteOrganization = async (id: string) => {
+		await this.delete(`/organization/${id}/soft`, { tenantId: this.tenantId });
+	};
+
+	/** How many live organizations the workspace holds, as Gauzy counts them before refusing its last one. */
+	countWorkspaceOrganizations = async () => {
+		const response = await this.get(`/organization/count`, { tenantId: this.tenantId });
+		return validateApiResponse(organizationCountSchema, response.data, 'countWorkspaceOrganizations API response');
 	};
 }
 

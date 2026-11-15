@@ -175,7 +175,10 @@ export const queryKeys = {
 	organizations: {
 		all: ['organizations'] as const,
 		detail: (organizationId: string | undefined | null) =>
-			['organizations', ...(organizationId ? [organizationId] : [])] as const
+			['organizations', ...(organizationId ? [organizationId] : [])] as const,
+		/** What the confirmation of an organization's deletion reads: its counts, and the workspace's organizations. */
+		deletionFacts: (organizationId: string | undefined | null) =>
+			['organizations', 'deletion-facts', organizationId ?? null] as const
 	},
 	teams: {
 		all: ['teams'] as const,
