@@ -185,7 +185,10 @@ describe('End break', () => {
 	});
 
 	it('stops nothing for a break shown without its id, which it could not tell from another', async () => {
-		const breakWithoutId = { ...breakRunning, lastLog: { ...breakRunning.lastLog, id: undefined } } as ITimerStatus;
+		const breakWithoutId = {
+			...breakRunning,
+			lastLog: { ...breakRunning.lastLog, id: undefined }
+		} as unknown as ITimerStatus;
 		mockGetTimerStatus.mockResolvedValue({ data: breakRunning });
 		const { result } = renderBreak(
 			breakWithoutId,
@@ -293,5 +296,106 @@ describe('A break in the organization switch guard', () => {
 
 		expect(store.get(timerStartsInFlightState)).toBe(0);
 		expect(mockToastError).toHaveBeenCalledTimes(1);
+	});
+});
+
+/**
+ * After a break starts or ends, the timer shows the old state until its status is read again: the switch guard and
+ * the timer's pending buttons hold until that read settles, failed or not.
+ */
+describe('A break holds the switch guard through the status read after it', () => {
+	/** Makes the timer's status read wait until `land` is called; the other reads answer at once. */
+	function holdStatusRead(queryClient: QueryClient, outcome: 'answers' | 'fails' = 'answers') {
+		let land = () => {};
+		const statusRead = new Promise<void>((resolve, reject) => {
+			land = () => (outcome === 'answers' ? resolve() : reject(new Error('Network Error')));
+		});
+		jest.spyOn(queryClient, 'invalidateQueries').mockImplementation((filters) => {
+			const isStatusRead = filters?.queryKey === queryKeys.timer.all;
+			return isStatusRead ? statusRead : Promise.resolve();
+		});
+		return () => land();
+	}
+
+	it('counts a break start, with Take a break pending, until the timer shows the break', async () => {
+		mockStartBreak.mockResolvedValue(undefined);
+		const { result, store, queryClient } = renderBreak(
+			workRunning,
+			jest.fn(async () => undefined)
+		);
+		const landStatusRead = holdStatusRead(queryClient);
+
+		let taking: Promise<void> = Promise.resolve();
+		act(() => {
+			taking = result.current.takeBreak();
+		});
+		await waitFor(() =>
+			expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.timer.all })
+		);
+		// The break started: the status read after it has not answered
+		expect(store.get(timerStartsInFlightState)).toBe(1);
+		expect(result.current.pendingAction).toBe('take');
+
+		await act(async () => {
+			landStatusRead();
+			await taking;
+		});
+
+		expect(store.get(timerStartsInFlightState)).toBe(0);
+		expect(result.current.pendingAction).toBeNull();
+	});
+
+	it('counts a break end, with End break pending, until the timer shows it ended', async () => {
+		mockGetTimerStatus.mockResolvedValue({ data: breakRunning });
+		mockStopTimer.mockResolvedValue({ data: { running: false, lastLog: null } });
+		const { result, store, queryClient } = renderBreak(
+			breakRunning,
+			jest.fn(async () => undefined)
+		);
+		const landStatusRead = holdStatusRead(queryClient);
+
+		let ending: Promise<void> = Promise.resolve();
+		act(() => {
+			ending = result.current.endBreak();
+		});
+		await waitFor(() =>
+			expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.timer.all })
+		);
+		expect(mockStopTimer).toHaveBeenCalledTimes(1);
+		expect(store.get(timerStartsInFlightState)).toBe(1);
+		expect(result.current.pendingAction).toBe('end');
+
+		await act(async () => {
+			landStatusRead();
+			await ending;
+		});
+
+		expect(store.get(timerStartsInFlightState)).toBe(0);
+		expect(result.current.pendingAction).toBeNull();
+	});
+
+	it('releases both when the status read fails', async () => {
+		mockStartBreak.mockResolvedValue(undefined);
+		const { result, store, queryClient } = renderBreak(
+			workRunning,
+			jest.fn(async () => undefined)
+		);
+		const failStatusRead = holdStatusRead(queryClient, 'fails');
+
+		let taking: Promise<void> = Promise.resolve();
+		act(() => {
+			taking = result.current.takeBreak();
+		});
+		await waitFor(() =>
+			expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.timer.all })
+		);
+
+		await act(async () => {
+			failStatusRead();
+			await taking;
+		});
+
+		expect(store.get(timerStartsInFlightState)).toBe(0);
+		expect(result.current.pendingAction).toBeNull();
 	});
 });
