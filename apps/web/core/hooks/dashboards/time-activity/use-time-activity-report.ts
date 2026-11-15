@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks/auth';
@@ -346,7 +346,19 @@ export function useTimeActivityReport() {
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const ownEmployeeId = user?.employee?.id;
 	const settings = useTimeActivitySettings();
-	const [period, setPeriod] = useState<Period>(defaultPeriodOf);
+	const [defaultPeriod] = useState<Period>(defaultPeriodOf);
+	const { linkedPeriod, holdsView, setPeriod: writePeriod } = settings;
+	const period = linkedPeriod ?? defaultPeriod;
+
+	// A visit whose link names no period writes its view into the link at once, so its address can be copied
+	useEffect(() => {
+		if (holdsView) {
+			return;
+		}
+		writePeriod(defaultPeriod);
+	}, [defaultPeriod, holdsView, writePeriod]);
+
+	const setPeriod = useCallback((nextPeriod: Period) => writePeriod(nextPeriod), [writePeriod]);
 
 	const request = useMemo(() => {
 		const access: ReportAccess = { isManager, isOrganizationWide, managedTeams: userManagedTeams };
