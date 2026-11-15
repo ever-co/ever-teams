@@ -234,6 +234,10 @@ describe('MyWeekPage', () => {
 		const figures = summary();
 		expect(within(figures).getByText('dashboard.timeActivity.columns.BILLABLE')).toBeTruthy();
 		expect(within(figures).getByText(/1,480/)).toBeTruthy();
+		// The amount says it is priced at today's rates, not at those of each entry's time
+		expect(within(figures).getByText(/1,480/).getAttribute('title')).toContain(
+			'dashboard.myWeek.BILLABLE_RATES_HINT'
+		);
 		expect(within(figures).getByText('dashboard.myWeek.BILLABLE_UNPRICED:{"duration":"2h 0m"}')).toBeTruthy();
 	});
 

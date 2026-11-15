@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
 import { LimitMeter, limitVerdictTextClassOf } from '@/core/components/dashboards/kit/meters';
-import { DASHBOARD_SURFACE } from '@/core/components/dashboards/kit/recipes';
+import { DASHBOARD_SURFACE, SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { DurationValue } from '@/core/components/dashboards/team/team-duration-value';
 import { VERDICT_LABEL_KEYS } from '@/core/components/dashboards/weekly-limit/limit-cells';
 import type { MyWeekBillable, MyWeekPageState } from '@/core/hooks/dashboards/my-week/use-my-week-page';
@@ -17,7 +17,6 @@ import {
 } from '@/core/lib/utils/dashboard-figures';
 import type { MyWeekPeriodKey, MyWeekTarget } from '@/core/lib/utils/dashboards/my-week';
 import { leftOf, limitShareLabelOf, overrunOf } from '@/core/lib/utils/dashboards/weekly-limit';
-import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { MyWeekDays } from './my-week-days';
 import { MY_WEEK_FIGURE_PANE, MY_WEEK_SUMMARY_GRID } from './my-week-recipes';
@@ -170,8 +169,10 @@ function BillableAmountFigure({ billable }: Readonly<{ billable: MyWeekBillable 
 	if (amounts.length > 0) {
 		value = formatAmounts(amounts, locale);
 	}
+	// The rates of today price the week: the amount says so, a rate changed since included
+	const title = `${value} · ${t('dashboard.myWeek.BILLABLE_RATES_HINT')}`;
 	return (
-		<SupportingFigure label={label} value={<span title={value}>{value}</span>} hint={billableHintOf(billable, t)} />
+		<SupportingFigure label={label} value={<span title={title}>{value}</span>} hint={billableHintOf(billable, t)} />
 	);
 }
 
