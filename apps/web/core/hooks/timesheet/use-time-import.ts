@@ -6,6 +6,7 @@ import { useTimesheetInvalidation } from '@/core/hooks/timesheet/use-timesheet-i
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { requiredTrackingFieldsOf } from '@/core/lib/helpers/timer-errors';
+import { withImportMembersAdded } from '@/core/lib/utils/time-import-access';
 import { chunksOf } from '@/core/lib/utils/dashboards/timesheets';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { safeGetLocalStorage, safeSetLocalStorage } from '@/core/lib/utils/local-storage-cleanup';
@@ -32,6 +33,7 @@ import {
 	type TimeImportContext,
 	type TimeImportEntry,
 	type TimeImportLookup,
+	type TimeImportMember,
 	type TimeImportOutcome,
 	type TimeImportRow,
 	type TimeImportRun,
@@ -283,10 +285,14 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 		return () => window.removeEventListener('beforeunload', warnBeforeLeaving);
 	}, [isSaving]);
 
+	// Members added for the file (members without an account), named before the team reads them back
+	const addedMembersRef = useRef<ReadonlyArray<TimeImportMember>>([]);
+
 	const check = useCallback(
 		async (sheet: TimeImportSheet): Promise<TimeImportRow[]> => {
 			const now = new Date();
-			const drafts = draftRowsOf(sheet.rows, contextAt(now), sheet.dateOrder);
+			const context = withImportMembersAdded(contextAt(now), addedMembersRef.current);
+			const drafts = draftRowsOf(sheet.rows, context, sheet.dateOrder);
 			const lookups = timeImportLookupsOf(drafts);
 			const logsByLookup = await readRecordedLogs(queryClient, lookups);
 			return checkedRowsOf({ rows: drafts, logsByLookup, now });
@@ -357,6 +363,20 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 			void checkSheet(staged);
 		}
 	}, [checkSheet, state]);
+
+	/** Checks the previewed file again, its rows now able to name the members just added for it. */
+	const recheckWithMembers = useCallback(
+		async (members: ReadonlyArray<TimeImportMember>) => {
+			addedMembersRef.current = [...addedMembersRef.current, ...members];
+			const staged = stagedFileOf(state);
+			const isPreview = state.stage === 'preview';
+			if (!staged || !isPreview) {
+				return;
+			}
+			await checkSheet(staged);
+		},
+		[checkSheet, state]
+	);
 
 	const reset = useCallback(() => {
 		runRef.current += 1;
@@ -518,6 +538,7 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 		hasPreviewChanged: state.hasPreviewChanged,
 		chooseFile,
 		retryCheck,
+		recheckWithMembers,
 		chooseColumn,
 		chooseDateOrder,
 		confirmColumns,

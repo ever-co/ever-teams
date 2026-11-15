@@ -136,6 +136,7 @@ function timeImportOf(rows: TimeImportRow[], overrides: Partial<TimeImport> = {}
 		hasPreviewChanged: false,
 		chooseFile: jest.fn(),
 		retryCheck: jest.fn(),
+		recheckWithMembers: jest.fn(),
 		chooseColumn: jest.fn(),
 		chooseDateOrder: jest.fn(),
 		confirmColumns: jest.fn(),
