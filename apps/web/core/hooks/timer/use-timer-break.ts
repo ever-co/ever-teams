@@ -18,6 +18,39 @@ import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 
 const SECOND_MS = 1000;
 
+/** Gauzy's answer to a stop naming a run that is no longer the running one: nothing was stopped. */
+const RUN_CHANGED_STATUS = 409;
+
+/**
+ * Ends the break this tab shows, and nothing else: Gauzy's stop ends whatever runs. The break is read afresh and named
+ * in the stop, so work another tab or device started meanwhile goes on. A fresh status showing another run, or Gauzy's
+ * 409 to a stop that reached it after the run changed, means the run changed: nothing is stopped, and the display
+ * follows the run that goes on.
+ *
+ * @param shownBreakId The break this tab shows, null when it does not know its id.
+ * @param source The app the break was started with, which the stop names.
+ */
+async function endShownBreak(shownBreakId: string | null, source: ETimeLogSource): Promise<void> {
+	const { data: status } = await timerService.getTimerStatus();
+	const freshBreakId = timerBreakStateOf(status).isOnBreak ? status?.lastLog?.id : undefined;
+	if (!freshBreakId) {
+		return;
+	}
+	const isShownBreak = shownBreakId === null || freshBreakId === shownBreakId;
+	if (!isShownBreak) {
+		return;
+	}
+	try {
+		await timerService.stopTimer({ source, timeLogId: freshBreakId });
+	} catch (error) {
+		const isRunChanged = ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(RUN_CHANGED_STATUS);
+		if (isRunChanged) {
+			return;
+		}
+		throw error;
+	}
+}
+
 /** The break request on its way, which disables the timer's buttons until its answer. */
 export type TPendingBreakAction = 'take' | 'end' | null;
 
@@ -39,6 +72,7 @@ export function useTimerBreak(timerStatus: ITimerStatus | null | undefined, stop
 	const [pendingAction, setPendingAction] = useState<TPendingBreakAction>(null);
 	const taskId = timerStatus?.lastLog?.taskId ?? null;
 	const breakSource = timerStatus?.lastLog?.source ?? ETimeLogSource.TEAMS;
+	const shownBreakId = breakState.isOnBreak ? (timerStatus?.lastLog?.id ?? null) : null;
 
 	// The timer, the team's cards and the entries the break changed
 	const refreshAfterBreak = useCallback(async () => {
@@ -93,12 +127,7 @@ export function useTimerBreak(timerStatus: ITimerStatus | null | undefined, stop
 	const endBreak = useCallback(async () => {
 		setPendingAction('end');
 		try {
-			// Gauzy's stop ends whatever runs: when another tab or device went back to work since this one read its
-			// status, that work goes on, and this tab only shows it
-			const { data: status } = await timerService.getTimerStatus();
-			if (timerBreakStateOf(status).isOnBreak) {
-				await timerService.stopTimer({ source: breakSource });
-			}
+			await endShownBreak(shownBreakId, breakSource);
 		} catch (error) {
 			// 406: another tab or device ended it first
 			const isAlreadyEnded = ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(406);
@@ -110,7 +139,7 @@ export function useTimerBreak(timerStatus: ITimerStatus | null | undefined, stop
 			setPendingAction(null);
 			await refreshAfterBreak();
 		}
-	}, [breakSource, refreshAfterBreak, t]);
+	}, [breakSource, refreshAfterBreak, shownBreakId, t]);
 
 	return { allowsBreaks, breakState, pendingAction, takeBreak, endBreak };
 }

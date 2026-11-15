@@ -10,6 +10,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createStore, Provider } from 'jotai';
 import type { PropsWithChildren } from 'react';
 
+import { queryKeys } from '@/core/query/keys';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { activeTeamIdState } from '@/core/stores';
 import { ETimeLogSource, ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
@@ -60,7 +62,17 @@ function renderBreak(timerStatus: ITimerStatus, stopWork: () => Promise<unknown>
 			<Provider store={store}>{children}</Provider>
 		</QueryClientProvider>
 	);
-	return renderHook(() => useTimerBreak(timerStatus, stopWork), { wrapper });
+	return { ...renderHook(() => useTimerBreak(timerStatus, stopWork), { wrapper }), store, queryClient };
+}
+
+/** Gauzy's refusal as Axios reports it, read by the API error service as the app's requests are. */
+function gauzyRefusalOf(status: number, message: string) {
+	return ApiErrorService.fromAxiosError({
+		message: `Request failed with status code ${status}`,
+		code: 'ERR_BAD_REQUEST',
+		status,
+		response: { data: { statusCode: status, message }, headers: {}, status, statusText: '' }
+	});
 }
 
 describe('Take a break', () => {
@@ -148,7 +160,43 @@ describe('End break', () => {
 			await result.current.endBreak();
 		});
 
-		expect(mockStopTimer).toHaveBeenCalledWith({ source: ETimeLogSource.TEAMS });
+		// Named, so a stop reaching Gauzy after another tab went back to work ends nothing (409)
+		expect(mockStopTimer).toHaveBeenCalledWith({ source: ETimeLogSource.TEAMS, timeLogId: 'break-1' });
+		expect(mockToastError).not.toHaveBeenCalled();
+	});
+
+	it("takes Gauzy's 409 as a changed run: nothing stopped, no error, and the display is read again", async () => {
+		mockGetTimerStatus.mockResolvedValue({ data: breakRunning });
+		// Another tab went back to work between the status read and the stop
+		mockStopTimer.mockRejectedValue(gauzyRefusalOf(409, 'This stop names a time log that is not the running one.'));
+		const { result, queryClient } = renderBreak(
+			breakRunning,
+			jest.fn(async () => undefined)
+		);
+		const invalidate = jest.spyOn(queryClient, 'invalidateQueries');
+
+		await act(async () => {
+			await result.current.endBreak();
+		});
+
+		expect(mockToastError).not.toHaveBeenCalled();
+		expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.timer.all });
+		expect(result.current.pendingAction).toBeNull();
+	});
+
+	it('stops nothing when the fresh status shows another break than the one on screen', async () => {
+		const otherBreak = { ...breakRunning, lastLog: { ...breakRunning.lastLog, id: 'break-2' } } as ITimerStatus;
+		mockGetTimerStatus.mockResolvedValue({ data: otherBreak });
+		const { result } = renderBreak(
+			breakRunning,
+			jest.fn(async () => undefined)
+		);
+
+		await act(async () => {
+			await result.current.endBreak();
+		});
+
+		expect(mockStopTimer).not.toHaveBeenCalled();
 		expect(mockToastError).not.toHaveBeenCalled();
 	});
 
