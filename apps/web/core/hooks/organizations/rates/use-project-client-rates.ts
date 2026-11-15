@@ -30,8 +30,13 @@ export function retriesRatesRead(failureCount: number, error: unknown) {
 export function projectRatesStatesOf(results: ReadonlyArray<UseQueryResult<TProjectRates>>): ProjectRatesState[] {
 	return results.map((result) => {
 		const isUnavailable = isRatesReadUnavailable(result.error);
+		// Rates read before the API refused or stopped serving them are not used: they may no longer apply
+		let rates = result.data ?? null;
+		if (isUnavailable) {
+			rates = null;
+		}
 		return {
-			rates: result.data ?? null,
+			rates,
 			isLoading: result.isLoading,
 			isRefreshing: result.isFetching && !result.isLoading,
 			hasFailed: result.isError && !isUnavailable
