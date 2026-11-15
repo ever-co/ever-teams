@@ -5,11 +5,15 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 
 const mockRescheduleMeeting = jest.fn();
 const mockGetScheduledMeetings = jest.fn();
+const mockScheduleMeeting = jest.fn();
+const mockGetInvitedMeetings = jest.fn();
 
 jest.mock('@/core/services/client/api/meetings', () => ({
 	scheduledMeetingService: {
 		getScheduledMeetings: (...args: unknown[]) => mockGetScheduledMeetings(...args),
-		rescheduleMeeting: (...args: unknown[]) => mockRescheduleMeeting(...args)
+		rescheduleMeeting: (...args: unknown[]) => mockRescheduleMeeting(...args),
+		scheduleMeeting: (...args: unknown[]) => mockScheduleMeeting(...args),
+		getInvitedMeetings: (...args: unknown[]) => mockGetInvitedMeetings(...args)
 	}
 }));
 jest.mock('../queries/user-user.query', () => ({
@@ -26,10 +30,55 @@ function renderScheduledMeetings() {
 	return renderHook(() => useScheduledMeetings(), { wrapper });
 }
 
+/** An API error as the client's service raises it: its HTTP status on `statusCode`. */
+const apiError = (statusCode: number) => Object.assign(new Error(`HTTP ${statusCode}`), { statusCode });
+
+/** A meeting with a team member and a guest among its participants. */
+const draft = {
+	title: 'Sprint review',
+	start: new Date('2026-11-20T14:00:00.000Z'),
+	durationMinutes: 30,
+	link: 'https://app.example.com/meet/jitsi?room=abc',
+	participantEmails: ['ana@acme.com', 'guest@example.org'],
+	invitees: [{ email: 'ana@acme.com', name: 'Ana Silva', employeeId: 'employee-ana' }]
+};
+
 describe('useScheduledMeetings', () => {
 	beforeEach(() => {
 		mockGetScheduledMeetings.mockReset().mockResolvedValue([]);
 		mockRescheduleMeeting.mockReset().mockResolvedValue(undefined);
+		mockScheduleMeeting.mockReset().mockResolvedValue({ id: 'appointment-1' });
+		mockGetInvitedMeetings.mockReset().mockResolvedValue([]);
+	});
+
+	it.each([404, 406])(
+		'on an older Gauzy, whose invitations route answers %i, emails every participant as before #5022',
+		async (status) => {
+			mockGetInvitedMeetings.mockRejectedValue(apiError(status));
+			const { result } = renderScheduledMeetings();
+
+			await act(async () => {
+				await result.current.scheduleMeeting(draft);
+			});
+
+			expect(mockScheduleMeeting).toHaveBeenCalledTimes(1);
+			const [input] = mockScheduleMeeting.mock.calls[0];
+			expect(input.emails).toBe('ana@acme.com, guest@example.org');
+			expect(input).not.toHaveProperty('inviteeEmployeeIds');
+		}
+	);
+
+	it('on a Gauzy that lists invitations, invites the team members as members and emails the others (#5022)', async () => {
+		const { result } = renderScheduledMeetings();
+
+		await act(async () => {
+			await result.current.scheduleMeeting(draft);
+		});
+
+		expect(mockGetInvitedMeetings).toHaveBeenCalledTimes(1);
+		const [input] = mockScheduleMeeting.mock.calls[0];
+		expect(input.inviteeEmployeeIds).toEqual(['employee-ana']);
+		expect(input.emails).toBe('guest@example.org');
 	});
 
 	it('reschedules an appointment with its new title, time and link, then reads the agenda again', async () => {
