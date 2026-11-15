@@ -439,6 +439,7 @@
 		"NO_TEAM_MEMBERS_FOUND": "Nenhum membro da equipe encontrado",
 		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Tente ajustar sua pesquisa ou filtro para encontrar o que você está procurando.",
 		"PICK_A_DATE": "Escolha uma data",
+		"PICK_A_TIME": "Escolha um horário",
 		"PICK_THIS_OR_LATER": "Escolha {value} ou depois.",
 		"PICK_THIS_OR_EARLIER": "Escolha {value} ou antes.",
 		"THIS_WEEK": "Esta semana",

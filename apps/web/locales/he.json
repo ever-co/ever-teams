@@ -439,6 +439,7 @@
 		"NO_TEAM_MEMBERS_FOUND": "לא נמצאו חברי צוות",
 		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "נסה להתאים את החיפוש או הסינון כדי למצוא את מה שאתה מחפש.",
 		"PICK_A_DATE": "בחר תאריך",
+		"PICK_A_TIME": "בחר שעה",
 		"PICK_THIS_OR_LATER": "בחר {value} או מאוחר יותר.",
 		"PICK_THIS_OR_EARLIER": "בחר {value} או מוקדם יותר.",
 		"THIS_WEEK": "השבוע",

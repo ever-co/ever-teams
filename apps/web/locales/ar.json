@@ -374,6 +374,7 @@
 		"NO_TEAM_MEMBERS_FOUND": "لم يتم العثور على أعضاء فريق",
 		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "حاول تعديل البحث أو الفلتر للعثور على ما تبحث عنه.",
 		"PICK_A_DATE": "اختر تاريخًا",
+		"PICK_A_TIME": "اختر وقتًا",
 		"PICK_THIS_OR_LATER": "اختر {value} أو بعده.",
 		"PICK_THIS_OR_EARLIER": "اختر {value} أو قبله.",
 		"THIS_WEEK": "هذا الأسبوع",
