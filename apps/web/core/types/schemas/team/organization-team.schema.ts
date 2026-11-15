@@ -20,7 +20,7 @@ import { imageAssetSchema } from '../common/image-asset.schema';
 
 /** A team's defaults for its members' notifications (#5022); see `TTeamNotificationDefaults`. */
 const emailModeSchema = z.enum(['immediate', 'digest', 'off']);
-export const teamNotificationDefaultsSchema = z.object({
+const teamNotificationDefaultsSchema = z.object({
 	email: z.union([emailModeSchema, z.boolean()]).optional(),
 	emailByType: z.record(z.string(), emailModeSchema.optional()).optional(),
 	push: z.boolean().optional(),

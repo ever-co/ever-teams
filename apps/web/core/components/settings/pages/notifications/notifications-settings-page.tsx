@@ -38,7 +38,13 @@ import {
 	INotificationQuietHours,
 	TEmployeeNotificationSettingKey
 } from '@/core/types/interfaces/common/employee-notification';
-import { DigestHourRow, EmailDefaultRow, EmailModeChoice, EmailModeSelect, QuietHoursRow } from './notification-channel-rows';
+import {
+	DigestHourRow,
+	EmailDefaultRow,
+	EmailModeChoice,
+	EmailModeSelect,
+	QuietHoursRow
+} from './notification-channel-rows';
 import { BrowserPushSection, SoundSection } from './notification-push-section';
 import { TYPE_COPY } from './notification-type-copy';
 import { NotificationGroupsSkeleton } from './notifications-settings-skeleton';
@@ -125,7 +131,8 @@ export function NotificationsSettingsPage() {
 	const user = useAtomValue(userState);
 	const activeTeam = useAtomValue(activeTeamState);
 	const teams = useAtomValue(organizationTeamsState);
-	const { setting, isAvailable, isLoading, isError, retry, toggle, savePreferences, isSavingPreferences } = useNotificationSettings();
+	const { setting, isAvailable, isLoading, isError, retry, toggle, savePreferences, isSavingPreferences } =
+		useNotificationSettings();
 	const [pending, setPending] = useState<PendingSwitches>({});
 	// The choices stay editable and are kept: the notice only says why no email arrives for now.
 	const emailNotice = emailDeliveryNoticeOf(useInboxDeliveryStatus());
@@ -211,7 +218,9 @@ export function NotificationsSettingsPage() {
 						{teamDefaults && (
 							<Notice
 								tone="info"
-								title={t('notifications.SETTINGS_PAGE.TEAM_DEFAULTS_TITLE', { team: defaultsTeam?.name ?? '' })}
+								title={t('notifications.SETTINGS_PAGE.TEAM_DEFAULTS_TITLE', {
+									team: defaultsTeam?.name ?? ''
+								})}
 								description={t('notifications.SETTINGS_PAGE.TEAM_DEFAULTS_TEXT')}
 							/>
 						)}
@@ -227,7 +236,9 @@ export function NotificationsSettingsPage() {
 							<SettingsRow
 								label={t('settings.teamGeneral.TASK_UPDATE_DEFAULT_LABEL')}
 								description={t('notifications.SETTINGS_PAGE.TASK_UPDATE_TEXT')}
-								leading={<NotificationTypeBadge type={EEmployeeNotificationType.TaskUpdate} size="md" />}
+								leading={
+									<NotificationTypeBadge type={EEmployeeNotificationType.TaskUpdate} size="md" />
+								}
 								htmlFor="notification-task-update"
 							>
 								<SettingsSwitch
@@ -318,9 +329,17 @@ export function NotificationsSettingsPage() {
 						onPreferences={onPreferences}
 					/>
 					<SoundSection />
-					<SettingsSection id="notification-quiet-hours" title={t('notifications.SETTINGS_PAGE.CHANNELS.QUIET_TITLE')}>
+					<SettingsSection
+						id="notification-quiet-hours"
+						title={t('notifications.SETTINGS_PAGE.CHANNELS.QUIET_TITLE')}
+					>
 						<SettingsSurface>
-							<QuietHoursRow key={quietHoursKey} window={quietHours} disabled={isSavingPreferences} onChange={onQuietHours} />
+							<QuietHoursRow
+								key={quietHoursKey}
+								window={quietHours}
+								disabled={isSavingPreferences}
+								onChange={onQuietHours}
+							/>
 							<DigestHourRow
 								value={digestHourOf(preferences)}
 								disabled={isSavingPreferences}
