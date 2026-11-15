@@ -44,6 +44,24 @@
 	"signInChooseWorkspace": {
 		"message": "בחרו סביבת עבודה"
 	},
+	"signInTwoFactorLabel": {
+		"message": "קוד אימות"
+	},
+	"signInTwoFactorHint": {
+		"message": "קוד בן 6 ספרות מאפליקציית האימות, או אחד מקודי השחזור."
+	},
+	"signInTwoFactorIncomplete": {
+		"message": "הזינו קוד בן 6 ספרות או קוד שחזור מלא."
+	},
+	"signInTwoFactorWrongCode": {
+		"message": "הקוד הזה שגוי. הזינו את הקוד שהאפליקציה מציגה עכשיו, או קוד שחזור."
+	},
+	"signInTwoFactorExpired": {
+		"message": "הכניסה הזו חיכתה לקוד זמן רב מדי. היכנסו שוב."
+	},
+	"signInTwoFactorTooMany": {
+		"message": "יותר מדי קודים שגויים. המתינו כמה דקות ונסו שוב."
+	},
 	"headerTeam": {
 		"message": "צוות"
 	},

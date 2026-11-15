@@ -44,6 +44,24 @@
 	"signInChooseWorkspace": {
 		"message": "Выберите рабочее пространство"
 	},
+	"signInTwoFactorLabel": {
+		"message": "Код аутентификации"
+	},
+	"signInTwoFactorHint": {
+		"message": "6-значный код из приложения-аутентификатора или один из кодов восстановления."
+	},
+	"signInTwoFactorIncomplete": {
+		"message": "Введите 6-значный код или весь код восстановления."
+	},
+	"signInTwoFactorWrongCode": {
+		"message": "Этот код неверен. Введите код, который приложение показывает сейчас, или код восстановления."
+	},
+	"signInTwoFactorExpired": {
+		"message": "Этот вход слишком долго ждал кода. Войдите снова."
+	},
+	"signInTwoFactorTooMany": {
+		"message": "Слишком много неверных кодов. Подождите несколько минут и повторите."
+	},
 	"headerTeam": {
 		"message": "Команда"
 	},
