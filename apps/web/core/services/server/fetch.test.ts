@@ -3,7 +3,33 @@
  * unwrapRejection). That inner promise must be marked handled, or every such answer is also an unhandled rejection
  * (each sign-in's /invite/validate-by-code 400, for one).
  */
-import { serverFetch, unwrapRejection } from './fetch';
+import { clientAppHeaders, serverFetch, unwrapRejection } from './fetch';
+
+describe('serverFetch names this app to Gauzy (ever-co/ever-gauzy#11983)', () => {
+	const realFetch = global.fetch;
+
+	afterEach(() => {
+		global.fetch = realFetch;
+	});
+
+	it("sends the app's name, which Gauzy records with a session it signs in or renews", async () => {
+		const sent = jest.fn<Promise<Response>, [string, RequestInit?]>(
+			async () => new Response('{}', { status: 200 })
+		);
+		global.fetch = sent as unknown as typeof fetch;
+
+		await serverFetch({ path: '/auth/refresh-token', method: 'POST', body: { refresh_token: 'refresh' } });
+
+		expect(sent.mock.calls[0][1]?.headers).toMatchObject({ 'X-Client-App': 'Ever Teams' });
+	});
+
+	it('sends no name a header cannot carry, so that a renamed app keeps every call working', () => {
+		expect(clientAppHeaders('Acme Time')).toEqual({ 'X-Client-App': 'Acme Time' });
+		expect(clientAppHeaders('团队时间')).toEqual({});
+		expect(clientAppHeaders('x'.repeat(65))).toEqual({});
+		expect(clientAppHeaders('   ')).toEqual({});
+	});
+});
 
 describe('serverFetch on a non-2xx answer', () => {
 	const realFetch = global.fetch;

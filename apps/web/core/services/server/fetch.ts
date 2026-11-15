@@ -1,5 +1,22 @@
-import { GAUZY_API_SERVER_URL } from '@/core/constants/config/constants';
+import { APP_NAME, GAUZY_API_SERVER_URL } from '@/core/constants/config/constants';
 import { clientIpHeaders } from './client-ip';
+
+/**
+ * The header in which this app names itself to Gauzy (ever-co/ever-gauzy#11983). Gauzy records the name with a session
+ * it signs in or renews, and the sessions list of Settings > Profile tells this app's sessions from those of the other
+ * apps on the same API. Only this server sends it: a browser call would need Gauzy to allow the header first (CORS),
+ * and Gauzy records a browser's origin by itself.
+ */
+export const CLIENT_APP_HEADER = 'X-Client-App';
+
+/**
+ * The header naming `appName`, or none for a name a header cannot carry as is (fetch refuses characters beyond
+ * Latin-1, which would fail every call) or that Gauzy would not record (more than 64 characters).
+ */
+export function clientAppHeaders(appName: string = APP_NAME): Record<string, string> {
+	const name = appName.trim();
+	return /^[\x20-\x7E]{1,64}$/.test(name) ? { [CLIENT_APP_HEADER]: name } : {};
+}
 
 /** Gauzy's error body, or, when it carries no status (empty, not JSON), one that gives the answer's HTTP status. */
 function errorBodyWithStatus(data: unknown, res: Response): unknown {
@@ -35,7 +52,8 @@ export function serverFetch<T>({
 	// A multipart body goes as is: fetch writes its Content-Type with the boundary it chose.
 	const isMultipart = body instanceof FormData;
 	const headers: HeadersInit = {
-		Accept: 'application/json'
+		Accept: 'application/json',
+		...clientAppHeaders()
 	};
 
 	if (!isMultipart) {
