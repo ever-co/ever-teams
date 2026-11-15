@@ -35,7 +35,7 @@ describe('TabOrganizationNotice', () => {
 	it('says nothing while the tab works with the shared cookies', () => {
 		const { container } = render(<TabOrganizationNotice />);
 
-		expect(container).toBeEmptyDOMElement();
+		expect(container.innerHTML).toBe('');
 	});
 
 	it('says the tab keeps working in its own organization, and offers both ways out', () => {
@@ -43,8 +43,8 @@ describe('TabOrganizationNotice', () => {
 
 		render(<TabOrganizationNotice />);
 
-		expect(screen.getByText('tabOrganizationNotice.TITLE')).toBeInTheDocument();
-		expect(screen.getByText('tabOrganizationNotice.KEEPS_WORKING Ever Technologies')).toBeInTheDocument();
+		expect(screen.getByText('tabOrganizationNotice.TITLE')).toBeTruthy();
+		expect(screen.getByText('tabOrganizationNotice.KEEPS_WORKING Ever Technologies')).toBeTruthy();
 		fireEvent.click(screen.getByRole('button', { name: 'tabOrganizationNotice.OPEN_HERE' }));
 		expect(mockTabOrganization.openSharedOrganization).toHaveBeenCalledTimes(1);
 		fireEvent.click(screen.getByRole('button', { name: 'tabOrganizationNotice.BRING_BACK Ever Technologies' }));
@@ -57,11 +57,12 @@ describe('TabOrganizationNotice', () => {
 
 		render(<TabOrganizationNotice />);
 
-		expect(screen.getByText('tabOrganizationNotice.STOP_TIMER_FIRST Ever Technologies')).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: 'tabOrganizationNotice.OPEN_HERE' })).toBeDisabled();
+		expect(screen.getByText('tabOrganizationNotice.STOP_TIMER_FIRST Ever Technologies')).toBeTruthy();
 		expect(
-			screen.getByRole('button', { name: 'tabOrganizationNotice.BRING_BACK Ever Technologies' })
-		).toBeEnabled();
+			(screen.getByRole('button', { name: 'tabOrganizationNotice.OPEN_HERE' }) as HTMLButtonElement).disabled
+		).toBe(true);
+		const bringBack = screen.getByRole('button', { name: 'tabOrganizationNotice.BRING_BACK Ever Technologies' });
+		expect((bringBack as HTMLButtonElement).disabled).toBe(false);
 	});
 
 	it('asks where the tab works once it can no longer work in its own organization', () => {
@@ -69,7 +70,7 @@ describe('TabOrganizationNotice', () => {
 
 		render(<TabOrganizationNotice />);
 
-		expect(screen.getByText('tabOrganizationNotice.CANNOT_WORK_TITLE Ever Technologies')).toBeInTheDocument();
-		expect(screen.getByText('tabOrganizationNotice.CANNOT_WORK')).toBeInTheDocument();
+		expect(screen.getByText('tabOrganizationNotice.CANNOT_WORK_TITLE Ever Technologies')).toBeTruthy();
+		expect(screen.getByText('tabOrganizationNotice.CANNOT_WORK')).toBeTruthy();
 	});
 });

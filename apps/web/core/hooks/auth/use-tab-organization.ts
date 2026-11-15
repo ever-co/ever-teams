@@ -3,7 +3,8 @@
 import { useCallback, useSyncExternalStore } from 'react';
 import { useAtomValue } from 'jotai';
 import { TAB_SCOPE_CHANGED_EVENT, tabScope } from '@/core/lib/auth/tab-organization';
-import { activeTeamState, currentOrganizationState, timerStatusState } from '@/core/stores';
+import { activeTeamState, timerStatusState } from '@/core/stores';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { useCreateOrganizationTeam } from '@/core/hooks/organizations/teams/use-create-organization-team';
 
 /**
