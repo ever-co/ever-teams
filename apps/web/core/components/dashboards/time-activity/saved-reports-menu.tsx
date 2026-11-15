@@ -62,10 +62,10 @@ function MenuState({
 	const t = useTranslations();
 	if (availability === 'loading') {
 		return (
-			<div className="flex items-center gap-2 px-2 py-2 text-xs text-muted-foreground" role="status">
+			<output className="flex items-center gap-2 px-2 py-2 text-xs text-muted-foreground">
 				<Spinner className="size-3.5" />
 				<span>{t('dashboard.savedReports.LOADING')}</span>
-			</div>
+			</output>
 		);
 	}
 	if (availability === 'error') {

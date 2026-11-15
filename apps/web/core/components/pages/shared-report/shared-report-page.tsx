@@ -118,7 +118,7 @@ function ReadError({ onRetry }: Readonly<{ onRetry: () => void }>) {
 function SharedReportSkeleton() {
 	const t = useTranslations();
 	return (
-		<div className={PAGE} role="status" aria-label={t('sharedReport.LOADING')}>
+		<output className={PAGE} aria-label={t('sharedReport.LOADING')}>
 			<div className="flex flex-col gap-2 pt-2">
 				<span className={cn(SKELETON_BAR, 'h-6 w-64 max-w-full')} />
 				<span className={cn(SKELETON_BAR, 'h-3 w-40')} />
@@ -127,7 +127,7 @@ function SharedReportSkeleton() {
 				<span className={cn(SKELETON_BAR, 'h-4 w-48')} />
 				<TimeActivityAreaChartSkeleton />
 			</div>
-		</div>
+		</output>
 	);
 }
 
