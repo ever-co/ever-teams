@@ -249,7 +249,7 @@ describe('the question put to the person', () => {
 
 		answerUnfollowedTime('stop');
 
-		expect(window.localStorage.length).toBe(0);
+		expect(window.localStorage).toHaveLength(0);
 	});
 
 	it('is not put in a tab the person cannot see, and goes when the tab is hidden', async () => {

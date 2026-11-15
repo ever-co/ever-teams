@@ -175,6 +175,57 @@ async function keepUnfollowedTime(employeeId: string, timeLogId: string): Promis
 }
 
 /**
+ * The stop at its last heartbeat a run is owed without asking: past the closed-tab delay, or the one the person chose
+ * before that stop failed. Null when the person is to be asked.
+ */
+function stopOwedWithoutAsking(
+	decision: 'ask' | 'stop',
+	runId: string,
+	heartbeat: number,
+	unansweredHint: StoppedAtHeartbeatHint
+): StoppedAtHeartbeatHint | null {
+	if (decision === 'stop') return unansweredHint;
+	if (owedStop?.timeLogId === runId && owedStop.heartbeat === heartbeat) return owedStop.hint;
+	return null;
+}
+
+/**
+ * Asks the person about the run's time since its last heartbeat, and keeps that time when they say so. Resolves the
+ * stop at the last heartbeat the answer calls for, or how the settling ends without one: `settled` (kept, or the
+ * question dropped), `hidden`, or `again` when another tab settled it and the run is to be read again.
+ */
+async function askAboutRun(
+	employeeId: string,
+	runId: string,
+	facts: { now: number; clientNow: number },
+	heartbeat: number,
+	unansweredHint: StoppedAtHeartbeatHint
+): Promise<StoppedAtHeartbeatHint | 'settled' | 'hidden' | 'again'> {
+	const from = new Date(heartbeat).toISOString();
+	const answer = await askAboutUnfollowedTime(
+		{ employeeId, timeLogId: runId, from, until: facts.clientNow },
+		STALE_TIMER_THRESHOLD.value - (facts.now - heartbeat)
+	);
+	switch (answer) {
+		case 'hidden':
+			return 'hidden';
+		case 'dropped':
+			return 'settled';
+		case 'elsewhere':
+			return 'again';
+		case 'keep':
+			await keepUnfollowedTime(employeeId, runId);
+			announceUnfollowedTimeSettled(runId, from, true);
+			return 'settled';
+		case 'stop':
+			return 'UNFOLLOWED_STOP_CHOSEN_HINT';
+		default:
+			// Unanswered until the closed-tab delay was reached
+			return unansweredHint;
+	}
+}
+
+/**
  * Settles the time of the run in this tab, which alone does so (inOneTabAtATime): it reads the run again, since
  * another tab may have settled it while this one waited, then asks the person, and applies the answer. Resolves
  * `hidden` when the page was hidden before they answered: the question is put again once it shows.
@@ -198,30 +249,13 @@ async function settleInThisTab(
 	const run = lastLog as ITimeLog & { stoppedAt: Date };
 	const heartbeat = new Date(run.stoppedAt).getTime();
 	const from = new Date(heartbeat).toISOString();
-	let hint: StoppedAtHeartbeatHint | null = null;
-	if (decision === 'stop') {
-		hint = unansweredHint;
-	} else if (owedStop?.timeLogId === runId && owedStop.heartbeat === heartbeat) {
-		hint = owedStop.hint;
-	} else if (isUnfollowedTimeKept(runId, from)) {
-		// Kept in another tab, whose heartbeat failed: the answer stands
-		return 'settled';
-	} else {
-		const answer = await askAboutUnfollowedTime(
-			{ employeeId, timeLogId: runId, from, until: facts.clientNow },
-			STALE_TIMER_THRESHOLD.value - (facts.now - heartbeat)
-		);
-		if (answer === 'hidden') return 'hidden';
-		if (answer === 'dropped') return 'settled';
-		// Another tab settled it: what it did is read again
-		if (answer === 'elsewhere') return settleInThisTab(stopAtLastHeartbeat, employeeId, runId, unansweredHint);
-		if (answer === 'keep') {
-			await keepUnfollowedTime(employeeId, runId);
-			announceUnfollowedTimeSettled(runId, from, true);
-			return 'settled';
-		}
-		hint = answer === 'stop' ? 'UNFOLLOWED_STOP_CHOSEN_HINT' : unansweredHint;
-	}
+	const owed = stopOwedWithoutAsking(decision, runId, heartbeat, unansweredHint);
+	// Kept in another tab, whose heartbeat failed: the answer stands
+	if (!owed && isUnfollowedTimeKept(runId, from)) return 'settled';
+	const hint = owed ?? (await askAboutRun(employeeId, runId, facts, heartbeat, unansweredHint));
+	// Another tab settled it: what it did is read again
+	if (hint === 'again') return settleInThisTab(stopAtLastHeartbeat, employeeId, runId, unansweredHint);
+	if (hint === 'settled' || hint === 'hidden') return hint;
 
 	owedStop = { timeLogId: runId, heartbeat, hint };
 	await stopAtHeartbeatUnderGuard(stopAtLastHeartbeat, employeeId, run, hint);
