@@ -2180,6 +2180,19 @@
 				"LABEL": "Facturable de forma predeterminada",
 				"HELP": "Se aplica a los nuevos registros; el resto no cambia."
 			},
+			"visibility": {
+				"LABEL": "Visibilidad",
+				"EVERYONE_TITLE": "Toda la organización",
+				"EVERYONE_DETAIL": "Visible para todos los que ven proyectos.",
+				"PRIVATE_TITLE": "Solo miembros y gerentes",
+				"PRIVATE_DETAIL": "Visible solo para sus miembros y gerentes, y para los administradores.",
+				"PRIVATE_HINT": "Solo sus miembros y gerentes ven este proyecto",
+				"NOT_ENFORCED": "Todos lo siguen viendo hasta que un administrador active Proyectos privados en los ajustes del espacio de trabajo.",
+				"SETTING_SECTION": "Proyectos privados",
+				"SETTING_LABEL": "Reservar los proyectos privados a su gente",
+				"SETTING_DESCRIPTION": "Un proyecto con Solo miembros y gerentes solo lo ven ellos y los administradores. Desactivado, todos ven todos los proyectos.",
+				"SETTING_NOT_SAVED": "El ajuste no se guardó."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archivar {projectsCount} proyectos",

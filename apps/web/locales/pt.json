@@ -2112,6 +2112,19 @@
 				"LABEL": "Faturável por padrão",
 				"HELP": "Vale para novos registros; os salvos não mudam."
 			},
+			"visibility": {
+				"LABEL": "Visibilidade",
+				"EVERYONE_TITLE": "Toda a organização",
+				"EVERYONE_DETAIL": "Visível para todos que veem projetos.",
+				"PRIVATE_TITLE": "Só membros e gerentes",
+				"PRIVATE_DETAIL": "Visível só para os seus membros e gerentes, e para os administradores.",
+				"PRIVATE_HINT": "Só os seus membros e gerentes veem este projeto",
+				"NOT_ENFORCED": "Todos ainda o veem até que um administrador ative Projetos privados nas configurações do espaço de trabalho.",
+				"SETTING_SECTION": "Projetos privados",
+				"SETTING_LABEL": "Reservar os projetos privados à sua equipe",
+				"SETTING_DESCRIPTION": "Um projeto em Só membros e gerentes só é visto por eles e pelos administradores. Desativado, todos veem todos os projetos.",
+				"SETTING_NOT_SAVED": "A definição não foi guardada."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Arquivar {projectsCount} projetos",

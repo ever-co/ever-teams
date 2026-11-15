@@ -2112,6 +2112,19 @@
 				"LABEL": "Domyślnie do rozliczenia",
 				"HELP": "Dotyczy nowych wpisów; zapisane pozostają bez zmian."
 			},
+			"visibility": {
+				"LABEL": "Widoczność",
+				"EVERYONE_TITLE": "Wszyscy w organizacji",
+				"EVERYONE_DETAIL": "Widoczny dla każdego, kto widzi projekty.",
+				"PRIVATE_TITLE": "Tylko członkowie i menadżerowie",
+				"PRIVATE_DETAIL": "Widoczny tylko dla jego członków i menadżerów oraz administratorów.",
+				"PRIVATE_HINT": "Ten projekt widzą tylko jego członkowie i menadżerowie",
+				"NOT_ENFORCED": "Wszyscy nadal go widzą, dopóki administrator nie włączy Projektów prywatnych w ustawieniach obszaru roboczego.",
+				"SETTING_SECTION": "Projekty prywatne",
+				"SETTING_LABEL": "Pokazuj projekty prywatne tylko ich ludziom",
+				"SETTING_DESCRIPTION": "Projekt ustawiony na Tylko członkowie i menadżerowie widzą tylko oni i administratorzy. Wyłączone: wszyscy widzą wszystkie projekty.",
+				"SETTING_NOT_SAVED": "Ustawienie nie zostało zapisane."
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archiwizuj {projectsCount} projekty",
