@@ -12,7 +12,7 @@ import {
 import type { InvoicesScope } from './invoice.service';
 
 /** How many runs a schedule's history reads. */
-export const INVOICE_SCHEDULE_RUNS_SHOWN = 12;
+const INVOICE_SCHEDULE_RUNS_SHOWN = 12;
 
 /**
  * The billing schedules of the workspace's clients (Gauzy's `/invoice-schedules`): on each date of a schedule, the API

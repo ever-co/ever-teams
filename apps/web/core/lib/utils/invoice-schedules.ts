@@ -128,10 +128,10 @@ export function leftOutHoursOf(run: Pick<TInvoiceScheduleRun, 'leftOutSeconds'>)
 }
 
 /** A reason a run's line explains in a sentence: the time left out is told by its hours instead. */
-export type ExplainedRunReason = Exclude<InvoiceScheduleRunReason, 'TIME_LEFT_OUT'>;
+type ExplainedRunReason = Exclude<InvoiceScheduleRunReason, 'TIME_LEFT_OUT'>;
 
 /** The reasons a run's line explains: a reason this app does not know explains nothing. */
-export const EXPLAINED_RUN_REASONS: ReadonlyArray<ExplainedRunReason> = [
+const EXPLAINED_RUN_REASONS: ReadonlyArray<ExplainedRunReason> = [
 	'NO_BILLABLE_TIME',
 	'NO_PRICED_TIME',
 	'AUTHOR_CANNOT_INVOICE',

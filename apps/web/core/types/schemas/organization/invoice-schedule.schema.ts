@@ -11,12 +11,12 @@ export const INVOICE_SCHEDULE_GROUPINGS = ['PROJECT', 'MEMBER', 'TASK'] as const
 export type InvoiceScheduleGrouping = (typeof INVOICE_SCHEDULE_GROUPINGS)[number];
 
 /** Where a run stands, or how it ended. */
-export const INVOICE_SCHEDULE_RUN_STATUSES = ['CLAIMED', 'DRAFTED', 'SENT', 'NOT_SENT', 'NO_TIME', 'FAILED'] as const;
+const INVOICE_SCHEDULE_RUN_STATUSES = ['CLAIMED', 'DRAFTED', 'SENT', 'NOT_SENT', 'NO_TIME', 'FAILED'] as const;
 
 export type InvoiceScheduleRunStatus = (typeof INVOICE_SCHEDULE_RUN_STATUSES)[number];
 
 /** Why a run made no invoice, did not send it, or left time out of it. */
-export const INVOICE_SCHEDULE_RUN_REASONS = [
+const INVOICE_SCHEDULE_RUN_REASONS = [
 	'NO_BILLABLE_TIME',
 	'NO_PRICED_TIME',
 	'TIME_LEFT_OUT',
@@ -32,13 +32,11 @@ export type InvoiceScheduleRunReason = (typeof INVOICE_SCHEDULE_RUN_REASONS)[num
 const dayKeySchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
 /** A period of a schedule: its first and last days, and the day its invoice is made. */
-export const invoiceSchedulePeriodSchema = z.object({
+const invoiceSchedulePeriodSchema = z.object({
 	startDay: dayKeySchema,
 	endDay: dayKeySchema,
 	runDay: dayKeySchema
 });
-
-export type TInvoiceSchedulePeriod = z.infer<typeof invoiceSchedulePeriodSchema>;
 
 const runInvoiceSchema = z.object({
 	id: z.string(),
