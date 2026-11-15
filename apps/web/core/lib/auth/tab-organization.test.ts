@@ -285,6 +285,18 @@ describe('bringing the tab organization back, when the session cannot follow', (
 		expect(tabScope()).toMatchObject({ held: true, isOtherOrganizationOpen: true, accessToken: TOKEN_A });
 	});
 
+	it('puts back an empty team and project too, never leaving this tab ones next to the other organization', () => {
+		// Tab B's organization left no team or project cookie
+		rememberTabTeam({ id: 'team-a', organizationId: 'org-a', defaultProjectId: 'project-a' });
+		anotherTabSwitchesTo('org-b');
+		expect(bringTabOrganizationBack()).toBe('org-a');
+		mockCookieWrites.length = 0;
+
+		putBackLeftCookies('org-a');
+
+		expect(mockCookieWrites).toEqual(['shared-project=', 'team=', 'organization=org-b']);
+	});
+
 	it('leaves an organization chosen since as it is', () => {
 		bringBackFromB();
 		mockCookies.organizationId = 'org-c';

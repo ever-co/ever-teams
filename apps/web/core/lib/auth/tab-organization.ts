@@ -299,8 +299,9 @@ export function putBackLeftCookies(broughtBack: string): void {
 	const isSessionElsewhere = !!sharedToken && ownerOf(sharedToken)?.organizationId !== broughtBack;
 	if (!isStillBroughtBack || !isSessionElsewhere) return;
 	// The project as the other tab left it: this tab does not take it as the project it chose
-	if (left.projectId) setSharedActiveProjectIdCookie(left.projectId);
-	if (left.teamId) setActiveTeamIdCookie(left.teamId);
+	// Even none: the cookies then hold no project or team of this tab's organization next to the other one
+	setSharedActiveProjectIdCookie(left.projectId ?? '');
+	setActiveTeamIdCookie(left.teamId ?? '');
 	setOrganizationIdCookie(left.organizationId);
 	memo = null;
 	tabScope();
