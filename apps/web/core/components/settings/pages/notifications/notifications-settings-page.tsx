@@ -23,8 +23,14 @@ import {
 	ownEmailModeOf,
 	quietHoursOf
 } from '@/core/lib/notifications/notification-preferences';
+import { taskDueReminderHoursOf } from '@/core/lib/notifications/task-due-reminders';
+import {
+	teamOfNotificationDefaults,
+	withTeamNotificationDefaults
+} from '@/core/lib/notifications/team-notification-defaults';
 import { timerReminderHoursOf } from '@/core/lib/notifications/timer-reminders';
 import { meetingReminderMinutesOf } from '@/core/lib/notifications/meeting-notices';
+import { activeTeamState, organizationTeamsState } from '@/core/stores/teams/organization-team';
 import { userState } from '@/core/stores/user/user';
 import {
 	EEmployeeNotificationType,
@@ -33,12 +39,19 @@ import {
 	INotificationQuietHours,
 	TEmployeeNotificationSettingKey
 } from '@/core/types/interfaces/common/employee-notification';
-import { DigestHourRow, EmailDefaultRow, EmailModeChoice, EmailModeSelect, QuietHoursRow } from './notification-channel-rows';
+import {
+	DigestHourRow,
+	EmailDefaultRow,
+	EmailModeChoice,
+	EmailModeSelect,
+	QuietHoursRow
+} from './notification-channel-rows';
 import { BrowserPushSection, SoundSection } from './notification-push-section';
 import { TYPE_COPY } from './notification-type-copy';
 import { NotificationGroupsSkeleton } from './notifications-settings-skeleton';
-import { TimerReminderRow } from './timer-reminder-row';
+import { TaskDueReminderRow } from './task-due-reminder-row';
 import { MeetingReminderRow } from './meeting-reminder-row';
+import { TimerReminderRow } from './timer-reminder-row';
 
 /** Gauzy keeps one flag per notification type, with no channel. */
 const WORK_TYPES: readonly TEmployeeNotificationSettingKey[] = ['assignment', 'mention', 'comment'];
@@ -118,7 +131,10 @@ function TypeRows({ keys, setting, pending, isSavingPreferences, onToggle, onEma
 export function NotificationsSettingsPage() {
 	const t = useTranslations();
 	const user = useAtomValue(userState);
-	const { setting, isAvailable, isLoading, isError, retry, toggle, savePreferences, isSavingPreferences } = useNotificationSettings();
+	const activeTeam = useAtomValue(activeTeamState);
+	const teams = useAtomValue(organizationTeamsState);
+	const { setting, isAvailable, isLoading, isError, retry, toggle, savePreferences, isSavingPreferences } =
+		useNotificationSettings();
 	const [pending, setPending] = useState<PendingSwitches>({});
 	// The choices stay editable and are kept: the notice only says why no email arrives for now.
 	const emailNotice = emailDeliveryNoticeOf(useInboxDeliveryStatus());
@@ -159,7 +175,13 @@ export function NotificationsSettingsPage() {
 		onPreferences({ emailByType: { [type]: mode === 'default' ? undefined : mode } });
 	const onQuietHours = (window: INotificationQuietHours | null) => onPreferences({ dnd: window });
 	const preferences = setting?.preferences;
-	const timerReminderHours = timerReminderHoursOf(preferences);
+	// What the platform applies: the member's own choices, and their team's defaults (#5022) for what they left unset.
+	// The team is the one Gauzy reads: the active team when the user is a member of it, else their only team.
+	const defaultsTeam = teamOfNotificationDefaults(teams, activeTeam?.id, user?.employee?.id);
+	const teamDefaults = defaultsTeam?.notificationDefaults ?? null;
+	const applied = withTeamNotificationDefaults(preferences, teamDefaults);
+	const timerReminderHours = timerReminderHoursOf(applied);
+	const taskDueReminderHours = taskDueReminderHoursOf(applied);
 	const quietHours = quietHoursOf(preferences);
 	const quietHoursKey = quietHours ? `${quietHours.start}-${quietHours.end}` : 'off';
 
@@ -195,6 +217,15 @@ export function NotificationsSettingsPage() {
 						title={t('settings.notifications.GROUP_WORK')}
 						description={t('notifications.SETTINGS_PAGE.INTRO')}
 					>
+						{teamDefaults && (
+							<Notice
+								tone="info"
+								title={t('notifications.SETTINGS_PAGE.TEAM_DEFAULTS_TITLE', {
+									team: defaultsTeam?.name ?? ''
+								})}
+								description={t('notifications.SETTINGS_PAGE.TEAM_DEFAULTS_TEXT')}
+							/>
+						)}
 						<TypeRows
 							keys={WORK_TYPES}
 							setting={setting}
@@ -203,6 +234,24 @@ export function NotificationsSettingsPage() {
 							onToggle={onToggle}
 							onEmailMode={onEmailMode}
 						/>
+						<SettingsSurface>
+							<SettingsRow
+								label={t('settings.teamGeneral.TASK_UPDATE_DEFAULT_LABEL')}
+								description={t('notifications.SETTINGS_PAGE.TASK_UPDATE_TEXT')}
+								leading={
+									<NotificationTypeBadge type={EEmployeeNotificationType.TaskUpdate} size="md" />
+								}
+								htmlFor="notification-task-update"
+							>
+								<SettingsSwitch
+									id="notification-task-update"
+									checked={applied.taskUpdate !== false}
+									pending={isSavingPreferences}
+									ariaLabel={t('settings.teamGeneral.TASK_UPDATE_DEFAULT_LABEL')}
+									onCheckedChange={(isOn) => onPreferences({ taskUpdate: isOn })}
+								/>
+							</SettingsRow>
+						</SettingsSurface>
 					</SettingsSection>
 					<SettingsSection title={t('settings.notifications.GROUP_PEOPLE')}>
 						<TypeRows
@@ -232,13 +281,30 @@ export function NotificationsSettingsPage() {
 						</SettingsSurface>
 					</SettingsSection>
 					<SettingsSection
+						id="notification-task-due"
+						title={t('notifications.SETTINGS_PAGE.TASK_DUE.TITLE')}
+						description={t('notifications.SETTINGS_PAGE.TASK_DUE.INTRO')}
+					>
+						<SettingsSurface>
+							<TaskDueReminderRow
+								value={taskDueReminderHours}
+								disabled={isSavingPreferences}
+								onChange={(hours) => onPreferences({ taskDueReminderHours: hours })}
+								emailMode={
+									ownEmailModeOf(preferences, EEmployeeNotificationType.TaskDueReminder) ?? 'default'
+								}
+								onEmailMode={(mode) => onEmailMode(EEmployeeNotificationType.TaskDueReminder, mode)}
+							/>
+						</SettingsSurface>
+					</SettingsSection>
+					<SettingsSection
 						id="notification-meetings"
 						title={t('notifications.SETTINGS_PAGE.MEETINGS.TITLE')}
 						description={t('notifications.SETTINGS_PAGE.MEETINGS.INTRO')}
 					>
 						<SettingsSurface>
 							<MeetingReminderRow
-								value={meetingReminderMinutesOf(preferences)}
+								value={meetingReminderMinutesOf(applied)}
 								disabled={isSavingPreferences}
 								onChange={(minutes) => onPreferences({ meetingReminderMinutes: minutes })}
 								emailMode={ownEmailModeOf(preferences, EEmployeeNotificationType.Meeting) ?? 'default'}
@@ -266,7 +332,7 @@ export function NotificationsSettingsPage() {
 							/>
 						)}
 						<EmailDefaultRow
-							value={defaultEmailModeOf(preferences)}
+							value={defaultEmailModeOf(applied)}
 							disabled={isSavingPreferences}
 							onChange={(mode) => onPreferences({ email: mode })}
 						/>
@@ -274,14 +340,23 @@ export function NotificationsSettingsPage() {
 					<BrowserPushSection
 						isKindOn={(key) => isTypeShownOn(setting, key, pending)}
 						isTimerReminderOn={timerReminderHours !== null}
-						preferences={preferences}
+						isTaskDueReminderOn={taskDueReminderHours !== null}
+						preferences={applied}
 						isSavingPreferences={isSavingPreferences}
 						onPreferences={onPreferences}
 					/>
 					<SoundSection />
-					<SettingsSection id="notification-quiet-hours" title={t('notifications.SETTINGS_PAGE.CHANNELS.QUIET_TITLE')}>
+					<SettingsSection
+						id="notification-quiet-hours"
+						title={t('notifications.SETTINGS_PAGE.CHANNELS.QUIET_TITLE')}
+					>
 						<SettingsSurface>
-							<QuietHoursRow key={quietHoursKey} window={quietHours} disabled={isSavingPreferences} onChange={onQuietHours} />
+							<QuietHoursRow
+								key={quietHoursKey}
+								window={quietHours}
+								disabled={isSavingPreferences}
+								onChange={onQuietHours}
+							/>
 							<DigestHourRow
 								value={digestHourOf(preferences)}
 								disabled={isSavingPreferences}

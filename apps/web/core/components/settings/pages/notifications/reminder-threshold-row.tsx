@@ -10,47 +10,49 @@ import { EmailModeChoice, EmailModeSelect } from './notification-channel-rows';
 
 const OFF = 'off';
 
-export interface ReminderChoiceRowProps {
-	/** The kind the row is about, whose plate leads it. */
-	type: EEmployeeNotificationType;
-	label: string;
-	description: string;
-	/** The chosen value (hours, minutes), null for no reminder. */
+export interface ReminderThresholdRowProps {
+	/** The threshold in hours, null for no reminder. */
 	value: number | null;
-	/** The values offered; one saved elsewhere that the list does not offer is still shown as chosen. */
-	choices: readonly number[];
-	/** How a value reads in the list, and how "no reminder" (null) does. */
-	labelOf: (value: number | null) => string;
 	disabled?: boolean;
-	onChange: (value: number | null) => void;
-	/** How the kind reaches the employee by email, as every other kind's row offers it. */
+	onChange: (hours: number | null) => void;
+	/** How the reminders reach the person by email, as every other kind's row offers it. */
 	emailMode: EmailModeChoice;
 	onEmailMode: (mode: EmailModeChoice) => void;
-	/** Whether the kind still sends something with no reminder chosen, so its email mode stays offered. */
+}
+
+interface ReminderThresholdCopy {
+	type: EEmployeeNotificationType;
+	/** The thresholds offered, in hours. */
+	choices: readonly number[];
+	label: string;
+	description: string;
+	/** The name of a threshold, or of none (off). */
+	labelOf: (hours: number | null) => string;
+	/** The kind still sends notices with no reminder chosen (a meeting's invitations), so its email mode stays. */
 	isFiledWithoutReminder?: boolean;
 }
 
 /**
- * A kind whose reminder comes after or before a chosen time (#5022): off, or one of the choices; and the email mode of
- * the kind, while it sends anything, as each kind's row of the page has it.
+ * A reminder the platform sends after, or before, a number of hours (#5022): off, or one of the thresholds offered; and,
+ * while it is on, the email mode of the reminders, as each kind's row of the page has it.
  */
-export function ReminderChoiceRow({
+export function ReminderThresholdRow({
 	type,
+	choices: offered,
 	label,
 	description,
-	value,
-	choices,
 	labelOf,
+	value,
 	disabled,
 	onChange,
 	emailMode,
 	onEmailMode,
 	isFiledWithoutReminder = false
-}: Readonly<ReminderChoiceRowProps>) {
+}: Readonly<ReminderThresholdRowProps & ReminderThresholdCopy>) {
 	const t = useTranslations();
 	const triggerId = useId();
-	const shownChoices =
-		value === null || choices.includes(value) ? choices : [...choices, value].sort((a, b) => a - b);
+	// A threshold saved elsewhere that the list does not offer is still shown as chosen
+	const choices = value === null || offered.includes(value) ? offered : [...offered, value].sort((a, b) => a - b);
 
 	return (
 		<SettingsRow
@@ -79,9 +81,9 @@ export function ReminderChoiceRow({
 					<SelectValue>{labelOf(value)}</SelectValue>
 				</SelectTrigger>
 				<SelectContent>
-					{shownChoices.map((choice) => (
-						<SelectItem key={choice} value={String(choice)} className="text-[13px]">
-							{labelOf(choice)}
+					{choices.map((hours) => (
+						<SelectItem key={hours} value={String(hours)} className="text-[13px]">
+							{labelOf(hours)}
 						</SelectItem>
 					))}
 					<SelectItem value={OFF} className="text-[13px]">

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { type DottedLanguageObjectStringPaths, useFormatter, useNow, useTranslations } from 'next-intl';
+import { APP_NAME } from '@/core/constants/config/constants';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Desktop, Globe, Smartphone, Spinner } from '@/core/components/icons';
 import {
@@ -57,6 +58,26 @@ function deviceNameOf(session: IUserSession, t: Translate): string {
 	return t('settings.sessions.UNKNOWN_DEVICE');
 }
 
+/**
+ * Which app a session was opened from, as the person knows it (ever-co/ever-gauzy#11983): this app by its own name
+ * when the session named it or came from this app's web host, another by the name or the host it gave. Null when the
+ * API tells nothing, as before it recorded apps.
+ */
+function sessionAppOf(session: IUserSession): string | null {
+	const thisHost = typeof window === 'undefined' ? null : window.location.host;
+	if (session.appName === APP_NAME || (!!session.appOrigin && session.appOrigin === thisHost)) {
+		return APP_NAME;
+	}
+	return session.appName ?? session.appOrigin ?? null;
+}
+
+/** The session as the list names it: its app, when known, before its device. */
+function sessionNameOf(session: IUserSession, t: Translate): string {
+	const device = deviceNameOf(session, t);
+	const app = sessionAppOf(session);
+	return app ? t('settings.sessions.APP_ON_DEVICE', { app, device }) : device;
+}
+
 function DeviceIcon({ kind }: Readonly<{ kind: TSessionDeviceKind }>) {
 	let icon = <Globe />;
 	if (kind === 'phone') {
@@ -93,7 +114,7 @@ function SessionRow({ session, isSigningOut, isBusy, onSignOut }: Readonly<Sessi
 	const t = useTranslations();
 	const format = useFormatter();
 	const now = useNow({ updateInterval: NOW_UPDATE_INTERVAL_MS });
-	const name = deviceNameOf(session, t);
+	const name = sessionNameOf(session, t);
 	const signedIn = t('settings.sessions.SIGNED_IN', {
 		date: format.dateTime(new Date(session.signedInAt), { dateStyle: 'medium' })
 	});
@@ -188,7 +209,7 @@ export function SessionsSection() {
 	};
 
 	const signOutOne = async (session: IUserSession) => {
-		const name = deviceNameOf(session, t);
+		const name = sessionNameOf(session, t);
 		try {
 			await signOut(session.id);
 			toast.success(t('settings.sessions.SIGNED_OUT_ONE', { device: name }));

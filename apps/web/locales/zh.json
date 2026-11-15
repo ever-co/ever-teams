@@ -439,6 +439,9 @@
 		"NO_TEAM_MEMBERS_FOUND": "未找到团队成员",
 		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "尝试调整您的搜索或筛选条件以找到您要查找的内容。",
 		"PICK_A_DATE": "选择日期",
+		"PICK_A_TIME": "选择时间",
+		"PICK_THIS_OR_LATER": "请选择 {value} 或之后。",
+		"PICK_THIS_OR_EARLIER": "请选择 {value} 或之前。",
 		"THIS_WEEK": "本周",
 		"LAST_WEEK": "上周",
 		"THIS_MONTH": "本月",
@@ -1792,6 +1795,55 @@
 			"NOT_KEPT": "未保留之前的值",
 			"COLUMN_BEFORE": "之前",
 			"COLUMN_AFTER": "之后"
+		},
+		"savedReports": {
+			"MENU": "已保存的报告",
+			"LOADING": "正在读取已保存的报告…",
+			"LOAD_ERROR": "无法读取已保存的报告。",
+			"TRY_AGAIN": "重试",
+			"EMPTY": "还没有已保存的报告。保存此视图，即可一键重新打开。",
+			"UPDATE": "用此视图更新",
+			"RENAME": "重命名",
+			"RENAME_TITLE": "重命名报告",
+			"DELETE": "删除",
+			"SAVE": "保存",
+			"SAVE_TITLE": "保存此报告",
+			"SAVE_HINT": "保留时间段、筛选条件和分组。可从“已保存的报告”中重新打开。",
+			"NAME": "名称",
+			"NAME_PLACEHOLDER": "客户 A，上个月",
+			"NAME_REQUIRED": "请为报告命名。",
+			"NAME_TOO_LONG": "最多 100 个字符。",
+			"SAVED": "已保存“{name}”",
+			"UPDATED": "已更新“{name}”",
+			"RENAMED": "报告已重命名",
+			"DELETED": "已删除“{name}”",
+			"DELETE_TITLE": "删除“{name}”？",
+			"DELETE_DESCRIPTION": "已保存的报告将被删除，其链接将停止工作。报告中显示的时间仍会保留。",
+			"SAVE_FAILED": "无法保存报告。",
+			"DELETE_FAILED": "无法删除报告。",
+			"SHARE": "分享",
+			"SHARE_TITLE": "分享只读链接",
+			"SHARE_NEEDS_SAVE": "链接用于分享已保存的报告。先为此视图命名并保存，再开启其链接。",
+			"SHARE_HINT": "持有链接的人无需账户即可查看报告名称、时间段、数字、图表和表格。无法修改任何内容，且只显示您有权查看的内容。",
+			"LINK_ADDRESS": "链接地址",
+			"COPY": "复制",
+			"COPIED": "链接已复制",
+			"COPY_FAILED": "无法复制链接。请选中后自行复制。",
+			"LINK_OFF": "尚未开启链接。",
+			"LINK_ENDED": "链接已于 {date} 结束。",
+			"LINK_HIDDEN": "链接已开启。其地址仅在创建时显示：“替换链接”会生成新地址供复制，旧地址随即失效。",
+			"EXPIRES": "{date} 之后停止工作。",
+			"ENDS_ON": "结束日期",
+			"ENDS_ON_HINT": "可选。在开启或替换链接时生效。",
+			"TURN_ON": "开启链接",
+			"TURN_OFF": "关闭",
+			"REPLACE": "替换链接",
+			"REPLACE_HINT": "替换或关闭会立即停用当前地址。",
+			"INCLUDE_AMOUNTS": "包含金额",
+			"INCLUDE_AMOUNTS_HINT": "费率及时间的价值。关闭时：仅显示时长。",
+			"SHARE_FAILED": "无法更改链接。",
+			"SHARE_REFUSED": "只能通过您本人的登录开启链接，不能通过使用 API 令牌开始的会话开启。",
+			"TURNED_OFF": "链接已关闭：其地址不再有效。"
 		}
 	},
 	"timeActivity": {
@@ -2047,6 +2099,18 @@
 			"billable": {
 				"LABEL": "默认可计费",
 				"HELP": "仅适用于新记录；已保存的记录保持不变。"
+			},
+			"visibility": {
+				"LABEL": "可见性",
+				"EVERYONE_TITLE": "组织内所有人",
+				"EVERYONE_DETAIL": "所有能查看项目的人都能看到。",
+				"PRIVATE_TITLE": "仅成员和管理员",
+				"PRIVATE_DETAIL": "只有它的成员和管理员，以及工作区管理员能看到。",
+				"NOT_ENFORCED": "在工作区管理员于工作区设置中开启“私有项目”之前，所有人仍能看到它。",
+				"SETTING_SECTION": "私有项目",
+				"SETTING_LABEL": "私有项目仅对其成员可见",
+				"SETTING_DESCRIPTION": "设为“仅成员和管理员”的项目只对他们和工作区管理员可见。关闭时，所有人都能看到所有项目。",
+				"SETTING_NOT_SAVED": "设置未保存。"
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {
@@ -3983,7 +4047,9 @@
 			"PAYMENT": "已为你登记一笔付款",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> 申请调整费率",
 			"TIMER_REMINDER": "你的计时器仍在运行",
-			"MEETING": "你参加的会议有变动"
+			"MEETING": "你参加的会议有变动",
+			"TASK_UPDATE": "<b>{name}</b> 做了更改",
+			"TASK_DUE_REMINDER": "任务即将到期"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "分配",
@@ -3995,7 +4061,9 @@
 			"PAYMENT": "付款",
 			"RATE_CHANGE_REQUEST": "费率调整申请",
 			"TIMER_REMINDER": "计时器提醒",
-			"MEETING": "会议"
+			"MEETING": "会议",
+			"TASK_UPDATE": "更改",
+			"TASK_DUE_REMINDER": "到期提醒"
 		},
 		"SOMEONE": "有人",
 		"MARK_READ": "标为已读",
@@ -4080,7 +4148,18 @@
 				"OFF": "仅在开始时",
 				"BEFORE_MINUTES": "提前 {minutes} 分钟"
 			},
+			"TASK_DUE": {
+				"TITLE": "截止日期",
+				"INTRO": "在分配给你的任务到期前提醒你（任务未完成时）。",
+				"LABEL": "到期提醒",
+				"TEXT": "始终在收件箱中。按你的选择通过电子邮件和设备通知。",
+				"OFF": "关闭",
+				"BEFORE_HOURS": "提前 {hours, plural, other {# 小时}}"
+			},
 			"INTRO": "选择哪些内容进入你的收件箱。关闭某一类型后，不再收到该类型的新通知；已有的通知会保留。",
+			"TEAM_DEFAULTS_TITLE": "你的团队 {team} 设置了默认通知",
+			"TEAM_DEFAULTS_TEXT": "你在此处未选择的项将遵循这些默认值。你自己的选择始终优先。",
+			"TASK_UPDATE_TEXT": "你关注的任务或项目的状态、日期或成员变化。关闭后仍会进入收件箱，但不会发送邮件或推送。",
 			"LOAD_ERROR": "无法加载你的通知设置。",
 			"SAVE_FAILED": "该设置未保存，请重试。",
 			"ROWS": {
@@ -4140,6 +4219,13 @@
 			"SOON": "你的会议即将开始",
 			"STARTING": "你的会议正在开始",
 			"OPEN": "打开会议"
+		},
+		"TASK_DUE": {
+			"BY_END_OF_DAY": "截止到 {date} 结束",
+			"AT": "截止时间：{date}"
+		},
+		"BOARD_INVITATION": {
+			"TEXT": "邀请你加入一个白板：打开它即可加入。"
 		}
 	},
 	"toasts": {
@@ -5208,6 +5294,15 @@
 			"SHARE_PROFILES_DESCRIPTION": "成员可以在个人资料页查看彼此的每日计划和统计数据。",
 			"REQUIRE_PLAN_LABEL": "追踪时间前需要每日计划",
 			"REQUIRE_PLAN_DESCRIPTION": "成员规划好当天后，计时器才会启动。",
+			"NOTIFICATIONS_SECTION": "默认通知",
+			"NOTIFICATIONS_DESCRIPTION": "成员未在自己的通知设置中选择时所获得的设置。成员自己的选择始终优先。",
+			"MEMBERS_CHOOSE": "由成员选择",
+			"EMAIL_DEFAULT_DESCRIPTION": "每类通知如何通过电子邮件送达成员。",
+			"PUSH_DEFAULT_DESCRIPTION": "在成员已开启通知的设备上。",
+			"TASK_UPDATE_DEFAULT_LABEL": "关注的任务和项目的更新",
+			"TASK_UPDATE_DEFAULT_DESCRIPTION": "成员关注的任务或项目的状态、日期或成员发生变化。",
+			"TIMER_DEFAULT_DESCRIPTION": "计时器运行多久后值得提醒。",
+			"TASK_DUE_DEFAULT_DESCRIPTION": "任务到期前多久提醒负责人。",
 			"ORGANIZATION_TRACKING_SECTION": "时间记录要求",
 			"ORGANIZATION_TRACKING_DESCRIPTION": "适用于 {organization} 的所有团队。",
 			"REQUIRE_TEAM_LABEL": "要求团队",
@@ -5443,7 +5538,8 @@
 			"SIGN_OUT_INCOMPLETE": "有会话在退出过程中自行续期。请重试。",
 			"SIGN_OUT_OTHERS_FAILED": "退出其他会话未完成。{reason}",
 			"SIGN_OUT_OTHERS_CONFIRM": "{count, plural, other {退出 # 个会话}}",
-			"SIGNED_OUT_OTHERS": "{count, plural, =0 {没有其他已登录的会话。} other {已退出另外 # 个会话。}}"
+			"SIGNED_OUT_OTHERS": "{count, plural, =0 {没有其他已登录的会话。} other {已退出另外 # 个会话。}}",
+			"APP_ON_DEVICE": "{app} · {device}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "个人资料",
@@ -7808,6 +7904,41 @@
 				"DELETED": "{name} 的定期开票已删除",
 				"FAILED": "更改保存失败，请重试。"
 			}
+		},
+		"shared": {
+			"PAY": "支付 {amount}",
+			"PAYING": "正在打开支付…",
+			"PAY_FAILED": "无法开始支付。请稍后再试。",
+			"DOWNLOAD_FAILED": "无法下载 PDF。请重试。",
+			"FROM_SENDER": "来自 {name}",
+			"RETURNED_TITLE": "感谢您的付款",
+			"RETURNED_MESSAGE": "付款正在确认中。支付服务商确认后，此页面会立即显示发票已付款。",
+			"PAID_TITLE": "此发票已付款",
+			"PAID_MESSAGE": "已无待付款项。谢谢。",
+			"CLOSED_TITLE": "此链接已无法打开发票",
+			"CLOSED_MESSAGE": "链接已被撤销，或发票已作废。请向发件人索取新链接。",
+			"FOOTER": "通过 {app} 发送"
+		},
+		"payments": {
+			"TITLE": "在线支付发票",
+			"DESCRIPTION": "让客户通过工作区的支付连接器，在发票页面上直接付款。您的支付服务商密钥保留在连接器中。",
+			"ENDPOINT": "结账地址",
+			"ENDPOINT_HINT": "连接器中用于发起支付的 HTTPS 地址。",
+			"ENABLED": "在发票页面上提供在线支付",
+			"TEST_MODE": "测试模式：付款只记入日志，绝不记入发票",
+			"CONNECT": "连接",
+			"SAVE": "保存",
+			"SAVED": "已保存",
+			"SAVE_FAILED": "无法保存连接。请检查地址后重试。",
+			"LOAD_FAILED": "无法加载连接。",
+			"NOTIFICATION_URL": "通知地址",
+			"NOTIFICATION_URL_HINT": "连接器会将服务商确认的每笔付款发送到这里。",
+			"SECRET": "签名密钥",
+			"SECRET_ONCE": "请立即复制到连接器中：它只显示这一次。",
+			"ROTATE": "新的签名密钥",
+			"ROTATE_HINT": "当前密钥会立即失效。",
+			"COPY": "复制",
+			"COPIED": "已复制"
 		}
 	},
 	"timeReports": {
@@ -8125,6 +8256,15 @@
 		"TYPE_BREAK": "休息",
 		"BREAK_HINT": "休息从不计费，也从不计入工作时间。"
 	},
+	"tabOrganizationNotice": {
+		"TITLE": "另一个标签页打开了另一个组织",
+		"KEEPS_WORKING": "此标签页继续在 {organization} 中工作，保留其计时器和页面。",
+		"CANNOT_WORK_TITLE": "此标签页无法再在 {organization} 中工作",
+		"CANNOT_WORK": "另一个标签页打开了另一个组织。请选择此标签页在哪里工作。",
+		"STOP_TIMER_FIRST": "它的计时器正在 {organization} 中运行：请先停止，再在此处打开另一个组织。",
+		"OPEN_HERE": "在此处打开另一个组织",
+		"BRING_BACK": "在所有标签页中使用 {organization}"
+	},
 	"timeZoneNotice": {
 		"TITLE": "你的个人资料使用 {profileZone}（{profileOffset}）。此浏览器位于 {browserZone}（{browserOffset}）。",
 		"DESCRIPTION": "时间表按你个人资料的时区计算每一天，其他报告按此浏览器的时区计算，因此接近午夜的记录可能落在另一天。",
@@ -8136,5 +8276,15 @@
 		"SAVE_FAILED": "无法保存你的时区。",
 		"SAVE_FAILED_DESCRIPTION": "你的个人资料没有更改。请检查网络连接后重试。",
 		"TRY_AGAIN": "重试"
+	},
+	"sharedReport": {
+		"READ_ONLY_BADGE": "只读",
+		"READ_ONLY": "从 {app} 分享的只读报告。数据截至 {time}。",
+		"NOT_WORKING_TITLE": "此链接已失效",
+		"NOT_WORKING_MESSAGE": "作者已关闭、替换此链接或使其过期。请向作者索取新链接。",
+		"ERROR_TITLE": "无法读取报告",
+		"ERROR_MESSAGE": "请检查网络连接后重试。",
+		"LOADING": "正在加载报告…",
+		"EMPTY": "此时间段内没有记录时间。"
 	}
 }

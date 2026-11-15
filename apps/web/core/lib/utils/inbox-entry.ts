@@ -10,9 +10,16 @@ import {
 import { readRuntimeEnv } from '@/env-config';
 import { timerReminderNoticeOf, type TimerReminderNotice } from '@/core/lib/notifications/timer-reminders';
 import { MEETINGS_HREF, meetingNoticeOf, type MeetingNotice } from '@/core/lib/notifications/meeting-notices';
+import { boardInvitationHref, isBoardInvitation } from '@/core/lib/notifications/board-invitations';
 import { docsInboxHrefOf, isDocsInboxEntry } from './docs-links';
 import { isDocsEnabled } from './docs-enabled';
-import { NotificationEntry, quotedSubjectOf, senderNameFromTitle, TIMER_REMINDER_HREF } from './notification-inbox';
+import {
+	NotificationEntry,
+	projectHrefOf,
+	quotedSubjectOf,
+	senderNameFromTitle,
+	TIMER_REMINDER_HREF
+} from './notification-inbox';
 
 /** The families an entry is grouped and filtered by. */
 export type InboxSourceGroup = 'tasks' | 'chat' | 'docs' | 'email' | 'integrations' | 'people' | 'other';
@@ -100,6 +107,8 @@ export function sourceGroupOf(
 	// A comment on a page (the platform names its record in the metadata) is a Docs entry, not a task's.
 	if (!item.taskId && isDocsInboxEntry(entity, item.metadata ?? null)) return 'docs';
 	if (item.taskId || entity === EBaseEntityEnum.Task || entity === 'Comment') return 'tasks';
+	// A project its member was added to, or whose state or dates changed: the work family, as its tasks
+	if (entity === EBaseEntityEnum.OrganizationProject) return 'tasks';
 	if (entity === 'ChatMessage' || entity === 'ChatConversation' || type === EEmployeeNotificationType.Message) return 'chat';
 	if (entity === 'Document' || entity === 'DocumentLink') return 'docs';
 	if (type === EEmployeeNotificationType.Invitation || type === EEmployeeNotificationType.RateChangeRequest || entity === 'Employee') return 'people';
@@ -146,10 +155,13 @@ export function showsInboxSheet(entry: Pick<InboxEntry, 'taskId' | 'href' | 'cha
 	return !!entry.decision || !hasInboxTarget(entry, chatPages);
 }
 
-function hrefOf(type: EEmployeeNotificationType | null, entry: Pick<InboxEntry, 'entity' | 'entityId'>, metadata: Record<string, unknown> | null = null): string | null {
+function hrefOf(type: EEmployeeNotificationType | null, entry: Pick<InboxEntry, 'entity' | 'entityId' | 'rawTitle'>, metadata: Record<string, unknown> | null = null): string | null {
 	if (type === EEmployeeNotificationType.RateChangeRequest) return RATE_CHANGE_REQUEST_HREF;
+	if (isBoardInvitation({ type, entity: entry.entity, rawTitle: entry.rawTitle })) return boardInvitationHref();
 	if (type === EEmployeeNotificationType.TimerReminder) return TIMER_REMINDER_HREF;
 	if (type === EEmployeeNotificationType.Meeting) return MEETINGS_HREF;
+	const projectHref = projectHrefOf(entry.entity, entry.entityId);
+	if (projectHref) return projectHref;
 	// Without the chat pages a conversation has nowhere to open: the entry is not a link.
 	if (entry.entity === 'ChatConversation' && entry.entityId && hasChatPages()) return `/chat/${entry.entityId}`;
 	// A page, or a comment on one (its thread), opens in Docs where the deployment has it.
@@ -315,8 +327,8 @@ export function fromNotificationEntry(notification: NotificationEntry): InboxEnt
 		message: notification.message,
 		senderName: notification.senderName,
 		sentByEmployeeId: null,
-		entity: notification.taskId ? EBaseEntityEnum.Task : null,
-		entityId: notification.taskId,
+		entity: notification.entity ?? (notification.taskId ? EBaseEntityEnum.Task : null),
+		entityId: notification.entityId ?? notification.taskId,
 		taskId: notification.taskId,
 		chatMessageId: null,
 		href: notification.href,

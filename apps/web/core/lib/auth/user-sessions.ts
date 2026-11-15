@@ -14,6 +14,13 @@ export interface IUserSession {
 	/** True for the session of this browser. */
 	current: boolean;
 	app: TUserSessionApp;
+	/**
+	 * Which app the session was opened from ("Ever Teams", "gauzy-desktop-timer"), as it named itself or as its user
+	 * agent carries it; absent before ever-co/ever-gauzy#11983 and when nothing tells.
+	 */
+	appName?: string;
+	/** The web host the session was opened from ("app.example.com"), when a browser's request said it. */
+	appOrigin?: string;
 	/** The browser and its major version ("Chrome 131"), when the user agent names one. */
 	browser: string | null;
 	/** The operating system ("Windows", "macOS", "Android"), when the user agent names one. */

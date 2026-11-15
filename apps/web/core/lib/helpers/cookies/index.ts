@@ -264,6 +264,8 @@ export function setAuthCookies(datas: CookiesDataType, ctx?: NextCtx) {
 	setCookie(ACTIVE_LANGUAGE_COOKIE_NAME, languageId, write);
 	setCookie(NO_TEAM_POPUP_SHOW_COOKIE_NAME, noTeamPopup, write);
 	setCookie(ACTIVE_USER_ID_COOKIE_NAME, userId, write);
+	// A sign-in in this tab: it works in the session it just opened
+	tabSessionReplaced(ctx);
 }
 
 export function cookiesKeys() {
@@ -307,6 +309,8 @@ export function removeAuthCookies() {
 
 	// Delete access token with cross-site attributes
 	deleteAccessTokenCookie();
+	// A sign-out in this tab: nothing of the session stays in its memory
+	tabSessionReplaced();
 }
 
 // Access Token
@@ -388,8 +392,56 @@ export function setAccessTokenCookie(accessToken: string, ctx?: NextCtx) {
 	}
 }
 
+/**
+ * The organization and team a tab works in while the cookies, shared by every tab, name another organization of the
+ * session (another tab switched to it): read from tab-organization.ts, which registers itself here, in the browser only.
+ */
+interface TabWorkScope {
+	organizationId: string;
+	teamId: string | null;
+	projectId: string | null;
+}
+
+let readTabWorkScope: (() => TabWorkScope | null) | null = null;
+let onTabSessionReplaced: (() => void) | null = null;
+let onTabProjectChosen: ((projectId: string | null) => void) | null = null;
+
+/**
+ * Registers what a tab works in (tab-organization.ts). `onSessionReplaced` runs when this tab signs in or out, so it
+ * starts again from the cookies; `onProjectChosen` keeps each project this tab chooses, so that it still files its tasks
+ * under it once another tab moves the cookies to another organization (the project cookie is then the other tab's).
+ */
+export function registerTabWorkScope(
+	reader: () => TabWorkScope | null,
+	onSessionReplaced: () => void,
+	onProjectChosen?: (projectId: string | null) => void
+): void {
+	readTabWorkScope = reader;
+	onTabSessionReplaced = onSessionReplaced;
+	onTabProjectChosen = onProjectChosen ?? null;
+}
+
+/** This tab's own organization and team when they are not the cookies', in the browser; null otherwise. */
+function tabWorkScope(ctx?: NextCtx): TabWorkScope | null {
+	if (ctx || typeof window === 'undefined' || !readTabWorkScope) return null;
+	return readTabWorkScope();
+}
+
+function tabSessionReplaced(ctx?: NextCtx): void {
+	if (!ctx && typeof window !== 'undefined') onTabSessionReplaced?.();
+}
+
 // Active team id
+/**
+ * The team this tab works in: the cookie's, or this tab's own while another tab has the cookies on another organization
+ * (tab-organization.ts). The cookie itself is shared by every tab: getSharedActiveTeamIdCookie.
+ */
 export function getActiveTeamIdCookie(ctx?: NextCtx) {
+	return tabWorkScope(ctx)?.teamId || getSharedActiveTeamIdCookie(ctx);
+}
+
+/** The team cookie, shared by every tab of the browser. */
+function getSharedActiveTeamIdCookie(ctx?: NextCtx) {
 	return getCookie(ACTIVE_TEAM_COOKIE_NAME, ctx) as string;
 }
 
@@ -398,16 +450,35 @@ export function setActiveTeamIdCookie(teamIds: string, ctx?: NextCtx) {
 }
 
 // Active Project id
+/**
+ * The project this tab files new tasks under: the cookie's, or its own team's while another tab has the cookies on
+ * another organization (tab-organization.ts): the cookie then names a project of that other organization.
+ */
 export function getActiveProjectIdCookie(ctx?: NextCtx) {
+	const tab = tabWorkScope(ctx);
+	if (tab) return tab.projectId ?? '';
 	return getCookie(ACTIVE_PROJECT_COOKIE_NAME, ctx) as string;
 }
 
 export function setActiveProjectIdCookie(teamIds: string, ctx?: NextCtx) {
+	// This tab keeps the project it chose, before the cookies move to another organization too (CodeRabbit on #5321)
+	if (!ctx && typeof window !== 'undefined') onTabProjectChosen?.(teamIds || null);
+	// A tab working in its own organization keeps its project to itself: the cookie is the other tab's
+	if (tabWorkScope(ctx)) return;
 	return setCookie(ACTIVE_PROJECT_COOKIE_NAME, teamIds, ctx);
 }
 
 // Organization Id
+/**
+ * The organization this tab works in: the cookie's, or this tab's own while another tab has the cookies on another
+ * organization of the session (tab-organization.ts). The cookie itself is shared: getSharedOrganizationIdCookie.
+ */
 export function getOrganizationIdCookie(ctx?: NextCtx) {
+	return tabWorkScope(ctx)?.organizationId || getSharedOrganizationIdCookie(ctx);
+}
+
+/** The organization cookie, shared by every tab of the browser. */
+export function getSharedOrganizationIdCookie(ctx?: NextCtx) {
 	return getCookie(ORGANIZATION_ID_COOKIE_NAME, ctx) as string;
 }
 

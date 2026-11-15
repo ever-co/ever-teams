@@ -74,6 +74,23 @@ describe('PHProvider', () => {
 		);
 	});
 
+	it.each([
+		'/shared-invoice#id=0b6e4c2a-1d3f-4e5a-8b7c-9d0e1f2a3b4c&token=test-header.test-payload.test-signature',
+		'/fr/shared-invoice?paid=1',
+		'/auth/passcode#/share/invoices/0b6e4c2a-1d3f-4e5a-8b7c-9d0e1f2a3b4c/test-header.test-payload.test-signature'
+	])("stays off on a page load that starts on %s, whose address carries an invoice link's token", (address) => {
+		window.history.replaceState(null, '', address);
+		try {
+			const { PHProvider } = loadProvider({ NEXT_PUBLIC_POSTHOG_KEY: 'runtime-project-key' });
+
+			PHProvider({ children: 'app' });
+
+			expect(mockPostHogInit).not.toHaveBeenCalled();
+		} finally {
+			window.history.replaceState(null, '', '/');
+		}
+	});
+
 	it.each(['/delete-account/confirm', '/fr/delete-account/confirm', '/delete-account'])(
 		'stays off on a page load that starts on %s, whose address can carry a deletion token',
 		(pathname) => {

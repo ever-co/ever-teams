@@ -7,6 +7,7 @@ import { cn } from '@/core/lib/helpers';
 import { PersonAvatar } from '@/core/components/teams/people-avatars';
 import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
 import { NotificationTypeBadge } from '../notification-type-badge';
+import { notificationMessageOf } from '../task-due-copy';
 import { timerReminderDescriptionOf, timerReminderSentenceOf } from '../timer-reminder-copy';
 import { meetingSentenceOf } from '../meeting-notice-copy';
 import { formatNotificationAge, formatNotificationDate, NotificationEntry } from '@/core/lib/utils/notification-inbox';
@@ -39,7 +40,9 @@ const EVENT_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPa
 	[EEmployeeNotificationType.Payment]: 'notifications.EVENTS.PAYMENT',
 	[EEmployeeNotificationType.RateChangeRequest]: 'notifications.EVENTS.RATE_CHANGE_REQUEST',
 	[EEmployeeNotificationType.TimerReminder]: 'notifications.EVENTS.TIMER_REMINDER',
-	[EEmployeeNotificationType.Meeting]: 'notifications.EVENTS.MEETING'
+	[EEmployeeNotificationType.Meeting]: 'notifications.EVENTS.MEETING',
+	[EEmployeeNotificationType.TaskUpdate]: 'notifications.EVENTS.TASK_UPDATE',
+	[EEmployeeNotificationType.TaskDueReminder]: 'notifications.EVENTS.TASK_DUE_REMINDER'
 };
 
 const TYPE_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPaths> = {
@@ -52,7 +55,9 @@ const TYPE_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPat
 	[EEmployeeNotificationType.Payment]: 'notifications.TYPES.PAYMENT',
 	[EEmployeeNotificationType.RateChangeRequest]: 'notifications.TYPES.RATE_CHANGE_REQUEST',
 	[EEmployeeNotificationType.TimerReminder]: 'notifications.TYPES.TIMER_REMINDER',
-	[EEmployeeNotificationType.Meeting]: 'notifications.TYPES.MEETING'
+	[EEmployeeNotificationType.Meeting]: 'notifications.TYPES.MEETING',
+	[EEmployeeNotificationType.TaskUpdate]: 'notifications.TYPES.TASK_UPDATE',
+	[EEmployeeNotificationType.TaskDueReminder]: 'notifications.TYPES.TASK_DUE_REMINDER'
 };
 
 const ROW_ACTION_CLASS =
@@ -149,8 +154,10 @@ export const NotificationRow = memo(function NotificationRow({
 	const t = useTranslations();
 	const sentence = useEventSentence(entry);
 	const subject = useSubject(entry, task);
-	// A timer reminder says what to do in the reader's language; the platform's text is English
-	const message = entry.timerReminder ? timerReminderDescriptionOf(t, entry.timerReminder) : entry.message;
+	// A timer reminder says what to do, and a due date reminder when, in the reader's language; the platform's is English
+	const message = entry.timerReminder
+		? timerReminderDescriptionOf(t, entry.timerReminder)
+		: notificationMessageOf(t, locale, entry);
 	const age = formatNotificationAge(entry.createdAt, locale, now);
 	const fullDate = formatNotificationDate(entry.createdAt, locale);
 	const sender = { id: entry.id, name: entry.senderName ?? '', imageUrl: entry.senderImageUrl };

@@ -11,6 +11,7 @@ import { TeamIdentitySection } from './team-identity-section';
 import { TeamVisibilitySection } from './team-visibility-section';
 import { TeamTrackingSection } from './team-tracking-section';
 import { TeamDefaultProjectSection } from './team-default-project-section';
+import { TeamNotificationDefaultsSection } from './team-notification-defaults-section';
 import { TeamDangerSection } from './team-danger-section';
 import { OrganizationTrackingSection } from './organization-tracking-section';
 import { OrganizationTrackingSwitchSection } from './organization-tracking-switch-section';
@@ -63,6 +64,12 @@ function TeamGeneralContent() {
 				setOwnTracking={settings.setOwnTracking}
 				setShareProfileView={settings.setShareProfileView}
 				setRequirePlanToTrack={settings.setRequirePlanToTrack}
+			/>
+			<TeamNotificationDefaultsSection
+				key={`notifications-${team.id}`}
+				team={team}
+				canEdit={canEdit}
+				saveNotificationDefaults={settings.saveNotificationDefaults}
 			/>
 			{isOrganizationAdmin && <OrganizationTrackingSection />}
 			{isOrganizationAdmin && <OrganizationTrackingSwitchSection />}

@@ -199,7 +199,9 @@ export function acceptInviteRequest(params: AcceptInviteParams, origin?: string)
 		path: '/invite/accept',
 		method: 'POST',
 		body: params,
-		init: { headers }
+		init: { headers },
+		// Accepting signs the person in: Gauzy names the new session's device with the browser's agent
+		browserUserAgent: true
 	});
 }
 

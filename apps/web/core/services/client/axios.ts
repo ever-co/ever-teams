@@ -1,7 +1,7 @@
 import { APPLICATION_LANGUAGES_CODE, GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { APIService } from './api.service';
+import { APIService, authorizeRequest } from './api.service';
 import { buildAPIService, buildDirectAPIService } from './api-factory';
 
 let api: APIService;
@@ -25,11 +25,9 @@ export const getAPI = async (): Promise<APIService> => {
 
 		api.axiosInstance.interceptors.request.use(
 			async (config: any) => {
-				const cookie = getAccessTokenCookie();
 				const tenantId = getTenantIdCookie();
-				if (cookie && !config.pinnedAuthorization) {
-					config.headers['Authorization'] = `Bearer ${cookie}`;
-				}
+				// The cookie's token, or this tab's own for its organization (#5134)
+				authorizeRequest(config);
 				if (tenantId && !config.headers.has('tenant-id')) {
 					config.headers.set('tenant-id', tenantId);
 				}
@@ -50,11 +48,9 @@ export const getAPIDirect = async (): Promise<APIService> => {
 
 		apiDirect.axiosInstance.interceptors.request.use(
 			async (config: any) => {
-				const cookie = getAccessTokenCookie();
 				const tenantId = getTenantIdCookie();
-				if (cookie && !config.pinnedAuthorization) {
-					config.headers['Authorization'] = `Bearer ${cookie}`;
-				}
+				// The cookie's token, or this tab's own for its organization (#5134)
+				authorizeRequest(config);
 				if (tenantId && !config.headers.has('tenant-id')) {
 					config.headers.set('tenant-id', tenantId);
 				}
@@ -93,6 +89,11 @@ export type APIConfig = AxiosRequestConfig<any> & {
 	 * `APIService` leaves its body out, in direct and in proxy mode alike.
 	 */
 	secretResponse?: boolean;
+	/**
+	 * The address holds a secret (the token of a shared report's link): `APIService` writes neither this request, its
+	 * answer nor its error to any log, in direct and in proxy mode alike.
+	 */
+	secretAddress?: boolean;
 	/**
 	 * A 401 of this call refuses a proof the person typed (a wrong two-factor code), not their session: the session
 	 * handler (refresh, then sign-out) is not called, and the caller shows the refusal.

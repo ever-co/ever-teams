@@ -18,7 +18,14 @@ export enum EEmployeeNotificationType {
 	 * A meeting the person hosts or is invited to (#5022): they were invited or removed, it was changed or cancelled, it
 	 * starts soon or it is starting. About the meeting's appointment; the title says which (`meetingNoticeOf`).
 	 */
-	Meeting = 'Meeting'
+	Meeting = 'Meeting',
+	/**
+	 * A record the employee follows changed (#5022): a task's status, priority, due date or members, or a project's
+	 * status, dates or archiving (its members follow it). The message says what changed.
+	 */
+	TaskUpdate = 'TaskUpdate',
+	/** A task the employee is assigned to is due soon, at their threshold before its due date (#5022): about the task. */
+	TaskDueReminder = 'TaskDueReminder'
 }
 
 export interface IEmployeeNotification {
@@ -101,6 +108,11 @@ export interface INotificationPreferences {
 	 * unset, `null` (or 0) for no reminder before. The notice that it is starting comes either way.
 	 */
 	meetingReminderMinutes?: number | null;
+	/**
+	 * How many hours before a task's due date its assignees are reminded of it (#5022); 24 when unset, `null` (or 0) for
+	 * no reminder.
+	 */
+	taskDueReminderHours?: number | null;
 }
 
 export type TEmployeeNotificationSettingKey =

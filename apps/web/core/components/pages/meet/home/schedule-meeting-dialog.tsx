@@ -4,8 +4,10 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { AppDialog, AppDialogHeader, APP_DIALOG_BODY, APP_DIALOG_FOOTER } from '@/core/components/common/app-dialog';
+import { DateField } from '@/core/components/common/date-field';
 import { Input, controlRecipe } from '@/core/components/common/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
+import { TimeField } from '@/core/components/common/time-field';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { CalendarPlus, Copy } from '@/core/components/icons';
 import { useDefaultMeetingZone } from '@/core/hooks/meetings/use-default-meeting-zone';
@@ -265,14 +267,13 @@ export function ScheduleMeetingDialog({
 							<label htmlFor="meeting-date" className="text-sm font-medium text-foreground">
 								{t('meetings.FIELD_DATE')}
 							</label>
-							<Input
+							<DateField
 								id="meeting-date"
-								type="date"
 								value={date}
 								min={wallClockOf(new Date(), zone).date}
 								aria-invalid={problem === 'past' || problem === 'skipped' || undefined}
-								onChange={(event) => {
-									setDate(event.target.value);
+								onChange={(day) => {
+									setDate(day);
 									setProblem(null);
 								}}
 							/>
@@ -281,13 +282,12 @@ export function ScheduleMeetingDialog({
 							<label htmlFor="meeting-time" className="text-sm font-medium text-foreground">
 								{t('meetings.FIELD_TIME')}
 							</label>
-							<Input
+							<TimeField
 								id="meeting-time"
-								type="time"
 								value={time}
 								aria-invalid={problem === 'past' || problem === 'skipped' || undefined}
-								onChange={(event) => {
-									setTime(event.target.value);
+								onChange={(clock) => {
+									setTime(clock);
 									setProblem(null);
 								}}
 							/>

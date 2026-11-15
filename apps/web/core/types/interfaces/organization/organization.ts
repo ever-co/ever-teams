@@ -64,6 +64,7 @@ export interface IOrganization
 	restrictTrackingSwitchToHigherRoles?: boolean;
 	timeLogsKeepTheirRates?: boolean | null;
 	allowBreaks?: boolean;
+	enforcePrivateProjects?: boolean;
 	timeFormat?: ETimeFormat;
 	defaultStartTime?: string;
 	defaultEndTime?: string;

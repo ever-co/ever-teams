@@ -10,6 +10,7 @@ import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } fro
 import { addMinutes, format, parseISO } from 'date-fns';
 import { Clock, Spinner } from '@/core/components/icons';
 import { controlRecipe } from '@/core/components/common/input';
+import { TimeField } from '@/core/components/common/time-field';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { CustomSelect } from '../../common/multiple-select';
 import { TimeLogTaskField } from '../timesheet/time-log-task-field';
@@ -41,9 +42,10 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 	const overlapGuard = useTimeOverlapGuard({ isOpen });
 	const saveAfterOverlapCheck = overlapGuard.saveAfterCheck;
 	const isSaving = isUpdateTimeLogLoading || overlapGuard.isChecking;
+	// A log without a start or an end shows 09:00 or 10:00, as its fields always did, and now holds what it shows
 	const initialTimeRange = {
-		startTime: formatTimeFromDate(timeLogData.startedAt),
-		endTime: formatTimeFromDate(timeLogData.stoppedAt)
+		startTime: formatTimeFromDate(timeLogData.startedAt) || '09:00',
+		endTime: formatTimeFromDate(timeLogData.stoppedAt) || '10:00'
 	};
 
 	const { myPermissions } = useMyRolePermissionsQuery();
@@ -314,16 +316,11 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 								{t('manualTime.START_TIME')}
 								<span className="ml-1 text-destructive-ink">*</span>
 							</label>
-							<input
-								defaultValue={timeRange.startTime || '09:00'}
+							<TimeField
+								value={timeRange.startTime}
 								aria-label={t('manualTime.START_TIME')}
 								aria-describedby="start-time-error"
-								type="time"
-								min="00:00"
-								max="23:59"
-								pattern="[0-9]{2}:[0-9]{2}"
-								onChange={(e) => updateTime('startTime', e.target.value)}
-								className={clsxm(controlRecipe, 'h-9 px-2.5 font-normal tabular-nums')}
+								onChange={(time) => updateTime('startTime', time)}
 								required
 							/>
 						</div>
@@ -333,14 +330,12 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 								{t('manualTime.END_TIME')}
 								<span className="ml-1 text-destructive-ink">*</span>
 							</label>
-							<input
-								defaultValue={timeRange.endTime || '10:00'}
+							<TimeField
+								value={timeRange.endTime}
 								aria-label={t('manualTime.END_TIME')}
 								aria-describedby="end-time-error"
-								type="time"
 								min={spansMidnight ? undefined : getMinEndTime()}
-								onChange={(e) => updateTime('endTime', e.target.value)}
-								className={clsxm(controlRecipe, 'h-9 px-2.5 font-normal tabular-nums')}
+								onChange={(time) => updateTime('endTime', time)}
 								required
 							/>
 						</div>
