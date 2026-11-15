@@ -364,6 +364,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/shared-invoice",
+      "file": "apps/web/app/[locale]/shared-invoice/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/shared-report",
       "file": "apps/web/app/[locale]/shared-report/page.tsx",
       "source": "router"

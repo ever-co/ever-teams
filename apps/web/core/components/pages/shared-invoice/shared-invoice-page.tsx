@@ -14,6 +14,7 @@ import {
 	InvoiceDetailHeaderSkeleton
 } from '@/core/components/pages/invoices/detail/invoice-detail-skeleton';
 import { APP_NAME } from '@/core/constants/config/constants';
+import { keepLinkWhilePaying, useSharedInvoiceLink } from '@/core/hooks/invoices/use-shared-invoice-link';
 import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
 import { downloadBlob } from '@/core/lib/utils/dashboard-export';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
@@ -71,6 +72,7 @@ function PayButton({ id, token, label }: Readonly<{ id: string; token: string; l
 		setHasFailed(false);
 		try {
 			const url = await sharedInvoiceService.startCheckout(id, token, paymentReturnUrlOf(window.location.href));
+			keepLinkWhilePaying(id, token);
 			window.location.assign(url);
 		} catch {
 			setHasFailed(true);
@@ -124,29 +126,66 @@ function DownloadButton({ id, token, numberText }: Readonly<{ id: string; token:
 	);
 }
 
+/** The page's skeleton, while the invoice or the link that names it is read. */
+function SharedInvoiceLoading() {
+	const t = useTranslations();
+	return (
+		<SharedInvoiceFrame>
+			<output aria-label={t('common.LOADING')} className="flex flex-col gap-6">
+				<InvoiceDetailHeaderSkeleton />
+				<InvoiceDetailBodySkeleton />
+			</output>
+		</SharedInvoiceFrame>
+	);
+}
+
 /**
  * The public page of an invoice (ever-co/ever-gauzy#11856), opened from the link in the invoice's email without an
  * account: the invoice as a document, where it stands, its PDF, and Pay when the workspace connected a payment provider
  * and something is left to pay. Back from the provider, the page says the payment is being confirmed and shows it
- * paid once the provider's confirmation reached the API.
+ * paid once the provider's confirmation reached the API. The link is read from the fragment of the page's address,
+ * which no server receives (use-shared-invoice-link.ts).
  */
-export function SharedInvoicePage({ id, token }: Readonly<{ id: string; token: string }>) {
+export function SharedInvoicePage() {
+	const t = useTranslations();
+	const link = useSharedInvoiceLink();
+	const isReturn = useSearchParams()?.get(PAID_RETURN_QUERY) === '1';
+
+	if (link === undefined) {
+		return <SharedInvoiceLoading />;
+	}
+	if (link === null) {
+		return (
+			<SharedInvoiceFrame>
+				{isReturn ? (
+					<Notice
+						tone="info"
+						title={t('invoices.shared.RETURNED_TITLE')}
+						description={t('invoices.shared.RETURNED_MESSAGE')}
+					/>
+				) : (
+					<BlockEmptyMessage
+						className="rounded-xl bg-card hairline-ring ring-border"
+						title={t('invoices.shared.CLOSED_TITLE')}
+						message={t('invoices.shared.CLOSED_MESSAGE')}
+					/>
+				)}
+			</SharedInvoiceFrame>
+		);
+	}
+	return <SharedInvoiceView id={link.id} token={link.token} isReturn={isReturn} />;
+}
+
+/** The invoice a link opens. */
+function SharedInvoiceView({ id, token, isReturn }: Readonly<{ id: string; token: string; isReturn: boolean }>) {
 	const t = useTranslations();
 	const locale = useLocale();
-	const isReturn = useSearchParams()?.get(PAID_RETURN_QUERY) === '1';
 	const { invoice, payOption } = useSharedInvoice(id, token, isReturn);
 	const timeZone = null;
 	const todayKey = todayDayKey(timeZone);
 
 	if (invoice.isPending) {
-		return (
-			<SharedInvoiceFrame>
-				<output aria-label={t('common.LOADING')} className="flex flex-col gap-6">
-					<InvoiceDetailHeaderSkeleton />
-					<InvoiceDetailBodySkeleton />
-				</output>
-			</SharedInvoiceFrame>
-		);
+		return <SharedInvoiceLoading />;
 	}
 
 	if (invoice.isError) {
