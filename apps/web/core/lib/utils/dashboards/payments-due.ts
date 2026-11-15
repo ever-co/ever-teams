@@ -248,7 +248,7 @@ function plainestRateOf(amount: number, hours: number, decimals: number): number
  * amount: the member's current rate when it gives that amount, as for all time before entries stored rates, else
  * the rate the amount stands for (their average on a day tracked at two rates). Time without an amount has none.
  */
-export function lineRateOf(
+function lineRateOf(
 	currentRate: number | null,
 	amount: number,
 	seconds: number,

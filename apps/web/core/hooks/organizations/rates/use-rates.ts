@@ -103,7 +103,7 @@ export function useEmployeePayRates(employeeIds: ReadonlyArray<string>): Employe
 }
 
 /** A client rate saved on a project, and the day it prices tracked time from when the editor picked one. */
-export interface ProjectRateSave {
+interface ProjectRateSave {
 	billRateValue: number | null;
 	applyFrom?: string;
 }
