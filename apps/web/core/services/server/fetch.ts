@@ -18,6 +18,28 @@ export function clientAppHeaders(appName: string = APP_NAME): Record<string, str
 	return /^[\x20-\x7E]{1,64}$/.test(name) ? { [CLIENT_APP_HEADER]: name } : {};
 }
 
+/**
+ * The browser's user agent for a call that signs a session in or renews it (ever-co/ever-gauzy#11983). Gauzy records
+ * the user agent of the request that mints a session's tokens and names the session's device with it; this server's
+ * own ("node") is an unknown device. `true` reads it from the request being handled; the proxy, where `next/headers`
+ * does not answer, gives it. None outside a request, or for a value a header cannot carry as is.
+ */
+export async function browserUserAgentHeaders(userAgent: true | string): Promise<Record<string, string>> {
+	let agent: string | null = userAgent === true ? null : userAgent;
+	if (userAgent === true) {
+		try {
+			const { headers } = await import('next/headers');
+			agent = (await headers()).get('user-agent');
+		} catch (error) {
+			// Next marks a page dynamic by throwing from headers(): that one must reach Next
+			if ((error as { digest?: string } | null)?.digest === 'DYNAMIC_SERVER_USAGE') throw error;
+			return {};
+		}
+	}
+	const value = agent?.trim();
+	return value && /^[\x20-\x7E]{1,512}$/.test(value) ? { 'User-Agent': value } : {};
+}
+
 /** Gauzy's error body, or, when it carries no status (empty, not JSON), one that gives the answer's HTTP status. */
 function errorBodyWithStatus(data: unknown, res: Response): unknown {
 	const fields = data && typeof data === 'object' ? (data as Record<string, unknown>) : {};
@@ -34,7 +56,8 @@ export function serverFetch<T>({
 	init,
 	bearer_token,
 	tenantId,
-	keepsStatusOnError = false
+	keepsStatusOnError = false,
+	browserUserAgent
 }: {
 	path: string;
 	method: 'POST' | 'GET' | 'PUT' | 'DELETE';
@@ -48,6 +71,11 @@ export function serverFetch<T>({
 	 * giving no answer (a 502 in gauzyErrorResponse, no session decision in the guard).
 	 */
 	keepsStatusOnError?: boolean;
+	/**
+	 * For a call that signs a session in or renews it: the browser's user agent goes along, so that Gauzy names the
+	 * session's device (browserUserAgentHeaders). `true` takes it from the request being handled.
+	 */
+	browserUserAgent?: true | string;
 }) {
 	// A multipart body goes as is: fetch writes its Content-Type with the boundary it chose.
 	const isMultipart = body instanceof FormData;
@@ -75,14 +103,16 @@ export function serverFetch<T>({
 		datas['body'] = JSON.stringify(body);
 	}
 
-	// The browser's address for Gauzy's per-IP limits, when EVER_TEAMS_CLIENT_IP_SECRET is set (client-ip.ts)
-	return clientIpHeaders()
-		.then((ipHeaders) =>
+	// The browser's address for Gauzy's per-IP limits, when EVER_TEAMS_CLIENT_IP_SECRET is set (client-ip.ts), and its
+	// user agent for a call that signs a session in or renews it
+	return Promise.all([clientIpHeaders(), browserUserAgent ? browserUserAgentHeaders(browserUserAgent) : {}])
+		.then(([ipHeaders, agentHeaders]) =>
 			fetch(GAUZY_API_SERVER_URL + path, {
 				...datas,
 				...(init || {}),
 				headers: {
 					...headers,
+					...agentHeaders,
 					...ipHeaders,
 					...(init?.headers || {})
 				},
