@@ -64,4 +64,74 @@ describe('TeamNotificationDefaultsSection (#5022)', () => {
 		expect(saves[1]).toEqual(expect.objectContaining({ taskUpdate: false, email: '__test__' }));
 		expect(saves[1]).toHaveProperty('taskDueReminderHours');
 	});
+
+	const sectionOf = (team: object, saveNotificationDefaults: (defaults: unknown) => Promise<void>) => (
+		<NextIntlClientProvider locale="en" messages={messages}>
+			<TeamNotificationDefaultsSection
+				team={{ id: 'team-1', name: 'Design', ...team } as never}
+				canEdit
+				saveNotificationDefaults={saveNotificationDefaults}
+			/>
+		</NextIntlClientProvider>
+	);
+
+	it('does not send a refused change again with the next one', async () => {
+		const saves: unknown[] = [];
+		const saveNotificationDefaults = jest
+			.fn((defaults: unknown) => {
+				saves.push(defaults);
+				return Promise.resolve();
+			})
+			.mockImplementationOnce((defaults: unknown) => {
+				saves.push(defaults);
+				return Promise.reject(new Error('refused'));
+			});
+		render(sectionOf({ notificationDefaults: null }, saveNotificationDefaults));
+		const picks = screen.getAllByRole('button', { name: 'pick' });
+
+		await act(async () => {
+			picks[0].click();
+		});
+		await act(async () => {
+			picks[4].click();
+		});
+
+		expect(saves[0]).toEqual({ email: '__test__' });
+		expect(saves[1]).not.toHaveProperty('email');
+		expect(saves[1]).toHaveProperty('taskDueReminderHours');
+	});
+
+	it('keeps a change on its way when the team read after an earlier save lands', async () => {
+		const saves: unknown[] = [];
+		const saveNotificationDefaults = jest.fn((defaults: unknown) => {
+			saves.push(defaults);
+			return new Promise<void>(() => undefined);
+		});
+		const { rerender } = render(sectionOf({ notificationDefaults: null }, saveNotificationDefaults));
+		const picks = screen.getAllByRole('button', { name: 'pick' });
+
+		// Email, then the due date reminder; the team read after the email's save lands while the second is on its way
+		await act(async () => {
+			picks[0].click();
+		});
+		await act(async () => {
+			picks[4].click();
+		});
+		rerender(sectionOf({ notificationDefaults: { email: '__test__' } }, saveNotificationDefaults));
+		await act(async () => {
+			screen.getAllByRole('button', { name: 'pick' })[3].click();
+		});
+
+		expect(saves).toHaveLength(3);
+		expect(saves[2]).toEqual(expect.objectContaining({ email: '__test__' }));
+		expect(saves[2]).toHaveProperty('taskDueReminderHours');
+		expect(saves[2]).toHaveProperty('timerReminderHours');
+	});
+
+	it('offers nothing on a Gauzy that keeps no team defaults, which reads a team without the key', () => {
+		render(sectionOf({}, jest.fn()));
+
+		expect(screen.queryByRole('button', { name: 'pick' })).toBeNull();
+		expect(screen.queryByText(messages.settings.teamGeneral.NOTIFICATIONS_SECTION)).toBeNull();
+	});
 });

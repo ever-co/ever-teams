@@ -87,7 +87,8 @@ function hourChoices(
 ) {
 	const hours =
 		typeof stored === 'number' && stored > 0 && !offered.includes(stored) ? [...offered, stored] : [...offered];
-	return hours.sort((a, b) => a - b).map((value) => ({ value: String(value), label: labelOf(value) }));
+	hours.sort((a, b) => a - b);
+	return hours.map((value) => ({ value: String(value), label: labelOf(value) }));
 }
 
 /** A switch as a choice's value: members choose (unset), on or off. */
@@ -125,19 +126,35 @@ export function TeamNotificationDefaultsSection({
 		{ value: 'off', label: t('settings.teamGeneral.OFF') }
 	];
 	// Each save sends the whole defaults with one key changed. Two changes made before the first save answers both build
-	// on the latest defaults, the one the earlier change left, so neither undoes the other; the team read again replaces it.
-	const latest = useRef<{ read: TTeamNotificationDefaults | null; next: TTeamNotificationDefaults | null }>({
-		read: defaults,
-		next: defaults
-	});
+	// on the latest defaults, the one the earlier change left, so neither undoes the other. The team read again replaces
+	// them once no save is on its way (a read that lands before a later save is older than it), and a refused change
+	// is taken back out, so the next change does not send it again.
+	const latest = useRef<{
+		read: TTeamNotificationDefaults | null;
+		next: TTeamNotificationDefaults | null;
+		pending: number;
+	}>({ read: defaults, next: defaults, pending: 0 });
 	if (latest.current.read !== defaults) {
-		latest.current = { read: defaults, next: defaults };
+		latest.current.read = defaults;
+		if (latest.current.pending === 0) latest.current.next = defaults;
 	}
-	const save = <K extends TTeamDefaultKey>(key: K, value: TTeamNotificationDefaults[K] | undefined) => {
+	const save = async <K extends TTeamDefaultKey>(key: K, value: TTeamNotificationDefaults[K] | undefined) => {
 		const next = withTeamDefault(latest.current.next, key, value);
 		latest.current.next = next;
-		return saveNotificationDefaults(next);
+		latest.current.pending += 1;
+		try {
+			await saveNotificationDefaults(next);
+		} catch (error) {
+			latest.current.next = withTeamDefault(latest.current.next, key, latest.current.read?.[key]);
+			throw error;
+		} finally {
+			latest.current.pending -= 1;
+		}
 	};
+
+	// A Gauzy that keeps no team defaults reads a team without the key (one that keeps them reads it as null): the
+	// section would offer choices it drops without a word
+	if (team.notificationDefaults === undefined) return null;
 
 	return (
 		<SettingsSection
