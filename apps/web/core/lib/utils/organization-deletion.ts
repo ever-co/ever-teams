@@ -138,9 +138,11 @@ interface OrganizationDeletionSteps {
 /**
  * Deletes the organization, then opens the one to land in. Gauzy refuses the session's token from the delete on, as
  * it names the deleted organization, so the session is renewed first: the renewed token names the organization Gauzy
- * moved the person to. A failed delete changes nothing and is the caller's to show. Once the organization is gone,
- * a failure to renew the session or open the next one signs the person out to pick a workspace again: a restart
- * would start from the organization and team cookies, which still name the deleted organization.
+ * moved the person to. A failed delete changes nothing and is the caller's to show.
+ *
+ * Once the organization is gone, a failed renewal or switch sends the person to sign in, where they pick a workspace.
+ * Restarting the app instead would keep the deleted organization in the session's cookies, with a token Gauzy refuses
+ * (the renewal failed) or one naming another organization than the cookies (the switch failed).
  */
 export async function deleteOrganizationAndLand(
 	landing: DeletableOrganization | null,

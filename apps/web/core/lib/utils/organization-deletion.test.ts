@@ -143,18 +143,17 @@ describe('deleteOrganizationAndLand', () => {
 		expect(calls).toEqual([]);
 	});
 
-	it('signs out to the workspace picker once the organization is gone, when the session cannot be renewed', async () => {
+	it('sends the person to sign in, never back into the deleted organization, when the session cannot be renewed', async () => {
 		const { steps, calls } = stepsOf({ renewSession: jest.fn(async () => Promise.reject(new Error('offline'))) });
 
 		await deleteOrganizationAndLand(labs, steps);
 
-		// A restart would start again from the cookies that still name the deleted organization
 		expect(calls).toEqual(['delete', 'picker']);
 	});
 
-	it('signs out to the workspace picker once the organization is gone, when opening the next one fails', async () => {
+	it('sends the person to sign in when the organization to land in cannot be opened', async () => {
 		const { steps, calls } = stepsOf({
-			openOrganization: jest.fn(async () => Promise.reject(new Error('refused')))
+			openOrganization: jest.fn(async () => Promise.reject(new Error('The organization switch was refused')))
 		});
 
 		await deleteOrganizationAndLand(labs, steps);
