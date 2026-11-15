@@ -145,7 +145,12 @@ export async function splitCalendarEntry(request: CalendarSplitRequest) {
 		if (addError instanceof ZodValidationError) {
 			return;
 		}
-		await restoreAfterFailedAdd(log, window, { part: parts.second, taskId: secondTaskId ?? null }, addError);
+		await restoreAfterFailedAdd(
+			log,
+			{ whole: window, first: parts.first },
+			{ part: parts.second, taskId: secondTaskId ?? null },
+			addError
+		);
 	}
 }
 
@@ -197,12 +202,14 @@ async function restoreAfterFailedShortening(
 /**
  * The second part could not be added. The server is read first: when it holds that very part (a lost answer), the
  * split is done; when another entry covers the time, nothing is stretched over it and the first part is kept; when
- * the time is free, the entry gets its whole time back. When the server cannot be read, or the restoring write fails
- * (it may still have landed), the outcome is not known: nothing more is offered that could write over saved time.
+ * the time is free, the entry is read again and gets its whole time back only while it still holds the first part
+ * this split saved (already whole, nothing is written; changed meanwhile in another tab, or gone, nothing is
+ * written over it). When the server cannot be read, or the restoring write fails (it may still have landed), the
+ * outcome is not known: nothing more is offered that could write over saved time.
  */
 async function restoreAfterFailedAdd(
 	log: ITimeLog,
-	window: TimeWindow,
+	windows: { whole: TimeWindow; first: TimeWindow },
 	second: { part: TimeWindow; taskId: string | null },
 	addError: unknown
 ) {
@@ -222,8 +229,16 @@ async function restoreAfterFailedAdd(
 	if (state === 'taken') {
 		throw new CalendarSplitError('first-part-kept', addError);
 	}
+	const current = await currentLogOf(log);
+	const currentWindow = current ? windowOfLog(current) : null;
+	if (isSameWindow(currentWindow, windows.whole)) {
+		throw new CalendarSplitError('restored', addError);
+	}
+	if (!isSameWindow(currentWindow, windows.first)) {
+		throw new CalendarSplitError('unknown', addError);
+	}
 	try {
-		await restoreWindow(log, window);
+		await restoreWindow(log, windows.whole);
 	} catch {
 		throw new CalendarSplitError('unknown', addError);
 	}
