@@ -15,6 +15,7 @@ import {
 	forgetHeartbeat,
 	rememberHeartbeat,
 	rememberedHeartbeat,
+	shareUnfollowedTimeOutcome,
 	unfollowedTimeQuestion,
 	type UnfollowedTimeQuestion
 } from './unfollowed-time';
@@ -209,20 +210,26 @@ describe('the question put to the person', () => {
 		expect(unfollowedTimeQuestion()).toBeNull();
 	});
 
-	it('goes when the person answers it in another tab, which acts on the answer', async () => {
-		const ended = askAboutUnfollowedTime(asked, 3 * MINUTE);
+	it.each([
+		['kept', 'elsewhere'],
+		['stopped', 'stopped-elsewhere']
+	] as const)(
+		'goes when another tab has applied the answer given there (%s), and says what became of the run',
+		async (outcome, answer) => {
+			const ended = askAboutUnfollowedTime(asked, 3 * MINUTE);
 
-		// What the other tab's answer writes to the storage the tabs share
-		window.dispatchEvent(
-			new StorageEvent('storage', {
-				key: 'ever-teams.timer.unfollowed-time-answer',
-				newValue: JSON.stringify({ timeLogId: 'log-1', at: Date.now() })
-			})
-		);
+			// What the other tab writes to the storage the tabs share, once the answer is applied
+			window.dispatchEvent(
+				new StorageEvent('storage', {
+					key: 'ever-teams.timer.unfollowed-time-answer',
+					newValue: JSON.stringify({ timeLogId: 'log-1', outcome, at: Date.now() })
+				})
+			);
 
-		await expect(ended).resolves.toBe('elsewhere');
-		expect(unfollowedTimeQuestion()).toBeNull();
-	});
+			await expect(ended).resolves.toBe(answer);
+			expect(unfollowedTimeQuestion()).toBeNull();
+		}
+	);
 
 	it('stays when another tab answers about another run', async () => {
 		void askAboutUnfollowedTime(asked, 3 * MINUTE);
@@ -237,13 +244,22 @@ describe('the question put to the person', () => {
 		expect(unfollowedTimeQuestion()).toEqual(asked);
 	});
 
-	it('tells the other tabs of the browser that it was answered', () => {
-		void askAboutUnfollowedTime(asked, 3 * MINUTE);
+	it.each(['keep', 'stop'] as const)(
+		'tells the other tabs nothing as it is answered (%s): the answer is not applied yet',
+		(answer) => {
+			void askAboutUnfollowedTime(asked, 3 * MINUTE);
 
-		answerUnfollowedTime('keep');
+			answerUnfollowedTime(answer);
+
+			expect(window.localStorage.getItem('ever-teams.timer.unfollowed-time-answer')).toBeNull();
+		}
+	);
+
+	it.each(['kept', 'stopped'] as const)('tells them what became of the run once it is so (%s)', (outcome) => {
+		shareUnfollowedTimeOutcome('log-1', outcome);
 
 		expect(JSON.parse(String(window.localStorage.getItem('ever-teams.timer.unfollowed-time-answer')))).toEqual(
-			expect.objectContaining({ timeLogId: 'log-1' })
+			expect.objectContaining({ timeLogId: 'log-1', outcome })
 		);
 	});
 });

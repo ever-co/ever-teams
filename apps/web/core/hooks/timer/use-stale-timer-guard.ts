@@ -18,6 +18,7 @@ import {
 	forgetHeartbeat,
 	rememberHeartbeat,
 	rememberedHeartbeat,
+	shareUnfollowedTimeOutcome,
 	UNFOLLOWED_TIME_FLOOR_MS
 } from '@/core/lib/utils/timer/unfollowed-time';
 import { queryKeys } from '@/core/query/keys';
@@ -46,7 +47,10 @@ async function readLastLog(employeeId: string) {
  */
 type StoppedAtHeartbeatHint = 'STALE_STOPPED_HINT' | 'UNFOLLOWED_STOPPED_HINT' | 'UNFOLLOWED_STOP_CHOSEN_HINT';
 
-/** Stops a TEAMS run at its last heartbeat rather than now, and tells the person when it ended, and why. */
+/**
+ * Stops a TEAMS run at its last heartbeat rather than now, and tells the person when it ended, and why. Resolves to
+ * whether the run is stopped: false when another run is the running one by then, which the stop left alone.
+ */
 function useStopAtLastHeartbeat() {
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
@@ -65,7 +69,7 @@ function useStopAtLastHeartbeat() {
 			} catch (error) {
 				if (!ApiErrorService.isApiError(error)) throw error;
 				// 409: another run is the running one by then, which this stop may not end
-				if (timeLogId && error.hasHttpResponseStatus(409)) return;
+				if (timeLogId && error.hasHttpResponseStatus(409)) return false;
 				// 406: another tab or device stopped it first.
 				if (!error.hasHttpResponseStatus(406)) throw error;
 			}
@@ -81,6 +85,7 @@ function useStopAtLastHeartbeat() {
 			});
 			void queryClient.invalidateQueries({ queryKey: queryKeys.timer.all });
 			void queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+			return true;
 		},
 		[locale, queryClient, t]
 	);
@@ -114,10 +119,14 @@ export function useStopStaleTeamsTimer() {
  * - They stop the run at its last heartbeat, or leave the question unanswered until the closed-tab delay is
  *   reached: the run is stopped there, if it is still as it was when the question was asked. One that went on
  *   meanwhile, kept from another device, is left alone.
- * - They answer in another tab: that tab applies the answer.
+ * - They answer in another tab: that tab applies the answer, then tells this one what became of the run.
+ *
+ * The other tabs of the browser are told once the answer is applied, not when it is given: until then they hold
+ * their heartbeat and keep a stop waiting (shareUnfollowedTimeOutcome).
  */
 function useSettleUnfollowedTime() {
 	const stopAtLastHeartbeat = useStopAtLastHeartbeat();
+	const queryClient = useQueryClient();
 
 	return useCallback(
 		/** @param wasAsleep Whether the page's scripts had stopped running, rather than the app being opened. */
@@ -129,7 +138,8 @@ function useSettleUnfollowedTime() {
 			const run = lastLog as ITimeLog & { stoppedAt: Date };
 			const unansweredHint = wasAsleep ? 'UNFOLLOWED_STOPPED_HINT' : 'STALE_STOPPED_HINT';
 			if (decision === 'stop') {
-				await stopAtLastHeartbeat(run, unansweredHint);
+				const isStopped = await stopAtLastHeartbeat(run, unansweredHint);
+				if (isStopped) shareUnfollowedTimeOutcome(lastLog.id, 'stopped');
 				return;
 			}
 
@@ -139,6 +149,12 @@ function useSettleUnfollowedTime() {
 				STALE_TIMER_THRESHOLD.value - (now - heartbeat)
 			);
 			if (answer === 'elsewhere') return;
+			if (answer === 'stopped-elsewhere') {
+				// The run is stopped at its last heartbeat: a stop that waited here has nothing left to end
+				stopsAtLastHeartbeat += 1;
+				void queryClient.invalidateQueries({ queryKey: queryKeys.timer.all });
+				return;
+			}
 			if (answer === 'keep') {
 				try {
 					const kept = await timerService.syncTimer({
@@ -151,6 +167,7 @@ function useSettleUnfollowedTime() {
 					// The heartbeat the app sends each minute takes over: the answer stands
 					logErrorInDev('[Timer] The heartbeat of a kept run failed:', error);
 				}
+				shareUnfollowedTimeOutcome(lastLog.id, 'kept');
 				return;
 			}
 
@@ -159,14 +176,17 @@ function useSettleUnfollowedTime() {
 				isRunningTeamsLog(latest) &&
 				latest.id === lastLog.id &&
 				new Date(latest.stoppedAt ?? Number.NaN).getTime() === heartbeat;
-			if (!isAsAsked) return;
-			await stopAtLastHeartbeat(
-				run,
-				answer === 'stop' ? 'UNFOLLOWED_STOP_CHOSEN_HINT' : unansweredHint,
-				lastLog.id
-			);
+			const isStopped =
+				isAsAsked &&
+				(await stopAtLastHeartbeat(
+					run,
+					answer === 'stop' ? 'UNFOLLOWED_STOP_CHOSEN_HINT' : unansweredHint,
+					lastLog.id
+				));
+			// A run that is no longer as it was asked about has nothing left to ask either
+			shareUnfollowedTimeOutcome(lastLog.id, isStopped ? 'stopped' : 'kept');
 		},
-		[stopAtLastHeartbeat]
+		[queryClient, stopAtLastHeartbeat]
 	);
 }
 

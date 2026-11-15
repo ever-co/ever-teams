@@ -89,6 +89,8 @@ interface Page {
 	isUnsettled: () => boolean;
 	/** What a stop waits for: the moment that time is settled, with whether the run was stopped there, or null. */
 	whenSettled: () => Promise<boolean> | null;
+	/** A stop is asked: what it learns once that time is settled, or `not waiting` when it has nothing to wait for. */
+	askToStop: () => Promise<{ stoppedThere: boolean | undefined | 'not waiting' }>;
 	cleanup: () => void;
 }
 
@@ -143,6 +145,21 @@ function loadPage(): Page {
 			}),
 		isUnsettled: isUnfollowedTimeUnsettled,
 		whenSettled: whenUnfollowedTimeIsSettled,
+		askToStop: async () => {
+			const stop: { stoppedThere: boolean | undefined | 'not waiting' } = { stoppedThere: undefined };
+			await act(async () => {
+				const settled = whenUnfollowedTimeIsSettled();
+				if (settled) {
+					void settled.then((stoppedThere) => {
+						stop.stoppedThere = stoppedThere;
+					});
+				} else {
+					stop.stoppedThere = 'not waiting';
+				}
+				for (let step = 0; step < 20; step += 1) await Promise.resolve();
+			});
+			return stop;
+		},
 		cleanup
 	};
 	pages.push(page);
@@ -615,6 +632,56 @@ describe('useStaleTimerGuard, with time the run went on without the app', () => 
 		expect(mockStopTimer).not.toHaveBeenCalled();
 		expect(mockSyncTimer).not.toHaveBeenCalled();
 	});
+
+	it('leaves a stop that waited nothing to send when another tab stopped the run at its last heartbeat', async () => {
+		const { page } = openAppAfter(7);
+		await page.waitFor(() => expect(page.question()).not.toBeNull());
+		const stop = await page.askToStop();
+		expect(stop.stoppedThere).toBeUndefined();
+
+		// The other tab says so once its stop at the last heartbeat has reached the API
+		window.dispatchEvent(
+			new StorageEvent('storage', {
+				key: 'ever-teams.timer.unfollowed-time-answer',
+				newValue: JSON.stringify({ timeLogId: 'log-1', outcome: 'stopped', at: Date.now() })
+			})
+		);
+
+		await page.waitFor(() => expect(stop.stoppedThere).toBe(true));
+		expect(page.question()).toBeNull();
+		expect(mockStopTimer).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		['stop', 'stopped', () => mockStopTimer],
+		['keep', 'kept', () => mockSyncTimer]
+	] as const)(
+		'tells the other tabs once the answer (%s) is applied, not as it is given: a stop that waits there waits on',
+		async (answer, outcome, request) => {
+			const { page, owner } = openAppAfter(7);
+			await page.waitFor(() => expect(page.question()).not.toBeNull());
+			let answerOfTheApi: (value: unknown) => void = () => undefined;
+			request()
+				.mockReset()
+				.mockReturnValue(
+					new Promise((resolve) => {
+						answerOfTheApi = resolve;
+					})
+				);
+			const shared = () => window.localStorage.getItem('ever-teams.timer.unfollowed-time-answer');
+
+			await page.answer(answer);
+
+			// The request is on its way: nothing is settled yet, here or in the other tabs
+			expect(request()).toHaveBeenCalledTimes(1);
+			expect(shared()).toBeNull();
+			expect(page.isUnsettled()).toBe(true);
+
+			answerOfTheApi({ data: { running: answer === 'keep', lastLog: null } });
+			await page.waitFor(() => expect(owner.result.current).toBe(true));
+			expect(JSON.parse(String(shared()))).toEqual(expect.objectContaining({ timeLogId: 'log-1', outcome }));
+		}
+	);
 
 	it.each([
 		['keep', 'the run goes on, and the stop is sent', false],

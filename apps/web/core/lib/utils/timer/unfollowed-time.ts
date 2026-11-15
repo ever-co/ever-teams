@@ -154,11 +154,12 @@ export interface UnfollowedTimeQuestion {
 }
 
 /**
- * How a question ends: the person keeps the time (`keep`) or stops the run at its last heartbeat (`stop`); they
- * answered in another tab, which acts on it (`elsewhere`); or they did not answer before the closed-tab delay was
- * reached (`expired`), and the run is stopped at its last heartbeat as that rule has it.
+ * How a question ends: the person keeps the time (`keep`) or stops the run at its last heartbeat (`stop`); another
+ * tab settled it, with the run going on (`elsewhere`) or stopped at its last heartbeat (`stopped-elsewhere`); or
+ * they did not answer before the closed-tab delay was reached (`expired`), and the run is stopped at its last
+ * heartbeat as that rule has it.
  */
-export type UnfollowedTimeAnswer = 'keep' | 'stop' | 'elsewhere' | 'expired';
+export type UnfollowedTimeAnswer = 'keep' | 'stop' | 'elsewhere' | 'stopped-elsewhere' | 'expired';
 
 let question: UnfollowedTimeQuestion | null = null;
 let settleQuestion: ((answer: UnfollowedTimeAnswer) => void) | null = null;
@@ -182,18 +183,18 @@ export function unfollowedTimeQuestion(): UnfollowedTimeQuestion | null {
 	return question;
 }
 
-/** Another tab answered the question about this run: this tab's question goes, and nothing is done here. */
-function onAnswerElsewhere(event: StorageEvent): void {
+/** Another tab settled the time this tab's question is about: the question goes, and nothing is done here. */
+function onSettledElsewhere(event: StorageEvent): void {
 	if (event.key !== ANSWER_KEY || !event.newValue || !question) {
 		return;
 	}
 	try {
-		const answered = JSON.parse(event.newValue) as { timeLogId?: unknown } | null;
-		if (answered?.timeLogId === question.timeLogId) {
-			endQuestion('elsewhere');
+		const settled = JSON.parse(event.newValue) as { timeLogId?: unknown; outcome?: unknown } | null;
+		if (settled?.timeLogId === question.timeLogId) {
+			endQuestion(settled.outcome === 'stopped' ? 'stopped-elsewhere' : 'elsewhere');
 		}
 	} catch {
-		// Not an answer
+		// Not an outcome
 	}
 }
 
@@ -201,7 +202,7 @@ function endQuestion(answer: UnfollowedTimeAnswer): void {
 	const settle = settleQuestion;
 	settleQuestion = null;
 	if (typeof window !== 'undefined') {
-		window.removeEventListener('storage', onAnswerElsewhere);
+		window.removeEventListener('storage', onSettledElsewhere);
 	}
 	showQuestion(null);
 	settle?.(answer);
@@ -233,23 +234,36 @@ export function askAboutUnfollowedTime(
 			resolve(answer);
 		};
 		if (typeof window !== 'undefined') {
-			window.addEventListener('storage', onAnswerElsewhere);
+			window.addEventListener('storage', onSettledElsewhere);
 		}
 		showQuestion(asked);
 	});
 }
 
-/** The person's answer, in this tab. The other tabs of the browser drop their question about the same run. */
+/**
+ * The person's answer, in this tab. The other tabs of the browser keep their question until this tab has applied
+ * the answer and says so (shareUnfollowedTimeOutcome).
+ */
 export function answerUnfollowedTime(answer: 'keep' | 'stop'): void {
-	if (!question) {
-		return;
+	if (question) {
+		endQuestion(answer);
 	}
+}
+
+/**
+ * Tells the other tabs of the browser what became of the time a question was about, once it is so. Until then they
+ * keep their question, hold their heartbeat and keep a stop waiting. Told at the answer itself, a stop that waited
+ * in another tab went ahead before this tab's stop at the last heartbeat had reached the API: it ended the run at
+ * the present, with the time the person had just declined in it.
+ *
+ * @param outcome Whether the run goes on with that time in it (`kept`) or was stopped at its last heartbeat.
+ */
+export function shareUnfollowedTimeOutcome(timeLogId: string, outcome: 'kept' | 'stopped'): void {
 	try {
-		browserStorage()?.setItem(ANSWER_KEY, JSON.stringify({ timeLogId: question.timeLogId, at: Date.now() }));
+		browserStorage()?.setItem(ANSWER_KEY, JSON.stringify({ timeLogId, outcome, at: Date.now() }));
 	} catch {
 		// The other tabs keep their question: each answer is checked against the run before it is applied
 	}
-	endQuestion(answer);
 }
 
 /** The question goes without an answer: the person signed out, or the run is no longer theirs to settle here. */
