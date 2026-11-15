@@ -3995,7 +3995,9 @@
 			"BROADCAST": "<b>{name}</b> publicó un anuncio",
 			"PAYMENT": "Se registró un pago para ti",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> pidió un cambio de tarifa",
-			"TIMER_REMINDER": "Tu temporizador sigue en marcha"
+			"TIMER_REMINDER": "Tu temporizador sigue en marcha",
+			"TASK_UPDATE": "<b>{name}</b> hizo un cambio",
+			"TASK_DUE_REMINDER": "Una tarea vence pronto"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Asignación",
@@ -4006,7 +4008,9 @@
 			"BROADCAST": "Anuncio",
 			"PAYMENT": "Pago",
 			"RATE_CHANGE_REQUEST": "Solicitud de cambio de tarifa",
-			"TIMER_REMINDER": "Recordatorio de temporizador"
+			"TIMER_REMINDER": "Recordatorio de temporizador",
+			"TASK_UPDATE": "Cambio",
+			"TASK_DUE_REMINDER": "Recordatorio de vencimiento"
 		},
 		"SOMEONE": "Alguien",
 		"MARK_READ": "Marcar como leída",
@@ -4083,6 +4087,14 @@
 				"OFF": "Desactivado",
 				"AFTER_HOURS": "Después de {hours, plural, one {# hora} other {# horas}}"
 			},
+			"TASK_DUE": {
+				"TITLE": "Vencimientos",
+				"INTRO": "Un recordatorio antes de que venza una tarea que tienes asignada, mientras no esté terminada.",
+				"LABEL": "Recordatorio de vencimiento",
+				"TEXT": "Siempre en tu bandeja de entrada. Por correo y en tus dispositivos, como elijas.",
+				"OFF": "Desactivado",
+				"BEFORE_HOURS": "{hours, plural, one {# hora} other {# horas}} antes"
+			},
 			"INTRO": "Elige qué llega a tu bandeja. Al desactivar un tipo se detienen las notificaciones nuevas de ese tipo; las que ya tienes se quedan.",
 			"LOAD_ERROR": "No se pudieron cargar tus ajustes de notificaciones.",
 			"SAVE_FAILED": "Ese ajuste no se guardó. Inténtalo de nuevo.",
@@ -4133,6 +4145,10 @@
 			"FORGOTTEN_DESCRIPTION": "¿Lo olvidaste? Detenlo y corrige el tiempo en tu hoja de horas si hace falta.",
 			"STOP": "Detener temporizador",
 			"OPEN": "Abrir temporizador"
+		},
+		"TASK_DUE": {
+			"BY_END_OF_DAY": "Vence al final del {date}",
+			"AT": "Vence el {date}"
 		}
 	},
 	"toasts": {
@@ -5980,6 +5996,12 @@
 			"REQUIRED_TITLE": "Tu organización te pide activarla",
 			"REQUIRED_DESCRIPTION": "Sus miembros también inician sesión con un código de una aplicación de autenticación.",
 			"QR_ALT": "Código QR de esta cuenta para tu aplicación de autenticación"
+		},
+		"thisBrowser": {
+			"TITLE": "Este navegador",
+			"DESCRIPTION": "Cuánto tiempo sigues con la sesión abierta en este navegador. Tus otros navegadores y aplicaciones mantienen sus propias sesiones.",
+			"SIGN_OUT_ON_CLOSE": "Cerrar la sesión al cerrar este navegador",
+			"SIGN_OUT_ON_CLOSE_HINT": "Para un ordenador compartido. Si está desactivado, sigues con la sesión abierta después de cerrar el navegador, hasta que tu sesión caduque."
 		}
 	},
 	"taskDetail": {
@@ -7713,6 +7735,87 @@
 			"NOT_FOUND_MESSAGE": "Puede que se haya eliminado, o que el enlace venga de otro espacio de trabajo.",
 			"ALL_INVOICES": "Todas las facturas",
 			"ERROR_TITLE": "No se pudo cargar la factura"
+		},
+		"schedule": {
+			"TITLE": "Facturación programada",
+			"NONE_HINT": "Hacer la factura de este cliente sola cada semana, cada dos semanas o cada mes, con el tiempo facturable aún no facturado.",
+			"SET_UP": "Programar la facturación",
+			"EDIT": "Editar",
+			"PAUSE": "Pausar",
+			"RESUME": "Reanudar",
+			"PAUSED": "En pausa",
+			"ACTIVE": "Activa",
+			"SUMMARY": "{frequency} desde el {day}",
+			"DELIVERY_DRAFT": "Se guarda como borrador",
+			"DELIVERY_SEND": "Se envía a {email}",
+			"DELIVERY_SEND_NO_EMAIL": "Se envía al correo del cliente",
+			"NEXT": "Próxima factura el {day}, por {period}",
+			"NEXT_PAUSED": "No se hace ninguna factura mientras está en pausa",
+			"RUNS": "Últimas ejecuciones",
+			"NO_RUNS": "Aún no hay ejecuciones",
+			"RUNS_ERROR": "No se pudieron cargar las últimas ejecuciones",
+			"ERROR": "No se pudo cargar la facturación programada",
+			"OPEN_INVOICE": "Abrir la factura",
+			"LEFT_OUT": "{hours} h del periodo quedaron fuera: sin tarifa o en otra moneda",
+			"LIST_TITLE": "Facturados según un calendario",
+			"LIST_NEXT": "próxima el {day}",
+			"LIST_PAUSED": "en pausa",
+			"frequency": {
+				"WEEKLY": "Cada semana",
+				"BIWEEKLY": "Cada dos semanas",
+				"MONTHLY": "Cada mes"
+			},
+			"grouping": {
+				"PROJECT": "Por proyecto",
+				"MEMBER": "Por miembro",
+				"TASK": "Por tarea"
+			},
+			"run": {
+				"CLAIMED": "En curso",
+				"DRAFTED": "Borrador creado",
+				"SENT": "Enviada",
+				"NOT_SENT": "Creada, no enviada",
+				"NO_TIME": "Nada que facturar",
+				"FAILED": "No creada"
+			},
+			"reason": {
+				"NO_BILLABLE_TIME": "El periodo no tenía tiempo facturable pendiente de facturar.",
+				"NO_PRICED_TIME": "El tiempo del periodo no tiene tarifa con la que facturarlo. Se vuelve a intentar cada hora durante una semana.",
+				"AUTHOR_CANNOT_INVOICE": "La persona que guardó el calendario por última vez ya no puede crear facturas. Guárdelo para hacerse cargo; se vuelve a intentar cada hora durante una semana.",
+				"CLIENT_HAS_NO_EMAIL": "El cliente no tiene correo electrónico: la factura quedó como borrador.",
+				"EMAIL_NOT_SENT": "No se pudo enviar el correo: la factura quedó como borrador.",
+				"INVOICE_NOT_SAVED": "No se pudo guardar la factura. Se vuelve a intentar cada hora durante una semana."
+			},
+			"form": {
+				"CREATE_TITLE": "Facturar según un calendario",
+				"EDIT_TITLE": "Editar la facturación programada",
+				"FREQUENCY": "Frecuencia",
+				"START_DAY": "Primer día del primer periodo",
+				"START_HINT": "Cada factura se crea el día después de que termina su periodo, en la zona horaria del espacio de trabajo. No se factura ningún periodo que terminó antes de hoy.",
+				"START_INVALID": "Elija un día.",
+				"GROUPING": "Líneas",
+				"DELIVERY": "Una vez creada",
+				"DRAFT": "Guardar como borrador",
+				"SEND": "Enviar al cliente",
+				"DRAFT_HINT": "Cada factura espera como borrador a que la revise y la envíe.",
+				"SEND_HINT": "Cada factura se envía a {email} con su PDF y se marca como Enviada.",
+				"SEND_NO_EMAIL": "Este cliente no tiene correo electrónico: sus facturas quedarán como borradores hasta que tenga uno.",
+				"SAVE": "Guardar",
+				"SAVE_FAILED": "No se pudo guardar el calendario. Inténtelo de nuevo.",
+				"EXISTS": "Este cliente ya tiene un calendario. Ciérrelo y vuelva a abrirlo para cambiarlo.",
+				"START_AFTER_BILLED": "Este calendario ya facturó periodos: su nuevo calendario debe empezar después del último periodo facturado, {day}."
+			},
+			"delete": {
+				"TITLE": "¿Eliminar esta facturación programada?",
+				"BODY": "Ya no se hará ninguna factura sola para {name}. Las facturas que hizo se quedan."
+			},
+			"toasts": {
+				"SAVED": "Se guardó la facturación programada de {name}",
+				"PAUSED": "Se pausó la facturación programada de {name}",
+				"RESUMED": "Se reanudó la facturación programada de {name}: próxima factura el {day}",
+				"DELETED": "Se eliminó la facturación programada de {name}",
+				"FAILED": "No se pudo guardar el cambio. Inténtelo de nuevo."
+			}
 		}
 	},
 	"timeReports": {

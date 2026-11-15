@@ -207,6 +207,21 @@ export function personFromProjectMember(member: ProjectMember): ProjectPerson {
 	return { id, name, imageUrl: user?.imageUrl, email: user?.email };
 }
 
+/**
+ * Whether the project page opens a project for the reader: one the active team holds or with no team, as the lists
+ * show, or one the reader is a member of, whatever the active team (a notification about it opens it, #5022).
+ */
+export function isProjectOpenTo(
+	project: TOrganizationProject,
+	activeTeamId: string | null | undefined,
+	employeeId: string | null | undefined
+) {
+	const isMember =
+		!!employeeId &&
+		(project.members ?? []).some((member) => (member?.employeeId ?? member?.employee?.id) === employeeId);
+	return isMember || isProjectVisibleInTeam(project, activeTeamId);
+}
+
 export function isProjectVisibleInTeam(project: TOrganizationProject, activeTeamId: string | null | undefined) {
 	if (!activeTeamId) {
 		return true;
