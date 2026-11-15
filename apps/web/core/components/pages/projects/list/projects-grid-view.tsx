@@ -267,7 +267,7 @@ function ProjectCard({
 						>
 							{project.name}
 						</Link>
-						<PrivateProjectMark project={project} />
+						<PrivateProjectMark project={project} className="relative z-[1]" />
 						<FavoriteMark entity={EBaseEntityEnum.OrganizationProject} id={project.id} />
 					</span>
 				</div>

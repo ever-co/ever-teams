@@ -156,9 +156,10 @@ function BudgetValue({ project }: Readonly<{ project: TOrganizationProject }>) {
 
 /**
  * Who sees the project, read only (CORE-08): changed from the Edit project dialog by those who may edit projects.
- * Shown only by a Gauzy that keeps private projects private; an older one stores the flag and applies nothing.
+ * Shown only by a Gauzy that keeps private projects private; an older one stores the flag and applies nothing. While
+ * the workspace setting is off, a project marked private says that everyone still sees it, as the dialog does.
  */
-function ProjectVisibilityProperty({ project }: Readonly<{ project: TOrganizationProject }>) {
+export function ProjectVisibilityProperty({ project }: Readonly<{ project: TOrganizationProject }>) {
 	const t = useTranslations();
 	const organization = useAtomValue(currentOrganizationState);
 	const hasPrivateProjects = Boolean(organization && 'enforcePrivateProjects' in organization);
@@ -167,12 +168,20 @@ function ProjectVisibilityProperty({ project }: Readonly<{ project: TOrganizatio
 	}
 	let glyph = <Globe />;
 	let label = t('pages.projects.visibility.EVERYONE_TITLE');
+	let hint = null;
 	if (isPrivateProject(project)) {
 		glyph = <Lock />;
 		label = t('pages.projects.visibility.PRIVATE_TITLE');
+		if (organization?.enforcePrivateProjects !== true) {
+			hint = (
+				<p className="text-xs text-pretty text-muted-foreground">
+					{t('pages.projects.visibility.NOT_ENFORCED')}
+				</p>
+			);
+		}
 	}
 	return (
-		<PropertyRow icon={<Eye />} label={t('pages.projects.visibility.LABEL')}>
+		<PropertyRow icon={<Eye />} label={t('pages.projects.visibility.LABEL')} hint={hint}>
 			<span className="inline-flex min-w-0 items-center gap-1.5 text-[13px] text-foreground [&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:text-muted-foreground">
 				{glyph}
 				<span className="truncate">{label}</span>

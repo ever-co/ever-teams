@@ -374,6 +374,15 @@ function GroupHeader({
 
 const SUBLINE = 'truncate text-xs text-muted-foreground';
 
+/** Whether an element got the focus from the keyboard; a browser without `:focus-visible` counts every focus. */
+function isFocusVisible(element: Element): boolean {
+	try {
+		return element.matches(':focus-visible');
+	} catch {
+		return true;
+	}
+}
+
 function joinedSubline(parts: string[]) {
 	return parts.join(' · ');
 }
@@ -445,6 +454,9 @@ function ProjectRow({
 	const members = contributorsOf(project).map(personFromProjectMember);
 	const clientName = clientNameOf(project, clientNames);
 	const hasClientColumn = columns.includes('client');
+	// The lock of a private project takes no focus inside the link: the link opens its sentence when the keyboard
+	// focuses it, so a sighted keyboard user reads it too
+	const [isLinkFocusVisible, setIsLinkFocusVisible] = useState(false);
 
 	const cells: Record<ProjectColumn, ReactNode> = {
 		status: <ProjectStatusChip statusName={project.status} statuses={statuses} />,
@@ -475,6 +487,8 @@ function ProjectRow({
 			</span>
 			<Link
 				href={`/projects/${project.id}`}
+				onFocus={(event) => setIsLinkFocusVisible(isFocusVisible(event.currentTarget))}
+				onBlur={() => setIsLinkFocusVisible(false)}
 				className="group/link flex min-w-0 items-center gap-2.5 rounded-md px-2 py-2 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25"
 			>
 				<ProjectTile project={project} size="lg" />
@@ -483,7 +497,7 @@ function ProjectRow({
 						<span className="truncate text-[13px] font-medium text-foreground transition-colors group-hover/link:text-primary-ink">
 							{project.name}
 						</span>
-						<PrivateProjectMark project={project} isFocusable={false} />
+						<PrivateProjectMark project={project} isFocusable={false} isHintOpen={isLinkFocusVisible} />
 						<FavoriteMark entity={EBaseEntityEnum.OrganizationProject} id={project.id} />
 						<ProjectBillableMark project={project} hidesBelowSm />
 					</span>
