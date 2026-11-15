@@ -40,6 +40,14 @@ describe('taskDueNoticeOf (the messages Gauzy files with a due date reminder)', 
 		});
 	});
 
+	it('keeps the message of a time the zone shows twice, when the clocks go back', () => {
+		// 02:30 in Paris on 2026-10-25 is both 00:30 and 01:30 UTC
+		expect(taskDueNoticeOf('Due at 2026-10-25 02:30 (Europe/Paris).')).toBeNull();
+		expect(taskDueNoticeOf('Due at 2026-10-25 03:30 (Europe/Paris).')).toMatchObject({
+			at: new Date('2026-10-25T02:30:00.000Z')
+		});
+	});
+
 	it('reads nothing from any other message, or a zone the browser does not know', () => {
 		expect(taskDueNoticeOf('Status: open → done.')).toBeNull();
 		expect(taskDueNoticeOf(null)).toBeNull();

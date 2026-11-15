@@ -8,6 +8,8 @@ import type { INotificationPreferences } from '@/core/types/interfaces/common/em
 /** The threshold when the person chose none, as Gauzy reads it: a day. */
 export const DEFAULT_TASK_DUE_REMINDER_HOURS = 24;
 
+const HOUR_MS = 60 * 60 * 1000;
+
 /** The longest threshold Gauzy reads as one: a week. */
 const MAX_TASK_DUE_REMINDER_HOURS = 7 * 24;
 
@@ -51,7 +53,18 @@ export function taskDueNoticeOf(message: string | null | undefined): TaskDueNoti
 	}
 	const [, date, hours, minutes, timeZone] = moment;
 	const at = wallClockIn(date, Number(hours), Number(minutes), timeZone);
-	return at ? { kind: 'moment', at, timeZone } : null;
+	// A wall-clock time the zone shows twice (the hour clocks go back) names two moments: the message is kept as it is
+	if (!at || isRepeatedIn(at, timeZone)) {
+		return null;
+	}
+	return { kind: 'moment', at, timeZone };
+}
+
+/** Whether the zone shows the same wall-clock time an hour before or after `at` too. */
+function isRepeatedIn(at: Date, timeZone: string): boolean {
+	const wall = (instant: number) => instant + offsetOf(instant, timeZone);
+	const shown = wall(at.getTime());
+	return [-HOUR_MS, HOUR_MS].some((shift) => wall(at.getTime() + shift) === shown);
 }
 
 /** The instant a wall-clock time names in a zone, or null for a zone the browser does not know. */
