@@ -296,8 +296,8 @@ let onTabProjectChosen: ((projectId: string | null) => void) | null = null;
 
 /**
  * Registers what a tab works in (tab-organization.ts). `onSessionReplaced` runs when this tab signs in or out, so it
- * starts again from the cookies; `onProjectChosen` keeps the project this tab chooses while it works in its own
- * organization, which the project cookie (the other tab's) never takes.
+ * starts again from the cookies; `onProjectChosen` keeps each project this tab chooses, so that it still files its tasks
+ * under it once another tab moves the cookies to another organization (the project cookie is then the other tab's).
  */
 export function registerTabWorkScope(
 	reader: () => TabWorkScope | null,
@@ -349,11 +349,10 @@ export function getActiveProjectIdCookie(ctx?: NextCtx) {
 }
 
 export function setActiveProjectIdCookie(teamIds: string, ctx?: NextCtx) {
+	// This tab keeps the project it chose, before the cookies move to another organization too (CodeRabbit on #5321)
+	if (!ctx && typeof window !== 'undefined') onTabProjectChosen?.(teamIds || null);
 	// A tab working in its own organization keeps its project to itself: the cookie is the other tab's
-	if (tabWorkScope(ctx)) {
-		onTabProjectChosen?.(teamIds || null);
-		return;
-	}
+	if (tabWorkScope(ctx)) return;
 	return setCookie(ACTIVE_PROJECT_COOKIE_NAME, teamIds, ctx);
 }
 

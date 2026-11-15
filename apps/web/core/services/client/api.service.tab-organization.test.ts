@@ -127,6 +127,30 @@ describe('a tab whose shared cookies another tab moved to another organization',
 		expect(document.cookie).toContain(`${ACTIVE_PROJECT_COOKIE_NAME}=project-b`);
 	});
 
+	it('keeps the project it chose while the cookies were still its own (CodeRabbit on #5321)', () => {
+		setAuthCookies({
+			access_token: TOKEN_A,
+			refresh_token: { token: 'refresh-a' },
+			tenantId: 'tenant-1',
+			teamId: 'team-a',
+			organizationId: 'org-a',
+			languageId: 'en',
+			noTeamPopup: true,
+			userId: 'user-1'
+		} as never);
+		rememberTabTeam({ id: 'team-a', organizationId: 'org-a', defaultProjectId: 'project-a' });
+		setActiveProjectIdCookie('project-a2');
+		expect(document.cookie).toContain(`${ACTIVE_PROJECT_COOKIE_NAME}=project-a2`);
+
+		// Tab B's switch
+		document.cookie = `${ACTIVE_PROJECT_COOKIE_NAME}=project-b; path=/`;
+		setActiveTeamIdCookie('team-b');
+		setOrganizationIdCookie('org-b');
+		setAccessTokenCookie(TOKEN_B);
+
+		expect(getActiveProjectIdCookie()).toBe('project-a2');
+	});
+
 	it('sends its timer stop to the API with its own organization and token', async () => {
 		twoTabsInTwoOrganizations();
 		const service = new APIService('http://127.0.0.1:3311', { enableLogging: false });

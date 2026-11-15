@@ -291,7 +291,7 @@ registerTabWorkScope?.(
 		announceIfChanged(SHARED);
 	},
 	(projectId) => {
-		// The project this tab chose while it works in its own organization (its team's default moved, say)
-		if (tabTeam) tabTeam = { ...tabTeam, projectId };
+		// The project this tab chose, kept for when another tab moves the cookies to another organization
+		if (tabTeam && tabTeam.projectId !== projectId) tabTeam = { ...tabTeam, projectId };
 	}
 );
