@@ -180,11 +180,18 @@ export function ClientBillingScheduleSection({
 }: Readonly<ClientBillingScheduleSectionProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
-	const { schedule, workspace, isLoading, isError, refetch } = useClientInvoiceSchedule(client.id, { enabled: true });
+	const { schedule, workspace, isLoading, isError, isUnavailable, refetch } = useClientInvoiceSchedule(client.id, {
+		enabled: true
+	});
 	const mutations = useInvoiceScheduleMutations(workspace);
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 	const clientEmail = client.primaryEmail?.trim() ?? '';
+
+	// An API without the billing schedules: the page shows no section rather than an error no retry can fix
+	if (isUnavailable) {
+		return null;
+	}
 
 	const togglePause = async (current: TInvoiceSchedule) => {
 		const pauses = !isPausedSchedule(current);

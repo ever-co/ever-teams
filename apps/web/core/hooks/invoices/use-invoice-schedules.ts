@@ -2,10 +2,13 @@
 
 import { useCallback, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import { queryKeys } from '@/core/query/keys';
 import { invoiceScheduleService } from '@/core/services/client/api/organizations/invoice-schedule.service';
 import type { InvoicesScope } from '@/core/services/client/api/organizations/invoice.service';
+import { shellSettledState } from '@/core/stores/common/shell';
 import type {
 	InvoiceScheduleInput,
 	TInvoiceSchedule,
@@ -28,27 +31,39 @@ function useWorkspace(): InvoicesScope | null {
 	}, [organizationId, tenantId]);
 }
 
+/** An API without the billing schedules (before ever-co/ever-gauzy#11987) has no such route. */
+function isMissingRoute(error: unknown): boolean {
+	return errorStatusOf(error) === 404;
+}
+
 /**
  * The workspace's billing schedules, or one client's. Read in the workspace the key names, whatever another tab
- * switched the cookies to since.
+ * switched the cookies to since, and once the shell has settled: nothing the shell needs waits for them, and the
+ * cold-start budget counts every read that starts before it is ready (shell.ts).
  */
 export function useInvoiceSchedules({
 	clientId = null,
 	enabled
 }: Readonly<{ clientId?: string | null; enabled: boolean }>) {
 	const workspace = useWorkspace();
+	const shellSettled = useAtomValue(shellSettledState);
 	const query = useQuery({
 		queryKey: queryKeys.invoiceSchedules.list(workspace?.tenantId, workspace?.organizationId, clientId),
 		queryFn: ({ signal }) =>
 			invoiceScheduleService.getSchedules({ clientId, scope: workspace ?? undefined, signal }),
-		enabled: enabled && !!workspace
+		enabled: enabled && !!workspace && shellSettled,
+		// Once, as every read (query config), unless the route is missing: asking again would only repeat the 404
+		retry: (failureCount, error) => !isMissingRoute(error) && failureCount < 1
 	});
 	return {
 		schedules: query.data ?? NO_SCHEDULES,
 		/** The workspace the schedules were read in: a change to one is made there. */
 		workspace,
-		isLoading: query.isLoading,
+		/** Until the schedules are read, waiting included: nothing is known yet, so no schedule is offered to set. */
+		isLoading: query.isPending,
 		isError: query.isError,
+		/** The API has no billing schedules: there is nothing to show, and nothing to retry. */
+		isUnavailable: query.isError && isMissingRoute(query.error),
 		refetch: query.refetch
 	};
 }
@@ -82,7 +97,8 @@ export type InvoiceScheduleChange = Partial<InvoiceScheduleInput> & { paused?: b
 
 /**
  * Set, change, pause, resume and delete a client's billing schedule, in the workspace the schedules were read in; every
- * read of the schedules is refreshed afterwards.
+ * read of the schedules is refreshed afterwards, after a refusal too: a create refused because another tab set the
+ * client's schedule meanwhile then shows that schedule, which the form opens on next time.
  */
 export function useInvoiceScheduleMutations(workspace: InvoicesScope | null) {
 	const queryClient = useQueryClient();
@@ -95,16 +111,16 @@ export function useInvoiceScheduleMutations(workspace: InvoicesScope | null) {
 	const createMutation = useMutation({
 		mutationFn: ({ clientId, input }: { clientId: string; input: InvoiceScheduleInput }) =>
 			invoiceScheduleService.createSchedule(clientId, input, scope),
-		onSuccess: refresh
+		onSettled: refresh
 	});
 	const updateMutation = useMutation({
 		mutationFn: ({ scheduleId, change }: { scheduleId: string; change: InvoiceScheduleChange }) =>
 			invoiceScheduleService.updateSchedule(scheduleId, change, scope),
-		onSuccess: refresh
+		onSettled: refresh
 	});
 	const deleteMutation = useMutation({
 		mutationFn: (scheduleId: string) => invoiceScheduleService.deleteSchedule(scheduleId, scope),
-		onSuccess: refresh
+		onSettled: refresh
 	});
 
 	return {

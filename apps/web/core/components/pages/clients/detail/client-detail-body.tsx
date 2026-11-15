@@ -55,7 +55,7 @@ export function ClientDetailBody({
 			<aside className="min-w-0 self-start lg:col-start-2 lg:row-span-2 lg:row-start-1">
 				<ClientFacts client={client} terms={record.terms} canEdit={access.canEdit} onEdit={onEdit} framed />
 				{canViewInvoices && (
-					<div className="mt-6">
+					<div className="mt-6 empty:hidden">
 						<ClientBillingScheduleSection
 							key={client.id}
 							client={client}

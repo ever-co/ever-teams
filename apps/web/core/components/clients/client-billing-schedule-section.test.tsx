@@ -43,6 +43,7 @@ const read = {
 	workspace: { tenantId: 'tenant-1', organizationId: 'org-1' },
 	isLoading: false,
 	isError: false,
+	isUnavailable: false,
 	refetch: jest.fn()
 };
 const runsRead = { runs: [] as TInvoiceScheduleRun[], isLoading: false, isError: false, refetch: jest.fn() };
@@ -84,6 +85,7 @@ describe('ClientBillingScheduleSection', () => {
 		read.schedule = null;
 		read.isLoading = false;
 		read.isError = false;
+		read.isUnavailable = false;
 		runsRead.runs = [];
 		jest.clearAllMocks();
 	});
@@ -179,5 +181,14 @@ describe('ClientBillingScheduleSection', () => {
 		renderSection();
 
 		expect(screen.getByText('invoices.schedule.ERROR')).toBeTruthy();
+	});
+
+	it('shows nothing against an API without billing schedules, where no retry would help', () => {
+		read.isError = true;
+		read.isUnavailable = true;
+
+		const { container } = renderSection();
+
+		expect(container.innerHTML).toBe('');
 	});
 });
