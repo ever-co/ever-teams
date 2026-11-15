@@ -114,6 +114,8 @@ function TimeImportFlow({ access, modeSwitch }: Readonly<ImportFlowProps>) {
 						offersPlaceholders && (
 							<TimeImportPlaceholderOffer
 								rows={timeImport.rows}
+								previewRun={timeImport.previewRun}
+								outsideTeamKeys={timeImport.outsideTeamKeys}
 								onAdd={placeholders.addPlaceholders}
 								onAdded={timeImport.recheckWithMembers}
 							/>

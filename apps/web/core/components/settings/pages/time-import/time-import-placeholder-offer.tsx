@@ -32,25 +32,33 @@ function nameOf(member: { firstName: string; lastName?: string; email?: string }
  */
 export function TimeImportPlaceholderOffer({
 	rows,
+	previewRun,
+	outsideTeamKeys,
 	onAdd,
 	onAdded
 }: Readonly<{
 	rows: ReadonlyArray<TimeImportRow>;
+	/** The preview the offer was made on: the recheck after Add is dropped if the screen moved on. */
+	previewRun: number;
+	/** Emails Gauzy answered with a member of the organization outside this team, kept with the file. */
+	outsideTeamKeys: ReadonlyArray<string>;
 	onAdd: MemberPlaceholders['addPlaceholders'];
-	onAdded: (members: ImportMemberAdded[]) => Promise<void> | void;
+	onAdded: (
+		members: ImportMemberAdded[],
+		previewRun: number,
+		outsideTeamKeys: ReadonlyArray<string>
+	) => Promise<void> | void;
 }>) {
 	const t = useTranslations();
 	const [isAdding, setIsAdding] = useState(false);
 	const [failure, setFailure] = useState<PlaceholderFailure | null>(null);
-	// Emails Gauzy answered with a member of the organization outside this team: never offered again
-	const [notInTeamKeys, setNotInTeamKeys] = useState<ReadonlyArray<string>>([]);
 
 	const allCandidates = useMemo(() => importPlaceholderCandidatesOf(rows), [rows]);
 	const candidates = useMemo(
-		() => allCandidates.filter((candidate) => !notInTeamKeys.includes(candidate.key)),
-		[allCandidates, notInTeamKeys]
+		() => allCandidates.filter((candidate) => !outsideTeamKeys.includes(candidate.key)),
+		[allCandidates, outsideTeamKeys]
 	);
-	const outsideTeam = allCandidates.filter((candidate) => notInTeamKeys.includes(candidate.key));
+	const outsideTeam = allCandidates.filter((candidate) => outsideTeamKeys.includes(candidate.key));
 	const hasCandidates = candidates.length > 0;
 	const hasOutsideTeam = outsideTeam.length > 0;
 
@@ -59,13 +67,13 @@ export function TimeImportPlaceholderOffer({
 	}
 
 	const add = async () => {
+		const run = previewRun;
 		setIsAdding(true);
 		setFailure(null);
 		try {
 			const items = await onAdd(candidates.map((candidate) => candidate.member));
 			const outcome = importMembersAddedOf(candidates, items);
-			setNotInTeamKeys((current) => [...current, ...outcome.notInTeamKeys]);
-			await onAdded(outcome.added);
+			await onAdded(outcome.added, run, outcome.notInTeamKeys);
 		} catch (error) {
 			setFailure(placeholderFailureOf(error, 'create'));
 		} finally {

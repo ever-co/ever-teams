@@ -568,3 +568,37 @@ describe('useTimeImport with the projects a workspace import plans', () => {
 		expect(result.current.rows[0].problems).toEqual([{ code: 'projectUnknown' }]);
 	});
 });
+
+describe('useTimeImport after members are added for the file', () => {
+	const AMINA = { employeeId: 'employee-amina', email: 'amina@acme.com', name: 'amina' };
+
+	it('drops the recheck of a preview the screen has left: another file stays on screen', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+		await waitFor(() => expect(result.current.stage).toBe('preview'));
+		const previewRun = result.current.previewRun;
+
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS.slice(0, 1), 'april.csv')));
+		await waitFor(() => expect(result.current.stage).toBe('preview'));
+		await act(() => result.current.recheckWithMembers([AMINA], previewRun, ['ana@acme.com']));
+
+		expect(result.current.fileName).toBe('april.csv');
+		expect(result.current.rows).toHaveLength(1);
+		expect(result.current.outsideTeamKeys).toEqual([]);
+	});
+
+	it('keeps the people the organization has outside the team across the recheck, for that file only', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+		await waitFor(() => expect(result.current.stage).toBe('preview'));
+
+		await act(() => result.current.recheckWithMembers([AMINA], result.current.previewRun, ['ana@acme.com']));
+		await waitFor(() => expect(result.current.stage).toBe('preview'));
+
+		expect(result.current.outsideTeamKeys).toEqual(['ana@acme.com']);
+
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS, 'april.csv')));
+		await waitFor(() => expect(result.current.stage).toBe('preview'));
+		expect(result.current.outsideTeamKeys).toEqual([]);
+	});
+});
