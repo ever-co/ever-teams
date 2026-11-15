@@ -3051,6 +3051,12 @@
 				"TRACKER_RUN": "Tę sesję rejestruje aplikacja desktopowa lub agent, które same prowadzą jej czas, więc nie można jej tutaj odrzucić.",
 				"GENERIC": "Nie udało się odrzucić sesji. Sprawdź połączenie i spróbuj ponownie."
 			}
+		},
+		"unfollowed": {
+			"TITLE": "Twój timer działał bez aplikacji",
+			"TEXT": "Od {from} do {until} aplikacja nie śledziła Twojego timera. Zachować ten czas czy zatrzymać timer o {from}?",
+			"KEEP": "Zachowaj ten czas",
+			"STOP": "Zatrzymaj o {from}"
 		}
 	},
 	"task": {
@@ -4230,7 +4236,9 @@
 			"NOTES_NOT_SAVED": "Notatki zmienione w trakcie działania timera nie zostały zapisane",
 			"NOTES_NOT_SAVED_HINT": "Wpis zachował notatki z uruchomienia. Edytuj wpis w kartach czasu pracy, aby je zmienić.",
 			"ALREADY_RUNNING_ON_TASK": "Timer już działa dla tego zadania",
-			"SAVED_STOP_HINT": "To zatrzymanie zażądane przed wygaśnięciem sesji."
+			"SAVED_STOP_HINT": "To zatrzymanie zażądane przed wygaśnięciem sesji.",
+			"UNFOLLOWED_STOPPED_HINT": "Potem aplikacja nie mogła go śledzić: komputer był uśpiony albo przeglądarka wstrzymała tę kartę. Późniejszą pracę dodaj jako czas ręczny.",
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "Wybrano, aby nie zachowywać późniejszego czasu."
 		},
 		"plans": {
 			"CREATE_FAILED": "Nie utworzono planu",

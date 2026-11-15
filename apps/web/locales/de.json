@@ -3051,6 +3051,12 @@
 				"TRACKER_RUN": "Dieser Lauf wird von der Desktop-App oder dem Agenten erfasst, die seine Zeit selbst führen, daher kann er hier nicht verworfen werden.",
 				"GENERIC": "Der Lauf konnte nicht verworfen werden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
 			}
+		},
+		"unfollowed": {
+			"TITLE": "Ihr Timer lief ohne die App weiter",
+			"TEXT": "Von {from} bis {until} hat die App Ihren Timer nicht begleitet. Diese Zeit behalten oder den Timer um {from} stoppen?",
+			"KEEP": "Zeit behalten",
+			"STOP": "Um {from} stoppen"
 		}
 	},
 	"task": {
@@ -4230,7 +4236,9 @@
 			"NOTES_NOT_SAVED": "Die während des laufenden Timers geänderten Notizen wurden nicht gespeichert",
 			"NOTES_NOT_SAVED_HINT": "Der Eintrag hat die Notizen vom Start behalten. Bearbeiten Sie den Eintrag in den Stundenzetteln, um sie zu ändern.",
 			"ALREADY_RUNNING_ON_TASK": "Der Timer läuft bereits für diese Aufgabe",
-			"SAVED_STOP_HINT": "Das ist der Stopp, den du vor dem Ende deiner Sitzung angefordert hast."
+			"SAVED_STOP_HINT": "Das ist der Stopp, den du vor dem Ende deiner Sitzung angefordert hast.",
+			"UNFOLLOWED_STOPPED_HINT": "Danach konnte die App ihn nicht mehr begleiten: Der Computer war im Ruhezustand oder der Browser hat diesen Tab pausiert. Tragen Sie spätere Arbeit als manuelle Zeit nach.",
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "Sie haben entschieden, die Zeit danach nicht zu behalten."
 		},
 		"plans": {
 			"CREATE_FAILED": "Der Plan wurde nicht erstellt",
