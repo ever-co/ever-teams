@@ -41,7 +41,8 @@ jest.mock('@/core/components/icons', () => ({
 	Alert: () => null,
 	CircleAlert: () => null,
 	Download: () => null,
-	Spinner: () => null
+	Spinner: () => null,
+	Table: () => null
 }));
 jest.mock('@/core/components/common/notice', () => ({
 	Notice: ({ title, description }: { title: React.ReactNode; description?: React.ReactNode }) => (
@@ -99,6 +100,7 @@ function sheetRowOf(row: number, cells: Partial<TimeImportCells>): TimeImportShe
 		cells: {
 			date: '2026-11-03',
 			startTime: '09:00',
+			endDate: '',
 			endTime: '10:30',
 			duration: '',
 			project: '',
@@ -124,6 +126,8 @@ function timeImportOf(rows: TimeImportRow[], overrides: Partial<TimeImport> = {}
 		fileProblem: null,
 		ignoredHeaders: [],
 		fileRowCount: rows.length,
+		columnsStep: null,
+		canEditColumns: false,
 		rows,
 		summary: timeImportSummaryOf(rows),
 		run: null,
@@ -132,6 +136,10 @@ function timeImportOf(rows: TimeImportRow[], overrides: Partial<TimeImport> = {}
 		hasPreviewChanged: false,
 		chooseFile: jest.fn(),
 		retryCheck: jest.fn(),
+		chooseColumn: jest.fn(),
+		chooseDateOrder: jest.fn(),
+		confirmColumns: jest.fn(),
+		editColumns: jest.fn(),
 		confirm: jest.fn(),
 		reset: jest.fn(),
 		...overrides
@@ -236,6 +244,32 @@ describe('TimeImportResult', () => {
 		expect(screen.getByText('timeImport.IGNORED_COLUMNS {"count":2,"columns":"client and tags"}')).toBeTruthy();
 	});
 
+	it('offers to change the columns of a file read through a choice of columns, and of no other', () => {
+		const timeImport = timeImportOf(MIXED_ROWS, { canEditColumns: true });
+		const { unmount } = render(<Harness timeImport={timeImport} />);
+
+		fireEvent.click(screen.getByRole('button', { name: 'timeImport.mapping.EDIT' }));
+		expect(timeImport.editColumns).toHaveBeenCalledTimes(1);
+		unmount();
+
+		render(<Harness timeImport={timeImportOf(MIXED_ROWS)} />);
+		expect(screen.queryByRole('button', { name: 'timeImport.mapping.EDIT' })).toBeNull();
+	});
+
+	it('puts Change columns on its own line under the description on a phone, and nowhere else', () => {
+		const { unmount } = render(<Harness timeImport={timeImportOf(MIXED_ROWS, { canEditColumns: true })} />);
+		const section = screen.getByRole('region', { name: 'timeImport.PREVIEW_TITLE' });
+		const header = section.firstElementChild;
+
+		expect(header?.contains(screen.getByRole('button', { name: 'timeImport.mapping.EDIT' }))).toBe(true);
+		expect(section.className).toContain('max-sm:[&>div:first-child]:flex-col');
+		expect(section.className).toContain('max-sm:[&>div:first-child]:items-start');
+		unmount();
+
+		render(<Harness timeImport={timeImportOf(MIXED_ROWS)} />);
+		expect(screen.getByRole('region', { name: 'timeImport.PREVIEW_TITLE' }).className).not.toContain('max-sm:');
+	});
+
 	it('tells that the preview changed when the last check before saving found something new', () => {
 		render(<Harness timeImport={timeImportOf(MIXED_ROWS, { hasPreviewChanged: true })} />);
 
@@ -288,6 +322,12 @@ describe('TimeImportResult', () => {
 
 			expect(onDownloadReport).toHaveBeenCalledTimes(1);
 			expect(timeImport.reset).toHaveBeenCalledTimes(1);
+		});
+
+		it('offers no change of columns once the import ran', () => {
+			render(<Harness timeImport={doneImport({ canEditColumns: true })} />);
+
+			expect(screen.queryByRole('button', { name: 'timeImport.mapping.EDIT' })).toBeNull();
 		});
 
 		it('says how much was saved when every ready row went through', () => {

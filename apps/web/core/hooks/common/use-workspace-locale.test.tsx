@@ -18,7 +18,15 @@ function renderWorkspaceLocale(organization: object | null) {
 	return { view, store };
 }
 
+const READER_WAY = { tag: 'fr', dateFormat: null, numberFormat: null, clock: null, currencyPosition: null };
+
 describe('useWorkspaceLocale', () => {
+	it('gives the clock and the side of the currency sign the organization stores', () => {
+		const { view } = renderWorkspaceLocale({ id: 'organization-a', timeFormat: 24, currencyPosition: 'RIGHT' });
+
+		expect(view.result.current).toEqual({ ...READER_WAY, clock: 24, currencyPosition: 'RIGHT' });
+	});
+
 	it("gives the reader's language with the formats the organization stores", () => {
 		const { view } = renderWorkspaceLocale({
 			id: 'organization-a',
@@ -26,15 +34,21 @@ describe('useWorkspaceLocale', () => {
 			numberFormat: '1 234,56'
 		});
 
-		expect(view.result.current).toEqual({ tag: 'fr', dateFormat: 'DD/MM/YYYY', numberFormat: '1 234,56' });
+		expect(view.result.current).toEqual({
+			tag: 'fr',
+			dateFormat: 'DD/MM/YYYY',
+			numberFormat: '1 234,56',
+			clock: null,
+			currencyPosition: null
+		});
 	});
 
 	it("leaves the reader with their language's own way until the organization is read, or stores no format", () => {
 		const withoutOrganization = renderWorkspaceLocale(null);
 		const withoutFormats = renderWorkspaceLocale({ id: 'organization-a', dateFormat: 'LL', numberFormat: null });
 
-		expect(withoutOrganization.view.result.current).toEqual({ tag: 'fr', dateFormat: null, numberFormat: null });
-		expect(withoutFormats.view.result.current).toEqual({ tag: 'fr', dateFormat: null, numberFormat: null });
+		expect(withoutOrganization.view.result.current).toEqual(READER_WAY);
+		expect(withoutFormats.view.result.current).toEqual(READER_WAY);
 	});
 
 	it('follows a format saved while the report is open, and keeps its identity when another field changes', () => {
@@ -50,6 +64,6 @@ describe('useWorkspaceLocale', () => {
 		act(() => {
 			store.set(currentOrganizationState, { ...organization, dateFormat: 'YYYY-MM-DD' } as never);
 		});
-		expect(view.result.current).toEqual({ tag: 'fr', dateFormat: 'YYYY-MM-DD', numberFormat: null });
+		expect(view.result.current).toEqual({ ...READER_WAY, dateFormat: 'YYYY-MM-DD' });
 	});
 });

@@ -22,7 +22,11 @@ const mockSendDialog: { props: MockDialogProps | null } = { props: null };
 const mockChangeStatus = jest.fn();
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
-jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn() }) }));
+jest.mock('next/navigation', () => ({
+	useRouter: () => ({ push: jest.fn() }),
+	usePathname: () => '/invoices',
+	useSearchParams: () => new URLSearchParams()
+}));
 jest.mock('jotai', () => ({ ...jest.requireActual('jotai'), useAtomValue: () => null }));
 jest.mock('sonner', () => ({ toast: { success: jest.fn(), error: jest.fn() } }));
 jest.mock('@/core/stores', () => ({ activeTeamState: {}, isTrackingEnabledState: {} }));
@@ -46,6 +50,14 @@ jest.mock('@/core/hooks/invoices/use-invoice-mutations', () => ({
 	useInvoicePdf: () => ({ downloadPdf: jest.fn(), pendingId: null })
 }));
 jest.mock('@/core/hooks/invoices/use-invoices-query', () => ({ useInvoicesQuery: () => mockList.current }));
+jest.mock('@/core/hooks/invoices/use-live-invoices', () => ({
+	LIVE_INVOICE_STATUSES: ['DRAFT', 'SENT', 'VIEWED', 'PARTIALLY_PAID'],
+	useLiveInvoices: () => ({ invoices: [], isLoading: false, isError: false, refetch: jest.fn() })
+}));
+jest.mock('@/core/components/invoices/invoice-money-band', () => ({
+	InvoiceMoneyBand: () => null,
+	InvoiceMoneyBandSkeleton: () => null
+}));
 jest.mock('./invoice-access-guard', () => ({
 	INVOICES_PATH: '/invoices',
 	InvoiceAccessGuard: ({ children }: Readonly<{ children: React.ReactNode }>) => <>{children}</>
@@ -80,6 +92,7 @@ jest.mock('./invoices-ledger', () => ({
 jest.mock('./invoices-states', () => ({
 	InvoicesEmptyState: () => null,
 	InvoicesErrorState: () => null,
+	InvoicesFilterEmptyState: () => null,
 	InvoicesLedgerSkeleton: () => null,
 	InvoicesPageSkeleton: () => null,
 	InvoicesToolbar: () => null

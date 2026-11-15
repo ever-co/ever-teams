@@ -64,6 +64,16 @@ export function HiddenRate({ className }: Readonly<{ className?: string }>) {
 	return <span className={cn(FIGURE_TEXT, 'text-muted-foreground', className)}>{MISSING_FIGURE}</span>;
 }
 
+/** A member's days priced at different rates (#5212): each day's row states its own. */
+export function SeveralRates({ className }: Readonly<{ className?: string }>) {
+	const t = useTranslations();
+	return (
+		<span className={cn(FIGURE_TEXT, 'text-muted-foreground', className)}>
+			{t('dashboard.paymentsDue.SEVERAL_RATES')}
+		</span>
+	);
+}
+
 /**
  * "$45.00/h" with the unit muted. A billing rate that is missing shows the "No rate set" chip, never `$0`; a pay rate
  * still being read shows a placeholder, and one that cannot be read shows nothing.
@@ -73,17 +83,22 @@ export const RateValue = memo(function RateValue({
 	currency,
 	rateSource = null,
 	ratePending = false,
+	hasSeveralRates = false,
 	className
 }: Readonly<{
 	rate: number | null;
 	currency: string | null;
 	rateSource?: OwedRateSource | null;
 	ratePending?: boolean;
+	hasSeveralRates?: boolean;
 	className?: string;
 }>) {
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
-	const shown = rateShownOf({ rate, rateSource, ratePending });
+	const shown = rateShownOf({ rate, rateSource, ratePending, hasSeveralRates });
+	if (shown === 'several') {
+		return <SeveralRates className={className} />;
+	}
 	if (shown === 'loading') {
 		return <RatePlaceholder className={className} />;
 	}

@@ -7,12 +7,14 @@ import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { TAddManualTimeRequest, TTimeLog } from '@/core/types/schemas';
 import { useTimesheetInvalidation } from '@/core/hooks/timesheet/use-timesheet-invalidation';
 import { toast } from 'sonner';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 
 export function useManualTime() {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const { user } = useAuthenticateUser();
 	const { invalidateTimesheetData } = useTimesheetInvalidation();
 	const [timeLog, setTimeLog] = useState<TTimeLog>();
@@ -29,9 +31,9 @@ export function useManualTime() {
 
 			const startDate = new Date(data.startedAt);
 			const endDate = new Date(data.stoppedAt);
-			const date = startDate.toLocaleDateString(locale, { dateStyle: 'medium' });
-			const start = startDate.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
-			const end = endDate.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+			const date = dateFormatOf(locale, { dateStyle: 'medium' }).format(startDate);
+			const start = dateFormatOf(locale, { hour: '2-digit', minute: '2-digit' }).format(startDate);
+			const end = dateFormatOf(locale, { hour: '2-digit', minute: '2-digit' }).format(endDate);
 
 			toast.success(t('toasts.time.MANUAL_ADDED'), {
 				description: t('toasts.time.MANUAL_ADDED_RANGE', { date, start, end })
@@ -50,14 +52,17 @@ export function useManualTime() {
 		(
 			data: Omit<TAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'> & {
 				employeeId?: string;
+				// Time worked by hand unless a break is added (Gauzy #11940)
+				logType?: ETimeLogType.MANUAL | ETimeLogType.BREAK;
 			}
 		) => {
+			const { logType = ETimeLogType.MANUAL, ...fields } = data;
 			const requestData: TAddManualTimeRequest = {
 				tenantId: user?.tenantId ?? '',
 				employeeId: user?.employee?.id ?? '',
-				logType: ETimeLogType.MANUAL,
+				logType,
 				source: ETimeLogSource.BROWSER,
-				...data
+				...fields
 			};
 
 			addManualTimeMutate(requestData);

@@ -97,6 +97,9 @@ function useChangeRows(changes: InvoiceChanges, currency: string | null): Projec
 	if (changes.isNoteRewritten) {
 		rows.push({ key: 'note', icon: <FileText />, text: t('invoices.edit.confirm.NOTE') });
 	}
+	if (changes.recordsBilledTime) {
+		rows.push({ key: 'billedTime', icon: <Clock />, text: t('invoices.edit.confirm.RECORDS_TIME') });
+	}
 	return rows;
 }
 
@@ -122,6 +125,9 @@ function useFailureText(failure: EditFailure | null, number: string): string | n
 	}
 	if (failure.status === 'putBack') {
 		return t('invoices.edit.confirm.PUT_BACK');
+	}
+	if (failure.status === 'timeBilled') {
+		return t('invoices.billedTime.EDIT_REFUSED');
 	}
 	if (failure.lineCount === null) {
 		return t('invoices.edit.confirm.NOT_PUT_BACK');

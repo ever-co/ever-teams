@@ -1,5 +1,12 @@
-import { Instance, SnapshotOut, types } from 'mobx-state-tree';
+import { getRoot, Instance, SnapshotOut, types } from 'mobx-state-tree';
+import { holdSession } from '../services/client/session';
 import { ILanguageItemList, IUser } from '../services/interfaces/IUserData';
+
+/** The stores beside this one in the app's root store, whose data is the signed-in person's. */
+type StoresOfThePerson = {
+	TaskStore?: { resetTeamTasksData(): void };
+	teamStore?: { clearStoredTeamData(): void };
+};
 
 export const AuthenticationStoreModel = types
 	.model('AuthenticationStore')
@@ -100,7 +107,40 @@ export const AuthenticationStoreModel = types
 			store.refreshToken = '';
 			store.tempAuthToken = '';
 		}
-	}));
+	}))
+	.actions((store) => {
+		let letGoOfSession: (() => void) | undefined;
+
+		return {
+			/**
+			 * This store holds the session, and the HTTP client reads it here to renew it: a request the API refuses
+			 * because the access token expired gets a new pair with the refresh token, which is kept below
+			 * (services/client/session.ts).
+			 */
+			afterCreate() {
+				letGoOfSession = holdSession({
+					tokens: () => ({ accessToken: store.authToken, refreshToken: store.refreshToken }),
+					keep: ({ accessToken, refreshToken }) => {
+						store.setAuthToken(accessToken);
+						// Gauzy rotates the refresh token: the one just sent is refused from now on
+						if (refreshToken) {
+							store.setRefreshToken(refreshToken);
+						}
+					},
+					// As a sign-out the person asks for: their teams and tasks go with the session
+					end: () => {
+						const stores = getRoot(store) as unknown as StoresOfThePerson;
+						stores.TaskStore?.resetTeamTasksData();
+						stores.teamStore?.clearStoredTeamData();
+						store.logout();
+					}
+				});
+			},
+			beforeDestroy() {
+				letGoOfSession?.();
+			}
+		};
+	});
 
 export interface AuthenticationStore extends Instance<typeof AuthenticationStoreModel> {}
 export interface AuthenticationStoreSnapshot extends SnapshotOut<typeof AuthenticationStoreModel> {}

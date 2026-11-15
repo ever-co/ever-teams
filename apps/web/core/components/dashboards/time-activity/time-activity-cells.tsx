@@ -223,8 +223,15 @@ export function EarningsText({
 export function ActivityText({
 	seconds,
 	activeSeconds,
+	trackedSeconds,
 	noActivityLabel
-}: Readonly<{ seconds: number; activeSeconds: number; noActivityLabel: string }>) {
+}: Readonly<{
+	seconds: number;
+	activeSeconds: number;
+	/** The time as tracked, which the activity is a share of: `seconds` unless the workspace rounds them. */
+	trackedSeconds?: number;
+	noActivityLabel: string;
+}>) {
 	const hasTime = seconds > 0;
 	if (!hasTime) {
 		return (
@@ -234,6 +241,6 @@ export function ActivityText({
 			</span>
 		);
 	}
-	const percent = activityPercentOf({ seconds, activeSeconds });
+	const percent = activityPercentOf({ seconds, activeSeconds, trackedSeconds });
 	return <ActivityFigure percent={percent} />;
 }

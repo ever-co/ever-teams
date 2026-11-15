@@ -22,7 +22,8 @@ jest.mock('@/core/components/icons', () => ({
 // The menu renders its rows inline, so they can be read without opening it.
 jest.mock('@headlessui/react', () => {
 	const Pass = ({ children }: { children?: React.ReactNode }) => <>{children}</>;
-	return { Menu: Pass, MenuButton: Pass, MenuItems: Pass, MenuItem: Pass };
+	const Separator = () => <div role="separator" />;
+	return { Menu: Pass, MenuButton: Pass, MenuItems: Pass, MenuItem: Pass, MenuSeparator: Separator };
 });
 
 import { ClientActionsMenu } from './client-actions-menu';

@@ -10,7 +10,8 @@ import { Search, X } from '@/core/components/icons';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { cn } from '@/core/lib/helpers';
 import type { Period, PeriodPresetKey } from '@/core/lib/utils/dashboard-period';
-import { TIMESHEET_WEEK_START, type TimesheetView } from '@/core/lib/utils/dashboards/timesheets';
+import type { TimesheetView } from '@/core/lib/utils/dashboards/timesheets';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 
 const SEARCH_DEBOUNCE_MS = 150;
 
@@ -90,7 +91,8 @@ export function TimesheetsToolbar({
 	onSearchChange,
 	filterMenu,
 	appliedFilters,
-	actions
+	actions,
+	viewMenu = null
 }: Readonly<{
 	title: string;
 	meta: string;
@@ -105,8 +107,11 @@ export function TimesheetsToolbar({
 	filterMenu: ReactNode;
 	appliedFilters: ReactNode;
 	actions: ReactNode;
+	/** The View menu of the view on screen, after the view switch, for a view that has one. */
+	viewMenu?: ReactNode;
 }>) {
 	const t = useTranslations();
+	const weekStart = useWorkspaceWeekStart();
 	const locale = useWorkspaceLocale();
 	const viewItems = [
 		{ value: 'sheet' as const, label: t('dashboard.timesheets.VIEWS.SHEET') },
@@ -130,7 +135,7 @@ export function TimesheetsToolbar({
 						value={period}
 						onChange={onPeriodChange}
 						presets={TIMESHEET_PRESETS}
-						weekStartsOn={TIMESHEET_WEEK_START}
+						weekStartsOn={weekStart}
 						locale={locale}
 					/>
 					{filterMenu}
@@ -138,12 +143,15 @@ export function TimesheetsToolbar({
 				</>
 			}
 			trailingControls={
-				<SegmentedControl<TimesheetView>
-					items={viewItems}
-					value={view}
-					onValueChange={onViewChange}
-					ariaLabel={t('dashboard.timesheets.VIEW_LABEL')}
-				/>
+				<>
+					<SegmentedControl<TimesheetView>
+						items={viewItems}
+						value={view}
+						onValueChange={onViewChange}
+						ariaLabel={t('dashboard.timesheets.VIEW_LABEL')}
+					/>
+					{viewMenu}
+				</>
 			}
 			belowControls={appliedFilters}
 		/>

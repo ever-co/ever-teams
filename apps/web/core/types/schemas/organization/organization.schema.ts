@@ -7,6 +7,15 @@ import { languageZodSchemaType } from '../common/language.schema';
  * Zod schemas for Organization-related interfaces
  */
 
+/** Minutes sent as text, as a numeric column comes, read as the number they write; anything else is left as sent. */
+function numberOfText(value: unknown) {
+	const isText = typeof value === 'string' && value.trim() !== '';
+	if (!isText) {
+		return value;
+	}
+	return Number(value);
+}
+
 // Organization timer setting schema
 export const organizationTimerSettingSchema = z.object({
 	allowTrackInactivity: z.boolean().optional(),
@@ -65,6 +74,9 @@ export const organizationSchema = z
 		startWeekOn: weekDaysSchema.optional().nullable(),
 		taxId: z.string().optional().nullable(),
 		numberFormat: z.string().optional().nullable(),
+		// The workspace's rule for rounding durations in reports; an API without it sends neither field
+		durationRoundingInterval: z.preprocess(numberOfText, z.number().optional().nullable()).catch(null),
+		durationRoundingDirection: z.enum(['UP', 'DOWN', 'NEAREST']).optional().nullable().catch(null),
 		bonusPercentage: z.number().optional().nullable(),
 		employees: z.array(z.any()).optional(), // Will be properly typed when employee schema is created
 		invitesAllowed: z.boolean().optional().nullable(),
@@ -82,6 +94,14 @@ export const organizationSchema = z
 		requireTeam: z.boolean().optional().nullable(),
 		// Whether only someone of a higher role turns a person's time tracking on or off (#5015); absent before Gauzy has it
 		restrictTrackingSwitchToHigherRoles: z.boolean().optional().nullable(),
+		// Whether a rate change without a day prices only new time (#5212); absent before Gauzy stores rates on time entries
+		timeLogsKeepTheirRates: z.boolean().optional().nullable(),
+		// Whether members may take breaks from the timer, off by default; absent before Gauzy has it (#11940)
+		allowBreaks: z.boolean().optional().nullable(),
+		// Whether a member may discard their own running timer, null meaning allowed (#5219); absent before Gauzy has it
+		allowDiscardTimer: z.boolean().optional().nullable(),
+		// When set, a running timer may be discarded only within this many minutes of its start; null: no limit
+		discardTimerWithinMinutes: z.number().optional().nullable(),
 		timeFormat: timeFormatSchema.optional().nullable(),
 		defaultStartTime: z.string().optional().nullable(),
 		defaultEndTime: z.string().optional().nullable(),

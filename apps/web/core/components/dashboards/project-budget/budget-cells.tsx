@@ -20,7 +20,8 @@ import {
 	type BudgetRisk,
 	type BudgetRow,
 	type BudgetScope,
-	type BudgetTotal
+	type BudgetTotal,
+	type CostNoteKey
 } from '@/core/lib/utils/dashboards/project-budget';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import type { FormatLocale } from '@/core/lib/utils/workspace-formats';
@@ -89,13 +90,13 @@ export function totalLabelOf(total: BudgetTotal, t: Translate) {
 	return t('dashboard.projectBudget.TOTAL_COST');
 }
 
-export function budgetNotesOf(figures: BudgetFigures, scope: BudgetScope, t: Translate) {
+export function budgetNotesOf(figures: BudgetFigures, scope: BudgetScope, t: Translate, costNoteKey: CostNoteKey) {
 	const notes: string[] = [];
 	if (scope === 'period') {
 		notes.push(t('dashboard.projectBudget.PERIOD_NOTE'));
 	}
 	if (figures.hasCostRows) {
-		notes.push(t('dashboard.projectBudget.COST_NOTE'));
+		notes.push(t(costNoteKey));
 	}
 	return notes;
 }

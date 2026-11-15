@@ -15,6 +15,7 @@ import { isTrackingEnabledState } from '@/core/stores';
 import { TimeActivityBreakdown, breakdownColumnsOf } from './time-activity-breakdown';
 import { TimeActivityReportSheet } from './time-activity-report-sheet';
 import { TimeActivityBandExport } from './time-activity-summary-band';
+import { TimeActivityTimeSplit } from './time-activity-time-split';
 import { TimeActivityToolbar } from './time-activity-toolbar';
 import { TimeActivityWeekGrid } from './time-activity-week-grid';
 
@@ -85,7 +86,9 @@ export function TimeActivityPage() {
 					onRetryDaily={retryDaily}
 					onRetryCounts={retryCounts}
 					exportSlot={<TimeActivityBandExport report={report} />}
+					roundingRule={report.roundingRule}
 				/>
+				<TimeActivityTimeSplit report={report} />
 				{isWeekGrid && (
 					<TimeActivityWeekGrid
 						key={periodKeyOf(period.from, period.to)}

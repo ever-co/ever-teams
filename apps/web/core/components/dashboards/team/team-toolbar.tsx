@@ -16,10 +16,11 @@ import {
 import { Users, UsersGroup, X } from '@/core/components/icons';
 import type { TeamDashboardState } from '@/core/hooks/dashboards/team/use-team-dashboard';
 import { formatPeriod } from '@/core/lib/utils/dashboard-period';
-import { TEAM_WEEK_STARTS_ON, type TeamFilterField, type TeamPerson } from '@/core/lib/utils/dashboards/team';
+import { type TeamFilterField, type TeamPerson } from '@/core/lib/utils/dashboards/team';
 import type { TOrganizationTeam } from '@/core/types/schemas';
 import { MemberFace } from './team-marks';
 import { TEAM_FILTER_PILL_WIDTH } from './team-dashboard-page-skeleton';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 
 function teamOptionOf(team: TOrganizationTeam): PropertyFilterOption {
 	return {
@@ -179,6 +180,7 @@ export function TeamToolbar({
 	exportOptions
 }: Readonly<{ dashboard: TeamDashboardState; exportOptions: ReadonlyArray<ExportOption> }>) {
 	const t = useTranslations();
+	const weekStart = useWorkspaceWeekStart();
 	const locale = useLocale();
 	const categories = useTeamFilterCategories(dashboard);
 	const applied = appliedFiltersOf(categories, dashboard.filters);
@@ -213,11 +215,7 @@ export function TeamToolbar({
 			actions={<ExportMenu options={exportOptions} isDisabled={!hasRows} />}
 			controls={
 				<>
-					<PeriodPicker
-						value={dashboard.period}
-						onChange={dashboard.setPeriod}
-						weekStartsOn={TEAM_WEEK_STARTS_ON}
-					/>
+					<PeriodPicker value={dashboard.period} onChange={dashboard.setPeriod} weekStartsOn={weekStart} />
 					{showsFilterSlot && <span aria-hidden="true" className={TOOLBAR_SEPARATOR} />}
 					{filterMenu}
 				</>

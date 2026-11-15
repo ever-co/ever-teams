@@ -104,6 +104,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/clients/:id",
+      "file": "apps/web/app/[locale]/(main)/clients/[id]/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/dashboard/app-url/:teamId",
       "file": "apps/web/app/[locale]/(main)/dashboard/app-url/[teamId]/page.tsx",
       "source": "router"
@@ -144,6 +149,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/goals",
+      "file": "apps/web/app/[locale]/(main)/goals/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/inbox",
       "file": "apps/web/app/[locale]/(main)/inbox/page.tsx",
       "source": "router"
@@ -156,6 +166,11 @@
     {
       "path": "/:locale/invoices",
       "file": "apps/web/app/[locale]/(main)/invoices/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/invoices/:id",
+      "file": "apps/web/app/[locale]/(main)/invoices/[id]/page.tsx",
       "source": "router"
     },
     {
@@ -264,6 +279,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/settings/personal/api-tokens",
+      "file": "apps/web/app/[locale]/(main)/settings/personal/api-tokens/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/settings/personal/notifications",
       "file": "apps/web/app/[locale]/(main)/settings/personal/notifications/page.tsx",
       "source": "router"
@@ -271,6 +291,11 @@
     {
       "path": "/:locale/settings/personal/preferences",
       "file": "apps/web/app/[locale]/(main)/settings/personal/preferences/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/settings/personal/security",
+      "file": "apps/web/app/[locale]/(main)/settings/personal/security/page.tsx",
       "source": "router"
     },
     {

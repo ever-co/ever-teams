@@ -10,6 +10,7 @@ import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permis
 import {
 	type CreatableSpot,
 	creatableSpotAt,
+	dayKeysOfWindow,
 	type DragRefusal,
 	dragRefusalOf,
 	type DragRules
@@ -17,11 +18,11 @@ import {
 import type { CalendarEntry } from '@/core/lib/utils/calendar-view';
 import { approvedDayKeysOf, isReducibleLog, type TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import { memberIdOfLog } from '@/core/lib/utils/dashboards/timesheets';
-import { hasUnreadableInterval, overlapSummaryOf } from '@/core/lib/utils/time-log-overlap';
 import { queryKeys } from '@/core/query/keys';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { isTakenOnServer } from './time-taken-on-server';
 import type { CalendarPageState } from './use-calendar-page';
 
 const MODIFY_TIME_PERMISSION = 'ALLOW_MODIFY_TIME';
@@ -32,36 +33,15 @@ const REFUSAL_MESSAGE_KEYS: Record<Exclude<DragRefusal, 'none'>, DottedLanguageO
 	approved: 'dashboard.calendar.DRAG.APPROVED'
 };
 
-/**
- * Whether the API holds another entry of the member on the new place. The grid only knows the entries of its last
- * read: one saved since, from another tab or by a manager, would be removed whole by the API without a word.
- */
-async function isTakenOnServer(log: ITimeLog, next: TimeWindow): Promise<boolean> {
-	const employeeId = memberIdOfLog(log);
-	if (!employeeId) {
-		return false;
-	}
-	const conflicts = await timeLogService.getTimeLogConflicts({
-		employeeId,
-		startDate: next.start,
-		endDate: next.end,
-		ignoreId: log.id
-	});
-	const others = conflicts.filter((conflict) => conflict.id !== log.id);
-	const hasUnreadableEntry = others.some(hasUnreadableInterval);
-	if (hasUnreadableEntry) {
-		return true;
-	}
-	const period = { start: next.start, end: next.end };
-	const overlap = overlapSummaryOf({ periods: [period], logs: others, ignoredLogId: log.id, now: new Date() });
-	return overlap.entries.length > 0;
-}
-
 export interface CalendarEntryMoves {
 	canDragEntry: (entry: CalendarEntry) => boolean;
 	creatableSpot: (time: Date) => CreatableSpot;
 	announceCreateRefusal: (refusal: DragRefusal) => void;
 	moveEntry: (entry: CalendarEntry, next: TimeWindow) => void;
+	/** The role and the organization let the viewer change recorded time, whatever the grid shows right now. */
+	allowsTimeChanges: boolean;
+	/** The entry covers a day whose time is approved: nothing on it changes. */
+	isOnApprovedDay: (entry: CalendarEntry) => boolean;
 }
 
 /**
@@ -85,9 +65,18 @@ export function useCalendarEntryMoves(page: CalendarPageState, canEditLog: (log:
 	const allowsModifyTime = organization?.allowModifyTime !== false;
 	const allowsFutureDates = organization?.futureDateAllowed === true;
 	const isShowingLoadedDays = !isLoading && !isShowingPreviousChoice;
-	const mayModifyTime = hasModifyPermission && allowsModifyTime && isShowingLoadedDays;
+	const allowsTimeChanges = hasModifyPermission && allowsModifyTime;
+	const mayModifyTime = allowsTimeChanges && isShowingLoadedDays;
 
 	const approvedDayKeys = useMemo(() => approvedDayKeysOf(memberLogs), [memberLogs]);
+
+	const isOnApprovedDay = useCallback(
+		(entry: CalendarEntry) => {
+			const dayKeys = dayKeysOfWindow({ start: entry.start, end: entry.end });
+			return dayKeys.some((dayKey) => approvedDayKeys.has(dayKey));
+		},
+		[approvedDayKeys]
+	);
 
 	const rulesAt = useCallback(
 		(now: Date): DragRules => ({ memberLogs, approvedDayKeys, allowsFutureDates, now }),
@@ -188,7 +177,7 @@ export function useCalendarEntryMoves(page: CalendarPageState, canEditLog: (log:
 	);
 
 	return useMemo<CalendarEntryMoves>(
-		() => ({ canDragEntry, creatableSpot, announceCreateRefusal, moveEntry }),
-		[announceCreateRefusal, canDragEntry, creatableSpot, moveEntry]
+		() => ({ canDragEntry, creatableSpot, announceCreateRefusal, moveEntry, allowsTimeChanges, isOnApprovedDay }),
+		[allowsTimeChanges, announceCreateRefusal, canDragEntry, creatableSpot, isOnApprovedDay, moveEntry]
 	);
 }

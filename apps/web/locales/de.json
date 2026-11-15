@@ -599,6 +599,21 @@
 				"EDITED_AT": "Bearbeitet am {date}, {time}",
 				"REASON_PREFIX": "Grund:"
 			},
+			"SIMILAR": {
+				"ENTRY_COUNT": "{count, plural, one {# Eintrag} other {# Einträge}}",
+				"SHOW_ENTRIES": "Einträge von {task} anzeigen",
+				"HIDE_ENTRIES": "Einträge von {task} ausblenden",
+				"SELECT_GROUP": "{count, plural, one {# Eintrag von {task} auswählen} other {Die # Einträge von {task} auswählen}}",
+				"CONFIRM_BILLABLE": "{count, plural, one {# Eintrag als abrechenbar markieren?} other {# Einträge als abrechenbar markieren?}}",
+				"CONFIRM_NOT_BILLABLE": "{count, plural, one {# Eintrag als nicht abrechenbar markieren?} other {# Einträge als nicht abrechenbar markieren?}}",
+				"CONFIRM_STATUS": "{count, plural, one {# Eintrag auf „{status}“ setzen?} other {# Einträge auf „{status}“ setzen?}}",
+				"CONFIRM_SCOPE": "Alle Einträge von {task} in dieser Zeile ändern sich.",
+				"CHANGED": "{count, plural, one {# Eintrag geändert} other {# Einträge geändert}}",
+				"PARTLY_CHANGED": "{changed} von {count} Einträgen geändert. Die übrigen behalten ihren Wert.",
+				"REJECT_COUNT": "{count, plural, one {Sie lehnen # Eintrag ab. Möchten Sie fortfahren?} other {Sie lehnen # Einträge ab. Möchten Sie fortfahren?}}",
+				"VIEW_GROUP": "Ähnliche Einträge gruppieren",
+				"VIEW_GROUP_HELP": "Einträge eines Tages mit derselben Aufgabe, demselben Projekt, denselben Notizen und demselben Abrechnungsstatus erscheinen als eine Zeile."
+			},
 			"STATUS_CARDS": {
 				"PENDING": "Wartet auf Freigabe",
 				"LOG_UNIT": "{count, plural, one {Eintrag} other {Einträge}}"
@@ -714,6 +729,23 @@
 					"CHECK_FAILED": "{count, plural, one {Bei # Eintrag konnte die Überschneidung nicht geprüft werden, er wurde daher nicht gespeichert.} other {Bei # Einträgen konnte die Überschneidung nicht geprüft werden, sie wurden daher nicht gespeichert.}}",
 					"FAILED": "{count, plural, one {# Eintrag konnte nicht gespeichert werden.} other {# Einträge konnten nicht gespeichert werden.}}"
 				}
+			},
+			"HISTORY": {
+				"TITLE": "Verlauf des Eintrags",
+				"OPEN": "{edited}. Verlauf anzeigen",
+				"ADDED_BY": "Hinzugefügt von {name}",
+				"EDITED_BY": "Bearbeitet von {name}",
+				"DELETED_BY": "Gelöscht von {name}",
+				"DELETED": "Gelöscht",
+				"WHEN": "{date}, {time}",
+				"FIELD_CHANGED": "geändert von {before} zu {after}",
+				"NONE": "Keine",
+				"LOADING": "Verlauf wird geladen",
+				"ERROR": "Der Verlauf dieses Eintrags konnte nicht geladen werden.",
+				"RETRY": "Erneut versuchen",
+				"FORBIDDEN": "Sie können den Verlauf dieses Eintrags nicht sehen.",
+				"UNSUPPORTED": "Dieser Server speichert keinen Verlauf von Zeiteinträgen.",
+				"NOT_KEPT": "Frühere Werte wurden nicht gespeichert: Dieser Eintrag wurde geändert, bevor sein Verlauf aufgezeichnet wurde."
 			}
 		},
 		"workDiary": {
@@ -749,6 +781,110 @@
 			"EMPTY_THIS_MONTH": "Diesen Monat keine Zeit erfasst",
 			"EMPTY_HINT": "Starten Sie den Timer für eine Aufgabe, dann erscheint Ihre Zeit hier.",
 			"OPEN_TIMER": "Timer öffnen"
+		},
+		"goals": {
+			"TITLE": "Ziele",
+			"UPDATING": "Ihre Ziele werden geladen",
+			"NEW_GOAL": "Neues Ziel",
+			"PERIOD_LABEL": "Zeitraum des Ziels",
+			"PERIOD_DAY": "Heute",
+			"PERIOD_WEEK": "Diese Woche",
+			"PERIOD_MONTH": "Dieser Monat",
+			"YOUR_GOALS": "Ihre Ziele",
+			"TEAM_GOALS": "Mitglieder Ihres Teams",
+			"TEAM_EMPTY": "Kein Mitglied von {team} hat ein Ziel für diesen Zeitraum.",
+			"GOAL_COUNT": "{count, plural, one {# Ziel} other {# Ziele}}",
+			"EMPTY_TITLE": "Noch kein Ziel",
+			"EMPTY_MESSAGE": "Setzen Sie sich eine Stundenzahl, mindestens oder höchstens, pro Tag, Woche oder Monat, und sehen Sie jeden Tag, ob Sie sie einhalten.",
+			"EMPTY_DAY": "Kein Ziel pro Tag",
+			"EMPTY_WEEK": "Kein Ziel pro Woche",
+			"EMPTY_MONTH": "Kein Ziel pro Monat",
+			"EMPTY_PERIOD_HINT": "Wählen Sie oben einen anderen Zeitraum oder erstellen Sie ein Ziel.",
+			"UNAVAILABLE_TITLE": "Ziele sind nicht verfügbar",
+			"UNAVAILABLE_MESSAGE": "Dieser Server bietet noch keine Zeitziele an.",
+			"FIGURE": "{tracked} von {target}",
+			"BILLABLE_ONLY": "Nur abrechenbar",
+			"TEAM_GOAL": "Teamziel",
+			"ORGANIZATION_GOAL": "Organisationsziel",
+			"ACTIONS": "Aktionen für {name}",
+			"EDIT": "Ziel bearbeiten",
+			"ARCHIVE": "Ziel archivieren",
+			"ARCHIVED": "{name} archiviert",
+			"ARCHIVE_FAILED": "Das Ziel konnte nicht archiviert werden.",
+			"UNDO": "Rückgängig",
+			"ARCHIVED_TITLE": "Archivierte Ziele",
+			"SHOW": "Anzeigen",
+			"HIDE": "Ausblenden",
+			"RESTORE": "Wiederherstellen",
+			"RESTORED": "{name} wiederhergestellt",
+			"RESTORE_FAILED": "Das Ziel konnte nicht wiederhergestellt werden.",
+			"ALL_GOALS": "Alle Ziele",
+			"state": {
+				"IN_PROGRESS": "In Arbeit",
+				"ACHIEVED": "Erreicht",
+				"ON_TRACK": "Im Rahmen",
+				"EXCEEDED": "Überschritten"
+			},
+			"rule": {
+				"AT_LEAST_DAY": "Mindestens {hours} pro Tag",
+				"AT_LEAST_WEEK": "Mindestens {hours} pro Woche",
+				"AT_LEAST_MONTH": "Mindestens {hours} pro Monat",
+				"AT_MOST_DAY": "Höchstens {hours} pro Tag",
+				"AT_MOST_WEEK": "Höchstens {hours} pro Woche",
+				"AT_MOST_MONTH": "Höchstens {hours} pro Monat"
+			},
+			"gap": {
+				"TO_GO": "Noch {duration}",
+				"TARGET_REACHED": "Ziel erreicht",
+				"ABOVE_TARGET": "{duration} über dem Ziel",
+				"LEFT": "{duration} übrig",
+				"LIMIT_REACHED": "Limit erreicht",
+				"OVER_LIMIT": "{duration} über dem Limit"
+			},
+			"form": {
+				"CREATE_TITLE": "Neues Ziel",
+				"EDIT_TITLE": "Ziel bearbeiten",
+				"NAME_LABEL": "Name des Ziels",
+				"NAME_PLACEHOLDER": "Name des Ziels, etwa Kunde A",
+				"PROPERTIES": "Eigenschaften des Ziels",
+				"RULE": "Regel",
+				"AT_LEAST": "Mindestens",
+				"AT_MOST": "Höchstens",
+				"HOURS": "Stunden",
+				"HOURS_LABEL": "Anzahl Stunden",
+				"HOURS_UNIT": "h",
+				"PERIOD": "Zeitraum",
+				"PER_DAY": "Pro Tag",
+				"PER_WEEK": "Pro Woche",
+				"PER_MONTH": "Pro Monat",
+				"FOR": "Für",
+				"FOR_ME": "Mich",
+				"FOR_MEMBER": "Ein Mitglied",
+				"FOR_TEAM": "Ganzes Team",
+				"PICK_MEMBER": "Mitglied wählen",
+				"SEARCH_MEMBERS": "Mitglieder suchen",
+				"TEAM_HINT": "Jedes Mitglied von {team} hält sich daran.",
+				"PROJECTS": "Projekte",
+				"ANY_PROJECT": "Alle Projekte",
+				"ADD_PROJECTS": "Projekte hinzufügen",
+				"SEARCH_PROJECTS": "Projekte suchen",
+				"CLIENTS": "Kunden",
+				"ANY_CLIENT": "Alle Kunden",
+				"ADD_CLIENTS": "Kunden hinzufügen",
+				"SEARCH_CLIENTS": "Kunden suchen",
+				"BILLABLE": "Nur abrechenbar",
+				"BILLABLE_HINT": "Nur abrechenbare Zeit zählt für dieses Ziel.",
+				"CREATE": "Ziel erstellen",
+				"NAME_REQUIRED": "Geben Sie dem Ziel einen Namen.",
+				"HOURS_REQUIRED": "Geben Sie eine Stundenzahl über 0 ein.",
+				"HOURS_PRECISION": "Verwenden Sie höchstens zwei Dezimalstellen.",
+				"HOURS_TOO_MANY": "Der Zeitraum hat nicht so viele Stunden.",
+				"MEMBER_REQUIRED": "Wählen Sie das Mitglied, für das dieses Ziel gilt.",
+				"FORBIDDEN": "Sie können Ziele für sich selbst, für die Mitglieder der von Ihnen geleiteten Teams oder für diese Teams festlegen.",
+				"SAVE_FAILED": "Das Ziel konnte nicht gespeichert werden. Versuchen Sie es erneut.",
+				"CREATED": "Ziel {name} erstellt",
+				"SAVED": "Ziel {name} gespeichert"
+			}
 		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# Mitglied} other {# Mitglieder}}",
@@ -794,7 +930,12 @@
 				"NONE": "Kein Projekt",
 				"COUNT": "{count, plural, one {# Projekt} other {# Projekte}}",
 				"OTHER": "{count, plural, one {# weiteres Projekt} other {# weitere Projekte}}",
-				"EMPTY": "Projekte erscheinen hier, sobald im Zeitraum Zeit erfasst wurde."
+				"EMPTY": "Projekte erscheinen hier, sobald im Zeitraum Zeit erfasst wurde.",
+				"SPLIT": "Zeit aufteilen nach",
+				"BY_CLIENT": "Nach Kunde",
+				"OTHER_CLIENTS": "{count, plural, one {# weiterer Kunde} other {# weitere Kunden}}",
+				"CLIENTS_EMPTY": "Kunden erscheinen hier, sobald im Zeitraum Zeit erfasst wurde.",
+				"CLIENTS_ERROR": "Die Kunden der Projekte konnten nicht gelesen werden."
 			},
 			"table": {
 				"VIEW": "Zeilen gruppieren",
@@ -1229,7 +1370,10 @@
 				"SUMMARY": "Zusammenfassung des Zeitraums",
 				"NO_ACTIVITY": "In diesem Zeitraum wurde keine Aktivität erfasst",
 				"CHART_LABEL": "Erfasste Zeit und Aktivität pro Tag",
-				"BY_TIMER": "{duration} per Timer"
+				"BY_TIMER": "{duration} per Timer",
+				"ROUNDED_UP": "Pro Eintrag auf {minutes} Min. aufgerundet",
+				"ROUNDED_DOWN": "Pro Eintrag auf {minutes} Min. abgerundet",
+				"ROUNDED_NEAREST": "Pro Eintrag auf die nächsten {minutes} Min. gerundet"
 			},
 			"breakdown": {
 				"RANK": "Rang",
@@ -1314,7 +1458,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, one {# weiteres Mitglied anzeigen} other {# weitere Mitglieder anzeigen}}",
 				"SHOW_FEWER": "Weniger anzeigen",
 				"UNPRICED_TITLE": "{count, plural, one {# Mitglied hat} other {# Mitglieder haben}} {duration} ohne Satz erfasst."
-			}
+			},
+			"NOTE_STORED_RATES": "Geschuldete Beträge zum Satz jedes Eintrags zum Zeitpunkt seiner Erfassung. Zahlungen werden in Ever Teams nicht erfasst.",
+			"SEVERAL_RATES": "Mehrere Sätze"
 		},
 		"projectBudget": {
 			"TITLE": "Projektbudget",
@@ -1383,7 +1529,8 @@
 			"LANE_SHOW_MORE": "{count, plural, one {# weiteres Projekt anzeigen} other {# weitere Projekte anzeigen}}",
 			"LANE_SHOW_FEWER": "Weniger anzeigen",
 			"PORTFOLIO_OTHERS": "{count, plural, one {# weiteres Projekt} other {# weitere Projekte}}",
-			"UNBUDGETED_NOTE": "Lege für diese Projekte ein Budget fest, um sie auf das Board zu bringen."
+			"UNBUDGETED_NOTE": "Lege für diese Projekte ein Budget fest, um sie auf das Board zu bringen.",
+			"COST_NOTE_STORED_RATES": "Kosten sind die erfasste Zeit zum Satz jedes Eintrags zum Zeitpunkt seiner Erfassung, in der Währung des Projekts und ohne Umrechnung."
 		},
 		"actualExpected": {
 			"TITLE": "Ist- und Sollstunden",
@@ -1515,6 +1662,53 @@
 				"FUTURE": "Ihre Organisation erlaubt keine Zeit nach der aktuellen Uhrzeit.",
 				"APPROVED": "Dieser Tag gehört zu einem genehmigten Stundenzettel, daher kann seine Zeit nicht geändert werden.",
 				"SAVE_FAILED": "Änderung nicht gespeichert"
+			},
+			"MENU": {
+				"STOP": "Timer stoppen",
+				"ADD_TIME_HERE": "Hier Zeit hinzufügen",
+				"SPLIT": "Teilen",
+				"NO_ACTIONS": "Du kannst diesen Eintrag nicht ändern."
+			},
+			"SPLIT": {
+				"TITLE": "Eintrag teilen",
+				"REFUSED_TITLE": "Dieser Eintrag kann nicht geteilt werden",
+				"TIME_LABEL": "Teilen um",
+				"TIME_OUTSIDE": "Wähle eine Uhrzeit innerhalb des Eintrags, mindestens eine Minute nach Beginn und vor dem Ende.",
+				"PARTS_LABEL": "Die zwei Einträge",
+				"FIRST_PART": "Erster Teil",
+				"SECOND_PART": "Zweiter Teil",
+				"TASK_LABEL": "Aufgabe des zweiten Teils: {task}",
+				"TASK_SEARCH": "Aufgaben suchen",
+				"ACTION": "Teilen",
+				"SAVING": "Wird geteilt…",
+				"SAVED": "Eintrag in zwei geteilt",
+				"FAILED_RESTORED": "Der Eintrag konnte nicht geteilt werden und ist wieder wie vorher. Versuche es erneut.",
+				"FAILED_CHANGED": "Dieser Eintrag hat sich geändert, seit der Kalender ihn geladen hat, daher wurde nichts geteilt. Prüfe ihn und versuche es erneut.",
+				"FAILED_FIRST_PART_KEPT": "Der erste Teil wurde gespeichert, aber der zweite Teil ({range}) konnte nicht hinzugefügt werden. Füge ihn mit „Zeit hinzufügen“ hinzu.",
+				"FAILED_UNKNOWN": "Die Teilung konnte nicht bestätigt werden. Lade den Kalender neu und prüfe diesen Eintrag, bevor du es erneut versuchst.",
+				"ADD_REST": "Zweiten Teil hinzufügen",
+				"REFUSED": {
+					"TRACKED": "Erfasste Zeit trägt ihre Aktivität und Screenshots, die nur der Server auf zwei Einträge aufteilen kann. Vorerst lässt sich nur manuell hinzugefügte Zeit teilen.",
+					"RUNNING": "Der Timer läuft noch. Stoppe ihn und teile dann den Eintrag.",
+					"TOO_SHORT": "Dieser Eintrag ist zu kurz: Jeder Teil muss mindestens eine Minute dauern.",
+					"APPROVED": "Dieser Tag gehört zu einem genehmigten Stundenzettel, daher kann seine Zeit nicht geändert werden.",
+					"PERMISSION": "Deine Rolle oder deine Organisation erlaubt weder das Ändern von Zeit noch das manuelle Hinzufügen."
+				}
+			},
+			"SETTINGS": {
+				"LABEL": "Rastereinstellungen",
+				"SNAP": "Einrasten auf",
+				"SNAP_OPTION": "{minutes, plural, =60 {1 Stunde} one {# Minute} other {# Minuten}}",
+				"FIRST_HOUR": "Erste Stunde",
+				"LAST_HOUR": "Letzte Stunde",
+				"END_OF_DAY": "Tagesende",
+				"HOURS_HINT": "Einträge außerhalb dieser Stunden bleiben sichtbar: Das Raster erweitert sich bis zu ihnen.",
+				"ROW_HEIGHT": "Zeilenhöhe",
+				"ROW_COMPACT": "Kompakt",
+				"ROW_DEFAULT": "Standard",
+				"ROW_TALL": "Hoch",
+				"KEPT_HERE": "In diesem Browser gespeichert",
+				"RESET": "Zurücksetzen"
 			}
 		},
 		"manualTimeEdits": {
@@ -1575,7 +1769,19 @@
 			"LEGEND_TRACKED": "Erfasst",
 			"RANK_MEMBERS_TITLE": "Wer Zeit von Hand einträgt",
 			"RANK_OTHER_MEMBERS": "{count, plural, one {# weiteres Mitglied} other {# weitere Mitglieder}}",
-			"RANK_OTHER_PROJECTS": "{count, plural, one {# weiteres Projekt} other {# weitere Projekte}}"
+			"RANK_OTHER_PROJECTS": "{count, plural, one {# weiteres Projekt} other {# weitere Projekte}}",
+			"DELETED": "Gelöscht",
+			"DELETED_AT": "Gelöscht am {when}",
+			"FEED_DELETED": "Die Zeit von <actor>{name}</actor> für <link>{task}</link> wurde gelöscht: <figure>{duration}</figure>",
+			"FEED_DELETED_NO_TASK": "Die Zeit von <actor>{name}</actor> ohne Aufgabe wurde gelöscht: <figure>{duration}</figure>",
+			"KIND_LABEL": "Art der Änderung",
+			"KIND_TIME": "Zeit",
+			"KIND_TASK_PROJECT": "Aufgabe oder Projekt",
+			"SHOW_HISTORY": "Verlauf",
+			"HIDE_HISTORY": "Verlauf ausblenden",
+			"NOT_KEPT": "Frühere Werte wurden nicht gespeichert",
+			"COLUMN_BEFORE": "Vorher",
+			"COLUMN_AFTER": "Nachher"
 		}
 	},
 	"timeActivity": {
@@ -2793,7 +2999,59 @@
 			"HINT_RUNNING": "Änderungen bei laufendem Timer werden noch nicht gespeichert. Um die Notizen zu ändern, bearbeiten Sie den Eintrag nach dem Stoppen des Timers in den Stundenzetteln.",
 			"HINT_OTHER_TEAM": "Diese Notizen gehören zum Timer, der in einem anderen Team läuft, und können hier nicht geändert werden."
 		},
-		"NOT_BILLABLE": "Nicht abrechenbar"
+		"NOT_BILLABLE": "Nicht abrechenbar",
+		"startMove": {
+			"TITLE": "Beginn des laufenden Timers",
+			"STARTED_AT": "Gestartet um {time}",
+			"OPEN": "Gestartet um {time}. Beginn ändern",
+			"NEW_START": "Neuer Beginn",
+			"REASON": "Grund",
+			"REASON_PLACEHOLDER": "Warum sich der Beginn ändert",
+			"LATER_ONLY": "Zeit von Hand hinzuzufügen ist dir nicht erlaubt, daher kann der Beginn nur später werden.",
+			"SAVING": "Wird gespeichert…",
+			"SAVED": "Der Timer beginnt jetzt um {time}.",
+			"CHECKING": "Es wird geprüft, ob sich der Beginn ändern lässt…",
+			"VIEW_TRACKER": "Dieser Timer läuft in der Desktop-App. Ändere seinen Beginn dort.",
+			"VIEW_NOT_ALLOWED": "Erfasste Zeit zu ändern ist dir in dieser Organisation nicht erlaubt.",
+			"UNSUPPORTED": "Der Beginn eines laufenden Timers kann auf diesem Server noch nicht geändert werden.",
+			"NOT_RUNNING": "Der Timer läuft nicht mehr.",
+			"TRACKER_RUN": "Dieser Timer läuft in der Desktop-App oder im Agenten, die seine Zeit selbst erfassen. Ändere seinen Beginn dort.",
+			"IN_FUTURE": "Der Beginn darf nicht später als jetzt sein.",
+			"EDIT_NOT_ALLOWED": "Erfasste Zeit zu ändern ist dir nicht erlaubt.",
+			"MANUAL_NOT_ALLOWED": "Ein früherer Beginn fügt Zeit von Hand hinzu, was dir nicht erlaubt ist. Wähle einen späteren Beginn.",
+			"REASON_REQUIRED": "Deine Organisation verlangt einen Grund.",
+			"REASON_TOO_LONG": "Der Grund ist zu lang: höchstens 255 Zeichen.",
+			"OVERLAP": "Ein anderer deiner Einträge deckt diese Zeit ab. Wähle einen Beginn nach seinem Ende.",
+			"CHANGED": "Der Beginn wurde gerade anderswo geändert. Prüfe ihn und versuche es erneut.",
+			"SAVE_FAILED": "Der Beginn konnte nicht gespeichert werden. Versuche es erneut."
+		},
+		"discard": {
+			"MENU": "Weitere Timer-Aktionen",
+			"ACTION": "Diesen Lauf verwerfen",
+			"TITLE": "Diesen Lauf verwerfen?",
+			"DESCRIPTION": "Nichts wird gespeichert.",
+			"DESCRIPTION_ELSEWHERE": "Dieser Lauf wurde in {source} gestartet und stoppt dort ebenfalls. Nichts wird gespeichert.",
+			"CONFIRM": "Verwerfen",
+			"DISCARDING": "Wird verworfen…",
+			"DISCARDED": "Lauf verworfen",
+			"DISCARDED_HINT": "Der Timer ist gestoppt und nichts wurde gespeichert.",
+			"sources": {
+				"DESKTOP": "der Desktop-App",
+				"MOBILE": "der mobilen App",
+				"BROWSER_EXTENSION": "der Browsererweiterung",
+				"OTHER": "einer anderen App"
+			},
+			"failures": {
+				"NOT_RUNNING": "Es läuft kein Timer mehr, daher wurde nichts verworfen.",
+				"DISABLED": "Ihre Organisation erlaubt das Verwerfen eines Laufs nicht.",
+				"TOO_LATE": "Dieser Lauf hat vor zu langer Zeit begonnen, um verworfen zu werden. Stoppen Sie ihn und bearbeiten Sie den Eintrag dann in den Zeiterfassungen.",
+				"FORBIDDEN": "Ihre Rolle erlaubt das Verwerfen dieses Laufs nicht.",
+				"NOT_SUPPORTED": "Dieser Server bietet das Verwerfen eines Laufs noch nicht an.",
+				"CHANGED": "Inzwischen hat ein anderer Lauf begonnen, daher wurde nichts verworfen.",
+				"TRACKER_RUN": "Dieser Lauf wird von der Desktop-App oder dem Agenten erfasst, die seine Zeit selbst führen, daher kann er hier nicht verworfen werden.",
+				"GENERIC": "Der Lauf konnte nicht verworfen werden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
+			}
+		}
 	},
 	"task": {
 		"TITLE": "Aufgabe",
@@ -3416,7 +3674,13 @@
 		"EVER_APPS": "Ever-Apps",
 		"CURRENT_APP": "{app}, die App, in der du bist",
 		"OPENS_IN_NEW_TAB": "(öffnet sich in einem neuen Tab)",
-		"APP_OPENS_IN_NEW_TAB": "{app} (öffnet sich in einem neuen Tab)"
+		"APP_OPENS_IN_NEW_TAB": "{app} (öffnet sich in einem neuen Tab)",
+		"OTHER_ORGANIZATIONS_LOADING": "Ihre anderen Organisationen werden geladen",
+		"OTHER_ORGANIZATIONS_FAILED": "Ihre anderen Organisationen konnten nicht geladen werden.",
+		"TRY_AGAIN": "Erneut versuchen",
+		"UNNAMED_ORGANIZATION": "Organisation ohne Namen",
+		"OPEN_ORGANIZATION": "Ihre Teams dort öffnen",
+		"ORGANIZATION_SWITCH_FAILED": "Diese Organisation konnte nicht geöffnet werden. Versuchen Sie es erneut."
 	},
 	"workspaceCreation": {
 		"TITLE": "Arbeitsbereich erstellen",
@@ -3854,7 +4118,8 @@
 			"INVALID": "Einige Werte wurden nicht akzeptiert. Prüfe sie und versuche es erneut.",
 			"TOO_MANY": "Zu viele Versuche. Warte einen Moment und versuche es dann erneut.",
 			"SERVER": "Der Server konnte es nicht abschließen. Versuche es gleich noch einmal.",
-			"UNKNOWN": "Versuche es gleich noch einmal."
+			"UNKNOWN": "Versuche es gleich noch einmal.",
+			"TWO_FACTOR": "Dieses Konto verlangt einen Code aus einer Authenticator-App. Melde dich mit deiner E-Mail-Adresse oder deinem Passwort an, um ihn einzugeben."
 		},
 		"common": {
 			"NEWSLETTER_SUBSCRIBED": "Sie haben den Newsletter abonniert",
@@ -3956,6 +4221,7 @@
 			"NO_TASK": "Wählen Sie eine Aufgabe, um den Timer zu starten",
 			"START_IN_PROGRESS": "Der Timer startet gerade noch für eine andere Aufgabe",
 			"WORKSPACE_OPENING": "Dein neuer Workspace wird geöffnet: Starte den Timer, sobald er offen ist.",
+			"ORGANIZATION_OPENING": "Eine andere Organisation wird geöffnet: Starte den Timer, sobald sie offen ist.",
 			"STOPPED_TEAM_SWITCH": "Timer gestoppt, weil Sie das Team gewechselt haben",
 			"STOPPED_TASK_SWITCH": "Timer gestoppt, weil sich Ihre aktive Aufgabe geändert hat",
 			"STALE_STOPPED": "Timer gestoppt: {stoppedAt}",
@@ -3963,7 +4229,8 @@
 			"TASK_CLOSED_HINT": "Öffnen Sie die Aufgabe wieder, um Zeit darauf zu erfassen.",
 			"NOTES_NOT_SAVED": "Die während des laufenden Timers geänderten Notizen wurden nicht gespeichert",
 			"NOTES_NOT_SAVED_HINT": "Der Eintrag hat die Notizen vom Start behalten. Bearbeiten Sie den Eintrag in den Stundenzetteln, um sie zu ändern.",
-			"ALREADY_RUNNING_ON_TASK": "Der Timer läuft bereits für diese Aufgabe"
+			"ALREADY_RUNNING_ON_TASK": "Der Timer läuft bereits für diese Aufgabe",
+			"SAVED_STOP_HINT": "Das ist der Stopp, den du vor dem Ende deiner Sitzung angefordert hast."
 		},
 		"plans": {
 			"CREATE_FAILED": "Der Plan wurde nicht erstellt",
@@ -4213,6 +4480,10 @@
 				"TITLE": "Benachrichtigungen",
 				"DESCRIPTION": "Welche Ereignisse dich benachrichtigen."
 			},
+			"apiTokens": {
+				"TITLE": "API-Tokens",
+				"DESCRIPTION": "Schlüssel, mit denen Ihre Skripte die API in Ihrem Namen aufrufen."
+			},
 			"teamGeneral": {
 				"TITLE": "Allgemein",
 				"DESCRIPTION": "Name, Aussehen, Sichtbarkeit und Erfassungsregeln des Teams."
@@ -4264,6 +4535,10 @@
 			"automations": {
 				"TITLE": "Automatisierungen",
 				"DESCRIPTION": "Regeln, die die Aufgaben der Organisation für Sie bewegen."
+			},
+			"security": {
+				"TITLE": "Sicherheit",
+				"DESCRIPTION": "Wie du dich anmeldest: Zwei-Faktor-Authentifizierung."
 			}
 		},
 		"index": {
@@ -5030,7 +5305,60 @@
 			"WORKSPACE_ROLE_VIEWER": "Betrachter",
 			"WORKSPACE_ROLE_CANDIDATE": "Kandidat",
 			"WORKSPACE_ROLE_INTERVIEWER": "Interviewer",
-			"WORKSPACE_ROLE_NOT_SAVED": "Die Rolle von {name} im Arbeitsbereich wurde nicht geändert"
+			"WORKSPACE_ROLE_NOT_SAVED": "Die Rolle von {name} im Arbeitsbereich wurde nicht geändert",
+			"RESET_TWO_FACTOR": "Zwei-Faktor-Authentifizierung zurücksetzen",
+			"RESET_TWO_FACTOR_TITLE": "Zwei-Faktor-Authentifizierung von {name} zurücksetzen?",
+			"RESET_TWO_FACTOR_CONSEQUENCE_OFF": "Falls {name} sie eingeschaltet hat, wird sie ausgeschaltet: Die nächste Anmeldung verlangt nur den E-Mail-Code oder das Passwort.",
+			"RESET_TWO_FACTOR_CONSEQUENCE_AGAIN": "{name} kann sie in den Sicherheitseinstellungen wieder einschalten. Das Zurücksetzen wird protokolliert.",
+			"RESET_TWO_FACTOR_CONFIRM": "Zurücksetzen",
+			"RESET_TWO_FACTOR_DONE": "Die Zwei-Faktor-Authentifizierung von {name} ist zurückgesetzt",
+			"RESET_TWO_FACTOR_NOTHING": "{name} hatte keine Zwei-Faktor-Authentifizierung zum Zurücksetzen",
+			"RESET_TWO_FACTOR_FAILED": "Die Zwei-Faktor-Authentifizierung von {name} konnte nicht zurückgesetzt werden"
+		},
+		"sessions": {
+			"TITLE": "Sitzungen",
+			"DESCRIPTION": "Wo dein Konto angemeldet ist. Melde ein Gerät ab, das du nicht mehr nutzt oder nicht erkennst.",
+			"THIS_DEVICE": "Dieses Gerät",
+			"DEVICE_BROWSER_ON": "{browser} unter {os}",
+			"DEVICE_DESKTOP_APP": "Desktop-App",
+			"DEVICE_DESKTOP_APP_ON": "Desktop-App unter {os}",
+			"DEVICE_MOBILE_APP": "Mobile App",
+			"DEVICE_MOBILE_APP_ON": "Mobile App unter {os}",
+			"UNKNOWN_DEVICE": "Unbekanntes Gerät",
+			"SIGNED_IN": "Angemeldet am {date}",
+			"LAST_ACTIVE": "Zuletzt aktiv {time}",
+			"SIGN_OUT_SESSION": "Abmelden",
+			"ONLY_THIS_DEVICE": "Du bist nur auf diesem Gerät angemeldet.",
+			"OTHER_SESSIONS": "{count, plural, one {# weitere Sitzung} other {# weitere Sitzungen}}",
+			"OTHER_SESSIONS_HINT": "Melde sie alle auf einmal ab, nachdem du bestätigt hast, dass du es bist.",
+			"SIGN_OUT_OTHERS": "Andere Sitzungen abmelden",
+			"LOAD_FAILED": "Deine Sitzungen konnten nicht geladen werden.",
+			"RETRY": "Erneut versuchen",
+			"SIGNED_OUT_ONE": "{device} wurde abgemeldet.",
+			"SIGN_OUT_FAILED": "Die Sitzung wurde nicht abgemeldet",
+			"SIGN_OUT_UNNAMED": "Sie begann, bevor Sitzungen aufgelistet wurden: Melde stattdessen die anderen Sitzungen ab.",
+			"SIGN_OUT_OTHERS_TITLE": "{count, plural, one {# weitere Sitzung abmelden?} other {# weitere Sitzungen abmelden?}}",
+			"CONSEQUENCE_OTHERS": "Jeder andere Browser und jede andere App, die bei deinem Konto angemeldet sind, müssen sich neu anmelden.",
+			"CONSEQUENCE_THIS": "Dieses Gerät bleibt angemeldet.",
+			"PASSWORD_LABEL": "Gib dein Passwort ein, um zu bestätigen, dass du es bist",
+			"USE_CODE": "Stattdessen einen Code per E-Mail verwenden",
+			"USE_PASSWORD": "Stattdessen dein Passwort verwenden",
+			"CODE_HINT": "Wir senden einen Anmeldecode an {email}. Gib ihn unten ein, um zu bestätigen, dass du es bist.",
+			"SEND_CODE": "Code senden",
+			"SEND_CODE_AGAIN": "Neuen Code senden",
+			"CODE_SENT": "Code an {email} gesendet. Gib ihn unten ein.",
+			"CODE_LABEL": "Code",
+			"CODE_NOT_SENT": "Der Code wurde nicht gesendet. {reason}",
+			"NEEDS_CODE": "Dieses Konto hat kein Passwort. Sende dir einen Code per E-Mail, um zu bestätigen, dass du es bist.",
+			"NEEDS_PASSWORD": "Dieses Konto hat ein Passwort. Gib es ein, um zu bestätigen, dass du es bist.",
+			"WRONG_PASSWORD": "Dieses Passwort ist nicht richtig. Keine Sitzung wurde abgemeldet.",
+			"WRONG_CODE": "Dieser Code ist nicht richtig oder abgelaufen. Keine Sitzung wurde abgemeldet.",
+			"TOO_MANY_ATTEMPTS": "Zu viele Versuche. Warte eine Minute und versuche es dann erneut.",
+			"THIS_SESSION_UNKNOWN": "Dieses Gerät hat sich angemeldet, bevor Sitzungen aufgelistet wurden. Melde dich ab und wieder an, dann versuche es erneut.",
+			"SIGN_OUT_INCOMPLETE": "Eine Sitzung hat sich während der Abmeldung erneuert. Versuche es erneut.",
+			"SIGN_OUT_OTHERS_FAILED": "Das Abmelden der anderen Sitzungen wurde nicht abgeschlossen. {reason}",
+			"SIGN_OUT_OTHERS_CONFIRM": "{count, plural, one {# Sitzung abmelden} other {# Sitzungen abmelden}}",
+			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Keine andere Sitzung war angemeldet.} one {# weitere Sitzung wurde abgemeldet.} other {# weitere Sitzungen wurden abgemeldet.}}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profil",
@@ -5165,6 +5493,60 @@
 			"UNAVAILABLE_TITLE": "In diesem Arbeitsbereich gibt es noch nichts einzustellen",
 			"UNAVAILABLE_TEXT": "Benachrichtigungen gehören zu deinem Mitgliedsprofil in einem Arbeitsbereich, und dieses Konto hat hier keins. Tritt zuerst einem Team bei oder erstelle eins."
 		},
+		"apiTokens": {
+			"PAGE_DESCRIPTION": "Mit jedem Token kann ein Skript die API in Ihrem Namen aufrufen. Ein widerrufenes Token funktioniert sofort nicht mehr.",
+			"SECTION_TOKENS": "Ihre Tokens",
+			"COUNT": "{count} von {max} aktiven Tokens",
+			"CREATE": "Token erstellen",
+			"LIMIT_REACHED": "Sie haben {max} aktive Tokens, das erlaubte Maximum. Widerrufen Sie eines, das Sie nicht mehr brauchen, um ein neues zu erstellen.",
+			"EMPTY_TITLE": "Noch keine API-Tokens",
+			"EMPTY_TEXT": "Erstellen Sie für jedes Skript ein eigenes Token, damit Sie eines widerrufen können, ohne die anderen zu berühren.",
+			"LIST_FAILED_TITLE": "Ihre API-Tokens konnten nicht geladen werden",
+			"LIST_FAILED_TEXT": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+			"RETRY": "Erneut versuchen",
+			"CREATED_ON": "Erstellt am {date}",
+			"LAST_USED_ON": "Zuletzt verwendet am {date}",
+			"NEVER_USED": "Nie verwendet",
+			"EXPIRES_ON": "Läuft am {date} ab",
+			"EXPIRED_ON": "Abgelaufen am {date}",
+			"NEVER_EXPIRES": "Läuft nie ab",
+			"EXPIRED": "Abgelaufen",
+			"REVOKE": "Widerrufen",
+			"REVOKE_TITLE": "„{name}“ widerrufen?",
+			"REVOKE_DESCRIPTION": "Skripte können dieses Token nicht mehr gegen Zugriff eintauschen; Zugriff, den sie bereits haben, endet innerhalb einer Stunde. Dies kann nicht rückgängig gemacht werden.",
+			"REVOKE_CONFIRM": "Token widerrufen",
+			"REVOKE_FAILED": "Das Token konnte nicht widerrufen werden. Versuchen Sie es erneut.",
+			"CREATE_TITLE": "API-Token erstellen",
+			"NAME_LABEL": "Name",
+			"NAME_HINT": "Wofür das Token gedacht ist, zum Beispiel „Freitagsbericht“.",
+			"NAME_REQUIRED": "Geben Sie dem Token einen Namen.",
+			"NAME_TOO_LONG": "Der Name darf höchstens {max} Zeichen lang sein.",
+			"EXPIRY_LEGEND": "Ablauf",
+			"EXPIRY_90D": "In 90 Tagen",
+			"EXPIRY_1Y": "In 1 Jahr",
+			"EXPIRY_NEVER": "Nie",
+			"EXPIRY_ON_DATE": "Am {date}",
+			"EXPIRY_NEVER_DETAIL": "Funktioniert, bis Sie es widerrufen.",
+			"CREATING": "Wird erstellt…",
+			"CREATE_FAILED": "Das Token konnte nicht erstellt werden. Versuchen Sie es erneut.",
+			"CREATE_LIMIT": "Sie haben bereits {max} aktive Tokens. Widerrufen Sie eines, um ein neues zu erstellen.",
+			"CREATE_DISABLED": "Dieser Server bietet keine API-Tokens mehr an.",
+			"SECRET_TITLE": "Kopieren Sie Ihr Token jetzt",
+			"SECRET_TEXT": "„{name}“ ist bereit. Sein Geheimnis wird nur dieses eine Mal angezeigt: Bewahren Sie es sicher auf, bevor Sie dieses Fenster schließen.",
+			"SECRET_LABEL": "Token",
+			"COPY": "Kopieren",
+			"COPY_TOKEN": "Token kopieren",
+			"COPIED": "Kopiert",
+			"COPY_DONE": "Das Token ist kopiert.",
+			"COPY_FAILED": "Kopieren fehlgeschlagen: Markieren Sie das Token und kopieren Sie es.",
+			"DONE": "Fertig",
+			"USAGE_TITLE": "Ein Token in einem Skript verwenden",
+			"USAGE_EXCHANGE": "Tauschen Sie das Token gegen ein kurzlebiges Zugriffstoken:",
+			"USAGE_CALL": "Rufen Sie dann die API wie gewohnt auf, mit dem Zugriffstoken im Header „Authorization: Bearer“, und tauschen Sie das Token erneut, wenn das Zugriffstoken abläuft.",
+			"UNAVAILABLE_TITLE": "API-Tokens werden hier nicht angeboten",
+			"UNAVAILABLE_TEXT": "Auf diesem Server sind persönliche API-Tokens nicht aktiviert. Wenden Sie sich an Ihren Administrator, wenn Sie eines benötigen.",
+			"AVAILABILITY_FAILED_TITLE": "Es konnte nicht geprüft werden, ob dieser Server API-Tokens anbietet"
+		},
 		"workspace": {
 			"IDENTITY_SECTION": "Arbeitsbereich",
 			"NAME_LABEL": "Name des Arbeitsbereichs",
@@ -5193,8 +5575,59 @@
 			"NUMBER_FORMAT_NOT_SAVED": "Das Zahlenformat wurde nicht gespeichert",
 			"FORMAT_OUTCOME": "Berichte und ihre Exporte verwenden es jetzt.",
 			"FORMAT_AUTOMATIC": "Automatisch",
+			"ROUNDING_LABEL": "Dauern runden",
+			"ROUNDING_DESCRIPTION": "Zeit & Aktivität, seine Exporte und aus Zeit erstellte Rechnungen runden jeden Eintrag. Stundenzettel behalten die Zeit wie erfasst.",
+			"ROUNDING_OFF": "Aus",
+			"ROUNDING_INTERVAL": "{minutes} Min.",
+			"ROUNDING_DIRECTION_LABEL": "Rundungsrichtung",
+			"ROUNDING_UP": "Auf",
+			"ROUNDING_DOWN": "Ab",
+			"ROUNDING_NEAREST": "Nächster Wert",
+			"ROUNDING_RULE_UP": "Auf {minutes} Min. aufrunden",
+			"ROUNDING_RULE_DOWN": "Auf {minutes} Min. abrunden",
+			"ROUNDING_RULE_NEAREST": "Auf die nächsten {minutes} Min. runden",
+			"ROUNDING_EXAMPLE": "Ein Eintrag von {tracked} wird als {rounded} angezeigt.",
+			"ROUNDING_SAVED": "Rundung der Dauern gespeichert",
+			"ROUNDING_OUTCOME": "Zeit & Aktivität, seine Exporte und neue aus Zeit erstellte Rechnungen runden jetzt jeden Eintrag.",
+			"ROUNDING_OFF_SAVED": "Rundung der Dauern ausgeschaltet",
+			"ROUNDING_OFF_OUTCOME": "Berichte zeigen die Zeit wieder wie erfasst.",
+			"ROUNDING_NOT_SAVED": "Die Rundung der Dauern wurde nicht gespeichert",
+			"WEEK_START_LABEL": "Woche beginnt am",
+			"WEEK_START_DESCRIPTION": "Der erste Tag jeder Wochenansicht, Wochenauswahl, jedes Berichts und jedes Exports.",
+			"WEEK_START_SAVED": "Wochenbeginn gespeichert",
+			"WEEK_START_NOT_SAVED": "Der Wochenbeginn wurde nicht gespeichert",
+			"CLOCK_LABEL": "Uhrzeitformat",
+			"CLOCK_DESCRIPTION": "Wie jede Seite und jeder Export eine Uhrzeit schreibt.",
+			"CLOCK_24": "24 Stunden ({sample})",
+			"CLOCK_12": "12 Stunden ({sample})",
+			"CLOCK_SAVED": "Uhrzeitformat gespeichert",
+			"CLOCK_NOT_SAVED": "Das Uhrzeitformat wurde nicht gespeichert",
+			"CURRENCY_POSITION_LABEL": "Währungssymbol",
+			"CURRENCY_POSITION_DESCRIPTION": "Wo jeder Betrag sein Währungssymbol schreibt.",
+			"CURRENCY_POSITION_BEFORE": "Vor dem Betrag ({sample})",
+			"CURRENCY_POSITION_AFTER": "Nach dem Betrag ({sample})",
+			"CURRENCY_POSITION_SAVED": "Position des Währungssymbols gespeichert",
+			"CURRENCY_POSITION_NOT_SAVED": "Die Position des Währungssymbols wurde nicht gespeichert",
+			"EVERY_PAGE_OUTCOME": "Jede Seite und jeder Export verwendet es jetzt.",
 			"READ_ONLY_NOTE": "Nur Administratoren des Arbeitsbereichs können diese Einstellungen ändern.",
-			"LOAD_FAILED": "Die Einstellungen des Arbeitsbereichs konnten nicht geladen werden."
+			"LOAD_FAILED": "Die Einstellungen des Arbeitsbereichs konnten nicht geladen werden.",
+			"RATES_SECTION": "Sätze",
+			"RATES_DESCRIPTION": "Was eine Satzänderung mit der bereits erfassten Zeit macht.",
+			"KEEP_RATES_LABEL": "Vergangene Zeit behält ihren Satz",
+			"KEEP_RATES_DESCRIPTION": "An: Ein neuer Satz bewertet nur die ab dann erfasste Zeit, außer beim Speichern wird ein Tag gewählt. Aus: Er bewertet die gesamte bereits erfasste Zeit, wie bisher.",
+			"KEEP_RATES_ON": "An",
+			"KEEP_RATES_OFF": "Aus",
+			"KEEP_RATES_SAVED_ON": "Vergangene Zeit behält jetzt ihren Satz",
+			"KEEP_RATES_SAVED_OFF": "Ein neuer Satz bewertet jetzt die gesamte bereits erfasste Zeit",
+			"KEEP_RATES_NOT_SAVED": "Die Satzeinstellung wurde nicht gespeichert",
+			"DATA_SECTION": "Daten",
+			"EXPORT_LABEL": "Alle Daten exportieren",
+			"EXPORT_DESCRIPTION": "Ein ZIP mit CSV-Dateien, eine pro Tabelle: jede Organisation des Arbeitsbereichs, im Format, das der Import wieder einliest.",
+			"EXPORT_ACTION": "Exportieren",
+			"EXPORTING": "Wird exportiert…",
+			"EXPORT_DONE": "Daten des Arbeitsbereichs exportiert",
+			"EXPORT_FAILED": "Der Export wurde nicht abgeschlossen",
+			"EXPORT_FAILED_DESCRIPTION": "Es wurde nichts gespeichert. Ein großer Arbeitsbereich braucht Zeit: Versuchen Sie es gleich noch einmal."
 		},
 		"automations": {
 			"NEW_RULE": "Neue Regel",
@@ -5384,6 +5817,59 @@
 					"DESCRIPTION": "Wenn ein mit einer offenen Aufgabe verknüpfter Pull-Request oder ein Issue geschlossen wird, wechselt die Aufgabe auf erledigt."
 				}
 			}
+		},
+		"security": {
+			"SECTION_TITLE": "Zwei-Faktor-Authentifizierung",
+			"SECTION_DESCRIPTION": "Anmeldungen verlangen zusätzlich einen Code aus einer Authenticator-App auf deinem Telefon.",
+			"APP_LABEL": "Authenticator-App",
+			"ON": "Ein",
+			"OFF": "Aus",
+			"OFF_DESCRIPTION": "Anmeldungen verlangen nur deinen E-Mail-Code oder dein Passwort.",
+			"ON_DESCRIPTION": "Anmeldungen verlangen einen Code aus deiner Authenticator-App.",
+			"ON_SINCE": "Anmeldungen verlangen einen Code aus deiner Authenticator-App. Eingeschaltet seit {date}.",
+			"TURN_ON": "Einschalten",
+			"TURN_OFF": "Ausschalten",
+			"CANCEL": "Abbrechen",
+			"RETRY": "Erneut versuchen",
+			"CODES_LABEL": "Wiederherstellungscodes",
+			"CODES_LEFT": "{count, plural, =0 {Kein ungenutzter Code mehr} one {# ungenutzter Code übrig} other {# ungenutzte Codes übrig}}",
+			"NEW_CODES": "Neue Wiederherstellungscodes",
+			"SETUP_STEP_KEY": "1. Füge dieses Konto deiner Authenticator-App hinzu",
+			"SETUP_STEP_KEY_TEXT": "Scanne den QR-Code mit deiner Authenticator-App. Auf diesem Gerät öffnest du stattdessen den Link oder tippst den Schlüssel ein.",
+			"SETUP_KEY_LABEL": "Einrichtungsschlüssel",
+			"COPY_KEY": "Schlüssel kopieren",
+			"OPEN_IN_APP": "In der Authenticator-App öffnen",
+			"SETUP_STEP_CODE": "2. Gib den {length}-stelligen Code ein, den die App anzeigt",
+			"CODE_INCOMPLETE": "Gib alle {length} Ziffern des Codes ein.",
+			"SETUP_FAILED": "Die Zwei-Faktor-Authentifizierung konnte nicht eingerichtet werden",
+			"TURNED_ON": "Die Zwei-Faktor-Authentifizierung ist eingeschaltet",
+			"TURNED_OFF": "Die Zwei-Faktor-Authentifizierung ist ausgeschaltet",
+			"CODES_TITLE": "Deine Wiederherstellungscodes",
+			"CODES_TEXT": "Jeder Code meldet dich einmal an, falls du dein Telefon verlierst. Bewahre sie jetzt sicher auf: Sie werden nicht noch einmal angezeigt.",
+			"COPY_CODES": "Codes kopieren",
+			"DOWNLOAD_CODES": "Herunterladen",
+			"CODES_DONE": "Ich habe meine Codes gespeichert",
+			"CODES_FILE_HEADING": "{appName}-Wiederherstellungscodes",
+			"COPIED": "Kopiert",
+			"COPY_FAILED": "Kopieren nicht möglich. Markiere den Text und kopiere ihn.",
+			"TURN_OFF_PROOF": "Zum Ausschalten gib einen Code aus deiner App oder einen Wiederherstellungscode ein",
+			"NEW_CODES_PROOF": "Für neue Wiederherstellungscodes gib einen Code aus deiner App oder einen Wiederherstellungscode ein. Die bisherigen Codes gelten dann nicht mehr.",
+			"PROOF_HINT": "Ein 6-stelliger Code aus deiner Authenticator-App oder einer deiner Wiederherstellungscodes.",
+			"PROOF_PLACEHOLDER": "123456 oder XXXX-XXXX-XXXX-XXXX",
+			"PROOF_INCOMPLETE": "Gib einen 6-stelligen Code oder einen vollständigen Wiederherstellungscode ein.",
+			"WRONG_CODE": "Dieser Code stimmt nicht. Gib den Code ein, den deine App jetzt anzeigt, oder einen Wiederherstellungscode.",
+			"TOO_MANY": "Zu viele falsche Codes. Versuche es in {minutes, plural, one {# Minute} other {# Minuten}} erneut.",
+			"TOO_MANY_LATER": "Zu viele falsche Codes. Warte ein paar Minuten und versuche es dann erneut.",
+			"CHANGED": "Die Zwei-Faktor-Authentifizierung wurde inzwischen geändert. Prüfe sie und versuche es erneut.",
+			"FAILED": "Die Änderung war nicht möglich. Versuche es gleich noch einmal.",
+			"UNAVAILABLE_TITLE": "Auf diesem Server noch nicht verfügbar",
+			"UNAVAILABLE_DESCRIPTION": "Die Zwei-Faktor-Authentifizierung ist auf diesem Server nicht eingeschaltet. Bitte deinen Administrator, sie einzuschalten.",
+			"UNSUPPORTED_TITLE": "Zwei-Faktor-Authentifizierung ist nicht verfügbar",
+			"UNSUPPORTED_DESCRIPTION": "Dieser Server bietet keine Zwei-Faktor-Authentifizierung an.",
+			"READ_FAILED": "Die Zwei-Faktor-Authentifizierung konnte nicht gelesen werden",
+			"REQUIRED_TITLE": "Deine Organisation bittet dich, sie einzuschalten",
+			"REQUIRED_DESCRIPTION": "Ihre Mitglieder melden sich zusätzlich mit einem Code aus einer Authenticator-App an.",
+			"QR_ALT": "QR-Code dieses Kontos für deine Authenticator-App"
 		}
 	},
 	"taskDetail": {
@@ -5589,7 +6075,22 @@
 		"REQUEST_SENT": "Anfrage gesendet. Die Admins Ihrer Organisation wurden benachrichtigt.",
 		"REQUEST_NOBODY": "Ihre Organisation hat noch keinen Admin, der benachrichtigt werden kann. Fragen Sie direkt den Inhaber des Arbeitsbereichs.",
 		"REQUEST_UNAVAILABLE": "Dieser Server nimmt noch keine Anfragen zur Satzänderung an. Fragen Sie direkt Ihren Admin.",
-		"REQUEST_FAILED": "Die Anfrage wurde nicht gesendet."
+		"REQUEST_FAILED": "Die Anfrage wurde nicht gesendet.",
+		"APPLY_QUESTION": "Auf bereits erfasste Zeit anwenden?",
+		"APPLY_FROM_NOW": "Nein, ab jetzt",
+		"APPLY_FROM_NOW_DETAIL": "Bereits erfasste Zeit behält ihren Preis.",
+		"APPLY_ALL_TIME": "Ja, auf die gesamte",
+		"APPLY_ALL_TIME_DETAIL": "Die gesamte bereits erfasste Zeit erhält den neuen Satz.",
+		"APPLY_FROM_DAY": "Ja, ab einem Datum",
+		"APPLY_FROM_DAY_DETAIL": "Ab diesem Tag erfasste Zeit erhält den neuen Satz.",
+		"APPLY_DAY": "Ab",
+		"APPLY_DAY_MISSING": "Wählen Sie den Tag, ab dem der neue Satz gilt.",
+		"APPLY_WORKSPACE_HINT": "Bereits erfasste Zeit behält standardmäßig ihren Preis, wenn „Vergangene Zeit behält ihren Satz“ unter Einstellungen > Arbeitsbereich aktiviert ist.",
+		"RATE_SAVED": "Satz gespeichert",
+		"ENTRIES_REPRICED": "{count, plural, =0 {Kein Zeiteintrag hat seinen Preis geändert.} one {# Zeiteintrag hat seinen Preis geändert.} other {# Zeiteinträge haben ihren Preis geändert.}}",
+		"PAST_TIME_KEPT": "Bereits erfasste Zeit behält ihren Preis.",
+		"APPLY_BILLED_KEPT": "Zeit, die bereits auf einer Rechnung oder einem Angebot steht, behält den abgerechneten Preis.",
+		"REPRICE_UNFINISHED": "Das Speichern wurde nicht abgeschlossen. Der neue Satz ist möglicherweise gespeichert, während die bereits erfasste Zeit ihren alten Preis behalten hat: Speichern Sie erneut, um es abzuschließen."
 	},
 	"auth": {
 		"code": {
@@ -5750,6 +6251,35 @@
 			"TEXT": "Die Anmeldung wurde nicht abgeschlossen. Versuch es erneut oder melde dich mit deiner E-Mail an.",
 			"RETRY": "Zurück zur Anmeldung",
 			"CODE": "Fehlercode: {code}"
+		},
+		"sessionEnded": {
+			"TITLE": "Deine Sitzung ist abgelaufen",
+			"TEXT": "Melde dich erneut an, um fortzufahren.",
+			"TIMER_RUNNING": "Dein Timer lief. Melde dich vor {deadline} erneut an, dann läuft er weiter. Danach wird er zum letzten gespeicherten Zeitpunkt gestoppt: {savedUntil}.",
+			"TIMER_STILL_RUNNING": "Dein Timer läuft weiter. Melde dich erneut an, um ihn zu stoppen.",
+			"STOP_SAVED": "Der von dir angeforderte Timer-Stopp ist gespeichert: {time}. Er wird angewendet, sobald du dich wieder anmeldest."
+		},
+		"twoFactor": {
+			"TITLE": "Authentifizierungscode eingeben",
+			"DESCRIPTION": "Öffne deine Authenticator-App und gib den {length}-stelligen Code ein, den sie für <address>{email}</address> anzeigt.",
+			"RECOVERY_DESCRIPTION": "Gib einen der Wiederherstellungscodes ein, die du beim Einschalten der Zwei-Faktor-Authentifizierung gespeichert hast. Jeder Code gilt nur einmal.",
+			"CODE_LABEL": "Authentifizierungscode",
+			"RECOVERY_LABEL": "Wiederherstellungscode",
+			"USE_RECOVERY": "Stattdessen einen Wiederherstellungscode verwenden",
+			"USE_APP": "Stattdessen die Authenticator-App verwenden",
+			"SUBMIT": "Bestätigen und anmelden",
+			"BACK": "Zurück zur Anmeldung",
+			"WRONG_CODE": "Dieser Code stimmt nicht. Gib den Code ein, den deine Authenticator-App jetzt anzeigt.",
+			"WRONG_RECOVERY_CODE": "Dieser Wiederherstellungscode stimmt nicht oder wurde schon verwendet.",
+			"CODE_INCOMPLETE": "Gib alle {length} Ziffern des Codes ein.",
+			"RECOVERY_INCOMPLETE": "Gib den vollständigen Wiederherstellungscode ein.",
+			"EXPIRED": "Diese Anmeldung hat zu lange auf ihren Code gewartet. Melde dich erneut an.",
+			"SIGN_IN_AGAIN": "Erneut anmelden",
+			"TOO_MANY": "Zu viele falsche Codes. Versuche es in {minutes, plural, one {# Minute} other {# Minuten}} erneut.",
+			"TOO_MANY_LATER": "Zu viele falsche Codes. Warte ein paar Minuten und versuche es dann erneut.",
+			"FAILED": "Der Code konnte nicht geprüft werden. Versuche es gleich noch einmal.",
+			"SCENE_TITLE": "Noch ein Schritt",
+			"SCENE_TEXT": "Dieses Konto ist durch Zwei-Faktor-Authentifizierung geschützt."
 		}
 	},
 	"taskViews": {
@@ -5844,7 +6374,7 @@
 	},
 	"shortcuts": {
 		"TITLE": "Tastenkürzel",
-		"DESCRIPTION": "Die Tasten jedes Bereichs. Buchstaben folgen der physischen Taste, daher funktionieren sie auf jedem Layout.",
+		"DESCRIPTION": "Die Tasten, die in der App funktionieren, nach Bereich.",
 		"DESCRIPTION_REBIND": "Die Tasten jedes Bereichs. Ändere eine, indem du neue Tasten aufnimmst; die Änderung folgt dir auf allen Geräten.",
 		"NONE": "Keine",
 		"THEN": "dann",
@@ -5909,10 +6439,20 @@
 			"searchTeams": "Teams durchsuchen",
 			"themeToggle": "Zwischen hell und dunkel wechseln",
 			"taskProject": "Projekt ändern",
-			"taskAssignee": "Zugewiesene ändern"
+			"taskAssignee": "Zugewiesene ändern",
+			"sidebarToggle": "Seitenleiste ein- oder ausblenden",
+			"taskSearchFocus": "In der Liste suchen"
 		},
 		"CHAT_SINGLE_KEY": "Eine Chat-Taste ist eine einzelne Taste, keine Folge.",
-		"CHAT_TAKEN": "Der Chat verwendet diese Taste bereits (Formatieren, Senden, Bewegen oder Scrollen)."
+		"CHAT_TAKEN": "Der Chat verwendet diese Taste bereits (Formatieren, Senden, Bewegen oder Scrollen).",
+		"OR": "oder",
+		"groups": {
+			"general": "Allgemein",
+			"timer": "Timer",
+			"tasks": "Aufgaben",
+			"navigation": "Navigation",
+			"chat": "Chat"
+		}
 	},
 	"realtime": {
 		"RECONNECTING": "Verbindung wird wiederhergestellt…"
@@ -6617,7 +7157,13 @@
 			"NAME_REQUIRED": "Geben Sie den Namen des Kunden ein.",
 			"EMAIL_INVALID": "Geben Sie eine gültige E-Mail-Adresse ein oder lassen Sie das Feld leer.",
 			"CREATE": "Kunde erstellen",
-			"SAVE_FAILED": "Der Kunde konnte nicht gespeichert werden. Versuchen Sie es erneut."
+			"SAVE_FAILED": "Der Kunde konnte nicht gespeichert werden. Versuchen Sie es erneut.",
+			"BILLING": "Abrechnung",
+			"CUSTOM_DAYS_LABEL": "Tage bis zur Zahlung, 0 bis {max}",
+			"DAYS_UNIT": "{count, plural, one {Tag} other {Tage}}",
+			"PAYMENT_TERMS": "Zahlungsziel",
+			"TERMS_HINT": "Legt das Fälligkeitsdatum der Rechnungen für diesen Kunden fest.",
+			"TERMS_INVALID": "Geben Sie eine Anzahl Tage von 0 bis 365 ein."
 		},
 		"toasts": {
 			"CREATED": "{name} wurde zu den Kunden hinzugefügt",
@@ -6631,13 +7177,15 @@
 			"LEAVES_PICKER": "Er wird nicht mehr als Kunde eines Projekts angeboten.",
 			"CAN_RESTORE": "Sie können ihn in der Liste Archiviert wiederherstellen.",
 			"CONFIRM": "Kunde archivieren",
-			"FAILED": "Der Kunde konnte nicht archiviert werden. Versuchen Sie es erneut."
+			"FAILED": "Der Kunde konnte nicht archiviert werden. Versuchen Sie es erneut.",
+			"KEEPS_INVOICES": "Die Rechnungen bleiben erhalten und können weiter versendet, bezahlt oder storniert werden."
 		},
 		"restore": {
 			"TITLE": "{name} wiederherstellen?",
 			"BACK_IN_PICKER": "Er wird wieder als Kunde eines Projekts angeboten.",
 			"CONFIRM": "Kunde wiederherstellen",
-			"FAILED": "Der Kunde konnte nicht wiederhergestellt werden. Versuchen Sie es erneut."
+			"FAILED": "Der Kunde konnte nicht wiederhergestellt werden. Versuchen Sie es erneut.",
+			"KEEPS_EVERYTHING": "Projekte, Zeit und Rechnungen sind so, wie Sie sie verlassen haben."
 		},
 		"picker": {
 			"ADD": "Kunde hinzufügen",
@@ -6645,6 +7193,86 @@
 			"CREATE": "Kunde „{name}“ erstellen",
 			"NO_CLIENT": "Kein Kunde",
 			"CREATE_FAILED": "Der Kunde konnte nicht erstellt werden. Versuchen Sie es erneut."
+		},
+		"COLUMN_SINCE": "Seit",
+		"FOOT_PROJECTS": "{count, plural, one {# Projekt} other {# Projekte}}",
+		"LINK_COPIED": "Link zu {name} kopiert",
+		"LINK_NOT_COPIED": "Der Link konnte nicht kopiert werden. Kopieren Sie ihn aus der Adressleiste.",
+		"NO_ACCESS_TITLE": "Kunden sind für Ihre Rolle nicht freigegeben",
+		"NO_ACCESS_MESSAGE": "Bitten Sie eine Person, die den Arbeitsbereich verwaltet, Ihrer Rolle Zugriff auf die Kunden zu geben.",
+		"OPEN_CLIENT": "Öffnen",
+		"contact": {
+			"ADD": "Kontakt hinzufügen",
+			"ADD_EMAIL": "E-Mail hinzufügen",
+			"ADD_FOR": "Kontaktdaten für {name} hinzufügen",
+			"ADD_PHONE": "Telefon hinzufügen",
+			"COPY": "{value} kopieren",
+			"NOT_COPIED": "Kopieren fehlgeschlagen. Markieren Sie den Text, um ihn zu kopieren.",
+			"NO_EMAIL": "Keine E-Mail",
+			"NO_PHONE": "Kein Telefon"
+		},
+		"facts": {
+			"ADDED": "Hinzugefügt",
+			"EDIT_CONTACT": "Kontakt bearbeiten",
+			"EDIT_NOTES": "Notizen bearbeiten",
+			"EDIT_TERMS": "Zahlungsziel bearbeiten",
+			"SINCE": "Kunde seit {date}",
+			"TERMS": "Zahlungsziel"
+		},
+		"invoices": {
+			"ALL": "Alle",
+			"OPEN": "Offen",
+			"EMPTY_TITLE": "Noch keine Rechnungen",
+			"EMPTY_MESSAGE": "Rechnungen für diesen Kunden erscheinen hier.",
+			"FILTER_LABEL": "Angezeigte Rechnungen",
+			"NONE_IN_FILTER": "Keine Rechnungen mit diesem Status",
+			"SUMMARY_OPEN": "{count} offen",
+			"SUMMARY_OVERDUE": "{count} überfällig",
+			"SUMMARY_PAID": "{count} bezahlt",
+			"SUMMARY_DRAFTS": "{count, plural, one {# Entwurf} other {# Entwürfe}}",
+			"SUMMARY_VOID": "{count} storniert"
+		},
+		"notes": {
+			"ADD": "Notiz hinzufügen",
+			"NONE": "Keine Notizen",
+			"READ_MORE": "Mehr lesen",
+			"SHOW_LESS": "Weniger anzeigen"
+		},
+		"order": {
+			"TRIGGER": "Sortiert nach {order}",
+			"NEWEST": "Neueste zuerst",
+			"MOST_PROJECTS": "Meiste Projekte"
+		},
+		"projects": {
+			"EMPTY_TITLE": "Keine Projekte für diesen Kunden",
+			"EMPTY_MESSAGE": "Wählen Sie diesen Kunden in den Einstellungen eines Projekts, damit es hier erscheint."
+		},
+		"sheet": {
+			"POSITION": "{position} von {total}"
+		},
+		"standing": {
+			"ALSO": "Außerdem {amounts}",
+			"BILLED": "Abgerechnet",
+			"LABEL": "Abrechnung von {name}",
+			"LAST_INVOICE": "Letzte Rechnung",
+			"NOTHING": "Nichts",
+			"NO_INVOICE_TITLE": "Noch keine Rechnungen für {name}",
+			"NO_INVOICE_MESSAGE": "Rechnen Sie die erfasste Zeit für diesen Kunden ab, um hier zu sehen, was offen ist."
+		},
+		"terms": {
+			"CUSTOM": "Eigenes",
+			"DAYS": "{days, plural, one {# Tag} other {# Tage}}",
+			"DUE_ON_RECEIPT": "Sofort fällig",
+			"NET_DAYS": "Zahlbar in {days, plural, one {# Tag} other {# Tagen}}",
+			"RECEIPT": "Sofort",
+			"WORKSPACE": "Arbeitsbereich",
+			"WORKSPACE_DAYS": "Arbeitsbereich ({days, plural, one {# Tag} other {# Tage}})",
+			"WORKSPACE_SHORT": "Standard"
+		},
+		"detail": {
+			"NOT_FOUND_TITLE": "Dieser Kunde ist nicht im Arbeitsbereich",
+			"NOT_FOUND_MESSAGE": "Er wurde vielleicht gelöscht, oder der Link stammt aus einem anderen Arbeitsbereich.",
+			"ALL_CLIENTS": "Alle Kunden"
 		}
 	},
 	"invoices": {
@@ -6719,6 +7347,9 @@
 			"NO_PRICED_LINES": "Keine Zeit dieses Zeitraums hat einen Satz in dieser Währung.",
 			"ALL_LINES_REMOVED": "Alle Positionen wurden entfernt. Stellen Sie sie wieder her, um diese Zeit abzurechnen.",
 			"LINES_AND_HOURS": "{count, plural, one {# Position} other {# Positionen}} · {hours} Std.",
+			"ROUNDED_UP": "Jeder Eintrag auf {minutes} Min. aufgerundet",
+			"ROUNDED_DOWN": "Jeder Eintrag auf {minutes} Min. abgerundet",
+			"ROUNDED_NEAREST": "Jeder Eintrag auf die nächsten {minutes} Min. gerundet",
 			"LINE_COUNT": "{count, plural, one {# Position} other {# Positionen}}",
 			"TOTAL": "Summe",
 			"details": {
@@ -6888,7 +7519,8 @@
 				"LOCKED_NOW": "Seit dem Öffnen wurde Rechnung {number} bezahlt oder storniert: Es wurde nichts gespeichert, und sie lässt sich nicht mehr bearbeiten.",
 				"NOT_CHECKED": "Die Rechnung konnte vor dem Speichern nicht erneut gelesen werden, deshalb wurde nichts gespeichert. Versuchen Sie es erneut.",
 				"NOT_REACHED": "Die Verbindung ist fehlgeschlagen: Die Änderungen wurden nicht gespeichert, die Rechnung ist unverändert. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
-				"CHANGED": "Seit dem Öffnen wurde Rechnung {number} geändert: Es wurde nichts gespeichert. Öffnen Sie sie erneut aus der Rechnungsliste, um von ihrer aktuellen Fassung auszugehen."
+				"CHANGED": "Seit dem Öffnen wurde Rechnung {number} geändert: Es wurde nichts gespeichert. Öffnen Sie sie erneut aus der Rechnungsliste, um von ihrer aktuellen Fassung auszugehen.",
+				"RECORDS_TIME": "Hält die Stunden fest, die seine Positionen abrechnen, damit keine andere Rechnung sie erneut abrechnet."
 			}
 		},
 		"replace": {
@@ -6903,6 +7535,73 @@
 			"NOT_REBUILDABLE": "Rechnung {number} wurde nicht storniert: Sie lässt sich hier nicht aus abrechenbarer Zeit neu erstellen. Stornieren und ersetzen Sie sie dort, wo sie erstellt wurde.",
 			"NOT_VOID_TITLE": "Rechnung {number} ist nicht storniert",
 			"NOT_VOID_MESSAGE": "Hier wird nur eine stornierte Rechnung ersetzt. Öffnen Sie sie aus der Rechnungsliste, um sie zu bearbeiten oder um sie zu stornieren und zu ersetzen."
+		},
+		"billedTime": {
+			"LEFT_OUT_TITLE": "Stunden, die schon auf einer Rechnung stehen, sind ausgenommen",
+			"LEFT_OUT_MESSAGE": "{count, plural, one {Eine Rechnung von {client} berechnet bereits einen Teil dieses Zeitraums. Diese Stunden sind hier nicht aufgeführt.} other {# Rechnungen von {client} berechnen bereits einen Teil dieses Zeitraums. Diese Stunden sind hier nicht aufgeführt.}}",
+			"UNRECORDED_MESSAGE": "{count, plural, one {Diese Rechnung hält nicht fest, welche Stunden sie berechnet, deshalb sind sie hier noch aufgeführt.} other {Diese Rechnungen halten nicht fest, welche Stunden sie berechnen, deshalb sind diese Stunden hier noch aufgeführt.}} Entfernen Sie vor dem Speichern die bereits berechneten Positionen.",
+			"EARLIER_NOTE": "Stunden, die schon auf einer Rechnung stehen, sind auf dieser nicht aufgeführt, außer wenn jene Rechnung nicht festhält, welche Stunden sie berechnet.",
+			"ALL_INVOICED_TITLE": "Die abrechenbare Zeit von {client} in diesem Zeitraum ist bereits berechnet",
+			"ALL_INVOICED_MESSAGE": "Jede abrechenbare Stunde dieses Zeitraums steht auf einer Rechnung. Um einen Teil davon erneut zu berechnen, entfernen Sie die Position von jener Rechnung oder stornieren Sie die Rechnung.",
+			"NEW_REFUSED": "Ein Teil dieser Zeit ist seit dem Lesen auf eine andere Rechnung gekommen oder wurde gelöscht, deshalb wurde nichts gespeichert. Schließen Sie dieses Fenster, um die noch abzurechnende Zeit zu sehen, und speichern Sie dann erneut.",
+			"EDIT_REFUSED": "Ein Teil dieser Zeit ist seit dem Lesen auf eine andere Rechnung gekommen oder wurde gelöscht, deshalb wurden die Änderungen nicht gespeichert und die Rechnung ist unverändert. Schließen Sie dieses Fenster, um die noch abzurechnende Zeit zu sehen, und speichern Sie dann erneut."
+		},
+		"standing": {
+			"OVERDUE": "Überfällig",
+			"UNKNOWN": "Unbekannter Status"
+		},
+		"due": {
+			"IN_DAYS": "Fällig in {count, plural, one {# Tag} other {# Tagen}}",
+			"TODAY": "Heute fällig",
+			"TOMORROW": "Morgen fällig",
+			"LATE": "{count, plural, one {# Tag überfällig} other {# Tage überfällig}}"
+		},
+		"money": {
+			"LABEL": "Offene Beträge des Arbeitsbereichs",
+			"OWED": "Offen",
+			"NOTHING_OWED": "Derzeit ist nichts offen",
+			"INVOICE_COUNT": "{count, plural, one {# Rechnung} other {# Rechnungen}}",
+			"ALSO_OWED": "Ebenfalls offen: {amounts}",
+			"SPLIT_LABEL": "Offene Beträge, aufgeteilt in noch nicht fällig und überfällig",
+			"NOT_YET_DUE": "Noch nicht fällig",
+			"OVERDUE": "Überfällig",
+			"DRAFTS": "Entwürfe",
+			"DRAFT_COUNT": "{count, plural, =0 {Keine} one {# zu senden} other {# zu senden}}",
+			"WITHOUT_BALANCE": "{count, plural, one {# teilweise bezahlte Rechnung nennt keinen Restbetrag und wird nicht gezählt} other {# teilweise bezahlte Rechnungen nennen keinen Restbetrag und werden nicht gezählt}}",
+			"ERROR": "Die offenen Beträge konnten nicht gelesen werden"
+		},
+		"filter": {
+			"LABEL": "Angezeigte Rechnungen",
+			"ALL": "Alle",
+			"OPEN": "Offen",
+			"NONE_DRAFT": "Keine Entwürfe zu versenden",
+			"NONE_OPEN": "Keine Rechnung wartet auf Zahlung",
+			"NONE_OVERDUE": "Nichts ist überfällig",
+			"NONE_PAID": "Keine bezahlten Rechnungen",
+			"NONE_VOID": "Keine stornierten Rechnungen",
+			"SHOW_ALL": "Alle Rechnungen anzeigen",
+			"LOADED_ONLY": "Unter {count, plural, one {der letzten Rechnung} other {den # letzten Rechnungen}}. Laden Sie mehr, um weiter zurückzugehen."
+		},
+		"detail": {
+			"HEADING": "Rechnung {number}",
+			"PAPER_TITLE": "Rechnung",
+			"COLUMN_DESCRIPTION": "Beschreibung",
+			"COLUMN_HOURS": "Stunden",
+			"COLUMN_RATE": "Satz",
+			"COLUMN_AMOUNT": "Betrag",
+			"NO_DESCRIPTION": "Keine Beschreibung",
+			"NO_LINES": "Diese Rechnung hat keine Positionen.",
+			"DISCOUNT": "Rabatt",
+			"TAX": "Steuer",
+			"TAX_PERCENT": "Steuer ({percent})",
+			"TAX2": "Zweite Steuer",
+			"TAX2_PERCENT": "Zweite Steuer ({percent})",
+			"PAID": "Bezahlt",
+			"LEFT_TO_PAY": "Noch offen",
+			"NOT_FOUND_TITLE": "Diese Rechnung ist nicht im Arbeitsbereich",
+			"NOT_FOUND_MESSAGE": "Sie wurde vielleicht gelöscht, oder der Link stammt aus einem anderen Arbeitsbereich.",
+			"ALL_INVOICES": "Alle Rechnungen",
+			"ERROR_TITLE": "Die Rechnung konnte nicht geladen werden"
 		}
 	},
 	"timeReports": {
@@ -7052,12 +7751,175 @@
 			"ROW_LABEL": "Zeiterfassungsdaten",
 			"ROW_DESCRIPTION": "Füge Zeiteinträge aus einer CSV-Datei hinzu.",
 			"OPEN": "Aus CSV importieren"
+		},
+		"mapping": {
+			"DESCRIPTION": "Wähle die Spalte von {fileName}, die jeden Teil eines Eintrags enthält. Vor dem Import wird nichts gespeichert.",
+			"HEADER_PART": "Teil eines Eintrags",
+			"HEADER_COLUMN": "Spalte der Datei",
+			"HEADER_SAMPLE": "Erster Wert",
+			"NOT_IN_FILE": "Nicht in dieser Datei",
+			"CHOOSE_COLUMN": "Spalte auswählen",
+			"DATE_FORMAT": "Datumsformat",
+			"CHOOSE_DATE_FORMAT": "Format auswählen",
+			"MISSING": "Um fortzufahren, wähle eine Spalte für {parts}.",
+			"DATE_FORMAT_MISSING": "Um fortzufahren, wähle, wie die Daten dieser Datei geschrieben sind.",
+			"MIXED_DATES": "Die Daten in dieser Datei sind auf zwei Arten geschrieben: {firstValue} in Zeile {firstRow}, {value} in Zeile {row}. Schreibe alle Daten auf dieselbe Art.",
+			"CONTINUE": "{count, plural, one {# Zeile prüfen} other {# Zeilen prüfen}}",
+			"FIRST_ROWS": "Erste Zeilen der Datei",
+			"EDIT": "Spalten ändern",
+			"UNNAMED_COLUMN": "Spalte {position}",
+			"fields": {
+				"DATE": "Datum",
+				"START_TIME": "Startzeit",
+				"END_DATE": "Enddatum",
+				"END_TIME": "Endzeit",
+				"DURATION": "Dauer",
+				"PROJECT": "Projekt",
+				"TASK": "Aufgabe",
+				"NOTES": "Notizen",
+				"BILLABLE": "Abrechenbar",
+				"MEMBER": "Mitglied"
+			},
+			"orders": {
+				"YEAR_FIRST": "Jahr zuerst",
+				"DAY_FIRST": "Tag zuerst",
+				"MONTH_FIRST": "Monat zuerst"
+			},
+			"problems": {
+				"DATE_UNREADABLE_DAY_FIRST": "Das Datum ist nicht lesbar. Schreibe es mit dem Tag zuerst, wie {dayFirst}.",
+				"DATE_UNREADABLE_MONTH_FIRST": "Das Datum ist nicht lesbar. Schreibe es mit dem Monat zuerst, wie {monthFirst}.",
+				"END_DATE_UNREADABLE": "Das Enddatum ist nicht lesbar. Schreibe es wie das Datum.",
+				"START_DAY_MISMATCH": "Datum und Startzeit ergeben zwei verschiedene Tage. Behalte eines von beiden.",
+				"END_DAY_MISMATCH": "Das Enddatum ist nicht der Tag, an dem dieser Eintrag endet. Korrigiere das Enddatum oder die Uhrzeiten.",
+				"MEMBER_NAME_UNKNOWN": "Kein Mitglied dieses Teams hat diesen Namen.",
+				"MEMBER_AMBIGUOUS": "{count, plural, one {# Mitglied dieses Teams hat diesen Namen.} other {# Mitglieder dieses Teams haben diesen Namen. Gib das Mitglied per E-Mail an.}}"
+			}
+		},
+		"workspace": {
+			"MODE_LEGEND": "Was importiert wird",
+			"MODE_ENTRIES": "Zeiteinträge (CSV)",
+			"MODE_WORKSPACE": "Ganzer Workspace",
+			"SECTION_TITLE": "Aus einem anderen Zeiterfassungstool importieren",
+			"SECTION_DESCRIPTION": "Legen Sie den Workspace-Export Ihres anderen Tools ab: seine Kunden, Projekte, Labels und Zeiteinträge kommen in {team}. Nichts wird gespeichert, bevor Sie bestätigen.",
+			"DROP_TITLE": "Exportdateien hier ablegen oder auswählen",
+			"DROP_ACTIVE": "Dateien ablegen, um sie zu lesen",
+			"DROP_HINT": "CSV- oder JSON-Dateien oder ein ZIP davon, jeweils bis zu {megabytes} MB.",
+			"FILES_NOTE": "Jede Datei wird an ihrem Namen (Kunden, Projekte, Tags, Zeiteinträge) oder an ihren Spalten erkannt. Projekte übernehmen Kunde, Farbe und Standard für abrechenbar aus einer Projektdatei, sonst aus den Einträgen.",
+			"READING": "Dateien werden gelesen…",
+			"FILES_TITLE": "Gelesene Dateien",
+			"KIND_entries": "Zeiteinträge",
+			"KIND_clients": "Kunden",
+			"KIND_projects": "Projekte",
+			"KIND_tags": "Tags",
+			"FILE_ROWS": "{count, plural, one {# Zeile} other {# Zeilen}}",
+			"LEFT_OUT_TITLE": "{count, plural, one {# Datei ausgelassen} other {# Dateien ausgelassen}}",
+			"problems": {
+				"notSupported": "Keine CSV-, JSON- oder ZIP-Datei.",
+				"tooLarge": "Größer als {megabytes} MB.",
+				"notText": "Kein UTF-8-Text.",
+				"zip_notZip": "Kein ZIP-Archiv, das sich öffnen lässt.",
+				"zip_encrypted": "Das Archiv ist mit einem Passwort geschützt.",
+				"zip_unsupported": "Das Archiv nutzt ein Format, das der Import nicht lesen kann.",
+				"zip_tooLarge": "Das Archiv wird entpackt größer als {megabytes} MB.",
+				"json": "Das JSON enthält keine Liste von Datensätzen.",
+				"csv": "Die CSV kann nicht gelesen werden: Ein Anführungszeichen wird nie geschlossen, oder die Datei ist leer.",
+				"unknownContent": "Weder Kunden, Projekte, Tags noch Zeiteinträge.",
+				"entriesColumnsDiffer": "Zeiteinträge mit anderen Spalten als die erste Datei mit Einträgen.",
+				"repeatedKind": "{kind}: schon aus einer anderen Datei gelesen. Nur die erste wird verwendet.",
+				"tableTooLarge": "Mehr Spalten oder Zellen, als der Import liest (höchstens {columns} Spalten).",
+				"unreadable": "Der Browser konnte die Datei nicht lesen: Wählen Sie sie erneut."
+			},
+			"NOTHING_READ": "Keine Datei des Exports konnte verwendet werden. Wählen Sie den Export erneut.",
+			"CHOOSE_OTHER": "Andere Dateien wählen",
+			"NO_RIGHTS_TITLE": "Ihre Rolle kann keinen Workspace importieren",
+			"NO_RIGHTS_DESCRIPTION": "Ein Workspace-Import legt Kunden und Projekte an. Bitten Sie einen Admin um die Rechte, Kunden und Projekte hinzuzufügen, oder importieren Sie Zeiteinträge aus einer CSV-Datei.",
+			"EXISTING_LOADING": "Kunden und Projekte des Workspaces werden gelesen…",
+			"EXISTING_FAILED_TITLE": "Kunden und Projekte des Workspaces konnten nicht gelesen werden",
+			"EXISTING_FAILED_DESCRIPTION": "Ohne sie kann der Import nicht erkennen, was schon existiert.",
+			"PLAN_TITLE": "Was der Import tut",
+			"PLAN_DESCRIPTION": "Zuerst Kunden, dann Projekte, dann Labels, dann die Zeiteinträge unten. Was schon existiert, wird wiederverwendet, unabhängig von Groß- und Kleinschreibung.",
+			"figures": {
+				"LABEL": "Was der Import anlegt",
+				"CLIENTS": "Kunden",
+				"PROJECTS": "Projekte",
+				"LABELS": "Labels"
+			},
+			"NEW_AND_REUSED": "{created} neu · {reused} wiederverwendet",
+			"TO_CREATE": "Anzulegen",
+			"TO_REUSE": "Schon im Workspace",
+			"NO_CLIENT": "Kein Kunde",
+			"BILLABLE": "Abrechenbar",
+			"NOT_BILLABLE": "Nicht abrechenbar",
+			"MEMBERS_TITLE": "Einträge pro Mitglied",
+			"MEMBER_ENTRIES": "{count, plural, one {# Eintrag} other {# Einträge}}",
+			"UNKNOWN_EMAILS_TITLE": "{count, plural, one {# E-Mail, die kein Mitglied hat} other {# E-Mails, die kein Mitglied hat}}",
+			"UNKNOWN_EMAILS_DESCRIPTION": "Ihre Zeilen werden ausgelassen und nie unter jemand anderem abgelegt. Laden Sie diese Personen ins Team ein und importieren Sie dieselben Dateien erneut: Nichts wird doppelt angelegt.",
+			"TAGGED_ENTRIES_NOTE": "{count, plural, one {# Eintrag trägt Labels} other {# Einträge tragen Labels}}. Die Labels werden für das Team angelegt, aber Zeiteinträge haben keine Labels: Sie werden nicht zugeordnet.",
+			"LABELS_SKIPPED_NOTE": "Ihre Rolle kann keine Labels hinzufügen: Sie werden aufgelistet, aber nicht angelegt.",
+			"NOTHING_TO_DO": "Alles in diesen Dateien existiert bereits, und kein Eintrag ist zum Import bereit.",
+			"IMPORT_LISTS_ACTION": "Kunden, Projekte und Labels importieren",
+			"PROGRESS_TITLE": "Fortschritt des Imports",
+			"STEP_COUNTS": "{created} angelegt · {reused} wiederverwendet · {failed} fehlgeschlagen",
+			"STEP_SKIPPED": "{count} nicht angelegt",
+			"status": {
+				"waiting": "Wartet",
+				"running": "Läuft",
+				"done": "Fertig",
+				"failed": "Fehlgeschlagen"
+			},
+			"FAILED_TITLE": "Der Import hat bei „{name}“ angehalten",
+			"FAILED_DESCRIPTION": "Kein Zeiteintrag wurde gespeichert. Was vorher angelegt wurde, bleibt im Workspace und wird beim erneuten Import derselben Dateien wiederverwendet.",
+			"CREATED_TITLE": "Kunden, Projekte und Labels sind im Workspace",
+			"PAGE_DESCRIPTION": "Kunden, Projekte, Labels und Zeiteinträge aus einem anderen Zeiterfassungstool."
 		}
+	},
+	"recordSheet": {
+		"PREVIOUS": "Zurück",
+		"PREVIOUS_HINT": "Zurück (K)",
+		"NEXT": "Weiter",
+		"NEXT_HINT": "Weiter (J)",
+		"OPEN_PAGE": "Als ganze Seite öffnen"
 	},
 	"clientGrouping": {
 		"TITLE": "Zeit nach Kunde",
 		"CLIENTS": "{count, plural, one {# Kunde} other {# Kunden}}",
 		"NAMES_ERROR_TITLE": "Die Kundenliste konnte nicht geladen werden",
 		"NAMES_ERROR_MESSAGE": "Archivierte Kunden erscheinen bis dahin ohne ihren Namen."
+	},
+	"breaks": {
+		"TAKE_BREAK": "Pause machen",
+		"END_BREAK": "Pause beenden",
+		"BACK_TO_WORK": "Zurück an die Arbeit",
+		"ON_BREAK": "In der Pause",
+		"ON_BREAK_ELSEWHERE": "In der Pause auf einem anderen Gerät",
+		"REFUSED": "Die Pause konnte nicht beginnen",
+		"NOT_ENDED": "Die Pause konnte nicht enden",
+		"NOT_ALLOWED": "Pausen sind in diesem Arbeitsbereich ausgeschaltet.",
+		"OVERLAP": "Diese Pause überschneidet sich mit einem anderen Eintrag. Wähle eine Zeit außerhalb davon.",
+		"WORK_OVERLAP": "Dieser Eintrag überschneidet sich mit einer Pause. Wähle eine Zeit außerhalb davon.",
+		"BREAK": "Pause",
+		"FIGURE": "Pausen {duration}",
+		"FIGURE_LABEL": "Pausen",
+		"FIGURE_HINT": "Nie als Arbeitszeit gezählt",
+		"SETTINGS_SECTION": "Pausen",
+		"SETTINGS_LABEL": "Mitgliedern Pausen erlauben",
+		"SETTINGS_DESCRIPTION": "Mitglieder machen eine Pause über den Timer oder tragen sie von Hand ein. Pausen werden getrennt geführt und nie als Arbeits- oder abrechenbare Zeit gezählt.",
+		"SETTINGS_NOT_SAVED": "Die Einstellung wurde nicht gespeichert.",
+		"TYPE_LABEL": "Art",
+		"TYPE_WORK": "Arbeit",
+		"TYPE_BREAK": "Pause",
+		"BREAK_HINT": "Eine Pause ist nie abrechenbar und zählt nie als Arbeitszeit."
+	},
+	"timeZoneNotice": {
+		"TITLE": "Dein Profil verwendet {profileZone} ({profileOffset}). Dieser Browser ist in {browserZone} ({browserOffset}).",
+		"DESCRIPTION": "Stundenzettel zählen deine Tage in der Zeitzone deines Profils, die übrigen Berichte in der dieses Browsers: Ein Eintrag um Mitternacht kann auf einen anderen Tag fallen.",
+		"TITLE_NO_PROFILE_ZONE": "Dein Profil hat keine Zeitzone. Dieser Browser ist in {browserZone} ({browserOffset}).",
+		"DESCRIPTION_NO_PROFILE_ZONE": "Bis du eine wählst, zählen Stundenzettel deine Tage in UTC und die übrigen Berichte in der Zeitzone dieses Browsers.",
+		"USE": "{zone} verwenden",
+		"KEEP": "{zone} behalten",
+		"SAVING": "Wird gespeichert…",
+		"SAVE_FAILED": "Deine Zeitzone konnte nicht gespeichert werden.",
+		"SAVE_FAILED_DESCRIPTION": "Dein Profil ist unverändert. Prüfe deine Verbindung und versuche es erneut.",
+		"TRY_AGAIN": "Erneut versuchen"
 	}
 }

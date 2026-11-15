@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useModal } from '@/core/hooks';
 import { useTimeSlots } from '@/core/hooks/activities/use-time-slots';
 import { useTodayWorkedTime } from '@/core/hooks/activities/use-today-worked-time';
@@ -30,6 +30,8 @@ import {
 	slotRangeTextOf,
 	useScreenshotSlotActions
 } from './screenshot-slots';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 
 type ScreenshotsListProps = Readonly<{
 	timeSlots: TTimeSlot[];
@@ -58,7 +60,7 @@ function labelledHoursOf(timeSlots: ReadonlyArray<TTimeSlot>, format: Intl.DateT
 }
 
 function ActivityValue({ timeSlots, loading }: Readonly<{ timeSlots: TTimeSlot[]; loading: boolean }>) {
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const isFirstLoad = loading && timeSlots.length === 0;
 	if (isFirstLoad) {
 		return <ActivityFigurePulse className="w-20" />;
@@ -109,10 +111,10 @@ function NoScreenshotsState() {
  */
 function ScreenshotsDay({ timeSlots, loading, slotActions, failure, density }: ScreenshotsDayProps) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const { isOpen, openModal, closeModal } = useModal();
 	const [openedSlot, setOpenedSlot] = useState<TTimeSlot | null>(null);
-	const hourFormat = useMemo(() => new Intl.DateTimeFormat(locale, HOUR_OPTIONS), [locale]);
+	const hourFormat = useMemo(() => dateFormatOf(locale, HOUR_OPTIONS), [locale]);
 	const hours = useMemo(() => labelledHoursOf(timeSlots, hourFormat), [hourFormat, timeSlots]);
 
 	const openSlot = useCallback(

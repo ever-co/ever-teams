@@ -15,6 +15,7 @@ import {
 } from 'date-fns';
 import { daysOfPeriod, type Period, type WeekStart } from '@/core/lib/utils/dashboard-period';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import {
 	endOfLog,
 	isManualLog,
@@ -22,8 +23,8 @@ import {
 	manualReasonOf,
 	startOfLog
 } from '@/core/lib/utils/dashboards/timesheets';
+import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import { getDailyPlanDay } from '@/core/lib/helpers/daily-plan-day';
-import { EWeekDays } from '@/core/types/generics/enums/date';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { TDailyPlan, TOrganizationTeam } from '@/core/types/schemas';
 
@@ -97,18 +98,6 @@ const SUNDAY_INDEX = 0;
 
 const SATURDAY_INDEX = 6;
 
-const MONDAY_START: WeekStart = 1;
-
-const WEEK_START_OF_DAY: Record<EWeekDays, WeekStart> = {
-	[EWeekDays.SUNDAY]: 0,
-	[EWeekDays.MONDAY]: 1,
-	[EWeekDays.TUESDAY]: 2,
-	[EWeekDays.WEDNESDAY]: 3,
-	[EWeekDays.THURSDAY]: 4,
-	[EWeekDays.FRIDAY]: 5,
-	[EWeekDays.SATURDAY]: 6
-};
-
 export interface CalendarMember {
 	employeeId: string;
 	userId: string | null;
@@ -128,6 +117,8 @@ export interface CalendarEntry {
 	/** The part of the log inside `dayKey`, the one the day's totals count. */
 	daySeconds: number;
 	isManual: boolean;
+	/** A break (#5216): drawn with its own label, never in the day's worked time nor in a project's. */
+	isBreak: boolean;
 	isRunning: boolean;
 	isBillable: boolean;
 	taskTitle: string | null;
@@ -168,6 +159,8 @@ export interface CalendarDay {
 	entries: CalendarEntry[];
 	trackedSeconds: number;
 	manualSeconds: number;
+	/** The day's time on breaks, apart from its worked time (#5216). */
+	breakSeconds: number;
 	plan: CalendarDayPlan | null;
 }
 
@@ -177,14 +170,6 @@ export interface PlacedEntry {
 	endMinute: number;
 	column: number;
 	columnCount: number;
-}
-
-/** The organisation's first day of the week, Monday when it has none. */
-export function weekStartOf(startWeekOn: EWeekDays | null | undefined): WeekStart {
-	if (!startWeekOn) {
-		return MONDAY_START;
-	}
-	return WEEK_START_OF_DAY[startWeekOn] ?? MONDAY_START;
 }
 
 /** The days a view shows: six whole weeks for a month, so the grid never changes height between months. */
@@ -335,6 +320,9 @@ function entryOf(log: ITimeLog, start: Date, now: Date): CalendarEntry {
 		end = runningEndOf(start, now);
 		durationSeconds = secondsBetween(start, end);
 	}
+	// A break keeps the task it paused, never its project: its time is no project's
+	const isBreak = isBreakLog(log);
+	const project = isBreak ? null : log.project;
 	return {
 		id: log.id,
 		log,
@@ -344,12 +332,13 @@ function entryOf(log: ITimeLog, start: Date, now: Date): CalendarEntry {
 		durationSeconds,
 		daySeconds: durationSeconds,
 		isManual: isManualLog(log),
+		isBreak,
 		isRunning,
 		isBillable: log.isBillable === true,
 		taskTitle: trimmedOrNull(log.task?.title),
-		projectKey: log.project?.id || null,
-		projectName: trimmedOrNull(log.project?.name),
-		projectColor: trimmedOrNull(log.project?.color),
+		projectKey: project?.id || null,
+		projectName: trimmedOrNull(project?.name),
+		projectColor: trimmedOrNull(project?.color),
 		reason: manualReasonOf(log)
 	};
 }
@@ -531,13 +520,18 @@ function entriesByDayOf(entries: ReadonlyArray<CalendarEntry>) {
 function totalsOf(entries: ReadonlyArray<CalendarEntry>) {
 	let trackedSeconds = 0;
 	let manualSeconds = 0;
+	let breakSeconds = 0;
 	for (const entry of entries) {
+		if (entry.isBreak) {
+			breakSeconds += entry.daySeconds;
+			continue;
+		}
 		trackedSeconds += entry.daySeconds;
 		if (entry.isManual) {
 			manualSeconds += entry.daySeconds;
 		}
 	}
-	return { trackedSeconds, manualSeconds };
+	return { trackedSeconds, manualSeconds, breakSeconds };
 }
 
 export function calendarDaysOf(
@@ -549,13 +543,14 @@ export function calendarDaysOf(
 	return daysOfPeriod(range).map((date) => {
 		const key = localDayKeyOf(date);
 		const dayEntries = entriesByDay.get(key) ?? [];
-		const { trackedSeconds, manualSeconds } = totalsOf(dayEntries);
+		const { trackedSeconds, manualSeconds, breakSeconds } = totalsOf(dayEntries);
 		return {
 			key,
 			date,
 			entries: dayEntries,
 			trackedSeconds,
 			manualSeconds,
+			breakSeconds,
 			plan: plansByDay.get(key) ?? null
 		};
 	});
@@ -601,6 +596,9 @@ export function projectTotalsOf(days: ReadonlyArray<CalendarDay>): CalendarProje
 	const byProject = new Map<string, CalendarProjectTotal>();
 	for (const day of days) {
 		for (const entry of day.entries) {
+			if (entry.isBreak) {
+				continue;
+			}
 			const projectKey = entry.projectKey;
 			const mapKey = projectKey ?? WITHOUT_PROJECT;
 			const existing = byProject.get(mapKey);
@@ -732,9 +730,9 @@ export function shortTimeZoneNameOf(locale: string, timeZone: string, date: Date
 	return zonePart?.value ?? timeZone;
 }
 
-/** The labels of the hour gutter, in the reader's locale ("9 AM", "09"), one per hour from 1 to 23. */
-export function hourLabelsOf(locale: string, day: Date) {
-	const format = new Intl.DateTimeFormat(locale, { hour: 'numeric' });
+/** The labels of the hour gutter, on the workspace's clock ("9 AM", "09"), one per hour from 1 to 23. */
+export function hourLabelsOf(locale: FormatLocale, day: Date) {
+	const format = dateFormatOf(locale, { hour: 'numeric' });
 	const labels: { hour: number; label: string }[] = [];
 	for (let hour = 1; hour < HOURS_IN_DAY; hour++) {
 		const time = new Date(day);

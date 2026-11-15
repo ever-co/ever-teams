@@ -1,13 +1,15 @@
 'use client';
 
 import { type KeyboardEvent, useId, useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Input } from '@/core/components/common/input';
 import { CircleAlert, Spinner } from '@/core/components/icons';
 import type { DurationEntry } from '@/core/hooks/timesheet/use-duration-entry';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import type { DurationPhase } from '@/core/lib/utils/dashboards/manual-time-entry';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 
 type NoticeTone = 'hint' | 'busy' | 'error';
 
@@ -54,13 +56,10 @@ function noticeOf(
 
 export function DurationField({ entry, className }: Readonly<{ entry: DurationEntry; className?: string }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const inputId = useId();
 	const noticeId = useId();
-	const timeFormatter = useMemo(
-		() => new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }),
-		[locale]
-	);
+	const timeFormatter = useMemo(() => dateFormatOf(locale, { hour: '2-digit', minute: '2-digit' }), [locale]);
 	const notice = noticeOf(entry.phase, t, timeFormatter);
 	const isError = notice.tone === 'error';
 	const isBusy = notice.tone === 'busy';

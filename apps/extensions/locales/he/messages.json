@@ -1,0 +1,206 @@
+{
+	"signInTitle": {
+		"message": "התחברות ל-Ever Teams"
+	},
+	"signInEmailLabel": {
+		"message": "אימייל"
+	},
+	"signInEmailPlaceholder": {
+		"message": "you@company.com"
+	},
+	"signInSendCode": {
+		"message": "שלחו לי קוד"
+	},
+	"signInSending": {
+		"message": "שולח…"
+	},
+	"signInCodeSent": {
+		"message": "שלחנו קוד אל $EMAIL$. הזינו אותו למטה.",
+		"placeholders": {
+			"email": {
+				"content": "$1",
+				"example": "marie@example.com"
+			}
+		}
+	},
+	"signInCodeLabel": {
+		"message": "קוד"
+	},
+	"signInConfirm": {
+		"message": "התחברות"
+	},
+	"signInConfirming": {
+		"message": "מתחבר…"
+	},
+	"signInOtherEmail": {
+		"message": "שימוש באימייל אחר"
+	},
+	"signInWrongCode": {
+		"message": "הקוד אינו תקין או שפג תוקפו."
+	},
+	"signInNoWorkspace": {
+		"message": "אין סביבת עבודה פתוחה לאימייל הזה."
+	},
+	"signInChooseWorkspace": {
+		"message": "בחרו סביבת עבודה"
+	},
+	"headerTeam": {
+		"message": "צוות"
+	},
+	"headerAccount": {
+		"message": "חשבון"
+	},
+	"headerSettings": {
+		"message": "הגדרות"
+	},
+	"headerSignOut": {
+		"message": "התנתקות"
+	},
+	"timerRegion": {
+		"message": "טיימר"
+	},
+	"timerLoading": {
+		"message": "טוען את הטיימר…"
+	},
+	"timerStart": {
+		"message": "התחלה"
+	},
+	"timerStop": {
+		"message": "עצירה"
+	},
+	"timerStarting": {
+		"message": "מתחיל…"
+	},
+	"timerStopping": {
+		"message": "עוצר…"
+	},
+	"timerNoTask": {
+		"message": "בחרו משימה למטה כדי להפעיל את הטיימר."
+	},
+	"timerStartedElsewhere": {
+		"message": "הופעל באפליקציה אחרת או במכשיר אחר."
+	},
+	"timerTotalToday": {
+		"message": "סה״כ עבודה היום:"
+	},
+	"timerCheckTeam": {
+		"message": "צפייה בצוות"
+	},
+	"tasksAll": {
+		"message": "המשימות שלך"
+	},
+	"tasksSearch": {
+		"message": "חיפוש במשימות"
+	},
+	"tasksRecent": {
+		"message": "אחרונה"
+	},
+	"tasksLoading": {
+		"message": "טוען משימות…"
+	},
+	"tasksLoadFailed": {
+		"message": "לא ניתן לטעון את המשימות."
+	},
+	"tasksEmpty": {
+		"message": "לא הוקצו לך משימות בצוות הזה."
+	},
+	"tasksNoMatch": {
+		"message": "אין משימה שתואמת את החיפוש."
+	},
+	"tasksNewTaskLabel": {
+		"message": "משימה חדשה"
+	},
+	"tasksNewTaskPlaceholder": {
+		"message": "לדוגמה: תוסף Ever Teams"
+	},
+	"tasksEstimated": {
+		"message": "הערכה:"
+	},
+	"tasksEstimateHours": {
+		"message": "שעות משוערות"
+	},
+	"tasksEstimateMinutes": {
+		"message": "דקות משוערות"
+	},
+	"tasksHoursShort": {
+		"message": "ש׳"
+	},
+	"tasksMinutesShort": {
+		"message": "ד׳"
+	},
+	"tasksAddTask": {
+		"message": "הוספת משימה"
+	},
+	"tasksAddFailed": {
+		"message": "לא ניתן ליצור את המשימה."
+	},
+	"refusalPlanRequired": {
+		"message": "הצוות שלך דורש תוכנית יומית לפני מעקב זמן. תכננו קודם את היום."
+	},
+	"refusalTaskNotPlanned": {
+		"message": "הוסיפו את המשימה לתוכנית של היום לפני מעקב זמן עליה."
+	},
+	"refusalTrackingOff": {
+		"message": "מעקב הזמן כבוי עבורך. בקשו ממנהל להפעיל אותו."
+	},
+	"errorOffline": {
+		"message": "אין גישה ל-Ever Teams. בדקו את החיבור ונסו שוב."
+	},
+	"errorSessionExpired": {
+		"message": "ההפעלה הסתיימה. התחברו מחדש."
+	},
+	"errorTimerChangedElsewhere": {
+		"message": "הטיימר השתנה באפליקציה אחרת. כעת מוצג מה שרץ."
+	},
+	"errorWithReason": {
+		"message": "$REASON$",
+		"placeholders": {
+			"reason": {
+				"content": "$1",
+				"example": "Task is archived"
+			}
+		}
+	},
+	"errorGeneric": {
+		"message": "משהו השתבש. נסו שוב."
+	},
+	"actionRetry": {
+		"message": "נסו שוב"
+	},
+	"optionsTitle": {
+		"message": "הגדרות תוסף Ever Teams"
+	},
+	"optionsApiUrl": {
+		"message": "כתובת ה-API"
+	},
+	"optionsApiUrlHint": {
+		"message": "ה-API של Ever Teams שאליו מתחברים: https://api.ever.team לשירות המתארח, או השרת שלכם."
+	},
+	"optionsAppUrl": {
+		"message": "כתובת אפליקציית הרשת"
+	},
+	"optionsSignedOutNote": {
+		"message": "שינוי כתובת ה-API מנתק אותך מהתוסף."
+	},
+	"optionsInvalidUrl": {
+		"message": "הזינו כתובת מלאה שמתחילה ב-https:// (או http://localhost לשרת מקומי)."
+	},
+	"optionsSave": {
+		"message": "שמירה"
+	},
+	"optionsSaved": {
+		"message": "נשמר."
+	},
+	"refusalRequiredTeamAndProject": {
+		"message": "הארגון שלך דורש צוות ופרויקט בכל טיימר. פתח אחד מהצוותים שלך ושייך את המשימה לפרויקט, ואז הפעל שוב."
+	},
+	"refusalRequiredTeam": {
+		"message": "הארגון שלך דורש צוות בכל טיימר. פתח אחד מהצוותים שלך והפעל שוב."
+	},
+	"refusalRequiredProject": {
+		"message": "הארגון שלך דורש פרויקט בכל טיימר. שייך את המשימה לפרויקט או קבע לצוות פרויקט ברירת מחדל, ואז הפעל שוב."
+	},
+	"refusalRequiredDetails": {
+		"message": "הארגון שלך דורש פרטים שאין לטיימר הזה. שאל מנהל אילו."
+	}
+}

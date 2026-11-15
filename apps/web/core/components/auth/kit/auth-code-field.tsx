@@ -2,15 +2,22 @@
 
 import { useEffect, useRef, type FormEvent, type MutableRefObject, type ReactNode, type Ref } from 'react';
 import { CircleAlert } from '@/core/components/icons';
-import { AuthCodeInputField, type AuthCodeRef } from '@/core/components/auth/auth-code-input';
+import { AuthCodeInputField, type AuthCodeProps, type AuthCodeRef } from '@/core/components/auth/auth-code-input';
+import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
 import { canAnimate } from '@/core/lib/utils/motion';
 import { AUTH_LABEL, AUTH_LINE_ARRIVAL } from './auth-recipes';
 
 export type AuthCodeStatus = 'idle' | 'loading' | 'success' | 'error';
 
-/** The AUTH_CODE_LENGTH slots split 4 + 4: the dash sits at the centre of the row, in the wider middle gap. */
-const GROUPED_ROW = 'flex w-full justify-between gap-1.5 [&>input:nth-child(4)]:mr-4';
+/** The slots split in two halves (4 + 4, or 3 + 3): the dash sits at the centre of the row, in the wider middle gap. */
+const GROUPED_ROW = 'flex w-full justify-between gap-1.5';
+
+/** The wider gap after the first half, for the lengths the app asks for (literal classes, for Tailwind). */
+const MIDDLE_GAP: Record<number, string> = {
+	6: '[&>input:nth-child(3)]:mr-4',
+	8: '[&>input:nth-child(4)]:mr-4'
+};
 
 /** The placeholder is a space so `:placeholder-shown` tells an empty slot from a filled one. */
 const GROUPED_SLOT =
@@ -70,6 +77,9 @@ type AuthCodeFieldProps = {
 	autoFocus?: boolean;
 	submitCode?: () => void;
 	onChange: (code: string) => void;
+	/** How many slots (the e-mailed sign-in code has AUTH_CODE_LENGTH, an authenticator app code 6). */
+	length?: number;
+	allowedCharacters?: NonNullable<AuthCodeProps['allowedCharacters']>;
 };
 
 export function AuthCodeField({
@@ -84,7 +94,9 @@ export function AuthCodeField({
 	autoComplete,
 	autoFocus = true,
 	submitCode,
-	onChange
+	onChange,
+	length = AUTH_CODE_LENGTH,
+	allowedCharacters = 'alphanumeric'
 }: Readonly<AuthCodeFieldProps>) {
 	const ownSlots = useRef<HTMLInputElement[]>([]);
 	const slotsRef = inputReference ?? ownSlots;
@@ -139,8 +151,9 @@ export function AuthCodeField({
 					<AuthCodeInputField
 						ref={codeRef}
 						inputReference={slotsRef}
-						allowedCharacters="alphanumeric"
-						containerClassName={GROUPED_ROW}
+						length={length}
+						allowedCharacters={allowedCharacters}
+						containerClassName={cn(GROUPED_ROW, MIDDLE_GAP[length])}
 						inputClassName={GROUPED_SLOT}
 						placeholder=" "
 						defaultValue={defaultValue}

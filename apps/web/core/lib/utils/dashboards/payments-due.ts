@@ -1,9 +1,11 @@
 import { isSameYear, isToday, isYesterday, startOfWeek } from 'date-fns';
 import type { DayBarDatum } from '@/core/components/dashboards/kit/day-bars-chart';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
+import type { WeekStart } from '@/core/lib/utils/dashboard-period';
 import { formatAmount } from '@/core/lib/utils/daily-report-figures';
 import type { TOwedReportDay, TOwedReportEmployee } from '@/core/types/schemas/timer/time-log-reports.schema';
 import { dateFormatOf, numberFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
+import type { PastTimeRule } from '@/core/lib/utils/rate-apply';
 
 export type PaymentsGrouping = 'member' | 'day';
 
@@ -13,7 +15,7 @@ export type OwedRateSource = 'pay' | 'billing';
 /** What a line priced at the billing rate says: that no pay rate is set, or only that it is the billing rate. */
 export type OwedRateNote = 'payRateNotSet' | 'billingRate';
 
-export const PAYMENTS_WEEK_START = 1;
+export const PAYMENTS_WEEK_START: WeekStart = 1;
 
 const SECONDS_PER_HOUR = 3600;
 
@@ -60,6 +62,8 @@ export interface OwedMemberGroup {
 	rateSource: OwedRateSource | null;
 	rateNote: OwedRateNote | null;
 	ratePending: boolean;
+	/** Its days were priced at different rates: it states none of them. */
+	hasSeveralRates: boolean;
 	lines: OwedLine[];
 }
 
@@ -206,6 +210,76 @@ function amountOf(rate: number | null, reportedAmount: number) {
 	return finiteOrZero(reportedAmount);
 }
 
+const RATE_PLACES = [0, 1, 2];
+
+/** The decimals Gauzy rounds an amount of a currency to; 2 for a code the browser does not know. */
+function amountDecimalsOf(currency: string | null): number {
+	if (!currency) {
+		return 2;
+	}
+	try {
+		const options = new Intl.NumberFormat('en', { style: 'currency', currency }).resolvedOptions();
+		return options.maximumFractionDigits ?? 2;
+	} catch {
+		return 2;
+	}
+}
+
+/**
+ * The plainest rate that gives some hours their rounded amount: a whole rate when one does, else one with a single
+ * decimal, else two. A short day's amount fits a span of rates (one minute at 40/h is 0.67, which 39.9/h gives too).
+ */
+function plainestRateOf(amount: number, hours: number, decimals: number): number {
+	const halfStep = 10 ** -decimals / 2;
+	const lowest = (amount - halfStep) / hours;
+	const highest = (amount + halfStep) / hours;
+	for (const places of RATE_PLACES) {
+		const scale = 10 ** places;
+		const candidate = Math.ceil(lowest * scale - 1e-9) / scale;
+		if (candidate < highest) {
+			return candidate;
+		}
+	}
+	return Math.round((amount / hours) * 100) / 100;
+}
+
+/**
+ * The rate that priced a member's day. Gauzy prices each time entry at the rate it stores (#5212) and states only the
+ * amount: the member's current rate when it gives that amount, as for all time before entries stored rates, else
+ * the rate the amount stands for (their average on a day tracked at two rates). Time without an amount has none.
+ */
+function lineRateOf(
+	currentRate: number | null,
+	amount: number,
+	seconds: number,
+	currency: string | null
+): number | null {
+	const hours = seconds / SECONDS_PER_HOUR;
+	const decimals = amountDecimalsOf(currency);
+	if (currentRate !== null) {
+		const tolerance = 10 ** -decimals / 2 + 1e-9;
+		const isCurrentRateAmount = Math.abs(currentRate * hours - amount) <= tolerance;
+		if (isCurrentRateAmount) {
+			return currentRate;
+		}
+	}
+	const hasAmount = hours > 0 && amount > 0;
+	if (!hasAmount) {
+		return null;
+	}
+	return plainestRateOf(amount, hours, decimals);
+}
+
+/** Where time keeps its rate the note says each entry is priced at its own; elsewhere at each member's current rate. */
+export function owedNoteKeyOf(
+	rule: PastTimeRule | null
+): 'dashboard.paymentsDue.NOTE' | 'dashboard.paymentsDue.NOTE_STORED_RATES' {
+	if (rule === 'keepsItsRate') {
+		return 'dashboard.paymentsDue.NOTE_STORED_RATES';
+	}
+	return 'dashboard.paymentsDue.NOTE';
+}
+
 function rateSourceOf(value: unknown): OwedRateSource | null {
 	if (value === 'pay') {
 		return 'pay';
@@ -236,15 +310,23 @@ function isPaidAtPayRate(entry: OwedReportEntry) {
 	return rateSourceOf(entry.rateSource) === 'pay';
 }
 
-export type RateShown = 'rate' | 'loading' | 'hidden' | 'noRate';
+export type RateShown = 'rate' | 'loading' | 'hidden' | 'noRate' | 'several';
 
 /**
  * How a line's rate shows. A pay line never shows a rate worked out from its amounts: its stored pay rate, a
  * placeholder while it is read, or nothing when it cannot be read. Only a billing line without a rate says "No rate".
  */
 export function rateShownOf(
-	figure: Readonly<{ rate: number | null; rateSource: OwedRateSource | null; ratePending: boolean }>
+	figure: Readonly<{
+		rate: number | null;
+		rateSource: OwedRateSource | null;
+		ratePending: boolean;
+		hasSeveralRates?: boolean;
+	}>
 ): RateShown {
+	if (figure.hasSeveralRates) {
+		return 'several';
+	}
 	if (figure.rate !== null) {
 		return 'rate';
 	}
@@ -284,6 +366,37 @@ function lineCurrencyOf(entry: OwedReportEntry, employee: TOwedReportEmployee, o
 	return currencyOf(employee.billRateCurrency, organizationCurrency);
 }
 
+interface LinePrice {
+	rate: number | null;
+	amount: number | null;
+	ratePending: boolean;
+}
+
+/**
+ * A line's rate and amount. A billing line states the rate that gives its amount (see {@link lineRateOf}), and no
+ * amount without a rate. A pay line states the amount Gauzy reports, and its stored pay rate once it is read: pending
+ * while that read has not answered.
+ */
+function linePriceOf(
+	entry: OwedReportEntry,
+	employee: TOwedReportEmployee,
+	currency: string | null,
+	payRates: Readonly<{ known: ReadonlyMap<string, number>; pending: ReadonlySet<string> }>
+): LinePrice {
+	const seconds = finiteOrZero(entry.duration);
+	const reportedAmount = finiteOrZero(entry.amount);
+	if (!isPaidAtPayRate(entry)) {
+		const rate = lineRateOf(rateOf(employee.billRateValue), reportedAmount, seconds, currency);
+		return { rate, amount: amountOf(rate, reportedAmount), ratePending: false };
+	}
+	const knownPayRate = payRates.known.get(employee.id) ?? null;
+	if (knownPayRate === null) {
+		return { rate: null, amount: reportedAmount, ratePending: payRates.pending.has(employee.id) };
+	}
+	const rate = lineRateOf(knownPayRate, reportedAmount, seconds, currency);
+	return { rate, amount: reportedAmount, ratePending: false };
+}
+
 export function owedLinesOf({
 	report,
 	members,
@@ -318,25 +431,23 @@ export function owedLinesOf({
 			}
 			const member = members.get(employee.id);
 			const rateSource = rateSourceOf(entry.rateSource);
-			let rate = rateOf(employee.billRateValue);
-			let amount = amountOf(rate, entry.amount);
-			let ratePending = false;
-			if (rateSource === 'pay') {
-				rate = knownPayRates.get(employee.id) ?? null;
-				amount = finiteOrZero(entry.amount);
-				const isUnknown = rate === null;
-				ratePending = isUnknown && pendingPayRates.has(employee.id);
-			}
+			const seconds = finiteOrZero(entry.duration);
+			const currency = lineCurrencyOf(entry, employee, organizationCurrency);
+			const { rate, amount, ratePending } = linePriceOf(entry, employee, currency, {
+				known: knownPayRates,
+				pending: pendingPayRates
+			});
 			lines.push({
-				key: `${dateKey}:${employee.id}`,
+				// A member's day priced in two currencies is two lines (Gauzy never adds currencies)
+				key: [dateKey, employee.id, rateSource ?? '', currency ?? ''].join(':'),
 				dateKey,
 				day,
 				employeeId: employee.id,
 				name: nameOf(employee, member, unnamedLabel),
 				imageUrl: imageOf(employee, member),
-				seconds: finiteOrZero(entry.duration),
+				seconds,
 				rate,
-				currency: lineCurrencyOf(entry, employee, organizationCurrency),
+				currency,
 				amount,
 				rateSource,
 				rateNote: rateNoteOf(rateSource, readsPayRates),
@@ -541,8 +652,29 @@ function memberGroupOf(firstLine: OwedLine): OwedMemberGroup {
 		rateSource: firstLine.rateSource,
 		rateNote: firstLine.rateNote,
 		ratePending: firstLine.ratePending,
+		hasSeveralRates: false,
 		lines: []
 	};
+}
+
+/**
+ * A group states its lines' rate while they share one; days priced at two rates (a rate changed mid-period while time
+ * keeps its rate, #5212) state several. A day without a rate leaves the group's rate as it is.
+ */
+function withLineRate(group: OwedMemberGroup, line: OwedLine) {
+	if (line.rate === null) {
+		return;
+	}
+	if (group.rate === null && !group.hasSeveralRates) {
+		group.rate = line.rate;
+		return;
+	}
+	const isOtherRate = group.rate !== line.rate;
+	if (!isOtherRate) {
+		return;
+	}
+	group.rate = null;
+	group.hasSeveralRates = true;
 }
 
 function addedAmount(current: number | null, amount: number | null) {
@@ -560,6 +692,7 @@ export function memberGroupsOf(lines: ReadonlyArray<OwedLine>, rankOf: CurrencyR
 		const group = byMember.get(groupKey) ?? memberGroupOf(line);
 		group.seconds += line.seconds;
 		group.amount = addedAmount(group.amount, line.amount);
+		withLineRate(group, line);
 		group.lines.push(line);
 		byMember.set(groupKey, group);
 	}
@@ -800,24 +933,24 @@ interface ColumnSlot {
 	isFuture: boolean;
 }
 
-function columnStartOf(day: Date, isWeekly: boolean) {
+function columnStartOf(day: Date, isWeekly: boolean, weekStartsOn: WeekStart) {
 	if (!isWeekly) {
 		return day;
 	}
-	return startOfWeek(day, { weekStartsOn: PAYMENTS_WEEK_START });
+	return startOfWeek(day, { weekStartsOn });
 }
 
-function columnKeyOf(day: Date, isWeekly: boolean) {
-	const start = columnStartOf(day, isWeekly);
+function columnKeyOf(day: Date, isWeekly: boolean, weekStartsOn: WeekStart) {
+	const start = columnStartOf(day, isWeekly, weekStartsOn);
 	return localDayKeyOf(start);
 }
 
-function columnSlotsOf(days: ReadonlyArray<Date>, isWeekly: boolean, now: Date): ColumnSlot[] {
-	const todayKey = columnKeyOf(now, isWeekly);
+function columnSlotsOf(days: ReadonlyArray<Date>, isWeekly: boolean, now: Date, weekStartsOn: WeekStart): ColumnSlot[] {
+	const todayKey = columnKeyOf(now, isWeekly, weekStartsOn);
 	const seenKeys = new Set<string>();
 	const slots: ColumnSlot[] = [];
 	for (const day of days) {
-		const key = columnKeyOf(day, isWeekly);
+		const key = columnKeyOf(day, isWeekly, weekStartsOn);
 		if (seenKeys.has(key)) {
 			continue;
 		}
@@ -829,14 +962,14 @@ function columnSlotsOf(days: ReadonlyArray<Date>, isWeekly: boolean, now: Date):
 	return slots;
 }
 
-function amountsByCurrencyOf(lines: ReadonlyArray<OwedLine>, isWeekly: boolean) {
+function amountsByCurrencyOf(lines: ReadonlyArray<OwedLine>, isWeekly: boolean, weekStartsOn: WeekStart) {
 	const byCurrency = new Map<string, AmountsByColumn>();
 	for (const line of lines) {
 		if (line.amount === null) {
 			continue;
 		}
 		const currencyKey = currencyKeyOf(line.currency);
-		const columnKey = columnKeyOf(line.day, isWeekly);
+		const columnKey = columnKeyOf(line.day, isWeekly, weekStartsOn);
 		const byColumn = byCurrency.get(currencyKey) ?? new Map<string, number>();
 		const current = byColumn.get(columnKey) ?? 0;
 		byColumn.set(columnKey, current + line.amount);
@@ -874,16 +1007,19 @@ export function owedTilesOf({
 	currencies,
 	lines,
 	days,
-	now = new Date()
+	now = new Date(),
+	weekStartsOn = PAYMENTS_WEEK_START
 }: Readonly<{
 	currencies: ReadonlyArray<OwedCurrencyTotal>;
 	lines: ReadonlyArray<OwedLine>;
 	days: ReadonlyArray<Date>;
 	now?: Date;
+	/** The first day of the weekly columns, when the period is too long for one column a day. */
+	weekStartsOn?: WeekStart;
 }>): OwedTile[] {
 	const isWeekly = days.length > MAX_DAY_COLUMNS;
-	const slots = columnSlotsOf(days, isWeekly, now);
-	const amountsByCurrency = amountsByCurrencyOf(lines, isWeekly);
+	const slots = columnSlotsOf(days, isWeekly, now, weekStartsOn);
+	const amountsByCurrency = amountsByCurrencyOf(lines, isWeekly, weekStartsOn);
 	return currencies.map((total) => {
 		const byColumn = amountsByCurrency.get(total.key);
 		return tileOf(total, slots, byColumn, isWeekly);

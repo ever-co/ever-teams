@@ -14,12 +14,20 @@ export interface DailyReportRow {
 	projectName: string | null;
 	projectImageUrl: string | null;
 	projectColor: string | null;
+	/** The time shown: rounded by the workspace's rule when it has one. */
 	seconds: number;
-	/** Seconds of activity, so averages can be weighted by time: `seconds * activity% / 100`. */
+	/**
+	 * Seconds of activity in the tracked time, so averages are weighted by it: `trackedSeconds * activity% / 100`.
+	 * Gauzy measures activity on the time as tracked, so a rounding rule never changes it.
+	 */
 	activeSeconds: number;
+	/** Only when the workspace's rule rounded `seconds`: the time as tracked, which the activity is a share of. */
+	trackedSeconds?: number;
 	tasks: DailyReportTask[];
 	/** Time a team member logged without a team, which a team report gathers in its own "No team" group. */
 	isWithoutTeam?: boolean;
+	/** On the rows of a member's project day split by rate (#5212): the key they share, as one row had before. */
+	keyAcrossRates?: string;
 }
 
 export interface DailyReportTask {
@@ -36,11 +44,23 @@ type EmployeeLog = ITimeLogGroupedDailyReport['logs'][number]['employeeLogs'][nu
 
 type TaskLog = EmployeeLog['tasks'][number];
 
-/** The part of a member's project row that was logged with a team, or without one. */
+/** A billing rate and its currency, as a report row states them. */
+interface StatedRate {
+	value: number | null;
+	currency: string | null;
+}
+
+/** The part of a member's project row that was logged with a team, or without one, at one rate. */
 interface EmployeeLogPart {
 	tasks: TaskLog[];
 	seconds: number;
+	/** The time as tracked: `seconds` until the workspace's rule rounds them. */
+	trackedSeconds: number;
 	isWithoutTeam: boolean;
+	/** The rate its entries store; absent from a Gauzy that states none, which prices it at the current rate. */
+	rate?: StatedRate;
+	/** Set when the row's entries store several rates: it tells this part's key from the others'. */
+	rateKey?: string;
 }
 
 function numberOrZero(value: unknown) {
@@ -96,20 +116,95 @@ function secondsOfTasks(tasks: ReadonlyArray<TaskLog>) {
 	return seconds;
 }
 
+function trackedSecondsOfTasks(tasks: ReadonlyArray<TaskLog>) {
+	let seconds = 0;
+	for (const task of tasks) {
+		seconds += numberOrZero(task?.trackedDuration ?? task?.duration);
+	}
+	return seconds;
+}
+
+function partOfTasks(tasks: TaskLog[], isWithoutTeam: boolean): EmployeeLogPart {
+	return { tasks, seconds: secondsOfTasks(tasks), trackedSeconds: trackedSecondsOfTasks(tasks), isWithoutTeam };
+}
+
+function positiveOrNull(value: unknown): number | null {
+	const parsed = Number(value);
+	const isRate = Number.isFinite(parsed) && parsed > 0;
+	if (!isRate) {
+		return null;
+	}
+	return parsed;
+}
+
+/**
+ * The billing rate a task row states (#5212): the rate its time entry stores, or the member's current one for an
+ * entry that stores none. Undefined from a Gauzy that states no rate on its rows, which are priced at the member's
+ * current rate. A rate without a currency of its own is in the workspace's.
+ */
+export function statedRateOf(task: TaskLog): StatedRate | undefined {
+	const statesRate = Boolean(task) && 'billRateValue' in task;
+	if (!statesRate) {
+		return undefined;
+	}
+	const currency = task.billRateCurrency?.trim() || null;
+	return { value: positiveOrNull(task.billRateValue), currency };
+}
+
+function statedRateKeyOf(rate: StatedRate | undefined) {
+	if (!rate) {
+		return '';
+	}
+	return `${rate.value ?? 'none'}|${rate.currency ?? ''}`;
+}
+
+/** A part whose entries store several rates becomes one part per rate, so each is priced at its own. */
+function partsByRateOf(part: EmployeeLogPart): EmployeeLogPart[] {
+	const byRate = new Map<string, { rate: StatedRate | undefined; tasks: TaskLog[] }>();
+	for (const task of part.tasks) {
+		const rate = statedRateOf(task);
+		const key = statedRateKeyOf(rate);
+		const group = byRate.get(key) ?? { rate, tasks: [] };
+		group.tasks.push(task);
+		byRate.set(key, group);
+	}
+	const groups = [...byRate.entries()];
+	if (groups.length <= 1) {
+		const rate = groups[0]?.[1].rate;
+		if (!rate) {
+			return [part];
+		}
+		return [{ ...part, rate }];
+	}
+	return groups.map(([rateKey, group]) => ({
+		tasks: group.tasks,
+		seconds: secondsOfTasks(group.tasks),
+		trackedSeconds: trackedSecondsOfTasks(group.tasks),
+		isWithoutTeam: part.isWithoutTeam,
+		rate: group.rate,
+		rateKey
+	}));
+}
+
 /** A member's project row as Gauzy sends it, or split in two when part of its time was logged without a team. */
 function partsOf(employeeLog: EmployeeLog): EmployeeLogPart[] {
+	return teamPartsOf(employeeLog).flatMap(partsByRateOf);
+}
+
+function teamPartsOf(employeeLog: EmployeeLog): EmployeeLogPart[] {
 	const tasks = employeeLog.tasks ?? [];
 	const tasksWithoutTeam = tasks.filter(isWithoutTeamTask);
 	if (tasksWithoutTeam.length === 0) {
-		return [{ tasks, seconds: numberOrZero(employeeLog.sum), isWithoutTeam: false }];
+		const seconds = numberOrZero(employeeLog.sum);
+		const trackedSeconds = numberOrZero(employeeLog.trackedSum ?? employeeLog.sum);
+		return [{ tasks, seconds, trackedSeconds, isWithoutTeam: false }];
 	}
-	const withoutTeamPart = { tasks: tasksWithoutTeam, seconds: secondsOfTasks(tasksWithoutTeam), isWithoutTeam: true };
+	const withoutTeamPart = partOfTasks(tasksWithoutTeam, true);
 	const teamTasks = tasks.filter(isTeamTask);
 	if (teamTasks.length === 0) {
 		return [withoutTeamPart];
 	}
-	const teamPart = { tasks: teamTasks, seconds: secondsOfTasks(teamTasks), isWithoutTeam: false };
-	return [teamPart, withoutTeamPart];
+	return [partOfTasks(teamTasks, false), withoutTeamPart];
 }
 
 function reportTaskOf(task: TaskLog): DailyReportTask {
@@ -145,12 +240,37 @@ function projectFieldsOf(context: RowContext, part: EmployeeLogPart) {
 	};
 }
 
-function rowKeyOf(context: RowContext, part: EmployeeLogPart) {
+function keyAcrossRatesOf(context: RowContext, part: EmployeeLogPart) {
 	const projectKey = context.project?.id ?? NO_PROJECT_KEY;
 	if (part.isWithoutTeam) {
 		return `${context.dateKey}:${NO_TEAM_KEY}:${projectKey}:${context.employeeId}`;
 	}
 	return `${context.dateKey}:${projectKey}:${context.employeeId}`;
+}
+
+/** A row split by rate keeps the key the whole row had, beside its own; a row of one rate has only that key. */
+function rowKeysOf(context: RowContext, part: EmployeeLogPart): Pick<DailyReportRow, 'key' | 'keyAcrossRates'> {
+	const keyAcrossRates = keyAcrossRatesOf(context, part);
+	if (part.rateKey === undefined) {
+		return { key: keyAcrossRates };
+	}
+	return { key: `${keyAcrossRates}:${part.rateKey}`, keyAcrossRates };
+}
+
+/** The rate a row is priced at: the one its entries store, else the member's current rate, as before (#5212). */
+function rowRateOf(
+	context: RowContext,
+	part: EmployeeLogPart
+): Pick<DailyReportRow, 'billRateValue' | 'billRateCurrency'> {
+	if (part.rate) {
+		return { billRateValue: part.rate.value, billRateCurrency: part.rate.currency || context.workspaceCurrency };
+	}
+	const employee = context.employeeLog.employee;
+	const ownCurrency = employee?.billRateCurrency ?? null;
+	return {
+		billRateValue: employee?.billRateValue ?? null,
+		billRateCurrency: ownCurrency || context.workspaceCurrency
+	};
 }
 
 // Rows with a team keep the shape they had before the report could count time without a team
@@ -161,21 +281,28 @@ function withoutTeamFlagOf(part: EmployeeLogPart): Pick<DailyReportRow, 'isWitho
 	return { isWithoutTeam: true };
 }
 
+// Rows of time as tracked keep the shape they had before the workspace could round durations
+function trackedFieldOf(part: EmployeeLogPart): Pick<DailyReportRow, 'trackedSeconds'> {
+	if (part.trackedSeconds === part.seconds) {
+		return {};
+	}
+	return { trackedSeconds: part.trackedSeconds };
+}
+
 function rowOf(context: RowContext, part: EmployeeLogPart): DailyReportRow {
 	const employee = context.employeeLog.employee;
 	const activity = numberOrZero(context.employeeLog.activity);
-	const ownCurrency = employee?.billRateCurrency ?? null;
 	return {
-		key: rowKeyOf(context, part),
+		...rowKeysOf(context, part),
 		dateKey: context.dateKey,
 		employeeId: context.employeeId,
 		employeeName: employeeNameOf(employee),
 		employeeImageUrl: employee?.user?.imageUrl ?? null,
-		billRateValue: employee?.billRateValue ?? null,
-		billRateCurrency: ownCurrency || context.workspaceCurrency,
+		...rowRateOf(context, part),
 		...projectFieldsOf(context, part),
 		seconds: part.seconds,
-		activeSeconds: (part.seconds * activity) / 100,
+		activeSeconds: (part.trackedSeconds * activity) / 100,
+		...trackedFieldOf(part),
 		tasks: part.tasks.map(reportTaskOf),
 		...withoutTeamFlagOf(part)
 	};
@@ -220,16 +347,35 @@ export function flattenDailyReport(
 export interface FigureTotals {
 	seconds: number;
 	activeSeconds: number;
+	/** The time as tracked when `seconds` is rounded by the workspace's rule; `seconds` otherwise. */
+	trackedSeconds?: number;
 }
 
+/** The time a figure's activity is a share of: the time as tracked, whatever rounding the shown time has. */
+export function trackedSecondsOf(figure: Pick<FigureTotals, 'seconds' | 'trackedSeconds'>): number {
+	return figure.trackedSeconds ?? figure.seconds;
+}
+
+/** The share of the tracked time that was active: a rounding rule changes the time shown, never the activity. */
 export function activityPercentOf(totals: FigureTotals) {
-	if (totals.seconds <= 0) {
+	const trackedSeconds = trackedSecondsOf(totals);
+	if (trackedSeconds <= 0) {
 		return 0;
 	}
-	return (totals.activeSeconds / totals.seconds) * 100;
+	return (totals.activeSeconds / trackedSeconds) * 100;
+}
+
+/** The active part of the time shown, for a chart that draws it inside the shown time. */
+export function shownActiveSecondsOf(figure: FigureTotals): number {
+	const trackedSeconds = trackedSecondsOf(figure);
+	if (trackedSeconds === figure.seconds) {
+		return figure.activeSeconds;
+	}
+	return (figure.seconds * activityPercentOf(figure)) / 100;
 }
 
 export interface DayFigures extends FigureTotals {
+	trackedSeconds: number;
 	dateKey: string;
 	memberCount: number;
 	projectCount: number;
@@ -242,6 +388,7 @@ export function dayFiguresOf(rows: ReadonlyArray<DailyReportRow>): Map<string, D
 			dateKey: row.dateKey,
 			seconds: 0,
 			activeSeconds: 0,
+			trackedSeconds: 0,
 			memberCount: 0,
 			projectCount: 0,
 			members: new Set<string>(),
@@ -249,6 +396,7 @@ export function dayFiguresOf(rows: ReadonlyArray<DailyReportRow>): Map<string, D
 		};
 		current.seconds += row.seconds;
 		current.activeSeconds += row.activeSeconds;
+		current.trackedSeconds += trackedSecondsOf(row);
 		current.members.add(row.employeeId);
 		current.projects.add(row.projectId ?? NO_PROJECT_KEY);
 		days.set(row.dateKey, current);
@@ -259,6 +407,7 @@ export function dayFiguresOf(rows: ReadonlyArray<DailyReportRow>): Map<string, D
 			dateKey,
 			seconds: day.seconds,
 			activeSeconds: day.activeSeconds,
+			trackedSeconds: day.trackedSeconds,
 			memberCount: day.members.size,
 			projectCount: day.projects.size
 		});
