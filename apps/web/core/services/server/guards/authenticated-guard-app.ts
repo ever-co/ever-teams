@@ -10,6 +10,7 @@ import { currentAuthenticatedUserRequest } from '../requests/auth';
 import { unwrapRejection } from '../fetch';
 import { NextResponse } from 'next/server';
 import { resolveSessionCheckMemoTtl, SessionCheckMemo } from './session-check-memo';
+import { tabSessionOf } from '../tab-session';
 
 type SessionCheck = Awaited<ReturnType<typeof currentAuthenticatedUserRequest>>;
 
@@ -51,24 +52,32 @@ interface AuthenticatedGuardOptions {
  * A route that signs its own token with a server secret (`auth/meet/jwt`, `livekit`) is its own authorization
  * boundary and must authorize the caller itself. See "API routes and authorization" in apps/web/README.md.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- the routes still pass their response; the cookies come from the request
-export async function authenticatedGuard(req: Request, res: NextResponse<unknown>, options: AuthenticatedGuardOptions = {}) {
+export async function authenticatedGuard(
+	req: Request,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- the routes still pass their response; the cookies come from the request
+	res: NextResponse<unknown>,
+	options: AuthenticatedGuardOptions = {}
+) {
 	const cookies = requestCookies(req);
-	const access_token = requestAccessToken(cookies);
+	const sharedAccessToken = requestAccessToken(cookies);
 	const tenantId = cookies.get(TENANT_ID_COOKIE_NAME) as string;
-	const organizationId = cookies.get(ORGANIZATION_ID_COOKIE_NAME) as string;
-	const teamId = cookies.get(ACTIVE_TEAM_COOKIE_NAME) as string;
-	const taskId = cookies.get(ACTIVE_TASK_COOKIE_NAME) as string;
-	const projectId = cookies.get(ACTIVE_PROJECT_COOKIE_NAME) as string;
+	const sharedOrganizationId = cookies.get(ORGANIZATION_ID_COOKIE_NAME) as string;
+	// A tab working in its own organization while the session in the cookies is in another one acts in its own (#5134)
+	const tabSession = tabSessionOf(req, sharedAccessToken, sharedOrganizationId);
+	const access_token = tabSession?.accessToken ?? sharedAccessToken;
+	const organizationId = tabSession?.organizationId ?? sharedOrganizationId;
+	const teamId = (tabSession ? tabSession.teamId : cookies.get(ACTIVE_TEAM_COOKIE_NAME)) as string;
+	// The task and project cookies are the other tab's too, of the other organization
+	const taskId = (tabSession ? undefined : cookies.get(ACTIVE_TASK_COOKIE_NAME)) as string;
+	const projectId = (tabSession ? undefined : cookies.get(ACTIVE_PROJECT_COOKIE_NAME)) as string;
 
 	let rejection: { statusCode?: number; message?: string } | undefined;
 	const bearer_token = access_token?.toString() || '';
 	const check = (signal: AbortSignal) => currentAuthenticatedUserRequest({ bearer_token, signal });
 	// Routes called within the same few seconds with the same token share one check (see SessionCheckMemo), unless
 	// the route asks for a fresh one; either way the check runs under the memo's deadline.
-	const r_res: SessionCheck | void = await (options.fresh
-		? sessionChecks.withDeadline(check)
-		: sessionChecks.answer(bearer_token, check, authenticated)
+	const r_res: SessionCheck | void = await (
+		options.fresh ? sessionChecks.withDeadline(check) : sessionChecks.answer(bearer_token, check, authenticated)
 	).catch(async (error: unknown) => {
 		const reason = await unwrapRejection(error);
 		rejection = reason && typeof reason === 'object' ? reason : undefined;
@@ -94,7 +103,9 @@ export async function authenticatedGuard(req: Request, res: NextResponse<unknown
 				NextResponse.json(
 					{
 						message:
-							status === 503 ? 'Session check unavailable, retry later' : upstream?.message || 'Unauthorized'
+							status === 503
+								? 'Session check unavailable, retry later'
+								: upstream?.message || 'Unauthorized'
 					},
 					{ status }
 				)

@@ -8,6 +8,7 @@ import { Archive, ChevronLeft, ChevronRight, Pencil } from '@/core/components/ic
 import { FavoriteStarButton } from '@/core/components/favorites/favorite-parts';
 import { ProjectActionsMenu } from '@/core/components/projects/project-actions-menu';
 import { ProjectStatusChip, ProjectTile } from '@/core/components/projects/project-cells';
+import { PrivateProjectMark } from '@/core/components/projects/private-project-mark';
 import { AvatarStack } from '@/core/components/teams/people-avatars';
 import { useProjectActionModal } from '@/core/hooks/use-project-action-modal';
 import { useProjectPermissions } from '@/core/hooks/projects/use-project-permissions';
@@ -118,6 +119,7 @@ export function ProjectDetailHeader({
 						)}
 						<div className="flex min-w-0 items-center gap-2">
 							<h1 className="truncate text-lg font-semibold text-foreground">{project.name}</h1>
+							<PrivateProjectMark project={project} />
 							<ProjectStatusChip
 								statusName={project.status}
 								statuses={statuses}

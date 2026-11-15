@@ -85,5 +85,13 @@ export function useReportUrlFilters() {
 		[replaceParams]
 	);
 
-	return { filters, params, setFilter, removeFilterValue, clearFilters, setParam };
+	/** Several values of the link changed at once, in one move of the link. */
+	const setParams = useCallback(
+		(change: (next: URLSearchParams) => void) => {
+			replaceParams(change);
+		},
+		[replaceParams]
+	);
+
+	return { filters, params, setFilter, removeFilterValue, clearFilters, setParam, setParams };
 }

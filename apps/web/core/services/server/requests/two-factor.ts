@@ -85,6 +85,7 @@ export function verifyTwoFactorRequest(input: ITwoFactorVerifyInput) {
 		path: '/auth/two-factor/verify',
 		method: 'POST',
 		body: input,
-		keepsStatusOnError: true
+		keepsStatusOnError: true,
+		browserUserAgent: true
 	});
 }

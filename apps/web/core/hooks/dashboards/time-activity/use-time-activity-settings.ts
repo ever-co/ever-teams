@@ -3,9 +3,11 @@
 import { useCallback, useMemo } from 'react';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
 import { useReportUrlFilters } from '@/core/hooks/dashboards/use-report-url-filters';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { canReadClients } from '@/core/lib/utils/clients';
-import type { ReportUrlFilterField } from '@/core/lib/utils/dashboards/report-filters';
+import type { Period } from '@/core/lib/utils/dashboard-period';
+import { clearReportUrlFilters, type ReportUrlFilterField } from '@/core/lib/utils/dashboards/report-filters';
 import {
 	EMPTY_STORED_TIME_ACTIVITY_FILTERS,
 	type StoredTimeActivityFilterField,
@@ -27,6 +29,13 @@ import {
 	isStoredTimeActivityFilterField,
 	offeredGroupingsOf
 } from '@/core/lib/utils/dashboards/time-activity';
+import {
+	clearLinkedFilters,
+	linkedFiltersOf,
+	periodOfLink,
+	writeLinkedFilters,
+	writePeriodToLink
+} from '@/core/lib/utils/dashboards/time-activity-link';
 
 type LinkedFilterField = Exclude<TimeActivityFilterField, StoredTimeActivityFilterField>;
 
@@ -44,8 +53,10 @@ function withToggledColumn(hidden: TimeActivityColumn[], column: TimeActivityCol
 }
 
 /**
- * Teams, members, projects and tasks stay saved in the browser, as before; the client and billable filters and the
- * grouping live in the page link. The page reads the filters as one set and clears them together.
+ * The page link holds the view: the period, every filter and the grouping, so a copied address opens the same report.
+ * Teams, members, projects and tasks also stay saved in the browser, as before: a visit whose link names no period
+ * opens on them, and the page then writes them into its link. The page reads the filters as one set and clears them
+ * together.
  */
 export function useTimeActivitySettings() {
 	const [storedFilters, setStoredFilters] = useLocalStorageState<unknown>(TIME_ACTIVITY_FILTERS_STORAGE_KEY, null);
@@ -54,9 +65,12 @@ export function useTimeActivitySettings() {
 		filters: linkedFilters,
 		params: linkParams,
 		setFilter: setLinkedFilter,
-		clearFilters: clearLinkedFilters,
-		setParam: setLinkParam
+		setParam: setLinkParam,
+		setParams: setLinkParams
 	} = useReportUrlFilters();
+	const weekStart = useWorkspaceWeekStart();
+	const linkedPeriod = useMemo(() => periodOfLink(linkParams, weekStart), [linkParams, weekStart]);
+	const holdsView = linkedPeriod !== null;
 	const {
 		myPermissions,
 		isLoaded: arePermissionsLoaded,
@@ -81,7 +95,12 @@ export function useTimeActivitySettings() {
 		[setLinkParam]
 	);
 
-	const savedFilters = useMemo(() => filtersFromStorage(storedFilters), [storedFilters]);
+	const savedFilters = useMemo(() => {
+		if (holdsView) {
+			return linkedFiltersOf(linkParams);
+		}
+		return filtersFromStorage(storedFilters);
+	}, [holdsView, linkParams, storedFilters]);
 	const filters = useMemo<TimeActivityFilters>(
 		() => ({ ...savedFilters, clientIds: linkedFilters.clients, billable: linkedFilters.billable }),
 		[linkedFilters.billable, linkedFilters.clients, savedFilters]
@@ -94,11 +113,14 @@ export function useTimeActivitySettings() {
 			if (isStoredTimeActivityFilterField(field)) {
 				const nextFilters: StoredTimeActivityFilters = { ...savedFilters, [field]: values };
 				setStoredFilters(nextFilters);
+				if (holdsView) {
+					setLinkParams((next) => writeLinkedFilters(next, nextFilters));
+				}
 				return;
 			}
 			setLinkedFilter(URL_FIELD_OF[field], values);
 		},
-		[savedFilters, setLinkedFilter, setStoredFilters]
+		[holdsView, savedFilters, setLinkParams, setLinkedFilter, setStoredFilters]
 	);
 
 	const removeFilterValue = useCallback(
@@ -111,8 +133,27 @@ export function useTimeActivitySettings() {
 
 	const clearFilters = useCallback(() => {
 		setStoredFilters(EMPTY_STORED_TIME_ACTIVITY_FILTERS);
-		clearLinkedFilters();
-	}, [clearLinkedFilters, setStoredFilters]);
+		setLinkParams((next) => {
+			clearReportUrlFilters(next);
+			clearLinkedFilters(next);
+		});
+	}, [setLinkParams, setStoredFilters]);
+
+	/**
+	 * Writes the period into the link. The first write also writes the four filters saved in the browser, so from then
+	 * on the link holds the whole view.
+	 */
+	const setPeriod = useCallback(
+		(period: Period) => {
+			setLinkParams((next) => {
+				writePeriodToLink(next, period, weekStart);
+				if (!holdsView) {
+					writeLinkedFilters(next, savedFilters);
+				}
+			});
+		},
+		[holdsView, savedFilters, setLinkParams, weekStart]
+	);
 
 	const toggleColumn = useCallback(
 		(column: TimeActivityColumn) => {
@@ -133,7 +174,13 @@ export function useTimeActivitySettings() {
 		grouping,
 		groupings,
 		setGrouping,
-		clientGroupingAccess
+		clientGroupingAccess,
+		/** The period the link names; `null` until the page writes one into it. */
+		linkedPeriod,
+		holdsView,
+		setPeriod,
+		/** Changes values of the link in one move: how a saved report opens. */
+		setLinkParams
 	};
 }
 

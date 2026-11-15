@@ -9,7 +9,8 @@ import { useGetCurrentOrganization } from '@/core/hooks/auth/use-current-organiz
 import { useWorkspaces } from '@/core/hooks/auth/use-workspaces';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
-import { getAccessTokenCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { requestAccessToken } from '@/core/lib/auth/tab-organization';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { holdsRateAdminPermission } from '@/core/lib/utils/rates';
 import {
@@ -143,7 +144,8 @@ export function useWorkspaceSettings() {
 			throw new Error('No current organization');
 		}
 		const tenantId = getTenantIdCookie();
-		const accessToken = getAccessTokenCookie();
+		// This tab's token: its own for its organization while another tab has another one open (#5134)
+		const accessToken = requestAccessToken();
 		return {
 			tenantId,
 			accessToken,

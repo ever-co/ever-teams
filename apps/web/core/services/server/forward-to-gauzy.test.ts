@@ -58,3 +58,42 @@ describe('forwardToGauzy forwardHeaders', () => {
 		expect(headers).not.toHaveProperty('cookie');
 	});
 });
+
+/** A tab working in its own organization while the session in the cookies is in another one (#5134). */
+describe('forwardToGauzy, a tab working in its own organization', () => {
+	const jwt = (organizationId: string, userId = 'user-1') => {
+		const encode = (part: object) => Buffer.from(JSON.stringify(part)).toString('base64url');
+		const issuedAt = Math.floor(Date.now() / 1000);
+		const payload = { id: userId, tenantId: 'tenant-1', organizationId, iat: issuedAt, exp: issuedAt + 3600 };
+		return `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode(payload)}.sig-${organizationId}-${userId}`;
+	};
+	// Built once: a token built again a second later would differ from it
+	const sharedToken = jwt('org-b');
+	const tabRequest = (authorization: string) =>
+		new Request('https://app.ever.team/api/timer/started-at', {
+			method: 'PUT',
+			headers: {
+				cookie: `auth-token=${sharedToken}; auth-tenant-id=tenant-1; auth-organization-id=org-b`,
+				authorization: `Bearer ${authorization}`,
+				'content-type': 'application/json'
+			},
+			body: JSON.stringify({ startedAt: '2026-11-15T10:00:00.000Z' })
+		});
+
+	it("sends Gauzy the tab's own token, so it changes the tab's own timer", async () => {
+		const fetchMock = gauzyAnswers(Response.json({}, { status: 200 }));
+		const tabToken = jwt('org-a');
+
+		await forwardToGauzy(tabRequest(tabToken), '/timesheet/timer/started-at');
+
+		expect(sentHeaders(fetchMock).authorization).toBe(`Bearer ${tabToken}`);
+	});
+
+	it("sends the cookies' token for another person's token", async () => {
+		const fetchMock = gauzyAnswers(Response.json({}, { status: 200 }));
+
+		await forwardToGauzy(tabRequest(jwt('org-a', 'user-2')), '/timesheet/timer/started-at');
+
+		expect(sentHeaders(fetchMock).authorization).toBe(`Bearer ${sharedToken}`);
+	});
+});

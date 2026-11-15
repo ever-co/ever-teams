@@ -6,7 +6,8 @@ import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
-import { getAccessTokenCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { requestAccessToken } from '@/core/lib/auth/tab-organization';
 import { downloadBlob } from '@/core/lib/utils/dashboard-export';
 import {
 	canExportWorkspaceData,
@@ -64,7 +65,8 @@ export function useWorkspaceDataExport({ workspaceName, organizationId }: Worksp
 		try {
 			const scope = {
 				tenantId: getTenantIdCookie(),
-				accessToken: getAccessTokenCookie(),
+				// This tab's token: its own for its organization while another tab has another one open (#5134)
+				accessToken: requestAccessToken(),
 				organizationId: organizationId as string
 			};
 			const archive = await workspaceExportService.downloadWorkspaceArchive(scope);

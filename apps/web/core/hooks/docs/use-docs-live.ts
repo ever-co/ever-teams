@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { onSignOut } from '@/core/lib/auth/sign-out-cleanups';
-import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
+import { requestAccessToken } from '@/core/lib/auth/tab-organization';
 import {
 	colorForUser,
 	createDocsLiveMemory,
@@ -178,7 +178,8 @@ export function useDocsLive(pageId: string | null, eligible: boolean): DocsLiveV
 					transport: createDocsLiveTransport({
 						socketUrl,
 						credentials: () => {
-							const token = getAccessTokenCookie();
+							// This tab's token: its own for its organization while another tab has another one open (#5134)
+							const token = requestAccessToken();
 							return token ? { accessToken: token, tenantId, organizationId } : null;
 						},
 						http: {

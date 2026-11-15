@@ -6,6 +6,7 @@ import React, { useMemo } from 'react';
 import { JitsuAnalytics } from '@/core/components/analytics/jitsu-analytics';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { isAccountDeletionPath } from '@/core/lib/auth/account-deletion';
+import { isSharedReportPath } from '@/core/lib/utils/shared-report-path';
 
 type MyAppProps = {
 	pageProps?: {
@@ -41,7 +42,10 @@ export function JitsuRoot({ pageProps, children }: MyAppProps) {
 		// e-mailed link carries a deletion token in its address (isAccountDeletionPath).
 		const startsOnAccountDeletion =
 			typeof window !== 'undefined' && isAccountDeletionPath(window.location.pathname);
-		const isJitsuEnvs: boolean = !!jitsuConf.host && !!jitsuConf.writeKey && !startsOnAccountDeletion;
+		// The same for a shared report, whose link carries the token that opens it (isSharedReportPath).
+		const startsOnSharedReport = typeof window !== 'undefined' && isSharedReportPath(window.location.pathname);
+		const startsOnTokenPage = startsOnAccountDeletion || startsOnSharedReport;
+		const isJitsuEnvs: boolean = !!jitsuConf.host && !!jitsuConf.writeKey && !startsOnTokenPage;
 
 		console.log(`Jitsu Enabled: ${isJitsuEnvs}`);
 		console.log(`Jitsu Configuration: ${JSON.stringify(jitsuConf)}`);
