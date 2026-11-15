@@ -7,20 +7,26 @@ import { organizationService } from '@/core/services/client/api/organizations';
 import { timerService } from '@/core/services/client/api/timers';
 import { useOrganizationDeletion } from './use-organization-deletion';
 
+let mockPermissions = ['ALL_ORG_EDIT'];
 jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
-	useMyRolePermissionsQuery: () => ({ myPermissions: ['ALL_ORG_EDIT'] })
+	useMyRolePermissionsQuery: () => ({ myPermissions: mockPermissions })
 }));
 jest.mock('@/core/hooks/auth/use-authenticate-user', () => ({
 	useAuthenticateUser: () => ({ logOut: jest.fn() })
 }));
-jest.mock('@/core/hooks/organizations/teams/use-team-menu-organizations', () => ({
-	useTeamMenuOrganizations: () => ({
+const mockRefetchMenuOrganizations = jest.fn();
+const mockUseTeamMenuOrganizations = jest.fn((options: { enabled?: boolean }) => {
+	void options;
+	return {
 		data: { current: { id: 'org-trial', name: 'Trial' }, others: [{ id: 'org-real', name: 'Ever Technologies' }] },
 		isFetching: false,
 		isError: false,
 		isSuccess: true,
-		refetch: jest.fn()
-	})
+		refetch: mockRefetchMenuOrganizations
+	};
+});
+jest.mock('@/core/hooks/organizations/teams/use-team-menu-organizations', () => ({
+	useTeamMenuOrganizations: (options: { enabled?: boolean }) => mockUseTeamMenuOrganizations(options)
 }));
 jest.mock('@/core/hooks/organizations/teams/use-switch-organization', () => ({
 	useSwitchOrganization: () => ({ mutateAsync: jest.fn() })
@@ -50,16 +56,21 @@ const COUNTS = { teams: 1, projects: 1, members: 2, trackedSeconds: 3600, invoic
 const STOPPED = { data: { running: false, lastLog: { isRunning: false } } };
 const ON_BREAK = { data: { running: false, lastLog: { id: 'log-break', isRunning: true, logType: 'BREAK' } } };
 
-function openConfirmation() {
+function renderDeletion(isConfirmOpen: boolean) {
 	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 	const wrapper = ({ children }: { children: React.ReactNode }) => (
 		<QueryClientProvider client={client}>{children}</QueryClientProvider>
 	);
-	return renderHook(() => useOrganizationDeletion(ORGANIZATION, true), { wrapper });
+	return renderHook(() => useOrganizationDeletion(ORGANIZATION, isConfirmOpen), { wrapper });
+}
+
+function openConfirmation() {
+	return renderDeletion(true);
 }
 
 beforeEach(() => {
 	jest.clearAllMocks();
+	mockPermissions = ['ALL_ORG_EDIT'];
 	organizations.getOrganizationCounts.mockResolvedValue(COUNTS);
 	organizations.countWorkspaceOrganizations.mockResolvedValue(2);
 	organizations.softDeleteOrganization.mockResolvedValue(undefined);
@@ -111,4 +122,31 @@ it('deletes the organization when no run of the person goes on', async () => {
 	});
 
 	expect(organizations.softDeleteOrganization).toHaveBeenCalledWith('org-trial');
+});
+
+// The Workspace settings mount this hook with the confirmation closed: the organizations to land in are read once
+// someone who may delete opens it, not before (ever-co/ever-teams#5309)
+describe('the organizations to land in after the delete', () => {
+	it('are not read while the confirmation is closed', () => {
+		renderDeletion(false);
+
+		expect(mockUseTeamMenuOrganizations).toHaveBeenLastCalledWith({ enabled: false });
+		expect(mockRefetchMenuOrganizations).not.toHaveBeenCalled();
+	});
+
+	it('are not read for someone who cannot delete the organization', () => {
+		mockPermissions = [];
+
+		renderDeletion(true);
+
+		expect(mockUseTeamMenuOrganizations).toHaveBeenLastCalledWith({ enabled: false });
+		expect(mockRefetchMenuOrganizations).not.toHaveBeenCalled();
+	});
+
+	it('are read once the confirmation opens, joining a read already on its way', () => {
+		renderDeletion(true);
+
+		expect(mockUseTeamMenuOrganizations).toHaveBeenLastCalledWith({ enabled: true });
+		expect(mockRefetchMenuOrganizations).toHaveBeenCalledWith({ cancelRefetch: false });
+	});
 });
