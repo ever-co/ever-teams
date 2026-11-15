@@ -4,10 +4,12 @@ import { type CSSProperties, memo } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { EntityTile } from '@/core/components/common/entity-tile';
 import { ActivityFigure } from '@/core/components/dashboards/kit/meters';
+import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { activityPercentOf, type CurrencyAmount, formatAmounts } from '@/core/lib/utils/daily-report-figures';
 import {
+	type BillableFigures,
 	type ReportClientRef,
 	type ReportProjectRef,
 	type TableGrouping,
@@ -16,7 +18,7 @@ import {
 } from '@/core/lib/utils/dashboards/time-activity';
 import type { FormatLocale } from '@/core/lib/utils/workspace-formats';
 
-export type FigureColumn = Exclude<TimeActivityColumn, 'project'>;
+export type FigureColumn = Exclude<TimeActivityColumn, 'project' | 'billable'>;
 
 export interface TableColumns {
 	/** The projects of a row; By project has no such column, the project is the group. */
@@ -192,6 +194,34 @@ export function DurationText({ seconds, className }: Readonly<{ seconds: number;
 }
 
 /** Members can be paid in different currencies: amounts are never mixed. */
+/**
+ * What a row's billable time bills. A row with billable time no rate prices says so; a row without billable time says
+ * it has none: both read "–".
+ */
+export function BillableText({
+	figures,
+	isPending,
+	locale,
+	noRateLabel,
+	noBillableLabel
+}: Readonly<{
+	figures: BillableFigures;
+	isPending: boolean;
+	locale: FormatLocale;
+	noRateLabel: string;
+	noBillableLabel: string;
+}>) {
+	if (isPending) {
+		return <span aria-hidden="true" className={cn('ml-auto block h-2.5 w-14', SKELETON_BAR)} />;
+	}
+	const hasBillableTime = figures.seconds > 0;
+	let missingLabel = noBillableLabel;
+	if (hasBillableTime) {
+		missingLabel = noRateLabel;
+	}
+	return <EarningsText amounts={figures.amounts} locale={locale} noRateLabel={missingLabel} />;
+}
+
 export function EarningsText({
 	amounts,
 	locale,

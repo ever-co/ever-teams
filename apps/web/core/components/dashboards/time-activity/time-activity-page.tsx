@@ -50,8 +50,14 @@ export function TimeActivityPage() {
 	const title = t('timeActivity.TIME_AND_ACTIVITY');
 
 	const columns = useMemo(
-		() => breakdownColumnsOf(report.breakdownGrouping, settings.hiddenColumns, report.isManager),
-		[report.breakdownGrouping, report.isManager, settings.hiddenColumns]
+		() =>
+			breakdownColumnsOf(
+				report.breakdownGrouping,
+				settings.hiddenColumns,
+				report.isManager,
+				report.billable.isOffered
+			),
+		[report.billable.isOffered, report.breakdownGrouping, report.isManager, settings.hiddenColumns]
 	);
 
 	const breadcrumbPaths = useMemo(
@@ -86,6 +92,7 @@ export function TimeActivityPage() {
 					onRetryCounts={retryCounts}
 					exportSlot={<TimeActivityBandExport report={report} />}
 					roundingRule={report.roundingRule}
+					billable={report.billable}
 				/>
 				{isWeekGrid && (
 					<TimeActivityWeekGrid
@@ -102,6 +109,8 @@ export function TimeActivityPage() {
 						key={report.breakdownGrouping}
 						grouping={report.breakdownGrouping}
 						rows={report.rows}
+						billableFacts={report.billable.facts}
+						isBillablePending={report.billable.isPending}
 						columns={columns}
 						period={period}
 						isLoading={report.isBreakdownPending}
