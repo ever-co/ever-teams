@@ -5967,6 +5967,12 @@
 			"REQUIRED_TITLE": "Je organisatie vraagt je dit aan te zetten",
 			"REQUIRED_DESCRIPTION": "Haar leden loggen ook in met een code uit een authenticator-app.",
 			"QR_ALT": "QR-code van dit account voor je authenticator-app"
+		},
+		"thisBrowser": {
+			"TITLE": "Deze browser",
+			"DESCRIPTION": "Hoe lang je in deze browser ingelogd blijft. Je andere browsers en apps houden hun eigen sessies.",
+			"SIGN_OUT_ON_CLOSE": "Uitloggen wanneer deze browser sluit",
+			"SIGN_OUT_ON_CLOSE_HINT": "Voor een gedeelde computer. Als dit uit staat, blijf je ingelogd nadat de browser is gesloten, tot je sessie verloopt."
 		}
 	},
 	"taskDetail": {
