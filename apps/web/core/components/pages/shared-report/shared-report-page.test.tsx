@@ -131,6 +131,28 @@ describe('SharedReportPage', () => {
 		expect(screen.getByTestId('table').textContent).toContain('earnings:true');
 	});
 
+	it("prices each entry at the rate it stores, as the report page does, not at the member's rate of today", async () => {
+		const loggedBefore = sharedReport({
+			includeAmounts: true,
+			totals: { duration: 5400, amounts: [{ currency: 'EUR', amount: 60 }] }
+		});
+		const [employeeLog] = loggedBefore.days[0].logs[0].employeeLogs;
+		// Ada bills 80 EUR today; her 1 h 30 m were logged at 40 EUR, the rate the entry stores
+		employeeLog.employee = { ...employeeLog.employee, billRateValue: 80, billRateCurrency: 'EUR' };
+		employeeLog.tasks = employeeLog.tasks.map((entry) => ({
+			...entry,
+			billRateValue: 40,
+			billRateCurrency: 'EUR'
+		}));
+		mockReadShared.mockResolvedValue(loggedBefore);
+
+		renderPage();
+
+		expect(await screen.findByText('dashboard.timeActivity.columns.EARNINGS')).toBeTruthy();
+		expect(screen.getByText(/60\.00/)).toBeTruthy();
+		expect(screen.queryByText(/120\.00/)).toBeNull();
+	});
+
 	it('says a link that does not work any more no longer works', async () => {
 		mockReadShared.mockRejectedValue({ statusCode: 404, message: 'This report link does not work.' });
 

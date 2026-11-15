@@ -211,6 +211,17 @@ function teamOfTaskLog(taskLog: IPublicSavedReportTask) {
 }
 
 /**
+ * The rate an entry states, so its row is priced as on the report page (`statedRateOf`): the rate the entry stores, else
+ * the member's current one. An API that states only the member's rate gives none, and the row takes the member's.
+ */
+function rateOfTaskLog(taskLog: IPublicSavedReportTask) {
+	if (!('billRateValue' in taskLog)) {
+		return {};
+	}
+	return { billRateValue: taskLog.billRateValue ?? null, billRateCurrency: taskLog.billRateCurrency ?? null };
+}
+
+/**
  * A shared report in the shape of the daily report, so the public page draws it with the report page's own rows,
  * chart and table. The link states no activity: every member's activity reads 0 and the page shows no activity.
  */
@@ -228,7 +239,8 @@ export function dailyReportOfPublic(report: IPublicSavedReport): ITimeLogGrouped
 					description: '',
 					duration: taskLog.duration,
 					client: (taskLog.client ?? null) as unknown as ITimerEmployeeLog['tasks'][number]['client'],
-					...teamOfTaskLog(taskLog)
+					...teamOfTaskLog(taskLog),
+					...rateOfTaskLog(taskLog)
 				}))
 			}))
 		}))
