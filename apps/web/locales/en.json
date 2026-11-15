@@ -458,6 +458,8 @@
 		"NO_TEAM_MEMBERS_FOUND": "No team members found",
 		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Try adjusting your search or filter to find what you're looking for.",
 		"PICK_A_DATE": "Pick a date",
+		"PICK_THIS_OR_LATER": "Pick {value} or later.",
+		"PICK_THIS_OR_EARLIER": "Pick {value} or earlier.",
 		"THIS_WEEK": "This week",
 		"LAST_WEEK": "Last week",
 		"THIS_MONTH": "This month",

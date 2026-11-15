@@ -439,6 +439,8 @@
 		"NO_TEAM_MEMBERS_FOUND": "Участники команды не найдены",
 		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Попробуйте изменить поиск или фильтр, чтобы найти то, что вы ищете.",
 		"PICK_A_DATE": "Выберите дату",
+		"PICK_THIS_OR_LATER": "Выберите {value} или позже.",
+		"PICK_THIS_OR_EARLIER": "Выберите {value} или раньше.",
 		"THIS_WEEK": "На этой неделе",
 		"LAST_WEEK": "На прошлой неделе",
 		"THIS_MONTH": "В этом месяце",
