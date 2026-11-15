@@ -5692,9 +5692,9 @@
 				"UNSUPPORTED": "Deze server kan nog geen organisaties verwijderen",
 				"UNSUPPORTED_DESCRIPTION": "Een organisatie veilig verwijderen vraagt een nieuwere Ever Gauzy API. Vraag de beheerder van je server om die bij te werken.",
 				"LAST_ORGANIZATION": "Dit is de laatste organisatie van de werkruimte",
-				"LAST_ORGANIZATION_DESCRIPTION": "Een werkruimte houdt minstens één organisatie. Verwijder je account om de hele werkruimte te verwijderen.",
+				"LAST_ORGANIZATION_DESCRIPTION": "Een werkruimte houdt minstens één organisatie. Je account verwijderen verwijdert ook de werkruimte, maar alleen als je er het laatste lid van bent.",
 				"LAST_ORGANIZATION_ACTION": "Naar accountverwijdering",
-				"LAST_ORGANIZATION_REFUSED": "Dit is nu de laatste organisatie van de werkruimte, dus ze blijft. Verwijder je account om de werkruimte te verwijderen."
+				"LAST_ORGANIZATION_REFUSED": "Dit is nu de laatste organisatie van de werkruimte, dus ze blijft. Je account verwijderen verwijdert ook de werkruimte, maar alleen als je er het laatste lid van bent."
 			}
 		},
 		"automations": {

@@ -5692,9 +5692,9 @@
 				"UNSUPPORTED": "Ten serwer nie może jeszcze usuwać organizacji",
 				"UNSUPPORTED_DESCRIPTION": "Bezpieczne usunięcie organizacji wymaga nowszego API Ever Gauzy. Poproś osobę zarządzającą serwerem o jego aktualizację.",
 				"LAST_ORGANIZATION": "To ostatnia organizacja obszaru roboczego",
-				"LAST_ORGANIZATION_DESCRIPTION": "Obszar roboczy zachowuje co najmniej jedną organizację. Aby usunąć cały obszar roboczy, usuń swoje konto.",
+				"LAST_ORGANIZATION_DESCRIPTION": "Obszar roboczy zachowuje co najmniej jedną organizację. Usunięcie konta usuwa też obszar roboczy, ale tylko wtedy, gdy jesteś jego ostatnim członkiem.",
 				"LAST_ORGANIZATION_ACTION": "Przejdź do usuwania konta",
-				"LAST_ORGANIZATION_REFUSED": "To teraz ostatnia organizacja obszaru roboczego, więc zostaje. Aby usunąć obszar roboczy, usuń swoje konto."
+				"LAST_ORGANIZATION_REFUSED": "To teraz ostatnia organizacja obszaru roboczego, więc zostaje. Usunięcie konta usuwa też obszar roboczy, ale tylko wtedy, gdy jesteś jego ostatnim członkiem."
 			}
 		},
 		"automations": {

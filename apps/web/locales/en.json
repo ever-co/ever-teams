@@ -5692,9 +5692,9 @@
 				"UNSUPPORTED": "This server cannot delete organizations yet",
 				"UNSUPPORTED_DESCRIPTION": "Deleting an organization safely needs a newer Ever Gauzy API. Ask the person who runs your server to update it.",
 				"LAST_ORGANIZATION": "This is the workspace's last organization",
-				"LAST_ORGANIZATION_DESCRIPTION": "A workspace keeps at least one organization. To remove the whole workspace, delete your account.",
+				"LAST_ORGANIZATION_DESCRIPTION": "A workspace keeps at least one organization. Deleting your account removes the workspace too, but only when you are its last member.",
 				"LAST_ORGANIZATION_ACTION": "Go to account deletion",
-				"LAST_ORGANIZATION_REFUSED": "This is now the workspace's last organization, so it stays. To remove the workspace, delete your account."
+				"LAST_ORGANIZATION_REFUSED": "This is now the workspace's last organization, so it stays. Deleting your account removes the workspace too, but only when you are its last member."
 			}
 		},
 		"automations": {

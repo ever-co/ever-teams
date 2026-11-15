@@ -5692,9 +5692,9 @@
 				"UNSUPPORTED": "Ce serveur ne peut pas encore supprimer d'organisation",
 				"UNSUPPORTED_DESCRIPTION": "Supprimer une organisation sans risque demande une API Ever Gauzy plus récente. Demandez à la personne qui gère votre serveur de la mettre à jour.",
 				"LAST_ORGANIZATION": "C'est la dernière organisation de l'espace de travail",
-				"LAST_ORGANIZATION_DESCRIPTION": "Un espace de travail garde au moins une organisation. Pour supprimer tout l'espace de travail, supprimez votre compte.",
+				"LAST_ORGANIZATION_DESCRIPTION": "Un espace de travail garde au moins une organisation. Supprimer votre compte supprime aussi l'espace de travail, mais seulement si vous en êtes le dernier membre.",
 				"LAST_ORGANIZATION_ACTION": "Aller à la suppression du compte",
-				"LAST_ORGANIZATION_REFUSED": "C'est désormais la dernière organisation de l'espace de travail, elle reste donc. Pour supprimer l'espace de travail, supprimez votre compte."
+				"LAST_ORGANIZATION_REFUSED": "C'est désormais la dernière organisation de l'espace de travail, elle reste donc. Supprimer votre compte supprime aussi l'espace de travail, mais seulement si vous en êtes le dernier membre."
 			}
 		},
 		"automations": {

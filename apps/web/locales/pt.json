@@ -5692,9 +5692,9 @@
 				"UNSUPPORTED": "Este servidor ainda não pode excluir organizações",
 				"UNSUPPORTED_DESCRIPTION": "Excluir uma organização com segurança exige uma API do Ever Gauzy mais recente. Peça a quem administra seu servidor para atualizá-la.",
 				"LAST_ORGANIZATION": "Esta é a última organização do espaço de trabalho",
-				"LAST_ORGANIZATION_DESCRIPTION": "Um espaço de trabalho mantém pelo menos uma organização. Para remover todo o espaço de trabalho, exclua sua conta.",
+				"LAST_ORGANIZATION_DESCRIPTION": "Um espaço de trabalho mantém pelo menos uma organização. Excluir sua conta também remove o espaço de trabalho, mas só quando você é o último membro dele.",
 				"LAST_ORGANIZATION_ACTION": "Ir para a exclusão da conta",
-				"LAST_ORGANIZATION_REFUSED": "Agora esta é a última organização do espaço de trabalho, então ela permanece. Para remover o espaço de trabalho, exclua sua conta."
+				"LAST_ORGANIZATION_REFUSED": "Agora esta é a última organização do espaço de trabalho, então ela permanece. Excluir sua conta também remove o espaço de trabalho, mas só quando você é o último membro dele."
 			}
 		},
 		"automations": {

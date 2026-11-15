@@ -5692,9 +5692,9 @@
 				"UNSUPPORTED": "Dieser Server kann noch keine Organisationen löschen",
 				"UNSUPPORTED_DESCRIPTION": "Eine Organisation sicher zu löschen erfordert eine neuere Ever Gauzy API. Bitten Sie die Person, die Ihren Server betreibt, sie zu aktualisieren.",
 				"LAST_ORGANIZATION": "Dies ist die letzte Organisation des Arbeitsbereichs",
-				"LAST_ORGANIZATION_DESCRIPTION": "Ein Arbeitsbereich behält mindestens eine Organisation. Um den ganzen Arbeitsbereich zu entfernen, löschen Sie Ihr Konto.",
+				"LAST_ORGANIZATION_DESCRIPTION": "Ein Arbeitsbereich behält mindestens eine Organisation. Wenn Sie Ihr Konto löschen, wird auch der Arbeitsbereich entfernt, aber nur, wenn Sie sein letztes Mitglied sind.",
 				"LAST_ORGANIZATION_ACTION": "Zur Kontolöschung",
-				"LAST_ORGANIZATION_REFUSED": "Dies ist jetzt die letzte Organisation des Arbeitsbereichs, daher bleibt sie. Um den Arbeitsbereich zu entfernen, löschen Sie Ihr Konto."
+				"LAST_ORGANIZATION_REFUSED": "Dies ist jetzt die letzte Organisation des Arbeitsbereichs, daher bleibt sie. Wenn Sie Ihr Konto löschen, wird auch der Arbeitsbereich entfernt, aber nur, wenn Sie sein letztes Mitglied sind."
 			}
 		},
 		"automations": {

@@ -5692,9 +5692,9 @@
 				"UNSUPPORTED": "此服务器尚不能删除组织",
 				"UNSUPPORTED_DESCRIPTION": "安全删除组织需要更新版本的 Ever Gauzy API。请联系服务器管理员进行更新。",
 				"LAST_ORGANIZATION": "这是工作区的最后一个组织",
-				"LAST_ORGANIZATION_DESCRIPTION": "工作区至少保留一个组织。如需删除整个工作区，请删除您的账户。",
+				"LAST_ORGANIZATION_DESCRIPTION": "工作区至少保留一个组织。删除您的账户也会删除该工作区，但仅当您是其最后一名成员时。",
 				"LAST_ORGANIZATION_ACTION": "前往删除账户",
-				"LAST_ORGANIZATION_REFUSED": "这现在是工作区的最后一个组织，因此会保留。如需删除工作区，请删除您的账户。"
+				"LAST_ORGANIZATION_REFUSED": "这现在是工作区的最后一个组织，因此会保留。删除您的账户也会删除该工作区，但仅当您是其最后一名成员时。"
 			}
 		},
 		"automations": {
