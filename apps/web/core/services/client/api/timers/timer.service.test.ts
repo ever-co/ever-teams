@@ -313,6 +313,15 @@ describe('TimerService.catchUpTimeSlots', () => {
 		expect(answer?.data).toEqual({ running: true });
 	});
 
+	it('tells how far it wrote when a write fails part way, so the rest is written from there', async () => {
+		mockFallbackPost.mockResolvedValueOnce({ data: {} }).mockRejectedValueOnce(new Error('Network Error'));
+		const onWritten = jest.fn();
+
+		await expect(timerService.catchUpTimeSlots({ ...kept, onWritten })).rejects.toThrow('Network Error');
+
+		expect(onWritten.mock.calls).toEqual([[Date.parse('2026-11-04T22:20:00.000Z')]]);
+	});
+
 	it('leaves the next heartbeat to write the minute after it, not the time it wrote again', async () => {
 		await timerService.catchUpTimeSlots(kept);
 		mockFallbackPost.mockClear();
@@ -332,15 +341,15 @@ describe('timeSlotsBetween', () => {
 
 	it('holds the time in one slot within a window', () => {
 		expect(timeSlotsBetween(at('22:21:00'), at('22:28:00'))).toEqual([
-			{ startedAt: '2026-11-04T22:21:00.000Z', duration: 420 }
+			{ startedAt: '2026-11-04T22:21:00.000Z', duration: 420, untilMs: at('22:28:00') }
 		]);
 	});
 
 	it('splits a longer time at each window, a slot holding 600 seconds at most, across midnight too', () => {
 		expect(timeSlotsBetween(at('23:55:00'), Date.parse('2026-11-05T00:17:00.000Z'))).toEqual([
-			{ startedAt: '2026-11-04T23:55:00.000Z', duration: 300 },
-			{ startedAt: '2026-11-05T00:00:00.000Z', duration: 600 },
-			{ startedAt: '2026-11-05T00:10:00.000Z', duration: 420 }
+			{ startedAt: '2026-11-04T23:55:00.000Z', duration: 300, untilMs: Date.parse('2026-11-05T00:00:00.000Z') },
+			{ startedAt: '2026-11-05T00:00:00.000Z', duration: 600, untilMs: Date.parse('2026-11-05T00:10:00.000Z') },
+			{ startedAt: '2026-11-05T00:10:00.000Z', duration: 420, untilMs: Date.parse('2026-11-05T00:17:00.000Z') }
 		]);
 	});
 

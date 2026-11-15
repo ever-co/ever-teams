@@ -42,9 +42,10 @@ async function readLastLog(employeeId: string) {
 	const lastLog = response.data?.[0]?.lastLog;
 	// A client clock running fast would cut live timers: use the server clock when the response exposes it.
 	// Without it (the Gauzy API's CORS does not expose Date in direct mode), allow 5 minutes of client skew.
-	const serverNow = Date.parse(response.headers?.date ?? '');
+	const serverDate = Date.parse(response.headers?.date ?? '');
+	const serverNow = Number.isNaN(serverDate) ? null : serverDate;
 	const clientNow = Date.now();
-	return { lastLog, clientNow, now: Number.isNaN(serverNow) ? clientNow - 5 * 60_000 : serverNow };
+	return { lastLog, clientNow, serverNow, now: serverNow ?? clientNow - 5 * 60_000 };
 }
 
 /**
@@ -125,11 +126,19 @@ function isRunAsItWas(log: ITimeLog | null | undefined, timeLogId: string, heart
 }
 
 /**
- * The answer this page owes a run, until it is applied: the person kept its time or chose to stop it at its last
- * heartbeat, or the closed-tab delay was reached. A check that runs again after that write failed applies it rather
- * than asking again.
+ * The stop at its last heartbeat this page owes a run, until it is applied: the person chose it, or the closed-tab
+ * delay was reached. A check that runs again after that stop failed applies it rather than asking again.
  */
-let owedAnswer: { timeLogId: string; heartbeat: number; answer: StoppedAtHeartbeatHint | 'keep' } | null = null;
+let owedStop: { timeLogId: string; heartbeat: number; hint: StoppedAtHeartbeatHint } | null = null;
+
+/**
+ * The time this page owes a run whose time the person kept, until all of it is written: where the writing resumes,
+ * on the API's clock, and the API's clock less the computer's as the Keep measured them, so the time written goes on
+ * to the present whenever it is. A write that failed part way resumes after the last slot written. The slots written
+ * moved the run's heartbeat, so the run no longer reads as it was asked about, and a check that runs again past the
+ * closed-tab delay would stop it there: the Keep is written before anything else is decided.
+ */
+let owedKeep: { timeLogId: string; fromMs: number; apiOffsetMs: number } | null = null;
 
 /**
  * Stops the run at its last heartbeat, as a timer command under the start guard every timer shares: a start asked
@@ -179,19 +188,60 @@ async function keepUnderGuard(employeeId: string, run: ITimeLog & { stoppedAt: D
 			if (!isRunningTeamsLog(latest) || latest.id !== run.id) runsEndedWhileUnsettled += 1;
 			return;
 		}
-		const unfollowedFor = unfollowedTimeOf(run, heartbeat, { ...facts, remembered: rememberedHeartbeat() });
-		const kept = await timerService.catchUpTimeSlots({
-			source: ETimeLogSource.TEAMS,
-			employeeId,
+		// The present as near as it can be told: not the closed-tab rule's, which allows a clock running fast
+		const unfollowedFor = unfollowedTimeOf(run, heartbeat, {
+			now: facts.serverNow ?? facts.clientNow,
+			clientNow: facts.clientNow,
+			remembered: rememberedHeartbeat()
+		});
+		owedKeep = {
 			timeLogId: run.id,
 			fromMs: heartbeat,
-			toMs: heartbeat + unfollowedFor
-		});
-		rememberHeartbeat(kept?.data?.lastLog);
+			apiOffsetMs: heartbeat + Math.max(0, unfollowedFor) - facts.clientNow
+		};
+		await writeOwedKeep(employeeId);
 		isKept = true;
 	};
 	await (startUnderTimerGuard(keep) ?? trackTimerCommand(keep()));
 	return isKept;
+}
+
+/** Writes the time owed to a kept run (owedKeep), from where its writing stands to the present. */
+async function writeOwedKeep(employeeId: string): Promise<void> {
+	const owed = owedKeep;
+	if (!owed) return;
+	const kept = await timerService.catchUpTimeSlots({
+		source: ETimeLogSource.TEAMS,
+		employeeId,
+		timeLogId: owed.timeLogId,
+		fromMs: owed.fromMs,
+		toMs: Date.now() + owed.apiOffsetMs,
+		onWritten: (untilMs) => {
+			owed.fromMs = untilMs;
+		}
+	});
+	owedKeep = null;
+	rememberHeartbeat(kept?.data?.lastLog);
+}
+
+/**
+ * Writes the rest of a Keep whose write failed (owedKeep), as the Keep went: a timer command under the start guard,
+ * which reads the run again first. A run stopped or replaced elsewhere meanwhile gets nothing more.
+ */
+async function resumeOwedKeep(employeeId: string): Promise<void> {
+	const resume = async () => {
+		const owed = owedKeep;
+		if (!owed) return;
+		const latest = (await readLastLog(employeeId)).lastLog;
+		if (!isRunningTeamsLog(latest) || latest.id !== owed.timeLogId) {
+			// A stop that waited has nothing left to end
+			runsEndedWhileUnsettled += 1;
+			owedKeep = null;
+			return;
+		}
+		await writeOwedKeep(employeeId);
+	};
+	await (startUnderTimerGuard(resume) ?? trackTimerCommand(resume()));
 }
 
 /** What the settling of a run's time does that needs the page: the stop at the last heartbeat, and a word. */
@@ -214,17 +264,17 @@ function useTellNothingKept() {
 }
 
 /**
- * The answer a run is owed without asking: the stop past the closed-tab delay, or the answer the person gave before
- * its write failed. Null when the person is to be asked.
+ * The stop at its last heartbeat a run is owed without asking: past the closed-tab delay, or the one the person chose
+ * before that stop failed. Null when the person is to be asked.
  */
-function answerOwedWithoutAsking(
+function stopOwedWithoutAsking(
 	decision: 'ask' | 'stop',
 	runId: string,
 	heartbeat: number,
 	unansweredHint: StoppedAtHeartbeatHint
-): StoppedAtHeartbeatHint | 'keep' | null {
+): StoppedAtHeartbeatHint | null {
 	if (decision === 'stop') return unansweredHint;
-	if (owedAnswer?.timeLogId === runId && owedAnswer.heartbeat === heartbeat) return owedAnswer.answer;
+	if (owedStop?.timeLogId === runId && owedStop.heartbeat === heartbeat) return owedStop.hint;
 	return null;
 }
 
@@ -262,7 +312,8 @@ async function askAboutRun(
 }
 
 /**
- * Applies the answer about the run's time, owed until its write goes through, and tells the other tabs once it did.
+ * Applies the answer about the run's time, owed until its write goes through (owedKeep, owedStop), and tells the other
+ * tabs once it did.
  */
 async function applyAnswer(
 	actions: SettleActions,
@@ -272,10 +323,8 @@ async function applyAnswer(
 ): Promise<void> {
 	const heartbeat = new Date(run.stoppedAt).getTime();
 	const from = new Date(heartbeat).toISOString();
-	owedAnswer = { timeLogId: run.id, heartbeat, answer };
 	if (answer === 'keep') {
 		const isKept = await keepUnderGuard(employeeId, run);
-		owedAnswer = null;
 		if (!isKept) {
 			actions.tellNothingKept();
 			return;
@@ -283,8 +332,9 @@ async function applyAnswer(
 		announceUnfollowedTimeSettled(run.id, from, true);
 		return;
 	}
+	owedStop = { timeLogId: run.id, heartbeat, hint: answer };
 	await stopAtHeartbeatUnderGuard(actions.stopAtLastHeartbeat, employeeId, run, answer);
-	owedAnswer = null;
+	owedStop = null;
 	announceUnfollowedTimeSettled(run.id, from, false);
 }
 
@@ -311,7 +361,7 @@ async function settleInThisTab(
 
 	const run = lastLog as ITimeLog & { stoppedAt: Date };
 	const heartbeat = new Date(run.stoppedAt).getTime();
-	const owed = answerOwedWithoutAsking(decision, runId, heartbeat, unansweredHint);
+	const owed = stopOwedWithoutAsking(decision, runId, heartbeat, unansweredHint);
 	// Kept in another tab, whose write failed: the answer stands
 	if (!owed && isUnfollowedTimeKept(runId, new Date(heartbeat).toISOString())) return 'settled';
 	const answer = owed ?? (await askAboutRun(employeeId, runId, facts, heartbeat, unansweredHint));
@@ -343,6 +393,12 @@ function useSettleUnfollowedTime() {
 	return useCallback(
 		/** @param wasAsleep Whether the page's scripts had stopped running, rather than the app being opened. */
 		async (employeeId: string, wasAsleep: boolean) => {
+			// A Keep whose write failed is written first: the closed-tab delay may be reached by now, and its stop would
+			// end the run at a heartbeat the slots written already moved, or before the time the person kept
+			if (owedKeep) {
+				await inOneTabAtATime(() => resumeOwedKeep(employeeId));
+				return;
+			}
 			const facts = await readLastLog(employeeId);
 			const { lastLog } = facts;
 			const decision = decideUnfollowedTime({ ...facts, remembered: rememberedHeartbeat() });
@@ -560,7 +616,8 @@ onSignOut(() => {
 	checksInFlight.clear();
 	dropUnfollowedTimeQuestion();
 	forgetHeartbeat();
-	owedAnswer = null;
+	owedStop = null;
+	owedKeep = null;
 	isCheckDue = false;
 	hasSleptSinceCheck = false;
 	releaseWaitingStops();

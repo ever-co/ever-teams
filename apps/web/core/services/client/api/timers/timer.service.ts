@@ -366,19 +366,23 @@ class TimerService extends APIService {
 	 *
 	 * Gauzy writes a slot to the employee's newest run of the source, whatever run it names: the caller reads the run
 	 * again just before. The run's id goes along all the same, for a Gauzy that finds no run otherwise.
+	 *
+	 * @param onWritten Told the end of each slot once it is written: a write that fails part way resumes there.
 	 */
 	catchUpTimeSlots = async ({
 		source,
 		employeeId,
 		timeLogId,
 		fromMs,
-		toMs
+		toMs,
+		onWritten
 	}: {
 		source: ETimeLogSource;
 		employeeId: string;
 		timeLogId: string;
 		fromMs: number;
 		toMs: number;
+		onWritten?: (untilMs: number) => void;
 	}) => {
 		const isDirect = Boolean(GAUZY_API_BASE_SERVER_URL.value);
 		let answered: { data?: ITimerStatus } | undefined;
@@ -404,6 +408,7 @@ class TimerService extends APIService {
 					duration: slot.duration
 				});
 			}
+			onWritten?.(slot.untilMs);
 		}
 		this.lastTimeSlotSync = { at: Date.now(), timeLogId };
 		return isDirect ? this.getTimerStatus() : answered;

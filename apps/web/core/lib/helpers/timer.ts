@@ -21,10 +21,11 @@ export const toTimeSlotDuration = (elapsedSeconds: unknown): number => {
 /** The window Gauzy merges time slots into, on the UTC clock. */
 const TIME_SLOT_WINDOW_MS = MAX_TIME_SLOT_SECONDS * 1000;
 
-/** A time slot to write: when it starts, on the API's clock, and the seconds it holds. */
+/** A time slot to write: when it starts, on the API's clock, the seconds it holds, and where the time it holds ends. */
 interface TimeSlotToWrite {
 	startedAt: string;
 	duration: number;
+	untilMs: number;
 }
 
 /**
@@ -40,7 +41,7 @@ export function timeSlotsBetween(fromMs: number, toMs: number): TimeSlotToWrite[
 		const end = Math.min(windowEnd, toMs);
 		const duration = Math.round((end - start) / 1000);
 		if (duration > 0) {
-			slots.push({ startedAt: new Date(start).toISOString(), duration });
+			slots.push({ startedAt: new Date(start).toISOString(), duration, untilMs: end });
 		}
 		start = end;
 	}
