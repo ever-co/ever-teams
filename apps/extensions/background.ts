@@ -6,7 +6,7 @@ import { sendsHeartbeat } from '~lib/run-policy';
 import { createStatusOrder } from '~lib/status-order';
 import { loadSession, takeSessionOut } from '~lib/session-store';
 import { badgeText, secondsSince } from '~lib/time-format';
-import { isSameSignIn, type Session } from '~lib/workspaces';
+import { isSamePerson, isSameSignIn, type Session } from '~lib/workspaces';
 import browser from '~misc/browser';
 import { MessageTypesFromBackgroundEnum, MessageTypesToBackgroundEnum } from '~typescript/enums/MessageTypesEnum';
 import type { IPostMessage } from '~typescript/interfaces/PostMessage';
@@ -61,7 +61,7 @@ async function showBadge(status: TimerStatus | null, isCurrent: () => boolean = 
  * ended: its answer must not bring the badge back, nor credit a heartbeat.
  */
 async function showSignedOut(): Promise<void> {
-	statusOrder.cleared();
+	statusOrder.sessionEnded();
 	broadcast(null);
 	await showBadge(null);
 }
@@ -176,9 +176,18 @@ browser.alarms.onAlarm.addListener((alarm) => {
 // A sign-in, a sign-out or another active team: the badge follows at once instead of at the next minute
 browser.storage.onChanged.addListener((changes, area) => {
 	const sessionChanged = area === 'local' && 'session' in changes;
-	if (sessionChanged) {
-		void requestRefresh();
+	if (!sessionChanged) {
+		return;
 	}
+	const before = changes.session.oldValue as Session | undefined;
+	const after = changes.session.newValue as Session | undefined;
+	// Another person or API now: a read still out answers for the one before. A renewed token or another team is the
+	// same person, whose read stays good (and keeps its heartbeat); a sign-out is handled by requestRefresh.
+	const isAnotherPerson = Boolean(before && after && !isSamePerson(before, after));
+	if (isAnotherPerson) {
+		statusOrder.sessionEnded();
+	}
+	void requestRefresh();
 });
 
 // The popup read the timer (after a start or a stop, or a run stopped elsewhere): the badge shows what it shows

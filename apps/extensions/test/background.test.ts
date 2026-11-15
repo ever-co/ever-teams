@@ -171,6 +171,51 @@ describe('the background timer', () => {
 		assert.equal(server.sentTo(SLOT_PATH).length, 0, 'no heartbeat for a session signed out');
 	});
 
+	it("drops a read made for one person once another person's session is stored", async () => {
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		const { status } = runningServer();
+		await startBackground();
+		const popup = extension.connect();
+
+		extension.alarms.onAlarm.emit(REFRESH_ALARM);
+		const read = await server.next(STATUS_PATH);
+		// Another person's session is stored while the first person's read is out (the background missed the sign-out)
+		const other = { ...SESSION, userId: 'user-2', email: 'pierre@example.test', token: 'access-2' };
+		await (globalThis as unknown as { chrome: typeof chrome }).chrome.storage.local.set({ session: other });
+		await until(() => extension.storageEvents.told > 0, 'the session change told');
+		read.answer(200, status());
+		await settle();
+
+		assert.notEqual(extension.badge.text, '0:05', "the first person's run is not shown");
+		assert.equal(popup.received.length, 0);
+		assert.equal(server.sentTo(SLOT_PATH).length, 0);
+		(await server.next(STATUS_PATH)).answer(200, { running: false, duration: 0, lastLog: null });
+		(await server.next('/status/worked')).answer(200, []);
+		await until(() => popup.received.length > 0, "the second person's status told");
+		assert.deepEqual(popup.received.at(-1), {
+			type: 'statusUpdate',
+			payload: { running: false, duration: 0, lastLog: null }
+		});
+	});
+
+	it('keeps a read when the session changes for the same person (a renewed token, another team)', async () => {
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		const { status } = runningServer();
+		await startBackground();
+
+		extension.alarms.onAlarm.emit(REFRESH_ALARM);
+		const read = await server.next(STATUS_PATH);
+		await (globalThis as unknown as { chrome: typeof chrome }).chrome.storage.local.set({
+			session: { ...SESSION, token: 'access-2', teamId: 'team-2' }
+		});
+		await until(() => extension.storageEvents.told > 0, 'the session change told');
+		read.answer(200, status());
+		await until(() => extension.badge.text === '0:05', 'the run shown');
+		assert.equal(server.sentTo(SLOT_PATH).length, 1, 'the alarm still credits its minute');
+	});
+
 	it("keeps the badge cleared when the sign-out lands while a popup's report is being shown", async () => {
 		const extension = installFakeExtension({ session: SESSION });
 		server = holdRequests();

@@ -1,6 +1,7 @@
 // Test-only hooks for `node --test`: the extension's `~` imports (Plasmo's alias of its root) resolve to its
-// TypeScript files, and `~misc/browser` to a stand-in that reads the `chrome` a test installs. A `.tsx` file (a popup
-// component) is compiled with TypeScript, as Node strips types but does not compile JSX.
+// TypeScript files, and `~misc/browser` to a stand-in that reads the `chrome` a test installs. What Node's type
+// stripping cannot run is compiled with TypeScript: a `.tsx` file (a popup component, JSX) and a file declaring an
+// enum. Node 26 has no flag to transform them itself (--experimental-transform-types was removed).
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
@@ -25,12 +26,22 @@ export async function resolve(specifier, context, nextResolve) {
 	return nextResolve(specifier, context);
 }
 
+const ENUM = /^\s*(?:export\s+)?(?:declare\s+)?(?:const\s+)?enum\s/m;
+
 export async function load(url, context, nextLoad) {
-	if (!url.startsWith('file:') || !new URL(url).pathname.endsWith('.tsx')) {
+	if (!url.startsWith('file:')) {
+		return nextLoad(url, context);
+	}
+	const { pathname } = new URL(url);
+	const isTsx = pathname.endsWith('.tsx');
+	if (!isTsx && !pathname.endsWith('.ts')) {
+		return nextLoad(url, context);
+	}
+	const source = await readFile(fileURLToPath(url), 'utf8');
+	if (!isTsx && !ENUM.test(source)) {
 		return nextLoad(url, context);
 	}
 	const { default: ts } = await import('typescript');
-	const source = await readFile(new URL(url), 'utf8');
 	const { outputText } = ts.transpileModule(source, {
 		fileName: fileURLToPath(url),
 		compilerOptions: { jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 }

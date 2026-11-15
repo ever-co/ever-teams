@@ -23,11 +23,11 @@ describe('createStatusOrder', () => {
 		assert.equal(order.isLatest(first), false);
 	});
 
-	it('drops a read that left before a sign-out cleared the badge, and shows one sent after it', () => {
+	it('drops a read that left before its session ended, and shows one sent after it', () => {
 		const order = createStatusOrder();
 		const beforeSignOut = order.readSent();
 
-		order.cleared();
+		order.sessionEnded();
 
 		assert.equal(order.isLatest(beforeSignOut), false);
 		assert.equal(order.isLatest(order.readSent()), true);

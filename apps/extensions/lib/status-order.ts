@@ -22,10 +22,10 @@ export function createStatusOrder() {
 			return latest;
 		},
 		/**
-		 * The badge was cleared for a sign-out: every read already out was made for the session that ended, and its
-		 * answer must not show that session's timer again.
+		 * The session the reads were made for ended (a sign-out, another person or API signed in): every read already
+		 * out answers for it, and must not show its timer again.
 		 */
-		cleared(): void {
+		sessionEnded(): void {
 			latest += 1;
 		}
 	};

@@ -76,16 +76,22 @@ export function installFakeExtension(initial: Record<string, unknown> = {}) {
 	};
 	const set = local.set;
 	const remove = local.remove;
+	const storageEvents = { told: 0 };
+	const tell = (changes: Record<string, unknown>) =>
+		setTimeout(() => {
+			onChanged.emit(changes, 'local');
+			storageEvents.told += 1;
+		}, 0);
 	local.set = async (items: Record<string, unknown>) => {
 		const changes = changesOf(Object.keys(items), items);
 		await set(items);
-		setTimeout(() => onChanged.emit(changes, 'local'), 0);
+		tell(changes);
 	};
 	local.remove = async (keys: string | string[]) => {
 		const list = (Array.isArray(keys) ? keys : [keys]).filter((key) => stored.has(key));
 		const changes = changesOf(list, {});
 		await remove(keys);
-		setTimeout(() => onChanged.emit(changes, 'local'), 0);
+		tell(changes);
 	};
 	chromeLike.storage.onChanged = onChanged;
 
@@ -139,7 +145,7 @@ export function installFakeExtension(initial: Record<string, unknown> = {}) {
 		return port;
 	};
 
-	return { stored, badge, alarms, runtime, connect };
+	return { stored, badge, alarms, runtime, connect, storageEvents };
 }
 
 type FetchAnswer = { status: number; body?: unknown };
