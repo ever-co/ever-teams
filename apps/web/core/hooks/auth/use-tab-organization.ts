@@ -5,7 +5,10 @@ import { useAtomValue } from 'jotai';
 import { TAB_SCOPE_CHANGED_EVENT, tabScope } from '@/core/lib/auth/tab-organization';
 import { activeTeamState, timerStartsInFlightState, timerStatusState } from '@/core/stores';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
-import { useCreateOrganizationTeam } from '@/core/hooks/organizations/teams/use-create-organization-team';
+import { useQueryClient } from '@tanstack/react-query';
+import { syncTokenOrganization } from '@/core/lib/auth/token-organization';
+import { setActiveProjectIdCookie, setActiveTeamIdCookie, setOrganizationIdCookie } from '@/core/lib/helpers/cookies';
+import { queryKeys } from '@/core/query/keys';
 
 /**
  * Another tab switches the cookies without telling this one, and a cookie change fires no event of its own where the
@@ -83,17 +86,26 @@ export function useTabOrganization() {
 	const timerStatus = useAtomValue(timerStatusState);
 	// A start still on its way counts: the API may already run it, as the team menu holds a switch for it too
 	const timerStartsInFlight = useAtomValue(timerStartsInFlightState);
-	const { setActiveTeam } = useCreateOrganizationTeam();
+	const queryClient = useQueryClient();
 
 	// The page starts again on the cookies, which name the other organization and its team
 	const openSharedOrganization = useCallback(() => {
 		globalThis.window?.location.reload();
 	}, []);
 
-	// This tab's team again for every tab: the cookies and the session move back to its organization
+	// This tab's organization again for every tab: only the shared cookies and the session move back to it. The tab's
+	// team, task and project stay as they are: a team switch would clear the task and take the team's default project.
 	const bringOwnOrganizationBack = useCallback(() => {
-		if (activeTeam) setActiveTeam(activeTeam);
-	}, [activeTeam, setActiveTeam]);
+		const scope = tabScope();
+		if (!scope.held || !scope.isOtherOrganizationOpen) return;
+		// The organization first: from then on the cookies are this tab's own, and the next writes go to them
+		setOrganizationIdCookie(scope.organizationId);
+		if (scope.teamId) setActiveTeamIdCookie(scope.teamId);
+		if (scope.projectId) setActiveProjectIdCookie(scope.projectId);
+		void syncTokenOrganization(scope.organizationId).then((switched) => {
+			if (switched) queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
+		});
+	}, [queryClient]);
 
 	const ownOrganizationName =
 		currentOrganization?.id === activeTeam?.organizationId ? currentOrganization?.name : undefined;
