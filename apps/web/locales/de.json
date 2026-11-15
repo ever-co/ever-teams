@@ -4248,7 +4248,8 @@
 			"ALREADY_RUNNING_ON_TASK": "Der Timer läuft bereits für diese Aufgabe",
 			"SAVED_STOP_HINT": "Das ist der Stopp, den du vor dem Ende deiner Sitzung angefordert hast.",
 			"UNFOLLOWED_STOPPED_HINT": "Danach konnte die App ihn nicht mehr begleiten: Der Computer war im Ruhezustand oder der Browser hat diesen Tab pausiert. Tragen Sie spätere Arbeit als manuelle Zeit nach.",
-			"UNFOLLOWED_STOP_CHOSEN_HINT": "Sie haben entschieden, die Zeit danach nicht zu behalten."
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "Sie haben entschieden, die Zeit danach nicht zu behalten.",
+			"UNFOLLOWED_KEEP_CHANGED": "Es wurde keine Zeit behalten: Der Timer wurde inzwischen anderswo geändert. Prüfen Sie ihn und tragen Sie die Zeit bei Bedarf manuell ein."
 		},
 		"plans": {
 			"CREATE_FAILED": "Der Plan wurde nicht erstellt",

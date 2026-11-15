@@ -6,7 +6,7 @@ import { APIService, getFallbackAPI } from '../../api.service';
 
 import { getActiveTaskIdCookie } from '@/core/lib/helpers/cookies';
 import { getTodayPlanDay } from '@/core/lib/helpers/daily-plan-day';
-import { toTimeSlotDuration } from '@/core/lib/helpers/timer';
+import { timeSlotsBetween, toTimeSlotDuration } from '@/core/lib/helpers/timer';
 import { ITimerStatus, IToggleTimerStatusParams } from '@/core/types/interfaces/timer/timer-status';
 import { TUser } from '@/core/types/schemas';
 import { scopedReadConfig, type ScopedReadOptions } from '../../api-request-scope';
@@ -355,6 +355,58 @@ class TimerService extends APIService {
 				duration
 			})
 			.catch(restoreReference);
+	};
+
+	/**
+	 * Writes the time a run went on without a heartbeat, which the person chose to keep (#5123): from its last heartbeat
+	 * (`fromMs`) to `toMs`, both on the API's clock, as the slots of the 10-minute windows it spans. An ordinary sync
+	 * writes the interval since this page's previous one, which a page that just opened does not know (one interval
+	 * then), and on the present. Each write moves the run's end to the present, as any heartbeat does; the next sync
+	 * counts from here.
+	 *
+	 * Gauzy writes a slot to the employee's newest run of the source, whatever run it names: the caller reads the run
+	 * again just before. The run's id goes along all the same, for a Gauzy that finds no run otherwise.
+	 */
+	catchUpTimeSlots = async ({
+		source,
+		employeeId,
+		timeLogId,
+		fromMs,
+		toMs
+	}: {
+		source: ETimeLogSource;
+		employeeId: string;
+		timeLogId: string;
+		fromMs: number;
+		toMs: number;
+	}) => {
+		const isDirect = Boolean(GAUZY_API_BASE_SERVER_URL.value);
+		let answered: { data?: ITimerStatus } | undefined;
+		// One after the other: each write moves the run's end, and the last one leaves it at the present
+		for (const slot of timeSlotsBetween(fromMs, toMs)) {
+			if (isDirect) {
+				await this.post('/timesheet/time-slot', {
+					tenantId: this.tenantId,
+					organizationId: this.organizationId,
+					logType: 'TRACKED',
+					source,
+					employeeId,
+					timeLogId,
+					startedAt: slot.startedAt,
+					duration: slot.duration
+				});
+			} else {
+				const api = await getFallbackAPI();
+				answered = await api.post<ITimerStatus>(`/timer/sync?${getTodayRangeQuery()}`, {
+					source,
+					timeLogId,
+					startedAt: slot.startedAt,
+					duration: slot.duration
+				});
+			}
+		}
+		this.lastTimeSlotSync = { at: Date.now(), timeLogId };
+		return isDirect ? this.getTimerStatus() : answered;
 	};
 
 	getTaskStatusList = async ({ employeeId }: { employeeId: string }) => {

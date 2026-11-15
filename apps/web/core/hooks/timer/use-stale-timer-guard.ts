@@ -23,6 +23,7 @@ import {
 	rememberHeartbeat,
 	rememberedHeartbeat,
 	UNFOLLOWED_TIME_FLOOR_MS,
+	unfollowedTimeOf,
 	whenPageShows
 } from '@/core/lib/utils/timer/unfollowed-time';
 import { queryKeys } from '@/core/query/keys';
@@ -124,10 +125,11 @@ function isRunAsItWas(log: ITimeLog | null | undefined, timeLogId: string, heart
 }
 
 /**
- * The stop at its last heartbeat this page owes a run, until it is applied: the person chose it, or the closed-tab
- * delay was reached. A check that runs again after that stop failed applies it rather than asking again.
+ * The answer this page owes a run, until it is applied: the person kept its time or chose to stop it at its last
+ * heartbeat, or the closed-tab delay was reached. A check that runs again after that write failed applies it rather
+ * than asking again.
  */
-let owedStop: { timeLogId: string; heartbeat: number; hint: StoppedAtHeartbeatHint } | null = null;
+let owedAnswer: { timeLogId: string; heartbeat: number; answer: StoppedAtHeartbeatHint | 'keep' } | null = null;
 
 /**
  * Stops the run at its last heartbeat, as a timer command under the start guard every timer shares: a start asked
@@ -159,40 +161,77 @@ async function stopAtHeartbeatUnderGuard(
 	await (startUnderTimerGuard(stop) ?? trackTimerCommand(stop()));
 }
 
-/** The heartbeat of a run whose time the person keeps: the run ends at the present again. */
-async function keepUnfollowedTime(employeeId: string, timeLogId: string): Promise<void> {
-	try {
-		const kept = await timerService.syncTimer({
+/**
+ * Keeps the time the run went on without the app, as its stop at the last heartbeat goes: a timer command under the
+ * start guard, which reads the run again first. Gauzy writes a slot to the employee's newest run, whatever run it
+ * names, so a run stopped or kept elsewhere meanwhile, or replaced by another one, gets nothing: the time is another
+ * run's to count, or already counted. Otherwise the whole time since the last heartbeat is written, in the slots of
+ * the windows it spans (an ordinary heartbeat would write one interval, on the present). Resolves to whether it was.
+ */
+async function keepUnderGuard(employeeId: string, run: ITimeLog & { stoppedAt: Date }): Promise<boolean> {
+	const heartbeat = new Date(run.stoppedAt).getTime();
+	let isKept = false;
+	const keep = async () => {
+		const facts = await readLastLog(employeeId);
+		const latest = facts.lastLog;
+		if (!isRunAsItWas(latest, run.id, heartbeat)) {
+			// Stopped meanwhile, or another run took its place: a stop that waited has nothing left to end
+			if (!isRunningTeamsLog(latest) || latest.id !== run.id) runsEndedWhileUnsettled += 1;
+			return;
+		}
+		const unfollowedFor = unfollowedTimeOf(run, heartbeat, { ...facts, remembered: rememberedHeartbeat() });
+		const kept = await timerService.catchUpTimeSlots({
 			source: ETimeLogSource.TEAMS,
-			user: { employee: { id: employeeId } },
-			timeLogId
+			employeeId,
+			timeLogId: run.id,
+			fromMs: heartbeat,
+			toMs: heartbeat + unfollowedFor
 		});
 		rememberHeartbeat(kept?.data?.lastLog);
-	} catch (error) {
-		// The heartbeat the app sends each minute takes over: the answer stands, for the other tabs too
-		logErrorInDev('[Timer] The heartbeat of a kept run failed:', error);
-	}
+		isKept = true;
+	};
+	await (startUnderTimerGuard(keep) ?? trackTimerCommand(keep()));
+	return isKept;
+}
+
+/** What the settling of a run's time does that needs the page: the stop at the last heartbeat, and a word. */
+interface SettleActions {
+	stopAtLastHeartbeat: StopAtLastHeartbeat;
+	/** The person kept the time of a run that changed elsewhere meanwhile: nothing was kept, and the timer reads again. */
+	tellNothingKept: () => void;
+}
+
+/** Tells the person that their Keep kept nothing, the run having changed elsewhere, and has the timer read again. */
+function useTellNothingKept() {
+	const t = useTranslations();
+	const queryClient = useQueryClient();
+
+	return useCallback(() => {
+		toast.info(t('toasts.timer.UNFOLLOWED_KEEP_CHANGED'), { id: 'timer-unfollowed-keep-changed' });
+		void queryClient.invalidateQueries({ queryKey: queryKeys.timer.all });
+		void queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+	}, [queryClient, t]);
 }
 
 /**
- * The stop at its last heartbeat a run is owed without asking: past the closed-tab delay, or the one the person chose
- * before that stop failed. Null when the person is to be asked.
+ * The answer a run is owed without asking: the stop past the closed-tab delay, or the answer the person gave before
+ * its write failed. Null when the person is to be asked.
  */
-function stopOwedWithoutAsking(
+function answerOwedWithoutAsking(
 	decision: 'ask' | 'stop',
 	runId: string,
 	heartbeat: number,
 	unansweredHint: StoppedAtHeartbeatHint
-): StoppedAtHeartbeatHint | null {
+): StoppedAtHeartbeatHint | 'keep' | null {
 	if (decision === 'stop') return unansweredHint;
-	if (owedStop?.timeLogId === runId && owedStop.heartbeat === heartbeat) return owedStop.hint;
+	if (owedAnswer?.timeLogId === runId && owedAnswer.heartbeat === heartbeat) return owedAnswer.answer;
 	return null;
 }
 
 /**
- * Asks the person about the run's time since its last heartbeat, and keeps that time when they say so. Resolves the
- * stop at the last heartbeat the answer calls for, or how the settling ends without one: `settled` (kept, or the
- * question dropped), `hidden`, or `again` when another tab settled it and the run is to be read again.
+ * Asks the person about the run's time since its last heartbeat. Resolves what to apply (`keep`, or the hint of the
+ * stop at the last heartbeat), or how the settling ends without it: `settled` (the question dropped), `hidden`, or
+ * `again` when another tab settled it and the run is to be read again.
  */
 async function askAboutRun(
 	employeeId: string,
@@ -200,10 +239,9 @@ async function askAboutRun(
 	facts: { now: number; clientNow: number },
 	heartbeat: number,
 	unansweredHint: StoppedAtHeartbeatHint
-): Promise<StoppedAtHeartbeatHint | 'settled' | 'hidden' | 'again'> {
-	const from = new Date(heartbeat).toISOString();
+): Promise<StoppedAtHeartbeatHint | 'keep' | 'settled' | 'hidden' | 'again'> {
 	const answer = await askAboutUnfollowedTime(
-		{ employeeId, timeLogId: runId, from, until: facts.clientNow },
+		{ employeeId, timeLogId: runId, from: new Date(heartbeat).toISOString(), until: facts.clientNow },
 		STALE_TIMER_THRESHOLD.value - (facts.now - heartbeat)
 	);
 	switch (answer) {
@@ -214,9 +252,7 @@ async function askAboutRun(
 		case 'elsewhere':
 			return 'again';
 		case 'keep':
-			await keepUnfollowedTime(employeeId, runId);
-			announceUnfollowedTimeSettled(runId, from, true);
-			return 'settled';
+			return 'keep';
 		case 'stop':
 			return 'UNFOLLOWED_STOP_CHOSEN_HINT';
 		default:
@@ -226,12 +262,39 @@ async function askAboutRun(
 }
 
 /**
+ * Applies the answer about the run's time, owed until its write goes through, and tells the other tabs once it did.
+ */
+async function applyAnswer(
+	actions: SettleActions,
+	employeeId: string,
+	run: ITimeLog & { stoppedAt: Date },
+	answer: StoppedAtHeartbeatHint | 'keep'
+): Promise<void> {
+	const heartbeat = new Date(run.stoppedAt).getTime();
+	const from = new Date(heartbeat).toISOString();
+	owedAnswer = { timeLogId: run.id, heartbeat, answer };
+	if (answer === 'keep') {
+		const isKept = await keepUnderGuard(employeeId, run);
+		owedAnswer = null;
+		if (!isKept) {
+			actions.tellNothingKept();
+			return;
+		}
+		announceUnfollowedTimeSettled(run.id, from, true);
+		return;
+	}
+	await stopAtHeartbeatUnderGuard(actions.stopAtLastHeartbeat, employeeId, run, answer);
+	owedAnswer = null;
+	announceUnfollowedTimeSettled(run.id, from, false);
+}
+
+/**
  * Settles the time of the run in this tab, which alone does so (inOneTabAtATime): it reads the run again, since
  * another tab may have settled it while this one waited, then asks the person, and applies the answer. Resolves
  * `hidden` when the page was hidden before they answered: the question is put again once it shows.
  */
 async function settleInThisTab(
-	stopAtLastHeartbeat: StopAtLastHeartbeat,
+	actions: SettleActions,
 	employeeId: string,
 	runId: string,
 	unansweredHint: StoppedAtHeartbeatHint
@@ -248,19 +311,15 @@ async function settleInThisTab(
 
 	const run = lastLog as ITimeLog & { stoppedAt: Date };
 	const heartbeat = new Date(run.stoppedAt).getTime();
-	const from = new Date(heartbeat).toISOString();
-	const owed = stopOwedWithoutAsking(decision, runId, heartbeat, unansweredHint);
-	// Kept in another tab, whose heartbeat failed: the answer stands
-	if (!owed && isUnfollowedTimeKept(runId, from)) return 'settled';
-	const hint = owed ?? (await askAboutRun(employeeId, runId, facts, heartbeat, unansweredHint));
+	const owed = answerOwedWithoutAsking(decision, runId, heartbeat, unansweredHint);
+	// Kept in another tab, whose write failed: the answer stands
+	if (!owed && isUnfollowedTimeKept(runId, new Date(heartbeat).toISOString())) return 'settled';
+	const answer = owed ?? (await askAboutRun(employeeId, runId, facts, heartbeat, unansweredHint));
 	// Another tab settled it: what it did is read again
-	if (hint === 'again') return settleInThisTab(stopAtLastHeartbeat, employeeId, runId, unansweredHint);
-	if (hint === 'settled' || hint === 'hidden') return hint;
+	if (answer === 'again') return settleInThisTab(actions, employeeId, runId, unansweredHint);
+	if (answer === 'settled' || answer === 'hidden') return answer;
 
-	owedStop = { timeLogId: runId, heartbeat, hint };
-	await stopAtHeartbeatUnderGuard(stopAtLastHeartbeat, employeeId, run, hint);
-	owedStop = null;
-	announceUnfollowedTimeSettled(runId, from, false);
+	await applyAnswer(actions, employeeId, run, answer);
 	return 'settled';
 }
 
@@ -269,7 +328,8 @@ async function settleInThisTab(
  * the page wakes up: nothing for a moment, the stop at the last heartbeat past the closed-tab delay, and in between
  * the question to the person, whose answer is applied here.
  *
- * - They keep the time: a heartbeat is sent at once, so the run ends at the present again.
+ * - They keep the time: the whole of it is written at once, from the last heartbeat, so the run ends at the present
+ *   again. Not when the run changed elsewhere meanwhile: they are told that nothing was kept.
  * - They stop the run at its last heartbeat, or leave the question unanswered until the closed-tab delay is
  *   reached: the run is stopped there, if it is still as it was when the question was asked. One that went on
  *   meanwhile, kept from another device, is left alone.
@@ -278,6 +338,7 @@ async function settleInThisTab(
  */
 function useSettleUnfollowedTime() {
 	const stopAtLastHeartbeat = useStopAtLastHeartbeat();
+	const tellNothingKept = useTellNothingKept();
 
 	return useCallback(
 		/** @param wasAsleep Whether the page's scripts had stopped running, rather than the app being opened. */
@@ -298,16 +359,15 @@ function useSettleUnfollowedTime() {
 				return;
 			}
 
+			const actions: SettleActions = { stopAtLastHeartbeat, tellNothingKept };
 			let outcome: 'settled' | 'hidden';
 			do {
 				// A question is put where the person can see it: a hidden tab waits until it shows
 				await whenPageShows();
-				outcome = await inOneTabAtATime(() =>
-					settleInThisTab(stopAtLastHeartbeat, employeeId, runId, unansweredHint)
-				);
+				outcome = await inOneTabAtATime(() => settleInThisTab(actions, employeeId, runId, unansweredHint));
 			} while (outcome === 'hidden');
 		},
-		[stopAtLastHeartbeat]
+		[stopAtLastHeartbeat, tellNothingKept]
 	);
 }
 
@@ -500,7 +560,7 @@ onSignOut(() => {
 	checksInFlight.clear();
 	dropUnfollowedTimeQuestion();
 	forgetHeartbeat();
-	owedStop = null;
+	owedAnswer = null;
 	isCheckDue = false;
 	hasSleptSinceCheck = false;
 	releaseWaitingStops();
