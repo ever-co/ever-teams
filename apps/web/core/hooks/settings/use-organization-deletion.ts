@@ -23,8 +23,6 @@ import { organizationService } from '@/core/services/client/api/organizations';
 import { localTimerStatusState, timerStartsInFlightState, timerStatusState } from '@/core/stores';
 import type { TOrganizationCounts } from '@/core/types/schemas/organization/organization-counts.schema';
 
-export type { OrganizationDeletionStatus };
-
 export interface OrganizationDeletion {
 	canDelete: boolean;
 	status: OrganizationDeletionStatus;

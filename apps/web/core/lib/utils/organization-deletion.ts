@@ -13,7 +13,7 @@ const LAST_OF_WORKSPACE_CODE = 'ORGANIZATION_LAST_OF_WORKSPACE';
 export type OrganizationDeletionBlock = 'lastOrganization' | 'timerRunning';
 
 /** Why the counts the confirmation shows did not come: an API without them, or a failure a new try may fix. */
-export type OrganizationCountsFailure = 'unsupported' | 'failed';
+type OrganizationCountsFailure = 'unsupported' | 'failed';
 
 export interface DeletableOrganization {
 	id: string;
@@ -83,7 +83,7 @@ export function countsFailureOf(error: unknown): OrganizationCountsFailure {
 /** What the confirmation can show: the counts are loading, failed, missing from an older API, or ready. */
 export type OrganizationDeletionStatus = 'loading' | OrganizationCountsFailure | 'ready';
 
-export interface OrganizationDeletionReads {
+interface OrganizationDeletionReads {
 	/** The counts and the workspace's organizations, read each time the confirmation opens. */
 	isFetching: boolean;
 	isError: boolean;
@@ -128,7 +128,7 @@ export function trackedHoursOf(trackedSeconds: number): number {
 	return Math.round(trackedSeconds / 360) / 10;
 }
 
-export interface OrganizationDeletionSteps {
+interface OrganizationDeletionSteps {
 	softDelete: () => Promise<void>;
 	renewSession: () => Promise<void>;
 	openOrganization: (organizationId: string) => Promise<void>;
