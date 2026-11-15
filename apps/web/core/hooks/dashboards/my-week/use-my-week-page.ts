@@ -6,6 +6,7 @@ import { parseISO } from 'date-fns';
 import { useCalendarLogs } from '@/core/hooks/calendar/use-calendar-logs';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useProjectClientRates } from '@/core/hooks/organizations/rates/use-project-client-rates';
+import { useBillingOrganization } from '@/core/hooks/organizations/rates/use-billing-organization';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { linePriceOf } from '@/core/lib/utils/invoices';
 import { defaultBillRateOf, holdsRateAdminPermission } from '@/core/lib/utils/rates';
@@ -151,6 +152,8 @@ export function useMyWeekPage() {
 	const billableProjectIds = useMemo(() => billableProjectIdsOfEntries(entries), [entries]);
 	const projectRates = useProjectClientRates(billableProjectIds, readsBillable);
 	const { ratesByProject } = projectRates;
+	// The default rate, the currency and the rounding rule price the amount too: it waits for them
+	const billingOrganization = useBillingOrganization(readsBillable);
 	const organization = useAtomValue(currentOrganizationState);
 	const ownRate = user?.employee;
 	const billableFigures = useMemo(() => {
@@ -176,10 +179,17 @@ export function useMyWeekPage() {
 		() => ({
 			isOffered: readsBillable,
 			figures: billableFigures,
-			isPending: projectRates.isLoading,
-			isError: projectRates.hasFailed
+			isPending: projectRates.isLoading || billingOrganization.isPending,
+			isError: projectRates.hasFailed || billingOrganization.isError
 		}),
-		[billableFigures, projectRates.hasFailed, projectRates.isLoading, readsBillable]
+		[
+			billableFigures,
+			billingOrganization.isError,
+			billingOrganization.isPending,
+			projectRates.hasFailed,
+			projectRates.isLoading,
+			readsBillable
+		]
 	);
 
 	const weeklyLimitSeconds = weeklyLimitSecondsOf(user?.employee?.reWeeklyLimit);

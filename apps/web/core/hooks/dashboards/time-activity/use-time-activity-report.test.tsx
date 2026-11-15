@@ -146,6 +146,12 @@ jest.mock('./use-time-activity-queries', () => ({
 		refetch: jest.fn()
 	})
 }));
+// The organization's read, which fills the current organization the amounts are priced with
+const mockRefetchOrganization = jest.fn();
+let mockOrganizationReadFailed = false;
+jest.mock('@/core/hooks/auth/use-current-organization', () => ({
+	useGetCurrentOrganization: () => ({ isError: mockOrganizationReadFailed, refetch: mockRefetchOrganization })
+}));
 jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
 	useMyRolePermissionsQuery: () => ({ myPermissions: mockPermissions, isLoaded: true })
 }));
@@ -413,7 +419,10 @@ describe('useTimeActivityReport billable amounts', () => {
 	beforeEach(() => {
 		resetMocks('project');
 		mockPermissions = ['CHANGE_SELECTED_EMPLOYEE'];
-		getDefaultStore().set(currentOrganizationState, null);
+		mockOrganizationReadFailed = false;
+		mockRefetchOrganization.mockClear();
+		// Read, without a default rate: the amounts wait for nothing more
+		getDefaultStore().set(currentOrganizationState, { id: 'organization' } as TOrganization);
 	});
 
 	it('prices the billable time at the client rate, and counts the time no rate prices apart', () => {
@@ -458,6 +467,27 @@ describe('useTimeActivityReport billable amounts', () => {
 		expect(report.billable.isError).toBe(true);
 		report.billable.refetch();
 		expect(mockRefetchProjectClients).toHaveBeenCalledTimes(1);
+	});
+
+	it('waits for the organization, whose default rate, currency and rounding price the amounts (Greptile P2 on #5310)', () => {
+		getDefaultStore().set(currentOrganizationState, null);
+
+		const report = reportUnder([], PROJECTS_READ);
+
+		expect(report.billable.isPending).toBe(true);
+		expect(report.billable.facts).toEqual([]);
+	});
+
+	it('shows no amount once the organization could not be read, and reads it again from the billable retry', () => {
+		getDefaultStore().set(currentOrganizationState, null);
+		mockOrganizationReadFailed = true;
+
+		const report = reportUnder([], PROJECTS_READ);
+
+		expect(report.billable.isError).toBe(true);
+		expect(report.billable.isPending).toBe(false);
+		report.billable.refetch();
+		expect(mockRefetchOrganization).toHaveBeenCalledTimes(1);
 	});
 
 	it('gives no billable amount to a role that may not read client rates', () => {

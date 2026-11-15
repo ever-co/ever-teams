@@ -18,15 +18,28 @@ jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
 	timeLogService: { getTimeLogs: (...args: unknown[]) => mockGetTimeLogs(...args) }
 }));
 jest.mock('@/core/hooks/queries/user-user.query', () => ({ useUserQuery: () => ({ data: mockUser }) }));
-// A role that may not read client rates: the page reads no rates and shows no amount
+// A role that may not read client rates, unless a test gives it: the page then reads no rates and shows no amount
+let mockPermissions: string[] = [];
 jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
-	useMyRolePermissionsQuery: () => ({ myPermissions: [], isLoaded: true })
+	useMyRolePermissionsQuery: () => ({ myPermissions: mockPermissions, isLoaded: true })
+}));
+// The organization's read, which fills the current organization the amount is priced with
+const mockReadOrganization = jest.fn();
+let mockOrganizationReadFailed = false;
+jest.mock('@/core/hooks/auth/use-current-organization', () => ({
+	useGetCurrentOrganization: (options: { enabled?: boolean }) => {
+		mockReadOrganization(options);
+		return { isError: mockOrganizationReadFailed, refetch: jest.fn() };
+	}
 }));
 jest.mock('@/core/lib/helpers/cookies', () => ({
 	getTenantIdCookie: () => 'tenant-1',
 	getOrganizationIdCookie: () => 'organization-1'
 }));
 
+import { getDefaultStore } from 'jotai';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
+import type { TOrganization } from '@/core/types/schemas';
 import { useMyWeekPage } from './use-my-week-page';
 
 interface TimeLogsRequest {
@@ -98,6 +111,10 @@ describe('useMyWeekPage', () => {
 	beforeEach(() => {
 		mockGetTimeLogs.mockReset();
 		mockUser = userWith(40);
+		mockPermissions = [];
+		mockOrganizationReadFailed = false;
+		mockReadOrganization.mockClear();
+		getDefaultStore().set(currentOrganizationState, null);
 	});
 
 	it("reads this week with one request, for the signed-in member's own employee id and no other", async () => {
@@ -205,6 +222,44 @@ describe('useMyWeekPage', () => {
 		expect(result.current.isMemberUnknown).toBe(true);
 		expect(result.current.isLoading).toBe(false);
 		expect(mockGetTimeLogs).not.toHaveBeenCalled();
+	});
+
+	it('reads the organization for no role that gets no amount', async () => {
+		mockGetTimeLogs.mockResolvedValue([]);
+		const { result } = renderMyWeek();
+
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		expect(mockReadOrganization).not.toHaveBeenCalledWith({ enabled: true });
+		expect(result.current.billable.isPending).toBe(false);
+	});
+
+	it('waits for the organization, whose default rate, currency and rounding price the amount (Greptile P2 on #5310)', async () => {
+		mockPermissions = ['CHANGE_SELECTED_EMPLOYEE'];
+		mockGetTimeLogs.mockResolvedValue([]);
+		const { result } = renderMyWeek();
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		expect(mockReadOrganization).toHaveBeenCalledWith({ enabled: true });
+		expect(result.current.billable.isPending).toBe(true);
+
+		act(() => {
+			getDefaultStore().set(currentOrganizationState, { id: 'organization-1' } as TOrganization);
+		});
+
+		expect(result.current.billable.isPending).toBe(false);
+		expect(result.current.billable.isError).toBe(false);
+	});
+
+	it('shows no amount once the organization could not be read, never one priced without it', async () => {
+		mockPermissions = ['CHANGE_SELECTED_EMPLOYEE'];
+		mockOrganizationReadFailed = true;
+		mockGetTimeLogs.mockResolvedValue([]);
+		const { result } = renderMyWeek();
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		expect(result.current.billable.isError).toBe(true);
+		expect(result.current.billable.isPending).toBe(false);
 	});
 
 	it('reports a failed read, and reads again on retry', async () => {
