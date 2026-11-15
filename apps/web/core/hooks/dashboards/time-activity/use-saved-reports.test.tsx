@@ -20,21 +20,24 @@ jest.mock('@/core/services/client/api/timesheets/saved-report.service', () => ({
 	}
 }));
 
+import { shellSettledState } from '@/core/stores/common/shell';
 import { type SavedReportsScope, useSavedReports } from './use-saved-reports';
 
 const SCOPE: SavedReportsScope = { tenantId: 'tenant-1', organizationId: 'organization-1', userId: 'user-1' };
 
 const REPORT = { id: 'r1', authorId: 'user-1', name: 'Client A, last month', kind: 'TIME_AND_ACTIVITY' };
 
-function setup(scope: SavedReportsScope = SCOPE) {
+function setup(scope: SavedReportsScope = SCOPE, { shellSettled = true } = {}) {
 	const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 	const store = createStore();
+	store.set(shellSettledState, shellSettled);
 	const wrapper = ({ children }: { children: ReactNode }) => (
 		<JotaiProvider store={store}>
 			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 		</JotaiProvider>
 	);
-	return renderHook(() => useSavedReports(scope), { wrapper });
+	const view = renderHook(() => useSavedReports(scope), { wrapper });
+	return { ...view, store };
 }
 
 describe('useSavedReports', () => {
@@ -56,6 +59,18 @@ describe('useSavedReports', () => {
 
 		expect(result.current.availability).toBe('loading');
 		expect(mockSavedReportService.list).not.toHaveBeenCalled();
+	});
+
+	it('asks for the list only once the shell has settled, so a cold visit adds no read before the shell is ready', async () => {
+		const { result, store } = setup(SCOPE, { shellSettled: false });
+
+		expect(result.current.availability).toBe('loading');
+		expect(mockSavedReportService.list).not.toHaveBeenCalled();
+
+		act(() => store.set(shellSettledState, true));
+
+		await waitFor(() => expect(result.current.availability).toBe('ready'));
+		expect(mockSavedReportService.list).toHaveBeenCalledTimes(1);
 	});
 
 	it('says saved reports are not available on an API that answers 404, and retries nothing', async () => {

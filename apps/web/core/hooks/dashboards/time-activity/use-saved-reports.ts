@@ -1,9 +1,10 @@
 'use client';
 
 import { useCallback, useMemo } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
+import { shellSettledState } from '@/core/stores/common/shell';
 import { sharedReportLinkTokensState } from '@/core/stores/timer/saved-report-links';
 import { savedReportService } from '@/core/services/client/api/timesheets/saved-report.service';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
@@ -54,11 +55,14 @@ export function useSavedReports(scope: SavedReportsScope) {
 	const queryClient = useQueryClient();
 	const { tenantId, organizationId, userId } = scope;
 	const hasScope = Boolean(tenantId) && Boolean(organizationId) && Boolean(userId);
+	// Nothing on the report's first screen waits for the list (its buttons show once it is read): it is asked once the
+	// shell has settled (shell.ts), so a cold visit asks Gauzy nothing more before the shell is ready
+	const shellSettled = useAtomValue(shellSettledState);
 	const listKey = queryKeys.savedReports.list(tenantId, organizationId, userId);
 	const query = useQuery({
 		queryKey: listKey,
 		queryFn: () => savedReportService.list(organizationId ?? ''),
-		enabled: hasScope,
+		enabled: hasScope && shellSettled,
 		staleTime: 60_000,
 		retry: shouldRetryList
 	});
