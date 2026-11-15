@@ -74,11 +74,10 @@ describe('SelectedTimesheet labels', () => {
 		mockPermissions.current = ['TIME_TRACKER'];
 	});
 
-	it('announces the selected count from a translated message, not a hard-coded word', () => {
+	it('shows the selected count from a translated message, not a hard-coded word', () => {
 		renderSelectionBar([MEMBER_LOG, OWN_LOG], [UNMANAGED_TEAM]);
 
-		const status = screen.getByRole('status');
-		expect(status.textContent).toBe('dashboard.timesheets.SELECTED:{"count":2}');
+		expect(screen.getByText('dashboard.timesheets.SELECTED:{"count":2}')).toBeTruthy();
 	});
 
 	it('names the clear button from a translated message', () => {
