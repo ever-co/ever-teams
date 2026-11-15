@@ -15,7 +15,7 @@ import {
 
 const fetchGauzy = serverFetch as jest.Mock;
 const ID = '0b6e4c2a-1d3f-4e5a-8b7c-9d0e1f2a3b4c';
-const TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6IngifQ.c2lnbmF0dXJl';
+const TOKEN = 'test-header.test-payload.test-signature';
 
 /** A rejection as serverFetch gives one: Gauzy's error body inside a rejected promise. */
 function gauzyRefusal(body: Record<string, unknown>) {
@@ -73,7 +73,8 @@ describe('public invoice proxy (ever-co/ever-gauzy#11856)', () => {
 		fetchGauzy.mockResolvedValue({ data: { url: 'https://pay.example.com/c/1' } });
 		const request = new Request('https://app.test', {
 			method: 'POST',
-			body: JSON.stringify({ returnUrl: 'https://app.test/shared-invoice/x?paid=1', amount: '0.01' })
+			headers: { origin: 'https://app.test' },
+			body: JSON.stringify({ returnUrl: 'https://app.test/shared-invoice?paid=1', amount: '0.01' })
 		});
 
 		const answer = await proxyInvoiceCheckout(request, ID, TOKEN);
@@ -82,9 +83,28 @@ describe('public invoice proxy (ever-co/ever-gauzy#11856)', () => {
 			expect.objectContaining({
 				path: `/public/invoice-payments/invoice/${ID}/${TOKEN}/checkout`,
 				method: 'POST',
-				body: { returnUrl: 'https://app.test/shared-invoice/x?paid=1' }
+				body: { returnUrl: 'https://app.test/shared-invoice?paid=1' }
 			})
 		);
 		expect(await answer.json()).toEqual({ url: 'https://pay.example.com/c/1' });
+	});
+
+	it.each([
+		['another site', 'https://evil.example/shared-invoice?paid=1'],
+		['another page of the app', 'https://app.test/auth/passcode?next=https://evil.example'],
+		['a script address', 'javascript:alert(1)//shared-invoice'],
+		['no address', undefined]
+	])('refuses a checkout that returns to %s, without asking the API', async (_label, returnUrl) => {
+		const request = new Request('https://app.test', {
+			method: 'POST',
+			headers: { origin: 'https://app.test' },
+			body: JSON.stringify({ returnUrl })
+		});
+
+		const answer = await proxyInvoiceCheckout(request, ID, TOKEN);
+
+		expect(answer.status).toBe(400);
+		expect(answer.headers.get('Cache-Control')).toBe('no-store');
+		expect(fetchGauzy).not.toHaveBeenCalled();
 	});
 });

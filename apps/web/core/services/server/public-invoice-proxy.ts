@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { GAUZY_API_SERVER_URL } from '@/core/constants/config/constants';
-import { isSharedInvoiceLink, SHARED_INVOICE_RELATIONS } from '@/core/lib/utils/shared-invoice';
+import { isPaymentReturnUrl, isSharedInvoiceLink, SHARED_INVOICE_RELATIONS } from '@/core/lib/utils/shared-invoice';
 import { clientIpHeaders } from './client-ip';
 import { NO_STORE_HEADERS } from './ever-platform/route-helpers';
 import { serverFetch } from './fetch';
@@ -54,11 +54,18 @@ export async function proxyInvoicePayOption(id: string, token: string): Promise<
 	);
 }
 
-/** `POST /api/public/invoice-payments/invoice/:id/:token/checkout`: opens the checkout that pays the invoice. */
+/**
+ * `POST /api/public/invoice-payments/invoice/:id/:token/checkout`: opens the checkout that pays the invoice. Only the
+ * page to come back to goes along, and only the public page of an invoice, on the origin of the page that asked: the
+ * amount is the API's, and the provider never sends the client anywhere else.
+ */
 export async function proxyInvoiceCheckout(req: Request, id: string, token: string): Promise<NextResponse> {
 	if (!isSharedInvoiceLink(id, token)) return invalidLink();
 	const body = (await req.json().catch(() => null)) as { returnUrl?: unknown } | null;
-	const returnUrl = typeof body?.returnUrl === 'string' ? body.returnUrl : '';
+	const returnUrl = body?.returnUrl;
+	if (!isPaymentReturnUrl(returnUrl, req.headers.get('origin'))) {
+		return NextResponse.json({ message: 'Invalid return address' }, { status: 400, headers: NO_STORE_HEADERS });
+	}
 	return relay(
 		serverFetch({
 			path: `/public/invoice-payments/invoice/${linkPathOf(id, token)}/checkout`,
