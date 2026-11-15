@@ -8,7 +8,8 @@ const mockSwitch = jest.fn();
 
 jest.mock('@/core/lib/helpers/cookies', () => ({
 	getAccessTokenCookie: () => mockCookies.token,
-	getOrganizationIdCookie: () => mockCookies.organizationId,
+	// The organization cookie itself, shared by every tab (#5134)
+	getSharedOrganizationIdCookie: () => mockCookies.organizationId,
 	setAccessTokenCookie: (...args: unknown[]) => mockSet.access(...args),
 	setRefreshTokenCookie: (...args: unknown[]) => mockSet.refresh(...args),
 	setOrganizationIdCookie: (...args: unknown[]) => mockSet.organization(...args)

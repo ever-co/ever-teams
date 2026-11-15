@@ -1,0 +1,271 @@
+import { decodeJWT } from '@/core/lib/auth/jwt-utils';
+import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
+import { getAccessTokenCookie, getSharedOrganizationIdCookie, registerTabWorkScope } from '@/core/lib/helpers/cookies';
+
+/**
+ * The organization a tab works in (#5134).
+ *
+ * The organization, team and access token cookies are shared by every tab of the browser, and an organization switch in
+ * one tab replaces them for all. A tab still showing a team of the first organization then sent its timer requests and
+ * its reads with the other organization's ids and token: its heartbeats wrote time slots in the other organization, its
+ * stop found no running timer there (406) while its run went on in its own organization, and a member's team list was
+ * refused (400).
+ *
+ * A tab now keeps the organization of its own team. While the cookies name another organization of the same session
+ * (the same person in the same workspace), the tab builds its requests with its own organization and team, and sends
+ * them with the newest access token it saw for that organization. That token is held in this tab's memory only, never
+ * stored, and never renewed: renewing it would replace the session the other tab works with. Once it is about to
+ * expire, or Gauzy refuses it, the tab sends nothing more but the session's own requests, and the person chooses where
+ * it works (tab-organization-notice.tsx).
+ */
+
+/** The organization, team and project this tab shows, from its own active team. */
+interface TabTeam {
+	organizationId: string;
+	teamId: string | null;
+	projectId: string | null;
+}
+
+/** What a tab acts in now. */
+export type TabScope =
+	| { held: false }
+	| {
+			/** The cookies name another organization of the session than this tab shows. */
+			held: true;
+			/** This tab's own organization, team and project. */
+			organizationId: string;
+			teamId: string | null;
+			projectId: string | null;
+			/** The organization the cookies name now (another tab switched to it). */
+			sharedOrganizationId: string;
+			/** The access token this tab acts with in its own organization, null once it is gone or about to expire. */
+			accessToken: string | null;
+	  };
+
+/** Fired on `window` when this tab starts or stops acting in its own organization, or loses its token for it. */
+export const TAB_SCOPE_CHANGED_EVENT = 'ever-teams:tab-scope-changed';
+
+export { TAB_TEAM_HEADER } from './tab-team-header';
+
+/** A token this close to its expiry is not used: the request could reach the API after it. */
+const EXPIRY_MARGIN_SECONDS = 30;
+
+const SHARED: TabScope = { held: false };
+
+let tabTeam: TabTeam | null = null;
+/** The person and workspace of the tokens below: another one empties them. */
+let sessionOwner: { userId: string; tenantId: string | null } | null = null;
+/** The newest access token this tab saw for each organization of the session. */
+const tokensByOrganization = new Map<string, { token: string; expiresAt: number }>();
+/** Tokens the API refused while this tab acted with them: never used again. */
+const refusedTokens = new Set<string>();
+let lastScopeKey = 'shared';
+
+function ownerOf(
+	token: string
+): { userId: string; tenantId: string | null; organizationId: string | null; exp: number } | null {
+	const payload = decodeJWT(token) as (ReturnType<typeof decodeJWT> & { sub?: string }) | null;
+	const userId = payload?.id ?? payload?.sub;
+	if (!payload || !userId) return null;
+	return {
+		userId,
+		tenantId: payload.tenantId ?? null,
+		organizationId: payload.organizationId ?? null,
+		exp: payload.exp
+	};
+}
+
+/** Forgets every token, and this tab's team, when the session is another person's or another workspace's. */
+function forgetSession(): void {
+	tokensByOrganization.clear();
+	refusedTokens.clear();
+	sessionOwner = null;
+	tabTeam = null;
+}
+
+/** Keeps the cookie's token under its organization; answers false when it is another session's. */
+function noteSharedToken(token: string): boolean {
+	const owner = ownerOf(token);
+	if (!owner) return false;
+	const isOtherSession =
+		!!sessionOwner && (sessionOwner.userId !== owner.userId || sessionOwner.tenantId !== owner.tenantId);
+	if (isOtherSession) {
+		forgetSession();
+		return false;
+	}
+	sessionOwner = { userId: owner.userId, tenantId: owner.tenantId };
+	if (!owner.organizationId || refusedTokens.has(token)) return true;
+	const known = tokensByOrganization.get(owner.organizationId);
+	if (!known || known.expiresAt < owner.exp) {
+		tokensByOrganization.set(owner.organizationId, { token, expiresAt: owner.exp });
+	}
+	return true;
+}
+
+function announceIfChanged(scope: TabScope): void {
+	const key = scope.held
+		? `held:${scope.organizationId}:${scope.sharedOrganizationId}:${scope.accessToken ? 'token' : 'none'}`
+		: 'shared';
+	if (key === lastScopeKey) return;
+	lastScopeKey = key;
+	if (typeof window === 'undefined') return;
+	// Told after the current task: the scope is read while components render, which must not update others meanwhile
+	window.setTimeout(() => window.dispatchEvent(new Event(TAB_SCOPE_CHANGED_EVENT)), 0);
+}
+
+/** The organization and team cookies are read on many renders: the answer is kept while nothing it depends on moved. */
+const SCOPE_MEMO_MS = 5_000;
+let memo: { cookies: string; tabTeam: TabTeam | null; refused: number; at: number; scope: TabScope } | null = null;
+
+/** What this tab acts in now: its own organization while the cookies name another one of the session. */
+export function tabScope(): TabScope {
+	if (typeof window === 'undefined' || !tabTeam) return SHARED;
+	const cookies = typeof document === 'undefined' ? '' : document.cookie;
+	const now = Date.now();
+	const isFresh =
+		memo &&
+		memo.cookies === cookies &&
+		memo.tabTeam === tabTeam &&
+		memo.refused === refusedTokens.size &&
+		now - memo.at < SCOPE_MEMO_MS;
+	if (isFresh && memo) return memo.scope;
+	let scope: TabScope = SHARED;
+	try {
+		scope = computeTabScope();
+	} catch (error) {
+		// A tab that cannot tell acts as before, with the cookies
+		console.error('[Auth] Could not tell which organization this tab works in:', error);
+	}
+	memo = { cookies, tabTeam, refused: refusedTokens.size, at: now, scope };
+	announceIfChanged(scope);
+	return scope;
+}
+
+function computeTabScope(): TabScope {
+	if (typeof window === 'undefined' || !tabTeam) return SHARED;
+	const sharedToken = getAccessTokenCookie();
+	// Signed out, or another person or workspace signed in meanwhile: the session code decides, not this tab
+	if (!sharedToken || !noteSharedToken(sharedToken) || !tabTeam) return SHARED;
+	const sharedOrganizationId = getSharedOrganizationIdCookie() || null;
+	if (!sharedOrganizationId || sharedOrganizationId === tabTeam.organizationId) return SHARED;
+
+	const known = tokensByOrganization.get(tabTeam.organizationId);
+	const isUsable = !!known && known.expiresAt - EXPIRY_MARGIN_SECONDS > Date.now() / 1000;
+	return {
+		held: true,
+		organizationId: tabTeam.organizationId,
+		teamId: tabTeam.teamId,
+		projectId: tabTeam.projectId,
+		sharedOrganizationId,
+		accessToken: isUsable && known ? known.token : null
+	};
+}
+
+/**
+ * The team this tab shows, and so its organization: set when the tab picks or opens a team, before the cookies follow.
+ * The cookie's token is noted first, so the tab keeps a token for the organization it leaves.
+ */
+export function rememberTabTeam(
+	team:
+		| {
+				id?: string | null;
+				organizationId?: string | null;
+				defaultProjectId?: string | null;
+				projects?: { id?: string | null }[] | null;
+		  }
+		| null
+		| undefined
+): void {
+	if (typeof window === 'undefined') return;
+	try {
+		const sharedToken = getAccessTokenCookie();
+		if (sharedToken) noteSharedToken(sharedToken);
+	} catch (error) {
+		console.error('[Auth] Could not read the session of this tab:', error);
+	}
+	tabTeam = team?.organizationId
+		? { organizationId: team.organizationId, teamId: team.id || null, projectId: teamDefaultProjectId(team) }
+		: null;
+	memo = null;
+	tabScope();
+}
+
+/**
+ * The access token a request of this tab goes out with: the cookie's, or this tab's own while it works in its own
+ * organization (null once that one is gone: the request is then not sent).
+ */
+export function requestAccessToken(): string | null {
+	const scope = tabScope();
+	if (scope.held) return scope.accessToken;
+	return getAccessTokenCookie();
+}
+
+/** Whether `token` is the one this tab acts with in its own organization, not the cookie's. */
+export function isTabAccessToken(token: string | null | undefined): boolean {
+	if (!token || token === getAccessTokenCookie()) return false;
+	for (const known of tokensByOrganization.values()) {
+		if (known.token === token) return true;
+	}
+	return false;
+}
+
+/** The API refused this tab's own token: it is not sent again, and the tab asks the person where it works. */
+export function forgetTabAccessToken(token: string | null | undefined): void {
+	if (!token) return;
+	refusedTokens.add(token);
+	for (const [organizationId, known] of tokensByOrganization) {
+		if (known.token === token) tokensByOrganization.delete(organizationId);
+	}
+	memo = null;
+	tabScope();
+}
+
+/**
+ * A request this tab does not send: it works in its own organization, and its token for it is gone. The tab tells the
+ * person (tab-organization-notice.tsx); nothing reached the API.
+ */
+export class TabOrganizationChangedError extends Error {
+	readonly isTabOrganizationChanged = true;
+
+	constructor() {
+		super('Another tab opened another organization, and this tab can no longer work in its own one');
+		this.name = 'TabOrganizationChangedError';
+	}
+}
+
+/**
+ * Requests of the session itself go out whatever organization the tab shows: renewing or ending the session, and
+ * switching its organization (which is how the tab brings its own organization back).
+ */
+export function isSessionRequest(url: string | undefined): boolean {
+	if (!url) return false;
+	return /(^|\/)auth\//.test(url.replace(/^https?:\/\/[^/]+/i, ''));
+}
+
+/** Test-only: forget this tab's team and tokens. */
+export function resetTabOrganizationState(): void {
+	forgetSession();
+	memo = null;
+	lastScopeKey = 'shared';
+}
+
+// The organization and team cookie readers answer this tab's own while it works in its own organization; a sign-in or
+// a sign-out in this tab starts again from the cookies.
+// (A test that mocks the cookies module without it registers nothing.)
+registerTabWorkScope?.(
+	() => {
+		const scope = tabScope();
+		return scope.held
+			? { organizationId: scope.organizationId, teamId: scope.teamId, projectId: scope.projectId }
+			: null;
+	},
+	() => {
+		forgetSession();
+		memo = null;
+		announceIfChanged(SHARED);
+	},
+	(projectId) => {
+		// The project this tab chose while it works in its own organization (its team's default moved, say)
+		if (tabTeam) tabTeam = { ...tabTeam, projectId };
+	}
+);
