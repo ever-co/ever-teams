@@ -9,7 +9,13 @@ jest.mock('@/core/services/server/requests/auth', () => ({
 }));
 
 import { NextResponse } from 'next/server';
-import { TENANT_ID_COOKIE_NAME, TOKEN_COOKIE_NAME } from '@/core/constants/config/constants';
+import {
+	ACTIVE_TEAM_COOKIE_NAME,
+	ORGANIZATION_ID_COOKIE_NAME,
+	TENANT_ID_COOKIE_NAME,
+	TOKEN_COOKIE_NAME
+} from '@/core/constants/config/constants';
+import { TAB_TEAM_HEADER } from '@/core/lib/auth/tab-team-header';
 import { authenticatedGuard, sessionChecks } from './authenticated-guard-app';
 
 const request = (token: string) =>
@@ -80,5 +86,95 @@ describe('authenticatedGuard', () => {
 		expect(failed.status).toBe(503);
 		expect(allowed.user).toEqual(user);
 		expect(mockCurrentAuthenticatedUserRequest).toHaveBeenCalledTimes(2);
+	});
+});
+
+/**
+ * Two tabs of one browser in two organizations (#5134): the cookies, shared by every tab, name the organization another
+ * tab switched to. A tab still working in its own organization sends its own token and names its team.
+ */
+describe('authenticatedGuard, a tab working in its own organization', () => {
+	/** An access token that decodes (only its payload is read). */
+	const jwt = (organizationId: string, { userId = 'user-1', tenantId = 'tenant-1' } = {}) => {
+		const encode = (part: object) => Buffer.from(JSON.stringify(part)).toString('base64url');
+		const issuedAt = Math.floor(Date.now() / 1000);
+		return `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode({ id: userId, tenantId, organizationId, iat: issuedAt, exp: issuedAt + 3600 })}.sig`;
+	};
+	const sharedToken = jwt('org-b');
+	const tabRequest = (authorization: string | null, tabTeamId?: string) =>
+		new Request('http://localhost:3030/api/timer/stop', {
+			headers: {
+				cookie: `${TOKEN_COOKIE_NAME}=${sharedToken}; ${TENANT_ID_COOKIE_NAME}=tenant-1; ${ORGANIZATION_ID_COOKIE_NAME}=org-b; ${ACTIVE_TEAM_COOKIE_NAME}=team-b`,
+				...(authorization ? { authorization: `Bearer ${authorization}` } : {}),
+				...(tabTeamId ? { [TAB_TEAM_HEADER]: tabTeamId } : {})
+			}
+		});
+
+	beforeEach(() => {
+		sessionChecks.clear();
+		mockCurrentAuthenticatedUserRequest.mockReset();
+		mockCurrentAuthenticatedUserRequest.mockResolvedValue({ data: user });
+		jest.spyOn(console, 'error').mockImplementation(() => undefined);
+	});
+
+	afterEach(() => jest.restoreAllMocks());
+
+	it("acts with the tab's own token, its organization and its team", async () => {
+		const tabToken = jwt('org-a');
+
+		const guard = await authenticatedGuard(tabRequest(tabToken, 'team-a'), new NextResponse());
+
+		expect(guard.access_token).toBe(tabToken);
+		expect(guard.organizationId).toBe('org-a');
+		expect(guard.teamId).toBe('team-a');
+		// Gauzy is still asked whether that token is valid
+		expect(mockCurrentAuthenticatedUserRequest).toHaveBeenCalledWith({
+			bearer_token: tabToken,
+			signal: expect.any(AbortSignal)
+		});
+	});
+
+	it("never takes the other tab's team for it", async () => {
+		const guard = await authenticatedGuard(tabRequest(jwt('org-a')), new NextResponse());
+
+		expect(guard.organizationId).toBe('org-a');
+		expect(guard.teamId).toBeUndefined();
+	});
+
+	it('acts with the cookies as before when the request carries their token', async () => {
+		const guard = await authenticatedGuard(tabRequest(sharedToken, 'team-a'), new NextResponse());
+
+		expect(guard.access_token).toBe(sharedToken);
+		expect(guard.organizationId).toBe('org-b');
+		expect(guard.teamId).toBe('team-b');
+	});
+
+	it("acts with the cookies when the request's token names their organization (an older token of the session)", async () => {
+		const guard = await authenticatedGuard(tabRequest(jwt('org-b'), 'team-a'), new NextResponse());
+
+		expect(guard.access_token).toBe(sharedToken);
+		expect(guard.organizationId).toBe('org-b');
+		expect(guard.teamId).toBe('team-b');
+	});
+
+	it("acts with the cookies when the request's token is another person's or another workspace's", async () => {
+		const otherPerson = await authenticatedGuard(
+			tabRequest(jwt('org-a', { userId: 'user-2' })),
+			new NextResponse()
+		);
+		const otherWorkspace = await authenticatedGuard(
+			tabRequest(jwt('org-a', { tenantId: 'tenant-2' })),
+			new NextResponse()
+		);
+
+		expect(otherPerson.access_token).toBe(sharedToken);
+		expect(otherWorkspace.access_token).toBe(sharedToken);
+		expect(otherWorkspace.organizationId).toBe('org-b');
+	});
+
+	it('ignores a team header that is not an id', async () => {
+		const guard = await authenticatedGuard(tabRequest(jwt('org-a'), 'team a; drop'), new NextResponse());
+
+		expect(guard.teamId).toBeUndefined();
 	});
 });
