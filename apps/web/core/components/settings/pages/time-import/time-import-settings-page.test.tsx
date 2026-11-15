@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { TimeImport } from '@/core/hooks/timesheet/use-time-import';
 import type { TimeImportAccess } from '@/core/hooks/timesheet/use-time-import-access';
 import type { CsvColumn } from '@/core/lib/utils/dashboard-export';
@@ -31,6 +31,7 @@ type MockSelectValueProps = { children?: React.ReactNode; placeholder?: React.Re
 const mockAccess = jest.fn();
 const mockTimeImport = jest.fn();
 const mockDownloadCsv = jest.fn();
+const mockPlaceholders = jest.fn();
 
 // The keys stand for the texts, followed by the values they are given
 function translate(key: string, values?: Record<string, unknown>) {
@@ -52,7 +53,8 @@ jest.mock('@/core/components/icons', () => ({
 	Lock: () => null,
 	Spinner: () => null,
 	Table: () => null,
-	Upload: () => null
+	Upload: () => null,
+	User: () => null
 }));
 jest.mock('@/core/components/common/notice', () => ({
 	Notice: ({ title, description, actions }: MockNoticeProps) => (
@@ -107,7 +109,7 @@ jest.mock('@/core/hooks/timesheet/use-time-import', () => ({
 	useTimeImport: () => mockTimeImport()
 }));
 jest.mock('@/core/hooks/settings/use-member-placeholders', () => ({
-	useMemberPlaceholders: () => ({ isOffered: false, addPlaceholders: jest.fn() })
+	useMemberPlaceholders: () => mockPlaceholders()
 }));
 jest.mock('@/core/lib/utils/dashboard-export', () => ({
 	...jest.requireActual('@/core/lib/utils/dashboard-export'),
@@ -209,6 +211,7 @@ function headersOf(columns: ReadonlyArray<CsvColumn<never>>) {
 beforeEach(() => {
 	mockAccess.mockReturnValue(accessOf());
 	mockTimeImport.mockReturnValue(timeImportOf());
+	mockPlaceholders.mockReturnValue({ isOffered: false, addPlaceholders: jest.fn() });
 });
 
 describe('TimeImportSettingsPage', () => {
@@ -363,6 +366,32 @@ describe('TimeImportSettingsPage', () => {
 
 		expect(screen.getAllByRole('listitem')).toHaveLength(2);
 		expect(screen.getByRole('button', { name: 'timeImport.IMPORT_ACTION {"count":1}' })).toBeTruthy();
+	});
+
+	it('still says who belongs to the organization outside the team once the file is checked again', async () => {
+		mockAccess.mockReturnValue(accessOf({ canImportForOthers: true }));
+		const addPlaceholders = jest.fn().mockResolvedValue([{ employee: { id: 'employee-ana' }, created: false }]);
+		mockPlaceholders.mockReturnValue({ isOffered: true, addPlaceholders });
+		const drafts = draftRowsOf([sheetRowOf(2, { memberEmail: 'ana@example.com' })], {
+			...CONTEXT,
+			canImportForOthers: true
+		});
+		const rows = checkedRowsOf({ rows: drafts, logsByLookup: new Map(), now: NOW });
+		const preview = timeImportOf({ stage: 'preview', fileName: 'october.csv', rows });
+		mockTimeImport.mockReturnValue(preview);
+		const { rerender } = render(<TimeImportSettingsPage />);
+
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: /timeImport\.placeholders\.ADD/ }));
+		});
+		// Gauzy created nobody: the file is checked again, and its preview leaves the screen for a moment
+		mockTimeImport.mockReturnValue(timeImportOf({ stage: 'checking', fileName: 'october.csv' }));
+		rerender(<TimeImportSettingsPage />);
+		mockTimeImport.mockReturnValue(preview);
+		rerender(<TimeImportSettingsPage />);
+
+		expect(screen.getByText(/timeImport\.placeholders\.OUTSIDE_TEAM_TITLE/)).toBeTruthy();
+		expect(screen.queryByRole('button', { name: /timeImport\.placeholders\.ADD/ })).toBeNull();
 	});
 
 	it('downloads the template with the columns the viewer may fill in', () => {

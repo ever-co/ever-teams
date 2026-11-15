@@ -33,17 +33,23 @@ function nameOf(member: { firstName: string; lastName?: string; email?: string }
 export function TimeImportPlaceholderOffer({
 	rows,
 	onAdd,
-	onAdded
+	onAdded,
+	notInTeamKeys,
+	onNotInTeam
 }: Readonly<{
 	rows: ReadonlyArray<TimeImportRow>;
 	onAdd: MemberPlaceholders['addPlaceholders'];
 	onAdded: (members: ImportMemberAdded[]) => Promise<void> | void;
+	/**
+	 * Emails Gauzy answered with a member of the organization outside this team: never offered again. Kept by the
+	 * page, since this offer leaves the screen while the file is checked again.
+	 */
+	notInTeamKeys: ReadonlyArray<string>;
+	onNotInTeam: (keys: ReadonlyArray<string>) => void;
 }>) {
 	const t = useTranslations();
 	const [isAdding, setIsAdding] = useState(false);
 	const [failure, setFailure] = useState<PlaceholderFailure | null>(null);
-	// Emails Gauzy answered with a member of the organization outside this team: never offered again
-	const [notInTeamKeys, setNotInTeamKeys] = useState<ReadonlyArray<string>>([]);
 
 	const allCandidates = useMemo(() => importPlaceholderCandidatesOf(rows), [rows]);
 	const candidates = useMemo(
@@ -64,7 +70,7 @@ export function TimeImportPlaceholderOffer({
 		try {
 			const items = await onAdd(candidates.map((candidate) => candidate.member));
 			const outcome = importMembersAddedOf(candidates, items);
-			setNotInTeamKeys((current) => [...current, ...outcome.notInTeamKeys]);
+			onNotInTeam(outcome.notInTeamKeys);
 			await onAdded(outcome.added);
 		} catch (error) {
 			setFailure(placeholderFailureOf(error, 'create'));
