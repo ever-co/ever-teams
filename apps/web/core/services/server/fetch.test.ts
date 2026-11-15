@@ -9,6 +9,11 @@ import { clientAppHeaders, serverFetch, unwrapRejection } from './fetch';
 /** The headers of the browser request this server is handling, or none outside a request. */
 let mockRequestHeaders: Headers | null = null;
 
+// The name this app gives itself, whatever APP_NAME the machine running the tests sets
+jest.mock('@/core/constants/config/constants', () => ({
+	...jest.requireActual('@/core/constants/config/constants'),
+	APP_NAME: 'Ever Teams'
+}));
 jest.mock('next/headers', () => ({
 	headers: async () => {
 		if (!mockRequestHeaders) {

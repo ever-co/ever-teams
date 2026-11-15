@@ -35,6 +35,11 @@ jest.mock('@/core/components/icons', () => ({
 	Globe: () => <span data-icon="unknown" />,
 	Spinner: () => null
 }));
+// The name this app gives itself, whatever APP_NAME the machine running the tests sets
+jest.mock('@/core/constants/config/constants', () => ({
+	...jest.requireActual('@/core/constants/config/constants'),
+	APP_NAME: 'Ever Teams'
+}));
 jest.mock('@/core/hooks/settings/use-user-sessions', () => ({
 	useUserSessions: () => mockState
 }));

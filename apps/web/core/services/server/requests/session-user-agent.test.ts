@@ -22,6 +22,11 @@ import { everIdWorkspaceSigninRequest } from './ever-id';
 import { acceptInviteRequest } from './invite';
 import { verifyTwoFactorRequest } from './two-factor';
 
+// The name this app gives itself, whatever APP_NAME the machine running the tests sets
+jest.mock('@/core/constants/config/constants', () => ({
+	...jest.requireActual('@/core/constants/config/constants'),
+	APP_NAME: 'Ever Teams'
+}));
 jest.mock('next/headers', () => ({
 	headers: async () =>
 		new Headers({
