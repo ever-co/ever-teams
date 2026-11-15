@@ -67,7 +67,7 @@ jest.mock('@/core/hooks/meetings/use-scheduled-meetings', () => ({
 		hostName: 'Ruslan Konviser',
 		isLoading: false,
 		isError: false,
-		refetch: jest.fn(),
+		refetch: mockRefetchScheduled,
 		scheduleMeeting: mockScheduleMeeting,
 		isScheduling: false,
 		rescheduleMeeting: mockRescheduleMeeting,
@@ -79,8 +79,16 @@ jest.mock('@/core/hooks/meetings/use-scheduled-meetings', () => ({
 
 // The meetings others host that the person is invited to (#5022)
 let mockInvited: ScheduledMeeting[] = [];
+let mockInvitedError = false;
+const mockRefetchInvited = jest.fn();
+const mockRefetchScheduled = jest.fn();
 jest.mock('@/core/hooks/meetings/use-invited-meetings', () => ({
-	useInvitedMeetings: () => ({ meetings: mockInvited, isLoading: false })
+	useInvitedMeetings: () => ({
+		meetings: mockInvited,
+		isLoading: false,
+		isError: mockInvitedError,
+		refetch: mockRefetchInvited
+	})
 }));
 
 jest.mock('@/core/hooks/meetings/use-meeting-invitees', () => ({
@@ -111,6 +119,9 @@ describe('MeetingsPage', () => {
 		mockRescheduleMeeting.mockReset().mockResolvedValue(undefined);
 		mockScheduled = { meetings: [], canSchedule: true };
 		mockInvited = [];
+		mockInvitedError = false;
+		mockRefetchInvited.mockReset();
+		mockRefetchScheduled.mockReset();
 		// The notices' orb asks whether motion is reduced; jsdom has no matchMedia
 		window.matchMedia = jest.fn().mockReturnValue({ matches: true }) as unknown as typeof window.matchMedia;
 	});
@@ -295,6 +306,17 @@ describe('MeetingsPage', () => {
 			{ email: 'bob@acme.com', name: 'Bob Stone', employeeId: 'employee-bob' }
 		]);
 		expect(await screen.findByText('meetings.INVITE_HINT_PARTICIPANTS')).toBeTruthy();
+	});
+
+	it('says so when the meetings one is invited to fail to load, and tries both lists again (#5022)', () => {
+		mockInvitedError = true;
+		render(<MeetingsPage />);
+
+		expect(screen.getByText('dashboard.states.ERROR_TITLE')).toBeTruthy();
+		fireEvent.click(screen.getByRole('button', { name: 'pages.unauthorized.TRY_AGAIN' }));
+
+		expect(mockRefetchScheduled).toHaveBeenCalledTimes(1);
+		expect(mockRefetchInvited).toHaveBeenCalledTimes(1);
 	});
 
 	it('lists the meetings others host that the person is invited to: its host, a way to join, and no edit (#5022)', async () => {

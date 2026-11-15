@@ -18,7 +18,7 @@ const mockPush = jest.fn();
 let mockInvited: ScheduledMeeting[] = [];
 jest.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }));
 jest.mock('@/core/hooks/meetings/use-invited-meetings', () => ({
-	useInvitedMeetings: () => ({ meetings: mockInvited, isLoading: false })
+	useInvitedMeetings: () => ({ meetings: mockInvited, isLoading: false, isError: false, refetch: jest.fn() })
 }));
 jest.mock('@/core/hooks/meetings/use-scheduled-meetings', () => ({
 	useScheduledMeetings: () => ({ meetings: [] })

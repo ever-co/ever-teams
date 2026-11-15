@@ -220,8 +220,11 @@ export function MeetingsPage() {
 					<MeetingAgenda
 						meetings={agendaMeetings}
 						isLoading={scheduled.isLoading}
-						isError={scheduled.isError}
-						onRetry={() => void scheduled.refetch()}
+						isError={scheduled.isError || invited.isError}
+						onRetry={() => {
+							void scheduled.refetch();
+							void invited.refetch();
+						}}
 						isJitsi={isJitsi}
 						now={now}
 						hostName={scheduled.hostName}
