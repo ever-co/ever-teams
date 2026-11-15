@@ -93,6 +93,7 @@ describe('toInboxEntry', () => {
 			taskId: 't1',
 			href: null,
 			timerReminder: null,
+			meeting: null,
 			createdAt: new Date('2026-11-07T10:00:00.000Z')
 		});
 		expect(entry.taskId).toBe('t1');
@@ -136,6 +137,7 @@ describe('a timer reminder (#5022)', () => {
 			taskId: null,
 			href: '/',
 			timerReminder,
+			meeting: null,
 			createdAt: new Date('2026-11-07T10:00:00.000Z')
 		});
 		expect(entry.timerReminder).toEqual(timerReminder);
@@ -144,6 +146,52 @@ describe('a timer reminder (#5022)', () => {
 
 	it('is nothing for another kind', () => {
 		expect(toInboxEntry(item()).timerReminder).toBeNull();
+	});
+});
+
+describe('a meeting notification (#5022)', () => {
+	const invitation = item({
+		title: 'You are invited to "Sprint review"',
+		body: 'Thursday, November 12, 2026, 2:00 – 2:30 PM (Europe/Paris)',
+		entity: 'EmployeeAppointment',
+		entityId: 'appointment-1',
+		taskId: null,
+		metadata: { notificationType: 'Meeting', sentByEmployeeId: 'host-1' }
+	});
+
+	it('opens the meetings page, and carries its kind, title and appointment', () => {
+		const entry = toInboxEntry(invitation);
+		expect(entry.type).toBe('Meeting');
+		expect(entry.href).toBe('/meet');
+		expect(hasInboxTarget(entry)).toBe(true);
+		expect(entry.subject).toBe('Sprint review');
+		expect(entry.message).toBe('Thursday, November 12, 2026, 2:00 – 2:30 PM (Europe/Paris)');
+		expect(entry.meeting).toEqual({ kind: 'invited', title: 'Sprint review', minutes: null, appointmentId: 'appointment-1' });
+	});
+
+	it("keeps it where the platform has no inbox extension (the bell's own entry)", () => {
+		const meeting = { kind: 'starting' as const, title: 'Sprint review', minutes: null, appointmentId: 'appointment-1' };
+		const entry = fromNotificationEntry({
+			id: 'n1',
+			type: 'Meeting' as never,
+			isUnread: true,
+			senderName: null,
+			senderImageUrl: null,
+			subject: 'Sprint review',
+			rawTitle: '"Sprint review" is starting',
+			message: null,
+			taskId: null,
+			href: '/meet',
+			timerReminder: null,
+			meeting,
+			createdAt: new Date('2026-11-07T10:00:00.000Z')
+		});
+		expect(entry.meeting).toEqual(meeting);
+		expect(entry.href).toBe('/meet');
+	});
+
+	it('is nothing for another kind', () => {
+		expect(toInboxEntry(item()).meeting).toBeNull();
 	});
 });
 

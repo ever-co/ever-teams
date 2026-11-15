@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import {
 	AtSign,
+	Calendar,
 	Comment,
 	DollarCircle,
 	Mail,
@@ -28,7 +29,8 @@ const TYPE_LOOK: Record<EEmployeeNotificationType, TypeLook> = {
 	[EEmployeeNotificationType.Broadcast]: { glyph: <Megaphone />, hue: '[--chip:hsl(var(--muted-foreground))]' },
 	[EEmployeeNotificationType.Payment]: { glyph: <Wallet />, hue: '[--chip:hsl(var(--success))]' },
 	[EEmployeeNotificationType.RateChangeRequest]: { glyph: <DollarCircle />, hue: '[--chip:hsl(var(--warning))]' },
-	[EEmployeeNotificationType.TimerReminder]: { glyph: <Timer />, hue: '[--chip:hsl(var(--warning))]' }
+	[EEmployeeNotificationType.TimerReminder]: { glyph: <Timer />, hue: '[--chip:hsl(var(--warning))]' },
+	[EEmployeeNotificationType.Meeting]: { glyph: <Calendar />, hue: '[--chip:hsl(var(--primary))]' }
 };
 
 const UNKNOWN_LOOK: TypeLook = { glyph: <Notification />, hue: '[--chip:hsl(var(--muted-foreground))]' };

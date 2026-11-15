@@ -8,6 +8,7 @@ import { PersonAvatar } from '@/core/components/teams/people-avatars';
 import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
 import { NotificationTypeBadge } from '../notification-type-badge';
 import { timerReminderDescriptionOf, timerReminderSentenceOf } from '../timer-reminder-copy';
+import { meetingSentenceOf } from '../meeting-notice-copy';
 import { formatNotificationAge, formatNotificationDate, NotificationEntry } from '@/core/lib/utils/notification-inbox';
 import { EEmployeeNotificationType } from '@/core/types/interfaces/common/employee-notification';
 
@@ -37,7 +38,8 @@ const EVENT_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPa
 	[EEmployeeNotificationType.Broadcast]: 'notifications.EVENTS.BROADCAST',
 	[EEmployeeNotificationType.Payment]: 'notifications.EVENTS.PAYMENT',
 	[EEmployeeNotificationType.RateChangeRequest]: 'notifications.EVENTS.RATE_CHANGE_REQUEST',
-	[EEmployeeNotificationType.TimerReminder]: 'notifications.EVENTS.TIMER_REMINDER'
+	[EEmployeeNotificationType.TimerReminder]: 'notifications.EVENTS.TIMER_REMINDER',
+	[EEmployeeNotificationType.Meeting]: 'notifications.EVENTS.MEETING'
 };
 
 const TYPE_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPaths> = {
@@ -49,7 +51,8 @@ const TYPE_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPat
 	[EEmployeeNotificationType.Broadcast]: 'notifications.TYPES.BROADCAST',
 	[EEmployeeNotificationType.Payment]: 'notifications.TYPES.PAYMENT',
 	[EEmployeeNotificationType.RateChangeRequest]: 'notifications.TYPES.RATE_CHANGE_REQUEST',
-	[EEmployeeNotificationType.TimerReminder]: 'notifications.TYPES.TIMER_REMINDER'
+	[EEmployeeNotificationType.TimerReminder]: 'notifications.TYPES.TIMER_REMINDER',
+	[EEmployeeNotificationType.Meeting]: 'notifications.TYPES.MEETING'
 };
 
 const ROW_ACTION_CLASS =
@@ -90,6 +93,9 @@ function useEventSentence(entry: NotificationEntry): ReactNode {
 	const t = useTranslations();
 	if (entry.timerReminder) {
 		return timerReminderSentenceOf(t, entry.timerReminder);
+	}
+	if (entry.meeting) {
+		return meetingSentenceOf(t, entry.meeting, entry.senderName);
 	}
 	if (!entry.type) {
 		return entry.rawTitle;

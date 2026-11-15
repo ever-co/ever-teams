@@ -9,6 +9,7 @@ import {
 } from '@/core/types/interfaces/common/inbox-item';
 import { readRuntimeEnv } from '@/env-config';
 import { timerReminderNoticeOf, type TimerReminderNotice } from '@/core/lib/notifications/timer-reminders';
+import { MEETINGS_HREF, meetingNoticeOf, type MeetingNotice } from '@/core/lib/notifications/meeting-notices';
 import { docsInboxHrefOf, isDocsInboxEntry } from './docs-links';
 import { isDocsEnabled } from './docs-enabled';
 import { NotificationEntry, quotedSubjectOf, senderNameFromTitle, TIMER_REMINDER_HREF } from './notification-inbox';
@@ -49,6 +50,8 @@ export interface InboxEntry {
 	href: string | null;
 	/** A reminder of a timer left running: its level, the hours it names and its run, read in the reader's language. */
 	timerReminder: TimerReminderNotice | null;
+	/** A notice about a meeting the person hosts or is invited to: its kind, its title and its appointment. */
+	meeting: MeetingNotice | null;
 	isUnread: boolean;
 	isArchived: boolean;
 	isDone: boolean;
@@ -146,6 +149,7 @@ export function showsInboxSheet(entry: Pick<InboxEntry, 'taskId' | 'href' | 'cha
 function hrefOf(type: EEmployeeNotificationType | null, entry: Pick<InboxEntry, 'entity' | 'entityId'>, metadata: Record<string, unknown> | null = null): string | null {
 	if (type === EEmployeeNotificationType.RateChangeRequest) return RATE_CHANGE_REQUEST_HREF;
 	if (type === EEmployeeNotificationType.TimerReminder) return TIMER_REMINDER_HREF;
+	if (type === EEmployeeNotificationType.Meeting) return MEETINGS_HREF;
 	// Without the chat pages a conversation has nowhere to open: the entry is not a link.
 	if (entry.entity === 'ChatConversation' && entry.entityId && hasChatPages()) return `/chat/${entry.entityId}`;
 	// A page, or a comment on one (its thread), opens in Docs where the deployment has it.
@@ -258,6 +262,7 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 		chatMessageId: entity === 'ChatMessage' ? entityId : null,
 		href: null,
 		timerReminder,
+		meeting: isNotification ? meetingNoticeOf({ type, title: rawTitle, entity, entityId }) : null,
 		isUnread: recipient ? recipient.isRead !== true : true,
 		isArchived: !!recipient?.isArchived,
 		isDone: !!(recipient?.doneAt || recipient?.isDone),
@@ -316,6 +321,7 @@ export function fromNotificationEntry(notification: NotificationEntry): InboxEnt
 		chatMessageId: null,
 		href: notification.href,
 		timerReminder: notification.timerReminder,
+		meeting: notification.meeting,
 		isUnread: notification.isUnread,
 		isArchived: false,
 		isDone: false,

@@ -1,4 +1,5 @@
 import { timerReminderNoticeOf, type TimerReminderNotice } from '@/core/lib/notifications/timer-reminders';
+import { MEETINGS_HREF, meetingNoticeOf, type MeetingNotice } from '@/core/lib/notifications/meeting-notices';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { EEmployeeNotificationType, IEmployeeNotification } from '@/core/types/interfaces/common/employee-notification';
 import { docsInboxHrefOf } from './docs-links';
@@ -25,6 +26,8 @@ export interface NotificationEntry {
 	href: string | null;
 	/** A reminder of a timer left running: its level, the hours it names and its run, read in the reader's language. */
 	timerReminder: TimerReminderNotice | null;
+	/** A notice about a meeting the person hosts or is invited to: its kind, its title and its appointment. */
+	meeting: MeetingNotice | null;
 	createdAt: Date;
 }
 
@@ -116,6 +119,9 @@ function hrefOf(type: EEmployeeNotificationType | null, notification: IEmployeeN
 	if (type === EEmployeeNotificationType.TimerReminder) {
 		return TIMER_REMINDER_HREF;
 	}
+	if (type === EEmployeeNotificationType.Meeting) {
+		return MEETINGS_HREF;
+	}
 	// A page (shared, reviewed, commented while followed) opens in Docs where the deployment has it.
 	if (isDocsEnabled() && notification.entity === EBaseEntityEnum.Document) {
 		return docsInboxHrefOf(notification.entity, notification.entityId, null, type === EEmployeeNotificationType.Comment);
@@ -164,6 +170,7 @@ export function toNotificationEntry(notification: IEmployeeNotification): Notifi
 		taskId: taskIdOf(notification),
 		href: hrefOf(type, notification),
 		timerReminder: timerReminderNoticeOf(notification),
+		meeting: meetingNoticeOf(notification),
 		createdAt: new Date(notification.createdAt)
 	};
 }
