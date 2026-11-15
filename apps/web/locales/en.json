@@ -5313,7 +5313,52 @@
 			"RESET_TWO_FACTOR_CONFIRM": "Reset",
 			"RESET_TWO_FACTOR_DONE": "Two-factor authentication of {name} is reset",
 			"RESET_TWO_FACTOR_NOTHING": "{name} had no two-factor authentication to reset",
-			"RESET_TWO_FACTOR_FAILED": "Two-factor authentication of {name} could not be reset"
+			"RESET_TWO_FACTOR_FAILED": "Two-factor authentication of {name} could not be reset",
+			"placeholder": {
+				"ADD": "Add without an account",
+				"ADD_TITLE": "Add someone without an account",
+				"ADD_DESCRIPTION": "For someone who worked with the team and has no account. They get no email, cannot sign in and never run a timer. Their time counts in reports, timesheets, budgets and invoices like any member's.",
+				"EMAIL": "Email",
+				"OPTIONAL": "optional",
+				"EMAIL_HINT": "Kept to invite them to claim their time later. Nothing is sent now.",
+				"EMAIL_INVALID": "Enter a valid email, or leave it empty.",
+				"ADD_CONFIRM": "Add member",
+				"ADD_FAILED": "The member was not added.",
+				"ADDED": "{name} was added without an account.",
+				"NO_ACCOUNT": "No account",
+				"NO_EMAIL": "No email",
+				"CLAIM": "Invite to claim",
+				"CLAIM_TITLE": "Invite {name} to claim their time",
+				"CLAIM_DESCRIPTION": "{name} gets an invitation by email. When they accept, their time, teams and rates move to their own account.",
+				"CLAIM_CONFIRM": "Send invitation",
+				"CLAIM_FAILED": "The invitation was not sent.",
+				"CLAIM_SENT": "Invitation sent to {email}. {name}'s time moves to their account when they accept.",
+				"CLAIM_PENDING": "Claim sent",
+				"CLAIM_PENDING_TO": "Invitation to claim sent to {email}",
+				"MERGE": "Merge into a member",
+				"MERGE_TITLE": "Merge {name} into a member",
+				"MERGE_DESCRIPTION": "Everything of this member without an account moves to the member you pick. A merge cannot be undone.",
+				"MERGE_INTO": "Merge into",
+				"MERGE_PICK": "Pick a member",
+				"MERGE_NO_TARGET": "Nobody in this team has an account to merge into yet.",
+				"MERGE_READING": "Reading what would move…",
+				"MERGE_PREVIEW_FAILED": "What would move could not be read.",
+				"RETRY": "Retry",
+				"MERGE_MOVES_TIME": "{target} receives {count, plural, one {# entry} other {# entries}} ({duration}).",
+				"MERGE_MOVES_WORK": "{timesheets, plural, one {# timesheet} other {# timesheets}} and {tasks, plural, one {# task assignment} other {# task assignments}} move with them.",
+				"MERGE_MOVES_TEAMS": "{target} joins their teams: {teams}.",
+				"MERGE_OVERLAPS": "{count, plural, one {# of these entries overlaps} other {# of these entries overlap}} {target}'s own time.",
+				"MERGE_REMOVES": "{name} is removed from the members.",
+				"MERGE_CONFIRM": "Merge",
+				"MERGE_FAILED": "The members were not merged.",
+				"MERGED": "{name} merged into {target}",
+				"errors": {
+					"EMAIL_TAKEN": "A member of this organization already has this email.",
+					"CLAIM_HAS_ACCOUNT": "This email already has an account. Merge the member into that person's member instead.",
+					"MERGE_TIME_OFF": "Both members have a time off balance for the same policy and year ({years}). Settle it on one of them, then merge again. Nothing was moved.",
+					"MERGE_TIME_OFF_ANY": "Both members have a time off balance for the same policy and year. Settle it on one of them, then merge again. Nothing was moved."
+				}
+			}
 		},
 		"sessions": {
 			"TITLE": "Sessions",
@@ -7871,6 +7916,15 @@
 			"FAILED_DESCRIPTION": "No time entry was saved. What was created before stays in the workspace and is reused when you import the same files again.",
 			"CREATED_TITLE": "Clients, projects and labels are in the workspace",
 			"PAGE_DESCRIPTION": "Clients, projects, labels and time entries from another time tracking tool."
+		},
+		"placeholders": {
+			"TITLE": "{count, plural, one {# person in this file is} other {# people in this file are}} not in this team ({rows, plural, one {# row} other {# rows}})",
+			"DESCRIPTION": "Add them as members without an account: they get no email and cannot sign in. Their rows are then checked again and imported like any member's.",
+			"NAMES": "{names}{more, plural, =0 {} other { and # more}}",
+			"ADD": "Add {count, plural, one {# member} other {# members}} without an account",
+			"FAILED": "They were not added.",
+			"OUTSIDE_TEAM_TITLE": "{count, plural, one {# person already belongs} other {# people already belong}} to the organization, not to this team",
+			"OUTSIDE_TEAM_DESCRIPTION": "{names}: add them to this team in Settings > Members, then choose the file again."
 		}
 	},
 	"recordSheet": {

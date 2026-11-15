@@ -6,6 +6,7 @@ import { useTimesheetInvalidation } from '@/core/hooks/timesheet/use-timesheet-i
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { requiredTrackingFieldsOf } from '@/core/lib/helpers/timer-errors';
+import { withImportMembersAdded } from '@/core/lib/utils/time-import-access';
 import { chunksOf } from '@/core/lib/utils/dashboards/timesheets';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { safeGetLocalStorage, safeSetLocalStorage } from '@/core/lib/utils/local-storage-cleanup';
@@ -32,6 +33,7 @@ import {
 	type TimeImportContext,
 	type TimeImportEntry,
 	type TimeImportLookup,
+	type TimeImportMember,
 	type TimeImportOutcome,
 	type TimeImportProject,
 	type TimeImportRow,
@@ -91,9 +93,29 @@ interface TimeImportState {
 	hasCheckFailed: boolean;
 	hasPreviewChanged: boolean;
 	outcomes: ReadonlyMap<number, TimeImportOutcome>;
+	/** The run of the check whose verdicts are on screen: an answer started from another run is stale. */
+	previewRun: number;
 }
 
 const NO_OUTCOMES: ReadonlyMap<number, TimeImportOutcome> = new Map();
+
+interface OutsideTeam {
+	sheet: TimeImportSheet | null;
+	keys: ReadonlyArray<string>;
+}
+
+const NO_OUTSIDE_TEAM: OutsideTeam = { sheet: null, keys: [] };
+
+const NO_KEYS: ReadonlyArray<string> = [];
+
+/** The people a file named that the organization has outside this team, for that file only. */
+function outsideTeamOf(outsideTeam: OutsideTeam, sheet: TimeImportSheet | null): ReadonlyArray<string> {
+	const isSameFile = Boolean(sheet) && outsideTeam.sheet === sheet;
+	if (!isSameFile) {
+		return NO_KEYS;
+	}
+	return outsideTeam.keys;
+}
 
 const NO_HEADERS: ReadonlyArray<string> = [];
 
@@ -108,7 +130,8 @@ const IDLE: TimeImportState = {
 	rows: [],
 	hasCheckFailed: false,
 	hasPreviewChanged: false,
-	outcomes: NO_OUTCOMES
+	outcomes: NO_OUTCOMES,
+	previewRun: 0
 };
 
 function storedChoiceOf(headers: ReadonlyArray<string>): TimeImportColumnsChoice | null {
@@ -301,10 +324,21 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 		return () => window.removeEventListener('beforeunload', warnBeforeLeaving);
 	}, [isSaving]);
 
+	// Members added for the file (members without an account), named before the team reads them back
+	const addedMembersRef = useRef<ReadonlyArray<TimeImportMember>>([]);
+	// People of the file the organization already has outside this team: kept with their file across its checks
+	const [outsideTeam, setOutsideTeam] = useState<OutsideTeam>(NO_OUTSIDE_TEAM);
+	// What is on screen now, for an answer that arrives after the screen moved on
+	const stateRef = useRef(state);
+	useEffect(() => {
+		stateRef.current = state;
+	}, [state]);
+
 	const check = useCallback(
 		async (sheet: TimeImportSheet): Promise<TimeImportRow[]> => {
 			const now = new Date();
-			const context = contextWithExtraProjects(sheet, contextAt(now), extraProjectsOf);
+			const withProjects = contextWithExtraProjects(sheet, contextAt(now), extraProjectsOf);
+			const context = withImportMembersAdded(withProjects, addedMembersRef.current);
 			const drafts = draftRowsOf(sheet.rows, context, sheet.dateOrder);
 			const lookups = timeImportLookupsOf(drafts);
 			const logsByLookup = await readRecordedLogs(queryClient, lookups);
@@ -321,7 +355,7 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 			try {
 				const rows = await check(staged.sheet);
 				if (runRef.current === run) {
-					setState({ ...IDLE, ...staged, stage: 'preview', rows });
+					setState({ ...IDLE, ...staged, stage: 'preview', rows, previewRun: run });
 				}
 			} catch (error) {
 				logErrorInDev('Time import check failed', error);
@@ -376,6 +410,31 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 			void checkSheet(staged);
 		}
 	}, [checkSheet, state]);
+
+	/** Checks the previewed file again, its rows now able to name the members just added for it. */
+	const recheckWithMembers = useCallback(
+		async (
+			members: ReadonlyArray<TimeImportMember>,
+			previewRun: number,
+			outsideTeamKeys: ReadonlyArray<string> = []
+		) => {
+			// The members exist now, whatever happened on screen meanwhile
+			addedMembersRef.current = [...addedMembersRef.current, ...members];
+			// Another file, a new check or the import started while the members were added: never replace it
+			const isSamePreview = runRef.current === previewRun;
+			const current = stateRef.current;
+			const staged = stagedFileOf(current);
+			if (!isSamePreview || !staged || current.stage !== 'preview') {
+				return;
+			}
+			setOutsideTeam((known) => ({
+				sheet: staged.sheet,
+				keys: [...outsideTeamOf(known, staged.sheet), ...outsideTeamKeys]
+			}));
+			await checkSheet(staged);
+		},
+		[checkSheet]
+	);
 
 	const reset = useCallback(() => {
 		runRef.current += 1;
@@ -473,7 +532,7 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 		} catch (error) {
 			logErrorInDev('Time import check before saving failed', error);
 			if (runRef.current === run) {
-				setState((current) => ({ ...current, stage: 'preview', hasCheckFailed: true }));
+				setState((current) => ({ ...current, stage: 'preview', hasCheckFailed: true, previewRun: run }));
 			}
 			return;
 		}
@@ -482,7 +541,7 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 		}
 		const isPreviewStillTrue = haveSameReadyRows(previewRows, rows);
 		if (!isPreviewStillTrue) {
-			setState((current) => ({ ...current, stage: 'preview', rows, hasPreviewChanged: true }));
+			setState((current) => ({ ...current, stage: 'preview', rows, hasPreviewChanged: true, previewRun: run }));
 			return;
 		}
 		setState((current) => ({ ...current, stage: 'importing', rows, outcomes: NO_OUTCOMES }));
@@ -535,8 +594,12 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 		report,
 		hasCheckFailed: state.hasCheckFailed,
 		hasPreviewChanged: state.hasPreviewChanged,
+		/** The preview a recheck with added members must still be on, or it is dropped. */
+		previewRun: state.previewRun,
+		outsideTeamKeys: outsideTeamOf(outsideTeam, state.sheet),
 		chooseFile,
 		retryCheck,
+		recheckWithMembers,
 		chooseColumn,
 		chooseDateOrder,
 		confirmColumns,

@@ -395,6 +395,51 @@ describe('useTimeImport', () => {
 		expect(result.current.rows).toEqual([]);
 		expect(result.current.fileName).toBe('');
 	});
+
+	it('checks the previewed file again once members are added for it', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+		mockGetTimeLogConflicts.mockClear();
+
+		await act(() =>
+			result.current.recheckWithMembers(
+				[{ employeeId: 'employee-lena', email: '', name: 'Lena' }],
+				result.current.previewRun
+			)
+		);
+
+		expect(result.current.stage).toBe('preview');
+		expect(mockGetTimeLogConflicts).toHaveBeenCalledTimes(2);
+	});
+
+	it('never lets members added late stop an import that started meanwhile', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+		// Add was clicked on this preview; Gauzy answers once the import is under way
+		const { previewRun, recheckWithMembers } = result.current;
+		let answerFirstSave: (value: unknown) => void = () => undefined;
+		mockAddManualTime.mockImplementationOnce(
+			() =>
+				new Promise((resolve) => {
+					answerFirstSave = resolve;
+				})
+		);
+
+		let confirming: Promise<void> = Promise.resolve();
+		act(() => {
+			confirming = result.current.confirm();
+		});
+		await waitFor(() => expect(mockAddManualTime).toHaveBeenCalledTimes(1));
+		await act(() => recheckWithMembers([{ employeeId: 'employee-lena', email: '', name: 'Lena' }], previewRun));
+		await act(async () => {
+			answerFirstSave({});
+			await confirming;
+		});
+
+		expect(result.current.stage).toBe('done');
+		expect(mockAddManualTime).toHaveBeenCalledTimes(3);
+		expect(result.current.report).toMatchObject({ savedCount: 3, notSentCount: 0 });
+	});
 });
 
 describe('useTimeImport for a file from another tool', () => {
@@ -566,5 +611,71 @@ describe('useTimeImport with the projects a workspace import plans', () => {
 
 		expect(result.current.summary.readyCount).toBe(0);
 		expect(result.current.rows[0].problems).toEqual([{ code: 'projectUnknown' }]);
+	});
+});
+
+describe('useTimeImport after members are added for the file', () => {
+	const AMINA = { employeeId: 'employee-amina', email: 'amina@acme.com', name: 'amina' };
+
+	it('drops the recheck of a preview the screen has left: another file stays on screen', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+		await waitFor(() => expect(result.current.stage).toBe('preview'));
+		const previewRun = result.current.previewRun;
+
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS.slice(0, 1), 'april.csv')));
+		await waitFor(() => expect(result.current.stage).toBe('preview'));
+		await act(() => result.current.recheckWithMembers([AMINA], previewRun, ['ana@acme.com']));
+
+		expect(result.current.fileName).toBe('april.csv');
+		expect(result.current.rows).toHaveLength(1);
+		expect(result.current.outsideTeamKeys).toEqual([]);
+	});
+
+	it('keeps the people the organization has outside the team across the recheck, for that file only', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+		await waitFor(() => expect(result.current.stage).toBe('preview'));
+
+		await act(() => result.current.recheckWithMembers([AMINA], result.current.previewRun, ['ana@acme.com']));
+		await waitFor(() => expect(result.current.stage).toBe('preview'));
+
+		expect(result.current.outsideTeamKeys).toEqual(['ana@acme.com']);
+
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS, 'april.csv')));
+		await waitFor(() => expect(result.current.stage).toBe('preview'));
+		expect(result.current.outsideTeamKeys).toEqual([]);
+	});
+});
+
+describe('useTimeImport rechecking after an import that went back to its preview', () => {
+	const PAUL = { employeeId: 'employee-paul', email: 'paul@acme.com', name: 'paul' };
+
+	it('rechecks with the added members after the check before saving failed', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+		await waitFor(() => expect(result.current.stage).toBe('preview'));
+		mockGetTimeLogConflicts.mockRejectedValueOnce(new Error('offline'));
+		await act(() => result.current.confirm());
+		await waitFor(() => expect(result.current.hasCheckFailed).toBe(true));
+
+		await act(() => result.current.recheckWithMembers([PAUL], result.current.previewRun, []));
+
+		await waitFor(() => expect(result.current.hasCheckFailed).toBe(false));
+		expect(result.current.stage).toBe('preview');
+	});
+
+	it('rechecks with the added members after the preview changed before saving', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+		await waitFor(() => expect(result.current.stage).toBe('preview'));
+		mockGetTimeLogConflicts.mockResolvedValue([recordedLog('log-1', at(9, 30), at(9, 45))]);
+		await act(() => result.current.confirm());
+		await waitFor(() => expect(result.current.hasPreviewChanged).toBe(true));
+
+		await act(() => result.current.recheckWithMembers([PAUL], result.current.previewRun, []));
+
+		await waitFor(() => expect(result.current.hasPreviewChanged).toBe(false));
+		expect(result.current.stage).toBe('preview');
 	});
 });
