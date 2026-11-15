@@ -120,6 +120,8 @@ export function InvoicePaymentsSection() {
 	}
 
 	const isConnected = Boolean(connection.data?.connected);
+	// Nothing is edited while a save is on its way: its answer replaces the form, and would drop the edit
+	const isLocked = connection.isPending || save.isPending;
 	const submit = (event: FormEvent) => {
 		event.preventDefault();
 		save.mutate();
@@ -147,7 +149,7 @@ export function InvoicePaymentsSection() {
 							placeholder="https://"
 							value={endpoint}
 							onChange={(event) => setEndpoint(event.target.value)}
-							disabled={connection.isPending}
+							disabled={isLocked}
 						/>
 						<p className={SETTINGS_ROW_DESCRIPTION}>{t('invoices.payments.ENDPOINT_HINT')}</p>
 					</div>
@@ -156,6 +158,7 @@ export function InvoicePaymentsSection() {
 						<SettingsSwitch
 							checked={isEnabled}
 							onCheckedChange={setIsEnabled}
+							disabled={isLocked}
 							ariaLabel={t('invoices.payments.ENABLED')}
 						/>
 					</div>
@@ -164,6 +167,7 @@ export function InvoicePaymentsSection() {
 						<SettingsSwitch
 							checked={isTestMode}
 							onCheckedChange={setIsTestMode}
+							disabled={isLocked}
 							ariaLabel={t('invoices.payments.TEST_MODE')}
 						/>
 					</div>

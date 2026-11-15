@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string) => key,
@@ -55,6 +55,23 @@ describe('InvoicePaymentsSection (ever-co/ever-gauzy#11856)', () => {
 		expect(await screen.findByDisplayValue('https://connector.example.com/checkout')).toBeTruthy();
 		expect(screen.getByRole('button', { name: 'invoices.payments.SAVE' })).toBeTruthy();
 		expect(screen.queryByText('invoices.payments.SECRET')).toBeNull();
+	});
+
+	it('locks the form while a save is on its way, whose answer would drop an edit made meanwhile', async () => {
+		service.getConnection.mockResolvedValue({ connected: false, isEnabled: false, isTestMode: false });
+		service.connect.mockReturnValue(new Promise(() => undefined));
+		show();
+
+		const endpoint = await screen.findByPlaceholderText('https://');
+		fireEvent.change(endpoint, { target: { value: 'https://connector.example.com/checkout' } });
+		fireEvent.click(screen.getByRole('button', { name: 'invoices.payments.CONNECT' }));
+
+		await waitFor(() => expect(service.connect).toHaveBeenCalled());
+		expect(endpoint).toHaveProperty('disabled', true);
+		expect(screen.getAllByRole('switch')).toHaveLength(2);
+		for (const toggle of screen.getAllByRole('switch')) {
+			expect(toggle).toHaveProperty('disabled', true);
+		}
 	});
 
 	it.each([
