@@ -121,7 +121,11 @@ export async function splitCalendarEntry(request: CalendarSplitRequest) {
 			employeeId
 		});
 	} catch (shortenError) {
-		await restoreAfterFailedShortening(log, { whole: window, shortened: parts.first }, shortenError);
+		await restoreAfterFailedShortening(
+			log,
+			{ whole: window, shortened: parts.first, freed: parts.second },
+			shortenError
+		);
 	}
 	const secondTaskId = secondTask?.id ?? textOrUndefined(current.taskId);
 	try {
@@ -170,12 +174,13 @@ function isSameWindow(first: TimeWindow | null, second: TimeWindow): boolean {
 /**
  * The shortening failed, yet its answer may only have been lost. A refusal of the API (a 4xx) changed nothing: the
  * entry is as it was, and nothing more is written. Otherwise the entry is read again first: still whole, nothing is
- * written; shortened as asked, it is set back to its whole time; in any other state (changed meanwhile, gone, or not
- * readable) nothing is written over it, and the outcome is to be checked.
+ * written; shortened as asked, it is set back to its whole time while the time it freed is still free; in any other
+ * state (changed meanwhile, gone, not readable, or another entry saved on the freed time since) nothing is written
+ * over it, and the outcome is to be checked.
  */
 async function restoreAfterFailedShortening(
 	log: ITimeLog,
-	windows: { whole: TimeWindow; shortened: TimeWindow },
+	windows: { whole: TimeWindow; shortened: TimeWindow; freed: TimeWindow },
 	shortenError: unknown
 ): Promise<never> {
 	const status = errorStatusOf(shortenError);
@@ -189,6 +194,12 @@ async function restoreAfterFailedShortening(
 		throw new CalendarSplitError('restored', shortenError);
 	}
 	if (!isSameWindow(currentWindow, windows.shortened)) {
+		throw new CalendarSplitError('unknown', shortenError);
+	}
+	// Another tab may have saved an entry on the freed time since: stretched back over it, the entry would overlap it.
+	// A server that cannot be read counts as taken
+	const isFreedTimeTaken = await isTakenOnServer(log, windows.freed).catch(() => true);
+	if (isFreedTimeTaken) {
 		throw new CalendarSplitError('unknown', shortenError);
 	}
 	try {
